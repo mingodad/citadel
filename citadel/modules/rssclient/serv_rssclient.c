@@ -523,7 +523,7 @@ void *rssclient_scan(void *args) {
 	struct CitContext rssclientCC;
 
 	/* Give this thread its own private CitContext */
-	CtdlFillPrivateContext(&rssclientCC, "rssclient");
+	CtdlFillSystemContext(&rssclientCC, "rssclient");
 	citthread_setspecific(MyConKey, (void *)&rssclientCC );
 
 	CtdlThreadAllocTSD();

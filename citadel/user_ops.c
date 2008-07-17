@@ -984,6 +984,40 @@ int purge_user(char pname[])
 }
 
 
+int internal_create_user (char *username, struct ctdluser *usbuf, uid_t uid)
+{
+	if (!getuser(usbuf, username)) {
+		return (ERROR + ALREADY_EXISTS);
+	}
+
+	/* Go ahead and initialize a new user record */
+	memset(usbuf, 0, sizeof(struct ctdluser));
+	safestrncpy(usbuf->fullname, username, sizeof usbuf->fullname);
+	strcpy(usbuf->password, "");
+	usbuf->uid = uid;
+
+	/* These are the default flags on new accounts */
+	usbuf->flags = US_LASTOLD | US_DISAPPEAR | US_PAGINATOR | US_FLOORS;
+
+	usbuf->timescalled = 0;
+	usbuf->posted = 0;
+	usbuf->axlevel = config.c_initax;
+	usbuf->USscreenwidth = 80;
+	usbuf->USscreenheight = 24;
+	usbuf->lastcall = time(NULL);
+
+	/* fetch a new user number */
+	usbuf->usernum = get_new_user_number();
+
+	/* add user to the database */
+	putuser(usbuf);
+	cdb_store(CDB_USERSBYNUMBER, &usbuf->usernum, sizeof(long), usbuf->fullname, strlen(usbuf->fullname)+1);
+
+	return 0;
+}
+
+
+
 /*
  * create_user()  -  back end processing to create a new user
  *
@@ -998,11 +1032,14 @@ int create_user(char *newusername, int become_user)
 	char username[256];
 	char mailboxname[ROOMNAMELEN];
 	char buf[SIZ];
+	int retval;
 	uid_t uid = (-1);
+	
 
 	safestrncpy(username, newusername, sizeof username);
 	strproc(username);
 
+	
 	if (config.c_auth_mode == AUTHMODE_HOST) {
 
 		/* host auth mode */
@@ -1039,34 +1076,10 @@ int create_user(char *newusername, int become_user)
 			return (ERROR + NO_SUCH_USER);
 		}
 	}
-
-	if (!getuser(&usbuf, username)) {
-		return (ERROR + ALREADY_EXISTS);
-	}
-
-	/* Go ahead and initialize a new user record */
-	memset(&usbuf, 0, sizeof(struct ctdluser));
-	safestrncpy(usbuf.fullname, username, sizeof usbuf.fullname);
-	strcpy(usbuf.password, "");
-	usbuf.uid = uid;
-
-	/* These are the default flags on new accounts */
-	usbuf.flags = US_LASTOLD | US_DISAPPEAR | US_PAGINATOR | US_FLOORS;
-
-	usbuf.timescalled = 0;
-	usbuf.posted = 0;
-	usbuf.axlevel = config.c_initax;
-	usbuf.USscreenwidth = 80;
-	usbuf.USscreenheight = 24;
-	usbuf.lastcall = time(NULL);
-
-	/* fetch a new user number */
-	usbuf.usernum = get_new_user_number();
-
-	/* add user to the database */
-	putuser(&usbuf);
-	cdb_store(CDB_USERSBYNUMBER, &usbuf.usernum, sizeof(long), usbuf.fullname, strlen(usbuf.fullname)+1);
-
+	
+	if ((retval = internal_create_user(username, &usbuf, uid)) != 0)
+		return retval;
+	
 	/*
 	 * Give the user a private mailbox and a configuration room.
 	 * Make the latter an invisible system room.
@@ -1110,7 +1123,6 @@ int create_user(char *newusername, int become_user)
 	CtdlLogPrintf(CTDL_NOTICE, "New user <%s> created\n", username);
 	return (0);
 }
-
 
 
 

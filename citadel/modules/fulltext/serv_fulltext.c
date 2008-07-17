@@ -348,7 +348,7 @@ void *indexer_thread(void *arg) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() initializing\n");
 
-	CtdlFillPrivateContext(&indexerCC, "indexer");
+	CtdlFillSystemContext(&indexerCC, "indexer");
 	citthread_setspecific(MyConKey, (void *)&indexerCC );
 
 	while (!CtdlThreadCheckStop()) {

@@ -72,6 +72,7 @@
 #include "ctdl_module.h"
 #include "threads.h"
 #include "user_ops.h"
+#include "control.h"
 
 
 #ifdef DEBUG_MEMORY_LEAKS
@@ -423,13 +424,11 @@ struct CitContext *CreateNewContext(void) {
 		return NULL;
 	}
 
-	/* We can fill this as though its a private context but we must clear the internal_pgm flag
-	 * to keep things correct. Watch out for the cs_pid field, that gets set further down,
-	 * make sure you don't try to do it first.
-	 */
-	CtdlFillPrivateContext(me, "notauth");
-	me->internal_pgm = 0;
-
+	memset(me, 0, sizeof(struct CitContext));
+	
+	/* Give the contaxt a name. Hopefully makes it easier to track */
+	strcpy (me->user.fullname, "SYS_notauth");
+	
 	/* The new context will be created already in the CON_EXECUTING state
 	 * in order to prevent another thread from grabbing it while it's
 	 * being set up.
@@ -474,9 +473,10 @@ struct CitContext *CtdlGetContextArray(int *count)
 
 
 /**
- * This function fille in a context and its user field correctly
+ * This function fills in a context and its user field correctly
+ * Then creates/loads that user
  */
-void CtdlFillPrivateContext(struct CitContext *context, char *name)
+void CtdlFillSystemContext(struct CitContext *context, char *name)
 {
 	char sysname[USERNAME_SIZE];
 
@@ -485,10 +485,19 @@ void CtdlFillPrivateContext(struct CitContext *context, char *name)
 	context->cs_pid = 0;
 	strcpy (sysname, "SYS_");
 	strcat (sysname, name);
-	if (getuser(&(context->user), sysname))
-	{
-		strcpy(context->user.fullname, sysname);
+	/* internal_create_user has the side effect of loading the user regardless of wether they
+	 * already existed or needed to be created
+	 */
+	internal_create_user (sysname, &(context->user), -1) ;
+	
+	/* Check to see if the system user needs upgrading */
+	if (context->user.usernum == 0)
+	{	/* old system user with number 0, upgrade it */
+		context->user.usernum = get_new_user_number();
+		CtdlLogPrintf(CTDL_DEBUG, "Upgrading system user \"%s\" from user number 0 to user number %d\n", context->user.fullname, context->user.usernum);
+		/* add user to the database */
 		putuser(&(context->user));
+		cdb_store(CDB_USERSBYNUMBER, &(context->user.usernum), sizeof(long), context->user.fullname, strlen(context->user.fullname)+1);
 	}
 }
 

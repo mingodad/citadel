@@ -446,13 +446,22 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	 */
 	if (us->timescalled < 0) purge = 1;
 
-	/* User number 0, as well as any negative user number, is
+	/* any negative user number, is
 	 * also impossible.
 	 */
 	if (us->usernum < 0L) purge = 1;
 	
 	/** Don't purge user 0. That user is there for the system */
-	if (us->usernum == 0) purge = 0;
+	if (us->usernum == 0L)
+	{
+		/* FIXME: Temporary log message. Until we do unauth access with user 0 we should
+		 * try to get rid of all user 0 occurences. Many will be remnants from old code so
+		 * we will need to try and purge them from users data bases.Some will not have names but
+		 * those with names should be purged.
+		 */
+		CtdlLogPrintf(CTDL_DEBUG, "Auto purger found a user 0 with name \"%s\"\n", us->fullname);
+		// purge = 0;
+	}
 	
 	/* If the user has no full name entry then we can't purge them
 	 * since the actual purge can't find them.
@@ -461,11 +470,6 @@ void do_user_purge(struct ctdluser *us, void *data) {
 	if (IsEmptyStr(us->fullname))
 	{
 		purge = 0;
-/*
- ** Keeping this block of code for later referance.
- * We don't actually want to send the user 0 messages as part of the purger cycle
- * But we might want to use some of this code to do a user database integrity check
- * some time in the future.
 		
 		if (us->usernum > 0L)
 		{
@@ -474,40 +478,15 @@ void do_user_purge(struct ctdluser *us, void *data) {
 			{
 				users_corrupt_msg = malloc(SIZ);
 				strcpy(users_corrupt_msg, "The auto-purger found the following user numbers with no name.\n"
-				"If the user number is 0 you should report this to the Citadel development\n"
-				"team either by a bugzilla report at http://bugzilla.citadel.org or\n"
-				"posting a message in the Citadel Support room on Uncensored at\n"
-				"https://uncensored.citadel.org You should make it clear that you have seen a\n"
-				"user 0 messages in the Aide room which means a module has not named its\n"
-				"private context.\n"
-				"Unfortunately the auto-purger is not yet able to fix this problem.\n"
-				"This problem is not considered serious since a user with no name can\n"
-				"not log in.\n");
+				"The system has no way to purge user with no name and should not be able to\n"
+				"create them either.\n"
+				"This indicates corruption of the user DB or possibly a bug.\n"
+				"It may be a good idea to restore your DB from a backup.\n");
 			}
 		
-			users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+SIZ);
-			snprintf(&users_corrupt_msg[strlen(users_corrupt_msg)], SIZ, " %ld\n", us->usernum);
+			users_corrupt_msg=realloc(users_corrupt_msg, strlen(users_corrupt_msg)+30);
+			snprintf(&users_corrupt_msg[strlen(users_corrupt_msg)], 29, " %ld\n", us->usernum);
 		}
-		else if (us->usernum == 0L)
-		{
-			purge=0;
-			if (users_zero_msg == NULL)
-			{
-				users_zero_msg = malloc(SIZ);
-				strcpy(users_zero_msg, "The auto-purger found a user with a user number of 0 but no name.\n"
-				"This is the result of a bug where a private contaxt has been created but\n"
-				"not named.\n\n"
-				"Please report this to the Citadel development team either by a bugzilla\n"
-				"report at http://bugzilla.citadel.org or by posting a message in the\n"
-				"Citadel Support room on Uncensored at https://uncensored.citadel.org\n"
-				"You should make it clear that you have seen a user 0 messages in the\n"
-				"Aide room which means a module has not named its private context.\n\n"
-				"This problem is not considered serious since it does not constitute a\n"
-				"security risk and should not impare system operation.\n"
-				);
-			}
-		}
-*/
 	}
 
 
@@ -862,7 +841,7 @@ void *purge_databases(void *args)
 
 	CtdlLogPrintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
 
-	CtdlFillPrivateContext(&purgerCC, "purger");
+	CtdlFillSystemContext(&purgerCC, "purger");
 	citthread_setspecific(MyConKey, (void *)&purgerCC );
 
         while (!CtdlThreadCheckStop()) {

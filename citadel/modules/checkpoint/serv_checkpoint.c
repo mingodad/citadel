@@ -49,7 +49,7 @@ void *checkpoint_thread(void *arg) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "checkpoint_thread() initializing\n");
 
-	CtdlFillPrivateContext(&checkpointCC, "checkpoint");
+	CtdlFillSystemContext(&checkpointCC, "checkpoint");
 	citthread_setspecific(MyConKey, (void *)&checkpointCC );
 
 	while (!CtdlThreadCheckStop()) {

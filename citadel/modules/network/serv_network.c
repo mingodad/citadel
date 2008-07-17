@@ -2083,7 +2083,7 @@ void *network_do_queue(void *args) {
 	struct CitContext networkerCC;
 
 	/* Give the networker its own private CitContext */
-	CtdlFillPrivateContext(&networkerCC, "network");
+	CtdlFillSystemContext(&networkerCC, "network");
 	citthread_setspecific(MyConKey, (void *)&networkerCC );
 
 	/*

@@ -147,7 +147,7 @@ void CtdlThreadAllocTSD(void);
  * You must free the returned pointer when done.
  */
 struct CitContext *CtdlGetContextArray (int *count);
-void CtdlFillPrivateContext(struct CitContext *context, char *name);
+void CtdlFillSystemContext(struct CitContext *context, char *name);
 
 
 

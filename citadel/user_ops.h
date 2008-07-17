@@ -97,3 +97,4 @@ void start_chkpwd_daemon(void);
 
 int rename_user(char *oldname, char *newname);
 INLINE void makeuserkey(char *key, char *username);
+int internal_create_user (char *username, struct ctdluser *usbuf, uid_t uid);
