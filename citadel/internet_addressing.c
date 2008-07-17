@@ -326,11 +326,11 @@ int CtdlHostAlias(char *fqdn) {
 			return(hostalias_localhost);
 
 		if ( (!strcasecmp(type, "directory"))
-		   && (!strcasecmp(&fqdn[strlen(fqdn)-strlen(host)], host)))
+		   && (!strcasecmp(fqdn, host)))
 			return(hostalias_directory);
 
 		if ( (!strcasecmp(type, "masqdomain"))
-		   && (!strcasecmp(&fqdn[strlen(fqdn)-strlen(host)], host)))
+		   && (!strcasecmp(fqdn, host)))
 			return(hostalias_masq);
 
 	}
