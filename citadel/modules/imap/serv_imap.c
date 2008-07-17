@@ -498,6 +498,12 @@ void imap_greeting(void)
 	IMAP->cached_rfc822_msgnum = (-1);
 	IMAP->cached_rfc822_withbody = 0;
 
+	if (CC->nologin)
+	{
+		cprintf("* BYE; Server busy, try later\r\n");
+		CC->kill_me = 1;
+		return;
+	}
 	cprintf("* OK [");
 	imap_output_capability_string();
 	cprintf("] %s IMAP4rev1 %s ready\r\n", config.c_fqdn, CITADEL);
