@@ -1063,11 +1063,6 @@ int create_user(char *newusername, int become_user)
 	/* fetch a new user number */
 	usbuf.usernum = get_new_user_number();
 
-	/* The very first user created on the system will always be an Aide */
-	if (usbuf.usernum == 1L) {
-		usbuf.axlevel = 6;
-	}
-
 	/* add user to the database */
 	putuser(&usbuf);
 	cdb_store(CDB_USERSBYNUMBER, &usbuf.usernum, sizeof(long), usbuf.fullname, strlen(usbuf.fullname)+1);
