@@ -1101,6 +1101,10 @@ void ctdl_thread_internal_check_scheduled(void)
 	CtdlThreadNode *this_thread, *that_thread;
 	time_t now;
 	
+	/* Don't start scheduled threads if the system wants single user mode */
+	if (CtdlWantSingleUser())
+		return;
+	
 	if (try_critical_section(S_SCHEDULE_LIST))
 		return;	/* If this list is locked we wait till the next chance */
 	

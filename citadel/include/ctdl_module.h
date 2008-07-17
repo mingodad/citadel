@@ -149,6 +149,10 @@ void CtdlThreadAllocTSD(void);
 struct CitContext *CtdlGetContextArray (int *count);
 void CtdlFillSystemContext(struct CitContext *context, char *name);
 
+int CtdlTrySingleUser(void);
+void CtdlEndSingleUser(void);
+int CtdlWantSingleUser(void);
+int CtdlIsSingleUser(void);
 
 
 /*

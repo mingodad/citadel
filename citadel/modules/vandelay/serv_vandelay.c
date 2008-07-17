@@ -904,26 +904,28 @@ void cmd_artv(char *cmdbuf) {
 	static int is_running = 0;
 
 	if (CtdlAccessCheck(ac_internal)) return;
-	if (is_running) {
+	
+	if (CtdlTrySingleUser())
+	{
+		CtdlMakeTempFileName(artv_tempfilename1, sizeof artv_tempfilename1);
+		CtdlMakeTempFileName(artv_tempfilename2, sizeof artv_tempfilename2);
+
+		extract_token(cmd, cmdbuf, 0, '|', sizeof cmd);
+		if (!strcasecmp(cmd, "export")) artv_do_export();
+		else if (!strcasecmp(cmd, "import")) artv_do_import();
+		else if (!strcasecmp(cmd, "dump")) artv_do_dump();
+		else cprintf("%d illegal command\n", ERROR + ILLEGAL_VALUE);
+
+		unlink(artv_tempfilename1);
+		unlink(artv_tempfilename2);
+		
+		CtdlEndSingleUser();
+	}
+	else
+	{
 		cprintf("%d The importer/exporter is already running.\n",
 			ERROR + RESOURCE_BUSY);
-		return;
 	}
-	is_running = 1;
-
-	CtdlMakeTempFileName(artv_tempfilename1, sizeof artv_tempfilename1);
-	CtdlMakeTempFileName(artv_tempfilename2, sizeof artv_tempfilename2);
-
-	extract_token(cmd, cmdbuf, 0, '|', sizeof cmd);
-	if (!strcasecmp(cmd, "export")) artv_do_export();
-	else if (!strcasecmp(cmd, "import")) artv_do_import();
-	else if (!strcasecmp(cmd, "dump")) artv_do_dump();
-	else cprintf("%d illegal command\n", ERROR + ILLEGAL_VALUE);
-
-	unlink(artv_tempfilename1);
-	unlink(artv_tempfilename2);
-
-	is_running = 0;
 }
 
 

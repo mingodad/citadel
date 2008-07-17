@@ -99,6 +99,52 @@ int syslog_facility = LOG_DAEMON;
 int enable_syslog = 0;
 
 
+/* Flag for single user mode */
+static int want_single_user = 0;
+
+/* Try to go single user */
+
+int CtdlTrySingleUser(void)
+{
+	int can_do = 0;
+	
+	begin_critical_section(S_SINGLE_USER);
+	if (want_single_user)
+		can_do = 0;
+	else
+	{
+		can_do = 1;
+		want_single_user = 1;
+	}
+	end_critical_section(S_SINGLE_USER);
+	return can_do;
+}
+
+void CtdlEndSingleUser(void)
+{
+	begin_critical_section(S_SINGLE_USER);
+	want_single_user = 0;
+	end_critical_section(S_SINGLE_USER);
+}
+
+
+int CtdlWantSingleUser(void)
+{
+	return want_single_user;
+}
+
+int CtdlIsSingleUser(void)
+{
+	if (want_single_user)
+	{
+		/* check for only one context here */
+		if (num_sessions == 1)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+
 /*
  * CtdlLogPrintf()  ...   Write logging information
  */

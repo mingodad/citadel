@@ -984,7 +984,7 @@ void begin_session(struct CitContext *con)
 	con->dl_is_net = 0;
 
 	con->nologin = 0;
-	if ((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions)) {
+	if (((config.c_maxsessions > 0)&&(num_sessions > config.c_maxsessions)) || CtdlWantSingleUser()) {
 		con->nologin = 1;
 	}
 
