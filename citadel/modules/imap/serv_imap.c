@@ -1424,13 +1424,14 @@ void imap_command_loop(void)
 	}
 	
 	if (untagged_ok) {
-		imap_print_instant_messages();
-	
+
+		/* we can put any additional untagged stuff right here in the future */
+
 		/*
 		 * Before processing the command that was just entered... if we happen
 		 * to have a folder selected, we'd like to rescan that folder for new
 		 * messages, and for deletions/changes of existing messages.  This
-		 * could probably be optimized somehow, but IMAP sucks...
+		 * could probably be optimized better with some deep thought...
 		 */
 		if (IMAP->selected) {
 			imap_rescan_msgids();
@@ -1458,7 +1459,7 @@ void imap_command_loop(void)
 
 	else if (!strcasecmp(parms[1], "LOGOUT")) {
 		if (IMAP->selected) {
-			imap_do_expunge();	/* yes, we auto-expunge */
+			imap_do_expunge();	/* yes, we auto-expunge at logout */
 		}
 		cprintf("* BYE %s logging out\r\n", config.c_fqdn);
 		cprintf("%s OK Citadel IMAP session ended.\r\n",
