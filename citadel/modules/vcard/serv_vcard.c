@@ -996,10 +996,14 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	/* If using host auth mode, we add an email address based on the login */
 	if (config.c_auth_mode == AUTHMODE_HOST) {
 		struct passwd pwd;
-		struct passwd **result = NULL;
 		char pwd_buffer[SIZ];
-
+		
+#ifdef SOLARIS_GETPWUID
+		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer) != NULL) {
+#else // SOLARIS_GETPWUID
+		struct passwd **result = NULL;
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, result) == 0) {
+#endif // HAVE_GETPWUID_R
 			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, config.c_fqdn);
 			vcard_add_prop(v, "email;internet", buf);
 		}

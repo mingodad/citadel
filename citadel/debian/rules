@@ -25,6 +25,7 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
 	EXTRA_ARGS = --with-backtrace
 else
+	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
 	CFLAGS += -O2
 endif
 
@@ -38,7 +39,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	CFLAGS="$(CFLAGS)" ./configure \
+	LDFLAGS="$(LDFLAGS)"; CFLAGS="$(CFLAGS)" ./configure \
 		--with-prefix=/var/lib/citadel \
 		--with-datadir=/var/lib/citadel \
 		--with-staticdatadir=/usr/share/citadel-server \
