@@ -77,11 +77,10 @@ iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
 	return(ic);
 }
 
-
-
-inline char *FindNextEnd (char *bptr)
+#if 0
+/* This is the non-define version in case of s.b. needing to debug */
+inline void FindNextEnd (char *bptr, char *end)
 {
-	char * end;
 	/* Find the next ?Q? */
 	end = strchr(bptr + 2, '?');
 	if (end == NULL) return NULL;
@@ -93,7 +92,16 @@ inline char *FindNextEnd (char *bptr)
 	else
 		/* sort of half valid encoding, try to find an end. */
 		end = strstr(bptr, "?=");
-	return end;
+}
+#endif
+
+#define FindNextEnd(bptr, end) { \
+	end = strchr(bptr + 2, '?'); \
+	if (end != NULL) { \
+		if (((*(end + 1) == 'B') || (*(end + 1) == 'Q')) && (*(end + 2) == '?')) { \
+			end = strstr(end + 3, "?="); \
+		} else end = strstr(bptr, "?="); \
+	} \
 }
 
 /*
@@ -157,13 +165,13 @@ void utf8ify_rfc822_string(char *buf) {
 	len = strlen(buf);
 	start = strstr(buf, "=?");
 	if (start != NULL) 
-		end = FindNextEnd (start);
+		FindNextEnd (start, end);
 
 	while ((start != NULL) && (end != NULL))
 	{
 		next = strstr(end, "=?");
 		if (next != NULL)
-			nextend = FindNextEnd(next);
+			FindNextEnd(next, nextend);
 		if (nextend == NULL)
 			next = NULL;
 
@@ -203,8 +211,9 @@ void utf8ify_rfc822_string(char *buf) {
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
 	 */
-	while (start=strstr(buf, "=?"), end=FindNextEnd((start != NULL)? start : buf),
-		((start != NULL) && (end != NULL) && (end > start)) )
+	start = strstr(buf, "=?");
+	FindNextEnd((start != NULL)? start : buf, end);
+	while (start != NULL && end != NULL && end > start)
 	{
 		extract_token(charset, start, 1, '?', sizeof charset);
 		extract_token(encoding, start, 2, '?', sizeof encoding);
@@ -280,6 +289,9 @@ void utf8ify_rfc822_string(char *buf) {
 		 */
 		++passes;
 		if (passes > 20) return;
+
+		start = strstr(buf, "=?");
+		FindNextEnd((start != NULL)? start : buf, end);
 	}
 
 }
