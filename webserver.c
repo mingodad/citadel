@@ -181,15 +181,17 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 
 /*
- * \brief Read data from the client socket.
- * \param sock socket fd to read from
- * \param buf buffer to read into 
- * \param bytes number of bytes to read
- * \param timeout Number of seconds to wait before timing out
- * \return values are\
- *      1       Requested number of bytes has been read.\
- *      0       Request timed out.\
- *	   -1   	Connection is broken, or other error.
+ * Read data from the client socket.
+ *
+ * sock		socket fd to read from
+ * buf		buffer to read into 
+ * bytes	number of bytes to read
+ * timeout	Number of seconds to wait before timing out
+ *
+ * Possible return values:
+ *      1       Requested number of bytes has been read.
+ *      0       Request timed out.
+ *	-1   	Connection is broken, or other error.
  */
 int client_read_to(int sock, char *buf, int bytes, int timeout)
 {
@@ -236,9 +238,7 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 }
 
 /*
- * \brief write data to the client
- * \param buf data to write to the client
- * \param count size of buffer
+ * write data to the client
  */
 ssize_t client_write(const void *buf, size_t count)
 {
@@ -305,7 +305,12 @@ ssize_t client_write(const void *buf, size_t count)
 }
 
 /*
- * \brief Begin buffering HTTP output so we can transmit it all in one write operation later.
+ * Begin buffering HTTP output so we can transmit it all in one write operation later.
+ *
+ * We do this in userspace instead of using TCP_CORK for two reasons:
+ *  1. We need to calculate the Content-length: header
+ *  2. We may want to compress the data before sending it
+ *
  */
 void begin_burst(void)
 {
@@ -320,17 +325,17 @@ void begin_burst(void)
 
 
 /*
- * \brief uses the same calling syntax as compress2(), but it
+ * uses the same calling syntax as compress2(), but it
  * creates a stream compatible with HTTP "Content-encoding: gzip"
  */
 #ifdef HAVE_ZLIB
-#define DEF_MEM_LEVEL 8 /*< memlevel??? */
-#define OS_CODE 0x03	/*< unix */
-int ZEXPORT compress_gzip(Bytef * dest,         /*< compressed buffer*/
-			  size_t * destLen,     /*< length of the compresed data */
-			  const Bytef * source, /*< source to encode */
-			  uLong sourceLen,      /*< length of source to encode */
-			  int level)            /*< compression level */
+#define DEF_MEM_LEVEL 8
+#define OS_CODE 0x03	/* unix */
+int ZEXPORT compress_gzip(Bytef * dest,         /* compressed buffer */
+			  size_t * destLen,     /* length of the compresed data */
+			  const Bytef * source, /* source to encode */
+			  uLong sourceLen,      /* length of source to encode */
+			  int level)            /* compression level */
 {
 	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
 
@@ -385,7 +390,7 @@ int ZEXPORT compress_gzip(Bytef * dest,         /*< compressed buffer*/
 #endif
 
 /*
- * \brief Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
+ * Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
  */
 void end_burst(void)
 {
@@ -434,12 +439,9 @@ void end_burst(void)
 
 
 /*
- * \brief Read data from the client socket with default timeout.
+ * Read data from the client socket with default timeout.
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
- * \param sock the socket fd to read from
- * \param buf the buffer to write to
- * \param bytes Number of bytes to read
  */
 int client_read(int sock, char *buf, int bytes)
 {
@@ -448,13 +450,9 @@ int client_read(int sock, char *buf, int bytes)
 
 
 /*
- * \brief Get a LF-terminated line of text from the client.
+ * Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
- * \param sock socket fd to get client line from
- * \param buf buffer to write read data to
- * \param bufsiz how many bytes to read
- * \return  number of bytes read???
  */
 int client_getln(int sock, char *buf, int bufsiz)
 {
@@ -487,8 +485,8 @@ int client_getln(int sock, char *buf, int bufsiz)
 }
 
 /*
- * \brief shut us down the regular way.
- * param signum the signal we want to forward
+ * Shut us down the regular way.
+ * signum is the signal we want to forward
  */
 pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
@@ -499,8 +497,8 @@ void graceful_shutdown_watcher(int signum) {
 }
 
 /*
- * \brief shut us down the regular way.
- * param signum the signal we want to forward
+ * shut us down the regular way.
+ * signum is the signal we want to forward
  */
 pid_t current_child;
 void graceful_shutdown(int signum) {
@@ -519,12 +517,6 @@ void graceful_shutdown(int signum) {
 	close(fd);
 }
 
-
-/*
- * \brief	Start running as a daemon.  
- *
- * param	do_close_stdio		Only close stdio if set.
- */
 
 /*
  * Start running as a daemon.
@@ -627,12 +619,12 @@ void start_daemon(char *pid_file)
 }
 
 /*
- * \brief	Spawn an additional worker thread into the pool.
+ * Spawn an additional worker thread into the pool.
  */
 void spawn_another_worker_thread()
 {
-	pthread_t SessThread;	/*< Thread descriptor */
-	pthread_attr_t attr;	/*< Thread attributes */
+	pthread_t SessThread;	/* Thread descriptor */
+	pthread_attr_t attr;	/* Thread attributes */
 	int ret;
 
 	lprintf(3, "Creating a new thread\n");
@@ -665,16 +657,15 @@ void spawn_another_worker_thread()
 
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
+
 /*
- * \brief Here's where it all begins.
- * \param argc number of commandline args
- * \param argv the commandline arguments
+ * Main entry point for server program.
  */
 int main(int argc, char **argv)
 {
-	pthread_t SessThread;	/*< Thread descriptor */
-	pthread_attr_t attr;	/*< Thread attributes */
-	int a, i;	        	/*< General-purpose variables */
+	pthread_t SessThread;		/* Thread descriptor */
+	pthread_attr_t attr;		/* Thread attributes */
+	int a, i;	        	/* General-purpose variables */
 	char tracefile[PATH_MAX];
 	char ip_addr[256]="0.0.0.0";
 	char dirbuffer[PATH_MAX]="";
@@ -1060,11 +1051,8 @@ void worker_entry(void)
 }
 
 /*
- * \brief logprintf. log messages 
+ * print log messages 
  * logs to stderr if loglevel is lower than the verbosity set at startup
- * \param loglevel level of the message
- * \param format the printf like format string
- * \param ... the strings to put into format
  */
 int lprintf(int loglevel, const char *format, ...)
 {
@@ -1081,7 +1069,7 @@ int lprintf(int loglevel, const char *format, ...)
 
 
 /*
- * \brief print the actual stack frame.
+ * print the actual stack frame.
  */
 void wc_backtrace(void)
 {
@@ -1103,4 +1091,3 @@ void wc_backtrace(void)
 #endif
 }
 
-/*@}*/
