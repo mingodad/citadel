@@ -37,8 +37,7 @@ distclean: clean
 		$(srcdir)/TAGS
 
 setup: setup.o
-	$(CC) setup.o \
-	$(LIBOBJS) $(LIBS) $(LDFLAGS) $(SETUP_LIBS) -o setup
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) $(SETUP_LIBS) setup.o -o setup
 
 webcit: webserver.o context_loop.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o floors.o summary.o \
@@ -54,7 +53,8 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	downloads.o addressbook_popup.o pushemail.o sysdep.o openid.o \
 	modules_init.o \
 	$(LIBOBJS)
-	$(CC) webserver.o context_loop.o cookie_conversion.o \
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	webserver.o context_loop.o cookie_conversion.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
 	roomops.o messages.o userlist.o paging.o sysmsgs.o useredit.o \
 	locate_host.o siteconfig.o subst.o vcard_edit.o floors.o \
@@ -65,7 +65,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o \
 	groupdav_put.o http_datestring.o setup_wizard.o fmt_date.o modules_init.o \
 	gettext.o downloads.o addressbook_popup.o pushemail.o sysdep.o \
-	$(LIBOBJS) $(LIBS) $(LDFLAGS) -o webcit
+	-o webcit
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) $<
