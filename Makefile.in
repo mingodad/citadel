@@ -65,7 +65,8 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o \
 	groupdav_put.o http_datestring.o setup_wizard.o fmt_date.o modules_init.o \
 	gettext.o downloads.o addressbook_popup.o pushemail.o sysdep.o \
-	-o webcit
+	-o webcit \
+	$(LIBS)
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) $<
