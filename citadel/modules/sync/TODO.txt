@@ -59,3 +59,18 @@ timestamp every thing to determine the need for updates.
 
 If we do this right this module could replace IGNET and ARTV and could be used
 clients to sync mailboxes and calendars etc.
+
+We should care a bit about performance here. 
+-> not use the sendcommand/ctdl_ipc here.
+To gain performance, (profiler says...) we musn't read byte by byte aymore, but read blocks.
+thus the out/input format should be a bit similar to the http chunked mode, sending blobs of 
+n bytes at once.
+Probably up 64K windows are apropriate here. it could look like that:
+<line by line mode>
+Messageheader=blabla
+AnotherMessageHeader=blub
+DATA CHUNK 65535
+< 64 k BLOB >
+CHUNK 2344
+< 2344 bytes; probably the overlaps of the message. >
+
