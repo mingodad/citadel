@@ -204,6 +204,7 @@ typedef struct StrBuf StrBuf;
 
 StrBuf* NewStrBuf(void);
 StrBuf* NewStrBufPlain(const char* ptr, int nChars);
+int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars);
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant);
 #define NewConstStrBuf(a) _NewConstStrBuf(a, sizeof(a))
 void FreeStrBuf (StrBuf **FreeMe);
@@ -213,7 +214,8 @@ int FlushStrBuf(StrBuf *buf);
 inline const char *ChrPtr(StrBuf *Str);
 inline int StrLength(StrBuf *Str);
 
-int StrBufTCP_read_line(StrBuf *buf, int fd, int append, const char **Error);
+int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error);
+int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error);
 
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
 int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars);
@@ -222,16 +224,23 @@ long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator);
 int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator);
 inline int StrBufNum_tokens(const StrBuf *source, char tok);
 
+void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset);
 void StrBufAppendBuf(StrBuf *Buf, StrBuf *AppendBuf, size_t Offset);
+#ifdef SHOW_ME_VAPPEND_PRINTF
+/* so owe don't create an include depndency, this is just visible on demand. */
+void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap);
+#endif
 void StrBufPrintf(StrBuf *Buf, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
 void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
 void StrBufEUid_unescapize(StrBuf *target, StrBuf *source);
 void StrBufEUid_escapize(StrBuf *target, StrBuf *source);
 
+int CompressBuffer(StrBuf *Buf);
+
 long StrTol(StrBuf *Buf);
 
-const char *GuessMimeType(char *data, size_t dlen);
+const char *GuessMimeType(const char *data, size_t dlen);
 const char* GuessMimeByFilename(const char *what, size_t len);
 
 /* Run once at Programstart */

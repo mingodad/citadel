@@ -4,9 +4,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/select.h>
+#include <fcntl.h>
+#define SHOW_ME_VAPPEND_PRINTF
+#include <stdarg.h>
 #include "libcitadel.h"
 
-#include <stdarg.h>
 
 struct StrBuf {
 	char *buf;
@@ -25,7 +28,7 @@ inline const char *ChrPtr(StrBuf *Str)
 
 inline int StrLength(StrBuf *Str)
 {
-	return Str->BufUsed;
+	return (Str != NULL) ? Str->BufUsed : 0;
 }
 
 StrBuf* NewStrBuf(void)
@@ -50,7 +53,7 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
 	if (nChars < 0)
-		CopySize = strlen(ptr);
+		CopySize = strlen((ptr != NULL)?ptr:"");
 	else
 		CopySize = nChars;
 
@@ -58,13 +61,20 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 		Siz *= 2;
 
 	NewBuf->buf = (char*) malloc(Siz);
-	memcpy(NewBuf->buf, ptr, CopySize);
-	NewBuf->buf[CopySize] = '\0';
 	NewBuf->BufSize = Siz;
-	NewBuf->BufUsed = CopySize;
+	if (ptr != NULL) {
+		memcpy(NewBuf->buf, ptr, CopySize);
+		NewBuf->buf[CopySize] = '\0';
+		NewBuf->BufUsed = CopySize;
+	}
+	else {
+		NewBuf->buf[0] = '\0';
+		NewBuf->BufUsed = 0;
+	}
 	NewBuf->ConstBuf = 0;
 	return NewBuf;
 }
+
 
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 {
@@ -118,6 +128,8 @@ int FlushStrBuf(StrBuf *buf)
 
 void FreeStrBuf (StrBuf **FreeMe)
 {
+	if (*FreeMe == NULL)
+		return;
 	if (!(*FreeMe)->ConstBuf) 
 		free((*FreeMe)->buf);
 	free(*FreeMe);
@@ -142,17 +154,65 @@ long StrTol(StrBuf *Buf)
 		return 0;
 }
 
+int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
+{
+	size_t Siz = Buf->BufSize;
+	size_t CopySize;
+
+	if (nChars < 0)
+		CopySize = strlen(ptr);
+	else
+		CopySize = nChars;
+
+	while (Siz <= CopySize)
+		Siz *= 2;
+
+	if (Siz != Buf->BufSize)
+		IncreaseBuf(Buf, 0, Siz);
+	memcpy(Buf->buf, ptr, CopySize);
+	Buf->buf[CopySize] = '\0';
+	Buf->BufUsed = CopySize;
+	Buf->ConstBuf = 0;
+	return CopySize;
+}
 
 void StrBufAppendBuf(StrBuf *Buf, StrBuf *AppendBuf, size_t Offset)
 {
 	if ((AppendBuf == NULL) || (Buf == NULL))
 		return;
-	if (Buf->BufSize - Offset < AppendBuf->BufUsed)
-		IncreaseBuf(Buf, (Buf->BufUsed > 0), AppendBuf->BufUsed);
+
+	if (Buf->BufSize - Offset < AppendBuf->BufUsed + Buf->BufUsed)
+		IncreaseBuf(Buf, 
+			    (Buf->BufUsed > 0), 
+			    AppendBuf->BufUsed + Buf->BufUsed);
+
 	memcpy(Buf->buf + Buf->BufUsed, 
 	       AppendBuf->buf + Offset, 
 	       AppendBuf->BufUsed - Offset);
 	Buf->BufUsed += AppendBuf->BufUsed - Offset;
+	Buf->buf[Buf->BufUsed] = '\0';
+}
+
+
+void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset)
+{
+	long aps;
+
+	if ((AppendBuf == NULL) || (Buf == NULL))
+		return;
+
+	if (AppendSize < 0 )
+		aps = strlen(AppendBuf + Offset);
+	else
+		aps = AppendSize - Offset;
+
+	if (Buf->BufSize < Buf->BufUsed + aps)
+		IncreaseBuf(Buf, (Buf->BufUsed > 0), Buf->BufUsed + aps);
+
+	memcpy(Buf->buf + Buf->BufUsed, 
+	       AppendBuf + Offset, 
+	       aps);
+	Buf->BufUsed += aps;
 	Buf->buf[Buf->BufUsed] = '\0';
 }
 
@@ -187,6 +247,22 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
 	dest->BufUsed = NCharsRemain;
 	dest->buf[dest->BufUsed] = '\0';
 	return NCharsRemain;
+}
+
+
+void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
+{
+	size_t nWritten = Buf->BufSize + 1;
+	size_t Offset = Buf->BufUsed;
+	
+	while (Offset + nWritten >= Buf->BufSize) {
+		nWritten = vsnprintf(Buf->buf + Offset, 
+				     Buf->BufSize - Offset, 
+				     format, ap);
+		Buf->BufUsed = Offset + nWritten ;
+		if (nWritten >= Buf->BufSize)
+			IncreaseBuf(Buf, 0, 0);
+	}
 }
 
 void StrBufPrintf(StrBuf *Buf, const char *format, ...)
@@ -324,7 +400,7 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
  * \param buf the buffer to get the input to
  * \param bytes the maximal number of bytes to read
  */
-int StrBufTCP_read_line(StrBuf *buf, int fd, int append, const char **Error)
+int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 {
 	int len, rlen, slen;
 
@@ -333,11 +409,12 @@ int StrBufTCP_read_line(StrBuf *buf, int fd, int append, const char **Error)
 
 	slen = len = buf->BufUsed;
 	while (1) {
-		rlen = read(fd, &buf->buf[len], 1);
+		rlen = read(*fd, &buf->buf[len], 1);
 		if (rlen < 1) {
 			*Error = strerror(errno);
 			
-			close(fd);
+			close(*fd);
+			*fd = -1;
 			
 			return -1;
 		}
@@ -356,6 +433,57 @@ int StrBufTCP_read_line(StrBuf *buf, int fd, int append, const char **Error)
 	return len - slen;
 }
 
+/**
+ * \brief Input binary data from socket
+ * \param buf the buffer to get the input to
+ * \param bytes the maximal number of bytes to read
+ */
+int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error)
+{
+        fd_set wset;
+        int fdflags;
+	int len, rlen, slen;
+	int nRead = 0;
+	char *ptr;
+
+	if ((Buf == NULL) || (*fd == -1))
+		return -1;
+	if (!append)
+		FlushStrBuf(Buf);
+	if (Buf->BufUsed + nBytes > Buf->BufSize)
+		IncreaseBuf(Buf, 1, Buf->BufUsed + nBytes);
+
+	ptr = Buf->buf + Buf->BufUsed;
+
+	slen = len = Buf->BufUsed;
+
+	fdflags = fcntl(*fd, F_GETFL);
+
+	while (nRead < nBytes) {
+               if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+                        FD_ZERO(&wset);
+                        FD_SET(*fd, &wset);
+                        if (select(*fd + 1, NULL, &wset, NULL, NULL) == -1) {
+				*Error = strerror(errno);
+                                return -1;
+                        }
+                }
+
+                if ((rlen = read(*fd, 
+				 ptr,
+				 nBytes - nRead)) == -1) {
+			close(*fd);
+			*fd = -1;
+			*Error = strerror(errno);
+                        return rlen;
+                }
+		nRead += rlen;
+		Buf->BufUsed += rlen;
+	}
+	Buf->buf[Buf->BufUsed] = '\0';
+	return nRead;
+}
+
 void StrBufCutLeft(StrBuf *Buf, int nChars)
 {
 	if (nChars >= Buf->BufUsed) {
@@ -364,6 +492,7 @@ void StrBufCutLeft(StrBuf *Buf, int nChars)
 	}
 	memmove(Buf->buf, Buf->buf + nChars, Buf->BufUsed - nChars);
 	Buf->BufUsed -= nChars;
+	Buf->buf[Buf->BufUsed] = '\0';
 }
 
 void StrBufCutRight(StrBuf *Buf, int nChars)
@@ -448,4 +577,99 @@ void StrBufEUid_escapize(StrBuf *target, StrBuf *source)
 		}
 	}
 	target->buf[target->BufUsed + 1] = '\0';
+}
+
+/*
+ * \brief uses the same calling syntax as compress2(), but it
+ * creates a stream compatible with HTTP "Content-encoding: gzip"
+ */
+#ifdef HAVE_ZLIB
+#define DEF_MEM_LEVEL 8 /*< memlevel??? */
+#define OS_CODE 0x03	/*< unix */
+int ZEXPORT compress_gzip(Bytef * dest,         /*< compressed buffer*/
+			  size_t * destLen,     /*< length of the compresed data */
+			  const Bytef * source, /*< source to encode */
+			  uLong sourceLen,      /*< length of source to encode */
+			  int level)            /*< compression level */
+{
+	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
+
+	/* write gzip header */
+	snprintf((char *) dest, *destLen, 
+		 "%c%c%c%c%c%c%c%c%c%c",
+		 gz_magic[0], gz_magic[1], Z_DEFLATED,
+		 0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /* xflags */ ,
+		 OS_CODE);
+
+	/* normal deflate */
+	z_stream stream;
+	int err;
+	stream.next_in = (Bytef *) source;
+	stream.avail_in = (uInt) sourceLen;
+	stream.next_out = dest + 10L;	// after header
+	stream.avail_out = (uInt) * destLen;
+	if ((uLong) stream.avail_out != *destLen)
+		return Z_BUF_ERROR;
+
+	stream.zalloc = (alloc_func) 0;
+	stream.zfree = (free_func) 0;
+	stream.opaque = (voidpf) 0;
+
+	err = deflateInit2(&stream, level, Z_DEFLATED, -MAX_WBITS,
+			   DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
+	if (err != Z_OK)
+		return err;
+
+	err = deflate(&stream, Z_FINISH);
+	if (err != Z_STREAM_END) {
+		deflateEnd(&stream);
+		return err == Z_OK ? Z_BUF_ERROR : err;
+	}
+	*destLen = stream.total_out + 10L;
+
+	/* write CRC and Length */
+	uLong crc = crc32(0L, source, sourceLen);
+	int n;
+	for (n = 0; n < 4; ++n, ++*destLen) {
+		dest[*destLen] = (int) (crc & 0xff);
+		crc >>= 8;
+	}
+	uLong len = stream.total_in;
+	for (n = 0; n < 4; ++n, ++*destLen) {
+		dest[*destLen] = (int) (len & 0xff);
+		len >>= 8;
+	}
+	err = deflateEnd(&stream);
+	return err;
+}
+#endif
+
+
+/**
+ * Attention! If you feed this a Const String, you must maintain the uncompressed buffer yourself!
+ */
+int CompressBuffer(StrBuf *Buf)
+{
+#ifdef HAVE_ZLIB
+	char *compressed_data = NULL;
+	size_t compressed_len, bufsize;
+	
+	bufsize = compressed_len = ((Buf->BufUsed * 101) / 100) + 100;
+	compressed_data = malloc(compressed_len);
+	
+	if (compress_gzip((Bytef *) compressed_data,
+			  &compressed_len,
+			  (Bytef *) Buf->buf,
+			  (uLongf) Buf->BufUsed, Z_BEST_SPEED) == Z_OK) {
+		if (!ConstBuf)
+			free(Buf->buf);
+		Buf->buf = compressed_data;
+		Buf->BufUsed = compressed_len;
+		Buf->BufSize = bufsize;
+		return 1;
+	} else {
+		free(compressed_data);
+	}
+#endif	/* HAVE_ZLIB */
+	return 0;
 }

@@ -678,7 +678,7 @@ MimeGuess MyMimes [] = {
 };
 
 
-const char *GuessMimeType(char *data, size_t dlen)
+const char *GuessMimeType(const char *data, size_t dlen)
 {
 	int MimeIndex = 0;
 
