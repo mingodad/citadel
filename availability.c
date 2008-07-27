@@ -11,22 +11,23 @@
  * Utility function to fetch a VFREEBUSY type of thing for any specified user.
  */
 icalcomponent *get_freebusy_for_user(char *who) {
+	long nLines;
 	char buf[SIZ];
-	char *serialized_fb = NULL;
+	StrBuf *serialized_fb = NULL;
 	icalcomponent *fb = NULL;
 
 	serv_printf("ICAL freebusy|%s", who);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		serialized_fb = read_server_text();
+		serialized_fb = read_server_text(&nLines);
 	}
 
 	if (serialized_fb == NULL) {
 		return NULL;
 	}
 	
-	fb = icalcomponent_new_from_string(serialized_fb);
-	free(serialized_fb);
+	fb = icalcomponent_new_from_string(ChrPtr(serialized_fb));
+	FreeStrBuf(&serialized_fb);
 	if (fb == NULL) {
 		return NULL;
 	}

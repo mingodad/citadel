@@ -29,12 +29,11 @@ void groupdav_put_bigics(char *dav_content, int dav_content_length)
 	serv_puts("ICAL putics");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
-		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
+		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
-		wprintf("Content-type: text/plain\r\n"
-			"\r\n"
-			"%s\r\n", &buf[4]
-		);
+		hprintf("Content-type: text/plain\r\n");
+		wprintf("%s\r\n", &buf[4]);
+		end_burst();
 		return;
 	}
 
@@ -42,10 +41,10 @@ void groupdav_put_bigics(char *dav_content, int dav_content_length)
 	serv_printf("\n000");
 
 	/* Report success and not much else. */
-	wprintf("HTTP/1.1 204 No Content\r\n");
+	hprintf("HTTP/1.1 204 No Content\r\n");
 	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
-	wprintf("Content-Length: 0\r\n\r\n");
+	hprintf("Content-Length: 0\r\n");
 }
 
 
@@ -67,13 +66,11 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	int n = 0;
 
 	if (num_tokens(dav_pathname, '/') < 3) {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"The object you requested was not found.\r\n"
-		);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("The object you requested was not found.\r\n");
+		end_burst();
 		return;
 	}
 
@@ -88,14 +85,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"There is no folder called \"%s\" on this server.\r\n",
-			dav_roomname
-		);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("There is no folder called \"%s\" on this server.\r\n",
+			dav_roomname);
+		end_burst();
 		return;
 	}
 
@@ -111,11 +106,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		old_msgnum = locate_message_by_uid(dav_uid);
 		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (atol(dav_ifmatch) != old_msgnum) {
-			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
+			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			lprintf(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
 				atol(dav_ifmatch), old_msgnum);
 			groupdav_common_headers();
-			wprintf("Content-Length: 0\r\n\r\n");
+			hprintf("Content-Length: 0\r\n");
+			end_burst();
 			return;
 		}
 	}
@@ -135,12 +131,12 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	serv_puts("ENT0 1|||4|||1|");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '8') {
-		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
+		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
-		wprintf("Content-type: text/plain\r\n"
-			"\r\n"
-			"%s\r\n", &buf[4]
-		);
+		hprintf("Content-type: text/plain\r\n");
+
+		wprintf("%s\r\n", &buf[4]);
+		end_burst();
 		return;
 	}
 
@@ -169,46 +165,44 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 
 	/* Citadel failed in some way? */
 	if (new_msgnum < 0L) {
-		wprintf("HTTP/1.1 502 Bad Gateway\r\n");
+		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
-		wprintf("Content-type: text/plain\r\n"
-			"\r\n"
-			"new_msgnum is %ld\r\n"
-			"\r\n", new_msgnum
-		);
+		hprintf("Content-type: text/plain\r\n");
+		wprintf("new_msgnum is %ld\r\n"
+			"\r\n", new_msgnum);
+		end_burst();
 		return;
 	}
 
 	/* We created this item for the first time. */
 	if (old_msgnum < 0L) {
-		wprintf("HTTP/1.1 201 Created\r\n");
+		hprintf("HTTP/1.1 201 Created\r\n");
 		lprintf(9, "HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
-		wprintf("etag: \"%ld\"\r\n", new_msgnum);
-		wprintf("Content-Length: 0\r\n");
-		wprintf("Location: ");
+		hprintf("etag: \"%ld\"\r\n", new_msgnum);
+		hprintf("Content-Length: 0\r\n");
+		hprintf("Location: ");
 		groupdav_identify_host();
-		wprintf("/groupdav/");
+		hprintf("/groupdav/");/////TODO
 		urlescputs(dav_roomname);
 	        char escaped_uid[1024];
 	        euid_escapize(escaped_uid, dav_uid);
 	        wprintf("/%s\r\n", escaped_uid);
-		wprintf("\r\n");
 		return;
 	}
 
 	/* We modified an existing item. */
-	wprintf("HTTP/1.1 204 No Content\r\n");
+	hprintf("HTTP/1.1 204 No Content\r\n");
 	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
-	wprintf("etag: \"%ld\"\r\n", new_msgnum);
-	wprintf("Content-Length: 0\r\n\r\n");
+	hprintf("etag: \"%ld\"\r\n", new_msgnum);
+	hprintf("Content-Length: 0\r\n");
 
 	/* The item we replaced has probably already been deleted by
 	 * the Citadel server, but we'll do this anyway, just in case.
 	 */
 	serv_printf("DELE %ld", old_msgnum);
 	serv_getln(buf, sizeof buf);
-
+	end_burst();
 	return;
 }

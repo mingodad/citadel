@@ -277,8 +277,7 @@ void chat_recv(void) {
 
 	output_headers(0, 0, 0, 0, 0, 0);
 
-	wprintf("Content-type: text/html; charset=utf-8\n");
-	wprintf("\n");
+	hprintf("Content-type: text/html; charset=utf-8\r\n");
 	wprintf("<html>\n"
 		"<head>\n"
 		"<meta http-equiv=\"refresh\" content=\"3\" />\n"
@@ -425,8 +424,7 @@ void chat_send(void) {
 	char buf[SIZ];
 
 	output_headers(0, 0, 0, 0, 0, 0);
-	wprintf("Content-type: text/html; charset=utf-8\n");
-	wprintf("\n");
+	hprintf("Content-type: text/html; charset=utf-8\r\n");
 	wprintf("<HTML>"
 		"<BODY onLoad=\"document.chatsendform.send_this.focus();\" >"
 	);

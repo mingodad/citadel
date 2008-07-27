@@ -182,11 +182,29 @@ int StrBuf_ServGetln(StrBuf *buf)
 	const char *ErrStr;
 	int rc;
 
-	rc = StrBufTCP_read_line(buf, WC->serv_sock, 0, &ErrStr);
+	rc = StrBufTCP_read_line(buf, &WC->serv_sock, 0, &ErrStr);
 	if (rc < 0)
 	{
 		lprintf(1, "Server connection broken: %s\n",
 			ErrStr);
+		wc_backtrace();
+		WC->serv_sock = (-1);
+		WC->connected = 0;
+		WC->logged_in = 0;
+	}
+	return rc;
+}
+
+int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
+{
+	const char *Err;
+	int rc;
+	
+	rc = StrBufReadBLOB(buf, &WC->serv_sock, 1, BlobSize, &Err);
+	if (rc < 0)
+	{
+		lprintf(1, "Server connection broken: %s\n",
+			Err);
 		wc_backtrace();
 		WC->serv_sock = (-1);
 		WC->connected = 0;

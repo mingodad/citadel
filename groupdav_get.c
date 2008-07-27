@@ -20,20 +20,18 @@ void groupdav_get_big_ics(void) {
 	serv_puts("ICAL getics");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"%s\r\n",
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("%s\r\n",
 			&buf[4]
-		);
+			);/// TODO: do we need to end-burst here?
 		return;
 	}
 
-	wprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
-	wprintf("Content-type: text/calendar; charset=UTF-8\r\n");
+	hprintf("Content-type: text/calendar; charset=UTF-8\r\n");
 	begin_burst();
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		wprintf("%s\r\n", buf);
@@ -74,9 +72,9 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
 		if (!IsEmptyStr(cbcharset)) {
 			safestrncpy(epdata->charset, cbcharset, sizeof epdata->charset);
 		}
-		wprintf("Content-type: %s; charset=%s\r\n", cbtype, epdata->charset);
+		hprintf("Content-type: %s; charset=%s\r\n", cbtype, epdata->charset);
 		begin_burst();
-		client_write(content, length);
+		StrBufAppendBufPlain(WC->WBuf, content, length, 0);
 		end_burst();
 	}
 }
@@ -107,13 +105,11 @@ void groupdav_get(char *dav_pathname) {
 	struct epdata epdata;
 
 	if (num_tokens(dav_pathname, '/') < 3) {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"The object you requested was not found.\r\n"
-		);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("The object you requested was not found.\r\n");
+		end_burst();
 		return;
 	}
 
@@ -128,14 +124,12 @@ void groupdav_get(char *dav_pathname) {
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"There is no folder called \"%s\" on this server.\r\n",
-			dav_roomname
-		);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("There is no folder called \"%s\" on this server.\r\n",
+			dav_roomname);
+		end_burst();
 		return;
 	}
 
@@ -150,15 +144,13 @@ void groupdav_get(char *dav_pathname) {
 	serv_printf("MSG2 %ld", dav_msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"Object \"%s\" was not found in the \"%s\" folder.\r\n",
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
 			dav_uid,
-			dav_roomname
-		);
+			dav_roomname);
+		end_burst();
 		return;
 	}
 
@@ -210,10 +202,10 @@ void groupdav_get(char *dav_pathname) {
 
 	/* Output headers common to single or multi part messages */
 
-	wprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
-	wprintf("etag: \"%ld\"\r\n", dav_msgnum);
-	wprintf("Date: %s\r\n", date);
+	hprintf("etag: \"%ld\"\r\n", dav_msgnum);
+	hprintf("Date: %s\r\n", date);
 
 	memset(&epdata, 0, sizeof(struct epdata));
 	safestrncpy(epdata.charset, charset, sizeof epdata.charset);
@@ -241,7 +233,7 @@ void groupdav_get(char *dav_pathname) {
 		ptr = msgtext;
 		endptr = &msgtext[msglen];
 	
-		wprintf("Content-type: %s; charset=%s\r\n", content_type, charset);
+		hprintf("Content-type: %s; charset=%s\r\n", content_type, charset);
 	
 		in_body = 0;
 		do {

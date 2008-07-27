@@ -15,7 +15,7 @@ void recp_autocomplete(char *partial) {
 
 	output_headers(0, 0, 0, 0, 0, 0);
 
-	wprintf("Content-type: text/html\r\n"
+	hprintf("Content-type: text/html\r\n"
 		"Server: %s\r\n"
 		"Connection: close\r\n"
 		"Pragma: no-cache\r\n"

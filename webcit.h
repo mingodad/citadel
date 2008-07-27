@@ -410,9 +410,6 @@ struct wcsession {
 	int ctdl_pid;				/**< Session ID on the Citadel server */
 	char httpauth_user[256];		/**< only for GroupDAV sessions */
 	char httpauth_pass[256];		/**< only for GroupDAV sessions */
-	size_t burst_len;			/** <??? todo */
-	size_t burst_alloc;			/** <??? todo */
-	char *burst;				/** <??? todo */
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
 	int is_mailbox;				/**< the current room is a private mailbox */
 	struct folder *cache_fold;		/**< cache the iconbar room list */
@@ -428,6 +425,8 @@ struct wcsession {
 	int time_format_cache;                  /**< which timeformat does our user like? */
 	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *WBuf;                           /**< Our output buffer */
+	StrBuf *HBuf;                           /**< Our HeaderBuffer */
 };
 
 /** values for WC->current_iconbar */
@@ -543,6 +542,7 @@ void output_headers(    int do_httpheaders,
 			int suppress_check,
 			int cache);
 void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
+void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void output_static(char *what);
 void display_mime_icon(void);
 void print_menu_box(char* Title, char *Class, int nLines, ...);
@@ -703,13 +703,13 @@ void initialize_locales(void);
 
 extern char *months[];
 extern char *days[];
-void read_server_binary(char *buffer, size_t total_len);
-char *read_server_text(void);
+StrBuf *read_server_binary(size_t total_len);
+int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
+StrBuf *read_server_text(long *nLines);
 int goto_config_room(void);
 long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
-void http_transmit_thing(char *thing, size_t length, const char *content_type,
-			 int is_static);
+void http_transmit_thing(StrBuf *thing, const char *content_type, int is_static);
 long unescape_input(char *buf);
 void do_selected_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
@@ -752,7 +752,7 @@ void ssl_lock(int mode, int n, const char *file, int line);
 int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
 int client_read_ssl(char *buf, int bytes, int timeout);
-void client_write_ssl(char *buf, int nbytes);
+void client_write_ssl(const char *buf, int nbytes);
 #endif
 
 #ifdef HAVE_ZLIB
@@ -764,7 +764,7 @@ int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
 void utf8ify_rfc822_string(char *buf);
 
 void begin_burst(void);
-void end_burst(void);
+long end_burst(void);
 
 extern char *hourname[];	/**< Names of hours (12am, 1am, etc.) */
 
