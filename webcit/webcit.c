@@ -5,7 +5,8 @@
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
  */
-
+#include <stdarg.h>
+#define SHOW_ME_VAPPEND_PRINTF
 #include "webcit.h"
 #include "groupdav.h"
 #include "webserver.h"
@@ -326,14 +327,34 @@ int YESBSTR(char *key)
  */
 void wprintf(const char *format,...)
 {
+	struct wcsession *WCC = WC;
 	va_list arg_ptr;
-	char wbuf[4096];
+
+	if (WCC->WBuf == NULL)
+		WCC->WBuf = NewStrBuf();
 
 	va_start(arg_ptr, format);
-	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
+	StrBufVAppendPrintf(WCC->WBuf, format, arg_ptr);
 	va_end(arg_ptr);
 
-	client_write(wbuf, strlen(wbuf));
+///	if (StrLength(WCC-WBuf) > 2048)
+		///client_write(wbuf, strlen(wbuf));
+}
+
+/*
+ * http-header-printing funcion. uses our vsnprintf wrapper
+ */
+void hprintf(const char *format,...)
+{
+	struct wcsession *WCC = WC;
+	va_list arg_ptr;
+
+	va_start(arg_ptr, format);
+	StrBufVAppendPrintf(WCC->HBuf, format, arg_ptr);
+	va_end(arg_ptr);
+
+///	if (StrLength(WCC-WBuf) > 2048)
+		///client_write(wbuf, strlen(wbuf));
 }
 
 
@@ -632,11 +653,11 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	char cookie[1024];
 	char httpnow[128];
 
-	wprintf("HTTP/1.1 200 OK\n");
+	hprintf("HTTP/1.1 200 OK\n");
 	http_datestring(httpnow, sizeof httpnow, time(NULL));
 
 	if (do_httpheaders) {
-		wprintf("Content-type: text/html; charset=utf-8\r\n"
+		hprintf("Content-type: text/html; charset=utf-8\r\n"
 			"Server: %s / %s\n"
 			"Connection: close\r\n",
 			PACKAGE_STRING, serv_info.serv_software
@@ -649,7 +670,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		http_datestring(httpTomorow, sizeof httpTomorow, 
 				time(NULL) + 60 * 60 * 24 * 2);
 
-		wprintf("Pragma: public\r\n"
+		hprintf("Pragma: public\r\n"
 			"Cache-Control: max-age=3600, must-revalidate\r\n"
 			"Last-modified: %s\r\n"
 			"Expires: %s\r\n",
@@ -658,7 +679,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		);
 	}
 	else {
-		wprintf("Pragma: no-cache\r\n"
+		hprintf("Pragma: no-cache\r\n"
 			"Cache-Control: no-store\r\n"
 			"Expires: -1\r\n"
 		);
@@ -668,11 +689,11 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			WC->wc_password, WC->wc_roomname);
 
 	if (unset_cookies) {
-		wprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
+		hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
 	} else {
-		wprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
+		hprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
 		if (server_cookie != NULL) {
-			wprintf("%s\n", server_cookie);
+			hprintf("%s\n", server_cookie);
 		}
 	}
 
@@ -728,13 +749,14 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
  * Generic function to do an HTTP redirect.  Easy and fun.
  */
 void http_redirect(const char *whichpage) {
-	wprintf("HTTP/1.1 302 Moved Temporarily\n");
-	wprintf("Location: %s\r\n", whichpage);
-	wprintf("URI: %s\r\n", whichpage);
-	wprintf("Content-type: text/html; charset=utf-8\r\n\r\n");
+	hprintf("HTTP/1.1 302 Moved Temporarily\n");
+	hprintf("Location: %s\r\n", whichpage);
+	hprintf("URI: %s\r\n", whichpage);
+	hprintf("Content-type: text/html; charset=utf-8\r\n");
 	wprintf("<html><body>");
 	wprintf("Go <a href=\"%s\">here</A>.", whichpage);
 	wprintf("</body></html>\n");
+	end_burst();
 }
 
 
@@ -742,48 +764,20 @@ void http_redirect(const char *whichpage) {
 /*
  * Output a piece of content to the web browser using conformant HTTP and MIME semantics
  */
-void http_transmit_thing(char *thing, size_t length, const char *content_type,
+void http_transmit_thing(StrBuf *thing, const char *content_type,
 			 int is_static) {
 
 	output_headers(0, 0, 0, 0, 0, is_static);
 
-	wprintf("Content-type: %s\r\n"
+	hprintf("Content-type: %s\r\n"
 		"Server: %s\r\n"
 		"Connection: close\r\n",
 		content_type,
 		PACKAGE_STRING);
 
-#ifdef HAVE_ZLIB
-	/* If we can send the data out compressed, please do so. */
-	if (WC->gzip_ok) {
-		char *compressed_data = NULL;
-		size_t compressed_len;
-
-		compressed_len =  ((length * 101) / 100) + 100;
-		compressed_data = malloc(compressed_len);
-
-		if (compress_gzip((Bytef *) compressed_data,
-				  &compressed_len,
-				  (Bytef *) thing,
-				  (uLongf) length, Z_BEST_SPEED) == Z_OK) {
-			wprintf("Content-encoding: gzip\r\n"
-				"Content-length: %ld\r\n"
-				"\r\n",
-				(long) compressed_len
-			);
-			client_write(compressed_data, (size_t)compressed_len);
-			free(compressed_data);
-			return;
-		}
-	}
-#endif
-
-	/* No compression ... just send it out as-is */
-	wprintf("Content-length: %ld\r\n"
-		"\r\n",
-		(long) length
-	);
-	client_write(thing, (size_t)length);
+	WC->WBuf = thing;
+	end_burst();
+	WC->WBuf = NULL;
 }
 
 /*
@@ -826,60 +820,60 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
  */
 void output_static(char *what)
 {
-	FILE *fp;
+	int fd;
 	struct stat statbuf;
 	off_t bytes;
 	off_t count = 0;
-	size_t res;
-	char *bigbuffer;
+	StrBuf *Buf;
 	const char *content_type;
 	int len;
+	const char *Err;
 
-	fp = fopen(what, "rb");
-	if (fp == NULL) {
+	fd = open(what, O_RDONLY);
+	if (fd <= 0) {
 		lprintf(9, "output_static('%s')  -- NOT FOUND --\n", what);
-		wprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
-		wprintf("Content-Type: text/plain\r\n");
-		wprintf("\r\n");
+		hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
+		hprintf("Content-Type: text/plain\r\n");
 		wprintf("Cannot open %s: %s\r\n", what, strerror(errno));
+		end_burst();
 	} else {
 		len = strlen (what);
 		content_type = GuessMimeByFilename(what, len);
 
-		if (fstat(fileno(fp), &statbuf) == -1) {
+		if (fstat(fd, &statbuf) == -1) {
 			lprintf(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
-			wprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
-			wprintf("Content-Type: text/plain\r\n");
-			wprintf("\r\n");
+			hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
+			hprintf("Content-Type: text/plain\r\n");
 			wprintf("Cannot fstat %s: %s\n", what, strerror(errno));
+			end_burst();
 			return;
 		}
 
 		count = 0;
 		bytes = statbuf.st_size;
-		if ((bigbuffer = malloc(bytes + 2)) == NULL) {
+		Buf = NewStrBufPlain(NULL, bytes + 2);
+		if (Buf == NULL) {
 			lprintf(9, "output_static('%s')  -- MALLOC FAILED (%s) --\n", what, strerror(errno));
-			wprintf("HTTP/1.1 500 internal server error\r\n");
-			wprintf("Content-Type: text/plain\r\n");
-			wprintf("\r\n");
+			hprintf("HTTP/1.1 500 internal server error\r\n");
+			hprintf("Content-Type: text/plain\r\n");
+			end_burst();
 			return;
 		}
-		while (count < bytes) {
-			if ((res = fread(bigbuffer + count, 1, bytes - count, fp)) == 0) {
-				lprintf(9, "output_static('%s')  -- FREAD FAILED (%s) %zu bytes of %zu --\n", what, strerror(errno), bytes - count, bytes);
-				wprintf("HTTP/1.1 500 internal server error \r\n");
-				wprintf("Content-Type: text/plain\r\n");
-				wprintf("\r\n");
+///		StrBufAppendBuf(Buf, WC->WBuf, 0);
+		if (StrBufReadBLOB(Buf, &fd, 1, bytes, &Err) < 0)
+		{
+			lprintf(9, "output_static('%s')  -- FREAD FAILED (%s) --\n", what, strerror(errno));
+				hprintf("HTTP/1.1 500 internal server error \r\n");
+				hprintf("Content-Type: text/plain\r\n");
+				end_burst();
 				return;
-			}
-			count += res;
 		}
 
-		fclose(fp);
 
+		close(fd);
 		lprintf(9, "output_static('%s')  %s\n", what, content_type);
-		http_transmit_thing(bigbuffer, (size_t)bytes, content_type, 1);
-		free(bigbuffer);
+		http_transmit_thing(Buf, content_type, 1);
+		FreeStrBuf(&Buf);
 	}
 	if (yesbstr("force_close_session")) {
 		end_webcit_session();
@@ -896,6 +890,7 @@ void output_image()
 	char *xferbuf = NULL;
 	off_t bytes;
 	const char *MimeType;
+	StrBuf *Buf;
 
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_getln(buf, sizeof buf);
@@ -904,23 +899,22 @@ void output_image()
 		xferbuf = malloc(bytes + 2);
 
 		/** Read it from the server */
-		read_server_binary(xferbuf, bytes);
+		
+		Buf = read_server_binary(bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
 
-		MimeType = GuessMimeType (xferbuf, bytes);
+		MimeType = GuessMimeType (ChrPtr(Buf), StrLength(Buf));
 		/** Write it to the browser */
 		if (!IsEmptyStr(MimeType))
 		{
-			http_transmit_thing(xferbuf, 
-					    (size_t)bytes, 
+			http_transmit_thing(Buf, 
 					    MimeType, 
 					    0);
-			free(xferbuf);
+			FreeStrBuf(&Buf);
 			return;
 		}
 		/* hm... unknown mimetype? fallback to blank gif */
-		free(xferbuf);
 	} 
 
 	
@@ -942,9 +936,10 @@ void display_vcard_photo_img(void)
 	char *vcard;
 	struct vCard *v;
 	char *xferbuf;
-    char *photosrc;
+	char *photosrc;
 	int decoded;
 	const char *contentType;
+	StrBuf *Buf;
 
 	msgnum = StrTol(WC->UrlFragment1);
 	
@@ -963,10 +958,12 @@ void display_vcard_photo_img(void)
 		photosrc,
 		strlen(photosrc));
 	contentType = GuessMimeType(xferbuf, decoded);
-	http_transmit_thing(xferbuf, decoded, contentType, 0);
+	Buf = _NewConstStrBuf(xferbuf, decoded);
+	http_transmit_thing(Buf, contentType, 0);
 	free(v);
 	free(photosrc);
 	free(xferbuf);
+	FreeStrBuf(&Buf);
 }
 
 /*
@@ -987,6 +984,7 @@ void mimepart(const char *msgnum, const char *partnum, int force_download)
 	serv_printf("OPNA %s|%s", msgnum, partnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
+		StrBuf *Buf;
 		bytes = extract_long(&buf[4], 0);
 		content = malloc(bytes + 2);
 		if (force_download) {
@@ -996,17 +994,18 @@ void mimepart(const char *msgnum, const char *partnum, int force_download)
 			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
-		read_server_binary(content, bytes);
+
+		Buf = read_server_binary(bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
-		http_transmit_thing(content, bytes, content_type, 0);
-		free(content);
+		http_transmit_thing(Buf, content_type, 0);
+		FreeStrBuf(&Buf);
 	} else {
-		wprintf("HTTP/1.1 404 %s\n", &buf[4]);
+		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
-		wprintf("Content-Type: text/plain\r\n");
-		wprintf("\r\n");
+		hprintf("Content-Type: text/plain\r\n");
 		wprintf(_("An error occurred while retrieving this part: %s\n"), &buf[4]);
+		end_burst();
 	}
 
 }
@@ -1050,7 +1049,7 @@ char *load_mimepart(long msgnum, char *partnum)
  */
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
 {
-	wprintf("HTTP/1.1 200 OK\n");
+	hprintf("HTTP/1.1 200 OK\n");
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<table width=100%% border=0 bgcolor=\"#%s\"><tr><td>", titlebarcolor);
@@ -1138,15 +1137,16 @@ void display_success(char *successmessage)
  */
 void authorization_required(const char *message)
 {
-	wprintf("HTTP/1.1 401 Authorization Required\r\n");
-	wprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", serv_info.serv_humannode);
-	wprintf("Content-Type: text/html\r\n\r\n");
+	hprintf("HTTP/1.1 401 Authorization Required\r\n");
+	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", serv_info.serv_humannode);
+	hprintf("Content-Type: text/html\r\n");
 	wprintf("<h1>");
 	wprintf(_("Authorization Required"));
 	wprintf("</h1>\r\n");
 	wprintf(_("The resource you requested requires a valid username and password. "
 		"You could not be logged in: %s\n"), message);
 	wDumpContent(0);
+	
 }
 
 /*
@@ -1215,7 +1215,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 void begin_ajax_response(void) {
         output_headers(0, 0, 0, 0, 0, 0);
 
-        wprintf("Content-type: text/html; charset=UTF-8\r\n"
+        hprintf("Content-type: text/html; charset=UTF-8\r\n"
                 "Server: %s\r\n"
                 "Connection: close\r\n"
                 "Pragma: no-cache\r\n"
@@ -1230,7 +1230,7 @@ void begin_ajax_response(void) {
  * print ajax response footer 
  */
 void end_ajax_response(void) {
-        wprintf("\r\n");
+        ///hprintf("\r\n");///// todo: is this right?
         wDumpContent(0);
 }
 
@@ -1367,8 +1367,8 @@ void session_loop(struct httprequest *req)
 	char c_httpauth_user[SIZ];
 	char c_httpauth_pass[SIZ];
 	char cookie[SIZ];
-	struct wcsession *WCC = WC;
-
+	struct wcsession *WCC;
+	
 	safestrncpy(c_username, "", sizeof c_username);
 	safestrncpy(c_password, "", sizeof c_password);
 	safestrncpy(c_roomname, "", sizeof c_roomname);
@@ -1377,6 +1377,10 @@ void session_loop(struct httprequest *req)
 	safestrncpy(c_httpauth_pass, DEFAULT_HTTPAUTH_PASS, sizeof c_httpauth_pass);
 	strcpy(browser_host, "");
 
+	WCC= WC;
+	if (WCC->HBuf == NULL)
+		WCC->HBuf = NewStrBuf();
+	FlushStrBuf(WCC->HBuf);
 	WCC->upload_length = 0;
 	WCC->upload = NULL;
 	WCC->is_mobile = 0;
@@ -1507,10 +1511,10 @@ void session_loop(struct httprequest *req)
 
 	/* If it's a "force 404" situation then display the error and bail. */
 	if (!strcmp(action, "404")) {
-		wprintf("HTTP/1.1 404 Not found\r\n");
-		wprintf("Content-Type: text/plain\r\n");
-		wprintf("\r\n");
+		hprintf("HTTP/1.1 404 Not found\r\n");
+		hprintf("Content-Type: text/plain\r\n");
 		wprintf("Not found\r\n");
+		end_burst();
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
@@ -1543,10 +1547,10 @@ void session_loop(struct httprequest *req)
 		else 
 		{
 			lprintf(9, "Suspicious request. Ignoring.");
-			wprintf("HTTP/1.1 404 Security check failed\r\n");
-			wprintf("Content-Type: text/plain\r\n");
-			wprintf("\r\n");
+			hprintf("HTTP/1.1 404 Security check failed\r\n");
+			hprintf("Content-Type: text/plain\r\n");
 			wprintf("You have sent a malformed or invalid request.\r\n");
+			end_burst();
 		}
 		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
 	}
@@ -1557,10 +1561,10 @@ void session_loop(struct httprequest *req)
 			bstr("nonce"), WCC->nonce);
 		if (ibstr("nonce") != WCC->nonce) {
 			lprintf(9, "Ignoring request with mismatched nonce.\n");
-			wprintf("HTTP/1.1 404 Security check failed\r\n");
-			wprintf("Content-Type: text/plain\r\n");
-			wprintf("\r\n");
+			hprintf("HTTP/1.1 404 Security check failed\r\n");
+			hprintf("Content-Type: text/plain\r\n");
 			wprintf("Security check failed.\r\n");
+			end_burst();
 			goto SKIP_ALL_THIS_CRAP;
 		}
 	}

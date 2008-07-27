@@ -91,20 +91,20 @@ void display_rss(char *roomname, char *request_method)
 
 	if (gotoroom((char *)roomname)) {
 		lprintf(3, "RSS: Can't goto requested room\n");
-		wprintf("HTTP/1.1 404 Not Found\r\n");
-		wprintf("Content-Type: text/html\r\n");
-		wprintf("\r\n");
+		hprintf("HTTP/1.1 404 Not Found\r\n");
+		hprintf("Content-Type: text/html\r\n");
 		wprintf("Error retrieving RSS feed: couldn't find room\n");
+		end_burst();
 		return;
 	}
 
 	 nummsgs = load_msg_ptrs("MSGS LAST|15", 0);
 	if (nummsgs == 0) {
 		lprintf(3, "RSS: No messages found\n");
-		wprintf("HTTP/1.1 404 Not Found\r\n");
-		wprintf("Content-Type: text/html\r\n");
-		wprintf("\r\n");
+		hprintf("HTTP/1.1 404 Not Found\r\n");
+		hprintf("Content-Type: text/html\r\n");
 		wprintf(_("Error retrieving RSS feed: couldn't find messages\n"));
+		end_burst();
 		return;
 	} 
 	
@@ -127,26 +127,25 @@ void display_rss(char *roomname, char *request_method)
 	// Commented out. Play dumb for now, also doesn't work with anonrss hack
 	/* if (if_modified_since > 0 && if_modified_since > now) {
 		lprintf(3, "RSS: Feed not updated since the last time you looked\n");
-		wprintf("HTTP/1.1 304 Not Modified\r\n");
-		wprintf("Last-Modified: %s\r\n", date);
+		hprintf("HTTP/1.1 304 Not Modified\r\n");
+		hprintf("Last-Modified: %s\r\n", date);
 		now = time(NULL);
 		gmtime_r(&now, &now_tm);
 		strftime(date, sizeof date, "%a, %d %b %Y %H:%M:%S GMT", &now_tm);
-		wprintf("Date: %s\r\n", date);
-		if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
+		hprintf("Date: %s\r\n", date);
+		if (*msgn) hprintf("ETag: %s\r\n", msgn); */
 		// wDumpContent(0);
 		// return;
 	//} 
 
 	/* Do RSS header */
 	lprintf(3, "RSS: Yum yum! This feed is tasty!\n");
-	wprintf("HTTP/1.1 200 OK\r\n");
-	wprintf("Last-Modified: %s\r\n", date);
+	hprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("Last-Modified: %s\r\n", date);
 /*	if (*msgn) wprintf("ETag: %s\r\n\r\n", msgn); */
-	wprintf("Content-Type: application/rss+xml\r\n");
-	wprintf("Server: %s\r\n", PACKAGE_STRING);
-	wprintf("Connection: close\r\n");
-	wprintf("\r\n");
+	hprintf("Content-Type: application/rss+xml\r\n");
+	hprintf("Server: %s\r\n", PACKAGE_STRING);
+	hprintf("Connection: close\r\n");
 	if (!strcasecmp(request_method, "HEAD"))
 		return;
 

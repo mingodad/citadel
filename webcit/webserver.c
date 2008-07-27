@@ -238,210 +238,126 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 }
 
 /*
- * write data to the client
+ * \brief Begin buffering HTTP output so we can transmit it all in one write operation later.
  */
-ssize_t client_write(const void *buf, size_t count)
+void begin_burst(void)
 {
-        char *newptr;
-        size_t newalloc;
-        size_t bytesWritten = 0;
-        ssize_t res;
+	WC->WBuf = NewStrBufPlain(NULL, 32768);
+}
+
+
+/*
+ * \brief Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
+ */
+long end_burst(void)
+{
+	struct wcsession *WCC = WC;
+        const char *ptr, *eptr;
+        long count;
+	ssize_t res;
         fd_set wset;
         int fdflags;
 
-	if (WC->burst != NULL) {
-		if ((WC->burst_len + count) >= WC->burst_alloc) {
-			newalloc = (WC->burst_alloc * 2);
-			if ((WC->burst_len + count) >= newalloc) {
-				newalloc += count;
-			}
-			newptr = realloc(WC->burst, newalloc);
-			if (newptr != NULL) {
-				WC->burst = newptr;
-				WC->burst_alloc = newalloc;
-			}
-		}
-		if ((WC->burst_len + count) < WC->burst_alloc) {
-			memcpy(&WC->burst[WC->burst_len], buf, count);
-			WC->burst_len += count;
-			return (count);
-		}
-		else {
-			return(-1);
-		}
+#ifdef HAVE_ZLIB
+	/* Perform gzip compression, if enabled and supported by client */
+	if ((WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
+	{
+		hprintf("Content-encoding: gzip\r\n");
 	}
+#endif	/* HAVE_ZLIB */
+
+	hprintf("Content-length: %d\r\n\r\n", StrLength(WCC->WBuf));
+
+	ptr = ChrPtr(WCC->HBuf);
+	count = StrLength(WCC->HBuf);
+	eptr = ptr + count;
+
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		client_write_ssl((char *) buf, count);
+		client_write_ssl(ptr, StrLength(WCC->HBuf));
 		return (count);
 	}
 #endif
+
+	
 #ifdef HTTP_TRACING
+	
 	write(2, "\033[34m", 5);
-	write(2, buf, count);
+	write(2, ptr, StrLength(WCC->WBuf));
 	write(2, "\033[30m", 5);
 #endif
 	fdflags = fcntl(WC->http_sock, F_GETFL);
 
-        while (bytesWritten < count) {
+        while (ptr < eptr) {
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
-                        FD_SET(WC->http_sock, &wset);
-                        if (select(WC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
+                        FD_SET(WCC->http_sock, &wset);
+                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
                                 lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
                                 return -1;
                         }
                 }
 
-                if ((res = write(WC->http_sock, (char*)buf + bytesWritten,
-                  count - bytesWritten)) == -1) {
+                if ((res = write(WCC->http_sock, 
+				 ptr,
+				 count)) == -1) {
                         lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
                         return res;
                 }
-                bytesWritten += res;
+                count -= res;
+		ptr += res;
         }
 
-	return bytesWritten;
-}
+	ptr = ChrPtr(WCC->WBuf);
+	count = StrLength(WCC->WBuf);
+	eptr = ptr + count;
 
-/*
- * Begin buffering HTTP output so we can transmit it all in one write operation later.
- *
- * We do this in userspace instead of using TCP_CORK for two reasons:
- *  1. We need to calculate the Content-length: header
- *  2. We may want to compress the data before sending it
- *
- */
-void begin_burst(void)
-{
-	if (WC->burst != NULL) {
-		free(WC->burst);
-		WC->burst = NULL;
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		client_write_ssl(ptr, StrLength(WCC->HBuf));
+		return (count);
 	}
-	WC->burst_len = 0;
-	WC->burst_alloc = 32768;
-	WC->burst = malloc(WC->burst_alloc);
-}
-
-
-/*
- * uses the same calling syntax as compress2(), but it
- * creates a stream compatible with HTTP "Content-encoding: gzip"
- */
-#ifdef HAVE_ZLIB
-#define DEF_MEM_LEVEL 8
-#define OS_CODE 0x03	/* unix */
-int ZEXPORT compress_gzip(Bytef * dest,         /* compressed buffer */
-			  size_t * destLen,     /* length of the compresed data */
-			  const Bytef * source, /* source to encode */
-			  uLong sourceLen,      /* length of source to encode */
-			  int level)            /* compression level */
-{
-	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
-
-	/* write gzip header */
-	snprintf((char *) dest, *destLen, 
-		 "%c%c%c%c%c%c%c%c%c%c",
-		 gz_magic[0], gz_magic[1], Z_DEFLATED,
-		 0 /*flags */ , 0, 0, 0, 0 /*time */ , 0 /* xflags */ ,
-		 OS_CODE);
-
-	/* normal deflate */
-	z_stream stream;
-	int err;
-	stream.next_in = (Bytef *) source;
-	stream.avail_in = (uInt) sourceLen;
-	stream.next_out = dest + 10L;	// after header
-	stream.avail_out = (uInt) * destLen;
-	if ((uLong) stream.avail_out != *destLen)
-		return Z_BUF_ERROR;
-
-	stream.zalloc = (alloc_func) 0;
-	stream.zfree = (free_func) 0;
-	stream.opaque = (voidpf) 0;
-
-	err = deflateInit2(&stream, level, Z_DEFLATED, -MAX_WBITS,
-			   DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
-	if (err != Z_OK)
-		return err;
-
-	err = deflate(&stream, Z_FINISH);
-	if (err != Z_STREAM_END) {
-		deflateEnd(&stream);
-		return err == Z_OK ? Z_BUF_ERROR : err;
-	}
-	*destLen = stream.total_out + 10L;
-
-	/* write CRC and Length */
-	uLong crc = crc32(0L, source, sourceLen);
-	int n;
-	for (n = 0; n < 4; ++n, ++*destLen) {
-		dest[*destLen] = (int) (crc & 0xff);
-		crc >>= 8;
-	}
-	uLong len = stream.total_in;
-	for (n = 0; n < 4; ++n, ++*destLen) {
-		dest[*destLen] = (int) (len & 0xff);
-		len >>= 8;
-	}
-	err = deflateEnd(&stream);
-	return err;
-}
 #endif
 
-/*
- * Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
- */
-void end_burst(void)
-{
-	size_t the_len;
-	char *the_data;
+#ifdef HTTP_TRACING
+	
+	write(2, "\033[34m", 5);
+	write(2, ptr, StrLength(WCC->WBuf));
+	write(2, "\033[30m", 5);
+#endif
 
-	if (WC->burst == NULL)
-		return;
+        while (ptr < eptr) {
+                if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+                        FD_ZERO(&wset);
+                        FD_SET(WCC->http_sock, &wset);
+                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
+                                lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
+                                return -1;
+                        }
+                }
 
-	the_len = WC->burst_len;
-	the_data = WC->burst;
+                if ((res = write(WCC->http_sock, 
+				 ptr,
+				 count)) == -1) {
+                        lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
+                        return res;
+                }
+                count -= res;
+		ptr += res;
+        }
 
-	WC->burst_len = 0;
-	WC->burst_alloc = 0;
-	WC->burst = NULL;
-
-#ifdef HAVE_ZLIB
-	/* Perform gzip compression, if enabled and supported by client */
-	if (WC->gzip_ok) {
-		char *compressed_data = NULL;
-		size_t compressed_len;
-
-		compressed_len = ((the_len * 101) / 100) + 100;
-		compressed_data = malloc(compressed_len);
-
-		if (compress_gzip((Bytef *) compressed_data,
-				  &compressed_len,
-				  (Bytef *) the_data,
-				  (uLongf) the_len, Z_BEST_SPEED) == Z_OK) {
-			wprintf("Content-encoding: gzip\r\n");
-			free(the_data);
-			the_data = compressed_data;
-			the_len = compressed_len;
-		} else {
-			free(compressed_data);
-		}
-	}
-#endif	/* HAVE_ZLIB */
-
-	wprintf("Content-length: %d\r\n\r\n", the_len);
-	client_write(the_data, the_len);
-	free(the_data);
-	return;
+	return StrLength(WCC->WBuf);
 }
 
 
 
 /*
- * Read data from the client socket with default timeout.
+ * \brief Read data from the client socket with default timeout.
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
+ * \param sock the socket fd to read from
+ * \param buf the buffer to write to
+ * \param bytes Number of bytes to read
  */
 int client_read(int sock, char *buf, int bytes)
 {
@@ -450,9 +366,13 @@ int client_read(int sock, char *buf, int bytes)
 
 
 /*
- * Get a LF-terminated line of text from the client.
+ * \brief Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
+ * \param sock socket fd to get client line from
+ * \param buf buffer to write read data to
+ * \param bufsiz how many bytes to read
+ * \return  number of bytes read???
  */
 int client_getln(int sock, char *buf, int bufsiz)
 {
@@ -485,8 +405,8 @@ int client_getln(int sock, char *buf, int bufsiz)
 }
 
 /*
- * Shut us down the regular way.
- * signum is the signal we want to forward
+ * \brief Shut us down the regular way.
+ * \param signum the signal we want to forward
  */
 pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
@@ -497,8 +417,8 @@ void graceful_shutdown_watcher(int signum) {
 }
 
 /*
- * shut us down the regular way.
- * signum is the signal we want to forward
+ * \brief shut us down the regular way.
+ * \param signum the signal we want to forward
  */
 pid_t current_child;
 void graceful_shutdown(int signum) {
@@ -517,6 +437,12 @@ void graceful_shutdown(int signum) {
 	close(fd);
 }
 
+
+/*
+ * \brief	Start running as a daemon.  
+ *
+ * param	do_close_stdio		Only close stdio if set.
+ */
 
 /*
  * Start running as a daemon.
@@ -619,12 +545,12 @@ void start_daemon(char *pid_file)
 }
 
 /*
- * Spawn an additional worker thread into the pool.
+ * \brief	Spawn an additional worker thread into the pool.
  */
 void spawn_another_worker_thread()
 {
-	pthread_t SessThread;	/* Thread descriptor */
-	pthread_attr_t attr;	/* Thread attributes */
+	pthread_t SessThread;	/*< Thread descriptor */
+	pthread_attr_t attr;	/*< Thread attributes */
 	int ret;
 
 	lprintf(3, "Creating a new thread\n");
@@ -657,15 +583,16 @@ void spawn_another_worker_thread()
 
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
-
 /*
- * Main entry point for server program.
+ * \brief Here's where it all begins.
+ * \param argc number of commandline args
+ * \param argv the commandline arguments
  */
 int main(int argc, char **argv)
 {
-	pthread_t SessThread;		/* Thread descriptor */
-	pthread_attr_t attr;		/* Thread attributes */
-	int a, i;	        	/* General-purpose variables */
+	pthread_t SessThread;	/*< Thread descriptor */
+	pthread_attr_t attr;	/*< Thread attributes */
+	int a, i;	        	/*< General-purpose variables */
 	char tracefile[PATH_MAX];
 	char ip_addr[256]="0.0.0.0";
 	char dirbuffer[PATH_MAX]="";
@@ -1051,8 +978,11 @@ void worker_entry(void)
 }
 
 /*
- * print log messages 
+ * \brief print log messages 
  * logs to stderr if loglevel is lower than the verbosity set at startup
+ * \param loglevel level of the message
+ * \param format the printf like format string
+ * \param ... the strings to put into format
  */
 int lprintf(int loglevel, const char *format, ...)
 {
@@ -1069,7 +999,7 @@ int lprintf(int loglevel, const char *format, ...)
 
 
 /*
- * print the actual stack frame.
+ * \brief print the actual stack frame.
  */
 void wc_backtrace(void)
 {
@@ -1091,3 +1021,4 @@ void wc_backtrace(void)
 #endif
 }
 
+/*@}*/

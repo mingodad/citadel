@@ -1073,8 +1073,9 @@ void save_event(void) {
 void do_freebusy(char *req) {
 	char who[SIZ];
 	char buf[SIZ];
-	char *fb;
+	StrBuf *fb;
 	int len;
+	long lines;
 
 	extract_token(who, req, 1, ' ', sizeof who);
 	if (!strncasecmp(who, "/freebusy/", 10)) {
@@ -1094,17 +1095,17 @@ void do_freebusy(char *req) {
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '1') {
-		wprintf("HTTP/1.1 404 %s\n", &buf[4]);
+		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
-		wprintf("Content-Type: text/plain\r\n");
-		wprintf("\r\n");
+		hprintf("Content-Type: text/plain\r\n");
 		wprintf("%s\n", &buf[4]);
+		end_burst();
 		return;
 	}
 
-	fb = read_server_text();
-	http_transmit_thing(fb, strlen(fb), "text/calendar", 0);
-	free(fb);
+	fb = read_server_text(&lines);
+	http_transmit_thing(fb, "text/calendar", 0);
+	FreeStrBuf(&fb);
 }
 
 

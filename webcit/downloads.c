@@ -383,6 +383,7 @@ void display_mime_icon(void)
 
 void download_file(void)
 {
+	StrBuf *Buf;
 	char buf[256];
 	off_t bytes;
 	char content_type[256];
@@ -405,17 +406,17 @@ void download_file(void)
 			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
-		read_server_binary(content, bytes);
+		Buf = read_server_binary(bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
-		http_transmit_thing(content, bytes, content_type, 0);
+		http_transmit_thing(Buf, content_type, 0);
 		free(content);
 	} else {
-		wprintf("HTTP/1.1 404 %s\n", &buf[4]);
+		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
-		wprintf("Content-Type: text/plain\r\n");
-		wprintf("\r\n");
+		hprintf("Content-Type: text/plain\r\n");
 		wprintf(_("An error occurred while retrieving this file: %s\n"), &buf[4]);
+		end_burst();
 	}
 
 }

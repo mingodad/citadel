@@ -1411,13 +1411,13 @@ void print_message(void) {
 	msgnum = StrTol(WC->UrlFragment1);
 	output_headers(0, 0, 0, 0, 0, 0);
 
-	wprintf("Content-type: text/html\r\n"
+	hprintf("Content-type: text/html\r\n"
 		"Server: %s\r\n"
-		"Connection: close\r\n",
+		"Connection: close\r\n"
 		PACKAGE_STRING);
 	begin_burst();
 
-	wprintf("\r\n\r\n<html>\n<head><title>");
+	wprintf("\r\n<html>\n<head><title>");
 	escputs(WC->wc_fullname);
 	wprintf("</title></head>\n"
 		"<body onLoad=\" window.print(); window.close(); \">\n"
@@ -1443,7 +1443,7 @@ void display_headers(void) {
 	msgnum = StrTol(WC->UrlFragment1);
 	output_headers(0, 0, 0, 0, 0, 0);
 
-	wprintf("Content-type: text/plain\r\n"
+	hprintf("Content-type: text/plain\r\n"
 		"Server: %s\r\n"
 		"Connection: close\r\n",
 		PACKAGE_STRING);

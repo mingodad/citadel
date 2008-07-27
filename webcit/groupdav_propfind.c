@@ -93,11 +93,11 @@ void groupdav_collection_list(char *dav_pathname, int dav_depth)
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
 	 */
-	wprintf("HTTP/1.0 207 Multi-Status\r\n");
+	hprintf("HTTP/1.0 207 Multi-Status\r\n");
 	groupdav_common_headers();
-	wprintf("Date: %s\r\n", datestring);
-	wprintf("Content-type: text/xml\r\n");
-	wprintf("Content-encoding: identity\r\n");
+	hprintf("Date: %s\r\n", datestring);
+	hprintf("Content-type: text/xml\r\n");
+	hprintf("Content-encoding: identity\r\n");
 
 	begin_burst();
 
@@ -261,15 +261,14 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf("Date: %s\r\n", datestring);
-		wprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
-			"There is no folder called \"%s\" on this server.\r\n",
+		hprintf("Date: %s\r\n", datestring);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("There is no folder called \"%s\" on this server.\r\n",
 			dav_roomname
 		);
+		end_burst();
 		return;
 	}
 
@@ -281,15 +280,14 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 
 		dav_msgnum = locate_message_by_uid(dav_uid);
 		if (dav_msgnum < 0) {
-			wprintf("HTTP/1.1 404 not found\r\n");
+			hprintf("HTTP/1.1 404 not found\r\n");
 			groupdav_common_headers();
-			wprintf(
-				"Content-Type: text/plain\r\n"
-				"\r\n"
-				"Object \"%s\" was not found in the \"%s\" folder.\r\n",
+			hprintf("Content-Type: text/plain\r\n");
+			wprintf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
 				dav_uid,
 				dav_roomname
 			);
+			end_burst();
 			return;
 		}
 
@@ -297,11 +295,11 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 		 * everything we know about (which is going to simply be the ETag and
 		 * nothing else).  Let the client-side parser sort it out.
 		 */
-		wprintf("HTTP/1.0 207 Multi-Status\r\n");
+		hprintf("HTTP/1.0 207 Multi-Status\r\n");
 		groupdav_common_headers();
-		wprintf("Date: %s\r\n", datestring);
-		wprintf("Content-type: text/xml\r\n");
-		wprintf("Content-encoding: identity\r\n");
+		hprintf("Date: %s\r\n", datestring);
+		hprintf("Content-type: text/xml\r\n");
+		hprintf("Content-encoding: identity\r\n");
 	
 		begin_burst();
 	
@@ -338,11 +336,11 @@ void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type
 	 * everything we know about (which is going to simply be the ETag and
 	 * nothing else).  Let the client-side parser sort it out.
 	 */
-	wprintf("HTTP/1.0 207 Multi-Status\r\n");
+	hprintf("HTTP/1.0 207 Multi-Status\r\n");
 	groupdav_common_headers();
-	wprintf("Date: %s\r\n", datestring);
-	wprintf("Content-type: text/xml\r\n");
-	wprintf("Content-encoding: identity\r\n");
+	hprintf("Date: %s\r\n", datestring);
+	hprintf("Content-type: text/xml\r\n");
+	hprintf("Content-encoding: identity\r\n");
 
 	begin_burst();
 

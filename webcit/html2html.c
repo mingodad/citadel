@@ -467,7 +467,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	/**	output_length = content_length;				*/
 
 	/** Output our big pile of markup */
-	client_write(converted_msg, output_length);
+	StrBufAppendBufPlain(WC->WBuf, converted_msg, output_length, 0);
 
 BAIL:	/** A little trailing vertical whitespace... */
 	wprintf("<br /><br />\n");

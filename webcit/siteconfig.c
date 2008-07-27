@@ -15,6 +15,7 @@ void display_siteconfig(void)
 {
 	char buf[SIZ];
 	int i, j;
+	struct wcsession *WCC = WC;
 
 	char general[65536];
 	char access[SIZ];
@@ -113,7 +114,7 @@ void display_siteconfig(void)
 		);
 		
 	wprintf("<form method=\"post\" action=\"siteconfig\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WCC->nonce);
 	
 	sprintf(&general[strlen(general)], "<tr><td><a href=\"display_edithello\"> %s </a></td>",           _("Change Login Logo"));
 	sprintf(&general[strlen(general)],     "<td><a href=\"display_editgoodbuye\"> %s </a></td></tr>\n", _("Change Logout Logo"));
@@ -729,15 +730,15 @@ void display_siteconfig(void)
 
 	tabbed_dialog(9, tabnames);
 
-	begin_tab(0, 9);	client_write(general, strlen(general));		 end_tab(0, 9);
-	begin_tab(1, 9);	client_write(access, strlen(access));		 end_tab(1, 9);
-	begin_tab(2, 9);	client_write(network, strlen(network));		 end_tab(2, 9);
-	begin_tab(3, 9);	client_write(tuning, strlen(tuning));		 end_tab(3, 9);
-	begin_tab(4, 9);	client_write(directory, strlen(directory));	 end_tab(4, 9);
-	begin_tab(5, 9);	client_write(purger, strlen(purger));		 end_tab(5, 9);
-	begin_tab(6, 9);	client_write(idxjnl, strlen(idxjnl));		 end_tab(6, 9);
-	begin_tab(7, 9);	client_write(funambol, strlen(funambol));	 end_tab(7, 9);
-	begin_tab(8, 9);	client_write(pop3, strlen(pop3));	 	 end_tab(8, 9);
+	begin_tab(0, 9);	StrBufAppendBufPlain(WCC->WBuf, general, strlen(general), 0);		 end_tab(0, 9);
+	begin_tab(1, 9);	StrBufAppendBufPlain(WCC->WBuf, access, strlen(access), 0);		 end_tab(1, 9);
+	begin_tab(2, 9);	StrBufAppendBufPlain(WCC->WBuf, network, strlen(network), 0);		 end_tab(2, 9);
+	begin_tab(3, 9);	StrBufAppendBufPlain(WCC->WBuf, tuning, strlen(tuning), 0);		 end_tab(3, 9);
+	begin_tab(4, 9);	StrBufAppendBufPlain(WCC->WBuf, directory, strlen(directory), 0);	 end_tab(4, 9);
+	begin_tab(5, 9);	StrBufAppendBufPlain(WCC->WBuf, purger, strlen(purger), 0);		 end_tab(5, 9);
+	begin_tab(6, 9);	StrBufAppendBufPlain(WCC->WBuf, idxjnl, strlen(idxjnl), 0);		 end_tab(6, 9);
+	begin_tab(7, 9);	StrBufAppendBufPlain(WCC->WBuf, funambol, strlen(funambol), 0);	 end_tab(7, 9);
+	begin_tab(8, 9);	StrBufAppendBufPlain(WCC->WBuf, pop3, strlen(pop3), 0);	 	 end_tab(8, 9);
 	wprintf("<div class=\"tabcontent_submit\">");
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");

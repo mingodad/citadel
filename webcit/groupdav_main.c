@@ -19,7 +19,7 @@
  *
  */
 void groupdav_common_headers(void) {
-	wprintf(
+	hprintf(
 		"Server: %s / %s\r\n"
 		"Connection: close\r\n",
 		PACKAGE_STRING, serv_info.serv_software
@@ -127,11 +127,12 @@ void groupdav_main(struct httprequest *req,
 	}
 
 	if (!WC->logged_in) {
-		wprintf("HTTP/1.1 401 Unauthorized\r\n");
+		hprintf("HTTP/1.1 401 Unauthorized\r\n");
 		groupdav_common_headers();
-		wprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n",
+		hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n",
 			serv_info.serv_humannode);
-		wprintf("Content-Length: 0\r\n\r\n");
+		hprintf("Content-Length: 0\r\n");
+		end_burst();
 		return;
 	}
 
@@ -229,13 +230,12 @@ void groupdav_main(struct httprequest *req,
 	/*
 	 * Couldn't find what we were looking for.  Die in a car fire.
 	 */
-	wprintf("HTTP/1.1 501 Method not implemented\r\n");
+	hprintf("HTTP/1.1 501 Method not implemented\r\n");
 	groupdav_common_headers();
-	wprintf("Content-Type: text/plain\r\n"
-		"\r\n"
-		"GroupDAV method \"%s\" is not implemented.\r\n",
-		dav_method
-	);
+	hprintf("Content-Type: text/plain\r\n");
+	wprintf("GroupDAV method \"%s\" is not implemented.\r\n",
+		dav_method);
+	end_burst();
 }
 
 

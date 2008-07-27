@@ -339,34 +339,52 @@ void server_to_text()
 /**
  * Read binary data from server into memory using a series of
  * server READ commands.
- * \param buffer the output buffer
- * \param total_len the maximal length of buffer
+ * \return the read content as StrBuf
  */
-void read_server_binary(char *buffer, size_t total_len) {
+StrBuf *read_server_binary(size_t total_len) 
+{
 	char buf[SIZ];
 	size_t bytes = 0;
 	size_t thisblock = 0;
+	StrBuf *Buf;
+	StrBuf *Ret = NULL;
 
-	memset(buffer, 0, total_len);
+	Buf = NewStrBuf();
+	
 	while (bytes < total_len) {
 		thisblock = 4095;
 		if ((total_len - bytes) < thisblock) {
 			thisblock = total_len - bytes;
-			if (thisblock == 0) return;
+			if (thisblock == 0) {
+				FreeStrBuf(&Ret); 
+				FreeStrBuf(&Buf);
+				return NULL; 
+			}
 		}
 		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '6') {
-			thisblock = (size_t)atoi(&buf[4]);
-			if (!WC->connected) return;
-			serv_read(&buffer[bytes], thisblock);
-			bytes += thisblock;
-		}
-		else {
-			lprintf(3, "Error: %s\n", &buf[4]);
-			return;
+		if (StrBuf_ServGetln(Buf) > 0)
+		{
+		    if (ChrPtr(Buf)[0] == '6')
+		    {
+			    StrBufCutLeft(Buf, 4); //thisblock = (size_t)atoi(&buf[4]);
+			    thisblock = StrTol(Buf);
+			    if (!WC->connected) {
+				    FreeStrBuf(&Ret);
+				    FreeStrBuf(&Buf); 
+				    return NULL; 
+			    }
+			    if (Ret == NULL) Ret = NewStrBuf();
+			    StrBuf_ServGetBLOB(Ret, thisblock);
+			    bytes += thisblock;
+		    }
+		    else {
+			    FreeStrBuf(&Buf);
+			    lprintf(3, "Error: %s\n", &buf[4]);
+			    return NULL;
+		    }
 		}
 	}
+	return Ret;
 }
 
 
@@ -375,36 +393,27 @@ void read_server_binary(char *buffer, size_t total_len) {
  * usual 000 terminator is found.  Caller is responsible for freeing
  * the returned pointer.
  */
-char *read_server_text(void) {
-	char *text = NULL;
-	size_t bytes_allocated = 0;
-	size_t bytes_read = 0;
-	int linelen;
-	char buf[SIZ];
-
-	text = malloc(SIZ);
-	if (text == NULL) {
-		return(NULL);
-	}
-	text[0] = 0;
-	bytes_allocated = SIZ;
-
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		linelen = strlen(buf);
-		buf[linelen] = '\n';
-		buf[linelen+1] = 0;
-		++linelen;
-
-		if ((bytes_read + linelen) >= (bytes_allocated - 2)) {
-			bytes_allocated = 2 * bytes_allocated;
-			text = realloc(text, bytes_allocated);
-		}
-
-		strcpy(&text[bytes_read], buf);
-		bytes_read += linelen;
+StrBuf *read_server_text(long *nLines)
+{
+	struct wcsession *WCC = WC;
+	StrBuf *Buf;
+	long nRead;
+	long nlines;
+	const char *buf;
+	
+	Buf = NewStrBuf();
+	buf = ChrPtr(Buf);
+	nlines = 0;
+	while ((WCC->serv_sock!=-1) &&
+	       (nRead = StrBuf_ServGetln(Buf)), 
+	       (nRead >= 0) && 
+	       (buf += nRead), (strcmp(buf, "000") != 0)) {
+		
+		nlines ++;
 	}
 
-	return(text);
+	*nLines = nlines;
+	return Buf;
 }
 
 

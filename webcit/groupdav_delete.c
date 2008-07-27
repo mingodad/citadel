@@ -42,9 +42,9 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 		gotoroom(dav_roomname);
 	}
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf("Content-Length: 0\r\n\r\n");
+		hprintf("Content-Length: 0\r\n\r\n");
 		return;
 	}
 
@@ -54,9 +54,9 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	 * If no item exists with the requested uid ... simple error.
 	 */
 	if (dav_msgnum < 0L) {
-		wprintf("HTTP/1.1 404 Not Found\r\n");
+		hprintf("HTTP/1.1 404 Not Found\r\n");
 		groupdav_common_headers();
-		wprintf("Content-Length: 0\r\n\r\n");
+		hprintf("Content-Length: 0\r\n\r\n");
 		return;
 	}
 
@@ -66,9 +66,9 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	 */
 	if (!IsEmptyStr(dav_ifmatch)) {
 		if (atol(dav_ifmatch) != dav_msgnum) {
-			wprintf("HTTP/1.1 412 Precondition Failed\r\n");
+			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			groupdav_common_headers();
-			wprintf("Content-Length: 0\r\n\r\n");
+			hprintf("Content-Length: 0\r\n\r\n");
 			return;
 		}
 	}
@@ -79,14 +79,14 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	serv_printf("DELE %ld", dav_msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
-		wprintf("HTTP/1.1 204 No Content\r\n");	/* success */
+		hprintf("HTTP/1.1 204 No Content\r\n");	/* success */
 		groupdav_common_headers();
-		wprintf("Content-Length: 0\r\n\r\n");
+		hprintf("Content-Length: 0\r\n\r\n");
 	}
 	else {
-		wprintf("HTTP/1.1 403 Forbidden\r\n");	/* access denied */
+		hprintf("HTTP/1.1 403 Forbidden\r\n");	/* access denied */
 		groupdav_common_headers();
-		wprintf("Content-Length: 0\r\n\r\n");
+		hprintf("Content-Length: 0\r\n\r\n");
 	}
 	return;
 }

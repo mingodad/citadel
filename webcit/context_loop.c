@@ -102,6 +102,9 @@ void do_housekeeping(void)
 		free_march_list(sessions_to_kill);
 		DeleteHash(&(sessions_to_kill->hash_prefs));
 		DeleteHash(&(sessions_to_kill->IconBarSetttings));
+		FreeStrBuf(&(sessions_to_kill->UrlFragment1));
+		FreeStrBuf(&(sessions_to_kill->UrlFragment2));
+		FreeStrBuf(&(sessions_to_kill->WBuf));
 
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;

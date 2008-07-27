@@ -19,7 +19,7 @@
  * will be displayed at the top of the screen.
  * \param prepend_html pagetitle to prepend
  */
-void display_floorconfig(char *prepend_html)
+void display_floorconfig(StrBuf *prepend_html)
 {
 	char buf[SIZ];
 
@@ -38,7 +38,7 @@ void display_floorconfig(char *prepend_html)
                                                                                                                              
 	if (prepend_html != NULL) {
 		wprintf("<br /><b><i>");
-		client_write(prepend_html, strlen(prepend_html));
+		StrBufAppendBuf(WC->WBuf, prepend_html, 0);
 		wprintf("</i></b><br /><br />\n");
 	}
 
@@ -136,64 +136,66 @@ void display_floorconfig(char *prepend_html)
  */
 void delete_floor(void) {
 	int floornum;
-	char buf[SIZ];
-	char message[SIZ];
-
+	StrBuf *Buf;
+	const char *Err;
+		
 	floornum = ibstr("floornum");
-
+	Buf = NewStrBuf();
 	serv_printf("KFLR %d|1", floornum);
-	serv_getln(buf, sizeof buf);
+	
+	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
 
-	if (buf[0] == '2') {
-		sprintf(message, _("Floor has been deleted."));
+	if (ChrPtr(Buf)[0] == '2') {
+		StrBufPlain(Buf, _("Floor has been deleted."),-1);
 	}
 	else {
-		sprintf(message, "%s", &buf[4]);
+		StrBufCutLeft(Buf, 4);
 	}
 
-	display_floorconfig(message);
+	display_floorconfig(Buf);
+	FreeStrBuf(&Buf);
 }
 
 /**
  * \brief tart creating a new floor
  */
 void create_floor(void) {
-	char buf[SIZ];
-	char message[SIZ];
-	char floorname[SIZ];
+	StrBuf *Buf;
+	const char *Err;
 
-	strcpy(floorname, bstr("floorname"));
+	Buf = NewStrBuf();
+	serv_printf("CFLR %s|1", bstr("floorname"));
+	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
 
-	serv_printf("CFLR %s|1", floorname);
-	serv_getln(buf, sizeof buf);
-
-	if (buf[0] == '2') {
-		sprintf(message, _("New floor has been created."));
-	} else {
-		sprintf(message, "%s", &buf[4]);
+	if (ChrPtr(Buf)[0] == '2') {
+		StrBufPlain(Buf, _("New floor has been created."),-1);
+	}
+	else {
+		StrBufCutLeft(Buf, 4);
 	}
 
-	display_floorconfig(message);
+	display_floorconfig(Buf);
+	FreeStrBuf(&Buf);
 }
+
 
 /**
  * \brief rename this floor
  */
 void rename_floor(void) {
-	int floornum;
-	char buf[SIZ];
-	char message[SIZ];
-	char floorname[SIZ];
+	StrBuf *Buf;
 
-	floornum = ibstr("floornum");
-	strcpy(floorname, bstr("floorname"));
+	Buf = NewStrBuf();
 
-	serv_printf("EFLR %d|%s", floornum, floorname);
-	serv_getln(buf, sizeof buf);
+	serv_printf("EFLR %d|%s", 
+		    ibstr("floornum"), 
+		    bstr("floorname"));
+	StrBuf_ServGetln(Buf);
 
-	sprintf(message, "%s", &buf[4]);
+	StrBufCutLeft(Buf, 4);
 
-	display_floorconfig(message);
+	display_floorconfig(Buf);
+	FreeStrBuf(&Buf);
 }
 
 void _display_floorconfig(void) {display_floorconfig(NULL);}

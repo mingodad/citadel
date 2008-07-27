@@ -439,7 +439,7 @@ void ssl_lock(int mode, int n, const char *file, int line)
  * \param buf chars to send to the client
  * \param nbytes how many chars
  */
-void client_write_ssl(char *buf, int nbytes)
+void client_write_ssl(const char *buf, int nbytes)
 {
 	int retval;
 	int nremain;
