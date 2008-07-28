@@ -341,24 +341,25 @@ void server_to_text()
  * server READ commands.
  * \return the read content as StrBuf
  */
-StrBuf *read_server_binary(size_t total_len) 
+int read_server_binary(StrBuf *Ret, size_t total_len) 
 {
 	char buf[SIZ];
 	size_t bytes = 0;
 	size_t thisblock = 0;
 	StrBuf *Buf;
-	StrBuf *Ret = NULL;
-
-	Buf = NewStrBuf();
 	
+	Buf = NewStrBuf();
+	if (Ret == NULL)
+	    return -1;
+
 	while (bytes < total_len) {
 		thisblock = 4095;
 		if ((total_len - bytes) < thisblock) {
 			thisblock = total_len - bytes;
 			if (thisblock == 0) {
-				FreeStrBuf(&Ret); 
+				FlushStrBuf(Ret); 
 				FreeStrBuf(&Buf);
-				return NULL; 
+				return -1; 
 			}
 		}
 		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
@@ -369,22 +370,21 @@ StrBuf *read_server_binary(size_t total_len)
 			    StrBufCutLeft(Buf, 4); //thisblock = (size_t)atoi(&buf[4]);
 			    thisblock = StrTol(Buf);
 			    if (!WC->connected) {
-				    FreeStrBuf(&Ret);
+				    FlushStrBuf(Ret); 
 				    FreeStrBuf(&Buf); 
-				    return NULL; 
+				    return -1; 
 			    }
-			    if (Ret == NULL) Ret = NewStrBuf();
 			    StrBuf_ServGetBLOB(Ret, thisblock);
 			    bytes += thisblock;
 		    }
 		    else {
 			    FreeStrBuf(&Buf);
 			    lprintf(3, "Error: %s\n", &buf[4]);
-			    return NULL;
+			    return -1;
 		    }
 		}
 	}
-	return Ret;
+	return StrLength(Ret);
 }
 
 
@@ -393,27 +393,27 @@ StrBuf *read_server_binary(size_t total_len)
  * usual 000 terminator is found.  Caller is responsible for freeing
  * the returned pointer.
  */
-StrBuf *read_server_text(long *nLines)
+int read_server_text(StrBuf *Buf, long *nLines)
 {
 	struct wcsession *WCC = WC;
-	StrBuf *Buf;
 	long nRead;
+	long nTotal = 0;
 	long nlines;
-	const char *buf;
 	
-	Buf = NewStrBuf();
-	buf = ChrPtr(Buf);
 	nlines = 0;
 	while ((WCC->serv_sock!=-1) &&
-	       (nRead = StrBuf_ServGetln(Buf)), 
-	       (nRead >= 0) && 
-	       (buf += nRead), (strcmp(buf, "000") != 0)) {
-		
+	       (nRead = StrBuf_ServGetln(Buf), (nRead >= 0) ))
+	{
+		if (strcmp(ChrPtr(Buf) + nTotal, "000") != 0) {
+			StrBufCutRight(Buf, nRead);
+			break;
+		}
+		nTotal += nRead;
 		nlines ++;
 	}
 
 	*nLines = nlines;
-	return Buf;
+	return nTotal;
 }
 
 

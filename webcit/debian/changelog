@@ -1,3 +1,68 @@
+webcit (7.37-36) stable; urgency=low
+
+  * fix tiny JS error anoying HTTP IM Users
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 16 Jul 2008 14:00:00 +0002
+
+webcit (7.37-35) stable; urgency=low
+
+  * tiny bugfix with i18n makefiles
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 22 Jun 2008 22:00:00 +0002
+
+webcit (7.37-34) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 19 Jun 2008 22:00:00 +0002
+
+webcit (7.36-33) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 30 May 2008 19:00:00 +0002
+
+webcit (7.35-32) stable; urgency=low
+
+  * fix prototype package integration
+  * updated brazillian translation
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 22 Apr 2008 8:00:00 +0001
+webcit (7.35-31) stable; urgency=low
+
+  * New citadel version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 22 Apr 2008 19:00:00 +0002
+
+webcit (7.34-29) stable; urgency=high
+
+  * fix bug in addressbook popup
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 5 Mar 2008 22:00:00 +0001
+
+webcit (7.33-28) stable; urgency=high
+
+  * adjusted license; new sorting in lists
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mo, 3 Mar 2008 22:00:00 +0001
+
+webcit (7.31-27) stable; urgency=high
+
+  * initial mime detection support
+  * don't nail the users to GIF
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 12 Feb 2008 0:00:00 +0001
+
+webcit (7.30-26) stable; urgency=high
+
+  * Fix room admin dialog
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 6 Feb 2008 20:00:00 +0001
+webcit (7.30-25) stable; urgency=high
+
+  * New citadel version.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 1 Feb 2008 10:00:00 +0001
 webcit (7.24-24) stable; urgency=high
 
   * fixed missing locales and image calculation

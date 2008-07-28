@@ -383,7 +383,6 @@ void display_mime_icon(void)
 
 void download_file(void)
 {
-	StrBuf *Buf;
 	char buf[256];
 	off_t bytes;
 	char content_type[256];
@@ -406,10 +405,10 @@ void download_file(void)
 			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
-		Buf = read_server_binary(bytes);
+		read_server_binary(WC->WBuf, bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
-		http_transmit_thing(Buf, content_type, 0);
+		http_transmit_thing(content_type, 0);
 		free(content);
 	} else {
 		hprintf("HTTP/1.1 404 %s\n", &buf[4]);

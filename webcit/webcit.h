@@ -703,13 +703,13 @@ void initialize_locales(void);
 
 extern char *months[];
 extern char *days[];
-StrBuf *read_server_binary(size_t total_len);
+int read_server_binary(StrBuf *Ret, size_t total_len);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
-StrBuf *read_server_text(long *nLines);
+int read_server_text(StrBuf *Buf, long *nLines);;
 int goto_config_room(void);
 long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
-void http_transmit_thing(StrBuf *thing, const char *content_type, int is_static);
+void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
 void do_selected_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
