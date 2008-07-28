@@ -237,6 +237,7 @@ void StrBufEUid_unescapize(StrBuf *target, StrBuf *source);
 void StrBufEUid_escapize(StrBuf *target, StrBuf *source);
 
 int CompressBuffer(StrBuf *Buf);
+int StrBufDecodeBase64(StrBuf *Buf);
 
 long StrTol(StrBuf *Buf);
 

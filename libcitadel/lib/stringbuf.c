@@ -673,3 +673,19 @@ int CompressBuffer(StrBuf *Buf)
 #endif	/* HAVE_ZLIB */
 	return 0;
 }
+
+int StrBufDecodeBase64(StrBuf *Buf)
+{
+	char *xferbuf;
+	size_t siz;
+	if (Buf == NULL) return -1;
+
+	xferbuf = (char*) malloc(Buf->BufSize);
+	siz = CtdlDecodeBase64(xferbuf,
+			       Buf->buf,
+			       Buf->BufUsed);
+	free(Buf->buf);
+	Buf->buf = xferbuf;
+	Buf->BufUsed = siz;
+	return siz;
+}
