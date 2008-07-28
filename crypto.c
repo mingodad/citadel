@@ -369,14 +369,31 @@ int starttls(int sock) {
 		 * revert to unencrypted communications.
 		 */
 		long errval;
+		char *ssl_error_reason = NULL;
 
 		errval = SSL_get_error(newssl, retval);
-		lprintf(3, "SSL_accept failed: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
+		if (ssl_error_reason == NULL)
+			lprintf(3, "SSL_accept failed: errval=%i, retval=%i\n", errval, retval);
+		else
+			lprintf(3, "SSL_accept failed: %s\n", ssl_error_reason);
+		sleep(1);
+		retval = SSL_accept(newssl);
+	}
+	if (retval < 1) {
+		long errval;
+		char *ssl_error_reason = NULL;
+
+		errval = SSL_get_error(newssl, retval);
+		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
+		if (ssl_error_reason == NULL)
+			lprintf(3, "SSL_accept failed: errval=%i, retval=%i\n", errval, retval);
+		else
+			lprintf(3, "SSL_accept failed: %s\n", ssl_error_reason);
 		SSL_free(newssl);
 		newssl = NULL;
 		return(4);
-	}
+	} else lprintf(3, "SSL_accept success\n");
 	BIO_set_close(newssl->rbio, BIO_NOCLOSE);
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl), &alg_bits);
 	lprintf(5, "SSL/TLS using %s on %s (%d of %d bits)\n",
@@ -385,6 +402,7 @@ int starttls(int sock) {
 		bits, alg_bits);
 
 	pthread_setspecific(ThreadSSL, newssl);
+	lprintf(3, "SSL started\n");
 	return(0);
 }
 
@@ -520,7 +538,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 #endif
 		if (SSL_want_read(THREADSSL)) {
 			if ((SSL_write(THREADSSL, junk, 0)) < 1) {
-				lprintf(9, "SSL_write in client_read: %s\n", ERR_reason_error_string(ERR_get_error()));
+				lprintf(9, "SSL_write in client_read\n");
 			}
 		}
 		rlen = SSL_read(THREADSSL, &buf[len], bytes - len);
