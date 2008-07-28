@@ -1073,7 +1073,6 @@ void save_event(void) {
 void do_freebusy(char *req) {
 	char who[SIZ];
 	char buf[SIZ];
-	StrBuf *fb;
 	int len;
 	long lines;
 
@@ -1103,9 +1102,8 @@ void do_freebusy(char *req) {
 		return;
 	}
 
-	fb = read_server_text(&lines);
-	http_transmit_thing(fb, "text/calendar", 0);
-	FreeStrBuf(&fb);
+	read_server_text(WC->WBuf, &lines);
+	http_transmit_thing("text/calendar", 0);
 }
 
 

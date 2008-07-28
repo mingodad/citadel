@@ -764,7 +764,7 @@ void http_redirect(const char *whichpage) {
 /*
  * Output a piece of content to the web browser using conformant HTTP and MIME semantics
  */
-void http_transmit_thing(StrBuf *thing, const char *content_type,
+void http_transmit_thing(const char *content_type,
 			 int is_static) {
 
 	output_headers(0, 0, 0, 0, 0, is_static);
@@ -775,9 +775,7 @@ void http_transmit_thing(StrBuf *thing, const char *content_type,
 		content_type,
 		PACKAGE_STRING);
 
-	WC->WBuf = thing;
 	end_burst();
-	WC->WBuf = NULL;
 }
 
 /*
@@ -824,7 +822,6 @@ void output_static(char *what)
 	struct stat statbuf;
 	off_t bytes;
 	off_t count = 0;
-	StrBuf *Buf;
 	const char *content_type;
 	int len;
 	const char *Err;
@@ -851,17 +848,10 @@ void output_static(char *what)
 
 		count = 0;
 		bytes = statbuf.st_size;
-		Buf = NewStrBufPlain(NULL, bytes + 2);
-		if (Buf == NULL) {
-			lprintf(9, "output_static('%s')  -- MALLOC FAILED (%s) --\n", what, strerror(errno));
-			hprintf("HTTP/1.1 500 internal server error\r\n");
-			hprintf("Content-Type: text/plain\r\n");
-			end_burst();
-			return;
-		}
-///		StrBufAppendBuf(Buf, WC->WBuf, 0);
-		if (StrBufReadBLOB(Buf, &fd, 1, bytes, &Err) < 0)
+
+		if (StrBufReadBLOB(WC->WBuf, &fd, 1, bytes, &Err) < 0)
 		{
+			if (fd > 0) close(fd);
 			lprintf(9, "output_static('%s')  -- FREAD FAILED (%s) --\n", what, strerror(errno));
 				hprintf("HTTP/1.1 500 internal server error \r\n");
 				hprintf("Content-Type: text/plain\r\n");
@@ -872,8 +862,7 @@ void output_static(char *what)
 
 		close(fd);
 		lprintf(9, "output_static('%s')  %s\n", what, content_type);
-		http_transmit_thing(Buf, content_type, 1);
-		FreeStrBuf(&Buf);
+		http_transmit_thing(content_type, 1);
 	}
 	if (yesbstr("force_close_session")) {
 		end_webcit_session();
@@ -886,12 +875,12 @@ void output_static(char *what)
  */
 void output_image()
 {
+	struct wcsession *WCC = WC;
 	char buf[SIZ];
 	char *xferbuf = NULL;
 	off_t bytes;
 	const char *MimeType;
-	StrBuf *Buf;
-
+	
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
@@ -900,19 +889,17 @@ void output_image()
 
 		/** Read it from the server */
 		
-		Buf = read_server_binary(bytes);
-		serv_puts("CLOS");
-		serv_getln(buf, sizeof buf);
-
-		MimeType = GuessMimeType (ChrPtr(Buf), StrLength(Buf));
-		/** Write it to the browser */
-		if (!IsEmptyStr(MimeType))
-		{
-			http_transmit_thing(Buf, 
-					    MimeType, 
-					    0);
-			FreeStrBuf(&Buf);
-			return;
+		if (read_server_binary(WCC->WBuf, bytes) > 0) {
+			serv_puts("CLOS");
+			serv_getln(buf, sizeof buf);
+		
+			MimeType = GuessMimeType (ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
+			/** Write it to the browser */
+			if (!IsEmptyStr(MimeType))
+			{
+				http_transmit_thing(MimeType, 0);
+				return;
+			}
 		}
 		/* hm... unknown mimetype? fallback to blank gif */
 	} 
@@ -935,35 +922,32 @@ void display_vcard_photo_img(void)
 	long msgnum = 0L;
 	char *vcard;
 	struct vCard *v;
-	char *xferbuf;
 	char *photosrc;
-	int decoded;
 	const char *contentType;
-	StrBuf *Buf;
+	struct wcsession *WCC = WC;
 
-	msgnum = StrTol(WC->UrlFragment1);
+	msgnum = StrTol(WCC->UrlFragment1);
 	
 	vcard = load_mimepart(msgnum,"1");
 	v = vcard_load(vcard);
 	
 	photosrc = vcard_get_prop(v, "PHOTO", 1,0,0);
-	xferbuf = malloc(strlen(photosrc));
-	if (xferbuf == NULL) {
-		lprintf(5, "xferbuf malloc failed\n");
+	FlushStrBuf(WCC->WBuf);
+	StrBufAppendBufPlain(WCC->WBuf, photosrc, -1, 0);
+	if (StrBufDecodeBase64(WCC->WBuf) <= 0) {
+		FlushStrBuf(WCC->WBuf);
+		
+		hprintf("HTTP/1.1 500 %s\n","Unable to get photo");
+		output_headers(0, 0, 0, 0, 0, 0);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf(_("Could Not decode vcard photo\n"));
+		end_burst();
 		return;
 	}
-	memset(xferbuf, 1, SIZ);
-	decoded = CtdlDecodeBase64(
-		xferbuf,
-		photosrc,
-		strlen(photosrc));
-	contentType = GuessMimeType(xferbuf, decoded);
-	Buf = _NewConstStrBuf(xferbuf, decoded);
-	http_transmit_thing(Buf, contentType, 0);
+	contentType = GuessMimeType(ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
+	http_transmit_thing(contentType, 0);
 	free(v);
 	free(photosrc);
-	free(xferbuf);
-	FreeStrBuf(&Buf);
 }
 
 /*
@@ -984,7 +968,6 @@ void mimepart(const char *msgnum, const char *partnum, int force_download)
 	serv_printf("OPNA %s|%s", msgnum, partnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
-		StrBuf *Buf;
 		bytes = extract_long(&buf[4], 0);
 		content = malloc(bytes + 2);
 		if (force_download) {
@@ -995,11 +978,10 @@ void mimepart(const char *msgnum, const char *partnum, int force_download)
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
 
-		Buf = read_server_binary(bytes);
+		read_server_binary(WC->WBuf, bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
-		http_transmit_thing(Buf, content_type, 0);
-		FreeStrBuf(&Buf);
+		http_transmit_thing(content_type, 0);
 	} else {
 		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
@@ -1378,9 +1360,14 @@ void session_loop(struct httprequest *req)
 	strcpy(browser_host, "");
 
 	WCC= WC;
+	if (WCC->WBuf == NULL)
+		WCC->WBuf = NewStrBuf();
+	FlushStrBuf(WCC->WBuf);
+
 	if (WCC->HBuf == NULL)
 		WCC->HBuf = NewStrBuf();
 	FlushStrBuf(WCC->HBuf);
+
 	WCC->upload_length = 0;
 	WCC->upload = NULL;
 	WCC->is_mobile = 0;

@@ -1413,7 +1413,7 @@ void print_message(void) {
 
 	hprintf("Content-type: text/html\r\n"
 		"Server: %s\r\n"
-		"Connection: close\r\n"
+		"Connection: close\r\n",
 		PACKAGE_STRING);
 	begin_burst();
 

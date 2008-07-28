@@ -13,13 +13,13 @@
 icalcomponent *get_freebusy_for_user(char *who) {
 	long nLines;
 	char buf[SIZ];
-	StrBuf *serialized_fb = NULL;
+	StrBuf *serialized_fb = NewStrBuf();
 	icalcomponent *fb = NULL;
 
 	serv_printf("ICAL freebusy|%s", who);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		serialized_fb = read_server_text(&nLines);
+		read_server_text(serialized_fb, &nLines);
 	}
 
 	if (serialized_fb == NULL) {
