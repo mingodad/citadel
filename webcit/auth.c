@@ -539,6 +539,8 @@ void do_welcome(void)
 	if (ChrPtr(Buf)[0] == '/') {
 		StrBufCutLeft(Buf, 1);
 	}
+	if (StrLength(Buf) == 0)
+		StrBufAppendBufPlain(Buf, "/knrooms", 1, 0);
 	http_redirect(ChrPtr(Buf));
 }
 
