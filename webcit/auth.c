@@ -286,6 +286,7 @@ void do_login(void)
 		}
 	}
 	if (WC->logged_in) {
+		set_preference("language", NewStrBufPlain(bstr("language"), -1), 1);
 		if (WC->need_regi) {
 			display_reg(1);
 		} else if (WC->need_vali) {
@@ -540,7 +541,7 @@ void do_welcome(void)
 		StrBufCutLeft(Buf, 1);
 	}
 	if (StrLength(Buf) == 0)
-		StrBufAppendBufPlain(Buf, "/knrooms", 1, 0);
+		StrBufAppendBufPlain(Buf, "dotgoto?room=_BASEROOM_", -1, 0);
 	http_redirect(ChrPtr(Buf));
 }
 

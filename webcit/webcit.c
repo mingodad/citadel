@@ -1606,7 +1606,7 @@ void session_loop(struct httprequest *req)
 			}
 		}
 	}
-
+////////todo: restorte language in this case
 	/*
 	 * Functions which can be performed without logging in
 	 */
@@ -1692,7 +1692,12 @@ void session_loop(struct httprequest *req)
 			serv_printf("PASS %s", c_password);
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '2') {
+				StrBuf *Lang;
 				become_logged_in(c_username, c_password, buf);
+				if (get_preference("language", &Lang)) {
+					set_selected_language(ChrPtr(Lang));
+					go_selected_language();		/* set locale */
+				}
 			}
 		}
 	}

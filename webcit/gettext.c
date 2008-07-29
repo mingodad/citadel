@@ -220,8 +220,9 @@ void offer_languages(void) {
  * \brief Set the selected language for this session.
  * \param lang the locale to set.
  */
-void set_selected_language(char *lang) {
+void set_selected_language(const char *lang) {
 	int i;
+
 #ifdef HAVE_USELOCALE
 	for (i=0; i<NUM_LANGS; ++i) {
 		if (!strcasecmp(lang, AvailLang[i])) {
