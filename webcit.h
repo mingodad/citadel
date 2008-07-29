@@ -716,7 +716,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
 void display_rss(char *roomname, char *request_method);
 void offer_languages(void);
-void set_selected_language(char *);
+void set_selected_language(const char *);
 void go_selected_language(void);
 void stop_selected_language(void);
 void preset_locale(void);
