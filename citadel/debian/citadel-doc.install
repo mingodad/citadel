@@ -1,2 +1,6 @@
 usr/share/doc/citadel-doc/docs
 usr/share/doc/citadel-doc/techdoc
+usr/share/doc/citadel-doc/citadel.schema
+usr/share/doc/citadel-doc/rfc2739.schema
+usr/share/doc/citadel-doc/README.txt
+

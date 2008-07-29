@@ -1,3 +1,60 @@
+citadel (7.37-39) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 19 Jun 2008 22:00:00 +0002
+
+citadel (7.36-38) stable; urgency=low
+  * fix tyny upgrade bug
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sat, 31 May 2008 10:00:00 +0002
+
+citadel (7.36-38) stable; urgency=low
+  * fix tiny mime header typo
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 30 May 2008 22:00:00 +0002
+citadel (7.36-37) stable; urgency=low
+  * new upstream version
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 30 May 2008 19:00:00 +0002
+
+citadel (7.35-36) stable; urgency=low
+  * new upstream version
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 22 Apr 2008 19:00:00 +0002
+citadel (7.33-35) stable; urgency=low
+  * several minor upstream fixes
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 17 Mar 2008 22:37:28 +0001
+citadel (7.33-34) stable; urgency=low
+
+  * adjusted license 
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 3 Mar 2008 22:37:28 +0001
+citadel (7.32-33) stable; urgency=high
+
+  * fix post-install bug with alias migration
+  * fix bug with local calendar invitations
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 20 Feb 2008 23:37:28 +0001
+citadel (7.32-32) stable; urgency=high
+
+  * fix exec permissions from scripts
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 18 Feb 2008 09:37:28 +0001 
+citadel (7.32-31) stable; urgency=high
+
+  * Emergency update fixing thread mixmax
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 17 Feb 2008 09:37:28 +0001 
+citadel (7.31-30) stable; urgency=high
+  * fix init script
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 12 Feb 2008 9:00:00 +0001
+citadel (7.31-29) stable; urgency=high
+
+  * implement mimetype logic.
+  * fix several issues where the new non-public room posting was too strict
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 12 Feb 2008 0:00:00 +0001
+citadel (7.30-28) stable; urgency=high
+
+  * New citadel version.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 1 Feb 2008 10:00:00 +0001
 citadel (7.24-27) stable; urgency=high
 
   * managesieve permission and auth problems fixed.
