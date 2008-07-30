@@ -108,7 +108,9 @@ for HOOK in $INIT_FUNCS; do
 HOOKNAME=`echo $HOOK |sed "s;InitModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
+#ifdef DBG_PRINNT_HOOKS_AT_START
 	lprintf (CTDL_INFO, "Initializing $HOOKNAME\n");
+#endif
 	$HOOK();
 EOF
 # Add this entry point to the .h file
