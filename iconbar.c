@@ -79,7 +79,6 @@ void LoadIconSettings(void)
 			    (void*)val, DontDeleteThis);
 		}
 	}
-	printf("-----------icon-------------------\n");
 	dbg_PrintHash(WCC->IconBarSetttings, PrintInt, NULL);
 
 	FreeStrBuf(&key);
@@ -793,7 +792,6 @@ void commit_iconbar(void) {
 		"choices to continue."));
 	wprintf("</td></tr></table>\n");
 	wDumpContent(2);
-	printf("-----------icon-------------------\n");
 	dbg_PrintHash(WC->IconBarSetttings, PrintInt, NULL);
 }
 
