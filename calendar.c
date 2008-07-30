@@ -421,6 +421,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	struct wcsession *WCC = WC;
 	disp_cal *Cal;
 	size_t len;
+	time_t final_recurrence = 0;
 
 	/* recur variables */
 	icalproperty *rrule = NULL;
@@ -434,8 +435,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	
 	if (WCC->disp_cal_items == NULL)
 		WCC->disp_cal_items = NewHash(0, Flathash);
-
-
 
 	/* Note: anything we do here, we also have to do below for the recurrences. */
 	Cal = (disp_cal*) malloc(sizeof(disp_cal));
@@ -499,40 +498,48 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	while (next = icalrecur_iterator_next(ritr), !icaltime_is_null_time(next) ) {
 		++num_recur;
 
-		/* Note: anything we do here, we also have to do above for the root event. */
-		Cal = (disp_cal*) malloc(sizeof(disp_cal));
-		memset(Cal, 0, sizeof(disp_cal));
+		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
+
+			/* Note: anything we do here, we also have to do above for the root event. */
+			Cal = (disp_cal*) malloc(sizeof(disp_cal));
+			memset(Cal, 0, sizeof(disp_cal));
+		
+			Cal->cal = icalcomponent_new_clone(cal);
+			Cal->unread = unread;
+			len = strlen(from);
+			Cal->from = (char*)malloc(len+ 1);
+			memcpy(Cal->from, from, len + 1);
+			ical_dezonify(Cal->cal);
+			Cal->cal_msgnum = msgnum;
 	
-		Cal->cal = icalcomponent_new_clone(cal);
-		Cal->unread = unread;
-		len = strlen(from);
-		Cal->from = (char*)malloc(len+ 1);
-		memcpy(Cal->from, from, len + 1);
-		ical_dezonify(Cal->cal);
-		Cal->cal_msgnum = msgnum;
+			ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
+			if (ps != NULL) {
+				icalcomponent_remove_property(Cal->cal, ps);
+				ps = icalproperty_new_dtstart(next);
+				icalcomponent_add_property(Cal->cal, ps);
+				Cal->event_start = icaltime_as_timet(next);
+				final_recurrence = Cal->event_start;
+			}
+	
+			ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
+			if (ps != NULL) {
+				icalcomponent_remove_property(Cal->cal, ps);
 
-		ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
-		if (ps != NULL) {
-			icalcomponent_remove_property(Cal->cal, ps);
-			ps = icalproperty_new_dtstart(next);
-			icalcomponent_add_property(Cal->cal, ps);
-			Cal->event_start = icaltime_as_timet(next);
+				/* Make a new dtend */
+				ps = icalproperty_new_dtend(icaltime_add(next, dur));
+	
+				/* and stick it somewhere */
+				icalcomponent_add_property(Cal->cal, ps);
+			}
+	
+			Put(WCC->disp_cal_items, 
+				(char*) &Cal->event_start,
+				sizeof(Cal->event_start), 
+				Cal, 
+				delete_cal);
 		}
-
-		ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
-		if (ps != NULL) {
-			icalcomponent_remove_property(Cal->cal, ps);
-			/* FIXME now set the dtend property and stuff it somewhere */
-		}
-
-		Put(WCC->disp_cal_items, 
-			(char*) &Cal->event_start,
-			sizeof(Cal->event_start), 
-			Cal, 
-			delete_cal);
 	}
-	time_t tt = icaltime_as_timet(next);
-	lprintf(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&tt));
+	lprintf(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence));
 
 #endif /* TECH_PREVIEW */
 
