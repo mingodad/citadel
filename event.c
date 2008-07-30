@@ -9,9 +9,9 @@
 
 
 /*
- * \brief Display an event by itself (for editing)
- * \param supplied_vevent the event to edit
- * \param msgnum reference on the citserver
+ * Display an event by itself (for editing)
+ * supplied_vevent	the event to edit
+ * msgnum		reference on the citserver
  */
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from, int unread) {
 	icalcomponent *vevent;
@@ -40,7 +40,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
-		/**
+		/*
 		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VEVENT component, attempt to use the first
 		 * relevant VEVENT subcomponent.  If there is none, the
@@ -62,13 +62,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		created_new_vevent = 1;
 	}
 
-	/** Learn the sequence */
+	/* Learn the sequence */
 	p = icalcomponent_get_first_property(vevent, ICAL_SEQUENCE_PROPERTY);
 	if (p != NULL) {
 		sequence = icalproperty_get_sequence(p);
 	}
 
-	/** Begin output */
+	/* Begin output */
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
@@ -78,8 +78,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table  class=\"event_background\"><tr><td>\n");
+	wprintf("<div class=\"fix_scrollbar_bug\">");
+#ifndef TECH_PREVIEW
+	wprintf("<table  class=\"event_background\"><tr><td>\n");
+#endif
 
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
@@ -106,7 +108,18 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
 		bstr("day"));
 
-	/** Put it in a borderless table so it lines up nicely */
+#ifdef TECH_PREVIEW
+	char *tabnames[] = {		// FIXME localize these when the code is finished
+		"Event",
+		"Attendees",
+		"Recurrence"
+	};
+
+	tabbed_dialog(3, tabnames);
+	begin_tab(0, 3);
+#endif
+
+	/* Put it in a borderless table so it lines up nicely */
 	wprintf("<TABLE border=0 width=100%%>\n");
 
 	wprintf("<TR><TD><B>");
@@ -375,13 +388,37 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	);
 
 	wprintf("</FORM>\n");
+#ifndef TECH_PREVIEW
+	wprintf("</td></tr></table>");
+#endif
 	
-	wprintf("</td></tr></table></div>\n");
+#ifdef TECH_PREVIEW
+	end_tab(0, 3);
+
+	/* Attendees tab (need to move things here) */
+	begin_tab(1, 3);
+	end_tab(1, 3);
+
+	/* Recurrence tab */
+	begin_tab(2, 3);
+	icalproperty *rrule = NULL;
+	struct icalrecurrencetype recur;
+
+	rrule = icalcomponent_get_first_property(vevent, ICAL_RRULE_PROPERTY);
+	if (rrule) {
+		recur = icalproperty_get_rrule(rrule);
+		wprintf("<tt>%s</tt><br />\n", icalrecurrencetype_as_string(&recur));
+	}
+	end_tab(2, 3);
+
+#endif
+
+	wprintf("</div>\n");
+
 	wprintf("<script type=\"text/javascript\">"
 		"eventEditAllDay();"
 		"</script>\n"
 	);
-	
 	address_book_popup();
 	wDumpContent(1);
 
@@ -684,7 +721,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 		/** Or, check attendee availability if the user asked for that. */
 		if ( (encaps != NULL) && (havebstr("check_button")) ) {
 
-			/** Call this function, which does the real work */
+			/* Call this function, which does the real work */
 			check_attendee_availability(encaps);
 
 			/** This displays the form again, with our annotations */
@@ -712,5 +749,3 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 		readloop("readfwd");
 	}
 }
-
-
