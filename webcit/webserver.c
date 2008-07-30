@@ -581,8 +581,12 @@ void spawn_another_worker_thread()
 	pthread_attr_destroy(&attr);
 }
 
+//#define DBG_PRINNT_HOOKS_AT_START
+#ifdef DBG_PRINNT_HOOKS_AT_START
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
+#endif 
+
 /*
  * \brief Here's where it all begins.
  * \param argc number of commandline args
@@ -612,7 +616,10 @@ int main(int argc, char **argv)
 
 	HandlerHash = NewHash(1, NULL);
 	initialise_modules();
+
+#ifdef DBG_PRINNT_HOOKS_AT_START
 	dbg_PrintHash(HandlerHash, nix, NULL);
+#endif
 
 	/* Ensure that we are linked to the correct version of libcitadel */
 	if (libcitadel_version_number() < LIBCITADEL_VERSION_NUMBER) {
@@ -851,6 +858,7 @@ int main(int argc, char **argv)
 	/* now the original thread becomes another worker */
 	worker_entry();
 	ShutDownLibCitadel ();
+	DeleteHash(&HandlerHash);
 	return 0;
 }
 
