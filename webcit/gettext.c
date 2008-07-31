@@ -270,6 +270,11 @@ void preset_locale(void)
 #endif
 #endif
 }
+
+#ifdef HAVE_USELOCALE
+	locale_t Empty_Locale;
+#endif
+
 /**
  * \brief Create a locale_t for each available language
  */
@@ -278,8 +283,6 @@ void initialize_locales(void) {
 	char buf[32];
 
 #ifdef HAVE_USELOCALE
-	locale_t Empty_Locale;
-
 	/* create default locale */
 	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
 #endif
@@ -310,6 +313,17 @@ void initialize_locales(void) {
 	}
 }
 
+void ShutdownLocale(void)
+{
+	int i;
+#ifdef HAVE_USELOCALE
+	for (i = 0; i < NUM_LANGS; ++i) {
+		if (Empty_Locale != wc_locales[i])
+			freelocale(wc_locales[i]);
+	}
+	freelocale(Empty_Locale);
+#endif
+}
 
 #else	/* ENABLE_NLS */
 /** \brief dummy for non NLS enabled systems */

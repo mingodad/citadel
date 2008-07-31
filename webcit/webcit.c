@@ -115,8 +115,10 @@ void addurls(char *url, long ulen)
 		aptr = up;
 		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
 			aptr++;
-		if (*aptr != '=')
+		if (*aptr != '=') {
+			free(buf);
 			return;
+		}
 		*aptr = '\0';
 		aptr++;
 		bptr = aptr;
@@ -877,7 +879,6 @@ void output_image()
 {
 	struct wcsession *WCC = WC;
 	char buf[SIZ];
-	char *xferbuf = NULL;
 	off_t bytes;
 	const char *MimeType;
 	
@@ -885,7 +886,6 @@ void output_image()
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		xferbuf = malloc(bytes + 2);
 
 		/** Read it from the server */
 		
@@ -1361,7 +1361,7 @@ void session_loop(struct httprequest *req)
 
 	WCC= WC;
 	if (WCC->WBuf == NULL)
-		WCC->WBuf = NewStrBuf();
+		WC->WBuf = NewStrBufPlain(NULL, 32768);
 	FlushStrBuf(WCC->WBuf);
 
 	if (WCC->HBuf == NULL)

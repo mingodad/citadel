@@ -78,6 +78,7 @@ void load_preferences(void) {
 				}
 				FreeStrBuf(&Key);
 			}
+			FreeStrBuf(&ReadBuf);
 		}
 	}
 

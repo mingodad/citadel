@@ -699,6 +699,7 @@ int ical_ctdl_is_overlap(
 
 #ifdef ENABLE_NLS
 void initialize_locales(void);
+void ShutdownLocale(void);
 #endif
 
 extern char *months[];
