@@ -837,6 +837,7 @@ int LoadIconDir(const char *DirName)
 		Put(IconHash, Icon->FlatName, d_without_ext, Icon, DeleteIcon);
 //		PrintHash(IconHash, PrintFlat, PrintFile);
 	}
+	closedir(filedir);
 	return 1;
 }
 
