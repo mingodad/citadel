@@ -105,6 +105,7 @@ void do_housekeeping(void)
 		FreeStrBuf(&(sessions_to_kill->UrlFragment1));
 		FreeStrBuf(&(sessions_to_kill->UrlFragment2));
 		FreeStrBuf(&(sessions_to_kill->WBuf));
+		FreeStrBuf(&(sessions_to_kill->HBuf));
 
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
@@ -516,7 +517,10 @@ void context_loop(int sock)
 #endif
 	DeleteHash(&TheSession->urlstrings);
 	DeleteHash(&TheSession->vars);
-
+	FreeStrBuf(&TheSession->WBuf);
+	FreeStrBuf(&TheSession->HBuf);
+	
+	
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */

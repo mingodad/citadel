@@ -384,6 +384,7 @@ int read_server_binary(StrBuf *Ret, size_t total_len)
 		    }
 		}
 	}
+	FreeStrBuf(&Buf);
 	return StrLength(Ret);
 }
 

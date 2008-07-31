@@ -242,7 +242,8 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
  */
 void begin_burst(void)
 {
-	WC->WBuf = NewStrBufPlain(NULL, 32768);
+	if (WC->WBuf == NULL)
+		WC->WBuf = NewStrBufPlain(NULL, 32768);
 }
 
 
@@ -934,6 +935,10 @@ void worker_entry(void)
 				icaltimezone_release_zone_tab ();
 				icalmemory_free_ring ();
 				ShutDownLibCitadel ();
+				DeleteHash(&HandlerHash);
+#ifdef ENABLE_NLS
+				void ShutdownLocale(void);
+#endif
 				lprintf(2, "master shutdown exiting!.\n");				
 				exit(0);
 			}

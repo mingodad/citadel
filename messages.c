@@ -2475,7 +2475,8 @@ void readloop(char *oper)
 		sortpref_value = NULL;
 		sortpref_value = sortby;
 	}
-	
+	FreeStrBuf(&sortby);
+
 	FreeStrBuf(&sortpref_name);
 	SortBy = StrToESort(sortpref_value);
 	/** message board sort */
