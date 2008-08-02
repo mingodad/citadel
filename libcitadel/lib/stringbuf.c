@@ -254,14 +254,18 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 {
 	size_t nWritten = Buf->BufSize + 1;
 	size_t Offset = Buf->BufUsed;
+	size_t newused = Offset + nWritten;
 	
-	while (Offset + nWritten >= Buf->BufSize) {
+	while (newused >= Buf->BufSize) {
 		nWritten = vsnprintf(Buf->buf + Offset, 
 				     Buf->BufSize - Offset, 
 				     format, ap);
-		Buf->BufUsed = Offset + nWritten ;
-		if (nWritten >= Buf->BufSize)
-			IncreaseBuf(Buf, 0, 0);
+		newused = Offset + nWritten;
+		if (newused >= Buf->BufSize)
+			IncreaseBuf(Buf, 1, 0);
+		else
+			Buf->BufUsed = Offset + nWritten ;
+
 	}
 }
 

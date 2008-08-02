@@ -1,3 +1,9 @@
+libcitadel (7.38-8) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 1 Aug 2008 22:00:00 +0002
+
 libcitadel (7.37-7) stable; urgency=low
 
   * new upstream version
