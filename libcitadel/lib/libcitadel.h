@@ -203,6 +203,7 @@ void the_mime_parser(char *partnum,
 typedef struct StrBuf StrBuf;
 
 StrBuf* NewStrBuf(void);
+StrBuf* NewStrBufDup(const StrBuf *CopyMe);
 StrBuf* NewStrBufPlain(const char* ptr, int nChars);
 int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars);
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant);

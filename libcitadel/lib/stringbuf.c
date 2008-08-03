@@ -44,6 +44,18 @@ StrBuf* NewStrBuf(void)
 	return NewBuf;
 }
 
+StrBuf* NewStrBufDup(const StrBuf *CopyMe)
+{
+	StrBuf *NewBuf;
+	
+	if (CopyMe == NULL)
+		return NewStrBuf();
+
+	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
+	NewBuf->buf = (char*) malloc(CopyMe->BufSize);
+	memcpy(NewBuf->buf, CopyMe->buf, CopyMe->BufUsed + 1);
+	return NewBuf;
+}
 
 StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 {
