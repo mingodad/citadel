@@ -294,6 +294,27 @@ void set_PREF_YESNO(const char *key, size_t keylen, int value, int save_to_serve
 	}
 }
 
+StrBuf *get_ROOM_PREFS(const char *key, size_t keylen)
+{
+	StrBuf *pref_name, *pref_value;
+	
+	pref_name = NewStrBuf ();
+	StrBufPrintf(pref_name, "%s %s", key, WC->wc_roomname);
+	get_pref(pref_name, &pref_value);
+	FreeStrBuf(&pref_name);
+	return pref_value;
+}
+
+void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_server)
+{
+	StrBuf *pref_name;
+	
+	pref_name = NewStrBuf ();
+	StrBufPrintf(pref_name, "%s %s", key, WC->wc_roomname);
+	set_PREFERENCE(ChrPtr(pref_name), StrLength(pref_name), value, save_to_server);
+	FreeStrBuf(&pref_name);
+}
+
 /** 
  * \brief display form for changing your preferences and settings
  */

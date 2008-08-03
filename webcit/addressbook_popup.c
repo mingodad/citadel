@@ -29,10 +29,13 @@ void display_address_book_middle_div(void) {
 	long len;
 	char *Name;
 	void *Namee;
+	StrBuf *DefAddrBook;
 	HashList *List;
 	HashPos  *it;
 
 	begin_ajax_response();
+
+	DefAddrBook = get_room_pref("defaddrbook");
 
 	wprintf("<table border=0 width=100%%><tr valign=middle>");
 	wprintf("<td align=left><img src=\"static/viewcontacts_32x.gif\"></td>");
@@ -44,7 +47,9 @@ void display_address_book_middle_div(void) {
 		bstr("target_input")
 	);
 
-	wprintf("<option value=\"__LOCAL_USERS__\">");
+	wprintf("<option value=\"__LOCAL_USERS__\" %s>", 
+		(strcmp(ChrPtr(DefAddrBook), "__LOCAL_USERS__") == 0)?
+		"active=\"yes\" ":"");
 	escputs(serv_info.serv_humannode);
 	wprintf("</option>\n");
 
@@ -65,7 +70,10 @@ void display_address_book_middle_div(void) {
 	while (GetNextHashPos(List, it, &len, &Name, &Namee)) {
 		wprintf("<option value=\"");
 		urlescputs((char*)Namee);
-		wprintf("\">");
+		if (strcmp(ChrPtr(DefAddrBook), Namee) == 0)
+			wprintf("\" active=\"yes\" >");
+		else
+			wprintf("\">");
 		escputs((char*)Namee);
 		wprintf("</option>\n");
 	}
@@ -139,6 +147,7 @@ void display_address_book_inner_div() {
 	}
 
 	else {
+		set_room_pref("defaddrbook",NewStrBufDup(sbstr("which_addr_book")), 0);
 		safestrncpy(saved_roomname, WC->wc_roomname, sizeof saved_roomname);
 		gotoroom(bstr("which_addr_book"));
 		serv_puts("DVCA");

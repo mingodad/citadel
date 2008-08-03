@@ -2414,7 +2414,7 @@ const int SenderInvertSortString[eUnSet] =  { eSender, eSender, eSender, eSender
  * \return the enum matching the string; defaults to RDate
  */
 //SortByEnum 
-int StrToESort (StrBuf *sortby)
+int StrToESort (const StrBuf *sortby)
 {
 	int result = eDate;
 
@@ -2458,11 +2458,10 @@ void readloop(char *oper)
 	int highest_displayed = 0;
 	struct addrbookent *addrbook = NULL;
 	int num_ab = 0;
-	StrBuf *sortby = NULL;
+	const StrBuf *sortby = NULL;
 	//SortByEnum 
 	int SortBy = eRDate;
-	StrBuf *sortpref_name;
-	StrBuf *sortpref_value;
+	const StrBuf *sortpref_value;
 	int bbs_reverse = 0;
 	struct wcsession *WCC = WC;     /* This is done to make it run faster; WC is a function */
 
@@ -2477,20 +2476,16 @@ void readloop(char *oper)
 	is_summary = (ibstr("is_summary") && !WCC->is_mobile);
 	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
-	sortpref_name = NewStrBuf ();
-	StrBufPrintf(sortpref_name, "sort %s", WCC->wc_roomname);
-	get_pref(sortpref_name, &sortpref_value);
+	sortpref_value = get_room_pref("sort");
 
-	sortby = NewStrBufPlain(bstr("sortby"), -1);
+	sortby = sbstr("sortby");
 	if ( (!IsEmptyStr(ChrPtr(sortby))) && 
 	     (strcasecmp(ChrPtr(sortby), ChrPtr(sortpref_value)) != 0)) {
-		set_pref(sortpref_name, sortby, 1);
+		set_room_pref("sort", NewStrBufDup(sortby), 1);
 		sortpref_value = NULL;
 		sortpref_value = sortby;
 	}
-	FreeStrBuf(&sortby);
 
-	FreeStrBuf(&sortpref_name);
 	SortBy = StrToESort(sortpref_value);
 	/** message board sort */
 	if (SortBy == eReverse) {

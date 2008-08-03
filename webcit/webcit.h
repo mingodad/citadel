@@ -648,7 +648,11 @@ int get_PREF_YESNO(const char *key, size_t keylen, int *value, int Default);
 #define set_pref_yesno(a, b, c) set_PREF_YESNO(a, sizeof(a) - 1, b, c)
 void set_PREF_YESNO(const char *key, size_t keylen, int value, int save_to_server);
 
+#define get_room_pref(a) get_ROOM_PREFS(a, sizeof(a) - 1)
+StrBuf *get_ROOM_PREFS(const char *key, size_t keylen);
 
+#define set_room_pref(a, b, c) set_ROOM_PREFS(a, sizeof(a) - 1, b, c)
+void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_server);
 
 int is_msg_in_mset(char *mset, long msgnum);
 void display_addressbook(long msgnum, char alpha);
