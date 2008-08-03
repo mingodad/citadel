@@ -1,3 +1,5 @@
+body {
+}
 #button li {
 	display: inline; 
 	padding-right: 5px;
@@ -9,13 +11,13 @@ img {
 	border: none;
 	text-decoration: none;
 }
-#message_list div {
-	border-top: 1px solid black;
-	border-bottom: 1px solid black;
-	background-color: gray;
+#message_list div div {
+	border-bottom: 1px dotted black;
+	padding: 5px 5px 5px 5px;
+	/* background-color: white; */
 }
 .subject {
-	font-style: italic;
+	color: gray;
 }
 body[orient="portrait"] {
 	max-width: 320px;
@@ -26,7 +28,10 @@ body {
 }
 .msgview {
 	display: none;
-	background-color: white;
+	background-color: white !important;
+}
+.message_content {
+    background-color: white;
 }
 #login_form label, #login_form input, #login_form select, #login_form div{
 	display: list-item;
@@ -37,4 +42,24 @@ body {
 	display: inline;
 	padding-right: 5px;
 }
-
+#navbar ul li img {
+	vertical-align: middle;
+}
+#navbar ul li a {
+	text-decoration: none;
+}
+.sticky {
+    background-color: gray;
+    border: 1px solid black;
+    width: 100%;
+}
+#vcontent {
+}
+.roomname {
+	background-color: #022750;
+	color: white;
+	border-radius: 5px;
+}
+.roomname img{
+	vertical-align: middle;
+}

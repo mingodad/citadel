@@ -1,6 +1,6 @@
 var currentMsgDisplay = null;
 function CtdlLoadMsgMouseDown(event, msgnum) {
-	if (currentMsgDisplay != null) {
+  /* 	if (currentMsgDisplay != null) {
 		currentMsgDisplay.style.display = "none";
 	} 
 	var id = "m_"+msgnum;
@@ -18,7 +18,8 @@ req.onreadystatechange = function (aEvt) {
       currentMsgDisplay.innerHTML = "Error loading message";
   }
 };
-req.send(null);
+req.send(null); */
+  window.location = "/mobilemsg/"+msgnum;
 }
 function CtdlHideMsg() {
 	currentMsgDisplay.style.display = "none";

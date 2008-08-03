@@ -502,12 +502,13 @@ void embed_room_banner(char *got, int navbar_style) {
 	);
 	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
-	svcallback("VIEWOMATIC", embed_view_o_matic);
+	svcallback("VIEWOMATIC", embed_view_o_matic); 
 	svcallback("SEARCHOMATIC", embed_search_o_matic);
-	svcallback("START", offer_start_page);
-
+	svcallback("START", offer_start_page); 
+ 
 	do_template("roombanner");
-	if (navbar_style != navbar_none) {
+	// roombanner contains this for mobile
+	if (navbar_style != navbar_none && !WC->is_mobile) { 
 
 		wprintf("<div id=\"navbar\"><ul>");
 
