@@ -88,66 +88,71 @@ long unescape_input(char *buf)
 void free_url(void *U)
 {
 	urlcontent *u = (urlcontent*) U;
-	free(u->url_data);
+	FreeStrBuf(&u->url_data);
 	free(u);
 }
 
 /*
  * Extract variables from the URL.
  */
-void addurls(char *url, long ulen)
+void addurls(StrBuf *url)
 {
-	char *aptr, *bptr, *eptr;
-	char *up;
-	char *buf;
+	const char *aptr, *bptr, *eptr, *up;
+///	char *buf;
 	int len, keylen;
 	urlcontent *u;
 	struct wcsession *WCC = WC;
 
 	if (WCC->urlstrings == NULL)
 		WCC->urlstrings = NewHash(1, NULL);
-	buf = (char*) malloc (ulen + 1);
-	memcpy(buf, url, ulen);
-	buf[ulen] = '\0';
-	eptr = buf + ulen;
-	up = buf;
+//	buf = (char*) malloc (ulen + 1);
+//	memcpy(buf, url, ulen);
+///	buf[ulen] = '\0';
+	eptr = ChrPtr(url) + StrLength(url);
+	up = ChrPtr(url);
 	while ((up < eptr) && (!IsEmptyStr(up))) {
 		aptr = up;
 		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
 			aptr++;
 		if (*aptr != '=') {
-			free(buf);
+			///free(buf);
 			return;
 		}
-		*aptr = '\0';
+		///*aptr = '\0';
 		aptr++;
 		bptr = aptr;
 		while ((bptr < eptr) && (*bptr != '\0')
 		      && (*bptr != '&') && (*bptr != '?') && (*bptr != ' ')) {
 			bptr++;
 		}
-		*bptr = '\0';
-		u = (urlcontent *) malloc(sizeof(urlcontent));
-
-		keylen = safestrncpy(u->url_key, up, sizeof u->url_key);
-		if (keylen < 0){
+		//*bptr = '\0';
+		keylen = aptr - up - 1; /* -1 -> '=' */
+		if(keylen > sizeof(u->url_key)) {
 			lprintf(1, "URLkey to long! [%s]", up);
+			continue;
+		}
+
+		u = (urlcontent *) malloc(sizeof(urlcontent));
+		memcpy(u->url_key, up, keylen);
+		u->url_key[keylen] = '\0';
+		if (keylen < 0) {
+			lprintf(1, "URLkey to long! [%s]", up);
+			free(u);
 			continue;
 		}
 
 		Put(WCC->urlstrings, u->url_key, keylen, u, free_url);
 		len = bptr - aptr;
-		u->url_data = malloc(len + 2);
-		safestrncpy(u->url_data, aptr, len + 2);
-		u->url_data_size = unescape_input(u->url_data);
-		u->url_data[u->url_data_size] = '\0';
+		u->url_data = NewStrBufPlain(aptr, len);
+		StrBufUnescape(u->url_data, 1);
+	     
 		up = bptr;
 		++up;
 #ifdef DEBUG_URLSTRINGS
-		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, u->url_data); 
+		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, ChrPtr(u->url_data)); 
 #endif
 	}
-	free(buf);
+	//free(buf);
 }
 
 /*
@@ -174,7 +179,7 @@ void dump_vars(void)
 	Cursor = GetNewHashPos ();
 	while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
 		u = (urlcontent*) U;
-		wprintf("%38s = %s\n", u->url_key, u->url_data);
+		wprintf("%38s = %s\n", u->url_key, ChrPtr(u->url_data));
 	}
 }
 
@@ -188,8 +193,8 @@ const char *XBstr(char *key, size_t keylen, size_t *len)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, keylen, &U)) {
-		*len = ((urlcontent *)U)->url_data_size;
-		return ((urlcontent *)U)->url_data;
+		*len = StrLength(((urlcontent *)U)->url_data);
+		return ChrPtr(((urlcontent *)U)->url_data);
 	}
 	else {
 		*len = 0;
@@ -203,8 +208,8 @@ const char *XBSTR(char *key, size_t *len)
 
 	if ((WC->urlstrings != NULL) &&
 	    GetHash(WC->urlstrings, key, strlen (key), &U)){
-		*len = ((urlcontent *)U)->url_data_size;
-		return ((urlcontent *)U)->url_data;
+		*len = StrLength(((urlcontent *)U)->url_data);
+		return ChrPtr(((urlcontent *)U)->url_data);
 	}
 	else {
 		*len = 0;
@@ -219,7 +224,7 @@ const char *BSTR(char *key)
 
 	if ((WC->urlstrings != NULL) &&
 	    GetHash(WC->urlstrings, key, strlen (key), &U))
-		return ((urlcontent *)U)->url_data;
+		return ChrPtr(((urlcontent *)U)->url_data);
 	else	
 		return ("");
 }
@@ -230,9 +235,31 @@ const char *Bstr(char *key, size_t keylen)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, keylen, &U))
-		return ((urlcontent *)U)->url_data;
+		return ChrPtr(((urlcontent *)U)->url_data);
 	else	
 		return ("");
+}
+
+const StrBuf *SBSTR(const char *key)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) &&
+	    GetHash(WC->urlstrings, key, strlen (key), &U))
+		return ((urlcontent *)U)->url_data;
+	else	
+		return NULL;
+}
+
+const StrBuf *SBstr(const char *key, size_t keylen)
+{
+	void *U;
+
+	if ((WC->urlstrings != NULL) && 
+	    GetHash(WC->urlstrings, key, keylen, &U))
+		return ((urlcontent *)U)->url_data;
+	else	
+		return NULL;
 }
 
 long LBstr(char *key, size_t keylen)
@@ -241,7 +268,7 @@ long LBstr(char *key, size_t keylen)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, keylen, &U))
-		return atol(((urlcontent *)U)->url_data);
+		return StrTol(((urlcontent *)U)->url_data);
 	else	
 		return (0);
 }
@@ -252,7 +279,7 @@ long LBSTR(char *key)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return atol(((urlcontent *)U)->url_data);
+		return StrTol(((urlcontent *)U)->url_data);
 	else	
 		return (0);
 }
@@ -263,7 +290,7 @@ int IBstr(char *key, size_t keylen)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, keylen, &U))
-		return atoi(((urlcontent *)U)->url_data);
+		return StrTol(((urlcontent *)U)->url_data);
 	else	
 		return (0);
 }
@@ -274,7 +301,7 @@ int IBSTR(char *key)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return atoi(((urlcontent *)U)->url_data);
+		return StrToi(((urlcontent *)U)->url_data);
 	else	
 		return (0);
 }
@@ -285,7 +312,7 @@ int HaveBstr(char *key, size_t keylen)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, keylen, &U))
-		return ((urlcontent *)U)->url_data_size != 0;
+		return (StrLength(((urlcontent *)U)->url_data) != 0);
 	else	
 		return (0);
 }
@@ -296,7 +323,7 @@ int HAVEBSTR(char *key)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return ((urlcontent *)U)->url_data_size != 0;
+		return (StrLength(((urlcontent *)U)->url_data) != 0);
 	else	
 		return (0);
 }
@@ -308,7 +335,7 @@ int YesBstr(char *key, size_t keylen)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, keylen, &U))
-		return strcmp( ((urlcontent *)U)->url_data, "yes") == 0;
+		return strcmp( ChrPtr(((urlcontent *)U)->url_data), "yes") == 0;
 	else	
 		return (0);
 }
@@ -319,7 +346,7 @@ int YESBSTR(char *key)
 
 	if ((WC->urlstrings != NULL) && 
 	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return strcmp( ((urlcontent *)U)->url_data, "yes") == 0;
+		return strcmp( ChrPtr(((urlcontent *)U)->url_data), "yes") == 0;
 	else	
 		return (0);
 }
@@ -1163,10 +1190,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		u = (urlcontent *) malloc(sizeof(urlcontent));
 		
 		safestrncpy(u->url_key, name, sizeof(u->url_key));
-		u->url_data = malloc(length + 1);
-		u->url_data_size = length;
-		memcpy(u->url_data, content, length);
-		u->url_data[length] = 0;
+		u->url_data = NewStrBufPlain(content, length);
+		
 		Put(WC->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
 #ifdef DEBUG_URLSTRINGS
 		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", u->url_key, u->url_data_size, u->url_data);
@@ -1473,7 +1498,11 @@ void session_loop(struct httprequest *req)
 		client_read(WCC->http_sock, &content[body_start], ContentLength);
 
 		if (!strncasecmp(ContentType, "application/x-www-form-urlencoded", 33)) {
-			addurls(&content[body_start], ContentLength);
+			StrBuf *Content;
+
+			Content = _NewConstStrBuf(&content[body_start],ContentLength);
+			addurls(Content);
+			FreeStrBuf(&Content);
 		} else if (!strncasecmp(ContentType, "multipart", 9)) {
 			content_end = content + ContentLength + body_start;
 			mime_parser(content, content_end, *upload_handler, NULL, NULL, NULL, 0);
@@ -1491,13 +1520,16 @@ void session_loop(struct httprequest *req)
 	len = strlen(cmd);
 	for (a = 0; a < len; ++a) {
 		if ((cmd[a] == '?') || (cmd[a] == '&')) {
+			StrBuf *Params;
 			for (b = a; b < len; ++b) {
 				if (isspace(cmd[b])){
 					cmd[b] = 0;
 					len = b - 1;
 				}
 			}
-			addurls(&cmd[a + 1], len - a);
+			//cmd[len - a] = '\0';
+			Params = _NewConstStrBuf(&cmd[a + 1], len - a);
+			addurls(Params);
 			cmd[a] = 0;
 			len = a - 1;
 		}

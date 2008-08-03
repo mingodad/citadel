@@ -42,12 +42,14 @@ long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 		return defval;
 }
 
+#ifdef DBG_ICONBAR_HASH
 static char nbuf[32];
 inline const char *PrintInt(void *Prefstr)
 {
 	snprintf(nbuf, sizeof(nbuf), "%ld", (long)Prefstr);
 	return nbuf;
 }
+#endif
 
 void LoadIconSettings(void)
 {
@@ -79,7 +81,10 @@ void LoadIconSettings(void)
 			    (void*)val, DontDeleteThis);
 		}
 	}
+
+#ifdef DBG_ICONBAR_HASH
 	dbg_PrintHash(WCC->IconBarSetttings, PrintInt, NULL);
+#endif
 
 	FreeStrBuf(&key);
 	FreeStrBuf(&buf);
@@ -792,7 +797,9 @@ void commit_iconbar(void) {
 		"choices to continue."));
 	wprintf("</td></tr></table>\n");
 	wDumpContent(2);
+#ifdef DBG_ICONBAR_HASH
 	dbg_PrintHash(WC->IconBarSetttings, PrintInt, NULL);
+#endif
 }
 
 

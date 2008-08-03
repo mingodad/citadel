@@ -9,10 +9,12 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+#ifdef DBG_PREFS_HASH
 inline const char *PrintPref(void *Prefstr)
 {
 	return ChrPtr(Prefstr);
 }
+#endif
 
 /*
  * display preferences dialog
@@ -141,7 +143,9 @@ void save_preferences(void) {
 		StrBuf *SubBuf = NULL;
 		
 		Hash = WC->hash_prefs;
+#ifdef DBG_PREFS_HASH
 		dbg_PrintHash(Hash, PrintPref, NULL);
+#endif
 		HashPos = GetNewHashPos();
 		while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
 		{
@@ -202,8 +206,9 @@ void save_preferences(void) {
 int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value)
 {
 	void *hash_value = NULL;
-	
+#ifdef DBG_PREFS_HASH
 	dbg_PrintHash(WC->hash_prefs, PrintPref, NULL);
+#endif
 	if (GetHash(WC->hash_prefs, key, keylen, &hash_value) == 0) {
 		*value = NULL;
 		return 0;

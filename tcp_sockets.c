@@ -218,7 +218,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
  * \param buf the buffer to write to citadel server
  * \param nbytes how many bytes to send to citadel server
  */
-void serv_write(char *buf, int nbytes)
+void serv_write(const char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;
@@ -243,7 +243,7 @@ void serv_write(char *buf, int nbytes)
  * \brief send line to server
  * \param string the line to send to the citadel server
  */
-void serv_puts(char *string)
+void serv_puts(const char *string)
 {
 #ifdef SERV_TRACE
 	lprintf(9, "%3d<%s\n", WC->serv_sock, string);

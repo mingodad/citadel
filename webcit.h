@@ -228,8 +228,7 @@ struct httprequest {
 typedef struct urlcontent urlcontent;
 struct urlcontent {
 	char url_key[32];          /**< the variable name */
-	char *url_data;            /**< its value */
-	size_t url_data_size;      /**< how big is it? */
+	StrBuf *url_data;            /**< its value */
 };
 
 /**
@@ -498,7 +497,7 @@ int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
 int serv_getln(char *strbuf, int bufsize);
 int StrBuf_ServGetln(StrBuf *buf);
-void serv_puts(char *string);
+void serv_puts(const char *string);
 void who(void);
 void who_inner_div(void);
 void ajax_mini_calendar(void);
@@ -506,10 +505,11 @@ void fmout(char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);
 
-/* TODO: get rid of the non-const-typecast */
-#define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
-const char *BSTR(char *key);
-const char *Bstr(char *key, size_t keylen);
+
+/* These may return NULL if not foud */
+#define sbstr(a) SBstr(a, sizeof(a) - 1)
+const StrBuf *SBSTR(const char *key);
+const StrBuf *SBstr(const char *key, size_t keylen);
 
 #define xbstr(a, b) (char*) XBstr(a, sizeof(a) - 1, b)
 const char *XBstr(char *key, size_t keylen, size_t *len);
@@ -531,6 +531,10 @@ int HAVEBSTR(char *key);
 int YesBstr(char *key, size_t keylen);
 int YESBSTR(char *key);
 
+/* TODO: get rid of the non-const-typecast */
+#define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
+const char *BSTR(char *key);
+const char *Bstr(char *key, size_t keylen);
 
 void urlescputs(char *);
 void jsesc(char *, size_t, char *);
@@ -575,8 +579,8 @@ void display_graphics_upload(char *, char *, char *);
 void do_graphics_upload(char *upl_cmd);
 void serv_read(char *buf, int bytes);
 void serv_gets(char *strbuf);
-void serv_write(char *buf, int nbytes);
-void serv_puts(char *string);
+void serv_write(const char *buf, int nbytes);
+void serv_puts(const char *string);
 void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void load_floorlist(void);
 void shutdown_sessions(void);

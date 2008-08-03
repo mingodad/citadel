@@ -3084,33 +3084,24 @@ void post_mime_to_server(void) {
  */
 void post_message(void)
 {
-	urlcontent *u;
-	void *U;
 	char buf[1024];
-	char *encoded_subject = NULL;
+	StrBuf *encoded_subject = NULL;
 	static long dont_post = (-1L);
 	struct wc_attachment *att, *aptr;
 	int is_anonymous = 0;
-	const char *display_name;
-	long dpLen = 0;
+	const StrBuf *display_name = NULL;
 	struct wcsession *WCC = WC;
-	char *ptr = NULL;
-
+	
 	if (havebstr("force_room")) {
 		gotoroom(bstr("force_room"));
 	}
 
-	if (GetHash(WC->urlstrings, HKEY("display_name"), &U)) {
-		u = (urlcontent*) U;
-		display_name = u->url_data;
-		dpLen = u->url_data_size;
-	}
-	else {
-		display_name="";
-	}
-	if (!strcmp(display_name, "__ANONYMOUS__")) {
-		display_name = "";
-		is_anonymous = 1;
+	if (havebstr("display_name")) {
+		display_name = sbstr("display_name");
+		if (!strcmp(ChrPtr(display_name), "__ANONYMOUS__")) {
+			display_name = NULL;
+			is_anonymous = 1;
+		}
 	}
 
 	if (WCC->upload_length > 0) {
@@ -3169,71 +3160,65 @@ void post_message(void)
 			"saved this message."));
 	} else {
 		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s|%s";
-		const char *Recp = ""; 
-		const char *Cc = "";
-		const char *Bcc = "";
-		const char *Wikipage = "";
-		const char *my_email_addr = "";
-		char *CmdBuf = NULL;;
-		long len = 0;
-		size_t nLen;
-		char references[SIZ] = "";
-		size_t references_len = 0;
+		const StrBuf *Recp = NULL; 
+		const StrBuf *Cc = NULL;
+		const StrBuf *Bcc = NULL;
+		const StrBuf *Wikipage = NULL;
+		const StrBuf *my_email_addr = NULL;
+		StrBuf *CmdBuf = NULL;;
+		StrBuf *references = NULL;
 
-		safestrncpy(references, bstr("references"), sizeof references);
-		lprintf(9, "Converting: %s\n", references);
-		for (ptr=references; *ptr != 0; ++ptr) {
-			if (*ptr == '|') *ptr = '!';
-			++references_len;
-		} 
-		lprintf(9, "Converted: %s\n", references);
-
+		if (havebstr("references"))
+		{
+			const StrBuf *ref = sbstr("references");
+			references = NewStrBufPlain(ChrPtr(ref), StrLength(ref));
+			lprintf(9, "Converting: %s\n", ChrPtr(references));
+			StrBufReplaceChars(references, '|', '!');
+			lprintf(9, "Converted: %s\n", ChrPtr(references));
+		}
 		if (havebstr("subject")) {
-			char *Subj;
-			size_t SLen;
+			const StrBuf *Subj;
 			/*
 			 * make enough room for the encoded string; 
 			 * plus the QP header 
 			 */
-			Subj = xbstr("subject", &SLen);
-			len = SLen * 3 + 32;
-			encoded_subject = malloc (len);
-			len = webcit_rfc2047encode(encoded_subject, len, Subj, SLen);
-			if (len < 0) {
-				free (encoded_subject);
-				return;
-			}
+			Subj = sbstr("subject");
+			
+			StrBufRFC2047encode(&encoded_subject, Subj);
 		}
-		len += sizeof (CMD) + dpLen;
-		Recp = xbstr("recp", &nLen);
-		len += nLen;
-		Cc = xbstr("cc", &nLen);
-		len += nLen;
-		Bcc = xbstr("bcc", &nLen);
-		len += nLen;
-		Wikipage = xbstr("wikipage", &nLen);
-		len += nLen;
-		my_email_addr = xbstr("my_email_addr", &nLen);
-		len += nLen;
-		len += references_len;
+		Recp = sbstr("recp");
+		Cc = sbstr("cc");
+		Bcc = sbstr("bcc");
+		Wikipage = sbstr("wikipage");
+		my_email_addr = sbstr("my_email_addr");
+		
+		CmdBuf = NewStrBufPlain(NULL, 
+					sizeof (CMD) + 
+					StrLength(Recp) + 
+					StrLength(encoded_subject) +
+					StrLength(Cc) +
+					StrLength(Bcc) + 
+					StrLength(Wikipage) +
+					StrLength(my_email_addr) + 
+					StrLength(references));
 
-		CmdBuf = (char*) malloc (len + 11);
+		StrBufPrintf(CmdBuf, 
+			     CMD,
+			     ChrPtr(Recp),
+			     is_anonymous,
+			     ChrPtr(encoded_subject),
+			     ChrPtr(display_name),
+			     ChrPtr(Cc),
+			     ChrPtr(Bcc),
+			     ChrPtr(Wikipage),
+			     ChrPtr(my_email_addr),
+			     ChrPtr(references));
 
-		snprintf(CmdBuf, len + 1, CMD,
-			Recp,
-			is_anonymous,
-			(encoded_subject ? encoded_subject : ""),
-			display_name,
-			Cc,
-			Bcc,
-			Wikipage,
-			my_email_addr,
-			references);
 		lprintf(9, "%s\n", CmdBuf);
-		serv_puts(CmdBuf);
+		serv_puts(ChrPtr(CmdBuf));
 		serv_getln(buf, sizeof buf);
-		free (CmdBuf);
-		if (encoded_subject) free(encoded_subject);
+		FreeStrBuf(&CmdBuf);
+		FreeStrBuf(&encoded_subject);
 		if (buf[0] == '4') {
 			post_mime_to_server();
 			if (  (havebstr("recp"))
@@ -3289,14 +3274,13 @@ void display_enter(void)
 	char buf[SIZ];
 	StrBuf *ebuf;
 	long now;
-	char *display_name;
+	const StrBuf *display_name = NULL;
 	struct wc_attachment *att;
 	int recipient_required = 0;
 	int subject_required = 0;
 	int recipient_bad = 0;
 	int is_anonymous = 0;
 	long existing_page = (-1L);
-	size_t dplen;
 	struct wcsession *WCC = WC;
 
 	now = time(NULL);
@@ -3305,10 +3289,9 @@ void display_enter(void)
 		gotoroom(bstr("force_room"));
 	}
 
-	display_name = xbstr("display_name", &dplen);
-	if (!strcmp(display_name, "__ANONYMOUS__")) {
-		display_name = "";
-		dplen = 0;
+	display_name = sbstr("display_name");
+	if (!strcmp(ChrPtr(display_name), "__ANONYMOUS__")) {
+		display_name = NULL;
 		is_anonymous = 1;
 	}
 
@@ -3370,34 +3353,37 @@ void display_enter(void)
 
 	/* Now check our actual recipients if there are any */
 	if (recipient_required) {
-		const char *Recp = ""; 
-		const char *Cc = "";
-		const char *Bcc = "";
-		const char *Wikipage = "";
-		char *CmdBuf = NULL;;
-		size_t len = 0;
-		size_t nLen;
+		const StrBuf *Recp = NULL; 
+		const StrBuf *Cc = NULL;
+		const StrBuf *Bcc = NULL;
+		const StrBuf *Wikipage = NULL;
+		StrBuf *CmdBuf = NULL;;
 		const char CMD[] = "ENT0 0|%s|%d|0||%s||%s|%s|%s";
 		
-		len = sizeof(CMD) + dplen;
-		Recp = xbstr("recp", &nLen);
-		len += nLen;
-		Cc = xbstr("cc", &nLen);
-		len += nLen;
-		Bcc = xbstr("bcc", &nLen);
-		len += nLen;
-		Wikipage = xbstr("wikipage", &nLen);
-		len += nLen;
+		Recp = sbstr("recp");
+		Cc = sbstr("cc");
+		Bcc = sbstr("bcc");
+		Wikipage = sbstr("wikipage");
 		
+		CmdBuf = NewStrBufPlain(NULL, 
+					sizeof (CMD) + 
+					StrLength(Recp) + 
+					StrLength(display_name) +
+					StrLength(Cc) +
+					StrLength(Bcc) + 
+					StrLength(Wikipage));
 
-		CmdBuf = (char*) malloc (len + 1);
-
-		snprintf(CmdBuf, len, CMD,
-			 Recp, is_anonymous,
-			 display_name,
-			 Cc, Bcc, Wikipage);
-		serv_puts(CmdBuf);
+		StrBufPrintf(CmdBuf, 
+			     CMD,
+			     ChrPtr(Recp), 
+			     is_anonymous,
+			     ChrPtr(display_name),
+			     ChrPtr(Cc), 
+			     ChrPtr(Bcc), 
+			     ChrPtr(Wikipage));
+		serv_puts(ChrPtr(CmdBuf));
 		serv_getln(buf, sizeof buf);
+		FreeStrBuf(&CmdBuf);
 
 		if (!strncmp(buf, "570", 3)) {	/** 570 means we have an invalid recipient listed */
 			if (havebstr("recp") && 
