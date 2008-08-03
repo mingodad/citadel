@@ -19,14 +19,14 @@ struct StrBuf {
 };
 
 
-inline const char *ChrPtr(StrBuf *Str)
+inline const char *ChrPtr(const StrBuf *Str)
 {
 	if (Str == NULL)
 		return "";
 	return Str->buf;
 }
 
-inline int StrLength(StrBuf *Str)
+inline int StrLength(const StrBuf *Str)
 {
 	return (Str != NULL) ? Str->BufUsed : 0;
 }
@@ -146,10 +146,18 @@ void HFreeStrBuf (void *VFreeMe)
 	free(FreeMe);
 }
 
-long StrTol(StrBuf *Buf)
+long StrTol(const StrBuf *Buf)
 {
 	if(Buf->BufUsed > 0)
 		return atol(Buf->buf);
+	else
+		return 0;
+}
+
+int StrToi(const StrBuf *Buf)
+{
+	if(Buf->BufUsed > 0)
+		return atoi(Buf->buf);
 	else
 		return 0;
 }
@@ -176,7 +184,7 @@ int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
 	return CopySize;
 }
 
-void StrBufAppendBuf(StrBuf *Buf, StrBuf *AppendBuf, size_t Offset)
+void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset)
 {
 	if ((AppendBuf == NULL) || (Buf == NULL))
 		return;
@@ -513,7 +521,7 @@ void StrBufCutRight(StrBuf *Buf, int nChars)
 /*
  * string conversion function
  */
-void StrBufEUid_unescapize(StrBuf *target, StrBuf *source) 
+void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source) 
 {
 	int a, b, len;
 	char hex[3];
@@ -552,7 +560,7 @@ void StrBufEUid_unescapize(StrBuf *target, StrBuf *source)
 /*
  * string conversion function
  */
-void StrBufEUid_escapize(StrBuf *target, StrBuf *source) 
+void StrBufEUid_escapize(StrBuf *target, const StrBuf *source) 
 {
 	int i, len;
 
@@ -692,4 +700,129 @@ int StrBufDecodeBase64(StrBuf *Buf)
 	Buf->buf = xferbuf;
 	Buf->BufUsed = siz;
 	return siz;
+}
+
+
+/*   
+ * remove escaped strings from i.e. the url string (like %20 for blanks)
+ */
+long StrBufUnescape(StrBuf *Buf, int StripBlanks)
+{
+	int a, b;
+	char hex[3];
+	long len;
+
+	while ((Buf->BufUsed > 0) && (isspace(Buf->buf[Buf->BufUsed - 1]))){
+		Buf->buf[Buf->BufUsed - 1] = '\0';
+		Buf->BufUsed --;
+	}
+
+	a = 0; 
+	while (a < Buf->BufUsed) {
+		if (Buf->buf[a] == '+')
+			Buf->buf[a] = ' ';
+		else if (Buf->buf[a] == '%') {
+			/* don't let % chars through, rather truncate the input. */
+			if (a + 2 > Buf->BufUsed) {
+				Buf->buf[a] = '\0';
+				Buf->BufUsed = a;
+			}
+			else {			
+				hex[0] = Buf->buf[a + 1];
+				hex[1] = Buf->buf[a + 2];
+				hex[2] = 0;
+				b = 0;
+				sscanf(hex, "%02x", &b);
+				Buf->buf[a] = (char) b;
+				len = Buf->BufUsed - a - 2;
+				if (len > 0)
+					memmove(&Buf->buf[a + 1], &Buf->buf[a + 3], len);
+			
+				Buf->BufUsed -=2;
+			}
+		}
+		a++;
+	}
+	return a;
+}
+
+
+/**
+ * \brief	RFC2047-encode a header field if necessary.
+ *		If no non-ASCII characters are found, the string
+ *		will be copied verbatim without encoding.
+ *
+ * \param	target		Target buffer.
+ * \param	source		Source string to be encoded.
+ * \returns     encoded length; -1 if non success.
+ */
+int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
+{
+	const char headerStr[] = "=?UTF-8?Q?";
+	int need_to_encode = 0;
+	int i = 0;
+	unsigned char ch;
+
+	if ((source == NULL) || 
+	    (target == NULL))
+	    return -1;
+
+	while ((i < source->BufUsed) &&
+	       (!IsEmptyStr (&source->buf[i])) &&
+	       (need_to_encode == 0)) {
+		if (((unsigned char) source->buf[i] < 32) || 
+		    ((unsigned char) source->buf[i] > 126)) {
+			need_to_encode = 1;
+		}
+		i++;
+	}
+
+	if (!need_to_encode) {
+		if (*target == NULL) {
+			*target = NewStrBufPlain(source->buf, source->BufUsed);
+		}
+		else {
+			FlushStrBuf(*target);
+			StrBufAppendBuf(*target, source, 0);
+		}
+		return (*target)->BufUsed;
+	}
+	if (*target == NULL)
+		*target = NewStrBufPlain(NULL, sizeof(headerStr) + source->BufUsed * 2);
+	else if (sizeof(headerStr) + source->BufUsed > (*target)->BufSize)
+		IncreaseBuf(*target, sizeof(headerStr) + source->BufUsed, 0);
+	memcpy ((*target)->buf, headerStr, sizeof(headerStr) - 1);
+	(*target)->BufUsed = sizeof(headerStr) - 1;
+	for (i=0; (i < source->BufUsed); ++i) {
+		if ((*target)->BufUsed + 4 > (*target)->BufSize)
+			IncreaseBuf(*target, 1, 0);
+		ch = (unsigned char) source->buf[i];
+		if ((ch < 32) || (ch > 126) || (ch == 61)) {
+			sprintf(&(*target)->buf[(*target)->BufUsed], "=%02X", ch);
+			(*target)->BufUsed += 3;
+		}
+		else {
+			(*target)->buf[(*target)->BufUsed] = ch;
+			(*target)->BufUsed++;
+		}
+	}
+	
+	if ((*target)->BufUsed + 4 > (*target)->BufSize)
+		IncreaseBuf(*target, 1, 0);
+
+	(*target)->buf[(*target)->BufUsed++] = '?';
+	(*target)->buf[(*target)->BufUsed++] = '=';
+	(*target)->buf[(*target)->BufUsed] = '\0';
+	return (*target)->BufUsed;;
+}
+
+void StrBufReplaceChars(StrBuf *buf, char search, char replace)
+{
+	long i;
+	if (buf == NULL)
+		return;
+	for (i=0; i<buf->BufUsed; i++)
+		if (buf->buf[i] == search)
+			buf->buf[i] = replace;
+
 }

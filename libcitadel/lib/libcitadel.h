@@ -211,8 +211,8 @@ void FreeStrBuf (StrBuf **FreeMe);
 void HFreeStrBuf (void *VFreeMe);
 int FlushStrBuf(StrBuf *buf);
 
-inline const char *ChrPtr(StrBuf *Str);
-inline int StrLength(StrBuf *Str);
+inline const char *ChrPtr(const StrBuf *Str);
+inline int StrLength(const StrBuf *Str);
 
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error);
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error);
@@ -225,7 +225,7 @@ int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator);
 inline int StrBufNum_tokens(const StrBuf *source, char tok);
 
 void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset);
-void StrBufAppendBuf(StrBuf *Buf, StrBuf *AppendBuf, size_t Offset);
+void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset);
 #ifdef SHOW_ME_VAPPEND_PRINTF
 /* so owe don't create an include depndency, this is just visible on demand. */
 void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap);
@@ -233,13 +233,17 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap);
 void StrBufPrintf(StrBuf *Buf, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
 void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
-void StrBufEUid_unescapize(StrBuf *target, StrBuf *source);
-void StrBufEUid_escapize(StrBuf *target, StrBuf *source);
+void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source);
+void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
+
+void StrBufReplaceChars(StrBuf *buf, char search, char replace);
 
 int CompressBuffer(StrBuf *Buf);
 int StrBufDecodeBase64(StrBuf *Buf);
+int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
 
-long StrTol(StrBuf *Buf);
+long StrTol(const StrBuf *Buf);
+int StrToi(const StrBuf *Buf);
 
 const char *GuessMimeType(const char *data, size_t dlen);
 const char* GuessMimeByFilename(const char *what, size_t len);
@@ -324,6 +328,7 @@ char *vcard_get_prop(struct vCard *v, char *propname, int is_partial,
 char *vcard_serialize(struct vCard *);
 void vcard_fn_to_n(char *vname, char *n, size_t vname_size);
 void remove_charset_attribute(char *strbuf);
+long StrBufUnescape(StrBuf *Buf, int StripBlanks);
 
 /*
  * Hash list implementation for Citadel
