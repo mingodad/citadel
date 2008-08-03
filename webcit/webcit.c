@@ -1302,14 +1302,16 @@ void seconds_since_last_gexp(void)
  * \brief Detects a 'mobile' user agent 
  */
 int is_mobile_ua(char *user_agent) {
-	if (strstr(user_agent,"iPhone OS") != NULL) {
-		return 1;
-	} else if (strstr(user_agent,"Windows CE") != NULL) {
-		return 1;
-	} else if (strstr(user_agent,"SymbianOS") != NULL) {
-		return 1;
-	}
-	return 0;
+      if (strstr(user_agent,"iPhone OS") != NULL) {
+	return 1;
+      } else if (strstr(user_agent,"Windows CE") != NULL) {
+	return 1;
+      } else if (strstr(user_agent,"SymbianOS") != NULL) {
+	return 1;
+      } else if (strstr(user_agent, "Opera Mobi") != NULL) {
+	return 1;
+      }
+      return 0;
 }
 
 
@@ -1428,9 +1430,11 @@ void session_loop(struct httprequest *req)
 		}
 		else if (!strncasecmp(buf, "User-agent: ", 12)) {
 			safestrncpy(user_agent, &buf[12], sizeof user_agent);
+			#ifdef TECH_PREVIEW
 			if (is_mobile_ua(&buf[12])) {
 				WCC->is_mobile = 1;
 			}
+			#endif
 		}
 		else if (!strncasecmp(buf, "X-Forwarded-Host: ", 18)) {
 			if (follow_xff) {
