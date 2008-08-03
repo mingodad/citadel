@@ -1429,7 +1429,20 @@ void print_message(void) {
 	wDumpContent(0);
 }
 
-
+/* 
+ * Mobile browser view of message
+ *
+ * @param msg_num_as_string Message number as a string instead of as a long int 
+ */
+void mobile_message_view(void) {
+  long msgnum = 0L;
+  msgnum = StrTol(WC->UrlFragment1);
+  output_headers(1, 0, 0, 0, 0, 1);
+  begin_burst();
+  do_template("msgcontrols");
+  read_message(msgnum,1, "");
+  wDumpContent(0);
+}
 
 /**
  * \brief Display a message's headers
@@ -1833,12 +1846,12 @@ void display_mobile_summary(int num) {
 		(WC->summ[num].is_new ? "bold" : "normal"),
 		WC->summ[num].msgnum
 	);
-		wprintf("<span>%s</span>",WC->summ[num].from);
+		wprintf("<span class=\"from\">%s</span>",WC->summ[num].from);
 		wprintf("<span style=\"float: right;\">");
 		webcit_fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
-	escputs(datebuf);
+		escputs(datebuf);
 		wprintf("</span><br/><span class=\"subject\">");
-		wprintf(WC->summ[num].subj);
+		escputs(WC->summ[num].subj);
 		wprintf("</span></div><div id=\"m_%ld\" class=\"msgview\" onMouseDown=\"\"></div></div>",WC->summ[num].msgnum);
 }
 
@@ -2527,7 +2540,7 @@ void readloop(char *oper)
 		maxmsgs = 9999999;
 	}
 
-	if (is_summary || WCC->is_mobile) {			/**< fetch header summary */
+	if (is_summary) {			/**< fetch header summary */
 		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
 			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
 			(!strcmp(oper, "do_search") ? bstr("query") : "")
@@ -2537,6 +2550,10 @@ void readloop(char *oper)
 	} 
 	if (WCC->is_mobile) {
 		maxmsgs = 20;
+		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
+			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
+			(!strcmp(oper, "do_search") ? bstr("query") : "")
+		);
 		SortBy =  eRDate;
 	}
 
@@ -3824,6 +3841,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("confirm_move_msg"), confirm_move_msg, 0);
 	WebcitAddUrlHandler(HKEY("msg"), embed_message, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
+	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);
 	return ;
 }

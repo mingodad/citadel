@@ -1310,7 +1310,10 @@ int is_mobile_ua(char *user_agent) {
 	return 1;
       } else if (strstr(user_agent, "Opera Mobi") != NULL) {
 	return 1;
-      }
+      } else if (strstr(user_agent, "Firefox/2.0.0 Opera 9.51 Beta") != NULL) {
+		 // For some reason a new install of Opera 9.51beta decided to spoof.
+	  return 1;
+	  }
       return 0;
 }
 
