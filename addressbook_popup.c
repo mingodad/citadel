@@ -118,6 +118,10 @@ void display_address_book_inner_div() {
 		if (buf[0] == '1') while(len = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			Name = (char*) malloc(len + 1);
 			len = extract_token(Name, buf, 0, '|', len + 1);
+			if((len > 5) && (strncmp(Name, "SYS_", 4) == 0)) {
+				free(Name);
+				continue;
+			}
 			Put(List, Name, len, Name, NULL);
 
 		}
