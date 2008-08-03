@@ -412,7 +412,7 @@ void finalize_openid_login(void)
 				while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
 					u = (urlcontent*) U;
 					if (!strncasecmp(u->url_key, "openid.", 7)) {
-						serv_printf("%s|%s", &u->url_key[7], u->url_data);
+						serv_printf("%s|%s", &u->url_key[7], ChrPtr(u->url_data));
 					}
 				}
 
