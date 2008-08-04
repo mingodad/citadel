@@ -49,7 +49,7 @@ void display_address_book_middle_div(void) {
 
 	wprintf("<option value=\"__LOCAL_USERS__\" %s>", 
 		(strcmp(ChrPtr(DefAddrBook), "__LOCAL_USERS__") == 0)?
-		"active=\"yes\" ":"");
+		"selected=\"selected\" ":"");
 	escputs(serv_info.serv_humannode);
 	wprintf("</option>\n");
 
@@ -71,7 +71,7 @@ void display_address_book_middle_div(void) {
 		wprintf("<option value=\"");
 		urlescputs((char*)Namee);
 		if (strcmp(ChrPtr(DefAddrBook), Namee) == 0)
-			wprintf("\" active=\"yes\" >");
+			wprintf("\" selected=\"selected\" >");
 		else
 			wprintf("\">");
 		escputs((char*)Namee);
