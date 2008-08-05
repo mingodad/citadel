@@ -378,12 +378,12 @@ void context_loop(int sock)
 		strcpy(ptr+1, ptr+8);
 	}
 
+	safestrncpy(buf, req->line, sizeof buf);
 	/** Begin parsing the request. */
 #ifdef TECH_PREVIEW
 	if ((strncmp(req->line+4, "/sslg", 5) != 0) &&
 	    (strncmp(req->line+4, "/wholist_section", 16) != 0)) {
 #endif
-		safestrncpy(buf, req->line, sizeof buf);
 		lprintf(5, "HTTP: %s\n", buf);
 #ifdef TECH_PREVIEW
 	}
