@@ -26,9 +26,10 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 
 	snprintf(div_id, sizeof div_id, "mini_calendar_%d", rand() );
 
-	/* Determine what day to start.
+	/* Determine what day to start.  If an impossible value is found, start on Sunday.
 	*/
 	get_pref_long("weekstart", &weekstart, 17);
+	if (weekstart > 6) weekstart = 0;
 
 	/*
 	* Now back up to the 1st of the month...
@@ -481,9 +482,10 @@ void calendar_month_view(int year, int month, int day) {
 	long weekstart = 0;
 
 	/*
-	 * Determine what day to start
+	 * Determine what day to start.  If an impossible value is found, start on Sunday.
 	 */
 	get_pref_long("weekstart", &weekstart, 17);
+	if (weekstart > 6) weekstart = 0;
 
 	/*
 	 * Now back up to the 1st of the month...
@@ -509,7 +511,9 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&thetime, &tm);
 	while (tm.tm_wday != weekstart) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
+		lprintf(9, "Subtracting a day, thetime is now %d - %s", thetime, ctime(&thetime));
 		localtime_r(&thetime, &tm);
+		lprintf(9, "tm.tm_wday is %d, weekstart is %d\n", tm.tm_wday, weekstart);
 	}
 
 	/* Outer table (to get the background color) */
