@@ -11,7 +11,7 @@
 #define SEARCH_LANG 20		/* how many langs should we parse? */
 
 /* actual supported locales */
-char *AvailLang[NUM_LANGS] = {
+const char *AvailLang[NUM_LANGS] = {
 	"C",
 	"en_US",
 	"de_DE",
@@ -23,6 +23,9 @@ char *AvailLang[NUM_LANGS] = {
 	"nl_NL",
 	"pt_BR"
 };
+
+const char *AvailLangLoaded[NUM_LANGS];
+long nLocalesLoaded = 0;
 
 #ifdef HAVE_USELOCALE
 locale_t wc_locales[NUM_LANGS]; /**< here we keep the parsed stuff */
@@ -109,19 +112,19 @@ void httplang_to_locale(char *LocaleString)
 			/** check if we have this lang */
 			ls->availability=1;
 			ls->selectedlang=-1;
-			for (j=0; j<NUM_LANGS; j++) {
+			for (j=0; j<nLocalesLoaded; j++) {
 				int result;
 				/** match against the LANG part */
-				result=strcasecmp(&ls->lang[0], AvailLang[j]);
+				result=strcasecmp(&ls->lang[0], AvailLangLoaded[j]);
 				if ((result<0)&&(result<ls->availability)){
 					ls->availability=result;
 					ls->selectedlang=j;
 				}
 				/** match against lang and locale */
-				if (0==strcasecmp(&lbuf[0], AvailLang[j])){
+				if (0==strcasecmp(&lbuf[0], AvailLangLoaded[j])){
 					ls->availability=0;
 					ls->selectedlang=j;
-					j=NUM_LANGS;
+					j=nLocalesLoaded;
 				}
 			}
         }
@@ -145,7 +148,7 @@ void httplang_to_locale(char *LocaleString)
 		nBest=0;
 	}
 	WC->selected_language=nBest;
-	lprintf(9, "language found: %s\n", AvailLang[WC->selected_language]);
+	lprintf(9, "language found: %s\n", AvailLangLoaded[WC->selected_language]);
 }
 
 /* TODO: we skip the language weighting so far. */
@@ -202,14 +205,14 @@ void offer_languages(void) {
 
 	wprintf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
 
-	for (i=0; i < NUM_LANGS; ++i) {
+	for (i=0; i < nLocalesLoaded; ++i) {
 #ifndef HAVE_USELOCALE
-		if (strcmp(AvailLang[i], Lang) == 0)
+		if (strcmp(AvailLangLoaded[i], Lang) == 0)
 #endif
 		wprintf("<option %s value=%s>%s</option>\n",
 			((WC->selected_language == i) ? "selected" : ""),
-			AvailLang[i],
-			AvailLang[i]
+			AvailLangLoaded[i],
+			AvailLangLoaded[i]
 		);
 	}
 
@@ -224,8 +227,8 @@ void set_selected_language(const char *lang) {
 	int i;
 
 #ifdef HAVE_USELOCALE
-	for (i=0; i<NUM_LANGS; ++i) {
-		if (!strcasecmp(lang, AvailLang[i])) {
+	for (i=0; i<nLocalesLoaded; ++i) {
+		if (!strcasecmp(lang, AvailLangLoaded[i])) {
 			WC->selected_language = i;
 		}
 	}
@@ -237,8 +240,9 @@ void set_selected_language(const char *lang) {
  */
 void go_selected_language(void) {
 #ifdef HAVE_USELOCALE
-	if (WC->selected_language < 0) return;
-	uselocale(wc_locales[WC->selected_language]);	/** switch locales */
+	struct wcsession *WCC = WC;
+	if (WCC->selected_language < 0) return;
+	uselocale(wc_locales[WCC->selected_language]);	/** switch locales */
 	textdomain(textdomain(NULL));			/** clear the cache */
 #else
 	char *language;
@@ -295,12 +299,12 @@ void initialize_locales(void) {
 			sprintf(buf, "%s.UTF8", AvailLang[i]);
 		}
 #ifdef HAVE_USELOCALE
-		wc_locales[i] = newlocale(
+		wc_locales[nLocalesLoaded] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
 			buf,
 			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
-		if (wc_locales[i] == NULL) {
+		if (wc_locales[nLocalesLoaded] == NULL) {
 			lprintf(1, "Error configuring locale for %s: %s\n",
 				buf,
 				strerror(errno)
@@ -308,6 +312,8 @@ void initialize_locales(void) {
 		}
 		else {
 			lprintf(3, "Configured available locale: %s\n", buf);
+			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
+			nLocalesLoaded++;
 		}
 #endif
 	}
@@ -317,7 +323,7 @@ void ShutdownLocale(void)
 {
 	int i;
 #ifdef HAVE_USELOCALE
-	for (i = 0; i < NUM_LANGS; ++i) {
+	for (i = 0; i < nLocalesLoaded; ++i) {
 		if (Empty_Locale != wc_locales[i])
 			freelocale(wc_locales[i]);
 	}
