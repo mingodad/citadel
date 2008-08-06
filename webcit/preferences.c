@@ -9,6 +9,35 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+
+HashList *PreferenceHooks;
+
+typedef struct _Prefs {
+	long Type;
+	const char *Setting;
+	const char *PrefStr;
+} Prefs;
+
+void RegisterPreference(const char *Setting, const char *PrefStr, long Type)
+{
+	Prefs *Newpref = (Prefs*) malloc(sizeof(Prefs));
+	Newpref->Setting = Setting;
+	Newpref->PrefStr = PrefStr;
+	Newpref->Type = Type;
+	Put(PreferenceHooks, Setting, strlen(Setting), Newpref, NULL);
+}
+
+const char *PrefGetLocalStr(const char *Setting, long len)
+{
+	void *hash_value;
+	if (GetHash(PreferenceHooks, Setting, len, &hash_value) != 0) {
+		Prefs *Newpref = (Prefs*) hash_value;
+		return _(Newpref->PrefStr);
+
+	}
+	return "";
+}
+
 #ifdef DBG_PREFS_HASH
 inline const char *PrintPref(void *Prefstr)
 {
@@ -354,7 +383,7 @@ void display_preferences(void)
 	 */
 	get_preference("roomlistview", &Buf);
 	wprintf("<tr class=\"even\"><td>");
-	wprintf(_("Room list view"));
+	wprintf(PrefGetLocalStr(HKEY("roomlistview")));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"roomlistview\" VALUE=\"folders\"");
@@ -376,7 +405,7 @@ void display_preferences(void)
 	 */
 
 	wprintf("<tr class=\"odd\"><td>");
-	wprintf(_("Time format"));
+	wprintf(PrefGetLocalStr(HKEY("calhourformat")));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"calhourformat\" VALUE=\"12\"");
@@ -401,7 +430,7 @@ void display_preferences(void)
 	get_pref_long("daystart", &DayStart, 8);
 
 	wprintf("<tr class=\"even\"><td>");
-	wprintf(_("Calendar day view begins at:"));
+	wprintf(PrefGetLocalStr(HKEY("daystart")));
 	wprintf("</td><td>");
 
 	wprintf("<select name=\"daystart\" size=\"1\">\n");
@@ -430,7 +459,7 @@ void display_preferences(void)
 	get_pref_long("dayend", &DayEnd, 17);
 
 	wprintf("<tr class=\"odd\"><td>");
-	wprintf(_("Calendar day view ends at:"));
+	wprintf(PrefGetLocalStr(HKEY("dayend")));
 	wprintf("</td><td>");
 
 	wprintf("<select name=\"dayend\" size=\"1\">\n");
@@ -458,7 +487,7 @@ void display_preferences(void)
 	 */
 	get_pref_long("weekstart", &WeekStart, 17);
 	wprintf("<tr class=\"even\"><td>");
-	wprintf(_("Week starts on:"));
+	wprintf(PrefGetLocalStr(HKEY("weekstart")));
 	wprintf("</td><td>");
 
 	wprintf("<select name=\"weekstart\" size=\"1\">\n");
@@ -498,6 +527,8 @@ void display_preferences(void)
 		"	</script>								"
 	);
 
+	wprintf(PrefGetLocalStr(HKEY("use_sig")));
+
 	wprintf("<input type=\"radio\" id=\"no_sig\" name=\"use_sig\" VALUE=\"no\"");
 	if (!UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
@@ -507,7 +538,7 @@ void display_preferences(void)
 	wprintf("<input type=\"radio\" id=\"yes_sig\" name=\"use_sig\" VALUE=\"yes\"");
 	if (UseSig) wprintf(" checked");
 	wprintf(" onChange=\"show_or_hide_sigbox();\" >");
-	wprintf(_("Use this signature:"));
+	wprintf(PrefGetLocalStr(HKEY("signature")));
 	wprintf("<div id=\"signature_box\">"
 		"<br><textarea name=\"signature\" cols=\"40\" rows=\"5\">"
 	);
@@ -536,7 +567,7 @@ void display_preferences(void)
 		StrBufPrintf(Buf, "%s", "UTF-8");
 	}
 	wprintf("<tr class=\"even\"><td>");
-	wprintf(_("Default character set for email headers:"));
+	wprintf(PrefGetLocalStr(HKEY("default_header_charset")));
 	wprintf("</td><td>");
 	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"");
 	escputs((char*)ChrPtr(Buf)); // here shouldn't be bad chars, so...
@@ -549,7 +580,7 @@ void display_preferences(void)
 
 	get_pref_yesno("emptyfloors", &ShowEmptyFloors, 0);
 	wprintf("<tr class=\"odd\"><td>");
-	wprintf(_("Show empty floors"));
+	wprintf(PrefGetLocalStr(HKEY("emptyfloors")));
 	wprintf("</td><td>");
 
 	wprintf("<input type=\"radio\" name=\"emptyfloors\" VALUE=\"yes\"");
@@ -632,11 +663,27 @@ void set_preferences(void)
 }
 
 
+#define PRF_STRING 1
+#define PRF_INT 2
+#define PRF_QP_STRING 3
+#define PRF_YESNO 4
+
 void 
 InitModule_PREFERENCES
 (void)
 {
 	WebcitAddUrlHandler(HKEY("display_preferences"), display_preferences, 0);
 	WebcitAddUrlHandler(HKEY("set_preferences"), set_preferences, 0);
+
+	RegisterPreference("roomlistview",_("Room list view"),PRF_STRING);
+	RegisterPreference("calhourformat",_("Time format"), PRF_INT);
+	RegisterPreference("daystart", _("Calendar day view begins at:"), PRF_INT);
+	RegisterPreference("dayend", _("Calendar day view ends at:"), PRF_INT);
+	RegisterPreference("weekstart",_("Week starts on:"), PRF_INT);
+
+	RegisterPreference("use_sig",_("Attach signature to email messages?"), PRF_YESNO);
+	RegisterPreference("signature",_("Use this signature:"),PRF_QP_STRING);
+	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
+	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
 }
 /*@}*/

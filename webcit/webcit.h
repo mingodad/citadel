@@ -469,6 +469,7 @@ extern char wizard_filename[];
 extern time_t if_modified_since;
 extern int follow_xff;
 extern HashList *HandlerHash;
+extern HashList *PreferenceHooks;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);

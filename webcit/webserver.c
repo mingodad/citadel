@@ -616,6 +616,8 @@ int main(int argc, char **argv)
 	char uds_listen_path[PATH_MAX];	/*< listen on a unix domain socket? */
 
 	HandlerHash = NewHash(1, NULL);
+	PreferenceHooks = NewHash(1, NULL);
+
 	initialise_modules();
 
 #ifdef DBG_PRINNT_HOOKS_AT_START
@@ -860,6 +862,7 @@ int main(int argc, char **argv)
 	worker_entry();
 	ShutDownLibCitadel ();
 	DeleteHash(&HandlerHash);
+	DeleteHash(&PreferenceHooks);
 	return 0;
 }
 
@@ -936,6 +939,7 @@ void worker_entry(void)
 				icalmemory_free_ring ();
 				ShutDownLibCitadel ();
 				DeleteHash(&HandlerHash);
+				DeleteHash(&PreferenceHooks);
 #ifdef ENABLE_NLS
 				void ShutdownLocale(void);
 #endif
