@@ -29,12 +29,14 @@ void groupdav_options(char *dav_pathname) {
 	 * If the room name is blank, the client is doing a top-level OPTIONS.
 	 */
 	if (IsEmptyStr(dav_roomname)) {
-		wprintf("HTTP/1.1 200 OK\r\n");
+		hprintf("HTTP/1.1 200 OK\r\n");
 		groupdav_common_headers();
-		wprintf("Date: %s\r\n", datestring);
-		wprintf("DAV: 1\r\n");
-		wprintf("Allow: OPTIONS, PROPFIND\r\n");
-		wprintf("\r\n");
+		hprintf("Date: %s\r\n", datestring);
+		hprintf("DAV: 1\r\n");
+		hprintf("Allow: OPTIONS, PROPFIND\r\n");
+		hprintf("\r\n");
+		begin_burst();
+		end_burst();
 		return;
 	}
 
@@ -44,15 +46,17 @@ void groupdav_options(char *dav_pathname) {
 	}
 
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		wprintf("HTTP/1.1 404 not found\r\n");
+		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
-		wprintf("Date: %s\r\n", datestring);
-		wprintf(
+		hprintf("Date: %s\r\n", datestring);
+		hprintf(
 			"Content-Type: text/plain\r\n"
 			"\r\n"
 			"There is no folder called \"%s\" on this server.\r\n",
 			dav_roomname
 		);
+		begin_burst();
+		end_burst();
 		return;
 	}
 
@@ -63,24 +67,26 @@ void groupdav_options(char *dav_pathname) {
 
 		dav_msgnum = locate_message_by_uid(dav_uid);
 		if (dav_msgnum < 0) {
-			wprintf("HTTP/1.1 404 not found\r\n");
+			hprintf("HTTP/1.1 404 not found\r\n");
 			groupdav_common_headers();
-			wprintf(
+			hprintf(
 				"Content-Type: text/plain\r\n"
 				"\r\n"
 				"Object \"%s\" was not found in the \"%s\" folder.\r\n",
 				dav_uid,
 				dav_roomname
 			);
-			return;
+			begin_burst();end_burst();return;
 		}
 
-		wprintf("HTTP/1.1 200 OK\r\n");
+		hprintf("HTTP/1.1 200 OK\r\n");
 		groupdav_common_headers();
-		wprintf("Date: %s\r\n", datestring);
-		wprintf("DAV: 1\r\n");
-		wprintf("Allow: OPTIONS, PROPFIND, GET, PUT, DELETE\r\n");
-		wprintf("\r\n");
+		hprintf("Date: %s\r\n", datestring);
+		hprintf("DAV: 1\r\n");
+		hprintf("Allow: OPTIONS, PROPFIND, GET, PUT, DELETE\r\n");
+		hprintf("\r\n");
+		begin_burst();
+		end_burst();
 		return;
 	}
 
@@ -88,10 +94,12 @@ void groupdav_options(char *dav_pathname) {
 	 * We got to this point, which means that the client is requesting
 	 * an OPTIONS on the room itself.
 	 */
-	wprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("HTTP/1.1 200 OK\r\n");
 	groupdav_common_headers();
-	wprintf("Date: %s\r\n", datestring);
-	wprintf("DAV: 1\r\n");
-	wprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
-	wprintf("\r\n");
+	hprintf("Date: %s\r\n", datestring);
+	hprintf("DAV: 1\r\n");
+	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
+	hprintf("\r\n");
+	begin_burst();
+	end_burst();
 }
