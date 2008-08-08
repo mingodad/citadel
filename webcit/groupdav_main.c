@@ -244,7 +244,7 @@ void groupdav_main(struct httprequest *req,
  */  
 void groupdav_identify_host(void) {
 	if (!IsEmptyStr(WC->http_host)) {
-		wprintf("%s://%s",
+		hprintf("%s://%s",
 			(is_https ? "https" : "http"),
 			WC->http_host);
 	}

@@ -180,14 +180,14 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 		lprintf(9, "HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
 		hprintf("etag: \"%ld\"\r\n", new_msgnum);
-		hprintf("Content-Length: 0\r\n");
 		hprintf("Location: ");
 		groupdav_identify_host();
 		hprintf("/groupdav/");/////TODO
-		urlescputs(dav_roomname);
+		hurlescputs(dav_roomname);
 	        char escaped_uid[1024];
 	        euid_escapize(escaped_uid, dav_uid);
-	        wprintf("/%s\r\n", escaped_uid);
+	        hprintf("/%s\r\n", escaped_uid);
+		end_burst();
 		return;
 	}
 
