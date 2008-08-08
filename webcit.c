@@ -513,6 +513,15 @@ void urlescputs(char *strbuf)
 	urlesc(outbuf, SIZ, strbuf);
 	wprintf("%s", outbuf);
 }
+/**
+ * urlescape buffer and print it as header 
+ */
+void hurlescputs(char *strbuf) {
+	char outbuf[SIZ];
+	
+	urlesc(outbuf, SIZ, strbuf);
+	hprintf("%s", outbuf);
+}
 
 
 /*

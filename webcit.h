@@ -538,6 +538,7 @@ const char *BSTR(char *key);
 const char *Bstr(char *key, size_t keylen);
 
 void urlescputs(char *);
+void hurlescputs(char *);
 void jsesc(char *, size_t, char *);
 void jsescputs(char *);
 void output_headers(    int do_httpheaders,
