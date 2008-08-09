@@ -56,6 +56,7 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 	memcpy(NewBuf->buf, CopyMe->buf, CopyMe->BufUsed + 1);
 	NewBuf->BufUsed = CopyMe->BufUsed;
 	NewBuf->BufSize = CopyMe->BufSize;
+	NewBuf->ConstBuf = 0;
 	return NewBuf;
 }
 
