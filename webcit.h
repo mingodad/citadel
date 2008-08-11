@@ -470,6 +470,10 @@ extern time_t if_modified_since;
 extern int follow_xff;
 extern HashList *HandlerHash;
 extern HashList *PreferenceHooks;
+extern HashList *WirelessTemplateCache;
+extern HashList *WirelessLocalTemplateCache;
+extern HashList *TemplateCache;
+extern HashList *LocalTemplateCache;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
@@ -612,7 +616,8 @@ void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
 void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
 #define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
 
-void do_template(void *templatename);
+void DoTemplate(const char *templatename, long len);
+#define do_template(a) DoTemplate(a, sizeof(a) -1);
 
 
 int lingering_close(int fd);

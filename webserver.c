@@ -617,6 +617,10 @@ int main(int argc, char **argv)
 
 	HandlerHash = NewHash(1, NULL);
 	PreferenceHooks = NewHash(1, NULL);
+	WirelessTemplateCache = NewHash(1, NULL);
+	WirelessLocalTemplateCache = NewHash(1, NULL);
+	TemplateCache = NewHash(1, NULL);
+	LocalTemplateCache = NewHash(1, NULL);
 
 	initialise_modules();
 
