@@ -105,8 +105,6 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
  * to the currently selected room.
  */
 void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
-	char temp[PATH_MAX];
-	FILE *fp = NULL;
 	char *ser = NULL;
 	icalcomponent *encaps = NULL;
 	struct CtdlMessage *msg = NULL;
@@ -131,24 +129,16 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 
 	/* If the caller supplied a user, write to that user's default calendar room */
 	if (u) {
-		/* Make a temp file out of it */
-		CtdlMakeTempFileName(temp, sizeof temp);
-		fp = fopen(temp, "w");
-		if (fp != NULL) {
-			fwrite(ser, strlen(ser), 1, fp);
-			fclose(fp);
-		
-			/* This handy API function does all the work for us. */
-			CtdlWriteObject(USERCALENDARROOM,	/* which room */
-				"text/calendar",	/* MIME type */
-				temp,			/* temp file */
-				u,			/* which user */
-				0,			/* not binary */
-				0,			/* don't delete others of this type */
-				0			/* no flags */
-			);
-			unlink(temp);
-		}
+		/* This handy API function does all the work for us. */
+		CtdlWriteObject(USERCALENDARROOM,	/* which room */
+			"text/calendar",	/* MIME type */
+			ser,			/* data */
+			strlen(ser)+1,		/* length */
+			u,			/* which user */
+			0,			/* not binary */
+			0,			/* don't delete others of this type */
+			0			/* no flags */
+		);
 	}
 
 	/* If the caller did not supply a user, write to the currently selected room */

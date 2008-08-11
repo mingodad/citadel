@@ -254,20 +254,12 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
 
 	/* Only save the vCard if there is some useful data in it */
 	if (pop > 0) {
-		char temp[PATH_MAX];
-		FILE *fp;
 		char *ser;
-	
-		CtdlMakeTempFileName(temp, sizeof temp);
 		ser = vcard_serialize(v);
 		if (ser) {
-			fp = fopen(temp, "w");
-			if (fp) {
-				fwrite(ser, strlen(ser), 1, fp);
-				fclose(fp);
-				CtdlWriteObject(USERCONFIGROOM,	"text/x-vcard", temp, &CC->user, 0, 0, 0);
-				unlink(temp);
-			}
+			CtdlWriteObject(USERCONFIGROOM,	"text/x-vcard",
+				ser, strlen(ser)+1, &CC->user, 0, 0, 0
+			);
 			free(ser);
 		}
 	}

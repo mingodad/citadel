@@ -4424,24 +4424,21 @@ void TDAP_AdjRefCount(long msgnum, int incr)
  * Note: this could be much more efficient.  Right now we use two temporary
  * files, and still pull the message into memory as with all others.
  */
-void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
-			char *content_type,	/* MIME type of this object */
-			char *tempfilename,	/* Where to fetch it from */
+void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
+			char *content_type,		/* MIME type of this object */
+			char *raw_message,		/* Data to be written */
+			off_t raw_length,		/* Size of raw_message */
 			struct ctdluser *is_mailbox,	/* Mailbox room? */
-			int is_binary,		/* Is encoding necessary? */
-			int is_unique,		/* Del others of this type? */
-			unsigned int flags	/* Internal save flags */
+			int is_binary,			/* Is encoding necessary? */
+			int is_unique,			/* Del others of this type? */
+			unsigned int flags		/* Internal save flags */
 			)
 {
 
-	FILE *fp;
 	struct ctdlroom qrbuf;
 	char roomname[ROOMNAMELEN];
 	struct CtdlMessage *msg;
-
-	char *raw_message = NULL;
 	char *encoded_message = NULL;
-	off_t raw_length = 0;
 
 	if (is_mailbox != NULL) {
 		MailboxName(roomname, sizeof roomname, is_mailbox, req_room);
@@ -4450,24 +4447,10 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		safestrncpy(roomname, req_room, sizeof(roomname));
 	}
 
-	fp = fopen(tempfilename, "rb");
-	if (fp == NULL) {
-		CtdlLogPrintf(CTDL_CRIT, "Cannot open %s: %s\n",
-			tempfilename, strerror(errno));
-		return;
-	}
-	fseek(fp, 0L, SEEK_END);
-	raw_length = ftell(fp);
-	rewind(fp);
 	CtdlLogPrintf(CTDL_DEBUG, "Raw length is %ld\n", (long)raw_length);
 
-	raw_message = malloc((size_t)raw_length + 2);
-	fread(raw_message, (size_t)raw_length, 1, fp);
-	fclose(fp);
-
 	if (is_binary) {
-		encoded_message = malloc((size_t)
-			(((raw_length * 134) / 100) + 4096 ) );
+		encoded_message = malloc((size_t) (((raw_length * 134) / 100) + 4096 ) );
 	}
 	else {
 		encoded_message = malloc((size_t)(raw_length + 4096));
@@ -4495,15 +4478,12 @@ void CtdlWriteObject(char *req_room,		/* Room to stuff it in */
 		);
 	}
 	else {
-		raw_message[raw_length] = 0;
 		memcpy(
 			&encoded_message[strlen(encoded_message)],
 			raw_message,
 			(int)(raw_length+1)
 		);
 	}
-
-	free(raw_message);
 
 	CtdlLogPrintf(CTDL_DEBUG, "Allocating\n");
 	msg = malloc(sizeof(struct CtdlMessage));
@@ -4594,20 +4574,9 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	return(conf);
 }
 
+
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata) {
-	char temp[PATH_MAX];
-	FILE *fp;
-
-	CtdlMakeTempFileName(temp, sizeof temp);
-
-	fp = fopen(temp, "w");
-	if (fp == NULL) return;
-	fprintf(fp, "%s", sysconfdata);
-	fclose(fp);
-
-	/* this handy API function does all the work for us */
-	CtdlWriteObject(SYSCONFIGROOM, sysconfname, temp, NULL, 0, 1, 0);
-	unlink(temp);
+	CtdlWriteObject(SYSCONFIGROOM, sysconfname, sysconfdata, (strlen(sysconfdata)+1), NULL, 0, 1, 0);
 }
 
 

@@ -794,22 +794,13 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
  * Write our config to disk
  */
 void vcard_write_user(struct ctdluser *u, struct vCard *v) {
-	char temp[PATH_MAX];
-	FILE *fp;
 	char *ser;
 
-	CtdlMakeTempFileName(temp, sizeof temp);
 	ser = vcard_serialize(v);
-
-	fp = fopen(temp, "w");
-	if (fp == NULL) return;
 	if (ser == NULL) {
-		fprintf(fp, "begin:vcard\r\nend:vcard\r\n");
-	} else {
-		fwrite(ser, strlen(ser), 1, fp);
-		free(ser);
+		ser = strdup("begin:vcard\r\nend:vcard\r\n");
 	}
-	fclose(fp);
+	if (!ser) return;
 
 	/* This handy API function does all the work for us.
 	 * NOTE: normally we would want to set that last argument to 1, to
@@ -817,15 +808,16 @@ void vcard_write_user(struct ctdluser *u, struct vCard *v) {
 	 * have to, because the vcard_upload_beforesave() hook above
 	 * is going to notice what we're trying to do, and delete the old vCard.
 	 */
-	CtdlWriteObject(USERCONFIGROOM,	/* which room */
-			VCARD_MIME_TYPE,/* MIME type */
-			temp,		/* temp file */
-			u,		/* which user */
-			0,		/* not binary */
-			0,		/* don't delete others of this type */
-			0);		/* no flags */
+	CtdlWriteObject(USERCONFIGROOM,		/* which room */
+			VCARD_MIME_TYPE,	/* MIME type */
+			ser,			/* data */
+			strlen(ser)+1,		/* length */
+			u,			/* which user */
+			0,			/* not binary */
+			0,			/* don't delete others of this type */
+			0);			/* no flags */
 
-	unlink(temp);
+	free(ser);
 }
 
 
