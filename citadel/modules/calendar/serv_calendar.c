@@ -890,23 +890,97 @@ int ical_ctdl_is_overlap(
 
 
 
+
 /*
- * Backend for ical_hunt_for_conflicts()
+ * Called by ical_hunt_for_conflicts_backend()
+ *
+ * At this point we've got it boiled down to two icalcomponent events in memory.
+ * If they conflict, output something to the client.
  */
-void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
-	icalcomponent *cal;
-	struct CtdlMessage *msg = NULL;
-	struct ical_respond_data ird;
+void ical_output_conflicts(icalcomponent *proposed_event,
+		icalcomponent *existing_event,
+		long existing_msgnum)
+{
 	struct icaltimetype t1start, t1end, t2start, t2end;
+	t1start = icaltime_null_time();
+	t1end = icaltime_null_time();
+	t2start = icaltime_null_time();
+	t1end = icaltime_null_time();
 	icalproperty *p;
 	char conflict_event_uid[SIZ];
 	char conflict_event_summary[SIZ];
 	char compare_uid[SIZ];
 
-	cal = (icalcomponent *)data;
+
+	/* initialization */
+
 	strcpy(compare_uid, "");
 	strcpy(conflict_event_uid, "");
 	strcpy(conflict_event_summary, "");
+
+
+	/* existing event stuff */
+
+	p = ical_ctdl_get_subprop(existing_event, ICAL_DTSTART_PROPERTY);
+	if (p == NULL) return;
+	if (p != NULL) t2start = icalproperty_get_dtstart(p);
+	
+	p = ical_ctdl_get_subprop(existing_event, ICAL_DTEND_PROPERTY);
+	if (p != NULL) t2end = icalproperty_get_dtend(p);
+
+	p = ical_ctdl_get_subprop(existing_event, ICAL_UID_PROPERTY);
+	if (p != NULL) {
+		strcpy(conflict_event_uid, icalproperty_get_comment(p));
+	}
+
+	p = ical_ctdl_get_subprop(existing_event, ICAL_SUMMARY_PROPERTY);
+	if (p != NULL) {
+		strcpy(conflict_event_summary, icalproperty_get_comment(p));
+	}
+
+
+	/* proposed event stuff */
+
+	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTSTART_PROPERTY);
+	if (p == NULL) return;
+	if (p != NULL) t1start = icalproperty_get_dtstart(p);
+	
+	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTEND_PROPERTY);
+	if (p != NULL) t1end = icalproperty_get_dtend(p);
+	
+	p = ical_ctdl_get_subprop(proposed_event, ICAL_UID_PROPERTY);
+	if (p != NULL) {
+		strcpy(compare_uid, icalproperty_get_comment(p));
+	}
+
+
+	/* compare and output */
+
+	if (ical_ctdl_is_overlap(t1start, t1end, t2start, t2end)) {
+		cprintf("%ld||%s|%s|%d|\n",
+			existing_msgnum,
+			conflict_event_uid,
+			conflict_event_summary,
+			(	((strlen(compare_uid)>0)
+				&&(!strcasecmp(compare_uid,
+				conflict_event_uid))) ? 1 : 0
+			)
+		);
+	}
+
+}
+
+
+
+/*
+ * Called by ical_hunt_for_conflicts()
+ */
+void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
+	icalcomponent *proposed_event;
+	struct CtdlMessage *msg = NULL;
+	struct ical_respond_data ird;
+
+	proposed_event = (icalcomponent *)data;
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
@@ -923,54 +997,9 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 
 	if (ird.cal == NULL) return;
 
-	t1start = icaltime_null_time();
-	t1end = icaltime_null_time();
-	t2start = icaltime_null_time();
-	t1end = icaltime_null_time();
-
-	/* Now compare cal to ird.cal */
-	p = ical_ctdl_get_subprop(ird.cal, ICAL_DTSTART_PROPERTY);
-	if (p == NULL) return;
-	if (p != NULL) t2start = icalproperty_get_dtstart(p);
-	
-	p = ical_ctdl_get_subprop(ird.cal, ICAL_DTEND_PROPERTY);
-	if (p != NULL) t2end = icalproperty_get_dtend(p);
-
-	p = ical_ctdl_get_subprop(cal, ICAL_DTSTART_PROPERTY);
-	if (p == NULL) return;
-	if (p != NULL) t1start = icalproperty_get_dtstart(p);
-	
-	p = ical_ctdl_get_subprop(cal, ICAL_DTEND_PROPERTY);
-	if (p != NULL) t1end = icalproperty_get_dtend(p);
-	
-	p = ical_ctdl_get_subprop(cal, ICAL_UID_PROPERTY);
-	if (p != NULL) {
-		strcpy(compare_uid, icalproperty_get_comment(p));
-	}
-
-	p = ical_ctdl_get_subprop(ird.cal, ICAL_UID_PROPERTY);
-	if (p != NULL) {
-		strcpy(conflict_event_uid, icalproperty_get_comment(p));
-	}
-
-	p = ical_ctdl_get_subprop(ird.cal, ICAL_SUMMARY_PROPERTY);
-	if (p != NULL) {
-		strcpy(conflict_event_summary, icalproperty_get_comment(p));
-	}
-
+	/* here it is */
+	ical_output_conflicts(proposed_event, ird.cal, msgnum);
 	icalcomponent_free(ird.cal);
-
-	if (ical_ctdl_is_overlap(t1start, t1end, t2start, t2end)) {
-		cprintf("%ld||%s|%s|%d|\n",
-			msgnum,
-			conflict_event_uid,
-			conflict_event_summary,
-			(	((strlen(compare_uid)>0)
-				&&(!strcasecmp(compare_uid,
-				conflict_event_uid))) ? 1 : 0
-			)
-		);
-	}
 }
 
 
@@ -978,7 +1007,7 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 /* 
  * Phase 2 of "hunt for conflicts" operation.
  * At this point we have a calendar object which represents the VEVENT that
- * we're considering adding to the calendar.  Now hunt through the user's
+ * is proposed for addition to the calendar.  Now hunt through the user's
  * calendar room, and output zero or more existing VEVENTs which conflict
  * with this one.
  */
