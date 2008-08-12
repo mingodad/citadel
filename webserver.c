@@ -587,6 +587,7 @@ void spawn_another_worker_thread()
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 #endif 
+void InitTemplateCache(void);
 
 /*
  * \brief Here's where it all begins.
@@ -621,6 +622,7 @@ int main(int argc, char **argv)
 	WirelessLocalTemplateCache = NewHash(1, NULL);
 	TemplateCache = NewHash(1, NULL);
 	LocalTemplateCache = NewHash(1, NULL);
+	InitTemplateCache();
 
 	initialise_modules();
 
