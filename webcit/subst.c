@@ -12,6 +12,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <errno.h>
 
 #include "webcit.h"
 #include "webserver.h"
@@ -488,53 +490,26 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target)
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
-void *load_template(const char *templatename, long len) {
-	HashList *pCache;
-	HashList *Static;
-	HashList *StaticLocal;
-	StrBuf *flat_filename;
-	char filename[PATH_MAX];
+void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
+{
 	int fd;
 	struct stat statbuf;
 	const char *pS, *pE, *pch, *Err;
 	int pos;
-	struct stat mystat;
 	WCTemplate *NewTemplate;
 
-	flat_filename = NewStrBufPlain(templatename, len);
-	if (WC->is_mobile) {
-		Static = WirelessTemplateCache;
-		StaticLocal = WirelessLocalTemplateCache;
-		StrBufAppendBufPlain(flat_filename, HKEY(".m.html"), 0);
-	}
-	else {
-		Static = TemplateCache;
-		StaticLocal = LocalTemplateCache;
-		StrBufAppendBufPlain(flat_filename, HKEY(".html"), 0);
-	}
-	
-	strcpy(filename, static_dirs[1]);
-	strcat(filename, ChrPtr(flat_filename));
-	pCache = StaticLocal;
-	if (stat(filename, &mystat) == -1)
-	{
-		pCache = Static;
-		strcpy(filename, static_dirs[0]);
-		strcat(filename, ChrPtr(flat_filename));
-	}
-
-	fd = open(filename, O_RDONLY);
+	fd = open(ChrPtr(filename), O_RDONLY);
 	if (fd <= 0) {
 		wprintf(_("ERROR: could not open template "));
 		wprintf("'%s' - %s<br />\n",
-			(const char*)templatename, strerror(errno));
+			ChrPtr(filename), strerror(errno));
 		return NULL;
 	}
 
 	if (fstat(fd, &statbuf) == -1) {
 		wprintf(_("ERROR: could not stat template "));
 		wprintf("'%s' - %s<br />\n",
-			(const char*)templatename, strerror(errno));
+			ChrPtr(filename), strerror(errno));
 		return NULL;
 	}
 
@@ -548,7 +523,7 @@ void *load_template(const char *templatename, long len) {
 		FreeWCTemplate(NewTemplate);
 		wprintf(_("ERROR: reading template "));
 		wprintf("'%s' - %s<br />\n",
-			(const char*)templatename, strerror(errno));
+			ChrPtr(filename), strerror(errno));
 		return NULL;
 	}
 	close(fd);
@@ -584,7 +559,7 @@ void *load_template(const char *templatename, long len) {
 		PutNewToken(NewTemplate, NewTemlpateSubstitute(pS, pts, pte));
 		pch ++;
 	}
-	Put(pCache, filename, strlen(filename), NewTemplate, FreeWCTemplate);
+	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
 	return NewTemplate;
 }
 
@@ -609,13 +584,80 @@ void DoTemplate(const char *templatename, long len)
 
 	if (!GetHash(StaticLocal, templatename, len, &vTmpl) &&
 	    !GetHash(Static, templatename, len, &vTmpl)) {
-		vTmpl = load_template(templatename, len); 
-		//////TODO: lock this!
+		printf ("didn't find %s\n", templatename);
+		return;
 	}
 	if (vTmpl == NULL) 
 		return;
 	ProcessTemplate(vTmpl, WC->WBuf);
 	
+}
+
+int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
+{
+	StrBuf *FileName;
+	StrBuf *Tag;
+	StrBuf *Dir;
+	DIR *filedir = NULL;
+	struct dirent *filedir_entry;
+	int d_namelen;
+	int d_without_ext;
+	int IsMobile;
+	
+	Dir = NewStrBuf();
+	StrBufPrintf(Dir, "%s/t", DirName);
+	filedir = opendir (ChrPtr(Dir));
+	if (filedir == NULL) {
+		return 0;
+	}
+
+	FileName = NewStrBuf();
+	Tag = NewStrBuf();
+	while ((filedir_entry = readdir(filedir)))
+	{
+		char *MinorPtr;
+		char *PStart;
+#ifdef _DIRENT_HAVE_D_NAMELEN
+		d_namelen = filedir_entry->d_namelen;
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+		d_without_ext = d_namelen;
+		while ((d_without_ext > 0) && (filedir_entry->d_name[d_without_ext] != '.'))
+			d_without_ext --;
+		if ((d_without_ext == 0) || (d_namelen < 3))
+			continue;
+
+		IsMobile = (strstr(filedir_entry->d_name, ".m.html")!= NULL);
+		PStart = filedir_entry->d_name;
+		StrBufPrintf(FileName, "%s/t/%s", ChrPtr(Dir),  filedir_entry->d_name);
+		MinorPtr = strchr(filedir_entry->d_name, '.');
+		if (MinorPtr != NULL)
+			*MinorPtr = '\0';
+		StrBufPlain(Tag, filedir_entry->d_name, MinorPtr - filedir_entry->d_name);
+
+
+		printf("%s %d %s\n",ChrPtr(FileName), IsMobile, ChrPtr(Tag));
+		load_template(FileName, Tag, (IsMobile)?wireless:big);		
+	}
+	closedir(filedir);
+	FreeStrBuf(&FileName);
+	FreeStrBuf(&Tag);
+	FreeStrBuf(&Dir);
+	return 1;
+}
+
+void InitTemplateCache(void)
+{
+	
+	LoadTemplateDir(static_dirs[0],
+			WirelessTemplateCache,
+			TemplateCache);
+	LoadTemplateDir(static_dirs[1],
+			WirelessLocalTemplateCache,
+			LocalTemplateCache);
+
+
 }
 
 void 
