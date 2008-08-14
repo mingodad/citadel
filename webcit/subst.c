@@ -18,10 +18,14 @@
 #include "webcit.h"
 #include "webserver.h"
 
+extern char *static_dirs[PATH_MAX];  /**< Disk representation */
+
 HashList *WirelessTemplateCache;
 HashList *WirelessLocalTemplateCache;
 HashList *TemplateCache;
 HashList *LocalTemplateCache;
+
+HashList *GlobalNS;
 
 typedef struct _TemplateToken {
 	const char *pTokenStart;
@@ -45,16 +49,22 @@ typedef struct _WCTemplate {
 	WCTemplateToken **Tokens;
 } WCTemplate;
 
-HashList *GlobalNS;
-
+typedef void (*WCHandlerFunc)(int nArgs, WCTemplateToken **Tokens); /*TODO: subset of that */
 typedef struct _HashHandler {
-	int foo;
+	int nMinArgs;
+	int nMaxArgs;
+	WCHandlerFunc HandlerFunc;
 }HashHandler;
 
-typedef int (*HandlerFunc)(int nArgs, va_list vaarg);
-void RegisterNS(const char *NSName, int nMinArgs, int nMaxArgs, HandlerFunc Handler)
+void RegisterNS(const char *NSName, long len, int nMinArgs, int nMaxArgs, WCHandlerFunc HandlerFunc)
 {
-
+	HashHandler *NewHandler;
+	
+	NewHandler = (HashHandler*) malloc(sizeof(HashHandler));
+	NewHandler->nMinArgs = nMinArgs;
+	NewHandler->nMaxArgs = nMaxArgs;
+	NewHandler->HandlerFunc = HandlerFunc;	
+	Put(GlobalNS, NSName, len, NewHandler, NULL);
 }
 
 
@@ -341,55 +351,7 @@ void print_value_of(const char *keyname, size_t keylen) {
 			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", keyname);
 		}
 	}
-	else {
-		char ch;
-		ch = keyname[keylen];
-		((char*) keyname)[keylen] = '\0'; ////TODO
-		if (!strcasecmp(keyname, "SERV_PID")) {
-			wprintf("%d", WCC->ctdl_pid);
-		}
-
-		else if (!strcasecmp(keyname, "SERV_NODENAME")) {
-			escputs(serv_info.serv_nodename);
-		}
-
-		else if (!strcasecmp(keyname, "SERV_HUMANNODE")) {
-			escputs(serv_info.serv_humannode);
-		}
-
-		else if (!strcasecmp(keyname, "SERV_FQDN")) {
-			escputs(serv_info.serv_fqdn);
-		}
-
-		else if (!strcasecmp(keyname, "SERV_SOFTWARE")) {
-			escputs(serv_info.serv_software);
-		}
-
-		else if (!strcasecmp(keyname, "SERV_REV_LEVEL")) {
-			wprintf("%d.%02d",
-				serv_info.serv_rev_level / 100,
-				serv_info.serv_rev_level % 100
-				);
-		}
-
-		else if (!strcasecmp(keyname, "SERV_BBS_CITY")) {
-			escputs(serv_info.serv_bbs_city);
-		}
-
-		else if (!strcasecmp(keyname, "CURRENT_USER")) {
-			escputs(WCC->wc_fullname);
-		}
-
-		else if (!strcasecmp(keyname, "CURRENT_ROOM")) {
-			escputs(WCC->wc_roomname);
-		}
-		((char*) keyname)[keylen] = ch;//// TODO
-		
-	}
-
 }
-
-extern char *static_dirs[PATH_MAX];  /**< Disk representation */
 
 
 void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
@@ -411,8 +373,6 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 			Template->TokenSpace *= 2;
 			Template->Tokens = NewTokens;
 		}
-		
-
 	}
 	Template->Tokens[(Template->nTokensUsed)++] = NewToken;
 }
@@ -451,12 +411,29 @@ void FreeWCTemplate(void *vFreeMe)
 
 void EvaluateToken(StrBuf *Target, WCTemplateToken *Token)
 {
-
-
-	
-	print_value_of(Token->pName, Token->NameEnd);
+	void *vVar;
+// much output, since pName is not terminated...
+//	lprintf(1,"Doing token: %s\n",Token->pName);
+	if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
+		HashHandler *Handler;
+		Handler = (HashHandler*) vVar;
+		if ((Token->nParameters < Handler->nMinArgs) || 
+		    (Token->nParameters < Handler->nMaxArgs)) {
+			lprintf(1, "Handler [%s] doesn't work with %ld params", 
+				Token->pName,
+				Token->nParameters);
+		}
+		else {
+			Handler->HandlerFunc(Token->nParameters,
+					     &Token); /*TODO: subset of that */
+		
+			
+		}
+	}
+	else {
+		print_value_of(Token->pName, Token->NameEnd);
+	}
 }
-
 
 void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target)
 {
@@ -481,7 +458,6 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target)
 			pData = Tmpl->Tokens[i++]->pTokenEnd + 1;
 		}
 	}
-
 }
 
 
@@ -500,15 +476,13 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 
 	fd = open(ChrPtr(filename), O_RDONLY);
 	if (fd <= 0) {
-		wprintf(_("ERROR: could not open template "));
-		wprintf("'%s' - %s<br />\n",
+		lprintf(1, "ERROR: could not open template '%s' - %s\n",
 			ChrPtr(filename), strerror(errno));
 		return NULL;
 	}
 
 	if (fstat(fd, &statbuf) == -1) {
-		wprintf(_("ERROR: could not stat template "));
-		wprintf("'%s' - %s<br />\n",
+		lprintf(1, "ERROR: could not stat template '%s' - %s\n",
 			ChrPtr(filename), strerror(errno));
 		return NULL;
 	}
@@ -521,8 +495,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
 		FreeWCTemplate(NewTemplate);
-		wprintf(_("ERROR: reading template "));
-		wprintf("'%s' - %s<br />\n",
+		lprintf(1, "ERROR: reading template '%s' - %s<br />\n",
 			ChrPtr(filename), strerror(errno));
 		return NULL;
 	}
@@ -589,8 +562,7 @@ void DoTemplate(const char *templatename, long len)
 	}
 	if (vTmpl == NULL) 
 		return;
-	ProcessTemplate(vTmpl, WC->WBuf);
-	
+	ProcessTemplate(vTmpl, WC->WBuf);	
 }
 
 int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
@@ -630,7 +602,7 @@ int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
 
 		IsMobile = (strstr(filedir_entry->d_name, ".m.html")!= NULL);
 		PStart = filedir_entry->d_name;
-		StrBufPrintf(FileName, "%s/t/%s", ChrPtr(Dir),  filedir_entry->d_name);
+		StrBufPrintf(FileName, "%s/%s", ChrPtr(Dir),  filedir_entry->d_name);
 		MinorPtr = strchr(filedir_entry->d_name, '.');
 		if (MinorPtr != NULL)
 			*MinorPtr = '\0';
@@ -649,22 +621,74 @@ int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
 
 void InitTemplateCache(void)
 {
-	
 	LoadTemplateDir(static_dirs[0],
 			WirelessTemplateCache,
 			TemplateCache);
 	LoadTemplateDir(static_dirs[1],
 			WirelessLocalTemplateCache,
 			LocalTemplateCache);
+}
 
+void tmplput_serv_ip(int nArgs, WCTemplateToken **Tokens)
+{
+	wprintf("%d", WC->ctdl_pid);
+}
 
+void tmplput_serv_nodename(int nArgs, WCTemplateToken **Tokens)
+{
+	escputs(serv_info.serv_nodename);
+}
+
+void tmplput_serv_humannode(int nArgs, WCTemplateToken **Tokens)
+{
+	escputs(serv_info.serv_humannode);
+}
+
+void tmplput_serv_fqdn(int nArgs, WCTemplateToken **Tokens)
+{
+	escputs(serv_info.serv_fqdn);
+}
+
+void tmmplput_serv_software(int nArgs, WCTemplateToken **Tokens)
+{
+	escputs(serv_info.serv_software);
+}
+
+void tmplput_serv_rev_level(int nArgs, WCTemplateToken **Tokens)
+{
+	wprintf("%d.%02d",
+		serv_info.serv_rev_level / 100,
+		serv_info.serv_rev_level % 100);
+}
+
+void tmmplput_serv_bbs_city(int nArgs, WCTemplateToken **Tokens)
+{
+	escputs(serv_info.serv_bbs_city);
+}
+
+void tmplput_current_user(int nArgs, WCTemplateToken **Tokens)
+{
+	escputs(WC->wc_fullname);
+}
+
+void tmplput_current_room(int nArgs, WCTemplateToken **Tokens)
+{
+	escputs(WC->wc_roomname);
 }
 
 void 
 InitModule_SUBST
 (void)
 {
-
+	RegisterNS(HKEY("SERV_PID"), 0, 0, tmplput_serv_ip);
+	RegisterNS(HKEY("SERV_NODENAME"), 0, 0, tmplput_serv_nodename);
+	RegisterNS(HKEY("SERV_HUMANNODE"), 0, 0, tmplput_serv_humannode);
+	RegisterNS(HKEY("SERV_FQDN"), 0, 0, tmplput_serv_fqdn);
+	RegisterNS(HKEY("SERV_SOFTWARE"), 0, 0, tmmplput_serv_software);
+	RegisterNS(HKEY("SERV_REV_LEVEL"), 0, 0, tmplput_serv_rev_level);
+	RegisterNS(HKEY("SERV_BBS_CITY"), 0, 0, tmmplput_serv_bbs_city);
+	RegisterNS(HKEY("CURRENT_USER"), 0, 0, tmplput_current_user);
+	RegisterNS(HKEY("CURRENT_ROOM"), 0, 0, tmplput_current_room);
 }
 
 /*@}*/
