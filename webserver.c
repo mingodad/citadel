@@ -620,11 +620,10 @@ int main(int argc, char **argv)
 	PreferenceHooks = NewHash(1, NULL);
 	WirelessTemplateCache = NewHash(1, NULL);
 	WirelessLocalTemplateCache = NewHash(1, NULL);
-	TemplateCache = NewHash(1, NULL);
 	LocalTemplateCache = NewHash(1, NULL);
-	InitTemplateCache();
+	TemplateCache = NewHash(1, NULL);
+	GlobalNS = NewHash(1, NULL);
 
-	initialise_modules();
 
 #ifdef DBG_PRINNT_HOOKS_AT_START
 	dbg_PrintHash(HandlerHash, nix, NULL);
@@ -796,6 +795,9 @@ int main(int argc, char **argv)
 		perror("chdir");
 	}
 	LoadIconDir(static_icon_dir);
+	InitTemplateCache();
+
+	initialise_modules();
 	initialize_viewdefs();
 	initialize_axdefs();
 
@@ -946,6 +948,11 @@ void worker_entry(void)
 				ShutDownLibCitadel ();
 				DeleteHash(&HandlerHash);
 				DeleteHash(&PreferenceHooks);
+				DeleteHash(&GlobalNS);
+				DeleteHash(&WirelessTemplateCache);
+				DeleteHash(&WirelessLocalTemplateCache);
+				DeleteHash(&TemplateCache);
+				DeleteHash(&LocalTemplateCache);
 #ifdef ENABLE_NLS
 				void ShutdownLocale(void);
 #endif

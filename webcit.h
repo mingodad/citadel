@@ -474,6 +474,7 @@ extern HashList *WirelessTemplateCache;
 extern HashList *WirelessLocalTemplateCache;
 extern HashList *TemplateCache;
 extern HashList *LocalTemplateCache;
+extern HashList *GlobalNS;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
