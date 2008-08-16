@@ -27,21 +27,6 @@ HashList *LocalTemplateCache;
 
 HashList *GlobalNS;
 
-typedef struct _TemplateToken {
-	const char *pTokenStart;
-	size_t TokenStart;
-	size_t TokenEnd;
-	const char *pTokenEnd;
-
-	const char *pName;
-	size_t NameEnd;
-
-	int HaveParameters;
-	int nParameters;
-	size_t ParamStart [10];
-	size_t ParamEnd [10];
-} WCTemplateToken;
-
 typedef struct _WCTemplate {
 	StrBuf *Data;
 	int nTokensUsed;
@@ -49,7 +34,6 @@ typedef struct _WCTemplate {
 	WCTemplateToken **Tokens;
 } WCTemplate;
 
-typedef void (*WCHandlerFunc)(int nArgs, WCTemplateToken **Tokens); /*TODO: subset of that */
 typedef struct _HashHandler {
 	int nMinArgs;
 	int nMaxArgs;
@@ -377,21 +361,125 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 	Template->Tokens[(Template->nTokensUsed)++] = NewToken;
 }
 
-WCTemplateToken *NewTemlpateSubstitute(const char *pStart, const char *pTmplStart, const char *pTmplEnd)
+TemplateParam *GetNextParamter(StrBuf *Buf, const char **pCh, const char *pe)
 {
+	const char *pch = *pCh;
+	const char *pchs, *pche;
+	TemplateParam *Parm = (TemplateParam *) malloc(sizeof(TemplateParam));
+	char quote = '\0';
+	
+	/* Skip leading whitespaces */
+	while ((*pch == ' ' )||
+	       (*pch == '\t')||
+	       (*pch == '\r')||
+	       (*pch == '\n')) pch ++;
+	if (*pch == '"')
+		quote = '"';
+	else if (*pch == '\'')
+		quote = '\'';
+	if (quote != '\0') {
+		pch ++;
+		pchs = pch;
+		Parm->Type = TYPE_STR;
+		while (pch <= pe &&
+		       ((*pch != quote) ||
+			( (pch > pchs) && (*(pch - 1) == '\\'))
+			       )) {
+			pch ++;
+		}
+		pche = pch;
+		if (*pch != quote) {
+			lprintf(1, "Error evaluating template param [%s]\n", *pCh);
+			pch ++;
+			free(Parm);
+			return NULL;
+		}
+		else {
+			StrBufPeek(Buf, pch, -1, '\0');		
+			Parm->Start = pchs;
+			Parm->len = pche - pchs;
+			pch ++; /* move after trailing quote */
+		}
+	}
+	else {
+		Parm->Type = TYPE_LONG;
+		pchs = pch;
+		while ((pch <= pe) &&
+		       (isdigit(*pch) ||
+			(*pch == '+') ||
+			(*pch == '-')))
+			pch ++;
+		pch ++;
+		if (pch - pchs > 1){
+			StrBufPeek(Buf, pch, -1, '\0');
+			Parm->lvalue = atol(pchs);
+			Parm->Start = pchs;
+			pch++;
+		}
+		else {
+			Parm->lvalue = 0;
+			lprintf(1, "Error evalating template long param [%s]", *pCh);
+			free(Parm);
+			return NULL;
+		}
+	}
+	while ((*pch == ' ' )||
+	       (*pch == '\t')||
+	       (*pch == '\r')||
+	       (*pch == '\n')) pch ++;
+
+	*pCh = pch;
+	return Parm;
+}
+
+WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf, 
+				       const char *pStart, 
+				       const char *pTmplStart, 
+				       const char *pTmplEnd)
+{
+	const char *pch;
+	TemplateParam *Param;
 	WCTemplateToken *NewToken = (WCTemplateToken*)malloc(sizeof(WCTemplateToken));
 
+	NewToken->IsGettext = 0;
 	NewToken->pTokenStart = pTmplStart;
 	NewToken->TokenStart = pTmplStart - pStart;
 	NewToken->TokenEnd =  (pTmplEnd - pStart) - NewToken->TokenStart;
 	NewToken->pTokenEnd = pTmplEnd;
-	
-	NewToken->pName = pTmplStart + 2;
 	NewToken->NameEnd = NewToken->TokenEnd - 2;
+	
+	StrBufPeek(Buf, pTmplStart, + 1, '\0');
+	StrBufPeek(Buf, pTmplEnd, -1, '\0');
+	pch = NewToken->pName = pTmplStart + 2;
+
 	NewToken->HaveParameters = 0;;
 	NewToken->nParameters = 0;
-	NewToken->ParamStart[0] = 0;
-	NewToken->ParamEnd[0] = 0;
+
+	while (pch <= pTmplEnd - 1) {
+		if (*pch == '(') {
+			StrBufPeek(Buf, pch, -1, '\0');
+			NewToken->NameEnd = pch - NewToken->pName;
+			pch ++;
+			while (pch <= pTmplEnd - 1) {
+				Param = GetNextParamter(Buf, &pch, pTmplEnd - 1);
+				if (Param != NULL) {
+					NewToken->HaveParameters = 1;
+					if (NewToken->nParameters > MAXPARAM) {
+						lprintf(1, "Only %ld Tokens supported!\n", MAXPARAM);
+						return NULL;
+					}
+					NewToken->Params[NewToken->nParameters++] = Param;
+				}
+				else break;
+			}
+			if((NewToken->NameEnd == 1) &&
+			   (NewToken->HaveParameters == 1) && 
+			   (NewToken->nParameters == 1) &&
+			   (*(NewToken->pName) == '_'))
+				NewToken->IsGettext = 1;
+		}
+		else pch ++;		
+	}
 	return NewToken;
 }
 
@@ -414,7 +502,9 @@ void EvaluateToken(StrBuf *Target, WCTemplateToken *Token)
 	void *vVar;
 // much output, since pName is not terminated...
 //	lprintf(1,"Doing token: %s\n",Token->pName);
-	if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
+	if (Token->IsGettext)
+		TmplGettext(Target, Token->nParameters, Token);
+	else if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
 		HashHandler *Handler;
 		Handler = (HashHandler*) vVar;
 		if ((Token->nParameters < Handler->nMinArgs) || 
@@ -424,7 +514,8 @@ void EvaluateToken(StrBuf *Target, WCTemplateToken *Token)
 				Token->nParameters);
 		}
 		else {
-			Handler->HandlerFunc(Token->nParameters,
+			Handler->HandlerFunc(Target, 
+					     Token->nParameters,
 					     &Token); /*TODO: subset of that */
 		
 			
@@ -529,7 +620,8 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 		if (pch + 1 >= pE)
 			continue;
 		pte = pch;
-		PutNewToken(NewTemplate, NewTemlpateSubstitute(pS, pts, pte));
+		PutNewToken(NewTemplate, 
+			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte));
 		pch ++;
 	}
 	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
@@ -629,51 +721,51 @@ void InitTemplateCache(void)
 			LocalTemplateCache);
 }
 
-void tmplput_serv_ip(int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	wprintf("%d", WC->ctdl_pid);
+	StrBufAppendPrintf(Target, "%d", WC->ctdl_pid);
 }
 
-void tmplput_serv_nodename(int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	escputs(serv_info.serv_nodename);
+	escputs(serv_info.serv_nodename); ////TODO: respcect Target
 }
 
-void tmplput_serv_humannode(int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	escputs(serv_info.serv_humannode);
+	escputs(serv_info.serv_humannode);////TODO: respcect Target
 }
 
-void tmplput_serv_fqdn(int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	escputs(serv_info.serv_fqdn);
+	escputs(serv_info.serv_fqdn);////TODO: respcect Target
 }
 
-void tmmplput_serv_software(int nArgs, WCTemplateToken **Tokens)
+void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	escputs(serv_info.serv_software);
+	escputs(serv_info.serv_software);////TODO: respcect Target
 }
 
-void tmplput_serv_rev_level(int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	wprintf("%d.%02d",
-		serv_info.serv_rev_level / 100,
-		serv_info.serv_rev_level % 100);
+	StrBufAppendPrintf(Target, "%d.%02d",
+			    serv_info.serv_rev_level / 100,
+			    serv_info.serv_rev_level % 100);
 }
 
-void tmmplput_serv_bbs_city(int nArgs, WCTemplateToken **Tokens)
+void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	escputs(serv_info.serv_bbs_city);
+	escputs(serv_info.serv_bbs_city);////TODO: respcect Target
 }
 
-void tmplput_current_user(int nArgs, WCTemplateToken **Tokens)
+void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	escputs(WC->wc_fullname);
+	escputs(WC->wc_fullname);////TODO: respcect Target
 }
 
-void tmplput_current_room(int nArgs, WCTemplateToken **Tokens)
+void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
 {
-	escputs(WC->wc_roomname);
+	escputs(WC->wc_roomname);////TODO: respcect Target
 }
 
 void 

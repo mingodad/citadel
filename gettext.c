@@ -319,6 +319,7 @@ void initialize_locales(void) {
 	}
 }
 
+
 void ShutdownLocale(void)
 {
 	int i;
@@ -355,3 +356,8 @@ void preset_locale(void)
 #endif	/* ENABLE_NLS */
 
 
+void TmplGettext(StrBuf *Target, int nTokens, WCTemplateToken *Token)
+{
+	StrBufAppendBufPlain(Target, _(Token->Params[0]->Start), -1, 0);
+
+}

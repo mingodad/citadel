@@ -291,6 +291,33 @@ typedef struct _wcsubst {
 	void (*wcs_function)(void); /**< funcion hook ???*/
 } wcsubst;
 
+#define TYPE_STR   1
+#define TYPE_LONG  2
+#define MAXPARAM  10
+typedef struct _TemplateParam {
+	const char *Start;
+	int Type;
+	long len;
+	long lvalue;
+} TemplateParam;
+
+typedef struct _TemplateToken {
+	const char *pTokenStart;
+	size_t TokenStart;
+	size_t TokenEnd;
+	const char *pTokenEnd;
+	int IsGettext;
+
+	const char *pName;
+	size_t NameEnd;
+
+	int HaveParameters;
+	int nParameters;
+	TemplateParam *Params[MAXPARAM];
+} WCTemplateToken;
+
+typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken **Tokens);
+
 /**
  * \brief Values for wcs_type
  */
@@ -717,6 +744,7 @@ int ical_ctdl_is_overlap(
 void initialize_locales(void);
 void ShutdownLocale(void);
 #endif
+void TmplGettext(StrBuf *Target, int nTokens, WCTemplateToken *Token);
 
 extern char *months[];
 extern char *days[];
