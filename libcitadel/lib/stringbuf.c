@@ -177,6 +177,19 @@ int StrToi(const StrBuf *Buf)
 		return 0;
 }
 
+long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
+{
+	if (Buf == NULL)
+		return -1;
+	if (ptr != NULL)
+		nThChar = ptr - Buf->buf;
+	if ((nThChar < 0) || (nThChar > Buf->BufUsed))
+		return -1;
+	Buf->buf[nThChar] = PeekValue;
+	return nThChar;
+}
+
+
 int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
 {
 	size_t Siz = Buf->BufSize;
@@ -283,6 +296,28 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 		nWritten = vsnprintf(Buf->buf + Offset, 
 				     Buf->BufSize - Offset, 
 				     format, ap);
+		newused = Offset + nWritten;
+		if (newused >= Buf->BufSize)
+			IncreaseBuf(Buf, 1, 0);
+		else
+			Buf->BufUsed = Offset + nWritten ;
+
+	}
+}
+
+void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
+{
+	size_t nWritten = Buf->BufSize + 1;
+	size_t Offset = Buf->BufUsed;
+	size_t newused = Offset + nWritten;
+	va_list arg_ptr;
+	
+	while (newused >= Buf->BufSize) {
+		va_start(arg_ptr, format);
+		nWritten = vsnprintf(Buf->buf + Offset, 
+				     Buf->BufSize - Offset, 
+				     format, arg_ptr);
+		va_end(arg_ptr);
 		newused = Offset + nWritten;
 		if (newused >= Buf->BufSize)
 			IncreaseBuf(Buf, 1, 0);

@@ -214,6 +214,7 @@ int FlushStrBuf(StrBuf *buf);
 
 inline const char *ChrPtr(const StrBuf *Str);
 inline int StrLength(const StrBuf *Str);
+long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
 
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error);
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error);
@@ -227,6 +228,7 @@ inline int StrBufNum_tokens(const StrBuf *source, char tok);
 
 void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset);
 void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset);
+void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...);
 #ifdef SHOW_ME_VAPPEND_PRINTF
 /* so owe don't create an include depndency, this is just visible on demand. */
 void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap);
