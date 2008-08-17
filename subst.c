@@ -26,6 +26,7 @@ HashList *TemplateCache;
 HashList *LocalTemplateCache;
 
 HashList *GlobalNS;
+HashList *Iterators;
 
 typedef struct _WCTemplate {
 	StrBuf *Data;
@@ -316,7 +317,7 @@ void print_value_of(const char *keyname, size_t keylen) {
 
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (keyname[0] == '=') {
-		DoTemplate(keyname+1, keylen - 1, NULL);
+		DoTemplate(keyname+1, keylen - 1, NULL, NULL);
 	}
 	/** Page-local variables */
 	if ((WCC->vars!= NULL) && GetHash(WCC->vars, keyname, keylen, &vVar)) {
@@ -633,7 +634,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
-void DoTemplate(const char *templatename, long len, void *Context) 
+void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target) 
 {
 	HashList *Static;
 	HashList *StaticLocal;
@@ -769,19 +770,80 @@ void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	escputs(WC->wc_roomname);////TODO: respcect Target
 }
 
+
+typedef struct _HashIterator {
+	HashList *StaticList;
+	RetrieveHashlistFunc GetHash;
+	HashDestructorFunc Destructor;
+	SubTemplFunc DoSubTemplate;
+} HashIterator;
+
+void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	void *vIt;
+	HashIterator *It;
+	HashList *List;
+	HashPos  *it;
+	long len; 
+	const char *Key;
+	void *vContext;
+	StrBuf *SubBuf;
+	
+	if (!GetHash(Iterators, 
+		     Tokens->Params[0]->Start,
+		     Tokens->Params[0]->len,
+		     &vIt))
+		return;
+	It = (HashIterator*) vIt;
+	if (It->StaticList == NULL)
+		List = It->GetHash();
+	else
+		List = It->StaticList;
+
+	SubBuf = NewStrBuf();
+	it = GetNewHashPos();
+	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
+		It->DoSubTemplate(SubBuf, vContext);
+		DoTemplate(Tokens->Params[0]->Start,
+			   Tokens->Params[0]->len,
+			   vContext, SubBuf);
+			
+		StrBufAppendBuf(Target, SubBuf, 0);
+		FlushStrBuf(SubBuf);
+	}
+	DeleteHashPos(&it);
+	It->Destructor(List);
+}
+
+
+void RegisterITERATOR(const char *Name, long len, 
+		      HashList *StaticList, 
+		      RetrieveHashlistFunc GetHash, 
+		      SubTemplFunc DoSubTempl,
+		      HashDestructorFunc Destructor)
+{
+	HashIterator *It = (HashIterator*)malloc(sizeof(HashIterator));
+	It->StaticList = StaticList;
+	It->GetHash = GetHash;
+	It->DoSubTemplate = DoSubTempl;
+	It->Destructor = Destructor;
+	Put(Iterators, Name, len, It, NULL);
+}
+
 void 
 InitModule_SUBST
 (void)
 {
-	RegisterNS(HKEY("SERV_PID"), 0, 0, tmplput_serv_ip);
-	RegisterNS(HKEY("SERV_NODENAME"), 0, 0, tmplput_serv_nodename);
-	RegisterNS(HKEY("SERV_HUMANNODE"), 0, 0, tmplput_serv_humannode);
-	RegisterNS(HKEY("SERV_FQDN"), 0, 0, tmplput_serv_fqdn);
-	RegisterNS(HKEY("SERV_SOFTWARE"), 0, 0, tmmplput_serv_software);
-	RegisterNS(HKEY("SERV_REV_LEVEL"), 0, 0, tmplput_serv_rev_level);
-	RegisterNS(HKEY("SERV_BBS_CITY"), 0, 0, tmmplput_serv_bbs_city);
-	RegisterNS(HKEY("CURRENT_USER"), 0, 0, tmplput_current_user);
-	RegisterNS(HKEY("CURRENT_ROOM"), 0, 0, tmplput_current_room);
+	RegisterNamespace("SERV_PID", 0, 0, tmplput_serv_ip);
+	RegisterNamespace("SERV_NODENAME", 0, 0, tmplput_serv_nodename);
+	RegisterNamespace("SERV_HUMANNODE", 0, 0, tmplput_serv_humannode);
+	RegisterNamespace("SERV_FQDN", 0, 0, tmplput_serv_fqdn);
+	RegisterNamespace("SERV_SOFTWARE", 0, 0, tmmplput_serv_software);
+	RegisterNamespace("SERV_REV_LEVEL", 0, 0, tmplput_serv_rev_level);
+	RegisterNamespace("SERV_BBS_CITY", 0, 0, tmmplput_serv_bbs_city);
+	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user);
+	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room);
+	RegisterNamespace("ITERATE", 2, 4, tmpl_iterate_subtmpl);
 }
 
 /*@}*/

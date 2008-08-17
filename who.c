@@ -117,7 +117,7 @@ void who_inner_div(void) {
 	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	HashList *List;
 	HashPos  *it;
-	char *UserName;
+	const char *UserName;
 	long len;
 	time_t now;
 	int bg = 0;
@@ -394,7 +394,7 @@ void wholist_section(void) {
 	void *VUser;
 	HashList *List;
 	HashPos  *it;
-	char *UserName;
+	const char *UserName;
 	long len;
 	char buf[SIZ];
         time_t now;

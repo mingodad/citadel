@@ -28,6 +28,7 @@ void display_address_book_middle_div(void) {
 	char buf[256];
 	long len;
 	char *Name;
+	const char *VCName;
 	void *Namee;
 	StrBuf *DefAddrBook;
 	HashList *List;
@@ -67,7 +68,7 @@ void display_address_book_middle_div(void) {
 
 	SortByHashKey(List, 1);
 	it = GetNewHashPos();
-	while (GetNextHashPos(List, it, &len, &Name, &Namee)) {
+	while (GetNextHashPos(List, it, &len, &VCName, &Namee)) {
 		wprintf("<option value=\"");
 		urlescputs((char*)Namee);
 		if (strcmp(ChrPtr(DefAddrBook), Namee) == 0)
@@ -108,6 +109,7 @@ void display_address_book_inner_div() {
 	char target_label[64];
 	long len;
 	char *Name;
+	const char *VCName;
 	void *Namee;
 	HashList *List;
 	HashPos  *it;
@@ -135,7 +137,7 @@ void display_address_book_inner_div() {
 		}
 		SortByHashKey(List, 1);
 		it = GetNewHashPos();
-		while (GetNextHashPos(List, it, &len, &Name, &Namee)) {
+		while (GetNextHashPos(List, it, &len, &VCName, &Namee)) {
 			wprintf("<option value=\"");
 			escputs((char*)Namee);
 			wprintf("\">");
@@ -160,7 +162,7 @@ void display_address_book_inner_div() {
 		}
 		SortByHashKey(List, 1);
 		it = GetNewHashPos();
-		while (GetNextHashPos(List, it, &len, &Name, (void**)&Namee)) {
+		while (GetNextHashPos(List, it, &len, &VCName, (void**)&Namee)) {
 			wprintf("<option value=\"");
 			escputs((char*)Namee);
 			wprintf("\">");

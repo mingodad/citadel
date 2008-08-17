@@ -169,7 +169,7 @@ void ajax_mini_calendar(void) {
 void calendar_month_view_display_events(int year, int month, int day)
 {
 	long hklen;
-	char *HashKey;
+	const char *HashKey;
 	void *vCal;
 	HashPos *Pos;
 	disp_cal *Cal;
@@ -359,7 +359,7 @@ void calendar_month_view_display_events(int year, int month, int day)
  */
 void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	long hklen;
-	char *HashKey;
+	const char *HashKey;
 	void *vCal;
 	HashPos *Pos;
 	time_t event_tt;
@@ -779,7 +779,7 @@ void calendar_day_view_display_events(time_t thetime,
 	int dend)
 {
 	long hklen;
-	char *HashKey;
+	const char *HashKey;
 	void *vCal;
 	HashPos *Pos;
 	icalproperty *p = NULL;
@@ -1253,7 +1253,7 @@ void calendar_day_view(int year, int month, int day) {
  */
 void calendar_summary_view(void) {
 	long hklen;
-	char *HashKey;
+	const char *HashKey;
 	void *vCal;
 	HashPos *Pos;
 	disp_cal *Cal;
@@ -1442,7 +1442,7 @@ int task_completed_cmp(const void *vtask1, const void *vtask2) {
  */
 void do_tasks_view(void) {
 	long hklen;
-	char *HashKey;
+	const char *HashKey;
 	void *vCal;
 	disp_cal *Cal;
 	HashPos *Pos;

@@ -317,8 +317,23 @@ typedef struct _TemplateToken {
 } WCTemplateToken;
 
 typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
+void RegisterNS(const char *NSName, long len, 
+		int nMinArgs, 
+		int nMaxArgs, 
+		WCHandlerFunc HandlerFunc);
+#define RegisterNamespace(a, b, c, d) RegisterNS(a, sizeof(a)-1, b, c, d)
 
-void RegisterNS(const char *NSName, long len, int nMinArgs, int nMaxArgs, WCHandlerFunc HandlerFunc);
+
+typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context);
+typedef HashList *(*RetrieveHashlistFunc)(void);
+typedef void (*HashDestructorFunc) (HashList *KillMe);
+void RegisterITERATOR(const char *Name, long len, 
+		      HashList *StaticList, 
+		      RetrieveHashlistFunc GetHash, 
+		      SubTemplFunc DoSubTempl,
+		      HashDestructorFunc Destructor);
+#define RegisterIterator(a, b, c, d) RegisterITERATOR(a, sizeof(a)-1, b, c, d)
+
 
 /**
  * \brief Values for wcs_type
@@ -504,6 +519,7 @@ extern HashList *WirelessLocalTemplateCache;
 extern HashList *TemplateCache;
 extern HashList *LocalTemplateCache;
 extern HashList *GlobalNS;
+extern HashList *Iterators;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
@@ -646,8 +662,8 @@ void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
 void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
 #define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
 
-void DoTemplate(const char *templatename, long len, void *Context);
-#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b);
+void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target);
+#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL);
 
 
 int lingering_close(int fd);

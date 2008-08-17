@@ -405,7 +405,7 @@ void finalize_openid_login(void)
 				urlcontent *u;
 				void *U;
 				long HKLen;
-				char *HKey;
+				const char *HKey;
 				HashPos *Cursor;
 				
 				Cursor = GetNewHashPos ();
