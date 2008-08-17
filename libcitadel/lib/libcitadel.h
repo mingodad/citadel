@@ -360,7 +360,7 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Secon
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry);
 HashPos *GetNewHashPos(void);
 void DeleteHashPos(HashPos **DelMe);
-int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, void **Data);
+int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data);
 void SortByHashKey(HashList *Hash, int Order);
 void SortByHashKeyStr(HashList *Hash);
 int GetCount(HashList *Hash);

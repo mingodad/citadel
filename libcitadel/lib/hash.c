@@ -565,7 +565,7 @@ void DeleteHashPos(HashPos **DelMe)
  * \param Data returns the Data found at HashPos
  * \returns whether the item was found or not.
  */
-int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, char **HashKey, void **Data)
+int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
 {
 	long PayloadPos;
 
