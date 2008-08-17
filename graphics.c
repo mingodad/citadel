@@ -25,7 +25,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	svput("BOXTITLE", WCS_STRING, _("Image upload"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf("<form enctype=\"multipart/form-data\" action=\"%s\" "
 		"method=\"post\" name=\"graphicsupload\">\n", uplurl);
@@ -52,7 +52,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	wprintf("</div>\n");
 	wprintf("</form>\n");
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wDumpContent(1);
 }

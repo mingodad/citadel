@@ -1439,7 +1439,7 @@ void mobile_message_view(void) {
   msgnum = StrTol(WC->UrlFragment1);
   output_headers(1, 0, 0, 0, 0, 1);
   begin_burst();
-  do_template("msgcontrols");
+  do_template("msgcontrols", NULL);
   read_message(msgnum,1, "");
   wDumpContent(0);
 }
@@ -3660,7 +3660,7 @@ void display_enter(void)
 	 * The following template embeds the TinyMCE richedit control, and automatically
 	 * transforms the textarea into a richedit textarea.
 	 */
-	do_template("richedit");
+	do_template("richedit", NULL);
 
 	/** Enumerate any attachments which are already in place... */
 	wprintf("<div class=\"attachment buttons\"><img src=\"static/diskette_24x.gif\" class=\"imgedit\" > ");

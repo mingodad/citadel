@@ -37,7 +37,7 @@ void select_user_to_edit(char *message, char *preselect)
 	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
 	svput("BOXTITLE", WCS_STRING, _("Add users"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf(_("To create a new user account, enter the desired "
 		"user name in the box below and click 'Create'."));
@@ -50,12 +50,12 @@ void select_user_to_edit(char *message, char *preselect)
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
 		"</form></center>\n", _("Create"));
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wprintf("</td><td>");
 
 	svput("BOXTITLE", WCS_STRING, _("Edit or Delete users"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf(_("To edit an existing user account, select the user "
 		"name from the list and click 'Edit'."));
@@ -86,7 +86,7 @@ void select_user_to_edit(char *message, char *preselect)
         wprintf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete user"), _("Delete this user?"));
         wprintf("</form></center>\n");
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wprintf("</td></tr></table>\n");
 

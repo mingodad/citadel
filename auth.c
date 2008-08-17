@@ -97,7 +97,7 @@ void display_login(char *mesg)
 		svput("OFFER_OPENID_LOGIN", WCS_STRING, "");
 	}
 
-	do_template("login");
+	do_template("login", NULL);
 
 	wDumpContent(2);
 }
@@ -153,7 +153,7 @@ void display_openid_login(char *mesg)
 		"Log in using a user name and password"
 	);
 
-	do_template("openid_login");
+	do_template("openid_login", NULL);
 	wDumpContent(2);
 }
 
@@ -188,7 +188,7 @@ void display_openid_name_request(char *claimed_id, char *username) {
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
 		serv_info.serv_humannode);
 
-	do_template("openid_manual_create");
+	do_template("openid_manual_create", NULL);
 	wDumpContent(2);
 }
 
@@ -795,7 +795,7 @@ void display_changepw(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	svput("BOXTITLE", WCS_STRING, _("Change your password"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	if (!IsEmptyStr(WC->ImportantMessage)) {
 		wprintf("<span class=\"errormsg\">"
@@ -829,7 +829,7 @@ void display_changepw(void)
 	wprintf("</div>\n");
 	wprintf("</form>\n");
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 	wDumpContent(1);
 }
 

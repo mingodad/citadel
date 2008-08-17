@@ -259,13 +259,13 @@ void zapped_list(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	svput("BOXTITLE", WCS_STRING, _("Zapped (forgotten) rooms"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	listrms("LZRM -1");
 
 	wprintf("<br /><br />\n");
 	wprintf(_("Click on any room to un-zap it and goto that room.\n"));
-	do_template("endbox");
+	do_template("endbox", NULL);
 	wDumpContent(1);
 }
 
@@ -506,7 +506,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	svcallback("SEARCHOMATIC", embed_search_o_matic);
 	svcallback("START", offer_start_page); 
  
-	do_template("roombanner");
+	do_template("roombanner", NULL);
 	// roombanner contains this for mobile
 	if (navbar_style != navbar_none && !WC->is_mobile) { 
 
@@ -2408,7 +2408,7 @@ void display_entroom(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Create a new room"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf("<form name=\"create_room_form\" method=\"POST\" action=\"entroom\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
@@ -2530,7 +2530,7 @@ void display_entroom(void)
 		fmout("LEFT");
 	}
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wDumpContent(1);
 }
@@ -2635,7 +2635,7 @@ void display_private(char *rname, int req_pass)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Go to a hidden room"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf("<p>");
 	wprintf(_("If you know the name of a hidden (guess-name) or "
@@ -2672,7 +2672,7 @@ void display_private(char *rname, int req_pass)
 	);
 	wprintf("</div></form>\n");
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wDumpContent(1);
 }
@@ -3126,7 +3126,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		if ( (strcasecmp(floor_name, old_floor_name))
 		   && (!IsEmptyStr(old_floor_name)) ) {
 			/* End inner box */
-			do_template("endbox");
+			do_template("endbox", NULL);
 			wprintf("<br>");
 
 			++num_boxes;
@@ -3143,7 +3143,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 			/** Begin inner box */
 			stresc(boxtitle, 256, floor_name, 1, 0);
 			svprintf(HKEY("BOXTITLE"), WCS_STRING, boxtitle);
-			do_template("beginbox");
+			do_template("beginbox", NULL);
 		}
 
 		oldlevels = levels;
@@ -3181,7 +3181,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		}
 	}
 	/** End the final inner box */
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wprintf("</td></tr></table>\n");
 }

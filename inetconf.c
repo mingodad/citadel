@@ -105,7 +105,7 @@ void display_inetconf(void)
 			wprintf("</td><td valign=top>");
 		}
 		svput("BOXTITLE", WCS_STRING, ic_boxtitle[which]);
-		do_template("beginbox");
+		do_template("beginbox", NULL);
 		wprintf("<span class=\"menudesc\">");
 		escputs(ic_desc[which]);
 		wprintf("</span><br />");
@@ -141,7 +141,7 @@ void display_inetconf(void)
 		wprintf("</td><td align=left>"
 			"<input type=\"submit\" name=\"oper\" value=\"Add\">"
 			"</td></tr></table></form>\n");
-		do_template("endbox");
+		do_template("endbox", NULL);
 		wprintf("<br />");
 	}
 	wprintf("</td></tr></table></div>\n");

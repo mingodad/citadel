@@ -174,7 +174,7 @@ void display_rss(char *roomname, char *request_method)
 		svput("822_PUB_DATE", WCS_STRING, date);
 	}
 	svput("GENERATOR", WCS_STRING, PACKAGE_STRING);
-	do_template("rss_head");
+	do_template("rss_head", NULL);
 
 	/** Read all messages and output as RSS items */
 	for (a = 0; a < nummsgs; ++a) {
@@ -230,7 +230,7 @@ void display_rss(char *roomname, char *request_method)
 			svprintf(HKEY("822_PUB_DATE"),WCS_STRING, _("%s"), date);
 		}
 		svprintf(HKEY("GUID"), WCS_STRING,"%s", msgn);
-		do_template("rss_item");
+		do_template("rss_item", NULL);
 		/** Now the hard part, the message itself */
 		strcpy(content_type, "text/plain");
 		while (serv_getln(buf, sizeof buf), !IsEmptyStr(buf)) {
@@ -343,7 +343,7 @@ void display_rss(char *roomname, char *request_method)
 
 ENDBODY:
 		//wprintf("   </item>\n");
-		do_template("rss_item_end");
+		do_template("rss_item_end", NULL);
 ENDITEM:
 		now = 0L;
 	}

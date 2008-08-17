@@ -668,6 +668,27 @@ void set_preferences(void)
 #define PRF_QP_STRING 3
 #define PRF_YESNO 4
 
+
+void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context)
+{
+	StrBuf *Setting;
+	if (get_PREFERENCE(Token->Params[0]->Start,
+			   Token->Params[0]->len,
+			   &Setting))
+		StrBufAppendBuf(Target, Setting, 0);
+}
+
+void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context)
+{
+	const char *SettingStr;
+	SettingStr = PrefGetLocalStr(Token->Params[0]->Start,
+				     Token->Params[0]->len);
+	if (SettingStr != NULL) 
+		StrBufAppendBufPlain(Target, SettingStr, -1, 0);
+}
+
+
+
 void 
 InitModule_PREFERENCES
 (void)
@@ -685,5 +706,8 @@ InitModule_PREFERENCES
 	RegisterPreference("signature",_("Use this signature:"),PRF_QP_STRING);
 	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
 	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
+	
+	RegisterNS(HKEY("PREF:VALUE"), 1, 1, tmplput_CFG_Value);
+	RegisterNS(HKEY("PREF:DESCR"), 1, 1, tmplput_CFG_Descr);
 }
 /*@}*/

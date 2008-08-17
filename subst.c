@@ -316,7 +316,7 @@ void print_value_of(const char *keyname, size_t keylen) {
 
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (keyname[0] == '=') {
-		DoTemplate(keyname+1, keylen - 1);
+		DoTemplate(keyname+1, keylen - 1, NULL);
 	}
 	/** Page-local variables */
 	if ((WCC->vars!= NULL) && GetHash(WCC->vars, keyname, keylen, &vVar)) {
@@ -497,7 +497,7 @@ void FreeWCTemplate(void *vFreeMe)
 	free(FreeMe);
 }
 
-void EvaluateToken(StrBuf *Target, WCTemplateToken *Token)
+void EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context)
 {
 	void *vVar;
 // much output, since pName is not terminated...
@@ -516,7 +516,8 @@ void EvaluateToken(StrBuf *Target, WCTemplateToken *Token)
 		else {
 			Handler->HandlerFunc(Target, 
 					     Token->nParameters,
-					     &Token); /*TODO: subset of that */
+					     Token,
+					     Context); /*TODO: subset of that */
 		
 			
 		}
@@ -526,7 +527,7 @@ void EvaluateToken(StrBuf *Target, WCTemplateToken *Token)
 	}
 }
 
-void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target)
+void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 {
 	int done = 0;
 	int i;
@@ -545,7 +546,7 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target)
 			StrBufAppendBufPlain(
 				Target, pData, 
 				Tmpl->Tokens[i]->pTokenStart - pData, 0);
-			EvaluateToken(Target, Tmpl->Tokens[i]);
+			EvaluateToken(Target, Tmpl->Tokens[i], Context);
 			pData = Tmpl->Tokens[i++]->pTokenEnd + 1;
 		}
 	}
@@ -632,7 +633,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
-void DoTemplate(const char *templatename, long len) 
+void DoTemplate(const char *templatename, long len, void *Context) 
 {
 	HashList *Static;
 	HashList *StaticLocal;
@@ -654,7 +655,7 @@ void DoTemplate(const char *templatename, long len)
 	}
 	if (vTmpl == NULL) 
 		return;
-	ProcessTemplate(vTmpl, WC->WBuf);	
+	ProcessTemplate(vTmpl, WC->WBuf, Context);	
 }
 
 int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
@@ -721,49 +722,49 @@ void InitTemplateCache(void)
 			LocalTemplateCache);
 }
 
-void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	StrBufAppendPrintf(Target, "%d", WC->ctdl_pid);
 }
 
-void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	escputs(serv_info.serv_nodename); ////TODO: respcect Target
 }
 
-void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	escputs(serv_info.serv_humannode);////TODO: respcect Target
 }
 
-void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	escputs(serv_info.serv_fqdn);////TODO: respcect Target
 }
 
-void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	escputs(serv_info.serv_software);////TODO: respcect Target
 }
 
-void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	StrBufAppendPrintf(Target, "%d.%02d",
 			    serv_info.serv_rev_level / 100,
 			    serv_info.serv_rev_level % 100);
 }
 
-void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	escputs(serv_info.serv_bbs_city);////TODO: respcect Target
 }
 
-void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	escputs(WC->wc_fullname);////TODO: respcect Target
 }
 
-void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken **Tokens)
+void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	escputs(WC->wc_roomname);////TODO: respcect Target
 }

@@ -399,7 +399,7 @@ void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
 		wprintf("</div>\n");	/* end of "text" div */
-		do_template("trailing");
+		do_template("trailing", NULL);
 	}
 
 	/* If we've been saving it all up for one big output burst,
@@ -742,7 +742,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			   "<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"
 			);
 		}
-		do_template("head");
+		do_template("head", NULL);
 	}
 
 	/* ICONBAR */
@@ -830,7 +830,7 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 	long i;
 	
 	svput("BOXTITLE", WCS_STRING, Title);
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 	
 	wprintf("<ul class=\"%s\">", Class);
 	
@@ -847,7 +847,7 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 	
 	wprintf("</ul>");
 	
-	do_template("endbox");
+	do_template("endbox", NULL);
 }
 
 
@@ -1094,7 +1094,7 @@ void blank_page(void) {
  * A template has been requested
  */
 void url_do_template(void) {
-	do_template(bstr("template"));
+	do_template(bstr("template"), NULL);
 }
 
 
@@ -1134,7 +1134,7 @@ void change_start_page(void) {
 	set_preference("startpage", NewStrBufPlain(bstr("startpage"), -1), 1);
 
 	output_headers(1, 1, 0, 0, 0, 0);
-	do_template("newstartpage");
+	do_template("newstartpage", NULL);
 	wDumpContent(1);
 }
 
