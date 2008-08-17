@@ -167,7 +167,7 @@ void save_preferences(void) {
 		HashPos *HashPos;
 		HashList *Hash;
 		void *Value;
-		char *Key;
+		const char *Key;
 		StrBuf *Buf;
 		StrBuf *SubBuf = NULL;
 		
@@ -707,7 +707,7 @@ InitModule_PREFERENCES
 	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
 	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
 	
-	RegisterNS(HKEY("PREF:VALUE"), 1, 1, tmplput_CFG_Value);
-	RegisterNS(HKEY("PREF:DESCR"), 1, 1, tmplput_CFG_Descr);
+	RegisterNamespace("PREF:VALUE", 1, 1, tmplput_CFG_Value);
+	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr);
 }
 /*@}*/

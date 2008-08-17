@@ -16,6 +16,7 @@ void display_siteconfig(void)
 	char buf[SIZ];
 	int i, j;
 	struct wcsession *WCC = WC;
+	const char *VCZname;
 
 	char general[65536];
 	char access[SIZ];
@@ -521,7 +522,7 @@ void display_siteconfig(void)
 			}
 			SortByHashKey(List, 0);
 			it = GetNewHashPos();
-			while (GetNextHashPos(List, it, &len, &ZName, &ZNamee)) {
+			while (GetNextHashPos(List, it, &len, &VCZname, &ZNamee)) {
 				sprintf(&general[strlen(general)], "<option %s value=\"%s\">%s</option>\n",
 					(!strcasecmp((char*)ZName, buf) ? "selected" : ""),
 					ZName, ZName

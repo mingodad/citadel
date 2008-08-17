@@ -173,7 +173,7 @@ void dump_vars(void)
 	urlcontent *u;
 	void *U;
 	long HKLen;
-	char *HKey;
+	const char *HKey;
 	HashPos *Cursor;
 	
 	Cursor = GetNewHashPos ();

@@ -623,6 +623,7 @@ int main(int argc, char **argv)
 	LocalTemplateCache = NewHash(1, NULL);
 	TemplateCache = NewHash(1, NULL);
 	GlobalNS = NewHash(1, NULL);
+	Iterators = NewHash(1, NULL);
 
 
 #ifdef DBG_PRINNT_HOOKS_AT_START
@@ -953,6 +954,7 @@ void worker_entry(void)
 				DeleteHash(&WirelessLocalTemplateCache);
 				DeleteHash(&TemplateCache);
 				DeleteHash(&LocalTemplateCache);
+				DeleteHash(&Iterators);
 #ifdef ENABLE_NLS
 				void ShutdownLocale(void);
 #endif
