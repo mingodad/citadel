@@ -649,7 +649,7 @@ void display_add_remove_scripts(char *message)
 	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
 	svput("BOXTITLE", WCS_STRING, _("Add a new script"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf(_("To create a new script, enter the desired "
 		"script name in the box below and click 'Create'."));
@@ -662,19 +662,19 @@ void display_add_remove_scripts(char *message)
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
 		"</form></center>\n", _("Create"));
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	svput("BOXTITLE", WCS_STRING, _("Edit scripts"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 	wprintf("<br /><div align=center><a href=\"display_sieve\">%s</a><br /><br />\n",
 		_("Return to the script editing screen")
 	);
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wprintf("</td><td>");
 
 	svput("BOXTITLE", WCS_STRING, _("Delete scripts"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf(_("To delete an existing script, select the script "
 		"name from the list and click 'Delete'."));
@@ -702,7 +702,7 @@ void display_add_remove_scripts(char *message)
         wprintf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete script"), _("Delete this script?"));
         wprintf("</form></center>\n");
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wprintf("</td></tr></table>\n");
 

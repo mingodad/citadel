@@ -316,7 +316,9 @@ typedef struct _TemplateToken {
 	TemplateParam *Params[MAXPARAM];
 } WCTemplateToken;
 
-typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken **Tokens);
+typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
+
+void RegisterNS(const char *NSName, long len, int nMinArgs, int nMaxArgs, WCHandlerFunc HandlerFunc);
 
 /**
  * \brief Values for wcs_type
@@ -644,8 +646,8 @@ void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
 void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
 #define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
 
-void DoTemplate(const char *templatename, long len);
-#define do_template(a) DoTemplate(a, sizeof(a) -1);
+void DoTemplate(const char *templatename, long len, void *Context);
+#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b);
 
 
 int lingering_close(int fd);

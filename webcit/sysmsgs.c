@@ -38,7 +38,7 @@ void display_edit(char *description, char *check_cmd,
 	}
 
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Edit %s"), description);
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf(_("Enter %s below. Text is formatted to the reader's browser."
 		" A newline is forced by preceding the next line by a blank."), description);
@@ -57,7 +57,7 @@ void display_edit(char *description, char *check_cmd,
 	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br />\n", _("Cancel"));
 	wprintf("</div></form>\n");
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 	wDumpContent(1);
 }
 

@@ -49,7 +49,7 @@ void do_listsub(void)
 	wprintf("<table border=0 width=75%%><tr><td>");
 
 	svput("BOXTITLE", WCS_STRING, _("List subscribe/unsubscribe"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 	wprintf("<div align=center><br>");
 
 	/*
@@ -217,7 +217,7 @@ FORM:		wprintf("<form method=\"POST\" action=\"listsub\">\n");
 	}
 
 	wprintf("</div>");
-	do_template("endbox");
+	do_template("endbox", NULL);
 	wprintf("</td></tr></table></div>");
 
 	wprintf("</BODY></HTML>\n");

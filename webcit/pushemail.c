@@ -62,10 +62,10 @@ void display_pushemail(void) {
 	serv_printf("GOTO %s", WC->wc_roomname);
 	serv_getln(buf, sizeof  buf);
 	}
-output_headers(1, 1, 2, 0, 0, 0);
-do_template("pushemail");
+	output_headers(1, 1, 2, 0, 0, 0);
+	do_template("pushemail", NULL);
 //do_template("endbox");
-wDumpContent(1);
+	wDumpContent(1);
 }
 
 void save_pushemail(void) {

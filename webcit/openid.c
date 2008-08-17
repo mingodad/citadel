@@ -18,7 +18,7 @@ void display_openids(void)
 	wprintf("<div class=\"fix_scrollbar_bug\">");
 
 	svput("BOXTITLE", WCS_STRING, _("Manage Account/OpenID Associations"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	if (serv_info.serv_supports_openid) {
 
@@ -54,7 +54,7 @@ void display_openids(void)
 		wprintf(_("%s does not permit authentication via OpenID."), serv_info.serv_humannode);
 	}
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 	wprintf("</div>");
 	wDumpContent(2);
 }

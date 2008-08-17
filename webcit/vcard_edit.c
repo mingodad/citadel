@@ -188,7 +188,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	svput("BOXTITLE", WCS_STRING, _("Edit contact information"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
@@ -360,7 +360,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 	);
 	
 	wprintf("</td></tr></table>\n");
-	do_template("endbox");
+	do_template("endbox", NULL);
 	wDumpContent(1);
 }
 

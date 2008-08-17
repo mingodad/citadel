@@ -128,7 +128,7 @@ void do_chat(void)
 	 * output by begin_ajax_response() happen to be the ones we need.)
 	 */
 	begin_ajax_response();
-	do_template("chatframeset");
+	do_template("chatframeset", NULL);
 	end_ajax_response();
 	return;
 }

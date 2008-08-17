@@ -17,7 +17,7 @@ void display_main_menu(void)
 		"<tr><td colspan=\"2\" class=\"advanced\">\n");
 
 	svput("BOXTITLE", WCS_STRING, _("Basic commands"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	/* start of first column */
 	wprintf("<ul class=\"adminitems col1\">");
@@ -108,7 +108,7 @@ void display_main_menu(void)
 
 	wprintf("&nbsp;");
 
-	do_template("endbox");
+	do_template("endbox", NULL);
 
 	wprintf("</td></tr>"
 		"<tr valign=top><td width=50%%>");
@@ -262,7 +262,7 @@ void do_generic(void)
 	serv_getln(buf, sizeof buf);
 
 	svput("BOXTITLE", WCS_STRING, _("Server command results"));
-	do_template("beginbox");
+	do_template("beginbox", NULL);
 
 	wprintf("<table border=0><tr><td>Command:</td><td><tt>");
 	escputs(bstr("g_cmd"));
@@ -300,7 +300,7 @@ void do_generic(void)
 	wprintf("<hr />");
 	wprintf("<a href=\"display_generic\">Enter another command</a><br />\n");
 	wprintf("<a href=\"display_advanced\">Return to menu</a>\n");
-	do_template("endbox");
+	do_template("endbox", NULL);
 	wDumpContent(1);
 }
 
@@ -322,10 +322,10 @@ void display_menubar(int as_single_page) {
 			"body	{ text-decoration: none; }\n"
 			"</style>\n"
 			"</head>\n");
-		do_template("background");
+		do_template("background", NULL);
 	}
 
-	do_template("menubar");
+	do_template("menubar", NULL);
 
 	if (as_single_page) {
 		wDumpContent(2);
@@ -377,7 +377,7 @@ void display_shutdown(void)
 		{
 			output_headers(1, 1, 1, 0, 0, 0);
 			svput("BOXTITLE", WCS_STRING, _("Message to your Users:"));
-			do_template("beginbox");
+			do_template("beginbox", NULL);
 			wprintf("<form action=\"server_shutdown\">\n"
 				"<input type=\"hidden\" name=\"when\" value=\"page\">\n"
 				"<input type=\"text\" name=\"message\" value=\"%s\">\n"
@@ -385,7 +385,7 @@ void display_shutdown(void)
 				"</form>\n",
 				_("The citadel server has to be restarted. It 'll be back in a minute.")
 				);
-			do_template("endbox");
+			do_template("endbox", NULL);
 			wDumpContent(1);
 
 			
