@@ -5,7 +5,7 @@ xgettext \
 	--copyright-holder='The Citadel Project - http://www.citadel.org' \
 	-k_ \
 	-o webcit.pot \
-	../*.c
+	../*.c ../static/t/*.html
 
 for x in *.po
 do
