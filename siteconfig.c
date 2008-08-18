@@ -8,6 +8,39 @@
 #include "webcit.h"
 #include "webserver.h"
 
+
+HashList *ZoneHash = NULL;
+
+
+
+void LoadZoneFiles(void)
+{
+	icalarray *zones;
+	int z;
+	long len;
+	char this_zone[128];
+	char *ZName;
+	HashPos  *it;
+
+	ZoneHash = NewHash(1, NULL);
+	len = sizeof("UTC") + 1;
+	ZName = malloc(len + 1);
+	memcpy(ZName, "UTC", len + 1);
+	Put(ZoneHash, ZName, len, ZName, NULL);
+	zones = icaltimezone_get_builtin_timezones();
+	for (z = 0; z < zones->num_elements; ++z) {
+		strcpy(this_zone, icaltimezone_get_location(icalarray_element_at(zones, z)));
+		len = strlen(this_zone);
+		ZName = (char*)malloc(len +1);
+		memcpy(ZName, this_zone, len + 1);
+		Put(ZoneHash, ZName, len, ZName, NULL);
+	}
+	SortByHashKey(ZoneHash, 0);
+}
+
+
+
+
 /*
  * \brief display all configuration items
  */

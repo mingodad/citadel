@@ -279,27 +279,56 @@ inline void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr)
 
 
 
+void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref)
+{
+	wcsubst *ptr;
+	void *vPtr;
+	struct wcsession *WCC = WC;
+
+	/**
+	 * First look if we're doing a replacement of
+	 * an existing key
+	 */
+	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
+	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
+		ptr = (wcsubst*)vPtr;
+		if (ptr->wcs_value != NULL)
+			free(ptr->wcs_value);///TODO: respect type
+	}
+	else 	/** Otherwise allocate a new one */
+	{
+		ptr = (wcsubst *) malloc(sizeof(wcsubst));
+		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+	}
+
+	ptr->wcs_value = NULL;
+	ptr->wcs_type = (ref)?WCS_STRBUF:WCS_STRBUF_REF;
+	ptr->wcs_function = (var_callback_fptr) Buf; ////TODO
+}
+
 /**
  * \brief back end for print_value_of() ... does a server command
  * \param servcmd server command to execute on the citadel server
  */
-void pvo_do_cmd(char *servcmd) {
+void pvo_do_cmd(StrBuf *Target, char *servcmd) {
 	char buf[SIZ];
+	int len;
 
 	serv_puts(servcmd);
-	serv_getln(buf, sizeof buf);
+	len = serv_getln(buf, sizeof buf);
 
 	switch(buf[0]) {
 		case '2':
 		case '3':
 		case '5':
-			wprintf("%s\n", &buf[4]);
+			StrBufAppendPrintf(Target, "%s\n", &buf[4]);
 			break;
 		case '1':
-			fmout("CENTER");
+			_fmout(Target, "CENTER");
 			break;
 		case '4':
-			wprintf("%s\n", &buf[4]);
+			StrBufAppendPrintf(Target, "%s\n", &buf[4]);
 			serv_puts("000");
 			break;
 	}
@@ -309,7 +338,7 @@ void pvo_do_cmd(char *servcmd) {
  * \brief Print the value of a variable
  * \param keyname get a key to print
  */
-void print_value_of(const char *keyname, size_t keylen) {
+void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 	struct wcsession *WCC = WC;
 	wcsubst *ptr;
 	void *fcn();
@@ -324,13 +353,17 @@ void print_value_of(const char *keyname, size_t keylen) {
 		ptr = (wcsubst*) vVar;
 		switch(ptr->wcs_type) {
 		case WCS_STRING:
-			wprintf("%s", (const char*)ptr->wcs_value);
+			StrBufAppendBufPlain(Target, (const char*)ptr->wcs_value, -1, 0);
 			break;
 		case WCS_SERVCMD:
-			pvo_do_cmd(ptr->wcs_value);
+			pvo_do_cmd(Target, ptr->wcs_value);
 			break;
 		case WCS_FUNCTION:
 			(*ptr->wcs_function) ();
+			break;
+		case WCS_STRBUF:
+		case WCS_STRBUF_REF:
+			StrBufAppendBuf(Target, (StrBuf*) ptr->wcs_function, 0);
 			break;
 		default:
 			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", keyname);
@@ -397,6 +430,7 @@ TemplateParam *GetNextParamter(StrBuf *Buf, const char **pCh, const char *pe)
 		}
 		else {
 			StrBufPeek(Buf, pch, -1, '\0');		
+			lprintf(1, "DBG: got param [%s]\n", pchs);
 			Parm->Start = pchs;
 			Parm->len = pche - pchs;
 			pch ++; /* move after trailing quote */
@@ -419,7 +453,7 @@ TemplateParam *GetNextParamter(StrBuf *Buf, const char **pCh, const char *pe)
 		}
 		else {
 			Parm->lvalue = 0;
-			lprintf(1, "Error evalating template long param [%s]", *pCh);
+			lprintf(1, "Error evaluating template long param [%s]", *pCh);
 			free(Parm);
 			return NULL;
 		}
@@ -427,6 +461,7 @@ TemplateParam *GetNextParamter(StrBuf *Buf, const char **pCh, const char *pe)
 	while ((*pch == ' ' )||
 	       (*pch == '\t')||
 	       (*pch == '\r')||
+	       (*pch == ',' )||
 	       (*pch == '\n')) pch ++;
 
 	*pCh = pch;
@@ -456,12 +491,12 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	NewToken->HaveParameters = 0;;
 	NewToken->nParameters = 0;
 
-	while (pch <= pTmplEnd - 1) {
+	while (pch < pTmplEnd - 1) {
 		if (*pch == '(') {
 			StrBufPeek(Buf, pch, -1, '\0');
 			NewToken->NameEnd = pch - NewToken->pName;
 			pch ++;
-			while (pch <= pTmplEnd - 1) {
+			while (pch < pTmplEnd - 1) {
 				Param = GetNextParamter(Buf, &pch, pTmplEnd - 1);
 				if (Param != NULL) {
 					NewToken->HaveParameters = 1;
@@ -509,7 +544,7 @@ void EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context)
 		HashHandler *Handler;
 		Handler = (HashHandler*) vVar;
 		if ((Token->nParameters < Handler->nMinArgs) || 
-		    (Token->nParameters < Handler->nMaxArgs)) {
+		    (Token->nParameters > Handler->nMaxArgs)) {
 			lprintf(1, "Handler [%s] doesn't work with %ld params", 
 				Token->pName,
 				Token->nParameters);
@@ -524,7 +559,7 @@ void EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context)
 		}
 	}
 	else {
-		print_value_of(Token->pName, Token->NameEnd);
+		print_value_of(Target, Token->pName, Token->NameEnd);
 	}
 }
 
@@ -540,7 +575,9 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 	i = 0;
 	while (!done) {
 		if (i >= Tmpl->nTokensUsed) {
-			StrBufAppendBufPlain(Target, pData, len, 0);
+			StrBufAppendBufPlain(Target, 
+					     pData, 
+					     len - (pData - pS), 0);
 			done = 1;
 		}
 		else {
@@ -639,7 +676,9 @@ void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Targe
 	HashList *Static;
 	HashList *StaticLocal;
 	void *vTmpl;
-
+	
+	if (Target == NULL)
+		Target = WC->WBuf;
 	if (WC->is_mobile) {
 		Static = WirelessTemplateCache;
 		StaticLocal = WirelessLocalTemplateCache;
@@ -656,7 +695,7 @@ void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Targe
 	}
 	if (vTmpl == NULL) 
 		return;
-	ProcessTemplate(vTmpl, WC->WBuf, Context);	
+	ProcessTemplate(vTmpl, Target, Context);	
 }
 
 int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
@@ -804,8 +843,8 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	it = GetNewHashPos();
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
 		It->DoSubTemplate(SubBuf, vContext);
-		DoTemplate(Tokens->Params[0]->Start,
-			   Tokens->Params[0]->len,
+		DoTemplate(Tokens->Params[1]->Start,
+			   Tokens->Params[1]->len,
 			   vContext, SubBuf);
 			
 		StrBufAppendBuf(Target, SubBuf, 0);

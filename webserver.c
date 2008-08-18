@@ -589,6 +589,7 @@ const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return fo
 #endif 
 void InitTemplateCache(void);
 
+extern void LoadZoneFiles(void);
 /*
  * \brief Here's where it all begins.
  * \param argc number of commandline args
@@ -624,6 +625,7 @@ int main(int argc, char **argv)
 	TemplateCache = NewHash(1, NULL);
 	GlobalNS = NewHash(1, NULL);
 	Iterators = NewHash(1, NULL);
+	LoadZoneFiles();
 
 
 #ifdef DBG_PRINNT_HOOKS_AT_START

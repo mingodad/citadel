@@ -332,16 +332,18 @@ void RegisterITERATOR(const char *Name, long len,
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor);
-#define RegisterIterator(a, b, c, d) RegisterITERATOR(a, sizeof(a)-1, b, c, d)
+#define RegisterIterator(a, b, c, d, e) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e)
 
 
 /**
  * \brief Values for wcs_type
  */
 enum {
-	WCS_STRING,   /**< its a string */
-	WCS_FUNCTION, /**< its a function callback */
-	WCS_SERVCMD   /**< its a command to send to the citadel server */
+	WCS_STRING,       /**< its a string */
+	WCS_FUNCTION,     /**< its a function callback */
+	WCS_SERVCMD,      /**< its a command to send to the citadel server */
+	WCS_STRBUF,       /**< its a strbuf we own */
+	WCS_STRBUF_REF    /**< its a strbuf we mustn't free */
 };
 
 /**
@@ -520,6 +522,9 @@ extern HashList *TemplateCache;
 extern HashList *LocalTemplateCache;
 extern HashList *GlobalNS;
 extern HashList *Iterators;
+extern HashList *ZoneHash;
+
+
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
@@ -553,6 +558,7 @@ void who(void);
 void who_inner_div(void);
 void ajax_mini_calendar(void);
 void fmout(char *align);
+void _fmout(StrBuf *Targt, char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);
 
@@ -661,6 +667,9 @@ void SVPRINTF(char *keyname, int keytype, const char *format,...) __attribute__(
 void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
 void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
 #define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
+
+void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref);
+#define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
 
 void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target);
 #define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL);

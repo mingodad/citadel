@@ -1094,7 +1094,10 @@ void blank_page(void) {
  * A template has been requested
  */
 void url_do_template(void) {
-	do_template(bstr("template"), NULL);
+	const StrBuf *Tmpl = sbstr("template");
+	begin_burst();
+	DoTemplate(ChrPtr(Tmpl), StrLength(Tmpl), NULL, NULL);
+	end_burst();
 }
 
 
@@ -1498,9 +1501,9 @@ void session_loop(struct httprequest *req)
 		BuffSize = ContentLength + SIZ;
 		content = malloc(BuffSize);
 		memset(content, 0, BuffSize);
-		snprintf(content,  BuffSize, "Content-type: %s\n"
-				"Content-length: %d\n\n",
-				ContentType, ContentLength);
+		hprintf("Content-type: %s\n"
+			"Content-length: %d\n\n",
+			ContentType, ContentLength);
 		body_start = strlen(content);
 
 		/** Read the entire input data at once. */

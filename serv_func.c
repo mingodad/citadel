@@ -109,13 +109,18 @@ void get_serv_info(char *browser_host, char *user_agent)
  * \brief Read Citadel variformat text and spit it out as HTML.
  * \param align html align string
  */
-void fmout(char *align)
+inline void fmout(char *align)
+{
+	_fmout(WC->WBuf, align);
+}
+
+void _fmout(StrBuf *Target, char *align)
 {
 	int intext = 0;
 	int bq = 0;
 	char buf[SIZ];
 
-	wprintf("<div align=%s>\n", align);
+	StrBufAppendPrintf(Target, "<div align=%s>\n", align);
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		if ((intext == 1) && (isspace(buf[0]))) {
@@ -129,10 +134,10 @@ void fmout(char *align)
 		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
 		 */
 		if ((bq == 0) && (!strncmp(buf, " >", 2))) {
-			wprintf("<BLOCKQUOTE>");
+			StrBufAppendBufPlain(Target, HKEY("<BLOCKQUOTE>"), 0);
 			bq = 1;
 		} else if ((bq == 1) && (strncmp(buf, " >", 2))) {
-			wprintf("</BLOCKQUOTE>");
+			StrBufAppendBufPlain(Target, HKEY("</BLOCKQUOTE>"), 0);
 			bq = 0;
 		}
 		if ((bq == 1) && (!strncmp(buf, " >", 2))) {
@@ -141,8 +146,8 @@ void fmout(char *align)
 		/** Activate embedded URL's */
 		url(buf, sizeof(buf));
 
-		escputs(buf);
-		wprintf("\n");
+		escputs(buf);//// TODO: Target
+		StrBufAppendBufPlain(Target, HKEY("\n"), 0);
 	}
 	if (bq == 1) {
 		wprintf("</I>");
