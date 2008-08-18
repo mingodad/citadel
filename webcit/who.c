@@ -5,16 +5,11 @@
 #include "webcit.h"
 
 typedef struct UserStateStruct {
-	char *UserName;
-	long UserNameLen;
-	char *Room;
-	long RoomLen;
-	char *Host;
-	long HostLen;
-	char *RealRoom;
-	long RealRoomLen;
-	char *RealHost;
-	long RealHostLen;
+	StrBuf *UserName;
+	StrBuf *Room;
+	StrBuf *Host;
+	StrBuf *RealRoom;
+	StrBuf *RealHost;
 	long LastActive;
 	int Session;
 	int Idle;
@@ -24,11 +19,11 @@ typedef struct UserStateStruct {
 void DestroyUserStruct(void *vUser)
 {
 	UserStateStruct *User = (UserStateStruct*) vUser;
-	free(User->UserName);
-	free(User->Room);
-	free(User->Host);
-	free(User->RealRoom);
-	free(User->RealHost);
+	FreeStrBuf(&User->UserName);
+	FreeStrBuf(&User->Room);
+	FreeStrBuf(&User->Host);
+	FreeStrBuf(&User->RealRoom);
+	FreeStrBuf(&User->RealHost);
 	free(User);
 }
 
@@ -39,53 +34,54 @@ int CompareUserStruct(const void *VUser1, const void *VUser2)
 	
 	if (User1->Idle != User2->Idle)
 		return User1->Idle > User2->Idle;
-	return strcasecmp(User1->UserName, User2->UserName);
+	return strcasecmp(ChrPtr(User1->UserName), 
+			  ChrPtr(User2->UserName));
 }
 
 
 int GetWholistSection(HashList *List, time_t now)
 {
+	StrBuf *Buf, *XBuf;
 	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
 	UserStateStruct *User, *OldUser;
 	void *VOldUser;
-	char buf[SIZ], user[SIZ], room[SIZ], host[SIZ],
-		realroom[SIZ], realhost[SIZ];
 	size_t BufLen;
+	char buf[SIZ];
 
 	serv_puts("RWHO");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
-		while (BufLen = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		Buf = NewStrBuf();
+		XBuf = NewStrBuf();
+		while (BufLen = StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (BufLen <= 0)
 			    continue;
 			User = (UserStateStruct*) malloc(sizeof(UserStateStruct));
-			User->Session = extract_int(buf, 0);
+			User->Session = StrBufExtract_int(Buf, 0, '|');
 
-			User->UserNameLen = extract_token(user, buf, 1, '|', sizeof user);
-			User->UserName = malloc(User->UserNameLen + 1);
-			memcpy(User->UserName, user, User->UserNameLen + 1);
+			StrBufExtract_token(XBuf, Buf, 1, '|');
+			User->UserName = NewStrBufDup(XBuf);
 
-			User->RoomLen = extract_token(room, buf, 2, '|', sizeof room);
-			User->Room = malloc(User->RoomLen + 1);
-			memcpy(User->Room, room, User->RoomLen + 1);
+			StrBufExtract_token(XBuf, Buf, 2, '|');
+			User->Room = NewStrBufDup(XBuf);
 
-			User->HostLen = extract_token(host, buf, 3, '|', sizeof host);
-			User->Host = malloc(User->HostLen + 1);
-			memcpy(User->Host, host, User->HostLen + 1);
+			StrBufExtract_token(XBuf, Buf, 3, '|');
+			User->Host = NewStrBufDup(XBuf);
 
-			User->RealRoomLen = extract_token(realroom, buf, 9, '|', sizeof realroom);
-			User->RealRoom = malloc(User->RealRoomLen + 1);
-			memcpy(User->RealRoom, realroom, User->RealRoomLen + 1);
+			StrBufExtract_token(XBuf, Buf, 9, '|');
+			User->RealRoom = NewStrBufDup(XBuf);
 
-			User->RealHostLen = extract_token(realhost, buf, 10, '|', sizeof realhost);
-			User->RealHost = malloc(User->RealHostLen + 1);
-			memcpy(User->RealHost, realhost, User->RealHostLen + 1);
+			StrBufExtract_token(XBuf, Buf, 10, '|');
+			User->RealHost = NewStrBufDup(XBuf);
 			
-			User->LastActive = extract_long(buf, 5);
+			User->LastActive = StrBufExtract_long(Buf, 5, '|');
 			User->Idle = (now - User->LastActive) > 900L;
 			User->SessionCount = 1;
 
-			if (GetHash(List, User->UserName, User->UserNameLen, &VOldUser)) {
+			if (GetHash(List, 
+				    ChrPtr(User->UserName), 
+				    StrLength(User->UserName), 
+				    &VOldUser)) {
 				OldUser = VOldUser;
 				OldUser->SessionCount++;
 				if (!User->Idle) {
@@ -98,9 +94,15 @@ int GetWholistSection(HashList *List, time_t now)
 				DestroyUserStruct(User);
 			}
 			else
-				Put(List, User->UserName, User->UserNameLen, User, DestroyUserStruct);
+				Put(List, 
+				    ChrPtr(User->UserName), 
+				    StrLength(User->UserName), 
+				    User, DestroyUserStruct);
 		}
 		SortByPayload(List, CompareUserStruct);
+
+		FreeStrBuf(&XBuf);
+		FreeStrBuf(&Buf);
 		return 1;
 	}
 	else
@@ -165,7 +167,7 @@ void who_inner_div(void) {
 
 			/* (link to page this user) */
 			wprintf("<td width=\"5%%\"><a href=\"display_page?recp=");
-			urlescputs(User->UserName);
+			urlescputs(ChrPtr(User->UserName));
 			wprintf("\">"
 				"<img align=\"middle\" "
 				"src=\"static/citadelchat_24x.gif\" "
@@ -196,17 +198,17 @@ void who_inner_div(void) {
 
 			/* username (link to user bio/photo page) */
 			wprintf("<a href=\"showuser?who=");
-			urlescputs(User->UserName);
+			urlescputs(ChrPtr(User->UserName));
 			wprintf("\">");
-			escputs(User->UserName);
+			escputs(ChrPtr(User->UserName));
 			if (User->SessionCount > 1)
 				wprintf(" [%d] ", User->SessionCount);
 			wprintf("</a>");
 
 			/* room */
 			wprintf("</td>\n\t<td>");
-			escputs(User->Room);
-			if (!IsEmptyStr(User->RealRoom) ) {
+			escputs(ChrPtr(User->Room));
+			if (StrLength(User->RealRoom) > 0) {
 				wprintf("<br /><i>");
 				escputs(User->RealRoom);
 				wprintf("</i>");
@@ -214,8 +216,8 @@ void who_inner_div(void) {
 			wprintf("</td>\n\t<td class=\"host_col\">");
 
 			/* hostname */
-			escputs(User->Host);
-			if (!IsEmptyStr(User->RealHost)) {
+			escputs(ChrPtr(User->Host));
+			if (StrLength(User->RealHost) > 0) {
 				wprintf("<br /><i>");
 				escputs(User->RealHost);
 				wprintf("</i>");
@@ -415,7 +417,7 @@ void wholist_section(void) {
 		it = GetNewHashPos();
 		while (GetNextHashPos(List, it, &len, &UserName, &VUser)) {
 			User = VUser;
-			if (strcmp(User->UserName, NLI)) {
+			if (strcmp(ChrPtr(User->UserName), NLI)) {
 				wprintf("<li class=\"");
 				if (User->Idle) {
 					wprintf("inactiveuser");
@@ -424,9 +426,9 @@ void wholist_section(void) {
 					wprintf("activeuser");
 				}
 				wprintf("\"><a href=\"showuser?who=");
-				urlescputs(User->UserName);
+				urlescputs(ChrPtr(User->UserName));
 				wprintf("\">");
-				escputs(User->UserName);
+				escputs(ChrPtr(User->UserName));
 				wprintf("</a></li>");
 			}
 		}
@@ -440,6 +442,47 @@ void _terminate_session(void) {
 	terminate_session();
 }
 
+HashList *GetWholistHash(void)
+{
+	HashList *List;
+	char buf[SIZ];
+        time_t now;
+
+	serv_puts("TIME");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+		now = extract_long(&buf[4], 0);
+	}
+	else {
+		now = time(NULL);
+	}
+
+	List = NewHash(1, NULL);
+	GetWholistSection(List, now);
+	return List;
+}
+
+void WholistSubst(StrBuf *TemplBuffer, void *vContext)
+{
+	UserStateStruct *User = (UserStateStruct*) vContext;
+
+	SVPutBuf("WHO:NAME", User->UserName, 1);
+	SVPutBuf("WHO:ROOM", User->Room, 1);
+	SVPutBuf("WHO:HOST", User->Host, 1);
+	SVPutBuf("WHO:REALROOM", User->RealRoom, 1);
+	SVPutBuf("WHO:REALHOST", User->RealHost, 1);
+	svprintf(HKEY("WHO:LASTACTIVE"), WCS_STRING, "%ld", User->LastActive);
+	svprintf(HKEY("WHO:SESSION"), WCS_STRING, "%d", User->Session);
+	svprintf(HKEY("WHO:IDLE"), WCS_STRING, "%s", (User->Idle)? "Idle":"Active");
+	svprintf(HKEY("WHO:NSESSIONS"), WCS_STRING, "%d", User->SessionCount);
+	
+}
+
+void DeleteWholistHash(HashList *KillMe)
+{
+	DeleteHash(&KillMe);
+}
+
 void 
 InitModule_WHO
 (void)
@@ -449,4 +492,6 @@ InitModule_WHO
 	WebcitAddUrlHandler(HKEY("wholist_section"), wholist_section, AJAX);
 	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
+
+	RegisterIterator("WHOLIST", NULL, GetWholistHash, WholistSubst, DeleteWholistHash);
 }
