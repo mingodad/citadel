@@ -485,8 +485,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	/*
 	 * Just let libical iterate the recurrence, and keep looping back to the top of this function,
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
-	 * stops or some outer bound is reached.  The display code *should* automatically do the right
-	 * thing (but we'll have to see).
+	 * stops or some outer bound is reached.  The display code will automatically do the Right Thing.
 	 */
 
 	rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
