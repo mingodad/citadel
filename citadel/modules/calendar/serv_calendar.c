@@ -958,8 +958,12 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	struct icaltimetype t2start, t2end;
 	icalproperty *p;
 
-	/* initialization */
+	/* recur variables 
+	icalproperty *rrule = NULL;
+	struct icalrecurrencetype recur;
+	icalrecur_iterator *ritr = NULL; */
 
+	/* initialization */
 	strcpy(conflict_event_uid, "");
 	strcpy(conflict_event_summary, "");
 	t2start = icaltime_null_time();
@@ -971,24 +975,37 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	p = ical_ctdl_get_subprop(existing_event, ICAL_DTSTART_PROPERTY);
 	if (p == NULL) return;
 	if (p != NULL) t2start = icalproperty_get_dtstart(p);
-	
+
 	p = ical_ctdl_get_subprop(existing_event, ICAL_DTEND_PROPERTY);
 	if (p != NULL) t2end = icalproperty_get_dtend(p);
 
-	p = ical_ctdl_get_subprop(existing_event, ICAL_UID_PROPERTY);
-	if (p != NULL) {
-		strcpy(conflict_event_uid, icalproperty_get_comment(p));
+	/*rrule = ical_ctdl_get_subprop(existing_event, ICAL_RRULE_PROPERTY);
+	if (rrule) {
+		recur = icalproperty_get_rrule(rrule);
+		ritr = icalrecur_iterator_new(recur, t1start);
+		CtdlLogPrintf(CTDL_DEBUG, "Recurrence found: %s\n", icalrecurrencetype_as_string(&recur));
 	}
 
-	p = ical_ctdl_get_subprop(existing_event, ICAL_SUMMARY_PROPERTY);
-	if (p != NULL) {
-		strcpy(conflict_event_summary, icalproperty_get_comment(p));
-	}
+	do {*/
+		p = ical_ctdl_get_subprop(existing_event, ICAL_UID_PROPERTY);
+		if (p != NULL) {
+			strcpy(conflict_event_uid, icalproperty_get_comment(p));
+		}
+	
+		p = ical_ctdl_get_subprop(existing_event, ICAL_SUMMARY_PROPERTY);
+		if (p != NULL) {
+			strcpy(conflict_event_summary, icalproperty_get_comment(p));
+		}
+	
+		ical_conflicts_phase6(t1start, t1end, t2start, t2end,
+			existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid
+		);
 
+	/*	if (rrule) {
+			t1start = icalrecur_iterator_next(ritr);
+		}
 
-	ical_conflicts_phase6(t1start, t1end, t2start, t2end,
-				existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid
-	);
+	} while ( (rrule) && (!icaltime_is_null_time(t1start)) );*/
 
 }
 
@@ -1012,11 +1029,8 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	icalproperty *p;
 	char compare_uid[SIZ];
 
-
 	/* initialization */
-
 	strcpy(compare_uid, "");
-
 
 	/* proposed event stuff */
 
@@ -1026,7 +1040,7 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTEND_PROPERTY);
 	if (p != NULL) t1end = icalproperty_get_dtend(p);
-	
+
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_UID_PROPERTY);
 	if (p != NULL) {
 		strcpy(compare_uid, icalproperty_get_comment(p));
