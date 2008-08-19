@@ -244,6 +244,11 @@ void StrBufReplaceChars(StrBuf *buf, char search, char replace);
 int CompressBuffer(StrBuf *Buf);
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
+#define LB			(1)		/* Internal escape chars */
+#define RB			(2)
+#define QU			(3)
+void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn);
+long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int nbsp, int nolinebreaks);
 
 long StrTol(const StrBuf *Buf);
 int StrToi(const StrBuf *Buf);

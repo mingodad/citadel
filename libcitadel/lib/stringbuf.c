@@ -253,6 +253,162 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, s
 }
 
 
+/** 
+ * \brief Escape a string for feeding out as a URL.
+ * \param outbuf the output buffer
+ * \param oblen the size of outbuf to sanitize
+ * \param strbuf the input buffer
+ */
+void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
+{
+	const char *pch, *pche;
+	char *pt, *pte;
+	int b, c, len;
+	const char ec[] = " +#&;`'|*?-~<>^()[]{}/$\"\\";
+	int eclen = sizeof(ec) -1;
+
+	if (((In == NULL) && (PlainIn == NULL)) || (OutBuf == NULL) )
+		return;
+	if (PlainIn != NULL) {
+		len = strlen(PlainIn);
+		pch = PlainIn;
+		pche = pch + len;
+	}
+	else {
+		pch = In->buf;
+		pche = pch + In->BufUsed;
+		len = In->BufUsed;
+	}
+
+	pt = OutBuf->buf + OutBuf->BufUsed;
+	pte = OutBuf->buf + OutBuf->BufSize - 4; /**< we max append 3 chars at once plus the \0 */
+
+	while (pch < pche) {
+		if (pt >= pte) {
+			IncreaseBuf(OutBuf, 1, -1);
+			pte = OutBuf->buf + OutBuf->BufSize - 4; /**< we max append 3 chars at once plus the \0 */
+		}
+		
+		c = 0;
+		for (b = 0; b < eclen; ++b) {
+			if (*pch == ec[b]) {
+				c = 1;
+				b += eclen;
+			}
+		}
+		if (c == 1) {
+			snprintf(pt, pt - pte, "%%%02x", *pch);
+			pt += 3;
+			OutBuf->BufUsed += 3;
+		}
+		else {
+			*(pt++) = *(pch++);
+			OutBuf->BufUsed++;
+		}
+	}
+	*pt = '\0';
+}
+
+/*
+ * Copy a string, escaping characters which have meaning in HTML.  
+ *
+ * target		target buffer
+ * strbuf		source buffer
+ * nbsp			If nonzero, spaces are converted to non-breaking spaces.
+ * nolinebreaks		if set, linebreaks are removed from the string.
+ */
+long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int nbsp, int nolinebreaks)
+{
+	const char *aptr, *eiptr;
+	char *bptr, *eptr;
+	long len;
+
+	if (((Source == NULL) && (PlainIn == NULL)) || (Target == NULL) )
+		return -1;
+
+	if (PlainIn != NULL) {
+		aptr = PlainIn;
+		len = strlen(PlainIn);
+		eiptr = aptr + len;
+	}
+	else {
+		aptr = Source->buf;
+		eiptr = aptr + Source->BufUsed;
+		len = Source->BufUsed;
+	}
+
+	bptr = Target->buf + Target->BufUsed;
+	eptr = Target->buf + Target->BufSize - 6; /* our biggest unit to put in...  */
+
+	while (aptr < eiptr){
+		if(bptr >= eptr) {
+			IncreaseBuf(Target, 1, -1);
+			eptr = Target->buf + Target->BufSize - 6; 
+		}
+		if (*aptr == '<') {
+			memcpy(bptr, "&lt;", 4);
+			bptr += 4;
+			Target->BufUsed += 4;
+		}
+		else if (*aptr == '>') {
+			memcpy(bptr, "&gt;", 4);
+			bptr += 4;
+			Target->BufUsed += 4;
+		}
+		else if (*aptr == '&') {
+			memcpy(bptr, "&amp;", 5);
+			bptr += 5;
+			Target->BufUsed += 5;
+		}
+		else if (*aptr == '\"') {
+			memcpy(bptr, "&quot;", 6);
+			bptr += 6;
+			Target->BufUsed += 6;
+		}
+		else if (*aptr == '\'') {
+			memcpy(bptr, "&#39;", 5);
+			bptr += 5;
+			Target->BufUsed += 5;
+		}
+		else if (*aptr == LB) {
+			*bptr = '<';
+			bptr ++;
+			Target->BufUsed ++;
+		}
+		else if (*aptr == RB) {
+			*bptr = '>';
+			bptr ++;
+			Target->BufUsed ++;
+		}
+		else if (*aptr == QU) {
+			*bptr ='"';
+			bptr ++;
+			Target->BufUsed ++;
+		}
+		else if ((*aptr == 32) && (nbsp == 1)) {
+			memcpy(bptr, "&nbsp;", 6);
+			bptr += 6;
+			Target->BufUsed += 6;
+		}
+		else if ((*aptr == '\n') && (nolinebreaks)) {
+			*bptr='\0';	/* nothing */
+		}
+		else if ((*aptr == '\r') && (nolinebreaks)) {
+			*bptr='\0';	/* nothing */
+		}
+		else{
+			*bptr = *aptr;
+			bptr++;
+			Target->BufUsed ++;
+		}
+		aptr ++;
+	}
+	*bptr = '\0';
+	if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
+		return -1;
+	return Target->BufUsed;
+}
+
 inline int StrBufNum_tokens(const StrBuf *source, char tok)
 {
 	return num_tokens(source->buf, tok);
