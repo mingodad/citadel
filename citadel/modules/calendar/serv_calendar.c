@@ -890,33 +890,80 @@ int ical_ctdl_is_overlap(
 
 
 
+/* 
+ * Phase 6 of "hunt for conflicts"
+ * called by ical_conflicts_phase5()
+ *
+ * Now both the proposed and existing events have been boiled down to start and end times.
+ * Check for overlap and output any conflicts.
+ */
+void ical_conflicts_phase6(struct icaltimetype t1start,
+			struct icaltimetype t1end,
+			struct icaltimetype t2start,
+			struct icaltimetype t2end,
+			long existing_msgnum,
+			char *conflict_event_uid,
+			char *conflict_event_summary,
+			char *compare_uid)
+{
+
+	/* debugging cruft */
+	time_t tt;
+	tt = icaltime_as_timet(t1start);
+	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
+	tt = icaltime_as_timet(t1end);
+	CtdlLogPrintf(CTDL_DEBUG, "  PROPOSED END: %s", ctime(&tt));
+	tt = icaltime_as_timet(t2start);
+	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
+	tt = icaltime_as_timet(t2end);
+	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
+
+	/* compare and output */
+
+	if (ical_ctdl_is_overlap(t1start, t1end, t2start, t2end)) {
+		cprintf("%ld||%s|%s|%d|\n",
+			existing_msgnum,
+			conflict_event_uid,
+			conflict_event_summary,
+			(	((strlen(compare_uid)>0)
+				&&(!strcasecmp(compare_uid,
+				conflict_event_uid))) ? 1 : 0
+			)
+		);
+		CtdlLogPrintf(CTDL_DEBUG, "  --- CONFLICT --- \n");
+	}
+	else {
+		CtdlLogPrintf(CTDL_DEBUG, "  --- no conflict --- \n");
+	}
+
+}
+
+
 
 /*
- * Called by ical_hunt_for_conflicts_backend()
+ * Phase 5 of "hunt for conflicts"
+ * Called by ical_conflicts_phase4()
  *
- * At this point we've got it boiled down to two icalcomponent events in memory.
- * If they conflict, output something to the client.
+ * We have the proposed event boiled down to start and end times.
+ * Now check it against an existing event. 
  */
-void ical_output_conflicts(icalcomponent *proposed_event,
-		icalcomponent *existing_event,
-		long existing_msgnum)
+void ical_conflicts_phase5(struct icaltimetype t1start,
+			struct icaltimetype t1end,
+			icalcomponent *existing_event,
+			long existing_msgnum,
+			char *compare_uid)
 {
-	struct icaltimetype t1start, t1end, t2start, t2end;
-	t1start = icaltime_null_time();
-	t1end = icaltime_null_time();
-	t2start = icaltime_null_time();
-	t1end = icaltime_null_time();
-	icalproperty *p;
 	char conflict_event_uid[SIZ];
 	char conflict_event_summary[SIZ];
-	char compare_uid[SIZ];
-
+	struct icaltimetype t2start, t2end;
+	icalproperty *p;
 
 	/* initialization */
 
-	strcpy(compare_uid, "");
 	strcpy(conflict_event_uid, "");
 	strcpy(conflict_event_summary, "");
+	t2start = icaltime_null_time();
+	t2end = icaltime_null_time();
 
 
 	/* existing event stuff */
@@ -939,6 +986,38 @@ void ical_output_conflicts(icalcomponent *proposed_event,
 	}
 
 
+	ical_conflicts_phase6(t1start, t1end, t2start, t2end,
+				existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid
+	);
+
+}
+
+
+
+
+/*
+ * Phase 4 of "hunt for conflicts"
+ * Called by ical_hunt_for_conflicts_backend()
+ *
+ * At this point we've got it boiled down to two icalcomponent events in memory.
+ * If they conflict, output something to the client.
+ */
+void ical_conflicts_phase4(icalcomponent *proposed_event,
+		icalcomponent *existing_event,
+		long existing_msgnum)
+{
+	struct icaltimetype t1start, t1end;
+	t1start = icaltime_null_time();
+	t1end = icaltime_null_time();
+	icalproperty *p;
+	char compare_uid[SIZ];
+
+
+	/* initialization */
+
+	strcpy(compare_uid, "");
+
+
 	/* proposed event stuff */
 
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTSTART_PROPERTY);
@@ -953,26 +1032,13 @@ void ical_output_conflicts(icalcomponent *proposed_event,
 		strcpy(compare_uid, icalproperty_get_comment(p));
 	}
 
-
-	/* compare and output */
-
-	if (ical_ctdl_is_overlap(t1start, t1end, t2start, t2end)) {
-		cprintf("%ld||%s|%s|%d|\n",
-			existing_msgnum,
-			conflict_event_uid,
-			conflict_event_summary,
-			(	((strlen(compare_uid)>0)
-				&&(!strcasecmp(compare_uid,
-				conflict_event_uid))) ? 1 : 0
-			)
-		);
-	}
-
+	ical_conflicts_phase5(t1start, t1end, existing_event, existing_msgnum, compare_uid);
 }
 
 
 
 /*
+ * Phase 3 of "hunt for conflicts"
  * Called by ical_hunt_for_conflicts()
  */
 void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
@@ -997,8 +1063,7 @@ void ical_hunt_for_conflicts_backend(long msgnum, void *data) {
 
 	if (ird.cal == NULL) return;
 
-	/* here it is */
-	ical_output_conflicts(proposed_event, ird.cal, msgnum);
+	ical_conflicts_phase4(proposed_event, ird.cal, msgnum);
 	icalcomponent_free(ird.cal);
 }
 
