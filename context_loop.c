@@ -489,6 +489,7 @@ void context_loop(int sock)
 		TheSession->urlstrings = NULL;
 		TheSession->vars = NULL;
 		TheSession->nonce = rand();
+		TheSession->WBuf = NULL;
 		TheSession->next = SessionList;
 		SessionList = TheSession;
 		pthread_mutex_unlock(&SessionListMutex);

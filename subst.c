@@ -386,7 +386,7 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 				sizeof(WCTemplateToken*) * 
 				Template->TokenSpace * 2);
 			memcpy(NewTokens, Template->Tokens, 
-			       sizeof(WCTemplateToken) * Template->nTokensUsed);
+			       sizeof(WCTemplateToken*) * Template->nTokensUsed);
 			free(Template->Tokens);
 			Template->TokenSpace *= 2;
 			Template->Tokens = NewTokens;
