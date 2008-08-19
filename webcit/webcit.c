@@ -701,7 +701,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 	/* ICONBAR */
 	if (do_htmlhead) {
-
+		begin_burst();
 
 		/* check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (!IsEmptyStr(WC->ImportantMessage)) {
@@ -1455,9 +1455,14 @@ void session_loop(struct httprequest *req)
 		BuffSize = ContentLength + SIZ;
 		content = malloc(BuffSize);
 		memset(content, 0, BuffSize);
+		snprintf(content,  BuffSize, "Content-type: %s\n"
+			 "Content-length: %d\n\n",
+			 ContentType, ContentLength);
+/*
 		hprintf("Content-type: %s\n"
 			"Content-length: %d\n\n",
 			ContentType, ContentLength);
+*/
 		body_start = strlen(content);
 
 		/** Read the entire input data at once. */
