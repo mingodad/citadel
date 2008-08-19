@@ -546,7 +546,7 @@ void display_preferences(void)
 	get_preference("signature", &Signature);
 	ebuf = NewStrBuf();
 	StrBufEUid_unescapize(ebuf, Signature);
-	escputs((char*)ChrPtr(ebuf));///TODO
+	StrEscPuts(ebuf);
 	FreeStrBuf(&ebuf);
 	wprintf("</textarea>"
 		"</div>"
@@ -563,14 +563,15 @@ void display_preferences(void)
 
 	/** Character set to assume is in use for improperly encoded headers */
 	if (!get_preference("default_header_charset", &Buf)) {
-		Buf = NewStrBuf();////TODO: freeme!
+		Buf = NewStrBuf();
 		StrBufPrintf(Buf, "%s", "UTF-8");
+		set_preference("default_header_charset", Buf, 0);
 	}
 	wprintf("<tr class=\"even\"><td>");
 	wprintf(PrefGetLocalStr(HKEY("default_header_charset")));
 	wprintf("</td><td>");
 	wprintf("<input type=\"text\" NAME=\"default_header_charset\" MAXLENGTH=\"32\" VALUE=\"");
-	escputs((char*)ChrPtr(Buf)); // here shouldn't be bad chars, so...
+	StrEscPuts(Buf); // here shouldn't be bad chars, so...
 	wprintf("\">");
 	wprintf("</td></tr>");
 

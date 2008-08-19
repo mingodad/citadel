@@ -167,7 +167,7 @@ void who_inner_div(void) {
 
 			/* (link to page this user) */
 			wprintf("<td width=\"5%%\"><a href=\"display_page?recp=");
-			urlescputs(ChrPtr(User->UserName));
+			UrlescPutStrBuf(User->UserName);
 			wprintf("\">"
 				"<img align=\"middle\" "
 				"src=\"static/citadelchat_24x.gif\" "
@@ -198,28 +198,28 @@ void who_inner_div(void) {
 
 			/* username (link to user bio/photo page) */
 			wprintf("<a href=\"showuser?who=");
-			urlescputs(ChrPtr(User->UserName));
+			UrlescPutStrBuf(User->UserName);
 			wprintf("\">");
-			escputs(ChrPtr(User->UserName));
+			StrEscPuts(User->UserName);
 			if (User->SessionCount > 1)
 				wprintf(" [%d] ", User->SessionCount);
 			wprintf("</a>");
 
 			/* room */
 			wprintf("</td>\n\t<td>");
-			escputs(ChrPtr(User->Room));
+			StrEscPuts(User->Room);
 			if (StrLength(User->RealRoom) > 0) {
 				wprintf("<br /><i>");
-				escputs(User->RealRoom);
+				StrEscPuts(User->RealRoom);
 				wprintf("</i>");
 			}
 			wprintf("</td>\n\t<td class=\"host_col\">");
 
 			/* hostname */
-			escputs(ChrPtr(User->Host));
+			StrEscPuts(User->Host);
 			if (StrLength(User->RealHost) > 0) {
 				wprintf("<br /><i>");
-				escputs(User->RealHost);
+				StrEscPuts(User->RealHost);
 				wprintf("</i>");
 			}
 			wprintf("</td>\n</tr>");
@@ -426,9 +426,9 @@ void wholist_section(void) {
 					wprintf("activeuser");
 				}
 				wprintf("\"><a href=\"showuser?who=");
-				urlescputs(ChrPtr(User->UserName));
+				UrlescPutStrBuf(User->UserName);
 				wprintf("\">");
-				escputs(ChrPtr(User->UserName));
+				StrEscPuts(User->UserName);
 				wprintf("</a></li>");
 			}
 		}

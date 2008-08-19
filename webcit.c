@@ -409,89 +409,15 @@ void wDumpContent(int print_standard_html_footer)
 }
 
 
-/*
- * Copy a string, escaping characters which have meaning in HTML.  
- *
- * target		target buffer
- * strbuf		source buffer
- * nbsp			If nonzero, spaces are converted to non-breaking spaces.
- * nolinebreaks		if set, linebreaks are removed from the string.
- */
-long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
-{
-	char *aptr, *bptr, *eptr;
-
-	*target = '\0';
-	aptr = strbuf;
-	bptr = target;
-	eptr = target + tSize - 6; // our biggest unit to put in... 
-
-	while ((bptr < eptr) && !IsEmptyStr(aptr) ){
-		if (*aptr == '<') {
-			memcpy(bptr, "&lt;", 4);
-			bptr += 4;
-		}
-		else if (*aptr == '>') {
-			memcpy(bptr, "&gt;", 4);
-			bptr += 4;
-		}
-		else if (*aptr == '&') {
-			memcpy(bptr, "&amp;", 5);
-			bptr += 5;
-		}
-		else if (*aptr == '\"') {
-			memcpy(bptr, "&quot;", 6);
-			bptr += 6;
-		}
-		else if (*aptr == '\'') {
-			memcpy(bptr, "&#39;", 5);
-			bptr += 5;
-		}
-		else if (*aptr == LB) {
-			*bptr = '<';
-			bptr ++;
-		}
-		else if (*aptr == RB) {
-			*bptr = '>';
-			bptr ++;
-		}
-		else if (*aptr == QU) {
-			*bptr ='"';
-			bptr ++;
-		}
-		else if ((*aptr == 32) && (nbsp == 1)) {
-			memcpy(bptr, "&nbsp;", 6);
-			bptr += 6;
-		}
-		else if ((*aptr == '\n') && (nolinebreaks)) {
-			*bptr='\0';	/* nothing */
-		}
-		else if ((*aptr == '\r') && (nolinebreaks)) {
-			*bptr='\0';	/* nothing */
-		}
-		else{
-			*bptr = *aptr;
-			bptr++;
-		}
-		aptr ++;
-	}
-	*bptr = '\0';
-	if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
-		return -1;
-	return (bptr - target);
-}
 
 void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 {
-	char *buf;
-	long Siz;
+	StrEscAppend(WC->WBuf, NULL, strbuf, nbsp, nolinebreaks);
+}
 
-	if (strbuf == NULL) return;
-	Siz = (3 * strlen(strbuf)) + SIZ ;
-	buf = malloc(Siz);
-	stresc(buf, Siz, strbuf, nbsp, nolinebreaks);
-	wprintf("%s", buf);
-	free(buf);
+void StrEscputs1(const StrBuf *strbuf, int nbsp, int nolinebreaks)
+{
+	StrEscAppend(WC->WBuf, strbuf, NULL, nbsp, nolinebreaks);
 }
 
 /* 
@@ -503,24 +429,37 @@ void escputs(char *strbuf)
 }
 
 
+/* 
+ * static wrapper for ecsputs1
+ */
+void StrEscPuts(const StrBuf *strbuf)
+{
+	StrEscputs1(strbuf, 0, 0);
+}
+
+
 /*
  * urlescape buffer and print it to the client
  */
-void urlescputs(char *strbuf)
+void urlescputs(const char *strbuf)
 {
-	char outbuf[SIZ];
-	
-	urlesc(outbuf, SIZ, strbuf);
-	wprintf("%s", outbuf);
+	StrBufUrlescAppend(WC->WBuf, NULL, strbuf);
 }
+
+/*
+ * urlescape buffer and print it to the client
+ */
+void UrlescPutStrBuf(const StrBuf *strbuf)
+{
+	StrBufUrlescAppend(WC->WBuf, strbuf, NULL);
+}
+
 /**
  * urlescape buffer and print it as header 
  */
-void hurlescputs(char *strbuf) {
-	char outbuf[SIZ];
-	
-	urlesc(outbuf, SIZ, strbuf);
-	hprintf("%s", outbuf);
+void hurlescputs(const char *strbuf) 
+{
+	StrBufUrlescAppend(WC->HBuf, NULL, strbuf);
 }
 
 
