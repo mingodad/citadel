@@ -409,6 +409,80 @@ void wDumpContent(int print_standard_html_footer)
 }
 
 
+ 
+/*
+ * Copy a string, escaping characters which have meaning in HTML.  
+ *
+ * target              target buffer
+ * strbuf              source buffer
+ * nbsp                        If nonzero, spaces are converted to non-breaking spaces.
+ * nolinebreaks                if set, linebreaks are removed from the string.
+ */
+long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
+{
+        char *aptr, *bptr, *eptr;
+ 
+        *target = '\0';
+        aptr = strbuf;
+        bptr = target;
+        eptr = target + tSize - 6; // our biggest unit to put in... 
+ 
+ 
+        while ((bptr < eptr) && !IsEmptyStr(aptr) ){
+                if (*aptr == '<') {
+                        memcpy(bptr, "&lt;", 4);
+                        bptr += 4;
+                }
+                else if (*aptr == '>') {
+                        memcpy(bptr, "&gt;", 4);
+                        bptr += 4;
+                }
+                else if (*aptr == '&') {
+                        memcpy(bptr, "&amp;", 5);
+                        bptr += 5;
+                }
+                else if (*aptr == '\"') {
+                        memcpy(bptr, "&quot;", 6);
+                        bptr += 6;
+                }
+                else if (*aptr == '\'') {
+                        memcpy(bptr, "&#39;", 5);
+                        bptr += 5;
+                }
+                else if (*aptr == LB) {
+                        *bptr = '<';
+                        bptr ++;
+                }
+                else if (*aptr == RB) {
+                        *bptr = '>';
+                        bptr ++;
+                }
+                else if (*aptr == QU) {
+                        *bptr ='"';
+                        bptr ++;
+                }
+                else if ((*aptr == 32) && (nbsp == 1)) {
+                        memcpy(bptr, "&nbsp;", 6);
+                        bptr += 6;
+                }
+                else if ((*aptr == '\n') && (nolinebreaks)) {
+                        *bptr='\0';     /* nothing */
+                }
+                else if ((*aptr == '\r') && (nolinebreaks)) {
+                        *bptr='\0';     /* nothing */
+                }
+                else{
+                        *bptr = *aptr;
+                        bptr++;
+                }
+                aptr ++;
+        }
+        *bptr = '\0';
+        if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
+                return -1;
+        return (bptr - target);
+}
+
 
 void escputs1(char *strbuf, int nbsp, int nolinebreaks)
 {
@@ -533,80 +607,21 @@ void jsescputs(char *strbuf)
 }
 
 /*
- * Copy a string, escaping characters for message text hold
- */
-void msgesc(char *target, size_t tlen, char *strbuf)
-{
-	int len;
-	char *tend;
-	char *send;
-	char *tptr;
-	char *sptr;
-
-	target[0]='\0';
-	len = strlen (strbuf);
-	send = strbuf + len;
-	tend = target + tlen;
-	sptr = strbuf;
-	tptr = target;
-
-	while (!IsEmptyStr(sptr) && 
-	       (sptr < send) &&
-	       (tptr < tend)) {
-	       
-		if (*sptr == '\n')
-			*tptr = ' ';
-		else if (*sptr == '\r')
-			*tptr = ' ';
-		else if (*sptr == '\'') {
-			if (tend - tptr < 8)
-				return;
-			*(tptr++) = '&';
-			*(tptr++) = '#';
-			*(tptr++) = '3';
-			*(tptr++) = '9';
-			*tptr = ';';
-		} else {
-			*tptr = *sptr;
-		}
-		tptr++; sptr++;
-	}
-	*tptr = '\0';
-}
-
-/*
  * print a string to the client after cleaning it with msgesc() and stresc()
  */
 void msgescputs1( char *strbuf)
 {
-	char *outbuf;
-	char *outbuf2;
-	int buflen;
+	StrBuf *OutBuf = NewStrBuf();
 
-	if (strbuf == NULL) return;
-	buflen = 3 * strlen(strbuf) + SIZ;
-	outbuf = malloc( buflen);
-	outbuf2 = malloc( buflen);
-	msgesc(outbuf, buflen, strbuf);
-	stresc(outbuf2, buflen, outbuf, 0, 0);
-	wprintf("%s", outbuf2);
-	free(outbuf);
-	free(outbuf2);
+	StrMsgEscAppend(OutBuf, NULL, strbuf);
+	StrEscAppend(WC->WBuf, OutBuf, NULL, 0, 0);
 }
 
 /*
  * print a string to the client after cleaning it with msgesc()
  */
 void msgescputs(char *strbuf) {
-	char *outbuf;
-	size_t len;
-
-	if (strbuf == NULL) return;
-	len =  (3 * strlen(strbuf)) + SIZ;
-	outbuf = malloc(len);
-	msgesc(outbuf, len, strbuf);
-	wprintf("%s", outbuf);
-	free(outbuf);
+	StrMsgEscAppend(WC->WBuf, NULL, strbuf);
 }
 
 
