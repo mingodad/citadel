@@ -287,6 +287,7 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 		if (pt >= pte) {
 			IncreaseBuf(OutBuf, 1, -1);
 			pte = OutBuf->buf + OutBuf->BufSize - 4; /**< we max append 3 chars at once plus the \0 */
+			pt = OutBuf->buf + OutBuf->BufUsed;
 		}
 		
 		c = 0;
@@ -297,9 +298,10 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 			}
 		}
 		if (c == 1) {
-			snprintf(pt, pt - pte, "%%%02x", *pch);
+			sprintf(pt,"%%%02X", *pch);
 			pt += 3;
 			OutBuf->BufUsed += 3;
+			pch ++;
 		}
 		else {
 			*(pt++) = *(pch++);
@@ -344,6 +346,7 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 		if(bptr >= eptr) {
 			IncreaseBuf(Target, 1, -1);
 			eptr = Target->buf + Target->BufSize - 6; 
+			bptr = Target->buf + Target->BufUsed;
 		}
 		if (*aptr == '<') {
 			memcpy(bptr, "&lt;", 4);
@@ -408,6 +411,60 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 		return -1;
 	return Target->BufUsed;
 }
+
+void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
+{
+	const char *aptr, *eiptr;
+	char *tptr, *eptr;
+	long len;
+
+	if (((Source == NULL) && (PlainIn == NULL)) || (Target == NULL) )
+		return ;
+
+	if (PlainIn != NULL) {
+		aptr = PlainIn;
+		len = strlen(PlainIn);
+		eiptr = aptr + len;
+	}
+	else {
+		aptr = Source->buf;
+		eiptr = aptr + Source->BufUsed;
+		len = Source->BufUsed;
+	}
+	eiptr = Target->buf + Target->BufSize - 6; 
+	tptr = Target->buf + Target->BufUsed;
+	
+	while (aptr < eiptr){
+		if(tptr >= eptr) {
+			IncreaseBuf(Target, 1, -1);
+			eiptr = Target->buf + Target->BufSize - 6; 
+			tptr = Target->buf + Target->BufUsed;
+		}
+	       
+		if (*aptr == '\n') {
+			*tptr = ' ';
+			Target->BufUsed++;
+		}
+		else if (*aptr == '\r') {
+			*tptr = ' ';
+			Target->BufUsed++;
+		}
+		else if (*aptr == '\'') {
+			*(tptr++) = '&';
+			*(tptr++) = '#';
+			*(tptr++) = '3';
+			*(tptr++) = '9';
+			*tptr = ';';
+			Target->BufUsed += 5;
+		} else {
+			*tptr = *aptr;
+			Target->BufUsed++;
+		}
+		tptr++; aptr++;
+	}
+	*tptr = '\0';
+}
+
 
 inline int StrBufNum_tokens(const StrBuf *source, char tok)
 {
