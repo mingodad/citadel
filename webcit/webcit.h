@@ -129,9 +129,6 @@ extern locale_t wc_locales[];
 #define	LIBCITADEL_MIN		738		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
-#define LB			(1)		/* Internal escape chars */
-#define RB			(2)
-#define QU			(3)
 #define TARGET			"webcit01"	/* Target for inline URL's */
 #define HOUSEKEEPING		15		/* Housekeeping frequency */
 #define MIN_WORKER_THREADS	5
@@ -593,8 +590,14 @@ int YESBSTR(char *key);
 const char *BSTR(char *key);
 const char *Bstr(char *key, size_t keylen);
 
-void urlescputs(char *);
-void hurlescputs(char *);
+
+
+void UrlescPutStrBuf(const StrBuf *strbuf);
+void StrEscPuts(const StrBuf *strbuf);
+void StrEscputs1(const StrBuf *strbuf, int nbsp, int nolinebreaks);
+
+void urlescputs(const char *);
+void hurlescputs(const char *);
 void jsesc(char *, size_t, char *);
 void jsescputs(char *);
 void output_headers(    int do_httpheaders,

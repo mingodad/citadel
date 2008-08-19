@@ -769,22 +769,22 @@ void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *C
 
 void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
-	escputs(serv_info.serv_nodename); ////TODO: respcect Target
+	StrEscAppend(Target, NULL, serv_info.serv_nodename, 0, 0);
 }
 
 void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
-	escputs(serv_info.serv_humannode);////TODO: respcect Target
+	StrEscAppend(Target, NULL, serv_info.serv_humannode, 0, 0);
 }
 
 void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
-	escputs(serv_info.serv_fqdn);////TODO: respcect Target
+	StrEscAppend(Target, NULL, serv_info.serv_fqdn, 0, 0);
 }
 
 void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
-	escputs(serv_info.serv_software);////TODO: respcect Target
+	StrEscAppend(Target, NULL, serv_info.serv_software, 0, 0);
 }
 
 void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
@@ -796,17 +796,17 @@ void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, 
 
 void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
-	escputs(serv_info.serv_bbs_city);////TODO: respcect Target
+	StrEscAppend(Target, NULL, serv_info.serv_bbs_city, 0, 0);
 }
 
 void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
-	escputs(WC->wc_fullname);////TODO: respcect Target
+	StrEscAppend(Target, NULL, WC->wc_fullname, 0, 0);
 }
 
 void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
-	escputs(WC->wc_roomname);////TODO: respcect Target
+	StrEscAppend(Target, NULL, WC->wc_roomname, 0, 0);
 }
 
 
@@ -827,6 +827,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	const char *Key;
 	void *vContext;
 	StrBuf *SubBuf;
+	int oddeven = 0;
 	
 	if (!GetHash(Iterators, 
 		     Tokens->Params[0]->Start,
@@ -842,6 +843,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	SubBuf = NewStrBuf();
 	it = GetNewHashPos();
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
+		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", (oddeven)?"odd":"even");
 		It->DoSubTemplate(SubBuf, vContext);
 		DoTemplate(Tokens->Params[1]->Start,
 			   Tokens->Params[1]->len,
