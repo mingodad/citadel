@@ -958,10 +958,10 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	struct icaltimetype t2start, t2end;
 	icalproperty *p;
 
-	/* recur variables 
-	icalproperty *rrule = NULL;
+	/* recur variables */
+	/*icalproperty *rrule = NULL;
 	struct icalrecurrencetype recur;
-	icalrecur_iterator *ritr = NULL; */
+	icalrecur_iterator *ritr = NULL;*/
 
 	/* initialization */
 	strcpy(conflict_event_uid, "");
@@ -982,7 +982,7 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	/*rrule = ical_ctdl_get_subprop(existing_event, ICAL_RRULE_PROPERTY);
 	if (rrule) {
 		recur = icalproperty_get_rrule(rrule);
-		ritr = icalrecur_iterator_new(recur, t1start);
+		ritr = icalrecur_iterator_new(recur, t2start);
 		CtdlLogPrintf(CTDL_DEBUG, "Recurrence found: %s\n", icalrecurrencetype_as_string(&recur));
 	}
 
@@ -1001,11 +1001,11 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 			existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid
 		);
 
-	/*	if (rrule) {
-			t1start = icalrecur_iterator_next(ritr);
+		/*if (rrule) {
+			t2start = icalrecur_iterator_next(ritr);
 		}
 
-	} while ( (rrule) && (!icaltime_is_null_time(t1start)) );*/
+	} while ( (rrule) && (!icaltime_is_null_time(t2start)) );*/
 
 }
 
