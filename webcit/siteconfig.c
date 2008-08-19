@@ -20,8 +20,7 @@ void LoadZoneFiles(void)
 	long len;
 	char this_zone[128];
 	char *ZName;
-	HashPos  *it;
-
+	
 	ZoneHash = NewHash(1, NULL);
 	len = sizeof("UTC") + 1;
 	ZName = malloc(len + 1);

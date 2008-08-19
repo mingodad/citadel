@@ -444,7 +444,6 @@ void embed_search_o_matic(void) {
 void embed_room_banner(char *got, int navbar_style) {
 	char buf[256];
 	char buf2[1024];
-	char sanitized_roomname[256];
 	char with_files[256];
 	int file_count=0;
 	
@@ -491,9 +490,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	}
 	else
 		strcpy (with_files, "");
-		
-	stresc(sanitized_roomname, 256, WC->wc_roomname, 1, 1);
-	svprintf(HKEY("ROOMNAME"), WCS_STRING, "%s", sanitized_roomname);
+	
 	svprintf(HKEY("NUMMSGS"), WCS_STRING,
 		_("%d new of %d messages%s"),
 		extract_int(&got[4], 1),
@@ -3648,6 +3645,11 @@ void set_room_policy(void) {
 }
 
 
+void tmplput_RoomName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	StrEscAppend(Target, NULL, WC->wc_roomname, 1, 1);
+}
+
 void _gotonext(void) { slrp_highest(); gotonext(); }
 void dotskip(void) {smart_goto(bstr("room"));}
 void _display_private(void) { display_private("", 0); }
@@ -3663,6 +3665,8 @@ void
 InitModule_ROOMOPS
 (void)
 {
+	RegisterNamespace("ROOMNAME", 0, 0, tmplput_RoomName);
+
 	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
 	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, 0);
 	WebcitAddUrlHandler(HKEY("skip"), gotonext, 0);
