@@ -280,6 +280,9 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 		len = In->BufUsed;
 	}
 
+	if (len == 0) 
+		return;
+
 	pt = OutBuf->buf + OutBuf->BufUsed;
 	pte = OutBuf->buf + OutBuf->BufSize - 4; /**< we max append 3 chars at once plus the \0 */
 
@@ -338,6 +341,9 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 		eiptr = aptr + Source->BufUsed;
 		len = Source->BufUsed;
 	}
+
+	if (len == 0) 
+		return;
 
 	bptr = Target->buf + Target->BufUsed;
 	eptr = Target->buf + Target->BufSize - 6; /* our biggest unit to put in...  */
@@ -431,6 +437,10 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 		eiptr = aptr + Source->BufUsed;
 		len = Source->BufUsed;
 	}
+
+	if (len == 0) 
+		return;
+
 	eiptr = Target->buf + Target->BufSize - 6; 
 	tptr = Target->buf + Target->BufUsed;
 	
