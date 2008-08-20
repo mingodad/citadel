@@ -2126,6 +2126,9 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	wprintf("</tr></table>\n");
 	end_tab((num_pages-1), num_pages);
 
+	begin_tab(num_pages, num_pages);	/* There are no submit buttons so this is empty */
+	end_tab(num_pages, num_pages);
+
 	for (i=0; i<num_pages; ++i) {
 		free(tablabels[i]);
 	}
@@ -2134,10 +2137,11 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 
 
 
-/**
- * \brief load message pointers from the server
- * \param servcmd the citadel command to send to the citserver
- * \param with_headers what headers???
+/*
+ * load message pointers from the server for a "read messages" operation
+ *
+ * servcmd:		the citadel command to send to the citserver
+ * with_headers:	also include some of the headers with the message numbers (more expensive)
  */
 int load_msg_ptrs(char *servcmd, int with_headers)
 {
@@ -2235,11 +2239,9 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 
 
 typedef int (*QSortFunction) (const void*, const void*);
-/**
- * \brief qsort() compatible function to compare two longs in descending order.
- *
- * \param s1 first number to compare 
- * \param s2 second number to compare
+
+/*
+ * qsort() compatible function to compare two longs in descending order.
  */
 int longcmp_r(const void *s1, const void *s2) {
 	long l1;
@@ -2254,11 +2256,8 @@ int longcmp_r(const void *s1, const void *s2) {
 }
 
  
-/**
- * \brief qsort() compatible function to compare two message summary structs by ascending subject.
- *
- * \param s1 first item to compare 
- * \param s2 second item to compare
+/*
+ * qsort() compatible function to compare two message summary structs by ascending subject.
  */
 int summcmp_subj(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -2269,11 +2268,8 @@ int summcmp_subj(const void *s1, const void *s2) {
 	return strcasecmp(summ1->subj, summ2->subj);
 }
 
-/**
- * \brief qsort() compatible function to compare two message summary structs by descending subject.
- *
- * \param s1 first item to compare 
- * \param s2 second item to compare
+/*
+ * qsort() compatible function to compare two message summary structs by descending subject.
  */
 int summcmp_rsubj(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -2284,11 +2280,8 @@ int summcmp_rsubj(const void *s1, const void *s2) {
 	return strcasecmp(summ2->subj, summ1->subj);
 }
 
-/**
- * \brief qsort() compatible function to compare two message summary structs by ascending sender.
- *
- * \param s1 first item to compare 
- * \param s2 second item to compare
+/*
+ * qsort() compatible function to compare two message summary structs by ascending sender.
  */
 int summcmp_sender(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -2299,11 +2292,8 @@ int summcmp_sender(const void *s1, const void *s2) {
 	return strcasecmp(summ1->from, summ2->from);
 }
 
-/**
- * \brief qsort() compatible function to compare two message summary structs by descending sender.
- *
- * \param s1 first item to compare 
- * \param s2 second item to compare
+/*
+ * qsort() compatible function to compare two message summary structs by descending sender.
  */
 int summcmp_rsender(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -2314,11 +2304,8 @@ int summcmp_rsender(const void *s1, const void *s2) {
 	return strcasecmp(summ2->from, summ1->from);
 }
 
-/**
- * \brief qsort() compatible function to compare two message summary structs by ascending date.
- *
- * \param s1 first item to compare 
- * \param s2 second item to compare
+/*
+ * qsort() compatible function to compare two message summary structs by ascending date.
  */
 int summcmp_date(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -2332,11 +2319,8 @@ int summcmp_date(const void *s1, const void *s2) {
 	else return 0;
 }
 
-/**
- * \brief qsort() compatible function to compare two message summary structs by descending date.
- *
- * \param s1 first item to compare 
- * \param s2 second item to compare
+/*
+ * qsort() compatible function to compare two message summary structs by descending date.
  */
 int summcmp_rdate(const void *s1, const void *s2) {
 	struct message_summary *summ1;
@@ -2374,7 +2358,7 @@ const char* SortIcons[3] = {
 	eUnSet
 }; 
 
-/** SortEnum to plain string representation */
+/* SortEnum to plain string representation */
 static const char* SortByStrings[] = {
 	"date",
 	"rdate",
@@ -2386,7 +2370,7 @@ static const char* SortByStrings[] = {
 	"unset"
 };
 
-/** SortEnum to sort-Function Table */
+/* SortEnum to sort-Function Table */
 const QSortFunction SortFuncs[eUnSet] = {
 	summcmp_date,
 	summcmp_rdate,
@@ -2397,21 +2381,20 @@ const QSortFunction SortFuncs[eUnSet] = {
 	summcmp_rdate
 };
 
-/** given a SortEnum, which icon should we choose? */
+/* given a SortEnum, which icon should we choose? */
 const int SortDateToIcon[eUnSet] = { eUp, eDown, eNone, eNone, eNone, eNone, eNone};
 const int SortSubjectToIcon[eUnSet] = { eNone, eNone, eUp, eDown, eNone, eNone, eNone};
 const int SortSenderToIcon[eUnSet] = { eNone, eNone, eNone, eNone, eUp, eDown, eNone};
 
-/** given a SortEnum, which would be the "opposite" search option? */
+/* given a SortEnum, which would be the "opposite" search option? */
 const int DateInvertSortString[eUnSet] =  { eRDate, eDate, eDate, eDate, eDate, eDate, eDate};
 const int SubjectInvertSortString[eUnSet] =  { eSubject, eSubject, eRSubject, eUnSet, eSubject, eSubject, eSubject};
 const int SenderInvertSortString[eUnSet] =  { eSender, eSender, eSender, eSender, eRSender, eUnSet, eSender};
 
 
-/**
- * \Brief Translates sortoption String to its SortEnum representation 
- * \param SortBy string to translate
- * \return the enum matching the string; defaults to RDate
+/*
+ * Translates sortoption String to its SortEnum representation 
+ * returns the enum matching the string; defaults to RDate
  */
 //SortByEnum 
 int StrToESort (const StrBuf *sortby)
@@ -2430,10 +2413,10 @@ int StrToESort (const StrBuf *sortby)
 
 
 
-/**
- * \brief command loop for reading messages
+/*
+ * command loop for reading messages
  *
- * \param oper Set to "readnew" or "readold" or "readfwd" or "headers"
+ * Set oper to "readnew" or "readold" or "readfwd" or "headers"
  */
 void readloop(char *oper)
 {
@@ -2487,7 +2470,7 @@ void readloop(char *oper)
 	}
 
 	SortBy = StrToESort(sortpref_value);
-	/** message board sort */
+	/* message board sort */
 	if (SortBy == eReverse) {
 		bbs_reverse = 1;
 	}
@@ -2497,7 +2480,7 @@ void readloop(char *oper)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	/**
+	/*
 	 * When in summary mode, always show ALL messages instead of just
 	 * new or old.  Otherwise, show what the user asked for.
 	 */
@@ -2552,7 +2535,7 @@ void readloop(char *oper)
 		SortBy =  eRDate;
 	}
 
-	/**
+	/*
 	 * Are we doing a summary view?  If so, we need to know old messages
 	 * and new messages, so we can do that pretty boldface thing for the
 	 * new messages.

@@ -79,9 +79,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
 	wprintf("<div class=\"fix_scrollbar_bug\">");
-#ifndef TECH_PREVIEW
-	wprintf("<table  class=\"event_background\"><tr><td>\n");
-#endif
 
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
@@ -108,16 +105,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
 		bstr("day"));
 
-#ifdef TECH_PREVIEW
-	char *tabnames[] = {		// FIXME localize these when the code is finished
-		"Event",
-		"Attendees",
-		"Recurrence"
+	char *tabnames[] = {
+		_("Event"),
+		_("Attendees"),
+		_("Recurrence")
 	};
 
 	tabbed_dialog(3, tabnames);
 	begin_tab(0, 3);
-#endif
 
 	/* Put it in a borderless table so it lines up nicely */
 	wprintf("<TABLE border=0 width=100%%>\n");
@@ -193,7 +188,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</TD></TR>\n");
 
-	/**
+	/*
 	 * If this is an all-day-event, set the end time to be identical to
 	 * the start time (the hour/minute/second will be set to midnight).
 	 * Otherwise extract or create it.
@@ -211,7 +206,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 			t_end = icalproperty_get_dtend(p);
 		}
 		else {
-			/**
+			/*
 			 * If this is not an all-day event and there is no
 			 * end time specified, make the default one hour
 			 * from the start time.
@@ -325,7 +320,15 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</TD></TR>\n");
 
-	/** Attendees */
+
+	/** Done with properties. */
+	wprintf("</TABLE>\n");
+
+	end_tab(0, 3);
+
+	/* Attendees tab (need to move things here) */
+	begin_tab(1, 3);
+	wprintf("<TABLE border=0 width=100%%>\n");	/* same table style as the event tab */
 	wprintf("<TR><TD><B>");
 	wprintf(_("Attendees"));
 	wprintf("</B><br />"
@@ -342,7 +345,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("Attendees"),
 		_("Contacts")
 	);
-	/** Pop open an address book -- end **/
+	/* Pop open an address book -- end **/
 
 	wprintf("</TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" id=\"attendees_box\" wrap=soft "
@@ -369,34 +372,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		}
 	}
 	wprintf("</TEXTAREA></TD></TR>\n");
-
-	/** Done with properties. */
-	wprintf("</TABLE>\n<CENTER>"
-		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
-		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
-		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"check_button\" "
-				"VALUE=\"%s\">\n"
-		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n"
-		"</CENTER>\n",
-		_("Save"),
-		_("Delete"),
-		_("Check attendee availability"),
-		_("Cancel")
-	);
-
-	wprintf("</FORM>\n");
-#ifndef TECH_PREVIEW
-	wprintf("</td></tr></table>");
-#endif
-	
-#ifdef TECH_PREVIEW
-	end_tab(0, 3);
-
-	/* Attendees tab (need to move things here) */
-	begin_tab(1, 3);
+	wprintf("</TABLE>\n");
 	end_tab(1, 3);
 
 	/* Recurrence tab */
@@ -411,7 +387,25 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	end_tab(2, 3);
 
-#endif
+	/* submit buttons (common area beneath the tabs) */
+	begin_tab(3, 3);
+	wprintf("<CENTER>"
+		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
+		"&nbsp;&nbsp;"
+		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
+		"&nbsp;&nbsp;"
+		"<INPUT TYPE=\"submit\" NAME=\"check_button\" "
+				"VALUE=\"%s\">\n"
+		"&nbsp;&nbsp;"
+		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n"
+		"</CENTER>\n",
+		_("Save"),
+		_("Delete"),
+		_("Check attendee availability"),
+		_("Cancel")
+	);
+	wprintf("</FORM>\n");
+	end_tab(3, 3);
 
 	wprintf("</div>\n");
 
@@ -427,10 +421,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 }
 
-/**
- * \brief Save an edited event
- * \param supplied_vevent the event to save
- * \param msgnum the index on the citserver
+/*
+ * Save an edited event
+ *
+ * supplied_vevent:	the event to save
+ * msgnum:		the index on the citserver
  */
 void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from, int unread) {
 	char buf[SIZ];
@@ -732,7 +727,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 
 	}
 
-	/**
+	/*
 	 * If the user clicked 'Delete' then delete it.
 	 */
 	if ( (havebstr("delete_button")) && (msgnum > 0L) ) {
@@ -744,7 +739,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 		icalcomponent_free(vevent);
 	}
 
-	/** If this was a save or delete, go back to the calendar view. */
+	/* If this was a save or delete, go back to the calendar view. */
 	if (!havebstr("check_button")) {
 		readloop("readfwd");
 	}
