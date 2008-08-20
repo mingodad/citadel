@@ -20,3 +20,4 @@ struct cit_ical {
 };
 
 #define CIT_ICAL CC->CIT_ICAL
+#define MAX_RECUR 1000

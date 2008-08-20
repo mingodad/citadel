@@ -908,15 +908,15 @@ void ical_conflicts_phase6(struct icaltimetype t1start,
 {
 
 	/* debugging cruft */
-	time_t tt;
-	tt = icaltime_as_timet(t1start);
-	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
-	tt = icaltime_as_timet(t1end);
-	CtdlLogPrintf(CTDL_DEBUG, "  PROPOSED END: %s", ctime(&tt));
-	tt = icaltime_as_timet(t2start);
-	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
-	tt = icaltime_as_timet(t2end);
-	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
+	//	time_t tt;
+	//	tt = icaltime_as_timet(t1start);
+	//	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
+	//	tt = icaltime_as_timet(t1end);
+	//	CtdlLogPrintf(CTDL_DEBUG, "  PROPOSED END: %s", ctime(&tt));
+	//	tt = icaltime_as_timet(t2start);
+	//	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
+	//	tt = icaltime_as_timet(t2end);
+	//	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
 
 	/* compare and output */
 
@@ -930,10 +930,6 @@ void ical_conflicts_phase6(struct icaltimetype t1start,
 				conflict_event_uid))) ? 1 : 0
 			)
 		);
-		CtdlLogPrintf(CTDL_DEBUG, "  --- CONFLICT --- \n");
-	}
-	else {
-		CtdlLogPrintf(CTDL_DEBUG, "  --- no conflict --- \n");
 	}
 
 }
@@ -959,9 +955,11 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	icalproperty *p;
 
 	/* recur variables */
-	/*icalproperty *rrule = NULL;
+	icalproperty *rrule = NULL;
 	struct icalrecurrencetype recur;
-	icalrecur_iterator *ritr = NULL;*/
+	icalrecur_iterator *ritr = NULL;
+	struct icaldurationtype dur;
+	int num_recur = 0;
 
 	/* initialization */
 	strcpy(conflict_event_uid, "");
@@ -969,24 +967,25 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	t2start = icaltime_null_time();
 	t2end = icaltime_null_time();
 
-
 	/* existing event stuff */
-
 	p = ical_ctdl_get_subprop(existing_event, ICAL_DTSTART_PROPERTY);
 	if (p == NULL) return;
 	if (p != NULL) t2start = icalproperty_get_dtstart(p);
 
 	p = ical_ctdl_get_subprop(existing_event, ICAL_DTEND_PROPERTY);
-	if (p != NULL) t2end = icalproperty_get_dtend(p);
+	if (p != NULL) {
+		t2end = icalproperty_get_dtend(p);
+		dur = icaltime_subtract(t2end, t2start);
+	}
 
-	/*rrule = ical_ctdl_get_subprop(existing_event, ICAL_RRULE_PROPERTY);
+	rrule = ical_ctdl_get_subprop(existing_event, ICAL_RRULE_PROPERTY);
 	if (rrule) {
 		recur = icalproperty_get_rrule(rrule);
 		ritr = icalrecur_iterator_new(recur, t2start);
 		CtdlLogPrintf(CTDL_DEBUG, "Recurrence found: %s\n", icalrecurrencetype_as_string(&recur));
 	}
 
-	do {*/
+	do {
 		p = ical_ctdl_get_subprop(existing_event, ICAL_UID_PROPERTY);
 		if (p != NULL) {
 			strcpy(conflict_event_uid, icalproperty_get_comment(p));
@@ -1001,12 +1000,16 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 			existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid
 		);
 
-		/*if (rrule) {
+		if (rrule) {
 			t2start = icalrecur_iterator_next(ritr);
+			if (!icaltime_is_null_time(t2end)) {
+				t2end = icaltime_add(t2start, dur);
+			}
+			++num_recur;
 		}
 
-	} while ( (rrule) && (!icaltime_is_null_time(t2start)) );*/
-
+	} while ( (rrule) && (!icaltime_is_null_time(t2start)) && (num_recur < MAX_RECUR) );
+	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over existing event %d times.\n", num_recur);
 }
 
 
@@ -1029,6 +1032,13 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	icalproperty *p;
 	char compare_uid[SIZ];
 
+	/* recur variables */
+	icalproperty *rrule = NULL;
+	struct icalrecurrencetype recur;
+	icalrecur_iterator *ritr = NULL;
+	struct icaldurationtype dur;
+	int num_recur = 0;
+
 	/* initialization */
 	strcpy(compare_uid, "");
 
@@ -1039,14 +1049,36 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	if (p != NULL) t1start = icalproperty_get_dtstart(p);
 	
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTEND_PROPERTY);
-	if (p != NULL) t1end = icalproperty_get_dtend(p);
+	if (p != NULL) {
+		t1end = icalproperty_get_dtend(p);
+		dur = icaltime_subtract(t1end, t1start);
+	}
+
+	rrule = ical_ctdl_get_subprop(proposed_event, ICAL_RRULE_PROPERTY);
+	if (rrule) {
+		recur = icalproperty_get_rrule(rrule);
+		ritr = icalrecur_iterator_new(recur, t1start);
+		CtdlLogPrintf(CTDL_DEBUG, "Recurrence found: %s\n", icalrecurrencetype_as_string(&recur));
+	}
 
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_UID_PROPERTY);
 	if (p != NULL) {
 		strcpy(compare_uid, icalproperty_get_comment(p));
 	}
 
-	ical_conflicts_phase5(t1start, t1end, existing_event, existing_msgnum, compare_uid);
+	do {
+		ical_conflicts_phase5(t1start, t1end, existing_event, existing_msgnum, compare_uid);
+
+		if (rrule) {
+			t1start = icalrecur_iterator_next(ritr);
+			if (!icaltime_is_null_time(t1end)) {
+				t1end = icaltime_add(t1start, dur);
+			}
+			++num_recur;
+		}
+
+	} while ( (rrule) && (!icaltime_is_null_time(t1start)) && (num_recur < MAX_RECUR) );
+	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over proposed event %d times.\n", num_recur);
 }
 
 
