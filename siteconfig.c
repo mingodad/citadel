@@ -772,11 +772,14 @@ void display_siteconfig(void)
 	begin_tab(6, 9);	StrBufAppendBufPlain(WCC->WBuf, idxjnl, strlen(idxjnl), 0);		 end_tab(6, 9);
 	begin_tab(7, 9);	StrBufAppendBufPlain(WCC->WBuf, funambol, strlen(funambol), 0);	 end_tab(7, 9);
 	begin_tab(8, 9);	StrBufAppendBufPlain(WCC->WBuf, pop3, strlen(pop3), 0);	 	 end_tab(8, 9);
-	wprintf("<div class=\"tabcontent_submit\">");
+
+	begin_tab(9, 9);
 	wprintf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
 	wprintf("&nbsp;");
 	wprintf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n", _("Cancel"));
-	wprintf("</div></FORM>\n");
+	end_tab(9, 9);
+
+	wprintf("</FORM>\n");
 	wprintf("</td></tr></table>\n");
 	wDumpContent(1);
 }

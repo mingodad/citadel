@@ -55,11 +55,19 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
  *
  */
 void begin_tab(int tabnum, int num_tabs) {
-	wprintf("<!-- begin tab %d of %d -->\n", tabnum, num_tabs);
-	wprintf("<div id=\"tabdiv%d\" style=\"display:%s\" class=\"tabcontent\" >",
-		tabnum,
-		( (tabnum == 0) ? "block" : "none" )
-	);
+
+	if (tabnum == num_tabs) {
+		wprintf("<!-- begin tab-common epilogue -->\n");
+		wprintf("<div class=\"tabcontent_submit\">");
+	}
+
+	else {
+		wprintf("<!-- begin tab %d of %d -->\n", tabnum, num_tabs);
+		wprintf("<div id=\"tabdiv%d\" style=\"display:%s\" class=\"tabcontent\" >",
+			tabnum,
+			( (tabnum == 0) ? "block" : "none" )
+		);
+	}
 }
 
 /*
@@ -69,16 +77,22 @@ void begin_tab(int tabnum, int num_tabs) {
  *
  */
 void end_tab(int tabnum, int num_tabs) {
-	wprintf("</div>\n");
-	wprintf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
 
-	if (tabnum == num_tabs-1) {
+	if (tabnum == num_tabs) {
+		wprintf("</div>\n");
+		wprintf("<!-- end tab-common epilogue -->\n");
+	}
 
-		wprintf("<script type=\"text/javascript\">"
-			" Nifty(\"table#TheTabs td\", \"small transparent top\");"
-			"</script>"
-		);
-
+	else {
+		wprintf("</div>\n");
+		wprintf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
+	
+		if (tabnum == num_tabs-1) {
+			wprintf("<script type=\"text/javascript\">"
+				" Nifty(\"table#TheTabs td\", \"small transparent top\");"
+				"</script>"
+			);
+		}
 	}
 }
 
