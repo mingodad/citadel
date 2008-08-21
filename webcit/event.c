@@ -383,7 +383,35 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	rrule = icalcomponent_get_first_property(vevent, ICAL_RRULE_PROPERTY);
 	if (rrule) {
 		recur = icalproperty_get_rrule(rrule);
-		wprintf("<tt>%s</tt><br />\n", icalrecurrencetype_as_string(&recur));
+
+		wprintf("<table border=0 width=100%%>\n");	/* same table style as the event tab */
+
+		/* Table row displaying raw RRULE data, FIXME remove when finished */
+		wprintf("<tr><td><b>");
+		wprintf("Raw data");
+		wprintf("</b></td><td>");
+		wprintf("<tt>%s</tt>", icalrecurrencetype_as_string(&recur));
+		wprintf("</td></tr>\n");
+
+		char *frequency_units[] = {
+			_("seconds"),
+			_("minutes"),
+			_("hours"),
+			_("days"),
+			_("weeks"),
+			_("months"),
+			_("years"),
+			_("never")
+		};
+
+		wprintf("<tr><td><b>");
+		wprintf(_("Repeats"));
+		wprintf("</b></td><td>");
+		if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
+		wprintf("every %d %s", recur.interval, frequency_units[recur.freq]);
+		wprintf("</td></tr>\n");
+
+		wprintf("</table>\n");
 	}
 	end_tab(2, 3);
 
