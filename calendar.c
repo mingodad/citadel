@@ -494,8 +494,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	ritr = icalrecur_iterator_new(recur, dtstart);
 	if (!ritr) return;
 
-	lprintf(9, "Recurrence found: %s\n", icalrecurrencetype_as_string(&recur));
-
 	while (next = icalrecur_iterator_next(ritr), !icaltime_is_null_time(next) ) {
 		++num_recur;
 
