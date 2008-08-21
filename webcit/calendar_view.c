@@ -1058,6 +1058,12 @@ void calendar_day_view(int year, int month, int day) {
 	time_format = get_time_format_cached ();
 	get_pref_long("daystart", &daystart, 8);
 	get_pref_long("dayend", &dayend, 17);
+
+	/* when loading daystart/dayend, replace missing, corrupt, or impossible values with defaults */
+	if ((daystart < 0) || (dayend < 2) || (daystart >= 23) || (dayend > 23) || (dayend <= daystart)) {
+		daystart = 9;
+		dayend = 17;
+	}
 	
 	/* Today's date */
 	memset(&d_tm, 0, sizeof d_tm);
