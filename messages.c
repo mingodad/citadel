@@ -2123,10 +2123,18 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 		++displayed;
 	}
 
+	/* Placeholders for empty columns at end */
+	if ((num_ab % 4) != 0) {
+		for (i=0; i<(4-(num_ab % 4)); ++i) {
+			wprintf("<td>&nbsp;</td>");
+		}
+	}
+
 	wprintf("</tr></table>\n");
 	end_tab((num_pages-1), num_pages);
 
-	begin_tab(num_pages, num_pages);	/* There are no submit buttons so this is empty */
+	begin_tab(num_pages, num_pages);
+	/* FIXME there ought to be something here */
 	end_tab(num_pages, num_pages);
 
 	for (i=0; i<num_pages; ++i) {
