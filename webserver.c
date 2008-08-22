@@ -275,7 +275,8 @@ long end_burst(void)
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		client_write_ssl(ptr, StrLength(WCC->HBuf));
+		client_write_ssl(WCC->HBuf);
+		client_write_ssl(WCC->WBuf);
 		return (count);
 	}
 #endif
@@ -289,7 +290,7 @@ long end_burst(void)
 #endif
 	fdflags = fcntl(WC->http_sock, F_GETFL);
 
-        while (ptr < eptr) {
+	while (ptr < eptr) {
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
                         FD_SET(WCC->http_sock, &wset);
@@ -312,13 +313,6 @@ long end_burst(void)
 	ptr = ChrPtr(WCC->WBuf);
 	count = StrLength(WCC->WBuf);
 	eptr = ptr + count;
-
-#ifdef HAVE_OPENSSL
-	if (is_https) {
-		client_write_ssl(ptr, StrLength(WCC->HBuf));
-		return (count);
-	}
-#endif
 
 #ifdef HTTP_TRACING
 	

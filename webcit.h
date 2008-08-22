@@ -827,7 +827,7 @@ void ssl_lock(int mode, int n, const char *file, int line);
 int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
 int client_read_ssl(char *buf, int bytes, int timeout);
-void client_write_ssl(const char *buf, int nbytes);
+void client_write_ssl(const StrBuf *Buf);
 #endif
 
 #ifdef HAVE_ZLIB

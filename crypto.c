@@ -457,15 +457,18 @@ void ssl_lock(int mode, int n, const char *file, int line)
  * \param buf chars to send to the client
  * \param nbytes how many chars
  */
-void client_write_ssl(const char *buf, int nbytes)
+void client_write_ssl(const StrBuf *Buf)
 {
+	const char *buf;
 	int retval;
 	int nremain;
+	long nbytes;
 	char junk[1];
 
 	if (THREADSSL == NULL) return;
 
-	nremain = nbytes;
+	nbytes = nremain = StrLength(Buf);
+	buf = ChrPtr(Buf);
 
 	while (nremain > 0) {
 		if (SSL_want_write(THREADSSL)) {
