@@ -141,6 +141,7 @@ void do_chat(void)
  */
 void page_popup(void)
 {
+	int len;
 	char buf[SIZ];
 
 	/** JavaScript function to alert the user that popups are probably blocked */
@@ -157,8 +158,8 @@ void page_popup(void)
 
 	/** First, do the check as part of our page load. */
 	serv_puts("NOOP");
-	serv_getln(buf, sizeof buf);
-	if (buf[3] == '*') {
+	len = serv_getln(buf, sizeof buf);
+	if ((len >= 3) && (buf[3] == '*')) {
 		if ((time(NULL) - WC->last_pager_check) > 60) {
 			wprintf("<script type=\"text/javascript\">"
 				" var oWin = window.open('static/instant_messenger.html', "

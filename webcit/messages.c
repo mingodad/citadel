@@ -3638,6 +3638,7 @@ void display_enter(void)
 				} 
 				sig ++;
 			}
+			FreeStrBuf(&Sig);
 		}
 	}
 
