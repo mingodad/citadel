@@ -881,6 +881,18 @@ void changepw(void)
 	}
 }
 
+int ConditionalAide(WCTemplateToken *Token, void *Context)
+{
+	return (WC->is_aide == 0);
+}
+
+int ConditionalRoomAide(WCTemplateToken *Token, void *Context)
+{
+	return (WC->is_room_aide == 0);
+}
+
+
+
 void _display_openid_login(void) {display_openid_login(NULL);}
 void _display_reg(void) {display_reg(0);}
 
@@ -901,5 +913,9 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("display_changepw"), display_changepw, 0);
 	WebcitAddUrlHandler(HKEY("changepw"), changepw, 0);
 	WebcitAddUrlHandler(HKEY("termquit"), do_logout, 0);
+
+	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide);
+	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide);
+
 	return ;
 }

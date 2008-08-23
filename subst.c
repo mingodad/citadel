@@ -27,6 +27,11 @@ HashList *LocalTemplateCache;
 
 HashList *GlobalNS;
 HashList *Iterators;
+HashList *Contitionals;
+
+#define SV_GETTEXT 1
+#define SV_CONDITIONAL 2
+#define SV_NEG_CONDITIONAL 3
 
 typedef struct _WCTemplate {
 	StrBuf *Data;
@@ -241,6 +246,42 @@ void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
 }
 
 /**
+ * \brief Add a substitution variable (local to this session)
+ * \param keyname the replacementstring to substitute
+ * \param keytype the kind of the key
+ * \param format the format string ala printf
+ * \param ... the arguments to substitute in the formatstring
+ */
+void SVPutLong(char *keyname, size_t keylen, long Data)
+{
+	void *vPtr;
+	wcsubst *ptr = NULL;
+	struct wcsession *WCC = WC;
+
+	
+	/**
+	 * First look if we're doing a replacement of
+	 * an existing key
+	 */
+	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
+	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
+		ptr = (wcsubst*)vPtr;
+		if (ptr->wcs_value != NULL)
+			free(ptr->wcs_value);
+	}
+	else 	/** Otherwise allocate a new one */
+	{
+		ptr = (wcsubst *) malloc(sizeof(wcsubst));
+		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+	}
+
+	ptr->wcs_function = NULL;
+	ptr->wcs_type = WCS_LONG;
+	ptr->lvalue = Data;
+}
+
+/**
  * \brief Add a substitution variable (local to this session) that does a callback
  * \param keyname the keystring to substitute
  * \param fcn_ptr the function callback to give the substitution string
@@ -365,6 +406,9 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 		case WCS_STRBUF_REF:
 			StrBufAppendBuf(Target, (StrBuf*) ptr->wcs_function, 0);
 			break;
+		case WCS_LONG:
+			StrBufAppendPrintf(Target, "%l", ptr->lvalue);
+			break;
 		default:
 			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", keyname);
 		}
@@ -477,7 +521,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	TemplateParam *Param;
 	WCTemplateToken *NewToken = (WCTemplateToken*)malloc(sizeof(WCTemplateToken));
 
-	NewToken->IsGettext = 0;
+	NewToken->Flags = 0;
 	NewToken->pTokenStart = pTmplStart;
 	NewToken->TokenStart = pTmplStart - pStart;
 	NewToken->TokenEnd =  (pTmplEnd - pStart) - NewToken->TokenStart;
@@ -509,10 +553,19 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 				else break;
 			}
 			if((NewToken->NameEnd == 1) &&
-			   (NewToken->HaveParameters == 1) && 
-			   (NewToken->nParameters == 1) &&
-			   (*(NewToken->pName) == '_'))
-				NewToken->IsGettext = 1;
+			   (NewToken->HaveParameters == 1))
+			   
+			{
+				if ((NewToken->nParameters == 1) &&
+				    (*(NewToken->pName) == '_'))
+					NewToken->Flags = SV_GETTEXT;
+				else if ((NewToken->nParameters >= 2) &&
+					 (*(NewToken->pName) == '?'))
+					NewToken->Flags = SV_CONDITIONAL;
+				else if ((NewToken->nParameters >=2) &&
+					 (*(NewToken->pName) == '!'))
+					NewToken->Flags = SV_NEG_CONDITIONAL;
+			}
 		}
 		else pch ++;		
 	}
@@ -533,13 +586,56 @@ void FreeWCTemplate(void *vFreeMe)
 	free(FreeMe);
 }
 
-void EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context)
+
+int EvaluateConditional(WCTemplateToken *Token, void *Context, int Neg, int state)
+{
+	void *vConditional;
+	ConditionalStruct *Cond;
+
+	if ((Token->Params[0]->len == 1) &&
+	    (Token->Params[0]->Start[0] == 'X'))
+		return (state != 0)?Token->Params[1]->lvalue:0;
+
+	if (!GetHash(Contitionals, 
+		 Token->Params[0]->Start,
+		 Token->Params[0]->len,
+		 &vConditional)) {
+		lprintf(1, "Conditional %s Not found!\n", 
+			Token->Params[0]->Start);
+	}
+	    
+	Cond = (ConditionalStruct *) vConditional;
+
+	if (Cond == NULL) {
+		lprintf(1, "Conditional %s Not found!\n", 
+			Token->Params[0]->Start);
+		return 0;
+	}
+	if (Token->nParameters < Cond->nParams) {
+		lprintf(1, "Conditional [%s] needs %ld Params!\n", 
+			Token->Params[0]->Start,
+			Cond->nParams);
+		return 0;
+	}
+	if (Cond->CondF(Token, Context) == Neg)
+		return Token->Params[1]->lvalue;
+	return 0;
+}
+
+int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context, int state)
 {
 	void *vVar;
 // much output, since pName is not terminated...
 //	lprintf(1,"Doing token: %s\n",Token->pName);
-	if (Token->IsGettext)
+	if (Token->Flags == SV_GETTEXT) {
 		TmplGettext(Target, Token->nParameters, Token);
+	}
+	else if (Token->Flags == SV_CONDITIONAL) {
+		return EvaluateConditional(Token, Context, 1, state);
+	}
+	else if (Token->Flags == SV_NEG_CONDITIONAL) {
+		return EvaluateConditional(Token, Context, 0, state);
+	}
 	else if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
 		HashHandler *Handler;
 		Handler = (HashHandler*) vVar;
@@ -561,18 +657,20 @@ void EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context)
 	else {
 		print_value_of(Target, Token->pName, Token->NameEnd);
 	}
+	return 0;
 }
 
 void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 {
 	int done = 0;
-	int i;
+	int i, state;
 	const char *pData, *pS;
 	long len;
 
 	pS = pData = ChrPtr(Tmpl->Data);
 	len = StrLength(Tmpl->Data);
 	i = 0;
+	state = 0;
 	while (!done) {
 		if (i >= Tmpl->nTokensUsed) {
 			StrBufAppendBufPlain(Target, 
@@ -584,8 +682,22 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 			StrBufAppendBufPlain(
 				Target, pData, 
 				Tmpl->Tokens[i]->pTokenStart - pData, 0);
-			EvaluateToken(Target, Tmpl->Tokens[i], Context);
+			state = EvaluateToken(Target, Tmpl->Tokens[i], Context, state);
+			while ((state != 0) && (i+1 < Tmpl->nTokensUsed)) {
+			/* condition told us to skip till its end condition */
+				i++;
+				if ((Tmpl->Tokens[i]->Flags == SV_CONDITIONAL) ||
+				    (Tmpl->Tokens[i]->Flags == SV_NEG_CONDITIONAL)) {
+					if (state == EvaluateConditional(Tmpl->Tokens[i], 
+									 Context, 
+									 Tmpl->Tokens[i]->Flags,
+									 state))
+						state = 0;
+				}
+			}
 			pData = Tmpl->Tokens[i++]->pTokenEnd + 1;
+			if (i >= Tmpl->nTokensUsed)
+				done = 1;
 		}
 	}
 }
@@ -856,6 +968,41 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	It->Destructor(List);
 }
 
+int ConditionalVar(WCTemplateToken *Tokens, void *Context)
+{
+	void *vsubst;
+	wcsubst *subst;
+	
+	if (!GetHash(WC->vars, 
+		     Tokens->Params[2]->Start,
+		     Tokens->Params[2]->len,
+		     &vsubst))
+		return 0;
+	subst = (wcsubst*) vsubst;
+	switch(subst->wcs_type) {
+	case WCS_STRING:
+		if (Tokens->nParameters < 4)
+			return 0;
+		return (strcmp(Tokens->Params[3]->Start, subst->wcs_value) == 0);
+	case WCS_SERVCMD:
+		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);////todo
+		return 0;
+	case WCS_FUNCTION:
+		return (subst->wcs_function!=NULL);
+	case WCS_STRBUF:
+	case WCS_STRBUF_REF:
+		if (Tokens->nParameters < 4)
+			return 0;
+		return (strcmp(Tokens->Params[3]->Start, ChrPtr((StrBuf*) subst->wcs_function)) == 0);
+	case WCS_LONG:
+		if (Tokens->nParameters < 4)
+			return (subst->lvalue != 0);
+		return (subst->lvalue == Tokens->Params[3]->lvalue);
+	default:
+		lprintf(1,"  WARNING: invalid type: [%ld]!\n", subst->wcs_type);
+	}
+	return 0;
+}
 
 void RegisterITERATOR(const char *Name, long len, 
 		      HashList *StaticList, 
@@ -869,6 +1016,16 @@ void RegisterITERATOR(const char *Name, long len,
 	It->DoSubTemplate = DoSubTempl;
 	It->Destructor = Destructor;
 	Put(Iterators, Name, len, It, NULL);
+}
+
+void RegisterConditional(const char *Name, long len, 
+			 int nParams,
+			 WCConditionalFunc CondF)
+{
+	ConditionalStruct *Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
+	Cond->nParams = nParams;
+	Cond->CondF = CondF;
+	Put(Contitionals, Name, len, Cond, NULL);
 }
 
 void 
@@ -885,6 +1042,7 @@ InitModule_SUBST
 	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user);
 	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room);
 	RegisterNamespace("ITERATE", 2, 4, tmpl_iterate_subtmpl);
+	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar);
 }
 
 /*@}*/

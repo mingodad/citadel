@@ -471,11 +471,11 @@ void WholistSubst(StrBuf *TemplBuffer, void *vContext)
 	SVPutBuf("WHO:HOST", User->Host, 1);
 	SVPutBuf("WHO:REALROOM", User->RealRoom, 1);
 	SVPutBuf("WHO:REALHOST", User->RealHost, 1);
-	svprintf(HKEY("WHO:LASTACTIVE"), WCS_STRING, "%ld", User->LastActive);
-	svprintf(HKEY("WHO:SESSION"), WCS_STRING, "%d", User->Session);
-	svprintf(HKEY("WHO:IDLE"), WCS_STRING, "%s", (User->Idle)? "Idle":"Active");
-	svprintf(HKEY("WHO:NSESSIONS"), WCS_STRING, "%d", User->SessionCount);
-	
+	svputlong("WHO:LASTACTIVE", User->LastActive);
+	svputlong("WHO:SESSION", User->Session);
+	svputlong("WHO:IDLE", User->Idle);
+	svputlong("WHO:NSESSIONS", User->SessionCount);
+	svputlong("WHO:ISME", (User->Session == WC->ctdl_pid));
 }
 
 void DeleteWholistHash(HashList *KillMe)

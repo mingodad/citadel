@@ -285,6 +285,7 @@ typedef struct _wcsubst {
 	int wcs_type;			    /**< which type of ??? */
 	char wcs_key[32];		    /**< ??? what?*/
 	void *wcs_value;		    /**< ???? what?*/
+	long lvalue;                        /**< type long? keep data here */
 	void (*wcs_function)(void); /**< funcion hook ???*/
 } wcsubst;
 
@@ -303,7 +304,7 @@ typedef struct _TemplateToken {
 	size_t TokenStart;
 	size_t TokenEnd;
 	const char *pTokenEnd;
-	int IsGettext;
+	int Flags;
 
 	const char *pName;
 	size_t NameEnd;
@@ -313,12 +314,25 @@ typedef struct _TemplateToken {
 	TemplateParam *Params[MAXPARAM];
 } WCTemplateToken;
 
+
 typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
 		int nMaxArgs, 
 		WCHandlerFunc HandlerFunc);
 #define RegisterNamespace(a, b, c, d) RegisterNS(a, sizeof(a)-1, b, c, d)
+
+
+
+typedef int (*WCConditionalFunc)(WCTemplateToken *Token, void *Context);
+typedef struct _ConditionalStruct {
+	int nParams;
+	WCConditionalFunc CondF;
+} ConditionalStruct;
+void RegisterConditional(const char *Name, long len, 
+			 int nParams,
+			 WCConditionalFunc CondF);
+
 
 
 typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context);
@@ -340,7 +354,8 @@ enum {
 	WCS_FUNCTION,     /**< its a function callback */
 	WCS_SERVCMD,      /**< its a command to send to the citadel server */
 	WCS_STRBUF,       /**< its a strbuf we own */
-	WCS_STRBUF_REF    /**< its a strbuf we mustn't free */
+	WCS_STRBUF_REF,   /**< its a strbuf we mustn't free */
+	WCS_LONG          /**< its an integer */
 };
 
 /**
@@ -352,6 +367,7 @@ struct wc_attachment {
 	char content_type[SIZ];	   /**< the content itself ???*/
 	char filename[SIZ];		   /**< the filename hooked to this content ??? */
 	char *data;                /**< the data pool; aka this content */
+	long lvalue;               /**< if we put a long... */
 };
 
 /**
@@ -520,7 +536,7 @@ extern HashList *LocalTemplateCache;
 extern HashList *GlobalNS;
 extern HashList *Iterators;
 extern HashList *ZoneHash;
-
+extern HashList *Contitionals;
 
 
 void InitialiseSemaphores(void);
@@ -665,6 +681,8 @@ typedef void (*var_callback_fptr)();
 
 void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
 #define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
+void SVPutLong(char *keyname, size_t keylen, long Data);
+#define svputlong(a, b) SVPutLong(a, sizeof(a) - 1, b)
 void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...) __attribute__((__format__(__printf__,4,5)));
 void SVPRINTF(char *keyname, int keytype, const char *format,...) __attribute__((__format__(__printf__,3,4)));
 void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
