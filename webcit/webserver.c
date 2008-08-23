@@ -619,6 +619,7 @@ int main(int argc, char **argv)
 	TemplateCache = NewHash(1, NULL);
 	GlobalNS = NewHash(1, NULL);
 	Iterators = NewHash(1, NULL);
+	Contitionals = NewHash(1, NULL);
 	LoadZoneFiles();
 
 
@@ -951,6 +952,7 @@ void worker_entry(void)
 				DeleteHash(&TemplateCache);
 				DeleteHash(&LocalTemplateCache);
 				DeleteHash(&Iterators);
+				DeleteHash(&Contitionals);
 #ifdef ENABLE_NLS
 				void ShutdownLocale(void);
 #endif

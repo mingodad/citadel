@@ -694,6 +694,21 @@ void CfgZoneTempl(StrBuf *TemplBuffer, void *Context)
 
 }
 
+int ConditionalPreference(WCTemplateToken *Token, void *Context)
+{
+
+	void *hash_value;
+
+	if (!GetHash(PreferenceHooks, 
+		     Token->Params[2]->Start,
+		     Token->Params[2]->len,
+		     &hash_value))
+		return 0;
+
+	Prefs *Newpref = (Prefs*) hash_value;
+	return (strcmp(Token->Params[3]->Start, Newpref->PrefStr) == 0);
+}
+
 
 void 
 InitModule_PREFERENCES
@@ -716,5 +731,7 @@ InitModule_PREFERENCES
 	RegisterNamespace("PREF:VALUE", 1, 1, tmplput_CFG_Value);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr);
 	RegisterIterator("PREF:ZONE", ZoneHash, NULL, CfgZoneTempl, NULL);
+
+	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference);
 }
 /*@}*/
