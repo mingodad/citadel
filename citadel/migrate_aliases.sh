@@ -6,18 +6,24 @@ fi
 
 CITALIAS=$1
 if test -f /etc/aliases; then
-    cat /etc/aliases | \
+# don't work with temp fils, so they can't get hijacked.
+# sorry users with megabytes of aliases.
+    NLINES=`cat /etc/aliases | \
 	sed -e "s; *;;g" \
             -e "s;\t*;;g" | \
 	grep -v ^root: | \
 	grep -v ^# | \
 	sed -e "s;:root;,room_aide;" \
-            -e "s;:;,;" >/tmp/aliases
-
-    NLINES=`cat /tmp/aliases|wc -l`
+            -e "s;:;,;" |wc -l`
     
     for ((i=1; i <= $NLINES; i++)); do 
-	ALIAS=`head -n $i /tmp/aliases |tail -n 1`
+	ALIAS=`    cat /etc/aliases | \
+	sed -e "s; *;;g" \
+            -e "s;\t*;;g" | \
+	grep -v ^root: | \
+	grep -v ^# | \
+	sed -e "s;:root;,room_aide;" \
+            -e "s;:;,;" |head -n $i |tail -n 1`
 	ORG=`echo $ALIAS|sed "s;,.*;;"`
 	if grep "$ORG" "$CITALIAS"; then
 	    echo "Ignoring Alias $ORG as its already there"
