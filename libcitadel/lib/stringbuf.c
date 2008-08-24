@@ -343,7 +343,7 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 	}
 
 	if (len == 0) 
-		return;
+		return -1;
 
 	bptr = Target->buf + Target->BufUsed;
 	eptr = Target->buf + Target->BufSize - 6; /* our biggest unit to put in...  */
@@ -511,41 +511,49 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
 
 void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 {
+	size_t BufSize = Buf->BufSize;
 	size_t nWritten = Buf->BufSize + 1;
 	size_t Offset = Buf->BufUsed;
 	size_t newused = Offset + nWritten;
 	
-	while (newused >= Buf->BufSize) {
+	while (newused >= BufSize) {
 		nWritten = vsnprintf(Buf->buf + Offset, 
 				     Buf->BufSize - Offset, 
 				     format, ap);
 		newused = Offset + nWritten;
-		if (newused >= Buf->BufSize)
-			IncreaseBuf(Buf, 1, 0);
-		else
-			Buf->BufUsed = Offset + nWritten ;
+		if (newused >= Buf->BufSize) {
+			IncreaseBuf(Buf, 1, newused);
+		}
+		else {
+			Buf->BufUsed = Offset + nWritten;
+			BufSize = Buf->BufSize;
+		}
 
 	}
 }
 
 void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 {
+	size_t BufSize = Buf->BufSize;
 	size_t nWritten = Buf->BufSize + 1;
 	size_t Offset = Buf->BufUsed;
 	size_t newused = Offset + nWritten;
 	va_list arg_ptr;
 	
-	while (newused >= Buf->BufSize) {
+	while (newused >= BufSize) {
 		va_start(arg_ptr, format);
-		nWritten = vsnprintf(Buf->buf + Offset, 
-				     Buf->BufSize - Offset, 
+		nWritten = vsnprintf(Buf->buf + Buf->BufUsed, 
+				     Buf->BufSize - Buf->BufUsed, 
 				     format, arg_ptr);
 		va_end(arg_ptr);
-		newused = Offset + nWritten;
-		if (newused >= Buf->BufSize)
-			IncreaseBuf(Buf, 1, 0);
-		else
-			Buf->BufUsed = Offset + nWritten ;
+		newused = Buf->BufUsed + nWritten;
+		if (newused >= Buf->BufSize) {
+			IncreaseBuf(Buf, 1, newused);
+		}
+		else {
+			Buf->BufUsed += nWritten;
+			BufSize = Buf->BufSize;
+		}
 
 	}
 }
