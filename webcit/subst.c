@@ -410,7 +410,7 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 			StrBufAppendBuf(Target, (StrBuf*) ptr->wcs_function, 0);
 			break;
 		case WCS_LONG:
-			StrBufAppendPrintf(Target, "%l", ptr->lvalue);
+			StrBufAppendPrintf(Target, "%ld", ptr->lvalue);
 			break;
 		default:
 			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", keyname);

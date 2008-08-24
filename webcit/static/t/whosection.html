@@ -1,0 +1,85 @@
+<tr class="<?ITERATE:ODDEVEN>">
+<td class="edit_col">
+
+<?!("COND:AIDE", 1)>
+
+<??("COND:SUBST", 2, "WHO:ISME")>
+ <a href="terminate_session?which_session=<?WHO:SESSION>" onClick="return ConfirmKill();"><?_("(kill)")</a>
+<??("X", 2)>
+<??("X", 1)>
+
+<?!("COND:SUBST", 3, "WHO:ISME")>
+ <a href="edit_me">(<?_("edit")>)</a>
+<?!("X", 3)>
+</td>
+
+
+<!-- link to page this user -->
+
+<td width="5%%"><a href="display_page?recp=<?WHO:NAME("X")>">
+ <img align="middle" src="static/citadelchat_24x.gif" alt="(p)" border="0" /></a> 
+</td>
+
+<!-- idle flag --->
+<td width="5%%">
+
+<?!("COND:SUBST", 4, "WHO:IDLE")>
+<img align="middle" src="static/inactiveuser_24x.gif" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)" border="0" />
+<?!("X", 4)>
+<??("COND:SUBST", 5, "WHO:IDLE")>
+<img align="middle" src="static/activeuser_24x.gif" alt="(<?_("active")>)" border="0" />
+<?!("X", 5)>
+</td>
+<td>
+<!--  username (link to user bio/photo page)  -->
+<a href="showuser?who=<?WHO:NAME("U")>"> <?WHO:NAME("U")></a> 
+
+<?!("COND:SUBST", 6, "WHO:NSESSIONS", 1)>[<?WHO:NSESSIONS>] </a><?!("X", 6)>
+
+<!-- room -->
+</td><td>
+<?WHO:ROOM>
+
+<?!("WHO:REALROOM", 7>
+<br /><i>
+<?WHO:REALROOM("X")>
+</i>
+<?!("X", 7)>
+</td>
+   <td class="host_col">
+<!-- hostname -->
+<?WHO:HOST("X")>
+
+<?!("WHO:REALHOST", 8)>
+<br /><i><?WHO:REALHOST("X")></i>
+<?!("X", 8)>
+</td>
+</tr>
+
+<!--
+
+<?WHO:NAME>
+<?WHO:ROOM>
+<?WHO:HOST>
+<?WHO:REALROOM>
+<?WHO:REALHOST>
+<?WHO:LASTACTIVE>
+<?WHO:SESSION>
+<??("COND:SUBST", 123, "WHO:IDLE")>
+is idle.
+<??("X", 123)>
+<?!("COND:SUBST", 1234, "WHO:IDLE")>
+is not idle
+<?!("X", 1234)>
+
+<??("COND:SUBST", 1223, "WHO:ISME")>
+its me.
+<??("X", 1223)>
+<?!("COND:SUBST", 122234, "WHO:ISME")>
+no, not me.
+<?!("X", 122234)>
+
+<?WHO:IDLE>
+<?WHO:NSESSIONS>
+
+-->
