@@ -1505,6 +1505,7 @@ void session_loop(struct httprequest *req)
 			//cmd[len - a] = '\0';
 			Params = _NewConstStrBuf(&cmd[a + 1], len - a);
 			addurls(Params);
+			FreeStrBuf(&Params);
 			cmd[a] = 0;
 			len = a - 1;
 		}
