@@ -699,7 +699,7 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 				}
 			}
 			pData = Tmpl->Tokens[i++]->pTokenEnd + 1;
-			if (i >= Tmpl->nTokensUsed)
+			if (i > Tmpl->nTokensUsed)
 				done = 1;
 		}
 	}
