@@ -389,6 +389,9 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 	if (keyname[0] == '=') {
 		DoTemplate(keyname+1, keylen - 1, NULL, NULL);
 	}
+
+//////TODO: if param[1] == "U" -> urlescape
+/// X -> escputs
 	/** Page-local variables */
 	if ((WCC->vars!= NULL) && GetHash(WCC->vars, keyname, keylen, &vVar)) {
 		ptr = (wcsubst*) vVar;
@@ -982,7 +985,7 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context)
 	switch(subst->wcs_type) {
 	case WCS_STRING:
 		if (Tokens->nParameters < 4)
-			return 0;
+			return 1;
 		return (strcmp(Tokens->Params[3]->Start, subst->wcs_value) == 0);
 	case WCS_SERVCMD:
 		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);////todo
@@ -992,7 +995,7 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context)
 	case WCS_STRBUF:
 	case WCS_STRBUF_REF:
 		if (Tokens->nParameters < 4)
-			return 0;
+			return 1;
 		return (strcmp(Tokens->Params[3]->Start, ChrPtr((StrBuf*) subst->wcs_function)) == 0);
 	case WCS_LONG:
 		if (Tokens->nParameters < 4)

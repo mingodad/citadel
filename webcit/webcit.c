@@ -613,6 +613,8 @@ void msgescputs1( char *strbuf)
 {
 	StrBuf *OutBuf = NewStrBuf();
 
+	if ((strbuf == NULL) || IsEmptyStr(strbuf))
+		return;
 	StrMsgEscAppend(OutBuf, NULL, strbuf);
 	StrEscAppend(WC->WBuf, OutBuf, NULL, 0, 0);
 }
@@ -621,7 +623,8 @@ void msgescputs1( char *strbuf)
  * print a string to the client after cleaning it with msgesc()
  */
 void msgescputs(char *strbuf) {
-	StrMsgEscAppend(WC->WBuf, NULL, strbuf);
+	if ((strbuf != NULL) && !IsEmptyStr(strbuf))
+		StrMsgEscAppend(WC->WBuf, NULL, strbuf);
 }
 
 
@@ -1050,6 +1053,7 @@ void blank_page(void) {
 void url_do_template(void) {
 	const StrBuf *Tmpl = sbstr("template");
 	begin_burst();
+	output_headers(1, 0, 0, 0, 1, 0);
 	DoTemplate(ChrPtr(Tmpl), StrLength(Tmpl), NULL, NULL);
 	end_burst();
 }

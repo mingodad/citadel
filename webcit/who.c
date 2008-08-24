@@ -472,6 +472,7 @@ void WholistSubst(StrBuf *TemplBuffer, void *vContext)
 	SVPutBuf("WHO:REALROOM", User->RealRoom, 1);
 	SVPutBuf("WHO:REALHOST", User->RealHost, 1);
 	svputlong("WHO:LASTACTIVE", User->LastActive);
+	///svputlong("WHO:IDLESINCE",(now - User->LastActive) / 60);//// todo
 	svputlong("WHO:SESSION", User->Session);
 	svputlong("WHO:IDLE", User->Idle);
 	svputlong("WHO:NSESSIONS", User->SessionCount);
