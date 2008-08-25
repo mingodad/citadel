@@ -966,6 +966,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 			
 		StrBufAppendBuf(Target, SubBuf, 0);
 		FlushStrBuf(SubBuf);
+		oddeven = ~ oddeven;
 	}
 	DeleteHashPos(&it);
 	It->Destructor(List);
@@ -1031,6 +1032,25 @@ void RegisterConditional(const char *Name, long len,
 	Put(Contitionals, Name, len, Cond, NULL);
 }
 
+void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	if (nArgs == 2) {
+		StrBuf *Headline = NewStrBuf();
+		DoTemplate(Tokens->Params[1]->Start, 
+			   Tokens->Params[1]->len,
+			   Context, 
+			   Headline);
+		SVPutBuf("BOXTITLE", Headline, 0);
+	}
+
+	DoTemplate(HKEY("beginbox"), Context, Target);
+	DoTemplate(Tokens->Params[0]->Start, 
+		   Tokens->Params[0]->len,
+		   Context, 
+		   Target);
+	DoTemplate(HKEY("endbox"), Context, Target);
+}
+
 void 
 InitModule_SUBST
 (void)
@@ -1045,6 +1065,7 @@ InitModule_SUBST
 	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user);
 	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room);
 	RegisterNamespace("ITERATE", 2, 4, tmpl_iterate_subtmpl);
+	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed);
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar);
 }
 
