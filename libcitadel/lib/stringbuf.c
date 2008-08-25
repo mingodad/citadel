@@ -441,7 +441,7 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 	if (len == 0) 
 		return;
 
-	eiptr = Target->buf + Target->BufSize - 6; 
+///	eiptr = Target->buf + Target->BufSize - 6; 
 	tptr = Target->buf + Target->BufUsed;
 	
 	while (aptr < eiptr){
