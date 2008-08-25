@@ -1071,6 +1071,8 @@ void read_message(long msgnum, int printable_view, char *section) {
 
         /** start msg buttons */
 
+	char Urlsep = '?';
+
         if (!printable_view) {
                 wprintf("<p id=\"msg%ld\" class=\"msgbuttons\" >\n",msgnum);
 
@@ -1078,16 +1080,18 @@ void read_message(long msgnum, int printable_view, char *section) {
 		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
 			wprintf("<a href=\"display_enter");
 			if (WC->is_mailbox) {
-				wprintf("?replyquote=%ld", msgnum);
+				wprintf("%creplyquote=%ld", Urlsep, msgnum);
+				Urlsep = '&';
 			}
-			wprintf("?recp=");
+			wprintf("%crecp=", Urlsep);
+			Urlsep = '&';
 			urlescputs(reply_to);
 			if (!IsEmptyStr(m_subject)) {
-				wprintf("?subject=");
+				wprintf("%csubject=", Urlsep);
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
 				urlescputs(m_subject);
 			}
-			wprintf("?references=");
+			wprintf("%creferences=", Urlsep);
 			if (!IsEmptyStr(reply_references)) {
 				urlescputs(reply_references);
 				urlescputs("|");
@@ -1101,14 +1105,14 @@ void read_message(long msgnum, int printable_view, char *section) {
 			if (!WC->is_mailbox) {
 				wprintf("<a href=\"display_enter");
 				wprintf("?replyquote=%ld", msgnum);
-				wprintf("?recp=");
+				wprintf("&recp=");
 				urlescputs(reply_to);
 				if (!IsEmptyStr(m_subject)) {
-					wprintf("?subject=");
+					wprintf("&subject=");
 					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
 					urlescputs(m_subject);
 				}
-				wprintf("?references=");
+				wprintf("&references=");
 				if (!IsEmptyStr(reply_references)) {
 					urlescputs(reply_references);
 					urlescputs("|");
@@ -1122,16 +1126,16 @@ void read_message(long msgnum, int printable_view, char *section) {
 		if (WC->wc_view == VIEW_MAILBOX) {
 			wprintf("<a href=\"display_enter");
 			wprintf("?replyquote=%ld", msgnum);
-			wprintf("?recp=");
+			wprintf("&recp=");
 			urlescputs(reply_to);
-			wprintf("?cc=");
+			wprintf("&cc=");
 			urlescputs(reply_all);
 			if (!IsEmptyStr(m_subject)) {
-				wprintf("?subject=");
+				wprintf("&subject=");
 				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
 				urlescputs(m_subject);
 			}
-			wprintf("?references=");
+			wprintf("&references=");
 			if (!IsEmptyStr(reply_references)) {
 				urlescputs(reply_references);
 				urlescputs("|");
@@ -1142,7 +1146,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 		/* Forward */
 		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"display_enter?fwdquote=%ld?subject=", msgnum);
+			wprintf("<a href=\"display_enter?fwdquote=%ld&subject=", msgnum);
 			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%%20");
 			urlescputs(m_subject);
 			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
@@ -1343,7 +1347,7 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-				wprintf("<a href=\"edit_vcard?msgnum=%ld?partnum=%s\">",
+				wprintf("<a href=\"edit_vcard?msgnum=%ld&partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[%s]</a>", _("edit"));
 			}
@@ -1908,7 +1912,7 @@ void display_addressbook(long msgnum, char alpha) {
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
 				wprintf("<a href=\"edit_vcard?"
-					"msgnum=%ld?partnum=%s\">",
+					"msgnum=%ld&partnum=%s\">",
 					msgnum, vcard_partnum);
 				wprintf("[%s]</a>", _("edit"));
 			}
@@ -2116,7 +2120,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 
 		wprintf("<a href=\"readfwd?startmsg=%ld&is_singlecard=1",
 			addrbook[i].ab_msgnum);
-		wprintf("?maxmsgs=1?is_summary=0?alpha=%s\">", bstr("alpha"));
+		wprintf("?maxmsgs=1&is_summary=0&alpha=%s\">", bstr("alpha"));
 		vcard_n_prettyize(addrbook[i].ab_name);
 		escputs(addrbook[i].ab_name);
 		wprintf("</a></td>\n");
@@ -2457,7 +2461,7 @@ void readloop(char *oper)
 	struct wcsession *WCC = WC;     /* This is done to make it run faster; WC is a function */
 
 	if (WCC->wc_view == VIEW_WIKI) {
-		sprintf(buf, "wiki?room=%s?page=home", WCC->wc_roomname);
+		sprintf(buf, "wiki?room=%s&page=home", WCC->wc_roomname);
 		http_redirect(buf);
 		return;
 	}
@@ -2642,9 +2646,9 @@ void readloop(char *oper)
 			"<table cellspacing=0 style=\"width:100%%\">"
 			"<tr>"
 		);
-		wprintf("<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
-			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
-			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> \n"
+		wprintf("<th width=%d%%>%s <a href=\"readfwd?startmsg=1&maxmsgs=9999999&is_summary=1&sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
+			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1&maxmsgs=9999999&is_summary=1&sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
+			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1&maxmsgs=9999999&is_summary=1&sortby=%s\"><img border=\"0\" src=\"%s\" /></a> \n"
 			"&nbsp;"
 			"<input type=\"submit\" name=\"delete_button\" id=\"delbutton\" "
 			" onClick=\"CtdlDeleteSelectedMessages(event)\" "
@@ -2707,9 +2711,9 @@ void readloop(char *oper)
 				if (lo < 1) lo = 1;
 				wprintf("<option %s value="
 					"\"%s"
-					"?startmsg=%ld"
-					"?maxmsgs=%d"
-					"?is_summary=%d\">"
+					"&startmsg=%ld"
+					"&maxmsgs=%d"
+					"&is_summary=%d\">"
 					"%d-%d</option> \n",
 					((WCC->msgarr[lo-1] == startmsg) ? "selected" : ""),
 					oper,
@@ -2726,9 +2730,9 @@ void readloop(char *oper)
 				if (hi > nummsgs) hi = nummsgs;
 				wprintf("<option %s value="
 					"\"%s"
-					"?startmsg=%ld"
-					"?maxmsgs=%d"
-					"?is_summary=%d\">"
+					"&startmsg=%ld"
+					"&maxmsgs=%d"
+					"&is_summary=%d\">"
 					"%d-%d</option> \n",
 					((WCC->msgarr[b] == startmsg) ? "selected" : ""),
 					oper,
@@ -2740,7 +2744,7 @@ void readloop(char *oper)
 		}
 
 		wprintf("<option value=\"%s?startmsg=%ld"
-			"?maxmsgs=9999999?is_summary=%d\">",
+			"&maxmsgs=9999999&is_summary=%d\">",
 			oper,
 			WCC->msgarr[0], is_summary);
 		wprintf(_("All"));
@@ -2874,9 +2878,9 @@ void readloop(char *oper)
 				if (lo < 1) lo = 1;
 				wprintf("<option %s value="
 					"\"%s"
-					"?startmsg=%ld"
-					"?maxmsgs=%d"
-					"?is_summary=%d\">"
+					"&startmsg=%ld"
+					"&maxmsgs=%d"
+					"&is_summary=%d\">"
 					"%d-%d</option> \n",
 					((WCC->msgarr[lo-1] == startmsg) ? "selected" : ""),
 					oper,
@@ -2893,9 +2897,9 @@ void readloop(char *oper)
 				if (hi > nummsgs) hi = nummsgs;
 				wprintf("<option %s value="
 					"\"%s"
-					"?startmsg=%ld"
-					"?maxmsgs=%d"
-					"?is_summary=%d\">"
+					"&startmsg=%ld"
+					"&maxmsgs=%d"
+					"&is_summary=%d\">"
 					"%d-%d</option> \n",
 					((WCC->msgarr[b] == startmsg) ? "selected" : ""),
 					oper,
@@ -2906,8 +2910,8 @@ void readloop(char *oper)
 			}
 		}
 
-		wprintf("<option value=\"%s?startmsg=%ld"
-			"?maxmsgs=9999999?is_summary=%d\">",
+		wprintf("<option value=\"%s&startmsg=%ld"
+			"&maxmsgs=9999999&is_summary=%d\">",
 			oper,
 			WCC->msgarr[0], is_summary);
 		wprintf(_("All"));
@@ -2917,7 +2921,7 @@ void readloop(char *oper)
 
 		/** forward/reverse */
 		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
-			"OnChange=\"location.href='%s?sortby=forward'\"",  
+			"OnChange=\"location.href='%s&sortby=forward'\"",  
 			(bbs_reverse ? "" : "checked"),
 			oper
 		);
@@ -2925,7 +2929,7 @@ void readloop(char *oper)
 		wprintf(_("oldest to newest"));
 		wprintf("&nbsp;&nbsp;&nbsp;&nbsp;");
 		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
-			"OnChange=\"location.href='%s?sortby=reverse'\"", 
+			"OnChange=\"location.href='%s&sortby=reverse'\"", 
 			(bbs_reverse ? "checked" : ""),
 			oper
 		);
