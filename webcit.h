@@ -476,7 +476,7 @@ struct wcsession {
 	time_t cache_timestamp;			/**< ??? todo */
 	HashList *IconBarSetttings;             /**< which icons should be shown / not shown? */
 	long current_iconbar;			/**< What is currently in the iconbar? */
-	StrBuf *floordiv_expanded;		/**< which floordiv currently expanded */
+	const StrBuf *floordiv_expanded;	/**< which floordiv currently expanded */
 	int selected_language;			/**< Language selected by user */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
 	int nonce;				/**< session nonce (to prevent session riding) */
