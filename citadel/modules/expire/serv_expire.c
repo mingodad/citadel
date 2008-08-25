@@ -152,6 +152,10 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 	if (epbuf.expire_mode == EXPIRE_NEXTLEVEL) return;
 	if (epbuf.expire_mode == EXPIRE_MANUAL) return;
 
+	/* Don't purge messages containing system configuration, dumbass. */
+	if (!strcasecmp(qrbuf->QRname, SYSCONFIGROOM)) return;
+
+	/* Ok, we got this far ... now let's see what's in the room */
         cdbfr = cdb_fetch(CDB_MSGLISTS, &qrbuf->QRnumber, sizeof(long));
 
         if (cdbfr != NULL) {
@@ -290,6 +294,7 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 		if (qrbuf->QRflags & QR_PERMANENT) return;
 		if (qrbuf->QRflags & QR_DIRECTORY) return;
 		if (qrbuf->QRflags & QR_NETWORK) return;
+		if (qrbuf->QRflags2 & QR2_SYSTEM) return;
 		if (!strcasecmp(qrbuf->QRname, SYSCONFIGROOM)) return;
 		if (is_noneditable(qrbuf)) return;
 
