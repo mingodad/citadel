@@ -209,6 +209,7 @@ void display_openid_name_request(char *claimed_id, char *username) {
 void become_logged_in(char *user, char *pass, char *serv_response)
 {
 	char buf[SIZ];
+	StrBuf *FloorDiv;
 
 	WC->logged_in = 1;
 	extract_token(WC->wc_fullname, &serv_response[4], 0, '|', sizeof WC->wc_fullname);
@@ -232,7 +233,8 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 
 	get_pref_long("current_iconbar", &WC->current_iconbar, current_iconbar_menu);
 
-	get_preference("floordiv_expanded", &WC->floordiv_expanded);
+	get_preference("floordiv_expanded", &FloorDiv);
+	WC->floordiv_expanded = FloorDiv;
 }
 
 
@@ -553,7 +555,6 @@ void end_webcit_session(void) {
 	
 	if (WC->logged_in) {
 		set_pref_long("current_iconbar", WC->current_iconbar, 0);
-		set_preference("floordiv_expanded", WC->floordiv_expanded, 1);
 	}
 
 	serv_puts("QUIT");
