@@ -3189,10 +3189,12 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
  */
 void set_floordiv_expanded(void) {
 	struct wcsession *WCC = WC;
+	StrBuf *FloorDiv;
 	
-	WCC->floordiv_expanded = NewStrBuf();
-	StrBufAppendBuf(WCC->floordiv_expanded, WCC->UrlFragment1, 0);
-	set_preference("floordiv_expanded", WCC->floordiv_expanded, 1);
+	FloorDiv = NewStrBuf();
+	StrBufAppendBuf(FloorDiv, WCC->UrlFragment1, 0);
+	set_preference("floordiv_expanded", FloorDiv, 1);
+	WCC->floordiv_expanded = FloorDiv;
 }
 
 /**
