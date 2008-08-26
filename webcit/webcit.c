@@ -1190,14 +1190,14 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
  * Convenience functions to wrap around asynchronous ajax responses
  */
 void begin_ajax_response(void) {
+	struct wcsession *WCC = WC;
+
+	FlushStrBuf(WCC->HBuf);
         output_headers(0, 0, 0, 0, 0, 0);
 
         hprintf("Content-type: text/html; charset=UTF-8\r\n"
                 "Server: %s\r\n"
                 "Connection: close\r\n"
-                "Pragma: no-cache\r\n"
-                "Cache-Control: no-cache\r\n"
-		"Expires: -1\r\n"
 		,
                 PACKAGE_STRING);
         begin_burst();
@@ -1276,7 +1276,6 @@ void seconds_since_last_gexp(void)
 {
 	char buf[256];
 
-	begin_ajax_response();
 	if ( (time(NULL) - WC->last_pager_check) < 30) {
 		wprintf("NO\n");
 	}
@@ -1290,7 +1289,6 @@ void seconds_since_last_gexp(void)
 			wprintf("NO");
 		}
 	}
-	end_ajax_response();
 }
 
 /**
