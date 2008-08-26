@@ -117,7 +117,7 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 			NewSize *= 2;
 
 	NewBuf= (char*) malloc(NewSize);
-	if (KeepOriginal)
+	if (KeepOriginal && (Buf->BufUsed > 0))
 	{
 		memcpy(NewBuf, Buf->buf, Buf->BufUsed);
 	}
@@ -441,13 +441,13 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 	if (len == 0) 
 		return;
 
-///	eiptr = Target->buf + Target->BufSize - 6; 
+	eptr = Target->buf + Target->BufSize - 6; 
 	tptr = Target->buf + Target->BufUsed;
 	
 	while (aptr < eiptr){
 		if(tptr >= eptr) {
 			IncreaseBuf(Target, 1, -1);
-			eiptr = Target->buf + Target->BufSize - 6; 
+			eptr = Target->buf + Target->BufSize - 6; 
 			tptr = Target->buf + Target->BufUsed;
 		}
 	       
