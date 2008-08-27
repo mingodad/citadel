@@ -1517,12 +1517,12 @@ char *qp_encode_email_addrs(char *source)
 	EncodedMaxLen = nColons * (sizeof(headerStr) + 3) + SourceLen * 3;
 	Encoded = (char*) malloc (EncodedMaxLen);
 
-	for (i = 1; i <= nColons; i++)
+	for (i = 0; i < nColons; i++)
 		source[AddrPtr[i]++] = '\0';
 
 	nPtr = Encoded;
 	*nPtr = '\0';
-	for (i = 0; i <= nColons && nPtr != NULL; i++) {
+	for (i = 0; i < nColons && nPtr != NULL; i++) {
 		nmax = EncodedMaxLen - (nPtr - Encoded);
 		if (AddrUtf8[i]) {
 			process_rfc822_addr(&source[AddrPtr[i]], 
@@ -1560,7 +1560,7 @@ char *qp_encode_email_addrs(char *source)
 			i--; /* do it once more with properly lengthened buffer */
 		}
 	}
-	for (i = 1; i <= nColons; i++)
+	for (i = 0; i < nColons; i++)
 		source[--AddrPtr[i]] = ',';
 	free(AddrUtf8);
 	free(AddrPtr);
