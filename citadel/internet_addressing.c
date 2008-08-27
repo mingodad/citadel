@@ -1010,7 +1010,8 @@ char *harvest_collected_addresses(struct CtdlMessage *msg) {
 		if (msg->cm_fields[field] != NULL) {
 			for (j=0; j<num_tokens(msg->cm_fields[field], ','); ++j) {
 				extract_token(addr, msg->cm_fields[field], j, ',', sizeof addr);
-				utf8ify_rfc822_string(addr);
+				if (strstr(addr, "=?") != NULL)
+					utf8ify_rfc822_string(addr);
 				process_rfc822_addr(addr, user, node, name);
 				h = CtdlHostAlias(node);
 				if ( (h != hostalias_localhost) && (h != hostalias_directory) ) {
