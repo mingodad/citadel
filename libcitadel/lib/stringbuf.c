@@ -511,15 +511,18 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
 
 void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 {
+	va_list apl;
 	size_t BufSize = Buf->BufSize;
 	size_t nWritten = Buf->BufSize + 1;
 	size_t Offset = Buf->BufUsed;
 	size_t newused = Offset + nWritten;
 	
 	while (newused >= BufSize) {
+		va_copy(apl, ap);
 		nWritten = vsnprintf(Buf->buf + Offset, 
 				     Buf->BufSize - Offset, 
-				     format, ap);
+				     format, apl);
+		va_end(apl);
 		newused = Offset + nWritten;
 		if (newused >= Buf->BufSize) {
 			IncreaseBuf(Buf, 1, newused);
