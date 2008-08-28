@@ -774,6 +774,7 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
                         return rlen;
                 }
 		nRead += rlen;
+		ptr += rlen;
 		Buf->BufUsed += rlen;
 	}
 	Buf->buf[Buf->BufUsed] = '\0';
