@@ -74,24 +74,7 @@ extern locale_t wc_locales[];
 #include <zlib.h>
 #endif
 
-
-/* Work around PACKAGE/VERSION defs that are (not supposed to be?) in ical.h */
-#ifdef PACKAGE
-# define CTDL_PACKAGE PACKAGE
-# undef PACKAGE
-#endif
-
-#ifdef PACKAGE_STRING
-# define CTDL_PACKAGE_STRING PACKAGE_STRING
-//# undef PACKAGE_STRING
-#endif
-
-#ifdef VERSION
-# define CTDL_VERSION VERSION
-# undef VERSION
-#endif
-
-#include <ical.h>
+#include <libical/ical.h>
 
 #undef PACKAGE
 #undef VERSION

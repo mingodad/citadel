@@ -177,7 +177,7 @@ AC_CHECK_HEADER(libcitadel.h,
 
 
 dnl Checks for the libical iCalendar library.
-AC_CHECK_HEADER(ical.h,
+AC_CHECK_HEADER(libical/ical.h,
 	[AC_CHECK_LIB(ical, icalcomponent_new,
 		[
 			LIBS="-lical $LIBS"
@@ -188,7 +188,7 @@ AC_CHECK_HEADER(ical.h,
 	,
 	)],
 	[
-		AC_MSG_ERROR(ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		AC_MSG_ERROR(libical/ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
 	]
 )
 
