@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+#include <stdarg.h>
+#define SHOW_ME_VAPPEND_PRINTF
 
 #include "webcit.h"
 #include "webserver.h"
@@ -73,10 +75,10 @@ void VarPrintEntry(const char *Key, void *vSubst, int odd)
 
 	switch(ptr->wcs_type) {
 	case WCS_STRING:
-		lprintf(1, "  -> %s\n", ptr->wcs_value);
+		lprintf(1, "  -> %s\n", ChrPtr(ptr->wcs_value));
 		break;
 	case WCS_SERVCMD:
-		lprintf(1, "  -> Server [%s]\n", ptr->wcs_value);
+		lprintf(1, "  -> Server [%s]\n", ChrPtr(ptr->wcs_value));
 		break;
 	case WCS_FUNCTION:
 		lprintf(1, "  -> function at [%0xd]\n", ptr->wcs_function);
@@ -94,7 +96,6 @@ void VarPrintEntry(const char *Key, void *vSubst, int odd)
 void clear_substs(struct wcsession *wc) {
 
 	if (wc->vars != NULL) {
-	
 		DeleteHash(&wc->vars);
 	}
 }
@@ -106,18 +107,78 @@ void clear_local_substs(void) {
 	clear_substs (WC);
 }
 
+void FlushPayload(wcsubst *ptr, int reusestrbuf)
+{
+	switch(ptr->wcs_type) {
+	case WCS_STRING:
+	case WCS_SERVCMD:
+	case WCS_STRBUF:
+		if (reusestrbuf) {
+			FlushStrBuf(ptr->wcs_value);
+		}
+		else {
+			
+			FreeStrBuf(&ptr->wcs_value);
+		}
+		break;
+	case WCS_FUNCTION:
+		ptr->wcs_function = NULL;
+		if (reusestrbuf)
+			ptr->wcs_value = NewStrBuf();
+		break;
+	case WCS_STRBUF_REF:
+		ptr->wcs_value = NULL;
+		if (reusestrbuf)
+			ptr->wcs_value = NewStrBuf();
+		break;
+	case WCS_LONG:
+		if (reusestrbuf)
+			ptr->wcs_value = NewStrBuf();
+		ptr->lvalue = 0;
+		break;
+	default:
+		break;
+	}
+}
+
 /**
  * \brief destructor; kill one entry.
  */
 void deletevar(void *data)
 {
 	wcsubst *ptr = (wcsubst*)data;
-//		if ((wc->vars->wcs_type == WCS_STRING)
-//		   || (wc->vars->wcs_type == WCS_SERVCMD)) {
-	if (ptr->wcs_type != WCS_FUNCTION)
-		free(ptr->wcs_value);
+	FlushPayload(ptr, -1);
 	free(ptr);	
 }
+
+
+wcsubst *NewSubstVar(const char *keyname, int keylen, int type)
+{
+	wcsubst* ptr;
+	struct wcsession *WCC = WC;
+
+	ptr = (wcsubst *) malloc(sizeof(wcsubst));
+	memset(ptr, 0, sizeof(wcsubst));
+
+	ptr->wcs_type = type;
+	safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
+	Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+
+	switch(ptr->wcs_type) {
+	case WCS_STRING:
+	case WCS_SERVCMD:
+		ptr->wcs_value = NewStrBuf();
+		break;
+	case WCS_STRBUF:
+	case WCS_FUNCTION:
+	case WCS_STRBUF_REF:
+	case WCS_LONG:
+	default:
+		break;
+	}
+	return ptr;
+}
+
 
 /**
  * \brief Add a substitution variable (local to this session) (strlen version...)
@@ -129,7 +190,6 @@ void deletevar(void *data)
 void SVPRINTF(char *keyname, int keytype, const char *format,...)
 {
 	va_list arg_ptr;
-	char wbuf[SIZ];
 	void *vPtr;
 	wcsubst *ptr = NULL;
 	size_t keylen;
@@ -143,25 +203,18 @@ void SVPRINTF(char *keyname, int keytype, const char *format,...)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		if (ptr->wcs_value != NULL)
-			free(ptr->wcs_value);
+		FlushPayload(ptr, keytype);
+		ptr->wcs_type = keytype;
 	}
 	else 	/** Otherwise allocate a new one */
 	{
-		ptr = (wcsubst *) malloc(sizeof(wcsubst));
-		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+		ptr = NewSubstVar(keyname, keylen, keytype);
 	}
 
-	/** Format the string and save it */
-
+	/** Format the string */
 	va_start(arg_ptr, format);
-	vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
+	StrBufVAppendPrintf(ptr->wcs_value, format, arg_ptr);
 	va_end(arg_ptr);
-
-	ptr->wcs_function = NULL;
-	ptr->wcs_type = keytype;
-	ptr->wcs_value = strdup(wbuf);
 }
 
 /**
@@ -174,12 +227,10 @@ void SVPRINTF(char *keyname, int keytype, const char *format,...)
 void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
 {
 	va_list arg_ptr;
-	char wbuf[SIZ];
 	void *vPtr;
 	wcsubst *ptr = NULL;
 	struct wcsession *WCC = WC;
-	size_t len;
-	
+		
 	/**
 	 * First look if we're doing a replacement of
 	 * an existing key
@@ -187,26 +238,18 @@ void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		if (ptr->wcs_value != NULL)
-			free(ptr->wcs_value);
+		FlushPayload(ptr, 1);
+		ptr->wcs_type = keytype;
 	}
 	else 	/** Otherwise allocate a new one */
 	{
-		ptr = (wcsubst *) malloc(sizeof(wcsubst));
-		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+		ptr = NewSubstVar(keyname, keylen, keytype);
 	}
 
 	/** Format the string and save it */
-
 	va_start(arg_ptr, format);
-	len = vsnprintf(wbuf, sizeof wbuf, format, arg_ptr);
+	StrBufVAppendPrintf(ptr->wcs_value, format, arg_ptr);
 	va_end(arg_ptr);
-
-	ptr->wcs_value = (char*) malloc(len + 1);
-	memcpy(ptr->wcs_value, wbuf, len + 1);
-	ptr->wcs_function = NULL;
-	ptr->wcs_type = keytype;
 }
 
 /**
@@ -230,19 +273,14 @@ void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		if (ptr->wcs_value != NULL)
-			free(ptr->wcs_value);
+		FlushPayload(ptr, 1);
+		ptr->wcs_type = keytype;
 	}
 	else 	/** Otherwise allocate a new one */
 	{
-		ptr = (wcsubst *) malloc(sizeof(wcsubst));
-		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+		ptr = NewSubstVar(keyname, keylen, keytype);
 	}
-
-	ptr->wcs_function = NULL;
-	ptr->wcs_type = keytype;
-	ptr->wcs_value = strdup(Data);
+	ptr->wcs_value = NewStrBufPlain(Data, -1);
 }
 
 /**
@@ -266,18 +304,13 @@ void SVPutLong(char *keyname, size_t keylen, long Data)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		if (ptr->wcs_value != NULL)
-			free(ptr->wcs_value);
+		FlushPayload(ptr, 1);
+		ptr->wcs_type = WCS_LONG;
 	}
 	else 	/** Otherwise allocate a new one */
 	{
-		ptr = (wcsubst *) malloc(sizeof(wcsubst));
-		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+		ptr = NewSubstVar(keyname, keylen, WCS_LONG);
 	}
-
-	ptr->wcs_function = NULL;
-	ptr->wcs_type = WCS_LONG;
 	ptr->lvalue = Data;
 }
 
@@ -299,18 +332,14 @@ void SVCallback(char *keyname, size_t keylen, var_callback_fptr fcn_ptr)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		if (ptr->wcs_value != NULL)
-			free(ptr->wcs_value);
+		FlushPayload(ptr, 0);
+		ptr->wcs_type = WCS_FUNCTION;
 	}
 	else 	/** Otherwise allocate a new one */
 	{
-		ptr = (wcsubst *) malloc(sizeof(wcsubst));
-		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+		ptr = NewSubstVar(keyname, keylen, WCS_FUNCTION);
 	}
 
-	ptr->wcs_value = NULL;
-	ptr->wcs_type = WCS_FUNCTION;
 	ptr->wcs_function = fcn_ptr;
 }
 inline void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr)
@@ -333,30 +362,25 @@ void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		if (ptr->wcs_value != NULL)
-			free(ptr->wcs_value);///TODO: respect type
+		FlushPayload(ptr, 0);
+		ptr->wcs_type = (ref)?WCS_STRBUF_REF:WCS_STRBUF;
 	}
 	else 	/** Otherwise allocate a new one */
 	{
-		ptr = (wcsubst *) malloc(sizeof(wcsubst));
-		safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-		Put(WCC->vars, keyname, keylen, ptr,  deletevar);
+		ptr = NewSubstVar(keyname, keylen, (ref)?WCS_STRBUF_REF:WCS_STRBUF);
 	}
-
-	ptr->wcs_value = NULL;
-	ptr->wcs_type = (ref)?WCS_STRBUF:WCS_STRBUF_REF;
-	ptr->wcs_function = (var_callback_fptr) Buf; ////TODO
+	ptr->wcs_value = Buf;
 }
 
 /**
  * \brief back end for print_value_of() ... does a server command
  * \param servcmd server command to execute on the citadel server
  */
-void pvo_do_cmd(StrBuf *Target, char *servcmd) {
+void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
 	char buf[SIZ];
 	int len;
 
-	serv_puts(servcmd);
+	serv_puts(ChrPtr(servcmd));
 	len = serv_getln(buf, sizeof buf);
 
 	switch(buf[0]) {
@@ -397,7 +421,7 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 		ptr = (wcsubst*) vVar;
 		switch(ptr->wcs_type) {
 		case WCS_STRING:
-			StrBufAppendBufPlain(Target, (const char*)ptr->wcs_value, -1, 0);
+			StrBufAppendBuf(Target, ptr->wcs_value, 0);
 			break;
 		case WCS_SERVCMD:
 			pvo_do_cmd(Target, ptr->wcs_value);
@@ -407,7 +431,7 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 			break;
 		case WCS_STRBUF:
 		case WCS_STRBUF_REF:
-			StrBufAppendBuf(Target, (StrBuf*) ptr->wcs_function, 0);
+			StrBufAppendBuf(Target, ptr->wcs_value, 0);
 			break;
 		case WCS_LONG:
 			StrBufAppendPrintf(Target, "%ld", ptr->lvalue);
@@ -984,20 +1008,17 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context)
 		return 0;
 	subst = (wcsubst*) vsubst;
 	switch(subst->wcs_type) {
-	case WCS_STRING:
-		if (Tokens->nParameters < 4)
-			return 1;
-		return (strcmp(Tokens->Params[3]->Start, subst->wcs_value) == 0);
-	case WCS_SERVCMD:
-		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);////todo
-		return 0;
 	case WCS_FUNCTION:
 		return (subst->wcs_function!=NULL);
+	case WCS_SERVCMD:
+		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);////todo
+		return 1;
+	case WCS_STRING:
 	case WCS_STRBUF:
 	case WCS_STRBUF_REF:
 		if (Tokens->nParameters < 4)
 			return 1;
-		return (strcmp(Tokens->Params[3]->Start, ChrPtr((StrBuf*) subst->wcs_function)) == 0);
+		return (strcmp(Tokens->Params[3]->Start, ChrPtr(subst->wcs_value)) == 0);
 	case WCS_LONG:
 		if (Tokens->nParameters < 4)
 			return (subst->lvalue != 0);

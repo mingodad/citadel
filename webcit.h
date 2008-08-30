@@ -265,9 +265,9 @@ struct roomlisting {
  * \brief Dynamic content for variable substitution in templates
  */
 typedef struct _wcsubst {
-	int wcs_type;			    /**< which type of ??? */
-	char wcs_key[32];		    /**< ??? what?*/
-	void *wcs_value;		    /**< ???? what?*/
+	int wcs_type;			    /**< which type of Substitution are we */
+	char wcs_key[32];		    /**< copy of our hashkey for debugging */
+	StrBuf *wcs_value;		    /**< if we're a string, keep it here */
 	long lvalue;                        /**< type long? keep data here */
 	void (*wcs_function)(void); /**< funcion hook ???*/
 } wcsubst;
