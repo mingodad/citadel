@@ -367,7 +367,7 @@ void do_iconbar(void) {
 	if (IconbarIsEnabled("ib_users", 0)) {
         	wprintf(
                 	"<script type=\"text/javascript\"> "
-                	" new Ajax.PeriodicalUpdater('wholist', 'wholist_section', { method: 'get', frequency: 30 } );"
+                	" new Ajax.PeriodicalUpdater('wholist', 'do_template?template=wholist_section', { method: 'get', frequency: 30 } );"
 			"</script> \n"
 			);
 	}

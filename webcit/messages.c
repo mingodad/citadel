@@ -1818,7 +1818,7 @@ void display_summarized(int num) {
 	wprintf("<tr id=\"m%ld\" style=\"font-weight:%s;\" "
 		"onMouseDown=\"CtdlMoveMsgMouseDown(event,%ld)\">",
 		WC->summ[num].msgnum,
-		(WC->summ[num].is_new ? "bold" : "normal"),
+		((WC->summ[num].is_new) ? "bold" : "normal"),
 		WC->summ[num].msgnum
 	);
 
