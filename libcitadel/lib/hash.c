@@ -183,6 +183,7 @@ int GetCount(HashList *Hash)
 
 /**
  * \brief private destructor for one hash element.
+ * Crashing? go one frame up and do 'print *FreeMe->LookupTable[i]'
  * \param Data an element to free using the user provided destructor, or just plain free
  */
 static void DeleteHashPayload (Payload *Data)
@@ -196,6 +197,7 @@ static void DeleteHashPayload (Payload *Data)
 
 /**
  * \brief destroy a hashlist and all of its members
+ * Crashing? do 'print *FreeMe->LookupTable[i]'
  * \param Hash Hash to destroy. Is NULL'ed so you are shure its done.
  */
 void DeleteHash(HashList **Hash)
