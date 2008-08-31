@@ -35,6 +35,7 @@ void display_page(void)
 
 	wprintf("<FORM METHOD=\"POST\" action=\"page_user\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wprintf("<input type=\"hidden\" name=\"template\" value=\"who\">\n");
 
 	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
 
@@ -93,7 +94,7 @@ void page_user(void)
 		}
 	}
 
-	who();
+	url_do_template();
 }
 
 

@@ -111,19 +111,18 @@ int GetWholistSection(HashList *List, time_t now)
 
 /*
  * Display inner div of Wholist
- */
+ * /
 void who_inner_div(void) {
 	UserStateStruct *User;
 	void *VUser;
 	char buf[SIZ];
-	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+	struct wcsession *WCC = WC;
 	HashList *List;
 	HashPos  *it;
 	const char *UserName;
 	long len;
 	time_t now;
 	int bg = 0;
-
 	wprintf("<table class=\"altern\">"
 		"<tr>\n");
 	wprintf("<th class=\"edit_col\"> </th>\n");
@@ -165,7 +164,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>");
 
-			/* (link to page this user) */
+			/ * (link to page this user) * /
 			wprintf("<td width=\"5%%\"><a href=\"display_page?recp=");
 			UrlescPutStrBuf(User->UserName);
 			wprintf("\">"
@@ -175,7 +174,7 @@ void who_inner_div(void) {
 				" border=\"0\" /></a> ");
 			wprintf("</td>");
 
-			/* (idle flag) */
+			/ * (idle flag) * /
 			wprintf("<td width=\"5%%\">");
 			if (User->Idle) {
 				wprintf(" "
@@ -196,7 +195,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>\n<td>");
 
-			/* username (link to user bio/photo page) */
+			/ * username (link to user bio/photo page) * /
 			wprintf("<a href=\"showuser?who=");
 			UrlescPutStrBuf(User->UserName);
 			wprintf("\">");
@@ -205,7 +204,7 @@ void who_inner_div(void) {
 				wprintf(" [%d] ", User->SessionCount);
 			wprintf("</a>");
 
-			/* room */
+			/ * room * /
 			wprintf("</td>\n\t<td>");
 			StrEscPuts(User->Room);
 			if (StrLength(User->RealRoom) > 0) {
@@ -215,7 +214,7 @@ void who_inner_div(void) {
 			}
 			wprintf("</td>\n\t<td class=\"host_col\">");
 
-			/* hostname */
+			/ * hostname * /
 			StrEscPuts(User->Host);
 			if (StrLength(User->RealHost) > 0) {
 				wprintf("<br /><i>");
@@ -228,13 +227,13 @@ void who_inner_div(void) {
 	}
 	wprintf("</table>");
 	DeleteHash(&List);
-
 }
+*/
 
 
 /*
  * Display a list of users currently logged in to the system
- */
+ * /
 void who(void)
 {
 	char title[256];
@@ -279,13 +278,13 @@ void who(void)
 	);
 	wprintf("</div></div>\n");
 
-	/*
+	/ *
 	 * JavaScript to make the ajax refresh happen:
 	 * See http://www.sergiopereira.com/articles/prototype.js.html for info on Ajax.PeriodicalUpdater
 	 * It wants: 1. The div being updated
 	 *           2. The URL of the update source
 	 *           3. Other flags (such as the HTTP method and the refresh frequency)
-	 */
+	 * /
 	wprintf(
 		"<script type=\"text/javascript\">					"
 		" new Ajax.PeriodicalUpdater('who_inner', 'who_inner_html',	"
@@ -294,6 +293,7 @@ void who(void)
 	);
 	wDumpContent(1);
 }
+*/
 
 /*
  * end session
@@ -304,7 +304,8 @@ void terminate_session(void)
 
 	serv_printf("TERM %s", bstr("which_session"));
 	serv_getln(buf, sizeof buf);
-	who();
+	///who();
+	url_do_template();
 }
 
 
@@ -390,7 +391,7 @@ void edit_me(void)
 
 /*
  * Wholist section
- */
+ * /
 void wholist_section(void) {
 	UserStateStruct *User;
 	void *VUser;
@@ -436,6 +437,7 @@ void wholist_section(void) {
 	}
 	DeleteHash(&List);
 }
+*/
 
 void _terminate_session(void) {
 	slrp_highest();
@@ -488,9 +490,9 @@ void
 InitModule_WHO
 (void)
 {
-	WebcitAddUrlHandler(HKEY("who"), who, 0);
-	WebcitAddUrlHandler(HKEY("who_inner_html"), who_inner_div, AJAX);
-	WebcitAddUrlHandler(HKEY("wholist_section"), wholist_section, AJAX);
+///	WebcitAddUrlHandler(HKEY("who"), who, 0);
+//	WebcitAddUrlHandler(HKEY("who_inner_html"), who_inner_div, AJAX);
+//	WebcitAddUrlHandler(HKEY("wholist_section"), wholist_section, AJAX);
 	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
 

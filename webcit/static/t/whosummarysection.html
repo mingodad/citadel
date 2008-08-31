@@ -1,10 +1,4 @@
 <tr class="<?ITERATE:ODDEVEN>">
-<td class="edit_col">
-<?!("COND:AIDE", 1)><??("COND:SUBST", 2, "WHO:ISME")>
- <a href="terminate_session?which_session=<?WHO:SESSION>&template=who" onClick="return ConfirmKill();"><?_("(kill)")</a>
-<??("X", 2)><??("X", 1)>
-<?!("COND:SUBST", 3, "WHO:ISME")>   <a href="edit_me">(<?_("edit")>)</a>  <?!("X", 3)>
-</td>
 <!-- link to page this user -->
 <td width="5%%"><a href="display_page?recp=<?WHO:NAME("X")>">
    <img align="middle" src="static/citadelchat_24x.gif" alt="(p)" border="0" /></a> 
@@ -22,11 +16,5 @@
 </td><td>
 <?WHO:ROOM>
 <?!("WHO:REALROOM", 7> <br /><i>  <?WHO:REALROOM("X")>  </i>  <?!("X", 7)>
-</td>
-   <td class="host_col">
-<!-- hostname -->
-<?WHO:HOST("X")>
-<?!("COND:SUBST", 8, "WHO:REALHOST", "")> <br /><i> <?WHO:REALHOST("X")></i>
-<?!("X", 8)>
 </td>
 </tr>
