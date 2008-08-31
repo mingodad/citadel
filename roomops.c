@@ -3660,6 +3660,13 @@ void dotgoto(void) {
 	smart_goto(bstr("room"));
 }
 
+void tmplput_roombanner(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	wprintf("<div id=\"banner\">\n");
+	embed_room_banner(NULL, navbar_default);
+	wprintf("</div>\n");
+}
+
 
 void 
 InitModule_ROOMOPS
@@ -3689,6 +3696,8 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
+	RegisterNamespace("ROOMBANNER", 0, 0, tmplput_roombanner);
+
 }
 
 /*@}*/

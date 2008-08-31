@@ -1818,6 +1818,31 @@ void download_mimepart(void) {
 		 1);
 }
 
+
+int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	if (WCC != NULL)
+		return (!IsEmptyStr(WCC->ImportantMessage));
+	else
+		return 0;
+}
+
+void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	
+	if (WCC != NULL) {
+		StrEscAppend(Target, NULL, WCC->ImportantMessage, 0, 0);
+			WCC->ImportantMessage[0] = '\0';
+	}
+}
+
+void tmplput_offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	offer_start_page();
+}
+
 void 
 InitModule_WEBCIT
 (void)
@@ -1832,4 +1857,7 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
+	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage);
+	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage);
+	RegisterNamespace("OFFERSTARTPAGE", 0, 0, tmplput_offer_start_page);
 }

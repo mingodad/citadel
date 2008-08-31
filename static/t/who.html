@@ -1,0 +1,27 @@
+<?=head>
+<?=important_msg>
+<?ICONBAR>
+
+<script type="text/javascript">
+function ConfirmKill() { 
+return confirm('<?_("Do you really want to kill this session?")>');
+}
+</script>
+
+<div id="banner">
+<div class="room_banner">
+<img src="static/usermanag_48x.gif">
+<h1>
+<?_("Users currently on ")><?SERV_HUMANNODE>
+</h1></div>
+<ul class="room_actions">
+<li class="start_page">
+	<?OFFERSTARTPAGE>
+</li></ul>
+</div>
+
+<div id="content" class="fix_scrollbar_bug who_is_online">
+<?DOBOXED("wholiststatic", "wholiststatic_header")>
+</div>
+<?=trailing>
+

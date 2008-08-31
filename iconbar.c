@@ -262,7 +262,7 @@ void do_iconbar(void) {
 /** Users icon */
 	if (IconbarIsEnabled("ib_users", 1)) {
 		wprintf("<li>"
-			"<a href=\"who\" title=\"%s\" "
+			"<a href=\"do_template?template=who\" title=\"%s\" "
 			">",
 			_("See who is online right now")
 		);
@@ -803,6 +803,19 @@ void commit_iconbar(void) {
 }
 
 
+void tmplput_iconbar(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	
+	if ((WCC != NULL) && (WCC->logged_in)) {
+		wprintf("<div id=\"iconbar\">");
+		do_selected_iconbar();
+		/** check for instant messages (these display in a new window) */
+		page_popup();
+		wprintf("</div>");
+	}
+}
+
 void 
 InitModule_ICONBAR
 (void)
@@ -811,6 +824,8 @@ InitModule_ICONBAR
 	WebcitAddUrlHandler(HKEY("iconbar_ajax_rooms"), do_iconbar_roomlist, AJAX);
 	WebcitAddUrlHandler(HKEY("display_customize_iconbar"), display_customize_iconbar, 0);
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
+	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar);
+
 }
 
 
