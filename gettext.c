@@ -328,7 +328,6 @@ void ShutdownLocale(void)
 		if (Empty_Locale != wc_locales[i])
 			freelocale(wc_locales[i]);
 	}
-	freelocale(Empty_Locale);
 #endif
 }
 
