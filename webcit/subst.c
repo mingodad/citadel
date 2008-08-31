@@ -107,36 +107,55 @@ void clear_local_substs(void) {
 	clear_substs (WC);
 }
 
-void FlushPayload(wcsubst *ptr, int reusestrbuf)
+int NeedNewBuf(type)
 {
+	switch(type) {
+	case WCS_STRING:
+	case WCS_SERVCMD:
+	case WCS_STRBUF:
+		return 1;
+	case WCS_FUNCTION:
+	case WCS_STRBUF_REF:
+	case WCS_LONG:
+	default:
+		return 0;
+	}
+}
+
+void FlushPayload(wcsubst *ptr, int reusestrbuf, int type)
+{
+	int NeedNew = NeedNewBuf(type);
 	switch(ptr->wcs_type) {
 	case WCS_STRING:
 	case WCS_SERVCMD:
 	case WCS_STRBUF:
-		if (reusestrbuf) {
+		if (reusestrbuf && NeedNew) {
 			FlushStrBuf(ptr->wcs_value);
 		}
 		else {
 			
 			FreeStrBuf(&ptr->wcs_value);
+			ptr->wcs_value = NULL;
 		}
 		break;
 	case WCS_FUNCTION:
 		ptr->wcs_function = NULL;
-		if (reusestrbuf)
+		if (reusestrbuf && NeedNew)
 			ptr->wcs_value = NewStrBuf();
 		break;
 	case WCS_STRBUF_REF:
 		ptr->wcs_value = NULL;
-		if (reusestrbuf)
+		if (reusestrbuf && NeedNew)
 			ptr->wcs_value = NewStrBuf();
 		break;
 	case WCS_LONG:
-		if (reusestrbuf)
-			ptr->wcs_value = NewStrBuf();
 		ptr->lvalue = 0;
+		if (reusestrbuf && NeedNew)
+			ptr->wcs_value = NewStrBuf();
 		break;
 	default:
+		if (reusestrbuf && NeedNew)
+			ptr->wcs_value = NewStrBuf();
 		break;
 	}
 }
@@ -147,7 +166,7 @@ void FlushPayload(wcsubst *ptr, int reusestrbuf)
 void deletevar(void *data)
 {
 	wcsubst *ptr = (wcsubst*)data;
-	FlushPayload(ptr, 0);
+	FlushPayload(ptr, 0, ptr->wcs_type);
 	free(ptr);	
 }
 
@@ -203,7 +222,7 @@ void SVPRINTF(char *keyname, int keytype, const char *format,...)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, keytype);
+		FlushPayload(ptr, keytype, keytype);
 		ptr->wcs_type = keytype;
 	}
 	else 	/** Otherwise allocate a new one */
@@ -238,7 +257,7 @@ void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 1);
+		FlushPayload(ptr, 1, keytype);
 		ptr->wcs_type = keytype;
 	}
 	else 	/** Otherwise allocate a new one */
@@ -273,14 +292,14 @@ void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 1);
+		FlushPayload(ptr, 1, keytype);
 		ptr->wcs_type = keytype;
 	}
 	else 	/** Otherwise allocate a new one */
 	{
 		ptr = NewSubstVar(keyname, keylen, keytype);
 	}
-	ptr->wcs_value = NewStrBufPlain(Data, -1);
+	StrBufAppendBufPlain(ptr->wcs_value, Data, -1, 0);
 }
 
 /**
@@ -304,7 +323,7 @@ void SVPutLong(char *keyname, size_t keylen, long Data)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 1);
+		FlushPayload(ptr, 1, WCS_LONG);
 		ptr->wcs_type = WCS_LONG;
 	}
 	else 	/** Otherwise allocate a new one */
@@ -332,7 +351,7 @@ void SVCallback(char *keyname, size_t keylen, var_callback_fptr fcn_ptr)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 0);
+		FlushPayload(ptr, 1, WCS_FUNCTION);
 		ptr->wcs_type = WCS_FUNCTION;
 	}
 	else 	/** Otherwise allocate a new one */
@@ -362,7 +381,7 @@ void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref)
 	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
 		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 0);
+		FlushPayload(ptr, 0, (ref)?WCS_STRBUF_REF:WCS_STRBUF);
 		ptr->wcs_type = (ref)?WCS_STRBUF_REF:WCS_STRBUF;
 	}
 	else 	/** Otherwise allocate a new one */
@@ -1006,6 +1025,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		FlushStrBuf(SubBuf);
 		oddeven = ~ oddeven;
 	}
+	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);
 	It->Destructor(List);
 }

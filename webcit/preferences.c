@@ -659,6 +659,7 @@ void set_preferences(void)
 	encBuf = NewStrBuf();
 	StrBufEUid_escapize(encBuf, buf);
 	set_preference("signature", encBuf, 1);
+	FreeStrBuf(&buf);
 
 	display_main_menu();
 }
