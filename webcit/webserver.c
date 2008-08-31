@@ -873,6 +873,27 @@ int main(int argc, char **argv)
 }
 
 
+void ShutDownWebcit(void)
+{
+	DeleteHash(&ZoneHash);
+	free_zone_directory ();
+	icaltimezone_release_zone_tab ();
+	icalmemory_free_ring ();
+	ShutDownLibCitadel ();
+	DeleteHash(&HandlerHash);
+	DeleteHash(&PreferenceHooks);
+	DeleteHash(&GlobalNS);
+	DeleteHash(&WirelessTemplateCache);
+	DeleteHash(&WirelessLocalTemplateCache);
+	DeleteHash(&TemplateCache);
+	DeleteHash(&LocalTemplateCache);
+	DeleteHash(&Iterators);
+	DeleteHash(&Contitionals);
+#ifdef ENABLE_NLS
+	ShutdownLocale();
+#endif
+}
+
 /*
  * Entry point for worker threads
  */
@@ -940,22 +961,9 @@ void worker_entry(void)
 				lprintf(2, "master shutdown: cleaning up sessions\n");
 				do_housekeeping();
 				lprintf(2, "master shutdown: cleaning up libical\n");
-				free_zone_directory ();
-				icaltimezone_release_zone_tab ();
-				icalmemory_free_ring ();
-				ShutDownLibCitadel ();
-				DeleteHash(&HandlerHash);
-				DeleteHash(&PreferenceHooks);
-				DeleteHash(&GlobalNS);
-				DeleteHash(&WirelessTemplateCache);
-				DeleteHash(&WirelessLocalTemplateCache);
-				DeleteHash(&TemplateCache);
-				DeleteHash(&LocalTemplateCache);
-				DeleteHash(&Iterators);
-				DeleteHash(&Contitionals);
-#ifdef ENABLE_NLS
-				void ShutdownLocale(void);
-#endif
+
+				ShutDownWebcit();
+
 				lprintf(2, "master shutdown exiting!.\n");				
 				exit(0);
 			}

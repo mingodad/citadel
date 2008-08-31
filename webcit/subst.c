@@ -466,7 +466,7 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 	Template->Tokens[(Template->nTokensUsed)++] = NewToken;
 }
 
-TemplateParam *GetNextParamter(StrBuf *Buf, const char **pCh, const char *pe)
+TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe)
 {
 	const char *pch = *pCh;
 	const char *pchs, *pche;
@@ -568,7 +568,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			NewToken->NameEnd = pch - NewToken->pName;
 			pch ++;
 			while (pch < pTmplEnd - 1) {
-				Param = GetNextParamter(Buf, &pch, pTmplEnd - 1);
+				Param = GetNextParameter(Buf, &pch, pTmplEnd - 1);
 				if (Param != NULL) {
 					NewToken->HaveParameters = 1;
 					if (NewToken->nParameters > MAXPARAM) {
@@ -600,6 +600,18 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	return NewToken;
 }
 
+void FreeToken(WCTemplateToken **Token)
+{
+	int i; 
+	if ((*Token)->HaveParameters) 
+		for (i = 0; i < (*Token)->nParameters; i++)
+			free((*Token)->Params[i]);
+	free(*Token);
+	*Token = NULL;
+}
+
+
+
 void FreeWCTemplate(void *vFreeMe)
 {
 	int i;
@@ -607,10 +619,11 @@ void FreeWCTemplate(void *vFreeMe)
 
 	if (FreeMe->TokenSpace > 0) {
 		for (i = 0; i < FreeMe->nTokensUsed; i ++) {
-			free(FreeMe->Tokens[i]);
+			FreeToken(&FreeMe->Tokens[i]);
 		}
 		free(FreeMe->Tokens);
 	}
+	FreeStrBuf(&FreeMe->Data);
 	free(FreeMe);
 }
 
