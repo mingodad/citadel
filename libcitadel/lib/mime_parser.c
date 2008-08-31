@@ -752,6 +752,7 @@ static void DeleteIcon(void *IconNamePtr)
 	IconName *Icon = (IconName*) IconNamePtr;
 	free(Icon->FlatName);
 	free(Icon->FileName);
+	free(Icon);
 }
 
 /*
