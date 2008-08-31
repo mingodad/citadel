@@ -3203,6 +3203,7 @@ void post_message(void)
 			     ChrPtr(Wikipage),
 			     ChrPtr(my_email_addr),
 			     ChrPtr(references));
+		FreeStrBuf(&references);
 
 		lprintf(9, "%s\n", CmdBuf);
 		serv_puts(ChrPtr(CmdBuf));

@@ -956,13 +956,11 @@ void mimepart(const char *msgnum, const char *partnum, int force_download)
 	char buf[256];
 	off_t bytes;
 	char content_type[256];
-	char *content = NULL;
 	
 	serv_printf("OPNA %s|%s", msgnum, partnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
-		content = malloc(bytes + 2);
 		if (force_download) {
 			strcpy(content_type, "application/octet-stream");
 		}
@@ -982,7 +980,6 @@ void mimepart(const char *msgnum, const char *partnum, int force_download)
 		wprintf(_("An error occurred while retrieving this part: %s\n"), &buf[4]);
 		end_burst();
 	}
-
 }
 
 
@@ -1011,7 +1008,6 @@ char *load_mimepart(long msgnum, char *partnum)
 	else {
 		return(NULL);
 	}
-
 }
 
 

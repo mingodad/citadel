@@ -216,7 +216,7 @@ void summary_inner_div(void) {
 	wprintf(_("Who's&nbsp;online&nbsp;now"));
 	wprintf("</div><div class=\"boxcontent\">");	
 	wprintf("<div id=\"who_inner\">");	
-	who_inner_div(); 
+	do_template("wholistsummarysection", NULL);
 	wprintf("</div></div></div>");
 	wprintf("</td>");
 
@@ -280,7 +280,7 @@ void summary(void) {
 		"                            { method: 'get', frequency: 120 }  );	"
 		" new Ajax.PeriodicalUpdater('calendar_inner', 'calendar_inner_html',		"
 		"                            { method: 'get', frequency: 90 }  );	"
-		" new Ajax.PeriodicalUpdater('who_inner', 'who_inner_html',		"
+		" new Ajax.PeriodicalUpdater('do_template', 'template=wholistsummarysection',	"
 		"                            { method: 'get', frequency: 30 }  );	"
 		"</script>							 	\n"
 	);

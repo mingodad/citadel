@@ -558,7 +558,6 @@ void _fmout(StrBuf *Targt, char *align);
 void pullquote_fmout(void);
 void wDumpContent(int);
 
-
 /* These may return NULL if not foud */
 #define sbstr(a) SBstr(a, sizeof(a) - 1)
 const StrBuf *SBSTR(const char *key);
@@ -677,6 +676,7 @@ void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref);
 
 void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target);
 #define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL);
+void url_do_template(void);
 
 
 int lingering_close(int fd);
