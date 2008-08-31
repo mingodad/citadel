@@ -147,7 +147,7 @@ void FlushPayload(wcsubst *ptr, int reusestrbuf)
 void deletevar(void *data)
 {
 	wcsubst *ptr = (wcsubst*)data;
-	FlushPayload(ptr, -1);
+	FlushPayload(ptr, 0);
 	free(ptr);	
 }
 
@@ -573,6 +573,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 					NewToken->HaveParameters = 1;
 					if (NewToken->nParameters > MAXPARAM) {
 						lprintf(1, "Only %ld Tokens supported!\n", MAXPARAM);
+						free(Param);
 						return NULL;
 					}
 					NewToken->Params[NewToken->nParameters++] = Param;
