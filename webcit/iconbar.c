@@ -304,7 +304,7 @@ void do_iconbar(void) {
 /** Advanced Options icon */
 	if (IconbarIsEnabled("ib_advanced", 1)) {
 		wprintf("<li>"
-			"<a href=\"display_main_menu\" "
+			"<a href=\"do_template?template=display_main_menu\" "
 			"title=\"%s\" "
 			">",
 			_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")

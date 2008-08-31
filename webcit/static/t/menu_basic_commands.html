@@ -1,0 +1,20 @@
+<!-- start of first column -->
+<ul class="adminitems col1">
+<li><a href="knrooms"><?_("List known rooms")></a><span><?_("Where can I go from here?")></span></li>
+<li><a href="gotonext"><?_("Goto next room")></a><span><?_("...with <em>unread</em> messages")></span></li>
+<li><a href="skip"><?_("Skip to next room")></a><span><?_("(come back here later)")></span></li>
+<??("COND:UNGOTO", 1)><li><a href="ungoto"><?_("Ungoto")></a><span>(<?_("oops! Back to ")><?ROOM:UNGOTO>)</span></li><??("X", 1)>
+</ul>
+<!-- start of second column -->
+<ul class="adminitems col2">
+<li><a href="readnew"><?_("Read new messages")></a><span><?_("...in this room")></span></li>
+<li><a href="readfwd"><?_("Read all messages")></a><span><?_("...old <EM>and</EM> new")></span></li>
+<li><a href="display_enter"><?_("Enter a message")></a><span><?_("(post in this room)")></span></li>
+<??("COND:ROOM:FLAGS:QR_VISIDIR", 2)><li><a href="display_room_directory"><?_("File library")></a><span><?_("(List files available for download)")></span></li><??("X", 2)>
+</ul>
+<!-- start of third column -->
+<ul class="adminitems lastcol">
+<li><a href="summary"><?_("Summary page")></a><span><?_("Summary of my account")></span></li>
+<li><a href="userlist"><?_("User list")></a><span><?_("(all registered users)")></span></li>
+<li><a href="termquit" TARGET="_top"><?_("Log off")></a><span><?_("Bye!")></span></li>
+</ul>&nbsp;
