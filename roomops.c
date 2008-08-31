@@ -3668,6 +3668,43 @@ void tmplput_roombanner(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void
 }
 
 
+void tmplput_ungoto(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+
+	if ((WCC!=NULL) && 
+	    (!IsEmptyStr(WCC->ugname)))
+		StrBufAppendBufPlain(Target, WCC->ugname, -1, 0);
+}
+
+
+int ConditionalHaveUngoto(WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) && 
+		(!IsEmptyStr(WCC->ugname)) && 
+		(strcasecmp(WCC->ugname, WCC->wc_roomname) == 0));
+}
+
+int ConditinalRoomHasQRVisidir(WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_VISDIR) != 0));
+}
+
+int ConditionalHaveRoomeditRights(WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+
+	return ( (WCC!= NULL) && 
+		 ((WCC->axlevel >= 6) || 
+		  (WCC->is_room_aide) || 
+		  (WCC->is_mailbox) ));
+}
+
 void 
 InitModule_ROOMOPS
 (void)
@@ -3697,7 +3734,11 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
 	RegisterNamespace("ROOMBANNER", 0, 0, tmplput_roombanner);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_VISIDIR"), 0, ConditinalRoomHasQRVisidir);
+	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto);
+	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights);
 
+	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto);
 }
 
 /*@}*/
