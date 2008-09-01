@@ -472,8 +472,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	    Cal, 
 	    delete_cal);
 
-#ifdef TECH_PREVIEW
-
 	/* handle recurring events */
 
 	if (icaltime_is_null_time(dtstart)) return;	/* Can't recur without a start time */
@@ -539,8 +537,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 		}
 	}
 	lprintf(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence));
-
-#endif /* TECH_PREVIEW */
 
 }
 
