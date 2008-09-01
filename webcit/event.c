@@ -27,7 +27,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	char attendee_string[SIZ];
 	char buf[SIZ];
 	int organizer_is_me = 0;
-	int i;
+	int i, j = 0;
 	int sequence = 0;
 
 	lprintf(9, "display_edit_individual_event(%ld) calview=%s year=%s month=%s day=%s\n",
@@ -381,6 +381,15 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	struct icalrecurrencetype recur;
 
 	rrule = icalcomponent_get_first_property(vevent, ICAL_RRULE_PROPERTY);
+
+	wprintf("<INPUT TYPE=\"checkbox\" id=\"is_recur\" NAME=\"is_recur\" "
+		"VALUE=\"yes\" "
+		/* "onclick=\"GreyOrUnGrayStuffFIXME();\"" */
+		" %s >%s",
+		(rrule ? "CHECKED=\"CHECKED\"" : "" ),
+		_("This is a repeating event")
+	);
+
 	if (rrule) {
 		recur = icalproperty_get_rrule(rrule);
 
@@ -408,7 +417,24 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		wprintf(_("Repeats"));
 		wprintf("</b></td><td>");
 		if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
-		wprintf("every %d %s", recur.interval, frequency_units[recur.freq]);
+		wprintf("every %d %s", recur.interval, frequency_units[recur.freq]);	//FIXME
+		wprintf("</td></tr>\n");
+
+		wprintf("<tr><td><b>");
+		wprintf("byday");							//FIXME
+		wprintf("</b></td><td>");
+		for (i=0; i<ICAL_BY_DAY_SIZE; ++i) {
+			if (recur.by_day[i] == ICAL_RECURRENCE_ARRAY_MAX) {
+				i = ICAL_RECURRENCE_ARRAY_MAX;			/* all done */
+			}
+			else {
+				for (j=1; j<=ICAL_SATURDAY_WEEKDAY; ++j) {
+					if (icalrecurrencetype_day_day_of_week(recur.by_day[i]) == j) {
+						wprintf("day%d, ", j);
+					}
+				}
+			}
+		}
 		wprintf("</td></tr>\n");
 
 		wprintf("</table>\n");
