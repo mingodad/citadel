@@ -321,7 +321,7 @@ void do_iconbar(void) {
 
 	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
 		wprintf("<li>"
-			"<a href=\"display_aide_menu\" "
+			"<a href=\"do_template?template=display_aide_menu\" "
 			"title=\"%s\" "
 			">",
 			_("Room and system administration functions")

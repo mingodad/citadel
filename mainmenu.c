@@ -9,6 +9,12 @@
  */
 void display_main_menu(void)
 {
+	begin_burst();
+	output_headers(1, 0, 0, 0, 1, 0);
+	DoTemplate(HKEY("display_main_menu"), NULL, NULL);
+	end_burst();
+
+/*
 	char buf[SIZ];
 	output_headers(1, 1, 1, 0, 0, 0);
 
@@ -19,7 +25,7 @@ void display_main_menu(void)
 	svput("BOXTITLE", WCS_STRING, _("Basic commands"));
 	do_template("beginbox", NULL);
 
-	/* start of first column */
+	/ * start of first column * /
 	wprintf("<ul class=\"adminitems col1\">");
 
 	wprintf("<li><a href=\"knrooms\">");
@@ -50,7 +56,7 @@ void display_main_menu(void)
 
 	wprintf("</ul>\n");
 
-	/* start of second column */
+	/ * start of second column * /
 
 	wprintf("<ul class=\"adminitems col2\">");
 
@@ -82,7 +88,7 @@ void display_main_menu(void)
 
 	wprintf("</ul>\n");
 
-	/* start of third column */
+	/ * start of third column * /
 
 	wprintf("<ul class=\"adminitems lastcol\">");
 
@@ -144,6 +150,7 @@ void display_main_menu(void)
 
 	wprintf("</td></tr></table></div>");
 	wDumpContent(2);
+*/
 }
 
 
@@ -152,6 +159,11 @@ void display_main_menu(void)
  */
 void display_aide_menu(void)
 {
+	begin_burst();
+	output_headers(1, 0, 0, 0, 1, 0);
+	DoTemplate(HKEY("display_aide_menu"), NULL, NULL);
+	end_burst();
+/*
 	output_headers(1, 1, 2, 0, 0, 0);
 
         wprintf("<div id=\"banner\">\n");
@@ -193,6 +205,7 @@ void display_aide_menu(void)
 
 	wprintf("</td></tr></table></div>");
 	wDumpContent(2);
+*/
 }
 
 

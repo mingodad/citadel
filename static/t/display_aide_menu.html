@@ -1,0 +1,22 @@
+<?=head>
+<?=important_msg>
+<?ICONBAR>
+<div id="banner">
+<h1>
+<??("COND:AIDE", 1)><?_("System Administration Menu")><??("X", 1)>
+<?!("COND:AIDE", 2)><?_("Room Aide Menu")><?!("X", 2)>
+</h1>
+</div>
+<div id="content" class="service">
+<div class="fix_scrollbar_bug">
+<table>
+<tr valign=top><td width=50%% valign="top">
+<??("COND:AIDE", 3)><?DOBOXED("aide_global_config", "subject_global_config")><??("X", 3)>
+</td><td width=50%% valign="top">
+<??("COND:AIDE", 4)><?DOBOXED("aide_usermanagement", "subject_usermanagement")><??("X", 3)>
+</td></tr><tr><td width=50%% valign="top">
+<??("COND:AIDE", 4)><?DOBOXED("aide_restart", "subject_aiderestart")><??("X", 3)>
+</td><td width=50%% valign="top">
+<?DOBOXED("aide_floorconfig", "subject_floorconfig")>
+</td></tr></table></div>
+<?=trailing>
