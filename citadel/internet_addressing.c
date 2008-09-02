@@ -600,6 +600,12 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		processed = 1;
 	}
 
+	else if (!strcasecmp(key, "List-ID")) {
+		if (msg->cm_fields['L'] == NULL)
+			msg->cm_fields['L'] = strdup(value);
+		processed = 1;
+	}
+
 	else if (!strcasecmp(key, "To")) {
 		if (msg->cm_fields['R'] == NULL)
 			msg->cm_fields['R'] = strdup(value);

@@ -478,6 +478,15 @@ void network_deliver_digest(SpoolControl *sc) {
 	msg->cm_fields['F'] = strdup(buf);
 	msg->cm_fields['R'] = strdup(buf);
 
+	/* Set the 'List-ID' header */
+	msg->cm_fields['L'] = malloc(1024);
+	snprintf(msg->cm_fields['L'], 1024,
+		"%s <%ld.list-id.%s>",
+		CC->room.QRname,
+		CC->room.QRnumber,
+		config.c_fqdn
+	);
+
 	/*
 	 * Go fetch the contents of the digest
 	 */
@@ -609,6 +618,18 @@ void network_spool_msg(long msgnum, void *userdata) {
 		 */
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
+
+			/* Set the 'List-ID' header */
+			if (msg->cm_fields['L'] != NULL) {
+				free(msg->cm_fields['L']);
+			}
+			msg->cm_fields['L'] = malloc(1024);
+			snprintf(msg->cm_fields['L'], 1024,
+				"%s <%ld.list-id.%s>",
+				CC->room.QRname,
+				CC->room.QRnumber,
+				config.c_fqdn
+			);
 
 			/* Prepend "[List name]" to the subject */
 			if (msg->cm_fields['U'] == NULL) {

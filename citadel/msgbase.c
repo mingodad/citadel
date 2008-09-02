@@ -1776,6 +1776,9 @@ int CtdlOutputPreLoadedMsg(
 				else if (i == 'P') {
 					cprintf("Return-Path: %s%s", mptr, nl);
 				}
+				else if (i == 'L') {
+					cprintf("List-ID: %s%s", mptr, nl);
+				}
 				else if (i == 'V') {
 					if ((flags & QP_EADDR) != 0) 
 						mptr = qp_encode_email_addrs(mptr);

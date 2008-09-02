@@ -260,6 +260,7 @@ J	Journal		The presence of this field indicates that the message
 			is disqualified from being journaled, perhaps because
 			it is itself a journalized message and we wish to
 			avoid double journaling.
+L	List-ID		Mailing list identification, as per RFC 2919
 M	Message Text	Normal ASCII, newlines seperated by CR's or LF's,
                         null terminated as always.
 N	Nodename	Contains node name of system message originated on.
