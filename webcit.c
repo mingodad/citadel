@@ -1464,7 +1464,7 @@ void session_loop(struct httprequest *req)
 		body_start = strlen(content);
 
 		/** Read the entire input data at once. */
-		client_read(WCC->http_sock, &content[body_start], ContentLength);
+		client_read(&WCC->http_sock, &content[body_start], ContentLength);
 
 		if (!strncasecmp(ContentType, "application/x-www-form-urlencoded", 33)) {
 			StrBuf *Content;
@@ -1792,9 +1792,9 @@ void diagnostics(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 	wprintf("Session: %d<hr />\n", WC->wc_session);
 	wprintf("Command: <br /><PRE>\n");
-	escputs(WC->UrlFragment1);
+	StrEscPuts(WC->UrlFragment1);
 	wprintf("<br />\n");
-	escputs(WC->UrlFragment2);
+	StrEscPuts(WC->UrlFragment2);
 	wprintf("</PRE><hr />\n");
 	wprintf("Variables: <br /><PRE>\n");
 	dump_vars();
