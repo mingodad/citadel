@@ -357,75 +357,60 @@ void display_shutdown(void)
 	char *when;
 	
 	when=bstr("when");
-	if (!strcmp(when, "now")){
+	if (strcmp(when, "now") == 0){
 		serv_printf("DOWN 1");
 		serv_getln(buf, sizeof buf);
 		if (atol(buf) == 500)
 		{ /* upsie. maybe the server is not running as daemon? */
-			wprintf("<html><head></head><body>Attention: %s</body></html>", &buf[4]);
-
+			
+			safestrncpy(WC->ImportantMessage,
+				    &buf[4],
+				    sizeof WC->ImportantMessage);
 		}
-		else {
-			wprintf("<html>\n"
-				"<head>\n"
-				"<meta http-equiv=\"refresh\" content=\"15; URL=knrooms\"/>\n"
-				"</head>\n"
-				"<body bgcolor=\"#FFFFFF\">\n"
-				"<img src=\"static/throbber.gif\" /> <font color=\"#AAAAAA\">%s </font>"
-				"</body>\n</html>\n",
-				_("Please wait while the Citadel server is restarted... ")
-				);
-		}
-		wDumpContent(0);
+		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		DoTemplate(HKEY("display_serverrestart"), NULL, NULL);
+		end_burst();
 		lingering_close(WC->http_sock);
 		sleeeeeeeeeep(10);
 		serv_printf("NOOP");
 		serv_printf("NOOP");
 	}
-	else if (!strcmp(when, "page")) {
+	else if (strcmp(when, "page") == 0) {
 		char *message;
 	       
 		message = bstr("message");
 		if ((message == NULL) || (IsEmptyStr(message)))
 		{
-			output_headers(1, 1, 1, 0, 0, 0);
-			svput("BOXTITLE", WCS_STRING, _("Message to your Users:"));
-			do_template("beginbox", NULL);
-			wprintf("<form action=\"server_shutdown\">\n"
-				"<input type=\"hidden\" name=\"when\" value=\"page\">\n"
-				"<input type=\"text\" name=\"message\" value=\"%s\">\n"
-				"<input type=\"submit\" value=\"go\">\n"
-				"</form>\n",
-				_("The citadel server has to be restarted. It 'll be back in a minute.")
-				);
-			do_template("endbox", NULL);
-			wDumpContent(1);
-
-			
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			DoTemplate(HKEY("display_serverrestartpage"), NULL, NULL);
+			end_burst();
 		}
 		else
 		{
-			// TODO: page the users... wait longer...
 			serv_printf("SEXP broadcast|%s", message);
 			serv_getln(buf, sizeof buf); // should we care?
-			wprintf("<html>\n"
-				"<head>\n"
-				"<meta http-equiv=\"refresh\" content=\"15; URL=knrooms\"/>\n"
-				"</head>\n"
-				"<body bgcolor=\"#FFFFFF\">\n"
-				"<img src=\"static/throbber.gif\" /> <font color=\"#AAAAAA\">%s </font>"
-				"</body>\n</html>\n",
-				_("Please wait while your users are being paged, the citadel server will be restarted after that... "));
-			
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			DoTemplate(HKEY("display_serverrestartpagedo"), NULL, NULL);
+			end_burst();			
 		}
 	}
 	else if (!strcmp(when, "idle")) {
 		serv_printf("SCDN 3");
 		serv_getln(buf, sizeof buf);
-		if (atol(buf) == 500) {
-			/* oops ... maybe the server is not running as a daemon? */
-			wprintf("<html><head></head><body>Attention: %s</body></html>", &buf[4]);
+
+		if (atol(buf) == 500)
+		{ /* upsie. maybe the server is not running as daemon? */
+			safestrncpy(WC->ImportantMessage,
+				    &buf[4],
+				    sizeof WC->ImportantMessage);
 		}
+		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		DoTemplate(HKEY("display_aide_menu"), NULL, NULL);
+		end_burst();			
 	}
 }
 
