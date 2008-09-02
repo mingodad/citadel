@@ -355,6 +355,13 @@ void output_sieve_rule(char *hfield, char *compare, char *htext, char *sizecomp,
 		);
 	}
 
+	else if (!strcasecmp(hfield, "listid")) {
+		serv_printf("if%s header %s \"List-ID\" \"%s\"",
+			comp1, comp2,
+			htext
+		);
+	}
+
 	else if (!strcasecmp(hfield, "envfrom")) {
 		serv_printf("if%s envelope %s \"From\" \"%s\"",
 			comp1, comp2,
@@ -539,7 +546,7 @@ void parse_fields_from_rule_editor(void) {
 			serv_printf("# WEBCIT_RULE|%d|%s|", i, encoded_rule);
 			output_sieve_rule(hfield, compare, htext, sizecomp, sizeval,
 					action, fileinto, redirect, automsg, final, my_addresses);
-			serv_printf("");
+			serv_puts("");
 		}
 
 
@@ -983,7 +990,7 @@ void display_rules_editor_inner_div(void) {
 
 		wprintf("<td width=20%%>%s ", _("If") );
 
-		char *hfield_values[14][2] = {
+		char *hfield_values[15][2] = {
 			{	"from",		_("From")		},
 			{	"tocc",		_("To or Cc")		},
 			{	"subject",	_("Subject")		},
@@ -996,13 +1003,14 @@ void display_rules_editor_inner_div(void) {
 			{	"xmailer",	_("X-Mailer")		},
 			{	"xspamflag",	_("X-Spam-Flag")	},
 			{	"xspamstatus",	_("X-Spam-Status")	},
+			{	"listid",	_("List-ID")		},
 			{	"size",		_("Message size")	},
 			{	"all",		_("All")		}
 		};
 
 		wprintf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
-		for (j=0; j<14; ++j) {
+		for (j=0; j<15; ++j) {
 			wprintf("<option %s value=\"%s\">%s</option>",
 				( (!strcasecmp(hfield, hfield_values[j][0])) ? "selected" : ""),
 				hfield_values[j][0],
