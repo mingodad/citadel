@@ -24,7 +24,7 @@ int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int time_to_die = 0;            /* Nonzero if server is shutting down */
-extern void *context_loop(int);
+extern void *context_loop(int*);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
@@ -193,7 +193,7 @@ int ig_uds_server(char *sockpath, int queue_len)
  *      0       Request timed out.
  *	-1   	Connection is broken, or other error.
  */
-int client_read_to(int sock, char *buf, int bytes, int timeout)
+int client_read_to(int *sock, char *buf, int bytes, int timeout)
 {
 	int len, rlen;
 	fd_set rfds;
@@ -208,22 +208,25 @@ int client_read_to(int sock, char *buf, int bytes, int timeout)
 #endif
 
 	len = 0;
-	while (len < bytes) {
+	while ((len < bytes) && (*sock > 0)) {
 		FD_ZERO(&rfds);
-		FD_SET(sock, &rfds);
+		FD_SET(*sock, &rfds);
 		tv.tv_sec = timeout;
 		tv.tv_usec = 0;
 
-		retval = select((sock) + 1, &rfds, NULL, NULL, &tv);
-		if (FD_ISSET(sock, &rfds) == 0) {
+		retval = select((*sock) + 1, &rfds, NULL, NULL, &tv);
+		if (FD_ISSET(*sock, &rfds) == 0) {
 			return (0);
 		}
 
-		rlen = read(sock, &buf[len], bytes - len);
+		rlen = read(*sock, &buf[len], bytes - len);
 
 		if (rlen < 1) {
 			lprintf(2, "client_read() failed: %s\n",
 				strerror(errno));
+			if (*sock > 0)
+				close(*sock);
+			*sock = -1;	
 			return (-1);
 		}
 		len = len + rlen;
@@ -354,7 +357,7 @@ long end_burst(void)
  * \param buf the buffer to write to
  * \param bytes Number of bytes to read
  */
-int client_read(int sock, char *buf, int bytes)
+int client_read(int *sock, char *buf, int bytes)
 {
 	return (client_read_to(sock, buf, bytes, SLEEPING));
 }
@@ -369,13 +372,15 @@ int client_read(int sock, char *buf, int bytes)
  * \param bufsiz how many bytes to read
  * \return  number of bytes read???
  */
-int client_getln(int sock, char *buf, int bufsiz)
+int client_getln(int *sock, char *buf, int bufsiz)
 {
 	int i, retval;
 
 	/* Read one character at a time.*/
-	for (i = 0;; i++) {
+	for (i = 0; *sock > 0; i++) {
 		retval = client_read(sock, &buf[i], 1);
+		if (retval < 0)
+			return retval;
 		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
 			break;
 		if ( (!isspace(buf[i])) && (!isprint(buf[i])) ) {
@@ -994,7 +999,7 @@ void worker_entry(void)
 			if (fail_this_transaction == 0) {
 
 				/* Perform an HTTP transaction... */
-				context_loop(ssock);
+				context_loop(&ssock);
 
 				/* Shut down SSL/TLS if required... */
 #ifdef HAVE_OPENSSL
@@ -1004,7 +1009,8 @@ void worker_entry(void)
 #endif
 
 				/* ...and close the socket. */
-				lingering_close(ssock);
+				if (ssock > 0)
+					lingering_close(ssock);
 			}
 
 		}

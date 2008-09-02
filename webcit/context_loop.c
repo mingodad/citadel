@@ -163,7 +163,7 @@ int GenerateSessionID(void)
 /*
  * Collapse multiple cookies on one line
  */
-int req_gets(int sock, char *buf, char *hold, size_t hlen)
+int req_gets(int *sock, char *buf, char *hold, size_t hlen)
 {
 	int a, b;
 
@@ -283,7 +283,7 @@ int is_bogus(char *http_cmd) {
  * transaction.
  * \param sock the socket we will put our answer to
  */
-void context_loop(int sock)
+void context_loop(int *sock)
 {
 	struct httprequest *req = NULL;
 	struct httprequest *last = NULL;
@@ -509,7 +509,7 @@ void context_loop(int sock)
 	
 	TheSession->urlstrings = NewHash(1,NULL);
 	TheSession->vars = NewHash(1,NULL);
-	TheSession->http_sock = sock;
+	TheSession->http_sock = *sock;
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->gzip_ok = gzip_ok;
 #ifdef ENABLE_NLS
