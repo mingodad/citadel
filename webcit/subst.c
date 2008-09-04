@@ -1106,6 +1106,34 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 	DoTemplate(HKEY("endbox"), Context, Target);
 }
 
+void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	StrBuf **TabNames;
+	int i, ntabs;
+
+	ntabs = Tokens->nParameters / 2;
+	TabNames = (StrBuf **) malloc(ntabs * sizeof(StrBuf*));
+
+	for (i = 0; i < ntabs; i++) {
+		TabNames[i] = NewStrBuf();
+		DoTemplate(Tokens->Params[i * 2]->Start, 
+			   Tokens->Params[0]->len,
+			   Context,
+			   TabNames[i]);
+	}
+
+	StrTabbedDialog(Target, ntabs, TabNames);
+	for (i = 0; i < ntabs; i++) {
+		StrBeginTab(Target, ntabs, i);
+
+		DoTemplate(Tokens->Params[i * 2 + 1]->Start, 
+			   Tokens->Params[i * 2 + 1]->len,
+			   Context, 
+			   Target);
+		StrEndTab(Target, ntabs, i);
+	}
+}
+
 void 
 InitModule_SUBST
 (void)
@@ -1121,6 +1149,7 @@ InitModule_SUBST
 	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room);
 	RegisterNamespace("ITERATE", 2, 4, tmpl_iterate_subtmpl);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed);
+	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed);
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar);
 }
 

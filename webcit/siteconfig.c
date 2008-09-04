@@ -784,11 +784,153 @@ void display_siteconfig(void)
 	wDumpContent(1);
 }
 
+typedef struct _CfgMapping {
+	int type;
+	const char *Key;
+	long len;
+}CfgMapping;
+
+#define CFG_STR 1
+#define CFG_YES 2
+#define CFG_NO 3
+
+CfgMapping ServerConfig[] = {
+	{CFG_STR, HKEY("c_nodename")},
+	{CFG_STR, HKEY("c_fqdn")},
+	{CFG_STR, HKEY("c_humannode")},
+	{CFG_STR, HKEY("c_phonenum")},
+	{CFG_YES, HKEY("c_creataide")},
+	{CFG_STR, HKEY("c_sleeping")},
+	{CFG_STR, HKEY("c_initax")},
+	{CFG_YES, HKEY("c_regiscall")},
+	{CFG_YES, HKEY("c_twitdetect")},
+	{CFG_STR, HKEY("c_twitroom")},
+	{CFG_STR, HKEY("c_moreprompt")},
+	{CFG_YES, HKEY("c_restrict")},
+	{CFG_STR, HKEY("c_bbs_city")},
+	{CFG_STR, HKEY("c_sysadm")},
+	{CFG_STR, HKEY("c_maxsessions")},
+	{CFG_STR, HKEY("reserved1")},
+	{CFG_STR, HKEY("c_userpurge")},
+	{CFG_STR, HKEY("c_roompurge")},
+	{CFG_STR, HKEY("c_logpages")},
+	{CFG_STR, HKEY("c_createax")},
+	{CFG_STR, HKEY("c_maxmsglen")},
+	{CFG_STR, HKEY("c_min_workers")},
+	{CFG_STR, HKEY("c_max_workers")},
+	{CFG_STR, HKEY("c_pop3_port")},
+	{CFG_STR, HKEY("c_smtp_port")},
+	{CFG_NO , HKEY("c_rfc822_strict_from")},	/* note: reverse bool */
+	{CFG_YES, HKEY("c_aide_zap")},
+	{CFG_STR, HKEY("c_imap_port")},
+	{CFG_STR, HKEY("c_net_freq")},
+	{CFG_YES, HKEY("c_disable_newu")},
+	{CFG_STR, HKEY("reserved2")},
+	{CFG_STR, HKEY("c_purge_hour")},
+	{CFG_STR, HKEY("c_ldap_host")},
+	{CFG_STR, HKEY("c_ldap_port")},
+	{CFG_STR, HKEY("c_ldap_base_dn")},
+	{CFG_STR, HKEY("c_ldap_bind_dn")},
+	{CFG_STR, HKEY("c_ldap_bind_pw")},
+	{CFG_STR, HKEY("c_ip_addr")},
+	{CFG_STR, HKEY("c_msa_port")},
+	{CFG_STR, HKEY("c_imaps_port")},
+	{CFG_STR, HKEY("c_pop3s_port")},
+	{CFG_STR, HKEY("c_smtps_port")},
+	{CFG_YES, HKEY("c_enable_fulltext")},
+	{CFG_YES, HKEY("c_auto_cull")},
+	{CFG_YES, HKEY("c_instant_expunge")},
+	{CFG_YES, HKEY("c_allow_spoofing")},
+	{CFG_YES, HKEY("c_journal_email")},
+	{CFG_YES, HKEY("c_journal_pubmsgs")},
+	{CFG_STR, HKEY("c_journal_dest")},
+	{CFG_STR, HKEY("c_default_cal_zone")},
+	{CFG_STR, HKEY("c_pftcpdict_port")},
+	{CFG_STR, HKEY("c_mgesve_port")},
+	{CFG_STR, HKEY("c_auth_mode")},
+	{CFG_STR, HKEY("c_funambol_host")},
+	{CFG_STR, HKEY("c_funambol_port")},
+	{CFG_STR, HKEY("c_funambol_source")},
+	{CFG_STR, HKEY("c_funambol_auth")},
+	{CFG_YES, HKEY("c_rbl_at_greeting")},
+	{CFG_STR, HKEY("c_master_user")},
+	{CFG_STR, HKEY("c_master_pass")},
+	{CFG_STR, HKEY("c_pager_program")},
+	{CFG_YES, HKEY("c_imap_keep_from")},
+	{CFG_STR, HKEY("c_xmpp_c2s_port")},
+	{CFG_STR, HKEY("c_xmpp_s2s_port")},
+	{CFG_STR, HKEY("c_pop3_fetch")},
+	{CFG_STR, HKEY("c_pop3_fastest")}
+};
+
+
+/*
+ * \brief display all configuration items
+ */
+void load_siteconfig(void)
+{
+	struct wcsession *WCC = WC;
+	StrBuf *Buf, *Token;
+	HashList *Cfg;
+	char buf[SIZ];
+	long len;
+	int i;
+	
+	if (WCC->ServCfg == NULL)
+		WCC->ServCfg = NewHash(1, NULL);
+	Cfg = WCC->ServCfg;
+
+	serv_printf("CONF get");
+	serv_getln(buf, sizeof buf);
+	i = 0;
+	while (len = serv_getln(buf, sizeof buf), 
+	       strcmp(buf, "000") && 
+	       (i < sizeof(ServerConfig))) 
+	{
+		Put(Cfg,
+		    ServerConfig[i].Key, 
+		    ServerConfig[i].len, 
+		    NewStrBufPlain(buf, len), 
+		    HFreeStrBuf);
+		i++;
+	}
+
+	serv_puts("GPEX site");
+	StrBuf_ServGetln(Buf);
+	if (ChrPtr(Buf)[0] == '2') {
+		StrBufCutLeft(Buf, 4);
+
+		Token = NewStrBuf();
+		StrBufExtract_token(Token, Buf, 0, '|');
+		Put(Cfg, HKEY("sitepolicy"), Token, HFreeStrBuf);
+
+		Token = NewStrBuf();
+		StrBufExtract_token(Token, Buf, 1, '|');
+		Put(Cfg, HKEY("sitevalue"), Token, HFreeStrBuf);
+	}
+
+	serv_puts("GPEX mailboxes");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+		StrBufCutLeft(Buf, 4);
+
+		Token = NewStrBuf();
+		StrBufExtract_token(Token, Buf, 0, '|');
+		Put(Cfg, HKEY("mboxpolicy"), Token, HFreeStrBuf);
+
+		Token = NewStrBuf();
+		StrBufExtract_token(Token, Buf, 1, '|');
+		Put(Cfg, HKEY("mboxvalue"), Token, HFreeStrBuf);
+	}
+}
+
+
 /**
  * parse siteconfig changes 
  */
 void siteconfig(void)
 {
+	int i;
 	char buf[256];
 
 	if (strlen(bstr("ok_button")) == 0) {
@@ -802,73 +944,27 @@ void siteconfig(void)
 		display_aide_menu();
 		return;
 	}
-	serv_printf("%s", bstr("c_nodename"));
-	serv_printf("%s", bstr("c_fqdn"));
-	serv_printf("%s", bstr("c_humannode"));
-	serv_printf("%s", bstr("c_phonenum"));
-	serv_printf("%s", ((yesbstr("c_creataide") ? "1" : "0")));
-	serv_printf("%s", bstr("c_sleeping"));
-	serv_printf("%s", bstr("c_initax"));
-	serv_printf("%s", ((yesbstr("c_regiscall") ? "1" : "0")));
-	serv_printf("%s", ((yesbstr("c_twitdetect") ? "1" : "0")));
-	serv_printf("%s", bstr("c_twitroom"));
-	serv_printf("%s", bstr("c_moreprompt"));
-	serv_printf("%s", ((yesbstr("c_restrict") ? "1" : "0")));
-	serv_printf("%s", bstr("c_bbs_city"));
-	serv_printf("%s", bstr("c_sysadm"));
-	serv_printf("%s", bstr("c_maxsessions"));
-	serv_printf("");  /* placeholder - this field is not in use */
-	serv_printf("%s", bstr("c_userpurge"));
-	serv_printf("%s", bstr("c_roompurge"));
-	serv_printf("%s", bstr("c_logpages"));
-	serv_printf("%s", bstr("c_createax"));
-	serv_printf("%s", bstr("c_maxmsglen"));
-	serv_printf("%s", bstr("c_min_workers"));
-	serv_printf("%s", bstr("c_max_workers"));
-	serv_printf("%s", bstr("c_pop3_port"));
-	serv_printf("%s", bstr("c_smtp_port"));
-	serv_printf("%s", ((yesbstr("c_rfc822_strict_from") ? "0" : "1"))); /* note: reverse bool */
-	serv_printf("%s", ((yesbstr("c_aide_zap") ? "1" : "0")));
-	serv_printf("%s", bstr("c_imap_port"));
-	serv_printf("%s", bstr("c_net_freq"));
-	serv_printf("%s", ((yesbstr("c_disable_newu") ? "1" : "0")));
-	serv_printf("1"); /* placeholder - this field is not in use */
-	serv_printf("%s", bstr("c_purge_hour"));
-	serv_printf("%s", bstr("c_ldap_host"));
-	serv_printf("%s", bstr("c_ldap_port"));
-	serv_printf("%s", bstr("c_ldap_base_dn"));
-	serv_printf("%s", bstr("c_ldap_bind_dn"));
-	serv_printf("%s", bstr("c_ldap_bind_pw"));
-	serv_printf("%s", bstr("c_ip_addr"));
-	serv_printf("%s", bstr("c_msa_port"));
-	serv_printf("%s", bstr("c_imaps_port"));
-	serv_printf("%s", bstr("c_pop3s_port"));
-	serv_printf("%s", bstr("c_smtps_port"));
-	serv_printf("%s", ((yesbstr("c_enable_fulltext") ? "1" : "0")));
-	serv_printf("%s", ((yesbstr("c_auto_cull") ? "1" : "0")));
-	serv_printf("%s", ((yesbstr("c_instant_expunge") ? "1" : "0")));
-	serv_printf("%s", ((yesbstr("c_allow_spoofing") ? "1" : "0")));
-	serv_printf("%s", ((yesbstr("c_journal_email") ? "1" : "0")));
-	serv_printf("%s", ((yesbstr("c_journal_pubmsgs") ? "1" : "0")));
-	serv_printf("%s", bstr("c_journal_dest"));
-	serv_printf("%s", bstr("c_default_cal_zone"));
-	serv_printf("%s", bstr("c_pftcpdict_port"));
-	serv_printf("%s", bstr("c_mgesve_port"));
-	serv_printf("%s", bstr("c_auth_mode"));
-	serv_printf("%s", bstr("c_funambol_host"));
-	serv_printf("%s", bstr("c_funambol_port"));
-	serv_printf("%s", bstr("c_funambol_source"));
-	serv_printf("%s", bstr("c_funambol_auth"));
-	serv_printf("%s", ((yesbstr("c_rbl_at_greeting") ? "1" : "0")));
-	serv_printf("%s", bstr("c_master_user"));
-	serv_printf("%s", bstr("c_master_pass"));
-	serv_printf("%s", bstr("c_pager_program"));
-	serv_printf("%s", ((yesbstr("c_imap_keep_from") ? "1" : "0")));
-	serv_printf("%s", bstr("c_xmpp_c2s_port"));
-	serv_printf("%s", bstr("c_xmpp_s2s_port"));
-	serv_printf("%s", bstr("c_pop3_fetch"));
-	serv_printf("%s", bstr("c_pop3_fastest"));
-	serv_printf("000");
+
+	i = sizeof(ServerConfig);
+	for (i=0; i < sizeof(ServerConfig); i ++)
+	{
+		switch (ServerConfig[i].type) {
+		default:
+		case CFG_STR:
+			serv_putbuf(SBstr(ServerConfig[i].Key, ServerConfig[i].len));
+			break;
+		case CFG_YES:
+			serv_puts(YesBstr(ServerConfig[i].Key, 
+					  ServerConfig[i].len) ?
+				  "1" : "0");
+			break;
+		case CFG_NO:
+			serv_puts(YesBstr(ServerConfig[i].Key, 
+					  ServerConfig[i].len) ?
+				  "0" : "1");
+			break;
+		}
+	}
 
 	serv_printf("SPEX site|%d|%d", ibstr("sitepolicy"), ibstr("sitevalue"));
 	serv_getln(buf, sizeof buf);
@@ -882,11 +978,55 @@ void siteconfig(void)
 	display_aide_menu();
 }
 
+void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	void *vBuf;
+	StrBuf *Buf;
+
+	if (WCC->is_aide) {
+		if (WCC->ServCfg == NULL)
+			load_siteconfig();
+		GetHash(WCC->ServCfg, 
+			Tokens->Params[0]->Start,
+			Tokens->Params[0]->len, 
+			&vBuf);
+		Buf = (StrBuf*) vBuf;
+		StrBufAppendBuf(Target, Buf, 0);
+	}
+}
+
+int ConditionalServCfg(WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	void *vBuf;
+	StrBuf *Buf;
+
+	if (WCC->is_aide) {
+		if (WCC->ServCfg == NULL)
+			load_siteconfig();
+		GetHash(WCC->ServCfg, 
+			Tokens->Params[0]->Start,
+			Tokens->Params[0]->len, 
+			&vBuf);
+		if (vBuf == NULL) return 0;
+		Buf = (StrBuf*) vBuf;
+		if (Tokens->nParameters == 1)
+			return 1;
+		else 
+			return (strcmp(Tokens->Params[0]->Start, ChrPtr(Buf)) == 0);
+	}
+	else return 0;
+}
+
 void 
 InitModule_SITECONFIG
 (void)
 {
 	WebcitAddUrlHandler(HKEY("display_siteconfig"), display_siteconfig, 0);
 	WebcitAddUrlHandler(HKEY("siteconfig"), siteconfig, 0);
+
+	RegisterNamespace("SERV:CFG", 1, 1, tmplput_servcfg);
+	RegisterConditional(HKEY("COND:SERVCFG"), 1, ConditionalServCfg);
 }
 /*@}*/

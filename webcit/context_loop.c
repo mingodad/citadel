@@ -34,6 +34,30 @@ void free_attachments(struct wcsession *sess) {
 }
 
 
+void DestroySession(struct wcsession **sessions_to_kill)
+{
+	close((*sessions_to_kill)->serv_sock);
+	close((*sessions_to_kill)->chat_sock);
+//		if ((*sessions_to_kill)->preferences != NULL) {
+//			free((*sessions_to_kill)->preferences);
+//		}
+	if ((*sessions_to_kill)->cache_fold != NULL) {
+		free((*sessions_to_kill)->cache_fold);
+	}
+	free_attachments((*sessions_to_kill));
+	free_march_list((*sessions_to_kill));
+	DeleteHash(&((*sessions_to_kill)->hash_prefs));
+	DeleteHash(&((*sessions_to_kill)->IconBarSetttings));
+	DeleteHash(&((*sessions_to_kill)->ServCfg));
+	FreeStrBuf(&((*sessions_to_kill)->UrlFragment1));
+	FreeStrBuf(&((*sessions_to_kill)->UrlFragment2));
+	FreeStrBuf(&((*sessions_to_kill)->WBuf));
+	FreeStrBuf(&((*sessions_to_kill)->HBuf));
+
+	free((*sessions_to_kill));
+	(*sessions_to_kill) = NULL;
+}
+
 void shutdown_sessions(void)
 {
 	struct wcsession *sptr;
@@ -90,26 +114,10 @@ void do_housekeeping(void)
 	while (sessions_to_kill != NULL) {
 		lprintf(3, "Destroying session %d\n", sessions_to_kill->wc_session);
 		pthread_mutex_lock(&sessions_to_kill->SessionMutex);
-		close(sessions_to_kill->serv_sock);
-		close(sessions_to_kill->chat_sock);
-//		if (sessions_to_kill->preferences != NULL) {
-//			free(sessions_to_kill->preferences);
-//		}
-		if (sessions_to_kill->cache_fold != NULL) {
-			free(sessions_to_kill->cache_fold);
-		}
-		free_attachments(sessions_to_kill);
-		free_march_list(sessions_to_kill);
-		DeleteHash(&(sessions_to_kill->hash_prefs));
-		DeleteHash(&(sessions_to_kill->IconBarSetttings));
-		FreeStrBuf(&(sessions_to_kill->UrlFragment1));
-		FreeStrBuf(&(sessions_to_kill->UrlFragment2));
-		FreeStrBuf(&(sessions_to_kill->WBuf));
-		FreeStrBuf(&(sessions_to_kill->HBuf));
-
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
-		free(sessions_to_kill);
+
+		DestroySession(&sessions_to_kill);
 		sessions_to_kill = sptr;
 		--num_sessions;
 	}
