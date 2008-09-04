@@ -617,6 +617,7 @@ void msgescputs1( char *strbuf)
 		return;
 	StrMsgEscAppend(OutBuf, NULL, strbuf);
 	StrEscAppend(WC->WBuf, OutBuf, NULL, 0, 0);
+	FreeStrBuf(&OutBuf);
 }
 
 /*
