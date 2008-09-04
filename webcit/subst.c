@@ -31,12 +31,15 @@ HashList *GlobalNS;
 HashList *Iterators;
 HashList *Contitionals;
 
+int LoadTemplates = 0;
+
 #define SV_GETTEXT 1
 #define SV_CONDITIONAL 2
 #define SV_NEG_CONDITIONAL 3
 
 typedef struct _WCTemplate {
 	StrBuf *Data;
+	StrBuf *FileName;
 	int nTokensUsed;
 	int TokenSpace;
 	WCTemplateToken **Tokens;
@@ -47,6 +50,8 @@ typedef struct _HashHandler {
 	int nMaxArgs;
 	WCHandlerFunc HandlerFunc;
 }HashHandler;
+
+void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere);
 
 void RegisterNS(const char *NSName, long len, int nMinArgs, int nMaxArgs, WCHandlerFunc HandlerFunc)
 {
@@ -642,6 +647,7 @@ void FreeWCTemplate(void *vFreeMe)
 		}
 		free(FreeMe->Tokens);
 	}
+	FreeStrBuf(&FreeMe->FileName);
 	FreeStrBuf(&FreeMe->Data);
 	free(FreeMe);
 }
@@ -722,17 +728,22 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context, int sta
 
 void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 {
+	WCTemplate *pTmpl = Tmpl;
 	int done = 0;
 	int i, state;
 	const char *pData, *pS;
 	long len;
 
-	pS = pData = ChrPtr(Tmpl->Data);
-	len = StrLength(Tmpl->Data);
+	if (LoadTemplates != 0) {
+		pTmpl = load_template(Tmpl->FileName, NULL, NULL);
+	}
+
+	pS = pData = ChrPtr(pTmpl->Data);
+	len = StrLength(pTmpl->Data);
 	i = 0;
 	state = 0;
 	while (!done) {
-		if (i >= Tmpl->nTokensUsed) {
+		if (i >= pTmpl->nTokensUsed) {
 			StrBufAppendBufPlain(Target, 
 					     pData, 
 					     len - (pData - pS), 0);
@@ -741,28 +752,48 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 		else {
 			StrBufAppendBufPlain(
 				Target, pData, 
-				Tmpl->Tokens[i]->pTokenStart - pData, 0);
-			state = EvaluateToken(Target, Tmpl->Tokens[i], Context, state);
-			while ((state != 0) && (i+1 < Tmpl->nTokensUsed)) {
+				pTmpl->Tokens[i]->pTokenStart - pData, 0);
+			state = EvaluateToken(Target, pTmpl->Tokens[i], Context, state);
+			while ((state != 0) && (i+1 < pTmpl->nTokensUsed)) {
 			/* condition told us to skip till its end condition */
 				i++;
-				if ((Tmpl->Tokens[i]->Flags == SV_CONDITIONAL) ||
-				    (Tmpl->Tokens[i]->Flags == SV_NEG_CONDITIONAL)) {
-					if (state == EvaluateConditional(Tmpl->Tokens[i], 
+				if ((pTmpl->Tokens[i]->Flags == SV_CONDITIONAL) ||
+				    (pTmpl->Tokens[i]->Flags == SV_NEG_CONDITIONAL)) {
+					if (state == EvaluateConditional(pTmpl->Tokens[i], 
 									 Context, 
-									 Tmpl->Tokens[i]->Flags,
+									 pTmpl->Tokens[i]->Flags,
 									 state))
 						state = 0;
 				}
 			}
-			pData = Tmpl->Tokens[i++]->pTokenEnd + 1;
-			if (i > Tmpl->nTokensUsed)
+			pData = pTmpl->Tokens[i++]->pTokenEnd + 1;
+			if (i > pTmpl->nTokensUsed)
 				done = 1;
 		}
+	}
+	if (LoadTemplates != 0) {
+		FreeWCTemplate(pTmpl);
 	}
 }
 
 
+/**
+ * \brief Display a variable-substituted template
+ * \param templatename template file to load
+ */
+void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
+{
+	WCTemplate *NewTemplate;
+	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
+	NewTemplate->Data = NULL;
+	NewTemplate->FileName = NewStrBufDup(filename);
+	NewTemplate->nTokensUsed = 0;
+	NewTemplate->TokenSpace = 0;
+	NewTemplate->Tokens = NULL;
+
+	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
+	return NewTemplate;
+}
 
 /**
  * \brief Display a variable-substituted template
@@ -791,6 +822,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 
 	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
 	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size);
+	NewTemplate->FileName = NULL;
 	NewTemplate->nTokensUsed = 0;
 	NewTemplate->TokenSpace = 0;
 	NewTemplate->Tokens = NULL;
@@ -835,7 +867,8 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte));
 		pch ++;
 	}
-	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
+	if (LoadTemplates == 0)
+		Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
 	return NewTemplate;
 }
 
@@ -915,7 +948,10 @@ int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
 
 
 		printf("%s %d %s\n",ChrPtr(FileName), IsMobile, ChrPtr(Tag));
-		load_template(FileName, Tag, (IsMobile)?wireless:big);		
+		if (LoadTemplates == 0)
+			load_template(FileName, Tag, (IsMobile)?wireless:big);
+		else
+			prepare_template(FileName, Tag, (IsMobile)?wireless:big);
 	}
 	closedir(filedir);
 	FreeStrBuf(&FileName);

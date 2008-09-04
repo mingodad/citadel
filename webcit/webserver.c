@@ -587,7 +587,7 @@ const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 #endif 
 void InitTemplateCache(void);
-
+extern int LoadTemplates;
 extern void LoadZoneFiles(void);
 /*
  * \brief Here's where it all begins.
@@ -645,9 +645,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:x:dD:cfs")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cfs")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:x:dD:cf")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cf")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -684,6 +684,9 @@ int main(int argc, char **argv)
 			freopen(tracefile, "w", stderr);
 			freopen(tracefile, "r", stdin);
 			break;
+		case 'T':
+			LoadTemplates = atoi(optarg);
+			break;
 		case 'x':
 			verbosity = atoi(optarg);
 			break;
@@ -712,6 +715,7 @@ int main(int argc, char **argv)
 			fprintf(stderr, "usage: webcit "
 				"[-i ip_addr] [-p http_port] "
 				"[-t tracefile] [-c] [-f] "
+				"[-T Templatedebuglevel] "
 				"[-d] "
 #ifdef HAVE_OPENSSL
 				"[-s] "
