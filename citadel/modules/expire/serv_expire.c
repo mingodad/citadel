@@ -121,10 +121,9 @@ int messages_purged;
 int users_not_purged;
 char *users_corrupt_msg = NULL;
 char *users_zero_msg = NULL;
-
 struct ctdlroomref *rr = NULL;
-
 extern struct CitContext *ContextList;
+int force_purge_now = 0;			/* set to nonzero to force a run right now */
 
 
 /*
@@ -170,6 +169,7 @@ void GatherPurgeMessages(struct ctdlroom *qrbuf, void *data) {
 		if (msglist != NULL) free(msglist);
 		return;
 	}
+
 
 	/* If the room is set to expire by count, do that */
 	if (epbuf.expire_mode == EXPIRE_NUMMSGS) {
@@ -856,7 +856,10 @@ void *purge_databases(void *args)
                  */
                 now = time(NULL);
                 localtime_r(&now, &tm);
-                if ((tm.tm_hour != config.c_purge_hour) || ((now - last_purge) < 43200)) {
+                if (
+			((tm.tm_hour != config.c_purge_hour) || ((now - last_purge) < 43200))
+			&& (force_purge_now == 0)
+		) {
                         CtdlThreadSleep(60);
                         continue;
                 }
@@ -916,6 +919,7 @@ void *purge_databases(void *args)
 		{
                 	CtdlLogPrintf(CTDL_INFO, "Auto-purger: finished.\n");
 	                last_purge = now;	/* So we don't do it again soon */
+			force_purge_now = 0;
 		}
 		else
                 	CtdlLogPrintf(CTDL_INFO, "Auto-purger: STOPPED.\n");
@@ -1005,6 +1009,14 @@ void cmd_fsck(char *argbuf) {
 }
 
 
+/*
+ * Manually initiate a run of The Dreaded Auto-Purger (tm)
+ */
+void cmd_tdap(char *argbuf) {
+	if (CtdlAccessCheck(ac_aide)) return;
+	force_purge_now = 1;
+	cprintf("%d Manually initiating a purger run now.\n", CIT_OK);
+}
 
 
 /*****************************************************************************/
@@ -1014,6 +1026,7 @@ CTDL_MODULE_INIT(expire)
 	if (!threading)
 	{
 		CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
+		CtdlRegisterProtoHook(cmd_tdap, "TDAP", "Manually initiate auto-purger");
 	}
 	else
 		CtdlThreadCreate("Auto Purger", CTDLTHREAD_BIGSTACK, purge_databases, NULL);

@@ -4334,7 +4334,7 @@ int TDAP_ProcessAdjRefCountQueue(void)
 	struct arcq arcq_rec;
 	int num_records_processed = 0;
 
-	snprintf(file_arcq_temp, sizeof file_arcq_temp, "%s2", file_arcq);
+	snprintf(file_arcq_temp, sizeof file_arcq_temp, "%s.%04x", file_arcq, rand());
 
 	begin_critical_section(S_SUPPMSGMAIN);
 	if (arcfp != NULL) {
@@ -4397,7 +4397,7 @@ void TDAP_AdjRefCount(long msgnum, int incr)
 	smi.meta_refcount += incr;
 	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
-	CtdlLogPrintf(CTDL_DEBUG, "msg %ld ref count delta %d, is now %d\n",
+	CtdlLogPrintf(CTDL_DEBUG, "msg %ld ref count delta %+d, is now %d\n",
 		msgnum, incr, smi.meta_refcount);
 
 	/* If the reference count is now zero, delete the message
