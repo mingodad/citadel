@@ -274,7 +274,7 @@ typedef struct _wcsubst {
 
 #define TYPE_STR   1
 #define TYPE_LONG  2
-#define MAXPARAM  10
+#define MAXPARAM  20
 typedef struct _TemplateParam {
 	const char *Start;
 	int Type;
