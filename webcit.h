@@ -468,6 +468,8 @@ struct wcsession {
 	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *WBuf;                           /**< Our output buffer */
 	StrBuf *HBuf;                           /**< Our HeaderBuffer */
+
+	HashList *ServCfg;                      /**< cache our server config for editing */
 };
 
 /** values for WC->current_iconbar */
@@ -564,29 +566,29 @@ const StrBuf *SBSTR(const char *key);
 const StrBuf *SBstr(const char *key, size_t keylen);
 
 #define xbstr(a, b) (char*) XBstr(a, sizeof(a) - 1, b)
-const char *XBstr(char *key, size_t keylen, size_t *len);
-const char *XBSTR(char *key, size_t *len);
+const char *XBstr(const char *key, size_t keylen, size_t *len);
+const char *XBSTR(const char *key, size_t *len);
 
 #define lbstr(a) LBstr(a, sizeof(a) - 1)
-long LBstr(char *key, size_t keylen);
-long LBSTR(char *key);
+long LBstr(const char *key, size_t keylen);
+long LBSTR(const char *key);
 
 #define ibstr(a) IBstr(a, sizeof(a) - 1)
-int IBstr(char *key, size_t keylen);
-int IBSTR(char *key);
+int IBstr(const char *key, size_t keylen);
+int IBSTR(const char *key);
 
 #define havebstr(a) HaveBstr(a, sizeof(a) - 1)
-int HaveBstr(char *key, size_t keylen);
-int HAVEBSTR(char *key);
+int HaveBstr(const char *key, size_t keylen);
+int HAVEBSTR(const char *key);
 
 #define yesbstr(a) YesBstr(a, sizeof(a) - 1)
-int YesBstr(char *key, size_t keylen);
-int YESBSTR(char *key);
+int YesBstr(const char *key, size_t keylen);
+int YESBSTR(const char *key);
 
 /* TODO: get rid of the non-const-typecast */
 #define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
-const char *BSTR(char *key);
-const char *Bstr(char *key, size_t keylen);
+const char *BSTR(const char *key);
+const char *Bstr(const char *key, size_t keylen);
 
 
 
@@ -640,6 +642,7 @@ void serv_read(char *buf, int bytes);
 void serv_gets(char *strbuf);
 void serv_write(const char *buf, int nbytes);
 void serv_puts(const char *string);
+void serv_putbuf(const StrBuf *string);
 void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void load_floorlist(void);
 void shutdown_sessions(void);
@@ -797,6 +800,9 @@ void go_selected_language(void);
 void stop_selected_language(void);
 void preset_locale(void);
 void httplang_to_locale(char *LocaleString);
+void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
+void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
+void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
 void tabbed_dialog(int num_tabs, char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);

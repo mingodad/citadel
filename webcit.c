@@ -187,7 +187,7 @@ void dump_vars(void)
  * Return the value of a variable supplied to the current web page (from the url or a form)
  */
 
-const char *XBstr(char *key, size_t keylen, size_t *len)
+const char *XBstr(const char *key, size_t keylen, size_t *len)
 {
 	void *U;
 
@@ -202,7 +202,7 @@ const char *XBstr(char *key, size_t keylen, size_t *len)
 	}
 }
 
-const char *XBSTR(char *key, size_t *len)
+const char *XBSTR(const char *key, size_t *len)
 {
 	void *U;
 
@@ -218,7 +218,7 @@ const char *XBSTR(char *key, size_t *len)
 }
 
 
-const char *BSTR(char *key)
+const char *BSTR(const char *key)
 {
 	void *U;
 
@@ -229,7 +229,7 @@ const char *BSTR(char *key)
 		return ("");
 }
 
-const char *Bstr(char *key, size_t keylen)
+const char *Bstr(const char *key, size_t keylen)
 {
 	void *U;
 
@@ -262,7 +262,7 @@ const StrBuf *SBstr(const char *key, size_t keylen)
 		return NULL;
 }
 
-long LBstr(char *key, size_t keylen)
+long LBstr(const char *key, size_t keylen)
 {
 	void *U;
 
@@ -273,7 +273,7 @@ long LBstr(char *key, size_t keylen)
 		return (0);
 }
 
-long LBSTR(char *key)
+long LBSTR(const char *key)
 {
 	void *U;
 
@@ -284,7 +284,7 @@ long LBSTR(char *key)
 		return (0);
 }
 
-int IBstr(char *key, size_t keylen)
+int IBstr(const char *key, size_t keylen)
 {
 	void *U;
 
@@ -295,7 +295,7 @@ int IBstr(char *key, size_t keylen)
 		return (0);
 }
 
-int IBSTR(char *key)
+int IBSTR(const char *key)
 {
 	void *U;
 
@@ -306,7 +306,7 @@ int IBSTR(char *key)
 		return (0);
 }
 
-int HaveBstr(char *key, size_t keylen)
+int HaveBstr(const char *key, size_t keylen)
 {
 	void *U;
 
@@ -317,7 +317,7 @@ int HaveBstr(char *key, size_t keylen)
 		return (0);
 }
 
-int HAVEBSTR(char *key)
+int HAVEBSTR(const char *key)
 {
 	void *U;
 
@@ -329,7 +329,7 @@ int HAVEBSTR(char *key)
 }
 
 
-int YesBstr(char *key, size_t keylen)
+int YesBstr(const char *key, size_t keylen)
 {
 	void *U;
 
@@ -340,7 +340,7 @@ int YesBstr(char *key, size_t keylen)
 		return (0);
 }
 
-int YESBSTR(char *key)
+int YESBSTR(const char *key)
 {
 	void *U;
 

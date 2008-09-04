@@ -252,6 +252,19 @@ void serv_puts(const char *string)
 	serv_write("\n", 1);
 }
 
+/**
+ * \brief send line to server
+ * \param string the line to send to the citadel server
+ */
+void serv_putbuf(const StrBuf *string)
+{
+#ifdef SERV_TRACE
+	lprintf(9, "%3d<%s\n", WC->serv_sock, ChrPtr(string));
+#endif
+	serv_write(ChrPtr(string), StrLength(string));
+	serv_write("\n", 1);
+}
+
 
 /**
  * \brief convenience function to send stuff to the server
