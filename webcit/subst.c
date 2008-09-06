@@ -36,6 +36,7 @@ int LoadTemplates = 0;
 #define SV_GETTEXT 1
 #define SV_CONDITIONAL 2
 #define SV_NEG_CONDITIONAL 3
+#define SV_SUBTEMPL 4
 
 typedef struct _WCTemplate {
 	StrBuf *Data;
@@ -434,6 +435,7 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 	void *vVar;
 
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
+	/// TODO: debricated!
 	if (keyname[0] == '=') {
 		DoTemplate(keyname+1, keylen - 1, NULL, NULL);
 	}
@@ -548,7 +550,7 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe)
 		}
 		else {
 			Parm->lvalue = 0;
-			lprintf(1, "Error evaluating template long param [%s]", *pCh);
+			lprintf(1, "Error evaluating template long param [%s]\n", *pCh);
 			free(Parm);
 			return NULL;
 		}
@@ -611,6 +613,9 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 				if ((NewToken->nParameters == 1) &&
 				    (*(NewToken->pName) == '_'))
 					NewToken->Flags = SV_GETTEXT;
+				else if ((NewToken->nParameters == 1) &&
+					 (*(NewToken->pName) == '='))
+					NewToken->Flags = SV_SUBTEMPL;
 				else if ((NewToken->nParameters >= 2) &&
 					 (*(NewToken->pName) == '?'))
 					NewToken->Flags = SV_CONDITIONAL;
@@ -693,35 +698,42 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context, int sta
 	void *vVar;
 // much output, since pName is not terminated...
 //	lprintf(1,"Doing token: %s\n",Token->pName);
-	if (Token->Flags == SV_GETTEXT) {
+	switch (Token->Flags) {
+	case SV_GETTEXT:
 		TmplGettext(Target, Token->nParameters, Token);
-	}
-	else if (Token->Flags == SV_CONDITIONAL) {
+		break;
+	case SV_CONDITIONAL:
 		return EvaluateConditional(Token, Context, 1, state);
-	}
-	else if (Token->Flags == SV_NEG_CONDITIONAL) {
+		break;
+	case SV_NEG_CONDITIONAL:
 		return EvaluateConditional(Token, Context, 0, state);
-	}
-	else if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
-		HashHandler *Handler;
-		Handler = (HashHandler*) vVar;
-		if ((Token->nParameters < Handler->nMinArgs) || 
-		    (Token->nParameters > Handler->nMaxArgs)) {
-			lprintf(1, "Handler [%s] doesn't work with %ld params", 
-				Token->pName,
-				Token->nParameters);
+		break;
+	case SV_SUBTEMPL:
+		if (Token->nParameters == 1)
+			DoTemplate(Token->Params[0]->Start, Token->Params[0]->len, NULL, NULL);
+		break;
+	default:
+		if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
+			HashHandler *Handler;
+			Handler = (HashHandler*) vVar;
+			if ((Token->nParameters < Handler->nMinArgs) || 
+			    (Token->nParameters > Handler->nMaxArgs)) {
+				lprintf(1, "Handler [%s] doesn't work with %ld params", 
+					Token->pName,
+					Token->nParameters);
+			}
+			else {
+				Handler->HandlerFunc(Target, 
+						     Token->nParameters,
+						     Token,
+						     Context); /*TODO: subset of that */
+				
+				
+			}
 		}
 		else {
-			Handler->HandlerFunc(Target, 
-					     Token->nParameters,
-					     Token,
-					     Context); /*TODO: subset of that */
-		
-			
+			print_value_of(Target, Token->pName, Token->NameEnd);
 		}
-	}
-	else {
-		print_value_of(Target, Token->pName, Token->NameEnd);
 	}
 	return 0;
 }
