@@ -307,6 +307,7 @@ long end_burst(void)
 				 ptr,
 				 count)) == -1) {
                         lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
+		        wc_backtrace();
                         return res;
                 }
                 count -= res;
@@ -338,6 +339,7 @@ long end_burst(void)
 				 ptr,
 				 count)) == -1) {
                         lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
+			wc_backtrace();
                         return res;
                 }
                 count -= res;

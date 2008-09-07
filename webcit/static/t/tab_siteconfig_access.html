@@ -1,0 +1,85 @@
+<center><h1><?_("Access controls and site policy settings")></h1>
+<table border="0">
+
+<tr><td><?_("Automatically grant room-aide status to users who create private rooms")></td><td>
+<input type="checkbox" name="c_creataide" value="yes" '<?SERV:CFG("c_creataide")>'>
+
+</td></tr>
+
+<tr><td><?_("Initial access level for new users")></td><td>
+<select name="c_initax" size="1">
+<!--
+			for (j=0; j<=6; ++j) {
+				sprintf(&access[strlen(access)], "<option %s value="%d">%d - %s</option>",
+					((atoi(buf) == j) ? "selected" : ""),
+					j, j, axdefs[j]
+				);
+			}
+-->
+</select>
+</td></tr>
+
+<tr><td><?_("Require registration for new users")></td><td>
+<input type="checkbox" name="c_regiscall" value="yes" '<?SERV:CFG("c_regiscall")>'>
+<!--				((atoi(buf) != 0) ? "checked" : ""));-->
+</td></tr>
+
+
+<tr><td><?_("Quarantine messages from problem users")></td><td>
+<input type="checkbox" name="c_twitdetect" value="yes" '<?SERV:CFG("c_twitdetect")>'>
+<!--				((atoi(buf) != 0) ? "checked" : ""));-->
+</td></tr>
+
+
+<tr><td><?_("Name of quarantine room")></td><td>
+<input type="text" name="c_twitroom" maxlength="63" value='<?SERV:CFG("c_twitroom")>'>
+</td></tr>
+
+<tr><td><?_("Restrict access to Internet mail")></td><td>
+<input type="checkbox" name="c_restrict" value="yes" %s>
+<!--				((atoi(buf) != 0) ? "checked" : ""));-->
+</td></tr>
+
+<tr><td><?_("Name of room to log pages")></td><td>
+<input type="text" name="c_logpages" maxlength="63" value='<?SERV:CFG("c_logpages")>'>
+</td></tr>
+
+
+<tr><td><?_("Access level required to create rooms")></td><td>
+<select name="c_createax" size="1">
+<!--
+			for (j=0; j<=6; ++j) {
+				sprintf(&access[strlen(access)], "<option %s value="%d">%d - %s</option>",
+					((atoi(buf) == j) ? "selected" : ""),
+					j, j, axdefs[j]
+				);
+			}
+-->
+</select>
+</td></tr>
+
+<tr><td><?_("Allow aides to zap (forget) rooms")></td><td>
+<input type="checkbox" NAME="c_aide_zap" VALUE="yes" '<?SERV:CFG("c_aide_zap")>'>
+<!--				((atoi(buf) != 0) ? "CHECKED" : ""));-->
+</td></tr>
+
+<tr><td><?_("Disable self-service user account creation")></td><td>
+<input type="checkbox" NAME="c_disable_newu" VALUE="yes" '<?SERV:CFG("c_disable_newu")>'>
+<!--				((atoi(buf) != 0) ? "CHECKED" : ""));
+</td></tr>
+
+<tr><td><?_("Enable host based authentication mode")></td><td>
+<input type="hidden" NAME="c_auth_mode" VALUE='<?SERV:CFG("c_auth_mode")>'>
+<!--				((atoi(buf) != 0) ? "Yes" : "No"));-->
+</td></tr>
+
+<tr><td><?_("Master user name (blank to disable)")></td><td>
+<input type="text" NAME="c_master_user" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_user")>'>
+</td></tr>
+
+
+<tr><td><?_("Master user password")></td><td>
+<input type="password" NAME="c_master_pass" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_pass")>'>
+</td></tr>
+</table>
+		

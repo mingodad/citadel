@@ -1,0 +1,23 @@
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner">
+<h1><?_("Site configuration")></h1>
+</div>
+<div id="content" class="service fix_scrollbar_bug">
+<?!("COND:AIDE", 1)><?_("You need to be aide to view this.")><?!("X", 1)>
+<??("COND:AIDE", 2)>
+<form method="post" action="siteconfig">
+<input type="hidden" name="nonce" value= '<?NONCE>'>
+<?DOTABBED("subject_general", "tab_siteconfig_general",
+	"subject_access", "tab_siteconfig_access",
+	"subject_network", "tab_siteconfig_network",
+	"subject_tuning", "tab_siteconfig_tuning",
+	"subject_directory", "tab_siteconfig_directory",
+	"subject_autopurger", "tab_siteconfig_autopurger",
+	"subject_indexing", "tab_siteconfig_indexing",
+	"subject_pushmail", "tab_siteconfig_pushmail",
+	"subject_pop3", "tab_siteconfig_pop3")>
+<??("X", 2)>
+</div>
+<?=("trailing")>
