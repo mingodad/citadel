@@ -475,7 +475,7 @@ const char *smtp_get_Recipients(void)
 }
 
 /*
- * Implements the "MAIL From:" command
+ * Implements the "MAIL FROM:" command
  */
 void smtp_mail(char *argbuf) {
 	char user[SIZ];
@@ -946,7 +946,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
 
-	/* Extract something to send later in the 'MAIL From:' command */
+	/* Extract something to send later in the 'MAIL FROM:' command */
 	strcpy(mailfrom, "");
 	scan_done = 0;
 	ptr = msgtext;
@@ -995,7 +995,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);
-	CtdlLogPrintf(CTDL_DEBUG, "Number of MX hosts for <%s> is %d\n", node, num_mxhosts);
+	CtdlLogPrintf(CTDL_DEBUG, "Number of MX hosts for <%s> is %d [%s]\n", node, num_mxhosts, mxhosts);
 	if (num_mxhosts < 1) {
 		*status = 5;
 		snprintf(dsn, SIZ, "No MX hosts found for <%s>", node);
@@ -1131,8 +1131,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 		}
 	}
 
-	/* previous command succeeded, now try the MAIL From: command */
-	snprintf(buf, sizeof buf, "MAIL From: <%s>\r\n", mailfrom);
+	/* previous command succeeded, now try the MAIL FROM: command */
+	snprintf(buf, sizeof buf, "MAIL FROM:<%s>\r\n", mailfrom);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
@@ -1155,7 +1155,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* MAIL succeeded, now try the RCPT To: command */
-	snprintf(buf, sizeof buf, "RCPT To: <%s@%s>\r\n", user, node);
+	snprintf(buf, sizeof buf, "RCPT TO:<%s@%s>\r\n", user, node);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
