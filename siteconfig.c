@@ -896,6 +896,8 @@ void load_siteconfig(void)
 	}
 
 	serv_puts("GPEX site");
+	Buf = NewStrBuf();
+	Token = NULL;
 	StrBuf_ServGetln(Buf);
 	if (ChrPtr(Buf)[0] == '2') {
 		StrBufCutLeft(Buf, 4);

@@ -1,0 +1,38 @@
+<center>
+<h1><?_("Configure the LDAP connector for Citadel")></h1>
+
+<??("COND:SUBST", 1, "SERV:LDAP_SUPP", "1")><h2><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></h2><??("X", 1)>
+<?!("COND:SUBST", 2, "SERV:LDAP_SUPP", "1")><h2><?_("NOTE: This Citadel server has been built without LDAP support.  These options will have no effect.")></h2><??("X", 2)>
+
+<table border="0">
+
+<tr><td><?_("Host name of LDAP server (blank to disable)")></td><td>
+<input type="text" NAME="c_ldap_host" MAXLENGTH="127" VALUE='<?SERV:CFG("c_ldap_host")>'>
+</td></tr>
+
+
+<tr><td><?_("Port number of LDAP server (blank to disable)")></td><td>
+<input type="text" NAME="c_ldap_port" MAXLENGTH="127" VALUE='<?SERV:CFG("c_ldap_port")>'>
+</td></tr>
+
+
+<tr><td><?_("Base DN")></td><td>
+<input type="text" NAME="c_ldap_base_dn" MAXLENGTH="255" VALUE='<?SERV:CFG("c_ldap_base_dn")>'>
+</td></tr>
+
+
+<tr><td><?_("Bind DN")></td><td>
+<input type="text" NAME="c_ldap_bind_dn" MAXLENGTH="255" VALUE='<?SERV:CFG("c_ldap_bind_dn")>'>
+</td></tr>
+
+
+<tr><td><?_("Password for bind DN")></td><td>
+<input type="password" NAME="c_ldap_bind_pw" MAXLENGTH="255" VALUE='<?SERV:CFG("c_ldap_bind_pw")>'>
+
+</td></tr>
+
+
+</table>
+			
+			?	
+			:	

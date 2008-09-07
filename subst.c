@@ -746,7 +746,8 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 	const char *pData, *pS;
 	long len;
 
-	if (LoadTemplates != 0) {
+	if (LoadTemplates != 0) {			
+		lprintf(1, "DBG: ----- loading:  [%s] ------ \n", ChrPtr(Tmpl->FileName));
 		pTmpl = load_template(Tmpl->FileName, NULL, NULL);
 	}
 
@@ -884,6 +885,14 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	return NewTemplate;
 }
 
+
+void PrintTemplate(void *vTemplate)
+{
+
+
+}
+
+
 /**
  * \brief Display a variable-substituted template
  * \param templatename template file to load
@@ -908,6 +917,7 @@ void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Targe
 	if (!GetHash(StaticLocal, templatename, len, &vTmpl) &&
 	    !GetHash(Static, templatename, len, &vTmpl)) {
 		printf ("didn't find %s\n", templatename);
+		//print_hash(Static);
 		return;
 	}
 	if (vTmpl == NULL) 
@@ -1186,13 +1196,14 @@ void
 InitModule_SUBST
 (void)
 {
-	RegisterNamespace("SERV_PID", 0, 0, tmplput_serv_ip);
-	RegisterNamespace("SERV_NODENAME", 0, 0, tmplput_serv_nodename);
-	RegisterNamespace("SERV_HUMANNODE", 0, 0, tmplput_serv_humannode);
-	RegisterNamespace("SERV_FQDN", 0, 0, tmplput_serv_fqdn);
-	RegisterNamespace("SERV_SOFTWARE", 0, 0, tmmplput_serv_software);
-	RegisterNamespace("SERV_REV_LEVEL", 0, 0, tmplput_serv_rev_level);
-	RegisterNamespace("SERV_BBS_CITY", 0, 0, tmmplput_serv_bbs_city);
+	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip);
+	RegisterNamespace("SERV:NODENAME", 0, 0, tmplput_serv_nodename);
+	RegisterNamespace("SERV:HUMANNODE", 0, 0, tmplput_serv_humannode);
+	RegisterNamespace("SERV:FQDN", 0, 0, tmplput_serv_fqdn);
+	RegisterNamespace("SERV:SOFTWARE", 0, 0, tmmplput_serv_software);
+	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level);
+	RegisterNamespace("SERV:BBS_CITY", 0, 0, tmmplput_serv_bbs_city);
+///	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmmplput_serv_ldap_enabled);
 	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user);
 	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room);
 	RegisterNamespace("ITERATE", 2, 4, tmpl_iterate_subtmpl);
