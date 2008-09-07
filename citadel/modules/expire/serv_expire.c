@@ -415,6 +415,10 @@ void do_user_purge(struct ctdluser *us, void *data) {
 
 	/* The default rule is to not purge. */
 	purge = 0;
+	
+	/* don't attempt to purge system users. */
+	if (!strncmp(us->fullname, "SYS_", 4))
+		goto skip_all_this;
 
 	/* If the user hasn't called in two months and expiring of accounts is turned on, his/her account
 	 * has expired, so purge the record.
@@ -494,7 +498,8 @@ void do_user_purge(struct ctdluser *us, void *data) {
 		}
 	}
 
-
+skip_all_this:
+		
 	if (purge == 1) {
 		pptr = (struct PurgeList *) malloc(sizeof(struct PurgeList));
 		pptr->next = UserPurgeList;
