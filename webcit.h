@@ -283,6 +283,8 @@ typedef struct _TemplateParam {
 } TemplateParam;
 
 typedef struct _TemplateToken {
+	StrBuf *FlatToken;
+	long Line;
 	const char *pTokenStart;
 	size_t TokenStart;
 	size_t TokenEnd;

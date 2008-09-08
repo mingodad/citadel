@@ -493,7 +493,7 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 	Template->Tokens[(Template->nTokensUsed)++] = NewToken;
 }
 
-TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe)
+TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, WCTemplateToken *Token, WCTemplate *pTmpl)
 {
 	const char *pch = *pCh;
 	const char *pchs, *pche;
@@ -521,14 +521,22 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe)
 		}
 		pche = pch;
 		if (*pch != quote) {
-			lprintf(1, "Error evaluating template param [%s]\n", *pCh);
+			lprintf(1, "Error (in '%s' line %ld); "
+				"evaluating template param [%s] in Token [%s]\n",
+				ChrPtr(pTmpl->FileName),
+				Token->Line,
+				ChrPtr(Token->FlatToken),
+				*pCh);
 			pch ++;
 			free(Parm);
 			return NULL;
 		}
 		else {
 			StrBufPeek(Buf, pch, -1, '\0');		
-			lprintf(1, "DBG: got param [%s] %ld %ld\n", pchs, pche - pchs, strlen(pchs));
+			if (LoadTemplates > 1) {			
+				lprintf(1, "DBG: got param [%s] %ld %ld\n", 
+					pchs, pche - pchs, strlen(pchs));
+			}
 			Parm->Start = pchs;
 			Parm->len = pche - pchs;
 			pch ++; /* move after trailing quote */
@@ -551,7 +559,12 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe)
 		}
 		else {
 			Parm->lvalue = 0;
-			lprintf(1, "Error evaluating template long param [%s]\n", *pCh);
+			lprintf(1, "Error (in '%s' line %ld); "
+				"evaluating long template param [%s] in Token [%s]\n",
+				ChrPtr(pTmpl->FileName),
+				Token->Line,
+				ChrPtr(Token->FlatToken),
+				*pCh);
 			free(Parm);
 			return NULL;
 		}
@@ -569,18 +582,22 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe)
 WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf, 
 				       const char *pStart, 
 				       const char *pTmplStart, 
-				       const char *pTmplEnd)
+				       const char *pTmplEnd, 
+				       long Line,
+				       WCTemplate *pTmpl)
 {
 	const char *pch;
 	TemplateParam *Param;
 	WCTemplateToken *NewToken = (WCTemplateToken*)malloc(sizeof(WCTemplateToken));
 
 	NewToken->Flags = 0;
+	NewToken->Line = Line + 1;
 	NewToken->pTokenStart = pTmplStart;
 	NewToken->TokenStart = pTmplStart - pStart;
 	NewToken->TokenEnd =  (pTmplEnd - pStart) - NewToken->TokenStart;
 	NewToken->pTokenEnd = pTmplEnd;
 	NewToken->NameEnd = NewToken->TokenEnd - 2;
+	NewToken->FlatToken = NewStrBufPlain(pTmplStart, pTmplEnd - pTmplStart);
 	
 	StrBufPeek(Buf, pTmplStart, + 1, '\0');
 	StrBufPeek(Buf, pTmplEnd, -1, '\0');
@@ -595,7 +612,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			NewToken->NameEnd = pch - NewToken->pName;
 			pch ++;
 			while (pch < pTmplEnd - 1) {
-				Param = GetNextParameter(Buf, &pch, pTmplEnd - 1);
+				Param = GetNextParameter(Buf, &pch, pTmplEnd - 1, NewToken, pTmpl);
 				if (Param != NULL) {
 					NewToken->HaveParameters = 1;
 					if (NewToken->nParameters > MAXPARAM) {
@@ -636,6 +653,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 void FreeToken(WCTemplateToken **Token)
 {
 	int i; 
+	FreeStrBuf(&(*Token)->FlatToken);
 	if ((*Token)->HaveParameters) 
 		for (i = 0; i < (*Token)->nParameters; i++)
 			free((*Token)->Params[i]);
@@ -662,7 +680,7 @@ void FreeWCTemplate(void *vFreeMe)
 }
 
 
-int EvaluateConditional(WCTemplateToken *Token, void *Context, int Neg, int state)
+int EvaluateConditional(WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int Neg, int state)
 {
 	void *vConditional;
 	ConditionalStruct *Cond;
@@ -675,21 +693,30 @@ int EvaluateConditional(WCTemplateToken *Token, void *Context, int Neg, int stat
 		 Token->Params[0]->Start,
 		 Token->Params[0]->len,
 		 &vConditional)) {
-		lprintf(1, "Conditional %s Not found!\n", 
-			Token->Params[0]->Start);
+		lprintf(1, "Conditional [%s] (in '%s' line %ld); Not found![%s]\n", 
+			Token->Params[0]->Start,
+			ChrPtr(pTmpl->FileName),
+			Token->Line,
+			ChrPtr(Token->FlatToken));
 	}
 	    
 	Cond = (ConditionalStruct *) vConditional;
 
 	if (Cond == NULL) {
-		lprintf(1, "Conditional %s Not found!\n", 
-			Token->Params[0]->Start);
+		lprintf(1, "Conditional [%s] (in '%s' line %ld); Not found![%s]\n", 
+			Token->Params[0]->Start,
+			ChrPtr(pTmpl->FileName),
+			Token->Line,
+			ChrPtr(Token->FlatToken));
 		return 0;
 	}
 	if (Token->nParameters < Cond->nParams) {
-		lprintf(1, "Conditional [%s] needs %ld Params!\n", 
+		lprintf(1, "Conditional [%s] (in '%s' line %ld); needs %ld Params![%s]\n", 
 			Token->Params[0]->Start,
-			Cond->nParams);
+			ChrPtr(pTmpl->FileName),
+			Token->Line,
+			Cond->nParams,
+			ChrPtr(Token->FlatToken));
 		return 0;
 	}
 	if (Cond->CondF(Token, Context) == Neg)
@@ -697,7 +724,7 @@ int EvaluateConditional(WCTemplateToken *Token, void *Context, int Neg, int stat
 	return 0;
 }
 
-int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context, int state)
+int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int state)
 {
 	void *vVar;
 // much output, since pName is not terminated...
@@ -707,22 +734,22 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context, int sta
 		TmplGettext(Target, Token->nParameters, Token);
 		break;
 	case SV_CONDITIONAL: /** Forward conditional evaluation */
-		return EvaluateConditional(Token, Context, 1, state);
+		return EvaluateConditional(Token, pTmpl, Context, 1, state);
 		break;
 	case SV_NEG_CONDITIONAL: /** Reverse conditional evaluation */
-		return EvaluateConditional(Token, Context, 0, state);
+		return EvaluateConditional(Token, pTmpl, Context, 0, state);
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
-		if (Token->nParameters >= 7) {
-			if (EvaluateConditional(Token, Context, 0, state))
+		if (Token->nParameters >= 6) {
+			if (EvaluateConditional(Token, pTmpl, Context, 0, state))
 				StrBufAppendBufPlain(Target, 
 						     Token->Params[5]->Start,
 						     Token->Params[5]->len,
 						     0);
 			else
 				StrBufAppendBufPlain(Target, 
-						     Token->Params[6]->Start,
-						     Token->Params[6]->len,
+						     Token->Params[4]->Start,
+						     Token->Params[4]->len,
 						     0);
 		}
 		break;
@@ -765,7 +792,9 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 	long len;
 
 	if (LoadTemplates != 0) {			
-		lprintf(1, "DBG: ----- loading:  [%s] ------ \n", ChrPtr(Tmpl->FileName));
+		if (LoadTemplates > 1)
+			lprintf(1, "DBG: ----- loading:  [%s] ------ \n", 
+				ChrPtr(Tmpl->FileName));
 		pTmpl = load_template(Tmpl->FileName, NULL, NULL);
 	}
 
@@ -784,13 +813,14 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 			StrBufAppendBufPlain(
 				Target, pData, 
 				pTmpl->Tokens[i]->pTokenStart - pData, 0);
-			state = EvaluateToken(Target, pTmpl->Tokens[i], Context, state);
+			state = EvaluateToken(Target, pTmpl->Tokens[i], pTmpl, Context, state);
 			while ((state != 0) && (i+1 < pTmpl->nTokensUsed)) {
 			/* condition told us to skip till its end condition */
 				i++;
 				if ((pTmpl->Tokens[i]->Flags == SV_CONDITIONAL) ||
 				    (pTmpl->Tokens[i]->Flags == SV_NEG_CONDITIONAL)) {
 					if (state == EvaluateConditional(pTmpl->Tokens[i], 
+									 pTmpl,
 									 Context, 
 									 pTmpl->Tokens[i]->Flags,
 									 state))
@@ -835,6 +865,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	int fd;
 	struct stat statbuf;
 	const char *pS, *pE, *pch, *Err;
+	long Line;
 	int pos;
 	WCTemplate *NewTemplate;
 
@@ -853,7 +884,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 
 	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
 	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size);
-	NewTemplate->FileName = NULL;
+	NewTemplate->FileName = NewStrBufDup(filename);
 	NewTemplate->nTokensUsed = 0;
 	NewTemplate->TokenSpace = 0;
 	NewTemplate->Tokens = NULL;
@@ -866,6 +897,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	}
 	close(fd);
 
+	Line = 0;
 	pS = pch = ChrPtr(NewTemplate->Data);
 	pE = pS + StrLength(NewTemplate->Data);
 	while (pch < pE) {
@@ -876,6 +908,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 		for (; pch < pE; pch ++) {
 			if ((*pch=='<')&&(*(pch + 1)=='?'))
 				break;
+			if (*pch=='\n') Line ++;
 		}
 		if (pch >= pE)
 			continue;
@@ -895,7 +928,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 			continue;
 		pte = pch;
 		PutNewToken(NewTemplate, 
-			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte));
+			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte, Line, NewTemplate));
 		pch ++;
 	}
 	if (LoadTemplates == 0)
@@ -1189,28 +1222,34 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
 {
 	StrBuf **TabNames;
-	int i, ntabs;
+	int i, ntabs, nTabs;
 
-	ntabs = Tokens->nParameters / 2;
+	nTabs = ntabs = Tokens->nParameters / 2;
 	TabNames = (StrBuf **) malloc(ntabs * sizeof(StrBuf*));
 
 	for (i = 0; i < ntabs; i++) {
 		TabNames[i] = NewStrBuf();
-		DoTemplate(Tokens->Params[i * 2]->Start, 
-			   Tokens->Params[i * 2]->len,
-			   Context,
-			   TabNames[i]);
+		if (Tokens->Params[i * 2]->len > 0) {
+			DoTemplate(Tokens->Params[i * 2]->Start, 
+				   Tokens->Params[i * 2]->len,
+				   Context,
+				   TabNames[i]);
+		}
+		else { 
+			/** A Tab without subject? we can't count that, add it as silent */
+			nTabs --;
+		}
 	}
 
-	StrTabbedDialog(Target, ntabs, TabNames);
+	StrTabbedDialog(Target, nTabs, TabNames);
 	for (i = 0; i < ntabs; i++) {
-		StrBeginTab(Target, ntabs, i);
+		StrBeginTab(Target, i, nTabs);
 
 		DoTemplate(Tokens->Params[i * 2 + 1]->Start, 
 			   Tokens->Params[i * 2 + 1]->len,
 			   Context, 
 			   Target);
-		StrEndTab(Target, ntabs, i);
+		StrEndTab(Target, i, nTabs);
 	}
 }
 

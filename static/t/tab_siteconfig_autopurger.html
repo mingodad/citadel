@@ -16,14 +16,13 @@
 				);
 			}
 -->
-</select>
-</td></tr>
-<tr><TD COLSPAN=2>
+</select></td></tr>
+
+<tr><td COLSPAN=2>
 <hr />
 </td></tr>
-<tr><td>
-<?_("Default message expire policy for public rooms")>
-</td><td>
+
+<tr><td><?_("Default message expire policy for public rooms")></td><td>
 <input type="radio" NAME="sitepolicy" VALUE="1" <?%("COND:SERVCFG", 1, "sitepolicy", 1, "CHECKED", "")>>
 <?_("Never automatically expire messages")>
 <br />
@@ -36,7 +35,7 @@
 <input type="text" NAME="sitevalue" MAXLENGTH="5" VALUE='<?SERV:CFG("sitevalue")>'>
 </td></tr>
 
-<tr><TD COLSPAN=2><hr /></td></tr>
+<tr><td COLSPAN=2><hr /></td></tr>
 
 <tr><td><?_("Default message expire policy for private mailboxes")></td><td>
 <input type="radio" NAME="mboxpolicy" VALUE="0" <?%("COND:SERVCFG", 1, "mboxpolicy", 0, "CHECKED", "")>>
@@ -55,5 +54,6 @@
 <input type="text" NAME="mboxvalue" MAXLENGTH="5" VALUE='<?SERV:CFG("mboxvalue")>'>
 </td></tr>
 
-<tr><TD COLSPAN=2><hr /></td></tr>
+<tr><td COLSPAN=2><hr /></td></tr>
 
+</table>

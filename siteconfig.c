@@ -1008,15 +1008,17 @@ int ConditionalServCfg(WCTemplateToken *Tokens, void *Context)
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
 		GetHash(WCC->ServCfg, 
-			Tokens->Params[0]->Start,
-			Tokens->Params[0]->len, 
+			Tokens->Params[2]->Start,
+			Tokens->Params[2]->len, 
 			&vBuf);
 		if (vBuf == NULL) return 0;
 		Buf = (StrBuf*) vBuf;
-		if (Tokens->nParameters == 1)
+		if (Tokens->nParameters == 3) {
 			return 1;
-		else 
-			return (strcmp(Tokens->Params[0]->Start, ChrPtr(Buf)) == 0);
+		}
+		else if (Tokens->Params[3]->Type == TYPE_STR)
+			return (strcmp(Tokens->Params[3]->Start, ChrPtr(Buf)) == 0);
+		else return (StrTol(Buf) == Tokens->Params[3]->lvalue);
 	}
 	else return 0;
 }
@@ -1029,6 +1031,6 @@ InitModule_SITECONFIG
 	WebcitAddUrlHandler(HKEY("siteconfig"), siteconfig, 0);
 
 	RegisterNamespace("SERV:CFG", 1, 1, tmplput_servcfg);
-	RegisterConditional(HKEY("COND:SERVCFG"), 1, ConditionalServCfg);
+	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg);
 }
 /*@}*/

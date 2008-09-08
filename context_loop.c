@@ -390,6 +390,7 @@ void context_loop(int *sock)
 	/** Begin parsing the request. */
 #ifdef TECH_PREVIEW
 	if ((strncmp(req->line+4, "/sslg", 5) != 0) &&
+	    (strncmp(req->line+4, "/static/", 8) != 0) &&
 	    (strncmp(req->line+4, "/wholist_section", 16) != 0)) {
 #endif
 		lprintf(5, "HTTP: %s\n", buf);
