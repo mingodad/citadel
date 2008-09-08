@@ -1067,6 +1067,7 @@ int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
 	StrBufPrintf(Dir, "%s/t", DirName);
 	filedir = opendir (ChrPtr(Dir));
 	if (filedir == NULL) {
+		FreeStrBuf(&Dir);
 		return 0;
 	}
 
