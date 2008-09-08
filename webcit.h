@@ -683,6 +683,8 @@ void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Targe
 #define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL);
 void url_do_template(void);
 
+int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
+int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
 
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);

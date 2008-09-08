@@ -18,21 +18,18 @@ void LoadZoneFiles(void)
 	icalarray *zones;
 	int z;
 	long len;
-	char this_zone[128];
-	char *ZName;
+	const char *this_zone;
+	StrBuf *ZName;
 	
 	ZoneHash = NewHash(1, NULL);
-	len = sizeof("UTC") + 1;
-	ZName = malloc(len + 1);
-	memcpy(ZName, "UTC", len + 1);
-	Put(ZoneHash, ZName, len, ZName, NULL);
+	ZName = NewStrBufPlain(HKEY("UTC"));
+	Put(ZoneHash, HKEY("UTC"), ZName, HFreeStrBuf);
 	zones = icaltimezone_get_builtin_timezones();
 	for (z = 0; z < zones->num_elements; ++z) {
-		strcpy(this_zone, icaltimezone_get_location(icalarray_element_at(zones, z)));
+		this_zone = icaltimezone_get_location(icalarray_element_at(zones, z));
 		len = strlen(this_zone);
-		ZName = (char*)malloc(len +1);
-		memcpy(ZName, this_zone, len + 1);
-		Put(ZoneHash, ZName, len, ZName, NULL);
+		ZName = NewStrBufPlain(this_zone, len);
+		Put(ZoneHash, this_zone, len, ZName, HFreeStrBuf);
 	}
 	SortByHashKey(ZoneHash, 0);
 }
@@ -932,6 +929,7 @@ void load_siteconfig(void)
  */
 void siteconfig(void)
 {
+	struct wcsession *WCC = WC;
 	int i;
 	char buf[256];
 
@@ -942,13 +940,12 @@ void siteconfig(void)
 	serv_printf("CONF set");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
-		safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
+		safestrncpy(WCC->ImportantMessage, &buf[4], sizeof WCC->ImportantMessage);
 		display_aide_menu();
 		return;
 	}
 
-	i = sizeof(ServerConfig);
-	for (i=0; i < sizeof(ServerConfig); i ++)
+	for (i=0; i < (sizeof(ServerConfig) / sizeof(CfgMapping)); i ++)
 	{
 		switch (ServerConfig[i].type) {
 		default:
@@ -967,6 +964,7 @@ void siteconfig(void)
 			break;
 		}
 	}
+        serv_puts("000");
 
 	serv_printf("SPEX site|%d|%d", ibstr("sitepolicy"), ibstr("sitevalue"));
 	serv_getln(buf, sizeof buf);
@@ -975,8 +973,9 @@ void siteconfig(void)
 
 	strcpy(serv_info.serv_default_cal_zone, bstr("c_default_cal_zone"));
 
-	safestrncpy(WC->ImportantMessage, _("Your system configuration has been updated."),
-		sizeof WC->ImportantMessage);
+	safestrncpy(WCC->ImportantMessage, _("Your system configuration has been updated."),
+		sizeof WCC->ImportantMessage);
+	DeleteHash(&WCC->ServCfg);
 	display_aide_menu();
 }
 
@@ -1023,6 +1022,27 @@ int ConditionalServCfg(WCTemplateToken *Tokens, void *Context)
 	else return 0;
 }
 
+int ConditionalServCfgSubst(WCTemplateToken *Tokens, void *Context)
+{
+	struct wcsession *WCC = WC;
+	void *vBuf;
+	StrBuf *Buf;
+
+	if (WCC->is_aide) {
+		if (WCC->ServCfg == NULL)
+			load_siteconfig();
+		GetHash(WCC->ServCfg, 
+			Tokens->Params[2]->Start,
+			Tokens->Params[2]->len, 
+			&vBuf);
+		if (vBuf == NULL) return 0;
+		Buf = (StrBuf*) vBuf;
+
+		return CompareSubstToStrBuf(Buf, Tokens->Params[3]);
+	}
+	else return 0;
+}
+
 void 
 InitModule_SITECONFIG
 (void)
@@ -1032,5 +1052,6 @@ InitModule_SITECONFIG
 
 	RegisterNamespace("SERV:CFG", 1, 1, tmplput_servcfg);
 	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg);
+	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst);
 }
 /*@}*/
