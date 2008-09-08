@@ -1,7 +1,7 @@
 <center>
 <h1><?_("Network services")></h1>
 <h2><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></h2>
-
+</center>
 <table border="0">
 
 
@@ -11,7 +11,7 @@
 
 
 <tr><td><?_("Correct forged From: lines during authenticated SMTP")></td><td>
-<input type="checkbox" NAME="c_rfc822_strict_from" VALUE="yes" '<?SERV:CFG("c_rfc822_strict_from")>'>
+<input type="checkbox" NAME="c_rfc822_strict_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", 1, "CHECKED", "")>>
 </td></tr>
 
 <tr><td><?_("IMAP listener port (-1 to disable)")></td><td>
@@ -50,7 +50,7 @@
 <input type="checkbox" NAME="c_allow_spoofing" VALUE="yes" %s>
 </td></tr>
 
-<tr><td><a href="http://www.postfix.org/tcp_table.5.html"><?("Postfix TCP Dictionary Port")></a>(<?("-1 to disable")>)</td><td>
+<tr><td><a href="http://www.postfix.org/tcp_table.5.html"><?_("Postfix TCP Dictionary Port")></a>(<?_("-1 to disable")>)</td><td>
 <input type="text" NAME="c_pftcpdict_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_pftcpdict_port")>'>
 </td></tr>
 
@@ -63,7 +63,7 @@
 <input type="checkbox" NAME="c_rbl_at_greeting" VALUE="yes" '<?SERV:CFG("c_rbl_at_greeting")>'>
 </td></tr>
 
-<tr><td><?_("Keep original from headers in IMAP")></td><td>//
+<tr><td><?_("Keep original from headers in IMAP")></td><td>
 <input type="checkbox" NAME="c_imap_keep_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_imap_keep_from", 1, "CHECKED", "")>>
 </td></tr>
 
