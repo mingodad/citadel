@@ -4,6 +4,7 @@
 <??("COND:SUBST", 1, "SERV:LDAP_SUPP", "1")><h2><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></h2><??("X", 1)>
 <?!("COND:SUBST", 2, "SERV:LDAP_SUPP", "1")><h2><?_("NOTE: This Citadel server has been built without LDAP support.  These options will have no effect.")></h2><??("X", 2)>
 
+</center>
 <table border="0">
 
 <tr><td><?_("Host name of LDAP server (blank to disable)")></td><td>
@@ -28,11 +29,7 @@
 
 <tr><td><?_("Password for bind DN")></td><td>
 <input type="password" NAME="c_ldap_bind_pw" MAXLENGTH="255" VALUE='<?SERV:CFG("c_ldap_bind_pw")>'>
-
 </td></tr>
 
 
 </table>
-			
-			?	
-			:	

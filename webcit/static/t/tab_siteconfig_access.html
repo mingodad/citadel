@@ -1,4 +1,4 @@
-<center><h1><?_("Access controls and site policy settings")></h1>
+<center><h1><?_("Access controls and site policy settings")></h1></center>
 <table border="0">
 
 <tr><td><?_("Automatically grant room-aide status to users who create private rooms")></td><td>
@@ -60,11 +60,11 @@
 </td></tr>
 
 <tr><td><?_("Disable self-service user account creation")></td><td>
-<input type="checkbox" NAME="c_disable_newu" VALUE="yes" <?%("COND:SERVCFG", 1, "c_disable_newu", 1, "CHECKED", "")>'>
+<input type="checkbox" NAME="c_disable_newu" VALUE="yes" <?%("COND:SERVCFG", 1, "c_disable_newu", 1, "CHECKED", "")>>
 </td></tr>
 
 <tr><td><?_("Enable host based authentication mode")></td><td>
-<input type="hidden" NAME="c_auth_mode" VALUE='<?%("COND:SERVCFG", 1, "c_auth_mode", 0, "Yes", "No")>'>
+<input type="hidden" NAME="c_auth_mode" VALUE='<?%("COND:SERVCFG", 1, "c_auth_mode", 0, "'Yes'", "'No'")>'>
 </td></tr>
 
 <tr><td><?_("Master user name (blank to disable)")></td><td>
