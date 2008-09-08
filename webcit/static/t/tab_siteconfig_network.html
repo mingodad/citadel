@@ -42,7 +42,7 @@
 </td></tr>
 
 <tr><td><?_("Instantly expunge deleted messages in IMAP")></td><td>
-<input type="checkbox" NAME="c_instant_expunge" VALUE="yes" %s>
+<input type="checkbox" NAME="c_instant_expunge" VALUE="yes" <?%("COND:SERVCFG", 1, "c_instant_expunge", 1, "CHECKED", "")>>
 </td></tr>
 
 <!-- TODO: allow random quotes in strings -->
@@ -63,8 +63,8 @@
 <input type="checkbox" NAME="c_rbl_at_greeting" VALUE="yes" '<?SERV:CFG("c_rbl_at_greeting")>'>
 </td></tr>
 
-<tr><td><?_("Keep original from headers in IMAP")></td><td>
-<input type="checkbox" NAME="c_imap_keep_from" VALUE="yes" '<?SERV:CFG("c_imap_keep_from")>'>
+<tr><td><?_("Keep original from headers in IMAP")></td><td>//
+<input type="checkbox" NAME="c_imap_keep_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_imap_keep_from", 1, "CHECKED", "")>>
 </td></tr>
 
 

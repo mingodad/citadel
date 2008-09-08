@@ -23,13 +23,12 @@
 <tr><td>
 <?_("Default message expire policy for public rooms")>
 </td><td>
-<input type="radio" NAME="sitepolicy" VALUE="1" %s>((sitepolicy == 1) ? "CHECKED" : ""
+<input type="radio" NAME="sitepolicy" VALUE="1" <?%("COND:SERVCFG", 1, "sitepolicy", 1, "CHECKED", "")>>
 <?_("Never automatically expire messages")>
 <br />
-<input type="radio" NAME="sitepolicy" VALUE="2" %s> ((sitepolicy == 2) ? "CHECKED" : "") );
+<input type="radio" NAME="sitepolicy" VALUE="2" <?%("COND:SERVCFG", 1, "sitepolicy", 2, "CHECKED", "")>>
 <?_("Expire by message count")><br />
-<input type="radio" NAME="sitepolicy" VALUE="3" %s>
-<!--		((sitepolicy == 3) ? "CHECKED" : "") )-->
+<input type="radio" NAME="sitepolicy" VALUE="3" <?%("COND:SERVCFG", 1, "sitepolicy", 3, "CHECKED", "")>>
 <?_("Expire by message age")>
 <br />
 <?_("Number of messages or days: ")>
@@ -39,20 +38,20 @@
 <tr><TD COLSPAN=2><hr /></td></tr>
 
 <tr><td><?_("Default message expire policy for private mailboxes")></td><td>
-<input type="radio" NAME="mboxpolicy" VALUE="0" %s><!-- ((mboxpolicy == 0) ? "CHECKED" : "") );-->
+<input type="radio" NAME="mboxpolicy" VALUE="0" <?%("COND:SERVCFG", 1, "mboxpolicy", 0, "CHECKED", "")>>
 <?_("Same policy as public rooms")>
 <br />
-<input type="radio" NAME="mboxpolicy" VALUE="1" %s><!--((mboxpolicy == 1) ? "CHECKED" : "") );-->
+<input type="radio" NAME="mboxpolicy" VALUE="1" <?%("COND:SERVCFG", 1, "mboxpolicy", 1, "CHECKED", "")>>
 <?_("Never automatically expire messages")>
 <br />
-<input type="radio" NAME="mboxpolicy" VALUE="2" %s><!--((mboxpolicy == 2) ? "CHECKED" : "") );-->
+<input type="radio" NAME="mboxpolicy" VALUE="2" <?%("COND:SERVCFG", 1, "mboxpolicy", 2, "CHECKED", "")>>
 <?_("Expire by message count")>
 <br />
-<input type="radio" NAME="mboxpolicy" VALUE="3" %s><!--((mboxpolicy == 3) ? "CHECKED" : "") );-->
+<input type="radio" NAME="mboxpolicy" VALUE="3" <?%("COND:SERVCFG", 1, "mboxpolicy", 3, "CHECKED", "")>>
 <?_("Expire by message age")>
 <br />
 <?_("Number of messages or days: ")>
-<input type="text" NAME="mboxvalue" MAXLENGTH="5" VALUE="%d"><!-- mboxvalue);
+<input type="text" NAME="mboxvalue" MAXLENGTH="5" VALUE='<?SERV:CFG("mboxvalue")>'>
 </td></tr>
 
 <tr><TD COLSPAN=2><hr /></td></tr>

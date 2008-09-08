@@ -35,6 +35,6 @@
 </td></tr>
 
 <tr><td><?_("Automatically delete committed database logs")></td><td>
-<input type="checkbox" NAME="c_auto_cull" VALUE="yes" '<?SERV:CFG("c_auto_cull")>'>
+<input type="checkbox" NAME="c_auto_cull" VALUE="yes" <?%("COND:SERVCFG", 1, "c_auto_cull", 1, "CHECKED", "")>'>
 </td></tr>
 </table>
