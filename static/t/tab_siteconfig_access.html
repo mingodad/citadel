@@ -20,14 +20,12 @@
 </td></tr>
 
 <tr><td><?_("Require registration for new users")></td><td>
-<input type="checkbox" name="c_regiscall" value="yes" '<?SERV:CFG("c_regiscall")>'>
-<!--				((atoi(buf) != 0) ? "checked" : ""));-->
+<input type="checkbox" name="c_regiscall" value="yes" <?%("COND:SERVCFG", 1, "c_regiscall", 1, "CHECKED", "")>>
 </td></tr>
 
 
 <tr><td><?_("Quarantine messages from problem users")></td><td>
-<input type="checkbox" name="c_twitdetect" value="yes" '<?SERV:CFG("c_twitdetect")>'>
-<!--				((atoi(buf) != 0) ? "checked" : ""));-->
+<input type="checkbox" name="c_twitdetect" value="yes" <?%("COND:SERVCFG", 1, "c_twitdetect", 1, "CHECKED", "")>>
 </td></tr>
 
 
@@ -36,8 +34,7 @@
 </td></tr>
 
 <tr><td><?_("Restrict access to Internet mail")></td><td>
-<input type="checkbox" name="c_restrict" value="yes" %s>
-<!--				((atoi(buf) != 0) ? "checked" : ""));-->
+<input type="checkbox" name="c_restrict" value="yes" <?%("COND:SERVCFG", 1, "c_restrict", 1, "CHECKED", "")>>
 </td></tr>
 
 <tr><td><?_("Name of room to log pages")></td><td>
@@ -59,18 +56,15 @@
 </td></tr>
 
 <tr><td><?_("Allow aides to zap (forget) rooms")></td><td>
-<input type="checkbox" NAME="c_aide_zap" VALUE="yes" '<?SERV:CFG("c_aide_zap")>'>
-<!--				((atoi(buf) != 0) ? "CHECKED" : ""));-->
+<input type="checkbox" NAME="c_aide_zap" VALUE="yes" <?%("COND:SERVCFG", 1, "c_aide_zap", 1, "CHECKED", "")>>
 </td></tr>
 
 <tr><td><?_("Disable self-service user account creation")></td><td>
-<input type="checkbox" NAME="c_disable_newu" VALUE="yes" '<?SERV:CFG("c_disable_newu")>'>
-<!--				((atoi(buf) != 0) ? "CHECKED" : ""));
+<input type="checkbox" NAME="c_disable_newu" VALUE="yes" <?%("COND:SERVCFG", 1, "c_disable_newu", 1, "CHECKED", "")>'>
 </td></tr>
 
 <tr><td><?_("Enable host based authentication mode")></td><td>
-<input type="hidden" NAME="c_auth_mode" VALUE='<?SERV:CFG("c_auth_mode")>'>
-<!--				((atoi(buf) != 0) ? "Yes" : "No"));-->
+<input type="hidden" NAME="c_auth_mode" VALUE='<?%("COND:SERVCFG", 1, "c_auth_mode", 0, "Yes", "No")>'>
 </td></tr>
 
 <tr><td><?_("Master user name (blank to disable)")></td><td>

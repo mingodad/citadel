@@ -36,7 +36,8 @@ int LoadTemplates = 0;
 #define SV_GETTEXT 1
 #define SV_CONDITIONAL 2
 #define SV_NEG_CONDITIONAL 3
-#define SV_SUBTEMPL 4
+#define SV_CUST_STR_CONDITIONAL 4
+#define SV_SUBTEMPL 5
 
 typedef struct _WCTemplate {
 	StrBuf *Data;
@@ -527,7 +528,7 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe)
 		}
 		else {
 			StrBufPeek(Buf, pch, -1, '\0');		
-			lprintf(1, "DBG: got param [%s]\n", pchs);
+			lprintf(1, "DBG: got param [%s] %ld %ld\n", pchs, pche - pchs, strlen(pchs));
 			Parm->Start = pchs;
 			Parm->len = pche - pchs;
 			pch ++; /* move after trailing quote */
@@ -617,6 +618,9 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 					 (*(NewToken->pName) == '='))
 					NewToken->Flags = SV_SUBTEMPL;
 				else if ((NewToken->nParameters >= 2) &&
+					 (*(NewToken->pName) == '%'))
+					NewToken->Flags = SV_CUST_STR_CONDITIONAL;
+				else if ((NewToken->nParameters >= 2) &&
 					 (*(NewToken->pName) == '?'))
 					NewToken->Flags = SV_CONDITIONAL;
 				else if ((NewToken->nParameters >=2) &&
@@ -702,11 +706,25 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, void *Context, int sta
 	case SV_GETTEXT:
 		TmplGettext(Target, Token->nParameters, Token);
 		break;
-	case SV_CONDITIONAL:
+	case SV_CONDITIONAL: /** Forward conditional evaluation */
 		return EvaluateConditional(Token, Context, 1, state);
 		break;
-	case SV_NEG_CONDITIONAL:
+	case SV_NEG_CONDITIONAL: /** Reverse conditional evaluation */
 		return EvaluateConditional(Token, Context, 0, state);
+		break;
+	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
+		if (Token->nParameters >= 7) {
+			if (EvaluateConditional(Token, Context, 0, state))
+				StrBufAppendBufPlain(Target, 
+						     Token->Params[5]->Start,
+						     Token->Params[5]->len,
+						     0);
+			else
+				StrBufAppendBufPlain(Target, 
+						     Token->Params[6]->Start,
+						     Token->Params[6]->len,
+						     0);
+		}
 		break;
 	case SV_SUBTEMPL:
 		if (Token->nParameters == 1)
@@ -886,9 +904,12 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 }
 
 
-void PrintTemplate(void *vTemplate)
+///void PrintTemplate(const char *Key, void *vSubst, int odd)
+const char* PrintTemplate(void *vSubst)
 {
+	WCTemplate *Tmpl = vSubst;
 
+	return ChrPtr(Tmpl->FileName);
 
 }
 
@@ -916,8 +937,9 @@ void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Targe
 
 	if (!GetHash(StaticLocal, templatename, len, &vTmpl) &&
 	    !GetHash(Static, templatename, len, &vTmpl)) {
-		printf ("didn't find %s\n", templatename);
-		//print_hash(Static);
+		printf ("didn't find %s %ld %ld\n", templatename, len , (long)strlen(templatename));
+///		dbg_PrintHash(Static, PrintTemplate, NULL);
+//		PrintHash(Static, VarPrintTransition, PrintTemplate);
 		return;
 	}
 	if (vTmpl == NULL) 
@@ -1175,7 +1197,7 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 	for (i = 0; i < ntabs; i++) {
 		TabNames[i] = NewStrBuf();
 		DoTemplate(Tokens->Params[i * 2]->Start, 
-			   Tokens->Params[0]->len,
+			   Tokens->Params[i * 2]->len,
 			   Context,
 			   TabNames[i]);
 	}
