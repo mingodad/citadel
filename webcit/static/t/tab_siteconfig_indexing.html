@@ -3,7 +3,6 @@
 <h2><?_("Warning: these facilities are resource intensive.")></h2>
 </center>
 <table border="0">
-			
 		
 <tr><td><?_("Enable full text index")></td><td>
 <input type="checkbox" NAME="c_enable_fulltext" VALUE="yes" <?%("COND:SERVCFG", 1, "c_enable_fulltext", 1, "CHECKED", "")>></td></tr>
@@ -17,7 +16,5 @@
  
 <tr><td><?_("Email destination of journalized messages")></td><td>
 <input type="text" NAME="c_journal_dest" MAXLENGTH="127" VALUE='<?SERV:CFG("c_journal_dest")>'></td></tr>
-
-
 
 </table>

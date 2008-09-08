@@ -6,14 +6,13 @@
 
 <tr><td><?_("Initial access level for new users")></td><td>
 <select name="c_initax" size="1">
-<!--
-			for (j=0; j<=6; ++j) {
-				sprintf(&access[strlen(access)], "<option %s value="%d">%d - %s</option>",
-					((atoi(buf) == j) ? "selected" : ""),
-					j, j, axdefs[j]
-				);
-			}
--->
+	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="0">0 - <?_("Deleted")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="1">1 - <?_("New User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="2">2 - <?_("Problem User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
 </select></td></tr>
 
 <tr><td><?_("Require registration for new users")></td><td>
@@ -33,14 +32,13 @@
 
 <tr><td><?_("Access level required to create rooms")></td><td>
 <select name="c_createax" size="1">
-<!--
-			for (j=0; j<=6; ++j) {
-				sprintf(&access[strlen(access)], "<option %s value="%d">%d - %s</option>",
-					((atoi(buf) == j) ? "selected" : ""),
-					j, j, axdefs[j]
-				);
-			}
--->
+	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="0">0 - <?_("Deleted")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="1">1 - <?_("New User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="2">2 - <?_("Problem User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
 </select></td></tr>
 
 <tr><td><?_("Allow aides to zap (forget) rooms")></td><td>
@@ -66,4 +64,3 @@
 <input type="password" NAME="c_master_pass" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_pass")>'></td></tr>
 
 </table>
-		

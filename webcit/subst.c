@@ -167,6 +167,7 @@ void FlushPayload(wcsubst *ptr, int reusestrbuf, int type)
 	}
 }
 
+
 /**
  * \brief destructor; kill one entry.
  */
@@ -432,7 +433,6 @@ void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
 void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 	struct wcsession *WCC = WC;
 	wcsubst *ptr;
-	void *fcn();
 	void *vVar;
 
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
@@ -467,6 +467,74 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", keyname);
 		}
 	}
+}
+
+int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup)
+{
+	struct wcsession *WCC = WC;
+	wcsubst *ptr;
+	void *vVar;
+
+	if ((WCC->vars!= NULL) && GetHash(WCC->vars, ParamToLookup->Start, 
+					  ParamToLookup->len, &vVar)) {
+		ptr = (wcsubst*) vVar;
+		switch(ptr->wcs_type) {
+		case WCS_STRING:
+		case WCS_STRBUF:
+		case WCS_STRBUF_REF:
+			if (ParamToCompare->Type == TYPE_STR)
+				return ((ParamToCompare->len == StrLength(ptr->wcs_value)) &&
+					(strcmp(ParamToCompare->Start, ChrPtr(ptr->wcs_value)) == 0));
+			else
+				return ParamToCompare->lvalue == StrTol(ptr->wcs_value);
+			break;
+		case WCS_SERVCMD:
+			return 1; 
+			break;
+		case WCS_FUNCTION:
+			return 1;
+		case WCS_LONG:
+			if (ParamToCompare->Type == TYPE_STR)
+				return 0;
+			else 
+				return ParamToCompare->lvalue == ptr->lvalue;
+			break;
+		default:
+			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", 
+				ParamToLookup->Start);
+		}
+	}
+	return 0;
+}
+
+int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup)
+{
+	struct wcsession *WCC = WC;
+	wcsubst *ptr;
+	void *vVar;
+
+	if ((WCC->vars!= NULL) && GetHash(WCC->vars, ParamToLookup->Start, 
+					  ParamToLookup->len, &vVar)) {
+		ptr = (wcsubst*) vVar;
+		switch(ptr->wcs_type) {
+		case WCS_STRING:
+		case WCS_STRBUF:
+		case WCS_STRBUF_REF:
+			return ((StrLength(Compare) == StrLength(ptr->wcs_value)) &&
+				(strcmp(ChrPtr(Compare), ChrPtr(ptr->wcs_value)) == 0));
+		case WCS_SERVCMD:
+			return 1; 
+			break;
+		case WCS_FUNCTION:
+			return 1;
+		case WCS_LONG:
+			return StrTol(Compare) == ptr->lvalue;
+		default:
+			lprintf(1,"WARNING: invalid value in SV-Hash at %s!", 
+				ParamToLookup->Start);
+		}
+	}
+	return 0;
 }
 
 
@@ -763,9 +831,13 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, voi
 			Handler = (HashHandler*) vVar;
 			if ((Token->nParameters < Handler->nMinArgs) || 
 			    (Token->nParameters > Handler->nMaxArgs)) {
-				lprintf(1, "Handler [%s] doesn't work with %ld params", 
+				lprintf(1, "Handler [%s] (in '%s' line %ld); "
+					"doesn't work with %ld params [%s]", 
 					Token->pName,
-					Token->nParameters);
+					ChrPtr(pTmpl->FileName),
+					Token->Line,
+					Token->nParameters, 
+					ChrPtr(Token->FlatToken));
 			}
 			else {
 				Handler->HandlerFunc(Target, 
@@ -1140,7 +1212,8 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	}
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);
-	It->Destructor(List);
+	if (It->Destructor != NULL)
+		It->Destructor(List);
 }
 
 int ConditionalVar(WCTemplateToken *Tokens, void *Context)

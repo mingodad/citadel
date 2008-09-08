@@ -690,24 +690,30 @@ void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *
 }
 
 
-void CfgZoneTempl(StrBuf *TemplBuffer, void *Context)
+void CfgZoneTempl(StrBuf *TemplBuffer, void *vContext)
 {
+	StrBuf *Zone = (StrBuf*) vContext;
 
+	SVPutBuf("ZONENAME", Zone, 1);
 }
 
 int ConditionalPreference(WCTemplateToken *Token, void *Context)
 {
+	StrBuf *Pref;
 
-	void *hash_value;
-
-	if (!GetHash(PreferenceHooks, 
-		     Token->Params[2]->Start,
-		     Token->Params[2]->len,
-		     &hash_value))
+	if (!get_PREFERENCE(Token->Params[2]->Start,
+			    Token->Params[2]->len,
+			    &Pref)) 
 		return 0;
-
-	Prefs *Newpref = (Prefs*) hash_value;
-	return (strcmp(Token->Params[3]->Start, Newpref->PrefStr) == 0);
+	
+	if (Token->nParameters == 3) {
+		return 1;
+	}
+	else if (Token->Params[3]->Type == TYPE_STR)
+		return ((Token->Params[3]->len == StrLength(Pref)) &&
+			(strcmp(Token->Params[3]->Start, ChrPtr(Pref)) == 0));
+	else 
+		return (StrTol(Pref) == Token->Params[3]->lvalue);
 }
 
 

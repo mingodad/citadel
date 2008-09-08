@@ -29,7 +29,7 @@
 
 <tr><td><?_("Default timezone for unzoned calendar items")></td><td>
 <select name="c_default_cal_zone" size="1">
-<option %s value="%s">%s</option> "selected"
+<?ITERATE("PREF:ZONE", "siteconfig_tzsection")>
 </select>
 </td></tr>
 
