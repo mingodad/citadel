@@ -358,6 +358,7 @@ typedef void (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
 
 HashList *NewHash(int Uniq, HashFunc F);
 void DeleteHash(HashList **Hash);
+void HDeleteHash(void *vHash);
 int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data);
 void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
 int GetKey(HashList *Hash, char *HKey, long HKLen, void **Data);

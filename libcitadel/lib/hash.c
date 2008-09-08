@@ -196,6 +196,15 @@ static void DeleteHashPayload (Payload *Data)
 }
 
 /**
+ * \brief Destructor for nested hashes
+ */
+void HDeleteHash(void *vHash)
+{
+	HashList *FreeMe = (HashList*)vHash;
+	DeleteHash(&FreeMe);
+}
+
+/**
  * \brief destroy a hashlist and all of its members
  * Crashing? do 'print *FreeMe->LookupTable[i]'
  * \param Hash Hash to destroy. Is NULL'ed so you are shure its done.
