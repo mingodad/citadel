@@ -2,9 +2,7 @@
 <table border="0">
 
 <tr><td><?_("Automatically grant room-aide status to users who create private rooms")></td><td>
-<input type="checkbox" name="c_creataide" value="yes" '<?SERV:CFG("c_creataide")>'>
-
-</td></tr>
+<input type="checkbox" name="c_creataide" value="yes" '<?SERV:CFG("c_creataide")>'></td></tr>
 
 <tr><td><?_("Initial access level for new users")></td><td>
 <select name="c_initax" size="1">
@@ -16,31 +14,22 @@
 				);
 			}
 -->
-</select>
-</td></tr>
+</select></td></tr>
 
 <tr><td><?_("Require registration for new users")></td><td>
-<input type="checkbox" name="c_regiscall" value="yes" <?%("COND:SERVCFG", 1, "c_regiscall", 1, "CHECKED", "")>>
-</td></tr>
-
+<input type="checkbox" name="c_regiscall" value="yes" <?%("COND:SERVCFG", 1, "c_regiscall", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Quarantine messages from problem users")></td><td>
-<input type="checkbox" name="c_twitdetect" value="yes" <?%("COND:SERVCFG", 1, "c_twitdetect", 1, "CHECKED", "")>>
-</td></tr>
-
+<input type="checkbox" name="c_twitdetect" value="yes" <?%("COND:SERVCFG", 1, "c_twitdetect", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Name of quarantine room")></td><td>
-<input type="text" name="c_twitroom" maxlength="63" value='<?SERV:CFG("c_twitroom")>'>
-</td></tr>
+<input type="text" name="c_twitroom" maxlength="63" value='<?SERV:CFG("c_twitroom")>'></td></tr>
 
 <tr><td><?_("Restrict access to Internet mail")></td><td>
-<input type="checkbox" name="c_restrict" value="yes" <?%("COND:SERVCFG", 1, "c_restrict", 1, "CHECKED", "")>>
-</td></tr>
+<input type="checkbox" name="c_restrict" value="yes" <?%("COND:SERVCFG", 1, "c_restrict", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Name of room to log pages")></td><td>
-<input type="text" name="c_logpages" maxlength="63" value='<?SERV:CFG("c_logpages")>'>
-</td></tr>
-
+<input type="text" name="c_logpages" maxlength="63" value='<?SERV:CFG("c_logpages")>'></td></tr>
 
 <tr><td><?_("Access level required to create rooms")></td><td>
 <select name="c_createax" size="1">
@@ -52,28 +41,29 @@
 				);
 			}
 -->
-</select>
-</td></tr>
+</select></td></tr>
 
 <tr><td><?_("Allow aides to zap (forget) rooms")></td><td>
-<input type="checkbox" NAME="c_aide_zap" VALUE="yes" <?%("COND:SERVCFG", 1, "c_aide_zap", 1, "CHECKED", "")>>
-</td></tr>
+<input type="checkbox" NAME="c_aide_zap" VALUE="yes" <?%("COND:SERVCFG", 1, "c_aide_zap", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Disable self-service user account creation")></td><td>
-<input type="checkbox" NAME="c_disable_newu" VALUE="yes" <?%("COND:SERVCFG", 1, "c_disable_newu", 1, "CHECKED", "")>>
-</td></tr>
+<input type="checkbox" NAME="c_disable_newu" VALUE="yes" <?%("COND:SERVCFG", 1, "c_disable_newu", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Enable host based authentication mode")></td><td>
 <input type="hidden" NAME="c_auth_mode" VALUE='<?%("COND:SERVCFG", 1, "c_auth_mode", 0, "'Yes'", "'No'")>'>
+<?!("COND:SERVCFG", 1, "c_auth_mode", 0)>
+<?_("Yes")>
+<?!("X", 1)>
+<??("COND:SERVCFG", 2, "c_auth_mode", 0)>
+<?_("No")>
+<??("X", 2)>
 </td></tr>
 
 <tr><td><?_("Master user name (blank to disable)")></td><td>
-<input type="text" NAME="c_master_user" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_user")>'>
-</td></tr>
-
+<input type="text" NAME="c_master_user" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_user")>'></td></tr>
 
 <tr><td><?_("Master user password")></td><td>
-<input type="password" NAME="c_master_pass" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_pass")>'>
-</td></tr>
+<input type="password" NAME="c_master_pass" MAXLENGTH="31" VALUE='<?SERV:CFG("c_master_pass")>'></td></tr>
+
 </table>
 		
