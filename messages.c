@@ -1695,8 +1695,8 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			int len;
 			len = strlen(buf);
-			if (buf[len-1] == '\n') buf[--len] = 0;
-			if (buf[len-1] == '\r') buf[--len] = 0;
+			if ((len > 0) && (buf[len-1] == '\n')) buf[--len] = 0;
+			if ((len > 0) && (buf[len-1] == '\r')) buf[--len] = 0;
 
 #ifdef HAVE_ICONV
 			if (ic != (iconv_t)(-1) ) {
