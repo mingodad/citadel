@@ -157,6 +157,8 @@ time_t httpdate_to_timestamp(char *buf)
 	for (c = buf; *c != ' '; c++)
 		;
 	c++;
+	
+	memset(&tt, 0, sizeof(tt));
 
 	/* Get day of month */
 	tt.tm_mday = atoi(c);
