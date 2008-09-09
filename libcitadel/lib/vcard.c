@@ -3,7 +3,7 @@
  *
  * vCard implementation for Citadel
  *
- * Copyright (C) 1999-2007 by the citadel.org development team.
+ * Copyright (C) 1999-2008 by the citadel.org development team.
  * This code is freely redistributable under the terms of the GNU General
  * Public License.  All other rights reserved.
  */
@@ -34,7 +34,7 @@
 #include <libcitadel.h>
 
 
-/** 
+/* 
  * Constructor (empty vCard)
  * Returns an empty vcard
  */
@@ -51,7 +51,7 @@ struct vCard *vcard_new() {
 	return v;
 }
 
-/**
+/*
  * Remove the "charset=" attribute from a vCard property name
  *
  */
@@ -93,7 +93,7 @@ void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
 
 
 
-/**
+/*
  * Constructor - returns a new struct vcard given a serialized vcard
  */
 struct vCard *vcard_load(char *vtext) {
@@ -108,7 +108,7 @@ struct vCard *vcard_load(char *vtext) {
 	mycopy = strdup(vtext);
 	if (mycopy == NULL) return NULL;
 
-	/**
+	/*
 	 * First, fix this big pile o' vCard to make it more parseable.
 	 * To make it easier to parse, we convert CRLF to LF, and unfold any
 	 * multi-line fields into single lines.
@@ -176,7 +176,7 @@ struct vCard *vcard_load(char *vtext) {
 }
 
 
-/**
+/*
  * Fetch the value of a particular key.
  * If is_partial is set to 1, a partial match is ok (for example,
  * a key of "tel;home" will satisfy a search for "tel").
@@ -255,7 +255,7 @@ void vcard_set_prop(struct vCard *v, char *name, char *value, int append) {
 
 	if (v->magic != CTDL_VCARD_MAGIC) return;	/* Self-check */
 
-	/** If this key is already present, replace it */
+	/* If this key is already present, replace it */
 	if (!append) if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		if (!strcasecmp(v->prop[i].name, name)) {
 			free(v->prop[i].name);
@@ -287,9 +287,13 @@ char *vcard_serialize(struct vCard *v)
 	size_t len;
 	int is_utf8 = 0;
 
+	if (v == NULL) return NULL;			/* self check */
 	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/* self check */
 
-	/** Figure out how big a buffer we need to allocate */
+	/* Set the vCard version number to 3.0 at this time. */
+	vcard_set_prop(v, "VERSION", "3.0", 0);
+
+	/* Figure out how big a buffer we need to allocate */
 	len = 64;	/* for begin, end, and a little padding for safety */
 	if (v->numprops) for (i=0; i<(v->numprops); ++i) {
 		len = len +
