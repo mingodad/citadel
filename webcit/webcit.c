@@ -149,7 +149,10 @@ void addurls(StrBuf *url)
 		up = bptr;
 		++up;
 #ifdef DEBUG_URLSTRINGS
-		lprintf(9, "%s = [%ld]  %s\n", u->url_key, u->url_data_size, ChrPtr(u->url_data)); 
+		lprintf(9, "%s = [%ld]  %s\n", 
+			u->url_key, 
+			StrLength(u->url_data), 
+			ChrPtr(u->url_data)); 
 #endif
 	}
 	//free(buf);
@@ -1163,7 +1166,10 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		
 		Put(WC->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
 #ifdef DEBUG_URLSTRINGS
-		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", u->url_key, u->url_data_size, u->url_data);
+		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
+			u->url_key, 
+			StrLength(u->url_data), 
+			ChrPtr(u->url_data));
 #endif
 	}
 
