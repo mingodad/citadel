@@ -13,7 +13,7 @@ DESTDIR=$(CURDIR)/debian/citadel-webcit
 
 EXTRA_ARGS=
 PROFILE_ARGS=
-#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling compression"
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling compression urldebug"
 
 
 ifneq (,$(findstring compression,$(DEB_BUILD_OPTIONS)))
@@ -30,6 +30,9 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	EXTRA_ARGS =  --with-backtrace
 else
 	CFLAGS += -O2
+endif
+ifneq (,$(findstring urldebug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -D DEBUG_URLSTRINGS
 endif
 
 configure: configure-stamp
