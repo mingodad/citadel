@@ -444,7 +444,7 @@ void _terminate_session(void) {
 	terminate_session();
 }
 
-HashList *GetWholistHash(void)
+HashList *GetWholistHash(WCTemplateToken *Token)
 {
 	HashList *List;
 	char buf[SIZ];
@@ -464,7 +464,7 @@ HashList *GetWholistHash(void)
 	return List;
 }
 
-void WholistSubst(StrBuf *TemplBuffer, void *vContext)
+void WholistSubst(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
 {
 	UserStateStruct *User = (UserStateStruct*) vContext;
 
@@ -496,5 +496,5 @@ InitModule_WHO
 	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
 
-	RegisterIterator("WHOLIST", NULL, GetWholistHash, WholistSubst, DeleteWholistHash);
+	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, WholistSubst, DeleteWholistHash);
 }

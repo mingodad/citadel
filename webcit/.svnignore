@@ -1,3 +1,4 @@
 aclocal.m4
 *.d
-
+gmon.out
+modules_init.c
