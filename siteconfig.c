@@ -880,17 +880,24 @@ void load_siteconfig(void)
 	serv_printf("CONF get");
 	serv_getln(buf, sizeof buf);
 	i = 0;
-	while (len = serv_getln(buf, sizeof buf), 
-	       strcmp(buf, "000") && 
-	       (i < sizeof(ServerConfig))) 
+	Buf = NewStrBuf();
+	while ((sizeof(ServerConfig) / sizeof(CfgMapping)) &&
+	       (len = StrBuf_ServGetln(Buf),
+		strcmp(ChrPtr(Buf), "000")) && 
+	       (i <= sizeof(ServerConfig))) 
 	{
 		Put(Cfg,
 		    ServerConfig[i].Key, 
 		    ServerConfig[i].len, 
-		    NewStrBufPlain(buf, len), 
+		    Buf, 
 		    HFreeStrBuf);
 		i++;
+		if (i <= sizeof(ServerConfig) / sizeof(CfgMapping))
+			Buf = NewStrBuf();
+		else
+			Buf = NULL;			
 	}
+	FreeStrBuf(&Buf);
 
 	serv_puts("GPEX site");
 	Buf = NewStrBuf();

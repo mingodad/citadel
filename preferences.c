@@ -690,7 +690,7 @@ void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *
 }
 
 
-void CfgZoneTempl(StrBuf *TemplBuffer, void *vContext)
+void CfgZoneTempl(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
 {
 	StrBuf *Zone = (StrBuf*) vContext;
 
@@ -737,7 +737,7 @@ InitModule_PREFERENCES
 	
 	RegisterNamespace("PREF:VALUE", 1, 1, tmplput_CFG_Value);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr);
-	RegisterIterator("PREF:ZONE", ZoneHash, NULL, CfgZoneTempl, NULL);
+	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference);
 }

@@ -320,16 +320,16 @@ void RegisterConditional(const char *Name, long len,
 
 
 
-typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context);
-typedef HashList *(*RetrieveHashlistFunc)(void);
+typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token);
+typedef HashList *(*RetrieveHashlistFunc)(WCTemplateToken *Token);
 typedef void (*HashDestructorFunc) (HashList *KillMe);
-void RegisterITERATOR(const char *Name, long len, 
+void RegisterITERATOR(const char *Name, long len,
+		      int AdditionalParams, 
 		      HashList *StaticList, 
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor);
-#define RegisterIterator(a, b, c, d, e) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e)
-
+#define RegisterIterator(a, b, c, d, e, f) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f)
 
 /**
  * \brief Values for wcs_type
@@ -472,6 +472,7 @@ struct wcsession {
 	StrBuf *HBuf;                           /**< Our HeaderBuffer */
 
 	HashList *ServCfg;                      /**< cache our server config for editing */
+	HashList *InetCfg;                      /**< Our inet server config for editing */
 };
 
 /** values for WC->current_iconbar */

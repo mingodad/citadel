@@ -1,0 +1,29 @@
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner">
+<h1>
+<??("COND:AIDE", 1)><?_("System Administration Menu")><??("X", 1)>
+<?!("COND:AIDE", 2)><?_("Room Aide Menu")><?!("X", 2)>
+</h1>
+</div>
+<div id="content" class="service">
+<div class="fix_scrollbar_bug">
+<table border=0 width=100% cellspacing="10px" cellpadding="10px"> <tr><td valign=top width=50%>
+
+
+<?DOBOXED("aide_inet_aliases", "subject_inet_aliases")><br />
+<?DOBOXED("aide_inet_dirnames", "subject_inet_dirnames")><br />
+<?DOBOXED("aide_inet_smarthosts", "subject_inet_smarthosts")>
+
+</td><td valign=top>
+
+
+<?DOBOXED("aide_inet_rbldns", "subject_inet_rbldns")><br />
+<?DOBOXED("aide_inet_spamass", "subject_inet_spamass")><br />
+<?DOBOXED("aide_inet_masqdomains", "subject_inet_masqdomains")>
+
+
+</td></tr></table>
+<?SERVCFG:FLUSHINETCFG>
+<?=("trailing")>
