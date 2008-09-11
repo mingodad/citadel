@@ -5,6 +5,9 @@
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
+ * Copyright (c) 1996-2008 by the citadel.org developers.
+ * This program is released under the terms of the GNU General Public License v3.
+ *
  */
 
 #include "webcit.h"
@@ -240,8 +243,9 @@ int client_read_to(int *sock, char *buf, int bytes, int timeout)
 	return (1);
 }
 
+
 /*
- * \brief Begin buffering HTTP output so we can transmit it all in one write operation later.
+ * Begin buffering HTTP output so we can transmit it all in one write operation later.
  */
 void begin_burst(void)
 {
@@ -251,7 +255,7 @@ void begin_burst(void)
 
 
 /*
- * \brief Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
+ * Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
  */
 long end_burst(void)
 {
@@ -352,12 +356,13 @@ long end_burst(void)
 
 
 /*
- * \brief Read data from the client socket with default timeout.
+ * Read data from the client socket with default timeout.
  * (This is implemented in terms of client_read_to() and could be
  * justifiably moved out of sysdep.c)
- * \param sock the socket fd to read from
- * \param buf the buffer to write to
- * \param bytes Number of bytes to read
+ *
+ * sock		the socket fd to read from
+ * buf		the buffer to write to
+ * bytes	Number of bytes to read
  */
 int client_read(int *sock, char *buf, int bytes)
 {
@@ -366,17 +371,20 @@ int client_read(int *sock, char *buf, int bytes)
 
 
 /*
- * \brief Get a LF-terminated line of text from the client.
+ * Get a LF-terminated line of text from the client.
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
- * \param sock socket fd to get client line from
- * \param buf buffer to write read data to
- * \param bufsiz how many bytes to read
- * \return  number of bytes read???
+ *
+ * sock		socket fd to get client line from
+ * buf		buffer to write read data to
+ * bufsiz	how many bytes to read
+ *
+ * returns the number of bytes read
  */
 int client_getln(int *sock, char *buf, int bufsiz)
 {
-	int i, retval;
+	int i = 0;
+	int retval = 0;
 
 	/* Read one character at a time.*/
 	for (i = 0; *sock > 0; i++) {
@@ -407,8 +415,8 @@ int client_getln(int *sock, char *buf, int bufsiz)
 }
 
 /*
- * \brief Shut us down the regular way.
- * \param signum the signal we want to forward
+ * Shut us down the regular way.
+ * signum is the signal we want to forward
  */
 pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
@@ -419,8 +427,8 @@ void graceful_shutdown_watcher(int signum) {
 }
 
 /*
- * \brief shut us down the regular way.
- * \param signum the signal we want to forward
+ * Shut us down the regular way.
+ * signum is the signal we want to forward
  */
 pid_t current_child;
 void graceful_shutdown(int signum) {
@@ -439,12 +447,6 @@ void graceful_shutdown(int signum) {
 	close(fd);
 }
 
-
-/*
- * \brief	Start running as a daemon.  
- *
- * param	do_close_stdio		Only close stdio if set.
- */
 
 /*
  * Start running as a daemon.
@@ -547,12 +549,12 @@ void start_daemon(char *pid_file)
 }
 
 /*
- * \brief	Spawn an additional worker thread into the pool.
+ * Spawn an additional worker thread into the pool.
  */
 void spawn_another_worker_thread()
 {
-	pthread_t SessThread;	/*< Thread descriptor */
-	pthread_attr_t attr;	/*< Thread attributes */
+	pthread_t SessThread;	/* Thread descriptor */
+	pthread_attr_t attr;	/* Thread attributes */
 	int ret;
 
 	lprintf(3, "Creating a new thread\n");
@@ -591,16 +593,15 @@ const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return fo
 void InitTemplateCache(void);
 extern int LoadTemplates;
 extern void LoadZoneFiles(void);
+
 /*
- * \brief Here's where it all begins.
- * \param argc number of commandline args
- * \param argv the commandline arguments
+ * Here's where it all begins.
  */
 int main(int argc, char **argv)
 {
-	pthread_t SessThread;	/*< Thread descriptor */
-	pthread_attr_t attr;	/*< Thread attributes */
-	int a, i;	        	/*< General-purpose variables */
+	pthread_t SessThread;		/* Thread descriptor */
+	pthread_attr_t attr;		/* Thread attributes */
+	int a, i;	        	/* General-purpose variables */
 	char tracefile[PATH_MAX];
 	char ip_addr[256]="0.0.0.0";
 	char dirbuffer[PATH_MAX]="";
@@ -616,7 +617,7 @@ int main(int argc, char **argv)
 	char *locale = NULL;
 	char *mo = NULL;
 #endif /* ENABLE_NLS */
-	char uds_listen_path[PATH_MAX];	/*< listen on a unix domain socket? */
+	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
 
 	HandlerHash = NewHash(1, NULL);
 	PreferenceHooks = NewHash(1, NULL);
@@ -809,6 +810,9 @@ int main(int argc, char **argv)
 	initialise_modules();
 	initialize_viewdefs();
 	initialize_axdefs();
+
+	/* Tell libical to return an error instead of aborting if it sees badly formed iCalendar data. */
+	icalerror_errors_are_fatal = 0;
 
 	/*
 	 * Set up a place to put thread-specific data.
@@ -1028,11 +1032,12 @@ void worker_entry(void)
 }
 
 /*
- * \brief print log messages 
+ * print log messages 
  * logs to stderr if loglevel is lower than the verbosity set at startup
- * \param loglevel level of the message
- * \param format the printf like format string
- * \param ... the strings to put into format
+ *
+ * loglevel	level of the message
+ * format	the printf like format string
+ * ...		the strings to put into format
  */
 int lprintf(int loglevel, const char *format, ...)
 {
@@ -1049,7 +1054,7 @@ int lprintf(int loglevel, const char *format, ...)
 
 
 /*
- * \brief print the actual stack frame.
+ * print the actual stack frame.
  */
 void wc_backtrace(void)
 {
@@ -1071,4 +1076,3 @@ void wc_backtrace(void)
 #endif
 }
 
-/*@}*/

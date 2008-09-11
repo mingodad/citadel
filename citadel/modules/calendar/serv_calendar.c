@@ -2313,6 +2313,11 @@ CTDL_MODULE_INIT(calendar)
 {
 	if (!threading)
 	{
+
+		/* Tell libical to return errors instead of aborting if it gets bad data */
+		icalerror_errors_are_fatal = 0;
+
+		/* Initialize our hook functions */
 		CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 		CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
 		CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
