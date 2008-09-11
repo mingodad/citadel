@@ -129,7 +129,13 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	basedir=STATICDATA_DIR;
 #endif
 	COMPUTE_DIRECTORY(ctdl_hlp_dir);
-	COMPUTE_DIRECTORY(ctdl_message_dir);
+
+#ifndef HAVE_HELP_DIR
+	basedir=ctdldir;
+#else
+	basedir=HELP_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_hlp_dir);
 
 #ifndef HAVE_DATA_DIR
 	basedir=ctdldir;

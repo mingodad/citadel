@@ -18,6 +18,7 @@ SPOOL_DIR=@MAKE_SPOOL_DIR@
 ETC_DIR=@MAKE_ETC_DIR@
 DATA_DIR=@MAKE_DATA_DIR@
 STATICDATA_DIR=@MAKE_STATICDATA_DIR@
+HELP_DIR=@MAKE_HELP_DIR@
 DOC_DIR=@MAKE_DOC_DIR@
 UTILBIN_DIR=@MAKE_UTILBIN_DIR@
 DEPEND_FLAG=@DEPEND_FLAG@
@@ -225,12 +226,18 @@ install-data-new:
 	$(INSTALL_DATA) $(srcdir)/citadel.rc $(DESTDIR)$(ETC_DIR)/citadel.rc
 	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(DESTDIR)$(ETC_DIR)/mail.aliases$
 
-	$(srcdir)/mkinstalldirs $(DESTDIR)$(STATICDATA_DIR)/help
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(STATICDATA_DIR)/messages
 	@for i in  \
-		 `find $(srcdir)/help $(srcdir)/messages  -type f | grep -v .svn`; do \
+		 `$(srcdir)/messages  -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
+	done
+
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(HELP_DIR)/help
+	@for i in  \
+		 `find $(srcdir)/help -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(HELP_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(HELP_DIR)/$$i; \
 	done
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolin
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolout

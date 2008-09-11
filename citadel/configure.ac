@@ -29,7 +29,20 @@ AC_ARG_WITH(datadir,
 			]
 )
 
-dnl Checks for the Datadir
+
+dnl Checks for the helpDatadir
+AC_ARG_WITH(helpdir, 
+		    [  --with-helpdir          directory to store the helpfiles under],
+			[ if test "x$withval" != "xno" ; then
+					      AC_DEFINE(HAVE_HELP_DIR,[],[use alternate database location?])
+					      AC_DEFINE_UNQUOTED(HELP_DIR, "$withval",[define, if the user suplied a helpfile-directory to use.])
+					      MAKE_HELP_DIR=$withval
+					      AC_SUBST(MAKE_HELP_DIR)
+			  fi
+			]
+)
+
+dnl Checks for the Static Datadir
 AC_ARG_WITH(staticdatadir, 
 		    [  --with-staticdatadir    directory to store citadels system messages under],
 			[ if test "x$withval" != "xno" ; then
