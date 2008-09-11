@@ -1010,6 +1010,8 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 		const char *pts, *pte;
 		int InQuotes = 0;
 		int InDoubleQuotes = 0;
+
+		/** Find one <? > */
 		pos = (-1);
 		for (; pch < pE; pch ++) {
 			if ((*pch=='<')&&(*(pch + 1)=='?'))
@@ -1019,6 +1021,8 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 		if (pch >= pE)
 			continue;
 		pts = pch;
+
+		/** Found one? parse it. */
 		for (; pch < pE - 1; pch ++) {
 			if (*pch == '"')
 				InDoubleQuotes = ! InDoubleQuotes;
@@ -1237,8 +1241,21 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	if (!GetHash(Iterators, 
 		     Tokens->Params[0]->Start,
 		     Tokens->Params[0]->len,
-		     &vIt))
+		     &vIt)) {
+		lprintf(1, "unknown Iterator [%s] (in line %ld); "
+			" [%s]\n", 
+			Tokens->Params[0]->Start,
+			Tokens->Line,
+			ChrPtr(Tokens->FlatToken));
+		StrBufAppendPrintf(
+			Target,
+			"<pre>\nunknown Iterator [%s] (in line %ld); \n"
+			" [%s]\n</pre>", 
+			Tokens->Params[0]->Start,
+			Tokens->Line,
+			ChrPtr(Tokens->FlatToken));
 		return;
+	}
 
 	It = (HashIterator*) vIt;
 
