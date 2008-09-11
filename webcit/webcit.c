@@ -1848,6 +1848,25 @@ void tmplput_offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	offer_start_page();
 }
 
+
+int ConditionalBstr(WCTemplateToken *Tokens, void *Context)
+{
+	if(Tokens->nParameters == 1)
+		return HaveBstr(Tokens->Params[0]->Start, 
+				Tokens->Params[0]->len);
+	else
+		return strcmp(Bstr(Tokens->Params[0]->Start, 
+				   Tokens->Params[0]->len),
+			      Tokens->Params[1]->Start) == 0;
+}
+
+void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+{
+	StrBufAppendBuf(Target, 
+			SBstr(Tokens->Params[0]->Start, 
+			      Tokens->Params[0]->len), 0);
+}
+
 void 
 InitModule_WEBCIT
 (void)
@@ -1863,6 +1882,8 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage);
+	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr);
+	RegisterNamespace("BSTR", 1, 2, tmplput_bstr);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage);
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, tmplput_offer_start_page);
 }
