@@ -376,7 +376,7 @@ inline void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr)
 
 
 
-void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref)
+void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref)
 {
 	wcsubst *ptr;
 	void *vPtr;
@@ -396,7 +396,7 @@ void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref)
 	{
 		ptr = NewSubstVar(keyname, keylen, (ref)?WCS_STRBUF_REF:WCS_STRBUF);
 	}
-	ptr->wcs_value = Buf;
+	ptr->wcs_value = (StrBuf*)Buf;
 }
 
 /**
@@ -1299,7 +1299,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);
 	if (It->Destructor != NULL)
-		It->Destructor(List);
+		It->Destructor(&List);
 }
 
 int ConditionalVar(WCTemplateToken *Tokens, void *Context)

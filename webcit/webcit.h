@@ -322,7 +322,7 @@ void RegisterConditional(const char *Name, long len,
 
 typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token);
 typedef HashList *(*RetrieveHashlistFunc)(WCTemplateToken *Token);
-typedef void (*HashDestructorFunc) (HashList *KillMe);
+typedef void (*HashDestructorFunc) (HashList **KillMe);
 void RegisterITERATOR(const char *Name, long len,
 		      int AdditionalParams, 
 		      HashList *StaticList, 
@@ -677,7 +677,7 @@ void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
 void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
 #define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
 
-void SVPUTBuf(const char *keyname, int keylen, StrBuf *Buf, int ref);
+void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
 #define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
 
 void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target);

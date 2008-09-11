@@ -1,0 +1,29 @@
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner">
+<h1>
+<?_("Add a new node")>
+</h1>
+</div>
+
+<div id="content" class="service">
+<form method="POST" action="edit_node">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<input type="hidden" name="template" value="display_netconf">
+<input type="hidden" name="index" value='<?ITERATE:KEY>'>
+<center><table border=0>
+<tr><td><?_("Node name")></td>
+<td><input type="text" name="node" maxlength="16" value='<?CFG:IGNET:NODE>'></td></tr>
+<tr><td><?_("Shared secret")></td>
+<td><input type="password" name="secret" maxlength="16" value='<?CFG:IGNET:SECRET>'></td></tr>
+<tr><td><?_("Host or IP address")></td>
+<td><input type="text" name="host" maxlength="64" value='<?CFG:IGNET:HOST>'></td></tr>
+<tr><td><?_("Port number")></td>
+<td><input type="text" name="port" value='<?CFG:IGNET:PORT>' maxlength="8"></td></tr>
+</table><br />
+<input type="submit" name="ok_button" value="<?_("Save changes?")>">
+&nbsp;
+<input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</center></form>
+<?=("trailing")>
