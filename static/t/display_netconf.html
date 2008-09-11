@@ -1,0 +1,22 @@
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner">
+  <h1><?_("Network configuration")></h1>
+</div>
+
+<div id="content" class="service">
+
+<center>
+<a href="do_template?template=add_node"><?_("Add a new node")></a><br />
+</center>
+
+<table class="netconf_banner"><tr><td>
+<span class="titlebar"><?_("Currently configured nodes")></span>
+</td></tr></table>
+
+<center><table border=0>
+<?ITERATE("NODECONFIG", "section_ignetconf")>
+</table></center>
+
+<?=("trailing")>

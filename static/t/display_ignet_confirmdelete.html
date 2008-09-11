@@ -1,0 +1,18 @@
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner">
+<h1>
+<?_("Confirm delete")> <?BSTR("node")>
+</h1>
+</div>
+
+<div id="content" class="service">
+<center>
+<?_("Are you sure you want to delete ")>
+<font SIZE=+1><?BSTR("node")></font>
+</center>
+<a href="delete_node?template=display_netconf&node=<?BSTR("node", "X")>&index=<?BSTR("index")>"><?_("Yes")></a>
+&nbsp;&nbsp;&nbsp;
+<a href="do_template?template=display_netconf"><?_("No")></a><br />
+<?=("trailing")>

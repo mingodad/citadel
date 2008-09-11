@@ -11,16 +11,183 @@
 
 void display_netconf(void);
 
+/*----------------------------------------------------------------------*/
+/*              Business Logic                                          */
+/*----------------------------------------------------------------------*/
+
+typedef struct _nodeconf {
+	int DeleteMe;
+	StrBuf *NodeName;
+	StrBuf *Secret;
+	StrBuf *Host;
+	StrBuf *Port;
+}NodeConf;
+
+void DeleteNodeConf(void *vNode)
+{
+	NodeConf *Node = (NodeConf*) vNode;
+	FreeStrBuf(&Node->NodeName);
+	FreeStrBuf(&Node->Secret);
+	FreeStrBuf(&Node->Host);
+	FreeStrBuf(&Node->Port);
+	free(Node);
+}
+
+NodeConf *NewNode(StrBuf *SerializedNode)
+{
+	NodeConf *Node;
+
+	if (StrLength(SerializedNode) < 8) 
+		return NULL; /** we need at least 4 pipes and some other text so its invalid. */
+	Node = (NodeConf *) malloc(sizeof(NodeConf));
+	Node->DeleteMe = 0;
+	Node->NodeName=NewStrBuf();
+	StrBufExtract_token(Node->NodeName, SerializedNode, 0, '|');
+	Node->Secret=NewStrBuf();
+	StrBufExtract_token(Node->Secret, SerializedNode, 1, '|');
+	Node->Host=NewStrBuf();
+	StrBufExtract_token(Node->Host, SerializedNode, 2, '|');
+	Node->Port=NewStrBuf();
+	StrBufExtract_token(Node->Port, SerializedNode, 3, '|');
+	return Node;
+}
+
+NodeConf *HttpGetNewNode(void)
+{
+	NodeConf *Node;
+
+	if (!havebstr("node") || 
+	    !havebstr("secret")||
+	    !havebstr("host")||
+	    !havebstr("port"))
+		return NULL;
+
+	Node = (NodeConf *) malloc(sizeof(NodeConf));
+	Node->DeleteMe = 0;
+	Node->NodeName = NewStrBufDup(sbstr("node"));
+	Node->Secret = NewStrBufDup(sbstr("secret"));
+	Node->Host = NewStrBufDup(sbstr("host"));
+	Node->Port = NewStrBufDup(sbstr("port"));
+	return Node;
+}
+
+void SerializeNode(NodeConf *Node, StrBuf *Buf)
+{
+	StrBufPrintf(Buf, "%s|%s|%s|%s", 
+		     ChrPtr(Node->NodeName),
+		     ChrPtr(Node->Secret),
+		     ChrPtr(Node->Host),
+		     ChrPtr(Node->Port));
+}
+
+
+HashList *load_netconf(WCTemplateToken *Token)
+{
+	StrBuf *Buf;
+	HashList *Hash;
+	char nnn[64];
+	char buf[SIZ];
+	long len;
+	int nUsed;
+	NodeConf *Node;
+
+	serv_puts("CONF getsys|application/x-citadel-ignet-config");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		Hash = NewHash(1, NULL);
+
+		Buf = NewStrBuf();
+		while ((len = StrBuf_ServGetln(Buf),
+			strcmp(ChrPtr(Buf), "000"))) {
+			Node = NewNode(Buf);
+			if (Node == NULL)
+				continue;
+			nUsed = GetCount(Hash);
+			nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
+			Put(Hash, nnn, nUsed, Node, DeleteNodeConf); 
+		}
+		FreeStrBuf(&Buf);
+		return Hash;
+	}
+	return NULL;
+}
+
+
+void NodeCfgSubst(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
+{
+	NodeConf *Node= (NodeConf*)vContext;
+
+	SVPutBuf("CFG:IGNET:NODE", Node->NodeName, 1);
+	SVPutBuf("CFG:IGNET:SECRET", Node->Secret, 1);
+	SVPutBuf("CFG:IGNET:HOST", Node->Host, 1);
+	SVPutBuf("CFG:IGNET:PORT", Node->Port, 1);
+}
+
+
+void save_net_conf(HashList *Nodelist)
+{
+	char buf[SIZ];
+	StrBuf *Buf;
+	HashPos *where;
+	void *vNode;
+	NodeConf *Node;
+	const char *Key;
+	long KeyLen;
+
+	serv_puts("CONF putsys|application/x-citadel-ignet-config");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '4') {
+		if ((Nodelist != NULL) && (GetCount(Nodelist) > 0)) {
+			where = GetNewHashPos();
+			Buf = NewStrBuf();
+			while (GetNextHashPos(Nodelist, where, &KeyLen, &Key, &vNode)) {
+				Node = (NodeConf*) vNode;
+				if (Node->DeleteMe==0) { 
+					SerializeNode(Node, Buf);
+					serv_putbuf(Buf);
+				}
+			}
+			FreeStrBuf(&Buf);
+		}
+		serv_puts("000");
+	}
+}
+
+
+
+/*----------------------------------------------------------------------*/
+/*              WEB Handlers                                            */
+/*----------------------------------------------------------------------*/
+
+
+
 /**
  * \brief edit a network node
  */
 void edit_node(void) {
+	HashList *NodeConfig;
+	const StrBuf *Index;
+	NodeConf *NewNode;
+/*
 	char buf[SIZ];
 	char node[SIZ];
 	char cnode[SIZ];
 	FILE *fp;
-
+*/
 	if (havebstr("ok_button")) {
+		Index = sbstr("index");
+	        NewNode = HttpGetNewNode();
+		if ((NewNode == NULL) || (Index == NULL)) {
+			sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+			url_do_template();
+			return;
+		}
+			
+		NodeConfig = load_netconf(NULL);
+		Put(NodeConfig, ChrPtr(Index), StrLength(Index), NewNode, DeleteNodeConf);
+		save_net_conf(NodeConfig);
+		DeleteHash(&NodeConfig);
+/*
 		strcpy(node, bstr("node") );
 		fp = tmpfile();
 		if (fp != NULL) {
@@ -56,9 +223,11 @@ void edit_node(void) {
 			}
 			serv_puts("000");
 		}
+*/
 	}
 
-	display_netconf();
+	//display_netconf();
+	url_do_template();
 }
 
 
@@ -66,7 +235,7 @@ void edit_node(void) {
  * \brief add a node
  */
 void display_add_node(void)
-{
+{/*
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
@@ -94,6 +263,7 @@ void display_add_node(void)
 	wprintf("</CENTER></FORM>\n");
 
 	wDumpContent(1);
+ */
 }
 
 /**
@@ -101,6 +271,33 @@ void display_add_node(void)
  */
 void display_edit_node(void)
 {
+	HashList *NodeConfig;
+	const StrBuf *Index;
+	void *vNode;
+
+	Index = sbstr("index");
+	if (Index == NULL) {
+		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		url_do_template();
+		return;
+	}
+
+	NodeConfig = load_netconf(NULL);
+	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
+	    (vNode == NULL)) {
+		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		url_do_template();
+		DeleteHash(&NodeConfig);
+		return;
+	}
+	
+	NodeCfgSubst(NULL, vNode, NULL);
+	SVPutBuf("ITERATE:KEY", Index, 1);
+	url_do_template();
+
+	DeleteHash(&NodeConfig);
+	
+/*
 	char buf[512];
 	char node[256];
 	char cnode[256];
@@ -161,22 +358,26 @@ void display_edit_node(void)
 		}
 	}
 
-	else {		/** command error getting configuration */
+	else {		/ ** command error getting configuration * /
 		wprintf("%s<br />\n", &buf[4]);
 	}
 
 	wDumpContent(1);
+*/
 }
 
 
+
+
+//CFG:IGNET:NODE
 /**
  * \brief display all configured nodes
  */
 void display_netconf(void)
 {
+/*
 	char buf[SIZ];
 	char node[SIZ];
-
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
@@ -220,6 +421,7 @@ void display_netconf(void)
 		}
 		wprintf("</TABLE></CENTER>\n");
 	}
+*/
 	wDumpContent(1);
 }
 
@@ -228,8 +430,8 @@ void display_netconf(void)
  */
 void display_confirm_delete_node(void)
 {
+/*
 	char node[SIZ];
-
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
@@ -253,14 +455,44 @@ void display_confirm_delete_node(void)
 	wprintf("<a href=\"display_netconf\">");
 	wprintf(_("No"));
 	wprintf("</A><br />\n");
+*/
 	wDumpContent(1);
 }
+
 
 /**
  * \brief actually delete the node
  */
 void delete_node(void)
 {
+	HashList *NodeConfig;
+	const StrBuf *Index;
+	NodeConf *Node;
+	void *vNode;
+
+	Index = sbstr("index");
+	if (Index == NULL) {
+		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		url_do_template();
+		return;
+	}
+
+	NodeConfig = load_netconf(NULL);
+	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
+	    (vNode == NULL)) {
+		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		url_do_template();
+		DeleteHash(&NodeConfig);
+		return;
+	}
+	Node = (NodeConf *) vNode;
+	Node->DeleteMe = 1;
+       	save_net_conf(NodeConfig);
+	DeleteHash(&NodeConfig);
+	
+	url_do_template();
+
+/*
 	char buf[SIZ];
 	char node[SIZ];
 	char cnode[SIZ];
@@ -294,6 +526,7 @@ void delete_node(void)
 	}
 
 	display_netconf();
+*/
 }
 
 void 
@@ -307,5 +540,6 @@ InitModule_NETCONF
 	WebcitAddUrlHandler(HKEY("display_confirm_delete_node"), display_confirm_delete_node, 0);
 	WebcitAddUrlHandler(HKEY("delete_node"), delete_node, 0);
 	WebcitAddUrlHandler(HKEY("display_add_node"), display_add_node, 0);
+	RegisterIterator("NODECONFIG", 0, NULL, load_netconf, NodeCfgSubst, DeleteHash);
 }
 /*@}*/

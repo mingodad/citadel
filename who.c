@@ -481,9 +481,9 @@ void WholistSubst(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
 	svputlong("WHO:ISME", (User->Session == WC->ctdl_pid));
 }
 
-void DeleteWholistHash(HashList *KillMe)
+void DeleteWholistHash(HashList **KillMe)
 {
-	DeleteHash(&KillMe);
+	DeleteHash(KillMe);
 }
 
 void 
