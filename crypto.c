@@ -34,6 +34,19 @@ static unsigned long id_callback(void)
 	return (unsigned long) pthread_self();
 }
 
+void shutdown_ssl(void)
+{
+	ERR_free_strings();
+
+	/* Openssl requires these while shutdown. 
+	 * Didn't find a way to get out of this clean.
+	 * int i, n = CRYPTO_num_locks();
+	 * for (i = 0; i < n; i++)
+	 * 	free(SSLCritters[i]);
+	 * free(SSLCritters);
+	*/
+}
+
 /**
  * \brief initialize ssl engine
  * load certs and initialize openssl internals
@@ -63,6 +76,7 @@ void init_ssl(void)
 	if (!SSLCritters) {
 		lprintf(1, "citserver: can't allocate memory!!\n");
 		/* Nothing's been initialized, just die */
+		ShutDownWebcit();
 		exit(WC_EXIT_SSL);
 	} else {
 		int a;
@@ -73,6 +87,7 @@ void init_ssl(void)
 				lprintf(1,
 					"citserver: can't allocate memory!!\n");
 				/** Nothing's been initialized, just die */
+				ShutDownWebcit();
 				exit(WC_EXIT_SSL);
 			}
 			pthread_mutex_init(SSLCritters[a], NULL);
@@ -150,6 +165,7 @@ void init_ssl(void)
 			}
 			else {
 				lprintf(3, "Cannot write key: %s\n", CTDL_KEY_PATH);
+				ShutDownWebcit();
 				exit(0);
 			}
 			RSA_free(rsa);
@@ -235,6 +251,7 @@ void init_ssl(void)
 						}
 						else {
 							lprintf(3, "Cannot write key: %s\n", CTDL_CSR_PATH);
+							ShutDownWebcit();
 							exit(0);
 						}
 					}
@@ -310,6 +327,7 @@ void init_ssl(void)
 						}
 						else {
 							lprintf(3, "Cannot write key: %s\n", CTDL_CER_PATH);
+							ShutDownWebcit();
 							exit(0);
 						}
 					}
