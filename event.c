@@ -765,6 +765,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			}
 			icalmemory_free_ring ();
 			icalcomponent_free(encaps);
+			encaps = NULL;
 		}
 
 		/** Or, check attendee availability if the user asked for that. */
@@ -777,6 +778,11 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			display_edit_individual_event(encaps, msgnum, from, unread);
 
 			icalcomponent_free(encaps);
+			encaps = NULL;
+		}
+		if (encaps != NULL) {
+			icalcomponent_free(encaps);
+			encaps = NULL;
 		}
 
 	}
