@@ -11,14 +11,22 @@
 #include "libcitadel.h"
 
 
+/**
+ * Private Structure for the Stringbuffer
+ */
 struct StrBuf {
-	char *buf;
-	long BufSize;
-	long BufUsed;
-	int ConstBuf;
+	char *buf;         /**< the pointer to the dynamic buffer */
+	long BufSize;      /**< how many spcae do we optain */
+	long BufUsed;      /**< Number of Chars used excluding the trailing \0 */
+	int ConstBuf;      /**< are we just a wrapper arround a static buffer and musn't we be changed? */
 };
 
 
+/** 
+ * \Brief Cast operator to Plain String 
+ * \param Str the string we want to get the c-string representation for
+ * \returns the Pointer to the Content. Don't mess with it!
+ */
 inline const char *ChrPtr(const StrBuf *Str)
 {
 	if (Str == NULL)
@@ -26,11 +34,20 @@ inline const char *ChrPtr(const StrBuf *Str)
 	return Str->buf;
 }
 
+/**
+ * \brief since we know strlen()'s result, provide it here.
+ * \param Str the string to return the length to
+ * \returns contentlength of the buffer
+ */
 inline int StrLength(const StrBuf *Str)
 {
 	return (Str != NULL) ? Str->BufUsed : 0;
 }
 
+/**
+ * Allocate a new buffer with default buffer size
+ * \returns the new stringbuffer
+ */
 StrBuf* NewStrBuf(void)
 {
 	StrBuf *NewBuf;
@@ -44,6 +61,11 @@ StrBuf* NewStrBuf(void)
 	return NewBuf;
 }
 
+/** 
+ * \brief Copy Constructor; returns a duplicate of CopyMe
+ * \params CopyMe Buffer to faxmilate
+ * \returns the new stringbuffer
+ */
 StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 {
 	StrBuf *NewBuf;
@@ -60,6 +82,14 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 	return NewBuf;
 }
 
+/**
+ * \brief create a new Buffer using an existing c-string
+ * this function should also be used if you want to pre-suggest
+ * the buffer size to allocate in conjunction with ptr == NULL
+ * \param ptr the c-string to copy; may be NULL to create a blank instance
+ * \param nChars How many chars should we copy; -1 if we should measure the length ourselves
+ * \returns the new stringbuffer
+ */
 StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 {
 	StrBuf *NewBuf;
@@ -90,7 +120,40 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 	return NewBuf;
 }
 
+/**
+ * \brief Set an existing buffer from a c-string
+ * \param ptr c-string to put into 
+ * \param nChars set to -1 if we should work 0-terminated
+ * \returns the new length of the string
+ */
+int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
+{
+	size_t Siz = Buf->BufSize;
+	size_t CopySize;
 
+	if (nChars < 0)
+		CopySize = strlen(ptr);
+	else
+		CopySize = nChars;
+
+	while (Siz <= CopySize)
+		Siz *= 2;
+
+	if (Siz != Buf->BufSize)
+		IncreaseBuf(Buf, 0, Siz);
+	memcpy(Buf->buf, ptr, CopySize);
+	Buf->buf[CopySize] = '\0';
+	Buf->BufUsed = CopySize;
+	Buf->ConstBuf = 0;
+	return CopySize;
+}
+
+
+/**
+ * \brief use strbuf as wrapper for a string constant for easy handling
+ * \param StringConstant a string to wrap
+ * \param SizeOfConstant should be sizeof(StringConstant)-1
+ */
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 {
 	StrBuf *NewBuf;
@@ -103,7 +166,12 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 	return NewBuf;
 }
 
-
+/**
+ * \brief local utility function to resize the buffer
+ * \param Buf the buffer whichs storage we should increase
+ * \param KeepOriginal should we copy the original buffer or just start over with a new one
+ * \param DestSize what should fit in after?
+ */
 static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 {
 	char *NewBuf;
@@ -132,6 +200,10 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 	return Buf->BufSize;
 }
 
+/**
+ * \brief flush the content of a Buf; keep its struct
+ * \param buf Buffer to flush
+ */
 int FlushStrBuf(StrBuf *buf)
 {
 	if (buf->ConstBuf)
@@ -141,6 +213,12 @@ int FlushStrBuf(StrBuf *buf)
 	return 0;
 }
 
+/**
+ * \brief Release a Buffer
+ * Its a double pointer, so it can NULL your pointer
+ * so fancy SIG11 appear instead of random results
+ * \param FreeMe Pointer Pointer to the buffer to free
+ */
 void FreeStrBuf (StrBuf **FreeMe)
 {
 	if (*FreeMe == NULL)
@@ -151,6 +229,11 @@ void FreeStrBuf (StrBuf **FreeMe)
 	*FreeMe = NULL;
 }
 
+/**
+ * \brief Release the buffer
+ * If you want put your StrBuf into a Hash, use this as Destructor.
+ * \param VFreeMe untyped pointer to a StrBuf. be shure to do the right thing [TM]
+ */
 void HFreeStrBuf (void *VFreeMe)
 {
 	StrBuf *FreeMe = (StrBuf*)VFreeMe;
@@ -161,6 +244,9 @@ void HFreeStrBuf (void *VFreeMe)
 	free(FreeMe);
 }
 
+/**
+ * \brief Wrapper around atol
+ */
 long StrTol(const StrBuf *Buf)
 {
 	if(Buf->BufUsed > 0)
@@ -169,6 +255,9 @@ long StrTol(const StrBuf *Buf)
 		return 0;
 }
 
+/**
+ * \brief Wrapper around atoi
+ */
 int StrToi(const StrBuf *Buf)
 {
 	if(Buf->BufUsed > 0)
@@ -177,6 +266,13 @@ int StrToi(const StrBuf *Buf)
 		return 0;
 }
 
+/**
+ * \brief modifies a Single char of the Buf
+ * You can point to it via char* or a zero-based integer
+ * \param ptr char* to zero; use NULL if unused
+ * \param nThChar zero based pointer into the string; use -1 if unused
+ * \param PeekValue The Character to place into the position
+ */
 long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
 {
 	if (Buf == NULL)
@@ -189,29 +285,12 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
 	return nThChar;
 }
 
-
-int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
-{
-	size_t Siz = Buf->BufSize;
-	size_t CopySize;
-
-	if (nChars < 0)
-		CopySize = strlen(ptr);
-	else
-		CopySize = nChars;
-
-	while (Siz <= CopySize)
-		Siz *= 2;
-
-	if (Siz != Buf->BufSize)
-		IncreaseBuf(Buf, 0, Siz);
-	memcpy(Buf->buf, ptr, CopySize);
-	Buf->buf[CopySize] = '\0';
-	Buf->BufUsed = CopySize;
-	Buf->ConstBuf = 0;
-	return CopySize;
-}
-
+/**
+ * \brief Append a StringBuffer to the buffer
+ * \param Buf Buffer to modify
+ * \param AppendBuf Buffer to copy at the end of our buffer
+ * \param Offset Should we start copying from an offset?
+ */
 void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset)
 {
 	if ((AppendBuf == NULL) || (Buf == NULL))
@@ -230,6 +309,13 @@ void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset)
 }
 
 
+/**
+ * \brief Append a C-String to the buffer
+ * \param Buf Buffer to modify
+ * \param AppendBuf Buffer to copy at the end of our buffer
+ * \param AppendSize number of bytes to copy; set to -1 if we should count it in advance
+ * \param Offset Should we start copying from an offset?
+ */
 void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset)
 {
 	long aps;
@@ -254,7 +340,7 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, s
 
 
 /** 
- * \brief Escape a string for feeding out as a URL.
+ * \brief Escape a string for feeding out as a URL while appending it to a Buffer
  * \param outbuf the output buffer
  * \param oblen the size of outbuf to sanitize
  * \param strbuf the input buffer
@@ -315,12 +401,13 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 }
 
 /*
- * Copy a string, escaping characters which have meaning in HTML.  
+ * \brief Append a string, escaping characters which have meaning in HTML.  
  *
- * target		target buffer
- * strbuf		source buffer
- * nbsp			If nonzero, spaces are converted to non-breaking spaces.
- * nolinebreaks		if set, linebreaks are removed from the string.
+ * \param Target	target buffer
+ * \param Source	source buffer; set to NULL if you just have a C-String
+ * \param PlainIn       Plain-C string to append; set to NULL if unused
+ * \param nbsp		If nonzero, spaces are converted to non-breaking spaces.
+ * \param nolinebreaks	if set, linebreaks are removed from the string.
  */
 long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int nbsp, int nolinebreaks)
 {
@@ -418,6 +505,13 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 	return Target->BufUsed;
 }
 
+/*
+ * \brief Append a string, escaping characters which have meaning in HTML.  
+ * Converts linebreaks into blanks; escapes single quotes
+ * \param Target	target buffer
+ * \param Source	source buffer; set to NULL if you just have a C-String
+ * \param PlainIn       Plain-C string to append; set to NULL if unused
+ */
 void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 {
 	const char *aptr, *eiptr;
@@ -476,12 +570,14 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 }
 
 
-inline int StrBufNum_tokens(const StrBuf *source, char tok)
-{
-	return num_tokens(source->buf, tok);
-}
-
-
+/**
+ * \brief extracts a substring from Source into dest
+ * \param dest buffer to place substring into
+ * \param Source string to copy substring from
+ * \param Offset chars to skip from start
+ * \param nChars number of chars to copy
+ * \returns the number of chars copied; may be different from nChars due to the size of Source
+ */
 int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
 {
 	size_t NCharsRemain;
@@ -508,7 +604,13 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
 	return NCharsRemain;
 }
 
-
+/**
+ * \brief sprintf like function appending the formated string to the buffer
+ * vsnprintf version to wrap into own calls
+ * \param Buf Buffer to extend by format and params
+ * \param format printf alike format to add
+ * \param ap va_list containing the items for format
+ */
 void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 {
 	va_list apl;
@@ -535,6 +637,12 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 	}
 }
 
+/**
+ * \brief sprintf like function appending the formated string to the buffer
+ * \param Buf Buffer to extend by format and params
+ * \param format printf alike format to add
+ * \param ap va_list containing the items for format
+ */
 void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 {
 	size_t BufSize = Buf->BufSize;
@@ -561,6 +669,12 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 	}
 }
 
+/**
+ * \brief sprintf like function putting the formated string into the buffer
+ * \param Buf Buffer to extend by format and params
+ * \param format printf alike format to add
+ * \param ap va_list containing the items for format
+ */
 void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 {
 	size_t nWritten = Buf->BufSize + 1;
@@ -578,9 +692,21 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 
 
 /**
+ * \brief Counts the numbmer of tokens in a buffer
+ * \param Source String to count tokens in
+ * \param tok    Tokenizer char to count
+ * \returns numbers of tokenizer chars found
+ */
+inline int StrBufNum_tokens(const StrBuf *source, char tok)
+{
+	return num_tokens(source->buf, tok);
+}
+
+/**
  * \brief a string tokenizer
  * \param dest Destination StringBuffer
  * \param Source StringBuffer to read into
+ * \param parmnum n'th parameter to extract
  * \param separator tokenizer param
  * \returns -1 if not found, else length of token.
  */
@@ -634,8 +760,12 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 }
 
 
-/*
- * extract_int()  -  extract an int parm w/o supplying a buffer
+/**
+ * \brief a string tokenizer to fetch an integer
+ * \param dest Destination StringBuffer
+ * \param parmnum n'th parameter to extract
+ * \param separator tokenizer param
+ * \returns 0 if not found, else integer representation of the token
  */
 int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator)
 {
@@ -652,8 +782,12 @@ int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator)
 		return 0;
 }
 
-/*
- * extract_long()  -  extract an long parm w/o supplying a buffer
+/**
+ * \brief a string tokenizer to fetch a long integer
+ * \param dest Destination StringBuffer
+ * \param parmnum n'th parameter to extract
+ * \param separator tokenizer param
+ * \returns 0 if not found, else long integer representation of the token
  */
 long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator)
 {
@@ -671,20 +805,29 @@ long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator)
 }
 
 
-/*
- * extract_unsigned_long() - extract an unsigned long parm
+/**
+ * \brief a string tokenizer to fetch an unsigned long
+ * \param dest Destination StringBuffer
+ * \param parmnum n'th parameter to extract
+ * \param separator tokenizer param
+ * \returns 0 if not found, else unsigned long representation of the token
  */
 unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, char separator)
 {
 	StrBuf tmp;
 	char buf[64];
+	char *pnum;
 	
 	tmp.buf = buf;
 	buf[0] = '\0';
 	tmp.BufSize = 64;
 	tmp.BufUsed = 0;
-	if (StrBufExtract_token(&tmp, Source, parmnum, separator) > 0)
-		return(atoi(buf));
+	if (StrBufExtract_token(&tmp, Source, parmnum, separator) > 0) {
+		pnum = &buf[0];
+		if (*pnum == '-')
+			pnum ++;
+		return (unsigned long) atol(pnum);
+	}
 	else 
 		return 0;
 }
@@ -692,9 +835,13 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 
 
 /**
- * \brief Input binary data from socket
+ * \brief Read a line from socket
+ * flushes and closes the FD on error
  * \param buf the buffer to get the input to
- * \param bytes the maximal number of bytes to read
+ * \param fd pointer to the filedescriptor to read
+ * \param append Append to an existing string or replace?
+ * \param Error strerror() on error 
+ * \returns numbers of chars read
  */
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 {
@@ -731,8 +878,13 @@ int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 
 /**
  * \brief Input binary data from socket
+ * flushes and closes the FD on error
  * \param buf the buffer to get the input to
- * \param bytes the maximal number of bytes to read
+ * \param fd pointer to the filedescriptor to read
+ * \param append Append to an existing string or replace?
+ * \param nBytes the maximal number of bytes to read
+ * \param Error strerror() on error 
+ * \returns numbers of chars read
  */
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error)
 {
@@ -781,6 +933,11 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 	return nRead;
 }
 
+/**
+ * \brief Cut nChars from the start of the string
+ * \param Buf Buffer to modify
+ * \param nChars how many chars should be skipped?
+ */
 void StrBufCutLeft(StrBuf *Buf, int nChars)
 {
 	if (nChars >= Buf->BufUsed) {
@@ -792,6 +949,11 @@ void StrBufCutLeft(StrBuf *Buf, int nChars)
 	Buf->buf[Buf->BufUsed] = '\0';
 }
 
+/**
+ * \brief Cut the trailing n Chars from the string
+ * \param Buf Buffer to modify
+ * \param nChars how many chars should be trunkated?
+ */
 void StrBufCutRight(StrBuf *Buf, int nChars)
 {
 	if (nChars >= Buf->BufUsed) {
@@ -803,8 +965,10 @@ void StrBufCutRight(StrBuf *Buf, int nChars)
 }
 
 
-/*
- * string conversion function
+/**
+ * \brief unhide special chars hidden to the HTML escaper
+ * \param target buffer to put the unescaped string in
+ * \param source buffer to unescape
  */
 void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source) 
 {
@@ -842,8 +1006,10 @@ void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source)
 }
 
 
-/*
- * string conversion function
+/**
+ * \brief hide special chars from the HTML escapers and friends
+ * \param target buffer to put the escaped string in
+ * \param source buffer to escape
  */
 void StrBufEUid_escapize(StrBuf *target, const StrBuf *source) 
 {
@@ -971,6 +1137,10 @@ int CompressBuffer(StrBuf *Buf)
 	return 0;
 }
 
+/**
+ * \brief decode a buffer from base 64 encoding; destroys original
+ * \param Buf Buffor to transform
+ */
 int StrBufDecodeBase64(StrBuf *Buf)
 {
 	char *xferbuf;
@@ -988,8 +1158,10 @@ int StrBufDecodeBase64(StrBuf *Buf)
 }
 
 
-/*   
- * remove escaped strings from i.e. the url string (like %20 for blanks)
+/**
+ * \brief  remove escaped strings from i.e. the url string (like %20 for blanks)
+ * \param Buf Buffer to translate
+ * \param StripBlanks Reduce several blanks to one?
  */
 long StrBufUnescape(StrBuf *Buf, int StripBlanks)
 {
@@ -1101,6 +1273,12 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 	return (*target)->BufUsed;;
 }
 
+/**
+ * \brief replaces all occurances of 'search' by 'replace'
+ * \param buf Buffer to modify
+ * \param search character to search
+ * \param relpace character to replace search by
+ */
 void StrBufReplaceChars(StrBuf *buf, char search, char replace)
 {
 	long i;
