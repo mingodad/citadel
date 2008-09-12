@@ -614,10 +614,11 @@ void jsescputs(char *strbuf)
  */
 void msgescputs1( char *strbuf)
 {
-	StrBuf *OutBuf = NewStrBuf();
+	StrBuf *OutBuf;
 
 	if ((strbuf == NULL) || IsEmptyStr(strbuf))
 		return;
+	OutBuf = NewStrBuf();
 	StrMsgEscAppend(OutBuf, NULL, strbuf);
 	StrEscAppend(WC->WBuf, OutBuf, NULL, 0, 0);
 	FreeStrBuf(&OutBuf);
