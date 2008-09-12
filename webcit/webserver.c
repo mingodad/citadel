@@ -907,6 +907,11 @@ void ShutDownWebcit(void)
 #ifdef ENABLE_NLS
 	ShutdownLocale();
 #endif
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		shutdown_ssl();
+	}
+#endif
 }
 
 /*

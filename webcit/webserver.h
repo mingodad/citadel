@@ -10,3 +10,5 @@ int client_read(int *sock, char *buf, int bytes);
 int client_read_to(int *sock, char *buf, int bytes, int timeout);
 int lprintf(int loglevel, const char *format, ...);
 void wc_backtrace(void);
+void ShutDownWebcit(void);
+void shutdown_ssl(void);
