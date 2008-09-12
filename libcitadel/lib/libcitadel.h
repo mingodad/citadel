@@ -218,6 +218,12 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
 
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error);
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error);
+int StrBufTCP_read_buffered_line(StrBuf *Line, 
+				 StrBuf *buf, 
+				 int *fd, 
+				 int timeout, 
+				 int selectresolution, 
+				 const char **Error);
 
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
 int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars);

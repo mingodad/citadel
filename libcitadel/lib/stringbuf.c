@@ -45,6 +45,40 @@ inline int StrLength(const StrBuf *Str)
 }
 
 /**
+ * \brief local utility function to resize the buffer
+ * \param Buf the buffer whichs storage we should increase
+ * \param KeepOriginal should we copy the original buffer or just start over with a new one
+ * \param DestSize what should fit in after?
+ */
+static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
+{
+	char *NewBuf;
+	size_t NewSize = Buf->BufSize * 2;
+
+	if (Buf->ConstBuf)
+		return -1;
+		
+	if (DestSize > 0)
+		while (NewSize < DestSize)
+			NewSize *= 2;
+
+	NewBuf= (char*) malloc(NewSize);
+	if (KeepOriginal && (Buf->BufUsed > 0))
+	{
+		memcpy(NewBuf, Buf->buf, Buf->BufUsed);
+	}
+	else
+	{
+		NewBuf[0] = '\0';
+		Buf->BufUsed = 0;
+	}
+	free (Buf->buf);
+	Buf->buf = NewBuf;
+	Buf->BufSize *= 2;
+	return Buf->BufSize;
+}
+
+/**
  * Allocate a new buffer with default buffer size
  * \returns the new stringbuffer
  */
@@ -166,39 +200,6 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 	return NewBuf;
 }
 
-/**
- * \brief local utility function to resize the buffer
- * \param Buf the buffer whichs storage we should increase
- * \param KeepOriginal should we copy the original buffer or just start over with a new one
- * \param DestSize what should fit in after?
- */
-static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
-{
-	char *NewBuf;
-	size_t NewSize = Buf->BufSize * 2;
-
-	if (Buf->ConstBuf)
-		return -1;
-		
-	if (DestSize > 0)
-		while (NewSize < DestSize)
-			NewSize *= 2;
-
-	NewBuf= (char*) malloc(NewSize);
-	if (KeepOriginal && (Buf->BufUsed > 0))
-	{
-		memcpy(NewBuf, Buf->buf, Buf->BufUsed);
-	}
-	else
-	{
-		NewBuf[0] = '\0';
-		Buf->BufUsed = 0;
-	}
-	free (Buf->buf);
-	Buf->buf = NewBuf;
-	Buf->BufSize *= 2;
-	return Buf->BufSize;
-}
 
 /**
  * \brief flush the content of a Buf; keep its struct
@@ -874,6 +875,97 @@ int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 	buf->BufUsed = len;
 	buf->buf[len] = '\0';
 	return len - slen;
+}
+
+/**
+ * \brief Read a line from socket
+ * flushes and closes the FD on error
+ * \param buf the buffer to get the input to
+ * \param fd pointer to the filedescriptor to read
+ * \param append Append to an existing string or replace?
+ * \param Error strerror() on error 
+ * \returns numbers of chars read
+ */
+int StrBufTCP_read_buffered_line(StrBuf *Line, 
+				 StrBuf *buf, 
+				 int *fd, 
+				 int timeout, 
+				 int selectresolution, 
+				 const char **Error)
+{
+	int len, rlen;
+	int nSuccessLess = 0;
+	fd_set rfds;
+	char *pch = NULL;
+        int fdflags;
+	struct timeval tv;
+
+	if (buf->BufUsed > 0) {
+		pch = strchr(buf->buf, '\n');
+		if (pch != NULL) {
+			rlen = 0;
+			len = pch - buf->buf;
+			if (len > 0 && (*(pch - 1) == '\r') )
+				rlen ++;
+			StrBufSub(Line, buf, 0, len - rlen);
+			StrBufCutLeft(buf, len + 1);
+			return len - rlen;
+		}
+	}
+
+	if (buf->BufSize - buf->BufUsed < 10)
+		IncreaseBuf(buf, 1, -1);
+
+	fdflags = fcntl(*fd, F_GETFL);
+	if ((fdflags & O_NONBLOCK) == O_NONBLOCK)
+		return -1;
+
+	while ((nSuccessLess < timeout) && (pch == NULL)) {
+		tv.tv_sec = selectresolution;
+		tv.tv_usec = 0;
+		
+		FD_ZERO(&rfds);
+		FD_SET(*fd, &rfds);
+		if (select(*fd + 1, NULL, &rfds, NULL, &tv) == -1) {
+			*Error = strerror(errno);
+			close (*fd);
+			*fd = -1;
+			return -1;
+		}		
+		if (FD_ISSET(*fd, &rfds)) {
+			rlen = read(*fd, 
+				    &buf->buf[buf->BufUsed], 
+				    buf->BufSize - buf->BufUsed - 1);
+			if (rlen < 1) {
+				*Error = strerror(errno);
+				close(*fd);
+				*fd = -1;
+				return -1;
+			}
+			else if (rlen > 0) {
+				nSuccessLess = 0;
+				buf->BufUsed += rlen;
+				buf->buf[buf->BufUsed] = '\0';
+				if (buf->BufUsed + 10 > buf->BufSize) {
+					IncreaseBuf(buf, 1, -1);
+				}
+				pch = strchr(buf->buf, '\n');
+				continue;
+			}
+		}
+		nSuccessLess ++;
+	}
+	if (pch != NULL) {
+		rlen = 0;
+		len = pch - buf->buf;
+		if (len > 0 && (*(pch - 1) == '\r') )
+			rlen ++;
+		StrBufSub(Line, buf, 0, len - rlen);
+		StrBufCutLeft(buf, len + 1);
+		return len - rlen;
+	}
+	return -1;
+
 }
 
 /**
