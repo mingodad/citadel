@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
-#include <libical/ical.h>
+#include <ical.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"

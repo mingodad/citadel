@@ -19,7 +19,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
-#include <libical/ical.h>
+#include <ical.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
