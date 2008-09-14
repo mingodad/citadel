@@ -86,7 +86,7 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
  * /groupdav/room_name/euid	(GroupDAV)
  * /groupdav/room_name		(webcal)
  */
-void groupdav_get(char *dav_pathname) {
+void groupdav_get(const char *dav_pathname) {
 	char dav_roomname[1024];
 	char dav_uid[1024];
 	long dav_msgnum = (-1);

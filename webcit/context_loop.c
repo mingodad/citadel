@@ -53,7 +53,7 @@ void DestroySession(struct wcsession **sessions_to_kill)
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment2));
 	FreeStrBuf(&((*sessions_to_kill)->WBuf));
 	FreeStrBuf(&((*sessions_to_kill)->HBuf));
-
+	FreeStrBuf(&((*sessions_to_kill)->CLineBuf));
 	free((*sessions_to_kill));
 	(*sessions_to_kill) = NULL;
 }
@@ -171,39 +171,51 @@ int GenerateSessionID(void)
 /*
  * Collapse multiple cookies on one line
  */
-int req_gets(int *sock, char *buf, char *hold, size_t hlen)
+////int req_gets(int *sock, char *buf, char *hold, size_t hlen)
+////{
+////	int a, b;
+////
+////	if (IsEmptyStr(hold)) {
+////		strcpy(buf, "");
+////		a = client_getln(sock, buf, SIZ);
+////		if (a<1) return(-1);
+////	} else {
+////		safestrncpy(buf, hold, SIZ);
+////	}
+////	strcpy(hold, "");
+////
+////	if (!strncasecmp(buf, "Cookie: ", 8)) {
+////		int len;
+////		len = strlen(buf);
+////		for (a = 0; a < len; ++a)
+////			if (buf[a] == ';') {
+////				// we don't refresh len, because of we 
+////				// only exit from here.
+////				snprintf(hold, hlen, "Cookie: %s", &buf[a + 1]);
+////				buf[a] = 0;
+////				b = 8;
+////				while (isspace(hold[b]))
+////					b++;
+////				
+////				memmove(&hold[8], &hold[b], len - b + 1);
+////				return(0);
+////			}
+////	}
+////
+////	return(0);
+////}
+
+
+/*
+ * Collapse multiple cookies on one line
+ */
+int ReqGetStrBuf(int *sock, StrBuf *Target, StrBuf *buf)
 {
-	int a, b;
-
-	if (IsEmptyStr(hold)) {
-		strcpy(buf, "");
-		a = client_getln(sock, buf, SIZ);
-		if (a<1) return(-1);
-	} else {
-		safestrncpy(buf, hold, SIZ);
-	}
-	strcpy(hold, "");
-
-	if (!strncasecmp(buf, "Cookie: ", 8)) {
-		int len;
-		len = strlen(buf);
-		for (a = 0; a < len; ++a)
-			if (buf[a] == ';') {
-				// we don't refresh len, because of we 
-				// only exit from here.
-				snprintf(hold, hlen, "Cookie: %s", &buf[a + 1]);
-				buf[a] = 0;
-				b = 8;
-				while (isspace(hold[b]))
-					b++;
-				
-				memmove(&hold[8], &hold[b], len - b + 1);
-				return(0);
-			}
-	}
-
-	return(0);
+	
+	return ClientGetLine(sock, Target, buf);
 }
+
+
 
 /*
  * lingering_close() a`la Apache. see
@@ -249,12 +261,12 @@ int lingering_close(int fd)
  *
  * \param	http_cmd	The HTTP request to check
  */
-int is_bogus(char *http_cmd) {
-	char *url;
+int is_bogus(StrBuf *http_cmd) {
+	const char *url;
 	int i, max;
 
-	url = strstr(http_cmd, " ");
-	if (url == NULL) return(1);
+	url = ChrPtr(http_cmd);
+	if (IsEmptyStr(url)) return(1);
 	++url;
 
 	char *bogus_prefixes[] = {
@@ -277,6 +289,7 @@ int is_bogus(char *http_cmd) {
 }
 
 
+const char *nix(void *vptr) {return ChrPtr( (StrBuf*)vptr);}
 
 /**
  * \brief handle one request
@@ -293,10 +306,7 @@ int is_bogus(char *http_cmd) {
  */
 void context_loop(int *sock)
 {
-	struct httprequest *req = NULL;
-	struct httprequest *last = NULL;
-	struct httprequest *hptr;
-	char buf[SIZ], hold[SIZ];
+	const char *buf;
 	int desired_session = 0;
 	int got_cookie = 0;
 	int gzip_ok = 0;
@@ -304,9 +314,14 @@ void context_loop(int *sock)
 	char httpauth_string[1024];
 	char httpauth_user[1024];
 	char httpauth_pass[1024];
-	char accept_language[256];
 	char *ptr = NULL;
 	int session_is_new = 0;
+	int nLine = 0;
+	int LineLen;
+	void *vLine;
+	StrBuf *Buf, *Line, *LastLine, *HeaderName, *ReqLine, *accept_language, *ReqType, *HTTPVersion;
+	const char *pch, *pchs, *pche;
+	HashList *HTTPHeaders;
 
 	strcpy(httpauth_string, "");
 	strcpy(httpauth_user, DEFAULT_HTTPAUTH_USER);
@@ -315,111 +330,161 @@ void context_loop(int *sock)
 	/**
 	 * Find out what it is that the web browser is asking for
 	 */
-	memset(hold, 0, sizeof(hold));
+	HeaderName = NewStrBuf();
+	Buf = NewStrBuf();
+	LastLine = NULL;
+	HTTPHeaders = NewHash(1, NULL);
+	/**
+	 * Read in the request
+	 */
 	do {
-		if (req_gets(sock, buf, hold, SIZ) < 0) return;
+		nLine ++;
+		Line = NewStrBuf();
+		if (ReqGetStrBuf(sock, Line, Buf) < 0) return;
 
-		/**
-		 * Can we compress?
-		 */
-		if (!strncasecmp(buf, "Accept-encoding:", 16)) {
-			if (strstr(&buf[16], "gzip")) {
-				gzip_ok = 1;
-			}
+		LineLen = StrLength(Line);
+
+		if (nLine == 1) {
+			ReqLine = Line;
+			continue;
+		}
+		if (LineLen == 0) {
+			FreeStrBuf(&Line);
+			continue;
 		}
 
-		/**
-		 * Browser-based sessions use cookies for session authentication
-		 */
-		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
-			cookie_to_stuff(&buf[15], &desired_session,
+		/** Do we need to Unfold? */
+		if ((LastLine != NULL) && 
+		    (isspace(*ChrPtr(Line)))) {
+			pch = pchs = ChrPtr(Line);
+			pche = pchs + StrLength(Line);
+			while (isspace(pch) && (pch < pche))
+				pch ++;
+			StrBufCutLeft(Line, pch - pchs);
+			StrBufAppendBuf(LastLine, Line, 0);
+			FreeStrBuf(&Line);
+			continue;
+		}
+
+		StrBufExtract_token(HeaderName, Line, 0, ':');
+	//// TODO: filter bad chars!
+
+		pchs = ChrPtr(Line);
+		pch = pchs + StrLength(HeaderName) + 1;
+		pche = pchs + StrLength(Line);
+		while (isspace(*pch) && (pch < pche))
+			pch ++;
+		StrBufCutLeft(Line, pch - pchs);
+
+		StrBufUpCase(HeaderName);
+		Put(HTTPHeaders, SKEY(HeaderName), Line, HFreeStrBuf);
+		LastLine = Line;
+	} while (LineLen > 0);
+	FreeStrBuf(&HeaderName);
+
+////	dbg_PrintHash(HTTPHeaders, nix, NULL);
+
+
+	/**
+	 * Can we compress?
+	 */
+	if (GetHash(HTTPHeaders, HKEY("ACCEPT-ENCODING"), &vLine) && 
+	    (vLine != NULL)) {
+		buf = ChrPtr((StrBuf*)vLine);
+		if (strstr(&buf[16], "gzip")) {
+			gzip_ok = 1;
+		}
+	}
+
+	/**
+	 * Browser-based sessions use cookies for session authentication
+	 */
+	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
+	    (vLine != NULL)) {
+		cookie_to_stuff(vLine, &desired_session,
 				NULL, 0, NULL, 0, NULL, 0);
-			got_cookie = 1;
-		}
+		got_cookie = 1;
+	}
 
-		/**
-		 * GroupDAV-based sessions use HTTP authentication
-		 */
-		if (!strncasecmp(buf, "Authorization: Basic ", 21)) {
-			CtdlDecodeBase64(httpauth_string, &buf[21], strlen(&buf[21]));
+	/**
+	 * GroupDAV-based sessions use HTTP authentication
+	 */
+	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
+	    (vLine != NULL)) {
+		Line = (StrBuf*)vLine;
+		if (strncasecmp(ChrPtr(Line), "Basic ", 6)) {
+			StrBufCutLeft(Line, 6);
+			CtdlDecodeBase64(httpauth_string, ChrPtr(Line), StrLength(Line));
 			extract_token(httpauth_user, httpauth_string, 0, ':', sizeof httpauth_user);
 			extract_token(httpauth_pass, httpauth_string, 1, ':', sizeof httpauth_pass);
 		}
+		else 
+			lprintf(1, "Authentication sheme not supported! [%s]\n", ChrPtr(Line));
+	}
 
-		if (!strncasecmp(buf, "If-Modified-Since: ", 19)) {
-			if_modified_since = httpdate_to_timestamp(&buf[19]);
-		}
+	if (GetHash(HTTPHeaders, HKEY("IF-MODIFIED-SINCE"), &vLine) && 
+	    (vLine != NULL)) {
+		if_modified_since = httpdate_to_timestamp((StrBuf*)vLine);
+	}
 
-		if (!strncasecmp(buf, "Accept-Language: ", 17)) {
-			safestrncpy(accept_language, &buf[17], sizeof accept_language);
-		}
+	if (GetHash(HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
+	    (vLine != NULL)) {
+		accept_language = (StrBuf*) vLine;
+	}
 
-		/**
-		 * Read in the request
-		 */
-		hptr = (struct httprequest *)
-			malloc(sizeof(struct httprequest));
-		if (req == NULL)
-			req = hptr;
-		else
-			last->next = hptr;
-		hptr->next = NULL;
-		last = hptr;
-
-		safestrncpy(hptr->line, buf, sizeof hptr->line);
-
-	} while (!IsEmptyStr(buf));
 
 	/**
 	 * If the request is prefixed by "/webcit" then chop that off.  This
 	 * allows a front end web server to forward all /webcit requests to us
 	 * while still using the same web server port for other things.
 	 */
-	
-	ptr = strstr(req->line, " /webcit ");	/*< Handle "/webcit" */
-	if (ptr != NULL) {
-		strcpy(ptr+2, ptr+8);
+
+	ReqType = NewStrBuf();
+	HTTPVersion = NewStrBuf();
+	StrBufExtract_token(HTTPVersion, ReqLine, 2, ' ');
+	StrBufExtract_token(ReqType, ReqLine, 0, ' ');
+	StrBufCutLeft(ReqLine, StrLength(ReqType) + 1);
+	StrBufCutRight(ReqLine, StrLength(HTTPVersion) + 1);
+
+	if ((StrLength(ReqLine) > 10) &&
+	    (ptr = strstr(ChrPtr(ReqLine), "/webcit "),	/*< Handle "/webcit" */
+	     (ptr != NULL))) {
+		StrBufCutLeft(ReqLine, 6);
 	}
 
-	ptr = strstr(req->line, " /webcit");	/*< Handle "/webcit/" */
-	if (ptr != NULL) {
-		strcpy(ptr+1, ptr+8);
-	}
-
-	safestrncpy(buf, req->line, sizeof buf);
 	/** Begin parsing the request. */
 #ifdef TECH_PREVIEW
-	if ((strncmp(req->line+4, "/sslg", 5) != 0) &&
-	    (strncmp(req->line+4, "/static/", 8) != 0) &&
-	    (strncmp(req->line+4, "/wholist_section", 16) != 0)) {
+	if ((strncmp(ChrPtr(ReqLine), "/sslg", 5) != 0) &&
+	    (strncmp(ChrPtr(ReqLine), "/static/", 8) != 0) &&
+	    (strncmp(ChrPtr(ReqLine), "/wholist_section", 16) != 0)) {
 #endif
-		lprintf(5, "HTTP: %s\n", buf);
+		lprintf(5, "HTTP: %s %s %s\n", ChrPtr(ReqType), ChrPtr(ReqLine), ChrPtr(HTTPVersion));
 #ifdef TECH_PREVIEW
 	}
 #endif
 
 	/** Check for bogus requests */
-	if (is_bogus(buf)) {
-		strcpy(req->line, "GET /404 HTTP/1.1");
-		strcpy(buf, "GET /404 HTTP/1.1");
+	if ((StrLength(HTTPVersion) == 0) ||
+	    (StrLength(ReqType) == 0) || 
+	    is_bogus(ReqLine)) {
+		StrBufPlain(ReqLine, HKEY("/404 HTTP/1.1"));
+		StrBufPlain(ReqType, HKEY("GET"));
 	}
-
-	/**
-	 * Strip out the method, leaving the URL up front...
-	 */
-	remove_token(buf, 0, ' ');
-	if (buf[1]==' ') buf[1]=0;
+	FreeStrBuf(&HTTPVersion);
 
 	/**
 	 * While we're at it, gracefully handle requests for the
 	 * robots.txt and favicon.ico files.
 	 */
-	if (!strncasecmp(buf, "/robots.txt", 11)) {
-		strcpy(req->line, "GET /static/robots.txt"
-				"?force_close_session=yes HTTP/1.1");
+	if (!strncasecmp(ChrPtr(ReqLine), "/robots.txt", 11)) {
+		StrBufPlain(ReqLine, 
+			    HKEY("/static/robots.txt"
+				 "?force_close_session=yes HTTP/1.1"));
+		StrBufPlain(ReqType, HKEY("GET"));
 	}
-	else if (!strncasecmp(buf, "/favicon.ico", 12)) {
-		strcpy(req->line, "GET /static/favicon.ico");
+	else if (!strncasecmp(ChrPtr(ReqLine), "/favicon.ico", 12)) {
+		StrBufPlain(ReqLine, HKEY("/static/favicon.ico"));
+		StrBufPlain(ReqType, HKEY("GET"));
 	}
 
 	/**
@@ -428,17 +493,18 @@ void context_loop(int *sock)
 	 * force the session to close because cookies are
 	 * probably disabled on the client browser.
 	 */
-	else if ( (strcmp(buf, "/"))
-		&& (strncasecmp(buf, "/listsub", 8))
-		&& (strncasecmp(buf, "/freebusy", 9))
-		&& (strncasecmp(buf, "/do_logout", 10))
-		&& (strncasecmp(buf, "/groupdav", 9))
-		&& (strncasecmp(buf, "/static", 7))
-		&& (strncasecmp(buf, "/rss", 4))
-		&& (strncasecmp(buf, "/404", 4))
+	else if ( (StrLength(ReqLine) > 1 )
+		&& (strncasecmp(ChrPtr(ReqLine), "/listsub", 8))
+		&& (strncasecmp(ChrPtr(ReqLine), "/freebusy", 9))
+		&& (strncasecmp(ChrPtr(ReqLine), "/do_logout", 10))
+		&& (strncasecmp(ChrPtr(ReqLine), "/groupdav", 9))
+		&& (strncasecmp(ChrPtr(ReqLine), "/static", 7))
+		&& (strncasecmp(ChrPtr(ReqLine), "/rss", 4))
+		&& (strncasecmp(ChrPtr(ReqLine), "/404", 4))
 	        && (got_cookie == 0)) {
-		strcpy(req->line, "GET /static/nocookies.html"
-				"?force_close_session=yes HTTP/1.1");
+		StrBufPlain(ReqLine, 
+			    HKEY("/static/nocookies.html"
+				 "?force_close_session=yes"));
 	}
 
 	/**
@@ -499,7 +565,9 @@ void context_loop(int *sock)
 		TheSession->vars = NULL;
 		TheSession->nonce = rand();
 		TheSession->WBuf = NULL;
+		TheSession->CLineBuf = NewStrBuf();
 		TheSession->next = SessionList;
+		TheSession->is_mobile = -1;
 		SessionList = TheSession;
 		pthread_mutex_unlock(&SessionListMutex);
 		session_is_new = 1;
@@ -527,7 +595,7 @@ void context_loop(int *sock)
 	}
 	go_selected_language();					/* set locale */
 #endif
-	session_loop(req);					/* do transaction */
+	session_loop(HTTPHeaders, ReqLine, ReqType, Buf);				/* do transaction */
 #ifdef ENABLE_NLS
 	stop_selected_language();				/* unset locale */
 #endif
@@ -540,12 +608,10 @@ void context_loop(int *sock)
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
-	while (req != NULL) {
-		hptr = req->next;
-		free(req);
-		req = hptr;
-	}
-
+	DeleteHash(&HTTPHeaders);
+	FreeStrBuf(&ReqLine);
+	FreeStrBuf(&ReqType);
+	FreeStrBuf(&Buf);
 	/*
 	 * Free up any session-local substitution variables which
 	 * were set during this transaction

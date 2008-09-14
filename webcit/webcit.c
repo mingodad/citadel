@@ -1213,7 +1213,6 @@ void begin_ajax_response(void) {
  * print ajax response footer 
  */
 void end_ajax_response(void) {
-        ///hprintf("\r\n");///// todo: is this right?
         wDumpContent(0);
 }
 
@@ -1320,22 +1319,20 @@ int is_mobile_ua(char *user_agent) {
 /*
  * Entry point for WebCit transaction
  */
-void session_loop(struct httprequest *req)
+void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method, StrBuf *ReadBuf)
 {
-	char cmd[1024];
+	const char *pch, *pchs, *pche;
+	void *vLine;
 	char action[1024];
 	char arg[8][128];
 	size_t sizes[10];
 	char *index[10];
 	char buf[SIZ];
-	char request_method[128];
-	char pathname[1024];
-	int a, b, nBackDots, nEmpty;
+	int a, nBackDots, nEmpty;
 	int ContentLength = 0;
-	char ContentType[512];
-	char *content = NULL;
-	char *content_end = NULL;
-	struct httprequest *hptr;
+	StrBuf *ContentType, *UrlLine;
+	StrBuf *content = NULL;
+	const char *content_end = NULL;
 	char browser_host[256];
 	char user_agent[256];
 	int body_start = 0;
@@ -1352,7 +1349,6 @@ void session_loop(struct httprequest *req)
 	char c_httpauth_string[SIZ];
 	char c_httpauth_user[SIZ];
 	char c_httpauth_pass[SIZ];
-	char cookie[SIZ];
 	struct wcsession *WCC;
 	
 	safestrncpy(c_username, "", sizeof c_username);
@@ -1376,14 +1372,6 @@ void session_loop(struct httprequest *req)
 	WCC->upload = NULL;
 	WCC->is_mobile = 0;
 
-	hptr = req;
-	if (hptr == NULL) return;
-
-	safestrncpy(cmd, hptr->line, sizeof cmd);
-	hptr = hptr->next;
-	extract_token(request_method, cmd, 0, ' ', sizeof request_method);
-	extract_token(pathname, cmd, 1, ' ', sizeof pathname);
-
 	/** Figure out the action */
 	index[0] = action;
 	sizes[0] = sizeof action;
@@ -1397,7 +1385,7 @@ void session_loop(struct httprequest *req)
 	nEmpty = 0;
 	for ( a = 0; a < 9; ++a)
 	{
-		extract_token(index[a], pathname, a + 1, '/', sizes[a]);
+		extract_token(index[a], ChrPtr(ReqLine), a + 1, '/', sizes[a]);
 		if (strstr(index[a], "?")) *strstr(index[a], "?") = 0;
 		if (strstr(index[a], "&")) *strstr(index[a], "&") = 0;
 		if (strstr(index[a], " ")) *strstr(index[a], " ") = 0;
@@ -1407,113 +1395,109 @@ void session_loop(struct httprequest *req)
 			nEmpty++;
 	}
 
-	while (hptr != NULL) {
-		safestrncpy(buf, hptr->line, sizeof buf);
-		/* lprintf(9, "HTTP HEADER: %s\n", buf); */
-		hptr = hptr->next;
 
-		if (!strncasecmp(buf, "Cookie: webcit=", 15)) {
-			safestrncpy(cookie, &buf[15], sizeof cookie);
-			cookie_to_stuff(cookie, NULL,
-					c_username, sizeof c_username,
-					c_password, sizeof c_password,
-					c_roomname, sizeof c_roomname);
+	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
+	    (vLine != NULL)){
+		cookie_to_stuff((StrBuf *)vLine, NULL,
+				c_username, sizeof c_username,
+				c_password, sizeof c_password,
+				c_roomname, sizeof c_roomname);
+	}
+	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) &&
+	    (vLine!=NULL)) {
+		CtdlDecodeBase64(c_httpauth_string, ChrPtr((StrBuf*)vLine), StrLength((StrBuf*)vLine));
+		extract_token(c_httpauth_user, c_httpauth_string, 0, ':', sizeof c_httpauth_user);
+		extract_token(c_httpauth_pass, c_httpauth_string, 1, ':', sizeof c_httpauth_pass);
+	}
+	if (GetHash(HTTPHeaders, HKEY("CONTENT-LENGTH"), &vLine) &&
+	    (vLine!=NULL)) {
+		ContentLength = StrToi((StrBuf*)vLine);
+	}
+	if (GetHash(HTTPHeaders, HKEY("CONTENT-TYPE"), &vLine) &&
+	    (vLine!=NULL)) {
+		ContentType = (StrBuf*)vLine;
+	}
+	if (GetHash(HTTPHeaders, HKEY("USER-AGENT"), &vLine) &&
+	    (vLine!=NULL)) {
+		safestrncpy(user_agent, ChrPtr((StrBuf*)vLine), sizeof user_agent);
+#ifdef TECH_PREVIEW
+		if ((WCC->is_mobile < 0) && is_mobile_ua(&buf[12])) {			
+			WCC->is_mobile = 1;
 		}
-		else if (!strncasecmp(buf, "Authorization: Basic ", 21)) {
-			CtdlDecodeBase64(c_httpauth_string, &buf[21], strlen(&buf[21]));
-			extract_token(c_httpauth_user, c_httpauth_string, 0, ':', sizeof c_httpauth_user);
-			extract_token(c_httpauth_pass, c_httpauth_string, 1, ':', sizeof c_httpauth_pass);
+		else {
+			WCC->is_mobile = 0;
 		}
-		else if (!strncasecmp(buf, "Content-length: ", 16)) {
-			ContentLength = atoi(&buf[16]);
+#endif
+	}
+	if ((follow_xff) &&
+	    GetHash(HTTPHeaders, HKEY("X-FORWARDED-HOST"), &vLine) &&
+	    (vLine != NULL)) {
+		safestrncpy(WCC->http_host, &buf[18], sizeof WCC->http_host);
+	}
+	if (IsEmptyStr(WCC->http_host) && 
+	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) &&
+	    (vLine!=NULL)) {
+		safestrncpy(WCC->http_host, 
+			    ChrPtr((StrBuf*)vLine), 
+			    sizeof WCC->http_host);
+		
+	}
+	if (GetHash(HTTPHeaders, HKEY("X-FORWARDED-FOR"), &vLine) &&
+	    (vLine!=NULL)) {
+		safestrncpy(browser_host, 
+			    ChrPtr((StrBuf*) vLine), 
+			    sizeof browser_host);
+		while (num_tokens(browser_host, ',') > 1) {
+			remove_token(browser_host, 0, ',');
 		}
-		else if (!strncasecmp(buf, "Content-type: ", 14)) {
-			safestrncpy(ContentType, &buf[14], sizeof ContentType);
-		}
-		else if (!strncasecmp(buf, "User-agent: ", 12)) {
-			safestrncpy(user_agent, &buf[12], sizeof user_agent);
-			#ifdef TECH_PREVIEW
-			if (is_mobile_ua(&buf[12])) {
-				WCC->is_mobile = 1;
-			}
-			#endif
-		}
-		else if (!strncasecmp(buf, "X-Forwarded-Host: ", 18)) {
-			if (follow_xff) {
-				safestrncpy(WCC->http_host, &buf[18], sizeof WCC->http_host);
-			}
-		}
-		else if (!strncasecmp(buf, "Host: ", 6)) {
-			if (IsEmptyStr(WCC->http_host)) {
-				safestrncpy(WCC->http_host, &buf[6], sizeof WCC->http_host);
-			}
-		}
-		else if (!strncasecmp(buf, "X-Forwarded-For: ", 17)) {
-			safestrncpy(browser_host, &buf[17], sizeof browser_host);
-			while (num_tokens(browser_host, ',') > 1) {
-				remove_token(browser_host, 0, ',');
-			}
-			striplt(browser_host);
-		}
+		striplt(browser_host);
 	}
 
 	if (ContentLength > 0) {
-		int BuffSize;
-
-		BuffSize = ContentLength + SIZ;
-		content = malloc(BuffSize);
-		memset(content, 0, BuffSize);
-		snprintf(content,  BuffSize, "Content-type: %s\n"
+		content = NewStrBuf();
+		StrBufPrintf(content, "Content-type: %s\n"
 			 "Content-length: %d\n\n",
-			 ContentType, ContentLength);
+			 ChrPtr(ContentType), ContentLength);
 /*
 		hprintf("Content-type: %s\n"
 			"Content-length: %d\n\n",
 			ContentType, ContentLength);
 */
-		body_start = strlen(content);
+		body_start = StrLength(content);
 
 		/** Read the entire input data at once. */
-		client_read(&WCC->http_sock, &content[body_start], ContentLength);
+		client_read(&WCC->http_sock, content, ReadBuf, ContentLength);
 
-		if (!strncasecmp(ContentType, "application/x-www-form-urlencoded", 33)) {
-			StrBuf *Content;
-
-			Content = _NewConstStrBuf(&content[body_start],ContentLength);
-			addurls(Content);
-			FreeStrBuf(&Content);
-		} else if (!strncasecmp(ContentType, "multipart", 9)) {
-			content_end = content + ContentLength + body_start;
-			mime_parser(content, content_end, *upload_handler, NULL, NULL, NULL, 0);
+		if (!strncasecmp(ChrPtr(ContentType), "application/x-www-form-urlencoded", 33)) {
+			StrBufCutLeft(content, body_start);
+			addurls(content);
+		} else if (!strncasecmp(ChrPtr(ContentType), "multipart", 9)) {
+			content_end = ChrPtr(content) + ContentLength + body_start;
+			mime_parser(ChrPtr(content), content_end, *upload_handler, NULL, NULL, NULL, 0);
 		}
 	} else {
 		content = NULL;
 	}
 
 	/* make a note of where we are in case the user wants to save it */
-	safestrncpy(WCC->this_page, cmd, sizeof(WCC->this_page));
+	safestrncpy(WCC->this_page, ChrPtr(ReqLine), sizeof(WCC->this_page));
 	remove_token(WCC->this_page, 2, ' ');
 	remove_token(WCC->this_page, 0, ' ');
 
 	/* If there are variables in the URL, we must grab them now */
-	len = strlen(cmd);
-	for (a = 0; a < len; ++a) {
-		if ((cmd[a] == '?') || (cmd[a] == '&')) {
-			StrBuf *Params;
-			for (b = a; b < len; ++b) {
-				if (isspace(cmd[b])){
-					cmd[b] = 0;
-					len = b - 1;
-				}
-			}
-			//cmd[len - a] = '\0';
-			Params = _NewConstStrBuf(&cmd[a + 1], len - a);
-			addurls(Params);
-			FreeStrBuf(&Params);
-			cmd[a] = 0;
-			len = a - 1;
+	UrlLine = NewStrBufDup(ReqLine);
+	len = StrLength(UrlLine);
+	pch = pchs = ChrPtr(UrlLine);
+	pche = pchs + len;
+	while (pch < pche) {
+		if ((*pch == '?') || (*pch == '&')) {
+			StrBufCutLeft(UrlLine, pch - pchs + 1);
+			addurls(UrlLine);
+			break;
 		}
+		pch ++;
 	}
+	FreeStrBuf(&UrlLine);
 
 	/* If it's a "force 404" situation then display the error and bail. */
 	if (!strcmp(action, "404")) {
@@ -1526,7 +1510,7 @@ void session_loop(struct httprequest *req)
 
 	/* Static content can be sent without connecting to Citadel. */
 	is_static = 0;
-	for (a=0; a<ndirs; ++a) {
+	for (a=0; a<ndirs && ! is_static; ++a) {
 		if (!strcasecmp(action, (char*)static_content_dirs[a])) { /* map web to disk location */
 			is_static = 1;
 			n_static = a;
@@ -1625,7 +1609,7 @@ void session_loop(struct httprequest *req)
 			}
 		}
 	}
-////////todo: restorte language in this case
+////////todo: restore language in this case
 	/*
 	 * Functions which can be performed without logging in
 	 */
@@ -1634,7 +1618,7 @@ void session_loop(struct httprequest *req)
 		goto SKIP_ALL_THIS_CRAP;
 	}
 	if (!strcasecmp(action, "freebusy")) {
-		do_freebusy(cmd);
+		do_freebusy(ChrPtr(ReqLine));
 		goto SKIP_ALL_THIS_CRAP;
 	}
 
@@ -1676,8 +1660,10 @@ void session_loop(struct httprequest *req)
 	 * our session's authentication.
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
-		groupdav_main(req, ContentType, /* do GroupDAV methods */
-			ContentLength, content+body_start);
+		groupdav_main(HTTPHeaders, 
+			      ReqLine, request_method,
+			      ContentType, /* do GroupDAV methods */
+			      ContentLength, content, body_start);
 		if (!WCC->logged_in) {
 			WCC->killthis = 1;	/* If not logged in, don't */
 		}				/* keep the session active */
@@ -1689,9 +1675,10 @@ void session_loop(struct httprequest *req)
 	 * Automatically send requests with any method other than GET or
 	 * POST to the GroupDAV code as well.
 	 */
-	if ((strcasecmp(request_method, "GET")) && (strcasecmp(request_method, "POST"))) {
-		groupdav_main(req, ContentType, /** do GroupDAV methods */
-			ContentLength, content+body_start);
+	if ((strcasecmp(ChrPtr(request_method), "GET")) && (strcasecmp(ChrPtr(request_method), "POST"))) {
+		groupdav_main(HTTPHeaders, ReqLine, 
+			      request_method, ContentType, /** do GroupDAV methods */
+			      ContentLength, content, body_start);
 		if (!WCC->logged_in) {
 			WCC->killthis = 1;	/** If not logged in, don't */
 		}				/** keep the session active */
@@ -1774,7 +1761,7 @@ void session_loop(struct httprequest *req)
 SKIP_ALL_THIS_CRAP:
 	fflush(stdout);
 	if (content != NULL) {
-		free(content);
+		FreeStrBuf(&content);
 		content = NULL;
 	}
 	free_urls();

@@ -46,7 +46,7 @@ void stuff_to_cookie(char *cookie, size_t clen, int session,
  * \param	len	the length of the string
  * \return	the corrosponding integer value
  */
-int xtoi(char *in, size_t len)
+int xtoi(const char *in, size_t len)
 {
 	int val = 0;
 	char c = 0;
@@ -77,18 +77,23 @@ int xtoi(char *in, size_t len)
  * \param room the room he is in
  * \param room_len the length of the room string
  */
-void cookie_to_stuff(char *cookie, int *session,
+void cookie_to_stuff(StrBuf *cookie, int *session,
 		char *user, size_t user_len,
 		char *pass, size_t pass_len,
 		char *room, size_t room_len)
 {
+	const char *pch;
 	char buf[SIZ];
 	int i, len;
 
+	if (strncmp(ChrPtr(cookie), HKEY("webcit=")) == 0)
+		StrBufCutLeft(cookie, 7);
+
 	strcpy(buf, "");
-	len = strlen(cookie) / 2;
+	len = StrLength(cookie) / 2;
+	pch = ChrPtr(cookie);
 	for (i=0; i<len; ++i) {
-		buf[i] = xtoi(&cookie[i*2], 2);
+		buf[i] = xtoi(&pch[i*2], 2);
 		buf[i+1] = 0;
 	}
 

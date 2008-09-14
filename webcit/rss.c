@@ -47,7 +47,7 @@ void display_rss_control(char *reply_to, char *subject)
  * \param roomname the room we sould print out as rss 
  * \param request_method the way the rss is requested????
  */
-void display_rss(char *roomname, char *request_method)
+void display_rss(char *roomname, StrBuf *request_method)
 {
 	int nummsgs;
 	int a, b;
@@ -146,7 +146,7 @@ void display_rss(char *roomname, char *request_method)
 	hprintf("Content-Type: application/rss+xml\r\n");
 	hprintf("Server: %s\r\n", PACKAGE_STRING);
 	hprintf("Connection: close\r\n");
-	if (!strcasecmp(request_method, "HEAD"))
+	if (!strcasecmp(ChrPtr(request_method), "HEAD"))
 		return;
 
 	/* <?xml.. etc confuses our subst parser, so do it here */

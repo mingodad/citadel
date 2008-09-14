@@ -227,7 +227,7 @@ void init_ssl(void)
 					X509_NAME_add_entry_by_txt(
 						name, "OU",
 						MBSTRING_ASC, 
-						(unsigned char*)"Citadel server",
+						(unsigned char*)"Citadel server1",
 						-1, -1, 0);
 
 					X509_NAME_add_entry_by_txt(
@@ -387,7 +387,7 @@ int starttls(int sock) {
 		 * revert to unencrypted communications.
 		 */
 		long errval;
-		char *ssl_error_reason = NULL;
+		const char *ssl_error_reason = NULL;
 
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
@@ -400,7 +400,7 @@ int starttls(int sock) {
 	}
 	if (retval < 1) {
 		long errval;
-		char *ssl_error_reason = NULL;
+		const char *ssl_error_reason = NULL;
 
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
@@ -411,16 +411,16 @@ int starttls(int sock) {
 		SSL_free(newssl);
 		newssl = NULL;
 		return(4);
-	} else lprintf(3, "SSL_accept success\n");
+	} else lprintf(15, "SSL_accept success\n");
 	BIO_set_close(newssl->rbio, BIO_NOCLOSE);
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl), &alg_bits);
-	lprintf(5, "SSL/TLS using %s on %s (%d of %d bits)\n",
+	lprintf(15, "SSL/TLS using %s on %s (%d of %d bits)\n",
 		SSL_CIPHER_get_name(SSL_get_current_cipher(newssl)),
 		SSL_CIPHER_get_version(SSL_get_current_cipher(newssl)),
 		bits, alg_bits);
 
 	pthread_setspecific(ThreadSSL, newssl);
-	lprintf(3, "SSL started\n");
+	lprintf(15, "SSL started\n");
 	return(0);
 }
 
@@ -438,7 +438,7 @@ void endtls(void)
 
 	if (THREADSSL == NULL) return;
 
-	lprintf(5, "Ending SSL/TLS\n");
+	lprintf(15, "Ending SSL/TLS\n");
 	SSL_shutdown(THREADSSL);
 	ctx = SSL_get_SSL_CTX(THREADSSL);
 
@@ -524,7 +524,7 @@ void client_write_ssl(const StrBuf *Buf)
  * \param timeout how long should we wait?
  * \returns what???
  */
-int client_read_ssl(char *buf, int bytes, int timeout)
+int client_read_sslbuffer(StrBuf *buf, int timeout)
 {
 #if 0
 	fd_set rfds;
@@ -532,13 +532,13 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 	int retval;
 	int s;
 #endif
-	int len, rlen;
+	char sbuf[16384]; /**< Openssl communicates in 16k blocks, so lets speak its native tongue. */
+	int rlen;
 	char junk[1];
 
 	if (THREADSSL == NULL) return(0);
 
-	len = 0;
-	while (len < bytes) {
+	while (1) {
 #if 0
 		/**
 		 * This code is disabled because we don't need it when
@@ -562,7 +562,7 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 				lprintf(9, "SSL_write in client_read\n");
 			}
 		}
-		rlen = SSL_read(THREADSSL, &buf[len], bytes - len);
+		rlen = SSL_read(THREADSSL, sbuf, sizeof(sbuf));
 		if (rlen < 1) {
 			long errval;
 
@@ -576,7 +576,8 @@ int client_read_ssl(char *buf, int bytes, int timeout)
 			endtls();
 			return (0);
 		}
-		len += rlen;
+		StrBufAppendBufPlain(buf, sbuf, rlen, 0);
+		return(1);
 	}
 	return (1);
 }

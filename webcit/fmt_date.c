@@ -147,14 +147,14 @@ void fmt_time(char *buf, time_t thetime)
  * FIXME won't read asctime
  * Doesn't understand timezone, but we only should be using GMT/UTC anyway
  */
-time_t httpdate_to_timestamp(char *buf)
+time_t httpdate_to_timestamp(StrBuf *buf)
 {
 	time_t t = 0;
 	struct tm tt;
-	char *c;
+	const char *c;
 
 	/** Skip day of week, to number */
-	for (c = buf; *c != ' '; c++)
+	for (c = ChrPtr(buf); *c != ' '; c++)
 		;
 	c++;
 	

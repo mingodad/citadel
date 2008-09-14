@@ -196,43 +196,38 @@ int ig_uds_server(char *sockpath, int queue_len)
  *      0       Request timed out.
  *	-1   	Connection is broken, or other error.
  */
-int client_read_to(int *sock, char *buf, int bytes, int timeout)
+int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeout)
 {
-	int len, rlen;
-	fd_set rfds;
-	struct timeval tv;
-	int retval;
-
+	const char *Error;
+	int retval = 0;
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		return (client_read_ssl(buf, bytes, timeout));
+		while ((retval >= 0) && (StrLength(Buf) < bytes))
+			retval = client_read_sslbuffer(Buf, timeout);
+		if (retval >= 0) {
+			StrBufAppendBuf(Target, Buf, 0); /// todo: Buf > bytes?
+
+		}
+		else {
+			lprintf(2, "client_read_ssl() failed\n");
+			return -1;
+		}
 	}
 #endif
 
-	len = 0;
-	while ((len < bytes) && (*sock > 0)) {
-		FD_ZERO(&rfds);
-		FD_SET(*sock, &rfds);
-		tv.tv_sec = timeout;
-		tv.tv_usec = 0;
-
-		retval = select((*sock) + 1, &rfds, NULL, NULL, &tv);
-		if (FD_ISSET(*sock, &rfds) == 0) {
-			return (0);
-		}
-
-		rlen = read(*sock, &buf[len], bytes - len);
-
-		if (rlen < 1) {
-			lprintf(2, "client_read() failed: %s\n",
-				strerror(errno));
-			if (*sock > 0)
-				close(*sock);
-			*sock = -1;	
-			return (-1);
-		}
-		len = len + rlen;
+	if (StrLength(Buf) > 0) {//// todo: what if Buf > bytes?
+		StrBufAppendBuf(Target, Buf, 0);
+	}
+	retval = StrBufReadBLOB(Target, 
+			   sock, 
+			   (StrLength(Target) > 0), 
+			   bytes - StrLength(Target), 
+				&Error);
+	if (retval < 0) {
+		lprintf(2, "client_read() failed: %s\n",
+			Error);
+		return retval;
 	}
 
 #ifdef HTTP_TRACING
@@ -364,9 +359,9 @@ long end_burst(void)
  * buf		the buffer to write to
  * bytes	Number of bytes to read
  */
-int client_read(int *sock, char *buf, int bytes)
+int client_read(int *sock, StrBuf *Target, StrBuf *buf, int bytes)
 {
-	return (client_read_to(sock, buf, bytes, SLEEPING));
+	return (client_read_to(sock, Target, buf, bytes, SLEEPING));
 }
 
 
@@ -381,38 +376,37 @@ int client_read(int *sock, char *buf, int bytes)
  *
  * returns the number of bytes read
  */
-int client_getln(int *sock, char *buf, int bufsiz)
-{
-	int i = 0;
-	int retval = 0;
-
-	/* Read one character at a time.*/
-	for (i = 0; *sock > 0; i++) {
-		retval = client_read(sock, &buf[i], 1);
-		if (retval < 0)
-			return retval;
-		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
-			break;
-		if ( (!isspace(buf[i])) && (!isprint(buf[i])) ) {
-			/* Non printable character recieved from client */
-			return(-1);
-		}
-	}
-
-	/* If we got a long line, discard characters until the newline. */
-	if (i == (bufsiz-1))
-		while (buf[i] != '\n' && retval == 1)
-			retval = client_read(sock, &buf[i], 1);
-
-	/*
-	 * Strip any trailing non-printable characters.
-	 */
-	buf[i] = 0;
-	while ((i > 0) && (!isprint(buf[i - 1]))) {
-		buf[--i] = 0;
-	}
-	return (retval);
-}
+/////int client_getln(int *sock, char *buf, int bufsiz)
+/////{
+/////	int i, retval;
+/////
+/////	/* Read one character at a time.*/
+/////	for (i = 0; *sock > 0; i++) {
+/////		retval = client_read(sock, &buf[i], 1);
+/////		if (retval < 0)
+/////			return retval;
+/////		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
+/////			break;
+/////		if ( (!isspace(buf[i])) && (!isprint(buf[i])) ) {
+/////			/* Non printable character recieved from client */
+/////			return(-1);
+/////		}
+/////	}
+/////
+/////	/* If we got a long line, discard characters until the newline. */
+/////	if (i == (bufsiz-1))
+/////		while (buf[i] != '\n' && retval == 1)
+/////			retval = client_read(sock, &buf[i], 1);
+/////
+/////	/*
+/////	 * Strip any trailing non-printable characters.
+/////	 */
+/////	buf[i] = 0;
+/////	while ((i > 0) && (!isprint(buf[i - 1]))) {
+/////		buf[--i] = 0;
+/////	}
+/////	return (retval);
+/////}
 
 /*
  * Shut us down the regular way.
@@ -425,6 +419,56 @@ void graceful_shutdown_watcher(int signum) {
 	if (signum != SIGHUP)
 		exit(0);
 }
+
+
+int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf)
+{
+	const char *Error, *pch, *pchs;
+	int rlen, len, retval = 0;
+
+	if (is_https) {
+		if (StrLength(CLineBuf) > 0) {
+			pchs = ChrPtr(CLineBuf);
+			pch = strchr(pchs, '\n');
+			if (pch != NULL) {
+				rlen = 0;
+				len = pch - pchs;
+				if (len > 0 && (*(pch - 1) == '\r') )
+					rlen ++;
+				StrBufSub(Target, CLineBuf, 0, len - rlen);
+				StrBufCutLeft(CLineBuf, len + 1);
+				return len - rlen;
+			}
+		}
+
+		while ((retval >= 0) && 
+		       (pchs = ChrPtr(CLineBuf),
+			pch = strchr(pchs, '\n'), 
+			pch == NULL))
+			retval = client_read_sslbuffer(CLineBuf, SLEEPING);
+		if ((retval > 0) && (pch != NULL)) {
+			rlen = 0;
+			len = pch - pchs;
+			if (len > 0 && (*(pch - 1) == '\r') )
+				rlen ++;
+			StrBufSub(Target, CLineBuf, 0, len - rlen);
+			StrBufCutLeft(CLineBuf, len + 1);
+			return len - rlen;
+
+		}
+		else 
+			return -1;
+	}
+	else 
+		return StrBufTCP_read_buffered_line(Target, 
+						    CLineBuf,
+						    sock,
+						    5,
+						    1,
+						    &Error);
+}
+
+
 
 /*
  * Shut us down the regular way.

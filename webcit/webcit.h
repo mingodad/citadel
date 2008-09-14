@@ -196,12 +196,6 @@ extern locale_t wc_locales[];
 #define NLI	"(not logged in)"
 
 
-/** \brief	Linked list of lines appearing in an HTTP client request */
-struct httprequest {
-	struct httprequest *next;  /**< the next request in the list */
-	char line[SIZ];            /**< the request line */
-};
-
 /**
  * \brief	Linked list of session variables encoded in an x-www-urlencoded content type
  */
@@ -470,6 +464,7 @@ struct wcsession {
 	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *WBuf;                           /**< Our output buffer */
 	StrBuf *HBuf;                           /**< Our HeaderBuffer */
+	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
 
 	HashList *ServCfg;                      /**< cache our server config for editing */
 	HashList *InetCfg;                      /**< Our inet server config for editing */
@@ -534,7 +529,7 @@ void end_critical_section(int which_one);
 
 void stuff_to_cookie(char *cookie, size_t clen, int session,
 			char *user, char *pass, char *room);
-void cookie_to_stuff(char *cookie, int *session,
+void cookie_to_stuff(StrBuf *cookie, int *session,
                 char *user, size_t user_len,
                 char *pass, size_t pass_len,
                 char *room, size_t room_len);
@@ -652,11 +647,11 @@ void shutdown_sessions(void);
 void do_housekeeping(void);
 void smart_goto(char *);
 void worker_entry(void);
-void session_loop(struct httprequest *);
+void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *ReqType, StrBuf *ReadBuf);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
 void fmt_time(char *buf, time_t thetime);
 void httpdate(char *buf, time_t thetime);
-time_t httpdate_to_timestamp(char *buf);
+time_t httpdate_to_timestamp(StrBuf *buf);
 void end_webcit_session(void);
 void page_popup(void);
 void http_redirect(const char *);
@@ -771,7 +766,7 @@ void ical_dezonify(icalcomponent *cal);
 void partstat_as_string(char *buf, icalproperty *attendee);
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
 void check_attendee_availability(icalcomponent *supplied_vevent);
-void do_freebusy(char *req);
+void do_freebusy(const char *req);
 int ical_ctdl_is_overlap(
                         struct icaltimetype t1start,
                         struct icaltimetype t1end,
@@ -798,13 +793,13 @@ long unescape_input(char *buf);
 void do_selected_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
-void display_rss(char *roomname, char *request_method);
+void display_rss(char *roomname, StrBuf *request_method);
 void offer_languages(void);
 void set_selected_language(const char *);
 void go_selected_language(void);
 void stop_selected_language(void);
 void preset_locale(void);
-void httplang_to_locale(char *LocaleString);
+void httplang_to_locale(StrBuf *LocaleString);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
@@ -813,7 +808,7 @@ void begin_tab(int tabnum, int num_tabs);
 void end_tab(int tabnum, int num_tabs);
 void str_wiki_index(char *s);
 int get_time_format_cached (void);
-int xtoi(char *in, size_t len);
+int xtoi(const char *in, size_t len);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 
@@ -838,7 +833,7 @@ void endtls(void);
 void ssl_lock(int mode, int n, const char *file, int line);
 int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
-int client_read_ssl(char *buf, int bytes, int timeout);
+int client_read_sslbuffer(StrBuf *buf, int timeout);
 void client_write_ssl(const StrBuf *Buf);
 #endif
 
