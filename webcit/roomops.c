@@ -452,6 +452,8 @@ void embed_room_banner(char *got, int navbar_style) {
 	 * If it isn't supplied, we fake it by issuing our own GOTO.
 	 */
 	if (got == NULL) {
+		memset(buf, 20, '0');
+		buf[20] = '\0';
 		serv_printf("GOTO %s", WC->wc_roomname);
 		serv_getln(buf, sizeof buf);
 		got = buf;
