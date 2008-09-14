@@ -14,12 +14,20 @@ struct epdata {
 
 
 void groupdav_common_headers(void);
-void groupdav_main(struct httprequest *, char *, int, char *);
-void groupdav_get(char *);
-void groupdav_put(char *, char *, char *, char *, int);
-void groupdav_delete(char *, char *);
-void groupdav_propfind(char *, int, char *, char *);
-void groupdav_options(char *);
+void groupdav_main(HashList *HTTPHeaders,
+		   StrBuf *DavPathname,
+		   StrBuf *DavMethod,
+		   StrBuf *dav_content_type,
+		   int dav_content_length,
+		   StrBuf *dav_content,
+		   int Offset);
+void groupdav_get(const char *dav_pathname);
+void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
+		  const char *dav_content_type, StrBuf *dav_content,
+		  int offset);
+void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch);
+void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset);
+void groupdav_options(const char *dav_pathname);
 long locate_message_by_uid(char *);
 void groupdav_folder_list(void);
 void euid_escapize(char *, char *);

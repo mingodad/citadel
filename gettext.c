@@ -51,7 +51,7 @@ typedef struct _lang_pref{
  * \param LocaleString the string from the browser http headers
  */
 
-void httplang_to_locale(char *LocaleString)
+void httplang_to_locale(StrBuf *LocaleString)
 {
 	LangStruct wanted_locales[SEARCH_LANG];
 	LangStruct *ls;
@@ -63,24 +63,32 @@ void httplang_to_locale(char *LocaleString)
 	int av;
 	int nBest;
 	int nParts;
-	char search[1024];
+	StrBuf *Buf = NULL;
+	StrBuf *SBuf;
 	
-	safestrncpy(search, LocaleString, sizeof search);
-	nParts=num_tokens(search,',');
+	nParts=StrBufNum_tokens(LocaleString,',');
 	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++)
         {
-			char buf[16];
 			char sbuf[16];
 			char lbuf[16];
 			int blen;
 			
+			if (Buf == NULL) {
+				Buf = NewStrBuf();
+				SBuf = NewStrBuf();
+			}
+			else {
+				FlushStrBuf(Buf);
+				FlushStrBuf(SBuf);
+			}
+
 			ls=&wanted_locales[i];
 
-			extract_token(&buf[0],search, i,',',16);
+			StrBufExtract_token(Buf,LocaleString, i,',');
 			/** we are searching, if this list item has something like ;q=n*/
-			if (num_tokens(&buf[0],'=')>1) {
+			if (StrBufNum_tokens(Buf,'=')>1) {
 				int sbuflen, k;
-				extract_token(&sbuf[0],&buf[0], 1,'=',16);
+				StrBufExtract_token(SBuf,Buf, 1,'=');
 				sbuflen=strlen(&sbuf[0]);
 				for (k=0; k<sbuflen; k++) if (sbuf[k]=='.') sbuf[k]='0';
 				ls->priority=atol(&sbuf[0]);
@@ -89,12 +97,12 @@ void httplang_to_locale(char *LocaleString)
 				ls->priority=1000;
 			}
 			/** get the locale part */
-			extract_token(&sbuf[0],&buf[0],0,';',16);
+			StrBufExtract_token(SBuf ,Buf, 0, ';');
 			/** get the lang part, which should be allways there */
-			extract_token(&ls->lang[0],&sbuf[0],0,'-',16);
+			extract_token(&ls->lang[0], ChrPtr(SBuf), 0, '-', 16);
 			/** get the area code if any. */
-			if (num_tokens(&sbuf[0],'-')>1) {
-				extract_token(&ls->region[0],&sbuf[0],1,'-',16);
+			if (StrBufNum_tokens(SBuf,'-') > 1) {
+				extract_token(&ls->region[0],ChrPtr(SBuf),1,'-',16);
 			}
 			else { /** no ara code? use lang code */
 				blen=strlen(&ls->lang[0]);
@@ -149,6 +157,8 @@ void httplang_to_locale(char *LocaleString)
 	}
 	WC->selected_language=nBest;
 	lprintf(9, "language found: %s\n", AvailLangLoaded[WC->selected_language]);
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&SBuf);
 }
 
 /* TODO: we skip the language weighting so far. */

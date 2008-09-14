@@ -84,46 +84,45 @@ void euid_unescapize(char *target, char *source) {
 /*
  * Main entry point for GroupDAV requests
  */
-void groupdav_main(struct httprequest *req,
-			char *dav_content_type,
-			int dav_content_length,
-			char *dav_content
+void groupdav_main(HashList *HTTPHeaders,
+		   StrBuf *DavPathname,
+		   StrBuf *DavMethod,
+		   StrBuf *dav_content_type,
+		   int dav_content_length,
+		   StrBuf *dav_content,
+		   int Offset
 ) {
-	struct httprequest *rptr;
-	char dav_method[256];
-	char dav_pathname[256];
+	void *vLine;
 	char dav_ifmatch[256];
 	int dav_depth;
 	char *ds;
 	int i, len;
 
-	strcpy(dav_method, "");
-	strcpy(dav_pathname, "");
 	strcpy(dav_ifmatch, "");
 	dav_depth = 0;
 
-	for (rptr=req; rptr!=NULL; rptr=rptr->next) {
-		if (!strncasecmp(rptr->line, "Host: ", 6)) {
-			if (IsEmptyStr(WC->http_host)) {
-                        	safestrncpy(WC->http_host, &rptr->line[6],
-					sizeof WC->http_host);
-			}
-                }
-		if (!strncasecmp(rptr->line, "If-Match: ", 10)) {
-                        safestrncpy(dav_ifmatch, &rptr->line[10],
-				sizeof dav_ifmatch);
-                }
-		if (!strncasecmp(rptr->line, "Depth: ", 7)) {
-			if (!strcasecmp(&rptr->line[7], "infinity")) {
-				dav_depth = 32767;
-			}
-			else if (!strcmp(&rptr->line[7], "0")) {
-				dav_depth = 0;
-			}
-			else if (!strcmp(&rptr->line[7], "1")) {
-				dav_depth = 1;
-			}
-                }
+	if (IsEmptyStr(WC->http_host) &&
+	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) && 
+	    (vLine != NULL)) {
+		safestrncpy(WC->http_host, ChrPtr((StrBuf*)vLine),
+			    sizeof WC->http_host);
+	}
+	if (GetHash(HTTPHeaders, HKEY("IF-MATCH"), &vLine) && 
+	    (vLine != NULL)) {
+		safestrncpy(dav_ifmatch, ChrPtr((StrBuf*)vLine),
+			    sizeof dav_ifmatch);
+	}
+	if (GetHash(HTTPHeaders, HKEY("DEPTH"), &vLine) && 
+	    (vLine != NULL)) {
+		if (!strcasecmp(ChrPtr((StrBuf*)vLine), "infinity")) {
+			dav_depth = 32767;
+		}
+		else if (strcmp(ChrPtr((StrBuf*)vLine), "0") == 0) {
+			dav_depth = 0;
+		}
+		else if (strcmp(ChrPtr((StrBuf*)vLine), "1") == 0) {
+			dav_depth = 1;
+		}
 	}
 
 	if (!WC->logged_in) {
@@ -136,9 +135,9 @@ void groupdav_main(struct httprequest *req,
 		return;
 	}
 
-	extract_token(dav_method, req->line, 0, ' ', sizeof dav_method);
-	extract_token(dav_pathname, req->line, 1, ' ', sizeof dav_pathname);
-	unescape_input(dav_pathname);
+//	extract_token(dav_method, req->line, 0, ' ', sizeof dav_method);
+//	extract_token(dav_pathname, req->line, 1, ' ', sizeof dav_pathname);
+	//// TODO unescape_input(dav_pathname);
 
 	/* If the request does not begin with "/groupdav", prepend it.  If
 	 * we happen to introduce a double-slash, that's ok; we'll strip it
@@ -155,7 +154,7 @@ void groupdav_main(struct httprequest *req,
 	 */
 	
 	/* Remove any stray double-slashes in pathname */
-	while (ds=strstr(dav_pathname, "//"), ds != NULL) {
+	while (ds=strstr(ChrPtr(DavPathname), "//"), ds != NULL) {
 		strcpy(ds, ds+1);
 	}
 
@@ -186,8 +185,8 @@ void groupdav_main(struct httprequest *req,
 	 * experiment to determine what might be involved in supporting
 	 * other variants of DAV in the future.
 	 */
-	if (!strcasecmp(dav_method, "OPTIONS")) {
-		groupdav_options(dav_pathname);
+	if (!strcasecmp(ChrPtr(DavMethod), "OPTIONS")) {
+		groupdav_options(ChrPtr(DavPathname));
 		return;
 	}
 
@@ -195,35 +194,36 @@ void groupdav_main(struct httprequest *req,
 	 * The PROPFIND method is basically used to list all objects in a
 	 * room, or to list all relevant rooms on the server.
 	 */
-	if (!strcasecmp(dav_method, "PROPFIND")) {
-		groupdav_propfind(dav_pathname, dav_depth,
-				dav_content_type, dav_content);
+	if (!strcasecmp(ChrPtr(DavMethod), "PROPFIND")) {
+		groupdav_propfind(ChrPtr(DavPathname), dav_depth,
+				  dav_content_type, dav_content, 
+				  Offset);
 		return;
 	}
 
 	/*
 	 * The GET method is used for fetching individual items.
 	 */
-	if (!strcasecmp(dav_method, "GET")) {
-		groupdav_get(dav_pathname);
+	if (!strcasecmp(ChrPtr(DavMethod), "GET")) {
+		groupdav_get(ChrPtr(DavPathname));
 		return;
 	}
 
 	/*
 	 * The PUT method is used to add or modify items.
 	 */
-	if (!strcasecmp(dav_method, "PUT")) {
-		groupdav_put(dav_pathname, dav_ifmatch,
-				dav_content_type, dav_content,
-				dav_content_length);
+	if (!strcasecmp(ChrPtr(DavMethod), "PUT")) {
+		groupdav_put(ChrPtr(DavPathname), dav_ifmatch,
+			     ChrPtr(dav_content_type), dav_content, 
+			     Offset);
 		return;
 	}
 
 	/*
 	 * The DELETE method kills, maims, and destroys.
 	 */
-	if (!strcasecmp(dav_method, "DELETE")) {
-		groupdav_delete(dav_pathname, dav_ifmatch);
+	if (!strcasecmp(ChrPtr(DavMethod), "DELETE")) {
+		groupdav_delete(DavPathname, dav_ifmatch);
 		return;
 	}
 
@@ -234,7 +234,7 @@ void groupdav_main(struct httprequest *req,
 	groupdav_common_headers();
 	hprintf("Content-Type: text/plain\r\n");
 	wprintf("GroupDAV method \"%s\" is not implemented.\r\n",
-		dav_method);
+		ChrPtr(DavMethod));
 	end_burst();
 }
 

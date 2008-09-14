@@ -15,7 +15,7 @@
  * component.  This would be for webcal:// 'publish' operations, not
  * for GroupDAV.
  */
-void groupdav_put_bigics(char *dav_content, int dav_content_length)
+void groupdav_put_bigics(StrBuf *dav_content, int offset)
 {
 	char buf[1024];
 
@@ -37,7 +37,7 @@ void groupdav_put_bigics(char *dav_content, int dav_content_length)
 		return;
 	}
 
-	serv_write(dav_content, dav_content_length);
+	serv_write(ChrPtr(dav_content) + offset, StrLength(dav_content) - offset);
 	serv_printf("\n000");
 
 	/* Report success and not much else. */
@@ -54,10 +54,10 @@ void groupdav_put_bigics(char *dav_content, int dav_content_length)
  * /groupdav/room_name/euid	(GroupDAV)
  * /groupdav/room_name		(webcal)
  */
-void groupdav_put(char *dav_pathname, char *dav_ifmatch,
-		char *dav_content_type, char *dav_content,
-		int dav_content_length
-) {
+void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
+		  const char *dav_content_type, StrBuf *dav_content,
+		  int offset) 
+{
 	char dav_roomname[1024];
 	char dav_uid[1024];
 	long new_msgnum = (-2L);
@@ -119,7 +119,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 	/** PUT on the collection itself uploads an ICS of the entire collection.
 	 */
 	if (!strcasecmp(dav_uid, "")) {
-		groupdav_put_bigics(dav_content, dav_content_length);
+		groupdav_put_bigics(dav_content, offset);
 		return;
 	}
 
@@ -142,7 +142,7 @@ void groupdav_put(char *dav_pathname, char *dav_ifmatch,
 
 	/* Send the content to the Citadel server */
 	serv_printf("Content-type: %s\n\n", dav_content_type);
-	serv_puts(dav_content);
+	serv_puts(ChrPtr(dav_content) + offset);
 	serv_puts("\n000");
 
 	/* Fetch the reply from the Citadel server */

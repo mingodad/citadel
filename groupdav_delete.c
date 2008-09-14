@@ -13,7 +13,7 @@
 /*
  * The pathname is always going to be /groupdav/room_name/euid
  */
-void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
+void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
 	char dav_roomname[SIZ];
 	char dav_uid[SIZ];
 	long dav_msgnum = (-1);
@@ -22,20 +22,20 @@ void groupdav_delete(char *dav_pathname, char *dav_ifmatch) {
 	int len;
 
 	/* First, break off the "/groupdav/" prefix */
-	remove_token(dav_pathname, 0, '/');
-	remove_token(dav_pathname, 0, '/');
+	StrBufRemove_token(dav_pathname, 0, '/');
+	StrBufRemove_token(dav_pathname, 0, '/');
 
 	/* Now extract the message euid */
-	n = num_tokens(dav_pathname, '/');
-	extract_token(dav_uid, dav_pathname, n-1, '/', sizeof dav_uid);
-	remove_token(dav_pathname, n-1, '/');
+	n = StrBufNum_tokens(dav_pathname, '/');
+	extract_token(dav_uid, ChrPtr(dav_pathname), n-1, '/', sizeof dav_uid);
+	StrBufRemove_token(dav_pathname, n-1, '/');
 
 	/* What's left is the room name.  Remove trailing slashes. */
-	len = strlen(dav_pathname);
-	if (dav_pathname[len-1] == '/') {
-		dav_pathname[len-1] = 0;
+	len = StrLength(dav_pathname);
+	if ((len > 0) && (ChrPtr(dav_pathname)[len-1] == '/')) {
+		StrBufCutRight(dav_pathname, 1);
 	}
-	strcpy(dav_roomname, dav_pathname);
+	strcpy(dav_roomname, ChrPtr(dav_pathname));
 
 	/* Go to the correct room. */
 	if (strcasecmp(WC->wc_roomname, dav_roomname)) {

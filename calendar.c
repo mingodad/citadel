@@ -1072,7 +1072,7 @@ void save_event(void) {
 /*
  * Anonymous request of freebusy data for a user
  */
-void do_freebusy(char *req) {
+void do_freebusy(const char *req) {
 	char who[SIZ];
 	char buf[SIZ];
 	int len;

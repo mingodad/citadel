@@ -12,7 +12,7 @@
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_options(char *dav_pathname) {
+void groupdav_options(const char *dav_pathname) {
 	char dav_roomname[256];
 	char dav_uid[256];
 	long dav_msgnum = (-1);

@@ -62,7 +62,7 @@ long locate_message_by_uid(char *uid) {
  * List rooms (or "collections" in DAV terminology) which contain
  * interesting groupware objects.
  */
-void groupdav_collection_list(char *dav_pathname, int dav_depth)
+void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 {
 	char buf[256];
 	char roomname[256];
@@ -227,7 +227,7 @@ void groupdav_collection_list(char *dav_pathname, int dav_depth)
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_propfind(char *dav_pathname, int dav_depth, char *dav_content_type, char *dav_content) {
+void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset) {
 	char dav_roomname[256];
 	char dav_uid[256];
 	char msgnum[256];
