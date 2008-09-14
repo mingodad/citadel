@@ -24,6 +24,10 @@ struct StrBuf {
 
 /** 
  * \Brief Cast operator to Plain String 
+ * Note: if the buffer is altered by StrBuf operations, this pointer may become 
+ *  invalid. So don't lean on it after altering the buffer!
+ *  Since this operation is considered cheap, rather call it often than risking
+ *  your pointer to become invalid!
  * \param Str the string we want to get the c-string representation for
  * \returns the Pointer to the Content. Don't mess with it!
  */
@@ -700,8 +704,72 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
  */
 inline int StrBufNum_tokens(const StrBuf *source, char tok)
 {
+	if (source == NULL)
+		return 0;
 	return num_tokens(source->buf, tok);
 }
+
+/*
+ * remove_token() - a tokenizer that kills, maims, and destroys
+ */
+/**
+ * \brief a string tokenizer
+ * \param Source StringBuffer to read into
+ * \param parmnum n'th parameter to remove
+ * \param separator tokenizer param
+ * \returns -1 if not found, else length of token.
+ */
+int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
+{
+	int ReducedBy;
+	char *d, *s;		/* dest, source */
+	int count = 0;
+
+	/* Find desired parameter */
+	d = Source->buf;
+	while (count < parmnum) {
+		/* End of string, bail! */
+		if (!*d) {
+			d = NULL;
+			break;
+		}
+		if (*d == separator) {
+			count++;
+		}
+		d++;
+	}
+	if (!d) return 0;		/* Parameter not found */
+
+	/* Find next parameter */
+	s = d;
+	while (*s && *s != separator) {
+		s++;
+	}
+
+	ReducedBy = d - s;
+
+	/* Hack and slash */
+	if (*s) {
+		memmove(d, s, Source->BufUsed - (s - Source->buf));
+		Source->BufUsed -= (ReducedBy + 1);
+	}
+	else if (d == Source->buf) {
+		*d = 0;
+		Source->BufUsed = 0;
+	}
+	else {
+		*--d = 0;
+		Source->BufUsed -= (ReducedBy + 1);
+	}
+	/*
+	while (*s) {
+		*d++ = *s++;
+	}
+	*d = 0;
+	*/
+	return ReducedBy;
+}
+
 
 /**
  * \brief a string tokenizer
@@ -912,7 +980,7 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 			return len - rlen;
 		}
 	}
-
+	
 	if (buf->BufSize - buf->BufUsed < 10)
 		IncreaseBuf(buf, 1, -1);
 
@@ -1054,6 +1122,19 @@ void StrBufCutRight(StrBuf *Buf, int nChars)
 	}
 	Buf->BufUsed -= nChars;
 	Buf->buf[Buf->BufUsed] = '\0';
+}
+
+
+void StrBufUpCase(StrBuf *Buf) 
+{
+	char *pch, *pche;
+
+	pch = Buf->buf;
+	pche = pch + Buf->BufUsed;
+	while (pch < pche) {
+		*pch = toupper(*pch);
+		pch ++;
+	}
 }
 
 

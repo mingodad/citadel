@@ -214,6 +214,7 @@ int FlushStrBuf(StrBuf *buf);
 
 inline const char *ChrPtr(const StrBuf *Str);
 inline int StrLength(const StrBuf *Str);
+#define SKEY(a) ChrPtr(a), StrLength(a)
 long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
 
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error);
@@ -231,6 +232,7 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator);
 int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator);
 inline int StrBufNum_tokens(const StrBuf *source, char tok);
+int StrBufRemove_token(StrBuf *Source, int parmnum, char separator);
 
 void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset);
 void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset);
@@ -242,6 +244,7 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap);
 void StrBufPrintf(StrBuf *Buf, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
 void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
+void StrBufUpCase(StrBuf *Buf);
 void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source);
 void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
 
