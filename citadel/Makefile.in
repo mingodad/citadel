@@ -228,7 +228,7 @@ install-data-new:
 
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(STATICDATA_DIR)/messages
 	@for i in  \
-		 `$(srcdir)/messages  -type f | grep -v .svn`; do \
+		 `find $(srcdir)/messages  -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
 	done
