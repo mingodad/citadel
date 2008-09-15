@@ -446,10 +446,10 @@ void context_loop(int *sock)
 	StrBufCutLeft(ReqLine, StrLength(ReqType) + 1);
 	StrBufCutRight(ReqLine, StrLength(HTTPVersion) + 1);
 
-	if ((StrLength(ReqLine) > 10) &&
-	    (ptr = strstr(ChrPtr(ReqLine), "/webcit "),	/*< Handle "/webcit" */
+	if ((StrLength(ReqLine) >= 7) &&
+	    (ptr = strstr(ChrPtr(ReqLine), "/webcit"),	/*< Handle "/webcit" */
 	     (ptr != NULL))) {
-		StrBufCutLeft(ReqLine, 6);
+		StrBufCutLeft(ReqLine, 7);
 	}
 
 	/** Begin parsing the request. */
