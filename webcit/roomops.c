@@ -273,7 +273,7 @@ void zapped_list(void)
 /**
  * \brief read this room's info file (set v to 1 for verbose mode)
  */
-void readinfo(void)
+void readinfo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context)
 {
 	char buf[256];
 	char briefinfo[128];
@@ -322,7 +322,7 @@ void readinfo(void)
  * keep the browser from using a cached icon from 
  * another room.
  */
-void embed_room_graphic(void) {
+void embed_room_graphic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
 	char buf[SIZ];
 
 	serv_puts("OIMG _roompic_");
@@ -378,7 +378,7 @@ void embed_room_graphic(void) {
 /**
  * \brief Display the current view and offer an option to change it
  */
-void embed_view_o_matic(void) {
+void embed_view_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
 	int i;
 
 	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n");
@@ -419,7 +419,7 @@ void embed_view_o_matic(void) {
 /**
  * \brief Display a search box
  */
-void embed_search_o_matic(void) {
+void embed_search_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
 	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n");
 	wprintf("<div style=\"display: inline;\"><input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<label for=\"search_name\">");
@@ -3587,7 +3587,7 @@ void knrooms(void)
 	/** offer the ability to switch views */
 	wprintf("<ul class=\"room_actions\">\n");
 	wprintf("<li class=\"start_page\">");
-	offer_start_page();
+	offer_start_page(NULL, 0, NULL, NULL);
 	wprintf("</li>");
 	wprintf("<li><form name=\"roomlistomatic\">\n"
 		"<select name=\"newview\" size=\"1\" "

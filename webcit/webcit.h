@@ -254,18 +254,6 @@ struct roomlisting {
 };
 
 
-
-/**
- * \brief Dynamic content for variable substitution in templates
- */
-typedef struct _wcsubst {
-	int wcs_type;			    /**< which type of Substitution are we */
-	char wcs_key[32];		    /**< copy of our hashkey for debugging */
-	StrBuf *wcs_value;		    /**< if we're a string, keep it here */
-	long lvalue;                        /**< type long? keep data here */
-	void (*wcs_function)(void); /**< funcion hook ???*/
-} wcsubst;
-
 #define TYPE_STR   1
 #define TYPE_LONG  2
 #define MAXPARAM  20
@@ -284,6 +272,7 @@ typedef struct _TemplateToken {
 	size_t TokenEnd;
 	const char *pTokenEnd;
 	int Flags;
+	void *PreEval;
 
 	const char *pName;
 	size_t NameEnd;
@@ -293,15 +282,26 @@ typedef struct _TemplateToken {
 	TemplateParam *Params[MAXPARAM];
 } WCTemplateToken;
 
-
 typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
+
+
+/**
+ * \brief Dynamic content for variable substitution in templates
+ */
+typedef struct _wcsubst {
+	int wcs_type;			    /**< which type of Substitution are we */
+	char wcs_key[32];		    /**< copy of our hashkey for debugging */
+	StrBuf *wcs_value;		    /**< if we're a string, keep it here */
+	long lvalue;                        /**< type long? keep data here */
+	WCHandlerFunc wcs_function; /**< funcion hook ???*/
+} wcsubst;
+
+
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
 		int nMaxArgs, 
 		WCHandlerFunc HandlerFunc);
 #define RegisterNamespace(a, b, c, d) RegisterNS(a, sizeof(a)-1, b, c, d)
-
-
 
 typedef int (*WCConditionalFunc)(WCTemplateToken *Token, void *Context);
 typedef struct _ConditionalStruct {
@@ -324,6 +324,29 @@ void RegisterITERATOR(const char *Name, long len,
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor);
 #define RegisterIterator(a, b, c, d, e, f) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f)
+
+void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
+#define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
+void SVPutLong(char *keyname, size_t keylen, long Data);
+#define svputlong(a, b) SVPutLong(a, sizeof(a) - 1, b)
+void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...) __attribute__((__format__(__printf__,4,5)));
+void SVPRINTF(char *keyname, int keytype, const char *format,...) __attribute__((__format__(__printf__,3,4)));
+void SVCALLBACK(char *keyname, WCHandlerFunc fcn_ptr);
+void SVCallback(char *keyname, size_t keylen,  WCHandlerFunc fcn_ptr);
+#define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
+
+void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
+#define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
+
+void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target);
+#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL);
+void url_do_template(void);
+
+int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
+int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
+
+
+
 
 /**
  * \brief Values for wcs_type
@@ -659,28 +682,6 @@ void clear_substs(struct wcsession *wc);
 void clear_local_substs(void);
 
 
-typedef void (*var_callback_fptr)();
-
-
-void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
-#define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
-void SVPutLong(char *keyname, size_t keylen, long Data);
-#define svputlong(a, b) SVPutLong(a, sizeof(a) - 1, b)
-void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...) __attribute__((__format__(__printf__,4,5)));
-void SVPRINTF(char *keyname, int keytype, const char *format,...) __attribute__((__format__(__printf__,3,4)));
-void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr);
-void SVCallback(char *keyname, size_t keylen,  var_callback_fptr fcn_ptr);
-#define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
-
-void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
-#define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
-
-void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target);
-#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL);
-void url_do_template(void);
-
-int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
-int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
 
 int lingering_close(int fd);
 char *memreadline(char *start, char *buf, int maxlen);
@@ -725,7 +726,7 @@ void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_s
 
 int is_msg_in_mset(char *mset, long msgnum);
 void display_addressbook(long msgnum, char alpha);
-void offer_start_page(void);
+void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
 void output_html(char *, int);
 void do_listsub(void);
@@ -794,7 +795,7 @@ void do_selected_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
 void display_rss(char *roomname, StrBuf *request_method);
-void offer_languages(void);
+void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
 void set_selected_language(const char *);
 void go_selected_language(void);
 void stop_selected_language(void);

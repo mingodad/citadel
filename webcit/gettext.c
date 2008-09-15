@@ -204,7 +204,7 @@ void httplang_to_locale(StrBuf *LocaleString)
  * depending on the browser locale change the sequence of the 
  * language chooser.
  */
-void offer_languages(void) {
+void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
 	int i;
 #ifndef HAVE_USELOCALE
 	char *Lang = getenv("LANG");

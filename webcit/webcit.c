@@ -1066,7 +1066,7 @@ void url_do_template(void) {
 /*
  * Offer to make any page the user's "start page."
  */
-void offer_start_page(void) {
+void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
 	wprintf("<a href=\"change_start_page?startpage=");
 	urlescputs(WC->this_page);
 	wprintf("\">");
@@ -1285,6 +1285,7 @@ void seconds_since_last_gexp(void)
 		wprintf("NO\n");
 	}
 	else {
+		memset(buf, 5, 0);
 		serv_puts("NOOP");
 		serv_getln(buf, sizeof buf);
 		if (buf[3] == '*') {
@@ -1831,12 +1832,6 @@ void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	}
 }
 
-void tmplput_offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
-{
-	offer_start_page();
-}
-
-
 int ConditionalBstr(WCTemplateToken *Tokens, void *Context)
 {
 	if(Tokens->nParameters == 1)
@@ -1873,5 +1868,5 @@ InitModule_WEBCIT
 	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr);
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage);
-	RegisterNamespace("OFFERSTARTPAGE", 0, 0, tmplput_offer_start_page);
+	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page);
 }
