@@ -38,6 +38,7 @@ int LoadTemplates = 0;
 #define SV_NEG_CONDITIONAL 3
 #define SV_CUST_STR_CONDITIONAL 4
 #define SV_SUBTEMPL 5
+#define SV_PREEVALUATED 6
 
 typedef struct _WCTemplate {
 	StrBuf *Data;
@@ -64,6 +65,35 @@ void RegisterNS(const char *NSName, long len, int nMinArgs, int nMaxArgs, WCHand
 	NewHandler->nMaxArgs = nMaxArgs;
 	NewHandler->HandlerFunc = HandlerFunc;	
 	Put(GlobalNS, NSName, len, NewHandler, NULL);
+}
+
+void FreeToken(WCTemplateToken **Token)
+{
+	int i; 
+	FreeStrBuf(&(*Token)->FlatToken);
+	if ((*Token)->HaveParameters) 
+		for (i = 0; i < (*Token)->nParameters; i++)
+			free((*Token)->Params[i]);
+	free(*Token);
+	*Token = NULL;
+}
+
+
+
+void FreeWCTemplate(void *vFreeMe)
+{
+	int i;
+	WCTemplate *FreeMe = (WCTemplate*)vFreeMe;
+
+	if (FreeMe->TokenSpace > 0) {
+		for (i = 0; i < FreeMe->nTokensUsed; i ++) {
+			FreeToken(&FreeMe->Tokens[i]);
+		}
+		free(FreeMe->Tokens);
+	}
+	FreeStrBuf(&FreeMe->FileName);
+	FreeStrBuf(&FreeMe->Data);
+	free(FreeMe);
 }
 
 
@@ -346,7 +376,7 @@ void SVPutLong(char *keyname, size_t keylen, long Data)
  * \param keyname the keystring to substitute
  * \param fcn_ptr the function callback to give the substitution string
  */
-void SVCallback(char *keyname, size_t keylen, var_callback_fptr fcn_ptr)
+void SVCallback(char *keyname, size_t keylen, WCHandlerFunc fcn_ptr)
 {
 	wcsubst *ptr;
 	void *vPtr;
@@ -369,7 +399,7 @@ void SVCallback(char *keyname, size_t keylen, var_callback_fptr fcn_ptr)
 
 	ptr->wcs_function = fcn_ptr;
 }
-inline void SVCALLBACK(char *keyname, var_callback_fptr fcn_ptr)
+inline void SVCALLBACK(char *keyname, WCHandlerFunc fcn_ptr)
 {
 	SVCallback(keyname, strlen(keyname), fcn_ptr);
 }
@@ -430,21 +460,21 @@ void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
  * \brief Print the value of a variable
  * \param keyname get a key to print
  */
-void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
+void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context) {
 	struct wcsession *WCC = WC;
 	wcsubst *ptr;
 	void *vVar;
 
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	/// TODO: debricated!
-	if (keyname[0] == '=') {
-		DoTemplate(keyname+1, keylen - 1, NULL, NULL);
+	if (Token->pName[0] == '=') {
+		DoTemplate(Token->pName+1, Token->NameEnd - 1, NULL, NULL);
 	}
 
 //////TODO: if param[1] == "U" -> urlescape
 /// X -> escputs
 	/** Page-local variables */
-	if ((WCC->vars!= NULL) && GetHash(WCC->vars, keyname, keylen, &vVar)) {
+	if ((WCC->vars!= NULL) && GetHash(WCC->vars, Token->pName, Token->NameEnd, &vVar)) {
 		ptr = (wcsubst*) vVar;
 		switch(ptr->wcs_type) {
 		case WCS_STRING:
@@ -454,7 +484,7 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 			pvo_do_cmd(Target, ptr->wcs_value);
 			break;
 		case WCS_FUNCTION:
-			(*ptr->wcs_function) ();
+			(*ptr->wcs_function) (Target, Token->nParameters, Token, Context);
 			break;
 		case WCS_STRBUF:
 		case WCS_STRBUF_REF:
@@ -464,8 +494,8 @@ void print_value_of(StrBuf *Target, const char *keyname, size_t keylen) {
 			StrBufAppendPrintf(Target, "%ld", ptr->lvalue);
 			break;
 		default:
-			lprintf(1,"WARNING: invalid value in SV-Hash at %s!\n", keyname);
-			StrBufAppendPrintf(Target, "<pre>WARNING: \ninvalid value in SV-Hash at %s!</pre>", keyname);
+			lprintf(1,"WARNING: invalid value in SV-Hash at %s!\n", Token->pName);
+			StrBufAppendPrintf(Target, "<pre>WARNING: \ninvalid value in SV-Hash at %s!\n</pre>", Token->pName);
 		}
 	}
 }
@@ -666,6 +696,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	NewToken->TokenEnd =  (pTmplEnd - pStart) - NewToken->TokenStart;
 	NewToken->pTokenEnd = pTmplEnd;
 	NewToken->NameEnd = NewToken->TokenEnd - 2;
+	NewToken->PreEval = NULL;
 	NewToken->FlatToken = NewStrBufPlain(pTmplStart + 2, pTmplEnd - pTmplStart - 2);
 	
 	StrBufPeek(Buf, pTmplStart, + 1, '\0');
@@ -692,6 +723,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 							MAXPARAM,
 							ChrPtr(NewToken->FlatToken));
 						free(Param);
+						FreeToken(&NewToken);
 						return NULL;
 					}
 					NewToken->Params[NewToken->nParameters++] = Param;
@@ -721,37 +753,33 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		}
 		else pch ++;		
 	}
+	
+	if (NewToken->Flags == 0) {
+		/* If we're able to find out more about the token, do it now while its fresh. */
+		void *vVar;
+		if (GetHash(GlobalNS, NewToken->pName, NewToken->NameEnd, &vVar)) {
+			HashHandler *Handler;
+			Handler = (HashHandler*) vVar;
+			if ((NewToken->nParameters < Handler->nMinArgs) || 
+			    (NewToken->nParameters > Handler->nMaxArgs)) {
+				lprintf(1, "Handler [%s] (in '%s' line %ld); "
+					"doesn't work with %ld params [%s]\n", 
+					NewToken->pName,
+					ChrPtr(pTmpl->FileName),
+					NewToken->Line,
+					NewToken->nParameters, 
+					ChrPtr(NewToken->FlatToken));
+			}
+			else {
+				NewToken->PreEval = Handler;
+				NewToken->Flags = SV_PREEVALUATED;		
+			}
+		}		
+	}
+
 	return NewToken;
 }
 
-void FreeToken(WCTemplateToken **Token)
-{
-	int i; 
-	FreeStrBuf(&(*Token)->FlatToken);
-	if ((*Token)->HaveParameters) 
-		for (i = 0; i < (*Token)->nParameters; i++)
-			free((*Token)->Params[i]);
-	free(*Token);
-	*Token = NULL;
-}
-
-
-
-void FreeWCTemplate(void *vFreeMe)
-{
-	int i;
-	WCTemplate *FreeMe = (WCTemplate*)vFreeMe;
-
-	if (FreeMe->TokenSpace > 0) {
-		for (i = 0; i < FreeMe->nTokensUsed; i ++) {
-			FreeToken(&FreeMe->Tokens[i]);
-		}
-		free(FreeMe->Tokens);
-	}
-	FreeStrBuf(&FreeMe->FileName);
-	FreeStrBuf(&FreeMe->Data);
-	free(FreeMe);
-}
 
 
 int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int Neg, int state)
@@ -808,6 +836,7 @@ int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmp
 
 int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int state)
 {
+	HashHandler *Handler;
 	void *vVar;
 // much output, since pName is not terminated...
 //	lprintf(1,"Doing token: %s\n",Token->pName);
@@ -839,9 +868,15 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, voi
 		if (Token->nParameters == 1)
 			DoTemplate(Token->Params[0]->Start, Token->Params[0]->len, NULL, NULL);
 		break;
+	case SV_PREEVALUATED:
+		Handler = (HashHandler*) Token->PreEval;
+		Handler->HandlerFunc(Target, 
+				     Token->nParameters,
+				     Token,
+				     Context); 
+		break;		
 	default:
 		if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
-			HashHandler *Handler;
 			Handler = (HashHandler*) vVar;
 			if ((Token->nParameters < Handler->nMinArgs) || 
 			    (Token->nParameters > Handler->nMaxArgs)) {
@@ -871,7 +906,7 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, voi
 			}
 		}
 		else {
-			print_value_of(Target, Token->pName, Token->NameEnd);
+			print_value_of(Target, Token, Context);
 		}
 	}
 	return 0;
