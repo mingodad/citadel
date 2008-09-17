@@ -935,6 +935,10 @@ void *purge_databases(void *args)
 /*****************************************************************************/
 
 
+/* The FSCK command has been removed because people were misusing it */
+
+#if 0
+
 void do_fsck_msg(long msgnum, void *userdata) {
 	struct ctdlroomref *ptr;
 
@@ -1013,6 +1017,7 @@ void cmd_fsck(char *argbuf) {
 
 }
 
+#endif	/* end of commented-out fsck cmd */
 
 /*
  * Manually initiate a run of The Dreaded Auto-Purger (tm)
@@ -1030,7 +1035,7 @@ CTDL_MODULE_INIT(expire)
 {
 	if (!threading)
 	{
-		CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts");
+		/* CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts"); */
 		CtdlRegisterProtoHook(cmd_tdap, "TDAP", "Manually initiate auto-purger");
 	}
 	else
