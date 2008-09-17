@@ -2688,15 +2688,12 @@ backups will be usable!</span><br>
 <h3><a name="Database_repair"></a>Database repair</h3>
 Although Citadel's data store is quite reliable, database corruption
 can occur in rare instances. &nbsp;External factors such as an
-operating
-system crash or an unexpected loss of power might leave the database in
-an unknown state. &nbsp;A utility is provided which may be able to
-repair
-your database if this occurs. &nbsp;If you find that your Citadel
-server
-is not running, and reading the logs shows that it is crashing because
-of
-an inability to validate a database, follow these steps:<br>
+operating system crash or an unexpected loss of power might leave the
+database in an unknown state. &nbsp;A utility is provided which may
+be able to repair your database if this occurs. &nbsp;If you find
+that your Citadel server is not running, and reading the logs shows
+that it is crashing because of an inability to validate a database,
+follow these steps:<br>
 <ol>
   <li>Edit <tt>/etc/inittab</tt> and switch the Citadel service from
 "respawn" to "off." &nbsp;Type <tt>init q</tt> to make this setting
@@ -2714,6 +2711,11 @@ changes.</li>
 </ol>
 If this procedure does not work, you must restore from your most recent
 backup.<br>
+<b>Please note: this utility should <i>only</i> be used for recovering
+a database that is causing the Citadel server to crash upon startup.  If
+you have some other type of problem, but the citserver process is not
+aborting with "Berkeley DB Panic" errors, this is <i>not</i> the way to
+fix it.</b><br>
 <br>
 <h3><a name="ImportingExporting_your_Citadel"></a>Importing/Exporting
 your Citadel database<br>
