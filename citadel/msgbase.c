@@ -357,15 +357,24 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		return;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlSetSeen(%d msgs starting with %ld, %d, %d)\n",
+	/* If no room was specified, we go with the current room. */
+	if (!which_room) {
+		which_room = &CC->room;
+	}
+
+	/* If no user was specified, we go with the current user. */
+	if (!which_user) {
+		which_user = &CC->user;
+	}
+
+	CtdlLogPrintf(CTDL_DEBUG, "[31mCtdlSetSeen(%d msgs starting with %ld, %s, %d) in <%s>[0m\n",
 		num_target_msgnums, target_msgnums[0],
-		target_setting, which_set);
+		(target_setting ? "SET" : "CLEAR"),
+		which_set,
+		which_room->QRname);
 
 	/* Learn about the user and room in question */
-	CtdlGetRelationship(&vbuf,
-		((which_user != NULL) ? which_user : &CC->user),
-		((which_room != NULL) ? which_room : &CC->room)
-	);
+	CtdlGetRelationship(&vbuf, which_user, which_room);
 
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
@@ -391,7 +400,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			break;
 	}
 
-	/* CtdlLogPrintf(CTDL_DEBUG, "before optimize: %s\n", vset); */
+	CtdlLogPrintf(CTDL_DEBUG, "[31mbefore optimize: %s[0m\n", vset);
 
 	/* Translate the existing sequence set into an array of booleans */
 	num_sets = num_tokens(vset, ',');
@@ -401,15 +410,17 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		extract_token(lostr, setstr, 0, ':', sizeof lostr);
 		if (num_tokens(setstr, ':') >= 2) {
 			extract_token(histr, setstr, 1, ':', sizeof histr);
-			if (!strcmp(histr, "*")) {
-				snprintf(histr, sizeof histr, "%ld", LONG_MAX);
-			}
 		}
 		else {
 			strcpy(histr, lostr);
 		}
 		lo = atol(lostr);
-		hi = atol(histr);
+		if (!strcmp(histr, "*")) {
+			hi = LONG_MAX;
+		}
+		else {
+			hi = atol(histr);
+		}
 
 		for (i = 0; i < num_msgs; ++i) {
 			if ((msglist[i] >= lo) && (msglist[i] <= hi)) {
@@ -418,10 +429,13 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		}
 	}
 
+	CtdlLogPrintf(CTDL_DEBUG, "[31m after optimize: %s[0m\n", vset);
+
 	/* Now translate the array of booleans back into a sequence set */
 	strcpy(vset, "");
 	lo = (-1L);
 	hi = (-1L);
+	was_seen = ((which_set == ctdlsetseen_seen) ? 1 : 0);
 
 	for (i=0; i<num_msgs; ++i) {
 
@@ -457,6 +471,9 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 					"1:%ld,%s", t, vset);
 				safestrncpy(vset, lostr, sizeof vset);
 			}
+			if (trimming) {
+				CtdlLogPrintf(CTDL_DEBUG, "32m ** TRIMMING ** [0m\n");
+			}
 			/* end trim-o-matic code */
 
 			tmp = strlen(vset);
@@ -464,13 +481,14 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 				strcat(vset, ",");
 				++tmp;
 			}
-			if (lo == hi) {
-				snprintf(&vset[tmp], (sizeof vset) - tmp,
-					 "%ld", lo);
+			if ((lo == -1) && (hi == -1)) {
+				/* bogus pair, do nothing */
+			}
+			else if (lo == hi) {
+				snprintf(&vset[tmp], (sizeof vset) - tmp, "%ld", lo);
 			}
 			else {
-				snprintf(&vset[tmp], (sizeof vset) - tmp,
-					 "%ld:%ld", lo, hi);
+				snprintf(&vset[tmp], (sizeof vset) - tmp, "%ld:%ld", lo, hi);
 			}
 			lo = (-1L);
 			hi = (-1L);
@@ -484,18 +502,14 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			safestrncpy(vbuf.v_seen, vset, sizeof vbuf.v_seen);
 			break;
 		case ctdlsetseen_answered:
-			safestrncpy(vbuf.v_answered, vset,
-						sizeof vbuf.v_answered);
+			safestrncpy(vbuf.v_answered, vset, sizeof vbuf.v_answered);
 			break;
 	}
 	free(is_set);
 
-	/* CtdlLogPrintf(CTDL_DEBUG, " after optimize: %s\n", vset); */
+	CtdlLogPrintf(CTDL_DEBUG, "[31m   after update: %s[0m\n", vset);
 	free(msglist);
-	CtdlSetRelationship(&vbuf,
-		((which_user != NULL) ? which_user : &CC->user),
-		((which_room != NULL) ? which_room : &CC->room)
-	);
+	CtdlSetRelationship(&vbuf, which_user, which_room);
 }
 
 
