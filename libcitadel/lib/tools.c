@@ -881,10 +881,8 @@ int is_msg_in_mset(char *mset, long msgnum) {
 
 
 /*
- * \brief searches for a  paternn within asearch string
- * \param search the string to search 
- * \param patn the pattern to find in string
- * \returns position in string
+ * searches for a pattern within a search string
+ * returns position in string
  */
 int pattern2(char *search, char *patn)
 {

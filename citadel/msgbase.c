@@ -340,8 +340,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	int was_seen = 0;
 	long lo = (-1L);
 	long hi = (-1L);
-	long t = (-1L);
-	int trimming = 0;
 	struct visit vbuf;
 	long *msglist;
 	int num_msgs = 0;
@@ -349,8 +347,8 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	char *is_set;	/* actually an array of booleans */
 	int num_sets;
 	int s;
+	int w = 0;
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];
-	size_t tmp;
 
 	/* Don't bother doing *anything* if we were passed a list of zero messages */
 	if (num_target_msgnums < 1) {
@@ -367,7 +365,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		which_user = &CC->user;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "[31mCtdlSetSeen(%d msgs starting with %ld, %s, %d) in <%s>[0m\n",
+	CtdlLogPrintf(CTDL_DEBUG, "CtdlSetSeen(%d msgs starting with %ld, %s, %d) in <%s>\n",
 		num_target_msgnums, target_msgnums[0],
 		(target_setting ? "SET" : "CLEAR"),
 		which_set,
@@ -377,7 +375,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	CtdlGetRelationship(&vbuf, which_user, which_room);
 
 	/* Load the message list */
-	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &which_room->QRnumber, sizeof(long));
 	if (cdbfr != NULL) {
 		msglist = (long *) cdbfr->ptr;
 		cdbfr->ptr = NULL;	/* CtdlSetSeen() now owns this memory */
@@ -400,7 +398,19 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			break;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "[31mbefore optimize: %s[0m\n", vset);
+
+#if 0	/* This is a special diagnostic section.  Do not allow it to run during normal operation. */
+	CtdlLogPrintf(CTDL_DEBUG, "There are %d messages in the room.\n", num_msgs);
+	for (i=0; i<num_msgs; ++i) {
+		if (i > 0) if (msglist[i] <= msglist[i-1]) abort();
+	}
+	CtdlLogPrintf(CTDL_DEBUG, "We are twiddling %d of them.\n", num_target_msgnums);
+	for (k=0; k<num_target_msgnums; ++k) {
+		if (k > 0) if (target_msgnums[k] <= target_msgnums[k-1]) abort();
+	}
+#endif
+
+	CtdlLogPrintf(CTDL_DEBUG, "before update: %s\n", vset);
 
 	/* Translate the existing sequence set into an array of booleans */
 	num_sets = num_tokens(vset, ',');
@@ -429,72 +439,72 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		}
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "[31m after optimize: %s[0m\n", vset);
 
 	/* Now translate the array of booleans back into a sequence set */
 	strcpy(vset, "");
-	lo = (-1L);
-	hi = (-1L);
-	was_seen = ((which_set == ctdlsetseen_seen) ? 1 : 0);
+	was_seen = 0;
+	lo = (-1);
+	hi = (-1);
 
 	for (i=0; i<num_msgs; ++i) {
+		is_seen = is_set[i];
 
-		is_seen = is_set[i];	/* Default to existing setting */
-
+		/* Apply changes */
 		for (k=0; k<num_target_msgnums; ++k) {
 			if (msglist[i] == target_msgnums[k]) {
 				is_seen = target_setting;
 			}
 		}
 
-		if (is_seen) {
-			if (lo < 0L) lo = msglist[i];
-			hi = msglist[i];
+		w = 0;	/* set to 1 if we write something to the string */
+
+		if ((was_seen == 0) && (is_seen == 1)) {
+			lo = msglist[i];
 		}
+		else if ((was_seen == 1) && (is_seen == 0)) {
+			hi = msglist[i-1];
+			w = 1;
 
-		if (  ((is_seen == 0) && (was_seen == 1))
-		   || ((is_seen == 1) && (i == num_msgs-1)) ) {
-
-			/* begin trim-o-matic code */
-			j=9;
-			trimming = 0;
-			while ( (strlen(vset) + 20) > sizeof vset) {
-				remove_token(vset, 0, ',');
-				trimming = 1;
-				if (j--) break; /* loop no more than 9 times */
-			}
-			if ( (trimming) && (which_set == ctdlsetseen_seen) ) {
-				t = atol(vset);
-				if (t<2) t=2;
-				--t;
-				snprintf(lostr, sizeof lostr,
-					"1:%ld,%s", t, vset);
-				safestrncpy(vset, lostr, sizeof vset);
-			}
-			if (trimming) {
-				CtdlLogPrintf(CTDL_DEBUG, "32m ** TRIMMING ** [0m\n");
-			}
-			/* end trim-o-matic code */
-
-			tmp = strlen(vset);
-			if (tmp > 0) {
+			if (!IsEmptyStr(vset)) {
 				strcat(vset, ",");
-				++tmp;
 			}
-			if ((lo == -1) && (hi == -1)) {
-				/* bogus pair, do nothing */
-			}
-			else if (lo == hi) {
-				snprintf(&vset[tmp], (sizeof vset) - tmp, "%ld", lo);
+			if (lo == hi) {
+				sprintf(&vset[strlen(vset)], "%ld", hi);
 			}
 			else {
-				snprintf(&vset[tmp], (sizeof vset) - tmp, "%ld:%ld", lo, hi);
+				sprintf(&vset[strlen(vset)], "%ld:%ld", lo, hi);
 			}
-			lo = (-1L);
-			hi = (-1L);
 		}
+		else if ((is_seen) && (i == num_msgs - 1)) {
+			w = 1;
+			if (!IsEmptyStr(vset)) {
+				strcat(vset, ",");
+			}
+			if ((i==0) || (was_seen == 0)) {
+				sprintf(&vset[strlen(vset)], "%ld", msglist[i]);
+			}
+			else {
+				sprintf(&vset[strlen(vset)], "%ld:%ld", lo, msglist[i]);
+			}
+		}
+
+		/* If the string is getting too long, truncate it at the beginning; repeat up to 9 times */
+		if (w) for (j=0; j<9; ++j) {
+			if ((strlen(vset) + 20) > sizeof vset) {
+				remove_token(vset, 0, ',');
+				if (which_set == ctdlsetseen_seen) {
+					char temp[SIZ];
+					sprintf(temp, "1:%ld,", atol(vset)-1L);
+					strcat(temp, vset);
+					strcpy(vset, temp);
+				}
+			}
+		}
+
 		was_seen = is_seen;
 	}
+
+	CtdlLogPrintf(CTDL_DEBUG, " after update: %s\n", vset);
 
 	/* Decide which message set we're manipulating */
 	switch (which_set) {
@@ -505,9 +515,8 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			safestrncpy(vbuf.v_answered, vset, sizeof vbuf.v_answered);
 			break;
 	}
-	free(is_set);
 
-	CtdlLogPrintf(CTDL_DEBUG, "[31m   after update: %s[0m\n", vset);
+	free(is_set);
 	free(msglist);
 	CtdlSetRelationship(&vbuf, which_user, which_room);
 }
