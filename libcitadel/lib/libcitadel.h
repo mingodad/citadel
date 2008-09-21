@@ -212,8 +212,8 @@ void FreeStrBuf (StrBuf **FreeMe);
 void HFreeStrBuf (void *VFreeMe);
 int FlushStrBuf(StrBuf *buf);
 
-inline const char *ChrPtr(const StrBuf *Str);
-inline int StrLength(const StrBuf *Str);
+const char *ChrPtr(const StrBuf *Str);
+int StrLength(const StrBuf *Str);
 #define SKEY(a) ChrPtr(a), StrLength(a)
 long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
 
