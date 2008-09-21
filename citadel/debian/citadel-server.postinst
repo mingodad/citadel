@@ -27,7 +27,7 @@ case "$1" in
         fi
 
         export IP_ADDR=$ip_addr
-        export CITADEL=''
+        export CITADEL='/var/run/citadel'
 	export CITADEL_PORT=504
         export CITADEL_INSTALLER=yes
 	export CITADEL_UID=`grep citadel /etc/passwd | cut -d :  -f 3`
@@ -40,11 +40,12 @@ case "$1" in
 #This is not debian conformant, and uniq to the citadel.org debs.
 	export ALTER_ETC_SERVICES=yes
 #
-        echo "applying your settings."
+        echo -n "applying your settings.... "
         /usr/lib/citadel-server/setup -q
-
+	echo "done"
         # we're in a fresh install, so we send the welcome message.
         if test -z "$2"; then
+	    echo "migrating mail aliases from other mailers"
 	    /usr/lib/citadel-server/migrate_aliases.sh /etc/citadel/mail.aliases
 	    i=0;
 	    while test ! -S /var/run/citadel/lmtp.socket -a "$i" -lt "10"; do
@@ -52,6 +53,7 @@ case "$1" in
 		i=$(($i + 1))
 	    done
 	    if test -S /var/run/citadel/lmtp.socket ; then
+		echo "sending welcome mail"
 		export SEPERATOR=2600908b3f21ae7f692b973ed26e212d
 		export WELCOMEHTML=/usr/share/doc/citadel-server/welcomemail.html
 		export WELCOMETXT=/usr/share/doc/citadel-server/welcomemail.txt
