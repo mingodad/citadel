@@ -27,6 +27,10 @@
 #include "sysdep.h"
 #include "config.h"
 #include "citadel_dirs.h"
+#if HAVE_BACKTRACE
+#include <execinfo.h>
+#endif
+
 
 #define MAXSETUP 6	/* How many setup questions to ask */
 
@@ -56,6 +60,28 @@ char *setup_titles[] =
 	"Authentication mode"
 };
 
+/**
+ * \brief print the actual stack frame.
+ */
+void cit_backtrace(void)
+{
+#ifdef HAVE_BACKTRACE
+	void *stack_frames[50];
+	size_t size, i;
+	char **strings;
+
+
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	strings = backtrace_symbols(stack_frames, size);
+	for (i = 0; i < size; i++) {
+		if (strings != NULL)
+			fprintf(stderr, "%s\n", strings[i]);
+		else
+			fprintf(stderr, "%p\n", stack_frames[i]);
+	}
+	free(strings);
+#endif
+}
 
 struct config config;
 
@@ -122,6 +148,8 @@ int direction;
 
 void cleanup(int exitcode)
 {
+//	printf("Exitcode: %d\n", exitcode);
+//	cit_backtrace();
 	exit(exitcode);
 }
 
@@ -198,6 +226,9 @@ void important_message(char *title, char *msgtext)
 			getenv("CTDL_DIALOG"),
 			msgtext);
 		system(buf);
+		break;
+	case UI_SILENT:
+		fprintf(stderr, "%s\n", msgtext);
 		break;
 	}
 }
@@ -564,26 +595,20 @@ void disable_other_mta(char *mta) {
 
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
 
-	if (getenv("ACT_AS_MTA")) {
-		if (strcasecmp(getenv("ACT_AS_MTA"), "yes")) {
-			return;
-		}
-	}
-	else {
-		snprintf(buf, sizeof buf,
-			"You appear to have the \"%s\" email program\n"
-			"running on your system.  If you want Citadel mail\n"
-			"connected with %s, you will have to manually integrate\n"
-			"them.  It is preferable to disable %s, and use Citadel's\n"
-			"SMTP, POP3, and IMAP services.\n\n"
-			"May we disable %s so that Citadel has access to ports\n"
-			"25, 110, and 143?\n",
-			mta, mta, mta, mta
+	snprintf(buf, sizeof buf,
+		 "You appear to have the \"%s\" email program\n"
+		 "running on your system.  If you want Citadel mail\n"
+		 "connected with %s, you will have to manually integrate\n"
+		 "them.  It is preferable to disable %s, and use Citadel's\n"
+		 "SMTP, POP3, and IMAP services.\n\n"
+		 "May we disable %s so that Citadel has access to ports\n"
+		 "25, 110, and 143?\n",
+		 mta, mta, mta, mta
 		);
-		if (yesno(buf, 1) == 0) {
-			return;
-		}
+	if (yesno(buf, 1) == 0) {
+		return;
 	}
+	
 
 	sprintf(buf, "for x in /etc/rc*.d/S*%s; do mv $x `echo $x |sed s/S/K/g`; done >/dev/null 2>&1", mta);
 	system(buf);
@@ -597,7 +622,7 @@ void disable_other_mta(char *mta) {
 /* 
  * Check to see if our server really works.  Returns 0 on success.
  */
-int test_server(char *setup_directory) {
+int test_server(char *setup_directory, char *relhomestr, int relhome) {
 	char cmd[256];
 	char cookie[256];
 	FILE *fp;
@@ -610,10 +635,15 @@ int test_server(char *setup_directory) {
 	 */
 	sprintf(cookie, "--test--%d--", getpid());
 
-	sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
-		ctdl_sbin_dir,
-		setup_directory,
-		cookie);
+	if (relhome)
+		sprintf(cmd, "%s/sendcommand -h%s ECHO %s 2>&1",
+			ctdl_sbin_dir,
+			relhomestr,
+			cookie);
+	else
+		sprintf(cmd, "%s/sendcommand ECHO %s 2>&1",
+			ctdl_sbin_dir,
+			cookie);
 
 	fp = popen(cmd, "r");
 	if (fp == NULL) return(errno);
@@ -1025,14 +1055,13 @@ int main(int argc, char *argv[])
 		set_str_val(0, setup_directory);
 	}
 
-	enable_home=(relh|home);
+	enable_home = ( relh | home );
 
-	if (chdir(setup_directory) == 0) {
-		strcpy(file_citadel_config, "./citadel.config");
-	}
-	else {
-		important_message("Citadel Setup",
-		  	"The directory you specified does not exist.");
+	if (chdir(setup_directory) != 0) {
+		char errmsg[SIZ];
+		sprintf(errmsg, "The directory you specified does not exist: [%s]\n", setup_directory);
+		
+		important_message("Citadel Setup", errmsg);
 		cleanup(errno);
 	}
 
@@ -1045,7 +1074,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Make sure Citadel is not running. */
-	if (test_server(setup_directory) == 0) {
+	if (test_server(setup_directory, relhome, enable_home) == 0) {
 		important_message("Citadel Setup",
 			"The Citadel service is still running.\n"
 			"Please stop the service manually and run "
@@ -1259,27 +1288,31 @@ NEW_INST:
 	delete_inittab_entry();	/* Remove obsolete /etc/inittab entry */
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 
-	/* Offer to disable other MTA's on the system. */
-	disable_other_mta("courier-authdaemon");
-	disable_other_mta("courier-imap");
-	disable_other_mta("courier-imap-ssl");
-	disable_other_mta("courier-pop");
-	disable_other_mta("courier-pop3");
-	disable_other_mta("courier-pop3d");
-	disable_other_mta("cyrmaster");
-	disable_other_mta("cyrus");
-	disable_other_mta("dovecot");
-	disable_other_mta("exim");
-	disable_other_mta("exim4");
-	disable_other_mta("imapd");
-	disable_other_mta("mta");
-	disable_other_mta("pop3d");
-	disable_other_mta("popd");
-	disable_other_mta("postfix");
-	disable_other_mta("qmail");
-	disable_other_mta("saslauthd");
-	disable_other_mta("sendmail");
-	disable_other_mta("vmailmgrd");
+	if ((getenv("ACT_AS_MTA") == NULL) || 
+	    (getenv("ACT_AS_MTA") &&
+	     strcasecmp(getenv("ACT_AS_MTA"), "yes") == 0)) {
+		/* Offer to disable other MTA's on the system. */
+		disable_other_mta("courier-authdaemon");
+		disable_other_mta("courier-imap");
+		disable_other_mta("courier-imap-ssl");
+		disable_other_mta("courier-pop");
+		disable_other_mta("courier-pop3");
+		disable_other_mta("courier-pop3d");
+		disable_other_mta("cyrmaster");
+		disable_other_mta("cyrus");
+		disable_other_mta("dovecot");
+		disable_other_mta("exim");
+		disable_other_mta("exim4");
+		disable_other_mta("imapd");
+		disable_other_mta("mta");
+		disable_other_mta("pop3d");
+		disable_other_mta("popd");
+		disable_other_mta("postfix");
+		disable_other_mta("qmail");
+		disable_other_mta("saslauthd");
+		disable_other_mta("sendmail");
+		disable_other_mta("vmailmgrd");
+	}
 #endif
 
 	/* Check for the 'db' nss and offer to disable it */
@@ -1312,14 +1345,31 @@ NEW_INST:
 			sleep(3);
 		}
 
-		if (test_server(setup_directory) == 0) {
-			snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\"", ctdl_utilbin_dir, config.c_sysadm, admin_pass);
-			system(admin_cmd);
-			important_message("Setup finished",
-				"Setup of the Citadel server is complete.\n"
-				"If you will be using WebCit, please run its\n"
-				"setup program now; otherwise, run './citadel'\n"
-				"to log in.\n");
+		if (test_server(setup_directory, relhome, enable_home) == 0) {
+			char buf[SIZ];
+			int found_it = 0;
+
+			snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\" 2>&1", 
+				  ctdl_sbin_dir, config.c_sysadm, admin_pass);
+			fp = popen(admin_cmd, "r");
+			if (fp != NULL) {
+				while (fgets(buf, sizeof buf, fp) != NULL) 
+				{
+					if ((atol(buf) == 574) || (atol(buf) == 200))
+						++found_it;
+				}
+				pclose(fp);
+			}
+		
+			if (found_it == 0)
+				important_message("Error","Setup failed to create your admin user");
+
+			if (setup_type != UI_SILENT)
+				important_message("Setup finished",
+						  "Setup of the Citadel server is complete.\n"
+						  "If you will be using WebCit, please run its\n"
+						  "setup program now; otherwise, run './citadel'\n"
+						  "to log in.\n");
 		}
 		else {
 			important_message("Setup failed",
