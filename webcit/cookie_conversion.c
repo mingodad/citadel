@@ -86,7 +86,7 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
 	char buf[SIZ];
 	int i, len;
 
-	if (strncmp(ChrPtr(cookie), HKEY("webcit=")) == 0)
+	if (strncmp(ChrPtr(cookie), "webcit=", (sizeof("webcit=") - 1)) == 0)
 		StrBufCutLeft(cookie, 7);
 
 	strcpy(buf, "");
