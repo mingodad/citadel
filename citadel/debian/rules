@@ -40,7 +40,7 @@ configure-stamp:
 	dh_testdir
 
 	LDFLAGS="$(LDFLAGS)"; CFLAGS="$(CFLAGS)" ./configure \
-		--with-prefix=/var/lib/citadel/ \
+		--prefix=/var/lib/citadel/ \
 		--with-datadir=/var/lib/citadel/ \
 		--with-helpdir=/usr/share/citadel-server/ \
 		--with-spooldir=/var/spool/citadel/ \
