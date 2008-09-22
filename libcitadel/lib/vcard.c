@@ -290,8 +290,8 @@ char *vcard_serialize(struct vCard *v)
 	if (v == NULL) return NULL;			/* self check */
 	if (v->magic != CTDL_VCARD_MAGIC) return NULL;	/* self check */
 
-	/* Set the vCard version number to 3.0 at this time. */
-	vcard_set_prop(v, "VERSION", "3.0", 0);
+	/* Set the vCard version number to 2.1 at this time. */
+	vcard_set_prop(v, "VERSION", "2.1", 0);
 
 	/* Figure out how big a buffer we need to allocate */
 	len = 64;	/* for begin, end, and a little padding for safety */
