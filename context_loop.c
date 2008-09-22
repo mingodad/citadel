@@ -319,7 +319,8 @@ void context_loop(int *sock)
 	int nLine = 0;
 	int LineLen;
 	void *vLine;
-	StrBuf *Buf, *Line, *LastLine, *HeaderName, *ReqLine, *accept_language, *ReqType, *HTTPVersion;
+	StrBuf *Buf, *Line, *LastLine, *HeaderName, *ReqLine, *ReqType, *HTTPVersion;
+	StrBuf *accept_language = NULL;
 	const char *pch, *pchs, *pche;
 	HashList *HTTPHeaders;
 
@@ -446,8 +447,8 @@ void context_loop(int *sock)
 	StrBufCutLeft(ReqLine, StrLength(ReqType) + 1);
 	StrBufCutRight(ReqLine, StrLength(HTTPVersion) + 1);
 
-	if ((StrLength(ReqLine) >= 7) &&
-	    (ptr = strstr(ChrPtr(ReqLine), "/webcit"),	/*< Handle "/webcit" */
+	if ((StrLength(ReqLine) >= 8) &&
+	    (ptr = strstr(ChrPtr(ReqLine), "/webcit/"),	/*< Handle "/webcit/" */
 	     (ptr != NULL))) {
 		StrBufCutLeft(ReqLine, 7);
 	}

@@ -767,6 +767,10 @@ void http_redirect(const char *whichpage) {
 void http_transmit_thing(const char *content_type,
 			 int is_static) {
 
+	lprintf(9, "http_transmit_thing(%s)%s\n",
+		content_type,
+		(is_static ? " (static)" : "")
+	);
 	output_headers(0, 0, 0, 0, 0, is_static);
 
 	hprintf("Content-type: %s\r\n"
@@ -861,9 +865,7 @@ void output_static(char *what)
 
 
 		close(fd);
-#ifndef TECH_PREVIEW
 		lprintf(9, "output_static('%s')  %s\n", what, content_type);
-#endif
 		http_transmit_thing(content_type, 1);
 	}
 	if (yesbstr("force_close_session")) {
@@ -1331,7 +1333,8 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	char buf[SIZ];
 	int a, nBackDots, nEmpty;
 	int ContentLength = 0;
-	StrBuf *ContentType, *UrlLine;
+	StrBuf *ContentType = NULL;
+	StrBuf *UrlLine = NULL;
 	StrBuf *content = NULL;
 	const char *content_end = NULL;
 	char browser_host[256];
