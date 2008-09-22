@@ -360,7 +360,7 @@ void init_ssl(void)
  * \return Zero if the SSL/TLS handshake succeeded, non-zero otherwise.
  */
 int starttls(int sock) {
-	int retval, bits, alg_bits;
+	int retval, bits, alg_bits, r;
 	SSL *newssl;
 
 	pthread_setspecific(ThreadSSL, NULL);
@@ -412,7 +412,7 @@ int starttls(int sock) {
 		newssl = NULL;
 		return(4);
 	} else lprintf(15, "SSL_accept success\n");
-	BIO_set_close(newssl->rbio, BIO_NOCLOSE);
+	r = BIO_set_close(newssl->rbio, BIO_NOCLOSE);
 	bits = SSL_CIPHER_get_bits(SSL_get_current_cipher(newssl), &alg_bits);
 	lprintf(15, "SSL/TLS using %s on %s (%d of %d bits)\n",
 		SSL_CIPHER_get_name(SSL_get_current_cipher(newssl)),
