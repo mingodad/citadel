@@ -385,8 +385,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		recur = icalproperty_get_rrule(rrule);
 	}
 	else {
+		/* blank recurrence with some sensible defaults */
 		memset(&recur, 0, sizeof(struct icalrecurrencetype));
-		// FIXME create a sane blank recurrence here
+		recur.count = 3;
+		recur.interval = 1;
+		recur.freq = ICAL_WEEKLY_RECURRENCE;
 	}
 
 	wprintf("<INPUT TYPE=\"checkbox\" id=\"is_recur\" NAME=\"is_recur\" "
@@ -399,15 +402,16 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<div id=\"rrule\">\n");		/* begin 'rrule' div */
 
-
 	wprintf("<table border=0 width=100%%>\n");	/* same table style as the event tab */
 
 	/* Table row displaying raw RRULE data, FIXME remove when finished */
-	wprintf("<tr><td><b>");
-	wprintf("Raw data");
-	wprintf("</b></td><td>");
-	wprintf("<tt>%s</tt>", icalrecurrencetype_as_string(&recur));
-	wprintf("</td></tr>\n");
+	if (rrule) {
+		wprintf("<tr><td><b>");
+		wprintf("Raw data");
+		wprintf("</b></td><td>");
+		wprintf("<tt>%s</tt>", icalrecurrencetype_as_string(&recur));
+		wprintf("</td></tr>\n");
+	}
 
 	char *frequency_units[] = {
 		_("seconds"),
@@ -415,9 +419,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("hours"),
 		_("days"),
 		_("weeks"),
-	_("months"),
-	_("years"),
-	_("never")
+		_("months"),
+		_("years"),
+		_("never")
 	};
 
 	wprintf("<tr><td><b>");
