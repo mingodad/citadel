@@ -448,20 +448,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("value=\"%d\"> ", recur.interval);
 
 	wprintf("<select name=\"freq\" id=\"freq_selector\" size=\"1\" "
-		"onclick=\"RecurrenceShowHide();\">\n");
+		"onChange=\"RecurrenceShowHide();\">\n");
 	for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
-
-		/* We only want to offer daily, weekly, monthly, or yearly, which are
-		 * options 3 through 6, but if one of the others hapens to be selected,
-		 * we will grudgingly add it to the list of options.
-		 */
-		if ( (i == recur.freq) || ((i>=3) && (i<=6)) ) {
-			wprintf("<option %s value=\"%d\">%s</option>\n",
-				((i == recur.freq) ? "selected" : ""),
-				i,
-				frequency_units[i]
-			);
-		}
+		wprintf("<option %s value=\"%d\">%s</option>\n",
+			((i == recur.freq) ? "selected" : ""),
+			i,
+			frequency_units[i]
+		);
 	}
 
 	wprintf("</td></tr>\n");

@@ -994,6 +994,8 @@ function RecurrenceShowHide() {
 		$('rrule').style.display = 'none';
 	}
 
+	alert('selected index is ' + $('freq_selector').selectedIndex );
+
 	if ($('freq_selector').selectedIndex == 4) {
 		$('weekday_selector').style.display = 'block';
 	}
