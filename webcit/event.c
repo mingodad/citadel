@@ -381,77 +381,84 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	struct icalrecurrencetype recur;
 
 	rrule = icalcomponent_get_first_property(vevent, ICAL_RRULE_PROPERTY);
+	if (rrule) {
+		recur = icalproperty_get_rrule(rrule);
+	}
+	else {
+		memset(&recur, 0, sizeof(struct icalrecurrencetype));
+		// FIXME create a sane blank recurrence here
+	}
 
 	wprintf("<INPUT TYPE=\"checkbox\" id=\"is_recur\" NAME=\"is_recur\" "
 		"VALUE=\"yes\" "
-		/* "onclick=\"GreyOrUnGrayStuffFIXME();\"" */
+		"onclick=\"RecurrenceShowHide();\""
 		" %s >%s",
 		(rrule ? "CHECKED=\"CHECKED\"" : "" ),
 		_("This is a repeating event")
 	);
 
-	if (rrule) {
-		recur = icalproperty_get_rrule(rrule);
+	wprintf("<div id=\"rrule\">\n");		/* begin 'rrule' div */
 
-		wprintf("<table border=0 width=100%%>\n");	/* same table style as the event tab */
 
-		/* Table row displaying raw RRULE data, FIXME remove when finished */
-		wprintf("<tr><td><b>");
-		wprintf("Raw data");
-		wprintf("</b></td><td>");
-		wprintf("<tt>%s</tt>", icalrecurrencetype_as_string(&recur));
-		wprintf("</td></tr>\n");
+	wprintf("<table border=0 width=100%%>\n");	/* same table style as the event tab */
 
-		char *frequency_units[] = {
-			_("seconds"),
-			_("minutes"),
-			_("hours"),
-			_("days"),
-			_("weeks"),
-			_("months"),
-			_("years"),
-			_("never")
-		};
+	/* Table row displaying raw RRULE data, FIXME remove when finished */
+	wprintf("<tr><td><b>");
+	wprintf("Raw data");
+	wprintf("</b></td><td>");
+	wprintf("<tt>%s</tt>", icalrecurrencetype_as_string(&recur));
+	wprintf("</td></tr>\n");
 
-		wprintf("<tr><td><b>");
-		wprintf(_("Repeats"));
-		wprintf("</b></td><td>");
-		if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
-		wprintf("%s ", _("every"));
+	char *frequency_units[] = {
+		_("seconds"),
+		_("minutes"),
+		_("hours"),
+		_("days"),
+		_("weeks"),
+	_("months"),
+	_("years"),
+	_("never")
+	};
 
-		wprintf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
-		wprintf("value=\"%d\"> ", recur.interval);
+	wprintf("<tr><td><b>");
+	wprintf(_("Repeats"));
+	wprintf("</b></td><td>");
+	if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
+	wprintf("%s ", _("every"));
 
-		wprintf("<select name=\"freq\" size=\"1\">\n");
-		for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
-			wprintf("<option %s value=\"%d\">%s</option>\n",
-				((i == recur.freq) ? "selected" : ""),
-				i,
-				frequency_units[i]
-			);
+	wprintf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
+	wprintf("value=\"%d\"> ", recur.interval);
+
+	wprintf("<select name=\"freq\" size=\"1\">\n");
+	for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
+		wprintf("<option %s value=\"%d\">%s</option>\n",
+			((i == recur.freq) ? "selected" : ""),
+			i,
+			frequency_units[i]
+		);
+	}
+
+	wprintf("</td></tr>\n");
+
+	wprintf("<tr><td><b>");
+	wprintf("byday");							//FIXME
+	wprintf("</b></td><td>");
+	for (i=0; i<ICAL_BY_DAY_SIZE; ++i) {
+		if (recur.by_day[i] == ICAL_RECURRENCE_ARRAY_MAX) {
+			i = ICAL_RECURRENCE_ARRAY_MAX;			/* all done */
 		}
-
-		wprintf("</td></tr>\n");
-
-		wprintf("<tr><td><b>");
-		wprintf("byday");							//FIXME
-		wprintf("</b></td><td>");
-		for (i=0; i<ICAL_BY_DAY_SIZE; ++i) {
-			if (recur.by_day[i] == ICAL_RECURRENCE_ARRAY_MAX) {
-				i = ICAL_RECURRENCE_ARRAY_MAX;			/* all done */
-			}
-			else {
-				for (j=1; j<=ICAL_SATURDAY_WEEKDAY; ++j) {
-					if (icalrecurrencetype_day_day_of_week(recur.by_day[i]) == j) {
-						wprintf("day%d, ", j);
-					}
+		else {
+			for (j=1; j<=ICAL_SATURDAY_WEEKDAY; ++j) {
+				if (icalrecurrencetype_day_day_of_week(recur.by_day[i]) == j) {
+					wprintf("day%d, ", j);
 				}
 			}
 		}
-		wprintf("</td></tr>\n");
-
-		wprintf("</table>\n");
 	}
+	wprintf("</td></tr>\n");
+	wprintf("</table>\n");
+	wprintf("</div>\n");				/* end 'rrule' div */
+
 	end_tab(2, 3);
 
 	/* submit buttons (common area beneath the tabs) */
@@ -476,9 +483,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</div>\n");
 
-	wprintf("<script type=\"text/javascript\">"
-		"eventEditAllDay();"
-		"</script>\n"
+	wprintf("<script type=\"text/javascript\">	\n"
+		"eventEditAllDay();	\n"
+		"RecurrenceShowHide();	\n"
+		"</script>	\n"
 	);
 	address_book_popup();
 	wDumpContent(1);

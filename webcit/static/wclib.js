@@ -979,3 +979,17 @@ function eventEditAllDay() {
 		dtend.style.textDecoration = "";
 	}
 }
+
+
+
+
+// Functions which handle show/hide of various elements in the recurrence editor
+
+function RecurrenceShowHide() {
+	if ($('is_recur').checked) {
+		$('rrule').style.display = 'block';
+	}
+	else {
+		$('rrule').style.display = 'none';
+	}
+}
