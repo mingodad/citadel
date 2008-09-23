@@ -986,10 +986,19 @@ function eventEditAllDay() {
 // Functions which handle show/hide of various elements in the recurrence editor
 
 function RecurrenceShowHide() {
+
 	if ($('is_recur').checked) {
 		$('rrule').style.display = 'block';
 	}
 	else {
 		$('rrule').style.display = 'none';
 	}
+
+	if ($('freq_selector').selectedIndex == 4) {
+		$('weekday_selector').style.display = 'block';
+	}
+	else {
+		$('weekday_selector').style.display = 'none';
+	}
+
 }

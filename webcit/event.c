@@ -7,21 +7,6 @@
 #include "webcit.h"
 #include "webserver.h"
 
-
-
-
-	struct tm tm;
-	time_t thetime;
-	int i;
-
-
-
-
-
-
-
-
-
 /*
  * Display an event by itself (for editing)
  * supplied_vevent	the event to edit
@@ -462,7 +447,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
 	wprintf("value=\"%d\"> ", recur.interval);
 
-	wprintf("<select name=\"freq\" size=\"1\">\n");
+	wprintf("<select name=\"freq\" id=\"freq_selector\" size=\"1\" "
+		"onclick=\"RecurrenceShowHide();\">\n");
 	for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
 
 		/* We only want to offer daily, weekly, monthly, or yearly, which are
@@ -480,10 +466,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</td></tr>\n");
 
+
+	wprintf("<div id=\"weekday_selector\">\n");		/* begin 'weekday_selector' div */
 	wprintf("<tr><td><b>");
 	wprintf("%s", _("on these weekdays:"));
 	wprintf("</b></td><td>");
-
 
 	char weekday_is_selected[7];
 	memset(weekday_is_selected, 0, 7);
@@ -508,6 +495,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 
 	wprintf("</td></tr>\n");
+	wprintf("</div>\n");				/* end 'weekday_selector' div */
+
 	wprintf("</table>\n");
 	wprintf("</div>\n");				/* end 'rrule' div */
 
