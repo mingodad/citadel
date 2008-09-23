@@ -417,7 +417,20 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		wprintf(_("Repeats"));
 		wprintf("</b></td><td>");
 		if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
-		wprintf("every %d %s", recur.interval, frequency_units[recur.freq]);	//FIXME
+		wprintf("%s ", _("every"));
+
+		wprintf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
+		wprintf("value=\"%d\"> ", recur.interval);
+
+		wprintf("<select name=\"freq\" size=\"1\">\n");
+		for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
+			wprintf("<option %s value=\"%d\">%s</option>\n",
+				((i == recur.freq) ? "selected" : ""),
+				i,
+				frequency_units[i]
+			);
+		}
+
 		wprintf("</td></tr>\n");
 
 		wprintf("<tr><td><b>");
