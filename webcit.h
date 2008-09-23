@@ -282,7 +282,7 @@ typedef struct _TemplateToken {
 	TemplateParam *Params[MAXPARAM];
 } WCTemplateToken;
 
-typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
+typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
 
 
 /**
@@ -293,24 +293,37 @@ typedef struct _wcsubst {
 	char wcs_key[32];		    /**< copy of our hashkey for debugging */
 	StrBuf *wcs_value;		    /**< if we're a string, keep it here */
 	long lvalue;                        /**< type long? keep data here */
+	int ContextRequired;                /**< do we require a context type? */
 	WCHandlerFunc wcs_function; /**< funcion hook ???*/
 } wcsubst;
+
+#define CTX_NONE 0
+#define CTX_SITECFG 1
+#define CTX_SESSION 2
+#define CTX_INETCFG 3
+#define CTX_VNOTE 4
+#define CTX_WHO 5
+#define CTX_PREF 6
+#define CTX_NODECONF 7
 
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
 		int nMaxArgs, 
-		WCHandlerFunc HandlerFunc);
-#define RegisterNamespace(a, b, c, d) RegisterNS(a, sizeof(a)-1, b, c, d)
+		WCHandlerFunc HandlerFunc,
+		int ContextRequired);
+#define RegisterNamespace(a, b, c, d, e) RegisterNS(a, sizeof(a)-1, b, c, d, e)
 
-typedef int (*WCConditionalFunc)(WCTemplateToken *Token, void *Context);
+typedef int (*WCConditionalFunc)(WCTemplateToken *Token, void *Context, int ContextType);
 typedef struct _ConditionalStruct {
 	int nParams;
+	int ContextRequired;
 	WCConditionalFunc CondF;
 } ConditionalStruct;
 void RegisterConditional(const char *Name, long len, 
 			 int nParams,
-			 WCConditionalFunc CondF);
+			 WCConditionalFunc CondF, 
+			 int ContextRequired);
 
 
 
@@ -322,8 +335,9 @@ void RegisterITERATOR(const char *Name, long len,
 		      HashList *StaticList, 
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
-		      HashDestructorFunc Destructor);
-#define RegisterIterator(a, b, c, d, e, f) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f)
+		      HashDestructorFunc Destructor,
+		      int ContextType);
+#define RegisterIterator(a, b, c, d, e, f, g) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g)
 
 void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
 #define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
@@ -338,8 +352,8 @@ void SVCallback(char *keyname, size_t keylen,  WCHandlerFunc fcn_ptr);
 void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
 #define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
 
-void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target);
-#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL);
+void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target, int ContextType);
+#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL, 0);
 void url_do_template(void);
 
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
@@ -726,7 +740,7 @@ void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_s
 
 int is_msg_in_mset(char *mset, long msgnum);
 void display_addressbook(long msgnum, char alpha);
-void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
+void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
 void output_html(char *, int);
 void do_listsub(void);
@@ -795,7 +809,7 @@ void do_selected_iconbar(void);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void spawn_another_worker_thread(void);
 void display_rss(char *roomname, StrBuf *request_method);
-void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context);
+void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
 void set_selected_language(const char *);
 void go_selected_language(void);
 void stop_selected_language(void);

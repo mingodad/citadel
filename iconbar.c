@@ -803,7 +803,7 @@ void commit_iconbar(void) {
 }
 
 
-void tmplput_iconbar(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_iconbar(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	
@@ -824,7 +824,7 @@ InitModule_ICONBAR
 	WebcitAddUrlHandler(HKEY("iconbar_ajax_rooms"), do_iconbar_roomlist, AJAX);
 	WebcitAddUrlHandler(HKEY("display_customize_iconbar"), display_customize_iconbar, 0);
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
-	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar);
+	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, 0);
 
 }
 

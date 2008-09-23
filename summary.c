@@ -259,7 +259,7 @@ void summary(void) {
         wprintf("</h2></div>");
 	wprintf("<ul class=\"room_actions\">\n");
 	wprintf("<li class=\"start_page\">");
-	offer_start_page(NULL, 0, NULL, NULL);
+	offer_start_page(NULL, 0, NULL, NULL, CTX_NONE);
         wprintf("</li></ul>");
         wprintf("</div>");
 

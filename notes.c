@@ -345,7 +345,10 @@ void display_note(long msgnum, int unread) {
 
 	v = vnote_new_from_msg(msgnum);
 	if (v) {
-		display_vnote_div(v);
+//		display_vnote_div(v);
+		DoTemplate(HKEY("vnoteitem"),
+			   v, WC->WBuf, CTX_VNOTE);
+			
 
 		/* uncomment these lines to see ugly debugging info 
 		wprintf("<script type=\"text/javascript\">");
@@ -383,10 +386,82 @@ void add_new_note(void) {
 	readloop("readfwd");
 }
 
+
+void tmpl_vcard_put_posleft(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%d", v->pos_left);
+}
+
+void tmpl_vcard_put_postop(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%d", v->pos_top);
+}
+
+void tmpl_vcard_put_poswidth(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%d", v->pos_width);
+}
+
+void tmpl_vcard_put_posheight(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%d", v->pos_height);
+}
+
+void tmpl_vcard_put_posheight2(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%d", (v->pos_height / 16) - 5);
+}
+
+void tmpl_vcard_put_width2(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%d", (v->pos_width / 9) - 1);
+}
+
+void tmpl_vcard_put_color(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%02X%02X%02X", v->color_red, v->color_green, v->color_blue);
+}
+
+void tmpl_vcard_put_bgcolor(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendPrintf(Target, "%02X%02X%02X", v->color_red/2, v->color_green/2, v->color_blue/2);
+}
+
+void tmpl_vcard_put_message(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrEscAppend(Target, NULL, v->body, 0, 0); ///TODO?
+}
+
+void tmpl_vcard_put_uid(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct vnote *v = (struct vnote *) Context;
+	StrBufAppendBufPlain(Target, v->uid, -1, 0);
+}
+
 void 
 InitModule_NOTES
 (void)
 {
 	WebcitAddUrlHandler(HKEY("add_new_note"), add_new_note, 0);
 	WebcitAddUrlHandler(HKEY("ajax_update_note"), ajax_update_note, 0);
+
+	RegisterNamespace("VNOTE:POS:LEFT", 0, 0, tmpl_vcard_put_posleft, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:TOP", 0, 0, tmpl_vcard_put_postop, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:WIDTH", 0, 0, tmpl_vcard_put_poswidth, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:HEIGHT", 0, 0, tmpl_vcard_put_posheight, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:HEIGHT2", 0, 0, tmpl_vcard_put_posheight2, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:WIDTH2", 0, 0, tmpl_vcard_put_width2, CTX_VNOTE);
+	RegisterNamespace("VNOTE:COLOR", 0, 0, tmpl_vcard_put_color, CTX_VNOTE);
+	RegisterNamespace("VNOTE:BGCOLOR", 0, 0,tmpl_vcard_put_bgcolor, CTX_VNOTE);
+	RegisterNamespace("VNOTE:MSG", 0, 1, tmpl_vcard_put_message, CTX_VNOTE);
+	RegisterNamespace("VNOTE:UID", 0, 0, tmpl_vcard_put_uid, CTX_VNOTE);
 }

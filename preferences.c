@@ -671,7 +671,7 @@ void set_preferences(void)
 #define PRF_YESNO 4
 
 
-void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context)
+void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	StrBuf *Setting;
 	if (get_PREFERENCE(Token->Params[0]->Start,
@@ -680,7 +680,7 @@ void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *
 		StrBufAppendBuf(Target, Setting, 0);
 }
 
-void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context)
+void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	const char *SettingStr;
 	SettingStr = PrefGetLocalStr(Token->Params[0]->Start,
@@ -697,7 +697,7 @@ void CfgZoneTempl(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
 	SVPutBuf("ZONENAME", Zone, 1);
 }
 
-int ConditionalPreference(WCTemplateToken *Token, void *Context)
+int ConditionalPreference(WCTemplateToken *Token, void *Context, int ContextType)
 {
 	StrBuf *Pref;
 
@@ -735,10 +735,10 @@ InitModule_PREFERENCES
 	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
 	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
 	
-	RegisterNamespace("PREF:VALUE", 1, 1, tmplput_CFG_Value);
-	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr);
-	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL);
+	RegisterNamespace("PREF:VALUE", 1, 1, tmplput_CFG_Value, CTX_SESSION);
+	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_SESSION);
+	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF);
 
-	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference);
+	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
 }
 /*@}*/

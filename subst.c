@@ -51,12 +51,18 @@ typedef struct _WCTemplate {
 typedef struct _HashHandler {
 	int nMinArgs;
 	int nMaxArgs;
+	int ContextRequired;
 	WCHandlerFunc HandlerFunc;
 }HashHandler;
 
 void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere);
 
-void RegisterNS(const char *NSName, long len, int nMinArgs, int nMaxArgs, WCHandlerFunc HandlerFunc)
+void RegisterNS(const char *NSName, 
+		long len, 
+		int nMinArgs, 
+		int nMaxArgs, 
+		WCHandlerFunc HandlerFunc, 
+		int ContextRequired)
 {
 	HashHandler *NewHandler;
 	
@@ -64,6 +70,7 @@ void RegisterNS(const char *NSName, long len, int nMinArgs, int nMaxArgs, WCHand
 	NewHandler->nMinArgs = nMinArgs;
 	NewHandler->nMaxArgs = nMaxArgs;
 	NewHandler->HandlerFunc = HandlerFunc;	
+	NewHandler->ContextRequired = ContextRequired;
 	Put(GlobalNS, NSName, len, NewHandler, NULL);
 }
 
@@ -460,7 +467,7 @@ void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
  * \brief Print the value of a variable
  * \param keyname get a key to print
  */
-void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context) {
+void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context, int ContextType) {
 	struct wcsession *WCC = WC;
 	wcsubst *ptr;
 	void *vVar;
@@ -468,7 +475,7 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context) {
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	/// TODO: debricated!
 	if (Token->pName[0] == '=') {
-		DoTemplate(Token->pName+1, Token->NameEnd - 1, NULL, NULL);
+		DoTemplate(Token->pName+1, Token->NameEnd - 1, NULL, NULL, 0);
 	}
 
 //////TODO: if param[1] == "U" -> urlescape
@@ -484,7 +491,7 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context) {
 			pvo_do_cmd(Target, ptr->wcs_value);
 			break;
 		case WCS_FUNCTION:
-			(*ptr->wcs_function) (Target, Token->nParameters, Token, Context);
+			(*ptr->wcs_function) (Target, Token->nParameters, Token, Context, ContextType);
 			break;
 		case WCS_STRBUF:
 		case WCS_STRBUF_REF:
@@ -782,7 +789,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 
 
 
-int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int Neg, int state)
+int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType)
 {
 	void *vConditional = NULL;
 	ConditionalStruct *Cond;
@@ -829,30 +836,31 @@ int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmp
 			ChrPtr(Token->FlatToken));
 		return 0;
 	}
-	if (Cond->CondF(Token, Context) == Neg)
+	if (Cond->CondF(Token, Context, ContextType) == Neg)
 		return Token->Params[1]->lvalue;
 	return 0;
 }
 
-int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int state)
+int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int state, int ContextType)
 {
 	HashHandler *Handler;
 	void *vVar;
 // much output, since pName is not terminated...
 //	lprintf(1,"Doing token: %s\n",Token->pName);
+
 	switch (Token->Flags) {
 	case SV_GETTEXT:
 		TmplGettext(Target, Token->nParameters, Token);
 		break;
 	case SV_CONDITIONAL: /** Forward conditional evaluation */
-		return EvaluateConditional(Target, Token, pTmpl, Context, 1, state);
+		return EvaluateConditional(Target, Token, pTmpl, Context, 1, state, ContextType);
 		break;
 	case SV_NEG_CONDITIONAL: /** Reverse conditional evaluation */
-		return EvaluateConditional(Target, Token, pTmpl, Context, 0, state);
+		return EvaluateConditional(Target, Token, pTmpl, Context, 0, state, ContextType);
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
 		if (Token->nParameters >= 6) {
-			if (EvaluateConditional(Target, Token, pTmpl, Context, 0, state))
+			if (EvaluateConditional(Target, Token, pTmpl, Context, 0, state, ContextType))
 				StrBufAppendBufPlain(Target, 
 						     Token->Params[5]->Start,
 						     Token->Params[5]->len,
@@ -866,20 +874,66 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, voi
 		break;
 	case SV_SUBTEMPL:
 		if (Token->nParameters == 1)
-			DoTemplate(Token->Params[0]->Start, Token->Params[0]->len, NULL, NULL);
+			DoTemplate(Token->Params[0]->Start, Token->Params[0]->len, NULL, NULL, ContextType);
 		break;
 	case SV_PREEVALUATED:
 		Handler = (HashHandler*) Token->PreEval;
+		if ((Handler->ContextRequired != CTX_NONE) &&
+		    (Handler->ContextRequired != ContextType)) {
+			lprintf(1, "Handler [%s] (in '%s' line %ld); "
+				"requires context of type %ld, have %ld [%s]\n", 
+				Token->pName,
+				ChrPtr(pTmpl->FileName),
+				Token->Line,
+				Handler->ContextRequired, 
+				ContextType,
+				ChrPtr(Token->FlatToken));
+			StrBufAppendPrintf(
+				Target, 
+				"<pre>\nHandler [%s] (in '%s' line %ld);"
+				" requires context of type %ld, have %ld!\n[%s]\n</pre>\n", 
+				Token->pName,
+				ChrPtr(pTmpl->FileName),
+				Token->Line,
+				Handler->ContextRequired, 
+				ContextType,
+				ChrPtr(Token->FlatToken));
+			return -1;
+
+		}
 		Handler->HandlerFunc(Target, 
 				     Token->nParameters,
 				     Token,
-				     Context); 
+				     Context, 
+				     ContextType); 
 		break;		
 	default:
 		if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
 			Handler = (HashHandler*) vVar;
-			if ((Token->nParameters < Handler->nMinArgs) || 
-			    (Token->nParameters > Handler->nMaxArgs)) {
+			if ((Handler->ContextRequired != CTX_NONE) &&
+			    (Handler->ContextRequired != ContextType)) {
+				lprintf(1, "Handler [%s] (in '%s' line %ld); "
+					"requires context of type %ld, have %ld [%s]\n", 
+					Token->pName,
+					ChrPtr(pTmpl->FileName),
+					Token->Line,
+					Handler->ContextRequired, 
+					ContextType,
+					ChrPtr(Token->FlatToken));
+				StrBufAppendPrintf(
+					Target, 
+					"<pre>\nHandler [%s] (in '%s' line %ld);"
+					" requires context of type %ld, have %ld!\n[%s]\n</pre>\n", 
+					Token->pName,
+					ChrPtr(pTmpl->FileName),
+					Token->Line,
+					Handler->ContextRequired, 
+					ContextType,
+					ChrPtr(Token->FlatToken));
+				return -1;
+			}
+			else if ((Token->nParameters < Handler->nMinArgs) || 
+				 (Token->nParameters > Handler->nMaxArgs)) {
 				lprintf(1, "Handler [%s] (in '%s' line %ld); "
 					"doesn't work with %ld params [%s]\n", 
 					Token->pName,
@@ -901,18 +955,19 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, voi
 				Handler->HandlerFunc(Target, 
 						     Token->nParameters,
 						     Token,
-						     Context); /*TODO: subset of that */
+						     Context, 
+						     ContextType); /*TODO: subset of that */
 				
 			}
 		}
 		else {
-			print_value_of(Target, Token, Context);
+			print_value_of(Target, Token, Context, ContextType);
 		}
 	}
 	return 0;
 }
 
-void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
+void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context, int ContextType)
 {
 	WCTemplate *pTmpl = Tmpl;
 	int done = 0;
@@ -931,8 +986,6 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 				"<pre>\nError loading Template [%s]\n See Logfile for details\n</pre>\n", 
 				ChrPtr(Tmpl->FileName));
 			return;
-
-
 		}
 
 	}
@@ -952,7 +1005,7 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 			StrBufAppendBufPlain(
 				Target, pData, 
 				pTmpl->Tokens[i]->pTokenStart - pData, 0);
-			state = EvaluateToken(Target, pTmpl->Tokens[i], pTmpl, Context, state);
+			state = EvaluateToken(Target, pTmpl->Tokens[i], pTmpl, Context, state, ContextType);
 			while ((state != 0) && (i+1 < pTmpl->nTokensUsed)) {
 			/* condition told us to skip till its end condition */
 				i++;
@@ -964,7 +1017,8 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context)
 						    pTmpl,
 						    Context, 
 						    pTmpl->Tokens[i]->Flags,
-						    state))
+						    state, 
+						    ContextType))
 						state = 0;
 				}
 			}
@@ -1096,7 +1150,7 @@ const char* PrintTemplate(void *vSubst)
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
-void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target) 
+void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target, int ContextType) 
 {
 	HashList *Static;
 	HashList *StaticLocal;
@@ -1132,7 +1186,7 @@ void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Targe
 	}
 	if (vTmpl == NULL) 
 		return;
-	ProcessTemplate(vTmpl, Target, Context);	
+	ProcessTemplate(vTmpl, Target, Context, ContextType);
 }
 
 int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
@@ -1205,49 +1259,49 @@ void InitTemplateCache(void)
 			LocalTemplateCache);
 }
 
-void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBufAppendPrintf(Target, "%d", WC->ctdl_pid);
 }
 
-void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, serv_info.serv_nodename, 0, 0);
 }
 
-void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, serv_info.serv_humannode, 0, 0);
 }
 
-void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, serv_info.serv_fqdn, 0, 0);
 }
 
-void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, serv_info.serv_software, 0, 0);
 }
 
-void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBufAppendPrintf(Target, "%d.%02d",
 			    serv_info.serv_rev_level / 100,
 			    serv_info.serv_rev_level % 100);
 }
 
-void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, serv_info.serv_bbs_city, 0, 0);
 }
 
-void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, WC->wc_fullname, 0, 0);
 }
 
-void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, WC->wc_roomname, 0, 0);
 }
@@ -1256,12 +1310,13 @@ void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 typedef struct _HashIterator {
 	HashList *StaticList;
 	int AdditionalParams;
+	int ContextType;
 	RetrieveHashlistFunc GetHash;
 	HashDestructorFunc Destructor;
 	SubTemplFunc DoSubTemplate;
 } HashIterator;
 
-void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	void *vIt;
 	HashIterator *It;
@@ -1320,12 +1375,15 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	SubBuf = NewStrBuf();
 	it = GetNewHashPos();
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
-		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", (oddeven)?"odd":"even");
-		svprintf(HKEY("ITERATE:KEY"), WCS_STRING, "%s",Key);
+		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", 
+			 (oddeven) ? "odd" : "even");
+		svprintf(HKEY("ITERATE:KEY"), WCS_STRING, "%s", Key);
+
 		It->DoSubTemplate(SubBuf, vContext, Tokens);
 		DoTemplate(Tokens->Params[1]->Start,
 			   Tokens->Params[1]->len,
-			   vContext, SubBuf);
+			   vContext, SubBuf, 
+			   It->ContextType);
 			
 		StrBufAppendBuf(Target, SubBuf, 0);
 		FlushStrBuf(SubBuf);
@@ -1337,7 +1395,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		It->Destructor(&List);
 }
 
-int ConditionalVar(WCTemplateToken *Tokens, void *Context)
+int ConditionalVar(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	void *vsubst;
 	wcsubst *subst;
@@ -1348,6 +1406,12 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context)
 		     &vsubst))
 		return 0;
 	subst = (wcsubst*) vsubst;
+	if ((subst->ContextRequired != CTX_NONE) &&
+	    (subst->ContextRequired != ContextType)) {
+		lprintf(1,"  WARNING: Conditional requires Context: [%ld]!\n", Tokens->Params[2]->Start);
+		return -1;
+	}
+
 	switch(subst->wcs_type) {
 	case WCS_FUNCTION:
 		return (subst->wcs_function!=NULL);
@@ -1366,6 +1430,7 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context)
 		return (subst->lvalue == Tokens->Params[3]->lvalue);
 	default:
 		lprintf(1,"  WARNING: invalid type: [%ld]!\n", subst->wcs_type);
+		return -1;
 	}
 	return 0;
 }
@@ -1375,7 +1440,8 @@ void RegisterITERATOR(const char *Name, long len,
 		      HashList *StaticList, 
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
-		      HashDestructorFunc Destructor)
+		      HashDestructorFunc Destructor,
+		      int ContextType)
 {
 	HashIterator *It = (HashIterator*)malloc(sizeof(HashIterator));
 	It->StaticList = StaticList;
@@ -1383,39 +1449,44 @@ void RegisterITERATOR(const char *Name, long len,
 	It->GetHash = GetHash;
 	It->DoSubTemplate = DoSubTempl;
 	It->Destructor = Destructor;
+	It->ContextType = ContextType;
 	Put(Iterators, Name, len, It, NULL);
 }
 
 void RegisterConditional(const char *Name, long len, 
 			 int nParams,
-			 WCConditionalFunc CondF)
+			 WCConditionalFunc CondF, 
+			 int ContextRequired)
 {
 	ConditionalStruct *Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
 	Cond->nParams = nParams;
 	Cond->CondF = CondF;
+	Cond->ContextRequired = ContextRequired;
 	Put(Contitionals, Name, len, Cond, NULL);
 }
 
-void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	if (nArgs == 2) {
 		StrBuf *Headline = NewStrBuf();
 		DoTemplate(Tokens->Params[1]->Start, 
 			   Tokens->Params[1]->len,
 			   Context, 
-			   Headline);
+			   Headline, 
+			   ContextType);
 		SVPutBuf("BOXTITLE", Headline, 0);
 	}
-
-	DoTemplate(HKEY("beginbox"), Context, Target);
+	
+	DoTemplate(HKEY("beginbox"), Context, Target, ContextType);
 	DoTemplate(Tokens->Params[0]->Start, 
 		   Tokens->Params[0]->len,
 		   Context, 
-		   Target);
-	DoTemplate(HKEY("endbox"), Context, Target);
+		   Target, 
+		   ContextType);
+	DoTemplate(HKEY("endbox"), Context, Target, ContextType);
 }
 
-void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf **TabNames;
 	int i, ntabs, nTabs;
@@ -1429,7 +1500,8 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 			DoTemplate(Tokens->Params[i * 2]->Start, 
 				   Tokens->Params[i * 2]->len,
 				   Context,
-				   TabNames[i]);
+				   TabNames[i],
+				   ContextType);
 		}
 		else { 
 			/** A Tab without subject? we can't count that, add it as silent */
@@ -1444,7 +1516,8 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 		DoTemplate(Tokens->Params[i * 2 + 1]->Start, 
 			   Tokens->Params[i * 2 + 1]->len,
 			   Context, 
-			   Target);
+			   Target,
+			   ContextType);
 		StrEndTab(Target, i, nTabs);
 	}
 }
@@ -1453,20 +1526,20 @@ void
 InitModule_SUBST
 (void)
 {
-	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip);
-	RegisterNamespace("SERV:NODENAME", 0, 0, tmplput_serv_nodename);
-	RegisterNamespace("SERV:HUMANNODE", 0, 0, tmplput_serv_humannode);
-	RegisterNamespace("SERV:FQDN", 0, 0, tmplput_serv_fqdn);
-	RegisterNamespace("SERV:SOFTWARE", 0, 0, tmmplput_serv_software);
-	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level);
-	RegisterNamespace("SERV:BBS_CITY", 0, 0, tmmplput_serv_bbs_city);
-///	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmmplput_serv_ldap_enabled);
-	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user);
-	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room);
-	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl);
-	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed);
-	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed);
-	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar);
+	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip, CTX_NONE);
+	RegisterNamespace("SERV:NODENAME", 0, 0, tmplput_serv_nodename, CTX_NONE);
+	RegisterNamespace("SERV:HUMANNODE", 0, 0, tmplput_serv_humannode, CTX_NONE);
+	RegisterNamespace("SERV:FQDN", 0, 0, tmplput_serv_fqdn, CTX_NONE);
+	RegisterNamespace("SERV:SOFTWARE", 0, 0, tmmplput_serv_software, CTX_NONE);
+	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, CTX_NONE);
+	RegisterNamespace("SERV:BBS_CITY", 0, 0, tmmplput_serv_bbs_city, CTX_NONE);
+///	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmmplput_serv_ldap_enabled, 0);
+	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user, CTX_NONE);
+	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room, CTX_NONE);
+	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, CTX_NONE);
+	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);
+	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, CTX_NONE);
+	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
 }
 
 /*@}*/

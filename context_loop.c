@@ -621,7 +621,7 @@ void context_loop(int *sock)
 	
 }
 
-void tmpl_nonce(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmpl_nonce(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	StrBufAppendPrintf(Target, "%ld",
@@ -632,5 +632,5 @@ void
 InitModule_CONTEXT
 (void)
 {
-	RegisterNamespace("NONCE", 0, 0, tmpl_nonce);
+	RegisterNamespace("NONCE", 0, 0, tmpl_nonce, 0);
 }

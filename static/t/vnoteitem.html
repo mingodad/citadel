@@ -1,0 +1,66 @@
+
+
+<div id="note-<?VNOTE:UID>"
+ class="stickynote_outer"
+ style=" left: <?VNOTE:POS:LEFT>px; top: <?VNOTE:POS:TOP>px; width: <?VNOTE:POS:WIDTH>px; height: <?VNOTE:POS:HEIGHT>px; background-color: #<?VNOTE:COLOR>">
+<!--begin title bar div-->
+<div id='titlebar-<?VNOTE:UID>'
+ class="stickynote_titlebar"
+ onMouseDown="NotesDragMouseDown(event,'<?VNOTE:UID>')"
+ style=" background-color: #<?VNOTE:BGCOLOR>"
+>
+<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>
+<td align=left valign=middle>
+<img onclick="NotesClickPalette(event,'<?VNOTE:UID>')" src="static/8paint16.gif">
+</td>
+<td></td><!-- nothing in the title bar, it's just for dragging-->
+<td align=right valign=middle>
+ <img onclick="DeleteStickyNote(event,'<?VNOTE:UID>','<?_("Delete this note?")>')"
+  src="static/closewindow.gif">
+</td></tr></table>
+</div>
+<!--end title bar div; begin body div-->
+<div id="notebody-<?VNOTE:UID>"	class="stickynote_body">
+  <?VNOTE:MSG("X")>
+</div>
+<!--end body div-->
+<script type="text/javascript">
+  new Ajax.InPlaceEditor('notebody-<?VNOTE:UID>', 'ajax_update_note?note_uid=<?VNOTE:UID>',
+{
+ rows:<?VNOTE:POS:HEIGHT2>,
+ cols:<?VNOTE:POS:WIDTH2>,
+ onEnterHover:false,
+ onLeaveHover:false,
+ okText:'<?_("Save")>',
+ cancelText:'<?_("Cancel")>',
+ clickToEditText:'<?_("Click on any note to edit it.")>'
+});
+</script>
+<div id="resize-<?VNOTE:UID>" 
+     class="stickynote_resize" onMouseDown="NotesResizeMouseDown(event,'<?VNOTE:UID>')"> </div>
+
+<div id="palette-<?VNOTE:UID>" class="stickynote_palette">
+  <table border=0 cellpadding=0 cellspacing=0>
+    <tr>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',128,128,128,'#808080','#404040')" bgcolor="#808080"> </td>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',255,128,128,'#ff8080','#7f4040')" bgcolor="#ff8080"> </td>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',128,128,255,'#8080ff','#40407f')" bgcolor="#8080ff"> </td>
+    </tr><tr>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',255,255,128,'#ffff80','#7f7f40')" bgcolor="#ffff80"> </td>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',128,255,128,'#80ff80','#407f40')" bgcolor="#80ff80"> </td>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',255,128,255,'#ff80ff','#7f407f')" bgcolor="#ff80ff"> </td>
+    </tr><tr>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',128,255,255,'#80ffff','#407f7f')" bgcolor="#80ffff"> </td>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',255,128,128,'#ff8080','#7f4040')" bgcolor="#ff8080"> </td>
+      <td onClick="NotesClickColor(event,'<?VNOTE:UID>',128,128,128,'#808080','#404040')" bgcolor="#808080"> </td>
+    </tr>
+  </table>
+</div></div>
+
+<div id="resize-<?VNOTE:UID>"
+ class="stickynote_resize"
+ onMouseDown="NotesResizeMouseDown(event,'<?VNOTE:UID>')">
+</div>
+<!--end resize handle div-->
+
+
