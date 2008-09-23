@@ -273,7 +273,7 @@ void zapped_list(void)
 /**
  * \brief read this room's info file (set v to 1 for verbose mode)
  */
-void readinfo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context)
+void readinfo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	char buf[256];
 	char briefinfo[128];
@@ -322,7 +322,7 @@ void readinfo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context)
  * keep the browser from using a cached icon from 
  * another room.
  */
-void embed_room_graphic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
+void embed_room_graphic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
 	char buf[SIZ];
 
 	serv_puts("OIMG _roompic_");
@@ -378,7 +378,7 @@ void embed_room_graphic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void 
 /**
  * \brief Display the current view and offer an option to change it
  */
-void embed_view_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
+void embed_view_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
 	int i;
 
 	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n");
@@ -419,7 +419,7 @@ void embed_view_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void 
 /**
  * \brief Display a search box
  */
-void embed_search_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
+void embed_search_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
 	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n");
 	wprintf("<div style=\"display: inline;\"><input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<label for=\"search_name\">");
@@ -3587,7 +3587,7 @@ void knrooms(void)
 	/** offer the ability to switch views */
 	wprintf("<ul class=\"room_actions\">\n");
 	wprintf("<li class=\"start_page\">");
-	offer_start_page(NULL, 0, NULL, NULL);
+	offer_start_page(NULL, 0, NULL, NULL, CTX_NONE);
 	wprintf("</li>");
 	wprintf("<li><form name=\"roomlistomatic\">\n"
 		"<select name=\"newview\" size=\"1\" "
@@ -3647,7 +3647,7 @@ void set_room_policy(void) {
 }
 
 
-void tmplput_RoomName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_RoomName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrEscAppend(Target, NULL, WC->wc_roomname, 1, 1);
 }
@@ -3662,7 +3662,7 @@ void dotgoto(void) {
 	smart_goto(bstr("room"));
 }
 
-void tmplput_roombanner(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_roombanner(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	wprintf("<div id=\"banner\">\n");
 	embed_room_banner(NULL, navbar_default);
@@ -3670,7 +3670,7 @@ void tmplput_roombanner(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void
 }
 
 
-void tmplput_ungoto(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_ungoto(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 
@@ -3680,7 +3680,7 @@ void tmplput_ungoto(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 }
 
 
-int ConditionalHaveUngoto(WCTemplateToken *Tokens, void *Context)
+int ConditionalHaveUngoto(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	
@@ -3689,7 +3689,7 @@ int ConditionalHaveUngoto(WCTemplateToken *Tokens, void *Context)
 		(strcasecmp(WCC->ugname, WCC->wc_roomname) == 0));
 }
 
-int ConditinalRoomHasQRVisidir(WCTemplateToken *Tokens, void *Context)
+int ConditionalRoomHasQRVisidir(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	
@@ -3697,7 +3697,7 @@ int ConditinalRoomHasQRVisidir(WCTemplateToken *Tokens, void *Context)
 		((WCC->room_flags & QR_VISDIR) != 0));
 }
 
-int ConditionalHaveRoomeditRights(WCTemplateToken *Tokens, void *Context)
+int ConditionalHaveRoomeditRights(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 
@@ -3711,7 +3711,7 @@ void
 InitModule_ROOMOPS
 (void)
 {
-	RegisterNamespace("ROOMNAME", 0, 0, tmplput_RoomName);
+	RegisterNamespace("ROOMNAME", 0, 0, tmplput_RoomName, 0);
 
 	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
 	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, 0);
@@ -3735,12 +3735,12 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
-	RegisterNamespace("ROOMBANNER", 0, 0, tmplput_roombanner);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_VISIDIR"), 0, ConditinalRoomHasQRVisidir);
-	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto);
-	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights);
+	RegisterNamespace("ROOMBANNER", 0, 0, tmplput_roombanner, 0);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_VISIDIR"), 0, ConditionalRoomHasQRVisidir, CTX_NONE);
+	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
-	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto);
+	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, 0);
 }
 
 /*@}*/

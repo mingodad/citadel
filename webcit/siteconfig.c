@@ -986,7 +986,7 @@ void siteconfig(void)
 	display_aide_menu();
 }
 
-void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	void *vBuf;
@@ -1004,7 +1004,7 @@ void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *C
 	}
 }
 
-int ConditionalServCfg(WCTemplateToken *Tokens, void *Context)
+int ConditionalServCfg(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	void *vBuf;
@@ -1029,7 +1029,7 @@ int ConditionalServCfg(WCTemplateToken *Tokens, void *Context)
 	else return 0;
 }
 
-int ConditionalServCfgSubst(WCTemplateToken *Tokens, void *Context)
+int ConditionalServCfgSubst(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	void *vBuf;
@@ -1054,11 +1054,11 @@ void
 InitModule_SITECONFIG
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_siteconfig"), display_siteconfig, 0);
-	WebcitAddUrlHandler(HKEY("siteconfig"), siteconfig, 0);
+	WebcitAddUrlHandler(HKEY("display_siteconfig"), display_siteconfig, CTX_NONE);
+	WebcitAddUrlHandler(HKEY("siteconfig"), siteconfig, CTX_NONE);
 
-	RegisterNamespace("SERV:CFG", 1, 1, tmplput_servcfg);
-	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg);
-	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst);
+	RegisterNamespace("SERV:CFG", 1, 1, tmplput_servcfg, CTX_SITECFG);
+	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
+	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst, CTX_NONE);
 }
 /*@}*/

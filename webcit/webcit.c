@@ -1059,7 +1059,7 @@ void url_do_template(void) {
 	const StrBuf *Tmpl = sbstr("template");
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	DoTemplate(ChrPtr(Tmpl), StrLength(Tmpl), NULL, NULL);
+	DoTemplate(ChrPtr(Tmpl), StrLength(Tmpl), NULL, NULL, 0);
 	end_burst();
 }
 
@@ -1068,7 +1068,7 @@ void url_do_template(void) {
 /*
  * Offer to make any page the user's "start page."
  */
-void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context) {
+void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
 	wprintf("<a href=\"change_start_page?startpage=");
 	urlescputs(WC->this_page);
 	wprintf("\">");
@@ -1816,7 +1816,7 @@ void download_mimepart(void) {
 }
 
 
-int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context)
+int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	if (WCC != NULL)
@@ -1825,7 +1825,7 @@ int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context)
 		return 0;
 }
 
-void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	
@@ -1835,7 +1835,7 @@ void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	}
 }
 
-int ConditionalBstr(WCTemplateToken *Tokens, void *Context)
+int ConditionalBstr(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	if(Tokens->nParameters == 1)
 		return HaveBstr(Tokens->Params[0]->Start, 
@@ -1846,7 +1846,7 @@ int ConditionalBstr(WCTemplateToken *Tokens, void *Context)
 			      Tokens->Params[1]->Start) == 0;
 }
 
-void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context)
+void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBufAppendBuf(Target, 
 			SBstr(Tokens->Params[0]->Start, 
@@ -1867,9 +1867,10 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
-	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage);
-	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr);
-	RegisterNamespace("BSTR", 1, 2, tmplput_bstr);
-	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage);
-	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page);
+
+	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
+	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
+	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, CTX_NONE);
+	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
+	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
 }
