@@ -8,6 +8,20 @@
 #include "webserver.h"
 
 
+
+
+	struct tm tm;
+	time_t thetime;
+	int i;
+
+
+
+
+
+
+
+
+
 /*
  * Display an event by itself (for editing)
  * supplied_vevent	the event to edit
@@ -29,10 +43,25 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int organizer_is_me = 0;
 	int i, j = 0;
 	int sequence = 0;
+	char weekday_labels[7][32];
 
 	lprintf(9, "display_edit_individual_event(%ld) calview=%s year=%s month=%s day=%s\n",
 		msgnum, bstr("calview"), bstr("year"), bstr("month"), bstr("day")
 	);
+
+	/* populate the weekday names - begin */
+	now = time(NULL);
+	localtime_r(&now, &tm_now);
+	while (tm_now.tm_wday != 0) {
+		now -= 86400L;
+		localtime_r(&now, &tm_now);
+	}
+	for (i=0; i<7; ++i) {
+		localtime_r(&now, &tm_now);
+		wc_strftime(weekday_labels[i], 32, "%A", &tm_now);
+		now += 86400L;
+	}
+	/* populate the weekday names - end */
 
 	now = time(NULL);
 	strcpy(organizer_string, "");
@@ -435,30 +464,49 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<select name=\"freq\" size=\"1\">\n");
 	for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
-		wprintf("<option %s value=\"%d\">%s</option>\n",
-			((i == recur.freq) ? "selected" : ""),
-			i,
-			frequency_units[i]
-		);
+
+		/* We only want to offer daily, weekly, monthly, or yearly, which are
+		 * options 3 through 6, but if one of the others hapens to be selected,
+		 * we will grudgingly add it to the list of options.
+		 */
+		if ( (i == recur.freq) || ((i>=3) && (i<=6)) ) {
+			wprintf("<option %s value=\"%d\">%s</option>\n",
+				((i == recur.freq) ? "selected" : ""),
+				i,
+				frequency_units[i]
+			);
+		}
 	}
 
 	wprintf("</td></tr>\n");
 
 	wprintf("<tr><td><b>");
-	wprintf("byday");							//FIXME
+	wprintf("%s", _("on these weekdays:"));
 	wprintf("</b></td><td>");
+
+
+	char weekday_is_selected[7];
+	memset(weekday_is_selected, 0, 7);
+
 	for (i=0; i<ICAL_BY_DAY_SIZE; ++i) {
 		if (recur.by_day[i] == ICAL_RECURRENCE_ARRAY_MAX) {
 			i = ICAL_RECURRENCE_ARRAY_MAX;			/* all done */
 		}
 		else {
-			for (j=1; j<=ICAL_SATURDAY_WEEKDAY; ++j) {
-				if (icalrecurrencetype_day_day_of_week(recur.by_day[i]) == j) {
-					wprintf("day%d, ", j);
+			for (j=0; j<7; ++j) {
+				if (icalrecurrencetype_day_day_of_week(recur.by_day[i]) == j+1) {
+					weekday_is_selected[j] = 1;
 				}
 			}
 		}
 	}
+
+	for (i=0; i<7; ++i) {
+		wprintf("<input type=\"checkbox\" name=\"weekday%d\" value=\"yes\"", i);
+		if (weekday_is_selected[i]) wprintf(" checked");
+		wprintf(">%s</input>\n", weekday_labels[i]);
+	}
+
 	wprintf("</td></tr>\n");
 	wprintf("</table>\n");
 	wprintf("</div>\n");				/* end 'rrule' div */
