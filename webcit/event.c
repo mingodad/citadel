@@ -456,14 +456,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 			frequency_units[i]
 		);
 	}
+	wprintf("</select>\n");
 
-	wprintf("</td></tr>\n");
-
-
-	wprintf("<div id=\"weekday_selector\">\n");		/* begin 'weekday_selector' div */
-	wprintf("<tr><td><b>");
-	wprintf("%s", _("on these weekdays:"));
-	wprintf("</b></td><td>");
+	wprintf("<div id=\"weekday_selector\">");	/* begin 'weekday_selector' div */
+	wprintf("%s<br>", _("on these weekdays:"));
 
 	char weekday_is_selected[7];
 	memset(weekday_is_selected, 0, 7);
@@ -486,9 +482,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		if (weekday_is_selected[i]) wprintf(" checked");
 		wprintf(">%s</input>\n", weekday_labels[i]);
 	}
+	wprintf("</div>\n");				/* end 'weekday_selector' div */
 
 	wprintf("</td></tr>\n");
-	wprintf("</div>\n");				/* end 'weekday_selector' div */
 
 	wprintf("</table>\n");
 	wprintf("</div>\n");				/* end 'rrule' div */
