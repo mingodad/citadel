@@ -86,8 +86,10 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
 	char buf[SIZ];
 	int i, len;
 
-	if (strncmp(ChrPtr(cookie), "webcit=", (sizeof("webcit=") - 1)) == 0)
-		StrBufCutLeft(cookie, 7);
+	pch = strstr(ChrPtr(cookie), "webcit=");
+	
+	if (pch != NULL)
+		StrBufCutLeft(cookie, (pch - ChrPtr(cookie)) + 7);
 
 	strcpy(buf, "");
 	len = StrLength(cookie) / 2;

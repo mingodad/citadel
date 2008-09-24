@@ -1436,7 +1436,9 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	if ((follow_xff) &&
 	    GetHash(HTTPHeaders, HKEY("X-FORWARDED-HOST"), &vLine) &&
 	    (vLine != NULL)) {
-		safestrncpy(WCC->http_host, &buf[18], sizeof WCC->http_host);
+		safestrncpy(WCC->http_host, 
+			    ChrPtr((StrBuf*)vLine), 
+			    sizeof WCC->http_host);
 	}
 	if (IsEmptyStr(WCC->http_host) && 
 	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) &&
