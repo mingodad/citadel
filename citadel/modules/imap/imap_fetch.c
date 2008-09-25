@@ -174,7 +174,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
 		CtdlOutputMsg(msgnum, MT_RFC822,
-			(need_body ? HEADERS_ALL : HEADERS_ONLY),
+			(need_body ? HEADERS_ALL : HEADERS_FAST),
 			      0, 1, NULL, 0);
 		if (!need_body) cprintf("\r\n");	/* extra trailing newline */
 		IMAP->cached_rfc822_data = CC->redirect_buffer;
@@ -663,7 +663,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * fields, strip it down.
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, 0);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_FAST, 0, 1, 0);
 		imap_strip_headers(section);
 	}
 

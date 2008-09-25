@@ -523,6 +523,7 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	/*
 	 * Grab the message headers so we can feed them to libSieve.
+	 * Use HEADERS_ONLY rather than HEADERS_FAST in order to include second-level headers.
 	 */
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;

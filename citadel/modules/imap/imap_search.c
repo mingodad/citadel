@@ -241,7 +241,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			CC->redirect_buffer = malloc(SIZ);
 			CC->redirect_len = 0;
 			CC->redirect_alloc = SIZ;
-			CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, 0);
+			CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_FAST, 0, 1, 0);
 	
 			fieldptr = rfc822_fetch_field(CC->redirect_buffer, itemlist[pos+1]);
 			if (fieldptr != NULL) {

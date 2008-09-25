@@ -1417,11 +1417,10 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	/* FIXME: check message id against msglist for this room */
 
 	/*
-	 * Fetch the message from disk.  If we're in any sort of headers
-	 * only mode, request that we don't even bother loading the body
-	 * into memory.
+	 * Fetch the message from disk.  If we're in HEADERS_FAST mode,
+	 * request that we don't even bother loading the body into memory.
 	 */
-	if ( (headers_only == HEADERS_FAST) || (headers_only == HEADERS_ONLY) ) {
+	if (headers_only == HEADERS_FAST) {
 		TheMessage = CtdlFetchMessage(msg_num, 0);
 	}
 	else {

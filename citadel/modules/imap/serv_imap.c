@@ -1632,6 +1632,7 @@ void imap_command_loop(void)
 
 	gettimeofday(&tv2, NULL);
 	total_time = (tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000));
+	CtdlLogPrintf(CTDL_INFO, "IMAP: %s\n", cmdbuf);	// FIXME FIXME FIXME REMOVE THIS NOW
 	CtdlLogPrintf(CTDL_DEBUG, "IMAP command completed in %ld.%ld seconds\n",
 		(total_time / 1000000),
 		(total_time % 1000000)
