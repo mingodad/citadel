@@ -202,12 +202,18 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
 	int retval = 0;
 
 #ifdef HAVE_OPENSSL
-	if (is_https) {
-		while ((retval >= 0) && (StrLength(Buf) < bytes))
+	if (is_https) {//// TODO: loop; count till bytes is reached
+		bytes -= StrLength(Target);
+		while ((retval >= 0) && (StrLength(Buf) - StrLength(Target) < bytes))
 			retval = client_read_sslbuffer(Buf, timeout);
 		if (retval >= 0) {
 			StrBufAppendBuf(Target, Buf, 0); /// todo: Buf > bytes?
-
+#ifdef HTTP_TRACING
+			write(2, "\033[32m", 5);
+			write(2, buf, bytes);
+			write(2, "\033[30m", 5);
+#endif
+			return 1;
 		}
 		else {
 			lprintf(2, "client_read_ssl() failed\n");
@@ -235,7 +241,7 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
 	write(2, buf, bytes);
 	write(2, "\033[30m", 5);
 #endif
-	return (1);
+	return 1;
 }
 
 
