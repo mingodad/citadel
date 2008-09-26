@@ -1147,11 +1147,12 @@ void authorization_required(const char *message)
  * cbcharset	Character set
  * length	Content length
  * encoding	MIME encoding type (not needed)
+ * cbid		Content ID (not needed)
  * userdata	Not used here
  */
 void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
-			size_t length, char *encoding, void *userdata)
+			size_t length, char *encoding, char *cbid, void *userdata)
 {
 	urlcontent *u;
 #ifdef DEBUG_URLSTRINGS

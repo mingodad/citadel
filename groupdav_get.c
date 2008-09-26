@@ -46,7 +46,7 @@ void groupdav_get_big_ics(void) {
  */
 void extract_preferred(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
-			size_t length, char *encoding, void *userdata)
+			size_t length, char *encoding, char *cbid, void *userdata)
 {
 	struct epdata *epdata = (struct epdata *)userdata;
 	int hit = 0;
