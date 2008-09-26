@@ -458,7 +458,7 @@ void extract_friendly_name(char *namebuf, size_t namebuf_len, struct vCard *v)
  */
 void vcard_extract_vcard(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
-		   char *encoding, void *cbuserdata)
+		   char *encoding, char *cbid, void *cbuserdata)
 {
 	struct vCard **v = (struct vCard **) cbuserdata;
 
@@ -1176,7 +1176,7 @@ void cmd_gvea(char *argbuf)
  */
 void dvca_mime_callback(char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata) {
+		char *cbid, void *cbuserdata) {
 
 	struct vCard *v;
 	char displayname[256];

@@ -116,6 +116,7 @@ void mime_decode(char *partnum,
 		 char *part_start, size_t length,
 		 char *content_type, char *charset, char *encoding,
 		 char *disposition,
+		 char *id,
 		 char *name, char *filename,
 		 void (*CallBack)
 		  (char *cbname,
@@ -127,6 +128,7 @@ void mime_decode(char *partnum,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 		 void (*PreMultiPartCallBack)
 		  (char *cbname,
@@ -138,6 +140,7 @@ void mime_decode(char *partnum,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 		 void (*PostMultiPartCallBack)
 		  (char *cbname,
@@ -149,6 +152,7 @@ void mime_decode(char *partnum,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 		  void *userdata,
 		  int dont_decode
@@ -171,7 +175,7 @@ void mime_decode(char *partnum,
 		if (CallBack != NULL) {
 			CallBack(name, filename, fixed_partnum(partnum),
 				disposition, part_start,
-				content_type, charset, length, encoding, userdata);
+				content_type, charset, length, encoding, id, userdata);
 			}
 		return;
 	}
@@ -203,7 +207,7 @@ void mime_decode(char *partnum,
 	if (bytes_decoded > 0) if (CallBack != NULL) {
 		CallBack(name, filename, fixed_partnum(partnum),
 			disposition, decoded,
-			content_type, charset, bytes_decoded, "binary", userdata);
+			content_type, charset, bytes_decoded, "binary", id, userdata);
 	}
 
 	free(decoded);
@@ -227,6 +231,7 @@ void the_mime_parser(char *partnum,
 		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
+		       char *cbid,
 		       void *cbuserdata),
 		     void (*PreMultiPartCallBack)
 		      (char *cbname,
@@ -238,6 +243,7 @@ void the_mime_parser(char *partnum,
 		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
+		       char *cbid,
 		       void *cbuserdata),
 		     void (*PostMultiPartCallBack)
 		      (char *cbname,
@@ -249,6 +255,7 @@ void the_mime_parser(char *partnum,
 		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
+		       char *cbid,
 		       void *cbuserdata),
 		      void *userdata,
 		      int dont_decode
@@ -270,6 +277,7 @@ void the_mime_parser(char *partnum,
 	size_t content_length;
 	char *encoding;
 	char *disposition;
+	char *id;
 	char *name = NULL;
 	char *content_type_name;
 	char *content_disposition_name;
@@ -320,6 +328,9 @@ void the_mime_parser(char *partnum,
 	disposition = malloc(SIZ);
 	memset(disposition, 0, SIZ);
 
+	id = malloc(SIZ);
+	memset(id, 0, SIZ);
+
 	/* If the caller didn't supply an endpointer, generate one by measure */
 	if (content_end == NULL) {
 		content_end = &content_start[strlen(content_start)];
@@ -358,6 +369,11 @@ void the_mime_parser(char *partnum,
 				striplt(disposition);
 				extract_key(content_disposition_name, disposition, "name");
 				extract_key(filename, disposition, "filename");
+			}
+			if (!strncasecmp(header, "Content-ID:", 11)) {
+				strcpy(id, &header[11]);
+				striplt(id);
+				stripallbut(id, '<', '>');
 			}
 			if (!strncasecmp(header, "Content-length: ", 15)) {
 				char clbuf[10];
@@ -400,7 +416,7 @@ void the_mime_parser(char *partnum,
 		if (PreMultiPartCallBack != NULL) {
 			PreMultiPartCallBack("", "", partnum, "",
 				NULL, content_type, charset,
-				0, encoding, userdata);
+				0, encoding, id, userdata);
 		}
 
 		/* Figure out where the boundaries are */
@@ -478,7 +494,7 @@ void the_mime_parser(char *partnum,
 
 		if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", "", partnum, "", NULL,
-				content_type, charset, 0, encoding, userdata);
+				content_type, charset, 0, encoding, id, userdata);
 		}
 		goto end_parser;
 	}
@@ -518,7 +534,7 @@ void the_mime_parser(char *partnum,
 		 */
 		mime_decode(partnum,
 			part_start, length,
-			content_type, charset, encoding, disposition,
+			content_type, charset, encoding, disposition, id,
 			name, filename,
 			CallBack, NULL, NULL,
 			userdata, dont_decode
@@ -532,7 +548,7 @@ void the_mime_parser(char *partnum,
 			if (PreMultiPartCallBack != NULL) {
 				PreMultiPartCallBack("", "", partnum, "",
 					NULL, content_type, charset,
-					0, encoding, userdata);
+					0, encoding, id, userdata);
 			}
 			if (CallBack != NULL) {
 				if (strlen(partnum) > 0) {
@@ -557,7 +573,7 @@ void the_mime_parser(char *partnum,
 			}
 			if (PostMultiPartCallBack != NULL) {
 				PostMultiPartCallBack("", "", partnum, "", NULL,
-					content_type, charset, 0, encoding, userdata);
+					content_type, charset, 0, encoding, id, userdata);
 			}
 
 
@@ -577,6 +593,7 @@ end_parser:	/* free the buffers!  end the oppression!! */
 	free(content_disposition_name);
 	free(filename);
 	free(disposition);
+	free(id);
 }
 
 
@@ -600,6 +617,7 @@ void mime_parser(char *content_start,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 
 		 void (*PreMultiPartCallBack)
@@ -612,6 +630,7 @@ void mime_parser(char *content_start,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 
 		 void (*PostMultiPartCallBack)
@@ -624,6 +643,7 @@ void mime_parser(char *content_start,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 
 		  void *userdata,

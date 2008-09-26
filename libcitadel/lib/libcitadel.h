@@ -15,7 +15,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#define LIBCITADEL_VERSION_NUMBER	738
+#define LIBCITADEL_VERSION_NUMBER	739
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
@@ -90,6 +90,7 @@ void mime_parser(char *content_start, char *content_end,
 			char *cbcharset,
 			size_t cblength,
 			char *cbencoding,
+			char *cbid,
 			void *cbuserdata),
 		void (*PreMultiPartCallBack)
 			(char *cbname,
@@ -101,6 +102,7 @@ void mime_parser(char *content_start, char *content_end,
 			char *cbcharset,
 			size_t cblength,
 			char *cbencoding,
+			char *cbid,
 			void *cbuserdata),
 		void (*PostMultiPartCallBack)
 			(char *cbname,
@@ -112,6 +114,7 @@ void mime_parser(char *content_start, char *content_end,
 			char *cbcharset,
 			size_t cblength,
 			char *cbencoding,
+			char *cbid,
 			void *cbuserdata),
 		void *userdata,
 		int dont_decode
@@ -124,6 +127,7 @@ void mime_decode(char *partnum,
 		 char *part_start, size_t length,
 		 char *content_type, char *charset, char *encoding,
 		 char *disposition,
+		 char *id,
 		 char *name, char *filename,
 		 void (*CallBack)
 		  (char *cbname,
@@ -135,6 +139,7 @@ void mime_decode(char *partnum,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 		 void (*PreMultiPartCallBack)
 		  (char *cbname,
@@ -146,6 +151,7 @@ void mime_decode(char *partnum,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 		 void (*PostMultiPartCallBack)
 		  (char *cbname,
@@ -157,6 +163,7 @@ void mime_decode(char *partnum,
 		   char *cbcharset,
 		   size_t cblength,
 		   char *cbencoding,
+		   char *cbid,
 		   void *cbuserdata),
 		  void *userdata,
 		  int dont_decode
@@ -173,6 +180,7 @@ void the_mime_parser(char *partnum,
 		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
+		       char *cbid,
 		       void *cbuserdata),
 		     void (*PreMultiPartCallBack)
 		      (char *cbname,
@@ -184,6 +192,7 @@ void the_mime_parser(char *partnum,
 		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
+		       char *cbid,
 		       void *cbuserdata),
 		     void (*PostMultiPartCallBack)
 		      (char *cbname,
@@ -195,6 +204,7 @@ void the_mime_parser(char *partnum,
 		       char *cbcharset,
 		       size_t cblength,
 		       char *cbencoding,
+		       char *cbid,
 		       void *cbuserdata),
 		      void *userdata,
 		      int dont_decode

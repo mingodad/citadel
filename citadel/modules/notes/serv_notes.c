@@ -49,7 +49,7 @@
  */
 void notes_extract_vnote(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
-		   char *encoding, void *cbuserdata)
+		   char *encoding, char *cbid, void *cbuserdata)
 {
 	struct vnote **v = (struct vnote **) cbuserdata;
 

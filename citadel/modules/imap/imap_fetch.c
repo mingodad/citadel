@@ -261,7 +261,7 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
  */
 void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		    void *cbuserdata)
+		    char *cbid, void *cbuserdata)
 {
 	char mbuf2[SIZ];
 	char *desired_section;
@@ -728,7 +728,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 void imap_fetch_bodystructure_pre(
 		char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata
+		char *cbid, void *cbuserdata
 		) {
 
 	cprintf("(");
@@ -742,7 +742,7 @@ void imap_fetch_bodystructure_pre(
 void imap_fetch_bodystructure_post(
 		char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata
+		char *cbid, void *cbuserdata
 		) {
 
 	char subtype[128];
@@ -768,7 +768,7 @@ void imap_fetch_bodystructure_post(
 void imap_fetch_bodystructure_part(
 		char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata
+		char *cbid, void *cbuserdata
 		) {
 
 	int have_cbtype = 0;

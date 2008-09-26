@@ -925,7 +925,7 @@ void memfmout(
  */
 void list_this_part(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		    void *cbuserdata)
+		    char *cbid, void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -941,7 +941,7 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
  */
 void list_this_pref(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		    void *cbuserdata)
+		    char *cbid, void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -960,7 +960,7 @@ void list_this_pref(char *name, char *filename, char *partnum, char *disp,
  */
 void list_this_suff(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		    void *cbuserdata)
+		    char *cbid, void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -979,7 +979,7 @@ void list_this_suff(char *name, char *filename, char *partnum, char *disp,
  */
 void mime_download(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
-		   char *encoding, void *cbuserdata)
+		   char *encoding, char *cbid, void *cbuserdata)
 {
 
 	/* Silently go away if there's already a download open... */
@@ -1008,7 +1008,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
  */
 void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
-		   char *encoding, void *cbuserdata)
+		   char *encoding, char *cbid, void *cbuserdata)
 {
 	int *found_it = (int *)cbuserdata;
 
@@ -1161,7 +1161,7 @@ void CtdlFreeMessage(struct CtdlMessage *msg)
  */
 void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata)
+		char *cbid, void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -1181,7 +1181,7 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
  */
 void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, char *cbcharset, size_t length,
-		char *encoding, void *cbuserdata)
+		char *encoding, char *cbid, void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -1201,7 +1201,7 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
  */
 void fixed_output(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, char *cbcharset, size_t length,
-		char *encoding, void *cbuserdata)
+		char *encoding, char *cbid, void *cbuserdata)
 {
 	char *ptr;
 	char *wptr;
@@ -1274,7 +1274,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
  */
 void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, char *cbcharset, size_t length,
-		char *encoding, void *cbuserdata)
+		char *encoding, char *cbid, void *cbuserdata)
 {
 	char buf[1024];
 	int i;
@@ -1304,7 +1304,7 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
  */
 void output_preferred(char *name, char *filename, char *partnum, char *disp,
 	  	void *content, char *cbtype, char *cbcharset, size_t length,
-		char *encoding, void *cbuserdata)
+		char *encoding, char *cbid, void *cbuserdata)
 {
 	int i;
 	char buf[128];
@@ -1352,7 +1352,7 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 	/* No translations required or possible: output as text/plain */
 	cprintf("Content-type: text/plain\n\n");
 	fixed_output(name, filename, partnum, disp, content, cbtype, cbcharset,
-			length, encoding, cbuserdata);
+			length, encoding, cbid, cbuserdata);
 }
 
 
@@ -1368,7 +1368,7 @@ struct encapmsg {
  */
 void extract_encapsulated_message(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
-		   char *encoding, void *cbuserdata)
+		   char *encoding, char *cbid, void *cbuserdata)
 {
 	struct encapmsg *encap;
 

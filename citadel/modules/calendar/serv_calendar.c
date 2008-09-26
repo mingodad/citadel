@@ -19,7 +19,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
-#include <ical.h>
+#include <libical/ical.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -355,7 +355,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
  */
 void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata) {
+		char *cbid, void *cbuserdata) {
 
 	struct ical_respond_data *ird = NULL;
 
@@ -514,7 +514,7 @@ struct original_event_container {
  */
 void ical_locate_original_event(char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
-		void *cbuserdata) {
+		char *cbid, void *cbuserdata) {
 
 	struct original_event_container *oec = NULL;
 
@@ -2007,7 +2007,7 @@ void ical_saving_vevent(icalcomponent *cal) {
  */
 void ical_obj_beforesave_backend(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, char *cbcharset, size_t length,
-		char *encoding, void *cbuserdata)
+		char *encoding, char *cbid, void *cbuserdata)
 {
 	icalcomponent *cal, *nested_event, *nested_todo, *whole_cal;
 	icalproperty *p;
@@ -2151,7 +2151,7 @@ int ical_obj_beforesave(struct CtdlMessage *msg)
  */
 void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 		char *disp, void *content, char *cbtype, char *cbcharset, size_t length,
-		char *encoding, void *cbuserdata)
+		char *encoding, char *cbid, void *cbuserdata)
 {
 	icalcomponent *cal;
 
