@@ -931,8 +931,8 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
 	
 	ma = (struct ma_info *)cbuserdata;
 	if (ma->is_ma == 0) {
-		cprintf("part=%s|%s|%s|%s|%s|%ld\n",
-			name, filename, partnum, disp, cbtype, (long)length);
+		cprintf("part=%s|%s|%s|%s|%s|%ld|%s\n",
+			name, filename, partnum, disp, cbtype, (long)length, cbid);
 	}
 }
 
@@ -982,29 +982,31 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 		   char *encoding, char *cbid, void *cbuserdata)
 {
 
-	/* Silently go away if there's already a download open... */
+	/* Silently go away if there's already a download open. */
 	if (CC->download_fp != NULL)
 		return;
 
-	/* ...or if this is not the desired section */
-	if (strcasecmp(CC->download_desired_section, partnum))
-		return;
-
-	CC->download_fp = tmpfile();
-	if (CC->download_fp == NULL)
-		return;
-
-	fwrite(content, length, 1, CC->download_fp);
-	fflush(CC->download_fp);
-	rewind(CC->download_fp);
-
-	OpenCmdResult(filename, cbtype);
+	if (
+		(!IsEmptyStr(partnum) && (!strcasecmp(CC->download_desired_section, partnum)))
+	||	(!IsEmptyStr(cbid) && (!strcasecmp(CC->download_desired_section, cbid)))
+	) {
+		CC->download_fp = tmpfile();
+		if (CC->download_fp == NULL)
+			return;
+	
+		fwrite(content, length, 1, CC->download_fp);
+		fflush(CC->download_fp);
+		rewind(CC->download_fp);
+	
+		OpenCmdResult(filename, cbtype);
+	}
 }
 
 
 
 /*
- * Callback function for mime parser that outputs a section all at once
+ * Callback function for mime parser that outputs a section all at once.
+ * We can specify the desired section by part number *or* content-id.
  */
 void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
@@ -1012,14 +1014,14 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 {
 	int *found_it = (int *)cbuserdata;
 
-	/* ...or if this is not the desired section */
-	if (strcasecmp(CC->download_desired_section, partnum))
-		return;
-
-	*found_it = 1;
-
-	cprintf("%d %d\n", BINARY_FOLLOWS, (int)length);
-	client_write(content, length);
+	if (
+		(!IsEmptyStr(partnum) && (!strcasecmp(CC->download_desired_section, partnum)))
+	||	(!IsEmptyStr(cbid) && (!strcasecmp(CC->download_desired_section, cbid)))
+	) {
+		*found_it = 1;
+		cprintf("%d %d\n", BINARY_FOLLOWS, (int)length);
+		client_write(content, length);
+	}
 }
 
 
