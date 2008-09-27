@@ -454,7 +454,7 @@ BAIL:	/** A little trailing vertical whitespace... */
 	wprintf("<br /><br />\n");
 
 	/** Now give back the memory */
-	if (converted_msg != NULL) free(converted_msg);
+	FreeStrBuf(&converted_msg);
 	if (msg != NULL) free(msg);
 }
 
