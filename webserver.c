@@ -202,9 +202,9 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
 	int retval = 0;
 
 #ifdef HAVE_OPENSSL
-	if (is_https) {//// TODO: loop; count till bytes is reached
-		bytes -= StrLength(Target);
-		while ((retval >= 0) && (StrLength(Buf) - StrLength(Target) < bytes))
+	if (is_https) {
+		while ((StrLength(Buf) + StrLength(Target) < bytes) &&
+		       (retval >= 0))
 			retval = client_read_sslbuffer(Buf, timeout);
 		if (retval >= 0) {
 			StrBufAppendBuf(Target, Buf, 0); /// todo: Buf > bytes?
