@@ -742,7 +742,7 @@ int is_msg_in_mset(char *mset, long msgnum);
 void display_addressbook(long msgnum, char alpha);
 void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
-void output_html(char *, int);
+void output_html(char *, int, int);
 void do_listsub(void);
 void toggle_self_service(void);
 ssize_t write(int fd, const void *buf, size_t count);

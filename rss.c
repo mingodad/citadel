@@ -338,7 +338,7 @@ void display_rss(char *roomname, StrBuf *request_method)
 		} 
 		/** HTML is fun, but we've got to strip it first */
 		else if (!strcasecmp(content_type, "text/html")) {
-			output_html(charset, 0); 
+			output_html(charset, 0, WC->msgarr[a]); 
 		} 
 
 ENDBODY:

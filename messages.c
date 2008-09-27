@@ -1305,7 +1305,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 
 	/* HTML is fun, but we've got to strip it first */
 	else if (!strcasecmp(mime_content_type, "text/html")) {
-		output_html(mime_charset, (WC->wc_view == VIEW_WIKI ? 1 : 0));
+		output_html(mime_charset, (WC->wc_view == VIEW_WIKI ? 1 : 0), msgnum);
 	}
 
 	/* Unknown weirdness */

@@ -95,19 +95,15 @@ void free_url(void *U)
 /*
  * Extract variables from the URL.
  */
-void addurls(StrBuf *url)
+void ParseURLParams(StrBuf *url)
 {
 	const char *aptr, *bptr, *eptr, *up;
-///	char *buf;
 	int len, keylen;
 	urlcontent *u;
 	struct wcsession *WCC = WC;
 
 	if (WCC->urlstrings == NULL)
 		WCC->urlstrings = NewHash(1, NULL);
-//	buf = (char*) malloc (ulen + 1);
-//	memcpy(buf, url, ulen);
-///	buf[ulen] = '\0';
 	eptr = ChrPtr(url) + StrLength(url);
 	up = ChrPtr(url);
 	while ((up < eptr) && (!IsEmptyStr(up))) {
@@ -115,17 +111,14 @@ void addurls(StrBuf *url)
 		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
 			aptr++;
 		if (*aptr != '=') {
-			///free(buf);
 			return;
 		}
-		///*aptr = '\0';
 		aptr++;
 		bptr = aptr;
 		while ((bptr < eptr) && (*bptr != '\0')
 		      && (*bptr != '&') && (*bptr != '?') && (*bptr != ' ')) {
 			bptr++;
 		}
-		//*bptr = '\0';
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if(keylen > sizeof(u->url_key)) {
 			lprintf(1, "URLkey to long! [%s]", up);
@@ -155,7 +148,6 @@ void addurls(StrBuf *url)
 			ChrPtr(u->url_data)); 
 #endif
 	}
-	//free(buf);
 }
 
 /*
@@ -1477,7 +1469,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 
 		if (!strncasecmp(ChrPtr(ContentType), "application/x-www-form-urlencoded", 33)) {
 			StrBufCutLeft(content, body_start);
-			addurls(content);
+			ParseURLParams(content);
 		} else if (!strncasecmp(ChrPtr(ContentType), "multipart", 9)) {
 			content_end = ChrPtr(content) + ContentLength + body_start;
 			mime_parser(ChrPtr(content), content_end, *upload_handler, NULL, NULL, NULL, 0);
@@ -1499,7 +1491,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	while (pch < pche) {
 		if ((*pch == '?') || (*pch == '&')) {
 			StrBufCutLeft(UrlLine, pch - pchs + 1);
-			addurls(UrlLine);
+			ParseURLParams(UrlLine);
 			break;
 		}
 		pch ++;

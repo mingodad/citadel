@@ -78,21 +78,20 @@ void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_
 /**
  * \brief Sanitize and enhance an HTML message for display.
  *        Also convert weird character sets to UTF-8 if necessary.
+ *        Also fixup img src="cid:..." type inline images to fetch the image
  *
  * \param supplied_charset the input charset as declared in the MIME headers
  */
-void output_html(char *supplied_charset, int treat_as_wiki) {
+void output_html(char *supplied_charset, int treat_as_wiki, int msgnum) {
 	char buf[SIZ];
 	char *msg;
 	char *ptr;
 	char *msgstart;
 	char *msgend;
-	char *converted_msg;
-	size_t converted_alloc = 0;
+	StrBuf *converted_msg;
 	int buffer_length = 1;
 	int line_length = 0;
 	int content_length = 0;
-	int output_length = 0;
 	char new_window[SIZ];
 	int brak = 0;
 	int alevel = 0;
@@ -265,14 +264,12 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	 */
 
 	/** Now go through the message, parsing tags as necessary. */
-	converted_alloc = content_length + 8192;
-	converted_msg = malloc(converted_alloc);
+	converted_msg = NewStrBufPlain(NULL, content_length + 8192);
 	if (converted_msg == NULL) {
 		wprintf("Error %d: %s<br />%s:%d", errno, strerror(errno), __FILE__, __LINE__);
 		goto BAIL;
 	}
 
-	strcpy(converted_msg, "");
 	ptr = msg;
 	msgend = strchr(msg, 0);
 	while (ptr < msgend) {
@@ -280,7 +277,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 		/** Try to sanitize the html of any rogue scripts */
 		if (!strncasecmp(ptr, "<script", 7)) {
 			if (scriptlevel == 0) {
-				script_start_pos = output_length;
+				script_start_pos = StrLength(converted_msg);
 			}
 			++scriptlevel;
 		}
@@ -296,16 +293,8 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 		 */
 		if (!strncasecmp(ptr, "<a href=\"mailto:", 16)) {
 			content_length += 64;
-			if (content_length >= converted_alloc) {
-				converted_alloc += 8192;
-				converted_msg = realloc(converted_msg, converted_alloc);
-				if (converted_msg == NULL) {
-					abort();
-				}
-			}
-			sprintf(&converted_msg[output_length],
+			StrBufAppendPrintf(converted_msg,
 				"<a href=\"display_enter?force_room=_MAIL_&recp=");
-			output_length += 46;
 			ptr = &ptr[16];
 			++alevel;
 			++brak;
@@ -318,36 +307,46 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 			     &&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
 			     ) {
 				/* open external links to new window */
-				content_length += 64;
-				if (content_length >= converted_alloc) {
-					converted_alloc += 8192;
-					converted_msg = realloc(converted_msg, converted_alloc);
-					if (converted_msg == NULL) {
-						abort();
-					}
-				}
-				sprintf(&converted_msg[output_length], new_window);
-				output_length += strlen(new_window);
+				StrBufAppendPrintf(converted_msg, new_window);
 				ptr = &ptr[8];
 			}
 			else if ( (treat_as_wiki) && (strncasecmp(ptr, "<a href=\"wiki?", 14)) ) {
 				content_length += 64;
-				if (content_length >= converted_alloc) {
-					converted_alloc += 8192;
-					converted_msg = realloc(converted_msg, converted_alloc);
-					if (converted_msg == NULL) {
-						abort();
-					}
-				}
-				sprintf(&converted_msg[output_length], "<a href=\"wiki?page=");
-				output_length += 19;
+				StrBufAppendPrintf(converted_msg, "<a href=\"wiki?page=");
 				ptr = &ptr[9];
 			}
 			else {
-				sprintf(&converted_msg[output_length], "<a href=\"");
-				output_length += 9;
+				StrBufAppendPrintf(converted_msg, "<a href=\"");
 				ptr = &ptr[9];
 			}
+		}
+		/** Fixup <img src="cid:... ...> to fetch the mime part */
+		else if (!strncasecmp(ptr, "<img ", 5)) {
+			char* tag_end=strchr(ptr,'>');
+			char* src=strstr(ptr, " src=\"cid:");
+			char *cid_start, *cid_end;
+			++brak;
+
+			if (src && 
+				(cid_start=strchr(src,':')) && 
+				(cid_end=strchr(cid_start,'"')) &&
+				(cid_end < tag_end)) {
+
+				/* copy tag and attributes up to src="cid: */
+				StrBufAppendBufPlain(converted_msg, ptr, src - ptr, 0);
+				cid_start++;
+
+				/* add in /webcit/mimepart/<msgno>/CID/ 
+  			   	   trailing / stops dumb URL filters getting excited */
+				StrBufAppendPrintf(converted_msg,
+					"src=\"/webcit/mimepart/%d/",msgnum);
+				StrBufAppendBufPlain(converted_msg, cid_start, cid_end - cid_start, 0);
+				StrBufAppendBufPlain(converted_msg, "/\"", -1, 0);
+				
+				ptr = cid_end+1;
+			}
+			StrBufAppendBufPlain(converted_msg, ptr, tag_end - ptr, 0);
+			ptr = tag_end;
 		}
 
 		/**
@@ -413,34 +412,17 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 					ptr[len] = linkedchar;
 
 					content_length += (32 + linklen);
-					if (content_length >= converted_alloc) {
-						converted_alloc += 8192;
-						converted_msg = realloc(converted_msg, converted_alloc);
-						if (converted_msg == NULL) {
-							abort();
-						}
-					}
-					sprintf(&converted_msg[output_length], new_window);
-					output_length += strlen(new_window);
-					converted_msg[output_length] = '\"';
-					converted_msg[++output_length] = 0;
-					for (i=0; i<linklen; ++i) {
-						converted_msg[output_length] = ptr[i];
-						converted_msg[++output_length] = 0;
-					}
-					sprintf(&converted_msg[output_length], "\">");
-					output_length += 2;
-					for (i=0; i<linklen; ++i) {
-						converted_msg[output_length] = *ptr++;
-						converted_msg[++output_length] = 0;
-					}
-					sprintf(&converted_msg[output_length], "</A>");
-					output_length += 4;
+                                        StrBufAppendPrintf(converted_msg, "%s\"", new_window);
+					StrBufAppendBufPlain(converted_msg, ptr, linklen, 0);
+					StrBufAppendPrintf(converted_msg, "\">");
+					StrBufAppendBufPlain(converted_msg, ptr, linklen, 0);
+					ptr += linklen;
+					StrBufAppendPrintf(converted_msg, "</A>");
 				}
 		}
 		else {
-			converted_msg[output_length] = *ptr++;
-			converted_msg[++output_length] = 0;
+			StrBufAppendBufPlain(converted_msg, ptr, 1, 0);
+			ptr++;
 		}
 
 		/**
@@ -454,8 +436,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 		if (*(ptr-1) == '>') {
 			--brak;
 			if ((scriptlevel == 0) && (script_start_pos >= 0)) {
-				output_length = script_start_pos;
-				converted_msg[output_length] = 0;
+				StrBufCutRight(converted_msg, StrLength(converted_msg) - script_start_pos);
 				script_start_pos = (-1);
 			}
 		}
@@ -467,7 +448,7 @@ void output_html(char *supplied_charset, int treat_as_wiki) {
 	/**	output_length = content_length;				*/
 
 	/** Output our big pile of markup */
-	StrBufAppendBufPlain(WC->WBuf, converted_msg, output_length, 0);
+	StrBufAppendBuf(WC->WBuf, converted_msg, 0);
 
 BAIL:	/** A little trailing vertical whitespace... */
 	wprintf("<br /><br />\n");
