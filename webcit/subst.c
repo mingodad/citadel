@@ -815,6 +815,7 @@ int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmp
 			ChrPtr(pTmpl->FileName),
 			Token->Line,
 			ChrPtr(Token->FlatToken));
+		return 0;
 	}
 	    
 	Cond = (ConditionalStruct *) vConditional;
@@ -1150,7 +1151,7 @@ const char* PrintTemplate(void *vSubst)
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
-void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target, int ContextType) 
+void DoTemplate(const char *templatename, long len, StrBuf *Target, void *Context, int ContextType) 
 {
 	HashList *Static;
 	HashList *StaticLocal;
@@ -1383,7 +1384,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 			It->DoSubTemplate(SubBuf, vContext, Tokens);
 		DoTemplate(Tokens->Params[1]->Start,
 			   Tokens->Params[1]->len,
-			   vContext, SubBuf, 
+			   SubBuf, vContext,
 			   It->ContextType);
 			
 		StrBufAppendBuf(Target, SubBuf, 0);
@@ -1472,19 +1473,19 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 		StrBuf *Headline = NewStrBuf();
 		DoTemplate(Tokens->Params[1]->Start, 
 			   Tokens->Params[1]->len,
-			   Context, 
 			   Headline, 
+			   Context, 
 			   ContextType);
 		SVPutBuf("BOXTITLE", Headline, 0);
 	}
 	
-	DoTemplate(HKEY("beginbox"), Context, Target, ContextType);
+	DoTemplate(HKEY("beginbox"), Target, Context, ContextType);
 	DoTemplate(Tokens->Params[0]->Start, 
 		   Tokens->Params[0]->len,
-		   Context, 
 		   Target, 
+		   Context, 
 		   ContextType);
-	DoTemplate(HKEY("endbox"), Context, Target, ContextType);
+	DoTemplate(HKEY("endbox"), Target, Context, ContextType);
 }
 
 void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -1500,8 +1501,8 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 		if (Tokens->Params[i * 2]->len > 0) {
 			DoTemplate(Tokens->Params[i * 2]->Start, 
 				   Tokens->Params[i * 2]->len,
-				   Context,
 				   TabNames[i],
+				   Context,
 				   ContextType);
 		}
 		else { 
@@ -1516,8 +1517,8 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 
 		DoTemplate(Tokens->Params[i * 2 + 1]->Start, 
 			   Tokens->Params[i * 2 + 1]->len,
-			   Context, 
 			   Target,
+			   Context, 
 			   ContextType);
 		StrEndTab(Target, i, nTabs);
 	}

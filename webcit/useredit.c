@@ -102,15 +102,45 @@ void select_user_to_edit(char *message, char *preselect)
 
 
 typedef struct _UserListEntry {
-	StrBuf *UserName;
-	int AccessLevel;
 	int UID;
-	StrBuf *LastLogon;
-	time_t LastLogonT;
+	int AccessLevel;
 	int nLogons;
 	int nPosts;
+
+	StrBuf *UserName;
 	StrBuf *Passvoid;
+	StrBuf *LastLogon;
+	time_t LastLogonT;
+	/* Just available for Single users to view: */
+	unsigned int Flags;
+	int DaysTillPurge;
 } UserListEntry;
+
+
+UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
+{
+	UserListEntry *ul;
+
+	if (StrLength(SerializedUser) < 8) 
+		return NULL;
+
+	ul = (UserListEntry*) malloc(sizeof(UserListEntry));
+	ul->UserName = NewStrBuf();
+	ul->LastLogon = NewStrBuf();
+	ul->Passvoid = NewStrBuf();
+
+	StrBufExtract_token(ul->UserName, SerializedUser, 0, '|');
+	StrBufExtract_token(ul->Passvoid, SerializedUser, 1, '|');
+	ul->Flags = (unsigned int)StrBufExtract_long(SerializedUser, 2, '|');
+	ul->nLogons = StrBufExtract_int(SerializedUser, 3, '|');
+	ul->nPosts = StrBufExtract_int(SerializedUser, 4, '|');
+	ul->AccessLevel = StrBufExtract_int(SerializedUser, 5, '|');
+	ul->UID = StrBufExtract_int(SerializedUser, 6, '|');
+	StrBufExtract_token(ul->LastLogon, SerializedUser, 7, '|');
+	/// TODO: ul->LastLogon -> ulLastLogonT
+	ul->DaysTillPurge = StrBufExtract_int(SerializedUser, 8, '|');
+	return ul;
+}
 
 void DeleteUserListEntry(void *vUserList)
 {
@@ -141,7 +171,8 @@ UserListEntry* NewUserListEntry(StrBuf *SerializedUserList)
 	ul->nLogons = StrBufExtract_int(SerializedUserList, 4, '|');
 	ul->nPosts = StrBufExtract_int(SerializedUserList, 5, '|');
 	StrBufExtract_token(ul->Passvoid, SerializedUserList, 6, '|');
-
+	ul->Flags = 0;
+	ul->DaysTillPurge = -1;
 	return ul;
 }
 
@@ -353,11 +384,16 @@ void tmplput_USERLIST_UID(StrBuf *Target, int nArgs, WCTemplateToken *Token, voi
 	StrBufAppendPrintf(Target, "%d", ul->UID, 0);
 }
 
-void tmplput_USERLIST_LastLogon(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_LastLogonNo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
 	StrBufAppendBuf(Target, ul->LastLogon, 0);
+}
+void tmplput_USERLIST_LastLogonStr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+	StrEscAppend(Target, NULL, asctime(localtime(&ul->LastLogonT)), 0, 0);
 }
 
 void tmplput_USERLIST_nLogons(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
@@ -374,6 +410,20 @@ void tmplput_USERLIST_nPosts(StrBuf *Target, int nArgs, WCTemplateToken *Token, 
 	StrBufAppendPrintf(Target, "%d", ul->nPosts, 0);
 }
 
+void tmplput_USERLIST_Flags(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	StrBufAppendPrintf(Target, "%d", ul->Flags, 0);
+}
+
+void tmplput_USERLIST_DaysTillPurge(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	StrBufAppendPrintf(Target, "%d", ul->DaysTillPurge, 0);
+}
+
 int ConditionalUser(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
@@ -386,7 +436,23 @@ int ConditionalUser(WCTemplateToken *Tokens, void *Context, int ContextType)
 	else 
 		return 0;
 }
- 
+
+int ConditionalFlagINetEmail(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+	return (ul->Flags & US_INTERNET) != 0;
+}
+
+int ConditionalUserAccess(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	if (Tokens->Params[3]->Type == TYPE_LONG)
+		return (Tokens->Params[3]->lvalue == ul->AccessLevel);
+	else
+		return 0;
+}
+
 /**
  * \brief Locate the message number of a user's vCard in the current room
  * \param username the plaintext name of the user
@@ -504,9 +570,47 @@ void display_edit_address_book_entry(char *username, long usernum) {
 }
 
 
+void display_edituser(char *supplied_username, int is_new) {
+	UserListEntry* UL;
+	StrBuf *Buf;
+	char error_message[1024];
+	char MajorStatus;
+	char username[256];
+
+	if (supplied_username != NULL) {
+		safestrncpy(username, supplied_username, sizeof username);
+	}
+	else {
+		safestrncpy(username, bstr("username"), sizeof username);
+	}
+
+	Buf = NewStrBuf();
+	serv_printf("AGUP %s", username);
+	StrBuf_ServGetln(Buf);
+	MajorStatus = ChrPtr(Buf)[0];
+	StrBufCutLeft(Buf, 4);
+	if (MajorStatus != '2') {
+		///TODO ImportantMessage
+		sprintf(error_message,
+			"<img src=\"static/error.gif\" align=center>"
+			"%s<br /><br />\n", ChrPtr(Buf));
+		select_user_to_edit(error_message, username);
+		FreeStrBuf(&Buf);
+		return;
+	}
+	else {
+		UL = NewUserListOneEntry(Buf);
+		output_headers(1, 0, 0, 0, 1, 0);
+		DoTemplate(HKEY("userlist_detailview"), NULL, (void*) UL, CTX_USERLIST);
+		end_burst();
+		
+	}
+	FreeStrBuf(&Buf);
+}
 
 
-/**
+
+/* *
  * \brief Edit a user.  
  * If supplied_username is null, look in the "username"
  * web variable for the name of the user to edit.
@@ -515,7 +619,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
  * to send the user to the vCard editor next.
  * \param supplied_username user to look up or NULL if to search in the environment
  * \param is_new should we create the user?
- */
+ * /
 void display_edituser(char *supplied_username, int is_new) {
 	char buf[1024];
 	char error_message[1024];
@@ -687,7 +791,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	wDumpContent(1);
 
 }
-
+*/
 
 /**
  * \brief do the backend operation of the user edit on the server
@@ -833,13 +937,21 @@ InitModule_USEREDIT
 	WebcitAddUrlHandler(HKEY("edituser"), edituser, 0);
 	WebcitAddUrlHandler(HKEY("create_user"), create_user, 0);
 
-	RegisterNamespace("USERLIST:USERNAME",  0, 1, tmplput_USERLIST_UserName, CTX_USERLIST);
-	RegisterNamespace("USERLIST:ACCLVLNO",  0, 0, tmplput_USERLIST_AccessLevelNo, CTX_USERLIST);
-	RegisterNamespace("USERLIST:ACCLVLSTR", 0, 0, tmplput_USERLIST_AccessLevelStr, CTX_USERLIST);
-	RegisterNamespace("USERLIST:UID",       0, 0, tmplput_USERLIST_UID, CTX_USERLIST);
-	RegisterNamespace("USERLIST:LASTLOGON", 0, 0, tmplput_USERLIST_LastLogon, CTX_USERLIST);
-	RegisterNamespace("USERLIST:NLOGONS",   0, 0, tmplput_USERLIST_nLogons, CTX_USERLIST);
-	RegisterNamespace("USERLIST:NPOSTS",    0, 0, tmplput_USERLIST_nPosts, CTX_USERLIST);
+	RegisterNamespace("USERLIST:USERNAME",      0, 1, tmplput_USERLIST_UserName, CTX_USERLIST);
+	RegisterNamespace("USERLIST:ACCLVLNO",      0, 0, tmplput_USERLIST_AccessLevelNo, CTX_USERLIST);
+	RegisterNamespace("USERLIST:ACCLVLSTR",     0, 0, tmplput_USERLIST_AccessLevelStr, CTX_USERLIST);
+	RegisterNamespace("USERLIST:UID",           0, 0, tmplput_USERLIST_UID, CTX_USERLIST);
+	RegisterNamespace("USERLIST:LASTLOGON:STR", 0, 0, tmplput_USERLIST_LastLogonStr, CTX_USERLIST);
+	RegisterNamespace("USERLIST:LASTLOGON:NO",  0, 0, tmplput_USERLIST_LastLogonNo, CTX_USERLIST);
+	RegisterNamespace("USERLIST:NLOGONS",       0, 0, tmplput_USERLIST_nLogons, CTX_USERLIST);
+	RegisterNamespace("USERLIST:NPOSTS",        0, 0, tmplput_USERLIST_nPosts, CTX_USERLIST);
+						    
+	RegisterNamespace("USERLIST:FLAGS",         0, 0, tmplput_USERLIST_Flags, CTX_USERLIST);
+	RegisterNamespace("USERLIST:DAYSTILLPURGE", 0, 0, tmplput_USERLIST_DaysTillPurge, CTX_USERLIST);
+
+	RegisterConditional(HKEY("COND:USERNAME"),  0,    ConditionalUser, CTX_USERLIST);
+	RegisterConditional(HKEY("COND:USERACCESS"), 0,   ConditionalUserAccess, CTX_USERLIST);
+	RegisterConditional(HKEY("COND:USERLIST:FLAG:USE_INTERNET"), 0, ConditionalFlagINetEmail, CTX_USERLIST);
 
 	RegisterConditional(HKEY("COND:USERNAME"), 0, ConditionalUser, CTX_USERLIST);
 	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST);
