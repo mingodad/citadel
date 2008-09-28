@@ -1,0 +1,15 @@
+<?_("To edit an existing user account, select the user name from the list and click 'Edit'.")>
+<br /><br />
+ 
+<center>
+  <form method="POST" action="display_edituser">
+   <input type="hidden" name="nonce" value="<?NONCE>">
+   <select name="username" size=10 style="width:100%%">
+<?ITERATE("USERLIST", "section_userlist_select")>
+</select><br />
+ 
+<input type="submit" name="edit_config_button" value="<?_("Edit configuration")>">
+<input type="submit" name="edit_abe_button" value="<?_("Edit address book entry")>">
+<input type="submit" name="delete_button" value="<?_("Delete user")>"
+ 	onClick="return confirm('<?_("Delete this user?")>');">
+</form></center>
