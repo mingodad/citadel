@@ -64,4 +64,25 @@ void http_datestring(char *buf, size_t n, time_t xtime) {
 }
 
 
+void tmplput_nowstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	time_t now;
+	now = time(NULL);
+	StrEscAppend(Target, NULL, asctime(localtime(&now)), 0, 0);
+}
+void tmplput_nowno(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	time_t now;
+	now = time(NULL);
+	StrBufAppendPrintf(Target, "%l", now);
+}
+
+void 
+InitModule_DATE
+(void)
+{
+	RegisterNamespace("DATE:NOW:STR", 1, 2, tmplput_nowstr, CTX_NONE);
+	RegisterNamespace("DATE:NOW:NO", 1, 2, tmplput_nowno, CTX_NONE);
+}
+
 /*@}*/

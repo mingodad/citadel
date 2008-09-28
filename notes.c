@@ -347,7 +347,7 @@ void display_note(long msgnum, int unread) {
 	if (v) {
 //		display_vnote_div(v);
 		DoTemplate(HKEY("vnoteitem"),
-			   v, WC->WBuf, CTX_VNOTE);
+			   WC->WBuf, v, CTX_VNOTE);
 			
 
 		/* uncomment these lines to see ugly debugging info 

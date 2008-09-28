@@ -1,0 +1,42 @@
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner">
+  <h1><?_("Edit user account: ")><?USERLIST:USERNAME("X")></h1>
+</div>
+<div id="content" class="service">
+<div class="fix_scrollbar_bug">
+<table class="useredit_background"><tr><td>
+<form method="POST" action="edituser">
+<input type="hidden" name="username" value="<?USERLIST:USERNAME("X")>">
+<input type="hidden" name="is_new" value="<?BSTR("is_new")>">
+<input type="hidden" name="usernum" value="<?USERLIST:UID>">
+<input type="hidden" name="nonce" value="<?NONCE>"> 
+<input type="hidden" name="flags" value="<?USERLIST:FLAGS>">
+<center><table>
+<tr><td><?_("User name:")></td><td><input type="text" name="newname" value="<?USERLIST:USERNAME("X")>" maxlength="63"></td></tr>
+<tr><td><?_("Password")></td><td><input type="password" name="password" value="<?USERLIST:PASSWD("X")>" maxlength="20"></td></tr>
+<tr><td><?_("Permission to send Internet mail")></td><td><input type="checkbox" name="inetmail" value="yes" <?%("COND:USERLIST:FLAG:USE_INTERNET", 1, 1, 1, "checked", "")>></td></tr>
+<tr><td><?_("Number of logins")></td><td><input type="text" name="timescalled" value="<?USERLIST:NLOGONS>" maxlength="6"></td></tr>
+<tr><td><?_("Messages submitted")></td><td><input type="text" name="msgsposted" value="<?USERLIST:NPOSTS>" maxlength="6"></td></tr>
+<tr><td><?_("Access level")></td><td><select name="axlevel">
+        <option <?%("COND:USERACCESS", 1, 1, 0, 'selected="selected"', "")> value="0">0 - <?_("Deleted")></option>
+        <option <?%("COND:USERACCESS", 1, 1, 1, 'selected="selected"', "")> value="1">1 - <?_("New User")></option>
+        <option <?%("COND:USERACCESS", 1, 1, 2, 'selected="selected"', "")> value="2">2 - <?_("Problem User")></option>
+        <option <?%("COND:USERACCESS", 1, 1, 3, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
+        <option <?%("COND:USERACCESS", 1, 1, 4, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
+        <option <?%("COND:USERACCESS", 1, 1, 5, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
+        <option <?%("COND:USERACCESS", 1, 1, 6, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
+</select></td></tr>
+<tr><td><?_("User ID number")></td><td><input type="text" name="usernum" value="<?USERLIST:UID>" maxlength="7"></td></tr>
+<tr><td><?_("Date and time of last login")></td><td><select name="lastcall">
+  <option selected value="<?USERLIST:LASTLOGON:NO>"><?USERLIST:LASTLOGON:STR></option>
+  <option value="<?TIME:NOW:NO>"><?TIME:NOW:STR></option>
+</select></td></tr>
+ 
+<tr><td><?_("Auto-purge after this many days")></td><td><input type="text" name="purgedays" value="<?USERLIST:DAYSTILLPURGE>" maxlength="5"></td></tr>
+</table>
+<input type="submit" name="ok_button" value="<?_("Save changes")>">&nbsp; <input type="submit" name="cancel" value="<?_("Cancel")>"><br /><br /></form>
+</center>
+</td></tr></table></div>
+<?=("trailing")>

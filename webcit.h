@@ -352,8 +352,8 @@ void SVCallback(char *keyname, size_t keylen,  WCHandlerFunc fcn_ptr);
 void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
 #define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
 
-void DoTemplate(const char *templatename, long len, void *Context, StrBuf *Target, int ContextType);
-#define do_template(a, b) DoTemplate(a, sizeof(a) -1, b, NULL, 0);
+void DoTemplate(const char *templatename, long len, StrBuf *Target, void *Context, int ContextType);
+#define do_template(a, b) DoTemplate(a, sizeof(a) -1, NULL, b, 0);
 void url_do_template(void);
 
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
