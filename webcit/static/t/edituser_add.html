@@ -1,0 +1,8 @@
+<?_("To create a new user account, enter the desired user name in the box below and click 'Create'.")>
+<br /><br />
+ <center><form method="POST" action="create_user">
+ <input type="hidden" name="nonce" value="<?NONCE>">
+   <?_("New user: ")>
+  <input type="text" name="username"><br />
+  <input type="submit" name="create_button" value="<?_("Create")>">
+</form></center>

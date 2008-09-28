@@ -305,7 +305,7 @@ typedef struct _wcsubst {
 #define CTX_WHO 5
 #define CTX_PREF 6
 #define CTX_NODECONF 7
-
+#define CTX_USERLIST 8
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 

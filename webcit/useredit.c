@@ -18,9 +18,15 @@
  * \param preselect which user should be selected in the browser
  */
 void select_user_to_edit(char *message, char *preselect)
-{
+{/*
 	char buf[SIZ];
 	char username[SIZ];
+ */
+	output_headers(1, 0, 0, 0, 1, 0);
+	do_template("edituser_select", NULL);
+        end_burst();
+
+/*
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
@@ -91,10 +97,296 @@ void select_user_to_edit(char *message, char *preselect)
 	wprintf("</td></tr></table>\n");
 
 	wDumpContent(1);
+*/
 }
 
 
+typedef struct _UserListEntry {
+	StrBuf *UserName;
+	int AccessLevel;
+	int UID;
+	StrBuf *LastLogon;
+	time_t LastLogonT;
+	int nLogons;
+	int nPosts;
+	StrBuf *Passvoid;
+} UserListEntry;
 
+void DeleteUserListEntry(void *vUserList)
+{
+	UserListEntry *ul = (UserListEntry*) vUserList;
+	FreeStrBuf(&ul->UserName);
+	FreeStrBuf(&ul->LastLogon);
+	FreeStrBuf(&ul->Passvoid);
+	free(ul);
+}
+
+UserListEntry* NewUserListEntry(StrBuf *SerializedUserList)
+{
+	UserListEntry *ul;
+
+	if (StrLength(SerializedUserList) < 8) 
+		return NULL;
+
+	ul = (UserListEntry*) malloc(sizeof(UserListEntry));
+	ul->UserName = NewStrBuf();
+	ul->LastLogon = NewStrBuf();
+	ul->Passvoid = NewStrBuf();
+
+	StrBufExtract_token(ul->UserName, SerializedUserList, 0, '|');
+	ul->AccessLevel = StrBufExtract_int(SerializedUserList, 1, '|');
+	ul->UID = StrBufExtract_int(SerializedUserList, 2, '|');
+	StrBufExtract_token(ul->LastLogon, SerializedUserList, 3, '|');
+	/// TODO: ul->LastLogon -> ulLastLogonT
+	ul->nLogons = StrBufExtract_int(SerializedUserList, 4, '|');
+	ul->nPosts = StrBufExtract_int(SerializedUserList, 5, '|');
+	StrBufExtract_token(ul->Passvoid, SerializedUserList, 6, '|');
+
+	return ul;
+}
+
+/*
+ * Sort by Username
+ */
+int CompareUserListName(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return strcmp(ChrPtr(u1->UserName), ChrPtr(u2->UserName));
+}
+int CompareUserListNameRev(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+	return strcmp(ChrPtr(u2->UserName), ChrPtr(u1->UserName));
+}
+
+/*
+ * Sort by AccessLevel
+ */
+int CompareAccessLevel(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u1->AccessLevel > u2->AccessLevel);
+}
+int CompareAccessLevelRev(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u2->AccessLevel > u1->AccessLevel);
+}
+
+
+/*
+ * Sort by UID
+ */
+int CompareUID(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u1->UID > u2->UID);
+}
+int CompareUIDRev(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u2->UID > u1->UID);
+}
+
+/*
+ * Sort By Date /// TODO!
+ */
+int CompareLastLogon(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u1->LastLogonT > u2->LastLogonT);
+}
+int CompareLastLogonRev(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u2->LastLogonT > u1->LastLogonT);
+}
+
+/*
+ * Sort By Number of Logons
+ */
+int ComparenLogons(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u1->nLogons > u2->nLogons);
+}
+int ComparenLogonsRev(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u2->nLogons > u1->nLogons);
+}
+
+/*
+ * Sort By Number of Posts
+ */
+int ComparenPosts(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u1->nPosts > u2->nPosts);
+}
+int ComparenPostsRev(const void *vUser1, const void *vUser2)
+{
+	UserListEntry *u1 = (UserListEntry*) vUser1;
+	UserListEntry *u2 = (UserListEntry*) vUser2;
+
+	return (u2->nPosts > u1->nPosts);
+}
+
+
+HashList *iterate_load_userlist(WCTemplateToken *Token)
+{
+	HashList *Hash;
+	char buf[SIZ];
+	StrBuf *Buf;
+	UserListEntry* ul;
+	char nnn[64];
+	int nUsed;
+	int Order;
+	int len;
+	
+        serv_puts("LIST");
+        serv_getln(buf, sizeof buf);
+        if (buf[0] == '1') {
+		Hash = NewHash(1, NULL);
+
+		Buf = NewStrBuf();
+		while ((len = StrBuf_ServGetln(Buf),
+			strcmp(ChrPtr(Buf), "000"))) {
+			ul = NewUserListEntry(Buf);
+			if (ul == NULL)
+				continue;
+			nUsed = GetCount(Hash);
+			nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
+			Put(Hash, nnn, nUsed, ul, DeleteUserListEntry); 
+		}
+		FreeStrBuf(&Buf);
+		Order = ibstr("SortOrder");
+		switch (ibstr("SortBy")){
+		case 1: /*NAME*/
+			SortByPayload(Hash, (Order)? 
+				      CompareUserListName:
+				      CompareUserListNameRev);
+			break;
+		case 2: /*AccessLevel*/
+			SortByPayload(Hash, (Order)? 
+				      CompareAccessLevel:
+				      CompareAccessLevelRev);
+			break;
+		case 3: /*nLogons*/
+			SortByPayload(Hash, (Order)? 
+				      ComparenLogons:
+				      ComparenLogonsRev);
+			break;
+		case 4: /*UID*/
+			SortByPayload(Hash, (Order)? 
+				      CompareUID:
+				      CompareUIDRev);
+			break;
+		case 5: /*LastLogon*/
+			SortByPayload(Hash, (Order)? 
+				      CompareLastLogon:
+				      CompareLastLogonRev);
+			break;
+		case 6: /* nLogons */
+			SortByPayload(Hash, (Order)? 
+				      ComparenLogons:
+				      ComparenLogonsRev);
+			break;
+		case 7: /* Posts */
+			SortByPayload(Hash, (Order)? 
+				      ComparenPosts:
+				      ComparenPostsRev);
+			break;
+		}
+		return Hash;
+        }
+	return NULL;
+}
+
+
+void tmplput_USERLIST_UserName(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+/// TODO: X
+	StrBufAppendBuf(Target, ul->UserName, 0);
+}
+
+void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	StrBufAppendPrintf(Target, "%d", ul->AccessLevel, 0);
+}
+
+void tmplput_USERLIST_AccessLevelStr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+	
+	StrBufAppendBufPlain(Target, _(axdefs[ul->AccessLevel]), -1, 0);
+}
+
+void tmplput_USERLIST_UID(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	StrBufAppendPrintf(Target, "%d", ul->UID, 0);
+}
+
+void tmplput_USERLIST_LastLogon(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	StrBufAppendBuf(Target, ul->LastLogon, 0);
+}
+
+void tmplput_USERLIST_nLogons(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	StrBufAppendPrintf(Target, "%d", ul->nLogons, 0);
+}
+
+void tmplput_USERLIST_nPosts(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+
+	StrBufAppendPrintf(Target, "%d", ul->nPosts, 0);
+}
+
+int ConditionalUser(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	UserListEntry *ul = (UserListEntry*) Context;
+	if (havebstr("usernum")) {
+		return ibstr("usernum") == ul->UID;
+	}
+	else if (havebstr("username")) {
+		return strcmp(bstr("username"), ChrPtr(ul->UserName)) == 0;
+	}
+	else 
+		return 0;
+}
+ 
 /**
  * \brief Locate the message number of a user's vCard in the current room
  * \param username the plaintext name of the user
@@ -540,5 +832,16 @@ InitModule_USEREDIT
 	WebcitAddUrlHandler(HKEY("display_edituser"), _display_edituser, 0);
 	WebcitAddUrlHandler(HKEY("edituser"), edituser, 0);
 	WebcitAddUrlHandler(HKEY("create_user"), create_user, 0);
+
+	RegisterNamespace("USERLIST:USERNAME",  0, 1, tmplput_USERLIST_UserName, CTX_USERLIST);
+	RegisterNamespace("USERLIST:ACCLVLNO",  0, 0, tmplput_USERLIST_AccessLevelNo, CTX_USERLIST);
+	RegisterNamespace("USERLIST:ACCLVLSTR", 0, 0, tmplput_USERLIST_AccessLevelStr, CTX_USERLIST);
+	RegisterNamespace("USERLIST:UID",       0, 0, tmplput_USERLIST_UID, CTX_USERLIST);
+	RegisterNamespace("USERLIST:LASTLOGON", 0, 0, tmplput_USERLIST_LastLogon, CTX_USERLIST);
+	RegisterNamespace("USERLIST:NLOGONS",   0, 0, tmplput_USERLIST_nLogons, CTX_USERLIST);
+	RegisterNamespace("USERLIST:NPOSTS",    0, 0, tmplput_USERLIST_nPosts, CTX_USERLIST);
+
+	RegisterConditional(HKEY("COND:USERNAME"), 0, ConditionalUser, CTX_USERLIST);
+	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST);
 }
 /*@}*/

@@ -1379,7 +1379,8 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 			 (oddeven) ? "odd" : "even");
 		svprintf(HKEY("ITERATE:KEY"), WCS_STRING, "%s", Key);
 
-		It->DoSubTemplate(SubBuf, vContext, Tokens);
+		if (It->DoSubTemplate != NULL)
+			It->DoSubTemplate(SubBuf, vContext, Tokens);
 		DoTemplate(Tokens->Params[1]->Start,
 			   Tokens->Params[1]->len,
 			   vContext, SubBuf, 
