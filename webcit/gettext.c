@@ -370,3 +370,22 @@ void TmplGettext(StrBuf *Target, int nTokens, WCTemplateToken *Token)
 	StrBufAppendBufPlain(Target, _(Token->Params[0]->Start), -1, 0);
 
 }
+
+
+/*
+ * Returns the language currently in use.
+ * This function returns a static string, so don't do anything stupid please.
+ */
+const char *get_selected_language(void) {
+#ifdef ENABLE_NLS
+#ifdef HAVE_USELOCALE
+	return AvailLang[WC->selected_language];
+#else
+	return "en"
+#endif
+#else
+	return "en"
+#endif
+}
+
+

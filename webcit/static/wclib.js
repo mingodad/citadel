@@ -960,12 +960,14 @@ function TaskViewGatherCategoriesFromTable() {
 	var table = $('taskview');
 	
 }
-function attachDatePicker(relative) {
+function attachDatePicker(relative, wclang) {
 	var dpck = new DatePicker({
 	relative: relative,
-	language: 'en', // fix please
+	language: wclang.substr(0,2),
 	disableFutureDate: false,
 	dateFormat: [ ["yyyy", "mm", "dd"], "-"],
+	showDuration: 0.2,
+	closeEffectDuration: 0.2,
 	});
 	document.getElementById(relative).dpck = dpck; // attach a ref to it
 }

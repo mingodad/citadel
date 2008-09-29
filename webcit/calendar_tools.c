@@ -71,7 +71,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("<script type=\"text/javascript\">");
 	wprintf("attachDatePicker('");
 	wprintf(prefix);
-	wprintf("');\n");
+	wprintf("', '%s');\n", get_selected_language());
 	wprintf("</script>");
 	wprintf(_("Hour: "));
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
