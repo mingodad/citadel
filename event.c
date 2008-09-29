@@ -450,8 +450,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<select name=\"freq\" id=\"freq_selector\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
-		wprintf("<option %s value=\"%d\">%s</option>\n",
-			((i == recur.freq) ? "selected" : ""),
+		wprintf("<option %s%svalue=\"%d\">%s</option>\n",
+			((i == recur.freq) ? "selected " : ""),
+			(((i == recur.freq) || ((i>=3)&&(i<=5))) ? "" : "disabled "),
 			i,
 			frequency_units[i]
 		);

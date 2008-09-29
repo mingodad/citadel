@@ -8,7 +8,7 @@
 #include "webserver.h"
 #include "time.h"
 
-/** Hour strings */
+/* Hour strings */
 char *hourname[] = {
 	"12am", "1am", "2am", "3am", "4am", "5am", "6am",
 	"7am", "8am", "9am", "10am", "11am", "12pm",
@@ -16,8 +16,7 @@ char *hourname[] = {
 	"7pm", "8pm", "9pm", "10pm", "11pm"
 };
 
-/**
- * \brief display and edit date/time
+/*
  * The display_icaltimetype_as_webform() and icaltime_from_webform() functions
  * handle the display and editing of date/time properties in web pages.  The
  * first one converts an icaltimetype into valid HTML markup -- a series of form
@@ -28,14 +27,11 @@ char *hourname[] = {
  * property (for example, a start and end time) by ensuring the field names are
  * unique within the form.
  *
- * \todo NOTE: These functions assume that the icaltimetype being edited is in UTC, and
+ * NOTE: These functions assume that the icaltimetype being edited is in UTC, and
  * will convert to/from local time for editing.  "local" in this case is assumed
  * to be the time zone in which the WebCit server is running.  A future improvement
  * might be to allow the user to specify his/her timezone.
- * \param t the time we want to parse
- * \param prefix ???? \todo
  */
-
 
 void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	int i;
@@ -69,7 +65,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("\" id=\"");
 	wprintf(prefix);
 	wprintf("\" value=\"");
-	wc_strftime(timebuf, 32, "%d/%m/%Y", &tm);
+	wc_strftime(timebuf, 32, "%Y-%m-%d", &tm);
 	wprintf(timebuf);
 	wprintf("\">");
 	wprintf("<script type=\"text/javascript\">");
@@ -110,11 +106,9 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf("</SELECT>\n");
 }
 
-/**
- *\brief Get time from form
+/*
+ * Get time from form
  * get the time back from the user and convert it into internal structs.
- * \param t our time element
- * \param prefix whats that\todo ????
  */
 void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
  	char datebuf[32];
@@ -132,7 +126,7 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
   	struct icaltimetype t2;
  	
 	
- 	strptime((char*)BSTR(prefix), "%d/%m/%Y", &tm);
+ 	strptime((char*)BSTR(prefix), "%Y-%m-%d", &tm);
  	sprintf(vname, "%s_hour", prefix);      hour = IBSTR(vname);
 	sprintf(vname, "%s_minute", prefix);    minute = IBSTR(vname);
  	tm.tm_hour = hour;
@@ -143,13 +137,10 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
 }
 
 
-/**
- *\brief Get time from form
+/*
+ * Get time from form
  * get the time back from the user and convert it into internal structs.
- * \param t our time element
- * \param prefix whats that\todo ????
  */
-
 void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
  	struct tm tm;
  	/* Stuff tm with some zero values */
@@ -160,7 +151,7 @@ void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
  	tm.tm_mon = 0;
  	time_t tm_t;
  	struct icaltimetype t2; 	
- 	strptime((char *)BSTR(prefix), "%d/%m/%Y", &tm);
+ 	strptime((char *)BSTR(prefix), "%Y-%m-%d", &tm);
  	tm_t = mktime(&tm);
  	t2 = icaltime_from_timet(tm_t, 1);
  	memcpy(t, &t2, sizeof(struct icaltimetype));
@@ -168,7 +159,7 @@ void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
 
 
 /**
- * \brief Render PAPSTAT
+ * \brief Render PARTSTAT
  * Render a PARTSTAT parameter as a string (and put it in parentheses)
  * \param buf the string to put it to
  * \param attendee the attendee to textify
@@ -220,11 +211,8 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 }
 
 
-/**
- * \brief embedd
+/*
  * Utility function to encapsulate a subcomponent into a full VCALENDAR
- * \param subcomp the component to encapsulate
- * \returns the meta object ???
  */
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent *encaps;
@@ -236,7 +224,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 		return NULL;
 	}
 
-	/**
+	/*
 	 * If we're already looking at a full VCALENDAR component,
 	 * don't bother ... just return itself.
 	 */
@@ -244,7 +232,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 		return subcomp;
 	}
 
-	/** Encapsulate the VEVENT component into a complete VCALENDAR */
+	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
 	if (encaps == NULL) {
 		lprintf(3, "%s:%d: Error - could not allocate component!\n",
@@ -252,23 +240,21 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 		return NULL;
 	}
 
-	/** Set the Product ID */
+	/* Set the Product ID */
 	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
 
-	/** Set the Version Number */
+	/* Set the Version Number */
 	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
 
-	/** Encapsulate the subcomponent inside */
+	/* Encapsulate the subcomponent inside */
 	/* lprintf(9, "Doing the encapsulation\n"); */
 	icalcomponent_add_component(encaps, subcomp);
 
-	/** Convert all timestamps to UTC so we don't have to deal with
+	/* Convert all timestamps to UTC so we don't have to deal with
 	 * stupid VTIMEZONE crap.
 	 */
 	ical_dezonify(encaps);
 
-	/** Return the object we just created. */
+	/* Return the object we just created. */
 	return(encaps);
 }
-
-

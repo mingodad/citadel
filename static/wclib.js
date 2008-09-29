@@ -964,7 +964,8 @@ function attachDatePicker(relative) {
 	var dpck = new DatePicker({
 	relative: relative,
 	language: 'en', // fix please
-	disableFutureDate: false
+	disableFutureDate: false,
+	dateFormat: [ ["yyyy", "mm", "dd"], "-"],
 	});
 	document.getElementById(relative).dpck = dpck; // attach a ref to it
 }
