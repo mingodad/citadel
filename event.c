@@ -438,11 +438,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("never")
 	};
 
+
+
+
 	wprintf("<tr><td><b>");
-	wprintf(_("Repeats"));
+	wprintf(_("Recurrence rule"));
 	wprintf("</b></td><td>");
 	if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
-	wprintf("%s ", _("every"));
+	wprintf("%s ", _("Repeats every"));
 
 	wprintf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
 	wprintf("value=\"%d\"> ", recur.interval);
@@ -486,6 +489,39 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</div>\n");				/* end 'weekday_selector' div */
 
 	wprintf("</td></tr>\n");
+
+
+
+
+
+	wprintf("<tr><td><b>");
+	wprintf(_("Recurrence range"));
+	wprintf("</b></td><td>\n");
+
+	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_none\" "
+		"%s onChange=\"RecurrenceShowHide();\">",
+		(1 ? "checked" : "")
+	);
+	wprintf("%s</input><br />\n", _("No ending date"));
+
+	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_count\" "
+		"%s onChange=\"RecurrenceShowHide();\">",
+		(0 ? "checked" : "")
+	);
+	wprintf(_("Repeat this event %d times"), 0);
+	wprintf("</input><br />\n");
+
+	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_until\" "
+		"%s onChange=\"RecurrenceShowHide();\">",
+		(0 ? "checked" : "")
+	);
+	wprintf(_("Repeat this event until %s"), "FIXME");
+	wprintf("</input><br />\n");
+
+	wprintf("</td></tr>\n");
+
+
+
 
 	wprintf("</table>\n");
 	wprintf("</div>\n");				/* end 'rrule' div */
