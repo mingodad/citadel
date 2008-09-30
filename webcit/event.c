@@ -402,6 +402,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		/* blank recurrence with some sensible defaults */
 		memset(&recur, 0, sizeof(struct icalrecurrencetype));
 		recur.count = 3;
+		recur.until = icaltime_null_time();
 		recur.interval = 1;
 		recur.freq = ICAL_WEEKLY_RECURRENCE;
 	}
@@ -491,8 +492,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</td></tr>\n");
 
 
-
-	// FIXME preselect the correct radio button
+	int which_rrend_is_preselected = 0;
+	if (!icaltime_is_null_time(recur.until)) which_rrend_is_preselected = 2;
+	if (recur.count > 0) which_rrend_is_preselected = 1;
 
 	wprintf("<tr><td><b>");
 	wprintf(_("Recurrence range"));
@@ -500,13 +502,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_none\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
-		(1 ? "checked" : "")
+		((which_rrend_is_preselected == 0) ? "checked" : "")
 	);
 	wprintf("%s</input><br />\n", _("No ending date"));
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_count\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
-		(0 ? "checked" : "")
+		((which_rrend_is_preselected == 1) ? "checked" : "")
 	);
 	wprintf(_("Repeat this event"));
 	wprintf("</input> ");
@@ -517,7 +519,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_until\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
-		(0 ? "checked" : "")
+		((which_rrend_is_preselected == 2) ? "checked" : "")
 	);
 	wprintf(_("Repeat this event until "));
 	wprintf("</input>");

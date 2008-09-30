@@ -64,7 +64,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	wprintf(prefix);
 	wprintf("\" id=\"");
 	wprintf(prefix);
-	wprintf("\" value=\"");
+	wprintf("\" size=\"10\" maxlength=\"10\" value=\"");
 	wc_strftime(timebuf, 32, "%Y-%m-%d", &tm);
 	wprintf(timebuf);
 	wprintf("\">");
