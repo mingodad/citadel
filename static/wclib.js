@@ -1004,4 +1004,18 @@ function RecurrenceShowHide() {
 		$('weekday_selector').style.display = 'none';
 	}
 
+	if ($('rrend_count').checked) {
+		$('rrcount').disabled = false;
+	}
+	else {
+		$('rrcount').disabled = true;
+	}
+
+	if ($('rrend_until').checked) {
+		$('rruntil').disabled = false;
+	}
+	else {
+		$('rruntil').disabled = true;
+	}
+
 }

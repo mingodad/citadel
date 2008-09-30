@@ -191,7 +191,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		t_start.is_utc = 1;
 
 	}
-	display_icaltimetype_as_webform(&t_start, "dtstart");
+	display_icaltimetype_as_webform(&t_start, "dtstart", 0);
 
 	wprintf("<INPUT TYPE=\"checkbox\" id=\"alldayevent\" NAME=\"alldayevent\" "
 		"VALUE=\"yes\" onclick=\"eventEditAllDay();\""
@@ -232,7 +232,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 			/* t_end = icaltime_from_timet(now, 0); */
 		}
 	}
-	display_icaltimetype_as_webform(&t_end, "dtend");
+	display_icaltimetype_as_webform(&t_end, "dtend", 0);
 	wprintf("</TD></TR>\n");
 
 	wprintf("<TR><TD><B>");
@@ -492,7 +492,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 
 
-
+	// FIXME preselect the correct radio button
 
 	wprintf("<tr><td><b>");
 	wprintf(_("Recurrence range"));
@@ -508,15 +508,21 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"%s onChange=\"RecurrenceShowHide();\">",
 		(0 ? "checked" : "")
 	);
-	wprintf(_("Repeat this event %d times"), 0);
-	wprintf("</input><br />\n");
+	wprintf(_("Repeat this event"));
+	wprintf("</input> ");
+	wprintf("<input type=\"text\" name=\"rrcount\" id=\"rrcount\" maxlength=\"3\" size=\"3\" ");
+	wprintf("value=\"%d\"> ", recur.count);
+	wprintf(_("times"));
+	wprintf("<br />\n");
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_until\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		(0 ? "checked" : "")
 	);
-	wprintf(_("Repeat this event until %s"), "FIXME");
-	wprintf("</input><br />\n");
+	wprintf(_("Repeat this event until "));
+	wprintf("</input>");
+	display_icaltimetype_as_webform(&recur.until, "rruntil", 1);
+	wprintf("<br />\n");
 
 	wprintf("</td></tr>\n");
 
