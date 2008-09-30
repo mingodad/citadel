@@ -33,7 +33,7 @@ char *hourname[] = {
  * might be to allow the user to specify his/her timezone.
  */
 
-void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
+void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int date_only) {
 	int i;
 	time_t now;
 	struct tm tm_now;
@@ -73,6 +73,14 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 	wprintf(prefix);
 	wprintf("', '%s');\n", get_selected_language());
 	wprintf("</script>");
+
+	/* If we're editing a date only, we still generate the time boxes, but we hide them.
+	 * This keeps the data model consistent.
+	 */
+	if (date_only) {
+		wprintf("<div style=\"display:none\">");
+	}
+
 	wprintf(_("Hour: "));
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
@@ -104,6 +112,10 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix) {
 		}
 	}
 	wprintf("</SELECT>\n");
+
+	if (date_only) {
+		wprintf("</div>");
+	}
 }
 
 /*

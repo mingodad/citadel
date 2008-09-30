@@ -637,7 +637,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	}
 	else
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
-	display_icaltimetype_as_webform(&IcalTime, "dtstart");
+	display_icaltimetype_as_webform(&IcalTime, "dtstart", 0);
 	wprintf("</TD></TR>\n");
 
 	wprintf("<TR><TD>");
@@ -658,7 +658,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	}
 	else
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
-	display_icaltimetype_as_webform(&IcalTime, "due");
+	display_icaltimetype_as_webform(&IcalTime, "due", 0);
 		
 	wprintf("</TD></TR>\n");
 	todoStatus = icalcomponent_get_status(vtodo);
