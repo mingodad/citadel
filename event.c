@@ -523,6 +523,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	);
 	wprintf(_("Repeat this event until "));
 	wprintf("</input>");
+
+	if (icaltime_is_null_time(recur.until)) {
+		recur.until = icaltime_add(t_start, icaldurationtype_from_int(604800));
+	}
 	display_icaltimetype_as_webform(&recur.until, "rruntil", 1);
 	wprintf("<br />\n");
 
