@@ -137,7 +137,7 @@ UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
 	ul->AccessLevel = StrBufExtract_int(SerializedUser, 5, '|');
 	ul->UID = StrBufExtract_int(SerializedUser, 6, '|');
 	StrBufExtract_token(ul->LastLogon, SerializedUser, 7, '|');
-	/// TODO: ul->LastLogon -> ulLastLogonT
+	ul->LastLogonT = StrTol(ul->LastLogon);
 	ul->DaysTillPurge = StrBufExtract_int(SerializedUser, 8, '|');
 	return ul;
 }
@@ -953,7 +953,6 @@ InitModule_USEREDIT
 	RegisterConditional(HKEY("COND:USERACCESS"), 0,   ConditionalUserAccess, CTX_USERLIST);
 	RegisterConditional(HKEY("COND:USERLIST:FLAG:USE_INTERNET"), 0, ConditionalFlagINetEmail, CTX_USERLIST);
 
-	RegisterConditional(HKEY("COND:USERNAME"), 0, ConditionalUser, CTX_USERLIST);
 	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST);
 }
 /*@}*/
