@@ -109,7 +109,6 @@ typedef struct _UserListEntry {
 
 	StrBuf *UserName;
 	StrBuf *Passvoid;
-	StrBuf *LastLogon;
 	time_t LastLogonT;
 	/* Just available for Single users to view: */
 	unsigned int Flags;
@@ -126,7 +125,6 @@ UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
 
 	ul = (UserListEntry*) malloc(sizeof(UserListEntry));
 	ul->UserName = NewStrBuf();
-	ul->LastLogon = NewStrBuf();
 	ul->Passvoid = NewStrBuf();
 
 	StrBufExtract_token(ul->UserName, SerializedUser, 0, '|');
@@ -136,8 +134,7 @@ UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
 	ul->nPosts = StrBufExtract_int(SerializedUser, 4, '|');
 	ul->AccessLevel = StrBufExtract_int(SerializedUser, 5, '|');
 	ul->UID = StrBufExtract_int(SerializedUser, 6, '|');
-	StrBufExtract_token(ul->LastLogon, SerializedUser, 7, '|');
-	ul->LastLogonT = StrTol(ul->LastLogon);
+	ul->LastLogonT = StrBufExtract_long(SerializedUser, 7, '|');
 	ul->DaysTillPurge = StrBufExtract_int(SerializedUser, 8, '|');
 	return ul;
 }
@@ -146,7 +143,6 @@ void DeleteUserListEntry(void *vUserList)
 {
 	UserListEntry *ul = (UserListEntry*) vUserList;
 	FreeStrBuf(&ul->UserName);
-	FreeStrBuf(&ul->LastLogon);
 	FreeStrBuf(&ul->Passvoid);
 	free(ul);
 }
@@ -160,14 +156,12 @@ UserListEntry* NewUserListEntry(StrBuf *SerializedUserList)
 
 	ul = (UserListEntry*) malloc(sizeof(UserListEntry));
 	ul->UserName = NewStrBuf();
-	ul->LastLogon = NewStrBuf();
 	ul->Passvoid = NewStrBuf();
 
 	StrBufExtract_token(ul->UserName, SerializedUserList, 0, '|');
 	ul->AccessLevel = StrBufExtract_int(SerializedUserList, 1, '|');
 	ul->UID = StrBufExtract_int(SerializedUserList, 2, '|');
-	StrBufExtract_token(ul->LastLogon, SerializedUserList, 3, '|');
-	/// TODO: ul->LastLogon -> ulLastLogonT
+	ul->LastLogonT = StrBufExtract_long(SerializedUserList, 3, '|');
 	ul->nLogons = StrBufExtract_int(SerializedUserList, 4, '|');
 	ul->nPosts = StrBufExtract_int(SerializedUserList, 5, '|');
 	StrBufExtract_token(ul->Passvoid, SerializedUserList, 6, '|');
@@ -388,7 +382,7 @@ void tmplput_USERLIST_LastLogonNo(StrBuf *Target, int nArgs, WCTemplateToken *To
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
-	StrBufAppendBuf(Target, ul->LastLogon, 0);
+	StrBufAppendPrintf(Target,"%ld", ul->LastLogonT, 0);
 }
 void tmplput_USERLIST_LastLogonStr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
