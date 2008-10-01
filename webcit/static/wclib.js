@@ -993,10 +993,10 @@ function eventEditAllDay() {
 function RecurrenceShowHide() {
 
 	if ($('is_recur').checked) {
-		$('rrule').style.display = 'block';
+		$('rrule_div').style.display = 'block';
 	}
 	else {
-		$('rrule').style.display = 'none';
+		$('rrule_div').style.display = 'none';
 	}
 
 	if ($('freq_selector').selectedIndex == 4) {
@@ -1019,4 +1019,5 @@ function RecurrenceShowHide() {
 	else {
 		$('rruntil').disabled = true;
 	}
+
 }
