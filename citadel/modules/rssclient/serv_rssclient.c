@@ -62,6 +62,7 @@ struct rss_item {
 	time_t pubdate;
 	char channel_title[256];
 	int item_tag_nesting;
+	char *author_or_creator;
 };
 
 struct rssnetcfg *rnclist = NULL;
@@ -139,7 +140,15 @@ void rss_save_item(struct rss_item *ri) {
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
-		msg->cm_fields['A'] = strdup("rss");
+
+		if (ri->author_or_creator != NULL) {
+			msg->cm_fields['A'] = html_to_ascii(ri->author_or_creator,
+				strlen(ri->author_or_creator), 512, 0);
+		}
+		else {
+			msg->cm_fields['A'] = strdup("rss");
+		}
+
 		msg->cm_fields['N'] = strdup(NODENAME);
 		if (ri->title != NULL) {
 			msg->cm_fields['U'] = html_to_ascii(ri->title, strlen(ri->title), 512, 0);
@@ -236,6 +245,8 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr) {
 		ri->title = NULL;
 		if (ri->link != NULL) free(ri->link);
 		ri->link = NULL;
+		if (ri->author_or_creator != NULL) free(ri->author_or_creator);
+		ri->author_or_creator = NULL;
 		if (ri->description != NULL) free(ri->description);
 		ri->description = NULL;
 
@@ -293,6 +304,12 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	if ( ((!strcasecmp(el, "pubdate")) || (!strcasecmp(el, "date"))) && (ri->chardata != NULL) ) {
 		striplt(ri->chardata);
 		ri->pubdate = rdf_parsedate(ri->chardata);
+	}
+
+	if ( ((!strcasecmp(el, "author")) || (!strcasecmp(el, "creator"))) && (ri->chardata != NULL) ) {
+		if (ri->author_or_creator != NULL) free(ri->title);
+		striplt(ri->chardata);
+		ri->author_or_creator = strdup(ri->chardata);
 	}
 
 	if (!strcasecmp(el, "item")) {
@@ -423,6 +440,8 @@ shutdown:
 	ri.title = NULL;
 	if (ri.link != NULL) free(ri.link);
 	ri.link = NULL;
+	if (ri.author_or_creator != NULL) free(ri.author_or_creator);
+	ri.author_or_creator = NULL;
 	if (ri.description != NULL) free(ri.description);
 	ri.description = NULL;
 	if (ri.chardata_len > 0) {
