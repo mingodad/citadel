@@ -74,15 +74,15 @@ void tmplput_nowno(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 {
 	time_t now;
 	now = time(NULL);
-	StrBufAppendPrintf(Target, "%l", now);
+	StrBufAppendPrintf(Target, "%ld", now);
 }
 
 void 
 InitModule_DATE
 (void)
 {
-	RegisterNamespace("DATE:NOW:STR", 1, 2, tmplput_nowstr, CTX_NONE);
-	RegisterNamespace("DATE:NOW:NO", 1, 2, tmplput_nowno, CTX_NONE);
+	RegisterNamespace("DATE:NOW:STR", 0, 0, tmplput_nowstr, CTX_NONE);
+	RegisterNamespace("DATE:NOW:NO", 0, 0, tmplput_nowno, CTX_NONE);
 }
 
 /*@}*/

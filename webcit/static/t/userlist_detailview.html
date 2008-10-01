@@ -31,7 +31,7 @@
 <tr><td><?_("User ID number")></td><td><input type="text" name="usernum" value="<?USERLIST:UID>" maxlength="7"></td></tr>
 <tr><td><?_("Date and time of last login")></td><td><select name="lastcall">
   <option selected value="<?USERLIST:LASTLOGON:NO>"><?USERLIST:LASTLOGON:STR></option>
-  <option value="<?TIME:NOW:NO>"><?TIME:NOW:STR></option>
+  <option value="<?DATE:NOW:NO>"><?DATE:NOW:STR></option>
 </select></td></tr>
  
 <tr><td><?_("Auto-purge after this many days")></td><td><input type="text" name="purgedays" value="<?USERLIST:DAYSTILLPURGE>" maxlength="5"></td></tr>
