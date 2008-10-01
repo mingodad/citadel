@@ -1057,7 +1057,7 @@ InitModule_SITECONFIG
 	WebcitAddUrlHandler(HKEY("display_siteconfig"), display_siteconfig, CTX_NONE);
 	WebcitAddUrlHandler(HKEY("siteconfig"), siteconfig, CTX_NONE);
 
-	RegisterNamespace("SERV:CFG", 1, 1, tmplput_servcfg, CTX_SITECFG);
+	RegisterNamespace("SERV:CFG", 1, 1, tmplput_servcfg, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst, CTX_NONE);
 }
