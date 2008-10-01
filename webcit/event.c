@@ -419,6 +419,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("This is a recurring event")
 	);
 
+#if 0
 	wprintf("<div id=\"rrule\">\n");		/* begin 'rrule' div */
 
 	wprintf("<table border=0 width=100%%>\n");	/* same table style as the event tab */
@@ -470,7 +471,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	wprintf("</select>\n");
 
-	wprintf("</td></tr><tr><td> </td><td>");
+	wprintf("</td></tr><tr><td>FIXME</td><td>");
 
 	wprintf("<div id=\"weekday_selector\">");	/* begin 'weekday_selector' div */
 	wprintf("%s<br>", _("on these weekdays:"));
@@ -547,6 +548,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</table>\n");
 	wprintf("</div>\n");				/* end 'rrule' div */
+#endif
 
 	end_tab(2, 3);
 

@@ -967,14 +967,16 @@ function attachDatePicker(relative, wclang) {
 	disableFutureDate: false,
 	dateFormat: [ ["yyyy", "mm", "dd"], "-"],
 	showDuration: 0.2,
-	closeEffectDuration: 0.2,
+	closeEffectDuration: 0.2
 	});
 	document.getElementById(relative).dpck = dpck; // attach a ref to it
 }
+
 function eventEditAllDay() {
-	var allDayCheck = document.getElementById("alldayevent");
-	var dtend= document.getElementById("dtendcell");
-	if(allDayCheck.checked) {
+	var allDayCheck = $('alldayevent');
+	var dtend = $('dtendcell');
+
+	if (allDayCheck.checked) {
 		//dtend.disabled = true;
 		dtend.style.textDecoration = "line-through";
 	} else {
@@ -1017,5 +1019,4 @@ function RecurrenceShowHide() {
 	else {
 		$('rruntil').disabled = true;
 	}
-
 }
