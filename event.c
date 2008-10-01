@@ -419,8 +419,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("This is a recurring event")
 	);
 
-#if 0
-	wprintf("<div id=\"rrule\">\n");		/* begin 'rrule' div */
+	wprintf("<div id=\"rrule_div\">\n");		/* begin 'rrule_div' div */
 
 	wprintf("<table border=0 width=100%%>\n");	/* same table style as the event tab */
 
@@ -444,14 +443,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("never")
 	};
 
-
-
-
 	wprintf("<tr><td><b>");
 	wprintf(_("Recurrence rule"));
 	wprintf("</b></td><td>");
-
-
 
 	if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
 	wprintf("%s ", _("Repeats every"));
@@ -470,8 +464,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		);
 	}
 	wprintf("</select>\n");
-
-	wprintf("</td></tr><tr><td>FIXME</td><td>");
 
 	wprintf("<div id=\"weekday_selector\">");	/* begin 'weekday_selector' div */
 	wprintf("%s<br>", _("on these weekdays:"));
@@ -543,12 +535,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</td></tr>\n");
 
-
-
-
 	wprintf("</table>\n");
 	wprintf("</div>\n");				/* end 'rrule' div */
-#endif
 
 	end_tab(2, 3);
 
