@@ -395,7 +395,7 @@ int starttls(int sock) {
 			lprintf(3, "SSL_accept failed: errval=%i, retval=%i\n", errval, retval);
 		else
 			lprintf(3, "SSL_accept failed: %s\n", ssl_error_reason);
-		sleep(1);
+		sleeeeeeeeeep(1);
 		retval = SSL_accept(newssl);
 	}
 	if (retval < 1) {
@@ -502,7 +502,7 @@ void client_write_ssl(const StrBuf *Buf)
 			errval = SSL_get_error(THREADSSL, retval);
 			if (errval == SSL_ERROR_WANT_READ ||
 			    errval == SSL_ERROR_WANT_WRITE) {
-				sleep(1);
+				sleeeeeeeeeep(1);
 				continue;
 			}
 			lprintf(9, "SSL_write got error %ld, ret %d\n", errval, retval);
@@ -535,8 +535,9 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 	char sbuf[16384]; /**< Openssl communicates in 16k blocks, so lets speak its native tongue. */
 	int rlen;
 	char junk[1];
+	SSL *pssl = THREADSSL;
 
-	if (THREADSSL == NULL) return(0);
+	if (pssl == NULL) return(-1);
 
 	while (1) {
 #if 0
@@ -545,7 +546,7 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 		 * using blocking reads (which we are). -IO
 		 */
 		FD_ZERO(&rfds);
-		s = BIO_get_fd(THREADSSL->rbio, NULL);
+		s = BIO_get_fd(pssl->rbio, NULL);
 		FD_SET(s, &rfds);
 		tv.tv_sec = timeout;
 		tv.tv_usec = 0;
@@ -557,29 +558,29 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 		}
 
 #endif
-		if (SSL_want_read(THREADSSL)) {
-			if ((SSL_write(THREADSSL, junk, 0)) < 1) {
+		if (SSL_want_read(pssl)) {
+			if ((SSL_write(pssl, junk, 0)) < 1) {
 				lprintf(9, "SSL_write in client_read\n");
 			}
 		}
-		rlen = SSL_read(THREADSSL, sbuf, sizeof(sbuf));
+		rlen = SSL_read(pssl, sbuf, sizeof(sbuf));
 		if (rlen < 1) {
 			long errval;
 
-			errval = SSL_get_error(THREADSSL, rlen);
+			errval = SSL_get_error(pssl, rlen);
 			if (errval == SSL_ERROR_WANT_READ ||
 			    errval == SSL_ERROR_WANT_WRITE) {
-				sleep(1);
+				sleeeeeeeeeep(1);
 				continue;
 			}
 			lprintf(9, "SSL_read got error %ld\n", errval);
 			endtls();
-			return (0);
+			return (-1);
 		}
 		StrBufAppendBufPlain(buf, sbuf, rlen, 0);
-		return(1);
+		return rlen;
 	}
-	return (1);
+	return (0);
 }
 
 

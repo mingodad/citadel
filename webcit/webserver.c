@@ -433,6 +433,7 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf)
 	int rlen, len, retval = 0;
 
 	if (is_https) {
+		int ntries = 0;
 		if (StrLength(CLineBuf) > 0) {
 			pchs = ChrPtr(CLineBuf);
 			pch = strchr(pchs, '\n');
@@ -447,11 +448,23 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf)
 			}
 		}
 
-		while ((retval >= 0) && 
-		       (pchs = ChrPtr(CLineBuf),
-			pch = strchr(pchs, '\n'), 
-			pch == NULL))
-			retval = client_read_sslbuffer(CLineBuf, SLEEPING);
+		while (retval == 0) { 
+				pch = NULL;
+				pchs = ChrPtr(CLineBuf);
+				if (*pchs != '\0')
+					pch = strchr(pchs, '\n');
+				if (pch == NULL) {
+					retval = client_read_sslbuffer(CLineBuf, SLEEPING);
+					pchs = ChrPtr(CLineBuf);
+					pch = strchr(pchs, '\n');
+				}
+				if (retval == 0) {
+					sleeeeeeeeeep(1);
+					ntries ++;
+				}
+				if (ntries > 10)
+					return 0;
+		}
 		if ((retval > 0) && (pch != NULL)) {
 			rlen = 0;
 			len = pch - pchs;
