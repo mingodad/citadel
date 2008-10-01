@@ -29,6 +29,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int i, j = 0;
 	int sequence = 0;
 	char weekday_labels[7][32];
+	long weekstart = 0;
+
+	get_pref_long("weekstart", &weekstart, 17);
+	if (weekstart > 6) weekstart = 0;
 
 	lprintf(9, "display_edit_individual_event(%ld) calview=%s year=%s month=%s day=%s\n",
 		msgnum, bstr("calview"), bstr("year"), bstr("month"), bstr("day")
@@ -412,7 +416,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"onclick=\"RecurrenceShowHide();\""
 		" %s >%s",
 		(rrule ? "CHECKED=\"CHECKED\"" : "" ),
-		_("This is a repeating event")
+		_("This is a recurring event")
 	);
 
 	wprintf("<div id=\"rrule\">\n");		/* begin 'rrule' div */
@@ -445,11 +449,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<tr><td><b>");
 	wprintf(_("Recurrence rule"));
 	wprintf("</b></td><td>");
+
+
+
 	if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
 	wprintf("%s ", _("Repeats every"));
 
 	wprintf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
-	wprintf("value=\"%d\"> ", recur.interval);
+	wprintf("value=\"%d\">&nbsp;", recur.interval);
 
 	wprintf("<select name=\"freq\" id=\"freq_selector\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
@@ -462,6 +469,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		);
 	}
 	wprintf("</select>\n");
+
+	wprintf("</td></tr><tr><td> </td><td>");
 
 	wprintf("<div id=\"weekday_selector\">");	/* begin 'weekday_selector' div */
 	wprintf("%s<br>", _("on these weekdays:"));
@@ -482,7 +491,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		}
 	}
 
-	for (i=0; i<7; ++i) {
+	for (j=0; j<7; ++j) {
+		i = ((j + (int)weekstart) % 7);
 		wprintf("<input type=\"checkbox\" name=\"weekday%d\" value=\"yes\"", i);
 		if (weekday_is_selected[i]) wprintf(" checked");
 		wprintf(">%s</input>\n", weekday_labels[i]);
