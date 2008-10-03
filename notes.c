@@ -75,8 +75,8 @@ void display_vnote_div(struct vnote *v) {
 	escputs(v->body);
 	wprintf("</div>\n");				// end body div
 
-	wprintf("<script type=\"text/javascript\">");
-	wprintf(" new Ajax.InPlaceEditor('notebody-%s', 'ajax_update_note?note_uid=%s', "
+        StrBufAppendPrintf(WC->trailing_javascript,
+		" new Ajax.InPlaceEditor('notebody-%s', 'ajax_update_note?note_uid=%s', "
 		"{rows:%d,cols:%d,onEnterHover:false,onLeaveHover:false,"
 		"okText:'%s',cancelText:'%s',clickToEditText:'%s'});",
 		v->uid,
@@ -87,9 +87,6 @@ void display_vnote_div(struct vnote *v) {
 		_("Cancel"),
 		_("Click on any note to edit it.")
 	);
-	wprintf("</script>\n");
-
-
 
 	wprintf("<div id=\"resize-%s\" ", v->uid);	// begin resize handle div
 	wprintf("class=\"stickynote_resize\" ");
@@ -351,12 +348,14 @@ void display_note(long msgnum, int unread) {
 			
 
 		/* uncomment these lines to see ugly debugging info 
-		wprintf("<script type=\"text/javascript\">");
-		wprintf("document.write('L: ' + $('note-%s').style.left + '; ');", v->uid);
-		wprintf("document.write('T: ' + $('note-%s').style.top + '; ');", v->uid);
-		wprintf("document.write('W: ' + $('note-%s').style.width + '; ');", v->uid);
-		wprintf("document.write('H: ' + $('note-%s').style.height + '<br>');", v->uid);
-		wprintf("</script>");
+		StrBufAppendPrintf(WC->trailing_javascript,
+			"document.write('L: ' + $('note-%s').style.left + '; ');", v->uid);
+		StrBufAppendPrintf(WC->trailing_javascript,
+			"document.write('T: ' + $('note-%s').style.top + '; ');", v->uid);
+		StrBufAppendPrintf(WC->trailing_javascript,
+			"document.write('W: ' + $('note-%s').style.width + '; ');", v->uid);
+		StrBufAppendPrintf(WC->trailing_javascript,
+			"document.write('H: ' + $('note-%s').style.height + '<br>');", v->uid);
 		*/
 
 		vnote_free(v);
