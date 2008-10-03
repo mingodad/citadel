@@ -562,10 +562,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</div>\n");
 
-	wprintf("<script type=\"text/javascript\">	\n"
+	StrBufAppendPrintf(WC->trailing_javascript,
 		"eventEditAllDay();	\n"
 		"RecurrenceShowHide();	\n"
-		"</script>	\n"
 	);
 	address_book_popup();
 	wDumpContent(1);

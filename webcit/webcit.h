@@ -282,7 +282,7 @@ typedef struct _TemplateToken {
 	TemplateParam *Params[MAXPARAM];
 } WCTemplateToken;
 
-typedef void (*WCHandlerFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
+typedef void (*WCHandlerFunc)();
 
 
 /**
