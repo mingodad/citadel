@@ -178,7 +178,7 @@ AC_CHECK_HEADER(libcitadel.h,
 
 dnl Checks for the libical iCalendar library.
 AC_CHECK_HEADER(libical/ical.h,
-	[AC_CHECK_LIB(ical, icalcomponent_new,
+	[AC_CHECK_LIB(ical, icalcomponent_as_ical_string_r,
 		[
 			LIBS="-lical $LIBS"
 		],

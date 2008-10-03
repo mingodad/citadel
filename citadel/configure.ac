@@ -718,7 +718,7 @@ AC_CHECK_HEADER(curl/curl.h,
 
 dnl Checks for the libical iCalendar library.
 AC_CHECK_HEADER(libical/ical.h,
-	[AC_CHECK_LIB(ical, icalcomponent_new,
+	[AC_CHECK_LIB(ical, icalcomponent_as_ical_string_r,
 		[
 			SERVER_LIBS="-lical $SERVER_LIBS"
 		],
