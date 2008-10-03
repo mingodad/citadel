@@ -124,7 +124,7 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 		return;
 	}
 
-	ser = icalcomponent_as_ical_string(cal);
+	ser = icalcomponent_as_ical_string_r(cal);
 	if (ser == NULL) return;
 
 	/* If the caller supplied a user, write to that user's default calendar room */
@@ -162,7 +162,7 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 	}
 
 	/* In either case, now we can free the serialized calendar object */
-//	free(ser);
+	free(ser);
 }
 
 
@@ -315,7 +315,7 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 	}
 
 	/* Now generate the reply message and send it out. */
-	serialized_reply = strdup(icalcomponent_as_ical_string(the_reply));
+	serialized_reply = icalcomponent_as_ical_string_r(the_reply);
 	icalcomponent_free(the_reply);	/* don't need this anymore */
 	if (serialized_reply == NULL) return;
 
@@ -688,7 +688,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	ical_merge_attendee_reply(original_event, cal);
 
 	/* Serialize it */
-	serialized_event = strdup(icalcomponent_as_ical_string(original_event));
+	serialized_event = icalcomponent_as_ical_string_r(original_event);
 	icalcomponent_free(original_event);	/* Don't need this anymore. */
 	if (serialized_event == NULL) return(2);
 
@@ -1469,7 +1469,7 @@ void ical_freebusy(char *who) {
 
 	/* Serialize it */
 	CtdlLogPrintf(CTDL_DEBUG, "Serializing\n");
-	serialized_request = strdup(icalcomponent_as_ical_string(encaps));
+	serialized_request = icalcomponent_as_ical_string_r(encaps);
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 
 	cprintf("%d Here is the free/busy data:\n", LISTING_FOLLOWS);
@@ -1585,7 +1585,7 @@ void ical_getics(void)
 		(void *) encaps
 	);
 
-	ser = strdup(icalcomponent_as_ical_string(encaps));
+	ser = icalcomponent_as_ical_string_r(encaps);
 	client_write(ser, strlen(ser));
 	free(ser);
 	cprintf("\n000\n");
@@ -1904,7 +1904,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	icalcomponent_add_component(encaps, the_request);
 
 	/* Serialize it */
-	serialized_request = strdup(icalcomponent_as_ical_string(encaps));
+	serialized_request = icalcomponent_as_ical_string_r(encaps);
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 	if (serialized_request == NULL) return;
 
