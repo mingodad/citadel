@@ -488,7 +488,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		i = ((j + (int)weekstart) % 7);
 		wprintf("<input type=\"checkbox\" name=\"weekday%d\" value=\"yes\"", i);
 		if (weekday_is_selected[i]) wprintf(" checked");
-		wprintf(">%s</input>\n", weekday_labels[i]);
+		wprintf(">%s\n", weekday_labels[i]);
 	}
 	wprintf("</div>\n");				/* end 'weekday_selector' div */
 
@@ -507,15 +507,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 0) ? "checked" : "")
 	);
-	wprintf("%s</input><br />\n", _("No ending date"));
+	wprintf("%s<br />\n", _("No ending date"));
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_count\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 1) ? "checked" : "")
 	);
 	wprintf(_("Repeat this event"));
-	wprintf("</input> ");
-	wprintf("<input type=\"text\" name=\"rrcount\" id=\"rrcount\" maxlength=\"3\" size=\"3\" ");
+	wprintf(" <input type=\"text\" name=\"rrcount\" id=\"rrcount\" maxlength=\"3\" size=\"3\" ");
 	wprintf("value=\"%d\"> ", recur.count);
 	wprintf(_("times"));
 	wprintf("<br />\n");
@@ -525,7 +524,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rrend_is_preselected == 2) ? "checked" : "")
 	);
 	wprintf(_("Repeat this event until "));
-	wprintf("</input>");
 
 	if (icaltime_is_null_time(recur.until)) {
 		recur.until = icaltime_add(t_start, icaldurationtype_from_int(604800));
@@ -560,7 +558,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</FORM>\n");
 	end_tab(3, 3);
 
-	wprintf("</div>\n");
+	wprintf("</div>\n");			/* end 'fix_scrollbar_bug' div */
 
 	StrBufAppendPrintf(WC->trailing_javascript,
 		"eventEditAllDay();	\n"
