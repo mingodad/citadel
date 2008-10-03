@@ -16,8 +16,8 @@
 void do_iconbar(void);
 void do_iconbar_roomlist(void);
 
-/**
- * \brief draw the icon bar?????
+/*
+ * Render the left side iconbar
  */
 void do_selected_iconbar(void) {
 	if (WC->current_iconbar == current_iconbar_roomlist) {

@@ -505,6 +505,8 @@ struct wcsession {
 
 	HashList *ServCfg;                      /**< cache our server config for editing */
 	HashList *InetCfg;                      /**< Our inet server config for editing */
+
+	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
 };
 
 /** values for WC->current_iconbar */

@@ -382,6 +382,8 @@ void hprintf(const char *format,...)
 }
 
 
+
+
 /*
  * wrap up an HTTP session, closes tags, etc.
  *
@@ -394,6 +396,8 @@ void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
 		wprintf("</div>\n");	/* end of "text" div */
+		wprintf("<script type=\"text/javascript\">\n%s\n</script>\n",
+			ChrPtr(WC->trailing_javascript));
 		do_template("trailing", NULL);
 	}
 
@@ -1368,6 +1372,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	WCC->upload_length = 0;
 	WCC->upload = NULL;
 	WCC->is_mobile = 0;
+	WCC->trailing_javascript = NewStrBuf();
 
 	/** Figure out the action */
 	index[0] = action;
@@ -1768,6 +1773,7 @@ SKIP_ALL_THIS_CRAP:
 		free(WCC->upload);
 		WCC->upload_length = 0;
 	}
+	FreeStrBuf(&WCC->trailing_javascript);
 }
 
 
