@@ -949,6 +949,45 @@ void display_vcard_photo_img(void)
 }
 
 /*
+ * Generic function to output an arbitrary MIME attachment from
+ * message being composed
+ *
+ * partnum		The MIME part to be output
+ * filename		Fake filename to give
+ * force_download	Nonzero to force set the Content-Type: header to "application/octet-stream"
+ */
+void postpart(const char *partnum, const char *filename, int force_download)
+{
+	char content_type[256];
+	int num = atoi(partnum);
+	struct wc_attachment *part = WC->first_attachment;
+
+	while(num && part) {
+		num--;
+		part=part->next;
+	}
+	
+	if (part) {
+		if (force_download) {
+			strcpy(content_type, "application/octet-stream");
+		}
+		else {
+			strncpy(content_type, part->content_type, sizeof content_type);
+		}
+		output_headers(0, 0, 0, 0, 0, 0);
+		StrBufAppendBufPlain(WC->WBuf, part->data, part->length, 0);
+		http_transmit_thing(content_type, 0);
+	} else {
+		hprintf("HTTP/1.1 404 %s\n",partnum);
+		output_headers(0, 0, 0, 0, 0, 0);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf(_("An error occurred while retrieving this part: %s/%s\n"), partnum, filename);
+		end_burst();
+	}
+}
+
+
+/*
  * Generic function to output an arbitrary MIME part from an arbitrary
  * message number on the server.
  *
@@ -1816,6 +1855,18 @@ void download_mimepart(void) {
 		 1);
 }
 
+void view_postpart(void) {
+	postpart(ChrPtr(WC->UrlFragment1),
+		 ChrPtr(WC->UrlFragment2),
+		 0);
+}
+
+void download_postpart(void) {
+	postpart(ChrPtr(WC->UrlFragment1),
+		 ChrPtr(WC->UrlFragment2),
+		 1);
+}
+
 
 int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -1867,6 +1918,8 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("vcardphoto"), display_vcard_photo_img, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("postpart"), view_postpart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("postpart_download"), download_postpart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
 
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
