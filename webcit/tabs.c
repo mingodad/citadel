@@ -12,7 +12,7 @@
 void tabbed_dialog(int num_tabs, char *tabnames[]) {
 	int i;
 
-	wprintf("<script type=\"text/javascript\">						"
+	StrBufAppendPrintf(WC->trailing_javascript,
 		"var previously_selected_tab = '0';						"
 		"function tabsel(which_tab) {							"
 		"	if (which_tab == previously_selected_tab) {				"
@@ -24,7 +24,6 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 		"	$('tabtd'+which_tab).className = 'tab_cell_label';			"
 		"	previously_selected_tab = which_tab;					"
 		"}										"
-		"</script>									\n"
 	);
 
 	wprintf("<table id=\"TheTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
