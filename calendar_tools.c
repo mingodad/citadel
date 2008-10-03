@@ -68,11 +68,10 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	wc_strftime(timebuf, 32, "%Y-%m-%d", &tm);
 	wprintf(timebuf);
 	wprintf("\">");
-	wprintf("<script type=\"text/javascript\">");
-	wprintf("attachDatePicker('");
-	wprintf(prefix);
-	wprintf("', '%s');\n", get_selected_language());
-	wprintf("</script>");
+
+	StrBufAppendPrintf(WC->trailing_javascript, "attachDatePicker('");
+	StrBufAppendPrintf(WC->trailing_javascript, prefix);
+	StrBufAppendPrintf(WC->trailing_javascript, "', '%s');\n", get_selected_language());
 
 	/* If we're editing a date only, we still generate the time boxes, but we hide them.
 	 * This keeps the data model consistent.
