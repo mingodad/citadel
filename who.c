@@ -231,6 +231,7 @@ void who_inner_div(void) {
 */
 
 
+#if 0
 /*
  * Display a list of users currently logged in to the system
  * /
@@ -246,6 +247,7 @@ void who(void)
 		"}\n"
 		"</script>\n", _("Do you really want to kill this session?")
 	);
+#endif
 
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<div class=\"room_banner\">");
@@ -294,6 +296,7 @@ void who(void)
 	wDumpContent(1);
 }
 */
+#endif
 
 /*
  * end session

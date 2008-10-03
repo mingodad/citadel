@@ -382,7 +382,9 @@ void hprintf(const char *format,...)
 }
 
 
-
+void put_trailing_javascript(void) {
+	wprintf("%s", ChrPtr(WC->trailing_javascript));
+}
 
 /*
  * wrap up an HTTP session, closes tags, etc.
@@ -396,8 +398,7 @@ void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
 		wprintf("</div>\n");	/* end of "text" div */
-		wprintf("<script type=\"text/javascript\">\n%s\n</script>\n",
-			ChrPtr(WC->trailing_javascript));
+		svcallback("TRAILING_JAVASCRIPT", put_trailing_javascript);
 		do_template("trailing", NULL);
 	}
 
