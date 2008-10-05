@@ -261,6 +261,7 @@ void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
 void StrBufReplaceChars(StrBuf *buf, char search, char replace);
 
 int CompressBuffer(StrBuf *Buf);
+void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset);
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
 #define LB			(1)		/* Internal escape chars */
@@ -361,7 +362,7 @@ long StrBufUnescape(StrBuf *Buf, int StripBlanks);
 /*
  * Hash list implementation for Citadel
  */
-#define HKEY(a) a, sizeof(a) - 1
+#define HKEY(a) a, (sizeof(a) - 1)
 typedef struct HashList HashList;
 
 typedef struct HashKey HashKey;

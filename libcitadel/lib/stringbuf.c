@@ -1,3 +1,4 @@
+#include "../sysdep.h"
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>
@@ -10,6 +11,20 @@
 #include <stdarg.h>
 #include "libcitadel.h"
 
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
+
+
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
+                          const Bytef * source, uLong sourceLen, int level);
+#endif
 
 /**
  * Private Structure for the Stringbuffer
@@ -1297,7 +1312,7 @@ int CompressBuffer(StrBuf *Buf)
 			  &compressed_len,
 			  (Bytef *) Buf->buf,
 			  (uLongf) Buf->BufUsed, Z_BEST_SPEED) == Z_OK) {
-		if (!ConstBuf)
+		if (!Buf->ConstBuf)
 			free(Buf->buf);
 		Buf->buf = compressed_data;
 		Buf->BufUsed = compressed_len;
@@ -1462,3 +1477,258 @@ void StrBufReplaceChars(StrBuf *buf, char search, char replace)
 			buf->buf[i] = replace;
 
 }
+
+
+
+/*
+ * Wrapper around iconv_open()
+ * Our version adds aliases for non-standard Microsoft charsets
+ * such as 'MS950', aliasing them to names like 'CP950'
+ *
+ * tocode	Target encoding
+ * fromcode	Source encoding
+ */
+static iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
+{
+	iconv_t ic = (iconv_t)(-1) ;
+	ic = iconv_open(tocode, fromcode);
+	if (ic == (iconv_t)(-1) ) {
+		char alias_fromcode[64];
+		if ( (strlen(fromcode) == 5) && (!strncasecmp(fromcode, "MS", 2)) ) {
+			safestrncpy(alias_fromcode, fromcode, sizeof alias_fromcode);
+			alias_fromcode[0] = 'C';
+			alias_fromcode[1] = 'P';
+			ic = iconv_open(tocode, alias_fromcode);
+		}
+	}
+	return(ic);
+}
+
+
+#ifdef HAVE_ICONV
+
+static inline char *FindNextEnd (StrBuf *Buf, char *bptr)
+{
+	char * end;
+	/* Find the next ?Q? */
+	if (Buf->BufUsed - (bptr - Buf->buf)  < 6)
+		return NULL;
+
+	end = strchr(bptr + 2, '?');
+
+	if (end == NULL)
+		return NULL;
+
+	if ((Buf->BufUsed - (end - Buf->buf) > 3) &&
+	    ((*(end + 1) == 'B') || (*(end + 1) == 'Q')) && 
+	    (*(end + 2) == '?')) {
+		/* skip on to the end of the cluster, the next ?= */
+		end = strstr(end + 3, "?=");
+	}
+	else
+		/* sort of half valid encoding, try to find an end. */
+		end = strstr(bptr, "?=");
+	return end;
+}
+
+
+/*
+ * Handle subjects with RFC2047 encoding such as:
+ * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
+ */
+void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {
+	StrBuf *TmpBuf, *ConvertBuf, *ConvertBuf2;
+	StrBuf StaticBuf;
+	char *start, *end, *next, *nextend, *ptr;
+	char charset[128];
+	char encoding[16];
+	iconv_t ic = (iconv_t)(-1) ;
+	char *ibuf;			/**< Buffer of characters to be converted */
+	char *obuf;			/**< Buffer for converted characters */
+	size_t ibuflen;			/**< Length of input buffer */
+	size_t obuflen;			/**< Length of output buffer */
+	char *isav;			/**< Saved pointer to input buffer */
+	
+	const char *eptr;
+	int passes = 0;
+	int i, len, delta;
+	int illegal_non_rfc2047_encoding = 0;
+
+	/* Sometimes, badly formed messages contain strings which were simply
+	 *  written out directly in some foreign character set instead of
+	 *  using RFC2047 encoding.  This is illegal but we will attempt to
+	 *  handle it anyway by converting from a user-specified default
+	 *  charset to UTF-8 if we see any nonprintable characters.
+	 */
+	TmpBuf = NewStrBufPlain(NULL, StrLength(*Buf));
+
+	len = StrLength(*Buf);
+	for (i=0; i<(*Buf)->BufUsed; ++i) {
+		if (((*Buf)->buf[i] < 32) || ((*Buf)->buf[i] > 126)) {
+			illegal_non_rfc2047_encoding = 1;
+			break;
+		}
+	}
+
+	if (illegal_non_rfc2047_encoding) {
+		if ( (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
+		     (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) ) {
+			ic = ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset));
+			if (ic != (iconv_t)(-1) ) {
+				ibuf = (*Buf)->buf;
+				obuf = TmpBuf->buf;
+				ibuflen = (*Buf)->BufUsed;
+				obuflen = TmpBuf->BufSize;
+
+				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+				TmpBuf->BufUsed = TmpBuf->BufSize - obuflen;
+				TmpBuf->buf[TmpBuf->BufUsed] = '\0';
+
+				FreeStrBuf(Buf);
+				*Buf = TmpBuf;
+				TmpBuf = NewStrBufPlain(NULL, StrLength(*Buf));
+
+				iconv_close(ic);
+			}
+		}
+	}
+
+	/* pre evaluate the first pair */
+	nextend = end = NULL;
+	len = StrLength(*Buf);
+	start = strstr((*Buf)->buf, "=?");
+	eptr = (*Buf)->buf + (*Buf)->BufUsed;
+	if (start != NULL) 
+		end = FindNextEnd (*Buf, start);
+
+	while ((start != NULL) && 
+	       (end != NULL) && 
+	       (start < eptr) && 
+	       (end < eptr))
+	{
+		next = strstr(end, "=?");
+		nextend = NULL;
+		if ((next != NULL) && 
+		    (next < eptr))
+			nextend = FindNextEnd(*Buf, next);
+		if (nextend == NULL)
+			next = NULL;
+
+		/* did we find two partitions */
+		if ((next != NULL) && 
+		    ((next - end) > 2))
+		{
+			ptr = end + 2;
+			while ((ptr < next) && 
+			       (isspace(*ptr) ||
+				(*ptr == '\r') ||
+				(*ptr == '\n') || 
+				(*ptr == '\t')))
+				ptr ++;
+			/* did we find a gab just filled with blanks? */
+			if (ptr == next)
+			{
+				memmove (end + 2,
+					 next,
+					 len - (next - start));
+				
+				/* now terminate the gab at the end */
+				delta = (next - end) - 2;
+				(*Buf)->BufUsed -= delta;
+				(*Buf)->buf[(*Buf)->BufUsed] = '\0';
+
+				/* move next to its new location. */
+				next -= delta;
+				nextend -= delta;
+			}
+		}
+		/* our next-pair is our new first pair now. */
+		start = next;
+		end = nextend;
+	}
+
+	ConvertBuf = NewStrBufPlain(NULL, StrLength(*Buf));
+	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(*Buf));
+	/* Now we handle foreign character sets properly encoded
+	 * in RFC2047 format.
+	 */
+	while (start=strstr((*Buf)->buf, "=?"), 
+	       end=FindNextEnd((*Buf), ((start != NULL)? start : (*Buf)->buf)),
+			       ((start != NULL) && 
+				(end != NULL) && 
+				(end > start)) )
+	{
+		StaticBuf.buf = start;
+		StaticBuf.BufUsed = (*Buf)->BufUsed - ((*Buf)->buf - start);
+		StaticBuf.BufSize = (*Buf)->BufSize - ((*Buf)->buf - start);
+		extract_token(charset, start, 1, '?', sizeof charset);
+		extract_token(encoding, start, 2, '?', sizeof encoding);
+		StrBufExtract_token(ConvertBuf, &StaticBuf, 3, '?');
+
+		if (!strcasecmp(encoding, "B")) {	/**< base64 */
+			ConvertBuf2->BufUsed = CtdlDecodeBase64(ConvertBuf2->buf, 
+								ConvertBuf->buf, 
+								ConvertBuf->BufUsed);
+		}
+		else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
+			long pos;
+			
+			pos = 0;
+			while (pos < ConvertBuf->BufUsed)
+			{
+				if (ConvertBuf->buf[pos] == '_') 
+					ConvertBuf->buf[pos] = ' ';
+				pos++;
+			}
+
+			ConvertBuf2->BufUsed = CtdlDecodeQuotedPrintable(
+				ConvertBuf2->buf, 
+				ConvertBuf->buf,
+				ConvertBuf->BufUsed);
+		}
+		else {
+			StrBufAppendBuf(ConvertBuf2, ConvertBuf, 0);
+		}
+
+		ic = ctdl_iconv_open("UTF-8", charset);
+		if (ic != (iconv_t)(-1) ) {
+			ibuf = ConvertBuf2->buf;
+			obuf = ConvertBuf->buf;
+			ibuf = ConvertBuf2->buf;
+			obuflen = ConvertBuf->BufSize;
+			ibuflen = ConvertBuf2->BufUsed;
+
+			iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+			ConvertBuf->BufUsed = ConvertBuf->BufSize - obuflen;
+			ConvertBuf->buf[ConvertBuf->BufUsed] = '\0';
+
+			StrBufAppendBuf(TmpBuf, ConvertBuf, 0);
+			iconv_close(ic);
+		}
+		else {
+
+			StrBufAppendBufPlain(TmpBuf, HKEY("(unreadable)"), 0);
+		}
+
+		free(isav);
+
+		/*
+		 * Since spammers will go to all sorts of absurd lengths to get their
+		 * messages through, there are LOTS of corrupt headers out there.
+		 * So, prevent a really badly formed RFC2047 header from throwing
+		 * this function into an infinite loop.
+		 */
+		++passes;
+		if (passes > 20)  { 
+			FreeStrBuf(Buf);
+			*Buf = TmpBuf;
+			return;
+		}
+	}
+	FreeStrBuf(Buf);
+	*Buf = TmpBuf;
+}
+#else
+void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {};
+
+#endif

@@ -72,6 +72,79 @@ if test "x$ok_zlib" = xyes ; then
         AC_DEFINE(HAVE_ZLIB,[],[whether we have zlib])
 fi
 
+AC_CHECK_HEADERS(iconv.h)
+
+
+dnl Here is the check for a libc integrated iconv
+AC_ARG_ENABLE(iconv,
+	[  --disable-iconv         do not use iconv charset conversion],
+	ok_iconv=no, ok_iconv=yes)
+
+AC_MSG_CHECKING(Checking to see if your system supports iconv)
+AC_TRY_RUN([
+ 	#include <iconv.h>
+ 	main() {
+ 		iconv_t ic = (iconv_t)(-1) ;
+ 		ic = iconv_open("UTF-8", "us-ascii");
+ 		iconv_close(ic);
+ 		exit(0);
+ 	}
+ ],
+		[
+		  ok_iconv=yes
+		  AC_MSG_RESULT([yes])
+		],
+		[ 
+		  ok_iconv=no
+		  AC_MSG_RESULT([no])
+		]
+)
+
+dnl Check for iconv in external libiconv
+if test "$ok_iconv" = no; then
+	AC_MSG_CHECKING(Checking for an external libiconv)
+	OLD_LDFLAGS="$LDFLAGS"
+	LDFLAGS="$LDFLAGS -liconv"
+	AC_TRY_RUN([
+			#include <iconv.h>
+			main() {
+				iconv_t ic = (iconv_t)(-1) ;
+				ic = iconv_open("UTF-8", "us-ascii");
+				iconv_close(ic);
+			}
+		],
+			[
+			  ok_iconv=yes
+			  AC_MSG_RESULT([yes])
+			],
+			[ 
+			  ok_iconv=no
+			  LDFLAGS="$OLD_LDFLAGS"
+			  AC_MSG_RESULT([no])
+			]
+		)
+fi	
+if test "$ok_iconv" != "no"; then
+	AC_MSG_RESULT(libcitadel will be built with character set conversion.)
+	AC_DEFINE(HAVE_ICONV,[],[whether we have iconv for charset conversion])
+else
+	AC_MSG_RESULT(libcitadel will be built without character set conversion.)
+fi
+
+
+AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
+dnl Checks for the zlib compression library.
+if test "x$with_zlib" != xno ; then
+        AC_CHECK_HEADERS(zlib.h,
+                [AC_CHECK_LIB(z, zlibVersion,
+                        [ok_zlib=yes],,
+        )])
+fi
+
+if test "x$ok_zlib" = xyes ; then
+        LIBS="-lz $LIBS"
+        AC_DEFINE(HAVE_ZLIB,[],[whether we have zlib])
+fi
 
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -81,6 +154,7 @@ AC_TYPE_SIZE_T
 AC_CHECK_FUNCS(memmove bcopy)
 
 AC_CONFIG_FILES(Makefile libcitadel.pc)
+AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT
 
 abs_srcdir="`cd $srcdir && pwd`"
@@ -89,3 +163,4 @@ if test "$abs_srcdir" != "$abs_builddir"; then
   make mkdir-init
 fi
 echo 'zlib compression:                ' $ok_zlib
+echo 'Character set conversion support:' $ok_iconv
