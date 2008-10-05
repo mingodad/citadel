@@ -24,7 +24,6 @@ else
 	ssl_dir="$prefix/keys"
 fi
 
-AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(ssl,
 	[  --with-ssl=PATH         Specify path to OpenSSL installation ],
 	[
@@ -159,6 +158,21 @@ fi
 
 AC_CHECK_LIB(intl, libintl_bindtextdomain, [LDFLAGS="$LDFLAGS -lintl"])
 
+dnl Checks for the zlib compression library.
+AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
+if test "x$with_zlib" != xno ; then
+        AC_CHECK_HEADERS(zlib.h,
+                [AC_CHECK_LIB(z, zlibVersion,
+                        [ok_zlib=yes],,
+        )])
+fi
+
+if test "x$ok_zlib" = xyes ; then
+        LIBS="-lz $LIBS"
+        AC_DEFINE(HAVE_ZLIB,[],[whether we have zlib])
+fi
+
+
 dnl Check for libcitadel
 AC_CHECK_HEADER(libcitadel.h,
 	[AC_CHECK_LIB(citadel, libcitadel_version_string,
@@ -192,19 +206,6 @@ AC_CHECK_HEADER(libical/ical.h,
 	]
 )
 
-
-dnl Checks for the zlib compression library.
-if test "x$with_zlib" != xno ; then
-        AC_CHECK_HEADERS(zlib.h,
-                [AC_CHECK_LIB(z, zlibVersion,
-                        [ok_zlib=yes],,
-        )])
-fi
-
-if test "x$ok_zlib" = xyes ; then
-        LIBS="-lz $LIBS"
-        AC_DEFINE(HAVE_ZLIB,[],[whether we have zlib])
-fi
 
 
 # The big search for OpenSSL

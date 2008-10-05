@@ -15,12 +15,6 @@ EXTRA_ARGS=
 PROFILE_ARGS=
 #to enable debugging: export DEB_BUILD_OPTIONS="debug profiling compression urldebug"
 
-
-ifneq (,$(findstring compression,$(DEB_BUILD_OPTIONS)))
-	ZLIB_ARGS=--without-zlib
-else
-	ZLIB_ARGS=--with-zlib
-endif
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
 endif
@@ -48,7 +42,7 @@ configure-stamp:
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap \
                 --with-ssldir=/etc/ssl/webcit/ \
-		$(ZLIB_ARGS) --with-ssl --with-libiconf \
+		--with-ssl --with-libiconf \
 		--with-newt --with-included-gettext \
 		--with-datadir=/var/run/citadel \
 		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
