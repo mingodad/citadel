@@ -79,7 +79,7 @@ void begin_tab(int tabnum, int num_tabs) {
 void end_tab(int tabnum, int num_tabs) {
 
 	if (tabnum == num_tabs) {
-		wprintf("</div>\n");
+		wprintf("</div> <!-- end of 'tabcontent_submit' div -->\n");
 		wprintf("<!-- end tab-common epilogue -->\n");
 	}
 
