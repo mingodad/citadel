@@ -192,10 +192,10 @@ if test "$ok_iconv" = no; then
 		)
 fi	
 if test "$ok_iconv" != "no"; then
-	AC_MSG_RESULT(WebCit will be built with character set conversion.)
+	AC_MSG_RESULT(Citadel will be built with character set conversion.)
 	AC_DEFINE(HAVE_ICONV,[],[whether we have iconv for charset conversion])
 else
-	AC_MSG_RESULT(WebCit will be built without character set conversion.)
+	AC_MSG_RESULT(Citadel will be built without character set conversion.)
 fi
 
 AC_CHECK_LIB(intl, libintl_bindtextdomain, [LDFLAGS="$LDFLAGS -lintl"])
@@ -468,12 +468,59 @@ fi
 
 test -d /usr/kerberos/include && CPPFLAGS="$CPPFLAGS -I/usr/kerberos/include"
 
+dnl Checks for the zlib compression library.
+if test "x$with_zlib" != xno ; then
+	AC_CHECK_HEADERS(zlib.h,
+		[AC_CHECK_LIB(z, zlibVersion,
+			[ok_zlib=yes],,
+	)])
+fi
 
+if test "x$ok_zlib" = xyes ; then
+	LDFLAGS="-lz $LDFLAGS"
+	AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
+fi
+
+dnl Checks for the libical iCalendar library.
+AC_CHECK_HEADER(libical/ical.h,
+	[AC_CHECK_LIB(ical, icalcomponent_as_ical_string_r,
+		[
+			SERVER_LIBS="-lical $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(libical was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(libical/ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
+
+
+dnl Checks for the libsieve mailbox sorting library.
+AC_CHECK_HEADER(sieve2.h,
+	[AC_CHECK_LIB(sieve, sieve2_license,
+		[
+			SERVER_LIBS="-lsieve $SERVER_LIBS"
+		],
+		[
+			AC_MSG_ERROR(libsieve was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(sieve2.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
+
+saved_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS $SERVER_LIBS"
 dnl Check for libcitadel
 AC_CHECK_HEADER(libcitadel.h,
 	[AC_CHECK_LIB(citadel, libcitadel_version_string,
 		[
-			LIBS="-lcitadel $LIBS"
+			LIBS="-lcitadel $LIBS $SERVER_LIBS"
 		],
 		[
 			AC_MSG_ERROR(libcitadel was not found or is not usable.  Please install libcitadel.)
@@ -485,6 +532,7 @@ AC_CHECK_HEADER(libcitadel.h,
 	]
 )
 
+CFLAGS="$saved_CFLAGS"
 
 
 
@@ -624,19 +672,6 @@ if test "x$with_db" != xno; then
 
 fi
 
-dnl Checks for the zlib compression library.
-if test "x$with_zlib" != xno ; then
-	AC_CHECK_HEADERS(zlib.h,
-		[AC_CHECK_LIB(z, zlibVersion,
-			[ok_zlib=yes],,
-	)])
-fi
-
-if test "x$ok_zlib" = xyes ; then
-	SERVER_LIBS="-lz $SERVER_LIBS"
-	AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
-fi
-
 
 
 
@@ -667,7 +702,7 @@ fi
 
 if test "x$ok_libdspam" = xyes ; then
 	SERVER_LIBS="-ldspam $SERVER_LIBS"
-	AC_DEFINE(HAVE_LIBDSPAM, [], [define this if you have the libdspam mail spam scanning library available])
+	AC_DEFINE(HAVE_LIBDSPAM, [], [(unfinished) define this if you have the libdspam mail spam scanning library available])
 fi
 
 
@@ -715,39 +750,6 @@ AC_CHECK_HEADER(curl/curl.h,
 
 
 
-
-dnl Checks for the libical iCalendar library.
-AC_CHECK_HEADER(libical/ical.h,
-	[AC_CHECK_LIB(ical, icalcomponent_as_ical_string_r,
-		[
-			SERVER_LIBS="-lical $SERVER_LIBS"
-		],
-		[
-			AC_MSG_ERROR(libical was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
-		]
-	,
-	)],
-	[
-		AC_MSG_ERROR(libical/ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
-	]
-)
-
-
-dnl Checks for the libsieve mailbox sorting library.
-AC_CHECK_HEADER(sieve2.h,
-	[AC_CHECK_LIB(sieve, sieve2_license,
-		[
-			SERVER_LIBS="-lsieve $SERVER_LIBS"
-		],
-		[
-			AC_MSG_ERROR(libsieve was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
-		]
-	,
-	)],
-	[
-		AC_MSG_ERROR(sieve2.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
-	]
-)
 
 
 

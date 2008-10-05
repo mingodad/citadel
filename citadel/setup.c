@@ -202,6 +202,8 @@ int yesno(char *question, int default_value)
 			answer = 0;
 		}
 		break;
+	case UI_SILENT:
+		break;
 
 	}
 	return (answer);
@@ -299,6 +301,8 @@ void progress(char *text, long int curr, long int cmax)
 				fflush(fp);
 			}
 		}
+		break;
+	case UI_SILENT:
 		break;
 
 	}
@@ -701,7 +705,8 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 			unlink(dialog_result);
 		}
 		break;
-
+	case UI_SILENT:
+		break;
 	}
 }
 
