@@ -1637,6 +1637,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 
 			get_serv_info(browser_host, user_agent);
 			if (serv_info.serv_rev_level < MINIMUM_CIT_VERSION) {
+				begin_burst();
 				wprintf(_("You are connected to a Citadel "
 					"server running Citadel %d.%02d. \n"
 					"In order to run this version of WebCit "
@@ -1647,6 +1648,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 						MINIMUM_CIT_VERSION / 100,
 						MINIMUM_CIT_VERSION % 100
 					);
+				end_burst();
 				end_webcit_session();
 				goto SKIP_ALL_THIS_CRAP;
 			}
