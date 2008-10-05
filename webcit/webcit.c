@@ -390,14 +390,13 @@ void put_trailing_javascript(void) {
  * wrap up an HTTP session, closes tags, etc.
  *
  * print_standard_html_footer should be set to:
- * 0 to transmit only,
- * 1 to append the main menu and closing tags,
- * 2 to append the closing tags only.
+ * 0		- to transmit only,
+ * nonzero	- to append the closing tags
  */
 void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
-		wprintf("</div>\n");	/* end of "text" div */
+		wprintf("</div> <!-- end of 'content' div -->\n");
 		svcallback("TRAILING_JAVASCRIPT", put_trailing_javascript);
 		do_template("trailing", NULL);
 	}

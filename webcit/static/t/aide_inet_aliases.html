@@ -1,7 +1,7 @@
 <span class="menudesc">
 <?_("(domains for which this host receives mail)")>
 </span><br />
-<table border=0 cellspacing="2px" cellpadding="2px" width=94%% class="altern" >
+<table border=0 cellspacing="2" cellpadding="2" width=94% class="altern" >
 <?ITERATE("SERVCFG:INET", "section_aide_inetconf_entry", "localhost")>
 <form method="post" action="save_inetconf">
 <input type="hidden" name="nonce" value='<?NONCE>'>

@@ -1,10 +1,10 @@
 <tr class="<?ITERATE:ODDEVEN>">
 <!-- link to page this user -->
-<td width="5%%"><a href="display_page?recp=<?WHO:NAME("X")>">
+<td width="5%"><a href="display_page?recp=<?WHO:NAME("X")>">
    <img align="middle" src="static/citadelchat_24x.gif" alt="(p)" border="0" /></a> 
 </td>
-<!-- idle flag --->
-<td width="5%%">
+<!-- idle flag -->
+<td width="5%">
 <?!("COND:SUBST", 4, "WHO:IDLE")>  <img align="middle" src="static/inactiveuser_24x.gif" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)" border="0" />  <?!("X", 4)>
 <??("COND:SUBST", 5, "WHO:IDLE")>  <img align="middle" src="static/activeuser_24x.gif" alt="(<?_("active")>)" border="0" />  <?!("X", 5)>
 </td>
