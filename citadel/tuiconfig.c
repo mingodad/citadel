@@ -390,7 +390,8 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 	keyopt(" <4> SpamAssassin   (Address of SpamAssassin server)\n");
 	keyopt(" <5> RBL            (domain suffix of spam hunting RBL)\n");
 	keyopt(" <6> masq domains   (Domains as which users are allowed to masquerade)\n");
-	sel = intprompt("Which one", 1, 1, 6);
+	keyopt(" <7> ClamAV         (Address of ClamAV clamd server)\n");
+	sel = intprompt("Which one", 1, 1, 7);
 	switch(sel) {
 		case 1:	strcpy(buf, "localhost");
 			return;
@@ -403,6 +404,8 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 		case 5:	strcpy(buf, "rbl");
 			return;
 		case 6:	strcpy(buf, "masqdomain");
+			return;
+		case 7:	strcpy(buf, "clamav");
 			return;
 	}
 }
