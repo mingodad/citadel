@@ -2118,9 +2118,9 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
 	
 		wprintf("<td>");
 
-		wprintf("<a href=\"readfwd?startmsg=%ld&is_singlecard=1",
+		wprintf("<a href=\"readfwd?startmsg=%ld?is_singlecard=1",
 			addrbook[i].ab_msgnum);
-		wprintf("?maxmsgs=1&is_summary=0&alpha=%s\">", bstr("alpha"));
+		wprintf("?maxmsgs=1?is_summary=0?alpha=%s\">", bstr("alpha"));
 		vcard_n_prettyize(addrbook[i].ab_name);
 		escputs(addrbook[i].ab_name);
 		wprintf("</a></td>\n");
@@ -2646,9 +2646,9 @@ void readloop(char *oper)
 			"<table cellspacing=0 style=\"width:100%%\">"
 			"<tr>"
 		);
-		wprintf("<th width=%d%%>%s <a href=\"readfwd?startmsg=1&maxmsgs=9999999&is_summary=1&sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
-			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1&maxmsgs=9999999&is_summary=1&sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
-			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1&maxmsgs=9999999&is_summary=1&sortby=%s\"><img border=\"0\" src=\"%s\" /></a> \n"
+		wprintf("<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
+			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
+			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> \n"
 			"&nbsp;"
 			"<input type=\"submit\" name=\"delete_button\" id=\"delbutton\" "
 			" onClick=\"CtdlDeleteSelectedMessages(event)\" "

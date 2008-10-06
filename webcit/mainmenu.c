@@ -19,7 +19,7 @@ void display_main_menu(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table width=\"100%%\" cellspacing=\"10px\" cellpadding=\"0\">"
+		"<table width=\"100%%\" cellspacing=\"10\" cellpadding=\"0\">"
 		"<tr><td colspan=\"2\" class=\"advanced\">\n");
 
 	svput("BOXTITLE", WCS_STRING, _("Basic commands"));
