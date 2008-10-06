@@ -24,8 +24,8 @@ void output_date(void) {
 
 
 
-/**
- * \brief Dummy section
+/*
+ * Dummy section
  */
 void dummy_section(void) {
 	svput("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
@@ -35,8 +35,8 @@ void dummy_section(void) {
 }
 
 
-/**
- * \brief New messages section
+/*
+ * New messages section
  */
 void new_messages_section(void) {
 	char buf[SIZ];
@@ -72,8 +72,8 @@ void new_messages_section(void) {
 }
 
 
-/**
- * \brief Task list section
+/*
+ * Task list section
  */
 void tasks_section(void) {
 	int num_msgs = 0;
@@ -102,8 +102,8 @@ void tasks_section(void) {
 }
 
 
-/**
- * \brief Calendar section
+/*
+ * Calendar section
  */
 void calendar_section(void) {
 	int num_msgs = 0;
@@ -130,8 +130,8 @@ void calendar_section(void) {
 	}
 }
 
-/**
- * \brief Server info section (fluff, really)
+/*
+ * Server info section (fluff, really)
  */
 void server_info_section(void) {
 	char message[512];
@@ -147,26 +147,19 @@ void server_info_section(void) {
 	escputs(message);
 }
 
-/**
- * \brief summary of inner div????
+/*
+ * Now let's do three columns of crap.  All portals and all groupware
+ * clients seem to want to do three columns, so we'll do three
+ * columns too.  Conformity is not inherently a virtue, but there are
+ * a lot of really shallow people out there, and even though they're
+ * not people I consider worthwhile, I still want them to use WebCit.
  */
-
-
-
 void summary_inner_div(void) {
-	/**
-	 * Now let's do three columns of crap.  All portals and all groupware
-	 * clients seem to want to do three columns, so we'll do three
-	 * columns too.  Conformity is not inherently a virtue, but there are
-	 * a lot of really shallow people out there, and even though they're
-	 * not people I consider worthwhile, I still want them to use WebCit.
-	 */
-
 	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table width=\"100%%\" cellspacing=\"10px\" cellpadding=\"0\">"
+		"<table width=\"100%%\" cellspacing=\"10\" cellpadding=\"0\">"
 		"<tr valign=top>");
 
-	/**
+	/*
 	 * Column One
 	 */
 	wprintf("<td width=33%%>");
@@ -179,7 +172,7 @@ void summary_inner_div(void) {
 	wprintf("</div></div></div>");
 	wprintf("</td>");
 
-	/**
+	/*
 	 * Column Two 
 	 */
 	wprintf("<td width=33%%>");
@@ -192,7 +185,7 @@ void summary_inner_div(void) {
 	wprintf("</div></div></div>");
 	wprintf("</td>");
 
-	/**
+	/*
 	 * Column Three
 	 */
 	wprintf("<td width=33%%>");
@@ -207,7 +200,7 @@ void summary_inner_div(void) {
 
 	wprintf("</tr><tr valign=top>");
 
-	/**
+	/*
 	 * Row Two - Column One
 	 */
 	wprintf("<td colspan=2>");
@@ -220,7 +213,7 @@ void summary_inner_div(void) {
 	wprintf("</div></div></div>");
 	wprintf("</td>");
 
-	/**
+	/*
 	 * Row Two - Column Two
 	 */
 	wprintf("<td width=33%%>");
@@ -234,15 +227,15 @@ void summary_inner_div(void) {
 	wprintf("</td>");
 
 
-	/**
+	/*
 	 * End of columns
 	 */
 	wprintf("</tr></table>");
 }
 
 
-/**
- * \brief Display this user's summary page
+/*
+ * Display this user's summary page
  */
 void summary(void) {
 	char title[256];
@@ -263,7 +256,7 @@ void summary(void) {
         wprintf("</li></ul>");
         wprintf("</div>");
 
-	/**
+	/*
 	 * You guessed it ... we're going to refresh using ajax.
 	 * In the future we might consider updating individual sections of the summary
 	 * instead of the whole thing.
@@ -300,4 +293,3 @@ InitModule_SUMMARY
 	WebcitAddUrlHandler(HKEY("summary_inner_div"), summary_inner_div, AJAX);
 }
 
-/*@}*/
