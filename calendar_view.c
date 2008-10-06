@@ -131,7 +131,7 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 
 	wprintf("<script type=\"text/javascript\">							"
 		"	function minical_change_month(year, month) {					"
-		"		p = 'year=' + year + '&month=' + month					"
+		"		p = 'year=' + year + '?month=' + month					"
 		"			+ '&urlformat=%s&r=' + CtdlRandomString();			"
 		"		new Ajax.Updater('%s', 'mini_calendar', 				"
 		"			{ method: 'get', parameters: p, evalScripts: true } );		"
@@ -260,9 +260,9 @@ void calendar_month_view_display_events(int year, int month, int day)
 						);
 				}
 
-				wprintf("<font size=-1>"
+				wprintf("<font size=\"-1\">"
 					"<a class=\"event%s\" href=\"display_edit_event?"
-					"msgnum=%ld&calview=month&year=%d&month=%d&day=%d\""
+					"msgnum=%ld?calview=month?year=%d?month=%d?day=%d\""
 					" btt_tooltext=\"",
 					(Cal->unread)?"_unread":"_read",
 					Cal->cal_msgnum,
@@ -430,8 +430,8 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 				hours=(int)(difftime / 60);
 				minutes=difftime % 60;
 				wprintf("<tr><td bgcolor='%s'>%i:%2i</td><td bgcolor='%s'>"
-					"<font size=-1>"
-					"<a class=\"event%s\" href=\"display_edit_event?msgnum=%ld&calview=calbrief&year=%s&month=%s&day=%s\">",
+					"<font size=\"-1\">"
+					"<a class=\"event%s\" href=\"display_edit_event?msgnum=%ld?calview=calbrief?year=%s?month=%s?day=%s\">",
 					daycolor,
 					hours, minutes,
 					(Cal->unread)?"_unread":"_read",						
@@ -523,7 +523,7 @@ void calendar_month_view(int year, int month, int day) {
 	wprintf("<td align=center>");
 
 	localtime_r(&previous_month, &tm);
-	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+	wprintf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
 
@@ -535,7 +535,7 @@ void calendar_month_view(int year, int month, int day) {
 		"&nbsp;&nbsp;", colheader_label, year);
 
 	localtime_r(&next_month, &tm);
-	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+	wprintf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
 
@@ -583,7 +583,7 @@ void calendar_month_view(int year, int month, int day) {
 				wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
 				wprintf("%s ", colheader_label);
 			}
-			wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">"
+			wprintf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">"
 				"%d</a></div>",
 				tm.tm_year + 1900,
 				tm.tm_mon + 1,
@@ -678,7 +678,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	wprintf("<td align=center>");
 
 	localtime_r(&previous_month, &tm);
-	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+	wprintf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
 
@@ -690,7 +690,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 		"&nbsp;&nbsp;", month_label, year);
 
 	localtime_r(&next_month, &tm);
-	wprintf("<a href=\"readfwd?calview=month&year=%d&month=%d&day=1\">",
+	wprintf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 	wprintf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
 
@@ -884,7 +884,7 @@ void calendar_day_view_display_events(time_t thetime,
 			{
 				wprintf("<li class=\"event_framed%s\"> "
 					"<a href=\"display_edit_event?"
-					"msgnum=%ld&calview=day&year=%d&month=%d&day=%d\" "
+					"msgnum=%ld?calview=day?year=%d?month=%d?day=%d\" "
 					" class=\"event_title\" "
 					" btt_tooltext=\"",
 					(Cal->unread)?"_unread":"_read",
@@ -922,7 +922,7 @@ void calendar_day_view_display_events(time_t thetime,
 			{
 				wprintf("<li class=\"event_framed%s\"> "
 					"<a href=\"display_edit_event?"
-					"msgnum=%ld&calview=day&year=%d&month=%d&day=%d\" "
+					"msgnum=%ld&calview=day?year=%d?month=%d?day=%d\" "
 					" class=\"event_title\" " 
 					"btt_tooltext=\"",
 					(Cal->unread)?"_unread":"_read",
@@ -1003,7 +1003,7 @@ void calendar_day_view_display_events(time_t thetime,
 					top, (gap * 40), (bottom-top)
 					);
 				wprintf("<a href=\"display_edit_event?"
-					"msgnum=%ld&calview=day&year=%d&month=%d&day=%d&hour=%d\" "
+					"msgnum=%ld?calview=day?year=%d?month=%d?day=%d?hour=%d\" "
 					"class=\"event_title\" "
                                		"btt_tooltext=\"",
 					Cal->cal_msgnum, year, month, day, t.hour);
@@ -1107,7 +1107,7 @@ void calendar_day_view(int year, int month, int day) {
 			"height: %dpx;		"	
 			"\" >			"
 			"<a href=\"display_edit_event?msgnum=0"
-			"&calview=day&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+			"?calview=day?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
 			(hour * extratimeline ), extratimeline, 
 			year, month, day, hour
 			);
@@ -1134,8 +1134,8 @@ void calendar_day_view(int year, int month, int day) {
                         "top: %ldpx; left: 0px;  "
                         "height: %dpx;          "
                         "\" >                   "
-                        "<a href=\"display_edit_event?msgnum=0&calview=day"
-                        "&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+                        "<a href=\"display_edit_event?msgnum=0?calview=day"
+                        "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
                         gap + ((hour - daystart) * timeline ), timeline,
                         year, month, day, hour
 			);
@@ -1162,8 +1162,8 @@ void calendar_day_view(int year, int month, int day) {
                         "top: %ldpx; left: 0px; "
                         "height: %dpx;          "
                         "\" >                   "
-                        "<a href=\"display_edit_event?msgnum=0&calview=day"
-                        "&year=%d&month=%d&day=%d&hour=%d&minute=0\">",
+                        "<a href=\"display_edit_event?msgnum=0?calview=day"
+                        "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
                         gap + ((hour - dayend - 1) * extratimeline ), extratimeline,
                         year, month, day, hour
                 );
@@ -1208,7 +1208,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Left arrow */	
 	wprintf("<td align=center>");
-	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+	wprintf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
 	wprintf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>");
 	wprintf("</td>");
@@ -1225,7 +1225,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Right arrow */
 	wprintf("<td align=center>");
-	wprintf("<a href=\"readfwd?calview=day&year=%d&month=%d&day=%d\">",
+	wprintf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
 	wprintf("<img align=middle src=\"static/nextdate_32x.gif\""
 		" border=0></a>\n");
@@ -1236,7 +1236,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Embed a mini month calendar in this space */
 	wprintf("<br />\n");
-	embeddable_mini_calendar(year, month, "readfwd?calview=day&year=%d&month=%d&day=%d");
+	embeddable_mini_calendar(year, month, "readfwd?calview=day?year=%d?month=%d?day=%d");
 
 	wprintf("</font></center>\n");
 
