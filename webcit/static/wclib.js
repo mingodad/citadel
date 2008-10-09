@@ -1006,6 +1006,13 @@ function RecurrenceShowHide() {
 		$('weekday_selector').style.display = 'none';
 	}
 
+	if ($('freq_selector').selectedIndex == 5) {
+		$('monthday_selector').style.display = 'block';
+	}
+	else {
+		$('monthday_selector').style.display = 'none';
+	}
+
 	if ($('rrend_count').checked) {
 		$('rrcount').disabled = false;
 	}

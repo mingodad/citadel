@@ -421,7 +421,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<div id=\"rrule_div\">\n");		/* begin 'rrule_div' div */
 
-	wprintf("<table border=0 width=100%%>\n");	/* same table style as the event tab */
+	wprintf("<table border=0 cellspacing=\"10\" width=100%%>\n");
 
 	/* Table row displaying raw RRULE data, FIXME remove when finished */
 	if (rrule) {
@@ -491,6 +491,29 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		wprintf(">%s\n", weekday_labels[i]);
 	}
 	wprintf("</div>\n");				/* end 'weekday_selector' div */
+
+
+	int which_rrmonthtype_is_preselected = 0;	/* FIXME */
+
+	wprintf("<div id=\"monthday_selector\">");	/* begin 'monthday_selector' div */
+
+	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_mday\" "
+		"%s onChange=\"RecurrenceShowHide();\">",
+		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
+	);
+	wprintf("on day FIXME of the month");		/* FIXME */
+	wprintf("<br />\n");
+
+	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_wday\" "
+		"%s onChange=\"RecurrenceShowHide();\">",
+		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
+	);
+	wprintf("on the FIXME FIXME of the month");	/* FIXME */
+	wprintf("<br />\n");
+
+	wprintf("</div>\n");				/* end 'monthday_selector' div */
+
+
 
 	wprintf("</td></tr>\n");
 
