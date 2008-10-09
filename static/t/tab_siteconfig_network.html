@@ -10,6 +10,9 @@
 <tr><td><?_("Correct forged From: lines during authenticated SMTP")></td><td>
 <input type="checkbox" NAME="c_rfc822_strict_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_rfc822_strict_from", 1, "", "CHECKED")>></td></tr>
 
+<tr><td><?_("Flag message as spam, instead of rejecting it")></td><td>
+<input type="checkbox" NAME="c_spam_flag_only" VALUE="yes" <?%("COND:SERVCFG", 1, "c_spam_flag_only", 1, "CHECKED", "")>></td></tr>
+
 <tr><td><?_("IMAP listener port (-1 to disable)")></td><td>
 <input type="text" NAME="c_imap_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_imap_port")>'></td></tr>
 
