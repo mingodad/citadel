@@ -129,15 +129,50 @@ int spam_assassin(struct CtdlMessage *msg) {
                 goto bail;
         }
         CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (!strncasecmp(buf, "Spam: True", 10)) {
-		is_spam = 1;
-	}
+        CtdlLogPrintf(CTDL_DEBUG, "c_spam_flag_only setting %d\n", config.c_spam_flag_only);
+        if (config.c_spam_flag_only) {
+                CtdlLogPrintf(CTDL_DEBUG, "flag spam code used");
+		int headerlen;
+		int newmsgsize;
+		int oldmsgsize;
 
-	if (is_spam) {
-		if (msg->cm_fields['0'] != NULL) {
-			free(msg->cm_fields['0']);
+		char sastatus[10];
+		char sascore[10];
+		char saoutof[10];
+		int numscore;
+
+                extract_token(sastatus, buf, 1, ' ', sizeof sastatus);
+                extract_token(sascore, buf, 3, ' ', sizeof sascore);
+                extract_token(saoutof, buf, 5, ' ', sizeof saoutof);
+
+		sprintf(buf,"X-Spam-Level: ");
+		char *cur = buf + 14;
+		for (numscore = atoi(sascore); numscore>0; numscore--)
+			*(cur++) = '*';
+		*cur = '\0';
+
+		sprintf(cur,"\r\nX-Spam-Status: %s, score=%s required=%s\r\n", sastatus, sascore, saoutof);
+		headerlen = strlen(buf);
+		oldmsgsize = strlen(msg->cm_fields['M']) + 1;
+		newmsgsize = headerlen + oldmsgsize;
+
+		msg->cm_fields['M'] = realloc(msg->cm_fields['M'], newmsgsize);
+
+		memmove(msg->cm_fields['M']+headerlen,msg->cm_fields['M'],oldmsgsize);
+		memcpy(msg->cm_fields['M'],buf,headerlen);
+
+	} else {
+                CtdlLogPrintf(CTDL_DEBUG, "reject spam code used");
+		if (!strncasecmp(buf, "Spam: True", 10)) {
+			is_spam = 1;
 		}
-		msg->cm_fields['0'] = strdup("message rejected by spam filter");
+
+		if (is_spam) {
+			if (msg->cm_fields['0'] != NULL) {
+				free(msg->cm_fields['0']);
+			}
+			msg->cm_fields['0'] = strdup("message rejected by spam filter");
+		}
 	}
 
 bail:	close(sock);

@@ -63,7 +63,7 @@ extern int screenwidth;
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 65
+#define NUM_CONFIGS 67
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -185,6 +185,10 @@ void do_system_configuration(CtdlIPC *ipc)
 		a);
 	a = (a ? 0 : 1);
 	snprintf(sc[25], sizeof sc[25], "%d", a);
+
+	snprintf(sc[66], sizeof sc[66], "%d", (boolprompt(
+		"Flag messages as spam instead of rejecting",
+		atoi(&sc[66][0]))));
 
 	/* This logic flips the question around, because it's one of those
 	 * situations where 0=yes and 1=no

@@ -679,6 +679,14 @@ void display_siteconfig(void)
 			sprintf(&pop3[strlen(pop3)], "<input type=\"text\" name=\"c_pop3_fastest\" MAXLENGTH=\"5\" value=\"%s\">\n", buf);
 			sprintf(&pop3[strlen(pop3)], "</TD></TR>\n");
 			break;
+		case 66: /* Flag spam */
+			sprintf(&network[strlen(network)], "<TR><TD>");
+			sprintf(&network[strlen(network)], _("Flag message as spam, instead of rejecting it"));
+			sprintf(&network[strlen(network)], "</TD><TD>");
+			sprintf(&network[strlen(network)], "<input type=\"checkbox\" NAME=\"c_spam_flag_only\" VALUE=\"yes\" %s>",
+				(atoi(buf) ? "CHECKED" : ""));
+			sprintf(&network[strlen(network)], "</TD></TR>\n");
+			break;
 			
 		}
 	
@@ -857,7 +865,8 @@ CfgMapping ServerConfig[] = {
 	{CFG_STR, HKEY("c_xmpp_c2s_port")},
 	{CFG_STR, HKEY("c_xmpp_s2s_port")},
 	{CFG_STR, HKEY("c_pop3_fetch")},
-	{CFG_STR, HKEY("c_pop3_fastest")}
+	{CFG_STR, HKEY("c_pop3_fastest")},
+	{CFG_YES , HKEY("c_spam_flag_only")}
 };
 
 
