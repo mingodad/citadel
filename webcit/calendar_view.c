@@ -47,11 +47,11 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 		localtime_r(&thetime, &tm);
 	}
 
-	/** Determine previous and next months ... for links */
+	/* Determine previous and next months ... for links */
 	previous_month = thetime - (time_t)864000L;	/* back 10 days */
 	next_month = thetime + (time_t)(31L * 86400L);	/* ahead 31 days */
 
-	/** Now back up until we're on the user's preferred start day */
+	/* Now back up until we're on the user's preferred start day */
 	localtime_r(&thetime, &tm);
 	while (tm.tm_wday != weekstart) {
 		thetime = thetime - (time_t)86400;	/* go back 24 hours */
@@ -90,13 +90,13 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 	wprintf("</tr>\n");
 
 
-        /** Now do 35 or 42 days */
+        /* Now do 35 or 42 days */
         for (i = 0; i < 42; ++i) {
                 localtime_r(&thetime, &tm);
 
                 if (i < 35) {
 
-			/** Before displaying Sunday, start a new row */
+			/* Before displaying Sunday, start a new row */
 			if ((i % 7) == 0) {
 				wprintf("<tr>");
 			}
@@ -110,17 +110,17 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 				wprintf("<td> </td>");
 			}
 
-			/** After displaying one week, end the row */
+			/* After displaying one week, end the row */
 			if ((i % 7) == 6) {
 				wprintf("</tr>\n");
 			}
 
 		}
 
-		thetime += (time_t)86400;		/** ahead 24 hours */
+		thetime += (time_t)86400;		/* ahead 24 hours */
 	}
 
-	wprintf("</table>"			/** end of inner table */
+	wprintf("</table>"			/* end of inner table */
 		"</div>\n");
 
 	/* javascript for previous and next month */
@@ -143,8 +143,8 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 
 }
 
-/**
- * \brief  ajax embedder for the above mini calendar 
+/*
+ * ajax embedder for the above mini calendar 
  */
 void ajax_mini_calendar(void) {
 	char urlformat[256];
@@ -162,9 +162,8 @@ void ajax_mini_calendar(void) {
 }
 
 
-/**
- * \brief Display one day of a whole month view of a calendar
- * \param thetime the month we want to see 
+/*
+ * Display one day of a whole month view of a calendar
  */
 void calendar_month_view_display_events(int year, int month, int day)
 {
@@ -192,7 +191,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 		return;
 	}
 
-	/**
+	/*
 	 * Create an imaginary event which spans the 24 hours of today.  Any events which
 	 * overlap with this one take place at least partially in this day.  We have to
 	 * convert it from a struct tm in order to make it UTC.
@@ -215,7 +214,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
 	today_end_t.is_utc = 1;
 
-	/**
+	/*
 	 * Now loop through our list of events to see which ones occur today.
 	 */
 	Pos = GetNewHashPos();
@@ -247,7 +246,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 			show_event = ical_ctdl_is_overlap(t, end_t, today_start_t, today_end_t);
 		}
 
-		/**
+		/*
 		 * If we determined that this event occurs today, then display it.
 	 	 */
 		if (show_event) {
@@ -283,7 +282,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 					wprintf("<br />");
 				}
 				
-				/**
+				/*
 				 * Only show start/end times if we're actually looking at the VEVENT
 				 * component.  Otherwise it shows bogus dates for e.g. timezones
 				 */
@@ -310,7 +309,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 							wprintf("<i>%s</i> %s<br>",
 								_("Starting date/time:"), buf);
 							
-							/**
+							/*
 							 * Embed the 'show end date/time' loop inside here so it
 							 * only executes if this is NOT an all day event.
 							 */
@@ -353,9 +352,8 @@ void calendar_month_view_display_events(int year, int month, int day)
 }
 
 
-/**
- * \brief Display one day of a whole month view of a calendar
- * \param thetime the month we want to see 
+/*
+ * Display one day of a whole month view of a calendar
  */
 void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	long hklen;
@@ -590,7 +588,7 @@ void calendar_month_view(int year, int month, int day) {
 				tm.tm_mday,
 				tm.tm_mday);
 
-			/** put the data here, stupid */
+			/* put the data here, stupid */
 			calendar_month_view_display_events(
 				tm.tm_year + 1900,
 				tm.tm_mon + 1,
@@ -624,9 +622,8 @@ void calendar_month_view(int year, int month, int day) {
 	 * being rendered.  See http://www.shaftek.org/blog/archives/000212.html
 	 * for more information.
 	 */ 
-	wprintf("<script type=\"text/javascript\">"
-		" setTimeout(\"btt_enableTooltips('inner_month')\", 1); "
-		"</script>\n"
+	StrBufAppendPrintf(WC->trailing_javascript,
+		" setTimeout(\"btt_enableTooltips('inner_month')\", 1);	\n"
 	);
 }
 
@@ -745,11 +742,11 @@ void calendar_brief_month_view(int year, int month, int day) {
 			wprintf("</td></tr></table>\n");
 		}
 
-		thetime += (time_t)86400;		/** ahead 24 hours */
+		thetime += (time_t)86400;		/* ahead 24 hours */
 	}
 
-	wprintf("</table>"			/** end of inner table */
-		"</td></tr></table>"		/** end of outer table */
+	wprintf("</table>"			/* end of inner table */
+		"</td></tr></table>"		/* end of outer table */
 		"</div>\n");
 }
 
@@ -1197,9 +1194,9 @@ void calendar_day_view(int year, int month, int day) {
 
         wprintf("</ul>");
 
-	wprintf("</td>");	/** end extra on the middle */
+	wprintf("</td>");	/* end extra on the middle */
 
-	wprintf("<td width=20%% align=center valign=top>");	/** begin stuff-on-the-right */
+	wprintf("<td width=20%% align=center valign=top>");	/* begin stuff-on-the-right */
 
 	/* Begin todays-date-with-left-and-right-arrows */
 	wprintf("<table border=0 width=100%% "
@@ -1240,14 +1237,13 @@ void calendar_day_view(int year, int month, int day) {
 
 	wprintf("</font></center>\n");
 
-	wprintf("</td></tr>");			/** end stuff-on-the-right */
+	wprintf("</td></tr>");			/* end stuff-on-the-right */
 
-	wprintf("</table>"			/** end of inner table */
+	wprintf("</table>"			/* end of inner table */
 		"</div>");
 
-        wprintf("<script type=\"text/javascript\">"
-                " setTimeout(\"btt_enableTooltips('inner_day')\", 1); "
-                "</script>\n"
+	StrBufAppendPrintf(WC->trailing_javascript,
+                " setTimeout(\"btt_enableTooltips('inner_day')\", 1);	\n"
         );
 }
 
