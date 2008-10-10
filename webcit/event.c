@@ -443,6 +443,15 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("never")
 	};
 
+	char *ordinals[] = {
+		"0",
+		_("first"),
+		_("second"),
+		_("third"),
+		_("fourth"),
+		_("fifth")
+	};
+
 	wprintf("<tr><td><b>");
 	wprintf(_("Recurrence rule"));
 	wprintf("</b></td><td>");
@@ -493,7 +502,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</div>\n");				/* end 'weekday_selector' div */
 
 
-	int which_rrmonthtype_is_preselected = 0;	/* FIXME */
+	int which_rrmonthtype_is_preselected = 0;	/* FIXME set default correctly */
 
 	wprintf("<div id=\"monthday_selector\">");	/* begin 'monthday_selector' div */
 
@@ -501,15 +510,44 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
 	);
-	wprintf("on day FIXME of the month");		/* FIXME */
+
+	char mdaybox[128];
+	snprintf(mdaybox, sizeof mdaybox,
+		"<input type=\"text\" name=\"rrmday\" id=\"rrmday\" maxlength=\"2\" size=\"2\" "
+		"value=\"%d\">", 0);			/* FIXME set the correct default */
+	wprintf(_("on day %s of the month"), mdaybox);
 	wprintf("<br />\n");
 
 	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_wday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
 	);
-	wprintf("on the FIXME FIXME of the month");	/* FIXME */
-	wprintf("<br />\n");
+
+	wprintf(_("on the "));
+	wprintf("<select name=\"rrmweek\" id=\"rrmweek\" size=\"1\" "
+		"onChange=\"RecurrenceShowHide();\">\n");
+	for (i=1; i<=5; ++i) {
+		wprintf("<option %svalue=\"%d\">%s</option>\n",
+			((0) ? "selected " : ""),			/* FIXME set correct default */
+			i,
+			ordinals[i]
+		);
+	}
+	wprintf("</select> \n");
+
+	wprintf("<select name=\"rrmweekday\" id=\"rrmweekday\" size=\"1\" "
+		"onChange=\"RecurrenceShowHide();\">\n");
+	for (j=0; j<7; ++j) {
+		i = ((j + (int)weekstart) % 7);
+		wprintf("<option %svalue=\"%d\">%s</option>\n",
+			((0) ? "selected " : ""),			/* FIXME set correct default */
+			i,
+			weekday_labels[i]
+		);
+	}
+	wprintf("</select>");
+
+	wprintf(" %s<br />\n", _("of the month"));
 
 	wprintf("</div>\n");				/* end 'monthday_selector' div */
 

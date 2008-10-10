@@ -1027,4 +1027,20 @@ function RecurrenceShowHide() {
 		$('rruntil').disabled = true;
 	}
 
+	if ($('rrmonthtype_mday').checked) {
+		$('rrmday').disabled = false;
+	}
+	else {
+		$('rrmday').disabled = true;
+	}
+
+	if ($('rrmonthtype_wday').checked) {
+		$('rrmweek').disabled = false;
+		$('rrmweekday').disabled = false;
+	}
+	else {
+		$('rrmweek').disabled = true;
+		$('rrmweekday').disabled = true;
+	}
+
 }
