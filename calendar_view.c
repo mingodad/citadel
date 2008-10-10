@@ -129,17 +129,16 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 		sprintf(&escaped_urlformat[i*2], "%02X", urlformat[i]);
 	}
 
-	wprintf("<script type=\"text/javascript\">							"
-		"	function minical_change_month(year, month) {					"
-		"		p = 'year=' + year + '?month=' + month					"
-		"			+ '&urlformat=%s&r=' + CtdlRandomString();			"
-		"		new Ajax.Updater('%s', 'mini_calendar', 				"
-		"			{ method: 'get', parameters: p, evalScripts: true } );		"
-		"	}										"
-		"</script>\n"
-		,
+	StrBufAppendPrintf(WC->trailing_javascript,
+		"	function minical_change_month(year, month) {					\n"
+		"		p = 'year=' + year + '&month=' + month					\n"
+		"			+ '&urlformat=%s&r=' + CtdlRandomString();			\n"
+		"		new Ajax.Updater('%s', 'mini_calendar', 				\n"
+		"			{ method: 'get', parameters: p, evalScripts: true } );		\n"
+		"	}										\n"
+		"",
 		escaped_urlformat, div_id
-		);
+	);
 
 }
 
