@@ -108,6 +108,7 @@ void tasks_section(void) {
 void calendar_section(void) {
 	int num_msgs = 0;
 	int i;
+	struct calview c;
 
 	gotoroom("_CALENDAR_");
 	if ( (WC->wc_view != VIEW_CALENDAR) && (WC->wc_view != VIEW_CALBRIEF) ) {
@@ -117,6 +118,8 @@ void calendar_section(void) {
 		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 	}
 
+	parse_calendar_view_request(&c);
+
 	if (num_msgs < 1) {
 		wprintf("<i>");
 		wprintf(_("(Nothing)"));
@@ -124,7 +127,7 @@ void calendar_section(void) {
 	}
 	else {
 		for (i=0; i<num_msgs; ++i) {
-			display_calendar(WC->msgarr[i], 0);
+			load_calendar_item(WC->msgarr[i], 0, &c);
 		}
 		calendar_summary_view();
 	}

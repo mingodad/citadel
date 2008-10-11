@@ -12,7 +12,9 @@
  * supplied_vevent	the event to edit
  * msgnum		reference on the citserver
  */
-void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from, int unread) {
+void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from,
+	int unread, struct calview *calv)
+{
 	icalcomponent *vevent;
 	icalproperty *p;
 	icalvalue *v;
@@ -70,7 +72,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 			display_edit_individual_event(
 				icalcomponent_get_first_component(
 					vevent, ICAL_VEVENT_COMPONENT), 
-				msgnum, from, unread
+				msgnum, from, unread, NULL
 			);
 			return;
 		}
@@ -639,7 +641,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
  * supplied_vevent:	the event to save
  * msgnum:		the index on the citserver
  */
-void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from, int unread) {
+void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from,
+			int unread, struct calview *calv) {
 	char buf[SIZ];
 	icalproperty *prop;
 	icalcomponent *vevent, *encaps;
@@ -669,7 +672,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 			save_individual_event(
 				icalcomponent_get_first_component(
 					vevent, ICAL_VEVENT_COMPONENT), 
-				msgnum, from, unread
+				msgnum, from, unread, NULL
 			);
 			return;
 		}
@@ -933,7 +936,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			check_attendee_availability(encaps);
 
 			/** This displays the form again, with our annotations */
-			display_edit_individual_event(encaps, msgnum, from, unread);
+			display_edit_individual_event(encaps, msgnum, from, unread, NULL);
 
 			icalcomponent_free(encaps);
 			encaps = NULL;

@@ -1319,26 +1319,24 @@ void calendar_summary_view(void) {
 
 
 /*
- * do the whole calendar page
- * view any part of the calender. decide which way, etc.
+ * Parse the URL variables in order to determine the scope and display of a calendar view
  */
-void do_calendar_view(void) {
+void parse_calendar_view_request(struct calview *c) {
 	time_t now;
 	struct tm tm;
-	int year, month, day;
-	char calview[SIZ];
+	char calview[32];
 
 	/* In case no date was specified, go with today */
 	now = time(NULL);
 	localtime_r(&now, &tm);
-	year = tm.tm_year + 1900;
-	month = tm.tm_mon + 1;
-	day = tm.tm_mday;
+	c->year = tm.tm_year + 1900;
+	c->month = tm.tm_mon + 1;
+	c->day = tm.tm_mday;
 
 	/* Now see if a date was specified */
-	if (havebstr("year")) year = ibstr("year");
-	if (havebstr("month")) month = ibstr("month");
-	if (havebstr("day")) day = ibstr("day");
+	if (havebstr("year")) c->year = ibstr("year");
+	if (havebstr("month")) c->month = ibstr("month");
+	if (havebstr("day")) c->day = ibstr("day");
 
 	/* How would you like that cooked? */
 	if (havebstr("calview")) {
@@ -1350,17 +1348,58 @@ void do_calendar_view(void) {
 
 	/* Display the selected view */
 	if (!strcasecmp(calview, "day")) {
-		calendar_day_view(year, month, day);
+		c->view = calview_day;
 	}
 	else if (!strcasecmp(calview, "week")) {
-		calendar_week_view(year, month, day);
+		c->view = calview_week;
 	}
 	else {
 		if (WC->wc_view == VIEW_CALBRIEF) {
-			calendar_brief_month_view(year, month, day);
+			c->view = calview_brief;
 		}
 		else {
-			calendar_month_view(year, month, day);
+			c->view = calview_month;
+		}
+	}
+
+	/* Now try and set the lower and upper bounds so that we don't
+	 * burn too many cpu cycles parsing data way in the past or future
+	 */
+
+	tm.tm_year = c->year - 1900;
+	tm.tm_mon = c->month - 1;
+	tm.tm_mday = c->day;
+	now = mktime(&tm);
+
+	int span = 3888000;
+	if (c->view == calview_month)	span = 3888000;
+	if (c->view == calview_brief)	span = 3888000;
+	if (c->view == calview_week)	span = 604800;
+	if (c->view == calview_day)	span = 86400;
+
+	c->lower_bound = now - span;
+	c->upper_bound = now + span;
+}
+
+
+
+/*
+ * Render a calendar view from data previously loaded into memory
+ */
+void render_calendar_view(struct calview *c)
+{
+	if (c->view == calview_day) {
+		calendar_day_view(c->year, c->month, c->day);
+	}
+	else if (c->view == calview_week) {
+		calendar_week_view(c->year, c->month, c->day);
+	}
+	else {
+		if (WC->wc_view == VIEW_CALBRIEF) {
+			calendar_brief_month_view(c->year, c->month, c->day);
+		}
+		else {
+			calendar_month_view(c->year, c->month, c->day);
 		}
 	}
 
