@@ -6,13 +6,13 @@
 
 <tr><td><?_("Initial access level for new users")></td><td>
 <select name="c_initax" size="1">
-	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="0">0 - <?_("Deleted")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 0, 'selected="selected"', "")> value="0">0 - <?_("Deleted")></option>
 	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="1">1 - <?_("New User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="2">2 - <?_("Problem User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_initax", 1, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 2, 'selected="selected"', "")> value="2">2 - <?_("Problem User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 3, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 4, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 5, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_initax", 6, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
 </select></td></tr>
 
 <tr><td><?_("Require registration for new users")></td><td>
@@ -32,13 +32,13 @@
 
 <tr><td><?_("Access level required to create rooms")></td><td>
 <select name="c_createax" size="1">
-	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="0">0 - <?_("Deleted")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 0, 'selected="selected"', "")> value="0">0 - <?_("Deleted")></option>
 	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="1">1 - <?_("New User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="2">2 - <?_("Problem User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
-	<option <?%("COND:SERVCFG", 1, "c_createax", 1, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 2, 'selected="selected"', "")> value="2">2 - <?_("Problem User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 3, 'selected="selected"', "")> value="3">3 - <?_("Local User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 4, 'selected="selected"', "")> value="4">4 - <?_("Network User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 5, 'selected="selected"', "")> value="5">5 - <?_("Preferred User")></option>
+	<option <?%("COND:SERVCFG", 1, "c_createax", 6, 'selected="selected"', "")> value="6">6 - <?_("Aide")></option>
 </select></td></tr>
 
 <tr><td><?_("Allow aides to zap (forget) rooms")></td><td>
