@@ -530,14 +530,21 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				icalcomponent_add_property(Cal->cal, ps);
 			}
 	
-			Put(WCC->disp_cal_items, 
-				(char*) &Cal->event_start,
-				sizeof(Cal->event_start), 
-				Cal, 
-				delete_cal);
+			if ( (Cal->event_start > calv->lower_bound)
+			   && (Cal->event_start < calv->upper_bound) ) {
+				Put(WCC->disp_cal_items, 
+					(char*) &Cal->event_start,
+					sizeof(Cal->event_start), 
+					Cal, 
+					delete_cal
+				);
+			}
+			else {
+				delete_cal(Cal);
+			}
 
 			/* If an upper bound is set, stop when we go out of scope */
-			if (calv) if (final_recurrence > calv->upper_bound) stop_rr = 1;
+			if (final_recurrence > calv->upper_bound) stop_rr = 1;
 		}
 	}
 	lprintf(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence));
