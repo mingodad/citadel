@@ -2445,6 +2445,7 @@ void readloop(char *oper)
 	int is_addressbook = 0;
 	int is_singlecard = 0;
 	int is_calendar = 0;
+	struct calview calv;
 	int is_tasks = 0;
 	int is_notes = 0;
 	int is_bbview = 0;
@@ -2567,6 +2568,7 @@ void readloop(char *oper)
 		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL|||1");
 		maxmsgs = 32767;
+		parse_calendar_view_request(&calv);
 	}
 	if (WCC->wc_default_view == VIEW_TASKS) {		/**< tasks */
 		is_tasks = 1;
@@ -2791,7 +2793,7 @@ void readloop(char *oper)
 				addrbook[num_ab-1].ab_msgnum = WCC->msgarr[a];
 			}
 			else if (is_calendar) {
-				display_calendar(WCC->msgarr[a], WCC->summ[a].is_new);
+				load_calendar_item(WCC->msgarr[a], WCC->summ[a].is_new, &calv);
 			}
 			else if (is_tasks) {
 				display_task(WCC->msgarr[a], WCC->summ[a].is_new);
@@ -2947,7 +2949,7 @@ DONE:
 	}
 
 	if (is_calendar) {
-		do_calendar_view();	/** Render the calendar */
+		render_calendar_view(&calv);
 	}
 
 	if (is_addressbook) {

@@ -413,7 +413,7 @@ void delete_cal(void *vCal)
  * any iCalendar objects and store them in a hash table.  Later on, the second phase will
  * use this hash table to render the calendar for display.
  */
-void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread)
+void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread, struct calview *calv)
 {
 	icalproperty *ps = NULL;
 	struct icaltimetype dtstart, dtend;
@@ -492,7 +492,8 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	ritr = icalrecur_iterator_new(recur, dtstart);
 	if (!ritr) return;
 
-	while (next = icalrecur_iterator_next(ritr), !icaltime_is_null_time(next) ) {
+	int stop_rr = 0;
+	while (next = icalrecur_iterator_next(ritr), ((!icaltime_is_null_time(next))&&(!stop_rr)) ) {
 		++num_recur;
 
 		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
@@ -534,6 +535,9 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				sizeof(Cal->event_start), 
 				Cal, 
 				delete_cal);
+
+			/* If an upper bound is set, stop when we go out of scope */
+			if (calv) if (final_recurrence > calv->upper_bound) stop_rr = 1;
 		}
 	}
 	lprintf(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence));
@@ -545,7 +549,8 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 /*
  * Display a task by itself (for editing)
  */
-void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread) 
+void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from,
+			int unread, struct calview *calv)
 {
 	icalcomponent *vtodo;
 	icalproperty *p;
@@ -572,8 +577,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 				icalcomponent_get_first_component(
 					vtodo, ICAL_VTODO_COMPONENT
 					), 
-				msgnum,
-				from, unread
+				msgnum, from, unread, calv
 				);
 			return;
 		}
@@ -722,7 +726,8 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
  * \param supplied_vtodo the task to save
  * \param msgnum number of the mesage in our db
  */
-void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from, int unread) 
+void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from, int unread,
+				struct calview *calv)
 {
 	char buf[SIZ];
 	int delete_existing = 0;
@@ -747,7 +752,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			save_individual_task(
 				icalcomponent_get_first_component(
 					vtodo, ICAL_VTODO_COMPONENT), 
-				msgnum, from, unread
+				msgnum, from, unread, calv
 				);
 			return;
 		}
@@ -909,9 +914,10 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
  * the relevant part, deserialize it into a libical component, filter it for
  * the requested object type, and feed it to the specified handler.
  */
-void display_using_handler(long msgnum, int unread,
+void load_ical_object(long msgnum, int unread,
 			   icalcomponent_kind which_kind,
-			   void (*callback)(icalcomponent *, long, char*, int)
+			   void (*callback)(icalcomponent *, long, char*, int, struct calview *),
+			   struct calview *calv
 	) 
 {
 	char buf[1024];
@@ -962,14 +968,14 @@ void display_using_handler(long msgnum, int unread,
 
 				/* Simple components of desired type */
 				if (icalcomponent_isa(cal) == which_kind) {
-					callback(cal, msgnum, from, unread);
+					callback(cal, msgnum, from, unread, calv);
 				}
 
 				/* Subcomponents of desired type */
 				for (c = icalcomponent_get_first_component(cal, which_kind);
 				     (c != 0);
 				     c = icalcomponent_get_next_component(cal, which_kind)) {
-					callback(c, msgnum, from, unread);
+					callback(c, msgnum, from, unread, calv);
 				}
 				icalcomponent_free(cal);
 			}
@@ -982,15 +988,15 @@ void display_using_handler(long msgnum, int unread,
 /*
  * Display a calendar item
  */
-void display_calendar(long msgnum, int unread) {
-	display_using_handler(msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal);
+void load_calendar_item(long msgnum, int unread, struct calview *c) {
+	load_ical_object(msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal, c);
 }
 
 /*
  * Display task view
  */
 void display_task(long msgnum, int unread) {
-	display_using_handler(msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal);
+	load_ical_object(msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal, NULL);
 }
 
 /*
@@ -1007,13 +1013,15 @@ void display_edit_task(void) {
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		/* existing task */
-		display_using_handler(msgnum, 0,
+		load_ical_object(msgnum, 0,
 				      ICAL_VTODO_COMPONENT,
-				      display_edit_individual_task);
+				      display_edit_individual_task,
+				      NULL
+		);
 	}
 	else {
 		/* new task */
-		display_edit_individual_task(NULL, 0L, "", 0);
+		display_edit_individual_task(NULL, 0L, "", 0, NULL);
 	}
 }
 
@@ -1022,13 +1030,12 @@ void display_edit_task(void) {
  */
 void save_task(void) {
 	long msgnum = 0L;
-
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
-		display_using_handler(msgnum, 0, ICAL_VTODO_COMPONENT, save_individual_task);
+		load_ical_object(msgnum, 0, ICAL_VTODO_COMPONENT, save_individual_task, NULL);
 	}
 	else {
-		save_individual_task(NULL, 0L, "", 0);
+		save_individual_task(NULL, 0L, "", 0, NULL);
 	}
 }
 
@@ -1041,11 +1048,11 @@ void display_edit_event(void) {
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		/* existing event */
-		display_using_handler(msgnum, 0, ICAL_VEVENT_COMPONENT, display_edit_individual_event);
+		load_ical_object(msgnum, 0, ICAL_VEVENT_COMPONENT, display_edit_individual_event, NULL);
 	}
 	else {
 		/* new event */
-		display_edit_individual_event(NULL, 0L, "", 0);
+		display_edit_individual_event(NULL, 0L, "", 0, NULL);
 	}
 }
 
@@ -1058,10 +1065,10 @@ void save_event(void) {
 	msgnum = lbstr("msgnum");
 
 	if (msgnum > 0L) {
-		display_using_handler(msgnum, 0, ICAL_VEVENT_COMPONENT, save_individual_event);
+		load_ical_object(msgnum, 0, ICAL_VEVENT_COMPONENT, save_individual_event, NULL);
 	}
 	else {
-		save_individual_event(NULL, 0L, "", 0);
+		save_individual_event(NULL, 0L, "", 0, NULL);
 	}
 }
 

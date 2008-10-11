@@ -134,33 +134,33 @@ extern locale_t wc_locales[];
  *
  * bucket one...
  */
-#define QR_PERMANENT	1		/**< Room does not purge		*/
-#define QR_INUSE	2		/**< Set if in use, clear if avail	*/
-#define QR_PRIVATE	4		/**< Set for any type of private room	*/
-#define QR_PASSWORDED	8		/**< Set if there's a password too	*/
-#define QR_GUESSNAME	16		/**< Set if it's a guessname room	*/
-#define QR_DIRECTORY	32		/**< Directory room			*/
-#define QR_UPLOAD	64	    	/**< Allowed to upload			*/
-#define QR_DOWNLOAD	128		/**< Allowed to download		*/
-#define QR_VISDIR	256		/**< Visible directory			*/
-#define QR_ANONONLY	512		/**< Anonymous-Only room		*/
-#define QR_ANONOPT	1024		/**< Anonymous-Option room		*/
-#define QR_NETWORK	2048		/**< Shared network room		*/
-#define QR_PREFONLY	4096		/**< Preferred status needed to enter	*/
-#define QR_READONLY	8192		/**< Aide status required to post	*/
-#define QR_MAILBOX	16384		/**< Set if this is a private mailbox	*/
+#define QR_PERMANENT	1		/* Room does not purge		*/
+#define QR_INUSE	2		/* Set if in use, clear if avail	*/
+#define QR_PRIVATE	4		/* Set for any type of private room	*/
+#define QR_PASSWORDED	8		/* Set if there's a password too	*/
+#define QR_GUESSNAME	16		/* Set if it's a guessname room	*/
+#define QR_DIRECTORY	32		/* Directory room			*/
+#define QR_UPLOAD	64	    	/* Allowed to upload			*/
+#define QR_DOWNLOAD	128		/* Allowed to download		*/
+#define QR_VISDIR	256		/* Visible directory			*/
+#define QR_ANONONLY	512		/* Anonymous-Only room		*/
+#define QR_ANONOPT	1024		/* Anonymous-Option room		*/
+#define QR_NETWORK	2048		/* Shared network room		*/
+#define QR_PREFONLY	4096		/* Preferred status needed to enter	*/
+#define QR_READONLY	8192		/* Aide status required to post	*/
+#define QR_MAILBOX	16384		/* Set if this is a private mailbox	*/
 
-/**
+/*
  * bucket two...
  */
-#define QR2_SYSTEM	1		/**< System room; hide by default	*/
-#define QR2_SELFLIST	2		/**< Self-service mailing list mgmt	*/
-#define QR2_COLLABDEL	4		/**< Anyone who can post can also delete*/
-#define QR2_SUBJECTREQ  8               /**< Subject strongly recommended */
+#define QR2_SYSTEM	1		/* System room; hide by default	*/
+#define QR2_SELFLIST	2		/* Self-service mailing list mgmt	*/
+#define QR2_COLLABDEL	4		/* Anyone who can post can also delete*/
+#define QR2_SUBJECTREQ  8               /* Subject strongly recommended */
 #define QR2_SMTP_PUBLIC 16              /* smtp public postable room */
 #define QR2_MODERATED	32		/* Listservice aide has to permit posts  */
 
-/**
+/*
  * user/room access
  */
 #define UA_KNOWN	2
@@ -169,22 +169,22 @@ extern locale_t wc_locales[];
 #define UA_ZAPPED	16
 
 
-/**
+/*
  * User flags (from Citadel)
  */
-#define US_NEEDVALID	1		/**< User needs to be validated		*/
-#define US_PERM		4		/**< Permanent user			*/
-#define US_LASTOLD	16		/**< Print last old message with new	*/
-#define US_EXPERT	32		/**< Experienced user			*/
-#define US_UNLISTED	64		/**< Unlisted userlog entry		*/
-#define US_NOPROMPT	128		/**< Don't prompt after each message	*/
-#define US_PROMPTCTL	256		/**< <N>ext & <S>top work at prompt	*/
-#define US_DISAPPEAR	512		/**< Use "disappearing msg prompts"	*/
-#define US_REGIS	1024		/**< Registered user			*/
-#define US_PAGINATOR	2048		/**< Pause after each screen of text	*/
-#define US_INTERNET	4096		/**< Internet mail privileges		*/
-#define US_FLOORS	8192		/**< User wants to see floors		*/
-#define US_COLOR	16384		/**< User wants ANSI color support	*/
+#define US_NEEDVALID	1		/* User needs to be validated		*/
+#define US_PERM		4		/* Permanent user			*/
+#define US_LASTOLD	16		/* Print last old message with new	*/
+#define US_EXPERT	32		/* Experienced user			*/
+#define US_UNLISTED	64		/* Unlisted userlog entry		*/
+#define US_NOPROMPT	128		/* Don't prompt after each message	*/
+#define US_PROMPTCTL	256		/* <N>ext & <S>top work at prompt	*/
+#define US_DISAPPEAR	512		/* Use "disappearing msg prompts"	*/
+#define US_REGIS	1024		/* Registered user			*/
+#define US_PAGINATOR	2048		/* Pause after each screen of text	*/
+#define US_INTERNET	4096		/* Internet mail privileges		*/
+#define US_FLOORS	8192		/* User wants to see floors		*/
+#define US_COLOR	16384		/* User wants ANSI color support	*/
 #define US_USER_SET	(US_LASTOLD | US_EXPERT | US_UNLISTED | \
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
@@ -196,16 +196,16 @@ extern locale_t wc_locales[];
 #define NLI	"(not logged in)"
 
 
-/**
+/*
  * \brief	Linked list of session variables encoded in an x-www-urlencoded content type
  */
 typedef struct urlcontent urlcontent;
 struct urlcontent {
-	char url_key[32];          /**< the variable name */
-	StrBuf *url_data;            /**< its value */
+	char url_key[32];          /* the variable name */
+	StrBuf *url_data;            /* its value */
 };
 
-/**
+/*
  * \brief information about us ???
  */ 
 struct serv_info {
@@ -230,14 +230,14 @@ struct serv_info {
 
 
 
-/**
+/*
  * \brief This struct holds a list of rooms for \\\<G\\\>oto operations.
  */
 struct march {
-	struct march *next;       /**< pointer to next in linked list */
-	char march_name[128];     /**< name of room */
-	int march_floor;          /**< floor number of room */
-	int march_order;          /**< sequence in which we are to visit this room */
+	struct march *next;       /* pointer to next in linked list */
+	char march_name[128];     /* name of room */
+	int march_floor;          /* floor number of room */
+	int march_order;          /* sequence in which we are to visit this room */
 };
 
 /* *
@@ -245,12 +245,12 @@ struct march {
  *		It is a binary tree.
  */
 struct roomlisting {
-	struct roomlisting *lnext;	/**< pointer to 'left' tree node */
-	struct roomlisting *rnext;	/**< pointer to 'right' tree node */
-	char rlname[128];		/**< name of room */
-	unsigned rlflags;		/**< room flags */
-	int rlfloor;			/**< the floor it resides on */
-	int rlorder;			/**< room listing order */
+	struct roomlisting *lnext;	/* pointer to 'left' tree node */
+	struct roomlisting *rnext;	/* pointer to 'right' tree node */
+	char rlname[128];		/* name of room */
+	unsigned rlflags;		/* room flags */
+	int rlfloor;			/* the floor it resides on */
+	int rlorder;			/* room listing order */
 };
 
 
@@ -285,16 +285,16 @@ typedef struct _TemplateToken {
 typedef void (*WCHandlerFunc)();
 
 
-/**
+/*
  * \brief Dynamic content for variable substitution in templates
  */
 typedef struct _wcsubst {
-	int wcs_type;			    /**< which type of Substitution are we */
-	char wcs_key[32];		    /**< copy of our hashkey for debugging */
-	StrBuf *wcs_value;		    /**< if we're a string, keep it here */
-	long lvalue;                        /**< type long? keep data here */
-	int ContextRequired;                /**< do we require a context type? */
-	WCHandlerFunc wcs_function; /**< funcion hook ???*/
+	int wcs_type;			    /* which type of Substitution are we */
+	char wcs_key[32];		    /* copy of our hashkey for debugging */
+	StrBuf *wcs_value;		    /* if we're a string, keep it here */
+	long lvalue;                        /* type long? keep data here */
+	int ContextRequired;                /* do we require a context type? */
+	WCHandlerFunc wcs_function; /* funcion hook ???*/
 } wcsubst;
 
 #define CTX_NONE 0
@@ -362,62 +362,62 @@ int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
 
 
 
-/**
+/*
  * \brief Values for wcs_type
  */
 enum {
-	WCS_STRING,       /**< its a string */
-	WCS_FUNCTION,     /**< its a function callback */
-	WCS_SERVCMD,      /**< its a command to send to the citadel server */
-	WCS_STRBUF,       /**< its a strbuf we own */
-	WCS_STRBUF_REF,   /**< its a strbuf we mustn't free */
-	WCS_LONG          /**< its an integer */
+	WCS_STRING,       /* its a string */
+	WCS_FUNCTION,     /* its a function callback */
+	WCS_SERVCMD,      /* its a command to send to the citadel server */
+	WCS_STRBUF,       /* its a strbuf we own */
+	WCS_STRBUF_REF,   /* its a strbuf we mustn't free */
+	WCS_LONG          /* its an integer */
 };
 
-/**
+/*
  * \brief mail attachment ???
  */
 struct wc_attachment {
-	struct wc_attachment *next;/**< pointer to next in list */
-	size_t length;			   /**< length of the contenttype */
-	char content_type[SIZ];	   /**< the content itself ???*/
-	char filename[SIZ];		   /**< the filename hooked to this content ??? */
-	char *data;                /**< the data pool; aka this content */
-	long lvalue;               /**< if we put a long... */
+	struct wc_attachment *next;/* pointer to next in list */
+	size_t length;			   /* length of the contenttype */
+	char content_type[SIZ];	   /* the content itself ???*/
+	char filename[SIZ];		   /* the filename hooked to this content ??? */
+	char *data;                /* the data pool; aka this content */
+	long lvalue;               /* if we put a long... */
 };
 
-/**
+/*
  * \brief message summary structure. ???
  */
 struct message_summary {
-	time_t date;        /**< its creation date */
-	long msgnum;		/**< the message number on the citadel server */
-	char from[128];		/**< the author */
-	char to[128];		/**< the recipient */
-	char subj[256];		/**< the title / subject */
-	int hasattachments;	/**< does it have atachments? */
-	int is_new;         /**< is it yet read? */
+	time_t date;        /* its creation date */
+	long msgnum;		/* the message number on the citadel server */
+	char from[128];		/* the author */
+	char to[128];		/* the recipient */
+	char subj[256];		/* the title / subject */
+	int hasattachments;	/* does it have atachments? */
+	int is_new;         /* is it yet read? */
 };
 
-/**
+/*
  * \brief  Data structure for roomlist-to-folderlist conversion 
  */
 struct folder {
-	int floor;      /**< which floor is it on */
-	char room[SIZ];	/**< which roomname ??? */
-	char name[SIZ];	/**< which is its own name??? */
-	int hasnewmsgs;	/**< are there unread messages inside */
-	int is_mailbox;	/**< is it a mailbox?  */
-	int selectable;	/**< can we select it ??? */
-	int view;       /**< whats its default view? inbox/calendar.... */
-	int num_rooms;	/**< If this is a floor, how many rooms does it have */
+	int floor;      /* which floor is it on */
+	char room[SIZ];	/* which roomname ??? */
+	char name[SIZ];	/* which is its own name??? */
+	int hasnewmsgs;	/* are there unread messages inside */
+	int is_mailbox;	/* is it a mailbox?  */
+	int selectable;	/* can we select it ??? */
+	int view;       /* whats its default view? inbox/calendar.... */
+	int num_rooms;	/* If this is a floor, how many rooms does it have */
 };
 
 typedef struct _disp_cal {					
-	icalcomponent *cal;		/**< cal items for display */
-	long cal_msgnum;		/**< cal msgids for display */
-	char *from;                     /**< owner of this component */
-	int unread;                     /**< already seen by the user? */
+	icalcomponent *cal;		/* cal items for display */
+	long cal_msgnum;		/* cal msgids for display */
+	char *from;                     /* owner of this component */
+	int unread;                     /* already seen by the user? */
 
 	time_t event_start;
 	time_t event_end;
@@ -427,97 +427,116 @@ typedef struct _disp_cal {
 } disp_cal;						
 
 
-/**
- * \brief One of these is kept for each active Citadel session.
- * HTTP transactions are bound to on e at a time.
+/*
+ * One of these is kept for each active Citadel session.
+ * HTTP transactions are bound to one at a time.
  */
 struct wcsession {
-	struct wcsession *next;			/**< Linked list */
-	int wc_session;				/**< WebCit session ID */
-	char wc_username[128];			/**< login name of current user */
-	char wc_fullname[128];			/**< Screen name of current user */
-	char wc_password[128];			/**< Password of current user */
-	char wc_roomname[256];			/**< Room we are currently in */
-	int connected;				/**< nonzero == we are connected to Citadel */
-	int logged_in;				/**< nonzero == we are logged in  */
-	int axlevel;				/**< this user's access level */
-	int is_aide;				/**< nonzero == this user is an Aide */
-	int is_room_aide;			/**< nonzero == this user is a Room Aide in this room */
-	int http_sock;				/**< HTTP server socket */
-	int serv_sock;				/**< Client socket to Citadel server */
-	int chat_sock;				/**< Client socket to Citadel server - for chat */
-	unsigned room_flags;			/**< flags associated with the current room */
-	unsigned room_flags2;			/**< flags associated with the current room */
-	int wc_view;				/**< view for the current room */
-	int wc_default_view;			/**< default view for the current room */
-	int wc_is_trash;			/**< nonzero == current room is a Trash folder */
-	int wc_floor;				/**< floor number of current room */
-	char ugname[128];			/**< where does 'ungoto' take us */
-	long uglsn;				/**< last seen message number for ungoto */
-	int upload_length;			/**< content length of http-uploaded data */
-	char *upload;				/**< pointer to http-uploaded data */
-	char upload_filename[PATH_MAX];		/**< filename of http-uploaded data */
-	char upload_content_type[256];		/**< content type of http-uploaded data */
-	int new_mail;				/**< user has new mail waiting */
-	int remember_new_mail;			/**< last count of new mail messages */
-	int need_regi;				/**< This user needs to register. */
-	int need_vali;				/**< New users require validation. */
-	char cs_inet_email[256];		/**< User's preferred Internet addr. */
-	pthread_mutex_t SessionMutex;		/**< mutex for exclusive access */
-	time_t lastreq;				/**< Timestamp of most recent HTTP */
-	int killthis;				/**< Nonzero == purge this session */
-	struct march *march;			/**< march mode room list */
-	char reply_to[512];			/**< reply-to address */
-	long msgarr[10000];			/**< for read operations */
-	int num_summ;				/**< number of messages in mailbox summary view */
-	struct message_summary *summ;		/**< array of messages for mailbox summary view */
-	int is_mobile;			/**< Client is a handheld browser */
-	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
-	HashList *vars; 			/**< HTTP variable substitutions for this page */
-	char this_page[512];			/**< URL of current page */
-	char http_host[512];			/**< HTTP Host: header */
-	HashList *hash_prefs;			/**< WebCit preferences for this user */
-	HashList *disp_cal_items;               /**< sorted list of calendar items; startdate is the sort criteria. */
-	struct wc_attachment *first_attachment;	/**< linked list of attachments for 'enter message' */
-	char last_chat_user[256];		/**< ??? todo */
-	char ImportantMessage[SIZ];		/**< ??? todo */
-	int ctdl_pid;				/**< Session ID on the Citadel server */
-	char httpauth_user[256];		/**< only for GroupDAV sessions */
-	char httpauth_pass[256];		/**< only for GroupDAV sessions */
-	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
-	int is_mailbox;				/**< the current room is a private mailbox */
-	struct folder *cache_fold;		/**< cache the iconbar room list */
-	int cache_max_folders;			/**< ??? todo */
-	int cache_num_floors;			/**< ??? todo */
-	time_t cache_timestamp;			/**< ??? todo */
-	HashList *IconBarSetttings;             /**< which icons should be shown / not shown? */
-	long current_iconbar;			/**< What is currently in the iconbar? */
-	const StrBuf *floordiv_expanded;	/**< which floordiv currently expanded */
-	int selected_language;			/**< Language selected by user */
-	time_t last_pager_check;		/**< last time we polled for instant msgs */
-	int nonce;				/**< session nonce (to prevent session riding) */
-	int time_format_cache;                  /**< which timeformat does our user like? */
-	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *WBuf;                           /**< Our output buffer */
-	StrBuf *HBuf;                           /**< Our HeaderBuffer */
-	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
-
-	HashList *ServCfg;                      /**< cache our server config for editing */
-	HashList *InetCfg;                      /**< Our inet server config for editing */
-
-	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
+	struct wcsession *next;			/* Linked list */
+	int wc_session;				/* WebCit session ID */
+	char wc_username[128];			/* login name of current user */
+	char wc_fullname[128];			/* Screen name of current user */
+	char wc_password[128];			/* Password of current user */
+	char wc_roomname[256];			/* Room we are currently in */
+	int connected;				/* nonzero == we are connected to Citadel */
+	int logged_in;				/* nonzero == we are logged in  */
+	int axlevel;				/* this user's access level */
+	int is_aide;				/* nonzero == this user is an Aide */
+	int is_room_aide;			/* nonzero == this user is a Room Aide in this room */
+	int http_sock;				/* HTTP server socket */
+	int serv_sock;				/* Client socket to Citadel server */
+	int chat_sock;				/* Client socket to Citadel server - for chat */
+	unsigned room_flags;			/* flags associated with the current room */
+	unsigned room_flags2;			/* flags associated with the current room */
+	int wc_view;				/* view for the current room */
+	int wc_default_view;			/* default view for the current room */
+	int wc_is_trash;			/* nonzero == current room is a Trash folder */
+	int wc_floor;				/* floor number of current room */
+	char ugname[128];			/* where does 'ungoto' take us */
+	long uglsn;				/* last seen message number for ungoto */
+	int upload_length;			/* content length of http-uploaded data */
+	char *upload;				/* pointer to http-uploaded data */
+	char upload_filename[PATH_MAX];		/* filename of http-uploaded data */
+	char upload_content_type[256];		/* content type of http-uploaded data */
+	int new_mail;				/* user has new mail waiting */
+	int remember_new_mail;			/* last count of new mail messages */
+	int need_regi;				/* This user needs to register. */
+	int need_vali;				/* New users require validation. */
+	char cs_inet_email[256];		/* User's preferred Internet addr. */
+	pthread_mutex_t SessionMutex;		/* mutex for exclusive access */
+	time_t lastreq;				/* Timestamp of most recent HTTP */
+	int killthis;				/* Nonzero == purge this session */
+	struct march *march;			/* march mode room list */
+	char reply_to[512];			/* reply-to address */
+	long msgarr[10000];			/* for read operations */
+	int num_summ;				/* number of messages in mailbox summary view */
+	struct message_summary *summ;		/* array of messages for mailbox summary view */
+	int is_mobile;				/* Client is a handheld browser */
+	HashList *urlstrings;		        /* variables passed to webcit in a URL */
+	HashList *vars; 			/* HTTP variable substitutions for this page */
+	char this_page[512];			/* URL of current page */
+	char http_host[512];			/* HTTP Host: header */
+	HashList *hash_prefs;			/* WebCit preferences for this user */
+	HashList *disp_cal_items;               /* sorted list of calendar items; startdate is the sort criteria. */
+	struct wc_attachment *first_attachment;	/* linked list of attachments for 'enter message' */
+	char last_chat_user[256];
+	char ImportantMessage[SIZ];
+	int ctdl_pid;				/* Session ID on the Citadel server */
+	char httpauth_user[256];		/* only for GroupDAV sessions */
+	char httpauth_pass[256];		/* only for GroupDAV sessions */
+	int gzip_ok;				/* Nonzero if Accept-encoding: gzip */
+	int is_mailbox;				/* the current room is a private mailbox */
+	struct folder *cache_fold;		/* cache the iconbar room list */
+	int cache_max_folders;
+	int cache_num_floors;
+	time_t cache_timestamp;
+	HashList *IconBarSetttings;             /* which icons should be shown / not shown? */
+	long current_iconbar;			/* What is currently in the iconbar? */
+	const StrBuf *floordiv_expanded;	/* which floordiv currently expanded */
+	int selected_language;			/* Language selected by user */
+	time_t last_pager_check;		/* last time we polled for instant msgs */
+	int nonce;				/* session nonce (to prevent session riding) */
+	int time_format_cache;                  /* which timeformat does our user like? */
+	StrBuf *UrlFragment1;                   /* first urlfragment, if NEED_URL is specified by handler*/
+	StrBuf *UrlFragment2;                   /* second urlfragment, if NEED_URL is specified by handler*/
+	StrBuf *WBuf;                           /* Our output buffer */
+	StrBuf *HBuf;                           /* Our HeaderBuffer */
+	StrBuf *CLineBuf;                       /* linebuffering client stuff */
+	HashList *ServCfg;                      /* cache our server config for editing */
+	HashList *InetCfg;                      /* Our inet server config for editing */
+	StrBuf *trailing_javascript;		/* extra javascript to be appended to page */
 };
 
-/** values for WC->current_iconbar */
+/* values for WC->current_iconbar */
 enum {
-	current_iconbar_menu,     /**< view the icon menue */
-	current_iconbar_roomlist  /**< view the roomtree */
+	current_iconbar_menu,     /* view the icon menue */
+	current_iconbar_roomlist  /* view the roomtree */
 };
 enum {
 	S_SELECT,
 	S_SHUTDOWN,
 	MAX_SEMAPHORES
+};
+
+
+/*
+ * calview contains data passed back and forth between the message fetching loop
+ * and the calendar view renderer.
+ */
+enum {
+	calview_month,
+	calview_day,
+	calview_week,
+	calview_brief
+};
+
+struct calview {
+	int view;
+	int year;
+	int month;
+	int day;
+	time_t lower_bound;
+	time_t upper_bound;
 };
 
 #ifndef num_parms
@@ -749,11 +768,12 @@ void do_listsub(void);
 void toggle_self_service(void);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
-void display_calendar(long msgnum, int unread);
+void load_calendar_item(long msgnum, int unread, struct calview *c);
 void display_task(long msgnum, int unread);
 void display_note(long msgnum, int unread);
 void updatenote(void);
-void do_calendar_view(void);
+void parse_calendar_view_request(struct calview *c);
+void render_calendar_view(struct calview *c);
 void do_tasks_view(void);
 void calendar_summary_view(void);
 int load_msg_ptrs(char *servcmd, int with_headers);
@@ -777,8 +797,10 @@ icaltimezone *get_default_icaltimezone(void);
 void display_icaltimetype_as_webform(struct icaltimetype *, char *, int);
 void icaltime_from_webform(struct icaltimetype *result, char *prefix);
 void icaltime_from_webform_dateonly(struct icaltimetype *result, char *prefix);
-void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread);
-void save_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from, int unread);
+void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from,
+	int unread, struct calview *calv);
+void save_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from,
+	int unread, struct calview *calv);
 void ical_dezonify(icalcomponent *cal);
 void partstat_as_string(char *buf, icalproperty *attendee);
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
@@ -866,7 +888,7 @@ void utf8ify_rfc822_string(char *buf);
 void begin_burst(void);
 long end_burst(void);
 
-extern char *hourname[];	/**< Names of hours (12am, 1am, etc.) */
+extern char *hourname[];	/* Names of hours (12am, 1am, etc.) */
 
 void http_datestring(char *buf, size_t n, time_t xtime);
 
