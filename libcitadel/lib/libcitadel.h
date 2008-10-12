@@ -261,7 +261,7 @@ void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
 void StrBufReplaceChars(StrBuf *buf, char search, char replace);
 
 int CompressBuffer(StrBuf *Buf);
-void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset);
+void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* DefaultCharset);
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
 #define LB			(1)		/* Internal escape chars */
@@ -273,6 +273,8 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn);
 
 long StrTol(const StrBuf *Buf);
 int StrToi(const StrBuf *Buf);
+long StrBuf_Utf8StrLen(StrBuf *Buf);
+long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen);
 
 const char *GuessMimeType(const char *data, size_t dlen);
 const char* GuessMimeByFilename(const char *what, size_t len);

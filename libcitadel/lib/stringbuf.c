@@ -1532,22 +1532,90 @@ static inline char *FindNextEnd (StrBuf *Buf, char *bptr)
 }
 
 
+
+inline static void DecodeSegment(StrBuf *Target, 
+				 StrBuf *DecodeMe, 
+				 char *SegmentStart, 
+				 char *SegmentEnd, 
+				 StrBuf *ConvertBuf,
+				 StrBuf *ConvertBuf2)
+{
+	StrBuf StaticBuf;
+	char charset[128];
+	char encoding[16];
+	iconv_t ic = (iconv_t)(-1);
+	char *ibuf;			/**< Buffer of characters to be converted */
+	char *obuf;			/**< Buffer for converted characters */
+	size_t ibuflen;			/**< Length of input buffer */
+	size_t obuflen;			/**< Length of output buffer */
+
+	/* Now we handle foreign character sets properly encoded
+	 * in RFC2047 format.
+	 */
+	StaticBuf.buf = SegmentStart;
+	StaticBuf.BufUsed = SegmentEnd - SegmentStart;
+	StaticBuf.BufSize = DecodeMe->BufSize - (SegmentStart - DecodeMe->buf);
+	extract_token(charset, SegmentStart, 1, '?', sizeof charset);
+	extract_token(encoding, SegmentStart, 2, '?', sizeof encoding);
+	StrBufExtract_token(ConvertBuf, &StaticBuf, 3, '?');
+	
+	if (!strcasecmp(encoding, "B")) {	/**< base64 */
+		ConvertBuf2->BufUsed = CtdlDecodeBase64(ConvertBuf2->buf, 
+							ConvertBuf->buf, 
+							ConvertBuf->BufUsed);
+	}
+	else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
+		long pos;
+		
+		pos = 0;
+		while (pos < ConvertBuf->BufUsed)
+		{
+			if (ConvertBuf->buf[pos] == '_') 
+				ConvertBuf->buf[pos] = ' ';
+			pos++;
+		}
+		
+		ConvertBuf2->BufUsed = CtdlDecodeQuotedPrintable(
+			ConvertBuf2->buf, 
+			ConvertBuf->buf,
+			ConvertBuf->BufUsed);
+	}
+	else {
+		StrBufAppendBuf(ConvertBuf2, ConvertBuf, 0);
+	}
+	
+	ic = ctdl_iconv_open("UTF-8", charset);
+	if (ic != (iconv_t)(-1) ) {
+		ibuf = ConvertBuf2->buf;
+		obuf = ConvertBuf->buf;
+		ibuf = ConvertBuf2->buf;
+		obuflen = ConvertBuf->BufSize;
+		ibuflen = ConvertBuf2->BufUsed;
+		
+		iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+		ConvertBuf->BufUsed = ConvertBuf->BufSize - obuflen;
+		ConvertBuf->buf[ConvertBuf->BufUsed] = '\0';
+		
+		StrBufAppendBuf(Target, ConvertBuf, 0);
+		iconv_close(ic);
+	}
+	else {
+		StrBufAppendBufPlain(Target, HKEY("(unreadable)"), 0);
+	}
+}
 /*
  * Handle subjects with RFC2047 encoding such as:
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
  */
-void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {
-	StrBuf *TmpBuf, *ConvertBuf, *ConvertBuf2;
-	StrBuf StaticBuf;
+void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* DefaultCharset)
+{
+	StrBuf *ConvertBuf, *ConvertBuf2;
 	char *start, *end, *next, *nextend, *ptr;
-	char charset[128];
-	char encoding[16];
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;			/**< Buffer of characters to be converted */
 	char *obuf;			/**< Buffer for converted characters */
 	size_t ibuflen;			/**< Length of input buffer */
 	size_t obuflen;			/**< Length of output buffer */
-	char *isav;			/**< Saved pointer to input buffer */
 	
 	const char *eptr;
 	int passes = 0;
@@ -1560,33 +1628,40 @@ void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {
 	 *  handle it anyway by converting from a user-specified default
 	 *  charset to UTF-8 if we see any nonprintable characters.
 	 */
-	TmpBuf = NewStrBufPlain(NULL, StrLength(*Buf));
-
-	len = StrLength(*Buf);
-	for (i=0; i<(*Buf)->BufUsed; ++i) {
-		if (((*Buf)->buf[i] < 32) || ((*Buf)->buf[i] > 126)) {
+	
+	len = StrLength(DecodeMe);
+	for (i=0; i<DecodeMe->BufUsed; ++i) {
+		if ((DecodeMe->buf[i] < 32) || (DecodeMe->buf[i] > 126)) {
 			illegal_non_rfc2047_encoding = 1;
 			break;
 		}
 	}
 
+	ConvertBuf = NewStrBufPlain(NULL, StrLength(DecodeMe));
 	if (illegal_non_rfc2047_encoding) {
 		if ( (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
 		     (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) ) {
 			ic = ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset));
 			if (ic != (iconv_t)(-1) ) {
-				ibuf = (*Buf)->buf;
-				obuf = TmpBuf->buf;
-				ibuflen = (*Buf)->BufUsed;
-				obuflen = TmpBuf->BufSize;
+				long BufSize;
+				ibuf = DecodeMe->buf;
+				obuf = ConvertBuf->buf;
+				ibuflen = DecodeMe->BufUsed;
+				obuflen = ConvertBuf->BufSize;
 
 				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-				TmpBuf->BufUsed = TmpBuf->BufSize - obuflen;
-				TmpBuf->buf[TmpBuf->BufUsed] = '\0';
+				/* little card game: wheres the red lady? */
+				ibuf = DecodeMe->buf;
+				BufSize = DecodeMe->BufSize;
+				DecodeMe->buf = ConvertBuf->buf;
+				DecodeMe->BufSize = ConvertBuf->BufSize;
+				DecodeMe->BufUsed = ConvertBuf->BufSize - obuflen;
+				DecodeMe->buf[DecodeMe->BufUsed] = '\0';
 
-				FreeStrBuf(Buf);
-				*Buf = TmpBuf;
-				TmpBuf = NewStrBufPlain(NULL, StrLength(*Buf));
+				ConvertBuf->buf = ibuf;
+				ConvertBuf->BufSize = BufSize;
+				ConvertBuf->BufUsed = 0;
+				ConvertBuf->buf[0] = '\0';
 
 				iconv_close(ic);
 			}
@@ -1595,22 +1670,44 @@ void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {
 
 	/* pre evaluate the first pair */
 	nextend = end = NULL;
-	len = StrLength(*Buf);
-	start = strstr((*Buf)->buf, "=?");
-	eptr = (*Buf)->buf + (*Buf)->BufUsed;
+	len = StrLength(DecodeMe);
+	start = strstr(DecodeMe->buf, "=?");
+	eptr = DecodeMe->buf + DecodeMe->BufUsed;
 	if (start != NULL) 
-		end = FindNextEnd (*Buf, start);
+		end = FindNextEnd (DecodeMe, start);
+	else {
+		StrBufAppendBuf(Target, DecodeMe, 0);
+		FreeStrBuf(&ConvertBuf);
+		return;
+	}
 
+	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMe));
+
+	/*
+	 * Since spammers will go to all sorts of absurd lengths to get their
+	 * messages through, there are LOTS of corrupt headers out there.
+	 * So, prevent a really badly formed RFC2047 header from throwing
+	 * this function into an infinite loop.
+	 */
 	while ((start != NULL) && 
 	       (end != NULL) && 
 	       (start < eptr) && 
-	       (end < eptr))
+	       (end < eptr) && 
+	       (passes < 20))
 	{
+		passes++;
+		DecodeSegment(Target, 
+			      DecodeMe, 
+			      start, 
+			      end, 
+			      ConvertBuf,
+			      ConvertBuf2);
+		
 		next = strstr(end, "=?");
 		nextend = NULL;
 		if ((next != NULL) && 
 		    (next < eptr))
-			nextend = FindNextEnd(*Buf, next);
+			nextend = FindNextEnd(DecodeMe, next);
 		if (nextend == NULL)
 			next = NULL;
 
@@ -1634,8 +1731,8 @@ void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {
 				
 				/* now terminate the gab at the end */
 				delta = (next - end) - 2;
-				(*Buf)->BufUsed -= delta;
-				(*Buf)->buf[(*Buf)->BufUsed] = '\0';
+				DecodeMe->BufUsed -= delta;
+				DecodeMe->buf[DecodeMe->BufUsed] = '\0';
 
 				/* move next to its new location. */
 				next -= delta;
@@ -1646,89 +1743,29 @@ void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {
 		start = next;
 		end = nextend;
 	}
-
-	ConvertBuf = NewStrBufPlain(NULL, StrLength(*Buf));
-	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(*Buf));
-	/* Now we handle foreign character sets properly encoded
-	 * in RFC2047 format.
-	 */
-	while (start=strstr((*Buf)->buf, "=?"), 
-	       end=FindNextEnd((*Buf), ((start != NULL)? start : (*Buf)->buf)),
-			       ((start != NULL) && 
-				(end != NULL) && 
-				(end > start)) )
-	{
-		StaticBuf.buf = start;
-		StaticBuf.BufUsed = (*Buf)->BufUsed - ((*Buf)->buf - start);
-		StaticBuf.BufSize = (*Buf)->BufSize - ((*Buf)->buf - start);
-		extract_token(charset, start, 1, '?', sizeof charset);
-		extract_token(encoding, start, 2, '?', sizeof encoding);
-		StrBufExtract_token(ConvertBuf, &StaticBuf, 3, '?');
-
-		if (!strcasecmp(encoding, "B")) {	/**< base64 */
-			ConvertBuf2->BufUsed = CtdlDecodeBase64(ConvertBuf2->buf, 
-								ConvertBuf->buf, 
-								ConvertBuf->BufUsed);
-		}
-		else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
-			long pos;
-			
-			pos = 0;
-			while (pos < ConvertBuf->BufUsed)
-			{
-				if (ConvertBuf->buf[pos] == '_') 
-					ConvertBuf->buf[pos] = ' ';
-				pos++;
-			}
-
-			ConvertBuf2->BufUsed = CtdlDecodeQuotedPrintable(
-				ConvertBuf2->buf, 
-				ConvertBuf->buf,
-				ConvertBuf->BufUsed);
-		}
-		else {
-			StrBufAppendBuf(ConvertBuf2, ConvertBuf, 0);
-		}
-
-		ic = ctdl_iconv_open("UTF-8", charset);
-		if (ic != (iconv_t)(-1) ) {
-			ibuf = ConvertBuf2->buf;
-			obuf = ConvertBuf->buf;
-			ibuf = ConvertBuf2->buf;
-			obuflen = ConvertBuf->BufSize;
-			ibuflen = ConvertBuf2->BufUsed;
-
-			iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-			ConvertBuf->BufUsed = ConvertBuf->BufSize - obuflen;
-			ConvertBuf->buf[ConvertBuf->BufUsed] = '\0';
-
-			StrBufAppendBuf(TmpBuf, ConvertBuf, 0);
-			iconv_close(ic);
-		}
-		else {
-
-			StrBufAppendBufPlain(TmpBuf, HKEY("(unreadable)"), 0);
-		}
-
-		free(isav);
-
-		/*
-		 * Since spammers will go to all sorts of absurd lengths to get their
-		 * messages through, there are LOTS of corrupt headers out there.
-		 * So, prevent a really badly formed RFC2047 header from throwing
-		 * this function into an infinite loop.
-		 */
-		++passes;
-		if (passes > 20)  { 
-			FreeStrBuf(Buf);
-			*Buf = TmpBuf;
-			return;
-		}
-	}
-	FreeStrBuf(Buf);
-	*Buf = TmpBuf;
+	FreeStrBuf(&ConvertBuf);
+	FreeStrBuf(&ConvertBuf2);
 }
 #else
 void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {};
 
 #endif
+
+
+
+long StrBuf_Utf8StrLen(StrBuf *Buf)
+{
+	return Ctdl_Utf8StrLen(Buf->buf);
+}
+
+long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
+{
+	char *CutAt;
+
+	CutAt = Ctdl_Utf8StrCut(Buf->buf, maxlen);
+	if (CutAt != NULL) {
+		Buf->BufUsed = CutAt - Buf->buf;
+		Buf->buf[Buf->BufUsed] = '\0';
+	}
+	return Buf->BufUsed;	
+}
