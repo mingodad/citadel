@@ -1043,4 +1043,11 @@ function RecurrenceShowHide() {
 		$('rrmweekday').disabled = true;
 	}
 
+	if ($('freq_selector').selectedIndex == 6) {
+		$('yearday_selector').style.display = 'block';
+	}
+	else {
+		$('yearday_selector').style.display = 'none';
+	}
+
 }
