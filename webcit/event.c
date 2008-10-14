@@ -469,7 +469,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
 		wprintf("<option %s%svalue=\"%d\">%s</option>\n",
 			((i == recur.freq) ? "selected " : ""),
-			(((i == recur.freq) || ((i>=3)&&(i<=5))) ? "" : "disabled "),
+			(((i == recur.freq) || ((i>=3)&&(i<=6))) ? "" : "disabled "),
 			i,
 			frequency_units[i]
 		);
@@ -514,9 +514,23 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	);
 
 	char mdaybox[128];
+	int rrmday = 1;					/* FIXME default to same as event start */
+	int rrmweek = 1;				/* FIXME default to same as event start */
+	int rrmweekday = 1;				/* FIXME default to same as event start */
+
+	if (recur.by_month_day[0] != ICAL_RECURRENCE_ARRAY_MAX) {
+		which_rrmonthtype_is_preselected = 0;
+		rrmday = recur.by_month_day[0];
+	}
+	else if (recur.by_day[0] != ICAL_RECURRENCE_ARRAY_MAX) {
+		which_rrmonthtype_is_preselected = 1;
+		rrmweek = icalrecurrencetype_day_position(recur.by_day[0]);
+		rrmweekday = icalrecurrencetype_day_day_of_week(recur.by_day[0]) - 1;
+	}
+
 	snprintf(mdaybox, sizeof mdaybox,
 		"<input type=\"text\" name=\"rrmday\" id=\"rrmday\" maxlength=\"2\" size=\"2\" "
-		"value=\"%d\">", 0);			/* FIXME set the correct default */
+		"value=\"%d\">", rrmday);
 	wprintf(_("on day %s of the month"), mdaybox);
 	wprintf("<br />\n");
 
@@ -530,7 +544,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (i=1; i<=5; ++i) {
 		wprintf("<option %svalue=\"%d\">%s</option>\n",
-			((0) ? "selected " : ""),			/* FIXME set correct default */
+			((i==rrmweek) ? "selected " : ""),
 			i,
 			ordinals[i]
 		);
@@ -542,7 +556,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	for (j=0; j<7; ++j) {
 		i = ((j + (int)weekstart) % 7);
 		wprintf("<option %svalue=\"%d\">%s</option>\n",
-			((0) ? "selected " : ""),			/* FIXME set correct default */
+			((i==rrmweekday) ? "selected " : ""),
 			i,
 			weekday_labels[i]
 		);
