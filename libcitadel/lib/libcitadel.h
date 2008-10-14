@@ -254,6 +254,7 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap);
 void StrBufPrintf(StrBuf *Buf, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
 void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
+void StrBufTrim(StrBuf *Buf);
 void StrBufUpCase(StrBuf *Buf);
 void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source);
 void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
