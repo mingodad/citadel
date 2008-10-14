@@ -1,11 +1,6 @@
 /*
  * $Id$
  */
-/** 
- * \defgroup TcpSockets TCP client socket module for WebCit
- * \ingroup CitadelCommunitacion
- */
-/*@{*/
 
 /*
  * Uncomment this to log all communications with the Citadel server
@@ -16,9 +11,9 @@
 #include "webcit.h"
 #include "webserver.h"
 
-/**
- * \brief register the timeout
- * \param signum signalhandler number
+/*
+ *  register the timeout
+ *  signum signalhandler number
  * \return signals
  */
 RETSIGTYPE timeout(int signum)
@@ -28,9 +23,9 @@ RETSIGTYPE timeout(int signum)
 }
 
 
-/**
- * \brief Connect a unix domain socket
- * \param sockpath where to open a unix domain socket
+/*
+ *  Connect a unix domain socket
+ *  sockpath where to open a unix domain socket
  */
 int uds_connectsock(char *sockpath)
 {
@@ -59,10 +54,10 @@ int uds_connectsock(char *sockpath)
 }
 
 
-/**
- * \brief Connect a TCP/IP socket
- * \param host the host to connect to
- * \param service the service on the host to call
+/*
+ *  Connect a TCP/IP socket
+ *  host the host to connect to
+ *  service the service on the host to call
  */
 int tcp_connectsock(char *host, char *service)
 {
@@ -119,10 +114,10 @@ int tcp_connectsock(char *host, char *service)
 
 
 
-/**
- * \brief Input binary data from socket
- * \param buf the buffer to get the input to
- * \param bytes the maximal number of bytes to read
+/*
+ *  Input binary data from socket
+ *  buf the buffer to get the input to
+ *  bytes the maximal number of bytes to read
  */
 inline void _serv_read(char *buf, int bytes, struct wcsession *WCC)
 {
@@ -152,8 +147,8 @@ void serv_read(char *buf, int bytes)
 	_serv_read(buf, bytes, WCC);
 }
 
-/**
- * \brief input string from pipe
+/*
+ *  input string from pipe
  */
 int serv_getln(char *strbuf, int bufsize)
 {
@@ -213,10 +208,10 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	return rc;
 }
 
-/**
- * \brief send binary to server
- * \param buf the buffer to write to citadel server
- * \param nbytes how many bytes to send to citadel server
+/*
+ *  send binary to server
+ *  buf the buffer to write to citadel server
+ *  nbytes how many bytes to send to citadel server
  */
 void serv_write(const char *buf, int nbytes)
 {
@@ -239,9 +234,9 @@ void serv_write(const char *buf, int nbytes)
 }
 
 
-/**
- * \brief send line to server
- * \param string the line to send to the citadel server
+/*
+ *  send line to server
+ *  string the line to send to the citadel server
  */
 void serv_puts(const char *string)
 {
@@ -252,9 +247,9 @@ void serv_puts(const char *string)
 	serv_write("\n", 1);
 }
 
-/**
- * \brief send line to server
- * \param string the line to send to the citadel server
+/*
+ *  send line to server
+ *  string the line to send to the citadel server
  */
 void serv_putbuf(const StrBuf *string)
 {
@@ -266,10 +261,10 @@ void serv_putbuf(const StrBuf *string)
 }
 
 
-/**
- * \brief convenience function to send stuff to the server
- * \param format the formatstring
- * \param ... the entities to insert into format 
+/*
+ *  convenience function to send stuff to the server
+ *  format the formatstring
+ *  ... the entities to insert into format 
  */
 void serv_printf(const char *format,...)
 {
@@ -290,5 +285,3 @@ void serv_printf(const char *format,...)
 #endif
 }
 
-
-/*@}*/

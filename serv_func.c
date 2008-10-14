@@ -106,8 +106,8 @@ void get_serv_info(char *browser_host, char *user_agent)
 
 
 /**
- * \brief Read Citadel variformat text and spit it out as HTML.
- * \param align html align string
+ *  Read Citadel variformat text and spit it out as HTML.
+ *  align html align string
  */
 inline void fmout(char *align)
 {
@@ -159,7 +159,7 @@ void _fmout(StrBuf *Target, char *align)
 
 
 /**
- * \brief Read Citadel variformat text and spit it out as HTML in a form
+ *  Read Citadel variformat text and spit it out as HTML in a form
  * suitable for embedding in another message (forward/quote).
  * (NO LINEBREAKS ALLOWED HERE!)
  */
@@ -202,9 +202,9 @@ void pullquote_fmout(void) {
 
 
 /**
- * \brief Transmit message text (in memory) to the server.
+ *  Transmit message text (in memory) to the server.
  *
- * \param ptr Pointer to the message being transmitted
+ *  ptr Pointer to the message being transmitted
  */
 void text_to_server(char *ptr)
 {
@@ -245,10 +245,10 @@ void text_to_server(char *ptr)
 
 
 /**
- * \brief Transmit message text (in memory) to the server,
+ *  Transmit message text (in memory) to the server,
  *        converting to Quoted-Printable encoding as we go.
  *
- * \param ptr Pointer to the message being transmitted
+ *  ptr Pointer to the message being transmitted
  */
 void text_to_server_qp(char *ptr)
 {
@@ -321,7 +321,7 @@ void text_to_server_qp(char *ptr)
 
 
 /**
- * \brief translate server message output to text
+ *  translate server message output to text
  * (used for editing room info files and such)
  */
 void server_to_text()
@@ -395,7 +395,7 @@ int read_server_binary(StrBuf *Ret, size_t total_len)
 
 
 /**
- * \brief Read text from server, appending to a string buffer until the
+ *  Read text from server, appending to a string buffer until the
  * usual 000 terminator is found.  Caller is responsible for freeing
  * the returned pointer.
  */

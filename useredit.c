@@ -1,21 +1,15 @@
 /*
  * $Id$
  */
-/**
- * \defgroup AdminTasks Administrative screen to add/change/delete user accounts
- * \ingroup CitadelConfig
- *
- */
-/*@{*/
 
 #include "webcit.h"
 #include "webserver.h"
 
 
 /**
- * \brief show a list of available users to edit them
- * \param message the header message???
- * \param preselect which user should be selected in the browser
+ *  show a list of available users to edit them
+ *  message the header message???
+ *  preselect which user should be selected in the browser
  */
 void select_user_to_edit(char *message, char *preselect)
 {/*
@@ -448,9 +442,9 @@ int ConditionalUserAccess(WCTemplateToken *Tokens, void *Context, int ContextTyp
 }
 
 /**
- * \brief Locate the message number of a user's vCard in the current room
- * \param username the plaintext name of the user
- * \param usernum the number of the user on the citadel server
+ *  Locate the message number of a user's vCard in the current room
+ *  username the plaintext name of the user
+ *  usernum the number of the user on the citadel server
  * \return the message id of his vcard
  */
 long locate_user_vcard(char *username, long usernum) {
@@ -521,9 +515,9 @@ TRYAGAIN:
 
 
 /**
- * \brief Display the form for editing a user's address book entry
- * \param username the name of the user
- * \param usernum the citadel-uid of the user
+ *  Display the form for editing a user's address book entry
+ *  username the name of the user
+ *  usernum the citadel-uid of the user
  */
 void display_edit_address_book_entry(char *username, long usernum) {
 	char roomname[SIZ];
@@ -605,14 +599,14 @@ void display_edituser(char *supplied_username, int is_new) {
 
 
 /* *
- * \brief Edit a user.  
+ *  Edit a user.  
  * If supplied_username is null, look in the "username"
  * web variable for the name of the user to edit.
  * 
  * If "is_new" is set to nonzero, this screen will set the web variables
  * to send the user to the vCard editor next.
- * \param supplied_username user to look up or NULL if to search in the environment
- * \param is_new should we create the user?
+ *  supplied_username user to look up or NULL if to search in the environment
+ *  is_new should we create the user?
  * /
 void display_edituser(char *supplied_username, int is_new) {
 	char buf[1024];
@@ -788,7 +782,7 @@ void display_edituser(char *supplied_username, int is_new) {
 */
 
 /**
- * \brief do the backend operation of the user edit on the server
+ *  do the backend operation of the user edit on the server
  */
 void edituser(void) {
 	char message[SIZ];
@@ -859,8 +853,8 @@ void edituser(void) {
 }
 
 /*
- * \brief burge a user 
- * \param username the name of the user to remove
+ *  burge a user 
+ *  username the name of the user to remove
  */
 void delete_user(char *username) {
 	char buf[SIZ];
@@ -882,7 +876,7 @@ void delete_user(char *username) {
 
 
 /**
- * \brief create a new user
+ *  create a new user
  * take the web environment username and create it on the citadel server
  */
 void create_user(void) {
@@ -949,4 +943,3 @@ InitModule_USEREDIT
 
 	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST);
 }
-/*@}*/

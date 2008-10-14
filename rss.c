@@ -1,11 +1,7 @@
 /*
  * $Id$
  */
-/**
- * \defgroup RssRooms Generate some RSS for our rooms.
- * \ingroup WebcitHttpServerRSS
- */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 
@@ -18,10 +14,10 @@
 #define ANON_RSS_PASS ""
 time_t if_modified_since;    /**< the last modified stamp */
 
-/**
- * \brief view rss Config menu
- * \param reply_to the original author
- * \param subject the subject of the feed
+/*
+ * view rss Config menu
+ * reply_to the original author
+ * subject the subject of the feed
  */
 void display_rss_control(char *reply_to, char *subject)
 {
@@ -42,10 +38,10 @@ void display_rss_control(char *reply_to, char *subject)
 }
 
 
-/**
- * \brief print the feed to the subscriber
- * \param roomname the room we sould print out as rss 
- * \param request_method the way the rss is requested????
+/*
+ * print the feed to the subscriber
+ * roomname the room we sould print out as rss 
+ * request_method the way the rss is requested????
  */
 void display_rss(char *roomname, StrBuf *request_method)
 {
@@ -358,4 +354,3 @@ ENDITEM:
 }
 
 
-/*@}*/

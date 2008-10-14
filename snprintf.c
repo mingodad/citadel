@@ -1,14 +1,9 @@
 /*
  * $Id$
  */
-/** 
- * \defgroup SnprintfReplacement modified from Sten Gunterberg's BUGTRAQ post of 22 Jul 1997
- * --nathan bryant <bryant@cs.usm.maine.edu>
- * \ingroup tools
- */
-/*@{*/
+
 /**
- * \brief Replacements for snprintf() and vsnprintf()
+ *  Replacements for snprintf() and vsnprintf()
  *
  * Use it only if you have the "spare" cycles needed to effectively
  * do every snprintf operation twice! Why is that? Because everything
@@ -28,9 +23,9 @@
 #include "webserver.h"
 
 /**
- * \brief is it needed????
- * \param fmt the formatstring?
- * \param argp how many params?
+ *  is it needed????
+ *  fmt the formatstring?
+ *  argp how many params?
  */
 static int needed(const char *fmt, va_list argp)
 {
@@ -51,11 +46,11 @@ static int needed(const char *fmt, va_list argp)
 }
 
 /**
- * \brief vsnprintf wrapper
- * \param buf the output charbuffer
- * \param max maximal size of the buffer
- * \param fmt the formatstring (see man printf)
- * \param argp the variable argument list 
+ *  vsnprintf wrapper
+ *  buf the output charbuffer
+ *  max maximal size of the buffer
+ *  fmt the formatstring (see man printf)
+ *  argp the variable argument list 
  */
 int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp)
 {
@@ -76,11 +71,11 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp)
 }
 
 /**
- * \brief snprintf wrapper
- * \param buf the output charbuffer
- * \param max maximal size of the buffer
- * \param fmt the formatstring (see man printf)
- * \param ... the variable argument list 
+ *  snprintf wrapper
+ *  buf the output charbuffer
+ *  max maximal size of the buffer
+ *  fmt the formatstring (see man printf)
+ *  ... the variable argument list 
  */
 int snprintf(char *buf, size_t max, const char *fmt,...)
 {
@@ -95,5 +90,3 @@ int snprintf(char *buf, size_t max, const char *fmt,...)
 }
 
 
-
-/*@}*/
