@@ -574,8 +574,18 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int which_rryeartype_is_preselected = 0;	/* FIXME set default correctly */
 	wprintf("<div id=\"yearday_selector\">");	/* begin 'yearday_selector' div */
 
-	wprintf("(X) every (99) (Octobuary)<br />");			/* FIXME */
-	wprintf("(X) on the (Grelfth) (Funday) of (Octobuary)<br />");	/* FIXME */
+	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rrmonthtype_ymday\" "
+		"%s onChange=\"RecurrenceShowHide();\">",
+		((which_rryeartype_is_preselected == 0) ? "checked" : "")
+	);
+	wprintf("every (99) (Octobuary)<br />");			/* FIXME */
+
+	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rrmonthtype_ywday\" "
+		"%s onChange=\"RecurrenceShowHide();\">",
+		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
+	);
+
+	wprintf("on the (Grelfth) (Funday) of (Octobuary)<br />");	/* FIXME */
 
 	wprintf("</div>\n");				/* end 'yearday_selector' div */
 
