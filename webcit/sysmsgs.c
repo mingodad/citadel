@@ -1,21 +1,16 @@
 /*
  * $Id$
  */
-/**
- * \defgroup ShowSysMsgs Editing of various text files on the Citadel server.
- * \ingroup WebcitDisplayItems
- */
-/*@{*/
 #include "webcit.h"
 
 
 /**
- * \brief display the form for editing something (room info, bio, etc)
- * \param description the descriptive text for the box
- * \param check_cmd command to check????
- * \param read_cmd read answer from citadel server???
- * \param save_cmd save comand to the citadel server??
- * \param with_room_banner should we bisplay a room banner?
+ *  display the form for editing something (room info, bio, etc)
+ *  description the descriptive text for the box
+ *  check_cmd command to check????
+ *  read_cmd read answer from citadel server???
+ *  save_cmd save comand to the citadel server??
+ *  with_room_banner should we bisplay a room banner?
  */
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd, int with_room_banner)
@@ -63,10 +58,10 @@ void display_edit(char *description, char *check_cmd,
 
 
 /**
- * \brief save a screen which was displayed with display_edit()
- * \param description the window title???
- * \param enter_cmd which command to enter at the citadel server???
- * \param regoto should we go to that room again after executing that command?
+ *  save a screen which was displayed with display_edit()
+ *  description the window title???
+ *  enter_cmd which command to enter at the citadel server???
+ *  regoto should we go to that room again after executing that command?
  */
 void save_edit(char *description, char *enter_cmd, int regoto)
 {
@@ -120,4 +115,3 @@ InitModule_SYSMSG
 	WebcitAddUrlHandler(HKEY("display_editbio"), display_editbio, 0);
 	WebcitAddUrlHandler(HKEY("editbio"), editbio, 0);
 }
-/*@}*/

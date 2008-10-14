@@ -1,21 +1,14 @@
 /*
  * $Id$
  */
-/**
- * \defgroup vCardEdit Handles on-screen editing of vCard objects.
- * \ingroup VCards
- */
-/*@{*/
+
 #include "webcit.h"
 
-/**
- * \brief Edit the vCard component of a MIME message.  
+/*
+ * Edit the vCard component of a MIME message.  
  * Supply the message number
  * and MIME part number to fetch.  Or, specify -1 for the message number
  * to start with a blank card.
- * \param msgnum number of the item on the citadel server
- * \param partnum what???
- * \param return_to where to go back in the browser after edit ????
  */
 void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room) {
 	char buf[SIZ];
@@ -367,7 +360,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 
 
 /**
- * \brief commit the edits to the citadel server
+ *  commit the edits to the citadel server
  */
 void edit_vcard(void) {
 	long msgnum;
@@ -381,7 +374,7 @@ void edit_vcard(void) {
 
 
 /**
- * \brief parse edited vcard from the browser
+ *  parse edited vcard from the browser
  */
 void submit_vcard(void) {
 	struct vCard *v;
@@ -494,4 +487,3 @@ InitModule_VCARD
 	WebcitAddUrlHandler(HKEY("submit_vcard"), submit_vcard, 0);
 }
 
-/*@}*/

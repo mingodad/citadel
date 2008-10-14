@@ -1,24 +1,19 @@
 /*
  * $Id$
  */
-/**
- * \defgroup AccDisplay Display a list of all accounts on a Citadel system.
- * \ingroup CitadelConfig
- */
 
-/*@{*/
 #include "webcit.h"
 
-/** 
- * \brief structure to keep namelists in
+/* 
+ * structure to keep namelists in
  */
 struct namelist {
 	struct namelist *next; /**< next item of the linked list */
 	char name[32];         /**< name of the userentry */
 };
 
-/**
- * \brief display the userlist
+/*
+ * display the userlist
  */
 void userlist(void)
 {
@@ -109,8 +104,8 @@ DONE:	wDumpContent(1);
 }
 
 
-/**
- * \brief Display (non confidential) information about a particular user
+/*
+ * Display (non confidential) information about a particular user
  */
 void showuser(void)
 {
@@ -177,4 +172,3 @@ InitModule_USERLIST
 	WebcitAddUrlHandler(HKEY("userlist"), userlist, 0);
 	WebcitAddUrlHandler(HKEY("showuser"), showuser, 0);
 }
-/*@}*/

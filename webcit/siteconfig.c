@@ -38,7 +38,7 @@ void LoadZoneFiles(void)
 
 
 /*
- * \brief display all configuration items
+ *  display all configuration items
  */
 void display_siteconfig(void)
 {
@@ -871,7 +871,7 @@ CfgMapping ServerConfig[] = {
 
 
 /*
- * \brief display all configuration items
+ *  display all configuration items
  */
 void load_siteconfig(void)
 {
@@ -1070,4 +1070,3 @@ InitModule_SITECONFIG
 	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst, CTX_NONE);
 }
-/*@}*/
