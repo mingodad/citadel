@@ -144,6 +144,7 @@ void rss_save_item(struct rss_item *ri) {
 		if (ri->author_or_creator != NULL) {
 			msg->cm_fields['A'] = html_to_ascii(ri->author_or_creator,
 				strlen(ri->author_or_creator), 512, 0);
+			striplt(msg->cm_fields['A']);
 		}
 		else {
 			msg->cm_fields['A'] = strdup("rss");
@@ -152,6 +153,7 @@ void rss_save_item(struct rss_item *ri) {
 		msg->cm_fields['N'] = strdup(NODENAME);
 		if (ri->title != NULL) {
 			msg->cm_fields['U'] = html_to_ascii(ri->title, strlen(ri->title), 512, 0);
+			striplt(msg->cm_fields['U']);
 		}
 		msg->cm_fields['T'] = malloc(64);
 		snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
@@ -307,7 +309,7 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	}
 
 	if ( ((!strcasecmp(el, "author")) || (!strcasecmp(el, "creator"))) && (ri->chardata != NULL) ) {
-		if (ri->author_or_creator != NULL) free(ri->title);
+		if (ri->author_or_creator != NULL) free(ri->author_or_creator);
 		striplt(ri->chardata);
 		ri->author_or_creator = strdup(ri->chardata);
 	}
