@@ -475,7 +475,6 @@ void calendar_month_view(int year, int month, int day) {
 	time_t colheader_time;
 	struct tm colheader_tm;
 	char colheader_label[32];
-	int chg_month = 0;
 	long weekstart = 0;
 
 	/*
@@ -554,56 +553,50 @@ void calendar_month_view(int year, int month, int day) {
 
 
         /* Now do 35 or 42 days */
-        for (i = 0; i < 42; ++i) {
-                localtime_r(&thetime, &tm);
+	localtime_r(&thetime, &tm);
+        for (i = 0; i<42; ++i) {
 
-                if ((i < 35) || (chg_month == 0)) {
+		/* Before displaying the first day of the week, start a new row */
+		if ((i % 7) == 0) {
+			wprintf("<tr>");
+		}
 
-                        if ((i > 27) && ((tm.tm_mday == 1) || (tm.tm_mday == 31))) {
-                                chg_month = 1;
-                        }
-                        if (i > 35) {
-                                chg_month = 0;
-                        }
+		wprintf("<td class=\"cal%s\"><div class=\"day\">",
+			((tm.tm_mon != month-1) ? "out" :
+				((tm.tm_wday==0 || tm.tm_wday==6) ? "weekend" :
+					"day"))
+			);
+		if ((i==0) || (tm.tm_mday == 1)) {
+			wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
+			wprintf("%s ", colheader_label);
+		}
+		wprintf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">"
+			"%d</a></div>",
+			tm.tm_year + 1900,
+			tm.tm_mon + 1,
+			tm.tm_mday,
+			tm.tm_mday);
 
-			/* Before displaying the first day of the week, start a new row */
-			if ((i % 7) == 0) {
-				wprintf("<tr>");
-			}
+		/* put the data here, stupid */
+		calendar_month_view_display_events(
+			tm.tm_year + 1900,
+			tm.tm_mon + 1,
+			tm.tm_mday
+			);
 
-			wprintf("<td class=\"cal%s\"><div class=\"day\">",
-				((tm.tm_mon != month-1) ? "out" :
-					((tm.tm_wday==0 || tm.tm_wday==6) ? "weekend" :
-						"day"))
-				);
-			if ((i==0) || (tm.tm_mday == 1)) {
-				wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
-				wprintf("%s ", colheader_label);
-			}
-			wprintf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">"
-				"%d</a></div>",
-				tm.tm_year + 1900,
-				tm.tm_mon + 1,
-				tm.tm_mday,
-				tm.tm_mday);
+		wprintf("</td>");
 
-			/* put the data here, stupid */
-			calendar_month_view_display_events(
-				tm.tm_year + 1900,
-				tm.tm_mon + 1,
-				tm.tm_mday
-				);
-
-			wprintf("</td>");
-
-			/* After displaying the last day of the week, end the row */
-			if ((i % 7) == 6) {
-				wprintf("</tr>\n");
-			}
-
+		/* After displaying the last day of the week, end the row */
+		if ((i % 7) == 6) {
+			wprintf("</tr>\n");
 		}
 
 		thetime += (time_t)86400;		/* ahead 24 hours */
+		localtime_r(&thetime, &tm);
+
+		if ( ((i % 7) == 6) && (tm.tm_mon != month-1) && (tm.tm_mday < 15) ) {
+			i = 100;	/* break out of the loop */
+		}
 	}
 
 	wprintf("</table>"			/* end of inner table */
