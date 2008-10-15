@@ -578,7 +578,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rryeartype_is_preselected == 0) ? "checked" : "")
 	);
-	wprintf("every (99) (Octobuary)<br />");			/* FIXME */
+	wprintf(_("every "));
+	wprintf("<span id=\"ymday\">%s</span><br />", _("year on this date"));
 
 	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rrmonthtype_ywday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",

@@ -1050,4 +1050,5 @@ function RecurrenceShowHide() {
 		$('yearday_selector').style.display = 'none';
 	}
 
+	$('ymday').innerHTML = 'XXXX-' + $('dtstart').value.substr(5);
 }
