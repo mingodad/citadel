@@ -1051,4 +1051,16 @@ function RecurrenceShowHide() {
 	}
 
 	$('ymday').innerHTML = 'XXXX-' + $('dtstart').value.substr(5);
+
+	if ($('rryeartype_ywday').checked) {
+		$('rrymweek').disabled = false;
+		$('rrymweekday').disabled = false;
+		$('rrymonth').disabled = false;
+	}
+	else {
+		$('rrymweek').disabled = true;
+		$('rrymweekday').disabled = true;
+		$('rrymonth').disabled = true;
+	}
+
 }
