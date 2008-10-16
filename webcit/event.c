@@ -570,8 +570,20 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</div>\n");				/* end 'monthday_selector' div */
 
 
+	int rrymweek = 1;				/* FIXME default to same as event start */
+	int rrymweekday = 1;				/* FIXME default to same as event start */
+	int rrymonth = 1;				/* FIXME default to same as event start */
 
-	int which_rryeartype_is_preselected = 0;	/* FIXME set default correctly */
+	int which_rryeartype_is_preselected = 0;
+
+	if ( (recur.by_day[0] != ICAL_RECURRENCE_ARRAY_MAX) 
+	   && (recur.by_month[0] != ICAL_RECURRENCE_ARRAY_MAX) ) {
+		which_rryeartype_is_preselected = 1;	/* FIXME finish this */
+		rrymweek = icalrecurrencetype_day_position(recur.by_day[0]);
+		rrymweekday = icalrecurrencetype_day_day_of_week(recur.by_day[0]) - 1;
+		rrymonth = recur.by_month[0];
+	}
+
 	wprintf("<div id=\"yearday_selector\">");	/* begin 'yearday_selector' div */
 
 	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rrmonthtype_ymday\" "
@@ -586,7 +598,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
 	);
 
-	wprintf("on the (Grelfth) (Funday) of (Octobuary)<br />");	/* FIXME */
+	wprintf("on the (%d) (%d) of (%d)<br />", rrymweek, rrymweekday, rrymonth);	/* FIXME */
 
 	wprintf("</div>\n");				/* end 'yearday_selector' div */
 
