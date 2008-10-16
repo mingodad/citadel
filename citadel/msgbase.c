@@ -402,11 +402,11 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 #if 0	/* This is a special diagnostic section.  Do not allow it to run during normal operation. */
 	CtdlLogPrintf(CTDL_DEBUG, "There are %d messages in the room.\n", num_msgs);
 	for (i=0; i<num_msgs; ++i) {
-		if (i > 0) if (msglist[i] <= msglist[i-1]) abort();
+		if ((i > 0) && (msglist[i] <= msglist[i-1])) abort();
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "We are twiddling %d of them.\n", num_target_msgnums);
 	for (k=0; k<num_target_msgnums; ++k) {
-		if (k > 0) if (target_msgnums[k] <= target_msgnums[k-1]) abort();
+		if ((k > 0) && (target_msgnums[k] <= target_msgnums[k-1])) abort();
 	}
 #endif
 
@@ -551,7 +551,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	int need_to_free_re = 0;
 	regmatch_t pm;
 
-	if (content_type) if (!IsEmptyStr(content_type)) {
+	if ((content_type) && (!IsEmptyStr(content_type))) {
 		regcomp(&re, content_type, 0);
 		need_to_free_re = 1;
 	}
@@ -579,7 +579,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 		/* If the caller is looking for a specific MIME type, filter
 		 * out all messages which are not of the type requested.
 	 	 */
-		if (content_type != NULL) if (!IsEmptyStr(content_type)) {
+		if ((content_type != NULL) && (!IsEmptyStr(content_type))) {
 
 			/* This call to GetMetaData() sits inside this loop
 			 * so that we only do the extra database read per msg
@@ -3872,9 +3872,9 @@ void cmd_ent0(char *entargs)
 	 * is set, or if there is one or more Internet email recipients.
 	 */
 	if (CC->room.QRflags2 & QR2_SUBJECTREQ) subject_required = 1;
-	if (valid_to) if (valid_to->num_internet > 0) subject_required = 1;
-	if (valid_cc) if (valid_cc->num_internet > 0) subject_required = 1;
-	if (valid_bcc) if (valid_bcc->num_internet > 0) subject_required = 1;
+	if ((valid_to)	&& (valid_to->num_internet > 0))	subject_required = 1;
+	if ((valid_cc)	&& (valid_cc->num_internet > 0))	subject_required = 1;
+	if ((valid_bcc)	&& (valid_bcc->num_internet > 0))	subject_required = 1;
 
 	/* If we're only checking the validity of the request, return
 	 * success without creating the message.

@@ -380,7 +380,7 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 	if (actual_queue_len < 5) actual_queue_len = 5;
 
 	i = unlink(sockpath);
-	if (i != 0) if (errno != ENOENT) {
+	if ((i != 0) && (errno != ENOENT)) {
 		*errormessage = (char*) malloc(SIZ + 1);
 		snprintf(*errormessage, SIZ, "citserver: can't unlink %s: %s",
 			sockpath, strerror(errno));

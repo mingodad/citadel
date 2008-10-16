@@ -571,7 +571,7 @@ int read_message(CtdlIPC *ipc,
 
 	/* Set the reply-to address to an Internet e-mail address if possible
 	 */
-	if (message->email != NULL) if (!IsEmptyStr(message->email)) {
+	if ((message->email != NULL) && (!IsEmptyStr(message->email))) {
 		if (!IsEmptyStr(message->author)) {
 			snprintf(reply_to, sizeof reply_to, "%s <%s>", message->author, message->email);
 		}

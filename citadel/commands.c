@@ -1645,7 +1645,7 @@ char keymenu(char *menuprompt, char *menustring) {
 	choices = num_tokens(menustring, '|');
 
 	if (menuprompt != NULL) do_prompt = 1;
-	if (menuprompt != NULL) if (IsEmptyStr(menuprompt)) do_prompt = 0;
+	if ((menuprompt != NULL) && (IsEmptyStr(menuprompt))) do_prompt = 0;
 
 	while (1) {
 		if (display_prompt) {
