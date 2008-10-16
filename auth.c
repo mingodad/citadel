@@ -41,9 +41,9 @@ void display_login(char *mesg)
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"login_screen\">\n");
 
-	if (mesg != NULL) if (!IsEmptyStr(mesg)) {
-			stresc(buf, SIZ,  mesg, 0, 0);
-			svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
+	if ((mesg != NULL) && (!IsEmptyStr(mesg))) {
+		stresc(buf, SIZ,  mesg, 0, 0);
+		svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
 	}
 
 	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,
@@ -116,9 +116,9 @@ void display_openid_login(char *mesg)
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"login_screen\">\n");
 
-	if (mesg != NULL) if (!IsEmptyStr(mesg)) {
-			stresc(buf, SIZ,  mesg, 0, 0);
-			svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
+	if ((mesg != NULL) && (!IsEmptyStr(mesg))) {
+		stresc(buf, SIZ,  mesg, 0, 0);
+		svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
 	}
 
 	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,

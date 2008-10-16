@@ -147,7 +147,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 	if (actual_queue_len < 5) actual_queue_len = 5;
 
 	i = unlink(sockpath);
-	if (i != 0) if (errno != ENOENT) {
+	if ((i != 0) && (errno != ENOENT)) {
 		lprintf(1, "webcit: can't unlink %s: %s\n",
 			sockpath, strerror(errno));
 		exit(WC_EXIT_BIND);

@@ -304,7 +304,7 @@ void chat_recv(void) {
 		pf.fd = WC->chat_sock;
 		pf.events = POLLIN;
 		pf.revents = 0;
-		if (poll(&pf, 1, 1) > 0) if (pf.revents & POLLIN) {
+		if ((poll(&pf, 1, 1) > 0) && (pf.revents & POLLIN)) {
 			++got_data;
 
 			/** Temporarily swap the serv and chat sockets during chat talk */

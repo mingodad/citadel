@@ -496,7 +496,7 @@ TRYAGAIN:
 	}
 
 	/** If there's no vcard, create one */
-	if (vcard_msgnum < 0) if (already_tried_creating_one == 0) {
+	if ((vcard_msgnum < 0) && (already_tried_creating_one == 0)) {
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
 		serv_getln(buf, sizeof buf);
