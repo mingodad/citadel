@@ -31,6 +31,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int i, j = 0;
 	int sequence = 0;
 	char weekday_labels[7][32];
+	char month_labels[12][32];
 	long weekstart = 0;
 
 	get_pref_long("weekstart", &weekstart, 17);
@@ -53,6 +54,16 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		now += 86400L;
 	}
 	/* populate the weekday names - end */
+
+	/* populate the month names - begin */
+	now = 259200L;	/* 1970-jan-04 is the first Sunday ever */
+	localtime_r(&now, &tm_now);
+	for (i=0; i<12; ++i) {
+		localtime_r(&now, &tm_now);
+		wc_strftime(month_labels[i], 32, "%B", &tm_now);
+		now += 2678400L;
+	}
+	/* populate the month names - end */
 
 	now = time(NULL);
 	strcpy(organizer_string, "");
@@ -515,7 +526,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
 	);
 
-	char mdaybox[128];
+	char mdaybox[256];
 	int rrmday = 1;					/* FIXME default to same as event start */
 	int rrmweek = 1;				/* FIXME default to same as event start */
 	int rrmweekday = 1;				/* FIXME default to same as event start */
@@ -578,7 +589,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	if ( (recur.by_day[0] != ICAL_RECURRENCE_ARRAY_MAX) 
 	   && (recur.by_month[0] != ICAL_RECURRENCE_ARRAY_MAX) ) {
-		which_rryeartype_is_preselected = 1;	/* FIXME finish this */
+		which_rryeartype_is_preselected = 1;
 		rrymweek = icalrecurrencetype_day_position(recur.by_day[0]);
 		rrymweekday = icalrecurrencetype_day_day_of_week(recur.by_day[0]) - 1;
 		rrymonth = recur.by_month[0];
@@ -598,11 +609,45 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
 	);
 
-	wprintf("on the (%d) (%d) of (%d)<br />", rrymweek, rrymweekday, rrymonth);	/* FIXME */
+	wprintf(_("on the "));
+	wprintf("<select name=\"rrymweek\" id=\"rrymweek\" size=\"1\" "
+		"onChange=\"RecurrenceShowHide();\">\n");
+	for (i=1; i<=5; ++i) {
+		wprintf("<option %svalue=\"%d\">%s</option>\n",
+			((i==rrymweek) ? "selected " : ""),
+			i,
+			ordinals[i]
+		);
+	}
+	wprintf("</select> \n");
+
+	wprintf("<select name=\"rrymweekday\" id=\"rrymweekday\" size=\"1\" "
+		"onChange=\"RecurrenceShowHide();\">\n");
+	for (j=0; j<7; ++j) {
+		i = ((j + (int)weekstart) % 7);
+		wprintf("<option %svalue=\"%d\">%s</option>\n",
+			((i==rrymweekday) ? "selected " : ""),
+			i,
+			weekday_labels[i]
+		);
+	}
+	wprintf("</select>");
+
+	wprintf(" %s ", _("of"));
+
+	wprintf("<select name=\"rrymonth\" id=\"rrymonth\" size=\"1\" "
+		"onChange=\"RecurrenceShowHide();\">\n");
+	for (i=1; i<=12; ++i) {
+		wprintf("<option %svalue=\"%d\">%s</option>\n",
+			((i==rrymonth) ? "selected " : ""),
+			i,
+			month_labels[i-1]
+		);
+	}
+	wprintf("</select>");
+	wprintf("<br />\n");
 
 	wprintf("</div>\n");				/* end 'yearday_selector' div */
-
-
 
 	wprintf("</td></tr>\n");
 
