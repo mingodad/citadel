@@ -337,15 +337,17 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"transparent\"");
-	if (v != NULL) if (icalvalue_get_transp(v) == ICAL_TRANSP_TRANSPARENT)
+	if ((v != NULL) && (icalvalue_get_transp(v) == ICAL_TRANSP_TRANSPARENT)) {
 		wprintf(" CHECKED");
+	}
 	wprintf(">");
 	wprintf(_("Free"));
 	wprintf("&nbsp;&nbsp;");
 
 	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"opaque\"");
-	if (v != NULL) if (icalvalue_get_transp(v) == ICAL_TRANSP_OPAQUE)
+	if ((v != NULL) && (icalvalue_get_transp(v) == ICAL_TRANSP_OPAQUE)) {
 		wprintf(" CHECKED");
+	}
 	wprintf(">");
 	wprintf(_("Busy"));
 
