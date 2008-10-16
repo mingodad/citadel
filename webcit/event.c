@@ -597,16 +597,16 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<div id=\"yearday_selector\">");	/* begin 'yearday_selector' div */
 
-	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rrmonthtype_ymday\" "
+	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ymday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rryeartype_is_preselected == 0) ? "checked" : "")
 	);
 	wprintf(_("every "));
 	wprintf("<span id=\"ymday\">%s</span><br />", _("year on this date"));
 
-	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rrmonthtype_ywday\" "
+	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ywday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
-		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
+		((which_rryeartype_is_preselected == 1) ? "checked" : "")
 	);
 
 	wprintf(_("on the "));
