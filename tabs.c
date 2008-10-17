@@ -13,17 +13,17 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 	int i;
 
 	StrBufAppendPrintf(WC->trailing_javascript,
-		"var previously_selected_tab = '0';						"
-		"function tabsel(which_tab) {							"
-		"	if (which_tab == previously_selected_tab) {				"
-		" 		return;								"
-		"	}									"
-		"	$('tabdiv'+previously_selected_tab).style.display = 'none';		"
-		"	$('tabdiv'+which_tab).style.display = 'block';				"
-		"	$('tabtd'+previously_selected_tab).className = 'tab_cell_edit';		"
-		"	$('tabtd'+which_tab).className = 'tab_cell_label';			"
-		"	previously_selected_tab = which_tab;					"
-		"}										"
+		"var previously_selected_tab = '0';						\n"
+		"function tabsel(which_tab) {							\n"
+		"	if (which_tab == previously_selected_tab) {				\n"
+		" 		return;								\n"
+		"	}									\n"
+		"	$('tabdiv'+previously_selected_tab).style.display = 'none';		\n"
+		"	$('tabdiv'+which_tab).style.display = 'block';				\n"
+		"	$('tabtd'+previously_selected_tab).className = 'tab_cell_edit';		\n"
+		"	$('tabtd'+which_tab).className = 'tab_cell_label';			\n"
+		"	previously_selected_tab = which_tab;					\n"
+		"}										\n"
 	);
 
 	wprintf("<table id=\"TheTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"

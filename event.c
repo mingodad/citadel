@@ -524,6 +524,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<div id=\"monthday_selector\">");	/* begin 'monthday_selector' div */
 
 	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_mday\" "
+		"value=\"rrmonthtype_mday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
 	);
@@ -550,6 +551,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<br />\n");
 
 	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_wday\" "
+		"value=\"rrmonthtype_wday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
 	);
@@ -600,6 +602,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<div id=\"yearday_selector\">");	/* begin 'yearday_selector' div */
 
 	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ymday\" "
+		"value=\"rryeartype_ymday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rryeartype_is_preselected == 0) ? "checked" : "")
 	);
@@ -607,6 +610,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<span id=\"ymday\">%s</span><br />", _("year on this date"));
 
 	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ywday\" "
+		"value=\"rryeartype_ywday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rryeartype_is_preselected == 1) ? "checked" : "")
 	);
@@ -663,12 +667,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</b></td><td>\n");
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_none\" "
+		"value=\"rrend_none\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 0) ? "checked" : "")
 	);
 	wprintf("%s<br />\n", _("No ending date"));
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_count\" "
+		"value=\"rrend_count\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 1) ? "checked" : "")
 	);
@@ -679,6 +685,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<br />\n");
 
 	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_until\" "
+		"value=\"rrend_until\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 2) ? "checked" : "")
 	);
@@ -871,6 +878,58 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 				)
 			);
 		}
+
+		/* recurrence rules -- begin */
+
+		/* remove any existing rule */
+		while (prop = icalcomponent_get_first_property(vevent, ICAL_RRULE_PROPERTY), prop != NULL) {
+			icalcomponent_remove_property(vevent, prop);
+			icalproperty_free(prop);
+		}
+
+		if (yesbstr("is_recur")) {
+			struct icalrecurrencetype recur;
+			icalrecurrencetype_clear(&recur);
+
+			recur.interval = atoi(bstr("interval"));
+			recur.freq = atoi(bstr("freq"));
+
+			switch(recur.freq) {
+
+				/* These can't happen; they're disabled. */
+				case ICAL_SECONDLY_RECURRENCE:
+					break;
+				case ICAL_MINUTELY_RECURRENCE:
+					break;
+				case ICAL_HOURLY_RECURRENCE:
+					break;
+
+				/* These are the real options. */
+				case ICAL_DAILY_RECURRENCE:
+					break;
+				case ICAL_WEEKLY_RECURRENCE:
+					break;
+				case ICAL_MONTHLY_RECURRENCE:
+					break;
+				case ICAL_YEARLY_RECURRENCE:
+					break;
+
+				/* This one can't happen either. */
+				case ICAL_NO_RECURRENCE:
+					break;
+			}
+
+			if (!strcasecmp(bstr("rrend"), "rrend_count")) {
+				recur.count = atoi(bstr("rrcount"));
+			}
+			else if (!strcasecmp(bstr("rrend"), "rrend_until")) {
+				icaltime_from_webform_dateonly(&recur.until, "rruntil");
+			}
+
+			icalcomponent_add_property(vevent, icalproperty_new_rrule(recur));
+		}
+
+		/* recurrence rules -- end */
 
 		/* See if transparency is indicated */
 		if (havebstr("transp")) {

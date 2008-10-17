@@ -547,6 +547,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 			if (final_recurrence > calv->upper_bound) stop_rr = 1;
 		}
 	}
+	icalrecur_iterator_free(ritr);
 	/* lprintf(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
 
 }
