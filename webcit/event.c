@@ -904,13 +904,25 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 				case ICAL_HOURLY_RECURRENCE:
 					break;
 
-				/* These are the real options. */
+				/* Daily is valid but there are no further inputs. */
 				case ICAL_DAILY_RECURRENCE:
 					break;
+
+				/* These are the real options. */
+
 				case ICAL_WEEKLY_RECURRENCE:
+					j=0;
+					for (i=0; i<7; ++i) {
+						snprintf(buf, sizeof buf, "weekday%d", i);
+						if (YESBSTR(buf)) recur.by_day[j++] =
+							icalrecurrencetype_day_day_of_week(i+1);
+					}
+					recur.by_day[j++] = ICAL_RECURRENCE_ARRAY_MAX;
 					break;
+
 				case ICAL_MONTHLY_RECURRENCE:
 					break;
+
 				case ICAL_YEARLY_RECURRENCE:
 					break;
 
