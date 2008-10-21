@@ -529,9 +529,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
 	);
 
-	int rrmday = 1;					/* FIXME default to same as event start */
+	int rrmday = t_start.day;
 	int rrmweek = 1;				/* FIXME default to same as event start */
-	int rrmweekday = 1;				/* FIXME default to same as event start */
+	int rrmweekday = icaltime_day_of_week(t_start) - 1;
 
 	if (recur.by_month_day[0] != ICAL_RECURRENCE_ARRAY_MAX) {
 		which_rrmonthtype_is_preselected = 0;
