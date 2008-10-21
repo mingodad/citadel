@@ -529,7 +529,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
 	);
 
-	char mdaybox[256];
 	int rrmday = 1;					/* FIXME default to same as event start */
 	int rrmweek = 1;				/* FIXME default to same as event start */
 	int rrmweekday = 1;				/* FIXME default to same as event start */
@@ -544,10 +543,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		rrmweekday = icalrecurrencetype_day_day_of_week(recur.by_day[0]) - 1;
 	}
 
-	snprintf(mdaybox, sizeof mdaybox,
-		"<input type=\"text\" name=\"rrmday\" id=\"rrmday\" maxlength=\"2\" size=\"2\" "
-		"value=\"%d\">", rrmday);
-	wprintf(_("on day %s of the month"), mdaybox);
+	wprintf(_("on day %s%d%s of the month"), "<span id=\"rrmday\">", rrmday, "</span>");
 	wprintf("<br />\n");
 
 	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_wday\" "
@@ -921,6 +917,13 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 					break;
 
 				case ICAL_MONTHLY_RECURRENCE:
+					if (!strcasecmp(bstr("rrmonthtype"), "rrmonthtype_mday")) {
+						recur.by_month_day[0] = event_start.day;
+						recur.by_month_day[1] = ICAL_RECURRENCE_ARRAY_MAX;
+					}
+					else if (!strcasecmp(bstr("rrmonthtype"), "rrmonthtype_wday")) {
+						lprintf(9, "MONTHLY BY WDAY\n");
+					}
 					break;
 
 				case ICAL_YEARLY_RECURRENCE:
