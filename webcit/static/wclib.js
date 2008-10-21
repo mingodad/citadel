@@ -1051,6 +1051,7 @@ function RecurrenceShowHide() {
 	}
 
 	$('ymday').innerHTML = 'XXXX-' + $('dtstart').value.substr(5);
+	$('rrmday').innerHTML = $('dtstart').value.substr(8);
 
 	if ($('rryeartype_ywday').checked) {
 		$('rrymweek').disabled = false;
