@@ -530,8 +530,15 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	);
 
 	int rrmday = t_start.day;
-	int rrmweek = 1;				/* FIXME default to same as event start */
 	int rrmweekday = icaltime_day_of_week(t_start) - 1;
+
+	/* Figure out what week of the month we're in */
+	icaltimetype day1 = t_start;
+	day1.day = 1;
+	int weekbase = icaltime_week_number(day1);
+	int rrmweek = icaltime_week_number(t_start) - weekbase + 1;
+
+	/* Are we going by day of the month or week/day? */
 
 	if (recur.by_month_day[0] != ICAL_RECURRENCE_ARRAY_MAX) {
 		which_rrmonthtype_is_preselected = 0;
@@ -581,9 +588,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</div>\n");				/* end 'monthday_selector' div */
 
 
-	int rrymweek = 1;				/* FIXME default to same as event start */
-	int rrymweekday = 1;				/* FIXME default to same as event start */
-	int rrymonth = 1;				/* FIXME default to same as event start */
+	int rrymweek = rrmweek;
+	int rrymweekday = rrmweekday;
+	int rrymonth = t_start.month;
+
+	lprintf(9, "FIXME: RRYMWEEK %d, RRYMWEEKDAY %d, RRYMONTH %d\n", rrymweek, rrymweekday, rrymonth);
 
 	int which_rryeartype_is_preselected = 0;
 
