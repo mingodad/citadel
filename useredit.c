@@ -588,9 +588,18 @@ void display_edituser(char *supplied_username, int is_new) {
 	}
 	else {
 		UL = NewUserListOneEntry(Buf);
-		output_headers(1, 0, 0, 0, 1, 0);
-		DoTemplate(HKEY("userlist_detailview"), NULL, (void*) UL, CTX_USERLIST);
-		end_burst();
+		if (havebstr("edit_abe_button")) {
+			display_edit_address_book_entry(username, UL->UID);
+		}
+		else if (havebstr("delete_button")) {
+			delete_user(username);
+		}
+		else {
+			output_headers(1, 0, 0, 0, 1, 0);
+			DoTemplate(HKEY("userlist_detailview"), NULL, (void*) UL, CTX_USERLIST);
+			end_burst();
+		}
+		DeleteUserListEntry(UL);
 		
 	}
 	FreeStrBuf(&Buf);
