@@ -69,72 +69,73 @@ void httplang_to_locale(StrBuf *LocaleString)
 	nParts=StrBufNum_tokens(LocaleString,',');
 	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++)
         {
-			char sbuf[16];
-			char lbuf[16];
-			int blen;
+		char lbuf[16];
+		int blen;
 			
-			if (Buf == NULL) {
-				Buf = NewStrBuf();
-				SBuf = NewStrBuf();
-			}
-			else {
-				FlushStrBuf(Buf);
-				FlushStrBuf(SBuf);
-			}
+		if (Buf == NULL) {
+			Buf = NewStrBuf();
+			SBuf = NewStrBuf();
+		}
+		else {
+			FlushStrBuf(Buf);
+			FlushStrBuf(SBuf);
+		}
 
-			ls=&wanted_locales[i];
+		ls=&wanted_locales[i];
 
-			StrBufExtract_token(Buf,LocaleString, i,',');
-			/** we are searching, if this list item has something like ;q=n*/
-			if (StrBufNum_tokens(Buf,'=')>1) {
-				int sbuflen, k;
-				StrBufExtract_token(SBuf,Buf, 1,'=');
-				sbuflen=strlen(&sbuf[0]);
-				for (k=0; k<sbuflen; k++) if (sbuf[k]=='.') sbuf[k]='0';
-				ls->priority=atol(&sbuf[0]);
-			}
-			else {
-				ls->priority=1000;
-			}
-			/** get the locale part */
-			StrBufExtract_token(SBuf ,Buf, 0, ';');
-			/** get the lang part, which should be allways there */
-			extract_token(&ls->lang[0], ChrPtr(SBuf), 0, '-', 16);
-			/** get the area code if any. */
-			if (StrBufNum_tokens(SBuf,'-') > 1) {
-				extract_token(&ls->region[0],ChrPtr(SBuf),1,'-',16);
-			}
-			else { /** no ara code? use lang code */
-				blen=strlen(&ls->lang[0]);
-				memcpy(&ls->region[0], ls->lang,blen);
-				ls->region[blen]='\0';
-			} /** area codes are uppercase */
-			blen=strlen(&ls->region[0]);
-			for (j=0; j<blen; j++)
-				{
-					int chars=toupper(ls->region[j]);
-					ls->region[j]=(char)chars;/** \todo ?! */
-				}
-			sprintf(&lbuf[0],"%s_%s",&ls->lang[0],&ls->region[0]);
+		StrBufExtract_token(Buf,LocaleString, i,',');
+		/** we are searching, if this list item has something like ;q=n*/
+		if (StrBufNum_tokens(Buf,'=')>1) {
+			int sbuflen, k;
+			StrBufExtract_token(SBuf,Buf, 1,'=');
+			sbuflen=StrLength(SBuf);
+			for (k=0; k<sbuflen; k++) 
+				if (ChrPtr(SBuf)[k]=='.') 
+					StrBufPeek(SBuf, NULL, k, '0');
+			ls->priority=StrTol(SBuf);
+		}
+		else {
+			ls->priority=1000;
+		}
+		/** get the locale part */
+		StrBufExtract_token(SBuf ,Buf, 0, ';');
+		/** get the lang part, which should be allways there */
+		extract_token(&ls->lang[0], ChrPtr(SBuf), 0, '-', 16);
+		/** get the area code if any. */
+		if (StrBufNum_tokens(SBuf,'-') > 1) {
+			extract_token(&ls->region[0],ChrPtr(SBuf),1,'-',16);
+		}
+		else { /** no ara code? use lang code */
+			blen=strlen(&ls->lang[0]);
+			memcpy(&ls->region[0], ls->lang,blen);
+			ls->region[blen]='\0';
+		} /** area codes are uppercase */
+		blen=strlen(&ls->region[0]);
+		for (j=0; j<blen; j++)
+		{
+			int chars=toupper(ls->region[j]);
+			ls->region[j]=(char)chars;/** \todo ?! */
+		}
+		sprintf(&lbuf[0],"%s_%s",&ls->lang[0],&ls->region[0]);
 			
-			/** check if we have this lang */
-			ls->availability=1;
-			ls->selectedlang=-1;
-			for (j=0; j<nLocalesLoaded; j++) {
-				int result;
-				/** match against the LANG part */
-				result=strcasecmp(&ls->lang[0], AvailLangLoaded[j]);
-				if ((result<0)&&(result<ls->availability)){
-					ls->availability=result;
-					ls->selectedlang=j;
-				}
-				/** match against lang and locale */
-				if (0==strcasecmp(&lbuf[0], AvailLangLoaded[j])){
-					ls->availability=0;
-					ls->selectedlang=j;
-					j=nLocalesLoaded;
-				}
+		/** check if we have this lang */
+		ls->availability=1;
+		ls->selectedlang=-1;
+		for (j=0; j<nLocalesLoaded; j++) {
+			int result;
+			/** match against the LANG part */
+			result=strcasecmp(&ls->lang[0], AvailLangLoaded[j]);
+			if ((result<0)&&(result<ls->availability)){
+				ls->availability=result;
+				ls->selectedlang=j;
 			}
+			/** match against lang and locale */
+			if (0==strcasecmp(&lbuf[0], AvailLangLoaded[j])){
+				ls->availability=0;
+				ls->selectedlang=j;
+				j=nLocalesLoaded;
+			}
+		}
         }
 	
 	prio=0;
