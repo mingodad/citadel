@@ -1,3 +1,15 @@
+Updated install instructions for Citadel and Webcit 7.37 (28/10/2008):
+External libraries:
+1. libsieve
+Some patches need to be applied to the libsieve to make it compile. You can
+get these from MacPorts:
+http://trac.macports.org/browser/trunk/dports/mail/libsieve/
+2. gettext
+You will need to install gettext and add "-lintl" to LIBS in webcit's makefile
+to make that compile
+http://ftp.gnu.org/pub/gnu/gettext/
+
+Older instructions from 10.4 era (2005):
 Theres only a brief bit on OS X in the docs but to save some people time
 perhaps this can be noted somewhere:
 
