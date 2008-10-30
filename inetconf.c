@@ -386,12 +386,12 @@ void InetCfgSubst(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
 	SVPutBuf("SERVCFG:INET:HOSTNAME", vContext, 1);
 }
 
-void DeleteInectConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void DeleteInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
-	if (WCC->InetCfg == NULL)
-		load_inetconf();
-	DeleteHash(&WCC->InetCfg);
+
+	if (WCC->InetCfg != NULL)
+		DeleteHash(&WCC->InetCfg);
 
 }
 
@@ -418,5 +418,5 @@ InitModule_INETCONF
 	WebcitAddUrlHandler(HKEY("display_inetconf"), display_inetconf, 0);
 	WebcitAddUrlHandler(HKEY("save_inetconf"), new_save_inetconf, AJAX);
 	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, InetCfgSubst, NULL, CTX_INETCFG);
-	RegisterNamespace("SERVCFG:FLUSHINETCFG",0, 0, DeleteInectConfHash, CTX_INETCFG);
+	RegisterNamespace("SERVCFG:FLUSHINETCFG",0, 0, DeleteInetConfHash, CTX_NONE);
 }
