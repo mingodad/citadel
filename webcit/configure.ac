@@ -51,6 +51,8 @@ case "$host" in
 	*-*-solaris*)
 		PTHREAD_DEFS='-D_REENTRANT -D_PTHREADS'
 	;;
+	*-*-darwin*)
+		LIBS=-lintl
 esac
 AC_SUBST(PTHREAD_DEFS)
 

@@ -49,6 +49,9 @@
 #endif
 
 #ifdef ENABLE_NLS
+#ifdef __APPLE__
+#include <xlocale.h>
+#endif
 #include <libintl.h>
 #include <locale.h>
 #ifdef HAVE_USELOCALE
