@@ -1,3 +1,4 @@
+
 /* $Id$ */
 
 #include "sysdep.h"
@@ -49,7 +50,7 @@
 #endif
 
 #ifdef ENABLE_NLS
-#ifdef __APPLE__
+#ifdef HAVE_XLOCALE_H
 #include <xlocale.h>
 #endif
 #include <libintl.h>

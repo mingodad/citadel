@@ -99,7 +99,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
 AC_REPLACE_FUNCS(snprintf)
-AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h iconv.h)
+AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h iconv.h xlocale.h)
 
 
 dnl Here is the check for a libc integrated iconv
