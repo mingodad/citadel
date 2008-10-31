@@ -113,10 +113,12 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
+	#ifndef __APPLE__
 	fcntl(s, F_SETFL, O_NONBLOCK); /* maide: this statement is incorrect
 					  there should be a preceding F_GETFL
 					  and a bitwise OR with the previous
 					  fd flags */
+	#endif
 	
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(1, "Can't bind: %s\n", strerror(errno));
