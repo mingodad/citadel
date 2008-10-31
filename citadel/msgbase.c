@@ -1623,7 +1623,6 @@ int CtdlOutputPreLoadedMsg(
 	char luser[100];
 	char fuser[100];
 	char snode[100];
-	char lnode[100];
 	char mid[100];
 	char datestamp[100];
 
@@ -1783,7 +1782,6 @@ int CtdlOutputPreLoadedMsg(
 	strcpy(luser, "");
 	strcpy(fuser, "");
 	strcpy(snode, NODENAME);
-	strcpy(lnode, HUMANNODE);
 	if (mode == MT_RFC822) {
 		for (i = 0; i < 256; ++i) {
 			if (TheMessage->cm_fields[i]) {
@@ -1815,8 +1813,6 @@ int CtdlOutputPreLoadedMsg(
 				}
 				else if (i == 'I')
 					safestrncpy(mid, mptr, sizeof mid);
-				else if (i == 'H')
-					safestrncpy(lnode, mptr, sizeof lnode);
 				else if (i == 'F')
 					safestrncpy(fuser, mptr, sizeof fuser);
 				/* else if (i == 'O')
@@ -1894,8 +1890,6 @@ int CtdlOutputPreLoadedMsg(
 		else {
 			cprintf("From: \"%s\" <%s@%s>%s", luser, suser, snode, nl);
 		}
-
-		cprintf("Organization: %s%s", lnode, nl);
 
 		/* Blank line signifying RFC822 end-of-headers */
 		if (TheMessage->cm_format_type != FMT_RFC822) {

@@ -1009,6 +1009,7 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 		}
 
 	} while ( (rrule) && (!icaltime_is_null_time(t2start)) && (num_recur < MAX_RECUR) );
+	icalrecur_iterator_free(ritr);
 	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over existing event %d times.\n", num_recur);
 }
 
@@ -1078,6 +1079,7 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 		}
 
 	} while ( (rrule) && (!icaltime_is_null_time(t1start)) && (num_recur < MAX_RECUR) );
+	icalrecur_iterator_free(ritr);
 	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over proposed event %d times.\n", num_recur);
 }
 
