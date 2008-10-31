@@ -713,7 +713,7 @@ int client_write(char *buf, int nbytes)
  */
 void cprintf(const char *format, ...) {   
 	va_list arg_ptr;   
-	char buf[1024];   
+	char buf[1024];
    
 	va_start(arg_ptr, format);   
 	if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
