@@ -892,6 +892,12 @@ int ConditionalRoomAide(WCTemplateToken *Token, void *Context, int ContextType)
 	return (WC->is_room_aide == 0);
 }
 
+int ConditionalRoomAcessDelete(WCTemplateToken *Token, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	return ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) );
+}
+
 
 
 void _display_openid_login(void) {display_openid_login(NULL);}
@@ -917,6 +923,7 @@ InitModule_AUTH
 
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
+	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);
 
 	return ;
 }

@@ -600,6 +600,7 @@ void context_loop(int *sock)
 #ifdef ENABLE_NLS
 	stop_selected_language();				/* unset locale */
 #endif
+	DeleteHash(&TheSession->summ);
 	DeleteHash(&TheSession->urlstrings);
 	DeleteHash(&TheSession->vars);
 	FreeStrBuf(&TheSession->WBuf);

@@ -996,15 +996,15 @@ void load_ical_object(long msgnum, int unread,
 /*
  * Display a calendar item
  */
-void load_calendar_item(long msgnum, int unread, struct calview *c) {
-	load_ical_object(msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal, c);
+void load_calendar_item(message_summary *Msg, int unread, struct calview *c) {
+	load_ical_object(Msg->msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal, c);
 }
 
 /*
  * Display task view
  */
-void display_task(long msgnum, int unread) {
-	load_ical_object(msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal, NULL);
+void display_task(message_summary *Msg, int unread) {
+	load_ical_object(Msg->msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal, NULL);
 }
 
 /*

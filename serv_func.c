@@ -423,5 +423,11 @@ int read_server_text(StrBuf *Buf, long *nLines)
 }
 
 
+int GetServerStatus(StrBuf *Line, long* FullState)
+{
+	if (FullState != NULL)
+		*FullState = StrTol(Line);
+	return ChrPtr(Line)[0] - 48;
+}
 
 /*@}*/

@@ -337,10 +337,10 @@ void ajax_update_note(void) {
  *
  * msgnum = Message number on the local server of the note to be displayed
  */
-void display_note(long msgnum, int unread) {
+void display_note(message_summary *Msg, int unread) {
 	struct vnote *v;
 
-	v = vnote_new_from_msg(msgnum);
+	v = vnote_new_from_msg(Msg->msgnum);
 	if (v) {
 //		display_vnote_div(v);
 		DoTemplate(HKEY("vnoteitem"),

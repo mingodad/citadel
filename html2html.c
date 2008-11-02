@@ -82,7 +82,7 @@ void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_
  *
  * \param supplied_charset the input charset as declared in the MIME headers
  */
-void output_html(char *supplied_charset, int treat_as_wiki, int msgnum) {
+void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, StrBuf *Source, StrBuf *Target) {
 	char buf[SIZ];
 	char *msg;
 	char *ptr;
@@ -108,21 +108,23 @@ void output_html(char *supplied_charset, int treat_as_wiki, int msgnum) {
 	size_t obuflen;               /**< Length of output buffer              */
 	char *osav;                   /**< Saved pointer to output buffer       */
 #endif
+	if (Target == NULL)
+		Target = WC->WBuf;
 
 	safestrncpy(charset, supplied_charset, sizeof charset);
 	msg = strdup("");
 	sprintf(new_window, "<a target=\"%s\" href=", TARGET);
 
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+	if (Source == NULL) while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		line_length = strlen(buf);
 		buffer_length = content_length + line_length + 2;
 		ptr = realloc(msg, buffer_length);
 		if (ptr == NULL) {
-			wprintf("<b>");
-			wprintf(_("realloc() error! couldn't get %d bytes: %s"),
+			StrBufAppendPrintf(Target, "<b>");
+			StrBufAppendPrintf(Target, _("realloc() error! couldn't get %d bytes: %s"),
 				buffer_length + 1,
 				strerror(errno));
-			wprintf("</b><br /><br />\n");
+			StrBufAppendPrintf(Target, "</b><br /><br />\n");
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				/** flush */
 			}
@@ -134,6 +136,11 @@ void output_html(char *supplied_charset, int treat_as_wiki, int msgnum) {
 		content_length += line_length;
 		strcpy(&msg[content_length], "\n");
 		content_length += 1;
+	}
+	else {
+		content_length = StrLength(Source);
+		msg = (char*) ChrPtr(Source);/* TODO: remove cast */
+		buffer_length = content_length;
 	}
 
 	/** Do a first pass to isolate the message body */
@@ -266,7 +273,7 @@ void output_html(char *supplied_charset, int treat_as_wiki, int msgnum) {
 	/** Now go through the message, parsing tags as necessary. */
 	converted_msg = NewStrBufPlain(NULL, content_length + 8192);
 	if (converted_msg == NULL) {
-		wprintf("Error %d: %s<br />%s:%d", errno, strerror(errno), __FILE__, __LINE__);
+		StrBufAppendPrintf(Target, "Error %d: %s<br />%s:%d", errno, strerror(errno), __FILE__, __LINE__);
 		goto BAIL;
 	}
 
@@ -448,10 +455,10 @@ void output_html(char *supplied_charset, int treat_as_wiki, int msgnum) {
 	/**	output_length = content_length;				*/
 
 	/** Output our big pile of markup */
-	StrBufAppendBuf(WC->WBuf, converted_msg, 0);
+	StrBufAppendBuf(Target, converted_msg, 0);
 
 BAIL:	/** A little trailing vertical whitespace... */
-	wprintf("<br /><br />\n");
+	StrBufAppendPrintf(Target, "<br /><br />\n");
 
 	/** Now give back the memory */
 	FreeStrBuf(&converted_msg);

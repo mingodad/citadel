@@ -77,10 +77,15 @@ void new_messages_section(void) {
  */
 void tasks_section(void) {
 	int num_msgs = 0;
-	int i;
+	HashPos *at;
+	const char *HashKey;
+	long HKLen;
+	void *vMsg;
+	message_summary *Msg;
+	struct wcsession *WCC = WC;
 
 	gotoroom("_TASKS_");
-	if (WC->wc_view != VIEW_TASKS) {
+	if (WCC->wc_view != VIEW_TASKS) {
 		num_msgs = 0;
 	}
 	else {
@@ -93,8 +98,10 @@ void tasks_section(void) {
 		wprintf("</i><br />\n");
 	}
 	else {
-		for (i=0; i<num_msgs; ++i) {
-			display_task(WC->msgarr[i], 0);
+		at = GetNewHashPos();
+		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+			Msg = (message_summary*) vMsg;		
+			display_task(Msg, 0);
 		}
 	}
 
@@ -107,7 +114,12 @@ void tasks_section(void) {
  */
 void calendar_section(void) {
 	int num_msgs = 0;
-	int i;
+	HashPos *at;
+	const char *HashKey;
+	long HKLen;
+	void *vMsg;
+	message_summary *Msg;
+	struct wcsession *WCC = WC;
 	struct calview c;
 
 	gotoroom("_CALENDAR_");
@@ -126,8 +138,10 @@ void calendar_section(void) {
 		wprintf("</i><br />\n");
 	}
 	else {
-		for (i=0; i<num_msgs; ++i) {
-			load_calendar_item(WC->msgarr[i], 0, &c);
+		at = GetNewHashPos();
+		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+			Msg = (message_summary*) vMsg;		
+			load_calendar_item(Msg, 0, &c);
 		}
 		calendar_summary_view();
 	}
