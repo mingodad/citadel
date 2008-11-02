@@ -731,6 +731,7 @@ void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
 void escputs(char *strbuf);
 void url(char *buf, size_t bufsize);
+void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf);
 void escputs1(char *strbuf, int nbsp, int nolinebreaks);
 void msgesc(char *target, size_t tlen, char *strbuf);
 void msgescputs(char *strbuf);
@@ -914,10 +915,6 @@ void webcit_fmt_date(char *buf, time_t thetime, int brief);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 
 int is_mobile_ua(char *user_agent);
-
-#ifdef HAVE_ICONV
-iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode);
-#endif
 
 void embed_room_banner(char *, int);
 
