@@ -645,77 +645,78 @@ void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData)
 
 void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 {
-	/* Boring old 80-column fixed format text gets handled this way... * /
+	const char *ptr, *pte;
+	const char *BufPtr = NULL;
+	StrBuf *Line = NewStrBuf();
+	StrBuf *Line1 = NewStrBuf();
+	StrBuf *Line2 = NewStrBuf();
+	StrBuf *Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
+	int ConvertIt = 1;
+	int bn = 0;
+	int bq = 0;
+	int i;
+	long len;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;		   / **< Buffer of characters to be converted * /
-	char *obuf;		   / **< Buffer for converted characters      * /
-	size_t ibuflen;	   / **< Length of input buffer	       * /
-	size_t obuflen;	   / **< Length of output buffer	      * /
-	char *osav;		   / **< Saved pointer to output buffer       * /
 #endif
 
-	/ * Set up a character set conversion if we need to (and if we can) * /
+	if ((strcasecmp(ChrPtr(Mime->Charset), "us-ascii") == 0) &&
+	    (strcasecmp(ChrPtr(Mime->Charset), "UTF-8") == 0))
+		ConvertIt = 0;
+
 #ifdef HAVE_ICONV
-	if (strchr(mime_charset, ';')) strcpy(strchr(mime_charset, ';'), "");
-	if ( (strcasecmp(mime_charset, "us-ascii"))
-	   && (strcasecmp(mime_charset, "UTF-8"))
-	   && (strcasecmp(mime_charset, ""))
-	) {
-		ic = ctdl_iconv_open("UTF-8", mime_charset);
+	if (ConvertIt) {
+		ctdl_iconv_open("UTF-8", ChrPtr(Mime->Charset), &ic);
 		if (ic == (iconv_t)(-1) ) {
 			lprintf(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
-				__FILE__, __LINE__, mime_charset, strerror(errno));
+				__FILE__, __LINE__, ChrPtr(Mime->Charset), strerror(errno));
 		}
 	}
 #endif
 
-	buf [0] = '\0';
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		int len;
-		len = strlen(buf);
-		if ((len > 0) && buf[len-1] == '\n') buf[--len] = 0;
-		if ((len > 0) && buf[len-1] == '\r') buf[--len] = 0;
+	while (StrBufSipLine(Line, Mime->Data, &BufPtr) > 0)
+	{
+		bq = 0;
+		i = 0;
+
+		ptr = ChrPtr(Line);
+		len = StrLength(Line);
+		pte = ptr + len;
 		
-#ifdef HAVE_ICONV
-		if (ic != (iconv_t)(-1) ) {
-			ibuf = buf;
-			ibuflen = strlen(ibuf);
-			obuflen = SIZ;
-			obuf = (char *) malloc(obuflen);
-			osav = obuf;
-			iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-			osav[SIZ-obuflen] = 0;
-			safestrncpy(buf, osav, sizeof buf);
-			free(osav);
+		while ((ptr < pte) &&
+		       ((*ptr == '>') ||
+			isspace(*ptr)))
+		{
+			if (*ptr == '>')
+				bq++;
+			ptr ++;
+			i++;
 		}
-#endif
+		if (i > 0) StrBufCutLeft(Line, i);
+		for (i = bn; i < bq; i++)				
+			StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
+		for (i = bq; i < bn; i++)				
+			StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
 		
-		len = strlen(buf);
-		while ((!IsEmptyStr(buf)) && (isspace(buf[len-1])))
-			buf[--len] = 0;
-		if ((bq == 0) &&
-		    ((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) )) {
-			wprintf("<blockquote>");
-			bq = 1;
-		} else if ((bq == 1) &&
-			   (strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) ) {
-			wprintf("</blockquote>");
-			bq = 0;
-		}
-		wprintf("<tt>");
-		url(buf, sizeof(buf));
-		escputs(buf);
-		wprintf("</tt><br />\n");
+		StrBufAppendBufPlain(Target, HKEY("<tt>"), 0);
+		UrlizeText(Line1, Line, Line2);
+
+		StrEscAppend(Target, Line1, NULL, 0, 0);
+		StrBufAppendBufPlain(Target, HKEY("</tt><br />\n"), 0);
+		bn = bq;
+
 	}
-	wprintf("</i><br />")
+
+	/* Boring old 80-column fixed format text gets handled this way... */
+	StrBufAppendBufPlain(Target, HKEY("</i><br />"), 0);
 #ifdef HAVE_ICONV
 	if (ic != (iconv_t)(-1) ) {
 		iconv_close(ic);
 	}
 #endif
-;
-	*/
+	FreeStrBuf(&Mime->Data);
+	Mime->Data = Target;
+
 }
 
 void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData)
@@ -723,7 +724,10 @@ void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData)
 	StrBuf *Buf;
 	/* HTML is fun, but we've got to strip it first */
 	Buf = NewStrBufPlain(NULL, StrLength(Mime->Data));
-	output_html(ChrPtr(Mime->Charset), (WC->wc_view == VIEW_WIKI ? 1 : 0), Mime->PartNum, Mime->Data, Buf);
+	output_html(ChrPtr(Mime->Charset), 
+		    (WC->wc_view == VIEW_WIKI ? 1 : 0), 
+		    StrToi(Mime->PartNum), 
+		    Mime->Data, Buf);
 	FreeStrBuf(&Mime->Data);
 	Mime->Data = Buf;
 }
@@ -745,6 +749,63 @@ void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData)
  * Look for URL's embedded in a buffer and make them linkable.  We use a
  * target window in order to keep the Citadel session in its own window.
  */
+void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf)
+{
+	int len, UrlLen, Offset, TrailerLen;
+	const char *start, *end, *pos;
+	
+	FlushStrBuf(Target);
+
+	start = NULL;
+	len = StrLength(Source);
+	end = ChrPtr(Source) + len;
+	for (pos = ChrPtr(Source); (pos < end) && (start == NULL); ++pos) {
+		if (!strncasecmp(pos, "http://", 7))
+			start = pos;
+		if (!strncasecmp(pos, "ftp://", 6))
+			start = pos;
+	}
+
+	if (start == NULL) {
+		StrBufAppendBuf(Target, Source, 0);
+		return;
+	}
+	FlushStrBuf(WrkBuf);
+
+	for (pos = ChrPtr(Source) + len; pos > start; --pos) {
+		if (  (!isprint(*pos))
+		   || (isspace(*pos))
+		   || (*pos == '{')
+		   || (*pos == '}')
+		   || (*pos == '|')
+		   || (*pos == '\\')
+		   || (*pos == '^')
+		   || (*pos == '[')
+		   || (*pos == ']')
+		   || (*pos == '`')
+		   || (*pos == '<')
+		   || (*pos == '>')
+		   || (*pos == '(')
+		   || (*pos == ')')
+		) {
+			end = pos;
+		}
+	}
+	
+	UrlLen = end - start;
+	StrBufAppendBufPlain(WrkBuf, start, UrlLen, 0);
+
+	Offset = start - ChrPtr(Source);
+	if (Offset != 0)
+		StrBufAppendBufPlain(Target, ChrPtr(Source), Offset, 0);
+	StrBufAppendPrintf(Target, "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
+			   LB, QU, ChrPtr(WrkBuf), QU, QU, TARGET, 
+			   QU, RB, ChrPtr(WrkBuf), LB, RB);
+
+	TrailerLen = len - (end - start);
+	if (TrailerLen > 0)
+		StrBufAppendBufPlain(Target, end, TrailerLen, 0);
+}
 void url(char *buf, size_t bufsize)
 {
 	int len, UrlLen, Offset, TrailerLen, outpos;
@@ -1322,6 +1383,15 @@ void read_message(long msgnum, int printable_view, char *section) {
 		}
 	}
 
+
+	if (GetHash(MimeRenderHandler, SKEY(Msg->MsgBody.ContentType), &vHdr) &&
+	    (vHdr != NULL)) {
+		RenderMimeFunc Render;
+		Render = (RenderMimeFunc)vHdr;
+		Render(&Msg->MsgBody, NULL);
+	}
+
+
 	if (StrLength(Msg->reply_references)> 0) {
 		/* Trim down excessively long lists of thread references.  We eliminate the
 		 * second one in the list so that the thread root remains intact.
@@ -1747,7 +1817,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	   && (strcasecmp(mime_charset, "UTF-8"))
 	   && (strcasecmp(mime_charset, ""))
 	) {
-		ic = ctdl_iconv_open("UTF-8", mime_charset);
+		ctdl_iconv_open("UTF-8", mime_charset, &ic);
 		if (ic == (iconv_t)(-1) ) {
 			lprintf(5, "%s:%d iconv_open(%s, %s) failed: %s\n",
 				__FILE__, __LINE__, "UTF-8", mime_charset, strerror(errno));

@@ -241,7 +241,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	   && (strcasecmp(charset, ""))
 	) {
 		lprintf(9, "Converting %s to UTF-8\n", charset);
-		ic = ctdl_iconv_open("UTF-8", charset);
+		ctdl_iconv_open("UTF-8", charset, &ic);
 		if (ic == (iconv_t)(-1) ) {
 			lprintf(5, "%s:%d iconv_open() failed: %s\n",
 				__FILE__, __LINE__, strerror(errno));
