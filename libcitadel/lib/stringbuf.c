@@ -1511,8 +1511,9 @@ void StrBufReplaceChars(StrBuf *buf, char search, char replace)
  * tocode	Target encoding
  * fromcode	Source encoding
  */
-static iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
+void  ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic)
 {
+#ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	ic = iconv_open(tocode, fromcode);
 	if (ic == (iconv_t)(-1) ) {
@@ -1524,11 +1525,11 @@ static iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
 			ic = iconv_open(tocode, alias_fromcode);
 		}
 	}
-	return(ic);
+	*(iconv_t *)pic = ic;
+#endif
 }
 
 
-#ifdef HAVE_ICONV
 
 static inline char *FindNextEnd (StrBuf *Buf, char *bptr)
 {
@@ -1555,6 +1556,46 @@ static inline char *FindNextEnd (StrBuf *Buf, char *bptr)
 }
 
 
+void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
+{
+#ifdef HAVE_ICONV
+	int BufSize;
+	iconv_t ic;
+	char *ibuf;			/**< Buffer of characters to be converted */
+	char *obuf;			/**< Buffer for converted characters */
+	size_t ibuflen;			/**< Length of input buffer */
+	size_t obuflen;			/**< Length of output buffer */
+
+
+	if (ConvertBuf->BufUsed > TmpBuf->BufSize)
+		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed);
+
+	ic = *(iconv_t*)pic;
+	ibuf = ConvertBuf->buf;
+	ibuflen = ConvertBuf->BufUsed;
+	obuf = TmpBuf->buf;
+	obuflen = TmpBuf->BufSize;
+	
+	iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+
+	/* little card game: wheres the red lady? */
+	ibuf = ConvertBuf->buf;
+	BufSize = ConvertBuf->BufSize;
+
+	ConvertBuf->buf = TmpBuf->buf;
+	ConvertBuf->BufSize = TmpBuf->BufSize;
+	ConvertBuf->BufUsed = TmpBuf->BufSize - obuflen;
+	ConvertBuf->buf[ConvertBuf->BufUsed] = '\0';
+	
+	TmpBuf->buf = ibuf;
+	TmpBuf->BufSize = BufSize;
+	TmpBuf->BufUsed = 0;
+	TmpBuf->buf[0] = '\0';
+#endif
+}
+
+
+
 
 inline static void DecodeSegment(StrBuf *Target, 
 				 StrBuf *DecodeMe, 
@@ -1567,10 +1608,6 @@ inline static void DecodeSegment(StrBuf *Target,
 	char charset[128];
 	char encoding[16];
 	iconv_t ic = (iconv_t)(-1);
-	char *ibuf;			/**< Buffer of characters to be converted */
-	char *obuf;			/**< Buffer for converted characters */
-	size_t ibuflen;			/**< Length of input buffer */
-	size_t obuflen;			/**< Length of output buffer */
 
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
@@ -1582,12 +1619,12 @@ inline static void DecodeSegment(StrBuf *Target,
 	extract_token(encoding, SegmentStart, 2, '?', sizeof encoding);
 	StrBufExtract_token(ConvertBuf, &StaticBuf, 3, '?');
 	
-	if (!strcasecmp(encoding, "B")) {	/**< base64 */
+	if (*encoding == 'B') {	/**< base64 */
 		ConvertBuf2->BufUsed = CtdlDecodeBase64(ConvertBuf2->buf, 
 							ConvertBuf->buf, 
 							ConvertBuf->BufUsed);
 	}
-	else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
+	else if (*encoding == 'Q') {	/**< quoted-printable */
 		long pos;
 		
 		pos = 0;
@@ -1606,20 +1643,11 @@ inline static void DecodeSegment(StrBuf *Target,
 	else {
 		StrBufAppendBuf(ConvertBuf2, ConvertBuf, 0);
 	}
-	
-	ic = ctdl_iconv_open("UTF-8", charset);
-	if (ic != (iconv_t)(-1) ) {
-		ibuf = ConvertBuf2->buf;
-		obuf = ConvertBuf->buf;
-		ibuf = ConvertBuf2->buf;
-		obuflen = ConvertBuf->BufSize;
-		ibuflen = ConvertBuf2->BufUsed;
-		
-		iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-		ConvertBuf->BufUsed = ConvertBuf->BufSize - obuflen;
-		ConvertBuf->buf[ConvertBuf->BufUsed] = '\0';
-		
-		StrBufAppendBuf(Target, ConvertBuf, 0);
+
+	ctdl_iconv_open("UTF-8", charset, &ic);
+	if (ic != (iconv_t)(-1) ) {		
+		StrBufConvert(ConvertBuf2, ConvertBuf, &ic);
+		StrBufAppendBuf(Target, ConvertBuf2, 0);
 		iconv_close(ic);
 	}
 	else {
@@ -1664,7 +1692,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 	if (illegal_non_rfc2047_encoding) {
 		if ( (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
 		     (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) ) {
-			ic = ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset));
+			ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset), &ic);
 			if (ic != (iconv_t)(-1) ) {
 				long BufSize;
 				ibuf = DecodeMe->buf;
@@ -1769,10 +1797,6 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 	FreeStrBuf(&ConvertBuf);
 	FreeStrBuf(&ConvertBuf2);
 }
-#else
-void StrBuf_RFC822_to_Utf8(StrBuf **Buf, const StrBuf* DefaultCharset) {};
-
-#endif
 
 
 
@@ -1791,4 +1815,48 @@ long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
 		Buf->buf[Buf->BufUsed] = '\0';
 	}
 	return Buf->BufUsed;	
+}
+
+
+
+int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
+{
+	const char *aptr, *ptr, *eptr;
+	char *optr, *xptr;
+
+	if (Buf == NULL)
+		return 0;
+
+	if (*Ptr==NULL)
+		ptr = aptr = Buf->buf;
+	else
+		ptr = aptr = *Ptr;
+
+	optr = LineBuf->buf;
+	eptr = Buf->buf + Buf->BufUsed;
+	xptr = LineBuf->buf + LineBuf->BufSize;
+
+	while ((*ptr != '\n') &&
+	       (*ptr != '\r') &&
+	       (ptr < eptr))
+	{
+		*optr = *ptr;
+		optr++; ptr++;
+		if (optr == xptr) {
+			LineBuf->BufUsed = optr - LineBuf->buf;
+			IncreaseBuf(LineBuf,  1, LineBuf->BufUsed + 1);
+			optr = LineBuf->buf + LineBuf->BufUsed;
+			xptr = LineBuf->buf + LineBuf->BufSize;
+		}
+	}
+	LineBuf->BufUsed = optr - LineBuf->buf;
+	*optr = '\0';       
+	if (*ptr == '\r')
+		ptr ++;
+	if (*ptr == '\n')
+		ptr ++;
+
+	*Ptr = ptr;
+
+	return Buf->BufUsed - (ptr - Buf->buf);
 }

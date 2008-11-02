@@ -236,6 +236,7 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 				 int selectresolution, 
 				 const char **Error);
 
+int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr);
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
 int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars);
 unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, char separator);
@@ -262,6 +263,8 @@ void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
 void StrBufReplaceChars(StrBuf *buf, char search, char replace);
 
 int CompressBuffer(StrBuf *Buf);
+void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic);
+void ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic);
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* DefaultCharset);
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
@@ -397,6 +400,7 @@ int GetCount(HashList *Hash);
 const void *GetSearchPayload(const void *HashVoid);
 void SortByPayload(HashList *Hash, CompareFunc SortBy);
 void generic_free_handler(void *ptr);
+void reference_free_handler(void *ptr);
 
 
 void convert_spaces_to_underscores(char *str);

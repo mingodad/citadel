@@ -712,5 +712,14 @@ void generic_free_handler(void *ptr) {
 	free(ptr);
 }
 
+/*
+ * Generic function to free a reference.  
+ * since a reference actualy isn't needed to be freed, do nothing.
+ */
+void reference_free_handler(void *ptr) 
+{
+	1;
+}
+
 
 
