@@ -9,11 +9,101 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+HashList *MsgHeaderHandler = NULL;
+HashList *MsgEvaluators = NULL;
+HashList *MimeRenderHandler = NULL;
+
 #define SUBJ_COL_WIDTH_PCT		50	/**< Mailbox view column width */
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
 #define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/**< Mailbox view column width */
 
 void display_enter(void);
+int longcmp_r(const void *s1, const void *s2);
+int summcmp_subj(const void *s1, const void *s2);
+int summcmp_rsubj(const void *s1, const void *s2);
+int summcmp_sender(const void *s1, const void *s2);
+int summcmp_rsender(const void *s1, const void *s2);
+int summcmp_date(const void *s1, const void *s2);
+int summcmp_rdate(const void *s1, const void *s2);
+
+/*----------------------------------------------------------------------------*/
+
+
+typedef void (*MsgPartEvaluatorFunc)(message_summary *Sum, StrBuf *Buf);
+
+
+struct attach_link {
+	char partnum[32];
+	char html[1024];
+};
+
+
+
+typedef struct _headereval {
+	ExamineMsgHeaderFunc evaluator;
+	int Type;
+} headereval;
+
+
+
+enum {
+	eUp,
+	eDown,
+	eNone
+};
+
+const char* SortIcons[3] = {
+	"static/up_pointer.gif",
+	"static/down_pointer.gif",
+	"static/sort_none.gif"
+};
+
+enum  {/// SortByEnum
+	eDate,
+	eRDate,
+	eSubject,
+	eRSubject,
+	eSender,
+	eRSender,
+	eReverse,
+	eUnSet
+}; 
+
+/* SortEnum to plain string representation */
+static const char* SortByStrings[] = {
+	"date",
+	"rdate",
+	"subject", 
+	"rsubject", 
+	"sender",
+	"rsender",
+	"reverse",
+	"unset"
+};
+
+/* SortEnum to sort-Function Table */
+const CompareFunc SortFuncs[eUnSet] = {
+	summcmp_date,
+	summcmp_rdate,
+	summcmp_subj,
+	summcmp_rsubj,
+	summcmp_sender,
+	summcmp_rsender,
+	summcmp_rdate
+};
+
+/* given a SortEnum, which icon should we choose? */
+const int SortDateToIcon[eUnSet] = { eUp, eDown, eNone, eNone, eNone, eNone, eNone};
+const int SortSubjectToIcon[eUnSet] = { eNone, eNone, eUp, eDown, eNone, eNone, eNone};
+const int SortSenderToIcon[eUnSet] = { eNone, eNone, eNone, eNone, eUp, eDown, eNone};
+
+/* given a SortEnum, which would be the "opposite" search option? */
+const int DateInvertSortString[eUnSet] =  { eRDate, eDate, eDate, eDate, eDate, eDate, eDate};
+const int SubjectInvertSortString[eUnSet] =  { eSubject, eSubject, eRSubject, eUnSet, eSubject, eSubject, eSubject};
+const int SenderInvertSortString[eUnSet] =  { eSender, eSender, eSender, eSender, eRSender, eUnSet, eSender};
+
+
+
 
 /*
  * Address book entry (keep it short and sweet, it's just a quickie lookup
@@ -24,313 +114,629 @@ struct addrbookent {
 	long ab_msgnum;   /**< message number of address book entry */
 };
 
-
-
-#ifdef HAVE_ICONV
+/*----------------------------------------------------------------------------*/
 
 /*
- * Wrapper around iconv_open()
- * Our version adds aliases for non-standard Microsoft charsets
- * such as 'MS950', aliasing them to names like 'CP950'
- *
- * tocode	Target encoding
- * fromcode	Source encoding
+ * Translates sortoption String to its SortEnum representation 
+ * returns the enum matching the string; defaults to RDate
  */
-iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
-{
-	iconv_t ic = (iconv_t)(-1) ;
-	ic = iconv_open(tocode, fromcode);
-	if (ic == (iconv_t)(-1) ) {
-		char alias_fromcode[64];
-		if ( (strlen(fromcode) == 5) && (!strncasecmp(fromcode, "MS", 2)) ) {
-			safestrncpy(alias_fromcode, fromcode, sizeof alias_fromcode);
-			alias_fromcode[0] = 'C';
-			alias_fromcode[1] = 'P';
-			ic = iconv_open(tocode, alias_fromcode);
+//SortByEnum 
+int StrToESort (const StrBuf *sortby)
+{////todoo: hash
+	int result = eDate;
+
+	if (!IsEmptyStr(ChrPtr(sortby))) while (result < eUnSet){
+			if (!strcasecmp(ChrPtr(sortby), 
+					SortByStrings[result])) 
+				return result;
+			result ++;
 		}
-	}
-	return(ic);
+	return eRDate;
+}
+
+
+typedef int (*QSortFunction) (const void*, const void*);
+
+/*
+ * qsort() compatible function to compare two longs in descending order.
+ */
+int longcmp_r(const void *s1, const void *s2) {
+	long l1;
+	long l2;
+
+	l1 = *(long *)GetSearchPayload(s1);
+	l2 = *(long *)GetSearchPayload(s2);
+
+	if (l1 > l2) return(-1);
+	if (l1 < l2) return(+1);
+	return(0);
+}
+
+ 
+/*
+ * qsort() compatible function to compare two message summary structs by ascending subject.
+ */
+int summcmp_subj(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ1->subj), ChrPtr(summ2->subj));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by descending subject.
+ */
+int summcmp_rsubj(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ2->subj), ChrPtr(summ1->subj));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by ascending sender.
+ */
+int summcmp_sender(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ1->from), ChrPtr(summ2->from));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by descending sender.
+ */
+int summcmp_rsender(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ2->from), ChrPtr(summ1->from));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by ascending date.
+ */
+int summcmp_date(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+
+	if (summ1->date < summ2->date) return -1;
+	else if (summ1->date > summ2->date) return +1;
+	else return 0;
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by descending date.
+ */
+int summcmp_rdate(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+
+	if (summ1->date < summ2->date) return +1;
+	else if (summ1->date > summ2->date) return -1;
+	else return 0;
 }
 
 
 
-inline char *FindNextEnd (char *bptr)
+
+
+/*----------------------------------------------------------------------------*/
+
+/**
+ * message index functions
+ */
+
+
+
+
+void DestroyMessageSummary(void *vMsg)
 {
-	char * end;
-	/* Find the next ?Q? */
-	end = strchr(bptr + 2, '?');
-	if (end == NULL) return NULL;
-	if (((*(end + 1) == 'B') || (*(end + 1) == 'Q')) && 
-	    (*(end + 2) == '?')) {
-		/* skip on to the end of the cluster, the next ?= */
-		end = strstr(end + 3, "?=");
-	}
-	else
-		/* sort of half valid encoding, try to find an end. */
-		end = strstr(bptr, "?=");
-	return end;
+	message_summary *Msg = (message_summary*) vMsg;
+
+	FreeStrBuf(&Msg->from);
+	FreeStrBuf(&Msg->to);
+	FreeStrBuf(&Msg->subj);
+	FreeStrBuf(&Msg->reply_inreplyto);
+	FreeStrBuf(&Msg->reply_references);
+	FreeStrBuf(&Msg->cccc);
+	FreeStrBuf(&Msg->hnod);
+	FreeStrBuf(&Msg->AllRcpt);
+	FreeStrBuf(&Msg->Room);
+	FreeStrBuf(&Msg->Rfca);
+	FreeStrBuf(&Msg->OtherNode);
+
+	free(Msg);
 }
 
-/*
- * Handle subjects with RFC2047 encoding such as:
- * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
- */
-void utf8ify_rfc822_string(char *buf) {
-	char *start, *end, *next, *nextend, *ptr;
-	char newbuf[1024];
-	char charset[128];
-	char encoding[16];
-	char istr[1024];
-	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;			/**< Buffer of characters to be converted */
-	char *obuf;			/**< Buffer for converted characters */
-	size_t ibuflen;			/**< Length of input buffer */
-	size_t obuflen;			/**< Length of output buffer */
-	char *isav;			/**< Saved pointer to input buffer */
-	char *osav;			/**< Saved pointer to output buffer */
-	int passes = 0;
-	int i, len, delta;
-	int illegal_non_rfc2047_encoding = 0;
 
-	/* Sometimes, badly formed messages contain strings which were simply
-	 *  written out directly in some foreign character set instead of
-	 *  using RFC2047 encoding.  This is illegal but we will attempt to
-	 *  handle it anyway by converting from a user-specified default
-	 *  charset to UTF-8 if we see any nonprintable characters.
-	 */
-	len = strlen(buf);
-	for (i=0; i<len; ++i) {
-		if ((buf[i] < 32) || (buf[i] > 126)) {
-			illegal_non_rfc2047_encoding = 1;
-			i = len; ///< take a shortcut, it won't be more than one.
-		}
-	}
-	if (illegal_non_rfc2047_encoding) {
-		StrBuf *default_header_charset;
-		get_preference("default_header_charset", &default_header_charset);
-		if ( (strcasecmp(ChrPtr(default_header_charset), "UTF-8")) && 
-		     (strcasecmp(ChrPtr(default_header_charset), "us-ascii")) ) {
-			ic = ctdl_iconv_open("UTF-8", ChrPtr(default_header_charset));
-			if (ic != (iconv_t)(-1) ) {
-				ibuf = malloc(1024);
-				isav = ibuf;
-				safestrncpy(ibuf, buf, 1024);
-				ibuflen = strlen(ibuf);
-				obuflen = 1024;
-				obuf = (char *) malloc(obuflen);
-				osav = obuf;
-				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-				osav[1024-obuflen] = 0;
-				strcpy(buf, osav);
-				free(osav);
-				iconv_close(ic);
-				free(isav);
-			}
-		}
-	}
 
-	/* pre evaluate the first pair */
-	nextend = end = NULL;
-	len = strlen(buf);
-	start = strstr(buf, "=?");
-	if (start != NULL) 
-		end = FindNextEnd (start);
+void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc evaluator, int type)
+{
+	headereval *ev;
+	ev = (headereval*) malloc(sizeof(headereval));
+	ev->evaluator = evaluator;
+	ev->Type = type;
+	Put(MsgHeaderHandler, HeaderName, HdrNLen, ev, NULL);
+}
 
-	while ((start != NULL) && (end != NULL))
-	{
-		next = strstr(end, "=?");
-		if (next != NULL)
-			nextend = FindNextEnd(next);
-		if (nextend == NULL)
-			next = NULL;
+void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, RenderMimeFunc MimeRenderer)
+{
+	Put(MimeRenderHandler, HeaderName, HdrNLen, MimeRenderer, reference_free_handler);
+	
+}
 
-		/* did we find two partitions */
-		if ((next != NULL) && 
-		    ((next - end) > 2))
-		{
-			ptr = end + 2;
-			while ((ptr < next) && 
-			       (isspace(*ptr) ||
-				(*ptr == '\r') ||
-				(*ptr == '\n') || 
-				(*ptr == '\t')))
-				ptr ++;
-			/* did we find a gab just filled with blanks? */
-			if (ptr == next)
-			{
-				memmove (end + 2,
-					 next,
-					 len - (next - start));
+/*----------------------------------------------------------------------------*/
 
-				/* now terminate the gab at the end */
-				delta = (next - end) - 2;
-				len -= delta;
-				buf[len] = '\0';
 
-				/* move next to its new location. */
-				next -= delta;
-				nextend -= delta;
-			}
-		}
-		/* our next-pair is our new first pair now. */
-		start = next;
-		end = nextend;
-	}
+void examine_nhdr(message_summary *Msg, StrBuf *HdrLine)
+{
+	Msg->nhdr = 0;
+	if (!strncasecmp(ChrPtr(HdrLine), "yes", 8))
+		Msg->nhdr = 1;
+}
 
-	/* Now we handle foreign character sets properly encoded
-	 * in RFC2047 format.
-	 */
-	while (start=strstr(buf, "=?"), end=FindNextEnd((start != NULL)? start : buf),
-		((start != NULL) && (end != NULL) && (end > start)) )
-	{
-		extract_token(charset, start, 1, '?', sizeof charset);
-		extract_token(encoding, start, 2, '?', sizeof encoding);
-		extract_token(istr, start, 3, '?', sizeof istr);
-
-		ibuf = malloc(1024);
-		isav = ibuf;
-		if (!strcasecmp(encoding, "B")) {	/**< base64 */
-			ibuflen = CtdlDecodeBase64(ibuf, istr, strlen(istr));
-		}
-		else if (!strcasecmp(encoding, "Q")) {	/**< quoted-printable */
-			size_t len;
-			long pos;
+void examine_type(message_summary *Msg, StrBuf *HdrLine)
+{
+	Msg->format_type = StrToi(HdrLine);
 			
-			len = strlen(istr);
-			pos = 0;
-			while (pos < len)
-			{
-				if (istr[pos] == '_') istr[pos] = ' ';
-				pos++;
-			}
+}
 
-			ibuflen = CtdlDecodeQuotedPrintable(ibuf, istr, len);
-		}
-		else {
-			strcpy(ibuf, istr);		/**< unknown encoding */
-			ibuflen = strlen(istr);
-		}
+void examine_from(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->from);
+	Msg->from = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_to_Utf8(Msg->from, HdrLine, WC->DefaultCharset);
+}
+void tmplput_MAIL_SUMM_FROM(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->from, 0);
+	lprintf(1,"%s", ChrPtr(Msg->from));
+}
 
-		ic = ctdl_iconv_open("UTF-8", charset);
+
+
+void examine_subj(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->subj);
+	Msg->subj = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset);
+	lprintf(1,"%s", ChrPtr(Msg->subj));
+}
+void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{/////TODO: Fwd: and RE: filter!!
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->subj, 0);
+}
+
+
+void examine_msgn(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->reply_inreplyto);
+	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_to_Utf8(Msg->reply_inreplyto, HdrLine, WC->DefaultCharset);
+}
+void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->reply_inreplyto, 0);
+}
+
+
+void examine_wefw(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->reply_references);
+	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_to_Utf8(Msg->reply_references, HdrLine, WC->DefaultCharset);
+}
+void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->reply_references, 0);
+}
+
+
+void examine_cccc(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->cccc);
+	Msg->cccc = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_to_Utf8(Msg->cccc, HdrLine, WC->DefaultCharset);
+	if (Msg->AllRcpt == NULL)
+		Msg->AllRcpt = NewStrBufPlain(NULL, StrLength(HdrLine));
+	if (StrLength(Msg->AllRcpt) > 0) {
+		StrBufAppendBufPlain(Msg->AllRcpt, HKEY(", "), 0);
+	}
+	StrBufAppendBuf(Msg->AllRcpt, Msg->cccc, 0);
+}
+void tmplput_MAIL_SUMM_CCCC(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->cccc, 0);
+}
+
+
+
+
+void examine_room(message_summary *Msg, StrBuf *HdrLine)
+{
+	if ((StrLength(HdrLine) > 0) &&
+	    (strcasecmp(ChrPtr(HdrLine), WC->wc_roomname))) {
+		FreeStrBuf(&Msg->Room);
+		Msg->Room = NewStrBufDup(HdrLine);		
+	}
+}
+void tmplput_MAIL_SUMM_ORGROOM(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->Room, 0);
+}
+
+
+void examine_rfca(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->Rfca);
+	Msg->Rfca = NewStrBufDup(HdrLine);
+}
+void tmplput_MAIL_SUMM_RFCA(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->Rfca, 0);
+}
+
+
+void examine_node(message_summary *Msg, StrBuf *HdrLine)
+{
+	if ( (StrLength(HdrLine) > 0) &&
+	     ((WC->room_flags & QR_NETWORK)
+	      || ((strcasecmp(ChrPtr(HdrLine), serv_info.serv_nodename)
+		   && (strcasecmp(ChrPtr(HdrLine), serv_info.serv_fqdn)))))) {
+		FreeStrBuf(&Msg->OtherNode);
+		Msg->OtherNode = NewStrBufDup(HdrLine);
+	}
+}
+void tmplput_MAIL_SUMM_OTHERNODE(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->OtherNode, 0);
+}
+int Conditional_MAIL_SUMM_OTHERNODE(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return StrLength(Msg->OtherNode) > 0;
+}
+
+
+void examine_rcpt(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->to);
+	Msg->to = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_to_Utf8(Msg->to, HdrLine, WC->DefaultCharset);
+	if (Msg->AllRcpt == NULL)
+		Msg->AllRcpt = NewStrBufPlain(NULL, StrLength(HdrLine));
+	if (StrLength(Msg->AllRcpt) > 0) {
+		StrBufAppendBufPlain(Msg->AllRcpt, HKEY(", "), 0);
+	}
+	StrBufAppendBuf(Msg->AllRcpt, Msg->to, 0);
+}
+void tmplput_MAIL_SUMM_TO(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->to, 0);
+}
+void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->AllRcpt, 0);
+}
+
+
+
+void examine_time(message_summary *Msg, StrBuf *HdrLine)
+{
+	Msg->date = StrTol(HdrLine);
+}
+void tmplput_MAIL_SUMM_DATE_STR(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	char datebuf[64];
+	message_summary *Msg = (message_summary*) Context;
+	webcit_fmt_date(datebuf, Msg->date, 1);
+	StrBufAppendBufPlain(Target, datebuf, -1, 0);
+}
+void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendPrintf(Target, "%ld", Msg->date, 0);
+}
+
+
+
+void examine_mime_part(message_summary *Msg, StrBuf *HdrLine)
+{
+	wc_mime_attachment *mime;
+	StrBuf *Buf;
+
+	mime = (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
+	memset(mime, 0, sizeof(wc_mime_attachment));
+	Buf=NewStrBuf();
+
+	mime->Name = NewStrBuf();
+	StrBufExtract_token(mime->Name, HdrLine, 0, '|');
+	StrBufExtract_token(Buf, HdrLine, 1, '|');
+	StrBuf_RFC822_to_Utf8(mime->FileName, Buf, WC->DefaultCharset);
+	mime->PartNum = NewStrBuf();
+	StrBufExtract_token(mime->PartNum, HdrLine, 2, '|');
+	mime->Disposition = NewStrBuf();
+	StrBufExtract_token(mime->Disposition, HdrLine, 3, '|');
+	mime->ContentType = NewStrBuf();
+	StrBufExtract_token(mime->ContentType, HdrLine, 4, '|');
+	mime->length = StrBufExtract_int(HdrLine, 5, '|');
+
+	StrBufTrim(mime->Name);
+	StrBufTrim(mime->FileName);
+	if ( (StrLength(mime->FileName) == 0) && (StrLength(mime->Name) > 0) ) {
+		StrBufAppendBuf(mime->FileName, mime->Name, 0);
+	}
+
+	if (!strcasecmp(ChrPtr(mime->ContentType), "message/rfc822")) {
+		if (Msg->Submessages == NULL)
+			Msg->Submessages = NewHash(1,NULL);
+		Put(Msg->Submessages, SKEY(mime->PartNum), mime->PartNum, reference_free_handler);
+	}
+	else if ((!strcasecmp(ChrPtr(mime->Disposition), "inline"))
+		 && (!strncasecmp(ChrPtr(mime->ContentType), "image/", 6)) ){
+		if (Msg->AttachLinks == NULL)
+			Msg->AttachLinks = NewHash(1,NULL);
+		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime->PartNum, reference_free_handler);
+	}
+	else if ((StrLength(mime->ContentType) > 0) &&
+		  ( (!strcasecmp(ChrPtr(mime->Disposition), "attachment")) 
+		    || (!strcasecmp(ChrPtr(mime->Disposition), "inline"))
+		    || (!strcasecmp(ChrPtr(mime->Disposition), ""))))
+	{
+		
+		if (Msg->AttachLinks == NULL)
+			Msg->AttachLinks = NewHash(1,NULL);
+		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime->PartNum, reference_free_handler);
+		if (strcasecmp(ChrPtr(mime->ContentType), "application/octet-stream") == 0) {
+			FlushStrBuf(mime->ContentType);
+			StrBufAppendBufPlain(mime->ContentType,
+					     GuessMimeByFilename(SKEY(mime->FileName)),
+					     -1, 0);
+		}
+	}
+
+	/** begin handler prep ** */
+	if (  (!strcasecmp(ChrPtr(mime->ContentType), "text/x-vcard"))
+	      || (!strcasecmp(ChrPtr(mime->ContentType), "text/vcard")) ) {
+		Msg->vcard_partnum_ref = mime;
+	}
+	else if (  (!strcasecmp(ChrPtr(mime->ContentType), "text/calendar"))
+	      || (!strcasecmp(ChrPtr(mime->ContentType), "application/ics")) ) {
+		Msg->cal_partnum_ref = mime;
+	}
+	/** end handler prep ***/
+}
+void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendPrintf(Target, "%ld", GetCount(Msg->Attachments));
+}
+
+
+
+
+
+
+
+void examine_hnod(message_summary *Msg, StrBuf *HdrLine)
+{
+	FreeStrBuf(&Msg->hnod);
+	Msg->hnod = NewStrBufPlain(NULL, StrLength(HdrLine));
+	StrBuf_RFC822_to_Utf8(Msg->hnod, HdrLine, WC->DefaultCharset);
+}
+void tmplput_MAIL_SUMM_H_NODE(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->hnod, 0);
+}
+int Conditional_MAIL_SUMM_H_NODE(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return StrLength(Msg->hnod) > 0;
+}
+
+
+
+void examine_text(message_summary *Msg, StrBuf *HdrLine)
+{////TODO: read messages here
+	Msg->MsgBody.Data = NewStrBuf();
+}
+
+void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine)
+{
+	Msg->MsgBody.PartNum = NewStrBufDup(HdrLine);
+	StrBufTrim(Msg->MsgBody.PartNum);/////TODO: striplt == trim?
+}
+
+void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine)
+{
+////TODO: do we care?
+}
+
+void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine)
+{
+	Msg->MsgBody.length = StrTol(HdrLine);
+}
+
+void examine_content_type(message_summary *Msg, StrBuf *HdrLine)
+{////TODO
+	int len, i;
+	Msg->MsgBody.ContentType = NewStrBufDup(HdrLine);
+	StrBufTrim(Msg->MsgBody.ContentType);/////todo==striplt?
+	len = StrLength(Msg->MsgBody.ContentType);
+	for (i=0; i<len; ++i) {
+		if (!strncasecmp(ChrPtr(Msg->MsgBody.ContentType) + i, "charset=", 8)) {/// TODO: WHUT?
+//			safestrncpy(mime_charset, &mime_content_type[i+8],
+			///			    sizeof mime_charset);
+		}
+	}/****
+	for (i=0; i<len; ++i) {
+		if (mime_content_type[i] == ';') {
+			mime_content_type[i] = 0;
+			len = i - 1;
+		}
+	}
+	len = strlen(mime_charset);
+	for (i=0; i<len; ++i) {
+		if (mime_charset[i] == ';') {
+			mime_charset[i] = 0;
+			len = i - 1;
+		}
+	}
+	 */
+}
+
+void tmplput_MAIL_SUMM_N(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendPrintf(Target, "%ld", Msg->msgnum);
+}
+
+
+int Conditional_MAIL_SUMM_UNREAD(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return Msg->is_new != 0;
+}
+
+
+
+/*----------------------------------------------------------------------------*/
+
+
+void tmplput_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	StrBufAppendBuf(Target, Msg->MsgBody.Data, 0);
+}
+
+
+void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData)
+{
+	/* Messages in legacy Citadel variformat get handled thusly... */
+	fmout("JUSTIFY");///todo: this won't work that way.
+	
+}
+
+void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
+{
+	/* Boring old 80-column fixed format text gets handled this way... * /
+#ifdef HAVE_ICONV
+	iconv_t ic = (iconv_t)(-1) ;
+	char *ibuf;		   / **< Buffer of characters to be converted * /
+	char *obuf;		   / **< Buffer for converted characters      * /
+	size_t ibuflen;	   / **< Length of input buffer	       * /
+	size_t obuflen;	   / **< Length of output buffer	      * /
+	char *osav;		   / **< Saved pointer to output buffer       * /
+#endif
+
+	/ * Set up a character set conversion if we need to (and if we can) * /
+#ifdef HAVE_ICONV
+	if (strchr(mime_charset, ';')) strcpy(strchr(mime_charset, ';'), "");
+	if ( (strcasecmp(mime_charset, "us-ascii"))
+	   && (strcasecmp(mime_charset, "UTF-8"))
+	   && (strcasecmp(mime_charset, ""))
+	) {
+		ic = ctdl_iconv_open("UTF-8", mime_charset);
+		if (ic == (iconv_t)(-1) ) {
+			lprintf(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
+				__FILE__, __LINE__, mime_charset, strerror(errno));
+		}
+	}
+#endif
+
+	buf [0] = '\0';
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		int len;
+		len = strlen(buf);
+		if ((len > 0) && buf[len-1] == '\n') buf[--len] = 0;
+		if ((len > 0) && buf[len-1] == '\r') buf[--len] = 0;
+		
+#ifdef HAVE_ICONV
 		if (ic != (iconv_t)(-1) ) {
-			obuflen = 1024;
+			ibuf = buf;
+			ibuflen = strlen(ibuf);
+			obuflen = SIZ;
 			obuf = (char *) malloc(obuflen);
 			osav = obuf;
 			iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-			osav[1024-obuflen] = 0;
-
-			end = start;
-			end++;
-			strcpy(start, "");
-			remove_token(end, 0, '?');
-			remove_token(end, 0, '?');
-			remove_token(end, 0, '?');
-			remove_token(end, 0, '?');
-			strcpy(end, &end[1]);
-
-			snprintf(newbuf, sizeof newbuf, "%s%s%s", buf, osav, end);
-			strcpy(buf, newbuf);
+			osav[SIZ-obuflen] = 0;
+			safestrncpy(buf, osav, sizeof buf);
 			free(osav);
-			iconv_close(ic);
 		}
-		else {
-			end = start;
-			end++;
-			strcpy(start, "");
-			remove_token(end, 0, '?');
-			remove_token(end, 0, '?');
-			remove_token(end, 0, '?');
-			remove_token(end, 0, '?');
-			strcpy(end, &end[1]);
-
-			snprintf(newbuf, sizeof newbuf, "%s(unreadable)%s", buf, end);
-			strcpy(buf, newbuf);
-		}
-
-		free(isav);
-
-		/*
-		 * Since spammers will go to all sorts of absurd lengths to get their
-		 * messages through, there are LOTS of corrupt headers out there.
-		 * So, prevent a really badly formed RFC2047 header from throwing
-		 * this function into an infinite loop.
-		 */
-		++passes;
-		if (passes > 20) return;
-	}
-
-}
-#else
-inline void utf8ify_rfc822_string(char *a){};
-
 #endif
-
-
-
-
-/**
- * \brief	RFC2047-encode a header field if necessary.
- *		If no non-ASCII characters are found, the string
- *		will be copied verbatim without encoding.
- *
- * \param	target		Target buffer.
- * \param	maxlen		Maximum size of target buffer.
- * \param	source		Source string to be encoded.
- * \param       SourceLen       Length of the source string
- * \returns     encoded length; -1 if non success.
- */
-int webcit_rfc2047encode(char *target, int maxlen, char *source, long SourceLen)
-{
-	const char headerStr[] = "=?UTF-8?Q?";
-	int need_to_encode = 0;
-	int i = 0;
-	int len;
-	unsigned char ch;
-
-	if ((source == NULL) || 
-	    (target == NULL) ||
-	    (SourceLen > maxlen)) return -1;
-
-	while ((!IsEmptyStr (&source[i])) && 
-	       (need_to_encode == 0) &&
-	       (i < SourceLen) ) {
-		if (((unsigned char) source[i] < 32) || 
-		    ((unsigned char) source[i] > 126)) {
-			need_to_encode = 1;
+		
+		len = strlen(buf);
+		while ((!IsEmptyStr(buf)) && (isspace(buf[len-1])))
+			buf[--len] = 0;
+		if ((bq == 0) &&
+		    ((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) )) {
+			wprintf("<blockquote>");
+			bq = 1;
+		} else if ((bq == 1) &&
+			   (strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) ) {
+			wprintf("</blockquote>");
+			bq = 0;
 		}
-		i++;
+		wprintf("<tt>");
+		url(buf, sizeof(buf));
+		escputs(buf);
+		wprintf("</tt><br />\n");
 	}
-
-	if (!need_to_encode) {
-		memcpy (target, source, SourceLen);
-		target[SourceLen] = '\0';
-		return SourceLen;
+	wprintf("</i><br />")
+#ifdef HAVE_ICONV
+	if (ic != (iconv_t)(-1) ) {
+		iconv_close(ic);
 	}
-	
-	if (sizeof (headerStr + SourceLen + 2) > maxlen)
-		return -1;
-	memcpy (target, headerStr, sizeof (headerStr));
-	len = sizeof (headerStr) - 1;
-	for (i=0; (i < SourceLen) && (len + 3< maxlen) ; ++i) {
-		ch = (unsigned char) source[i];
-		if ((ch < 32) || (ch > 126) || (ch == 61)) {
-			sprintf(&target[len], "=%02X", ch);
-			len += 3;
-		}
-		else {
-			sprintf(&target[len], "%c", ch);
-			len ++;
-		}
-	}
-	
-	if (len + 2 < maxlen) {
-		strcat(&target[len], "?=");
-		len +=2;
-		return len;
-	}
-	else
-		return -1;
+#endif
+;
+	*/
 }
+
+void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData)
+{
+	StrBuf *Buf;
+	/* HTML is fun, but we've got to strip it first */
+	Buf = NewStrBufPlain(NULL, StrLength(Mime->Data));
+	output_html(ChrPtr(Mime->Charset), (WC->wc_view == VIEW_WIKI ? 1 : 0), Mime->PartNum, Mime->Data, Buf);
+	FreeStrBuf(&Mime->Data);
+	Mime->Data = Buf;
+}
+
+void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData)
+{
+	/* Unknown weirdness */
+////	wprintf(_("I don't know how to display %s"), Msg->MsgBody->ContentType);
+	wprintf("<br />\n");
+}
+
+
+
 
 
 
@@ -778,10 +1184,14 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename,
 }
 
 
-struct attach_link {
-	char partnum[32];
-	char html[1024];
-};
+
+
+
+
+
+
+
+
 
 
 /*
@@ -792,540 +1202,205 @@ struct attach_link {
  * section		Optional for encapsulated message/rfc822 submessage
  */
 void read_message(long msgnum, int printable_view, char *section) {
+	struct wcsession *WCC = WC;
+	StrBuf *Buf;
+	StrBuf *Token;
+	message_summary *Msg;
+	headereval *Hdr;
+	void *vHdr;
 	char buf[SIZ];
-	char mime_partnum[256] = "";
-	char mime_name[256] = "";
-	char mime_filename[256] = "";
-	char escaped_mime_filename[256] = "";
-	char mime_content_type[256] = "";
-	const char *mime_content_type_ptr;
-	char mime_charset[256] = "";
-	char mime_disposition[256] = "";
-	int mime_length;
 	struct attach_link *attach_links = NULL;
 	int num_attach_links = 0;
-	char mime_submessages[256] = "";
-	char m_subject[1024] = "";
-	char m_cc[1024] = "";
-	char from[256] = "";
-	char node[256] = "";
-	char rfca[256] = "";
-	char reply_to[512] = "";
-	char reply_all[4096] = "";
+//	char mime_submessages[256] = "";
 	char reply_references[1024] = "";
-	char reply_inreplyto[256] = "";
-	char now[64] = "";
-	int format_type = 0;
 	int nhdr = 0;
-	int bq = 0;
 	int i = 0;
+	int Done = 0;
+	int state=0;
 	char vcard_partnum[256] = "";
 	char cal_partnum[256] = "";
 	char *part_source = NULL;
 	char msg4_partnum[32] = "";
-#ifdef HAVE_ICONV
-	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;		   /**< Buffer of characters to be converted */
-	char *obuf;		   /**< Buffer for converted characters      */
-	size_t ibuflen;	   /**< Length of input buffer	       */
-	size_t obuflen;	   /**< Length of output buffer	      */
-	char *osav;		   /**< Saved pointer to output buffer       */
-#endif
 
-	strcpy(mime_content_type, "text/plain");
-	strcpy(mime_charset, "us-ascii");
-	strcpy(mime_submessages, "");
+////	strcpy(mime_submessages, "");
 
+	Buf = NewStrBuf();
 	serv_printf("MSG4 %ld|%s", msgnum, section);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') {
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
 		wprintf("<strong>");
 		wprintf(_("ERROR:"));
 		wprintf("</strong> %s<br />\n", &buf[4]);
+		FreeStrBuf(&Buf);
 		return;
 	}
-
+	svputlong("MsgPrintable", printable_view);
 	/** begin everythingamundo table */
-        if (!printable_view) {
-                wprintf("<div class=\"fix_scrollbar_bug message\" ");
-                wprintf("onMouseOver=document.getElementById(\"msg%ld\").style.visibility=\"visible\" ", msgnum);
-                wprintf("onMouseOut=document.getElementById(\"msg%ld\").style.visibility=\"hidden\" >", msgnum);
-        }
 
-	/** begin message header table */
-	wprintf("<div class=\"message_header\">");
 
-	strcpy(m_subject, "");
-	strcpy(m_cc, "");
-
-	while (serv_getln(buf, sizeof buf), strcasecmp(buf, "text")) {
-		if (!strcmp(buf, "000")) {
-			wprintf("<i>");
-			wprintf(_("unexpected end of message"));
-			wprintf(" (1)</i><br /><br />\n");
-			wprintf("</div>\n");
-			return;
-		}
-		if (!strncasecmp(buf, "nhdr=yes", 8))
-			nhdr = 1;
-		if (nhdr == 1)
-			buf[0] = '_';
-		if (!strncasecmp(buf, "type=", 5))
-			format_type = atoi(&buf[5]);
-		if (!strncasecmp(buf, "from=", 5)) {
-			strcpy(from, &buf[5]);
-			wprintf(_("from "));
-			wprintf("<a href=\"showuser?who=");
-			utf8ify_rfc822_string(from);
-			urlescputs(from);
-			wprintf("\">");
-			escputs(from);
-			wprintf("</a> ");
-		}
-		if (!strncasecmp(buf, "subj=", 5)) {
-			safestrncpy(m_subject, &buf[5], sizeof m_subject);
-		}
-		if (!strncasecmp(buf, "msgn=", 5)) {
-			safestrncpy(reply_inreplyto, &buf[5], sizeof reply_inreplyto);
-		}
-		if (!strncasecmp(buf, "wefw=", 5)) {
-			safestrncpy(reply_references, &buf[5], sizeof reply_references);
-		}
-		if (!strncasecmp(buf, "cccc=", 5)) {
-			int len;
-			safestrncpy(m_cc, &buf[5], sizeof m_cc);
-			if (!IsEmptyStr(reply_all)) {
-				strcat(reply_all, ", ");
+	Token = NewStrBuf();
+	Msg = (message_summary *)malloc(sizeof(message_summary));
+	memset(Msg, 0, sizeof(message_summary));
+	Msg->MsgBody.length=-1;
+	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
+		if ( (StrLength(Buf)==3) && 
+		    !strcmp(ChrPtr(Buf), "000")) 
+		{
+			Done = 1;
+			if (state < 2) {
+				wprintf("<i>");
+				wprintf(_("unexpected end of message"));
+				wprintf(" (1)</i><br /><br />\n");
+				wprintf("</div>\n");
+				FreeStrBuf(&Buf);
+				FreeStrBuf(&Token);
+				DestroyMessageSummary(Msg);
+				return;
 			}
-			len = strlen(reply_all);
-			safestrncpy(&reply_all[len], &buf[5],
-				(sizeof reply_all - len) );
-		}
-		if ((!strncasecmp(buf, "hnod=", 5))
-		    && (strcasecmp(&buf[5], serv_info.serv_humannode))) {
-			wprintf("(%s) ", &buf[5]);
-		}
-		if ((!strncasecmp(buf, "room=", 5))
-		    && (strcasecmp(&buf[5], WC->wc_roomname))
-		    && (!IsEmptyStr(&buf[5])) ) {
-			wprintf(_("in "));
-			wprintf("%s&gt; ", &buf[5]);
-		}
-		if (!strncasecmp(buf, "rfca=", 5)) {
-			strcpy(rfca, &buf[5]);
-			wprintf("&lt;");
-			escputs(rfca);
-			wprintf("&gt; ");
-		}
-
-		if (!strncasecmp(buf, "node=", 5)) {
-			strcpy(node, &buf[5]);
-			if ( ((WC->room_flags & QR_NETWORK)
-			|| ((strcasecmp(&buf[5], serv_info.serv_nodename)
-			&& (strcasecmp(&buf[5], serv_info.serv_fqdn)))))
-			&& (IsEmptyStr(rfca))
-			) {
-				wprintf("@%s ", &buf[5]);
+			else {
+				break;
 			}
 		}
-		if (!strncasecmp(buf, "rcpt=", 5)) {
-			int len;
-			wprintf(_("to "));
-			if (!IsEmptyStr(reply_all)) {
-				strcat(reply_all, ", ");
+		switch (state) {
+		case 0:/* Citadel Message Headers */
+			if (StrLength(Buf) == 0) {
+				state ++;
+				break;
 			}
-			len = strlen(reply_all);
-			safestrncpy(&reply_all[len], &buf[5],
-				(sizeof reply_all - len) );
-			utf8ify_rfc822_string(&buf[5]);
-			escputs(&buf[5]);
-			wprintf(" ");
-		}
-		if (!strncasecmp(buf, "time=", 5)) {
-			webcit_fmt_date(now, atol(&buf[5]), 0);
-			wprintf("<span>");
-			wprintf("%s ", now);
-			wprintf("</span>");
-		}
-
-		if (!strncasecmp(buf, "part=", 5)) {
-			extract_token(mime_name, &buf[5], 0, '|', sizeof mime_filename);
-			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
-			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
-			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
-			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
-			mime_length = extract_int(&buf[5], 5);
-
-			striplt(mime_name);
-			striplt(mime_filename);
-			if ( (IsEmptyStr(mime_filename)) && (!IsEmptyStr(mime_name)) ) {
-				strcpy(mime_filename, mime_name);
-			}
-
-			if (!strcasecmp(mime_content_type, "message/rfc822")) {
-				if (!IsEmptyStr(mime_submessages)) {
-					strcat(mime_submessages, "|");
+			StrBufExtract_token(Token, Buf, 0, '=');
+			StrBufCutLeft(Buf, StrLength(Token) + 1);
+			
+			lprintf(1, ":: [%s] = [%s]\n", ChrPtr(Token), ChrPtr(Buf));
+			if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
+			    (vHdr != NULL)) {
+				Hdr = (headereval*)vHdr;
+				Hdr->evaluator(Msg, Buf);
+				if (Hdr->Type == 1) {
+					state++;
 				}
-				strcat(mime_submessages, mime_partnum);
 			}
-			else if ((!strcasecmp(mime_disposition, "inline"))
-			   && (!strncasecmp(mime_content_type, "image/", 6)) ){
-				++num_attach_links;
-				attach_links = realloc(attach_links,
-					(num_attach_links*sizeof(struct attach_link)));
-				safestrncpy(attach_links[num_attach_links-1].partnum, mime_partnum, 32);
-				snprintf(attach_links[num_attach_links-1].html, 1024,
-					"<img src=\"mimepart/%ld/%s/%s\">",
-					msgnum, mime_partnum, mime_filename);
+			else lprintf(1, "don't know how to handle message header[%s]\n", ChrPtr(Token));
+			break;
+		case 1:/* Message Mime Header */
+			if (StrLength(Buf) == 0) {
+				state++;
+				if (Msg->MsgBody.ContentType == NULL)
+                			/* end of header or no header? */
+					Msg->MsgBody.ContentType = NewStrBufPlain(HKEY("text/plain"));
+				 /* usual end of mime header */
 			}
-			else if ( ( (!strcasecmp(mime_disposition, "attachment")) 
-			     || (!strcasecmp(mime_disposition, "inline"))
-			     || (!strcasecmp(mime_disposition, ""))
-			     ) && (!IsEmptyStr(mime_content_type))
-			) {
-				++num_attach_links;
-				attach_links = realloc(attach_links,
-					(num_attach_links*sizeof(struct attach_link)));
-				safestrncpy(attach_links[num_attach_links-1].partnum, mime_partnum, 32);
-				utf8ify_rfc822_string(mime_filename);
-
-				mime_content_type_ptr = mime_content_type;
-				if (strcasecmp(mime_content_type, "application/octet-stream") == 0) {
-					mime_content_type_ptr = GuessMimeByFilename(mime_filename, 
-										    strlen(mime_filename));
+			else
+			{
+				StrBufExtract_token(Token, Buf, 0, ':');
+				if (StrLength(Token) > 0) {
+					StrBufCutLeft(Buf, StrLength(Token) + 1);
+					lprintf(1, ":: [%s] = [%s]\n", ChrPtr(Token), ChrPtr(Buf));
+					if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
+					    (vHdr != NULL)) {
+						Hdr = (headereval*)vHdr;
+						Hdr->evaluator(Msg, Buf);
+					}
+					break;
 				}
-				urlesc(escaped_mime_filename, 265, mime_filename);
-				snprintf(attach_links[num_attach_links-1].html, 1024,
-					"<img src=\"display_mime_icon?type=%s\" "
-					"border=0 align=middle>\n"
-					"%s (%s, %d bytes) [ "
-					"<a href=\"mimepart/%ld/%s/%s\""
-					"target=\"wc.%ld.%s\">%s</a>"
-					" | "
-					"<a href=\"mimepart_download/%ld/%s/%s\">%s</a>"
-					" ]<br />\n",
-					mime_content_type_ptr,
-					mime_filename,
-					mime_content_type, mime_length,
-					msgnum, mime_partnum, escaped_mime_filename,
-					msgnum, mime_partnum,
-					_("View"),
-					msgnum, mime_partnum, escaped_mime_filename,
-					_("Download")
-				);
 			}
-
-			/** begin handler prep ***/
-			if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
-			   || (!strcasecmp(mime_content_type, "text/vcard")) ) {
-				strcpy(vcard_partnum, mime_partnum);
+		case 2: /* Message Body */
+			
+			if (Msg->MsgBody.length > 0) {
+				StrBuf_ServGetBLOB(Msg->MsgBody.Data, Msg->MsgBody.length);
+				state ++;
+					/// todo: check next line, if not 000, append following lines
 			}
-
-			if (  (!strcasecmp(mime_content_type, "text/calendar"))
-			   || (!strcasecmp(mime_content_type, "application/ics")) ) {
-				strcpy(cal_partnum, mime_partnum);
+			else if (1){
+				if (StrLength(Msg->MsgBody.Data) > 0)
+					StrBufAppendBufPlain(Msg->MsgBody.Data, "\n", 1, 0);
+				StrBufAppendBuf(Msg->MsgBody.Data, Buf, 0);
 			}
-
-			/** end handler prep ***/
-
+			break;
+		case 3:
+			StrBufAppendBuf(Msg->MsgBody.Data, Buf, 0);
+			break;
 		}
-
 	}
 
-	/* Trim down excessively long lists of thread references.  We eliminate the
-	 * second one in the list so that the thread root remains intact.
-	 */
-	int rrtok = num_tokens(reply_references, '|');
-	int rrlen = strlen(reply_references);
-	if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-		remove_token(reply_references, 1, '|');
+	if (StrLength(Msg->reply_references)> 0) {
+		/* Trim down excessively long lists of thread references.  We eliminate the
+		 * second one in the list so that the thread root remains intact.
+		 */
+		int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
+		int rrlen = StrLength(Msg->reply_references);
+		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+			remove_token(reply_references, 1, '|');////todo
+		}
 	}
 
 	/* Generate a reply-to address */
-	if (!IsEmptyStr(rfca)) {
-		if (!IsEmptyStr(from)) {
-			snprintf(reply_to, sizeof(reply_to), "%s <%s>", from, rfca);
+	if (StrLength(Msg->Rfca) > 0) {
+		if (Msg->reply_to == NULL)
+			Msg->reply_to = NewStrBuf();
+		if (StrLength(Msg->from) > 0) {
+			StrBufPrintf(Msg->reply_to, "%s <%s>", ChrPtr(Msg->from), ChrPtr(Msg->Rfca));
 		}
 		else {
-			strcpy(reply_to, rfca);
+			FlushStrBuf(Msg->reply_to);
+			StrBufAppendBuf(Msg->reply_to, Msg->Rfca, 0);
 		}
 	}
-	else {
-	if ((!IsEmptyStr(node))
-		   && (strcasecmp(node, serv_info.serv_nodename))
-		   && (strcasecmp(node, serv_info.serv_humannode)) ) {
-			snprintf(reply_to, sizeof(reply_to), "%s @ %s",
-				from, node);
+	else 
+	{
+		if ((StrLength(Msg->OtherNode)>0) && 
+		    (strcasecmp(ChrPtr(Msg->OtherNode), serv_info.serv_nodename)) &&
+		    (strcasecmp(ChrPtr(Msg->OtherNode), serv_info.serv_humannode)) ) 
+		{
+			if (Msg->reply_to == NULL)
+				Msg->reply_to = NewStrBuf();
+			StrBufPrintf(Msg->reply_to, 
+				     "%s @ %s",
+				     ChrPtr(Msg->from), 
+				     ChrPtr(Msg->OtherNode));
 		}
 		else {
-			snprintf(reply_to, sizeof(reply_to), "%s", from);
+			if (Msg->reply_to == NULL)
+				Msg->reply_to = NewStrBuf();
+			FlushStrBuf(Msg->reply_to);
+			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
 	}
-
+///TODO: why this?
 	if (nhdr == 1) {
 		wprintf("****");
 	}
 
-	utf8ify_rfc822_string(m_cc);
-	utf8ify_rfc822_string(m_subject);
-
-        /** start msg buttons */
-
-	char Urlsep = '?';
-
-        if (!printable_view) {
-                wprintf("<p id=\"msg%ld\" class=\"msgbuttons\" >\n",msgnum);
-
-		/* Reply */
-		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
-			wprintf("<a href=\"display_enter");
-			if (WC->is_mailbox) {
-				wprintf("%creplyquote=%ld", Urlsep, msgnum);
-				Urlsep = '&';
-			}
-			wprintf("%crecp=", Urlsep);
-			Urlsep = '&';
-			urlescputs(reply_to);
-			if (!IsEmptyStr(m_subject)) {
-				wprintf("%csubject=", Urlsep);
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
-				urlescputs(m_subject);
-			}
-			wprintf("%creferences=", Urlsep);
-			if (!IsEmptyStr(reply_references)) {
-				urlescputs(reply_references);
-				urlescputs("|");
-			}
-			urlescputs(reply_inreplyto);
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Reply"));
-		}
-
-		/* ReplyQuoted */
-		if ( (WC->wc_view == VIEW_MAILBOX) || (WC->wc_view == VIEW_BBS) ) {
-			if (!WC->is_mailbox) {
-				wprintf("<a href=\"display_enter");
-				wprintf("?replyquote=%ld", msgnum);
-				wprintf("&recp=");
-				urlescputs(reply_to);
-				if (!IsEmptyStr(m_subject)) {
-					wprintf("&subject=");
-					if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
-					urlescputs(m_subject);
-				}
-				wprintf("&references=");
-				if (!IsEmptyStr(reply_references)) {
-					urlescputs(reply_references);
-					urlescputs("|");
-				}
-				urlescputs(reply_inreplyto);
-				wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyQuoted"));
-			}
-		}
-
-		/* ReplyAll */
-		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"display_enter");
-			wprintf("?replyquote=%ld", msgnum);
-			wprintf("&recp=");
-			urlescputs(reply_to);
-			wprintf("&cc=");
-			urlescputs(reply_all);
-			if (!IsEmptyStr(m_subject)) {
-				wprintf("&subject=");
-				if (strncasecmp(m_subject, "Re:", 3)) wprintf("Re:%%20");
-				urlescputs(m_subject);
-			}
-			wprintf("&references=");
-			if (!IsEmptyStr(reply_references)) {
-				urlescputs(reply_references);
-				urlescputs("|");
-			}
-			urlescputs(reply_inreplyto);
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("ReplyAll"));
-		}
-
-		/* Forward */
-		if (WC->wc_view == VIEW_MAILBOX) {
-			wprintf("<a href=\"display_enter?fwdquote=%ld&subject=", msgnum);
-			if (strncasecmp(m_subject, "Fwd:", 4)) wprintf("Fwd:%%20");
-			urlescputs(m_subject);
-			wprintf("\"><span>[</span>%s<span>]</span></a> ", _("Forward"));
-		}
-
-		/* If this is one of my own rooms, or if I'm an Aide or Room Aide, I can move/delete */
-		if ( (WC->is_room_aide) || (WC->is_mailbox) || (WC->room_flags2 & QR2_COLLABDEL) ) {
-			/** Move */
-			wprintf("<a href=\"confirm_move_msg?msgid=%ld\"><span>[</span>%s<span>]</span></a> ",
-				msgnum, _("Move"));
-	
-			/** Delete */
-			wprintf("<a href=\"delete_msg?msgid=%ld\" "
-				"onClick=\"return confirm('%s');\">"
-				"<span>[</span>%s<span>]</span> "
-				"</a> ", msgnum, _("Delete this message?"), _("Delete")
-			);
-		}
-
-		/* Headers */
-		wprintf("<a href=\"#\" onClick=\"window.open('msgheaders/%ld', 'headers%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Headers"));
-
-
-		/* Print */
-		wprintf("<a href=\"#\" onClick=\"window.open('printmsg/%ld', 'print%ld', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); \" >"
-			"<span>[</span>%s<span>]</span></a>", msgnum, msgnum, _("Print"));
-
-		wprintf("</p>");
-
+	if (StrLength(Msg->cccc)> 0) {
+		StrBuf *tmp;
+		tmp = Msg->cccc;
+		Msg->cccc = Buf;
+		StrBuf_RFC822_to_Utf8(Msg->cccc, tmp, WCC->DefaultCharset);
+		Buf = tmp;
+	}
+	if (StrLength(Msg->subj)> 0) {
+		StrBuf *tmp;
+		tmp = Msg->subj;
+		Msg->subj = Buf;
+		StrBuf_RFC822_to_Utf8(Msg->subj, tmp, WCC->DefaultCharset);
+		Buf = tmp;
 	}
 
-	if (!IsEmptyStr(m_cc)) {
-		wprintf("<p>");
-		wprintf(_("CC:"));
-		wprintf(" ");
-		escputs(m_cc);
-		wprintf("</p>");
-	}
-	if (!IsEmptyStr(m_subject)) {
-		wprintf("<p class=\"message_subject\">");
-		wprintf(_("Subject:"));
-		wprintf(" ");
-		escputs(m_subject);
-		wprintf("</p>");
-	}
+	DoTemplate(HKEY("view_message"), NULL, Msg, CTX_MAILSUM);
 
-	wprintf("</div>");
 
-	/* Begin body */
-	wprintf("<div class=\"message_content\">");
 
-	/*
-	 * Learn the content type
-	 */
-	strcpy(mime_content_type, "text/plain");
-	while (serv_getln(buf, sizeof buf), (!IsEmptyStr(buf))) {
-		if (!strcmp(buf, "000")) {
-			/* This is not necessarily an error condition.  See bug #226. */
-			goto ENDBODY;
-		}
-		if (!strncasecmp(buf, "X-Citadel-MSG4-Partnum:", 23)) {
-			safestrncpy(msg4_partnum, &buf[23], sizeof(msg4_partnum));
-			striplt(msg4_partnum);
-		}
-		if (!strncasecmp(buf, "Content-type:", 13)) {
-			int len;
-			safestrncpy(mime_content_type, &buf[13], sizeof(mime_content_type));
-			striplt(mime_content_type);
-			len = strlen(mime_content_type);
-			for (i=0; i<len; ++i) {
-				if (!strncasecmp(&mime_content_type[i], "charset=", 8)) {
-					safestrncpy(mime_charset, &mime_content_type[i+8],
-						sizeof mime_charset);
-				}
-			}
-			for (i=0; i<len; ++i) {
-				if (mime_content_type[i] == ';') {
-					mime_content_type[i] = 0;
-					len = i - 1;
-				}
-			}
-			len = strlen(mime_charset);
-			for (i=0; i<len; ++i) {
-				if (mime_charset[i] == ';') {
-					mime_charset[i] = 0;
-					len = i - 1;
-				}
-			}
-		}
-	}
-
-	/* Set up a character set conversion if we need to (and if we can) */
-#ifdef HAVE_ICONV
-	if (strchr(mime_charset, ';')) strcpy(strchr(mime_charset, ';'), "");
-	if ( (strcasecmp(mime_charset, "us-ascii"))
-	   && (strcasecmp(mime_charset, "UTF-8"))
-	   && (strcasecmp(mime_charset, ""))
-	) {
-		ic = ctdl_iconv_open("UTF-8", mime_charset);
-		if (ic == (iconv_t)(-1) ) {
-			lprintf(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
-				__FILE__, __LINE__, mime_charset, strerror(errno));
-		}
-	}
-#endif
-
-	/* Messages in legacy Citadel variformat get handled thusly... */
-	if (!strcasecmp(mime_content_type, "text/x-citadel-variformat")) {
-		fmout("JUSTIFY");
-	}
-
-	/* Boring old 80-column fixed format text gets handled this way... */
-	else if ( (!strcasecmp(mime_content_type, "text/plain"))
-		|| (!strcasecmp(mime_content_type, "text")) ) {
-		buf [0] = '\0';
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			int len;
-			len = strlen(buf);
-			if ((len > 0) && buf[len-1] == '\n') buf[--len] = 0;
-			if ((len > 0) && buf[len-1] == '\r') buf[--len] = 0;
-
-#ifdef HAVE_ICONV
-			if (ic != (iconv_t)(-1) ) {
-				ibuf = buf;
-				ibuflen = strlen(ibuf);
-				obuflen = SIZ;
-				obuf = (char *) malloc(obuflen);
-				osav = obuf;
-				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-				osav[SIZ-obuflen] = 0;
-				safestrncpy(buf, osav, sizeof buf);
-				free(osav);
-			}
-#endif
-
-			len = strlen(buf);
-			while ((!IsEmptyStr(buf)) && (isspace(buf[len-1])))
-				buf[--len] = 0;
-			if ((bq == 0) &&
-		    	((!strncmp(buf, ">", 1)) || (!strncmp(buf, " >", 2)) )) {
-				wprintf("<blockquote>");
-				bq = 1;
-			} else if ((bq == 1) &&
-			   	(strncmp(buf, ">", 1)) && (strncmp(buf, " >", 2)) ) {
-				wprintf("</blockquote>");
-				bq = 0;
-			}
-			wprintf("<tt>");
-			url(buf, sizeof(buf));
-			escputs(buf);
-			wprintf("</tt><br />\n");
-		}
-		wprintf("</i><br />");
-	}
-
-	/* HTML is fun, but we've got to strip it first */
-	else if (!strcasecmp(mime_content_type, "text/html")) {
-		output_html(mime_charset, (WC->wc_view == VIEW_WIKI ? 1 : 0), msgnum);
-	}
-
-	/* Unknown weirdness */
-	else {
-		wprintf(_("I don't know how to display %s"), mime_content_type);
-		wprintf("<br />\n");
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { }
-	}
-
-ENDBODY:	/* If there are attached submessages, display them now... */
-
-	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
-		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
-			extract_token(buf, mime_submessages, i, '|', sizeof buf);
-			/** use printable_view to suppress buttons */
-			wprintf("<blockquote>");
-			read_message(msgnum, 1, buf);
-			wprintf("</blockquote>");
-		}
-	}
+//// put message renderer lookup here.
+///ENDBODY:	/* If there are attached submessages, display them now... */
+///
+///	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
+///		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
+///			extract_token(buf, mime_submessages, i, '|', sizeof buf);
+///			/** use printable_view to suppress buttons */
+///			wprintf("<blockquote>");
+///			read_message(msgnum, 1, buf);
+///			wprintf("</blockquote>");
+///		}
+///	}
 
 
 	/* Afterwards, offer links to download attachments 'n' such */
@@ -1381,11 +1456,6 @@ ENDBODY:	/* If there are attached submessages, display them now... */
 		free(attach_links);
 	}
 
-#ifdef HAVE_ICONV
-	if (ic != (iconv_t)(-1) ) {
-		iconv_close(ic);
-	}
-#endif
 }
 
 
@@ -1808,56 +1878,64 @@ ENDBODY:
 	}
 }
 
-/**
- * \brief Display one row in the mailbox summary view
- *
- * \param num The row number to be displayed
- */
-void display_summarized(int num) {
-	char datebuf[64];
-	wprintf("<tr id=\"m%ld\" style=\"font-weight:%s;\" "
-		"onMouseDown=\"CtdlMoveMsgMouseDown(event,%ld)\">",
-		WC->summ[num].msgnum,
-		((WC->summ[num].is_new) ? "bold" : "normal"),
-		WC->summ[num].msgnum
-	);
 
-	wprintf("<td width=%d%%>", SUBJ_COL_WIDTH_PCT);
 
-	escputs(WC->summ[num].subj);//////////////////////////////////TODO: QP DECODE
-	wprintf("</td>");
 
-	wprintf("<td width=%d%%>", SENDER_COL_WIDTH_PCT);
-	escputs(WC->summ[num].from);
-	wprintf("</td>");
-
-	wprintf("<td width=%d%%>", DATE_PLUS_BUTTONS_WIDTH_PCT);
-	webcit_fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
-	escputs(datebuf);
-	wprintf("</td>");
-
-	wprintf("</tr>\n");
+void EvaluateMimePart(message_summary *Sum, StrBuf *Buf)
+{//// paert=; TODO
+/*
+	extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
+	extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
+	extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
+	extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
+	mime_length = extract_int(&buf[5], 5);
+	
+	if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
+	      || (!strcasecmp(mime_content_type, "text/vcard")) ) {
+		strcpy(vcard_partnum, mime_partnum);
+	}
+*/
 }
-/**
- * \brief Output a message row for the mobile view
- * \param The row number 
- */
-void display_mobile_summary(int num) {
-	char datebuf[64];
-	wprintf("\n<div><div id=\"m%ld\" style=\"font-weight:%s;\" "
-		"onClick=\"CtdlLoadMsgMouseDown(event,%ld)\">",
-		WC->summ[num].msgnum,
-		(WC->summ[num].is_new ? "bold" : "normal"),
-		WC->summ[num].msgnum
-	);
-		wprintf("<span class=\"from\">%s</span>",WC->summ[num].from);
-		wprintf("<span style=\"float: right;\">");
-		webcit_fmt_date(datebuf, WC->summ[num].date, 1);	/* brief */
-		escputs(datebuf);
-		wprintf("</span><br/><span class=\"subject\">");
-		escputs(WC->summ[num].subj);
-		wprintf("</span></div><div id=\"m_%ld\" class=\"msgview\" onMouseDown=\"\"></div></div>",WC->summ[num].msgnum);
+
+message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSubject, long MsgNum) 
+{
+	void                 *vEval;
+	MsgPartEvaluatorFunc  Eval;
+	message_summary      *Msg;
+	StrBuf *Buf;
+	const char *buf;
+	const char *ebuf;
+	int nBuf;
+	long len;
+	
+	Buf = NewStrBuf();
+
+	serv_printf("MSG0 %ld|1", MsgNum);	/* ask for headers only */
+	
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		FreeStrBuf(&Buf);
+		return NULL;
+	}
+
+	Msg = (message_summary*)malloc(sizeof(message_summary));
+	memset(Msg, 0, sizeof(message_summary));
+	while (len = StrBuf_ServGetln(Buf),
+	       ((len != 3)  ||
+		strcmp(ChrPtr(Buf), "000")== 0)){
+		buf = ChrPtr(Buf);
+		ebuf = strchr(ChrPtr(Buf), '=');
+		nBuf = ebuf - buf;
+		if (GetHash(MsgEvaluators, buf, nBuf, &vEval) && vEval != NULL) {
+			Eval = (MsgPartEvaluatorFunc) vEval;
+			StrBufCutLeft(Buf, nBuf + 1);
+			Eval(Msg, Buf);
+		}
+		else lprintf(1, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
+	}
+	return Msg;
 }
+
 
 /**
  * \brief display the adressbook overview
@@ -1865,40 +1943,20 @@ void display_mobile_summary(int num) {
  * \param alpha what????
  */
 void display_addressbook(long msgnum, char alpha) {
-	char buf[SIZ];
-	char mime_partnum[SIZ];
-	char mime_filename[SIZ];
-	char mime_content_type[SIZ];
-	char mime_disposition[SIZ];
-	int mime_length;
+	//char buf[SIZ];
+	/* char mime_partnum[SIZ]; */
+/* 	char mime_filename[SIZ]; */
+/* 	char mime_content_type[SIZ]; */
+	///char mime_disposition[SIZ];
+	//int mime_length;
 	char vcard_partnum[SIZ];
 	char *vcard_source = NULL;
-	struct message_summary summ;
+	message_summary summ;////TODO: this will leak
 
 	memset(&summ, 0, sizeof(summ));
-	safestrncpy(summ.subj, _("(no subject)"), sizeof summ.subj);
-
-	sprintf(buf, "MSG0 %ld|1", msgnum);	/* ask for headers only */
-	serv_puts(buf);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') return;
-
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "part=", 5)) {
-			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
-			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
-			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
-			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
-			mime_length = extract_int(&buf[5], 5);
-
-			if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
-			   || (!strcasecmp(mime_content_type, "text/vcard")) ) {
-				strcpy(vcard_partnum, mime_partnum);
-			}
-
-		}
-	}
-
+	///safestrncpy(summ.subj, _("(no subject)"), sizeof summ.subj);
+///Load Message headers
+//	Msg = 
 	if (!IsEmptyStr(vcard_partnum)) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
@@ -1951,7 +2009,7 @@ void lastfirst_firstlast(char *namebuf) {
  * \param msgnum the citadel message number
  * \param namebuf where to put the name in???
  */
-void fetch_ab_name(long msgnum, char *namebuf) {
+void fetch_ab_name(message_summary *Msg, char *namebuf) {
 	char buf[SIZ];
 	char mime_partnum[SIZ];
 	char mime_filename[SIZ];
@@ -1961,15 +2019,15 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	char vcard_partnum[SIZ];
 	char *vcard_source = NULL;
 	int i, len;
-	struct message_summary summ;
+	message_summary summ;/// TODO this will lak
 
 	if (namebuf == NULL) return;
 	strcpy(namebuf, "");
 
 	memset(&summ, 0, sizeof(summ));
-	safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
+	//////safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
 
-	sprintf(buf, "MSG0 %ld|0", msgnum);	/** unfortunately we need the mime info now */
+	sprintf(buf, "MSG0 %ld|0", Msg->msgnum);	/** unfortunately we need the mime info now */
 	serv_puts(buf);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
@@ -1991,11 +2049,11 @@ void fetch_ab_name(long msgnum, char *namebuf) {
 	}
 
 	if (!IsEmptyStr(vcard_partnum)) {
-		vcard_source = load_mimepart(msgnum, vcard_partnum);
+		vcard_source = load_mimepart(Msg->msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
 
 			/* Grab the name off the card */
-			display_vcard(vcard_source, 0, 0, namebuf,msgnum);
+			display_vcard(vcard_source, 0, 0, namebuf, Msg->msgnum);
 
 			free(vcard_source);
 		}
@@ -2157,270 +2215,102 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
  */
 int load_msg_ptrs(char *servcmd, int with_headers)
 {
-	char buf[1024];
-	time_t datestamp;
-	char fullname[128];
-	char nodename[128];
-	char inetaddr[128];
-	char subject[1024];
-	char *ptr;
+        struct wcsession *WCC = WC;
+	message_summary *Msg;
+	StrBuf *Buf, *Buf2;
+	///char buf[1024];
+	///time_t datestamp;
+	//char fullname[128];
+	//char nodename[128];
+	//char inetaddr[128];
+	//char subject[1024];
+	///char *ptr;
 	int nummsgs;
-	int sbjlen;
+	////int sbjlen;
 	int maxload = 0;
+	long len;
 
-	int num_summ_alloc = 0;
+	////int num_summ_alloc = 0;
 
-	if (WC->summ != NULL) {
-		free(WC->summ);
-		WC->num_summ = 0;
-		WC->summ = NULL;
+	if (WCC->summ != NULL) {
+		if (WCC->summ != NULL)
+			DeleteHash(&WCC->summ);
 	}
-	num_summ_alloc = 100;
-	WC->num_summ = 0;
-	WC->summ = malloc(num_summ_alloc * sizeof(struct message_summary));
-
+	WCC->summ = NewHash(1, Flathash);
 	nummsgs = 0;
-	maxload = sizeof(WC->msgarr) / sizeof(long) ;
+	maxload = 1000;/// TODO
+	
+	Buf = NewStrBuf();
 	serv_puts(servcmd);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') {
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
+		FreeStrBuf(&Buf);
 		return (nummsgs);
 	}
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+// TODO 			if (with_headers) { //// TODO: Have Attachments?
+	Buf2 = NewStrBuf();
+	while (len = StrBuf_ServGetln(Buf),
+	       ((len != 3)  ||
+		strcmp(ChrPtr(Buf), "000")!= 0))
+	{
 		if (nummsgs < maxload) {
-			WC->msgarr[nummsgs] = extract_long(buf, 0);
-			datestamp = extract_long(buf, 1);
-			extract_token(fullname, buf, 2, '|', sizeof fullname);
-			extract_token(nodename, buf, 3, '|', sizeof nodename);
-			extract_token(inetaddr, buf, 4, '|', sizeof inetaddr);
-			extract_token(subject, buf, 5, '|', sizeof subject);
-			++nummsgs;
+			Msg = (message_summary*)malloc(sizeof(message_summary));
+			memset(Msg, 0, sizeof(message_summary));
 
-			if (with_headers) {
-				if (nummsgs > num_summ_alloc) {
-					num_summ_alloc *= 2;
-					WC->summ = realloc(WC->summ,
-						num_summ_alloc * sizeof(struct message_summary));
-				}
-				++WC->num_summ;
+			Msg->msgnum = StrBufExtract_long(Buf, 0, '|');
+			Msg->date = StrBufExtract_long(Buf, 1, '|');
 
-				memset(&WC->summ[nummsgs-1], 0, sizeof(struct message_summary));
-				WC->summ[nummsgs-1].msgnum = WC->msgarr[nummsgs-1];
-				safestrncpy(WC->summ[nummsgs-1].subj,
-					_("(no subject)"), sizeof WC->summ[nummsgs-1].subj);
-				if (!IsEmptyStr(subject)) {
-				/** Handle subjects with RFC2047 encoding */
-					utf8ify_rfc822_string(subject);
-					safestrncpy(WC->summ[nummsgs-1].subj, subject,
-						    sizeof WC->summ[nummsgs-1].subj);
-				}
-				sbjlen = Ctdl_Utf8StrLen(WC->summ[nummsgs-1].subj);
-				if (sbjlen > 75) {
-					ptr = Ctdl_Utf8StrCut(WC->summ[nummsgs-1].subj, 72);
-
-					strcpy(ptr, "...");
-				}
-
-				if (!IsEmptyStr(fullname)) {
+			Msg->from = NewStrBufPlain(NULL, StrLength(Buf));
+			StrBufExtract_token(Buf2, Buf, 2, '|');
+			if (StrLength(Buf2) != 0) {
 				/** Handle senders with RFC2047 encoding */
-					utf8ify_rfc822_string(fullname);
-					safestrncpy(WC->summ[nummsgs-1].from,
-						fullname, sizeof WC->summ[nummsgs-1].from);
-				}
-				if ((!IsEmptyStr(nodename)) &&
-				    ( ((WC->room_flags & QR_NETWORK)
-				       || ((strcasecmp(nodename, serv_info.serv_nodename)
-						 && (strcasecmp(nodename, serv_info.serv_fqdn)))))))
-				{
-					strcat(WC->summ[nummsgs-1].from, " @ ");
-					strcat(WC->summ[nummsgs-1].from, nodename);
-					
-				}
-				sbjlen = Ctdl_Utf8StrLen(WC->summ[nummsgs-1].from);
-				if (sbjlen > 25) {
-					ptr = Ctdl_Utf8StrCut(WC->summ[nummsgs-1].from, 23);
-					strcpy(ptr, "...");
-				}
-
-				WC->summ[nummsgs-1].date = datestamp;
+				StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset);
 			}
+			
+			/** Nodename */
+			StrBufExtract_token(Buf2, Buf, 3, '|');
+			if ((StrLength(Buf2) !=0 ) &&
+			    ( ((WCC->room_flags & QR_NETWORK)
+			       || ((strcasecmp(ChrPtr(Buf2), serv_info.serv_nodename)
+				    && (strcasecmp(ChrPtr(Buf2), serv_info.serv_fqdn)))))))
+			{
+				StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
+				StrBufAppendBuf(Msg->from, Buf2, 0);
+			}
+
+			/** Not used:
+			StrBufExtract_token(Msg->inetaddr, Buf, 4, '|');
+			*/
+
+			Msg->subj = NewStrBufPlain(NULL, StrLength(Buf));
+			StrBufExtract_token(Buf2,  Buf, 5, '|');
+			if (StrLength(Buf2) == 0)
+				StrBufAppendBufPlain(Msg->subj, _("(no subj)"), 0, -1);
+			else {
+				StrBuf_RFC822_to_Utf8(Msg->subj, Buf2, WCC->DefaultCharset);
+				if ((StrLength(Msg->subj) > 75) && 
+				    (StrBuf_Utf8StrLen(Msg->subj) > 75)) {
+					StrBuf_Utf8StrCut(Msg->subj, 72);
+					StrBufAppendBufPlain(Msg->subj, HKEY("..."), 0);
+				}
+			}
+
+
+			if ((StrLength(Msg->from) > 25) && 
+			    (StrBuf_Utf8StrLen(Msg->from) > 25)) {
+				StrBuf_Utf8StrCut(Msg->from, 23);
+				StrBufAppendBufPlain(Msg->from, HKEY("..."), 0);
+			}
+			Put(WCC->summ, (const char*)&Msg->msgnum, sizeof(Msg->msgnum), Msg, DestroyMessageSummary);
 		}
+		nummsgs++;
 	}
+	FreeStrBuf(&Buf2);
+	FreeStrBuf(&Buf);
 	return (nummsgs);
 }
 
 
-typedef int (*QSortFunction) (const void*, const void*);
-
-/*
- * qsort() compatible function to compare two longs in descending order.
- */
-int longcmp_r(const void *s1, const void *s2) {
-	long l1;
-	long l2;
-
-	l1 = *(long *)s1;
-	l2 = *(long *)s2;
-
-	if (l1 > l2) return(-1);
-	if (l1 < l2) return(+1);
-	return(0);
-}
-
- 
-/*
- * qsort() compatible function to compare two message summary structs by ascending subject.
- */
-int summcmp_subj(const void *s1, const void *s2) {
-	struct message_summary *summ1;
-	struct message_summary *summ2;
-	
-	summ1 = (struct message_summary *)s1;
-	summ2 = (struct message_summary *)s2;
-	return strcasecmp(summ1->subj, summ2->subj);
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by descending subject.
- */
-int summcmp_rsubj(const void *s1, const void *s2) {
-	struct message_summary *summ1;
-	struct message_summary *summ2;
-	
-	summ1 = (struct message_summary *)s1;
-	summ2 = (struct message_summary *)s2;
-	return strcasecmp(summ2->subj, summ1->subj);
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by ascending sender.
- */
-int summcmp_sender(const void *s1, const void *s2) {
-	struct message_summary *summ1;
-	struct message_summary *summ2;
-	
-	summ1 = (struct message_summary *)s1;
-	summ2 = (struct message_summary *)s2;
-	return strcasecmp(summ1->from, summ2->from);
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by descending sender.
- */
-int summcmp_rsender(const void *s1, const void *s2) {
-	struct message_summary *summ1;
-	struct message_summary *summ2;
-	
-	summ1 = (struct message_summary *)s1;
-	summ2 = (struct message_summary *)s2;
-	return strcasecmp(summ2->from, summ1->from);
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by ascending date.
- */
-int summcmp_date(const void *s1, const void *s2) {
-	struct message_summary *summ1;
-	struct message_summary *summ2;
-	
-	summ1 = (struct message_summary *)s1;
-	summ2 = (struct message_summary *)s2;
-
-	if (summ1->date < summ2->date) return -1;
-	else if (summ1->date > summ2->date) return +1;
-	else return 0;
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by descending date.
- */
-int summcmp_rdate(const void *s1, const void *s2) {
-	struct message_summary *summ1;
-	struct message_summary *summ2;
-	
-	summ1 = (struct message_summary *)s1;
-	summ2 = (struct message_summary *)s2;
-
-	if (summ1->date < summ2->date) return +1;
-	else if (summ1->date > summ2->date) return -1;
-	else return 0;
-}
-
-
-enum {
-	eUp,
-	eDown,
-	eNone
-};
-
-const char* SortIcons[3] = {
-	"static/up_pointer.gif",
-	"static/down_pointer.gif",
-	"static/sort_none.gif"
-};
-
- enum  {/// SortByEnum
-	eDate,
-	eRDate,
-	eSubject,
-	eRSubject,
-	eSender,
-	eRSender,
-	eReverse,
-	eUnSet
-}; 
-
-/* SortEnum to plain string representation */
-static const char* SortByStrings[] = {
-	"date",
-	"rdate",
-	"subject", 
-	"rsubject", 
-	"sender",
-	"rsender",
-	"reverse",
-	"unset"
-};
-
-/* SortEnum to sort-Function Table */
-const QSortFunction SortFuncs[eUnSet] = {
-	summcmp_date,
-	summcmp_rdate,
-	summcmp_subj,
-	summcmp_rsubj,
-	summcmp_sender,
-	summcmp_rsender,
-	summcmp_rdate
-};
-
-/* given a SortEnum, which icon should we choose? */
-const int SortDateToIcon[eUnSet] = { eUp, eDown, eNone, eNone, eNone, eNone, eNone};
-const int SortSubjectToIcon[eUnSet] = { eNone, eNone, eUp, eDown, eNone, eNone, eNone};
-const int SortSenderToIcon[eUnSet] = { eNone, eNone, eNone, eNone, eUp, eDown, eNone};
-
-/* given a SortEnum, which would be the "opposite" search option? */
-const int DateInvertSortString[eUnSet] =  { eRDate, eDate, eDate, eDate, eDate, eDate, eDate};
-const int SubjectInvertSortString[eUnSet] =  { eSubject, eSubject, eRSubject, eUnSet, eSubject, eSubject, eSubject};
-const int SenderInvertSortString[eUnSet] =  { eSender, eSender, eSender, eSender, eRSender, eUnSet, eSender};
-
-
-/*
- * Translates sortoption String to its SortEnum representation 
- * returns the enum matching the string; defaults to RDate
- */
-//SortByEnum 
-int StrToESort (const StrBuf *sortby)
-{
-	int result = eDate;
-
-	if (!IsEmptyStr(ChrPtr(sortby))) while (result < eUnSet){
-			if (!strcasecmp(ChrPtr(sortby), 
-					SortByStrings[result])) 
-				return result;
-			result ++;
-		}
-	return eRDate;
-}
 
 
 
@@ -2432,6 +2322,8 @@ int StrToESort (const StrBuf *sortby)
  */
 void readloop(char *oper)
 {
+	void *vMsg;
+	message_summary *Msg;
 	char cmd[256] = "";
 	char buf[SIZ];
 	char old_msgs[SIZ];
@@ -2460,6 +2352,9 @@ void readloop(char *oper)
 	const StrBuf *sortpref_value;
 	int bbs_reverse = 0;
 	struct wcsession *WCC = WC;     /* This is done to make it run faster; WC is a function */
+	HashPos *at;
+	const char *HashKey;
+	long HKLen;
 
 	if (WCC->wc_view == VIEW_WIKI) {
 		sprintf(buf, "wiki?room=%s&page=home", WCC->wc_roomname);
@@ -2604,17 +2499,23 @@ void readloop(char *oper)
 	}
 
 	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR) || WCC->is_mobile){
-		for (a = 0; a < nummsgs; ++a) {
+		void *vMsg;
+		message_summary *Msg;
+
+		at = GetNewHashPos();
+		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			/** Are you a new message, or an old message? */
+			Msg = (message_summary*) vMsg;
 			if (is_summary) {
-				if (is_msg_in_mset(old_msgs, WCC->msgarr[a])) {
-					WCC->summ[a].is_new = 0;
+				if (is_msg_in_mset(old_msgs, Msg->msgnum)) {
+					Msg->is_new = 0;
 				}
 				else {
-					WCC->summ[a].is_new = 1;
+					Msg->is_new = 1;
 				}
 			}
 		}
+		DeleteHashPos(&at);
 	}
 
 	if (startmsg == 0L) {
@@ -2627,10 +2528,8 @@ void readloop(char *oper)
 	}
 
 	if (is_summary || WCC->is_mobile) {
-		qsort(WCC->summ, WCC->num_summ,
-		      sizeof(struct message_summary), SortFuncs[SortBy]);
+		SortByPayload(WCC->summ, SortFuncs[SortBy]);
 	}
-
 
 	if (is_summary) {
 
@@ -2776,47 +2675,51 @@ void readloop(char *oper)
 		wprintf("</p></form>\n");
 		/** end bbview scroller */
 	}
-	for (a = 0; a < nummsgs; ++a) {
-		if ((WCC->msgarr[a] >= startmsg) && (num_displayed < maxmsgs)) {
-
+			
+	at = GetNewHashPos();
+	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+		Msg = (message_summary*) vMsg;		
+		if ((Msg->msgnum >= startmsg) && (num_displayed < maxmsgs)) {
+				
 			/** Display the message */
 			if (is_summary) {
-				display_summarized(a);
+				DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
 			}
 			else if (is_addressbook) {
-				fetch_ab_name(WCC->msgarr[a], buf);
+				fetch_ab_name(Msg, buf);
 				++num_ab;
 				addrbook = realloc(addrbook,
-					(sizeof(struct addrbookent) * num_ab) );
+						   (sizeof(struct addrbookent) * num_ab) );
 				safestrncpy(addrbook[num_ab-1].ab_name, buf,
-					sizeof(addrbook[num_ab-1].ab_name));
-				addrbook[num_ab-1].ab_msgnum = WCC->msgarr[a];
+					    sizeof(addrbook[num_ab-1].ab_name));
+				addrbook[num_ab-1].ab_msgnum = Msg->msgnum;
 			}
 			else if (is_calendar) {
-				load_calendar_item(WCC->msgarr[a], WCC->summ[a].is_new, &calv);
+				load_calendar_item(Msg, Msg->is_new, &calv);
 			}
 			else if (is_tasks) {
-				display_task(WCC->msgarr[a], WCC->summ[a].is_new);
+				display_task(Msg, Msg->is_new);
 			}
 			else if (is_notes) {
-				display_note(WCC->msgarr[a], WCC->summ[a].is_new);
+				display_note(Msg, Msg->is_new);
 			} else if (WCC->is_mobile) {
-				display_mobile_summary(a);
+				DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
 			}
 			else {
 				if (displayed_msgs == NULL) {
 					displayed_msgs = malloc(sizeof(long) *
 								(maxmsgs<nummsgs ? maxmsgs : nummsgs));
 				}
-				displayed_msgs[num_displayed] = WCC->msgarr[a];
+				displayed_msgs[num_displayed] = Msg->msgnum;
 			}
-
+			
 			if (lowest_displayed < 0) lowest_displayed = a;
 			highest_displayed = a;
-
+			
 			++num_displayed;
 		}
 	}
+	DeleteHashPos(&at);
 
 	/** Output loop */
 	if (displayed_msgs != NULL) {
@@ -2962,9 +2865,7 @@ DONE:
 
 	/** free the summary */
 	if (WCC->summ != NULL) {
-		free(WCC->summ);
-		WCC->num_summ = 0;
-		WCC->summ = NULL;
+		DeleteHash(&WCC->summ);
 	}
 	if (addrbook != NULL) free(addrbook);
 }
@@ -3805,6 +3706,11 @@ void readfwd(void) { readloop("readfwd");}
 void headers(void) { readloop("headers");}
 void do_search(void) { readloop("do_search");}
 
+
+
+
+
+
 void 
 InitModule_MSG
 (void)
@@ -3823,5 +3729,55 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);
+
+	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:N",       0, 0, tmplput_MAIL_SUMM_N,        CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:FROM",    0, 2, tmplput_MAIL_SUMM_FROM,     CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:TO",      0, 2, tmplput_MAIL_SUMM_TO,       CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:SUBJECT", 0, 4, tmplput_MAIL_SUMM_SUBJECT,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:NATTACH", 0, 0, tmplput_MAIL_SUMM_NATTACH,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:CCCC", 0, 2, tmplput_MAIL_SUMM_CCCC,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:H_NODE", 0, 2, tmplput_MAIL_SUMM_H_NODE,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:ALLRCPT", 0, 2, tmplput_MAIL_SUMM_ALLRCPT,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:ORGROOM", 0, 2, tmplput_MAIL_SUMM_ORGROOM,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:RFCA", 0, 2, tmplput_MAIL_SUMM_RFCA,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:OTHERNODE", 2, 0, tmplput_MAIL_SUMM_OTHERNODE,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:REFIDS", 0, 0, tmplput_MAIL_SUMM_REFIDS,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:INREPLYTO", 0, 2, tmplput_MAIL_SUMM_INREPLYTO,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
+
+
+
+	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat);
+	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain);
+	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain);
+	RegisterMimeRenderer(HKEY("text/html"), render_MAIL_html);
+	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN);
+
+
+	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
+
+	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);
+	RegisterMsgHdr(HKEY("type"), examine_type, 0);
+	RegisterMsgHdr(HKEY("from"), examine_from, 0);
+	RegisterMsgHdr(HKEY("subj"), examine_subj, 0);
+	RegisterMsgHdr(HKEY("msgn"), examine_msgn, 0);
+	RegisterMsgHdr(HKEY("wefw"), examine_wefw, 0);
+	RegisterMsgHdr(HKEY("cccc"), examine_cccc, 0);
+	RegisterMsgHdr(HKEY("hnod"), examine_hnod, 0);
+	RegisterMsgHdr(HKEY("room"), examine_room, 0);
+	RegisterMsgHdr(HKEY("rfca"), examine_rfca, 0);
+	RegisterMsgHdr(HKEY("node"), examine_node, 0);
+	RegisterMsgHdr(HKEY("rcpt"), examine_rcpt, 0);
+	RegisterMsgHdr(HKEY("time"), examine_time, 0);
+	RegisterMsgHdr(HKEY("part"), examine_mime_part, 0);
+	RegisterMsgHdr(HKEY("text"), examine_text, 1);
+	RegisterMsgHdr(HKEY("X-Citadel-MSG4-Partnum"), examine_msg4_partnum, 0);
+	RegisterMsgHdr(HKEY("Content-type"), examine_content_type, 0);
+	RegisterMsgHdr(HKEY("Content-length"), examine_content_lengh, 0);
+	RegisterMsgHdr(HKEY("Content-transfer-encoding"), examine_content_encoding, 0);
 	return ;
 }

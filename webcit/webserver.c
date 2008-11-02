@@ -693,6 +693,9 @@ int main(int argc, char **argv)
 	GlobalNS = NewHash(1, NULL);
 	Iterators = NewHash(1, NULL);
 	Contitionals = NewHash(1, NULL);
+	MsgHeaderHandler = NewHash(1, NULL);
+	MimeRenderHandler = NewHash(1, NULL);
+
 	LoadZoneFiles();
 
 
@@ -968,7 +971,9 @@ void ShutDownWebcit(void)
 	DeleteHash(&TemplateCache);
 	DeleteHash(&LocalTemplateCache);
 	DeleteHash(&Iterators);
+	DeleteHash(&MimeRenderHandler);
 	DeleteHash(&Contitionals);
+	DeleteHash(&MsgHeaderHandler);
 #ifdef ENABLE_NLS
 	ShutdownLocale();
 #endif

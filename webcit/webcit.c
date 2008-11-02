@@ -1749,6 +1749,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 					set_selected_language(ChrPtr(Lang));
 					go_selected_language();		/* set locale */
 				}
+				get_preference("default_header_charset", &WCC->DefaultCharset);
 			}
 		}
 	}
