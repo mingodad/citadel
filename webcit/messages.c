@@ -581,6 +581,7 @@ void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine)
 void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine)
 {
 	Msg->MsgBody.length = StrTol(HdrLine);
+	Msg->MsgBody.size_known = 1;
 }
 
 void examine_content_type(message_summary *Msg, StrBuf *HdrLine)
@@ -639,8 +640,10 @@ void tmplput_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *
 void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData)
 {
 	/* Messages in legacy Citadel variformat get handled thusly... */
-	fmout("JUSTIFY");///todo: this won't work that way.
-	
+	StrBuf *Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
+	FmOut(Target, "JUSTIFY", Mime->Data);
+	FreeStrBuf(&Mime->Data);
+	Mime->Data = Target;
 }
 
 void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
@@ -654,7 +657,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 	int ConvertIt = 1;
 	int bn = 0;
 	int bq = 0;
-	int i;
+	int i, n, done = 0;
 	long len;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
@@ -675,11 +678,11 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 	}
 #endif
 
-	while (StrBufSipLine(Line, Mime->Data, &BufPtr) > 0)
+	while ((n = StrBufSipLine(Line, Mime->Data, &BufPtr), n >= 0) && !done)
 	{
+		done = n == 0;
 		bq = 0;
 		i = 0;
-
 		ptr = ChrPtr(Line);
 		len = StrLength(Line);
 		pte = ptr + len;
@@ -711,7 +714,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 		bn = bq;
 	}
 
-	for (i = bq; i < bn; i++)				
+	for (i = 0; i < bn; i++)				
 		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
 
 	StrBufAppendBufPlain(Target, HKEY("</i><br />"), 0);
@@ -722,7 +725,9 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 #endif
 	FreeStrBuf(&Mime->Data);
 	Mime->Data = Target;
-
+	FreeStrBuf(&Line);
+	FreeStrBuf(&Line1);
+	FreeStrBuf(&Line2);
 }
 
 void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData)
@@ -741,8 +746,10 @@ void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData)
 void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData)
 {
 	/* Unknown weirdness */
-////	wprintf(_("I don't know how to display %s"), Msg->MsgBody->ContentType);
-	wprintf("<br />\n");
+	FlushStrBuf(Mime->Data);
+	StrBufAppendBufPlain(Mime->Data, _("I don't know how to display "), -1, 0);
+	StrBufAppendBuf(Mime->Data, Mime->ContentType, 0);
+	StrBufAppendBufPlain(Mime->Data, HKEY("<br />\n"), 0);
 }
 
 
@@ -1308,7 +1315,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	Token = NewStrBuf();
 	Msg = (message_summary *)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
-	Msg->MsgBody.length=-1;
+
 	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
 		    !strcmp(ChrPtr(Buf), "000")) 
@@ -1372,7 +1379,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 		case 2: /* Message Body */
 			
-			if (Msg->MsgBody.length > 0) {
+			if (Msg->MsgBody.size_known > 0) {
 				StrBuf_ServGetBLOB(Msg->MsgBody.Data, Msg->MsgBody.length);
 				state ++;
 					/// todo: check next line, if not 000, append following lines
