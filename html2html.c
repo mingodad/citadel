@@ -462,7 +462,7 @@ BAIL:	/** A little trailing vertical whitespace... */
 
 	/** Now give back the memory */
 	FreeStrBuf(&converted_msg);
-	if (msg != NULL) free(msg);
+	if ((msg != NULL) && (Source == NULL)) free(msg);
 }
 
 /*@}*/

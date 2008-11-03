@@ -283,24 +283,24 @@ void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, RenderMimeFunc M
 /*----------------------------------------------------------------------------*/
 
 
-void examine_nhdr(message_summary *Msg, StrBuf *HdrLine)
+void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->nhdr = 0;
 	if (!strncasecmp(ChrPtr(HdrLine), "yes", 8))
 		Msg->nhdr = 1;
 }
 
-void examine_type(message_summary *Msg, StrBuf *HdrLine)
+void examine_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->format_type = StrToi(HdrLine);
 			
 }
 
-void examine_from(message_summary *Msg, StrBuf *HdrLine)
+void examine_from(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->from);
 	Msg->from = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->from, HdrLine, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(Msg->from, HdrLine, WC->DefaultCharset, FoundCharset);
 }
 void tmplput_MAIL_SUMM_FROM(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
@@ -311,11 +311,11 @@ void tmplput_MAIL_SUMM_FROM(StrBuf *Target, int nArgs, WCTemplateToken *Token, v
 
 
 
-void examine_subj(message_summary *Msg, StrBuf *HdrLine)
+void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->subj);
 	Msg->subj = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset, FoundCharset);
 	lprintf(1,"%s", ChrPtr(Msg->subj));
 }
 void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
@@ -325,11 +325,11 @@ void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, int nArgs, WCTemplateToken *Token
 }
 
 
-void examine_msgn(message_summary *Msg, StrBuf *HdrLine)
+void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->reply_inreplyto);
 	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->reply_inreplyto, HdrLine, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(Msg->reply_inreplyto, HdrLine, WC->DefaultCharset, FoundCharset);
 }
 void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
@@ -338,11 +338,11 @@ void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, int nArgs, WCTemplateToken *Tok
 }
 
 
-void examine_wefw(message_summary *Msg, StrBuf *HdrLine)
+void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->reply_references);
 	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->reply_references, HdrLine, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(Msg->reply_references, HdrLine, WC->DefaultCharset, FoundCharset);
 }
 void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
@@ -351,11 +351,11 @@ void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, int nArgs, WCTemplateToken *Token,
 }
 
 
-void examine_cccc(message_summary *Msg, StrBuf *HdrLine)
+void examine_cccc(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->cccc);
 	Msg->cccc = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->cccc, HdrLine, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(Msg->cccc, HdrLine, WC->DefaultCharset, FoundCharset);
 	if (Msg->AllRcpt == NULL)
 		Msg->AllRcpt = NewStrBufPlain(NULL, StrLength(HdrLine));
 	if (StrLength(Msg->AllRcpt) > 0) {
@@ -372,7 +372,7 @@ void tmplput_MAIL_SUMM_CCCC(StrBuf *Target, int nArgs, WCTemplateToken *Token, v
 
 
 
-void examine_room(message_summary *Msg, StrBuf *HdrLine)
+void examine_room(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	if ((StrLength(HdrLine) > 0) &&
 	    (strcasecmp(ChrPtr(HdrLine), WC->wc_roomname))) {
@@ -387,7 +387,7 @@ void tmplput_MAIL_SUMM_ORGROOM(StrBuf *Target, int nArgs, WCTemplateToken *Token
 }
 
 
-void examine_rfca(message_summary *Msg, StrBuf *HdrLine)
+void examine_rfca(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->Rfca);
 	Msg->Rfca = NewStrBufDup(HdrLine);
@@ -399,7 +399,7 @@ void tmplput_MAIL_SUMM_RFCA(StrBuf *Target, int nArgs, WCTemplateToken *Token, v
 }
 
 
-void examine_node(message_summary *Msg, StrBuf *HdrLine)
+void examine_node(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	if ( (StrLength(HdrLine) > 0) &&
 	     ((WC->room_flags & QR_NETWORK)
@@ -421,11 +421,11 @@ int Conditional_MAIL_SUMM_OTHERNODE(WCTemplateToken *Tokens, void *Context, int 
 }
 
 
-void examine_rcpt(message_summary *Msg, StrBuf *HdrLine)
+void examine_rcpt(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->to);
 	Msg->to = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->to, HdrLine, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(Msg->to, HdrLine, WC->DefaultCharset, FoundCharset);
 	if (Msg->AllRcpt == NULL)
 		Msg->AllRcpt = NewStrBufPlain(NULL, StrLength(HdrLine));
 	if (StrLength(Msg->AllRcpt) > 0) {
@@ -446,7 +446,7 @@ void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, int nArgs, WCTemplateToken *Token
 
 
 
-void examine_time(message_summary *Msg, StrBuf *HdrLine)
+void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->date = StrTol(HdrLine);
 }
@@ -465,7 +465,7 @@ void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Token
 
 
 
-void examine_mime_part(message_summary *Msg, StrBuf *HdrLine)
+void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	wc_mime_attachment *mime;
 	StrBuf *Buf;
@@ -477,7 +477,7 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine)
 	mime->Name = NewStrBuf();
 	StrBufExtract_token(mime->Name, HdrLine, 0, '|');
 	StrBufExtract_token(Buf, HdrLine, 1, '|');
-	StrBuf_RFC822_to_Utf8(mime->FileName, Buf, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(mime->FileName, Buf, WC->DefaultCharset, FoundCharset);
 	mime->PartNum = NewStrBuf();
 	StrBufExtract_token(mime->PartNum, HdrLine, 2, '|');
 	mime->Disposition = NewStrBuf();
@@ -543,11 +543,11 @@ void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, int nArgs, WCTemplateToken *Token
 
 
 
-void examine_hnod(message_summary *Msg, StrBuf *HdrLine)
+void examine_hnod(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->hnod);
 	Msg->hnod = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->hnod, HdrLine, WC->DefaultCharset);
+	StrBuf_RFC822_to_Utf8(Msg->hnod, HdrLine, WC->DefaultCharset, FoundCharset);
 }
 void tmplput_MAIL_SUMM_H_NODE(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
@@ -562,29 +562,29 @@ int Conditional_MAIL_SUMM_H_NODE(WCTemplateToken *Tokens, void *Context, int Con
 
 
 
-void examine_text(message_summary *Msg, StrBuf *HdrLine)
+void examine_text(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {////TODO: read messages here
 	Msg->MsgBody.Data = NewStrBuf();
 }
 
-void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine)
+void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->MsgBody.PartNum = NewStrBufDup(HdrLine);
 	StrBufTrim(Msg->MsgBody.PartNum);/////TODO: striplt == trim?
 }
 
-void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine)
+void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 ////TODO: do we care?
 }
 
-void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine)
+void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->MsgBody.length = StrTol(HdrLine);
 	Msg->MsgBody.size_known = 1;
 }
 
-void examine_content_type(message_summary *Msg, StrBuf *HdrLine)
+void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {////TODO
 	int len, i;
 	Msg->MsgBody.ContentType = NewStrBufDup(HdrLine);
@@ -637,7 +637,7 @@ void tmplput_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *
 }
 
 
-void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData)
+void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
 	/* Messages in legacy Citadel variformat get handled thusly... */
 	StrBuf *Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
@@ -646,8 +646,9 @@ void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData)
 	Mime->Data = Target;
 }
 
-void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
+void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
+	StrBuf *cs = NULL;
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;
 	StrBuf *Line = NewStrBuf();
@@ -670,10 +671,21 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 
 #ifdef HAVE_ICONV
 	if (ConvertIt) {
-		ctdl_iconv_open("UTF-8", ChrPtr(Mime->Charset), &ic);
-		if (ic == (iconv_t)(-1) ) {
-			lprintf(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
-				__FILE__, __LINE__, ChrPtr(Mime->Charset), strerror(errno));
+		if (StrLength(Mime->Charset) != 0)
+			cs = Mime->Charset;
+		else if (StrLength(FoundCharset) > 0)
+			cs = FoundCharset;
+		else if (StrLength(WC->DefaultCharset) > 0)
+			cs = WC->DefaultCharset;
+		if (cs == 0) {
+			ConvertIt = 0;
+		}
+		else {
+			ctdl_iconv_open("UTF-8", ChrPtr(cs), &ic);
+			if (ic == (iconv_t)(-1) ) {
+				lprintf(5, "%s:%d iconv_open(UTF-8, %s) failed: %s\n",
+					__FILE__, __LINE__, ChrPtr(Mime->Charset), strerror(errno));
+			}
 		}
 	}
 #endif
@@ -705,7 +717,11 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 			StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
 		for (i = bq; i < bn; i++)				
 			StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
-		
+
+		if (ConvertIt == 1) {
+			StrBufConvert(Line, Line1, &ic);
+		}
+
 		StrBufAppendBufPlain(Target, HKEY("<tt>"), 0);
 		UrlizeText(Line1, Line, Line2);
 
@@ -730,7 +746,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData)
 	FreeStrBuf(&Line2);
 }
 
-void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData)
+void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
 	StrBuf *Buf;
 	/* HTML is fun, but we've got to strip it first */
@@ -743,7 +759,7 @@ void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData)
 	Mime->Data = Buf;
 }
 
-void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData)
+void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
 	/* Unknown weirdness */
 	FlushStrBuf(Mime->Data);
@@ -1279,6 +1295,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	struct wcsession *WCC = WC;
 	StrBuf *Buf;
 	StrBuf *Token;
+	StrBuf *FoundCharset;
 	message_summary *Msg;
 	headereval *Hdr;
 	void *vHdr;
@@ -1315,7 +1332,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	Token = NewStrBuf();
 	Msg = (message_summary *)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
-
+	FoundCharset = NewStrBuf();
 	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
 		    !strcmp(ChrPtr(Buf), "000")) 
@@ -1329,6 +1346,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 				FreeStrBuf(&Buf);
 				FreeStrBuf(&Token);
 				DestroyMessageSummary(Msg);
+				FreeStrBuf(&FoundCharset);
 				return;
 			}
 			else {
@@ -1348,7 +1366,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
 			    (vHdr != NULL)) {
 				Hdr = (headereval*)vHdr;
-				Hdr->evaluator(Msg, Buf);
+				Hdr->evaluator(Msg, Buf, FoundCharset);
 				if (Hdr->Type == 1) {
 					state++;
 				}
@@ -1372,7 +1390,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 					if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
 					    (vHdr != NULL)) {
 						Hdr = (headereval*)vHdr;
-						Hdr->evaluator(Msg, Buf);
+						Hdr->evaluator(Msg, Buf, FoundCharset);
 					}
 					break;
 				}
@@ -1401,7 +1419,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	    (vHdr != NULL)) {
 		RenderMimeFunc Render;
 		Render = (RenderMimeFunc)vHdr;
-		Render(&Msg->MsgBody, NULL);
+		Render(&Msg->MsgBody, NULL, FoundCharset);
 	}
 
 
@@ -1457,14 +1475,14 @@ void read_message(long msgnum, int printable_view, char *section) {
 		StrBuf *tmp;
 		tmp = Msg->cccc;
 		Msg->cccc = Buf;
-		StrBuf_RFC822_to_Utf8(Msg->cccc, tmp, WCC->DefaultCharset);
+		StrBuf_RFC822_to_Utf8(Msg->cccc, tmp, WCC->DefaultCharset, FoundCharset);
 		Buf = tmp;
 	}
 	if (StrLength(Msg->subj)> 0) {
 		StrBuf *tmp;
 		tmp = Msg->subj;
 		Msg->subj = Buf;
-		StrBuf_RFC822_to_Utf8(Msg->subj, tmp, WCC->DefaultCharset);
+		StrBuf_RFC822_to_Utf8(Msg->subj, tmp, WCC->DefaultCharset, FoundCharset);
 		Buf = tmp;
 	}
 
@@ -1538,7 +1556,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	if (num_attach_links > 0) {
 		free(attach_links);
 	}
-
+	FreeStrBuf(&FoundCharset);
 }
 
 
@@ -2298,6 +2316,7 @@ void do_addrbook_view(struct addrbookent *addrbook, int num_ab) {
  */
 int load_msg_ptrs(char *servcmd, int with_headers)
 {
+	StrBuf* FoundCharset = NULL;
         struct wcsession *WCC = WC;
 	message_summary *Msg;
 	StrBuf *Buf, *Buf2;
@@ -2347,7 +2366,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 			StrBufExtract_token(Buf2, Buf, 2, '|');
 			if (StrLength(Buf2) != 0) {
 				/** Handle senders with RFC2047 encoding */
-				StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset);
+				StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset, FoundCharset);
 			}
 			
 			/** Nodename */
@@ -2370,7 +2389,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 			if (StrLength(Buf2) == 0)
 				StrBufAppendBufPlain(Msg->subj, _("(no subj)"), 0, -1);
 			else {
-				StrBuf_RFC822_to_Utf8(Msg->subj, Buf2, WCC->DefaultCharset);
+				StrBuf_RFC822_to_Utf8(Msg->subj, Buf2, WCC->DefaultCharset, FoundCharset);
 				if ((StrLength(Msg->subj) > 75) && 
 				    (StrBuf_Utf8StrLen(Msg->subj) > 75)) {
 					StrBuf_Utf8StrCut(Msg->subj, 72);
