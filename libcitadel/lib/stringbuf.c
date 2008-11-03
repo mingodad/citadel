@@ -1602,7 +1602,8 @@ inline static void DecodeSegment(StrBuf *Target,
 				 char *SegmentStart, 
 				 char *SegmentEnd, 
 				 StrBuf *ConvertBuf,
-				 StrBuf *ConvertBuf2)
+				 StrBuf *ConvertBuf2, 
+				 StrBuf *FoundCharset)
 {
 	StrBuf StaticBuf;
 	char charset[128];
@@ -1616,6 +1617,10 @@ inline static void DecodeSegment(StrBuf *Target,
 	StaticBuf.BufUsed = SegmentEnd - SegmentStart;
 	StaticBuf.BufSize = DecodeMe->BufSize - (SegmentStart - DecodeMe->buf);
 	extract_token(charset, SegmentStart, 1, '?', sizeof charset);
+	if (FoundCharset != NULL) {
+		FlushStrBuf(FoundCharset);
+		StrBufAppendBufPlain(FoundCharset, charset, -1, 0);
+	}
 	extract_token(encoding, SegmentStart, 2, '?', sizeof encoding);
 	StrBufExtract_token(ConvertBuf, &StaticBuf, 3, '?');
 	
@@ -1658,7 +1663,7 @@ inline static void DecodeSegment(StrBuf *Target,
  * Handle subjects with RFC2047 encoding such as:
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
  */
-void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* DefaultCharset)
+void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset)
 {
 	StrBuf *ConvertBuf, *ConvertBuf2;
 	char *start, *end, *next, *nextend, *ptr;
@@ -1752,7 +1757,8 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 			      start, 
 			      end, 
 			      ConvertBuf,
-			      ConvertBuf2);
+			      ConvertBuf2,
+			      FoundCharset);
 		
 		next = strstr(end, "=?");
 		nextend = NULL;
