@@ -410,7 +410,7 @@ typedef struct _wc_mime_attachment {
 }wc_mime_attachment;
 
 
-typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData);
+typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset);
 
 /*
  * \brief message summary structure. ???
@@ -450,7 +450,7 @@ typedef struct _message_summary {
 	wc_mime_attachment *vcard_partnum_ref;
 } message_summary;
 
-typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine);
+typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
 
 
 
