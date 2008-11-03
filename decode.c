@@ -8,7 +8,7 @@
  *
  * tocode	Target encoding
  * fromcode	Source encoding
- */
+ * /
 iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
 {
 	iconv_t ic = (iconv_t)(-1) ;
@@ -24,7 +24,7 @@ iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
 	}
 	return(ic);
 }
-
+*/
 
 
 inline char *FindNextEnd (char *bptr)
@@ -83,7 +83,7 @@ void utf8ify_rfc822_string(char *buf) {
 		get_preference("default_header_charset", &default_header_charset);
 		if ( (strcasecmp(ChrPtr(default_header_charset), "UTF-8")) && 
 		     (strcasecmp(ChrPtr(default_header_charset), "us-ascii")) ) {
-			ic = ctdl_iconv_open("UTF-8", ChrPtr(default_header_charset));
+			ctdl_iconv_open("UTF-8", ChrPtr(default_header_charset), &ic);
 			if (ic != (iconv_t)(-1) ) {
 				ibuf = malloc(1024);
 				isav = ibuf;
@@ -184,7 +184,7 @@ void utf8ify_rfc822_string(char *buf) {
 			ibuflen = strlen(istr);
 		}
 
-		ic = ctdl_iconv_open("UTF-8", charset);
+		ctdl_iconv_open("UTF-8", charset, &ic);
 		if (ic != (iconv_t)(-1) ) {
 			obuflen = 1024;
 			obuf = (char *) malloc(obuflen);

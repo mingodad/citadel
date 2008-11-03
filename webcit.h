@@ -401,6 +401,7 @@ typedef struct _wc_mime_attachment {
 	StrBuf *Charset;
 	StrBuf *Data;
 	size_t length;			   /* length of the mimeatachment */
+	long size_known;
 	char content_type[SIZ];	   /* the content itself ???*/
 	char filename[SIZ];		   /* the filename hooked to this content ??? */
 	char *data;                /* the data pool; aka this content */
@@ -671,6 +672,7 @@ void who_inner_div(void);
 void ajax_mini_calendar(void);
 void fmout(char *align);
 void _fmout(StrBuf *Targt, char *align);
+void FmOut(StrBuf *Target, char *align, StrBuf *Source);
 void pullquote_fmout(void);
 void wDumpContent(int);
 
