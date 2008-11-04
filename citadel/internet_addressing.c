@@ -53,30 +53,6 @@
 #ifdef HAVE_ICONV
 #include <iconv.h>
 
-/*
- * Wrapper around iconv_open()
- * Our version adds aliases for non-standard Microsoft charsets
- * such as 'MS950', aliasing them to names like 'CP950'
- *
- * tocode	Target encoding
- * fromcode	Source encoding
- */
-iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
-{
-	iconv_t ic = (iconv_t)(-1) ;
-	ic = iconv_open(tocode, fromcode);
-	if (ic == (iconv_t)(-1) ) {
-		char alias_fromcode[64];
-		if ( (strlen(fromcode) == 5) && (!strncasecmp(fromcode, "MS", 2)) ) {
-			safestrncpy(alias_fromcode, fromcode, sizeof alias_fromcode);
-			alias_fromcode[0] = 'C';
-			alias_fromcode[1] = 'P';
-			ic = iconv_open(tocode, alias_fromcode);
-		}
-	}
-	return(ic);
-}
-
 #if 0
 /* This is the non-define version in case of s.b. needing to debug */
 inline void FindNextEnd (char *bptr, char *end)
@@ -141,7 +117,7 @@ void utf8ify_rfc822_string(char *buf) {
 	if (illegal_non_rfc2047_encoding) {
 		const char *default_header_charset = "iso-8859-1";
 		if ( (strcasecmp(default_header_charset, "UTF-8")) && (strcasecmp(default_header_charset, "us-ascii")) ) {
-			ic = ctdl_iconv_open("UTF-8", default_header_charset);
+			ctdl_iconv_open("UTF-8", default_header_charset, &ic);
 			if (ic != (iconv_t)(-1) ) {
 				ibuf = malloc(1024);
 				isav = ibuf;
@@ -243,7 +219,7 @@ void utf8ify_rfc822_string(char *buf) {
 			ibuflen = strlen(istr);
 		}
 
-		ic = ctdl_iconv_open("UTF-8", charset);
+		ctdl_iconv_open("UTF-8", charset, &ic);
 		if (ic != (iconv_t)(-1) ) {
 			obuflen = 1024;
 			obuf = (char *) malloc(obuflen);
