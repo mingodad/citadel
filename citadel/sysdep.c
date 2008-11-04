@@ -707,9 +707,8 @@ int client_write(char *buf, int nbytes)
 
 
 /*
- * cprintf()  ...   Send formatted printable data to the client.   It is
- *		  implemented in terms of client_write() but remains in
- *		  sysdep.c in case we port to somewhere without va_args...
+ * cprintf()	Send formatted printable data to the client.
+ *		Implemented in terms of client_write() so it's technically not sysdep...
  */
 void cprintf(const char *format, ...) {   
 	va_list arg_ptr;   
@@ -720,6 +719,43 @@ void cprintf(const char *format, ...) {
 		buf[sizeof buf - 2] = '\n';
 	client_write(buf, strlen(buf)); 
 	va_end(arg_ptr);
+}   
+
+
+/*
+ * fold_cprintf()	Like cprintf() except it can do RFC2822-style header folding.
+ */
+void fold_cprintf(const char *format, ...) {   
+	va_list arg_ptr;   
+	char buf[4096];
+	int len;
+	char *bbuf;
+	char *ptr;
+   
+	va_start(arg_ptr, format);   
+	if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
+		buf[sizeof buf - 2] = '\n';
+	va_end(arg_ptr);
+
+	len = strlen(buf);
+	bbuf = buf;
+
+	while (len > 998) {
+		ptr = strchr(&bbuf[900], ',');
+		if (ptr == NULL) {
+			ptr = bbuf+990;
+		}
+		if ((ptr - bbuf) > 990) {
+			ptr = bbuf+990;
+		}
+		++ptr;
+		client_write(bbuf, ptr-bbuf);
+		client_write("\r\n\t", 3);
+		len -= (ptr-bbuf);
+		bbuf = ptr++;
+	}
+
+	client_write(bbuf, len);
 }   
 
 

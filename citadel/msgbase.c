@@ -1794,7 +1794,7 @@ int CtdlOutputPreLoadedMsg(
 				else if (i == 'Y') {
 					if ((flags & QP_EADDR) != 0) 
 						mptr = qp_encode_email_addrs(mptr);
-					cprintf("CC: %s%s", mptr, nl);
+					fold_cprintf("CC: %s%s", mptr, nl);
 				}
 				else if (i == 'P') {
 					cprintf("Return-Path: %s%s", mptr, nl);
@@ -1824,13 +1824,13 @@ int CtdlOutputPreLoadedMsg(
 				{
 					if (haschar(mptr, '@') == 0)
 					{
-						cprintf("To: %s@%s%s", mptr, config.c_fqdn, nl);
+						fold_cprintf("To: %s@%s%s", mptr, config.c_fqdn, nl);
 					}
 					else
 					{
 						if ((flags & QP_EADDR) != 0) 
 							mptr = qp_encode_email_addrs(mptr);
-						cprintf("To: %s%s", mptr, nl);
+						fold_cprintf("To: %s%s", mptr, nl);
 					}
 				}
 				else if (i == 'T') {
