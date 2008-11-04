@@ -42,10 +42,8 @@
 
 #ifdef __GNUC__
 void cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)));
-void fold_cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)));
 #else
 void cprintf (const char *format, ...);
-void fold_cprintf (const char *format, ...);
 #endif
 
 void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);

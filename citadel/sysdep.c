@@ -723,43 +723,6 @@ void cprintf(const char *format, ...) {
 
 
 /*
- * fold_cprintf()	Like cprintf() except it can do RFC2822-style header folding.
- */
-void fold_cprintf(const char *format, ...) {   
-	va_list arg_ptr;   
-	char buf[4096];
-	int len;
-	char *bbuf;
-	char *ptr;
-   
-	va_start(arg_ptr, format);   
-	if (vsnprintf(buf, sizeof buf, format, arg_ptr) == -1)
-		buf[sizeof buf - 2] = '\n';
-	va_end(arg_ptr);
-
-	len = strlen(buf);
-	bbuf = buf;
-
-	while (len > 998) {
-		ptr = strchr(&bbuf[900], ',');
-		if (ptr == NULL) {
-			ptr = bbuf+990;
-		}
-		if ((ptr - bbuf) > 990) {
-			ptr = bbuf+990;
-		}
-		++ptr;
-		client_write(bbuf, ptr-bbuf);
-		client_write("\r\n\t", 3);
-		len -= (ptr-bbuf);
-		bbuf = ptr++;
-	}
-
-	client_write(bbuf, len);
-}   
-
-
-/*
  * Read data from the client socket.
  * Return values are:
  *	1	Requested number of bytes has been read.
