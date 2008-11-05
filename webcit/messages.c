@@ -280,6 +280,7 @@ void DestroyMessageSummary(void *vMsg)
 	DeleteHash(&Msg->Attachments);  /**< list of Accachments */
 	DeleteHash(&Msg->Submessages);
 	DeleteHash(&Msg->AttachLinks);
+	DeleteHash(&Msg->AllAttach);
 
 	DestroyMimeParts(&Msg->MsgBody);
 
@@ -501,6 +502,7 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 	StrBufExtract_token(mime->Name, HdrLine, 0, '|');
 
 	StrBufExtract_token(Buf, HdrLine, 1, '|');
+	mime->FileName = NewStrBuf();
 	StrBuf_RFC822_to_Utf8(mime->FileName, Buf, WC->DefaultCharset, FoundCharset);
 
 	mime->PartNum = NewStrBuf();
@@ -521,16 +523,20 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		StrBufAppendBuf(mime->FileName, mime->Name, 0);
 	}
 
+	if (Msg->AllAttach == NULL)
+		Msg->AllAttach = NewHash(1,NULL);
+	Put(Msg->AllAttach, SKEY(mime->PartNum), mime, DestroyMime);
+
 	if (!strcasecmp(ChrPtr(mime->ContentType), "message/rfc822")) {
 		if (Msg->Submessages == NULL)
 			Msg->Submessages = NewHash(1,NULL);
-		Put(Msg->Submessages, SKEY(mime->PartNum), mime->PartNum, reference_free_handler);
+		Put(Msg->Submessages, SKEY(mime->PartNum), mime, reference_free_handler);
 	}
 	else if ((!strcasecmp(ChrPtr(mime->Disposition), "inline"))
 		 && (!strncasecmp(ChrPtr(mime->ContentType), "image/", 6)) ){
 		if (Msg->AttachLinks == NULL)
 			Msg->AttachLinks = NewHash(1,NULL);
-		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime->PartNum, reference_free_handler);
+		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime, reference_free_handler);
 	}
 	else if ((StrLength(mime->ContentType) > 0) &&
 		  ( (!strcasecmp(ChrPtr(mime->Disposition), "attachment")) 
@@ -540,7 +546,7 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		
 		if (Msg->AttachLinks == NULL)
 			Msg->AttachLinks = NewHash(1,NULL);
-		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime->PartNum, reference_free_handler);
+		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime, reference_free_handler);
 		if (strcasecmp(ChrPtr(mime->ContentType), "application/octet-stream") == 0) {
 			FlushStrBuf(mime->ContentType);
 			StrBufAppendBufPlain(mime->ContentType,
