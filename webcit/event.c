@@ -932,10 +932,12 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 					}
 					else if (!strcasecmp(bstr("rrmonthtype"), "rrmonthtype_wday")) {
 						lprintf(9, "MONTHLY BY WDAY\n");
+						/* FIXME implement this */
 					}
 					break;
 
 				case ICAL_YEARLY_RECURRENCE:
+					/* FIXME implement this */
 					break;
 
 				/* This one can't happen either. */
