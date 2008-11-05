@@ -437,6 +437,8 @@ typedef struct _message_summary {
 	HashList *Submessages;
 	HashList *AttachLinks;
 
+	HashList *AllAttach;
+
 	int is_new;         /**< is it yet read? */
 	int hasattachments;	/* does it have atachments? */
 
