@@ -1624,6 +1624,7 @@ inline static void DecodeSegment(StrBuf *Target,
 	extract_token(encoding, SegmentStart, 2, '?', sizeof encoding);
 	StrBufExtract_token(ConvertBuf, &StaticBuf, 3, '?');
 	
+	*encoding = toupper(*encoding);
 	if (*encoding == 'B') {	/**< base64 */
 		ConvertBuf2->BufUsed = CtdlDecodeBase64(ConvertBuf2->buf, 
 							ConvertBuf->buf, 
@@ -1739,6 +1740,8 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 
 	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMe));
 
+	if (start != DecodeMe->buf)
+		StrBufAppendBufPlain(Target, DecodeMe->buf, start - DecodeMe->buf, 0);
 	/*
 	 * Since spammers will go to all sorts of absurd lengths to get their
 	 * messages through, there are LOTS of corrupt headers out there.
