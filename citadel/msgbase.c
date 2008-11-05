@@ -1593,6 +1593,31 @@ char *qp_encode_email_addrs(char *source)
 }
 
 
+/* If the last item in a list of recipients was truncated to a partial address,
+ * remove it completely in order to avoid choking libSieve
+ */
+void sanitize_truncated_recipient(char *str)
+{
+	if (!str) return;
+	if (num_tokens(str, ',') < 2) return;
+
+	int len = strlen(str);
+	if (len < 900) return;
+	if (len > 998) str[998] = 0;
+
+	char *cptr = strrchr(str, ',');
+	if (!cptr) return;
+
+	char *lptr = strchr(cptr, '<');
+	char *rptr = strchr(cptr, '>');
+
+	if ( (lptr) && (rptr) && (rptr > lptr) ) return;
+
+	*cptr = 0;
+}
+
+
+
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
  */
@@ -1792,8 +1817,10 @@ int CtdlOutputPreLoadedMsg(
 					safestrncpy(suser, mptr, sizeof suser);
 				}
 				else if (i == 'Y') {
-					if ((flags & QP_EADDR) != 0) 
+					if ((flags & QP_EADDR) != 0) {
 						mptr = qp_encode_email_addrs(mptr);
+					}
+					sanitize_truncated_recipient(mptr);
 					cprintf("CC: %s%s", mptr, nl);
 				}
 				else if (i == 'P') {
@@ -1824,13 +1851,16 @@ int CtdlOutputPreLoadedMsg(
 				{
 					if (haschar(mptr, '@') == 0)
 					{
+						sanitize_truncated_recipient(mptr);
 						cprintf("To: %s@%s", mptr, config.c_fqdn);
 						cprintf("%s", nl);
 					}
 					else
 					{
-						if ((flags & QP_EADDR) != 0) 
+						if ((flags & QP_EADDR) != 0) {
 							mptr = qp_encode_email_addrs(mptr);
+						}
+						sanitize_truncated_recipient(mptr);
 						cprintf("To: %s", mptr);
 						cprintf("%s", nl);
 					}
