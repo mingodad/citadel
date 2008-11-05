@@ -241,8 +241,23 @@ int summcmp_rdate(const void *s1, const void *s2) {
  * message index functions
  */
 
+void DestroyMimeParts(wc_mime_attachment *Mime)
+{
+	FreeStrBuf(&Mime->Name);
+	FreeStrBuf(&Mime->FileName);
+	FreeStrBuf(&Mime->PartNum);
+	FreeStrBuf(&Mime->Disposition);
+	FreeStrBuf(&Mime->ContentType);
+	FreeStrBuf(&Mime->Charset);
+	FreeStrBuf(&Mime->Data);
+}
 
-
+void DestroyMime(void *vMime)
+{
+	wc_mime_attachment *Mime = (wc_mime_attachment*)vMime;
+	DestroyMimeParts(Mime);
+	free(Mime);
+}
 
 void DestroyMessageSummary(void *vMsg)
 {
@@ -259,6 +274,14 @@ void DestroyMessageSummary(void *vMsg)
 	FreeStrBuf(&Msg->Room);
 	FreeStrBuf(&Msg->Rfca);
 	FreeStrBuf(&Msg->OtherNode);
+
+	FreeStrBuf(&Msg->reply_to);
+
+	DeleteHash(&Msg->Attachments);  /**< list of Accachments */
+	DeleteHash(&Msg->Submessages);
+	DeleteHash(&Msg->AttachLinks);
+
+	DestroyMimeParts(&Msg->MsgBody);
 
 	free(Msg);
 }
@@ -472,22 +495,28 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 
 	mime = (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
 	memset(mime, 0, sizeof(wc_mime_attachment));
-	Buf=NewStrBuf();
+	Buf = NewStrBuf();
 
 	mime->Name = NewStrBuf();
 	StrBufExtract_token(mime->Name, HdrLine, 0, '|');
+
 	StrBufExtract_token(Buf, HdrLine, 1, '|');
 	StrBuf_RFC822_to_Utf8(mime->FileName, Buf, WC->DefaultCharset, FoundCharset);
+
 	mime->PartNum = NewStrBuf();
 	StrBufExtract_token(mime->PartNum, HdrLine, 2, '|');
+
 	mime->Disposition = NewStrBuf();
 	StrBufExtract_token(mime->Disposition, HdrLine, 3, '|');
+
 	mime->ContentType = NewStrBuf();
 	StrBufExtract_token(mime->ContentType, HdrLine, 4, '|');
+
 	mime->length = StrBufExtract_int(HdrLine, 5, '|');
 
 	StrBufTrim(mime->Name);
 	StrBufTrim(mime->FileName);
+
 	if ( (StrLength(mime->FileName) == 0) && (StrLength(mime->Name) > 0) ) {
 		StrBufAppendBuf(mime->FileName, mime->Name, 0);
 	}
@@ -530,6 +559,9 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		Msg->cal_partnum_ref = mime;
 	}
 	/** end handler prep ***/
+
+	FreeStrBuf(&Buf);
+
 }
 void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
@@ -1296,7 +1328,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	StrBuf *Buf;
 	StrBuf *Token;
 	StrBuf *FoundCharset;
-	message_summary *Msg;
+	message_summary *Msg = NULL;
 	headereval *Hdr;
 	void *vHdr;
 	char buf[SIZ];
@@ -1413,9 +1445,11 @@ void read_message(long msgnum, int printable_view, char *section) {
 			break;
 		}
 	}
-
-
-	if (GetHash(MimeRenderHandler, SKEY(Msg->MsgBody.ContentType), &vHdr) &&
+	
+	/* strip the bare contenttype, so we ommit charset etc. */
+	StrBufExtract_token(Buf, Msg->MsgBody.ContentType, 0, ';');
+	StrBufTrim(Buf);
+	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 	    (vHdr != NULL)) {
 		RenderMimeFunc Render;
 		Render = (RenderMimeFunc)vHdr;
@@ -1470,22 +1504,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 	if (nhdr == 1) {
 		wprintf("****");
 	}
-
-	if (StrLength(Msg->cccc)> 0) {
-		StrBuf *tmp;
-		tmp = Msg->cccc;
-		Msg->cccc = Buf;
-		StrBuf_RFC822_to_Utf8(Msg->cccc, tmp, WCC->DefaultCharset, FoundCharset);
-		Buf = tmp;
-	}
-	if (StrLength(Msg->subj)> 0) {
-		StrBuf *tmp;
-		tmp = Msg->subj;
-		Msg->subj = Buf;
-		StrBuf_RFC822_to_Utf8(Msg->subj, tmp, WCC->DefaultCharset, FoundCharset);
-		Buf = tmp;
-	}
-
 	DoTemplate(HKEY("view_message"), NULL, Msg, CTX_MAILSUM);
 
 
@@ -1556,7 +1574,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 	if (num_attach_links > 0) {
 		free(attach_links);
 	}
+	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
+	FreeStrBuf(&Token);
+	FreeStrBuf(&Buf);
 }
 
 
