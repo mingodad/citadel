@@ -139,6 +139,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	}
 	else {
 		content_length = StrLength(Source);
+		free(msg);
 		msg = (char*) ChrPtr(Source);/* TODO: remove cast */
 		buffer_length = content_length;
 	}
@@ -234,6 +235,10 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		strcpy(msg, msgstart);
 	}
 
+	/** Now go through the message, parsing tags as necessary. */
+	converted_msg = NewStrBufPlain(NULL, content_length + 8192);
+
+
 	/** Convert foreign character sets to UTF-8 if necessary. */
 #ifdef HAVE_ICONV
 	if ( (strcasecmp(charset, "us-ascii"))
@@ -247,19 +252,30 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 				__FILE__, __LINE__, strerror(errno));
 		}
 	}
-	if (ic != (iconv_t)(-1) ) {
-		ibuf = msg;
-		ibuflen = content_length;
-		obuflen = content_length + (content_length / 2) ;
-		obuf = (char *) malloc(obuflen);
-		osav = obuf;
-		iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-		content_length = content_length + (content_length / 2) - obuflen;
-		osav[content_length] = 0;
-		free(msg);
-		msg = osav;
-		iconv_close(ic);
+	if  (Source == NULL) {
+		if (ic != (iconv_t)(-1) ) {
+			ibuf = msg;
+			ibuflen = content_length;
+			obuflen = content_length + (content_length / 2) ;
+			obuf = (char *) malloc(obuflen);
+			osav = obuf;
+			iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+			content_length = content_length + (content_length / 2) - obuflen;
+			osav[content_length] = 0;
+			free(msg);
+			msg = osav;
+			iconv_close(ic);
+		}
 	}
+	else {
+		if (ic != (iconv_t)(-1) ) {
+			StrBuf *Buf = NewStrBufPlain(NULL, StrLength(Source) + 8096);;
+			StrBufConvert(Source, Buf, &ic);
+			FreeStrBuf(&Buf);
+			iconv_close(ic);
+		}
+	}
+		
 #endif
 
 	/**
@@ -270,8 +286,6 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	 *	terminated now.
 	 */
 
-	/** Now go through the message, parsing tags as necessary. */
-	converted_msg = NewStrBufPlain(NULL, content_length + 8192);
 	if (converted_msg == NULL) {
 		StrBufAppendPrintf(Target, "Error %d: %s<br />%s:%d", errno, strerror(errno), __FILE__, __LINE__);
 		goto BAIL;

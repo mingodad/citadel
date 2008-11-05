@@ -27,6 +27,7 @@ int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int time_to_die = 0;            /* Nonzero if server is shutting down */
+int DisableGzip = 0;
 extern void *context_loop(int*);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
@@ -271,7 +272,7 @@ long end_burst(void)
 
 #ifdef HAVE_ZLIB
 	/* Perform gzip compression, if enabled and supported by client */
-	if ((WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
+	if (!DisableGzip && (WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
 	{
 		hprintf("Content-encoding: gzip\r\n");
 	}
@@ -698,7 +699,6 @@ int main(int argc, char **argv)
 
 	LoadZoneFiles();
 
-
 #ifdef DBG_PRINNT_HOOKS_AT_START
 	dbg_PrintHash(HandlerHash, nix, NULL);
 #endif
@@ -716,9 +716,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cfs")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cfsZ")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cf")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cfZ")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -757,6 +757,9 @@ int main(int argc, char **argv)
 			break;
 		case 'T':
 			LoadTemplates = atoi(optarg);
+			break;
+		case 'Z':
+			DisableGzip = 1;
 			break;
 		case 'x':
 			verbosity = atoi(optarg);
