@@ -2429,7 +2429,8 @@ void readloop(char *oper)
 	char cmd[256] = "";
 	char buf[SIZ];
 	char old_msgs[SIZ];
-	int a, b;
+	int a = 0;
+	int b = 0;
 	int nummsgs;
 	long startmsg;
 	int maxmsgs;
