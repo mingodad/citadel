@@ -499,5 +499,5 @@ InitModule_WHO
 	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
 
-	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, WholistSubst, DeleteWholistHash, CTX_WHO);
+	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, WholistSubst, DeleteWholistHash, CTX_WHO, CTX_NONE);
 }

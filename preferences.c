@@ -737,7 +737,7 @@ InitModule_PREFERENCES
 	
 	RegisterNamespace("PREF:VALUE", 1, 1, tmplput_CFG_Value, CTX_SESSION);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_SESSION);
-	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF);
+	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
 }

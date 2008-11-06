@@ -696,6 +696,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	TemplateParam *Param;
 	WCTemplateToken *NewToken = (WCTemplateToken*)malloc(sizeof(WCTemplateToken));
 
+	NewToken->FileName = pTmpl->FileName; /* to print meaningfull log messages... */
 	NewToken->Flags = 0;
 	NewToken->Line = Line + 1;
 	NewToken->pTokenStart = pTmplStart;
@@ -1312,6 +1313,7 @@ typedef struct _HashIterator {
 	HashList *StaticList;
 	int AdditionalParams;
 	int ContextType;
+	int XPectContextType;
 	RetrieveHashlistFunc GetHash;
 	HashDestructorFunc Destructor;
 	SubTemplFunc DoSubTemplate;
@@ -1333,16 +1335,18 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		     Tokens->Params[0]->Start,
 		     Tokens->Params[0]->len,
 		     &vIt)) {
-		lprintf(1, "unknown Iterator [%s] (in line %ld); "
+		lprintf(1, "unknown Iterator [%s] (in '%s' line %ld); "
 			" [%s]\n", 
 			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FileName),
 			Tokens->Line,
 			ChrPtr(Tokens->FlatToken));
 		StrBufAppendPrintf(
 			Target,
-			"<pre>\nunknown Iterator [%s] (in line %ld); \n"
+			"<pre>\nunknown Iterator [%s] (in '%s' line %ld); \n"
 			" [%s]\n</pre>", 
 			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FileName),
 			Tokens->Line,
 			ChrPtr(Tokens->FlatToken));
 		return;
@@ -1351,22 +1355,51 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	It = (HashIterator*) vIt;
 
 	if (Tokens->nParameters < It->AdditionalParams + 2) {
-		lprintf(1, "Iterator [%s] (in line %ld); "
+		lprintf(1, "Iterator [%s] (in '%s' line %ld); "
 			"doesn't work with %ld params [%s]\n", 
 			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FileName),
 			Tokens->Line,
 			Tokens->nParameters, 
 			ChrPtr(Tokens->FlatToken));
 		StrBufAppendPrintf(
 			Target,
-			"<pre>Iterator [%s] \n(in line %ld);\n"
+			"<pre>Iterator [%s] \n(in '%s' line %ld);\n"
 			"doesn't work with %ld params \n[%s]\n</pre>", 
 			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FileName),
 			Tokens->Line,
 			Tokens->nParameters, 
 			ChrPtr(Tokens->FlatToken));
 		return;
 	}
+
+	if ((It->XPectContextType != CTX_NONE) &&
+	    (It->XPectContextType != ContextType)) {
+		lprintf(1, "Iterator [%s] (in '%s' line %ld); "
+			"requires context of type %ld, have %ld [%s]\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			It->XPectContextType, 
+			ContextType,
+			ChrPtr(Tokens->FlatToken));
+		StrBufAppendPrintf(
+			Target, 
+			"<pre>\nIterator [%s] (in '%s' line %ld);"
+			" requires context of type %ld, have %ld!\n[%s]\n</pre>\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			It->XPectContextType, 
+			ContextType,
+			ChrPtr(Tokens->FlatToken));
+		return ;
+		
+	}
+
+
+
 
 	if (It->StaticList == NULL)
 		List = It->GetHash(Target, nArgs, Tokens, Context, ContextType);
@@ -1443,7 +1476,8 @@ void RegisterITERATOR(const char *Name, long len,
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor,
-		      int ContextType)
+		      int ContextType, 
+		      int XPectContextType)
 {
 	HashIterator *It = (HashIterator*)malloc(sizeof(HashIterator));
 	It->StaticList = StaticList;
@@ -1452,6 +1486,7 @@ void RegisterITERATOR(const char *Name, long len,
 	It->DoSubTemplate = DoSubTempl;
 	It->Destructor = Destructor;
 	It->ContextType = ContextType;
+	It->XPectContextType = XPectContextType;
 	Put(Iterators, Name, len, It, NULL);
 }
 

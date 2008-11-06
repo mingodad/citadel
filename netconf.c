@@ -540,6 +540,6 @@ InitModule_NETCONF
 	WebcitAddUrlHandler(HKEY("display_confirm_delete_node"), display_confirm_delete_node, 0);
 	WebcitAddUrlHandler(HKEY("delete_node"), delete_node, 0);
 	WebcitAddUrlHandler(HKEY("display_add_node"), display_add_node, 0);
-	RegisterIterator("NODECONFIG", 0, NULL, load_netconf, NodeCfgSubst, DeleteHash, CTX_NODECONF);
+	RegisterIterator("NODECONFIG", 0, NULL, load_netconf, NodeCfgSubst, DeleteHash, CTX_NODECONF, CTX_NONE);
 }
 /*@}*/

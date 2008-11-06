@@ -811,9 +811,25 @@ void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 
 
 
-HashList *iterate_get_mime(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_get_mime_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	return NULL;
+	message_summary *Msg = (message_summary*) Context;
+	return Msg->AllAttach;
+}
+HashList *iterate_get_mime_Submessages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return Msg->Submessages;
+}
+HashList *iterate_get_mime_AttachLinks(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return Msg->AttachLinks;
+}
+HashList *iterate_get_mime_Attachments(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return Msg->AllAttach;
 }
 
 
@@ -3896,7 +3912,14 @@ InitModule_MSG
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
 
 
-	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime, tmplput_MIME_ATTACH, NULL, CTX_MAILSUM);
+	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
+			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+	RegisterIterator("MAIL:MIME:ATTACH:SUBMESSAGES", 0, NULL, iterate_get_mime_Submessages, 
+			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+	RegisterIterator("MAIL:MIME:ATTACH:LINKS", 0, NULL, iterate_get_mime_AttachLinks, 
+			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+	RegisterIterator("MAIL:MIME:ATTACH:ATT", 0, NULL, iterate_get_mime_Attachments, 
+			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
 
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain);
