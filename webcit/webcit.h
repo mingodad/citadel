@@ -269,6 +269,7 @@ typedef struct _TemplateParam {
 } TemplateParam;
 
 typedef struct _TemplateToken {
+	const StrBuf *FileName; /* Reference to print error messages; not to be freed */
 	StrBuf *FlatToken;
 	long Line;
 	const char *pTokenStart;
@@ -311,7 +312,7 @@ typedef struct _wcsubst {
 #define CTX_NODECONF 7
 #define CTX_USERLIST 8
 #define CTX_MAILSUM 9
-
+#define CTX_MIME_ATACH 10
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
@@ -342,8 +343,9 @@ void RegisterITERATOR(const char *Name, long len,
 		      RetrieveHashlistFunc GetHash, 
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor,
-		      int ContextType);
-#define RegisterIterator(a, b, c, d, e, f, g) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g)
+		      int ContextType, 
+		      int XPectContextType);
+#define RegisterIterator(a, b, c, d, e, f, g, h) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h)
 
 void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
 #define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)

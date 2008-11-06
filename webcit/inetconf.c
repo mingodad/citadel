@@ -417,6 +417,6 @@ InitModule_INETCONF
 {
 	WebcitAddUrlHandler(HKEY("display_inetconf"), display_inetconf, 0);
 	WebcitAddUrlHandler(HKEY("save_inetconf"), new_save_inetconf, AJAX);
-	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, InetCfgSubst, NULL, CTX_INETCFG);
+	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, InetCfgSubst, NULL, CTX_INETCFG, CTX_NONE);
 	RegisterNamespace("SERVCFG:FLUSHINETCFG",0, 0, DeleteInetConfHash, CTX_NONE);
 }
