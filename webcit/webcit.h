@@ -334,7 +334,7 @@ void RegisterConditional(const char *Name, long len,
 
 
 typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token);
-typedef HashList *(*RetrieveHashlistFunc)(WCTemplateToken *Token);
+typedef HashList *(*RetrieveHashlistFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType);
 typedef void (*HashDestructorFunc) (HashList **KillMe);
 void RegisterITERATOR(const char *Name, long len,
 		      int AdditionalParams, 

@@ -396,7 +396,7 @@ void DeleteInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Token, void 
 }
 
 
-HashList *GetInetConfHash(WCTemplateToken *Token)
+HashList *GetInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	void *vHash;
@@ -404,10 +404,10 @@ HashList *GetInetConfHash(WCTemplateToken *Token)
 	if (WCC->InetCfg == NULL)
 		load_inetconf();
 	GetHash(WCC->InetCfg, 
-		Token->Params[2]->Start, 
-		Token->Params[2]->len,
+		Tokens->Params[2]->Start, 
+		Tokens->Params[2]->len,
 		&vHash);
-	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, Token->Params[2]->Start);
+	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, Tokens->Params[2]->Start);
 	return vHash;
 }
 

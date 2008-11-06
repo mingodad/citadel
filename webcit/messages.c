@@ -811,6 +811,19 @@ void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 
 
 
+HashList *iterate_get_mime(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	return NULL;
+}
+
+
+void tmplput_MIME_ATTACH(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token)
+{
+}
+
+
+
+
 
 /*
  * Look for URL's embedded in a buffer and make them linkable.  We use a
@@ -3878,17 +3891,18 @@ InitModule_MSG
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
 
 
+	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
+
+
+	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime, tmplput_MIME_ATTACH, NULL, CTX_MAILSUM);
 
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain);
 	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain);
 	RegisterMimeRenderer(HKEY("text/html"), render_MAIL_html);
 	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN);
-
-
-	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
-	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
 
 	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);
 	RegisterMsgHdr(HKEY("type"), examine_type, 0);

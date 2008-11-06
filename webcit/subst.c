@@ -1369,7 +1369,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	}
 
 	if (It->StaticList == NULL)
-		List = It->GetHash(Tokens);
+		List = It->GetHash(Target, nArgs, Tokens, Context, ContextType);
 	else
 		List = It->StaticList;
 
