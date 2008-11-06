@@ -273,7 +273,7 @@ int ComparenPostsRev(const void *vUser1, const void *vUser2)
 }
 
 
-HashList *iterate_load_userlist(WCTemplateToken *Token)
+HashList *iterate_load_userlist(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	HashList *Hash;
 	char buf[SIZ];

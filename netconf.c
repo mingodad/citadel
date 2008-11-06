@@ -81,7 +81,7 @@ void SerializeNode(NodeConf *Node, StrBuf *Buf)
 }
 
 
-HashList *load_netconf(WCTemplateToken *Token)
+HashList *load_netconf(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *Buf;
 	HashList *Hash;
@@ -183,7 +183,7 @@ void edit_node(void) {
 			return;
 		}
 			
-		NodeConfig = load_netconf(NULL);
+		NodeConfig = load_netconf(NULL, 0, NULL, NULL, CTX_NONE);
 		Put(NodeConfig, ChrPtr(Index), StrLength(Index), NewNode, DeleteNodeConf);
 		save_net_conf(NodeConfig);
 		DeleteHash(&NodeConfig);
@@ -282,7 +282,7 @@ void display_edit_node(void)
 		return;
 	}
 
-	NodeConfig = load_netconf(NULL);
+	NodeConfig = load_netconf(NULL, 0, NULL, NULL, CTX_NONE);
 	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
 	    (vNode == NULL)) {
 		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
@@ -477,7 +477,7 @@ void delete_node(void)
 		return;
 	}
 
-	NodeConfig = load_netconf(NULL);
+	NodeConfig = load_netconf(NULL, 0, NULL, NULL, CTX_NONE);
 	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
 	    (vNode == NULL)) {
 		sprintf(WC->ImportantMessage, _("Invalid Parameter"));

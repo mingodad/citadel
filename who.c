@@ -447,7 +447,7 @@ void _terminate_session(void) {
 	terminate_session();
 }
 
-HashList *GetWholistHash(WCTemplateToken *Token)
+HashList *GetWholistHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	HashList *List;
 	char buf[SIZ];
