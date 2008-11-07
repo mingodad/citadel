@@ -361,6 +361,11 @@ void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, int nArgs, WCTemplateToken *Tok
 	StrBufAppendBuf(Target, Msg->reply_inreplyto, 0);
 }
 
+int Conditional_MAIL_SUMM_UNREAD(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return Msg->is_new != 0;
+}
 
 void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -657,10 +662,29 @@ void tmplput_MAIL_SUMM_N(StrBuf *Target, int nArgs, WCTemplateToken *Token, void
 }
 
 
-int Conditional_MAIL_SUMM_UNREAD(WCTemplateToken *Tokens, void *Context, int ContextType)
+
+int Conditional_MAIL_MIME_ALL(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	message_summary *Msg = (message_summary*) Context;
-	return Msg->is_new != 0;
+	return GetCount(Msg->Attachments) > 0;
+}
+
+int Conditional_MAIL_MIME_SUBMESSAGES(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return GetCount(Msg->Submessages) > 0;
+}
+
+int Conditional_MAIL_MIME_ATTACHLINKS(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return GetCount(Msg->AttachLinks) > 0;
+}
+
+int Conditional_MAIL_MIME_ATTACH(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return GetCount(Msg->AllAttach) > 0;
 }
 
 
@@ -814,7 +838,7 @@ void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 HashList *iterate_get_mime_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	message_summary *Msg = (message_summary*) Context;
-	return Msg->AllAttach;
+	return Msg->Attachments;
 }
 HashList *iterate_get_mime_Submessages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -832,12 +856,59 @@ HashList *iterate_get_mime_Attachments(StrBuf *Target, int nArgs, WCTemplateToke
 	return Msg->AllAttach;
 }
 
-
-void tmplput_MIME_ATTACH(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token)
+void tmplput_MIME_Name(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendBuf(Target, mime->Name, 0);
 }
 
+void tmplput_MIME_FileName(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendBuf(Target, mime->FileName, 0);
+}
 
+void tmplput_MIME_PartNum(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendBuf(Target, mime->PartNum, 0);
+}
+
+void tmplput_MIME_MsgNum(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendPrintf(Target, "%ld", mime->msgnum);
+}
+
+void tmplput_MIME_Disposition(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendBuf(Target, mime->Disposition, 0);
+}
+
+void tmplput_MIME_ContentType(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendBuf(Target, mime->ContentType, 0);
+}
+
+void tmplput_MIME_Charset(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendBuf(Target, mime->Charset, 0);
+}
+
+void tmplput_MIME_Data(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendBuf(Target, mime->Data, 0); /// TODO: check whether we need to load it now?
+}
+
+void tmplput_MIME_Length(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	StrBufAppendPrintf(Target, "%ld", mime->length);
+}
 
 
 
@@ -3911,15 +3982,32 @@ InitModule_MSG
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
 
+	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH"), 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:SUBMESSAGES"), 0, Conditional_MAIL_MIME_SUBMESSAGES, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:LINKS"), 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:ATT"), 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
+
 
 	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
-			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH:SUBMESSAGES", 0, NULL, iterate_get_mime_Submessages, 
-			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH:LINKS", 0, NULL, iterate_get_mime_AttachLinks, 
-			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH:ATT", 0, NULL, iterate_get_mime_Attachments, 
-			 tmplput_MIME_ATTACH, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+
+	RegisterNamespace("MAIL:MIME:NAME", 0, 2, tmplput_MIME_Name, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:FILENAME", 0, 2, tmplput_MIME_FileName, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:PARTNUM", 0, 2, tmplput_MIME_PartNum, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:MSGNUM", 0, 2, tmplput_MIME_MsgNum, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:DISPOSITION", 0, 2, tmplput_MIME_Disposition, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:CONTENTTYPE", 0, 2, tmplput_MIME_ContentType, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:CHARSET", 0, 2, tmplput_MIME_Charset, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:LENGTH", 0, 2, tmplput_MIME_Length, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:DATA", 0, 2, tmplput_MIME_Data, CTX_MIME_ATACH);
+
+
 
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain);

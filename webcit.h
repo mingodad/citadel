@@ -337,14 +337,14 @@ void RegisterConditional(const char *Name, long len,
 typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token);
 typedef HashList *(*RetrieveHashlistFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType);
 typedef void (*HashDestructorFunc) (HashList **KillMe);
-void RegisterITERATOR(const char *Name, long len,
-		      int AdditionalParams, 
-		      HashList *StaticList, 
-		      RetrieveHashlistFunc GetHash, 
-		      SubTemplFunc DoSubTempl,
-		      HashDestructorFunc Destructor,
-		      int ContextType, 
-		      int XPectContextType);
+void RegisterITERATOR(const char *Name, long len, /* Our identifier */
+		      int AdditionalParams,       /* doe we use more parameters? */
+		      HashList *StaticList,       /* pointer to webcit lifetime hashlists */
+		      RetrieveHashlistFunc GetHash, /* else retrieve the hashlist by calling this function */
+		      SubTemplFunc DoSubTempl,       /* call this function on each iteration for svput & friends */
+		      HashDestructorFunc Destructor, /* use this function to shut down the hash; NULL if its a reference */
+		      int ContextType,               /* which context do we provide to the subtemplate? */
+		      int XPectContextType);         /* which context do we expct to be called in? */
 #define RegisterIterator(a, b, c, d, e, f, g, h) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h)
 
 void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
