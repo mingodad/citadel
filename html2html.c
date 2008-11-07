@@ -273,6 +273,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			StrBufConvert(Source, Buf, &ic);
 			FreeStrBuf(&Buf);
 			iconv_close(ic);
+			msg = (char*)ChrPtr(Source); //TODO: get rid of this.
 		}
 	}
 		
