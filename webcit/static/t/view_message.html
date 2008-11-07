@@ -25,4 +25,8 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <div class="message_content"><div align="justify">
 <?MAIL:BODY>    
 </div>
+<?!("COND:MAIL:MIME:ATTACH:LINKS", 1)>
+<?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_message_list_attach")>
+<?!("X", 1)>
+
 </div>
