@@ -2,7 +2,9 @@
 onMouseOver=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="visible"
 onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden" >
 <div class="message_header"><span><?MAIL:SUMM:DATESTR></span>
-<?_("from ")><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> 
+<?_("from ")>
+<??("COND:MAIL:ANON",1)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a><??("X", 1)>
+<?!("COND:MAIL:ANON",2)>***<??("X", 2)>
 <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
 
 <a href="display_enter?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
@@ -25,8 +27,8 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <div class="message_content"><div align="justify">
 <?MAIL:BODY>    
 </div>
-<?!("COND:MAIL:MIME:ATTACH:LINKS", 1)>
+<?!("COND:MAIL:MIME:ATTACH:LINKS", 2)>
 <?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_message_list_attach")>
-<?!("X", 1)>
+<?!("X", 2)>
 
 </div>

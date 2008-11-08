@@ -313,6 +313,12 @@ void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	if (!strncasecmp(ChrPtr(HdrLine), "yes", 8))
 		Msg->nhdr = 1;
 }
+int Conditional_ANONYMOUS_MESSAGE(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return Msg->nhdr != 0;
+}
+
 
 void examine_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -1442,7 +1448,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 	int num_attach_links = 0;
 //	char mime_submessages[256] = "";
 	char reply_references[1024] = "";
-	int nhdr = 0;
 	int i = 0;
 	int Done = 0;
 	int state=0;
@@ -1470,6 +1475,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 	Token = NewStrBuf();
 	Msg = (message_summary *)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
+	Msg->msgnum = msgnum;
 	FoundCharset = NewStrBuf();
 	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
@@ -1605,10 +1611,6 @@ void read_message(long msgnum, int printable_view, char *section) {
 			FlushStrBuf(Msg->reply_to);
 			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
-	}
-///TODO: why this?
-	if (nhdr == 1) {
-		wprintf("****");
 	}
 	DoTemplate(HKEY("view_message"), NULL, Msg, CTX_MAILSUM);
 
@@ -3517,7 +3519,7 @@ void display_enter(void)
 			}
 		}
 		else if (buf[0] != '2') {	/** Any other error means that we cannot continue */
-			wprintf("<em>%s</em><br />\n", &buf[4]);
+			wprintf("<em>%s</em><br />\n", &buf[4]);/// -> important message
 			goto DONE;
 		}
 	}
@@ -3966,7 +3968,7 @@ InitModule_MSG
 	RegisterNamespace("MAIL:SUMM:FROM",    0, 2, tmplput_MAIL_SUMM_FROM,     CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:TO",      0, 2, tmplput_MAIL_SUMM_TO,       CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:SUBJECT", 0, 4, tmplput_MAIL_SUMM_SUBJECT,  CTX_MAILSUM);
-	RegisterNamespace("MAIL:SUMM:NATTACH", 0, 0, tmplput_MAIL_SUMM_NATTACH,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:NTATACH", 0, 0, tmplput_MAIL_SUMM_NATTACH,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:CCCC", 0, 2, tmplput_MAIL_SUMM_CCCC,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:H_NODE", 0, 2, tmplput_MAIL_SUMM_H_NODE,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:ALLRCPT", 0, 2, tmplput_MAIL_SUMM_ALLRCPT,  CTX_MAILSUM);
@@ -3981,12 +3983,12 @@ InitModule_MSG
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:ANON"), 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
 
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH"), 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:SUBMESSAGES"), 0, Conditional_MAIL_MIME_SUBMESSAGES, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:LINKS"), 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:ATT"), 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
-
 
 	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
