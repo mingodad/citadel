@@ -16,10 +16,11 @@
  * msgnum:		Message number on the Citadel server
  * cal_partnum:		MIME part number within that message containing the calendar object
  */
-void cal_process_object(icalcomponent *cal,
+void cal_process_object(StrBuf *Target,
+			icalcomponent *cal,
 			int recursion_level,
 			long msgnum,
-			char *cal_partnum) 
+			const char *cal_partnum) 
 {
 	icalcomponent *c;
 	icalproperty *method = NULL;
@@ -38,7 +39,7 @@ void cal_process_object(icalcomponent *cal,
 
 	/* Leading HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("<div class=\"mimepart\">\n");
+		StrBufAppendPrintf(Target, "<div class=\"mimepart\">\n");
 	}
 
 	/* Look for a method */
@@ -49,9 +50,9 @@ void cal_process_object(icalcomponent *cal,
 		the_method = icalproperty_get_method(method);
 		char *title;
 
-		wprintf("<div id=\"%s_title\">", divname);
-		wprintf("<img src=\"static/calarea_48x.gif\">");
-		wprintf("<span>");
+		StrBufAppendPrintf(Target, "<div id=\"%s_title\">", divname);
+		StrBufAppendPrintf(Target, "<img src=\"static/calarea_48x.gif\">");
+		StrBufAppendPrintf(Target, "<span>");
 		switch(the_method) {
 		case ICAL_METHOD_REQUEST:
 			title = _("Meeting invitation");
@@ -66,29 +67,29 @@ void cal_process_object(icalcomponent *cal,
 			title = _("This is an unknown type of calendar item.");
 			break;
 		}
-		wprintf("</span>");
+		StrBufAppendPrintf(Target, "</span>");
 
-		wprintf("&nbsp;&nbsp;%s",title);
-		wprintf("</div>");
+		StrBufAppendPrintf(Target, "&nbsp;&nbsp;%s",title);
+		StrBufAppendPrintf(Target, "</div>");
 	}
 
-	wprintf("<dl>");
+	StrBufAppendPrintf(Target, "<dl>");
       	p = icalcomponent_get_first_property(cal, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
-		wprintf("<dt>");
-		wprintf(_("Summary:"));
-		wprintf("</dt><dd>");
-		escputs((char *)icalproperty_get_comment(p));
-		wprintf("</dd>\n");
+		StrBufAppendPrintf(Target, "<dt>");
+		StrBufAppendPrintf(Target, _("Summary:"));
+		StrBufAppendPrintf(Target, "</dt><dd>");
+		StrEscAppend(Target, NULL, (char *)icalproperty_get_comment(p), 0, 0);
+		StrBufAppendPrintf(Target, "</dd>\n");
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_LOCATION_PROPERTY);
 	if (p != NULL) {
-		wprintf("<dt>");
-		wprintf(_("Location:"));
-		wprintf("</dt><dd>");
-		escputs((char *)icalproperty_get_comment(p));
-		wprintf("</dd>\n");
+		StrBufAppendPrintf(Target, "<dt>");
+		StrBufAppendPrintf(Target, _("Location:"));
+		StrBufAppendPrintf(Target, "</dt><dd>");
+		StrEscAppend(Target, NULL, (char *)icalproperty_get_comment(p), 0, 0);
+		StrBufAppendPrintf(Target, "</dd>\n");
 	}
 
 	/*
@@ -109,16 +110,16 @@ void cal_process_object(icalcomponent *cal,
 				d_tm.tm_mon = t.month - 1;
 				d_tm.tm_mday = t.day;
 				wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
-				wprintf("<dt>");
-				wprintf(_("Date:"));
-				wprintf("</dt><dd>%s</dd>", d_str);
+				StrBufAppendPrintf(Target, "<dt>");
+				StrBufAppendPrintf(Target, _("Date:"));
+				StrBufAppendPrintf(Target, "</dt><dd>%s</dd>", d_str);
 			}
 			else {
 				tt = icaltime_as_timet(t);
 				webcit_fmt_date(buf, tt, 0);
-				wprintf("<dt>");
-				wprintf(_("Starting date/time:"));
-				wprintf("</dt><dd>%s</dd>", buf);
+				StrBufAppendPrintf(Target, "<dt>");
+				StrBufAppendPrintf(Target, _("Starting date/time:"));
+				StrBufAppendPrintf(Target, "</dt><dd>%s</dd>", buf);
 			}
 		}
 	
@@ -127,43 +128,43 @@ void cal_process_object(icalcomponent *cal,
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
 			webcit_fmt_date(buf, tt, 0);
-			wprintf("<dt>");
-			wprintf(_("Ending date/time:"));
-			wprintf("</dt><dd>%s</dd>", buf);
+			StrBufAppendPrintf(Target, "<dt>");
+			StrBufAppendPrintf(Target, _("Ending date/time:"));
+			StrBufAppendPrintf(Target, "</dt><dd>%s</dd>", buf);
 		}
 
 	}
 
       	p = icalcomponent_get_first_property(cal, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
-		wprintf("<dt>");
-		wprintf(_("Description:"));
-		wprintf("</dt><dd>");
-		escputs((char *)icalproperty_get_comment(p));
-		wprintf("</dd>\n");
+		StrBufAppendPrintf(Target, "<dt>");
+		StrBufAppendPrintf(Target, _("Description:"));
+		StrBufAppendPrintf(Target, "</dt><dd>");
+		StrEscAppend(Target, NULL, (char *)icalproperty_get_comment(p), 0, 0);
+		StrBufAppendPrintf(Target, "</dd>\n");
 	}
 
 	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); 
 	     (p != NULL); 
 	     p = icalcomponent_get_next_property(cal, ICAL_ATTENDEE_PROPERTY)) {
-		wprintf("<dt>");
-		wprintf(_("Attendee:"));
-		wprintf("</dt><dd>");
+		StrBufAppendPrintf(Target, "<dt>");
+		StrBufAppendPrintf(Target, _("Attendee:"));
+		StrBufAppendPrintf(Target, "</dt><dd>");
 		safestrncpy(buf, icalproperty_get_attendee(p), sizeof buf);
 		if (!strncasecmp(buf, "MAILTO:", 7)) {
 
 			/** screen name or email address */
 			strcpy(buf, &buf[7]);
 			striplt(buf);
-			escputs(buf);
-			wprintf(" ");
+			StrEscAppend(Target, NULL, buf, 0, 0);
+			StrBufAppendPrintf(Target, " ");
 
 			/** participant status */
 			partstat_as_string(buf, p);
-			escputs(buf);
+			StrEscAppend(Target, NULL, buf, 0, 0);
 		}
-		wprintf("</dd>\n");
+		StrBufAppendPrintf(Target, "</dd>\n");
 	}
 
 	/* If the component has subcomponents, recurse through them. */
@@ -171,7 +172,7 @@ void cal_process_object(icalcomponent *cal,
 	     (c != 0);
 	     c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
 		/* Recursively process subcomponent */
-		cal_process_object(c, recursion_level+1, msgnum, cal_partnum);
+		cal_process_object(Target, c, recursion_level+1, msgnum, cal_partnum);
 	}
 
 	/* If this is a REQUEST, display conflicts and buttons */
@@ -195,23 +196,23 @@ void cal_process_object(icalcomponent *cal,
 						 _("This event would conflict with '%s' which is already in your calendar."), conflict_name);
 				}
 
-				wprintf("<dt>%s",
+				StrBufAppendPrintf(Target, "<dt>%s",
 					(is_update ?
 					 _("Update:") :
 					 _("CONFLICT:")
 						)
 					);
-				wprintf("</dt><dd>");
-				escputs(conflict_message);
-				wprintf("</dd>\n");
+				StrBufAppendPrintf(Target, "</dt><dd>");
+				StrEscAppend(Target, NULL, conflict_message, 0, 0);
+				StrBufAppendPrintf(Target, "</dd>\n");
 			}
 		}
 		lprintf(9, "...done.\n");
 
-		wprintf("</dl>");
+		StrBufAppendPrintf(Target, "</dl>");
 
 		/* Display the Accept/Decline buttons */
-		wprintf("<p id=\"%s_question\">"
+		StrBufAppendPrintf(Target, "<p id=\"%s_question\">"
 			"%s "
 			"&nbsp;&nbsp;&nbsp;<span class=\"button_link\"> "
 			"<a href=\"javascript:RespondToInvitation('%s_question','%s_title','%ld','%s','Accept');\">%s</a>"
@@ -240,7 +241,7 @@ void cal_process_object(icalcomponent *cal,
 		***********/
 
 		/* Display the update buttons */
-		wprintf("<p id=\"%s_question\" >"
+		StrBufAppendPrintf(Target, "<p id=\"%s_question\" >"
 			"%s "
 			"&nbsp;&nbsp;&nbsp;<span class=\"button_link\"> "
 			"<a href=\"javascript:HandleRSVP('%s_question','%s_title','%ld','%s','Update');\">%s</a>"
@@ -257,7 +258,7 @@ void cal_process_object(icalcomponent *cal,
 	
 	/* Trailing HTML for the display of this object */
 	if (recursion_level == 0) {
-		wprintf("<p>&nbsp;</p></div>\n");
+		StrBufAppendPrintf(Target, "<p>&nbsp;</p></div>\n");
 	}
 }
 
@@ -270,20 +271,20 @@ void cal_process_object(icalcomponent *cal,
  * \param msgnum number of the mesage in our db
  * \param cal_partnum the number of the calendar item
  */
-void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum) 
+void cal_process_attachment(wc_mime_attachment *Mime) 
 {
 	icalcomponent *cal;
-
-	cal = icalcomponent_new_from_string(part_source);
-
+	
+	cal = icalcomponent_new_from_string(ChrPtr(Mime->Data));
+	FlushStrBuf(Mime->Data);
 	if (cal == NULL) {
-		wprintf(_("There was an error parsing this calendar item."));
-		wprintf("<br />\n");
+		StrBufAppendPrintf(Mime->Data, _("There was an error parsing this calendar item."));
+		StrBufAppendPrintf(Mime->Data, "<br />\n");
 		return;
 	}
 
 	ical_dezonify(cal);
-	cal_process_object(cal, 0, msgnum, cal_partnum);
+	cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum));
 
 	/* Free the memory we obtained from libical's constructor */
 	icalcomponent_free(cal);
