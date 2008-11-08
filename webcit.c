@@ -1054,6 +1054,30 @@ char *load_mimepart(long msgnum, char *partnum)
 	}
 }
 
+/*
+ * Read any MIME part of a message, from the server, into memory.
+ */
+void MimeLoadData(wc_mime_attachment *Mime)
+{
+	char buf[SIZ];
+	off_t bytes;
+//// TODO: is there a chance the contenttype is different  to the one we know?	
+	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '6') {
+		bytes = extract_long(&buf[4], 0);
+
+		if (Mime->Data == NULL)
+			Mime->Data = NewStrBufPlain(NULL, bytes);
+		StrBuf_ServGetBLOB(Mime->Data, bytes);
+
+	}
+	else {
+		FlushStrBuf(Mime->Data);
+		/// TODO XImportant message
+	}
+}
+
 
 /*
  * Convenience functions to display a page containing only a string

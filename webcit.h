@@ -394,7 +394,10 @@ struct wc_attachment {
 	long lvalue;               /* if we put a long... */
 };
 
-typedef struct _wc_mime_attachment {
+
+typedef struct wc_mime_attachment wc_mime_attachment;
+typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset);
+struct wc_mime_attachment {
 	StrBuf *Name;
 	StrBuf *FileName;
 	StrBuf *PartNum;
@@ -409,10 +412,9 @@ typedef struct _wc_mime_attachment {
 	char *data;                /* the data pool; aka this content */
 	long lvalue;               /* if we put a long... */
 	long msgnum;		/**< the message number on the citadel server derived from message_summary */
-}wc_mime_attachment;
+	RenderMimeFunc Renderer;
+};
 
-
-typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset);
 
 /*
  * \brief message summary structure. ???
@@ -792,6 +794,7 @@ char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 void remove_token(char *source, int parmnum, char separator);
 char *load_mimepart(long msgnum, char *partnum);
+void MimeLoadData(wc_mime_attachment *Mime);
 int pattern2(char *search, char *patn);
 void do_edit_vcard(long, char *, char *, char *);
 void striplt(char *);
@@ -835,7 +838,7 @@ void output_html(const char *, int, int, StrBuf *, StrBuf *);
 void do_listsub(void);
 void toggle_self_service(void);
 ssize_t write(int fd, const void *buf, size_t count);
-void cal_process_attachment(char *part_source, long msgnum, char *cal_partnum);
+void cal_process_attachment(wc_mime_attachment *Mime);
 void load_calendar_item(message_summary *Msg, int unread, struct calview *c);
 void display_calendar(message_summary *Msg, int unread);
 void display_task(message_summary *Msg, int unread);

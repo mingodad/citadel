@@ -17,6 +17,9 @@ HashList *MimeRenderHandler = NULL;
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
 #define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/**< Mailbox view column width */
 
+void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
+
+
 void display_enter(void);
 int longcmp_r(const void *s1, const void *s2);
 int summcmp_subj(const void *s1, const void *s2);
@@ -500,13 +503,52 @@ void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Token
 
 
 
+void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+{
+}
+
+void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+{
+	MimeLoadData(Mime);
+	if (StrLength(Mime->Data) > 0) {
+		StrBuf *Buf;
+		Buf = NewStrBuf();
+		/** If it's my vCard I can edit it */
+		if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
+			|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
+			|| (WC->wc_view == VIEW_ADDRESSBOOK)
+			) {
+			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld&partnum=%s\">",
+				Mime->msgnum, ChrPtr(Mime->PartNum));
+			StrBufAppendPrintf(Buf, "[%s]</a>", _("edit"));
+		}
+
+		/* In all cases, display the full card */
+		display_vcard(Buf, ChrPtr(Mime->Data), 0, 1, NULL, Mime->msgnum);
+		FreeStrBuf(&Mime->Data);
+		Mime->Data = Buf;
+	}
+
+}
+void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+{
+	MimeLoadData(Mime);
+	if (StrLength(Mime->Data) > 0) {
+		cal_process_attachment(Mime);
+	}
+}
+
+
+
 void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	wc_mime_attachment *mime;
 	StrBuf *Buf;
+	void *vMimeRenderer;
 
 	mime = (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
 	memset(mime, 0, sizeof(wc_mime_attachment));
+	mime->msgnum = Msg->msgnum;
 	Buf = NewStrBuf();
 
 	mime->Name = NewStrBuf();
@@ -538,7 +580,11 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		Msg->AllAttach = NewHash(1,NULL);
 	Put(Msg->AllAttach, SKEY(mime->PartNum), mime, DestroyMime);
 
-	if (!strcasecmp(ChrPtr(mime->ContentType), "message/rfc822")) {
+
+	if (GetHash(MimeRenderHandler, SKEY(mime->ContentType), &vMimeRenderer) &&
+	    vMimeRenderer != NULL)
+	{
+		mime->Renderer = (RenderMimeFunc) vMimeRenderer;
 		if (Msg->Submessages == NULL)
 			Msg->Submessages = NewHash(1,NULL);
 		Put(Msg->Submessages, SKEY(mime->PartNum), mime, reference_free_handler);
@@ -553,8 +599,7 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		  ( (!strcasecmp(ChrPtr(mime->Disposition), "attachment")) 
 		    || (!strcasecmp(ChrPtr(mime->Disposition), "inline"))
 		    || (!strcasecmp(ChrPtr(mime->Disposition), ""))))
-	{
-		
+	{		
 		if (Msg->AttachLinks == NULL)
 			Msg->AttachLinks = NewHash(1,NULL);
 		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime, reference_free_handler);
@@ -566,20 +611,9 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		}
 	}
 
-	/** begin handler prep ** */
-	if (  (!strcasecmp(ChrPtr(mime->ContentType), "text/x-vcard"))
-	      || (!strcasecmp(ChrPtr(mime->ContentType), "text/vcard")) ) {
-		Msg->vcard_partnum_ref = mime;
-	}
-	else if (  (!strcasecmp(ChrPtr(mime->ContentType), "text/calendar"))
-	      || (!strcasecmp(ChrPtr(mime->ContentType), "application/ics")) ) {
-		Msg->cal_partnum_ref = mime;
-	}
-	/** end handler prep ***/
-
 	FreeStrBuf(&Buf);
-
 }
+
 void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	message_summary *Msg = (message_summary*) Context;
@@ -907,6 +941,8 @@ void tmplput_MIME_Charset(StrBuf *Target, int nArgs, WCTemplateToken *Token, voi
 void tmplput_MIME_Data(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	if (mime->Renderer != NULL)
+		mime->Renderer(mime, NULL, NULL);
 	StrBufAppendBuf(Target, mime->Data, 0); /// TODO: check whether we need to load it now?
 }
 
@@ -1134,7 +1170,7 @@ void fetchname_parsed_vcard(struct vCard *v, char *storename) {
  * \param full display all items of the vcard?
  * \param msgnum Citadel message pointer
  */
-void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
+void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum) {
 	int i, j;
 	char buf[SIZ];
 	char *name;
@@ -1157,24 +1193,24 @@ void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
 	strcpy(org, "");
 
 	if (!full) {
-		wprintf("<TD>");
+		StrBufAppendPrintf(Target, "<TD>");
 		name = vcard_get_prop(v, "fn", 1, 0, 0);
 		if (name != NULL) {
-			escputs(name);
+			StrEscAppend(Target, NULL, name, 0, 0);
 		}
 		else if (name = vcard_get_prop(v, "n", 1, 0, 0), name != NULL) {
 			strcpy(fullname, name);
 			vcard_n_prettyize(fullname);
-			escputs(fullname);
+			StrEscAppend(Target, NULL, fullname, 0, 0);
 		}
 		else {
-			wprintf("&nbsp;");
+			StrBufAppendPrintf(Target, "&nbsp;");
 		}
-		wprintf("</TD>");
+		StrBufAppendPrintf(Target, "</TD>");
 		return;
 	}
 
-	wprintf("<div align=center>"
+	StrBufAppendPrintf(Target, "<div align=center>"
 		"<table bgcolor=#aaaaaa width=50%%>");
 	for (pass=1; pass<=2; ++pass) {
 
@@ -1289,27 +1325,27 @@ void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
 			}
 			else if (!strcasecmp(firsttoken, "adr")) {
 				if (pass == 2) {
-					wprintf("<TR><TD>");
-					wprintf(_("Address:"));
-					wprintf("</TD><TD>");
+					StrBufAppendPrintf(Target, "<TR><TD>");
+					StrBufAppendPrintf(Target, _("Address:"));
+					StrBufAppendPrintf(Target, "</TD><TD>");
 					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
 						extract_token(buf, thisvalue, j, ';', sizeof buf);
 						if (!IsEmptyStr(buf)) {
-							escputs(buf);
-							if (j<3) wprintf("<br />");
-							else wprintf(" ");
+							StrEscAppend(Target, NULL, buf, 0, 0);
+							if (j<3) StrBufAppendPrintf(Target, "<br />");
+							else StrBufAppendPrintf(Target, " ");
 						}
 					}
-					wprintf("</TD></TR>\n");
+					StrBufAppendPrintf(Target, "</TD></TR>\n");
 				}
 			}
 			/* else if (!strcasecmp(firsttoken, "photo") && full && pass == 2) { 
 				// Only output on second pass
-				wprintf("<tr><td>");
-				wprintf(_("Photo:"));
-				wprintf("</td><td>");
-				wprintf("<img src=\"/vcardphoto/%ld/\" alt=\"Contact photo\"/>",msgnum);
-				wprintf("</td></tr>\n");
+				StrBufAppendPrintf(Target, "<tr><td>");
+				StrBufAppendPrintf(Target, _("Photo:"));
+				StrBufAppendPrintf(Target, "</td><td>");
+				StrBufAppendPrintf(Target, "<img src=\"/vcardphoto/%ld/\" alt=\"Contact photo\"/>",msgnum);
+				StrBufAppendPrintf(Target, "</td></tr>\n");
 			} */
 			else if (!strcasecmp(firsttoken, "version")) {
 				/* ignore */
@@ -1324,11 +1360,11 @@ void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
 
 				/*** Don't show extra fields.  They're ugly.
 				if (pass == 2) {
-					wprintf("<TR><TD>");
-					escputs(thisname);
-					wprintf("</TD><TD>");
-					escputs(thisvalue);
-					wprintf("</TD></TR>\n");
+					StrBufAppendPrintf(Target, "<TR><TD>");
+					StrEscAppend(Target, NULL, thisname, 0, 0);
+					StrBufAppendPrintf(Target, "</TD><TD>");
+					StrEscAppend(Target, NULL, thisvalue, 0, 0);
+					StrBufAppendPrintf(Target, "</TD></TR>\n");
 				}
 				***/
 			}
@@ -1338,39 +1374,39 @@ void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
 		}
 	
 		if (pass == 1) {
-			wprintf("<TR BGCOLOR=\"#AAAAAA\">"
+			StrBufAppendPrintf(Target, "<TR BGCOLOR=\"#AAAAAA\">"
 			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
 			"<IMG ALIGN=CENTER src=\"static/viewcontacts_48x.gif\">"
 			"<FONT SIZE=+1><B>");
-			escputs(fullname);
-			wprintf("</B></FONT>");
+			StrEscAppend(Target, NULL, fullname, 0, 0);
+			StrBufAppendPrintf(Target, "</B></FONT>");
 			if (!IsEmptyStr(title)) {
-				wprintf("<div align=right>");
-				escputs(title);
-				wprintf("</div>");
+				StrBufAppendPrintf(Target, "<div align=right>");
+				StrEscAppend(Target, NULL, title, 0, 0);
+				StrBufAppendPrintf(Target, "</div>");
 			}
 			if (!IsEmptyStr(org)) {
-				wprintf("<div align=right>");
-				escputs(org);
-				wprintf("</div>");
+				StrBufAppendPrintf(Target, "<div align=right>");
+				StrEscAppend(Target, NULL, org, 0, 0);
+				StrBufAppendPrintf(Target, "</div>");
 			}
-			wprintf("</TD></TR>\n");
+			StrBufAppendPrintf(Target, "</TD></TR>\n");
 		
 			if (!IsEmptyStr(phone)) {
-				wprintf("<tr><td>");
-				wprintf(_("Telephone:"));
-				wprintf("</td><td>%s</td></tr>\n", phone);
+				StrBufAppendPrintf(Target, "<tr><td>");
+				StrBufAppendPrintf(Target, _("Telephone:"));
+				StrBufAppendPrintf(Target, "</td><td>%s</td></tr>\n", phone);
 			}
 			if (!IsEmptyStr(mailto)) {
-				wprintf("<tr><td>");
-				wprintf(_("E-mail:"));
-				wprintf("</td><td>%s</td></tr>\n", mailto);
+				StrBufAppendPrintf(Target, "<tr><td>");
+				StrBufAppendPrintf(Target, _("E-mail:"));
+				StrBufAppendPrintf(Target, "</td><td>%s</td></tr>\n", mailto);
 			}
 		}
 
 	}
 
-	wprintf("</table></div>\n");
+	StrBufAppendPrintf(Target, "</table></div>\n");
 }
 
 
@@ -1387,14 +1423,15 @@ void display_parsed_vcard(struct vCard *v, int full, long msgnum) {
  * \param storename where to store???
  * \param msgnum Citadel message pointer
  */
-void display_vcard(char *vcard_source, char alpha, int full, char *storename, 
+void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, 
 	long msgnum) {
 	struct vCard *v;
 	char *name;
 	char buf[SIZ];
 	char this_alpha = 0;
 
-	v = vcard_load(vcard_source);
+	v = vcard_load((char*)vcard_source); ///TODO
+
 	if (v == NULL) return;
 
 	name = vcard_get_prop(v, "n", 1, 0, 0);
@@ -1411,7 +1448,7 @@ void display_vcard(char *vcard_source, char alpha, int full, char *storename,
 			|| ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
 			|| ((!isalpha(alpha)) && (!isalpha(this_alpha)))
 		) {
-		display_parsed_vcard(v, full,msgnum);
+		display_parsed_vcard(Target, v, full,msgnum);
 	}
 
 	vcard_free(v);
@@ -1655,16 +1692,12 @@ void read_message(long msgnum, int printable_view, char *section) {
 			}
 
 			/* In all cases, display the full card */
-			display_vcard(part_source, 0, 1, NULL,msgnum);
+			display_vcard(WC->WBuf, part_source, 0, 1, NULL,msgnum);
 		}
 	}
 
 	/* Handler for calendar parts */
 	if (!IsEmptyStr(cal_partnum)) {
-		part_source = load_mimepart(msgnum, cal_partnum);
-		if (part_source != NULL) {
-			cal_process_attachment(part_source, msgnum, cal_partnum);
-		}
 	}
 
 	if (part_source) {
@@ -2192,7 +2225,7 @@ void display_addressbook(long msgnum, char alpha) {
 		if (vcard_source != NULL) {
 
 			/** Display the summary line */
-			display_vcard(vcard_source, alpha, 0, NULL,msgnum);
+			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL,msgnum);
 
 			/** If it's my vCard I can edit it */
 			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
@@ -2283,7 +2316,7 @@ void fetch_ab_name(message_summary *Msg, char *namebuf) {
 		if (vcard_source != NULL) {
 
 			/* Grab the name off the card */
-			display_vcard(vcard_source, 0, 0, namebuf, Msg->msgnum);
+			display_vcard(WC->WBuf, vcard_source, 0, 0, namebuf, Msg->msgnum);
 
 			free(vcard_source);
 		}
@@ -4010,6 +4043,12 @@ InitModule_MSG
 	RegisterNamespace("MAIL:MIME:DATA", 0, 2, tmplput_MIME_Data, CTX_MIME_ATACH);
 
 
+
+	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
+	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard);
+	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard);
+	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS);
+	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS);
 
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain);
