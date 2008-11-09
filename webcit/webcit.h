@@ -414,6 +414,7 @@ struct wc_mime_attachment {
 	long msgnum;		/**< the message number on the citadel server derived from message_summary */
 	RenderMimeFunc Renderer;
 };
+void DestroyMime(void *vMime);
 
 
 /*
@@ -455,6 +456,7 @@ typedef struct _message_summary {
 	wc_mime_attachment *cal_partnum_ref;
 	wc_mime_attachment *vcard_partnum_ref;
 } message_summary;
+void DestroyMessageSummary(void *vMsg);
 
 typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
 
@@ -488,6 +490,35 @@ typedef struct _disp_cal {
 	int is_repeat;
 } disp_cal;						
 
+
+
+/*
+ * Address book entry (keep it short and sweet, it's just a quickie lookup
+ * which we can use to get to the real meat and bones later)
+ */
+typedef struct _addrbookent {
+	char ab_name[64]; /**< name string */
+	long ab_msgnum;   /**< message number of address book entry */
+} addrbookent;
+
+
+typedef struct _headereval {
+	ExamineMsgHeaderFunc evaluator;
+	int Type;
+} headereval;
+
+
+struct attach_link {
+	char partnum[32];
+	char html[1024];
+};
+
+
+enum {
+	eUp,
+	eDown,
+	eNone
+};
 
 /*
  * One of these is kept for each active Citadel session.
@@ -750,6 +781,8 @@ void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 void readloop(char *oper);
 void read_message(long msgnum, int printable_view, char *section);
+void do_addrbook_view(addrbookent *addrbook, int num_ab);
+void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
 void text_to_server(char *ptr);
 void text_to_server_qp(char *ptr);
 void confirm_delete_msg(void);

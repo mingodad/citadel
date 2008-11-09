@@ -4,6 +4,512 @@
 
 #include "webcit.h"
 
+
+/**
+ * \brief Record compare function for sorting address book indices
+ * \param ab1 adressbook one
+ * \param ab2 adressbook two
+ */
+int abcmp(const void *ab1, const void *ab2) {
+	return(strcasecmp(
+		(((const addrbookent *)ab1)->ab_name),
+		(((const addrbookent *)ab2)->ab_name)
+	));
+}
+
+
+/**
+ * \brief Helper function for do_addrbook_view()
+ * Converts a name into a three-letter tab label
+ * \param tabbuf the tabbuffer to add name to
+ * \param name the name to add to the tabbuffer
+ */
+void nametab(char *tabbuf, long len, char *name) {
+	stresc(tabbuf, len, name, 0, 0);
+	tabbuf[0] = toupper(tabbuf[0]);
+	tabbuf[1] = tolower(tabbuf[1]);
+	tabbuf[2] = tolower(tabbuf[2]);
+	tabbuf[3] = 0;
+}
+
+
+
+/**
+ * \brief Turn a vCard "n" (name) field into something displayable.
+ * \param name the name field to convert
+ */
+void vcard_n_prettyize(char *name)
+{
+	char *original_name;
+	int i, j, len;
+
+	original_name = strdup(name);
+	len = strlen(original_name);
+	for (i=0; i<5; ++i) {
+		if (len > 0) {
+			if (original_name[len-1] == ' ') {
+				original_name[--len] = 0;
+			}
+			if (original_name[len-1] == ';') {
+				original_name[--len] = 0;
+			}
+		}
+	}
+	strcpy(name, "");
+	j=0;
+	for (i=0; i<len; ++i) {
+		if (original_name[i] == ';') {
+			name[j++] = ',';
+			name[j++] = ' ';			
+		}
+		else {
+			name[j++] = original_name[i];
+		}
+	}
+	name[j] = '\0';
+	free(original_name);
+}
+
+
+
+
+/**
+ * \brief preparse a vcard name
+ * display_vcard() calls this after parsing the textual vCard into
+ * our 'struct vCard' data object.
+ * This gets called instead of display_parsed_vcard() if we are only looking
+ * to extract the person's name instead of displaying the card.
+ * \param v the vcard to retrieve the name from
+ * \param storename where to put the name at
+ */
+void fetchname_parsed_vcard(struct vCard *v, char *storename) {
+	char *name;
+
+	strcpy(storename, "");
+
+	name = vcard_get_prop(v, "n", 1, 0, 0);
+	if (name != NULL) {
+		strcpy(storename, name);
+		/* vcard_n_prettyize(storename); */
+	}
+
+}
+
+
+
+/**
+ * \brief html print a vcard
+ * display_vcard() calls this after parsing the textual vCard into
+ * our 'struct vCard' data object.
+ *
+ * Set 'full' to nonzero to display the full card, otherwise it will only
+ * show a summary line.
+ *
+ * This code is a bit ugly, so perhaps an explanation is due: we do this
+ * in two passes through the vCard fields.  On the first pass, we process
+ * fields we understand, and then render them in a pretty fashion at the
+ * end.  Then we make a second pass, outputting all the fields we don't
+ * understand in a simple two-column name/value format.
+ * \param v the vCard to display
+ * \param full display all items of the vcard?
+ * \param msgnum Citadel message pointer
+ */
+void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum) {
+	int i, j;
+	char buf[SIZ];
+	char *name;
+	int is_qp = 0;
+	int is_b64 = 0;
+	char *thisname, *thisvalue;
+	char firsttoken[SIZ];
+	int pass;
+
+	char fullname[SIZ];
+	char title[SIZ];
+	char org[SIZ];
+	char phone[SIZ];
+	char mailto[SIZ];
+
+	strcpy(fullname, "");
+	strcpy(phone, "");
+	strcpy(mailto, "");
+	strcpy(title, "");
+	strcpy(org, "");
+
+	if (!full) {
+		StrBufAppendPrintf(Target, "<TD>");
+		name = vcard_get_prop(v, "fn", 1, 0, 0);
+		if (name != NULL) {
+			StrEscAppend(Target, NULL, name, 0, 0);
+		}
+		else if (name = vcard_get_prop(v, "n", 1, 0, 0), name != NULL) {
+			strcpy(fullname, name);
+			vcard_n_prettyize(fullname);
+			StrEscAppend(Target, NULL, fullname, 0, 0);
+		}
+		else {
+			StrBufAppendPrintf(Target, "&nbsp;");
+		}
+		StrBufAppendPrintf(Target, "</TD>");
+		return;
+	}
+
+	StrBufAppendPrintf(Target, "<div align=center>"
+		"<table bgcolor=#aaaaaa width=50%%>");
+	for (pass=1; pass<=2; ++pass) {
+
+		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
+			int len;
+			thisname = strdup(v->prop[i].name);
+			extract_token(firsttoken, thisname, 0, ';', sizeof firsttoken);
+	
+			for (j=0; j<num_tokens(thisname, ';'); ++j) {
+				extract_token(buf, thisname, j, ';', sizeof buf);
+				if (!strcasecmp(buf, "encoding=quoted-printable")) {
+					is_qp = 1;
+					remove_token(thisname, j, ';');
+				}
+				if (!strcasecmp(buf, "encoding=base64")) {
+					is_b64 = 1;
+					remove_token(thisname, j, ';');
+				}
+			}
+			
+			len = strlen(v->prop[i].value);
+			/* if we have some untagged QP, detect it here. */
+			if (!is_qp && (strstr(v->prop[i].value, "=?")!=NULL))
+				utf8ify_rfc822_string(v->prop[i].value);
+
+			if (is_qp) {
+				// %ff can become 6 bytes in utf8 
+				thisvalue = malloc(len * 2 + 3); 
+				j = CtdlDecodeQuotedPrintable(
+					thisvalue, v->prop[i].value,
+					len);
+				thisvalue[j] = 0;
+			}
+			else if (is_b64) {
+				// ff will become one byte..
+				thisvalue = malloc(len + 50);
+				CtdlDecodeBase64(
+					thisvalue, v->prop[i].value,
+					strlen(v->prop[i].value) );
+			}
+			else {
+				thisvalue = strdup(v->prop[i].value);
+			}
+	
+			/** Various fields we may encounter ***/
+	
+			/** N is name, but only if there's no FN already there */
+			if (!strcasecmp(firsttoken, "n")) {
+				if (IsEmptyStr(fullname)) {
+					strcpy(fullname, thisvalue);
+					vcard_n_prettyize(fullname);
+				}
+			}
+	
+			/** FN (full name) is a true 'display name' field */
+			else if (!strcasecmp(firsttoken, "fn")) {
+				strcpy(fullname, thisvalue);
+			}
+
+			/** title */
+			else if (!strcasecmp(firsttoken, "title")) {
+				strcpy(title, thisvalue);
+			}
+	
+			/** organization */
+			else if (!strcasecmp(firsttoken, "org")) {
+				strcpy(org, thisvalue);
+			}
+	
+			else if (!strcasecmp(firsttoken, "email")) {
+				size_t len;
+				if (!IsEmptyStr(mailto)) strcat(mailto, "<br />");
+				strcat(mailto,
+					"<a href=\"display_enter"
+					"?force_room=_MAIL_?recp=");
+
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, "\"");
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len,  fullname);
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, "\" <");
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, thisvalue);
+				len = strlen(mailto);
+				urlesc(&mailto[len], SIZ - len, ">");
+
+				strcat(mailto, "\">");
+				len = strlen(mailto);
+				stresc(mailto+len, SIZ - len, thisvalue, 1, 1);
+				strcat(mailto, "</A>");
+			}
+			else if (!strcasecmp(firsttoken, "tel")) {
+				if (!IsEmptyStr(phone)) strcat(phone, "<br />");
+				strcat(phone, thisvalue);
+				for (j=0; j<num_tokens(thisname, ';'); ++j) {
+					extract_token(buf, thisname, j, ';', sizeof buf);
+					if (!strcasecmp(buf, "tel"))
+						strcat(phone, "");
+					else if (!strcasecmp(buf, "work"))
+						strcat(phone, _(" (work)"));
+					else if (!strcasecmp(buf, "home"))
+						strcat(phone, _(" (home)"));
+					else if (!strcasecmp(buf, "cell"))
+						strcat(phone, _(" (cell)"));
+					else {
+						strcat(phone, " (");
+						strcat(phone, buf);
+						strcat(phone, ")");
+					}
+				}
+			}
+			else if (!strcasecmp(firsttoken, "adr")) {
+				if (pass == 2) {
+					StrBufAppendPrintf(Target, "<TR><TD>");
+					StrBufAppendPrintf(Target, _("Address:"));
+					StrBufAppendPrintf(Target, "</TD><TD>");
+					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
+						extract_token(buf, thisvalue, j, ';', sizeof buf);
+						if (!IsEmptyStr(buf)) {
+							StrEscAppend(Target, NULL, buf, 0, 0);
+							if (j<3) StrBufAppendPrintf(Target, "<br />");
+							else StrBufAppendPrintf(Target, " ");
+						}
+					}
+					StrBufAppendPrintf(Target, "</TD></TR>\n");
+				}
+			}
+			/* else if (!strcasecmp(firsttoken, "photo") && full && pass == 2) { 
+				// Only output on second pass
+				StrBufAppendPrintf(Target, "<tr><td>");
+				StrBufAppendPrintf(Target, _("Photo:"));
+				StrBufAppendPrintf(Target, "</td><td>");
+				StrBufAppendPrintf(Target, "<img src=\"/vcardphoto/%ld/\" alt=\"Contact photo\"/>",msgnum);
+				StrBufAppendPrintf(Target, "</td></tr>\n");
+			} */
+			else if (!strcasecmp(firsttoken, "version")) {
+				/* ignore */
+			}
+			else if (!strcasecmp(firsttoken, "rev")) {
+				/* ignore */
+			}
+			else if (!strcasecmp(firsttoken, "label")) {
+				/* ignore */
+			}
+			else {
+
+				/*** Don't show extra fields.  They're ugly.
+				if (pass == 2) {
+					StrBufAppendPrintf(Target, "<TR><TD>");
+					StrEscAppend(Target, NULL, thisname, 0, 0);
+					StrBufAppendPrintf(Target, "</TD><TD>");
+					StrEscAppend(Target, NULL, thisvalue, 0, 0);
+					StrBufAppendPrintf(Target, "</TD></TR>\n");
+				}
+				***/
+			}
+	
+			free(thisname);
+			free(thisvalue);
+		}
+	
+		if (pass == 1) {
+			StrBufAppendPrintf(Target, "<TR BGCOLOR=\"#AAAAAA\">"
+			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
+			"<IMG ALIGN=CENTER src=\"static/viewcontacts_48x.gif\">"
+			"<FONT SIZE=+1><B>");
+			StrEscAppend(Target, NULL, fullname, 0, 0);
+			StrBufAppendPrintf(Target, "</B></FONT>");
+			if (!IsEmptyStr(title)) {
+				StrBufAppendPrintf(Target, "<div align=right>");
+				StrEscAppend(Target, NULL, title, 0, 0);
+				StrBufAppendPrintf(Target, "</div>");
+			}
+			if (!IsEmptyStr(org)) {
+				StrBufAppendPrintf(Target, "<div align=right>");
+				StrEscAppend(Target, NULL, org, 0, 0);
+				StrBufAppendPrintf(Target, "</div>");
+			}
+			StrBufAppendPrintf(Target, "</TD></TR>\n");
+		
+			if (!IsEmptyStr(phone)) {
+				StrBufAppendPrintf(Target, "<tr><td>");
+				StrBufAppendPrintf(Target, _("Telephone:"));
+				StrBufAppendPrintf(Target, "</td><td>%s</td></tr>\n", phone);
+			}
+			if (!IsEmptyStr(mailto)) {
+				StrBufAppendPrintf(Target, "<tr><td>");
+				StrBufAppendPrintf(Target, _("E-mail:"));
+				StrBufAppendPrintf(Target, "</td><td>%s</td></tr>\n", mailto);
+			}
+		}
+
+	}
+
+	StrBufAppendPrintf(Target, "</table></div>\n");
+}
+
+
+
+/**
+ * \brief  Display a textual vCard
+ * (Converts to a vCard object and then calls the actual display function)
+ * Set 'full' to nonzero to display the whole card instead of a one-liner.
+ * Or, if "storename" is non-NULL, just store the person's name in that
+ * buffer instead of displaying the card at all.
+ * \param vcard_source the buffer containing the vcard text
+ * \param alpha what???
+ * \param full should we usse all lines?
+ * \param storename where to store???
+ * \param msgnum Citadel message pointer
+ */
+void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, 
+	long msgnum) {
+	struct vCard *v;
+	char *name;
+	char buf[SIZ];
+	char this_alpha = 0;
+
+	v = vcard_load((char*)vcard_source); ///TODO
+
+	if (v == NULL) return;
+
+	name = vcard_get_prop(v, "n", 1, 0, 0);
+	if (name != NULL) {
+		utf8ify_rfc822_string(name);
+		strcpy(buf, name);
+		this_alpha = buf[0];
+	}
+
+	if (storename != NULL) {
+		fetchname_parsed_vcard(v, storename);
+	}
+	else if (	(alpha == 0)
+			|| ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
+			|| ((!isalpha(alpha)) && (!isalpha(this_alpha)))
+		) {
+		display_parsed_vcard(Target, v, full,msgnum);
+	}
+
+	vcard_free(v);
+}
+
+
+
+/**
+ * \brief Render the address book using info we gathered during the scan
+ * \param addrbook the addressbook to render
+ * \param num_ab the number of the addressbook
+ */
+void do_addrbook_view(addrbookent *addrbook, int num_ab) {
+	int i = 0;
+	int displayed = 0;
+	int bg = 0;
+	static int NAMESPERPAGE = 60;
+	int num_pages = 0;
+	int tabfirst = 0;
+	char tabfirst_label[64];
+	int tablast = 0;
+	char tablast_label[64];
+	char this_tablabel[64];
+	int page = 0;
+	char **tablabels;
+
+	if (num_ab == 0) {
+		wprintf("<br /><br /><br /><div align=\"center\"><i>");
+		wprintf(_("This address book is empty."));
+		wprintf("</i></div>\n");
+		return;
+	}
+
+	if (num_ab > 1) {
+		qsort(addrbook, num_ab, sizeof(addrbookent), abcmp);
+	}
+
+	num_pages = (num_ab / NAMESPERPAGE) + 1;
+
+	tablabels = malloc(num_pages * sizeof (char *));
+	if (tablabels == NULL) {
+		wprintf("<br /><br /><br /><div align=\"center\"><i>");
+		wprintf(_("An internal error has occurred."));
+		wprintf("</i></div>\n");
+		return;
+	}
+
+	for (i=0; i<num_pages; ++i) {
+		tabfirst = i * NAMESPERPAGE;
+		tablast = tabfirst + NAMESPERPAGE - 1;
+		if (tablast > (num_ab - 1)) tablast = (num_ab - 1);
+		nametab(tabfirst_label, 64, addrbook[tabfirst].ab_name);
+		nametab(tablast_label, 64, addrbook[tablast].ab_name);
+		sprintf(this_tablabel, "%s&nbsp;-&nbsp;%s", tabfirst_label, tablast_label);
+		tablabels[i] = strdup(this_tablabel);
+	}
+
+	tabbed_dialog(num_pages, tablabels);
+	page = (-1);
+
+	for (i=0; i<num_ab; ++i) {
+
+		if ((i / NAMESPERPAGE) != page) {	/* New tab */
+			page = (i / NAMESPERPAGE);
+			if (page > 0) {
+				wprintf("</tr></table>\n");
+				end_tab(page-1, num_pages);
+			}
+			begin_tab(page, num_pages);
+			wprintf("<table border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
+			displayed = 0;
+		}
+
+		if ((displayed % 4) == 0) {
+			if (displayed > 0) {
+				wprintf("</tr>\n");
+			}
+			bg = 1 - bg;
+			wprintf("<tr bgcolor=\"#%s\">",
+				(bg ? "DDDDDD" : "FFFFFF")
+			);
+		}
+	
+		wprintf("<td>");
+
+		wprintf("<a href=\"readfwd?startmsg=%ld?is_singlecard=1",
+			addrbook[i].ab_msgnum);
+		wprintf("?maxmsgs=1?is_summary=0?alpha=%s\">", bstr("alpha"));
+		vcard_n_prettyize(addrbook[i].ab_name);
+		escputs(addrbook[i].ab_name);
+		wprintf("</a></td>\n");
+		++displayed;
+	}
+
+	/* Placeholders for empty columns at end */
+	if ((num_ab % 4) != 0) {
+		for (i=0; i<(4-(num_ab % 4)); ++i) {
+			wprintf("<td>&nbsp;</td>");
+		}
+	}
+
+	wprintf("</tr></table>\n");
+	end_tab((num_pages-1), num_pages);
+
+	begin_tab(num_pages, num_pages);
+	/* FIXME there ought to be something here */
+	end_tab(num_pages, num_pages);
+
+	for (i=0; i<num_pages; ++i) {
+		free(tablabels[i]);
+	}
+	free(tablabels);
+}
+
+
+
+
 /*
  * Edit the vCard component of a MIME message.  
  * Supply the message number
