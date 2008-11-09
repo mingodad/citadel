@@ -226,6 +226,8 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
  */
 int FlushStrBuf(StrBuf *buf)
 {
+	if (buf == NULL)
+		return -1;
 	if (buf->ConstBuf)
 		return -1;       
 	buf->buf[0] ='\0';
@@ -1667,13 +1669,8 @@ inline static void DecodeSegment(StrBuf *Target,
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset)
 {
 	StrBuf *ConvertBuf, *ConvertBuf2;
-	char *start, *end, *next, *nextend, *ptr;
+	char *start, *end, *next, *nextend, *ptr = NULL;
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;			/**< Buffer of characters to be converted */
-	char *obuf;			/**< Buffer for converted characters */
-	size_t ibuflen;			/**< Length of input buffer */
-	size_t obuflen;			/**< Length of output buffer */
-	
 	const char *eptr;
 	int passes = 0;
 	int i, len, delta;
@@ -1695,33 +1692,14 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 	}
 
 	ConvertBuf = NewStrBufPlain(NULL, StrLength(DecodeMe));
-	if (illegal_non_rfc2047_encoding) {
-		if ( (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
-		     (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) ) {
-			ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset), &ic);
-			if (ic != (iconv_t)(-1) ) {
-				long BufSize;
-				ibuf = DecodeMe->buf;
-				obuf = ConvertBuf->buf;
-				ibuflen = DecodeMe->BufUsed;
-				obuflen = ConvertBuf->BufSize;
-
-				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-				/* little card game: wheres the red lady? */
-				ibuf = DecodeMe->buf;
-				BufSize = DecodeMe->BufSize;
-				DecodeMe->buf = ConvertBuf->buf;
-				DecodeMe->BufSize = ConvertBuf->BufSize;
-				DecodeMe->BufUsed = ConvertBuf->BufSize - obuflen;
-				DecodeMe->buf[DecodeMe->BufUsed] = '\0';
-
-				ConvertBuf->buf = ibuf;
-				ConvertBuf->BufSize = BufSize;
-				ConvertBuf->BufUsed = 0;
-				ConvertBuf->buf[0] = '\0';
-
-				iconv_close(ic);
-			}
+	if ((illegal_non_rfc2047_encoding) &&
+	    (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
+	    (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) )
+	{
+		ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset), &ic);
+		if (ic != (iconv_t)(-1) ) {
+			StrBufConvert(DecodeMe, ConvertBuf, &ic);
+			iconv_close(ic);
 		}
 	}
 
@@ -1800,8 +1778,22 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 			}
 		}
 		/* our next-pair is our new first pair now. */
+		ptr = end + 2;
 		start = next;
 		end = nextend;
+	}
+	end = ptr;
+	nextend = DecodeMe->buf + DecodeMe->BufUsed;
+	if ((end != NULL) && (end < nextend)) {
+		ptr = end;
+		while ( (ptr < nextend) &&
+			(isspace(*ptr) ||
+			 (*ptr == '\r') ||
+			 (*ptr == '\n') || 
+			 (*ptr == '\t')))
+			ptr ++;
+		if (ptr < nextend)
+			StrBufAppendBufPlain(Target, end, nextend - end, 0);
 	}
 	FreeStrBuf(&ConvertBuf);
 	FreeStrBuf(&ConvertBuf2);
