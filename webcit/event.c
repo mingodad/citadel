@@ -931,8 +931,9 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 						recur.by_month_day[1] = ICAL_RECURRENCE_ARRAY_MAX;
 					}
 					else if (!strcasecmp(bstr("rrmonthtype"), "rrmonthtype_wday")) {
-						lprintf(9, "MONTHLY BY WDAY\n");
-						/* FIXME implement this */
+						recur.by_day[0] = (atoi(bstr("rrmweek")) * 8)
+								+ atoi(bstr("rrmweekday")) + 1;
+						recur.by_day[1] = ICAL_RECURRENCE_ARRAY_MAX;
 					}
 					break;
 
