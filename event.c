@@ -938,7 +938,12 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 					break;
 
 				case ICAL_YEARLY_RECURRENCE:
-					/* FIXME implement this */
+					if (!strcasecmp(bstr("rrmonthtype"), "rryeartype_ymday")) {
+						/* no further action is needed here */
+					}
+					if (!strcasecmp(bstr("rrmonthtype"), "rryeartype_ywday")) {
+						/* FIXME implement this */
+					}
 					break;
 
 				/* This one can't happen either. */
