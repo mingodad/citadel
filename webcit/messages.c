@@ -125,6 +125,18 @@ int longcmp_r(const void *s1, const void *s2) {
 	return(0);
 }
 
+/*
+ * qsort() compatible function to compare two longs in descending order.
+ */
+int qlongcmp_r(const void *s1, const void *s2) {
+	long l1 = (long) s1;
+	long l2 = (long) s2;
+
+	if (l1 > l2) return(-1);
+	if (l1 < l2) return(+1);
+	return(0);
+}
+
  
 /*
  * qsort() compatible function to compare two message summary structs by ascending subject.
@@ -209,152 +221,6 @@ int summcmp_rdate(const void *s1, const void *s2) {
 
 
 
-
-/*
- * Look for URL's embedded in a buffer and make them linkable.  We use a
- * target window in order to keep the Citadel session in its own window.
- */
-void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf)
-{
-	int len, UrlLen, Offset, TrailerLen;
-	const char *start, *end, *pos;
-	
-	FlushStrBuf(Target);
-
-	start = NULL;
-	len = StrLength(Source);
-	end = ChrPtr(Source) + len;
-	for (pos = ChrPtr(Source); (pos < end) && (start == NULL); ++pos) {
-		if (!strncasecmp(pos, "http://", 7))
-			start = pos;
-		if (!strncasecmp(pos, "ftp://", 6))
-			start = pos;
-	}
-
-	if (start == NULL) {
-		StrBufAppendBuf(Target, Source, 0);
-		return;
-	}
-	FlushStrBuf(WrkBuf);
-
-	for (pos = ChrPtr(Source) + len; pos > start; --pos) {
-		if (  (!isprint(*pos))
-		   || (isspace(*pos))
-		   || (*pos == '{')
-		   || (*pos == '}')
-		   || (*pos == '|')
-		   || (*pos == '\\')
-		   || (*pos == '^')
-		   || (*pos == '[')
-		   || (*pos == ']')
-		   || (*pos == '`')
-		   || (*pos == '<')
-		   || (*pos == '>')
-		   || (*pos == '(')
-		   || (*pos == ')')
-		) {
-			end = pos;
-		}
-	}
-	
-	UrlLen = end - start;
-	StrBufAppendBufPlain(WrkBuf, start, UrlLen, 0);
-
-	Offset = start - ChrPtr(Source);
-	if (Offset != 0)
-		StrBufAppendBufPlain(Target, ChrPtr(Source), Offset, 0);
-	StrBufAppendPrintf(Target, "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
-			   LB, QU, ChrPtr(WrkBuf), QU, QU, TARGET, 
-			   QU, RB, ChrPtr(WrkBuf), LB, RB);
-
-	TrailerLen = len - (end - start);
-	if (TrailerLen > 0)
-		StrBufAppendBufPlain(Target, end, TrailerLen, 0);
-}
-void url(char *buf, size_t bufsize)
-{
-	int len, UrlLen, Offset, TrailerLen, outpos;
-	char *start, *end, *pos;
-	char urlbuf[SIZ];
-	char outbuf[SIZ];
-
-	start = NULL;
-	len = strlen(buf);
-	if (len > bufsize) {
-		lprintf(1, "URL: content longer than buffer!");
-		return;
-	}
-	end = buf + len;
-	for (pos = buf; (pos < end) && (start == NULL); ++pos) {
-		if (!strncasecmp(pos, "http://", 7))
-			start = pos;
-		if (!strncasecmp(pos, "ftp://", 6))
-			start = pos;
-	}
-
-	if (start == NULL)
-		return;
-
-	for (pos = buf+len; pos > start; --pos) {
-		if (  (!isprint(*pos))
-		   || (isspace(*pos))
-		   || (*pos == '{')
-		   || (*pos == '}')
-		   || (*pos == '|')
-		   || (*pos == '\\')
-		   || (*pos == '^')
-		   || (*pos == '[')
-		   || (*pos == ']')
-		   || (*pos == '`')
-		   || (*pos == '<')
-		   || (*pos == '>')
-		   || (*pos == '(')
-		   || (*pos == ')')
-		) {
-			end = pos;
-		}
-	}
-	
-	UrlLen = end - start;
-	if (UrlLen > sizeof(urlbuf)){
-		lprintf(1, "URL: content longer than buffer!");
-		return;
-	}
-	memcpy(urlbuf, start, UrlLen);
-	urlbuf[UrlLen] = '\0';
-
-	Offset = start - buf;
-	if ((Offset != 0) && (Offset < sizeof(outbuf)))
-		memcpy(outbuf, buf, Offset);
-	outpos = snprintf(&outbuf[Offset], sizeof(outbuf) - Offset,  
-			  "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
-			  LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
-	if (outpos >= sizeof(outbuf) - Offset) {
-		lprintf(1, "URL: content longer than buffer!");
-		return;
-	}
-
-	TrailerLen = len - (end - start);
-	if (TrailerLen > 0)
-		memcpy(outbuf + Offset + outpos, end, TrailerLen);
-	if (Offset + outpos + TrailerLen > bufsize) {
-		lprintf(1, "URL: content longer than buffer!");
-		return;
-	}
-	memcpy (buf, outbuf, Offset + outpos + TrailerLen);
-	*(buf + Offset + outpos + TrailerLen) = '\0';
-}
-
-
-
-
-
-
-
-
-
-
-
 /*
  * I wanna SEE that message!
  *
@@ -362,8 +228,7 @@ void url(char *buf, size_t bufsize)
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-void read_message(long msgnum, int printable_view, char *section) {
-	struct wcsession *WCC = WC;
+void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, char *section) {
 	StrBuf *Buf;
 	StrBuf *Token;
 	StrBuf *FoundCharset;
@@ -389,9 +254,9 @@ void read_message(long msgnum, int printable_view, char *section) {
 	serv_printf("MSG4 %ld|%s", msgnum, section);
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
-		wprintf("<strong>");
-		wprintf(_("ERROR:"));
-		wprintf("</strong> %s<br />\n", &buf[4]);
+		StrBufAppendPrintf(Target, "<strong>");
+		StrBufAppendPrintf(Target, _("ERROR:"));
+		StrBufAppendPrintf(Target, "</strong> %s<br />\n", &buf[4]);
 		FreeStrBuf(&Buf);
 		return;
 	}
@@ -410,10 +275,10 @@ void read_message(long msgnum, int printable_view, char *section) {
 		{
 			Done = 1;
 			if (state < 2) {
-				wprintf("<i>");
-				wprintf(_("unexpected end of message"));
-				wprintf(" (1)</i><br /><br />\n");
-				wprintf("</div>\n");
+				StrBufAppendPrintf(Target, "<i>");
+				StrBufAppendPrintf(Target, _("unexpected end of message"));
+				StrBufAppendPrintf(Target, " (1)</i><br /><br />\n");
+				StrBufAppendPrintf(Target, "</div>\n");
 				FreeStrBuf(&Buf);
 				FreeStrBuf(&Token);
 				DestroyMessageSummary(Msg);
@@ -539,7 +404,7 @@ void read_message(long msgnum, int printable_view, char *section) {
 			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
 	}
-	DoTemplate(HKEY("view_message"), NULL, Msg, CTX_MAILSUM);
+	DoTemplate(tmpl, tmpllen, Target, Msg, CTX_MAILSUM);
 
 
 
@@ -621,9 +486,13 @@ void read_message(long msgnum, int printable_view, char *section) {
  */
 void embed_message(void) {
 	long msgnum = 0L;
+	const StrBuf *Tmpl = sbstr("template");
 
 	msgnum = StrTol(WC->UrlFragment1);
-	read_message(msgnum, 0, "");
+	if (StrLength(Tmpl) > 0) 
+		read_message(WC->WBuf, SKEY(Tmpl), msgnum, 0, "");
+	else 
+		read_message(WC->WBuf, HKEY("view_message"), msgnum, 0, "");
 }
 
 
@@ -639,20 +508,13 @@ void print_message(void) {
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/html\r\n"
-		"Server: %s\r\n"
-		"Connection: close\r\n",
-		PACKAGE_STRING);
+		"Server: " PACKAGE_STRING "\r\n"
+		"Connection: close\r\n");
+
 	begin_burst();
 
-	wprintf("\r\n<html>\n<head><title>");
-	escputs(WC->wc_fullname);
-	wprintf("</title></head>\n"
-		"<body onLoad=\" window.print(); window.close(); \">\n"
-	);
-	
-	read_message(msgnum, 1, "");
+	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, 1, "");
 
-	wprintf("\n</body></html>\n\n");
 	wDumpContent(0);
 }
 
@@ -667,7 +529,7 @@ void mobile_message_view(void) {
   output_headers(1, 0, 0, 0, 0, 1);
   begin_burst();
   do_template("msgcontrols", NULL);
-  read_message(msgnum,1, "");
+  read_message(WC->WBuf, HKEY("view_message"), msgnum,1, "");
   wDumpContent(0);
 }
 
@@ -714,6 +576,7 @@ void display_headers(void) {
  * \param forward_attachments Nonzero if we want attachments to be forwarded
  */
 void pullquote_message(long msgnum, int forward_attachments, int include_headers) {
+	struct wcsession *WCC = WC;
 	char buf[SIZ];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -724,7 +587,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	char *attachments = NULL;
 	char *ptr = NULL;
 	int num_attachments = 0;
-	struct wc_attachment *att, *aptr;
+	wc_attachment *att;
 	char m_subject[1024];
 	char from[256];
 	char node[256];
@@ -997,24 +860,21 @@ ENDBODY:
 			if ( (!strcasecmp(mime_disposition, "inline"))
 			   || (!strcasecmp(mime_disposition, "attachment")) ) {
 		
+				int n;
+				char N[64];
 				/* Create an attachment struct from this mime part... */
-				att = malloc(sizeof(struct wc_attachment));
-				memset(att, 0, sizeof(struct wc_attachment));
+				att = malloc(sizeof(wc_attachment));
+				memset(att, 0, sizeof(wc_attachment));
 				att->length = mime_length;
-				strcpy(att->content_type, mime_content_type);
-				strcpy(att->filename, mime_filename);
-				att->next = NULL;
+				att->content_type = NewStrBufPlain(mime_content_type, -1);
+				att->filename = NewStrBufPlain(mime_filename, -1);
 				att->data = load_mimepart(msgnum, mime_partnum);
 		
+				if (WCC->attachments == NULL)
+					WCC->attachments = NewHash(1, NULL);
 				/* And add it to the list. */
-				if (WC->first_attachment == NULL) {
-					WC->first_attachment = att;
-				}
-				else {
-					aptr = WC->first_attachment;
-					while (aptr->next != NULL) aptr = aptr->next;
-					aptr->next = att;
-				}
+				n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
+				Put(WCC->attachments, N, n, att, free_attachment);
 			}
 
 		}
@@ -1744,13 +1604,13 @@ void readloop(char *oper)
 	/** Output loop */
 	if (displayed_msgs != NULL) {
 		if (bbs_reverse) {
-			qsort(displayed_msgs, num_displayed, sizeof(long), longcmp_r);
+			qsort(displayed_msgs, num_displayed, sizeof(long), qlongcmp_r);
 		}
 
 		/** if we do a split bbview in the future, begin messages div here */
 
 		for (a=0; a<num_displayed; ++a) {
-			read_message(displayed_msgs[a], 0, "");
+			read_message(WC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, "");
 		}
 
 		/** if we do a split bbview in the future, end messages div here */
@@ -1896,11 +1756,12 @@ DONE:
  * ... this is where the actual message gets transmitted to the server.
  */
 void post_mime_to_server(void) {
+	struct wcsession *WCC = WC;
 	char top_boundary[SIZ];
 	char alt_boundary[SIZ];
 	int is_multipart = 0;
 	static int seq = 0;
-	struct wc_attachment *att;
+	wc_attachment *att;
 	char *encoded;
 	size_t encoded_length;
 	size_t encoded_strlen;
@@ -1922,7 +1783,7 @@ void post_mime_to_server(void) {
 	serv_puts("X-Mailer: " PACKAGE_STRING);
 
 	/* If there are attachments, we have to do multipart/mixed */
-	if (WC->first_attachment != NULL) {
+	if (GetCount(WCC->attachments) > 0) {
 		is_multipart = 1;
 	}
 
@@ -1958,18 +1819,23 @@ void post_mime_to_server(void) {
 	serv_printf("--%s--", alt_boundary);
 	
 	if (is_multipart) {
+		long len;
+		const char *Key; 
+		void *vAtt;
+		HashPos  *it;
 
 		/* Add in the attachments */
-		for (att = WC->first_attachment; att!=NULL; att=att->next) {
-
+		it = GetNewHashPos();
+		while (GetNextHashPos(WCC->attachments, it, &len, &Key, &vAtt)) {
+			att = (wc_attachment*)vAtt;
 			encoded_length = ((att->length * 150) / 100);
 			encoded = malloc(encoded_length);
 			if (encoded == NULL) break;
 			encoded_strlen = CtdlEncodeBase64(encoded, att->data, att->length, 1);
 
 			serv_printf("--%s", top_boundary);
-			serv_printf("Content-type: %s", att->content_type);
-			serv_printf("Content-disposition: attachment; filename=\"%s\"", att->filename);
+			serv_printf("Content-type: %s", ChrPtr(att->content_type));
+			serv_printf("Content-disposition: attachment; filename=\"%s\"", ChrPtr(att->filename));
 			serv_puts("Content-transfer-encoding: base64");
 			serv_puts("");
 			serv_write(encoded, encoded_strlen);
@@ -1978,6 +1844,7 @@ void post_mime_to_server(void) {
 			free(encoded);
 		}
 		serv_printf("--%s--", top_boundary);
+		DeleteHashPos(&it);
 	}
 
 	serv_puts("000");
@@ -2000,7 +1867,7 @@ void post_message(void)
 	char buf[1024];
 	StrBuf *encoded_subject = NULL;
 	static long dont_post = (-1L);
-	struct wc_attachment *att, *aptr;
+	wc_attachment *att;
 	int is_anonymous = 0;
 	const StrBuf *display_name = NULL;
 	struct wcsession *WCC = WC;
@@ -2018,36 +1885,37 @@ void post_message(void)
 	}
 
 	if (WCC->upload_length > 0) {
+		const char *pch;
+		int n;
+		char N[64];
 
 		lprintf(9, "%s:%d: we are uploading %d bytes\n", __FILE__, __LINE__, WCC->upload_length);
 		/** There's an attachment.  Save it to this struct... */
-		att = malloc(sizeof(struct wc_attachment));
-		memset(att, 0, sizeof(struct wc_attachment));
+		att = malloc(sizeof(wc_attachment));
+		memset(att, 0, sizeof(wc_attachment));
 		att->length = WCC->upload_length;
-		strcpy(att->content_type, WCC->upload_content_type);
-		strcpy(att->filename, WCC->upload_filename);
-		att->next = NULL;
-
-		/** And add it to the list. */
-		if (WCC->first_attachment == NULL) {
-			WCC->first_attachment = att;
-		}
-		else {
-			aptr = WCC->first_attachment;
-			while (aptr->next != NULL) aptr = aptr->next;
-			aptr->next = att;
-		}
+		att->content_type = NewStrBufPlain(WCC->upload_content_type, -1);
+		att->filename = NewStrBufPlain(WCC->upload_filename, -1);
+		
+		
+		if (WCC->attachments == NULL)
+			WCC->attachments = NewHash(1, NULL);
+		/* And add it to the list. */
+		n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
+		Put(WCC->attachments, N, n, att, free_attachment);
 
 		/**
 		 * Mozilla sends a simple filename, which is what we want,
 		 * but Satan's Browser sends an entire pathname.  Reduce
 		 * the path to just a filename if we need to.
 		 */
-		while (num_tokens(att->filename, '/') > 1) {
-			remove_token(att->filename, 0, '/');
+		pch = strrchr(ChrPtr(att->filename), '/');
+		if (pch != NULL) {
+			StrBufCutLeft(att->filename, pch - ChrPtr(att->filename));
 		}
-		while (num_tokens(att->filename, '\\') > 1) {
-			remove_token(att->filename, 0, '\\');
+		pch = strrchr(ChrPtr(att->filename), '\\');
+		if (pch != NULL) {
+			StrBufCutLeft(att->filename, pch - ChrPtr(att->filename));
 		}
 
 		/**
@@ -2153,7 +2021,7 @@ void post_message(void)
 		}
 	}
 
-	free_attachments(WCC);
+	DeleteHash(&WCC->attachments);
 
 	/**
 	 *  We may have been supplied with instructions regarding the location
@@ -2189,7 +2057,7 @@ void display_enter(void)
 	StrBuf *ebuf;
 	long now;
 	const StrBuf *display_name = NULL;
-	struct wc_attachment *att;
+	/////wc_attachment *att;
 	int recipient_required = 0;
 	int subject_required = 0;
 	int recipient_bad = 0;
@@ -2259,12 +2127,14 @@ void display_enter(void)
 	 * Do a custom room banner with no navbar...
 	 */
 	output_headers(1, 1, 2, 0, 0, 0);
+
+/*
 	wprintf("<div id=\"banner\">\n");
 	embed_room_banner(NULL, navbar_none);
 	wprintf("</div>\n");
 	wprintf("<div id=\"content\">\n"
 		"<div class=\"fix_scrollbar_bug message \">");
-
+*/
 	/* Now check our actual recipients if there are any */
 	if (recipient_required) {
 		const StrBuf *Recp = NULL; 
@@ -2311,6 +2181,13 @@ void display_enter(void)
 			goto DONE;
 		}
 	}
+	DoTemplate(HKEY("edit_message"), NULL, NULL, CTX_NONE);
+	address_book_popup();
+	wDumpContent(1);
+
+
+	return;
+
 
 	/** If we got this far, we can display the message entry screen. */
 
@@ -2587,14 +2464,16 @@ void display_enter(void)
 	wprintf(_("Attachments:"));
 	wprintf(" ");
 	wprintf("<select name=\"which_attachment\" size=1>");
+/*
 	for (att = WCC->first_attachment; att != NULL; att = att->next) {
 		wprintf("<option value=\"");
 		urlescputs(att->filename);
 		wprintf("\">");
 		escputs(att->filename);
-		/* wprintf(" (%s, %d bytes)",att->content_type,att->length); */
+		/ * wprintf(" (%s, %d bytes)",att->content_type,att->length); * /
 		wprintf("</option>\n");
 	}
+*/
 	wprintf("</select>");
 
 	/** Now offer the ability to attach additional files... */

@@ -695,11 +695,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 	if (do_htmlhead) {
 		begin_burst();
-		if (!access("static.local/webcit.css", R_OK)) {
-			svprintf(HKEY("CSSLOCAL"), WCS_STRING,
-			   "<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"
-			);
-		}
 		do_template("head", NULL);
 	}
 
@@ -956,32 +951,30 @@ void display_vcard_photo_img(void)
  * filename		Fake filename to give
  * force_download	Nonzero to force set the Content-Type: header to "application/octet-stream"
  */
-void postpart(const char *partnum, const char *filename, int force_download)
+void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 {
+	void *vPart;
 	char content_type[256];
-	int num = atoi(partnum);
-	struct wc_attachment *part = WC->first_attachment;
-
-	while(num && part) {
-		num--;
-		part=part->next;
-	}
+	wc_attachment *part;
 	
-	if (part) {
+	if (GetHash(WC->attachments, SKEY(partnum), &vPart) &&
+	    (vPart != NULL)) {
+		part = (wc_attachment*) vPart;
 		if (force_download) {
 			strcpy(content_type, "application/octet-stream");
 		}
 		else {
-			strncpy(content_type, part->content_type, sizeof content_type);
+			strncpy(content_type, ChrPtr(part->content_type), sizeof content_type);
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
 		StrBufAppendBufPlain(WC->WBuf, part->data, part->length, 0);
 		http_transmit_thing(content_type, 0);
 	} else {
-		hprintf("HTTP/1.1 404 %s\n",partnum);
+		hprintf("HTTP/1.1 404 %s\n", ChrPtr(partnum));
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf(_("An error occurred while retrieving this part: %s/%s\n"), partnum, filename);
+		wprintf(_("An error occurred while retrieving this part: %s/%s\n"), 
+			ChrPtr(partnum), ChrPtr(filename));
 		end_burst();
 	}
 }
@@ -1883,14 +1876,14 @@ void download_mimepart(void) {
 }
 
 void view_postpart(void) {
-	postpart(ChrPtr(WC->UrlFragment1),
-		 ChrPtr(WC->UrlFragment2),
+	postpart(WC->UrlFragment1,
+		 WC->UrlFragment2,
 		 0);
 }
 
 void download_postpart(void) {
-	postpart(ChrPtr(WC->UrlFragment1),
-		 ChrPtr(WC->UrlFragment2),
+	postpart(WC->UrlFragment1,
+		 WC->UrlFragment2,
 		 1);
 }
 
@@ -1916,13 +1909,13 @@ void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 
 int ConditionalBstr(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	if(Tokens->nParameters == 1)
-		return HaveBstr(Tokens->Params[0]->Start, 
-				Tokens->Params[0]->len);
+	if(Tokens->nParameters == 3)
+		return HaveBstr(Tokens->Params[2]->Start, 
+				Tokens->Params[2]->len);
 	else
-		return strcmp(Bstr(Tokens->Params[0]->Start, 
-				   Tokens->Params[0]->len),
-			      Tokens->Params[1]->Start) == 0;
+		return strcmp(Bstr(Tokens->Params[2]->Start, 
+				   Tokens->Params[2]->len),
+			      Tokens->Params[3]->Start) == 0;
 }
 
 void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -1931,6 +1924,19 @@ void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Cont
 			SBstr(Tokens->Params[0]->Start, 
 			      Tokens->Params[0]->len), 0);
 }
+
+
+void tmplput_csslocal(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	extern StrBuf *csslocal;
+	StrBufAppendBuf(Target, 
+			csslocal, 0);
+}
+
+
+
+
+
 
 void 
 InitModule_WEBCIT
@@ -1952,6 +1958,7 @@ InitModule_WEBCIT
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
 	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, CTX_NONE);
+	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
 }

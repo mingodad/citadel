@@ -716,6 +716,87 @@ int ConditionalPreference(WCTemplateToken *Token, void *Context, int ContextType
 		return (StrTol(Pref) == Token->Params[3]->lvalue);
 }
 
+HashList *GetGVEAHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBuf *Rcp;
+	HashList *List = NULL;
+	int Done = 0;
+	int i, n = 1;
+	char N[64];
+
+	Rcp = NewStrBuf();
+	serv_puts("GVEA");
+	StrBuf_ServGetln(Rcp);
+	if (ChrPtr(Rcp)[0] == '1') {
+		FlushStrBuf(Rcp);
+		List = NewHash(1, NULL);
+		while (!Done && (StrBuf_ServGetln(Rcp)>=0)) {
+			if ( (StrLength(Rcp)==3) && 
+			     !strcmp(ChrPtr(Rcp), "000")) 
+			{
+				Done = 1;
+			}
+			else {
+				i = snprintf(N, sizeof(N), "%d", n);
+				Put(List, N, i, Rcp, HFreeStrBuf);
+				Rcp = NewStrBuf();
+			}
+			n++;
+		}
+	}
+	FreeStrBuf(&Rcp);
+	return List;
+}
+void DeleteGVEAHash(HashList **KillMe)
+{
+	DeleteHash(KillMe);
+}
+void tmplput_EMAIL_ADDR(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	StrBuf *EmailAddr = (StrBuf*) Context;
+	StrBufAppendBuf(Target, EmailAddr, 0);
+}
+
+HashList *GetGVSNHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBuf *Rcp;
+	HashList *List = NULL;
+	int Done = 0;
+	int i, n = 1;
+	char N[64];
+
+	Rcp = NewStrBuf();
+	serv_puts("GVSN");
+	StrBuf_ServGetln(Rcp);
+	if (ChrPtr(Rcp)[0] == '1') {
+		FlushStrBuf(Rcp);
+		List = NewHash(1, NULL);
+		while (!Done && (StrBuf_ServGetln(Rcp)>=0)) {
+			if ( (StrLength(Rcp)==3) && 
+			     !strcmp(ChrPtr(Rcp), "000")) 
+			{
+				Done = 1;
+			}
+			else {
+				i = snprintf(N, sizeof(N), "%d", n);
+				Put(List, N, i, Rcp, HFreeStrBuf);
+				Rcp = NewStrBuf();
+			}
+			n++;
+		}
+	}
+	FreeStrBuf(&Rcp);
+	return List;
+}
+void DeleteGVSNHash(HashList **KillMe)
+{
+	DeleteHash(KillMe);
+}
+void tmplput_EMAIL_NAME(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	StrBuf *EmailAddr = (StrBuf*) Context;
+	StrBufAppendBuf(Target, EmailAddr, 0);
+}
 
 void 
 InitModule_PREFERENCES
@@ -735,10 +816,18 @@ InitModule_PREFERENCES
 	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
 	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
 	
-	RegisterNamespace("PREF:VALUE", 1, 1, tmplput_CFG_Value, CTX_SESSION);
-	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_SESSION);
+	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
+	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
+	
+	RegisterNamespace("PREF:EMAIL:ADDR", 0, 1, tmplput_EMAIL_ADDR, CTX_GVEA);
+	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
+			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_GVEA, CTX_NONE);
+	RegisterNamespace("PREF:EMAIL:NAME", 0, 1, tmplput_EMAIL_NAME, CTX_GVSN);
+	RegisterIterator("PREF:VALID:EMAIL:NAME", 0, NULL, 
+			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_GVSN, CTX_NONE);
+
 }
 /*@}*/

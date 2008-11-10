@@ -22,15 +22,12 @@ pthread_key_t MyConKey;         /**< TSD key for MySession() */
 /*
  * free the memory used for viewing atachments
  */
-void free_attachments(struct wcsession *sess) {
-	struct wc_attachment *att;
-
-	while (sess->first_attachment != NULL) {
-		att = sess->first_attachment;
-		sess->first_attachment = sess->first_attachment->next;
-		free(att->data);
-		free(att);
-	}
+void free_attachment(void *vattach) {
+	wc_attachment *att = (wc_attachment*) vattach;
+	FreeStrBuf(&att->content_type);
+	FreeStrBuf(&att->filename);
+	free(att->data);
+	free(att);
 }
 
 
@@ -44,7 +41,7 @@ void DestroySession(struct wcsession **sessions_to_kill)
 	if ((*sessions_to_kill)->cache_fold != NULL) {
 		free((*sessions_to_kill)->cache_fold);
 	}
-	free_attachments((*sessions_to_kill));
+	DeleteHash(&((*sessions_to_kill)->attachments));
 	free_march_list((*sessions_to_kill));
 	DeleteHash(&((*sessions_to_kill)->hash_prefs));
 	DeleteHash(&((*sessions_to_kill)->IconBarSetttings));

@@ -659,7 +659,7 @@ const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return fo
 void InitTemplateCache(void);
 extern int LoadTemplates;
 extern void LoadZoneFiles(void);
-
+StrBuf *csslocal = NULL;
 /*
  * Here's where it all begins.
  */
@@ -881,6 +881,10 @@ int main(int argc, char **argv)
 	initialise_modules();
 	initialize_viewdefs();
 	initialize_axdefs();
+
+	if (!access("static.local/webcit.css", R_OK)) {
+		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
+	}
 
 	/* Tell libical to return an error instead of aborting if it sees badly formed iCalendar data. */
 	icalerror_errors_are_fatal = 0;
