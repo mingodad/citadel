@@ -480,4 +480,147 @@ BAIL:	/** A little trailing vertical whitespace... */
 	if ((msg != NULL) && (Source == NULL)) free(msg);
 }
 
+
+
+
+
+
+/*
+ * Look for URL's embedded in a buffer and make them linkable.  We use a
+ * target window in order to keep the Citadel session in its own window.
+ */
+void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf)
+{
+	int len, UrlLen, Offset, TrailerLen;
+	const char *start, *end, *pos;
+	
+	FlushStrBuf(Target);
+
+	start = NULL;
+	len = StrLength(Source);
+	end = ChrPtr(Source) + len;
+	for (pos = ChrPtr(Source); (pos < end) && (start == NULL); ++pos) {
+		if (!strncasecmp(pos, "http://", 7))
+			start = pos;
+		if (!strncasecmp(pos, "ftp://", 6))
+			start = pos;
+	}
+
+	if (start == NULL) {
+		StrBufAppendBuf(Target, Source, 0);
+		return;
+	}
+	FlushStrBuf(WrkBuf);
+
+	for (pos = ChrPtr(Source) + len; pos > start; --pos) {
+		if (  (!isprint(*pos))
+		   || (isspace(*pos))
+		   || (*pos == '{')
+		   || (*pos == '}')
+		   || (*pos == '|')
+		   || (*pos == '\\')
+		   || (*pos == '^')
+		   || (*pos == '[')
+		   || (*pos == ']')
+		   || (*pos == '`')
+		   || (*pos == '<')
+		   || (*pos == '>')
+		   || (*pos == '(')
+		   || (*pos == ')')
+		) {
+			end = pos;
+		}
+	}
+	
+	UrlLen = end - start;
+	StrBufAppendBufPlain(WrkBuf, start, UrlLen, 0);
+
+	Offset = start - ChrPtr(Source);
+	if (Offset != 0)
+		StrBufAppendBufPlain(Target, ChrPtr(Source), Offset, 0);
+	StrBufAppendPrintf(Target, "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
+			   LB, QU, ChrPtr(WrkBuf), QU, QU, TARGET, 
+			   QU, RB, ChrPtr(WrkBuf), LB, RB);
+
+	TrailerLen = len - (end - start);
+	if (TrailerLen > 0)
+		StrBufAppendBufPlain(Target, end, TrailerLen, 0);
+}
+void url(char *buf, size_t bufsize)
+{
+	int len, UrlLen, Offset, TrailerLen, outpos;
+	char *start, *end, *pos;
+	char urlbuf[SIZ];
+	char outbuf[SIZ];
+
+	start = NULL;
+	len = strlen(buf);
+	if (len > bufsize) {
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
+	end = buf + len;
+	for (pos = buf; (pos < end) && (start == NULL); ++pos) {
+		if (!strncasecmp(pos, "http://", 7))
+			start = pos;
+		if (!strncasecmp(pos, "ftp://", 6))
+			start = pos;
+	}
+
+	if (start == NULL)
+		return;
+
+	for (pos = buf+len; pos > start; --pos) {
+		if (  (!isprint(*pos))
+		   || (isspace(*pos))
+		   || (*pos == '{')
+		   || (*pos == '}')
+		   || (*pos == '|')
+		   || (*pos == '\\')
+		   || (*pos == '^')
+		   || (*pos == '[')
+		   || (*pos == ']')
+		   || (*pos == '`')
+		   || (*pos == '<')
+		   || (*pos == '>')
+		   || (*pos == '(')
+		   || (*pos == ')')
+		) {
+			end = pos;
+		}
+	}
+	
+	UrlLen = end - start;
+	if (UrlLen > sizeof(urlbuf)){
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
+	memcpy(urlbuf, start, UrlLen);
+	urlbuf[UrlLen] = '\0';
+
+	Offset = start - buf;
+	if ((Offset != 0) && (Offset < sizeof(outbuf)))
+		memcpy(outbuf, buf, Offset);
+	outpos = snprintf(&outbuf[Offset], sizeof(outbuf) - Offset,  
+			  "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
+			  LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
+	if (outpos >= sizeof(outbuf) - Offset) {
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
+
+	TrailerLen = len - (end - start);
+	if (TrailerLen > 0)
+		memcpy(outbuf + Offset + outpos, end, TrailerLen);
+	if (Offset + outpos + TrailerLen > bufsize) {
+		lprintf(1, "URL: content longer than buffer!");
+		return;
+	}
+	memcpy (buf, outbuf, Offset + outpos + TrailerLen);
+	*(buf + Offset + outpos + TrailerLen) = '\0';
+}
+
+
+
+
 /*@}*/

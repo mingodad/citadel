@@ -505,6 +505,14 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context, int C
 			StrBufAppendPrintf(Target, "<pre>WARNING: \ninvalid value in SV-Hash at %s!\n</pre>", Token->pName);
 		}
 	}
+	else
+		lprintf(1, "didn't find Handler [%s] (in '%s' line %ld); "
+			" [%s]\n", 
+			Token->pName,
+			ChrPtr(Token->FileName),
+			Token->Line,
+			ChrPtr(Token->FlatToken));
+
 }
 
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup)

@@ -1,9 +1,11 @@
+<html>\n<head><title>
+<?CURRENT_USER>
+</title></head>
+<body onLoad=" window.print(); window.close(); ">
 <div class="fix_scrollbar_bug message"
-onMouseOver=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="visible"
-onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden" >
 <div class="message_header"><span><?MAIL:SUMM:DATESTR></span>
 <?_("from ")>
-<??("COND:MAIL:ANON",1)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a><??("X", 1)>
+<?MAIL:SUMM:FROM("X")><??("X", 1)>
 <?!("COND:MAIL:ANON",2)>***<??("X", 2)>
 <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
 
@@ -35,3 +37,5 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_message_inline_attach")>
 <?!("X", 3)>
 
+</body>
+</html>

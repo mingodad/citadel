@@ -313,6 +313,9 @@ typedef struct _wcsubst {
 #define CTX_USERLIST 8
 #define CTX_MAILSUM 9
 #define CTX_MIME_ATACH 10
+#define CTX_ATT 11
+#define CTX_GVEA 12
+#define CTX_GVSN 13
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
@@ -385,14 +388,14 @@ enum {
 /*
  * \brief mail attachment ???
  */
-struct wc_attachment {
-	struct wc_attachment *next;/* pointer to next in list */
+typedef struct _wc_attachment {
 	size_t length;			   /* length of the contenttype */
-	char content_type[SIZ];	   /* the content itself ???*/
-	char filename[SIZ];		   /* the filename hooked to this content ??? */
+	StrBuf *content_type;	   /* the content itself ???*/
+	StrBuf *filename;		   /* the filename hooked to this content ??? */
 	char *data;                /* the data pool; aka this content */
 	long lvalue;               /* if we put a long... */
-};
+} wc_attachment;
+void free_attachment(void *vattach);
 
 
 typedef struct wc_mime_attachment wc_mime_attachment;
@@ -570,7 +573,7 @@ struct wcsession {
 	char http_host[512];			/**< HTTP Host: header */
 	HashList *hash_prefs;			/**< WebCit preferences for this user */
 	HashList *disp_cal_items;               /**< sorted list of calendar items; startdate is the sort criteria. */
-	struct wc_attachment *first_attachment;	/**< linked list of attachments for 'enter message' */
+	HashList *attachments;             	/**< list of attachments for 'enter message' */
 	char last_chat_user[256];		/**< ??? todo */
 	char ImportantMessage[SIZ];		/**< ??? todo */
 	int ctdl_pid;				/**< Session ID on the Citadel server */
@@ -780,7 +783,7 @@ void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 void readloop(char *oper);
-void read_message(long msgnum, int printable_view, char *section);
+void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, char *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
 void text_to_server(char *ptr);
