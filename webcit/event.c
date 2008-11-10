@@ -938,11 +938,15 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 					break;
 
 				case ICAL_YEARLY_RECURRENCE:
-					if (!strcasecmp(bstr("rrmonthtype"), "rryeartype_ymday")) {
+					if (!strcasecmp(bstr("rryeartype"), "rryeartype_ymday")) {
 						/* no further action is needed here */
 					}
-					if (!strcasecmp(bstr("rrmonthtype"), "rryeartype_ywday")) {
-						/* FIXME implement this */
+					else if (!strcasecmp(bstr("rryeartype"), "rryeartype_ywday")) {
+						recur.by_month[0] = atoi(bstr("rrymonth"));
+						recur.by_month[1] = ICAL_RECURRENCE_ARRAY_MAX;
+						recur.by_day[0] = (atoi(bstr("rrymweek")) * 8)
+								+ atoi(bstr("rrymweekday")) + 1;
+						recur.by_day[1] = ICAL_RECURRENCE_ARRAY_MAX;
 					}
 					break;
 
