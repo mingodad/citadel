@@ -228,7 +228,7 @@ int summcmp_rdate(const void *s1, const void *s2) {
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const char *section) {
+void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section) {
 	StrBuf *Buf;
 	StrBuf *Token;
 	StrBuf *FoundCharset;
@@ -236,22 +236,15 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 	headereval *Hdr;
 	void *vHdr;
 	char buf[SIZ];
-	struct attach_link *attach_links = NULL;
-	int num_attach_links = 0;
 //	char mime_submessages[256] = "";
 	char reply_references[1024] = "";
-	int i = 0;
 	int Done = 0;
 	int state=0;
-	char vcard_partnum[256] = "";
-	char cal_partnum[256] = "";
-	char *part_source = NULL;
-	char msg4_partnum[32] = "";
-
-////	strcpy(mime_submessages, "");
+	
 
 	Buf = NewStrBuf();
-	serv_printf("MSG4 %ld|%s", msgnum, section);
+	lprintf(1, "-------------------MSG4 %ld|%s--------------\n", msgnum, ChrPtr(section));
+	serv_printf("MSG4 %ld|%s", msgnum, ChrPtr(section));
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
 		StrBufAppendPrintf(Target, "<strong>");
@@ -406,70 +399,6 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 	}
 	DoTemplate(tmpl, tmpllen, Target, Msg, CTX_MAILSUM);
 
-
-
-//// put message renderer lookup here.
-///ENDBODY:	/* If there are attached submessages, display them now... */
-///
-///	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
-///		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
-///			extract_token(buf, mime_submessages, i, '|', sizeof buf);
-///			/** use printable_view to suppress buttons */
-///			wprintf("<blockquote>");
-///			read_message(msgnum, 1, buf);
-///			wprintf("</blockquote>");
-///		}
-///	}
-
-
-	/* Afterwards, offer links to download attachments 'n' such */
-	if ( (num_attach_links > 0) && (!section[0]) ) {
-		for (i=0; i<num_attach_links; ++i) {
-			if (strcasecmp(attach_links[i].partnum, msg4_partnum)) {
-				wprintf("%s", attach_links[i].html);
-			}
-		}
-	}
-
-	/* Handler for vCard parts */
-	if (!IsEmptyStr(vcard_partnum)) {
-		part_source = load_mimepart(msgnum, vcard_partnum);
-		if (part_source != NULL) {
-
-			/** If it's my vCard I can edit it */
-			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
-				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
-				|| (WC->wc_view == VIEW_ADDRESSBOOK)
-			) {
-				wprintf("<a href=\"edit_vcard?msgnum=%ld&partnum=%s\">",
-					msgnum, vcard_partnum);
-				wprintf("[%s]</a>", _("edit"));
-			}
-
-			/* In all cases, display the full card */
-			display_vcard(WC->WBuf, part_source, 0, 1, NULL,msgnum);
-		}
-	}
-
-	/* Handler for calendar parts */
-	if (!IsEmptyStr(cal_partnum)) {
-	}
-
-	if (part_source) {
-		free(part_source);
-		part_source = NULL;
-	}
-
-	wprintf("</div>\n");
-
-	/* end everythingamundo table */
-	if (!printable_view) {
-		wprintf("</div>\n");
-	}
-
-	if (num_attach_links > 0) {
-		free(attach_links);
-	}
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
 	FreeStrBuf(&Token);
@@ -490,9 +419,9 @@ void embed_message(void) {
 
 	msgnum = StrTol(WC->UrlFragment1);
 	if (StrLength(Tmpl) > 0) 
-		read_message(WC->WBuf, SKEY(Tmpl), msgnum, 0, "");
+		read_message(WC->WBuf, SKEY(Tmpl), msgnum, 0, NULL);
 	else 
-		read_message(WC->WBuf, HKEY("view_message"), msgnum, 0, "");
+		read_message(WC->WBuf, HKEY("view_message"), msgnum, 0, NULL);
 }
 
 
@@ -513,7 +442,7 @@ void print_message(void) {
 
 	begin_burst();
 
-	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, 1, "");
+	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, 1, NULL);
 
 	wDumpContent(0);
 }
@@ -529,7 +458,7 @@ void mobile_message_view(void) {
   output_headers(1, 0, 0, 0, 0, 1);
   begin_burst();
   do_template("msgcontrols", NULL);
-  read_message(WC->WBuf, HKEY("view_message"), msgnum,1, "");
+  read_message(WC->WBuf, HKEY("view_message"), msgnum,1, NULL);
   wDumpContent(0);
 }
 
@@ -893,22 +822,6 @@ ENDBODY:
 
 
 
-
-void EvaluateMimePart(message_summary *Sum, StrBuf *Buf)
-{//// paert=; TODO
-/*
-	extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
-	extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
-	extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
-	extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
-	mime_length = extract_int(&buf[5], 5);
-	
-	if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
-	      || (!strcasecmp(mime_content_type, "text/vcard")) ) {
-		strcpy(vcard_partnum, mime_partnum);
-	}
-*/
-}
 
 message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSubject, long MsgNum) 
 {
@@ -1610,7 +1523,7 @@ void readloop(char *oper)
 		/** if we do a split bbview in the future, begin messages div here */
 
 		for (a=0; a<num_displayed; ++a) {
-			read_message(WC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, "");
+			read_message(WC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
 		}
 
 		/** if we do a split bbview in the future, end messages div here */

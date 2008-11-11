@@ -454,7 +454,8 @@ void context_loop(int *sock)
 #ifdef TECH_PREVIEW
 	if ((strncmp(ChrPtr(ReqLine), "/sslg", 5) != 0) &&
 	    (strncmp(ChrPtr(ReqLine), "/static/", 8) != 0) &&
-	    (strncmp(ChrPtr(ReqLine), "/wholist_section", 16) != 0)) {
+	    (strncmp(ChrPtr(ReqLine), "/wholist_section", 16) != 0) &&
+	    (strstr(ChrPtr(ReqLine), "wholist_section") == NULL)) {
 #endif
 		lprintf(5, "HTTP: %s %s %s\n", ChrPtr(ReqType), ChrPtr(ReqLine), ChrPtr(HTTPVersion));
 #ifdef TECH_PREVIEW

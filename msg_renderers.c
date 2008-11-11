@@ -101,7 +101,6 @@ void tmplput_MAIL_SUMM_FROM(StrBuf *Target, int nArgs, WCTemplateToken *Token, v
 {
 	message_summary *Msg = (message_summary*) Context;
 	StrBufAppendBuf(Target, Msg->from, 0);
-	lprintf(1,"%s", ChrPtr(Msg->from));
 }
 
 
@@ -111,7 +110,6 @@ void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	FreeStrBuf(&Msg->subj);
 	Msg->subj = NewStrBufPlain(NULL, StrLength(HdrLine));
 	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset, FoundCharset);
-	lprintf(1,"%s", ChrPtr(Msg->subj));
 }
 void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {/////TODO: Fwd: and RE: filter!!
@@ -268,7 +266,7 @@ void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Token
 void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
 	Mime->Data = NewStrBufPlain(NULL, Mime->length);
-	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, 0, ChrPtr(Mime->PartNum));
+	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, 0, Mime->PartNum);
 /*
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
@@ -505,7 +503,12 @@ int Conditional_MAIL_MIME_ATTACH(WCTemplateToken *Tokens, void *Context, int Con
 
 
 /*----------------------------------------------------------------------------*/
-
+void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+{
+	long MsgNum;
+	MsgNum = LBstr(Token->Params[0]->Start, Token->Params[0]->len);
+	read_message(Target, HKEY("view_message_replyquote"), MsgNum, 0, NULL);
+}
 
 void tmplput_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
@@ -540,6 +543,12 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 #endif
+
+	if ((StrLength(Mime->Data) == 0) && (Mime->length > 0)) {
+		FreeStrBuf(&Mime->Data);
+		Mime->Data = NewStrBufPlain(NULL, Mime->length);
+		read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, 0, Mime->PartNum);
+	}
 
 	/* Boring old 80-column fixed format text gets handled this way... */
 	if ((strcasecmp(ChrPtr(Mime->Charset), "us-ascii") == 0) &&
@@ -779,7 +788,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:REFIDS", 0, 0, tmplput_MAIL_SUMM_REFIDS,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:INREPLYTO", 0, 2, tmplput_MAIL_SUMM_INREPLYTO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
-
+	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  CTX_NONE);
 	RegisterNamespace("ATT:SIZE", 0, 1, tmplput_ATT_Length, CTX_ATT);
 	RegisterNamespace("ATT:TYPE", 0, 1, tmplput_ATT_Contenttype, CTX_ATT);
 	RegisterNamespace("ATT:FILENAME", 0, 1, tmplput_ATT_FileName, CTX_ATT);
