@@ -318,6 +318,7 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 	wc_mime_attachment *mime;
 	StrBuf *Buf;
 	void *vMimeRenderer;
+	int IsSubSub;
 
 	mime = (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
 	memset(mime, 0, sizeof(wc_mime_attachment));
@@ -333,6 +334,7 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 
 	mime->PartNum = NewStrBuf();
 	StrBufExtract_token(mime->PartNum, HdrLine, 2, '|');
+	IsSubSub = (strchr(ChrPtr(mime->PartNum), '.') != NULL);
 
 	mime->Disposition = NewStrBuf();
 	StrBufExtract_token(mime->Disposition, HdrLine, 3, '|');
@@ -353,6 +355,10 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		Msg->AllAttach = NewHash(1,NULL);
 	Put(Msg->AllAttach, SKEY(mime->PartNum), mime, DestroyMime);
 
+	if (IsSubSub){
+		FreeStrBuf(&Buf);
+		return;
+	}
 
 	if (GetHash(MimeRenderHandler, SKEY(mime->ContentType), &vMimeRenderer) &&
 	    vMimeRenderer != NULL)
