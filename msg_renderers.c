@@ -267,6 +267,8 @@ void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Token
 
 void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
+	Mime->Data = NewStrBufPlain(NULL, Mime->length);
+	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, 0, ChrPtr(Mime->PartNum));
 /*
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
