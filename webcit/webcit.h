@@ -783,7 +783,7 @@ void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 void readloop(char *oper);
-void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, char *section);
+void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const char *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
 void text_to_server(char *ptr);

@@ -228,7 +228,7 @@ int summcmp_rdate(const void *s1, const void *s2) {
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, char *section) {
+void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const char *section) {
 	StrBuf *Buf;
 	StrBuf *Token;
 	StrBuf *FoundCharset;
