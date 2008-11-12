@@ -87,11 +87,6 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	/* Encapsulate the subcomponent inside */
 	icalcomponent_add_component(encaps, subcomp);
 
-	/* Convert all timestamps to UTC so we don't have to deal with
-	 * stupid VTIMEZONE crap.
-	 */
-	ical_dezonify(encaps);
-
 	/* Return the object we just created. */
 	return(encaps);
 }
@@ -382,9 +377,6 @@ void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 	}
 
 	ird->cal = icalcomponent_new_from_string(content);
-	if (ird->cal != NULL) {
-		ical_dezonify(ird->cal);
-	}
 }
 
 
@@ -1214,8 +1206,6 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *cal) {
 		return;
 	}
 
-	ical_dezonify(cal);
-
 	/* If this event is not opaque, the user isn't publishing it as
 	 * busy time, so don't bother doing anything else.
 	 */
@@ -1625,7 +1615,6 @@ void ical_putics(void)
 
 	cal = icalcomponent_new_from_string(calstream);
 	free(calstream);
-	ical_dezonify(cal);
 
 	/* We got our data stream -- now do something with it. */
 
@@ -1895,9 +1884,6 @@ void ical_send_out_invitations(icalcomponent *cal) {
 
 	/* Set the method to REQUEST */
 	icalcomponent_set_method(encaps, ICAL_METHOD_REQUEST);
-
-	/* Now make sure all of the DTSTART and DTEND properties are UTC. */
-	ical_dezonify(the_request);
 
 	/* Here we go: put the VEVENT into the VCALENDAR.  We now no longer
 	 * are responsible for "the_request"'s memory -- it will be freed
@@ -2294,7 +2280,6 @@ void ical_fixed_output(char *ptr, int len) {
 		return;
 	}
 
-	ical_dezonify(cal);
 	ical_fixed_output_backend(cal, 0);
 
 	/* Free the memory we obtained from libical's constructor */
