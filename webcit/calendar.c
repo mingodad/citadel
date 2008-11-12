@@ -283,7 +283,6 @@ void cal_process_attachment(wc_mime_attachment *Mime)
 		return;
 	}
 
-	ical_dezonify(cal);
 	cal_process_object(Mime->Data, cal, 0, Mime->msgnum, ChrPtr(Mime->PartNum));
 
 	/* Free the memory we obtained from libical's constructor */
@@ -446,7 +445,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	len = strlen(from);
 	Cal->from = (char*)malloc(len+ 1);
 	memcpy(Cal->from, from, len + 1);
-	ical_dezonify(Cal->cal);
 	Cal->cal_msgnum = msgnum;
 
 	/* Precalculate the starting date and time of this event, and store it in our top-level
@@ -508,7 +506,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 			len = strlen(from);
 			Cal->from = (char*)malloc(len+ 1);
 			memcpy(Cal->from, from, len + 1);
-			ical_dezonify(Cal->cal);
 			Cal->cal_msgnum = msgnum;
 	
 			ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
@@ -972,8 +969,6 @@ void load_ical_object(long msgnum, int unread,
 
 			cal = icalcomponent_new_from_string(relevant_source);
 			if (cal != NULL) {
-
-				ical_dezonify(cal);
 
 				/* Simple components of desired type */
 				if (icalcomponent_isa(cal) == which_kind) {

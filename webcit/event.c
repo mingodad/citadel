@@ -438,15 +438,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<table border=0 cellspacing=\"10\" width=100%%>\n");
 
-	/* Table row displaying raw RRULE data, FIXME remove when finished */
-	if (rrule) {
-		wprintf("<tr><td><b>");
-		wprintf("Raw data");
-		wprintf("</b></td><td>");
-		wprintf("<tt>%s</tt>", icalrecurrencetype_as_string(&recur));
-		wprintf("</td></tr>\n");
-	}
-
 	char *frequency_units[] = {
 		_("seconds"),
 		_("minutes"),
