@@ -78,7 +78,7 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 		return -1;
 		
 	if (DestSize > 0)
-		while (NewSize < DestSize)
+		while (NewSize <= DestSize)
 			NewSize *= 2;
 
 	NewBuf= (char*) malloc(NewSize);
@@ -1173,6 +1173,19 @@ void StrBufUpCase(StrBuf *Buf)
 	pche = pch + Buf->BufUsed;
 	while (pch < pche) {
 		*pch = toupper(*pch);
+		pch ++;
+	}
+}
+
+
+void StrBufLowerCase(StrBuf *Buf) 
+{
+	char *pch, *pche;
+
+	pch = Buf->buf;
+	pche = pch + Buf->BufUsed;
+	while (pch < pche) {
+		*pch = tolower(*pch);
 		pch ++;
 	}
 }

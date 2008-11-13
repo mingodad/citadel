@@ -257,6 +257,7 @@ void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
 void StrBufTrim(StrBuf *Buf);
 void StrBufUpCase(StrBuf *Buf);
+void StrBufLowerCase(StrBuf *Buf);
 void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source);
 void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
 
