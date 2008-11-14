@@ -350,8 +350,8 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, s
 	else
 		aps = AppendSize - Offset;
 
-	if (Buf->BufSize < Buf->BufUsed + aps)
-		IncreaseBuf(Buf, (Buf->BufUsed > 0), Buf->BufUsed + aps);
+	if (Buf->BufSize < Buf->BufUsed + aps + 1)
+		IncreaseBuf(Buf, (Buf->BufUsed > 0), Buf->BufUsed + aps + 1);
 
 	memcpy(Buf->buf + Buf->BufUsed, 
 	       AppendBuf + Offset, 
