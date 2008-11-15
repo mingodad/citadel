@@ -758,10 +758,12 @@ void http_redirect(const char *whichpage) {
 void http_transmit_thing(const char *content_type,
 			 int is_static) {
 
+#ifndef TECH_PREVIEW
 	lprintf(9, "http_transmit_thing(%s)%s\n",
 		content_type,
 		(is_static ? " (static)" : "")
 	);
+#endif
 	output_headers(0, 0, 0, 0, 0, is_static);
 
 	hprintf("Content-type: %s\r\n"
@@ -856,7 +858,9 @@ void output_static(char *what)
 
 
 		close(fd);
+#ifndef TECH_PREVIEW
 		lprintf(9, "output_static('%s')  %s\n", what, content_type);
+#endif
 		http_transmit_thing(content_type, 1);
 	}
 	if (yesbstr("force_close_session")) {

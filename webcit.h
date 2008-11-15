@@ -401,6 +401,7 @@ void free_attachment(void *vattach);
 typedef struct wc_mime_attachment wc_mime_attachment;
 typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset);
 struct wc_mime_attachment {
+	int level;
 	StrBuf *Name;
 	StrBuf *FileName;
 	StrBuf *PartNum;
@@ -440,6 +441,7 @@ typedef struct _message_summary {
 	StrBuf *Room;
 	StrBuf *Rfca;
 	StrBuf *OtherNode;
+	const StrBuf *PartNum;
 
 	HashList *Attachments;  /**< list of Accachments */
 	HashList *Submessages;
@@ -452,17 +454,13 @@ typedef struct _message_summary {
 
 
 	/** The mime part of the message */
-	wc_mime_attachment MsgBody;
-
-
-	/** Referencces; don't neeed to be freed: */
-	wc_mime_attachment *cal_partnum_ref;
-	wc_mime_attachment *vcard_partnum_ref;
+	wc_mime_attachment *MsgBody;
 } message_summary;
 void DestroyMessageSummary(void *vMsg);
 
 typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
 
+void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime);
 
 
 
@@ -783,7 +781,7 @@ void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 void readloop(char *oper);
-void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
+int  read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
 void text_to_server(char *ptr);

@@ -228,10 +228,12 @@ int summcmp_rdate(const void *s1, const void *s2) {
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section) {
+int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *PartNum) {
 	StrBuf *Buf;
 	StrBuf *Token;
 	StrBuf *FoundCharset;
+	HashPos  *it;
+	void *vMime;
 	message_summary *Msg = NULL;
 	headereval *Hdr;
 	void *vHdr;
@@ -240,20 +242,21 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 	char reply_references[1024] = "";
 	int Done = 0;
 	int state=0;
-	
+	long len;
+	const char *Key;
 
 	Buf = NewStrBuf();
-	lprintf(1, "-------------------MSG4 %ld|%s--------------\n", msgnum, ChrPtr(section));
-	serv_printf("MSG4 %ld|%s", msgnum, ChrPtr(section));
+	lprintf(1, "-------------------MSG4 %ld|%s--------------\n", msgnum, ChrPtr(PartNum));
+	serv_printf("MSG4 %ld|%s", msgnum, ChrPtr(PartNum));
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
 		StrBufAppendPrintf(Target, "<strong>");
 		StrBufAppendPrintf(Target, _("ERROR:"));
 		StrBufAppendPrintf(Target, "</strong> %s<br />\n", &buf[4]);
 		FreeStrBuf(&Buf);
-		return;
+		return 0;
 	}
-	svputlong("MsgPrintable", printable_view);
+
 	/** begin everythingamundo table */
 
 
@@ -261,6 +264,9 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 	Msg = (message_summary *)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
 	Msg->msgnum = msgnum;
+	Msg->PartNum = PartNum;
+	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
+	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
 	FoundCharset = NewStrBuf();
 	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
@@ -268,6 +274,7 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 		{
 			Done = 1;
 			if (state < 2) {
+				lprintf(1, _("unexpected end of message"));
 				StrBufAppendPrintf(Target, "<i>");
 				StrBufAppendPrintf(Target, _("unexpected end of message"));
 				StrBufAppendPrintf(Target, " (1)</i><br /><br />\n");
@@ -276,7 +283,7 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 				FreeStrBuf(&Token);
 				DestroyMessageSummary(Msg);
 				FreeStrBuf(&FoundCharset);
-				return;
+				return 0;
 			}
 			else {
 				break;
@@ -305,9 +312,9 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 		case 1:/* Message Mime Header */
 			if (StrLength(Buf) == 0) {
 				state++;
-				if (Msg->MsgBody.ContentType == NULL)
+				if (Msg->MsgBody->ContentType == NULL)
                 			/* end of header or no header? */
-					Msg->MsgBody.ContentType = NewStrBufPlain(HKEY("text/plain"));
+					Msg->MsgBody->ContentType = NewStrBufPlain(HKEY("text/plain"));
 				 /* usual end of mime header */
 			}
 			else
@@ -326,33 +333,37 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 			}
 		case 2: /* Message Body */
 			
-			if (Msg->MsgBody.size_known > 0) {
-				StrBuf_ServGetBLOB(Msg->MsgBody.Data, Msg->MsgBody.length);
+			if (Msg->MsgBody->size_known > 0) {
+				StrBuf_ServGetBLOB(Msg->MsgBody->Data, Msg->MsgBody->length);
 				state ++;
 					/// todo: check next line, if not 000, append following lines
 			}
 			else if (1){
-				if (StrLength(Msg->MsgBody.Data) > 0)
-					StrBufAppendBufPlain(Msg->MsgBody.Data, "\n", 1, 0);
-				StrBufAppendBuf(Msg->MsgBody.Data, Buf, 0);
+				if (StrLength(Msg->MsgBody->Data) > 0)
+					StrBufAppendBufPlain(Msg->MsgBody->Data, "\n", 1, 0);
+				StrBufAppendBuf(Msg->MsgBody->Data, Buf, 0);
 			}
 			break;
 		case 3:
-			StrBufAppendBuf(Msg->MsgBody.Data, Buf, 0);
+			StrBufAppendBuf(Msg->MsgBody->Data, Buf, 0);
 			break;
 		}
 	}
+
+	if (Msg->AllAttach == NULL)
+		Msg->AllAttach = NewHash(1,NULL);
+	Put(Msg->AllAttach, SKEY(Msg->MsgBody->PartNum), Msg->MsgBody, DestroyMime);
+
 	
 	/* strip the bare contenttype, so we ommit charset etc. */
-	StrBufExtract_token(Buf, Msg->MsgBody.ContentType, 0, ';');
+	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');
 	StrBufTrim(Buf);
 	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 	    (vHdr != NULL)) {
 		RenderMimeFunc Render;
 		Render = (RenderMimeFunc)vHdr;
-		Render(&Msg->MsgBody, NULL, FoundCharset);
+		Render(Msg->MsgBody, NULL, FoundCharset);
 	}
-
 
 	if (StrLength(Msg->reply_references)> 0) {
 		/* Trim down excessively long lists of thread references.  We eliminate the
@@ -397,12 +408,21 @@ void read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, i
 			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
 	}
+	it = GetNewHashPos();
+	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
+	       (vMime != NULL)) {
+		wc_mime_attachment *Mime = (wc_mime_attachment*) vMime;
+		evaluate_mime_part(Msg, Mime);
+	}
+	DeleteHashPos(&it);
+
 	DoTemplate(tmpl, tmpllen, Target, Msg, CTX_MAILSUM);
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
 	FreeStrBuf(&Token);
 	FreeStrBuf(&Buf);
+	return 1;
 }
 
 
