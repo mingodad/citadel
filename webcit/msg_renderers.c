@@ -46,9 +46,6 @@ void DestroyMessageSummary(void *vMsg)
 	DeleteHash(&Msg->Submessages);
 	DeleteHash(&Msg->AttachLinks);
 	DeleteHash(&Msg->AllAttach);
-
-	DestroyMimeParts(&Msg->MsgBody);
-
 	free(Msg);
 }
 
@@ -315,82 +312,97 @@ void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCha
 
 void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
-	wc_mime_attachment *mime;
+	wc_mime_attachment *Mime;
 	StrBuf *Buf;
-	void *vMimeRenderer;
-	int IsSubSub;
-
-	mime = (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
-	memset(mime, 0, sizeof(wc_mime_attachment));
-	mime->msgnum = Msg->msgnum;
+	
+	Mime = (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
+	memset(Mime, 0, sizeof(wc_mime_attachment));
+	Mime->msgnum = Msg->msgnum;
 	Buf = NewStrBuf();
 
-	mime->Name = NewStrBuf();
-	StrBufExtract_token(mime->Name, HdrLine, 0, '|');
+	Mime->Name = NewStrBuf();
+	StrBufExtract_token(Mime->Name, HdrLine, 0, '|');
+	StrBufTrim(Mime->Name);
 
 	StrBufExtract_token(Buf, HdrLine, 1, '|');
-	mime->FileName = NewStrBuf();
-	StrBuf_RFC822_to_Utf8(mime->FileName, Buf, WC->DefaultCharset, FoundCharset);
+	Mime->FileName = NewStrBuf();
+	StrBuf_RFC822_to_Utf8(Mime->FileName, Buf, WC->DefaultCharset, FoundCharset);
+	StrBufTrim(Mime->FileName);
 
-	mime->PartNum = NewStrBuf();
-	StrBufExtract_token(mime->PartNum, HdrLine, 2, '|');
-	IsSubSub = (strchr(ChrPtr(mime->PartNum), '.') != NULL);
+	Mime->PartNum = NewStrBuf();
+	StrBufExtract_token(Mime->PartNum, HdrLine, 2, '|');
+	StrBufTrim(Mime->PartNum);
+	if (strchr(ChrPtr(Mime->PartNum), '.') != NULL)
+		Mime->level = 2;
+	else
+		Mime->level = 1;
 
-	mime->Disposition = NewStrBuf();
-	StrBufExtract_token(mime->Disposition, HdrLine, 3, '|');
+	Mime->Disposition = NewStrBuf();
+	StrBufExtract_token(Mime->Disposition, HdrLine, 3, '|');
 
-	mime->ContentType = NewStrBuf();
-	StrBufExtract_token(mime->ContentType, HdrLine, 4, '|');
+	Mime->ContentType = NewStrBuf();
+	StrBufExtract_token(Mime->ContentType, HdrLine, 4, '|');
+	StrBufTrim(Mime->ContentType);
+	StrBufLowerCase(Mime->ContentType);
 
-	mime->length = StrBufExtract_int(HdrLine, 5, '|');
+	Mime->length = StrBufExtract_int(HdrLine, 5, '|');
 
-	StrBufTrim(mime->Name);
-	StrBufTrim(mime->FileName);
+	if ( (StrLength(Mime->FileName) == 0) && (StrLength(Mime->Name) > 0) ) {
+		StrBufAppendBuf(Mime->FileName, Mime->Name, 0);
+	}
 
-	if ( (StrLength(mime->FileName) == 0) && (StrLength(mime->Name) > 0) ) {
-		StrBufAppendBuf(mime->FileName, mime->Name, 0);
+	if (StrLength(Msg->PartNum) > 0) {
+		StrBuf *tmp;
+		StrBufPrintf(Buf, "%s.%s", ChrPtr(Msg->PartNum), ChrPtr(Mime->PartNum));
+		tmp = Mime->PartNum;
+		Mime->PartNum = Buf;
+		Buf = tmp;
 	}
 
 	if (Msg->AllAttach == NULL)
 		Msg->AllAttach = NewHash(1,NULL);
-	Put(Msg->AllAttach, SKEY(mime->PartNum), mime, DestroyMime);
+	Put(Msg->AllAttach, SKEY(Mime->PartNum), Mime, DestroyMime);
+	FreeStrBuf(&Buf);
+}
 
-	if (IsSubSub){
-		FreeStrBuf(&Buf);
-		return;
-	}
 
-	if (GetHash(MimeRenderHandler, SKEY(mime->ContentType), &vMimeRenderer) &&
+void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
+{
+	void *vMimeRenderer;
+
+	/* just print the root-node */
+	if ((Mime->level == 1) &&
+	    GetHash(MimeRenderHandler, SKEY(Mime->ContentType), &vMimeRenderer) &&
 	    vMimeRenderer != NULL)
 	{
-		mime->Renderer = (RenderMimeFunc) vMimeRenderer;
+		Mime->Renderer = (RenderMimeFunc) vMimeRenderer;
 		if (Msg->Submessages == NULL)
 			Msg->Submessages = NewHash(1,NULL);
-		Put(Msg->Submessages, SKEY(mime->PartNum), mime, reference_free_handler);
+		Put(Msg->Submessages, SKEY(Mime->PartNum), Mime, reference_free_handler);
 	}
-	else if ((!strcasecmp(ChrPtr(mime->Disposition), "inline"))
-		 && (!strncasecmp(ChrPtr(mime->ContentType), "image/", 6)) ){
+	else if ((Mime->level == 1) &&
+		 (!strcasecmp(ChrPtr(Mime->Disposition), "inline"))
+		 && (!strncasecmp(ChrPtr(Mime->ContentType), "image/", 6)) ){
 		if (Msg->AttachLinks == NULL)
 			Msg->AttachLinks = NewHash(1,NULL);
-		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime, reference_free_handler);
+		Put(Msg->AttachLinks, SKEY(Mime->PartNum), Mime, reference_free_handler);
 	}
-	else if ((StrLength(mime->ContentType) > 0) &&
-		  ( (!strcasecmp(ChrPtr(mime->Disposition), "attachment")) 
-		    || (!strcasecmp(ChrPtr(mime->Disposition), "inline"))
-		    || (!strcasecmp(ChrPtr(mime->Disposition), ""))))
+	else if ((Mime->level == 1) &&
+		 (StrLength(Mime->ContentType) > 0) &&
+		  ( (!strcasecmp(ChrPtr(Mime->Disposition), "attachment")) 
+		    || (!strcasecmp(ChrPtr(Mime->Disposition), "inline"))
+		    || (!strcasecmp(ChrPtr(Mime->Disposition), ""))))
 	{		
 		if (Msg->AttachLinks == NULL)
 			Msg->AttachLinks = NewHash(1,NULL);
-		Put(Msg->AttachLinks, SKEY(mime->PartNum), mime, reference_free_handler);
-		if (strcasecmp(ChrPtr(mime->ContentType), "application/octet-stream") == 0) {
-			FlushStrBuf(mime->ContentType);
-			StrBufAppendBufPlain(mime->ContentType,
-					     GuessMimeByFilename(SKEY(mime->FileName)),
+		Put(Msg->AttachLinks, SKEY(Mime->PartNum), Mime, reference_free_handler);
+		if (strcasecmp(ChrPtr(Mime->ContentType), "application/octet-stream") == 0) {
+			FlushStrBuf(Mime->ContentType);
+			StrBufAppendBufPlain(Mime->ContentType,
+					     GuessMimeByFilename(SKEY(Mime->FileName)),
 					     -1, 0);
 		}
 	}
-
-	FreeStrBuf(&Buf);
 }
 
 void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
@@ -425,14 +437,14 @@ int Conditional_MAIL_SUMM_H_NODE(WCTemplateToken *Tokens, void *Context, int Con
 
 
 void examine_text(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
-{////TODO: read messages here
-	Msg->MsgBody.Data = NewStrBuf();
+{
+	Msg->MsgBody->Data = NewStrBuf();
 }
 
 void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
-	Msg->MsgBody.PartNum = NewStrBufDup(HdrLine);
-	StrBufTrim(Msg->MsgBody.PartNum);/////TODO: striplt == trim?
+	Msg->MsgBody->PartNum = NewStrBufDup(HdrLine);
+	StrBufTrim(Msg->MsgBody->PartNum);/////TODO: striplt == trim?
 }
 
 void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -442,18 +454,18 @@ void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *Fou
 
 void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
-	Msg->MsgBody.length = StrTol(HdrLine);
-	Msg->MsgBody.size_known = 1;
+	Msg->MsgBody->length = StrTol(HdrLine);
+	Msg->MsgBody->size_known = 1;
 }
 
 void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {////TODO
 	int len, i;
-	Msg->MsgBody.ContentType = NewStrBufDup(HdrLine);
-	StrBufTrim(Msg->MsgBody.ContentType);/////todo==striplt?
-	len = StrLength(Msg->MsgBody.ContentType);
+	Msg->MsgBody->ContentType = NewStrBufDup(HdrLine);
+	StrBufTrim(Msg->MsgBody->ContentType);/////todo==striplt?
+	len = StrLength(Msg->MsgBody->ContentType);
 	for (i=0; i<len; ++i) {
-		if (!strncasecmp(ChrPtr(Msg->MsgBody.ContentType) + i, "charset=", 8)) {/// TODO: WHUT?
+		if (!strncasecmp(ChrPtr(Msg->MsgBody->ContentType) + i, "charset=", 8)) {/// TODO: WHUT?
 //			safestrncpy(mime_charset, &mime_content_type[i+8],
 			///			    sizeof mime_charset);
 		}
@@ -519,7 +531,7 @@ void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Token,
 void tmplput_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
 {
 	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendBuf(Target, Msg->MsgBody.Data, 0);
+	StrBufAppendBuf(Target, Msg->MsgBody->Data, 0);
 }
 
 
@@ -553,7 +565,8 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	if ((StrLength(Mime->Data) == 0) && (Mime->length > 0)) {
 		FreeStrBuf(&Mime->Data);
 		Mime->Data = NewStrBufPlain(NULL, Mime->length);
-		read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, 0, Mime->PartNum);
+		if (!read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, 0, Mime->PartNum))
+			return;
 	}
 
 	/* Boring old 80-column fixed format text gets handled this way... */
