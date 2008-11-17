@@ -128,7 +128,7 @@ void cmd_delf(char *filename)
 		return;
 	}
 	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
-		if (filename[a] == '/') {
+		if ( (filename[a] == '/') || (filename[a] == '\\') ) {
 			filename[a] = '_';
 		}
 	}
@@ -180,7 +180,7 @@ void cmd_movf(char *cmdbuf)
 	}
 
 	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
-		if (filename[a] == '/') {
+		if ( (filename[a] == '/') || (filename[a] == '\\') ) {
 			filename[a] = '_';
 		}
 	}
@@ -249,7 +249,7 @@ void cmd_netf(char *cmdbuf)
 	}
 
 	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
-		if (filename[a] == '/') {
+		if ( (filename[a] == '/') || (filename[a] == '\\') ) {
 			filename[a] = '_';
 		}
 	}
@@ -369,7 +369,7 @@ void cmd_open(char *cmdbuf)
 	}
 
 	for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
-		if (filename[a] == '/') {
+		if ( (filename[a] == '/') || (filename[a] == '\\') ) {
 			filename[a] = '_';
 		}
 	}
@@ -437,7 +437,7 @@ void cmd_oimg(char *cmdbuf)
 	} else {
 		for (a = 0; !IsEmptyStr(&filename[a]); ++a) {
 			filename[a] = tolower(filename[a]);
-			if (filename[a] == '/') {
+			if ( (filename[a] == '/') || (filename[a] == '\\') ) {
 				filename[a] = '_';
 			}
 		}
@@ -494,7 +494,7 @@ void cmd_uopn(char *cmdbuf)
 	}
 
 	for (a = 0; !IsEmptyStr(&CC->upl_file[a]); ++a) {
-		if (CC->upl_file[a] == '/') {
+		if ( (CC->upl_file[a] == '/') || (CC->upl_file[a] == '\\') ) {
 			CC->upl_file[a] = '_';
 		}
 	}
@@ -555,7 +555,7 @@ void cmd_uimg(char *cmdbuf)
 
 	for (a = 0; !IsEmptyStr(&basenm[a]); ++a) {
 		basenm[a] = tolower(basenm[a]);
-		if (basenm[a] == '/') {
+		if ( (basenm[a] == '/') || (basenm[a] == '\\') ) {
 			basenm[a] = '_';
 		}
 	}
