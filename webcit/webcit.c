@@ -382,8 +382,10 @@ void hprintf(const char *format,...)
 }
 
 
-void put_trailing_javascript(void) {
-	wprintf("%s", ChrPtr(WC->trailing_javascript));
+void tmplput_trailing_javascript(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	StrBufAppendBuf(WCC->WBuf, WCC->trailing_javascript, 0);
 }
 
 /*
@@ -397,7 +399,6 @@ void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
 		wprintf("</div> <!-- end of 'content' div -->\n");
-		svcallback("TRAILING_JAVASCRIPT", put_trailing_javascript);
 		do_template("trailing", NULL);
 	}
 
@@ -1965,4 +1966,5 @@ InitModule_WEBCIT
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
+	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, CTX_NONE);
 }

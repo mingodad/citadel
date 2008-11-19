@@ -29,7 +29,7 @@ HashList *LocalTemplateCache;
 
 HashList *GlobalNS;
 HashList *Iterators;
-HashList *Contitionals;
+HashList *Conditionals;
 
 int LoadTemplates = 0;
 
@@ -463,6 +463,34 @@ void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
 	}
 }
 
+
+/**
+ * \brief puts string into the template and computes which escape methon we should use
+ * \param Source the string we should put into the template
+ * \param FormatTypeIndex where should we look for escape types if?
+ */
+void StrBufAppendTemplate(StrBuf *Target, 
+			  int nArgs, 
+			  WCTemplateToken *Tokens,
+			  void *Context, int ContextType,
+			  StrBuf *Source, int FormatTypeIndex)
+{
+	char EscapeAs = ' ';
+
+
+
+	switch(EscapeAs)
+	{
+
+	case 'X':
+		StrEscAppend(Target, Source, NULL, 0, 0);
+		break;
+	default:
+		StrBufAppendBuf(Target, Source, 0);
+	}
+}
+
+
 /**
  * \brief Print the value of a variable
  * \param keyname get a key to print
@@ -505,14 +533,15 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context, int C
 			StrBufAppendPrintf(Target, "<pre>WARNING: \ninvalid value in SV-Hash at %s!\n</pre>", Token->pName);
 		}
 	}
-	else
+	else {
 		lprintf(1, "didn't find Handler [%s] (in '%s' line %ld); "
 			" [%s]\n", 
 			Token->pName,
 			ChrPtr(Token->FileName),
 			Token->Line,
 			ChrPtr(Token->FlatToken));
-
+		wc_backtrace();
+	}
 }
 
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup)
@@ -700,6 +729,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 				       long Line,
 				       WCTemplate *pTmpl)
 {
+	void *vVar;
 	const char *pch;
 	TemplateParam *Param;
 	WCTemplateToken *NewToken = (WCTemplateToken*)malloc(sizeof(WCTemplateToken));
@@ -727,6 +757,13 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			StrBufPeek(Buf, pch, -1, '\0');
 			NewToken->NameEnd = pch - NewToken->pName;
 			pch ++;
+			if (*(pTmplEnd - 1) != ')') {
+				lprintf(1, "Warning, Non welformed Token; missing right parenthesis (in '%s' line %ld); "
+					"[%s]\n", 
+					ChrPtr(pTmpl->FileName),
+					NewToken->Line,
+					ChrPtr(NewToken->FlatToken));
+			}
 			while (pch < pTmplEnd - 1) {
 				Param = GetNextParameter(Buf, &pch, pTmplEnd - 1, NewToken, pTmpl);
 				if (Param != NULL) {
@@ -750,29 +787,24 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			   (NewToken->HaveParameters == 1))
 			   
 			{
-				if ((NewToken->nParameters == 1) &&
-				    (*(NewToken->pName) == '_'))
+				if (*(NewToken->pName) == '_')
 					NewToken->Flags = SV_GETTEXT;
-				else if ((NewToken->nParameters == 1) &&
-					 (*(NewToken->pName) == '='))
+				else if (*(NewToken->pName) == '=')
 					NewToken->Flags = SV_SUBTEMPL;
-				else if ((NewToken->nParameters >= 2) &&
-					 (*(NewToken->pName) == '%'))
+				else if (*(NewToken->pName) == '%')
 					NewToken->Flags = SV_CUST_STR_CONDITIONAL;
-				else if ((NewToken->nParameters >= 2) &&
-					 (*(NewToken->pName) == '?'))
+				else if (*(NewToken->pName) == '?')
 					NewToken->Flags = SV_CONDITIONAL;
-				else if ((NewToken->nParameters >=2) &&
-					 (*(NewToken->pName) == '!'))
+				else if (*(NewToken->pName) == '!')
 					NewToken->Flags = SV_NEG_CONDITIONAL;
 			}
 		}
 		else pch ++;		
 	}
 	
-	if (NewToken->Flags == 0) {
+	switch (NewToken->Flags) {
+	case 0:
 		/* If we're able to find out more about the token, do it now while its fresh. */
-		void *vVar;
 		if (GetHash(GlobalNS, NewToken->pName, NewToken->NameEnd, &vVar)) {
 			HashHandler *Handler;
 			Handler = (HashHandler*) vVar;
@@ -790,9 +822,71 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 				NewToken->PreEval = Handler;
 				NewToken->Flags = SV_PREEVALUATED;		
 			}
-		}		
+		}
+		break;
+	case SV_GETTEXT:
+		if (NewToken->nParameters !=1) {
+			lprintf(1, "Gettext (in '%s' line %ld); "
+				"requires exactly 1 parameter, yau gave %ld params [%s]\n", 
+				ChrPtr(pTmpl->FileName),
+				NewToken->Line,
+				NewToken->nParameters, 
+				ChrPtr(NewToken->FlatToken));
+			break;
+		}
+		break;
+	case SV_SUBTEMPL:
+		if (NewToken->nParameters != 1) {
+			lprintf(1, "Subtemplates (in '%s' line %ld); "
+				"require exactly 1 parameter, yau gave %ld params [%s]\n", 
+				ChrPtr(pTmpl->FileName),
+				NewToken->Line,
+				NewToken->nParameters, 
+				ChrPtr(NewToken->FlatToken));
+			break;
+		}
+		break;
+	case SV_CUST_STR_CONDITIONAL:
+	case SV_CONDITIONAL:
+	case SV_NEG_CONDITIONAL:
+		if (NewToken->nParameters <2) {
+			lprintf(1, "Conditional (in '%s' line %ld); "
+				"require at least 2 parameters, yau gave %ld params [%s]\n", 
+				ChrPtr(pTmpl->FileName),
+				NewToken->Line,
+				NewToken->nParameters, 
+				ChrPtr(NewToken->FlatToken));
+			break;
+		}
+		if (!GetHash(Conditionals, 
+			     NewToken->Params[0]->Start,
+			     NewToken->Params[0]->len,
+			     &vVar) || 
+		    (vVar == NULL)) {
+			if ((NewToken->Params[0]->len == 1) &&
+			    (NewToken->Params[0]->Start[0] == 'X'))
+				break;
+			lprintf(1, "Conditional [%s] (in '%s' line %ld); Not found![%s]\n", 
+				NewToken->Params[0]->Start,
+				ChrPtr(pTmpl->FileName),
+				NewToken->Line,
+				ChrPtr(NewToken->FlatToken));
+/*
+			NewToken->Error = NewStrBuf();
+			StrBufAppendPrintf(
+				NewToken->Error, 
+				"<pre>\nConditional [%s] (in '%s' line %ld); Not found!\n[%s]\n</pre>\n", 
+				NewToken->Params[0]->Start,
+				ChrPtr(pTmpl->FileName),
+				NewToken->Line,
+				ChrPtr(NewToken->FlatToken));
+*/
+		}
+		else {
+			NewToken->PreEval = vVar;
+		}
+		break;
 	}
-
 	return NewToken;
 }
 
@@ -800,34 +894,13 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 
 int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType)
 {
-	void *vConditional = NULL;
 	ConditionalStruct *Cond;
 
 	if ((Token->Params[0]->len == 1) &&
 	    (Token->Params[0]->Start[0] == 'X'))
 		return (state != 0)?Token->Params[1]->lvalue:0;
-
-	if (!GetHash(Contitionals, 
-		 Token->Params[0]->Start,
-		 Token->Params[0]->len,
-		 &vConditional) || 
-	    (vConditional == NULL)) {
-		lprintf(1, "Conditional [%s] (in '%s' line %ld); Not found![%s]\n", 
-			Token->Params[0]->Start,
-			ChrPtr(pTmpl->FileName),
-			Token->Line,
-			ChrPtr(Token->FlatToken));
-		StrBufAppendPrintf(
-			Target, 
-			"<pre>\nConditional [%s] (in '%s' line %ld); Not found!\n[%s]\n</pre>\n", 
-			Token->Params[0]->Start,
-			ChrPtr(pTmpl->FileName),
-			Token->Line,
-			ChrPtr(Token->FlatToken));
-		return 0;
-	}
 	    
-	Cond = (ConditionalStruct *) vConditional;
+	Cond = (ConditionalStruct *) Token->PreEval;
 
 	if (Token->nParameters < Cond->nParams) {
 		lprintf(1, "Conditional [%s] (in '%s' line %ld); needs %ld Params![%s]\n", 
@@ -851,6 +924,15 @@ int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmp
 	return 0;
 }
 
+/**
+ * \brief executes one token
+ * \param Target buffer to append to
+ * \param Token da to  process.
+ * \param Template we're iterating
+ * \param Context Contextpoointer to pass in
+ * \param state are we in conditional state?
+ * \param ContextType what type of information does context giv us?
+ */
 int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int state, int ContextType)
 {
 	HashHandler *Handler;
@@ -989,6 +1071,7 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context, int Contex
 		if (LoadTemplates > 1)
 			lprintf(1, "DBG: ----- loading:  [%s] ------ \n", 
 				ChrPtr(Tmpl->FileName));
+
 		pTmpl = load_template(Tmpl->FileName, NULL, NULL);
 		if(pTmpl == NULL) {
 			StrBufAppendPrintf(
@@ -1245,8 +1328,8 @@ int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
 			*MinorPtr = '\0';
 		StrBufPlain(Tag, filedir_entry->d_name, MinorPtr - filedir_entry->d_name);
 
-
-		lprintf(1, "%s %d %s\n",ChrPtr(FileName), IsMobile, ChrPtr(Tag));
+		if (LoadTemplates > 1)
+			lprintf(1, "%s %d %s\n",ChrPtr(FileName), IsMobile, ChrPtr(Tag));
 		if (LoadTemplates == 0)
 			load_template(FileName, Tag, (IsMobile)?wireless:big);
 		else
@@ -1269,52 +1352,6 @@ void InitTemplateCache(void)
 			LocalTemplateCache);
 }
 
-void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrBufAppendPrintf(Target, "%d", WC->ctdl_pid);
-}
-
-void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, serv_info.serv_nodename, 0, 0);
-}
-
-void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, serv_info.serv_humannode, 0, 0);
-}
-
-void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, serv_info.serv_fqdn, 0, 0);
-}
-
-void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, serv_info.serv_software, 0, 0);
-}
-
-void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrBufAppendPrintf(Target, "%d.%02d",
-			    serv_info.serv_rev_level / 100,
-			    serv_info.serv_rev_level % 100);
-}
-
-void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, serv_info.serv_bbs_city, 0, 0);
-}
-
-void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, WC->wc_fullname, 0, 0);
-}
-
-void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, WC->wc_roomname, 0, 0);
-}
 
 
 typedef struct _HashIterator {
@@ -1507,7 +1544,7 @@ void RegisterConditional(const char *Name, long len,
 	Cond->nParams = nParams;
 	Cond->CondF = CondF;
 	Cond->ContextRequired = ContextRequired;
-	Put(Contitionals, Name, len, Cond, NULL);
+	Put(Conditionals, Name, len, Cond, NULL);
 }
 
 void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -1571,16 +1608,6 @@ void
 InitModule_SUBST
 (void)
 {
-	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip, CTX_NONE);
-	RegisterNamespace("SERV:NODENAME", 0, 0, tmplput_serv_nodename, CTX_NONE);
-	RegisterNamespace("SERV:HUMANNODE", 0, 0, tmplput_serv_humannode, CTX_NONE);
-	RegisterNamespace("SERV:FQDN", 0, 0, tmplput_serv_fqdn, CTX_NONE);
-	RegisterNamespace("SERV:SOFTWARE", 0, 0, tmmplput_serv_software, CTX_NONE);
-	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, CTX_NONE);
-	RegisterNamespace("SERV:BBS_CITY", 0, 0, tmmplput_serv_bbs_city, CTX_NONE);
-///	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmmplput_serv_ldap_enabled, 0);
-	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user, CTX_NONE);
-	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room, CTX_NONE);
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);
 	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, CTX_NONE);

@@ -370,6 +370,11 @@ void url_do_template(void);
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
 int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
 
+void StrBufAppendTemplate(StrBuf *Target, 
+			  int nArgs, 
+			  WCTemplateToken *Tokens,
+			  void *Context, int ContextType,
+			  StrBuf *Source, int FormatTypeIndex);
 
 
 
@@ -672,7 +677,7 @@ extern HashList *LocalTemplateCache;
 extern HashList *GlobalNS;
 extern HashList *Iterators;
 extern HashList *ZoneHash;
-extern HashList *Contitionals;
+extern HashList *Conditionals;
 extern HashList *MsgHeaderHandler;
 extern HashList *MimeRenderHandler;
 
