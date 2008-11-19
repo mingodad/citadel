@@ -693,7 +693,7 @@ int main(int argc, char **argv)
 	TemplateCache = NewHash(1, NULL);
 	GlobalNS = NewHash(1, NULL);
 	Iterators = NewHash(1, NULL);
-	Contitionals = NewHash(1, NULL);
+	Conditionals = NewHash(1, NULL);
 	MsgHeaderHandler = NewHash(1, NULL);
 	MimeRenderHandler = NewHash(1, NULL);
 
@@ -876,11 +876,12 @@ int main(int argc, char **argv)
 		perror("chdir");
 	}
 	LoadIconDir(static_icon_dir);
-	InitTemplateCache();
 
 	initialise_modules();
 	initialize_viewdefs();
 	initialize_axdefs();
+
+	InitTemplateCache();
 
 	if (!access("static.local/webcit.css", R_OK)) {
 		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
@@ -979,7 +980,7 @@ void ShutDownWebcit(void)
 	DeleteHash(&LocalTemplateCache);
 	DeleteHash(&Iterators);
 	DeleteHash(&MimeRenderHandler);
-	DeleteHash(&Contitionals);
+	DeleteHash(&Conditionals);
 	DeleteHash(&MsgHeaderHandler);
 #ifdef ENABLE_NLS
 	ShutdownLocale();

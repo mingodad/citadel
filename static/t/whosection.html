@@ -1,9 +1,9 @@
 <tr class="<?ITERATE:ODDEVEN>">
 <td class="edit_col">
-<??("COND:AIDE", 1)><??("COND:SUBST", 2, "WHO:ISME")>
+<??("COND:AIDE", 1)><??("WHO:ISME", 2)>
  <a href="terminate_session?which_session=<?WHO:SESSION>&template=who" onClick="return ConfirmKill();"><?_("(kill)")></a>
 <??("X", 2)><??("X", 1)>
-<?!("COND:SUBST", 3, "WHO:ISME")>   <a href="edit_me">(<?_("edit")>)</a>  <?!("X", 3)>
+<?!("WHO:ISME", 3)>   <a href="edit_me">(<?_("edit")>)</a>  <?!("X", 3)>
 </td>
 <!-- link to page this user -->
 <td width="5%"><a href="display_page?recp=<?WHO:NAME("X")>">
@@ -11,17 +11,17 @@
 </td>
 <!-- idle flag -->
 <td width="5%">
-<?!("COND:SUBST", 4, "WHO:IDLE")>  <img align="middle" src="static/inactiveuser_24x.gif" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)" border="0" />  <?!("X", 4)>
-<??("COND:SUBST", 5, "WHO:IDLE")>  <img align="middle" src="static/activeuser_24x.gif" alt="(<?_("active")>)" border="0" />  <?!("X", 5)>
+<?!("WHO:IDLE", 4)>  <img align="middle" src="static/inactiveuser_24x.gif" alt="(<?_("idle since")>s <?WHO:IDLESINCE> <?_("Minutes")>)" border="0" />  <?!("X", 4)>
+<??("WHO:IDLE", 5)>  <img align="middle" src="static/activeuser_24x.gif" alt="(<?_("active")>)" border="0" />  <?!("X", 5)>
 </td>
 <td>
 <!--  username (link to user bio/photo page)  -->
 <a href="showuser?who=<?WHO:NAME("U")>"> <?WHO:NAME("U")></a> 
-<??("COND:SUBST", 6, "WHO:NSESSIONS", 1)>[<?WHO:NSESSIONS>] </a><?!("X", 6)>
+<??("WHO:NSESSIONS", 6, 1)>[<?WHO:NSESSIONS>] </a><?!("X", 6)>
 <!-- room -->
 </td><td>
 <?WHO:ROOM>
-<?!("WHO:REALROOM", 7> <br /><i>  <?WHO:REALROOM("X")>  </i>  <?!("X", 7)>
+<?!("WHO:REALROOM", 7)> <br /><i>  <?WHO:REALROOM("X")>  </i>  <?!("X", 7)>
 </td>
    <td class="host_col">
 <!-- hostname -->

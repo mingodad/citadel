@@ -491,11 +491,83 @@ int read_server_text(StrBuf *Buf, long *nLines)
 }
 
 
+
+
+
+
 int GetServerStatus(StrBuf *Line, long* FullState)
 {
 	if (FullState != NULL)
 		*FullState = StrTol(Line);
 	return ChrPtr(Line)[0] - 48;
+}
+
+
+void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBufAppendPrintf(Target, "%d", WC->ctdl_pid);
+}
+
+void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrEscAppend(Target, NULL, serv_info.serv_nodename, 0, 0);
+}
+
+void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrEscAppend(Target, NULL, serv_info.serv_humannode, 0, 0);
+}
+
+void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrEscAppend(Target, NULL, serv_info.serv_fqdn, 0, 0);
+}
+
+void tmmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrEscAppend(Target, NULL, serv_info.serv_software, 0, 0);
+}
+
+void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBufAppendPrintf(Target, "%d.%02d",
+			    serv_info.serv_rev_level / 100,
+			    serv_info.serv_rev_level % 100);
+}
+
+void tmmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrEscAppend(Target, NULL, serv_info.serv_bbs_city, 0, 0);
+}
+
+void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrEscAppend(Target, NULL, WC->wc_fullname, 0, 0);
+}
+
+void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrEscAppend(Target, NULL, WC->wc_roomname, 0, 0);
+}
+
+
+
+
+
+void 
+InitModule_SERVFUNC
+(void)
+{
+	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user, CTX_NONE);
+	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room, CTX_NONE);
+	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip, CTX_NONE);
+	RegisterNamespace("SERV:NODENAME", 0, 0, tmplput_serv_nodename, CTX_NONE);
+	RegisterNamespace("SERV:HUMANNODE", 0, 0, tmplput_serv_humannode, CTX_NONE);
+	RegisterNamespace("SERV:FQDN", 0, 0, tmplput_serv_fqdn, CTX_NONE);
+	RegisterNamespace("SERV:SOFTWARE", 0, 0, tmmplput_serv_software, CTX_NONE);
+	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, CTX_NONE);
+	RegisterNamespace("SERV:BBS_CITY", 0, 0, tmmplput_serv_bbs_city, CTX_NONE);
+///	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmmplput_serv_ldap_enabled, 0);
 }
 
 /*@}*/
