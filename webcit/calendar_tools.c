@@ -118,13 +118,13 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 }
 
 /*
- * Get time from form
- * get the time back from the user and convert it into internal structs.
+ * Get date/time from a web form and convert it into an icaltimetype struct.
  */
 void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
  	char datebuf[32];
   	char vname[32];
  	struct tm tm;
+
  	/* Stuff tm with some zero values */
 	tm.tm_year = 0;
  	tm.tm_sec = 0;
@@ -134,23 +134,33 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
  	tm.tm_mon = 0;
  	int hour = 0;
  	int minute = 0;
+
   	struct icaltimetype t2;
  	
-	
  	strptime((char*)BSTR(prefix), "%Y-%m-%d", &tm);
  	sprintf(vname, "%s_hour", prefix);      hour = IBSTR(vname);
 	sprintf(vname, "%s_minute", prefix);    minute = IBSTR(vname);
  	tm.tm_hour = hour;
  	tm.tm_min = minute;
 	strftime(&datebuf[0], 32, "%Y%m%dT%H%M%S", &tm);
- 	t2 = icaltime_from_string(datebuf);
+
+	/* old
+ 	 * t2 = icaltime_from_string(datebuf);
+	 */
+
+	/* unavailable
+ 	 * t2 = icaltime_from_string_with_zone(datebuf, get_default_icaltimezone() );
+	 */
+
+	/* new */
+	t2 = icaltime_from_timet_with_zone(mktime(&tm), 0, get_default_icaltimezone());
+
   	memcpy(t, &t2, sizeof(struct icaltimetype));
 }
 
 
 /*
- * Get time from form
- * get the time back from the user and convert it into internal structs.
+ * Get date (no time) from a web form and convert it into an icaltimetype struct.
  */
 void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
  	struct tm tm;

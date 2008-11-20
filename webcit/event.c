@@ -582,9 +582,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int rrymweek = rrmweek;
 	int rrymweekday = rrmweekday;
 	int rrymonth = t_start.month;
-
-	lprintf(9, "FIXME: RRYMWEEK %d, RRYMWEEKDAY %d, RRYMONTH %d\n", rrymweek, rrymweekday, rrymonth);
-
 	int which_rryeartype_is_preselected = 0;
 
 	if ( (recur.by_day[0] != ICAL_RECURRENCE_ARRAY_MAX) 
