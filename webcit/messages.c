@@ -2114,6 +2114,8 @@ void display_enter(void)
 			goto DONE;
 		}
 	}
+	svputlong("RCPTREQUIRED", recipient_required);
+	svputlong("SUBJREQUIRED", recipient_required || subject_required);
 	DoTemplate(HKEY("edit_message"), NULL, NULL, CTX_NONE);
 	address_book_popup();
 	wDumpContent(1);

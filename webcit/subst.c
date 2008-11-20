@@ -473,15 +473,30 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  int nArgs, 
 			  WCTemplateToken *Tokens,
 			  void *Context, int ContextType,
-			  StrBuf *Source, int FormatTypeIndex)
+			  const StrBuf *Source, int FormatTypeIndex)
 {
+        struct wcsession *WCC;
+	StrBuf *Buf;
 	char EscapeAs = ' ';
 
-
+	if ((FormatTypeIndex < Tokens->nParameters) &&
+	    (Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
+	    (Tokens->Params[FormatTypeIndex]->len == 1)) {
+		EscapeAs = *Tokens->Params[FormatTypeIndex]->Start;
+	}
 
 	switch(EscapeAs)
 	{
-
+	case 'H':
+		WCC = WC;
+		Buf = NewStrBufPlain(NULL, StrLength(Buf));
+		StrBuf_RFC822_to_Utf8(Buf, 
+				      Source, 
+				      (WCC!=NULL)? WCC->DefaultCharset : NULL, 
+				      NULL);
+		StrEscAppend(Target, Buf, NULL, 0, 0);
+		FreeStrBuf(&Buf);
+		break;
 	case 'X':
 		StrEscAppend(Target, Source, NULL, 0, 0);
 		break;
@@ -903,6 +918,14 @@ int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmp
 		return (state != 0)?Token->Params[1]->lvalue:0;
 	    
 	Cond = (ConditionalStruct *) Token->PreEval;
+	if (Cond == NULL) {
+		lprintf(1, "Conditional [%s] (in '%s' line %ld); unknown![%s]\n", 
+			Token->Params[0]->Start,
+			ChrPtr(pTmpl->FileName),
+			Token->Line,
+			ChrPtr(Token->FlatToken));
+		return 1;
+	}
 
 	if (Token->nParameters < Cond->nParams) {
 		lprintf(1, "Conditional [%s] (in '%s' line %ld); needs %ld Params![%s]\n", 
