@@ -5,8 +5,11 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <div class="message_header">
  <span><?MAIL:SUMM:DATESTR></span>
  <?_("from ")>
- <??("COND:MAIL:ANON",1)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>"&lt;<?MAIL:SUMM:RFCA>&gt;</a><??("X", 1)>
- <?!("COND:MAIL:ANON",2)>***<??("X", 2)>
+ <??("COND:MAIL:ANON",1)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>"
+<?!("MAIL:SUMM:RFCA", 2)>&lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
+<??("MAIL:SUMM:RFCA", 3)></a> @ <?SERV:NODENAME><??("X", 3)>
+<??("X", 1)>
+ <?!("COND:MAIL:ANON", 4)>***<??("X", 4)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
 
    <a href="display_enter?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
@@ -27,12 +30,12 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 </div>
 <div class="message_content"><div align="justify">
 <?MAIL:BODY>
-<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 3)>
+<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 5)>
 <?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_message_inline_attach")>
-<?!("X", 3)>
-<?!("COND:MAIL:MIME:ATTACH:LINKS", 2)>
+<?!("X", 5)>
+<?!("COND:MAIL:MIME:ATTACH:LINKS", 6)>
 <?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_message_list_attach")>
-<?!("X", 2)>
+<?!("X", 6)>
 
 </div>
 </div>

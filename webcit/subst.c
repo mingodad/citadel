@@ -827,18 +827,19 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	case SV_GETTEXT:
 		if (NewToken->nParameters !=1) {
 			lprintf(1, "Gettext (in '%s' line %ld); "
-				"requires exactly 1 parameter, yau gave %ld params [%s]\n", 
+				"requires exactly 1 parameter, you gave %ld params [%s]\n", 
 				ChrPtr(pTmpl->FileName),
 				NewToken->Line,
 				NewToken->nParameters, 
 				ChrPtr(NewToken->FlatToken));
+			NewToken->Flags = 0;
 			break;
 		}
 		break;
 	case SV_SUBTEMPL:
 		if (NewToken->nParameters != 1) {
 			lprintf(1, "Subtemplates (in '%s' line %ld); "
-				"require exactly 1 parameter, yau gave %ld params [%s]\n", 
+				"require exactly 1 parameter, you gave %ld params [%s]\n", 
 				ChrPtr(pTmpl->FileName),
 				NewToken->Line,
 				NewToken->nParameters, 
@@ -851,11 +852,12 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	case SV_NEG_CONDITIONAL:
 		if (NewToken->nParameters <2) {
 			lprintf(1, "Conditional (in '%s' line %ld); "
-				"require at least 2 parameters, yau gave %ld params [%s]\n", 
+				"require at least 2 parameters, you gave %ld params [%s]\n", 
 				ChrPtr(pTmpl->FileName),
 				NewToken->Line,
 				NewToken->nParameters, 
 				ChrPtr(NewToken->FlatToken));
+			NewToken->Flags = 0;
 			break;
 		}
 		if (!GetHash(Conditionals, 

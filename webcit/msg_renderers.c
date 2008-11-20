@@ -192,7 +192,11 @@ void tmplput_MAIL_SUMM_RFCA(StrBuf *Target, int nArgs, WCTemplateToken *Token, v
 	message_summary *Msg = (message_summary*) Context;
 	StrBufAppendBuf(Target, Msg->Rfca, 0);
 }
-
+int Conditional_MAIL_SUMM_RFCA(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	message_summary *Msg = (message_summary*) Context;
+	return StrLength(Msg->Rfca) > 0;
+}
 
 void examine_node(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -812,6 +816,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("ATT:TYPE", 0, 1, tmplput_ATT_Contenttype, CTX_ATT);
 	RegisterNamespace("ATT:FILENAME", 0, 1, tmplput_ATT_FileName, CTX_ATT);
 
+	RegisterConditional(HKEY("MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);

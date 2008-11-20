@@ -502,7 +502,7 @@ void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf)
 	for (pos = ChrPtr(Source); (pos < end) && (start == NULL); ++pos) {
 		if (!strncasecmp(pos, "http://", 7))
 			start = pos;
-		if (!strncasecmp(pos, "ftp://", 6))
+		else if (!strncasecmp(pos, "ftp://", 6))
 			start = pos;
 	}
 
