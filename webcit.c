@@ -385,7 +385,10 @@ void hprintf(const char *format,...)
 void tmplput_trailing_javascript(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
 {
 	struct wcsession *WCC = WC;
-	StrBufAppendBuf(WCC->WBuf, WCC->trailing_javascript, 0);
+
+	if (WCC != NULL)
+		StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType,
+				     WCC->trailing_javascript, 0);
 }
 
 /*
@@ -1907,6 +1910,11 @@ void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	struct wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
+/*
+		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
+				     WCC->ImportantMessage, 0);
+*/
+		WCC->ImportantMessage[0] = '\0';
 		StrEscAppend(Target, NULL, WCC->ImportantMessage, 0, 0);
 			WCC->ImportantMessage[0] = '\0';
 	}
@@ -1925,9 +1933,12 @@ int ConditionalBstr(WCTemplateToken *Tokens, void *Context, int ContextType)
 
 void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	StrBufAppendBuf(Target, 
-			SBstr(Tokens->Params[0]->Start, 
-			      Tokens->Params[0]->len), 0);
+	const StrBuf *Buf = SBstr(Tokens->Params[0]->Start, 
+			    Tokens->Params[0]->len);
+	if (Buf != NULL)
+		StrBufAppendTemplate(Target, nArgs, Tokens, 
+				     Context, ContextType,
+				     Buf, 1);
 }
 
 

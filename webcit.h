@@ -374,7 +374,7 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  int nArgs, 
 			  WCTemplateToken *Tokens,
 			  void *Context, int ContextType,
-			  StrBuf *Source, int FormatTypeIndex);
+			  const StrBuf *Source, int FormatTypeIndex);
 
 
 

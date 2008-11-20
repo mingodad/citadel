@@ -5,14 +5,14 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <div class="message_header">
  <span><?MAIL:SUMM:DATESTR></span>
  <?_("from ")>
- <??("COND:MAIL:ANON",1)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>"
-<?!("MAIL:SUMM:RFCA", 2)>&lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
-<??("MAIL:SUMM:RFCA", 3)></a> @ <?SERV:NODENAME><??("X", 3)>
+ <??("COND:MAIL:ANON",1)>
+<?!("MAIL:SUMM:RFCA", 2)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>"&lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
+<??("MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> @ <?SERV:NODENAME><??("X", 3)>
 <??("X", 1)>
  <?!("COND:MAIL:ANON", 4)>***<??("X", 4)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
 
-   <a href="display_enter?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+   <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
 
    <a href="display_enter?replyquote=<?MAIL:SUMM:N>&recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
 

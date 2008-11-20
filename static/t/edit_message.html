@@ -12,8 +12,9 @@
 <input type="hidden" name="references" value="<?BSTR("references")>">
 
 <p class="send_edit_msg">
-  <input type="submit" name="send_button" value="<?_("Send message")>"> &nbsp;
-  <input type="submit" name="send_button" value="<?_("Post message")>"> &nbsp;TODO
+<?!("COND:SUBST", 1, "RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Send message")>"><?!("X", 1)>
+<??("COND:SUBST", 2, "RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Post message")>"><?!("X", 2)>
+&nbsp;
   <input type="submit" name="cancel_button" value="<?_("Cancel")>">
 </p>
 <img src="static/newmess3_24x.gif" class="imgedit">  <?DATE:NOW:STR>
@@ -22,11 +23,20 @@
 <tr><th><label for="from_id" >  <i><?_("from")></i> </label></th><td colspan="2">
 <select name="display_name" size=1 id="from_id">
 <?ITERATE("PREF:VALID:EMAIL:NAME", "section_msg_sender_name_select")>
+<?!("COND:ROOM:FLAGS:QR_ANONOPT", 3)>
+<option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
+<?!("X", 3)>
 </select>
+
+<?!("COND:SUBST", 4, "RCPTREQUIRED")>
 <select name="my_email_addr" size=1>
 <?ITERATE("PREF:VALID:EMAIL:ADDR", "section_msg_sender_from_select")>
 </select>
+<?!("X", 4)>
+
  <i><?_("in")></i> <?ROOMNAME></td></tr>
+
+<?!("COND:SUBST", 5, "RCPTREQUIRED")>
 <tr>
   <th><label for="recp_id"> <?_("To:")></label></th>
   <td><input autocomplete="off" type="text" name="recp" id="recp_id" value="<?BSTR("recp", "H")>" size=45 maxlength=1000 />
@@ -53,10 +63,12 @@
 <script type="text/javascript">	
  activate_entmsg_autocompleters();	
 
-</script>				
+</script>
+<??("X", 5)>		
 <tr>
   <th><label for="subject_id" > 
-      <?_("Subject:")><?_("Subject (optional):")><TODO>
+      <?!("COND:SUBST", 6, "SUBJREQUIRED")><?_("Subject:")><?!("X", 6)>
+      <??("COND:SUBST", 7, "SUBJREQUIRED")><?_("Subject (optional):")><??("X", 7)>
   </label></th>
   <td colspan="2">
     <input type="text" name="subject" id="subject_id" value="<?BSTR("subject", "U")>" size=45 maxlength=70>

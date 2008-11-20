@@ -3689,13 +3689,133 @@ int ConditionalHaveUngoto(WCTemplateToken *Tokens, void *Context, int ContextTyp
 		(strcasecmp(WCC->ugname, WCC->wc_roomname) == 0));
 }
 
-int ConditionalRoomHasQRVisidir(WCTemplateToken *Tokens, void *Context, int ContextType)
+
+
+
+int ConditionalRoomHas_QR_PERMANENT(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_PERMANENT) != 0));
+}
+
+int ConditionalRoomHas_QR_INUSE(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_INUSE) != 0));
+}
+
+int ConditionalRoomHas_QR_PRIVATE(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_PRIVATE) != 0));
+}
+
+int ConditionalRoomHas_QR_PASSWORDED(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_PASSWORDED) != 0));
+}
+
+int ConditionalRoomHas_QR_GUESSNAME(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_GUESSNAME) != 0));
+}
+
+int ConditionalRoomHas_QR_DIRECTORY(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_DIRECTORY) != 0));
+}
+
+int ConditionalRoomHas_QR_UPLOAD(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_UPLOAD) != 0));
+}
+
+int ConditionalRoomHas_QR_DOWNLOAD(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_DOWNLOAD) != 0));
+}
+
+int ConditionalRoomHas_QR_VISDIR(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_VISDIR) != 0));
 }
+
+int ConditionalRoomHas_QR_ANONONLY(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_ANONONLY) != 0));
+}
+
+int ConditionalRoomHas_QR_ANONOPT(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_ANONOPT) != 0));
+}
+
+int ConditionalRoomHas_QR_NETWORK(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_NETWORK) != 0));
+}
+
+int ConditionalRoomHas_QR_PREFONLY(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_PREFONLY) != 0));
+}
+
+int ConditionalRoomHas_QR_READONLY(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_READONLY) != 0));
+}
+
+int ConditionalRoomHas_QR_MAILBOX(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) &&
+		((WCC->room_flags & QR_MAILBOX) != 0));
+}
+
+
+
+
+
 
 int ConditionalHaveRoomeditRights(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -3736,7 +3856,23 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
 	RegisterNamespace("ROOMBANNER", 0, 0, tmplput_roombanner, 0);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_VISIDIR"), 0, ConditionalRoomHasQRVisidir, CTX_NONE);
+
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_INUSE"), 0, ConditionalRoomHas_QR_INUSE, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PRIVATE"), 0, ConditionalRoomHas_QR_PRIVATE, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PASSWORDED"), 0, ConditionalRoomHas_QR_PASSWORDED, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_GUESSNAME"), 0, ConditionalRoomHas_QR_GUESSNAME, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_DIRECTORY"), 0, ConditionalRoomHas_QR_DIRECTORY, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_UPLOAD"), 0, ConditionalRoomHas_QR_UPLOAD, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_DOWNLOAD"), 0, ConditionalRoomHas_QR_DOWNLOAD, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_VISIDIR"), 0, ConditionalRoomHas_QR_VISDIR, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_ANONONLY"), 0, ConditionalRoomHas_QR_ANONONLY, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_ANONOPT"), 0, ConditionalRoomHas_QR_ANONOPT, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_NETWORK"), 0, ConditionalRoomHas_QR_NETWORK, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PREFONLY"), 0, ConditionalRoomHas_QR_PREFONLY, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_READONLY"), 0, ConditionalRoomHas_QR_READONLY, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_MAILBOX"), 0, ConditionalRoomHas_QR_MAILBOX, CTX_NONE);
+
 	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
