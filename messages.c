@@ -246,7 +246,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	const char *Key;
 
 	Buf = NewStrBuf();
-	lprintf(1, "-------------------MSG4 %ld|%s--------------\n", msgnum, ChrPtr(PartNum));
+	lprintf(1, "----------%s---------MSG4 %ld|%s--------------\n", tmpl, msgnum, ChrPtr(PartNum));
 	serv_printf("MSG4 %ld|%s", msgnum, ChrPtr(PartNum));
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
