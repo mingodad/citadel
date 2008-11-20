@@ -530,7 +530,8 @@ void imap_strip_headers(char *section) {
 
 	ptr = CC->redirect_buffer;
 	ok = 0;
-	while ( (done_headers == 0) && (ptr = memreadline(ptr, buf, sizeof buf), *ptr != 0) ) {
+	do {
+		ptr = memreadline(ptr, buf, sizeof buf);
 		if (!isspace(buf[0])) {
 			ok = 0;
 			if (doing_headers == 0) ok = 1;
@@ -556,7 +557,8 @@ void imap_strip_headers(char *section) {
 		if (IsEmptyStr(buf)) done_headers = 1;
 		if (buf[0]=='\r') done_headers = 1;
 		if (buf[0]=='\n') done_headers = 1;
-	}
+		if (*ptr == 0) done_headers = 1;
+	} while (!done_headers);
 
 	strcat(boiled_headers, "\r\n");
 
@@ -924,12 +926,13 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 		CC->redirect_alloc = 0;
 
 		ptr = rfc822;
-		while (ptr = memreadline(ptr, buf, sizeof buf), *ptr != 0) {
+		do {
+			ptr = memreadline(ptr, buf, sizeof buf);
 			++lines;
 			if ((IsEmptyStr(buf)) && (rfc822_body == NULL)) {
 				rfc822_body = ptr;
 			}
-		}
+		} while (*ptr != 0);
 
 		rfc822_headers_len = rfc822_body - rfc822;
 		rfc822_body_len = rfc822_len - rfc822_headers_len;
