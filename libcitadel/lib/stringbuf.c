@@ -341,6 +341,7 @@ void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset)
 void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset)
 {
 	long aps;
+	long BufSizeRequired;
 
 	if ((AppendBuf == NULL) || (Buf == NULL))
 		return;
@@ -350,8 +351,9 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, s
 	else
 		aps = AppendSize - Offset;
 
-	if (Buf->BufSize < Buf->BufUsed + aps + 1)
-		IncreaseBuf(Buf, (Buf->BufUsed > 0), Buf->BufUsed + aps + 1);
+	BufSizeRequired = Buf->BufUsed + aps + 1;
+	if (Buf->BufSize <= BufSizeRequired)
+		IncreaseBuf(Buf, (Buf->BufUsed > 0), BufSizeRequired);
 
 	memcpy(Buf->buf + Buf->BufUsed, 
 	       AppendBuf + Offset, 
@@ -478,7 +480,7 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 			bptr += 5;
 			Target->BufUsed += 5;
 		}
-		else if (*aptr == '\"') {
+		else if (*aptr == '"') {
 			memcpy(bptr, "&quot;", 6);
 			bptr += 6;
 			Target->BufUsed += 6;
@@ -1546,7 +1548,7 @@ void  ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic)
 
 
 
-static inline char *FindNextEnd (StrBuf *Buf, char *bptr)
+static inline char *FindNextEnd (const StrBuf *Buf, char *bptr)
 {
 	char * end;
 	/* Find the next ?Q? */
@@ -1613,7 +1615,7 @@ void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 
 
 inline static void DecodeSegment(StrBuf *Target, 
-				 StrBuf *DecodeMe, 
+				 const StrBuf *DecodeMe, 
 				 char *SegmentStart, 
 				 char *SegmentEnd, 
 				 StrBuf *ConvertBuf,
@@ -1679,7 +1681,7 @@ inline static void DecodeSegment(StrBuf *Target,
  * Handle subjects with RFC2047 encoding such as:
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
  */
-void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset)
+void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset)
 {
 	StrBuf *ConvertBuf, *ConvertBuf2;
 	char *start, *end, *next, *nextend, *ptr = NULL;
@@ -1711,7 +1713,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 	{
 		ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset), &ic);
 		if (ic != (iconv_t)(-1) ) {
-			StrBufConvert(DecodeMe, ConvertBuf, &ic);
+			StrBufConvert((StrBuf*)DecodeMe, ConvertBuf, &ic);///TODO: don't void const?
 			iconv_close(ic);
 		}
 	}
@@ -1781,9 +1783,9 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, StrBuf *DecodeMe, const StrBuf* Defau
 					 len - (next - start));
 				
 				/* now terminate the gab at the end */
-				delta = (next - end) - 2;
-				DecodeMe->BufUsed -= delta;
-				DecodeMe->buf[DecodeMe->BufUsed] = '\0';
+				delta = (next - end) - 2; ////TODO: const! 
+				((StrBuf*)DecodeMe)->BufUsed -= delta;
+				((StrBuf*)DecodeMe)->buf[DecodeMe->BufUsed] = '\0';
 
 				/* move next to its new location. */
 				next -= delta;
