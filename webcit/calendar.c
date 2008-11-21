@@ -441,6 +441,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	memset(Cal, 0, sizeof(disp_cal));
 
 	Cal->cal = icalcomponent_new_clone(cal);
+	ical_dezonify(Cal->cal);			/* just-in-time dezonify is necessary */
 	Cal->unread = unread;
 	len = strlen(from);
 	Cal->from = (char*)malloc(len+ 1);
@@ -455,6 +456,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	if (ps != NULL) {
 		dtstart = icalproperty_get_dtstart(ps);
 		Cal->event_start = icaltime_as_timet(dtstart);
+		lprintf(9, "[31mINITIAL: %s[0m", ctime(&Cal->event_start));
 	}
 
 	/* Do the same for the ending date and time.  It makes the day view much easier to render. */
@@ -484,8 +486,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
 	 * stops or some outer bound is reached.  The display code will automatically do the Right Thing.
 	 */
-
-	rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
+	rrule = icalcomponent_get_first_property(cal, ICAL_RRULE_PROPERTY);
 	if (!rrule) return;
 	recur = icalproperty_get_rrule(rrule);
 	ritr = icalrecur_iterator_new(recur, dtstart);
@@ -513,7 +514,10 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				icalcomponent_remove_property(Cal->cal, ps);
 				ps = icalproperty_new_dtstart(next);
 				icalcomponent_add_property(Cal->cal, ps);
+				ical_dezonify(Cal->cal);	/* dezonify every recurrence - we may
+								 * have hit the start/end of DST */
 				Cal->event_start = icaltime_as_timet(next);
+				lprintf(9, "[32mREPEATS: %s[0m", ctime(&Cal->event_start));
 				final_recurrence = Cal->event_start;
 			}
 	
@@ -970,17 +974,28 @@ void load_ical_object(long msgnum, int unread,
 			cal = icalcomponent_new_from_string(relevant_source);
 			if (cal != NULL) {
 
-				/* Simple components of desired type */
-				if (icalcomponent_isa(cal) == which_kind) {
+				/* A which_kind of (-1) means just load the whole thing */
+				if (which_kind == (-1)) {
 					callback(cal, msgnum, from, unread, calv);
 				}
 
-				/* Subcomponents of desired type */
-				for (c = icalcomponent_get_first_component(cal, which_kind);
-				     (c != 0);
-				     c = icalcomponent_get_next_component(cal, which_kind)) {
-					callback(c, msgnum, from, unread, calv);
+				/* Otherwise recurse and hunt */
+				else {
+
+					/* Simple components of desired type */
+					if (icalcomponent_isa(cal) == which_kind) {
+						callback(cal, msgnum, from, unread, calv);
+					}
+	
+					/* Subcomponents of desired type */
+					for (c = icalcomponent_get_first_component(cal, which_kind);
+				     	(c != 0);
+				     	c = icalcomponent_get_next_component(cal, which_kind)) {
+						callback(c, msgnum, from, unread, calv);
+					}
+
 				}
+
 				icalcomponent_free(cal);
 			}
 			free(relevant_source);
@@ -994,6 +1009,7 @@ void load_ical_object(long msgnum, int unread,
  */
 void load_calendar_item(message_summary *Msg, int unread, struct calview *c) {
 	load_ical_object(Msg->msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal, c);
+	/* load_ical_object(Msg->msgnum, unread, (-1), display_individual_cal, c); */
 }
 
 /*
