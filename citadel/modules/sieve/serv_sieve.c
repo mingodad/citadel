@@ -639,9 +639,6 @@ void sieve_do_msg(long msgnum, void *userdata) {
 		abort();
 	}
 
-
-	CtdlLogPrintf(CTDL_DEBUG, "HEADERS-------\n[31m%s[0m\n", my.rfc822headers);
-
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
 	if (u == NULL)
