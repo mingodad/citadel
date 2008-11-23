@@ -654,6 +654,9 @@ void set_preferences(void)
 	set_pref_long("dayend", lbstr("dayend"), 0);
 	set_preference("default_header_charset", NewStrBufPlain(bstr("default_header_charset"), -1), 0);
 	set_preference("emptyfloors", NewStrBufPlain(bstr("emptyfloors"), -1), 0);
+	set_preference("defaultfrom", NewStrBufDup(sbstr("defaultfrom")), 0);
+	set_preference("defaultname", NewStrBufDup(sbstr("defaultname")), 0);
+
 
 	buf = NewStrBufPlain(bstr("signature"), -1);
 	encBuf = NewStrBuf();
@@ -751,11 +754,6 @@ void DeleteGVEAHash(HashList **KillMe)
 {
 	DeleteHash(KillMe);
 }
-void tmplput_EMAIL_ADDR(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
-{
-	StrBuf *EmailAddr = (StrBuf*) Context;
-	StrBufAppendBuf(Target, EmailAddr, 0);
-}
 
 HashList *GetGVSNHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -792,11 +790,7 @@ void DeleteGVSNHash(HashList **KillMe)
 {
 	DeleteHash(KillMe);
 }
-void tmplput_EMAIL_NAME(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
-{
-	StrBuf *EmailAddr = (StrBuf*) Context;
-	StrBufAppendBuf(Target, EmailAddr, 0);
-}
+
 
 void 
 InitModule_PREFERENCES
@@ -815,6 +809,11 @@ InitModule_PREFERENCES
 	RegisterPreference("signature",_("Use this signature:"),PRF_QP_STRING);
 	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
 	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
+	RegisterPreference("defaultfrom", _("Prefered Email Address"), PRF_STRING);
+	RegisterPreference("defaultname", _("Prefered Email Sendername"), PRF_STRING);
+
+
+
 	
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
@@ -822,12 +821,10 @@ InitModule_PREFERENCES
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
 	
-	RegisterNamespace("PREF:EMAIL:ADDR", 0, 1, tmplput_EMAIL_ADDR, CTX_GVEA);
 	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
-			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_GVEA, CTX_NONE);
-	RegisterNamespace("PREF:EMAIL:NAME", 0, 1, tmplput_EMAIL_NAME, CTX_GVSN);
+			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE);
 	RegisterIterator("PREF:VALID:EMAIL:NAME", 0, NULL, 
-			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_GVSN, CTX_NONE);
+			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_STRBUF, CTX_NONE);
 
 }
 /*@}*/
