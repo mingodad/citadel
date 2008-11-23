@@ -256,10 +256,13 @@ void listrms(char *variety)
  */
 void zapped_list(void)
 {
+	StrBuf *Buf;
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svput("BOXTITLE", WCS_STRING, _("Zapped (forgotten) rooms"));
-	do_template("beginbox", NULL);
+	Buf = NewStrBufPlain(_("Zapped (forgotten) rooms"), -1);
+	DoTemplate(HKEY("beginbox"), NULL, Buf, CTX_STRBUF);
+
+	FreeStrBuf(&Buf);
 
 	listrms("LZRM -1");
 
@@ -2631,10 +2634,13 @@ void entroom(void)
  */
 void display_private(char *rname, int req_pass)
 {
+	StrBuf *Buf;
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Go to a hidden room"));
-	do_template("beginbox", NULL);
+	Buf = NewStrBufPlain(_("Go to a hidden room"), -1);
+	DoTemplate(HKEY("beginbox"), NULL, Buf, CTX_STRBUF);
+
+	FreeStrBuf(&Buf);
 
 	wprintf("<p>");
 	wprintf(_("If you know the name of a hidden (guess-name) or "
@@ -3093,7 +3099,6 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 	char buf[256];
 	char floor_name[256];
 	char old_floor_name[256];
-	char boxtitle[256];
 	int levels, oldlevels;
 	int i, t;
 	int num_boxes = 0;
@@ -3139,10 +3144,12 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 		strcpy(old_floor_name, floor_name);
 
 		if (levels == 1) {
-			/** Begin inner box */
-			stresc(boxtitle, 256, floor_name, 1, 0);
-			svprintf(HKEY("BOXTITLE"), WCS_STRING, boxtitle);
-			do_template("beginbox", NULL);
+			StrBuf *Buf;
+			
+			Buf = NewStrBufPlain(floor_name, -1);
+			DoTemplate(HKEY("beginbox"), NULL, Buf, CTX_STRBUF);
+			
+			FreeStrBuf(&Buf);
 		}
 
 		oldlevels = levels;

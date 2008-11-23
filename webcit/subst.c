@@ -513,7 +513,7 @@ void GetTemplateTokenString(WCTemplateToken *Tokens,
 {
 	StrBuf *Buf;
 
-	if (Tokens->HaveParameters < N) {
+	if (Tokens->nParameters < N) {
 		*Value = "";
 		*len = 0;
 		return;
@@ -1056,6 +1056,20 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, voi
 						     Token->Params[4]->Start,
 						     Token->Params[4]->len,
 						     0);
+		}
+		else  {
+			lprintf(1, "Conditional [%s] (in '%s' line %ld); needs at least 6 Params![%s]\n", 
+				Token->Params[0]->Start,
+				ChrPtr(pTmpl->FileName),
+				Token->Line,
+				ChrPtr(Token->FlatToken));
+			StrBufAppendPrintf(
+				Target, 
+				"<pre>\nConditional [%s] (in '%s' line %ld); needs 6 Params!\n[%s]\n</pre>\n", 
+				Token->Params[0]->Start,
+				ChrPtr(pTmpl->FileName),
+				Token->Line,
+				ChrPtr(Token->FlatToken));
 		}
 		break;
 	case SV_SUBTEMPL:
@@ -1635,6 +1649,7 @@ void RegisterConditional(const char *Name, long len,
 			 int ContextRequired)
 {
 	ConditionalStruct *Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
+	Cond->PlainName = Name;
 	Cond->nParams = nParams;
 	Cond->CondF = CondF;
 	Cond->ContextRequired = ContextRequired;
@@ -1648,12 +1663,12 @@ void tmplput_ContextString(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, v
 }
 int ConditionalContextStr(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	StrBuf *EmailAddr = (StrBuf*) Context;
+	StrBuf *TokenText = (StrBuf*) Context;
 	const char *CompareToken;
 	long len;
 
-	GetTemplateTokenString(Tokens, 3, &CompareToken, &len);
-	return strcmp(ChrPtr(EmailAddr), CompareToken) == 0;
+	GetTemplateTokenString(Tokens, 2, &CompareToken, &len);
+	return strcmp(ChrPtr(TokenText), CompareToken) == 0;
 }
 
 
@@ -1671,7 +1686,7 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 		}
 		else {
 			const char *Ch;
-			long *len;
+			long len;
 			GetTemplateTokenString(Tokens, 
 					       1,
 					       &Ch,
@@ -1735,8 +1750,7 @@ InitModule_SUBST
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);
 	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, CTX_NONE);
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
-	RegisterConditional(HKEY("COND:CONTEXT"), 3, ConditionalContextStr, CTX_NONE);
-
+	RegisterConditional(HKEY("COND:CONTEXTSTR"), 3, ConditionalContextStr, CTX_STRBUF);
 }
 
 /*@}*/

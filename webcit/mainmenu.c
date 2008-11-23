@@ -275,7 +275,7 @@ void do_generic(void)
 	serv_getln(buf, sizeof buf);
 
 	svput("BOXTITLE", WCS_STRING, _("Server command results"));
-	do_template("beginbox", NULL);
+	do_template("beginboxx", NULL);
 
 	wprintf("<table border=0><tr><td>Command:</td><td><tt>");
 	escputs(bstr("g_cmd"));

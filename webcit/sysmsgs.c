@@ -33,7 +33,7 @@ void display_edit(char *description, char *check_cmd,
 	}
 
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Edit %s"), description);
-	do_template("beginbox", NULL);
+	do_template("beginboxx", NULL);
 
 	wprintf(_("Enter %s below. Text is formatted to the reader's browser."
 		" A newline is forced by preceding the next line by a blank."), description);

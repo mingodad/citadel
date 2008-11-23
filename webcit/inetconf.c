@@ -110,7 +110,7 @@ void display_inetconf(void)
 			wprintf("</td><td valign=top>");
 		}
 		svput("BOXTITLE", WCS_STRING, ic_boxtitle[which]);
-		do_template("beginbox", NULL);
+		do_template("beginboxx", NULL);
 		wprintf("<span class=\"menudesc\">");
 		escputs(ic_desc[which]);
 		wprintf("</span><br />");

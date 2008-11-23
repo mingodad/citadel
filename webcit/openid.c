@@ -18,7 +18,7 @@ void display_openids(void)
 	wprintf("<div class=\"fix_scrollbar_bug\">");
 
 	svput("BOXTITLE", WCS_STRING, _("Manage Account/OpenID Associations"));
-	do_template("beginbox", NULL);
+	do_template("beginboxx", NULL);
 
 	if (serv_info.serv_supports_openid) {
 

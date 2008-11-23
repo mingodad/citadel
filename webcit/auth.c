@@ -792,11 +792,13 @@ void display_reg(int during_login)
 void display_changepw(void)
 {
 	char buf[SIZ];
-
+	StrBuf *Buf;
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svput("BOXTITLE", WCS_STRING, _("Change your password"));
-	do_template("beginbox", NULL);
+	Buf = NewStrBufPlain(_("Change your password"), -1);
+	DoTemplate(HKEY("beginbox"), NULL, Buf, CTX_STRBUF);
+
+	FreeStrBuf(&Buf);
 
 	if (!IsEmptyStr(WC->ImportantMessage)) {
 		wprintf("<span class=\"errormsg\">"

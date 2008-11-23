@@ -793,7 +793,7 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 	long i;
 	
 	svput("BOXTITLE", WCS_STRING, Title);
-	do_template("beginbox", NULL);
+	do_template("beginboxx", NULL);
 	
 	wprintf("<ul class=\"%s\">", Class);
 	

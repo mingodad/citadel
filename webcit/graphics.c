@@ -22,10 +22,13 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	}
 	output_headers(1, 1, 0, 0, 0, 0);
 
+	StrBuf *Buf;
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svput("BOXTITLE", WCS_STRING, _("Image upload"));
-	do_template("beginbox", NULL);
+	Buf = NewStrBufPlain(_("Image upload"), -1);
+	DoTemplate(HKEY("beginbox"), NULL, Buf, CTX_STRBUF);
+
+	FreeStrBuf(&Buf);
 
 	wprintf("<form enctype=\"multipart/form-data\" action=\"%s\" "
 		"method=\"post\" name=\"graphicsupload\">\n", uplurl);
