@@ -21,6 +21,17 @@
 <table width="100%" class="edit_msg_table">
 <TODO: anonym>
 <tr><th><label for="from_id" >  <i><?_("from")></i> </label></th><td colspan="2">
+
+<??("COND:SUBST", 4, "RCPTREQUIRED")>
+<select name="display_name" size=1 id="from_id">
+<?ITERATE("PREF:VALID:EMAIL:NAME", "section_msg_handle_select")>
+<?!("COND:ROOM:FLAGS:QR_ANONOPT", 3)>
+<option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
+<?!("X", 3)>
+</select>
+<??("X", 4)>
+
+<?!("COND:SUBST", 5, "RCPTREQUIRED")>
 <select name="display_name" size=1 id="from_id">
 <?ITERATE("PREF:VALID:EMAIL:NAME", "section_msg_sender_name_select")>
 <?!("COND:ROOM:FLAGS:QR_ANONOPT", 3)>
@@ -28,7 +39,6 @@
 <?!("X", 3)>
 </select>
 
-<?!("COND:SUBST", 4, "RCPTREQUIRED")>
 <select name="my_email_addr" size=1>
 <?ITERATE("PREF:VALID:EMAIL:ADDR", "section_msg_sender_from_select")>
 </select>

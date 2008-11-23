@@ -29,7 +29,7 @@ void output_date(void) {
  */
 void dummy_section(void) {
 	svput("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
-	do_template("beginbox", NULL);
+	do_template("beginboxx", NULL);
 	wprintf(_("(nothing)"));
 	do_template("endbox", NULL);
 }

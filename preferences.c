@@ -656,6 +656,7 @@ void set_preferences(void)
 	set_preference("emptyfloors", NewStrBufPlain(bstr("emptyfloors"), -1), 0);
 	set_preference("defaultfrom", NewStrBufDup(sbstr("defaultfrom")), 0);
 	set_preference("defaultname", NewStrBufDup(sbstr("defaultname")), 0);
+	set_preference("defaulthandle", NewStrBufDup(sbstr("defaulthandle")), 0);
 
 
 	buf = NewStrBufPlain(bstr("signature"), -1);
@@ -741,6 +742,7 @@ HashList *GetGVEAHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 			}
 			else {
 				i = snprintf(N, sizeof(N), "%d", n);
+				StrBufTrim(Rcp);
 				Put(List, N, i, Rcp, HFreeStrBuf);
 				Rcp = NewStrBuf();
 			}
@@ -777,6 +779,7 @@ HashList *GetGVSNHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 			}
 			else {
 				i = snprintf(N, sizeof(N), "%d", n);
+				StrBufTrim(Rcp);
 				Put(List, N, i, Rcp, HFreeStrBuf);
 				Rcp = NewStrBuf();
 			}
@@ -811,8 +814,7 @@ InitModule_PREFERENCES
 	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
 	RegisterPreference("defaultfrom", _("Prefered Email Address"), PRF_STRING);
 	RegisterPreference("defaultname", _("Prefered Email Sendername"), PRF_STRING);
-
-
+	RegisterPreference("defaulthandle", _("Prefered Name for posting messages"), PRF_STRING);
 
 	
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);

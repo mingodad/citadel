@@ -331,6 +331,7 @@ void RegisterNS(const char *NSName, long len,
 
 typedef int (*WCConditionalFunc)(WCTemplateToken *Token, void *Context, int ContextType);
 typedef struct _ConditionalStruct {
+	const char *PlainName;
 	int nParams;
 	int ContextRequired;
 	WCConditionalFunc CondF;
