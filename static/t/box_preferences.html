@@ -1,0 +1,143 @@
+<?%("COND:PREF", 1, :"", "", "selected", "")>
+
+<form name="prefform" action="set_preferences" method="post">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<table class="altern">
+<?:("roomlistview")>
+
+<tr class="even"><td><?PREF:DESCR("roomlistview")> </td>
+<td>
+  <input type="radio" name="roomlistview" VALUE="folders" <?%("COND:PREF", 1, :"roomlistview", "folders", "selected", "")> ><?_("Tree (folders) view")></input>
+  &nbsp;&nbsp;&nbsp;
+  <input type="radio" name="roomlistview" VALUE="rooms" <?%("COND:PREF", 1, :"roomlistview", "rooms", "selected", "")>><?_("Table (rooms) view")></input>
+</td>
+</tr>
+
+<tr class="odd">
+  <td><?PREF:DESCR("calhourformat")</td>
+  <td>
+    <input type="radio" name="calhourformat" VALUE="12" <?%("COND:PREF", 1, :"calhourformat", "12", "selected", "")>><?_("12 hour (am/pm)")></input>
+    &nbsp;&nbsp;&nbsp;
+    <input type="radio" name="calhourformat" VALUE="24" <?%("COND:PREF", 1, :"calhourformat", "24", "selected", "")> ><?_("24 hour")></input>
+  </td>
+</tr>
+
+
+<tr class="even"><td><?PREF:DESCR("daystart")></td><td>
+<select name="daystart" size="1">
+<option <?%("COND:PREF", 1, :"daystart", "0", "selected", "")> value="0">0:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "1", "selected", "")> value="1">1:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "2", "selected", "")> value="2">2:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "3", "selected", "")> value="3">3:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "4", "selected", "")> value="4">4:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "5", "selected", "")> value="5">5:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "6", "selected", "")> value="6">6:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "7", "selected", "")> value="7">7:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "8", "selected", "")> value="8">8:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "9", "selected", "")> value="9">9:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "10", "selected", "")> value="10">10:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "11", "selected", "")> value="11">11:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "12", "selected", "")> value="12">12:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "13", "selected", "")> value="13">13:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "14", "selected", "")> value="14">14:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "15", "selected", "")> value="15">15:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "16", "selected", "")> value="16">16:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "17", "selected", "")> value="17">17:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "18", "selected", "")> value="18">18:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "19", "selected", "")> value="19">19:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "20", "selected", "")> value="20">20:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "21", "selected", "")> value="21">21:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "22", "selected", "")> value="22">22:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "23", "selected", "")> value="23">23:00</option>
+</select>
+</td></tr>
+
+<tr class="odd">
+  <td><?PREF:DESCR("dayend")></td>
+  <td><select name="dayend" size="1">
+<option <?%("COND:PREF", 1, :"dayend", "0", "selected", "")> value="0">0:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "1", "selected", "")> value="1">1:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "2", "selected", "")> value="2">2:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "3", "selected", "")> value="3">3:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "4", "selected", "")> value="4">4:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "5", "selected", "")> value="5">5:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "6", "selected", "")> value="6">6:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "7", "selected", "")> value="7">7:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "8", "selected", "")> value="8">8:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "9", "selected", "")> value="9">9:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "10", "selected", "")> value="10">10:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "11", "selected", "")> value="11">11:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "12", "selected", "")> value="12">12:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "13", "selected", "")> value="13">13:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "14", "selected", "")> value="14">14:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "15", "selected", "")> value="15">15:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "16", "selected", "")> value="16">16:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "17", "selected", "")> value="17">17:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "18", "selected", "")> value="18">18:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "19", "selected", "")> value="19">19:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "20", "selected", "")> value="20">20:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "21", "selected", "")> value="21">21:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "22", "selected", "")> value="22">22:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "23", "selected", "")> value="23">23:00</option>
+</select>
+</td></tr>
+
+<tr class="even">
+  <td>
+    <?PREF:DESCR("weekstart")>
+  </td>
+  <td>
+    <select name="weekstart" size="1">
+      <option <?%("COND:PREF", 1, :"weekstart", "0", "selected", "") value="0"><?_("Sunday")></option>
+      <option <?%("COND:PREF", 1, :"weekstart", "1", "selected", "") value="1"><?_("Monday")></option>
+    </select>
+  </td>
+</tr>
+
+<tr class="odd">
+   <td><?PREF:DESCR("use_sig")></td>
+   <td>
+ 	<script type="text/javascript">
+	function show_or_hide_sigbox() {
+		if ( $F('yes_sig') ) {
+			$('signature_box').style.display = 'inline';
+		}
+		else {
+			$('signature_box').style.display = 'none';
+		}
+	}
+	</script>
+
+signature
+
+	
+	<input type="radio" id="no_sig" name="use_sig" VALUE="no" checked onChange="show_or_hide_sigbox();" ><?_("No signature")></input>
+	&nbsp,&nbsp;&nbsp;
+	<input type="radio" id="yes_sig" name="use_sig" VALUE="yes" onChange="show_or_hide_sigbox();" >
+		<div id="signature_box"><br>
+		  <textarea name="signature" cols="40" rows="5"><?PREF:VALUE("signature")></textarea>
+		</div></input>
+  </td>
+</tr>
+<script type="text/javascript">show_or_hide_sigbox();</script>
+
+<tr class="even">
+  <td><?PREF:DESCR("default_header_charset")></td>
+  <td><input type="text" NAME="default_header_charset" MAXLENGTH="32" VALUE="<?PREF:VALUE("default_header_charset")>">
+</td>
+
+</tr>
+  <tr class="odd">
+    <td><?PREF:DESCR("emptyfloors")></td>
+    <td>
+      <input type="radio" name="emptyfloors" VALUE="yes" <?%("COND:PREF", 1, :"emptyfloors", "yes", "selected", "")> ><?_("Yes")></input>
+      &nbsp;&nbsp;&nbsp;
+      <input type="radio" name="emptyfloors" VALUE="no"  <?%("COND:PREF", 1, :"emptyfloors", "no",  "selected", "")> ><?_("No")></input>
+</td>
+</tr>
+</table>
+
+<div class="buttons"> 
+  <input type="submit" name="change_button" value="<?_("Change")>">&nbsp;
+  <input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</div>

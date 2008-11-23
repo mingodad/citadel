@@ -356,7 +356,7 @@ void context_loop(int *sock)
 		    (isspace(*ChrPtr(Line)))) {
 			pch = pchs = ChrPtr(Line);
 			pche = pchs + StrLength(Line);
-			while (isspace(pch) && (pch < pche))
+			while (isspace(*pch) && (pch < pche))
 				pch ++;
 			StrBufCutLeft(Line, pch - pchs);
 			StrBufAppendBuf(LastLine, Line, 0);
@@ -444,7 +444,7 @@ void context_loop(int *sock)
 	StrBufCutLeft(ReqLine, StrLength(ReqType) + 1);
 	StrBufCutRight(ReqLine, StrLength(HTTPVersion) + 1);
 
-	if ((StrLength(ReqLine) >= 8) &&
+	if ((follow_xff == 1) && (StrLength(ReqLine) >= 8) &&
 	    (ptr = strstr(ChrPtr(ReqLine), "/webcit/"),	/*< Handle "/webcit/" */
 	     (ptr != NULL))) {
 		StrBufCutLeft(ReqLine, 7);

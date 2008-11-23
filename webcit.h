@@ -260,7 +260,13 @@ struct roomlisting {
 
 #define TYPE_STR   1
 #define TYPE_LONG  2
+#define TYPE_PREFSTR 3
+#define TYPE_PREFINT 4
+#define TYPE_GETTEXT 5
+#define TYPE_BSTR 6
 #define MAXPARAM  20
+
+
 typedef struct _TemplateParam {
 	const char *Start;
 	int Type;
@@ -314,8 +320,7 @@ typedef struct _wcsubst {
 #define CTX_MAILSUM 9
 #define CTX_MIME_ATACH 10
 #define CTX_ATT 11
-#define CTX_GVEA 12
-#define CTX_GVSN 13
+#define CTX_STRBUF 12
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
@@ -349,6 +354,12 @@ void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 		      int ContextType,               /* which context do we provide to the subtemplate? */
 		      int XPectContextType);         /* which context do we expct to be called in? */
 #define RegisterIterator(a, b, c, d, e, f, g, h) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h)
+
+void GetTemplateTokenString(WCTemplateToken *Tokens,
+			    int N, 
+			    const char **Value, 
+			    long *len);
+
 
 void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
 #define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)

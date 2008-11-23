@@ -506,6 +506,54 @@ void StrBufAppendTemplate(StrBuf *Target,
 }
 
 
+void GetTemplateTokenString(WCTemplateToken *Tokens,
+			    int N, 
+			    const char **Value, 
+			    long *len)
+{
+	StrBuf *Buf;
+
+	if (Tokens->HaveParameters < N) {
+		*Value = "";
+		*len = 0;
+		return;
+	}
+
+	switch (Tokens->Params[N]->Type) {
+
+	case TYPE_STR:
+		*Value = Tokens->Params[N]->Start;
+		*len = Tokens->Params[N]->len;
+		break;
+	case TYPE_BSTR:
+		Buf = (StrBuf*) SBstr(Tokens->Params[N]->Start, 
+				      Tokens->Params[N]->len);
+		*Value = ChrPtr(Buf);
+		*len = StrLength(Buf);
+		break;
+	case TYPE_PREFSTR:
+		get_PREFERENCE(
+			Tokens->Params[N]->Start, 
+			Tokens->Params[N]->len, 
+			&Buf);
+		*Value = ChrPtr(Buf);
+		*len = StrLength(Buf);
+		break;
+	case TYPE_LONG:
+	case TYPE_PREFINT:
+		break; ///todo: string to text?
+	case TYPE_GETTEXT:
+		*Value = _(Tokens->Params[N]->Start);
+		*len = strlen(*Value);
+		break;
+	default:
+		break;
+//todo log error
+	}
+}
+
+
+
 /**
  * \brief Print the value of a variable
  * \param keyname get a key to print
@@ -658,11 +706,33 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	TemplateParam *Parm = (TemplateParam *) malloc(sizeof(TemplateParam));
 	char quote = '\0';
 	
+
+	Parm->Type = TYPE_STR;
+
 	/* Skip leading whitespaces */
 	while ((*pch == ' ' )||
 	       (*pch == '\t')||
 	       (*pch == '\r')||
 	       (*pch == '\n')) pch ++;
+
+	if (*pch == ':') {
+		Parm->Type = TYPE_PREFSTR;
+		pch ++;
+	}
+	else if (*pch == ';') {
+		Parm->Type = TYPE_PREFINT;
+		pch ++;
+	}
+	else if (*pch == '_') {
+		Parm->Type = TYPE_GETTEXT;
+		pch ++;
+	}
+	else if (*pch == 'B') {
+		Parm->Type = TYPE_BSTR;
+		pch ++;
+	}
+
+
 	if (*pch == '"')
 		quote = '"';
 	else if (*pch == '\'')
@@ -670,7 +740,6 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	if (quote != '\0') {
 		pch ++;
 		pchs = pch;
-		Parm->Type = TYPE_STR;
 		while (pch <= pe &&
 		       ((*pch != quote) ||
 			( (pch > pchs) && (*(pch - 1) == '\\'))
@@ -1572,19 +1641,46 @@ void RegisterConditional(const char *Name, long len,
 	Put(Conditionals, Name, len, Cond, NULL);
 }
 
+
+void tmplput_ContextString(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, (StrBuf*)Context, 0);
+}
+int ConditionalContextStr(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBuf *EmailAddr = (StrBuf*) Context;
+	const char *CompareToken;
+	long len;
+
+	GetTemplateTokenString(Tokens, 3, &CompareToken, &len);
+	return strcmp(ChrPtr(EmailAddr), CompareToken) == 0;
+}
+
+
 void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
+	StrBuf *Headline;
 	if (nArgs == 2) {
-		StrBuf *Headline = NewStrBuf();
-		DoTemplate(Tokens->Params[1]->Start, 
-			   Tokens->Params[1]->len,
-			   Headline, 
-			   Context, 
-			   ContextType);
-		SVPutBuf("BOXTITLE", Headline, 0);
+		if (Tokens->Params[1]->Type == TYPE_STR) {
+			Headline = NewStrBuf();
+			DoTemplate(Tokens->Params[1]->Start, 
+				   Tokens->Params[1]->len,
+				   Headline, 
+				   Context, 
+				   ContextType);
+		}
+		else {
+			const char *Ch;
+			long *len;
+			GetTemplateTokenString(Tokens, 
+					       1,
+					       &Ch,
+					       &len);
+			Headline = NewStrBufPlain(Ch, len);
+		}
 	}
 	
-	DoTemplate(HKEY("beginbox"), Target, Context, ContextType);
+	DoTemplate(HKEY("beginbox"), Target, Headline, CTX_STRBUF);
 	DoTemplate(Tokens->Params[0]->Start, 
 		   Tokens->Params[0]->len,
 		   Target, 
@@ -1592,6 +1688,7 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 		   ContextType);
 	DoTemplate(HKEY("endbox"), Target, Context, ContextType);
 }
+
 
 void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -1633,10 +1730,13 @@ void
 InitModule_SUBST
 (void)
 {
+	RegisterNamespace("CONTEXTSTR", 0, 1, tmplput_ContextString, CTX_STRBUF);
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);
 	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, CTX_NONE);
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
+	RegisterConditional(HKEY("COND:CONTEXT"), 3, ConditionalContextStr, CTX_NONE);
+
 }
 
 /*@}*/
