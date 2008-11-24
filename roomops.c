@@ -3656,7 +3656,9 @@ void set_room_policy(void) {
 
 void tmplput_RoomName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	StrEscAppend(Target, NULL, WC->wc_roomname, 1, 1);
+	StrBuf *tmp;
+	tmp = NewStrBufPlain(WC->wc_roomname, -1);;
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, tmp, 0);
 }
 
 void _gotonext(void) { slrp_highest(); gotonext(); }
@@ -3838,7 +3840,7 @@ void
 InitModule_ROOMOPS
 (void)
 {
-	RegisterNamespace("ROOMNAME", 0, 0, tmplput_RoomName, 0);
+	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, 0);
 
 	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
 	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, 0);
@@ -3862,7 +3864,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
-	RegisterNamespace("ROOMBANNER", 0, 0, tmplput_roombanner, 0);
+	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, 0);
 
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_INUSE"), 0, ConditionalRoomHas_QR_INUSE, CTX_NONE);
