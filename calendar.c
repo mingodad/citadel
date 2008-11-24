@@ -456,7 +456,11 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	if (ps != NULL) {
 		dtstart = icalproperty_get_dtstart(ps);
 		Cal->event_start = icaltime_as_timet(dtstart);
-		lprintf(9, "[31mINITIAL: %s[0m", ctime(&Cal->event_start));
+		lprintf(9, "[31mINITIAL: %s, is_utc=%d, tzid=%s[0m\n",
+			icaltime_as_ical_string(dtstart),
+			icaltime_is_utc(dtstart),
+			icaltime_get_tzid(dtstart)
+		);
 	}
 
 	/* Do the same for the ending date and time.  It makes the day view much easier to render. */
@@ -517,7 +521,11 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				ical_dezonify(Cal->cal);	/* dezonify every recurrence - we may
 								 * have hit the start/end of DST */
 				Cal->event_start = icaltime_as_timet(next);
-				lprintf(9, "[32mREPEATS: %s[0m", ctime(&Cal->event_start));
+				lprintf(9, "[32mREPEATS: %s, is_utc=%d, tzid=%s[0m\n",
+					icaltime_as_ical_string(next),
+					icaltime_is_utc(next),
+					icaltime_get_tzid(next)
+				);
 				final_recurrence = Cal->event_start;
 			}
 	
