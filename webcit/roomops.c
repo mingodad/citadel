@@ -276,7 +276,7 @@ void zapped_list(void)
 /**
  * \brief read this room's info file (set v to 1 for verbose mode)
  */
-void readinfo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void readinfo(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	char buf[256];
 	char briefinfo[128];
@@ -325,7 +325,7 @@ void readinfo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, 
  * keep the browser from using a cached icon from 
  * another room.
  */
-void embed_room_graphic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
+void embed_room_graphic(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
 	char buf[SIZ];
 
 	serv_puts("OIMG _roompic_");
@@ -381,7 +381,7 @@ void embed_room_graphic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void 
 /**
  * \brief Display the current view and offer an option to change it
  */
-void embed_view_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
+void embed_view_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
 	int i;
 
 	wprintf("<form name=\"viewomatic\" action=\"changeview\">\n");
@@ -422,7 +422,7 @@ void embed_view_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void 
 /**
  * \brief Display a search box
  */
-void embed_search_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
+void embed_search_o_matic(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
 	wprintf("<form name=\"searchomatic\" action=\"do_search\">\n");
 	wprintf("<div style=\"display: inline;\"><input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 	wprintf("<label for=\"search_name\">");

@@ -230,7 +230,7 @@ int summcmp_rdate(const void *s1, const void *s2) {
  */
 int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *PartNum) {
 	StrBuf *Buf;
-	StrBuf *Token;
+	StrBuf *HdrToken;
 	StrBuf *FoundCharset;
 	HashPos  *it;
 	void *vMime;
@@ -260,7 +260,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	/** begin everythingamundo table */
 
 
-	Token = NewStrBuf();
+	HdrToken = NewStrBuf();
 	Msg = (message_summary *)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
 	Msg->msgnum = msgnum;
@@ -280,7 +280,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 				StrBufAppendPrintf(Target, " (1)</i><br /><br />\n");
 				StrBufAppendPrintf(Target, "</div>\n");
 				FreeStrBuf(&Buf);
-				FreeStrBuf(&Token);
+				FreeStrBuf(&HdrToken);
 				DestroyMessageSummary(Msg);
 				FreeStrBuf(&FoundCharset);
 				return 0;
@@ -295,11 +295,11 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 				state ++;
 				break;
 			}
-			StrBufExtract_token(Token, Buf, 0, '=');
-			StrBufCutLeft(Buf, StrLength(Token) + 1);
+			StrBufExtract_token(HdrToken, Buf, 0, '=');
+			StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 			
-			lprintf(1, ":: [%s] = [%s]\n", ChrPtr(Token), ChrPtr(Buf));
-			if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
+			lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+			if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 			    (vHdr != NULL)) {
 				Hdr = (headereval*)vHdr;
 				Hdr->evaluator(Msg, Buf, FoundCharset);
@@ -307,7 +307,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 					state++;
 				}
 			}
-			else lprintf(1, "don't know how to handle message header[%s]\n", ChrPtr(Token));
+			else lprintf(1, "don't know how to handle message header[%s]\n", ChrPtr(HdrToken));
 			break;
 		case 1:/* Message Mime Header */
 			if (StrLength(Buf) == 0) {
@@ -319,11 +319,11 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			}
 			else
 			{
-				StrBufExtract_token(Token, Buf, 0, ':');
-				if (StrLength(Token) > 0) {
-					StrBufCutLeft(Buf, StrLength(Token) + 1);
-					lprintf(1, ":: [%s] = [%s]\n", ChrPtr(Token), ChrPtr(Buf));
-					if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
+				StrBufExtract_token(HdrToken, Buf, 0, ':');
+				if (StrLength(HdrToken) > 0) {
+					StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
+					lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+					if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 					    (vHdr != NULL)) {
 						Hdr = (headereval*)vHdr;
 						Hdr->evaluator(Msg, Buf, FoundCharset);
@@ -420,7 +420,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
-	FreeStrBuf(&Token);
+	FreeStrBuf(&HdrToken);
 	FreeStrBuf(&Buf);
 	return 1;
 }

@@ -626,37 +626,37 @@ void set_preferences(void)
 	StrBuf *buf, *encBuf;
 	int *time_format_cache;
 	
-	time_format_cache = &(WC->time_format_cache);
+	 time_format_cache = &(WC->time_format_cache);
 
-	if (!havebstr("change_button")) {
-		safestrncpy(WC->ImportantMessage, 
-			_("Cancelled.  No settings were changed."),
-			sizeof WC->ImportantMessage);
-		display_main_menu();
-		return;
-	}
+	 if (!havebstr("change_button")) {
+		 safestrncpy(WC->ImportantMessage, 
+			 _("Cancelled.  No settings were changed."),
+			 sizeof WC->ImportantMessage);
+		 display_main_menu();
+		 return;
+	 }
 
-	/**
-	 * Set the last argument to 1 only for the final setting, so
-	 * we don't send the prefs file to the server repeatedly
-	 */
-	set_preference("roomlistview", NewStrBufPlain(bstr("roomlistview"), -1), 0);
-	fmt = lbstr("calhourformat");
-	set_pref_long("calhourformat", fmt, 0);
-	if (fmt == 24) 
-		*time_format_cache = WC_TIMEFORMAT_24;
-	else
-		*time_format_cache = WC_TIMEFORMAT_AMPM;
+	 /**
+	  * Set the last argument to 1 only for the final setting, so
+	  * we don't send the prefs file to the server repeatedly
+	  */
+	 set_preference("roomlistview", NewStrBufPlain(bstr("roomlistview"), -1), 0);
+	 fmt = lbstr("calhourformat");
+	 set_pref_long("calhourformat", fmt, 0);
+	 if (fmt == 24) 
+		 *time_format_cache = WC_TIMEFORMAT_24;
+	 else
+		 *time_format_cache = WC_TIMEFORMAT_AMPM;
 
-	set_pref_long("weekstart", lbstr("weekstart"), 0);
-	set_pref_yesno("use_sig", yesbstr("use_sig"), 0);
-	set_pref_long("daystart", lbstr("daystart"), 0);
-	set_pref_long("dayend", lbstr("dayend"), 0);
-	set_preference("default_header_charset", NewStrBufPlain(bstr("default_header_charset"), -1), 0);
-	set_preference("emptyfloors", NewStrBufPlain(bstr("emptyfloors"), -1), 0);
-	set_preference("defaultfrom", NewStrBufDup(sbstr("defaultfrom")), 0);
-	set_preference("defaultname", NewStrBufDup(sbstr("defaultname")), 0);
-	set_preference("defaulthandle", NewStrBufDup(sbstr("defaulthandle")), 0);
+	 set_pref_long("weekstart", lbstr("weekstart"), 0);
+	 set_pref_yesno("use_sig", yesbstr("use_sig"), 0);
+	 set_pref_long("daystart", lbstr("daystart"), 0);
+	 set_pref_long("dayend", lbstr("dayend"), 0);
+	 set_preference("default_header_charset", NewStrBufPlain(bstr("default_header_charset"), -1), 0);
+	 set_preference("emptyfloors", NewStrBufPlain(bstr("emptyfloors"), -1), 0);
+	 set_preference("defaultfrom", NewStrBufDup(sbstr("defaultfrom")), 0);
+	 set_preference("defaultname", NewStrBufDup(sbstr("defaultname")), 0);
+	 set_preference("defaulthandle", NewStrBufDup(sbstr("defaulthandle")), 0);
 
 
 	buf = NewStrBufPlain(bstr("signature"), -1);
@@ -675,20 +675,20 @@ void set_preferences(void)
 #define PRF_YESNO 4
 
 
-void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *Setting;
-	if (get_PREFERENCE(Token->Params[0]->Start,
-			   Token->Params[0]->len,
+	if (get_PREFERENCE(Tokens->Params[0]->Start,
+			   Tokens->Params[0]->len,
 			   &Setting))
-		StrBufAppendBuf(Target, Setting, 0);
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Setting, 1);
 }
 
-void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	const char *SettingStr;
-	SettingStr = PrefGetLocalStr(Token->Params[0]->Start,
-				     Token->Params[0]->len);
+	SettingStr = PrefGetLocalStr(Tokens->Params[0]->Start,
+				     Tokens->Params[0]->len);
 	if (SettingStr != NULL) 
 		StrBufAppendBufPlain(Target, SettingStr, -1, 0);
 }
@@ -701,23 +701,23 @@ void CfgZoneTempl(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
 	SVPutBuf("ZONENAME", Zone, 1);
 }
 
-int ConditionalPreference(WCTemplateToken *Token, void *Context, int ContextType)
+int ConditionalPreference(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *Pref;
 
-	if (!get_PREFERENCE(Token->Params[2]->Start,
-			    Token->Params[2]->len,
+	if (!get_PREFERENCE(Tokens->Params[2]->Start,
+			    Tokens->Params[2]->len,
 			    &Pref)) 
 		return 0;
 	
-	if (Token->nParameters == 3) {
+	if (Tokens->nParameters == 3) {
 		return 1;
 	}
-	else if (Token->Params[3]->Type == TYPE_STR)
-		return ((Token->Params[3]->len == StrLength(Pref)) &&
-			(strcmp(Token->Params[3]->Start, ChrPtr(Pref)) == 0));
+	else if (Tokens->Params[3]->Type == TYPE_STR)
+		return ((Tokens->Params[3]->len == StrLength(Pref)) &&
+			(strcmp(Tokens->Params[3]->Start, ChrPtr(Pref)) == 0));
 	else 
-		return (StrTol(Pref) == Token->Params[3]->lvalue);
+		return (StrTol(Pref) == Tokens->Params[3]->lvalue);
 }
 
 HashList *GetGVEAHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
