@@ -205,7 +205,7 @@ void httplang_to_locale(StrBuf *LocaleString)
  * depending on the browser locale change the sequence of the 
  * language chooser.
  */
-void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
+void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
 	int i;
 #ifndef HAVE_USELOCALE
 	char *Lang = getenv("LANG");
@@ -366,10 +366,9 @@ void preset_locale(void)
 #endif	/* ENABLE_NLS */
 
 
-void TmplGettext(StrBuf *Target, int nTokens, WCTemplateToken *Token)
+void TmplGettext(StrBuf *Target, int nTokens, WCTemplateToken *Tokens)
 {
-	StrBufAppendBufPlain(Target, _(Token->Params[0]->Start), -1, 0);
-
+	StrBufAppendBufPlain(Target, _(Tokens->Params[0]->Start), -1, 0);
 }
 
 

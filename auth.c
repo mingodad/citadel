@@ -884,17 +884,17 @@ void changepw(void)
 	}
 }
 
-int ConditionalAide(WCTemplateToken *Token, void *Context, int ContextType)
+int ConditionalAide(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	return (WC->is_aide == 0);
 }
 
-int ConditionalRoomAide(WCTemplateToken *Token, void *Context, int ContextType)
+int ConditionalRoomAide(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	return (WC->is_room_aide == 0);
 }
 
-int ConditionalRoomAcessDelete(WCTemplateToken *Token, void *Context, int ContextType)
+int ConditionalRoomAcessDelete(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	struct wcsession *WCC = WC;
 	return ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) );

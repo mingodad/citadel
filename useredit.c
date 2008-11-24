@@ -12,86 +12,10 @@
  *  preselect which user should be selected in the browser
  */
 void select_user_to_edit(char *message, char *preselect)
-{/*
-	char buf[SIZ];
-	char username[SIZ];
- */
+{
 	output_headers(1, 0, 0, 0, 1, 0);
 	do_template("edituser_select", NULL);
         end_burst();
-
-/*
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/usermanag_48x.gif\">");
-        wprintf("<h1>");
-	wprintf(_("Edit or delete users"));
-        wprintf("</h1>");
-        wprintf("</div>");
-
-        wprintf("<div id=\"content\" class=\"service\">\n");
-
-	if (message != NULL) wprintf(message);
-
-	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
-
-	svput("BOXTITLE", WCS_STRING, _("Add users"));
-	do_template("beginbox", NULL);
-
-	wprintf(_("To create a new user account, enter the desired "
-		"user name in the box below and click 'Create'."));
-	wprintf("<br /><br />");
-
-        wprintf("<center><form method=\"POST\" action=\"create_user\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-        wprintf(_("New user: "));
-        wprintf("<input type=\"text\" name=\"username\"><br />\n"
-        	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
-		"</form></center>\n", _("Create"));
-
-	do_template("endbox", NULL);
-
-	wprintf("</td><td>");
-
-	svput("BOXTITLE", WCS_STRING, _("Edit or Delete users"));
-	do_template("beginbox", NULL);
-
-	wprintf(_("To edit an existing user account, select the user "
-		"name from the list and click 'Edit'."));
-	wprintf("<br /><br />");
-	
-        wprintf("<center>"
-		"<form method=\"POST\" action=\"display_edituser\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-        wprintf("<select name=\"username\" size=10 style=\"width:100%%\">\n");
-        serv_puts("LIST");
-        serv_getln(buf, sizeof buf);
-        if (buf[0] == '1') {
-                while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-                        extract_token(username, buf, 0, '|', sizeof username);
-                        wprintf("<option");
-			if (preselect != NULL)
-			   if (!strcasecmp(username, preselect))
-			      wprintf(" selected");
-			wprintf(">");
-                        escputs(username);
-                        wprintf("\n");
-                }
-        }
-        wprintf("</select><br />\n");
-
-        wprintf("<input type=\"submit\" name=\"edit_config_button\" value=\"%s\">", _("Edit configuration"));
-        wprintf("<input type=\"submit\" name=\"edit_abe_button\" value=\"%s\">", _("Edit address book entry"));
-        wprintf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
-		"onClick=\"return confirm('%s');\">", _("Delete user"), _("Delete this user?"));
-        wprintf("</form></center>\n");
-	do_template("endbox", NULL);
-
-	wprintf("</td></tr></table>\n");
-
-	wDumpContent(1);
-*/
 }
 
 
@@ -344,68 +268,67 @@ HashList *iterate_load_userlist(StrBuf *Target, int nArgs, WCTemplateToken *Toke
 }
 
 
-void tmplput_USERLIST_UserName(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_UserName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
-/// TODO: X
-	StrBufAppendBuf(Target, ul->UserName, 0);
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, ul->UserName, 0);
 }
 
-void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
 	StrBufAppendPrintf(Target, "%d", ul->AccessLevel, 0);
 }
 
-void tmplput_USERLIST_AccessLevelStr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_AccessLevelStr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 	
 	StrBufAppendBufPlain(Target, _(axdefs[ul->AccessLevel]), -1, 0);
 }
 
-void tmplput_USERLIST_UID(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_UID(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
 	StrBufAppendPrintf(Target, "%d", ul->UID, 0);
 }
 
-void tmplput_USERLIST_LastLogonNo(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_LastLogonNo(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
 	StrBufAppendPrintf(Target,"%ld", ul->LastLogonT, 0);
 }
-void tmplput_USERLIST_LastLogonStr(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_LastLogonStr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 	StrEscAppend(Target, NULL, asctime(localtime(&ul->LastLogonT)), 0, 0);
 }
 
-void tmplput_USERLIST_nLogons(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_nLogons(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
 	StrBufAppendPrintf(Target, "%d", ul->nLogons, 0);
 }
 
-void tmplput_USERLIST_nPosts(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_nPosts(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
 	StrBufAppendPrintf(Target, "%d", ul->nPosts, 0);
 }
 
-void tmplput_USERLIST_Flags(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_Flags(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
 	StrBufAppendPrintf(Target, "%d", ul->Flags, 0);
 }
 
-void tmplput_USERLIST_DaysTillPurge(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType)
+void tmplput_USERLIST_DaysTillPurge(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	UserListEntry *ul = (UserListEntry*) Context;
 
@@ -604,191 +527,6 @@ void display_edituser(char *supplied_username, int is_new) {
 	}
 	FreeStrBuf(&Buf);
 }
-
-
-
-/* *
- *  Edit a user.  
- * If supplied_username is null, look in the "username"
- * web variable for the name of the user to edit.
- * 
- * If "is_new" is set to nonzero, this screen will set the web variables
- * to send the user to the vCard editor next.
- *  supplied_username user to look up or NULL if to search in the environment
- *  is_new should we create the user?
- * /
-void display_edituser(char *supplied_username, int is_new) {
-	char buf[1024];
-	char error_message[1024];
-	time_t now;
-
-	char username[256];
-	char password[256];
-	unsigned int flags;
-	int timescalled;
-	int msgsposted;
-	int axlevel;
-	long usernum;
-	time_t lastcall;
-	int purgedays;
-	int i;
-
-	if (supplied_username != NULL) {
-		safestrncpy(username, supplied_username, sizeof username);
-	}
-	else {
-		safestrncpy(username, bstr("username"), sizeof username);
-	}
-
-	serv_printf("AGUP %s", username);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') {
-		sprintf(error_message,
-			"<img src=\"static/error.gif\" align=center>"
-			"%s<br /><br />\n", &buf[4]);
-		select_user_to_edit(error_message, username);
-		return;
-	}
-
-	extract_token(username, &buf[4], 0, '|', sizeof username);
-	extract_token(password, &buf[4], 1, '|', sizeof password);
-	flags = extract_int(&buf[4], 2);
-	timescalled = extract_int(&buf[4], 3);
-	msgsposted = extract_int(&buf[4], 4);
-	axlevel = extract_int(&buf[4], 5);
-	usernum = extract_long(&buf[4], 6);
-	lastcall = extract_long(&buf[4], 7);
-	purgedays = extract_long(&buf[4], 8);
-
-	if (havebstr("edit_abe_button")) {
-		display_edit_address_book_entry(username, usernum);
-		return;
-	}
-
-	if (havebstr("delete_button")) {
-		delete_user(username);
-		return;
-	}
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Edit user account: "));
-	escputs(username);
-        wprintf("</h1>");
-        wprintf("</div>");
-
-        wprintf("<div id=\"content\" class=\"service\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"useredit_background\"><tr><td>\n");
-	wprintf("<form method=\"POST\" action=\"edituser\">\n"
-		"<input type=\"hidden\" name=\"username\" value=\"");
-	escputs(username);
-	wprintf("\">\n");
-	wprintf("<input type=\"hidden\" name=\"is_new\" value=\"%d\">\n"
-		"<input type=\"hidden\" name=\"usernum\" value=\"%ld\">\n",
-		is_new, usernum);
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-
-	wprintf("<input type=\"hidden\" name=\"flags\" value=\"%d\">\n", flags);
-
-	wprintf("<center><table>");
-
-	wprintf("<tr><td>");
-	wprintf(_("User name:"));
-	wprintf("</td><td>"
-		"<input type=\"text\" name=\"newname\" value=\"");
-	escputs(username);
-	wprintf("\" maxlength=\"63\"></td></tr>\n");
-
-	wprintf("<tr><td>");
-	wprintf(_("Password"));
-	wprintf("</td><td>"
-		"<input type=\"password\" name=\"password\" value=\"");
-	escputs(password);
-	wprintf("\" maxlength=\"20\"></td></tr>\n");
-
-	wprintf("<tr><td>");
-	wprintf(_("Permission to send Internet mail"));
-	wprintf("</td><td>");
-	wprintf("<input type=\"checkbox\" name=\"inetmail\" value=\"yes\" ");
-	if (flags & US_INTERNET) {
-		wprintf("checked ");
-	}
-	wprintf("></td></tr>\n");
-
-	wprintf("<tr><td>");
-	wprintf(_("Number of logins"));
-	wprintf("</td><td>"
-		"<input type=\"text\" name=\"timescalled\" value=\"");
-	wprintf("%d", timescalled);
-	wprintf("\" maxlength=\"6\"></td></tr>\n");
-
-	wprintf("<tr><td>");
-	wprintf(_("Messages submitted"));
-	wprintf("</td><td>"
-		"<input type=\"text\" name=\"msgsposted\" value=\"");
-	wprintf("%d", msgsposted);
-	wprintf("\" maxlength=\"6\"></td></tr>\n");
-
-	wprintf("<tr><td>");
-	wprintf(_("Access level"));
-	wprintf("</td><td>"
-		"<select name=\"axlevel\">\n");
-	for (i=0; i<7; ++i) {
-		wprintf("<option ");
-		if (axlevel == i) {
-			wprintf("selected ");
-		}
-		wprintf("value=\"%d\">%d - %s</option>\n",
-			i, i, axdefs[i]);
-	}
-	wprintf("</select></td></tr>\n");
-
-	wprintf("<tr><td>");
-	wprintf(_("User ID number"));
-	wprintf("</td><td>"
-		"<input type=\"text\" name=\"usernum\" value=\"");
-	wprintf("%ld", usernum);
-	wprintf("\" maxlength=\"7\"></td></tr>\n");
-
-	now = time(NULL);
-	wprintf("<tr><td>");
-	wprintf(_("Date and time of last login"));
-	wprintf("</td><td>"
-		"<select name=\"lastcall\">\n");
-
-	wprintf("<option selected value=\"%ld\">", lastcall);
-	escputs(asctime(localtime(&lastcall)));
-	wprintf("</option>\n");
-
-	wprintf("<option value=\"%ld\">", now);
-	escputs(asctime(localtime(&now)));
-	wprintf("</option>\n");
-
-	wprintf("</select></td></tr>");
-
-	wprintf("<tr><td>");
-	wprintf(_("Auto-purge after this many days"));
-	wprintf("</td><td>"
-		"<input type=\"text\" name=\"purgedays\" value=\"");
-	wprintf("%d", purgedays);
-	wprintf("\" maxlength=\"5\"></td></tr>\n");
-
-	wprintf("</table>\n");
-
-	wprintf("<input type=\"submit\" name=\"ok_button\" value=\"%s\">\n"
-		"&nbsp;"
-		"<input type=\"submit\" name=\"cancel\" value=\"%s\">\n"
-		"<br /><br /></form>\n", _("Save changes"), _("Cancel"));
-
-	wprintf("</center>\n");
-	wprintf("</td></tr></table></div>\n");
-	wDumpContent(1);
-
-}
-*/
 
 /**
  *  do the backend operation of the user edit on the server

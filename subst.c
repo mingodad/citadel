@@ -558,21 +558,21 @@ void GetTemplateTokenString(WCTemplateToken *Tokens,
  * \brief Print the value of a variable
  * \param keyname get a key to print
  */
-void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context, int ContextType) {
+void print_value_of(StrBuf *Target, WCTemplateToken *Tokens, void *Context, int ContextType) {
 	struct wcsession *WCC = WC;
 	wcsubst *ptr;
 	void *vVar;
 
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
 	/// TODO: debricated!
-	if (Token->pName[0] == '=') {
-		DoTemplate(Token->pName+1, Token->NameEnd - 1, NULL, NULL, 0);
+	if (Tokens->pName[0] == '=') {
+		DoTemplate(Tokens->pName+1, Tokens->NameEnd - 1, NULL, NULL, 0);
 	}
 
 //////TODO: if param[1] == "U" -> urlescape
 /// X -> escputs
 	/** Page-local variables */
-	if ((WCC->vars!= NULL) && GetHash(WCC->vars, Token->pName, Token->NameEnd, &vVar)) {
+	if ((WCC->vars!= NULL) && GetHash(WCC->vars, Tokens->pName, Tokens->NameEnd, &vVar)) {
 		ptr = (wcsubst*) vVar;
 		switch(ptr->wcs_type) {
 		case WCS_STRING:
@@ -582,7 +582,7 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context, int C
 			pvo_do_cmd(Target, ptr->wcs_value);
 			break;
 		case WCS_FUNCTION:
-			(*ptr->wcs_function) (Target, Token->nParameters, Token, Context, ContextType);
+			(*ptr->wcs_function) (Target, Tokens->nParameters, Tokens, Context, ContextType);
 			break;
 		case WCS_STRBUF:
 		case WCS_STRBUF_REF:
@@ -592,17 +592,17 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Token, void *Context, int C
 			StrBufAppendPrintf(Target, "%ld", ptr->lvalue);
 			break;
 		default:
-			lprintf(1,"WARNING: invalid value in SV-Hash at %s!\n", Token->pName);
-			StrBufAppendPrintf(Target, "<pre>WARNING: \ninvalid value in SV-Hash at %s!\n</pre>", Token->pName);
+			lprintf(1,"WARNING: invalid value in SV-Hash at %s!\n", Tokens->pName);
+			StrBufAppendPrintf(Target, "<pre>WARNING: \ninvalid value in SV-Hash at %s!\n</pre>", Tokens->pName);
 		}
 	}
 	else {
 		lprintf(1, "didn't find Handler [%s] (in '%s' line %ld); "
 			" [%s]\n", 
-			Token->pName,
-			ChrPtr(Token->FileName),
-			Token->Line,
-			ChrPtr(Token->FlatToken));
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			ChrPtr(Tokens->FlatToken));
 		wc_backtrace();
 	}
 }
@@ -699,7 +699,7 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 	Template->Tokens[(Template->nTokensUsed)++] = NewToken;
 }
 
-TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, WCTemplateToken *Token, WCTemplate *pTmpl)
+TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, WCTemplateToken *Tokens, WCTemplate *pTmpl)
 {
 	const char *pch = *pCh;
 	const char *pchs, *pche;
@@ -751,8 +751,8 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 			lprintf(1, "Error (in '%s' line %ld); "
 				"evaluating template param [%s] in Token [%s]\n",
 				ChrPtr(pTmpl->FileName),
-				Token->Line,
-				ChrPtr(Token->FlatToken),
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken),
 				*pCh);
 			pch ++;
 			free(Parm);
@@ -789,8 +789,8 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 			lprintf(1, "Error (in '%s' line %ld); "
 				"evaluating long template param [%s] in Token [%s]\n",
 				ChrPtr(pTmpl->FileName),
-				Token->Line,
-				ChrPtr(Token->FlatToken),
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken),
 				*pCh);
 			free(Parm);
 			return NULL;
@@ -978,43 +978,43 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 
 
 
-int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType)
+int EvaluateConditional(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType)
 {
 	ConditionalStruct *Cond;
 
-	if ((Token->Params[0]->len == 1) &&
-	    (Token->Params[0]->Start[0] == 'X'))
-		return (state != 0)?Token->Params[1]->lvalue:0;
+	if ((Tokens->Params[0]->len == 1) &&
+	    (Tokens->Params[0]->Start[0] == 'X'))
+		return (state != 0)?Tokens->Params[1]->lvalue:0;
 	    
-	Cond = (ConditionalStruct *) Token->PreEval;
+	Cond = (ConditionalStruct *) Tokens->PreEval;
 	if (Cond == NULL) {
 		lprintf(1, "Conditional [%s] (in '%s' line %ld); unknown![%s]\n", 
-			Token->Params[0]->Start,
+			Tokens->Params[0]->Start,
 			ChrPtr(pTmpl->FileName),
-			Token->Line,
-			ChrPtr(Token->FlatToken));
+			Tokens->Line,
+			ChrPtr(Tokens->FlatToken));
 		return 1;
 	}
 
-	if (Token->nParameters < Cond->nParams) {
+	if (Tokens->nParameters < Cond->nParams) {
 		lprintf(1, "Conditional [%s] (in '%s' line %ld); needs %ld Params![%s]\n", 
-			Token->Params[0]->Start,
+			Tokens->Params[0]->Start,
 			ChrPtr(pTmpl->FileName),
-			Token->Line,
+			Tokens->Line,
 			Cond->nParams,
-			ChrPtr(Token->FlatToken));
+			ChrPtr(Tokens->FlatToken));
 		StrBufAppendPrintf(
 			Target, 
 			"<pre>\nConditional [%s] (in '%s' line %ld); needs %ld Params!\n[%s]\n</pre>\n", 
-			Token->Params[0]->Start,
+			Tokens->Params[0]->Start,
 			ChrPtr(pTmpl->FileName),
-			Token->Line,
+			Tokens->Line,
 			Cond->nParams,
-			ChrPtr(Token->FlatToken));
+			ChrPtr(Tokens->FlatToken));
 		return 0;
 	}
-	if (Cond->CondF(Token, Context, ContextType) == Neg)
-		return Token->Params[1]->lvalue;
+	if (Cond->CondF(Tokens, Context, ContextType) == Neg)
+		return Tokens->Params[1]->lvalue;
 	return 0;
 }
 
@@ -1027,141 +1027,141 @@ int EvaluateConditional(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmp
  * \param state are we in conditional state?
  * \param ContextType what type of information does context giv us?
  */
-int EvaluateToken(StrBuf *Target, WCTemplateToken *Token, WCTemplate *pTmpl, void *Context, int state, int ContextType)
+int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int state, int ContextType)
 {
 	HashHandler *Handler;
 	void *vVar;
 // much output, since pName is not terminated...
 //	lprintf(1,"Doing token: %s\n",Token->pName);
 
-	switch (Token->Flags) {
+	switch (Tokens->Flags) {
 	case SV_GETTEXT:
-		TmplGettext(Target, Token->nParameters, Token);
+		TmplGettext(Target, Tokens->nParameters, Tokens);
 		break;
 	case SV_CONDITIONAL: /** Forward conditional evaluation */
-		return EvaluateConditional(Target, Token, pTmpl, Context, 1, state, ContextType);
+		return EvaluateConditional(Target, Tokens, pTmpl, Context, 1, state, ContextType);
 		break;
 	case SV_NEG_CONDITIONAL: /** Reverse conditional evaluation */
-		return EvaluateConditional(Target, Token, pTmpl, Context, 0, state, ContextType);
+		return EvaluateConditional(Target, Tokens, pTmpl, Context, 0, state, ContextType);
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
-		if (Token->nParameters >= 6) {
-			if (EvaluateConditional(Target, Token, pTmpl, Context, 0, state, ContextType))
+		if (Tokens->nParameters >= 6) {
+			if (EvaluateConditional(Target, Tokens, pTmpl, Context, 0, state, ContextType))
 				StrBufAppendBufPlain(Target, 
-						     Token->Params[5]->Start,
-						     Token->Params[5]->len,
+						     Tokens->Params[5]->Start,
+						     Tokens->Params[5]->len,
 						     0);
 			else
 				StrBufAppendBufPlain(Target, 
-						     Token->Params[4]->Start,
-						     Token->Params[4]->len,
+						     Tokens->Params[4]->Start,
+						     Tokens->Params[4]->len,
 						     0);
 		}
 		else  {
 			lprintf(1, "Conditional [%s] (in '%s' line %ld); needs at least 6 Params![%s]\n", 
-				Token->Params[0]->Start,
+				Tokens->Params[0]->Start,
 				ChrPtr(pTmpl->FileName),
-				Token->Line,
-				ChrPtr(Token->FlatToken));
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken));
 			StrBufAppendPrintf(
 				Target, 
 				"<pre>\nConditional [%s] (in '%s' line %ld); needs 6 Params!\n[%s]\n</pre>\n", 
-				Token->Params[0]->Start,
+				Tokens->Params[0]->Start,
 				ChrPtr(pTmpl->FileName),
-				Token->Line,
-				ChrPtr(Token->FlatToken));
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken));
 		}
 		break;
 	case SV_SUBTEMPL:
-		if (Token->nParameters == 1)
-			DoTemplate(Token->Params[0]->Start, Token->Params[0]->len, NULL, NULL, ContextType);
+		if (Tokens->nParameters == 1)
+			DoTemplate(Tokens->Params[0]->Start, Tokens->Params[0]->len, NULL, NULL, ContextType);
 		break;
 	case SV_PREEVALUATED:
-		Handler = (HashHandler*) Token->PreEval;
+		Handler = (HashHandler*) Tokens->PreEval;
 		if ((Handler->ContextRequired != CTX_NONE) &&
 		    (Handler->ContextRequired != ContextType)) {
 			lprintf(1, "Handler [%s] (in '%s' line %ld); "
 				"requires context of type %ld, have %ld [%s]\n", 
-				Token->pName,
+				Tokens->pName,
 				ChrPtr(pTmpl->FileName),
-				Token->Line,
+				Tokens->Line,
 				Handler->ContextRequired, 
 				ContextType,
-				ChrPtr(Token->FlatToken));
+				ChrPtr(Tokens->FlatToken));
 			StrBufAppendPrintf(
 				Target, 
 				"<pre>\nHandler [%s] (in '%s' line %ld);"
 				" requires context of type %ld, have %ld!\n[%s]\n</pre>\n", 
-				Token->pName,
+				Tokens->pName,
 				ChrPtr(pTmpl->FileName),
-				Token->Line,
+				Tokens->Line,
 				Handler->ContextRequired, 
 				ContextType,
-				ChrPtr(Token->FlatToken));
+				ChrPtr(Tokens->FlatToken));
 			return -1;
 
 		}
 		Handler->HandlerFunc(Target, 
-				     Token->nParameters,
-				     Token,
+				     Tokens->nParameters,
+				     Tokens,
 				     Context, 
 				     ContextType); 
 		break;		
 	default:
-		if (GetHash(GlobalNS, Token->pName, Token->NameEnd, &vVar)) {
+		if (GetHash(GlobalNS, Tokens->pName, Tokens->NameEnd, &vVar)) {
 			Handler = (HashHandler*) vVar;
 			if ((Handler->ContextRequired != CTX_NONE) &&
 			    (Handler->ContextRequired != ContextType)) {
 				lprintf(1, "Handler [%s] (in '%s' line %ld); "
 					"requires context of type %ld, have %ld [%s]\n", 
-					Token->pName,
+					Tokens->pName,
 					ChrPtr(pTmpl->FileName),
-					Token->Line,
+					Tokens->Line,
 					Handler->ContextRequired, 
 					ContextType,
-					ChrPtr(Token->FlatToken));
+					ChrPtr(Tokens->FlatToken));
 				StrBufAppendPrintf(
 					Target, 
 					"<pre>\nHandler [%s] (in '%s' line %ld);"
 					" requires context of type %ld, have %ld!\n[%s]\n</pre>\n", 
-					Token->pName,
+					Tokens->pName,
 					ChrPtr(pTmpl->FileName),
-					Token->Line,
+					Tokens->Line,
 					Handler->ContextRequired, 
 					ContextType,
-					ChrPtr(Token->FlatToken));
+					ChrPtr(Tokens->FlatToken));
 				return -1;
 			}
-			else if ((Token->nParameters < Handler->nMinArgs) || 
-				 (Token->nParameters > Handler->nMaxArgs)) {
+			else if ((Tokens->nParameters < Handler->nMinArgs) || 
+				 (Tokens->nParameters > Handler->nMaxArgs)) {
 				lprintf(1, "Handler [%s] (in '%s' line %ld); "
 					"doesn't work with %ld params [%s]\n", 
-					Token->pName,
+					Tokens->pName,
 					ChrPtr(pTmpl->FileName),
-					Token->Line,
-					Token->nParameters, 
-					ChrPtr(Token->FlatToken));
+					Tokens->Line,
+					Tokens->nParameters, 
+					ChrPtr(Tokens->FlatToken));
 				StrBufAppendPrintf(
 					Target, 
 					"<pre>\nHandler [%s] (in '%s' line %ld);"
 					" doesn't work with %ld params!\n[%s]\n</pre>\n", 
-					Token->pName,
+					Tokens->pName,
 					ChrPtr(pTmpl->FileName),
-					Token->Line,
-					Token->nParameters,
-					ChrPtr(Token->FlatToken));
+					Tokens->Line,
+					Tokens->nParameters,
+					ChrPtr(Tokens->FlatToken));
 			}
 			else {
 				Handler->HandlerFunc(Target, 
-						     Token->nParameters,
-						     Token,
+						     Tokens->nParameters,
+						     Tokens,
 						     Context, 
 						     ContextType); /*TODO: subset of that */
 				
 			}
 		}
 		else {
-			print_value_of(Target, Token, Context, ContextType);
+			print_value_of(Target, Tokens, Context, ContextType);
 		}
 	}
 	return 0;
