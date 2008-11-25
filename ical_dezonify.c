@@ -13,9 +13,6 @@
 #include "webcit.h"
 #include "webserver.h"
 
-#define DBG_ICAL	1
-
-
 /*
  * Figure out which time zone needs to be used for timestamps that are
  * not UTC and do not have a time zone specified.
