@@ -19,7 +19,6 @@
 </p>
 <img src="static/newmess3_24x.gif" class="imgedit">  <?DATE:NOW:STR>
 <table width="100%" class="edit_msg_table">
-<TODO: anonym>
 <tr><th><label for="from_id" >  <i><?_("from")></i> </label></th><td colspan="2">
 
 <??("COND:SUBST", 4, "RCPTREQUIRED")>
@@ -70,10 +69,6 @@
    <div class="auto_complete" id="bcc_name_choices"></div>
   </td>
 </tr>
-<script type="text/javascript">	
- activate_entmsg_autocompleters();	
-
-</script>
 <??("X", 5)>		
 <tr>
   <th><label for="subject_id" > 
@@ -90,20 +85,23 @@
 <textarea name="msgtext" cols="80" rows="15">
 <?BSTR("msgtext")>
 <?!("COND:BSTR", 1, "fwdquote")>
-<br><div align=center><i>
-<?_("--- forwarded message ---")>
-</i></div><br>
-<?MAIL:QUOTETEXT("fwdquote")>
-<?!("X", 1)><?!("COND:BSTR", 2, "replyquote")>
-<br>
-<blockquote>
-<?MAIL:QUOTETEXT("replyquote")>
-</blockquote><br>
-<?!("X", 2)><?!("COND:BSTR", 3, "sig_inserted", "yes")>
-<?!("COND:PREF", 4, "use_sig", "yes")>
-<br>--<br>
-<?PREF:VALUE("signature","H")>
-<?!("X", 4)>
+  &lt;div align=center&gt;
+    &lt;i&gt;
+      <?_("--- forwarded message ---")>
+    &lt;/i&gt;
+  &lt;/div&gt;
+  <?MAIL:QUOTETEXT("fwdquote", "X")>
+<?!("X", 1)>
+<?!("COND:BSTR", 2, "replyquote")>
+  &lt;blockquote&gt;
+    <?MAIL:QUOTETEXT("replyquote", "X")>
+  &lt;/blockquote&gt;
+<?!("X", 2)>
+<?!("COND:BSTR", 3, "sig_inserted", "yes")>
+  <?!("COND:PREF", 4, "use_sig", "yes")>
+    &lt;br&gt;--&lt;br&gt;
+    <?PREF:VALUE("signature","H")>
+  <?!("X", 4)>
 <?!("X", 3)>
 </textarea>
 <?=("richedit")>
@@ -112,13 +110,18 @@
 <div class="attachment buttons">
 <img src="static/diskette_24x.gif" class="imgedit" ><?_("Attachments:")>
 <select name="which_attachment" size=1>
-<?ITERATE("MSG:ATTACHNAMES", "section_attach_select")><TODO>
+<?ITERATE("MSG:ATTACHNAMES", "section_attach_select")>
 </select>
 &nbsp;&nbsp;&nbsp;<?_("Attach file:")>
 <input name="attachfile" class="attachfile" size=16 type="file">
 &nbsp;&nbsp;<input type="submit" name="attach_button" value="<?_("Add")>">
 
 </div></td></tr></table></form>
+
+<script type="text/javascript">	
+ activate_entmsg_autocompleters();	
+
+</script>
 
 </div>
 </div>

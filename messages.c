@@ -1988,7 +1988,6 @@ void post_message(void)
 void display_enter(void)
 {
 	char buf[SIZ];
-	StrBuf *ebuf;
 	long now;
 	const StrBuf *display_name = NULL;
 	/////wc_attachment *att;
@@ -1996,8 +1995,8 @@ void display_enter(void)
 	int subject_required = 0;
 	int recipient_bad = 0;
 	int is_anonymous = 0;
-	long existing_page = (-1L);
-	struct wcsession *WCC = WC;
+
+      	struct wcsession *WCC = WC;
 
 	now = time(NULL);
 
@@ -2060,16 +2059,7 @@ void display_enter(void)
 	 * Otherwise proceed normally.
 	 * Do a custom room banner with no navbar...
 	 */
-	output_headers(1, 1, 2, 0, 0, 0);
 
-/*
-	wprintf("<div id=\"banner\">\n");
-	embed_room_banner(NULL, navbar_none);
-	wprintf("</div>\n");
-	wprintf("<div id=\"content\">\n"
-		"<div class=\"fix_scrollbar_bug message \">");
-*/
-	/* Now check our actual recipients if there are any */
 	if (recipient_required) {
 		const StrBuf *Recp = NULL; 
 		const StrBuf *Cc = NULL;
@@ -2112,325 +2102,19 @@ void display_enter(void)
 		}
 		else if (buf[0] != '2') {	/** Any other error means that we cannot continue */
 			wprintf("<em>%s</em><br />\n", &buf[4]);/// -> important message
-			goto DONE;
+			return;
 		}
 	}
 	svputlong("RCPTREQUIRED", recipient_required);
 	svputlong("SUBJREQUIRED", recipient_required || subject_required);
-	DoTemplate(HKEY("edit_message"), NULL, NULL, CTX_NONE);
-	address_book_popup();
-	wDumpContent(1);
 
+	begin_burst();
+	output_headers(1, 0, 0, 0, 1, 0);
+	DoTemplate(HKEY("edit_message"), NULL, NULL, CTX_NONE);
+	end_burst();
 
 	return;
-
-
-	/** If we got this far, we can display the message entry screen. */
-
-	/* begin message entry screen */
-	wprintf("<form "
-		"enctype=\"multipart/form-data\" "
-		"method=\"POST\" "
-		"accept-charset=\"UTF-8\" "
-		"action=\"post\" "
-		"name=\"enterform\""
-		">\n");
-	wprintf("<input type=\"hidden\" name=\"postseq\" value=\"%ld\">\n", now);
-	if (WCC->wc_view == VIEW_WIKI) {
-		wprintf("<input type=\"hidden\" name=\"wikipage\" value=\"%s\">\n", bstr("wikipage"));
-	}
-	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"%s\">\n", bstr("return_to"));
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WCC->nonce);
-	wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
-	escputs(WCC->wc_roomname);
-	wprintf("\">\n");
-	wprintf("<input type=\"hidden\" name=\"references\" value=\"");
-	escputs(bstr("references"));
-	wprintf("\">\n");
-
-	/** submit or cancel buttons */
-        wprintf("<p class=\"send_edit_msg\">");
-        wprintf("<input type=\"submit\" name=\"send_button\" value=\"");
-        if (recipient_required) {
-                wprintf(_("Send message"));
-        } else {
-                wprintf(_("Post message"));
-        }
-        wprintf("\">&nbsp;"
-                "<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
-        wprintf("</p>");
-
-	/** header bar */
-
-	wprintf("<img src=\"static/newmess3_24x.gif\" class=\"imgedit\">");
-	wprintf("  ");	/** header bar */
-	webcit_fmt_date(buf, now, 0);
-	wprintf("%s", buf);
-	wprintf("\n");	/** header bar */
-
-	wprintf("<table width=\"100%%\" class=\"edit_msg_table\">");
-	wprintf("<tr>");
-	wprintf("<th><label for=\"from_id\" > ");
-	wprintf(_(" <I>from</I> "));
-	wprintf("</label></th>");
-
-	wprintf("<td colspan=\"2\">");
-
-	/* Allow the user to select any of his valid screen names */
-
-	wprintf("<select name=\"display_name\" size=1 id=\"from_id\">\n");
-
-	serv_puts("GVSN");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			wprintf("<option %s value=\"",
-				((!strcasecmp(bstr("display_name"), buf)) ? "selected" : "")
-			);
-			escputs(buf);
-			wprintf("\">");
-			escputs(buf);
-			wprintf("</option>\n");
-		}
-	}
-
-	if (WCC->room_flags & QR_ANONOPT) {
-		wprintf("<option %s value=\"__ANONYMOUS__\">%s</option>\n",
-			((!strcasecmp(bstr("__ANONYMOUS__"), WCC->wc_fullname)) ? "selected" : ""),
-			_("Anonymous")
-		);
-	}
-
-	wprintf("</select>\n");
-
-	/* If this is an email (not a post), allow the user to select any of his
-	 * valid email addresses.
-	 */
-	if (recipient_required) {
-		serv_puts("GVEA");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') {
-			wprintf("<select name=\"my_email_addr\" size=1>\n");
-			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				wprintf("<option value=\"");
-				escputs(buf);
-				wprintf("\">&lt;");
-				escputs(buf);
-				wprintf("&gt;</option>\n");
-			}
-			wprintf("</select>\n");
-		}
-	}
-
-	wprintf(_(" <I>in</I> "));
-	escputs(WCC->wc_roomname);
-
-	wprintf("</td></tr>");
-
-	if (recipient_required) {
-		char *ccraw;
-		char *copy;
-		size_t len;
-		wprintf("<tr><th><label for=\"recp_id\"> ");
-		wprintf(_("To:"));
-		wprintf("</label></th>"
-			"<td><input autocomplete=\"off\" type=\"text\" name=\"recp\" id=\"recp_id\" value=\"");
-		ccraw = xbstr("recp", &len);
-		copy = (char*) malloc(len * 2 + 1);
-		memcpy(copy, ccraw, len + 1); 
-		utf8ify_rfc822_string(copy);
-		escputs(copy);
-		free(copy);
-		wprintf("\" size=45 maxlength=1000 />");
-		wprintf("<div class=\"auto_complete\" id=\"recp_name_choices\"></div>");
-		wprintf("</td><td rowspan=\"3\" align=\"left\" valign=\"top\">");
-
-		/** Pop open an address book -- begin **/
-		wprintf(
-			"<a href=\"javascript:PopOpenAddressBook('recp_id|%s|cc_id|%s|bcc_id|%s');\" "
-			"title=\"%s\">"
-			"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
-			"&nbsp;%s</a>",
-			_("To:"), _("CC:"), _("BCC:"),
-			_("Contacts"), _("Contacts")
-		);
-		/** Pop open an address book -- end **/
-
-		wprintf("</td></tr>");
-
-		wprintf("<tr><th><label for=\"cc_id\"> ");
-		wprintf(_("CC:"));
-		wprintf("</label></th>"
-			"<td><input autocomplete=\"off\" type=\"text\" name=\"cc\" id=\"cc_id\" value=\"");
-		ccraw = xbstr("cc", &len);
-		copy = (char*) malloc(len * 2 + 1);
-		memcpy(copy, ccraw, len + 1); 
-		utf8ify_rfc822_string(copy);
-		escputs(copy);
-		free(copy);
-		wprintf("\" size=45 maxlength=1000 />");
-		wprintf("<div class=\"auto_complete\" id=\"cc_name_choices\"></div>");
-		wprintf("</td></tr>");
-
-		wprintf("<tr><th><label for=\"bcc_id\"> ");
-		wprintf(_("BCC:"));
-		wprintf("</label></th>"
-			"<td><input autocomplete=\"off\" type=\"text\" name=\"bcc\" id=\"bcc_id\" value=\"");
-		ccraw = xbstr("bcc", &len);
-		copy = (char*) malloc(len * 2 + 1);
-		memcpy(copy, ccraw, len + 1); 
-		utf8ify_rfc822_string(copy);
-		escputs(copy);
-		free(copy);
-		wprintf("\" size=45 maxlength=1000 />");
-		wprintf("<div class=\"auto_complete\" id=\"bcc_name_choices\"></div>");
-		wprintf("</td></tr>");
-
-		/** Initialize the autocomplete ajax helpers (found in wclib.js) */
-		wprintf("<script type=\"text/javascript\">	\n"
-			" activate_entmsg_autocompleters();	\n"
-			"</script>				\n"
-		);
-
-	}
-
-	wprintf("<tr><th><label for=\"subject_id\" > ");
-	if (recipient_required || subject_required) {
-		wprintf(_("Subject:"));
-	}
-	else {
-		wprintf(_("Subject (optional):"));
-	}
-	wprintf("</label></th>"
-		"<td colspan=\"2\">"
-		"<input type=\"text\" name=\"subject\" id=\"subject_id\" value=\"");
-	escputs(bstr("subject"));
-	wprintf("\" size=45 maxlength=70>\n");
-	wprintf("</td></tr>");
-
-	wprintf("<tr><td colspan=\"3\">\n");
-
-	wprintf("<textarea name=\"msgtext\" cols=\"80\" rows=\"15\">");
-
-	/** If we're continuing from a previous edit, put our partially-composed message back... */
-	msgescputs(bstr("msgtext"));
-
-	/* If we're forwarding a message, insert it here... */
-	if (lbstr("fwdquote") > 0L) {
-		wprintf("<br><div align=center><i>");
-		wprintf(_("--- forwarded message ---"));
-		wprintf("</i></div><br>");
-		pullquote_message(lbstr("fwdquote"), 1, 1);
-	}
-
-	/** If we're replying quoted, insert the quote here... */
-	else if (lbstr("replyquote") > 0L) {
-		wprintf("<br>"
-			"<blockquote>");
-		pullquote_message(lbstr("replyquote"), 0, 1);
-		wprintf("</blockquote><br>");
-	}
-
-	/** If we're editing a wiki page, insert the existing page here... */
-	else if (WCC->wc_view == VIEW_WIKI) {
-		safestrncpy(buf, bstr("wikipage"), sizeof buf);
-		str_wiki_index(buf);
-		existing_page = locate_message_by_uid(buf);
-		if (existing_page >= 0L) {
-			pullquote_message(existing_page, 1, 0);
-		}
-	}
-
-	/** Insert our signature if appropriate... */
-	if ( (WCC->is_mailbox) && !yesbstr("sig_inserted") ) {
-		int UseSig;
-		get_pref_yesno("use_sig", &UseSig, 0);
-		if (UseSig) {
-			StrBuf *Sig;
-			const char *sig, *esig;
-
-			get_preference("signature", &ebuf);
-			Sig = NewStrBuf();
-			StrBufEUid_unescapize(Sig, ebuf);
-			sig = ChrPtr(Sig);
-			esig = sig + StrLength(Sig);
-			wprintf("<br>--<br>");
-			while (sig <= esig) {
-				if (*sig == '\n') {
-					wprintf("<br>");
-				}
-				else if (*sig == '<') {
-					wprintf("&lt;");
-				}
-				else if (*sig == '>') {
-					wprintf("&gt;");
-				}
-				else if (*sig == '&') {
-					wprintf("&amp;");
-				}
-				else if (*sig == '\"') {
-					wprintf("&quot;");
-				}
-				else if (*sig == '\'') {
-					wprintf("&#39;");
-				}
-				else /* since we're utf 8, is this a good idea? if (isprint(*sig))*/ {
-					wprintf("%c", *sig);
-				} 
-				sig ++;
-			}
-			FreeStrBuf(&Sig);
-		}
-	}
-
-	wprintf("</textarea>\n");
-
-	/** Make sure we only insert our signature once */
-	/** We don't care if it was there or not before, it needs to be there now. */
-	wprintf("<input type=\"hidden\" name=\"sig_inserted\" value=\"yes\">\n");
-	
-	/**
-	 * The following template embeds the TinyMCE richedit control, and automatically
-	 * transforms the textarea into a richedit textarea.
-	 */
-	do_template("richedit", NULL);
-
-	/** Enumerate any attachments which are already in place... */
-	wprintf("<div class=\"attachment buttons\"><img src=\"static/diskette_24x.gif\" class=\"imgedit\" > ");
-	wprintf(_("Attachments:"));
-	wprintf(" ");
-	wprintf("<select name=\"which_attachment\" size=1>");
-/*
-	for (att = WCC->first_attachment; att != NULL; att = att->next) {
-		wprintf("<option value=\"");
-		urlescputs(att->filename);
-		wprintf("\">");
-		escputs(att->filename);
-		/ * wprintf(" (%s, %d bytes)",att->content_type,att->length); * /
-		wprintf("</option>\n");
-	}
-*/
-	wprintf("</select>");
-
-	/** Now offer the ability to attach additional files... */
-	wprintf("&nbsp;&nbsp;&nbsp;");
-	wprintf(_("Attach file:"));
-	wprintf(" <input name=\"attachfile\" class=\"attachfile\" "
-		"size=16 type=\"file\">\n&nbsp;&nbsp;"
-		"<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Add"));
-	wprintf("</div>");	/* End of "attachment buttons" div */
-
-
-	wprintf("</td></tr></table>");
-	
-	wprintf("</form>\n");
-	wprintf("</div>\n");	/* end of "fix_scrollbar_bug" div */
-
-	/* NOTE: address_book_popup() will close the "content" div.  Don't close it here. */
-DONE:	address_book_popup();
-	wDumpContent(1);
 }
-
 
 /**
  * \brief delete a message
