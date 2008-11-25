@@ -88,10 +88,22 @@ void ical_dezonify_backend(icalcomponent *cal,
 				/* CtdlLogPrintf(9, "                * ...and we handle that internally.\n"); */
 			}
 			else {
+				/* try attached first */
 				t = icalcomponent_get_timezone(cal, tzid);
-				/* CtdlLogPrintf(9, "                * ...and I %s have tzdata for that zone.\n",
+/*
+				lprintf(9, "                * ...and I %s have tzdata for that zone.\n",
 					(t ? "DO" : "DO NOT")
-				); */
+				);
+*/
+				/* then try built-in timezones */
+				if (!t) {
+					t = icaltimezone_get_builtin_timezone(tzid);
+/*
+					if (t) {
+						lprintf(9, "                * Using system tzdata!\n");
+					}
+*/
+				}
 			}
 		}
 

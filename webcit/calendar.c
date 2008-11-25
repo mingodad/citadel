@@ -518,7 +518,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				icalcomponent_remove_property(Cal->cal, ps);
 				ps = icalproperty_new_dtstart(next);
 				icalcomponent_add_property(Cal->cal, ps);
-				ical_dezonify(Cal->cal);	/* dezonify every recurrence - we may
+				/*ical_dezonify(Cal->cal);*/	/* dezonify every recurrence - we may
 								 * have hit the start/end of DST */
 				Cal->event_start = icaltime_as_timet(next);
 				lprintf(9, "[32mREPEATS: %s, is_utc=%d, tzid=%s[0m\n",
@@ -981,6 +981,19 @@ void load_ical_object(long msgnum, int unread,
 
 			cal = icalcomponent_new_from_string(relevant_source);
 			if (cal != NULL) {
+				/* FIXME temp */
+				lprintf(9, "HERE WE GO:\n%s\n", icalcomponent_as_ical_string(cal));
+				icalproperty *p;
+				p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
+				if (p) {
+					lprintf(9, "DTSTART IS %s\n", 
+						icaltime_as_ical_string(
+							icalproperty_get_dtstart(p)
+						)
+					);
+				}
+				/* */
+
 
 				/* A which_kind of (-1) means just load the whole thing */
 				if (which_kind == (-1)) {

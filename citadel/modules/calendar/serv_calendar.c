@@ -169,6 +169,15 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 void ical_add(icalcomponent *cal, int recursion_level) {
 	icalcomponent *c;
 
+#if 1
+	/* Write the whole thing because it may need to save timezones etc.
+	 * FIXME - if this works, we can probably eliminate this entire function
+	 */
+
+	ical_write_to_cal(&CC->user, cal);
+
+#else	/* this was the old code to kill everything but the VEVENT component ... probably ng now */
+
 	/*
  	 * The VEVENT subcomponent is the one we're interested in saving.
 	 */
@@ -185,6 +194,7 @@ void ical_add(icalcomponent *cal, int recursion_level) {
 		/* Recursively process subcomponent */
 		ical_add(c, recursion_level+1);
 	}
+#endif
 
 }
 
