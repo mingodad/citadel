@@ -439,9 +439,21 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	/* Note: anything we do here, we also have to do below for the recurrences. */
 	Cal = (disp_cal*) malloc(sizeof(disp_cal));
 	memset(Cal, 0, sizeof(disp_cal));
-
 	Cal->cal = icalcomponent_new_clone(cal);
-	ical_dezonify(Cal->cal);			/* just-in-time dezonify is necessary */
+
+	/* Dezonify and decapsulate at the very last moment */
+	ical_dezonify(Cal->cal);
+	icalcomponent *cptr;
+	if (icalcomponent_isa(Cal->cal) != ICAL_VEVENT_COMPONENT) {
+		cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
+		if (cptr) {
+			cptr = icalcomponent_new_clone(cptr);
+			icalcomponent_free(Cal->cal);
+			Cal->cal = cptr;
+			lprintf(9, "Deeeeeeeeeeeeeecapsulated!\n");
+		}
+	}
+
 	Cal->unread = unread;
 	len = strlen(from);
 	Cal->from = (char*)malloc(len+ 1);
@@ -466,7 +478,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	/* Do the same for the ending date and time.  It makes the day view much easier to render. */
 	ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
 	if (ps != NULL) {
-		dtend = icalproperty_get_dtstart(ps);
+		dtend = icalproperty_get_dtend(ps);
 		Cal->event_end = icaltime_as_timet(dtend);
 	}
 
@@ -505,7 +517,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 			/* Note: anything we do here, we also have to do above for the root event. */
 			Cal = (disp_cal*) malloc(sizeof(disp_cal));
 			memset(Cal, 0, sizeof(disp_cal));
-		
 			Cal->cal = icalcomponent_new_clone(cal);
 			Cal->unread = unread;
 			len = strlen(from);
@@ -518,8 +529,31 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 				icalcomponent_remove_property(Cal->cal, ps);
 				ps = icalproperty_new_dtstart(next);
 				icalcomponent_add_property(Cal->cal, ps);
-				/*ical_dezonify(Cal->cal);*/	/* dezonify every recurrence - we may
-								 * have hit the start/end of DST */
+
+				/* Dezonify and decapsulate each recurrence individually, otherwise
+				 * we slide over by an hour whenever we cross a DST boundary.
+				 */
+				ical_dezonify(Cal->cal);
+				icalcomponent *cptr;
+				if (icalcomponent_isa(Cal->cal) != ICAL_VEVENT_COMPONENT) {
+					cptr = icalcomponent_get_first_component(Cal->cal,
+						ICAL_VEVENT_COMPONENT);
+					if (cptr) {
+						cptr = icalcomponent_new_clone(cptr);
+						icalcomponent_free(Cal->cal);
+						Cal->cal = cptr;
+						lprintf(9, "Deeeeeeeeeeeeeecapsulated!\n");
+					}
+				}
+
+
+				/* FIXME the above is broken, why? */
+
+
+
+
+
+
 				Cal->event_start = icaltime_as_timet(next);
 				lprintf(9, "[32mREPEATS: %s, is_utc=%d, tzid=%s[0m\n",
 					icaltime_as_ical_string(next),
@@ -982,7 +1016,6 @@ void load_ical_object(long msgnum, int unread,
 			cal = icalcomponent_new_from_string(relevant_source);
 			if (cal != NULL) {
 				/* FIXME temp */
-				lprintf(9, "HERE WE GO:\n%s\n", icalcomponent_as_ical_string(cal));
 				icalproperty *p;
 				p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
 				if (p) {
@@ -1029,8 +1062,8 @@ void load_ical_object(long msgnum, int unread,
  * Display a calendar item
  */
 void load_calendar_item(message_summary *Msg, int unread, struct calview *c) {
-	load_ical_object(Msg->msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal, c);
-	/* load_ical_object(Msg->msgnum, unread, (-1), display_individual_cal, c); */
+	/*load_ical_object(Msg->msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal, c);*/
+	load_ical_object(Msg->msgnum, unread, (-1), display_individual_cal, c);
 }
 
 /*
