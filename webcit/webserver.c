@@ -790,7 +790,7 @@ int main(int argc, char **argv)
 				"[-i ip_addr] [-p http_port] "
 				"[-t tracefile] [-c] [-f] "
 				"[-T Templatedebuglevel] "
-				"[-d] "
+				"[-d] [-Z] "
 #ifdef HAVE_OPENSSL
 				"[-s] "
 #endif

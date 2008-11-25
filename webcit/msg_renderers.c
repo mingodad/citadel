@@ -529,8 +529,13 @@ int Conditional_MAIL_MIME_ATTACH(WCTemplateToken *Tokens, void *Context, int Con
 void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	long MsgNum;
+	StrBuf *Buf;
+
 	MsgNum = LBstr(Tokens->Params[0]->Start, Tokens->Params[0]->len);
-	read_message(Target, HKEY("view_message_replyquote"), MsgNum, 0, NULL);
+	Buf = NewStrBuf();
+	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, 0, NULL);
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Buf, 1);
+	FreeStrBuf(&Buf);
 }
 
 void tmplput_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
