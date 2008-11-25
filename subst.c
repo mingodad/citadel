@@ -934,6 +934,15 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	case SV_CUST_STR_CONDITIONAL:
 	case SV_CONDITIONAL:
 	case SV_NEG_CONDITIONAL:
+		if (NewToken->Params[1]->lvalue == 0) {
+			lprintf(1, "Conditional (in '%s' line %ld); "
+				"Conditional ID mustn't be 0! [%s]\n", 
+				ChrPtr(pTmpl->FileName),
+				NewToken->Line,
+				ChrPtr(NewToken->FlatToken));
+			NewToken->Flags = 0;
+			break;
+		}
 		if (NewToken->nParameters <2) {
 			lprintf(1, "Conditional (in '%s' line %ld); "
 				"require at least 2 parameters, you gave %ld params [%s]\n", 
