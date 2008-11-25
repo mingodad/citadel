@@ -13,6 +13,8 @@
 #include "webcit.h"
 #include "webserver.h"
 
+#define DBG_ICAL	1
+
 
 /*
  * Figure out which time zone needs to be used for timestamps that are
@@ -77,12 +79,22 @@ void ical_dezonify_backend(icalcomponent *cal,
 #endif
 			}
 			else {
+				/* try attached first */
 				t = icalcomponent_get_timezone(cal, tzid);
 #ifdef DBG_ICAL
 				lprintf(9, "                * ...and I %s have tzdata for that zone.\n",
 					(t ? "DO" : "DO NOT")
 				);
 #endif
+				/* then try built-in timezones */
+				if (!t) {
+					t = icaltimezone_get_builtin_timezone(tzid);
+#ifdef DBG_ICAL
+					if (t) {
+						lprintf(9, "                * Using system tzdata!\n");
+					}
+#endif
+				}
 			}
 		}
 
