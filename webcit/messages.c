@@ -1041,7 +1041,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	////int sbjlen;
 	int maxload = 0;
 	long len;
-
+	int n;
 	////int num_summ_alloc = 0;
 
 	if (WCC->summ != NULL) {
@@ -1113,7 +1113,8 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				StrBuf_Utf8StrCut(Msg->from, 23);
 				StrBufAppendBufPlain(Msg->from, HKEY("..."), 0);
 			}
-			Put(WCC->summ, (const char*)&Msg->msgnum, sizeof(Msg->msgnum), Msg, DestroyMessageSummary);
+			n = Msg->msgnum;
+			Put(WCC->summ, (const char *)&n, sizeof(n), Msg, DestroyMessageSummary);
 		}
 		nummsgs++;
 	}
