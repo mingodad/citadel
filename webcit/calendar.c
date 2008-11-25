@@ -374,18 +374,6 @@ void handle_rsvp(void)
 
 
 
-/*@}*/
-/*-----------------------------------------------------------------------**/
-
-
-
-/**
- * \defgroup MsgDisplayHandlers Display handlers for message reading 
- * \ingroup Calendaring
- */
-
-/*@{*/
-
 int Flathash(const char *str, long len)
 {
 	if (len != sizeof (int))
@@ -395,9 +383,8 @@ int Flathash(const char *str, long len)
 
 
 
-/**
- * \brief clean up ical memory
- * todo this could get trouble with future ical versions 
+/*
+ * free memory allocated using libical
  */
 void delete_cal(void *vCal)
 {
@@ -450,7 +437,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 			cptr = icalcomponent_new_clone(cptr);
 			icalcomponent_free(Cal->cal);
 			Cal->cal = cptr;
-			lprintf(9, "Deeeeeeeeeeeeeecapsulated!\n");
 		}
 	}
 
@@ -502,7 +488,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
 	 * stops or some outer bound is reached.  The display code will automatically do the Right Thing.
 	 */
-	rrule = icalcomponent_get_first_property(cal, ICAL_RRULE_PROPERTY);
+	rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
 	if (!rrule) return;
 	recur = icalproperty_get_rrule(rrule);
 	ritr = icalrecur_iterator_new(recur, dtstart);
@@ -511,7 +497,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	int stop_rr = 0;
 	while (next = icalrecur_iterator_next(ritr), ((!icaltime_is_null_time(next))&&(!stop_rr)) ) {
 		++num_recur;
-
 		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
 
 			/* Note: anything we do here, we also have to do above for the root event. */
@@ -523,57 +508,54 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 			Cal->from = (char*)malloc(len+ 1);
 			memcpy(Cal->from, from, len + 1);
 			Cal->cal_msgnum = msgnum;
-	
-			ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
-			if (ps != NULL) {
-				icalcomponent_remove_property(Cal->cal, ps);
-				ps = icalproperty_new_dtstart(next);
-				icalcomponent_add_property(Cal->cal, ps);
 
-				/* Dezonify and decapsulate each recurrence individually, otherwise
-				 * we slide over by an hour whenever we cross a DST boundary.
-				 */
-				ical_dezonify(Cal->cal);
-				icalcomponent *cptr;
-				if (icalcomponent_isa(Cal->cal) != ICAL_VEVENT_COMPONENT) {
-					cptr = icalcomponent_get_first_component(Cal->cal,
-						ICAL_VEVENT_COMPONENT);
-					if (cptr) {
-						cptr = icalcomponent_new_clone(cptr);
-						icalcomponent_free(Cal->cal);
-						Cal->cal = cptr;
-						lprintf(9, "Deeeeeeeeeeeeeecapsulated!\n");
-					}
+			icalcomponent *cptr;
+			if (icalcomponent_isa(Cal->cal) == ICAL_VEVENT_COMPONENT) {
+				cptr = Cal->cal;
+			}
+			else {
+				cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
+			}
+			if (cptr) {
+				ps = icalcomponent_get_first_property(cptr, ICAL_DTSTART_PROPERTY);
+				if (ps != NULL) {
+					icalcomponent_remove_property(cptr, ps);
+					ps = icalproperty_new_dtstart(next);
+					icalcomponent_add_property(cptr, ps);
+	
+					Cal->event_start = icaltime_as_timet(next);
+					lprintf(9, "[32mREPEATS: %s, is_utc=%d, tzid=%s[0m\n",
+						icaltime_as_ical_string(next),
+						icaltime_is_utc(next),
+						icaltime_get_tzid(next)
+					);
+					final_recurrence = Cal->event_start;
 				}
 
+				ps = icalcomponent_get_first_property(cptr, ICAL_DTEND_PROPERTY);
+				if (ps != NULL) {
+					icalcomponent_remove_property(cptr, ps);
+	
+					/* Make a new dtend */
+					ps = icalproperty_new_dtend(icaltime_add(next, dur));
+		
+					/* and stick it somewhere */
+					icalcomponent_add_property(cptr, ps);
+				}
 
-				/* FIXME the above is broken, why? */
-
-
-
-
-
-
-				Cal->event_start = icaltime_as_timet(next);
-				lprintf(9, "[32mREPEATS: %s, is_utc=%d, tzid=%s[0m\n",
-					icaltime_as_ical_string(next),
-					icaltime_is_utc(next),
-					icaltime_get_tzid(next)
-				);
-				final_recurrence = Cal->event_start;
 			}
-	
-			ps = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
-			if (ps != NULL) {
-				icalcomponent_remove_property(Cal->cal, ps);
 
-				/* Make a new dtend */
-				ps = icalproperty_new_dtend(icaltime_add(next, dur));
-	
-				/* and stick it somewhere */
-				icalcomponent_add_property(Cal->cal, ps);
+			/* Dezonify and decapsulate at the very last moment */
+			ical_dezonify(Cal->cal);
+			if (icalcomponent_isa(Cal->cal) != ICAL_VEVENT_COMPONENT) {
+				cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
+				if (cptr) {
+					cptr = icalcomponent_new_clone(cptr);
+					icalcomponent_free(Cal->cal);
+					Cal->cal = cptr;
+				}
 			}
-	
+
 			if ( (Cal->event_start > calv->lower_bound)
 			   && (Cal->event_start < calv->upper_bound) ) {
 				Put(WCC->disp_cal_items, 
