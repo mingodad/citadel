@@ -179,11 +179,8 @@ void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
 }
 
 
-/**
- * \brief Render PARTSTAT
+/*
  * Render a PARTSTAT parameter as a string (and put it in parentheses)
- * \param buf the string to put it to
- * \param attendee the attendee to textify
  */
 void partstat_as_string(char *buf, icalproperty *attendee) {
 	icalparameter *partstat_param;
@@ -238,10 +235,8 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent *encaps;
 
-	/* lprintf(9, "ical_encapsulate_subcomponent() called\n"); */
-
 	if (subcomp == NULL) {
-		lprintf(3, "ERROR: called with NULL argument!\n");
+		lprintf(3, "ERROR: ical_encapsulate_subcomponent() called with NULL argument\n");
 		return NULL;
 	}
 
@@ -256,8 +251,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
 	if (encaps == NULL) {
-		lprintf(3, "%s:%d: Error - could not allocate component!\n",
-			__FILE__, __LINE__);
+		lprintf(3, "ERROR: ical_encapsulate_subcomponent() could not allocate component\n");
 		return NULL;
 	}
 
@@ -268,13 +262,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
 
 	/* Encapsulate the subcomponent inside */
-	/* lprintf(9, "Doing the encapsulation\n"); */
 	icalcomponent_add_component(encaps, subcomp);
-
-	/* Convert all timestamps to UTC so we don't have to deal with
-	 * stupid VTIMEZONE crap.
-	 */
-	ical_dezonify(encaps);
 
 	/* Return the object we just created. */
 	return(encaps);
