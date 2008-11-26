@@ -409,6 +409,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	disp_cal *Cal;
 	size_t len;
 	time_t final_recurrence = 0;
+	icalcomponent *cptr = NULL;
 
 	/* recur variables */
 	icalproperty *rrule = NULL;
@@ -429,8 +430,11 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	Cal->cal = icalcomponent_new_clone(cal);
 
 	/* Dezonify and decapsulate at the very last moment */
+	/* lprintf(9, "INITIAL: %s\n", icaltime_as_ical_string(icalproperty_get_dtstart(
+		icalcomponent_get_first_property(icalcomponent_get_first_component(
+		Cal->cal, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY)))
+	); */
 	ical_dezonify(Cal->cal);
-	icalcomponent *cptr;
 	if (icalcomponent_isa(Cal->cal) != ICAL_VEVENT_COMPONENT) {
 		cptr = icalcomponent_get_first_component(Cal->cal, ICAL_VEVENT_COMPONENT);
 		if (cptr) {
@@ -454,11 +458,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	if (ps != NULL) {
 		dtstart = icalproperty_get_dtstart(ps);
 		Cal->event_start = icaltime_as_timet(dtstart);
-		lprintf(9, "[31mINITIAL: %s, is_utc=%d, tzid=%s[0m\n",
-			icaltime_as_ical_string(dtstart),
-			icaltime_is_utc(dtstart),
-			icaltime_get_tzid(dtstart)
-		);
 	}
 
 	/* Do the same for the ending date and time.  It makes the day view much easier to render. */
@@ -475,7 +474,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	    Cal, 
 	    delete_cal);
 
-	/* handle recurring events */
+	/****************************** handle recurring events ******************************/
 
 	if (icaltime_is_null_time(dtstart)) return;	/* Can't recur without a start time */
 
@@ -488,7 +487,15 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	 * adding new hash entries that all point back to the same msgnum, until either the iteration
 	 * stops or some outer bound is reached.  The display code will automatically do the Right Thing.
 	 */
-	rrule = icalcomponent_get_first_property(Cal->cal, ICAL_RRULE_PROPERTY);
+	cptr = cal;
+	if (icalcomponent_isa(cptr) != ICAL_VEVENT_COMPONENT) {
+		cptr = icalcomponent_get_first_component(cptr, ICAL_VEVENT_COMPONENT);
+	}
+	if (!cptr) return;
+	ps = icalcomponent_get_first_property(cptr, ICAL_DTSTART_PROPERTY);
+	if (ps == NULL) return;
+	dtstart = icalproperty_get_dtstart(ps);
+	rrule = icalcomponent_get_first_property(cptr, ICAL_RRULE_PROPERTY);
 	if (!rrule) return;
 	recur = icalproperty_get_rrule(rrule);
 	ritr = icalrecur_iterator_new(recur, dtstart);
@@ -498,6 +505,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	while (next = icalrecur_iterator_next(ritr), ((!icaltime_is_null_time(next))&&(!stop_rr)) ) {
 		++num_recur;
 		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
+			/* lprintf(9, "REPEATS: %s\n", icaltime_as_ical_string(next)); */
 
 			/* Note: anything we do here, we also have to do above for the root event. */
 			Cal = (disp_cal*) malloc(sizeof(disp_cal));
@@ -524,11 +532,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 					icalcomponent_add_property(cptr, ps);
 	
 					Cal->event_start = icaltime_as_timet(next);
-					lprintf(9, "[32mREPEATS: %s, is_utc=%d, tzid=%s[0m\n",
-						icaltime_as_ical_string(next),
-						icaltime_is_utc(next),
-						icaltime_get_tzid(next)
-					);
 					final_recurrence = Cal->event_start;
 				}
 
