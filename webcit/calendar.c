@@ -1112,7 +1112,8 @@ void save_event(void) {
 	msgnum = lbstr("msgnum");
 
 	if (msgnum > 0L) {
-		load_ical_object(msgnum, 0, ICAL_VEVENT_COMPONENT, save_individual_event, NULL);
+		/* load_ical_object(msgnum, 0, ICAL_VEVENT_COMPONENT, save_individual_event, NULL); */
+		load_ical_object(msgnum, 0, (-1), save_individual_event, NULL);
 	}
 	else {
 		save_individual_event(NULL, 0L, "", 0, NULL);
