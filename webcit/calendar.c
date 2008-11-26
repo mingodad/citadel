@@ -1000,18 +1000,6 @@ void load_ical_object(long msgnum, int unread,
 
 			cal = icalcomponent_new_from_string(relevant_source);
 			if (cal != NULL) {
-				/* FIXME temp */
-				icalproperty *p;
-				p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
-				if (p) {
-					lprintf(9, "DTSTART IS %s\n", 
-						icaltime_as_ical_string(
-							icalproperty_get_dtstart(p)
-						)
-					);
-				}
-				/* */
-
 
 				/* A which_kind of (-1) means just load the whole thing */
 				if (which_kind == (-1)) {

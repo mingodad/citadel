@@ -71,6 +71,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	if (supplied_vevent != NULL) {
 		vevent = supplied_vevent;
+
+		/* Convert all timestamps to UTC to make them easier to process. */
+		ical_dezonify(vevent);
+
 		/*
 		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VEVENT component, attempt to use the first
