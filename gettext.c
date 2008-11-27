@@ -205,7 +205,7 @@ void httplang_to_locale(StrBuf *LocaleString)
  * depending on the browser locale change the sequence of the 
  * language chooser.
  */
-void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
+void tmplput_offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
 	int i;
 #ifndef HAVE_USELOCALE
 	char *Lang = getenv("LANG");
@@ -344,7 +344,7 @@ void ShutdownLocale(void)
 
 #else	/* ENABLE_NLS */
 /** \brief dummy for non NLS enabled systems */
-void offer_languages(void) {
+void tmplput_offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
 	wprintf("English (US)");
 }
 
@@ -388,4 +388,9 @@ const char *get_selected_language(void) {
 #endif
 }
 
-
+void 
+InitModule_GETTEXT
+(void)
+{
+	RegisterNamespace("LANG:SELECT", 0, 0, tmplput_offer_languages, CTX_NONE);
+}

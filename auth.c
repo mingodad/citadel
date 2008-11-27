@@ -34,72 +34,12 @@ void initialize_axdefs(void) {
  * Display the login screen
  * mesg = the error message if last attempt failed.
  */
-void display_login(char *mesg)
+void display_login(void)
 {
-	char buf[SIZ];
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"login_screen\">\n");
-
-	if ((mesg != NULL) && (!IsEmptyStr(mesg))) {
-		stresc(buf, SIZ,  mesg, 0, 0);
-		svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
-	}
-
-	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,
-		_("<ul>"
-		"<li><b>If you already have an account on %s</b>, "
-		"enter your user name and password and click &quot;Login.&quot; "
-		"<li><b>If you are a new user</b>, enter the name and password "
-		"you wish to use, "
-		"and click &quot;New User.&quot; "
-		"<li>Please log off properly when finished. "
-		"<li>You must use a browser that supports <i>frames</i> and "
-		"<i>cookies</i>. "
-		"<li>Also keep in mind that if your browser is "
-		"configured to block pop-up windows, you will not be able "
-		"to receive any instant messages.<br />"
-		"</ul>"),
-		serv_info.serv_humannode
-	);
-
-	svput("USERNAME_BOX", WCS_STRING, _("User name:"));
-	svput("PASSWORD_BOX", WCS_STRING, _("Password:"));
-	svput("LANGUAGE_BOX", WCS_STRING, _("Language:"));
-	svput("LOGIN_BUTTON", WCS_STRING, _("Login"));
-	svput("NEWUSER_BUTTON", WCS_STRING, _("New User"));
-	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
-	svput("HELLO", WCS_SERVCMD, "MESG hello");
-	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
-		serv_info.serv_humannode);
-	svcallback("DO_LANGUAGE_BOX", offer_languages);
-	if (serv_info.serv_newuser_disabled) {
-		svput("NEWUSER_BUTTON_PRE", WCS_STRING, "<div style=\"display:none;\">");
-		svput("NEWUSER_BUTTON_POST", WCS_STRING, "</div>");
-	}
-	else {
-		svput("NEWUSER_BUTTON_PRE", WCS_STRING, "");
-		svput("NEWUSER_BUTTON_POST", WCS_STRING, "");
-	}
-
-	if (serv_info.serv_supports_openid) {
-		svprintf(HKEY("OFFER_OPENID_LOGIN"), WCS_STRING,
-			"<div align=center>"
-			"<a href=\"display_openid_login\">"
-			"<img src=\"static/openid-small.gif\" border=0 valign=middle>"
-			"%s</a>"
-			"</div>"
-			,
-			"Log in using OpenID"
-		);
-	}
-	else {
-		svput("OFFER_OPENID_LOGIN", WCS_STRING, "");
-	}
-
+	begin_burst();
+	output_headers(1, 0, 0, 0, 1, 0);
 	do_template("login", NULL);
-
-	wDumpContent(2);
+	end_burst();
 }
 
 
@@ -135,15 +75,8 @@ void display_openid_login(char *mesg)
 		"</ul>")
 	);
 
-	svput("OPENID_BOX", WCS_STRING, _("OpenID URL:"));
-	svput("LANGUAGE_BOX", WCS_STRING, _("Language:"));
-	svput("LOGIN_BUTTON", WCS_STRING, _("Login"));
-	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
 	svput("HELLO", WCS_SERVCMD, "MESG hello");
-	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
-		serv_info.serv_humannode);
-	svcallback("DO_LANGUAGE_BOX", offer_languages);
-
+	
 	svprintf(HKEY("OFFER_CONVENTIONAL_LOGIN"), WCS_STRING,
 		"<div align=center>"
 		"<a href=\"display_login\">"
@@ -243,6 +176,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
  */
 void do_login(void)
 {
+	struct wcsession *WCC = WC;
 	char buf[SIZ];
 
 	if (havebstr("language")) {
@@ -263,17 +197,29 @@ void do_login(void)
 			if (buf[0] == '2') {
 				become_logged_in(bstr("name"), bstr("pass"), buf);
 			} else {
-				display_login(&buf[4]);
+				snprintf(WCC->ImportantMessage, 
+					 sizeof (WCC->ImportantMessage), 
+					 "%s", 
+					 &buf[4]);
+				display_login();
 				return;
 			}
 		} else {
-			display_login(&buf[4]);
+			snprintf(WCC->ImportantMessage, 
+				 sizeof (WCC->ImportantMessage), 
+				 "%s", 
+				 &buf[4]);
+			display_login();
 			return;
 		}
 	}
 	if (havebstr("newuser_action")) {
 		if (!havebstr("pass")) {
-			display_login(_("Blank passwords are not allowed."));
+			snprintf(WCC->ImportantMessage, 
+				 sizeof (WCC->ImportantMessage), 
+				 "%s", 
+				 _("Blank passwords are not allowed."));
+			display_login();
 			return;
 		}
 		serv_printf("NEWU %s", bstr("name"));
@@ -283,21 +229,29 @@ void do_login(void)
 			serv_printf("SETP %s", bstr("pass"));
 			serv_getln(buf, sizeof buf);
 		} else {
-			display_login(&buf[4]);
+			snprintf(WCC->ImportantMessage, 
+				 sizeof (WCC->ImportantMessage), 
+				 "%s", 
+				 &buf[4]);
+			display_login();
 			return;
 		}
 	}
-	if (WC->logged_in) {
+	if (WCC->logged_in) {
 		set_preference("language", NewStrBufPlain(bstr("language"), -1), 1);
-		if (WC->need_regi) {
+		if (WCC->need_regi) {
 			display_reg(1);
-		} else if (WC->need_vali) {
+		} else if (WCC->need_vali) {
 			validate();
 		} else {
 			do_welcome();
 		}
 	} else {
-		display_login(_("Your password was not accepted."));
+		snprintf(WCC->ImportantMessage, 
+			 sizeof (WCC->ImportantMessage), 
+			 "%s", 
+			 _("Your password was not accepted."));
+		display_login();
 	}
 
 }

@@ -707,7 +707,7 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
 void locate_host(char *, int);
 void become_logged_in(char *, char *, char *);
 void openid_manual_create(void);
-void display_login(char *mesg);
+void display_login();
 void display_openids(void);
 void do_welcome(void);
 void do_logout(void);
