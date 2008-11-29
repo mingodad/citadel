@@ -85,17 +85,21 @@
 <textarea name="msgtext" cols="80" rows="15">
 <?BSTR("msgtext")>
 <?!("COND:BSTR", 1, "fwdquote")>
+&lt;br /&gt;
   &lt;div align=center&gt;
     &lt;i&gt;
       <?_("--- forwarded message ---")>
     &lt;/i&gt;
   &lt;/div&gt;
   <?MAIL:QUOTETEXT("fwdquote", "X")>
+&lt;br /&gt;
 <?!("X", 1)>
 <?!("COND:BSTR", 2, "replyquote")>
+&lt;br /&gt;
   &lt;blockquote&gt;
     <?MAIL:QUOTETEXT("replyquote", "X")>
   &lt;/blockquote&gt;
+&lt;br /&gt;
 <?!("X", 2)>
 <?!("COND:BSTR", 3, "sig_inserted", "yes")>
   <?!("COND:PREF", 4, "use_sig", "yes")>
