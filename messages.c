@@ -1049,7 +1049,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	}
 	WCC->summ = NewHash(1, Flathash);
 	nummsgs = 0;
-	maxload = 1000;/// TODO
+	maxload = 10000;
 	
 	Buf = NewStrBuf();
 	serv_puts(servcmd);
