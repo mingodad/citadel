@@ -464,31 +464,52 @@ void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundC
 }
 
 void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
-{////TODO
-	int len, i;
+{
+	void *vHdr;
+	headereval *Hdr;
+	StrBuf *Token;
+	StrBuf *Value;
+	const char* sem;
+	const char *eq;
+	int len;
+	StrBufTrim(HdrLine);
 	Msg->MsgBody->ContentType = NewStrBufDup(HdrLine);
-	StrBufTrim(Msg->MsgBody->ContentType);/////todo==striplt?
-	len = StrLength(Msg->MsgBody->ContentType);
-	for (i=0; i<len; ++i) {
-		if (!strncasecmp(ChrPtr(Msg->MsgBody->ContentType) + i, "charset=", 8)) {/// TODO: WHUT?
-//			safestrncpy(mime_charset, &mime_content_type[i+8],
-			///			    sizeof mime_charset);
-		}
-	}/****
-	for (i=0; i<len; ++i) {
-		if (mime_content_type[i] == ';') {
-			mime_content_type[i] = 0;
-			len = i - 1;
+	sem = strchr(ChrPtr(HdrLine), ';');
+
+	if (sem != NULL) {
+		Token = NewStrBufPlain(NULL, StrLength(HdrLine));
+		Value = NewStrBufPlain(NULL, StrLength(HdrLine));
+		len = sem - ChrPtr(HdrLine);
+		StrBufCutAt(Msg->MsgBody->ContentType, len, NULL);
+		while (sem != NULL) {
+			while (isspace(*(sem + 1)))
+				sem ++;
+			StrBufCutLeft(HdrLine, sem - ChrPtr(HdrLine));
+			sem = strchr(ChrPtr(HdrLine), ';');
+			if (sem != NULL)
+				len = sem - ChrPtr(HdrLine);
+			else
+				len = StrLength(HdrLine);
+			FlushStrBuf(Token);
+			FlushStrBuf(Value);
+			StrBufAppendBufPlain(Token, ChrPtr(HdrLine), len, 0);
+			eq = strchr(ChrPtr(Token), '=');
+			if (eq != NULL) {
+				len = eq - ChrPtr(Token);
+				StrBufAppendBufPlain(Value, eq + 1, StrLength(Token) - len - 1, 0); 
+				StrBufCutAt(Token, len, NULL);
+				StrBufTrim(Value);
+			}
+			StrBufTrim(Token);
+
+			if (GetHash(MsgHeaderHandler, SKEY(Token), &vHdr) &&
+			    (vHdr != NULL)) {
+				Hdr = (headereval*)vHdr;
+				Hdr->evaluator(Msg, Value, FoundCharset);
+			}
+			else lprintf(1, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
 		}
 	}
-	len = strlen(mime_charset);
-	for (i=0; i<len; ++i) {
-		if (mime_charset[i] == ';') {
-			mime_charset[i] = 0;
-			len = i - 1;
-		}
-	}
-	 */
 }
 
 void tmplput_MAIL_SUMM_N(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -749,6 +770,11 @@ void tmplput_MIME_ContentType(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->ContentType, 0);
 }
 
+void examine_charset(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+	Msg->MsgBody->Charset = NewStrBufDup(HdrLine);
+}
+
 void tmplput_MIME_Charset(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
@@ -887,4 +913,5 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("Content-type"), examine_content_type, 0);
 	RegisterMsgHdr(HKEY("Content-length"), examine_content_lengh, 0);
 	RegisterMsgHdr(HKEY("Content-transfer-encoding"), examine_content_encoding, 0);
+	RegisterMsgHdr(HKEY("charset"), examine_charset, 0);
 }
