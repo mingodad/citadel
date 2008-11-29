@@ -3659,6 +3659,7 @@ void tmplput_RoomName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 	StrBuf *tmp;
 	tmp = NewStrBufPlain(WC->wc_roomname, -1);;
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, tmp, 0);
+	FreeStrBuf(&tmp);
 }
 
 void _gotonext(void) { slrp_highest(); gotonext(); }

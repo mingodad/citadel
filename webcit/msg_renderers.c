@@ -401,7 +401,8 @@ void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
 		if (Msg->AttachLinks == NULL)
 			Msg->AttachLinks = NewHash(1,NULL);
 		Put(Msg->AttachLinks, SKEY(Mime->PartNum), Mime, reference_free_handler);
-		if (strcasecmp(ChrPtr(Mime->ContentType), "application/octet-stream") == 0) {
+		if ((strcasecmp(ChrPtr(Mime->ContentType), "application/octet-stream") == 0) && 
+		    (StrLength(Mime->FileName) > 0)) {
 			FlushStrBuf(Mime->ContentType);
 			StrBufAppendBufPlain(Mime->ContentType,
 					     GuessMimeByFilename(SKEY(Mime->FileName)),
@@ -582,11 +583,12 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	StrBuf *cs = NULL;
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;
-	StrBuf *Line = NewStrBuf();
-	StrBuf *Line1 = NewStrBuf();
-	StrBuf *Line2 = NewStrBuf();
-	StrBuf *Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
-	int ConvertIt = 1;
+	StrBuf *Line;
+	StrBuf *Line1;
+	StrBuf *Line2;
+	StrBuf *Target;
+
+	int ConvertIt = 0;
 	int bn = 0;
 	int bq = 0;
 	int i, n, done = 0;
@@ -627,6 +629,10 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		}
 	}
 #endif
+	Line = NewStrBuf();
+	Line1 = NewStrBuf();
+	Line2 = NewStrBuf();
+	Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
 
 	while ((n = StrBufSipLine(Line, Mime->Data, &BufPtr), n >= 0) && !done)
 	{

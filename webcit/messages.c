@@ -353,7 +353,6 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	if (Msg->AllAttach == NULL)
 		Msg->AllAttach = NewHash(1,NULL);
 	Put(Msg->AllAttach, SKEY(Msg->MsgBody->PartNum), Msg->MsgBody, DestroyMime);
-
 	
 	/* strip the bare contenttype, so we ommit charset etc. */
 	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');

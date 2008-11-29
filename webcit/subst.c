@@ -489,7 +489,7 @@ void StrBufAppendTemplate(StrBuf *Target,
 	{
 	case 'H':
 		WCC = WC;
-		Buf = NewStrBufPlain(NULL, StrLength(Buf));
+		Buf = NewStrBufPlain(NULL, StrLength(Source));
 		StrBuf_RFC822_to_Utf8(Buf, 
 				      Source, 
 				      (WCC!=NULL)? WCC->DefaultCharset : NULL, 
