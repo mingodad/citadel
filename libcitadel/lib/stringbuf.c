@@ -1143,6 +1143,24 @@ void StrBufCutRight(StrBuf *Buf, int nChars)
 	Buf->buf[Buf->BufUsed] = '\0';
 }
 
+/**
+ * \brief Cut the string after n Chars
+ * \param Buf Buffer to modify
+ * \param AfternChars after how many chars should we trunkate the string?
+ * \param At if non-null and points inside of our string, cut it there.
+ */
+void StrBufCutAt(StrBuf *Buf, int AfternChars, const char *At)
+{
+	if (At != NULL){
+		AfternChars = At - Buf->buf;
+	}
+
+	if ((AfternChars < 0) || (AfternChars >= Buf->BufUsed))
+		return;
+	Buf->BufUsed = AfternChars;
+	Buf->buf[Buf->BufUsed] = '\0';
+}
+
 
 /*
  * Strip leading and trailing spaces from a string; with premeasured and adjusted length.

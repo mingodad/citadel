@@ -255,6 +255,7 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap);
 void StrBufPrintf(StrBuf *Buf, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
 void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
+void StrBufCutAt(StrBuf *Buf, int AfternChars, const char *At);
 void StrBufTrim(StrBuf *Buf);
 void StrBufUpCase(StrBuf *Buf);
 void StrBufLowerCase(StrBuf *Buf);
