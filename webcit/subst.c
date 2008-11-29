@@ -1711,6 +1711,7 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 		   Context, 
 		   ContextType);
 	DoTemplate(HKEY("endbox"), Target, Context, ContextType);
+	FreeStrBuf(Headline);
 }
 
 
