@@ -509,6 +509,8 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 			}
 			else lprintf(1, "don't know how to handle content type sub-header[%s]\n", ChrPtr(Token));
 		}
+		FreeStrBuf(&Token);
+		FreeStrBuf(&Value);
 	}
 }
 
