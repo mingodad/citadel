@@ -409,6 +409,20 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 	return SearchPos;
 }
 
+
+/**
+ * \brief another hashing algorithm; treat it as just a pointer to long.
+ * \param str Our pointer to the long value
+ * \param len the length of the data pointed to; needs to be sizeof int, else we won't use it!
+ * \returns the calculated hash value
+ */
+int Flathash(const char *str, long len)
+{
+	if (len != sizeof (int))
+		return 0;
+	else return *(int*)str;
+}
+
 /**
  * \brief private abstract wrapper around the hashing algorithm
  * \param HKey the hash string

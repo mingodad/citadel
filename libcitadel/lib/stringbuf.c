@@ -271,6 +271,8 @@ void HFreeStrBuf (void *VFreeMe)
  */
 long StrTol(const StrBuf *Buf)
 {
+	if (Buf == NULL)
+		return 0;
 	if(Buf->BufUsed > 0)
 		return atol(Buf->buf);
 	else
@@ -282,7 +284,9 @@ long StrTol(const StrBuf *Buf)
  */
 int StrToi(const StrBuf *Buf)
 {
-	if(Buf->BufUsed > 0)
+	if (Buf == NULL)
+		return 0;
+	if (Buf->BufUsed > 0)
 		return atoi(Buf->buf);
 	else
 		return 0;

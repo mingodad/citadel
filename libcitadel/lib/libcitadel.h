@@ -212,6 +212,12 @@ void the_mime_parser(char *partnum,
 
 typedef struct StrBuf StrBuf;
 
+typedef struct _ConstStr {
+	const char *Key;
+	long len;
+}ConstStr;
+
+
 StrBuf* NewStrBuf(void);
 StrBuf* NewStrBufDup(const StrBuf *CopyMe);
 StrBuf* NewStrBufPlain(const char* ptr, int nChars);
@@ -383,6 +389,9 @@ typedef int (*CompareFunc)(const void* Item1, const void*Item2);
 typedef int (*HashFunc)(const char *Str, long Len);
 typedef void (*TransitionFunc) (void *Item1, void *Item2, int Odd);
 typedef void (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
+
+int Flathash(const char *str, long len);
+#define IKEY(a) (const char*)(&((int)a)), sizeof(int)
 
 HashList *NewHash(int Uniq, HashFunc F);
 void DeleteHash(HashList **Hash);
