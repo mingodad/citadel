@@ -68,6 +68,116 @@ void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, RenderMimeFunc M
 
 /*----------------------------------------------------------------------------*/
 
+/*
+ * qsort() compatible function to compare two longs in descending order.
+ */
+int longcmp_r(const void *s1, const void *s2) {
+	long l1;
+	long l2;
+
+	l1 = *(long *)GetSearchPayload(s1);
+	l2 = *(long *)GetSearchPayload(s2);
+
+	if (l1 > l2) return(-1);
+	if (l1 < l2) return(+1);
+	return(0);
+}
+
+/*
+ * qsort() compatible function to compare two longs in descending order.
+ */
+int qlongcmp_r(const void *s1, const void *s2) {
+	long l1 = (long) s1;
+	long l2 = (long) s2;
+
+	if (l1 > l2) return(-1);
+	if (l1 < l2) return(+1);
+	return(0);
+}
+
+ 
+/*
+ * qsort() compatible function to compare two message summary structs by ascending subject.
+ */
+int summcmp_subj(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ1->subj), ChrPtr(summ2->subj));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by descending subject.
+ */
+int summcmp_rsubj(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ2->subj), ChrPtr(summ1->subj));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by ascending sender.
+ */
+int summcmp_sender(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ1->from), ChrPtr(summ2->from));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by descending sender.
+ */
+int summcmp_rsender(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+	return strcasecmp(ChrPtr(summ2->from), ChrPtr(summ1->from));
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by ascending date.
+ */
+int summcmp_date(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+
+	if (summ1->date < summ2->date) return -1;
+	else if (summ1->date > summ2->date) return +1;
+	else return 0;
+}
+
+/*
+ * qsort() compatible function to compare two message summary structs by descending date.
+ */
+int summcmp_rdate(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)GetSearchPayload(s1);
+	summ2 = (message_summary *)GetSearchPayload(s2);
+
+	if (summ1->date < summ2->date) return +1;
+	else if (summ1->date > summ2->date) return -1;
+	else return 0;
+}
+
+/*----------------------------------------------------------------------------*/
+
+
+
 
 void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -588,7 +698,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	StrBuf *Line2;
 	StrBuf *Target;
 
-	int ConvertIt = 0;
+	int ConvertIt = 1;
 	int bn = 0;
 	int bq = 0;
 	int i, n, done = 0;
@@ -617,7 +727,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 			cs = FoundCharset;
 		else if (StrLength(WC->DefaultCharset) > 0)
 			cs = WC->DefaultCharset;
-		if (cs == 0) {
+		if (cs == NULL) {
 			ConvertIt = 0;
 		}
 		else {
@@ -830,12 +940,26 @@ void tmplput_ATT_FileName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 
 
 
-
-
 void 
 InitModule_MSGRENDERERS
 (void)
 {
+	RegisterSortFunc(HKEY("date"), 
+			 NULL, 0,
+			 summcmp_date,
+			 summcmp_rdate,
+			 CTX_MAILSUM);
+	RegisterSortFunc(HKEY("subject"), 
+			 NULL, 0,
+			 summcmp_subj,
+			 summcmp_rsubj,
+			 CTX_MAILSUM);
+	RegisterSortFunc(HKEY("sender"),
+			 NULL, 0,
+			 summcmp_sender,
+			 summcmp_rsender,
+			 CTX_MAILSUM);
+
 	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:N",       0, 0, tmplput_MAIL_SUMM_N,        CTX_MAILSUM);

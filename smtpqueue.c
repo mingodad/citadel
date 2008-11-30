@@ -164,6 +164,8 @@ void display_queue_msg(long msgnum)
 
 
 void display_smtpqueue_inner_div(void) {
+	message_summary *Msg;
+	struct wcsession *WCC = WC;
 	int i;
 	int num_msgs;
 
@@ -171,7 +173,7 @@ void display_smtpqueue_inner_div(void) {
 	 * If not, we don't have access to the queue.
 	 */
 	gotoroom("__CitadelSMTPspoolout__");
-	if (!strcasecmp(WC->wc_roomname, "__CitadelSMTPspoolout__")) {
+	if (!strcasecmp(WCC->wc_roomname, "__CitadelSMTPspoolout__")) {
 
 		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 		if (num_msgs > 0) {
@@ -192,7 +194,9 @@ void display_smtpqueue_inner_div(void) {
 			wprintf("</i></b></td></tr>\n");
 
 			for (i=0; i<num_msgs; ++i) {
-				display_queue_msg(WC->msgarr[i]);
+				Msg = GetMessagePtrAt(i, WCC->summ);
+
+				display_queue_msg((Msg==NULL)? 0 : Msg->msgnum);
 			}
 
 			wprintf("</table>");

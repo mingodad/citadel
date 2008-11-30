@@ -387,7 +387,13 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  WCTemplateToken *Tokens,
 			  void *Context, int ContextType,
 			  const StrBuf *Source, int FormatTypeIndex);
-
+CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix, 
+			 const char *Default, long ldefault, long DefaultDirection);
+void RegisterSortFunc(const char *name, long len, 
+		      const char *prepend, long preplen,
+		      CompareFunc Forward, 
+		      CompareFunc Reverse, 
+		      long ContextType);
 
 
 /*
@@ -474,6 +480,7 @@ typedef struct _message_summary {
 	wc_mime_attachment *MsgBody;
 } message_summary;
 void DestroyMessageSummary(void *vMsg);
+inline message_summary* GetMessagePtrAt(int n, HashList *Summ);
 
 typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
 
@@ -579,7 +586,6 @@ struct wcsession {
 	int killthis;				/**< Nonzero == purge this session */
 	struct march *march;			/**< march mode room list */
 	char reply_to[512];			/**< reply-to address */
-	long msgarr[10000];			/**< for read operations */
 	HashList *summ;                         /**< list of messages for mailbox summary view */
 	int is_mobile;			/**< Client is a handheld browser */
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
@@ -692,6 +698,7 @@ extern HashList *ZoneHash;
 extern HashList *Conditionals;
 extern HashList *MsgHeaderHandler;
 extern HashList *MimeRenderHandler;
+extern HashList *SortHash;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);

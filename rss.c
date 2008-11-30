@@ -45,6 +45,8 @@ void display_rss_control(char *reply_to, char *subject)
  */
 void display_rss(char *roomname, StrBuf *request_method)
 {
+	message_summary *Msg;
+	struct wcsession *WCC = WC;
 	int nummsgs;
 	int a, b;
 	int bq = 0;
@@ -71,14 +73,14 @@ void display_rss(char *roomname, StrBuf *request_method)
 	char content_type[256];
 	char charset[256];
 	
-	if (!WC->logged_in) {
+	if (!WCC->logged_in) {
 		#ifdef ALLOW_ANON_RSS
 		serv_printf("USER %s", ANON_RSS_USER);
 		serv_getln(buf, sizeof buf);
 		serv_printf("PASS %s", ANON_RSS_PASS);
 		serv_getln(buf, sizeof buf);
 		become_logged_in(ANON_RSS_USER, ANON_RSS_PASS, buf);
-		WC->killthis = 1;
+		WCC->killthis = 1;
 		#else
 		authorization_required(_("Not logged in"));
 		return;
@@ -106,7 +108,9 @@ void display_rss(char *roomname, StrBuf *request_method)
 	
 
 	/** Read time of last message immediately */
-	serv_printf("MSG4 %ld", WC->msgarr[nummsgs - 1]);
+	Msg = GetMessagePtrAt(nummsgs - 1, WCC->summ);
+
+	serv_printf("MSG4 %ld", (Msg==NULL)? 0 : Msg->msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while (serv_getln(buf, sizeof buf), strcasecmp(buf, "000")) {
@@ -148,10 +152,10 @@ void display_rss(char *roomname, StrBuf *request_method)
 	/* <?xml.. etc confuses our subst parser, so do it here */
 	svput("XML_HEAD", WCS_STRING, "<?xml version=\"1.0\" ?>");
 	svput("XML_STYLE", WCS_STRING, "<?xml-stylesheet type=\"text/css\" href=\"/static/rss_browser.css\" ?>");
-	svput("ROOM", WCS_STRING, WC->wc_roomname);
+	svput("ROOM", WCS_STRING, WCC->wc_roomname);
 	svput("NODE", WCS_STRING, serv_info.serv_humannode);
 	// Fix me
-	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), WC->http_host);
+	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), WCC->http_host);
 	
 	/** Get room info for description */
 	serv_puts("RINF");
@@ -175,7 +179,8 @@ void display_rss(char *roomname, StrBuf *request_method)
 	/** Read all messages and output as RSS items */
 	for (a = 0; a < nummsgs; ++a) {
 		/** Read message and output each as RSS item */
-		serv_printf("MSG4 %ld", WC->msgarr[a]);
+		Msg = GetMessagePtrAt(a, WCC->summ);
+		serv_printf("MSG4 %ld", (Msg==NULL)? 0 : Msg->msgnum);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '1') continue;
 
@@ -334,7 +339,9 @@ void display_rss(char *roomname, StrBuf *request_method)
 		} 
 		/** HTML is fun, but we've got to strip it first */
 		else if (!strcasecmp(content_type, "text/html")) {
-			output_html(charset, 0, WC->msgarr[a], NULL,  NULL); 
+			Msg = GetMessagePtrAt(a, WCC->summ);
+
+			output_html(charset, 0, (Msg==NULL)? 0 : Msg->msgnum, NULL,  NULL); 
 		} 
 
 ENDBODY:

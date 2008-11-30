@@ -30,6 +30,7 @@ HashList *LocalTemplateCache;
 HashList *GlobalNS;
 HashList *Iterators;
 HashList *Conditionals;
+HashList *SortHash;
 
 int LoadTemplates = 0;
 
@@ -56,6 +57,7 @@ typedef struct _HashHandler {
 }HashHandler;
 
 void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere);
+int EvaluateConditional(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType);
 
 void RegisterNS(const char *NSName, 
 		long len, 
@@ -463,49 +465,6 @@ void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
 	}
 }
 
-
-/**
- * \brief puts string into the template and computes which escape methon we should use
- * \param Source the string we should put into the template
- * \param FormatTypeIndex where should we look for escape types if?
- */
-void StrBufAppendTemplate(StrBuf *Target, 
-			  int nArgs, 
-			  WCTemplateToken *Tokens,
-			  void *Context, int ContextType,
-			  const StrBuf *Source, int FormatTypeIndex)
-{
-        struct wcsession *WCC;
-	StrBuf *Buf;
-	char EscapeAs = ' ';
-
-	if ((FormatTypeIndex < Tokens->nParameters) &&
-	    (Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
-	    (Tokens->Params[FormatTypeIndex]->len == 1)) {
-		EscapeAs = *Tokens->Params[FormatTypeIndex]->Start;
-	}
-
-	switch(EscapeAs)
-	{
-	case 'H':
-		WCC = WC;
-		Buf = NewStrBufPlain(NULL, StrLength(Source));
-		StrBuf_RFC822_to_Utf8(Buf, 
-				      Source, 
-				      (WCC!=NULL)? WCC->DefaultCharset : NULL, 
-				      NULL);
-		StrEscAppend(Target, Buf, NULL, 0, 0);
-		FreeStrBuf(&Buf);
-		break;
-	case 'X':
-		StrEscAppend(Target, Source, NULL, 0, 0);
-		break;
-	default:
-		StrBufAppendBuf(Target, Source, 0);
-	}
-}
-
-
 void GetTemplateTokenString(WCTemplateToken *Tokens,
 			    int N, 
 			    const char **Value, 
@@ -673,6 +632,49 @@ int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup)
 		}
 	}
 	return 0;
+}
+
+
+
+/**
+ * \brief puts string into the template and computes which escape methon we should use
+ * \param Source the string we should put into the template
+ * \param FormatTypeIndex where should we look for escape types if?
+ */
+void StrBufAppendTemplate(StrBuf *Target, 
+			  int nArgs, 
+			  WCTemplateToken *Tokens,
+			  void *Context, int ContextType,
+			  const StrBuf *Source, int FormatTypeIndex)
+{
+        struct wcsession *WCC;
+	StrBuf *Buf;
+	char EscapeAs = ' ';
+
+	if ((FormatTypeIndex < Tokens->nParameters) &&
+	    (Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
+	    (Tokens->Params[FormatTypeIndex]->len == 1)) {
+		EscapeAs = *Tokens->Params[FormatTypeIndex]->Start;
+	}
+
+	switch(EscapeAs)
+	{
+	case 'H':
+		WCC = WC;
+		Buf = NewStrBufPlain(NULL, StrLength(Source));
+		StrBuf_RFC822_to_Utf8(Buf, 
+				      Source, 
+				      (WCC!=NULL)? WCC->DefaultCharset : NULL, 
+				      NULL);
+		StrEscAppend(Target, Buf, NULL, 0, 0);
+		FreeStrBuf(&Buf);
+		break;
+	case 'X':
+		StrEscAppend(Target, Source, NULL, 0, 0);
+		break;
+	default:
+		StrBufAppendBuf(Target, Source, 0);
+	}
 }
 
 
@@ -987,46 +989,195 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 
 
 
-int EvaluateConditional(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType)
+
+
+/**
+ * \brief Display a variable-substituted template
+ * \param templatename template file to load
+ */
+void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 {
-	ConditionalStruct *Cond;
+	WCTemplate *NewTemplate;
+	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
+	NewTemplate->Data = NULL;
+	NewTemplate->FileName = NewStrBufDup(filename);
+	NewTemplate->nTokensUsed = 0;
+	NewTemplate->TokenSpace = 0;
+	NewTemplate->Tokens = NULL;
 
-	if ((Tokens->Params[0]->len == 1) &&
-	    (Tokens->Params[0]->Start[0] == 'X'))
-		return (state != 0)?Tokens->Params[1]->lvalue:0;
-	    
-	Cond = (ConditionalStruct *) Tokens->PreEval;
-	if (Cond == NULL) {
-		lprintf(1, "Conditional [%s] (in '%s' line %ld); unknown![%s]\n", 
-			Tokens->Params[0]->Start,
-			ChrPtr(pTmpl->FileName),
-			Tokens->Line,
-			ChrPtr(Tokens->FlatToken));
-		return 1;
-	}
-
-	if (Tokens->nParameters < Cond->nParams) {
-		lprintf(1, "Conditional [%s] (in '%s' line %ld); needs %ld Params![%s]\n", 
-			Tokens->Params[0]->Start,
-			ChrPtr(pTmpl->FileName),
-			Tokens->Line,
-			Cond->nParams,
-			ChrPtr(Tokens->FlatToken));
-		StrBufAppendPrintf(
-			Target, 
-			"<pre>\nConditional [%s] (in '%s' line %ld); needs %ld Params!\n[%s]\n</pre>\n", 
-			Tokens->Params[0]->Start,
-			ChrPtr(pTmpl->FileName),
-			Tokens->Line,
-			Cond->nParams,
-			ChrPtr(Tokens->FlatToken));
-		return 0;
-	}
-	if (Cond->CondF(Tokens, Context, ContextType) == Neg)
-		return Tokens->Params[1]->lvalue;
-	return 0;
+	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
+	return NewTemplate;
 }
 
+/**
+ * \brief Display a variable-substituted template
+ * \param templatename template file to load
+ */
+void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
+{
+	int fd;
+	struct stat statbuf;
+	const char *pS, *pE, *pch, *Err;
+	long Line;
+	int pos;
+	WCTemplate *NewTemplate;
+
+	fd = open(ChrPtr(filename), O_RDONLY);
+	if (fd <= 0) {
+		lprintf(1, "ERROR: could not open template '%s' - %s\n",
+			ChrPtr(filename), strerror(errno));
+		return NULL;
+	}
+
+	if (fstat(fd, &statbuf) == -1) {
+		lprintf(1, "ERROR: could not stat template '%s' - %s\n",
+			ChrPtr(filename), strerror(errno));
+		return NULL;
+	}
+
+	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
+	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size);
+	NewTemplate->FileName = NewStrBufDup(filename);
+	NewTemplate->nTokensUsed = 0;
+	NewTemplate->TokenSpace = 0;
+	NewTemplate->Tokens = NULL;
+	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
+		close(fd);
+		FreeWCTemplate(NewTemplate);
+		lprintf(1, "ERROR: reading template '%s' - %s<br />\n",
+			ChrPtr(filename), strerror(errno));
+		return NULL;
+	}
+	close(fd);
+
+	Line = 0;
+	pS = pch = ChrPtr(NewTemplate->Data);
+	pE = pS + StrLength(NewTemplate->Data);
+	while (pch < pE) {
+		const char *pts, *pte;
+		int InQuotes = 0;
+		int InDoubleQuotes = 0;
+
+		/** Find one <? > */
+		pos = (-1);
+		for (; pch < pE; pch ++) {
+			if ((*pch=='<')&&(*(pch + 1)=='?'))
+				break;
+			if (*pch=='\n') Line ++;
+		}
+		if (pch >= pE)
+			continue;
+		pts = pch;
+
+		/** Found one? parse it. */
+		for (; pch < pE - 1; pch ++) {
+			if (*pch == '"')
+				InDoubleQuotes = ! InDoubleQuotes;
+			else if (*pch == '\'')
+				InQuotes = ! InQuotes;
+			else if ((!InQuotes  && !InDoubleQuotes) &&
+				 ((*pch!='\\')&&(*(pch + 1)=='>'))) {
+				pch ++;
+				break;
+			}
+		}
+		if (pch + 1 >= pE)
+			continue;
+		pte = pch;
+		PutNewToken(NewTemplate, 
+			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte, Line, NewTemplate));
+		pch ++;
+	}
+	if (LoadTemplates == 0)
+		Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
+	return NewTemplate;
+}
+
+
+///void PrintTemplate(const char *Key, void *vSubst, int odd)
+const char* PrintTemplate(void *vSubst)
+{
+	WCTemplate *Tmpl = vSubst;
+
+	return ChrPtr(Tmpl->FileName);
+
+}
+
+int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
+{
+	StrBuf *FileName;
+	StrBuf *Tag;
+	StrBuf *Dir;
+	DIR *filedir = NULL;
+	struct dirent *filedir_entry;
+	int d_namelen;
+	int d_without_ext;
+	int IsMobile;
+	
+	Dir = NewStrBuf();
+	StrBufPrintf(Dir, "%s/t", DirName);
+	filedir = opendir (ChrPtr(Dir));
+	if (filedir == NULL) {
+		FreeStrBuf(&Dir);
+		return 0;
+	}
+
+	FileName = NewStrBuf();
+	Tag = NewStrBuf();
+	while ((filedir_entry = readdir(filedir)))
+	{
+		char *MinorPtr;
+		char *PStart;
+#ifdef _DIRENT_HAVE_D_NAMELEN
+		d_namelen = filedir_entry->d_namelen;
+#else
+		d_namelen = strlen(filedir_entry->d_name);
+#endif
+		d_without_ext = d_namelen;
+		while ((d_without_ext > 0) && (filedir_entry->d_name[d_without_ext] != '.'))
+			d_without_ext --;
+		if ((d_without_ext == 0) || (d_namelen < 3))
+			continue;
+		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
+			continue; /* Ignore backup files... */
+
+		IsMobile = (strstr(filedir_entry->d_name, ".m.html")!= NULL);
+		PStart = filedir_entry->d_name;
+		StrBufPrintf(FileName, "%s/%s", ChrPtr(Dir),  filedir_entry->d_name);
+		MinorPtr = strchr(filedir_entry->d_name, '.');
+		if (MinorPtr != NULL)
+			*MinorPtr = '\0';
+		StrBufPlain(Tag, filedir_entry->d_name, MinorPtr - filedir_entry->d_name);
+
+		if (LoadTemplates > 1)
+			lprintf(1, "%s %d %s\n",ChrPtr(FileName), IsMobile, ChrPtr(Tag));
+		if (LoadTemplates == 0)
+			load_template(FileName, Tag, (IsMobile)?wireless:big);
+		else
+			prepare_template(FileName, Tag, (IsMobile)?wireless:big);
+	}
+	closedir(filedir);
+	FreeStrBuf(&FileName);
+	FreeStrBuf(&Tag);
+	FreeStrBuf(&Dir);
+	return 1;
+}
+
+void InitTemplateCache(void)
+{
+	LoadTemplateDir(static_dirs[0],
+			WirelessTemplateCache,
+			TemplateCache);
+	LoadTemplateDir(static_dirs[1],
+			WirelessLocalTemplateCache,
+			LocalTemplateCache);
+}
+
+
+
+/*-----------------------------------------------------------------------------
+ *                      Filling & processing Templates
+ */
 /**
  * \brief executes one token
  * \param Target buffer to append to
@@ -1176,6 +1327,8 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, vo
 	return 0;
 }
 
+
+
 void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context, int ContextType)
 {
 	WCTemplate *pTmpl = Tmpl;
@@ -1242,120 +1395,6 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context, int Contex
 	}
 }
 
-
-/**
- * \brief Display a variable-substituted template
- * \param templatename template file to load
- */
-void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
-{
-	WCTemplate *NewTemplate;
-	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
-	NewTemplate->Data = NULL;
-	NewTemplate->FileName = NewStrBufDup(filename);
-	NewTemplate->nTokensUsed = 0;
-	NewTemplate->TokenSpace = 0;
-	NewTemplate->Tokens = NULL;
-
-	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
-	return NewTemplate;
-}
-
-/**
- * \brief Display a variable-substituted template
- * \param templatename template file to load
- */
-void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
-{
-	int fd;
-	struct stat statbuf;
-	const char *pS, *pE, *pch, *Err;
-	long Line;
-	int pos;
-	WCTemplate *NewTemplate;
-
-	fd = open(ChrPtr(filename), O_RDONLY);
-	if (fd <= 0) {
-		lprintf(1, "ERROR: could not open template '%s' - %s\n",
-			ChrPtr(filename), strerror(errno));
-		return NULL;
-	}
-
-	if (fstat(fd, &statbuf) == -1) {
-		lprintf(1, "ERROR: could not stat template '%s' - %s\n",
-			ChrPtr(filename), strerror(errno));
-		return NULL;
-	}
-
-	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
-	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size);
-	NewTemplate->FileName = NewStrBufDup(filename);
-	NewTemplate->nTokensUsed = 0;
-	NewTemplate->TokenSpace = 0;
-	NewTemplate->Tokens = NULL;
-	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
-		close(fd);
-		FreeWCTemplate(NewTemplate);
-		lprintf(1, "ERROR: reading template '%s' - %s<br />\n",
-			ChrPtr(filename), strerror(errno));
-		return NULL;
-	}
-	close(fd);
-
-	Line = 0;
-	pS = pch = ChrPtr(NewTemplate->Data);
-	pE = pS + StrLength(NewTemplate->Data);
-	while (pch < pE) {
-		const char *pts, *pte;
-		int InQuotes = 0;
-		int InDoubleQuotes = 0;
-
-		/** Find one <? > */
-		pos = (-1);
-		for (; pch < pE; pch ++) {
-			if ((*pch=='<')&&(*(pch + 1)=='?'))
-				break;
-			if (*pch=='\n') Line ++;
-		}
-		if (pch >= pE)
-			continue;
-		pts = pch;
-
-		/** Found one? parse it. */
-		for (; pch < pE - 1; pch ++) {
-			if (*pch == '"')
-				InDoubleQuotes = ! InDoubleQuotes;
-			else if (*pch == '\'')
-				InQuotes = ! InQuotes;
-			else if ((!InQuotes  && !InDoubleQuotes) &&
-				 ((*pch!='\\')&&(*(pch + 1)=='>'))) {
-				pch ++;
-				break;
-			}
-		}
-		if (pch + 1 >= pE)
-			continue;
-		pte = pch;
-		PutNewToken(NewTemplate, 
-			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte, Line, NewTemplate));
-		pch ++;
-	}
-	if (LoadTemplates == 0)
-		Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
-	return NewTemplate;
-}
-
-
-///void PrintTemplate(const char *Key, void *vSubst, int odd)
-const char* PrintTemplate(void *vSubst)
-{
-	WCTemplate *Tmpl = vSubst;
-
-	return ChrPtr(Tmpl->FileName);
-
-}
-
-
 /**
  * \brief Display a variable-substituted template
  * \param templatename template file to load
@@ -1399,78 +1438,9 @@ void DoTemplate(const char *templatename, long len, StrBuf *Target, void *Contex
 	ProcessTemplate(vTmpl, Target, Context, ContextType);
 }
 
-int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
-{
-	StrBuf *FileName;
-	StrBuf *Tag;
-	StrBuf *Dir;
-	DIR *filedir = NULL;
-	struct dirent *filedir_entry;
-	int d_namelen;
-	int d_without_ext;
-	int IsMobile;
-	
-	Dir = NewStrBuf();
-	StrBufPrintf(Dir, "%s/t", DirName);
-	filedir = opendir (ChrPtr(Dir));
-	if (filedir == NULL) {
-		FreeStrBuf(&Dir);
-		return 0;
-	}
-
-	FileName = NewStrBuf();
-	Tag = NewStrBuf();
-	while ((filedir_entry = readdir(filedir)))
-	{
-		char *MinorPtr;
-		char *PStart;
-#ifdef _DIRENT_HAVE_D_NAMELEN
-		d_namelen = filedir_entry->d_namelen;
-#else
-		d_namelen = strlen(filedir_entry->d_name);
-#endif
-		d_without_ext = d_namelen;
-		while ((d_without_ext > 0) && (filedir_entry->d_name[d_without_ext] != '.'))
-			d_without_ext --;
-		if ((d_without_ext == 0) || (d_namelen < 3))
-			continue;
-		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
-			continue; /* Ignore backup files... */
-
-		IsMobile = (strstr(filedir_entry->d_name, ".m.html")!= NULL);
-		PStart = filedir_entry->d_name;
-		StrBufPrintf(FileName, "%s/%s", ChrPtr(Dir),  filedir_entry->d_name);
-		MinorPtr = strchr(filedir_entry->d_name, '.');
-		if (MinorPtr != NULL)
-			*MinorPtr = '\0';
-		StrBufPlain(Tag, filedir_entry->d_name, MinorPtr - filedir_entry->d_name);
-
-		if (LoadTemplates > 1)
-			lprintf(1, "%s %d %s\n",ChrPtr(FileName), IsMobile, ChrPtr(Tag));
-		if (LoadTemplates == 0)
-			load_template(FileName, Tag, (IsMobile)?wireless:big);
-		else
-			prepare_template(FileName, Tag, (IsMobile)?wireless:big);
-	}
-	closedir(filedir);
-	FreeStrBuf(&FileName);
-	FreeStrBuf(&Tag);
-	FreeStrBuf(&Dir);
-	return 1;
-}
-
-void InitTemplateCache(void)
-{
-	LoadTemplateDir(static_dirs[0],
-			WirelessTemplateCache,
-			TemplateCache);
-	LoadTemplateDir(static_dirs[1],
-			WirelessLocalTemplateCache,
-			LocalTemplateCache);
-}
-
-
-
+/*-----------------------------------------------------------------------------
+ *                      Iterators
+ */
 typedef struct _HashIterator {
 	HashList *StaticList;
 	int AdditionalParams;
@@ -1480,6 +1450,26 @@ typedef struct _HashIterator {
 	HashDestructorFunc Destructor;
 	SubTemplFunc DoSubTemplate;
 } HashIterator;
+
+void RegisterITERATOR(const char *Name, long len, 
+		      int AdditionalParams, 
+		      HashList *StaticList, 
+		      RetrieveHashlistFunc GetHash, 
+		      SubTemplFunc DoSubTempl,
+		      HashDestructorFunc Destructor,
+		      int ContextType, 
+		      int XPectContextType)
+{
+	HashIterator *It = (HashIterator*)malloc(sizeof(HashIterator));
+	It->StaticList = StaticList;
+	It->AdditionalParams = AdditionalParams;
+	It->GetHash = GetHash;
+	It->DoSubTemplate = DoSubTempl;
+	It->Destructor = Destructor;
+	It->ContextType = ContextType;
+	It->XPectContextType = XPectContextType;
+	Put(Iterators, Name, len, It, NULL);
+}
 
 void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -1560,9 +1550,6 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		
 	}
 
-
-
-
 	if (It->StaticList == NULL)
 		List = It->GetHash(Target, nArgs, Tokens, Context, ContextType);
 	else
@@ -1590,6 +1577,51 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	DeleteHashPos(&it);
 	if (It->Destructor != NULL)
 		It->Destructor(&List);
+}
+
+
+
+/*-----------------------------------------------------------------------------
+ *                      Conditionals
+ */
+int EvaluateConditional(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType)
+{
+	ConditionalStruct *Cond;
+
+	if ((Tokens->Params[0]->len == 1) &&
+	    (Tokens->Params[0]->Start[0] == 'X'))
+		return (state != 0)?Tokens->Params[1]->lvalue:0;
+	    
+	Cond = (ConditionalStruct *) Tokens->PreEval;
+	if (Cond == NULL) {
+		lprintf(1, "Conditional [%s] (in '%s' line %ld); unknown![%s]\n", 
+			Tokens->Params[0]->Start,
+			ChrPtr(pTmpl->FileName),
+			Tokens->Line,
+			ChrPtr(Tokens->FlatToken));
+		return 1;
+	}
+
+	if (Tokens->nParameters < Cond->nParams) {
+		lprintf(1, "Conditional [%s] (in '%s' line %ld); needs %ld Params![%s]\n", 
+			Tokens->Params[0]->Start,
+			ChrPtr(pTmpl->FileName),
+			Tokens->Line,
+			Cond->nParams,
+			ChrPtr(Tokens->FlatToken));
+		StrBufAppendPrintf(
+			Target, 
+			"<pre>\nConditional [%s] (in '%s' line %ld); needs %ld Params!\n[%s]\n</pre>\n", 
+			Tokens->Params[0]->Start,
+			ChrPtr(pTmpl->FileName),
+			Tokens->Line,
+			Cond->nParams,
+			ChrPtr(Tokens->FlatToken));
+		return 0;
+	}
+	if (Cond->CondF(Tokens, Context, ContextType) == Neg)
+		return Tokens->Params[1]->lvalue;
+	return 0;
 }
 
 int ConditionalVar(WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -1632,25 +1664,6 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context, int ContextType)
 	return 0;
 }
 
-void RegisterITERATOR(const char *Name, long len, 
-		      int AdditionalParams, 
-		      HashList *StaticList, 
-		      RetrieveHashlistFunc GetHash, 
-		      SubTemplFunc DoSubTempl,
-		      HashDestructorFunc Destructor,
-		      int ContextType, 
-		      int XPectContextType)
-{
-	HashIterator *It = (HashIterator*)malloc(sizeof(HashIterator));
-	It->StaticList = StaticList;
-	It->AdditionalParams = AdditionalParams;
-	It->GetHash = GetHash;
-	It->DoSubTemplate = DoSubTempl;
-	It->Destructor = Destructor;
-	It->ContextType = ContextType;
-	It->XPectContextType = XPectContextType;
-	Put(Iterators, Name, len, It, NULL);
-}
 
 void RegisterConditional(const char *Name, long len, 
 			 int nParams,
@@ -1665,7 +1678,9 @@ void RegisterConditional(const char *Name, long len,
 	Put(Conditionals, Name, len, Cond, NULL);
 }
 
-
+/*-----------------------------------------------------------------------------
+ *                      Context Strings
+ */
 void tmplput_ContextString(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, (StrBuf*)Context, 0);
@@ -1680,6 +1695,9 @@ int ConditionalContextStr(WCTemplateToken *Tokens, void *Context, int ContextTyp
 	return strcmp(ChrPtr(TokenText), CompareToken) == 0;
 }
 
+/*-----------------------------------------------------------------------------
+ *                      Boxed-API
+ */
 
 void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -1711,9 +1729,12 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 		   Context, 
 		   ContextType);
 	DoTemplate(HKEY("endbox"), Target, Context, ContextType);
-	FreeStrBuf(Headline);
+	FreeStrBuf(&Headline);
 }
 
+/*-----------------------------------------------------------------------------
+ *                      Tabbed-API
+ */
 
 void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -1751,10 +1772,317 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 	}
 }
 
+
+/*-----------------------------------------------------------------------------
+ *                      Sorting-API
+ */
+
+typedef struct _SortStruct {
+	StrBuf *Name;
+	StrBuf *PrefPrepend;
+	CompareFunc Forward;
+	CompareFunc Reverse;
+
+	long ContextType;
+}SortStruct;
+
+void DestroySortStruct(void *vSort)
+{
+	SortStruct *Sort = (SortStruct*) vSort;
+	FreeStrBuf(&Sort->Name);
+	FreeStrBuf(&Sort->PrefPrepend);
+	free (Sort);
+}
+
+void RegisterSortFunc(const char *name, long len, 
+		      const char *prepend, long preplen,
+		      CompareFunc Forward, 
+		      CompareFunc Reverse, 
+		      long ContextType)
+{
+	SortStruct *NewSort = (SortStruct*) malloc(sizeof(SortStruct));
+	NewSort->Name = NewStrBufPlain(name, len);
+	if (prepend != NULL)
+		NewSort->PrefPrepend = NewStrBufPlain(prepend, preplen);
+	else
+		NewSort->PrefPrepend = NULL;
+	NewSort->Forward = Forward;
+	NewSort->Reverse = Reverse;
+	NewSort->ContextType = ContextType;
+	Put(SortHash, name, len, NewSort, DestroySortStruct);
+}
+
+CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix, 
+			 const char *Default, long ldefault, long DefaultDirection)
+{
+	int isdefault = 0;
+	const StrBuf *BSort;
+	SortStruct *SortBy;
+	void *vSortBy;
+	long SortOrder;
+	
+	if (havebstr("SortBy")) {
+		BSort = sbstr("SortBy");
+	}
+	else { /** Try to fallback to our remembered values... */
+		if (OtherPrefix == NULL) {
+			BSort = get_room_pref("sort");
+		}
+		else {
+			////todo: nail prefprepend to sort, and lookup this!
+		}
+	}
+
+	if (!GetHash(SortHash, SKEY(BSort), &vSortBy) || 
+	    (vSortBy == NULL)) {
+		isdefault = 1;
+		if (!GetHash(SortHash, Default, ldefault, &vSortBy) || 
+		    (vSortBy == NULL)) {
+			lprintf(1, "Illegal default sort: [%s]\n", Default);
+			wc_backtrace();
+		}
+	}
+	SortBy = (SortStruct*)vSortBy;
+
+	/** Ok, its us, lets see in which direction we should sort... */
+	if (havebstr("SortOrder")) {
+		SortOrder = LBSTR("SortOrder");
+	}
+	else { /** Try to fallback to our remembered values... */
+		if (SortBy->PrefPrepend == NULL) {
+			SortOrder = StrTol(get_room_pref("SortOrder"));
+		}
+		else {
+			////todo: nail prefprepend to sort, and lookup this!
+		}
+	}
+	switch (SortOrder) {
+	default:
+	case 0:
+		return NULL;
+	case 1:
+		return SortBy->Forward;
+	case 2:
+		return SortBy->Reverse;
+	}
+}
+
+
+enum {
+	eNO_SUCH_SORT, 
+	eNOT_SPECIFIED,
+	eINVALID_PARAM,
+	eFOUND
+};
+
+ConstStr SortIcons[] = {
+	{HKEY("static/sort_none.gif")},
+	{HKEY("static/up_pointer.gif")},
+	{HKEY("static/down_pointer.gif")},
+};
+
+ConstStr SortNextOrder[] = {
+	{HKEY("1")},
+	{HKEY("2")},
+	{HKEY("0")},
+};
+
+
+int GetSortMetric(WCTemplateToken *Tokens, SortStruct **Next, SortStruct **Param, long *SortOrder)
+{
+	int bSortError = eNOT_SPECIFIED;
+	const StrBuf *BSort;
+	void *vSort;
+	
+	*SortOrder = 0;
+	*Next = NULL;
+	if (!GetHash(SortHash, Tokens->Params[0]->Start, Tokens->Params[0]->len, &vSort) || 
+	    (vSort == NULL))
+		return eNO_SUCH_SORT;
+	*Param = (SortStruct*) vSort;
+	
+
+	if (havebstr("SortBy")) {
+		BSort = sbstr("SortBy");
+		bSortError = eINVALID_PARAM;
+	}
+	else { /** Try to fallback to our remembered values... */
+		if ((*Param)->PrefPrepend == NULL) {
+			BSort = get_room_pref("sort");
+		}
+		else {
+			////todo: nail prefprepend to sort, and lookup this!
+		}
+	}
+
+	if (!GetHash(SortHash, SKEY(BSort), &vSort) || 
+	    (vSort == NULL))
+		return bSortError;
+
+	*Next = (SortStruct*) vSort;
+
+	/** Ok, its us, lets see in which direction we should sort... */
+	if (havebstr("SortOrder")) {
+		*SortOrder = LBSTR("SortOrder");
+	}
+	else { /** Try to fallback to our remembered values... */
+		if ((*Param)->PrefPrepend == NULL) {
+			*SortOrder = StrTol(get_room_pref("SortOrder"));
+		}
+		else {
+			////todo: nail prefprepend to sort, and lookup this!
+		}
+	}
+	if (*SortOrder > 2)
+		*SortOrder = 0;
+
+	return eFOUND;
+}
+
+
+void tmplput_SORT_ICON(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	long SortOrder;
+	SortStruct *Next;
+	SortStruct *Param;
+	const ConstStr *SortIcon;
+
+	switch (GetSortMetric(Tokens, &Next, &Param, &SortOrder)){
+	case eNO_SUCH_SORT:
+		lprintf(1, "[%s] (in '%s' line %ld); "
+			" Sorter [%s] unknown! [%s]\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FlatToken));
+		StrBufAppendPrintf(
+			Target, 
+			"<pre>\n [%s] (in '%s' line %ld);"
+			" Sorter [%s] unknown!\n[%s]\n</pre>\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FlatToken));
+		break;		
+	case eINVALID_PARAM:
+		lprintf(1, "[%s] (in '%s' line %ld); "
+			" Sorter specified by BSTR 'SortBy' [%s] unknown! [%s]\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			bstr("SortBy"),
+			ChrPtr(Tokens->FlatToken));
+	case eNOT_SPECIFIED:
+	case eFOUND:
+		if (Next == Param) {
+			SortIcon = &SortIcons[SortOrder];
+		}
+		else { /** Not Us... */
+			SortIcon = &SortIcons[0];
+		}
+		StrBufAppendBufPlain(Target, SortIcon->Key, SortIcon->len, 0);
+	}
+}
+
+void tmplput_SORT_NEXT(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	long SortOrder;
+	SortStruct *Next;
+	SortStruct *Param;
+
+	switch (GetSortMetric(Tokens, &Next, &Param, &SortOrder)){
+	case eNO_SUCH_SORT:
+		lprintf(1, "[%s] (in '%s' line %ld); "
+			" Sorter [%s] unknown! [%s]\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FlatToken));
+		StrBufAppendPrintf(
+			Target, 
+			"<pre>\n [%s] (in '%s' line %ld);"
+			" Sorter [%s] unknown!\n[%s]\n</pre>\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FlatToken));
+		break;		
+	case eINVALID_PARAM:
+		lprintf(1, "[%s] (in '%s' line %ld); "
+			" Sorter specified by BSTR 'SortBy' [%s] unknown! [%s]\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			bstr("SortBy"),
+			ChrPtr(Tokens->FlatToken));
+
+	case eNOT_SPECIFIED:
+	case eFOUND:
+		StrBufAppendBuf(Target, Param->Name, 0);
+		
+	}
+}
+
+void tmplput_SORT_ORDER(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	long SortOrder;
+	const ConstStr *SortOrderStr;
+	SortStruct *Next;
+	SortStruct *Param;
+
+	switch (GetSortMetric(Tokens, &Next, &Param, &SortOrder)){
+	case eNO_SUCH_SORT:
+		lprintf(1, "[%s] (in '%s' line %ld); "
+			" Sorter [%s] unknown! [%s]\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FlatToken));
+		StrBufAppendPrintf(
+			Target, 
+			"<pre>\n [%s] (in '%s' line %ld);"
+			" Sorter [%s] unknown!\n[%s]\n</pre>\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			Tokens->Params[0]->Start,
+			ChrPtr(Tokens->FlatToken));
+		break;		
+	case eINVALID_PARAM:
+		lprintf(1, "[%s] (in '%s' line %ld); "
+			" Sorter specified by BSTR 'SortBy' [%s] unknown! [%s]\n", 
+			Tokens->pName,
+			ChrPtr(Tokens->FileName),
+			Tokens->Line,
+			bstr("SortBy"),
+			ChrPtr(Tokens->FlatToken));
+
+	case eNOT_SPECIFIED:
+	case eFOUND:
+		if (Next == Param) {
+			SortOrderStr = &SortNextOrder[SortOrder];
+		}
+		else { /** Not Us... */
+			SortOrderStr = &SortNextOrder[0];
+		}
+		StrBufAppendBufPlain(Target, SortOrderStr->Key, SortOrderStr->len, 0);
+	}
+}
+
+
+
 void 
 InitModule_SUBST
 (void)
 {
+	RegisterNamespace("SORT:ICON", 1, 1, tmplput_SORT_ICON, CTX_NONE);
+	RegisterNamespace("SORT:ORDER", 1, 1, tmplput_SORT_ORDER, CTX_NONE);
+	RegisterNamespace("SORT:NEXT", 1, 1, tmplput_SORT_NEXT, CTX_NONE);
 	RegisterNamespace("CONTEXTSTR", 0, 1, tmplput_ContextString, CTX_STRBUF);
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);

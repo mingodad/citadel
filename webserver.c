@@ -696,6 +696,7 @@ int main(int argc, char **argv)
 	Conditionals = NewHash(1, NULL);
 	MsgHeaderHandler = NewHash(1, NULL);
 	MimeRenderHandler = NewHash(1, NULL);
+	SortHash = NewHash(1, NULL);
 
 	LoadZoneFiles();
 
@@ -982,6 +983,7 @@ void ShutDownWebcit(void)
 	DeleteHash(&MimeRenderHandler);
 	DeleteHash(&Conditionals);
 	DeleteHash(&MsgHeaderHandler);
+	DeleteHash(&SortHash);
 #ifdef ENABLE_NLS
 	ShutdownLocale();
 #endif
