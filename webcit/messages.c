@@ -35,189 +35,7 @@ typedef void (*MsgPartEvaluatorFunc)(message_summary *Sum, StrBuf *Buf);
 
 
 
-const char* SortIcons[3] = {
-	"static/up_pointer.gif",
-	"static/down_pointer.gif",
-	"static/sort_none.gif"
-};
-
-enum  {/// SortByEnum
-	eDate,
-	eRDate,
-	eSubject,
-	eRSubject,
-	eSender,
-	eRSender,
-	eReverse,
-	eUnSet
-}; 
-
-/* SortEnum to plain string representation */
-static const char* SortByStrings[] = {
-	"date",
-	"rdate",
-	"subject", 
-	"rsubject", 
-	"sender",
-	"rsender",
-	"reverse",
-	"unset"
-};
-
-/* SortEnum to sort-Function Table */
-const CompareFunc SortFuncs[eUnSet] = {
-	summcmp_date,
-	summcmp_rdate,
-	summcmp_subj,
-	summcmp_rsubj,
-	summcmp_sender,
-	summcmp_rsender,
-	summcmp_rdate
-};
-
-/* given a SortEnum, which icon should we choose? */
-const int SortDateToIcon[eUnSet] = { eUp, eDown, eNone, eNone, eNone, eNone, eNone};
-const int SortSubjectToIcon[eUnSet] = { eNone, eNone, eUp, eDown, eNone, eNone, eNone};
-const int SortSenderToIcon[eUnSet] = { eNone, eNone, eNone, eNone, eUp, eDown, eNone};
-
-/* given a SortEnum, which would be the "opposite" search option? */
-const int DateInvertSortString[eUnSet] =  { eRDate, eDate, eDate, eDate, eDate, eDate, eDate};
-const int SubjectInvertSortString[eUnSet] =  { eSubject, eSubject, eRSubject, eUnSet, eSubject, eSubject, eSubject};
-const int SenderInvertSortString[eUnSet] =  { eSender, eSender, eSender, eSender, eRSender, eUnSet, eSender};
-
-
-
 /*----------------------------------------------------------------------------*/
-
-/*
- * Translates sortoption String to its SortEnum representation 
- * returns the enum matching the string; defaults to RDate
- */
-//SortByEnum 
-int StrToESort (const StrBuf *sortby)
-{////todoo: hash
-	int result = eDate;
-
-	if (!IsEmptyStr(ChrPtr(sortby))) while (result < eUnSet){
-			if (!strcasecmp(ChrPtr(sortby), 
-					SortByStrings[result])) 
-				return result;
-			result ++;
-		}
-	return eRDate;
-}
-
-
-typedef int (*QSortFunction) (const void*, const void*);
-
-/*
- * qsort() compatible function to compare two longs in descending order.
- */
-int longcmp_r(const void *s1, const void *s2) {
-	long l1;
-	long l2;
-
-	l1 = *(long *)GetSearchPayload(s1);
-	l2 = *(long *)GetSearchPayload(s2);
-
-	if (l1 > l2) return(-1);
-	if (l1 < l2) return(+1);
-	return(0);
-}
-
-/*
- * qsort() compatible function to compare two longs in descending order.
- */
-int qlongcmp_r(const void *s1, const void *s2) {
-	long l1 = (long) s1;
-	long l2 = (long) s2;
-
-	if (l1 > l2) return(-1);
-	if (l1 < l2) return(+1);
-	return(0);
-}
-
- 
-/*
- * qsort() compatible function to compare two message summary structs by ascending subject.
- */
-int summcmp_subj(const void *s1, const void *s2) {
-	message_summary *summ1;
-	message_summary *summ2;
-	
-	summ1 = (message_summary *)GetSearchPayload(s1);
-	summ2 = (message_summary *)GetSearchPayload(s2);
-	return strcasecmp(ChrPtr(summ1->subj), ChrPtr(summ2->subj));
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by descending subject.
- */
-int summcmp_rsubj(const void *s1, const void *s2) {
-	message_summary *summ1;
-	message_summary *summ2;
-	
-	summ1 = (message_summary *)GetSearchPayload(s1);
-	summ2 = (message_summary *)GetSearchPayload(s2);
-	return strcasecmp(ChrPtr(summ2->subj), ChrPtr(summ1->subj));
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by ascending sender.
- */
-int summcmp_sender(const void *s1, const void *s2) {
-	message_summary *summ1;
-	message_summary *summ2;
-	
-	summ1 = (message_summary *)GetSearchPayload(s1);
-	summ2 = (message_summary *)GetSearchPayload(s2);
-	return strcasecmp(ChrPtr(summ1->from), ChrPtr(summ2->from));
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by descending sender.
- */
-int summcmp_rsender(const void *s1, const void *s2) {
-	message_summary *summ1;
-	message_summary *summ2;
-	
-	summ1 = (message_summary *)GetSearchPayload(s1);
-	summ2 = (message_summary *)GetSearchPayload(s2);
-	return strcasecmp(ChrPtr(summ2->from), ChrPtr(summ1->from));
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by ascending date.
- */
-int summcmp_date(const void *s1, const void *s2) {
-	message_summary *summ1;
-	message_summary *summ2;
-	
-	summ1 = (message_summary *)GetSearchPayload(s1);
-	summ2 = (message_summary *)GetSearchPayload(s2);
-
-	if (summ1->date < summ2->date) return -1;
-	else if (summ1->date > summ2->date) return +1;
-	else return 0;
-}
-
-/*
- * qsort() compatible function to compare two message summary structs by descending date.
- */
-int summcmp_rdate(const void *s1, const void *s2) {
-	message_summary *summ1;
-	message_summary *summ2;
-	
-	summ1 = (message_summary *)GetSearchPayload(s1);
-	summ2 = (message_summary *)GetSearchPayload(s2);
-
-	if (summ1->date < summ2->date) return +1;
-	else if (summ1->date > summ2->date) return -1;
-	else return 0;
-}
-
-
-
 
 
 
@@ -275,19 +93,14 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			Done = 1;
 			if (state < 2) {
 				lprintf(1, _("unexpected end of message"));
-				StrBufAppendPrintf(Target, "<i>");
-				StrBufAppendPrintf(Target, _("unexpected end of message"));
-				StrBufAppendPrintf(Target, " (1)</i><br /><br />\n");
-				StrBufAppendPrintf(Target, "</div>\n");
-				FreeStrBuf(&Buf);
-				FreeStrBuf(&HdrToken);
-				DestroyMessageSummary(Msg);
-				FreeStrBuf(&FoundCharset);
-				return 0;
+				
+				Msg->MsgBody->ContentType = NewStrBufPlain(HKEY("text/html"));
+				StrBufAppendPrintf(Msg->MsgBody->Data, "<div><i>");
+				StrBufAppendPrintf(Msg->MsgBody->Data, _("unexpected end of message"));
+				StrBufAppendPrintf(Msg->MsgBody->Data, " (1)</i><br /><br />\n");
+				StrBufAppendPrintf(Msg->MsgBody->Data, "</div>\n");
 			}
-			else {
-				break;
-			}
+			break;
 		}
 		switch (state) {
 		case 0:/* Citadel Message Headers */
@@ -1123,8 +936,14 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 }
 
 
-
-
+inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
+{
+	void *vMsg;
+	if (Summ == NULL)
+		return NULL;
+	GetHash(Summ, (const char*)&n, sizeof(n), &vMsg);
+	return (message_summary*) vMsg;
+}
 
 
 /*
@@ -1134,6 +953,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
  */
 void readloop(char *oper)
 {
+	StrBuf *BBViewToolBar = NULL;
 	void *vMsg;
 	message_summary *Msg;
 	char cmd[256] = "";
@@ -1141,6 +961,7 @@ void readloop(char *oper)
 	char old_msgs[SIZ];
 	int a = 0;
 	int b = 0;
+	int n;
 	int nummsgs;
 	long startmsg;
 	int maxmsgs;
@@ -1159,94 +980,117 @@ void readloop(char *oper)
 	int highest_displayed = 0;
 	addrbookent *addrbook = NULL;
 	int num_ab = 0;
-	const StrBuf *sortby = NULL;
-	//SortByEnum 
-	int SortBy = eRDate;
-	const StrBuf *sortpref_value;
 	int bbs_reverse = 0;
 	struct wcsession *WCC = WC;     /* This is done to make it run faster; WC is a function */
 	HashPos *at;
 	const char *HashKey;
 	long HKLen;
+	int care_for_empty_list = 0;
+	int load_seen = 0;
+	int sortit = 0;
 
-	if (WCC->wc_view == VIEW_WIKI) {
+	switch (WCC->wc_view) {
+	case VIEW_WIKI:
 		sprintf(buf, "wiki?room=%s&page=home", WCC->wc_roomname);
 		http_redirect(buf);
 		return;
+	case VIEW_CALENDAR:
+		load_seen = 1;
+		is_calendar = 1;
+		strcpy(cmd, "MSGS ALL|||1");
+		maxmsgs = 32767;
+		parse_calendar_view_request(&calv);
+	case VIEW_TASKS:
+		is_tasks = 1;
+		strcpy(cmd, "MSGS ALL");
+		maxmsgs = 32767;
+	case VIEW_NOTES:
+		is_notes = 1;
+		strcpy(cmd, "MSGS ALL");
+		maxmsgs = 32767;
+		wprintf("<div id=\"new_notes_here\"></div>\n");
+	case VIEW_ADDRESSBOOK:
+		is_singlecard = ibstr("is_singlecard");
+		if (maxmsgs > 1) {
+			is_addressbook = 1;
+			if (!strcmp(oper, "do_search")) {
+				snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
+			}
+			else {
+				strcpy(cmd, "MSGS ALL");
+			}
+			maxmsgs = 9999999;
+			break;
+		}
+
+	default:
+		care_for_empty_list = 1;
+		startmsg = lbstr("startmsg");
+		maxmsgs = ibstr("maxmsgs");
+		is_summary = (ibstr("is_summary") && !WCC->is_mobile);
+		if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
+		
+
+		
+                /*
+		 * When in summary mode, always show ALL messages instead of just
+		 * new or old.  Otherwise, show what the user asked for.
+		 */
+		if (!strcmp(oper, "readnew")) {
+			strcpy(cmd, "MSGS NEW");
+		}
+		else if (!strcmp(oper, "readold")) {
+			strcpy(cmd, "MSGS OLD");
+		}
+		else if (!strcmp(oper, "do_search")) {
+			snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
+		}
+		else {
+			strcpy(cmd, "MSGS ALL");
+		}
+		
+		if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1) && !WCC->is_mobile) {
+			is_summary = 1;
+			if (!strcmp(oper, "do_search")) {
+				snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
+			}
+			else {
+				strcpy(cmd, "MSGS ALL");
+			}
+		}
+
+		is_bbview = !is_summary;
+		if (is_summary) {			/**< fetch header summary */
+			load_seen = 1;
+			snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
+				 (!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
+				 (!strcmp(oper, "do_search") ? bstr("query") : "")
+				);
+			startmsg = 1;
+			maxmsgs = 9999999;
+		} 
+		if (startmsg == 0L) {
+			if (bbs_reverse) {
+				Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
+				startmsg = (Msg==NULL)? 0 : Msg->msgnum;
+			}
+			else {
+				Msg = GetMessagePtrAt(0, WCC->summ);
+				startmsg = (Msg==NULL)? 0 : Msg->msgnum;
+			}
+		}
+		sortit = is_summary || WCC->is_mobile;
 	}
 
-	startmsg = lbstr("startmsg");
-	maxmsgs = ibstr("maxmsgs");
-	is_summary = (ibstr("is_summary") && !WCC->is_mobile);
-	if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 
-	sortpref_value = get_room_pref("sort");
 
-	sortby = sbstr("sortby");
-	if ( (!IsEmptyStr(ChrPtr(sortby))) && 
-	     (strcasecmp(ChrPtr(sortby), ChrPtr(sortpref_value)) != 0)) {
-		set_room_pref("sort", NewStrBufDup(sortby), 1);
-		sortpref_value = NULL;
-		sortpref_value = sortby;
-	}
 
-	SortBy = StrToESort(sortpref_value);
-	/* message board sort */
-	if (SortBy == eReverse) {
-		bbs_reverse = 1;
-	}
-	else {
-		bbs_reverse = 0;
-	}
+
+
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	/*
-	 * When in summary mode, always show ALL messages instead of just
-	 * new or old.  Otherwise, show what the user asked for.
-	 */
-	if (!strcmp(oper, "readnew")) {
-		strcpy(cmd, "MSGS NEW");
-	}
-	else if (!strcmp(oper, "readold")) {
-		strcpy(cmd, "MSGS OLD");
-	}
-	else if (!strcmp(oper, "do_search")) {
-		snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
-	}
-	else {
-		strcpy(cmd, "MSGS ALL");
-	}
-
-	if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1) && !WCC->is_mobile) {
-		is_summary = 1;
-		if (!strcmp(oper, "do_search")) {
-			snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
-		}
-		else {
-			strcpy(cmd, "MSGS ALL");
-		}
-	}
-
-	if ((WCC->wc_view == VIEW_ADDRESSBOOK) && (maxmsgs > 1)) {
-		is_addressbook = 1;
-		if (!strcmp(oper, "do_search")) {
-			snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
-		}
-		else {
-			strcpy(cmd, "MSGS ALL");
-		}
-		maxmsgs = 9999999;
-	}
-
-	if (is_summary) {			/**< fetch header summary */
-		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
-			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
-			(!strcmp(oper, "do_search") ? bstr("query") : "")
-		);
-		startmsg = 1;
-		maxmsgs = 9999999;
-	} 
 	if (WCC->is_mobile) {
 		maxmsgs = 20;
 		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
@@ -1261,42 +1105,11 @@ void readloop(char *oper)
 	 * and new messages, so we can do that pretty boldface thing for the
 	 * new messages.
 	 */
-	strcpy(old_msgs, "");
-	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR) || WCC->is_mobile){
-		serv_puts("GTSN");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			strcpy(old_msgs, &buf[4]);
-		}
-	}
 
-	is_singlecard = ibstr("is_singlecard");
-
-	if (WCC->wc_default_view == VIEW_CALENDAR) {		/**< calendar */
-		is_calendar = 1;
-		strcpy(cmd, "MSGS ALL|||1");
-		maxmsgs = 32767;
-		parse_calendar_view_request(&calv);
-	}
-	if (WCC->wc_default_view == VIEW_TASKS) {		/**< tasks */
-		is_tasks = 1;
-		strcpy(cmd, "MSGS ALL");
-		maxmsgs = 32767;
-	}
-	if (WCC->wc_default_view == VIEW_NOTES) {		/**< notes */
-		is_notes = 1;
-		strcpy(cmd, "MSGS ALL");
-		maxmsgs = 32767;
-	}
-
-	if (is_notes) {
-		wprintf("<div id=\"new_notes_here\"></div>\n");
-	}
 
 	nummsgs = load_msg_ptrs(cmd, (is_summary || WCC->is_mobile));
 	if (nummsgs == 0) {
-
-		if ((!is_tasks) && (!is_calendar) && (!is_notes) && (!is_addressbook)) {
+		if (care_for_empty_list) {
 			wprintf("<div align=\"center\"><br /><em>");
 			if (!strcmp(oper, "readnew")) {
 				wprintf(_("No new messages."));
@@ -1311,10 +1124,15 @@ void readloop(char *oper)
 		goto DONE;
 	}
 
-	if ((is_summary) || (WCC->wc_default_view == VIEW_CALENDAR) || WCC->is_mobile){
+	if (load_seen){
 		void *vMsg;
-		message_summary *Msg;
 
+		strcpy(old_msgs, "");
+		serv_puts("GTSN");
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '2') {
+			strcpy(old_msgs, &buf[4]);
+		}
 		at = GetNewHashPos();
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			/** Are you a new message, or an old message? */
@@ -1331,110 +1149,62 @@ void readloop(char *oper)
 		DeleteHashPos(&at);
 	}
 
-	if (startmsg == 0L) {
-		if (bbs_reverse) {
-			startmsg = WCC->msgarr[(nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0];
-		}
-		else {
-			startmsg = WCC->msgarr[0];
-		}
-	}
-
-	if (is_summary || WCC->is_mobile) {
-		SortByPayload(WCC->summ, SortFuncs[SortBy]);
+	if (sortit) {
+		CompareFunc SortIt;
+		SortIt =  RetrieveSort(CTX_MAILSUM, NULL, 
+				       HKEY("date"), 2);
+		if (SortIt != NULL)
+			SortByPayload(WCC->summ, SortIt);
 	}
 
 	if (is_summary) {
-
-		wprintf("<script language=\"javascript\" type=\"text/javascript\">"
-			" document.onkeydown = CtdlMsgListKeyPress;	"
-			" if (document.layers) {			"
-			"	document.captureEvents(Event.KEYPRESS);	"
-			" }						"
-			"</script>\n"
-		);
-
-		/** note that Date and Delete are now in the same column */
-		wprintf("<div id=\"message_list_hdr\">"
-			"<div class=\"fix_scrollbar_bug\">"
-			"<table cellspacing=0 style=\"width:100%%\">"
-			"<tr>"
-		);
-		wprintf("<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
-			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> </th>\n"
-			"<th width=%d%%>%s <a href=\"readfwd?startmsg=1?maxmsgs=9999999?is_summary=1?sortby=%s\"><img border=\"0\" src=\"%s\" /></a> \n"
-			"&nbsp;"
-			"<input type=\"submit\" name=\"delete_button\" id=\"delbutton\" "
-			" onClick=\"CtdlDeleteSelectedMessages(event)\" "
-			" value=\"%s\">"
-			"</th>"
-			"</tr>\n"
-			,
-			SUBJ_COL_WIDTH_PCT,
-			_("Subject"),
-			SortByStrings[SubjectInvertSortString[SortBy]],
-			SortIcons[SortSubjectToIcon[SortBy]],
-			SENDER_COL_WIDTH_PCT,
-			_("Sender"),
-			SortByStrings[SenderInvertSortString[SortBy]],
-			SortIcons[SortSenderToIcon[SortBy]],
-			DATE_PLUS_BUTTONS_WIDTH_PCT,
-			_("Date"),
-			SortByStrings[DateInvertSortString[SortBy]],
-			SortIcons[SortDateToIcon[SortBy]],
-			_("Delete")
-		);
-		wprintf("</table></div></div>\n");
-		wprintf("<div id=\"message_list\">"
-
-			"<div class=\"fix_scrollbar_bug\">\n"
-			"<table class=\"mailbox_summary\" id=\"summary_headers\" "
-			"cellspacing=0 style=\"width:100%%;-moz-user-select:none;\">"
-		);
+		do_template("summary_header", NULL);
 	} else if (WCC->is_mobile) {
 		wprintf("<div id=\"message_list\">");
 	}
 
 
 	/**
-	 * Set the "is_bbview" variable if it appears that we are looking at
-	 * a classic bulletin board view.
-	 */
-	if ((!is_tasks) && (!is_calendar) && (!is_addressbook)
-	      && (!is_notes) && (!is_singlecard) && (!is_summary)) {
-		is_bbview = 1;
-	}
-
-	/**
 	 * If we're not currently looking at ALL requested
 	 * messages, then display the selector bar
 	 */
 	if (is_bbview) {
+		const char *selected;
+		StrBuf *Selector = NewStrBuf();
+		BBViewToolBar = NewStrBuf();
+/////		DoTemplate("bbview_scrollbar");
 		/** begin bbview scroller */
-		wprintf("<form name=\"msgomatictop\" class=\"selector_top\" > \n <p>");
-		wprintf(_("Reading #"));//// TODO this isn't used, should it? : , lowest_displayed, highest_displayed);
+		StrBufAppendPrintf(BBViewToolBar, "<form name=\"msgomatictop\" class=\"selector_top\" > \n <p>");
+		StrBufAppendPrintf(BBViewToolBar, _("Reading #"));//// TODO this isn't used, should it? : , lowest_displayed, highest_displayed);
 
-		wprintf("<select name=\"whichones\" size=\"1\" "
-			"OnChange=\"location.href=msgomatictop.whichones.options"
-			"[selectedIndex].value\">\n");
+		StrBufAppendPrintf(BBViewToolBar, "<select name=\"whichones\" size=\"1\" "
+				   "OnChange=\"location.href=msgomatictop.whichones.options"
+				   "[selectedIndex].value\">\n");
 
 		if (bbs_reverse) {
 			for (b=nummsgs-1; b>=0; b = b - maxmsgs) {
 				hi = b + 1;
 				lo = b - maxmsgs + 2;
 				if (lo < 1) lo = 1;
-				wprintf("<option %s value="
-					"\"%s"
-					"&startmsg=%ld"
-					"&maxmsgs=%d"
-					"&is_summary=%d\">"
-					"%d-%d</option> \n",
-					((WCC->msgarr[lo-1] == startmsg) ? "selected" : ""),
-					oper,
-					WCC->msgarr[lo-1],
-					maxmsgs,
-					is_summary,
-					hi, lo);
+				
+				Msg = GetMessagePtrAt(lo-1, WCC->summ);
+				n = (Msg==NULL)? 0 : Msg->msgnum;
+				selected = ((n == startmsg) ? "selected" : "");
+				
+				StrBufAppendPrintf(Selector, 
+						   "<option %s value="
+						   "\"%s"
+						   "&startmsg=%ld"
+						   "&maxmsgs=%d"
+						   "&is_summary=%d\">"
+						   "%d-%d</option> \n",
+						   selected,
+						   oper,
+
+
+						   maxmsgs,
+						   is_summary,
+						   hi, lo);
 			}
 		}
 		else {
@@ -1442,50 +1212,62 @@ void readloop(char *oper)
 				lo = b + 1;
 				hi = b + maxmsgs + 1;
 				if (hi > nummsgs) hi = nummsgs;
-				wprintf("<option %s value="
-					"\"%s"
-					"&startmsg=%ld"
-					"&maxmsgs=%d"
-					"&is_summary=%d\">"
-					"%d-%d</option> \n",
-					((WCC->msgarr[b] == startmsg) ? "selected" : ""),
-					oper,
-					WCC->msgarr[lo-1],
-					maxmsgs,
-					is_summary,
-					lo, hi);
+
+				Msg = GetMessagePtrAt(b, WCC->summ);
+				n = (Msg==NULL)? 0 : Msg->msgnum;
+				selected = ((n == startmsg) ? "selected" : "");
+				Msg = GetMessagePtrAt(lo-1,  WCC->summ);
+				StrBufAppendPrintf(Selector, 
+						   "<option %s value="
+						   "\"%s"
+						   "&startmsg=%ld"
+						   "&maxmsgs=%d"
+						   "&is_summary=%d\">"
+						   "%d-%d</option> \n",
+						   selected,
+						   oper,
+						   (Msg==NULL)? 0 : Msg->msgnum,
+						   maxmsgs,
+						   is_summary,
+						   lo, hi);
 			}
 		}
 
-		wprintf("<option value=\"%s?startmsg=%ld"
-			"&maxmsgs=9999999&is_summary=%d\">",
+		StrBufAppendBuf(BBViewToolBar, Selector, 0);
+
+		Msg = GetMessagePtrAt(0,  WCC->summ);
+
+		StrBufAppendPrintf(BBViewToolBar, "<option value=\"%s?startmsg=%ld"
+			"&maxmsgs=9999999&is_summary=0\">",
 			oper,
-			WCC->msgarr[0], is_summary);
-		wprintf(_("All"));
-		wprintf("</option>");
-		wprintf("</select> ");
-		wprintf(_("of %d messages."), nummsgs);
+			(Msg==NULL)? 0 : Msg->msgnum);
+		StrBufAppendPrintf(BBViewToolBar, _("All"));
+
+		StrBufAppendPrintf(BBViewToolBar, "</option>");
+		StrBufAppendPrintf(BBViewToolBar, "</select> ");
+		StrBufAppendPrintf(BBViewToolBar, _("of %d messages."), nummsgs);
 
 		/** forward/reverse */
-		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
+		StrBufAppendPrintf(BBViewToolBar, "<input type=\"radio\" %s name=\"direction\" value=\"\""
 			"OnChange=\"location.href='%s?sortby=forward'\"",  
 			(bbs_reverse ? "" : "checked"),
 			oper
 		);
-		wprintf(">");
-		wprintf(_("oldest to newest"));
-		wprintf("&nbsp;&nbsp;&nbsp;&nbsp;");
+		StrBufAppendPrintf(BBViewToolBar, ">");
+		StrBufAppendPrintf(BBViewToolBar, _("oldest to newest"));
+		StrBufAppendPrintf(BBViewToolBar, "&nbsp;&nbsp;&nbsp;&nbsp;");
 
-		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
+		StrBufAppendPrintf(BBViewToolBar, "<input type=\"radio\" %s name=\"direction\" value=\"\""
 			"OnChange=\"location.href='%s?sortby=reverse'\"", 
 			(bbs_reverse ? "checked" : ""),
 			oper
 		);
-		wprintf(">");
-		wprintf(_("newest to oldest"));
-		wprintf("\n");
+		StrBufAppendPrintf(BBViewToolBar, ">");
+		StrBufAppendPrintf(BBViewToolBar, _("newest to oldest"));
+		StrBufAppendPrintf(BBViewToolBar, "\n");
 	
-		wprintf("</p></form>\n");
+		StrBufAppendPrintf(BBViewToolBar, "</p></form>\n");
+		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 		/** end bbview scroller */
 	}
 			
@@ -1537,7 +1319,7 @@ void readloop(char *oper)
 	/** Output loop */
 	if (displayed_msgs != NULL) {
 		if (bbs_reverse) {
-			qsort(displayed_msgs, num_displayed, sizeof(long), qlongcmp_r);
+			////TODOqsort(displayed_msgs, num_displayed, sizeof(long), qlongcmp_r);
 		}
 
 		/** if we do a split bbview in the future, begin messages div here */
@@ -1582,81 +1364,7 @@ void readloop(char *oper)
 	 */
 	if (is_bbview) {
 		/** begin bbview scroller */
-		wprintf("<form name=\"msgomatic\" class=\"selector_bottom\" > \n <p>");
-		wprintf(_("Reading #")); /// TODO: this isn't used: , lowest_displayed, highest_displayed);
-
-		wprintf("<select name=\"whichones\" size=\"1\" "
-			"OnChange=\"location.href=msgomatic.whichones.options"
-			"[selectedIndex].value\">\n");
-
-		if (bbs_reverse) {
-			for (b=nummsgs-1; b>=0; b = b - maxmsgs) {
-				hi = b + 1;
-				lo = b - maxmsgs + 2;
-				if (lo < 1) lo = 1;
-				wprintf("<option %s value="
-					"\"%s"
-					"&startmsg=%ld"
-					"&maxmsgs=%d"
-					"&is_summary=%d\">"
-					"%d-%d</option> \n",
-					((WCC->msgarr[lo-1] == startmsg) ? "selected" : ""),
-					oper,
-					WCC->msgarr[lo-1],
-					maxmsgs,
-					is_summary,
-					hi, lo);
-			}
-		}
-		else {
-			for (b=0; b<nummsgs; b = b + maxmsgs) {
-				lo = b + 1;
-				hi = b + maxmsgs + 1;
-				if (hi > nummsgs) hi = nummsgs;
-				wprintf("<option %s value="
-					"\"%s"
-					"&startmsg=%ld"
-					"&maxmsgs=%d"
-					"&is_summary=%d\">"
-					"%d-%d</option> \n",
-					((WCC->msgarr[b] == startmsg) ? "selected" : ""),
-					oper,
-					WCC->msgarr[lo-1],
-					maxmsgs,
-					is_summary,
-					lo, hi);
-			}
-		}
-
-		wprintf("<option value=\"%s&startmsg=%ld"
-			"&maxmsgs=9999999&is_summary=%d\">",
-			oper,
-			WCC->msgarr[0], is_summary);
-		wprintf(_("All"));
-		wprintf("</option>");
-		wprintf("</select> ");
-		wprintf(_("of %d messages."), nummsgs);
-
-		/** forward/reverse */
-		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
-			"OnChange=\"location.href='%s&sortby=forward'\"",  
-			(bbs_reverse ? "" : "checked"),
-			oper
-		);
-		wprintf(">");
-		wprintf(_("oldest to newest"));
-		wprintf("&nbsp;&nbsp;&nbsp;&nbsp;");
-		wprintf("<input type=\"radio\" %s name=\"direction\" value=\"\""
-			"OnChange=\"location.href='%s&sortby=reverse'\"", 
-			(bbs_reverse ? "checked" : ""),
-			oper
-		);
-		wprintf(">");
-		wprintf(_("newest to oldest"));
-		wprintf("\n");
-
-		wprintf("</p></form>\n");
-		/** end bbview scroller */
+		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 	}
 	
 DONE:
@@ -2247,6 +1955,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);
+
 
 	return ;
 }

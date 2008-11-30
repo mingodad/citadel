@@ -374,14 +374,6 @@ void handle_rsvp(void)
 
 
 
-int Flathash(const char *str, long len)
-{
-	if (len != sizeof (int))
-		return 0;
-	else return *(int*)str;
-}
-
-
 
 /*
  * free memory allocated using libical
