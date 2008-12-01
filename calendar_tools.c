@@ -241,10 +241,10 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	}
 
 	/*
-	 * If we're already looking at a full VCALENDAR component,
-	 * don't bother ... just return itself.
+	 * If we're already looking at a full VCALENDAR component, this is probably an error.
 	 */
 	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
+		lprintf(3, "ERROR: component sent to ical_encapsulate_subcomponent() already top level\n");
 		return subcomp;
 	}
 
