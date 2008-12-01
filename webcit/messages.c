@@ -1000,15 +1000,18 @@ void readloop(char *oper)
 		strcpy(cmd, "MSGS ALL|||1");
 		maxmsgs = 32767;
 		parse_calendar_view_request(&calv);
+		break;
 	case VIEW_TASKS:
 		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
+		break;
 	case VIEW_NOTES:
 		is_notes = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 		wprintf("<div id=\"new_notes_here\"></div>\n");
+		break;
 	case VIEW_ADDRESSBOOK:
 		is_singlecard = ibstr("is_singlecard");
 		if (maxmsgs > 1) {
