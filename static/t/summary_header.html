@@ -1,0 +1,19 @@
+<script language="javascript" type="text/javascript">
+  document.onkeydown = CtdlMsgListKeyPress;
+  if (document.layers) {
+ 	document.captureEvents(Event.KEYPRESS);
+  }
+</script>
+<div id="message_list_hdr">
+<div class="fix_scrollbar_bug">
+   <table cellspacing=0 style="width:100%%">
+ <tr>
+ <th width=50%><?_("Subject")><a href="readfwd?startmsg=1?maxmsgs=9999999&is_summary=1&SortOrder=<?SORT:ORDER("subject")>&SortBy=<?SORT:NEXT("subject")>"><img border="0" src="<?SORT:ICON("subject")>" /></a> </th>
+ <th width=30%><?_("Sender")><a href="readfwd?startmsg=1?maxmsgs=9999999&is_summary=1&SortOrder=<?SORT:ORDER("sender")>&SortBy=<?SORT:NEXT("sender")>"><img border="0" src="<?SORT:ICON("sender")>" /></a> </th>
+ <th width=20%><?_("Date")><a href="readfwd?startmsg=1?maxmsgs=9999999&is_summary=1&SortOrder=<?SORT:ORDER("date")>&SortBy=<?SORT:NEXT("date")>"><img border="0" src="<?SORT:ICON("date")>" /></a>
+&nbsp; <input type="submit" name="delete_button" id="delbutton" onClick="CtdlDeleteSelectedMessages(event)" value="<?_("Delete")>"></th>
+</tr>
+</table></div></div>
+<div id="message_list">
+<div class="fix_scrollbar_bug">
+<table class="mailbox_summary" id="summary_headers" "cellspacing=0 style="width:100%;-moz-user-select:none;">
