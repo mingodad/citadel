@@ -6,7 +6,7 @@
 <?SERV:MESG("hello")>
 
 <?!("COND:IMPMSG", 1)>
-<?IMPORTANTMESSAGE>
+<div class="login_message"><?IMPORTANTMESSAGE></div>
 <?!("X", 1)>
 
 <div class="login_message"></div>
@@ -20,10 +20,13 @@
         <div class="logbuttons">
         <input type="submit" name="login_action" value="<?_("Login")>" class="logbutton">
 	<??("COND:SERV:NEWU", 1)>
-        <div style="display:none;">
-        <input type="submit" name="newuser_action" value="<?_("New User")>" class="logbutton" >
-        </div>
+        <input name="newuser_action" value="<?_("New User")>" class="logbutton" type="submit">
 	<??("X", 1)>
+	<?!("COND:SERV:NEWU", 2)>
+        <div style="display:none;">
+        <input name="newuser_action" value="<?_("New User")>" class="logbutton" type="submit">
+        </div>
+	<??("X", 2)>
         <input type="submit" name="exit_action" value="<?_("Exit")>"  class="logbutton">
         <br>
         </div>
