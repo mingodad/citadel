@@ -220,6 +220,8 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
  */
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent *encaps;
+	icalproperty *p;
+	struct icaltimetype t;
 
 	if (subcomp == NULL) {
 		lprintf(3, "ERROR: ical_encapsulate_subcomponent() called with NULL argument\n");
@@ -232,6 +234,35 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
 		lprintf(3, "ERROR: component sent to ical_encapsulate_subcomponent() already top level\n");
 		return subcomp;
+	}
+
+	/* search for... */
+	for (p = icalcomponent_get_first_property(subcomp, ICAL_ANY_PROPERTY);
+	     p != NULL;
+	     p = icalcomponent_get_next_property(subcomp, ICAL_ANY_PROPERTY))
+	{
+		if ( (icalproperty_isa(p) == ICAL_COMPLETED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_CREATED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DATEMAX_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DATEMIN_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTEND_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTSTAMP_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTSTART_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DUE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_EXDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_LASTMODIFIED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_MAXDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_MINDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
+		) {
+			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
+			if (icaltime_is_valid_time(t)) {
+				lprintf(9, "FIXME ATTACH TIMEZONE, datetime=%s, tzid=%s\n",
+					icaltime_as_ical_string(t),
+					icaltime_get_tzid(t)
+				);
+			}
+		}
 	}
 
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
