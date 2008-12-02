@@ -141,7 +141,7 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
 
 	/* now convert to icaltimetyepe */
 	t2 = icaltime_from_timet_with_zone(mktime(&tm), 0, get_default_icaltimezone());
-	lprintf(9, "CONVERTEDZ0R... %s\n", icaltime_as_ical_string(t2));
+	t2.zone = get_default_icaltimezone();
   	memcpy(t, &t2, sizeof(struct icaltimetype));
 }
 
