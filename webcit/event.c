@@ -845,16 +845,10 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 			icaltime_from_webform(&event_start, "dtstart");
 		}
 
-		/*
-		 * The following odd-looking snippet of code looks like it
-		 * takes some unnecessary steps.  It is done this way because
-		 * libical incorrectly turns an "all day event" into a normal
-		 * event starting at midnight (i.e. it serializes as date/time
-		 * instead of just date) unless icalvalue_new_date() is used.
-		 * So we force it, if this is an all day event.
-		 */
 		prop = icalproperty_new_dtstart(event_start);
+
 		if (all_day_event) {
+			/* Force it to serialize as a date-only rather than date/time */
 			icalproperty_set_value(prop, icalvalue_new_date(event_start));
 		}
 
