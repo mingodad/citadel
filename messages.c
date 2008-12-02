@@ -963,7 +963,7 @@ void readloop(char *oper)
 	int b = 0;
 	int n;
 	int nummsgs;
-	long startmsg;
+	long startmsg = 0;
 	int maxmsgs;
 	long *displayed_msgs = NULL;
 	int num_displayed = 0;
@@ -1029,7 +1029,8 @@ void readloop(char *oper)
 	default:
 		care_for_empty_list = 1;
 		startmsg = lbstr("startmsg");
-		maxmsgs = ibstr("maxmsgs");
+		if (havebstr("maxmsgs"))
+			maxmsgs = ibstr("maxmsgs");
 		is_summary = (ibstr("is_summary") && !WCC->is_mobile);
 		if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
 		
@@ -1140,13 +1141,11 @@ void readloop(char *oper)
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			/** Are you a new message, or an old message? */
 			Msg = (message_summary*) vMsg;
-			if (is_summary) {
-				if (is_msg_in_mset(old_msgs, Msg->msgnum)) {
-					Msg->is_new = 0;
-				}
-				else {
-					Msg->is_new = 1;
-				}
+			if (is_msg_in_mset(old_msgs, Msg->msgnum)) {
+				Msg->is_new = 0;
+			}
+			else {
+				Msg->is_new = 1;
 			}
 		}
 		DeleteHashPos(&at);
@@ -1272,6 +1271,7 @@ void readloop(char *oper)
 		StrBufAppendPrintf(BBViewToolBar, "</p></form>\n");
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 		/** end bbview scroller */
+		FreeStrBuf(&Selector);
 	}
 			
 	at = GetNewHashPos();
@@ -1392,6 +1392,7 @@ DONE:
 		DeleteHash(&WCC->summ);
 	}
 	if (addrbook != NULL) free(addrbook);
+	FreeStrBuf(&BBViewToolBar);
 }
 
 
