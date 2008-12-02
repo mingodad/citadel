@@ -121,40 +121,27 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
  * Get date/time from a web form and convert it into an icaltimetype struct.
  */
 void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
- 	char datebuf[32];
   	char vname[32];
  	struct tm tm;
-
- 	/* Stuff tm with some zero values */
-	tm.tm_year = 0;
- 	tm.tm_sec = 0;
- 	tm.tm_min = 0;
- 	tm.tm_hour = 0;
- 	tm.tm_mday = 0;
- 	tm.tm_mon = 0;
- 	int hour = 0;
- 	int minute = 0;
-
   	struct icaltimetype t2;
- 	
+
+ 	/* Stuff tm with zero values */
+	memset(&tm, 0, sizeof(struct tm));
+
+	/* Get the year/month/date all in one shot */
  	strptime((char*)BSTR(prefix), "%Y-%m-%d", &tm);
- 	sprintf(vname, "%s_hour", prefix);      hour = IBSTR(vname);
-	sprintf(vname, "%s_minute", prefix);    minute = IBSTR(vname);
- 	tm.tm_hour = hour;
- 	tm.tm_min = minute;
-	strftime(&datebuf[0], 32, "%Y%m%dT%H%M%S", &tm);
 
-	/* old
- 	 * t2 = icaltime_from_string(datebuf);
-	 */
+	/* hour */
+ 	sprintf(vname, "%s_hour", prefix);
+	tm.tm_hour = IBSTR(vname);
 
-	/* unavailable
- 	 * t2 = icaltime_from_string_with_zone(datebuf, get_default_icaltimezone() );
-	 */
+	/* minute */
+	sprintf(vname, "%s_minute", prefix);
+	tm.tm_min = IBSTR(vname);
 
-	/* new */
+	/* now convert to icaltimetyepe */
 	t2 = icaltime_from_timet_with_zone(mktime(&tm), 0, get_default_icaltimezone());
-
+	lprintf(9, "CONVERTEDZ0R... %s\n", icaltime_as_ical_string(t2));
   	memcpy(t, &t2, sizeof(struct icaltimetype));
 }
 
@@ -164,14 +151,13 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
  */
 void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
  	struct tm tm;
- 	/* Stuff tm with some zero values */
- 	tm.tm_sec = 0;
- 	tm.tm_min = 0;
-	tm.tm_hour = 0;
- 	tm.tm_mday = 0;
- 	tm.tm_mon = 0;
  	time_t tm_t;
  	struct icaltimetype t2; 	
+
+ 	/* Stuff tm with zero values */
+	memset(&tm, 0, sizeof(struct tm));
+
+	/* Convert from string to icaltimetype */
  	strptime((char *)BSTR(prefix), "%Y-%m-%d", &tm);
  	tm_t = mktime(&tm);
  	t2 = icaltime_from_timet(tm_t, 1);
