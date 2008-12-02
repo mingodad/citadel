@@ -1914,9 +1914,8 @@ void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
 				     WCC->ImportantMessage, 0);
 */
-		WCC->ImportantMessage[0] = '\0';
 		StrEscAppend(Target, NULL, WCC->ImportantMessage, 0, 0);
-			WCC->ImportantMessage[0] = '\0';
+		WCC->ImportantMessage[0] = '\0';
 	}
 }
 
