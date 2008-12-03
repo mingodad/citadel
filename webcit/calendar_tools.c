@@ -281,7 +281,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 				}
 
 				icalproperty_set_parameter(p,
-					icalparameter_new_tzid(icaltimezone_get_location((icaltimezone *)z))
+					icalparameter_new_tzid(icaltimezone_get_tzid((icaltimezone *)z))
 				);
 			}
 		}
@@ -303,8 +303,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	/* Attach any timezones we need */
 	if (num_zones_attached > 0) for (i=0; i<num_zones_attached; ++i) {
 		icalcomponent *zc;
-		zc = icalcomponent_new_vtimezone();
-		/* FIXME actually put something in here!!!! */
+		zc = icalcomponent_new_clone(icaltimezone_get_component((icaltimezone *)attached_zones[i]));
 		icalcomponent_add_component(encaps, zc);
 	}
 
