@@ -214,14 +214,24 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
 	}
 }
 
-
 /*
- * Utility function to encapsulate a subcomponent into a full VCALENDAR
+ * Utility function to encapsulate a subcomponent into a full VCALENDAR.
+ *
+ * We also scan for any date/time properties that reference timezones, and attach
+ * those timezones along with the supplied subcomponent.  (Yes, I used a fixed
+ * size array in order to avoid complexity.  Increase the size if you think you
+ * need to, but if you're really referencing more than 5 time zones in a single
+ * calendar event, it probably means you're an idiot and deserve to lose.)
  */
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent *encaps;
 	icalproperty *p;
 	struct icaltimetype t;
+	const icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
+	int i;
+	const icaltimezone *z;
+	int num_zones_attached = 0;
+	int zone_already_attached;
 
 	if (subcomp == NULL) {
 		lprintf(3, "ERROR: ical_encapsulate_subcomponent() called with NULL argument\n");
@@ -256,10 +266,22 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
 		) {
 			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
-			if (icaltime_is_valid_time(t)) {
-				lprintf(9, "FIXME ATTACH TIMEZONE, datetime=%s, tzid=%s\n",
-					icaltime_as_ical_string(t),
-					icaltime_get_tzid(t)
+			if ((icaltime_is_valid_time(t)) && (z=icaltime_get_timezone(t), z)) {
+			
+				zone_already_attached = 0;
+				for (i=0; i<5; ++i) {
+					if (z == attached_zones[i]) {
+						++zone_already_attached;
+						lprintf(9, "zone already attached!!\n");
+					}
+				}
+				if ((!zone_already_attached) && (num_zones_attached < 5)) {
+					lprintf(9, "attaching zone %d!\n", num_zones_attached);
+					attached_zones[num_zones_attached++] = z;
+				}
+
+				icalproperty_set_parameter(p,
+					icalparameter_new_tzid(icaltimezone_get_location((icaltimezone *)z))
 				);
 			}
 		}
@@ -277,6 +299,14 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 
 	/* Set the Version Number */
 	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	/* Attach any timezones we need */
+	if (num_zones_attached > 0) for (i=0; i<num_zones_attached; ++i) {
+		icalcomponent *zc;
+		zc = icalcomponent_new_vtimezone();
+		/* FIXME actually put something in here!!!! */
+		icalcomponent_add_component(encaps, zc);
+	}
 
 	/* Encapsulate the subcomponent inside */
 	icalcomponent_add_component(encaps, subcomp);
