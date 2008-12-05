@@ -891,6 +891,9 @@ int main(int argc, char **argv)
 	/* Tell libical to return an error instead of aborting if it sees badly formed iCalendar data. */
 	icalerror_errors_are_fatal = 0;
 
+	/* Use our own prefix on tzid's generated from system tzdata */
+	icaltimezone_set_tzid_prefix("/citadel.org/");
+
 	/*
 	 * Set up a place to put thread-specific data.
 	 * We only need a single pointer per thread - it points to the
