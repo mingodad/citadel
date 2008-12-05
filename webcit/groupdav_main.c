@@ -244,7 +244,7 @@ void groupdav_main(HashList *HTTPHeaders,
  */  
 void groupdav_identify_host(void) {
 	if (!IsEmptyStr(WC->http_host)) {
-		hprintf("%s://%s",
+		wprintf("%s://%s",
 			(is_https ? "https" : "http"),
 			WC->http_host);
 	}
