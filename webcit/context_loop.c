@@ -395,7 +395,9 @@ void context_loop(int *sock)
 	}
 
 	/**
-	 * Browser-based sessions use cookies for session authentication
+	 * Browser-based sessions use cookies for session 
+
+authentication
 	 */
 	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
 	    (vLine != NULL)) {
@@ -410,14 +412,14 @@ void context_loop(int *sock)
 	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
 	    (vLine != NULL)) {
 		Line = (StrBuf*)vLine;
-		if (strncasecmp(ChrPtr(Line), "Basic ", 6)) {
+		if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
 			StrBufCutLeft(Line, 6);
 			CtdlDecodeBase64(httpauth_string, ChrPtr(Line), StrLength(Line));
 			extract_token(httpauth_user, httpauth_string, 0, ':', sizeof httpauth_user);
 			extract_token(httpauth_pass, httpauth_string, 1, ':', sizeof httpauth_pass);
 		}
 		else 
-			lprintf(1, "Authentication sheme not supported! [%s]\n", ChrPtr(Line));
+			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
 	}
 
 	if (GetHash(HTTPHeaders, HKEY("IF-MODIFIED-SINCE"), &vLine) && 
