@@ -483,7 +483,7 @@ fi
 
 dnl Checks for the libical iCalendar library.
 AC_CHECK_HEADER(libical/ical.h,
-	[AC_CHECK_LIB(ical, icalcomponent_as_ical_string_r,
+	[AC_CHECK_LIB(ical, icaltimezone_set_tzid_prefix,
 		[
 			SERVER_LIBS="-lical $SERVER_LIBS"
 		],
