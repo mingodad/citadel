@@ -1018,7 +1018,11 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 
 		/* First, strip out the parenthesized partstats.  */
 		strcpy(form_attendees, bstr("attendees"));
-		stripout(form_attendees, '(', ')');
+		do {
+			i = strlen(form_attendees);
+			stripout(form_attendees, '(', ')');
+			j = strlen(form_attendees);
+		} while (i != j);
 
 		/* Next, change any commas to newlines, because we want newline-separated attendees. */
 		j = strlen(form_attendees);
