@@ -162,45 +162,6 @@ void ical_write_to_cal(struct ctdluser *u, icalcomponent *cal) {
 
 
 /*
- * Add a calendar object to the user's calendar
- * 
- * ok because it uses ical_write_to_cal()
- */
-void ical_add(icalcomponent *cal, int recursion_level) {
-	icalcomponent *c;
-
-#if 1
-	/* Write the whole thing because it may need to save timezones etc.
-	 * FIXME - if this works, we can probably eliminate this entire function
-	 */
-
-	ical_write_to_cal(&CC->user, cal);
-
-#else	/* this was the old code to kill everything but the VEVENT component ... probably ng now */
-
-	/*
- 	 * The VEVENT subcomponent is the one we're interested in saving.
-	 */
-	if (icalcomponent_isa(cal) == ICAL_VEVENT_COMPONENT) {
-	
-		ical_write_to_cal(&CC->user, cal);
-
-	}
-
-	/* If the component has subcomponents, recurse through them. */
-	for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
-	    (c != 0);
-	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
-		/* Recursively process subcomponent */
-		ical_add(c, recursion_level+1);
-	}
-#endif
-
-}
-
-
-
-/*
  * Send a reply to a meeting invitation.
  *
  * 'request' is the invitation to reply to.
@@ -437,7 +398,7 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 	if (ird.cal != NULL) {
 		/* Save this in the user's calendar if necessary */
 		if (!strcasecmp(action, "accept")) {
-			ical_add(ird.cal, 0);
+			ical_write_to_cal(&CC->user, ird.cal);
 		}
 
 		/* Send a reply if necessary */
@@ -445,9 +406,9 @@ void ical_respond(long msgnum, char *partnum, char *action) {
 			ical_send_a_reply(ird.cal, action);
 		}
 
-		/* Now that we've processed this message, we don't need it
-		 * anymore.  So delete it.  (NOTE we don't do this anymore.)
-		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "");
+		/* We used to delete the invitation after handling it.
+		 * We don't do that anymore, but here is the code that handled it:
+		 * CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "");
 		 */
 
 		/* Free the memory we allocated and return a response. */
