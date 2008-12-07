@@ -406,6 +406,7 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth);
 int GetHashPosCounter(HashPos *At);
 void DeleteHashPos(HashPos **DelMe);
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data);
+int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **Data);
 void SortByHashKey(HashList *Hash, int Order);
 void SortByHashKeyStr(HashList *Hash);
 int GetCount(HashList *Hash);

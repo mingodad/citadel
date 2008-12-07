@@ -635,6 +635,28 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 }
 
 /**
+ * \brief Get the data located where At points to
+ * note: you should prefer iterator operations instead of using me.
+ * \param Hash your Hashlist peek from
+ * \param HKLen returns Length of Hashkey Returned
+ * \param HashKey returns the Hashkey corrosponding to HashPos
+ * \param Data returns the Data found at HashPos
+ * \returns whether the item was found or not.
+ */
+int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **Data)
+{
+	long PayloadPos;
+
+	if ((Hash == NULL) || (At >= Hash->nMembersUsed))
+		return 0;
+	*HKLen = Hash->LookupTable[At]->HKLen;
+	*HashKey = Hash->LookupTable[At]->HashKey;
+	PayloadPos = Hash->LookupTable[At]->Position;
+	*Data = Hash->Members[PayloadPos]->Data;
+	return 1;
+}
+
+/**
  * \brief sorting function for sorting the Hash alphabeticaly by their strings
  * \param Key1 first item
  * \param Key2 second item
