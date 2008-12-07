@@ -938,10 +938,13 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 
 inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 {
+	const char *Key;
+	long HKLen;
 	void *vMsg;
+
 	if (Summ == NULL)
 		return NULL;
-	GetHash(Summ, (const char*)&n, sizeof(n), &vMsg);
+	GetHashAt(Summ, n, &HKLen, &Key, &vMsg);
 	return (message_summary*) vMsg;
 }
 
@@ -1000,15 +1003,18 @@ void DrawMessageSummarySelector(StrBuf *BBViewToolBar, long maxmsgs, long startm
 	FlushStrBuf(BBViewToolBar);
 	DoTemplate(HKEY("msg_listselector"), BBViewToolBar, Selector, CTX_STRBUF);
 	FreeStrBuf(&Selector);
+	DeleteHashPos(&At);
 }
 
+
+extern readloop_struct rlid[];
 
 /*
  * command loop for reading messages
  *
  * Set oper to "readnew" or "readold" or "readfwd" or "headers"
  */
-void readloop(char *oper)
+void readloop(long oper)
 {
 	StrBuf *BBViewToolBar = NULL;
 	void *vMsg;
@@ -1020,7 +1026,7 @@ void readloop(char *oper)
 	///int b = 0;
 	int nummsgs;
 	long startmsg = 0;
-	int maxmsgs;
+	int maxmsgs = 0;
 	long *displayed_msgs = NULL;
 	int num_displayed = 0;
 	int is_summary = 0;
@@ -1071,7 +1077,7 @@ void readloop(char *oper)
 		is_singlecard = ibstr("is_singlecard");
 		if (maxmsgs > 1) {
 			is_addressbook = 1;
-			if (!strcmp(oper, "do_search")) {
+			if (oper == do_search) {
 				snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
 			}
 			else {
@@ -1095,25 +1101,11 @@ void readloop(char *oper)
 		 * When in summary mode, always show ALL messages instead of just
 		 * new or old.  Otherwise, show what the user asked for.
 		 */
-		if (!strcmp(oper, "readnew")) {
-			strcpy(cmd, "MSGS NEW");
-		}
-		else if (!strcmp(oper, "readold")) {
-			strcpy(cmd, "MSGS OLD");
-		}
-		else if (!strcmp(oper, "do_search")) {
-			snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
-		}
-		else {
-			strcpy(cmd, "MSGS ALL");
-		}
+		rlid[oper].cmd(cmd, sizeof(cmd));
 		
 		if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1) && !WCC->is_mobile) {
 			is_summary = 1;
-			if (!strcmp(oper, "do_search")) {
-				snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
-			}
-			else {
+			if (oper != do_search) {
 				strcpy(cmd, "MSGS ALL");
 			}
 		}
@@ -1122,12 +1114,15 @@ void readloop(char *oper)
 		if (is_summary) {			/**< fetch header summary */
 			load_seen = 1;
 			snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
-				 (!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
-				 (!strcmp(oper, "do_search") ? bstr("query") : "")
+				 (oper == do_search) ? "SEARCH" : "ALL",
+				 (oper == do_search) ? bstr("query") : ""
 				);
 			startmsg = 1;
 			maxmsgs = 9999999;
 		} 
+
+		bbs_reverse = is_bbview && (lbstr("SortOrder") == 2);
+
 		if (startmsg == 0L) {
 			if (bbs_reverse) {
 				Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
@@ -1165,11 +1160,14 @@ void readloop(char *oper)
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
 			wprintf("<div align=\"center\"><br /><em>");
-			if (!strcmp(oper, "readnew")) {
+			switch (oper) {
+			case readnew:
 				wprintf(_("No new messages."));
-			} else if (!strcmp(oper, "readold")) {
+				break;
+			case readold:
 				wprintf(_("No old messages."));
-			} else {
+				break;
+			default:
 				wprintf(_("No messages here."));
 			}
 			wprintf("</em><br /></div>\n");
@@ -1292,18 +1290,7 @@ void readloop(char *oper)
 	}
 
 	if (is_summary) {
-		wprintf("</table>"
-			"</div>\n");			/**< end of 'fix_scrollbar_bug' div */
-		wprintf("</div>");			/**< end of 'message_list' div */
-		
-		/** Here's the grab-it-to-resize-the-message-list widget */
-		wprintf("<div id=\"resize_msglist\" "
-			"onMouseDown=\"CtdlResizeMsgListMouseDown(event)\">"
-			"<div class=\"fix_scrollbar_bug\"> <hr>"
-			"</div></div>\n"
-		);
-
-		wprintf("<div id=\"preview_pane\">");	/**< The preview pane will initially be empty */
+		do_template("summary_trailer", NULL);
 	} else if (WCC->is_mobile) {
 		wprintf("</div>");
 	}
@@ -1640,7 +1627,7 @@ void post_message(void)
 	 *  Otherwise, just go to the "read messages" loop.
 	 */
 	else {
-		readloop("readnew");
+		readloop(readnew);
 	}
 }
 
@@ -1684,7 +1671,7 @@ void display_enter(void)
 	}
 	else if (buf[0] != '2') {		/** Any other error means that we cannot continue */
 		sprintf(WCC->ImportantMessage, "%s", &buf[4]);
-		readloop("readnew");
+		readloop(readnew);
 		return;
 	}
 
@@ -1801,7 +1788,7 @@ void delete_msg(void)
 	serv_getln(buf, sizeof buf);
 	sprintf(WC->ImportantMessage, "%s", &buf[4]);
 
-	readloop("readnew");
+	readloop(readnew);
 }
 
 
@@ -1824,7 +1811,7 @@ void move_msg(void)
 		sprintf(WC->ImportantMessage, (_("The message was not moved.")));
 	}
 
-	readloop("readnew");
+	readloop(readnew);
 }
 
 
@@ -1884,11 +1871,11 @@ void confirm_move_msg(void)
 	wDumpContent(1);
 }
 
-void readnew(void) { readloop("readnew");}
-void readold(void) { readloop("readold");}
-void readfwd(void) { readloop("readfwd");}
-void headers(void) { readloop("headers");}
-void do_search(void) { readloop("do_search");}
+void h_readnew(void) { readloop(readnew);}
+void h_readold(void) { readloop(readold);}
+void h_readfwd(void) { readloop(readfwd);}
+void h_headers(void) { readloop(headers);}
+void h_do_search(void) { readloop(do_search);}
 
 
 
@@ -1899,11 +1886,11 @@ void
 InitModule_MSG
 (void)
 {
-	WebcitAddUrlHandler(HKEY("readnew"), readnew, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readold"), readold, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readfwd"), readfwd, NEED_URL);
-	WebcitAddUrlHandler(HKEY("headers"), headers, NEED_URL);
-	WebcitAddUrlHandler(HKEY("do_search"), do_search, 0);
+	WebcitAddUrlHandler(HKEY("readnew"), h_readnew, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readold"), h_readold, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readfwd"), h_readfwd, NEED_URL);
+	WebcitAddUrlHandler(HKEY("headers"), h_headers, NEED_URL);
+	WebcitAddUrlHandler(HKEY("do_search"), h_do_search, 0);
 	WebcitAddUrlHandler(HKEY("display_enter"), display_enter, 0);
 	WebcitAddUrlHandler(HKEY("post"), post_message, 0);
 	WebcitAddUrlHandler(HKEY("move_msg"), move_msg, 0);

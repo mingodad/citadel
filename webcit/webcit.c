@@ -1811,8 +1811,8 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 						WCC->UrlFragment1 = NewStrBuf();
 					if (WCC->UrlFragment2 == NULL)
 						WCC->UrlFragment2 = NewStrBuf();
-					StrBufPrintf(WCC->UrlFragment1, "%s", index[1]);
-					StrBufPrintf(WCC->UrlFragment2, "%s", index[2]);
+					StrBufPrintf(WCC->UrlFragment1, "%s", index[0]);
+					StrBufPrintf(WCC->UrlFragment2, "%s", index[1]);
 				}
 				if ((Handler->Flags & AJAX) != 0)
 					begin_ajax_response();

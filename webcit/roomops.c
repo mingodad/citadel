@@ -927,7 +927,7 @@ void gotonext(void)
  */
 void smart_goto(char *next_room) {
 	gotoroom(next_room);
-	readloop("readnew");
+	readloop(readnew);
 }
 
 

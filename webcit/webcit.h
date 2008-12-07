@@ -806,7 +806,22 @@ void stripout(char *str, char leftboundary, char rightboundary);
 void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
-void readloop(char *oper);
+
+enum {
+	do_search,
+	headers,
+	readfwd,
+	readnew,
+	readold
+};
+
+typedef void (*readloop_servcmd)(char *buf, long bufsize);
+
+typedef struct _readloopstruct {
+	ConstStr name;
+	readloop_servcmd cmd;
+} readloop_struct;
+void readloop(long oper);
 int  read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
