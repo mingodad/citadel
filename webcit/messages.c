@@ -220,7 +220,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
 	}
-	it = GetNewHashPos();
+	it = GetNewHashPos(Msg->AllAttach, 0);
 	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
 	       (vMime != NULL)) {
 		wc_mime_attachment *Mime = (wc_mime_attachment*) vMime;
@@ -946,6 +946,63 @@ inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 }
 
 
+void DrawMessageSummarySelector(StrBuf *BBViewToolBar, long maxmsgs, long startmsg)
+{
+	struct wcsession *WCC = WC;
+	message_summary* Msg;
+	int lo, hi, n;
+	int i = 0;
+	long StartMsg;
+	void *vMsg;
+	long hklen;
+	const char *key;
+	int done = 0;
+	int nItems;
+	HashPos *At;
+	long vector[16];
+	StrBuf *Selector = NewStrBuf();
+
+	At = GetNewHashPos(WCC->summ, (lbstr("SortOrder") == 1)? -maxmsgs : maxmsgs);
+	nItems = GetCount(WCC->summ);
+	
+	vector[0] = 7;
+	vector[1] = startmsg;
+	vector[2] = maxmsgs;
+	vector[3] = 0;
+	vector[4] = 1;
+
+	while (!done) {
+		lo = GetHashPosCounter(At);
+		if (lo + maxmsgs > nItems) {
+			hi = nItems;
+		}
+		else {
+			hi = lo + maxmsgs;
+		}
+		done = !GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
+		Msg = (message_summary*) vMsg;
+		n = (Msg==NULL)? 0 : Msg->msgnum;
+		if (i == 0)
+			StartMsg = n;
+		vector[4] = lo;
+		vector[5] = hi;
+		vector[6] = n;
+		FlushStrBuf(BBViewToolBar); /** abuse our target buffer to contstruct one item in it */
+		DoTemplate(HKEY("select_messageindex"), BBViewToolBar, &vector, CTX_LONGVECTOR);
+		StrBufAppendBuf(Selector, BBViewToolBar, 0);
+		i++;
+	}
+	vector[6] = StartMsg;
+	FlushStrBuf(BBViewToolBar);
+	DoTemplate(HKEY("select_messageindex_all"), BBViewToolBar, &vector, CTX_LONGVECTOR);
+	StrBufAppendBuf(Selector, BBViewToolBar, 0);
+	
+	FlushStrBuf(BBViewToolBar);
+	DoTemplate(HKEY("msg_listselector"), BBViewToolBar, Selector, CTX_STRBUF);
+	FreeStrBuf(&Selector);
+}
+
+
 /*
  * command loop for reading messages
  *
@@ -960,8 +1017,7 @@ void readloop(char *oper)
 	char buf[SIZ];
 	char old_msgs[SIZ];
 	int a = 0;
-	int b = 0;
-	int n;
+	///int b = 0;
 	int nummsgs;
 	long startmsg = 0;
 	int maxmsgs;
@@ -975,13 +1031,12 @@ void readloop(char *oper)
 	int is_tasks = 0;
 	int is_notes = 0;
 	int is_bbview = 0;
-	int lo, hi;
 	int lowest_displayed = (-1);
 	int highest_displayed = 0;
 	addrbookent *addrbook = NULL;
 	int num_ab = 0;
 	int bbs_reverse = 0;
-	struct wcsession *WCC = WC;     /* This is done to make it run faster; WC is a function */
+	struct wcsession *WCC = WC;
 	HashPos *at;
 	const char *HashKey;
 	long HKLen;
@@ -1087,11 +1142,6 @@ void readloop(char *oper)
 	}
 
 
-
-
-
-
-
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	/*
@@ -1137,7 +1187,7 @@ void readloop(char *oper)
 		if (buf[0] == '2') {
 			strcpy(old_msgs, &buf[4]);
 		}
-		at = GetNewHashPos();
+		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			/** Are you a new message, or an old message? */
 			Msg = (message_summary*) vMsg;
@@ -1170,111 +1220,15 @@ void readloop(char *oper)
 	 * If we're not currently looking at ALL requested
 	 * messages, then display the selector bar
 	 */
-	if (is_bbview) {
-		const char *selected;
-		StrBuf *Selector = NewStrBuf();
+	if (is_bbview)  {
 		BBViewToolBar = NewStrBuf();
-/////		DoTemplate("bbview_scrollbar");
-		/** begin bbview scroller */
-		StrBufAppendPrintf(BBViewToolBar, "<form name=\"msgomatictop\" class=\"selector_top\" > \n <p>");
-		StrBufAppendPrintf(BBViewToolBar, _("Reading #"));//// TODO this isn't used, should it? : , lowest_displayed, highest_displayed);
+		maxmsgs = 20; //// todo?
 
-		StrBufAppendPrintf(BBViewToolBar, "<select name=\"whichones\" size=\"1\" "
-				   "OnChange=\"location.href=msgomatictop.whichones.options"
-				   "[selectedIndex].value\">\n");
-
-		if (bbs_reverse) {
-			for (b=nummsgs-1; b>=0; b = b - maxmsgs) {
-				hi = b + 1;
-				lo = b - maxmsgs + 2;
-				if (lo < 1) lo = 1;
-				
-				Msg = GetMessagePtrAt(lo-1, WCC->summ);
-				n = (Msg==NULL)? 0 : Msg->msgnum;
-				selected = ((n == startmsg) ? "selected" : "");
-				
-				StrBufAppendPrintf(Selector, 
-						   "<option %s value="
-						   "\"%s"
-						   "&startmsg=%ld"
-						   "&maxmsgs=%d"
-						   "&is_summary=%d\">"
-						   "%d-%d</option> \n",
-						   selected,
-						   oper,
-
-
-						   maxmsgs,
-						   is_summary,
-						   hi, lo);
-			}
-		}
-		else {
-			for (b=0; b<nummsgs; b = b + maxmsgs) {
-				lo = b + 1;
-				hi = b + maxmsgs + 1;
-				if (hi > nummsgs) hi = nummsgs;
-
-				Msg = GetMessagePtrAt(b, WCC->summ);
-				n = (Msg==NULL)? 0 : Msg->msgnum;
-				selected = ((n == startmsg) ? "selected" : "");
-				Msg = GetMessagePtrAt(lo-1,  WCC->summ);
-				StrBufAppendPrintf(Selector, 
-						   "<option %s value="
-						   "\"%s"
-						   "&startmsg=%ld"
-						   "&maxmsgs=%d"
-						   "&is_summary=%d\">"
-						   "%d-%d</option> \n",
-						   selected,
-						   oper,
-						   (Msg==NULL)? 0 : Msg->msgnum,
-						   maxmsgs,
-						   is_summary,
-						   lo, hi);
-			}
-		}
-
-		StrBufAppendBuf(BBViewToolBar, Selector, 0);
-
-		Msg = GetMessagePtrAt(0,  WCC->summ);
-
-		StrBufAppendPrintf(BBViewToolBar, "<option value=\"%s?startmsg=%ld"
-			"&maxmsgs=9999999&is_summary=0\">",
-			oper,
-			(Msg==NULL)? 0 : Msg->msgnum);
-		StrBufAppendPrintf(BBViewToolBar, _("All"));
-
-		StrBufAppendPrintf(BBViewToolBar, "</option>");
-		StrBufAppendPrintf(BBViewToolBar, "</select> ");
-		StrBufAppendPrintf(BBViewToolBar, _("of %d messages."), nummsgs);
-
-		/** forward/reverse */
-		StrBufAppendPrintf(BBViewToolBar, "<input type=\"radio\" %s name=\"direction\" value=\"\""
-			"OnChange=\"location.href='%s?sortby=forward'\"",  
-			(bbs_reverse ? "" : "checked"),
-			oper
-		);
-		StrBufAppendPrintf(BBViewToolBar, ">");
-		StrBufAppendPrintf(BBViewToolBar, _("oldest to newest"));
-		StrBufAppendPrintf(BBViewToolBar, "&nbsp;&nbsp;&nbsp;&nbsp;");
-
-		StrBufAppendPrintf(BBViewToolBar, "<input type=\"radio\" %s name=\"direction\" value=\"\""
-			"OnChange=\"location.href='%s?sortby=reverse'\"", 
-			(bbs_reverse ? "checked" : ""),
-			oper
-		);
-		StrBufAppendPrintf(BBViewToolBar, ">");
-		StrBufAppendPrintf(BBViewToolBar, _("newest to oldest"));
-		StrBufAppendPrintf(BBViewToolBar, "\n");
-	
-		StrBufAppendPrintf(BBViewToolBar, "</p></form>\n");
+		DrawMessageSummarySelector(BBViewToolBar, maxmsgs, startmsg);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
-		/** end bbview scroller */
-		FreeStrBuf(&Selector);
 	}
 			
-	at = GetNewHashPos();
+	at = GetNewHashPos(WCC->summ, 0);
 	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 		Msg = (message_summary*) vMsg;		
 		if ((Msg->msgnum >= startmsg) && (num_displayed < maxmsgs)) {
@@ -1470,7 +1424,7 @@ void post_mime_to_server(void) {
 		HashPos  *it;
 
 		/* Add in the attachments */
-		it = GetNewHashPos();
+		it = GetNewHashPos(WCC->attachments, 0);
 		while (GetNextHashPos(WCC->attachments, it, &len, &Key, &vAtt)) {
 			att = (wc_attachment*)vAtt;
 			encoded_length = ((att->length * 150) / 100);
@@ -1945,10 +1899,10 @@ void
 InitModule_MSG
 (void)
 {
-	WebcitAddUrlHandler(HKEY("readnew"), readnew, 0);
-	WebcitAddUrlHandler(HKEY("readold"), readold, 0);
-	WebcitAddUrlHandler(HKEY("readfwd"), readfwd, 0);
-	WebcitAddUrlHandler(HKEY("headers"), headers, 0);
+	WebcitAddUrlHandler(HKEY("readnew"), readnew, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readold"), readold, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readfwd"), readfwd, NEED_URL);
+	WebcitAddUrlHandler(HKEY("headers"), headers, NEED_URL);
 	WebcitAddUrlHandler(HKEY("do_search"), do_search, 0);
 	WebcitAddUrlHandler(HKEY("display_enter"), display_enter, 0);
 	WebcitAddUrlHandler(HKEY("post"), post_message, 0);

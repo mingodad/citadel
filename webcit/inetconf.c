@@ -157,7 +157,7 @@ void new_save_inetconf(void) {
 				return;
 			}
 			if (GetCount(Hash) > 0) {
-				where = GetNewHashPos();
+				where = GetNewHashPos(Hash, 0);
 				while (GetNextHashPos(Hash, where, &KeyLen, &Key, &vStr)) {
 					Str = (StrBuf*) vStr;
 					if ((Str!= NULL) && (StrLength(Str) > 0))

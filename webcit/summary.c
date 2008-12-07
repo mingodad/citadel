@@ -98,7 +98,7 @@ void tasks_section(void) {
 		wprintf("</i><br />\n");
 	}
 	else {
-		at = GetNewHashPos();
+		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		
 			display_task(Msg, 0);
@@ -138,7 +138,7 @@ void calendar_section(void) {
 		wprintf("</i><br />\n");
 	}
 	else {
-		at = GetNewHashPos();
+		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		
 			load_calendar_item(Msg, 0, &c);

@@ -1556,7 +1556,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		List = It->StaticList;
 
 	SubBuf = NewStrBuf();
-	it = GetNewHashPos();
+	it = GetNewHashPos(List, 0);
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
 		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", 
 			 (oddeven) ? "odd" : "even");
@@ -2075,6 +2075,91 @@ void tmplput_SORT_ORDER(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void
 }
 
 
+void tmplput_long_vector(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	long *LongVector = (long*) Context;
+
+	if ((Tokens->Params[0]->Type == TYPE_LONG) && 
+	    (Tokens->Params[0]->lvalue <= LongVector[0]))
+	{
+		StrBufAppendPrintf(Target, "%ld", LongVector[Tokens->Params[0]->lvalue]);
+	}
+	else
+	{
+		if (Tokens->Params[0]->Type == TYPE_LONG) {
+			lprintf(1, "longvector [%s] (in '%s' line %ld); needs a long Parameter![%s]\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken));
+			StrBufAppendPrintf(
+				Target, 
+				"<pre>\nlongvector [%s] (in '%s' line %ld); needs a numerical Parameter!\n[%s]\n</pre>\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken));
+		}
+		else {
+			lprintf(1, "longvector [%s] (in '%s' line %ld); doesn't have %ld Parameters,"
+				" its just the size of %ld![%s]\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				Tokens->Params[0]->lvalue,
+				LongVector[0],
+				ChrPtr(Tokens->FlatToken));
+			StrBufAppendPrintf(
+				Target, 
+				"<pre>\nlongvector [%s] (in '%s' line %ld); doesn't have %ld Parameters,"
+				" its just the size of %ld!\n[%s]\n</pre>\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				Tokens->Params[0]->lvalue,
+				LongVector[0],
+				ChrPtr(Tokens->FlatToken));		
+		}
+	}
+}
+
+
+
+int ConditionalLongVector(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	long *LongVector = (long*) Context;
+
+	if ((Tokens->Params[2]->Type == TYPE_LONG) && 
+	    (Tokens->Params[2]->lvalue <= LongVector[0])&&
+	    (Tokens->Params[3]->Type == TYPE_LONG) && 
+	    (Tokens->Params[3]->lvalue <= LongVector[0]))
+	{
+		return LongVector[Tokens->Params[2]->lvalue] == LongVector[Tokens->Params[3]->lvalue];
+	}
+	else
+	{
+		if ((Tokens->Params[2]->Type == TYPE_LONG) ||
+		    (Tokens->Params[2]->Type == TYPE_LONG)) {
+			lprintf(1, "ConditionalLongVector [%s] (in '%s' line %ld); needs two long Parameter![%s]\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken));
+		}
+		else {
+			lprintf(1, "longvector [%s] (in '%s' line %ld); doesn't have %ld / %ld Parameters,"
+				" its just the size of %ld![%s]\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				Tokens->Params[2]->lvalue,
+				Tokens->Params[3]->lvalue,
+				LongVector[0],
+				ChrPtr(Tokens->FlatToken));
+		}
+	}
+	return 0;
+}
 
 void 
 InitModule_SUBST
@@ -2087,8 +2172,10 @@ InitModule_SUBST
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);
 	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, CTX_NONE);
+	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, CTX_LONGVECTOR);
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
 	RegisterConditional(HKEY("COND:CONTEXTSTR"), 3, ConditionalContextStr, CTX_STRBUF);
+	RegisterConditional(HKEY("COND:LONGVECTOR"), 4, ConditionalLongVector, CTX_LONGVECTOR);
 }
 
 /*@}*/

@@ -138,7 +138,7 @@ void save_net_conf(HashList *Nodelist)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
 		if ((Nodelist != NULL) && (GetCount(Nodelist) > 0)) {
-			where = GetNewHashPos();
+			where = GetNewHashPos(Nodelist, 0);
 			Buf = NewStrBuf();
 			while (GetNextHashPos(Nodelist, where, &KeyLen, &Key, &vNode)) {
 				Node = (NodeConf*) vNode;

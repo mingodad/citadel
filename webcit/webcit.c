@@ -171,7 +171,7 @@ void dump_vars(void)
 	const char *HKey;
 	HashPos *Cursor;
 	
-	Cursor = GetNewHashPos ();
+	Cursor = GetNewHashPos (WCC->urlstrings, 0);
 	while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
 		u = (urlcontent*) U;
 		wprintf("%38s = %s\n", u->url_key, ChrPtr(u->url_data));
@@ -1948,7 +1948,21 @@ void tmplput_csslocal(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 			csslocal, 0);
 }
 
+void tmplput_url_part(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBuf *UrlBuf;
+	struct wcsession *WCC = WC;
+	
+	if (WCC != NULL) {
+		if (Tokens->Params[0]->lvalue == 0)
+			UrlBuf = WCC->UrlFragment1;
+		else
+			UrlBuf = WCC->UrlFragment2;
 
+		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
+				     UrlBuf, 1);
+	}
+}
 
 
 
@@ -1973,6 +1987,7 @@ InitModule_WEBCIT
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
 	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, CTX_NONE);
+	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, CTX_NONE);
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);

@@ -67,7 +67,7 @@ void display_address_book_middle_div(void) {
 	}
 
 	SortByHashKey(List, 1);
-	it = GetNewHashPos();
+	it = GetNewHashPos(List, 0);
 	while (GetNextHashPos(List, it, &len, &VCName, &Namee)) {
 		wprintf("<option value=\"");
 		urlescputs((char*)Namee);
@@ -135,7 +135,7 @@ void display_address_book_inner_div() {
 
 		}
 		SortByHashKey(List, 1);
-		it = GetNewHashPos();
+		it = GetNewHashPos(List, 0);
 		while (GetNextHashPos(List, it, &len, &VCName, &Namee)) {
 			wprintf("<option value=\"");
 			escputs((char*)Namee);
@@ -160,7 +160,7 @@ void display_address_book_inner_div() {
 
 		}
 		SortByHashKey(List, 1);
-		it = GetNewHashPos();
+		it = GetNewHashPos(List, 0);
 		while (GetNextHashPos(List, it, &len, &VCName, (void**)&Namee)) {
 			wprintf("<option value=\"");
 			escputs((char*)Namee);
