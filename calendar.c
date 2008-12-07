@@ -932,7 +932,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 	}
 
 	/** Go back to the task list */
-	readloop("readfwd");
+	readloop(readfwd);
 }
 
 

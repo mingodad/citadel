@@ -1147,6 +1147,6 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 
 	/* If this was a save or delete, go back to the calendar view. */
 	if (!havebstr("check_button")) {
-		readloop("readfwd");
+		readloop(readfwd);
 	}
 }

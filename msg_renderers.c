@@ -938,6 +938,46 @@ void tmplput_ATT_FileName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 }
 
 
+void servcmd_do_search(char *buf, long bufsize)
+{
+	snprintf(buf, bufsize, "MSGS SEARCH|%s", bstr("query"));
+}
+
+void servcmd_headers(char *buf, long bufsize)
+{
+	snprintf(buf, bufsize, "MSGS ALL");
+}
+
+void servcmd_readfwd(char *buf, long bufsize)
+{
+	snprintf(buf, bufsize, "MSGS ALL");
+}
+
+void servcmd_readnew(char *buf, long bufsize)
+{
+	snprintf(buf, bufsize, "MSGS NEW");
+}
+
+void servcmd_readold(char *buf, long bufsize)
+{
+	snprintf(buf, bufsize, "MSGS OLD");
+}
+
+
+readloop_struct rlid[] = {
+	{ {HKEY("do_search")}, servcmd_do_search},
+	{ {HKEY("headers")},   servcmd_headers},
+	{ {HKEY("readfwd")},   servcmd_readfwd},
+	{ {HKEY("readnew")},   servcmd_readnew},
+	{ {HKEY("readold")},   servcmd_readold}
+};
+
+
+
+
+		
+
+
 
 
 void 

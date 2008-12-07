@@ -889,7 +889,7 @@ void submit_vcard(void) {
 	int i;
 
 	if (!havebstr("ok_button")) { 
-		readloop("readnew");
+		readloop(readnew);
 		return;
 	}
 
@@ -979,7 +979,7 @@ void submit_vcard(void) {
 		do_welcome();
 	}
 	else {
-		readloop("readnew");
+		readloop(readnew);
 	}
 }
 
