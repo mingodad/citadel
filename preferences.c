@@ -175,7 +175,7 @@ void save_preferences(void) {
 #ifdef DBG_PREFS_HASH
 		dbg_PrintHash(Hash, PrintPref, NULL);
 #endif
-		HashPos = GetNewHashPos();
+		HashPos = GetNewHashPos(Hash, 0);
 		while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
 		{
 			size_t nchars;

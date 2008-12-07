@@ -216,7 +216,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 	/*
 	 * Now loop through our list of events to see which ones occur today.
 	 */
-	Pos = GetNewHashPos();
+	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		Cal = (disp_cal*)vCal;
 		all_day_event = 0;
@@ -385,7 +385,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	day = today_tm.tm_mday;
 	year = today_tm.tm_year + 1900;
 
-	Pos = GetNewHashPos();
+	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		Cal = (disp_cal*)vCal;
 		p = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
@@ -825,7 +825,7 @@ void calendar_day_view_display_events(time_t thetime,
 
 	/* Now loop through our list of events to see which ones occur today.
 	 */
-	Pos = GetNewHashPos();
+	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		Cal = (disp_cal*)vCal;
 
@@ -1266,7 +1266,7 @@ void calendar_summary_view(void) {
 	now = time(NULL);
 	localtime_r(&now, &today_tm);
 
-	Pos = GetNewHashPos();
+	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		Cal = (disp_cal*)vCal;
 		p = icalcomponent_get_first_property(Cal->cal,
@@ -1511,7 +1511,7 @@ void do_tasks_view(void) {
 			      task_completed_cmp);
 	}
 
-	Pos = GetNewHashPos();
+	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		Cal = (disp_cal*)vCal;
 		wprintf("<tr><td>");

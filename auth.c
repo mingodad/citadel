@@ -364,7 +364,7 @@ void finalize_openid_login(void)
 				const char *HKey;
 				HashPos *Cursor;
 				
-				Cursor = GetNewHashPos ();
+				Cursor = GetNewHashPos (WCC->urlstrings, 0);
 				while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
 					u = (urlcontent*) U;
 					if (!strncasecmp(u->url_key, "openid.", 7)) {
