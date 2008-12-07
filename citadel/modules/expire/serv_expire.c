@@ -802,7 +802,7 @@ int PurgeStaleOpenIDassociations(void) {
 	char *deleteme = NULL;
 	long len;
 	void *Value;
-	char *Key;
+	const char *Key;
 	int num_deleted = 0;
 
 	keys = NewHash(1, NULL);
@@ -824,7 +824,7 @@ int PurgeStaleOpenIDassociations(void) {
 
 	/* Go through the hash list, deleting keys we stored in it */
 
-	HashPos = GetNewHashPos();
+	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
 		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", Value);

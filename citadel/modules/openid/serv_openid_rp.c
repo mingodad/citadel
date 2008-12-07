@@ -150,7 +150,7 @@ void openid_purge(struct ctdluser *usbuf) {
 
 	/* Go through the hash list, deleting keys we stored in it */
 
-	HashPos = GetNewHashPos();
+	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
 		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", Value);

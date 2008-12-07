@@ -718,8 +718,12 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 * But if the user was an Aide or was edited by an Aide then we can
 			 * Assume they don't need validating.
 			 */
-			if (CC->user.axlevel >= 6)
+			if (CC->user.axlevel >= 6) {
+				lgetuser(&CC->user, CC->curr_user);
+				CC->user.flags |= US_REGIS;
+				lputuser(&CC->user);
 				return (0);
+			}
 			
 			set_mm_valid();
 
