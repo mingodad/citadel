@@ -46,6 +46,7 @@ struct HashPos {
 	 * \brief Anonymous Hash Iterator Object. used for traversing the whole array from outside 
 	 */
 	long Position;
+	int StepWidth;
 };
 
 
@@ -558,15 +559,39 @@ int GetHashKeys(HashList *Hash, char ***List)
 
 /**
  * \brief creates a hash-linear iterator object
+ * \param Hash the list we reference
+ * \param in which step width should we iterate?
+ *  If negative, the last position matching the 
+ *  step-raster is provided.
  * \returns the hash iterator
  */
-HashPos *GetNewHashPos(void)
+HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 {
 	HashPos *Ret;
 	
 	Ret = (HashPos*)malloc(sizeof(HashPos));
-	Ret->Position = 0;
+	if (StepWidth != 0)
+		Ret->StepWidth = StepWidth;
+	else
+		Ret->StepWidth = 1;
+	if (Ret->StepWidth <  0) {
+		Ret->Position = (Hash->nMembersUsed % (-Ret->StepWidth)) 
+			* (-Ret->StepWidth);
+	}
+	else {
+		Ret->Position = 0;
+	}
 	return Ret;
+}
+
+/**
+ * \brief retrieve the counter from the itteratoor
+ * \param the Iterator to analyze
+ * \returns the n'th hashposition we point at
+ */
+int GetHashPosCounter(HashPos *At)
+{
+	return At->Position;
 }
 
 /**
@@ -594,13 +619,18 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 {
 	long PayloadPos;
 
-	if ((Hash == NULL) || (Hash->nMembersUsed <= At->Position))
+	if ((Hash == NULL) || (At->Position >= Hash->nMembersUsed))
 		return 0;
 	*HKLen = Hash->LookupTable[At->Position]->HKLen;
 	*HashKey = Hash->LookupTable[At->Position]->HashKey;
 	PayloadPos = Hash->LookupTable[At->Position]->Position;
 	*Data = Hash->Members[PayloadPos]->Data;
-	At->Position++;
+
+	At->Position += At->StepWidth;
+	if (At->Position > Hash->nMembersUsed) {
+		At->Position = Hash->nMembersUsed;
+		return 0;
+	}
 	return 1;
 }
 
@@ -732,7 +762,7 @@ void generic_free_handler(void *ptr) {
  */
 void reference_free_handler(void *ptr) 
 {
-	1;
+	return;
 }
 
 
