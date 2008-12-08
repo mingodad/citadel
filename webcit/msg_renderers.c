@@ -176,8 +176,7 @@ int summcmp_rdate(const void *s1, const void *s2) {
 
 /*----------------------------------------------------------------------------*/
 
-
-
+///void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 
 void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {

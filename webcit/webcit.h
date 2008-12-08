@@ -617,6 +617,7 @@ struct wcsession {
 	int time_format_cache;                  /**< which timeformat does our user like? */
 	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment3;                   /**< third urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *WBuf;                           /**< Our output buffer */
 	StrBuf *HBuf;                           /**< Our HeaderBuffer */
 	StrBuf *CLineBuf;                       /**< linebuffering client stuff */

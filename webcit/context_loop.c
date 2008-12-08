@@ -48,6 +48,7 @@ void DestroySession(struct wcsession **sessions_to_kill)
 	DeleteHash(&((*sessions_to_kill)->ServCfg));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment1));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment2));
+	FreeStrBuf(&((*sessions_to_kill)->UrlFragment3));
 	FreeStrBuf(&((*sessions_to_kill)->WBuf));
 	FreeStrBuf(&((*sessions_to_kill)->HBuf));
 	FreeStrBuf(&((*sessions_to_kill)->CLineBuf));

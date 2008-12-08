@@ -249,7 +249,7 @@ void embed_message(void) {
 	long msgnum = 0L;
 	const StrBuf *Tmpl = sbstr("template");
 
-	msgnum = StrTol(WC->UrlFragment1);
+	msgnum = StrTol(WC->UrlFragment2);
 	if (StrLength(Tmpl) > 0) 
 		read_message(WC->WBuf, SKEY(Tmpl), msgnum, 0, NULL);
 	else 
@@ -265,7 +265,7 @@ void embed_message(void) {
 void print_message(void) {
 	long msgnum = 0L;
 
-	msgnum = StrTol(WC->UrlFragment1);
+	msgnum = StrTol(WC->UrlFragment2);
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/html\r\n"
@@ -286,7 +286,7 @@ void print_message(void) {
  */
 void mobile_message_view(void) {
   long msgnum = 0L;
-  msgnum = StrTol(WC->UrlFragment1);
+  msgnum = StrTol(WC->UrlFragment2);
   output_headers(1, 0, 0, 0, 0, 1);
   begin_burst();
   do_template("msgcontrols", NULL);
@@ -303,7 +303,7 @@ void display_headers(void) {
 	long msgnum = 0L;
 	char buf[1024];
 
-	msgnum = StrTol(WC->UrlFragment1);
+	msgnum = StrTol(WC->UrlFragment2);
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/plain\r\n"
