@@ -949,8 +949,9 @@ inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 }
 
 
-void DrawMessageSummarySelector(StrBuf *BBViewToolBar, long maxmsgs, long startmsg)
+void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 {
+	StrBuf *TmpBuf;
 	struct wcsession *WCC = WC;
 	message_summary* Msg;
 	int lo, hi, n;
@@ -963,9 +964,10 @@ void DrawMessageSummarySelector(StrBuf *BBViewToolBar, long maxmsgs, long startm
 	int nItems;
 	HashPos *At;
 	long vector[16];
-	StrBuf *Selector = NewStrBuf();
+	int nMessages = DEFAULT_MAXMSGS;
 
-	At = GetNewHashPos(WCC->summ, (lbstr("SortOrder") == 1)? -maxmsgs : maxmsgs);
+	TmpBuf = NewStrBuf();
+	At = GetNewHashPos(WCC->summ, (lbstr("SortOrder") == 1)? -nMessages : nMessages);
 	nItems = GetCount(WCC->summ);
 	
 	vector[0] = 7;
@@ -976,11 +978,11 @@ void DrawMessageSummarySelector(StrBuf *BBViewToolBar, long maxmsgs, long startm
 
 	while (!done) {
 		lo = GetHashPosCounter(At);
-		if (lo + maxmsgs > nItems) {
+		if (lo + nMessages > nItems) {
 			hi = nItems;
 		}
 		else {
-			hi = lo + maxmsgs;
+			hi = lo + nMessages;
 		}
 		done = !GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
 		Msg = (message_summary*) vMsg;
@@ -990,19 +992,16 @@ void DrawMessageSummarySelector(StrBuf *BBViewToolBar, long maxmsgs, long startm
 		vector[4] = lo;
 		vector[5] = hi;
 		vector[6] = n;
-		FlushStrBuf(BBViewToolBar); /** abuse our target buffer to contstruct one item in it */
-		DoTemplate(HKEY("select_messageindex"), BBViewToolBar, &vector, CTX_LONGVECTOR);
-		StrBufAppendBuf(Selector, BBViewToolBar, 0);
+		FlushStrBuf(TmpBuf);
+		DoTemplate(HKEY("select_messageindex"), TmpBuf, &vector, CTX_LONGVECTOR);
+		StrBufAppendBuf(Selector, TmpBuf, 0);
 		i++;
 	}
 	vector[6] = StartMsg;
-	FlushStrBuf(BBViewToolBar);
-	DoTemplate(HKEY("select_messageindex_all"), BBViewToolBar, &vector, CTX_LONGVECTOR);
-	StrBufAppendBuf(Selector, BBViewToolBar, 0);
-	
-	FlushStrBuf(BBViewToolBar);
-	DoTemplate(HKEY("msg_listselector"), BBViewToolBar, Selector, CTX_STRBUF);
-	FreeStrBuf(&Selector);
+	FlushStrBuf(TmpBuf);
+	DoTemplate(HKEY("select_messageindex_all"), TmpBuf, &vector, CTX_LONGVECTOR);
+	StrBufAppendBuf(Selector, TmpBuf, 0);
+	FreeStrBuf(&TmpBuf);
 	DeleteHashPos(&At);
 }
 
@@ -1016,6 +1015,7 @@ extern readloop_struct rlid[];
  */
 void readloop(long oper)
 {
+	StrBuf *MessageDropdown = NULL;
 	StrBuf *BBViewToolBar = NULL;
 	void *vMsg;
 	message_summary *Msg;
@@ -1123,7 +1123,7 @@ void readloop(long oper)
 
 		bbs_reverse = is_bbview && (lbstr("SortOrder") == 2);
 
-		if (startmsg == 0L) {
+		if (is_bbview && (startmsg == 0L)) {
 			if (bbs_reverse) {
 				Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
 				startmsg = (Msg==NULL)? 0 : Msg->msgnum;
@@ -1220,10 +1220,13 @@ void readloop(long oper)
 	 */
 	if (is_bbview)  {
 		BBViewToolBar = NewStrBuf();
-		maxmsgs = 20; //// todo?
+		MessageDropdown = NewStrBuf();
 
-		DrawMessageSummarySelector(BBViewToolBar, maxmsgs, startmsg);
+		DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg);
+		
+		DoTemplate(HKEY("msg_listselector_top"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
+		FlushStrBuf(BBViewToolBar);
 	}
 			
 	at = GetNewHashPos(WCC->summ, 0);
@@ -1308,7 +1311,12 @@ void readloop(long oper)
 	 */
 	if (is_bbview) {
 		/** begin bbview scroller */
+
+		DoTemplate(HKEY("msg_listselector_bottom"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
+
+		FreeStrBuf(&BBViewToolBar);
+		FreeStrBuf(&MessageDropdown);
 	}
 	
 DONE:
