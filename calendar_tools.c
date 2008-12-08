@@ -218,10 +218,9 @@ void partstat_as_string(char *buf, icalproperty *attendee) {
  * Utility function to encapsulate a subcomponent into a full VCALENDAR.
  *
  * We also scan for any date/time properties that reference timezones, and attach
- * those timezones along with the supplied subcomponent.  (Yes, I used a fixed
- * size array in order to avoid complexity.  Increase the size if you think you
- * need to, but if you're really referencing more than 5 time zones in a single
- * calendar event, it probably means you're an idiot and deserve to lose.)
+ * those timezones along with the supplied subcomponent.  (Increase the size of the array if you need to.)
+ *
+ * Note: if you change anything here, change it in Citadel server's ical_send_out_invitations() too.
  */
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	icalcomponent *encaps;
