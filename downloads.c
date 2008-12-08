@@ -391,7 +391,7 @@ void download_file(void)
 	/* Setting to nonzero forces a MIME type of application/octet-stream */
 	int force_download = 1;
 	
-	safestrncpy(buf, ChrPtr(WC->UrlFragment1), sizeof buf);
+	safestrncpy(buf, ChrPtr(WC->UrlFragment2), sizeof buf);
 	unescape_input(buf);
 	serv_printf("OPEN %s", buf);
 	serv_getln(buf, sizeof buf);

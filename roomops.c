@@ -3201,7 +3201,7 @@ void set_floordiv_expanded(void) {
 	StrBuf *FloorDiv;
 	
 	FloorDiv = NewStrBuf();
-	StrBufAppendBuf(FloorDiv, WCC->UrlFragment1, 0);
+	StrBufAppendBuf(FloorDiv, WCC->UrlFragment2, 0);
 	set_preference("floordiv_expanded", FloorDiv, 1);
 	WCC->floordiv_expanded = FloorDiv;
 }

@@ -927,7 +927,7 @@ void display_vcard_photo_img(void)
 	const char *contentType;
 	struct wcsession *WCC = WC;
 
-	msgnum = StrTol(WCC->UrlFragment1);
+	msgnum = StrTol(WCC->UrlFragment2);
 	
 	vcard = load_mimepart(msgnum,"1");
 	v = vcard_load(vcard);
@@ -1811,8 +1811,11 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 						WCC->UrlFragment1 = NewStrBuf();
 					if (WCC->UrlFragment2 == NULL)
 						WCC->UrlFragment2 = NewStrBuf();
+					if (WCC->UrlFragment3 == NULL)
+						WCC->UrlFragment3 = NewStrBuf();
 					StrBufPrintf(WCC->UrlFragment1, "%s", index[0]);
 					StrBufPrintf(WCC->UrlFragment2, "%s", index[1]);
+					StrBufPrintf(WCC->UrlFragment3, "%s", index[2]);
 				}
 				if ((Handler->Flags & AJAX) != 0)
 					begin_ajax_response();
@@ -1864,6 +1867,8 @@ void diagnostics(void)
 	StrEscPuts(WC->UrlFragment1);
 	wprintf("<br />\n");
 	StrEscPuts(WC->UrlFragment2);
+	wprintf("<br />\n");
+	StrEscPuts(WC->UrlFragment3);
 	wprintf("</PRE><hr />\n");
 	wprintf("Variables: <br /><PRE>\n");
 	dump_vars();
@@ -1872,26 +1877,26 @@ void diagnostics(void)
 }
 
 void view_mimepart(void) {
-	mimepart(ChrPtr(WC->UrlFragment1),
-		 ChrPtr(WC->UrlFragment2),
+	mimepart(ChrPtr(WC->UrlFragment2),
+		 ChrPtr(WC->UrlFragment3),
 		 0);
 }
 
 void download_mimepart(void) {
-	mimepart(ChrPtr(WC->UrlFragment1),
-		 ChrPtr(WC->UrlFragment2),
+	mimepart(ChrPtr(WC->UrlFragment2),
+		 ChrPtr(WC->UrlFragment3),
 		 1);
 }
 
 void view_postpart(void) {
-	postpart(WC->UrlFragment1,
-		 WC->UrlFragment2,
+	postpart(WC->UrlFragment2,
+		 WC->UrlFragment3,
 		 0);
 }
 
 void download_postpart(void) {
-	postpart(WC->UrlFragment1,
-		 WC->UrlFragment2,
+	postpart(WC->UrlFragment2,
+		 WC->UrlFragment3,
 		 1);
 }
 
@@ -1956,8 +1961,10 @@ void tmplput_url_part(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 	if (WCC != NULL) {
 		if (Tokens->Params[0]->lvalue == 0)
 			UrlBuf = WCC->UrlFragment1;
-		else
+		else if (Tokens->Params[0]->lvalue == 1)
 			UrlBuf = WCC->UrlFragment2;
+		else
+			UrlBuf = WCC->UrlFragment3;
 
 		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
 				     UrlBuf, 1);
