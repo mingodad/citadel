@@ -175,8 +175,10 @@ int summcmp_rdate(const void *s1, const void *s2) {
 }
 
 /*----------------------------------------------------------------------------*/
-
-///void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+/* Don't wanna know... or? */
+void examine_pref(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
+void examine_suff(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
+void examine_path(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
 
 void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -381,7 +383,7 @@ void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
 			extract_token(buf, mime_submessages, i, '|', sizeof buf);
-			/** use printable_view to suppress buttons * /
+			/ ** use printable_view to suppress buttons * /
 			wprintf("<blockquote>");
 			read_message(Mime->msgnum, 1, ChrPtr(Mime->Section));
 			wprintf("</blockquote>");
@@ -1085,4 +1087,9 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("Content-length"), examine_content_lengh, 0);
 	RegisterMsgHdr(HKEY("Content-transfer-encoding"), examine_content_encoding, 0);
 	RegisterMsgHdr(HKEY("charset"), examine_charset, 0);
+
+	/* Don't care... */
+	RegisterMsgHdr(HKEY("pref"), examine_pref, 0);
+	RegisterMsgHdr(HKEY("suff"), examine_suff, 0);
+	RegisterMsgHdr(HKEY("path"), examine_path, 0);
 }
