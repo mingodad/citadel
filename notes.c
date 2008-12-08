@@ -227,13 +227,16 @@ struct vnote *vnote_new_from_msg(long msgnum) {
 void write_vnote_to_server(struct vnote *v) 
 {
 	char buf[1024];
+	char *pch;
 
 	serv_puts("ENT0 1|||4");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
 		serv_puts("Content-type: text/vnote");
 		serv_puts("");
-		serv_puts(vnote_serialize(v));
+		pch = vnote_serialize(v);
+		serv_puts(pch);
+		free(pch);
 		serv_puts("000");
 	}
 }

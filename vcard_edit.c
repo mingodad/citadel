@@ -134,7 +134,7 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 				safestrncpy(org, value, sizeof org);
 			}
 	
-			else if (!strcasecmp(key, "adr")) {
+			else if ( (!strcasecmp(key, "adr")) || (!strncasecmp(key, "adr;", 4)) ) {
 				extract_token(pobox, value, 0, ';', sizeof pobox);
 				extract_token(extadr, value, 1, ';', sizeof extadr);
 				extract_token(street, value, 2, ';', sizeof street);
@@ -144,23 +144,24 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room
 				extract_token(country, value, 6, ';', sizeof country);
 			}
 	
-			else if (!strcasecmp(key, "tel;home")) {
+			else if ( (!strcasecmp(key, "tel;home")) || (!strcasecmp(key, "tel;type=home")) ) {
 				extract_token(hometel, value, 0, ';', sizeof hometel);
 			}
 	
-			else if (!strcasecmp(key, "tel;work")) {
+			else if ( (!strcasecmp(key, "tel;work")) || (!strcasecmp(key, "tel;type=work")) ) {
 				extract_token(worktel, value, 0, ';', sizeof worktel);
 			}
 	
-			else if (!strcasecmp(key, "tel;fax")) {
+			else if ( (!strcasecmp(key, "tel;fax")) || (!strcasecmp(key, "tel;type=fax")) ) {
 				extract_token(faxtel, value, 0, ';', sizeof faxtel);
 			}
 	
-			else if (!strcasecmp(key, "tel;cell")) {
+			else if ( (!strcasecmp(key, "tel;cell")) || (!strcasecmp(key, "tel;type=cell")) ) {
 				extract_token(mobiletel, value, 0, ';', sizeof mobiletel);
 			}
 	
-			else if (!strcasecmp(key, "email;internet")) {
+			else if ( (!strcasecmp(key, "email;internet"))
+			     || (!strcasecmp(key, "email;type=internet")) ) {
 				if (primary_inetemail[0] == 0) {
 					safestrncpy(primary_inetemail, value, sizeof primary_inetemail);
 				}
