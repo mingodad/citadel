@@ -1755,10 +1755,14 @@ void ical_create_room(void)
 
 
 /*
- * ical_send_out_invitations() is called by ical_saving_vevent() when it
- * finds a VEVENT.
+ * ical_send_out_invitations() is called by ical_saving_vevent() when it finds a VEVENT.
+ *
+ * top_level_cal is the highest available level calendar object.
+ * cal is the subcomponent containing the VEVENT.
+ *
+ * Note: if you change the encapsulation code here, change it in WebCit's ical_encapsulate_subcomponent()
  */
-void ical_send_out_invitations(icalcomponent *cal) {
+void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal) {
 	icalcomponent *the_request = NULL;
 	char *serialized_request = NULL;
 	icalcomponent *encaps = NULL;
@@ -1772,6 +1776,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	char summary_string[SIZ];
 	icalproperty *summary = NULL;
 	size_t reqsize;
+	icalproperty *p;
 
 	if (cal == NULL) {
 		CtdlLogPrintf(CTDL_ERR, "ERROR: trying to reply to NULL event?\n");
@@ -1781,7 +1786,7 @@ void ical_send_out_invitations(icalcomponent *cal) {
 
 	/* If this is a VCALENDAR component, look for a VEVENT subcomponent. */
 	if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
-		ical_send_out_invitations(
+		ical_send_out_invitations(top_level_cal,
 			icalcomponent_get_first_component(
 				cal, ICAL_VEVENT_COMPONENT
 			)
@@ -1856,6 +1861,29 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	/* Set the method to REQUEST */
 	icalcomponent_set_method(encaps, ICAL_METHOD_REQUEST);
 
+	/* FIXME: attach time zones here */
+	for (p = icalcomponent_get_first_property(the_request, ICAL_ANY_PROPERTY);
+	     p != NULL;
+	     p = icalcomponent_get_next_property(the_request, ICAL_ANY_PROPERTY))
+	{
+		if ( (icalproperty_isa(p) == ICAL_COMPLETED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_CREATED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DATEMAX_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DATEMIN_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTEND_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTSTAMP_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTSTART_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DUE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_EXDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_LASTMODIFIED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_MAXDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_MINDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
+		) {
+			CtdlLogPrintf(CTDL_DEBUG, "FIXME: found a property that requires a vtimezone\n");
+		}
+	}
+
 	/* Here we go: put the VEVENT into the VCALENDAR.  We now no longer
 	 * are responsible for "the_request"'s memory -- it will be freed
 	 * when we free "encaps".
@@ -1866,6 +1894,8 @@ void ical_send_out_invitations(icalcomponent *cal) {
 	serialized_request = icalcomponent_as_ical_string_r(encaps);
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 	if (serialized_request == NULL) return;
+
+	CtdlLogPrintf(CTDL_DEBUG, "SENDING INVITATIONS:\n%s\n", serialized_request);
 
 	reqsize = strlen(serialized_request) + SIZ;
 	request_message_text = malloc(reqsize);
@@ -1902,8 +1932,13 @@ void ical_send_out_invitations(icalcomponent *cal) {
  * and the user saving it is the organizer.  If so, send out invitations
  * to any listed attendees.
  *
+ * This function is recursive.  The caller can simply supply the same object
+ * as both arguments.  When it recurses it will alter the second argument
+ * while holding on to the top level object.  This allows us to go back and
+ * grab things like time zones which might be attached.
+ *
  */
-void ical_saving_vevent(icalcomponent *cal) {
+void ical_saving_vevent(icalcomponent *top_level_cal, icalcomponent *cal) {
 	icalcomponent *c;
 	icalproperty *organizer = NULL;
 	char organizer_string[SIZ];
@@ -1941,7 +1976,7 @@ void ical_saving_vevent(icalcomponent *cal) {
 			 * organizer, then send out invitations.
 			 */
 			if (CtdlIsMe(organizer_string, sizeof organizer_string)) {
-				ical_send_out_invitations(cal);
+				ical_send_out_invitations(top_level_cal, cal);
 			}
 		}
 	}
@@ -1951,7 +1986,7 @@ void ical_saving_vevent(icalcomponent *cal) {
 	    (c != NULL);
 	    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
 		/* Recursively process subcomponent */
-		ical_saving_vevent(c);
+		ical_saving_vevent(top_level_cal, c);
 	}
 
 }
@@ -2129,7 +2164,7 @@ void ical_obj_aftersave_backend(char *name, char *filename, char *partnum,
 	   || (!strcasecmp(cbtype, "application/ics")) ) {
 		cal = icalcomponent_new_from_string(content);
 		if (cal != NULL) {
-			ical_saving_vevent(cal);
+			ical_saving_vevent(cal, cal);
 			icalcomponent_free(cal);
 		}
 	}
@@ -2294,3 +2329,106 @@ CTDL_MODULE_INIT(calendar)
 	return "$Id$";
 }
 
+
+
+
+
+
+
+
+/* FIXME I just saved this down here so I can steal code from it */
+
+#if 0
+
+icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
+	icalcomponent *encaps;
+	icalproperty *p;
+	struct icaltimetype t;
+	const icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
+	int i;
+	const icaltimezone *z;
+	int num_zones_attached = 0;
+	int zone_already_attached;
+
+	if (subcomp == NULL) {
+		lprintf(3, "ERROR: ical_encapsulate_subcomponent() called with NULL argument\n");
+		return NULL;
+	}
+
+	/*
+	 * If we're already looking at a full VCALENDAR component, this is probably an error.
+	 */
+	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
+		lprintf(3, "ERROR: component sent to ical_encapsulate_subcomponent() already top level\n");
+		return subcomp;
+	}
+
+	/* search for... */
+	for (p = icalcomponent_get_first_property(subcomp, ICAL_ANY_PROPERTY);
+	     p != NULL;
+	     p = icalcomponent_get_next_property(subcomp, ICAL_ANY_PROPERTY))
+	{
+		if ( (icalproperty_isa(p) == ICAL_COMPLETED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_CREATED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DATEMAX_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DATEMIN_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTEND_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTSTAMP_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DTSTART_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_DUE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_EXDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_LASTMODIFIED_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_MAXDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_MINDATE_PROPERTY)
+		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
+		) {
+			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
+			if ((icaltime_is_valid_time(t)) && (z=icaltime_get_timezone(t), z)) {
+			
+				zone_already_attached = 0;
+				for (i=0; i<5; ++i) {
+					if (z == attached_zones[i]) {
+						++zone_already_attached;
+						lprintf(9, "zone already attached!!\n");
+					}
+				}
+				if ((!zone_already_attached) && (num_zones_attached < 5)) {
+					lprintf(9, "attaching zone %d!\n", num_zones_attached);
+					attached_zones[num_zones_attached++] = z;
+				}
+
+				icalproperty_set_parameter(p,
+					icalparameter_new_tzid(icaltimezone_get_tzid((icaltimezone *)z))
+				);
+			}
+		}
+	}
+
+	/* Encapsulate the VEVENT component into a complete VCALENDAR */
+	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
+	if (encaps == NULL) {
+		lprintf(3, "ERROR: ical_encapsulate_subcomponent() could not allocate component\n");
+		return NULL;
+	}
+
+	/* Set the Product ID */
+	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+
+	/* Set the Version Number */
+	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+
+	/* Attach any timezones we need */
+	if (num_zones_attached > 0) for (i=0; i<num_zones_attached; ++i) {
+		icalcomponent *zc;
+		zc = icalcomponent_new_clone(icaltimezone_get_component((icaltimezone *)attached_zones[i]));
+		icalcomponent_add_component(encaps, zc);
+	}
+
+	/* Encapsulate the subcomponent inside */
+	icalcomponent_add_component(encaps, subcomp);
+
+	/* Return the object we just created. */
+	return(encaps);
+}
+
+#endif
