@@ -1,0 +1,13 @@
+*.o
+Makefile
+config.cache
+config.log
+config.status
+config.h.in
+configure
+webcit
+webserver
+content
+autom4te.cache
+setup
+keys

@@ -1,0 +1,501 @@
+/*
+ * $Id$
+ */
+/**
+ * \defgroup PageFunc Functions which implement the chat and paging facilities.
+ * \ingroup ClientPower
+ */
+/*@{*/
+#include "webcit.h"
+
+/**
+ * \brief display the form for paging (x-messaging) another user
+ */
+void display_page(void)
+{
+	char recp[SIZ];
+
+	strcpy(recp, bstr("recp"));
+
+        output_headers(1, 1, 2, 0, 0, 0);
+        wprintf("<div id=\"banner\">\n");
+        wprintf("<h1>");
+	wprintf(_("Send instant message"));
+	wprintf("</h1>");
+        wprintf("</div>\n");
+
+	wprintf("<div id=\"content\" class=\"service\">\n");
+
+        wprintf("<div class=\"fix_scrollbar_bug\">"
+		"<table class=\"paging_background\"><tr><td>\n");
+
+	wprintf(_("Send an instant message to: "));
+	escputs(recp);
+	wprintf("<br>\n");
+
+	wprintf("<FORM METHOD=\"POST\" action=\"page_user\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+
+	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
+
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"");
+	escputs(recp);
+	wprintf("\">\n");
+
+	wprintf(_("Enter message text:"));
+	wprintf("<br />");
+
+	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
+		"WIDTH=40></TEXTAREA>\n");
+
+	wprintf("</TD></TR></TABLE><br />\n");
+
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">", _("Send message"));
+	wprintf("<br /><a href=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
+
+	wprintf("</FORM></CENTER>\n");
+	wprintf("</td></tr></table></div>\n");
+	wDumpContent(1);
+}
+
+/**
+ * \brief page another user
+ */
+void page_user(void)
+{
+	char recp[256];
+	char buf[256];
+
+	safestrncpy(recp, bstr("recp"), sizeof recp);
+
+	if (!havebstr("send_button")) {
+		safestrncpy(WC->ImportantMessage,
+			_("Message was not sent."),
+			sizeof WC->ImportantMessage
+		);
+	} else {
+		serv_printf("SEXP %s|-", recp);
+		serv_getln(buf, sizeof buf);
+
+		if (buf[0] == '4') {
+			text_to_server(bstr("msgtext"));
+			serv_puts("000");
+			stresc(buf, 256, recp, 0, 0);
+			snprintf(WC->ImportantMessage,
+				sizeof WC->ImportantMessage,
+				"%s%s.",
+				_("Message has been sent to "),
+				buf
+			);
+		}
+		else {
+			safestrncpy(WC->ImportantMessage, &buf[4], sizeof WC->ImportantMessage);
+		}
+	}
+
+	who();
+}
+
+
+
+/**
+ * \brief multiuser chat
+ */
+void do_chat(void)
+{
+	char buf[SIZ];
+
+	/** First, check to make sure we're still allowed in this room. */
+	serv_printf("GOTO %s", WC->wc_roomname);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '2') {
+		smart_goto("_BASEROOM_");
+		return;
+	}
+
+	/**
+	 * If the chat socket is still open from a previous chat,
+	 * close it -- because it might be stale or in the wrong room.
+	 */
+	if (WC->chat_sock < 0) {
+		close(WC->chat_sock);
+		WC->chat_sock = (-1);
+	}
+
+	/**
+	 * WebCit Chat works by having transmit, receive, and refresh
+	 * frames.  Load the frameset.  (This isn't AJAX but the headers
+	 * output by begin_ajax_response() happen to be the ones we need.)
+	 */
+	begin_ajax_response();
+	do_template("chatframeset");
+	end_ajax_response();
+	return;
+}
+
+
+/**
+ * \brief display page popup
+ * If there are instant messages waiting, and we notice that we haven't checked them in
+ * a while, it probably means that we need to open the instant messenger window.
+ */
+void page_popup(void)
+{
+	char buf[SIZ];
+
+	/** JavaScript function to alert the user that popups are probably blocked */
+	wprintf("<script type=\"text/javascript\">	"
+		"function PopUpFailed() {	"
+		" alert(\"%s\");	"
+		"}	"
+		"</script>\n",
+		_("You have one or more instant messages waiting, but the Citadel Instant Messenger "
+		  "window failed to open.  This is probably because you have a popup blocker "
+		  "installed.  Please configure your popup blocker to allow popups from this site "
+		  "if you wish to receive instant messages.")
+	);
+
+	/** First, do the check as part of our page load. */
+	serv_puts("NOOP");
+	serv_getln(buf, sizeof buf);
+	if (buf[3] == '*') {
+		if ((time(NULL) - WC->last_pager_check) > 60) {
+			wprintf("<script type=\"text/javascript\">"
+				" var oWin = window.open('static/instant_messenger.html', "
+				" 'CTDL_MESSENGER', 'width=700,height=400');	"
+				" if (oWin==null || typeof(oWin)==\"undefined\") {	"
+				"  PopUpFailed();	"
+				" }	"
+				"</script>"
+			);	
+		}
+	}
+
+	/** Then schedule it to happen again a minute from now if the user is idle. */
+	wprintf("<script type=\"text/javascript\">	"
+		" function HandleSslp(sslg_xmlresponse) {	"
+		"  sslg_response = sslg_xmlresponse.responseText.substr(0, 1);	"
+		"  if (sslg_response == 'Y') {	"
+		"   var oWin = window.open('static/instant_messenger.html', 'CTDL_MESSENGER',	"
+		"    'width=700,height=400');	"
+		"   if (oWin==null || typeof(oWin)==\"undefined\") {	"
+		"    PopUpFailed();	"
+		"   }	"
+		"  }	"
+		" }	"
+		" function CheckPager() {	"
+		"  new Ajax.Request('sslg', { method: 'get', parameters: CtdlRandomString(),	"
+		"   onSuccess: HandleSslp } );	"
+		" }	"
+		" new PeriodicalExecuter(CheckPager, 30);	"
+		"</script>	"
+	);
+}
+
+
+
+/**
+ * \brief Support function for chat
+ * make sure the chat socket is connected
+ * and in chat mode.
+ */
+int setup_chat_socket(void) {
+	char buf[SIZ];
+	int i;
+	int good_chatmode = 0;
+
+	if (WC->chat_sock < 0) {
+
+		if (!strcasecmp(ctdlhost, "uds")) {
+			/** unix domain socket */
+			sprintf(buf, "%s/citadel.socket", ctdlport);
+			WC->chat_sock = uds_connectsock(buf);
+		}
+		else {
+			/** tcp socket */
+			WC->chat_sock = tcp_connectsock(ctdlhost, ctdlport);
+		}
+
+		if (WC->chat_sock < 0) {
+			return(errno);
+		}
+
+		/** Temporarily swap the serv and chat sockets during chat talk */
+		i = WC->serv_sock;
+		WC->serv_sock = WC->chat_sock;
+		WC->chat_sock = i;
+
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '2') {
+			serv_printf("USER %s", WC->wc_username);
+			serv_getln(buf, sizeof buf);
+			if (buf[0] == '3') {
+				serv_printf("PASS %s", WC->wc_password);
+				serv_getln(buf, sizeof buf);
+				if (buf[0] == '2') {
+					serv_printf("GOTO %s", WC->wc_roomname);
+					serv_getln(buf, sizeof buf);
+					if (buf[0] == '2') {
+						serv_puts("CHAT");
+						serv_getln(buf, sizeof buf);
+						if (buf[0] == '8') {
+							good_chatmode = 1;
+						}
+					}
+				}
+			}
+		}
+
+		/** Unswap the sockets. */
+		i = WC->serv_sock;
+		WC->serv_sock = WC->chat_sock;
+		WC->chat_sock = i;
+
+		if (!good_chatmode) close(WC->serv_sock);
+
+	}
+	return(0);
+}
+
+
+
+/**
+ * \brief Receiving side of the chat window.  
+ * This is implemented in a
+ * tiny hidden IFRAME that just does JavaScript writes to
+ * other frames whenever it refreshes and finds new data.
+ */
+void chat_recv(void) {
+	int i;
+	struct pollfd pf;
+	int got_data = 0;
+	int end_chat_now = 0;
+	char buf[SIZ];
+	char cl_user[SIZ];
+	char cl_text[SIZ];
+	char *output_data = NULL;
+
+	output_headers(0, 0, 0, 0, 0, 0);
+
+	wprintf("Content-type: text/html; charset=utf-8\n");
+	wprintf("\n");
+	wprintf("<html>\n"
+		"<head>\n"
+		"<meta http-equiv=\"refresh\" content=\"3\" />\n"
+		"</head>\n"
+
+		"<body bgcolor=\"#FFFFFF\">\n"
+	);
+
+	if (setup_chat_socket() != 0) {
+		wprintf(_("An error occurred while setting up the chat socket."));
+		wprintf("</BODY></HTML>\n");
+		wDumpContent(0);
+		return;
+	}
+
+	/**
+	 * See if there is any chat data waiting.
+	 */
+	output_data = strdup("");
+	do {
+		got_data = 0;
+		pf.fd = WC->chat_sock;
+		pf.events = POLLIN;
+		pf.revents = 0;
+		if (poll(&pf, 1, 1) > 0) if (pf.revents & POLLIN) {
+			++got_data;
+
+			/** Temporarily swap the serv and chat sockets during chat talk */
+			i = WC->serv_sock;
+			WC->serv_sock = WC->chat_sock;
+			WC->chat_sock = i;
+	
+			serv_getln(buf, sizeof buf);
+
+			if (!strcmp(buf, "000")) {
+				strcpy(buf, ":|");
+				strcat(buf, _("Now exiting chat mode."));
+				end_chat_now = 1;
+			}
+			
+			/** Unswap the sockets. */
+			i = WC->serv_sock;
+			WC->serv_sock = WC->chat_sock;
+			WC->chat_sock = i;
+
+			/** Append our output data */
+			output_data = realloc(output_data, strlen(output_data) + strlen(buf) + 4);
+			strcat(output_data, buf);
+			strcat(output_data, "\n");
+		}
+
+	} while ( (got_data) && (!end_chat_now) );
+
+	if (end_chat_now) {
+		close(WC->chat_sock);
+		WC->chat_sock = (-1);
+		wprintf("<img src=\"static/blank.gif\" onLoad=\"parent.window.close();\">\n");
+	}
+
+	if (!IsEmptyStr(output_data)) {
+		int len;
+		len = strlen(output_data);
+		if (output_data[len-1] == '\n') {
+			output_data[len-1] = 0;
+		}
+
+		/** Output our fun to the other frame. */
+		wprintf("<img src=\"static/blank.gif\" WIDTH=1 HEIGHT=1\n"
+			"onLoad=\" \n"
+		);
+
+		for (i=0; i<num_tokens(output_data, '\n'); ++i) {
+			extract_token(buf, output_data, i, '\n', sizeof buf);
+			extract_token(cl_user, buf, 0, '|', sizeof cl_user);
+			extract_token(cl_text, buf, 1, '|', sizeof cl_text);
+
+			if (strcasecmp(cl_text, "NOOP")) {
+
+				wprintf("parent.chat_transcript.document.write('");
+	
+				if (strcasecmp(cl_user, WC->last_chat_user)) {
+					wprintf("<TABLE border=0 WIDTH=100%% "
+						"CELLSPACING=1 CELLPADDING=0 "
+						"BGCOLOR=&quot;#FFFFFF&quot;>"
+						"<TR><TD></TR></TD></TABLE>"
+					);
+	
+				}
+
+				wprintf("<TABLE border=0 WIDTH=100%% "
+					"CELLSPACING=0 CELLPADDING=0 "
+					"BGCOLOR=&quot;#EEEEEE&quot;>");
+	
+				wprintf("<TR><TD>");
+	
+				if (!strcasecmp(cl_user, ":")) {
+					wprintf("<I>");
+				}
+
+				if (strcasecmp(cl_user, WC->last_chat_user)) {
+					wprintf("<B>");
+	
+					if (!strcasecmp(cl_user, WC->wc_fullname)) {
+						wprintf("<FONT COLOR=&quot;#FF0000&quot;>");
+					}
+					else {
+						wprintf("<FONT COLOR=&quot;#0000FF&quot;>");
+					}
+					jsescputs(cl_user);
+	
+					wprintf("</FONT>: </B>");
+				}
+				else {
+					wprintf("&nbsp;&nbsp;&nbsp;");
+				}
+				jsescputs(cl_text);
+				if (!strcasecmp(cl_user, ":")) {
+					wprintf("</I>");
+				}
+
+				wprintf("</TD></TR></TABLE>");
+				wprintf("'); \n");
+
+				strcpy(WC->last_chat_user, cl_user);
+			}
+		}
+
+		wprintf("parent.chat_transcript.scrollTo(999999,999999);\">\n");
+	}
+
+	free(output_data);
+
+	wprintf("</BODY></HTML>\n");
+	wDumpContent(0);
+}
+
+
+/**
+ * \brief sending side of the chat window
+ */
+void chat_send(void) {
+	int i;
+	char send_this[SIZ];
+	char buf[SIZ];
+
+	output_headers(0, 0, 0, 0, 0, 0);
+	wprintf("Content-type: text/html; charset=utf-8\n");
+	wprintf("\n");
+	wprintf("<HTML>"
+		"<BODY onLoad=\"document.chatsendform.send_this.focus();\" >"
+	);
+
+	if (havebstr("send_this")) {
+		strcpy(send_this, bstr("send_this"));
+	}
+	else {
+		strcpy(send_this, "");
+	}
+
+	if (havebstr("help_button")) {
+		strcpy(send_this, "/help");
+	}
+
+	if (havebstr("list_button")) {
+		strcpy(send_this, "/who");
+	}
+
+	if (havebstr("exit_button")) {
+		strcpy(send_this, "/quit");
+	}
+
+	if (setup_chat_socket() != 0) {
+		wprintf(_("An error occurred while setting up the chat socket."));
+		wprintf("</BODY></HTML>\n");
+		wDumpContent(0);
+		return;
+	}
+
+	/** Temporarily swap the serv and chat sockets during chat talk */
+	i = WC->serv_sock;
+	WC->serv_sock = WC->chat_sock;
+	WC->chat_sock = i;
+
+	while (!IsEmptyStr(send_this)) {
+		if (strlen(send_this) < 67) {
+			serv_puts(send_this);
+			strcpy(send_this, "");
+		}
+		else {
+			for (i=55; i<67; ++i) {
+				if (send_this[i] == ' ') break;
+			}
+			strncpy(buf, send_this, i);
+			buf[i] = 0;
+			strcpy(send_this, &send_this[i]);
+			serv_puts(buf);
+		}
+	}
+
+	/** Unswap the sockets. */
+	i = WC->serv_sock;
+	WC->serv_sock = WC->chat_sock;
+	WC->chat_sock = i;
+
+	wprintf("<FORM METHOD=\"POST\" action=\"chat_send\" NAME=\"chatsendform\">\n");
+	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%ld\">\n", WC->nonce);
+	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
+		"NAME=\"send_this\">\n", SIZ-10);
+	wprintf("<br />");
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">\n", _("Send"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"help_button\" VALUE=\"%s\">\n", _("Help"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"list_button\" VALUE=\"%s\">\n", _("List users"));
+	wprintf("<INPUT TYPE=\"submit\" NAME=\"exit_button\" VALUE=\"%s\">\n", _("Exit"));
+	wprintf("</FORM>\n");
+
+	wprintf("</BODY></HTML>\n");
+	wDumpContent(0);
+}
+
+/*@}*/

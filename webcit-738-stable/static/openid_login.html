@@ -1,0 +1,18 @@
+<?=beginbox>
+<?HELLO>
+<div class="login_message"><?MESG></div>
+<form action="openid_login" method="POST"  class="box" id="login_form">
+        <label for="uname"><?OPENID_BOX></label>
+        <input type="text" name="openid_url" id="uname" class="openid_urlarea"> <br>
+        <label for="lname"><?LANGUAGE_BOX></label>
+        <?DO_LANGUAGE_BOX> <br>
+        <div class="logbuttons">
+        <input type="submit" name="login_action" value="<?LOGIN_BUTTON>" class="logbutton">
+        <input type="submit" name="exit_action" value="<?EXIT_BUTTON>"  class="logbutton">
+        <br>
+        </div>
+</form>
+<?OFFER_CONVENTIONAL_LOGIN>
+<div class="login_image"><img src="image&name=hello"></div>
+<div class="login_infos"><?LOGIN_INSTRUCTIONS></div>
+<?=endbox>

@@ -1,0 +1,67 @@
+#! /bin/sh
+# Abort if any command returns an error value
+set -e
+. /usr/share/debconf/confmodule
+
+db_version 2.0
+
+case "$1" in
+  configure)
+	if test ! -d /var/lib/citadel/keys; then
+		mkdir -p /var/lib/citadel/keys
+	fi
+	if test ! -d /var/run/citadel/keys; then
+		mkdir -p /var/run/citadel/keys
+	fi
+
+	db_get citadel/WebcitApacheIntegration &&WWWTYPE="$RET"
+	db_stop
+# Hack: make webcit use gnome icons. roll your own if wanted.
+	if test ! -L /usr/share/citadel-webcit/static/icons; then
+	    ln -sf /usr/share/icons/gnome/24x24/mimetypes  /usr/share/citadel-webcit/static/icons || true
+	fi
+	#DEBHELPER#
+	if test ! -L /usr/share/citadel-webcit/static/; then
+	    if test -d /usr/share/prototypejs; then 
+		ln -sf /usr/share/prototypejs/prototype.js /usr/share/citadel-webcit/static/	
+	    else
+		ln -sf /usr/share/javascript/prototype/prototype.js /usr/share/citadel-webcit/static/	
+	    fi
+	fi
+# update the webserver, if needed
+	case "$WWWTYPE" in
+	    "Apache")
+		webservers="apache" 
+		/usr/sbin/aenmod proxy||true
+		;;
+	    "Apache-SSL")
+		webservers="apache-ssl" 
+		;;
+	    "Apache2")
+		webservers="apache2"
+		/usr/sbin/a2enmod proxy||true
+		/usr/sbin/a2enmod proxy_http||true
+		;;
+	    "All")
+		webservers="apache apache-ssl apache2" 
+		;;
+	    *)
+		webservers="" 
+		;;
+	esac
+	for server in $webservers; do
+	    if [ -d "/etc/${server}/conf.d" ]; then
+		if [ ! -e "/etc/${server}/conf.d/webcit-citadel" ] ; then
+		    ln -sf /etc/citadel/webcit.conf "/etc/${server}/conf.d/webcit.conf"
+                fi
+                invoke-rc.d $server reload || true
+	    fi
+	done
+    ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+  *) echo "$0: didn't understand being called with '$1'" 1>&2
+     exit 1;;
+esac
+
+exit 0

@@ -1,0 +1,23 @@
+<?=beginbox>
+<?HELLO>
+<div class="login_message"><?MESG></div>
+<form action="login" method="POST"  class="box" id="login_form">
+        <label for="uname"><?USERNAME_BOX></label>
+        <input type="text" name="name" id="uname" > <br>
+        <label for="pname"><?PASSWORD_BOX></label>
+        <input type="password" name="pass" id="pname" > <br>
+        <label for="lname"><?LANGUAGE_BOX></label>
+        <?DO_LANGUAGE_BOX> <br>
+        <div class="logbuttons">
+        <input type="submit" name="login_action" value="<?LOGIN_BUTTON>" class="logbutton">
+        <?NEWUSER_BUTTON_PRE>
+        <input type="submit" name="newuser_action" value="<?NEWUSER_BUTTON>" class="logbutton" >
+        <?NEWUSER_BUTTON_POST>
+        <input type="submit" name="exit_action" value="<?EXIT_BUTTON>"  class="logbutton">
+        <br>
+        </div>
+</form>
+<?OFFER_OPENID_LOGIN>
+<div class="login_image"><img src="image&name=hello"></div>
+<div class="login_infos"><?LOGIN_INSTRUCTIONS></div>
+<?=endbox>

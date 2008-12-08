@@ -1,0 +1,1399 @@
+@import url("datepicker.css");
+@media print {
+	input#toggler, .toolbar { display: none }
+}
+
+/* Typography & colors */
+
+html {	font-size: 100%;}
+
+body { font-size: 11pt}
+
+#banner h1 { font-size: 16pt; }
+
+#banner h2,#banner .titlebar, .address_book_popup_title {
+	font-size: 13pt;
+}
+
+#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span {
+	font-size: 10pt;
+}
+
+#wholist li {
+	font-size: 8pt;
+}
+
+/* Color */
+
+body {
+	background-color: #6C91A6;
+	font-family: "Trebuchet MS", "Verdana", "Bitstream Vera Sans", sans-serif;
+	font-weight: 400;
+}
+
+#iconbar, .boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul {
+	background-color: #FFF;
+	color: #000;
+}
+
+#login_form, #message_list_hdr table, #resize_msglist, .message, .message_header, .vcard_edit_background_alt,.roomops_background_alt 
+ {
+	background-color: #CCC;
+}
+
+.box, #wholist li.inactiveuser a {
+	background-color: transparent;
+}
+
+.room_banner .infos {
+	cursor: help;
+}
+
+.login_message {
+	color: #AD1C00;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+#iconbar ul li a, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
+	background-color: #F0FFFF;
+	color: #333;
+}
+
+#iconbar #button {
+	border: none;
+	list-style: none;
+}
+
+#room_infos, #address_book_popup, .mimepart, .room_actions form select {
+	border: 1px solid #333;
+}
+
+
+.buttons a,.roomlist_floor,.tablabel,.treetitle {
+	color: #000;
+	font-weight: 700;
+}
+
+#button li {
+	border: none;
+	border-bottom: 2px groove #CCC;
+	border-right: 2px groove #CCC;
+}
+
+.logo_citadel a,.logo_citadel img {
+	border: none;
+}
+
+.logo,.logo_citadel, #button li.switch {
+	border: none;
+	border-bottom: 1px solid #AAA;
+}
+
+#button li a {
+	color: #000;
+	text-decoration: none;
+}
+
+#wholist li {
+	border: none;
+	border-top: 1px solid #AAA;
+}
+
+#banner h1,#banner h2,.room_banner .nummsgs,.mimepart div,.required {
+	font-weight: 700;
+}
+
+#banner ul.room_actions li.start_page a, #navbar, .selector_top,.selector_bottom {
+	background-color: #022750;
+	color: #FFF;
+}
+
+#banner {
+	background-color: #004E79;
+	color: #FFF
+
+}
+#banner a {
+	color: #FFF
+}
+
+.room_actions form select {
+	cursor: pointer;
+}
+
+#content {
+	background-color: #6C91A6;
+	color: #000;
+}
+
+#message_list_hdr form input {
+	border: 0;
+}
+
+#message_list_hdr select {
+	background-color: #AD1C00;
+	border: 1px solid #6C91A6;
+}
+
+#message_list_hdr table {
+	font-style: italic;
+}
+
+#resize_msglist {
+	background-image: url(/static/resizegrippy.gif);
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+#resize_msglist hr {
+	background-color: #999;
+	border: 0;
+	color: #999;
+	height: 3px;
+}
+
+.message {
+	border: 1px outset #999;
+	clear: both;
+}
+
+.message_header .message_subject {
+	font-style: italic;
+	float: left;	
+}
+
+.adminlist {
+	list-style: none;
+}
+
+.customize {
+	background-color: #DDC;
+	color: #004;
+	font-style: italic;
+}
+
+.default {
+	font-style: normal;
+	text-decoration: underline;
+}
+
+.editednodeinput {
+	background-color: #FFF;
+	border: 1px solid #000;
+	color: #000;
+	height: 17px;
+	width: 150px;
+}
+
+.error a:link, .error a:visited, .error a:active {
+	background: none;
+	color: #DC143C;
+	text-decoration: underline;
+}
+
+.error strong {
+	background: #FFD700;
+	color: #DC143C;
+	text-decoration: none;
+}
+
+.error strong a:link,.error strong a:visited,.error strong a:active {
+	background: #FFD700;
+	color: #DC143C;
+}
+
+.errormsg {
+	background: none;
+	color: #A00;
+	font-style: italic;
+	font-weight: 700;
+}
+
+.floors_config,.roomops_zap {
+	background-color: #700;
+	border: 0;
+}
+
+.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old {
+	cursor: pointer;
+}
+
+.ib_roomlist_floor, .roomlist_new, .ib_roomlist_new {
+	font-weight: 700;
+}
+
+.ib_roomlist_floor {
+	color: #000;
+}
+
+.roomlist_new, .ib_roomlist_new {
+	color: #800;
+}
+
+.roomlist_old, .ib_roomlist_old {
+	color: #008;
+}
+
+.imsg {
+	background: none;
+	color: #AAA;
+	font-style: italic;
+	font-weight: 700;
+}
+
+.menubar_bg {
+	background-color: red;
+}
+
+.mimepart div span {
+	display: block;
+	font-style: italic;
+}
+
+.mimepart dl dd,.mailbox_summary td, .mimepart dl dt {
+	border-top: 1px solid #AAA;
+}
+
+.mimepart dl dt {
+	font-weight: 700;
+}
+
+.roomops_cell_label,.boxlabel,.tab_cell_label {
+	background-color: #FF7814;
+	color: #FFF;
+	font-weight: 700;
+}
+
+.selectbox {
+	background-color: #FF8000;
+}
+
+.tab_cell,.tab_cell_edit {
+	background-color: #CCC;
+	font-weight: 700;
+}
+
+.tabcontent {
+	background-color: #FFF;
+	border-top: 3px solid #FF7814;
+}
+
+.treetitleselectedblured {
+	background-color: menu;
+	color: windowtext;
+}
+
+.treetitleselectedfocused {
+	background-color: highlight;
+	color: highlighttext;
+}
+
+.warning a:link,.warning a:visited,.warning a:active, .warning {
+	background: none;
+	color: #FF4500;
+}
+
+.warning, .warning strong {
+	text-decoration: none;
+}
+
+.warning a:link,.warning a:visited,.warning a:active {
+	text-decoration: underline;
+}
+
+.warning strong {
+	background: #FFD700;
+	color: #FF4500;
+}
+
+.warning strong a:link,.warning strong a:visited,.warning strong a:active {
+	background: #FFD700;
+	color: #FF4500;
+}
+
+blockquote {
+	background-color: #f5f5f5 !important;
+	color: navy !important;
+}
+
+blockquote blockquote {
+	background-color: #ebebeb !important;
+	color: maroon !important;
+}
+
+blockquote blockquote blockquote {
+	background-color: #e1e1e1 !important;
+	color: green !important;
+}
+
+blockquote blockquote blockquote blockquote {
+	background-color: #d7d7d7 !important;
+	color: purple !important;
+}
+
+blockquote blockquote blockquote blockquote blockquote {
+	background-color: #cdcdcd !important;
+	color: teal !important;
+}
+
+blockquote pre {
+	margin-left: 1%;
+	margin-right: 1%;
+}
+
+div.auto_complete ul {
+	background: #fff;
+	border: 1px solid #888;
+	list-style-type: none;
+}
+
+div.auto_complete ul li.selected {
+	background-color: #ffc;
+}
+
+div.auto_complete ul strong.highlight {
+	color: #800;
+}
+
+
+table.altern {
+	border-bottom: solid 2px #AAA;
+	border-top: solid 2px #AAA;
+}
+
+table.altern .even {
+	background-color: #DDD;
+}
+
+td li.frameset,.elements li.frameset {
+	background: none;
+	color: gray;
+	font-weight: lighter;
+}
+
+td li.transitional,.elements li.transitional {
+	background: none;
+	color: #696969;
+	font-weight: lighter;
+}
+
+ul.adminitems {
+	list-style-type: disc;
+	padding: 0;
+}
+
+ul.adminitems li {
+	font-weight: 700;
+}
+
+ul.adminitems li span
+{
+	color: #666;
+}
+
+var sub {
+	font-style: normal;
+}
+
+.calendar {
+	background-color: #204B78;
+}
+
+.day {
+	font-weight: 700;
+}
+
+.calout {
+	background-color: #DDDDDD;
+}
+
+.calday {
+	background-color: #FFFFFF;
+}
+
+.calweekend {
+	background-color: #EEEECC;
+}
+
+
+
+/* Links */
+
+a {	text-decoration: none; }
+
+a:active { color: #AD1C00; }
+
+a:link { color: blue; }
+
+a:visited { color: purple; }
+
+#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover {
+	background-color: #AD1C00;
+	color: #FFF;
+}
+
+
+
+.button_link a, input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	background-color: #fbf4ca;
+}
+
+.button_link a, input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	border: 1px solid #999;
+	color: #333;
+}
+
+
+.button_link a, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	cursor: pointer;
+        -moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	text-align: center;
+}
+
+.button_link a, .attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	font-weight: bold;
+}
+
+.msgbuttons a, input#delbutton {
+	font-weight: normal;
+}
+
+
+/* Layout */
+
+* html {
+	overflow: hidden;
+}
+
+body {
+	height: 100%;
+	overflow: hidden;
+	text-align: center;
+}
+
+body, #global {
+	margin: 0;
+	padding: 0;
+}
+
+#important_message {
+	position: absolute;
+	top: 0; 
+	right: 0;
+	z-index: 2;
+	padding: 3px;
+}
+
+#login_screen, #logout_screen {
+	margin: 0;
+	padding: 3% 6% 3% 6%;
+}
+
+#iconbar, #banner, #content, #message_list_hdr, #message_list, #preview_pane  {
+	text-align: left;
+}
+
+#iconbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 16%;
+}
+
+#banner {
+	position: absolute;
+	top: 0;
+	left: 16%;
+	width: 84%;
+	height: 18%;
+}
+
+#navbar {
+	position: absolute;
+	bottom: 0; 
+	left: 0;
+	width: 100%;
+}
+
+#content {
+	position: absolute;
+	top: 18%;
+	left: 16%;
+	width: 84%;
+	height: 82%;
+	overflow: auto;
+}
+
+#message_list_hdr {
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 5%;
+	overflow: hidden;
+}
+
+#message_list {
+	position: absolute;
+	top: 5%;
+	left: 0;
+	width: 100%;
+	height: 20%;
+	overflow: auto;
+	cursor: pointer;
+}
+
+#resize_msglist {
+	position: absolute;
+	top: 25%;
+	left: 0;
+	width: 100%;
+	height: 1%;
+	overflow: hidden;
+	cursor: s-resize;
+}
+
+#preview_pane {
+	position: absolute;
+	top: 26%;
+	left: 0%;
+	width: 100%;
+	height: 74%;
+	overflow: auto;
+}
+
+.fix_scrollbar_bug {
+	margin-right: 1px;		/* Gecko and other non-broken browsers */
+	width: expression('96%');	/* Only IE6 understands 'expression' - fixes weird scrollbarbug */
+}
+
+
+
+
+/* Boxes */
+
+.box {
+ 	width: 100%;
+ 	padding: 0;
+}
+
+#content .box {
+	margin: 2% auto 0 auto;
+	width: 95%;
+	text-align: center;
+}
+
+.boxlabel, .boxcontent {
+ 	padding: 5px;
+}
+
+.boxlabel {
+ 	text-align: center;
+}
+
+.boxcontent {
+ 	text-align: left;
+}
+
+
+/* Login */
+
+#login_screen .login_message, #login_screen .login_image, .login_hello, #login_screen #login_form {
+	display: block;
+ 	margin: 5px auto 5px auto;
+}
+
+#login_screen .login_message, .login_hello, #global center {
+ 	width: 80%;
+}
+
+#login_screen .login_image {
+        width: 135px;
+}
+
+#login_screen .login_image img {
+        text-align: center;
+}
+
+
+#login_screen #login_form {
+ 	padding: 10px;
+ 	width: 330px;
+}
+
+#login_form input, #login_form label, #login_form select {
+ 	display: block;
+ 	float: left;
+ 	margin: 6pt;
+}
+
+#login_form label, #pname, #uname {
+ 	width: 130px;
+ 	text-align: left;
+}
+
+#login_form br {
+ 	clear: left;
+}
+
+.login_infos {
+ 	display: block;
+ 	margin: 20px auto 0 auto;
+ 	width: 80% ;
+ 	text-align: left;
+}
+
+
+/* Iconbar */
+
+.logo, .logo_citadel, #iconbar #button, #button li.switch, #wholist {
+ 	margin: 0;
+ 	padding: 0;
+}
+
+.logo, .logo_citadel, #button li.switch, #wholist li {
+	text-align: center;
+}
+
+.logo, .logo_citadel {
+ 	display: block;
+}
+
+#iconbar #button {
+	width: 100%;
+}
+
+#button li {
+	margin: 4px 8px 4px 8px;
+	padding: 0;
+}
+
+
+
+#button img {
+	vertical-align: middle;
+	padding-left: 2px;
+	padding-right: 5px;
+	width: 32px;
+	height: 32px;
+	border: none;
+}
+
+#button li a {
+	display: block;
+	width: 100%;
+}
+
+html>body #button li a {
+	width: auto;
+}
+
+#wholist {
+	border: 0;
+	max-height: 200px;
+	overflow: auto;
+}
+
+#wholist li {
+ 	list-style: none;
+ 	margin: 0;
+ 	padding: 2px;
+ 	white-space: nowrap;
+}
+
+
+.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old, .roomlist_floor, .roomlist_new, .roomlist_old {
+	margin: 4px;
+	padding: 0;
+}
+
+/* Banner */
+
+#banner .room_banner {
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+#banner .room_banner img {
+ 	float: left;
+	margin: 0 5px 15px 0;
+}
+
+#banner h1, #banner h2, #banner .room_banner .infos, #banner .room_banner p {
+	margin: 2px;
+ 	padding: 0;
+}
+
+#room_infos {
+ 	position: absolute;
+ 	top: 0;
+ 	left: 50%;
+ 	width: 45%;
+ 	z-index: 10;
+	cursor: pointer;
+ 	text-align: left;
+ 	padding: 10px 2px 2px 2px;
+}
+
+#room_infos img.close_infos {
+	float: right;
+}
+
+#banner ul.room_actions {
+	margin: 0;
+ 	list-style: none;
+	float: right;
+	text-align: right;
+}
+
+#banner ul.room_actions li {
+ 	white-space: nowrap;
+	display: inline;
+}
+
+#banner ul.room_actions li form {
+        margin: 0;
+        padding: 0;
+}
+
+#banner ul.room_actions li select, #banner ul.room_actions li input {
+	margin-top: 8px;
+	margin-right: 4px;
+}
+
+/* Navbar */
+
+#navbar ul, .selector_top, .selector_bottom {
+	width: 100%;
+ 	margin: 0 auto 0 auto;
+	padding: 0;
+ 	white-space: nowrap;
+ 	text-align: center;
+	vertical-align: middle;
+}
+
+#navbar ul li {
+	display: inline;
+	list-style: none;
+	vertical-align: middle;
+}
+
+#navbar ul li a {
+	padding: 2px 8px 8px 8px;
+ 	white-space: nowrap;
+ }
+
+#navbar ul li img {
+	float: none;
+	margin: 0 2px 0 2px;
+}
+ 
+
+/* Content */
+
+.boxcontent table {
+	margin: 0;
+	padding: 0;
+}
+
+#content table .box {
+	margin: 0;
+	width: 100%;
+	text-align: left;
+}
+
+.service, .who_is_online {
+	text-align: center;
+	width: 100%;
+}
+
+.service table {
+	margin: 0 auto 0 auto;
+	width: 100%;
+	text-align: left;
+}
+
+.instructions {
+	text-align: center;
+}
+
+#message_list_hdr table {
+	position: absolute;
+	bottom: 0; 
+	left: 0;
+	width: 100%;	
+}
+
+.selector_top, .selector_bottom {
+ 	text-align: center;
+}
+
+.selector_top p,.selector_bottom p {
+	margin: 0;
+	padding: 2px;
+}
+
+.message {
+	margin: 1%;
+	padding: 0;
+}
+
+.message_header p {
+	margin: 2px 0 2px 0;
+	padding: 0 0 2px 0;
+}
+
+.button_link a, .attachfile, .logbuttons input,.buttons input, .send_edit_msg input, .logbutton {
+	margin: 3px;
+	padding: 2px 4px 2px 4px;
+}
+
+.msgbuttons a, input#delbutton {
+	margin: 0 3px 0 3px;
+	padding: 2px 4px 2px 4px;
+}
+
+
+.mimepart {
+	margin-top: 15px;
+	margin-bottom: 15px;
+	margin-left: 15%;
+	width: 70%;
+	padding: 0;
+}
+
+.mimepart img {
+ 	vertical-align: middle;
+	float: left;
+}
+
+.mimepart div {
+ 	vertical-align: middle;
+	margin: 0 0 15px 0 ;
+	padding: 5px;
+}
+
+.mimepart div span {
+ 	vertical-align: top;
+}
+
+.mimepart dl {
+	width: 100%;
+	margin-left: 5px;
+	padding: 5px;
+}
+
+.mimepart dl dt {
+	width: 30%;
+	float: left;
+	margin: 0 0 0 0;
+	padding: .5em;
+}
+
+/* hack ie5 mac \*/
+dt { clear: both; }
+/* end hack */
+
+.mimepart dl dd {
+	float: left;
+	width: 62%;
+	margin: 0;
+	padding: .5em;
+}
+
+.mimepart p {
+	margin-top: 1em;
+	margin-bottom: 0;
+	clear: both;
+}
+
+.msgbuttons {
+ 	float: right;
+ 	visibility: hidden;
+	padding: 2px;
+}
+
+.buttons a {
+ 	text-align: center;
+}
+
+.msgbuttons a span {
+ 	display: none;
+}
+
+.message_content {
+	margin: 0;
+	padding: 0.3em;
+ 	clear: both;
+}
+
+.message form div label {
+ 	display: block;
+ 	float: left;
+ 	margin: 0.3em;
+ 	width: 9em;
+ 	text-align: right;
+}
+
+.message form div input, .message form div select {
+ 	margin: 0.3em;
+
+}
+
+.imgedit {
+ 	vertical-align: middle;
+}
+
+.send_edit_msg {
+ 	float: right;
+ 	margin-top: 0 ;
+ 	margin-right: 0;
+ 	padding: 2px 50px 2px 50px;
+}
+
+.edit_msg_table th {
+	text-align: right;
+	padding-right: 5px;
+	color: #333;
+	width: 20%;
+}
+
+.edit_msg_table td { 
+	width: 40%;
+}
+
+.edit_msg_table #recp_id, .edit_msg_table #cc_id, .edit_msg_table #bcc_id, .edit_msg_table #subject_id  {
+	width: 98%
+}
+
+.mailbox_summary tr {
+	width: 100%;
+}
+
+.note {
+	font-size: 85%;
+	margin-left: 10%;
+}
+
+.toolbar {
+	text-align: center;
+}
+
+.toolbar img {
+	float: right;
+}
+
+.imsg {
+	text-align: center;
+}
+
+colgroup.entity {
+	text-align: center;
+}
+
+div.auto_complete ul {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+
+div.auto_complete ul li {
+	margin: 0;
+	padding: 3px;
+}
+
+div.auto_complete ul strong.highlight {
+	margin: 0;
+	padding: 0;
+}
+
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, .vcard_edit_background_alt, .roomops_background_alt, .floors_config, .roomops_zap  {
+ width: 100%;
+}
+
+#address_book_popup {
+ 	position: absolute;
+ 	top: 100px;
+ 	right: 25px;
+ 	width: 320px;
+	height: auto;
+ 	z-index: 100;
+	display: none;
+}
+
+#address_book_popup_container_div {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+#address_book_popup_middle_div {
+	position: relative;
+}
+
+#address_book_inner_div {
+	margin: 5px;
+}
+
+#address_book_inner_div select {
+	width: 100%;
+}
+
+#address_book_inner_div input {
+	margin: 4px 5px 0 5px;
+}
+
+.service .edit_col, .service .host_col {
+	display: none;
+}
+
+.who_is_online .edit_col, .who_is_online .host_col {
+	display: block;
+}
+
+
+/* System Administration Menu */
+
+ul.adminitems {
+ 	margin: 15px;
+	padding: 0;
+}
+
+ul.adminitems li {
+ 	margin: 0.5em;
+	padding: 0;
+}
+
+ul.adminitems li span {
+	display: block;
+}
+
+
+/* Room list - Tree Node */
+
+.treetitle, .editednode, .treetitleselectedfocused, .treetitleselectedblured {
+	padding: 2px;
+	cursor: default;
+}
+
+
+table.altern {
+	margin: 0 auto 0 auto;
+	width: 98%
+} 
+
+table.altern tr td {
+	height: 2em;	
+} 
+
+/* Advanced menu */
+
+table.advanced {
+	margin: 0 auto 0 auto;
+	width: 96%;
+	border-collapse: separate;
+	border-spacing: 15px;
+} 
+
+.advanced .boxcontent ul {
+	margin-left: 4em;
+}
+
+.advanced .boxcontent .col1, .advanced .boxcontent .col2 { 
+	float: left;
+	width: 33%;
+}
+
+.advanced .boxcontent .col2, .advanced .boxcontent .lastcol {
+	margin-left: 0;
+	margin-bottom: 4em;
+}
+
+/* Site configuration */
+
+#TheTabs {
+}
+
+.tabs_background {
+	margin-top: 0;
+}
+
+/* Links and buttons */
+
+.logbuttons, .buttons {
+	margin: 2px auto 2px auto;
+	width: 96%;
+	text-align: center;
+}
+
+/* Tabs */
+
+#TheTabs {
+        margin: 3% auto 0 auto;
+        width: 94%;
+}
+
+ul.tabbed_dialog {
+        list-style: none;
+        margin: 3% auto 0 auto;
+        width: 96%;
+        padding: 0;
+        white-space: nowrap;
+        text-align: center;
+        vertical-align: middle;
+}
+
+ul.tabbed_dialog li {
+        margin: 0 3% 0 3%;
+        padding: 4px;
+        float: left;
+}
+
+.tabcontent {
+	margin: 0 auto 0 auto;
+	width: 96%;
+	padding: 10px;
+	clear: both;
+}
+
+.tabcontent_submit {
+        margin: 0 auto 0 auto;
+        width: 50%;
+        padding: 10px;
+        text-align: center;
+}
+
+
+/* Calendar view */
+
+.calendar {
+	background-color: #204B78;
+	margin: 0;
+	width: 100%;
+	height: 302px;
+}
+
+td.events_of_the_day {
+        width: 500px;
+}
+
+.events_of_the_day dl {
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: 0;
+	left:0;
+        width: 500px;
+}
+
+.events_of_the_day dl dt {
+	background-color: #FFFFFF;
+	margin: 0;
+        width: 500px;
+        border: 1px solid #CCC;
+}
+
+.events_of_the_day dl dt.hour {
+	font-size: 16px;
+}
+
+.events_of_the_day dl dt.extrahour {
+	font-size: 8px;
+}
+
+.hour_label, .extra_events dl dt {
+	background-color: #CCCCDD;
+        vertical-align: middle;
+	text-align: left;	
+}
+
+.hour_events, .extra_events {
+	background-color: #FFFFFF;
+        vertical-align: top;
+	text-align: left;	
+}
+
+
+.extra_events ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.extra_events ul li {
+	margin: 4px;
+}
+
+.calday, .calout, .calweekend {
+	width: 14%;
+	height: 60px;
+	text-align: left;
+	vertical-align: top;
+}
+
+.event_framed_unread {
+	filter:alpha(opacity=50);   /* Internet Explorer 6     */
+	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
+	opacity: 0.5;               /* CSS3 draft and Mozilla  */
+	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	border: solid 1px red;
+	background-color: yellow;
+	z-index: 10;
+	padding: 0 4px 0 4px; 
+}
+
+li.event_framed_unread span, a.event_title {
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+        font-size: 11px;     
+}
+
+.event_framed_read {
+	filter:alpha(opacity=50);   /* Internet Explorer 6     */
+	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
+	opacity: 0.5;               /* CSS3 draft and Mozilla  */
+	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	border: solid 1px red;
+	background-color: yellow;
+	z-index: 10;
+	padding: 0 4px 0 4px; 
+}
+
+li.event_framed_read span, a.event_title {
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+        font-size: 11px;     
+}
+
+.event_read {
+}
+
+li.event_read span, a.event_read_title {
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+        font-size: 11px;     
+}
+
+.event_unread {
+}
+
+li.event_unread span, a.event_read_title {
+	filter:alpha(opacity=100); 
+   	-moz-opacity:1.0;         
+   	opacity: 1.0;
+        font-size: 11px;     
+}
+
+.mini_calendar {
+   color: #fff;
+}
+
+.mini_calendar a {
+   color: #fff;
+}
+
+.mini_calendar a:link,.mini_calendar a:visited {
+   color: #fff;
+}
+
+.mini_calendar a:hover,.mini_calendar a:active {
+   color: #fff;
+   background-color: #AD1C00;
+}
+
+.mini_calendar td a {
+   color: #fff;
+}
+
+.mini_calendar td a:link,.mini_calendar td a:visited {
+   color: #fff;
+}
+
+.mini_calendar td a:hover,.mini_calendar td a:active {
+   color: #fff;
+   background-color: #AD1C00;
+
+}
+
+.menudesc {
+	margin: 4px;
+	padding: 4px;
+}
+
+.roompic {
+      height: 48px;
+      width: 48px;
+      border: none;
+}
+#navbar ul li a img {
+      vertical-align: middle;
+      border: none;
+}
+.table-alt-row {
+      background-color: #DDDDDD;
+}
+
+.stickynote_outer {
+	position: absolute;
+	width: 200px;
+	height: 200px;
+	border: 1px solid #333;
+	background-color: #ffff00;
+	overflow: hidden;
+}
+
+.stickynote_titlebar {
+	position: relative;
+	width: 100%;
+	height: 16px;
+	top: 0px;
+	left: 0px;
+	background-color: #888800;
+        font-size: 6px;     
+}
+
+.stickynote_body {
+	position: relative;
+	font-family: "Comic Sans MS", "Verdana", "Bitstream Vera Sans", sans-serif;
+}
+
+.stickynote_resize {
+	position: absolute;
+	background-image: url('resizecorner.png');
+	height: 16px;
+	width: 16px;
+	right: -1px;
+	bottom: -1px;
+}
+
+.stickynote_palette {
+	position: absolute;
+	width: 48px;
+	height: 48px;
+	top: 16px;
+	left: 0px;
+	background-color: #ffffff;
+	border: 1px solid #333;
+	display: none;
+}
+
+.stickynote_palette table {
+	margin: 0;
+	padding: 0;
+}
+
+.stickynote_palette td {
+	width: 16px;
+	height: 16px;
+}
+
+.openid_urlarea {
+	background: url('openid-small.gif') no-repeat scroll 0pt 50%;
+	padding-left: 18px;
+}

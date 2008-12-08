@@ -1,0 +1,124 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+DESTDIR=$(CURDIR)/debian/citadel-webcit
+
+EXTRA_ARGS=
+PROFILE_ARGS=
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling compression"
+
+
+ifneq (,$(findstring compression,$(DEB_BUILD_OPTIONS)))
+	ZLIB_ARGS=--without-zlib
+else
+	ZLIB_ARGS=--with-zlib
+endif
+ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
+	PROFILE_ARGS= --with-gprof
+endif
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0 -ggdb -rdynamic -MD -MP -D TECH_PREVIEW
+	LDFLAGS += -pg 
+	EXTRA_ARGS =  --with-backtrace
+else
+	CFLAGS += -O2
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	CFLAGS="$(CFLAGS)" ./configure \
+		--host=$(DEB_HOST_GNU_TYPE) \
+		--build=$(DEB_BUILD_GNU_TYPE) \
+		--prefix=/usr/sbin/ \
+		--with-wwwdir=/usr/share/citadel-webcit \
+		--with-localedir=/usr/share/ \
+		--with-editordir=/usr/share/tinymce/www \
+		--with-rundir=/var/run/citadel \
+		--with-ical --with-db --with-ldap \
+                --with-ssldir=/etc/ssl/webcit/ \
+		$(ZLIB_ARGS) --with-ssl --with-libiconf \
+		--with-newt --with-included-gettext \
+		--with-datadir=/var/run/citadel \
+		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
+
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+# Add here commands to compile the package.
+	$(MAKE)
+#docbook-to-man debian/webcit.sgml > webcit.1
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+# Add here commands to clean up after the build process.
+	-$(MAKE) clean
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+	$(MAKE) install-bin install-locale install-wwwdata DESTDIR=$(DESTDIR)
+	rm $(DESTDIR)/usr/share/citadel-webcit/static/prototype.js
+#	mkdir -p $(DESTDIR)/etc/citadel; cp webcit.conf $(DESTDIR)/etc/citadel/
+
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
+	dh_install
+#	dh_installmenu
+	dh_installdebconf	
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+	dh_installinit --name=webcit
+#	dh_installcron
+#	dh_installinfo
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_perl
+#	dh_python
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
