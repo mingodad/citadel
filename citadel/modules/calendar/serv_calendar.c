@@ -1777,6 +1777,12 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	icalproperty *summary = NULL;
 	size_t reqsize;
 	icalproperty *p;
+	struct icaltimetype t;
+	const icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
+	int i;
+	const icaltimezone *z;
+	int num_zones_attached = 0;
+	int zone_already_attached;
 
 	if (cal == NULL) {
 		CtdlLogPrintf(CTDL_ERR, "ERROR: trying to reply to NULL event?\n");
@@ -1861,7 +1867,7 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	/* Set the method to REQUEST */
 	icalcomponent_set_method(encaps, ICAL_METHOD_REQUEST);
 
-	/* FIXME: attach time zones here */
+	/* Look for properties containing timezone parameters, to see if we need to attach VTIMEZONEs */
 	for (p = icalcomponent_get_first_property(the_request, ICAL_ANY_PROPERTY);
 	     p != NULL;
 	     p = icalcomponent_get_next_property(the_request, ICAL_ANY_PROPERTY))
@@ -1880,11 +1886,65 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 		  || (icalproperty_isa(p) == ICAL_MINDATE_PROPERTY)
 		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
 		) {
-			CtdlLogPrintf(CTDL_DEBUG, "FIXME: found a property that requires a vtimezone\n");
+			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
+			CtdlLogPrintf(CTDL_DEBUG, "Found an icaltimetype: %s\n",
+				icaltime_as_ical_string(t)
+			);
+
+			/* First see if there's a timezone attached to the data structure itself */
+			z = icaltime_get_timezone(t);
+			if (z) CtdlLogPrintf(CTDL_DEBUG, "Timezone is present in data structure\n");
+
+			/* If not, try to determine the tzid from the parameter using attached zones */
+			if (!z) {
+				z = icalcomponent_get_timezone(top_level_cal,
+					icalparameter_get_tzid(
+						icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
+					)
+				);
+				if (z) CtdlLogPrintf(CTDL_DEBUG, "Timezone was found in attached zones\n");
+			}
+
+			/* Still no good?  Try our internal database */
+			if (!z) {
+				z = icaltimezone_get_builtin_timezone_from_tzid(
+					icalparameter_get_tzid(
+						icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
+					)
+				);
+				if (z) CtdlLogPrintf(CTDL_DEBUG, "Timezone was found in internal db\n");
+			}
+
+			if (z) {
+				CtdlLogPrintf(CTDL_DEBUG, "Have valid timezone, need to attach it.\n");
+
+				zone_already_attached = 0;
+				for (i=0; i<5; ++i) {
+					if (z == attached_zones[i]) {
+						++zone_already_attached;
+						CtdlLogPrintf(CTDL_DEBUG, "zone already attached!!\n");
+					}
+				}
+				if ((!zone_already_attached) && (num_zones_attached < 5)) {
+					CtdlLogPrintf(CTDL_DEBUG, "attach zone %d\n", num_zones_attached);
+					attached_zones[num_zones_attached++] = z;
+				}
+
+				icalproperty_set_parameter(p,
+					icalparameter_new_tzid(icaltimezone_get_tzid(z))
+				);
+			}
 		}
 	}
 
-	/* Here we go: put the VEVENT into the VCALENDAR.  We now no longer
+	/* Encapsulate any timezones we need */
+	if (num_zones_attached > 0) for (i=0; i<num_zones_attached; ++i) {
+		icalcomponent *zc;
+		zc = icalcomponent_new_clone(icaltimezone_get_component((icaltimezone *)attached_zones[i]));
+		icalcomponent_add_component(encaps, zc);
+	}
+
+	/* Here we go: encapsulate the VEVENT into the VCALENDAR.  We now no longer
 	 * are responsible for "the_request"'s memory -- it will be freed
 	 * when we free "encaps".
 	 */
