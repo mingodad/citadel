@@ -1940,7 +1940,7 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	/* Encapsulate any timezones we need */
 	if (num_zones_attached > 0) for (i=0; i<num_zones_attached; ++i) {
 		icalcomponent *zc;
-		zc = icalcomponent_new_clone(icaltimezone_get_component((icaltimezone *)attached_zones[i]));
+		zc = icalcomponent_new_clone(icaltimezone_get_component(attached_zones[i]));
 		icalcomponent_add_component(encaps, zc);
 	}
 
@@ -2388,107 +2388,3 @@ CTDL_MODULE_INIT(calendar)
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }
-
-
-
-
-
-
-
-
-/* FIXME I just saved this down here so I can steal code from it */
-
-#if 0
-
-icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
-	icalcomponent *encaps;
-	icalproperty *p;
-	struct icaltimetype t;
-	const icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
-	int i;
-	const icaltimezone *z;
-	int num_zones_attached = 0;
-	int zone_already_attached;
-
-	if (subcomp == NULL) {
-		lprintf(3, "ERROR: ical_encapsulate_subcomponent() called with NULL argument\n");
-		return NULL;
-	}
-
-	/*
-	 * If we're already looking at a full VCALENDAR component, this is probably an error.
-	 */
-	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
-		lprintf(3, "ERROR: component sent to ical_encapsulate_subcomponent() already top level\n");
-		return subcomp;
-	}
-
-	/* search for... */
-	for (p = icalcomponent_get_first_property(subcomp, ICAL_ANY_PROPERTY);
-	     p != NULL;
-	     p = icalcomponent_get_next_property(subcomp, ICAL_ANY_PROPERTY))
-	{
-		if ( (icalproperty_isa(p) == ICAL_COMPLETED_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_CREATED_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_DATEMAX_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_DATEMIN_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_DTEND_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_DTSTAMP_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_DTSTART_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_DUE_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_EXDATE_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_LASTMODIFIED_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_MAXDATE_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_MINDATE_PROPERTY)
-		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
-		) {
-			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
-			if ((icaltime_is_valid_time(t)) && (z=icaltime_get_timezone(t), z)) {
-			
-				zone_already_attached = 0;
-				for (i=0; i<5; ++i) {
-					if (z == attached_zones[i]) {
-						++zone_already_attached;
-						lprintf(9, "zone already attached!!\n");
-					}
-				}
-				if ((!zone_already_attached) && (num_zones_attached < 5)) {
-					lprintf(9, "attaching zone %d!\n", num_zones_attached);
-					attached_zones[num_zones_attached++] = z;
-				}
-
-				icalproperty_set_parameter(p,
-					icalparameter_new_tzid(icaltimezone_get_tzid((icaltimezone *)z))
-				);
-			}
-		}
-	}
-
-	/* Encapsulate the VEVENT component into a complete VCALENDAR */
-	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
-	if (encaps == NULL) {
-		lprintf(3, "ERROR: ical_encapsulate_subcomponent() could not allocate component\n");
-		return NULL;
-	}
-
-	/* Set the Product ID */
-	icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
-
-	/* Set the Version Number */
-	icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
-
-	/* Attach any timezones we need */
-	if (num_zones_attached > 0) for (i=0; i<num_zones_attached; ++i) {
-		icalcomponent *zc;
-		zc = icalcomponent_new_clone(icaltimezone_get_component((icaltimezone *)attached_zones[i]));
-		icalcomponent_add_component(encaps, zc);
-	}
-
-	/* Encapsulate the subcomponent inside */
-	icalcomponent_add_component(encaps, subcomp);
-
-	/* Return the object we just created. */
-	return(encaps);
-}
-
-#endif
