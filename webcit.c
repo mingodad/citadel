@@ -962,21 +962,21 @@ void display_vcard_photo_img(void)
 void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 {
 	void *vPart;
-	char content_type[256];
-	wc_attachment *part;
+	StrBuf *content_type;
+	wc_mime_attachment *part;
 	
 	if (GetHash(WC->attachments, SKEY(partnum), &vPart) &&
 	    (vPart != NULL)) {
-		part = (wc_attachment*) vPart;
+		part = (wc_mime_attachment*) vPart;
 		if (force_download) {
-			strcpy(content_type, "application/octet-stream");
+			content_type = NewStrBufPlain(HKEY("application/octet-stream"));
 		}
 		else {
-			strncpy(content_type, ChrPtr(part->content_type), sizeof content_type);
+			content_type = NewStrBufDup(part->ContentType);
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
-		StrBufAppendBufPlain(WC->WBuf, part->data, part->length, 0);
-		http_transmit_thing(content_type, 0);
+		StrBufAppendBuf(WC->WBuf, part->Data, 0);
+		http_transmit_thing(ChrPtr(content_type), 0);
 	} else {
 		hprintf("HTTP/1.1 404 %s\n", ChrPtr(partnum));
 		output_headers(0, 0, 0, 0, 0, 0);
@@ -985,6 +985,7 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 			ChrPtr(partnum), ChrPtr(filename));
 		end_burst();
 	}
+	FreeStrBuf(&content_type);
 }
 
 
