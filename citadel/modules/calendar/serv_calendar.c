@@ -52,8 +52,7 @@ icalcomponent *icalcomponent_new_citadel_vcalendar(void) {
 
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
-		CtdlLogPrintf(CTDL_CRIT, "Error at %s:%d - could not allocate component!\n",
-			__FILE__, __LINE__);
+		CtdlLogPrintf(CTDL_CRIT, "ERROR: could not allocate component!\n");
 		return NULL;
 	}
 
@@ -1523,8 +1522,7 @@ void ical_getics(void)
 
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "Error at %s:%d - could not allocate component!\n",
-			__FILE__, __LINE__);
+		CtdlLogPrintf(CTDL_DEBUG, "ERROR: could not allocate component!\n");
 		cprintf("%d Could not allocate memory\n", ERROR+INTERNAL_ERROR);
 		return;
 	}
@@ -1852,8 +1850,7 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "Error at %s:%d - could not allocate component!\n",
-			__FILE__, __LINE__);
+		CtdlLogPrintf(CTDL_DEBUG, "ERROR: could not allocate component!\n");
 		icalcomponent_free(the_request);
 		return;
 	}
