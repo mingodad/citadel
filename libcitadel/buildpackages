@@ -53,7 +53,7 @@ case $1 in
 	    mkdir tmp
 	    cp -rL libcitadel-$LIBCITADEL_VERSION tmp
 	    cd tmp/libcitadel-$LIBCITADEL_VERSION
-	    rm -rf `find -name .svn ` svn*tmp config.log config.status
+	    rm -rf `find -name .svn ` svn*tmp config.log config.status `find -name .libs`
 	    find -type f -exec chmod a-x {} \;
 	    chmod a+x configure
 	    cd ..
@@ -102,7 +102,15 @@ EMAIL=citadel@outgesourced.org
 
 	;;
     sourcedist)
-	cd ..; tar --exclude .svn --exclude "debian/*" -chvzf libcitadel-$LIBCITADEL_VERSION.tar.gz libcitadel-$LIBCITADEL_VERSION/
+	cd ..; tar --exclude .svn \
+	    --exclude "*svn*" \
+	    --exclude .libs \
+	    --exclude "*.lo" \
+	    --exclude "*.d" \
+	    --exclude "debian/*" \
+	    --exclude "sysdep.h" \
+	    \
+	    -chvzf libcitadel-$LIBCITADEL_VERSION.tar.gz libcitadel-$LIBCITADEL_VERSION/
 	;;
 	*)
 		echo "Not yet implemented. we have: debian "
