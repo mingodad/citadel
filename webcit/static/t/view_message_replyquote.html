@@ -6,7 +6,7 @@
       <?!("COND:MAIL:ANON",2)>***<??("X", 2)>
     </span>
     <p class="message_subject"><?MAIL:SUMM:SUBJECT></p>
-  </div>
+  </div><?ITERATE("MAIL:MIME:ATTACH:ATT", "load_attachments")>
   
   <div class="message_content">
   <?MAIL:BODY>    

@@ -6,6 +6,7 @@
  * message index functions
  */
 
+
 void DestroyMimeParts(wc_mime_attachment *Mime)
 {
 	FreeStrBuf(&Mime->Name);
@@ -909,6 +910,31 @@ void tmplput_MIME_Data(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
  /// TODO: check whether we need to load it now?
 }
 
+void tmplput_MIME_LoadData(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	struct wcsession *WCC = WC;	
+	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	wc_mime_attachment *att;
+	
+	if ( (!strcasecmp(ChrPtr(mime->Disposition), "inline"))||
+	     (!strcasecmp(ChrPtr(mime->Disposition), "attachment")) ) 
+	{
+ 		
+ 		int n;
+ 		char N[64];
+ 		/* steal this mime part... */
+ 		att = malloc(sizeof(wc_mime_attachment));
+ 		memcpy(att, mime, sizeof(wc_mime_attachment));
+ 		memset(mime, 0, sizeof(wc_mime_attachment));
+
+ 		if (WCC->attachments == NULL)
+ 			WCC->attachments = NewHash(1, NULL);
+ 		/* And add it to the list. */
+ 		n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
+ 		Put(WCC->attachments, N, n, att, DestroyMime);
+ 	}
+}
+
 void tmplput_MIME_Length(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
@@ -922,20 +948,20 @@ HashList *iterate_get_registered_Attachments(StrBuf *Target, int nArgs, WCTempla
 
 void tmplput_ATT_Length(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	wc_attachment *att = (wc_attachment*) Context;
+	wc_mime_attachment *att = (wc_mime_attachment*) Context;
 	StrBufAppendPrintf(Target, "%ld", att->length);
 }
 
 void tmplput_ATT_Contenttype(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	wc_attachment *att = (wc_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->content_type, 0);
+	wc_mime_attachment *att = (wc_mime_attachment*) Context;
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->ContentType, 0);
 }
 
 void tmplput_ATT_FileName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	wc_attachment *att = (wc_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->filename, 0);
+	wc_mime_attachment *att = (wc_mime_attachment*) Context;
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->FileName, 0);
 }
 
 
@@ -1051,6 +1077,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:MIME:CHARSET", 0, 2, tmplput_MIME_Charset, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:LENGTH", 0, 2, tmplput_MIME_Length, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:DATA", 0, 2, tmplput_MIME_Data, CTX_MIME_ATACH);
+	RegisterNamespace("MAIL:MIME:LOADDATA", 0, 0, tmplput_MIME_LoadData, CTX_MIME_ATACH);
 
 	RegisterIterator("MSG:ATTACHNAMES", 0, NULL, iterate_get_registered_Attachments, 
 			 NULL, NULL, CTX_ATT, CTX_NONE);

@@ -348,7 +348,7 @@ void pullquote_message(long msgnum, int forward_attachments, int include_headers
 	char *attachments = NULL;
 	char *ptr = NULL;
 	int num_attachments = 0;
-	wc_attachment *att;
+	//wc_attachment *att;
 	char m_subject[1024];
 	char from[256];
 	char node[256];
@@ -618,25 +618,25 @@ ENDBODY:
 			lprintf(9, "fwd dispose : %s\n", mime_disposition);
 			lprintf(9, "fwd length  : %d\n", mime_length);
 
-			if ( (!strcasecmp(mime_disposition, "inline"))
-			   || (!strcasecmp(mime_disposition, "attachment")) ) {
+///			if ( (!strcasecmp(mime_disposition, "inline"))
+///			   || (!strcasecmp(mime_disposition, "attachment")) ) {
 		
-				int n;
-				char N[64];
-				/* Create an attachment struct from this mime part... */
-				att = malloc(sizeof(wc_attachment));
-				memset(att, 0, sizeof(wc_attachment));
-				att->length = mime_length;
-				att->content_type = NewStrBufPlain(mime_content_type, -1);
-				att->filename = NewStrBufPlain(mime_filename, -1);
-				att->data = load_mimepart(msgnum, mime_partnum);
-		
-				if (WCC->attachments == NULL)
-					WCC->attachments = NewHash(1, NULL);
-				/* And add it to the list. */
-				n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
-				Put(WCC->attachments, N, n, att, free_attachment);
-			}
+/////				int n;
+/////				char N[64];
+/////				/* Create an attachment struct from this mime part... */
+/////				att = malloc(sizeof(wc_attachment));
+/////				memset(att, 0, sizeof(wc_attachment));
+/////				att->length = mime_length;
+/////				att->content_type = NewStrBufPlain(mime_content_type, -1);
+/////				att->filename = NewStrBufPlain(mime_filename, -1);
+/////				att->data = load_mimepart(msgnum, mime_partnum);
+/////		
+/////				if (WCC->attachments == NULL)
+/////					WCC->attachments = NewHash(1, NULL);
+/////				/* And add it to the list. */
+/////				n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
+/////				Put(WCC->attachments, N, n, att, free_attachment);
+/////			}
 
 		}
 	}
@@ -1355,7 +1355,7 @@ void post_mime_to_server(void) {
 	char alt_boundary[SIZ];
 	int is_multipart = 0;
 	static int seq = 0;
-	wc_attachment *att;
+	wc_mime_attachment *att;
 	char *encoded;
 	size_t encoded_length;
 	size_t encoded_strlen;
@@ -1421,15 +1421,15 @@ void post_mime_to_server(void) {
 		/* Add in the attachments */
 		it = GetNewHashPos(WCC->attachments, 0);
 		while (GetNextHashPos(WCC->attachments, it, &len, &Key, &vAtt)) {
-			att = (wc_attachment*)vAtt;
+			att = (wc_mime_attachment *)vAtt;
 			encoded_length = ((att->length * 150) / 100);
 			encoded = malloc(encoded_length);
 			if (encoded == NULL) break;
-			encoded_strlen = CtdlEncodeBase64(encoded, att->data, att->length, 1);
+			encoded_strlen = CtdlEncodeBase64(encoded, ChrPtr(att->Data), StrLength(att->Data), 1);
 
 			serv_printf("--%s", top_boundary);
-			serv_printf("Content-type: %s", ChrPtr(att->content_type));
-			serv_printf("Content-disposition: attachment; filename=\"%s\"", ChrPtr(att->filename));
+			serv_printf("Content-type: %s", ChrPtr(att->ContentType));
+			serv_printf("Content-disposition: attachment; filename=\"%s\"", ChrPtr(att->FileName));
 			serv_puts("Content-transfer-encoding: base64");
 			serv_puts("");
 			serv_write(encoded, encoded_strlen);
@@ -1461,7 +1461,7 @@ void post_message(void)
 	char buf[1024];
 	StrBuf *encoded_subject = NULL;
 	static long dont_post = (-1L);
-	wc_attachment *att;
+	wc_mime_attachment  *att;
 	int is_anonymous = 0;
 	const StrBuf *display_name = NULL;
 	struct wcsession *WCC = WC;
@@ -1485,38 +1485,39 @@ void post_message(void)
 
 		lprintf(9, "%s:%d: we are uploading %d bytes\n", __FILE__, __LINE__, WCC->upload_length);
 		/** There's an attachment.  Save it to this struct... */
-		att = malloc(sizeof(wc_attachment));
-		memset(att, 0, sizeof(wc_attachment));
+		att = malloc(sizeof(wc_mime_attachment));
+		memset(att, 0, sizeof(wc_mime_attachment ));
 		att->length = WCC->upload_length;
-		att->content_type = NewStrBufPlain(WCC->upload_content_type, -1);
-		att->filename = NewStrBufPlain(WCC->upload_filename, -1);
+		att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
+		att->FileName = NewStrBufPlain(WCC->upload_filename, -1);
 		
 		
 		if (WCC->attachments == NULL)
 			WCC->attachments = NewHash(1, NULL);
 		/* And add it to the list. */
 		n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
-		Put(WCC->attachments, N, n, att, free_attachment);
+		Put(WCC->attachments, N, n, att, DestroyMime);
 
 		/**
 		 * Mozilla sends a simple filename, which is what we want,
 		 * but Satan's Browser sends an entire pathname.  Reduce
 		 * the path to just a filename if we need to.
 		 */
-		pch = strrchr(ChrPtr(att->filename), '/');
+		pch = strrchr(ChrPtr(att->FileName), '/');
 		if (pch != NULL) {
-			StrBufCutLeft(att->filename, pch - ChrPtr(att->filename));
+			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName));
 		}
-		pch = strrchr(ChrPtr(att->filename), '\\');
+		pch = strrchr(ChrPtr(att->FileName), '\\');
 		if (pch != NULL) {
-			StrBufCutLeft(att->filename, pch - ChrPtr(att->filename));
+			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName));
 		}
 
 		/**
 		 * Transfer control of this memory from the upload struct
 		 * to the attachment struct.
 		 */
-		att->data = WCC->upload;
+		att->Data = NewStrBufPlain(WCC->upload, WCC->upload_length);
+		free(WCC->upload);
 		WCC->upload_length = 0;
 		WCC->upload = NULL;
 		display_enter();

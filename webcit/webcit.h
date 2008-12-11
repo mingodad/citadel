@@ -410,17 +410,6 @@ enum {
 	WCS_LONG          /* its an integer */
 };
 
-/*
- * \brief mail attachment ???
- */
-typedef struct _wc_attachment {
-	size_t length;			   /* length of the contenttype */
-	StrBuf *content_type;	   /* the content itself ???*/
-	StrBuf *filename;		   /* the filename hooked to this content ??? */
-	char *data;                /* the data pool; aka this content */
-	long lvalue;               /* if we put a long... */
-} wc_attachment;
-void free_attachment(void *vattach);
 
 
 typedef struct wc_mime_attachment wc_mime_attachment;
@@ -436,9 +425,6 @@ struct wc_mime_attachment {
 	StrBuf *Data;
 	size_t length;			   /* length of the mimeatachment */
 	long size_known;
-	char content_type[SIZ];	   /* the content itself ???*/
-	char filename[SIZ];		   /* the filename hooked to this content ??? */
-	char *data;                /* the data pool; aka this content */
 	long lvalue;               /* if we put a long... */
 	long msgnum;		/**< the message number on the citadel server derived from message_summary */
 	RenderMimeFunc Renderer;

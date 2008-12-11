@@ -19,17 +19,6 @@ struct wcsession *SessionList = NULL; /**< our sessions ????*/
 pthread_key_t MyConKey;         /**< TSD key for MySession() */
 
 
-/*
- * free the memory used for viewing atachments
- */
-void free_attachment(void *vattach) {
-	wc_attachment *att = (wc_attachment*) vattach;
-	FreeStrBuf(&att->content_type);
-	FreeStrBuf(&att->filename);
-	free(att->data);
-	free(att);
-}
-
 
 void DestroySession(struct wcsession **sessions_to_kill)
 {
