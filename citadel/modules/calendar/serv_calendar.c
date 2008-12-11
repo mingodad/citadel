@@ -1776,9 +1776,9 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	size_t reqsize;
 	icalproperty *p;
 	struct icaltimetype t;
-	const icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
+	icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
 	int i;
-	const icaltimezone *z;
+	icaltimezone *z;
 	int num_zones_attached = 0;
 	int zone_already_attached;
 
@@ -1889,7 +1889,12 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 			);
 
 			/* First see if there's a timezone attached to the data structure itself */
-			z = icaltime_get_timezone(t);
+			if (icaltime_is_utc(t)) {
+				z = icaltimezone_get_utc_timezone();
+			}
+			else {
+				z = icaltime_get_timezone(t);
+			}
 			if (z) CtdlLogPrintf(CTDL_DEBUG, "Timezone is present in data structure\n");
 
 			/* If not, try to determine the tzid from the parameter using attached zones */
