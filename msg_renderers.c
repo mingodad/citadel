@@ -927,6 +927,9 @@ void tmplput_MIME_LoadData(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, v
  		memcpy(att, mime, sizeof(wc_mime_attachment));
  		memset(mime, 0, sizeof(wc_mime_attachment));
 
+		if (att->Data == NULL) 
+			MimeLoadData(att);
+
  		if (WCC->attachments == NULL)
  			WCC->attachments = NewHash(1, NULL);
  		/* And add it to the list. */
