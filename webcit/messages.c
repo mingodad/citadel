@@ -1591,7 +1591,7 @@ void post_message(void)
 			     ChrPtr(references));
 		FreeStrBuf(&references);
 
-		lprintf(9, "%s\n", CmdBuf);
+		lprintf(9, "%s\n", ChrPtr(CmdBuf));
 		serv_puts(ChrPtr(CmdBuf));
 		serv_getln(buf, sizeof buf);
 		FreeStrBuf(&CmdBuf);
