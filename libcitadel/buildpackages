@@ -106,6 +106,7 @@ EMAIL=citadel@outgesourced.org
 	    --exclude "*svn*" \
 	    --exclude .libs \
 	    --exclude "*.lo" \
+	    --exclude "*.o" \
 	    --exclude "*.d" \
 	    --exclude "debian/*" \
 	    --exclude "sysdep.h" \
