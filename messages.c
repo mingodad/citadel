@@ -718,7 +718,12 @@ void readloop(long oper)
 	int care_for_empty_list = 0;
 	int load_seen = 0;
 	int sortit = 0;
-
+	// NEW SUMMARY VIEW: break here
+	is_summary = (ibstr("is_summary") ||WCC->wc_view == VIEW_MAILBOX);
+	if (is_summary) {
+	  new_summary_view();
+	  return;
+	}
 	switch (WCC->wc_view) {
 	case VIEW_WIKI:
 		sprintf(buf, "wiki?room=%s&page=home", WCC->wc_roomname);
@@ -1555,10 +1560,84 @@ void h_readfwd(void) { readloop(readfwd);}
 void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
 
+void jsonMessageList(void) {
+  HashPos *at;
+  void *vMsg;
+  message_summary *Msg;
+  long HKLen;
+  const char *HashKey;
+  struct wcsession *WCC = WC;
+  char * room = bstr("room");
+  gotoroom(room); // force goto just to be sure
+  // Send as our own (application/json) content type
+  hprintf("HTTP/1.1 200 OK\n");
+  hprintf("Content-type: application/json; charset=utf-8\r\n");
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, serv_info.serv_software);
+  hprintf("Connection: close\r\n");
+  hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
+  begin_burst();
+  int count = load_msg_ptrs("MSGS ALL|||1", 1);
+  getseen();
+  int printed = 0;
+  at = GetNewHashPos(WCC->summ, 0);
+  wprintf("[");
+  while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+    Msg = (message_summary*) vMsg;
+    // Sanitize output
+    StrBuf *fromBuffer = NewStrBufPlain(NULL, StrLength(Msg->from));
+    StrEscAppend(fromBuffer, Msg->from, NULL, 0,1);
+    char *from = ChrPtr(fromBuffer);
+    StrBuf *subjBuffer = NewStrBufPlain(NULL, StrLength(Msg->subj));
+    StrEscAppend(subjBuffer, Msg->subj, NULL, 0,1);
+     char *subj = ChrPtr(subjBuffer);
+    wprintf("[%lu,\"%s\",\"%s\",%d,",Msg->msgnum, subj, from, (time_t)Msg->date);
+    (Msg->is_new) ? (wprintf("true]")) : (wprintf("false]"));
+    if (printed != (count-1)) {
+      wprintf(",");
+    }
+    wprintf("");
+    printed++;
+  }
+  wprintf("]\r\n");
+  end_burst();
+}
+// Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :)
+void new_summary_view(void) {
+  output_headers(1,1,1,0,0,1);
+  begin_burst();
+  DoTemplate(HKEY("msg_listview"),NULL,NULL,CTX_NONE);
+  DoTemplate(HKEY("trailing"),NULL,NULL,CTX_NONE);
+  end_burst();
+}
 
-
-
-
+void getseen() {
+  char old_msgs[SIZ];
+  char buf[SIZ];
+  HashPos *at;
+  long HKLen;
+  struct wcsession *WCC = WC;
+  message_summary *Msg;
+  const char *HashKey;
+	void *vMsg;
+	strcpy(old_msgs, "");
+	serv_puts("GTSN");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+		strcpy(old_msgs, &buf[4]);
+	}
+	at = GetNewHashPos(WCC->summ, 0);
+	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+		/** Are you a new message, or an old message? */
+		Msg = (message_summary*) vMsg;
+		if (is_msg_in_mset(old_msgs, Msg->msgnum)) {
+			Msg->is_new = 0;
+		}
+		else {
+			Msg->is_new = 1;
+		}
+	}
+	DeleteHashPos(&at);
+}
 
 void 
 InitModule_MSG
@@ -1579,6 +1658,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);
 
-
+	// json
+	WebcitAddUrlHandler(HKEY("roommsgs"), jsonMessageList,0);
 	return ;
 }

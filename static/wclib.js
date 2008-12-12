@@ -14,7 +14,6 @@ if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko"
 }
-
 var ns6=document.getElementById&&!document.all;
 Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
@@ -22,7 +21,27 @@ function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
 }
 
-
+function emptyElement(element) {
+  childNodes = element.childNodes;
+  for(var i=0; i<childNodes.length; i++) {
+    element.removeChild(childNodes[i]);
+  }
+}
+/** Implements superior internet explorer 'extract all child text from element' feature'. Falls back on buggy, patent violating standardized method */
+function getTextContent(element) {
+  if (element.textContent == undefined) {
+    return element.innerText;
+  }
+  return element.textContent;
+}
+/** Same reasons as above */
+function setTextContent(element, textContent) {
+  if(element.textContent == undefined) {
+    element.innerText = textContent;
+  } else {
+  element.textContent = textContent;
+  }
+}
 
 // We love string tokenizers.
 function extract_token(source_string, token_num, delimiter) {
@@ -46,8 +65,32 @@ function extract_token(source_string, token_num, delimiter) {
 	return extracted_string;
 }
 
-
-
+function CtdlSpawnContextMenu(event, source) {
+  // remove any existing menus
+  disintergrateContextMenus(null);
+  var x = event.clientX-10; // cut a few pixels out so our mouseout works right
+  var y = event.clientY-10;
+  var contextDIV = document.createElement("div");
+  contextDIV.setAttribute("id", "ctdlContextMenu");
+  document.body.appendChild(contextDIV);
+  var sourceChildren = source.childNodes;
+  for(var j=0; j<sourceChildren.length; j++) {
+    contextDIV.appendChild(sourceChildren[j].cloneNode(true));
+  }
+  var leftRule = "left: "+x+"px;";
+  contextDIV.setAttribute("style", leftRule);
+  contextDIV.setAttribute("actual", leftRule);
+  contextDIV.style.top = y+"px";
+  contextDIV.style.display = "block";
+  $(contextDIV).observe('mouseout',disintergrateContextMenus);
+}
+function disintergrateContextMenus(event) {
+  var contextMenu = document.getElementById("ctdlContextMenu");
+  if (contextMenu) {
+    contextMenu.parentNode.removeChild(contextMenu);
+  }
+  Event.stopObserving(document,'click',disintergrateContextMenus);
+}
 // This code handles the popups for important-messages.
 function hide_imsg_popup() {
 	if (browserType == "gecko" )
@@ -67,7 +110,6 @@ function activate_entmsg_autocompleters() {
 	new Ajax.Autocompleter('bcc_id', 'bcc_name_choices', 'bcc_autocomplete', {} );
 	new Ajax.Autocompleter('recp_id', 'recp_name_choices', 'recp_autocomplete', {} );
 }
-
 
 
 // Toggle the icon bar between menu/roomlist...
@@ -647,26 +689,14 @@ function DeleteStickyNote(evt, uid, confirmation_prompt) {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // These functions handle drag and drop message moving
 
 var mm_div = null;
 
-function CtdlMoveMsgMouseDown(evt, msgnum) {
-
+function CtdlMoveMsgMouseDown(evt) {
+  var target = evt.target;
+  var targetId = target.parentNode.id;
+  var msgnum = parseInt(targetId.replace("m",""));
 	// do the highlight first
 	CtdlSingleClickMsg(evt, msgnum);
 
@@ -791,67 +821,6 @@ function ctdl_ts_getInnerText(el) {
 }
 
 
-function CtdlShowRaw(msgnum) {
-var customnav = document.createElement("span");
-var mode_citadel = document.createElement("a");
-mode_citadel.appendChild(document.createTextNode("Citadel Source"));
-var mode_rfc822 = document.createElement("a");
-mode_rfc822.appendChild(document.createTextNode(" RFC822 Source"));
-mode_citadel.setAttribute("href","#");
-mode_rfc822.setAttribute("href","#");
-mode_rfc822.setAttribute("onclick","rawSwitch822('" + msgnum + "');");
-mode_citadel.setAttribute("onclick","rawSwitchCitadel('" + msgnum + "');");
-customnav.appendChild(mode_citadel);
-customnav.appendChild(mode_rfc822);
-customnav.setAttribute("class","floatcustomnav");
-floatwindow("headerscreen","pre",customnav);
-rawSwitch822(msgnum);
-}
-
-function rawSwitch822(msgnum) {
-CtdlLoadScreen("headerscreen");
-new Ajax.Updater("headerscreen", 
-'ajax_servcmd_esc',
- { method: 'post',parameters: 'g_cmd=MSG2 ' +msgnum  } );
-
-}
-
-function rawSwitchCitadel(msgnum) {
-CtdlLoadScreen("headerscreen");
-new Ajax.Updater("headerscreen", 
-'ajax_servcmd_esc',
- { method: 'post',parameters: 'g_cmd=MSG0 ' +msgnum  } );
-
-}
-
-function floatwindow(newdivid,contentelementtype,customnav) {
-var windiv = document.createElement("div");
-windiv.setAttribute("class","floatwindow");
-var winid = newdivid+"_window";
-windiv.setAttribute("id",winid);
-var nav = document.createElement("div");
-if (customnav != null) {
-nav.appendChild(customnav);
-}
-var minimizeA = document.createElement("a");
-var minimizeButton = document.createTextNode("Close");
-minimizeA.appendChild(minimizeButton);
-minimizeA.setAttribute("onclick","killFloatWindow(this);");
-minimizeA.setAttribute("href","#");
-nav.appendChild(minimizeA);
-nav.setAttribute("class","floatnav");
-windiv.appendChild(nav);
-var contentarea = document.createElement("pre");
-contentarea.setAttribute("class","floatcontent");
-contentarea.setAttribute("id",newdivid);
-windiv.appendChild(contentarea);
-document.body.appendChild(windiv);
-}
-function killFloatWindow(caller) {
-var span = caller.parentNode;
-var fwindow = span.parentNode;
-fwindow.parentNode.removeChild(fwindow);
-}
 // Place a gradient loadscreen on an element, e.g to use before Ajax.updater
 function CtdlLoadScreen(elementid) {
 var elem = document.getElementById(elementid);
@@ -917,9 +886,9 @@ function HandleRSVP(question_divname, title_divname, msgnum, cal_partnum, sc) {
 	new Ajax.Updater(title_divname, 'handle_rsvp', { method: 'post', parameters: p } );
 	Effect.Fade(question_divname, { duration: 0.5 });
 }
-var fakeMouse = document.createEvent("MouseEvents");
-fakeMouse.initMouseEvent("click", true, true, window, 
-	0,0,0,0,0, false, false, false, false, 0, null);
+/* var fakeMouse = document.createEvent("MouseEvents");
+ fakeMouse.initMouseEvent("click", true, true, window, 
+   0,0,0,0,0, false, false, false, false, 0, null); */
 // TODO: Collapse into one function
 function toggleTaskDtStart(event) {
 	var checkBox = $('nodtstart');
@@ -1065,3 +1034,4 @@ function RecurrenceShowHide() {
 	}
 
 }
+
