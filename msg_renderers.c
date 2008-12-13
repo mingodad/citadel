@@ -206,16 +206,6 @@ void examine_from(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	Msg->from = NewStrBufPlain(NULL, StrLength(HdrLine));
 	StrBuf_RFC822_to_Utf8(Msg->from, HdrLine, WC->DefaultCharset, FoundCharset);
 }
-HashList *iterate_get_mailsumm_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-  struct wcsession *WCC = WC;
-  return WCC->summ;
-}
-int Conditional_last_hash(WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-  struct wcsession *WCC = WC;
-  return WCC->is_last_hash;
-}
 void tmplput_MAIL_SUMM_FROM(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	message_summary *Msg = (message_summary*) Context;
@@ -366,6 +356,10 @@ void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, int nArgs, WCTemplateToken *Token
 }
 
 
+HashList *iterate_get_mailsumm_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	return WC->summ;
+}
 
 void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -376,13 +370,6 @@ void tmplput_MAIL_SUMM_DATE_STR(StrBuf *Target, int nArgs, WCTemplateToken *Toke
 	char datebuf[64];
 	message_summary *Msg = (message_summary*) Context;
 	webcit_fmt_date(datebuf, Msg->date, 1);
-	StrBufAppendBufPlain(Target, datebuf, -1, 0);
-}
-void tmplput_MAIL_SUMM_DATE(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	char datebuf[64];
-	message_summary *Msg = (message_summary*) Context;
-	sprintf(datebuf, "%d", (time_t)Msg->date);
 	StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
 void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -966,24 +953,6 @@ HashList *iterate_get_registered_Attachments(StrBuf *Target, int nArgs, WCTempla
 	return WC->attachments;
 }
 
-void tmplput_ATT_Length(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	wc_mime_attachment *att = (wc_mime_attachment*) Context;
-	StrBufAppendPrintf(Target, "%ld", att->length);
-}
-
-void tmplput_ATT_Contenttype(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	wc_mime_attachment *att = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->ContentType, 0);
-}
-
-void tmplput_ATT_FileName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	wc_mime_attachment *att = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->FileName, 0);
-}
-
 void servcmd_do_search(char *buf, long bufsize)
 {
 	snprintf(buf, bufsize, "MSGS SEARCH|%s", bstr("query"));
@@ -1046,10 +1015,10 @@ InitModule_MSGRENDERERS
 			 summcmp_rsender,
 			 CTX_MAILSUM);
 
-	RegisterIterator("MAIL::SUMM::MSGS", 0, NULL, iterate_get_mailsumm_All,
+	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
 			 NULL,NULL, CTX_MAILSUM, CTX_NONE);
+
 	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
-	RegisterNamespace("MAIL:SUMM:DATE", 0, 0, tmplput_MAIL_SUMM_DATE,CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:N",       0, 0, tmplput_MAIL_SUMM_N,        CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:FROM",    0, 2, tmplput_MAIL_SUMM_FROM,     CTX_MAILSUM);
@@ -1066,12 +1035,8 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:INREPLYTO", 0, 2, tmplput_MAIL_SUMM_INREPLYTO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  CTX_NONE);
-	RegisterNamespace("ATT:SIZE", 0, 1, tmplput_ATT_Length, CTX_ATT);
-	RegisterNamespace("ATT:TYPE", 0, 1, tmplput_ATT_Contenttype, CTX_ATT);
-	RegisterNamespace("ATT:FILENAME", 0, 1, tmplput_ATT_FileName, CTX_ATT);
 
-	RegisterConditional(HKEY("COND:LASTHASH"), 0, Conditional_last_hash, CTX_NONE);
-	RegisterConditional(HKEY("MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
@@ -1090,6 +1055,7 @@ InitModule_MSGRENDERERS
 			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH:ATT", 0, NULL, iterate_get_mime_Attachments, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+
 	RegisterNamespace("MAIL:MIME:NAME", 0, 2, tmplput_MIME_Name, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:FILENAME", 0, 2, tmplput_MIME_FileName, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:PARTNUM", 0, 2, tmplput_MIME_PartNum, CTX_MIME_ATACH);
@@ -1102,7 +1068,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:MIME:LOADDATA", 0, 0, tmplput_MIME_LoadData, CTX_MIME_ATACH);
 
 	RegisterIterator("MSG:ATTACHNAMES", 0, NULL, iterate_get_registered_Attachments, 
-			 NULL, NULL, CTX_ATT, CTX_NONE);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE);
 
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard);

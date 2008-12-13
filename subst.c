@@ -650,7 +650,9 @@ void StrBufAppendTemplate(StrBuf *Target,
         struct wcsession *WCC;
 	StrBuf *Buf;
 	char EscapeAs = ' ';
-
+	if (StrLength(Source) <= 1) {
+	  return; // lame workaround for \0's appearing in our output from empty buf's
+	}
 	if ((FormatTypeIndex < Tokens->nParameters) &&
 	    (Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
 	    (Tokens->Params[FormatTypeIndex]->len == 1)) {
@@ -1189,6 +1191,8 @@ void InitTemplateCache(void)
  */
 int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int state, int ContextType)
 {
+	const char *AppendMe;
+	long AppendMeLen;
 	HashHandler *Handler;
 	void *vVar;
 // much output, since pName is not terminated...
@@ -1206,16 +1210,20 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, vo
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
 		if (Tokens->nParameters >= 6) {
-			if (EvaluateConditional(Target, Tokens, pTmpl, Context, 0, state, ContextType))
+			if (EvaluateConditional(Target, Tokens, pTmpl, Context, 0, state, ContextType)) {
+				GetTemplateTokenString(Tokens, 5, &AppendMe, &AppendMeLen);
 				StrBufAppendBufPlain(Target, 
-						     Tokens->Params[5]->Start,
-						     Tokens->Params[5]->len,
+						     AppendMe, 
+						     AppendMeLen,
 						     0);
-			else
+			}
+			else{
+				GetTemplateTokenString(Tokens, 4, &AppendMe, &AppendMeLen);
 				StrBufAppendBufPlain(Target, 
-						     Tokens->Params[4]->Start,
-						     Tokens->Params[4]->len,
+						     AppendMe, 
+						     AppendMeLen,
 						     0);
+			}
 		}
 		else  {
 			lprintf(1, "Conditional [%s] (in '%s' line %ld); needs at least 6 Params![%s]\n", 
@@ -1477,6 +1485,8 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	HashIterator *It;
 	HashList *List;
 	HashPos  *it;
+	int nMembersUsed;
+	int nMembersCounted = 0;
 	long len; 
 	const char *Key;
 	void *vContext;
@@ -1555,15 +1565,16 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	else
 		List = It->StaticList;
 
+	nMembersUsed = GetCount(List);
 	SubBuf = NewStrBuf();
 	it = GetNewHashPos(List, 0);
-	int nMembersUsed = GetCount(List);
-	int nMembersCounted = 0;
 	WC->is_last_hash = 0;
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
 		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", 
 			 (oddeven) ? "odd" : "even");
 		svprintf(HKEY("ITERATE:KEY"), WCS_STRING, "%s", Key);
+		svputlong("ITERATE:N", nMembersCounted);
+		svputlong("ITERATE:LASTN", ++nMembersCounted == nMembersUsed);
 
 		if (It->DoSubTemplate != NULL)
 			It->DoSubTemplate(SubBuf, vContext, Tokens);
@@ -1575,10 +1586,6 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		StrBufAppendBuf(Target, SubBuf, 0);
 		FlushStrBuf(SubBuf);
 		oddeven = ~ oddeven;
-		nMembersCounted++;
-		if (nMembersCounted == (nMembersUsed-1)) {
-		  WC->is_last_hash = 1;
-		}
 	}
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);

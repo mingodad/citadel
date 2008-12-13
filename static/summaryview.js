@@ -46,7 +46,7 @@ function createMessageView() {
 }
 function loadMessages(transport) {
   var msgs = eval(transport.responseText);
-  if (!msgs) {
+  if (!!msgs && transport.responseText.length < 2) {
     alert("Message loading failed");
   }
   var length = msgs.length;

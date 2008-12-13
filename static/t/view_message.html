@@ -6,8 +6,8 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
  <span><?MAIL:SUMM:DATESTR></span>
  <?_("from ")>
  <??("COND:MAIL:ANON",1)>
-<?!("MAIL:SUMM:RFCA", 2)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>"&lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
-<??("MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> @ <?SERV:NODENAME><??("X", 3)>
+<?!("COND:MAIL:SUMM:RFCA", 2)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>"&lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
+<??("COND:MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> @ <?SERV:NODENAME><??("X", 3)>
 <??("X", 1)>
  <?!("COND:MAIL:ANON", 4)>***<??("X", 4)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">

@@ -1564,14 +1564,14 @@ void jsonMessageList(void) {
   char * room = bstr("room");
   gotoroom(room); // force goto just to be sure
   // Send as our own (application/json) content type
-  hprintf("HTTP/1.1 200 OK\n");
+  load_msg_ptrs("MSGS ALL|||1", 1);
+  getseen();
+  hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: application/json; charset=utf-8\r\n");
   hprintf("Server: %s / %s\r\n", PACKAGE_STRING, serv_info.serv_software);
   hprintf("Connection: close\r\n");
   hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
   begin_burst();
-  load_msg_ptrs("MSGS ALL|||1", 1);
-  getseen();
   DoTemplate(HKEY("mailsummary_json"),NULL,NULL, CTX_MAILSUM);
   end_burst(); 
 }
