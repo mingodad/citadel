@@ -1189,6 +1189,8 @@ void InitTemplateCache(void)
  */
 int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int state, int ContextType)
 {
+	const char *AppendMe;
+	long AppendMeLen;
 	HashHandler *Handler;
 	void *vVar;
 // much output, since pName is not terminated...
@@ -1206,16 +1208,20 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, vo
 		break;
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
 		if (Tokens->nParameters >= 6) {
-			if (EvaluateConditional(Target, Tokens, pTmpl, Context, 0, state, ContextType))
+			if (EvaluateConditional(Target, Tokens, pTmpl, Context, 0, state, ContextType)) {
+				GetTemplateTokenString(Tokens, 5, &AppendMe, &AppendMeLen);
 				StrBufAppendBufPlain(Target, 
-						     Tokens->Params[5]->Start,
-						     Tokens->Params[5]->len,
+						     AppendMe, 
+						     AppendMeLen,
 						     0);
-			else
+			}
+			else{
+				GetTemplateTokenString(Tokens, 4, &AppendMe, &AppendMeLen);
 				StrBufAppendBufPlain(Target, 
-						     Tokens->Params[4]->Start,
-						     Tokens->Params[4]->len,
+						     AppendMe, 
+						     AppendMeLen,
 						     0);
+			}
 		}
 		else  {
 			lprintf(1, "Conditional [%s] (in '%s' line %ld); needs at least 6 Params![%s]\n", 
