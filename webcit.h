@@ -319,7 +319,6 @@ typedef struct _wcsubst {
 #define CTX_USERLIST 8
 #define CTX_MAILSUM 9
 #define CTX_MIME_ATACH 10
-#define CTX_ATT 11
 #define CTX_STRBUF 12
 #define CTX_LONGVECTOR 13
 
