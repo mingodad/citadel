@@ -149,6 +149,7 @@ fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
+AC_SUBST(LIBS)
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_CHECK_FUNCS(memmove bcopy)

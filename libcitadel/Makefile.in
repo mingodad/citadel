@@ -24,6 +24,7 @@ top_builddir = .
 pkgconfig_DATA = libcitadel.pc
 pkgconfigdir = $(libdir)/pkgconfig
 
+
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
@@ -85,7 +86,7 @@ CXX = @CXX@
 LIBTOOL = @LIBTOOL@
 
 INCLUDES = -I$(srcdir)/lib -I.
-LDFLAGS = @LDFLAGS@
+LDFLAGS = @LDFLAGS@ @LIBS@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 CXXFLAGS = @CXXFLAGS@
