@@ -10,11 +10,16 @@ DEB_HOST_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 CFLAGS = -Wall -g
-
+LDFALGS = 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb -rdynamic -MD -MP -D DEBUG -D VALGRIND
 else
 	CFLAGS += -O2
+endif
+
+ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -pg
+	LDFLAGS += -pg
 endif
 
 build: build-stamp
@@ -22,7 +27,7 @@ build-stamp:
 	dh_testdir
 
 # ./configure
-	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
+	CFLAGS="$(CFLAGS)"; LDFLAGS="$(LDFLAGS)";  ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 		--prefix=/usr
 
 # Build libcitadel

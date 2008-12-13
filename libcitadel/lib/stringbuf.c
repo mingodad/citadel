@@ -807,20 +807,22 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 	const char *s, *e;		//* source * /
 	int len = 0;			//* running total length of extracted string * /
 	int current_token = 0;		//* token currently being processed * /
+	 
+	if (dest != NULL) {
+		dest->buf[0] = '\0';
+		dest->BufUsed = 0;
+	}
+	else
+		return(-1);
 
 	if ((Source == NULL) || (Source->BufUsed ==0)) {
 		return(-1);
 	}
 	s = Source->buf;
 	e = s + Source->BufUsed;
-	if (dest == NULL) {
-		return(-1);
-	}
 
 	//cit_backtrace();
 	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
-	dest->buf[0] = '\0';
-	dest->BufUsed = 0;
 
 	while ((s<e) && !IsEmptyStr(s)) {
 		if (*s == separator) {
