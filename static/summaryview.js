@@ -26,7 +26,9 @@ function createMessageView() {
   new Ajax.Request("roommsgs", {
     method: 'get',
 	onSuccess: loadMessages,
-	parameters: {'room':roomName}
+	parameters: {'room':roomName},
+	sanitize: false,
+	evalJSON: false
 	});
   mlh_date = $("mlh_date");
   mlh_subject = $('mlh_subject');
@@ -40,11 +42,10 @@ function createMessageView() {
   $(message_view).observe('mouseup',mouseUpHandler);
   }
   $(document).observe('keyup',CtdlMessageListKeyUp,false);
-  window.oncontextmenu = function() { return false; };
-  
+  window.oncontextmenu = function() { return false; };  
 }
 function loadMessages(transport) {
-  var msgs = transport.responseText.evalJSON();
+  var msgs = eval(transport.responseText);
   if (!msgs) {
     alert("Message loading failed");
   }
