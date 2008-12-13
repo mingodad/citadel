@@ -220,7 +220,6 @@ AC_ARG_WITH(ssl,
 )
 AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
-AC_ARG_WITH(with_zlib, [  --with-zlib             use zlib compression if present])
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 AC_ARG_WITH(with_libdspam, [  --with-libdspam         use libdspam mail spam scanning library])
 
@@ -467,19 +466,6 @@ if test "$check_pthread" != no; then
 fi
 
 test -d /usr/kerberos/include && CPPFLAGS="$CPPFLAGS -I/usr/kerberos/include"
-
-dnl Checks for the zlib compression library.
-if test "x$with_zlib" != xno ; then
-	AC_CHECK_HEADERS(zlib.h,
-		[AC_CHECK_LIB(z, zlibVersion,
-			[ok_zlib=yes],,
-	)])
-fi
-
-if test "x$ok_zlib" = xyes ; then
-	LDFLAGS="-lz $LDFLAGS"
-	AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
-fi
 
 dnl Checks for the libical iCalendar library.
 AC_CHECK_HEADER(libical/ical.h,
@@ -980,7 +966,6 @@ if test -z "$DATABASE"; then
 fi
 
 echo ------------------------------------------------------------------------
-echo 'zlib compression:                ' $ok_zlib
 echo 'LDAP support:                    ' $ok_ldap
 echo 'Character set conversion support:' $ok_iconv
 echo 'DSpam Scanning support:          ' $ok_libdspam
