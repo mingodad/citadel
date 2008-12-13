@@ -1477,6 +1477,8 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	HashIterator *It;
 	HashList *List;
 	HashPos  *it;
+	int nMembersUsed;
+	int nMembersCounted = 0;
 	long len; 
 	const char *Key;
 	void *vContext;
@@ -1555,12 +1557,15 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	else
 		List = It->StaticList;
 
+	nMembersUsed = GetCount(List);
 	SubBuf = NewStrBuf();
 	it = GetNewHashPos(List, 0);
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
 		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", 
 			 (oddeven) ? "odd" : "even");
 		svprintf(HKEY("ITERATE:KEY"), WCS_STRING, "%s", Key);
+		svputlong("ITERATE:N", nMembersCounted);
+		svputlong("ITERATE:LASTN", ++nMembersCounted == nMembersUsed);
 
 		if (It->DoSubTemplate != NULL)
 			It->DoSubTemplate(SubBuf, vContext, Tokens);
