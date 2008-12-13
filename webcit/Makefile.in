@@ -51,7 +51,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	groupdav_options.o autocompletion.o gettext.o tabs.o sieve.o \
 	groupdav_delete.o groupdav_put.o http_datestring.o setup_wizard.o \
 	downloads.o addressbook_popup.o pushemail.o sysdep.o openid.o \
-	decode.o modules_init.o \
+	decode.o modules_init.o paramhandling.o utils.o \
 	$(LIBOBJS)
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	webserver.o context_loop.o cookie_conversion.o \
@@ -65,6 +65,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o \
 	groupdav_put.o http_datestring.o setup_wizard.o fmt_date.o modules_init.o \
 	gettext.o downloads.o addressbook_popup.o pushemail.o sysdep.o decode.o \
+	paramhandling.o utils.o \
 	-o webcit \
 	$(LIBS)
 
