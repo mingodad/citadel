@@ -55,9 +55,6 @@
 #endif
 #include <libintl.h>
 #include <locale.h>
-#ifdef HAVE_USELOCALE
-extern locale_t wc_locales[];
-#endif
 #define _(string)	gettext(string)
 #else
 #define _(string)	(string)
@@ -729,6 +726,15 @@ void wDumpContent(int);
 int Flathash(const char *str, long len);
 
 
+
+/* URL / Mime Post parsing -> paramhandling.c */
+void upload_handler(char *name, char *filename, char *partnum, char *disp,
+		    void *content, char *cbtype, char *cbcharset,
+		    size_t length, char *encoding, char *cbid, void *userdata);
+
+void ParseURLParams(StrBuf *url);
+
+
 /* These may return NULL if not foud */
 #define sbstr(a) SBstr(a, sizeof(a) - 1)
 const StrBuf *SBSTR(const char *key);
@@ -778,7 +784,7 @@ void output_headers(    int do_httpheaders,
 void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void output_static(char *what);
-void display_mime_icon(void);
+
 void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
 void escputs(char *strbuf);
@@ -810,6 +816,7 @@ typedef struct _readloopstruct {
 void readloop(long oper);
 int  read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
+void fetch_ab_name(message_summary *Msg, char *namebuf);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
 void text_to_server(char *ptr);
 void text_to_server_qp(char *ptr);
@@ -897,7 +904,6 @@ void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *C
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
 void output_html(const char *, int, int, StrBuf *, StrBuf *);
 void do_listsub(void);
-void toggle_self_service(void);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(wc_mime_attachment *Mime);
 void load_calendar_item(message_summary *Msg, int unread, struct calview *c);

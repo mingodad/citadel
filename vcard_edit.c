@@ -33,6 +33,138 @@ void nametab(char *tabbuf, long len, char *name) {
 }
 
 
+/**
+ * \brief display the adressbook overview
+ * \param msgnum the citadel message number
+ * \param alpha what????
+ */
+void display_addressbook(long msgnum, char alpha) {
+	//char buf[SIZ];
+	/* char mime_partnum[SIZ]; */
+/* 	char mime_filename[SIZ]; */
+/* 	char mime_content_type[SIZ]; */
+	///char mime_disposition[SIZ];
+	//int mime_length;
+	char vcard_partnum[SIZ];
+	char *vcard_source = NULL;
+	message_summary summ;////TODO: this will leak
+
+	memset(&summ, 0, sizeof(summ));
+	///safestrncpy(summ.subj, _("(no subject)"), sizeof summ.subj);
+///Load Message headers
+//	Msg = 
+	if (!IsEmptyStr(vcard_partnum)) {
+		vcard_source = load_mimepart(msgnum, vcard_partnum);
+		if (vcard_source != NULL) {
+
+			/** Display the summary line */
+			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL,msgnum);
+
+			/** If it's my vCard I can edit it */
+			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
+				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
+				|| (WC->wc_view == VIEW_ADDRESSBOOK)
+			) {
+				wprintf("<a href=\"edit_vcard?"
+					"msgnum=%ld&partnum=%s\">",
+					msgnum, vcard_partnum);
+				wprintf("[%s]</a>", _("edit"));
+			}
+
+			free(vcard_source);
+		}
+	}
+
+}
+
+
+
+/**
+ * \brief  If it's an old "Firstname Lastname" style record, try to convert it.
+ * \param namebuf name to analyze, reverse if nescessary
+ */
+void lastfirst_firstlast(char *namebuf) {
+	char firstname[SIZ];
+	char lastname[SIZ];
+	int i;
+
+	if (namebuf == NULL) return;
+	if (strchr(namebuf, ';') != NULL) return;
+
+	i = num_tokens(namebuf, ' ');
+	if (i < 2) return;
+
+	extract_token(lastname, namebuf, i-1, ' ', sizeof lastname);
+	remove_token(namebuf, i-1, ' ');
+	strcpy(firstname, namebuf);
+	sprintf(namebuf, "%s; %s", lastname, firstname);
+}
+
+/**
+ * \brief fetch what??? name
+ * \param msgnum the citadel message number
+ * \param namebuf where to put the name in???
+ */
+void fetch_ab_name(message_summary *Msg, char *namebuf) {
+	char buf[SIZ];
+	char mime_partnum[SIZ];
+	char mime_filename[SIZ];
+	char mime_content_type[SIZ];
+	char mime_disposition[SIZ];
+	int mime_length;
+	char vcard_partnum[SIZ];
+	char *vcard_source = NULL;
+	int i, len;
+	message_summary summ;/// TODO this will lak
+
+	if (namebuf == NULL) return;
+	strcpy(namebuf, "");
+
+	memset(&summ, 0, sizeof(summ));
+	//////safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
+
+	sprintf(buf, "MSG0 %ld|0", Msg->msgnum);	/** unfortunately we need the mime info now */
+	serv_puts(buf);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '1') return;
+
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		if (!strncasecmp(buf, "part=", 5)) {
+			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
+			mime_length = extract_int(&buf[5], 5);
+
+			if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
+			   || (!strcasecmp(mime_content_type, "text/vcard")) ) {
+				strcpy(vcard_partnum, mime_partnum);
+			}
+
+		}
+	}
+
+	if (!IsEmptyStr(vcard_partnum)) {
+		vcard_source = load_mimepart(Msg->msgnum, vcard_partnum);
+		if (vcard_source != NULL) {
+
+			/* Grab the name off the card */
+			display_vcard(WC->WBuf, vcard_source, 0, 0, namebuf, Msg->msgnum);
+
+			free(vcard_source);
+		}
+	}
+
+	lastfirst_firstlast(namebuf);
+	striplt(namebuf);
+	len = strlen(namebuf);
+	for (i=0; i<len; ++i) {
+		if (namebuf[i] != ';') return;
+	}
+	strcpy(namebuf, _("(no name)"));
+}
+
+
 
 /**
  * \brief Turn a vCard "n" (name) field into something displayable.
@@ -985,11 +1117,50 @@ void submit_vcard(void) {
 
 
 
+/*
+ * Extract an embedded photo from a vCard for display on the client
+ */
+void display_vcard_photo_img(void)
+{
+	long msgnum = 0L;
+	char *vcard;
+	struct vCard *v;
+	char *photosrc;
+	const char *contentType;
+	struct wcsession *WCC = WC;
+
+	msgnum = StrTol(WCC->UrlFragment2);
+	
+	vcard = load_mimepart(msgnum,"1");
+	v = vcard_load(vcard);
+	
+	photosrc = vcard_get_prop(v, "PHOTO", 1,0,0);
+	FlushStrBuf(WCC->WBuf);
+	StrBufAppendBufPlain(WCC->WBuf, photosrc, -1, 0);
+	if (StrBufDecodeBase64(WCC->WBuf) <= 0) {
+		FlushStrBuf(WCC->WBuf);
+		
+		hprintf("HTTP/1.1 500 %s\n","Unable to get photo");
+		output_headers(0, 0, 0, 0, 0, 0);
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf(_("Could Not decode vcard photo\n"));
+		end_burst();
+		return;
+	}
+	contentType = GuessMimeType(ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
+	http_transmit_thing(contentType, 0);
+	free(v);
+	free(photosrc);
+}
+
+
+
 void 
 InitModule_VCARD
 (void)
 {
 	WebcitAddUrlHandler(HKEY("edit_vcard"), edit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("submit_vcard"), submit_vcard, 0);
+	WebcitAddUrlHandler(HKEY("vcardphoto"), display_vcard_photo_img, NEED_URL);
 }
 

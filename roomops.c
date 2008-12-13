@@ -3865,6 +3865,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
+	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, 0);
 
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);

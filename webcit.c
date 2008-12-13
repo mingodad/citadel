@@ -5,14 +5,13 @@
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
  */
-#include <stdarg.h>
 #define SHOW_ME_VAPPEND_PRINTF
+#include <stdio.h>
+#include <stdarg.h>
 #include "webcit.h"
 #include "groupdav.h"
 #include "webserver.h"
 
-#include <stdio.h>
-#include <stdarg.h>
 
 /*
  * String to unset the cookie.
@@ -39,312 +38,6 @@ void WebcitAddUrlHandler(const char * UrlString,
 	Put(HandlerHash, UrlString, UrlSLen, NewHandler, NULL);
 }
 
-/*   
- * remove escaped strings from i.e. the url string (like %20 for blanks)
- */
-long unescape_input(char *buf)
-{
-	int a, b;
-	char hex[3];
-	long buflen;
-	long len;
-
-	buflen = strlen(buf);
-
-	while ((buflen > 0) && (isspace(buf[buflen - 1]))){
-		buf[buflen - 1] = 0;
-		buflen --;
-	}
-
-	a = 0; 
-	while (a < buflen) {
-		if (buf[a] == '+')
-			buf[a] = ' ';
-		if (buf[a] == '%') {
-			/* don't let % chars through, rather truncate the input. */
-			if (a + 2 > buflen) {
-				buf[a] = '\0';
-				buflen = a;
-			}
-			else {			
-				hex[0] = buf[a + 1];
-				hex[1] = buf[a + 2];
-				hex[2] = 0;
-				b = 0;
-				sscanf(hex, "%02x", &b);
-				buf[a] = (char) b;
-				len = buflen - a - 2;
-				if (len > 0)
-					memmove(&buf[a + 1], &buf[a + 3], len);
-			
-				buflen -=2;
-			}
-		}
-		a++;
-	}
-	return a;
-}
-
-void free_url(void *U)
-{
-	urlcontent *u = (urlcontent*) U;
-	FreeStrBuf(&u->url_data);
-	free(u);
-}
-
-/*
- * Extract variables from the URL.
- */
-void ParseURLParams(StrBuf *url)
-{
-	const char *aptr, *bptr, *eptr, *up;
-	int len, keylen;
-	urlcontent *u;
-	struct wcsession *WCC = WC;
-
-	if (WCC->urlstrings == NULL)
-		WCC->urlstrings = NewHash(1, NULL);
-	eptr = ChrPtr(url) + StrLength(url);
-	up = ChrPtr(url);
-	while ((up < eptr) && (!IsEmptyStr(up))) {
-		aptr = up;
-		while ((aptr < eptr) && (*aptr != '\0') && (*aptr != '='))
-			aptr++;
-		if (*aptr != '=') {
-			return;
-		}
-		aptr++;
-		bptr = aptr;
-		while ((bptr < eptr) && (*bptr != '\0')
-		      && (*bptr != '&') && (*bptr != '?') && (*bptr != ' ')) {
-			bptr++;
-		}
-		keylen = aptr - up - 1; /* -1 -> '=' */
-		if(keylen > sizeof(u->url_key)) {
-			lprintf(1, "URLkey to long! [%s]", up);
-			continue;
-		}
-
-		u = (urlcontent *) malloc(sizeof(urlcontent));
-		memcpy(u->url_key, up, keylen);
-		u->url_key[keylen] = '\0';
-		if (keylen < 0) {
-			lprintf(1, "URLkey to long! [%s]", up);
-			free(u);
-			continue;
-		}
-
-		Put(WCC->urlstrings, u->url_key, keylen, u, free_url);
-		len = bptr - aptr;
-		u->url_data = NewStrBufPlain(aptr, len);
-		StrBufUnescape(u->url_data, 1);
-	     
-		up = bptr;
-		++up;
-#ifdef DEBUG_URLSTRINGS
-		lprintf(9, "%s = [%ld]  %s\n", 
-			u->url_key, 
-			StrLength(u->url_data), 
-			ChrPtr(u->url_data)); 
-#endif
-	}
-}
-
-/*
- * free urlstring memory
- */
-void free_urls(void)
-{
-	DeleteHash(&WC->urlstrings);
-}
-
-/*
- * Diagnostic function to display the contents of all variables
- */
-
-void dump_vars(void)
-{
-	struct wcsession *WCC = WC;
-	urlcontent *u;
-	void *U;
-	long HKLen;
-	const char *HKey;
-	HashPos *Cursor;
-	
-	Cursor = GetNewHashPos (WCC->urlstrings, 0);
-	while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
-		u = (urlcontent*) U;
-		wprintf("%38s = %s\n", u->url_key, ChrPtr(u->url_data));
-	}
-}
-
-/*
- * Return the value of a variable supplied to the current web page (from the url or a form)
- */
-
-const char *XBstr(const char *key, size_t keylen, size_t *len)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U)) {
-		*len = StrLength(((urlcontent *)U)->url_data);
-		return ChrPtr(((urlcontent *)U)->url_data);
-	}
-	else {
-		*len = 0;
-		return ("");
-	}
-}
-
-const char *XBSTR(const char *key, size_t *len)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) &&
-	    GetHash(WC->urlstrings, key, strlen (key), &U)){
-		*len = StrLength(((urlcontent *)U)->url_data);
-		return ChrPtr(((urlcontent *)U)->url_data);
-	}
-	else {
-		*len = 0;
-		return ("");
-	}
-}
-
-
-const char *BSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) &&
-	    GetHash(WC->urlstrings, key, strlen (key), &U))
-		return ChrPtr(((urlcontent *)U)->url_data);
-	else	
-		return ("");
-}
-
-const char *Bstr(const char *key, size_t keylen)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
-		return ChrPtr(((urlcontent *)U)->url_data);
-	else	
-		return ("");
-}
-
-const StrBuf *SBSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) &&
-	    GetHash(WC->urlstrings, key, strlen (key), &U))
-		return ((urlcontent *)U)->url_data;
-	else	
-		return NULL;
-}
-
-const StrBuf *SBstr(const char *key, size_t keylen)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
-		return ((urlcontent *)U)->url_data;
-	else	
-		return NULL;
-}
-
-long LBstr(const char *key, size_t keylen)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
-		return StrTol(((urlcontent *)U)->url_data);
-	else	
-		return (0);
-}
-
-long LBSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return StrTol(((urlcontent *)U)->url_data);
-	else	
-		return (0);
-}
-
-int IBstr(const char *key, size_t keylen)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
-		return StrTol(((urlcontent *)U)->url_data);
-	else	
-		return (0);
-}
-
-int IBSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return StrToi(((urlcontent *)U)->url_data);
-	else	
-		return (0);
-}
-
-int HaveBstr(const char *key, size_t keylen)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
-		return (StrLength(((urlcontent *)U)->url_data) != 0);
-	else	
-		return (0);
-}
-
-int HAVEBSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return (StrLength(((urlcontent *)U)->url_data) != 0);
-	else	
-		return (0);
-}
-
-
-int YesBstr(const char *key, size_t keylen)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
-		return strcmp( ChrPtr(((urlcontent *)U)->url_data), "yes") == 0;
-	else	
-		return (0);
-}
-
-int YESBSTR(const char *key)
-{
-	void *U;
-
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
-		return strcmp( ChrPtr(((urlcontent *)U)->url_data), "yes") == 0;
-	else	
-		return (0);
-}
 
 /*
  * web-printing funcion. uses our vsnprintf wrapper
@@ -360,9 +53,6 @@ void wprintf(const char *format,...)
 	va_start(arg_ptr, format);
 	StrBufVAppendPrintf(WCC->WBuf, format, arg_ptr);
 	va_end(arg_ptr);
-
-///	if (StrLength(WCC-WBuf) > 2048)
-		///client_write(wbuf, strlen(wbuf));
 }
 
 /*
@@ -376,20 +66,9 @@ void hprintf(const char *format,...)
 	va_start(arg_ptr, format);
 	StrBufVAppendPrintf(WCC->HBuf, format, arg_ptr);
 	va_end(arg_ptr);
-
-///	if (StrLength(WCC-WBuf) > 2048)
-		///client_write(wbuf, strlen(wbuf));
 }
 
 
-void tmplput_trailing_javascript(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
-{
-	struct wcsession *WCC = WC;
-
-	if (WCC != NULL)
-		StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType,
-				     WCC->trailing_javascript, 0);
-}
 
 /*
  * wrap up an HTTP session, closes tags, etc.
@@ -413,227 +92,6 @@ void wDumpContent(int print_standard_html_footer)
 
 
  
-/*
- * Copy a string, escaping characters which have meaning in HTML.  
- *
- * target              target buffer
- * strbuf              source buffer
- * nbsp                        If nonzero, spaces are converted to non-breaking spaces.
- * nolinebreaks                if set, linebreaks are removed from the string.
- */
-long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
-{
-        char *aptr, *bptr, *eptr;
- 
-        *target = '\0';
-        aptr = strbuf;
-        bptr = target;
-        eptr = target + tSize - 6; // our biggest unit to put in... 
- 
- 
-        while ((bptr < eptr) && !IsEmptyStr(aptr) ){
-                if (*aptr == '<') {
-                        memcpy(bptr, "&lt;", 4);
-                        bptr += 4;
-                }
-                else if (*aptr == '>') {
-                        memcpy(bptr, "&gt;", 4);
-                        bptr += 4;
-                }
-                else if (*aptr == '&') {
-                        memcpy(bptr, "&amp;", 5);
-                        bptr += 5;
-                }
-                else if (*aptr == '\"') {
-                        memcpy(bptr, "&quot;", 6);
-                        bptr += 6;
-                }
-                else if (*aptr == '\'') {
-                        memcpy(bptr, "&#39;", 5);
-                        bptr += 5;
-                }
-                else if (*aptr == LB) {
-                        *bptr = '<';
-                        bptr ++;
-                }
-                else if (*aptr == RB) {
-                        *bptr = '>';
-                        bptr ++;
-                }
-                else if (*aptr == QU) {
-                        *bptr ='"';
-                        bptr ++;
-                }
-                else if ((*aptr == 32) && (nbsp == 1)) {
-                        memcpy(bptr, "&nbsp;", 6);
-                        bptr += 6;
-                }
-                else if ((*aptr == '\n') && (nolinebreaks)) {
-                        *bptr='\0';     /* nothing */
-                }
-                else if ((*aptr == '\r') && (nolinebreaks)) {
-                        *bptr='\0';     /* nothing */
-                }
-                else{
-                        *bptr = *aptr;
-                        bptr++;
-                }
-                aptr ++;
-        }
-        *bptr = '\0';
-        if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
-                return -1;
-        return (bptr - target);
-}
-
-
-void escputs1(char *strbuf, int nbsp, int nolinebreaks)
-{
-	StrEscAppend(WC->WBuf, NULL, strbuf, nbsp, nolinebreaks);
-}
-
-void StrEscputs1(const StrBuf *strbuf, int nbsp, int nolinebreaks)
-{
-	StrEscAppend(WC->WBuf, strbuf, NULL, nbsp, nolinebreaks);
-}
-
-/* 
- * static wrapper for ecsputs1
- */
-void escputs(char *strbuf)
-{
-	escputs1(strbuf, 0, 0);
-}
-
-
-/* 
- * static wrapper for ecsputs1
- */
-void StrEscPuts(const StrBuf *strbuf)
-{
-	StrEscputs1(strbuf, 0, 0);
-}
-
-
-/*
- * urlescape buffer and print it to the client
- */
-void urlescputs(const char *strbuf)
-{
-	StrBufUrlescAppend(WC->WBuf, NULL, strbuf);
-}
-
-/*
- * urlescape buffer and print it to the client
- */
-void UrlescPutStrBuf(const StrBuf *strbuf)
-{
-	StrBufUrlescAppend(WC->WBuf, strbuf, NULL);
-}
-
-/**
- * urlescape buffer and print it as header 
- */
-void hurlescputs(const char *strbuf) 
-{
-	StrBufUrlescAppend(WC->HBuf, NULL, strbuf);
-}
-
-
-/*
- * Copy a string, escaping characters for JavaScript strings.
- */
-void jsesc(char *target, size_t tlen, char *strbuf)
-{
-	int len;
-	char *tend;
-	char *send;
-	char *tptr;
-	char *sptr;
-
-	target[0]='\0';
-	len = strlen (strbuf);
-	send = strbuf + len;
-	tend = target + tlen;
-	sptr = strbuf;
-	tptr = target;
-	
-	while (!IsEmptyStr(sptr) && 
-	       (sptr < send) &&
-	       (tptr < tend)) {
-	       
-		if (*sptr == '<')
-			*tptr = '[';
-		else if (*sptr == '>')
-			*tptr = ']';
-		else if (*sptr == '\'') {
-			if (tend - tptr < 3)
-				return;
-			*(tptr++) = '\\';
-			*tptr = '\'';
-		}
-		else if (*sptr == '"') {
-			if (tend - tptr < 8)
-				return;
-			*(tptr++) = '&';
-			*(tptr++) = 'q';
-			*(tptr++) = 'u';
-			*(tptr++) = 'o';
-			*(tptr++) = 't';
-			*tptr = ';';
-		}
-		else if (*sptr == '&') {
-			if (tend - tptr < 7)
-				return;
-			*(tptr++) = '&';
-			*(tptr++) = 'a';
-			*(tptr++) = 'm';
-			*(tptr++) = 'p';
-			*tptr = ';';
-		} else {
-			*tptr = *sptr;
-		}
-		tptr++; sptr++;
-	}
-	*tptr = '\0';
-}
-
-/*
- * escape and print javascript
- */
-void jsescputs(char *strbuf)
-{
-	char outbuf[SIZ];
-	
-	jsesc(outbuf, SIZ, strbuf);
-	wprintf("%s", outbuf);
-}
-
-/*
- * print a string to the client after cleaning it with msgesc() and stresc()
- */
-void msgescputs1( char *strbuf)
-{
-	StrBuf *OutBuf;
-
-	if ((strbuf == NULL) || IsEmptyStr(strbuf))
-		return;
-	OutBuf = NewStrBuf();
-	StrMsgEscAppend(OutBuf, NULL, strbuf);
-	StrEscAppend(WC->WBuf, OutBuf, NULL, 0, 0);
-	FreeStrBuf(&OutBuf);
-}
-
-/*
- * print a string to the client after cleaning it with msgesc()
- */
-void msgescputs(char *strbuf) {
-	if ((strbuf != NULL) && !IsEmptyStr(strbuf))
-		StrMsgEscAppend(WC->WBuf, NULL, strbuf);
-}
-
-
-
 
 /*
  * Output HTTP headers and leading HTML for a page
@@ -872,214 +330,6 @@ void output_static(char *what)
 	}
 }
 
-/*
- * When the browser requests an image file from the Citadel server,
- * this function is called to transmit it.
- */
-void output_image()
-{
-	struct wcsession *WCC = WC;
-	char buf[SIZ];
-	off_t bytes;
-	const char *MimeType;
-	
-	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		bytes = extract_long(&buf[4], 0);
-
-		/** Read it from the server */
-		
-		if (read_server_binary(WCC->WBuf, bytes) > 0) {
-			serv_puts("CLOS");
-			serv_getln(buf, sizeof buf);
-		
-			MimeType = GuessMimeType (ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
-			/** Write it to the browser */
-			if (!IsEmptyStr(MimeType))
-			{
-				http_transmit_thing(MimeType, 0);
-				return;
-			}
-		}
-		/* hm... unknown mimetype? fallback to blank gif */
-	} 
-
-	
-	/*
-	 * Instead of an ugly 404, send a 1x1 transparent GIF
-	 * when there's no such image on the server.
-	 */
-	char blank_gif[SIZ];
-	snprintf (blank_gif, SIZ, "%s%s", static_dirs[0], "/blank.gif");
-	output_static(blank_gif);
-}
-
-/*
- * Extract an embedded photo from a vCard for display on the client
- */
-void display_vcard_photo_img(void)
-{
-	long msgnum = 0L;
-	char *vcard;
-	struct vCard *v;
-	char *photosrc;
-	const char *contentType;
-	struct wcsession *WCC = WC;
-
-	msgnum = StrTol(WCC->UrlFragment2);
-	
-	vcard = load_mimepart(msgnum,"1");
-	v = vcard_load(vcard);
-	
-	photosrc = vcard_get_prop(v, "PHOTO", 1,0,0);
-	FlushStrBuf(WCC->WBuf);
-	StrBufAppendBufPlain(WCC->WBuf, photosrc, -1, 0);
-	if (StrBufDecodeBase64(WCC->WBuf) <= 0) {
-		FlushStrBuf(WCC->WBuf);
-		
-		hprintf("HTTP/1.1 500 %s\n","Unable to get photo");
-		output_headers(0, 0, 0, 0, 0, 0);
-		hprintf("Content-Type: text/plain\r\n");
-		wprintf(_("Could Not decode vcard photo\n"));
-		end_burst();
-		return;
-	}
-	contentType = GuessMimeType(ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
-	http_transmit_thing(contentType, 0);
-	free(v);
-	free(photosrc);
-}
-
-/*
- * Generic function to output an arbitrary MIME attachment from
- * message being composed
- *
- * partnum		The MIME part to be output
- * filename		Fake filename to give
- * force_download	Nonzero to force set the Content-Type: header to "application/octet-stream"
- */
-void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
-{
-	void *vPart;
-	StrBuf *content_type;
-	wc_mime_attachment *part;
-	
-	if (GetHash(WC->attachments, SKEY(partnum), &vPart) &&
-	    (vPart != NULL)) {
-		part = (wc_mime_attachment*) vPart;
-		if (force_download) {
-			content_type = NewStrBufPlain(HKEY("application/octet-stream"));
-		}
-		else {
-			content_type = NewStrBufDup(part->ContentType);
-		}
-		output_headers(0, 0, 0, 0, 0, 0);
-		StrBufAppendBuf(WC->WBuf, part->Data, 0);
-		http_transmit_thing(ChrPtr(content_type), 0);
-	} else {
-		hprintf("HTTP/1.1 404 %s\n", ChrPtr(partnum));
-		output_headers(0, 0, 0, 0, 0, 0);
-		hprintf("Content-Type: text/plain\r\n");
-		wprintf(_("An error occurred while retrieving this part: %s/%s\n"), 
-			ChrPtr(partnum), ChrPtr(filename));
-		end_burst();
-	}
-	FreeStrBuf(&content_type);
-}
-
-
-/*
- * Generic function to output an arbitrary MIME part from an arbitrary
- * message number on the server.
- *
- * msgnum		Number of the item on the citadel server
- * partnum		The MIME part to be output
- * force_download	Nonzero to force set the Content-Type: header to "application/octet-stream"
- */
-void mimepart(const char *msgnum, const char *partnum, int force_download)
-{
-	char buf[256];
-	off_t bytes;
-	char content_type[256];
-	
-	serv_printf("OPNA %s|%s", msgnum, partnum);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		bytes = extract_long(&buf[4], 0);
-		if (force_download) {
-			strcpy(content_type, "application/octet-stream");
-		}
-		else {
-			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
-		}
-		output_headers(0, 0, 0, 0, 0, 0);
-
-		read_server_binary(WC->WBuf, bytes);
-		serv_puts("CLOS");
-		serv_getln(buf, sizeof buf);
-		http_transmit_thing(content_type, 0);
-	} else {
-		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
-		output_headers(0, 0, 0, 0, 0, 0);
-		hprintf("Content-Type: text/plain\r\n");
-		wprintf(_("An error occurred while retrieving this part: %s\n"), &buf[4]);
-		end_burst();
-	}
-}
-
-
-/*
- * Read any MIME part of a message, from the server, into memory.
- */
-char *load_mimepart(long msgnum, char *partnum)
-{
-	char buf[SIZ];
-	off_t bytes;
-	char content_type[SIZ];
-	char *content;
-	
-	serv_printf("DLAT %ld|%s", msgnum, partnum);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '6') {
-		bytes = extract_long(&buf[4], 0);
-		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
-
-		content = malloc(bytes + 2);
-		serv_read(content, bytes);
-
-		content[bytes] = 0;	/* null terminate for good measure */
-		return(content);
-	}
-	else {
-		return(NULL);
-	}
-}
-
-/*
- * Read any MIME part of a message, from the server, into memory.
- */
-void MimeLoadData(wc_mime_attachment *Mime)
-{
-	char buf[SIZ];
-	off_t bytes;
-//// TODO: is there a chance the contenttype is different  to the one we know?	
-	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '6') {
-		bytes = extract_long(&buf[4], 0);
-
-		if (Mime->Data == NULL)
-			Mime->Data = NewStrBufPlain(NULL, bytes);
-		StrBuf_ServGetBLOB(Mime->Data, bytes);
-
-	}
-	else {
-		FlushStrBuf(Mime->Data);
-		/// TODO XImportant message
-	}
-}
-
 
 /*
  * Convenience functions to display a page containing only a string
@@ -1127,47 +377,6 @@ void url_do_template(void) {
 
 
 /*
- * Offer to make any page the user's "start page."
- */
-void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
-	wprintf("<a href=\"change_start_page?startpage=");
-	urlescputs(WC->this_page);
-	wprintf("\">");
-	wprintf(_("Make this my start page"));
-	wprintf("</a>");
-#ifdef TECH_PREVIEW
-	wprintf("<br/><a href=\"rss?room=");
-	urlescputs(WC->wc_roomname);
-	wprintf("\" title=\"RSS 2.0 feed for ");
-	escputs(WC->wc_roomname);
-	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\"/></a>\n");
-#endif
-}
-
-
-/*
- * Change the user's start page
- */
-void change_start_page(void) {
-
-	if (bstr("startpage") == NULL) {
-		safestrncpy(WC->ImportantMessage,
-			_("You no longer have a start page selected."),
-			sizeof WC->ImportantMessage);
-		display_main_menu();
-		return;
-	}
-
-	set_preference("startpage", NewStrBufPlain(bstr("startpage"), -1), 1);
-
-	output_headers(1, 1, 0, 0, 0, 0);
-	do_template("newstartpage", NULL);
-	wDumpContent(1);
-}
-
-
-
-/*
  * convenience function to indicate success
  */
 void display_success(char *successmessage)
@@ -1192,68 +401,6 @@ void authorization_required(const char *message)
 		"You could not be logged in: %s\n"), message);
 	wDumpContent(0);
 	
-}
-
-/*
- * This function is called by the MIME parser to handle data uploaded by
- * the browser.  Form data, uploaded files, and the data from HTTP PUT
- * operations (such as those found in GroupDAV) all arrive this way.
- *
- * name		Name of the item being uploaded
- * filename	Filename of the item being uploaded
- * partnum	MIME part identifier (not needed)
- * disp		MIME content disposition (not needed)
- * content	The actual data
- * cbtype	MIME content-type
- * cbcharset	Character set
- * length	Content length
- * encoding	MIME encoding type (not needed)
- * cbid		Content ID (not needed)
- * userdata	Not used here
- */
-void upload_handler(char *name, char *filename, char *partnum, char *disp,
-			void *content, char *cbtype, char *cbcharset,
-			size_t length, char *encoding, char *cbid, void *userdata)
-{
-	urlcontent *u;
-#ifdef DEBUG_URLSTRINGS
-	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
-#endif
-	if (WC->urlstrings == NULL)
-		WC->urlstrings = NewHash(1, NULL);
-
-	/* Form fields */
-	if ( (length > 0) && (IsEmptyStr(cbtype)) ) {
-		u = (urlcontent *) malloc(sizeof(urlcontent));
-		
-		safestrncpy(u->url_key, name, sizeof(u->url_key));
-		u->url_data = NewStrBufPlain(content, length);
-		
-		Put(WC->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
-#ifdef DEBUG_URLSTRINGS
-		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
-			u->url_key, 
-			StrLength(u->url_data), 
-			ChrPtr(u->url_data));
-#endif
-	}
-
-	/** Uploaded files */
-	if ( (length > 0) && (!IsEmptyStr(cbtype)) ) {
-		WC->upload = malloc(length);
-		if (WC->upload != NULL) {
-			WC->upload_length = length;
-			safestrncpy(WC->upload_filename, filename,
-					sizeof(WC->upload_filename));
-			safestrncpy(WC->upload_content_type, cbtype,
-					sizeof(WC->upload_content_type));
-			memcpy(WC->upload, content, length);
-		}
-		else {
-			lprintf(3, "malloc() failed: %s\n", strerror(errno));
-		}
-	}
-
 }
 
 /*
@@ -1405,6 +552,9 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	int is_static = 0;
 	int n_static = 0;
 	int len = 0;
+	void *vHandler;
+	WebcitHandler *Handler;
+
 	/*
 	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -1790,41 +940,32 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			safestrncpy(WCC->wc_roomname, c_roomname, sizeof WCC->wc_roomname);
 		}
 	}
-
-	if (!strcasecmp(action, "image")) {
-		output_image();
-	} else if (!strcasecmp(action, "display_mime_icon")) {
-		display_mime_icon();
-	}
-	else {
-		void *vHandler;
-		WebcitHandler *Handler;
-		
-		GetHash(HandlerHash, action, strlen(action) /* TODO*/, &vHandler),
-			Handler = (WebcitHandler*) vHandler;
-		if (Handler != NULL) {
-			if (!WCC->logged_in && ((Handler->Flags & ANONYMOUS) == 0)) {
-				display_login(NULL);
-			}
-			else {
-				if((Handler->Flags & NEED_URL)) {
-					if (WCC->UrlFragment1 == NULL)
-						WCC->UrlFragment1 = NewStrBuf();
-					if (WCC->UrlFragment2 == NULL)
-						WCC->UrlFragment2 = NewStrBuf();
-					if (WCC->UrlFragment3 == NULL)
-						WCC->UrlFragment3 = NewStrBuf();
-					StrBufPrintf(WCC->UrlFragment1, "%s", index[0]);
-					StrBufPrintf(WCC->UrlFragment2, "%s", index[1]);
-					StrBufPrintf(WCC->UrlFragment3, "%s", index[2]);
-				}
-				if ((Handler->Flags & AJAX) != 0)
-					begin_ajax_response();
-				Handler->F();
-				if ((Handler->Flags & AJAX) != 0)
-					end_ajax_response();
-			}
+	
+	GetHash(HandlerHash, action, strlen(action) /* TODO*/, &vHandler),
+		Handler = (WebcitHandler*) vHandler;
+	if (Handler != NULL) {
+		if (!WCC->logged_in && ((Handler->Flags & ANONYMOUS) == 0)) {
+			display_login(NULL);
 		}
+		else {
+			if((Handler->Flags & NEED_URL)) {
+				if (WCC->UrlFragment1 == NULL)
+					WCC->UrlFragment1 = NewStrBuf();
+				if (WCC->UrlFragment2 == NULL)
+					WCC->UrlFragment2 = NewStrBuf();
+				if (WCC->UrlFragment3 == NULL)
+					WCC->UrlFragment3 = NewStrBuf();
+				StrBufPrintf(WCC->UrlFragment1, "%s", index[0]);
+				StrBufPrintf(WCC->UrlFragment2, "%s", index[1]);
+				StrBufPrintf(WCC->UrlFragment3, "%s", index[2]);
+			}
+			if ((Handler->Flags & AJAX) != 0)
+				begin_ajax_response();
+			Handler->F();
+			if ((Handler->Flags & AJAX) != 0)
+				end_ajax_response();
+		}
+	}
 	/* When all else fais, display the main menu. */
 	else {
 		if (!WCC->logged_in) 
@@ -1832,14 +973,14 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		else
 			display_main_menu();
 	}
-}
+
 SKIP_ALL_THIS_CRAP:
 	fflush(stdout);
 	if (content != NULL) {
 		FreeStrBuf(&content);
 		content = NULL;
 	}
-	free_urls();
+	DeleteHash(&WCC->urlstrings);
 	if (WCC->upload_length > 0) {
 		free(WCC->upload);
 		WCC->upload_length = 0;
@@ -1875,30 +1016,6 @@ void diagnostics(void)
 	dump_vars();
 	wprintf("</PRE><hr />\n");
 	wDumpContent(1);
-}
-
-void view_mimepart(void) {
-	mimepart(ChrPtr(WC->UrlFragment2),
-		 ChrPtr(WC->UrlFragment3),
-		 0);
-}
-
-void download_mimepart(void) {
-	mimepart(ChrPtr(WC->UrlFragment2),
-		 ChrPtr(WC->UrlFragment3),
-		 1);
-}
-
-void view_postpart(void) {
-	postpart(WC->UrlFragment2,
-		 WC->UrlFragment3,
-		 0);
-}
-
-void download_postpart(void) {
-	postpart(WC->UrlFragment2,
-		 WC->UrlFragment3,
-		 1);
 }
 
 
@@ -1946,6 +1063,14 @@ void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Cont
 				     Buf, 1);
 }
 
+void tmplput_trailing_javascript(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+{
+	struct wcsession *WCC = WC;
+
+	if (WCC != NULL)
+		StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType,
+				     WCC->trailing_javascript, 0);
+}
 
 void tmplput_csslocal(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -1983,13 +1108,6 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX);
 	WebcitAddUrlHandler(HKEY("ajax_servcmd"), ajax_servcmd, 0);
-	WebcitAddUrlHandler(HKEY("change_start_page"), change_start_page, 0);
-	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
-	WebcitAddUrlHandler(HKEY("vcardphoto"), display_vcard_photo_img, NEED_URL);
-	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart"), view_postpart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart_download"), download_postpart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
 
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);

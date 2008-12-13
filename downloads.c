@@ -426,8 +426,8 @@ void upload_file(void)
 {
 	const char *MimeType;
 	char buf[1024];
-	size_t bytes_transmitted = 0;
-	size_t blocksize;
+	long bytes_transmitted = 0;
+	long blocksize;
 	struct wcsession *WCC = WC;     /* stack this for faster access (WC is a function) */
 
 	MimeType = GuessMimeType(WCC->upload, WCC->upload_length); 
@@ -463,10 +463,61 @@ void upload_file(void)
 	display_room_directory();
 }
 
+
+
+/*
+ * When the browser requests an image file from the Citadel server,
+ * this function is called to transmit it.
+ */
+void output_image()
+{
+	struct wcsession *WCC = WC;
+	char buf[SIZ];
+	off_t bytes;
+	const char *MimeType;
+	
+	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+		bytes = extract_long(&buf[4], 0);
+
+		/** Read it from the server */
+		
+		if (read_server_binary(WCC->WBuf, bytes) > 0) {
+			serv_puts("CLOS");
+			serv_getln(buf, sizeof buf);
+		
+			MimeType = GuessMimeType (ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
+			/** Write it to the browser */
+			if (!IsEmptyStr(MimeType))
+			{
+				http_transmit_thing(MimeType, 0);
+				return;
+			}
+		}
+		/* hm... unknown mimetype? fallback to blank gif */
+	} 
+
+	
+	/*
+	 * Instead of an ugly 404, send a 1x1 transparent GIF
+	 * when there's no such image on the server.
+	 */
+	char blank_gif[SIZ];
+	snprintf (blank_gif, SIZ, "%s%s", static_dirs[0], "/blank.gif");
+	output_static(blank_gif);
+}
+
+
+
+
 void 
 InitModule_DOWNLOAD
 (void)
 {
+	WebcitAddUrlHandler(HKEY("image"), output_image, 0);
+	WebcitAddUrlHandler(HKEY("display_mime_icon"), display_mime_icon , 0);
+
 	WebcitAddUrlHandler(HKEY("display_room_directory"), display_room_directory, 0);
 	WebcitAddUrlHandler(HKEY("display_pictureview"), display_pictureview, 0);
 	WebcitAddUrlHandler(HKEY("download_file"), download_file, NEED_URL);
