@@ -916,7 +916,7 @@ void tmplput_MIME_Data(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
 
 void tmplput_MIME_LoadData(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;	
+	wcsession *WCC = WC;	
 	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
 	wc_mime_attachment *att;
 	

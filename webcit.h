@@ -533,8 +533,9 @@ enum {
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
  */
+typedef struct wcsession wcsession;
 struct wcsession {
-	struct wcsession *next;			/**< Linked list */
+	wcsession *next;			/**< Linked list */
 	int wc_session;				/**< WebCit session ID */
 	char wc_username[128];			/**< login name of current user */
 	char wc_fullname[128];			/**< Screen name of current user */
@@ -916,8 +917,8 @@ void render_calendar_view(struct calview *c);
 void do_tasks_view(void);
 void calendar_summary_view(void);
 int load_msg_ptrs(char *servcmd, int with_headers);
-void free_attachments(struct wcsession *sess);
-void free_march_list(struct wcsession *wcf);
+void free_attachments(wcsession *sess);
+void free_march_list(wcsession *wcf);
 void display_rules_editor_inner_div(void);
 void generate_uuid(char *);
 void CtdlMakeTempFileName(char *, int);

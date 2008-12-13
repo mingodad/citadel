@@ -22,7 +22,7 @@ void ParseURLParams(StrBuf *url)
 	const char *aptr, *bptr, *eptr, *up;
 	int len, keylen;
 	urlcontent *u;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	if (WCC->urlstrings == NULL)
 		WCC->urlstrings = NewHash(1, NULL);
@@ -86,7 +86,7 @@ void free_urls(void)
 
 void dump_vars(void)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	urlcontent *u;
 	void *U;
 	long HKLen;

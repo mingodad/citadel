@@ -469,7 +469,7 @@ int read_server_binary(StrBuf *Ret, size_t total_len)
  */
 int read_server_text(StrBuf *Buf, long *nLines)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	long nRead;
 	long nTotal = 0;
 	long nlines;

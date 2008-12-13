@@ -165,7 +165,7 @@ void display_queue_msg(long msgnum)
 
 void display_smtpqueue_inner_div(void) {
 	message_summary *Msg;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	int i;
 	int num_msgs;
 
