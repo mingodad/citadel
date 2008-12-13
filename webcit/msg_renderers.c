@@ -953,25 +953,6 @@ HashList *iterate_get_registered_Attachments(StrBuf *Target, int nArgs, WCTempla
 	return WC->attachments;
 }
 
-void tmplput_ATT_Length(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	wc_mime_attachment *att = (wc_mime_attachment*) Context;
-	StrBufAppendPrintf(Target, "%ld", att->length);
-}
-
-void tmplput_ATT_Contenttype(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	wc_mime_attachment *att = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->ContentType, 0);
-}
-
-void tmplput_ATT_FileName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	wc_mime_attachment *att = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, att->FileName, 0);
-}
-
-
 void servcmd_do_search(char *buf, long bufsize)
 {
 	snprintf(buf, bufsize, "MSGS SEARCH|%s", bstr("query"));
@@ -1054,9 +1035,6 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:INREPLYTO", 0, 2, tmplput_MAIL_SUMM_INREPLYTO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  CTX_NONE);
-	RegisterNamespace("ATT:SIZE", 0, 1, tmplput_ATT_Length, CTX_ATT);
-	RegisterNamespace("ATT:TYPE", 0, 1, tmplput_ATT_Contenttype, CTX_ATT);
-	RegisterNamespace("ATT:FILENAME", 0, 1, tmplput_ATT_FileName, CTX_ATT);
 
 	RegisterConditional(HKEY("MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
@@ -1090,7 +1068,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:MIME:LOADDATA", 0, 0, tmplput_MIME_LoadData, CTX_MIME_ATACH);
 
 	RegisterIterator("MSG:ATTACHNAMES", 0, NULL, iterate_get_registered_Attachments, 
-			 NULL, NULL, CTX_ATT, CTX_NONE);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE);
 
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard);
