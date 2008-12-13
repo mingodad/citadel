@@ -82,7 +82,7 @@ void tasks_section(void) {
 	long HKLen;
 	void *vMsg;
 	message_summary *Msg;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	gotoroom("_TASKS_");
 	if (WCC->wc_view != VIEW_TASKS) {
@@ -119,7 +119,7 @@ void calendar_section(void) {
 	long HKLen;
 	void *vMsg;
 	message_summary *Msg;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	struct calview c;
 
 	gotoroom("_CALENDAR_");

@@ -397,7 +397,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	icalproperty *ps = NULL;
 	struct icaltimetype dtstart, dtend;
 	struct icaldurationtype dur;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	disp_cal *Cal;
 	size_t len;
 	time_t final_recurrence = 0;

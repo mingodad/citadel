@@ -1127,7 +1127,7 @@ void display_vcard_photo_img(void)
 	struct vCard *v;
 	char *photosrc;
 	const char *contentType;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	msgnum = StrTol(WCC->UrlFragment2);
 	

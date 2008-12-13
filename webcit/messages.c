@@ -376,7 +376,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 int load_msg_ptrs(char *servcmd, int with_headers)
 {
 	StrBuf* FoundCharset = NULL;
-        struct wcsession *WCC = WC;
+        wcsession *WCC = WC;
 	message_summary *Msg;
 	StrBuf *Buf, *Buf2;
 	///char buf[1024];
@@ -489,7 +489,7 @@ inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 {
 	StrBuf *TmpBuf;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	message_summary* Msg;
 	int lo, hi, n;
 	int i = 0;
@@ -579,7 +579,7 @@ void readloop(long oper)
 	addrbookent *addrbook = NULL;
 	int num_ab = 0;
 	int bbs_reverse = 0;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	HashPos *at;
 	const char *HashKey;
 	long HKLen;
@@ -887,7 +887,7 @@ DONE:
  * ... this is where the actual message gets transmitted to the server.
  */
 void post_mime_to_server(void) {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	char top_boundary[SIZ];
 	char alt_boundary[SIZ];
 	int is_multipart = 0;
@@ -1001,7 +1001,7 @@ void post_message(void)
 	wc_mime_attachment  *att;
 	int is_anonymous = 0;
 	const StrBuf *display_name = NULL;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	if (havebstr("force_room")) {
 		gotoroom(bstr("force_room"));
@@ -1194,7 +1194,7 @@ void display_enter(void)
 	int recipient_bad = 0;
 	int is_anonymous = 0;
 
-      	struct wcsession *WCC = WC;
+      	wcsession *WCC = WC;
 
 	now = time(NULL);
 

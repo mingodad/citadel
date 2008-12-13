@@ -44,7 +44,7 @@ void WebcitAddUrlHandler(const char * UrlString,
  */
 void wprintf(const char *format,...)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	va_list arg_ptr;
 
 	if (WCC->WBuf == NULL)
@@ -60,7 +60,7 @@ void wprintf(const char *format,...)
  */
 void hprintf(const char *format,...)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	va_list arg_ptr;
 
 	va_start(arg_ptr, format);
@@ -407,7 +407,7 @@ void authorization_required(const char *message)
  * Convenience functions to wrap around asynchronous ajax responses
  */
 void begin_ajax_response(void) {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	FlushStrBuf(WCC->HBuf);
         output_headers(0, 0, 0, 0, 0, 0);
@@ -565,7 +565,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	char c_httpauth_string[SIZ];
 	char c_httpauth_user[SIZ];
 	char c_httpauth_pass[SIZ];
-	struct wcsession *WCC;
+	wcsession *WCC;
 	
 	safestrncpy(c_username, "", sizeof c_username);
 	safestrncpy(c_password, "", sizeof c_password);
@@ -1021,7 +1021,7 @@ void diagnostics(void)
 
 int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	if (WCC != NULL)
 		return (!IsEmptyStr(WCC->ImportantMessage));
 	else
@@ -1030,7 +1030,7 @@ int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context, int Conte
 
 void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
 /*
@@ -1065,7 +1065,7 @@ void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Cont
 
 void tmplput_trailing_javascript(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	if (WCC != NULL)
 		StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType,
@@ -1082,7 +1082,7 @@ void tmplput_csslocal(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 void tmplput_url_part(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *UrlBuf;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
 		if (Tokens->Params[0]->lvalue == 0)

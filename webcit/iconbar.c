@@ -53,7 +53,7 @@ inline const char *PrintInt(void *Prefstr)
 
 void LoadIconSettings(void)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	StrBuf *iconbar = NULL;
 	StrBuf *buf = NewStrBuf();;
 	StrBuf *key = NewStrBuf();
@@ -805,7 +805,7 @@ void commit_iconbar(void) {
 
 void tmplput_iconbar(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	if ((WCC != NULL) && (WCC->logged_in)) {
 		wprintf("<div id=\"iconbar\">");

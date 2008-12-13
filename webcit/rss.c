@@ -46,7 +46,7 @@ void display_rss_control(char *reply_to, char *subject)
 void display_rss(char *roomname, StrBuf *request_method)
 {
 	message_summary *Msg;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	int nummsgs;
 	int a, b;
 	int bq = 0;

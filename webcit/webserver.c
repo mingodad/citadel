@@ -263,7 +263,7 @@ void begin_burst(void)
  */
 long end_burst(void)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
         const char *ptr, *eptr;
         long count;
 	ssize_t res;
