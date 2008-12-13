@@ -356,6 +356,10 @@ void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, int nArgs, WCTemplateToken *Token
 }
 
 
+HashList *iterate_get_mailsumm_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	return WC->summ;
+}
 
 void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -1029,6 +1033,9 @@ InitModule_MSGRENDERERS
 			 summcmp_sender,
 			 summcmp_rsender,
 			 CTX_MAILSUM);
+
+	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
+			 NULL,NULL, CTX_MAILSUM, CTX_NONE);
 
 	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
