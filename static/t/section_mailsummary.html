@@ -1,5 +1,5 @@
-<tr id="m<?MAIL:SUMM:N>" style="font-weight:<?%("COND:MAIL:SUMM:UNREAD", 1, 0, 0, "bold", "normal")>" onMouseDown="CtdlMoveMsgMouseDown(event,<?MAIL:SUMM:N>)">
-<td width=50%><?MAIL:SUMM:SUBJECT("X")></td>
-<td width=30%><?MAIL:SUMM:FROM("X")></td>
-<td width=20%><?MAIL:SUMM:DATESTR></td>
-</tr>
+<tr id="m<?MAIL:SUMM:N>" style="font-weight:<?%("COND:MAIL:SUMM:UNREAD", 1, 0, 0, "bold", "normal")>" onMouseDown="CtdlMoveMsgMouseDown(event)">
+<td><?MAIL:SUMM:SUBJECT("X")></td>
+<td><?MAIL:SUMM:FROM("X")></td>
+<td><?MAIL:SUMM:DATESTR></td>
+</td>

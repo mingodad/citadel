@@ -1557,6 +1557,9 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 
 	SubBuf = NewStrBuf();
 	it = GetNewHashPos(List, 0);
+	int nMembersUsed = GetCount(List);
+	int nMembersCounted = 0;
+	WC->is_last_hash = 0;
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
 		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", 
 			 (oddeven) ? "odd" : "even");
@@ -1572,6 +1575,10 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		StrBufAppendBuf(Target, SubBuf, 0);
 		FlushStrBuf(SubBuf);
 		oddeven = ~ oddeven;
+		nMembersCounted++;
+		if (nMembersCounted == (nMembersUsed-1)) {
+		  WC->is_last_hash = 1;
+		}
 	}
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);

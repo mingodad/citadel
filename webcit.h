@@ -612,6 +612,7 @@ struct wcsession {
 	HashList *InetCfg;                      /**< Our inet server config for editing */
 
 	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
+  int is_last_hash; /** Is this the last record in list? */
 };
 
 /* values for WC->current_iconbar */
@@ -812,6 +813,9 @@ void readloop(long oper);
 int  read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
+void jsonMessageList(void);
+void new_summary_view(void);
+void getseen(void);
 void text_to_server(char *ptr);
 void text_to_server_qp(char *ptr);
 void confirm_delete_msg(void);

@@ -1561,12 +1561,6 @@ void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
 
 void jsonMessageList(void) {
-  HashPos *at;
-  void *vMsg;
-  message_summary *Msg;
-  long HKLen;
-  const char *HashKey;
-  struct wcsession *WCC = WC;
   char * room = bstr("room");
   gotoroom(room); // force goto just to be sure
   // Send as our own (application/json) content type
@@ -1576,30 +1570,10 @@ void jsonMessageList(void) {
   hprintf("Connection: close\r\n");
   hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
   begin_burst();
-  int count = load_msg_ptrs("MSGS ALL|||1", 1);
+  load_msg_ptrs("MSGS ALL|||1", 1);
   getseen();
-  int printed = 0;
-  at = GetNewHashPos(WCC->summ, 0);
-  wprintf("[");
-  while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
-    Msg = (message_summary*) vMsg;
-    // Sanitize output
-    StrBuf *fromBuffer = NewStrBufPlain(NULL, StrLength(Msg->from));
-    StrEscAppend(fromBuffer, Msg->from, NULL, 0,1);
-    char *from = ChrPtr(fromBuffer);
-    StrBuf *subjBuffer = NewStrBufPlain(NULL, StrLength(Msg->subj));
-    StrEscAppend(subjBuffer, Msg->subj, NULL, 0,1);
-     char *subj = ChrPtr(subjBuffer);
-    wprintf("[%lu,\"%s\",\"%s\",%d,",Msg->msgnum, subj, from, (time_t)Msg->date);
-    (Msg->is_new) ? (wprintf("true]")) : (wprintf("false]"));
-    if (printed != (count-1)) {
-      wprintf(",");
-    }
-    wprintf("");
-    printed++;
-  }
-  wprintf("]\r\n");
-  end_burst();
+  DoTemplate(HKEY("mailsummary_json"),NULL,NULL, CTX_MAILSUM);
+  end_burst(); 
 }
 // Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :)
 void new_summary_view(void) {
@@ -1609,8 +1583,7 @@ void new_summary_view(void) {
   DoTemplate(HKEY("trailing"),NULL,NULL,CTX_NONE);
   end_burst();
 }
-
-void getseen() {
+void getseen(void) {
   char old_msgs[SIZ];
   char buf[SIZ];
   HashPos *at;

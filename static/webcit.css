@@ -425,6 +425,9 @@ var sub {
 .marked_row {
     background-color: #69aaff !important;
 }
+#loading {
+    background-color: white;
+}
 /* Links */
 
 a {	text-decoration: none; }

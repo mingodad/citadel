@@ -1,22 +1,25 @@
 <?=("head")>
+<!-- start login.html -->
 <div id="login_screen">
 <div class="box">
 <div class="boxlabel"><?SERV:HUMANNODE> - <?_("powered by")> <a href="http://www.citadel.org">Citadel</a></div>
 <div class="boxcontent">
+<div id="hellomsg">
 <?SERV:MESG("hello")>
-
+</div>
 <?!("COND:IMPMSG", 1)>
 <div class="login_message"><?IMPORTANTMESSAGE></div>
 <?!("X", 1)>
 
-<div class="login_message"></div>
 <form action="login" method="POST"  class="box" id="login_form">
+<div>
         <label for="uname"><?_("User name:")></label>
         <input type="text" name="name" id="uname" > <br>
         <label for="pname"><?_("Password:")></label>
         <input type="password" name="pass" id="pname" > <br>
         <label for="lname"><?_("Language:")></label>
         <?LANG:SELECT> <br>
+</div>
         <div class="logbuttons">
         <input type="submit" name="login_action" value="<?_("Login")>" class="logbutton">
 	<??("COND:SERV:NEWU", 1)>
@@ -32,18 +35,20 @@
         </div>
 </form>
 <??("COND:SERV:OPENID", 3)>
-  <div align=center>
+  <div id="openid">
   <a href="display_openid_login">
   <img src="static/openid-small.gif" border="0" valign="middle">
   <?_("Log in using OpenID")></a>
   </div>
 <??("X", 3)>
-<div class="login_image"><img src="image&name=hello"></div>
+<div class="login_image"><img src="image&amp;name=hello" alt="<?_("Welcome image")>"></div>
 <div class="login_infos">
 <ul><li><b><?_("If you already have an account on")> <?SERV:HUMANNODE></b>,
 <?_("enter your user name and password and click &quot;Login.&quot;<li><b>If you are a new user</b>, enter the name and password you wish to use, and click &quot;New User.&quot; <li>Please log off properly when finished. <li>You must use a browser that supports <i>frames</i> and <i>cookies</i>. <li>Also keep in mind that if your browser is configured to block pop-up windows, you will not be able to receive any instant messages.")>
-<br /> </ul>
+<br> </ul>
  
 </div>
+</div>
+<!-- end login.html -->
 <?=("endbox")>
 <?=("trailing")>
