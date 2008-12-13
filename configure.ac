@@ -160,19 +160,22 @@ fi
 
 AC_CHECK_LIB(intl, libintl_bindtextdomain, [LDFLAGS="$LDFLAGS -lintl"])
 
-dnl Checks for the zlib compression library.
-AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
-if test "x$with_zlib" != xno ; then
-        AC_CHECK_HEADERS(zlib.h,
-                [AC_CHECK_LIB(z, zlibVersion,
-                        [ok_zlib=yes],,
-        )])
-fi
 
-if test "x$ok_zlib" = xyes ; then
-        LIBS="-lz $LIBS"
-        AC_DEFINE(HAVE_ZLIB,[],[whether we have zlib])
-fi
+dnl Checks for the libical iCalendar library.
+AC_CHECK_HEADER(libical/ical.h,
+	[AC_CHECK_LIB(ical, icaltimezone_set_tzid_prefix,
+		[
+			LIBS="-lical $LIBS"
+		],
+		[
+			AC_MSG_ERROR(libical was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+		]
+	,
+	)],
+	[
+		AC_MSG_ERROR(libical/ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
+	]
+)
 
 
 dnl Check for libcitadel
@@ -191,22 +194,6 @@ AC_CHECK_HEADER(libcitadel.h,
 	]
 )
 
-
-dnl Checks for the libical iCalendar library.
-AC_CHECK_HEADER(libical/ical.h,
-	[AC_CHECK_LIB(ical, icaltimezone_set_tzid_prefix,
-		[
-			LIBS="-lical $LIBS"
-		],
-		[
-			AC_MSG_ERROR(libical was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
-		]
-	,
-	)],
-	[
-		AC_MSG_ERROR(libical/ical.h was not found and is required.  More info: http://www.citadel.org/doku.php/installation:start)
-	]
-)
 
 
 
@@ -461,7 +448,6 @@ AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile po/Makefile )
 
 echo ------------------------------------------------------------------------
-echo 'zlib compression:                ' $ok_zlib
 echo 'Character set conversion support:' $ok_iconv
 echo 'National language support:       ' $ok_nls
 echo 
