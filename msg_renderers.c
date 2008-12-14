@@ -70,7 +70,7 @@ void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, RenderMimeFunc M
 /*----------------------------------------------------------------------------*/
 
 /*
- * qsort() compatible function to compare two longs in descending order.
+ *  comparator for two longs in descending order.
  */
 int longcmp_r(const void *s1, const void *s2) {
 	long l1;
@@ -85,7 +85,7 @@ int longcmp_r(const void *s1, const void *s2) {
 }
 
 /*
- * qsort() compatible function to compare two longs in descending order.
+ *  comparator for longs; descending order.
  */
 int qlongcmp_r(const void *s1, const void *s2) {
 	long l1 = (long) s1;
@@ -98,7 +98,7 @@ int qlongcmp_r(const void *s1, const void *s2) {
 
  
 /*
- * qsort() compatible function to compare two message summary structs by ascending subject.
+ * comparator for message summary structs by ascending subject.
  */
 int summcmp_subj(const void *s1, const void *s2) {
 	message_summary *summ1;
@@ -110,7 +110,7 @@ int summcmp_subj(const void *s1, const void *s2) {
 }
 
 /*
- * qsort() compatible function to compare two message summary structs by descending subject.
+ * comparator for message summary structs by descending subject.
  */
 int summcmp_rsubj(const void *s1, const void *s2) {
 	message_summary *summ1;
@@ -122,7 +122,7 @@ int summcmp_rsubj(const void *s1, const void *s2) {
 }
 
 /*
- * qsort() compatible function to compare two message summary structs by ascending sender.
+ * comparator for message summary structs by ascending sender.
  */
 int summcmp_sender(const void *s1, const void *s2) {
 	message_summary *summ1;
@@ -134,7 +134,7 @@ int summcmp_sender(const void *s1, const void *s2) {
 }
 
 /*
- * qsort() compatible function to compare two message summary structs by descending sender.
+ * comparator for message summary structs by descending sender.
  */
 int summcmp_rsender(const void *s1, const void *s2) {
 	message_summary *summ1;
@@ -146,7 +146,7 @@ int summcmp_rsender(const void *s1, const void *s2) {
 }
 
 /*
- * qsort() compatible function to compare two message summary structs by ascending date.
+ * comparator for message summary structs by ascending date.
  */
 int summcmp_date(const void *s1, const void *s2) {
 	message_summary *summ1;
@@ -161,7 +161,7 @@ int summcmp_date(const void *s1, const void *s2) {
 }
 
 /*
- * qsort() compatible function to compare two message summary structs by descending date.
+ * comparator for message summary structs by descending date.
  */
 int summcmp_rdate(const void *s1, const void *s2) {
 	message_summary *summ1;
@@ -180,6 +180,10 @@ int summcmp_rdate(const void *s1, const void *s2) {
 void examine_pref(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
 void examine_suff(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
 void examine_path(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
+void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+////TODO: do we care?
+}
 
 void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -275,8 +279,6 @@ void tmplput_MAIL_SUMM_CCCC(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, 
 	message_summary *Msg = (message_summary*) Context;
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->cccc, 0);
 }
-
-
 
 
 void examine_room(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -534,11 +536,6 @@ void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, int nArgs, WCTemplateToken *Token
 }
 
 
-
-
-
-
-
 void examine_hnod(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->hnod);
@@ -566,13 +563,9 @@ void examine_text(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->MsgBody->PartNum = NewStrBufDup(HdrLine);
-	StrBufTrim(Msg->MsgBody->PartNum);/////TODO: striplt == trim?
+	StrBufTrim(Msg->MsgBody->PartNum);
 }
 
-void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
-{
-////TODO: do we care?
-}
 
 void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -1015,9 +1008,11 @@ InitModule_MSGRENDERERS
 			 summcmp_rsender,
 			 CTX_MAILSUM);
 
+	/* iterate over all known mails in WC->summ */
 	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
 			 NULL,NULL, CTX_MAILSUM, CTX_NONE);
 
+	/* render parts of the message struct */
 	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:N",       0, 0, tmplput_MAIL_SUMM_N,        CTX_MAILSUM);
@@ -1042,11 +1037,12 @@ InitModule_MSGRENDERERS
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:ANON"), 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
 
+
+	/* do we have mimetypes to iterate over? */
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH"), 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:SUBMESSAGES"), 0, Conditional_MAIL_MIME_SUBMESSAGES, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:LINKS"), 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:ATT"), 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
-
 	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH:SUBMESSAGES", 0, NULL, iterate_get_mime_Submessages, 
@@ -1056,6 +1052,7 @@ InitModule_MSGRENDERERS
 	RegisterIterator("MAIL:MIME:ATTACH:ATT", 0, NULL, iterate_get_mime_Attachments, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
 
+	/* Parts of a mime attachent */
 	RegisterNamespace("MAIL:MIME:NAME", 0, 2, tmplput_MIME_Name, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:FILENAME", 0, 2, tmplput_MIME_FileName, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:PARTNUM", 0, 2, tmplput_MIME_PartNum, CTX_MIME_ATACH);
@@ -1065,23 +1062,26 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:MIME:CHARSET", 0, 2, tmplput_MIME_Charset, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:LENGTH", 0, 2, tmplput_MIME_Length, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:DATA", 0, 2, tmplput_MIME_Data, CTX_MIME_ATACH);
+	/* load the actual attachment into WC->attachments; no output!!! */
 	RegisterNamespace("MAIL:MIME:LOADDATA", 0, 0, tmplput_MIME_LoadData, CTX_MIME_ATACH);
 
+	/* iterate the WC->attachments; use the above tokens for their contents */
 	RegisterIterator("MSG:ATTACHNAMES", 0, NULL, iterate_get_registered_Attachments, 
 			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE);
 
+	/* mime renderers translate an attachment into webcit viewable html text */
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard);
 	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard);
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS);
 	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS);
-
 	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat);
 	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain);
 	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain);
 	RegisterMimeRenderer(HKEY("text/html"), render_MAIL_html);
 	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN);
 
+	/* these headers are citserver replies to MSG4 and friends. one evaluator for each */
 	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);
 	RegisterMsgHdr(HKEY("type"), examine_type, 0);
 	RegisterMsgHdr(HKEY("from"), examine_from, 0);
@@ -1097,13 +1097,14 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("time"), examine_time, 0);
 	RegisterMsgHdr(HKEY("part"), examine_mime_part, 0);
 	RegisterMsgHdr(HKEY("text"), examine_text, 1);
+	/* these are the content-type headers we get infront of a message; put it into the same hash since it doesn't clash. */
 	RegisterMsgHdr(HKEY("X-Citadel-MSG4-Partnum"), examine_msg4_partnum, 0);
 	RegisterMsgHdr(HKEY("Content-type"), examine_content_type, 0);
 	RegisterMsgHdr(HKEY("Content-length"), examine_content_lengh, 0);
-	RegisterMsgHdr(HKEY("Content-transfer-encoding"), examine_content_encoding, 0);
+	RegisterMsgHdr(HKEY("Content-transfer-encoding"), examine_content_encoding, 0); /* do we care? */
 	RegisterMsgHdr(HKEY("charset"), examine_charset, 0);
 
-	/* Don't care... */
+	/* Don't care about these... */
 	RegisterMsgHdr(HKEY("pref"), examine_pref, 0);
 	RegisterMsgHdr(HKEY("suff"), examine_suff, 0);
 	RegisterMsgHdr(HKEY("path"), examine_path, 0);
