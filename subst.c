@@ -139,7 +139,7 @@ void VarPrintEntry(const char *Key, void *vSubst, int odd)
 /**
  * \brief Clear out the list of substitution variables local to this session
  */
-void clear_substs(struct wcsession *wc) {
+void clear_substs(wcsession *wc) {
 
 	if (wc->vars != NULL) {
 		DeleteHash(&wc->vars);
@@ -221,7 +221,7 @@ void deletevar(void *data)
 wcsubst *NewSubstVar(const char *keyname, int keylen, int type)
 {
 	wcsubst* ptr;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	ptr = (wcsubst *) malloc(sizeof(wcsubst));
 	memset(ptr, 0, sizeof(wcsubst));
@@ -259,7 +259,7 @@ void SVPRINTF(char *keyname, int keytype, const char *format,...)
 	void *vPtr;
 	wcsubst *ptr = NULL;
 	size_t keylen;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	keylen = strlen(keyname);
 	/**
@@ -295,7 +295,7 @@ void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
 	va_list arg_ptr;
 	void *vPtr;
 	wcsubst *ptr = NULL;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 		
 	/**
 	 * First look if we're doing a replacement of
@@ -329,7 +329,7 @@ void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
 {
 	void *vPtr;
 	wcsubst *ptr = NULL;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	
 	/**
@@ -360,7 +360,7 @@ void SVPutLong(char *keyname, size_t keylen, long Data)
 {
 	void *vPtr;
 	wcsubst *ptr = NULL;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	
 	/**
@@ -389,7 +389,7 @@ void SVCallback(char *keyname, size_t keylen, WCHandlerFunc fcn_ptr)
 {
 	wcsubst *ptr;
 	void *vPtr;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	/**
 	 * First look if we're doing a replacement of
@@ -419,7 +419,7 @@ void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref)
 {
 	wcsubst *ptr;
 	void *vPtr;
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	/**
 	 * First look if we're doing a replacement of
@@ -518,7 +518,7 @@ void GetTemplateTokenString(WCTemplateToken *Tokens,
  * \param keyname get a key to print
  */
 void print_value_of(StrBuf *Target, WCTemplateToken *Tokens, void *Context, int ContextType) {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	wcsubst *ptr;
 	void *vVar;
 
@@ -568,7 +568,7 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Tokens, void *Context, int 
 
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	wcsubst *ptr;
 	void *vVar;
 
@@ -606,7 +606,7 @@ int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLoo
 
 int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	wcsubst *ptr;
 	void *vVar;
 
@@ -647,7 +647,7 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  void *Context, int ContextType,
 			  const StrBuf *Source, int FormatTypeIndex)
 {
-        struct wcsession *WCC;
+        wcsession *WCC;
 	StrBuf *Buf;
 	char EscapeAs = ' ';
 	if (StrLength(Source) <= 1) {
@@ -938,21 +938,21 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	case SV_CUST_STR_CONDITIONAL:
 	case SV_CONDITIONAL:
 	case SV_NEG_CONDITIONAL:
-		if (NewToken->Params[1]->lvalue == 0) {
-			lprintf(1, "Conditional (in '%s' line %ld); "
-				"Conditional ID mustn't be 0! [%s]\n", 
-				ChrPtr(pTmpl->FileName),
-				NewToken->Line,
-				ChrPtr(NewToken->FlatToken));
-			NewToken->Flags = 0;
-			break;
-		}
 		if (NewToken->nParameters <2) {
 			lprintf(1, "Conditional (in '%s' line %ld); "
 				"require at least 2 parameters, you gave %ld params [%s]\n", 
 				ChrPtr(pTmpl->FileName),
 				NewToken->Line,
 				NewToken->nParameters, 
+				ChrPtr(NewToken->FlatToken));
+			NewToken->Flags = 0;
+			break;
+		}
+		if (NewToken->Params[1]->lvalue == 0) {
+			lprintf(1, "Conditional (in '%s' line %ld); "
+				"Conditional ID mustn't be 0! [%s]\n", 
+				ChrPtr(pTmpl->FileName),
+				NewToken->Line,
 				ChrPtr(NewToken->FlatToken));
 			NewToken->Flags = 0;
 			break;
@@ -1072,7 +1072,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 		pts = pch;
 
 		/** Found one? parse it. */
-		for (; pch < pE - 1; pch ++) {
+		for (; pch <= pE - 1; pch ++) {
 			if (*pch == '"')
 				InDoubleQuotes = ! InDoubleQuotes;
 			else if (*pch == '\'')
@@ -1083,7 +1083,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 				break;
 			}
 		}
-		if (pch + 1 >= pE)
+		if (pch + 1 > pE)
 			continue;
 		pte = pch;
 		PutNewToken(NewTemplate, 

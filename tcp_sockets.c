@@ -119,7 +119,7 @@ int tcp_connectsock(char *host, char *service)
  *  buf the buffer to get the input to
  *  bytes the maximal number of bytes to read
  */
-inline void _serv_read(char *buf, int bytes, struct wcsession *WCC)
+inline void _serv_read(char *buf, int bytes, wcsession *WCC)
 {
 	int len, rlen;
 
@@ -143,7 +143,7 @@ inline void _serv_read(char *buf, int bytes, struct wcsession *WCC)
 
 void serv_read(char *buf, int bytes)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	_serv_read(buf, bytes, WCC);
 }
 
@@ -152,7 +152,7 @@ void serv_read(char *buf, int bytes)
  */
 int serv_getln(char *strbuf, int bufsize)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	int ch, len;
 	char buf[2];
 

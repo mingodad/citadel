@@ -182,7 +182,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 	int all_day_event = 0;
 	int show_event = 0;
 	char buf[256];
-	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+	wcsession *WCC = WC;
 	time_t tt;
 
 	if (GetCount(WCC->disp_cal_items) == 0) {
@@ -362,7 +362,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	time_t event_tt;
 	time_t event_tts;
 	time_t event_tte;
-	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+	wcsession *WCC = WC;
 	struct tm event_tms;
 	struct tm event_tme;
 	struct tm today_tm;
@@ -778,7 +778,7 @@ void calendar_day_view_display_events(time_t thetime,
 	int show_event = 0;
 	int all_day_event = 0;
 	int ongoing_event = 0;
-	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+	wcsession *WCC = WC;
 	disp_cal *Cal;
 	struct icaltimetype t;
 	struct icaltimetype end_t;
@@ -1257,7 +1257,7 @@ void calendar_summary_view(void) {
 	time_t now;
 	int all_day_event = 0;
 	char timestring[SIZ];
-	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+	wcsession *WCC = WC;
 
 	if (GetCount(WC->disp_cal_items) == 0) {
 		return;
@@ -1481,7 +1481,7 @@ void do_tasks_view(void) {
 	time_t due;
 	char buf[SIZ];
 	icalproperty *p;
-	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+	wcsession *WCC = WC;
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"calendar_view_background\"><tbody id=\"taskview\">\n<tr>\n"

@@ -125,7 +125,7 @@ CfgMapping ServerConfig[] = {
  */
 void load_siteconfig(void)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	StrBuf *Buf, *CfgToken;
 	HashList *Cfg;
 	char buf[SIZ];
@@ -195,7 +195,7 @@ void load_siteconfig(void)
  */
 void siteconfig(void)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	int i;
 	char buf[256];
 
@@ -247,7 +247,7 @@ void siteconfig(void)
 
 void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	void *vBuf;
 	StrBuf *Buf;
 
@@ -265,7 +265,7 @@ void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *C
 
 int ConditionalServCfg(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	void *vBuf;
 	StrBuf *Buf;
 
@@ -290,7 +290,7 @@ int ConditionalServCfg(WCTemplateToken *Tokens, void *Context, int ContextType)
 
 int ConditionalServCfgSubst(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	void *vBuf;
 	StrBuf *Buf;
 

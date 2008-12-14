@@ -14,13 +14,13 @@
 /* Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t SessionListMutex;
 
-struct wcsession *SessionList = NULL; /**< our sessions ????*/
+wcsession *SessionList = NULL; /**< our sessions ????*/
 
 pthread_key_t MyConKey;         /**< TSD key for MySession() */
 
 
 
-void DestroySession(struct wcsession **sessions_to_kill)
+void DestroySession(wcsession **sessions_to_kill)
 {
 	close((*sessions_to_kill)->serv_sock);
 	close((*sessions_to_kill)->chat_sock);
@@ -47,7 +47,7 @@ void DestroySession(struct wcsession **sessions_to_kill)
 
 void shutdown_sessions(void)
 {
-	struct wcsession *sptr;
+	wcsession *sptr;
 	
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 			sptr->killthis = 1;
@@ -56,8 +56,8 @@ void shutdown_sessions(void)
 
 void do_housekeeping(void)
 {
-	struct wcsession *sptr, *ss;
-	struct wcsession *sessions_to_kill = NULL;
+	wcsession *sptr, *ss;
+	wcsession *sessions_to_kill = NULL;
 	int num_sessions = 0;
 	static int num_threads = MIN_WORKER_THREADS;
 
@@ -297,7 +297,7 @@ void context_loop(int *sock)
 	int desired_session = 0;
 	int got_cookie = 0;
 	int gzip_ok = 0;
-	struct wcsession *TheSession, *sptr;
+	wcsession *TheSession, *sptr;
 	char httpauth_string[1024];
 	char httpauth_user[1024];
 	char httpauth_pass[1024];
@@ -529,9 +529,9 @@ authentication
 	 */
 	if (TheSession == NULL) {
 		lprintf(3, "Creating a new session\n");
-		TheSession = (struct wcsession *)
-			malloc(sizeof(struct wcsession));
-		memset(TheSession, 0, sizeof(struct wcsession));
+		TheSession = (wcsession *)
+			malloc(sizeof(wcsession));
+		memset(TheSession, 0, sizeof(wcsession));
 		TheSession->serv_sock = (-1);
 		TheSession->chat_sock = (-1);
 	
@@ -615,7 +615,7 @@ authentication
 
 void tmpl_nonce(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	StrBufAppendPrintf(Target, "%ld",
 			   (WCC != NULL)? WCC->nonce:0);		   
 }

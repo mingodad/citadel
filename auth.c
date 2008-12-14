@@ -176,7 +176,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
  */
 void do_login(void)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	char buf[SIZ];
 
 	if (havebstr("language")) {
@@ -342,7 +342,7 @@ void do_openid_login(void)
 void finalize_openid_login(void)
 {
 	char buf[1024];
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	int already_logged_in = (WCC->logged_in) ;
 	int linecount = 0;
 	char result[128] = "";
@@ -850,7 +850,7 @@ int ConditionalRoomAide(WCTemplateToken *Tokens, void *Context, int ContextType)
 
 int ConditionalRoomAcessDelete(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	return ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) );
 }
 

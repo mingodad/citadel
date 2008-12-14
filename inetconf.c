@@ -44,7 +44,7 @@ ConstStrBuf CfgNames[] = {
  */
 void load_inetconf(void)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	StrBuf *Buf, *CfgToken, *Value;
 	void *vHash;
 	HashList *Hash;
@@ -93,7 +93,7 @@ void load_inetconf(void)
  * save changes to the inet config
  */
 void new_save_inetconf(void) {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	HashList *Hash;
 	StrBuf *Str;
 	const StrBuf *eType, *eNum, *eName;
@@ -182,7 +182,7 @@ void InetCfgSubst(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Tokens)
 
 void DeleteInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	if (WCC->InetCfg != NULL)
 		DeleteHash(&WCC->InetCfg);
@@ -192,7 +192,7 @@ void DeleteInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void
 
 HashList *GetInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	void *vHash;
 
 	if (WCC->InetCfg == NULL)

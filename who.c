@@ -43,7 +43,7 @@ int CompareUserStruct(const void *VUser1, const void *VUser2)
 int GetWholistSection(HashList *List, time_t now)
 {
 	StrBuf *Buf, *XBuf;
-	struct wcsession *WCC = WC;	/* This is done to make it run faster; WC is a function */
+	wcsession *WCC = WC;
 	UserStateStruct *User, *OldUser;
 	void *VOldUser;
 	size_t BufLen;

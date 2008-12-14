@@ -79,7 +79,7 @@ void load_floorlist(void)
 /*
  * Free a session's march list
  */
-void free_march_list(struct wcsession *wcf)
+void free_march_list(wcsession *wcf)
 {
 	struct march *mptr;
 
@@ -3197,7 +3197,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
  * \param which_floordiv name of the floordiv???
  */
 void set_floordiv_expanded(void) {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	StrBuf *FloorDiv;
 	
 	FloorDiv = NewStrBuf();
@@ -3682,7 +3682,7 @@ void tmplput_roombanner(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void
 
 void tmplput_ungoto(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	if ((WCC!=NULL) && 
 	    (!IsEmptyStr(WCC->ugname)))
@@ -3692,7 +3692,7 @@ void tmplput_ungoto(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 
 int ConditionalHaveUngoto(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) && 
 		(!IsEmptyStr(WCC->ugname)) && 
@@ -3704,7 +3704,7 @@ int ConditionalHaveUngoto(WCTemplateToken *Tokens, void *Context, int ContextTyp
 
 int ConditionalRoomHas_QR_PERMANENT(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_PERMANENT) != 0));
@@ -3712,7 +3712,7 @@ int ConditionalRoomHas_QR_PERMANENT(WCTemplateToken *Tokens, void *Context, int 
 
 int ConditionalRoomHas_QR_INUSE(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_INUSE) != 0));
@@ -3720,7 +3720,7 @@ int ConditionalRoomHas_QR_INUSE(WCTemplateToken *Tokens, void *Context, int Cont
 
 int ConditionalRoomHas_QR_PRIVATE(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_PRIVATE) != 0));
@@ -3728,7 +3728,7 @@ int ConditionalRoomHas_QR_PRIVATE(WCTemplateToken *Tokens, void *Context, int Co
 
 int ConditionalRoomHas_QR_PASSWORDED(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_PASSWORDED) != 0));
@@ -3736,7 +3736,7 @@ int ConditionalRoomHas_QR_PASSWORDED(WCTemplateToken *Tokens, void *Context, int
 
 int ConditionalRoomHas_QR_GUESSNAME(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_GUESSNAME) != 0));
@@ -3744,7 +3744,7 @@ int ConditionalRoomHas_QR_GUESSNAME(WCTemplateToken *Tokens, void *Context, int 
 
 int ConditionalRoomHas_QR_DIRECTORY(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_DIRECTORY) != 0));
@@ -3752,7 +3752,7 @@ int ConditionalRoomHas_QR_DIRECTORY(WCTemplateToken *Tokens, void *Context, int 
 
 int ConditionalRoomHas_QR_UPLOAD(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_UPLOAD) != 0));
@@ -3760,7 +3760,7 @@ int ConditionalRoomHas_QR_UPLOAD(WCTemplateToken *Tokens, void *Context, int Con
 
 int ConditionalRoomHas_QR_DOWNLOAD(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_DOWNLOAD) != 0));
@@ -3768,7 +3768,7 @@ int ConditionalRoomHas_QR_DOWNLOAD(WCTemplateToken *Tokens, void *Context, int C
 
 int ConditionalRoomHas_QR_VISDIR(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_VISDIR) != 0));
@@ -3776,7 +3776,7 @@ int ConditionalRoomHas_QR_VISDIR(WCTemplateToken *Tokens, void *Context, int Con
 
 int ConditionalRoomHas_QR_ANONONLY(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_ANONONLY) != 0));
@@ -3784,7 +3784,7 @@ int ConditionalRoomHas_QR_ANONONLY(WCTemplateToken *Tokens, void *Context, int C
 
 int ConditionalRoomHas_QR_ANONOPT(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_ANONOPT) != 0));
@@ -3792,7 +3792,7 @@ int ConditionalRoomHas_QR_ANONOPT(WCTemplateToken *Tokens, void *Context, int Co
 
 int ConditionalRoomHas_QR_NETWORK(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_NETWORK) != 0));
@@ -3800,7 +3800,7 @@ int ConditionalRoomHas_QR_NETWORK(WCTemplateToken *Tokens, void *Context, int Co
 
 int ConditionalRoomHas_QR_PREFONLY(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_PREFONLY) != 0));
@@ -3808,7 +3808,7 @@ int ConditionalRoomHas_QR_PREFONLY(WCTemplateToken *Tokens, void *Context, int C
 
 int ConditionalRoomHas_QR_READONLY(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_READONLY) != 0));
@@ -3816,7 +3816,7 @@ int ConditionalRoomHas_QR_READONLY(WCTemplateToken *Tokens, void *Context, int C
 
 int ConditionalRoomHas_QR_MAILBOX(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
 		((WCC->room_flags & QR_MAILBOX) != 0));
@@ -3829,7 +3829,7 @@ int ConditionalRoomHas_QR_MAILBOX(WCTemplateToken *Tokens, void *Context, int Co
 
 int ConditionalHaveRoomeditRights(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	struct wcsession *WCC = WC;
+	wcsession *WCC = WC;
 
 	return ( (WCC!= NULL) && 
 		 ((WCC->axlevel >= 6) || 
@@ -3865,6 +3865,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
+	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, 0);
 
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);

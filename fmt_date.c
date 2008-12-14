@@ -5,6 +5,10 @@
 #include "webcit.h"
 #include "webserver.h"
 
+#ifdef HAVE_USELOCALE
+extern locale_t wc_locales[];
+#endif
+
 typedef unsigned char byte;
 
 #define FALSE 0 /**< no. */

@@ -617,6 +617,50 @@ void display_preferences(void)
 	wDumpContent(1);
 }
 
+
+
+
+/*
+ * Offer to make any page the user's "start page."
+ */
+void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
+	wprintf("<a href=\"change_start_page?startpage=");
+	urlescputs(WC->this_page);
+	wprintf("\">");
+	wprintf(_("Make this my start page"));
+	wprintf("</a>");
+#ifdef TECH_PREVIEW
+	wprintf("<br/><a href=\"rss?room=");
+	urlescputs(WC->wc_roomname);
+	wprintf("\" title=\"RSS 2.0 feed for ");
+	escputs(WC->wc_roomname);
+	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\"/></a>\n");
+#endif
+}
+
+
+/*
+ * Change the user's start page
+ */
+void change_start_page(void) {
+
+	if (bstr("startpage") == NULL) {
+		safestrncpy(WC->ImportantMessage,
+			_("You no longer have a start page selected."),
+			sizeof WC->ImportantMessage);
+		display_main_menu();
+		return;
+	}
+
+	set_preference("startpage", NewStrBufPlain(bstr("startpage"), -1), 1);
+
+	output_headers(1, 1, 0, 0, 0, 0);
+	do_template("newstartpage", NULL);
+	wDumpContent(1);
+}
+
+
+
 /**
  * \brief Commit new preferences and settings
  */
@@ -801,6 +845,7 @@ InitModule_PREFERENCES
 {
 	WebcitAddUrlHandler(HKEY("display_preferences"), display_preferences, 0);
 	WebcitAddUrlHandler(HKEY("set_preferences"), set_preferences, 0);
+	WebcitAddUrlHandler(HKEY("change_start_page"), change_start_page, 0);
 
 	RegisterPreference("roomlistview",_("Room list view"),PRF_STRING);
 	RegisterPreference("calhourformat",_("Time format"), PRF_INT);
