@@ -487,7 +487,7 @@ void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 	message_summary* Msg;
 	int lo, hi, n;
 	int i = 0;
-	long StartMsg;
+	long StartMsg = 0;
 	void *vMsg;
 	long hklen;
 	const char *key;
@@ -653,16 +653,6 @@ void readloop(long oper)
 
 		bbs_reverse = is_bbview && (lbstr("SortOrder") == 2);
 
-		if (is_bbview && (startmsg == 0L)) {
-			if (bbs_reverse) {
-				Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
-				startmsg = (Msg==NULL)? 0 : Msg->msgnum;
-			}
-			else {
-				Msg = GetMessagePtrAt(0, WCC->summ);
-				startmsg = (Msg==NULL)? 0 : Msg->msgnum;
-			}
-		}
 		sortit = is_summary || WCC->is_mobile;
 	}
 
@@ -703,7 +693,18 @@ void readloop(long oper)
 
 		goto DONE;
 	}
+	if (is_bbview && (startmsg == 0L)) {
+		if (bbs_reverse) {
+			Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
+			startmsg = (Msg==NULL)? 0 : Msg->msgnum;
+		}
+		else {
+			Msg = GetMessagePtrAt(0, WCC->summ);
+			startmsg = (Msg==NULL)? 0 : Msg->msgnum;
+		}
+	}
 
+	/* This is done to make it run faster; WC is a function */
 	if (load_seen){
 		void *vMsg;
 
