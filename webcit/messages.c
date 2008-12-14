@@ -56,8 +56,6 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	headereval *Hdr;
 	void *vHdr;
 	char buf[SIZ];
-//	char mime_submessages[256] = "";
-	char reply_references[1024] = "";
 	int Done = 0;
 	int state=0;
 	long len;
@@ -112,6 +110,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 			
 			lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+			/* look up one of the examine_* functions to parse the content */
 			if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 			    (vHdr != NULL)) {
 				Hdr = (headereval*)vHdr;
@@ -136,6 +135,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 				if (StrLength(HdrToken) > 0) {
 					StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 					lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+					/* the examine*'s know how to do with mime headers too... */
 					if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 					    (vHdr != NULL)) {
 						Hdr = (headereval*)vHdr;
@@ -165,11 +165,13 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 
 	if (Msg->AllAttach == NULL)
 		Msg->AllAttach = NewHash(1,NULL);
+	/* now we put the body mimepart we read above into the mimelist */
 	Put(Msg->AllAttach, SKEY(Msg->MsgBody->PartNum), Msg->MsgBody, DestroyMime);
 	
 	/* strip the bare contenttype, so we ommit charset etc. */
 	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');
 	StrBufTrim(Buf);
+	/* look up the renderer, that will convert this mimeitem into the htmlized form */
 	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 	    (vHdr != NULL)) {
 		RenderMimeFunc Render;
@@ -184,7 +186,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 		int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
 		int rrlen = StrLength(Msg->reply_references);
 		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-			remove_token(reply_references, 1, '|');////todo
+			StrBufRemove_token(Msg->reply_references, 1, '|');
 		}
 	}
 
@@ -220,6 +222,8 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
 	}
+
+	/* now check if we need to translate some mimeparts, and remove the duplicate */
 	it = GetNewHashPos(Msg->AllAttach, 0);
 	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
 	       (vMime != NULL)) {
@@ -379,26 +383,16 @@ int load_msg_ptrs(char *servcmd, int with_headers)
         wcsession *WCC = WC;
 	message_summary *Msg;
 	StrBuf *Buf, *Buf2;
-	///char buf[1024];
-	///time_t datestamp;
-	//char fullname[128];
-	//char nodename[128];
-	//char inetaddr[128];
-	//char subject[1024];
-	///char *ptr;
-	int nummsgs;
-	////int sbjlen;
+	int nummsgs = 0;
 	int maxload = 0;
 	long len;
 	int n;
-	////int num_summ_alloc = 0;
 
 	if (WCC->summ != NULL) {
 		if (WCC->summ != NULL)
 			DeleteHash(&WCC->summ);
 	}
 	WCC->summ = NewHash(1, Flathash);
-	nummsgs = 0;
 	maxload = 10000;
 	
 	Buf = NewStrBuf();
@@ -560,7 +554,6 @@ void readloop(long oper)
 	char buf[SIZ];
 	char old_msgs[SIZ];
 	int a = 0;
-	///int b = 0;
 	int nummsgs;
 	long startmsg = 0;
 	int maxmsgs = 0;
@@ -676,7 +669,7 @@ void readloop(long oper)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	/*
+	/* TODO: how can we best sort this in?
 	if (WCC->is_mobile) {
 		maxmsgs = 20;
 		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
@@ -685,14 +678,12 @@ void readloop(long oper)
 		);
 		SortBy =  eRDate;
 	}
-
+	*/
 	/*
 	 * Are we doing a summary view?  If so, we need to know old messages
 	 * and new messages, so we can do that pretty boldface thing for the
 	 * new messages.
 	 */
-
-
 	nummsgs = load_msg_ptrs(cmd, (is_summary || WCC->is_mobile));
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
@@ -1188,12 +1179,10 @@ void display_enter(void)
 	char buf[SIZ];
 	long now;
 	const StrBuf *display_name = NULL;
-	/////wc_attachment *att;
 	int recipient_required = 0;
 	int subject_required = 0;
 	int recipient_bad = 0;
 	int is_anonymous = 0;
-
       	wcsession *WCC = WC;
 
 	now = time(NULL);
