@@ -605,7 +605,7 @@ void readloop(long oper)
 		break;
 	case VIEW_ADDRESSBOOK:
 		is_singlecard = ibstr("is_singlecard");
-		if (maxmsgs > 1) {
+		if (is_singlecard != 1) {
 			is_addressbook = 1;
 			if (oper == do_search) {
 				snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
@@ -616,7 +616,7 @@ void readloop(long oper)
 			maxmsgs = 9999999;
 			break;
 		}
-
+		break;
 	default:
 		care_for_empty_list = 1;
 		startmsg = lbstr("startmsg");
