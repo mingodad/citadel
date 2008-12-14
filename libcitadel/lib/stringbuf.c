@@ -291,7 +291,14 @@ int StrToi(const StrBuf *Buf)
 	else
 		return 0;
 }
-
+/**
+ * \brief Checks to see if the string is a pure number 
+ */
+int StrBufIsNumber(const StrBuf *Buf) {
+  char * pEnd;
+  strtoll(Buf->buf, &pEnd, 10);
+  return (strlen(pEnd) > 0) ? 0 : 1;
+} 
 /**
  * \brief modifies a Single char of the Buf
  * You can point to it via char* or a zero-based integer
