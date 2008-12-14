@@ -1114,7 +1114,7 @@ void display_editroom(void)
 	char node[256];
 	char remote_room[128];
 	char recp[1024];
-	char er_name[128];
+	char er_name[128] = "";
 	char er_password[10];
 	char er_dirname[15];
 	char er_roomaide[26];
