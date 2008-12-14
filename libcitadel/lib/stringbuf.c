@@ -32,7 +32,7 @@ int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
 struct StrBuf {
 	char *buf;         /**< the pointer to the dynamic buffer */
 	long BufSize;      /**< how many spcae do we optain */
-	long BufUsed;      /**< Number of Chars used excluding the trailing \0 */
+	long BufUsed;      /**< StNumber of Chars used excluding the trailing \0 */
 	int ConstBuf;      /**< are we just a wrapper arround a static buffer and musn't we be changed? */
 };
 
@@ -295,9 +295,15 @@ int StrToi(const StrBuf *Buf)
  * \brief Checks to see if the string is a pure number 
  */
 int StrBufIsNumber(const StrBuf *Buf) {
+  if (Buf == NULL) {
+	return 0;
+  }
   char * pEnd;
   strtoll(Buf->buf, &pEnd, 10);
-  return (strlen(pEnd) > 0) ? 0 : 1;
+  if (pEnd != NULL && ((Buf->buf)-pEnd) == 0) {
+    return 0;
+  }
+  return 1;
 } 
 /**
  * \brief modifies a Single char of the Buf

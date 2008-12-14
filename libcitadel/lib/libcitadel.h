@@ -285,6 +285,7 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn);
 
 long StrTol(const StrBuf *Buf);
 int StrToi(const StrBuf *Buf);
+int StrBufIsNumber(const StrBuf *Buf);
 long StrBuf_Utf8StrLen(StrBuf *Buf);
 long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen);
 
