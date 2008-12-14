@@ -38,8 +38,9 @@ function createMessageView() {
   mlh_from.observe('click',ToggleFromSort);
   /* This handles our 'context-menu'. Don't feed to IE */
   if (message_view.addEventListener != undefined) {
-  $(message_view).observe('mousedown', mouseDownHandler);
-  $(message_view).observe('mouseup',mouseUpHandler);
+    $(message_view).observe('mousedown', mouseDownHandler);
+    $(document.body).observe('mouseup',mouseUpHandler);
+    $(document.body).observe('mousemove',mouseMoveHandler);
   }
   $(document).observe('keyup',CtdlMessageListKeyUp,false);
   window.oncontextmenu = function() { return false; };  
@@ -57,10 +58,13 @@ function loadMessages(transport) {
     var msgId = data[0];
     var rowId = "msg_" + msgId;
     trElement.setAttribute("id",rowId);
-    $(trElement).observe('click', CtdlMessageListClick);
+    //$(trElement).observe('click', CtdlMessageListClick);
     trElement.ctdlMsgId = msgId;
     for(var j=1; j<4;j++) { // 1=msgId (hidden), 5 = isNew etc. 
       var content = data[j];
+      if(content.length < 1) {
+	content = "(blank)";
+      }
       if (j==3) {
        	trElement.ctdlDate = content;
 	date = new Date(content*1000);
@@ -135,15 +139,15 @@ function sortRowsByFromDescending(a, b) {
 
 function CtdlMessageListClick(event) {
   var target = event.target;
-  var parentNode = target.parentNode;
-  var msgId = parentNode.ctdlMsgId;
+  var parent = target.parentNode;
+  var msgId = parent.ctdlMsgId;
   // If the shift key modifier wasn't used, unmark all rows and load the message
   if (!event.shiftKey) {
     unmarkAllRows();
     new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
-    markRow(parentNode);
+    markRow(parent);
   } else if (event.button != 2) {
-    markRow(parentNode);
+    markRow(parent);
     var selection = window.getSelection();
     var range = selection.getRangeAt(0);
     var childNodesInRange = range.cloneContents().childNodes;
@@ -240,16 +244,64 @@ function clearMessage(msgId) {
 }
 /* Since right click is hard to capture, implement an alternative method inspired by BillyG's PDA OS.. hold mouse down for context menu */
 function mouseDownHandler(event) {
+  var target = event.target;
+  var targetNode = null;
+  if (target != null && target.nodeName.toLowerCase() == "td") {
+    targetNode = target.parentNode;
+  } else {
+    targetNode = target;
+  }
   exitedMouseDown = false;
   mouseDownEvent = event;
-  setTimeout('summaryViewContextMenu();', 1000);
+  CtdlMessageListClick(event);
+  if (event.altKey) {
+    setTimeout('summaryViewContextMenu();', 1000);
+  } else {
+    // Spawn a div containing the message name
+    var dragHint = document.getElementById("draghint");
+    if(dragHint) { dragHint.parentNode.removeChild(dragHint) }
+    dragHint = document.createElement("div");
+    dragHint.setAttribute("id","draghint");
+    var descript = document.createElement("span");
+    dragHint.appendChild(descript);
+    setTextContent(descript, getTextContent(targetNode.getElementsByTagName("td")[0]));
+    document.body.appendChild(dragHint);
+  }
+  return false;
 }
 function mouseUpHandler(event) {
+  var target = event.target;
   exitedMouseDown = true;
+  var dragHint = document.getElementById("draghint");
+  if (dragHint != null) {
+    if (dragHint.parentNode) {
+      dragHint.parentNode.removeChild(dragHint);
+    }
+    dragHint == null;
+  }
 }
 function summaryViewContextMenu() {
   if (!exitedMouseDown) {
     var contextSource = document.getElementById("listViewContextMenu");
     CtdlSpawnContextMenu(mouseDownEvent, contextSource);
   }
+}
+function mouseMoveHandler(event) {
+  var target = event.target;
+  /* if (target.nodeName.toLowerCase == "td") {
+    target = target.parentNode;
+  } 
+  if (!target.nodeName.toLowerCase == "tr" || dragHint == null) {
+    return;
+    } */
+  var dragHint = document.getElementById("draghint");
+  if (dragHint == null) {
+    return;
+  }
+  var clientX = event.clientX-5;
+  var clientY = event.clientY+5;
+  dragHint.setAttribute("class","draghint_visible");
+  dragHint.style.top = clientY+'px';
+  dragHint.style.left = clientX+'px';
+  return false;
 }

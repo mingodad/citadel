@@ -631,6 +631,15 @@ body, #global {
     background-color: white;
     border: 1px solid black;
 }
+#draghint { 
+    display: none;
+    background-color: white;
+    border: 1px solid black;
+}
+#draghint.draghint_visible {
+    display: block;
+    position: fixed;
+}
 /* Login */
 
 #login_screen .login_message, #login_screen .login_image, .login_hello, #login_screen #login_form {

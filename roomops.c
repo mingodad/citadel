@@ -3319,30 +3319,6 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	wprintf("</div>\n");	/** floordiv */
 
 
-	/** BEGIN: The old invisible pixel trick, to get our JavaScript to initialize */
-	wprintf("<img src=\"static/blank.gif\" onLoad=\"\n");
-
-	num_drop_targets = 0;
-
-	for (i=0; i<max_folders; ++i) {
-		levels = num_tokens(fold[i].name, '|');
-		if (levels > 1) {
-			wprintf("drop_targets_elements[%d]=$('roomdiv%d');\n", num_drop_targets, i);
-			wprintf("drop_targets_roomnames[%d]='", num_drop_targets);
-			jsescputs(fold[i].room);
-			wprintf("';\n");
-			++num_drop_targets;
-		}
-	}
-
-	wprintf("num_drop_targets = %d;\n", num_drop_targets);
-	if ((ChrPtr(WC->floordiv_expanded)[0] != '\0')&&
-	    (ChrPtr(WC->floordiv_expanded)[1] != '\0')){
-		wprintf("which_div_expanded = '%s';\n", ChrPtr(WC->floordiv_expanded));
-	}
-
-	wprintf("\">\n");
-	/** END: The old invisible pixel trick, to get our JavaScript to initialize */
 }
 
 

@@ -9,7 +9,26 @@
 var browserType;
 var room_is_trash = 0;
 
-if (document.layers) {browserType = "nn4"}
+// ROOM list vars:
+var rooms = null;
+
+// FLOOR list
+var floors = null;
+
+var roomsForFloors = new Array();
+/* STRUCT KEYS */
+/* LKRN etc. */
+var RN_ROOM_NAME = 0;
+var RN_ROOM_FLAG = 1;
+var RN_FLOOR_NUM = 2;
+var RN_LIST_ORDER = 3;
+var RM_ACCESS_CONTROL = 4;
+var RM_CUR_VIEW = 5;
+var RM_DEF_VIEW = 6;
+var RM_LAST_CHANGE = 7;
+
+var QR_PRIVATE = 4;
+var QR_MAILBOX = 16384;
 if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko"
@@ -119,11 +138,93 @@ var drop_targets_elements = new Array();
 var drop_targets_roomnames = new Array();
 
 function switch_to_room_list() {
-	$('iconbar').innerHTML = $('iconbar').innerHTML.substr(0, $('iconbar').innerHTML.indexOf('switch'));
-	CtdlLoadScreen('iconbar');
-	new Ajax.Updater('iconbar', 'iconbar_ajax_rooms', { method: 'get' } );
+  if (!rooms || !floors) {
+  var roomReq = new Ajax.Request("/ajax_servcmd?g_cmd=LKRA&o_json=yes",
+			     {method: 'get', asynchronous: false, onSuccess: ProcessRoomList});
+  var floorReq = new Ajax.Request("/ajax_servcmd?g_cmd=LFLR&o_json=yes", 
+				  {method: 'get', asynchronous: false, onSuccess: ProcessFloorList});
+  IconBarRoomList();
+  } 
+}
+function ProcessRoomList (transport) {
+  if (transport != null) {
+    var data = eval('('+transport.responseText+')');
+    rooms = data['response'];
+  }
+}
+function ProcessFloorList(transport) {
+  var data = eval('('+transport.responseText+')');
+  floors = data['response'];
+}
+function GetRoomsByFloorNum(flnum) {
+  var roomsForFloor = new Array();
+  var x=0;
+  for(var i=0; i<rooms.length; i++) {
+    var room = rooms[i];
+    var floornum = room[RN_FLOOR_NUM];
+    var flag = room[RN_ROOM_FLAG];
+    if (flnum == floornum && ((flag & QR_MAILBOX) != QR_MAILBOX)) {
+      roomsForFloor[x] = room;
+      x++;
+    }
+  }
+  return roomsForFloor;
+}
+function GetMailboxRooms() {
+  var roomsForFloor = new Array();
+  var x=0;
+  for(var i=0; i<rooms.length; i++) {
+    var room = rooms[i];
+    var floornum = room[RN_FLOOR_NUM];
+    var flag = room[RN_ROOM_FLAG];
+    if ((flag & QR_MAILBOX) == QR_MAILBOX) {
+      roomsForFloor[x] = room;
+      x++;
+    }
+  }
+  return roomsForFloor;
+}
+function IconBarRoomList() {
+  var iconbar = document.getElementById("iconbar");
+  iconbar.innerHTML = "";
+  var topContainer = document.createElement("div");
+  iconbar.appendChild(topContainer);
+  var ul = document.createElement("ul");
+  topContainer.appendChild(ul);
+  // Add mailbox, because they are special
+  var mailboxLI = document.createElement("li");
+  ul.appendChild(mailboxLI);
+  mailboxLI.appendChild(document.createTextNode("Mailbox"));
+  var mailboxUL = document.createElement("ul");
+  mailboxLI.appendChild(mailboxUL);
+  var mailboxRooms = GetMailboxRooms();
+  for(var i=0; i<mailboxRooms.length; i++) {
+    var room = mailboxRooms[i];
+    addRoomToList(mailboxUL, room);
+  }
+  for(var a=0; a<floors.length; a++) {
+    var floor = floors[a];
+    var floornum = floor[0];
+    var name = floor[1];
+    var floorLI = document.createElement("li");
+    ul.appendChild(floorLI);
+    floorLI.appendChild(document.createTextNode(name));
+    var floorUL = document.createElement("ul");
+    floorLI.appendChild(floorUL);
+    var roomsForFloor = GetRoomsByFloorNum(floornum);
+    for(var b=0; b<roomsForFloor.length; b++) {
+      var room = roomsForFloor[b];
+      addRoomToList(floorUL, room);
+    }
+  }
 }
 
+function addRoomToList(floorUL,room) {
+  var roomName = room[RN_ROOM_NAME];
+      var roomLI = document.createElement("li");
+      roomLI.appendChild(document.createTextNode(roomName));
+      floorUL.appendChild(roomLI);
+}
 function expand_floor(floor_div) {
 	if (which_div_expanded != null) {
 		if ($(which_div_expanded) != null) {
@@ -1034,4 +1135,3 @@ function RecurrenceShowHide() {
 	}
 
 }
-
