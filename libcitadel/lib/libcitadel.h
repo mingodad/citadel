@@ -244,15 +244,15 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 
 int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr);
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
-int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars);
+int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t nChars);
 unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, char separator);
 long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator);
 int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator);
 inline int StrBufNum_tokens(const StrBuf *source, char tok);
 int StrBufRemove_token(StrBuf *Source, int parmnum, char separator);
 
-void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset);
-void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset);
+void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, unsigned long Offset);
+void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset);
 void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...);
 #ifdef SHOW_ME_VAPPEND_PRINTF
 /* so owe don't create an include depndency, this is just visible on demand. */

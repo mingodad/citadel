@@ -330,7 +330,7 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
  * \param AppendBuf Buffer to copy at the end of our buffer
  * \param Offset Should we start copying from an offset?
  */
-void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset)
+void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset)
 {
 	if ((AppendBuf == NULL) || (Buf == NULL))
 		return;
@@ -355,12 +355,12 @@ void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, size_t Offset)
  * \param AppendSize number of bytes to copy; set to -1 if we should count it in advance
  * \param Offset Should we start copying from an offset?
  */
-void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, size_t Offset)
+void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, unsigned long Offset)
 {
 	long aps;
 	long BufSizeRequired;
 
-	if ((AppendBuf == NULL) || (Buf == NULL))
+	if ((AppendBuf == NULL) || (Buf == NULL) || (AppendSize <= 0))
 		return;
 
 	if (AppendSize < 0 )
@@ -619,7 +619,7 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
  * \param nChars number of chars to copy
  * \returns the number of chars copied; may be different from nChars due to the size of Source
  */
-int StrBufSub(StrBuf *dest, const StrBuf *Source, size_t Offset, size_t nChars)
+int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t nChars)
 {
 	size_t NCharsRemain;
 	if (Offset > Source->BufUsed)
