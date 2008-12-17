@@ -360,7 +360,7 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, u
 	long aps;
 	long BufSizeRequired;
 
-	if ((AppendBuf == NULL) || (Buf == NULL) || (AppendSize <= 0))
+	if ((AppendBuf == NULL) || (Buf == NULL))
 		return;
 
 	if (AppendSize < 0 )
