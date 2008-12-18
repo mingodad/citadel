@@ -764,6 +764,19 @@ int ConditionalPreference(WCTemplateToken *Tokens, void *Context, int ContextTyp
 		return (StrTol(Pref) == Tokens->Params[3]->lvalue);
 }
 
+int ConditionalHazePreference(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBuf *Pref;
+
+	if (!get_PREFERENCE(Tokens->Params[2]->Start,
+			    Tokens->Params[2]->len,
+			    &Pref) || 
+	    (Pref == NULL)) 
+		return 0;
+	else 
+		return 1;
+}
+
 HashList *GetGVEAHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *Rcp;
@@ -867,6 +880,7 @@ InitModule_PREFERENCES
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
+	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHazePreference, CTX_NONE);
 	
 	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
 			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE);
