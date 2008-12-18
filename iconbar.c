@@ -111,25 +111,10 @@ void do_iconbar(void) {
                 wprintf("\n");
         }
 
-/** 'Powered by Citadel' logo */
-        if (IconbarIsEnabled("ib_citadel", 1) && (ib_displayas != IB_TEXTONLY)) wprintf(
-                "<div class=\"logo_citadel\"> "
-                "<a href=\"http://www.citadel.org\" "
-                "title=\"%s\"> "
-                "<img "
-                "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
-                "</div>\n",
-                _("Find out more about Citadel"),
-                _("CITADEL")
-        );
-
-	wprintf("<ul id=\"button\">\n");
-
-	wprintf("<li class=\"switch\"><a href=\"javascript:switch_to_room_list()\">");
-	wprintf(_("switch to room list"));
-	wprintf("</a></li>");
-
+	wprintf("<span id=\"switch\"></span>");
+	wprintf("<div id=\"summary\">");
 /** Summary page icon */
+	wprintf("<ul id=\"button\">");
 	if (IconbarIsEnabled("ib_summary", 1)) {
 		wprintf("<li><a href=\"summary\" "
 			"title=\"%s\" "
@@ -371,6 +356,7 @@ void do_iconbar(void) {
 			"</script> \n"
 			);
 	}
+	wprintf("</div>");
 }
 
 

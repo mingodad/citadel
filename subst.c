@@ -650,9 +650,6 @@ void StrBufAppendTemplate(StrBuf *Target,
         wcsession *WCC;
 	StrBuf *Buf;
 	char EscapeAs = ' ';
-	if (StrLength(Source) <= 1) {
-	  return; // lame workaround for \0's appearing in our output from empty buf's
-	}
 	if ((FormatTypeIndex < Tokens->nParameters) &&
 	    (Tokens->Params[FormatTypeIndex]->Type == TYPE_STR) &&
 	    (Tokens->Params[FormatTypeIndex]->len == 1)) {

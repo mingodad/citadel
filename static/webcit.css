@@ -511,6 +511,7 @@ body, #global {
 	top: 0;
 	left: 0;
 	width: 16%;
+    z-index: 0;
 }
 
 #banner {
@@ -556,13 +557,23 @@ body, #global {
 	overflow: auto;
 	cursor: pointer;
 }
+#message_list_body {
+    background-color: white !important;
+}
+#message_list_body > div {
+    display: block;
+    z-index: 699;
+}
 .col1 {
+    display: table-cell;
     width: 50%;
 }
 .col2 { 
+    display: table-cell;
     width: 30%;
 }
 .col3 {
+    display: table-cell;
     width: 20%;
 }
 .new_message {
@@ -639,6 +650,9 @@ body, #global {
 #draghint.draghint_visible {
     display: block;
     position: fixed;
+}
+.hidden {
+    display: none;
 }
 /* Login */
 
@@ -832,8 +846,44 @@ html>body #button li a {
 	float: none;
 	margin: 0 2px 0 2px;
 }
- 
-
+.floor {
+    margin-left: 0px;
+}
+.floor > ul {
+    display: none;
+}
+.floor-expanded > ul{
+    display: block !important;
+}
+#roomlist > ul {
+    margin: 0;
+    padding: 0;
+}
+#roomlist > div > ul > li {
+    margin: 0;
+    padding: 0;
+}
+/** Override to disable list-style-image" */
+.room {
+}
+.room-private {
+    list-style-image: url("/static/privatemess_16x.gif");
+}
+.room-addr {
+    list-style-image: url("/static/viewcontacts_16x.gif");
+}
+.room-cal {
+    list-style-image: url("/static/calarea_16x.gif");
+}
+.room-tasks {
+    list-style-image: url("/static/taskmanag_16x.gif");
+}
+.room-notes {
+    list-style-image: url("/static/storenotes_16x.gif");
+}
+.room-chat {
+    list-style-image: url("/static/chatrooms_16x.gif");
+}
 /* Content */
 
 .boxcontent table {
@@ -1376,6 +1426,9 @@ li.event_unread span, a.event_read_title {
 #navbar ul li a img {
       vertical-align: middle;
       border: none;
+}
+.table-row {
+    background-color: white;
 }
 .table-alt-row {
       background-color: #DDDDDD;

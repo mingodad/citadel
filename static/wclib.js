@@ -9,26 +9,13 @@
 var browserType;
 var room_is_trash = 0;
 
-// ROOM list vars:
-var rooms = null;
+var currentlyExpandedFloor = null;
+var roomlist = null;
 
-// FLOOR list
-var floors = null;
+var _switchToRoomList = "switch to room list";
+var _switchToMenu = "switch to menu";
 
-var roomsForFloors = new Array();
-/* STRUCT KEYS */
-/* LKRN etc. */
-var RN_ROOM_NAME = 0;
-var RN_ROOM_FLAG = 1;
-var RN_FLOOR_NUM = 2;
-var RN_LIST_ORDER = 3;
-var RM_ACCESS_CONTROL = 4;
-var RM_CUR_VIEW = 5;
-var RM_DEF_VIEW = 6;
-var RM_LAST_CHANGE = 7;
-
-var QR_PRIVATE = 4;
-var QR_MAILBOX = 16384;
+var currentDropTarget = null;
 if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko"
@@ -36,6 +23,7 @@ if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 var ns6=document.getElementById&&!document.all;
 Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
+document.observe("dom:loaded", setupIconBar);
 function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
 }
@@ -130,77 +118,60 @@ function activate_entmsg_autocompleters() {
 	new Ajax.Autocompleter('recp_id', 'recp_name_choices', 'recp_autocomplete', {} );
 }
 
-
-// Toggle the icon bar between menu/roomlist...
-var which_div_expanded = null;
-var num_drop_targets = 0;
-var drop_targets_elements = new Array();
-var drop_targets_roomnames = new Array();
-
+function setupIconBar() {
+  var switchSpan = document.getElementById("switch");
+  if (switchSpan != null) {
+    setTextContent(switchSpan, _switchToRoomList);
+    switchSpan.ctdlSwitchIconBarTo = "rooms";
+    $(switchSpan).observe('click', changeIconBar);
+  }
+}
+function changeIconBar(event) {
+  var target = event.target;
+  var switchTo = target.ctdlSwitchIconBarTo;
+  if (switchTo == "rooms") {
+    switch_to_room_list();
+    setTextContent(target, _switchToMenu);
+    target.ctdlSwitchIconBarTo = "menu";
+  } else {
+    switch_to_menu_buttons();
+    setTextContent(target, _switchToRoomList);
+    target.ctdlSwitchIconBarTo = "rooms";
+  }
+}
 function switch_to_room_list() {
-  if (!rooms || !floors) {
-  var roomReq = new Ajax.Request("/ajax_servcmd?g_cmd=LKRA&o_json=yes",
-			     {method: 'get', asynchronous: false, onSuccess: ProcessRoomList});
-  var floorReq = new Ajax.Request("/ajax_servcmd?g_cmd=LFLR&o_json=yes", 
-				  {method: 'get', asynchronous: false, onSuccess: ProcessFloorList});
+  if (!rooms || !floors || !roomlist) {
+    FillRooms();
   IconBarRoomList();
-  } 
-}
-function ProcessRoomList (transport) {
-  if (transport != null) {
-    var data = eval('('+transport.responseText+')');
-    rooms = data['response'];
+  } else {
+    roomlist.className = roomlist.className.replace("hidden","");
   }
+  var summary = document.getElementById("summary");
+  summary.className += " hidden";
 }
-function ProcessFloorList(transport) {
-  var data = eval('('+transport.responseText+')');
-  floors = data['response'];
-}
-function GetRoomsByFloorNum(flnum) {
-  var roomsForFloor = new Array();
-  var x=0;
-  for(var i=0; i<rooms.length; i++) {
-    var room = rooms[i];
-    var floornum = room[RN_FLOOR_NUM];
-    var flag = room[RN_ROOM_FLAG];
-    if (flnum == floornum && ((flag & QR_MAILBOX) != QR_MAILBOX)) {
-      roomsForFloor[x] = room;
-      x++;
-    }
-  }
-  return roomsForFloor;
-}
-function GetMailboxRooms() {
-  var roomsForFloor = new Array();
-  var x=0;
-  for(var i=0; i<rooms.length; i++) {
-    var room = rooms[i];
-    var floornum = room[RN_FLOOR_NUM];
-    var flag = room[RN_ROOM_FLAG];
-    if ((flag & QR_MAILBOX) == QR_MAILBOX) {
-      roomsForFloor[x] = room;
-      x++;
-    }
-  }
-  return roomsForFloor;
-}
+
 function IconBarRoomList() {
+  currentDropTargets = new Array();
   var iconbar = document.getElementById("iconbar");
-  iconbar.innerHTML = "";
-  var topContainer = document.createElement("div");
-  iconbar.appendChild(topContainer);
+  roomlist = document.createElement("div");
+  roomlist.setAttribute("id", "roomlist");
+  iconbar.appendChild(roomlist);
   var ul = document.createElement("ul");
-  topContainer.appendChild(ul);
+  roomlist.appendChild(ul);
   // Add mailbox, because they are special
   var mailboxLI = document.createElement("li");
   ul.appendChild(mailboxLI);
-  mailboxLI.appendChild(document.createTextNode("Mailbox"));
+  var mailboxSPAN = document.createElement("span");
+  mailboxSPAN.appendChild(document.createTextNode("Mailbox"));
+  $(mailboxSPAN).observe('click', expand_floor);
+  mailboxLI.appendChild(mailboxSPAN);
+  mailboxLI.setAttribute("class", "floor");
   var mailboxUL = document.createElement("ul");
   mailboxLI.appendChild(mailboxUL);
   var mailboxRooms = GetMailboxRooms();
   for(var i=0; i<mailboxRooms.length; i++) {
     var room = mailboxRooms[i];
-    addRoomToList(mailboxUL, room);
+    currentDropTargets.push(addRoomToList(mailboxUL, room));
   }
   for(var a=0; a<floors.length; a++) {
     var floor = floors[a];
@@ -208,184 +179,83 @@ function IconBarRoomList() {
     var name = floor[1];
     var floorLI = document.createElement("li");
     ul.appendChild(floorLI);
-    floorLI.appendChild(document.createTextNode(name));
+    var floorSPAN = document.createElement("span");
+    floorSPAN.appendChild(document.createTextNode(name));
+    $(floorSPAN).observe('click', expand_floor);
+    floorLI.appendChild(floorSPAN);
+    floorLI.setAttribute("class", "floor");
     var floorUL = document.createElement("ul");
     floorLI.appendChild(floorUL);
     var roomsForFloor = GetRoomsByFloorNum(floornum);
     for(var b=0; b<roomsForFloor.length; b++) {
       var room = roomsForFloor[b];
-      addRoomToList(floorUL, room);
+      currentDropTargets.push(addRoomToList(floorUL, room));
     }
   }
 }
 
 function addRoomToList(floorUL,room) {
   var roomName = room[RN_ROOM_NAME];
-      var roomLI = document.createElement("li");
-      roomLI.appendChild(document.createTextNode(roomName));
-      floorUL.appendChild(roomLI);
+  var flag = room[RN_ROOM_FLAG];
+  var view = room[RN_DEF_VIEW];
+  var isMailBox = ((flag & QR_MAILBOX) == QR_MAILBOX);
+  var roomLI = document.createElement("li");
+  var roomA = document.createElement("a");
+  roomA.setAttribute("href","dotgoto?room="+roomName);
+  roomA.appendChild(document.createTextNode(roomName));
+  roomLI.appendChild(roomA);
+  floorUL.appendChild(roomLI);
+  var className = "room ";
+  if (view == VIEW_MAILBOX) {
+    className += "room-private"
+  } else if (view == VIEW_ADDRESSBOOK) {
+    className += "room-addr";
+  } else if (view == VIEW_CALENDAR || view == VIEW_CALBRIEF) {
+    className += "room-cal";
+  } else if (view == VIEW_TASKS) {
+    className += "room-tasks";
+  } else if (view == VIEW_NOTES) {
+    className += "room-notes";
+  } else {
+    className += "room-chat";
+  }
+  roomLI.setAttribute("class", className);
+  roomA.dropTarget = true;
+  roomA.dropHandler = roomListDropHandler;
+  return roomLI;
 }
-function expand_floor(floor_div) {
-	if (which_div_expanded != null) {
-		if ($(which_div_expanded) != null) {
-			$(which_div_expanded).style.display = 'none' ;
-		}
-	}
 
-	// clicking on the already-expanded floor causes the whole list to collapse
-	if (which_div_expanded == floor_div) {
-		which_div_expanded = null;
-
-		// notify the server that no floors are expanded
-		new Ajax.Request(
-			'set_floordiv_expanded/-1', {
-				method: 'post'
-			}
-		);
-		return true;
-	}
-
-	// expand the requested floor
-	$(floor_div).style.display = 'block';
-	which_div_expanded = floor_div;
-
-	// notify the server of which floor is expanded
-	new Ajax.Request(
-		'set_floordiv_expanded/'+floor_div, {
-			method: 'post'
-		}
-	);
+function roomListDropHandler(target, dropped) {
+  if (dropped.ctdlMsgId) {
+    var room = getTextContent(target);
+    var mvCommand = "g_cmd=MOVE " + dropped.ctdlMsgId + "|"+room+"|0";
+    new Ajax.Request('ajax_servcmd', {
+      method: 'post',
+	  parameters: mvCommand,
+	  onComplete: clearMessage(dropped.ctdlMsgId)});
+    } 
+}
+function expand_floor(event) {
+  var target = event.target;
+  if (target.nodeName.toLowerCase() != "span") {
+    return; // ignore clicks on child UL
+  }
+  var parentUL = target.parentNode;
+  if (currentlyExpandedFloor != null) {
+    currentlyExpandedFloor.className = currentlyExpandedFloor.className.replace("floor-expanded","");
+  }
+  parentUL.className = parentUL.className + " floor-expanded";
+  currentlyExpandedFloor = parentUL;
 }
 
 function switch_to_menu_buttons() {
-	which_div_expanded = null;
-	num_drop_targets = 0;
-	CtdlLoadScreen('iconbar');
-	new Ajax.Updater('iconbar', 'iconbar_ajax_menu', { method: 'get' } );
-}
-
-
-// Static variables for mailbox view...
-//
-var CtdlNumMsgsSelected = 0;
-var CtdlMsgsSelected = new Array();
-var CtdlLastMsgnumSelected = 0;
-
-// This gets called when you single click on a message in the mailbox view.
-// We know that the element id of the table row will be the letter 'm' plus the message number.
-//
-function CtdlSingleClickMsg(evt, msgnum) {
-
-	// Clear the preview pane until we load the new message
-	$('preview_pane').innerHTML = '';
-
-	// De-select any messages that were already selected, *unless* the Ctrl or
-	// Shift key is being pressed, in which case the user wants multi select
-	// or group select.
-	if ( (!evt.ctrlKey) && (!evt.shiftKey) ) {
-		if (CtdlNumMsgsSelected > 0) {
-			for (i=0; i<CtdlNumMsgsSelected; ++i) {
-				$('m'+CtdlMsgsSelected[i]).style.backgroundColor = '#fff';
-				$('m'+CtdlMsgsSelected[i]).style.color = '#000';
-			}
-			CtdlNumMsgsSelected = 0;
-		}
-	}
-
-	// For multi select ... is the message being clicked already selected?
-	already_selected = 0;
-	if ( (evt.ctrlKey) && (CtdlNumMsgsSelected > 0) ) {
-		for (i=0; i<CtdlNumMsgsSelected; ++i) {
-			if (CtdlMsgsSelected[i] == msgnum) {
-				already_selected = 1;
-				already_selected_pos = i;
-			}
-		}
-	}
-
-	// Now select (or de-select) the message
-	if ( (evt.ctrlKey) && (already_selected == 1) ) {
-
-		// Deselect: first un-highlight it...
-		$('m'+msgnum).style.backgroundColor = '#fff';
-		$('m'+msgnum).style.color = '#000';
-
-		// Then remove it from the selected messages list.
-		for (i=already_selected_pos; i<(CtdlNumMsgsSelected-1); ++i) {
-			CtdlMsgsSelected[i] = CtdlMsgsSelected[i+1];
-		}
-		CtdlNumMsgsSelected = CtdlNumMsgsSelected - 1;
-		
-	}
-
-	else if (evt.shiftKey) {
-		
-		// Group select: first clear everything out...
-		if (CtdlNumMsgsSelected > 0) {
-			for (i=0; i<CtdlNumMsgsSelected; ++i) {
-				$('m'+CtdlMsgsSelected[i]).style.backgroundColor = '#fff';
-				$('m'+CtdlMsgsSelected[i]).style.color = '#000';
-			}
-		}
-		CtdlNumMsgsSelected = 0;
-
-		// Then highlight and select the group.
-		// Traverse the table looking for a row whose ID contains the desired msgnum
-
-		var in_the_group = 0;
-		var is_edge = 0;
-		var table = $('summary_headers');
-		if (table) {
-			for (var r = 0; r < table.rows.length; r++) {
-				var thename = table.rows[r].id;
-				if ( (thename.substr(1) == msgnum) || (thename.substr(1) == CtdlLastMsgnumSelected) ) {
-					in_the_group = 1 - in_the_group;
-					is_edge = 1;
-				}
-				else {
-					is_edge = 0;
-				}
-				if ( (in_the_group == 1) || (is_edge == 1) ) {
-					// Highlight it...
-					table.rows[r].style.backgroundColor='#69aaff';
-					table.rows[r].style.color='#fff';
-
-					// And add it to the selected messages list.
-					CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
-					CtdlMsgsSelected[CtdlNumMsgsSelected-1] = thename.substr(1);
-				}
-			}
-		}
-	}
-
-	else {
-		// Select: first highlight it...
-		$('m'+msgnum).style.backgroundColor='#69aaff';
-		$('m'+msgnum).style.color='#fff';
-
-		// Then add it to the selected messages list.
-		CtdlNumMsgsSelected = CtdlNumMsgsSelected + 1;
-		CtdlMsgsSelected[CtdlNumMsgsSelected-1] = msgnum;
-
-		// Gradient
-		CtdlLoadScreen('preview_pane');
-		// Update the preview pane
-		new Ajax.Updater('preview_pane', 'msg/'+msgnum, { method: 'get' } );
-	
-		// Mark the message as read
-		new Ajax.Request(
-			'ajax_servcmd', {
-				method: 'post',
-				parameters: 'g_cmd=SEEN '+msgnum+'|1',
-				onComplete: CtdlRemoveTheUnseenBold(msgnum)
-			}
-		);
-	}
-	
-	// Save the selected position in case the user does a group select next time.
-	CtdlLastMsgnumSelected = msgnum;
-
-	return false;		// try to defeat the default click behavior
+  var roomlist = document.getElementById("roomlist");
+  if (roomlist != null) {
+    roomlist.className += "hidden";
+  }
+  var iconbar = document.getElementById("summary");
+  new Ajax.Updater('summary', 'iconbar_ajax_menu', { method: 'get' } );
+  iconbar.className = iconbar.className.replace("hidden","");
 }
 
 // Delete selected messages.
