@@ -1547,11 +1547,10 @@ void ical_getics(void)
 	);
 
 	ser = icalcomponent_as_ical_string_r(encaps);
+	icalcomponent_free(encaps);			/* Don't need this anymore. */
 	client_write(ser, strlen(ser));
 	free(ser);
 	cprintf("\n000\n");
-	icalcomponent_free(encaps);	/* Don't need this anymore. */
-
 }
 
 
