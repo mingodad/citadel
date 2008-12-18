@@ -8,7 +8,7 @@
 	 <?%("COND:PREF", 1, :"roomlistview", "folders", "checked", "")> 
 	 ><?_("Tree (folders) view")></input>
   &nbsp;&nbsp;&nbsp;
-  <input type="radio" name="roomlistview" VALUE="rooms" <?%("COND:PREF", 1, :"roomlistview", "rooms", "checked", "")><?%("COND:PREF", 1, :"roomlistview", "", "checked", "")>><?_("Table (rooms) view")></input>
+  <input type="radio" name="roomlistview" VALUE="rooms" <?%("COND:PREF", 1, :"roomlistview", "folders", "", "checked")><?%("COND:PREF", 1, :"roomlistview", "", "checked", "")>><?_("Table (rooms) view")></input>
 </td>
 </tr>
 
@@ -16,7 +16,7 @@
   <td><?PREF:DESCR("calhourformat")></td>
   <td>
     <input type="radio" name="calhourformat" VALUE="12" 
-	   <?%("COND:PREF", 1, :"calhourformat", "12", "checked", "")>
+	   <?%("COND:PREF", 1, :"calhourformat", "24", "", "checked")>
 	   <?%("COND:PREF", 1, :"calhourformat", "", "checked", "")>
 	   ><?_("12 hour (am/pm)")></input>
     &nbsp;&nbsp;&nbsp;
@@ -36,7 +36,7 @@
 <option <?%("COND:PREF", 1, :"daystart", "5", "selected", "")> value="5">5:00</option>
 <option <?%("COND:PREF", 1, :"daystart", "6", "selected", "")> value="6">6:00</option>
 <option <?%("COND:PREF", 1, :"daystart", "7", "selected", "")> value="7">7:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "8", "selected", "")> <?%("COND:PREF", 1, :"daystart", "", "selected", "")> value="8">8:00</option>
+<option <?%("COND:PREF", 1, :"daystart", "8", "selected", "")> <?%("COND:PREF:SET", 1, :"daystart", 0, "", "selected")> value="8">8:00</option>
 <option <?%("COND:PREF", 1, :"daystart", "9", "selected", "")> value="9">9:00</option>
 <option <?%("COND:PREF", 1, :"daystart", "10", "selected", "")> value="10">10:00</option>
 <option <?%("COND:PREF", 1, :"daystart", "11", "selected", "")> value="11">11:00</option>
@@ -53,32 +53,32 @@
 <option <?%("COND:PREF", 1, :"daystart", "22", "selected", "")> value="22">22:00</option>
 <option <?%("COND:PREF", 1, :"daystart", "23", "selected", "")> value="23">23:00</option>
 <?!("X", 2)>
-<?!("COND:PREF", 3, :"calhourformat", "12")>
-<option <?%("COND:PREF", 1, :"daystart", "0", "selected", "")> value="0">12:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "1", "selected", "")> value="1">1:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "2", "selected", "")> value="2">2:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "3", "selected", "")> value="3">3:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "4", "selected", "")> value="4">4:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "5", "selected", "")> value="5">5:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "6", "selected", "")> value="6">6:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "7", "selected", "")> value="7">7:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "8", "selected", "")> <?%("COND:PREF", 1, :"daystart", "", "selected", "")>value="8">8:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "9", "selected", "")> value="9">9:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "10", "selected", "")> value="10">10:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "11", "selected", "")> value="11">11:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "12", "selected", "")> value="12">12:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "13", "selected", "")> value="13"> 1:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "14", "selected", "")> value="14"> 2:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "15", "selected", "")> value="15"> 3:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "16", "selected", "")> value="16"> 4:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "17", "selected", "")> value="17"> 5:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "18", "selected", "")> value="18"> 6:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "19", "selected", "")> value="19"> 7:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "20", "selected", "")> value="20"> 8:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "21", "selected", "")> value="21"> 9:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "22", "selected", "")> value="22">10:00</option>
-<option <?%("COND:PREF", 1, :"daystart", "23", "selected", "")> value="23">11:00</option>
-<?!("X", 3)>
+<??("COND:PREF", 3, :"calhourformat", "24")>
+<option <?%("COND:PREF", 1, :"daystart", "0", "selected", "")> value="0">12:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "1", "selected", "")> value="1">1:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "2", "selected", "")> value="2">2:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "3", "selected", "")> value="3">3:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "4", "selected", "")> value="4">4:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "5", "selected", "")> value="5">5:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "6", "selected", "")> value="6">6:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "7", "selected", "")> value="7">7:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "8", "selected", "")> <?%("COND:PREF:SET", 1, :"daystart", 0, "", "selected")> value="8">8:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "9", "selected", "")> value="9">9:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "10", "selected", "")> value="10">10:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "11", "selected", "")> value="11">11:00 am</option>
+<option <?%("COND:PREF", 1, :"daystart", "12", "selected", "")> value="12">12:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "13", "selected", "")> value="13"> 1:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "14", "selected", "")> value="14"> 2:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "15", "selected", "")> value="15"> 3:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "16", "selected", "")> value="16"> 4:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "17", "selected", "")> value="17"> 5:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "18", "selected", "")> value="18"> 6:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "19", "selected", "")> value="19"> 7:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "20", "selected", "")> value="20"> 8:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "21", "selected", "")> value="21"> 9:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "22", "selected", "")> value="22">10:00 pm</option>
+<option <?%("COND:PREF", 1, :"daystart", "23", "selected", "")> value="23">11:00 pm</option>
+<??("X", 3)>
 </select>
 </td></tr>
 
@@ -104,39 +104,39 @@
 <option <?%("COND:PREF", 1, :"dayend", "15", "selected", "")> value="15">15:00</option>
 <option <?%("COND:PREF", 1, :"dayend", "16", "selected", "")> value="16">16:00</option>
 <option <?%("COND:PREF", 1, :"dayend", "17", "selected", "")> value="17">17:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "18", "selected", "")><?%("COND:PREF", 1, :"dayend", "", "selected", "")> value="18">18:00</option>
+<option <?%("COND:PREF", 1, :"dayend", "18", "selected", "")><?%("COND:PREF:SET", 1, :"dayend", 0, "", "selected")> value="18">18:00</option>
 <option <?%("COND:PREF", 1, :"dayend", "19", "selected", "")> value="19">19:00</option>
 <option <?%("COND:PREF", 1, :"dayend", "20", "selected", "")> value="20">20:00</option>
 <option <?%("COND:PREF", 1, :"dayend", "21", "selected", "")> value="21">21:00</option>
 <option <?%("COND:PREF", 1, :"dayend", "22", "selected", "")> value="22">22:00</option>
 <option <?%("COND:PREF", 1, :"dayend", "23", "selected", "")> value="23">23:00</option>
 <?!("X", 4)>
-<?!("COND:PREF", 5, :"calhourformat", "12")>
-<option <?%("COND:PREF", 1, :"dayend", "0", "selected", "")> value="0">0:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "1", "selected", "")> value="1">1:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "2", "selected", "")> value="2">2:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "3", "selected", "")> value="3">3:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "4", "selected", "")> value="4">4:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "5", "selected", "")> value="5">5:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "6", "selected", "")> value="6">6:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "7", "selected", "")> value="7">7:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "8", "selected", "")> value="8">8:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "9", "selected", "")> value="9">9:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "10", "selected", "")> value="10">10:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "11", "selected", "")> value="11">11:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "12", "selected", "")> value="12">12:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "13", "selected", "")> value="13"> 1:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "14", "selected", "")> value="14"> 2:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "15", "selected", "")> value="15"> 3:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "16", "selected", "")> value="16"> 4:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "17", "selected", "")> value="17"> 5:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "18", "selected", "")> value="18"><?%("COND:PREF", 1, :"dayend", "", "selected", "")> 6:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "19", "selected", "")> value="19"> 7:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "20", "selected", "")> value="20"> 8:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "21", "selected", "")> value="21"> 9:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "22", "selected", "")> value="22">10:00</option>
-<option <?%("COND:PREF", 1, :"dayend", "23", "selected", "")> value="23">11:00</option>
-<?!("X", 5)>
+<??("COND:PREF", 5, :"calhourformat", "24")>
+<option <?%("COND:PREF", 1, :"dayend", "0", "selected", "")> value="0">12:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "1", "selected", "")> value="1">1:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "2", "selected", "")> value="2">2:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "3", "selected", "")> value="3">3:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "4", "selected", "")> value="4">4:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "5", "selected", "")> value="5">5:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "6", "selected", "")> value="6">6:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "7", "selected", "")> value="7">7:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "8", "selected", "")> value="8">8:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "9", "selected", "")> value="9">9:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "10", "selected", "")> value="10">10:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "11", "selected", "")> value="11">11:00 am</option>
+<option <?%("COND:PREF", 1, :"dayend", "12", "selected", "")> value="12">12:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "13", "selected", "")> value="13"> 1:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "14", "selected", "")> value="14"> 2:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "15", "selected", "")> value="15"> 3:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "16", "selected", "")> value="16"> 4:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "17", "selected", "")> value="17"> 5:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "18", "selected", "")><?%("COND:PREF:SET", 1, :"dayend", 0, "", "selected")> value="18"> 6:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "19", "selected", "")> value="19"> 7:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "20", "selected", "")> value="20"> 8:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "21", "selected", "")> value="21"> 9:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "22", "selected", "")> value="22">10:00 pm</option>
+<option <?%("COND:PREF", 1, :"dayend", "23", "selected", "")> value="23">11:00 pm</option>
+<??("X", 5)>
 </select>
 </td></tr>
 
@@ -167,7 +167,7 @@
 	</script>
 
 	<input type="radio" id="no_sig" name="use_sig" VALUE="no" onChange="show_or_hide_sigbox();" 
-<?%("COND:PREF", 1, "use_sig", "no", "checked", "")><?%("COND:PREF", 1, "use_sig", "", "checked", "")> >
+<?%("COND:PREF", 1, "use_sig", "yes", "", "checked")> >
 	  <?_("No signature")>
         </input>
 	&nbsp,&nbsp;&nbsp;
@@ -191,8 +191,7 @@
     <td><?PREF:DESCR("emptyfloors")></td>
     <td>
       <input type="radio" name="emptyfloors" VALUE="yes" 
-	     <?%("COND:PREF", 1, :"emptyfloors", "yes", "checked", "")> 
-	     <?%("COND:PREF", 1, :"emptyfloors", "", "checked", "")> 
+	     <?%("COND:PREF", 1, :"emptyfloors", "no", "", "checked")> 
 	     ><?_("Yes")></input>
       &nbsp;&nbsp;&nbsp;
       <input type="radio" name="emptyfloors" VALUE="no"  <?%("COND:PREF", 1, :"emptyfloors", "no",  "checked", "")> ><?_("No")></input>
