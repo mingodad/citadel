@@ -1572,6 +1572,23 @@ void ical_getics(void)
 
 
 /*
+ * Helper callback function for ical_putics() to discover which TZID's we need
+ */
+void ical_putics_grabtzids(icalparameter *param, void *data)
+{
+	char *need_these_tzids = (char *) data;
+	const char *tzid = icalparameter_get_tzid(param);
+	
+	if ( (need_these_tzids) && (tzid) ) {
+		if (strlen(need_these_tzids) + strlen(tzid) < 1020) {
+			strcat(need_these_tzids, icalparameter_get_tzid(param));
+			strcat(need_these_tzids, "\n");
+		}
+	}
+}
+
+
+/*
  * Delete all of the calendar items in the current room, and replace them
  * with calendar items from a client-supplied data stream.
  */
@@ -1580,13 +1597,17 @@ void ical_putics(void)
 	char *calstream = NULL;
 	icalcomponent *cal;
 	icalcomponent *c;
+	icalcomponent *encaps = NULL;
+	int i;
 
+	/* Only allow this operation if we're in a room containing a calendar or tasks view */
 	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
 	   &&(CC->room.QRdefaultview != VIEW_TASKS) ) {
 		cprintf("%d Not a calendar room\n", ERROR+NOT_HERE);
-		return;		/* Not an iCalendar-centric room */
+		return;
 	}
 
+	/* Only allow this operation if we have permission to overwrite the existing calendar */
 	if (!CtdlDoIHavePermissionToDeleteMessagesFromThisRoom()) {
 		cprintf("%d Permission denied.\n", ERROR+HIGHER_ACCESS_REQUIRED);
 		return;
@@ -1603,7 +1624,7 @@ void ical_putics(void)
 
 	/* We got our data stream -- now do something with it. */
 
-	/* Delete the existing messages in the room, because we are replacing
+	/* Delete the existing messages in the room, because we are overwriting
 	 * the entire calendar with an entire new (or updated) calendar.
 	 * (Careful: this opens an S_ROOMS critical section!)
 	 */
@@ -1623,7 +1644,30 @@ void ical_putics(void)
 		for (c = icalcomponent_get_first_component(cal, ICAL_ANY_COMPONENT);
 		    (c != NULL);
 		    c = icalcomponent_get_next_component(cal, ICAL_ANY_COMPONENT)) {
-			ical_write_to_cal(NULL, c);
+
+			/* Non-VTIMEZONE components each get written as individual messages.
+			 * But we also need to attach the relevant VTIMEZONE components to them.
+			 */
+			if ( (icalcomponent_isa(c) != ICAL_VTIMEZONE_COMPONENT)
+			   && (encaps = icalcomponent_new_vcalendar()) ) {
+				icalcomponent_add_property(encaps, icalproperty_new_prodid(PRODID));
+				icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
+				icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
+
+				/* Attach any needed timezones here */
+				char need_these_tzids[1024] = "";
+				icalcomponent_foreach_tzid(c, ical_putics_grabtzids, need_these_tzids);
+				for (i=0; i<num_tokens(need_these_tzids, '\n'); ++i) {
+					CtdlLogPrintf(CTDL_DEBUG, "FIXME need to attach a tzid\n");
+				}
+
+				/* Now attach the component itself (usually a VEVENT or VTODO) */
+				icalcomponent_add_component(encaps, icalcomponent_new_clone(c));
+
+				/* Write it to the message store */
+				ical_write_to_cal(NULL, encaps);
+				icalcomponent_free(encaps);
+			}
 		}
 	}
 
