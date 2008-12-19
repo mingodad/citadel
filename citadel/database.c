@@ -69,7 +69,9 @@ static DB_ENV *dbenv;		/* The DB environment (global) */
 /* Verbose logging callback */
 void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "BDB: %s\n", msg);
+	if (!IsEmptyStr(msg)) {
+		CtdlLogPrintf(CTDL_DEBUG, "DB: %s\n", msg);
+	}
 }
 
 
