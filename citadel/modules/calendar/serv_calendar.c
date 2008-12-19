@@ -1497,7 +1497,24 @@ void ical_getics_backend(long msgnum, void *data) {
 		for (c = icalcomponent_get_first_component(ird.cal, ICAL_ANY_COMPONENT);
 		    (c != NULL);
 		    c = icalcomponent_get_next_component(ird.cal, ICAL_ANY_COMPONENT)) {
-			icalcomponent_add_component(encaps, icalcomponent_new_clone(c));
+
+			/* For VTIMEZONE components, suppress duplicates of the same tzid */
+
+			if (icalcomponent_isa(c) == ICAL_VTIMEZONE_COMPONENT) {
+				icalproperty *p = icalcomponent_get_first_property(c, ICAL_TZID_PROPERTY);
+				if (p) {
+					const char *tzid = icalproperty_get_tzid(p);
+					if (!icalcomponent_get_timezone(encaps, tzid)) {
+						icalcomponent_add_component(encaps,
+									icalcomponent_new_clone(c));
+					}
+				}
+			}
+
+			/* All other types of components can go in verbatim */
+			else {
+				icalcomponent_add_component(encaps, icalcomponent_new_clone(c));
+			}
 		}
 		icalcomponent_free(ird.cal);
 	}
