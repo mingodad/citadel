@@ -619,7 +619,7 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 {
 	long PayloadPos;
 
-	if ((Hash == NULL) || (At->Position >= Hash->nMembersUsed))
+	if ((Hash == NULL) || (At->Position >= Hash->nMembersUsed) || (At->Position < 0))
 		return 0;
 	*HKLen = Hash->LookupTable[At->Position]->HKLen;
 	*HashKey = Hash->LookupTable[At->Position]->HashKey;
