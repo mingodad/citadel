@@ -197,10 +197,7 @@ HashList *GetInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 
 	if (WCC->InetCfg == NULL)
 		load_inetconf();
-	GetHash(WCC->InetCfg, 
-		Tokens->Params[2]->Start, 
-		Tokens->Params[2]->len,
-		&vHash);
+	GetHash(WCC->InetCfg, TKEY(2), &vHash);
 	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, Tokens->Params[2]->Start);
 	return vHash;
 }

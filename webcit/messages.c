@@ -530,6 +530,8 @@ void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 	}
 	vector[6] = StartMsg;
 	FlushStrBuf(TmpBuf);
+	vector[1] = lbstr("maxmsgs") == 9999999;
+	vector[2] = 0;
 	DoTemplate(HKEY("select_messageindex_all"), TmpBuf, &vector, CTX_LONGVECTOR);
 	StrBufAppendBuf(Selector, TmpBuf, 0);
 	FreeStrBuf(&TmpBuf);
@@ -592,12 +594,9 @@ void readloop(long oper)
 	long *displayed_msgs = NULL;
 	int num_displayed = 0;
 	int is_summary = 0;
-	int is_addressbook = 0;
 	int is_singlecard = 0;
-	int is_calendar = 0;
 	struct calview calv;
-	int is_tasks = 0;
-	int is_notes = 0;
+
 	int is_bbview = 0;
 	int lowest_displayed = (-1);
 	int highest_displayed = 0;
@@ -619,18 +618,15 @@ void readloop(long oper)
 		return;
 	case VIEW_CALENDAR:
 		load_seen = 1;
-		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL|||1");
 		maxmsgs = 32767;
 		parse_calendar_view_request(&calv);
 		break;
 	case VIEW_TASKS:
-		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 		break;
 	case VIEW_NOTES:
-		is_notes = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 		wprintf("<div id=\"new_notes_here\"></div>\n");
@@ -638,7 +634,6 @@ void readloop(long oper)
 	case VIEW_ADDRESSBOOK:
 		is_singlecard = ibstr("is_singlecard");
 		if (is_singlecard != 1) {
-			is_addressbook = 1;
 			if (oper == do_search) {
 				snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
 			}
@@ -683,29 +678,29 @@ void readloop(long oper)
 			maxmsgs = 9999999;
 		} 
 
-		bbs_reverse = is_bbview && (lbstr("SortOrder") == 2);
-
+		if (is_bbview) {
+			if (havebstr("SortOrder")) {
+				bbs_reverse = lbstr("SortOrder") == 2;
+			}
+			else {
+				StrBuf *Buf = NewStrBufPlain(HKEY("1"));
+				putbstr("SortOrder", Buf);
+				Buf = NewStrBufPlain(HKEY("date"));
+				putbstr("SortBy", Buf);
+				bbs_reverse = 0;
+			}
+		}
 		sortit = is_summary || WCC->is_mobile;
+		if (WCC->is_mobile) {
+			maxmsgs = 20;
+			snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
+				 ((oper == do_search) ? "SEARCH" : "ALL"),
+				 ((oper == do_search) ? bstr("query") : "")
+				);
+		}
 	}
-
-
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	/* TODO: how can we best sort this in?
-	if (WCC->is_mobile) {
-		maxmsgs = 20;
-		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
-			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
-			(!strcmp(oper, "do_search") ? bstr("query") : "")
-		);
-		SortBy =  eRDate;
-	}
-	*/
-	/*
-	 * Are we doing a summary view?  If so, we need to know old messages
-	 * and new messages, so we can do that pretty boldface thing for the
-	 * new messages.
-	 */
 	nummsgs = load_msg_ptrs(cmd, (is_summary || WCC->is_mobile));
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
@@ -725,6 +720,15 @@ void readloop(long oper)
 
 		goto DONE;
 	}
+
+	if (sortit) {
+		CompareFunc SortIt;
+		SortIt =  RetrieveSort(CTX_MAILSUM, NULL, 
+				       HKEY("date"), 2);
+		if (SortIt != NULL)
+			SortByPayload(WCC->summ, SortIt);
+	}
+
 	if (is_bbview && (startmsg == 0L)) {
 		if (bbs_reverse) {
 			Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
@@ -737,23 +741,10 @@ void readloop(long oper)
 	}
 
 	if (load_seen) load_seen_flags();
+	if (is_summary) do_template("summary_header", NULL);
+	
 
-	if (sortit) {
-		CompareFunc SortIt;
-		SortIt =  RetrieveSort(CTX_MAILSUM, NULL, 
-				       HKEY("date"), 2);
-		if (SortIt != NULL)
-			SortByPayload(WCC->summ, SortIt);
-	}
-
-	if (is_summary) {
-		do_template("summary_header", NULL);
-	} else if (WCC->is_mobile) {
-		wprintf("<div id=\"message_list\">");
-	}
-
-
-	/**
+        /**
 	 * If we're not currently looking at ALL requested
 	 * messages, then display the selector bar
 	 */
@@ -771,13 +762,20 @@ void readloop(long oper)
 	at = GetNewHashPos(WCC->summ, 0);
 	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 		Msg = (message_summary*) vMsg;		
-		if ((Msg->msgnum >= startmsg) && (num_displayed < maxmsgs)) {
-				
-			/** Display the message */
-			if (is_summary) {
-				DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
-			}
-			else if (is_addressbook) {
+		if ((Msg->msgnum >= startmsg) && (num_displayed < maxmsgs)) {			
+			switch (WCC->wc_view) {
+			case VIEW_WIKI:
+				break;
+			case VIEW_CALENDAR:
+				load_calendar_item(Msg, Msg->is_new, &calv);
+				break;
+			case VIEW_TASKS:
+				display_task(Msg, Msg->is_new);
+				break;
+			case VIEW_NOTES:
+				display_note(Msg, Msg->is_new);
+				break;
+			case VIEW_ADDRESSBOOK:
 				fetch_ab_name(Msg, buf);
 				++num_ab;
 				addrbook = realloc(addrbook,
@@ -785,30 +783,25 @@ void readloop(long oper)
 				safestrncpy(addrbook[num_ab-1].ab_name, buf,
 					    sizeof(addrbook[num_ab-1].ab_name));
 				addrbook[num_ab-1].ab_msgnum = Msg->msgnum;
-			}
-			else if (is_calendar) {
-				load_calendar_item(Msg, Msg->is_new, &calv);
-			}
-			else if (is_tasks) {
-				display_task(Msg, Msg->is_new);
-			}
-			else if (is_notes) {
-				display_note(Msg, Msg->is_new);
-			} else if (WCC->is_mobile) {
-				DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
-			}
-			else {
-				if (displayed_msgs == NULL) {
-					displayed_msgs = malloc(sizeof(long) *
-								(maxmsgs<nummsgs ? maxmsgs : nummsgs));
+				break;
+			default:
+				/** Display the message */
+				if (is_summary) {
+					DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
 				}
-				displayed_msgs[num_displayed] = Msg->msgnum;
+				else {
+					if (displayed_msgs == NULL) {
+						displayed_msgs = malloc(sizeof(long) *
+									(maxmsgs<nummsgs ? maxmsgs : nummsgs));
+					}
+					displayed_msgs[num_displayed] = Msg->msgnum;
+				}
+			
+				if (lowest_displayed < 0) lowest_displayed = a;
+				highest_displayed = a;
+			
+				++num_displayed;
 			}
-			
-			if (lowest_displayed < 0) lowest_displayed = a;
-			highest_displayed = a;
-			
-			++num_displayed;
 		}
 	}
 	DeleteHashPos(&at);
@@ -822,7 +815,7 @@ void readloop(long oper)
 		/** if we do a split bbview in the future, begin messages div here */
 
 		for (a=0; a<num_displayed; ++a) {
-			read_message(WC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
+			read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
 		}
 
 		/** if we do a split bbview in the future, end messages div here */
@@ -833,8 +826,6 @@ void readloop(long oper)
 
 	if (is_summary) {
 		do_template("summary_trailer", NULL);
-	} else if (WCC->is_mobile) {
-		wprintf("</div>");
 	}
 
 	/**
@@ -849,8 +840,6 @@ void readloop(long oper)
 	 * messages, then display the selector bar
 	 */
 	if (is_bbview) {
-		/** begin bbview scroller */
-
 		DoTemplate(HKEY("msg_listselector_bottom"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 
@@ -859,18 +848,23 @@ void readloop(long oper)
 	}
 	
 DONE:
-	if (is_tasks) {
-		do_tasks_view();	/** Render the task list */
-	}
-
-	if (is_calendar) {
+	switch (WCC->wc_view) {
+	case VIEW_WIKI:
+		break;
+	case VIEW_CALENDAR:
 		render_calendar_view(&calv);
-	}
-
-	if (is_addressbook) {
+		break;
+	case VIEW_TASKS:
+		do_tasks_view();	/** Render the task list */
+		break;
+	case VIEW_NOTES:
+		break;
+	case VIEW_ADDRESSBOOK:
 		do_addrbook_view(addrbook, num_ab);	/** Render the address book */
+		break;
+	default:
+		break;
 	}
-
 	/** Note: wDumpContent() will output one additional </div> tag. */
 	wprintf("</div>\n");		/** end of 'content' div */
 	wDumpContent(1);
@@ -1574,18 +1568,11 @@ void download_postpart(void) {
 		 1);
 }
 
-
-
 void h_readnew(void) { readloop(readnew);}
 void h_readold(void) { readloop(readold);}
 void h_readfwd(void) { readloop(readfwd);}
 void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
-
-
-
-
-
 
 void 
 InitModule_MSG

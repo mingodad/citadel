@@ -271,6 +271,8 @@ typedef struct _TemplateParam {
 	long lvalue;
 } TemplateParam;
 
+/* make a template token a lookup key: */
+#define TKEY(a) Tokens->Params[a]->Start, Tokens->Params[a]->len
 typedef struct _TemplateToken {
 	const StrBuf *FileName; /* Reference to print error messages; not to be freed */
 	StrBuf *FlatToken;
@@ -765,6 +767,9 @@ int YESBSTR(const char *key);
 #define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
 const char *BSTR(const char *key);
 const char *Bstr(const char *key, size_t keylen);
+/* if you want to ease some parts by just parametring yourself... */
+#define putbstr(a, b) PutBstr(a, sizeof(a) - 1, b)
+void PutBstr(const char *key, long keylen, StrBuf *Value);
 
 
 
