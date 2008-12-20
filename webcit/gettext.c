@@ -64,7 +64,7 @@ void httplang_to_locale(StrBuf *LocaleString)
 	int nBest;
 	int nParts;
 	StrBuf *Buf = NULL;
-	StrBuf *SBuf;
+	StrBuf *SBuf = NULL;
 	
 	nParts=StrBufNum_tokens(LocaleString,',');
 	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++)
