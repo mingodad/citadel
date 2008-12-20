@@ -536,6 +536,39 @@ void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 	DeleteHashPos(&At);
 }
 
+void load_seen_flags(void)
+{
+	message_summary *Msg;
+	const char *HashKey;
+	long HKLen;
+	StrBuf *OldMsg = NewStrBuf();;
+	wcsession *WCC = WC;
+	HashPos *at;
+	void *vMsg;
+
+	serv_puts("GTSN");
+	StrBuf_ServGetln(OldMsg);
+	if (ChrPtr(OldMsg)[0] == '2') {
+		StrBufCutLeft(OldMsg, 4);
+	}
+	else {
+		FreeStrBuf(&OldMsg);
+		return;
+	}
+	at = GetNewHashPos(WCC->summ, 0);
+	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+		/** Are you a new message, or an old message? */
+		Msg = (message_summary*) vMsg;
+		if (is_msg_in_mset(ChrPtr(OldMsg), Msg->msgnum)) {
+			Msg->is_new = 0;
+		}
+		else {
+			Msg->is_new = 1;
+		}
+	}
+	FreeStrBuf(&OldMsg);
+	DeleteHashPos(&at);
+}
 
 extern readloop_struct rlid[];
 
@@ -552,7 +585,6 @@ void readloop(long oper)
 	message_summary *Msg;
 	char cmd[256] = "";
 	char buf[SIZ];
-	char old_msgs[SIZ];
 	int a = 0;
 	int nummsgs;
 	long startmsg = 0;
@@ -704,29 +736,7 @@ void readloop(long oper)
 		}
 	}
 
-	/* This is done to make it run faster; WC is a function */
-	if (load_seen){
-		void *vMsg;
-
-		strcpy(old_msgs, "");
-		serv_puts("GTSN");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			strcpy(old_msgs, &buf[4]);
-		}
-		at = GetNewHashPos(WCC->summ, 0);
-		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
-			/** Are you a new message, or an old message? */
-			Msg = (message_summary*) vMsg;
-			if (is_msg_in_mset(old_msgs, Msg->msgnum)) {
-				Msg->is_new = 0;
-			}
-			else {
-				Msg->is_new = 1;
-			}
-		}
-		DeleteHashPos(&at);
-	}
+	if (load_seen) load_seen_flags();
 
 	if (sortit) {
 		CompareFunc SortIt;

@@ -899,7 +899,6 @@ StrBuf *get_ROOM_PREFS(const char *key, size_t keylen);
 #define set_room_pref(a, b, c) set_ROOM_PREFS(a, sizeof(a) - 1, b, c)
 void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_server);
 
-int is_msg_in_mset(char *mset, long msgnum);
 void display_addressbook(long msgnum, char alpha);
 void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
