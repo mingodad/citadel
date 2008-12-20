@@ -324,7 +324,7 @@ void striplt(char *);
 int haschar(const char *st, int ch);
 void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
-int is_msg_in_sequence_set(char *mset, long msgnum);
+int is_msg_in_sequence_set(const char *mset, long msgnum);
 char *memreadline(char *start, char *buf, int maxlen);
 char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
 #define IsEmptyStr(a) ((a)[0] == '\0')
