@@ -485,16 +485,12 @@ void GetTemplateTokenString(WCTemplateToken *Tokens,
 		*len = Tokens->Params[N]->len;
 		break;
 	case TYPE_BSTR:
-		Buf = (StrBuf*) SBstr(Tokens->Params[N]->Start, 
-				      Tokens->Params[N]->len);
+		Buf = (StrBuf*) SBstr(TKEY(N));
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		break;
 	case TYPE_PREFSTR:
-		get_PREFERENCE(
-			Tokens->Params[N]->Start, 
-			Tokens->Params[N]->len, 
-			&Buf);
+		get_PREFERENCE(TKEY(N), &Buf);
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		break;
@@ -956,8 +952,8 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			break;
 		}
 		if (!GetHash(Conditionals, 
-			     NewToken->Params[0]->Start,
-			     NewToken->Params[0]->len,
+			     NewToken->Params[0]->Start, 
+			     NewToken->Params[0]->len, 
 			     &vVar) || 
 		    (vVar == NULL)) {
 			if ((NewToken->Params[0]->len == 1) &&
@@ -1240,7 +1236,7 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, vo
 		break;
 	case SV_SUBTEMPL:
 		if (Tokens->nParameters == 1)
-			DoTemplate(Tokens->Params[0]->Start, Tokens->Params[0]->len, NULL, NULL, ContextType);
+			DoTemplate(TKEY(0), NULL, NULL, ContextType);
 		break;
 	case SV_PREEVALUATED:
 		Handler = (HashHandler*) Tokens->PreEval;
@@ -1491,10 +1487,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	StrBuf *SubBuf;
 	int oddeven = 0;
 	
-	if (!GetHash(Iterators, 
-		     Tokens->Params[0]->Start,
-		     Tokens->Params[0]->len,
-		     &vIt)) {
+	if (!GetHash(Iterators, TKEY(0), &vIt)) {
 		lprintf(1, "unknown Iterator [%s] (in '%s' line %ld); "
 			" [%s]\n", 
 			Tokens->Params[0]->Start,
@@ -1575,10 +1568,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 
 		if (It->DoSubTemplate != NULL)
 			It->DoSubTemplate(SubBuf, vContext, Tokens);
-		DoTemplate(Tokens->Params[1]->Start,
-			   Tokens->Params[1]->len,
-			   SubBuf, vContext,
-			   It->ContextType);
+		DoTemplate(TKEY(1), SubBuf, vContext, It->ContextType);
 			
 		StrBufAppendBuf(Target, SubBuf, 0);
 		FlushStrBuf(SubBuf);
@@ -1640,10 +1630,7 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context, int ContextType)
 	void *vsubst;
 	wcsubst *subst;
 	
-	if (!GetHash(WC->vars, 
-		     Tokens->Params[2]->Start,
-		     Tokens->Params[2]->len,
-		     &vsubst))
+	if (!GetHash(WC->vars, TKEY(2), &vsubst))
 		return 0;
 	subst = (wcsubst*) vsubst;
 	if ((subst->ContextRequired != CTX_NONE) &&
@@ -1716,11 +1703,7 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 	if (nArgs == 2) {
 		if (Tokens->Params[1]->Type == TYPE_STR) {
 			Headline = NewStrBuf();
-			DoTemplate(Tokens->Params[1]->Start, 
-				   Tokens->Params[1]->len,
-				   Headline, 
-				   Context, 
-				   ContextType);
+			DoTemplate(TKEY(1), Headline, Context, ContextType);
 		}
 		else {
 			const char *Ch;
@@ -1734,11 +1717,7 @@ void tmpl_do_boxed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Con
 	}
 	
 	DoTemplate(HKEY("beginbox"), Target, Headline, CTX_STRBUF);
-	DoTemplate(Tokens->Params[0]->Start, 
-		   Tokens->Params[0]->len,
-		   Target, 
-		   Context, 
-		   ContextType);
+	DoTemplate(TKEY(0), Target, Context, ContextType);
 	DoTemplate(HKEY("endbox"), Target, Context, ContextType);
 	FreeStrBuf(&Headline);
 }
@@ -1758,11 +1737,7 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 	for (i = 0; i < ntabs; i++) {
 		TabNames[i] = NewStrBuf();
 		if (Tokens->Params[i * 2]->len > 0) {
-			DoTemplate(Tokens->Params[i * 2]->Start, 
-				   Tokens->Params[i * 2]->len,
-				   TabNames[i],
-				   Context,
-				   ContextType);
+			DoTemplate(TKEY(i * 2), TabNames[i], Context, ContextType);
 		}
 		else { 
 			/** A Tab without subject? we can't count that, add it as silent */
@@ -1774,11 +1749,7 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 	for (i = 0; i < ntabs; i++) {
 		StrBeginTab(Target, i, nTabs);
 
-		DoTemplate(Tokens->Params[i * 2 + 1]->Start, 
-			   Tokens->Params[i * 2 + 1]->len,
-			   Target,
-			   Context, 
-			   ContextType);
+		DoTemplate(TKEY(i * 2 + 1), Target, Context, ContextType);
 		StrEndTab(Target, i, nTabs);
 	}
 }
@@ -1907,7 +1878,7 @@ int GetSortMetric(WCTemplateToken *Tokens, SortStruct **Next, SortStruct **Param
 	
 	*SortOrder = 0;
 	*Next = NULL;
-	if (!GetHash(SortHash, Tokens->Params[0]->Start, Tokens->Params[0]->len, &vSort) || 
+	if (!GetHash(SortHash, TKEY(0), &vSort) || 
 	    (vSort == NULL))
 		return eNO_SUCH_SORT;
 	*Param = (SortStruct*) vSort;

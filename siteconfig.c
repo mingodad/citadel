@@ -254,10 +254,7 @@ void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *C
 	if (WCC->is_aide) {
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
-		GetHash(WCC->ServCfg, 
-			Tokens->Params[0]->Start,
-			Tokens->Params[0]->len, 
-			&vBuf);
+		GetHash(WCC->ServCfg, TKEY(0), &vBuf);
 		Buf = (StrBuf*) vBuf;
 		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Buf, 1);
 	}
@@ -272,10 +269,7 @@ int ConditionalServCfg(WCTemplateToken *Tokens, void *Context, int ContextType)
 	if (WCC->is_aide) {
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
-		GetHash(WCC->ServCfg, 
-			Tokens->Params[2]->Start,
-			Tokens->Params[2]->len, 
-			&vBuf);
+		GetHash(WCC->ServCfg, TKEY(2), &vBuf);
 		if (vBuf == NULL) return 0;
 		Buf = (StrBuf*) vBuf;
 		if (Tokens->nParameters == 3) {
@@ -297,10 +291,7 @@ int ConditionalServCfgSubst(WCTemplateToken *Tokens, void *Context, int ContextT
 	if (WCC->is_aide) {
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
-		GetHash(WCC->ServCfg, 
-			Tokens->Params[2]->Start,
-			Tokens->Params[2]->len, 
-			&vBuf);
+		GetHash(WCC->ServCfg, TKEY(2), &vBuf);
 		if (vBuf == NULL) return 0;
 		Buf = (StrBuf*) vBuf;
 

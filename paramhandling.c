@@ -332,3 +332,92 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	}
 
 }
+
+
+
+void PutBstr(const char *key, long keylen, StrBuf *Value)
+{
+	urlcontent *u;
+
+	if(keylen > sizeof(u->url_key)) {
+		lprintf(1, "URLkey to long! [%s]", key);
+		FreeStrBuf(&Value);
+		return;
+	}
+	u = (urlcontent*)malloc(sizeof(urlcontent));
+	memcpy(u->url_key, key, keylen + 1);
+	u->url_data = Value;
+	Put(WC->urlstrings, u->url_key, keylen, u, free_url);
+}
+
+
+
+int ConditionalBstr(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	if(Tokens->nParameters == 3)
+		return HaveBstr(TKEY(2));
+	else {
+		if (Tokens->Params[3]->Type == TYPE_LONG)
+			return LBstr(TKEY(2)) == Tokens->Params[3]->lvalue;
+		else 
+			return strcmp(Bstr(TKEY(2)),
+				      Tokens->Params[3]->Start) == 0;
+	}
+}
+
+void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	const StrBuf *Buf = SBstr(TKEY(0));
+	if (Buf != NULL)
+		StrBufAppendTemplate(Target, nArgs, Tokens, 
+				     Context, ContextType,
+				     Buf, 1);
+}
+
+void diagnostics(void)
+{
+	output_headers(1, 1, 1, 0, 0, 0);
+	wprintf("Session: %d<hr />\n", WC->wc_session);
+	wprintf("Command: <br /><PRE>\n");
+	StrEscPuts(WC->UrlFragment1);
+	wprintf("<br />\n");
+	StrEscPuts(WC->UrlFragment2);
+	wprintf("<br />\n");
+	StrEscPuts(WC->UrlFragment3);
+	wprintf("</PRE><hr />\n");
+	wprintf("Variables: <br /><PRE>\n");
+	dump_vars();
+	wprintf("</PRE><hr />\n");
+	wDumpContent(1);
+}
+
+
+void tmplput_url_part(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBuf *UrlBuf;
+	wcsession *WCC = WC;
+	
+	if (WCC != NULL) {
+		if (Tokens->Params[0]->lvalue == 0)
+			UrlBuf = WCC->UrlFragment1;
+		else if (Tokens->Params[0]->lvalue == 1)
+			UrlBuf = WCC->UrlFragment2;
+		else
+			UrlBuf = WCC->UrlFragment3;
+
+		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
+				     UrlBuf, 1);
+	}
+}
+
+
+void 
+InitModule_PARAMHANDLING
+(void)
+{
+	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
+
+	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
+	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, CTX_NONE);
+	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, CTX_NONE);
+}

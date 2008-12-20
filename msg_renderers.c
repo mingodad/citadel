@@ -664,7 +664,7 @@ void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	long MsgNum;
 	StrBuf *Buf;
 
-	MsgNum = LBstr(Tokens->Params[0]->Start, Tokens->Params[0]->len);
+	MsgNum = LBstr(TKEY(0));
 	Buf = NewStrBuf();
 	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, 0, NULL);
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Buf, 1);

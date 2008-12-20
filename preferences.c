@@ -735,17 +735,14 @@ void set_preferences(void)
 void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *Setting;
-	if (get_PREFERENCE(Tokens->Params[0]->Start,
-			   Tokens->Params[0]->len,
-			   &Setting))
+	if (get_PREFERENCE(TKEY(0), &Setting))
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Setting, 1);
 }
 
 void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	const char *SettingStr;
-	SettingStr = PrefGetLocalStr(Tokens->Params[0]->Start,
-				     Tokens->Params[0]->len);
+	SettingStr = PrefGetLocalStr(TKEY(0));
 	if (SettingStr != NULL) 
 		StrBufAppendBufPlain(Target, SettingStr, -1, 0);
 }
@@ -762,9 +759,7 @@ int ConditionalPreference(WCTemplateToken *Tokens, void *Context, int ContextTyp
 {
 	StrBuf *Pref;
 
-	if (!get_PREFERENCE(Tokens->Params[2]->Start,
-			    Tokens->Params[2]->len,
-			    &Pref)) 
+	if (!get_PREFERENCE(TKEY(2), &Pref)) 
 		return 0;
 	
 	if (Tokens->nParameters == 3) {
@@ -781,9 +776,7 @@ int ConditionalHazePreference(WCTemplateToken *Tokens, void *Context, int Contex
 {
 	StrBuf *Pref;
 
-	if (!get_PREFERENCE(Tokens->Params[2]->Start,
-			    Tokens->Params[2]->len,
-			    &Pref) || 
+	if (!get_PREFERENCE(TKEY(2), &Pref) || 
 	    (Pref == NULL)) 
 		return 0;
 	else 
