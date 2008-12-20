@@ -699,16 +699,6 @@ int main(int argc, char **argv)
 	SortHash = NewHash(1, NULL);
 
 	LoadZoneFiles();
-	StrBuf *foo=NewStrBufPlain("", -1);
-	StrBuf *bar = NewStrBufPlain("A", -1);
-
-	StrBufExtract_token(bar, foo, 0, '|');
-	StrBufExtract_token(bar, foo, 1, '|');
-	StrBufExtract_token(bar, foo, 2, '|');
-	StrBufExtract_token(bar, foo, 3, '|');
-	StrBufExtract_token(bar, foo, 4, '|');
-	StrBufExtract_token(bar, foo, 5, '|');
-	StrBufExtract_token(bar, foo, 6, '|');
 
 #ifdef DBG_PRINNT_HOOKS_AT_START
 	dbg_PrintHash(HandlerHash, nix, NULL);
