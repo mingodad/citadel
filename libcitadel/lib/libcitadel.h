@@ -339,7 +339,7 @@ void generate_uuid(char *buf);
 char *bmstrcasestr(char *text, char *pattern);
 void CtdlMakeTempFileName(char *name, int len);
 char *rfc2047encode(char *line, long length);
-int is_msg_in_mset(char *mset, long msgnum);
+int is_msg_in_mset(const char *mset, long msgnum);
 int pattern2(char *search, char *patn);
 void stripltlen(char *, int *);
 char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat);

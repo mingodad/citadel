@@ -847,7 +847,7 @@ void CtdlMakeTempFileName(char *name, int len) {
  * Determine whether the specified message number is contained within the specified set.
  * Returns nonzero if the specified message number is in the specified message set string.
  */
-int is_msg_in_mset(char *mset, long msgnum) {
+int is_msg_in_mset(const char *mset, long msgnum) {
 	int num_sets;
 	int s;
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];       /* was 1024 */
