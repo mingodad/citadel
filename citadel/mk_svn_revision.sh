@@ -23,7 +23,7 @@ if test -d .svn  ; then
 	fi
 fi
 
-if test "$CAN_BUILD_SVN_REVISION" == "yes"  ; then
+if [ "$CAN_BUILD_SVN_REVISION" = "yes" ] ; then
 
 cat <<EOF > $C_FILE
 /*
