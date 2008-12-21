@@ -318,7 +318,8 @@ typedef struct _wcsubst {
 #define CTX_MIME_ATACH 10
 #define CTX_STRBUF 12
 #define CTX_LONGVECTOR 13
-
+#define CTX_FLOORS 14
+#define CTX_ROOMS 15
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
@@ -998,6 +999,16 @@ int fetch_http(char *url, char *target_buf, int maxbytes);
 int is_mobile_ua(char *user_agent);
 
 void embed_room_banner(char *, int);
+#define FLOOR_PARAM_LEN 3
+extern char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15];
+extern int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN + 1)];
+#define FPKEY(a) FLOOR_PARAM_NAMES[a], FLOOR_PARAM_NAMELEN[a]
+#define ROOM_PARAM_LEN 8
+extern char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20];
+extern int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)];
+#define RPKEY(a) ROOM_PARAM_NAMES[a], ROOM_PARAM_NAMELEN[a]
+HashList *GetFloorListHash(StrBuf *Target, int nArgs, WCTemplateToken *tokens, void *Context, int ContextType);
+HashList *GetRoomListHash(StrBuf *target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType);
 
 /* navbar types that can be passed to embed_room_banner */
 enum {

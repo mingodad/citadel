@@ -99,12 +99,12 @@
     <?MAIL:QUOTETEXT("replyquote", "X")>
 &lt;br /&gt;
 <?!("X", 2)>
-<?!("COND:BSTR", 3, "sig_inserted", "yes")>
+<??("COND:BSTR", 3, "sig_inserted", "yes")>
   <?!("COND:PREF", 4, "use_sig", "yes")>
     &lt;br&gt;--&lt;br&gt;
     <?PREF:VALUE("signature","H")>
   <?!("X", 4)>
-<?!("X", 3)>
+<??("X", 3)>
 </textarea>
 <?=("richedit")>
 

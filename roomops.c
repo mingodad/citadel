@@ -10,6 +10,13 @@ char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 
 char *viewdefs[9]; /**< the different kinds of available views */
 
+/** See GetFloorListHash and GetRoomListHash for info on these. Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys. Later on when the template engine iterates them we place these keys into subst */
+char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15] = {"FLOOR:ID", "FLOOR:NAME", "FLOOR:ROOMS"};
+char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20] = {"ROOM:NAME","ROOM:FLAG","ROOM:FLOOR","ROOM:LISTORDER","ROOM:ACL","ROOM:CURVIEW","ROOM:DEFVIEW","ROOM:LASTCHANGE"};
+// Because avoiding strlen at run time is a Good Thing(TM)
+int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN +1)] = {8, 10, 11};
+int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)] = {9, 9, 10, 14, 8, 12, 12, 15};
+
 void display_whok(void);
 
 /*
@@ -3629,7 +3636,101 @@ void set_room_policy(void) {
 	display_editroom();
 }
 
+HashList *GetFloorListHash(StrBuf *Target, int nArgs, WCTemplateToken *tokens, void *Context, int ContextType) {
+  // todo: check context
+  const char *Err;
+  StrBuf *Buf;
+  StrBuf *Buf2;
+  HashList *floors;
+  HashList *floor;
+  floors = NewHash(1, NULL);
+  Buf = NewStrBuf();
+  serv_puts("LFLR"); // get floors
+  StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); // '100', we hope
+  if (ChrPtr(Buf)[0] == '1') while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
+      floor = NewHash(1, NULL);
+      int a;
+      char *floorNum;
+      for(a=0; a<FLOOR_PARAM_LEN; a++) {
+	Buf2 = NewStrBuf();
+	StrBufExtract_token(Buf2, Buf, a, '|');
+	if (a==0) {
+	  floorNum = ChrPtr(Buf2); // hmm, should we copy Buf2 first?
+	}
+	Put(floor, FPKEY(a), Buf2, NULL);
+      }
+      Put(floors, HKEY(floorNum), floor, NULL);
+    }
+  FreeStrBuf(&Buf);
+  return floors;
+}
 
+void FloorSubst(StrBuf *TemplBufer, void *vContext, WCTemplateToken *tokens) {
+  HashList *floor = (HashList *)vContext;
+  int i;
+  void *value;
+  for(i=0; i<FLOOR_PARAM_LEN; i++) {
+    GetHash(floor, FPKEY(i), &value);
+    if (value != NULL) {
+      StrBuf *val = (StrBuf *)value;
+      SVPUTBuf(FPKEY(i), val,1);
+    }
+  }
+}
+HashList *GetRoomListHashLKRA(StrBuf *target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
+  serv_puts("LKRA");
+  return GetRoomListHash(target, nArgs, Tokens, Context, ContextType);
+}
+HashList *GetRoomListHash(StrBuf *target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
+  // TODO: Check context
+  HashList *rooms;
+  HashList *room;
+  StrBuf *buf;
+  StrBuf *buf2;
+  char *Err;
+  buf = NewStrBuf();
+  rooms = NewHash(1, NULL);
+  StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
+  if (ChrPtr(buf)[0] == '1') while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
+      room = NewHash(1, 0);
+      int i;
+      char *rmName;
+      for(i=0; i<ROOM_PARAM_LEN; i++) {
+	buf2 = NewStrBuf();
+	StrBufExtract_token(buf2, buf, i, '|');
+	if (i==0) {
+	  rmName = ChrPtr(buf2);
+	}
+	Put(room, RPKEY(i), buf2, NULL);
+      }
+      Put(rooms, rmName, strlen(rmName), room, NULL);
+    }
+  FreeStrBuf(buf);
+  return rooms;
+}
+void RoomSubst(StrBuf *TemplBufer, void *vContext, WCTemplateToken *tokens) {
+  HashList *room = (HashList *)vContext;
+  int i;
+  void *value;
+  for(i=0; i<ROOM_PARAM_LEN; i++) {
+    GetHash(room, RPKEY(i), &value);
+    if (value != NULL) {
+      StrBuf *val = (StrBuf *)value;
+      SVPUTBuf(RPKEY(i), val, 1);
+    }
+  }
+}
+void jsonRoomFlr(void) {
+  // Send as our own (application/json) content type
+  hprintf("HTTP/1.1 200 OK\r\n");
+  hprintf("Content-type: application/json; charset=utf-8\r\n");
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, serv_info.serv_software);
+  hprintf("Connection: close\r\n");
+  hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
+  begin_burst();
+  DoTemplate(HKEY("json_roomflr"),NULL,NULL, 0);
+  end_burst(); 
+}
 void tmplput_RoomName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *tmp;
@@ -3842,6 +3943,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
 	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
+	WebcitAddUrlHandler(HKEY("json_roomflr"), jsonRoomFlr, 0);
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, 0);
 
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);
@@ -3864,6 +3966,8 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
 	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, 0);
+	RegisterIterator("FLOORS", 0, NULL, GetFloorListHash, FloorSubst, NULL, CTX_FLOORS, CTX_NONE);
+	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, RoomSubst, NULL, CTX_ROOMS, CTX_NONE);
 }
 
 /*@}*/

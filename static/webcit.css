@@ -884,6 +884,9 @@ html>body #button li a {
 .room-chat {
     list-style-image: url("/static/chatrooms_16x.gif");
 }
+.room-newmsgs {
+    font-weight: bold;
+}
 /* Content */
 
 .boxcontent table {

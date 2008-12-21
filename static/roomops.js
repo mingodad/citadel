@@ -19,6 +19,11 @@ var RN_LAST_CHANGE = 7;
 var QR_PRIVATE = 4;
 var QR_MAILBOX = 16384;
 
+var UA_KNOWN = 2;
+var UA_GOTOALLOWED = 4;
+var UA_HASNEWMSGS = 8;
+var UA_ZAPPED = 16;
+
 var VIEW_BBS = 0;
 var VIEW_MAILBOX = 1;
 var VIEW_ADDRESSBOOK = 2;
@@ -29,21 +34,13 @@ var VIEW_WIKI = 6;
 var VIEW_CALBRIEF = 7;
 var VIEW_JOURNAL = 8;
 
-function FillRooms() {
-  var roomReq = new Ajax.Request("/ajax_servcmd?g_cmd=LKRA&o_json=yes",
-			     {method: 'get', asynchronous: false, onSuccess: ProcessRoomList});
-  var floorReq = new Ajax.Request("/ajax_servcmd?g_cmd=LFLR&o_json=yes", 
-				  {method: 'get', asynchronous: false, onSuccess: ProcessFloorList});
+function FillRooms(callback) {
+  var roomFlr = new Ajax.Request("/json_roomflr", {method: 'get', onSuccess: function(transport) { ProcessRoomFlr(transport); callback.call(); }});
 }
-function ProcessRoomList (transport) {
-  if (transport != null) {
-    var data = eval('('+transport.responseText+')');
-    rooms = data['response'];
-  }
-}
-function ProcessFloorList(transport) {
+function ProcessRoomFlr(transport) {
   var data = eval('('+transport.responseText+')');
-  floors = data['response'];
+  floors = data["floors"];
+  rooms = data["rooms"];
 }
 function GetRoomsByFloorNum(flnum) {
   var roomsForFloor = new Array();

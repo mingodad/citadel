@@ -141,8 +141,7 @@ function changeIconBar(event) {
 }
 function switch_to_room_list() {
   if (!rooms || !floors || !roomlist) {
-    FillRooms();
-  IconBarRoomList();
+    FillRooms(IconBarRoomList);
   } else {
     roomlist.className = roomlist.className.replace("hidden","");
   }
@@ -197,8 +196,10 @@ function IconBarRoomList() {
 function addRoomToList(floorUL,room) {
   var roomName = room[RN_ROOM_NAME];
   var flag = room[RN_ROOM_FLAG];
+  var curView = room[RN_CUR_VIEW];
   var view = room[RN_DEF_VIEW];
   var isMailBox = ((flag & QR_MAILBOX) == QR_MAILBOX);
+  var hasNewMsgs = ((curView & UA_HASNEWMSGS) == UA_HASNEWMSGS);
   var roomLI = document.createElement("li");
   var roomA = document.createElement("a");
   roomA.setAttribute("href","dotgoto?room="+roomName);
@@ -218,6 +219,9 @@ function addRoomToList(floorUL,room) {
     className += "room-notes";
   } else {
     className += "room-chat";
+  }
+  if (hasNewMsgs) {
+    className += " room-newmsgs";
   }
   roomLI.setAttribute("class", className);
   roomA.dropTarget = true;

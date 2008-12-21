@@ -45,13 +45,51 @@ inline const char *PrintPref(void *Prefstr)
 }
 #endif
 
+
+void ParsePref(HashList **List, StrBuf *ReadBuf)
+{
+	StrBuf *Key;
+	StrBuf *Data = NULL;
+	StrBuf *LastData = NULL;
+				
+	Key = NewStrBuf();
+	while (StrBuf_ServGetln(ReadBuf), 
+	       strcmp(ChrPtr(ReadBuf), "000")) 
+	{
+		if ((ChrPtr(ReadBuf)[0] == ' ') &&
+		    (Data != NULL)) {
+			StrBufAppendBuf(Data, ReadBuf, 1);
+		}
+		else {
+			LastData = Data = NewStrBuf();
+			StrBufExtract_token(Key, ReadBuf, 0, '|');
+			StrBufExtract_token(Data, ReadBuf, 1, '|');
+			if (!IsEmptyStr(ChrPtr(Key)))
+			{
+				Put(*List, 
+				    ChrPtr(Key), StrLength(Key), 
+				    Data, 
+				    HFreeStrBuf);
+			}
+			else 
+			{
+				FreeStrBuf(&Data);
+				LastData = NULL;
+			}
+		}
+	}
+	FreeStrBuf(&Key);
+}
+
+
 /*
  * display preferences dialog
  */
-void load_preferences(void) {
+void load_preferences(void) 
+{
+	StrBuf *ReadBuf;
 	char buf[SIZ];
 	long msgnum = 0L;
-	StrBuf *ReadBuf;
 	
 	serv_printf("GOTO %s", USERCONFIGROOM);
 	serv_getln(buf, sizeof buf);
@@ -77,40 +115,10 @@ void load_preferences(void) {
 				strcmp(ChrPtr(ReadBuf), "000"))) {
 			}
 			if (!strcmp(ChrPtr(ReadBuf), "text")) {
-				StrBuf *Key;
-				StrBuf *Data = NULL;
-				StrBuf *LastData = NULL;
-				
-				Key = NewStrBuf();
-				while (StrBuf_ServGetln(ReadBuf), 
-				       strcmp(ChrPtr(ReadBuf), "000")) 
-				{
-					if ((ChrPtr(ReadBuf)[0] == ' ') &&
-					    (Data != NULL)) {
-						StrBufAppendBuf(Data, ReadBuf, 1);
-					}
-					else {
-						LastData = Data = NewStrBuf();
-						StrBufExtract_token(Key, ReadBuf, 0, '|');
-						StrBufExtract_token(Data, ReadBuf, 1, '|');
-						if (!IsEmptyStr(ChrPtr(Key)))
-						{
-							Put(WC->hash_prefs, 
-							    ChrPtr(Key), StrLength(Key), 
-							    Data, 
-							    HFreeStrBuf);
-						}
-						else 
-						{
-							FreeStrBuf(&Data);
-							LastData = NULL;
-						}
-					}
-				}
-				FreeStrBuf(&Key);
+				ParsePref(&WC->hash_prefs, ReadBuf);
 			}
-			FreeStrBuf(&ReadBuf);
 		}
+		FreeStrBuf(&ReadBuf);
 	}
 
 	/* Go back to the room we're supposed to be in */
@@ -135,6 +143,62 @@ int goto_config_room(void) {
 		if (buf[0] != '2') return(1);
 	}
 	return(0);
+}
+
+void WritePrefsToServer(HashList *Hash)
+{
+	long len;
+	HashPos *HashPos;
+	void *Value;
+	const char *Key;
+	StrBuf *Buf;
+	StrBuf *SubBuf = NULL;
+	
+	Hash = WC->hash_prefs;
+#ifdef DBG_PREFS_HASH
+	dbg_PrintHash(Hash, PrintPref, NULL);
+#endif
+	HashPos = GetNewHashPos(Hash, 0);
+	while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
+	{
+		size_t nchars;
+		Buf = (StrBuf*) Value;
+		if (Buf == NULL)
+			continue;
+		nchars = StrLength(Buf);
+		if (nchars > 80){
+			int n = 0;
+			size_t offset, nchars;
+			if (SubBuf == NULL)
+				SubBuf = NewStrBuf();
+			nchars = 1;
+			offset = 0;
+			while (nchars > 0) {
+				if (n == 0)
+					nchars = 70;
+				else 
+					nchars = 80;
+				
+				nchars = StrBufSub(SubBuf, Buf, offset, nchars);
+				
+				if (n == 0)
+					serv_printf("%s|%s", Key, ChrPtr(SubBuf));
+				else
+					serv_printf(" %s", ChrPtr(SubBuf));
+				
+				offset += nchars;
+				nchars = StrLength(Buf) - offset;
+				n++;
+			}
+			
+		}
+		else
+			serv_printf("%s|%s", Key, ChrPtr(Buf));
+		
+	}
+	if (SubBuf != NULL)
+		FreeStrBuf(&SubBuf);
+	DeleteHashPos(&HashPos);
 }
 
 /**
@@ -163,61 +227,10 @@ void save_preferences(void) {
 	serv_printf("ENT0 1||0|1|__ WebCit Preferences __|");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
-		long len;
-		HashPos *HashPos;
-		HashList *Hash;
-		void *Value;
-		const char *Key;
-		StrBuf *Buf;
-		StrBuf *SubBuf = NULL;
-		
-		Hash = WC->hash_prefs;
-#ifdef DBG_PREFS_HASH
-		dbg_PrintHash(Hash, PrintPref, NULL);
-#endif
-		HashPos = GetNewHashPos(Hash, 0);
-		while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
-		{
-			size_t nchars;
-			Buf = (StrBuf*) Value;
-			if (Buf == NULL)
-				continue;
-			nchars = StrLength(Buf);
-			if (nchars > 80){
-				int n = 0;
-				size_t offset, nchars;
-				if (SubBuf == NULL)
-					SubBuf = NewStrBuf();
-				nchars = 1;
-				offset = 0;
-				while (nchars > 0) {
-					if (n == 0)
-						nchars = 70;
-					else 
-						nchars = 80;
 
-					nchars = StrBufSub(SubBuf, Buf, offset, nchars);
-					
-					if (n == 0)
-						serv_printf("%s|%s", Key, ChrPtr(SubBuf));
-					else
-						serv_printf(" %s", ChrPtr(SubBuf));
-
-					offset += nchars;
-					nchars = StrLength(Buf) - offset;
-					n++;
-				}
-				
-			}
-			else
-				serv_printf("%s|%s", Key, ChrPtr(Buf));
-			
-		}
-		if (SubBuf != NULL)
-			FreeStrBuf(&SubBuf);
+		WritePrefsToServer(WC->hash_prefs);
 		serv_puts("");
 		serv_puts("000");
-		DeleteHashPos(&HashPos);
 	}
 
 	/** Go back to the room we're supposed to be in */
@@ -764,6 +777,19 @@ int ConditionalPreference(WCTemplateToken *Tokens, void *Context, int ContextTyp
 		return (StrTol(Pref) == Tokens->Params[3]->lvalue);
 }
 
+int ConditionalHazePreference(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	StrBuf *Pref;
+
+	if (!get_PREFERENCE(Tokens->Params[2]->Start,
+			    Tokens->Params[2]->len,
+			    &Pref) || 
+	    (Pref == NULL)) 
+		return 0;
+	else 
+		return 1;
+}
+
 HashList *GetGVEAHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *Rcp;
@@ -867,6 +893,7 @@ InitModule_PREFERENCES
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
+	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHazePreference, CTX_NONE);
 	
 	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
 			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE);
