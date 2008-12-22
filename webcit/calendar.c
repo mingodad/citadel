@@ -153,6 +153,14 @@ void cal_process_object(StrBuf *Target,
 		StrBufAppendPrintf(Target, "</dd>\n");
 	}
 
+	if (icalcomponent_get_first_property(cal, ICAL_RRULE_PROPERTY)) {
+		/* Unusual string syntax used here in order to re-use existing translations */
+		StrBufAppendPrintf(Target, "<dt>%s:</dt><dd>%s.</dd>\n",
+			_("Recurrence"),
+			_("This is a recurring event")
+		);
+	}
+
 	/* If the component has attendees, iterate through them. */
 	for (p = icalcomponent_get_first_property(cal, ICAL_ATTENDEE_PROPERTY); 
 	     (p != NULL); 
