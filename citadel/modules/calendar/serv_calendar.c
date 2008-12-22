@@ -1576,14 +1576,10 @@ void ical_getics(void)
  */
 void ical_putics_grabtzids(icalparameter *param, void *data)
 {
-	char *need_these_tzids = (char *) data;
 	const char *tzid = icalparameter_get_tzid(param);
 	
-	if ( (need_these_tzids) && (tzid) ) {
-		if (strlen(need_these_tzids) + strlen(tzid) < 1020) {
-			strcat(need_these_tzids, icalparameter_get_tzid(param));
-			strcat(need_these_tzids, "\n");
-		}
+	if (tzid) {
+		CtdlLogPrintf(CTDL_DEBUG, "FIXME : need to attach tzid '%s'\n", tzid);
 	}
 }
 
@@ -1598,7 +1594,6 @@ void ical_putics(void)
 	icalcomponent *cal;
 	icalcomponent *c;
 	icalcomponent *encaps = NULL;
-	int i;
 
 	/* Only allow this operation if we're in a room containing a calendar or tasks view */
 	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
@@ -1654,12 +1649,8 @@ void ical_putics(void)
 				icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
 				icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
 
-				/* Attach any needed timezones here */
-				char need_these_tzids[1024] = "";
-				icalcomponent_foreach_tzid(c, ical_putics_grabtzids, need_these_tzids);
-				for (i=0; i<num_tokens(need_these_tzids, '\n'); ++i) {
-					CtdlLogPrintf(CTDL_DEBUG, "FIXME need to attach a tzid\n");
-				}
+				/* FIXME : attach any needed timezones here */
+				icalcomponent_foreach_tzid(c, ical_putics_grabtzids, NULL);
 
 				/* Now attach the component itself (usually a VEVENT or VTODO) */
 				icalcomponent_add_component(encaps, icalcomponent_new_clone(c));
