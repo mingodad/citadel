@@ -242,13 +242,6 @@ void cal_process_object(StrBuf *Target,
 	/* If this is a REPLY, display update button */
 	if (the_method == ICAL_METHOD_REPLY) {
 
-		/* In the future, if we want to validate this object before
-		 * continuing, we can do it this way:
-		 serv_printf("ICAL whatever|%ld|%s|", msgnum, cal_partnum);
-		 serv_getln(buf, sizeof buf);
-		 }
-		***********/
-
 		/* Display the update buttons */
 		StrBufAppendPrintf(Target, "<p id=\"%s_question\" >"
 			"%s "
