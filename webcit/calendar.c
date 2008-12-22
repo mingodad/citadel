@@ -37,6 +37,15 @@ void cal_process_object(StrBuf *Target,
 
 	sprintf(divname, "rsvp%04x", ++divcount);
 
+	/* Convert timezones to something easy to display.
+	 * It's safe to do this in memory because we're only changing it on the
+	 * display side -- when we tell the server to do something with the object,
+	 * the server will be working with its original copy in the database.
+	 */
+	if ((cal) && (recursion_level == 0)) {
+		ical_dezonify(cal);
+	}
+
 	/* Leading HTML for the display of this object */
 	if (recursion_level == 0) {
 		StrBufAppendPrintf(Target, "<div class=\"mimepart\">\n");
@@ -263,13 +272,9 @@ void cal_process_object(StrBuf *Target,
 }
 
 
-/**
- * \brief process calendar mail atachment
- * Deserialize a calendar object in a message so it can be processed.
- * (This is the main entry point for these things)
- * \param part_source the part of the message we want to parse
- * \param msgnum number of the mesage in our db
- * \param cal_partnum the number of the calendar item
+/*
+ * Deserialize a calendar object in a message so it can be displayed.
+ *
  */
 void cal_process_attachment(wc_mime_attachment *Mime) 
 {
