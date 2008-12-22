@@ -1572,14 +1572,17 @@ void ical_getics(void)
 
 
 /*
- * Helper callback function for ical_putics() to discover which TZID's we need
+ * Helper callback function for ical_putics() to discover which TZID's we need.
+ * Simply put the tzid name string into a hash table.  After the callbacks are
+ * done we'll go through them and attach the ones that we have.
  */
 void ical_putics_grabtzids(icalparameter *param, void *data)
 {
 	const char *tzid = icalparameter_get_tzid(param);
+	HashList *keys = (HashList *) data;
 	
-	if (tzid) {
-		CtdlLogPrintf(CTDL_DEBUG, "FIXME : need to attach tzid '%s'\n", tzid);
+	if ( (keys) && (tzid) && (!IsEmptyStr(tzid)) ) {
+		Put(keys, tzid, strlen(tzid), strdup(tzid), generic_free_handler);
 	}
 }
 
@@ -1594,6 +1597,11 @@ void ical_putics(void)
 	icalcomponent *cal;
 	icalcomponent *c;
 	icalcomponent *encaps = NULL;
+	HashList *tzidlist = NULL;
+	HashPos *HashPos;
+	void *Value;
+	const char *Key;
+	long len;
 
 	/* Only allow this operation if we're in a room containing a calendar or tasks view */
 	if ( (CC->room.QRdefaultview != VIEW_CALENDAR)
@@ -1649,8 +1657,37 @@ void ical_putics(void)
 				icalcomponent_add_property(encaps, icalproperty_new_version("2.0"));
 				icalcomponent_set_method(encaps, ICAL_METHOD_PUBLISH);
 
-				/* FIXME : attach any needed timezones here */
-				icalcomponent_foreach_tzid(c, ical_putics_grabtzids, NULL);
+				/* Attach any needed timezones here */
+				tzidlist = NewHash(1, NULL);
+				if (tzidlist) {
+					icalcomponent_foreach_tzid(c, ical_putics_grabtzids, tzidlist);
+				}
+				HashPos = GetNewHashPos(tzidlist, 0);
+
+				while (GetNextHashPos(tzidlist, HashPos, &len, &Key, &Value)) {
+					CtdlLogPrintf(CTDL_DEBUG, "Attaching timezone '%s'\n", Value);
+					icaltimezone *t = NULL;
+
+					/* First look for a timezone attached to the original calendar */
+					t = icalcomponent_get_timezone(cal, Value);
+
+					/* Try built-in tzdata if the right one wasn't attached */
+					if (!t) {
+						t = icaltimezone_get_builtin_timezone(Value);
+					}
+
+					/* I've got a valid timezone to attach. */
+					if (t) {
+						icalcomponent_add_component(encaps,
+							icalcomponent_new_clone(
+								icaltimezone_get_component(t)
+							)
+						);
+					}
+
+				}
+				DeleteHashPos(&HashPos);
+				DeleteHash(&tzidlist);
 
 				/* Now attach the component itself (usually a VEVENT or VTODO) */
 				icalcomponent_add_component(encaps, icalcomponent_new_clone(c));
