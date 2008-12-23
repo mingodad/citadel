@@ -870,15 +870,16 @@ void ical_conflicts_phase6(struct icaltimetype t1start,
 {
 
 	/* debugging cruft */
-	//	time_t tt;
-	//	tt = icaltime_as_timet(t1start);
-	//	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
-	//	tt = icaltime_as_timet(t1end);
-	//	CtdlLogPrintf(CTDL_DEBUG, "  PROPOSED END: %s", ctime(&tt));
-	//	tt = icaltime_as_timet(t2start);
-	//	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
-	//	tt = icaltime_as_timet(t2end);
-	//	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
+	time_t tt;
+	tt = icaltime_as_timet(t1start);
+	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
+	tt = icaltime_as_timet(t1end);
+	CtdlLogPrintf(CTDL_DEBUG, "  PROPOSED END: %s", ctime(&tt));
+	tt = icaltime_as_timet(t2start);
+	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
+	tt = icaltime_as_timet(t2end);
+	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
+	/* debugging cruft */
 
 	/* compare and output */
 
@@ -922,6 +923,7 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	icalrecur_iterator *ritr = NULL;
 	struct icaldurationtype dur;
 	int num_recur = 0;
+	int out_of_scope = 0;
 
 	/* initialization */
 	strcpy(conflict_event_uid, "");
@@ -970,7 +972,12 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 			++num_recur;
 		}
 
-	} while ( (rrule) && (!icaltime_is_null_time(t2start)) && (num_recur < MAX_RECUR) );
+		if (icaltime_compare(t2start, t1end) < 0) {
+			CtdlLogPrintf(CTDL_DEBUG, "Went out of scope after %d iterations\n", num_recur);
+			out_of_scope = 1;
+		}
+
+	} while ((rrule) && (!icaltime_is_null_time(t2start)) && (num_recur < MAX_RECUR) && (!out_of_scope));
 	icalrecur_iterator_free(ritr);
 	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over existing event %d times.\n", num_recur);
 }
