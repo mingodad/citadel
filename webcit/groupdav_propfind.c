@@ -318,7 +318,12 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 		wprintf("</href>");
 		wprintf("<propstat>");
 		wprintf("<status>HTTP/1.1 200 OK</status>");
-		wprintf("<prop><getetag>\"%ld\"</getetag></prop>", dav_msgnum);
+		wprintf("<prop>");
+		wprintf("<getetag>\"%ld\"</getetag>", dav_msgnum);
+		wprintf("<getlastmodified>");
+		escputs(datestring);
+		wprintf("</getlastmodified>");
+		wprintf("</prop>");
 		wprintf("</propstat>");
 
 		wprintf("</response>\n");
@@ -400,11 +405,15 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
 
 		strcpy(uid, "");
+		now = (-1);
 		serv_printf("MSG0 %ld|3", msgs[i]);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (!strncasecmp(buf, "exti=", 5)) {
 				strcpy(uid, &buf[5]);
+			}
+			else if (!strncasecmp(buf, "time=", 5)) {
+				now = atol(&buf[5]);
 			}
 		}
 
@@ -432,6 +441,12 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 					wprintf("<status>HTTP/1.1 200 OK</status>");
 					wprintf("<prop>");
 						wprintf("<getetag>\"%ld\"</getetag>", msgs[i]);
+					if (now > 0L) {
+						http_datestring(datestring, sizeof datestring, now);
+						wprintf("<getlastmodified>");
+						escputs(datestring);
+						wprintf("</getlastmodified>");
+					}
 					wprintf("</prop>");
 				wprintf("</propstat>");
 			wprintf("</response>");
