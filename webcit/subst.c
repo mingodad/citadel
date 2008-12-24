@@ -1801,7 +1801,7 @@ CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix,
 	const StrBuf *BSort;
 	SortStruct *SortBy;
 	void *vSortBy;
-	long SortOrder;
+	long SortOrder = -1;
 	
 	if (havebstr("SortBy")) {
 		BSort = sbstr("SortBy");
@@ -1812,6 +1812,14 @@ CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix,
 		}
 		else {
 			////todo: nail prefprepend to sort, and lookup this!
+		}
+		if (BSort != NULL)
+			putbstr("SortBy", NewStrBufDup(BSort));
+		else {
+			StrBuf *Buf;
+
+			BSort = Buf = NewStrBufPlain(Default, ldefault);
+			putbstr("SortBy", Buf);
 		}
 	}
 
@@ -1831,12 +1839,21 @@ CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix,
 		SortOrder = LBSTR("SortOrder");
 	}
 	else { /** Try to fallback to our remembered values... */
+		StrBuf *Buf;
 		if (SortBy->PrefPrepend == NULL) {
-			SortOrder = StrTol(get_room_pref("SortOrder"));
+			Buf = get_room_pref("SortOrder");
+			SortOrder = StrTol(Buf);
 		}
 		else {
 			////todo: nail prefprepend to sort, and lookup this!
 		}
+
+		if (Buf == NULL)
+			SortOrder = DefaultDirection;
+
+		Buf = NewStrBufPlain(NULL, 64);
+		StrBufPrintf(Buf, "%ld", SortOrder);
+		putbstr("SortOrder", Buf);
 	}
 	switch (SortOrder) {
 	default:
