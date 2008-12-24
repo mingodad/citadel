@@ -480,7 +480,7 @@ inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 }
 
 
-void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
+long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 {
 	StrBuf *TmpBuf;
 	wcsession *WCC = WC;
@@ -488,6 +488,7 @@ void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 	int lo, hi, n;
 	int i = 0;
 	long StartMsg = 0;
+	long ret;
 	void *vMsg;
 	long hklen;
 	const char *key;
@@ -495,12 +496,12 @@ void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 	int nItems;
 	HashPos *At;
 	long vector[16];
-	int nMessages = DEFAULT_MAXMSGS;
+	int nMessages = (lbstr("SortOrder") == 1)? DEFAULT_MAXMSGS : -DEFAULT_MAXMSGS;
 
 	TmpBuf = NewStrBuf();
-	At = GetNewHashPos(WCC->summ, (lbstr("SortOrder") == 1)? -nMessages : nMessages);
+	At = GetNewHashPos(WCC->summ, nMessages);
 	nItems = GetCount(WCC->summ);
-	
+	ret = abs(nMessages);
 	vector[0] = 7;
 	vector[1] = startmsg;
 	vector[2] = maxmsgs;
@@ -509,21 +510,38 @@ void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 
 	while (!done) {
 		lo = GetHashPosCounter(At);
-		if (lo + nMessages > nItems) {
-			hi = nItems;
-		}
-		else {
-			hi = lo + nMessages;
+		if (nMessages > 0) {
+			if (lo + nMessages > nItems) {
+				hi = nItems;
+			}
+			else {
+				hi = lo + nMessages;
+			}
+		} else {
+			if (lo + nMessages <= 0) {
+				hi = 1;
+			}
+			else {
+				if (lo % abs(nMessages) != 0)
+					hi = lo + (lo % abs(nMessages) *
+						    (nMessages / abs(nMessages)));
+				else
+					hi = lo + nMessages;
+			}
 		}
 		done = !GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
 		Msg = (message_summary*) vMsg;
 		n = (Msg==NULL)? 0 : Msg->msgnum;
 		if (i == 0)
 			StartMsg = n;
-		vector[4] = lo;
+		if ((vector[1] == n) && (lo - hi + 1 != nMessages)) {
+			ret = abs(lo - hi + 1);
+		}
+		vector[4] = lo + 1;
 		vector[5] = hi;
 		vector[6] = n;
 		FlushStrBuf(TmpBuf);
+		dbg_print_longvector(vector);
 		DoTemplate(HKEY("select_messageindex"), TmpBuf, &vector, CTX_LONGVECTOR);
 		StrBufAppendBuf(Selector, TmpBuf, 0);
 		i++;
@@ -532,10 +550,12 @@ void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 	FlushStrBuf(TmpBuf);
 	vector[1] = lbstr("maxmsgs") == 9999999;
 	vector[2] = 0;
+	dbg_print_longvector(vector);
 	DoTemplate(HKEY("select_messageindex_all"), TmpBuf, &vector, CTX_LONGVECTOR);
 	StrBufAppendBuf(Selector, TmpBuf, 0);
 	FreeStrBuf(&TmpBuf);
 	DeleteHashPos(&At);
+	return ret;
 }
 
 void load_seen_flags(void)
@@ -679,6 +699,7 @@ void readloop(long oper)
 		} 
 
 		if (is_bbview) {
+			SetAccessCommand(oper);
 			if (havebstr("SortOrder")) {
 				bbs_reverse = lbstr("SortOrder") == 2;
 			}
@@ -752,7 +773,7 @@ void readloop(long oper)
 		BBViewToolBar = NewStrBuf();
 		MessageDropdown = NewStrBuf();
 
-		DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg);
+		maxmsgs = DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg);
 		
 		DoTemplate(HKEY("msg_listselector_top"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
@@ -800,7 +821,7 @@ void readloop(long oper)
 				if (lowest_displayed < 0) lowest_displayed = a;
 				highest_displayed = a;
 			
-				++num_displayed;
+				num_displayed++;
 			}
 		}
 	}

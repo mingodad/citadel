@@ -404,9 +404,25 @@ void tmplput_url_part(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 			UrlBuf = WCC->UrlFragment2;
 		else
 			UrlBuf = WCC->UrlFragment3;
+		if (UrlBuf == NULL)  {
+			lprintf(1, "urlbuf [%s] not set. (in '%s' line %ld);[%s]\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken));
+			StrBufAppendPrintf(
+				Target, 
+				"<pre>\nurlbuf [%s] not set (in '%s' line %ld)\n[%s]\n</pre>\n", 
+				Tokens->Params[0]->Start,
+				ChrPtr(Tokens->FileName),
+				Tokens->Line,
+				ChrPtr(Tokens->FlatToken));
 
+
+
+		}
 		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
-				     UrlBuf, 1);
+				     UrlBuf, 2);
 	}
 }
 

@@ -2105,7 +2105,22 @@ void tmplput_long_vector(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, voi
 	}
 }
 
+void dbg_print_longvector(long *LongVector)
+{
+	StrBuf *Buf = NewStrBufPlain(HKEY("Longvector: ["));
+	int nItems = LongVector[0];
+	int i;
 
+	for (i = 0; i < nItems; i++) {
+		if (i + 1 < nItems)
+			StrBufAppendPrintf(Buf, "%d: %ld | ", i, LongVector[i]);
+		else
+			StrBufAppendPrintf(Buf, "%d: %ld]\n", i, LongVector[i]);
+
+	}
+	lprintf(1, ChrPtr(Buf));
+	FreeStrBuf(&Buf);
+}
 
 int ConditionalLongVector(WCTemplateToken *Tokens, void *Context, int ContextType)
 {

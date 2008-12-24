@@ -982,7 +982,18 @@ readloop_struct rlid[] = {
 
 
 
+void SetAccessCommand(long Oper)
+{
+	wcsession *WCC = WC;	
 
+	if (WCC->UrlFragment1 != NULL ) {
+		FlushStrBuf(WCC->UrlFragment1);
+		StrBufAppendBufPlain(WCC->UrlFragment1, 
+				     rlid[Oper].name.Key, rlid[Oper].name.len, 0);
+	}
+	else 
+		WCC->UrlFragment1 = NewStrBufPlain(rlid[Oper].name.Key, rlid[Oper].name.len);
+}
 		
 
 

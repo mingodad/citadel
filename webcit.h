@@ -395,6 +395,7 @@ void RegisterSortFunc(const char *name, long len,
 		      CompareFunc Reverse, 
 		      long ContextType);
 
+void dbg_print_longvector(long *LongVector);
 
 /*
  * \brief Values for wcs_type
@@ -819,6 +820,7 @@ typedef struct _readloopstruct {
 	ConstStr name;
 	readloop_servcmd cmd;
 } readloop_struct;
+void SetAccessCommand(long Oper);
 void readloop(long oper);
 int  read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
