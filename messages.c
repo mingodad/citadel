@@ -484,19 +484,16 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 {
 	StrBuf *TmpBuf;
 	wcsession *WCC = WC;
-	message_summary* Msg;
-	int lo, hi, n;
-	int i = 0;
-	long StartMsg = 0;
-	long ret;
 	void *vMsg;
+	int lo, hi;
+	long ret;
 	long hklen;
 	const char *key;
 	int done = 0;
 	int nItems;
 	HashPos *At;
 	long vector[16];
-	int nMessages = (lbstr("SortOrder") == 1)? DEFAULT_MAXMSGS : -DEFAULT_MAXMSGS;
+	int nMessages = (lbstr("SortOrder") == 1)? -DEFAULT_MAXMSGS : DEFAULT_MAXMSGS;
 
 	TmpBuf = NewStrBuf();
 	At = GetNewHashPos(WCC->summ, nMessages);
@@ -530,23 +527,23 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
 			}
 		}
 		done = !GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
-		Msg = (message_summary*) vMsg;
-		n = (Msg==NULL)? 0 : Msg->msgnum;
-		if (i == 0)
-			StartMsg = n;
-		if ((vector[1] == n) && (lo - hi + 1 != nMessages)) {
+		
+		if ((startmsg == lo) && (lo - hi + 1 != nMessages)) {
 			ret = abs(lo - hi + 1);
 		}
+		/**
+		 * Bump these because although we're thinking in zero base, the user
+		 * is a drooling idiot and is thinking in one base.
+		 */
 		vector[4] = lo + 1;
 		vector[5] = hi;
-		vector[6] = n;
+		vector[6] = lo;
 		FlushStrBuf(TmpBuf);
 		dbg_print_longvector(vector);
 		DoTemplate(HKEY("select_messageindex"), TmpBuf, &vector, CTX_LONGVECTOR);
 		StrBufAppendBuf(Selector, TmpBuf, 0);
-		i++;
 	}
-	vector[6] = StartMsg;
+	vector[6] = 0;
 	FlushStrBuf(TmpBuf);
 	vector[1] = lbstr("maxmsgs") == 9999999;
 	vector[2] = 0;
@@ -631,11 +628,15 @@ void readloop(long oper)
 	int load_seen = 0;
 	int sortit = 0;
 
+	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
+		WCC->wc_view = VIEW_MAILBOX;
+
 	switch (WCC->wc_view) {
 	case VIEW_WIKI:
 		sprintf(buf, "wiki?room=%s&page=home", WCC->wc_roomname);
 		http_redirect(buf);
 		return;
+	case VIEW_CALBRIEF:
 	case VIEW_CALENDAR:
 		load_seen = 1;
 		strcpy(cmd, "MSGS ALL|||1");
@@ -664,61 +665,37 @@ void readloop(long oper)
 			break;
 		}
 		break;
-	default:
+	case VIEW_MAILBOX: 
+		is_summary = 1;
+		sortit = 1;
+		load_seen = 1;
 		care_for_empty_list = 1;
-		startmsg = lbstr("startmsg");
+
+		if (WCC->is_mobile) maxmsgs = 20;
+		else maxmsgs = 9999999;
+		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
+			 (oper == do_search) ? "SEARCH" : "ALL",
+			 (oper == do_search) ? bstr("query") : ""
+			);
+		break;
+	case VIEW_BBS:
+	default:
+		startmsg = -1;
+		is_bbview = 1;
+		sortit = 1;
+		care_for_empty_list = 1;
+
+		rlid[oper].cmd(cmd, sizeof(cmd));
+		SetAccessCommand(oper);
+
 		if (havebstr("maxmsgs"))
 			maxmsgs = ibstr("maxmsgs");
-		is_summary = (ibstr("is_summary") && !WCC->is_mobile);
 		if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
-		
 
+		if (havebstr("startmsg")) {
+			startmsg = lbstr("startmsg");
+		}
 		
-                /*
-		 * When in summary mode, always show ALL messages instead of just
-		 * new or old.  Otherwise, show what the user asked for.
-		 */
-		rlid[oper].cmd(cmd, sizeof(cmd));
-		
-		if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1) && !WCC->is_mobile) {
-			is_summary = 1;
-			if (oper != do_search) {
-				strcpy(cmd, "MSGS ALL");
-			}
-		}
-
-		is_bbview = !is_summary;
-		if (is_summary) {			/**< fetch header summary */
-			load_seen = 1;
-			snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
-				 (oper == do_search) ? "SEARCH" : "ALL",
-				 (oper == do_search) ? bstr("query") : ""
-				);
-			startmsg = 1;
-			maxmsgs = 9999999;
-		} 
-
-		if (is_bbview) {
-			SetAccessCommand(oper);
-			if (havebstr("SortOrder")) {
-				bbs_reverse = lbstr("SortOrder") == 2;
-			}
-			else {
-				StrBuf *Buf = NewStrBufPlain(HKEY("1"));
-				putbstr("SortOrder", Buf);
-				Buf = NewStrBufPlain(HKEY("date"));
-				putbstr("SortBy", Buf);
-				bbs_reverse = 0;
-			}
-		}
-		sortit = is_summary || WCC->is_mobile;
-		if (WCC->is_mobile) {
-			maxmsgs = 20;
-			snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
-				 ((oper == do_search) ? "SEARCH" : "ALL"),
-				 ((oper == do_search) ? bstr("query") : "")
-				);
-		}
 	}
 	output_headers(1, 1, 1, 0, 0, 0);
 
@@ -745,31 +722,24 @@ void readloop(long oper)
 	if (sortit) {
 		CompareFunc SortIt;
 		SortIt =  RetrieveSort(CTX_MAILSUM, NULL, 
-				       HKEY("date"), 2);
+				       HKEY("date"), (is_bbview)? 1 : 2);
 		if (SortIt != NULL)
 			SortByPayload(WCC->summ, SortIt);
+		if (is_bbview)
+			bbs_reverse = lbstr("SortOrder") == 2;
 	}
-
-	if (is_bbview && (startmsg == 0L)) {
-		if (bbs_reverse) {
-			Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
-			startmsg = (Msg==NULL)? 0 : Msg->msgnum;
-		}
-		else {
-			Msg = GetMessagePtrAt(0, WCC->summ);
-			startmsg = (Msg==NULL)? 0 : Msg->msgnum;
-		}
-	}
+	if (startmsg < 0) startmsg = (bbs_reverse) ? nummsgs : 0;
 
 	if (load_seen) load_seen_flags();
-	if (is_summary) do_template("summary_header", NULL);
 	
-
         /**
-	 * If we're not currently looking at ALL requested
-	 * messages, then display the selector bar
+	 * If we're to print s.th. above the message list...
 	 */
-	if (is_bbview)  {
+	switch (WCC->wc_view) {
+	case VIEW_MAILBOX: 
+		do_template("summary_header", NULL);
+		break;
+	case VIEW_BBS:
 		BBViewToolBar = NewStrBuf();
 		MessageDropdown = NewStrBuf();
 
@@ -778,8 +748,12 @@ void readloop(long oper)
 		DoTemplate(HKEY("msg_listselector_top"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 		FlushStrBuf(BBViewToolBar);
+		break;
 	}
 			
+	/*
+	 * iterate over each message. if we need to load an attachment, do it here. 
+	 */
 	at = GetNewHashPos(WCC->summ, 0);
 	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 		Msg = (message_summary*) vMsg;		
@@ -787,6 +761,7 @@ void readloop(long oper)
 			switch (WCC->wc_view) {
 			case VIEW_WIKI:
 				break;
+			case VIEW_CALBRIEF: /* load the mime attachments for special tasks... */
 			case VIEW_CALENDAR:
 				load_calendar_item(Msg, Msg->is_new, &calv);
 				break;
@@ -805,19 +780,18 @@ void readloop(long oper)
 					    sizeof(addrbook[num_ab-1].ab_name));
 				addrbook[num_ab-1].ab_msgnum = Msg->msgnum;
 				break;
-			default:
-				/** Display the message */
-				if (is_summary) {
-					DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
-				}
-				else {
-					if (displayed_msgs == NULL) {
-						displayed_msgs = malloc(sizeof(long) *
-									(maxmsgs<nummsgs ? maxmsgs : nummsgs));
-					}
-					displayed_msgs[num_displayed] = Msg->msgnum;
-				}
+			case VIEW_MAILBOX: /* here we just need the abstract, so render it now. */
+				DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
 			
+				num_displayed++;
+				break;
+			case VIEW_BBS: /* Tag the mails we want to show in bbview... */
+			default:
+				if (displayed_msgs == NULL) {
+					displayed_msgs = malloc(sizeof(long) *
+								(maxmsgs<nummsgs ? maxmsgs : nummsgs));
+				}
+				displayed_msgs[num_displayed] = Msg->msgnum;
 				if (lowest_displayed < 0) lowest_displayed = a;
 				highest_displayed = a;
 			
@@ -827,51 +801,40 @@ void readloop(long oper)
 	}
 	DeleteHashPos(&at);
 
-	/** Output loop */
-	if (displayed_msgs != NULL) {
-		if (bbs_reverse) {
-			////TODOqsort(displayed_msgs, num_displayed, sizeof(long), qlongcmp_r);
-		}
 
-		/** if we do a split bbview in the future, begin messages div here */
-
-		for (a=0; a<num_displayed; ++a) {
-			read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
-		}
-
-		/** if we do a split bbview in the future, end messages div here */
-
-		free(displayed_msgs);
-		displayed_msgs = NULL;
-	}
-
-	if (is_summary) {
+	/*
+	 * Done iterating the message list. now tasks we want to do after.
+	 */
+	switch (WCC->wc_view) {
+	case VIEW_MAILBOX: 
 		do_template("summary_trailer", NULL);
-	}
-
-	/**
-	 * Bump these because although we're thinking in zero base, the user
-	 * is a drooling idiot and is thinking in one base.
-	 */
-	++lowest_displayed;
-	++highest_displayed;
-
-	/**
-	 * If we're not currently looking at ALL requested
-	 * messages, then display the selector bar
-	 */
-	if (is_bbview) {
+		break;
+	case VIEW_BBS:
+		if (displayed_msgs != NULL) {
+			/** if we do a split bbview in the future, begin messages div here */
+			
+			for (a=0; a<num_displayed; ++a) {
+				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
+			}
+			
+			/** if we do a split bbview in the future, end messages div here */
+			
+			free(displayed_msgs);
+			displayed_msgs = NULL;
+		}
 		DoTemplate(HKEY("msg_listselector_bottom"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 
 		FreeStrBuf(&BBViewToolBar);
 		FreeStrBuf(&MessageDropdown);
 	}
+
 	
 DONE:
 	switch (WCC->wc_view) {
 	case VIEW_WIKI:
 		break;
+	case VIEW_CALBRIEF:
 	case VIEW_CALENDAR:
 		render_calendar_view(&calv);
 		break;
@@ -883,6 +846,8 @@ DONE:
 	case VIEW_ADDRESSBOOK:
 		do_addrbook_view(addrbook, num_ab);	/** Render the address book */
 		break;
+	case VIEW_MAILBOX: 
+	case VIEW_BBS:
 	default:
 		break;
 	}
