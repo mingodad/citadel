@@ -3844,13 +3844,13 @@ InitModule_ROOMOPS
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, 0);
 
 	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
-	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, 0);
-	WebcitAddUrlHandler(HKEY("skip"), gotonext, 0);
-	WebcitAddUrlHandler(HKEY("ungoto"), ungoto, 0);
-	WebcitAddUrlHandler(HKEY("dotgoto"), dotgoto, 0);
-	WebcitAddUrlHandler(HKEY("dotskip"), dotskip, 0);
+	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, NEED_URL);
+	WebcitAddUrlHandler(HKEY("skip"), gotonext, NEED_URL);
+	WebcitAddUrlHandler(HKEY("ungoto"), ungoto, NEED_URL);
+	WebcitAddUrlHandler(HKEY("dotgoto"), dotgoto, NEED_URL);
+	WebcitAddUrlHandler(HKEY("dotskip"), dotskip, NEED_URL);
 	WebcitAddUrlHandler(HKEY("display_private"), _display_private, 0);
-	WebcitAddUrlHandler(HKEY("goto_private"), goto_private, 0);
+	WebcitAddUrlHandler(HKEY("goto_private"), goto_private, NEED_URL);
 	WebcitAddUrlHandler(HKEY("zapped_list"), zapped_list, 0);
 	WebcitAddUrlHandler(HKEY("display_zap"), display_zap, 0);
 	WebcitAddUrlHandler(HKEY("zap"), zap, 0);
