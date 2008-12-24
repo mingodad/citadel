@@ -575,8 +575,7 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 	else
 		Ret->StepWidth = 1;
 	if (Ret->StepWidth <  0) {
-		Ret->Position = (Hash->nMembersUsed % (-Ret->StepWidth)) 
-			* (-Ret->StepWidth);
+		Ret->Position = Hash->nMembersUsed - 1;
 	}
 	else {
 		Ret->Position = 0;
@@ -626,9 +625,17 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 	PayloadPos = Hash->LookupTable[At->Position]->Position;
 	*Data = Hash->Members[PayloadPos]->Data;
 
-	At->Position += At->StepWidth;
+	if (At->Position % abs(At->StepWidth) == 0)
+		At->Position += At->StepWidth;
+	else 
+		At->Position += (At->Position % abs(At->StepWidth)) * 
+			(At->StepWidth / abs(At->StepWidth));
+
 	if (At->Position > Hash->nMembersUsed) {
 		At->Position = Hash->nMembersUsed;
+		return 0;
+	} else if (At->Position <= 0) {
+		At->Position = 0;
 		return 0;
 	}
 	return 1;
