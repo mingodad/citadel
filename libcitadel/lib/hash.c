@@ -617,6 +617,7 @@ void DeleteHashPos(HashPos **DelMe)
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
 {
 	long PayloadPos;
+	long offset = 0;
 
 	if ((Hash == NULL) || (At->Position >= Hash->nMembersUsed) || (At->Position < 0))
 		return 0;
@@ -624,15 +625,17 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 	*HashKey = Hash->LookupTable[At->Position]->HashKey;
 	PayloadPos = Hash->LookupTable[At->Position]->Position;
 	*Data = Hash->Members[PayloadPos]->Data;
-
-	if (At->Position % abs(At->StepWidth) == 0)
+	/* Position is NULL-Based, while Stepwidth is not... */
+	if (At->StepWidth < 0)
+		offset = 1;
+	if ((At->Position % abs(At->StepWidth)) == 0)
 		At->Position += At->StepWidth;
 	else 
-		At->Position += (At->Position % abs(At->StepWidth)) * 
+		At->Position += ((At->Position) % abs(At->StepWidth)) * 
 			(At->StepWidth / abs(At->StepWidth));
 
 	if (At->Position > Hash->nMembersUsed) {
-		At->Position = Hash->nMembersUsed;
+		At->Position = Hash->nMembersUsed - 1;
 		return 0;
 	} else if (At->Position <= 0) {
 		At->Position = 0;
