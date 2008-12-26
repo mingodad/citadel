@@ -56,8 +56,8 @@ void cal_process_object(StrBuf *Target,
 
 	/* See what we need to do with this */
 	if (method != NULL) {
-		the_method = icalproperty_get_method(method);
 		char *title;
+		the_method = icalproperty_get_method(method);
 
 		StrBufAppendPrintf(Target, "<div id=\"%s_title\">", divname);
 		StrBufAppendPrintf(Target, "<img src=\"static/calarea_48x.gif\">");
@@ -415,6 +415,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	icalrecur_iterator *ritr = NULL;
 	struct icaltimetype next;
 	int num_recur = 0;
+	int stop_rr = 0;
 
 	dtstart = icaltime_null_time();
 	dtend = icaltime_null_time();
@@ -499,10 +500,10 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	ritr = icalrecur_iterator_new(recur, dtstart);
 	if (!ritr) return;
 
-	int stop_rr = 0;
 	while (next = icalrecur_iterator_next(ritr), ((!icaltime_is_null_time(next))&&(!stop_rr)) ) {
 		++num_recur;
 		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
+			icalcomponent *cptr;
 			/* lprintf(9, "REPEATS: %s\n", icaltime_as_ical_string(next)); */
 
 			/* Note: anything we do here, we also have to do above for the root event. */
@@ -515,7 +516,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 			memcpy(Cal->from, from, len + 1);
 			Cal->cal_msgnum = msgnum;
 
-			icalcomponent *cptr;
 			if (icalcomponent_isa(Cal->cal) == ICAL_VEVENT_COMPONENT) {
 				cptr = Cal->cal;
 			}
@@ -622,11 +622,11 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		created_new_vtodo = 1;
 	}
 	
-	// TODO: Can we take all this and move it into a template?	
+	/*/ TODO: Can we take all this and move it into a template?	 */
 	output_headers(1, 1, 1, 0, 0, 0);
 	wprintf("<!-- start task edit form -->");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	// Get summary early for title
+	/* Get summary early for title */
 	wprintf("<div class=\"box\">\n");
 	wprintf("<div class=\"boxlabel\">");
 	wprintf(_("Edit task"));
@@ -710,7 +710,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	} 
 	wprintf(" >");
 	wprintf("</TD></TR>");
-	// start category field
+	/* start category field */
 	p = icalcomponent_get_first_property(vtodo, ICAL_CATEGORIES_PROPERTY);
 	wprintf("<TR><TD>");
 	wprintf(_("Category:"));
@@ -721,7 +721,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	}
 	wprintf("\">");
 	wprintf("</TD></TR>\n	");
-	// end category field
+	/* end category field */
 	wprintf("<TR><TD>");
 	wprintf(_("Description:"));
 	wprintf("</TD><TD>");

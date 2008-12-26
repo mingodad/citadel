@@ -521,7 +521,7 @@ int is_mobile_ua(char *user_agent) {
       } else if (strstr(user_agent, "Opera Mobi") != NULL) {
 	return 1;
       } else if (strstr(user_agent, "Firefox/2.0.0 Opera 9.51 Beta") != NULL) {
-		 // For some reason a new install of Opera 9.51beta decided to spoof.
+	      /*  For some reason a new install of Opera 9.51beta decided to spoof. */
 	  return 1;
 	  }
       return 0;
@@ -597,7 +597,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		index[a] = arg[a-1];
 		sizes[a] = sizeof arg[a-1];
 	}
-////	index[9] = &foo; todo
+/*///	index[9] = &foo; todo */
 	nBackDots = 0;
 	nEmpty = 0;
 	for ( a = 0; a < 9; ++a)
@@ -830,7 +830,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			}
 		}
 	}
-////////todo: restore language in this case
+/*///////todo: restore language in this case */
 	/*
 	 * Functions which can be performed without logging in
 	 */

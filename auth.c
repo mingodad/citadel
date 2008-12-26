@@ -261,12 +261,13 @@ void do_login(void)
  */
 void openid_manual_create(void)
 {
+	char buf[1024];
+
 	if (havebstr("exit_action")) {
 		do_logout();
 		return;
 	}
 
-	char buf[1024];
 	if (havebstr("newuser_action")) {
 		serv_printf("OIDC %s", bstr("name"));
 		serv_getln(buf, sizeof buf);

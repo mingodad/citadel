@@ -9,6 +9,7 @@
 
 void display_graphics_upload(char *description, char *filename, char *uplurl)
 {
+	StrBuf *Buf;
 	char buf[SIZ];
 
 
@@ -22,7 +23,6 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	}
 	output_headers(1, 1, 0, 0, 0, 0);
 
-	StrBuf *Buf;
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	Buf = NewStrBufPlain(_("Image upload"), -1);

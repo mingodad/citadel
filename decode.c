@@ -75,7 +75,7 @@ void utf8ify_rfc822_string(char *buf) {
 	for (i=0; i<len; ++i) {
 		if ((buf[i] < 32) || (buf[i] > 126)) {
 			illegal_non_rfc2047_encoding = 1;
-			i = len; ///< take a shortcut, it won't be more than one.
+			i = len; /*< take a shortcut, it won't be more than one. */
 		}
 	}
 	if (illegal_non_rfc2047_encoding) {

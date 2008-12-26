@@ -204,11 +204,12 @@ void display_room_directory(void)
 		"static/up_pointer.gif",
 		"static/down_pointer.gif",
 		"static/sort_none.gif"};
-	char *RowNames[5] = {"",
-			    _("Filename"),
-			    _("Size"),
-			    _("Content"),
-			    _("Description")};
+	char *RowNames[5];
+	RowNames[0] = "";
+	RowNames[1] = _("Filename");
+	RowNames[2] = _("Size");
+	RowNames[3] = _("Content");
+	RowNames[4] = _("Description");
 
 	Files = LoadFileList (&havepics);
 	output_headers(1, 1, 2, 0, 0, 0);
@@ -447,7 +448,7 @@ void upload_file(void)
 		{
 			blocksize = (WCC->upload_length - bytes_transmitted);
 		}
-		serv_printf("WRIT %d", blocksize);
+		serv_printf("WRIT %ld", blocksize);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '7')
 		{
@@ -471,6 +472,7 @@ void upload_file(void)
  */
 void output_image()
 {
+	char blank_gif[SIZ];
 	wcsession *WCC = WC;
 	char buf[SIZ];
 	off_t bytes;
@@ -503,7 +505,6 @@ void output_image()
 	 * Instead of an ugly 404, send a 1x1 transparent GIF
 	 * when there's no such image on the server.
 	 */
-	char blank_gif[SIZ];
 	snprintf (blank_gif, SIZ, "%s%s", static_dirs[0], "/blank.gif");
 	output_static(blank_gif);
 }

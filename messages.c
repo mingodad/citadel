@@ -34,6 +34,9 @@ int summcmp_rdate(const void *s1, const void *s2);
 
 typedef void (*MsgPartEvaluatorFunc)(message_summary *Sum, StrBuf *Buf);
 
+typedef struct _MsgPartEvaluatorStruct {
+	MsgPartEvaluatorFunc f;
+}MsgPartEvaluatorStruct;
 
 
 /*----------------------------------------------------------------------------*/
@@ -154,7 +157,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			if (Msg->MsgBody->size_known > 0) {
 				StrBuf_ServGetBLOB(Msg->MsgBody->Data, Msg->MsgBody->length);
 				state ++;
-					/// todo: check next line, if not 000, append following lines
+				/*/ todo: check next line, if not 000, append following lines */
 			}
 			else if (1){
 				if (StrLength(Msg->MsgBody->Data) > 0)
@@ -179,9 +182,9 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	/* look up the renderer, that will convert this mimeitem into the htmlized form */
 	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 	    (vHdr != NULL)) {
-		RenderMimeFunc Render;
-		Render = (RenderMimeFunc)vHdr;
-		Render(Msg->MsgBody, NULL, FoundCharset);
+		RenderMimeFuncStruct *Render;
+		Render = (RenderMimeFuncStruct*)vHdr;
+		Render->f(Msg->MsgBody, NULL, FoundCharset);
 	}
 
 	if (StrLength(Msg->reply_references)> 0) {
@@ -336,7 +339,7 @@ void display_headers(void) {
 message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSubject, long MsgNum) 
 {
 	void                 *vEval;
-	MsgPartEvaluatorFunc  Eval;
+	MsgPartEvaluatorStruct  *Eval;
 	message_summary      *Msg;
 	StrBuf *Buf;
 	const char *buf;
@@ -363,9 +366,9 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 		ebuf = strchr(ChrPtr(Buf), '=');
 		nBuf = ebuf - buf;
 		if (GetHash(MsgEvaluators, buf, nBuf, &vEval) && vEval != NULL) {
-			Eval = (MsgPartEvaluatorFunc) vEval;
+			Eval = (MsgPartEvaluatorStruct*) vEval;
 			StrBufCutLeft(Buf, nBuf + 1);
-			Eval(Msg, Buf);
+			Eval->f(Msg, Buf);
 		}
 		else lprintf(1, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
 	}
@@ -408,7 +411,6 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 		FreeStrBuf(&Buf);
 		return (nummsgs);
 	}
-// TODO 			if (with_headers) { //// TODO: Have Attachments?
 	Buf2 = NewStrBuf();
 	while (len = StrBuf_ServGetln(Buf),
 	       ((len != 3)  ||
@@ -581,11 +583,12 @@ void load_seen_flags(void)
 	message_summary *Msg;
 	const char *HashKey;
 	long HKLen;
-	StrBuf *OldMsg = NewStrBuf();;
-	wcsession *WCC = WC;
 	HashPos *at;
 	void *vMsg;
+	StrBuf *OldMsg;
+	wcsession *WCC = WC;
 
+	OldMsg = NewStrBuf();
 	serv_puts("GTSN");
 	StrBuf_ServGetln(OldMsg);
 	if (ChrPtr(OldMsg)[0] == '2') {
@@ -1100,7 +1103,7 @@ void post_message(void)
 		const StrBuf *Bcc = NULL;
 		const StrBuf *Wikipage = NULL;
 		const StrBuf *my_email_addr = NULL;
-		StrBuf *CmdBuf = NULL;;
+		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
 
 		if (havebstr("references"))
@@ -1283,7 +1286,7 @@ void display_enter(void)
 		const StrBuf *Cc = NULL;
 		const StrBuf *Bcc = NULL;
 		const StrBuf *Wikipage = NULL;
-		StrBuf *CmdBuf = NULL;;
+		StrBuf *CmdBuf = NULL;
 		const char CMD[] = "ENT0 0|%s|%d|0||%s||%s|%s|%s";
 		
 		Recp = sbstr("recp");
@@ -1319,7 +1322,7 @@ void display_enter(void)
 			}
 		}
 		else if (buf[0] != '2') {	/** Any other error means that we cannot continue */
-			wprintf("<em>%s</em><br />\n", &buf[4]);/// -> important message
+			wprintf("<em>%s</em><br />\n", &buf[4]);/*TODO -> important message */
 			return;
 		}
 	}
@@ -1550,7 +1553,7 @@ void MimeLoadData(wc_mime_attachment *Mime)
 {
 	char buf[SIZ];
 	off_t bytes;
-//// TODO: is there a chance the contenttype is different  to the one we know?	
+/* TODO: is there a chance the contenttype is different  to the one we know?	 */
 	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '6') {
@@ -1563,7 +1566,7 @@ void MimeLoadData(wc_mime_attachment *Mime)
 	}
 	else {
 		FlushStrBuf(Mime->Data);
-		/// TODO XImportant message
+		/* TODO XImportant message */
 	}
 }
 
