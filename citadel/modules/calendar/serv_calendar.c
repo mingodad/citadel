@@ -858,8 +858,10 @@ int ical_ctdl_is_overlap(
  *
  * Now both the proposed and existing events have been boiled down to start and end times.
  * Check for overlap and output any conflicts.
+ *
+ * Returns nonzero if a conflict was reported.  This allows the caller to stop iterating.
  */
-void ical_conflicts_phase6(struct icaltimetype t1start,
+int ical_conflicts_phase6(struct icaltimetype t1start,
 			struct icaltimetype t1end,
 			struct icaltimetype t2start,
 			struct icaltimetype t2end,
@@ -868,8 +870,9 @@ void ical_conflicts_phase6(struct icaltimetype t1start,
 			char *conflict_event_summary,
 			char *compare_uid)
 {
+	int conflict_reported = 0;
 
-	/* debugging cruft */
+	/* debugging cruft *
 	time_t tt;
 	tt = icaltime_as_timet(t1start);
 	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
@@ -879,7 +882,7 @@ void ical_conflicts_phase6(struct icaltimetype t1start,
 	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
 	tt = icaltime_as_timet(t2end);
 	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
-	/* debugging cruft */
+	* debugging cruft */
 
 	/* compare and output */
 
@@ -893,8 +896,10 @@ void ical_conflicts_phase6(struct icaltimetype t1start,
 				conflict_event_uid))) ? 1 : 0
 			)
 		);
+		conflict_reported = 1;
 	}
 
+	return(conflict_reported);
 }
 
 
@@ -923,7 +928,6 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	icalrecur_iterator *ritr = NULL;
 	struct icaldurationtype dur;
 	int num_recur = 0;
-	int out_of_scope = 0;
 
 	/* initialization */
 	strcpy(conflict_event_uid, "");
@@ -960,9 +964,12 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 			strcpy(conflict_event_summary, icalproperty_get_comment(p));
 		}
 	
-		ical_conflicts_phase6(t1start, t1end, t2start, t2end,
-			existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid
-		);
+		if (ical_conflicts_phase6(t1start, t1end, t2start, t2end,
+		   existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid))
+		{
+			CtdlLogPrintf(CTDL_DEBUG, "Hit a conflict after %d iterations\n", num_recur);
+			num_recur = MAX_RECUR + 1;	/* force it out of scope */
+		}
 
 		if (rrule) {
 			t2start = icalrecur_iterator_next(ritr);
@@ -974,10 +981,10 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 
 		if (icaltime_compare(t2start, t1end) < 0) {
 			CtdlLogPrintf(CTDL_DEBUG, "Went out of scope after %d iterations\n", num_recur);
-			out_of_scope = 1;
+			num_recur = MAX_RECUR + 1;	/* force it out of scope */
 		}
 
-	} while ((rrule) && (!icaltime_is_null_time(t2start)) && (num_recur < MAX_RECUR) && (!out_of_scope));
+	} while ( (rrule) && (!icaltime_is_null_time(t2start)) && (num_recur < MAX_RECUR) );
 	icalrecur_iterator_free(ritr);
 	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over existing event %d times.\n", num_recur);
 }
