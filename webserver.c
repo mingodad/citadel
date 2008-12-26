@@ -656,6 +656,7 @@ void spawn_another_worker_thread()
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 #endif 
+extern int analyze_msg;
 void InitTemplateCache(void);
 extern int LoadTemplates;
 extern void LoadZoneFiles(void);
@@ -758,6 +759,7 @@ int main(int argc, char **argv)
 			break;
 		case 'T':
 			LoadTemplates = atoi(optarg);
+			analyze_msg = (LoadTemplates && 0x2) != 0;
 			break;
 		case 'Z':
 			DisableGzip = 1;
