@@ -1318,6 +1318,7 @@ void parse_calendar_view_request(struct calview *c) {
 	time_t now;
 	struct tm tm;
 	char calview[32];
+	int span = 3888000;
 
 	/* In case no date was specified, go with today */
 	now = time(NULL);
@@ -1364,7 +1365,6 @@ void parse_calendar_view_request(struct calview *c) {
 	tm.tm_mday = c->day;
 	now = mktime(&tm);
 
-	int span = 3888000;
 	if (c->view == calview_month)	span = 3888000;
 	if (c->view == calview_brief)	span = 3888000;
 	if (c->view == calview_week)	span = 604800;
@@ -1456,10 +1456,10 @@ int task_due_cmp(const void *vtask1, const void *vtask2) {
  */
 int task_completed_cmp(const void *vtask1, const void *vtask2) {
 	disp_cal * Task1 = (disp_cal *)GetSearchPayload(vtask1);
-//	disp_cal * Task2 = (disp_cal *)GetSearchPayload(vtask2);
+/*	disp_cal * Task2 = (disp_cal *)GetSearchPayload(vtask2); */
 
 	icalproperty_status t1 = icalcomponent_get_status((Task1)->cal);
-	// icalproperty_status t2 = icalcomponent_get_status(((struct disp_cal *)task2)->cal);
+	/* icalproperty_status t2 = icalcomponent_get_status(((struct disp_cal *)task2)->cal); */
 	
 	if (t1 == ICAL_STATUS_COMPLETED) 
 		return 1;
@@ -1513,9 +1513,11 @@ void do_tasks_view(void) {
 
 	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
+		icalproperty_status todoStatus;
+
 		Cal = (disp_cal*)vCal;
 		wprintf("<tr><td>");
-		icalproperty_status todoStatus = icalcomponent_get_status(Cal->cal);
+		todoStatus = icalcomponent_get_status(Cal->cal);
 		wprintf("<input type=\"checkbox\" name=\"completed\" value=\"completed\" ");
 		if (todoStatus == ICAL_STATUS_COMPLETED) {
 			wprintf("checked=\"checked\" ");

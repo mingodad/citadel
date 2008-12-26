@@ -60,6 +60,7 @@ void display_rss(char *roomname, StrBuf *request_method)
 	size_t obuflen;               /**< Length of output buffer              */
 	char *osav;                   /**< Saved pointer to output buffer       */
 #endif
+	char description[SIZ] = "";
 	char buf[SIZ];
 	char date[30];
 	char from[256];
@@ -124,7 +125,7 @@ void display_rss(char *roomname, StrBuf *request_method)
 			}
 		}
 	}
-	// Commented out. Play dumb for now, also doesn't work with anonrss hack
+	/*/ Commented out. Play dumb for now, also doesn't work with anonrss hack */
 	/* if (if_modified_since > 0 && if_modified_since > now) {
 		lprintf(3, "RSS: Feed not updated since the last time you looked\n");
 		hprintf("HTTP/1.1 304 Not Modified\r\n");
@@ -133,10 +134,10 @@ void display_rss(char *roomname, StrBuf *request_method)
 		gmtime_r(&now, &now_tm);
 		strftime(date, sizeof date, "%a, %d %b %Y %H:%M:%S GMT", &now_tm);
 		hprintf("Date: %s\r\n", date);
-		if (*msgn) hprintf("ETag: %s\r\n", msgn); */
+		if (*msgn) hprintf("ETag: %s\r\n", msgn); * /
 		// wDumpContent(0);
 		// return;
-	//} 
+		//} */
 
 	/* Do RSS header */
 	lprintf(3, "RSS: Yum yum! This feed is tasty!\n");
@@ -154,13 +155,12 @@ void display_rss(char *roomname, StrBuf *request_method)
 	svput("XML_STYLE", WCS_STRING, "<?xml-stylesheet type=\"text/css\" href=\"/static/rss_browser.css\" ?>");
 	svput("ROOM", WCS_STRING, WCC->wc_roomname);
 	svput("NODE", WCS_STRING, serv_info.serv_humannode);
-	// Fix me
+	/* TODO:  Fix me */
 	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), WCC->http_host);
 	
 	/** Get room info for description */
 	serv_puts("RINF");
 	serv_getln(buf, sizeof buf);
-	char description[SIZ] = "";
 	if (buf[0] == '1') {
 		while (1) {
 			serv_getln(buf, sizeof buf);
@@ -345,7 +345,7 @@ void display_rss(char *roomname, StrBuf *request_method)
 		} 
 
 ENDBODY:
-		//wprintf("   </item>\n");
+		/* wprintf("   </item>\n"); */
 		do_template("rss_item_end", NULL);
 ENDITEM:
 		now = 0L;

@@ -15,7 +15,7 @@
  */
 long unescape_input(char *buf)
 {
-	int a, b;
+	unsigned int a, b;
 	char hex[3];
 	long buflen;
 	long len;
@@ -71,7 +71,7 @@ long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
         *target = '\0';
         aptr = strbuf;
         bptr = target;
-        eptr = target + tSize - 6; // our biggest unit to put in... 
+        eptr = target + tSize - 6; /* our biggest unit to put in...  */
  
  
         while ((bptr < eptr) && !IsEmptyStr(aptr) ){

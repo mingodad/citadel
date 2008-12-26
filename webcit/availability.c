@@ -90,11 +90,11 @@ int ical_ctdl_is_overlap(
 
 	/* If event 1 ends before event 2 starts, we're in the clear. */
 	if (icaltime_compare(t1end, t2start) <= 0) return(0);
-	// lprintf(9, "first passed\n");
+	/* lprintf(9, "first passed\n"); */
 
 	/* If event 2 ends before event 1 starts, we're also ok. */
 	if (icaltime_compare(t2end, t1start) <= 0) return(0);
-	// lprintf(9, "second passed\n");
+	/* lprintf(9, "second passed\n"); */
 
 	/* Otherwise, they overlap. */
 	return(1);

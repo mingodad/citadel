@@ -6,7 +6,6 @@
 #include "webserver.h"
 
 struct serv_info serv_info; /**< our connection data to the server */
-HashList *ServHash = NULL;//// TODO;
 /*
  * get info about the server we've connected to
  *
@@ -146,7 +145,7 @@ void _fmout(StrBuf *Target, char *align)
 		/** Activate embedded URL's */
 		url(buf, sizeof(buf));
 
-		escputs(buf);//// TODO: Target
+		escputs(buf);/*/ TODO: Target */
 		StrBufAppendBufPlain(Target, HKEY("\n"), 0);
 	}
 	if (bq == 1) {
@@ -440,7 +439,7 @@ int read_server_binary(StrBuf *Ret, size_t total_len)
 		{
 		    if (ChrPtr(Buf)[0] == '6')
 		    {
-			    StrBufCutLeft(Buf, 4); //thisblock = (size_t)atoi(&buf[4]);
+			    StrBufCutLeft(Buf, 4); /*/ TODO : thisblock = (size_t)atoi(&buf[4]); */
 			    thisblock = StrTol(Buf);
 			    if (!WC->connected) {
 				    FlushStrBuf(Ret); 
@@ -606,7 +605,7 @@ InitModule_SERVFUNC
 	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, CTX_NONE);
 	RegisterNamespace("SERV:BBS_CITY", 0, 0, tmplput_serv_bbs_city, CTX_NONE);
 	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, CTX_NONE);
-///	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmplput_serv_ldap_enabled, 0);
+/*TODO //	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmplput_serv_ldap_enabled, 0); */
 }
 
 /*@}*/

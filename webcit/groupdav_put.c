@@ -176,15 +176,15 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 
 	/* We created this item for the first time. */
 	if (old_msgnum < 0L) {
+	        char escaped_uid[1024];
 		hprintf("HTTP/1.1 201 Created\r\n");
 		lprintf(9, "HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
 		hprintf("etag: \"%ld\"\r\n", new_msgnum);
 		hprintf("Location: ");
 		groupdav_identify_host();
-		hprintf("/groupdav/");/////TODO
+		hprintf("/groupdav/");/* TODO */
 		hurlescputs(dav_roomname);
-	        char escaped_uid[1024];
 	        euid_escapize(escaped_uid, dav_uid);
 	        hprintf("/%s\r\n", escaped_uid);
 		end_burst();

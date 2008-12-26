@@ -509,7 +509,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	svcallback("START", offer_start_page); 
  
 	do_template("roombanner", NULL);
-	// roombanner contains this for mobile
+	/* roombanner contains this for mobile */
 	if (navbar_style != navbar_none && !WC->is_mobile) { 
 
 		wprintf("<div id=\"navbar\"><ul>");
@@ -1938,7 +1938,7 @@ void display_editroom(void)
 
 				wprintf("<td>%s</td>", extract_int(buf, 4) ? _("Yes") : _("No"));
 
-				wprintf("<td>%ld</td>", extract_long(buf, 5));	// Fetching interval
+				wprintf("<td>%ld</td>", extract_long(buf, 5));	/* Fetching interval */
 			
 				wprintf("<td class=\"button_link\">");
 				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
@@ -2810,7 +2810,7 @@ void netedit(void) {
 	char cmpb0[SIZ];
 	char cmpb1[SIZ];
 	int i, num_addrs;
-	// TODO: do line dynamic!
+	/*/ TODO: do line dynamic! */
 	if (havebstr("line_pop3host")) {
 		strcpy(line, bstr("prefix"));
 		strcat(line, bstr("line_pop3host"));
@@ -3435,8 +3435,8 @@ void list_all_rooms_by_floor(const char *viewpref) {
 		floor_mapping[fold[i].floor]=i;
 	
 	/** refresh the messages index for this room */
-//	serv_puts("GOTO ");
-//	while (serv_getln(buf, sizeof buf), strcmp(buf, "000"));
+/* TODO	serv_puts("GOTO ");
+   while (serv_getln(buf, sizeof buf), strcmp(buf, "000")); */
 	/** Now add rooms */
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);

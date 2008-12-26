@@ -162,44 +162,6 @@ void httplang_to_locale(StrBuf *LocaleString)
 	FreeStrBuf(&SBuf);
 }
 
-/* TODO: we skip the language weighting so far. */
-/* Accept-Language: 'de-de,en-us;q=0.7,en;q=0.3' */
-/* Accept-Language: de,en-ph;q=0.8,en-us;q=0.5,de-at;q=0.3 */
-//void httplang_to_locale(char *LocaleString)
-//{
-//	char selected_locale[16];
-//	int i, j;
-//	char lang[64];
-//	int num_accept = 0;
-//
-//	lprintf(9, "languageAccept: %s\n", LocaleString);
-//
-//	strcpy(selected_locale, "C");
-//	num_accept = num_tokens(LocaleString, ',');
-//
-//	for (i=num_accept-1; i>=0; --i) {
-//		extract_token(lang, LocaleString, i, ',', sizeof lang);
-//
-//		/* Strip out the weights; we don't use them.  Also convert
-//		 * hyphens to underscores.
-//		 */
-//		for (j=0; j<strlen(lang); ++j) {
-//			if (lang[j] == '-') lang[j] = '_';
-//			if (lang[j] == ';') lang[j] = 0;
-//		}
-//
-//		for (j=0; j<NUM_LANGS; ++j) {
-//			if (!strncasecmp(lang, AvailLang[j], strlen(lang))) {
-//				strcpy(selected_locale, AvailLang[j]);
-//			}
-//		}
-//	}
-//
-//	lprintf(9, "language found: %s\n", selected_locale);
-//	set_selected_language(selected_locale);
-//}
-
-
 /**
  * \brief show the language chooser on the login dialog
  * depending on the browser locale change the sequence of the 
@@ -304,7 +266,7 @@ void initialize_locales(void) {
 
 	for (i = 0; i < NUM_LANGS; ++i) {
 		if (i == 0) {
-			sprintf(buf, "%s", AvailLang[i]);	// locale 0 (C) is ascii, not utf-8
+			sprintf(buf, "%s", AvailLang[i]);	/* locale 0 (C) is ascii, not utf-8 */
 		}
 		else {
 			sprintf(buf, "%s.UTF8", AvailLang[i]);

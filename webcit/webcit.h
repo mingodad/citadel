@@ -86,7 +86,12 @@
 #undef PACKAGE_BUGREPORT
 #include "sysdep.h"
 
-////////#include "hash.h"
+#include "subst.h"
+#include "wc_gettext.h"
+#include "messages.h"
+#include "paramhandling.h"
+#include "preferences.h"
+
 
 #ifdef HAVE_OPENSSL
 /* Work around RedHat's b0rken OpenSSL includes */
@@ -255,223 +260,8 @@ struct roomlisting {
 };
 
 
-#define TYPE_STR   1
-#define TYPE_LONG  2
-#define TYPE_PREFSTR 3
-#define TYPE_PREFINT 4
-#define TYPE_GETTEXT 5
-#define TYPE_BSTR 6
-#define MAXPARAM  20
 
 
-typedef struct _TemplateParam {
-	const char *Start;
-	int Type;
-	long len;
-	long lvalue;
-} TemplateParam;
-
-/* make a template token a lookup key: */
-#define TKEY(a) Tokens->Params[a]->Start, Tokens->Params[a]->len
-typedef struct _TemplateToken {
-	const StrBuf *FileName; /* Reference to print error messages; not to be freed */
-	StrBuf *FlatToken;
-	long Line;
-	const char *pTokenStart;
-	size_t TokenStart;
-	size_t TokenEnd;
-	const char *pTokenEnd;
-	int Flags;
-	void *PreEval;
-
-	const char *pName;
-	size_t NameEnd;
-
-	int HaveParameters;
-	int nParameters;
-	TemplateParam *Params[MAXPARAM];
-} WCTemplateToken;
-
-typedef void (*WCHandlerFunc)();
-
-
-/*
- * \brief Dynamic content for variable substitution in templates
- */
-typedef struct _wcsubst {
-	int wcs_type;			    /* which type of Substitution are we */
-	char wcs_key[32];		    /* copy of our hashkey for debugging */
-	StrBuf *wcs_value;		    /* if we're a string, keep it here */
-	long lvalue;                        /* type long? keep data here */
-	int ContextRequired;                /* do we require a context type? */
-	WCHandlerFunc wcs_function; /* funcion hook ???*/
-} wcsubst;
-
-#define CTX_NONE 0
-#define CTX_SITECFG 1
-#define CTX_SESSION 2
-#define CTX_INETCFG 3
-#define CTX_VNOTE 4
-#define CTX_WHO 5
-#define CTX_PREF 6
-#define CTX_NODECONF 7
-#define CTX_USERLIST 8
-#define CTX_MAILSUM 9
-#define CTX_MIME_ATACH 10
-#define CTX_STRBUF 12
-#define CTX_LONGVECTOR 13
-
-
-void RegisterNS(const char *NSName, long len, 
-		int nMinArgs, 
-		int nMaxArgs, 
-		WCHandlerFunc HandlerFunc,
-		int ContextRequired);
-#define RegisterNamespace(a, b, c, d, e) RegisterNS(a, sizeof(a)-1, b, c, d, e)
-
-typedef int (*WCConditionalFunc)(WCTemplateToken *Token, void *Context, int ContextType);
-typedef struct _ConditionalStruct {
-	const char *PlainName;
-	int nParams;
-	int ContextRequired;
-	WCConditionalFunc CondF;
-} ConditionalStruct;
-void RegisterConditional(const char *Name, long len, 
-			 int nParams,
-			 WCConditionalFunc CondF, 
-			 int ContextRequired);
-
-
-
-typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token);
-typedef HashList *(*RetrieveHashlistFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType);
-typedef void (*HashDestructorFunc) (HashList **KillMe);
-void RegisterITERATOR(const char *Name, long len, /* Our identifier */
-		      int AdditionalParams,       /* doe we use more parameters? */
-		      HashList *StaticList,       /* pointer to webcit lifetime hashlists */
-		      RetrieveHashlistFunc GetHash, /* else retrieve the hashlist by calling this function */
-		      SubTemplFunc DoSubTempl,       /* call this function on each iteration for svput & friends */
-		      HashDestructorFunc Destructor, /* use this function to shut down the hash; NULL if its a reference */
-		      int ContextType,               /* which context do we provide to the subtemplate? */
-		      int XPectContextType);         /* which context do we expct to be called in? */
-#define RegisterIterator(a, b, c, d, e, f, g, h) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h)
-
-void GetTemplateTokenString(WCTemplateToken *Tokens,
-			    int N, 
-			    const char **Value, 
-			    long *len);
-
-
-void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
-#define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
-void SVPutLong(char *keyname, size_t keylen, long Data);
-#define svputlong(a, b) SVPutLong(a, sizeof(a) - 1, b)
-void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...) __attribute__((__format__(__printf__,4,5)));
-void SVPRINTF(char *keyname, int keytype, const char *format,...) __attribute__((__format__(__printf__,3,4)));
-void SVCALLBACK(char *keyname, WCHandlerFunc fcn_ptr);
-void SVCallback(char *keyname, size_t keylen,  WCHandlerFunc fcn_ptr);
-#define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
-
-void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
-#define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
-
-void DoTemplate(const char *templatename, long len, StrBuf *Target, void *Context, int ContextType);
-#define do_template(a, b) DoTemplate(a, sizeof(a) -1, NULL, b, 0);
-void url_do_template(void);
-
-int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
-int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
-
-void StrBufAppendTemplate(StrBuf *Target, 
-			  int nArgs, 
-			  WCTemplateToken *Tokens,
-			  void *Context, int ContextType,
-			  const StrBuf *Source, int FormatTypeIndex);
-CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix, 
-			 const char *Default, long ldefault, long DefaultDirection);
-void RegisterSortFunc(const char *name, long len, 
-		      const char *prepend, long preplen,
-		      CompareFunc Forward, 
-		      CompareFunc Reverse, 
-		      long ContextType);
-
-void dbg_print_longvector(long *LongVector);
-
-/*
- * \brief Values for wcs_type
- */
-enum {
-	WCS_STRING,       /* its a string */
-	WCS_FUNCTION,     /* its a function callback */
-	WCS_SERVCMD,      /* its a command to send to the citadel server */
-	WCS_STRBUF,       /* its a strbuf we own */
-	WCS_STRBUF_REF,   /* its a strbuf we mustn't free */
-	WCS_LONG          /* its an integer */
-};
-
-
-
-typedef struct wc_mime_attachment wc_mime_attachment;
-typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset);
-struct wc_mime_attachment {
-	int level;
-	StrBuf *Name;
-	StrBuf *FileName;
-	StrBuf *PartNum;
-	StrBuf *Disposition;
-	StrBuf *ContentType;
-	StrBuf *Charset;
-	StrBuf *Data;
-	size_t length;			   /* length of the mimeatachment */
-	long size_known;
-	long lvalue;               /* if we put a long... */
-	long msgnum;		/**< the message number on the citadel server derived from message_summary */
-	RenderMimeFunc Renderer;
-};
-void DestroyMime(void *vMime);
-
-
-/*
- * \brief message summary structure. ???
- */
-typedef struct _message_summary {
-	time_t date;        /**< its creation date */
-	long msgnum;		/**< the message number on the citadel server */
-	int nhdr;
-	int format_type;
-	StrBuf *from;		/**< the author */
-	StrBuf *to;		/**< the recipient */
-	StrBuf *subj;		/**< the title / subject */
-	StrBuf *reply_inreplyto;
-	StrBuf *reply_references;
-	StrBuf *reply_to;
-	StrBuf *cccc;
-	StrBuf *hnod;
-	StrBuf *AllRcpt;
-	StrBuf *Room;
-	StrBuf *Rfca;
-	StrBuf *OtherNode;
-	const StrBuf *PartNum;
-
-	HashList *Attachments;  /**< list of Accachments */
-	HashList *Submessages;
-	HashList *AttachLinks;
-
-	HashList *AllAttach;
-
-	int is_new;         /**< is it yet read? */
-	int hasattachments;	/* does it have atachments? */
-
-
-	/** The mime part of the message */
-	wc_mime_attachment *MsgBody;
-} message_summary;
-void DestroyMessageSummary(void *vMsg);
-inline message_summary* GetMessagePtrAt(int n, HashList *Summ);
-
-typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
-
-void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime);
 
 
 
@@ -677,16 +467,7 @@ extern time_t if_modified_since;
 extern int follow_xff;
 extern HashList *HandlerHash;
 extern HashList *PreferenceHooks;
-extern HashList *WirelessTemplateCache;
-extern HashList *WirelessLocalTemplateCache;
-extern HashList *TemplateCache;
-extern HashList *LocalTemplateCache;
-extern HashList *GlobalNS;
-extern HashList *Iterators;
 extern HashList *ZoneHash;
-extern HashList *Conditionals;
-extern HashList *MsgHeaderHandler;
-extern HashList *MimeRenderHandler;
 extern HashList *SortHash;
 
 void InitialiseSemaphores(void);
@@ -731,47 +512,6 @@ int Flathash(const char *str, long len);
 
 
 
-/* URL / Mime Post parsing -> paramhandling.c */
-void upload_handler(char *name, char *filename, char *partnum, char *disp,
-		    void *content, char *cbtype, char *cbcharset,
-		    size_t length, char *encoding, char *cbid, void *userdata);
-
-void ParseURLParams(StrBuf *url);
-
-
-/* These may return NULL if not foud */
-#define sbstr(a) SBstr(a, sizeof(a) - 1)
-const StrBuf *SBSTR(const char *key);
-const StrBuf *SBstr(const char *key, size_t keylen);
-
-#define xbstr(a, b) (char*) XBstr(a, sizeof(a) - 1, b)
-const char *XBstr(const char *key, size_t keylen, size_t *len);
-const char *XBSTR(const char *key, size_t *len);
-
-#define lbstr(a) LBstr(a, sizeof(a) - 1)
-long LBstr(const char *key, size_t keylen);
-long LBSTR(const char *key);
-
-#define ibstr(a) IBstr(a, sizeof(a) - 1)
-int IBstr(const char *key, size_t keylen);
-int IBSTR(const char *key);
-
-#define havebstr(a) HaveBstr(a, sizeof(a) - 1)
-int HaveBstr(const char *key, size_t keylen);
-int HAVEBSTR(const char *key);
-
-#define yesbstr(a) YesBstr(a, sizeof(a) - 1)
-int YesBstr(const char *key, size_t keylen);
-int YESBSTR(const char *key);
-
-/* TODO: get rid of the non-const-typecast */
-#define bstr(a) (char*) Bstr(a, sizeof(a) - 1)
-const char *BSTR(const char *key);
-const char *Bstr(const char *key, size_t keylen);
-/* if you want to ease some parts by just parametring yourself... */
-#define putbstr(a, b) PutBstr(a, sizeof(a) - 1, b)
-void PutBstr(const char *key, long keylen, StrBuf *Value);
-
 
 
 void UrlescPutStrBuf(const StrBuf *strbuf);
@@ -806,23 +546,7 @@ void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
 
-enum {
-	do_search,
-	headers,
-	readfwd,
-	readnew,
-	readold
-};
-
-typedef void (*readloop_servcmd)(char *buf, long bufsize);
-
-typedef struct _readloopstruct {
-	ConstStr name;
-	readloop_servcmd cmd;
-} readloop_struct;
 void SetAccessCommand(long Oper);
-void readloop(long oper);
-int  read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void fetch_ab_name(message_summary *Msg, char *namebuf);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
@@ -881,30 +605,6 @@ void do_change_view(int);
 void folders(void);
 
 
-void load_preferences(void);
-void save_preferences(void);
-#define get_preference(a, b) get_PREFERENCE(a, sizeof(a) - 1, b)
-#define get_pref(a, b)       get_PREFERENCE(ChrPtr(a), StrLength(a), b)
-int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value);
-#define set_preference(a, b, c) set_PREFERENCE(a, sizeof(a) - 1, b, c)
-#define set_pref(a, b, c)       set_PREFERENCE(ChrPtr(a), StrLength(a), b, c)
-void set_PREFERENCE(const char *key, size_t keylen, StrBuf *value, int save_to_server);
-
-#define get_pref_long(a, b, c) get_PREF_LONG(a, sizeof(a) - 1, b, c)
-int get_PREF_LONG(const char *key, size_t keylen, long *value, long Default);
-#define set_pref_long(a, b, c) set_PREF_LONG(a, sizeof(a) - 1, b, c)
-void set_PREF_LONG(const char *key, size_t keylen, long value, int save_to_server);
-
-#define get_pref_yesno(a, b, c) get_PREF_YESNO(a, sizeof(a) - 1, b, c)
-int get_PREF_YESNO(const char *key, size_t keylen, int *value, int Default);
-#define set_pref_yesno(a, b, c) set_PREF_YESNO(a, sizeof(a) - 1, b, c)
-void set_PREF_YESNO(const char *key, size_t keylen, int value, int save_to_server);
-
-#define get_room_pref(a) get_ROOM_PREFS(a, sizeof(a) - 1)
-StrBuf *get_ROOM_PREFS(const char *key, size_t keylen);
-
-#define set_room_pref(a, b, c) set_ROOM_PREFS(a, sizeof(a) - 1, b, c)
-void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_server);
 
 void display_addressbook(long msgnum, char alpha);
 void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
@@ -922,8 +622,6 @@ void parse_calendar_view_request(struct calview *c);
 void render_calendar_view(struct calview *c);
 void do_tasks_view(void);
 void calendar_summary_view(void);
-int load_msg_ptrs(char *servcmd, int with_headers);
-void free_attachments(wcsession *sess);
 void free_march_list(wcsession *wcf);
 void display_rules_editor_inner_div(void);
 void generate_uuid(char *);
@@ -959,17 +657,12 @@ int ical_ctdl_is_overlap(
                         struct icaltimetype t2end
 );
 
-#ifdef ENABLE_NLS
-void initialize_locales(void);
-void ShutdownLocale(void);
-#endif
-void TmplGettext(StrBuf *Target, int nTokens, WCTemplateToken *Token);
 
 extern char *months[];
 extern char *days[];
 int read_server_binary(StrBuf *Ret, size_t total_len);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
-int read_server_text(StrBuf *Buf, long *nLines);;
+int read_server_text(StrBuf *Buf, long *nLines);
 int goto_config_room(void);
 long locate_user_vcard(char *username, long usernum);
 void sleeeeeeeeeep(int);
@@ -978,12 +671,6 @@ long unescape_input(char *buf);
 void do_selected_iconbar(void);
 void spawn_another_worker_thread(void);
 void display_rss(char *roomname, StrBuf *request_method);
-void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
-void set_selected_language(const char *);
-void go_selected_language(void);
-void stop_selected_language(void);
-void preset_locale(void);
-void httplang_to_locale(StrBuf *LocaleString);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
@@ -996,6 +683,7 @@ int xtoi(const char *in, size_t len);
 const char *get_selected_language(void);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
 int fetch_http(char *url, char *target_buf, int maxbytes);
+void free_attachments(wcsession *sess);
 
 int is_mobile_ua(char *user_agent);
 
@@ -1016,12 +704,6 @@ int starttls(int sock);
 extern SSL_CTX *ssl_ctx;  
 int client_read_sslbuffer(StrBuf *buf, int timeout);
 void client_write_ssl(const StrBuf *Buf);
-#endif
-
-#ifdef HAVE_ZLIB
-#include <zlib.h>
-int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
-                          const Bytef * source, uLong sourceLen, int level);
 #endif
 
 void utf8ify_rfc822_string(char *buf);
