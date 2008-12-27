@@ -872,17 +872,17 @@ int ical_conflicts_phase6(struct icaltimetype t1start,
 {
 	int conflict_reported = 0;
 
-	/* debugging cruft */
+	/* debugging cruft *
 	time_t tt;
-	tt = icaltime_as_timet(t1start);
+	tt = icaltime_as_timet_with_zone(t1start, t1start.zone);
 	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
-	tt = icaltime_as_timet(t1end);
+	tt = icaltime_as_timet_with_zone(t1end, t1end.zone);
 	CtdlLogPrintf(CTDL_DEBUG, "  PROPOSED END: %s", ctime(&tt));
-	tt = icaltime_as_timet(t2start);
+	tt = icaltime_as_timet_with_zone(t2start, t2start.zone);
 	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
-	tt = icaltime_as_timet(t2end);
+	tt = icaltime_as_timet_with_zone(t2end, t2end.zone);
 	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
-	/* debugging cruft */
+	* debugging cruft */
 
 	/* compare and output */
 
@@ -939,10 +939,37 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	p = ical_ctdl_get_subprop(existing_event, ICAL_DTSTART_PROPERTY);
 	if (p == NULL) return;
 	if (p != NULL) t2start = icalproperty_get_dtstart(p);
+	if (icaltime_is_utc(t2start)) {
+		t2start.zone = icaltimezone_get_utc_timezone();
+	}
+	else {
+		t2start.zone = icalcomponent_get_timezone(existing_event,
+			icalparameter_get_tzid(
+				icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
+			)
+		);
+		if (!t2start.zone) {
+			t2start.zone = get_default_icaltimezone();
+		}
+	}
 
 	p = ical_ctdl_get_subprop(existing_event, ICAL_DTEND_PROPERTY);
 	if (p != NULL) {
 		t2end = icalproperty_get_dtend(p);
+
+		if (icaltime_is_utc(t2end)) {
+			t2end.zone = icaltimezone_get_utc_timezone();
+		}
+		else {
+			t2end.zone = icalcomponent_get_timezone(existing_event,
+				icalparameter_get_tzid(
+					icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
+				)
+			);
+			if (!t2end.zone) {
+				t2end.zone = get_default_icaltimezone();
+			}
+		}
 		dur = icaltime_subtract(t2end, t2start);
 	}
 
@@ -950,7 +977,6 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 	if (rrule) {
 		recur = icalproperty_get_rrule(rrule);
 		ritr = icalrecur_iterator_new(recur, t2start);
-		CtdlLogPrintf(CTDL_DEBUG, "Recurrence found: %s\n", icalrecurrencetype_as_string(&recur));
 	}
 
 	do {
@@ -967,26 +993,25 @@ void ical_conflicts_phase5(struct icaltimetype t1start,
 		if (ical_conflicts_phase6(t1start, t1end, t2start, t2end,
 		   existing_msgnum, conflict_event_uid, conflict_event_summary, compare_uid))
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "Hit a conflict after %d iterations\n", num_recur);
-			num_recur = MAX_RECUR + 1;	/* force it out of scope */
+			num_recur = MAX_RECUR + 1;	/* force it out of scope, no need to continue */
 		}
 
 		if (rrule) {
 			t2start = icalrecur_iterator_next(ritr);
 			if (!icaltime_is_null_time(t2end)) {
+				const icaltimezone *hold_zone = t2end.zone;
 				t2end = icaltime_add(t2start, dur);
+				t2end.zone = hold_zone;
 			}
 			++num_recur;
 		}
 
 		if (icaltime_compare(t2start, t1end) < 0) {
-			CtdlLogPrintf(CTDL_DEBUG, "Went out of scope after %d iterations\n", num_recur);
 			num_recur = MAX_RECUR + 1;	/* force it out of scope */
 		}
 
 	} while ( (rrule) && (!icaltime_is_null_time(t2start)) && (num_recur < MAX_RECUR) );
 	icalrecur_iterator_free(ritr);
-	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over existing event %d times.\n", num_recur);
 }
 
 
@@ -1024,10 +1049,38 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTSTART_PROPERTY);
 	if (p == NULL) return;
 	if (p != NULL) t1start = icalproperty_get_dtstart(p);
+	if (icaltime_is_utc(t1start)) {
+		t1start.zone = icaltimezone_get_utc_timezone();
+	}
+	else {
+		t1start.zone = icalcomponent_get_timezone(proposed_event,
+			icalparameter_get_tzid(
+				icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
+			)
+		);
+		if (!t1start.zone) {
+			t1start.zone = get_default_icaltimezone();
+		}
+	}
 	
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_DTEND_PROPERTY);
 	if (p != NULL) {
 		t1end = icalproperty_get_dtend(p);
+
+		if (icaltime_is_utc(t1end)) {
+			t1end.zone = icaltimezone_get_utc_timezone();
+		}
+		else {
+			t1end.zone = icalcomponent_get_timezone(proposed_event,
+				icalparameter_get_tzid(
+					icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
+				)
+			);
+			if (!t1end.zone) {
+				t1end.zone = get_default_icaltimezone();
+			}
+		}
+
 		dur = icaltime_subtract(t1end, t1start);
 	}
 
@@ -1035,7 +1088,6 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 	if (rrule) {
 		recur = icalproperty_get_rrule(rrule);
 		ritr = icalrecur_iterator_new(recur, t1start);
-		CtdlLogPrintf(CTDL_DEBUG, "Recurrence found: %s\n", icalrecurrencetype_as_string(&recur));
 	}
 
 	p = ical_ctdl_get_subprop(proposed_event, ICAL_UID_PROPERTY);
@@ -1049,14 +1101,15 @@ void ical_conflicts_phase4(icalcomponent *proposed_event,
 		if (rrule) {
 			t1start = icalrecur_iterator_next(ritr);
 			if (!icaltime_is_null_time(t1end)) {
+				const icaltimezone *hold_zone = t1end.zone;
 				t1end = icaltime_add(t1start, dur);
+				t1end.zone = hold_zone;
 			}
 			++num_recur;
 		}
 
 	} while ( (rrule) && (!icaltime_is_null_time(t1start)) && (num_recur < MAX_RECUR) );
 	icalrecur_iterator_free(ritr);
-	if (num_recur > 0) CtdlLogPrintf(CTDL_DEBUG, "Iterated over proposed event %d times.\n", num_recur);
 }
 
 
