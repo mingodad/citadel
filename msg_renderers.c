@@ -124,6 +124,17 @@ int summcmp_rsubj(const void *s1, const void *s2) {
 	summ2 = (message_summary *)GetSearchPayload(s2);
 	return strcasecmp(ChrPtr(summ2->subj), ChrPtr(summ1->subj));
 }
+/*
+ * comparator for message summary structs by descending subject.
+ */
+int groupchange_subj(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)s1;
+	summ2 = (message_summary *)s2;
+	return ChrPtr(summ2->subj)[0] != ChrPtr(summ1->subj)[0];
+}
 
 /*
  * comparator for message summary structs by ascending sender.
@@ -147,6 +158,18 @@ int summcmp_rsender(const void *s1, const void *s2) {
 	summ1 = (message_summary *)GetSearchPayload(s1);
 	summ2 = (message_summary *)GetSearchPayload(s2);
 	return strcasecmp(ChrPtr(summ2->from), ChrPtr(summ1->from));
+}
+/*
+ * comparator for message summary structs by descending sender.
+ */
+int groupchange_sender(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)s1;
+	summ2 = (message_summary *)s2;
+	return strcasecmp(ChrPtr(summ2->from), ChrPtr(summ1->from)) != 0;
+
 }
 
 /*
@@ -178,6 +201,21 @@ int summcmp_rdate(const void *s1, const void *s2) {
 	else if (summ1->date > summ2->date) return -1;
 	else return 0;
 }
+
+/*
+ * comparator for message summary structs by descending date.
+ */
+const long DAYSECONDS = 24 * 60 * 60;
+int groupchange_date(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)s1;
+	summ2 = (message_summary *)s2;
+
+	return (summ1->date % DAYSECONDS) != (summ2->date %DAYSECONDS);
+}
+
 
 /*----------------------------------------------------------------------------*/
 /* Don't wanna know... or? */
@@ -1012,21 +1050,24 @@ InitModule_MSGRENDERERS
 			 NULL, 0,
 			 summcmp_date,
 			 summcmp_rdate,
+			 groupchange_date,
 			 CTX_MAILSUM);
 	RegisterSortFunc(HKEY("subject"), 
 			 NULL, 0,
 			 summcmp_subj,
 			 summcmp_rsubj,
+			 groupchange_subj,
 			 CTX_MAILSUM);
 	RegisterSortFunc(HKEY("sender"),
 			 NULL, 0,
 			 summcmp_sender,
 			 summcmp_rsender,
+			 groupchange_sender,
 			 CTX_MAILSUM);
 
 	/* iterate over all known mails in WC->summ */
 	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
-			 NULL,NULL, CTX_MAILSUM, CTX_NONE);
+			 NULL,NULL, CTX_MAILSUM, CTX_NONE, IT_NOFLAG);
 
 	/* render parts of the message struct */
 	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
@@ -1060,13 +1101,13 @@ InitModule_MSGRENDERERS
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:LINKS"), 0, Conditional_MAIL_MIME_ATTACHLINKS, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:ATT"), 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
 	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:SUBMESSAGES", 0, NULL, iterate_get_mime_Submessages, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:LINKS", 0, NULL, iterate_get_mime_AttachLinks, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:ATT", 0, NULL, iterate_get_mime_Attachments, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 
 	/* Parts of a mime attachent */
 	RegisterNamespace("MAIL:MIME:NAME", 0, 2, tmplput_MIME_Name, CTX_MIME_ATACH);
@@ -1083,7 +1124,7 @@ InitModule_MSGRENDERERS
 
 	/* iterate the WC->attachments; use the above tokens for their contents */
 	RegisterIterator("MSG:ATTACHNAMES", 0, NULL, iterate_get_registered_Attachments, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE, IT_NOFLAG);
 
 	/* mime renderers translate an attachment into webcit viewable html text */
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
