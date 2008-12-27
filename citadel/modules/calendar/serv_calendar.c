@@ -1136,7 +1136,7 @@ void ical_conflicts(long msgnum, char *partnum) {
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		cprintf("%d Message %ld not found.\n",
+		cprintf("%d Message %ld not found\n",
 			ERROR + ILLEGAL_VALUE,
 			(long)msgnum
 		);
@@ -1160,12 +1160,8 @@ void ical_conflicts(long msgnum, char *partnum) {
 		icalcomponent_free(ird.cal);
 		return;
 	}
-	else {
-		cprintf("%d No calendar object found\n", ERROR + ROOM_NOT_FOUND);
-		return;
-	}
 
-	/* should never get here */
+	cprintf("%d No calendar object found\n", ERROR + ROOM_NOT_FOUND);
 }
 
 
