@@ -1,0 +1,50 @@
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner"><h1><?_("Files available for download in")> <?ROOMNAME></h1></div>
+
+<script language="javascript" type="text/javascript">
+  document.onkeydown = CtdlMsgListKeyPress;
+  if (document.layers) {
+ 	document.captureEvents(Event.KEYPRESS);
+  }
+</script>
+
+<div id="content" class="service">
+
+<div class="fix_scrollbar_bug">
+
+<table class="downloads_background">
+<tr>
+  <th><?_("Filename")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filename")>&SortBy=<?SORT:NEXT("filename")>"><img border="0" src="<?SORT:ICON("filename")>" /></a> </th>
+  <th><?_("Size")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filesize")>&SortBy=<?SORT:NEXT("filesize")>"><img border="0" src="<?SORT:ICON("filesize")>" /></a> </th>
+  <th><?_("Content")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filemime")>&SortBy=<?SORT:NEXT("filemime")>"><img border="0" src="<?SORT:ICON("filemime")>" /></a> </th>
+  <th><?_("Description")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filesubject")>&SortBy=<?SORT:NEXT("filesubject")>"><img border="0" src="<?SORT:ICON("filesubject")>" /></a> </th>
+</tr>
+<?ITERATE("ROOM:FILES", "section_files_onefile")>
+
+
+
+
+
+
+
+<??("COND:ROOM:FLAGS:QR_UPLOAD", 2)>
+<hr>
+<form enctype="multipart/form-data" method="POST" accept-charset="UTF-8" action="upload_file" name="upload_file_form">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<?_("Upload a file:")>
+&nbsp;
+<input NAME="filename" SIZE=16 TYPE="file">&nbsp;
+<?_("Description:")>&nbsp;
+<input type="text" name="description" maxlength="64" size="64">&nbsp;
+<input type="submit" name="attach_button" value="<?_("Upload")>">
+</form>
+</div>
+<??("X", 1)>
+
+
+</div>
+
+
+<?=("trailing")>

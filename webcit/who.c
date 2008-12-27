@@ -319,7 +319,7 @@ InitModule_WHO
 	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
 
-	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, NULL, DeleteWholistHash, CTX_WHO, CTX_NONE);
+	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, NULL, DeleteWholistHash, CTX_WHO, CTX_NONE, IT_NOFLAG);
 
 	RegisterNamespace("WHO:NAME",        0, 1, tmplput_who_username, CTX_WHO);
 	RegisterNamespace("WHO:ROOM",        0, 1, tmplput_who_room, CTX_WHO);

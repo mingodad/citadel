@@ -606,15 +606,15 @@ InitModule_PREFERENCES
 	
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
-	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE);
+	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE, IT_NOFLAG);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
 	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHazePreference, CTX_NONE);
 	
 	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
-			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE);
+			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("PREF:VALID:EMAIL:NAME", 0, NULL, 
-			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_STRBUF, CTX_NONE);
+			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 }
 /*@}*/

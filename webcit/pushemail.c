@@ -30,10 +30,10 @@ void display_pushemail(void) {
 		serv_printf("MSG0 %d", msgnum);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
+			int i =0;
 			while (serv_getln(buf, sizeof buf),
 				(strcmp(buf, "text") && strcmp(buf, "000"))) {
 			}
-			int i =0;
 			if (!strcmp(buf, "text")) {
 				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) { 
 					if (strncasecmp(buf, "none", 4) == 0) {
@@ -64,7 +64,7 @@ void display_pushemail(void) {
 	}
 	output_headers(1, 1, 2, 0, 0, 0);
 	do_template("pushemail", NULL);
-//do_template("endbox");
+/*do_template("endbox"); */
 	wDumpContent(1);
 }
 

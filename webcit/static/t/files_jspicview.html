@@ -1,0 +1,22 @@
+<??("COND:BSTR", 1, "frame")>
+<?=("head")>
+<?=("important_msg")>
+<?ICONBAR>
+<div id="banner">
+<h1>
+<?_("Pictures in")><?ROOM:NAME>
+</h1>
+</div>
+<div id="content" class="service">
+<div class="fix_scrollbar_bug">
+<table class="downloads_background"><tr><td>
+<script type="text/javascript" language="JavaScript" > nvar fadeimages=new Array()
+<?ITERATE("ROOM:FILES", "seciton_files_onefile_picview")>
+</script>
+<tr><td><script type="text/javascript" src="static/fadeshow.js">
+</script>
+<script type="text/javascript" >
+new fadeshow(fadeimages, 500, 400, 0, 3000, 1, "R");
+</script></td><th>
+</div>
+<?=("trailing")>
