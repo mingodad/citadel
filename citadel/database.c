@@ -78,7 +78,7 @@ void cdb_verbose_log(const DB_ENV *dbenv, const char *msg)
 /* Verbose logging callback */
 void cdb_verbose_err(const DB_ENV *dbenv, const char *errpfx, const char *msg)
 {
-	CtdlLogPrintf(CTDL_ALERT, "BDB: %s\n", msg);
+	CtdlLogPrintf(CTDL_ALERT, "DB: %s\n", msg);
 }
 
 
@@ -224,22 +224,11 @@ void cmd_cull(char *argbuf) {
 
 
 /*
- * Request a checkpoint of the database.
+ * Request a checkpoint of the database.  Called once per minute by the thread manager.
  */
 void cdb_checkpoint(void)
 {
 	int ret;
-//	static time_t last_run = 0L;
-
-	/* Only do a checkpoint once per minute. */
-/*
- * Don't need this any more, since the thread that calls us sleeps for 60 seconds between calls
- 
-	if ((time(NULL) - last_run) < 60L) {
-		return;
-	}
-	last_run = time(NULL);
-*/
 
 	CtdlLogPrintf(CTDL_DEBUG, "-- db checkpoint --\n");
 	ret = dbenv->txn_checkpoint(dbenv,
@@ -270,7 +259,7 @@ void open_databases(void)
 {
 	int ret;
 	int i;
-	char dbfilename[SIZ];
+	char dbfilename[32];
 	u_int32_t flags = 0;
 	int dbversion_major, dbversion_minor, dbversion_patch;
 	int current_dbversion = 0;

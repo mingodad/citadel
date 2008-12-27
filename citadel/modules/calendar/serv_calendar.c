@@ -872,7 +872,7 @@ int ical_conflicts_phase6(struct icaltimetype t1start,
 {
 	int conflict_reported = 0;
 
-	/* debugging cruft *
+	/* debugging cruft */
 	time_t tt;
 	tt = icaltime_as_timet(t1start);
 	CtdlLogPrintf(CTDL_DEBUG, "PROPOSED START: %s", ctime(&tt));
@@ -882,7 +882,7 @@ int ical_conflicts_phase6(struct icaltimetype t1start,
 	CtdlLogPrintf(CTDL_DEBUG, "EXISTING START: %s", ctime(&tt));
 	tt = icaltime_as_timet(t2end);
 	CtdlLogPrintf(CTDL_DEBUG, "  EXISTING END: %s", ctime(&tt));
-	* debugging cruft */
+	/* debugging cruft */
 
 	/* compare and output */
 
