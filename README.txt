@@ -13,6 +13,7 @@
 	Alessandro Fulciniti
 	Dave Lindquist
 	Matt Pfleger
+	Mathew McBride
 	Martin Mouritzen
 
    This program is open source software released under the terms of the GNU

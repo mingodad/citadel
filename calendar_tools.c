@@ -264,7 +264,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 		  || (icalproperty_isa(p) == ICAL_MINDATE_PROPERTY)
 		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
 		) {
-			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
+			t = icalproperty_get_dtstart(p);	/*/ it's safe to use dtstart for all of them */
 			if ((icaltime_is_valid_time(t)) && (z=icaltime_get_timezone(t), z)) {
 			
 				zone_already_attached = 0;

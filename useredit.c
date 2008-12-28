@@ -501,7 +501,7 @@ void display_edituser(char *supplied_username, int is_new) {
 	MajorStatus = ChrPtr(Buf)[0];
 	StrBufCutLeft(Buf, 4);
 	if (MajorStatus != '2') {
-		///TODO ImportantMessage
+		/*TODO ImportantMessage */
 		sprintf(error_message,
 			"<img src=\"static/error.gif\" align=center>"
 			"%s<br /><br />\n", ChrPtr(Buf));

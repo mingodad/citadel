@@ -83,10 +83,10 @@ void display_queue_msg(long msgnum)
 			}
 
 			if (!strcasecmp(keyword, "bounceto")) {
+				char *atsign;
 				extract_token(sender, buf, 1, '|', sizeof sender);
 
 				/* Strip off local hostname if it's our own */
-				char *atsign;
 				atsign = strchr(sender, '@');
 				if (atsign != NULL) {
 					++atsign;

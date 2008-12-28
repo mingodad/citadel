@@ -28,7 +28,7 @@ void do_selected_iconbar(void) {
 	}
 }
 
-void DontDeleteThis(void *Data){};
+void DontDeleteThis(void *Data){}
 
 #define IconbarIsEnabled(a, b) IconbarIsENABLED(a, sizeof(a) - 1, b)
 
@@ -55,11 +55,13 @@ void LoadIconSettings(void)
 {
 	wcsession *WCC = WC;
 	StrBuf *iconbar = NULL;
-	StrBuf *buf = NewStrBuf();;
-	StrBuf *key = NewStrBuf();
+	StrBuf *buf;
+	StrBuf *key;
 	long val;
 	int i, nTokens;
 
+	buf = NewStrBuf();;
+	key = NewStrBuf();
 	WCC->current_iconbar = current_iconbar_menu;
 	if (WCC->IconBarSetttings == NULL)
 		WCC->IconBarSetttings = NewHash(1, NULL);
@@ -366,6 +368,7 @@ void do_iconbar(void) {
  * we generate its innerHTML...
  */
 void do_iconbar_roomlist(void) {
+	int ib_displayas;
 				
 	WC->current_iconbar = current_iconbar_roomlist;
 
@@ -375,7 +378,6 @@ void do_iconbar_roomlist(void) {
 	 * their iconbars.  These should probably be set in a master
 	 * configuration somewhere.
 	 */
-	int ib_displayas;
 
 	LoadIconSettings();
 

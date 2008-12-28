@@ -63,7 +63,11 @@ void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc e
 
 void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, RenderMimeFunc MimeRenderer)
 {
-	Put(MimeRenderHandler, HeaderName, HdrNLen, MimeRenderer, reference_free_handler);
+	RenderMimeFuncStruct *f;
+
+	f = (RenderMimeFuncStruct*) malloc(sizeof(RenderMimeFuncStruct));
+	f->f = MimeRenderer;
+	Put(MimeRenderHandler, HeaderName, HdrNLen, f, NULL);
 	
 }
 
@@ -180,6 +184,10 @@ int summcmp_rdate(const void *s1, const void *s2) {
 void examine_pref(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
 void examine_suff(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
 void examine_path(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset) {return;}
+void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
+{
+/* TODO: do we care? */
+}
 
 void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -221,7 +229,8 @@ void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset, FoundCharset);
 }
 void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{/////TODO: Fwd: and RE: filter!!
+{/*////TODO: Fwd: and RE: filter!!*/
+
 	message_summary *Msg = (message_summary*) Context;
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->subj, 0);
 }
@@ -496,7 +505,7 @@ void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
 	    GetHash(MimeRenderHandler, SKEY(Mime->ContentType), &vMimeRenderer) &&
 	    vMimeRenderer != NULL)
 	{
-		Mime->Renderer = (RenderMimeFunc) vMimeRenderer;
+		Mime->Renderer = (RenderMimeFuncStruct*) vMimeRenderer;
 		if (Msg->Submessages == NULL)
 			Msg->Submessages = NewHash(1,NULL);
 		Put(Msg->Submessages, SKEY(Mime->PartNum), Mime, reference_free_handler);
@@ -567,11 +576,6 @@ void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 {
 	Msg->MsgBody->PartNum = NewStrBufDup(HdrLine);
 	StrBufTrim(Msg->MsgBody->PartNum);/////TODO: striplt == trim?
-}
-
-void examine_content_encoding(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
-{
-////TODO: do we care?
 }
 
 void examine_content_lengh(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -909,9 +913,9 @@ void tmplput_MIME_Data(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
 {
 	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
 	if (mime->Renderer != NULL)
-		mime->Renderer(mime, NULL, NULL);
+		mime->Renderer->f(mime, NULL, NULL);
 	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->Data, 0);
- /// TODO: check whether we need to load it now?
+	/* TODO: check whether we need to load it now? */
 }
 
 void tmplput_MIME_LoadData(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -989,7 +993,18 @@ readloop_struct rlid[] = {
 
 
 
+void SetAccessCommand(long Oper)
+{
+	wcsession *WCC = WC;	
 
+	if (WCC->UrlFragment1 != NULL ) {
+		FlushStrBuf(WCC->UrlFragment1);
+		StrBufAppendBufPlain(WCC->UrlFragment1, 
+				     rlid[Oper].name.Key, rlid[Oper].name.len, 0);
+	}
+	else 
+		WCC->UrlFragment1 = NewStrBufPlain(rlid[Oper].name.Key, rlid[Oper].name.len);
+}
 		
 
 

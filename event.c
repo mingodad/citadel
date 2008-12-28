@@ -33,6 +33,13 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	char weekday_labels[7][32];
 	char month_labels[12][32];
 	long weekstart = 0;
+	icalproperty *rrule = NULL;
+	struct icalrecurrencetype recur;
+
+	char *tabnames[3];
+	tabnames[0] = _("Event");
+	tabnames[1] = _("Attendees");
+	tabnames[2] = _("Recurrence");
 
 	get_pref_long("weekstart", &weekstart, 17);
 	if (weekstart > 6) weekstart = 0;
@@ -140,11 +147,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
 		bstr("day"));
 
-	char *tabnames[] = {
-		_("Event"),
-		_("Attendees"),
-		_("Recurrence")
-	};
 
 	tabbed_dialog(3, tabnames);
 	begin_tab(0, 3);
@@ -414,8 +416,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	/* Recurrence tab */
 	begin_tab(2, 3);
-	icalproperty *rrule = NULL;
-	struct icalrecurrencetype recur;
 
 	rrule = icalcomponent_get_first_property(vevent, ICAL_RRULE_PROPERTY);
 	if (rrule) {

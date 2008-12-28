@@ -25,7 +25,7 @@ void groupdav_get_big_ics(void) {
 		hprintf("Content-Type: text/plain\r\n");
 		wprintf("%s\r\n",
 			&buf[4]
-			);/// TODO: do we need to end-burst here?
+			);/* TODO: do we need to end-burst here? */
 		return;
 	}
 

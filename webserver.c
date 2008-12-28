@@ -210,7 +210,7 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
 		       (retval >= 0))
 			retval = client_read_sslbuffer(Buf, timeout);
 		if (retval >= 0) {
-			StrBufAppendBuf(Target, Buf, 0); /// todo: Buf > bytes?
+			StrBufAppendBuf(Target, Buf, 0); /* todo: Buf > bytes? */
 #ifdef HTTP_TRACING
 			write(2, "\033[32m", 5);
 			write(2, buf, bytes);
@@ -225,7 +225,7 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
 	}
 #endif
 
-	if (StrLength(Buf) > 0) {//// todo: what if Buf > bytes?
+	if (StrLength(Buf) > 0) {/*/// todo: what if Buf > bytes?*/
 		StrBufAppendBuf(Target, Buf, 0);
 	}
 	retval = StrBufReadBLOB(Target, 
@@ -374,48 +374,6 @@ int client_read(int *sock, StrBuf *Target, StrBuf *buf, int bytes)
 }
 
 
-/*
- * Get a LF-terminated line of text from the client.
- * (This is implemented in terms of client_read() and could be
- * justifiably moved out of sysdep.c)
- *
- * sock		socket fd to get client line from
- * buf		buffer to write read data to
- * bufsiz	how many bytes to read
- *
- * returns the number of bytes read
- */
-/////int client_getln(int *sock, char *buf, int bufsiz)
-/////{
-/////	int i, retval;
-/////
-/////	/* Read one character at a time.*/
-/////	for (i = 0; *sock > 0; i++) {
-/////		retval = client_read(sock, &buf[i], 1);
-/////		if (retval < 0)
-/////			return retval;
-/////		if (retval != 1 || buf[i] == '\n' || i == (bufsiz-1))
-/////			break;
-/////		if ( (!isspace(buf[i])) && (!isprint(buf[i])) ) {
-/////			/* Non printable character recieved from client */
-/////			return(-1);
-/////		}
-/////	}
-/////
-/////	/* If we got a long line, discard characters until the newline. */
-/////	if (i == (bufsiz-1))
-/////		while (buf[i] != '\n' && retval == 1)
-/////			retval = client_read(sock, &buf[i], 1);
-/////
-/////	/*
-/////	 * Strip any trailing non-printable characters.
-/////	 */
-/////	buf[i] = 0;
-/////	while ((i > 0) && (!isprint(buf[i - 1]))) {
-/////		buf[--i] = 0;
-/////	}
-/////	return (retval);
-/////}
 
 /*
  * Shut us down the regular way.
@@ -498,7 +456,6 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf)
  */
 pid_t current_child;
 void graceful_shutdown(int signum) {
-//	kill(current_child, signum);
 	char wd[SIZ];
 	FILE *FD;
 	int fd;
@@ -559,16 +516,12 @@ void start_daemon(char *pid_file)
 			exit(errno);
 		}
 	
-		else if (current_child == 0) {	// child process
-//			signal(SIGTERM, graceful_shutdown);
+		else if (current_child == 0) {	/* child process */
 			signal(SIGHUP, graceful_shutdown);
 
 			return; /* continue starting webcit. */
 		}
-	
-		else { // watcher process
-//			signal(SIGTERM, SIG_IGN);
-//			signal(SIGHUP, SIG_IGN);
+		else { /* watcher process */
 			if (pid_file) {
 				fp = fopen(pid_file, "w");
 				if (fp != NULL) {
@@ -651,11 +604,12 @@ void spawn_another_worker_thread()
 	pthread_attr_destroy(&attr);
 }
 
-//#define DBG_PRINNT_HOOKS_AT_START
+/* #define DBG_PRINNT_HOOKS_AT_START */
 #ifdef DBG_PRINNT_HOOKS_AT_START
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 #endif 
+extern int analyze_msg;
 void InitTemplateCache(void);
 extern int LoadTemplates;
 extern void LoadZoneFiles(void);
@@ -768,6 +722,7 @@ int main(int argc, char **argv)
 			break;
 		case 'T':
 			LoadTemplates = atoi(optarg);
+			analyze_msg = (LoadTemplates && 0x2) != 0;
 			break;
 		case 'Z':
 			DisableGzip = 1;
@@ -820,7 +775,6 @@ int main(int argc, char **argv)
 		start_daemon(pidfile);
 	}
 	else {
-///		signal(SIGTERM, graceful_shutdown);
 		signal(SIGHUP, graceful_shutdown);
 	}
 
@@ -1040,19 +994,19 @@ void worker_entry(void)
 			if (msock > 0)	ret = select(msock+1, &tempset, NULL, NULL,  &tv);
 			end_critical_section(S_SELECT);
 			if ((ret < 0) && (errno != EINTR) && (errno != EAGAIN))
-			{// EINTR and EAGAIN are thrown but not of interest.
+			{/* EINTR and EAGAIN are thrown but not of interest. */
 				lprintf(2, "accept() failed:%d %s\n",
 					errno, strerror(errno));
 			}
 			else if ((ret > 0) && (msock > 0) && FD_ISSET(msock, &tempset))
-			{// Successfully selected, and still not shutting down? Accept!
+			{/* Successfully selected, and still not shutting down? Accept! */
 				ssock = accept(msock, NULL, 0);
 			}
 			
 		} while ((msock > 0) && (ssock < 0)  && (time_to_die == 0));
 
 		if ((msock == -1)||(time_to_die))
-		{// ok, we're going down.
+		{/* ok, we're going down. */
 			int shutdown = 0;
 
 			/* the first to come here will have to do the cleanup.
@@ -1066,11 +1020,11 @@ void worker_entry(void)
 			}
 			end_critical_section(S_SHUTDOWN);
 			if (shutdown == 1)
-			{// we're the one to cleanup the mess.
+			{/* we're the one to cleanup the mess. */
 				lprintf(2, "I'm master shutdown: tagging sessions to be killed.\n");
 				shutdown_sessions();
 				lprintf(2, "master shutdown: waiting for others\n");
-				sleeeeeeeeeep(1); // wait so some others might finish...
+				sleeeeeeeeeep(1); /* wait so some others might finish... */
 				lprintf(2, "master shutdown: cleaning up sessions\n");
 				do_housekeeping();
 				lprintf(2, "master shutdown: cleaning up libical\n");
@@ -1088,7 +1042,7 @@ void worker_entry(void)
 			if (ssock > 0) close (ssock);
 			lprintf(2, "inbetween.");
 			pthread_exit(NULL);
-		} else { // Got it? do some real work!
+		} else { /* Got it? do some real work! */
 			/* Set the SO_REUSEADDR socket option */
 			i = 1;
 			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,

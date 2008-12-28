@@ -390,7 +390,7 @@ void display_shutdown(void)
 		else
 		{
 			serv_printf("SEXP broadcast|%s", message);
-			serv_getln(buf, sizeof buf); // should we care?
+			serv_getln(buf, sizeof buf); /* TODO: should we care? */
 			begin_burst();
 			output_headers(1, 0, 0, 0, 1, 0);
 			DoTemplate(HKEY("display_serverrestartpagedo"), NULL, NULL, 0);

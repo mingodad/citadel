@@ -24,9 +24,11 @@ void DestroySession(wcsession **sessions_to_kill)
 {
 	close((*sessions_to_kill)->serv_sock);
 	close((*sessions_to_kill)->chat_sock);
+/*
 //		if ((*sessions_to_kill)->preferences != NULL) {
 //			free((*sessions_to_kill)->preferences);
 //		}
+*/
 	if ((*sessions_to_kill)->cache_fold != NULL) {
 		free((*sessions_to_kill)->cache_fold);
 	}
@@ -154,45 +156,6 @@ int GenerateSessionID(void)
 	return ++seq;
 }
 
-
-/*
- * Collapse multiple cookies on one line
- */
-////int req_gets(int *sock, char *buf, char *hold, size_t hlen)
-////{
-////	int a, b;
-////
-////	if (IsEmptyStr(hold)) {
-////		strcpy(buf, "");
-////		a = client_getln(sock, buf, SIZ);
-////		if (a<1) return(-1);
-////	} else {
-////		safestrncpy(buf, hold, SIZ);
-////	}
-////	strcpy(hold, "");
-////
-////	if (!strncasecmp(buf, "Cookie: ", 8)) {
-////		int len;
-////		len = strlen(buf);
-////		for (a = 0; a < len; ++a)
-////			if (buf[a] == ';') {
-////				// we don't refresh len, because of we 
-////				// only exit from here.
-////				snprintf(hold, hlen, "Cookie: %s", &buf[a + 1]);
-////				buf[a] = 0;
-////				b = 8;
-////				while (isspace(hold[b]))
-////					b++;
-////				
-////				memmove(&hold[8], &hold[b], len - b + 1);
-////				return(0);
-////			}
-////	}
-////
-////	return(0);
-////}
-
-
 /*
  * Collapse multiple cookies on one line
  */
@@ -251,18 +214,18 @@ int lingering_close(int fd)
 int is_bogus(StrBuf *http_cmd) {
 	const char *url;
 	int i, max;
-
-	url = ChrPtr(http_cmd);
-	if (IsEmptyStr(url)) return(1);
-	++url;
-
-	char *bogus_prefixes[] = {
+	const char *bogus_prefixes[] = {
 		"/scripts/root.exe",	/**< Worms and trojans and viruses, oh my! */
 		"/c/winnt",
 		"/MSADC/",
 		"/_vti",		/**< Broken Microsoft DAV implementation */
 		"/MSOffice"		/**< Stoopid MSOffice thinks everyone is IIS */
 	};
+
+	url = ChrPtr(http_cmd);
+	if (IsEmptyStr(url)) return(1);
+	++url;
+
 
 	max = sizeof(bogus_prefixes) / sizeof(char *);
 
@@ -355,7 +318,7 @@ void context_loop(int *sock)
 		}
 
 		StrBufExtract_token(HeaderName, Line, 0, ':');
-	//// TODO: filter bad chars!
+		/*/// TODO: filter bad chars! */
 
 		pchs = ChrPtr(Line);
 		pch = pchs + StrLength(HeaderName) + 1;
@@ -370,7 +333,7 @@ void context_loop(int *sock)
 	} while (LineLen > 0);
 	FreeStrBuf(&HeaderName);
 
-////	dbg_PrintHash(HTTPHeaders, nix, NULL);
+/*///	dbg_PrintHash(HTTPHeaders, nix, NULL); */
 
 
 	/**

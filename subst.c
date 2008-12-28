@@ -500,14 +500,14 @@ void GetTemplateTokenString(WCTemplateToken *Tokens,
 		break;
 	case TYPE_LONG:
 	case TYPE_PREFINT:
-		break; ///todo: string to text?
+		break; /* todo: string to text? */
 	case TYPE_GETTEXT:
 		*Value = _(Tokens->Params[N]->Start);
 		*len = strlen(*Value);
 		break;
 	default:
 		break;
-//todo log error
+/*/todo log error */
 	}
 }
 
@@ -523,13 +523,13 @@ void print_value_of(StrBuf *Target, WCTemplateToken *Tokens, void *Context, int 
 	void *vVar;
 
 	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	/// TODO: debricated!
+	/* TODO: depricated! */
 	if (Tokens->pName[0] == '=') {
 		DoTemplate(Tokens->pName+1, Tokens->NameEnd - 1, NULL, NULL, 0);
 	}
 
-//////TODO: if param[1] == "U" -> urlescape
-/// X -> escputs
+/*/////TODO: if param[1] == "U" -> urlescape
+/// X -> escputs */
 	/** Page-local variables */
 	if ((WCC->vars!= NULL) && GetHash(WCC->vars, Tokens->pName, Tokens->NameEnd, &vVar)) {
 		ptr = (wcsubst*) vVar;
@@ -1093,7 +1093,6 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 }
 
 
-///void PrintTemplate(const char *Key, void *vSubst, int odd)
 const char* PrintTemplate(void *vSubst)
 {
 	WCTemplate *Tmpl = vSubst;
@@ -1192,8 +1191,9 @@ int EvaluateToken(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, vo
 	long AppendMeLen;
 	HashHandler *Handler;
 	void *vVar;
-// much output, since pName is not terminated...
-//	lprintf(1,"Doing token: %s\n",Token->pName);
+/* much output, since pName is not terminated...
+	lprintf(1,"Doing token: %s\n",Token->pName);
+*/
 
 	switch (Tokens->Flags) {
 	case SV_GETTEXT:
@@ -1434,8 +1434,10 @@ void DoTemplate(const char *templatename, long len, StrBuf *Target, void *Contex
 		StrBufAppendPrintf(Target, "<pre>\ndidn't find Template [%s] %ld %ld\n</pre>", 
 				   templatename, len, 
 				   (long)strlen(templatename));
-///		dbg_PrintHash(Static, PrintTemplate, NULL);
-//		PrintHash(Static, VarPrintTransition, PrintTemplate);
+#if 0
+		dbg_PrintHash(Static, PrintTemplate, NULL);
+		PrintHash(Static, VarPrintTransition, PrintTemplate);
+#endif
 		return;
 	}
 	if (vTmpl == NULL) 
@@ -1565,7 +1567,6 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	nMembersUsed = GetCount(List);
 	SubBuf = NewStrBuf();
 	it = GetNewHashPos(List, 0);
-	WC->is_last_hash = 0;
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
 		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", 
 			 (oddeven) ? "odd" : "even");
@@ -1656,7 +1657,7 @@ int ConditionalVar(WCTemplateToken *Tokens, void *Context, int ContextType)
 	case WCS_FUNCTION:
 		return (subst->wcs_function!=NULL);
 	case WCS_SERVCMD:
-		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);////todo
+		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);/* TODO */
 		return 1;
 	case WCS_STRING:
 	case WCS_STRBUF:
@@ -1830,7 +1831,7 @@ CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix,
 	const StrBuf *BSort;
 	SortStruct *SortBy;
 	void *vSortBy;
-	long SortOrder;
+	long SortOrder = -1;
 	
 	if (havebstr("SortBy")) {
 		BSort = sbstr("SortBy");
@@ -1840,7 +1841,15 @@ CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix,
 			BSort = get_room_pref("sort");
 		}
 		else {
-			////todo: nail prefprepend to sort, and lookup this!
+			/*TODO: nail prefprepend to sort, and lookup this! */
+		}
+		if (BSort != NULL)
+			putbstr("SortBy", NewStrBufDup(BSort));
+		else {
+			StrBuf *Buf;
+
+			BSort = Buf = NewStrBufPlain(Default, ldefault);
+			putbstr("SortBy", Buf);
 		}
 	}
 
@@ -1860,12 +1869,21 @@ CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix,
 		SortOrder = LBSTR("SortOrder");
 	}
 	else { /** Try to fallback to our remembered values... */
+		StrBuf *Buf;
 		if (SortBy->PrefPrepend == NULL) {
-			SortOrder = StrTol(get_room_pref("SortOrder"));
+			Buf = get_room_pref("SortOrder");
+			SortOrder = StrTol(Buf);
 		}
 		else {
-			////todo: nail prefprepend to sort, and lookup this!
+			/* TODO: nail prefprepend to sort, and lookup this! */
 		}
+
+		if (Buf == NULL)
+			SortOrder = DefaultDirection;
+
+		Buf = NewStrBufPlain(NULL, 64);
+		StrBufPrintf(Buf, "%ld", SortOrder);
+		putbstr("SortOrder", Buf);
 	}
 	switch (SortOrder) {
 	default:
@@ -1922,7 +1940,7 @@ int GetSortMetric(WCTemplateToken *Tokens, SortStruct **Next, SortStruct **Param
 			BSort = get_room_pref("sort");
 		}
 		else {
-			////todo: nail prefprepend to sort, and lookup this!
+			/* TODO: nail prefprepend to sort, and lookup this! */
 		}
 	}
 
@@ -1941,7 +1959,7 @@ int GetSortMetric(WCTemplateToken *Tokens, SortStruct **Next, SortStruct **Param
 			*SortOrder = StrTol(get_room_pref("SortOrder"));
 		}
 		else {
-			////todo: nail prefprepend to sort, and lookup this!
+			/* TODO: nail prefprepend to sort, and lookup this! */
 		}
 	}
 	if (*SortOrder > 2)
@@ -2134,7 +2152,22 @@ void tmplput_long_vector(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, voi
 	}
 }
 
+void dbg_print_longvector(long *LongVector)
+{
+	StrBuf *Buf = NewStrBufPlain(HKEY("Longvector: ["));
+	int nItems = LongVector[0];
+	int i;
 
+	for (i = 0; i < nItems; i++) {
+		if (i + 1 < nItems)
+			StrBufAppendPrintf(Buf, "%d: %ld | ", i, LongVector[i]);
+		else
+			StrBufAppendPrintf(Buf, "%d: %ld]\n", i, LongVector[i]);
+
+	}
+	lprintf(1, ChrPtr(Buf));
+	FreeStrBuf(&Buf);
+}
 
 int ConditionalLongVector(WCTemplateToken *Tokens, void *Context, int ContextType)
 {

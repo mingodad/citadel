@@ -18,8 +18,8 @@
  */
 RETSIGTYPE timeout(int signum)
 {
-	lprintf(1, "Connection timed out.\n");
-	exit(3);
+	lprintf(1, "Connection timed out; unable to reach citserver\n");
+	/* no exit here, since we need to server the connection unreachable thing. exit(3); */
 }
 
 

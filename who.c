@@ -120,7 +120,6 @@ void terminate_session(void)
 
 	serv_printf("TERM %s", bstr("which_session"));
 	serv_getln(buf, sizeof buf);
-	///who();
 	url_do_template();
 }
 

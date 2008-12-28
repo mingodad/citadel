@@ -12,6 +12,7 @@
 HashList *MsgHeaderHandler = NULL;
 HashList *MsgEvaluators = NULL;
 HashList *MimeRenderHandler = NULL;
+int analyze_msg = 0;
 
 #define SUBJ_COL_WIDTH_PCT		50	/**< Mailbox view column width */
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
@@ -33,6 +34,9 @@ int summcmp_rdate(const void *s1, const void *s2);
 
 typedef void (*MsgPartEvaluatorFunc)(message_summary *Sum, StrBuf *Buf);
 
+typedef struct _MsgPartEvaluatorStruct {
+	MsgPartEvaluatorFunc f;
+}MsgPartEvaluatorStruct;
 
 
 /*----------------------------------------------------------------------------*/
@@ -56,8 +60,6 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	headereval *Hdr;
 	void *vHdr;
 	char buf[SIZ];
-//	char mime_submessages[256] = "";
-	char reply_references[1024] = "";
 	int Done = 0;
 	int state=0;
 	long len;
@@ -111,7 +113,10 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			StrBufExtract_token(HdrToken, Buf, 0, '=');
 			StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 			
-			lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+#ifdef TECH_PREVIEW
+			if (analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+#endif
+			/* look up one of the examine_* functions to parse the content */
 			if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 			    (vHdr != NULL)) {
 				Hdr = (headereval*)vHdr;
@@ -135,7 +140,10 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 				StrBufExtract_token(HdrToken, Buf, 0, ':');
 				if (StrLength(HdrToken) > 0) {
 					StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
-					lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+#ifdef TECH_PREVIEW
+					if (analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+#endif
+					/* the examine*'s know how to do with mime headers too... */
 					if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 					    (vHdr != NULL)) {
 						Hdr = (headereval*)vHdr;
@@ -149,7 +157,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			if (Msg->MsgBody->size_known > 0) {
 				StrBuf_ServGetBLOB(Msg->MsgBody->Data, Msg->MsgBody->length);
 				state ++;
-					/// todo: check next line, if not 000, append following lines
+				/*/ todo: check next line, if not 000, append following lines */
 			}
 			else if (1){
 				if (StrLength(Msg->MsgBody->Data) > 0)
@@ -165,16 +173,18 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 
 	if (Msg->AllAttach == NULL)
 		Msg->AllAttach = NewHash(1,NULL);
+	/* now we put the body mimepart we read above into the mimelist */
 	Put(Msg->AllAttach, SKEY(Msg->MsgBody->PartNum), Msg->MsgBody, DestroyMime);
 	
 	/* strip the bare contenttype, so we ommit charset etc. */
 	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');
 	StrBufTrim(Buf);
+	/* look up the renderer, that will convert this mimeitem into the htmlized form */
 	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 	    (vHdr != NULL)) {
-		RenderMimeFunc Render;
-		Render = (RenderMimeFunc)vHdr;
-		Render(Msg->MsgBody, NULL, FoundCharset);
+		RenderMimeFuncStruct *Render;
+		Render = (RenderMimeFuncStruct*)vHdr;
+		Render->f(Msg->MsgBody, NULL, FoundCharset);
 	}
 
 	if (StrLength(Msg->reply_references)> 0) {
@@ -184,7 +194,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 		int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
 		int rrlen = StrLength(Msg->reply_references);
 		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-			remove_token(reply_references, 1, '|');////todo
+			StrBufRemove_token(Msg->reply_references, 1, '|');
 		}
 	}
 
@@ -220,6 +230,8 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
 	}
+
+	/* now check if we need to translate some mimeparts, and remove the duplicate */
 	it = GetNewHashPos(Msg->AllAttach, 0);
 	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
 	       (vMime != NULL)) {
@@ -327,7 +339,7 @@ void display_headers(void) {
 message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSubject, long MsgNum) 
 {
 	void                 *vEval;
-	MsgPartEvaluatorFunc  Eval;
+	MsgPartEvaluatorStruct  *Eval;
 	message_summary      *Msg;
 	StrBuf *Buf;
 	const char *buf;
@@ -354,9 +366,9 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 		ebuf = strchr(ChrPtr(Buf), '=');
 		nBuf = ebuf - buf;
 		if (GetHash(MsgEvaluators, buf, nBuf, &vEval) && vEval != NULL) {
-			Eval = (MsgPartEvaluatorFunc) vEval;
+			Eval = (MsgPartEvaluatorStruct*) vEval;
 			StrBufCutLeft(Buf, nBuf + 1);
-			Eval(Msg, Buf);
+			Eval->f(Msg, Buf);
 		}
 		else lprintf(1, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
 	}
@@ -379,26 +391,17 @@ int load_msg_ptrs(char *servcmd, int with_headers)
         wcsession *WCC = WC;
 	message_summary *Msg;
 	StrBuf *Buf, *Buf2;
-	///char buf[1024];
-	///time_t datestamp;
-	//char fullname[128];
-	//char nodename[128];
-	//char inetaddr[128];
-	//char subject[1024];
-	///char *ptr;
-	int nummsgs;
-	////int sbjlen;
+	int nummsgs = 0;
 	int maxload = 0;
 	long len;
 	int n;
-	////int num_summ_alloc = 0;
+	int skipit;
 
 	if (WCC->summ != NULL) {
 		if (WCC->summ != NULL)
 			DeleteHash(&WCC->summ);
 	}
 	WCC->summ = NewHash(1, Flathash);
-	nummsgs = 0;
 	maxload = 10000;
 	
 	Buf = NewStrBuf();
@@ -408,59 +411,69 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 		FreeStrBuf(&Buf);
 		return (nummsgs);
 	}
-// TODO 			if (with_headers) { //// TODO: Have Attachments?
 	Buf2 = NewStrBuf();
 	while (len = StrBuf_ServGetln(Buf),
 	       ((len != 3)  ||
 		strcmp(ChrPtr(Buf), "000")!= 0))
 	{
 		if (nummsgs < maxload) {
+			skipit = 0;
 			Msg = (message_summary*)malloc(sizeof(message_summary));
 			memset(Msg, 0, sizeof(message_summary));
 
 			Msg->msgnum = StrBufExtract_long(Buf, 0, '|');
 			Msg->date = StrBufExtract_long(Buf, 1, '|');
-
-			Msg->from = NewStrBufPlain(NULL, StrLength(Buf));
-			StrBufExtract_token(Buf2, Buf, 2, '|');
-			if (StrLength(Buf2) != 0) {
-				/** Handle senders with RFC2047 encoding */
-				StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset, FoundCharset);
+			/* 
+			 * as citserver probably gives us messages in forward date sorting
+			 * nummsgs should be the same order as the message date.
+			 */
+			if (Msg->date == 0) {
+				Msg->date = nummsgs;
+				if (StrLength(Buf) < 32) 
+					skipit = 1;
 			}
-			
-			/** Nodename */
-			StrBufExtract_token(Buf2, Buf, 3, '|');
-			if ((StrLength(Buf2) !=0 ) &&
-			    ( ((WCC->room_flags & QR_NETWORK)
-			       || ((strcasecmp(ChrPtr(Buf2), serv_info.serv_nodename)
-				    && (strcasecmp(ChrPtr(Buf2), serv_info.serv_fqdn)))))))
-			{
-				StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
-				StrBufAppendBuf(Msg->from, Buf2, 0);
-			}
-
-			/** Not used:
-			StrBufExtract_token(Msg->inetaddr, Buf, 4, '|');
-			*/
-
-			Msg->subj = NewStrBufPlain(NULL, StrLength(Buf));
-			StrBufExtract_token(Buf2,  Buf, 5, '|');
-			if (StrLength(Buf2) == 0)
-			  StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1, 0);
-			else {
-				StrBuf_RFC822_to_Utf8(Msg->subj, Buf2, WCC->DefaultCharset, FoundCharset);
-				if ((StrLength(Msg->subj) > 75) && 
-				    (StrBuf_Utf8StrLen(Msg->subj) > 75)) {
-					StrBuf_Utf8StrCut(Msg->subj, 72);
-					StrBufAppendBufPlain(Msg->subj, HKEY("..."), 0);
+			if (!skipit) {
+				Msg->from = NewStrBufPlain(NULL, StrLength(Buf));
+				StrBufExtract_token(Buf2, Buf, 2, '|');
+				if (StrLength(Buf2) != 0) {
+					/** Handle senders with RFC2047 encoding */
+					StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset, FoundCharset);
 				}
-			}
+			
+				/** Nodename */
+				StrBufExtract_token(Buf2, Buf, 3, '|');
+				if ((StrLength(Buf2) !=0 ) &&
+				    ( ((WCC->room_flags & QR_NETWORK)
+				       || ((strcasecmp(ChrPtr(Buf2), serv_info.serv_nodename)
+					    && (strcasecmp(ChrPtr(Buf2), serv_info.serv_fqdn)))))))
+				{
+					StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
+					StrBufAppendBuf(Msg->from, Buf2, 0);
+				}
+
+				/** Not used:
+				    StrBufExtract_token(Msg->inetaddr, Buf, 4, '|');
+				*/
+
+				Msg->subj = NewStrBufPlain(NULL, StrLength(Buf));
+				StrBufExtract_token(Buf2,  Buf, 5, '|');
+				if (StrLength(Buf2) == 0)
+					StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
+				else {
+					StrBuf_RFC822_to_Utf8(Msg->subj, Buf2, WCC->DefaultCharset, FoundCharset);
+					if ((StrLength(Msg->subj) > 75) && 
+					    (StrBuf_Utf8StrLen(Msg->subj) > 75)) {
+						StrBuf_Utf8StrCut(Msg->subj, 72);
+						StrBufAppendBufPlain(Msg->subj, HKEY("..."), 0);
+					}
+				}
 
 
-			if ((StrLength(Msg->from) > 25) && 
-			    (StrBuf_Utf8StrLen(Msg->from) > 25)) {
-				StrBuf_Utf8StrCut(Msg->from, 23);
-				StrBufAppendBufPlain(Msg->from, HKEY("..."), 0);
+				if ((StrLength(Msg->from) > 25) && 
+				    (StrBuf_Utf8StrLen(Msg->from) > 25)) {
+					StrBuf_Utf8StrCut(Msg->from, 23);
+					StrBufAppendBufPlain(Msg->from, HKEY("..."), 0);
+				}
 			}
 			n = Msg->msgnum;
 			Put(WCC->summ, (const char *)&n, sizeof(n), Msg, DestroyMessageSummary);
@@ -486,62 +499,119 @@ inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 }
 
 
-void DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg)
+long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMessages)
 {
 	StrBuf *TmpBuf;
 	wcsession *WCC = WC;
-	message_summary* Msg;
-	int lo, hi, n;
-	int i = 0;
-	long StartMsg;
 	void *vMsg;
+	int lo, hi;
+	long ret;
 	long hklen;
 	const char *key;
 	int done = 0;
 	int nItems;
 	HashPos *At;
 	long vector[16];
-	int nMessages = DEFAULT_MAXMSGS;
 
 	TmpBuf = NewStrBuf();
-	At = GetNewHashPos(WCC->summ, (lbstr("SortOrder") == 1)? -nMessages : nMessages);
+	At = GetNewHashPos(WCC->summ, nMessages);
 	nItems = GetCount(WCC->summ);
-	
+	ret = nMessages;
 	vector[0] = 7;
+	vector[2] = 1;
 	vector[1] = startmsg;
-	vector[2] = maxmsgs;
 	vector[3] = 0;
-	vector[4] = 1;
 
 	while (!done) {
+		vector[3] = abs(nMessages);
 		lo = GetHashPosCounter(At);
-		if (lo + nMessages > nItems) {
-			hi = nItems;
-		}
-		else {
-			hi = lo + nMessages;
+		if (nMessages > 0) {
+			if (lo + nMessages >= nItems) {
+				hi = nItems - 1;
+				vector[3] = nItems - lo;
+				if (startmsg == lo) 
+					ret = vector[3];
+			}
+			else {
+				hi = lo + nMessages - 1;
+			}
+		} else {
+			if (lo + nMessages < -1) {
+				hi = 0;
+			}
+			else {
+				if ((lo % abs(nMessages)) != 0) {
+					int offset = (lo % abs(nMessages) *
+						      (nMessages / abs(nMessages)));
+					hi = lo + offset;
+					vector[3] = abs(offset);
+					if (startmsg == lo)
+						 ret = offset;
+				}
+				else
+					hi = lo + nMessages;
+			}
 		}
 		done = !GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
-		Msg = (message_summary*) vMsg;
-		n = (Msg==NULL)? 0 : Msg->msgnum;
-		if (i == 0)
-			StartMsg = n;
-		vector[4] = lo;
-		vector[5] = hi;
-		vector[6] = n;
+		
+		/**
+		 * Bump these because although we're thinking in zero base, the user
+		 * is a drooling idiot and is thinking in one base.
+		 */
+		vector[4] = lo + 1;
+		vector[5] = hi + 1;
+		vector[6] = lo;
 		FlushStrBuf(TmpBuf);
+		dbg_print_longvector(vector);
 		DoTemplate(HKEY("select_messageindex"), TmpBuf, &vector, CTX_LONGVECTOR);
 		StrBufAppendBuf(Selector, TmpBuf, 0);
-		i++;
 	}
-	vector[6] = StartMsg;
+	vector[6] = 0;
 	FlushStrBuf(TmpBuf);
+	vector[1] = lbstr("maxmsgs") == 9999999;
+	vector[2] = 0;
+	dbg_print_longvector(vector);
 	DoTemplate(HKEY("select_messageindex_all"), TmpBuf, &vector, CTX_LONGVECTOR);
 	StrBufAppendBuf(Selector, TmpBuf, 0);
 	FreeStrBuf(&TmpBuf);
 	DeleteHashPos(&At);
+	return ret;
 }
 
+void load_seen_flags(void)
+{
+	message_summary *Msg;
+	const char *HashKey;
+	long HKLen;
+	HashPos *at;
+	void *vMsg;
+	StrBuf *OldMsg;
+	wcsession *WCC = WC;
+
+	OldMsg = NewStrBuf();
+	serv_puts("GTSN");
+	StrBuf_ServGetln(OldMsg);
+	if (ChrPtr(OldMsg)[0] == '2') {
+		StrBufCutLeft(OldMsg, 4);
+	}
+	else {
+		FreeStrBuf(&OldMsg);
+		return;
+	}
+	at = GetNewHashPos(WCC->summ, 0);
+	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+		/** Are you a new message, or an old message? */
+		Msg = (message_summary*) vMsg;
+		if (is_msg_in_mset(ChrPtr(OldMsg), Msg->msgnum)) {
+			Msg->is_new = 0;
+		}
+		else {
+			Msg->is_new = 1;
+		}
+	}
+	FreeStrBuf(&OldMsg);
+	DeleteHashPos(&at);
+}
 
 extern readloop_struct rlid[];
 
@@ -558,22 +628,16 @@ void readloop(long oper)
 	message_summary *Msg;
 	char cmd[256] = "";
 	char buf[SIZ];
-	char old_msgs[SIZ];
 	int a = 0;
-	///int b = 0;
+	int with_headers = 0;
 	int nummsgs;
 	long startmsg = 0;
 	int maxmsgs = 0;
 	long *displayed_msgs = NULL;
 	int num_displayed = 0;
-	int is_summary = 0;
-	int is_addressbook = 0;
 	int is_singlecard = 0;
-	int is_calendar = 0;
 	struct calview calv;
-	int is_tasks = 0;
-	int is_notes = 0;
-	int is_bbview = 0;
+	int i;
 	int lowest_displayed = (-1);
 	int highest_displayed = 0;
 	addrbookent *addrbook = NULL;
@@ -586,39 +650,35 @@ void readloop(long oper)
 	int care_for_empty_list = 0;
 	int load_seen = 0;
 	int sortit = 0;
-	// NEW SUMMARY VIEW: break here
-	is_summary = (ibstr("is_summary") ||WCC->wc_view == VIEW_MAILBOX);
-	if (is_summary) {
-	  new_summary_view();
-	  return;
-	}
+	int defaultsortorder = 0;
+
+	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
+		WCC->wc_view = VIEW_MAILBOX;
+
 	switch (WCC->wc_view) {
 	case VIEW_WIKI:
 		sprintf(buf, "wiki?room=%s&page=home", WCC->wc_roomname);
 		http_redirect(buf);
 		return;
+	case VIEW_CALBRIEF:
 	case VIEW_CALENDAR:
 		load_seen = 1;
-		is_calendar = 1;
 		strcpy(cmd, "MSGS ALL|||1");
 		maxmsgs = 32767;
 		parse_calendar_view_request(&calv);
 		break;
 	case VIEW_TASKS:
-		is_tasks = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 		break;
 	case VIEW_NOTES:
-		is_notes = 1;
 		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 		wprintf("<div id=\"new_notes_here\"></div>\n");
 		break;
 	case VIEW_ADDRESSBOOK:
 		is_singlecard = ibstr("is_singlecard");
-		if (maxmsgs > 1) {
-			is_addressbook = 1;
+		if (is_singlecard != 1) {
 			if (oper == do_search) {
 				snprintf(cmd, sizeof(cmd), "MSGS SEARCH|%s", bstr("query"));
 			}
@@ -628,77 +688,50 @@ void readloop(long oper)
 			maxmsgs = 9999999;
 			break;
 		}
-
+		break;
+	case VIEW_MAILBOX: 
+	  if (!WCC->is_ajax) {
+	    new_summary_view();
+	    return;
+	  } else {
+		defaultsortorder = 2;
+		sortit = 1;
+		load_seen = 1;
+		care_for_empty_list = 0;
+		with_headers = 1;
+		if (WCC->is_mobile) maxmsgs = 20;
+		else maxmsgs = 9999999;
+		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
+			 (oper == do_search) ? "SEARCH" : "ALL",
+			 (oper == do_search) ? bstr("query") : ""
+			);
+	  }
+		break;
+	case VIEW_BBS:
 	default:
+		defaultsortorder = 1;
+		startmsg = -1;
+		sortit = 1;
 		care_for_empty_list = 1;
-		startmsg = lbstr("startmsg");
+
+		rlid[oper].cmd(cmd, sizeof(cmd));
+		SetAccessCommand(oper);
+
 		if (havebstr("maxmsgs"))
 			maxmsgs = ibstr("maxmsgs");
-		is_summary = (ibstr("is_summary") && !WCC->is_mobile);
 		if (maxmsgs == 0) maxmsgs = DEFAULT_MAXMSGS;
-		
 
-		
-                /*
-		 * When in summary mode, always show ALL messages instead of just
-		 * new or old.  Otherwise, show what the user asked for.
-		 */
-		rlid[oper].cmd(cmd, sizeof(cmd));
-		
-		if ((WCC->wc_view == VIEW_MAILBOX) && (maxmsgs > 1) && !WCC->is_mobile) {
-			is_summary = 1;
-			if (oper != do_search) {
-				strcpy(cmd, "MSGS ALL");
-			}
+		if (havebstr("startmsg")) {
+			startmsg = lbstr("startmsg");
 		}
-
-		is_bbview = !is_summary;
-		if (is_summary) {			/**< fetch header summary */
-			load_seen = 1;
-			snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
-				 (oper == do_search) ? "SEARCH" : "ALL",
-				 (oper == do_search) ? bstr("query") : ""
-				);
-			startmsg = 1;
-			maxmsgs = 9999999;
-		} 
-
-		bbs_reverse = is_bbview && (lbstr("SortOrder") == 2);
-
-		if (is_bbview && (startmsg == 0L)) {
-			if (bbs_reverse) {
-				Msg = GetMessagePtrAt((nummsgs >= maxmsgs) ? (nummsgs - maxmsgs) : 0, WCC->summ);
-				startmsg = (Msg==NULL)? 0 : Msg->msgnum;
-			}
-			else {
-				Msg = GetMessagePtrAt(0, WCC->summ);
-				startmsg = (Msg==NULL)? 0 : Msg->msgnum;
-			}
-		}
-		sortit = is_summary || WCC->is_mobile;
+		
 	}
-
-
+	if (!WCC->is_ajax) {
 	output_headers(1, 1, 1, 0, 0, 0);
-
-	/*
-	if (WCC->is_mobile) {
-		maxmsgs = 20;
-		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
-			(!strcmp(oper, "do_search") ? "SEARCH" : "ALL"),
-			(!strcmp(oper, "do_search") ? bstr("query") : "")
-		);
-		SortBy =  eRDate;
+	} else if (WCC->wc_view == VIEW_MAILBOX) {
+	  jsonMessageListHdr();
 	}
-
-	/*
-	 * Are we doing a summary view?  If so, we need to know old messages
-	 * and new messages, so we can do that pretty boldface thing for the
-	 * new messages.
-	 */
-
-
-	nummsgs = load_msg_ptrs(cmd, (is_summary || WCC->is_mobile));
+	nummsgs = load_msg_ptrs(cmd, with_headers);
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
 			wprintf("<div align=\"center\"><br /><em>");
@@ -718,69 +751,73 @@ void readloop(long oper)
 		goto DONE;
 	}
 
-	if (load_seen){
-		void *vMsg;
-
-		strcpy(old_msgs, "");
-		serv_puts("GTSN");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			strcpy(old_msgs, &buf[4]);
-		}
-		at = GetNewHashPos(WCC->summ, 0);
-		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
-			/** Are you a new message, or an old message? */
-			Msg = (message_summary*) vMsg;
-			if (is_msg_in_mset(old_msgs, Msg->msgnum)) {
-				Msg->is_new = 0;
-			}
-			else {
-				Msg->is_new = 1;
-			}
-		}
-		DeleteHashPos(&at);
-	}
-
 	if (sortit) {
 		CompareFunc SortIt;
 		SortIt =  RetrieveSort(CTX_MAILSUM, NULL, 
-				       HKEY("date"), 2);
+				       HKEY("date"), defaultsortorder);
 		if (SortIt != NULL)
 			SortByPayload(WCC->summ, SortIt);
+		if (WCC->wc_view == VIEW_BBS) {
+			if (lbstr("SortOrder") == 2) {
+				bbs_reverse = 1;
+				num_displayed = -DEFAULT_MAXMSGS;
+			}
+			else {
+				bbs_reverse = 0;
+				num_displayed = DEFAULT_MAXMSGS;
+			}
+		}
 	}
+	if (startmsg < 0) startmsg = (bbs_reverse) ? nummsgs - 1 : 0;
 
-	if (is_summary) {
-		do_template("summary_header", NULL);
-	} else if (WCC->is_mobile) {
-		wprintf("<div id=\"message_list\">");
-	}
-
-
-	/**
-	 * If we're not currently looking at ALL requested
-	 * messages, then display the selector bar
+	if (load_seen) load_seen_flags();
+	
+        /**
+	 * If we're to print s.th. above the message list...
 	 */
-	if (is_bbview)  {
+	switch (WCC->wc_view) {
+	case VIEW_BBS:
 		BBViewToolBar = NewStrBuf();
 		MessageDropdown = NewStrBuf();
 
-		DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg);
-		
+		maxmsgs = DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg, num_displayed);
+		if (num_displayed < 0) {
+			startmsg += maxmsgs;
+			if (num_displayed != maxmsgs)				
+				maxmsgs = abs(maxmsgs) + 1;
+			else
+				maxmsgs = abs(maxmsgs);
+
+		}
 		DoTemplate(HKEY("msg_listselector_top"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 		FlushStrBuf(BBViewToolBar);
+		break;
 	}
 			
+	/*
+	 * iterate over each message. if we need to load an attachment, do it here. 
+	 */
+	if (WCC->wc_view == VIEW_MAILBOX) goto NO_MSG_LOOP;
 	at = GetNewHashPos(WCC->summ, 0);
+	num_displayed = i = 0;
 	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 		Msg = (message_summary*) vMsg;		
-		if ((Msg->msgnum >= startmsg) && (num_displayed < maxmsgs)) {
-				
-			/** Display the message */
-			if (is_summary) {
-				DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
-			}
-			else if (is_addressbook) {
+		if ((Msg->msgnum >= startmsg) && (num_displayed <= maxmsgs)) {			
+			switch (WCC->wc_view) {
+			case VIEW_WIKI:
+				break;
+			case VIEW_CALBRIEF: /* load the mime attachments for special tasks... */
+			case VIEW_CALENDAR:
+				load_calendar_item(Msg, Msg->is_new, &calv);
+				break;
+			case VIEW_TASKS:
+				display_task(Msg, Msg->is_new);
+				break;
+			case VIEW_NOTES:
+				display_note(Msg, Msg->is_new);
+				break;
+			case VIEW_ADDRESSBOOK:
 				fetch_ab_name(Msg, buf);
 				++num_ab;
 				addrbook = realloc(addrbook,
@@ -788,96 +825,84 @@ void readloop(long oper)
 				safestrncpy(addrbook[num_ab-1].ab_name, buf,
 					    sizeof(addrbook[num_ab-1].ab_name));
 				addrbook[num_ab-1].ab_msgnum = Msg->msgnum;
-			}
-			else if (is_calendar) {
-				load_calendar_item(Msg, Msg->is_new, &calv);
-			}
-			else if (is_tasks) {
-				display_task(Msg, Msg->is_new);
-			}
-			else if (is_notes) {
-				display_note(Msg, Msg->is_new);
-			} else if (WCC->is_mobile) {
-				DoTemplate(HKEY("section_mailsummary"), NULL, Msg, CTX_MAILSUM);
-			}
-			else {
+				break;
+			case VIEW_BBS: /* Tag the mails we want to show in bbview... */
+			default:
 				if (displayed_msgs == NULL) {
 					displayed_msgs = malloc(sizeof(long) *
-								(maxmsgs<nummsgs ? maxmsgs : nummsgs));
+								(maxmsgs<nummsgs ? maxmsgs + 1 : nummsgs + 1));
 				}
-				displayed_msgs[num_displayed] = Msg->msgnum;
+				if ((i >= startmsg) && (i < startmsg + maxmsgs)) {
+					displayed_msgs[num_displayed] = Msg->msgnum;
+					if (lowest_displayed < 0) lowest_displayed = a;
+					highest_displayed = a;
+			
+					num_displayed++;
+				}
 			}
-			
-			if (lowest_displayed < 0) lowest_displayed = a;
-			highest_displayed = a;
-			
-			++num_displayed;
 		}
+		i++;
 	}
 	DeleteHashPos(&at);
 
-	/** Output loop */
-	if (displayed_msgs != NULL) {
-		if (bbs_reverse) {
-			////TODOqsort(displayed_msgs, num_displayed, sizeof(long), qlongcmp_r);
-		}
-
-		/** if we do a split bbview in the future, begin messages div here */
-
-		for (a=0; a<num_displayed; ++a) {
-			read_message(WC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
-		}
-
-		/** if we do a split bbview in the future, end messages div here */
-
-		free(displayed_msgs);
-		displayed_msgs = NULL;
-	}
-
-	if (is_summary) {
-		do_template("summary_trailer", NULL);
-	} else if (WCC->is_mobile) {
-		wprintf("</div>");
-	}
-
-	/**
-	 * Bump these because although we're thinking in zero base, the user
-	 * is a drooling idiot and is thinking in one base.
+ NO_MSG_LOOP:	
+	/*
+	 * Done iterating the message list. now tasks we want to do after.
 	 */
-	++lowest_displayed;
-	++highest_displayed;
-
-	/**
-	 * If we're not currently looking at ALL requested
-	 * messages, then display the selector bar
-	 */
-	if (is_bbview) {
-		/** begin bbview scroller */
-
+	switch (WCC->wc_view) {
+	case VIEW_MAILBOX:
+	  DoTemplate(HKEY("mailsummary_json"),NULL,NULL, CTX_MAILSUM);
+	  break;
+	case VIEW_BBS:
+		if (displayed_msgs != NULL) {
+			/** if we do a split bbview in the future, begin messages div here */
+			
+			for (a=0; a<num_displayed; ++a) {
+				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
+			}
+			
+			/** if we do a split bbview in the future, end messages div here */
+			
+			free(displayed_msgs);
+			displayed_msgs = NULL;
+		}
 		DoTemplate(HKEY("msg_listselector_bottom"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 
 		FreeStrBuf(&BBViewToolBar);
 		FreeStrBuf(&MessageDropdown);
 	}
+
 	
 DONE:
-	if (is_tasks) {
-		do_tasks_view();	/** Render the task list */
-	}
-
-	if (is_calendar) {
+	switch (WCC->wc_view) {
+	case VIEW_WIKI:
+		break;
+	case VIEW_CALBRIEF:
+	case VIEW_CALENDAR:
 		render_calendar_view(&calv);
-	}
-
-	if (is_addressbook) {
+		break;
+	case VIEW_TASKS:
+		do_tasks_view();	/** Render the task list */
+		break;
+	case VIEW_NOTES:
+		break;
+	case VIEW_ADDRESSBOOK:
 		do_addrbook_view(addrbook, num_ab);	/** Render the address book */
+		break;
+	case VIEW_MAILBOX: 
+	case VIEW_BBS:
+	default:
+		break;
 	}
-
 	/** Note: wDumpContent() will output one additional </div> tag. */
+	if (WCC->wc_view != VIEW_MAILBOX) {
+	  // We ought to move this out into template
 	wprintf("</div>\n");		/** end of 'content' div */
 	wDumpContent(1);
-
+	} else {
+	  end_burst();
+	}
 	/** free the summary */
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
@@ -1083,7 +1108,7 @@ void post_message(void)
 		const StrBuf *Bcc = NULL;
 		const StrBuf *Wikipage = NULL;
 		const StrBuf *my_email_addr = NULL;
-		StrBuf *CmdBuf = NULL;;
+		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
 
 		if (havebstr("references"))
@@ -1193,12 +1218,10 @@ void display_enter(void)
 	char buf[SIZ];
 	long now;
 	const StrBuf *display_name = NULL;
-	/////wc_attachment *att;
 	int recipient_required = 0;
 	int subject_required = 0;
 	int recipient_bad = 0;
 	int is_anonymous = 0;
-
       	wcsession *WCC = WC;
 
 	now = time(NULL);
@@ -1268,7 +1291,7 @@ void display_enter(void)
 		const StrBuf *Cc = NULL;
 		const StrBuf *Bcc = NULL;
 		const StrBuf *Wikipage = NULL;
-		StrBuf *CmdBuf = NULL;;
+		StrBuf *CmdBuf = NULL;
 		const char CMD[] = "ENT0 0|%s|%d|0||%s||%s|%s|%s";
 		
 		Recp = sbstr("recp");
@@ -1304,7 +1327,7 @@ void display_enter(void)
 			}
 		}
 		else if (buf[0] != '2') {	/** Any other error means that we cannot continue */
-			wprintf("<em>%s</em><br />\n", &buf[4]);/// -> important message
+			wprintf("<em>%s</em><br />\n", &buf[4]);/*TODO -> important message */
 			return;
 		}
 	}
@@ -1535,7 +1558,7 @@ void MimeLoadData(wc_mime_attachment *Mime)
 {
 	char buf[SIZ];
 	off_t bytes;
-//// TODO: is there a chance the contenttype is different  to the one we know?	
+/* TODO: is there a chance the contenttype is different  to the one we know?	 */
 	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '6') {
@@ -1548,7 +1571,7 @@ void MimeLoadData(wc_mime_attachment *Mime)
 	}
 	else {
 		FlushStrBuf(Mime->Data);
-		/// TODO XImportant message
+		/* TODO XImportant message */
 	}
 }
 
@@ -1579,28 +1602,20 @@ void download_postpart(void) {
 		 1);
 }
 
-
-
 void h_readnew(void) { readloop(readnew);}
 void h_readold(void) { readloop(readold);}
 void h_readfwd(void) { readloop(readfwd);}
 void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
 
-void jsonMessageList(void) {
-  char * room = bstr("room");
-  gotoroom(room); // force goto just to be sure
-  // Send as our own (application/json) content type
-  load_msg_ptrs("MSGS ALL|||1", 1);
-  getseen();
+void jsonMessageListHdr(void) {
+  // TODO: make a generic function
   hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: application/json; charset=utf-8\r\n");
   hprintf("Server: %s / %s\r\n", PACKAGE_STRING, serv_info.serv_software);
   hprintf("Connection: close\r\n");
   hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
   begin_burst();
-  DoTemplate(HKEY("mailsummary_json"),NULL,NULL, CTX_MAILSUM);
-  end_burst(); 
 }
 // Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :)
 void new_summary_view(void) {
@@ -1610,33 +1625,13 @@ void new_summary_view(void) {
   DoTemplate(HKEY("trailing"),NULL,NULL,CTX_NONE);
   end_burst();
 }
-void getseen(void) {
-  char old_msgs[SIZ];
-  char buf[SIZ];
-  HashPos *at;
-  long HKLen;
-  struct wcsession *WCC = WC;
-  message_summary *Msg;
-  const char *HashKey;
-	void *vMsg;
-	strcpy(old_msgs, "");
-	serv_puts("GTSN");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		strcpy(old_msgs, &buf[4]);
-	}
-	at = GetNewHashPos(WCC->summ, 0);
-	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
-		/** Are you a new message, or an old message? */
-		Msg = (message_summary*) vMsg;
-		if (is_msg_in_mset(old_msgs, Msg->msgnum)) {
-			Msg->is_new = 0;
-		}
-		else {
-			Msg->is_new = 1;
-		}
-	}
-	DeleteHashPos(&at);
+/** Output message list in JSON-format */
+void jsonMessageList(void) {
+  char * room = bstr("room");
+  gotoroom(room);
+  WC->is_ajax = 1; 
+  readloop(readnew);
+  WC->is_ajax = 0;
 }
 
 void 
@@ -1660,6 +1655,7 @@ InitModule_MSG
 
 	// json
 	WebcitAddUrlHandler(HKEY("roommsgs"), jsonMessageList,0);
+
 	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("postpart"), view_postpart, NEED_URL);

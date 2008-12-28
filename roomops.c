@@ -516,7 +516,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	svcallback("START", offer_start_page); 
  
 	do_template("roombanner", NULL);
-	// roombanner contains this for mobile
+	/* roombanner contains this for mobile */
 	if (navbar_style != navbar_none && !WC->is_mobile) { 
 
 		wprintf("<div id=\"navbar\"><ul>");
@@ -1945,7 +1945,7 @@ void display_editroom(void)
 
 				wprintf("<td>%s</td>", extract_int(buf, 4) ? _("Yes") : _("No"));
 
-				wprintf("<td>%ld</td>", extract_long(buf, 5));	// Fetching interval
+				wprintf("<td>%ld</td>", extract_long(buf, 5));	/* Fetching interval */
 			
 				wprintf("<td class=\"button_link\">");
 				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
@@ -2817,7 +2817,7 @@ void netedit(void) {
 	char cmpb0[SIZ];
 	char cmpb1[SIZ];
 	int i, num_addrs;
-	// TODO: do line dynamic!
+	/*/ TODO: do line dynamic! */
 	if (havebstr("line_pop3host")) {
 		strcpy(line, bstr("prefix"));
 		strcat(line, bstr("line_pop3host"));
@@ -3418,8 +3418,8 @@ void list_all_rooms_by_floor(const char *viewpref) {
 		floor_mapping[fold[i].floor]=i;
 	
 	/** refresh the messages index for this room */
-//	serv_puts("GOTO ");
-//	while (serv_getln(buf, sizeof buf), strcmp(buf, "000"));
+/* TODO	serv_puts("GOTO ");
+   while (serv_getln(buf, sizeof buf), strcmp(buf, "000")); */
 	/** Now add rooms */
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
@@ -3921,13 +3921,13 @@ InitModule_ROOMOPS
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, 0);
 
 	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
-	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, 0);
-	WebcitAddUrlHandler(HKEY("skip"), gotonext, 0);
-	WebcitAddUrlHandler(HKEY("ungoto"), ungoto, 0);
-	WebcitAddUrlHandler(HKEY("dotgoto"), dotgoto, 0);
-	WebcitAddUrlHandler(HKEY("dotskip"), dotskip, 0);
+	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, NEED_URL);
+	WebcitAddUrlHandler(HKEY("skip"), gotonext, NEED_URL);
+	WebcitAddUrlHandler(HKEY("ungoto"), ungoto, NEED_URL);
+	WebcitAddUrlHandler(HKEY("dotgoto"), dotgoto, NEED_URL);
+	WebcitAddUrlHandler(HKEY("dotskip"), dotskip, NEED_URL);
 	WebcitAddUrlHandler(HKEY("display_private"), _display_private, 0);
-	WebcitAddUrlHandler(HKEY("goto_private"), goto_private, 0);
+	WebcitAddUrlHandler(HKEY("goto_private"), goto_private, NEED_URL);
 	WebcitAddUrlHandler(HKEY("zapped_list"), zapped_list, 0);
 	WebcitAddUrlHandler(HKEY("display_zap"), display_zap, 0);
 	WebcitAddUrlHandler(HKEY("zap"), zap, 0);

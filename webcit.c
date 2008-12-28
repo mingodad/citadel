@@ -558,7 +558,7 @@ int is_mobile_ua(char *user_agent) {
       } else if (strstr(user_agent, "Opera Mobi") != NULL) {
 	return 1;
       } else if (strstr(user_agent, "Firefox/2.0.0 Opera 9.51 Beta") != NULL) {
-		 // For some reason a new install of Opera 9.51beta decided to spoof.
+	      /*  For some reason a new install of Opera 9.51beta decided to spoof. */
 	  return 1;
 	  }
       return 0;
@@ -634,7 +634,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		index[a] = arg[a-1];
 		sizes[a] = sizeof arg[a-1];
 	}
-////	index[9] = &foo; todo
+/*///	index[9] = &foo; todo */
 	nBackDots = 0;
 	nEmpty = 0;
 	for ( a = 0; a < 9; ++a)
@@ -867,7 +867,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			}
 		}
 	}
-////////todo: restore language in this case
+/*///////todo: restore language in this case */
 	/*
 	 * Functions which can be performed without logging in
 	 */
@@ -1038,23 +1038,6 @@ void sleeeeeeeeeep(int seconds)
 	select(0, NULL, NULL, NULL, &tv);
 }
 
-void diagnostics(void)
-{
-	output_headers(1, 1, 1, 0, 0, 0);
-	wprintf("Session: %d<hr />\n", WC->wc_session);
-	wprintf("Command: <br /><PRE>\n");
-	StrEscPuts(WC->UrlFragment1);
-	wprintf("<br />\n");
-	StrEscPuts(WC->UrlFragment2);
-	wprintf("<br />\n");
-	StrEscPuts(WC->UrlFragment3);
-	wprintf("</PRE><hr />\n");
-	wprintf("Variables: <br /><PRE>\n");
-	dump_vars();
-	wprintf("</PRE><hr />\n");
-	wDumpContent(1);
-}
-
 
 int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
@@ -1079,27 +1062,6 @@ void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	}
 }
 
-int ConditionalBstr(WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	if(Tokens->nParameters == 3)
-		return HaveBstr(Tokens->Params[2]->Start, 
-				Tokens->Params[2]->len);
-	else
-		return strcmp(Bstr(Tokens->Params[2]->Start, 
-				   Tokens->Params[2]->len),
-			      Tokens->Params[3]->Start) == 0;
-}
-
-void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	const StrBuf *Buf = SBstr(Tokens->Params[0]->Start, 
-			    Tokens->Params[0]->len);
-	if (Buf != NULL)
-		StrBufAppendTemplate(Target, nArgs, Tokens, 
-				     Context, ContextType,
-				     Buf, 1);
-}
-
 void tmplput_trailing_javascript(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
 {
 	wcsession *WCC = WC;
@@ -1116,24 +1078,6 @@ void tmplput_csslocal(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 			csslocal, 0);
 }
 
-void tmplput_url_part(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrBuf *UrlBuf;
-	wcsession *WCC = WC;
-	
-	if (WCC != NULL) {
-		if (Tokens->Params[0]->lvalue == 0)
-			UrlBuf = WCC->UrlFragment1;
-		else if (Tokens->Params[0]->lvalue == 1)
-			UrlBuf = WCC->UrlFragment2;
-		else
-			UrlBuf = WCC->UrlFragment3;
-
-		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
-				     UrlBuf, 1);
-	}
-}
-
 
 
 
@@ -1145,12 +1089,8 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX);
 	WebcitAddUrlHandler(HKEY("ajax_servcmd"), ajax_servcmd, 0);
-	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
 
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
-	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
-	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, CTX_NONE);
-	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, CTX_NONE);
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
