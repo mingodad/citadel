@@ -316,7 +316,8 @@ void ical_send_a_reply(icalcomponent *request, char *action) {
 
 /*
  * Callback function for mime parser that hunts for calendar content types
- * and turns them into calendar objects
+ * and turns them into calendar objects.  If something is found, it is placed
+ * in ird->cal, and the caller now owns that memory and is responsible for freeing it.
  */
 void ical_locate_part(char *name, char *filename, char *partnum, char *disp,
 		void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
@@ -1229,12 +1230,12 @@ void ical_conflicts(long msgnum, char *partnum) {
 void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalcomponent *cal) {
 	icalproperty *p;
 	icalvalue *v;
-	struct icalperiodtype my_period;
+	struct icalperiodtype this_event_period;
 
 	if (!top_level_cal) return;
 	if (!cal) cal = top_level_cal;
 
-	my_period = icalperiodtype_null_period();
+	this_event_period = icalperiodtype_null_period();
 
 	/* Convert all time zones to UTC (FIXME this won't work with recurring events) */
 	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
@@ -1267,17 +1268,17 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalc
 	/* Convert the DTSTART and DTEND properties to an icalperiod. */
 	p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
-		my_period.start = icalproperty_get_dtstart(p);
+		this_event_period.start = icalproperty_get_dtstart(p);
 	}
 
 	p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
 	if (p != NULL) {
-		my_period.end = icalproperty_get_dtstart(p);
+		this_event_period.end = icalproperty_get_dtstart(p);
 	}
 
 	/* Now add it. */
 	icalcomponent_add_property(fb,
-		icalproperty_new_freebusy(my_period)
+		icalproperty_new_freebusy(this_event_period)
 	);
 
 	/* Make sure the DTSTART property of the freebusy *list* is set to
@@ -1329,11 +1330,11 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalc
  *
  */
 void ical_freebusy_backend(long msgnum, void *data) {
-	icalcomponent *cal;
+	icalcomponent *fb;
 	struct CtdlMessage *msg = NULL;
 	struct ical_respond_data ird;
 
-	cal = (icalcomponent *)data;
+	fb = (icalcomponent *)data;		/* User-supplied data will be the VFREEBUSY component */
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
@@ -1348,12 +1349,10 @@ void ical_freebusy_backend(long msgnum, void *data) {
 	);
 	CtdlFreeMessage(msg);
 
-	if (ird.cal == NULL) return;
-
-	ical_add_to_freebusy(cal, ird.cal, NULL);
-
-	/* Now free the memory. */
-	icalcomponent_free(ird.cal);
+	if (ird.cal) {
+		ical_add_to_freebusy(fb, ird.cal, NULL);	/* Add VEVENT times to VFREEBUSY */
+		icalcomponent_free(ird.cal);
+	}
 }
 
 
