@@ -1225,20 +1225,18 @@ void ical_conflicts(long msgnum, char *partnum) {
  *
  * fb			The VFREEBUSY component to which we are appending
  * top_level_cal	The top-level VCALENDAR component which contains VEVENT to be added
- * cal			Caller supplies NULL, but we then use this variable for recursion
+ * cal			Initially set to the same as top_level_cal by the caller, but then we recurse
  */
 void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalcomponent *cal) {
 	icalproperty *p;
 	icalvalue *v;
-	struct icalperiodtype this_event_period;
+	struct icalperiodtype this_event_period = icalperiodtype_null_period();
 
 	if (!top_level_cal) return;
-	if (!cal) cal = top_level_cal;
-
-	this_event_period = icalperiodtype_null_period();
+	if (!cal) return;
 
 	/* Convert all time zones to UTC (FIXME this won't work with recurring events) */
-	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
+	if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
 		ical_dezonify(cal);
 	}
 
@@ -1277,25 +1275,18 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalc
 	}
 
 	/* Now add it. */
-	icalcomponent_add_property(fb,
-		icalproperty_new_freebusy(this_event_period)
-	);
+	icalcomponent_add_property(fb, icalproperty_new_freebusy(this_event_period));
 
 	/* Make sure the DTSTART property of the freebusy *list* is set to
 	 * the DTSTART property of the *earliest event*.
 	 */
 	p = icalcomponent_get_first_property(fb, ICAL_DTSTART_PROPERTY);
 	if (p == NULL) {
-		icalcomponent_set_dtstart(fb,
-			icalcomponent_get_dtstart(cal) );
+		icalcomponent_set_dtstart(fb, icalcomponent_get_dtstart(cal));
 	}
 	else {
-		if (icaltime_compare(
-			icalcomponent_get_dtstart(cal),
-			icalcomponent_get_dtstart(fb)
-		   ) < 0) {
-			icalcomponent_set_dtstart(fb,
-				icalcomponent_get_dtstart(cal) );
+		if (icaltime_compare(icalcomponent_get_dtstart(cal), icalcomponent_get_dtstart(fb)) < 0) {
+			icalcomponent_set_dtstart(fb, icalcomponent_get_dtstart(cal));
 		}
 	}
 
@@ -1304,19 +1295,13 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalc
 	 */
 	p = icalcomponent_get_first_property(fb, ICAL_DTEND_PROPERTY);
 	if (p == NULL) {
-		icalcomponent_set_dtend(fb,
-			icalcomponent_get_dtend(cal) );
+		icalcomponent_set_dtend(fb, icalcomponent_get_dtend(cal));
 	}
 	else {
-		if (icaltime_compare(
-			icalcomponent_get_dtend(cal),
-			icalcomponent_get_dtend(fb)
-		   ) > 0) {
-			icalcomponent_set_dtend(fb,
-				icalcomponent_get_dtend(cal) );
+		if (icaltime_compare(icalcomponent_get_dtend(cal), icalcomponent_get_dtend(fb)) > 0) {
+			icalcomponent_set_dtend(fb, icalcomponent_get_dtend(cal));
 		}
 	}
-
 }
 
 
@@ -1350,7 +1335,9 @@ void ical_freebusy_backend(long msgnum, void *data) {
 	CtdlFreeMessage(msg);
 
 	if (ird.cal) {
-		ical_add_to_freebusy(fb, ird.cal, NULL);	/* Add VEVENT times to VFREEBUSY */
+		CtdlLogPrintf(CTDL_DEBUG, "Adding event from msg #%ld...\n", msgnum);
+		ical_add_to_freebusy(fb, ird.cal, ird.cal);	/* Add VEVENT times to VFREEBUSY */
+		CtdlLogPrintf(CTDL_DEBUG, "...done.\n");
 		icalcomponent_free(ird.cal);
 	}
 }
