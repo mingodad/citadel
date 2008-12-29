@@ -367,7 +367,7 @@ InitModule_DOWNLOAD
 {
 
 	RegisterIterator("ROOM:FILES", 0, NULL, LoadFileList,
-			 NULL,NULL, CTX_FILELIST, CTX_NONE, 
+			 NULL, DeleteHash, CTX_FILELIST, CTX_NONE, 
 			 IT_FLAG_DETECT_GROUPCHANGE);
 
 	RegisterSortFunc(HKEY("filemime"),
