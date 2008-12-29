@@ -1221,17 +1221,29 @@ void ical_conflicts(long msgnum, char *partnum) {
 
 /*
  * Look for busy time in a VEVENT and add it to the supplied VFREEBUSY.
+ *
+ * fb			The VFREEBUSY component to which we are appending
+ * top_level_cal	The top-level VCALENDAR component which contains VEVENT to be added
+ * cal			Caller supplies NULL, but we then use this variable for recursion
  */
-void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *cal) {
+void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalcomponent *cal) {
 	icalproperty *p;
 	icalvalue *v;
 	struct icalperiodtype my_period;
 
-	if (cal == NULL) return;
+	if (!top_level_cal) return;
+	if (!cal) cal = top_level_cal;
+
 	my_period = icalperiodtype_null_period();
 
+	/* Convert all time zones to UTC (FIXME this won't work with recurring events) */
+	if (icalcomponent_isa(cal) != ICAL_VCALENDAR_COMPONENT) {
+		ical_dezonify(cal);
+	}
+
+	/* Now boil it down to the VEVENT only (FIXME this won't work with recurring events) */
 	if (icalcomponent_isa(cal) != ICAL_VEVENT_COMPONENT) {
-		ical_add_to_freebusy(fb,
+		ical_add_to_freebusy(fb, top_level_cal,
 			icalcomponent_get_first_component(
 				cal, ICAL_VEVENT_COMPONENT
 			)
@@ -1338,7 +1350,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
 
 	if (ird.cal == NULL) return;
 
-	ical_add_to_freebusy(cal, ird.cal);
+	ical_add_to_freebusy(cal, ird.cal, NULL);
 
 	/* Now free the memory. */
 	icalcomponent_free(ird.cal);
