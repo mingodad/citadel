@@ -1224,31 +1224,19 @@ void ical_conflicts(long msgnum, char *partnum) {
  * Look for busy time in a VEVENT and add it to the supplied VFREEBUSY.
  *
  * fb			The VFREEBUSY component to which we are appending
- * top_level_cal	The top-level VCALENDAR component which contains VEVENT to be added
- * cal			Initially set to the same as top_level_cal by the caller, but then we recurse
+ * top_level_cal	The top-level VCALENDAR component which contains a VEVENT to be added
  */
-void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal, icalcomponent *cal) {
+void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
+	icalcomponent *cal;
 	icalproperty *p;
 	icalvalue *v;
 	struct icalperiodtype this_event_period = icalperiodtype_null_period();
 
 	if (!top_level_cal) return;
+
+	/* Find the VEVENT component containing an event */
+	cal = icalcomponent_get_first_component(top_level_cal, ICAL_VEVENT_COMPONENT);
 	if (!cal) return;
-
-	/* Convert all time zones to UTC (FIXME this won't work with recurring events) */
-	if (icalcomponent_isa(cal) == ICAL_VCALENDAR_COMPONENT) {
-		ical_dezonify(cal);
-	}
-
-	/* Now boil it down to the VEVENT only (FIXME this won't work with recurring events) */
-	if (icalcomponent_isa(cal) != ICAL_VEVENT_COMPONENT) {
-		ical_add_to_freebusy(fb, top_level_cal,
-			icalcomponent_get_first_component(
-				cal, ICAL_VEVENT_COMPONENT
-			)
-		);
-		return;
-	}
 
 	/* If this event is not opaque, the user isn't publishing it as
 	 * busy time, so don't bother doing anything else.
@@ -1335,9 +1323,7 @@ void ical_freebusy_backend(long msgnum, void *data) {
 	CtdlFreeMessage(msg);
 
 	if (ird.cal) {
-		CtdlLogPrintf(CTDL_DEBUG, "Adding event from msg #%ld...\n", msgnum);
-		ical_add_to_freebusy(fb, ird.cal, ird.cal);	/* Add VEVENT times to VFREEBUSY */
-		CtdlLogPrintf(CTDL_DEBUG, "...done.\n");
+		ical_add_to_freebusy(fb, ird.cal);		/* Add VEVENT times to VFREEBUSY */
 		icalcomponent_free(ird.cal);
 	}
 }
@@ -1495,7 +1481,7 @@ void ical_freebusy(char *who) {
 	serialized_request = icalcomponent_as_ical_string_r(encaps);
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 
-	cprintf("%d Here is the free/busy data:\n", LISTING_FOLLOWS);
+	cprintf("%d Free/busy for %s\n", LISTING_FOLLOWS, usbuf.fullname);
 	if (serialized_request != NULL) {
 		client_write(serialized_request, strlen(serialized_request));
 		free(serialized_request);
