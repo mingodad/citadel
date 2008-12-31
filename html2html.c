@@ -542,7 +542,7 @@ void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf)
 			   LB, QU, ChrPtr(WrkBuf), QU, QU, TARGET, 
 			   QU, RB, ChrPtr(WrkBuf), LB, RB);
 
-	TrailerLen = len - (end - start);
+	TrailerLen = StrLength(Source) - (end - ChrPtr(Source));
 	if (TrailerLen > 0)
 		StrBufAppendBufPlain(Target, end, TrailerLen, 0);
 }
