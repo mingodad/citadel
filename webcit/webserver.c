@@ -5,7 +5,7 @@
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
- * Copyright (c) 1996-2008 by the citadel.org developers.
+ * Copyright (c) 1996-2009 by the citadel.org developers.
  * This program is released under the terms of the GNU General Public License v3.
  *
  */
@@ -770,7 +770,7 @@ int main(int argc, char **argv)
 
 	/* Tell 'em who's in da house */
 	lprintf(1, PACKAGE_STRING "\n");
-	lprintf(1, "Copyright (C) 1996-2008 by the Citadel development team.\n"
+	lprintf(1, "Copyright (C) 1996-2009 by the Citadel development team.\n"
 		"This software is distributed under the terms of the "
 		"GNU General Public License.\n\n"
 	);

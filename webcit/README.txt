@@ -1,7 +1,7 @@
                         WEBCIT for the Citadel System
                                version 7.37
  
-   Copyright (C) 1996-2008 by the authors.  Portions written by:
+   Copyright (C) 1996-2009 by the authors.  Portions written by:
  
 	Art Cancro
 	Wilfried Goesgens
