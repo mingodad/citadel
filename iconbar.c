@@ -796,11 +796,7 @@ void tmplput_iconbar(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *C
 	wcsession *WCC = WC;
 	
 	if ((WCC != NULL) && (WCC->logged_in)) {
-		wprintf("<div id=\"iconbar\">");
-		do_selected_iconbar();
-		/** check for instant messages (these display in a new window) */
-		page_popup();
-		wprintf("</div>");
+	  DoTemplate(HKEY("iconbar"), NULL, NULL, CTX_NONE);
 	}
 }
 

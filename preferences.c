@@ -438,6 +438,7 @@ void set_preferences(void)
 	 set_preference("defaultfrom", NewStrBufDup(sbstr("defaultfrom")), 0);
 	 set_preference("defaultname", NewStrBufDup(sbstr("defaultname")), 0);
 	 set_preference("defaulthandle", NewStrBufDup(sbstr("defaulthandle")), 0);
+	 set_preference("mailbox", NewStrBufDup(sbstr("mailbox")), 0);
 
 
 	buf = NewStrBufPlain(bstr("signature"), -1);
@@ -473,8 +474,19 @@ void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
 	if (SettingStr != NULL) 
 		StrBufAppendBufPlain(Target, SettingStr, -1, 0);
 }
-
-
+void tmplput_CFG_RoomValue(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+  StrBuf *pref = get_ROOM_PREFS(Tokens->Params[0]->Start, 
+				Tokens->Params[0]->len);
+  if (pref != NULL) 
+    StrBufAppendBuf(Target, pref, 0);
+}
+int ConditionalHasRoomPreference(WCTemplateToken *Tokens, void *Context, int ContextType) {
+  if (get_ROOM_PREFS(Tokens->Params[0]->Start, Tokens->Params[0]->len) != NULL) 
+    return 1;
+  
+  return 0;
+}
 void CfgZoneTempl(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
 {
 	StrBuf *Zone = (StrBuf*) vContext;
@@ -501,7 +513,7 @@ int ConditionalPreference(WCTemplateToken *Tokens, void *Context, int ContextTyp
 		return (StrTol(Pref) == Tokens->Params[3]->lvalue);
 }
 
-int ConditionalHazePreference(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalHasPreference(WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	StrBuf *Pref;
 
@@ -609,19 +621,20 @@ InitModule_PREFERENCES
 	RegisterPreference("defaultfrom", _("Prefered Email Address"), PRF_STRING);
 	RegisterPreference("defaultname", _("Prefered Email Sendername"), PRF_STRING);
 	RegisterPreference("defaulthandle", _("Prefered Name for posting messages"), PRF_STRING);
-
-	
+	RegisterPreference("mailbox",_("Mailbox view mode"), PRF_STRING);
+	RegisterNamespace("PREF:ROOM:VALUE", 1, 2, tmplput_CFG_RoomValue,  CTX_NONE);
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
-	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE);
+	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE, IT_NOFLAG);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
-	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHazePreference, CTX_NONE);
+	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHasPreference, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:SET"), 4, ConditionalHasRoomPreference, CTX_NONE);
 	
 	RegisterIterator("PREF:VALID:EMAIL:ADDR", 0, NULL, 
-			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE);
+			 GetGVEAHash, NULL, DeleteGVEAHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("PREF:VALID:EMAIL:NAME", 0, NULL, 
-			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_STRBUF, CTX_NONE);
+			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 }
 /*@}*/

@@ -1,0 +1,21 @@
+<?!("COND:SUBST", 1, "ITERATE:ISGROUPCHANGE", 1)><?!("COND:BSTR", 2, "SortOrder", "filename")>
+<tr class="<?ITERATE:ODDEVEN>"><th colspan = 4><?FILE:NAME("U", 1)></th></tr>
+<?!("X", 2)><?!("X", 1)>
+
+<tr class="<?ITERATE:ODDEVEN>">
+<td>
+ <a href="download_file/<?FILE:NAME("U")>">
+  <img src="display_mime_icon?type=<?FILE:MIMETYPE>" border=0 align=middle>
+  <?FILE:NAME></a>
+</td>
+<td><?FILE:SIZE></td>
+<td><?FILE:MIMETYPE></td>
+<td><?FILE:COMMENT("X")></td>
+</tr>
+
+<?!("COND:SUBST", 2, "ITERATE:LASTN", 1)>
+</table>
+<??("COND:FILE:ISPIC", 3)>
+<div class="buttons"><a href="do_template?template=files_jspicview&frame=1"><?_("Slideshow")></a></div>
+<??("X", 3)>
+<?!("X", 2)>

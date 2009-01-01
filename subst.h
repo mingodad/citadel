@@ -85,10 +85,11 @@ typedef struct _wcsubst {
 #define CTX_USERLIST 8
 #define CTX_MAILSUM 9
 #define CTX_MIME_ATACH 10
+#define CTX_FILELIST 11
 #define CTX_STRBUF 12
 #define CTX_LONGVECTOR 13
-#define CTX_FLOORS 14
-#define CTX_ROOMS 15
+#define CTX_ROOMS 14
+#define CTX_FLOORS 15
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
@@ -121,8 +122,13 @@ void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 		      SubTemplFunc DoSubTempl,       /* call this function on each iteration for svput & friends */
 		      HashDestructorFunc Destructor, /* use this function to shut down the hash; NULL if its a reference */
 		      int ContextType,               /* which context do we provide to the subtemplate? */
-		      int XPectContextType);         /* which context do we expct to be called in? */
-#define RegisterIterator(a, b, c, d, e, f, g, h) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h)
+		      int XPectContextType,          /* which context do we expct to be called in? */
+		      int Flags);
+
+#define IT_NOFLAG 0
+#define IT_FLAG_DETECT_GROUPCHANGE (1<<0)
+
+#define RegisterIterator(a, b, c, d, e, f, g, h, i) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h, i)
 
 void GetTemplateTokenString(WCTemplateToken *Tokens,
 			    int N, 
@@ -161,6 +167,7 @@ void RegisterSortFunc(const char *name, long len,
 		      const char *prepend, long preplen,
 		      CompareFunc Forward, 
 		      CompareFunc Reverse, 
+		      CompareFunc GroupChange, 
 		      long ContextType);
 
 void dbg_print_longvector(long *LongVector);

@@ -1,0 +1,50 @@
+#button > li {
+    min-height: 32px;
+    background-repeat: no-repeat !important;
+    vertical-align: middle;
+}
+#button > li > a {
+    padding-top: 6px;
+    padding-left: 35px;
+    min-height: 25px; /* Makes all of the 'button' to be clickable */
+    height: 100%;
+}
+#ib_summary {
+    background-image: url("/static/summscreen_32x.gif");
+}
+#ib_inbox {
+    background-image: url("/static/privatemess_32x.gif");
+}
+#ib_calendar {
+    background-image: url("/static/calarea_32x.gif");
+}
+#ib_contacts {
+    background-image: url("/static/viewcontacts_32x.gif");
+}
+#ib_notes {
+    background-image: url("/static/storenotes_32x.gif");
+}
+#ib_tasks {
+    background-image: url("/static/taskmanag_32x.gif");
+}
+#ib_rooms {
+    background-image: url("/static/chatrooms_32x.gif");
+}
+#ib_users {
+    background-image: url("/static/usermanag_32x.gif");
+}
+#ib_chat {
+    background-image: url("/static/citadelchat_32x.gif");
+}
+#ib_advanced, #ib_admin {
+    background-image: url("/static/advanpage2_32x.gif");
+}
+#ib_aide {
+    background-image: url("/static/advanpage2_32x.gif");
+}
+#ib_logoff {
+    background-image: url("/static/logoff_32x.gif");
+}
+#citlogo {
+    display: block !important;
+}

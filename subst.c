@@ -59,6 +59,25 @@ typedef struct _HashHandler {
 void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere);
 int EvaluateConditional(StrBuf *Target, WCTemplateToken *Tokens, WCTemplate *pTmpl, void *Context, int Neg, int state, int ContextType);
 
+typedef struct _SortStruct {
+	StrBuf *Name;
+	StrBuf *PrefPrepend;
+	CompareFunc Forward;
+	CompareFunc Reverse;
+	CompareFunc GroupChange;
+
+	long ContextType;
+}SortStruct;
+
+void DestroySortStruct(void *vSort)
+{
+	SortStruct *Sort = (SortStruct*) vSort;
+	FreeStrBuf(&Sort->Name);
+	FreeStrBuf(&Sort->PrefPrepend);
+	free (Sort);
+}
+
+
 void RegisterNS(const char *NSName, 
 		long len, 
 		int nMinArgs, 
@@ -671,6 +690,9 @@ void StrBufAppendTemplate(StrBuf *Target,
 	case 'X':
 		StrEscAppend(Target, Source, NULL, 0, 0);
 		break;
+	case 'J':
+	  StrECMAEscAppend(Target, Source, NULL);
+	  break;
 	default:
 		StrBufAppendBuf(Target, Source, 0);
 	}
@@ -1453,6 +1475,7 @@ typedef struct _HashIterator {
 	int AdditionalParams;
 	int ContextType;
 	int XPectContextType;
+	int Flags;
 	RetrieveHashlistFunc GetHash;
 	HashDestructorFunc Destructor;
 	SubTemplFunc DoSubTemplate;
@@ -1465,7 +1488,8 @@ void RegisterITERATOR(const char *Name, long len,
 		      SubTemplFunc DoSubTempl,
 		      HashDestructorFunc Destructor,
 		      int ContextType, 
-		      int XPectContextType)
+		      int XPectContextType, 
+		      int Flags)
 {
 	HashIterator *It = (HashIterator*)malloc(sizeof(HashIterator));
 	It->StaticList = StaticList;
@@ -1475,6 +1499,7 @@ void RegisterITERATOR(const char *Name, long len,
 	It->Destructor = Destructor;
 	It->ContextType = ContextType;
 	It->XPectContextType = XPectContextType;
+	It->Flags = Flags;
 	Put(Iterators, Name, len, It, NULL);
 }
 
@@ -1484,11 +1509,15 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	HashIterator *It;
 	HashList *List;
 	HashPos  *it;
+	SortStruct *SortBy;
+	void *vSortBy;
+	int DetectGroupChange = 0;
 	int nMembersUsed;
 	int nMembersCounted = 0;
 	long len; 
 	const char *Key;
 	void *vContext;
+	void *vLastContext;
 	StrBuf *SubBuf;
 	int oddeven = 0;
 	
@@ -1564,10 +1593,35 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 	else
 		List = It->StaticList;
 
+	DetectGroupChange = (It->Flags & IT_FLAG_DETECT_GROUPCHANGE) != 0;
+	if (DetectGroupChange) {
+		const StrBuf *BSort;
+		DetectGroupChange = 0;
+		if (havebstr("SortBy")) {
+			BSort = sbstr("SortBy");
+			if (GetHash(SortHash, SKEY(BSort), &vSortBy) &&
+			    (vSortBy != NULL)) {
+				SortBy = (SortStruct*)vSortBy;
+				/** Ok, its us, lets see in which direction we should sort... */
+				if (havebstr("SortOrder")) {
+					int SortOrder;
+					SortOrder = LBSTR("SortOrder");
+					if (SortOrder != 0)
+						DetectGroupChange = 1;
+				}
+			}
+		}
+	}
 	nMembersUsed = GetCount(List);
 	SubBuf = NewStrBuf();
 	it = GetNewHashPos(List, 0);
 	while (GetNextHashPos(List, it, &len, &Key, &vContext)) {
+		if (DetectGroupChange && nMembersCounted > 0) {
+			if (SortBy->GroupChange(vContext, vLastContext))
+				svputlong("ITERATE:ISGROUPCHANGE", 1);			
+			else
+				svputlong("ITERATE:ISGROUPCHANGE", 0);
+		}
 		svprintf(HKEY("ITERATE:ODDEVEN"), WCS_STRING, "%s", 
 			 (oddeven) ? "odd" : "even");
 		svprintf(HKEY("ITERATE:KEY"), WCS_STRING, "%s", Key);
@@ -1584,6 +1638,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, vo
 		StrBufAppendBuf(Target, SubBuf, 0);
 		FlushStrBuf(SubBuf);
 		oddeven = ~ oddeven;
+		vLastContext = vContext;
 	}
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);
@@ -1789,27 +1844,12 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
  *                      Sorting-API
  */
 
-typedef struct _SortStruct {
-	StrBuf *Name;
-	StrBuf *PrefPrepend;
-	CompareFunc Forward;
-	CompareFunc Reverse;
-
-	long ContextType;
-}SortStruct;
-
-void DestroySortStruct(void *vSort)
-{
-	SortStruct *Sort = (SortStruct*) vSort;
-	FreeStrBuf(&Sort->Name);
-	FreeStrBuf(&Sort->PrefPrepend);
-	free (Sort);
-}
 
 void RegisterSortFunc(const char *name, long len, 
 		      const char *prepend, long preplen,
 		      CompareFunc Forward, 
 		      CompareFunc Reverse, 
+		      CompareFunc GroupChange, 
 		      long ContextType)
 {
 	SortStruct *NewSort = (SortStruct*) malloc(sizeof(SortStruct));
@@ -1820,6 +1860,7 @@ void RegisterSortFunc(const char *name, long len,
 		NewSort->PrefPrepend = NULL;
 	NewSort->Forward = Forward;
 	NewSort->Reverse = Reverse;
+	NewSort->GroupChange = GroupChange;
 	NewSort->ContextType = ContextType;
 	Put(SortHash, name, len, NewSort, DestroySortStruct);
 }

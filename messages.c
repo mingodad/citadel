@@ -398,8 +398,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	int skipit;
 
 	if (WCC->summ != NULL) {
-		if (WCC->summ != NULL)
-			DeleteHash(&WCC->summ);
+		DeleteHash(&WCC->summ);
 	}
 	WCC->summ = NewHash(1, Flathash);
 	maxload = 10000;
@@ -626,6 +625,7 @@ void readloop(long oper)
 	StrBuf *BBViewToolBar = NULL;
 	void *vMsg;
 	message_summary *Msg;
+	message_summary *fMsg;
 	char cmd[256] = "";
 	char buf[SIZ];
 	int a = 0;
@@ -646,11 +646,17 @@ void readloop(long oper)
 	wcsession *WCC = WC;
 	HashPos *at;
 	const char *HashKey;
+	const char *fHashKey;
 	long HKLen;
 	int care_for_empty_list = 0;
 	int load_seen = 0;
 	int sortit = 0;
 	int defaultsortorder = 0;
+	
+	/* HashList *filtered;  A list of messages we want to display in mailbox
+			       safemode. Maybe it would be better to modify
+			       load_msg_ptrs so messages we don't want don't end
+			       up in summ? */
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
 		WCC->wc_view = VIEW_MAILBOX;
@@ -699,12 +705,17 @@ void readloop(long oper)
 		load_seen = 1;
 		care_for_empty_list = 0;
 		with_headers = 1;
-		if (WCC->is_mobile) maxmsgs = 20;
+		/* Generally using maxmsgs|startmsg is not required
+		   in mailbox view, but we have a 'safemode' for clients
+		   (*cough* Exploder) that simply can't handle too many */
+		if (havebstr("maxmsgs")) maxmsgs = ibstr("maxmsgs");
 		else maxmsgs = 9999999;
+		if (havebstr("startmsg")) startmsg = lbstr("startmsg");
 		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
 			 (oper == do_search) ? "SEARCH" : "ALL",
 			 (oper == do_search) ? bstr("query") : ""
 			);
+		//filtered = NewHash(1, Flathash);
 	  }
 		break;
 	case VIEW_BBS:
@@ -840,7 +851,8 @@ void readloop(long oper)
 					num_displayed++;
 				}
 			}
-		}
+		} 
+		i++;
 		i++;
 	}
 	DeleteHashPos(&at);
@@ -903,7 +915,11 @@ DONE:
 	} else {
 	  end_burst();
 	}
-	/** free the summary */
+	/** free the summary 
+	if (filtered != NULL) {
+	  DeleteHash(&filtered);
+	  } */
+
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
 	}

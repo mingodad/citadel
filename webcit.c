@@ -178,11 +178,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		}
 
 		if ( (WC->logged_in) && (!unset_cookies) ) {
-			wprintf("<div id=\"iconbar\">");
-			do_selected_iconbar();
-			/** check for instant messages (these display in a new window) */
-			page_popup();
-			wprintf("</div>");
+		  DoTemplate(HKEY("iconbar"), NULL, NULL, CTX_NONE);
 		}
 
 		if (do_room_banner == 1) {

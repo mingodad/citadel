@@ -16,6 +16,9 @@ var _switchToRoomList = "switch to room list";
 var _switchToMenu = "switch to menu";
 
 var currentDropTarget = null;
+
+var supportsAddEventListener = (!!document.addEventListener);
+var today = new Date();
 if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko"
@@ -119,7 +122,10 @@ function activate_entmsg_autocompleters() {
 }
 
 function setupIconBar() {
-  var switchSpan = document.getElementById("switch");
+  if (!document.getElementById("switch")) {
+      return;
+    }
+  var switchSpan = document.getElementById("switch").firstChild;
   if (switchSpan != null) {
     setTextContent(switchSpan, _switchToRoomList);
     switchSpan.ctdlSwitchIconBarTo = "rooms";
@@ -145,15 +151,14 @@ function switch_to_room_list() {
   } else {
     roomlist.className = roomlist.className.replace("hidden","");
   }
-  var summary = document.getElementById("summary");
+  var summary = document.getElementById("iconbar_menu");
   summary.className += " hidden";
 }
 
 function IconBarRoomList() {
   currentDropTargets = new Array();
   var iconbar = document.getElementById("iconbar");
-  roomlist = document.createElement("div");
-  roomlist.setAttribute("id", "roomlist");
+  roomlist = document.getElementById("roomlist");
   iconbar.appendChild(roomlist);
   var ul = document.createElement("ul");
   roomlist.appendChild(ul);
@@ -232,11 +237,15 @@ function addRoomToList(floorUL,room) {
 function roomListDropHandler(target, dropped) {
   if (dropped.ctdlMsgId) {
     var room = getTextContent(target);
-    var mvCommand = "g_cmd=MOVE " + dropped.ctdlMsgId + "|"+room+"|0";
+    var msgIds = "";
+    for(msgId in currentlyMarkedRows) { //defined in summaryview.js
+      msgIds += ","+msgId;
+    }
+    var mvCommand = "g_cmd=MOVE " + msgIds + "|"+room+"|0";
     new Ajax.Request('ajax_servcmd', {
       method: 'post',
 	  parameters: mvCommand,
-	  onComplete: clearMessage(dropped.ctdlMsgId)});
+	  onComplete: deleteAllMarkedRows()});
     } 
 }
 function expand_floor(event) {
@@ -257,8 +266,7 @@ function switch_to_menu_buttons() {
   if (roomlist != null) {
     roomlist.className += "hidden";
   }
-  var iconbar = document.getElementById("summary");
-  new Ajax.Updater('summary', 'iconbar_ajax_menu', { method: 'get' } );
+  var iconbar = document.getElementById("iconbar_menu");
   iconbar.className = iconbar.className.replace("hidden","");
 }
 
@@ -364,82 +372,6 @@ function CtdlClearDeletedMsg(msgnum) {
 
 
 }
-
-// These functions called when the user down-clicks on the message list resizer bar
-
-var saved_x = 0;
-var saved_y = 0;
-
-function CtdlResizeMsgListMouseUp(evt) {
-	document.onmouseup = null;
-	document.onmousemove = null;
-	if (document.layers) {
-		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
-	return true;
-}
-
-function CtdlResizeMsgListMouseMove(evt) {
-	y = (ns6 ? evt.clientY : event.clientY);
-	increment = y - saved_y;
-
-	// First move the bottom of the message list...
-	d = $('message_list');
-	if (d.offsetHeight){
-		divHeight = d.offsetHeight;
-	}
-	else if (d.style.pixelHeight) {
-		divHeight = d.style.pixelHeight;
-	}
-	d.style.height = (divHeight + increment) + 'px';
-
-	// Then move the top of the preview pane...
-	d = $('preview_pane');
-	if (d.offsetTop){
-		divTop = d.offsetTop;
-	}
-	else if (d.style.pixelTop) {
-		divTop = d.style.pixelTop;
-	}
-	d.style.top = (divTop + increment) + 'px';
-
-	// Resize the bottom of the preview pane...
-	d = $('preview_pane');
-	if (d.offsetHeight){
-		divHeight = d.offsetHeight;
-	}
-	else if (d.style.pixelHeight) {
-		divHeight = d.style.pixelHeight;
-	}
-	d.style.height = (divHeight - increment) + 'px';
-
-	// Then move the top of the slider bar.
-	d = $('resize_msglist');
-	if (d.offsetTop){
-		divTop = d.offsetTop;
-	}
-	else if (d.style.pixelTop) {
-		divTop = d.style.pixelTop;
-	}
-	d.style.top = (divTop + increment) + 'px';
-
-	saved_y = y;
-	return true;
-}
-
-function CtdlResizeMsgListMouseDown(evt) {
-	saved_y = (ns6 ? evt.clientY : event.clientY);
-	document.onmouseup = CtdlResizeMsgListMouseUp;
-	document.onmousemove = CtdlResizeMsgListMouseMove;
-	if (document.layers) {
-		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
-	return false;		// disable the default action
-}
-
-
-
-
 
 // These functions handle moving sticky notes around the screen by dragging them
 
@@ -663,116 +595,6 @@ function DeleteStickyNote(evt, uid, confirmation_prompt) {
 		);
 	}
 }
-
-// These functions handle drag and drop message moving
-
-var mm_div = null;
-
-function CtdlMoveMsgMouseDown(evt) {
-  var target = evt.target;
-  var targetId = target.parentNode.id;
-  var msgnum = parseInt(targetId.replace("m",""));
-	// do the highlight first
-	CtdlSingleClickMsg(evt, msgnum);
-
-	// Now handle the possibility of dragging
-	saved_x = (ns6 ? evt.clientX : event.clientX);
-	saved_y = (ns6 ? evt.clientY : event.clientY);
-	document.onmouseup = CtdlMoveMsgMouseUp;
-	document.onmousemove = CtdlMoveMsgMouseMove;
-	if (document.layers) {
-		document.captureEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
-
-	return false;
-}
-
-function CtdlMoveMsgMouseMove(evt) {
-	x = (ns6 ? evt.clientX : event.clientX);
-	y = (ns6 ? evt.clientY : event.clientY);
-
-	if ( (x == saved_x) && (y == saved_y) ) {
-		return true;
-	}
-
-	if (CtdlNumMsgsSelected < 1) { 
-		return true;
-	}
-
-	if (!mm_div) {
-
-
-		drag_o_text = "<div style=\"overflow:none; background-color:#fff; color:#000; border: 1px solid black; filter:alpha(opacity=75); -moz-opacity:.75; opacity:.75;\"><tr><td>";
-		for (i=0; i<CtdlNumMsgsSelected; ++i) {
-			drag_o_text = drag_o_text + 
-				ctdl_ts_getInnerText(
-					$('m'+CtdlMsgsSelected[i]).cells[0]
-				) + '<br>';
-		}
-		drag_o_text = drag_o_text + "<div>";
-
-		mm_div = document.createElement("DIV");
-		mm_div.style.position='absolute';
-		mm_div.style.top = y + 'px';
-		mm_div.style.left = x + 'px';
-		mm_div.style.pixelHeight = '300';
-		mm_div.style.pixelWidth = '300';
-		mm_div.innerHTML = drag_o_text;
-		document.body.appendChild(mm_div);
-	}
-	else {
-		mm_div.style.top = y + 'px';
-		mm_div.style.left = x + 'px';
-	}
-
-	return false;	// prevent the default mouse action from happening?
-}
-
-function CtdlMoveMsgMouseUp(evt) {
-	document.onmouseup = null;
-	document.onmousemove = null;
-	if (document.layers) {
-		document.releaseEvents(Event.MOUSEUP | Event.MOUSEMOVE);
-	}
-
-	if (mm_div) {
-		document.body.removeChild(mm_div);	
-		mm_div = null;
-	}
-
-	if (num_drop_targets < 1) {	// nowhere to drop
-		return true;
-	}
-
-	// Did we release the mouse button while hovering over a drop target?
-	// NOTE: this only works cross-browser because the iconbar div is always
-	//	positioned at 0,0.  Browsers differ in whether the 'offset'
-	//	functions return pos relative to the document or parent.
-
-	for (i=0; i<num_drop_targets; ++i) {
-
-		x = (ns6 ? evt.clientX : event.clientX);
-		y = (ns6 ? evt.clientY : event.clientY);
-
-		l = parseInt(drop_targets_elements[i].offsetLeft);
-		t = parseInt(drop_targets_elements[i].offsetTop);
-		r = parseInt(drop_targets_elements[i].offsetLeft)
-		  + parseInt(drop_targets_elements[i].offsetWidth);
-		b = parseInt(drop_targets_elements[i].offsetTop)
-		  + parseInt(drop_targets_elements[i].offsetHeight);
-
-		/* alert('Offsets are: ' + l + ' ' + t + ' ' + r + ' ' + b + '.'); */
-	
-		if ( (x >= l) && (x <= r) && (y >= t) && (y <= b) ) {
-			// Yes, we dropped it on a hotspot.
-			CtdlMoveSelectedMessages(evt, drop_targets_roomnames[i]);
-			return true;
-		}
-	}
-
-	return true;
-}
-
 
 function ctdl_ts_getInnerText(el) {
 	if (typeof el == "string") return el;

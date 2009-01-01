@@ -124,6 +124,17 @@ int summcmp_rsubj(const void *s1, const void *s2) {
 	summ2 = (message_summary *)GetSearchPayload(s2);
 	return strcasecmp(ChrPtr(summ2->subj), ChrPtr(summ1->subj));
 }
+/*
+ * comparator for message summary structs by descending subject.
+ */
+int groupchange_subj(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)s1;
+	summ2 = (message_summary *)s2;
+	return ChrPtr(summ2->subj)[0] != ChrPtr(summ1->subj)[0];
+}
 
 /*
  * qsort() compatible function to compare two message summary structs by ascending sender.
@@ -147,6 +158,18 @@ int summcmp_rsender(const void *s1, const void *s2) {
 	summ1 = (message_summary *)GetSearchPayload(s1);
 	summ2 = (message_summary *)GetSearchPayload(s2);
 	return strcasecmp(ChrPtr(summ2->from), ChrPtr(summ1->from));
+}
+/*
+ * comparator for message summary structs by descending sender.
+ */
+int groupchange_sender(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)s1;
+	summ2 = (message_summary *)s2;
+	return strcasecmp(ChrPtr(summ2->from), ChrPtr(summ1->from)) != 0;
+
 }
 
 /*
@@ -178,6 +201,21 @@ int summcmp_rdate(const void *s1, const void *s2) {
 	else if (summ1->date > summ2->date) return -1;
 	else return 0;
 }
+
+/*
+ * comparator for message summary structs by descending date.
+ */
+const long DAYSECONDS = 24 * 60 * 60;
+int groupchange_date(const void *s1, const void *s2) {
+	message_summary *summ1;
+	message_summary *summ2;
+	
+	summ1 = (message_summary *)s1;
+	summ2 = (message_summary *)s2;
+
+	return (summ1->date % DAYSECONDS) != (summ2->date %DAYSECONDS);
+}
+
 
 /*----------------------------------------------------------------------------*/
 /* Don't wanna know... or? */
@@ -367,7 +405,10 @@ void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, int nArgs, WCTemplateToken *Token
 
 HashList *iterate_get_mailsumm_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
-	return WC->summ;
+  if (Context != NULL) {
+    return Context;
+  } 
+  return WC->summ;
 }
 
 void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -1018,20 +1059,23 @@ InitModule_MSGRENDERERS
 			 NULL, 0,
 			 summcmp_date,
 			 summcmp_rdate,
+			 groupchange_date,
 			 CTX_MAILSUM);
 	RegisterSortFunc(HKEY("subject"), 
 			 NULL, 0,
 			 summcmp_subj,
 			 summcmp_rsubj,
+			 groupchange_subj,
 			 CTX_MAILSUM);
 	RegisterSortFunc(HKEY("sender"),
 			 NULL, 0,
 			 summcmp_sender,
 			 summcmp_rsender,
+			 groupchange_sender,
 			 CTX_MAILSUM);
 
 	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
-			 NULL,NULL, CTX_MAILSUM, CTX_NONE);
+			 NULL,NULL, CTX_MAILSUM, CTX_NONE, IT_NOFLAG);
 
 	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
@@ -1063,13 +1107,13 @@ InitModule_MSGRENDERERS
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH:ATT"), 0, Conditional_MAIL_MIME_ATTACH, CTX_MAILSUM);
 
 	RegisterIterator("MAIL:MIME:ATTACH", 0, NULL, iterate_get_mime_All, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:SUBMESSAGES", 0, NULL, iterate_get_mime_Submessages, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:LINKS", 0, NULL, iterate_get_mime_AttachLinks, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 	RegisterIterator("MAIL:MIME:ATTACH:ATT", 0, NULL, iterate_get_mime_Attachments, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_MAILSUM, IT_NOFLAG);
 
 	RegisterNamespace("MAIL:MIME:NAME", 0, 2, tmplput_MIME_Name, CTX_MIME_ATACH);
 	RegisterNamespace("MAIL:MIME:FILENAME", 0, 2, tmplput_MIME_FileName, CTX_MIME_ATACH);
@@ -1083,7 +1127,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:MIME:LOADDATA", 0, 0, tmplput_MIME_LoadData, CTX_MIME_ATACH);
 
 	RegisterIterator("MSG:ATTACHNAMES", 0, NULL, iterate_get_registered_Attachments, 
-			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE);
+			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE, IT_NOFLAG);
 
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard);

@@ -34,7 +34,7 @@ body {
 	font-weight: 400;
 }
 
-#iconbar, .boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul {
+#iconbar, .boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul, #summary_view {
 	background-color: #FFF;
 	color: #000;
 }
@@ -58,7 +58,7 @@ body {
 	text-transform: uppercase;
 }
 
-#iconbar ul li a, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
+#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
 	background-color: #F0FFFF;
 	color: #333;
 }
@@ -89,7 +89,7 @@ body {
 	border: none;
 }
 
-.logo,.logo_citadel, #button li.switch {
+.logo,.logo_citadel, #switch {
 	border: none;
 	border-bottom: 1px solid #AAA;
 }
@@ -110,6 +110,8 @@ body {
 
 #banner ul.room_actions li.start_page a, #navbar, .selector_top,.selector_bottom {
 	background-color: #022750;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
 	color: #FFF;
 }
 
@@ -147,7 +149,7 @@ body {
 #resize_msglist {
 	background-image: url(/static/resizegrippy.gif);
 	background-position: center;
-	background-repeat: no-repeat;
+	background-repeat: no-repeat; 
 }
 
 #resize_msglist hr {
@@ -439,7 +441,7 @@ a:link { color: blue; }
 
 a:visited { color: purple; }
 
-#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover {
+#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #wholist li a:hover, #navbar ul li a:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 }
@@ -538,22 +540,18 @@ body, #global {
 	height: 82%;
 	overflow: auto;
 }
-
+/* Please avoid setting heights for any of the mailbox view elements (except summary_view and resize). In particular, do NOT set any for message_list_hdr as its not good feng shui */
 #message_list_hdr {
-	position: absolute;
 	display: block;
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 5%;
-	overflow: hidden;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    background-color: #CCCCCC;
 }
 
 #summary_view {
-	position: absolute;
-	top: 5%;
-	left: 0;
-	width: 100%;
 	height: 20%;
 	overflow: auto;
 	cursor: pointer;
@@ -561,20 +559,13 @@ body, #global {
 #message_list_body {
     background-color: white !important;
 }
-#message_list_body > div {
-    display: block;
-    z-index: 699;
-}
 .col1 {
-    display: table-cell;
     width: 50%;
 }
 .col2 { 
-    display: table-cell;
     width: 30%;
 }
 .col3 {
-    display: table-cell;
     width: 20%;
 }
 .new_message {
@@ -584,22 +575,14 @@ body, #global {
     text-align: center;
 }
 #resize_msglist {
-	position: absolute;
-	top: 25%;
-	left: 0;
 	width: 100%;
-	height: 1%;
 	overflow: hidden;
 	cursor: s-resize;
+    height: 1%;
 }
 
 #preview_pane {
-	position: absolute;
-	top: 26%;
-	left: 0%;
-	width: 100%;
-	height: 74%;
-	overflow: auto;
+	overflow: auto; 
 }
 
 .fix_scrollbar_bug {
@@ -643,14 +626,13 @@ body, #global {
     background-color: white;
     border: 1px solid black;
 }
-#draghint { 
-    display: none;
-    background-color: white;
-    border: 1px solid black;
-}
-#draghint.draghint_visible {
-    display: block;
+.draganddrop {
     position: fixed;
+    display: block;
+    border: 1px solid black;
+    z-index: 65535;
+    background-color: white;
+    text-align: left;
 }
 .hidden {
     display: none;
@@ -705,46 +687,27 @@ body, #global {
 
 /* Iconbar */
 
-.logo, .logo_citadel, #iconbar #button, #button li.switch, #wholist {
+.logo, .logo_citadel, #iconbar #button, #switch, #wholist {
  	margin: 0;
  	padding: 0;
 }
 
-.logo, .logo_citadel, #button li.switch, #wholist li {
+.logo, #citlogo, #switch, #wholist li {
 	text-align: center;
-}
-
-.logo, .logo_citadel {
- 	display: block;
 }
 
 #iconbar #button {
 	width: 100%;
 }
 
-#button li {
+#button > li {
 	margin: 4px 8px 4px 8px;
 	padding: 0;
+    display: block;
 }
-
-
-
-#button img {
-	vertical-align: middle;
-	padding-left: 2px;
-	padding-right: 5px;
-	width: 32px;
-	height: 32px;
-	border: none;
-}
-
-#button li a {
-	display: block;
-	width: 100%;
-}
-
-html>body #button li a {
-	width: auto;
+#button > li > a {
+    width: 100%;
+    display: block;
 }
 
 #wholist {
@@ -917,12 +880,12 @@ html>body #button li a {
 }
 
 #message_list_hdr table {
-	position: absolute;
+/*	position: absolute;
 	bottom: 0; 
 	left: 0;
+    top: 0; */
 	width: 100%;	
 }
-
 .selector_top, .selector_bottom {
  	text-align: center;
 }
@@ -1065,10 +1028,6 @@ dt { clear: both; }
 	width: 98%
 }
 
-.mailbox_summary tr {
-	width: 100%;
-}
-
 .note {
 	font-size: 85%;
 	margin-left: 10%;
@@ -1085,7 +1044,9 @@ dt { clear: both; }
 .imsg {
 	text-align: center;
 }
-
+#summary_view > table {
+    width: 100%;
+}
 colgroup.entity {
 	text-align: center;
 }
@@ -1150,7 +1111,35 @@ div.auto_complete ul strong.highlight {
 	display: block;
 }
 
-
+#citlogo {
+    display: none; /* Overriden later */
+}
+.sort_ascending, .sort_descending {
+    background-repeat: no-repeat;
+    background-position: center right;
+}
+.sort_ascending {
+    background-image: url("/static/down_pointer.gif");
+}
+.sort_descending {
+    background-image: url("/static/up_pointer.gif");
+}
+#message_list_hdr > table {
+    border-collapse: collapse;
+}
+#message_list_hdr > table > tbody > tr > th {
+    border-left: 2px solid white;
+    border-right: 2px solid white;
+}
+#summary_view > table { 
+    border-collapse: collapse;
+}
+th.col1 {
+    border-left: none !important;
+}
+th.col3 {
+    border-right: none !important;
+}
 /* System Administration Menu */
 
 ul.adminitems {

@@ -496,7 +496,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		if (buf2[0] == '1') while (serv_getln(buf2, sizeof buf2), strcmp(buf2, "000"))
 			file_count++;
 		snprintf (with_files, sizeof with_files, 
-			  "; <a href=\"display_room_directory\"> %d %s </a>", 
+			  "; <a href=\"do_template?template=files\"> %d %s </a>", 
 			  file_count, 
 			  ((file_count>1) || (file_count == 0)  ? _("files") : _("file")));
 	}
@@ -608,12 +608,12 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_MAILBOX:
 					wprintf(
 						"<li class=\"readallmess\">"
-						"<a href=\"readfwd\">"
+						"<a id=\"m_refresh\" href=\"readfwd\">"
 						"<img src=\"static/readallmess3_24x.gif\" "
 						"alt=\"\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></li>\n", _("View message list")
+						"</span></a></li>\n", _("Refresh message list")
 					);
 					break;
 				case VIEW_WIKI:
@@ -3966,8 +3966,8 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
 	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, 0);
-	RegisterIterator("FLOORS", 0, NULL, GetFloorListHash, FloorSubst, NULL, CTX_FLOORS, CTX_NONE);
-	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, RoomSubst, NULL, CTX_ROOMS, CTX_NONE);
+	RegisterIterator("FLOORS", 0, NULL, GetFloorListHash, FloorSubst, NULL, CTX_FLOORS, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, RoomSubst, NULL, CTX_ROOMS, CTX_NONE, IT_NOFLAG);
 }
 
 /*@}*/

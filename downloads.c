@@ -4,19 +4,57 @@
 #include "webcit.h"
 #include "webserver.h"
 
+extern char* static_dirs[];
+
 typedef struct _FileListStruct {
-	char Filename[256];
-	int FilenameLen;
+	StrBuf *Filename;
 	long FileSize;
-	char MimeType[64];
-	int MimeTypeLen;
-	char Comment[512];
-	int CommentLen;
+	StrBuf *MimeType;
+	StrBuf *Comment;
 	int IsPic;
 	int Sequence;
-}FileListStruct;
+} FileListStruct;
 
+void FreeFiles(void *vFile)
+{
+	FileListStruct *F = (FileListStruct*) vFile;
+	FreeStrBuf(&F->Filename);
+	FreeStrBuf(&F->MimeType);
+	FreeStrBuf(&F->Comment);
+	free(F);
+}
 
+/* -------------------------------------------------------------------------------- */
+void tmplput_FILE_NAME(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	FileListStruct *F = (FileListStruct*) Context;
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, F->Filename, 0);
+}
+void tmplput_FILE_SIZE(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	FileListStruct *F = (FileListStruct*) Context;
+	StrBufAppendPrintf(Target, "%ld", F->FileSize);
+}
+void tmplput_FILEMIMETYPE(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	FileListStruct *F = (FileListStruct*) Context;
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, F->MimeType, 0);
+}
+void tmplput_FILE_COMMENT(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	FileListStruct *F = (FileListStruct*) Context;
+	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, F->Comment, 0);
+}
+
+/* -------------------------------------------------------------------------------- */
+
+int Conditional_FILE_ISPIC(WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	FileListStruct *F = (FileListStruct*) Context;
+	return F->IsPic;
+}
+
+/* -------------------------------------------------------------------------------- */
 int CompareFilelistByMime(const void *vFile1, const void *vFile2)
 {
 	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
@@ -24,7 +62,7 @@ int CompareFilelistByMime(const void *vFile1, const void *vFile2)
 
 	if (File1->IsPic != File2->IsPic)
 		return File1->IsPic > File2->IsPic;
-	return strcasecmp(File1->MimeType, File2->MimeType);
+	return strcasecmp(ChrPtr(File1->MimeType), ChrPtr(File2->MimeType));
 }
 int CompareFilelistByMimeRev(const void *vFile1, const void *vFile2)
 {
@@ -32,8 +70,44 @@ int CompareFilelistByMimeRev(const void *vFile1, const void *vFile2)
 	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	if (File1->IsPic != File2->IsPic)
 		return File1->IsPic < File2->IsPic;
-	return strcasecmp(File2->MimeType, File1->MimeType);
+	return strcasecmp(ChrPtr(File2->MimeType), ChrPtr(File1->MimeType));
 }
+int GroupchangeFilelistByMime(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+
+	if (File1->IsPic != File2->IsPic)
+		return File1->IsPic > File2->IsPic;
+	return strcasecmp(ChrPtr(File1->MimeType), ChrPtr(File2->MimeType)) != 0;
+}
+
+
+int CompareFilelistByName(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
+
+	if (File1->IsPic != File2->IsPic)
+		return File1->IsPic > File2->IsPic;
+	return strcasecmp(ChrPtr(File1->Filename), ChrPtr(File2->Filename));
+}
+int CompareFilelistByNameRev(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
+	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
+	if (File1->IsPic != File2->IsPic)
+		return File1->IsPic < File2->IsPic;
+	return strcasecmp(ChrPtr(File2->Filename), ChrPtr(File1->Filename));
+}
+int GroupchangeFilelistByName(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+
+	return ChrPtr(File1->Filename)[0] != ChrPtr(File2->Filename)[0];
+}
+
 
 int CompareFilelistBySize(const void *vFile1, const void *vFile2)
 {
@@ -43,7 +117,6 @@ int CompareFilelistBySize(const void *vFile1, const void *vFile2)
 		return 0;
 	return (File1->FileSize > File2->FileSize);
 }
-
 int CompareFilelistBySizeRev(const void *vFile1, const void *vFile2)
 {
 	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
@@ -52,19 +125,31 @@ int CompareFilelistBySizeRev(const void *vFile1, const void *vFile2)
 		return 0;
 	return (File1->FileSize < File2->FileSize);
 }
+int GroupchangeFilelistBySize(const void *vFile1, const void *vFile2)
+{
+	return 0;
+}
+
 
 int CompareFilelistByComment(const void *vFile1, const void *vFile2)
 {
 	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
 	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
-	return strcasecmp(File1->Comment, File2->Comment);
+	return strcasecmp(ChrPtr(File1->Comment), ChrPtr(File2->Comment));
 }
 int CompareFilelistByCommentRev(const void *vFile1, const void *vFile2)
 {
 	FileListStruct *File1 = (FileListStruct*) GetSearchPayload(vFile1);
 	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
-	return strcasecmp(File2->Comment, File1->Comment);
+	return strcasecmp(ChrPtr(File2->Comment), ChrPtr(File1->Comment));
 }
+int GroupchangeFilelistByComment(const void *vFile1, const void *vFile2)
+{
+	FileListStruct *File1 = (FileListStruct*) vFile1;
+	FileListStruct *File2 = (FileListStruct*) vFile2;
+	return ChrPtr(File1->Comment)[9] != ChrPtr(File2->Comment)[0];
+}
+
 
 int CompareFilelistBySequence(const void *vFile1, const void *vFile2)
 {
@@ -72,298 +157,67 @@ int CompareFilelistBySequence(const void *vFile1, const void *vFile2)
 	FileListStruct *File2 = (FileListStruct*) GetSearchPayload(vFile2);
 	return (File2->Sequence >  File1->Sequence);
 }
+int GroupchangeFilelistBySequence(const void *vFile1, const void *vFile2)
+{
+	return 0;
+}
 
-HashList* LoadFileList(int *HavePic)
+/* -------------------------------------------------------------------------------- */
+HashList* LoadFileList(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	FileListStruct *Entry;
+	StrBuf *Buf;
 	HashList *Files;
-	int HavePics = 0;
-	int Order;
+	int Done = 0;
 	int sequence = 0;
 	char buf[1024];
+	CompareFunc SortIt;
+	int HavePic;
 
 	serv_puts("RDIR");
 	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
-		Files = NewHash(1, NULL);
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000"))
+	if (buf[0] != '1') return NULL;
+
+	Buf = NewStrBuf();	       
+	Files = NewHash(1, NULL);
+	while (!Done && (StrBuf_ServGetln(Buf)>=0)) {
+		if ( (StrLength(Buf)==3) && 
+		    !strcmp(ChrPtr(Buf), "000")) 
 		{
-			Entry = (FileListStruct*) malloc(sizeof (FileListStruct));
-
-			Entry->FilenameLen = extract_token(
-				Entry->Filename, buf, 0, '|', 
-				sizeof(Entry->Filename));
-			Entry->FileSize = extract_long(buf, 1);
-			Entry->MimeTypeLen = extract_token(
-				Entry->MimeType, buf, 2, '|', 
-				sizeof(Entry->MimeType));
-			Entry->CommentLen = extract_token(
-				Entry->Comment,  buf, 3, '|', 
-				sizeof(Entry->Comment));
-			
-			Entry->Sequence = sequence++;
-			Entry->IsPic = (strstr(Entry->MimeType, "image") != NULL);
-			if (!HavePics && Entry->IsPic) {
-				HavePics = 1;
-				*HavePic = 1;
-			}
-			Put(Files, Entry->Filename, 
-			    Entry->FilenameLen, 
-			    Entry, NULL);
+			Done = 1;
+			continue;
 		}
-		Order = ibstr("SortOrder");
-		switch (ibstr("SortBy")){
-		case 1: /*NAME*/
-			SortByHashKey(Files,Order);
-			break;
-		case 2: /* SIZE*/
-			SortByPayload(Files, (Order)? 
-				      CompareFilelistBySize:
-				      CompareFilelistBySizeRev);
-			break;
-		case 3: /*MIME*/
-			SortByPayload(Files, (Order)? 
-				      CompareFilelistByMime:
-				      CompareFilelistByMimeRev);
-			break;
-		case 4: /*COMM*/
-			SortByPayload(Files, (Order)? 
-				      CompareFilelistByComment:
-				      CompareFilelistByCommentRev);
-			break;
-		default:
-			SortByPayload(Files, CompareFilelistBySequence);
+
+		Entry = (FileListStruct*) malloc(sizeof (FileListStruct));
+		Entry->Filename = NewStrBufPlain(NULL, StrLength(Buf));
+		Entry->MimeType = NewStrBufPlain(NULL, StrLength(Buf));
+		Entry->Comment = NewStrBufPlain(NULL, StrLength(Buf));
+
+		Entry->Sequence = sequence++;
+
+		StrBufExtract_token(Entry->Filename, Buf, 0, '|');
+		Entry->FileSize = StrBufExtract_long(Buf, 1, '|');
+		StrBufExtract_token(Entry->MimeType, Buf, 2, '|');
+		StrBufExtract_token(Entry->Comment, Buf, 3, '|');
+
+
+
+		Entry->IsPic = (strstr(ChrPtr(Entry->MimeType), "image") != NULL);
+		if (Entry->IsPic) {
+			HavePic = 1;
 		}
-		return Files;
+		Put(Files, SKEY(Entry->Filename), Entry, FreeFiles);
 	}
-	else
-		return NULL;
+	SortIt = RetrieveSort(CTX_FILELIST, NULL, HKEY("fileunsorted"), 0);
+	if (SortIt != NULL)
+		SortByPayload(Files, SortIt);
+	else 
+		SortByPayload(Files, CompareFilelistBySequence);
+	FreeStrBuf(&Buf);
+	svputlong("FILE:HAVEPICS", HavePic);
+	return Files;
 }
 
-void FilePrintEntry(const char *FileName, void *vFile, int odd)
-{
-	FileListStruct *File = (FileListStruct*) vFile;
-
-	wprintf("<tr bgcolor=\"#%s\">", (odd ? "DDDDDD" : "FFFFFF"));
-	wprintf("<td>"
-		"<a href=\"download_file/");
-	urlescputs(File->Filename);
-	wprintf("\"><img src=\"display_mime_icon?type=%s\" border=0 align=middle>\n", 
-		File->MimeType);
-	escputs(File->Filename);	wprintf("</a></td>");
-	wprintf("<td>%ld</td>", File->FileSize);
-	wprintf("<td>");	escputs(File->MimeType);	wprintf("</td>");
-	wprintf("<td>");	escputs(File->Comment);	wprintf("</td>");
-	wprintf("</tr>\n");
-}
-
-void FilePrintTransition(void *vFile1, void *vFile2, int odd)
-{
-	FileListStruct *File1 = (FileListStruct*) vFile1;
-	FileListStruct *File2 = (FileListStruct*) vFile2;
-	char StartChar[2] = "\0\0";
-	char *SectionName;
-
-	switch (ibstr("SortBy")){
-	case 1: /*NAME*/
-		if ((File2 != NULL) && 
-		    ((File1 == NULL) ||
-		     (File1->Filename[0] != File2->Filename[0]))) {
-			StartChar[0] = File2->Filename[0];
-			SectionName = StartChar;
-		}
-		else return;
-		break;
-	case 2: /* SIZE*/
-		return;
-	case 3: /*MIME*/
-		return; /*TODO*/
-		break;
-	case 4: /*COMM*/
-		return;
-	default:
-		return;
-	}
-
-	wprintf("<tr bgcolor=\"#%s\"><th colspan = 4>%s</th></tr>", 
-		(odd ? "DDDDDD" : "FFFFFF"),  SectionName);
-}
-
-
-void display_room_directory(void)
-{
-	char title[256];
-	int havepics = 0;
-	HashList *Files;
-	int Order;
-	int SortRow;
-	int i;
-
-	long SortDirections[5] = {2,2,2,2,2};
-	const char* SortIcons[3] = {
-		"static/up_pointer.gif",
-		"static/down_pointer.gif",
-		"static/sort_none.gif"};
-	char *RowNames[5];
-	RowNames[0] = "";
-	RowNames[1] = _("Filename");
-	RowNames[2] = _("Size");
-	RowNames[3] = _("Content");
-	RowNames[4] = _("Description");
-
-	Files = LoadFileList (&havepics);
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	snprintf(title, sizeof title, _("Files available for download in %s"), WC->wc_roomname);
-	escputs(title);
-	wprintf("</h1>");
-	wprintf("</div>\n");
-
-	wprintf("<div id=\"content\" class=\"service\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"downloads_background\"><tr><td>\n");
-
-
-	Order = ibstr("SortOrder");
-	if (!havebstr("SortOrder") || Order > 2)
-		Order = 2; /* <- Unsorted... */
-	SortRow = ibstr("SortBy");
-
-	SortDirections[SortRow] = Order;
-
-	wprintf("<tr>\n");
-	for (i = 1; i < 5; i++) {
-		switch (SortDirections[i]) {
-		default:
-		case 0:
-			Order = 2;
-			break;
-		case 1:
-			Order = 0;
-			break;
-		case 2:
-			Order = 1;
-			break;
-		}			
-
-		wprintf("  <th>%s \n"
-			"      <a href=\"display_room_directory?SortOrder=%d&SortBy=%d\"> \n"
-			"       <img src=\"%s\" border=\"0\"></a>\n"
-			"  </th>\n",
-			RowNames[i],
-			Order, i,
-			SortIcons[SortDirections[i]]
-			);
-
-	}
-	wprintf("</tr>\n");
-//<th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n",
-	//);
-
-	if (Files != NULL) {
-		PrintHash(Files, FilePrintTransition, FilePrintEntry);
-		DeleteHash(&Files);
-	}
-	wprintf("</table>\n");
-
-	/** Now offer the ability to upload files... */
-	if (WC->room_flags & QR_UPLOAD)
-	{
-		wprintf("<hr>");
-		wprintf("<form "
-			"enctype=\"multipart/form-data\" "
-			"method=\"POST\" "
-			"accept-charset=\"UTF-8\" "
-			"action=\"upload_file\" "
-			"name=\"upload_file_form\""
-			">\n"
-		);
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-
-		wprintf(_("Upload a file:"));
-		wprintf("&nbsp;<input NAME=\"filename\" SIZE=16 TYPE=\"file\">&nbsp;\n");
-		wprintf(_("Description:"));
-		wprintf("&nbsp;<input type=\"text\" name=\"description\" maxlength=\"64\" size=\"64\">&nbsp;");
-		wprintf("<input type=\"submit\" name=\"attach_button\" value=\"%s\">\n", _("Upload"));
-
-		wprintf("</form>\n");
-	}
-
-	wprintf("</div>\n");
-	if (havepics)
-		wprintf("<div class=\"buttons\"><a href=\"display_pictureview&frame=1\">%s</a></div>", _("Slideshow"));
-	wDumpContent(1);
-}
-
-
-void display_pictureview(void)
-{
-	char buf[1024];
-	char filename[256];
-	char filesize[256];
-	char mimetype[64];
-	char comment[512];
-	char title[256];
-	int n = 0;
-		
-
-	if (lbstr("frame") == 1) {
-
-		output_headers(1, 1, 2, 0, 0, 0);
-		wprintf("<div id=\"banner\">\n");
-		wprintf("<h1>");
-		snprintf(title, sizeof title, _("Pictures in %s"), WC->wc_roomname);
-		escputs(title);
-		wprintf("</h1>");
-		wprintf("</div>\n");
-		
-		wprintf("<div id=\"content\" class=\"service\">\n");
-
-		wprintf("<div class=\"fix_scrollbar_bug\">"
-			"<table class=\"downloads_background\"><tr><td>\n");
-
-
-
-		wprintf("<script type=\"text/javascript\" language=\"JavaScript\" > \nvar fadeimages=new Array()\n");
-
-		serv_puts("RDIR");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000"))  {
-				extract_token(filename, buf, 0, '|', sizeof filename);
-				extract_token(filesize, buf, 1, '|', sizeof filesize);
-				extract_token(mimetype, buf, 2, '|', sizeof mimetype);
-				extract_token(comment,  buf, 3, '|', sizeof comment);
-				if (strstr(mimetype, "image") != NULL) {
-					wprintf("fadeimages[%d]=[\"download_file/", n);
-					escputs(filename);
-					wprintf("\", \"\", \"\"]\n");
-
-					/*
-							   //mimetype);
-					   escputs(filename);	wprintf("</a></td>");
-					   wprintf("<td>");	escputs(filesize);	wprintf("</td>");
-					   wprintf("<td>");	escputs(mimetype);	wprintf("</td>");
-					   wprintf("<td>");	escputs(comment);	wprintf("</td>");
-					   wprintf("</tr>\n");
-					*/
-					n++;
-				}
-			}
-		wprintf("</script>\n");
-		wprintf("<tr><td><script type=\"text/javascript\" src=\"static/fadeshow.js\">\n</script>\n");
-		wprintf("<script type=\"text/javascript\" >\n");
-		wprintf("new fadeshow(fadeimages, 500, 400, 0, 3000, 1, \"R\");\n");
-		wprintf("</script></td><th>\n");
-		wprintf("</div>\n");
-	}
-	wDumpContent(1);
-
-
-}
-
-extern char* static_dirs[];
 void display_mime_icon(void)
 {
 	char FileBuf[SIZ];
@@ -379,7 +233,6 @@ void display_mime_icon(void)
 	else
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[3], FileName);
 	output_static(FileBuf);
-
 }
 
 void download_file(void)
@@ -418,7 +271,6 @@ void download_file(void)
 		wprintf(_("An error occurred while retrieving this file: %s\n"), &buf[4]);
 		end_burst();
 	}
-
 }
 
 
@@ -437,7 +289,7 @@ void upload_file(void)
 	if (buf[0] != '2')
 	{
 		strcpy(WCC->ImportantMessage, &buf[4]);
-		display_room_directory();
+		do_template("files", NULL);
 		return;
 	}
 
@@ -461,7 +313,7 @@ void upload_file(void)
 	serv_puts("UCLS 1");
 	serv_getln(buf, sizeof buf);
 	strcpy(WCC->ImportantMessage, &buf[4]);
-	display_room_directory();
+	do_template("files", CTX_NONE);
 }
 
 
@@ -470,7 +322,7 @@ void upload_file(void)
  * When the browser requests an image file from the Citadel server,
  * this function is called to transmit it.
  */
-void output_image()
+void output_image(void)
 {
 	char blank_gif[SIZ];
 	wcsession *WCC = WC;
@@ -509,18 +361,55 @@ void output_image()
 	output_static(blank_gif);
 }
 
-
-
-
 void 
 InitModule_DOWNLOAD
 (void)
 {
+
+	RegisterIterator("ROOM:FILES", 0, NULL, LoadFileList,
+			 NULL, DeleteHash, CTX_FILELIST, CTX_NONE, 
+			 IT_FLAG_DETECT_GROUPCHANGE);
+
+	RegisterSortFunc(HKEY("filemime"),
+			 NULL, 0,
+			 CompareFilelistByMime,
+			 CompareFilelistByMimeRev,
+			 GroupchangeFilelistByMime,
+			 CTX_FILELIST);
+	RegisterSortFunc(HKEY("filename"),
+			 NULL, 0,
+			 CompareFilelistByName,
+			 CompareFilelistByNameRev,
+			 GroupchangeFilelistByName,
+			 CTX_FILELIST);
+	RegisterSortFunc(HKEY("filesize"),
+			 NULL, 0,
+			 CompareFilelistBySize,
+			 CompareFilelistBySizeRev,
+			 GroupchangeFilelistBySize,
+			 CTX_FILELIST);
+	RegisterSortFunc(HKEY("filesubject"),
+			 NULL, 0,
+			 CompareFilelistByComment,
+			 CompareFilelistByCommentRev,
+			 GroupchangeFilelistByComment,
+			 CTX_FILELIST);
+	RegisterSortFunc(HKEY("fileunsorted"),
+			 NULL, 0,
+			 CompareFilelistBySequence,
+			 CompareFilelistBySequence,
+			 GroupchangeFilelistBySequence,
+			 CTX_FILELIST);
+
+	RegisterNamespace("FILE:NAME", 0, 2, tmplput_FILE_NAME, CTX_FILELIST);
+	RegisterNamespace("FILE:SIZE", 0, 1, tmplput_FILE_SIZE, CTX_FILELIST);
+	RegisterNamespace("FILE:MIMETYPE", 0, 2, tmplput_FILEMIMETYPE, CTX_FILELIST);
+	RegisterNamespace("FILE:COMMENT", 0, 2, tmplput_FILE_COMMENT, CTX_FILELIST);
+
+	RegisterConditional(HKEY("COND:FILE:ISPIC"), 0, Conditional_FILE_ISPIC, CTX_FILELIST);
+
 	WebcitAddUrlHandler(HKEY("image"), output_image, 0);
 	WebcitAddUrlHandler(HKEY("display_mime_icon"), display_mime_icon , 0);
-
-	WebcitAddUrlHandler(HKEY("display_room_directory"), display_room_directory, 0);
-	WebcitAddUrlHandler(HKEY("display_pictureview"), display_pictureview, 0);
 	WebcitAddUrlHandler(HKEY("download_file"), download_file, NEED_URL);
 	WebcitAddUrlHandler(HKEY("upload_file"), upload_file, 0);
 }

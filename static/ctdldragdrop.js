@@ -4,10 +4,12 @@
 var draggedElement = null;
 var currentDropTargets = null;
 var dropTarget = null;
+var dragAndDropElement = null;
+
 function mouseDownHandler(event) {
   var target = event.target;
   var actualTarget = target;
-  if (target.nodeName.toLowerCase() == "span") {
+  if (target.nodeName.toLowerCase() == "td") {
     actualTarget = target.parentNode;
   }
   if (!actualTarget.dropEnabled) {
@@ -15,34 +17,34 @@ function mouseDownHandler(event) {
   }
   turnOffTextSelect();
   draggedElement = actualTarget;
-  draggedElement.originalPosition = draggedElement.style.position;
   return false;
 }
 function mouseUpHandler(event) {
   var target = event.target;
   var dropped = dropTarget;
-  if (draggedElement != null) {
+  if (dragAndDropElement != null) {
   if (dropped != null && dropped.dropHandler) {
     dropped.dropHandler(dropped,draggedElement);
   }
-  draggedElement.style.position = draggedElement.originalPosition;
-  draggedElement.style.top = "";
-  draggedElement.style.left = "";
-  draggedElement.style.border = "";
+  document.body.removeChild(dragAndDropElement);
+  }
+  dragAndDropElement = null;
   draggedElement = null;
   dropTarget = null;
-  }
   turnOnTextSelect();
   return true;
 }
 function mouseMoveHandler(event) {
   if (draggedElement != null) {
-  var clientX = event.clientX+5;
-  var clientY = event.clientY+5;
-  draggedElement.style.position = "fixed";
-  draggedElement.style.top = clientY + "px";
-  draggedElement.style.left = clientX + "px";
-  draggedElement.style.border = "1px solid black";
+    if (dragAndDropElement == null) {
+    dragAndDropElement = draggedElement.ctdlDnDElement();
+    dragAndDropElement.setAttribute("class", "draganddrop");
+    document.body.appendChild(dragAndDropElement);
+    }
+    var clientX = event.clientX+5;
+    var clientY = event.clientY+5;
+    dragAndDropElement.style.top = clientY + "px";
+    dragAndDropElement.style.left = clientX + "px";
   }
   return false;
 }
