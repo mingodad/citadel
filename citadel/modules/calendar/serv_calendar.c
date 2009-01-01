@@ -1263,8 +1263,24 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 	/*
 	 * Now begin calculating the event start and end times.
 	 */
-	dtstart = icalcomponent_get_dtstart(cal);
-	if (icaltime_is_null_time(dtstart)) return;
+	p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
+	if (!p) return;
+	dtstart = icalproperty_get_dtstart(p);
+
+	if (icaltime_is_utc(dtstart)) {
+		dtstart.zone = icaltimezone_get_utc_timezone();
+	}
+	else {
+		dtstart.zone = icalcomponent_get_timezone(top_level_cal,
+			icalparameter_get_tzid(
+				icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
+			)
+		);
+		if (!dtstart.zone) {
+			dtstart.zone = get_default_icaltimezone();
+		}
+	}
+	// FIXME do more here
 
 	dtend = icalcomponent_get_dtend(cal);
 	if (!icaltime_is_null_time(dtend)) {
@@ -1282,6 +1298,11 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 
 
 		// FIXME add timezone conversion, we are currently outputting floating times
+
+		CtdlLogPrintf(CTDL_DEBUG, "Start, utc=%d, %s\n",
+			dtstart.is_utc,
+			icaltime_as_ical_string(dtstart)
+		);
 
 
 
