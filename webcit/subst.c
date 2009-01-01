@@ -1795,9 +1795,19 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 	TabNames = (StrBuf **) malloc(ntabs * sizeof(StrBuf*));
 
 	for (i = 0; i < ntabs; i++) {
-		TabNames[i] = NewStrBuf();
-		if (Tokens->Params[i * 2]->len > 0) {
+		if ((Tokens->Params[i * 2]->Type == TYPE_STR) &&
+		    (Tokens->Params[i * 2]->len > 0)) {
+			TabNames[i] = NewStrBuf();
 			DoTemplate(TKEY(i * 2), TabNames[i], Context, ContextType);
+		}
+		else if (Tokens->Params[i * 2]->Type == TYPE_GETTEXT) {
+			const char *Ch;
+			long len;
+			GetTemplateTokenString(Tokens, 
+					       i * 2,
+					       &Ch,
+					       &len);
+			TabNames[i] = NewStrBufPlain(Ch, -1);
 		}
 		else { 
 			/** A Tab without subject? we can't count that, add it as silent */
@@ -1808,7 +1818,6 @@ void tmpl_do_tabbed(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Co
 	StrTabbedDialog(Target, nTabs, TabNames);
 	for (i = 0; i < ntabs; i++) {
 		StrBeginTab(Target, i, nTabs);
-
 		DoTemplate(TKEY(i * 2 + 1), Target, Context, ContextType);
 		StrEndTab(Target, i, nTabs);
 	}
