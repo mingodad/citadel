@@ -196,7 +196,7 @@ AC_CHECK_HEADER(libcitadel.h,
 
 
 
-
+found_ssl=no
 # The big search for OpenSSL
 if test "$with_ssl" != "no"; then
 	saved_LIBS="$LIBS"
@@ -279,6 +279,7 @@ if test "$with_ssl" != "no"; then
 	
 	if test "x$ac_cv_openssldir" != "xno" ; then
 		AC_DEFINE(HAVE_OPENSSL,[],[whethe we have openssl])
+		found_ssl=yes
 		LIBS="-lssl -lcrypto $LIBS"
 		dnl Need to recover ssldir - test above runs in subshell
 		ssldir=$ac_cv_openssldir
@@ -314,6 +315,10 @@ AC_ARG_WITH(ssldir,
 			[ if test "x$withval" != "xno" ; then
 					      
 						  ssl_dir="$withval"
+						  if test "$found_ssl" = "no"; then
+						     echo "Your setup was incomplete; ssldir doesn't make sense without openssl"
+						     exit
+						  fi
 			  fi
 			AC_SUBST(MAKE_SSL_DIR)
 			]
