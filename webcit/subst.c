@@ -743,6 +743,8 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	else if (*pch == '_') {
 		Parm->Type = TYPE_GETTEXT;
 		pch ++;
+		if (*pch == '(')
+			pch ++;
 	}
 	else if (*pch == 'B') {
 		Parm->Type = TYPE_BSTR;
@@ -784,6 +786,10 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 			Parm->Start = pchs;
 			Parm->len = pche - pchs;
 			pch ++; /* move after trailing quote */
+			if ((Parm->Type = TYPE_GETTEXT) && (*pch == ')')) {
+				pch ++;
+			}
+
 		}
 	}
 	else {
