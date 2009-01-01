@@ -1231,6 +1231,15 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 	icalproperty *p;
 	icalvalue *v;
 	struct icalperiodtype this_event_period = icalperiodtype_null_period();
+	icaltimetype dtstart = icaltime_null_time();
+	icaltimetype dtend = icaltime_null_time();
+
+	/* recur variables */
+	icalproperty *rrule = NULL;
+	struct icalrecurrencetype recur;
+	icalrecur_iterator *ritr = NULL;
+	struct icaldurationtype dur;
+	int num_recur = 0;
 
 	if (!top_level_cal) return;
 
@@ -1251,45 +1260,77 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 		}
 	}
 
-	/* Convert the DTSTART and DTEND properties to an icalperiod. */
-	p = icalcomponent_get_first_property(cal, ICAL_DTSTART_PROPERTY);
-	if (p != NULL) {
-		this_event_period.start = icalproperty_get_dtstart(p);
-	}
-
-	p = icalcomponent_get_first_property(cal, ICAL_DTEND_PROPERTY);
-	if (p != NULL) {
-		this_event_period.end = icalproperty_get_dtstart(p);
-	}
-
-	/* Now add it. */
-	icalcomponent_add_property(fb, icalproperty_new_freebusy(this_event_period));
-
-	/* Make sure the DTSTART property of the freebusy *list* is set to
-	 * the DTSTART property of the *earliest event*.
+	/*
+	 * Now begin calculating the event start and end times.
 	 */
-	p = icalcomponent_get_first_property(fb, ICAL_DTSTART_PROPERTY);
-	if (p == NULL) {
-		icalcomponent_set_dtstart(fb, icalcomponent_get_dtstart(cal));
-	}
-	else {
-		if (icaltime_compare(icalcomponent_get_dtstart(cal), icalcomponent_get_dtstart(fb)) < 0) {
-			icalcomponent_set_dtstart(fb, icalcomponent_get_dtstart(cal));
-		}
+	dtstart = icalcomponent_get_dtstart(cal);
+	if (icaltime_is_null_time(dtstart)) return;
+
+	dtend = icalcomponent_get_dtend(cal);
+	if (!icaltime_is_null_time(dtend)) {
+		dur = icaltime_subtract(dtend, dtstart);
 	}
 
-	/* Make sure the DTEND property of the freebusy *list* is set to
-	 * the DTEND property of the *latest event*.
-	 */
-	p = icalcomponent_get_first_property(fb, ICAL_DTEND_PROPERTY);
-	if (p == NULL) {
-		icalcomponent_set_dtend(fb, icalcomponent_get_dtend(cal));
+	/* Is a recurrence specified?  If so, get ready to process it... */
+	rrule = ical_ctdl_get_subprop(cal, ICAL_RRULE_PROPERTY);
+	if (rrule) {
+		recur = icalproperty_get_rrule(rrule);
+		ritr = icalrecur_iterator_new(recur, dtstart);
 	}
-	else {
-		if (icaltime_compare(icalcomponent_get_dtend(cal), icalcomponent_get_dtend(fb)) > 0) {
-			icalcomponent_set_dtend(fb, icalcomponent_get_dtend(cal));
+
+	do {
+
+
+		// FIXME add timezone conversion, we are currently outputting floating times
+
+
+
+		/* Convert the DTSTART and DTEND properties to an icalperiod. */
+		this_event_period.start = dtstart;
+	
+		if (!icaltime_is_null_time(dtend)) {
+			this_event_period.end = dtend;
 		}
-	}
+	
+		/* Now add it. */
+		icalcomponent_add_property(fb, icalproperty_new_freebusy(this_event_period));
+
+		/* Make sure the DTSTART property of the freebusy *list* is set to
+		 * the DTSTART property of the *earliest event*.
+		 */
+		p = icalcomponent_get_first_property(fb, ICAL_DTSTART_PROPERTY);
+		if (p == NULL) {
+			icalcomponent_set_dtstart(fb, dtstart);
+		}
+		else {
+			if (icaltime_compare(dtstart, icalcomponent_get_dtstart(fb)) < 0) {
+				icalcomponent_set_dtstart(fb, dtstart);
+			}
+		}
+	
+		/* Make sure the DTEND property of the freebusy *list* is set to
+		 * the DTEND property of the *latest event*.
+		 */
+		p = icalcomponent_get_first_property(fb, ICAL_DTEND_PROPERTY);
+		if (p == NULL) {
+			icalcomponent_set_dtend(fb, dtend);
+		}
+		else {
+			if (icaltime_compare(dtend, icalcomponent_get_dtend(fb)) > 0) {
+				icalcomponent_set_dtend(fb, dtend);
+			}
+		}
+
+		if (rrule) {
+			dtstart = icalrecur_iterator_next(ritr);
+			if (!icaltime_is_null_time(dtend)) {
+				dtend = icaltime_add(dtstart, dur);
+			}
+			++num_recur;
+		}
+
+	} while ( (rrule) && (!icaltime_is_null_time(dtstart)) && (num_recur < MAX_RECUR) ) ;
+	icalrecur_iterator_free(ritr);
 }
 
 
@@ -1664,7 +1705,7 @@ void ical_putics(void)
 	}
 
 	cprintf("%d Transmit data now\n", SEND_LISTING);
-        calstream = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0, 0);
+	calstream = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0, 0);
 	if (calstream == NULL) {
 		return;
 	}
