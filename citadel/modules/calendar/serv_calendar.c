@@ -1346,6 +1346,8 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 			dtstart = icalrecur_iterator_next(ritr);
 			if (!icaltime_is_null_time(dtend)) {
 				dtend = icaltime_add(dtstart, dur);
+				dtend.zone = dtstart.zone;
+				dtend.is_utc = dtstart.is_utc;
 			}
 			++num_recur;
 		}
@@ -1648,7 +1650,7 @@ void ical_getics(void)
 
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "ERROR: could not allocate component!\n");
+		CtdlLogPrintf(CTDL_ALERT, "ERROR: could not allocate component!\n");
 		cprintf("%d Could not allocate memory\n", ERROR+INTERNAL_ERROR);
 		return;
 	}
@@ -2047,7 +2049,7 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new_vcalendar();
 	if (encaps == NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "ERROR: could not allocate component!\n");
+		CtdlLogPrintf(CTDL_ALERT, "ERROR: could not allocate component!\n");
 		icalcomponent_free(the_request);
 		return;
 	}
@@ -2081,9 +2083,6 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 		  || (icalproperty_isa(p) == ICAL_RECURRENCEID_PROPERTY)
 		) {
 			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
-			CtdlLogPrintf(CTDL_DEBUG, "Found an icaltimetype: %s\n",
-				icaltime_as_ical_string(t)
-			);
 
 			/* First see if there's a timezone attached to the data structure itself */
 			if (icaltime_is_utc(t)) {
@@ -2092,7 +2091,6 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 			else {
 				z = icaltime_get_timezone(t);
 			}
-			if (z) CtdlLogPrintf(CTDL_DEBUG, "Timezone is present in data structure\n");
 
 			/* If not, try to determine the tzid from the parameter using attached zones */
 			if (!z) {
@@ -2101,7 +2099,6 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 						icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
 					)
 				);
-				if (z) CtdlLogPrintf(CTDL_DEBUG, "Timezone was found in attached zones\n");
 			}
 
 			/* Still no good?  Try our internal database */
@@ -2111,21 +2108,20 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 						icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
 					)
 				);
-				if (z) CtdlLogPrintf(CTDL_DEBUG, "Timezone was found in internal db\n");
 			}
 
 			if (z) {
-				CtdlLogPrintf(CTDL_DEBUG, "Have valid timezone, need to attach it.\n");
+				/* We have a valid timezone.  Good.  Now we need to attach it. */
 
 				zone_already_attached = 0;
 				for (i=0; i<5; ++i) {
 					if (z == attached_zones[i]) {
+						/* We've already got this one, no need to attach another. */
 						++zone_already_attached;
-						CtdlLogPrintf(CTDL_DEBUG, "zone already attached!!\n");
 					}
 				}
 				if ((!zone_already_attached) && (num_zones_attached < 5)) {
-					CtdlLogPrintf(CTDL_DEBUG, "attach zone %d\n", num_zones_attached);
+					/* This is a new one, so attach it. */
 					attached_zones[num_zones_attached++] = z;
 				}
 
@@ -2153,8 +2149,6 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	serialized_request = icalcomponent_as_ical_string_r(encaps);
 	icalcomponent_free(encaps);	/* Don't need this anymore. */
 	if (serialized_request == NULL) return;
-
-	CtdlLogPrintf(CTDL_DEBUG, "SENDING INVITATIONS:\n%s\n", serialized_request);
 
 	reqsize = strlen(serialized_request) + SIZ;
 	request_message_text = malloc(reqsize);
