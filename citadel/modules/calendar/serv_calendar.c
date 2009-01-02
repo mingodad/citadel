@@ -1280,7 +1280,6 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 			dtstart.zone = get_default_icaltimezone();
 		}
 	}
-	// FIXME do more here
 
 	dtend = icalcomponent_get_dtend(cal);
 	if (!icaltime_is_null_time(dtend)) {
@@ -1295,23 +1294,24 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 	}
 
 	do {
-
-
-		// FIXME add timezone conversion, we are currently outputting floating times
-
-		CtdlLogPrintf(CTDL_DEBUG, "Start, utc=%d, %s\n",
-			dtstart.is_utc,
-			icaltime_as_ical_string(dtstart)
-		);
-
-
-
 		/* Convert the DTSTART and DTEND properties to an icalperiod. */
 		this_event_period.start = dtstart;
 	
 		if (!icaltime_is_null_time(dtend)) {
 			this_event_period.end = dtend;
 		}
+
+		/* Convert the timestamps to UTC.  It's ok to do this because we've already expanded
+		 * recurrences and this data is never going to get used again.
+		 */
+		this_event_period.start = icaltime_convert_to_zone(
+			this_event_period.start,
+			icaltimezone_get_utc_timezone()
+		);
+		this_event_period.end = icaltime_convert_to_zone(
+			this_event_period.end,
+			icaltimezone_get_utc_timezone()
+		);
 	
 		/* Now add it. */
 		icalcomponent_add_property(fb, icalproperty_new_freebusy(this_event_period));
@@ -1321,11 +1321,11 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 		 */
 		p = icalcomponent_get_first_property(fb, ICAL_DTSTART_PROPERTY);
 		if (p == NULL) {
-			icalcomponent_set_dtstart(fb, dtstart);
+			icalcomponent_set_dtstart(fb, this_event_period.start);
 		}
 		else {
-			if (icaltime_compare(dtstart, icalcomponent_get_dtstart(fb)) < 0) {
-				icalcomponent_set_dtstart(fb, dtstart);
+			if (icaltime_compare(this_event_period.start, icalcomponent_get_dtstart(fb)) < 0) {
+				icalcomponent_set_dtstart(fb, this_event_period.start);
 			}
 		}
 	
@@ -1334,11 +1334,11 @@ void ical_add_to_freebusy(icalcomponent *fb, icalcomponent *top_level_cal) {
 		 */
 		p = icalcomponent_get_first_property(fb, ICAL_DTEND_PROPERTY);
 		if (p == NULL) {
-			icalcomponent_set_dtend(fb, dtend);
+			icalcomponent_set_dtend(fb, this_event_period.end);
 		}
 		else {
-			if (icaltime_compare(dtend, icalcomponent_get_dtend(fb)) > 0) {
-				icalcomponent_set_dtend(fb, dtend);
+			if (icaltime_compare(this_event_period.end, icalcomponent_get_dtend(fb)) > 0) {
+				icalcomponent_set_dtend(fb, this_event_period.end);
 			}
 		}
 
