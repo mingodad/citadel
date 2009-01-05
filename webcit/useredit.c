@@ -364,13 +364,11 @@ int ConditionalUserAccess(WCTemplateToken *Tokens, void *Context, int ContextTyp
 		return 0;
 }
 
-/**
+/*
  *  Locate the message number of a user's vCard in the current room
- *  username the plaintext name of the user
- *  usernum the number of the user on the citadel server
- * \return the message id of his vcard
+ *  Returns the message id of his vcard
  */
-long locate_user_vcard(char *username, long usernum) {
+long locate_user_vcard_in_this_room() {
 	char buf[SIZ];
 	long vcard_msgnum = (-1L);
 	char content_type[SIZ];
@@ -466,7 +464,7 @@ void display_edit_address_book_entry(char *username, long usernum) {
 		}
 	}
 
-	vcard_msgnum = locate_user_vcard(username, usernum);
+	vcard_msgnum = locate_user_vcard_in_this_room();
 
 	if (vcard_msgnum < 0) {
 		sprintf(error_message,

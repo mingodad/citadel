@@ -664,7 +664,7 @@ int read_server_binary(StrBuf *Ret, size_t total_len);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
 int goto_config_room(void);
-long locate_user_vcard(char *username, long usernum);
+long locate_user_vcard_in_this_room(void);
 void sleeeeeeeeeep(int);
 void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
