@@ -599,10 +599,9 @@ InitModule_PREFERENCES
 	RegisterPreference("signature",_("Use this signature:"),PRF_QP_STRING);
 	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
 	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
-	RegisterPreference("defaultfrom", _("Prefered Email Address"), PRF_STRING);
-	RegisterPreference("defaultname", _("Prefered Email Sendername"), PRF_STRING);
-	RegisterPreference("defaulthandle", _("Prefered Name for posting messages"), PRF_STRING);
-
+	RegisterPreference("defaultfrom", _("Preferred email address"), PRF_STRING);
+	RegisterPreference("defaultname", _("Preferred display name for email messages"), PRF_STRING);
+	RegisterPreference("defaulthandle", _("Preferred display name for bulletin board posts"), PRF_STRING);
 	
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
