@@ -123,6 +123,8 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
   	char vname[32];
 
+	if (!t) return;
+
  	/* Stuff with zero values */
 	memset(t, 0, sizeof(struct icaltimetype));
 
@@ -139,6 +141,7 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
 
 	/* time zone is set to the default zone for this server */
 	t->is_utc = 0;
+	t->is_date = 0;
 	t->zone = get_default_icaltimezone();
 }
 
@@ -147,18 +150,17 @@ void icaltime_from_webform(struct icaltimetype *t, char *prefix) {
  * Get date (no time) from a web form and convert it into an icaltimetype struct.
  */
 void icaltime_from_webform_dateonly(struct icaltimetype *t, char *prefix) {
- 	struct tm tm;
- 	time_t tm_t;
- 	struct icaltimetype t2; 	
+	if (!t) return;
 
- 	/* Stuff tm with zero values */
-	memset(&tm, 0, sizeof(struct tm));
+ 	/* Stuff with zero values */
+	memset(t, 0, sizeof(struct icaltimetype));
 
-	/* Convert from string to icaltimetype */
- 	strptime((char *)BSTR(prefix), "%Y-%m-%d", &tm);
- 	tm_t = mktime(&tm);
- 	t2 = icaltime_from_timet(tm_t, 1);
- 	memcpy(t, &t2, sizeof(struct icaltimetype));
+	/* Get the year/month/date all in one shot -- it will be in ISO YYYY-MM-DD format */
+	sscanf((char*)BSTR(prefix), "%04d-%02d-%02d", &t->year, &t->month, &t->day);
+
+	/* time zone is set to the default zone for this server */
+	t->is_utc = 1;
+	t->is_date = 1;
 }
 
 
