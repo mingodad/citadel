@@ -722,7 +722,7 @@ void display_reg(int during_login)
 		return;
 	}
 
-	vcard_msgnum = locate_user_vcard(WC->wc_fullname, -1);
+	vcard_msgnum = locate_user_vcard_in_this_room();
 	if (vcard_msgnum < 0L) {
 		if (during_login) do_welcome();
 		else display_main_menu();
