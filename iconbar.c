@@ -366,7 +366,7 @@ void do_iconbar(void) {
 
 	wprintf("</ul>\n");
 
-	if (IconbarIsEnabled("ib_users", 0)) {
+	if (IconbarIsEnabled("ib_users", 0) == 2) {
 		StrBufAppendPrintf(WC->trailing_javascript,
                 	"new Ajax.PeriodicalUpdater('wholist', 'do_template?template=wholist_section', "
 			"{ method: 'get', frequency: 30 } );	\n"
