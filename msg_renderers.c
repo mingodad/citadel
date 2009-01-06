@@ -410,11 +410,18 @@ void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->date = StrTol(HdrLine);
 }
-void tmplput_MAIL_SUMM_DATE_STR(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_DATE_BRIEF(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
 {
 	char datebuf[64];
 	message_summary *Msg = (message_summary*) Context;
 	webcit_fmt_date(datebuf, Msg->date, 1);
+	StrBufAppendBufPlain(Target, datebuf, -1, 0);
+}
+void tmplput_MAIL_SUMM_DATE_FULL(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+{
+	char datebuf[64];
+	message_summary *Msg = (message_summary*) Context;
+	webcit_fmt_date(datebuf, Msg->date, 0);
 	StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
 void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
@@ -1070,7 +1077,8 @@ InitModule_MSGRENDERERS
 			 NULL,NULL, CTX_MAILSUM, CTX_NONE, IT_NOFLAG);
 
 	/* render parts of the message struct */
-	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:DATEBRIEF", 0, 0, tmplput_MAIL_SUMM_DATE_BRIEF, CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:DATEFULL", 0, 0, tmplput_MAIL_SUMM_DATE_FULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:N",       0, 0, tmplput_MAIL_SUMM_N,        CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:FROM",    0, 2, tmplput_MAIL_SUMM_FROM,     CTX_MAILSUM);
