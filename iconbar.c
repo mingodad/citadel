@@ -367,11 +367,10 @@ void do_iconbar(void) {
 	wprintf("</ul>\n");
 
 	if (IconbarIsEnabled("ib_users", 0)) {
-        	wprintf(
-                	"<script type=\"text/javascript\"> "
-                	" new Ajax.PeriodicalUpdater('wholist', 'do_template?template=wholist_section', { method: 'get', frequency: 30 } );"
-			"</script> \n"
-			);
+		StrBufAppendPrintf(WC->trailing_javascript,
+                	"new Ajax.PeriodicalUpdater('wholist', 'do_template?template=wholist_section', "
+			"{ method: 'get', frequency: 30 } );	\n"
+		);
 	}
 }
 
