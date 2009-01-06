@@ -15,12 +15,15 @@
 <tr class="odd">
   <td><?PREF:DESCR("calhourformat")></td>
   <td>
-    <input type="radio" name="calhourformat" VALUE="12" 
-	   <?%("COND:PREF", 1, :"calhourformat", "24", "", "checked")>
-	   <?%("COND:PREF", 1, :"calhourformat", "", "checked", "")>
-	   ><?_("12 hour (am/pm)")></input>
-    &nbsp;&nbsp;&nbsp;
-    <input type="radio" name="calhourformat" VALUE="24" <?%("COND:PREF", 1, :"calhourformat", "24", "checked", "")> ><?_("24 hour")></input>
+	<input type="radio" name="calhourformat" VALUE="12" 
+		<?%("COND:PREF", 1, :"calhourformat", "24", "", "checked")>
+		><?_("12 hour (am/pm)")>
+	</input>
+	&nbsp;&nbsp;&nbsp;
+	<input type="radio" name="calhourformat" VALUE="24"
+		<?%("COND:PREF", 1, :"calhourformat", "24", "checked", "")>
+		><?_("24 hour")>
+	</input>
   </td>
 </tr>
 
