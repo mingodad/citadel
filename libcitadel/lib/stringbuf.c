@@ -300,10 +300,10 @@ int StrBufIsNumber(const StrBuf *Buf) {
   }
   char * pEnd;
   strtoll(Buf->buf, &pEnd, 10);
-  if (pEnd != NULL && ((Buf->buf)-pEnd) == 0) {
-    return 0;
+  if (pEnd == NULL && ((Buf->buf)-pEnd) != 0) {
+    return 1;
   }
-  return 1;
+  return 0;
 } 
 /**
  * \brief modifies a Single char of the Buf
@@ -332,7 +332,7 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
  */
 void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset)
 {
-	if ((AppendBuf == NULL) || (Buf == NULL))
+  if ((AppendBuf == NULL) || (Buf == NULL) || (AppendBuf->buf == NULL))
 		return;
 
 	if (Buf->BufSize - Offset < AppendBuf->BufUsed + Buf->BufUsed)
@@ -610,6 +610,71 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 	*tptr = '\0';
 }
 
+/*
+ * \brief Append a string, escaping characters which have meaning in JavaScript strings .  
+ *
+ * \param Target	target buffer
+ * \param Source	source buffer; set to NULL if you just have a C-String
+ * \param PlainIn       Plain-C string to append; set to NULL if unused
+ */
+long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
+{
+	const char *aptr, *eiptr;
+	char *bptr, *eptr;
+	long len;
+
+	if (((Source == NULL) && (PlainIn == NULL)) || (Target == NULL) )
+		return -1;
+
+	if (PlainIn != NULL) {
+		aptr = PlainIn;
+		len = strlen(PlainIn);
+		eiptr = aptr + len;
+	}
+	else {
+		aptr = Source->buf;
+		eiptr = aptr + Source->BufUsed;
+		len = Source->BufUsed;
+	}
+
+	if (len == 0) 
+		return -1;
+
+	bptr = Target->buf + Target->BufUsed;
+	eptr = Target->buf + Target->BufSize - 2; /* our biggest unit to put in...  */
+
+	while (aptr < eiptr){
+		if(bptr >= eptr) {
+			IncreaseBuf(Target, 1, -1);
+			eptr = Target->buf + Target->BufSize - 2; 
+			bptr = Target->buf + Target->BufUsed;
+		}
+		else if (*aptr == '"') {
+			memcpy(bptr, "\\\"", 2);
+			bptr += 2;
+			Target->BufUsed += 2;
+		}
+		else if (*aptr == '\'') {
+			memcpy(bptr, "\\\'", 2);
+			bptr += 2;
+			Target->BufUsed += 2;
+		} else if (*aptr == '\\') {
+		  memcpy(bptr, "\\\\", 2);
+		  bptr += 2;
+		  Target->BufUsed += 2;
+		}
+		else{
+			*bptr = *aptr;
+			bptr++;
+			Target->BufUsed ++;
+		}
+		aptr ++;
+	}
+	*bptr = '\0';
+	if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
+		return -1;
+	return Target->BufUsed;
+}
 
 /**
  * \brief extracts a substring from Source into dest

@@ -281,6 +281,7 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
 #define QU			(3)
 void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn);
 long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int nbsp, int nolinebreaks);
+long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn);
 void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn);
 
 long StrTol(const StrBuf *Buf);
