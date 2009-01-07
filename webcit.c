@@ -929,6 +929,15 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			}
 		}
 	}
+
+	/*
+	 * If a 'gotofirst' parameter has been specified, attempt to goto that room
+	 * prior to doing anything else.
+	 */
+	if (havebstr("gotofirst")) {
+		smart_goto(bstr("gotofirst"));
+	}
+
 	/*
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
