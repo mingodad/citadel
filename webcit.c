@@ -158,11 +158,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	if (do_htmlhead) {
 		begin_burst();
 		do_template("head", NULL);
-	}
-
-	/* ICONBAR */
-	if (do_htmlhead) {
-		begin_burst();
 
 		/* check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (!IsEmptyStr(WC->ImportantMessage)) {
