@@ -1295,19 +1295,34 @@ void calendar_summary_view(void) {
 
 				p = icalcomponent_get_first_property(Cal->cal, ICAL_SUMMARY_PROPERTY);
 				if (p != NULL) {
-					wprintf("<a href=\"display_edit_event"
-						"?msgnum=%ld"
-						"?calview=summary"
-						"?year=%d"
-						"?month=%d"
-						"?day=%d"
-						"?gotofirst=_CALENDAR_"
-						"\">",
-						Cal->cal_msgnum,
-						today_tm.tm_year + 1900,
-						today_tm.tm_mon + 1,
-						today_tm.tm_mday
-					);
+
+
+					if (WCC->wc_view == VIEW_TASKS) {
+						wprintf("<a href=\"display_edit_task"
+							"?msgnum=%ld"
+							"?return_to_summary=1"
+							"?gotofirst=",
+							Cal->cal_msgnum
+						);
+						escputs(WCC->wc_roomname);
+						wprintf("\">");
+					}
+					else {
+						wprintf("<a href=\"display_edit_event"
+							"?msgnum=%ld"
+							"?calview=summary"
+							"?year=%d"
+							"?month=%d"
+							"?day=%d"
+							"?gotofirst=",
+							Cal->cal_msgnum,
+							today_tm.tm_year + 1900,
+							today_tm.tm_mon + 1,
+							today_tm.tm_mday
+						);
+						escputs(WCC->wc_roomname);
+						wprintf("\">");
+					}
 					escputs((char *) icalproperty_get_comment(p));
 					wprintf(" (%s)</a><br />\n", timestring);
 				}
@@ -1536,8 +1551,7 @@ void do_tasks_view(void) {
 		wprintf("disabled=\"disabled\">\n</td><td>");
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_SUMMARY_PROPERTY);
-		wprintf("<a href=\"display_edit_task?msgnum=%ld&amp;taskrm=",
-			Cal->cal_msgnum );
+		wprintf("<a href=\"display_edit_task?msgnum=%ld?taskrm=", Cal->cal_msgnum);
 		urlescputs(WC->wc_roomname);
 		wprintf("\">");
 		/* wprintf("<img align=middle "
