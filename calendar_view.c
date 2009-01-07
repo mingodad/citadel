@@ -1269,8 +1269,7 @@ void calendar_summary_view(void) {
 	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		Cal = (disp_cal*)vCal;
-		p = icalcomponent_get_first_property(Cal->cal,
-						ICAL_DTSTART_PROPERTY);
+		p = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 		if (p != NULL) {
 			t = icalproperty_get_dtstart(p);
 			event_tt = icaltime_as_timet(t);
@@ -1291,25 +1290,33 @@ void calendar_summary_view(void) {
 
 			if ( (event_tm.tm_year == today_tm.tm_year)
 				&& (event_tm.tm_mon == today_tm.tm_mon)
-			&& (event_tm.tm_mday == today_tm.tm_mday)
+				&& (event_tm.tm_mday == today_tm.tm_mday)
 			) {
 
-
-			p = icalcomponent_get_first_property(
-				Cal->cal,
-				ICAL_SUMMARY_PROPERTY);
-			if (p != NULL) {
-				escputs((char *)
-					icalproperty_get_comment(p));
-				wprintf(" (%s)<br />\n", timestring);
-			}
+				p = icalcomponent_get_first_property(Cal->cal, ICAL_SUMMARY_PROPERTY);
+				if (p != NULL) {
+					wprintf("<a href=\"display_edit_event"
+						"?msgnum=%ld"
+						"?calview=summary"
+						"?year=%d"
+						"?month=%d"
+						"?day=%d"
+						"?gotofirst=_CALENDAR_"
+						"\">",
+						Cal->cal_msgnum,
+						today_tm.tm_year + 1900,
+						today_tm.tm_mon + 1,
+						today_tm.tm_mday
+					);
+					escputs((char *) icalproperty_get_comment(p));
+					wprintf(" (%s)</a><br />\n", timestring);
+				}
 			}
 		}
 	}
 	DeleteHashPos(&Pos);
 	DeleteHash(&WC->disp_cal_items);
 }
-
 
 /*
  * Parse the URL variables in order to determine the scope and display of a calendar view
@@ -1347,6 +1354,9 @@ void parse_calendar_view_request(struct calview *c) {
 	else if (!strcasecmp(calview, "week")) {
 		c->view = calview_week;
 	}
+	else if (!strcasecmp(calview, "summary")) {	/* shouldn't ever happen, but just in case */
+		c->view = calview_day;
+	}
 	else {
 		if (WC->wc_view == VIEW_CALBRIEF) {
 			c->view = calview_brief;
@@ -1369,6 +1379,7 @@ void parse_calendar_view_request(struct calview *c) {
 	if (c->view == calview_brief)	span = 3888000;
 	if (c->view == calview_week)	span = 604800;
 	if (c->view == calview_day)	span = 86400;
+	if (c->view == calview_summary)	span = 86400;
 
 	c->lower_bound = now - span;
 	c->upper_bound = now + span;

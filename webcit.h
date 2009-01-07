@@ -424,7 +424,8 @@ enum {
 	calview_month,
 	calview_day,
 	calview_week,
-	calview_brief
+	calview_brief,
+	calview_summary
 };
 
 struct calview {
@@ -684,6 +685,7 @@ const char *get_selected_language(void);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 void free_attachments(wcsession *sess);
+void summary(void);
 
 int is_mobile_ua(char *user_agent);
 

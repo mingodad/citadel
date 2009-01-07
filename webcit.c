@@ -930,7 +930,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	 * prior to doing anything else.
 	 */
 	if (havebstr("gotofirst")) {
-		smart_goto(bstr("gotofirst"));
+		gotoroom(bstr("gotofirst"));	/* do this quietly to avoid session output! */
 	}
 
 	/*
