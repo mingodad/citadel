@@ -757,7 +757,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		{
 			lprintf(9, "Suspicious request. Ignoring.");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
-			hprintf("Content-Type: text/plain\r\n");
+			hprintf("Content-Type: text/plain\r\n\r\n");
 			wprintf("You have sent a malformed or invalid request.\r\n");
 			end_burst();
 		}
@@ -771,7 +771,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		if (ibstr("nonce") != WCC->nonce) {
 			lprintf(9, "Ignoring request with mismatched nonce.\n");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
-			hprintf("Content-Type: text/plain\r\n");
+			hprintf("Content-Type: text/plain\r\n\r\n");
 			wprintf("Security check failed.\r\n");
 			end_burst();
 			goto SKIP_ALL_THIS_CRAP;
