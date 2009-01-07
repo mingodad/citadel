@@ -253,8 +253,9 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
  */
 void begin_burst(void)
 {
-	if (WC->WBuf == NULL)
+	if (WC->WBuf == NULL) {
 		WC->WBuf = NewStrBufPlain(NULL, 32768);
+	}
 }
 
 
