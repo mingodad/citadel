@@ -54,18 +54,18 @@ void groupdav_put_bigics(StrBuf *dav_content, int offset)
  * /groupdav/room_name/euid	(GroupDAV)
  * /groupdav/room_name		(webcal)
  */
-void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
+void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 		  const char *dav_content_type, StrBuf *dav_content,
 		  int offset) 
 {
-	char dav_roomname[1024];
-	char dav_uid[1024];
+	StrBuf *dav_roomname;
+	StrBuf *dav_uid;
 	long new_msgnum = (-2L);
 	long old_msgnum = (-1L);
 	char buf[SIZ];
 	int n = 0;
 
-	if (num_tokens(dav_pathname, '/') < 3) {
+	if (StrBufNum_tokens(dav_pathname, '/') < 3) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
@@ -74,23 +74,28 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 		return;
 	}
 
-	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
-	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
-	if ((!strcasecmp(dav_uid, "ics")) || (!strcasecmp(dav_uid, "calendar.ics"))) {
-		strcpy(dav_uid, "");
+	dav_roomname = NewStrBuf();;
+	dav_uid = NewStrBuf();;
+	StrBufExtract_token(dav_roomname, dav_pathname, 2, '/');
+	StrBufExtract_token(dav_uid, dav_pathname, 3, '/');
+	if ((!strcasecmp(ChrPtr(dav_uid), "ics")) || 
+	    (!strcasecmp(ChrPtr(dav_uid), "calendar.ics"))) {
+		FlushStrBuf(dav_uid);
 	}
 
 	/* Go to the correct room. */
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
 		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wprintf("There is no folder called \"%s\" on this server.\r\n",
-			dav_roomname);
+			ChrPtr(dav_roomname));
 		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);		
 		return;
 	}
 
@@ -103,7 +108,7 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 	 */
 	if (!IsEmptyStr(dav_ifmatch)) {
 		lprintf(9, "dav_ifmatch: %s\n", dav_ifmatch);
-		old_msgnum = locate_message_by_uid(dav_uid);
+		old_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (atol(dav_ifmatch) != old_msgnum) {
 			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
@@ -112,14 +117,18 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 			groupdav_common_headers();
 			hprintf("Content-Length: 0\r\n");
 			end_burst();
+			FreeStrBuf(&dav_roomname);
+			FreeStrBuf(&dav_uid);
 			return;
 		}
 	}
 
 	/** PUT on the collection itself uploads an ICS of the entire collection.
 	 */
-	if (!strcasecmp(dav_uid, "")) {
+	if (StrLength(dav_uid) > 0) {
 		groupdav_put_bigics(dav_content, offset);
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
 
@@ -147,17 +156,20 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 
 	/* Fetch the reply from the Citadel server */
 	n = 0;
-	strcpy(dav_uid, "");
+	FlushStrBuf(dav_uid);
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		switch(n++) {
-			case 0: new_msgnum = atol(buf);
-				break;
-			case 1:	lprintf(9, "new_msgnum=%ld (%s)\n", new_msgnum, buf);
-				break;
-			case 2: strcpy(dav_uid, buf);
-				break;
-			default:
-				break;
+		case 0: 
+			new_msgnum = atol(buf);
+			break;
+		case 1:	
+			lprintf(9, "new_msgnum=%ld (%s)\n", new_msgnum, buf);
+			break;
+		case 2: 
+			StrBufAppendBufPlain(dav_uid, buf, -1, 0);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -171,6 +183,8 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 		wprintf("new_msgnum is %ld\r\n"
 			"\r\n", new_msgnum);
 		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
 
@@ -184,10 +198,12 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 		hprintf("Location: ");
 		groupdav_identify_host();
 		hprintf("/groupdav/");/* TODO */
-		hurlescputs(dav_roomname);
-	        euid_escapize(escaped_uid, dav_uid);
+		hurlescputs(ChrPtr(dav_roomname));
+	        euid_escapize(escaped_uid, ChrPtr(dav_uid));
 	        hprintf("/%s\r\n", escaped_uid);
 		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
 
@@ -204,5 +220,7 @@ void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
 	serv_printf("DELE %ld", old_msgnum);
 	serv_getln(buf, sizeof buf);
 	end_burst();
+	FreeStrBuf(&dav_roomname);
+	FreeStrBuf(&dav_uid);
 	return;
 }

@@ -25,7 +25,7 @@
  * if not found.
  *
  */
-long locate_message_by_uid(char *uid) {
+long locate_message_by_uid(const char *uid) {
 	char buf[256];
 	char decoded_uid[1024];
 	long retval = (-1L);
@@ -227,9 +227,9 @@ void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset) {
-	char dav_roomname[256];
-	char dav_uid[256];
+void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset) {
+	StrBuf *dav_roomname;
+	StrBuf *dav_uid;
 	char msgnum[256];
 	long dav_msgnum = (-1);
 	char buf[256];
@@ -244,31 +244,37 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
 
-	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
-	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
+	dav_roomname = NewStrBuf();
+	dav_uid = NewStrBuf();
+	StrBufExtract_token(dav_roomname, dav_pathname, 2, '/');
+	StrBufExtract_token(dav_uid, dav_pathname, 3, '/');
 
 	/*
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
-	if (IsEmptyStr(dav_roomname)) {
-		groupdav_collection_list(dav_pathname, dav_depth);
+	if (StrLength(dav_roomname) == 0) {
+		groupdav_collection_list(ChrPtr(dav_pathname), dav_depth);
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
 
 	/* Go to the correct room. */
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
 		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-Type: text/plain\r\n");
 		wprintf("There is no folder called \"%s\" on this server.\r\n",
-			dav_roomname
+			ChrPtr(dav_roomname)
 		);
 		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
 
@@ -276,18 +282,20 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 	 * a specific item in the room.  This is not valid GroupDAV, but
 	 * it is valid WebDAV.
 	 */
-	if (!IsEmptyStr(dav_uid)) {
+	if (StrLength(dav_uid) != 0) {
 
-		dav_msgnum = locate_message_by_uid(dav_uid);
+		dav_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		if (dav_msgnum < 0) {
 			hprintf("HTTP/1.1 404 not found\r\n");
 			groupdav_common_headers();
 			hprintf("Content-Type: text/plain\r\n");
 			wprintf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
-				dav_uid,
-				dav_roomname
+				ChrPtr(dav_uid),
+				ChrPtr(dav_roomname)
 			);
 			end_burst();
+			FreeStrBuf(&dav_roomname);
+			FreeStrBuf(&dav_uid);
 			return;
 		}
 
@@ -312,8 +320,8 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 		wprintf("<href>");
 		groupdav_identify_host();
 		wprintf("/groupdav/");
-		urlescputs(WC->wc_roomname);
-		euid_escapize(encoded_uid, dav_uid);
+		urlescputs(ChrPtr(WC->wc_roomname));
+		euid_escapize(encoded_uid, ChrPtr(dav_uid));
 		wprintf("/%s", encoded_uid);
 		wprintf("</href>");
 		wprintf("<propstat>");
@@ -329,8 +337,12 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 		wprintf("</response>\n");
 		wprintf("</multistatus>\n");
 		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
+	FreeStrBuf(&dav_roomname);
+	FreeStrBuf(&dav_uid);
 
 
 	/*
@@ -360,14 +372,14 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 	wprintf("<href>");
 		groupdav_identify_host();
 		wprintf("/groupdav/");
-		urlescputs(WC->wc_roomname);
+		urlescputs(ChrPtr(WC->wc_roomname));
 	wprintf("</href>");
 
 	wprintf("<propstat>");
 	wprintf("<status>HTTP/1.1 200 OK</status>");
 	wprintf("<prop>");
 	wprintf("<displayname>");
-	escputs(WC->wc_roomname);
+	escputs(ChrPtr(WC->wc_roomname));
 	wprintf("</displayname>");
 	wprintf("<resourcetype><collection/>");
 
@@ -422,7 +434,7 @@ void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_cont
 				wprintf("<href>");
 					groupdav_identify_host();
 					wprintf("/groupdav/");
-					urlescputs(WC->wc_roomname);
+					urlescputs(ChrPtr(WC->wc_roomname));
 					euid_escapize(encoded_uid, uid);
 					wprintf("/%s", encoded_uid);
 				wprintf("</href>");

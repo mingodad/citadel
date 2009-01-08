@@ -130,7 +130,7 @@ long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks)
 }
 
 
-void escputs1(char *strbuf, int nbsp, int nolinebreaks)
+void escputs1(const char *strbuf, int nbsp, int nolinebreaks)
 {
 	StrEscAppend(WC->WBuf, NULL, strbuf, nbsp, nolinebreaks);
 }
@@ -143,7 +143,7 @@ void StrEscputs1(const StrBuf *strbuf, int nbsp, int nolinebreaks)
 /* 
  * static wrapper for ecsputs1
  */
-void escputs(char *strbuf)
+void escputs(const char *strbuf)
 {
 	escputs1(strbuf, 0, 0);
 }

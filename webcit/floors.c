@@ -145,7 +145,7 @@ void delete_floor(void) {
 	
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
 
-	if (ChrPtr(Buf)[0] == '2') {
+	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufPlain(Buf, _("Floor has been deleted."),-1);
 	}
 	else {
@@ -167,7 +167,7 @@ void create_floor(void) {
 	serv_printf("CFLR %s|1", bstr("floorname"));
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
 
-	if (ChrPtr(Buf)[0] == '2') {
+	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufPlain(Buf, _("New floor has been created."),-1);
 	}
 	else {

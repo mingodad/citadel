@@ -43,7 +43,7 @@ void display_rss_control(char *reply_to, char *subject)
  * roomname the room we sould print out as rss 
  * request_method the way the rss is requested????
  */
-void display_rss(char *roomname, StrBuf *request_method)
+void display_rss(const StrBuf *roomname, StrBuf *request_method)
 {
 	message_summary *Msg;
 	wcsession *WCC = WC;
@@ -76,19 +76,28 @@ void display_rss(char *roomname, StrBuf *request_method)
 	
 	if (!WCC->logged_in) {
 		#ifdef ALLOW_ANON_RSS
+		StrBuf *User;
+		StrBuf *Pass;
+		StrBuf *Buf;
 		serv_printf("USER %s", ANON_RSS_USER);
 		serv_getln(buf, sizeof buf);
 		serv_printf("PASS %s", ANON_RSS_PASS);
-		serv_getln(buf, sizeof buf);
-		become_logged_in(ANON_RSS_USER, ANON_RSS_PASS, buf);
+
+		StrBuf_ServGetln(Buf);
+		User = NewStrBufPlain(HKEY(ANON_RSS_USER));
+		Pass = NewStrBufPlain(HKEY(ANON_RSS_PASS));
+		become_logged_in(User, Pass, Buf);
 		WCC->killthis = 1;
+		FreeStrBuf(&User);
+		FreeStrBuf(&Pass);
+		FreeStrBuf(&Buf);
 		#else
 		authorization_required(_("Not logged in"));
 		return;
 		#endif
 	}
 
-	if (gotoroom((char *)roomname)) {
+	if (gotoroom(roomname)) {
 		lprintf(3, "RSS: Can't goto requested room\n");
 		hprintf("HTTP/1.1 404 Not Found\r\n");
 		hprintf("Content-Type: text/html\r\n");
@@ -153,8 +162,8 @@ void display_rss(char *roomname, StrBuf *request_method)
 	/* <?xml.. etc confuses our subst parser, so do it here */
 	svput("XML_HEAD", WCS_STRING, "<?xml version=\"1.0\" ?>");
 	svput("XML_STYLE", WCS_STRING, "<?xml-stylesheet type=\"text/css\" href=\"/static/rss_browser.css\" ?>");
-	svput("ROOM", WCS_STRING, WCC->wc_roomname);
-	svput("NODE", WCS_STRING, serv_info.serv_humannode);
+	SVPutBuf("ROOM", WCC->wc_roomname, 1);
+	SVPutBuf("NODE", serv_info.serv_humannode, 1);
 	/* TODO:  Fix me */
 	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), WCC->http_host);
 	
@@ -224,7 +233,7 @@ void display_rss(char *roomname, StrBuf *request_method)
 			svput("SUBJ", WCS_STRING, _("From"));
 		}
 		svprintf(HKEY("IN_ROOM"), WCS_STRING, _("%s in %s"), from, room);
-		if (strcmp(hnod, serv_info.serv_humannode) && !IsEmptyStr(hnod)) {
+		if (strcmp(hnod, ChrPtr(serv_info.serv_humannode)) && !IsEmptyStr(hnod)) {
 			svprintf(HKEY("NODE"), WCS_STRING, _(" on %s"), hnod);
 		}
 		if (now) {

@@ -27,7 +27,7 @@ void display_vnote_div(struct vnote *v) {
 	int i;
 
 
-	wprintf("<div id=\"note-%s\" ", v->uid);	// begin outer div
+	wprintf("<div id=\"note-%s\" ", v->uid);	/* begin outer div */
 	wprintf("class=\"stickynote_outer\" ");
 	wprintf("style=\"");
 	wprintf("left: %dpx; ", v->pos_left);
@@ -41,7 +41,7 @@ void display_vnote_div(struct vnote *v) {
 
 
 
-	wprintf("<div id=\"titlebar-%s\" ", v->uid);	// begin title bar div
+	wprintf("<div id=\"titlebar-%s\" ", v->uid);	/* begin title bar div */
 	wprintf("class=\"stickynote_titlebar\" ");
 	wprintf("onMouseDown=\"NotesDragMouseDown(event,'%s')\" ", v->uid);
 	wprintf("style=\"");
@@ -339,12 +339,16 @@ void ajax_update_note(void) {
  */
 void display_note(message_summary *Msg, int unread) {
 	struct vnote *v;
+	WCTemplputParams TP;
 
+	memset(&TP, 0, sizeof(WCTemplputParams));
+	TP.ContextType = CTX_VNOTE;
 	v = vnote_new_from_msg(Msg->msgnum);
 	if (v) {
 //		display_vnote_div(v);
+		TP.Context = v;
 		DoTemplate(HKEY("vnoteitem"),
-			   WC->WBuf, v, CTX_VNOTE);
+			   WC->WBuf, &TP);
 			
 
 		/* uncomment these lines to see ugly debugging info 
@@ -386,63 +390,63 @@ void add_new_note(void) {
 }
 
 
-void tmpl_vcard_put_posleft(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_posleft(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%d", v->pos_left);
 }
 
-void tmpl_vcard_put_postop(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_postop(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%d", v->pos_top);
 }
 
-void tmpl_vcard_put_poswidth(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_poswidth(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%d", v->pos_width);
 }
 
-void tmpl_vcard_put_posheight(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_posheight(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%d", v->pos_height);
 }
 
-void tmpl_vcard_put_posheight2(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_posheight2(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%d", (v->pos_height / 16) - 5);
 }
 
-void tmpl_vcard_put_width2(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_width2(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%d", (v->pos_width / 9) - 1);
 }
 
-void tmpl_vcard_put_color(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_color(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%02X%02X%02X", v->color_red, v->color_green, v->color_blue);
 }
 
-void tmpl_vcard_put_bgcolor(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_bgcolor(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendPrintf(Target, "%02X%02X%02X", v->color_red/2, v->color_green/2, v->color_blue/2);
 }
 
-void tmpl_vcard_put_message(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_message(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrEscAppend(Target, NULL, v->body, 0, 0); ///TODO?
 }
 
-void tmpl_vcard_put_uid(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmpl_vcard_put_uid(StrBuf *Target, WCTemplputParams *TP)
 {
-	struct vnote *v = (struct vnote *) Context;
+	struct vnote *v = (struct vnote *) CTX;
 	StrBufAppendBufPlain(Target, v->uid, -1, 0);
 }
 

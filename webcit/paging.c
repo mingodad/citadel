@@ -107,10 +107,13 @@ void do_chat(void)
 	char buf[SIZ];
 
 	/** First, check to make sure we're still allowed in this room. */
-	serv_printf("GOTO %s", WC->wc_roomname);
+	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
-		smart_goto("_BASEROOM_");
+		StrBuf *Buf;
+		Buf = NewStrBufPlain(HKEY("_BASEROOM_"));
+		smart_goto(Buf);
+		FreeStrBuf(&Buf);
 		return;
 	}
 
@@ -229,13 +232,13 @@ int setup_chat_socket(void) {
 
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			serv_printf("USER %s", WC->wc_username);
+			serv_printf("USER %s", ChrPtr(WC->wc_username));
 			serv_getln(buf, sizeof buf);
 			if (buf[0] == '3') {
-				serv_printf("PASS %s", WC->wc_password);
+				serv_printf("PASS %s", ChrPtr(WC->wc_password));
 				serv_getln(buf, sizeof buf);
 				if (buf[0] == '2') {
-					serv_printf("GOTO %s", WC->wc_roomname);
+					serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
 					serv_getln(buf, sizeof buf);
 					if (buf[0] == '2') {
 						serv_puts("CHAT");
@@ -382,7 +385,7 @@ void chat_recv(void) {
 				if (strcasecmp(cl_user, WC->last_chat_user)) {
 					wprintf("<B>");
 	
-					if (!strcasecmp(cl_user, WC->wc_fullname)) {
+					if (!strcasecmp(cl_user, ChrPtr(WC->wc_fullname))) {
 						wprintf("<FONT COLOR=&quot;#FF0000&quot;>");
 					}
 					else {

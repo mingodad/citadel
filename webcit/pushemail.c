@@ -59,7 +59,7 @@ void display_pushemail(void) {
 	} else if (is_funambol) {
 		svput("PUSH_FNBL", WCS_STRING, "checked=\"checked\"");
 	}
-	serv_printf("GOTO %s", WC->wc_roomname);
+	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
 	serv_getln(buf, sizeof  buf);
 	}
 	output_headers(1, 1, 2, 0, 0, 0);
@@ -107,7 +107,7 @@ void save_pushemail(void) {
 	}
 
 	/** Go back to the room we're supposed to be in */
-	serv_printf("GOTO %s", WC->wc_roomname);
+	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
 	serv_getln(buf, sizeof buf);
 	http_redirect("display_pushemail");
 }

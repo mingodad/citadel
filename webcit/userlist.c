@@ -39,7 +39,7 @@ void userlist(void)
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
-	snprintf(title, sizeof title, _("User list for %s"), serv_info.serv_humannode);
+	snprintf(title, sizeof title, _("User list for %s"), ChrPtr(serv_info.serv_humannode));
 	escputs(title);
 	wprintf("</h1>");
         wprintf("</div>");

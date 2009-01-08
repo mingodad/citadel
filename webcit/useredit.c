@@ -197,7 +197,7 @@ int ComparenPostsRev(const void *vUser1, const void *vUser2)
 }
 
 
-HashList *iterate_load_userlist(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 {
 	HashList *Hash;
 	char buf[SIZ];
@@ -268,76 +268,76 @@ HashList *iterate_load_userlist(StrBuf *Target, int nArgs, WCTemplateToken *Toke
 }
 
 
-void tmplput_USERLIST_UserName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_UserName(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, ul->UserName, 0);
+	UserListEntry *ul = (UserListEntry*) CTX;
+	StrBufAppendTemplate(Target, TP, ul->UserName, 0);
 }
 
-void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
 	StrBufAppendPrintf(Target, "%d", ul->AccessLevel, 0);
 }
 
-void tmplput_USERLIST_AccessLevelStr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_AccessLevelStr(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 	
 	StrBufAppendBufPlain(Target, _(axdefs[ul->AccessLevel]), -1, 0);
 }
 
-void tmplput_USERLIST_UID(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_UID(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
 	StrBufAppendPrintf(Target, "%d", ul->UID, 0);
 }
 
-void tmplput_USERLIST_LastLogonNo(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_LastLogonNo(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
 	StrBufAppendPrintf(Target,"%ld", ul->LastLogonT, 0);
 }
-void tmplput_USERLIST_LastLogonStr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_LastLogonStr(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 	StrEscAppend(Target, NULL, asctime(localtime(&ul->LastLogonT)), 0, 0);
 }
 
-void tmplput_USERLIST_nLogons(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_nLogons(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
 	StrBufAppendPrintf(Target, "%d", ul->nLogons, 0);
 }
 
-void tmplput_USERLIST_nPosts(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_nPosts(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
 	StrBufAppendPrintf(Target, "%d", ul->nPosts, 0);
 }
 
-void tmplput_USERLIST_Flags(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_Flags(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
 	StrBufAppendPrintf(Target, "%d", ul->Flags, 0);
 }
 
-void tmplput_USERLIST_DaysTillPurge(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_USERLIST_DaysTillPurge(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
 	StrBufAppendPrintf(Target, "%d", ul->DaysTillPurge, 0);
 }
 
-int ConditionalUser(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalUser(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 	if (havebstr("usernum")) {
 		return ibstr("usernum") == ul->UID;
 	}
@@ -348,18 +348,18 @@ int ConditionalUser(WCTemplateToken *Tokens, void *Context, int ContextType)
 		return 0;
 }
 
-int ConditionalFlagINetEmail(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalFlagINetEmail(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 	return (ul->Flags & US_INTERNET) != 0;
 }
 
-int ConditionalUserAccess(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserListEntry *ul = (UserListEntry*) Context;
+	UserListEntry *ul = (UserListEntry*) CTX;
 
-	if (Tokens->Params[3]->Type == TYPE_LONG)
-		return (Tokens->Params[3]->lvalue == ul->AccessLevel);
+	if (TP->Tokens->Params[3]->Type == TYPE_LONG)
+		return (TP->Tokens->Params[3]->lvalue == ul->AccessLevel);
 	else
 		return 0;
 }
@@ -516,8 +516,12 @@ void display_edituser(char *supplied_username, int is_new) {
 			delete_user(username);
 		}
 		else {
+			WCTemplputParams SubTP;
+			memset(&SubTP, 0, sizeof(WCTemplputParams));
+			SubTP.ContextType = CTX_USERLIST;
+			SubTP.Context = UL;
 			output_headers(1, 0, 0, 0, 1, 0);
-			DoTemplate(HKEY("userlist_detailview"), NULL, (void*) UL, CTX_USERLIST);
+			DoTemplate(HKEY("userlist_detailview"), NULL, &SubTP);
 			end_burst();
 		}
 		DeleteUserListEntry(UL);

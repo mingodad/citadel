@@ -51,7 +51,7 @@ void display_address_book_middle_div(void) {
 	wprintf("<option value=\"__LOCAL_USERS__\" %s>", 
 		(strcmp(ChrPtr(DefAddrBook), "__LOCAL_USERS__") == 0)?
 		"selected=\"selected\" ":"");
-	escputs(serv_info.serv_humannode);
+	escputs(ChrPtr(serv_info.serv_humannode));
 	wprintf("</option>\n");
 
 	
@@ -113,7 +113,7 @@ void display_address_book_inner_div() {
 	HashList *List;
 	HashPos  *it;
 	int i;
-	char saved_roomname[128];
+	StrBuf *saved_roomname;
 
 	begin_ajax_response();
 
@@ -149,8 +149,8 @@ void display_address_book_inner_div() {
 
 	else {
 		set_room_pref("defaddrbook",NewStrBufDup(sbstr("which_addr_book")), 0);
-		safestrncpy(saved_roomname, WC->wc_roomname, sizeof saved_roomname);
-		gotoroom(bstr("which_addr_book"));
+		saved_roomname = NewStrBufDup(WC->wc_roomname);
+		gotoroom(sbstr("which_addr_book"));
 		serv_puts("DVCA");
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') while(len = serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -171,6 +171,7 @@ void display_address_book_inner_div() {
 		DeleteHashPos(&it);
 		DeleteHash(&List);
 		gotoroom(saved_roomname);
+		FreeStrBuf(&saved_roomname);
 	}
 
 	wprintf("</select>\n");

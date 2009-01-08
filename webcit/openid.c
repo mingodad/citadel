@@ -51,7 +51,7 @@ void display_openids(void)
 	}
 
 	else {
-		wprintf(_("%s does not permit authentication via OpenID."), serv_info.serv_humannode);
+		wprintf(_("%s does not permit authentication via OpenID."), ChrPtr(serv_info.serv_humannode));
 	}
 
 	do_template("endbox", NULL);

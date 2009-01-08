@@ -67,7 +67,6 @@ body {
 
 #room_infos, #address_book_popup, .mimepart, .room_actions form select {
 	border: 1px solid #333;
-	overflow: hidden;
 }
 
 
@@ -1162,7 +1161,7 @@ ul.tabbed_dialog li {
 
 .tabcontent_submit {
         margin: 0 auto 0 auto;
-        width: 96%;
+        width: 50%;
         padding: 10px;
         text-align: center;
 }

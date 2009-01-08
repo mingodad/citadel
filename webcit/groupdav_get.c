@@ -86,9 +86,9 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
  * /groupdav/room_name/euid	(GroupDAV)
  * /groupdav/room_name		(webcal)
  */
-void groupdav_get(const char *dav_pathname) {
-	char dav_roomname[1024];
-	char dav_uid[1024];
+void groupdav_get(StrBuf *dav_pathname) {
+	StrBuf *dav_roomname;
+	StrBuf *dav_uid;
 	long dav_msgnum = (-1);
 	char buf[1024];
 	int in_body = 0;
@@ -104,7 +104,7 @@ void groupdav_get(const char *dav_pathname) {
 	char date[128];
 	struct epdata epdata;
 
-	if (num_tokens(dav_pathname, '/') < 3) {
+	if (StrBufNum_tokens(dav_pathname, '/') < 3) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
@@ -113,34 +113,41 @@ void groupdav_get(const char *dav_pathname) {
 		return;
 	}
 
-	extract_token(dav_roomname, dav_pathname, 2, '/', sizeof dav_roomname);
-	extract_token(dav_uid, dav_pathname, 3, '/', sizeof dav_uid);
-	if ((!strcasecmp(dav_uid, "ics")) || (!strcasecmp(dav_uid, "calendar.ics"))) {
-		strcpy(dav_uid, "");
+	dav_roomname = NewStrBuf();;
+	dav_uid = NewStrBuf();;
+	StrBufExtract_token(dav_roomname, dav_pathname, 2, '/');
+	StrBufExtract_token(dav_uid, dav_pathname, 3, '/');
+	if ((!strcasecmp(ChrPtr(dav_uid), "ics")) || 
+	    (!strcasecmp(ChrPtr(dav_uid), "calendar.ics"))) {
+		FlushStrBuf(dav_uid);
 	}
 
 	/* Go to the correct room. */
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
 		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wprintf("There is no folder called \"%s\" on this server.\r\n",
-			dav_roomname);
+			ChrPtr(dav_roomname));
 		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
 
 	/** GET on the collection itself returns an ICS of the entire collection.
 	 */
-	if (!strcasecmp(dav_uid, "")) {
+	if (StrLength(dav_uid) > 0) {
 		groupdav_get_big_ics();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
 
-	dav_msgnum = locate_message_by_uid(dav_uid);
+	dav_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 	serv_printf("MSG2 %ld", dav_msgnum);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
@@ -148,11 +155,15 @@ void groupdav_get(const char *dav_pathname) {
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wprintf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
-			dav_uid,
-			dav_roomname);
+			ChrPtr(dav_uid),
+			ChrPtr(dav_roomname));
 		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
 		return;
 	}
+	FreeStrBuf(&dav_roomname);
+	FreeStrBuf(&dav_uid);
 
 	/* We got it; a message is now arriving from the server.  Read it in. */
 

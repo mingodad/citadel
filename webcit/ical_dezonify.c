@@ -21,7 +21,7 @@
 icaltimezone *get_default_icaltimezone(void) {
 
         icaltimezone *zone = NULL;
-	char *default_zone_name = serv_info.serv_default_cal_zone;
+	const char *default_zone_name = ChrPtr(serv_info.serv_default_cal_zone);
 
         if (!zone) {
                 zone = icaltimezone_get_builtin_timezone(default_zone_name);

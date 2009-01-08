@@ -352,26 +352,24 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 
 
 
-int ConditionalBstr(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalBstr(StrBuf *Target, WCTemplputParams *TP)
 {
-	if(Tokens->nParameters == 3)
+	if(TP->Tokens->nParameters == 3)
 		return HaveBstr(TKEY(2));
 	else {
-		if (Tokens->Params[3]->Type == TYPE_LONG)
-			return LBstr(TKEY(2)) == Tokens->Params[3]->lvalue;
+		if (TP->Tokens->Params[3]->Type == TYPE_LONG)
+			return LBstr(TKEY(2)) == TP->Tokens->Params[3]->lvalue;
 		else 
 			return strcmp(Bstr(TKEY(2)),
-				      Tokens->Params[3]->Start) == 0;
+				      TP->Tokens->Params[3]->Start) == 0;
 	}
 }
 
-void tmplput_bstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_bstr(StrBuf *Target, WCTemplputParams *TP)
 {
 	const StrBuf *Buf = SBstr(TKEY(0));
 	if (Buf != NULL)
-		StrBufAppendTemplate(Target, nArgs, Tokens, 
-				     Context, ContextType,
-				     Buf, 1);
+		StrBufAppendTemplate(Target, TP, Buf, 1);
 }
 
 void diagnostics(void)
@@ -392,37 +390,22 @@ void diagnostics(void)
 }
 
 
-void tmplput_url_part(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_url_part(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *UrlBuf;
 	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
-		if (Tokens->Params[0]->lvalue == 0)
+		if (TP->Tokens->Params[0]->lvalue == 0)
 			UrlBuf = WCC->UrlFragment1;
-		else if (Tokens->Params[0]->lvalue == 1)
+		else if (TP->Tokens->Params[0]->lvalue == 1)
 			UrlBuf = WCC->UrlFragment2;
 		else
 			UrlBuf = WCC->UrlFragment3;
 		if (UrlBuf == NULL)  {
-			lprintf(1, "urlbuf [%s] not set. (in '%s' line %ld);[%s]\n", 
-				Tokens->Params[0]->Start,
-				ChrPtr(Tokens->FileName),
-				Tokens->Line,
-				ChrPtr(Tokens->FlatToken));
-			StrBufAppendPrintf(
-				Target, 
-				"<pre>\nurlbuf [%s] not set (in '%s' line %ld)\n[%s]\n</pre>\n", 
-				Tokens->Params[0]->Start,
-				ChrPtr(Tokens->FileName),
-				Tokens->Line,
-				ChrPtr(Tokens->FlatToken));
-
-
-
+			LogTemplateError(Target, "urlbuf", ERR_PARM1, TP, "not set.");
 		}
-		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
-				     UrlBuf, 2);
+		StrBufAppendTemplate(Target, TP, UrlBuf, 2);
 	}
 }
 
