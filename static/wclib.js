@@ -9,10 +9,14 @@
 var browserType;
 var room_is_trash = 0;
 
-if (document.layers) {browserType = "nn4"}
-if (document.all) {browserType = "ie"}
+if (document.layers) {
+	browserType = "nn4";
+}
+if (document.all) {
+	browserType = "ie";
+}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
-	browserType= "gecko"
+	browserType= "gecko";
 }
 
 var ns6=document.getElementById&&!document.all;
@@ -50,12 +54,15 @@ function extract_token(source_string, token_num, delimiter) {
 
 // This code handles the popups for important-messages.
 function hide_imsg_popup() {
-	if (browserType == "gecko" )
+	if (browserType == "gecko") {
 		document.poppedLayer = eval('document.getElementById(\'important_message\')');
-	else if (browserType == "ie")
+	}
+	else if (browserType == "ie") {
 		document.poppedLayer = eval('document.all[\'important_message\']');
-	else
+	}
+	else {
 		document.poppedLayer = eval('document.layers[\'`important_message\']');
+	}
 
 	document.poppedLayer.style.visibility = "hidden";
 }
