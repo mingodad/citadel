@@ -232,11 +232,9 @@ int main(int argc, char **argv) {
 				fprintf(fp, "%s%s", fromline, buf);
 			}
 		}
-		if (!strncasecmp(buf, "From:", 5)) {
+		if (in_body == 0 && !strncasecmp(buf, "From:", 5)) {
 			strcpy(fromline, buf);
-			if (in_body == 0) {
-				from_header = 1;
-			}
+			from_header = 1;
 		}
 
 		if (read_recipients_from_headers) {
