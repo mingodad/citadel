@@ -205,27 +205,25 @@ int lingering_close(int fd)
 
 
 
-/**
- * \brief	sanity requests
- *		Check for bogus requests coming from brain-dead Windows boxes.
- *
- * \param	http_cmd	The HTTP request to check
+/*
+ * Look for commonly-found probes of malware such as worms, viruses, trojans, and Microsoft Office.
+ * Short-circuit these requests so we don't have to send them through the full processing loop.
  */
 int is_bogus(StrBuf *http_cmd) {
 	const char *url;
 	int i, max;
 	const char *bogus_prefixes[] = {
-		"/scripts/root.exe",	/**< Worms and trojans and viruses, oh my! */
+		"/scripts/root.exe",	/* Worms and trojans and viruses, oh my! */
 		"/c/winnt",
 		"/MSADC/",
-		"/_vti",		/**< Broken Microsoft DAV implementation */
-		"/MSOffice"		/**< Stoopid MSOffice thinks everyone is IIS */
+		"/_vti",		/* Broken Microsoft DAV implementation */
+		"/MSOffice",		/* Stoopid MSOffice thinks everyone is IIS */
+		"/nonexistenshit"	/* Exploit found in the wild January 2009 */
 	};
 
 	url = ChrPtr(http_cmd);
 	if (IsEmptyStr(url)) return(1);
 	++url;
-
 
 	max = sizeof(bogus_prefixes) / sizeof(char *);
 
