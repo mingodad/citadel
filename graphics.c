@@ -9,6 +9,7 @@
 
 void display_graphics_upload(char *description, char *filename, char *uplurl)
 {
+	WCTemplputParams SubTP;
 	StrBuf *Buf;
 	char buf[SIZ];
 
@@ -26,7 +27,10 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	Buf = NewStrBufPlain(_("Image upload"), -1);
-	DoTemplate(HKEY("beginbox"), NULL, Buf, CTX_STRBUF);
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
+	SubTP.ContextType = CTX_STRBUF;
+	SubTP.Context = Buf;
+	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
 
 	FreeStrBuf(&Buf);
 

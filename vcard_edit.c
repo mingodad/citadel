@@ -61,8 +61,8 @@ void display_addressbook(long msgnum, char alpha) {
 			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL,msgnum);
 
 			/** If it's my vCard I can edit it */
-			if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
-				|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
+			if (	(!strcasecmp(ChrPtr(WC->wc_roomname), USERCONFIGROOM))
+				|| (!strcasecmp(&(ChrPtr(WC->wc_roomname)[11]), USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
 				wprintf("<a href=\"edit_vcard?"
@@ -648,7 +648,7 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
  * and MIME part number to fetch.  Or, specify -1 for the message number
  * to start with a blank card.
  */
-void do_edit_vcard(long msgnum, char *partnum, char *return_to, char *force_room) {
+void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *force_room) {
 	char buf[SIZ];
 	char *serialized_vcard = NULL;
 	size_t total_len = 0;
@@ -1026,7 +1026,7 @@ void submit_vcard(void) {
 	}
 
 	if (havebstr("force_room")) {
-		gotoroom(bstr("force_room"));
+		gotoroom(sbstr("force_room"));
 	}
 
 	sprintf(buf, "ENT0 1|||4||");

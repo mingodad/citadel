@@ -14,6 +14,7 @@ struct serv_info serv_info; /**< our connection data to the server */
  */
 void get_serv_info(char *browser_host, char *user_agent)
 {
+	StrBuf *Buf;
 	char buf[SIZ];
 	int a;
 
@@ -46,56 +47,58 @@ void get_serv_info(char *browser_host, char *user_agent)
 		return;
 
 	a = 0;
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+	Buf = NewStrBuf();
+	while (StrBuf_ServGetln(Buf), (strcmp(ChrPtr(Buf), "000")!= 0)) {
+/*		lprintf (1, "a: %d [%s]", a, ChrPtr(Buf));*/
 		switch (a) {
 		case 0:
-			serv_info.serv_pid = atoi(buf);
+			serv_info.serv_pid = StrToi(Buf);
 			WC->ctdl_pid = serv_info.serv_pid;
 			break;
 		case 1:
-			safestrncpy(serv_info.serv_nodename, buf, sizeof serv_info.serv_nodename);
+			serv_info.serv_nodename = NewStrBufDup(Buf);
 			break;
 		case 2:
-			safestrncpy(serv_info.serv_humannode, buf, sizeof serv_info.serv_humannode);
+			serv_info.serv_humannode = NewStrBufDup(Buf);
 			break;
 		case 3:
-			safestrncpy(serv_info.serv_fqdn, buf, sizeof serv_info.serv_fqdn);
+			serv_info.serv_fqdn = NewStrBufDup(Buf);
 			break;
 		case 4:
-			safestrncpy(serv_info.serv_software, buf, sizeof serv_info.serv_software);
+			serv_info.serv_software = NewStrBufDup(Buf);
 			break;
 		case 5:
-			serv_info.serv_rev_level = atoi(buf);
+			serv_info.serv_rev_level = StrToi(Buf);
 			break;
 		case 6:
-			safestrncpy(serv_info.serv_bbs_city, buf, sizeof serv_info.serv_bbs_city);
+			serv_info.serv_bbs_city = NewStrBufDup(Buf);
 			break;
 		case 7:
-			safestrncpy(serv_info.serv_sysadm, buf, sizeof serv_info.serv_sysadm);
+			serv_info.serv_sysadm = NewStrBufDup(Buf);
 			break;
 		case 9:
-			safestrncpy(serv_info.serv_moreprompt, buf, sizeof serv_info.serv_moreprompt);
+			serv_info.serv_moreprompt = NewStrBufDup(Buf);
 			break;
 		case 14:
-			serv_info.serv_supports_ldap = atoi(buf);
+			serv_info.serv_supports_ldap = StrToi(Buf);
 			break;
 		case 15:
-			serv_info.serv_newuser_disabled = atoi(buf);
+			serv_info.serv_newuser_disabled = StrToi(Buf);
 			break;
 		case 16:
-			safestrncpy(serv_info.serv_default_cal_zone, buf, sizeof serv_info.serv_default_cal_zone);
+			serv_info.serv_default_cal_zone = NewStrBufDup(Buf);
 			break;
 		case 20:
-			serv_info.serv_supports_sieve = atoi(buf);
+			serv_info.serv_supports_sieve = StrToi(Buf);
 			break;
 		case 21:
-			serv_info.serv_fulltext_enabled = atoi(buf);
+			serv_info.serv_fulltext_enabled = StrToi(Buf);
 			break;
 		case 22:
-			safestrncpy(serv_info.serv_svn_revision, buf, sizeof serv_info.serv_svn_revision);
+			serv_info.serv_svn_revision = NewStrBufDup(Buf);
 			break;
 		case 23:
-			serv_info.serv_supports_openid = atoi(buf);
+			serv_info.serv_supports_openid = StrToi(Buf);
 			break;
 		}
 		++a;
@@ -437,8 +440,8 @@ int read_server_binary(StrBuf *Ret, size_t total_len)
 		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
 		if (StrBuf_ServGetln(Buf) > 0)
 		{
-		    if (ChrPtr(Buf)[0] == '6')
-		    {
+			if (GetServerStatus(Buf, NULL) == 6)
+			{
 			    StrBufCutLeft(Buf, 4); /*/ TODO : thisblock = (size_t)atoi(&buf[4]); */
 			    thisblock = StrTol(Buf);
 			    if (!WC->connected) {
@@ -502,63 +505,53 @@ int GetServerStatus(StrBuf *Line, long* FullState)
 }
 
 
-void tmplput_serv_ip(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_serv_ip(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBufAppendPrintf(Target, "%d", WC->ctdl_pid);
 }
 
-void tmplput_serv_nodename(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_serv_nodename(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrEscAppend(Target, NULL, serv_info.serv_nodename, 0, 0);
+	StrBufAppendTemplate(Target, TP, serv_info.serv_nodename, 0);
 }
 
-void tmplput_serv_humannode(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_serv_humannode(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrEscAppend(Target, NULL, serv_info.serv_humannode, 0, 0);
+	StrBufAppendTemplate(Target, TP, serv_info.serv_humannode, 0);
 }
 
-void tmplput_serv_fqdn(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_serv_fqdn(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrEscAppend(Target, NULL, serv_info.serv_fqdn, 0, 0);
+	StrBufAppendTemplate(Target, TP, serv_info.serv_fqdn, 0);
 }
 
-void tmplput_serv_software(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_serv_software(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrEscAppend(Target, NULL, serv_info.serv_software, 0, 0);
+	StrBufAppendTemplate(Target, TP, serv_info.serv_software, 0);
 }
 
-void tmplput_serv_rev_level(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_serv_rev_level(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBufAppendPrintf(Target, "%d.%02d",
 			    serv_info.serv_rev_level / 100,
 			    serv_info.serv_rev_level % 100);
 }
-int conditional_serv_newuser_disabled(WCTemplateToken *Tokens, void *Context, int ContextType)
+int conditional_serv_newuser_disabled(StrBuf *Target, WCTemplputParams *TP)
 {
 	return serv_info.serv_newuser_disabled != 0;
 }
-int conditional_serv_supports_openid(WCTemplateToken *Tokens, void *Context, int ContextType)
+int conditional_serv_supports_openid(StrBuf *Target, WCTemplputParams *TP)
 {
 	return serv_info.serv_supports_openid != 0;
 }
 
-void tmplput_serv_bbs_city(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_serv_bbs_city(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrEscAppend(Target, NULL, serv_info.serv_bbs_city, 0, 0);
-}
-
-void tmplput_current_user(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, WC->wc_fullname, 0, 0);
-}
-
-void tmplput_current_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
-{
-	StrEscAppend(Target, NULL, WC->wc_roomname, 0, 0);
+	StrBufAppendTemplate(Target, TP, serv_info.serv_bbs_city, 0);
 }
 
 
-void tmplput_mesg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_mesg(StrBuf *Target, WCTemplputParams *TP)
 {
 	int n = 0;
 	int Done = 0;
@@ -567,7 +560,7 @@ void tmplput_mesg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Cont
 
 	Buf = NewStrBuf();
 	Line = NewStrBuf();
-	serv_printf("MESG %s", Tokens->Params[0]->Start);
+	serv_printf("MESG %s", TP->Tokens->Params[0]->Start);
 	StrBuf_ServGetln(Line);
 	while (!Done &&  (StrBuf_ServGetln(Line)>=0)) {
 		if ( (StrLength(Line)==3) && 
@@ -583,7 +576,7 @@ void tmplput_mesg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Cont
 	}
 	FlushStrBuf(Line);
 	FmOut(Line, "center", Buf);
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Line, 1);
+	StrBufAppendTemplate(Target, TP, Line, 1);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&Line);
 }
@@ -595,15 +588,13 @@ InitModule_SERVFUNC
 
 	RegisterConditional(HKEY("COND:SERV:OPENID"), 2, conditional_serv_supports_openid, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERV:NEWU"), 2, conditional_serv_newuser_disabled, CTX_NONE);
-	RegisterNamespace("CURRENT_USER", 0, 0, tmplput_current_user, CTX_NONE);
-	RegisterNamespace("CURRENT_ROOM", 0, 0, tmplput_current_room, CTX_NONE);
 	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip, CTX_NONE);
-	RegisterNamespace("SERV:NODENAME", 0, 0, tmplput_serv_nodename, CTX_NONE);
-	RegisterNamespace("SERV:HUMANNODE", 0, 0, tmplput_serv_humannode, CTX_NONE);
-	RegisterNamespace("SERV:FQDN", 0, 0, tmplput_serv_fqdn, CTX_NONE);
-	RegisterNamespace("SERV:SOFTWARE", 0, 0, tmplput_serv_software, CTX_NONE);
+	RegisterNamespace("SERV:NODENAME", 0, 1, tmplput_serv_nodename, CTX_NONE);
+	RegisterNamespace("SERV:HUMANNODE", 0, 1, tmplput_serv_humannode, CTX_NONE);
+	RegisterNamespace("SERV:FQDN", 0, 1, tmplput_serv_fqdn, CTX_NONE);
+	RegisterNamespace("SERV:SOFTWARE", 0, 1, tmplput_serv_software, CTX_NONE);
 	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, CTX_NONE);
-	RegisterNamespace("SERV:BBS_CITY", 0, 0, tmplput_serv_bbs_city, CTX_NONE);
+	RegisterNamespace("SERV:BBS_CITY", 0, 1, tmplput_serv_bbs_city, CTX_NONE);
 	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, CTX_NONE);
 /*TODO //	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmplput_serv_ldap_enabled, 0); */
 }

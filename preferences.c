@@ -122,7 +122,7 @@ void load_preferences(void)
 	}
 
 	/* Go back to the room we're supposed to be in */
-	serv_printf("GOTO %s", WC->wc_roomname);
+	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
 	serv_getln(buf, sizeof buf);
 }
 
@@ -234,7 +234,7 @@ void save_preferences(void) {
 	}
 
 	/** Go back to the room we're supposed to be in */
-	serv_printf("GOTO %s", WC->wc_roomname);
+	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
 	serv_getln(buf, sizeof buf);
 }
 
@@ -341,7 +341,7 @@ StrBuf *get_ROOM_PREFS(const char *key, size_t keylen)
 	StrBuf *pref_name, *pref_value;
 	
 	pref_name = NewStrBuf ();
-	StrBufPrintf(pref_name, "%s %s", key, WC->wc_roomname);
+	StrBufPrintf(pref_name, "%s %s", key, ChrPtr(WC->wc_roomname));
 	get_pref(pref_name, &pref_value);
 	FreeStrBuf(&pref_name);
 	return pref_value;
@@ -352,7 +352,7 @@ void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_s
 	StrBuf *pref_name;
 	
 	pref_name = NewStrBuf ();
-	StrBufPrintf(pref_name, "%s %s", key, WC->wc_roomname);
+	StrBufPrintf(pref_name, "%s %s", key, ChrPtr(WC->wc_roomname));
 	set_PREFERENCE(ChrPtr(pref_name), StrLength(pref_name), value, save_to_server);
 	FreeStrBuf(&pref_name);
 }
@@ -360,7 +360,8 @@ void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_s
 /*
  * Offer to make any page the user's "start page."
  */
-void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType) {
+void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
+{
 	wprintf("<a href=\"change_start_page?startpage=");
 	urlescputs(WC->this_page);
 	wprintf("\">");
@@ -368,9 +369,9 @@ void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *C
 	wprintf("</a>");
 #ifdef TECH_PREVIEW
 	wprintf("<br/><a href=\"rss?room=");
-	urlescputs(WC->wc_roomname);
+	urlescputs(ChrPtr(WC->wc_roomname));
 	wprintf("\" title=\"RSS 2.0 feed for ");
-	escputs(WC->wc_roomname);
+	escputs(ChrPtr(WC->wc_roomname));
 	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\"/></a>\n");
 #endif
 }
@@ -456,14 +457,14 @@ void set_preferences(void)
 #define PRF_YESNO 4
 
 
-void tmplput_CFG_Value(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_CFG_Value(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Setting;
 	if (get_PREFERENCE(TKEY(0), &Setting))
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Setting, 1);
+	StrBufAppendTemplate(Target, TP, Setting, 1);
 }
 
-void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_CFG_Descr(StrBuf *Target, WCTemplputParams *TP)
 {
 	const char *SettingStr;
 	SettingStr = PrefGetLocalStr(TKEY(0));
@@ -472,31 +473,31 @@ void tmplput_CFG_Descr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
 }
 
 
-void CfgZoneTempl(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
+void CfgZoneTempl(StrBuf *TemplBuffer, WCTemplputParams *TP)
 {
-	StrBuf *Zone = (StrBuf*) vContext;
+	StrBuf *Zone = (StrBuf*) CTX;
 
 	SVPutBuf("ZONENAME", Zone, 1);
 }
 
-int ConditionalPreference(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalPreference(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Pref;
 
 	if (!get_PREFERENCE(TKEY(2), &Pref)) 
 		return 0;
 	
-	if (Tokens->nParameters == 3) {
+	if (TP->Tokens->nParameters == 3) {
 		return 1;
 	}
-	else if (Tokens->Params[3]->Type == TYPE_STR)
-		return ((Tokens->Params[3]->len == StrLength(Pref)) &&
-			(strcmp(Tokens->Params[3]->Start, ChrPtr(Pref)) == 0));
+	else if (TP->Tokens->Params[3]->Type == TYPE_STR)
+		return ((TP->Tokens->Params[3]->len == StrLength(Pref)) &&
+			(strcmp(TP->Tokens->Params[3]->Start, ChrPtr(Pref)) == 0));
 	else 
-		return (StrTol(Pref) == Tokens->Params[3]->lvalue);
+		return (StrTol(Pref) == TP->Tokens->Params[3]->lvalue);
 }
 
-int ConditionalHazePreference(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalHazePreference(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Pref;
 
@@ -507,7 +508,7 @@ int ConditionalHazePreference(WCTemplateToken *Tokens, void *Context, int Contex
 		return 1;
 }
 
-HashList *GetGVEAHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *GetGVEAHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Rcp;
 	HashList *List = NULL;
@@ -518,7 +519,7 @@ HashList *GetGVEAHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 	Rcp = NewStrBuf();
 	serv_puts("GVEA");
 	StrBuf_ServGetln(Rcp);
-	if (ChrPtr(Rcp)[0] == '1') {
+	if (GetServerStatus(Rcp, NULL) == 1) {
 		FlushStrBuf(Rcp);
 		List = NewHash(1, NULL);
 		while (!Done && (StrBuf_ServGetln(Rcp)>=0)) {
@@ -544,7 +545,7 @@ void DeleteGVEAHash(HashList **KillMe)
 	DeleteHash(KillMe);
 }
 
-HashList *GetGVSNHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *GetGVSNHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Rcp;
 	HashList *List = NULL;
@@ -555,7 +556,7 @@ HashList *GetGVSNHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *
 	Rcp = NewStrBuf();
 	serv_puts("GVSN");
 	StrBuf_ServGetln(Rcp);
-	if (ChrPtr(Rcp)[0] == '1') {
+	if (GetServerStatus(Rcp, NULL) == 1) {
 		FlushStrBuf(Rcp);
 		List = NewHash(1, NULL);
 		while (!Done && (StrBuf_ServGetln(Rcp)>=0)) {
@@ -602,7 +603,7 @@ InitModule_PREFERENCES
 	RegisterPreference("defaultfrom", _("Preferred email address"), PRF_STRING);
 	RegisterPreference("defaultname", _("Preferred display name for email messages"), PRF_STRING);
 	RegisterPreference("defaulthandle", _("Preferred display name for bulletin board posts"), PRF_STRING);
-	
+	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE, IT_NOFLAG);

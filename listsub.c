@@ -23,10 +23,10 @@ void do_listsub(void)
 	int self;
 	char sroom[SIZ];
 
-	strcpy(WC->wc_fullname, "");
-	strcpy(WC->wc_username, "");
-	strcpy(WC->wc_password, "");
-	strcpy(WC->wc_roomname, "");
+	FlushStrBuf(WC->wc_fullname);
+	FlushStrBuf(WC->wc_username);
+	FlushStrBuf(WC->wc_password);
+	FlushStrBuf(WC->wc_roomname);
 
 	output_headers(1, 0, 0, 1, 1, 0);
 	begin_burst();

@@ -804,7 +804,7 @@ void commit_iconbar(void) {
 }
 
 
-void tmplput_iconbar(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_iconbar(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	

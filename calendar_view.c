@@ -1304,7 +1304,7 @@ void calendar_summary_view(void) {
 							"?gotofirst=",
 							Cal->cal_msgnum
 						);
-						escputs(WCC->wc_roomname);
+						escputs(ChrPtr(WCC->wc_roomname));
 						wprintf("\">");
 					}
 					else {
@@ -1320,7 +1320,7 @@ void calendar_summary_view(void) {
 							today_tm.tm_mon + 1,
 							today_tm.tm_mday
 						);
-						escputs(WCC->wc_roomname);
+						escputs(ChrPtr(WCC->wc_roomname));
 						wprintf("\">");
 					}
 					escputs((char *) icalproperty_get_comment(p));
@@ -1552,7 +1552,7 @@ void do_tasks_view(void) {
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_SUMMARY_PROPERTY);
 		wprintf("<a href=\"display_edit_task?msgnum=%ld?taskrm=", Cal->cal_msgnum);
-		urlescputs(WC->wc_roomname);
+		urlescputs(ChrPtr(WC->wc_roomname));
 		wprintf("\">");
 		/* wprintf("<img align=middle "
 		"src=\"static/taskmanag_16x.gif\" border=0>&nbsp;"); */

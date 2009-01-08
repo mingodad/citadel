@@ -118,7 +118,8 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		hprintf("Content-type: text/html; charset=utf-8\r\n"
 			"Server: %s / %s\n"
 			"Connection: close\r\n",
-			PACKAGE_STRING, serv_info.serv_software
+			PACKAGE_STRING, 
+			ChrPtr(serv_info.serv_software)
 		);
 	}
 
@@ -143,7 +144,8 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		);
 	}
 
-	stuff_to_cookie(cookie, 1024, WC->wc_session, WC->wc_username,
+	stuff_to_cookie(cookie, 1024, 
+			WC->wc_session, WC->wc_username,
 			WC->wc_password, WC->wc_roomname);
 
 	if (unset_cookies) {
@@ -365,7 +367,7 @@ void url_do_template(void) {
 	const StrBuf *Tmpl = sbstr("template");
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	DoTemplate(ChrPtr(Tmpl), StrLength(Tmpl), NULL, NULL, 0);
+	DoTemplate(SKEY(Tmpl), NULL, &NoCtx);
 	end_burst();
 }
 
@@ -387,7 +389,7 @@ void display_success(char *successmessage)
 void authorization_required(const char *message)
 {
 	hprintf("HTTP/1.1 401 Authorization Required\r\n");
-	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", serv_info.serv_humannode);
+	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", ChrPtr(serv_info.serv_humannode));
 	hprintf("Content-Type: text/html\r\n");
 	wprintf("<h1>");
 	wprintf(_("Authorization Required"));
@@ -491,7 +493,7 @@ void seconds_since_last_gexp(void)
 		wprintf("NO\n");
 	}
 	else {
-		memset(buf, 5, 0);
+		memset(buf, 0, 5);
 		serv_puts("NOOP");
 		serv_getln(buf, sizeof buf);
 		if (buf[3] == '*') {
@@ -528,6 +530,7 @@ int is_mobile_ua(char *user_agent) {
  */
 void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method, StrBuf *ReadBuf)
 {
+	StrBuf *Buf;
 	const char *pch, *pchs, *pche;
 	void *vLine;
 	char action[1024];
@@ -554,20 +557,21 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
 	 */
-	char c_username[SIZ];
-	char c_password[SIZ];
-	char c_roomname[SIZ];
+	StrBuf *c_username;
+	StrBuf *c_password;
+	StrBuf *c_roomname;
 	char c_httpauth_string[SIZ];
-	char c_httpauth_user[SIZ];
-	char c_httpauth_pass[SIZ];
+	StrBuf *c_httpauth_user;
+	StrBuf *c_httpauth_pass;
 	wcsession *WCC;
 	
-	safestrncpy(c_username, "", sizeof c_username);
-	safestrncpy(c_password, "", sizeof c_password);
-	safestrncpy(c_roomname, "", sizeof c_roomname);
+	Buf = NewStrBuf();
+	c_username = NewStrBuf();
+	c_password = NewStrBuf();
+	c_roomname = NewStrBuf();
 	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
-	safestrncpy(c_httpauth_user, DEFAULT_HTTPAUTH_USER, sizeof c_httpauth_user);
-	safestrncpy(c_httpauth_pass, DEFAULT_HTTPAUTH_PASS, sizeof c_httpauth_pass);
+	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
+	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
 	strcpy(browser_host, "");
 
 	WCC= WC;
@@ -611,15 +615,18 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
 	    (vLine != NULL)){
 		cookie_to_stuff((StrBuf *)vLine, NULL,
-				c_username, sizeof c_username,
-				c_password, sizeof c_password,
-				c_roomname, sizeof c_roomname);
+				c_username,
+				c_password,
+				c_roomname);
 	}
 	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) &&
 	    (vLine!=NULL)) {
+/* TODO: wrap base64 in strbuf */
 		CtdlDecodeBase64(c_httpauth_string, ChrPtr((StrBuf*)vLine), StrLength((StrBuf*)vLine));
-		extract_token(c_httpauth_user, c_httpauth_string, 0, ':', sizeof c_httpauth_user);
-		extract_token(c_httpauth_pass, c_httpauth_string, 1, ':', sizeof c_httpauth_pass);
+		FlushStrBuf(Buf);
+		StrBufAppendBufPlain(Buf, c_httpauth_string, -1, 0);
+		StrBufExtract_token(c_httpauth_user, Buf, 0, ':');
+		StrBufExtract_token(c_httpauth_pass, Buf, 1, ':');
 	}
 	if (GetHash(HTTPHeaders, HKEY("CONTENT-LENGTH"), &vLine) &&
 	    (vLine!=NULL)) {
@@ -843,21 +850,34 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	 * try logging in to Citadel using that.
 	 */
 	if ((!WCC->logged_in)
-	   && (strlen(c_httpauth_user) > 0)
-	   && (strlen(c_httpauth_pass) > 0)) {
-		serv_printf("USER %s", c_httpauth_user);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '3') {
-			serv_printf("PASS %s", c_httpauth_pass);
-			serv_getln(buf, sizeof buf);
-			if (buf[0] == '2') {
+	    && (StrLength(c_httpauth_user) > 0)
+	    && (StrLength(c_httpauth_pass) > 0))
+	{
+		FlushStrBuf(Buf);
+		serv_printf("USER %s", ChrPtr(c_httpauth_user));
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 3) {
+			serv_printf("PASS %s", ChrPtr(c_httpauth_pass));
+			StrBuf_ServGetln(Buf);
+			if (GetServerStatus(Buf, NULL) == 2) {
 				become_logged_in(c_httpauth_user,
-						c_httpauth_pass, buf);
-				safestrncpy(WCC->httpauth_user, c_httpauth_user, sizeof WCC->httpauth_user);
-				safestrncpy(WCC->httpauth_pass, c_httpauth_pass, sizeof WCC->httpauth_pass);
+						c_httpauth_pass, Buf);
+				if (WCC->httpauth_user == NULL)
+					WCC->httpauth_user = NewStrBufDup(c_httpauth_user);
+				else {
+					FlushStrBuf(WCC->httpauth_user);
+					StrBufAppendBuf(WCC->httpauth_user, c_httpauth_user, 0);
+				}
+				if (WCC->httpauth_pass == NULL)
+					WCC->httpauth_pass = NewStrBufDup(c_httpauth_pass);
+				else {
+					FlushStrBuf(WCC->httpauth_pass);
+					StrBufAppendBuf(WCC->httpauth_pass, c_httpauth_pass, 0);
+				}
 			} else {
 				/* Should only display when password is wrong */
 				authorization_required(&buf[4]);
+				FreeStrBuf(&Buf);
 				goto SKIP_ALL_THIS_CRAP;
 			}
 		}
@@ -866,7 +886,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	/* This needs to run early */
 #ifdef TECH_PREVIEW
 	if (!strcasecmp(action, "rss")) {
-		display_rss(bstr("room"), request_method);
+		display_rss(sbstr("room"), request_method);
 		goto SKIP_ALL_THIS_CRAP;
 	}
 #endif
@@ -906,16 +926,16 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	 * supplied by the browser, try using them to log in.
 	 */
 	if ((!WCC->logged_in)
-	   && (!IsEmptyStr(c_username))
-	   && (!IsEmptyStr(c_password))) {
-		serv_printf("USER %s", c_username);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '3') {
-			serv_printf("PASS %s", c_password);
-			serv_getln(buf, sizeof buf);
-			if (buf[0] == '2') {
+	   && (StrLength(c_username)>0)
+	   && (StrLength(c_password)>0)) {
+		serv_printf("USER %s", ChrPtr(c_username));
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 3) {
+			serv_printf("PASS %s", ChrPtr(c_password));
+			StrBuf_ServGetln(Buf);
+			if (GetServerStatus(Buf, NULL) == 2) {
 				StrBuf *Lang;
-				become_logged_in(c_username, c_password, buf);
+				become_logged_in(c_username, c_password, Buf);
 				if (get_preference("language", &Lang)) {
 					set_selected_language(ChrPtr(Lang));
 					go_selected_language();		/* set locale */
@@ -930,18 +950,24 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	 * prior to doing anything else.
 	 */
 	if (havebstr("gotofirst")) {
-		gotoroom(bstr("gotofirst"));	/* do this quietly to avoid session output! */
+		gotoroom(sbstr("gotofirst"));	/* do this quietly to avoid session output! */
 	}
 
 	/*
 	 * If we don't have a current room, but a cookie specifying the
 	 * current room is supplied, make an effort to go there.
 	 */
-	if ((IsEmptyStr(WCC->wc_roomname)) && (!IsEmptyStr(c_roomname))) {
-		serv_printf("GOTO %s", c_roomname);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			safestrncpy(WCC->wc_roomname, c_roomname, sizeof WCC->wc_roomname);
+	if ((StrLength(WCC->wc_roomname) == 0) && (StrLength(c_roomname) > 0)) {
+		serv_printf("GOTO %s", ChrPtr(c_roomname));
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			if (WCC->wc_roomname == NULL) {
+				WCC->wc_roomname = NewStrBufDup(c_roomname);
+			}
+			else {
+				FlushStrBuf(WCC->wc_roomname);
+				StrBufAppendBuf(WCC->wc_roomname, c_roomname, 0);
+			}
 		}
 	}
 	
@@ -979,6 +1005,12 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	}
 
 SKIP_ALL_THIS_CRAP:
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&c_username);
+	FreeStrBuf(&c_password);
+	FreeStrBuf(&c_roomname);
+	FreeStrBuf(&c_httpauth_user);
+	FreeStrBuf(&c_httpauth_pass);
 	fflush(stdout);
 	if (content != NULL) {
 		FreeStrBuf(&content);
@@ -1006,7 +1038,7 @@ void sleeeeeeeeeep(int seconds)
 }
 
 
-int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalImportantMesage(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	if (WCC != NULL)
@@ -1015,7 +1047,7 @@ int ConditionalImportantMesage(WCTemplateToken *Tokens, void *Context, int Conte
 		return 0;
 }
 
-void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_importantmessage(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	
@@ -1029,16 +1061,15 @@ void tmplput_importantmessage(StrBuf *Target, int nArgs, WCTemplateToken *Tokens
 	}
 }
 
-void tmplput_trailing_javascript(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_trailing_javascript(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 
 	if (WCC != NULL)
-		StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType,
-				     WCC->trailing_javascript, 0);
+		StrBufAppendTemplate(Target, TP, WCC->trailing_javascript, 0);
 }
 
-void tmplput_csslocal(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_csslocal(StrBuf *Target, WCTemplputParams *TP)
 {
 	extern StrBuf *csslocal;
 	StrBufAppendBuf(Target, 
@@ -1060,6 +1091,5 @@ InitModule_WEBCIT
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
-	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, CTX_NONE);
 }

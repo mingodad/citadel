@@ -14,7 +14,6 @@
  * The pathname is always going to be /groupdav/room_name/euid
  */
 void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
-	char dav_roomname[SIZ];
 	char dav_uid[SIZ];
 	long dav_msgnum = (-1);
 	char buf[SIZ];
@@ -35,13 +34,12 @@ void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
 	if ((len > 0) && (ChrPtr(dav_pathname)[len-1] == '/')) {
 		StrBufCutRight(dav_pathname, 1);
 	}
-	strcpy(dav_roomname, ChrPtr(dav_pathname));
 
 	/* Go to the correct room. */
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
-		gotoroom(dav_roomname);
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_pathname))) {
+		gotoroom(dav_pathname);
 	}
-	if (strcasecmp(WC->wc_roomname, dav_roomname)) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_pathname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");

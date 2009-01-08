@@ -64,13 +64,13 @@ void http_datestring(char *buf, size_t n, time_t xtime) {
 }
 
 
-void tmplput_nowstr(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_nowstr(StrBuf *Target, WCTemplputParams *TP)
 {
 	time_t now;
 	now = time(NULL);
 	StrEscAppend(Target, NULL, asctime(localtime(&now)), 0, 0);
 }
-void tmplput_nowno(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_nowno(StrBuf *Target, WCTemplputParams *TP)
 {
 	time_t now;
 	now = time(NULL);

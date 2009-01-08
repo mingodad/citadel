@@ -25,32 +25,32 @@ void FreeFiles(void *vFile)
 }
 
 /* -------------------------------------------------------------------------------- */
-void tmplput_FILE_NAME(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_FILE_NAME(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, F->Filename, 0);
+	FileListStruct *F = (FileListStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, F->Filename, 0);
 }
-void tmplput_FILE_SIZE(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_FILE_SIZE(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) Context;
+	FileListStruct *F = (FileListStruct*) CTX;
 	StrBufAppendPrintf(Target, "%ld", F->FileSize);
 }
-void tmplput_FILEMIMETYPE(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_FILEMIMETYPE(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, F->MimeType, 0);
+	FileListStruct *F = (FileListStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, F->MimeType, 0);
 }
-void tmplput_FILE_COMMENT(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_FILE_COMMENT(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, F->Comment, 0);
+	FileListStruct *F = (FileListStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, F->Comment, 0);
 }
 
 /* -------------------------------------------------------------------------------- */
 
-int Conditional_FILE_ISPIC(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_FILE_ISPIC(StrBuf *Target, WCTemplputParams *TP)
 {
-	FileListStruct *F = (FileListStruct*) Context;
+	FileListStruct *F = (FileListStruct*) CTX;
 	return F->IsPic;
 }
 
@@ -163,7 +163,7 @@ int GroupchangeFilelistBySequence(const void *vFile1, const void *vFile2)
 }
 
 /* -------------------------------------------------------------------------------- */
-HashList* LoadFileList(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList* LoadFileList(StrBuf *Target, WCTemplputParams *TP)
 {
 	FileListStruct *Entry;
 	StrBuf *Buf;
@@ -173,7 +173,9 @@ HashList* LoadFileList(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
 	char buf[1024];
 	CompareFunc SortIt;
 	int HavePic;
+	WCTemplputParams SubTP;
 
+	memset(&TP, 0, sizeof(WCTemplputParams));
 	serv_puts("RDIR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return NULL;
@@ -208,7 +210,8 @@ HashList* LoadFileList(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
 		}
 		Put(Files, SKEY(Entry->Filename), Entry, FreeFiles);
 	}
-	SortIt = RetrieveSort(CTX_FILELIST, NULL, HKEY("fileunsorted"), 0);
+	SubTP.ContextType = CTX_FILELIST;
+	SortIt = RetrieveSort(&SubTP, NULL, HKEY("fileunsorted"), 0);
 	if (SortIt != NULL)
 		SortByPayload(Files, SortIt);
 	else 

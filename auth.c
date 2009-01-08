@@ -91,22 +91,27 @@ void display_openid_login(char *mesg)
 }
 
 
-void display_openid_name_request(char *claimed_id, char *username) {
-	char buf[SIZ];
+void display_openid_name_request(const StrBuf *claimed_id, const StrBuf *username) 
+{
+	StrBuf *Buf = NULL;
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"login_screen\">\n");
 
-	stresc(buf, sizeof buf, claimed_id, 0, 0);
+	Buf = NewStrBufPlain(NULL, StrLength(claimed_id));
+	StrEscAppend(Buf, claimed_id, NULL, 0, 0);
 	svprintf(HKEY("VERIFIED"), WCS_STRING, _("Your OpenID <tt>%s</tt> was successfully verified."),
-		claimed_id);
-	svput("CLAIMED_ID", WCS_STRING, claimed_id);
+		 ChrPtr(Buf));
+	SVPutBuf("CLAIMED_ID", Buf, 0);
 
 
-	if (!IsEmptyStr(username)) {
-		stresc(buf, sizeof buf, username, 0, 0);
-		svprintf(HKEY("REASON"), WCS_STRING,
-			_("However, the user name '%s' conflicts with an existing user."), username);
+	if (StrLength(username) > 0) {
+			Buf = NewStrBufPlain(NULL, StrLength(username));
+			StrEscAppend(Buf, claimed_id, NULL, 0, 0);
+			svprintf(HKEY("REASON"), WCS_STRING,
+				 _("However, the user name '%s' conflicts with an existing user."), 
+				 ChrPtr(Buf));
+			FreeStrBuf(&Buf);
 	}
 	else {
 		svput("REASON", WCS_STRING, "");
@@ -119,7 +124,7 @@ void display_openid_name_request(char *claimed_id, char *username) {
 	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
 
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
-		serv_info.serv_humannode);
+		 ChrPtr(serv_info.serv_humannode));
 
 	do_template("openid_manual_create", NULL);
 	wDumpContent(2);
@@ -139,18 +144,36 @@ void display_openid_name_request(char *claimed_id, char *username) {
  * pass			his password
  * serv_response	The parameters returned from a Citadel USER or NEWU command
  */
-void become_logged_in(char *user, char *pass, char *serv_response)
+void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_response)
 {
+	wcsession *WCC = WC;
 	char buf[SIZ];
 	StrBuf *FloorDiv;
 
 	WC->logged_in = 1;
-	extract_token(WC->wc_fullname, &serv_response[4], 0, '|', sizeof WC->wc_fullname);
-	safestrncpy(WC->wc_username, user, sizeof WC->wc_username);
-	safestrncpy(WC->wc_password, pass, sizeof WC->wc_password);
-	WC->axlevel = extract_int(&serv_response[4], 1);
-	if (WC->axlevel >= 6) {
-		WC->is_aide = 1;
+
+	if (WCC->wc_fullname == NULL)
+		WCC->wc_fullname = NewStrBufPlain(NULL, StrLength(serv_response));
+	StrBufExtract_token(WCC->wc_fullname, serv_response, 0, '|');
+	StrBufCutLeft(WCC->wc_fullname, 4 );
+	
+	if (WCC->wc_username == NULL)
+		WCC->wc_username = NewStrBufDup(user);
+	else {
+		FlushStrBuf(WCC->wc_username);
+		StrBufAppendBuf(WCC->wc_username, user, 0);
+	}
+
+	if (WCC->wc_password == NULL)
+		WCC->wc_password = NewStrBufDup(pass);
+	else {
+		FlushStrBuf(WCC->wc_password);
+		StrBufAppendBuf(WCC->wc_password, pass, 0);
+	}
+
+	WCC->axlevel = StrBufExtract_int(serv_response, 1, '|');
+	if (WCC->axlevel >= 6) { /* TODO: make this a define, else it might trick us later */
+		WCC->is_aide = 1;
 	}
 
 	load_preferences();
@@ -177,7 +200,7 @@ void become_logged_in(char *user, char *pass, char *serv_response)
 void do_login(void)
 {
 	wcsession *WCC = WC;
-	char buf[SIZ];
+	StrBuf *Buf;
 
 	if (havebstr("language")) {
 		set_selected_language(bstr("language"));
@@ -188,28 +211,31 @@ void do_login(void)
 		do_logout();
 		return;
 	}
+	Buf = NewStrBuf();
 	if (havebstr("login_action")) {
 		serv_printf("USER %s", bstr("name"));
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '3') {
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 3) {
 			serv_printf("PASS %s", bstr("pass"));
-			serv_getln(buf, sizeof buf);
-			if (buf[0] == '2') {
-				become_logged_in(bstr("name"), bstr("pass"), buf);
+			StrBuf_ServGetln(Buf);
+			if (GetServerStatus(Buf, NULL) == 2) {
+				become_logged_in(sbstr("name"), sbstr("pass"), Buf);
 			} else {
 				snprintf(WCC->ImportantMessage, 
 					 sizeof (WCC->ImportantMessage), 
 					 "%s", 
-					 &buf[4]);
+					 &(ChrPtr(Buf))[4]);
 				display_login();
+				FreeStrBuf(&Buf);
 				return;
 			}
 		} else {
 			snprintf(WCC->ImportantMessage, 
 				 sizeof (WCC->ImportantMessage), 
 				 "%s", 
-				 &buf[4]);
+				 &(ChrPtr(Buf))[4]);
 			display_login();
+			FreeStrBuf(&Buf);
 			return;
 		}
 	}
@@ -220,20 +246,22 @@ void do_login(void)
 				 "%s", 
 				 _("Blank passwords are not allowed."));
 			display_login();
+			FreeStrBuf(&Buf);
 			return;
 		}
 		serv_printf("NEWU %s", bstr("name"));
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			become_logged_in(bstr("name"), bstr("pass"), buf);
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
 			serv_printf("SETP %s", bstr("pass"));
-			serv_getln(buf, sizeof buf);
+			StrBuf_ServGetln(Buf); /* Don't care? */
 		} else {
 			snprintf(WCC->ImportantMessage, 
 				 sizeof (WCC->ImportantMessage), 
 				 "%s", 
-				 &buf[4]);
+				 &(ChrPtr(Buf))[4]);
 			display_login();
+			FreeStrBuf(&Buf);
 			return;
 		}
 	}
@@ -253,7 +281,7 @@ void do_login(void)
 			 _("Your password was not accepted."));
 		display_login();
 	}
-
+	FreeStrBuf(&Buf);
 }
 
 /* 
@@ -261,7 +289,7 @@ void do_login(void)
  */
 void openid_manual_create(void)
 {
-	char buf[1024];
+	StrBuf *Buf;
 
 	if (havebstr("exit_action")) {
 		do_logout();
@@ -269,14 +297,20 @@ void openid_manual_create(void)
 	}
 
 	if (havebstr("newuser_action")) {
+		Buf = NewStrBuf();
 		serv_printf("OIDC %s", bstr("name"));
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			char gpass[1024] = "";
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			StrBuf *gpass;
+
+			gpass = NewStrBuf();
 			serv_puts("SETP GENERATE_RANDOM_PASSWORD");
-			serv_getln(gpass, sizeof gpass);
-			become_logged_in(bstr("name"), &gpass[4], buf);
+			StrBuf_ServGetln(gpass);
+			StrBufCutLeft(gpass, 4);
+			become_logged_in(sbstr("name"), gpass, Buf);
+			FreeStrBuf(&gpass);
 		}
+		FreeStrBuf(&Buf);
 	}
 
 	if (WC->logged_in) {
@@ -288,7 +322,7 @@ void openid_manual_create(void)
 			do_welcome();
 		}
 	} else {
-		display_openid_name_request(bstr("openid_url"), bstr("name"));
+		display_openid_name_request(sbstr("openid_url"), sbstr("name"));
 	}
 
 }
@@ -342,23 +376,22 @@ void do_openid_login(void)
  */
 void finalize_openid_login(void)
 {
-	char buf[1024];
+	StrBuf *Buf;
 	wcsession *WCC = WC;
 	int already_logged_in = (WCC->logged_in) ;
 	int linecount = 0;
-	char result[128] = "";
-	char username[128] = "";
-	char password[128] = "";
-	char logged_in_response[1024] = "";
-	char claimed_id[1024] = "";
+	StrBuf *result = NULL;
+	StrBuf *username = NULL;
+	StrBuf *password = NULL;
+	StrBuf *logged_in_response = NULL;
+	StrBuf *claimed_id = NULL;
 
 	if (havebstr("openid.mode")) {
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
-
+			Buf = NewStrBuf();
 			serv_puts("OIDF");
-			serv_getln(buf, sizeof buf);
-
-			if (buf[0] == '8') {
+			StrBuf_ServGetln(Buf);
+			if (GetServerStatus(Buf, NULL) == 8) {
 				urlcontent *u;
 				void *U;
 				long HKLen;
@@ -376,44 +409,52 @@ void finalize_openid_login(void)
 				serv_puts("000");
 
 				linecount = 0;
-				while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-					if (linecount == 0) safestrncpy(result, buf, sizeof result);
-					if (!strcasecmp(result, "authenticate")) {
+				while (StrBuf_ServGetln(Buf), 
+				       (StrLength(Buf)==3) && 
+				       !strcmp(ChrPtr(Buf), "000")) 
+				{
+					if (linecount == 0) result = NewStrBufDup(Buf);
+					if (!strcasecmp(ChrPtr(result), "authenticate")) {
 						if (linecount == 1) {
-							safestrncpy(username, buf, sizeof username);
+							username = NewStrBufDup(Buf);
 						}
 						else if (linecount == 2) {
-							safestrncpy(password, buf, sizeof password);
+							password = NewStrBufDup(Buf);
 						}
 						else if (linecount == 3) {
-							safestrncpy(logged_in_response, buf,
-								sizeof logged_in_response);
+							logged_in_response = NewStrBufDup(Buf);
 						}
 					}
-					else if (!strcasecmp(result, "verify_only")) {
+					else if (!strcasecmp(ChrPtr(result), "verify_only")) {
 						if (linecount == 1) {
-							safestrncpy(claimed_id, buf, sizeof claimed_id);
+							claimed_id = NewStrBufDup(Buf);
 						}
 						if (linecount == 2) {
-							safestrncpy(username, buf, sizeof username);
+							username = NewStrBufDup(Buf);
 						}
 					}
 					++linecount;
 				}
 			}
+			FreeStrBuf(&Buf);
 		}
 	}
 
 	/* If we were already logged in, this was an attempt to associate an OpenID account */
 	if (already_logged_in) {
 		display_openids();
+		FreeStrBuf(&result);
+		FreeStrBuf(&username);
+		FreeStrBuf(&password);
+		FreeStrBuf(&claimed_id);
+		FreeStrBuf(&logged_in_response);
 		return;
 	}
 
 	/* If this operation logged us in, either by connecting with an existing account or by
 	 * auto-creating one using Simple Registration Extension, we're already on our way.
 	 */
-	if (!strcasecmp(result, "authenticate")) {
+	if (!strcasecmp(ChrPtr(result), "authenticate")) {
 		become_logged_in(username, password, logged_in_response);
 	}
 
@@ -421,7 +462,7 @@ void finalize_openid_login(void)
 	 * or conflicts with an existing user.  Either way the user will need to specify a new name.
 	 */
 
-	else if (!strcasecmp(result, "verify_only")) {
+	else if (!strcasecmp(ChrPtr(result), "verify_only")) {
 		display_openid_name_request(claimed_id, username);
 	}
 
@@ -436,6 +477,11 @@ void finalize_openid_login(void)
 		display_openid_login(_("Your password was not accepted."));
 	}
 
+	FreeStrBuf(&result);
+	FreeStrBuf(&username);
+	FreeStrBuf(&password);
+	FreeStrBuf(&claimed_id);
+	FreeStrBuf(&logged_in_response);
 }
 
 
@@ -524,10 +570,10 @@ void do_logout(void)
 {
 	char buf[SIZ];
 
-	safestrncpy(WC->wc_username, "", sizeof WC->wc_username);
-	safestrncpy(WC->wc_password, "", sizeof WC->wc_password);
-	safestrncpy(WC->wc_roomname, "", sizeof WC->wc_roomname);
-	safestrncpy(WC->wc_fullname, "", sizeof WC->wc_fullname);
+	FlushStrBuf(WC->wc_username);
+	FlushStrBuf(WC->wc_password);
+	FlushStrBuf(WC->wc_roomname);
+	FlushStrBuf(WC->wc_fullname);
 
 	/** Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
@@ -746,12 +792,16 @@ void display_reg(int during_login)
  */
 void display_changepw(void)
 {
+	WCTemplputParams SubTP;
 	char buf[SIZ];
 	StrBuf *Buf;
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	Buf = NewStrBufPlain(_("Change your password"), -1);
-	DoTemplate(HKEY("beginbox"), NULL, Buf, CTX_STRBUF);
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
+	SubTP.ContextType = CTX_STRBUF;
+	SubTP.Context = Buf;
+	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
 
 	FreeStrBuf(&Buf);
 
@@ -831,7 +881,12 @@ void changepw(void)
 	serv_getln(buf, sizeof buf);
 	sprintf(WC->ImportantMessage, "%s", &buf[4]);
 	if (buf[0] == '2') {
-		safestrncpy(WC->wc_password, buf, sizeof WC->wc_password);
+		if (WC->wc_password == NULL)
+			WC->wc_password = NewStrBufPlain(buf, -1);
+		else {
+			FlushStrBuf(WC->wc_password);
+			StrBufAppendBufPlain(WC->wc_password,  buf, -1, 0);
+		}
 		display_main_menu();
 	}
 	else {
@@ -839,17 +894,17 @@ void changepw(void)
 	}
 }
 
-int ConditionalAide(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	return (WC->is_aide == 0);
 }
 
-int ConditionalRoomAide(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	return (WC->is_room_aide == 0);
 }
 
-int ConditionalRoomAcessDelete(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	return ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) );

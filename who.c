@@ -209,7 +209,8 @@ void _terminate_session(void) {
 	terminate_session();
 }
 
-HashList *GetWholistHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *GetWholistHash(StrBuf *Target, WCTemplputParams *TP)
+
 {
 	HashList *List;
 	char buf[SIZ];
@@ -235,80 +236,80 @@ void DeleteWholistHash(HashList **KillMe)
 	DeleteHash(KillMe);
 }
 
-void tmplput_who_username(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_username(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
-	StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType, User->UserName, 0);
+	UserStateStruct *User = (UserStateStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, User->UserName, 0);
 }
 
-void tmplput_who_room(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_room(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
-	StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType, User->Room, 0);
+	UserStateStruct *User = (UserStateStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, User->Room, 0);
 }
 
-void tmplput_who_host(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_host(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
-	StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType, User->Host, 0);
+	UserStateStruct *User = (UserStateStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, User->Host, 0);
 }
 
-void tmplput_who_realroom(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_realroom(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
-	StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType, User->RealRoom, 0);
+	UserStateStruct *User = (UserStateStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, User->RealRoom, 0);
 }
-int conditional_who_realroom(WCTemplateToken *Tokens, void *vContext, int ContextType)
+int conditional_who_realroom(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	return StrLength(User->RealRoom) > 0;
 }
 
-void tmplput_who_realhost(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_realhost(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
-	StrBufAppendTemplate(Target, nArgs, Tokens, vContext, ContextType, User->RealHost, 0);
+	UserStateStruct *User = (UserStateStruct*) CTX;
+	StrBufAppendTemplate(Target, TP, User->RealHost, 0);
 }
 
-void tmplput_who_lastactive(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_lastactive(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	StrBufAppendPrintf(Target, "%d", User->LastActive);
 }
 
-void tmplput_who_idlesince(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_idlesince(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	StrBufAppendPrintf(Target, "%d", User->IdleSince);
 }
 
-void tmplput_who_session(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_session(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	StrBufAppendPrintf(Target, "%d", User->Session);
 }
 
-int conditional_who_idle(WCTemplateToken *Tokens, void *vContext, int ContextType)
+int conditional_who_idle(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	return User->Idle;
 }
 
-int conditional_who_nsessions(WCTemplateToken *Tokens, void *vContext, int ContextType)
+int conditional_who_nsessions(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	return User->SessionCount;
 }
 
-void tmplput_who_nsessions(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *vContext, int ContextType)
+void tmplput_who_nsessions(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	StrBufAppendPrintf(Target, "%d", User->SessionCount);
 }
 
-int conditional_who_isme(WCTemplateToken *Tokens, void *vContext, int ContextType)
+int conditional_who_isme(StrBuf *Target, WCTemplputParams *TP)
 {
-	UserStateStruct *User = (UserStateStruct*) vContext;
+	UserStateStruct *User = (UserStateStruct*) CTX;
 	return (User->Session == WC->ctdl_pid);
 }
 

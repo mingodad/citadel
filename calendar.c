@@ -1058,7 +1058,7 @@ void display_edit_task(void) {
 			
 	/* Force change the room if we have to */
 	if (havebstr("taskrm")) {
-		gotoroom((char *)bstr("taskrm"));
+		gotoroom(sbstr("taskrm"));
 	}
 
 	msgnum = lbstr("msgnum");

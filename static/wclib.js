@@ -967,108 +967,22 @@ function TaskViewGatherCategoriesFromTable() {
 	var table = $('taskview');
 	
 }
-function attachDatePicker(relative, wclang) {
+function attachDatePicker(relative) {
 	var dpck = new DatePicker({
 	relative: relative,
-	language: wclang.substr(0,2),
-	disableFutureDate: false,
-	dateFormat: [ ["yyyy", "mm", "dd"], "-"],
-	showDuration: 0.2,
-	closeEffectDuration: 0.2
+	language: 'en', // fix please
+	disableFutureDate: false
 	});
 	document.getElementById(relative).dpck = dpck; // attach a ref to it
 }
-
 function eventEditAllDay() {
-	var allDayCheck = $('alldayevent');
-	var dtend = $('dtendcell');
-
-	if (allDayCheck.checked) {
+	var allDayCheck = document.getElementById("alldayevent");
+	var dtend= document.getElementById("dtendcell");
+	if(allDayCheck.checked) {
 		//dtend.disabled = true;
 		dtend.style.textDecoration = "line-through";
 	} else {
 		//dtend_day.disabled = false;
 		dtend.style.textDecoration = "";
 	}
-}
-
-
-
-
-// Functions which handle show/hide of various elements in the recurrence editor
-
-function RecurrenceShowHide() {
-
-	if ($('is_recur').checked) {
-		$('rrule_div').style.display = 'block';
-	}
-	else {
-		$('rrule_div').style.display = 'none';
-	}
-
-	if ($('freq_selector').selectedIndex == 4) {
-		$('weekday_selector').style.display = 'block';
-	}
-	else {
-		$('weekday_selector').style.display = 'none';
-	}
-
-	if ($('freq_selector').selectedIndex == 5) {
-		$('monthday_selector').style.display = 'block';
-	}
-	else {
-		$('monthday_selector').style.display = 'none';
-	}
-
-	if ($('rrend_count').checked) {
-		$('rrcount').disabled = false;
-	}
-	else {
-		$('rrcount').disabled = true;
-	}
-
-	if ($('rrend_until').checked) {
-		$('rruntil').disabled = false;
-	}
-	else {
-		$('rruntil').disabled = true;
-	}
-
-	if ($('rrmonthtype_mday').checked) {
-		$('rrmday').disabled = false;
-	}
-	else {
-		$('rrmday').disabled = true;
-	}
-
-	if ($('rrmonthtype_wday').checked) {
-		$('rrmweek').disabled = false;
-		$('rrmweekday').disabled = false;
-	}
-	else {
-		$('rrmweek').disabled = true;
-		$('rrmweekday').disabled = true;
-	}
-
-	if ($('freq_selector').selectedIndex == 6) {
-		$('yearday_selector').style.display = 'block';
-	}
-	else {
-		$('yearday_selector').style.display = 'none';
-	}
-
-	$('ymday').innerHTML = 'XXXX-' + $('dtstart').value.substr(5);
-	$('rrmday').innerHTML = $('dtstart').value.substr(8);
-
-	if ($('rryeartype_ywday').checked) {
-		$('rrymweek').disabled = false;
-		$('rrymweekday').disabled = false;
-		$('rrymonth').disabled = false;
-	}
-	else {
-		$('rrymweek').disabled = true;
-		$('rrymweekday').disabled = true;
-		$('rrymonth').disabled = true;
-	}
-
 }
