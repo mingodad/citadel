@@ -88,8 +88,7 @@ void display_address_book_middle_div(void) {
 		"><img src=\"static/closewindow.gif\">");
 	wprintf("</td></tr></table>");
 
-	StrBufAppendPrintf(WC->trailing_javascript,
-		"PopulateAddressBookInnerDiv($('which_addr_book').value,'%s');",
+	wprintf("<script type=\"text/javascript\">PopulateAddressBookInnerDiv($('which_addr_book').value,'%s');</script>",
 		bstr("target_input")
 	);
 
