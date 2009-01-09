@@ -755,7 +755,6 @@ void embed_room_banner(char *got, int navbar_style) {
 long gotoroom(const StrBuf *gname)
 {
 	StrBuf *Buf;
-	char buf[SIZ];
 	static long ls = (-1L);
 	long err = 0;
 
@@ -767,12 +766,13 @@ long gotoroom(const StrBuf *gname)
 	serv_printf("GOTO %s", ChrPtr(gname));
 	StrBuf_ServGetln(Buf);
 	if  (GetServerStatus(Buf, &err) != 2) {
-		FreeStrBuf(&Buf);
-		return err;
+		serv_puts("GOTO _BASEROOM_");
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, &err) != 2) {
+			FreeStrBuf(&Buf);
+			return err;
+		}
 	}
-
-	serv_puts("GOTO _BASEROOM_");
-	serv_getln(buf, sizeof buf);
 
 	if (WC->wc_roomname == NULL)
 		WC->wc_roomname = NewStrBuf();
