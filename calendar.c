@@ -1175,6 +1175,10 @@ void
 InitModule_CALENDAR
 (void)
 {
+	RegisterPreference(HKEY("daystart"), _("Calendar day view begins at:"), PRF_INT, NULL);
+	RegisterPreference(HKEY("dayend"), _("Calendar day view ends at:"), PRF_INT, NULL);
+	RegisterPreference(HKEY("weekstart"), _("Week starts on:"), PRF_INT, NULL);
+
 	WebcitAddUrlHandler(HKEY("display_edit_task"), display_edit_task, 0);
 	WebcitAddUrlHandler(HKEY("save_task"), save_task, 0);
 	WebcitAddUrlHandler(HKEY("display_edit_event"), display_edit_event, 0);
