@@ -3,7 +3,7 @@ onMouseOver=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="visib
 onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden" >
 
 <div class="message_header">
- <span><?MAIL:SUMM:DATESTR></span>
+ <span><?MAIL:SUMM:DATEFULL></span>
  <?_("from ")>
  <??("COND:MAIL:ANON",1)>
 <?!("COND:MAIL:SUMM:RFCA", 2)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>"&lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
