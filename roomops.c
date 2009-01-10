@@ -11,11 +11,20 @@ char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 char *viewdefs[9]; /**< the different kinds of available views */
 
 /** See GetFloorListHash and GetRoomListHash for info on these. Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys. */
-char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15] = {"ID", "NAME", "ROOMS"};
-char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20] = {"NAME","FLAG","FLOOR","LISTORDER","ACL","CURVIEW","DEFVIEW","LASTCHANGE"};
+const char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15] = {"ID",
+						     "NAME", 
+						     "ROOMS"};
+const char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20] = {"NAME",
+						   "FLAG",
+						   "FLOOR",
+						   "LISTORDER",
+						   "ACL",
+						   "CURVIEW",
+						   "DEFVIEW",
+						   "LASTCHANGE"};
 // Because avoiding strlen at run time is a Good Thing(TM)
-int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN +1)] = {2, 4, 5};
-int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)] = {4, 4, 5, 9, 3, 7, 7, 8};
+const int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN +1)] = {2, 4, 5};
+const int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)] = {4, 4, 5, 9, 3, 7, 7, 8};
 
 void display_whok(void);
 
@@ -3748,7 +3757,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP) {
   rooms = NewHash(1, NULL);
   StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
   if (ChrPtr(buf)[0] == '1') while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
-      room = NewHash(1, 0);
+      room = NewHash(1, NULL);
       int i;
       const char *rmName;
       for(i=0; i<ROOM_PARAM_LEN; i++) {
@@ -3761,8 +3770,25 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP) {
       }
       Put(rooms, rmName, strlen(rmName), room, NULL);
     }
+  SortByHashKey(rooms, 1);
+  //SortByPayload(rooms, SortRoomsByListOrder); 
   FreeStrBuf(&buf);
   return rooms;
+}
+/** Unused function that orders rooms by the listorder flag */
+int SortRoomsByListOrder(const void *room1, const void *room2) {
+  HashList *r1 = (HashList *)GetSearchPayload(room1);
+  HashList *r2 = (HashList *)GetSearchPayload(room2);
+  StrBuf *listOrderBuf1;
+  StrBuf *listOrderBuf2;
+  
+  GetHash(r1, RPKEY(3), (void *)&listOrderBuf1);
+  GetHash(r2, RPKEY(3), (void *)&listOrderBuf2);
+  int l1 = atoi(ChrPtr(listOrderBuf1));
+  int l2 = atoi(ChrPtr(listOrderBuf2));
+  if (l1 < l2) return -1;
+  else if (l1 > l2) return +1;
+  else return 0;
 }
 void tmplput_ROOM_Value(StrBuf *TemplBuffer, WCTemplputParams *TP) {
   HashList *room = (HashList *)(TP->Context);

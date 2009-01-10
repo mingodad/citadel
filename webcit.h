@@ -695,16 +695,16 @@ int is_mobile_ua(char *user_agent);
 
 void embed_room_banner(char *, int);
 #define FLOOR_PARAM_LEN 3
-extern char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15];
-extern int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN + 1)];
+extern const char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15];
+extern const int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN + 1)];
 #define FPKEY(a) FLOOR_PARAM_NAMES[a], FLOOR_PARAM_NAMELEN[a]
 #define ROOM_PARAM_LEN 8
-extern char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20];
-extern int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)];
+extern const char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20];
+extern const int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)];
 #define RPKEY(a) ROOM_PARAM_NAMES[a], ROOM_PARAM_NAMELEN[a]
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
 HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP);
-
+int SortRoomsByListOrder(const void *room1, const void *room2);
 /* navbar types that can be passed to embed_room_banner */
 enum {
 	navbar_none,
