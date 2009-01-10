@@ -33,7 +33,7 @@ function loadLocal() {
     for(var i=0; i<cookies.length; i++) {
       var cookie = cookies[i].split("=");
       var name = cookie[0];
-      if (name[0] == " ") {
+      if (name.charAt(0) == " ") {
 	name = name.substr(1);
       }
       if (name.substr(0, 3) == "WC_") {
@@ -71,7 +71,8 @@ WCPrefs.prototype.saveLocal = saveLocal;
 WCPrefs.prototype.loadLocal = loadLocal;
 WCPrefs.prototype.setPref = setPref;
 WCPrefs.prototype.readPref = readPref;
-ctdlLocalPrefs = null;
+var ctdlLocalPrefs = null;
+setupPrefEngine();
 function setupPrefEngine() {
   ctdlLocalPrefs = new WCPrefs();
   ctdlLocalPrefs.loadLocal();

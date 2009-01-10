@@ -27,7 +27,7 @@ if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 var ns6=document.getElementById&&!document.all;
 Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
-document.observe("dom:loaded", setupPrefEngine);
+//document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
 function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
