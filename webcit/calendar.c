@@ -280,7 +280,7 @@ void cal_process_object(StrBuf *Target,
 void cal_process_attachment(wc_mime_attachment *Mime) 
 {
 	icalcomponent *cal;
-	
+
 	cal = icalcomponent_new_from_string(ChrPtr(Mime->Data));
 	FlushStrBuf(Mime->Data);
 	if (cal == NULL) {
