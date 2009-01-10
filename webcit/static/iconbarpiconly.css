@@ -1,0 +1,11 @@
+@import url("/static/iconbaricns.css");
+
+#button > li {
+    width: 35px;
+}
+#button > li > a {
+    padding-left: 0;
+}
+#button > li > a > span {
+    display: none;
+}

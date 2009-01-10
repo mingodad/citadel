@@ -1,0 +1,79 @@
+<div id="iconbar">
+  <div id="citlogo">
+    <img src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>">
+  </div>
+  <div id="switch"><span></span></div>
+  <div id="roomlist"></div>
+  <div id="iconbar_menu">
+<ul id="button">
+<li id="ib_summary">
+    <a href="summary" title="<?_("Your summary page")>"><span>
+        <?_("Summary")>
+    </span></a>
+</li>
+<li id="ib_inbox">
+    <a href="dotgoto?room=_MAIL_" title="<?_("Go to your email inbox")>"><span>
+       <?_("Mail")></span>
+    </a>
+</li>
+<li id="ib_calendar">
+    <a href="dotgoto?room=_CALENDAR_" title="<?_("Go to your personal calendar")>"><span>
+       <?_("Calendar")></span>
+    </a>
+</li>
+<li id="ib_contacts">
+    <a href="dotgoto?room=_CONTACTS_" title="<?_("Go to your personal address book")>"><span>
+    	    <?_("Contacts")></span>
+    </a>
+</li>
+<li id="ib_notes">
+    <a href="dotgoto?room=_NOTES_" title="<?_("Go to your personal notes")>"><span>
+       <?_("Notes")></span>
+    </a>
+</li>
+<li id="ib_tasks">
+<a href="dotgoto?room=_TASKS_" title="<?_("Go to your personal task list")>"><span>
+<?_("Tasks")></span>
+</a>
+</li>
+<li id="ib_rooms">
+<a href="knrooms" title="<?_("List all your accessible rooms")>"><span>
+<?_("Rooms")></span>
+</a>
+</li>
+<li id="ib_users">
+<a href="do_template?template=who" title="<?_("See who is online right
+now")>"><span>
+<?_("Online users")>
+</span>
+</a>
+</li>
+<li id="ib_chat">
+<a href="#" id="ib_chat_launch"><span>
+<?_("Chat")>
+</span>
+</a>
+</li>
+<li id="ib_advanced">
+<a href="do_template?template=display_main_menu" title="<?_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")>"><span>
+<?_("Advanced")>
+</span>
+</a>
+</li>
+<??("COND:AIDE", 1)>
+<li id="ib_admin">
+<a href="do_template?template=display_aide_menu" title="<?_("Room and system administration functions")>"><span><?_("Administration")></span></a>
+</li>
+<??("X",1)>
+<li id="ib_logoff">
+<a href="termquit" onclick="return confirm('<?_("Log off now?")>');"
+title="<?_("Log off")>">
+<span><?_("Log off")></span>
+</a>
+</li>
+</ul>
+</div>
+<div>
+  <span><a href="/display_customize_iconbar"><?_("Customize this menu")></a></span>
+</div>
+</div>
