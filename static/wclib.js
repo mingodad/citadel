@@ -19,13 +19,15 @@ var currentDropTarget = null;
 
 var supportsAddEventListener = (!!document.addEventListener);
 var today = new Date();
+
 if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
-	browserType= "gecko"
+	browserType= "gecko";
 }
 var ns6=document.getElementById&&!document.all;
 Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
+document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
 function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
@@ -103,12 +105,15 @@ function disintergrateContextMenus(event) {
 }
 // This code handles the popups for important-messages.
 function hide_imsg_popup() {
-	if (browserType == "gecko" )
+	if (browserType == "gecko") {
 		document.poppedLayer = eval('document.getElementById(\'important_message\')');
-	else if (browserType == "ie")
+	}
+	else if (browserType == "ie") {
 		document.poppedLayer = eval('document.all[\'important_message\']');
-	else
+	}
+	else {
 		document.poppedLayer = eval('document.layers[\'`important_message\']');
+	}
 
 	document.poppedLayer.style.visibility = "hidden";
 }
@@ -128,13 +133,25 @@ function setupIconBar() {
   var switchSpan = document.getElementById("switch").firstChild;
   if (switchSpan != null) {
     setTextContent(switchSpan, _switchToRoomList);
-    switchSpan.ctdlSwitchIconBarTo = "rooms";
-    $(switchSpan).observe('click', changeIconBar);
+    $(switchSpan).observe('click', changeIconBarEvent);
+    var currentView = ctdlLocalPrefs.readPref("iconbar_view");
+    if (currentView != null) {
+      switchSpan.ctdlSwitchIconBarTo = currentView;
+      changeIconBar(switchSpan);
+    } else {
+      switchSpan.ctdlSwitchIconBarTo = "rooms";
+    }
   }
 }
-function changeIconBar(event) {
-  var target = event.target;
+function changeIconBarEvent(event) {
+  changeIconBar(event.target);
+}
+function changeIconBar(target) {
   var switchTo = target.ctdlSwitchIconBarTo;
+  if (!!window.console) {
+    console.log("Changing to: " + switchTo);
+  }
+  ctdlLocalPrefs.setPref("iconbar_view", target.ctdlSwitchIconBarTo);  
   if (switchTo == "rooms") {
     switch_to_room_list();
     setTextContent(target, _switchToMenu);
@@ -146,20 +163,29 @@ function changeIconBar(event) {
   }
 }
 function switch_to_room_list() {
+  var roomlist = document.getElementById("roomlist");
+  var summary = document.getElementById("iconbar_menu");
   if (!rooms || !floors || !roomlist) {
     FillRooms(IconBarRoomList);
-  } else {
-    roomlist.className = roomlist.className.replace("hidden","");
   }
-  var summary = document.getElementById("iconbar_menu");
+  roomlist.className = roomlist.className.replace("hidden","");
   summary.className += " hidden";
 }
 
+function switch_to_menu_buttons() {
+  if (roomlist != null) {
+    roomlist.className += "hidden";
+  }
+  var iconbar = document.getElementById("iconbar_menu");
+  iconbar.className = iconbar.className.replace("hidden","");
+  var roomlist = document.getElementById("roomlist");
+  roomlist.className += " hidden";
+}
 function IconBarRoomList() {
+  var currentExpanded = ctdlLocalPrefs.readPref("rooms_expanded");
   currentDropTargets = new Array();
   var iconbar = document.getElementById("iconbar");
   roomlist = document.getElementById("roomlist");
-  iconbar.appendChild(roomlist);
   var ul = document.createElement("ul");
   roomlist.appendChild(ul);
   // Add mailbox, because they are special
@@ -167,7 +193,7 @@ function IconBarRoomList() {
   ul.appendChild(mailboxLI);
   var mailboxSPAN = document.createElement("span");
   mailboxSPAN.appendChild(document.createTextNode("Mailbox"));
-  $(mailboxSPAN).observe('click', expand_floor);
+  $(mailboxSPAN).observe('click', expandFloorEvent);
   mailboxLI.appendChild(mailboxSPAN);
   mailboxLI.setAttribute("class", "floor");
   var mailboxUL = document.createElement("ul");
@@ -177,6 +203,9 @@ function IconBarRoomList() {
     var room = mailboxRooms[i];
     currentDropTargets.push(addRoomToList(mailboxUL, room));
   }
+  if (currentExpanded != null && currentExpanded == "Mailbox") {
+    expandFloor(mailboxSPAN);
+  }
   for(var a=0; a<floors.length; a++) {
     var floor = floors[a];
     var floornum = floor[0];
@@ -185,7 +214,7 @@ function IconBarRoomList() {
     ul.appendChild(floorLI);
     var floorSPAN = document.createElement("span");
     floorSPAN.appendChild(document.createTextNode(name));
-    $(floorSPAN).observe('click', expand_floor);
+    $(floorSPAN).observe('click', expandFloorEvent);
     floorLI.appendChild(floorSPAN);
     floorLI.setAttribute("class", "floor");
     var floorUL = document.createElement("ul");
@@ -194,6 +223,9 @@ function IconBarRoomList() {
     for(var b=0; b<roomsForFloor.length; b++) {
       var room = roomsForFloor[b];
       currentDropTargets.push(addRoomToList(floorUL, room));
+    }
+    if (currentExpanded != null && currentExpanded == name) {
+      expandFloor(floorSPAN);
     }
   }
 }
@@ -248,129 +280,20 @@ function roomListDropHandler(target, dropped) {
 	  onComplete: deleteAllMarkedRows()});
     } 
 }
-function expand_floor(event) {
-  var target = event.target;
+function expandFloorEvent(event) {
+  expandFloor(event.target);
+}
+function expandFloor(target) {
   if (target.nodeName.toLowerCase() != "span") {
     return; // ignore clicks on child UL
   }
+  ctdlLocalPrefs.setPref("rooms_expanded", target.firstChild.nodeValue);
   var parentUL = target.parentNode;
   if (currentlyExpandedFloor != null) {
     currentlyExpandedFloor.className = currentlyExpandedFloor.className.replace("floor-expanded","");
   }
   parentUL.className = parentUL.className + " floor-expanded";
   currentlyExpandedFloor = parentUL;
-}
-
-function switch_to_menu_buttons() {
-  var roomlist = document.getElementById("roomlist");
-  if (roomlist != null) {
-    roomlist.className += "hidden";
-  }
-  var iconbar = document.getElementById("iconbar_menu");
-  iconbar.className = iconbar.className.replace("hidden","");
-}
-
-// Delete selected messages.
-function CtdlDeleteSelectedMessages(evt) {
-	
-	if (CtdlNumMsgsSelected < 1) {
-		// Nothing to delete, so exit silently.
-		return false;
-	}
-	for (i=0; i<CtdlNumMsgsSelected; ++i) {
-		if (parseInt(room_is_trash) > 0) {
-			new Ajax.Request(
-				'ajax_servcmd', {
-					method: 'post',
-					parameters: 'g_cmd=DELE ' + CtdlMsgsSelected[i],
-					onComplete: CtdlClearDeletedMsg(CtdlMsgsSelected[i])
-				}
-			);
-		}
-		else {
-			new Ajax.Request(
-				'ajax_servcmd', {
-					method: 'post',
-					parameters: 'g_cmd=MOVE ' + CtdlMsgsSelected[i] + '|_TRASH_|0',
-					onComplete: CtdlClearDeletedMsg(CtdlMsgsSelected[i])
-				}
-			);
-		}
-	}
-	CtdlNumMsgsSelected = 0;
-
-	// Clear the preview pane too.
-	$('preview_pane').innerHTML = '';
-}
-
-
-// Move selected messages.
-function CtdlMoveSelectedMessages(evt, target_roomname) {
-	
-	if (CtdlNumMsgsSelected < 1) {
-		// Nothing to delete, so exit silently.
-		return false;
-	}
-	for (i=0; i<CtdlNumMsgsSelected; ++i) {
-		new Ajax.Request(
-			'ajax_servcmd', {
-				method:'post',
-				parameters:'g_cmd=MOVE ' + CtdlMsgsSelected[i] + '|' + target_roomname + '|0',
-				onComplete:CtdlClearDeletedMsg(CtdlMsgsSelected[i])
-			}
-		);
-	}
-	CtdlNumMsgsSelected = 0;
-
-	// Clear the preview pane too.
-	$('preview_pane').innerHTML = '';
-}
-
-
-
-// This gets called when the user touches the keyboard after selecting messages...
-function CtdlMsgListKeyPress(evt) {
-	if(document.all) {				// aIEeee
-		var whichKey = window.event.keyCode;
-	}
-	else {						// non-sux0r browsers
-		var whichKey = evt.which;
-	}
-	if (whichKey == 46) {				// DELETE key
-		CtdlDeleteSelectedMessages(evt);
-	}
-	return true;
-}
-
-// Take the boldface away from a message to indicate that it has been seen.
-function CtdlRemoveTheUnseenBold(msgnum) {
-	$('m'+msgnum).style.fontWeight='normal';
-}
-
-// A message has been deleted, so yank it from the list.
-function CtdlClearDeletedMsg(msgnum) {
-
-
-	// Traverse the table looking for a row whose ID contains the desired msgnum
-	var table = $('summary_headers');
-	if (table) {
-		for (var r = 0; r < table.rows.length; r++) {
-			var thename = table.rows[r].id;
-			if (thename.substr(1) == msgnum) {
-				try {
-					table.deleteRow(r);
-				}
-				catch(e) {
-					alert('error: browser failed to clear row ' + r);
-				}
-			}
-		}
-	}
-	else {						// if we can't delete it,
-		new Effect.Squish('m'+msgnum);		// just hide it.
-	}
-
-
 }
 
 // These functions handle moving sticky notes around the screen by dragging them
@@ -726,23 +649,18 @@ function TaskViewGatherCategoriesFromTable() {
 	var table = $('taskview');
 	
 }
-function attachDatePicker(relative, wclang) {
+function attachDatePicker(relative) {
 	var dpck = new DatePicker({
 	relative: relative,
-	language: wclang.substr(0,2),
-	disableFutureDate: false,
-	dateFormat: [ ["yyyy", "mm", "dd"], "-"],
-	showDuration: 0.2,
-	closeEffectDuration: 0.2
+	language: 'en', // fix please
+	disableFutureDate: false
 	});
 	document.getElementById(relative).dpck = dpck; // attach a ref to it
 }
-
 function eventEditAllDay() {
-	var allDayCheck = $('alldayevent');
-	var dtend = $('dtendcell');
-
-	if (allDayCheck.checked) {
+	var allDayCheck = document.getElementById("alldayevent");
+	var dtend= document.getElementById("dtendcell");
+	if(allDayCheck.checked) {
 		//dtend.disabled = true;
 		dtend.style.textDecoration = "line-through";
 	} else {
