@@ -236,3 +236,26 @@ time_t httpdate_to_timestamp(StrBuf *buf)
 	t = mktime(&tt);
 	return t;
 }
+
+
+void LoadTimeformatSettingsCache(StrBuf *Preference, long lvalue)
+{
+	int *time_format_cache;
+	
+	 time_format_cache = &(WC->time_format_cache);
+	 if (lvalue == 24) 
+		 *time_format_cache = WC_TIMEFORMAT_24;
+	 else
+		 *time_format_cache = WC_TIMEFORMAT_AMPM;
+}
+
+
+
+void 
+InitModule_DATETIME
+(void)
+{
+	RegisterPreference(HKEY("calhourformat"), _("Time format"), PRF_INT, LoadTimeformatSettingsCache);
+
+
+}

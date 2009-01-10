@@ -3893,6 +3893,12 @@ void
 InitModule_ROOMOPS
 (void)
 {
+	RegisterPreference(HKEY("roomlistview"), 
+			   _("Room list view"),
+			   PRF_STRING, 
+			   NULL);
+	RegisterPreference(HKEY("emptyfloors"), _("Show empty floors"), PRF_YESNO, NULL);
+
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, 0);
 
 	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
