@@ -407,7 +407,34 @@ HashList *iterate_get_mailsumm_All(StrBuf *Target, WCTemplputParams *TP)
 {
   return WC->summ;
 }
+int Conditional_ROOM_DISPLAY_MSG(StrBuf *Target, WCTemplputParams *TP) {
+  message_summary *Msg = (message_summary *) CTX;
+  wcsubst *subst;
+  wcsession *WCC = WC;
+  GetHash(WCC->vars, HKEY("ITERATE:N"), (void *)&subst);
+  long num_displayed = subst->lvalue;
+  if ((Msg->msgnum >= WC->startmsg) && (num_displayed <= WC->maxmsgs)) {
+    return 1; // Pass GO, collect $200
+  } 
+  return 0;
+}
+int Conditional_MAIL_SUMM_LASTMSG(StrBuf *Target, WCTemplputParams *TP) {
+  message_summary *Msg = (message_summary *) CTX;
+  wcsubst *nsubst, *n_dsubst;
+  long is_last_n, num_displayed;
+  
+  GetHash(WC->vars, HKEY("ITERATE:LASTN"), (void *)&nsubst);
+  is_last_n = nsubst->lvalue;
 
+  GetHash(WC->vars, HKEY("ITERATE:N"), (void *)&n_dsubst);
+  num_displayed = n_dsubst->lvalue;
+
+  // Is the num_displayed just below maxmsgs? OR last in iterator
+  if ((num_displayed == WC->maxmsgs) || (is_last_n == 1)) {
+    return 1;
+  }
+  return 0;
+}
 void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->date = StrTol(HdrLine);
@@ -1102,7 +1129,8 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:INREPLYTO", 0, 2, tmplput_MAIL_SUMM_INREPLYTO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  CTX_NONE);
-
+	RegisterConditional(HKEY("COND:ROOM:DISPLAYMSG"), 0, Conditional_ROOM_DISPLAY_MSG, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:LASTMSG"), 0, Conditional_MAIL_SUMM_LASTMSG, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);

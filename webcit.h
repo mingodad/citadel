@@ -365,6 +365,9 @@ struct wcsession {
 	struct march *march;			/**< march mode room list */
 	char reply_to[512];			/**< reply-to address */
 	HashList *summ;                         /**< list of messages for mailbox summary view */
+  /** Perhaps these should be within a struct instead */
+  long startmsg; // message number to start at
+  long maxmsgs; // maximum messages to display
 	int is_mobile;			/**< Client is a handheld browser */
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	HashList *vars; 			/**< HTTP variable substitutions for this page */

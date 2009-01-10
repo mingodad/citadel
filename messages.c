@@ -811,7 +811,8 @@ void readloop(long oper)
 		FlushStrBuf(BBViewToolBar);
 		break;
 	}
-			
+	WCC->startmsg =  startmsg;
+	WCC->maxmsgs = maxmsgs;
 	/*
 	 * iterate over each message. if we need to load an attachment, do it here. 
 	 */
@@ -932,7 +933,8 @@ DONE:
 	} else {
 	  end_burst();
 	}
-
+	WCC->startmsg = 0;
+	WCC->maxmsgs = 0;
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
 	}
@@ -1641,7 +1643,7 @@ void jsonMessageListHdr(void) {
   // TODO: make a generic function
   hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: application/json; charset=utf-8\r\n");
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, serv_info.serv_software);
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
   hprintf("Connection: close\r\n");
   hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
   begin_burst();
