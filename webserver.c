@@ -27,7 +27,7 @@ int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int time_to_die = 0;            /* Nonzero if server is shutting down */
-int DisableGzip = 0;
+int DisableGzip = 1;
 extern void *context_loop(int*);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
@@ -253,8 +253,9 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
  */
 void begin_burst(void)
 {
-	if (WC->WBuf == NULL)
+	if (WC->WBuf == NULL) {
 		WC->WBuf = NewStrBufPlain(NULL, 32768);
+	}
 }
 
 
@@ -269,15 +270,11 @@ long end_burst(void)
 	ssize_t res;
         fd_set wset;
         int fdflags;
-
-#ifdef HAVE_ZLIB
 	/* Perform gzip compression, if enabled and supported by client */
 	if (!DisableGzip && (WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
 	{
 		hprintf("Content-encoding: gzip\r\n");
-	}
-#endif	/* HAVE_ZLIB */
-
+	} 
 	hprintf("Content-length: %d\r\n\r\n", StrLength(WCC->WBuf));
 
 	ptr = ChrPtr(WCC->HBuf);

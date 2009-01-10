@@ -22,12 +22,18 @@ var exitedMouseDown = false;
 var sortModes = {
   "rdate" : sortRowsByDateDescending,
   "date" : sortRowsByDateAscending,
+  "reverse" : sortRowsByDateDescending,
   "subj" : sortRowsBySubjectAscending,
   "rsubj" : sortRowsBySubjectDescending,
   "sender": sortRowsByFromAscending,
   "rsender" : sortRowsByFromDescending
 };
 var toggles = {};
+window.console = window.console || {};
+var opera = opera || null;
+if (opera && opera.postError) {
+  console.log = opera.postError;
+}
 function createMessageView() {
   message_view = document.getElementById("message_list_body");
   loadingMsg = document.getElementById("loading");
@@ -35,6 +41,7 @@ function createMessageView() {
   mlh_date = $("mlh_date");
   toggles["rdate"] = mlh_date;
   toggles["date"] = mlh_date;
+  toggles["reverse"] = mlh_date;
   toggles["subj"] = mlh_subject;
   toggles["rsubj"] = mlh_subject;
   toggles["sender"] = mlh_from;
@@ -68,16 +75,19 @@ new Ajax.Request("roommsgs", {
 	onSuccess: loadMessages,
 	parameters: parameters,
 	sanitize: false,
-	evalJSON: false
+      evalJSON: false,
+      onFailure: function(e) { alert("Failure: " + e);}
 	});
 }
 function loadMessages(transport) {
+  try {
   var msgs = eval(transport.responseText);
   if (!!msgs && transport.responseText.length < 2) {
     alert("Message loading failed");
-  }
+  } 
   var length = msgs.length;
   rowArray = new Array(); // store so they can be sorted
+  var start = new Date();
   for(var i=0; i<length;i++) {
     var trElement = document.createElement("tr");
     var data = msgs[i];
@@ -109,7 +119,15 @@ function loadMessages(transport) {
     trElement.dropEnabled = true;
     trElement.ctdlRowId = i;
     trElement.ctdlMarked = false;
-    rowArray[i] = trElement;
+    rowArray[i] = trElement; 
+  } 
+  var end = new Date();
+  if (window.console) {
+    var delta = end.getTime() - start.getTime();
+    console.log("loadMessages construct: " + delta);
+  }
+  } catch (e) {
+    window.alert(e);
   }
   if (sortmode.length < 1) {
     sortmode = "rdate";
@@ -124,12 +142,14 @@ function loadMessages(transport) {
   loadingMsg.parentNode.removeChild(loadingMsg);
 }
 function resortAndDisplay(sortMode) {
+  var start = new Date();
   emptyElement(message_view);
   var fragment = document.createDocumentFragment();
   if (sortMode != null) {
     rowArray.sort(sortMode);
   }
-  for(var x=0; x<rowArray.length; x++) {
+  var length = rowArray.length;
+  for(var x=0; x<length; ++x) {
     try {
       var currentRow = rowArray[x];
       var className = currentRow.className;
@@ -151,8 +171,12 @@ function resortAndDisplay(sortMode) {
       alert("Exception" + e);
     }
   }
-
   message_view.appendChild(fragment);
+  var end = new Date();
+  if (window.console) {
+    var delta = end.getTime() - start.getTime();
+    console.log("resortAndDisplay sort and append: " + delta);
+  }
   ApplySorterToggle();
   normalizeHeaderTable();
 }
@@ -385,8 +409,10 @@ function ApplySorterToggle() {
 }
 /** Hack to make the header table line up with the data */
 function normalizeHeaderTable() {
-  var headerTable = document.getElementById("message_list_hdr").getElementsByTagName("table")[0];
-  var dataTable = document.getElementById("summary_view").getElementsByTagName("table")[0];
+  var message_list_hdr = document.getElementById("message_list_hdr");
+  var summary_view = document.getElementById("summary_view");
+  var headerTable = message_list_hdr.getElementsByTagName("table")[0];
+  var dataTable = summary_view.getElementsByTagName("table")[0];
   var dataTableWidth = dataTable.offsetWidth;
   headerTable.style.width = dataTableWidth+"px";
 }

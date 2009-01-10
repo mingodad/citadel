@@ -64,6 +64,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	int state=0;
 	long len;
 	const char *Key;
+	WCTemplputParams SubTP;
 
 	Buf = NewStrBuf();
 	lprintf(1, "----------%s---------MSG4 %ld|%s--------------\n", tmpl, msgnum, ChrPtr(PartNum));
@@ -213,8 +214,8 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	else 
 	{
 		if ((StrLength(Msg->OtherNode)>0) && 
-		    (strcasecmp(ChrPtr(Msg->OtherNode), serv_info.serv_nodename)) &&
-		    (strcasecmp(ChrPtr(Msg->OtherNode), serv_info.serv_humannode)) ) 
+		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(serv_info.serv_nodename))) &&
+		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(serv_info.serv_humannode)) ))
 		{
 			if (Msg->reply_to == NULL)
 				Msg->reply_to = NewStrBuf();
@@ -239,8 +240,10 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 		evaluate_mime_part(Msg, Mime);
 	}
 	DeleteHashPos(&it);
-
-	DoTemplate(tmpl, tmpllen, Target, Msg, CTX_MAILSUM);
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
+	SubTP.ContextType = CTX_MAILSUM;
+	SubTP.Context = Msg;
+	DoTemplate(tmpl, tmpllen, Target, &SubTP);
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
@@ -443,8 +446,8 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				StrBufExtract_token(Buf2, Buf, 3, '|');
 				if ((StrLength(Buf2) !=0 ) &&
 				    ( ((WCC->room_flags & QR_NETWORK)
-				       || ((strcasecmp(ChrPtr(Buf2), serv_info.serv_nodename)
-					    && (strcasecmp(ChrPtr(Buf2), serv_info.serv_fqdn)))))))
+				       || ((strcasecmp(ChrPtr(Buf2), ChrPtr(serv_info.serv_nodename))
+					    && (strcasecmp(ChrPtr(Buf2), ChrPtr(serv_info.serv_fqdn))))))))
 				{
 					StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
 					StrBufAppendBuf(Msg->from, Buf2, 0);
@@ -511,7 +514,11 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	int nItems;
 	HashPos *At;
 	long vector[16];
+	WCTemplputParams SubTP;
 
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
+	SubTP.ContextType = CTX_LONGVECTOR;
+	SubTP.Context = &vector;
 	TmpBuf = NewStrBuf();
 	At = GetNewHashPos(WCC->summ, nMessages);
 	nItems = GetCount(WCC->summ);
@@ -562,7 +569,7 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 		vector[6] = lo;
 		FlushStrBuf(TmpBuf);
 		dbg_print_longvector(vector);
-		DoTemplate(HKEY("select_messageindex"), TmpBuf, &vector, CTX_LONGVECTOR);
+		DoTemplate(HKEY("select_messageindex"), TmpBuf, &SubTP);
 		StrBufAppendBuf(Selector, TmpBuf, 0);
 	}
 	vector[6] = 0;
@@ -570,7 +577,7 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	vector[1] = lbstr("maxmsgs") == 9999999;
 	vector[2] = 0;
 	dbg_print_longvector(vector);
-	DoTemplate(HKEY("select_messageindex_all"), TmpBuf, &vector, CTX_LONGVECTOR);
+	DoTemplate(HKEY("select_messageindex_all"), TmpBuf, &SubTP);
 	StrBufAppendBuf(Selector, TmpBuf, 0);
 	FreeStrBuf(&TmpBuf);
 	DeleteHashPos(&At);
@@ -590,7 +597,7 @@ void load_seen_flags(void)
 	OldMsg = NewStrBuf();
 	serv_puts("GTSN");
 	StrBuf_ServGetln(OldMsg);
-	if (ChrPtr(OldMsg)[0] == '2') {
+	if (GetServerStatus(OldMsg, NULL) == 2) {
 		StrBufCutLeft(OldMsg, 4);
 	}
 	else {
@@ -625,7 +632,6 @@ void readloop(long oper)
 	StrBuf *BBViewToolBar = NULL;
 	void *vMsg;
 	message_summary *Msg;
-	message_summary *fMsg;
 	char cmd[256] = "";
 	char buf[SIZ];
 	int a = 0;
@@ -646,24 +652,19 @@ void readloop(long oper)
 	wcsession *WCC = WC;
 	HashPos *at;
 	const char *HashKey;
-	const char *fHashKey;
 	long HKLen;
 	int care_for_empty_list = 0;
 	int load_seen = 0;
 	int sortit = 0;
 	int defaultsortorder = 0;
-	
-	/* HashList *filtered;  A list of messages we want to display in mailbox
-			       safemode. Maybe it would be better to modify
-			       load_msg_ptrs so messages we don't want don't end
-			       up in summ? */
+	WCTemplputParams SubTP;
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
 		WCC->wc_view = VIEW_MAILBOX;
 
 	switch (WCC->wc_view) {
 	case VIEW_WIKI:
-		sprintf(buf, "wiki?room=%s&page=home", WCC->wc_roomname);
+		sprintf(buf, "wiki?room=%s&page=home", ChrPtr(WCC->wc_roomname));
 		http_redirect(buf);
 		return;
 	case VIEW_CALBRIEF:
@@ -715,7 +716,6 @@ void readloop(long oper)
 			 (oper == do_search) ? "SEARCH" : "ALL",
 			 (oper == do_search) ? bstr("query") : ""
 			);
-		//filtered = NewHash(1, Flathash);
 	  }
 		break;
 	case VIEW_BBS:
@@ -757,14 +757,17 @@ void readloop(long oper)
 				wprintf(_("No messages here."));
 			}
 			wprintf("</em><br /></div>\n");
+			goto DONE;
 		}
 
-		goto DONE;
 	}
 
 	if (sortit) {
 		CompareFunc SortIt;
-		SortIt =  RetrieveSort(CTX_MAILSUM, NULL, 
+		memset(&SubTP, 0, sizeof(WCTemplputParams));
+		SubTP.ContextType = CTX_NONE;
+		SubTP.Context = NULL;
+		SortIt =  RetrieveSort(&SubTP, NULL, 
 				       HKEY("date"), defaultsortorder);
 		if (SortIt != NULL)
 			SortByPayload(WCC->summ, SortIt);
@@ -800,7 +803,10 @@ void readloop(long oper)
 				maxmsgs = abs(maxmsgs);
 
 		}
-		DoTemplate(HKEY("msg_listselector_top"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
+		memset(&SubTP, 0, sizeof(WCTemplputParams));
+		SubTP.ContextType = CTX_STRBUF;
+		SubTP.Context = MessageDropdown;
+		DoTemplate(HKEY("msg_listselector_top"), BBViewToolBar, &SubTP);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 		FlushStrBuf(BBViewToolBar);
 		break;
@@ -836,8 +842,16 @@ void readloop(long oper)
 				safestrncpy(addrbook[num_ab-1].ab_name, buf,
 					    sizeof(addrbook[num_ab-1].ab_name));
 				addrbook[num_ab-1].ab_msgnum = Msg->msgnum;
+				break;/*
+			case VIEW_MAILBOX: /* here we just need the abstract, so render it now. */ /*
+				memset(&SubTP, 0, sizeof(WCTemplputParams));
+				SubTP.ContextType = CTX_MAILSUM;
+				SubTP.Context = Msg;
+				DoTemplate(HKEY("section_mailsummary"), NULL, &SubTP);
+			
+				num_displayed++;
 				break;
-			case VIEW_BBS: /* Tag the mails we want to show in bbview... */
+			*/case VIEW_BBS: /* Tag the mails we want to show in bbview... */
 			default:
 				if (displayed_msgs == NULL) {
 					displayed_msgs = malloc(sizeof(long) *
@@ -863,7 +877,7 @@ void readloop(long oper)
 	 */
 	switch (WCC->wc_view) {
 	case VIEW_MAILBOX:
-	  DoTemplate(HKEY("mailsummary_json"),NULL,NULL, CTX_MAILSUM);
+	  DoTemplate(HKEY("mailsummary_json"),NULL, &SubTP);
 	  break;
 	case VIEW_BBS:
 		if (displayed_msgs != NULL) {
@@ -878,7 +892,10 @@ void readloop(long oper)
 			free(displayed_msgs);
 			displayed_msgs = NULL;
 		}
-		DoTemplate(HKEY("msg_listselector_bottom"), BBViewToolBar, MessageDropdown, CTX_STRBUF);
+		memset(&SubTP, 0, sizeof(WCTemplputParams));
+		SubTP.ContextType = CTX_STRBUF;
+		SubTP.Context = MessageDropdown;
+		DoTemplate(HKEY("msg_listselector_bottom"), BBViewToolBar, &SubTP);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
 
 		FreeStrBuf(&BBViewToolBar);
@@ -915,10 +932,6 @@ DONE:
 	} else {
 	  end_burst();
 	}
-	/** free the summary 
-	if (filtered != NULL) {
-	  DeleteHash(&filtered);
-	  } */
 
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
@@ -945,12 +958,12 @@ void post_mime_to_server(void) {
 	char *txtmail = NULL;
 
 	sprintf(top_boundary, "Citadel--Multipart--%s--%04x--%04x",
-		serv_info.serv_fqdn,
+		ChrPtr(serv_info.serv_fqdn),
 		getpid(),
 		++seq
 	);
 	sprintf(alt_boundary, "Citadel--Multipart--%s--%04x--%04x",
-		serv_info.serv_fqdn,
+		ChrPtr(serv_info.serv_fqdn),
 		getpid(),
 		++seq
 	);
@@ -1050,7 +1063,7 @@ void post_message(void)
 	wcsession *WCC = WC;
 	
 	if (havebstr("force_room")) {
-		gotoroom(bstr("force_room"));
+		gotoroom(sbstr("force_room"));
 	}
 
 	if (havebstr("display_name")) {
@@ -1243,7 +1256,7 @@ void display_enter(void)
 	now = time(NULL);
 
 	if (havebstr("force_room")) {
-		gotoroom(bstr("force_room"));
+		gotoroom(sbstr("force_room"));
 	}
 
 	display_name = sbstr("display_name");
@@ -1275,7 +1288,7 @@ void display_enter(void)
 	 * message" command really means "add new entry."
 	 */
 	if (WCC->wc_default_view == VIEW_ADDRESSBOOK) {
-		do_edit_vcard(-1, "", "", WCC->wc_roomname);
+		do_edit_vcard(-1, "", "", ChrPtr(WCC->wc_roomname));
 		return;
 	}
 
@@ -1352,7 +1365,7 @@ void display_enter(void)
 
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	DoTemplate(HKEY("edit_message"), NULL, NULL, CTX_NONE);
+	DoTemplate(HKEY("edit_message"), NULL, &NoCtx);
 	end_burst();
 
 	return;
@@ -1637,16 +1650,15 @@ void jsonMessageListHdr(void) {
 void new_summary_view(void) {
   output_headers(1,1,1,0,0,1);
   begin_burst();
-  DoTemplate(HKEY("msg_listview"),NULL,NULL,CTX_NONE);
-  DoTemplate(HKEY("trailing"),NULL,NULL,CTX_NONE);
+  DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
+  DoTemplate(HKEY("trailing"),NULL,&NoCtx);
   end_burst();
 }
 /** Output message list in JSON-format */
 void jsonMessageList(void) {
-  char * room = bstr("room");
-  gotoroom(room);
+  StrBuf *room = sbstr("room");
   WC->is_ajax = 1; 
-  readloop(readnew);
+  smart_goto(room);
   WC->is_ajax = 0;
 }
 

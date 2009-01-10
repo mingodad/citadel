@@ -35,7 +35,7 @@ void DestroySession(wcsession **sessions_to_kill)
 	DeleteHash(&((*sessions_to_kill)->attachments));
 	free_march_list((*sessions_to_kill));
 	DeleteHash(&((*sessions_to_kill)->hash_prefs));
-	DeleteHash(&((*sessions_to_kill)->IconBarSetttings));
+	DeleteHash(&((*sessions_to_kill)->IconBarSettings));
 	DeleteHash(&((*sessions_to_kill)->ServCfg));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment1));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment2));
@@ -43,6 +43,12 @@ void DestroySession(wcsession **sessions_to_kill)
 	FreeStrBuf(&((*sessions_to_kill)->WBuf));
 	FreeStrBuf(&((*sessions_to_kill)->HBuf));
 	FreeStrBuf(&((*sessions_to_kill)->CLineBuf));
+	FreeStrBuf(&((*sessions_to_kill)->wc_username));
+	FreeStrBuf(&((*sessions_to_kill)->wc_fullname));
+	FreeStrBuf(&((*sessions_to_kill)->wc_password));
+	FreeStrBuf(&((*sessions_to_kill)->wc_roomname));
+	FreeStrBuf(&((*sessions_to_kill)->httpauth_user));
+	FreeStrBuf(&((*sessions_to_kill)->httpauth_pass));
 	free((*sessions_to_kill));
 	(*sessions_to_kill) = NULL;
 }
@@ -205,27 +211,25 @@ int lingering_close(int fd)
 
 
 
-/**
- * \brief	sanity requests
- *		Check for bogus requests coming from brain-dead Windows boxes.
- *
- * \param	http_cmd	The HTTP request to check
+/*
+ * Look for commonly-found probes of malware such as worms, viruses, trojans, and Microsoft Office.
+ * Short-circuit these requests so we don't have to send them through the full processing loop.
  */
 int is_bogus(StrBuf *http_cmd) {
 	const char *url;
 	int i, max;
 	const char *bogus_prefixes[] = {
-		"/scripts/root.exe",	/**< Worms and trojans and viruses, oh my! */
+		"/scripts/root.exe",	/* Worms and trojans and viruses, oh my! */
 		"/c/winnt",
 		"/MSADC/",
-		"/_vti",		/**< Broken Microsoft DAV implementation */
-		"/MSOffice"		/**< Stoopid MSOffice thinks everyone is IIS */
+		"/_vti",		/* Broken Microsoft DAV implementation */
+		"/MSOffice",		/* Stoopid MSOffice thinks everyone is IIS */
+		"/nonexistenshit"	/* Exploit found in the wild January 2009 */
 	};
 
 	url = ChrPtr(http_cmd);
 	if (IsEmptyStr(url)) return(1);
 	++url;
-
 
 	max = sizeof(bogus_prefixes) / sizeof(char *);
 
@@ -355,7 +359,7 @@ authentication
 	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
 	    (vLine != NULL)) {
 		cookie_to_stuff(vLine, &desired_session,
-				NULL, 0, NULL, 0, NULL, 0);
+				NULL, NULL, NULL);
 		got_cookie = 1;
 	}
 
@@ -473,8 +477,8 @@ authentication
 
 			/** If HTTP-AUTH, look for a session with matching credentials */
 			if ( (!IsEmptyStr(httpauth_user))
-			   &&(!strcasecmp(sptr->httpauth_user, httpauth_user))
-			   &&(!strcasecmp(sptr->httpauth_pass, httpauth_pass)) ) {
+			     &&(!strcasecmp(ChrPtr(sptr->httpauth_user), httpauth_user))
+			     &&(!strcasecmp(ChrPtr(sptr->httpauth_pass), httpauth_pass)) ) {
 				TheSession = sptr;
 			}
 
@@ -511,8 +515,17 @@ authentication
 			TheSession->wc_session = desired_session;
 		}
 
-		strcpy(TheSession->httpauth_user, httpauth_user);
-		strcpy(TheSession->httpauth_pass, httpauth_pass);
+		if (TheSession->httpauth_user != NULL){
+			FlushStrBuf(TheSession->httpauth_user);
+			StrBufAppendBufPlain(TheSession->httpauth_user, httpauth_user, -1, 0);
+		}
+		else TheSession->httpauth_user = NewStrBufPlain(httpauth_user, -1);
+		if (TheSession->httpauth_user != NULL){
+			FlushStrBuf(TheSession->httpauth_pass);
+			StrBufAppendBufPlain(TheSession->httpauth_pass, httpauth_user, -1, 0);
+		}
+		else TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
+
 		TheSession->hash_prefs = NewHash(1,NULL);	/* Get a hash table for the user preferences */
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 		pthread_mutex_lock(&SessionListMutex);
@@ -576,16 +589,30 @@ authentication
 	
 }
 
-void tmpl_nonce(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	StrBufAppendPrintf(Target, "%ld",
 			   (WCC != NULL)? WCC->nonce:0);		   
 }
 
+void tmplput_current_user(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBufAppendTemplate(Target, TP, WC->wc_fullname, 0);
+}
+
+void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0); 
+}
+
+
+
 void 
 InitModule_CONTEXT
 (void)
 {
-	RegisterNamespace("NONCE", 0, 0, tmpl_nonce, 0);
+	RegisterNamespace("CURRENT_USER", 0, 1, tmplput_current_user, CTX_NONE);
+	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, CTX_NONE);
+	RegisterNamespace("NONCE", 0, 0, tmplput_nonce, 0);
 }

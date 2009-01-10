@@ -101,7 +101,7 @@ void editinfo(void) {save_edit(_("Room info"), "EINF 1", 1);}
 void display_editbio(void) {
 	char buf[SIZ];
 
-	snprintf(buf, SIZ, "RBIO %s", WC->wc_fullname);
+	snprintf(buf, SIZ, "RBIO %s", ChrPtr(WC->wc_fullname));
 	display_edit(_("Your bio"), "NOOP", buf, "editbio", 3);
 }
 void editbio(void) { save_edit(_("Your bio"), "EBIO", 0); }

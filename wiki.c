@@ -34,27 +34,27 @@ void str_wiki_index(char *s)
  */
 void display_wiki_page(void)
 {
-	char roomname[128];
+	const StrBuf *roomname;
 	char pagename[128];
 	char errmsg[256];
 	long msgnum = (-1L);
 
-	safestrncpy(roomname, bstr("room"), sizeof roomname);
+	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
 	str_wiki_index(pagename);
 
-	if (!IsEmptyStr(roomname)) {
+	if (StrLength(roomname) > 0) {
 
 		/* If we're not in the correct room, try going there. */
-		if (strcasecmp(roomname, WC->wc_roomname)) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
 			gotoroom(roomname);
 		}
 	
 		/* If we're still not in the correct room, it doesn't exist. */
-		if (strcasecmp(roomname, WC->wc_roomname)) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
 			snprintf(errmsg, sizeof errmsg,
-				_("There is no room called '%s'."),
-				roomname);
+				 _("There is no room called '%s'."),
+				 ChrPtr(roomname));
 			convenience_page("FF0000", _("Error"), errmsg);
 			return;
 		}
@@ -64,7 +64,7 @@ void display_wiki_page(void)
 	if (WC->wc_view != VIEW_WIKI) {
 		snprintf(errmsg, sizeof errmsg,
 			_("'%s' is not a Wiki room."),
-			roomname);
+			 ChrPtr(roomname));
 		convenience_page("FF0000", _("Error"), errmsg);
 		return;
 	}

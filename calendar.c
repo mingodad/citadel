@@ -640,8 +640,9 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
 	wprintf("<div style=\"display: none;\">\n	");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
-		msgnum);
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n", msgnum);
+	wprintf("<INPUT TYPE=\"hidden\" NAME=\"return_to_summary\" VALUE=\"%d\">\n",
+		ibstr("return_to_summary"));
 	wprintf("</div>");
 	wprintf("<table class=\"calendar_background\"><tr><td>");
 	wprintf("<TABLE STYLE=\"border: none;\">\n");
@@ -937,8 +938,13 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		icalcomponent_free(vtodo);
 	}
 
-	/** Go back to the task list */
-	readloop(readfwd);
+	/* Go back to wherever we came from */
+	if (ibstr("return_to_summary") == 1) {
+		summary();
+	}
+	else {
+		readloop(readfwd);
+	}
 }
 
 
@@ -1052,7 +1058,7 @@ void display_edit_task(void) {
 			
 	/* Force change the room if we have to */
 	if (havebstr("taskrm")) {
-		gotoroom((char *)bstr("taskrm"));
+		gotoroom(sbstr("taskrm"));
 	}
 
 	msgnum = lbstr("msgnum");

@@ -29,7 +29,9 @@ enum {
 	WCS_LONG          /* its an integer */
 };
 
-
+typedef struct WCTemplateToken WCTemplateToken;
+typedef struct WCTemplputParams WCTemplputParams;
+typedef void (*WCHandlerFunc)(StrBuf *Target, WCTemplputParams *TP);
 
 typedef struct _TemplateParam {
 	const char *Start;
@@ -39,8 +41,8 @@ typedef struct _TemplateParam {
 } TemplateParam;
 
 /* make a template token a lookup key: */
-#define TKEY(a) Tokens->Params[a]->Start, Tokens->Params[a]->len
-typedef struct _TemplateToken {
+#define TKEY(a) TP->Tokens->Params[a]->Start, TP->Tokens->Params[a]->len
+struct WCTemplateToken {
 	const StrBuf *FileName; /* Reference to print error messages; not to be freed */
 	StrBuf *FlatToken;
 	long Line;
@@ -57,9 +59,7 @@ typedef struct _TemplateToken {
 	int HaveParameters;
 	int nParameters;
 	TemplateParam *Params[MAXPARAM];
-} WCTemplateToken;
-
-typedef void (*WCHandlerFunc)();
+};
 
 
 /*
@@ -73,6 +73,20 @@ typedef struct _wcsubst {
 	int ContextRequired;                /* do we require a context type? */
 	WCHandlerFunc wcs_function; /* funcion hook ???*/
 } wcsubst;
+
+struct WCTemplputParams {
+	int nArgs;
+	WCTemplateToken *Tokens;
+	void *Context;
+	int ContextType;
+};
+
+
+extern WCTemplputParams NoCtx;
+
+#define CTX TP->Context
+
+
 
 #define CTX_NONE 0
 #define CTX_SITECFG 1
@@ -98,7 +112,7 @@ void RegisterNS(const char *NSName, long len,
 		int ContextRequired);
 #define RegisterNamespace(a, b, c, d, e) RegisterNS(a, sizeof(a)-1, b, c, d, e)
 
-typedef int (*WCConditionalFunc)(WCTemplateToken *Token, void *Context, int ContextType);
+typedef int (*WCConditionalFunc)(StrBuf *Target, WCTemplputParams *TP);
 typedef struct _ConditionalStruct {
 	const char *PlainName;
 	int nParams;
@@ -112,8 +126,8 @@ void RegisterConditional(const char *Name, long len,
 
 
 
-typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, void *Context, WCTemplateToken *Token);
-typedef HashList *(*RetrieveHashlistFunc)(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType);
+typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, WCTemplputParams *TP);
+typedef HashList *(*RetrieveHashlistFunc)(StrBuf *Target, WCTemplputParams *TP);
 typedef void (*HashDestructorFunc) (HashList **KillMe);
 void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 		      int AdditionalParams,       /* doe we use more parameters? */
@@ -130,8 +144,8 @@ void RegisterITERATOR(const char *Name, long len, /* Our identifier */
 
 #define RegisterIterator(a, b, c, d, e, f, g, h, i) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h, i)
 
-void GetTemplateTokenString(WCTemplateToken *Tokens,
-			    int N, 
+void GetTemplateTokenString(WCTemplputParams *TP,
+			    int N,
 			    const char **Value, 
 			    long *len);
 
@@ -149,19 +163,18 @@ void SVCallback(char *keyname, size_t keylen,  WCHandlerFunc fcn_ptr);
 void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
 #define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
 
-void DoTemplate(const char *templatename, long len, StrBuf *Target, void *Context, int ContextType);
-#define do_template(a, b) DoTemplate(a, sizeof(a) -1, NULL, b, 0);
+void DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputParams *TP);
+#define do_template(a, b) DoTemplate(a, sizeof(a) -1, NULL, &NoCtx);
 void url_do_template(void);
 
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
 int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
 
 void StrBufAppendTemplate(StrBuf *Target, 
-			  int nArgs, 
-			  WCTemplateToken *Tokens,
-			  void *Context, int ContextType,
-			  const StrBuf *Source, int FormatTypeIndex);
-CompareFunc RetrieveSort(long ContextType, const char *OtherPrefix, 
+			  WCTemplputParams *TP,
+			  const StrBuf *Source, 
+			  int FormatTypeIndex);
+CompareFunc RetrieveSort(WCTemplputParams *TP, const char *OtherPrefix, 
 			 const char *Default, long ldefault, long DefaultDirection);
 void RegisterSortFunc(const char *name, long len, 
 		      const char *prepend, long preplen,
@@ -171,3 +184,13 @@ void RegisterSortFunc(const char *name, long len,
 		      long ContextType);
 
 void dbg_print_longvector(long *LongVector);
+
+
+#define ERR_NAME 0
+#define ERR_PARM1 1
+#define ERR_PARM2 2
+void LogTemplateError (StrBuf *Target, 
+		       const char *Type, 
+		       int ErrorPos, 
+		       WCTemplputParams *TP, 
+		       const char *Format, ...);

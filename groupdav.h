@@ -21,15 +21,15 @@ void groupdav_main(HashList *HTTPHeaders,
 		   int dav_content_length,
 		   StrBuf *dav_content,
 		   int Offset);
-void groupdav_get(const char *dav_pathname);
-void groupdav_put(const char *dav_pathname, char *dav_ifmatch,
+void groupdav_get(StrBuf *dav_pathname);
+void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 		  const char *dav_content_type, StrBuf *dav_content,
 		  int offset);
 void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch);
-void groupdav_propfind(const char *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset);
-void groupdav_options(const char *dav_pathname);
-long locate_message_by_uid(char *);
+void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset);
+void groupdav_options(StrBuf *dav_pathname);
+long locate_message_by_uid(const char *);
 void groupdav_folder_list(void);
-void euid_escapize(char *, char *);
-void euid_unescapize(char *, char *);
+void euid_escapize(char *, const char *);
+void euid_unescapize(char *, const char *);
 void groupdav_identify_host(void);

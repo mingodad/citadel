@@ -22,7 +22,7 @@ void groupdav_common_headers(void) {
 	hprintf(
 		"Server: %s / %s\r\n"
 		"Connection: close\r\n",
-		PACKAGE_STRING, serv_info.serv_software
+		PACKAGE_STRING, ChrPtr(serv_info.serv_software)
 	);
 }
 
@@ -31,7 +31,7 @@ void groupdav_common_headers(void) {
 /*
  * string conversion function
  */
-void euid_escapize(char *target, char *source) {
+void euid_escapize(char *target, const char *source) {
 	int i, len;
 	int target_length = 0;
 
@@ -52,7 +52,7 @@ void euid_escapize(char *target, char *source) {
 /*
  * string conversion function
  */
-void euid_unescapize(char *target, char *source) {
+void euid_unescapize(char *target, const char *source) {
 	int a, b, len;
 	char hex[3];
 	int target_length = 0;
@@ -129,7 +129,7 @@ void groupdav_main(HashList *HTTPHeaders,
 		hprintf("HTTP/1.1 401 Unauthorized\r\n");
 		groupdav_common_headers();
 		hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n",
-			serv_info.serv_humannode);
+			ChrPtr(serv_info.serv_humannode));
 		hprintf("Content-Length: 0\r\n");
 		end_burst();
 		return;
@@ -186,7 +186,7 @@ void groupdav_main(HashList *HTTPHeaders,
 	 * other variants of DAV in the future.
 	 */
 	if (!strcasecmp(ChrPtr(DavMethod), "OPTIONS")) {
-		groupdav_options(ChrPtr(DavPathname));
+		groupdav_options(DavPathname);
 		return;
 	}
 
@@ -195,7 +195,7 @@ void groupdav_main(HashList *HTTPHeaders,
 	 * room, or to list all relevant rooms on the server.
 	 */
 	if (!strcasecmp(ChrPtr(DavMethod), "PROPFIND")) {
-		groupdav_propfind(ChrPtr(DavPathname), dav_depth,
+		groupdav_propfind(DavPathname, dav_depth,
 				  dav_content_type, dav_content, 
 				  Offset);
 		return;
@@ -205,7 +205,7 @@ void groupdav_main(HashList *HTTPHeaders,
 	 * The GET method is used for fetching individual items.
 	 */
 	if (!strcasecmp(ChrPtr(DavMethod), "GET")) {
-		groupdav_get(ChrPtr(DavPathname));
+		groupdav_get(DavPathname);
 		return;
 	}
 
@@ -213,7 +213,7 @@ void groupdav_main(HashList *HTTPHeaders,
 	 * The PUT method is used to add or modify items.
 	 */
 	if (!strcasecmp(ChrPtr(DavMethod), "PUT")) {
-		groupdav_put(ChrPtr(DavPathname), dav_ifmatch,
+		groupdav_put(DavPathname, dav_ifmatch,
 			     ChrPtr(dav_content_type), dav_content, 
 			     Offset);
 		return;

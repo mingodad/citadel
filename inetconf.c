@@ -175,12 +175,12 @@ void new_save_inetconf(void) {
 	url_do_template();
 }
 
-void InetCfgSubst(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Tokens)
+void InetCfgSubst(StrBuf *TemplBuffer, WCTemplputParams *TP)
 {
-	SVPutBuf("SERVCFG:INET:HOSTNAME", vContext, 1);
+	SVPutBuf("SERVCFG:INET:HOSTNAME", CTX, 1);
 }
 
-void DeleteInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void DeleteInetConfHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 
@@ -190,18 +190,15 @@ void DeleteInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void
 }
 
 
-HashList *GetInetConfHash(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *GetInetConfHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	void *vHash;
 
 	if (WCC->InetCfg == NULL)
 		load_inetconf();
-	GetHash(WCC->InetCfg, 
-		Tokens->Params[2]->Start, 
-		Tokens->Params[2]->len,
-		&vHash);
-	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, Tokens->Params[2]->Start);
+	GetHash(WCC->InetCfg, TKEY(2), &vHash);
+	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, TP->Tokens->Params[2]->Start);
 	return vHash;
 }
 

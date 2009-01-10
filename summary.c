@@ -83,8 +83,11 @@ void tasks_section(void) {
 	void *vMsg;
 	message_summary *Msg;
 	wcsession *WCC = WC;
+	StrBuf *Buf;
 
-	gotoroom("_TASKS_");
+	Buf = NewStrBufPlain(HKEY("_TASKS_"));
+	gotoroom(Buf);
+	FreeStrBuf(&Buf);
 	if (WCC->wc_view != VIEW_TASKS) {
 		num_msgs = 0;
 	}
@@ -121,8 +124,11 @@ void calendar_section(void) {
 	message_summary *Msg;
 	wcsession *WCC = WC;
 	struct calview c;
+	StrBuf *Buf;
 
-	gotoroom("_CALENDAR_");
+	Buf = NewStrBufPlain(HKEY("_CALENDAR_"));
+	gotoroom(Buf);
+	FreeStrBuf(&Buf);
 	if ( (WC->wc_view != VIEW_CALENDAR) && (WC->wc_view != VIEW_CALBRIEF) ) {
 		num_msgs = 0;
 	}
@@ -155,12 +161,12 @@ void server_info_section(void) {
 
 	snprintf(message, sizeof message,
 		_("You are connected to %s, running %s with %s, server build %s and located in %s.  Your system administrator is %s."),
-		serv_info.serv_humannode,
-		serv_info.serv_software,
-		PACKAGE_STRING,
-		serv_info.serv_svn_revision,
-		serv_info.serv_bbs_city,
-		serv_info.serv_sysadm);
+		 ChrPtr(serv_info.serv_humannode),
+		 ChrPtr(serv_info.serv_software),
+		 PACKAGE_STRING,
+		 ChrPtr(serv_info.serv_svn_revision),
+		 ChrPtr(serv_info.serv_bbs_city),
+		 ChrPtr(serv_info.serv_sysadm));
 	escputs(message);
 }
 
@@ -262,14 +268,14 @@ void summary(void) {
 	wprintf("<div class=\"room_banner\">");
         wprintf("<img src=\"static/summscreen_48x.gif\">");
         wprintf("<h1>");
-        snprintf(title, sizeof title, _("Summary page for %s"), WC->wc_fullname);
+        snprintf(title, sizeof title, _("Summary page for %s"), ChrPtr(WC->wc_fullname));
         escputs(title);
         wprintf("</h1><h2>");
         output_date();
         wprintf("</h2></div>");
 	wprintf("<ul class=\"room_actions\">\n");
 	wprintf("<li class=\"start_page\">");
-	offer_start_page(NULL, 0, NULL, NULL, CTX_NONE);
+	offer_start_page(NULL, &NoCtx);
         wprintf("</li></ul>");
         wprintf("</div>");
 

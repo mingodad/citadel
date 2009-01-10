@@ -12,22 +12,6 @@
 #define IB_PICONLY	1 /**< just a picture */
 #define IB_TEXTONLY	2 /**< just text */
 
-
-void do_iconbar(void);
-void do_iconbar_roomlist(void);
-
-/*
- * Render the left side iconbar
- */
-void do_selected_iconbar(void) {
-	if (WC->current_iconbar == current_iconbar_roomlist) {
-		do_iconbar_roomlist();
-	}
-	else {
-		do_iconbar();
-	}
-}
-
 void DontDeleteThis(void *Data){}
 
 #define IconbarIsEnabled(a, b) IconbarIsENABLED(a, sizeof(a) - 1, b)
@@ -35,7 +19,7 @@ void DontDeleteThis(void *Data){}
 long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 {
 	void *Data;
-	if (GetHash(WC->IconBarSetttings, key, keylen,
+	if (GetHash(WC->IconBarSettings, key, keylen,
 		    &Data))
 		return (long) Data;
 	else 
@@ -51,6 +35,39 @@ inline const char *PrintInt(void *Prefstr)
 }
 #endif
 
+/** Produces a stylesheet which hides any iconbar icons the user does not want */
+void doUserIconStylesheet(void) {
+  HashPos *pos;
+  void *Data;
+  const char *key;
+  long HKLen;
+
+  LoadIconSettings();
+  hprintf("HTTP/1.1 200 OK\r\n");
+  hprintf("Content-type: text/css; charset=utf-8\r\n");
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, serv_info.serv_software);
+  hprintf("Connection: close\r\n");
+  hprintf("Cache-Control: private\r\n");
+  
+  begin_burst();
+  pos = GetNewHashPos(WC->IconBarSettings, 0);
+  while(GetNextHashPos(WC->IconBarSettings, pos, &HKLen, &key, &Data)) {
+    if (Data == 0 
+	&& strncasecmp("ib_displayas",key,12) 
+	&& strncasecmp("ib_logoff", key, 9)) {
+      // Don't shoot me for this
+      wprintf("#%s { display: none !important; }\r\n",key);
+    }
+  }
+  end_burst();
+}
+
+int ConditionalIsActiveStylesheet(StrBuf *Target, WCTemplputParams *TP) {
+  long testFor = TP->Tokens->Params[3]->lvalue;
+  int ib_displayas = IconbarIsEnabled("ib_displayas",IB_PICTEXT);
+  return (testFor == ib_displayas);
+}
+
 void LoadIconSettings(void)
 {
 	wcsession *WCC = WC;
@@ -62,9 +79,8 @@ void LoadIconSettings(void)
 
 	buf = NewStrBuf();;
 	key = NewStrBuf();
-	WCC->current_iconbar = current_iconbar_menu;
-	if (WCC->IconBarSetttings == NULL)
-		WCC->IconBarSetttings = NewHash(1, NULL);
+	if (WCC->IconBarSettings == NULL)
+		WCC->IconBarSettings = NewHash(1, NULL);
 	/**
 	 * The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
@@ -78,7 +94,7 @@ void LoadIconSettings(void)
 			StrBufExtract_token(buf, iconbar, i, ',');
 			StrBufExtract_token(key, buf, 0, '=');
 			val = StrBufExtract_long(buf, 1, '=');
-			Put(WCC->IconBarSetttings, 
+			Put(WCC->IconBarSettings, 
 			    ChrPtr(key), StrLength(key),
 			    (void*)val, DontDeleteThis);
 		}
@@ -91,350 +107,6 @@ void LoadIconSettings(void)
 	FreeStrBuf(&key);
 	FreeStrBuf(&buf);
 }
-
-
-/**
- * \brief draw the icon bar???
- */
-void do_iconbar(void) {
-	int ib_displayas = IB_PICTEXT;	/**< pictures and text, pictures, text */
-
-	LoadIconSettings();
-	ib_displayas = IconbarIsEnabled("ib_displayas", IB_PICTEXT);
-
-/** Site logo */
-	if (IconbarIsEnabled("ib_logo", 0)) {
-                if (ib_displayas != IB_TEXTONLY) {
-                        wprintf("<div class=\"logo\"> <img "
-                                "src=\"image&name=hello\" alt=\"&nbsp;\"> "
-                                "</div>\n"
-                        );
-                }
-                wprintf("\n");
-        }
-
-	wprintf("<span id=\"switch\"></span>");
-	wprintf("<div id=\"summary\">");
-/** Summary page icon */
-	wprintf("<ul id=\"button\">");
-	if (IconbarIsEnabled("ib_summary", 1)) {
-		wprintf("<li><a href=\"summary\" "
-			"title=\"%s\" "
-			">", _("Your summary page")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-				"src=\"static/summscreen_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Summary"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Inbox icon */
-	if (IconbarIsEnabled("ib_inbox", 1)) {
-		wprintf("<li>"
-			"<a href=\"dotgoto?room=_MAIL_\" "
-			"title=\"%s\" "
-			">",
-			_("Go to your email inbox")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-				"src=\"static/privatemess_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Mail"));
-			if (WC->new_mail != WC->remember_new_mail) {
-/*
-				if (WC->new_mail > 0) {
-					wprintf(" <b>(%d)</b>", WC->new_mail);
-				}
-*/
-				WC->remember_new_mail = WC->new_mail;
-			}
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Calendar icon */
-	if (IconbarIsEnabled("ib_calendar", 1)) {
-		wprintf("<li>"
-			"<a href=\"dotgoto?room=_CALENDAR_\" "
-			"title=\"%s\" "
-			">",
-			_("Go to your personal calendar")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/calarea_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Calendar"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Contacts icon */
-	if (IconbarIsEnabled("ib_contacts", 1)) {
-		wprintf("<li>"
-			"<a href=\"dotgoto?room=_CONTACTS_\" "
-			"title=\"%s\" "
-			">",
-			_("Go to your personal address book")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/viewcontacts_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Contacts"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Notes icon */
-	if (IconbarIsEnabled("ib_notes", 1)) {
-		wprintf("<li>"
-			"<a href=\"dotgoto?room=_NOTES_\" "
-			"title=\"%s\" "
-			">",
-			_("Go to your personal notes")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/storenotes_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Notes"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Tasks icon */
-	if (IconbarIsEnabled("ib_tasks", 1))  {
-		wprintf("<li>"
-			"<a href=\"dotgoto?room=_TASKS_\" "
-			"title=\"%s\" "
-			">",
-			_("Go to your personal task list")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/taskmanag_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Tasks"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Rooms icon */
-	if (IconbarIsEnabled("ib_rooms", 1)) {
-		wprintf("<li>"
-			"<a href=\"knrooms\" title=\"%s\" >",
-			_("List all of your accessible rooms")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/chatrooms_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Rooms"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Users icon */
-	if (IconbarIsEnabled("ib_users", 1)) {
-		wprintf("<li>"
-			"<a href=\"do_template?template=who\" title=\"%s\" "
-			">",
-			_("See who is online right now")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/usermanag_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Who is online?"));
-		}
-		 
-		wprintf("</a>\n");
-
-		if (IconbarIsEnabled("ib_users", 0)) {
-			wprintf("<ul id=\"wholist\">");
-			wprintf("</ul></li>\n");
-		}
-	}
-
-/** Chat icon */
-	if (IconbarIsEnabled("ib_chat", 1)) {
-		wprintf("<li>"
-			"<a href=\"#\" onClick=\"window.open('chat', "
-			"'ctdl_chat_window', "
-			"'toolbar=no,location=no,directories=no,copyhistory=no,"
-			"status=no,scrollbars=yes,resizable=yes');\""
-			">"
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/citadelchat_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Chat"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-/** Advanced Options icon */
-	if (IconbarIsEnabled("ib_advanced", 1)) {
-		wprintf("<li>"
-			"<a href=\"do_template?template=display_main_menu\" "
-			"title=\"%s\" "
-			">",
-			_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/advanpage2_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Advanced"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-	if ((WC->axlevel >= 6) || (WC->is_room_aide)) {
-		wprintf("<li>"
-			"<a href=\"do_template?template=display_aide_menu\" "
-			"title=\"%s\" "
-			">",
-			_("Room and system administration functions")
-		);
-		if (ib_displayas != IB_TEXTONLY) {
-			wprintf("<img alt=\"\" "
-			"src=\"static/advanpage2_32x.gif\">");
-		}
-		if (ib_displayas != IB_PICONLY) {
-			wprintf(_("Administration"));
-		}
-		wprintf("</a></li>\n");
-	}
-
-	wprintf("<li>"
-		"<a href=\"termquit\" title=\"%s\" "
-		"onClick=\"return confirm('%s');\">",
-		_("Log off"),
-		_("Log off now?")
-		
-	);
-	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<img alt=\"\" "
-		"src=\"static/logoff_32x.gif\">");
-	}
-	if (ib_displayas != IB_PICONLY) {
-		wprintf(_("Log off"));
-	}
-	wprintf("</a></li>\n");
-
-	wprintf(
-		"<li class=\"switch\">"
-		"<a href=\"display_customize_iconbar\" "
-		"title=\"%s\" "
-		">%s"
-		"</a></li>\n",
-		_("Customize this menu"),
-		_("customize this menu")
-	);
-
-	wprintf("</ul>\n");
-
-	if (IconbarIsEnabled("ib_users", 0)) {
-        	wprintf(
-                	"<script type=\"text/javascript\"> "
-                	" new Ajax.PeriodicalUpdater('wholist', 'do_template?template=wholist_section', { method: 'get', frequency: 30 } );"
-			"</script> \n"
-			);
-	}
-	wprintf("</div>");
-}
-
-
-/**
- * \brief roomtree view of the iconbar
- * If the user has toggled the icon bar over to a room list, here's where
- * we generate its innerHTML...
- */
-void do_iconbar_roomlist(void) {
-	int ib_displayas;
-				
-	WC->current_iconbar = current_iconbar_roomlist;
-
-	/**
-	 * The initialized values of these variables also happen to
-	 * specify the default values for users who haven't customized
-	 * their iconbars.  These should probably be set in a master
-	 * configuration somewhere.
-	 */
-
-	LoadIconSettings();
-
-	ib_displayas = IconbarIsEnabled("ib_displayas", IB_PICTEXT);	/* pictures and text, pictures, text */
-
-/** Site logo */
-	if (IconbarIsEnabled("ib_logo", 0)) {
-		if (ib_displayas != IB_TEXTONLY) {
-                        wprintf("<div class=\"logo\"> <img "
-                                "src=\"image&name=hello\" alt=\"&nbsp;\"> "
-                                "</div>\n"
-			);
-		}
-	}
-
-/** 'Powered by Citadel' logo */
-        if (IconbarIsEnabled("ib_citadel", 1) && (ib_displayas != IB_TEXTONLY)) wprintf(
-                "<div class=\"logo_citadel\"> "
-                "<a href=\"http://www.citadel.org\" "
-                "title=\"%s\"> "
-                "<img "
-                "src=\"static/citadel-logo.gif\" alt=\"%s\"></a> "
-                "</div>\n",
-                _("Find out more about Citadel"),
-                _("CITADEL")
-        );
-
-	wprintf("<ul id=\"button\">\n");
-
-	wprintf("<li class=\"switch\"><a href=\"javascript:switch_to_menu_buttons()\">");
-	wprintf(_("switch to menu"));
-	wprintf("</a></li>");
-
-	wprintf("<li>"
-		"<a href=\"termquit\" title=\"%s\" "
-		"onClick=\"return confirm('%s');\">",
-		_("Log off"),
-		_("Log off now?")
-		
-	);
-	if (ib_displayas != IB_TEXTONLY) {
-	wprintf("<img alt=\"\" "
-		"src=\"static/logoff_32x.gif\">");
-	}
-	if (ib_displayas != IB_PICONLY) {
-		wprintf(_("Log off"));
-	}
-	wprintf("</a></li>\n");
-
-	wprintf("</ul>\n");
-
-	/** embed the room list */
-	list_all_rooms_by_floor("iconbar");
-
-	wprintf("</div>\n");
-}
-
 
 /**
  * \brief display a customized version of the iconbar
@@ -771,6 +443,7 @@ void commit_iconbar(void) {
 	set_preference("iconbar", iconbar, 1);
 
 	output_headers(1, 1, 2, 0, 0, 0);
+	/* TODO: TEMPLATE */
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
 	wprintf(_("Customize the icon bar"));
@@ -782,7 +455,7 @@ void commit_iconbar(void) {
 		"<img src=\"static/advanpage2_48x.gif\">"
 		"&nbsp;");
 	wprintf(_("Your icon bar has been updated.  Please select any of its "
-		"choices to continue."));
+		  "choices to continue.<br/><span style=\"font-weight: bold;\">You may need to force refresh (SHIFT-F5) in order for changes to take effect</span>"));
 	wprintf("</td></tr></table>\n");
 	wDumpContent(2);
 #ifdef DBG_ICONBAR_HASH
@@ -791,12 +464,12 @@ void commit_iconbar(void) {
 }
 
 
-void tmplput_iconbar(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_iconbar(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	
 	if ((WCC != NULL) && (WCC->logged_in)) {
-	  DoTemplate(HKEY("iconbar"), NULL, NULL, CTX_NONE);
+	  DoTemplate(HKEY("iconbar"), NULL, &NoCtx);
 	}
 }
 
@@ -804,10 +477,10 @@ void
 InitModule_ICONBAR
 (void)
 {
-	WebcitAddUrlHandler(HKEY("iconbar_ajax_menu"), do_iconbar, AJAX);
-	WebcitAddUrlHandler(HKEY("iconbar_ajax_rooms"), do_iconbar_roomlist, AJAX);
+  WebcitAddUrlHandler(HKEY("user_iconbar"), doUserIconStylesheet, 0);
+  WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
+  RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
 	WebcitAddUrlHandler(HKEY("display_customize_iconbar"), display_customize_iconbar, 0);
-	WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, 0);
 
 }

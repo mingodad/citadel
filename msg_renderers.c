@@ -233,9 +233,9 @@ void examine_nhdr(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	if (!strncasecmp(ChrPtr(HdrLine), "yes", 8))
 		Msg->nhdr = 1;
 }
-int Conditional_ANONYMOUS_MESSAGE(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_ANONYMOUS_MESSAGE(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return Msg->nhdr != 0;
 }
 
@@ -252,10 +252,10 @@ void examine_from(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	Msg->from = NewStrBufPlain(NULL, StrLength(HdrLine));
 	StrBuf_RFC822_to_Utf8(Msg->from, HdrLine, WC->DefaultCharset, FoundCharset);
 }
-void tmplput_MAIL_SUMM_FROM(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_FROM(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->from, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->from, 0);
 }
 
 
@@ -266,11 +266,11 @@ void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	Msg->subj = NewStrBufPlain(NULL, StrLength(HdrLine));
 	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset, FoundCharset);
 }
-void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
 {/*////TODO: Fwd: and RE: filter!!*/
 
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->subj, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->subj, 0);
 }
 
 
@@ -280,15 +280,15 @@ void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
 	StrBuf_RFC822_to_Utf8(Msg->reply_inreplyto, HdrLine, WC->DefaultCharset, FoundCharset);
 }
-void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->reply_inreplyto, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->reply_inreplyto, 0);
 }
 
-int Conditional_MAIL_SUMM_UNREAD(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_SUMM_UNREAD(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return Msg->is_new != 0;
 }
 
@@ -298,10 +298,10 @@ void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
 	StrBuf_RFC822_to_Utf8(Msg->reply_references, HdrLine, WC->DefaultCharset, FoundCharset);
 }
-void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->reply_references, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->reply_references, 0);
 }
 
 
@@ -317,10 +317,10 @@ void examine_cccc(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	}
 	StrBufAppendBuf(Msg->AllRcpt, Msg->cccc, 0);
 }
-void tmplput_MAIL_SUMM_CCCC(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_CCCC(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->cccc, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->cccc, 0);
 }
 
 
@@ -329,15 +329,15 @@ void tmplput_MAIL_SUMM_CCCC(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, 
 void examine_room(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	if ((StrLength(HdrLine) > 0) &&
-	    (strcasecmp(ChrPtr(HdrLine), WC->wc_roomname))) {
+	    (strcasecmp(ChrPtr(HdrLine), ChrPtr(WC->wc_roomname)))) {
 		FreeStrBuf(&Msg->Room);
 		Msg->Room = NewStrBufDup(HdrLine);		
 	}
 }
-void tmplput_MAIL_SUMM_ORGROOM(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_ORGROOM(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->Room, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->Room, 0);
 }
 
 
@@ -346,14 +346,14 @@ void examine_rfca(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	FreeStrBuf(&Msg->Rfca);
 	Msg->Rfca = NewStrBufDup(HdrLine);
 }
-void tmplput_MAIL_SUMM_RFCA(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_RFCA(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->Rfca, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->Rfca, 0);
 }
-int Conditional_MAIL_SUMM_RFCA(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_SUMM_RFCA(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return StrLength(Msg->Rfca) > 0;
 }
 
@@ -361,20 +361,20 @@ void examine_node(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	if ( (StrLength(HdrLine) > 0) &&
 	     ((WC->room_flags & QR_NETWORK)
-	      || ((strcasecmp(ChrPtr(HdrLine), serv_info.serv_nodename)
-		   && (strcasecmp(ChrPtr(HdrLine), serv_info.serv_fqdn)))))) {
+	      || ((strcasecmp(ChrPtr(HdrLine), ChrPtr(serv_info.serv_nodename))
+		   && (strcasecmp(ChrPtr(HdrLine), ChrPtr(serv_info.serv_fqdn))))))) {
 		FreeStrBuf(&Msg->OtherNode);
 		Msg->OtherNode = NewStrBufDup(HdrLine);
 	}
 }
-void tmplput_MAIL_SUMM_OTHERNODE(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_OTHERNODE(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->OtherNode, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->OtherNode, 0);
 }
-int Conditional_MAIL_SUMM_OTHERNODE(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_SUMM_OTHERNODE(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return StrLength(Msg->OtherNode) > 0;
 }
 
@@ -391,23 +391,20 @@ void examine_rcpt(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	}
 	StrBufAppendBuf(Msg->AllRcpt, Msg->to, 0);
 }
-void tmplput_MAIL_SUMM_TO(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_TO(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->to, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->to, 0);
 }
-void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->AllRcpt, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->AllRcpt, 0);
 }
 
 
-HashList *iterate_get_mailsumm_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_get_mailsumm_All(StrBuf *Target, WCTemplputParams *TP)
 {
-  if (Context != NULL) {
-    return Context;
-  } 
   return WC->summ;
 }
 
@@ -415,16 +412,25 @@ void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->date = StrTol(HdrLine);
 }
-void tmplput_MAIL_SUMM_DATE_STR(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+
+void tmplput_MAIL_SUMM_DATE_BRIEF(StrBuf *Target, WCTemplputParams *TP)
 {
 	char datebuf[64];
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	webcit_fmt_date(datebuf, Msg->date, 1);
 	StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
-void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+
+void tmplput_MAIL_SUMM_DATE_FULL(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	char datebuf[64];
+	message_summary *Msg = (message_summary*) CTX;
+	webcit_fmt_date(datebuf, Msg->date, 0);
+	StrBufAppendBufPlain(Target, datebuf, -1, 0);
+}
+void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, WCTemplputParams *TP)
+{
+	message_summary *Msg = (message_summary*) CTX;
 	StrBufAppendPrintf(Target, "%ld", Msg->date, 0);
 }
 
@@ -449,13 +455,14 @@ void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset
 
 void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
 	MimeLoadData(Mime);
 	if (StrLength(Mime->Data) > 0) {
 		StrBuf *Buf;
 		Buf = NewStrBuf();
 		/** If it's my vCard I can edit it */
-		if (	(!strcasecmp(WC->wc_roomname, USERCONFIGROOM))
-			|| (!strcasecmp(&WC->wc_roomname[11], USERCONFIGROOM))
+		if (	(!strcasecmp(ChrPtr(WCC->wc_roomname), USERCONFIGROOM))
+			|| (!strcasecmp(&(ChrPtr(WCC->wc_roomname)[11]), USERCONFIGROOM))
 			|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
 			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld&partnum=%s\">",
@@ -577,9 +584,9 @@ void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
 	}
 }
 
-void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	StrBufAppendPrintf(Target, "%ld", GetCount(Msg->Attachments));
 }
 
@@ -595,14 +602,14 @@ void examine_hnod(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	Msg->hnod = NewStrBufPlain(NULL, StrLength(HdrLine));
 	StrBuf_RFC822_to_Utf8(Msg->hnod, HdrLine, WC->DefaultCharset, FoundCharset);
 }
-void tmplput_MAIL_SUMM_H_NODE(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_H_NODE(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->hnod, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->hnod, 0);
 }
-int Conditional_MAIL_SUMM_H_NODE(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_SUMM_H_NODE(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return StrLength(Msg->hnod) > 0;
 }
 
@@ -676,57 +683,57 @@ void examine_content_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCh
 	}
 }
 
-void tmplput_MAIL_SUMM_N(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_SUMM_N(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	StrBufAppendPrintf(Target, "%ld", Msg->msgnum);
 }
 
 
 
-int Conditional_MAIL_MIME_ALL(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_MIME_ALL(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return GetCount(Msg->Attachments) > 0;
 }
 
-int Conditional_MAIL_MIME_SUBMESSAGES(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_MIME_SUBMESSAGES(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return GetCount(Msg->Submessages) > 0;
 }
 
-int Conditional_MAIL_MIME_ATTACHLINKS(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_MIME_ATTACHLINKS(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return GetCount(Msg->AttachLinks) > 0;
 }
 
-int Conditional_MAIL_MIME_ATTACH(WCTemplateToken *Tokens, void *Context, int ContextType)
+int Conditional_MAIL_MIME_ATTACH(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return GetCount(Msg->AllAttach) > 0;
 }
 
 
 
 /*----------------------------------------------------------------------------*/
-void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 {
-	long MsgNum;
+        long MsgNum;
 	StrBuf *Buf;
 
-	MsgNum = LBstr(Tokens->Params[0]->Start, Tokens->Params[0]->len);
+	MsgNum = LBstr(TKEY(0));
 	Buf = NewStrBuf();
 	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, 0, NULL);
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Buf, 1);
+	StrBufAppendTemplate(Target, TP, Buf, 1);
 	FreeStrBuf(&Buf);
 }
 
-void tmplput_MAIL_BODY(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Msg->MsgBody->Data, 0);
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->MsgBody->Data, 0);
 }
 
 
@@ -882,61 +889,61 @@ void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 
 
 
-HashList *iterate_get_mime_All(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_get_mime_All(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return Msg->Attachments;
 }
-HashList *iterate_get_mime_Submessages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_get_mime_Submessages(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return Msg->Submessages;
 }
-HashList *iterate_get_mime_AttachLinks(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_get_mime_AttachLinks(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return Msg->AttachLinks;
 }
-HashList *iterate_get_mime_Attachments(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_get_mime_Attachments(StrBuf *Target, WCTemplputParams *TP)
 {
-	message_summary *Msg = (message_summary*) Context;
+	message_summary *Msg = (message_summary*) CTX;
 	return Msg->AllAttach;
 }
 
-void tmplput_MIME_Name(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_Name(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->Name, 0);
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
+	StrBufAppendTemplate(Target, TP, mime->Name, 0);
 }
 
-void tmplput_MIME_FileName(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_FileName(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->FileName, 0);
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
+	StrBufAppendTemplate(Target, TP, mime->FileName, 0);
 }
 
-void tmplput_MIME_PartNum(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_PartNum(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->PartNum, 0);
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
+	StrBufAppendTemplate(Target, TP, mime->PartNum, 0);
 }
 
-void tmplput_MIME_MsgNum(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_MsgNum(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
 	StrBufAppendPrintf(Target, "%ld", mime->msgnum);
 }
 
-void tmplput_MIME_Disposition(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_Disposition(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->Disposition, 0);
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
+	StrBufAppendTemplate(Target, TP, mime->Disposition, 0);
 }
 
-void tmplput_MIME_ContentType(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_ContentType(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->ContentType, 0);
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
+	StrBufAppendTemplate(Target, TP, mime->ContentType, 0);
 }
 
 void examine_charset(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -944,25 +951,25 @@ void examine_charset(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset
 	Msg->MsgBody->Charset = NewStrBufDup(HdrLine);
 }
 
-void tmplput_MIME_Charset(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_Charset(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->Charset, 0);
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
+	StrBufAppendTemplate(Target, TP, mime->Charset, 0);
 }
 
-void tmplput_MIME_Data(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_Data(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
 	if (mime->Renderer != NULL)
 		mime->Renderer->f(mime, NULL, NULL);
-	StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, mime->Data, 0);
+	StrBufAppendTemplate(Target, TP, mime->Data, 0);
 	/* TODO: check whether we need to load it now? */
 }
 
-void tmplput_MIME_LoadData(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_LoadData(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;	
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
 	wc_mime_attachment *att;
 	
 	if ( (!strcasecmp(ChrPtr(mime->Disposition), "inline"))||
@@ -987,13 +994,13 @@ void tmplput_MIME_LoadData(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, v
  	}
 }
 
-void tmplput_MIME_Length(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_MIME_Length(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_mime_attachment *mime = (wc_mime_attachment*) Context;
+	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
 	StrBufAppendPrintf(Target, "%ld", mime->length);
 }
 
-HashList *iterate_get_registered_Attachments(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *iterate_get_registered_Attachments(StrBuf *Target, WCTemplputParams *TP)
 {
 	return WC->attachments;
 }
@@ -1077,7 +1084,8 @@ InitModule_MSGRENDERERS
 	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
 			 NULL,NULL, CTX_MAILSUM, CTX_NONE, IT_NOFLAG);
 
-	RegisterNamespace("MAIL:SUMM:DATESTR", 0, 0, tmplput_MAIL_SUMM_DATE_STR, CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:DATEBRIEF", 0, 0, tmplput_MAIL_SUMM_DATE_BRIEF, CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:DATEFULL", 0, 0, tmplput_MAIL_SUMM_DATE_FULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:N",       0, 0, tmplput_MAIL_SUMM_N,        CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:FROM",    0, 2, tmplput_MAIL_SUMM_FROM,     CTX_MAILSUM);

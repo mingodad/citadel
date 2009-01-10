@@ -81,7 +81,7 @@ void SerializeNode(NodeConf *Node, StrBuf *Buf)
 }
 
 
-HashList *load_netconf(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+HashList *load_netconf(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Buf;
 	HashList *Hash;
@@ -112,16 +112,6 @@ HashList *load_netconf(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void 
 	return NULL;
 }
 
-
-void NodeCfgSubst(StrBuf *TemplBuffer, void *vContext, WCTemplateToken *Token)
-{
-	NodeConf *Node= (NodeConf*)vContext;
-
-	SVPutBuf("CFG:IGNET:NODE", Node->NodeName, 1);
-	SVPutBuf("CFG:IGNET:SECRET", Node->Secret, 1);
-	SVPutBuf("CFG:IGNET:HOST", Node->Host, 1);
-	SVPutBuf("CFG:IGNET:PORT", Node->Port, 1);
-}
 
 
 void save_net_conf(HashList *Nodelist)
@@ -178,7 +168,7 @@ void edit_node(void) {
 			return;
 		}
 			
-		NodeConfig = load_netconf(NULL, 0, NULL, NULL, CTX_NONE);
+		NodeConfig = load_netconf(NULL, &NoCtx);
 		Put(NodeConfig, ChrPtr(Index), StrLength(Index), NewNode, DeleteNodeConf);
 		save_net_conf(NodeConfig);
 		DeleteHash(&NodeConfig);
@@ -192,9 +182,11 @@ void edit_node(void) {
  */
 void display_edit_node(void)
 {
+	WCTemplputParams SubTP;
 	HashList *NodeConfig;
 	const StrBuf *Index;
 	void *vNode;
+	const StrBuf *Tmpl;
 
 	Index = sbstr("index");
 	if (Index == NULL) {
@@ -203,7 +195,7 @@ void display_edit_node(void)
 		return;
 	}
 
-	NodeConfig = load_netconf(NULL, 0, NULL, NULL, CTX_NONE);
+	NodeConfig = load_netconf(NULL, &NoCtx);
 	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
 	    (vNode == NULL)) {
 		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
@@ -212,10 +204,15 @@ void display_edit_node(void)
 		return;
 	}
 	
-	NodeCfgSubst(NULL, vNode, NULL);
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	SVPutBuf("ITERATE:KEY", Index, 1);
-	url_do_template();
-
+	SubTP.ContextType = CTX_NODECONF;
+	SubTP.Context = vNode;
+	begin_burst();
+	Tmpl = sbstr("template");
+        output_headers(1, 0, 0, 0, 1, 0);
+        DoTemplate(SKEY(Tmpl), NULL, &SubTP);
+        end_burst();                                                                               
 	DeleteHash(&NodeConfig);
 	
 }
@@ -255,7 +252,7 @@ void delete_node(void)
 		return;
 	}
 
-	NodeConfig = load_netconf(NULL, 0, NULL, NULL, CTX_NONE);
+	NodeConfig = load_netconf(NULL, &NoCtx);
 	if (!GetHash(NodeConfig, ChrPtr(Index), StrLength(Index), &vNode) || 
 	    (vNode == NULL)) {
 		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
@@ -272,6 +269,31 @@ void delete_node(void)
 
 }
 
+
+void tmplput_NodeName(StrBuf *Target, WCTemplputParams *TP)
+{
+	NodeConf *Node = (NodeConf*) CTX;	
+	StrBufAppendTemplate(Target, TP, Node->NodeName, 0);
+}
+
+void tmplput_Secret(StrBuf *Target, WCTemplputParams *TP)
+{
+	NodeConf *Node = (NodeConf*) CTX;
+	StrBufAppendTemplate(Target, TP, Node->Secret, 0);
+}
+
+void tmplput_Host(StrBuf *Target, WCTemplputParams *TP) 
+{
+	NodeConf *Node= (NodeConf*) CTX;
+	StrBufAppendTemplate(Target, TP, Node->Host, 0);
+}
+
+void tmplput_Port(StrBuf *Target, WCTemplputParams *TP)
+{
+	NodeConf *Node= (NodeConf*) CTX;
+	StrBufAppendTemplate(Target, TP, Node->Port, 0);
+}
+
 void 
 InitModule_NETCONF
 (void)
@@ -282,6 +304,13 @@ InitModule_NETCONF
 	WebcitAddUrlHandler(HKEY("display_netconf"), display_netconf, 0);
 	WebcitAddUrlHandler(HKEY("display_confirm_delete_node"), display_confirm_delete_node, 0);
 	WebcitAddUrlHandler(HKEY("delete_node"), delete_node, 0);
-	RegisterIterator("NODECONFIG", 0, NULL, load_netconf, NodeCfgSubst, DeleteHash, CTX_NODECONF, CTX_NONE, IT_NOFLAG);
+
+                                                                                          
+        RegisterNamespace("CFG:IGNET:NODE", 0, 1, tmplput_NodeName, CTX_NODECONF);
+        RegisterNamespace("CFG:IGNET:SECRET", 0, 1, tmplput_Secret, CTX_NODECONF);
+        RegisterNamespace("CFG:IGNET:HOST", 0, 1, tmplput_Host, CTX_NODECONF);
+        RegisterNamespace("CFG:IGNET:PORT", 0, 1, tmplput_Port, CTX_NODECONF);
+
+	RegisterIterator("NODECONFIG", 0, NULL, load_netconf, NULL, DeleteHash, CTX_NODECONF, CTX_NONE, IT_NOFLAG);
 }
 /*@}*/

@@ -167,7 +167,8 @@ void httplang_to_locale(StrBuf *LocaleString)
  * depending on the browser locale change the sequence of the 
  * language chooser.
  */
-void tmplput_offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
+void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
+{
 	int i;
 #ifndef HAVE_USELOCALE
 	char *Lang = getenv("LANG");
@@ -306,7 +307,8 @@ void ShutdownLocale(void)
 
 #else	/* ENABLE_NLS */
 /** \brief dummy for non NLS enabled systems */
-void tmplput_offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType) {
+void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
+{
 	wprintf("English (US)");
 }
 
@@ -328,9 +330,9 @@ void preset_locale(void)
 #endif	/* ENABLE_NLS */
 
 
-void TmplGettext(StrBuf *Target, int nTokens, WCTemplateToken *Tokens)
+void TmplGettext(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendBufPlain(Target, _(Tokens->Params[0]->Start), -1, 0);
+	StrBufAppendBufPlain(Target, _(TP->Tokens->Params[0]->Start), -1, 0);
 }
 
 

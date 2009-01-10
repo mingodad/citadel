@@ -27,13 +27,18 @@ typedef unsigned char byte;	      /**< Byte type */
  * \param room the room he wants to enter
  */
 void stuff_to_cookie(char *cookie, size_t clen, int session,
-		char *user, char *pass, char *room)
+		StrBuf *user, StrBuf *pass, StrBuf *room)
 {
 	char buf[SIZ];
 	int i;
 	int len;
 
-	len = snprintf(buf, SIZ, "%d|%s|%s|%s|", session, user, pass, room);
+	len = snprintf(buf, SIZ, "%d|%s|%s|%s|", 
+		       session, 
+		       ChrPtr(user), 
+		       ChrPtr(pass), 
+		       ChrPtr(room));
+
 	strcpy(cookie, "");
 	for (i=0; (i < len) && (i * 2 < clen); ++i) {
 		snprintf(&cookie[i*2], clen - i * 2, "%02X", buf[i]);
@@ -78,12 +83,13 @@ int xtoi(const char *in, size_t len)
  * \param room_len the length of the room string
  */
 void cookie_to_stuff(StrBuf *cookie, int *session,
-		char *user, size_t user_len,
-		char *pass, size_t pass_len,
-		char *room, size_t room_len)
+		     StrBuf *user,
+		     StrBuf *pass,
+		     StrBuf *room)
 {
 	const char *pch;
 	char buf[SIZ];
+	StrBuf *Buf;
 	int i, len;
 
 	pch = strstr(ChrPtr(cookie), "webcit=");
@@ -98,6 +104,7 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
 		buf[i] = xtoi(&pch[i*2], 2);
 		buf[i+1] = 0;
 	}
+	Buf = NewStrBufPlain(buf, i);
 
 /* debug
 	char t[256];
@@ -112,12 +119,13 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
  debug */
 
 	if (session != NULL)
-		*session = extract_int(buf, 0);
+		*session = StrBufExtract_int(Buf, 0, '|');
 	if (user != NULL)
-		extract_token(user, buf, 1, '|', user_len);
+		StrBufExtract_token(user, Buf, 1, '|');
 	if (pass != NULL)
-		extract_token(pass, buf, 2, '|', pass_len);
+		StrBufExtract_token(pass, Buf, 2, '|');
 	if (room != NULL)
-		extract_token(room, buf, 3, '|', room_len);
+		StrBufExtract_token(room, Buf, 3, '|');
+	FreeStrBuf(&Buf);
 }
 /*@}*/

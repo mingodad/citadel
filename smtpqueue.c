@@ -90,7 +90,7 @@ void display_queue_msg(long msgnum)
 				atsign = strchr(sender, '@');
 				if (atsign != NULL) {
 					++atsign;
-					if (!strcasecmp(atsign, serv_info.serv_nodename)) {
+					if (!strcasecmp(atsign, ChrPtr(serv_info.serv_nodename))) {
 						--atsign;
 						*atsign = 0;
 					}
@@ -168,12 +168,15 @@ void display_smtpqueue_inner_div(void) {
 	wcsession *WCC = WC;
 	int i;
 	int num_msgs;
+	StrBuf *Buf;
 
 	/* Check to see if we can go to the __CitadelSMTPspoolout__ room.
 	 * If not, we don't have access to the queue.
 	 */
-	gotoroom("__CitadelSMTPspoolout__");
-	if (!strcasecmp(WCC->wc_roomname, "__CitadelSMTPspoolout__")) {
+	Buf = NewStrBufPlain(HKEY("__CitadelSMTPspoolout__"));
+	gotoroom(Buf);
+	FreeStrBuf(&Buf);
+	if (!strcasecmp(ChrPtr(WCC->wc_roomname), "__CitadelSMTPspoolout__")) {
 
 		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 		if (num_msgs > 0) {

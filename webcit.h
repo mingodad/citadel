@@ -216,21 +216,21 @@ struct urlcontent {
  */ 
 struct serv_info {
 	int serv_pid;			/* Process ID of the Citadel server */
-	char serv_nodename[32];		/* Node name of the Citadel server */
-	char serv_humannode[64];	/* human readable node name of the Citadel server */
-	char serv_fqdn[64];		/* fully quallified Domain Name (such as uncensored.citadel.org) */
-	char serv_software[64];		/* What version does our connected citadel server use */
+	StrBuf *serv_nodename;		/* Node name of the Citadel server */
+	StrBuf *serv_humannode;	        /* human readable node name of the Citadel server */
+	StrBuf *serv_fqdn;		/* fully quallified Domain Name (such as uncensored.citadel.org) */
+	StrBuf *serv_software;		/* What version does our connected citadel server use */
 	int serv_rev_level;		/* Whats the citadel server revision */
-	char serv_bbs_city[64];		/* Geographic location of the Citadel server */
-	char serv_sysadm[64];		/* Name of system administrator */
-	char serv_moreprompt[256];	/* Whats the commandline textprompt */
+	StrBuf *serv_bbs_city;		/* Geographic location of the Citadel server */
+	StrBuf *serv_sysadm;		/* Name of system administrator */
+	StrBuf *serv_moreprompt;	/* Whats the commandline textprompt */
 	int serv_ok_floors;		/* nonzero == server supports floors */
 	int serv_supports_ldap;		/* is the server linked against an ldap tree for adresses? */
 	int serv_newuser_disabled;	/* Has the server disabled self-service new user creation? */
-	char serv_default_cal_zone[128];/* Default timezone for unspecified calendar items */
+	StrBuf *serv_default_cal_zone;  /* Default timezone for unspecified calendar items */
 	int serv_supports_sieve;	/* Does the server support Sieve mail filtering? */
 	int serv_fulltext_enabled;	/* Does the server have the full text index enabled? */
-	char serv_svn_revision[256];	/* SVN revision of the server */
+	StrBuf *serv_svn_revision;	/* SVN revision of the server */
 	int serv_supports_openid;	/* Does the server support authentication via OpenID? */
 };
 
@@ -330,10 +330,10 @@ typedef struct wcsession wcsession;
 struct wcsession {
 	wcsession *next;			/**< Linked list */
 	int wc_session;				/**< WebCit session ID */
-	char wc_username[128];			/**< login name of current user */
-	char wc_fullname[128];			/**< Screen name of current user */
-	char wc_password[128];			/**< Password of current user */
-	char wc_roomname[256];			/**< Room we are currently in */
+	StrBuf *wc_username;			/**< login name of current user */
+	StrBuf *wc_fullname;			/**< Screen name of current user */
+	StrBuf *wc_password;			/**< Password of current user */
+	StrBuf *wc_roomname;			/**< Room we are currently in */
 	int connected;				/**< nonzero == we are connected to Citadel */
 	int logged_in;				/**< nonzero == we are logged in  */
 	int axlevel;				/**< this user's access level */
@@ -376,16 +376,15 @@ struct wcsession {
 	char last_chat_user[256];		/**< ??? todo */
 	char ImportantMessage[SIZ];		/**< ??? todo */
 	int ctdl_pid;				/**< Session ID on the Citadel server */
-	char httpauth_user[256];		/**< only for GroupDAV sessions */
-	char httpauth_pass[256];		/**< only for GroupDAV sessions */
+	StrBuf *httpauth_user;  		/**< only for GroupDAV sessions */
+	StrBuf *httpauth_pass;  		/**< only for GroupDAV sessions */
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
 	int is_mailbox;				/**< the current room is a private mailbox */
 	struct folder *cache_fold;		/**< cache the iconbar room list */
 	int cache_max_folders;			/**< ??? todo */
 	int cache_num_floors;			/**< ??? todo */
 	time_t cache_timestamp;			/**< ??? todo */
-	HashList *IconBarSetttings;             /**< which icons should be shown / not shown? */
-	long current_iconbar;			/**< What is currently in the iconbar? */
+	HashList *IconBarSettings;             /**< which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/**< which floordiv currently expanded */
 	int selected_language;			/**< Language selected by user */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
@@ -403,6 +402,7 @@ struct wcsession {
 
 	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
   int is_ajax; /** < are we doing an ajax request? */
+  int downloaded_prefs; /** Has the client download its prefs yet? */
 };
 
 /* values for WC->current_iconbar */
@@ -425,7 +425,8 @@ enum {
 	calview_month,
 	calview_day,
 	calview_week,
-	calview_brief
+	calview_brief,
+	calview_summary
 };
 
 struct calview {
@@ -477,13 +478,13 @@ void end_critical_section(int which_one);
 
 
 void stuff_to_cookie(char *cookie, size_t clen, int session,
-			char *user, char *pass, char *room);
+			StrBuf *user, StrBuf *pass, StrBuf *room);
 void cookie_to_stuff(StrBuf *cookie, int *session,
-                char *user, size_t user_len,
-                char *pass, size_t pass_len,
-                char *room, size_t room_len);
+		     StrBuf *user,
+		     StrBuf *pass,
+		     StrBuf *room);
 void locate_host(char *, int);
-void become_logged_in(char *, char *, char *);
+void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_response);
 void openid_manual_create(void);
 void display_login();
 void display_openids(void);
@@ -535,10 +536,10 @@ void output_static(char *what);
 
 void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
-void escputs(char *strbuf);
+void escputs(const char *strbuf);
 void url(char *buf, size_t bufsize);
 void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf);
-void escputs1(char *strbuf, int nbsp, int nolinebreaks);
+void escputs1(const char *strbuf, int nbsp, int nolinebreaks);
 void msgesc(char *target, size_t tlen, char *strbuf);
 void msgescputs(char *strbuf);
 void msgescputs1(char *strbuf);
@@ -563,7 +564,7 @@ void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd, int with_room_banner);
-int gotoroom(char *gname);
+long gotoroom(const StrBuf *gname);
 void confirm_delete_room(void);
 void validate(void);
 void display_graphics_upload(char *, char *, char *);
@@ -577,7 +578,7 @@ void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2
 void load_floorlist(void);
 void shutdown_sessions(void);
 void do_housekeeping(void);
-void smart_goto(char *);
+void smart_goto(const StrBuf *);
 void worker_entry(void);
 void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *ReqType, StrBuf *ReadBuf);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
@@ -600,7 +601,7 @@ void remove_token(char *source, int parmnum, char separator);
 char *load_mimepart(long msgnum, char *partnum);
 void MimeLoadData(wc_mime_attachment *Mime);
 int pattern2(char *search, char *patn);
-void do_edit_vcard(long, char *, char *, char *);
+void do_edit_vcard(long, char *, char *, const char *);
 void striplt(char *);
 void stripltlen(char *, int *);
 void select_user_to_edit(char *message, char *preselect);
@@ -611,7 +612,7 @@ void folders(void);
 
 
 void display_addressbook(long msgnum, char alpha);
-void offer_start_page(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
+void offer_start_page(StrBuf *Target, WCTemplputParams *TP);
 void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext);
 void output_html(const char *, int, int, StrBuf *, StrBuf *);
 void do_listsub(void);
@@ -668,13 +669,13 @@ int read_server_binary(StrBuf *Ret, size_t total_len);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
 int goto_config_room(void);
-long locate_user_vcard(char *username, long usernum);
+long locate_user_vcard_in_this_room(void);
 void sleeeeeeeeeep(int);
 void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
 void do_selected_iconbar(void);
 void spawn_another_worker_thread(void);
-void display_rss(char *roomname, StrBuf *request_method);
+void display_rss(const StrBuf *roomname, StrBuf *request_method);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
@@ -688,6 +689,7 @@ const char *get_selected_language(void);
 void webcit_fmt_date(char *buf, time_t thetime, int brief);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 void free_attachments(wcsession *sess);
+void summary(void);
 
 int is_mobile_ua(char *user_agent);
 
@@ -700,8 +702,8 @@ extern int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN + 1)];
 extern char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20];
 extern int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)];
 #define RPKEY(a) ROOM_PARAM_NAMES[a], ROOM_PARAM_NAMELEN[a]
-HashList *GetFloorListHash(StrBuf *Target, int nArgs, WCTemplateToken *tokens, void *Context, int ContextType);
-HashList *GetRoomListHash(StrBuf *target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType);
+HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
+HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP);
 
 /* navbar types that can be passed to embed_room_banner */
 enum {
@@ -759,3 +761,4 @@ void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc
 #define WC_TIMEFORMAT_24 2
 
 
+void LoadIconSettings(void);

@@ -162,7 +162,7 @@ void load_siteconfig(void)
 	Buf = NewStrBuf();
 	CfgToken = NULL;
 	StrBuf_ServGetln(Buf);
-	if (ChrPtr(Buf)[0] == '2') {
+	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
 
 		CfgToken = NewStrBuf();
@@ -236,8 +236,8 @@ void siteconfig(void)
 	serv_getln(buf, sizeof buf);
 	serv_printf("SPEX mailboxes|%d|%d", ibstr("mboxpolicy"), ibstr("mboxvalue"));
 	serv_getln(buf, sizeof buf);
-
-	strcpy(serv_info.serv_default_cal_zone, bstr("c_default_cal_zone"));
+	FreeStrBuf(&serv_info.serv_default_cal_zone);
+	serv_info.serv_default_cal_zone = NewStrBufDup(sbstr("c_default_cal_zone"));
 
 	safestrncpy(WCC->ImportantMessage, _("Your system configuration has been updated."),
 		sizeof WCC->ImportantMessage);
@@ -245,7 +245,7 @@ void siteconfig(void)
 	display_aide_menu();
 }
 
-void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *Context, int ContextType)
+void tmplput_servcfg(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	void *vBuf;
@@ -254,16 +254,13 @@ void tmplput_servcfg(StrBuf *Target, int nArgs, WCTemplateToken *Tokens, void *C
 	if (WCC->is_aide) {
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
-		GetHash(WCC->ServCfg, 
-			Tokens->Params[0]->Start,
-			Tokens->Params[0]->len, 
-			&vBuf);
+		GetHash(WCC->ServCfg, TKEY(0), &vBuf);
 		Buf = (StrBuf*) vBuf;
-		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType, Buf, 1);
+		StrBufAppendTemplate(Target, TP, Buf, 1);
 	}
 }
 
-int ConditionalServCfg(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalServCfg(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	void *vBuf;
@@ -272,23 +269,20 @@ int ConditionalServCfg(WCTemplateToken *Tokens, void *Context, int ContextType)
 	if (WCC->is_aide) {
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
-		GetHash(WCC->ServCfg, 
-			Tokens->Params[2]->Start,
-			Tokens->Params[2]->len, 
-			&vBuf);
+		GetHash(WCC->ServCfg, TKEY(2), &vBuf);
 		if (vBuf == NULL) return 0;
 		Buf = (StrBuf*) vBuf;
-		if (Tokens->nParameters == 3) {
+		if (TP->Tokens->nParameters == 3) {
 			return 1;
 		}
-		else if (Tokens->Params[3]->Type == TYPE_STR)
-			return (strcmp(Tokens->Params[3]->Start, ChrPtr(Buf)) == 0);
-		else return (StrTol(Buf) == Tokens->Params[3]->lvalue);
+		else if (TP->Tokens->Params[3]->Type == TYPE_STR)
+			return (strcmp(TP->Tokens->Params[3]->Start, ChrPtr(Buf)) == 0);
+		else return (StrTol(Buf) == TP->Tokens->Params[3]->lvalue);
 	}
 	else return 0;
 }
 
-int ConditionalServCfgSubst(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalServCfgSubst(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	void *vBuf;
@@ -297,17 +291,15 @@ int ConditionalServCfgSubst(WCTemplateToken *Tokens, void *Context, int ContextT
 	if (WCC->is_aide) {
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
-		GetHash(WCC->ServCfg, 
-			Tokens->Params[2]->Start,
-			Tokens->Params[2]->len, 
-			&vBuf);
+		GetHash(WCC->ServCfg, TKEY(2), &vBuf);
 		if (vBuf == NULL) return 0;
 		Buf = (StrBuf*) vBuf;
 
-		return CompareSubstToStrBuf(Buf, Tokens->Params[3]);
+		return CompareSubstToStrBuf(Buf, TP->Tokens->Params[3]);
 	}
 	else return 0;
 }
+
 
 void 
 InitModule_SITECONFIG
