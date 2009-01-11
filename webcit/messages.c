@@ -757,7 +757,7 @@ void readloop(long oper)
 		memset(&SubTP, 0, sizeof(WCTemplputParams));
 		SubTP.ContextType = CTX_NONE;
 		SubTP.Context = NULL;
-		SortIt =  RetrieveSort(&SubTP, NULL, 
+		SortIt =  RetrieveSort(&SubTP, NULL, 0,
 				       HKEY("date"), defaultsortorder);
 		if (SortIt != NULL)
 			SortByPayload(WCC->summ, SortIt);
