@@ -493,18 +493,52 @@ void set_PREF_YESNO(const char *key, size_t keylen, long value, int save_to_serv
 	set_preference_backend(key, keylen, value, NULL, PRF_YESNO, save_to_server, NULL);
 }
 
-int get_room_prefs_backend(const char *key, size_t keylen, Preference **Pref)
+int get_room_prefs_backend(const char *key, size_t keylen, 
+			   Preference **Pref)
 {
 	StrBuf *pref_name;
 	int Ret;
 
-	pref_name = NewStrBuf ();
-	StrBufPrintf(pref_name, "%s:%s", key, ChrPtr(WC->wc_roomname));
+	pref_name = NewStrBufPlain (HKEY("ROOM:"));
+	StrBufAppendBuf(pref_name, WC->wc_roomname, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
 	Ret = get_pref_backend(SKEY(pref_name), Pref);
 	FreeStrBuf(&pref_name);
 
 	return Ret;
 }
+
+const StrBuf *get_X_PREFS(const char *key, size_t keylen, 
+			  const char *xkey, size_t xkeylen)
+{
+	StrBuf *pref_name;
+	Preference *Prf;
+	
+	pref_name = NewStrBufPlain (HKEY("XPREF:"));
+	StrBufAppendBufPlain(pref_name, xkey, xkeylen, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
+
+	get_pref_backend(SKEY(pref_name), &Prf);
+	FreeStrBuf(&pref_name);
+
+	return Prf->Val;
+}
+
+void set_X_PREFS(const char *key, size_t keylen, const char *xkey, size_t xkeylen, StrBuf *value, int save_to_server)
+{
+	StrBuf *pref_name;
+	
+	pref_name = NewStrBufPlain (HKEY("XPREF:"));
+	StrBufAppendBufPlain(pref_name, xkey, xkeylen, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
+
+	set_preference_backend(SKEY(pref_name), 0, value, PRF_STRING, save_to_server, NULL);
+	FreeStrBuf(&pref_name);
+}
+
 
 StrBuf *get_ROOM_PREFS(const char *key, size_t keylen)
 {
@@ -524,8 +558,10 @@ void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_s
 {
 	StrBuf *pref_name;
 	
-	pref_name = NewStrBuf ();
-	StrBufPrintf(pref_name, "%s:%s", key, ChrPtr(WC->wc_roomname));
+	pref_name = NewStrBufPlain (HKEY("ROOM:"));
+	StrBufAppendBuf(pref_name, WC->wc_roomname, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
 	set_preference_backend(SKEY(pref_name), 0, value, PRF_STRING, save_to_server, NULL);
 	FreeStrBuf(&pref_name);
 }

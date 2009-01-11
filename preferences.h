@@ -38,3 +38,11 @@ StrBuf *get_ROOM_PREFS(const char *key, size_t keylen);
 
 #define set_room_pref(a, b, c) set_ROOM_PREFS(a, sizeof(a) - 1, b, c)
 void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_server);
+
+
+#define get_x_pref(a, b) get_ROOM_PREFS(a, sizeof(a) - 1, b, sizeof(b) - 1)
+const StrBuf *get_X_PREFS(const char *key, size_t keylen, 
+			  const char *xkey, size_t xkeylen);
+
+#define set_x_pref(a, b, c) set_ROOM_PREFS(a, sizeof(a) - 1, b, sizeof(b) - 1, c, d)
+void set_X_PREFS(const char *key, size_t keylen, const char *xkey, size_t xkeylen, StrBuf *value, int save_to_server);

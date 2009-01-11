@@ -1799,7 +1799,8 @@ void RegisterSortFunc(const char *name, long len,
 	Put(SortHash, name, len, NewSort, DestroySortStruct);
 }
 
-CompareFunc RetrieveSort(WCTemplputParams *TP, const char *OtherPrefix, 
+CompareFunc RetrieveSort(WCTemplputParams *TP, 
+			 const char *OtherPrefix, long OtherPrefixLen,
 			 const char *Default, long ldefault, long DefaultDirection)
 {
 	int isdefault = 0;
@@ -1810,13 +1811,19 @@ CompareFunc RetrieveSort(WCTemplputParams *TP, const char *OtherPrefix,
 	
 	if (havebstr("SortBy")) {
 		BSort = sbstr("SortBy");
+		if (OtherPrefix == NULL) {
+			set_room_pref("sort", NewStrBufDup(BSort), 0);
+		}
+		else {
+			set_X_PREFS(HKEY("sort"), OtherPrefix, OtherPrefixLen, NewStrBufDup(BSort), 0);
+		}
 	}
 	else { /** Try to fallback to our remembered values... */
 		if (OtherPrefix == NULL) {
 			BSort = get_room_pref("sort");
 		}
 		else {
-			/*TODO: nail prefprepend to sort, and lookup this! */
+			BSort = get_X_PREFS(HKEY("sort"), OtherPrefix, OtherPrefixLen);
 		}
 		if (BSort != NULL)
 			putbstr("SortBy", NewStrBufDup(BSort));
@@ -1852,7 +1859,7 @@ CompareFunc RetrieveSort(WCTemplputParams *TP, const char *OtherPrefix,
 			SortOrder = StrTol(Buf);
 		}
 		else {
-			/* TODO: nail prefprepend to sort, and lookup this! */
+			BSort = get_X_PREFS(HKEY("SortOrder"), OtherPrefix, OtherPrefixLen);
 		}
 
 		if (Buf == NULL)
@@ -1894,7 +1901,7 @@ ConstStr SortNextOrder[] = {
 };
 
 
-int GetSortMetric(WCTemplputParams *TP, SortStruct **Next, SortStruct **Param, long *SortOrder)
+int GetSortMetric(WCTemplputParams *TP, SortStruct **Next, SortStruct **Param, long *SortOrder, int N)
 {
 	int bSortError = eNOT_SPECIFIED;
 	const StrBuf *BSort;
@@ -1911,13 +1918,19 @@ int GetSortMetric(WCTemplputParams *TP, SortStruct **Next, SortStruct **Param, l
 	if (havebstr("SortBy")) {
 		BSort = sbstr("SortBy");
 		bSortError = eINVALID_PARAM;
+		if ((*Param)->PrefPrepend == NULL) {
+			set_room_pref("sort", NewStrBufDup(BSort), 0);
+		}
+		else {
+			set_X_PREFS(HKEY("sort"), TKEY(N), NewStrBufDup(BSort), 0);
+		}
 	}
 	else { /** Try to fallback to our remembered values... */
 		if ((*Param)->PrefPrepend == NULL) {
 			BSort = get_room_pref("sort");
 		}
 		else {
-			BSort = NULL;/* TODO: nail prefprepend to sort, and lookup this! */
+			BSort = get_X_PREFS(HKEY("sort"), TKEY(N));
 		}
 	}
 
@@ -1936,7 +1949,7 @@ int GetSortMetric(WCTemplputParams *TP, SortStruct **Next, SortStruct **Param, l
 			*SortOrder = StrTol(get_room_pref("SortOrder"));
 		}
 		else {
-			*SortOrder = 0;/* TODO: nail prefprepend to sort, and lookup this! */
+			*SortOrder = StrTol(get_X_PREFS(HKEY("SortOrder"), TKEY(N)));
 		}
 	}
 	if (*SortOrder > 2)
@@ -1953,7 +1966,7 @@ void tmplput_SORT_ICON(StrBuf *Target, WCTemplputParams *TP)
 	SortStruct *Param;
 	const ConstStr *SortIcon;
 
-	switch (GetSortMetric(TP, &Next, &Param, &SortOrder)){
+	switch (GetSortMetric(TP, &Next, &Param, &SortOrder, 2)){
 	case eNO_SUCH_SORT:
                 LogTemplateError(
                         Target, "Sorter", ERR_PARM1, TP,
@@ -1982,7 +1995,7 @@ void tmplput_SORT_NEXT(StrBuf *Target, WCTemplputParams *TP)
 	SortStruct *Next;
 	SortStruct *Param;
 
-	switch (GetSortMetric(TP, &Next, &Param, &SortOrder)){
+	switch (GetSortMetric(TP, &Next, &Param, &SortOrder, 2)){
 	case eNO_SUCH_SORT:
                 LogTemplateError(
                         Target, "Sorter", ERR_PARM1, TP,                                  
@@ -2008,7 +2021,7 @@ void tmplput_SORT_ORDER(StrBuf *Target, WCTemplputParams *TP)
 	SortStruct *Next;
 	SortStruct *Param;
 
-	switch (GetSortMetric(TP, &Next, &Param, &SortOrder)){
+	switch (GetSortMetric(TP, &Next, &Param, &SortOrder, 2)){
 	case eNO_SUCH_SORT:
                 LogTemplateError(
                         Target, "Sorter", ERR_PARM1, TP,
@@ -2113,9 +2126,9 @@ InitModule_SUBST
 (void)
 {
 	memset(&NoCtx, 0, sizeof(WCTemplputParams));
-	RegisterNamespace("SORT:ICON", 1, 1, tmplput_SORT_ICON, CTX_NONE);
-	RegisterNamespace("SORT:ORDER", 1, 1, tmplput_SORT_ORDER, CTX_NONE);
-	RegisterNamespace("SORT:NEXT", 1, 1, tmplput_SORT_NEXT, CTX_NONE);
+	RegisterNamespace("SORT:ICON", 1, 2, tmplput_SORT_ICON, CTX_NONE);
+	RegisterNamespace("SORT:ORDER", 1, 2, tmplput_SORT_ORDER, CTX_NONE);
+	RegisterNamespace("SORT:NEXT", 1, 2, tmplput_SORT_NEXT, CTX_NONE);
 	RegisterNamespace("CONTEXTSTR", 0, 1, tmplput_ContextString, CTX_STRBUF);
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);

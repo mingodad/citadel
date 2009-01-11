@@ -211,7 +211,7 @@ HashList* LoadFileList(StrBuf *Target, WCTemplputParams *TP)
 		Put(Files, SKEY(Entry->Filename), Entry, FreeFiles);
 	}
 	SubTP.ContextType = CTX_FILELIST;
-	SortIt = RetrieveSort(&SubTP, NULL, HKEY("fileunsorted"), 0);
+	SortIt = RetrieveSort(&SubTP, NULL, 0, HKEY("fileunsorted"), 0);
 	if (SortIt != NULL)
 		SortByPayload(Files, SortIt);
 	else 
