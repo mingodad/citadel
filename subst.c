@@ -768,7 +768,7 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	const char *pchs, *pche;
 	TemplateParam *Parm = (TemplateParam *) malloc(sizeof(TemplateParam));
 	char quote = '\0';
-	
+	int ParamBrace = 0;
 
 	Parm->Type = TYPE_STR;
 
@@ -781,20 +781,34 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	if (*pch == ':') {
 		Parm->Type = TYPE_PREFSTR;
 		pch ++;
+		if (*pch == '(') {
+			pch ++;
+			ParamBrace = 1;
+		}
 	}
 	else if (*pch == ';') {
 		Parm->Type = TYPE_PREFINT;
 		pch ++;
+		if (*pch == '(') {
+			pch ++;
+			ParamBrace = 1;
+		}
 	}
 	else if (*pch == '_') {
 		Parm->Type = TYPE_GETTEXT;
 		pch ++;
-		if (*pch == '(')
+		if (*pch == '(') {
 			pch ++;
+			ParamBrace = 1;
+		}
 	}
 	else if (*pch == 'B') {
 		Parm->Type = TYPE_BSTR;
 		pch ++;
+		if (*pch == '(') {
+			pch ++;
+			ParamBrace = 1;
+		}
 	}
 
 
@@ -832,7 +846,7 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 			Parm->Start = pchs;
 			Parm->len = pche - pchs;
 			pch ++; /* move after trailing quote */
-			if ((Parm->Type == TYPE_GETTEXT) && (*pch == ')')) {
+			if (ParamBrace && (*pch == ')')) {
 				pch ++;
 			}
 
