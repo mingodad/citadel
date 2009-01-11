@@ -1574,10 +1574,8 @@ void MimeLoadData(wc_mime_attachment *Mime)
 	char buf[SIZ];
 	off_t bytes;
 /* TODO: is there a chance the contenttype is different  to the one we know?	 */
-	lprintf(9, "< DLAT %ld|%s\n", Mime->msgnum, ChrPtr(Mime->PartNum));	// FIXME temporary, remove
 	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
 	serv_getln(buf, sizeof buf);
-	lprintf(9, "> %s\n", buf);						// FIXME temporary, remove
 	if (buf[0] == '6') {
 		bytes = extract_long(&buf[4], 0);
 
