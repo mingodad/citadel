@@ -190,6 +190,13 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	}
 }
 
+void output_custom_content_header(const char *ctype) {
+  hprintf("HTTP/1.1 200 OK\r\n");
+  hprintf("Content-type: %s; charset=utf-8\r\n",ctype);
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
+  hprintf("Connection: close\r\n");
+}
+
 
 /*
  * Generic function to do an HTTP redirect.  Easy and fun.

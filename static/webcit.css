@@ -19,7 +19,7 @@ body { font-size: 11pt}
 	font-size: 10pt;
 }
 
-#wholist li {
+#online_users li {
 	font-size: 8pt;
 }
 .marked_row {
@@ -44,7 +44,7 @@ body {
 	background-color: #CCC;
 }
 
-.box, #wholist li.inactiveuser a {
+.box, #online_users li.inactiveuser a {
 	background-color: transparent;
 }
 
@@ -88,7 +88,7 @@ body {
 	border: none;
 }
 
-.logo,.logo_citadel, #switch {
+.logo,.logo_citadel, #switch, #customize {
 	border: none;
 	border-bottom: 1px solid #AAA;
 }
@@ -98,7 +98,7 @@ body {
 	text-decoration: none;
 }
 
-#wholist li {
+#online_users li {
 	border: none;
 	border-top: 1px solid #AAA;
 }
@@ -440,7 +440,7 @@ a:link { color: blue; }
 
 a:visited { color: purple; }
 
-#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #wholist li a:hover, #navbar ul li a:hover {
+#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 }
@@ -512,8 +512,12 @@ body, #global {
 	position: absolute;
 	top: 0;
 	left: 0;
+    bottom: 0;
 	width: 16%;
     z-index: 0;
+    overflow: auto;
+    overflow-x: hidden !important;
+    
 }
 
 #banner {
@@ -686,12 +690,12 @@ body, #global {
 
 /* Iconbar */
 
-.logo, .logo_citadel, #iconbar #button, #switch, #wholist {
+.logo, .logo_citadel, #iconbar #button, #switch, #customize {
  	margin: 0;
  	padding: 0;
 }
 
-.logo, #citlogo, #switch, #wholist li {
+.logo, #citlogo, #switch, #customize, #online_users li {
 	text-align: center;
 }
 
@@ -709,13 +713,13 @@ body, #global {
     display: block;
 }
 
-#wholist {
+#online_users {
 	border: 0;
 	max-height: 200px;
 	overflow: auto;
-}
-
-#wholist li {
+    padding-left: 0;
+} 
+#online_users li {
  	list-style: none;
  	margin: 0;
  	padding: 2px;

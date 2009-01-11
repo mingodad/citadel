@@ -700,7 +700,7 @@ msgid "See who is online right now"
 msgstr ""
 
 #: ../iconbar.c:243 ../iconbar.c:670
-msgid "Who is online?"
+msgid "Online users"
 msgstr ""
 
 #: ../iconbar.c:267 ../iconbar.c:688

@@ -533,6 +533,7 @@ void output_headers(    int do_httpheaders,
 			int unset_cookies,
 			int suppress_check,
 			int cache);
+void output_custom_content_header(const char *ctype);
 void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void output_static(char *what);

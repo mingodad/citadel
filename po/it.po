@@ -743,7 +743,7 @@ msgid "See who is online right now"
 msgstr "Mostra gli altri utenti collegati in questo momento"
 
 #: ../iconbar.c:243 ../iconbar.c:670
-msgid "Who is online?"
+msgid "Online users"
 msgstr "Chi &egrave; on line?"
 
 #: ../iconbar.c:267 ../iconbar.c:688

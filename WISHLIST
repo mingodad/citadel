@@ -1,5 +1,6 @@
 A list of things I want to do before merging into trunk:
 
+IMMEDIATE: 
 * When a user resizes the mailbox view, save the positions to cookies and 
 reload them on subsequent views
 
@@ -7,19 +8,24 @@ reload them on subsequent views
 - Would limit number of messages shown to 500 at a time, user would select 'pages' like bbsview
 - No client side sorting, sort calls get done by server
 
-* Finish iconbar stuff, namely do the stylesheets for no-icons and no-text and the preference backend for them
-
-* Dual client-side and server-side search:
-- Client searches for message subjects containing the search term, calls server for full text
-
-* In-window message move for preview-pane (i.e browser won't navigate to confirm_message_move, we will pop up an artificial window)
-
-* Fix iconbar roomlist ordering
+NICE TO HAVE:
 
 * Drop down menu for bulk message ops
 
 * Allow detatchable message view
 
+* In-window message move for preview-pane (i.e browser won't navigate to confirm_message_move, we will pop up an artificial window)
+
+DONE:
+
+* Finish iconbar stuff, namely do the stylesheets for no-icons and no-text and the preference backend for them
+
+* Fix iconbar roomlist ordering
+
+DEFERRED:
+I will wait until the bulk of the work is being used in the wild before attempting these: 
+* Dual client-side and server-side search:
+- Client searches for message subjects containing the search term, calls server for full text
 * Further pagesize reduction: do compacting of scripts on "make install"
 
 Any comments to the CitDev room or to me <matt@mcbridematt.dhs.org> / <matt@comalies>

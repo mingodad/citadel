@@ -39,24 +39,25 @@ inline const char *PrintInt(void *Prefstr)
 void doUserIconStylesheet(void) {
   HashPos *pos;
   void *Data;
+  long value;
   const char *key;
   long HKLen;
 
   LoadIconSettings();
-  hprintf("HTTP/1.1 200 OK\r\n");
-  hprintf("Content-type: text/css; charset=utf-8\r\n");
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, serv_info.serv_software);
-  hprintf("Connection: close\r\n");
+  output_custom_content_header("text/css");
   hprintf("Cache-Control: private\r\n");
   
   begin_burst();
   pos = GetNewHashPos(WC->IconBarSettings, 0);
   while(GetNextHashPos(WC->IconBarSettings, pos, &HKLen, &key, &Data)) {
-    if (Data == 0 
+    value = (long) Data;
+    if (value == 0 
 	&& strncasecmp("ib_displayas",key,12) 
 	&& strncasecmp("ib_logoff", key, 9)) {
       // Don't shoot me for this
       wprintf("#%s { display: none !important; }\r\n",key);
+    } else if (!strncasecmp("ib_users",key, 8) && value != 2) {
+      wprintf("#online_users { display: none; !important } \r\n");
     }
   }
   end_burst();

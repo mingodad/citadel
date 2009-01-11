@@ -142,6 +142,11 @@ function setupIconBar() {
       switchSpan.ctdlSwitchIconBarTo = "rooms";
     }
   }
+  var online_users = document.getElementById("online_users");
+  var ou_displayAs = online_users.style.display;
+  if (ou_displayAs != "none") {
+    new Ajax.PeriodicalUpdater('online_users', 'do_template?template=wholist_section', {method: 'get', frequency: 30});
+  }
 }
 function changeIconBarEvent(event) {
   changeIconBar(event.target);

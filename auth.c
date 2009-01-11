@@ -898,10 +898,10 @@ int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
 	return (WC->is_room_aide == 0);
 }
 
-int ConditionalIsLoggedIn(WCTemplateToken *Tokens, void *Context, int ContextType) {
+int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) {
   return (WC->logged_in == 0);
 }
-int ConditionalRoomAcessDelete(WCTemplateToken *Tokens, void *Context, int ContextType)
+int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	return ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) );

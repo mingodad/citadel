@@ -740,7 +740,7 @@ msgid "See who is online right now"
 msgstr "Sehen Sie, wer gerade angemeldet ist"
 
 #: ../iconbar.c:243 ../iconbar.c:670
-msgid "Who is online?"
+msgid "Online users"
 msgstr "Wer ist da?"
 
 #: ../iconbar.c:267 ../iconbar.c:688
