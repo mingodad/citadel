@@ -432,62 +432,25 @@ void end_ajax_response(void) {
  */
 void ajax_servcmd(void)
 {
-  /* TODO:
-     JSON output support added. This is for lists like MSGS ALL|||1, LKRA, LFLR. Some cleaning up needs to be done (i.e move the line token extract out to another function */
 	char buf[1024];
 	char gcontent[1024];
 	char *junk;
 	size_t len;
+
 	begin_ajax_response();
-	int jsonMode = yesbstr("o_json");
+
 	serv_printf("%s", bstr("g_cmd"));
 	serv_getln(buf, sizeof buf);
-	if (jsonMode) {
-	  wprintf("{\"status\": \"%s\", \r\n", buf);
-	} else {
 	wprintf("%s\n", buf);
-	}
+
 	if (buf[0] == '8') {
 		serv_printf("\n\n000");
 	}
 	if ((buf[0] == '1') || (buf[0] == '8')) {
-	  StrBuf *result = NewStrBuf();
-	  StrBufAppendPrintf(result,"\"response\" : [");
 		while (serv_getln(gcontent, sizeof gcontent), strcmp(gcontent, "000")) {
-		  if (jsonMode) {
-		    StrBuf *temp = NewStrBuf();
-		    StrBufAppendPrintf(result, "[");
-		    StrBufPlain(temp, gcontent, -1);
-		    int tokens = StrBufNum_tokens(temp, '|');
-		    int x;
-		    for(x=0; x<(tokens-1); x++) {
-		      StrBuf *extracted = NewStrBuf();
-		      StrBufExtract_token(extracted, temp, x, '|');
-		      int isNum = StrBufIsNumber(extracted);
-		      if (!isNum) {
-			StrBufAppendPrintf(result, "\"");
-		      }
-		      StrBufAppendBuf(result, extracted, 0);
-		      FreeStrBuf(&extracted);
-		      if (!isNum) {
-			StrBufAppendPrintf(result, "\"");
-		      }
-		      if (x != (tokens-2)) {StrBufAppendPrintf(result, ","); }
-		    }
-		    StrBufAppendPrintf(result, "],\r\n");
-		    FreeStrBuf(&temp);
-		  } else {
-		  StrBufAppendPrintf(result, "%s\n",gcontent);
-		  }
+			wprintf("%s\n", gcontent);
 		}
-		if (jsonMode) {
-		  StrBufCutRight(result, 3);
-		  StrBufAppendPrintf(result, "]}");
-		} else {
-		  StrBufAppendPrintf(result, "000");
-		}
-		StrBufAppendBuf(WC->WBuf, result, 0);
-		FreeStrBuf(&result);
+		wprintf("000");
 	}
 	if (buf[0] == '4') {
 		text_to_server(bstr("g_input"));
