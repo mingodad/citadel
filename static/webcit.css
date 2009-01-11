@@ -67,6 +67,7 @@ body {
 
 #room_infos, #address_book_popup, .mimepart, .room_actions form select {
 	border: 1px solid #333;
+	overflow: hidden;
 }
 
 
