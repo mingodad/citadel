@@ -36,8 +36,9 @@ var Droppables = {
     }
     
     if(options.accept) options.accept = [options.accept].flatten();
-
+	if (Prototype.Browser.IE) {
     Element.makePositioned(element); // fix IE
+}
     options.element = element;
 
     this.drops.push(options);

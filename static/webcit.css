@@ -15,12 +15,15 @@ body { font-size: 11pt}
 	font-size: 13pt;
 }
 
-#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span {
+#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .mailbox_summary, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span, #message_list tr > td {
 	font-size: 10pt;
 }
 
-#wholist li {
+#online_users li {
 	font-size: 8pt;
+}
+.marked_row {
+    color: white;
 }
 
 /* Color */
@@ -31,7 +34,7 @@ body {
 	font-weight: 400;
 }
 
-#iconbar, .boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul {
+#iconbar, .boxcontent,.service form div,table.altern .odd, #message_list, .message_content, #roomlist_div,.editednode,.mailbox_summary, .auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, div.auto_complete, div.auto_complete ul, #summary_view {
 	background-color: #FFF;
 	color: #000;
 }
@@ -41,7 +44,7 @@ body {
 	background-color: #CCC;
 }
 
-.box, #wholist li.inactiveuser a {
+.box, #online_users li.inactiveuser a {
 	background-color: transparent;
 }
 
@@ -55,7 +58,7 @@ body {
 	text-transform: uppercase;
 }
 
-#iconbar ul li a, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
+#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
 	background-color: #F0FFFF;
 	color: #333;
 }
@@ -76,7 +79,7 @@ body {
 	font-weight: 700;
 }
 
-#button li {
+#button li, #ib_logoff {
 	border: none;
 	border-bottom: 2px groove #CCC;
 	border-right: 2px groove #CCC;
@@ -86,17 +89,17 @@ body {
 	border: none;
 }
 
-.logo,.logo_citadel, #button li.switch {
+.logo,.logo_citadel, #switch, #customize {
 	border: none;
 	border-bottom: 1px solid #AAA;
 }
 
-#button li a {
+#button li a , #ib_logoff a{
 	color: #000;
 	text-decoration: none;
 }
 
-#wholist li {
+#online_users li {
 	border: none;
 	border-top: 1px solid #AAA;
 }
@@ -107,6 +110,8 @@ body {
 
 #banner ul.room_actions li.start_page a, #navbar, .selector_top,.selector_bottom {
 	background-color: #022750;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
 	color: #FFF;
 }
 
@@ -144,7 +149,7 @@ body {
 #resize_msglist {
 	background-image: url(/static/resizegrippy.gif);
 	background-position: center;
-	background-repeat: no-repeat;
+	background-repeat: no-repeat; 
 }
 
 #resize_msglist hr {
@@ -417,8 +422,15 @@ var sub {
 	background-color: #EEEECC;
 }
 
-
-
+.current_sort_mode {
+    background-color: white;
+}
+.marked_row {
+    background-color: #69aaff !important;
+}
+#loading {
+    background-color: white;
+}
 /* Links */
 
 a {	text-decoration: none; }
@@ -429,7 +441,7 @@ a:link { color: blue; }
 
 a:visited { color: purple; }
 
-#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button li a:hover, #wholist li a:hover, #navbar ul li a:hover {
+#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover, #ib_logoff:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 }
@@ -485,7 +497,9 @@ body, #global {
 	z-index: 2;
 	padding: 3px;
 }
-
+#hellomsg {
+    text-align: center;
+}
 #login_screen, #logout_screen {
 	margin: 0;
 	padding: 3% 6% 3% 6%;
@@ -499,7 +513,12 @@ body, #global {
 	position: absolute;
 	top: 0;
 	left: 0;
+    bottom: 0;
 	width: 16%;
+    z-index: 0;
+    overflow: auto;
+    overflow-x: hidden !important;
+    
 }
 
 #banner {
@@ -525,44 +544,49 @@ body, #global {
 	height: 82%;
 	overflow: auto;
 }
-
+/* Please avoid setting heights for any of the mailbox view elements (except summary_view and resize). In particular, do NOT set any for message_list_hdr as its not good feng shui */
 #message_list_hdr {
-	position: absolute;
 	display: block;
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 5%;
-	overflow: hidden;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    background-color: #CCCCCC;
 }
 
-#message_list {
-	position: absolute;
-	top: 5%;
-	left: 0;
-	width: 100%;
+#summary_view {
 	height: 20%;
 	overflow: auto;
 	cursor: pointer;
 }
-
+#message_list_body {
+    background-color: white !important;
+}
+.col1 {
+    width: 50%;
+}
+.col2 { 
+    width: 30%;
+}
+.col3 {
+    width: 20%;
+}
+.new_message {
+    font-weight: bold; !important;
+}
+#loading {
+    text-align: center;
+}
 #resize_msglist {
-	position: absolute;
-	top: 25%;
-	left: 0;
 	width: 100%;
-	height: 1%;
 	overflow: hidden;
 	cursor: s-resize;
+    height: 1%;
 }
 
 #preview_pane {
-	position: absolute;
-	top: 26%;
-	left: 0%;
-	width: 100%;
-	height: 74%;
-	overflow: auto;
+	overflow: auto; 
 }
 
 .fix_scrollbar_bug {
@@ -598,7 +622,25 @@ body, #global {
  	text-align: left;
 }
 
-
+.ctdlTemplate {
+    display: none;
+}
+#ctdlContextMenu {
+    position: fixed;
+    background-color: white;
+    border: 1px solid black;
+}
+.draganddrop {
+    position: fixed;
+    display: block;
+    border: 1px solid black;
+    z-index: 65535;
+    background-color: white;
+    text-align: left;
+}
+.hidden {
+    display: none;
+}
 /* Login */
 
 #login_screen .login_message, #login_screen .login_image, .login_hello, #login_screen #login_form {
@@ -649,55 +691,36 @@ body, #global {
 
 /* Iconbar */
 
-.logo, .logo_citadel, #iconbar #button, #button li.switch, #wholist {
+.logo, .logo_citadel, #iconbar #button, #switch, #customize, #ib_logoff {
  	margin: 0;
  	padding: 0;
 }
 
-.logo, .logo_citadel, #button li.switch, #wholist li {
+.logo, #citlogo, #switch, #customize, #online_users li {
 	text-align: center;
-}
-
-.logo, .logo_citadel {
- 	display: block;
 }
 
 #iconbar #button {
 	width: 100%;
 }
 
-#button li {
+#button > li, #ib_logoff {
 	margin: 4px 8px 4px 8px;
 	padding: 0;
+    display: block;
+}
+#button > li > a, #ib_logoff > a {
+    width: 100%;
+    display: block;
 }
 
-
-
-#button img {
-	vertical-align: middle;
-	padding-left: 2px;
-	padding-right: 5px;
-	width: 32px;
-	height: 32px;
-	border: none;
-}
-
-#button li a {
-	display: block;
-	width: 100%;
-}
-
-html>body #button li a {
-	width: auto;
-}
-
-#wholist {
+#online_users {
 	border: 0;
 	max-height: 200px;
 	overflow: auto;
-}
-
-#wholist li {
+    padding-left: 0;
+} 
+#online_users li {
  	list-style: none;
  	margin: 0;
  	padding: 2px;
@@ -764,6 +787,9 @@ html>body #button li a {
 	margin-top: 8px;
 	margin-right: 4px;
 }
+#selectpage {
+    display: none !important;
+}
 
 /* Navbar */
 
@@ -791,8 +817,47 @@ html>body #button li a {
 	float: none;
 	margin: 0 2px 0 2px;
 }
- 
-
+.floor {
+    margin-left: 0px;
+}
+.floor > ul {
+    display: none;
+}
+.floor-expanded > ul{
+    display: block !important;
+}
+#roomlist > ul {
+    margin: 0;
+    padding: 0;
+}
+#roomlist > div > ul > li {
+    margin: 0;
+    padding: 0;
+}
+/** Override to disable list-style-image" */
+.room {
+}
+.room-private {
+    list-style-image: url("/static/privatemess_16x.gif");
+}
+.room-addr {
+    list-style-image: url("/static/viewcontacts_16x.gif");
+}
+.room-cal {
+    list-style-image: url("/static/calarea_16x.gif");
+}
+.room-tasks {
+    list-style-image: url("/static/taskmanag_16x.gif");
+}
+.room-notes {
+    list-style-image: url("/static/storenotes_16x.gif");
+}
+.room-chat {
+    list-style-image: url("/static/chatrooms_16x.gif");
+}
+.room-newmsgs {
+    font-weight: bold;
+}
 /* Content */
 
 .boxcontent table {
@@ -822,12 +887,12 @@ html>body #button li a {
 }
 
 #message_list_hdr table {
-	position: absolute;
+/*	position: absolute;
 	bottom: 0; 
 	left: 0;
+    top: 0; */
 	width: 100%;	
 }
-
 .selector_top, .selector_bottom {
  	text-align: center;
 }
@@ -970,10 +1035,6 @@ dt { clear: both; }
 	width: 98%
 }
 
-.mailbox_summary tr {
-	width: 100%;
-}
-
 .note {
 	font-size: 85%;
 	margin-left: 10%;
@@ -990,7 +1051,9 @@ dt { clear: both; }
 .imsg {
 	text-align: center;
 }
-
+#summary_view > table {
+    width: 100%;
+}
 colgroup.entity {
 	text-align: center;
 }
@@ -1055,7 +1118,35 @@ div.auto_complete ul strong.highlight {
 	display: block;
 }
 
-
+#citlogo {
+    display: none; /* Overriden later */
+}
+.sort_ascending, .sort_descending {
+    background-repeat: no-repeat;
+    background-position: center right;
+}
+.sort_ascending {
+    background-image: url("/static/down_pointer.gif");
+}
+.sort_descending {
+    background-image: url("/static/up_pointer.gif");
+}
+#message_list_hdr > table {
+    border-collapse: collapse;
+}
+#message_list_hdr > table > tbody > tr > th {
+    border-left: 2px solid white;
+    border-right: 2px solid white;
+}
+#summary_view > table { 
+    border-collapse: collapse;
+}
+th.col1 {
+    border-left: none !important;
+}
+th.col3 {
+    border-right: none !important;
+}
 /* System Administration Menu */
 
 ul.adminitems {
@@ -1335,6 +1426,9 @@ li.event_unread span, a.event_read_title {
 #navbar ul li a img {
       vertical-align: middle;
       border: none;
+}
+.table-row {
+    background-color: white;
 }
 .table-alt-row {
       background-color: #DDDDDD;

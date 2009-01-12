@@ -102,7 +102,8 @@ extern WCTemplputParams NoCtx;
 #define CTX_FILELIST 11
 #define CTX_STRBUF 12
 #define CTX_LONGVECTOR 13
-
+#define CTX_ROOMS 14
+#define CTX_FLOORS 15
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 

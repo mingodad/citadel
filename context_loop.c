@@ -35,7 +35,7 @@ void DestroySession(wcsession **sessions_to_kill)
 	DeleteHash(&((*sessions_to_kill)->attachments));
 	free_march_list((*sessions_to_kill));
 	DeleteHash(&((*sessions_to_kill)->hash_prefs));
-	DeleteHash(&((*sessions_to_kill)->IconBarSetttings));
+	DeleteHash(&((*sessions_to_kill)->IconBarSettings));
 	DeleteHash(&((*sessions_to_kill)->ServCfg));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment1));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment2));

@@ -10,6 +10,22 @@ char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 
 char *viewdefs[9]; /**< the different kinds of available views */
 
+/** See GetFloorListHash and GetRoomListHash for info on these. Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys. */
+const char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15] = {"ID",
+						     "NAME", 
+						     "ROOMS"};
+const char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20] = {"NAME",
+						   "FLAG",
+						   "FLOOR",
+						   "LISTORDER",
+						   "ACL",
+						   "CURVIEW",
+						   "DEFVIEW",
+						   "LASTCHANGE"};
+// Because avoiding strlen at run time is a Good Thing(TM)
+const int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN +1)] = {2, 4, 5};
+const int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)] = {4, 4, 5, 9, 3, 7, 7, 8};
+
 void display_whok(void);
 
 /*
@@ -436,7 +452,7 @@ void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
 	wprintf(_("Search: "));
 	wprintf("</label><input ");
 	wprintf("%s", serv_info.serv_fulltext_enabled ? "" : "disabled ");
-	wprintf("type=\"text\" name=\"query\" size=\"15\" maxlength=\"128\" "
+	wprintf("type=\"text\" name=\"query\" id=\"srchquery\" size=\"15\" maxlength=\"128\" "
 		"id=\"search_name\" class=\"inputbox\">\n"
 	);
 	wprintf("</div></form>\n");
@@ -608,12 +624,12 @@ void embed_room_banner(char *got, int navbar_style) {
 				case VIEW_MAILBOX:
 					wprintf(
 						"<li class=\"readallmess\">"
-						"<a href=\"readfwd\">"
+						"<a id=\"m_refresh\" href=\"readfwd\">"
 						"<img src=\"static/readallmess3_24x.gif\" "
 						"alt=\"\">"
 						"<span class=\"navbar_link\">"
 						"%s"
-						"</span></a></li>\n", _("View message list")
+						"</span></a></li>\n", _("Refresh message list")
 					);
 					break;
 				case VIEW_WIKI:
@@ -1131,7 +1147,7 @@ void display_editroom(void)
 	char node[256];
 	char remote_room[128];
 	char recp[1024];
-	char er_name[128] = "";
+	char er_name[128];
 	char er_password[10];
 	char er_dirname[15];
 	char er_roomaide[26];
@@ -3282,7 +3298,6 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	char floordiv_id[32];
 	int levels, oldlevels;
 	int i, t;
-	int num_drop_targets = 0;
 	char *icon = NULL;
 
 	strcpy(floor_name, "");
@@ -3381,30 +3396,6 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 	wprintf("</div>\n");	/** floordiv */
 
 
-	/** BEGIN: The old invisible pixel trick, to get our JavaScript to initialize */
-	wprintf("<img src=\"static/blank.gif\" onLoad=\"\n");
-
-	num_drop_targets = 0;
-
-	for (i=0; i<max_folders; ++i) {
-		levels = num_tokens(fold[i].name, '|');
-		if (levels > 1) {
-			wprintf("drop_targets_elements[%d]=$('roomdiv%d');\n", num_drop_targets, i);
-			wprintf("drop_targets_roomnames[%d]='", num_drop_targets);
-			jsescputs(fold[i].room);
-			wprintf("';\n");
-			++num_drop_targets;
-		}
-	}
-
-	wprintf("num_drop_targets = %d;\n", num_drop_targets);
-	if ((ChrPtr(WC->floordiv_expanded)[0] != '\0')&&
-	    (ChrPtr(WC->floordiv_expanded)[1] != '\0')){
-		wprintf("which_div_expanded = '%s';\n", ChrPtr(WC->floordiv_expanded));
-	}
-
-	wprintf("\">\n");
-	/** END: The old invisible pixel trick, to get our JavaScript to initialize */
 }
 
 
@@ -3715,7 +3706,108 @@ void set_room_policy(void) {
 	display_editroom();
 }
 
+HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
+  // todo: check context
+  const char *Err;
+  StrBuf *Buf;
+  StrBuf *Buf2;
+  HashList *floors;
+  HashList *floor;
+  floors = NewHash(1, NULL);
+  Buf = NewStrBuf();
+  serv_puts("LFLR"); // get floors
+  StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); // '100', we hope
+  if (ChrPtr(Buf)[0] == '1') while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
+      floor = NewHash(1, NULL);
+      int a;
+      const char *floorNum;
+      for(a=0; a<FLOOR_PARAM_LEN; a++) {
+	Buf2 = NewStrBuf();
+	StrBufExtract_token(Buf2, Buf, a, '|');
+	if (a==0) {
+	  floorNum = ChrPtr(Buf2); // hmm, should we copy Buf2 first?
+	}
+	Put(floor, FPKEY(a), Buf2, NULL);
+      }
+      Put(floors, HKEY(floorNum), floor, NULL);
+    }
+  FreeStrBuf(&Buf);
+  return floors;
+}
 
+void tmplput_FLOOR_Value(StrBuf *TemplBuffer, WCTemplputParams *TP) {
+  HashList *floor = (HashList *)(TP->Context);
+  void *value;
+  GetHash(floor, TKEY(0), &value);
+  StrBuf *val = (StrBuf *)value;
+  StrECMAEscAppend(TemplBuffer, val, 0);
+}
+HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP) {
+  serv_puts("LKRA");
+  return GetRoomListHash(Target, TP);
+}
+HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP) {
+  // TODO: Check context
+  HashList *rooms;
+  HashList *room;
+  StrBuf *buf;
+  StrBuf *buf2;
+  const char *Err;
+  buf = NewStrBuf();
+  rooms = NewHash(1, NULL);
+  StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
+  if (ChrPtr(buf)[0] == '1') while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
+      room = NewHash(1, NULL);
+      int i;
+      const char *rmName;
+      for(i=0; i<ROOM_PARAM_LEN; i++) {
+	buf2 = NewStrBuf();
+	StrBufExtract_token(buf2, buf, i, '|');
+	if (i==0) {
+	  rmName = ChrPtr(buf2);
+	}
+	Put(room, RPKEY(i), buf2, NULL);
+      }
+      Put(rooms, rmName, strlen(rmName), room, NULL);
+    }
+  SortByHashKey(rooms, 1);
+  //SortByPayload(rooms, SortRoomsByListOrder); 
+  FreeStrBuf(&buf);
+  return rooms;
+}
+/** Unused function that orders rooms by the listorder flag */
+int SortRoomsByListOrder(const void *room1, const void *room2) {
+  HashList *r1 = (HashList *)GetSearchPayload(room1);
+  HashList *r2 = (HashList *)GetSearchPayload(room2);
+  StrBuf *listOrderBuf1;
+  StrBuf *listOrderBuf2;
+  
+  GetHash(r1, RPKEY(3), (void *)&listOrderBuf1);
+  GetHash(r2, RPKEY(3), (void *)&listOrderBuf2);
+  int l1 = atoi(ChrPtr(listOrderBuf1));
+  int l2 = atoi(ChrPtr(listOrderBuf2));
+  if (l1 < l2) return -1;
+  else if (l1 > l2) return +1;
+  else return 0;
+}
+void tmplput_ROOM_Value(StrBuf *TemplBuffer, WCTemplputParams *TP) {
+  HashList *room = (HashList *)(TP->Context);
+  void *value;
+  GetHash(room, TKEY(0), &value);
+  StrBuf *val = (StrBuf *)value;
+  StrECMAEscAppend(TemplBuffer, val, 0);
+}
+void jsonRoomFlr(void) {
+  // Send as our own (application/json) content type
+  hprintf("HTTP/1.1 200 OK\r\n");
+  hprintf("Content-type: application/json; charset=utf-8\r\n");
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
+  hprintf("Connection: close\r\n");
+  hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
+  begin_burst();
+  DoTemplate(HKEY("json_roomflr"),NULL,&NoCtx);
+  end_burst(); 
+}
 void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0);
@@ -3893,11 +3985,11 @@ void
 InitModule_ROOMOPS
 (void)
 {
-	RegisterPreference(HKEY("roomlistview"), 
-			   _("Room list view"),
-			   PRF_STRING, 
-			   NULL);
-	RegisterPreference(HKEY("emptyfloors"), _("Show empty floors"), PRF_YESNO, NULL);
+	RegisterPreference(HKEY("roomlistview"),
+                           _("Room list view"),
+                           PRF_STRING,
+                           NULL);
+        RegisterPreference(HKEY("emptyfloors"), _("Show empty floors"), PRF_YESNO, NULL);
 
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, 0);
 
@@ -3924,6 +4016,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_floordiv_expanded"), set_floordiv_expanded, NEED_URL|AJAX);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
 	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
+	WebcitAddUrlHandler(HKEY("json_roomflr"), jsonRoomFlr, 0);
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, 0);
 
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);
@@ -3946,6 +4039,10 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
 	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, 0);
+	RegisterIterator("FLOORS", 0, NULL, GetFloorListHash, NULL, DeleteHash, CTX_FLOORS, CTX_NONE, IT_NOFLAG);
+	RegisterNamespace("FLOOR:INFO", 1, 2, tmplput_FLOOR_Value, CTX_FLOORS);
+	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_NOFLAG);
+	RegisterNamespace("ROOM:INFO", 1, 2, tmplput_ROOM_Value, CTX_ROOMS);
 }
 
 /*@}*/

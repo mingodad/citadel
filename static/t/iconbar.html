@@ -47,6 +47,7 @@ now")>"><span>
 <?_("Online users")>
 </span>
 </a>
+<ul id="online_users"></ul>
 </li>
 <li id="ib_chat">
 <a href="#" id="ib_chat_launch"><span>
@@ -65,15 +66,15 @@ now")>"><span>
 <a href="do_template?template=display_aide_menu" title="<?_("Room and system administration functions")>"><span><?_("Administration")></span></a>
 </li>
 <??("X",1)>
-<li id="ib_logoff">
+</ul>
+</div>
+<div id="customize">
+  <span><a href="/display_customize_iconbar"><?_("customize this menu")></a></span>
+</div>
+<div id="ib_logoff">
 <a href="termquit" onclick="return confirm('<?_("Log off now?")>');"
 title="<?_("Log off")>">
 <span><?_("Log off")></span>
 </a>
-</li>
-</ul>
-</div>
-<div>
-  <span><a href="/display_customize_iconbar"><?_("Customize this menu")></a></span>
 </div>
 </div>
