@@ -804,9 +804,17 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		}
 		else {
 			WCC->connected = 1;
-			serv_getln(buf, sizeof buf);	/** get the server welcome message */
+			serv_getln(buf, sizeof buf);	/* get the server greeting */
 
-			/**
+			/* Are there too many users already logged in? */
+			if (!strncmp(buf, "571", 3)) {
+				wprintf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));
+				end_burst();
+				end_webcit_session();
+				goto SKIP_ALL_THIS_CRAP;
+			}
+
+			/*
 			 * From what host is our user connecting?  Go with
 			 * the host at the other end of the HTTP socket,
 			 * unless we are following X-Forwarded-For: headers
