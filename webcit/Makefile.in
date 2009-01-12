@@ -36,8 +36,9 @@ distclean: clean
 		po/Makefile \
 		$(srcdir)/TAGS
 
-setup: setup.o
-	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) $(SETUP_LIBS) setup.o -o setup
+setup: setup.o gettext.o
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) $(SETUP_LIBS) \
+	gettext.o setup.o -o setup
 
 webcit: webserver.o context_loop.o ical_dezonify.o \
 	cookie_conversion.o locate_host.o floors.o summary.o \

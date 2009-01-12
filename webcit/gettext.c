@@ -6,10 +6,6 @@
 #include "webserver.h"
 
 #ifdef ENABLE_NLS
-
-#define NUM_LANGS 10		/* how many different locales do we know? */
-#define SEARCH_LANG 20		/* how many langs should we parse? */
-
 /* actual supported locales */
 const char *AvailLang[NUM_LANGS] = {
 	"C",
@@ -306,6 +302,9 @@ void ShutdownLocale(void)
 }
 
 #else	/* ENABLE_NLS */
+const char *AvailLang[NUM_LANGS] = {
+	"C"};
+
 /** \brief dummy for non NLS enabled systems */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {

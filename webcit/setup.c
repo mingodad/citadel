@@ -21,6 +21,18 @@ char setup_directory[SIZ];
 int using_web_installer = 0;
 char suggested_url[SIZ];
 
+/* some copies... */
+int lprintf(int loglevel, const char *format, ...){return 0;}
+void RegisterNS(const char *NSName, long len, 
+		int nMinArgs, 
+		int nMaxArgs, 
+		WCHandlerFunc HandlerFunc,
+		int ContextRequired){}
+pthread_key_t MyConKey;
+
+#include "wc_gettext.h"
+
+
 /*
  * Delete an entry from /etc/inittab
  */
@@ -445,7 +457,8 @@ void install_init_scripts(void)
 	}
 
 
-	fp = fopen(initfile, "w");
+///	fp = fopen(initfile, "w");
+	fp = stderr;/// TODO: weg
 
 	fprintf(fp,	"#!/bin/sh\n"
 			"\n"
