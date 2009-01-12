@@ -1,4 +1,5 @@
 <!-- start roombanner.html -->
+<div>
 <div class="room_banner" >
 <?ROOMPIC>
 <h1 id="rmname"><?ROOMNAME></h1>
@@ -7,7 +8,10 @@
 </div>
 <ul class="room_actions">
 <li class="start_page"><?START></li>
-<li class="search"><?SEARCHOMATIC></li>
+<li class="search" id="searchomatic"><?SEARCHOMATIC></li>
 <li class="view"><?VIEWOMATIC></li>
+<??("COND:SUBST", 1, "WCVIEW", "1")><li id="selectpage"><?_("Select
+page: ")> <select id="summpage"></select></li><??("X",1)>
 </ul>
+</div>
 <!-- end roombanner.html -->

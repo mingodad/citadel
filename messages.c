@@ -813,6 +813,12 @@ void readloop(long oper)
 	}
 	WCC->startmsg =  startmsg;
 	WCC->maxmsgs = maxmsgs;
+	WCC->num_displayed = 0;
+
+	/* Put some helpful data in vars for mailsummary_json */
+	svputlong("READLOOP:TOTALMSGS", nummsgs);
+	svputlong("READLOOP:STARTMSG", startmsg);
+	svputlong("WCVIEW", WCC->wc_view);
 	/*
 	 * iterate over each message. if we need to load an attachment, do it here. 
 	 */

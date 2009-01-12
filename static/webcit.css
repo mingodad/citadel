@@ -78,7 +78,7 @@ body {
 	font-weight: 700;
 }
 
-#button li {
+#button li, #ib_logoff {
 	border: none;
 	border-bottom: 2px groove #CCC;
 	border-right: 2px groove #CCC;
@@ -93,7 +93,7 @@ body {
 	border-bottom: 1px solid #AAA;
 }
 
-#button li a {
+#button li a , #ib_logoff a{
 	color: #000;
 	text-decoration: none;
 }
@@ -440,7 +440,7 @@ a:link { color: blue; }
 
 a:visited { color: purple; }
 
-#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover {
+#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover, #ib_logoff:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 }
@@ -690,7 +690,7 @@ body, #global {
 
 /* Iconbar */
 
-.logo, .logo_citadel, #iconbar #button, #switch, #customize {
+.logo, .logo_citadel, #iconbar #button, #switch, #customize, #ib_logoff {
  	margin: 0;
  	padding: 0;
 }
@@ -703,12 +703,12 @@ body, #global {
 	width: 100%;
 }
 
-#button > li {
+#button > li, #ib_logoff {
 	margin: 4px 8px 4px 8px;
 	padding: 0;
     display: block;
 }
-#button > li > a {
+#button > li > a, #ib_logoff > a {
     width: 100%;
     display: block;
 }
@@ -785,6 +785,9 @@ body, #global {
 #banner ul.room_actions li select, #banner ul.room_actions li input {
 	margin-top: 8px;
 	margin-right: 4px;
+}
+#selectpage {
+    display: none !important;
 }
 
 /* Navbar */

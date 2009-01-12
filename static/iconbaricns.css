@@ -1,9 +1,9 @@
-#button > li {
+#button > li , #ib_logoff {
     min-height: 32px;
     background-repeat: no-repeat !important;
     vertical-align: middle;
 }
-#button > li > a {
+#button > li > a , #ib_logoff > a {
     padding-top: 6px;
     padding-left: 35px;
     min-height: 25px; /* Makes all of the 'button' to be clickable */

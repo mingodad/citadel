@@ -14,6 +14,7 @@ var mlh_date = null;
 var mlh_subject = null;
 var mlh_from = null;
 var currentSorterToggle = null;
+var query = "";
 var currentlyMarkedRows = new Object();
 
 var mouseDownEvent = null;
@@ -22,7 +23,7 @@ var exitedMouseDown = false;
 var sortModes = {
   "rdate" : sortRowsByDateDescending,
   "date" : sortRowsByDateAscending,
-  "reverse" : sortRowsByDateDescending,
+  //  "reverse" : sortRowsByDateDescending,
   "subj" : sortRowsBySubjectAscending,
   "rsubj" : sortRowsBySubjectDescending,
   "sender": sortRowsByFromAscending,
@@ -34,23 +35,25 @@ var opera = opera || null;
 if (opera && opera.postError) {
   console.log = opera.postError;
 }
+var nummsgs = 0;
+var startmsg = 0;
 function createMessageView() {
   message_view = document.getElementById("message_list_body");
   loadingMsg = document.getElementById("loading");
   getMessages();
   mlh_date = $("mlh_date");
+  mlh_subject = $('mlh_subject');
+  mlh_from = $('mlh_from');
   toggles["rdate"] = mlh_date;
   toggles["date"] = mlh_date;
-  toggles["reverse"] = mlh_date;
+  // toggles["reverse"] = mlh_date;
   toggles["subj"] = mlh_subject;
   toggles["rsubj"] = mlh_subject;
   toggles["sender"] = mlh_from;
   toggles["rsender"] = mlh_from;
-  mlh_subject = $('mlh_subject');
-  mlh_from = $('mlh_from');
-  mlh_date.observe('click',ToggleDateSort);
-  mlh_subject.observe('click',ToggleSubjectSort);
-  mlh_from.observe('click',ToggleFromSort);
+  mlh_date.observe('click',ApplySort);
+  mlh_subject.observe('click',ApplySort);
+  mlh_from.observe('click',ApplySort);
   $(document).observe('keyup',CtdlMessageListKeyUp,false);
   window.oncontextmenu = function() { return false; };  
   $('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
@@ -59,6 +62,8 @@ function createMessageView() {
   Event.observe(document.onresize ? document : window, "resize", normalizeHeaderTable);
   sizePreviewPane();
   Event.observe(document.onresize ? document : window, "resize", sizePreviewPane);
+  $('summpage').observe('change', getPage);
+  takeOverSearchOMatic();
 }
 function getMessages() {
   if (loadingMsg.parentNode == null) {
@@ -66,10 +71,21 @@ function getMessages() {
     message_view.appendChild(loadingMsg);
   }
 roomName = getTextContent(document.getElementById("rmname"));
- var parameters = {'room':roomName};
+ var parameters = {'room':roomName, 'startmsg': startmsg};
  if (is_safe_mode) {
    parameters['maxmsgs'] = 500;
- } // todo: startmsg
+   if (currentSortMode != null) {
+     var SortBy = currentSortMode[0];
+     if (SortBy.charAt(0) == 'r') {
+       SortBy = SortBy.substr(1);
+       parameters["SortOrder"] = "2";
+     }
+     parameters["SortBy"] = SortBy;
+   }
+ } 
+ if (query.length > 0) {
+   parameters["query"] = query;
+ }
 new Ajax.Request("roommsgs", {
     method: 'get',
 	onSuccess: loadMessages,
@@ -81,10 +97,12 @@ new Ajax.Request("roommsgs", {
 }
 function loadMessages(transport) {
   try {
-  var msgs = eval(transport.responseText);
-  if (!!msgs && transport.responseText.length < 2) {
+  var data = eval('('+transport.responseText+')');
+  if (!!data && transport.responseText.length < 2) {
     alert("Message loading failed");
   } 
+  nummsgs = data['nummsgs'];
+  var msgs = data['msgs'];
   var length = msgs.length;
   rowArray = new Array(); // store so they can be sorted
   var start = new Date();
@@ -103,14 +121,21 @@ function loadMessages(transport) {
       }
       if (j==3) {
        	trElement.ctdlDate = content;
-      } else {
+      } else { 
+	try {
       var tdElement = document.createElement("td");
       trElement.appendChild(tdElement);
-      tdElement.appendChild(document.createTextNode(content));
+      var txtContent = document.createTextNode(content);
+      tdElement.appendChild(txtContent);
       var x=j;
       if (x==4) x=3;
       var classStmt = "col"+x;
       tdElement.setAttribute("class", classStmt);
+	} catch (e) {
+	  if (window.console) {
+	    console.log("Error on #"+msgId +" col"+j+":"+e);
+	  }
+	}
       }
     }
     if (data[5]) {
@@ -129,17 +154,21 @@ function loadMessages(transport) {
   } catch (e) {
     window.alert(e);
   }
+  if (currentSortMode == null) {
   if (sortmode.length < 1) {
     sortmode = "rdate";
   }
-  currentSortMode = sortModes[sortmode];
+  currentSortMode = [sortmode, sortModes[sortmode]];
   currentSorterToggle = toggles[sortmode];
+  }
   if (!is_safe_mode) {
   resortAndDisplay(sortRowsByDateDescending);
   } else {
     resortAndDisplay(null);
   }
   loadingMsg.parentNode.removeChild(loadingMsg);
+  setupPageSelector();
+  query = "";
 }
 function resortAndDisplay(sortMode) {
   var start = new Date();
@@ -240,42 +269,38 @@ function CtdlMarkRowAsRead(rowElement) {
   classes = classes.replace("new_message","");
   rowElement.className = classes;
 }
-function ToggleDateSort(event) {
+function ApplySort(event) {
+  var target = event.target;
+  var sortId = target.id;
   removeOldSortClass();
-  currentSorterToggle = mlh_date;
+  currentSorterToggle = target;
+  var sortModes = getSortMode(target); // returns [[key, func],[key,func]]
   var sortModeToUse = null;
-  if (currentSortMode == sortRowsByDateAscending) {
-   sortModeToUse = sortRowsByDateDescending;
- } else {
-   sortModeToUse = sortRowsByDateAscending;
- }
-  currentSortMode = sortModeToUse;
-  resortAndDisplay(sortModeToUse);
- }
-function ToggleSubjectSort(event) {
-  removeOldSortClass();
-  currentSorterToggle = mlh_subject;
-  var sortModeToUse = null;
-  if (currentSortMode == sortRowsBySubjectAscending) {
-    sortModeToUse = sortRowsBySubjectDescending;
+  if (currentSortMode[0] == sortModes[0][0]) {
+    sortModeToUse = sortModes[1];
   } else {
-    sortModeToUse = sortRowsBySubjectAscending;
+    sortModeToUse = sortModes[0];
   }
   currentSortMode = sortModeToUse;
-  resortAndDisplay(sortModeToUse);
+  if (is_safe_mode) {
+    getMessages(); // in safe mode, we load from server already sorted
+  } else {
+  resortAndDisplay(sortModeToUse[1]);
+  }
 }
-function ToggleFromSort(event) {
-  removeOldSortClass();
-  currentSorterToggle = mlh_from;
-  var sortModeToUse = null;
-  if (currentSortMode == sortRowsByFromAscending) {
-    sortModeToUse = sortRowsByFromDescending;
-  } else {
-    sortModeToUse = sortRowsByFromAscending;
+function getSortMode(toggleElem) {
+  var forward = null;
+  var reverse = null;
+  for(var key in toggles) {
+    var kr = (key.charAt(0) == 'r');
+    if (toggles[key] == toggleElem && !kr) {
+      forward = [key, sortModes[key]];
+    } else if (toggles[key] == toggleElem && kr) {
+      reverse = [key, sortModes[key]];
+    }
   }
-  currentSortMode = sortModeToUse;
-  resortAndDisplay(sortModeToUse);
- }
+  return [forward, reverse];
+}
 function removeOldSortClass() {
   if (currentSorterToggle) {
     var classes = currentSorterToggle.className;
@@ -398,9 +423,9 @@ function CtdlResizeMouseUp(event) {
 function ApplySorterToggle() {
   var className = currentSorterToggle.className;
   className += " current_sort_mode";
-  if (currentSortMode == sortRowsByDateDescending ||
-      currentSortMode == sortRowsBySubjectDescending ||
-      currentSortMode == sortRowsByFromDescending) {
+  if (currentSortMode[1] == sortRowsByDateDescending ||
+      currentSortMode[1] == sortRowsBySubjectDescending ||
+      currentSortMode[1] == sortRowsByFromDescending) {
     className += " sort_descending";
   } else {
     className += " sort_ascending";
@@ -415,4 +440,39 @@ function normalizeHeaderTable() {
   var dataTable = summary_view.getElementsByTagName("table")[0];
   var dataTableWidth = dataTable.offsetWidth;
   headerTable.style.width = dataTableWidth+"px";
+}
+
+function setupPageSelector() {
+  var summpage = document.getElementById("summpage");
+  summpage.innerHTML = "";
+  if (is_safe_mode) {
+    summpage.parentNode.style.display="inline !important"; //override webcit.css
+  } else {
+    return;
+  }
+  var pages = nummsgs / 500;
+  for(var i=0; i<pages; i++) {
+    var opt = document.createElement("option");
+    var startmsg = i * 500;
+    opt.setAttribute("value",startmsg);
+    opt.appendChild(document.createTextNode((i+1)));
+    summpage.appendChild(opt);
+  }
+}
+function getPage(event) {
+  var target = event.target;
+  startmsg = target.options.item(target.selectedIndex).value;
+  getMessages();
+}
+function takeOverSearchOMatic() {
+  var searchForm = document.getElementById("searchomatic").getElementsByTagName("form")[0];
+  // First disable the form post
+  searchForm.setAttribute("action","javascript:void();");
+  searchForm.removeAttribute("method");
+  $(searchForm).observe('submit', doSearch);
+}
+function doSearch() {
+  query = document.getElementById("srchquery").value;
+  getMessages();
+  return false;
 }

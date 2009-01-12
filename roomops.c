@@ -452,7 +452,7 @@ void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
 	wprintf(_("Search: "));
 	wprintf("</label><input ");
 	wprintf("%s", serv_info.serv_fulltext_enabled ? "" : "disabled ");
-	wprintf("type=\"text\" name=\"query\" size=\"15\" maxlength=\"128\" "
+	wprintf("type=\"text\" name=\"query\" id=\"srchquery\" size=\"15\" maxlength=\"128\" "
 		"id=\"search_name\" class=\"inputbox\">\n"
 	);
 	wprintf("</div></form>\n");

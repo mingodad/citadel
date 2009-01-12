@@ -1,1 +1,5 @@
-[ <?ITERATE("MAIL:SUMM:MSGS","mailsummary_json_section")> ]
+{ "nummsgs": <?READLOOP:TOTALMSGS>,
+"startmsg": <?READLOOP:STARTMSG>,
+"roomname": "<?ROOMNAME>",
+"msgs": [ <?ITERATE("MAIL:SUMM:MSGS","mailsummary_json_section")> ]
+}
