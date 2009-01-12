@@ -12,17 +12,17 @@ char *viewdefs[9]; /**< the different kinds of available views */
 
 /** See GetFloorListHash and GetRoomListHash for info on these. Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys. */
 const char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15] = {"ID",
-						     "NAME", 
-						     "ROOMS"};
+							   "NAME", 
+							   "ROOMS"};
 const char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20] = {"NAME",
-						   "FLAG",
-						   "FLOOR",
-						   "LISTORDER",
-						   "ACL",
-						   "CURVIEW",
-						   "DEFVIEW",
-						   "LASTCHANGE"};
-// Because avoiding strlen at run time is a Good Thing(TM)
+							 "FLAG",
+							 "FLOOR",
+							 "LISTORDER",
+							 "ACL",
+							 "CURVIEW",
+							 "DEFVIEW",
+							 "LASTCHANGE"};
+/* Because avoiding strlen at run time is a Good Thing(TM) */
 const int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN +1)] = {2, 4, 5};
 const int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)] = {4, 4, 5, 9, 3, 7, 7, 8};
 
@@ -49,22 +49,22 @@ void initialize_viewdefs(void) {
 int is_view_allowed_as_default(int which_view)
 {
 	switch(which_view) {
-		case VIEW_BBS:		return(1);
-		case VIEW_MAILBOX:	return(1);
-		case VIEW_ADDRESSBOOK:	return(1);
-		case VIEW_CALENDAR:	return(1);
-		case VIEW_TASKS:	return(1);
-		case VIEW_NOTES:	return(1);
+	case VIEW_BBS:		return(1);
+	case VIEW_MAILBOX:	return(1);
+	case VIEW_ADDRESSBOOK:	return(1);
+	case VIEW_CALENDAR:	return(1);
+	case VIEW_TASKS:	return(1);
+	case VIEW_NOTES:	return(1);
 
 #ifdef TECH_PREVIEW
-		case VIEW_WIKI:		return(1);
+	case VIEW_WIKI:		return(1);
 #else /* TECH_PREVIEW */
-		case VIEW_WIKI:		return(0);	/* because it isn't finished yet */
+	case VIEW_WIKI:		return(0);	/* because it isn't finished yet */
 #endif /* TECH_PREVIEW */
 
-		case VIEW_CALBRIEF:	return(0);
-		case VIEW_JOURNAL:	return(0);
-		default:		return(0);	/* should never get here */
+	case VIEW_CALBRIEF:	return(0);
+	case VIEW_JOURNAL:	return(0);
+	default:		return(0);	/* should never get here */
 	}
 }
 
@@ -318,15 +318,15 @@ void readinfo(StrBuf *Target, WCTemplputParams *TP)
 		strcpy(&briefinfo[50], "...");
 
                 wprintf("<div class=\"infos\" "
-                "onclick=\"javascript:Effect.Appear('room_infos', { duration: 0.5 });\" "
-                ">");
+			"onclick=\"javascript:Effect.Appear('room_infos', { duration: 0.5 });\" "
+			">");
 		escputs(briefinfo);
                 wprintf("</div><div id=\"room_infos\" style=\"display:none;\">");
 		wprintf("<img class=\"close_infos\" "
                 	"onclick=\"javascript:Effect.Fade('room_infos', { duration: 0.5 });\" "
 			"src=\"static/closewindow.gif\" alt=\"%s\">",
 			_("Close window")
-		);
+			);
 		escputs(fullinfo);
                 wprintf("</div>");
 	}
@@ -362,37 +362,37 @@ void embed_room_graphic(StrBuf *Target, WCTemplputParams *TP)
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/viewcontacts_48x.gif"
 			"\">"
-		);
+			);
 	}
 	else if ( (WC->wc_view == VIEW_CALENDAR) || (WC->wc_view == VIEW_CALBRIEF) ) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/calarea_48x.gif"
 			"\">"
-		);
+			);
 	}
 	else if (WC->wc_view == VIEW_TASKS) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/taskmanag_48x.gif"
 			"\">"
-		);
+			);
 	}
 	else if (WC->wc_view == VIEW_NOTES) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/storenotes_48x.gif"
 			"\">"
-		);
+			);
 	}
 	else if (WC->wc_view == VIEW_MAILBOX) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/privatemess_48x.gif"
 			"\">"
-		);
+			);
 	}
 	else {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/chatrooms_48x.gif"
 			"\">"
-		);
+			);
 	}
 
 }
@@ -428,7 +428,7 @@ void embed_view_o_matic(StrBuf *Target, WCTemplputParams *TP)
 			||	( (i == 0) && (WC->wc_default_view == 1) )	/**< mail or bulletin */
 			||	( (i == 1) && (WC->wc_default_view == 0) )	/**< mail or bulletin */
 			/** ||	( (i == 7) && (WC->wc_default_view == 3) )	(calendar list temporarily disabled) */
-		) {
+			) {
 
 			wprintf("<option %s value=\"changeview?view=%d\">",
 				((i == WC->wc_view) ? "selected" : ""),
@@ -454,7 +454,7 @@ void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
 	wprintf("%s", serv_info.serv_fulltext_enabled ? "" : "disabled ");
 	wprintf("type=\"text\" name=\"query\" id=\"srchquery\" size=\"15\" maxlength=\"128\" "
 		"id=\"search_name\" class=\"inputbox\">\n"
-	);
+		);
 	wprintf("</div></form>\n");
 }
 
@@ -490,7 +490,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		"	room_is_trash = %d;		\n"
 		"</script>\n",
 		WC->wc_is_trash
-	);
+		);
 
 	/**
 	 * If the user happens to select the "make this my start page" link,
@@ -510,7 +510,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		serv_puts("RDIR");
 		serv_getln(buf2, sizeof buf2);
 		if (buf2[0] == '1') while (serv_getln(buf2, sizeof buf2), strcmp(buf2, "000"))
-			file_count++;
+					    file_count++;
 		snprintf (with_files, sizeof with_files, 
 			  "; <a href=\"do_template?template=files\"> %d %s </a>", 
 			  file_count, 
@@ -520,11 +520,11 @@ void embed_room_banner(char *got, int navbar_style) {
 		strcpy (with_files, "");
 	
 	svprintf(HKEY("NUMMSGS"), WCS_STRING,
-		_("%d new of %d messages%s"),
-		extract_int(&got[4], 1),
-		extract_int(&got[4], 2),
-		with_files
-	);
+		 _("%d new of %d messages%s"),
+		 extract_int(&got[4], 1),
+		 extract_int(&got[4], 2),
+		 with_files
+		);
 	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
 	svcallback("VIEWOMATIC", embed_view_o_matic); 
@@ -543,7 +543,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			"<img src=\"static/ungoto2_24x.gif\" alt=\"\">"
 			"<span class=\"navbar_link\">%s</span></A>"
 			"</li>\n", _("Ungoto")
-		);
+			);
 
 		if ( (navbar_style == navbar_default) && (WC->wc_view == VIEW_BBS) ) {
 			wprintf(
@@ -552,188 +552,188 @@ void embed_room_banner(char *got, int navbar_style) {
 				"<img src=\"static/newmess2_24x.gif\" alt=\"\">"
 				"<span class=\"navbar_link\">%s</span></A>"
 				"</li>\n", _("Read new messages")
-			);
+				);
 		}
 
 		if (navbar_style == navbar_default) {
 			switch(WC->wc_view) {
-				case VIEW_ADDRESSBOOK:
-					wprintf(
-						"<li class=\"viewcontacts\">"
-						"<a href=\"readfwd\">"
-						"<img src=\"static/viewcontacts_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("View contacts")
+			case VIEW_ADDRESSBOOK:
+				wprintf(
+					"<li class=\"viewcontacts\">"
+					"<a href=\"readfwd\">"
+					"<img src=\"static/viewcontacts_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("View contacts")
 					);
-					break;
-				case VIEW_CALENDAR:
-					wprintf(
-						"<li class=\"staskday\">"
-						"<a href=\"readfwd?calview=day\">"
-						"<img src=\"static/taskday2_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Day view")
+				break;
+			case VIEW_CALENDAR:
+				wprintf(
+					"<li class=\"staskday\">"
+					"<a href=\"readfwd?calview=day\">"
+					"<img src=\"static/taskday2_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Day view")
 					);
-					wprintf(
-						"<li class=\"monthview\">"
-						"<a href=\"readfwd?calview=month\">"
-						"<img src=\"static/monthview2_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Month view")
+				wprintf(
+					"<li class=\"monthview\">"
+					"<a href=\"readfwd?calview=month\">"
+					"<img src=\"static/monthview2_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Month view")
 					);
-					break;
-				case VIEW_CALBRIEF:
-					wprintf(
-						"<li class=\"monthview\">"
-						"<a href=\"readfwd?calview=month\">"
-						"<img src=\"static/monthview2_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Calendar list")
+				break;
+			case VIEW_CALBRIEF:
+				wprintf(
+					"<li class=\"monthview\">"
+					"<a href=\"readfwd?calview=month\">"
+					"<img src=\"static/monthview2_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Calendar list")
 					);
-					break;
-				case VIEW_TASKS:
-					wprintf(
-						"<li class=\"taskmanag\">"
-						"<a href=\"readfwd\">"
-						"<img src=\"static/taskmanag_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("View tasks")
+				break;
+			case VIEW_TASKS:
+				wprintf(
+					"<li class=\"taskmanag\">"
+					"<a href=\"readfwd\">"
+					"<img src=\"static/taskmanag_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("View tasks")
 					);
-					break;
-				case VIEW_NOTES:
-					wprintf(
-						"<li class=\"viewnotes\">"
-						"<a href=\"readfwd\">"
-						"<img src=\"static/viewnotes_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("View notes")
+				break;
+			case VIEW_NOTES:
+				wprintf(
+					"<li class=\"viewnotes\">"
+					"<a href=\"readfwd\">"
+					"<img src=\"static/viewnotes_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("View notes")
 					);
-					break;
-				case VIEW_MAILBOX:
-					wprintf(
-						"<li class=\"readallmess\">"
-						"<a id=\"m_refresh\" href=\"readfwd\">"
-						"<img src=\"static/readallmess3_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Refresh message list")
+				break;
+			case VIEW_MAILBOX:
+				wprintf(
+					"<li class=\"readallmess\">"
+					"<a id=\"m_refresh\" href=\"readfwd\">"
+					"<img src=\"static/readallmess3_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Refresh message list")
 					);
-					break;
-				case VIEW_WIKI:
-					wprintf(
-						"<li class=\"readallmess\">"
-						"<a href=\"readfwd\">"
-						"<img src=\"static/readallmess3_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Wiki home")
+				break;
+			case VIEW_WIKI:
+				wprintf(
+					"<li class=\"readallmess\">"
+					"<a href=\"readfwd\">"
+					"<img src=\"static/readallmess3_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Wiki home")
 					);
-					break;
-				default:
-					wprintf(
-						"<li class=\"readallmess\">"
-						"<a href=\"readfwd\">"
-						"<img src=\"static/readallmess3_24x.gif\" "
-						"alt=\"\">"
-						"<span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Read all messages")
+				break;
+			default:
+				wprintf(
+					"<li class=\"readallmess\">"
+					"<a href=\"readfwd\">"
+					"<img src=\"static/readallmess3_24x.gif\" "
+					"alt=\"\">"
+					"<span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Read all messages")
 					);
-					break;
+				break;
 			}
 		}
 
 		if (navbar_style == navbar_default) {
 			switch(WC->wc_view) {
-				case VIEW_ADDRESSBOOK:
-					wprintf(
-						"<li class=\"addnewcontact\">"
-						"<a href=\"display_enter\">"
-						"<img src=\"static/addnewcontact_24x.gif\" "
-						"alt=\"\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Add new contact")
+			case VIEW_ADDRESSBOOK:
+				wprintf(
+					"<li class=\"addnewcontact\">"
+					"<a href=\"display_enter\">"
+					"<img src=\"static/addnewcontact_24x.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Add new contact")
 					);
-					break;
-				case VIEW_CALENDAR:
-				case VIEW_CALBRIEF:
-					wprintf("<li class=\"addevent\"><a href=\"display_enter");
-					if (havebstr("year" )) wprintf("?year=%s", bstr("year"));
-					if (havebstr("month")) wprintf("?month=%s", bstr("month"));
-					if (havebstr("day"  )) wprintf("?day=%s", bstr("day"));
-					wprintf("\">"
-						"<img  src=\"static/addevent_24x.gif\" "
-						"alt=\"\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Add new event")
+				break;
+			case VIEW_CALENDAR:
+			case VIEW_CALBRIEF:
+				wprintf("<li class=\"addevent\"><a href=\"display_enter");
+				if (havebstr("year" )) wprintf("?year=%s", bstr("year"));
+				if (havebstr("month")) wprintf("?month=%s", bstr("month"));
+				if (havebstr("day"  )) wprintf("?day=%s", bstr("day"));
+				wprintf("\">"
+					"<img  src=\"static/addevent_24x.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Add new event")
 					);
-					break;
-				case VIEW_TASKS:
-					wprintf(
-						"<li class=\"newmess\">"
-						"<a href=\"display_enter\">"
-						"<img  src=\"static/newmess3_24x.gif\" "
-						"alt=\"\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Add new task")
+				break;
+			case VIEW_TASKS:
+				wprintf(
+					"<li class=\"newmess\">"
+					"<a href=\"display_enter\">"
+					"<img  src=\"static/newmess3_24x.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Add new task")
 					);
-					break;
-				case VIEW_NOTES:
-					wprintf(
-						"<li class=\"enternewnote\">"
-						"<a href=\"add_new_note\">"
-						"<img  src=\"static/enternewnote_24x.gif\" "
-						"alt=\"\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Add new note")
+				break;
+			case VIEW_NOTES:
+				wprintf(
+					"<li class=\"enternewnote\">"
+					"<a href=\"add_new_note\">"
+					"<img  src=\"static/enternewnote_24x.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Add new note")
 					);
-					break;
-				case VIEW_WIKI:
-					safestrncpy(buf, bstr("page"), sizeof buf);
-					str_wiki_index(buf);
-					wprintf(
-						"<li class=\"newmess\">"
-						"<a href=\"display_enter?wikipage=%s\">"
-						"<img  src=\"static/newmess3_24x.gif\" "
-						"alt=\"\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", buf, _("Edit this page")
+				break;
+			case VIEW_WIKI:
+				safestrncpy(buf, bstr("page"), sizeof buf);
+				str_wiki_index(buf);
+				wprintf(
+					"<li class=\"newmess\">"
+					"<a href=\"display_enter?wikipage=%s\">"
+					"<img  src=\"static/newmess3_24x.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", buf, _("Edit this page")
 					);
-					break;
-				case VIEW_MAILBOX:
-					wprintf(
-						"<li class=\"newmess\">"
-						"<a href=\"display_enter\">"
-						"<img  src=\"static/newmess3_24x.gif\" "
-						"alt=\"\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Write mail")
+				break;
+			case VIEW_MAILBOX:
+				wprintf(
+					"<li class=\"newmess\">"
+					"<a href=\"display_enter\">"
+					"<img  src=\"static/newmess3_24x.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Write mail")
 					);
-					break;
-				default:
-					wprintf(
-						"<li class=\"newmess\">"
-						"<a href=\"display_enter\">"
-						"<img  src=\"static/newmess3_24x.gif\" "
-						"alt=\"\"><span class=\"navbar_link\">"
-						"%s"
-						"</span></a></li>\n", _("Enter a message")
+				break;
+			default:
+				wprintf(
+					"<li class=\"newmess\">"
+					"<a href=\"display_enter\">"
+					"<img  src=\"static/newmess3_24x.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Enter a message")
 					);
-					break;
+				break;
 			}
 		}
 
@@ -746,7 +746,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			"</li>\n",
 			_("Leave all messages marked as unread, go to next room with unread messages"),
 			_("Skip this room")
-		);
+			);
 
 		if (navbar_style == navbar_default) wprintf(
 			"<li class=\"markngo\">"
@@ -757,7 +757,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			"</li>\n",
 			_("Mark all messages as read, go to next room with unread messages"),
 			_("Goto next room")
-		);
+			);
 
 		wprintf("</ul></div>\n");
 	}
@@ -800,7 +800,7 @@ long gotoroom(const StrBuf *gname)
 	WC->room_flags = StrBufExtract_int(Buf, 4, '|');
 	/* highest_msg_read = extract_int(&buf[4],6);
 	   maxmsgnum = extract_int(&buf[4],5);
-	 */
+	*/
 	WC->is_mailbox = StrBufExtract_int(Buf, 7, '|');   
 	ls = StrBufExtract_long(Buf, 6, '|');
 	WC->wc_floor = StrBufExtract_int(Buf, 10, '|');
@@ -1065,8 +1065,8 @@ int self_service(int newval) {
 
 	if (newval != current_value) {
 		serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
-			name, password, dirname, flags,
-			floor, order, view, flags2);
+			    name, password, dirname, flags,
+			    floor, order, view, flags2);
 		serv_getln(buf, sizeof buf);
 	}
 
@@ -1284,7 +1284,7 @@ void display_editroom(void)
 	wprintf("<script type=\"text/javascript\">"
 		" Nifty(\"table#AdminTabs td\", \"small transparent top\");"
 		"</script>"
-	);
+		);
 
 	/* begin content of whatever tab is open now */
 
@@ -1315,7 +1315,7 @@ void display_editroom(void)
 		if (!strncmp(buf, "550", 3)) {
 			wprintf("<br><br><div align=center>%s</div><br><br>\n",
 				_("Higher access is required to access this function.")
-			);
+				);
 		}
 		else if (buf[0] != '2') {
 			wprintf("<br><br><div align=center>%s</div><br><br>\n", &buf[4]);
@@ -1336,7 +1336,7 @@ void display_editroom(void)
 			wprintf("<input type=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"%d\">\n",
 				er_name,
 				(sizeof(er_name)-1)
-			);
+				);
 		
 			wprintf("<li>");
 			wprintf(_("Resides on floor: "));
@@ -1371,7 +1371,7 @@ void display_editroom(void)
 	
 			wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
 			if ((er_flags & QR_PRIVATE) &&
-		    	(er_flags & QR_GUESSNAME))
+			    (er_flags & QR_GUESSNAME))
 				wprintf("CHECKED ");
 			wprintf(" OnChange=\""
 				"	if (this.form.type[1].checked == true) {	"
@@ -1382,7 +1382,7 @@ void display_editroom(void)
 		
 			wprintf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
 			if ((er_flags & QR_PRIVATE) &&
-		    	(er_flags & QR_PASSWORDED))
+			    (er_flags & QR_PASSWORDED))
 				wprintf("CHECKED ");
 			wprintf(" OnChange=\""
 				"	if (this.form.type[2].checked == true) {	"
@@ -1395,8 +1395,8 @@ void display_editroom(void)
 		
 			wprintf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
 			if ((er_flags & QR_PRIVATE)
-		    	&& ((er_flags & QR_GUESSNAME) == 0)
-		    	&& ((er_flags & QR_PASSWORDED) == 0))
+			    && ((er_flags & QR_GUESSNAME) == 0)
+			    && ((er_flags & QR_PASSWORDED) == 0))
 				wprintf("CHECKED ");
 			wprintf(" OnChange=\""
 				"	if (this.form.type[3].checked == true) {	"
@@ -1409,10 +1409,10 @@ void display_editroom(void)
 			if (er_flags & QR_MAILBOX)
 				wprintf("CHECKED ");
 			wprintf (" OnChange=\""
-				"	if (this.form.type[4].checked == true) {	"
-				"		this.form.er_floor.disabled = true;	"
-				"	}						"
-				"\"> ");
+				 "	if (this.form.type[4].checked == true) {	"
+				 "		this.form.er_floor.disabled = true;	"
+				 "	}						"
+				 "\"> ");
 			wprintf(_("Personal (mailbox for you only)"));
 			
 			wprintf("\n<li><input type=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
@@ -1453,7 +1453,7 @@ void display_editroom(void)
 	
 			wprintf("<li><input type=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
 			if (er_flags & QR_UPLOAD)
-			wprintf("CHECKED ");
+				wprintf("CHECKED ");
 			wprintf("> ");
 			wprintf(_("Uploading allowed"));
 		
@@ -1498,7 +1498,7 @@ void display_editroom(void)
 		
 			wprintf("<li><input type=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
 			if (((er_flags & QR_ANONONLY) == 0)
-		    	&& ((er_flags & QR_ANONOPT) == 0))
+			    && ((er_flags & QR_ANONOPT) == 0))
 				wprintf("CHECKED ");
 			wprintf("> ");
 			wprintf(_("No anonymous messages"));
@@ -1516,7 +1516,7 @@ void display_editroom(void)
 			wprintf(_("Prompt user when entering messages"));
 			wprintf("</ul>\n");
 		
-		/* end of anon options */
+			/* end of anon options */
 		
 			wprintf("<li>");
 			wprintf(_("Room aide: "));
@@ -1537,7 +1537,7 @@ void display_editroom(void)
 				"</CENTER>\n",
 				_("Save changes"),
 				_("Cancel")
-			);
+				);
 		}
 		wprintf("</div>");
 	}
@@ -1554,30 +1554,30 @@ void display_editroom(void)
 		serv_puts("CONF getsys|application/x-citadel-ignet-config");
 		serv_getln(buf, sizeof buf);
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(node, buf, 0, '|', sizeof node);
-			not_shared_with = realloc(not_shared_with,
-					strlen(not_shared_with) + 32);
-			strcat(not_shared_with, node);
-			strcat(not_shared_with, "\n");
-		}
+				extract_token(node, buf, 0, '|', sizeof node);
+				not_shared_with = realloc(not_shared_with,
+							  strlen(not_shared_with) + 32);
+				strcat(not_shared_with, node);
+				strcat(not_shared_with, "\n");
+			}
 
 		serv_puts("GNET");
 		serv_getln(buf, sizeof buf);
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(cmd, buf, 0, '|', sizeof cmd);
-			extract_token(node, buf, 1, '|', sizeof node);
-			extract_token(remote_room, buf, 2, '|', sizeof remote_room);
-			if (!strcasecmp(cmd, "ignet_push_share")) {
-				shared_with = realloc(shared_with,
-						strlen(shared_with) + 32);
-				strcat(shared_with, node);
-				if (!IsEmptyStr(remote_room)) {
-					strcat(shared_with, "|");
-					strcat(shared_with, remote_room);
+				extract_token(cmd, buf, 0, '|', sizeof cmd);
+				extract_token(node, buf, 1, '|', sizeof node);
+				extract_token(remote_room, buf, 2, '|', sizeof remote_room);
+				if (!strcasecmp(cmd, "ignet_push_share")) {
+					shared_with = realloc(shared_with,
+							      strlen(shared_with) + 32);
+					strcat(shared_with, node);
+					if (!IsEmptyStr(remote_room)) {
+						strcat(shared_with, "|");
+						strcat(shared_with, remote_room);
+					}
+					strcat(shared_with, "\n");
 				}
-				strcat(shared_with, "\n");
 			}
-		}
 
 		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
 			extract_token(buf, shared_with, i, '\n', sizeof buf);
@@ -1684,16 +1684,16 @@ void display_editroom(void)
 			"</table></CENTER><br />\n"
 			"<I><B>%s</B><ul><li>", _("Notes:"));
 		wprintf(_("When sharing a room, "
-			"it must be shared from both ends.  Adding a node to "
-			"the 'shared' list sends messages out, but in order to"
-			" receive messages, the other nodes must be configured"
-			" to send messages out to your system as well. "
-			"<li>If the remote room name is blank, it is assumed "
-			"that the room name is identical on the remote node."
-			"<li>If the remote room name is different, the remote "
-			"node must also configure the name of the room here."
-			"</ul></I><br />\n"
-		));
+			  "it must be shared from both ends.  Adding a node to "
+			  "the 'shared' list sends messages out, but in order to"
+			  " receive messages, the other nodes must be configured"
+			  " to send messages out to your system as well. "
+			  "<li>If the remote room name is blank, it is assumed "
+			  "that the room name is identical on the remote node."
+			  "<li>If the remote room name is different, the remote "
+			  "node must also configure the name of the room here."
+			  "</ul></I><br />\n"
+				));
 
 		wprintf("</div>");
 	}
@@ -1708,25 +1708,25 @@ void display_editroom(void)
 			"<tr><td VALIGN=TOP>");
 
 		wprintf(_("<i>The contents of this room are being "
-			"mailed <b>as individual messages</b> "
-			"to the following list recipients:"
-			"</i><br /><br />\n"));
+			  "mailed <b>as individual messages</b> "
+			  "to the following list recipients:"
+			  "</i><br /><br />\n"));
 
 		serv_puts("GNET");
 		serv_getln(buf, sizeof buf);
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(cmd, buf, 0, '|', sizeof cmd);
-			if (!strcasecmp(cmd, "listrecp")) {
-				extract_token(recp, buf, 1, '|', sizeof recp);
+				extract_token(cmd, buf, 0, '|', sizeof cmd);
+				if (!strcasecmp(cmd, "listrecp")) {
+					extract_token(recp, buf, 1, '|', sizeof recp);
 			
-				escputs(recp);
-				wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line=listrecp|");
-				urlescputs(recp);
-				wprintf("\">");
-				wprintf(_("(remove)"));
-				wprintf("</A><br />");
+					escputs(recp);
+					wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line=listrecp|");
+					urlescputs(recp);
+					wprintf("\">");
+					wprintf(_("(remove)"));
+					wprintf("</A><br />");
+				}
 			}
-		}
 		wprintf("<br /><form method=\"POST\" action=\"netedit\">\n"
 			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
@@ -1738,26 +1738,26 @@ void display_editroom(void)
 		wprintf("</td><td VALIGN=TOP>\n");
 		
 		wprintf(_("<i>The contents of this room are being "
-			"mailed <b>in digest form</b> "
-			"to the following list recipients:"
-			"</i><br /><br />\n"));
+			  "mailed <b>in digest form</b> "
+			  "to the following list recipients:"
+			  "</i><br /><br />\n"));
 
 		serv_puts("GNET");
 		serv_getln(buf, sizeof buf);
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(cmd, buf, 0, '|', sizeof cmd);
-			if (!strcasecmp(cmd, "digestrecp")) {
-				extract_token(recp, buf, 1, '|', sizeof recp);
+				extract_token(cmd, buf, 0, '|', sizeof cmd);
+				if (!strcasecmp(cmd, "digestrecp")) {
+					extract_token(recp, buf, 1, '|', sizeof recp);
 			
-				escputs(recp);
-				wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line="
-					"digestrecp|");
-				urlescputs(recp);
-				wprintf("\">");
-				wprintf(_("(remove)"));
-				wprintf("</A><br />");
+					escputs(recp);
+					wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line="
+						"digestrecp|");
+					urlescputs(recp);
+					wprintf("\">");
+					wprintf(_("(remove)"));
+					wprintf("</A><br />");
+				}
 			}
-		}
 		wprintf("<br /><form method=\"POST\" action=\"netedit\">\n"
 			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
 			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
@@ -1779,7 +1779,7 @@ void display_editroom(void)
 			_("Digest"),
 			_("Add recipients from Contacts or other address books"),
 			_("Add recipients from Contacts or other address books")
-		);
+			);
 		/* Pop open an address book -- end **/
 
 		wprintf("<br />\n<form method=\"GET\" action=\"toggle_self_service\">\n");
@@ -1828,7 +1828,7 @@ void display_editroom(void)
 		if (!strncmp(buf, "550", 3)) {
 			wprintf("<br><br><div align=center>%s</div><br><br>\n",
 				_("Higher access is required to access this function.")
-			);
+				);
 		}
 		else if (buf[0] != '2') {
 			wprintf("<br><br><div align=center>%s</div><br><br>\n", &buf[4]);
@@ -1910,7 +1910,7 @@ void display_editroom(void)
 			wprintf("</table>\n"
 				"<input type=\"hidden\" NAME=\"tab\" VALUE=\"expire\">\n"
 				"</form>\n"
-			);
+				);
 		}
 
 		wprintf("</div>");
@@ -1948,41 +1948,41 @@ void display_editroom(void)
 		serv_getln(buf, sizeof buf);
 		bg = 1;
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(cmd, buf, 0, '|', sizeof cmd);
-			if (!strcasecmp(cmd, "pop3client")) {
-				safestrncpy(recp, &buf[11], sizeof recp);
+				extract_token(cmd, buf, 0, '|', sizeof cmd);
+				if (!strcasecmp(cmd, "pop3client")) {
+					safestrncpy(recp, &buf[11], sizeof recp);
 
-                                bg = 1 - bg;
-                                wprintf("<tr class=\"%s\">",
-                                        (bg ? "even" : "odd")
-                                );
+					bg = 1 - bg;
+					wprintf("<tr class=\"%s\">",
+						(bg ? "even" : "odd")
+						);
 
-				wprintf("<td>");
-				extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
-				escputs(pop3_host);
-				wprintf("</td>");
+					wprintf("<td>");
+					extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
+					escputs(pop3_host);
+					wprintf("</td>");
 
-				wprintf("<td>");
-				extract_token(pop3_user, buf, 2, '|', sizeof pop3_user);
-				escputs(pop3_user);
-				wprintf("</td>");
+					wprintf("<td>");
+					extract_token(pop3_user, buf, 2, '|', sizeof pop3_user);
+					escputs(pop3_user);
+					wprintf("</td>");
 
-				wprintf("<td>*****</td>");		/* Don't show the password */
+					wprintf("<td>*****</td>");		/* Don't show the password */
 
-				wprintf("<td>%s</td>", extract_int(buf, 4) ? _("Yes") : _("No"));
+					wprintf("<td>%s</td>", extract_int(buf, 4) ? _("Yes") : _("No"));
 
-				wprintf("<td>%ld</td>", extract_long(buf, 5));	/* Fetching interval */
+					wprintf("<td>%ld</td>", extract_long(buf, 5));	/* Fetching interval */
 			
-				wprintf("<td class=\"button_link\">");
-				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
-				urlescputs(recp);
-				wprintf("\">");
-				wprintf(_("(remove)"));
-				wprintf("</a></td>");
+					wprintf("<td class=\"button_link\">");
+					wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
+					urlescputs(recp);
+					wprintf("\">");
+					wprintf(_("(remove)"));
+					wprintf("</a></td>");
 			
-				wprintf("</tr>");
+					wprintf("</tr>");
+				}
 			}
-		}
 
 		wprintf("<form method=\"POST\" action=\"netedit\">\n"
 			"<tr>"
@@ -2026,30 +2026,30 @@ void display_editroom(void)
 		serv_getln(buf, sizeof buf);
 		bg = 1;
 		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			extract_token(cmd, buf, 0, '|', sizeof cmd);
-			if (!strcasecmp(cmd, "rssclient")) {
-				safestrncpy(recp, &buf[10], sizeof recp);
+				extract_token(cmd, buf, 0, '|', sizeof cmd);
+				if (!strcasecmp(cmd, "rssclient")) {
+					safestrncpy(recp, &buf[10], sizeof recp);
 
-                                bg = 1 - bg;
-                                wprintf("<tr class=\"%s\">",
-                                        (bg ? "even" : "odd")
-                                );
+					bg = 1 - bg;
+					wprintf("<tr class=\"%s\">",
+						(bg ? "even" : "odd")
+						);
 
-				wprintf("<td>");
-				extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
-				escputs(pop3_host);
-				wprintf("</td>");
+					wprintf("<td>");
+					extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
+					escputs(pop3_host);
+					wprintf("</td>");
 
-				wprintf("<td class=\"button_link\">");
-				wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=rssclient|");
-				urlescputs(recp);
-				wprintf("\">");
-				wprintf(_("(remove)"));
-				wprintf("</a></td>");
+					wprintf("<td class=\"button_link\">");
+					wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=rssclient|");
+					urlescputs(recp);
+					wprintf("\">");
+					wprintf(_("(remove)"));
+					wprintf("</a></td>");
 			
-				wprintf("</tr>");
+					wprintf("</tr>");
+				}
 			}
-		}
 
 		wprintf("<form method=\"POST\" action=\"netedit\">\n"
 			"<tr>"
@@ -2132,7 +2132,7 @@ void editroom(void)
 
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
-			_("Cancelled.  Changes were not saved."));
+		       _("Cancelled.  Changes were not saved."));
 		display_editroom();
 		return;
 	}
@@ -2396,8 +2396,8 @@ void display_whok(void)
         
 	wprintf("<table border=0 CELLSPACING=10><tr VALIGN=TOP><td>");
 	wprintf(_("The users listed below have access to this room.  "
-		"To remove a user from the access list, select the user "
-		"name from the list and click 'Kick'."));
+		  "To remove a user from the access list, select the user "
+		  "name from the list and click 'Kick'."));
 	wprintf("<br /><br />");
 	
         wprintf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
@@ -2421,7 +2421,7 @@ void display_whok(void)
 
 	wprintf("</td><td>");
 	wprintf(_("To grant another user access to this room, enter the "
-		"user name in the box below and click 'Invite'."));
+		  "user name in the box below and click 'Invite'."));
 	wprintf("<br /><br />");
 
         wprintf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
@@ -2433,16 +2433,16 @@ void display_whok(void)
         	"<input type=\"hidden\" name=\"invite_button\" value=\"Invite\">"
         	"<input type=\"submit\" value=\"%s\">"
 		"</form></CENTER>\n", _("Invite"));
-		/* Pop open an address book -- begin **/
-		wprintf(
-			"<a href=\"javascript:PopOpenAddressBook('username_id|%s');\" "
-			"title=\"%s\">"
-			"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
-			"&nbsp;%s</a>",
-			_("User"), 
-			_("Users"), _("Users")
+	/* Pop open an address book -- begin **/
+	wprintf(
+		"<a href=\"javascript:PopOpenAddressBook('username_id|%s');\" "
+		"title=\"%s\">"
+		"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
+		"&nbsp;%s</a>",
+		_("User"), 
+		_("Users"), _("Users")
 		);
-		/* Pop open an address book -- end **/
+	/* Pop open an address book -- end **/
 
 	wprintf("</td></tr></table>\n");
 	address_book_popup();
@@ -2499,12 +2499,12 @@ void display_entroom(void)
         wprintf("</select>\n");
         wprintf("</td></tr>");
 
-		/*
-		 * Our clever little snippet of JavaScript automatically selects
-		 * a public room if the view is set to Bulletin Board or wiki, and
-		 * it selects a mailbox room otherwise.  The user can override this,
-		 * of course.  We also disable the floor selector for mailboxes.
-		 */
+	/*
+	 * Our clever little snippet of JavaScript automatically selects
+	 * a public room if the view is set to Bulletin Board or wiki, and
+	 * it selects a mailbox room otherwise.  The user can override this,
+	 * of course.  We also disable the floor selector for mailboxes.
+	 */
 	wprintf("<tr class=\"even\"><td>");
 	wprintf(_("Default view for room: "));
 	wprintf("</td><td>");
@@ -2629,9 +2629,9 @@ void er_set_default_view(int newview) {
 	rm_bits2 = extract_int(&buf[4], 7);
 
 	serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
-		rm_name, rm_pass, rm_dir, rm_bits1, rm_floor,
-		rm_listorder, newview, rm_bits2
-	);
+		    rm_name, rm_pass, rm_dir, rm_bits1, rm_floor,
+		    rm_listorder, newview, rm_bits2
+		);
 	serv_getln(buf, sizeof buf);
 }
 
@@ -2652,7 +2652,7 @@ void entroom(void)
 
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
-			_("Cancelled.  No new room was created."));
+		       _("Cancelled.  No new room was created."));
 		display_main_menu();
 		return;
 	}
@@ -2714,10 +2714,10 @@ void display_private(char *rname, int req_pass)
 
 	wprintf("<p>");
 	wprintf(_("If you know the name of a hidden (guess-name) or "
-		"passworded room, you can enter that room by typing "
-		"its name below.  Once you gain access to a private "
-		"room, it will appear in your regular room listings "
-		"so you don't have to keep returning here."));
+		  "passworded room, you can enter that room by typing "
+		  "its name below.  Once you gain access to a private "
+		  "room, it will appear in your regular room listings "
+		  "so you don't have to keep returning here."));
 	wprintf("</p>");
 
 	wprintf("<form method=\"post\" action=\"goto_private\">\n");
@@ -2744,7 +2744,7 @@ void display_private(char *rname, int req_pass)
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">",
 		_("Go there"),
 		_("Cancel")
-	);
+		);
 	wprintf("</div></form>\n");
 
 	do_template("endbox", NULL);
@@ -2930,7 +2930,7 @@ void netedit(void) {
 		extract_token(cmpb0, line, 0, '|', sizeof cmpb0);
 		extract_token(cmpb1, line, 1, '|', sizeof cmpb1);
 		if ( (strcasecmp(cmpa0, cmpb0)) 
-		   || (strcasecmp(cmpa1, cmpb1)) ) {
+		     || (strcasecmp(cmpa1, cmpb1)) ) {
 			fprintf(fp, "%s\n", buf);
 		}
 	}
@@ -3078,7 +3078,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 		"	var openGif = 'static/folder_open.gif';		\n"
 		"							\n"
 		"	rootNode = new TreeNode(1, 'root node - hide');	\n"
-	);
+		);
 
 	levels = 0;
 	for (i=0; i<max_folders; ++i) {
@@ -3088,7 +3088,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 			int len;
 			len = strlen(fold[i].name);
 			if ( (!strncasecmp(fold[i].name, fold[i+1].name, len))
-			   && (fold[i+1].name[len] == '|') ) {
+			     && (fold[i+1].name[len] == '|') ) {
 				has_subfolders = 1;
 			}
 		}
@@ -3157,7 +3157,7 @@ void do_folder_view(struct folder *fold, int max_folders, int num_floors) {
 	wprintf("container = document.getElementById('roomlist_div');	\n"
 		"showTree('');	\n"
 		"</script>\n"
-	);
+		);
 
 	free(parents);
 	/** END TREE MENU */
@@ -3199,10 +3199,10 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 		levels = num_tokens(fold[i].name, '|');
 		extract_token(floor_name, fold[i].name, 0,
-			'|', sizeof floor_name);
+			      '|', sizeof floor_name);
 
 		if ( (strcasecmp(floor_name, old_floor_name))
-		   && (!IsEmptyStr(old_floor_name)) ) {
+		     && (!IsEmptyStr(old_floor_name)) ) {
 			/* End inner box */
 			do_template("endbox", NULL);
 			wprintf("<br>");
@@ -3309,10 +3309,10 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 
 		levels = num_tokens(fold[i].name, '|');
 		extract_token(floor_name, fold[i].name, 0,
-			'|', sizeof floor_name);
+			      '|', sizeof floor_name);
 
 		if ( (strcasecmp(floor_name, old_floor_name))
-		   && (!IsEmptyStr(old_floor_name)) ) {
+		     && (!IsEmptyStr(old_floor_name)) ) {
 			/** End inner box */
 			wprintf("<br>\n");
 			wprintf("</div>\n");	/** floordiv */
@@ -3329,7 +3329,7 @@ void do_iconbar_view(struct folder *fold, int max_folders, int num_floors) {
 			wprintf("<div id=\"%s\" style=\"display:%s\">",
 				floordiv_id,
 				(!strcasecmp(floordiv_id, ChrPtr(WC->floordiv_expanded)) ? "block" : "none")
-			);
+				);
 		}
 
 		oldlevels = levels;
@@ -3466,18 +3466,18 @@ void list_all_rooms_by_floor(const char *viewpref) {
 	serv_puts("LFLR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0]=='1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (max_folders >= alloc_folders) {
-			alloc_folders = max_folders + 100;
-			fold = realloc(fold,
-				alloc_folders * sizeof(struct folder));
+			if (max_folders >= alloc_folders) {
+				alloc_folders = max_folders + 100;
+				fold = realloc(fold,
+					       alloc_folders * sizeof(struct folder));
+			}
+			memset(&fold[max_folders], 0, sizeof(struct folder));
+			extract_token(fold[max_folders].name, buf, 1, '|', sizeof fold[max_folders].name);
+			extract_token(buf3, buf, 0, '|', SIZ);
+			fold[max_folders].floor = atol (buf3);
+			++max_folders;
+			++num_floors;
 		}
-		memset(&fold[max_folders], 0, sizeof(struct folder));
-		extract_token(fold[max_folders].name, buf, 1, '|', sizeof fold[max_folders].name);
-		extract_token(buf3, buf, 0, '|', SIZ);
-		fold[max_folders].floor = atol (buf3);
-		++max_folders;
-		++num_floors;
-	}
 	IDMax = 0;
 	for (i=0; i<num_floors; i++)
 		if (IDMax < fold[i].floor)
@@ -3494,37 +3494,37 @@ void list_all_rooms_by_floor(const char *viewpref) {
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0]=='1') while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (max_folders >= alloc_folders) {
-			alloc_folders = max_folders + 100;
-			fold = realloc(fold,
-				alloc_folders * sizeof(struct folder));
+			if (max_folders >= alloc_folders) {
+				alloc_folders = max_folders + 100;
+				fold = realloc(fold,
+					       alloc_folders * sizeof(struct folder));
+			}
+			memset(&fold[max_folders], 0, sizeof(struct folder));
+			extract_token(fold[max_folders].room, buf, 0, '|', sizeof fold[max_folders].room);
+			ra_flags = extract_int(buf, 5);
+			flags = extract_int(buf, 1);
+			fold[max_folders].floor = extract_int(buf, 2);
+			fold[max_folders].hasnewmsgs =
+				((ra_flags & UA_HASNEWMSGS) ? 1 : 0 );
+			if (flags & QR_MAILBOX) {
+				fold[max_folders].is_mailbox = 1;
+			}
+			fold[max_folders].view = extract_int(buf, 6);
+			room_to_folder(fold[max_folders].name,
+				       fold[max_folders].room,
+				       fold[max_folders].floor,
+				       fold[max_folders].is_mailbox);
+			fold[max_folders].selectable = 1;
+			/* Increase the room count for the associtaed floor */
+			if (fold[max_folders].is_mailbox) {
+				fold[0].num_rooms++;
+			}
+			else {
+				i = floor_mapping[fold[max_folders].floor];
+				fold[i].num_rooms++;
+			}
+			++max_folders;
 		}
-		memset(&fold[max_folders], 0, sizeof(struct folder));
-		extract_token(fold[max_folders].room, buf, 0, '|', sizeof fold[max_folders].room);
-		ra_flags = extract_int(buf, 5);
-		flags = extract_int(buf, 1);
-		fold[max_folders].floor = extract_int(buf, 2);
-		fold[max_folders].hasnewmsgs =
-			((ra_flags & UA_HASNEWMSGS) ? 1 : 0 );
-		if (flags & QR_MAILBOX) {
-			fold[max_folders].is_mailbox = 1;
-		}
-		fold[max_folders].view = extract_int(buf, 6);
-		room_to_folder(fold[max_folders].name,
-				fold[max_folders].room,
-				fold[max_folders].floor,
-				fold[max_folders].is_mailbox);
-		fold[max_folders].selectable = 1;
-		/* Increase the room count for the associtaed floor */
-		if (fold[max_folders].is_mailbox) {
-			fold[0].num_rooms++;
-		}
-		else {
-			i = floor_mapping[fold[max_folders].floor];
-			fold[i].num_rooms++;
-		}
-		++max_folders;
-	}
 	
 	/*
 	 * Remove any floors that don't have rooms
@@ -3553,7 +3553,7 @@ void list_all_rooms_by_floor(const char *viewpref) {
 			}
 			else {
 				if ( (fold[j+1].is_mailbox)
-				   && (!fold[j].is_mailbox)) {
+				     && (!fold[j].is_mailbox)) {
 					swap = 1;
 				}
 				else {
@@ -3563,9 +3563,9 @@ void list_all_rooms_by_floor(const char *viewpref) {
 			if (swap > 0) {
 				memcpy(&ftmp, &fold[j], sizeof(struct folder));
 				memcpy(&fold[j], &fold[j+1],
-							sizeof(struct folder));
+				       sizeof(struct folder));
 				memcpy(&fold[j+1], &ftmp,
-							sizeof(struct folder));
+				       sizeof(struct folder));
 			}
 		}
 	}
@@ -3658,13 +3658,13 @@ void knrooms(void)
 		"View as room list"
 		"</option>\n",
 		( !strcasecmp(ChrPtr(ListView), "rooms") ? "SELECTED" : "" )
-	);
+		);
 
 	wprintf("<option %s value=\"knrooms&view=folders\">"
 		"View as folder list"
 		"</option>\n",
 		( !strcasecmp(ChrPtr(ListView), "folders") ? "SELECTED" : "" )
-	);
+		);
 
 	wprintf("</select>");
 	wprintf("</form></li>");
@@ -3687,7 +3687,7 @@ void set_room_policy(void) {
 
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
-			_("Cancelled.  Changes were not saved."));
+		       _("Cancelled.  Changes were not saved."));
 		display_editroom();
 		return;
 	}
@@ -3707,98 +3707,108 @@ void set_room_policy(void) {
 }
 
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
-  // todo: check context
-  const char *Err;
-  StrBuf *Buf;
-  StrBuf *Buf2;
-  HashList *floors;
-  HashList *floor;
-  floors = NewHash(1, NULL);
-  Buf = NewStrBuf();
-  serv_puts("LFLR"); // get floors
-  StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); // '100', we hope
-  if (ChrPtr(Buf)[0] == '1') while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
-      floor = NewHash(1, NULL);
-      int a;
-      const char *floorNum;
-      for(a=0; a<FLOOR_PARAM_LEN; a++) {
-	Buf2 = NewStrBuf();
-	StrBufExtract_token(Buf2, Buf, a, '|');
-	if (a==0) {
-	  floorNum = ChrPtr(Buf2); // hmm, should we copy Buf2 first?
-	}
-	Put(floor, FPKEY(a), Buf2, NULL);
-      }
-      Put(floors, HKEY(floorNum), floor, NULL);
-    }
-  FreeStrBuf(&Buf);
-  return floors;
+	/* todo: check context */
+	const char *Err;
+	StrBuf *Buf;
+	StrBuf *Buf2;
+	HashList *floors;
+	HashList *floor;
+	floors = NewHash(1, NULL);
+	Buf = NewStrBuf();
+	serv_puts("LFLR"); /* get floors */
+	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
+	if (ChrPtr(Buf)[0] == '1') while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
+			int a;
+			const char *floorNum;
+			floor = NewHash(1, NULL);
+			for(a=0; a<FLOOR_PARAM_LEN; a++) {
+				Buf2 = NewStrBuf();
+				StrBufExtract_token(Buf2, Buf, a, '|');
+				if (a==0) {
+					floorNum = ChrPtr(Buf2); /* hmm, should we copy Buf2 first? */
+				}
+				Put(floor, FPKEY(a), Buf2, NULL);
+			}
+			Put(floors, HKEY(floorNum), floor, NULL);
+		}
+	FreeStrBuf(&Buf);
+	return floors;
 }
 
-void tmplput_FLOOR_Value(StrBuf *TemplBuffer, WCTemplputParams *TP) {
-  HashList *floor = (HashList *)(TP->Context);
-  void *value;
-  GetHash(floor, TKEY(0), &value);
-  StrBuf *val = (StrBuf *)value;
-  StrECMAEscAppend(TemplBuffer, val, 0);
+void tmplput_FLOOR_Value(StrBuf *TemplBuffer, WCTemplputParams *TP) 
+{
+	StrBuf *val;
+	HashList *floor = (HashList *)(TP->Context);
+	void *value;
+	GetHash(floor, TKEY(0), &value);
+	val = (StrBuf *)value;
+	StrECMAEscAppend(TemplBuffer, val, 0);
 }
-HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP) {
-  serv_puts("LKRA");
-  return GetRoomListHash(Target, TP);
+HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP) 
+{
+	serv_puts("LKRA");
+	return GetRoomListHash(Target, TP);
 }
-HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP) {
-  // TODO: Check context
-  HashList *rooms;
-  HashList *room;
-  StrBuf *buf;
-  StrBuf *buf2;
-  const char *Err;
-  buf = NewStrBuf();
-  rooms = NewHash(1, NULL);
-  StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
-  if (ChrPtr(buf)[0] == '1') while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
-      room = NewHash(1, NULL);
-      int i;
-      const char *rmName;
-      for(i=0; i<ROOM_PARAM_LEN; i++) {
-	buf2 = NewStrBuf();
-	StrBufExtract_token(buf2, buf, i, '|');
-	if (i==0) {
-	  rmName = ChrPtr(buf2);
-	}
-	Put(room, RPKEY(i), buf2, NULL);
-      }
-      Put(rooms, rmName, strlen(rmName), room, NULL);
-    }
-  SortByHashKey(rooms, 1);
-  //SortByPayload(rooms, SortRoomsByListOrder); 
-  FreeStrBuf(&buf);
-  return rooms;
+HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP) 
+{
+	/* TODO: Check context */
+	HashList *rooms;
+	HashList *room;
+	StrBuf *buf;
+	StrBuf *buf2;
+	const char *Err;
+	buf = NewStrBuf();
+	rooms = NewHash(1, NULL);
+	StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
+	if (ChrPtr(buf)[0] == '1') while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
+			int i;
+			const char *rmName;
+			room = NewHash(1, NULL);
+			for(i=0; i<ROOM_PARAM_LEN; i++) {
+				buf2 = NewStrBuf();
+				StrBufExtract_token(buf2, buf, i, '|');
+				if (i==0) {
+					rmName = ChrPtr(buf2);
+				}
+				Put(room, RPKEY(i), buf2, NULL);
+			}
+			Put(rooms, rmName, strlen(rmName), room, NULL);
+		}
+	SortByHashKey(rooms, 1);
+	/*SortByPayload(rooms, SortRoomsByListOrder);  */
+	FreeStrBuf(&buf);
+	return rooms;
 }
 /** Unused function that orders rooms by the listorder flag */
-int SortRoomsByListOrder(const void *room1, const void *room2) {
-  HashList *r1 = (HashList *)GetSearchPayload(room1);
-  HashList *r2 = (HashList *)GetSearchPayload(room2);
-  StrBuf *listOrderBuf1;
-  StrBuf *listOrderBuf2;
+int SortRoomsByListOrder(const void *room1, const void *room2) 
+{
+	int l1;
+	int l2;
+	HashList *r1 = (HashList *)GetSearchPayload(room1);
+	HashList *r2 = (HashList *)GetSearchPayload(room2);
+	StrBuf *listOrderBuf1;
+	StrBuf *listOrderBuf2;
   
-  GetHash(r1, RPKEY(3), (void *)&listOrderBuf1);
-  GetHash(r2, RPKEY(3), (void *)&listOrderBuf2);
-  int l1 = atoi(ChrPtr(listOrderBuf1));
-  int l2 = atoi(ChrPtr(listOrderBuf2));
-  if (l1 < l2) return -1;
-  else if (l1 > l2) return +1;
-  else return 0;
+	GetHash(r1, RPKEY(3), (void *)&listOrderBuf1);
+	GetHash(r2, RPKEY(3), (void *)&listOrderBuf2);
+	l1 = atoi(ChrPtr(listOrderBuf1));
+	l2 = atoi(ChrPtr(listOrderBuf2));
+	if (l1 < l2) return -1;
+	else if (l1 > l2) return +1;
+	else return 0;
 }
-void tmplput_ROOM_Value(StrBuf *TemplBuffer, WCTemplputParams *TP) {
-  HashList *room = (HashList *)(TP->Context);
-  void *value;
-  GetHash(room, TKEY(0), &value);
-  StrBuf *val = (StrBuf *)value;
-  StrECMAEscAppend(TemplBuffer, val, 0);
+void tmplput_ROOM_Value(StrBuf *TemplBuffer, WCTemplputParams *TP) 
+{
+	void *value;
+	StrBuf *val;
+	HashList *room = (HashList *)(TP->Context);
+
+	GetHash(room, TKEY(0), &value);
+	val = (StrBuf *)value;
+	StrECMAEscAppend(TemplBuffer, val, 0);
 }
 void jsonRoomFlr(void) {
-  // Send as our own (application/json) content type
+	/* Send as our own (application/json) content type */
   hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: application/json; charset=utf-8\r\n");
   hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));

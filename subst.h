@@ -14,6 +14,7 @@ extern HashList *LocalTemplateCache;
 #define TYPE_PREFINT 4
 #define TYPE_GETTEXT 5
 #define TYPE_BSTR 6
+#define TYPE_SUBTEMPLATE 7
 #define MAXPARAM  20
 
 

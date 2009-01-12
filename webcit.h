@@ -366,10 +366,10 @@ struct wcsession {
 	char reply_to[512];			/**< reply-to address */
 	HashList *summ;                         /**< list of messages for mailbox summary view */
   /** Perhaps these should be within a struct instead */
-  long startmsg; // message number to start at
-  long maxmsgs; // maximum messages to display
-        long num_displayed; // number of messages actually displayed
-	int is_mobile;			/**< Client is a handheld browser */
+	long startmsg;                          /**< message number to start at */
+	long maxmsgs;                           /**< maximum messages to display */
+        long num_displayed;                     /**< number of messages actually displayed */
+	int is_mobile;			        /**< Client is a handheld browser */
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	HashList *vars; 			/**< HTTP variable substitutions for this page */
 	char this_page[512];			/**< URL of current page */
