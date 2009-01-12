@@ -29,7 +29,7 @@ void get_serv_info(char *browser_host, char *user_agent)
 	serv_getln(buf, sizeof buf);
 
 	/** Tell the server what kind of richtext we prefer */
-	serv_puts("MSGP text/html|text/plain");
+	serv_puts("MSGP text/calendar|text/html|text/plain");
 	serv_getln(buf, sizeof buf);
 
 	/*

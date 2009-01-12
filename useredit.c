@@ -93,16 +93,22 @@ UserListEntry* NewUserListEntry(StrBuf *SerializedUserList)
  */
 int CompareUserListName(const void *vUser1, const void *vUser2)
 {
-	UserListEntry *u1 = (UserListEntry*) vUser1;
-	UserListEntry *u2 = (UserListEntry*) vUser2;
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
 
 	return strcmp(ChrPtr(u1->UserName), ChrPtr(u2->UserName));
 }
 int CompareUserListNameRev(const void *vUser1, const void *vUser2)
 {
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
+	return strcmp(ChrPtr(u2->UserName), ChrPtr(u1->UserName));
+}
+int GroupchangeUserListName(const void *vUser1, const void *vUser2)
+{
 	UserListEntry *u1 = (UserListEntry*) vUser1;
 	UserListEntry *u2 = (UserListEntry*) vUser2;
-	return strcmp(ChrPtr(u2->UserName), ChrPtr(u1->UserName));
+	return ChrPtr(u2->UserName)[0] != ChrPtr(u1->UserName)[0];
 }
 
 /*
@@ -110,17 +116,24 @@ int CompareUserListNameRev(const void *vUser1, const void *vUser2)
  */
 int CompareAccessLevel(const void *vUser1, const void *vUser2)
 {
-	UserListEntry *u1 = (UserListEntry*) vUser1;
-	UserListEntry *u2 = (UserListEntry*) vUser2;
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
 
 	return (u1->AccessLevel > u2->AccessLevel);
 }
 int CompareAccessLevelRev(const void *vUser1, const void *vUser2)
 {
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
+
+	return (u2->AccessLevel > u1->AccessLevel);
+}
+int GroupchangeAccessLevel(const void *vUser1, const void *vUser2)
+{
 	UserListEntry *u1 = (UserListEntry*) vUser1;
 	UserListEntry *u2 = (UserListEntry*) vUser2;
 
-	return (u2->AccessLevel > u1->AccessLevel);
+	return u2->AccessLevel != u1->AccessLevel;
 }
 
 
@@ -129,17 +142,24 @@ int CompareAccessLevelRev(const void *vUser1, const void *vUser2)
  */
 int CompareUID(const void *vUser1, const void *vUser2)
 {
-	UserListEntry *u1 = (UserListEntry*) vUser1;
-	UserListEntry *u2 = (UserListEntry*) vUser2;
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
 
 	return (u1->UID > u2->UID);
 }
 int CompareUIDRev(const void *vUser1, const void *vUser2)
 {
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
+
+	return (u2->UID > u1->UID);
+}
+int GroupchangeUID(const void *vUser1, const void *vUser2)
+{
 	UserListEntry *u1 = (UserListEntry*) vUser1;
 	UserListEntry *u2 = (UserListEntry*) vUser2;
 
-	return (u2->UID > u1->UID);
+	return (u2->UID / 10) != (u1->UID / 10);
 }
 
 /*
@@ -147,17 +167,24 @@ int CompareUIDRev(const void *vUser1, const void *vUser2)
  */
 int CompareLastLogon(const void *vUser1, const void *vUser2)
 {
-	UserListEntry *u1 = (UserListEntry*) vUser1;
-	UserListEntry *u2 = (UserListEntry*) vUser2;
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
 
 	return (u1->LastLogonT > u2->LastLogonT);
 }
 int CompareLastLogonRev(const void *vUser1, const void *vUser2)
 {
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
+
+	return (u2->LastLogonT > u1->LastLogonT);
+}
+int GroupchangeLastLogon(const void *vUser1, const void *vUser2)
+{
 	UserListEntry *u1 = (UserListEntry*) vUser1;
 	UserListEntry *u2 = (UserListEntry*) vUser2;
 
-	return (u2->LastLogonT > u1->LastLogonT);
+	return (u2->LastLogonT != u1->LastLogonT);
 }
 
 /*
@@ -165,17 +192,24 @@ int CompareLastLogonRev(const void *vUser1, const void *vUser2)
  */
 int ComparenLogons(const void *vUser1, const void *vUser2)
 {
-	UserListEntry *u1 = (UserListEntry*) vUser1;
-	UserListEntry *u2 = (UserListEntry*) vUser2;
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
 
 	return (u1->nLogons > u2->nLogons);
 }
 int ComparenLogonsRev(const void *vUser1, const void *vUser2)
 {
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
+
+	return (u2->nLogons > u1->nLogons);
+}
+int GroupchangenLogons(const void *vUser1, const void *vUser2)
+{
 	UserListEntry *u1 = (UserListEntry*) vUser1;
 	UserListEntry *u2 = (UserListEntry*) vUser2;
 
-	return (u2->nLogons > u1->nLogons);
+	return (u2->nLogons / 100) != (u1->nLogons / 100);
 }
 
 /*
@@ -183,31 +217,40 @@ int ComparenLogonsRev(const void *vUser1, const void *vUser2)
  */
 int ComparenPosts(const void *vUser1, const void *vUser2)
 {
-	UserListEntry *u1 = (UserListEntry*) vUser1;
-	UserListEntry *u2 = (UserListEntry*) vUser2;
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
 
 	return (u1->nPosts > u2->nPosts);
 }
 int ComparenPostsRev(const void *vUser1, const void *vUser2)
 {
+	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
+	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
+
+	return (u2->nPosts > u1->nPosts);
+}
+int GroupchangenPosts(const void *vUser1, const void *vUser2)
+{
 	UserListEntry *u1 = (UserListEntry*) vUser1;
 	UserListEntry *u2 = (UserListEntry*) vUser2;
 
-	return (u2->nPosts > u1->nPosts);
+	return (u2->nPosts / 100) != (u1->nPosts / 100);
 }
 
 
 HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 {
+	CompareFunc SortIt;
 	HashList *Hash;
 	char buf[SIZ];
 	StrBuf *Buf;
 	UserListEntry* ul;
 	char nnn[64];
 	int nUsed;
-	int Order;
 	int len;
-	
+	WCTemplputParams SubTP;
+
+	memset(&TP, 0, sizeof(WCTemplputParams));	
         serv_puts("LIST");
         serv_getln(buf, sizeof buf);
         if (buf[0] == '1') {
@@ -224,44 +267,12 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 			Put(Hash, nnn, nUsed, ul, DeleteUserListEntry); 
 		}
 		FreeStrBuf(&Buf);
-		Order = ibstr("SortOrder");
-		switch (ibstr("SortBy")){
-		case 1: /*NAME*/
-			SortByPayload(Hash, (Order)? 
-				      CompareUserListName:
-				      CompareUserListNameRev);
-			break;
-		case 2: /*AccessLevel*/
-			SortByPayload(Hash, (Order)? 
-				      CompareAccessLevel:
-				      CompareAccessLevelRev);
-			break;
-		case 3: /*nLogons*/
-			SortByPayload(Hash, (Order)? 
-				      ComparenLogons:
-				      ComparenLogonsRev);
-			break;
-		case 4: /*UID*/
-			SortByPayload(Hash, (Order)? 
-				      CompareUID:
-				      CompareUIDRev);
-			break;
-		case 5: /*LastLogon*/
-			SortByPayload(Hash, (Order)? 
-				      CompareLastLogon:
-				      CompareLastLogonRev);
-			break;
-		case 6: /* nLogons */
-			SortByPayload(Hash, (Order)? 
-				      ComparenLogons:
-				      ComparenLogonsRev);
-			break;
-		case 7: /* Posts */
-			SortByPayload(Hash, (Order)? 
-				      ComparenPosts:
-				      ComparenPostsRev);
-			break;
-		}
+		SubTP.ContextType = CTX_USERLIST;
+		SortIt = RetrieveSort(&SubTP, HKEY("USER"), HKEY("user:uid"), 0);
+		if (SortIt != NULL)
+			SortByPayload(Hash, SortIt);
+		else 
+			SortByPayload(Hash, CompareUID);
 		return Hash;
         }
 	return NULL;
@@ -691,4 +702,47 @@ InitModule_USEREDIT
 	RegisterConditional(HKEY("COND:USERLIST:FLAG:USE_INTERNET"), 0, ConditionalFlagINetEmail, CTX_USERLIST);
 
 	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST, CTX_NONE, IT_NOFLAG);
+
+
+	RegisterSortFunc(HKEY("user:name"),
+			 HKEY("userlist"),
+			 CompareUserListName,
+			 CompareUserListNameRev,
+			 GroupchangeUserListName,
+			 CTX_USERLIST);
+	RegisterSortFunc(HKEY("user:accslvl"),
+			 HKEY("userlist"),
+			 CompareAccessLevel,
+			 CompareAccessLevelRev,
+			 GroupchangeAccessLevel,
+			 CTX_USERLIST);
+
+	RegisterSortFunc(HKEY("user:nlogons"),
+			 HKEY("userlist"),
+			 ComparenLogons,
+			 ComparenLogonsRev,
+			 GroupchangenLogons,
+			 CTX_USERLIST);
+
+	RegisterSortFunc(HKEY("user:uid"),
+			 HKEY("userlist"),
+			 CompareUID,
+			 CompareUIDRev,
+			 GroupchangeUID,
+			 CTX_USERLIST);
+
+	RegisterSortFunc(HKEY("user:lastlogon"),
+			 HKEY("userlist"),
+			 CompareLastLogon,
+			 CompareLastLogonRev,
+			 GroupchangeLastLogon,
+			 CTX_USERLIST);
+
+	RegisterSortFunc(HKEY("user:nmsgposts"),
+			 HKEY("userlist"),
+			 ComparenPosts,
+			 ComparenPostsRev,
+			 GroupchangenPosts,
+			 CTX_USERLIST);
+
 }

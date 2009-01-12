@@ -174,8 +174,10 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  WCTemplputParams *TP,
 			  const StrBuf *Source, 
 			  int FormatTypeIndex);
-CompareFunc RetrieveSort(WCTemplputParams *TP, const char *OtherPrefix, 
-			 const char *Default, long ldefault, long DefaultDirection);
+CompareFunc RetrieveSort(WCTemplputParams *TP, 
+			 const char *OtherPrefix, long OtherPrefixLen,  
+			 const char *Default, long ldefault, 
+			 long DefaultDirection);
 void RegisterSortFunc(const char *name, long len, 
 		      const char *prepend, long preplen,
 		      CompareFunc Forward, 

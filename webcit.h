@@ -375,6 +375,7 @@ struct wcsession {
 	char this_page[512];			/**< URL of current page */
 	char http_host[512];			/**< HTTP Host: header */
 	HashList *hash_prefs;			/**< WebCit preferences for this user */
+	int SavePrefsToServer;                  /**< Should we save our preferences to the server at the end of the request? */
 	HashList *disp_cal_items;               /**< sorted list of calendar items; startdate is the sort criteria. */
 	HashList *attachments;             	/**< list of attachments for 'enter message' */
 	char last_chat_user[256];		/**< ??? todo */

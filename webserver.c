@@ -27,7 +27,7 @@ int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int time_to_die = 0;            /* Nonzero if server is shutting down */
-int DisableGzip = 1;
+int DisableGzip = 0;
 extern void *context_loop(int*);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;

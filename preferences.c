@@ -9,29 +9,59 @@
 #include "webserver.h"
 #include "groupdav.h"
 
-
 HashList *PreferenceHooks;
 
-typedef struct _Prefs {
+typedef struct _PrefDef {
 	long Type;
-	const char *Setting;
+	StrBuf *Setting;
 	const char *PrefStr;
-} Prefs;
+	PrefEvalFunc OnLoad;
+} PrefDef;
 
-void RegisterPreference(const char *Setting, const char *PrefStr, long Type)
+typedef struct _Preference {
+	StrBuf *Key;
+	StrBuf *Val;
+	PrefDef *Type;
+
+	long lval;
+	long decoded;
+	StrBuf *DeQPed;
+}Preference;
+
+void DestroyPrefDef(void *vPrefDef)
 {
-	Prefs *Newpref = (Prefs*) malloc(sizeof(Prefs));
-	Newpref->Setting = Setting;
+	PrefDef *Prefdef = (PrefDef*) vPrefDef;
+	FreeStrBuf(&Prefdef->Setting);
+	free(Prefdef);
+}
+
+void DestroyPreference(void *vPref)
+{
+	Preference *Pref = (Preference*) vPref;
+	FreeStrBuf(&Pref->Key);
+	FreeStrBuf(&Pref->Val);
+	FreeStrBuf(&Pref->DeQPed);
+	free(Pref);
+
+}
+void RegisterPreference(const char *Setting, long SettingLen, 
+			const char *PrefStr, 
+			long Type, 
+			PrefEvalFunc OnLoad)
+{
+	PrefDef *Newpref = (PrefDef*) malloc(sizeof(PrefDef));
+	Newpref->Setting = NewStrBufPlain(Setting, SettingLen);
 	Newpref->PrefStr = PrefStr;
 	Newpref->Type = Type;
-	Put(PreferenceHooks, Setting, strlen(Setting), Newpref, NULL);
+	Newpref->OnLoad = OnLoad;
+	Put(PreferenceHooks, Setting, SettingLen, Newpref, DestroyPrefDef);
 }
 
 const char *PrefGetLocalStr(const char *Setting, long len)
 {
 	void *hash_value;
 	if (GetHash(PreferenceHooks, Setting, len, &hash_value) != 0) {
-		Prefs *Newpref = (Prefs*) hash_value;
+		PrefDef *Newpref = (PrefDef*) hash_value;
 		return _(Newpref->PrefStr);
 
 	}
@@ -39,18 +69,46 @@ const char *PrefGetLocalStr(const char *Setting, long len)
 }
 
 #ifdef DBG_PREFS_HASH
-inline const char *PrintPref(void *Prefstr)
+inline const char *PrintPref(void *vPref)
 {
-	return ChrPtr(Prefstr);
+	Preference *Pref = (Preference*) vPref;
+	if (Pref->DeQPed != NULL)
+		return ChrPtr(Pref->DeQPed);
+	else 
+		return ChrPtr(Pref->Val);
 }
 #endif
 
+void GetPrefTypes(HashList *List)
+{
+	HashPos *It;
+	long len;
+	const char *Key;
+	void *vSetting;
+	void *vPrefDef;
+	Preference *Setting;
+	PrefDef *PrefType;
+
+	It = GetNewHashPos(List, 0);
+	while (GetNextHashPos(List, It, &len, &Key, &vSetting)) 
+	{
+		Setting = (Preference*) vSetting;
+		if (GetHash(PreferenceHooks, SKEY(Setting->Key), &vPrefDef) && 
+		    (vPrefDef != NULL)) 
+		{
+			PrefType = (PrefDef*) vPrefDef;
+			Setting->Type = PrefType;
+			if (PrefType->OnLoad != NULL)
+				PrefType->OnLoad(Setting->Val, Setting->lval);
+		}
+	}
+}
 
 void ParsePref(HashList **List, StrBuf *ReadBuf)
 {
 	StrBuf *Key;
-	StrBuf *Data = NULL;
-	StrBuf *LastData = NULL;
+	Preference *Data = NULL;
+	Preference *LastData = NULL;
 				
 	Key = NewStrBuf();
 	while (StrBuf_ServGetln(ReadBuf), 
@@ -58,27 +116,31 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 	{
 		if ((ChrPtr(ReadBuf)[0] == ' ') &&
 		    (Data != NULL)) {
-			StrBufAppendBuf(Data, ReadBuf, 1);
+			StrBufAppendBuf(Data->Val, ReadBuf, 1);
 		}
 		else {
-			LastData = Data = NewStrBuf();
-			StrBufExtract_token(Key, ReadBuf, 0, '|');
-			StrBufExtract_token(Data, ReadBuf, 1, '|');
-			if (!IsEmptyStr(ChrPtr(Key)))
+			LastData = Data = malloc(sizeof(Preference));
+			memset(Data, 0, sizeof(Preference));
+			StrBufExtract_token(Data->Key, ReadBuf, 0, '|');
+			StrBufExtract_token(Data->Val, ReadBuf, 1, '|');
+			if (!IsEmptyStr(ChrPtr(Data->Key)))
 			{
 				Put(*List, 
-				    ChrPtr(Key), StrLength(Key), 
+				    SKEY(Data->Key),
 				    Data, 
-				    HFreeStrBuf);
+				    DestroyPreference);
 			}
 			else 
 			{
-				FreeStrBuf(&Data);
+				StrBufTrim(ReadBuf);
+				lprintf(1, "ignoring spurious preference line: [%s]\n", 
+					ChrPtr(ReadBuf));
+				DestroyPreference(Data);
 				LastData = NULL;
 			}
 		}
 	}
-	FreeStrBuf(&Key);
+	GetPrefTypes(*List);
 }
 
 
@@ -91,13 +153,13 @@ void load_preferences(void)
 	char buf[SIZ];
 	long msgnum = 0L;
 	
-	serv_printf("GOTO %s", USERCONFIGROOM);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') return;
-	
+	if (!goto_config_room())
+		return;
+
+	ReadBuf = NewStrBuf();
 	serv_puts("MSGS ALL|0|1");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '8') {
+	StrBuf_ServGetln(ReadBuf);
+	if (GetServerStatus(ReadBuf, NULL) == 8) {
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
@@ -107,9 +169,8 @@ void load_preferences(void)
 
 	if (msgnum > 0L) {
 		serv_printf("MSG0 %ld", msgnum);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') {
-			ReadBuf = NewStrBuf();
+		StrBuf_ServGetln(ReadBuf);
+		if (GetServerStatus(ReadBuf, NULL) == 1) {
 			while (StrBuf_ServGetln(ReadBuf),
 			       (strcmp(ChrPtr(ReadBuf), "text") && 
 				strcmp(ChrPtr(ReadBuf), "000"))) {
@@ -118,12 +179,13 @@ void load_preferences(void)
 				ParsePref(&WC->hash_prefs, ReadBuf);
 			}
 		}
-		FreeStrBuf(&ReadBuf);
 	}
 
 	/* Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
-	serv_getln(buf, sizeof buf);
+	StrBuf_ServGetln(ReadBuf);
+	GetServerStatus(ReadBuf, NULL);
+	FreeStrBuf(&ReadBuf);
 }
 
 /**
@@ -149,9 +211,9 @@ void WritePrefsToServer(HashList *Hash)
 {
 	long len;
 	HashPos *HashPos;
-	void *Value;
+	void *vPref;
 	const char *Key;
-	StrBuf *Buf;
+	Preference *Pref;
 	StrBuf *SubBuf = NULL;
 	
 	Hash = WC->hash_prefs;
@@ -159,13 +221,13 @@ void WritePrefsToServer(HashList *Hash)
 	dbg_PrintHash(Hash, PrintPref, NULL);
 #endif
 	HashPos = GetNewHashPos(Hash, 0);
-	while (GetNextHashPos(Hash, HashPos, &len, &Key, &Value)!=0)
+	while (GetNextHashPos(Hash, HashPos, &len, &Key, &vPref)!=0)
 	{
 		size_t nchars;
-		Buf = (StrBuf*) Value;
-		if (Buf == NULL)
+		if (vPref == NULL)
 			continue;
-		nchars = StrLength(Buf);
+		Pref = (Preference*) vPref;
+		nchars = StrLength(Pref->Val);
 		if (nchars > 80){
 			int n = 0;
 			size_t offset, nchars;
@@ -179,32 +241,32 @@ void WritePrefsToServer(HashList *Hash)
 				else 
 					nchars = 80;
 				
-				nchars = StrBufSub(SubBuf, Buf, offset, nchars);
+				nchars = StrBufSub(SubBuf, Pref->Val, offset, nchars);
 				
 				if (n == 0)
-					serv_printf("%s|%s", Key, ChrPtr(SubBuf));
+					serv_printf("%s|%s", ChrPtr(Pref->Key), ChrPtr(SubBuf));
 				else
 					serv_printf(" %s", ChrPtr(SubBuf));
 				
 				offset += nchars;
-				nchars = StrLength(Buf) - offset;
+				nchars = StrLength(Pref->Val) - offset;
 				n++;
 			}
 			
 		}
 		else
-			serv_printf("%s|%s", Key, ChrPtr(Buf));
+			serv_printf("%s|%s", ChrPtr(Pref->Key), ChrPtr(Pref->Val));
 		
 	}
-	if (SubBuf != NULL)
-		FreeStrBuf(&SubBuf);
+	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&HashPos);
 }
 
 /**
  * \brief save the modifications
  */
-void save_preferences(void) {
+void save_preferences(void) 
+{
 	char buf[SIZ];
 	long msgnum = 0L;
 	
@@ -245,21 +307,33 @@ void save_preferences(void) {
  * \param value StrBuf-value to the key to get
  * \returns found?
  */
-int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value)
+int get_pref_backend(const char *key, size_t keylen, Preference **Pref)
 {
 	void *hash_value = NULL;
 #ifdef DBG_PREFS_HASH
 	dbg_PrintHash(WC->hash_prefs, PrintPref, NULL);
 #endif
 	if (GetHash(WC->hash_prefs, key, keylen, &hash_value) == 0) {
-		*value = NULL;
+		*Pref = NULL;
 		return 0;
 	}
 	else {
-		*value = NULL;
-		*value = (StrBuf*) hash_value;
+		*Pref = (Preference*) hash_value;
 		return 1;
 	}
+}
+
+int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value)
+{
+	Preference *Pref;
+	int Ret;
+
+	Ret = get_pref_backend(key, keylen, &Pref);
+	if (Ret != 0)
+		*value = Pref->Val;
+	else
+		*value = NULL;
+	return Ret;
 }
 
 /**
@@ -270,199 +344,351 @@ int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value)
  * \param	value		value to set
  * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
  */
-void set_PREFERENCE(const char *key, size_t keylen, StrBuf *value, int save_to_server) {
+void set_preference_backend(const char *key, size_t keylen, 
+			    long lvalue, 
+			    StrBuf *value, 
+			    long lPrefType,
+			    int save_to_server, 
+			    PrefDef *PrefType) 
+{
+	void *vPrefDef;
+	Preference *Pref;
+
+	Pref = (Preference*) malloc(sizeof(Preference));
+	memset(Pref, 0, sizeof(Preference));
+	Pref->Key = NewStrBufPlain(key, keylen);
+
+	if ((PrefType == NULL) &&
+	    GetHash(PreferenceHooks, SKEY(Pref->Key), &vPrefDef) && 
+	    (vPrefDef != NULL))
+		PrefType = (PrefDef*) vPrefDef;
+
+	if (PrefType != NULL)
+	{
+		Pref->Type = PrefType;
+		if (Pref->Type->Type != lPrefType)
+			lprintf(1, "warning: saving preference with wrong type [%s] %ld != %ld \n",
+				key, Pref->Type->Type, lPrefType);
+		switch (Pref->Type->Type)
+		{
+		case PRF_STRING:
+			Pref->Val = value;
+			Pref->decoded = 1;
+			break;
+		case PRF_INT:
+			Pref->lval = lvalue;
+			Pref->Val = value;
+			if (Pref->Val == NULL)
+				Pref->Val = NewStrBufPlain(NULL, 64);
+			StrBufPrintf(Pref->Val, "%ld", lvalue);
+			Pref->decoded = 1;
+			break;
+		case PRF_QP_STRING:
+			Pref->DeQPed = value;
+			Pref->Val = NewStrBufPlain(NULL, StrLength(Pref->DeQPed) * 3);
+			StrBufEUid_escapize(Pref->Val, Pref->DeQPed);
+			Pref->decoded = 1;
+			break;
+		case PRF_YESNO:
+			Pref->lval = lvalue;
+			if (lvalue) 
+				Pref->Val = NewStrBufPlain(HKEY("yes"));
+			else
+				Pref->Val = NewStrBufPlain(HKEY("no"));
+			Pref->decoded = 1;
+			break;
+		}
+		if (Pref->Type->OnLoad != NULL)
+			Pref->Type->OnLoad(Pref->Val, Pref->lval);
+	}
+	else {
+		switch (lPrefType)
+		{
+		case PRF_STRING:
+			Pref->Val = value;
+			Pref->decoded = 1;
+			break;
+		case PRF_INT:
+			Pref->lval = lvalue;
+			Pref->Val = value;
+			if (Pref->Val == NULL)
+				Pref->Val = NewStrBufPlain(NULL, 64);
+			StrBufPrintf(Pref->Val, "%ld", lvalue);
+			Pref->decoded = 1;
+			break;
+		case PRF_QP_STRING:
+			Pref->DeQPed = value;
+			Pref->Val = NewStrBufPlain(NULL, StrLength(Pref->DeQPed) * 3);
+			StrBufEUid_escapize(Pref->Val, Pref->DeQPed);
+			Pref->decoded = 1;
+			break;
+		case PRF_YESNO:
+			Pref->lval = lvalue;
+			if (lvalue) 
+				Pref->Val = NewStrBufPlain(HKEY("yes"));
+			else
+				Pref->Val = NewStrBufPlain(HKEY("no"));
+			Pref->decoded = 1;
+			break;
+		}
+	}
+	Put(WC->hash_prefs, key, keylen, Pref, DestroyPreference);
 	
-	Put(WC->hash_prefs, key, keylen, value, HFreeStrBuf);
-	
-	if (save_to_server) save_preferences();
+	if (save_to_server) WC->SavePrefsToServer = 1;
+}
+
+void set_PREFERENCE(const char *key, size_t keylen, StrBuf *value, int save_to_server) 
+{
+	set_preference_backend(key, keylen, 0, value, PRF_STRING, save_to_server, NULL);
 }
 
 int get_PREF_LONG(const char *key, size_t keylen, long *value, long Default)
 {
-	int ret;
-	StrBuf *val;
-	ret = get_PREFERENCE(key, keylen, &val);
-	if (ret) {
-		*value = atol(ChrPtr(val));
-	}
-	else {
+	Preference *Pref;
+	int Ret;
+
+	Ret = get_pref_backend(key, keylen, &Pref);
+	if (Ret == 0) {
 		*value = Default;
+		return 0;
 	}
 
-	return ret;
+	if (Pref->decoded)
+		*value = Pref->lval;
+	else {
+		*value = Pref->lval = atol(ChrPtr(Pref->Val));
+		Pref->decoded = 1;
+	}
+	return Ret;
 }
 
 
 void set_PREF_LONG(const char *key, size_t keylen, long value, int save_to_server)
 {
-	StrBuf *val;
-	if (get_PREFERENCE(key, keylen, &val)) {
-		StrBufPrintf(val, "%ld", value);
-	}
-	else {
-		val = NewStrBuf();
-		StrBufPrintf(val, "%ld", value);
-		set_PREFERENCE(key, keylen, val, save_to_server);
-	}
+	set_preference_backend(key, keylen, value, NULL, PRF_INT, save_to_server, NULL);
 }
-
-
 
 int get_PREF_YESNO(const char *key, size_t keylen, int *value, int Default)
 {
-	int ret;
-	StrBuf *val;
-	ret = get_PREFERENCE(key, keylen, &val);
-	if (ret) {
-		*value = strcmp(ChrPtr(val), "yes") == 0;
-	}
-	else {
+	Preference *Pref;
+	int Ret;
+
+	Ret = get_pref_backend(key, keylen, &Pref);
+	if (Ret == 0) {
 		*value = Default;
+		return 0;
 	}
 
-	return ret;
-}
-
-void set_PREF_YESNO(const char *key, size_t keylen, int value, int save_to_server)
-{
-	StrBuf *val;
-	if (get_PREFERENCE(key, keylen, &val)) {
-		StrBufPrintf(val, "%s", (value)?"yes":"no");
-	}
+	if (Pref->decoded)
+		*value = Pref->lval;
 	else {
-		val = NewStrBuf();
-		StrBufPrintf(val, "%s", (value)?"yes":"no");
-		set_PREFERENCE(key, keylen, val, save_to_server);
+		*value = Pref->lval = strcmp(ChrPtr(Pref->Val), "yes") == 0;
+		Pref->decoded = 1;
 	}
+	return Ret;
 }
+
+void set_PREF_YESNO(const char *key, size_t keylen, long value, int save_to_server)
+{
+	set_preference_backend(key, keylen, value, NULL, PRF_YESNO, save_to_server, NULL);
+}
+
+int get_room_prefs_backend(const char *key, size_t keylen, 
+			   Preference **Pref)
+{
+	StrBuf *pref_name;
+	int Ret;
+
+	pref_name = NewStrBufPlain (HKEY("ROOM:"));
+	StrBufAppendBuf(pref_name, WC->wc_roomname, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
+	Ret = get_pref_backend(SKEY(pref_name), Pref);
+	FreeStrBuf(&pref_name);
+
+	return Ret;
+}
+
+const StrBuf *get_X_PREFS(const char *key, size_t keylen, 
+			  const char *xkey, size_t xkeylen)
+{
+	StrBuf *pref_name;
+	Preference *Prf;
+	
+	pref_name = NewStrBufPlain (HKEY("XPREF:"));
+	StrBufAppendBufPlain(pref_name, xkey, xkeylen, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
+
+	get_pref_backend(SKEY(pref_name), &Prf);
+	FreeStrBuf(&pref_name);
+
+	return Prf->Val;
+}
+
+void set_X_PREFS(const char *key, size_t keylen, const char *xkey, size_t xkeylen, StrBuf *value, int save_to_server)
+{
+	StrBuf *pref_name;
+	
+	pref_name = NewStrBufPlain (HKEY("XPREF:"));
+	StrBufAppendBufPlain(pref_name, xkey, xkeylen, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
+
+	set_preference_backend(SKEY(pref_name), 0, value, PRF_STRING, save_to_server, NULL);
+	FreeStrBuf(&pref_name);
+}
+
 
 StrBuf *get_ROOM_PREFS(const char *key, size_t keylen)
 {
-	StrBuf *pref_name, *pref_value;
-	
-	pref_name = NewStrBuf ();
-	StrBufPrintf(pref_name, "%s %s", key, ChrPtr(WC->wc_roomname));
-	get_pref(pref_name, &pref_value);
-	FreeStrBuf(&pref_name);
-	return pref_value;
+	Preference *Pref;
+	int Ret;
+
+	Ret = get_room_prefs_backend(key, keylen, &Pref);
+
+	if (Ret == 0) {
+		return NULL;
+	}
+	else 
+		return Pref->Val;
 }
 
 void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_server)
 {
 	StrBuf *pref_name;
 	
-	pref_name = NewStrBuf ();
-	StrBufPrintf(pref_name, "%s %s", key, ChrPtr(WC->wc_roomname));
-	set_PREFERENCE(ChrPtr(pref_name), StrLength(pref_name), value, save_to_server);
+	pref_name = NewStrBufPlain (HKEY("ROOM:"));
+	StrBufAppendBuf(pref_name, WC->wc_roomname, 0);
+	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
+	StrBufAppendBufPlain(pref_name, key, keylen, 0);
+	set_preference_backend(SKEY(pref_name), 0, value, PRF_STRING, save_to_server, NULL);
 	FreeStrBuf(&pref_name);
 }
 
-/*
- * Offer to make any page the user's "start page."
- */
-void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
+
+void GetPreferences(HashList *Setting)
 {
-	wprintf("<a href=\"change_start_page?startpage=");
-	urlescputs(WC->this_page);
-	wprintf("\">");
-	wprintf(_("Make this my start page"));
-	wprintf("</a>");
-#ifdef TECH_PREVIEW
-	wprintf("<br/><a href=\"rss?room=");
-	urlescputs(ChrPtr(WC->wc_roomname));
-	wprintf("\" title=\"RSS 2.0 feed for ");
-	escputs(ChrPtr(WC->wc_roomname));
-	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\"/></a>\n");
-#endif
-}
+        wcsession *WCC = WC;
+	HashPos *It;
+	long len;
+	const char *Key;
+	void *vSetting;
+	PrefDef *PrefType;
+	StrBuf *Buf;
+	long lval;
+	HashList *Tmp;
 
+	Tmp = WCC->hash_prefs;
+	WCC->hash_prefs = Setting;
 
-/*
- * Change the user's start page
- */
-void change_start_page(void) {
+	It = GetNewHashPos(PreferenceHooks, 0);
+	while (GetNextHashPos(PreferenceHooks, It, &len, &Key, &vSetting)) {
+		PrefType = (PrefDef*) vSetting;
 
-	if (bstr("startpage") == NULL) {
-		safestrncpy(WC->ImportantMessage,
-			_("You no longer have a start page selected."),
-			sizeof WC->ImportantMessage);
-		display_main_menu();
-		return;
+		if (!HaveBstr(SKEY(PrefType->Setting)))
+			continue;
+		switch (PrefType->Type) {
+		case PRF_STRING:
+			Buf = NewStrBufDup(SBstr(SKEY(PrefType->Setting)));
+			set_preference_backend(SKEY(PrefType->Setting),
+					       0, 
+					       Buf, 
+					       PRF_STRING,
+					       1, 
+					       PrefType);
+			break;
+		case PRF_INT:
+			lval = LBstr(SKEY(PrefType->Setting));
+			set_preference_backend(SKEY(PrefType->Setting),
+					       lval, 
+					       NULL, 
+					       PRF_INT,
+					       1, 
+					       PrefType);
+			break;
+		case PRF_QP_STRING:
+			Buf = NewStrBufDup(SBstr(SKEY(PrefType->Setting)));
+			set_preference_backend(SKEY(PrefType->Setting),
+					       0, 
+					       Buf, 
+					       PRF_QP_STRING,
+					       1, 
+					       PrefType);
+			break;
+		case PRF_YESNO:
+			lval = YesBstr(SKEY(PrefType->Setting));
+			set_preference_backend(SKEY(PrefType->Setting),
+					       lval, 
+					       NULL, 
+					       PRF_YESNO,
+					       1, 
+					       PrefType);
+			break;
+		}
 	}
-
-	set_preference("startpage", NewStrBufPlain(bstr("startpage"), -1), 1);
-
-	output_headers(1, 1, 0, 0, 0, 0);
-	do_template("newstartpage", NULL);
-	wDumpContent(1);
+	WCC->hash_prefs = Tmp;
 }
-
 
 
 /**
  * \brief Commit new preferences and settings
  */
 void set_preferences(void)
-{
-	long fmt;
-	StrBuf *buf, *encBuf;
-	int *time_format_cache;
-	
-	 time_format_cache = &(WC->time_format_cache);
-
-	 if (!havebstr("change_button")) {
-		 safestrncpy(WC->ImportantMessage, 
-			 _("Cancelled.  No settings were changed."),
-			 sizeof WC->ImportantMessage);
-		 display_main_menu();
-		 return;
-	 }
-
-	 /**
-	  * Set the last argument to 1 only for the final setting, so
-	  * we don't send the prefs file to the server repeatedly
-	  */
-	 set_preference("roomlistview", NewStrBufPlain(bstr("roomlistview"), -1), 0);
-	 fmt = lbstr("calhourformat");
-	 set_pref_long("calhourformat", fmt, 0);
-	 if (fmt == 24) 
-		 *time_format_cache = WC_TIMEFORMAT_24;
-	 else
-		 *time_format_cache = WC_TIMEFORMAT_AMPM;
-
-	 set_pref_long("weekstart", lbstr("weekstart"), 0);
-	 set_pref_yesno("use_sig", yesbstr("use_sig"), 0);
-	 set_pref_long("daystart", lbstr("daystart"), 0);
-	 set_pref_long("dayend", lbstr("dayend"), 0);
-	 set_preference("default_header_charset", NewStrBufPlain(bstr("default_header_charset"), -1), 0);
-	 set_preference("emptyfloors", NewStrBufPlain(bstr("emptyfloors"), -1), 0);
-	 set_preference("defaultfrom", NewStrBufDup(sbstr("defaultfrom")), 0);
-	 set_preference("defaultname", NewStrBufDup(sbstr("defaultname")), 0);
-	 set_preference("defaulthandle", NewStrBufDup(sbstr("defaulthandle")), 0);
-	 set_preference("mailbox", NewStrBufDup(sbstr("mailbox")), 0);
-
-
-	buf = NewStrBufPlain(bstr("signature"), -1);
-	encBuf = NewStrBuf();
-	StrBufEUid_escapize(encBuf, buf);
-	set_preference("signature", encBuf, 1);
-	FreeStrBuf(&buf);
-
+{	
+	if (!havebstr("change_button")) {
+		safestrncpy(WC->ImportantMessage, 
+			    _("Cancelled.  No settings were changed."),
+			    sizeof WC->ImportantMessage);
+		display_main_menu();
+		return;
+	}
+	GetPreferences(WC->hash_prefs);
 	display_main_menu();
 }
 
 
-#define PRF_STRING 1
-#define PRF_INT 2
-#define PRF_QP_STRING 3
-#define PRF_YESNO 4
-
-
 void tmplput_CFG_Value(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBuf *Setting;
-	if (get_PREFERENCE(TKEY(0), &Setting))
-	StrBufAppendTemplate(Target, TP, Setting, 1);
+	Preference *Pref;
+	if (get_pref_backend(TKEY(0), &Pref))
+	{
+		if (Pref->Type == NULL) {
+			StrBufAppendTemplate(Target, TP, Pref->Val, 1);
+		}
+		switch (Pref->Type->Type)
+		{
+		case PRF_STRING:
+			StrBufAppendTemplate(Target, TP, Pref->Val, 1);
+			break;
+		case PRF_INT:
+			if (Pref->decoded != 1) {
+				if (Pref->Val == NULL)
+					Pref->Val = NewStrBufPlain(NULL, 64);
+				StrBufPrintf(Pref->Val, "%ld", Pref->lval);
+				Pref->decoded = 1;
+			}
+			StrBufAppendTemplate(Target, TP, Pref->Val, 1);
+			break;
+		case PRF_QP_STRING:
+			if (Pref->decoded != 1) {
+				if (Pref->DeQPed == NULL)
+					Pref->DeQPed = NewStrBufPlain(NULL, StrLength(Pref->Val));
+					
+				StrBufEUid_unescapize(Pref->DeQPed, Pref->Val);
+				Pref->decoded = 1;
+			}
+			StrBufAppendTemplate(Target, TP, Pref->DeQPed, 1);
+			break;
+		case PRF_YESNO:
+			if (Pref->decoded != 1) {
+				Pref->lval = strcmp(ChrPtr(Pref->Val), "yes") == 0;
+				Pref->decoded = 1;
+			}
+			StrBufAppendTemplate(Target, TP, Pref->Val, 1);
+			break;
+		}
+	}
 }
 
 void tmplput_CFG_Descr(StrBuf *Target, WCTemplputParams *TP)
@@ -474,15 +700,17 @@ void tmplput_CFG_Descr(StrBuf *Target, WCTemplputParams *TP)
 }
 void tmplput_CFG_RoomValue(StrBuf *Target, WCTemplputParams *TP)
 {
-  StrBuf *pref = get_ROOM_PREFS(TKEY(0));
-  if (pref != NULL) 
-    StrBufAppendBuf(Target, pref, 0);
+	StrBuf *pref = get_ROOM_PREFS(TKEY(0));
+	if (pref != NULL) 
+		StrBufAppendBuf(Target, pref, 0);
 }
-int ConditionalHasRoomPreference(WCTemplateToken *Tokens, void *Context, int ContextType) {
-  if (get_ROOM_PREFS(Tokens->Params[0]->Start, Tokens->Params[0]->len) != NULL) 
-    return 1;
+int ConditionalHasRoomPreference(StrBuf *Target, WCTemplputParams *TP) 
+{
+	if (get_ROOM_PREFS(TP->Tokens->Params[0]->Start, 
+			   TP->Tokens->Params[0]->len) != NULL) 
+		return 1;
   
-  return 0;
+	return 0;
 }
 void CfgZoneTempl(StrBuf *TemplBuffer, WCTemplputParams *TP)
 {
@@ -519,6 +747,10 @@ int ConditionalHasPreference(StrBuf *Target, WCTemplputParams *TP)
 		return 1;
 }
 
+
+/********************************************************************************
+ *                 preferences stored discrete in citserver
+ ********************************************************************************/
 HashList *GetGVEAHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Rcp;
@@ -594,27 +826,68 @@ void DeleteGVSNHash(HashList **KillMe)
 }
 
 
+
+
+/*
+ * Offer to make any page the user's "start page."
+ */
+void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
+{
+	wprintf("<a href=\"change_start_page?startpage=");
+	urlescputs(WC->this_page);
+	wprintf("\">");
+	wprintf(_("Make this my start page"));
+	wprintf("</a>");
+#ifdef TECH_PREVIEW
+	wprintf("<br/><a href=\"rss?room=");
+	urlescputs(ChrPtr(WC->wc_roomname));
+	wprintf("\" title=\"RSS 2.0 feed for ");
+	escputs(ChrPtr(WC->wc_roomname));
+	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\"/></a>\n");
+#endif
+}
+
+
+/*
+ * Change the user's start page
+ */
+void change_start_page(void) 
+{
+	if (!havebstr("startpage")) {
+		set_preference_backend(HKEY("startpage"), 
+				       0, 
+				       NewStrBufPlain(HKEY("")),
+				       PRF_STRING,
+				       1, 
+				       NULL);
+		safestrncpy(WC->ImportantMessage,
+			    _("You no longer have a start page selected."),
+			    sizeof( WC->ImportantMessage));
+		display_main_menu();
+		return;
+	}
+
+	set_preference_backend(HKEY("startpage"), 
+			       0, 
+			       NewStrBufDup(sbstr("startpage")),
+			       PRF_STRING,
+			       1, 
+			       NULL);
+
+	output_headers(1, 1, 0, 0, 0, 0);
+	do_template("newstartpage", NULL);
+	wDumpContent(1);
+}
+
+
 void 
 InitModule_PREFERENCES
 (void)
 {
 	WebcitAddUrlHandler(HKEY("set_preferences"), set_preferences, 0);
 	WebcitAddUrlHandler(HKEY("change_start_page"), change_start_page, 0);
-	RegisterPreference("roomlistview",_("Room list view"),PRF_STRING);
-	RegisterPreference("calhourformat",_("Time format"), PRF_INT);
-	RegisterPreference("daystart", _("Calendar day view begins at:"), PRF_INT);
-	RegisterPreference("dayend", _("Calendar day view ends at:"), PRF_INT);
-	RegisterPreference("weekstart",_("Week starts on:"), PRF_INT);
 
-	RegisterPreference("use_sig",_("Attach signature to email messages?"), PRF_YESNO);
-	RegisterPreference("signature",_("Use this signature:"),PRF_QP_STRING);
-	RegisterPreference("default_header_charset", _("Default character set for email headers:") ,PRF_STRING);
-	RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO);
-	RegisterPreference("defaultfrom", _("Preferred email address"), PRF_STRING);
-	RegisterPreference("defaultname", _("Preferred display name for email messages"), PRF_STRING);
-	RegisterPreference("defaulthandle", _("Preferred display name for bulletin board posts"), PRF_STRING);
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
-	RegisterPreference("mailbox",_("Mailbox view mode"), PRF_STRING);
 	RegisterNamespace("PREF:ROOM:VALUE", 1, 2, tmplput_CFG_RoomValue,  CTX_NONE);
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
