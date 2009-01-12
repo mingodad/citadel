@@ -132,7 +132,7 @@ function loadMessages(transport) {
       var classStmt = "col"+x;
       tdElement.setAttribute("class", classStmt);
 	} catch (e) {
-	  if (window.console) {
+	  if (!!window.console) {
 	    console.log("Error on #"+msgId +" col"+j+":"+e);
 	  }
 	}
@@ -147,7 +147,7 @@ function loadMessages(transport) {
     rowArray[i] = trElement; 
   } 
   var end = new Date();
-  if (window.console) {
+  if (!!window.console) {
     var delta = end.getTime() - start.getTime();
     console.log("loadMessages construct: " + delta);
   }
@@ -202,7 +202,7 @@ function resortAndDisplay(sortMode) {
   }
   message_view.appendChild(fragment);
   var end = new Date();
-  if (window.console) {
+  if (!!window.console) {
     var delta = end.getTime() - start.getTime();
     console.log("resortAndDisplay sort and append: " + delta);
   }
