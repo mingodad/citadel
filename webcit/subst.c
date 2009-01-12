@@ -537,6 +537,7 @@ void GetTemplateTokenString(WCTemplputParams *TP,
 			    long *len)
 {
 	StrBuf *Buf;
+	WCTemplputParams SubTP;
 
 	if (TP->Tokens->nParameters < N) {
 		lprintf(1, "invalid token. this shouldn't have come till here.\n");
@@ -569,6 +570,18 @@ void GetTemplateTokenString(WCTemplputParams *TP,
 		*Value = _(TP->Tokens->Params[N]->Start);
 		*len = strlen(*Value);
 		break;
+	case TYPE_SUBTEMPLATE:
+		memset(&SubTP, 0, sizeof(WCTemplputParams *));
+		SubTP.Context = TP->Context;
+		SubTP.ContextType = TP->ContextType;
+		Buf = NewStrBuf();
+		DoTemplate(TKEY(N), Buf, &SubTP);
+		*Value = ChrPtr(Buf);
+		*len = StrLength(Buf);
+		/* we can't free it here, so we put it into the subst so its discarded later on. */
+		SVPUTBuf(TKEY(N), Buf, 0);
+		break;
+
 	default:
 		break;
 /*/todo log error */
@@ -807,6 +820,14 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	}
 	else if (*pch == 'B') {
 		Parm->Type = TYPE_BSTR;
+		pch ++;
+		if (*pch == '(') {
+			pch ++;
+			ParamBrace = 1;
+		}
+	}
+	else if (*pch == '=') {
+		Parm->Type = TYPE_SUBTEMPLATE;
 		pch ++;
 		if (*pch == '(') {
 			pch ++;

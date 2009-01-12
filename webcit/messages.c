@@ -18,16 +18,9 @@ int analyze_msg = 0;
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
 #define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/**< Mailbox view column width */
 
-
+void jsonMessageListHdr(void);
 
 void display_enter(void);
-int longcmp_r(const void *s1, const void *s2);
-int summcmp_subj(const void *s1, const void *s2);
-int summcmp_rsubj(const void *s1, const void *s2);
-int summcmp_sender(const void *s1, const void *s2);
-int summcmp_rsender(const void *s1, const void *s2);
-int summcmp_date(const void *s1, const void *s2);
-int summcmp_rdate(const void *s1, const void *s2);
 
 /*----------------------------------------------------------------------------*/
 
@@ -928,11 +921,11 @@ DONE:
 	}
 	/** Note: wDumpContent() will output one additional </div> tag. */
 	if (WCC->wc_view != VIEW_MAILBOX) {
-	  // We ought to move this out into template
-	wprintf("</div>\n");		/** end of 'content' div */
-	wDumpContent(1);
+		/* We ought to move this out into template */
+		wprintf("</div>\n");		/** end of 'content' div */
+		wDumpContent(1);
 	} else {
-	  end_burst();
+		end_burst();
 	}
 	WCC->startmsg = 0;
 	WCC->maxmsgs = 0;
@@ -1640,8 +1633,9 @@ void h_readfwd(void) { readloop(readfwd);}
 void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
 
-void jsonMessageListHdr(void) {
-  // TODO: make a generic function
+void jsonMessageListHdr(void) 
+{
+	/* TODO: make a generic function */
   hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: application/json; charset=utf-8\r\n");
   hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
@@ -1649,7 +1643,7 @@ void jsonMessageListHdr(void) {
   hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
   begin_burst();
 }
-// Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :)
+/* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */
 void new_summary_view(void) {
   output_headers(1,1,1,0,0,1);
   begin_burst();
@@ -1659,7 +1653,7 @@ void new_summary_view(void) {
 }
 /** Output message list in JSON-format */
 void jsonMessageList(void) {
-  StrBuf *room = sbstr("room");
+  const StrBuf *room = sbstr("room");
   WC->is_ajax = 1; 
   smart_goto(room);
   WC->is_ajax = 0;
@@ -1709,7 +1703,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("postpart"), view_postpart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("postpart_download"), download_postpart, NEED_URL);
 
-	// json
+	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), jsonMessageList,0);
 
 	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
