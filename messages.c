@@ -88,6 +88,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	Msg->PartNum = PartNum;
 	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
 	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
+	Msg->MsgBody->msgnum = msgnum;
 	FoundCharset = NewStrBuf();
 	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
@@ -767,7 +768,7 @@ void readloop(long oper)
 		memset(&SubTP, 0, sizeof(WCTemplputParams));
 		SubTP.ContextType = CTX_NONE;
 		SubTP.Context = NULL;
-		SortIt =  RetrieveSort(&SubTP, NULL, 
+		SortIt =  RetrieveSort(&SubTP, NULL, 0,
 				       HKEY("date"), defaultsortorder);
 		if (SortIt != NULL)
 			SortByPayload(WCC->summ, SortIt);

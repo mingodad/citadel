@@ -1008,6 +1008,10 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	}
 
 SKIP_ALL_THIS_CRAP:
+	if (WCC->SavePrefsToServer) {
+		save_preferences();
+		WCC->SavePrefsToServer = 0;
+	}
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&c_username);
 	FreeStrBuf(&c_password);
