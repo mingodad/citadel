@@ -183,6 +183,7 @@ AC_CHECK_HEADER(libcitadel.h,
 	[AC_CHECK_LIB(citadel, libcitadel_version_string,
 		[
 			LIBS="-lcitadel $LIBS"
+			SETUP_LIBS="-lcitadel $SETUP_LIBS"
 		],
 		[
 			AC_MSG_ERROR(libcitadel was not found or is not usable.  Please install libcitadel.)
