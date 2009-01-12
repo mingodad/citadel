@@ -365,6 +365,10 @@ struct wcsession {
 	struct march *march;			/**< march mode room list */
 	char reply_to[512];			/**< reply-to address */
 	HashList *summ;                         /**< list of messages for mailbox summary view */
+  /** Perhaps these should be within a struct instead */
+  long startmsg; // message number to start at
+  long maxmsgs; // maximum messages to display
+        long num_displayed; // number of messages actually displayed
 	int is_mobile;			/**< Client is a handheld browser */
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	HashList *vars; 			/**< HTTP variable substitutions for this page */
@@ -385,8 +389,7 @@ struct wcsession {
 	int cache_max_folders;			/**< ??? todo */
 	int cache_num_floors;			/**< ??? todo */
 	time_t cache_timestamp;			/**< ??? todo */
-	HashList *IconBarSetttings;             /**< which icons should be shown / not shown? */
-	long current_iconbar;			/**< What is currently in the iconbar? */
+	HashList *IconBarSettings;             /**< which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/**< which floordiv currently expanded */
 	int selected_language;			/**< Language selected by user */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
@@ -403,6 +406,8 @@ struct wcsession {
 	HashList *InetCfg;                      /**< Our inet server config for editing */
 
 	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
+  int is_ajax; /** < are we doing an ajax request? */
+  int downloaded_prefs; /** Has the client download its prefs yet? */
 };
 
 /* values for WC->current_iconbar */
@@ -530,6 +535,7 @@ void output_headers(    int do_httpheaders,
 			int unset_cookies,
 			int suppress_check,
 			int cache);
+void output_custom_content_header(const char *ctype);
 void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void output_static(char *what);
@@ -552,6 +558,9 @@ void SetAccessCommand(long Oper);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void fetch_ab_name(message_summary *Msg, char *namebuf);
 void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
+void jsonMessageList(void);
+void new_summary_view(void);
+void getseen(void);
 void text_to_server(char *ptr);
 void text_to_server_qp(char *ptr);
 void confirm_delete_msg(void);
@@ -691,7 +700,17 @@ void summary(void);
 int is_mobile_ua(char *user_agent);
 
 void embed_room_banner(char *, int);
-
+#define FLOOR_PARAM_LEN 3
+extern const char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15];
+extern const int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN + 1)];
+#define FPKEY(a) FLOOR_PARAM_NAMES[a], FLOOR_PARAM_NAMELEN[a]
+#define ROOM_PARAM_LEN 8
+extern const char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20];
+extern const int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)];
+#define RPKEY(a) ROOM_PARAM_NAMES[a], ROOM_PARAM_NAMELEN[a]
+HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
+HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP);
+int SortRoomsByListOrder(const void *room1, const void *room2);
 /* navbar types that can be passed to embed_room_banner */
 enum {
 	navbar_none,
@@ -748,3 +767,4 @@ void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc
 #define WC_TIMEFORMAT_24 2
 
 
+void LoadIconSettings(void);

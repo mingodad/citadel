@@ -187,8 +187,6 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 		extract_token(WC->cs_inet_email, &buf[4], 3, '|', sizeof WC->cs_inet_email);
 	}
 
-	get_pref_long("current_iconbar", &WC->current_iconbar, current_iconbar_menu);
-
 	get_preference("floordiv_expanded", &FloorDiv);
 	WC->floordiv_expanded = FloorDiv;
 }
@@ -554,10 +552,6 @@ void do_welcome(void)
  */
 void end_webcit_session(void) {
 	
-	if (WC->logged_in) {
-		set_pref_long("current_iconbar", WC->current_iconbar, 0);
-	}
-
 	serv_puts("QUIT");
 	WC->killthis = 1;
 	/* close() of citadel socket will be done by do_housekeeping() */
@@ -904,6 +898,9 @@ int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
 	return (WC->is_room_aide == 0);
 }
 
+int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) {
+  return (WC->logged_in == 0);
+}
 int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -936,6 +933,7 @@ InitModule_AUTH
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);
+	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
 
 	return ;
 }

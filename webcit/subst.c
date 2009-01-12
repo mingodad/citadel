@@ -733,6 +733,9 @@ void StrBufAppendTemplate(StrBuf *Target,
 	case 'X':
 		StrEscAppend(Target, Source, NULL, 0, 0);
 		break;
+	case 'J':
+	  StrECMAEscAppend(Target, Source, NULL);
+	  break;
 	default:
 		StrBufAppendBuf(Target, Source, 0);
 	}

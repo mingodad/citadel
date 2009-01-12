@@ -402,8 +402,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	int skipit;
 
 	if (WCC->summ != NULL) {
-		if (WCC->summ != NULL)
-			DeleteHash(&WCC->summ);
+		DeleteHash(&WCC->summ);
 	}
 	WCC->summ = NewHash(1, Flathash);
 	maxload = 10000;
@@ -699,17 +698,26 @@ void readloop(long oper)
 		}
 		break;
 	case VIEW_MAILBOX: 
+	  if (!WCC->is_ajax) {
+	    new_summary_view();
+	    return;
+	  } else {
 		defaultsortorder = 2;
 		sortit = 1;
 		load_seen = 1;
-		care_for_empty_list = 1;
+		care_for_empty_list = 0;
 		with_headers = 1;
-		if (WCC->is_mobile) maxmsgs = 20;
+		/* Generally using maxmsgs|startmsg is not required
+		   in mailbox view, but we have a 'safemode' for clients
+		   (*cough* Exploder) that simply can't handle too many */
+		if (havebstr("maxmsgs")) maxmsgs = ibstr("maxmsgs");
 		else maxmsgs = 9999999;
+		if (havebstr("startmsg")) startmsg = lbstr("startmsg");
 		snprintf(cmd, sizeof(cmd), "MSGS %s|%s||1",
 			 (oper == do_search) ? "SEARCH" : "ALL",
 			 (oper == do_search) ? bstr("query") : ""
 			);
+	  }
 		break;
 	case VIEW_BBS:
 	default:
@@ -730,8 +738,11 @@ void readloop(long oper)
 		}
 		
 	}
+	if (!WCC->is_ajax) {
 	output_headers(1, 1, 1, 0, 0, 0);
-
+	} else if (WCC->wc_view == VIEW_MAILBOX) {
+	  jsonMessageListHdr();
+	}
 	nummsgs = load_msg_ptrs(cmd, with_headers);
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
@@ -747,9 +758,9 @@ void readloop(long oper)
 				wprintf(_("No messages here."));
 			}
 			wprintf("</em><br /></div>\n");
+			goto DONE;
 		}
 
-		goto DONE;
 	}
 
 	if (sortit) {
@@ -780,9 +791,6 @@ void readloop(long oper)
 	 * If we're to print s.th. above the message list...
 	 */
 	switch (WCC->wc_view) {
-	case VIEW_MAILBOX: 
-		do_template("summary_header", NULL);
-		break;
 	case VIEW_BBS:
 		BBViewToolBar = NewStrBuf();
 		MessageDropdown = NewStrBuf();
@@ -804,7 +812,18 @@ void readloop(long oper)
 		FlushStrBuf(BBViewToolBar);
 		break;
 	}
-			
+	WCC->startmsg =  startmsg;
+	WCC->maxmsgs = maxmsgs;
+	WCC->num_displayed = 0;
+
+	/* Put some helpful data in vars for mailsummary_json */
+	svputlong("READLOOP:TOTALMSGS", nummsgs);
+	svputlong("READLOOP:STARTMSG", startmsg);
+	svputlong("WCVIEW", WCC->wc_view);
+	/*
+	 * iterate over each message. if we need to load an attachment, do it here. 
+	 */
+	if (WCC->wc_view == VIEW_MAILBOX) goto NO_MSG_LOOP;
 	/*
 	 * iterate over each message. if we need to load an attachment, do it here. 
 	 */
@@ -835,14 +854,6 @@ void readloop(long oper)
 					    sizeof(addrbook[num_ab-1].ab_name));
 				addrbook[num_ab-1].ab_msgnum = Msg->msgnum;
 				break;
-			case VIEW_MAILBOX: /* here we just need the abstract, so render it now. */
-				memset(&SubTP, 0, sizeof(WCTemplputParams));
-				SubTP.ContextType = CTX_MAILSUM;
-				SubTP.Context = Msg;
-				DoTemplate(HKEY("section_mailsummary"), NULL, &SubTP);
-			
-				num_displayed++;
-				break;
 			case VIEW_BBS: /* Tag the mails we want to show in bbview... */
 			default:
 				if (displayed_msgs == NULL) {
@@ -857,19 +868,19 @@ void readloop(long oper)
 					num_displayed++;
 				}
 			}
-		}
+		} 
 		i++;
 	}
 	DeleteHashPos(&at);
 
-
+ NO_MSG_LOOP:	
 	/*
 	 * Done iterating the message list. now tasks we want to do after.
 	 */
 	switch (WCC->wc_view) {
-	case VIEW_MAILBOX: 
-		do_template("summary_trailer", NULL);
-		break;
+	case VIEW_MAILBOX:
+	  DoTemplate(HKEY("mailsummary_json"),NULL, &SubTP);
+	  break;
 	case VIEW_BBS:
 		if (displayed_msgs != NULL) {
 			/** if we do a split bbview in the future, begin messages div here */
@@ -916,10 +927,15 @@ DONE:
 		break;
 	}
 	/** Note: wDumpContent() will output one additional </div> tag. */
+	if (WCC->wc_view != VIEW_MAILBOX) {
+	  // We ought to move this out into template
 	wprintf("</div>\n");		/** end of 'content' div */
 	wDumpContent(1);
-
-	/** free the summary */
+	} else {
+	  end_burst();
+	}
+	WCC->startmsg = 0;
+	WCC->maxmsgs = 0;
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
 	}
@@ -1624,6 +1640,31 @@ void h_readfwd(void) { readloop(readfwd);}
 void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
 
+void jsonMessageListHdr(void) {
+  // TODO: make a generic function
+  hprintf("HTTP/1.1 200 OK\r\n");
+  hprintf("Content-type: application/json; charset=utf-8\r\n");
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
+  hprintf("Connection: close\r\n");
+  hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
+  begin_burst();
+}
+// Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :)
+void new_summary_view(void) {
+  output_headers(1,1,1,0,0,1);
+  begin_burst();
+  DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
+  DoTemplate(HKEY("trailing"),NULL,&NoCtx);
+  end_burst();
+}
+/** Output message list in JSON-format */
+void jsonMessageList(void) {
+  StrBuf *room = sbstr("room");
+  WC->is_ajax = 1; 
+  smart_goto(room);
+  WC->is_ajax = 0;
+}
+
 void 
 InitModule_MSG
 (void)
@@ -1662,6 +1703,14 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);
+
+	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("postpart"), view_postpart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("postpart_download"), download_postpart, NEED_URL);
+
+	// json
+	WebcitAddUrlHandler(HKEY("roommsgs"), jsonMessageList,0);
 
 	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);

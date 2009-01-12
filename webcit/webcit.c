@@ -175,11 +175,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		}
 
 		if ( (WC->logged_in) && (!unset_cookies) ) {
-			wprintf("<div id=\"iconbar\">");
-			do_selected_iconbar();
-			/** check for instant messages (these display in a new window) */
-			page_popup();
-			wprintf("</div>");
+		  DoTemplate(HKEY("iconbar"), NULL, &NoCtx);
 		}
 
 		if (do_room_banner == 1) {
@@ -192,6 +188,13 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	if (do_room_banner == 1) {
 		wprintf("<div id=\"content\">\n");
 	}
+}
+
+void output_custom_content_header(const char *ctype) {
+  hprintf("HTTP/1.1 200 OK\r\n");
+  hprintf("Content-type: %s; charset=utf-8\r\n",ctype);
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
+  hprintf("Connection: close\r\n");
 }
 
 

@@ -10,14 +10,26 @@
 <link href="static/datepicker.css" rel="stylesheet" type="text/css">
 <link href="static/bt.css" rel="stylesheet" type="text/css">
 
-<?CSSLOCAL>
+<??("COND:LOGGEDIN",1)>
+<link href="user_iconbar" rel="stylesheet" type="text/css">
+<link href="static/iconbaricns.css" rel="<?%("COND:ICONBAR:ACTIVE", 1 , :"", "0", "", "alternate ")>stylesheet" type="text/css" id="style_iconbar_icns" title="Default iconbar">
+<link href="static/iconbarpiconly.css" rel="<?%("COND:ICONBAR:ACTIVE", 1 , :"", 1, "","alternate ")>stylesheet" type="text/css" id="style_iconbar_piconly" title="Iconbar without text">
+<??("X",1)>
+
+<?CSSLOCAL> 
+<script type="text/javascript" src="static/protoaculous1.6.packed.js"></script> 
+<!--
 <script type="text/javascript" src="static/prototype.js"></script>
 <script type="text/javascript" src="static/scriptaculous.js"></script>
+-->
 <script type="text/javascript" src="static/niftycube.js"></script>
 <script type="text/javascript" src="static/BubbleTooltips.js"></script>
 <script type="text/javascript" src="static/datepicker-dev.js"></script>
+<script type="text/javascript" src="static/wcpref.js"></script>
 <script type="text/javascript" src="static/table.js"></script>
 <script type="text/javascript" src="static/wclib.js"></script>
+<script type="text/javascript" src="static/roomops.js"></script>
+<script type="text/javascript" src="static/ctdldragdrop.js"></script>
 </head>
 <body>
 <div id="global">
