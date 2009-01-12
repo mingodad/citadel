@@ -32,7 +32,15 @@ pthread_key_t MyConKey;
 
 #include "wc_gettext.h"
 
+#ifdef ENABLE_NLS
 
+#ifdef HAVE_USELOCALE 
+int localeoffset = 1;
+#else
+int localeoffset = 0;
+#endif
+
+#endif
 /*
  * Delete an entry from /etc/inittab
  */
@@ -240,6 +248,64 @@ void set_value(char *prompt, char str[])
 }
 
 
+
+int GetLocalePrefs(void)
+{
+	StrBuf *Buf;
+	char buf[SIZ];
+	char dialog_result[PATH_MAX];
+	FILE *fp;
+	int i = 0;
+	int offs = 0;
+
+
+	Buf = NewStrBuf();
+
+	StrBufAppendBufPlain(Buf, HKEY("Select the locale webcit should use : \n"), 0);
+#ifdef HAVE_USELOCALE 
+	StrBufAppendBufPlain(Buf, HKEY(" 0 Let the user select it at the login prompt (default)\n"), 0);
+	offs ++;
+#endif
+	for (i = 0; i < NUM_LANGS; i++) {
+		StrBufAppendPrintf(Buf, " %ld: %s\n", i + offs, AvailLang[i]);
+
+	}
+
+	switch (setup_type) {
+	case UI_TEXT:
+		title("WebCit setup");
+		printf("\n%s\n", ChrPtr(Buf));
+		printf("This is currently set to:\n%ld\n", 0L);
+		printf("Enter new value or press return to leave unchanged:\n");
+		fgets(buf, sizeof buf, stdin);
+		return atoi(buf);
+		break;
+
+	case UI_DIALOG:
+		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
+		sprintf(buf, "exec %s --inputbox '%s' 19 72 '%ld' 2>%s",
+			getenv("CTDL_DIALOG"),
+			ChrPtr(Buf),
+			0L,
+			dialog_result);
+		system(buf);
+		fp = fopen(dialog_result, "r");
+		if (fp != NULL) {
+			char *str = &buf[0];
+			fgets(str, sizeof buf, fp);
+			if (str[strlen(str)-1] == 10) {
+				str[strlen(str)-1] = 0;
+			}
+			fclose(fp);
+			unlink(dialog_result);
+			return atoi(buf);
+		}
+		break;
+
+	}
+	return 0;
+}
+
 void important_message(char *title, char *msgtext)
 {
 	char buf[SIZ];
@@ -337,6 +403,9 @@ void progress(char *text, long int curr, long int cmax)
  */
 void install_init_scripts(void)
 {
+#ifdef ENABLE_NLS
+	int localechoice;
+#endif
 	char question[1024];
 	char buf[256];
 	char http_port[128];
@@ -368,6 +437,12 @@ void install_init_scripts(void)
 	if (yesno(question, 1) == 0)
 		return;
 
+
+#ifdef ENABLE_NLS
+
+	localechoice = GetLocalePrefs();
+
+#endif
 	/* Defaults */
 	sprintf(http_port, "2000");
 #ifdef HAVE_OPENSSL
@@ -457,8 +532,7 @@ void install_init_scripts(void)
 	}
 
 
-///	fp = fopen(initfile, "w");
-	fp = stderr;/// TODO: weg
+	fp = fopen(initfile, "w");
 
 	fprintf(fp,	"#!/bin/sh\n"
 			"\n"
@@ -469,6 +543,23 @@ void install_init_scripts(void)
 #endif
 	fprintf(fp,	"CTDL_HOSTNAME=%s\n", hostname);
 	fprintf(fp,	"CTDL_PORTNAME=%s\n", portname);
+
+#ifdef ENABLE_NLS
+	
+	if (localechoice == 0) {
+#ifdef HAVE_USELOCALE 
+		fprintf(fp, "unset LANG\n");
+#else
+		fprintf(fp, "export LANG=c\n");
+#endif
+	}
+	else {
+		fprintf(fp, "export LANG=%s\n", AvailLang[localechoice - localeoffset]);
+
+	}
+#else
+	fprintf(fp,     "# your system doesn't support locales\n");
+#endif
 	fprintf(fp,	"\n"
 			"\n"
 			"case \"$1\" in\n"
