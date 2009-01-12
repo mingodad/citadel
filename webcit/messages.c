@@ -454,7 +454,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				Msg->subj = NewStrBufPlain(NULL, StrLength(Buf));
 				StrBufExtract_token(Buf2,  Buf, 5, '|');
 				if (StrLength(Buf2) == 0)
-					StrBufAppendBufPlain(Msg->subj, _("(no subj)"), -1,0);
+					StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
 				else {
 					StrBuf_RFC822_to_Utf8(Msg->subj, Buf2, WCC->DefaultCharset, FoundCharset);
 					if ((StrLength(Msg->subj) > 75) && 

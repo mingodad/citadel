@@ -58,7 +58,7 @@ body {
 	text-transform: uppercase;
 }
 
-#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
+#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, #ib_logoff {
 	background-color: #F0FFFF;
 	color: #333;
 }
@@ -441,6 +441,8 @@ a:link { color: blue; }
 
 a:visited { color: purple; }
 
+#customize a:active, #customize a:link, #customize a:visited { color: black; }
+
 #important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover, #ib_logoff:hover {
 	background-color: #AD1C00;
 	color: #FFF;
@@ -637,6 +639,12 @@ body, #global {
     z-index: 65535;
     background-color: white;
     text-align: left;
+    opacity: 0.9;
+}
+.draganddrop > ul {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
 }
 .hidden {
     display: none;
@@ -715,6 +723,7 @@ body, #global {
 }
 
 #online_users {
+    display: none; /* Hide by default */
 	border: 0;
 	max-height: 200px;
 	overflow: auto;

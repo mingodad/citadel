@@ -29,6 +29,7 @@ Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
 //document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
+document.observe('dom:loaded', function() { $('ib_chat_launch').observe('click', launchChat);});
 function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
 }
@@ -753,4 +754,7 @@ function RecurrenceShowHide() {
 		$('rrymonth').disabled = true;
 	}
 
+}
+function launchChat(event) {
+window.open('chat', 'ctdl_chat_window', 'toolbar=no,location=no,directories=no,copyhistory=no,status=no,scrollbars=yes,resizable=yes');
 }

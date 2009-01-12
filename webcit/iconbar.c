@@ -56,8 +56,8 @@ void doUserIconStylesheet(void) {
 	&& strncasecmp("ib_logoff", key, 9)) {
       // Don't shoot me for this
       wprintf("#%s { display: none !important; }\r\n",key);
-    } else if (!strncasecmp("ib_users",key, 8) && value != 2) {
-      wprintf("#online_users { display: none; !important } \r\n");
+    } else if (!strncasecmp("ib_users",key, 8) && value == 2) {
+      wprintf("#online_users { display: block; !important } \r\n");
     }
   }
   end_burst();
