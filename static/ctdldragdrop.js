@@ -58,7 +58,6 @@ function mouseMoveOut(event) {
     dropTarget = null;
   }
 }
-document.observe("dom:loaded", setupDragDrop);
 function setupDragDrop() {
 if (document.addEventListener != undefined) {
      $(document.body).observe('mousedown', mouseDownHandler);
