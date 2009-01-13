@@ -154,9 +154,7 @@ function changeIconBarEvent(event) {
 }
 function changeIconBar(target) {
   var switchTo = target.ctdlSwitchIconBarTo;
-  if (!!window.console) {
-    console.log("Changing to: " + switchTo);
-  }
+  WCLog("Changing to: " + switchTo);
   ctdlLocalPrefs.setPref("iconbar_view", target.ctdlSwitchIconBarTo);  
   if (switchTo == "rooms") {
     switch_to_room_list();
@@ -677,9 +675,6 @@ function eventEditAllDay() {
 	}
 }
 
-
-
-
 // Functions which handle show/hide of various elements in the recurrence editor
 
 function RecurrenceShowHide() {
@@ -759,4 +754,12 @@ function RecurrenceShowHide() {
 }
 function launchChat(event) {
 window.open('chat', 'ctdl_chat_window', 'toolbar=no,location=no,directories=no,copyhistory=no,status=no,scrollbars=yes,resizable=yes');
+}
+// logger
+function WCLog(msg) {
+  if (!!window.console && !!console.log) {
+    console.log(msg);
+  } else if (!!window.opera && !!opera.postError) {
+    opera.postError(msg);
+  }
 }

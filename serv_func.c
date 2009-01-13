@@ -170,7 +170,7 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 	long len;
 	int intext = 0;
 
-	StrBufAppendPrintf(Target, "<div align=\"%s\">\n", align);
+	StrBufAppendPrintf(Target, "<div class=\"fmout\">\n", align);
 	while ((n = StrBufSipLine(Line, Source, &BufPtr), n >= 0) && !done)
 	{
 		done = n == 0;
@@ -181,7 +181,7 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 		pte = ptr + len;
 
 		if ((intext == 1) && (isspace(*ptr))) {
-			StrBufAppendBufPlain(Target, HKEY("<br />"), 0);
+			StrBufAppendBufPlain(Target, HKEY("<br>"), 0);
 		}
 		intext = 1;
 		if (isspace(*ptr)) while ((ptr < pte) &&
@@ -219,7 +219,7 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 	}
 	for (i = 0; i < bn; i++)				
 		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
-	StrBufAppendBufPlain(Target, HKEY("</div><br />\n"), 0);
+	StrBufAppendBufPlain(Target, HKEY("</div><br>\n"), 0);
 	FreeStrBuf(&Line);
 	FreeStrBuf(&Line1);
 	FreeStrBuf(&Line2);
