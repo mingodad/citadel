@@ -29,7 +29,7 @@ Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
 //document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
-document.observe('dom:loaded', function() { $('ib_chat_launch').observe('click', launchChat);});
+document.observe('dom:loaded', function() { if (!!document.getElementById("ib_chat_launch")) { $('ib_chat_launch').observe('click', launchChat); } });
 function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
 }
@@ -658,8 +658,10 @@ function TaskViewGatherCategoriesFromTable() {
 function attachDatePicker(relative) {
 	var dpck = new DatePicker({
 	relative: relative,
-	language: 'en', // fix please
-	disableFutureDate: false
+	      language: 'en', //wclang.substr(0,2),
+	      disableFutureDate: false,
+	      dateFormat: [ ["yyyy", "mm", "dd"], "-"],
+	      showDuration: 0.2
 	});
 	document.getElementById(relative).dpck = dpck; // attach a ref to it
 }

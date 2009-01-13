@@ -656,6 +656,12 @@ void readloop(long oper)
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
 		WCC->wc_view = VIEW_MAILBOX;
 
+	if (!WCC->is_ajax) {
+	output_headers(1, 1, 1, 0, 0, 0);
+	} else if (WCC->wc_view == VIEW_MAILBOX) {
+	  jsonMessageListHdr();
+	}
+
 	switch (WCC->wc_view) {
 	case VIEW_WIKI:
 		sprintf(buf, "wiki?room=%s&page=home", ChrPtr(WCC->wc_roomname));
@@ -731,11 +737,7 @@ void readloop(long oper)
 		}
 		
 	}
-	if (!WCC->is_ajax) {
-	output_headers(1, 1, 1, 0, 0, 0);
-	} else if (WCC->wc_view == VIEW_MAILBOX) {
-	  jsonMessageListHdr();
-	}
+
 	nummsgs = load_msg_ptrs(cmd, with_headers);
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
@@ -922,7 +924,6 @@ DONE:
 	/** Note: wDumpContent() will output one additional </div> tag. */
 	if (WCC->wc_view != VIEW_MAILBOX) {
 		/* We ought to move this out into template */
-		wprintf("</div>\n");		/** end of 'content' div */
 		wDumpContent(1);
 	} else {
 		end_burst();
@@ -1645,7 +1646,6 @@ void jsonMessageListHdr(void)
 }
 /* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */
 void new_summary_view(void) {
-  output_headers(1,1,1,0,0,1);
   begin_burst();
   DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
   DoTemplate(HKEY("trailing"),NULL,&NoCtx);

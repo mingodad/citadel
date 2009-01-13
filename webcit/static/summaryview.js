@@ -64,6 +64,7 @@ function createMessageView() {
   Event.observe(document.onresize ? document : window, "resize", sizePreviewPane);
   $('summpage').observe('change', getPage);
   takeOverSearchOMatic();
+  setupDragDrop(); // here for now
 }
 function getMessages() {
   if (loadingMsg.parentNode == null) {
@@ -132,7 +133,7 @@ function loadMessages(transport) {
       var classStmt = "col"+x;
       tdElement.setAttribute("class", classStmt);
 	} catch (e) {
-	  if (!!window.console) {
+	  if (!!window.console && !!console.log) {
 	    console.log("Error on #"+msgId +" col"+j+":"+e);
 	  }
 	}
@@ -147,7 +148,7 @@ function loadMessages(transport) {
     rowArray[i] = trElement; 
   } 
   var end = new Date();
-  if (!!window.console) {
+  if (!!window.console && !!console.log) {
     var delta = end.getTime() - start.getTime();
     console.log("loadMessages construct: " + delta);
   }
@@ -202,7 +203,7 @@ function resortAndDisplay(sortMode) {
   }
   message_view.appendChild(fragment);
   var end = new Date();
-  if (!!window.console) {
+  if (!!window.console && !!console.log) {
     var delta = end.getTime() - start.getTime();
     console.log("resortAndDisplay sort and append: " + delta);
   }
@@ -250,8 +251,8 @@ function CtdlMessageListClick(evt) {
   var target = event.target ? event.target: event.srcElement; // and again..
   var parent = target.parentNode;
   var msgId = parent.ctdlMsgId;
-  // If the shift key modifier wasn't used, unmark all rows and load the message
-  if (!event.shiftKey) {
+  // If the ctrl key modifier wasn't used, unmark all rows and load the message
+  if (!event.shiftKey && !event.ctrlKey) {
     unmarkAllRows();
     new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
     markRow(parent);
