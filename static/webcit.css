@@ -519,7 +519,9 @@ body, #global {
 #iconbar, #banner, #content, #message_list_hdr, #message_list, #preview_pane  {
 	text-align: left;
 }
-
+.message_content > div > div {
+    text-align: justify !important;
+}
 #iconbar {
 	position: absolute;
 	top: 0;
