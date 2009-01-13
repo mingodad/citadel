@@ -30,11 +30,7 @@ var sortModes = {
   "rsender" : sortRowsByFromDescending
 };
 var toggles = {};
-window.console = window.console || {};
-var opera = opera || null;
-if (opera && opera.postError) {
-  console.log = opera.postError;
-}
+
 var nummsgs = 0;
 var startmsg = 0;
 function createMessageView() {
@@ -133,9 +129,7 @@ function loadMessages(transport) {
       var classStmt = "col"+x;
       tdElement.setAttribute("class", classStmt);
 	} catch (e) {
-	  if (!!window.console && !!console.log) {
-	    console.log("Error on #"+msgId +" col"+j+":"+e);
-	  }
+	  WCLog("Error on #"+msgId +" col"+j+":"+e);
 	}
       }
     }
@@ -148,10 +142,8 @@ function loadMessages(transport) {
     rowArray[i] = trElement; 
   } 
   var end = new Date();
-  if (!!window.console && !!console.log) {
-    var delta = end.getTime() - start.getTime();
-    console.log("loadMessages construct: " + delta);
-  }
+  var delta = end.getTime() - start.getTime();
+    WCLog("loadMessages construct: " + delta);
   } catch (e) {
     window.alert(e);
   }
@@ -203,10 +195,8 @@ function resortAndDisplay(sortMode) {
   }
   message_view.appendChild(fragment);
   var end = new Date();
-  if (!!window.console && !!console.log) {
     var delta = end.getTime() - start.getTime();
-    console.log("resortAndDisplay sort and append: " + delta);
-  }
+    WCLog("resortAndDisplay sort and append: " + delta);
   ApplySorterToggle();
   normalizeHeaderTable();
 }

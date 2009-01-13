@@ -741,7 +741,7 @@ void readloop(long oper)
 	nummsgs = load_msg_ptrs(cmd, with_headers);
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
-			wprintf("<div align=\"center\"><br /><em>");
+			wprintf("<div class=\"nomsgs\"><br><em>");
 			switch (oper) {
 			case readnew:
 				wprintf(_("No new messages."));
@@ -752,7 +752,7 @@ void readloop(long oper)
 			default:
 				wprintf(_("No messages here."));
 			}
-			wprintf("</em><br /></div>\n");
+			wprintf("</em><br></div>\n");
 			goto DONE;
 		}
 

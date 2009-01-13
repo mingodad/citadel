@@ -71,14 +71,14 @@ void display_openid_login(char *mesg)
 		"<i>cookies</i>. "
 		"<li>Also keep in mind that if your browser is "
 		"configured to block pop-up windows, you will not be able "
-		"to receive any instant messages.<br />"
+		"to receive any instant messages.<br>"
 		"</ul>")
 	);
 
 	svput("HELLO", WCS_SERVCMD, "MESG hello");
 	
 	svprintf(HKEY("OFFER_CONVENTIONAL_LOGIN"), WCS_STRING,
-		"<div align=center>"
+		"<div id=\"convlogin\">"
 		"<a href=\"display_login\">"
 		"%s</a>"
 		"</div>"
@@ -635,7 +635,7 @@ void validate(void)
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_getln(buf, sizeof buf);
 			if (buf[0] != '2') {
-				wprintf("<b>%s</b><br />\n", &buf[4]);
+				wprintf("<b>%s</b><br>\n", &buf[4]);
 			}
 		}
 	}
@@ -646,19 +646,19 @@ void validate(void)
 	if (buf[0] == '2') {
 		wprintf("<b>");
 		wprintf(_("No users require validation at this time."));
-		wprintf("</b><br />\n");
+		wprintf("</b><br>\n");
 		wDumpContent(1);
 		return;
 	}
 	if (buf[0] != '3') {
-		wprintf("<b>%s</b><br />\n", &buf[4]);
+		wprintf("<b>%s</b><br>\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
 
 	wprintf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"auth_validate\"><tr><td>\n");
-	wprintf("<center>");
+	wprintf("<div id=\"validate\">");
 
 	safestrncpy(user, &buf[4], sizeof user);
 	serv_printf("GREG %s", user);
@@ -669,7 +669,7 @@ void validate(void)
 			serv_getln(buf, sizeof buf);
 			++a;
 			if (a == 1)
-				wprintf("#%s<br /><H1>%s</H1>",
+				wprintf("#%s<br><H1>%s</H1>",
 					buf, &cmd[4]);
 			if (a == 2) {
 				char *pch;
@@ -706,20 +706,20 @@ void validate(void)
 					pch = _("strong");
 				}
 
-				wprintf("PW: %s<br />\n", pch);
+				wprintf("PW: %s<br>\n", pch);
 			}
 			if (a == 3)
-				wprintf("%s<br />\n", buf);
+				wprintf("%s<br>\n", buf);
 			if (a == 4)
-				wprintf("%s<br />\n", buf);
+				wprintf("%s<br>\n", buf);
 			if (a == 5)
 				wprintf("%s, ", buf);
 			if (a == 6)
 				wprintf("%s ", buf);
 			if (a == 7)
-				wprintf("%s<br />\n", buf);
+				wprintf("%s<br>\n", buf);
 			if (a == 8)
-				wprintf("%s<br />\n", buf);
+				wprintf("%s<br>\n", buf);
 			if (a == 9)
 				wprintf(_("Current access level: %d (%s)\n"),
 					atoi(buf), axdefs[atoi(buf)]);
@@ -739,7 +739,7 @@ void validate(void)
 	}
 	wprintf("<br />\n");
 
-	wprintf("</CENTER>\n");
+	wprintf("</div>\n");
 	wprintf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
