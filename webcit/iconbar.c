@@ -54,12 +54,13 @@ void doUserIconStylesheet(void) {
     if (value == 0 
 	&& strncasecmp("ib_displayas",key,12) 
 	&& strncasecmp("ib_logoff", key, 9)) {
-      // Don't shoot me for this
+	    /* Don't shoot me for this */
       wprintf("#%s { display: none !important; }\r\n",key);
     } else if (!strncasecmp("ib_users",key, 8) && value == 2) {
       wprintf("#online_users { display: block; !important } \r\n");
     }
   }
+  DeleteHashPos(&pos);
   end_burst();
 }
 
