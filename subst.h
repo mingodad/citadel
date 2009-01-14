@@ -30,6 +30,14 @@ enum {
 	WCS_LONG          /* its an integer */
 };
 
+typedef struct _contexts {
+	int ContextType;                /* do we require a context type? */
+	int ControlContextType;
+	int nMinArgs;
+	int nMaxArgs;
+} ContextFilter;
+
+
 typedef struct WCTemplateToken WCTemplateToken;
 typedef struct WCTemplputParams WCTemplputParams;
 typedef void (*WCHandlerFunc)(StrBuf *Target, WCTemplputParams *TP);
@@ -67,25 +75,27 @@ struct WCTemplateToken {
  * \brief Dynamic content for variable substitution in templates
  */
 typedef struct _wcsubst {
+	ContextFilter Filter;
 	int wcs_type;			    /* which type of Substitution are we */
 	char wcs_key[32];		    /* copy of our hashkey for debugging */
 	StrBuf *wcs_value;		    /* if we're a string, keep it here */
 	long lvalue;                        /* type long? keep data here */
-	int ContextRequired;                /* do we require a context type? */
 	WCHandlerFunc wcs_function; /* funcion hook ???*/
 } wcsubst;
 
 struct WCTemplputParams {
+	ContextFilter Filter;
+	void *Context;
+	void *ControlContext;
 	int nArgs;
 	WCTemplateToken *Tokens;
-	void *Context;
-	int ContextType;
 };
 
 
 extern WCTemplputParams NoCtx;
 
 #define CTX TP->Context
+#define CCTX TP->ControlContext
 
 
 
@@ -105,6 +115,7 @@ extern WCTemplputParams NoCtx;
 #define CTX_LONGVECTOR 13
 #define CTX_ROOMS 14
 #define CTX_FLOORS 15
+#define CTX_ITERATE 16
 
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
@@ -115,9 +126,9 @@ void RegisterNS(const char *NSName, long len,
 
 typedef int (*WCConditionalFunc)(StrBuf *Target, WCTemplputParams *TP);
 typedef struct _ConditionalStruct {
+	ContextFilter Filter;
 	const char *PlainName;
 	int nParams;
-	int ContextRequired;
 	WCConditionalFunc CondF;
 } ConditionalStruct;
 void RegisterConditional(const char *Name, long len, 

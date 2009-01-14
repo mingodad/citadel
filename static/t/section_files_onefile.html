@@ -1,4 +1,4 @@
-<?!("COND:SUBST", 1, "ITERATE:ISGROUPCHANGE", 1)><?!("COND:BSTR", 2, "SortOrder", "filename")>
+<?!("COND:ITERATE:ISGROUPCHANGE", 1)><?!("COND:BSTR", 2, "SortOrder", "filename")>
 <tr class="<?ITERATE:ODDEVEN>"><th colspan = 4><?FILE:NAME("U", 1)></th></tr>
 <?!("X", 2)><?!("X", 1)>
 
@@ -13,7 +13,7 @@
 <td><?FILE:COMMENT("X")></td>
 </tr>
 
-<?!("COND:SUBST", 2, "ITERATE:LASTN", 1)>
+<?!("COND:ITERATE:LASTN", 2)>
 </table>
 <??("COND:FILE:ISPIC", 3)>
 <div class="buttons"><a href="do_template?template=files_jspicview&frame=1"><?_("Slideshow")></a></div>

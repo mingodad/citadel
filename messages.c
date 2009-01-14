@@ -235,7 +235,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	}
 	DeleteHashPos(&it);
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.ContextType = CTX_MAILSUM;
+	SubTP.Filter.ContextType = CTX_MAILSUM;
 	SubTP.Context = Msg;
 	DoTemplate(tmpl, tmpllen, Target, &SubTP);
 
@@ -511,7 +511,7 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	WCTemplputParams SubTP;
 
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.ContextType = CTX_LONGVECTOR;
+	SubTP.Filter.ContextType = CTX_LONGVECTOR;
 	SubTP.Context = &vector;
 	TmpBuf = NewStrBuf();
 	At = GetNewHashPos(WCC->summ, nMessages);
@@ -761,7 +761,7 @@ void readloop(long oper)
 	if (sortit) {
 		CompareFunc SortIt;
 		memset(&SubTP, 0, sizeof(WCTemplputParams));
-		SubTP.ContextType = CTX_NONE;
+		SubTP.Filter.ContextType = CTX_NONE;
 		SubTP.Context = NULL;
 		SortIt =  RetrieveSort(&SubTP, NULL, 0,
 				       HKEY("date"), defaultsortorder);
@@ -800,7 +800,7 @@ void readloop(long oper)
 
 		}
 		memset(&SubTP, 0, sizeof(WCTemplputParams));
-		SubTP.ContextType = CTX_STRBUF;
+		SubTP.Filter.ContextType = CTX_STRBUF;
 		SubTP.Context = MessageDropdown;
 		DoTemplate(HKEY("msg_listselector_top"), BBViewToolBar, &SubTP);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);
@@ -890,7 +890,7 @@ void readloop(long oper)
 			displayed_msgs = NULL;
 		}
 		memset(&SubTP, 0, sizeof(WCTemplputParams));
-		SubTP.ContextType = CTX_STRBUF;
+		SubTP.Filter.ContextType = CTX_STRBUF;
 		SubTP.Context = MessageDropdown;
 		DoTemplate(HKEY("msg_listselector_bottom"), BBViewToolBar, &SubTP);
 		StrBufAppendBuf(WCC->WBuf, BBViewToolBar, 0);

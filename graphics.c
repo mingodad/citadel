@@ -28,7 +28,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 
 	Buf = NewStrBufPlain(_("Image upload"), -1);
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.ContextType = CTX_STRBUF;
+	SubTP.Filter.ContextType = CTX_STRBUF;
 	SubTP.Context = Buf;
 	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
 

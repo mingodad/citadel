@@ -342,7 +342,7 @@ void display_note(message_summary *Msg, int unread) {
 	WCTemplputParams TP;
 
 	memset(&TP, 0, sizeof(WCTemplputParams));
-	TP.ContextType = CTX_VNOTE;
+	TP.Filter.ContextType = CTX_VNOTE;
 	v = vnote_new_from_msg(Msg->msgnum);
 	if (v) {
 //		display_vnote_div(v);

@@ -267,7 +267,7 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 			Put(Hash, nnn, nUsed, ul, DeleteUserListEntry); 
 		}
 		FreeStrBuf(&Buf);
-		SubTP.ContextType = CTX_USERLIST;
+		SubTP.Filter.ContextType = CTX_USERLIST;
 		SortIt = RetrieveSort(&SubTP, HKEY("USER"), HKEY("user:uid"), 0);
 		if (SortIt != NULL)
 			SortByPayload(Hash, SortIt);
@@ -529,7 +529,7 @@ void display_edituser(char *supplied_username, int is_new) {
 		else {
 			WCTemplputParams SubTP;
 			memset(&SubTP, 0, sizeof(WCTemplputParams));
-			SubTP.ContextType = CTX_USERLIST;
+			SubTP.Filter.ContextType = CTX_USERLIST;
 			SubTP.Context = UL;
 			output_headers(1, 0, 0, 0, 1, 0);
 			DoTemplate(HKEY("userlist_detailview"), NULL, &SubTP);
