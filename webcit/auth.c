@@ -793,7 +793,7 @@ void display_changepw(void)
 
 	Buf = NewStrBufPlain(_("Change your password"), -1);
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.ContextType = CTX_STRBUF;
+	SubTP.Filter.ContextType = CTX_STRBUF;
 	SubTP.Context = Buf;
 	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
 

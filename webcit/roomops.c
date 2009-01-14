@@ -278,7 +278,7 @@ void zapped_list(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	Buf = NewStrBufPlain(_("Zapped (forgotten) rooms"), -1);
-	SubTP.ContextType = CTX_STRBUF;
+	SubTP.Filter.ContextType = CTX_STRBUF;
 	SubTP.Context = Buf;
 	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
 
@@ -2705,7 +2705,7 @@ void display_private(char *rname, int req_pass)
 
 	Buf = NewStrBufPlain(_("Go to a hidden room"), -1);
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.ContextType = CTX_STRBUF;
+	SubTP.Filter.ContextType = CTX_STRBUF;
 	SubTP.Context = Buf;
 	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
 
@@ -3222,7 +3222,7 @@ void do_rooms_view(struct folder *fold, int max_folders, int num_floors) {
 
 			Buf = NewStrBufPlain(floor_name, -1);
 			memset(&SubTP, 0, sizeof(WCTemplputParams));
-			SubTP.ContextType = CTX_STRBUF;
+			SubTP.Filter.ContextType = CTX_STRBUF;
 			SubTP.Context = Buf;
 			DoTemplate(HKEY("beginbox"), NULL, &SubTP);
 			
