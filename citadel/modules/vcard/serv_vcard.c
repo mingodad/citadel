@@ -997,8 +997,9 @@ void vcard_newuser(struct ctdluser *usbuf) {
 #ifdef SOLARIS_GETPWUID
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer) != NULL) {
 #else // SOLARIS_GETPWUID
-		struct passwd **result = NULL;
-		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, result) == 0) {
+		struct passwd *result = NULL;
+		CtdlLogPrintf(CTDL_DEBUG, "Searching for uid %d\n", usbuf->uid);
+		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, &result) == 0) {
 #endif // HAVE_GETPWUID_R
 			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, config.c_fqdn);
 			vcard_add_prop(v, "email;internet", buf);

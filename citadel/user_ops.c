@@ -1062,14 +1062,7 @@ int create_user(char *newusername, int become_user)
 			uid = pd.pw_uid;
 			if (IsEmptyStr (username))
 			{
-				CtdlLogPrintf (CTDL_EMERG, 
-					 "Can't find Realname for user %s [%d] in the Host Auth Database; giving up.\n", 
-					 newusername, pd.pw_uid);
-				snprintf(buf, SIZ, 
-					 "Can't find Realname for user %s [%d] in the Host Auth Database; giving up.\n",
-					 newusername, pd.pw_uid);
-				aide_message(buf, "User Creation Failure Notice");
-
+				safestrncpy(username, pd.pw_name, sizeof username);
 			}
 		}
 		else {
