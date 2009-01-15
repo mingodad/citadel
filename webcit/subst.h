@@ -128,7 +128,6 @@ typedef int (*WCConditionalFunc)(StrBuf *Target, WCTemplputParams *TP);
 typedef struct _ConditionalStruct {
 	ContextFilter Filter;
 	const char *PlainName;
-	int nParams;
 	WCConditionalFunc CondF;
 } ConditionalStruct;
 void RegisterConditional(const char *Name, long len, 

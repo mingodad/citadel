@@ -206,7 +206,7 @@ int CheckContext(StrBuf *Target, ContextFilter *Need, WCTemplputParams *TP, cons
 			CtxNames[TP->Filter.ControlContextType]);
 		return 0;
 	}
-			
+/*			
 	if (TP->Tokens->nParameters < Need->nMinArgs) {
 		LogTemplateError(Target, ErrType, ERR_NAME, TP,
 				 "needs at least %ld params, have %ld", 
@@ -218,11 +218,12 @@ int CheckContext(StrBuf *Target, ContextFilter *Need, WCTemplputParams *TP, cons
 	else if (TP->Tokens->nParameters > Need->nMaxArgs) {
 		LogTemplateError(Target, ErrType, ERR_NAME, TP,
 				 "just needs %ld params, you gave %ld",
-				 TP->Tokens->nParameters, 
-				 Need->nMaxArgs);
+				 Need->nMaxArgs,
+				 TP->Tokens->nParameters); 
 		return 0;
 
 	}
+*/
 	return 1;
 }
 
@@ -1755,14 +1756,10 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP
 		return 1;
 	}
 
-	if (TP->Tokens->nParameters < Cond->nParams) {
-		LogTemplateError(                               
-			Target, "Conditional", ERR_PARM1, TP,
-			"needs %ld Params, have %ld!", 
-			Cond->nParams,
-			TP->Tokens->nParameters);
+	if (!CheckContext(Target, &Cond->Filter, TP, "Conditional")) {
 		return 0;
 	}
+
 	if (Cond->CondF(Target, TP) == Neg)
 		return TP->Tokens->Params[1]->lvalue;
 	return 0;
@@ -1777,10 +1774,6 @@ int ConditionalVar(StrBuf *Target, WCTemplputParams *TP)
 		return 0;
 	subst = (wcsubst*) vsubst;
 	
-	if (!CheckContext(Target, &subst->Filter, TP, "Conditional")) {
-		return -1;
-	}
-
 	switch(subst->wcs_type) {
 	case WCS_FUNCTION:
 		return (subst->wcs_function!=NULL);
@@ -1811,7 +1804,8 @@ void RegisterConditional(const char *Name, long len,
 {
 	ConditionalStruct *Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
 	Cond->PlainName = Name;
-	Cond->nParams = nParams;
+	Cond->Filter.nMaxArgs = nParams;
+	Cond->Filter.nMinArgs = nParams;
 	Cond->CondF = CondF;
 	Cond->Filter.ContextType = ContextRequired;
 	Cond->Filter.ControlContextType = CTX_NONE;
@@ -1825,7 +1819,8 @@ void RegisterControlConditional(const char *Name, long len,
 {
 	ConditionalStruct *Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
 	Cond->PlainName = Name;
-	Cond->nParams = nParams;
+	Cond->Filter.nMaxArgs = nParams;
+	Cond->Filter.nMinArgs = nParams;
 	Cond->CondF = CondF;
 	Cond->Filter.ContextType = CTX_NONE;
 	Cond->Filter.ControlContextType = ControlContextRequired;
