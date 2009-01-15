@@ -59,6 +59,8 @@ typedef struct _HashHandler {
 void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere);
 int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP);
 
+
+
 typedef struct _SortStruct {
 	StrBuf *Name;
 	StrBuf *PrefPrepend;
@@ -1049,7 +1051,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 					if (NewToken->nParameters > MAXPARAM) {
 						LogTemplateError(
 							NULL, "Parseerror", ERR_NAME, &TP,
-							"only [%ld] Params allowed in Tokens",
+							"only [%d] Params allowed in Tokens",
 							MAXPARAM);
 
 						free(Param);
@@ -1089,7 +1091,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			    (NewToken->nParameters > Handler->Filter.nMaxArgs)) {
 				LogTemplateError(
 					NULL, "Token", ERR_NAME, &TP,
-					"doesn't work with %ld params", 
+					"doesn't work with %d params", 
 					NewToken->nParameters);
 
 			}
@@ -1103,7 +1105,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		if (NewToken->nParameters !=1) {
 			LogTemplateError(                               
 				NULL, "Gettext", ERR_NAME, &TP,
-				"requires exactly 1 parameter, you gave %ld params", 
+				"requires exactly 1 parameter, you gave %d params", 
 				NewToken->nParameters);
 			NewToken->Flags = 0;
 			break;
@@ -1113,7 +1115,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		if (NewToken->nParameters != 1) {
 			LogTemplateError(
 				NULL, "Subtemplates", ERR_NAME, &TP,
-				"require exactly 1 parameter, you gave %ld params", 
+				"require exactly 1 parameter, you gave %d params", 
 				NewToken->nParameters);
 			break;
 		}
@@ -1124,7 +1126,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		if (NewToken->nParameters <2) {
 			LogTemplateError(
 				NULL, "Conditional", ERR_NAME, &TP,
-				"require at least 2 parameters, you gave %ld params", 
+				"require at least 2 parameters, you gave %d params", 
 				NewToken->nParameters);
 			NewToken->Flags = 0;
 			break;
@@ -1631,7 +1633,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	if (TP->Tokens->nParameters < It->AdditionalParams + 2) {
 		LogTemplateError(                               
 			Target, "Iterator", ERR_PARM1, TP,
-			"doesn't work with %ld params", 
+			"doesn't work with %d params", 
 			TP->Tokens->nParameters);
 		return;
 	}
@@ -1640,7 +1642,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	    (It->XPectContextType != TP->Filter.ContextType)) {
 		LogTemplateError(
 			Target, "Iterator", ERR_PARM1, TP,
-			"requires context of type %ld, have %ld", 
+			"requires context of type %d, have %d", 
 			It->XPectContextType, 
 			TP->Filter.ContextType);
 		return ;
