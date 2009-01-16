@@ -1145,6 +1145,14 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 		 /* Look up the , in the bible if you're confused */
 		 (locate_host(ipc, buf), buf), buf);
 
+	/* Indicate to the server that we prefer to decode Base64 and
+	 * quoted-printable on the client side.
+	 */
+	if ((CtdlIPCSpecifyPreferredFormats(ipc, buf, "dont_decode") / 100 ) != 2) {
+		scr_printf("ERROR: Extremely old server; MSG4 framework not supported.\n");
+		logoff(ipc, 0);
+	}
+
 	/*
 	 * Tell the server what our preferred content formats are.
 	 *
@@ -1152,14 +1160,7 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 	 * it to the reader's screen width, but since our HTML-to-text parser
 	 * isn't really all that great, it's probably better to just go with
 	 * the plain text when we have it available.
-	 *
-	 * We also indicate to the server that we prefer to decode Base64 and
-	 * quoted-printable on the client side.
 	 */
-	if ((CtdlIPCSpecifyPreferredFormats(ipc, buf, "dont_decode") / 100 ) != 2) {
-		scr_printf("ERROR: Extremely old server; MSG4 framework not supported.\n");
-		logoff(ipc, 0);
-	}
 	if ((CtdlIPCSpecifyPreferredFormats(ipc, buf, "text/plain|text/html") / 100 ) != 2) {
 		scr_printf("ERROR: Extremely old server; MSG4 framework not supported.\n");
 		logoff(ipc, 0);
