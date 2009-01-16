@@ -1202,26 +1202,6 @@ int CtdlIPCMoveFile(CtdlIPC *ipc, const char *filename, const char *destroom, ch
 }
 
 
-/* NETF */
-int CtdlIPCNetSendFile(CtdlIPC *ipc, const char *filename, const char *destnode, char *cret)
-{
-	register int ret;
-	char *aaa;
-
-	if (!cret) return -2;
-	if (!filename) return -2;
-	if (!destnode) return -2;
-
-	aaa = (char *)malloc(strlen(filename) + strlen(destnode) + 7);
-	if (!aaa) return -1;
-
-	sprintf(aaa, "NETF %s|%s", filename, destnode);
-	ret = CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
-	free(aaa);
-	return ret;
-}
-
-
 /* RWHO */
 int CtdlIPCOnlineUsers(CtdlIPC *ipc, char **listing, time_t *stamp, char *cret)
 {

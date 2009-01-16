@@ -548,21 +548,6 @@ void deletefile(CtdlIPC *ipc)
 	err_printf("%s\n", buf);
 }
 
-/*
- * <.A>ide <F>ile <S>end command
- */
-void netsendfile(CtdlIPC *ipc)
-{
-	char filename[32], destsys[20], buf[256];
-
-	newprompt("Filename: ", filename, 31);
-	if (IsEmptyStr(filename))
-		return;
-	newprompt("System to send to: ", destsys, 19);
-	CtdlIPCNetSendFile(ipc, filename, destsys, buf);
-	err_printf("%s\n", buf);
-	return;
-}
 
 /*
  * <.A>ide <F>ile <M>ove command

@@ -2214,10 +2214,6 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				deletefile(ipc);
 				break;
 
-			case 53:
-				netsendfile(ipc);
-				break;
-
 			case 54:
 				movefile(ipc);
 				break;

@@ -295,7 +295,6 @@ cmd=48,1,&.,&Aide,enter &Info file
 cmd=27,0,&.,&Aide,&Room,&Invite user
 cmd=28,0,&.,&Aide,&Room,&Kick out user
 cmd=51,1,&.,&Aide,&File,&Delete
-cmd=53,1,&.,&Aide,&File,&Send over net
 cmd=54,1,&.,&Aide,&File,&Move
 cmd=70,2,&.,&Aide,&Message edit:
 cmd=78,1,&.,&Aide,&Post

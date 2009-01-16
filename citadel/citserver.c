@@ -1292,10 +1292,6 @@ void do_command_loop(void) {
 		cmd_movf(&cmdbuf[5]);
 	}
 
-	else if (!strncasecmp(cmdbuf,"NETF",4)) {
-		cmd_netf(&cmdbuf[5]);
-	}
-
 	else if (!strncasecmp(cmdbuf,"OPEN",4)) {
 		cmd_open(&cmdbuf[5]);
 	}
