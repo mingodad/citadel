@@ -105,3 +105,11 @@ char *strerror(int e)
 	return(buf);
 }
 #endif
+
+
+/*
+ * Stub function
+ */
+void stty_ctdl(int cmd) {
+}
+

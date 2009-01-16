@@ -31,10 +31,7 @@
 #include "snprintf.h"
 #endif
 
-/*
- * FIXME: rewrite all of Ford's stuff here, it won't work with multiple
- * instances
- */
+/* Note that some of these functions may not work with multiple instances. */
 
 static void (*deathHook)(void) = NULL;
 int (*error_printf)(char *s, ...) = (int (*)(char *, ...))printf;
@@ -48,39 +45,27 @@ void setIPCErrorPrintf(int (*func)(char *s, ...)) {
 }
 
 void connection_died(CtdlIPC* ipc, int using_ssl) {
-	if (deathHook != NULL)
+	if (deathHook != NULL) {
 		deathHook();
+	}
 
-	error_printf("\r\nYour connection to %s is broken.\n",
-			ipc->ServInfo.humannode);
+	stty_ctdl(SB_RESTORE);
+	fprintf(stderr, "\r\n\n\n");
+	fprintf(stderr, "Your connection to %s is broken.\n", ipc->ServInfo.humannode);
 
 #ifdef HAVE_OPENSSL
 	if (using_ssl) {
-		error_printf("Last error: %s\n",
-				ERR_reason_error_string(ERR_get_error()));
+		printf(stderr, "Last error: %s\n", ERR_reason_error_string(ERR_get_error()));
+		SSL_free(ipc->ssl);
+		ipc->ssl = NULL;
 	} else
 #endif
-		error_printf("Last error: %s\n", strerror(errno));
+		fprintf(stderr, "Last error: %s\n", strerror(errno));
 
-	error_printf("Please re-connect and log in again.\n");
+	fprintf(stderr, "Please re-connect and log in again.\n");
 	fflush(stderr);
 	fflush(stdout);
-
-#ifdef HAVE_OPENSSL
-	SSL_free(ipc->ssl);
-	ipc->ssl = NULL;
-#endif
 	shutdown(ipc->sock, 2);
 	ipc->sock = -1;
-        printf ("About to exit because of dead socket.\n");
-        exit (1);
+        exit(1);
 }
-
-
-/*
-static void ipc_timeout(int signum)
-{
-	error_printf("\rConnection timed out.\n");
-	logoff(NULL, 3);
-}
-*/

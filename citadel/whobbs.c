@@ -182,6 +182,13 @@ int main(int argc, char **argv)
 }
 
 
+/*
+ * Stub function
+ */
+void stty_ctdl(int cmd) {
+}
+
+
 #ifndef HAVE_STRERROR
 /*
  * replacement strerror() for systems that don't have it

@@ -305,3 +305,11 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
+
+/*
+ * Stub function
+ */
+void stty_ctdl(int cmd) {
+}
+
+
