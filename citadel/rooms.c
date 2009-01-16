@@ -625,11 +625,6 @@ void editthisroom(CtdlIPC *ipc)
 		}
 	} while (r / 100 != 2);
 
-	/* FIXME: Duplicate code??? */
-	if (!strcasecmp(raide, "none")) {
-		strcpy(raide, "");
-	}
-
 	/* Angels and demons dancing in my head... */
 	do {
 		snprintf(buf, sizeof buf, "%d", attr->QRep.expire_mode);
