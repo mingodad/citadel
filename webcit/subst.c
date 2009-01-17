@@ -88,7 +88,8 @@ const char *CtxNames[]  = {
 	"Context LONGVECTOR",
 	"Context ROOMS",
 	"Context FLOORS",
-	"Context ITERATE"
+	"Context ITERATE",
+	"Context UNKNOWN"
 };
 
 
@@ -99,6 +100,14 @@ void DestroySortStruct(void *vSort)
 	FreeStrBuf(&Sort->Name);
 	FreeStrBuf(&Sort->PrefPrepend);
 	free (Sort);
+}
+
+const char *ContextName(int ContextType)
+{
+	if (ContextType < CTX_UNKNOWN)
+		return CtxNames[ContextType];
+	else
+		return CtxNames[CTX_UNKNOWN];
 }
 
 void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplputParams *TP, const char *Format, ...)
@@ -118,23 +127,35 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	switch (ErrorPos) {
 	default:
 	case ERR_NAME: /* the main token name... */ 
-		Err = TP->Tokens->pName;
+		Err = (TP->Tokens!= NULL)? TP->Tokens->pName:"";
 		break;
 	case ERR_PARM1:
-		Err = TP->Tokens->Params[0]->Start;
+		Err = (TP->Tokens!= NULL)? TP->Tokens->Params[0]->Start:"";
 		break;
 	case ERR_PARM2:
-		Err = TP->Tokens->Params[1]->Start;
+		Err = (TP->Tokens!= NULL)? TP->Tokens->Params[1]->Start:"";
 		break;
 	}
-	lprintf(1, "%s [%s]  (in '%s' line %ld); %s; [%s]\n", 
-		Type, 
-		Err, 
-		ChrPtr(TP->Tokens->FileName),
-		TP->Tokens->Line, 
-		ChrPtr(Error), 
-		ChrPtr(TP->Tokens->FlatToken));
-	if (Target != NULL) {
+	if (TP->Tokens != NULL) 
+	{
+		lprintf(1, "%s [%s]  (in '%s' line %ld); %s; [%s]\n", 
+			Type, 
+			Err, 
+			ChrPtr(TP->Tokens->FileName),
+			TP->Tokens->Line, 
+			ChrPtr(Error), 
+			ChrPtr(TP->Tokens->FlatToken));
+	}
+	else 
+	{
+		lprintf(1, "%s: %s;\n", 
+			Type, 
+			ChrPtr(Error));
+	}
+	if (Target == NULL) 
+		return;
+	if (TP->Tokens != NULL) 
+	{
 		StrBufAppendPrintf(                                                          
 			Target,                                                              
 			"<pre>\n%s [%s] (in '%s' line %ld); %s\n[%s]\n</pre>\n",
@@ -144,6 +165,14 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			TP->Tokens->Line,
 			ChrPtr(Error),
 			ChrPtr(TP->Tokens->FlatToken));
+	}
+	else
+	{
+		StrBufAppendPrintf(                                                          
+			Target,                                                              
+			"<pre>\n%s: %s\n</pre>\n",
+			Type, 
+			ChrPtr(Error));
 	}
 }
 
@@ -194,8 +223,8 @@ int CheckContext(StrBuf *Target, ContextFilter *Need, WCTemplputParams *TP, cons
                 LogTemplateError(
                         Target, ErrType, ERR_PARM1, TP,
 			"  WARNING: requires Context: [%s], have [%s]!", 
-			CtxNames[Need->ContextType], 
-			CtxNames[TP->Filter.ContextType]);
+			ContextName(Need->ContextType), 
+			ContextName(TP->Filter.ContextType));
 		return 0;
 	}
 
@@ -204,8 +233,8 @@ int CheckContext(StrBuf *Target, ContextFilter *Need, WCTemplputParams *TP, cons
                 LogTemplateError(
                         Target, ErrType, ERR_PARM1, TP,
 			"  WARNING: requires Control Context: [%s], have [%s]!", 
-			CtxNames[Need->ControlContextType], 
-			CtxNames[TP->Filter.ControlContextType]);
+			ContextName(Need->ControlContextType), 
+			ContextName(TP->Filter.ControlContextType));
 		return 0;
 	}
 /*			

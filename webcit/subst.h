@@ -51,6 +51,8 @@ enum {
 #define CTX_FLOORS 15
 #define CTX_ITERATE 16
 
+#define CTX_UNKNOWN 17
+
 
 /**
  * ContextFilter resembles our RTTI information. With this structure
