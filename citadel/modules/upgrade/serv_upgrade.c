@@ -195,6 +195,27 @@ void convert_ctdluid_to_minusone(void) {
 	return;
 }
 
+
+/*
+ * Attempt to guess the name of the time zone currently in use
+ * on the underlying host system.
+ */
+void guess_time_zone(void) {
+	FILE *fp;
+	char buf[PATH_MAX];
+
+	fp = popen(file_guesstimezone, "r");
+	if (fp) {
+		if (fgets(buf, sizeof buf, fp) && (strlen(buf) > 2)) {
+			buf[strlen(buf)-1] = 0;
+			safestrncpy(config.c_default_cal_zone, buf, sizeof config.c_default_cal_zone);
+			CtdlLogPrintf(CTDL_INFO, "Configuring timezone: %s\n", config.c_default_cal_zone);
+		}
+		fclose(fp);
+	}
+}
+
+
 /*
  * Do various things to our configuration file
  */
@@ -228,6 +249,10 @@ void update_config(void) {
 	if (CitControl.version < 725) {
 		config.c_xmpp_c2s_port = 5222;
 		config.c_xmpp_s2s_port = 5269;
+	}
+
+	if (IsEmptyStr(config.c_default_cal_zone)) {
+		guess_time_zone();
 	}
 
 	put_config();

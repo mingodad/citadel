@@ -66,6 +66,7 @@ char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
 char file_chkpwd[PATH_MAX]="";
 char file_base64[PATH_MAX]="";
+char file_guesstimezone[PATH_MAX]="";
 char file_funambol_msg[PATH_MAX] = "";
 char file_dpsam_conf[PATH_MAX] = "";
 char file_dspam_log[PATH_MAX] = "";
@@ -228,6 +229,11 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 		 "%sbase64",
 		 ctdl_utilbin_dir);
 
+	snprintf(file_guesstimezone,
+		 sizeof file_guesstimezone,
+		 "%sguesstimezone.sh",
+		 ctdl_utilbin_dir);
+
 	snprintf(file_dpsam_conf,
 		 sizeof file_dpsam_conf,
 		 "%sdspam.conf",
@@ -292,6 +298,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	DBG_PRINT(file_crpt_file_cer);
 	DBG_PRINT(file_chkpwd);
 	DBG_PRINT(file_base64);
+	DBG_PRINT(file_guesstimezone);
 	DBG_PRINT(file_funambol_msg);
 }
 
