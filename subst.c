@@ -33,6 +33,7 @@ HashList *Conditionals;
 HashList *SortHash;
 
 int LoadTemplates = 0;
+int dbg_bactrace_template_errors = 0;
 WCTemplputParams NoCtx;
 
 #define SV_GETTEXT 1
@@ -174,6 +175,9 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			Type, 
 			ChrPtr(Error));
 	}
+	if (dbg_bactrace_template_errors)
+		wc_backtrace(); 
+
 }
 
 
@@ -1470,7 +1474,7 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 
 
 
-void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context, int ContextType)
+void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams *CallingTP)
 {
 	WCTemplate *pTmpl = Tmpl;
 	int done = 0;
@@ -1479,8 +1483,10 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context, int Contex
 	long len;
 	WCTemplputParams TP;
 
-	TP.Context = Context;
-	TP.Filter.ContextType = ContextType;
+	memcpy(&TP.Filter, &CallingTP->Filter, sizeof(ContextFilter));
+
+	TP.Context = CallingTP->Context;
+	TP.ControlContext = CallingTP->ControlContext;
 
 	if (LoadTemplates != 0) {			
 		if (LoadTemplates > 1)
@@ -1548,12 +1554,18 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, void *Context, int Contex
  */
 void DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputParams *TP) 
 {
+	WCTemplputParams LocalTP;
 	HashList *Static;
 	HashList *StaticLocal;
 	void *vTmpl;
 	
 	if (Target == NULL)
 		Target = WC->WBuf;
+	if (TP == NULL) {
+		memset(&LocalTP, 0, sizeof(WCTemplputParams));
+		TP = &LocalTP;
+	}
+
 	if (WC->is_mobile) {
 		Static = WirelessTemplateCache;
 		StaticLocal = WirelessLocalTemplateCache;
@@ -1584,7 +1596,7 @@ void DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputPa
 	}
 	if (vTmpl == NULL) 
 		return;
-	ProcessTemplate(vTmpl, Target, TP->Context, TP->Filter.ContextType);
+	ProcessTemplate(vTmpl, Target, TP);
 }
 
 /*-----------------------------------------------------------------------------

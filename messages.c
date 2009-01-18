@@ -12,7 +12,7 @@
 HashList *MsgHeaderHandler = NULL;
 HashList *MsgEvaluators = NULL;
 HashList *MimeRenderHandler = NULL;
-int analyze_msg = 0;
+int dbg_analyze_msg = 0;
 
 #define SUBJ_COL_WIDTH_PCT		50	/**< Mailbox view column width */
 #define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
@@ -109,7 +109,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 			
 #ifdef TECH_PREVIEW
-			if (analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+			if (dbg_analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
 #endif
 			/* look up one of the examine_* functions to parse the content */
 			if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
@@ -136,7 +136,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 				if (StrLength(HdrToken) > 0) {
 					StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 #ifdef TECH_PREVIEW
-					if (analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
+					if (dbg_analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
 #endif
 					/* the examine*'s know how to do with mime headers too... */
 					if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
