@@ -512,6 +512,7 @@ int get_room_prefs_backend(const char *key, size_t keylen,
 const StrBuf *get_X_PREFS(const char *key, size_t keylen, 
 			  const char *xkey, size_t xkeylen)
 {
+	int ret;
 	StrBuf *pref_name;
 	Preference *Prf;
 	
@@ -520,10 +521,12 @@ const StrBuf *get_X_PREFS(const char *key, size_t keylen,
 	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
 	StrBufAppendBufPlain(pref_name, key, keylen, 0);
 
-	get_pref_backend(SKEY(pref_name), &Prf);
+	ret = get_pref_backend(SKEY(pref_name), &Prf);
 	FreeStrBuf(&pref_name);
 
-	return Prf->Val;
+	if (ret)
+		return Prf->Val;
+	else return NULL;
 }
 
 void set_X_PREFS(const char *key, size_t keylen, const char *xkey, size_t xkeylen, StrBuf *value, int save_to_server)
