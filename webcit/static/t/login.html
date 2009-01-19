@@ -10,7 +10,7 @@
 <?!("COND:IMPMSG", 1)>
 <div class="login_message"><?IMPORTANTMESSAGE></div>
 <?!("X", 1)>
-<div class="login_image"><img src="image&amp;name=hello" alt="<?_("Welcome image")>"></div>
+<div class="login_image"><img src="image?name=hello"></div>
 <form action="login" method="POST"  class="box" id="login_form">
 <div>
         <label for="uname"><?_("User name:")></label>
@@ -35,7 +35,7 @@
         </div>
 </form>
 <??("COND:SERV:OPENID", 3)>
-  <div id="openid">
+  <div id="openid" class="login_using_openid_link">
   <a href="display_openid_login">
   <img src="static/openid-small.gif" border="0" valign="middle">
   <?_("Log in using OpenID")></a>
