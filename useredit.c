@@ -250,7 +250,7 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 	int len;
 	WCTemplputParams SubTP;
 
-	memset(&TP, 0, sizeof(WCTemplputParams));	
+	memset(&SubTP, 0, sizeof(WCTemplputParams));	
         serv_puts("LIST");
         serv_getln(buf, sizeof buf);
         if (buf[0] == '1') {
