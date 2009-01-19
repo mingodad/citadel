@@ -285,6 +285,12 @@ void tmplput_USERLIST_UserName(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, ul->UserName, 0);
 }
 
+void tmplput_USERLIST_Password(StrBuf *Target, WCTemplputParams *TP)
+{
+	UserListEntry *ul = (UserListEntry*) CTX;
+	StrBufAppendTemplate(Target, TP, ul->Passvoid, 0);
+}
+
 void tmplput_USERLIST_AccessLevelNo(StrBuf *Target, WCTemplputParams *TP)
 {
 	UserListEntry *ul = (UserListEntry*) CTX;
@@ -686,6 +692,7 @@ InitModule_USEREDIT
 	WebcitAddUrlHandler(HKEY("create_user"), create_user, 0);
 
 	RegisterNamespace("USERLIST:USERNAME",      0, 1, tmplput_USERLIST_UserName, CTX_USERLIST);
+	RegisterNamespace("USERLIST:PASSWD",        0, 1, tmplput_USERLIST_Password, CTX_USERLIST);
 	RegisterNamespace("USERLIST:ACCLVLNO",      0, 0, tmplput_USERLIST_AccessLevelNo, CTX_USERLIST);
 	RegisterNamespace("USERLIST:ACCLVLSTR",     0, 0, tmplput_USERLIST_AccessLevelStr, CTX_USERLIST);
 	RegisterNamespace("USERLIST:UID",           0, 0, tmplput_USERLIST_UID, CTX_USERLIST);
