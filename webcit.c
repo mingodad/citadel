@@ -175,7 +175,8 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		}
 
 		if ( (WC->logged_in) && (!unset_cookies) ) {
-		  DoTemplate(HKEY("iconbar"), NULL, &NoCtx);
+			DoTemplate(HKEY("iconbar"), NULL, &NoCtx);
+			page_popup();
 		}
 
 		if (do_room_banner == 1) {
