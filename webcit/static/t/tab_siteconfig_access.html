@@ -48,7 +48,7 @@
 <input type="checkbox" NAME="c_disable_newu" VALUE="yes" <?%("COND:SERVCFG", 1, "c_disable_newu", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Enable host based authentication mode")></td><td>
-<input type="hidden" NAME="c_auth_mode" VALUE='<?%("COND:SERVCFG", 1, "c_auth_mode", 1, "'Yes'", "'No'")>'>
+<input type="hidden" NAME="c_auth_mode" VALUE="<?SERV:CFG("c_auth_mode")>">
 <?!("COND:SERVCFG", 1, "c_auth_mode", 1)>
 <?_("Yes")>
 <?!("X", 1)>
