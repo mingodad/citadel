@@ -1509,6 +1509,11 @@ li.event_unread span, a.event_read_title {
 	height: 16px;
 }
 
+
+.login_using_openid_link {
+	text-align: center;
+}
+
 .openid_urlarea {
 	background: url('openid-small.gif') no-repeat scroll 0pt 50%;
 	padding-left: 18px;
