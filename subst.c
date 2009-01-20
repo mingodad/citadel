@@ -1635,14 +1635,14 @@ void RegisterITERATOR(const char *Name, long len,
 	Put(Iterators, Name, len, It, NULL);
 }
 
-typedef struct _iteratestruct {
+/* typedef struct _iteratestruct {
 	int GroupChange;
 	int oddeven;
 	const char *Key;
 	long KeyLen;
 	int n;
 	int LastN;
-}IterateStruct;
+	}IterateStruct; */
 
 void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 {
