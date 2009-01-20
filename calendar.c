@@ -842,10 +842,19 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			icalcomponent_remove_property(vtodo,prop);
 			icalproperty_free(prop);
 		}
+		icalcomponent_remove_property(vtodo,
+			icalcomponent_get_first_property(vtodo, ICAL_PERCENTCOMPLETE_PROPERTY));
 		if (havebstr("status")) {
-			icalproperty_status taskStatus = icalproperty_string_to_status(
-				bstr("status"));
+			icalproperty_status taskStatus = icalproperty_string_to_status(bstr("status"));
 			icalcomponent_set_status(vtodo, taskStatus);
+			icalcomponent_add_property(vtodo,
+				icalproperty_new_percentcomplete(
+					(strcasecmp(bstr("status"), "completed") ? 0 : 100)
+				)
+			);
+		}
+		else {
+			icalcomponent_add_property(vtodo, icalproperty_new_percentcomplete(0));
 		}
 		while (prop = icalcomponent_get_first_property(vtodo,
 							       ICAL_CATEGORIES_PROPERTY), prop != NULL) {
