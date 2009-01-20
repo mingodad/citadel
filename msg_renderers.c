@@ -406,33 +406,23 @@ HashList *iterate_get_mailsumm_All(StrBuf *Target, WCTemplputParams *TP)
 	return WC->summ;
 }
 int Conditional_ROOM_DISPLAY_MSG(StrBuf *Target, WCTemplputParams *TP) {
-  	long num_inset;
-	wcsubst *subst;
 	wcsession *WCC = WC;
-  
-	if (GetHash(WCC->vars, HKEY("ITERATE:N"), (void *)&subst) && 
-	    (subst != NULL)) {
-		num_inset = subst->lvalue;
-		if ((num_inset >= WC->startmsg) && (WCC->num_displayed <= WCC->maxmsgs)) {
-			WCC->num_displayed = WCC->num_displayed+1;
-			return 1; /* Pass GO, collect $200 */
-		} 
-	}
+	IterateStruct *ITC = CCTX;
+	int num_inset = ITC->n;
+	if ((num_inset >= WC->startmsg) && (WCC->num_displayed <= WCC->maxmsgs)) {
+	WCC->num_displayed = WCC->num_displayed+1;
+	return 1; /* Pass GO, collect $200 */
+	} 
 	return 0;
 }
 int Conditional_MAIL_SUMM_LASTMSG(StrBuf *Target, WCTemplputParams *TP) {
-	wcsubst *nsubst;
-	long is_last_n = 0;
-  
-	if (GetHash(WC->vars, HKEY("ITERATE:LASTN"), (void *)&nsubst) &&
-	    (nsubst != NULL)) {
-		is_last_n = nsubst->lvalue;
+  IterateStruct *ITC = CCTX;
+	int is_last_n = ITC->LastN;
 /*
 	//GetHash(WC->vars, HKEY("ITERATE:N"), (void *)&n_dsubst);
 	//num_inset = n_dsubst->lvalue;
 	*/
 	/* Is the num_displayed higher than maxmsgs? OR last in iterator */
-	}
 	return ((WC->num_displayed > WC->maxmsgs) || (is_last_n == 1));
 }
 void examine_time(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
