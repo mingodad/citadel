@@ -165,8 +165,15 @@ typedef struct _ConditionalStruct {
 	WCConditionalFunc CondF;
 } ConditionalStruct;
 
-
-
+/** IterateStruct TODO: SHOULD BE PRIVATE */
+typedef struct _iteratestruct {
+        int GroupChange;
+        int oddeven;  
+        const char *Key;
+        long KeyLen;
+        int n;
+        int LastN;
+}IterateStruct;
 
 typedef void (*SubTemplFunc)(StrBuf *TemplBuffer, WCTemplputParams *TP);
 typedef HashList *(*RetrieveHashlistFunc)(StrBuf *Target, WCTemplputParams *TP);
