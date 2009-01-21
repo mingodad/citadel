@@ -132,7 +132,7 @@ void fmt_time(char *buf, time_t thetime)
 		hour = hour - 12;
 
 	if (time_format == WC_TIMEFORMAT_24) {
-		sprintf(buf, "%2d:%02d",
+		sprintf(buf, "%d:%02d",
 			tm->tm_hour, tm->tm_min
 		);
 	}
