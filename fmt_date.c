@@ -92,6 +92,21 @@ void webcit_fmt_date(char *buf, time_t thetime, int brief)
 }
 
 
+/* 
+ * Try to guess whether the user will prefer 12 hour or 24 hour time based on the locale.
+ */
+long guess_calhourformat(void) {
+	char buf[32];
+	struct tm tm;
+	memset(&tm, 0, sizeof tm);
+	wc_strftime(buf, 32, "%X", &tm);
+	if (buf[strlen(buf)-1] == 'M') {
+		return 12;
+	}
+	return 24;
+}
+
+
 /*
  * learn the users timeformat preference.
  */
@@ -102,7 +117,16 @@ int get_time_format_cached (void)
 	time_format_cache = &(WC->time_format_cache);
 	if (*time_format_cache == WC_TIMEFORMAT_NONE)
 	{
-		get_pref_long("calhourformat", &calhourformat, 24);
+		get_pref_long("calhourformat", &calhourformat, 99);
+
+		/* If we don't know the user's time format preference yet,
+		 * make a guess based on the locale.
+		 */
+		if (calhourformat == 99) {
+			calhourformat = guess_calhourformat();
+		}
+
+		/* Now set the preference */
 		if (calhourformat == 24) 
 			*time_format_cache = WC_TIMEFORMAT_24;
 		else
