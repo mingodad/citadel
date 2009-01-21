@@ -121,6 +121,8 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 		else {
 			LastData = Data = malloc(sizeof(Preference));
 			memset(Data, 0, sizeof(Preference));
+			Data->Key = NewStrBuf();
+			Data->Val = NewStrBuf();
 			StrBufExtract_token(Data->Key, ReadBuf, 0, '|');
 			StrBufExtract_token(Data->Val, ReadBuf, 1, '|');
 			if (!IsEmptyStr(ChrPtr(Data->Key)))
@@ -153,8 +155,7 @@ void load_preferences(void)
 	char buf[SIZ];
 	long msgnum = 0L;
 	
-	if (!goto_config_room())
-		return;
+	if (goto_config_room() != 0) return;	/* oh well. */
 
 	ReadBuf = NewStrBuf();
 	serv_puts("MSGS ALL|0|1");
