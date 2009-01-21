@@ -1324,7 +1324,10 @@ void calendar_summary_view(void) {
 						wprintf("\">");
 					}
 					escputs((char *) icalproperty_get_comment(p));
-					wprintf(" (%s)</a><br />\n", timestring);
+					if (!all_day_event) {
+						wprintf(" (%s)", timestring);
+					}
+					wprintf("</a><br />\n");
 				}
 			}
 		}
