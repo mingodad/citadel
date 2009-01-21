@@ -262,7 +262,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf(_("Notes"));
 	wprintf("</B></TD><TD>\n"
 		"<TEXTAREA NAME=\"description\" wrap=soft "
-		"ROWS=5 COLS=80 WIDTH=80>\n"
+		"ROWS=5 COLS=72 WIDTH=72>\n"
 	);
 	p = icalcomponent_get_first_property(vevent, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
@@ -388,7 +388,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" id=\"attendees_box\" wrap=soft "
-		"ROWS=3 COLS=80 WIDTH=80>\n",
+		"ROWS=10 COLS=72 WIDTH=72>\n",
 		(organizer_is_me ? "" : "DISABLED ")
 	);
 	i = 0;
