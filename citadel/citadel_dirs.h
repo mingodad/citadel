@@ -54,7 +54,7 @@ extern char file_dspam_log[PATH_MAX];
 
 extern char file_funambol_msg[PATH_MAX];
 
-extern void calc_dirs_n_files(int relh, int home, const char *relhome,const char  *ctdldir, int dbg);
+extern void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, int dbg);
 
 
 void assoc_file_name(char *buf, size_t n,

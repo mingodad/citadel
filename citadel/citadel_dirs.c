@@ -20,7 +20,7 @@
 #endif
 
 #include <errno.h>
-
+#include <libcitadel.h>
 
 
 #include "citadel.h"
@@ -72,6 +72,35 @@ char file_dpsam_conf[PATH_MAX] = "";
 char file_dspam_log[PATH_MAX] = "";
 
 
+
+
+void StripSlashes(char *Dir, int TrailingSlash)
+{
+	char *a, *b;
+
+	a = b = Dir;
+
+	while (!IsEmptyStr(a)) {
+		if (*a == '/') {
+			while (*a == '/')
+				a++;
+			*b = '/';
+			b++;
+		}
+		else {
+			*b = *a;
+			b++; a++;
+		}
+	}
+	if ((TrailingSlash) && (*(b - 1) != '/')){
+		*b = '/';
+		b++;
+	}
+	*b = '\0';
+
+}
+
+
 #define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
 	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
 			 (home&!relh)?ctdl_home_directory:basedir, \
@@ -85,7 +114,7 @@ char file_dspam_log[PATH_MAX] = "";
 #define DBG_PRINT(A) if (dbg==1) fprintf (stderr,"%s : %s \n", #A, A)
 
 
-void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctdldir, int dbg)
+void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, int dbg)
 {
 	const char* basedir = "";
 	char dirbuffer[PATH_MAX] = "";
@@ -94,6 +123,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	 * Ok, we keep our binaries either in the citadel base dir,
 	 * or in /usr/sbin / /usr/bin
 	 */
+	StripSlashes(ctdldir, 1);
 #ifdef HAVE_ETC_DIR
 	snprintf(ctdl_sbin_dir, sizeof ctdl_sbin_dir, "/usr/sbin/");
 	snprintf(ctdl_bin_dir, sizeof ctdl_bin_dir, "/usr/bin/");
@@ -101,7 +131,8 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	snprintf(ctdl_sbin_dir, sizeof ctdl_sbin_dir, ctdldir);
 	snprintf(ctdl_bin_dir, sizeof ctdl_bin_dir, ctdldir);
 #endif
-
+	StripSlashes(ctdl_sbin_dir, 1);
+	StripSlashes(ctdl_bin_dir, 1);
 #ifndef HAVE_ETC_DIR
 	basedir=ctdldir;
 #else
@@ -109,6 +140,8 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 #endif
 	COMPUTE_DIRECTORY(ctdl_netcfg_dir);
 	COMPUTE_DIRECTORY(ctdl_etc_dir);
+	StripSlashes(ctdl_netcfg_dir, 1);
+	StripSlashes(ctdl_etc_dir, 1);
 
 #ifndef HAVE_UTILBIN_DIR
 	basedir=ctdldir;
@@ -116,6 +149,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	basedir=UTILBIN_DIR;
 #endif
 	COMPUTE_DIRECTORY(ctdl_utilbin_dir);
+	StripSlashes(ctdl_utilbin_dir, 1);
 
 #ifndef HAVE_RUN_DIR
 	basedir=ctdldir;
@@ -123,6 +157,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	basedir=RUN_DIR;
 #endif
 	COMPUTE_DIRECTORY(ctdl_run_dir);
+	StripSlashes(ctdl_run_dir, 1);
 
 #ifndef HAVE_STATICDATA_DIR
 	basedir=ctdldir;
@@ -130,6 +165,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	basedir=STATICDATA_DIR;
 #endif
 	COMPUTE_DIRECTORY(ctdl_message_dir);
+	StripSlashes(ctdl_message_dir, 1);
 
 #ifndef HAVE_HELP_DIR
 	basedir=ctdldir;
@@ -137,6 +173,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	basedir=HELP_DIR;
 #endif
 	COMPUTE_DIRECTORY(ctdl_hlp_dir);
+	StripSlashes(ctdl_hlp_dir, 1);
 
 #ifndef HAVE_DATA_DIR
 	basedir=ctdldir;
@@ -152,6 +189,17 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	COMPUTE_DIRECTORY(ctdl_info_dir);
 	COMPUTE_DIRECTORY(ctdl_usrpic_dir);
 	COMPUTE_DIRECTORY(ctdl_bbsbase_dir);
+
+	StripSlashes(ctdl_bio_dir, 1);
+	StripSlashes(ctdl_bb_dir, 1);
+	StripSlashes(ctdl_data_dir, 1);
+	StripSlashes(ctdl_dspam_dir, 1);
+	StripSlashes(ctdl_file_dir, 1);
+	StripSlashes(ctdl_image_dir, 1);
+	StripSlashes(ctdl_info_dir, 1);
+	StripSlashes(ctdl_usrpic_dir, 1);
+	StripSlashes(ctdl_bbsbase_dir, 1);
+
 #ifndef HAVE_SPOOL_DIR
 	basedir=ctdldir;
 #else
@@ -161,74 +209,83 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 	COMPUTE_DIRECTORY(ctdl_netout_dir);
 	COMPUTE_DIRECTORY(ctdl_netin_dir);
 
+	StripSlashes(ctdl_spool_dir, 1);
+	StripSlashes(ctdl_netout_dir, 1);
+	StripSlashes(ctdl_netin_dir, 1);
+
 	/* ok, now we know the dirs, calc some commonly used files */
 
 	snprintf(file_arcq, 
 			 sizeof file_arcq,
 			 "%srefcount_adjustments.dat",
 			 ctdl_etc_dir);
-
+	StripSlashes(file_arcq, 0);
 	snprintf(file_citadel_control, 
 			 sizeof file_citadel_control,
 			 "%scitadel.control",
 			 ctdl_etc_dir
 			 );
-
+	StripSlashes(file_citadel_control, 0);
 	snprintf(file_citadel_config, 
 			 sizeof file_citadel_config,
 			 "%scitadel.config",
 			 ctdl_etc_dir);
-
+	StripSlashes(file_citadel_config, 0);
 	snprintf(file_citadel_rc, 
 			 sizeof file_citadel_rc,
 			 "%scitadel.rc",
 			 ctdl_etc_dir);
-
+	StripSlashes(file_citadel_rc, 0);
 	snprintf(file_lmtp_socket, 
 			 sizeof file_lmtp_socket,
 			 "%slmtp.socket",
 			 ctdl_run_dir);
-
+	StripSlashes(file_lmtp_socket, 0);
 	snprintf(file_lmtp_unfiltered_socket, 
 			 sizeof file_lmtp_socket,
 			 "%slmtp-unfiltered.socket",
 			 ctdl_run_dir);
-
+	StripSlashes(file_lmtp_unfiltered_socket, 0);
 	snprintf(file_citadel_socket, 
 			 sizeof file_citadel_socket,
 				"%scitadel.socket",
 			 ctdl_run_dir);
+	StripSlashes(file_citadel_socket, 0);
 	snprintf(file_pid_file, 
 		 sizeof file_pid_file,
 		 "%scitadel.pid",
 		 ctdl_run_dir);
+	StripSlashes(file_pid_file, 0);
 	snprintf(file_pid_paniclog, 
 		 sizeof file_pid_paniclog, 
 		 "%spanic.log",
 		 ctdl_home_directory);
+	StripSlashes(file_pid_paniclog, 0);
 	snprintf(file_crpt_file_key,
 		 sizeof file_crpt_file_key, 
 		 "%s/citadel.key",
 		 ctdl_key_dir);
+	StripSlashes(file_crpt_file_key, 0);
 	snprintf(file_crpt_file_csr,
 		 sizeof file_crpt_file_csr, 
 		 "%s/citadel.csr",
 		 ctdl_key_dir);
+	StripSlashes(file_crpt_file_csr, 0);
 	snprintf(file_crpt_file_cer,
 		 sizeof file_crpt_file_cer, 
 		 "%s/citadel.cer",
 		 ctdl_key_dir);
-
+	StripSlashes(file_crpt_file_cer, 0);
 	snprintf(file_chkpwd,
 		 sizeof file_chkpwd, 
 		 "%schkpwd",
 		 ctdl_utilbin_dir);
-
+	StripSlashes(file_chkpwd, 0);
 	snprintf(file_base64,
 		 sizeof file_base64,
 		 "%sbase64",
 		 ctdl_utilbin_dir);
-
+	StripSlashes(file_base64, 0);
 	snprintf(file_guesstimezone,
 		 sizeof file_guesstimezone,
 		 "%sguesstimezone.sh",
@@ -238,11 +295,12 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 		 sizeof file_dpsam_conf,
 		 "%sdspam.conf",
 		 ctdl_etc_dir);
+	StripSlashes(file_dpsam_conf, 0);
 	snprintf(file_dspam_log, 
 		 sizeof file_dspam_log, 
 		 "%sdspam.log",
 		 ctdl_home_directory);
-	
+	StripSlashes(file_dspam_log, 0);
 	/* 
 	 * DIRTY HACK FOLLOWS! due to configs in the network dir in the 
 	 * legacy installations, we need to calculate ifdeffed here.
@@ -256,12 +314,13 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, const char  *ctd
 		 ctdl_spool_dir
 #endif
 		);
-                
+	StripSlashes(file_mail_aliases, 0);
         snprintf(file_funambol_msg,
                 sizeof file_funambol_msg,
                 "%sfunambol_newmail_soap.xml",
                 ctdl_spool_dir);
-        
+	StripSlashes(file_funambol_msg, 0);
+
 	DBG_PRINT(ctdl_bio_dir);
 	DBG_PRINT(ctdl_bb_dir);
 	DBG_PRINT(ctdl_data_dir);
