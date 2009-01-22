@@ -131,7 +131,7 @@ void openid_purge(struct ctdluser *usbuf) {
 	char *deleteme = NULL;
 	long len;
 	void *Value;
-	char *Key;
+	const char *Key;
 
 	keys = NewHash(1, NULL);
 	if (!keys) return;
