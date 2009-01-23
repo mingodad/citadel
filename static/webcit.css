@@ -7,24 +7,28 @@
 
 html {	font-size: 100%;}
 
-body { font-size: 11pt}
+body { font-size: 100%;}
 
-#banner h1 { font-size: 16pt; }
+#banner h1 { font-size: 160%; }
 
 #banner h2,#banner .titlebar, .address_book_popup_title {
-	font-size: 13pt;
+	font-size: 130%;
 }
 
-#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, #navbar, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span, #message_list tr > td {
-	font-size: 10pt;
+#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span, #message_list tr > td {
+	font-size: 100%;
+}
+
+#navbar {
+	font-size: 75%;
 }
 
 .mailbox_summary {
-	font-size: 8pt;
+	font-size: 80%;
 }
 
 #online_users li {
-	font-size: 8pt;
+	font-size: 80%;
 }
 .marked_row {
     color: white;
@@ -220,7 +224,7 @@ body {
 	font-weight: 700;
 }
 
-.floors_config,.roomops_zap {
+.floors_config, .roomops_zap {
 	background-color: #700;
 	border: 0;
 }
@@ -279,7 +283,7 @@ body {
 	background-color: #FF8000;
 }
 
-.tab_cell,.tab_cell_edit {
+.tab_cell, .tab_cell_edit {
 	background-color: #CCC;
 	font-weight: 700;
 }
@@ -299,7 +303,7 @@ body {
 	color: highlighttext;
 }
 
-.warning a:link,.warning a:visited,.warning a:active, .warning {
+.warning a:link, .warning a:visited, .warning a:active, .warning {
 	background: none;
 	color: #FF4500;
 }
@@ -366,7 +370,6 @@ div.auto_complete ul strong.highlight {
 	color: #800;
 }
 
-
 table.altern {
 	border-bottom: solid 2px #AAA;
 	border-top: solid 2px #AAA;
@@ -397,8 +400,7 @@ ul.adminitems li {
 	font-weight: 700;
 }
 
-ul.adminitems li span
-{
+ul.adminitems li span {
 	color: #666;
 }
 
@@ -1317,11 +1319,11 @@ td.events_of_the_day {
 }
 
 .events_of_the_day dl dt.hour {
-	font-size: 16px;
+	font-size: 160%;
 }
 
 .events_of_the_day dl dt.extrahour {
-	font-size: 8px;
+	font-size: 80%;
 }
 
 .hour_label, .extra_events dl dt {
@@ -1369,7 +1371,7 @@ li.event_framed_unread span, a.event_title {
 	filter:alpha(opacity=100); 
    	-moz-opacity:1.0;         
    	opacity: 1.0;
-        font-size: 11px;     
+        font-size: 100%;     
 }
 
 .event_framed_read {
@@ -1387,7 +1389,7 @@ li.event_framed_read span, a.event_title {
 	filter:alpha(opacity=100); 
    	-moz-opacity:1.0;         
    	opacity: 1.0;
-        font-size: 11px;     
+        font-size: 100%;  
 }
 
 .event_read {
@@ -1397,7 +1399,7 @@ li.event_read span, a.event_read_title {
 	filter:alpha(opacity=100); 
    	-moz-opacity:1.0;         
    	opacity: 1.0;
-        font-size: 11px;     
+        font-size: 100%;     
 }
 
 .event_unread {
@@ -1407,7 +1409,7 @@ li.event_unread span, a.event_read_title {
 	filter:alpha(opacity=100); 
    	-moz-opacity:1.0;         
    	opacity: 1.0;
-        font-size: 11px;     
+        font-size: 100%;     
 }
 
 .mini_calendar {
@@ -1475,7 +1477,7 @@ li.event_unread span, a.event_read_title {
 	top: 0px;
 	left: 0px;
 	background-color: #888800;
-        font-size: 6px;     
+        font-size: 60%;     
 }
 
 .stickynote_body {
