@@ -2,12 +2,14 @@
     min-height: 32px;
     background-repeat: no-repeat !important;
     vertical-align: middle;
+    font-size: 90%;
 }
 #button > li > a , #ib_logoff > a {
     padding-top: 6px;
     padding-left: 35px;
     min-height: 25px; /* Makes all of the 'button' to be clickable */
     height: 100%;
+    font-size: 90%;
 }
 #ib_summary {
     background-image: url("/static/summscreen_32x.gif");
