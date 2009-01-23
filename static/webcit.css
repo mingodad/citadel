@@ -76,6 +76,10 @@ body {
 	list-style: none;
 }
 
+#iconbar li a, #ib_logoff a {
+	font-size: 100%;
+}
+
 #room_infos, #address_book_popup, .mimepart, .room_actions form select {
 	border: 1px solid #333;
 	overflow: hidden;
