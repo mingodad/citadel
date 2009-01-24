@@ -1831,7 +1831,7 @@ msgstr "Raum Überspringen"
 #: ../roomops.c:730
 msgid "Mark all messages as read, go to next room with unread messages"
 msgstr ""
-"Alle Nachrichten als ungelesen markieren, und in den nächsten Raum mit "
+"Alle Nachrichten als gelesen markieren, und in den nächsten Raum mit "
 "ungelesenen Nachrichten gehen"
 
 #: ../roomops.c:1161 ../roomops.c:1165
