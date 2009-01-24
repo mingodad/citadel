@@ -16,6 +16,7 @@ var mlh_from = null;
 var currentSorterToggle = null;
 var query = "";
 var currentlyMarkedRows = new Object();
+var markedRowId = null;
 
 var mouseDownEvent = null;
 var exitedMouseDown = false;
@@ -137,7 +138,6 @@ function loadMessages(transport) {
       trElement.setAttribute("class", "new_message");
     }
     trElement.dropEnabled = true;
-    trElement.ctdlRowId = i;
     trElement.ctdlMarked = false;
     rowArray[i] = trElement; 
   } 
@@ -188,6 +188,7 @@ function resortAndDisplay(sortMode) {
        than prototype observe */
     currentRow.onclick = CtdlMessageListClick;
     currentRow.ctdlDnDElement = summaryViewDragAndDropHandler;
+    currentRow.ctdlRowId = x;
     fragment.appendChild(currentRow);
     } catch (e) {
       alert("Exception" + e);
@@ -242,17 +243,33 @@ function CtdlMessageListClick(evt) {
   var parent = target.parentNode;
   var msgId = parent.ctdlMsgId;
   // If the ctrl key modifier wasn't used, unmark all rows and load the message
-  if (!event.shiftKey && !event.ctrlKey) {
+  if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
     unmarkAllRows();
+    markedRowId = parent.ctdlRowId;
     new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
     markRow(parent);
     new Ajax.Request('ajax_servcmd', {
       method: 'post',
 	  parameters: 'g_cmd=SEEN ' + msgId + '|1',
 	  onComplete: CtdlMarkRowAsRead(parent)});
-  } else if (event.button != 2) {
+  } else if (event.button != 2 && event.shiftKey) {
     markRow(parent);
-    // TODO: introduce code to mark rows inbetween
+    var rowId = parent.ctdlRowId;
+    var startMarkingFrom = 0;
+    var finish = 0;
+    if (rowId > markedRowId) {
+      startMarkingFrom = markedRowId+1;
+      finish = rowId;
+    } else if (rowId < markedRowId) {
+      startMarkingFrom = rowId+1;
+      finish = markedRowId;
+    } 
+    for(var x = startMarkingFrom; x<finish; x++) {
+      WCLog("Marking row "+x);
+      markRow(rowArray[x]);
+    }
+  } else if (event.button != 2 && (event.ctrlKey || event.altKey)) {
+    markRow(parent);
   }
 }
 function CtdlMarkRowAsRead(rowElement) {
@@ -326,6 +343,18 @@ function deleteAllMarkedRows() {
     delete currentlyMarkedRows[msgId];
     delete rowArray[rowArrayId];
   }
+  // Now we have to reconstruct rowarray as the array length has changed */
+  var newRowArray = new Array();
+  var x=0;
+  for(var i=0; i<rowArray.length; i++) {
+    var currentRow = rowArray[i];
+    if (currentRow != null) {
+      newRowArray[x] = currentRow;
+      x++;
+    }
+  }
+  rowArray = newRowArray;
+  resortAndDisplay(null);
 }
 function CtdlMessageListKeyUp(event) {
   var key = event.which;
@@ -333,7 +362,7 @@ function CtdlMessageListKeyUp(event) {
     for(msgId in currentlyMarkedRows) {
       new Ajax.Request('ajax_servcmd', 
 		       {method: 'post',
-			   parameters: 'g_cmd=MOVE ' + msgId + '|_TRASH_|0',
+			   parameters: 'g_cmd=MOVE ' + msgId + '|_TRASH_|0'
 			   });
     }
     deleteAllMarkedRows();
