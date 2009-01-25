@@ -108,7 +108,6 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	size_t obuflen;               /**< Length of output buffer              */
 	char *osav;                   /**< Saved pointer to output buffer       */
 #endif
-	lprintf(9, "output_html() called with msgnum=%ld\n", msgnum);
 	if (Target == NULL)
 		Target = WC->WBuf;
 

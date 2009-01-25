@@ -131,8 +131,8 @@ void do_housekeeping(void)
 }
 
 
-/**
- * \brief Wake up occasionally and clean house
+/*
+ * Wake up occasionally and clean house
  */
 void housekeeping_loop(void)
 {
@@ -143,13 +143,10 @@ void housekeeping_loop(void)
 }
 
 
-/**
- * \brief Create a Session id
+/*
+ * Create a Session id
  * Generate a unique WebCit session ID (which is not the same thing as the
  * Citadel session ID).
- *
- * \todo FIXME ... ensure that session number is truly unique
- *
  */
 int GenerateSessionID(void)
 {
@@ -245,8 +242,9 @@ int is_bogus(StrBuf *http_cmd) {
 
 const char *nix(void *vptr) {return ChrPtr( (StrBuf*)vptr);}
 
-/**
- * \brief handle one request
+/*
+ * handle one request
+ *
  * This loop gets called once for every HTTP connection made to WebCit.  At
  * this entry point we have an HTTP socket with a browser allegedly on the
  * other end, but we have not yet bound to a WebCit session.
@@ -256,7 +254,6 @@ const char *nix(void *vptr) {return ChrPtr( (StrBuf*)vptr);}
  * transaction loop.  Afterwards, we unbind from the session.  When this
  * function returns, the worker thread is then free to handle another
  * transaction.
- * \param sock the socket we will put our answer to
  */
 void context_loop(int *sock)
 {
@@ -268,7 +265,6 @@ void context_loop(int *sock)
 	char httpauth_string[1024];
 	char httpauth_user[1024];
 	char httpauth_pass[1024];
-	char *ptr = NULL;
 	int session_is_new = 0;
 	int nLine = 0;
 	int LineLen;
@@ -282,14 +278,15 @@ void context_loop(int *sock)
 	strcpy(httpauth_user, DEFAULT_HTTPAUTH_USER);
 	strcpy(httpauth_pass, DEFAULT_HTTPAUTH_PASS);
 
-	/**
+	/*
 	 * Find out what it is that the web browser is asking for
 	 */
 	HeaderName = NewStrBuf();
 	Buf = NewStrBuf();
 	LastLine = NULL;
 	HTTPHeaders = NewHash(1, NULL);
-	/**
+
+	/*
 	 * Read in the request
 	 */
 	do {
@@ -308,7 +305,7 @@ void context_loop(int *sock)
 			continue;
 		}
 
-		/** Do we need to Unfold? */
+		/* Do we need to Unfold? */
 		if ((LastLine != NULL) && 
 		    (isspace(*ChrPtr(Line)))) {
 			pch = pchs = ChrPtr(Line);
@@ -340,7 +337,7 @@ void context_loop(int *sock)
 /*///	dbg_PrintHash(HTTPHeaders, nix, NULL); */
 
 
-	/**
+	/*
 	 * Can we compress?
 	 */
 	if (GetHash(HTTPHeaders, HKEY("ACCEPT-ENCODING"), &vLine) && 
@@ -351,10 +348,8 @@ void context_loop(int *sock)
 		}
 	}
 
-	/**
-	 * Browser-based sessions use cookies for session 
-
-authentication
+	/*
+	 * Browser-based sessions use cookies for session authentication
 	 */
 	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
 	    (vLine != NULL)) {
@@ -363,7 +358,7 @@ authentication
 		got_cookie = 1;
 	}
 
-	/**
+	/*
 	 * GroupDAV-based sessions use HTTP authentication
 	 */
 	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
@@ -390,12 +385,6 @@ authentication
 	}
 
 
-	/**
-	 * If the request is prefixed by "/webcit" then chop that off.  This
-	 * allows a front end web server to forward all /webcit requests to us
-	 * while still using the same web server port for other things.
-	 */
-
 	ReqType = NewStrBuf();
 	HTTPVersion = NewStrBuf();
 	StrBufExtract_token(HTTPVersion, ReqLine, 2, ' ');
@@ -403,13 +392,16 @@ authentication
 	StrBufCutLeft(ReqLine, StrLength(ReqType) + 1);
 	StrBufCutRight(ReqLine, StrLength(HTTPVersion) + 1);
 
-	if ((follow_xff == 1) && (StrLength(ReqLine) >= 8) &&
-	    (ptr = strstr(ChrPtr(ReqLine), "/webcit/"),	/*< Handle "/webcit/" */
-	     (ptr != NULL))) {
+	/*
+	 * If the request is prefixed by "/webcit" then chop that off.  This
+	 * allows a front end web server to forward all /webcit requests to us
+	 * while still using the same web server port for other things.
+	 */
+	if ( (StrLength(ReqLine) >= 8) && (strstr(ChrPtr(ReqLine), "/webcit/")) ) {
 		StrBufCutLeft(ReqLine, 7);
 	}
 
-	/** Begin parsing the request. */
+	/* Begin parsing the request. */
 #ifdef TECH_PREVIEW
 	if ((strncmp(ChrPtr(ReqLine), "/sslg", 5) != 0) &&
 	    (strncmp(ChrPtr(ReqLine), "/static/", 8) != 0) &&
