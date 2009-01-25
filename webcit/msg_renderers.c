@@ -885,7 +885,7 @@ void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCh
 	/* HTML is fun, but we've got to strip it first */
 	output_html(ChrPtr(Mime->Charset), 
 		    (WC->wc_view == VIEW_WIKI ? 1 : 0), 
-		    StrToi(Mime->PartNum), 
+		    Mime->msgnum,
 		    Mime->Data, Buf);
 	FreeStrBuf(&Mime->Data);
 	Mime->Data = Buf;
