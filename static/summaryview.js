@@ -157,11 +157,12 @@ function loadMessages(transport) {
   if (!is_safe_mode) {
   resortAndDisplay(sortRowsByDateDescending);
   } else {
+    setupPageSelector();
     resortAndDisplay(null);
   }
-  loadingMsg.parentNode.removeChild(loadingMsg);
-  setupPageSelector();
-  query = "";
+  if (loadingMsg.parentNode != null) {
+    loadingMsg.parentNode.removeChild(loadingMsg);
+  }
 }
 function resortAndDisplay(sortMode) {
   var start = new Date();
@@ -482,6 +483,7 @@ function setupPageSelector() {
 function getPage(event) {
   var target = event.target;
   startmsg = target.options.item(target.selectedIndex).value;
+  //query = ""; // We are getting a page from the _entire_ msg list, don't query
   getMessages();
 }
 function takeOverSearchOMatic() {

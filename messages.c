@@ -1655,7 +1655,9 @@ void new_summary_view(void) {
 void jsonMessageList(void) {
   const StrBuf *room = sbstr("room");
   WC->is_ajax = 1; 
-  smart_goto(room);
+  long oper = (havebstr("query")) ? do_search : readnew;
+  gotoroom(room);
+  readloop(oper);
   WC->is_ajax = 0;
 }
 
