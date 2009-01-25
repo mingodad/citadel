@@ -15,8 +15,12 @@ body { font-size: 100%;}
 	font-size: 130%;
 }
 
-#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, #message_list_hdr table, .message_header, ul.adminitems li span, #message_list tr > td {
+#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .room_banner .infos,.room_banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, .message_header, ul.adminitems li span, #message_list tr > td {
 	font-size: 100%;
+}
+
+#message_list_hdr table {
+	font-size: 80%;
 }
 
 #navbar {
