@@ -13,6 +13,7 @@ CFLAGS = -Wall -g
 LDFALGS = 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb -rdynamic -MD -MP -D DEBUG -D VALGRIND
+	EXTRA_ARGS =  --with-backtrace
 else
 	CFLAGS += -O2
 endif
@@ -28,6 +29,7 @@ build-stamp:
 
 # ./configure
 	CFLAGS="$(CFLAGS)"; LDFLAGS="$(LDFLAGS)";  ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
+		$(EXTRA_ARGS) \
 		--prefix=/usr
 
 # Build libcitadel

@@ -57,7 +57,7 @@ install-pkgconfigDATA: $(pkgconfig_DATA)
 
 
 clean:
-	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs
+	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs
 	rm -rf .libs libcitadel.la
 
 clobber: clean
@@ -110,6 +110,8 @@ LIB_OBJS = lib/libcitadel.lo \
 	lib/hash.lo \
 	lib/lookup3.lo \
 	lib/stringbuf.lo \
+	lib/json.lo \
+	lib/wildfire.lo \
 	lib/xdgmime/xdgmime.lo \
 	lib/xdgmime/xdgmimeglob.lo \
 	lib/xdgmime/xdgmimeint.lo \
@@ -129,6 +131,8 @@ lib/vcard.lo: lib/vcard.c lib/libcitadel.h
 lib/vnote.lo: lib/vnote.c lib/libcitadel.h
 lib/lookup3.lo: lib/lookup3.c lib/libcitadel.h
 lib/hash.lo: lib/hash.c lib/libcitadel.h
+lib/json.lo: lib/json.c lib/libcitadel.h
+lib/wildfire.lo: lib/wildfire.c lib/libcitadel.h
 lib/xdgmime/xdgmime.lo: lib/xdgmime/xdgmime.c 
 lib/xdgmime/xdgmimeglob.lo:  lib/xdgmime/xdgmimeglob.c 
 lib/xdgmime/xdgmimeint.lo:  lib/xdgmime/xdgmimeint.c 

@@ -131,6 +131,17 @@ else
 	AC_MSG_RESULT(libcitadel will be built without character set conversion.)
 fi
 
+dnl disable backtrace if we don't want it.
+AC_ARG_WITH(backtrace, 
+		    [  --with-backtrace          enable backtrace dumps in the syslog],
+			[ if test "x$withval" != "xno" ; then
+			     CFLAGS="$CFLAGS  -rdynamic "
+			     LDFLAGS="$LDFLAGS  -rdynamic "
+                             AC_CHECK_FUNCS(backtrace)
+			  fi
+			]
+)
+
 
 AC_ARG_WITH(with_zlib,    [  --with-zlib             use zlib compression if present])
 dnl Checks for the zlib compression library.

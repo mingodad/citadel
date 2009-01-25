@@ -454,4 +454,81 @@ char *vnote_serialize(struct vnote *v);
 void vnote_serialize_output_field(char *append_to, char *field, char *label);
 
 
+
+
+/*
+ * Create JSON style structures in C plus serialize them to one string
+ */
+
+typedef struct JsonValue JsonValue;
+
+
+void DeleteJSONValue(void *vJsonValue);
+
+JsonValue *NewJsonObject(const char *Key, long keylen);
+
+JsonValue *NewJsonArray(const char *Key, long keylen);
+
+JsonValue *NewJsonNumber(const char *Key, long keylen, long Number);
+
+JsonValue *NewJsonBigNumber(const char *Key, long keylen, double Number);
+
+JsonValue *NewJsonString(const char *Key, long keylen, StrBuf *CopyMe);
+
+JsonValue *NewJsonPlainString(const char *Key, long keylen, const char *CopyMe, long len);
+
+JsonValue *NewJsonNull(const char *Key, long keylen);
+
+JsonValue *NewJsonBool(const char *Key, long keylen, int value);
+
+void JsonArrayAppend(JsonValue *Array, JsonValue *Val);
+
+void JsonObjectAppend(JsonValue *Array, JsonValue *Val);
+
+void SerializeJson(StrBuf *Target, JsonValue *Val);
+
+
+
+/*
+ * Citadels Wildfire implementation, see 
+ * http://www.firephp.org/Wiki/Reference/Protocol
+ * and http://wildfirehq.org/ for details
+ */
+typedef void (*AddHeaderFunc)(const char *HdrName, const char *HdrValue);
+
+typedef enum _WF_MessageType {
+	eLOG, 
+	eINFO,
+	eWARN,
+	eERROR,
+	eTRACE,
+	eEXCEPTION
+} WF_MessageType;
+
+JsonValue *WildFireException(StrBuf *Message,
+			     const char *Filename, long FileLen,
+			     long LineNo,
+			     int StackOffset);
+
+void WildFireAddArray(JsonValue *ReportBase, JsonValue *Array, WF_MessageType Type);
+
+JsonValue *WildFireMessagePlain(const char *Filename, long fnlen,
+				   long LineNo,
+				   const char *Message, long len, 
+				   WF_MessageType Type);
+
+JsonValue *WildFireMessage(const char *Filename, long fnlen,
+			   long lineno,
+			   StrBuf *Msg, 
+			   WF_MessageType Type);
+
+void WildFireInitBacktrace(const char *argvNull, int AddBaseFrameSkip);
+
+void WildFireSerializePayload(StrBuf *JsonBuffer, StrBuf *OutBuf, int *MsgCount, AddHeaderFunc AddHdr);
+
+#define WF_MAJOR "1"
+#define WF_STRUCTINDEX "1"
+#define WF_SUB "1"
+
+
 #endif	// LIBCITADEL_H
