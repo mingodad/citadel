@@ -70,7 +70,7 @@ body {
 	text-transform: uppercase;
 }
 
-#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, #ib_logoff {
+#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, #ib_logoff, #switch, #customize {
 	background-color: #F0FFFF;
 	color: #333;
 }
@@ -471,8 +471,8 @@ a:visited { color: purple; }
 
 
 
-.button_link a, input, select, #login_form #uname, #login_form #pname, #wholist li.activeuser a, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
-	background-color: #fbf4ca;
+.button_link a, input, select, #login_form #uname, #login_form #pname, li.activeuser, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+	background-color: #fbf4ca !important; /* needed for li.activeuser */
 }
 
 .button_link a, input, select, #login_form #uname, #login_form #pname, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {

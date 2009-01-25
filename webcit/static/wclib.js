@@ -144,8 +144,7 @@ function setupIconBar() {
     }
   }
   var online_users = document.getElementById("online_users");
-  var ou_displayAs = online_users.style.display;
-  if (ou_displayAs != "none") {
+  if (online_users.offsetParent != null) {
     new Ajax.PeriodicalUpdater('online_users', 'do_template?template=wholist_section', {method: 'get', frequency: 30});
   }
 }
