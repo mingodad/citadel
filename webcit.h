@@ -328,86 +328,112 @@ enum {
  */
 typedef struct wcsession wcsession;
 struct wcsession {
+/* infrastructural members */
 	wcsession *next;			/**< Linked list */
+	pthread_mutex_t SessionMutex;		/**< mutex for exclusive access */
 	int wc_session;				/**< WebCit session ID */
-	StrBuf *wc_username;			/**< login name of current user */
-	StrBuf *wc_fullname;			/**< Screen name of current user */
-	StrBuf *wc_password;			/**< Password of current user */
-	StrBuf *wc_roomname;			/**< Room we are currently in */
-	int connected;				/**< nonzero == we are connected to Citadel */
-	int logged_in;				/**< nonzero == we are logged in  */
-	int axlevel;				/**< this user's access level */
-	int is_aide;				/**< nonzero == this user is an Aide */
-	int is_room_aide;			/**< nonzero == this user is a Room Aide in this room */
+	int killthis;				/**< Nonzero == purge this session */
+	int is_mobile;			        /**< Client is a handheld browser */
+	int ctdl_pid;				/**< Session ID on the Citadel server */
+	int nonce;				/**< session nonce (to prevent session riding) */
+
+/* Session local Members */
 	int http_sock;				/**< HTTP server socket */
 	int serv_sock;				/**< Client socket to Citadel server */
 	int chat_sock;				/**< Client socket to Citadel server - for chat */
+	time_t lastreq;				/**< Timestamp of most recent HTTP */
+	time_t last_pager_check;		/**< last time we polled for instant msgs */
+/* Request local Members */
+	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
+	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment3;                   /**< third urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *WBuf;                           /**< Our output buffer */
+	StrBuf *HBuf;                           /**< Our HeaderBuffer */
+	StrBuf *this_page;			/**< URL of current page */
+	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
+	HashList *vars; 			/**< HTTP variable substitutions for this page */
+	StrBuf *http_host;			/**< HTTP Host: header */
+	int is_ajax;                            /** < are we doing an ajax request? */
+	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
+
+	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
+	char ImportantMessage[SIZ];		/**< ??? todo */
+
+/* accounting */
+	StrBuf *wc_username;			/**< login name of current user */
+	StrBuf *httpauth_user;  		/**< only for GroupDAV sessions */
+	StrBuf *wc_fullname;			/**< Screen name of current user */
+	StrBuf *wc_password;			/**< Password of current user */
+	StrBuf *httpauth_pass;  		/**< only for GroupDAV sessions */
+	int axlevel;				/**< this user's access level */
+	int is_aide;				/**< nonzero == this user is an Aide */
+	int is_room_aide;			/**< nonzero == this user is a Room Aide in this room */
+	int connected;				/**< nonzero == we are connected to Citadel */
+	int logged_in;				/**< nonzero == we are logged in  */
+	int need_regi;				/**< This user needs to register. */
+	int need_vali;				/**< New users require validation. */
+
+/* Preferences */
+	char cs_inet_email[256];		/**< User's preferred Internet addr. */
+	char reply_to[512];			/**< reply-to address */
+	HashList *hash_prefs;			/**< WebCit preferences for this user */
+	StrBuf *DefaultCharset;                 /**< Charset the user preferes */
+	int downloaded_prefs;                   /** Has the client download its prefs yet? */
+	int SavePrefsToServer;                  /**< Should we save our preferences to the server at the end of the request? */
+	int selected_language;			/**< Language selected by user */
+	int time_format_cache;                  /**< which timeformat does our user like? */
+
+/* current room related */
+	StrBuf *wc_roomname;			/**< Room we are currently in */
 	unsigned room_flags;			/**< flags associated with the current room */
 	unsigned room_flags2;			/**< flags associated with the current room */
 	int wc_view;				/**< view for the current room */
 	int wc_default_view;			/**< default view for the current room */
 	int wc_is_trash;			/**< nonzero == current room is a Trash folder */
 	int wc_floor;				/**< floor number of current room */
+	int is_mailbox;				/**< the current room is a private mailbox */
+
+/* next/previous room thingabob */
+	struct march *march;			/**< march mode room list */
 	char ugname[128];			/**< where does 'ungoto' take us */
 	long uglsn;				/**< last seen message number for ungoto */
+
+/* Uploading; mime attachments for composing messages */
+	HashList *attachments;             	/**< list of attachments for 'enter message' */
 	int upload_length;			/**< content length of http-uploaded data */
 	char *upload;				/**< pointer to http-uploaded data */
 	char upload_filename[PATH_MAX];		/**< filename of http-uploaded data */
 	char upload_content_type[256];		/**< content type of http-uploaded data */
+
 	int new_mail;				/**< user has new mail waiting */
 	int remember_new_mail;			/**< last count of new mail messages */
-	int need_regi;				/**< This user needs to register. */
-	int need_vali;				/**< New users require validation. */
-	char cs_inet_email[256];		/**< User's preferred Internet addr. */
-	pthread_mutex_t SessionMutex;		/**< mutex for exclusive access */
-	time_t lastreq;				/**< Timestamp of most recent HTTP */
-	int killthis;				/**< Nonzero == purge this session */
-	struct march *march;			/**< march mode room list */
-	char reply_to[512];			/**< reply-to address */
+
+/* Roomiew control */
 	HashList *summ;                         /**< list of messages for mailbox summary view */
   /** Perhaps these should be within a struct instead */
 	long startmsg;                          /**< message number to start at */
 	long maxmsgs;                           /**< maximum messages to display */
         long num_displayed;                     /**< number of messages actually displayed */
-	int is_mobile;			        /**< Client is a handheld browser */
-	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
-	HashList *vars; 			/**< HTTP variable substitutions for this page */
-	char this_page[512];			/**< URL of current page */
-	char http_host[512];			/**< HTTP Host: header */
-	HashList *hash_prefs;			/**< WebCit preferences for this user */
-	int SavePrefsToServer;                  /**< Should we save our preferences to the server at the end of the request? */
 	HashList *disp_cal_items;               /**< sorted list of calendar items; startdate is the sort criteria. */
-	HashList *attachments;             	/**< list of attachments for 'enter message' */
+
+
 	char last_chat_user[256];		/**< ??? todo */
-	char ImportantMessage[SIZ];		/**< ??? todo */
-	int ctdl_pid;				/**< Session ID on the Citadel server */
-	StrBuf *httpauth_user;  		/**< only for GroupDAV sessions */
-	StrBuf *httpauth_pass;  		/**< only for GroupDAV sessions */
-	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
-	int is_mailbox;				/**< the current room is a private mailbox */
+
+/* Iconbar controls */
 	struct folder *cache_fold;		/**< cache the iconbar room list */
 	int cache_max_folders;			/**< ??? todo */
 	int cache_num_floors;			/**< ??? todo */
 	time_t cache_timestamp;			/**< ??? todo */
 	HashList *IconBarSettings;             /**< which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/**< which floordiv currently expanded */
-	int selected_language;			/**< Language selected by user */
-	time_t last_pager_check;		/**< last time we polled for instant msgs */
-	int nonce;				/**< session nonce (to prevent session riding) */
-	int time_format_cache;                  /**< which timeformat does our user like? */
-	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment3;                   /**< third urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *WBuf;                           /**< Our output buffer */
-	StrBuf *HBuf;                           /**< Our HeaderBuffer */
-	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
-	StrBuf *DefaultCharset;                 /**< Charset the user preferes */
+
+
+
+/* cache stuff for templates. TODO: find a smartrer way */
 	HashList *ServCfg;                      /**< cache our server config for editing */
 	HashList *InetCfg;                      /**< Our inet server config for editing */
 
-	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
-  int is_ajax; /** < are we doing an ajax request? */
-  int downloaded_prefs; /** Has the client download its prefs yet? */
 };
 
 /* values for WC->current_iconbar */
@@ -488,7 +514,7 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
 		     StrBuf *user,
 		     StrBuf *pass,
 		     StrBuf *room);
-void locate_host(char *, int);
+void locate_host(StrBuf *TBuf, int);
 void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_response);
 void openid_manual_create(void);
 void display_login();
@@ -499,7 +525,7 @@ void display_main_menu(void);
 void display_aide_menu(void);
 void display_advanced_menu(void);
 void slrp_highest(void);
-void get_serv_info(char *, char *);
+void get_serv_info(StrBuf *, char *);
 int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
 int serv_getln(char *strbuf, int bufsize);

@@ -165,7 +165,7 @@ void display_rss(const StrBuf *roomname, StrBuf *request_method)
 	SVPutBuf("ROOM", WCC->wc_roomname, 1);
 	SVPutBuf("NODE", serv_info.serv_humannode, 1);
 	/* TODO:  Fix me */
-	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), WCC->http_host);
+	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), ChrPtr(WCC->http_host));
 	
 	/** Get room info for description */
 	serv_puts("RINF");

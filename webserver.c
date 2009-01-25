@@ -641,6 +641,8 @@ int main(int argc, char **argv)
 #endif /* ENABLE_NLS */
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
 
+	WildFireInitBacktrace(argv[0], 2);
+
 	HandlerHash = NewHash(1, NULL);
 	PreferenceHooks = NewHash(1, NULL);
 	WirelessTemplateCache = NewHash(1, NULL);

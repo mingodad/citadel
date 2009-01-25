@@ -12,7 +12,7 @@ struct serv_info serv_info; /**< our connection data to the server */
  * browser_host		the citadell we want to connect to
  * user_agent		which browser uses our client?
  */
-void get_serv_info(char *browser_host, char *user_agent)
+void get_serv_info(StrBuf *browser_host, char *user_agent)
 {
 	StrBuf *Buf;
 	char buf[SIZ];
@@ -20,11 +20,11 @@ void get_serv_info(char *browser_host, char *user_agent)
 
 	/** Tell the server what kind of client is connecting */
 	serv_printf("IDEN %d|%d|%d|%s|%s",
-		DEVELOPER_ID,
-		CLIENT_ID,
-		CLIENT_VERSION,
-		user_agent,
-		browser_host
+		    DEVELOPER_ID,
+		    CLIENT_ID,
+		    CLIENT_VERSION,
+		    user_agent,
+		    ChrPtr(browser_host)
 	);
 	serv_getln(buf, sizeof buf);
 

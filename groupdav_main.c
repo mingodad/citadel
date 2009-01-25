@@ -92,6 +92,7 @@ void groupdav_main(HashList *HTTPHeaders,
 		   StrBuf *dav_content,
 		   int Offset
 ) {
+	wcsession *WCC = WC;
 	void *vLine;
 	char dav_ifmatch[256];
 	int dav_depth;
@@ -101,11 +102,10 @@ void groupdav_main(HashList *HTTPHeaders,
 	strcpy(dav_ifmatch, "");
 	dav_depth = 0;
 
-	if (IsEmptyStr(WC->http_host) &&
+	if ((StrLength(WCC->http_host) == 0) &&
 	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) && 
 	    (vLine != NULL)) {
-		safestrncpy(WC->http_host, ChrPtr((StrBuf*)vLine),
-			    sizeof WC->http_host);
+		WCC->http_host = (StrBuf*)vLine;
 	}
 	if (GetHash(HTTPHeaders, HKEY("IF-MATCH"), &vLine) && 
 	    (vLine != NULL)) {
@@ -243,9 +243,11 @@ void groupdav_main(HashList *HTTPHeaders,
  * Output our host prefix for globally absolute URL's.
  */  
 void groupdav_identify_host(void) {
-	if (!IsEmptyStr(WC->http_host)) {
+	wcsession *WCC = WC;
+
+	if (StrLength(WCC->http_host)!=0) {
 		wprintf("%s://%s",
 			(is_https ? "https" : "http"),
-			WC->http_host);
+			ChrPtr(WCC->http_host));
 	}
 }
