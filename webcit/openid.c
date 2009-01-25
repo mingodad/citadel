@@ -67,13 +67,15 @@ void openid_attach(void) {
 	char buf[4096];
 
 	if (havebstr("attach_button")) {
+		wcsession *WCC = WC;
+
 		lprintf(CTDL_DEBUG, "Attempting to attach %s\n", bstr("openid_url"));
 
 		snprintf(buf, sizeof buf,
-			"OIDS %s|%s://%s/finalize_openid_login|%s://%s",
-			bstr("openid_url"),
-			(is_https ? "https" : "http"), WC->http_host,
-			(is_https ? "https" : "http"), WC->http_host
+			 "OIDS %s|%s://%s/finalize_openid_login|%s://%s",
+			 bstr("openid_url"),
+			 (is_https ? "https" : "http"), ChrPtr(WCC->http_host),
+			 (is_https ? "https" : "http"), ChrPtr(WCC->http_host)
 		);
 
 		serv_puts(buf);

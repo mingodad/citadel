@@ -496,8 +496,10 @@ void embed_room_banner(char *got, int navbar_style) {
 	 * we want it to remember the URL as a "/dotskip" one instead of
 	 * a "skip" or "gotonext" or something like that.
 	 */
-	snprintf(WC->this_page, sizeof(WC->this_page), "dotskip&room=%s",
-		 ChrPtr(WC->wc_roomname));
+	FreeStrBuf(&WC->this_page);
+	StrBufPrintf(WC->this_page, 
+		     "dotskip&room=%s",
+		     ChrPtr(WC->wc_roomname));
 
 	/** Check for new mail. */
 	WC->new_mail = extract_int(&got[4], 9);
@@ -1794,7 +1796,7 @@ void display_editroom(void)
 		wprintf(_("The URL for subscribe/unsubscribe is: "));
 		wprintf("<TT>%s://%s/listsub</TT></td></tr>\n",
 			(is_https ? "https" : "http"),
-			WC->http_host);
+			ChrPtr(WC->http_host));
 		/* Public posting? */
 		wprintf("<tr><td>");
 		wprintf(_("Allow non-subscribers to mail to this room."));

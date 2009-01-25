@@ -15,7 +15,7 @@
  * \param tbuf the returnbuffer
  * \param client_socket the sock fd where the client is connected
  */
-void locate_host(char *tbuf, int client_socket)
+void locate_host(StrBuf *tbuf, int client_socket)
 {
 	struct sockaddr_in cs;
 	struct hostent *ch;
@@ -25,7 +25,7 @@ void locate_host(char *tbuf, int client_socket)
 
 	len = sizeof(cs);
 	if (getpeername(client_socket, (struct sockaddr *) &cs, &len) < 0) {
-		strcpy(tbuf, "<unknown>");
+		StrBufAppendBufPlain(tbuf, HKEY("<unknown>"), 0);
 		return;
 	}
 	if ((ch = gethostbyaddr((char *) &cs.sin_addr, sizeof(cs.sin_addr),
@@ -35,10 +35,10 @@ void locate_host(char *tbuf, int client_socket)
 		a2 = ((*i++) & 0xff);
 		a3 = ((*i++) & 0xff);
 		a4 = ((*i++) & 0xff);
-		sprintf(tbuf, "%d.%d.%d.%d", a1, a2, a3, a4);
+		StrBufPrintf(tbuf, "%d.%d.%d.%d", a1, a2, a3, a4);
 		return;
 	}
-	safestrncpy(tbuf, ch->h_name, 64);
+	StrBufAppendBufPlain(tbuf, ch->h_name, -1, 0);
 }
 
 /*@}*/

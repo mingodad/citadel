@@ -548,7 +548,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	StrBuf *UrlLine = NULL;
 	StrBuf *content = NULL;
 	const char *content_end = NULL;
-	char browser_host[256];
+	StrBuf *browser_host = NULL;
 	char user_agent[256];
 	int body_start = 0;
 	int is_static = 0;
@@ -576,7 +576,6 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
 	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
 	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
-	strcpy(browser_host, "");
 
 	WCC= WC;
 	if (WCC->WBuf == NULL)
@@ -655,27 +654,22 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	if ((follow_xff) &&
 	    GetHash(HTTPHeaders, HKEY("X-FORWARDED-HOST"), &vLine) &&
 	    (vLine != NULL)) {
-		safestrncpy(WCC->http_host, 
-			    ChrPtr((StrBuf*)vLine), 
-			    sizeof WCC->http_host);
+		WCC->http_host = (StrBuf*)vLine;
 	}
-	if (IsEmptyStr(WCC->http_host) && 
+	if ((StrLength(WCC->http_host) == 0) && 
 	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) &&
 	    (vLine!=NULL)) {
-		safestrncpy(WCC->http_host, 
-			    ChrPtr((StrBuf*)vLine), 
-			    sizeof WCC->http_host);
-		
+		WCC->http_host = (StrBuf*)vLine;
 	}
+
 	if (GetHash(HTTPHeaders, HKEY("X-FORWARDED-FOR"), &vLine) &&
 	    (vLine!=NULL)) {
-		safestrncpy(browser_host, 
-			    ChrPtr((StrBuf*) vLine), 
-			    sizeof browser_host);
-		while (num_tokens(browser_host, ',') > 1) {
-			remove_token(browser_host, 0, ',');
+		browser_host = (StrBuf*) vLine;
+
+		while (StrBufNum_tokens(browser_host, ',') > 1) {
+			StrBufRemove_token(browser_host, 0, ',');
 		}
-		striplt(browser_host);
+		StrBufTrim(browser_host);
 	}
 
 	if (ContentLength > 0) {
@@ -705,9 +699,9 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	}
 
 	/* make a note of where we are in case the user wants to save it */
-	safestrncpy(WCC->this_page, ChrPtr(ReqLine), sizeof(WCC->this_page));
-	remove_token(WCC->this_page, 2, ' ');
-	remove_token(WCC->this_page, 0, ' ');
+	WCC->this_page = NewStrBufDup(ReqLine);
+	StrBufRemove_token(WCC->this_page, 2, ' ');
+	StrBufRemove_token(WCC->this_page, 0, ' ');
 
 	/* If there are variables in the URL, we must grab them now */
 	UrlLine = NewStrBufDup(ReqLine);
@@ -821,7 +815,12 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			 * unless we are following X-Forwarded-For: headers
 			 * and such a header has already turned up something.
 			 */
-			if ( (!follow_xff) || (strlen(browser_host) == 0) ) {
+			if ( (!follow_xff) || (StrLength(browser_host) == 0) ) {
+				if (browser_host == NULL) {
+					browser_host = NewStrBuf();
+					Put(HTTPHeaders, HKEY("FreeMeWithTheOtherHeaders"), 
+					    browser_host, HFreeStrBuf);
+				}
 				locate_host(browser_host, WCC->http_sock);
 			}
 
@@ -1027,6 +1026,7 @@ SKIP_ALL_THIS_CRAP:
 	FreeStrBuf(&c_roomname);
 	FreeStrBuf(&c_httpauth_user);
 	FreeStrBuf(&c_httpauth_pass);
+	FreeStrBuf(&WCC->this_page);
 	fflush(stdout);
 	if (content != NULL) {
 		FreeStrBuf(&content);

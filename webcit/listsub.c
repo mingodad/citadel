@@ -61,7 +61,7 @@ void do_listsub(void)
 			email,
 			subtype,
 			(is_https ? "https" : "http"),
-			WC->http_host
+			    ChrPtr(WC->http_host)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -99,10 +99,10 @@ void do_listsub(void)
 	 */
 	else if (!strcasecmp(cmd, "unsubscribe")) {
 		serv_printf("SUBS unsubscribe|%s|%s|%s://%s/listsub",
-			room,
-			email,
-			(is_https ? "https" : "http"),
-			WC->http_host
+			    room,
+			    email,
+			    (is_https ? "https" : "http"),
+			    ChrPtr(WC->http_host)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {

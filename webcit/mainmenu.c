@@ -243,7 +243,7 @@ void display_generic(void)
 	wprintf("<br /><textarea name=\"g_input\" rows=10 cols=80 width=80></textarea><br />\n");
 
 	wprintf("<font size=-2>");
-	wprintf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), WC->http_host);
+	wprintf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), ChrPtr(WC->http_host));
 	wprintf("</font>\n");
 	wprintf("<input type=\"submit\" name=\"sc_button\" value=\"%s\">", _("Send command"));
 	wprintf("&nbsp;");
