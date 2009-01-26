@@ -464,10 +464,10 @@ a:visited { color: purple; }
 
 #customize a:active, #customize a:link, #customize a:visited { color: black; }
 
-#important_message, .buttons a:hover, .msgbuttons a:hover, input:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover, #ib_logoff:hover {
+#important_message, .buttons a:hover, .msgbuttons a:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover, #ib_logoff:hover {
 	background-color: #AD1C00;
 	color: #FFF;
-}
+} /* input:hover as well?? */
 
 
 
@@ -565,6 +565,7 @@ body, #global {
 	left: 16%;
 	width: 84%;
 	height: 18%; */
+    min-height: 18%;
 }
 
 #navbar {

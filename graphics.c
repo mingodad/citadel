@@ -22,7 +22,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 		display_main_menu();
 		return;
 	}
-	output_headers(1, 1, 0, 0, 0, 0);
+	//output_headers(1, 1, 0, 0, 0, 0);
 
 	output_headers(1, 1, 1, 0, 0, 0);
 

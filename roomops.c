@@ -3645,8 +3645,9 @@ void knrooms(void)
 		wprintf(_("Room list"));
 	}
 	wprintf("</h1></div>\n");
-
+	
 	/** offer the ability to switch views */
+	wprintf("<div id=\"actiondiv\">");
 	wprintf("<ul class=\"room_actions\">\n");
 	wprintf("<li class=\"start_page\">");
 	offer_start_page(NULL, &NoCtx);
@@ -3670,7 +3671,7 @@ void knrooms(void)
 
 	wprintf("</select>");
 	wprintf("</form></li>");
-	wprintf("</ul></div>\n");
+	wprintf("</ul></div></div>\n");
 
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
