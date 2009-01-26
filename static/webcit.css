@@ -70,7 +70,7 @@ body {
 	text-transform: uppercase;
 }
 
-#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, #ib_logoff, #switch, #customize {
+#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, #ib_logoff, .iconbar_text {
 	background-color: #F0FFFF;
 	color: #333;
 }
@@ -105,7 +105,7 @@ body {
 	border: none;
 }
 
-.logo,.logo_citadel, #switch, #customize {
+.logo,.logo_citadel, .iconbar_text {
 	border: none;
 	border-bottom: 1px solid #AAA;
 }
@@ -728,15 +728,18 @@ body, #global {
 
 /* Iconbar */
 
-.logo, .logo_citadel, #iconbar #button, #switch, #customize, #ib_logoff {
+.logo, .logo_citadel, #iconbar #button, .iconbar_text, #ib_logoff {
  	margin: 0;
  	padding: 0;
 }
 
-.logo, #citlogo, #switch, #customize, #online_users li {
+.logo, #citlogo, .iconbar_text, #online_users li {
 	text-align: center;
 }
 
+.iconbar_text > span {
+    cursor: pointer;
+}
 #iconbar #button {
 	width: 100%;
 }
