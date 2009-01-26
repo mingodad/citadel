@@ -448,7 +448,8 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
  * \param Source	source buffer; set to NULL if you just have a C-String
  * \param PlainIn       Plain-C string to append; set to NULL if unused
  * \param nbsp		If nonzero, spaces are converted to non-breaking spaces.
- * \param nolinebreaks	if set, linebreaks are removed from the string.
+ * \param nolinebreaks	if set to 1, linebreaks are removed from the string.
+ *                      if set to 2, linebreaks are replaced by &ltbr/&gt
  */
 long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int nbsp, int nolinebreaks)
 {
@@ -474,12 +475,12 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 		return -1;
 
 	bptr = Target->buf + Target->BufUsed;
-	eptr = Target->buf + Target->BufSize - 6; /* our biggest unit to put in...  */
+	eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
 
 	while (aptr < eiptr){
 		if(bptr >= eptr) {
 			IncreaseBuf(Target, 1, -1);
-			eptr = Target->buf + Target->BufSize - 6; 
+			eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
 			bptr = Target->buf + Target->BufUsed;
 		}
 		if (*aptr == '<') {
@@ -527,10 +528,17 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 			bptr += 6;
 			Target->BufUsed += 6;
 		}
-		else if ((*aptr == '\n') && (nolinebreaks)) {
+		else if ((*aptr == '\n') && (nolinebreaks == 1)) {
 			*bptr='\0';	/* nothing */
 		}
-		else if ((*aptr == '\r') && (nolinebreaks)) {
+		else if ((*aptr == '\n') && (nolinebreaks == 2)) {
+			memcpy(bptr, "&lt;br/&gt;", 11);
+			bptr += 11;
+			Target->BufUsed += 11;
+		}
+
+
+		else if ((*aptr == '\r') && (nolinebreaks != 0)) {
 			*bptr='\0';	/* nothing */
 		}
 		else{
