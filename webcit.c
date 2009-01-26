@@ -590,6 +590,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	WCC->upload = NULL;
 	WCC->is_mobile = 0;
 	WCC->trailing_javascript = NewStrBuf();
+	WCC->nWildfireHeaders = 0;
 
 	/** Figure out the action */
 	index[0] = action;

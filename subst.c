@@ -113,6 +113,8 @@ const char *ContextName(int ContextType)
 
 void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplputParams *TP, const char *Format, ...)
 {
+	wcsession *WCC;
+	StrBuf *Header;
 	StrBuf *Error;
 	StrBuf *Info;
         va_list arg_ptr;
@@ -155,8 +157,11 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	}
 	if (Target == NULL) 
 		return;
+	WCC = WC;
+	Header = NewStrBuf();
 	if (TP->Tokens != NULL) 
 	{
+		/* deprecated: 
 		StrBufAppendPrintf(                                                          
 			Target,                                                              
 			"<pre>\n%s [%s] (in '%s' line %ld); %s\n[%s]\n</pre>\n",
@@ -166,18 +171,37 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			TP->Tokens->Line,
 			ChrPtr(Error),
 			ChrPtr(TP->Tokens->FlatToken));
+		*/
+
+		SerializeJson(Header, WildFireException(SKEY(TP->Tokens->FileName),
+							TP->Tokens->Line,
+							Error,
+							1), 1);
+/*
+		SerializeJson(Header, WildFireMessage(SKEY(TP->Tokens->FileName),
+						      TP->Tokens->Line,
+						      Error,
+						      eERROR), 1);
+*/
+		WildFireSerializePayload(Header, WCC->HBuf, &WCC->nWildfireHeaders, NULL);
 	}
 	else
 	{
+		/* deprecated.
 		StrBufAppendPrintf(                                                          
 			Target,                                                              
 			"<pre>\n%s: %s\n</pre>\n",
 			Type, 
 			ChrPtr(Error));
+		*/
+		SerializeJson(Header, WildFireException(HKEY(__FILE__), __LINE__, Error, 1), 1);
+		WildFireSerializePayload(Header, WCC->HBuf, &WCC->nWildfireHeaders, NULL);
 	}
+	FreeStrBuf(&Header);
+/*
 	if (dbg_bactrace_template_errors)
 		wc_backtrace(); 
-
+*/
 }
 
 
@@ -757,7 +781,7 @@ void print_value_of(StrBuf *Target, WCTemplputParams *TP)
 	else {
 		LogTemplateError(
 			Target, "Token", ERR_NAME, TP,
-			"didn't find Handler");
+			"didn't find Handler \"%s\"", TP->Tokens->pName);
 		wc_backtrace();
 	}
 }
