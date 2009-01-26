@@ -485,7 +485,7 @@ void JsonArrayAppend(JsonValue *Array, JsonValue *Val);
 
 void JsonObjectAppend(JsonValue *Array, JsonValue *Val);
 
-void SerializeJson(StrBuf *Target, JsonValue *Val);
+void SerializeJson(StrBuf *Target, JsonValue *Val, int FreeVal);
 
 
 
@@ -505,9 +505,9 @@ typedef enum _WF_MessageType {
 	eEXCEPTION
 } WF_MessageType;
 
-JsonValue *WildFireException(StrBuf *Message,
-			     const char *Filename, long FileLen,
+JsonValue *WildFireException(const char *Filename, long FileLen,
 			     long LineNo,
+			     StrBuf *Message,
 			     int StackOffset);
 
 void WildFireAddArray(JsonValue *ReportBase, JsonValue *Array, WF_MessageType Type);

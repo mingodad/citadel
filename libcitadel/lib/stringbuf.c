@@ -653,11 +653,6 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 			memcpy(bptr, "\\\"", 2);
 			bptr += 2;
 			Target->BufUsed += 2;
-		}
-		else if (*aptr == '\'') {
-			memcpy(bptr, "\\\'", 2);
-			bptr += 2;
-			Target->BufUsed += 2;
 		} else if (*aptr == '\\') {
 		  memcpy(bptr, "\\\\", 2);
 		  bptr += 2;

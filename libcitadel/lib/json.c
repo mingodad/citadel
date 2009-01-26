@@ -179,7 +179,7 @@ void JsonObjectAppend(JsonValue *Array, JsonValue *Val)
 
 
 
-void SerializeJson(StrBuf *Target, JsonValue *Val)
+void SerializeJson(StrBuf *Target, JsonValue *Val, int FreeVal)
 {
 	void *vValue, *vPrevious;
 	JsonValue *SubVal;
@@ -215,7 +215,7 @@ void SerializeJson(StrBuf *Target, JsonValue *Val)
 				StrBufAppendBufPlain(Target, HKEY(","), 0);
 
 			SubVal = (JsonValue*) vValue;
-			SerializeJson(Target, SubVal);
+			SerializeJson(Target, SubVal, 0);
 			vPrevious = vValue;
 		}
 		StrBufAppendBufPlain(Target, HKEY("]"), 0);
@@ -237,13 +237,15 @@ void SerializeJson(StrBuf *Target, JsonValue *Val)
 			StrBufAppendBuf(Target, SubVal->Name, 0);
 			StrBufAppendBufPlain(Target, HKEY("\":"), 0);
 
-			SerializeJson(Target, SubVal);
+			SerializeJson(Target, SubVal, 0);
 			vPrevious = vValue;
 		}
 		StrBufAppendBufPlain(Target, HKEY("}"), 0);
 		break;
 	}
-
+	if(FreeVal) {
+		DeleteJSONValue(Val);
+	}
 }
 
 

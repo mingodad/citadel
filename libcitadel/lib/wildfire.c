@@ -23,10 +23,10 @@
 
 
 ConstStr WF_MsgStrs[] = {
+	{HKEY("LOG")},
 	{HKEY("INFO")},
 	{HKEY("WARN")},
 	{HKEY("ERROR")},
-	{HKEY("LOG")},
 	{HKEY("TRACE")},
 	{HKEY("EXCEPTION")}
 };
@@ -218,7 +218,7 @@ void WildFireInitBacktrace(const char *argvNull, int AddBaseFrameSkip)
 	BaseFrames --;
 	BaseFrames += AddBaseFrameSkip;
 	strings = backtrace_symbols(stack_frames, size);
-	for (i = 0; i < size; i++) {
+	for (i = 1; i < size; i++) {
 		if (strings != NULL){
 			ParseBacktrace(strings[i], Function, 
 				       FileName, 
@@ -258,9 +258,9 @@ void WildFireInitBacktrace(const char *argvNull, int AddBaseFrameSkip)
 }
 
 
-JsonValue *WildFireException(StrBuf *Message,
-			     const char *Filename, long FileLen,
+JsonValue *WildFireException(const char *Filename, long FileLen,
 			     long LineNo,
+			     StrBuf *Message,
 			     int StackOffset)
 {
 	JsonValue *ExcClass;
