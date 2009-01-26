@@ -501,7 +501,9 @@ a:visited { color: purple; }
 * html {
 	overflow: hidden;
 }
-
+html {
+    overflow: auto;
+}
 body {
 	height: 100%;
 	overflow: hidden;
@@ -509,8 +511,17 @@ body {
 }
 
 body, #global {
-	margin: 0;
+	margin-left: 0;
 	padding: 0;
+}
+
+#global {
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    overflow-y: auto;
 }
 
 #important_message {
@@ -549,27 +560,29 @@ body, #global {
 }
 
 #banner {
-	position: absolute;
+/*	position: absolute;
 	top: 0;
 	left: 16%;
 	width: 84%;
-	height: 18%;
+	height: 18%; */
 }
 
 #navbar {
-	position: absolute;
+/*	position: absolute;
 	bottom: 0; 
 	left: 0;
-	width: 100%;
+	width: 100%; */
 }
 
 #content {
-	position: absolute;
+/*	position: absolute;
 	top: 18%;
 	left: 16%;
 	width: 84%;
 	height: 82%;
-	overflow: auto;
+	overflow: auto; */
+    position: relative;
+    bottom: 0;
 }
 /* Please avoid setting heights for any of the mailbox view elements (except summary_view and resize). In particular, do NOT set any for message_list_hdr as its not good feng shui */
 #message_list_hdr {
@@ -583,8 +596,8 @@ body, #global {
 }
 
 #summary_view {
-	height: 20%;
-	overflow: auto;
+	height: 100px;
+	overflow-y: scroll;
 	cursor: pointer;
 }
 #message_list_body {
@@ -613,7 +626,7 @@ body, #global {
 	width: 100%;
 	overflow: hidden;
 	cursor: s-resize;
-    height: 1%;
+    height: 6px;
 }
 
 #preview_pane {
@@ -775,11 +788,13 @@ body, #global {
 }
 
 /* Banner */
-
+#banner {
+    margin: 0;
+    padding: 0;
+}
 #banner .room_banner {
-	float: left;
-	margin: 0;
-	padding: 0;
+    display: table-cell;
+    width: 90%;
 }
 
 #banner .room_banner img {
@@ -806,11 +821,11 @@ body, #global {
 #room_infos img.close_infos {
 	float: right;
 }
-
+#actiondiv {
+    display: table-cell;
+}
 #banner ul.room_actions {
-	margin: 0;
  	list-style: none;
-	float: right;
 	text-align: right;
 }
 

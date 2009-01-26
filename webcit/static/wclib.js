@@ -27,6 +27,7 @@ if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 var ns6=document.getElementById&&!document.all;
 Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
+Event.observe(window, 'load', fixbanner);
 //document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
 document.observe('dom:loaded', function() { if (!!document.getElementById("ib_chat_launch")) { $('ib_chat_launch').observe('click', launchChat); } });
@@ -761,4 +762,30 @@ function WCLog(msg) {
   } else if (!!window.opera && !!opera.postError) {
     opera.postError(msg);
   }
+}
+
+function fixMissingCSSTable(elems) {
+ if (elems[0] == null) {
+    return;
+  }
+  if (elems[0].getStyle("display") != "table-cell") {
+    var parentNode = elems[0].parentNode;
+    var table = document.createElement("table");
+    table.style.width = "100%";
+    var tbody = document.createElement("tbody");
+    table.appendChild(tbody);
+    var tr = document.createElement("tr");
+    tbody.appendChild(tr);
+    parentNode.appendChild(table);
+    for(var i=0; i<elems.length; i++) {
+      parentNode.removeChild(elems[i]);
+      var td = document.createElement("td");
+      td.appendChild(elems[i]);
+      tr.appendChild(td);
+    }
+  }
+}
+function fixbanner() {
+  var elems = [$('room_banner'),$('actiondiv')];
+  fixMissingCSSTable(elems);
 }

@@ -570,6 +570,10 @@ void do_logout(void)
 	FlushStrBuf(WC->wc_roomname);
 	FlushStrBuf(WC->wc_fullname);
 
+	/* FIXME: this is to suppress the iconbar displaying, because we aren't
+	   actually logged out yet */
+	WC->logged_in = 0;
+	
 	/** Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
 
