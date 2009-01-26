@@ -102,6 +102,7 @@ void GetPrefTypes(HashList *List)
 				PrefType->OnLoad(Setting->Val, Setting->lval);
 		}
 	}
+	DeleteHashPos(&It);
 }
 
 void ParsePref(HashList **List, StrBuf *ReadBuf)
