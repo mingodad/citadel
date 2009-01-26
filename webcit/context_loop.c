@@ -518,14 +518,11 @@ void context_loop(int *sock)
 		}
 		else TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
 
+		TheSession->CLineBuf = NewStrBuf();
 		TheSession->hash_prefs = NewHash(1,NULL);	/* Get a hash table for the user preferences */
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 		pthread_mutex_lock(&SessionListMutex);
-		TheSession->urlstrings = NULL;
-		TheSession->vars = NULL;
 		TheSession->nonce = rand();
-		TheSession->WBuf = NULL;
-		TheSession->CLineBuf = NewStrBuf();
 		TheSession->next = SessionList;
 		TheSession->is_mobile = -1;
 		SessionList = TheSession;
