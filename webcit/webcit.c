@@ -1039,6 +1039,7 @@ SKIP_ALL_THIS_CRAP:
 		WCC->upload_length = 0;
 	}
 	FreeStrBuf(&WCC->trailing_javascript);
+	WCC->http_host = NULL;
 }
 
 

@@ -503,7 +503,8 @@ void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int ful
 	long msgnum) {
 	struct vCard *v;
 	char *name;
-	char buf[SIZ];
+	StrBuf *Buf;
+	StrBuf *Buf2;
 	char this_alpha = 0;
 
 	v = vcard_load((char*)vcard_source); ///TODO
@@ -512,9 +513,12 @@ void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int ful
 
 	name = vcard_get_prop(v, "n", 1, 0, 0);
 	if (name != NULL) {
-		utf8ify_rfc822_string(name);
-		strcpy(buf, name);
-		this_alpha = buf[0];
+		Buf = NewStrBufPlain(name, -1);
+		Buf2 = NewStrBufPlain(NULL, StrLength(Buf));
+		StrBuf_RFC822_to_Utf8(Buf2, Buf, WC->DefaultCharset, NULL);
+		this_alpha = ChrPtr(Buf)[0];
+		FreeStrBuf(&Buf);
+		FreeStrBuf(&Buf2);
 	}
 
 	if (storename != NULL) {
