@@ -356,6 +356,7 @@ struct wcsession {
 	StrBuf *http_host;			/**< HTTP Host: header */
 	int is_ajax;                            /** < are we doing an ajax request? */
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
+	int nWildfireHeaders;                   /**< how many wildfire headers did we already send? */
 
 	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
 	char ImportantMessage[SIZ];		/**< ??? todo */
