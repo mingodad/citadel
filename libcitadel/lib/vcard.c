@@ -135,10 +135,10 @@ struct vCard *vcard_load(char *vtext) {
 		if ((nlpos > colonpos) && (colonpos > 0)) {
 			namebuf = malloc(colonpos + 1);
 			valuebuf = malloc(nlpos - colonpos + 1);
-			strncpy(namebuf, ptr, colonpos);
-			namebuf[colonpos] = 0;
-			strncpy(valuebuf, &ptr[colonpos+1], nlpos-colonpos-1);
-			valuebuf[nlpos-colonpos-1] = 0;
+			memcpy(namebuf, ptr, colonpos);
+			namebuf[colonpos] = '\0';
+			memcpy(valuebuf, &ptr[colonpos+1], nlpos-colonpos-1);
+			valuebuf[nlpos-colonpos-1] = '\0';
 
 			if (!strcasecmp(namebuf, "end")) {
 				valid = 0;
