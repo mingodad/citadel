@@ -48,6 +48,7 @@ void doUserIconStylesheet(void) {
   hprintf("Cache-Control: private\r\n");
   
   begin_burst();
+  wprintf("#global { left: 16%%; }\r\n");
   pos = GetNewHashPos(WC->IconBarSettings, 0);
   while(GetNextHashPos(WC->IconBarSettings, pos, &HKLen, &key, &Data)) {
     value = (long) Data;

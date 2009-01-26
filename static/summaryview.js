@@ -57,7 +57,6 @@ function createMessageView() {
   $('m_refresh').observe('click', getMessages);
   document.getElementById('m_refresh').setAttribute("href","#");
   Event.observe(document.onresize ? document : window, "resize", normalizeHeaderTable);
-  sizePreviewPane();
   Event.observe(document.onresize ? document : window, "resize", sizePreviewPane);
   $('summpage').observe('change', getPage);
   takeOverSearchOMatic();
@@ -163,6 +162,7 @@ function loadMessages(transport) {
   if (loadingMsg.parentNode != null) {
     loadingMsg.parentNode.removeChild(loadingMsg);
   }
+  sizePreviewPane();
 }
 function resortAndDisplay(sortMode) {
   var start = new Date();
@@ -407,18 +407,23 @@ function CtdlResizeMouseDown(event) {
 
 function sizePreviewPane() {
   var preview_pane = document.getElementById("preview_pane");
-  var content = $('content');  // we'd like to use prototype methods here
+  var summary_view = document.getElementById("summary_view");
+  var banner = document.getElementById("banner");
+  var message_list_hdr = document.getElementById("message_list_hdr");
+  var content = $('global');  // we'd like to use prototype methods here
   var childElements = content.childElements();
   var sizeOfElementsAbove = 0;
-  var heightOfContent = content.offsetHeight;
-  for(var i=0; i<childElements.length; i++) {
-    var element = childElements[i];
-    if (element.id != 'preview_pane') {
-      var height = element.offsetHeight;
-      sizeOfElementsAbove += height;
-    }
-  }
-  preview_pane.style.height = (heightOfContent-sizeOfElementsAbove)+"px";
+  var heightOfViewPort = document.viewport.getHeight() // prototypejs method
+  var bannerHeight = banner.offsetHeight;
+  var contentViewPortHeight = heightOfViewPort-banner.offsetHeight-message_list_hdr.offsetHeight;
+  contentViewPortHeight = 0.98 * contentViewPortHeight; // leave some error
+  // Set summary_view to 20%;
+  var summary_height = 0.20 * contentViewPortHeight;
+  // Set preview_pane to the remainder
+  var preview_height = 0.80 * contentViewPortHeight;
+  
+  summary_view.style.height = (summary_height)+"px";
+  preview_pane.style.height = (preview_height)+"px";
 }
 function CtdlResizeMouseMove(event) {
   var clientX = event.clientX;
@@ -465,9 +470,10 @@ function normalizeHeaderTable() {
 
 function setupPageSelector() {
   var summpage = document.getElementById("summpage");
+  //var select_page = document.getElementById("selectpage");
   summpage.innerHTML = "";
   if (is_safe_mode) {
-    summpage.parentNode.style.display="inline !important"; //override webcit.css
+    summpage.parentNode.setAttribute("style","display: inline !important"); //override webcit.css
   } else {
     return;
   }
