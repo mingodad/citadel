@@ -496,7 +496,8 @@ void embed_room_banner(char *got, int navbar_style) {
 	 * we want it to remember the URL as a "/dotskip" one instead of
 	 * a "skip" or "gotonext" or something like that.
 	 */
-	FreeStrBuf(&WC->this_page);
+	if (WC->this_page == NULL)
+		WC->this_page = NewStrBuf();
 	StrBufPrintf(WC->this_page, 
 		     "dotskip&room=%s",
 		     ChrPtr(WC->wc_roomname));
