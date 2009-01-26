@@ -132,6 +132,8 @@ function setupIconBar() {
   if (!document.getElementById("switch")) {
       return;
     }
+  _switchToRoomList = getTextContent(document.getElementById("rmlist_template"));
+  _switchToMenu = getTextContent(document.getElementById("mnlist_template"));
   var switchSpan = document.getElementById("switch").firstChild;
   if (switchSpan != null) {
     setTextContent(switchSpan, _switchToRoomList);
@@ -196,7 +198,8 @@ function IconBarRoomList() {
   var mailboxLI = document.createElement("li");
   ul.appendChild(mailboxLI);
   var mailboxSPAN = document.createElement("span");
-  mailboxSPAN.appendChild(document.createTextNode("Mailbox"));
+  var _mailbox = getTextContent(document.getElementById("mbox_template"));
+  mailboxSPAN.appendChild(document.createTextNode(_mailbox));
   $(mailboxSPAN).observe('click', expandFloorEvent);
   mailboxLI.appendChild(mailboxSPAN);
   mailboxLI.setAttribute("class", "floor");
@@ -765,7 +768,7 @@ function WCLog(msg) {
 }
 
 function fixMissingCSSTable(elems) {
- if (elems[0] == null) {
+ if (elems[0] == null || elems[1] == null) {
     return;
   }
   if (elems[0].getStyle("display") != "table-cell") {

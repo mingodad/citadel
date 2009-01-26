@@ -418,9 +418,12 @@ function sizePreviewPane() {
   var contentViewPortHeight = heightOfViewPort-banner.offsetHeight-message_list_hdr.offsetHeight;
   contentViewPortHeight = 0.98 * contentViewPortHeight; // leave some error
   // Set summary_view to 20%;
-  var summary_height = 0.20 * contentViewPortHeight;
+  var summary_height = ctdlLocalPrefs.readPref("svheight");
+  if (summary_height == null) {
+    summary_height = 0.20 * contentViewPortHeight;
+  }
   // Set preview_pane to the remainder
-  var preview_height = 0.80 * contentViewPortHeight;
+  var preview_height = contentViewPortHeight - summary_height;
   
   summary_view.style.height = (summary_height)+"px";
   preview_pane.style.height = (preview_height)+"px";
@@ -431,7 +434,10 @@ function CtdlResizeMouseMove(event) {
   var summary_view = document.getElementById("summary_view");
   var summaryViewHeight = summary_view.offsetHeight;
   var increment = clientY-saved_y;
-  summary_view.style.height = (increment+summaryViewHeight)+"px";
+  var summary_view_height = increment+summaryViewHeight;
+  summary_view.style.height = (summary_view_height)+"px";
+  // store summary view height 
+  ctdlLocalPrefs.setPref("svheight",summary_view_height);
   var msglist = document.getElementById("preview_pane");
   var msgListHeight = msglist.offsetHeight;
   msglist.style.height = (msgListHeight-increment)+"px";
