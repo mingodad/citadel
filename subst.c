@@ -884,7 +884,7 @@ void StrBufAppendTemplate(StrBuf *Target,
 				      Source, 
 				      (WCC!=NULL)? WCC->DefaultCharset : NULL, 
 				      NULL);
-		StrEscAppend(Target, Buf, NULL, 0, 0);
+		StrEscAppend(Target, Buf, NULL, 0, 2);
 		FreeStrBuf(&Buf);
 		break;
 	case 'X':
