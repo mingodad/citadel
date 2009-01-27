@@ -471,15 +471,9 @@ void close_databases(void)
 /*
  * Compression functions only used if we have zlib
  */
-#ifdef HAVE_ZLIB
-
 void cdb_decompress_if_necessary(struct cdbdata *cdb)
 {
 	static int magic = COMPRESS_MAGIC;
-	struct CtdlCompressHeader zheader;
-	char *uncompressed_data;
-	char *compressed_data;
-	uLongf destLen, sourceLen;
 
 	if (cdb == NULL)
 		return;
@@ -488,7 +482,14 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 	if (memcmp(cdb->ptr, &magic, sizeof(magic)))
 		return;
 
+#ifdef HAVE_ZLIB
 	/* At this point we know we're looking at a compressed item. */
+
+	struct CtdlCompressHeader zheader;
+	char *uncompressed_data;
+	char *compressed_data;
+	uLongf destLen, sourceLen;
+
 	memcpy(&zheader, cdb->ptr, sizeof(struct CtdlCompressHeader));
 
 	compressed_data = cdb->ptr;
@@ -509,9 +510,12 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 	free(cdb->ptr);
 	cdb->len = (size_t) destLen;
 	cdb->ptr = uncompressed_data;
+#else				/* HAVE_ZLIB */
+	CtdlLogPrintf(CTDL_EMERG, "Database contains compressed data, but this citserver was built without compression support.\n");
+	abort();
+#endif				/* HAVE_ZLIB */
 }
 
-#endif				/* HAVE_ZLIB */
 
 
 /*
@@ -737,9 +741,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 
 	tempcdb->len = dret.size;
 	tempcdb->ptr = dret.data;
-#ifdef HAVE_ZLIB
 	cdb_decompress_if_necessary(tempcdb);
-#endif
 	return (tempcdb);
 }
 
@@ -828,9 +830,7 @@ struct cdbdata *cdb_next_item(int cdb)
 	cdbret = (struct cdbdata *) malloc(sizeof(struct cdbdata));
 	cdbret->len = data.size;
 	cdbret->ptr = data.data;
-#ifdef HAVE_ZLIB
 	cdb_decompress_if_necessary(cdbret);
-#endif
 
 	return (cdbret);
 }
