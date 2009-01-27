@@ -142,6 +142,22 @@ AC_ARG_WITH(docdir,
 )
 
 
+dnl Checks for the zlib compression library.
+if test "x$with_zlib" != xno ; then
+       AC_CHECK_HEADERS(zlib.h,
+               [AC_CHECK_LIB(z, zlibVersion,
+                       [ok_zlib=yes],,
+       )])
+fi
+
+if test "x$ok_zlib" = xyes ; then
+dnl  libcitadel will bring libz, so we don't need it here.     LDFLAGS="-lz $LDFLAGS" 
+       AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
+fi
+
+
+
+
 dnl Here is the check for a libc integrated iconv
 AC_ARG_ENABLE(iconv,
 	[  --disable-iconv         do not use iconv charset conversion],
