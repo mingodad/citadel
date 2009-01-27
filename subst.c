@@ -866,7 +866,6 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  const StrBuf *Source, int FormatTypeIndex)
 {
         wcsession *WCC;
-	StrBuf *Buf;
 	char EscapeAs = ' ';
 
 	if ((FormatTypeIndex < TP->Tokens->nParameters) &&
@@ -879,13 +878,7 @@ void StrBufAppendTemplate(StrBuf *Target,
 	{
 	case 'H':
 		WCC = WC;
-		Buf = NewStrBufPlain(NULL, StrLength(Source));
-		StrBuf_RFC822_to_Utf8(Buf, 
-				      Source, 
-				      (WCC!=NULL)? WCC->DefaultCharset : NULL, 
-				      NULL);
-		StrEscAppend(Target, Buf, NULL, 0, 2);
-		FreeStrBuf(&Buf);
+		StrEscAppend(Target, Source, NULL, 0, 2);
 		break;
 	case 'X':
 		StrEscAppend(Target, Source, NULL, 0, 0);
