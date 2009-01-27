@@ -302,8 +302,8 @@ void open_databases(void)
 	db_env_set_func_yield(sched_yield);
 	ret = db_env_create(&dbenv, 0);
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: db_env_create: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_*: db_env_create: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 		exit(CTDLEXIT_DB);
 	}
 	dbenv->set_errpfx(dbenv, "citserver");
@@ -322,16 +322,16 @@ void open_databases(void)
 	 */
 	ret = dbenv->set_cachesize(dbenv, 0, 64 * 1024, 0);
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: set_cachesize: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_*: set_cachesize: %s\n", db_strerror(ret));
 		dbenv->close(dbenv, 0);
+		CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 		exit(CTDLEXIT_DB);
 	}
 
 	if ((ret = dbenv->set_lk_detect(dbenv, DB_LOCK_DEFAULT))) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: set_lk_detect: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_*: set_lk_detect: %s\n", db_strerror(ret));
 		dbenv->close(dbenv, 0);
+		CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 		exit(CTDLEXIT_DB);
 	}
 
@@ -352,8 +352,9 @@ void open_databases(void)
 		ret = dbenv->open(dbenv, ctdl_data_dir, flags, 0);
 	}
 	if (ret) {
-		CtdlLogPrintf(CTDL_DEBUG, "dbenv->open: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "dbenv->open: %s\n", db_strerror(ret));
 		dbenv->close(dbenv, 0);
+		CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 		exit(CTDLEXIT_DB);
 	}
 
@@ -364,8 +365,8 @@ void open_databases(void)
 		/* Create a database handle */
 		ret = db_create(&dbp[i], dbenv, 0);
 		if (ret) {
-			CtdlLogPrintf(CTDL_DEBUG, "db_create: %s\n",
-				db_strerror(ret));
+			CtdlLogPrintf(CTDL_EMERG, "db_create: %s\n", db_strerror(ret));
+			CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 			exit(CTDLEXIT_DB);
 		}
 
@@ -383,8 +384,11 @@ void open_databases(void)
 				   DB_CREATE | DB_AUTO_COMMIT | DB_THREAD,
 				   0600);
 		if (ret) {
-			CtdlLogPrintf(CTDL_EMERG, "db_open[%02x]: %s\n", i,
-				db_strerror(ret));
+			CtdlLogPrintf(CTDL_EMERG, "db_open[%02x]: %s\n", i, db_strerror(ret));
+			if (ret == ENOMEM) {
+				CtdlLogPrintf(CTDL_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php/faq:troubleshooting:out_of_lock_entries for more information.\n");
+			}
+			CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 			exit(CTDLEXIT_DB);
 		}
 	}
