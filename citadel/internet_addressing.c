@@ -295,6 +295,7 @@ int CtdlHostAlias(char *fqdn) {
 	int i;
 	char buf[256];
 	char host[256], type[256];
+	int found = 0;
 
 	if (fqdn == NULL) return(hostalias_nomatch);
 	if (IsEmptyStr(fqdn)) return(hostalias_nomatch);
@@ -309,18 +310,23 @@ int CtdlHostAlias(char *fqdn) {
 		extract_token(host, buf, 0, '|', sizeof host);
 		extract_token(type, buf, 1, '|', sizeof type);
 
-		if ( (!strcasecmp(type, "localhost"))
-		   && (!strcasecmp(fqdn, host)))
-			return(hostalias_localhost);
+		found = 0;
 
-		if ( (!strcasecmp(type, "directory"))
-		   && (!strcasecmp(fqdn, host)))
-			return(hostalias_directory);
+		/* Process these in a specific order, in case there are multiple matches.
+		 * We want directory to override masq, for example.
+		 */
 
-		if ( (!strcasecmp(type, "masqdomain"))
-		   && (!strcasecmp(fqdn, host)))
-			return(hostalias_masq);
+		if ( (!strcasecmp(type, "masqdomain")) && (!strcasecmp(fqdn, host))) {
+			found = hostalias_masq;
+		}
+		if ( (!strcasecmp(type, "localhost")) && (!strcasecmp(fqdn, host))) {
+			found = hostalias_localhost;
+		}
+		if ( (!strcasecmp(type, "directory")) && (!strcasecmp(fqdn, host))) {
+			found = hostalias_directory;
+		}
 
+		if (found) return(found);
 	}
 
 	return(hostalias_nomatch);
@@ -892,14 +898,10 @@ void CtdlDirectoryInit(void) {
 void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
-	CtdlLogPrintf(CTDL_DEBUG, "Dir: %s --> %s\n",
-		internet_addr, citadel_addr);
 	if (IsDirectory(internet_addr, 0) == 0) return;
-
+	CtdlLogPrintf(CTDL_DEBUG, "Dir: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
-
-	cdb_store(CDB_DIRECTORY, key, strlen(key),
-		citadel_addr, strlen(citadel_addr)+1 );
+	cdb_store(CDB_DIRECTORY, key, strlen(key), citadel_addr, strlen(citadel_addr)+1 );
 }
 
 
