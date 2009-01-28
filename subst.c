@@ -172,10 +172,16 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			ChrPtr(Error),
 			ChrPtr(TP->Tokens->FlatToken));
 		*/
+		StrBufPrintf(Info, "%s [%s]  %s; [%s]", 
+			     Type, 
+			     Err, 
+			     ChrPtr(Error), 
+			     ChrPtr(TP->Tokens->FlatToken));
+
 
 		SerializeJson(Header, WildFireException(SKEY(TP->Tokens->FileName),
 							TP->Tokens->Line,
-							Error,
+							Info,
 							1), 1);
 /*
 		SerializeJson(Header, WildFireMessage(SKEY(TP->Tokens->FileName),
@@ -194,10 +200,17 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			Type, 
 			ChrPtr(Error));
 		*/
-		SerializeJson(Header, WildFireException(HKEY(__FILE__), __LINE__, Error, 1), 1);
+		StrBufPrintf(Info, "%s [%s]  %s; [%s]", 
+			     Type, 
+			     Err, 
+			     ChrPtr(Error), 
+			     ChrPtr(TP->Tokens->FlatToken));
+		SerializeJson(Header, WildFireException(HKEY(__FILE__), __LINE__, Info, 1), 1);
 		WildFireSerializePayload(Header, WCC->HBuf, &WCC->nWildfireHeaders, NULL);
 	}
 	FreeStrBuf(&Header);
+	FreeStrBuf(&Info);
+	FreeStrBuf(&Error);
 /*
 	if (dbg_bactrace_template_errors)
 		wc_backtrace(); 
