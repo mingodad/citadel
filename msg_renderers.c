@@ -353,6 +353,11 @@ int Conditional_MAIL_SUMM_RFCA(StrBuf *Target, WCTemplputParams *TP)
 	message_summary *Msg = (message_summary*) CTX;
 	return StrLength(Msg->Rfca) > 0;
 }
+int Conditional_MAIL_SUMM_CCCC(StrBuf *Target, WCTemplputParams *TP)
+{
+	message_summary *Msg = (message_summary*) CTX;
+	return StrLength(Msg->cccc) > 0;
+}
 
 void examine_node(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
@@ -1124,6 +1129,7 @@ InitModule_MSGRENDERERS
 	RegisterConditional(HKEY("COND:ROOM:DISPLAYMSG"), 0, Conditional_ROOM_DISPLAY_MSG, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:LASTMSG"), 0, Conditional_MAIL_SUMM_LASTMSG, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:CCCC"), 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
