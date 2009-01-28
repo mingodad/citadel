@@ -239,7 +239,6 @@ int Conditional_ANONYMOUS_MESSAGE(StrBuf *Target, WCTemplputParams *TP)
 	return Msg->nhdr != 0;
 }
 
-
 void examine_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	Msg->format_type = StrToi(HdrLine);
@@ -782,9 +781,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 
 	if ((StrLength(Mime->Data) == 0) && (Mime->length > 0)) {
 		FreeStrBuf(&Mime->Data);
-		Mime->Data = NewStrBufPlain(NULL, Mime->length);
-		if (!read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, 0, Mime->PartNum))
-			return;
+		MimeLoadData(Mime);
 	}
 
 	/* Boring old 80-column fixed format text gets handled this way... */
@@ -866,8 +863,13 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		iconv_close(ic);
 	}
 #endif
+
 	FreeStrBuf(&Mime->Data);
 	Mime->Data = Target;
+	FlushStrBuf(Mime->ContentType);
+	StrBufAppendBufPlain(Mime->ContentType, HKEY("text/html"), 0);
+	FlushStrBuf(Mime->Charset);
+	StrBufAppendBufPlain(Mime->Charset, HKEY("UTF-8"), 0);
 	FreeStrBuf(&Line);
 	FreeStrBuf(&Line1);
 	FreeStrBuf(&Line2);
@@ -1126,7 +1128,7 @@ InitModule_MSGRENDERERS
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:ANON"), 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
-
+	
 
 	/* do we have mimetypes to iterate over? */
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH"), 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
