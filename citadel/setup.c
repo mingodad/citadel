@@ -977,6 +977,7 @@ void fixnss(void) {
 	if (yesno(question, 1)) {
 		sprintf(buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
 		system(buf);
+		chmod(NSSCONF, 0644);
 	}
 	unlink(new_filename);
 }
