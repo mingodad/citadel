@@ -1,13 +1,13 @@
-#button li , #ib_logoff {
+.ib_button {
     min-height: 32px;
     background-repeat: no-repeat !important;
     vertical-align: middle;
 }
-#button li a , #ib_logoff a {
+.ib_button_link {
     padding-top: 6px;
     padding-left: 35px;
-    min-height: 25px; /* Makes all of the 'button' to be clickable */
     height: 100%;
+    min-height: 25px; /* Makes all of the 'button' to be clickable */
 }
 #ib_summary {
     background-image: url("/static/summscreen_32x.gif");

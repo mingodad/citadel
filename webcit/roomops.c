@@ -3633,7 +3633,7 @@ void knrooms(void)
 
 	/** title bar */
 	wprintf("<div id=\"banner\">\n");
-	wprintf("<div class=\"room_banner\">");
+	wprintf("<div class=\"room_banner\" id=\"room_banner\">");
 	wprintf("<h1>");
 	if (!strcasecmp(ChrPtr(ListView), "rooms")) {
 		wprintf(_("Room list"));

@@ -31,8 +31,8 @@ body { font-size: 100%;}
 	font-size: 80%;
 }
 
-#online_users li {
-	font-size: 80%;
+#online_users li a {
+	font-size: 80% !important;
 }
 .marked_row {
     color: white;
@@ -70,7 +70,7 @@ body {
 	text-transform: uppercase;
 }
 
-#iconbar ul li, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, #ib_logoff, .iconbar_text {
+.ib_button, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, .iconbar_text {
 	background-color: #F0FFFF;
 	color: #333;
 }
@@ -80,7 +80,7 @@ body {
 	list-style: none;
 }
 
-#iconbar li a, #ib_logoff a {
+.ib_button {
 	font-size: 100%;
 }
 
@@ -95,7 +95,7 @@ body {
 	font-weight: 700;
 }
 
-#button li, #ib_logoff {
+.ib_button {
 	border: none;
 	border-bottom: 2px groove #CCC;
 	border-right: 2px groove #CCC;
@@ -110,7 +110,7 @@ body {
 	border-bottom: 1px solid #AAA;
 }
 
-#button li a , #ib_logoff a{
+.ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
 	color: #000;
 	text-decoration: none;
 }
@@ -464,7 +464,7 @@ a:visited { color: purple; }
 
 #customize a:active, #customize a:link, #customize a:visited { color: black; }
 
-#important_message, .buttons a:hover, .msgbuttons a:hover, #button > li:hover, #online_users li a:hover, #navbar ul li a:hover, #ib_logoff:hover {
+#important_message, .buttons a:hover, .msgbuttons a:hover, #button li:hover, #online_users li a:hover, #navbar ul li a:hover, #ib_logoff:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 } /* input:hover as well?? */
@@ -742,7 +742,7 @@ body, #global {
 
 /* Iconbar */
 
-.logo, .logo_citadel, #iconbar #button, .iconbar_text, #ib_logoff {
+.logo, .logo_citadel, #iconbar #button, .iconbar_text, .ib_button {
  	margin: 0;
  	padding: 0;
 }
@@ -758,13 +758,13 @@ body, #global {
 	width: 100%;
 }
 
-#button > li, #ib_logoff {
+.ib_button {
 	margin: 4px 8px 4px 8px;
 	padding: 0;
     display: block;
 }
-#button > li > a, #ib_logoff > a {
-    width: 100%;
+.ib_button_link {
+    /* width: 100%; */
     display: block;
 }
 
