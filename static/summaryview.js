@@ -52,7 +52,7 @@ function createMessageView() {
   mlh_subject.observe('click',ApplySort);
   mlh_from.observe('click',ApplySort);
   $(document).observe('keyup',CtdlMessageListKeyUp,false);
-  window.oncontextmenu = function() { return false; };  
+  //window.oncontextmenu = function() { return false; };  
   $('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
   $('m_refresh').observe('click', getMessages);
   document.getElementById('m_refresh').setAttribute("href","#");
@@ -361,11 +361,17 @@ function CtdlMessageListKeyUp(event) {
   var key = event.which;
   if (key == 46) { // DELETE
     for(msgId in currentlyMarkedRows) {
+      if (!room_is_trash) {
       new Ajax.Request('ajax_servcmd', 
 		       {method: 'post',
 			   parameters: 'g_cmd=MOVE ' + msgId + '|_TRASH_|0'
 			   });
+      } else {
+	new Ajax.Request('ajax_servcmd', {method: 'post',
+	      parameters: 'g_cmd=DELE '+msgId});
+      }
     }
+    document.getElementById("preview_pane").innerHTML = "";
     deleteAllMarkedRows();
   }
 }
@@ -468,6 +474,7 @@ function ApplySorterToggle() {
 function normalizeHeaderTable() {
   var message_list_hdr = document.getElementById("message_list_hdr");
   var summary_view = document.getElementById("summary_view");
+  var resize_msglist = document.getElementById("resize_msglist");
   var headerTable = message_list_hdr.getElementsByTagName("table")[0];
   var dataTable = summary_view.getElementsByTagName("table")[0];
   var dataTableWidth = dataTable.offsetWidth;

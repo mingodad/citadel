@@ -147,7 +147,7 @@ function setupIconBar() {
     }
   }
   var online_users = document.getElementById("online_users");
-  if (online_users.offsetParent != null) {
+  if (online_users.offsetParent != null && online_users.offsetTop > 0) {
     new Ajax.PeriodicalUpdater('online_users', 'do_template?template=wholist_section', {method: 'get', frequency: 30});
   }
 }
@@ -789,6 +789,21 @@ function fixMissingCSSTable(elems) {
   }
 }
 function fixbanner() {
+  // Use prototype api methods here
   var elems = [$('room_banner'),$('actiondiv')];
   fixMissingCSSTable(elems);
+  var banner = $('banner'); 
+  if (banner != null) {
+  }
+}
+
+function fixOffsetBanner() {
+  var banner = document.getElementById("banner");
+  if (banner.offsetLeft > 0) {
+    var viewportWidth = document.viewport.getWidth();
+    var iconbarWidth = document.getElementById("iconbar").offsetWidth;
+    var contentDiv = document.getElementById("content");
+    var newContentWidth = viewportWidth-iconbarWidth;
+    contentDiv.style.width = newContentWidth+"px";
+  }
 }
