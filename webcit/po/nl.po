@@ -3,19 +3,19 @@
 # This file is distributed under the GNU General Public License
 #
 # Wim Kuilman <wim.kuilman@esdalcollege.nl>, 2006, 2007.
-# Wim Kuilman <w.kuilman@icoss.net>, 2008.
+# Wim Kuilman <w.kuilman@icoss.net>, 2008, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-24 18:39-0500\n"
-"PO-Revision-Date: 2008-02-28 17:43+0100\n"
-"Last-Translator: Wim Kuilman <w.kuilman@icoss.net>\n"
-"Language-Team: Nederlands <nl@li.org>\n"
+"PO-Revision-Date: 2009-01-28 21:56+0100\n"
+"Last-Translator: Wim Kuilman\n"
+"Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Lokalize 0.2\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
 #: ../addressbook_popup.c:178 ../roomops.c:1734 ../roomops.c:1765
@@ -66,7 +66,6 @@ msgid "Aide"
 msgstr "Beheerder"
 
 #: ../auth.c:65
-#, fuzzy
 msgid ""
 "<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
 "\"http://www.citadel.org/doku.php/documentation:openid\">Click here to learn "
@@ -76,10 +75,10 @@ msgid ""
 "block pop-up windows, you will not be able to receive any instant messages."
 "<br></ul>"
 msgstr ""
-"<ul><li><b>Als u al een account heeft op %s</b>, vul dan uw gebruikersnaam "
-"en wachtwoord in en klik op &quot;Inloggen.&quot; <li><b>Als u een nieuwe "
-"gebruiker bent</b>, vul uw gebruikersnaam in en het wachtwoord dat u wilt "
-"gebruiken en klik op &quot;Nieuwe gebruiker.&quot; <li>Log correct uit als u "
+"<ul><li>Tik uw OpenID URL in en klik op &quot;Inloggen.&quot; <li><b><a href="
+"\"http://www.citadel.org/doku.php/documentation:openid\">Klik hier voor meer "
+"info "
+"over OpenID en hoe Citadel het gebruikt.</a><li>Log correct uit als u "
 "klaar bent. <li>Uw browser moet <i>frames</i> en <i>cookies</i> "
 "ondersteunen. <li>Als uw browser pop-up vensters blokkeert, zult u geen "
 "directe berichten kunnen ontvangen.<br /></ul>"
@@ -87,16 +86,16 @@ msgstr ""
 #: ../auth.c:103
 #, c-format
 msgid "Your OpenID <tt>%s</tt> was successfully verified."
-msgstr ""
+msgstr "Uw OpenID <tt>%s</tt> is geverifieerd."
 
 #: ../auth.c:112
 #, c-format
 msgid "However, the user name '%s' conflicts with an existing user."
-msgstr ""
+msgstr "Maar, de gebruikersnaam '%s' botst met een bestaande gebruiker."
 
 #: ../auth.c:120
 msgid "Please specify the user name you would like to use."
-msgstr ""
+msgstr "Geef alstublieft de gebruikersnaam die u wilt gebruiken."
 
 #: ../auth.c:122 ../who.c:190 ../static/t/login.html:16
 #: ../static/t/userlist_detailview.html:17
@@ -155,20 +154,19 @@ msgstr "Er zijn geen gebruikers die goedgekeurd moeten worden."
 
 #: ../auth.c:696
 msgid "very weak"
-msgstr ""
+msgstr "erg zwak"
 
 #: ../auth.c:699
 msgid "weak"
-msgstr ""
+msgstr "zwak"
 
 #: ../auth.c:702
 msgid "ok"
-msgstr ""
+msgstr "ok"
 
 #: ../auth.c:706
-#, fuzzy
 msgid "strong"
-msgstr "stop"
+msgstr "sterk"
 
 #: ../auth.c:724
 #, c-format
@@ -269,11 +267,11 @@ msgstr "Beschrijving: "
 
 #: ../calendar.c:159 ../event.c:42
 msgid "Recurrence"
-msgstr ""
+msgstr "Herhalend"
 
 #: ../calendar.c:160 ../event.c:438
 msgid "This is a recurring event"
-msgstr ""
+msgstr "Dit is een zich herhalende gebeurtenis"
 
 #: ../calendar.c:169
 msgid "Attendee:"
@@ -380,26 +378,24 @@ msgid "Start date:"
 msgstr "Startdatum:"
 
 #: ../calendar.c:670 ../calendar.c:692
-#, fuzzy
 msgid "No date"
-msgstr "Notities"
+msgstr "Geen datum"
 
 #: ../calendar.c:673 ../calendar.c:694
 msgid "or"
-msgstr ""
+msgstr "of"
 
 #: ../calendar.c:684
 msgid "Due date:"
 msgstr "Streefdatum: "
 
 #: ../calendar.c:706
-#, fuzzy
 msgid "Completed:"
-msgstr "(afgehandeld)"
+msgstr "Afgehandeld:"
 
 #: ../calendar.c:717
 msgid "Category:"
-msgstr ""
+msgstr "Categorie:"
 
 #: ../calendar.c:745 ../event.c:716 ../notes.c:86
 msgid "Save"
@@ -507,9 +503,8 @@ msgid "Ongoing event"
 msgstr "Doorlopende afspraak"
 
 #: ../calendar_view.c:1518
-#, fuzzy
 msgid "Completed?"
-msgstr "(afgehandeld)"
+msgstr "Afgehandeld?"
 
 #: ../calendar_view.c:1520
 msgid "Name of task"
@@ -521,11 +516,11 @@ msgstr "Streefdatum"
 
 #: ../calendar_view.c:1524
 msgid "Category"
-msgstr ""
+msgstr "Categorie"
 
 #: ../calendar_view.c:1526
 msgid "Show All"
-msgstr ""
+msgstr "Toon alles"
 
 #: ../downloads.c:274
 #, c-format
@@ -534,7 +529,7 @@ msgstr "Fout opgetreden bij ophalen dit bestand: %s\n"
 
 #: ../event.c:40
 msgid "Event"
-msgstr ""
+msgstr "Gebeurtenis"
 
 #: ../event.c:41 ../event.c:372 ../event.c:384
 msgid "Attendees"
@@ -587,124 +582,112 @@ msgstr "Contacten"
 
 #: ../event.c:446
 msgid "seconds"
-msgstr ""
+msgstr "seconden"
 
 #: ../event.c:447
-#, fuzzy
 msgid "minutes"
-msgstr "Minuut: "
+msgstr "minuten "
 
 #: ../event.c:448
-#, fuzzy
 msgid "hours"
-msgstr "Uren"
+msgstr "uren"
 
 #: ../event.c:449
 msgid "days"
-msgstr ""
+msgstr "dagen"
 
 #: ../event.c:450
-#, fuzzy
 msgid "weeks"
-msgstr "Week"
+msgstr "weken"
 
 #: ../event.c:451
-#, fuzzy
 msgid "months"
-msgstr "komt overeen met"
+msgstr "maanden"
 
 #: ../event.c:452
-#, fuzzy
 msgid "years"
-msgstr "Headers"
+msgstr "jaren"
 
 #: ../event.c:453
 msgid "never"
-msgstr ""
+msgstr "nooit"
 
 #: ../event.c:458
-#, fuzzy
 msgid "first"
-msgstr "Voornaam"
+msgstr "eerste"
 
 #: ../event.c:459
-#, fuzzy
 msgid "second"
-msgstr "Versturen"
+msgstr "tweede"
 
 #: ../event.c:460
 msgid "third"
-msgstr ""
+msgstr "derde"
 
 #: ../event.c:461
 msgid "fourth"
-msgstr ""
+msgstr "vierde"
 
 #: ../event.c:462
 msgid "fifth"
-msgstr ""
+msgstr "vijfde"
 
 #: ../event.c:466
-#, fuzzy
 msgid "Recurrence rule"
-msgstr "Verwijder regel"
+msgstr "Zich herhalende regel"
 
 #: ../event.c:470
 msgid "Repeats every"
-msgstr ""
+msgstr "Herhaalt zich elke"
 
 #: ../event.c:488
 msgid "on these weekdays:"
-msgstr ""
+msgstr "op deze weekdagen:"
 
 #: ../event.c:548
 #, c-format
 msgid "on day %s%d%s of the month"
-msgstr ""
+msgstr "op dag %s%d%s van de maand"
 
 #: ../event.c:557 ../event.c:615
-#, fuzzy
 msgid "on the "
-msgstr "Maand: "
+msgstr "op de "
 
 #: ../event.c:581
 msgid "of the month"
-msgstr ""
+msgstr "van de maand"
 
 #: ../event.c:606
 msgid "every "
-msgstr ""
+msgstr "iedere"
 
 #: ../event.c:607
 msgid "year on this date"
-msgstr ""
+msgstr "jaar op deze datum"
 
 #: ../event.c:639
 msgid "of"
-msgstr ""
+msgstr "van"
 
 #: ../event.c:663
 msgid "Recurrence range"
-msgstr ""
+msgstr "Zich herhalende periode"
 
 #: ../event.c:671
-#, fuzzy
 msgid "No ending date"
-msgstr "Notities"
+msgstr "Geen einddatum"
 
 #: ../event.c:678
-#, fuzzy
 msgid "Repeat this event"
-msgstr "Deze vermelding verwijderen?"
+msgstr "Deze gebeurtenis herhalen"
 
 #: ../event.c:681
-#, fuzzy
 msgid "times"
-msgstr "Notities"
+msgstr "maal"
 
 #: ../event.c:689
 msgid "Repeat this event until "
-msgstr ""
+msgstr "Herhaal deze gebeurtenis tot"
 
 #: ../event.c:718
 msgid "Check attendee availability"
@@ -973,13 +956,17 @@ msgid ""
 "continue.<br/><span style=\"font-weight: bold;\">You may need to force "
 "refresh (SHIFT-F5) in order for changes to take effect</span>"
 msgstr ""
+"Uw iconenbalk is geupdate. Maak een willekeurige keuze om "
+"door te gaan.<br/><span style=\"font-weight: bold;\"> Wellicht moet "
+"u verversen (SHIFT-F5) om te zorgen dat de veranderingen getoond worden<"
+"/span>"
 
 #: ../inetconf.c:111 ../inetconf.c:120 ../inetconf.c:132 ../inetconf.c:155
 #: ../netconf.c:166 ../netconf.c:193 ../netconf.c:201 ../netconf.c:250
 #: ../netconf.c:258
 #, c-format
 msgid "Invalid Parameter"
-msgstr ""
+msgstr "Ongeldige parameter"
 
 #: ../inetconf.c:126
 #, c-format
@@ -1117,9 +1104,9 @@ msgid "Move"
 msgstr "Verplaatsen"
 
 #: ../messages.c:1505
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "Fout opgetreden bij ophalen dit deel: %s\n"
+msgstr "Fout opgetreden bij ophalen dit deel: %s/%s\n"
 
 #: ../messages.c:1547
 #, c-format
@@ -1139,36 +1126,32 @@ msgid "Default character set for email headers:"
 msgstr "Standaard tekenset voor emailheaders: "
 
 #: ../messages.c:1675
-#, fuzzy
 msgid "Preferred email address"
-msgstr "Primair e-mailadres: "
+msgstr "Voorkeur e-mailadres"
 
 #: ../messages.c:1677
-#, fuzzy
 msgid "Preferred display name for email messages"
-msgstr "Voer journaliseren van emailberichten uit"
+msgstr "Weergegeven naam voor emailberichten"
 
 #: ../messages.c:1681
 msgid "Preferred display name for bulletin board posts"
-msgstr ""
+msgstr "Voorkeursnaam voor bulletinboard berichten"
 
 #: ../messages.c:1684
 msgid "Mailbox view mode"
-msgstr ""
+msgstr "Mailboxweergave"
 
 #: ../msg_renderers.c:487 ../vcard_edit.c:71 ../static/t/whosection.html:6
 msgid "edit"
 msgstr "bewerken"
 
 #: ../msg_renderers.c:898
-#, fuzzy
 msgid "I don't know how to display "
-msgstr "Ik weet niet hoe ik %s moet tonen"
+msgstr "Ik weet niet hoe ik moet tonen"
 
 #: ../notes.c:62
-#, fuzzy
 msgid "Delete this note?"
-msgstr "Deze vermelding verwijderen?"
+msgstr "Deze notitie verwijderen?"
 
 #: ../notes.c:88 ../notes.c:384
 msgid "Click on any note to edit it."
@@ -1176,31 +1159,28 @@ msgstr "Klik op willekeurige notitie om te bewerken."
 
 #: ../openid.c:20
 msgid "Manage Account/OpenID Associations"
-msgstr ""
+msgstr "Beheer account/OpenID verbindingen"
 
 #: ../openid.c:38
-#, fuzzy
 msgid "Do you really want to delete this OpenID?"
-msgstr "Wilt u deze sessie echt beëindigen?"
+msgstr "Wilt u dit OpenID echt verwijderen?"
 
 #: ../openid.c:39
-#, fuzzy
 msgid "(delete)"
-msgstr "(Verwijderen)"
+msgstr "(verwijderen)"
 
 #: ../openid.c:47
 msgid "Add an OpenID: "
-msgstr ""
+msgstr "Voeg een OpenID toe:"
 
 #: ../openid.c:50
-#, fuzzy
 msgid "Attach"
-msgstr "Bijlage toevoegen: "
+msgstr "Bijlage "
 
 #: ../openid.c:54
 #, c-format
 msgid "%s does not permit authentication via OpenID."
-msgstr ""
+msgstr "%s staat authentificatie via OpenID niet toe."
 
 #: ../paging.c:23
 msgid "Send instant message"
@@ -1220,7 +1200,7 @@ msgstr "Bericht versturen"
 
 #: ../paging.c:74
 msgid "Message was not sent."
-msgstr "Bericht is niet verstuurd."
+msgstr "Bericht is niet verstuurd!"
 
 #: ../paging.c:88
 msgid "Message has been sent to "
@@ -1368,9 +1348,8 @@ msgid "View notes"
 msgstr "Toon notities"
 
 #: ../roomops.c:631
-#, fuzzy
 msgid "Refresh message list"
-msgstr "Toon berichtenlijst"
+msgstr "Ververs berichtenlijst"
 
 #: ../roomops.c:642
 msgid "Wiki home"
@@ -1735,9 +1714,8 @@ msgid "Keep messages on server?"
 msgstr "Bewaar berichten op de server?"
 
 #: ../roomops.c:1943
-#, fuzzy
 msgid "Interval"
-msgstr "Algemeen"
+msgstr "interval"
 
 #: ../roomops.c:2014
 msgid "Fetch the following RSS feeds and store them in this room:"
@@ -1897,24 +1875,24 @@ msgid "Error retrieving RSS feed: couldn't find messages\n"
 msgstr "Fout in binnenhalen RSS feed: kon geen berichten vinden\n"
 
 #: ../rss.c:231
-#, fuzzy, c-format
+#, c-format
 msgid "%s from"
-msgstr "van "
+msgstr "%s van "
 
 #: ../rss.c:235
-#, fuzzy, c-format
+#, c-format
 msgid "%s in %s"
-msgstr "Plaatjes in %s"
+msgstr "%s in %s"
 
 #: ../rss.c:237
 #, c-format
 msgid " on %s"
-msgstr ""
+msgstr "op %s"
 
 #: ../rss.c:240
 #, c-format
 msgid "%s"
-msgstr ""
+msgstr "%s"
 
 #: ../sieve.c:22 ../sieve.c:107 ../static/t/menu_your_info.html:7
 msgid "View/edit server-side mail filters"
@@ -2078,9 +2056,8 @@ msgid "X-Spam-Status"
 msgstr "X-Spam-Status"
 
 #: ../sieve.c:1006
-#, fuzzy
 msgid "List-ID"
-msgstr "Los"
+msgstr "Lijst-ID"
 
 #: ../sieve.c:1007
 msgid "Message size"
@@ -2223,13 +2200,13 @@ msgid "(Nothing)"
 msgstr "(Niets)"
 
 #: ../summary.c:163
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You are connected to %s, running %s with %s, server build %s and located in %"
 "s.  Your system administrator is %s."
 msgstr ""
-"U bent verbonden met %s, waar %s op draait met %s, en gevestigd in %s. Uw "
-"systeembeheerder is %s."
+"U bent verbonden met %s, waar %s op draait met %s, server build %s en "
+"gevestigd in %s. Uw systeembeheerder is %s."
 
 #: ../summary.c:191
 msgid "Messages"
@@ -2307,8 +2284,8 @@ msgid ""
 "host based authentication mode.  In this mode, you must create new users on "
 "the host system, not within Citadel."
 msgstr ""
-"Je probbert een nieuwe gebruiker aan te maken binnen Citadel terwijl je "
-"hostbased authenticatie gebruikt. Dan moet je een nieuwe gebruiker aanmaken "
+"U probeert een nieuwe gebruiker aan te maken binnen Citadel terwijl u"
+"hostbased authenticatie gebruikt. Dan moet u een nieuwe gebruiker aanmaken "
 "op het hostsysteem en niet in Citadel."
 
 #: ../userlist.c:42
@@ -2471,7 +2448,7 @@ msgstr "Er is een fout opgetreden."
 
 #: ../vcard_edit.c:1146
 msgid "Could Not decode vcard photo\n"
-msgstr ""
+msgstr "Kon de vcard foto niet decoderen\n"
 
 #: ../webcit.c:399
 msgid "Authorization Required"
@@ -2492,6 +2469,9 @@ msgid ""
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
+"De server draait al met het maximaal aantal gebruikers en kan op dit moment "
+"geen nieuwe login aannemen. Probeer het later nog eens of neem contact op "
+"met uw systeembeheerder."
 
 #: ../webcit.c:831
 #, c-format
@@ -2610,9 +2590,8 @@ msgid "(domains for which this host receives mail)"
 msgstr "(domeinen waarvoor deze host mail ontvangt)"
 
 #: ../static/t/aide_inet_clamav.html:2
-#, fuzzy
 msgid "(hosts running the ClamAV clamd service)"
-msgstr "(hosts waarop SpamAssassin draait)"
+msgstr "(hosts waarop de ClamAV clamd service draait)"
 
 #: ../static/t/aide_inet_dirnames.html:2
 msgid "(domains mapped with the Global Address Book)"
@@ -2639,9 +2618,8 @@ msgid "System Administration Menu"
 msgstr "Menu Systeembeheer"
 
 #: ../static/t/aide_inetconf.html:7 ../static/t/display_aide_menu.html:7
-#, fuzzy
 msgid "Room Aide Menu"
-msgstr "Ruimte Beheerder: "
+msgstr "Menu ruimte beheerder"
 
 #: ../static/t/aide_inetconf.html:15 ../static/t/subject_inet_aliases.html:1
 msgid "Local host aliases"
@@ -2665,7 +2643,7 @@ msgstr "SpamAssasin hosts"
 
 #: ../static/t/aide_inetconf.html:24
 msgid "ClamAV clamd hosts"
-msgstr ""
+msgstr "ClamAV clamd hosts"
 
 #: ../static/t/aide_inetconf.html:25
 msgid "Masqueradable domains"
@@ -2712,13 +2690,12 @@ msgid "24 hour"
 msgstr "24 uur"
 
 #: ../static/t/box_preferences.html:152
-#, fuzzy
 msgid "Sunday"
-msgstr "Samenvatting"
+msgstr "Zondag"
 
 #: ../static/t/box_preferences.html:153
 msgid "Monday"
-msgstr ""
+msgstr "Maandag"
 
 #: ../static/t/box_preferences.html:174
 msgid "No signature"
@@ -2726,11 +2703,11 @@ msgstr "Geen ondertekening"
 
 #: ../static/t/box_preferences.html:238
 msgid "Full-functionality"
-msgstr ""
+msgstr "Volledig functioneel"
 
 #: ../static/t/box_preferences.html:241
 msgid "Safe mode"
-msgstr ""
+msgstr "Veilige modus"
 
 #: ../static/t/box_serverrestart.html:3
 msgid "Please wait while the Citadel server is restarted... "
@@ -2801,9 +2778,8 @@ msgstr "Site instellingen"
 
 #: ../static/t/display_sitewide_config.html:6
 #: ../static/t/edituser_select.html:11
-#, fuzzy
 msgid "You need to be aide to view this."
-msgstr "U heeft geen toestemming deze bron te bekijken."
+msgstr "U moet beheerder zijn om dit te bekijken."
 
 #: ../static/t/display_sitewide_config.html:11
 msgid "General"
@@ -2842,10 +2818,9 @@ msgstr "Push Email"
 
 #: ../static/t/display_sitewide_config.html:19
 msgid "Pop3"
-msgstr ""
+msgstr "Pop3"
 
 #: ../static/t/edit_message.html:22
-#, fuzzy
 msgid "from"
 msgstr "van "
 
@@ -2854,7 +2829,6 @@ msgid "Anonymous"
 msgstr "Anoniem"
 
 #: ../static/t/edit_message.html:46
-#, fuzzy
 msgid "in"
 msgstr "in "
 
@@ -2915,9 +2889,8 @@ msgid "Edit or Delete users"
 msgstr "Gebruikers bewerken of verwijderen"
 
 #: ../static/t/files.html:4
-#, fuzzy
 msgid "Files available for download in"
-msgstr "Bestanden beschikbaar voor downloaden in %s"
+msgstr "Bestanden beschikbaar voor downloaden in "
 
 #: ../static/t/files.html:19
 msgid "Filename"
@@ -2940,23 +2913,20 @@ msgid "Upload a file:"
 msgstr "Upload een bestand:"
 
 #: ../static/t/files_jspicview.html:7
-#, fuzzy
 msgid "Pictures in"
-msgstr "Plaatjes in %s"
+msgstr "Plaatjes in "
 
 #: ../static/t/iconbar.html:16
 msgid "Mail"
 msgstr "Mail"
 
 #: ../static/t/iconbar.html:47
-#, fuzzy
 msgid "Online users"
-msgstr "Nieuwe gebruikers goedkeuren"
+msgstr "Online gebruikers "
 
 #: ../static/t/iconbar.html:51
-#, fuzzy
 msgid "Loading"
-msgstr "Inloggen"
+msgstr "Laden"
 
 #: ../static/t/iconbar.html:62
 msgid "Advanced"
@@ -2968,7 +2938,7 @@ msgstr "Dit menu aanpassen"
 
 #: ../static/t/login.html:5
 msgid "powered by"
-msgstr ""
+msgstr "op basis van "
 
 #: ../static/t/login.html:18
 msgid "Password:"
@@ -2980,14 +2950,13 @@ msgstr "Taal: "
 
 #: ../static/t/login.html:41
 msgid "Log in using OpenID"
-msgstr ""
+msgstr "Login met OpenID"
 
 #: ../static/t/login.html:45
 msgid "If you already have an account on"
-msgstr ""
+msgstr "als u al een account heeft op "
 
 #: ../static/t/login.html:46
-#, fuzzy
 msgid ""
 "enter your user name and password and click &quot;Login.&quot;<li><b>If you "
 "are a new user</b>, enter the name and password you wish to use, and click "
@@ -2996,9 +2965,10 @@ msgid ""
 "keep in mind that if your browser is configured to block pop-up windows, you "
 "will not be able to receive any instant messages."
 msgstr ""
-"<ul><li><b>Als u al een account heeft op %s</b>, vul dan uw gebruikersnaam "
-"en wachtwoord in en klik op &quot;Inloggen.&quot; <li><b>Als u een nieuwe "
-"gebruiker bent</b>, vul uw gebruikersnaam in en het wachtwoord dat u wilt "
+"Vul uw gebruikersnaam en wachtwoord in en klik op &quot;Inloggen.&quot; <li>"
+"<b>Als u "
+"een nieuwe gebruiker bent</b>, vul uw gebruikersnaam in en het wachtwoord "
+"dat u wilt "
 "gebruiken en klik op &quot;Nieuwe gebruiker.&quot; <li>Log correct uit als u "
 "klaar bent. <li>Uw browser moet <i>frames</i> en <i>cookies</i> "
 "ondersteunen. <li>Als uw browser pop-up vensters blokkeert, zult u geen "
@@ -3013,9 +2983,8 @@ msgid "Go to a 'hidden' room"
 msgstr "Ga naar een 'verborgen' ruimte"
 
 #: ../static/t/menu_advanced_roomcommands.html:7
-#, fuzzy
 msgid "Zap (forget) this room"
-msgstr "Zap (vergeet) deze ruimte (%s)"
+msgstr "Zap (vergeet) deze ruimte"
 
 #: ../static/t/menu_advanced_roomcommands.html:8
 msgid "List all forgotten rooms"
@@ -3042,9 +3011,8 @@ msgid "(come back here later)"
 msgstr "(kom hier later terug)"
 
 #: ../static/t/menu_basic_commands.html:6
-#, fuzzy
 msgid "oops! Back to "
-msgstr "(oeps! Terug naar %s)"
+msgstr "oeps! Terug naar "
 
 #: ../static/t/menu_basic_commands.html:10
 msgid "...in this room"
@@ -3107,9 +3075,8 @@ msgid "Edit your push email settings"
 msgstr "Bewerk je push email instellingen"
 
 #: ../static/t/menu_your_info.html:9
-#, fuzzy
 msgid "Manage your OpenIDs"
-msgstr "Uw wachtwoord wijzigen"
+msgstr "Beheer uw OpenIDs"
 
 #: ../static/t/msg_listselector_bottom.html:2
 #: ../static/t/msg_listselector_top.html:2
@@ -3132,15 +3099,15 @@ msgstr "Datum"
 
 #: ../static/t/msg_listview.html:20
 msgid "Loading messages from server, please wait"
-msgstr ""
+msgstr "Laad berichten van de server, een ogenblik "
 
 #: ../static/t/msg_listview.html:27
 msgid "Open in new window"
-msgstr ""
+msgstr "Open in nieuw venster"
 
 #: ../static/t/msg_listview.html:29
 msgid "Copy"
-msgstr ""
+msgstr "Kopieer"
 
 #: ../static/t/msg_listview.html:31 ../static/t/view_message.html:27
 #: ../static/t/view_message_print.html:24
@@ -3152,9 +3119,8 @@ msgid "Preferences and settings"
 msgstr "Voorkeuren en instellingen"
 
 #: ../static/t/roombanner.html:13
-#, fuzzy
 msgid "Select"
-msgstr "Verwijderen"
+msgstr "Selecteren"
 
 #: ../static/t/section_files_onefile.html:19
 msgid "Slideshow"
@@ -3350,7 +3316,7 @@ msgstr "Voer journaliseren van niet-emailberichten uit"
 
 #: ../static/t/tab_siteconfig_indexing.html:17
 msgid "Email destination of journalized messages"
-msgstr "Bestemming van gejournaliseerde berichten"
+msgstr "Bestemming voor gejournaliseerde berichten"
 
 #: ../static/t/tab_siteconfig_network.html:2
 msgid "Network services"
@@ -3366,7 +3332,7 @@ msgstr "Corrigeer gedwongen Van: regels tijdens authenticated SMTP"
 
 #: ../static/t/tab_siteconfig_network.html:13
 msgid "Flag message as spam, instead of rejecting it"
-msgstr ""
+msgstr "Markeer bericht als spam i.p.v. het af te wijzen"
 
 #: ../static/t/tab_siteconfig_network.html:16
 msgid "IMAP listener port (-1 to disable)"
@@ -3390,26 +3356,24 @@ msgstr "IMAP over SSL port (-1 to disable)"
 
 #: ../static/t/tab_siteconfig_network.html:32
 msgid "SMTP over SSL port (-1 to disable)"
-msgstr "SMTP over SSL port (-1 to disable"
+msgstr "SMTP over SSL port (-1 to disable)"
 
 #: ../static/t/tab_siteconfig_network.html:35
 msgid "Instantly expunge deleted messages in IMAP"
 msgstr "Verwijder direct gewiste berichten in IMAP"
 
 #: ../static/t/tab_siteconfig_network.html:39
-#, fuzzy
 msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
 msgstr ""
 "Sta unauthenticated SMTP clients toe het domein van deze site te spoofen"
 
 #: ../static/t/tab_siteconfig_network.html:42
 msgid "Postfix TCP Dictionary Port"
-msgstr ""
+msgstr "Postfix TCP Dictionary Port"
 
 #: ../static/t/tab_siteconfig_network.html:42
-#, fuzzy
 msgid "-1 to disable"
-msgstr "SMTP MTA port (-1 to disable)"
+msgstr "-1 voor uitschakelen"
 
 #: ../static/t/tab_siteconfig_network.html:45
 msgid "ManageSieve Port (-1 to disable)"
@@ -3425,7 +3389,7 @@ msgstr "Bewaar origineel van headers in IMAP"
 
 #: ../static/t/tab_siteconfig_network.html:54
 msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr "XMPP (Jabber) client to server port (-1 om uit te schakelen)"
+msgstr "XMPP (Jabber) client to server port (-1 voor uitschakelen)"
 
 #: ../static/t/tab_siteconfig_network.html:57
 msgid "XMPP (Jabber) server to server port (-1 to disable)"
@@ -3433,7 +3397,7 @@ msgstr "POP3 listener port (-1 voor uitschakelen)"
 
 #: ../static/t/tab_siteconfig_pop3.html:2
 msgid "POP3"
-msgstr ""
+msgstr "POP3"
 
 #: ../static/t/tab_siteconfig_pop3.html:6
 msgid "POP3 listener port (-1 to disable)"
@@ -3444,14 +3408,12 @@ msgid "POP3 over SSL port (-1 to disable)"
 msgstr "POP3 over SSL port (-1 to disable)"
 
 #: ../static/t/tab_siteconfig_pop3.html:12
-#, fuzzy
 msgid "POP3 fetch frequency in seconds"
-msgstr "Network run frequency (in seconden)"
+msgstr "POP3 ophaalfrequentie in seconden "
 
 #: ../static/t/tab_siteconfig_pop3.html:15
-#, fuzzy
 msgid "POP3 fastest fetch frequency in seconds"
-msgstr "Network run frequency (in seconden)"
+msgstr "POP3 snelste ophaalfrequentie in seconden "
 
 #: ../static/t/tab_siteconfig_pushmail.html:6
 msgid "Funambol server host (blank to disable)"
@@ -3466,9 +3428,8 @@ msgid "Funambol sync source"
 msgstr "Funambol sync bron"
 
 #: ../static/t/tab_siteconfig_pushmail.html:15
-#, fuzzy
 msgid "Funambol auth details (user:pass)"
-msgstr "Funambol auth details (user:pass in Base64)"
+msgstr "Funambol auth details (user:pass)"
 
 #: ../static/t/tab_siteconfig_pushmail.html:18
 msgid "External pager tool (blank to disable)"
@@ -3569,9 +3530,8 @@ msgid "Download"
 msgstr "Download"
 
 #: ../static/t/who.html:15
-#, fuzzy
 msgid "Users currently on "
-msgstr "Gebruikers op dit moment op %s"
+msgstr "Gebruikers op dit moment op "
 
 #: ../static/t/wholiststatic.html:7 ../static/t/wholistsummarysection.html:6
 msgid "Room"
@@ -3582,21 +3542,16 @@ msgid "From host"
 msgstr "Van host"
 
 #: ../static/t/wholiststatic.html:14
-#, fuzzy
 msgid "Click on a name to read user info.  Click on"
-msgstr ""
-"Klik op een naam om de gebruikersinfomatie te lezen. Klik op %s om een "
-"direct bericht naar die gebruiker te sturen."
+msgstr "Klik op een naam om de gebruikersinfo te lezen. Klik op "
 
 #: ../static/t/wholiststatic.html:16
-#, fuzzy
 msgid "to send an instant message to that user."
-msgstr "Stuur direct bericht naar: "
+msgstr "Stuur een direct bericht naar die gebruiker. "
 
 #: ../static/t/wholiststatic_header.html:1
-#, fuzzy
 msgid "Users currently on"
-msgstr "Gebruikers op dit moment op %s"
+msgstr "Gebruikers op dit moment op "
 
 #: ../static/t/whosection.html:4
 msgid "(kill)"
@@ -3769,3 +3724,4 @@ msgstr "(beëindig)"
 
 #~ msgid "(This server does not support calendars)"
 #~ msgstr "(Deze server ondersteunt geen agenda's)"
+
