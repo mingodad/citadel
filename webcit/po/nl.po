@@ -2968,17 +2968,19 @@ msgstr "als u al een account heeft op "
 
 #: ../static/t/login.html:46
 msgid "enter your user name and password and click &quot;Login.&quot;"
-msgstr ""
+msgstr "Vul uw gebruikersnaam en wachtwoord in en klik op &quot;Inloggen.&quot;"
 
 #: ../static/t/login.html:47
 msgid ""
 "<b>If you are a new user</b>, enter the name and password you wish to use, "
 "and click &quot;New User.&quot; "
 msgstr ""
+"<b>Als u een nieuwe gebruiker bent</b>, vul uw gebruikersnaam in en "
+"het wachtwoord dat u wilt gebruiken en klik op &quot;Nieuwe gebruiker."
 
 #: ../static/t/login.html:48
 msgid "Please log off properly when finished. "
-msgstr ""
+msgstr "Log correct uit als u klaar bent."
 
 #: ../static/t/login.html:49
 #, fuzzy
@@ -3000,6 +3002,8 @@ msgid ""
 "Also keep in mind that if your browser is configured to block pop-up "
 "windows, you will not be able to receive any instant messages."
 msgstr ""
+"Als uw browser pop-up "
+"vensters blokkeert, zult u geen directe berichten kunnen ontvangen."
 
 #: ../static/t/menu_advanced_roomcommands.html:3
 msgid "Edit or delete this room"
