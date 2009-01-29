@@ -823,23 +823,20 @@ body, #global {
 	float: right;
 }
 #actiondiv {
-    display: table-cell;
+	display: table-cell;
 }
 #banner ul.room_actions {
  	list-style: none;
-	text-align: right;
+	text-align: left;
 }
-
 #banner ul.room_actions li {
  	white-space: nowrap;
 	display: inline;
 }
-
 #banner ul.room_actions li form {
         margin: 0;
         padding: 0;
 }
-
 #banner ul.room_actions li select, #banner ul.room_actions li input {
 	margin-top: 8px;
 	margin-right: 4px;
