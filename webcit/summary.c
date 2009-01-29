@@ -95,12 +95,7 @@ void tasks_section(void) {
 		num_msgs = load_msg_ptrs("MSGS ALL", 0);
 	}
 
-	if (num_msgs < 1) {
-		wprintf("<i>");
-		wprintf(_("(None)"));
-		wprintf("</i><br />\n");
-	}
-	else {
+	if (num_msgs > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		
@@ -108,7 +103,11 @@ void tasks_section(void) {
 		}
 	}
 
-	calendar_summary_view();
+	if (calendar_summary_view() < 1) {
+		wprintf("<i>");
+		wprintf(_("(None)"));
+		wprintf("</i><br />\n");
+	}
 }
 
 
@@ -138,18 +137,17 @@ void calendar_section(void) {
 
 	parse_calendar_view_request(&c);
 
-	if (num_msgs < 1) {
-		wprintf("<i>");
-		wprintf(_("(Nothing)"));
-		wprintf("</i><br />\n");
-	}
-	else {
+	if (num_msgs > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		
 			load_calendar_item(Msg, 0, &c);
 		}
-		calendar_summary_view();
+	}
+	if (calendar_summary_view() < 1) {
+		wprintf("<i>");
+		wprintf(_("(Nothing)"));
+		wprintf("</i><br />\n");
 	}
 }
 

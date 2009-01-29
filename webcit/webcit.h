@@ -659,7 +659,7 @@ void updatenote(void);
 void parse_calendar_view_request(struct calview *c);
 void render_calendar_view(struct calview *c);
 void do_tasks_view(void);
-void calendar_summary_view(void);
+int calendar_summary_view(void);
 void free_march_list(wcsession *wcf);
 void display_rules_editor_inner_div(void);
 void generate_uuid(char *);
