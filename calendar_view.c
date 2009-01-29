@@ -1241,9 +1241,9 @@ void calendar_day_view(int year, int month, int day) {
 
 
 /*
- * Display today's events.
+ * Display today's events.  Returns the number of items displayed.
  */
-void calendar_summary_view(void) {
+int calendar_summary_view(void) {
 	long hklen;
 	const char *HashKey;
 	void *vCal;
@@ -1258,9 +1258,10 @@ void calendar_summary_view(void) {
 	int all_day_event = 0;
 	char timestring[SIZ];
 	wcsession *WCC = WC;
+	int num_displayed = 0;
 
 	if (GetCount(WC->disp_cal_items) == 0) {
-		return;
+		return(0);
 	}
 
 	now = time(NULL);
@@ -1328,12 +1329,14 @@ void calendar_summary_view(void) {
 						wprintf(" (%s)", timestring);
 					}
 					wprintf("</a><br />\n");
+					++num_displayed;
 				}
 			}
 		}
 	}
 	DeleteHashPos(&Pos);
 	DeleteHash(&WC->disp_cal_items);
+	return(num_displayed);
 }
 
 /*
