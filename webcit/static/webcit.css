@@ -273,8 +273,14 @@ body {
 	font-style: italic;
 }
 
-.mimepart dl dd,.mailbox_summary td, .mimepart dl dt {
+.mimepart dl dd, .mimepart dl dt {
 	border-top: 1px solid #AAA;
+}
+
+.mailbox_summary td {
+	/* border-top: 1px solid #AAA; */
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .mimepart dl dt {
