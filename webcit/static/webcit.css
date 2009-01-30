@@ -126,16 +126,19 @@ body {
 
 #banner ul.room_actions li.start_page a, #navbar, .selector_top,.selector_bottom {
 	background-color: #022750;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
 	color: #FFF;
 }
 
 #banner {
 	background-color: #004E79;
-	color: #FFF
-
+	color: #FFF;
+	margin: 0;
+	padding: 0;
 }
+
+
 #banner a {
 	color: #FFF
 }
@@ -565,15 +568,6 @@ body, #global {
     
 }
 
-#banner {
-/*	position: absolute;
-	top: 0;
-	left: 16%;
-	width: 84%;
-	height: 18%; */
-    min-height: 18%;
-}
-
 #content {
 /*	position: absolute;
 	top: 18%;
@@ -788,10 +782,6 @@ body, #global {
 }
 
 /* Banner */
-#banner {
-    margin: 0;
-    padding: 0;
-}
 #banner .room_banner {
     display: table-cell;
     width: 90%;
