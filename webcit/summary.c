@@ -271,10 +271,12 @@ void summary(void) {
         wprintf("</h1><h2>");
         output_date();
         wprintf("</h2></div>");
+	wprintf("<div id=\"actiondiv\">");
 	wprintf("<ul class=\"room_actions\">\n");
 	wprintf("<li class=\"start_page\">");
 	offer_start_page(NULL, &NoCtx);
         wprintf("</li></ul>");
+        wprintf("</div>");
         wprintf("</div>");
 
 	/*
