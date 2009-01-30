@@ -107,6 +107,16 @@ int connect_to_ldap(void)
 			     "LDAP: Could not connect to server.");
 		return -1;
 	}
+	else {
+		CtdlAideMessage(
+			"WARNING: populating an external LDAP address book is deprecated.\n"
+			"This function will be discontinued in a future release.\n"
+			"Please migrate to vCard-based address books as soon as possible.\n"
+			"Visit the Citadel support forum if you need further assistance.\n"
+			,
+			"Warning: LDAP address book is deprecated"
+		);
+	}
 
 	ldap_set_option(dirserver, LDAP_OPT_PROTOCOL_VERSION,
 			&ldap_version);

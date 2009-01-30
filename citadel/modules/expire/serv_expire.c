@@ -530,7 +530,8 @@ int PurgeUsers(void) {
 			ForEachUser(do_uid_user_purge, NULL);
 			break;
 		default:
-			CtdlLogPrintf(CTDL_DEBUG, "Unknown authentication mode!\n");
+			CtdlLogPrintf(CTDL_DEBUG, "User purge for auth mode %d is not implemented.\n",
+				config.c_auth_mode);
 			break;
 	}
 
