@@ -1288,6 +1288,10 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	NewTemplate->TokenSpace = 0;
 	NewTemplate->Tokens = NULL;
 	NewTemplate->MimeType = NewStrBufPlain(GuessMimeByFilename (SKEY(NewTemplate->FileName)), -1);
+	if (strstr(ChrPtr(NewTemplate->MimeType), "text") != NULL) {
+		StrBufAppendBufPlain(NewTemplate->MimeType, HKEY("; charset=utf-8"), 0);
+	}
+
 	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
 		FreeWCTemplate(NewTemplate);
