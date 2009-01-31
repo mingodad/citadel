@@ -352,9 +352,7 @@ void finalize_openid_login(void)
 	StrBuf *logged_in_response = NULL;
 	StrBuf *claimed_id = NULL;
 
-	lprintf(9, "finalize_openid_login() started\n");
 	if (havebstr("openid.mode")) {
-		lprintf(9, "finalize_openid_login() openid.mode = %s\n", bstr("openid.mode"));
 		if (!strcasecmp(bstr("openid.mode"), "id_res")) {
 			Buf = NewStrBuf();
 			serv_puts("OIDF");
@@ -377,9 +375,7 @@ void finalize_openid_login(void)
 				serv_puts("000");
 
 				linecount = 0;
-				while (StrBuf_ServGetln(Buf), 
-				       (StrLength(Buf)==3) && 
-				       !strcmp(ChrPtr(Buf), "000")) 
+				while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) 
 				{
 					if (linecount == 0) result = NewStrBufDup(Buf);
 					if (!strcasecmp(ChrPtr(result), "authenticate")) {
@@ -423,7 +419,6 @@ void finalize_openid_login(void)
 	 * auto-creating one using Simple Registration Extension, we're already on our way.
 	 */
 	if (!strcasecmp(ChrPtr(result), "authenticate")) {
-		lprintf(9, "finalize_openid_login() attempting to become_logged_in()\n");
 		become_logged_in(username, password, logged_in_response);
 	}
 
