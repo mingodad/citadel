@@ -914,7 +914,10 @@ DONE:
 	case VIEW_NOTES:
 		break;
 	case VIEW_ADDRESSBOOK:
-		do_addrbook_view(addrbook, num_ab);	/** Render the address book */
+		if (is_singlecard)
+			read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), 0, NULL);
+		else
+			do_addrbook_view(addrbook, num_ab);	/** Render the address book */
 		break;
 	case VIEW_MAILBOX: 
 	case VIEW_BBS:
