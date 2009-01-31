@@ -840,8 +840,10 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		}
 		if (i > 0) StrBufCutLeft(Line, i);
 		
-		if (StrLength(Line) == 0)
+		if (StrLength(Line) == 0) {
+			StrBufAppendBufPlain(Target, HKEY("<tt></tt><br />\n"), 0);
 			continue;
+		}
 
 		for (i = bn; i < bq; i++)				
 			StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
