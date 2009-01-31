@@ -1,18 +1,45 @@
-<?=("beginbox")>
-<?HELLO>
-<div class="login_message"><?MESG></div>
+<?=("head")>
+<!-- start login.html -->
+<div id="login_screen">
+<div class="box">
+<div class="boxlabel"><?SERV:HUMANNODE> - <?_("powered by")> <a href="http://www.citadel.org">Citadel</a></div>
+<div class="boxcontent">
+<div id="hellomsg">
+<?SERV:MESG("hello")>
+</div>
+<?!("COND:IMPMSG", 1)>
+<div class="login_message"><?IMPORTANTMESSAGE></div>
+<?!("X", 1)>
+<div class="login_image"><img src="image?name=hello" alt=""></div>
 <form action="openid_login" method="POST"  class="box" id="login_form">
-        <label for="uname"><?OPENID_BOX></label>
-        <input type="text" name="openid_url" id="uname" class="openid_urlarea"> <br>
-        <label for="lname"><?LANGUAGE_BOX></label>
-        <?DO_LANGUAGE_BOX> <br>
+<div>
+        <label for="openid_url"><?_("OpenID URL:")></label>
+        <input type="text" name="openid_url" id="openid_url" class="openid_urlarea" > <br>
+        <label for="lname"><?_("Language:")></label>
+        <?LANG:SELECT> <br>
+</div>
         <div class="logbuttons">
-        <input type="submit" name="login_action" value="<?LOGIN_BUTTON>" class="logbutton">
-        <input type="submit" name="exit_action" value="<?EXIT_BUTTON>"  class="logbutton">
+        <input type="submit" name="login_action" value="<?_("Login")>"   class="logbutton">
+	<??("COND:SERV:NEWU", 1)>
+        <input name="newuser_action" value="<?_("New User")>" class="logbutton" type="submit">
+	<??("X", 1)>
+        <input type="submit" name="exit_action" value="<?_("Exit")>"  class="logbutton">
         <br>
         </div>
 </form>
-<?OFFER_CONVENTIONAL_LOGIN>
-<div class="login_image"><img src="image&name=hello"></div>
-<div class="login_infos"><?LOGIN_INSTRUCTIONS></div>
+<div id="convlogin">
+  <p><a href="display_login"><?_("Log in using a user name and password")></a></p>
+  </div>
+<div class="login_infos">
+<ul><li><?_("Enter your OpenID URL and click &quot;Login&quot;.")></li>
+<li><a href="http://www.citadel.org/doku.php/documentation:openid">
+<?_("Click here to learn what OpenID is and how Citadel is using it.")></a></li>
+<li><?_("Please log off properly when finished. ")></li>
+<li><?_("See the")> <a href="http://www.citadel.org/doku.php/faq:everydayuse:webcit_browser"><?_("recommended browser list")></a> <?_("if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> turned on. ")></li>
+<li><?_("Also keep in mind that if your browser is configured to block pop-up windows, you will not be able to receive any instant messages.")></li></ul>
+ 
+</div>
+</div>
+<!-- end login.html -->
 <?=("endbox")>
+<?=("trailing")>

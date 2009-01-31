@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-29 16:32-0500\n"
+"POT-Creation-Date: 2009-01-31 18:13+1100\n"
 "PO-Revision-Date: 2009-01-29 21:49+0100\n"
 "Last-Translator: Thierry Pasquier <thierry.pasquier@emf.ccsti.eu>\n"
 "Language-Team:  <en@li.org>\n"
@@ -29,7 +29,7 @@ msgstr "Ajouter"
 msgid "Deleted"
 msgstr "Supprimé"
 
-#: ../auth.c:22 ../auth.c:123 ../static/t/tab_siteconfig_access.html:10
+#: ../auth.c:22 ../auth.c:90 ../static/t/tab_siteconfig_access.html:10
 #: ../static/t/tab_siteconfig_access.html:36
 #: ../static/t/userlist_detailview.html:23
 msgid "New User"
@@ -65,68 +65,50 @@ msgstr "Usager privilégié"
 msgid "Aide"
 msgstr "Administrateur"
 
-#: ../auth.c:65
-msgid ""
-"<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
-"\"http://www.citadel.org/doku.php/documentation:openid\">Click here to learn "
-"what OpenID is and how Citadel is using it.</a><li>Please log off properly "
-"when finished. <li>You must use a browser that supports <i>frames</i> and "
-"<i>cookies</i>. <li>Also keep in mind that if your browser is configured to "
-"block pop-up windows, you will not be able to receive any instant messages."
-"<br></ul>"
-msgstr ""
-"<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
-"\"http://www.citadel.org/doku.php/documentation:openid\">Click here to learn "
-"what OpenID is and how Citadel is using it.</a><li>Please log off properly "
-"when finished. <li>You must use a browser that supports <i>frames</i> and "
-"<i>cookies</i>. <li>Also keep in mind that if your browser is configured to "
-"block pop-up windows, you will not be able to receive any instant messages."
-"<br></ul>"
-
-#: ../auth.c:103
+#: ../auth.c:70
 #, c-format
 msgid "Your OpenID <tt>%s</tt> was successfully verified."
 msgstr "Votre compte OpenID <tt>%s</tt> a été vérifié avec succès."
 
-#: ../auth.c:112
+#: ../auth.c:79
 #, c-format
 msgid "However, the user name '%s' conflicts with an existing user."
 msgstr ""
 "Cependant, le nom d'usager '%s' est en conflit avec celui d'un usager "
 "existant."
 
-#: ../auth.c:120
+#: ../auth.c:87
 msgid "Please specify the user name you would like to use."
 msgstr "SVP précisez le nom d'usager que vous souhaitez utiliser."
 
-#: ../auth.c:122 ../who.c:190 ../static/t/login.html:16
+#: ../auth.c:89 ../who.c:190 ../static/t/login.html:16
 #: ../static/t/userlist_detailview.html:16
 msgid "User name:"
 msgstr "Identifiant :"
 
-#: ../auth.c:124 ../paging.c:497
+#: ../auth.c:91 ../paging.c:497
 msgid "Exit"
 msgstr "Quitter"
 
-#: ../auth.c:126
+#: ../auth.c:93
 #, c-format
 msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 msgstr "%s - propulsé par <a href=\"http://www.citadel.org\">Citadel</a>"
 
-#: ../auth.c:245 ../auth.c:873
+#: ../auth.c:212 ../auth.c:840
 msgid "Blank passwords are not allowed."
 msgstr "Les mots de passe vides ne sont pas autorisés."
 
-#: ../auth.c:279 ../auth.c:369 ../auth.c:476
+#: ../auth.c:246 ../auth.c:336 ../auth.c:443
 msgid "Your password was not accepted."
 msgstr "Votre mot de passe a été refusé."
 
-#: ../auth.c:583 ../static/t/iconbar.html:77
+#: ../auth.c:550 ../static/t/iconbar.html:77
 #: ../static/t/menu_basic_commands.html:19
 msgid "Log off"
 msgstr "Déconnexion"
 
-#: ../auth.c:596
+#: ../auth.c:563
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -134,68 +116,68 @@ msgstr ""
 "Ce programme n'a pas pu se connecter ou rester connecté au serveur Citadel. "
 "SVP informez l'administrateur du système de ce problème."
 
-#: ../auth.c:602
+#: ../auth.c:569
 msgid "Read More..."
 msgstr "En lire plus..."
 
-#: ../auth.c:607
+#: ../auth.c:574
 msgid "Log in again"
 msgstr "Se connecter à nouveau"
 
-#: ../auth.c:610 ../roomops.c:328
+#: ../auth.c:577 ../roomops.c:328
 msgid "Close window"
 msgstr "Fermer la fenêtre"
 
-#: ../auth.c:630 ../static/t/aide_usermanagement.html:3
+#: ../auth.c:597 ../static/t/aide_usermanagement.html:3
 msgid "Validate new users"
 msgstr "Valider les nouveaux usagers"
 
-#: ../auth.c:653
+#: ../auth.c:620
 msgid "No users require validation at this time."
 msgstr "Aucun usager ne requière de validation actuellement."
 
-#: ../auth.c:701
+#: ../auth.c:668
 msgid "very weak"
 msgstr "très faible"
 
-#: ../auth.c:704
+#: ../auth.c:671
 msgid "weak"
 msgstr "faible"
 
-#: ../auth.c:707
+#: ../auth.c:674
 msgid "ok"
 msgstr "ok"
 
-#: ../auth.c:711
+#: ../auth.c:678
 msgid "strong"
 msgstr "strong"
 
-#: ../auth.c:729
+#: ../auth.c:696
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Niveau d'accès actuel : %d (%s)\n"
 
-#: ../auth.c:737
+#: ../auth.c:704
 msgid "Select access level for this user:"
 msgstr "Sélection du niveau d'accès de cet usager : "
 
-#: ../auth.c:799 ../static/t/menu_your_info.html:4
+#: ../auth.c:766 ../static/t/menu_your_info.html:4
 msgid "Change your password"
 msgstr "Changez votre mot de passe"
 
-#: ../auth.c:823
+#: ../auth.c:790
 msgid "Enter new password:"
 msgstr "Entrez un nouveau mot de passe :"
 
-#: ../auth.c:827
+#: ../auth.c:794
 msgid "Enter it again to confirm:"
 msgstr "Retapez le pour confirmer :"
 
-#: ../auth.c:833
+#: ../auth.c:800
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
-#: ../auth.c:835 ../calendar.c:747 ../event.c:719 ../graphics.c:58
+#: ../auth.c:802 ../calendar.c:747 ../event.c:719 ../graphics.c:58
 #: ../iconbar.c:391 ../mainmenu.c:250 ../messages.c:1467 ../notes.c:87
 #: ../paging.c:55 ../roomops.c:1541 ../roomops.c:1909 ../roomops.c:2589
 #: ../roomops.c:2748 ../roomops.c:2813 ../sieve.c:209 ../sysmsgs.c:52
@@ -203,11 +185,11 @@ msgstr "Changer le mot de passe"
 msgid "Cancel"
 msgstr "Abandonner"
 
-#: ../auth.c:854
+#: ../auth.c:821
 msgid "Cancelled.  Password was not changed."
 msgstr "Abandon. Le mot de passe n'a pas été changé."
 
-#: ../auth.c:865
+#: ../auth.c:832
 msgid "They don't match.  Password was not changed."
 msgstr ""
 "Les deux saisies sont différentes. Le mot de passe n'a pas été modifié."
@@ -404,7 +386,7 @@ msgstr "Enregistrer"
 
 #: ../calendar.c:746 ../event.c:717 ../static/t/msg_listview.html:30
 #: ../static/t/section_aide_inetconf_entry.html:7
-#: ../static/t/view_message.html:29 ../static/t/view_message_print.html:20
+#: ../static/t/view_message.html:29
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -1095,7 +1077,7 @@ msgid "Move this message to:"
 msgstr "Déplacer ce message vers :"
 
 #: ../messages.c:1465 ../static/t/msg_listview.html:28
-#: ../static/t/view_message.html:27 ../static/t/view_message_print.html:18
+#: ../static/t/view_message.html:27
 msgid "Move"
 msgstr "Déplacer"
 
@@ -1138,11 +1120,11 @@ msgstr ""
 msgid "Mailbox view mode"
 msgstr "Mode d'affichage"
 
-#: ../msg_renderers.c:491 ../vcard_edit.c:71 ../static/t/whosection.html:6
+#: ../msg_renderers.c:492 ../vcard_edit.c:71 ../static/t/whosection.html:6
 msgid "edit"
 msgstr "modifier"
 
-#: ../msg_renderers.c:905
+#: ../msg_renderers.c:906
 msgid "I don't know how to display "
 msgstr "Je ne sais pas comment afficher "
 
@@ -1857,7 +1839,7 @@ msgstr "Visualisation des paliers et salons"
 msgid "Show empty floors"
 msgstr "Montrer les niveaux vides"
 
-#: ../rss.c:30 ../static/t/view_message_print.html:12
+#: ../rss.c:30
 msgid "Reply"
 msgstr "Répondre"
 
@@ -2148,7 +2130,7 @@ msgstr "et ensuite"
 msgid "Add rule"
 msgstr "Ajouter une règle"
 
-#: ../siteconfig.c:242
+#: ../siteconfig.c:243
 msgid "Your system configuration has been updated."
 msgstr "La configuration de votre système a été mise à jour"
 
@@ -2841,6 +2823,7 @@ msgid "To:"
 msgstr "À :"
 
 #: ../static/t/edit_message.html:59 ../static/t/view_message.html:14
+#: ../static/t/view_message_print.html:15
 msgid "CC:"
 msgstr "Copie conforme :"
 
@@ -2848,7 +2831,9 @@ msgstr "Copie conforme :"
 msgid "BCC:"
 msgstr "Copie cachée à :"
 
-#: ../static/t/edit_message.html:73
+#: ../static/t/edit_message.html:73 ../static/t/view_message.html:35
+#: ../static/t/view_message_print.html:18
+#: ../static/t/view_message_replyquote.html:8
 msgid "Subject:"
 msgstr "Objet :"
 
@@ -2955,7 +2940,7 @@ msgstr "passer au menu"
 msgid "My folders"
 msgstr "Dossier de messages"
 
-#: ../static/t/login.html:5
+#: ../static/t/login.html:5 ../static/t/openid_login.html:5
 msgid "powered by"
 msgstr "motorisé par"
 
@@ -2963,52 +2948,52 @@ msgstr "motorisé par"
 msgid "Password:"
 msgstr "Mot de passe :"
 
-#: ../static/t/login.html:20
+#: ../static/t/login.html:20 ../static/t/openid_login.html:18
 msgid "Language:"
 msgstr "Langue :"
 
-#: ../static/t/login.html:41
+#: ../static/t/login.html:36
 msgid "Log in using OpenID"
 msgstr "Se connecter en utilisant OpenID"
 
-#: ../static/t/login.html:45
+#: ../static/t/login.html:40
 msgid "If you already have an account on"
 msgstr "Si vous avez déjà un compte sur"
 
-#: ../static/t/login.html:46
+#: ../static/t/login.html:41
 msgid "enter your user name and password and click &quot;Login.&quot;"
-msgstr ""
+msgstr "entrez votre identifiant et votre mot de passe puis cliquez sur &quot;Login.&quot;"
 
-#: ../static/t/login.html:47
+#: ../static/t/login.html:42
 msgid ""
 "<b>If you are a new user</b>, enter the name and password you wish to use, "
 "and click &quot;New User.&quot; "
-msgstr ""
+msgstr "<b>Si ous êtes un nouvel usager</b>, entrez l'identifiant et le mot de passe que vous souhaitez utiliser et cliquez sur &quot;Nouvel usager.&quot; "
 
-#: ../static/t/login.html:48
+#: ../static/t/login.html:43 ../static/t/openid_login.html:37
 msgid "Please log off properly when finished. "
-msgstr ""
+msgstr "Fermez votre session  proprement en quittant."
 
-#: ../static/t/login.html:49
+#: ../static/t/login.html:44 ../static/t/openid_login.html:38
 #, fuzzy
 msgid "See the"
 msgstr "Supprimer"
 
-#: ../static/t/login.html:49
+#: ../static/t/login.html:44 ../static/t/openid_login.html:38
 msgid "recommended browser list"
 msgstr ""
 
-#: ../static/t/login.html:49
+#: ../static/t/login.html:44 ../static/t/openid_login.html:38
 msgid ""
 "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
 "turned on. "
 msgstr ""
 
-#: ../static/t/login.html:50
+#: ../static/t/login.html:45 ../static/t/openid_login.html:39
 msgid ""
 "Also keep in mind that if your browser is configured to block pop-up "
 "windows, you will not be able to receive any instant messages."
-msgstr ""
+msgstr "Gardez aussi à l'esprit que si votre navigateur est configuré pour bloquer les pop-ups intempestives vous ne recevrez aucun message instantané."
 
 #: ../static/t/menu_advanced_roomcommands.html:3
 msgid "Edit or delete this room"
@@ -3146,9 +3131,24 @@ msgid "Copy"
 msgstr "Copier"
 
 #: ../static/t/msg_listview.html:31 ../static/t/view_message.html:33
-#: ../static/t/view_message_print.html:24
 msgid "Print"
 msgstr "Imprimer"
+
+#: ../static/t/openid_login.html:16
+msgid "OpenID URL:"
+msgstr ""
+
+#: ../static/t/openid_login.html:31
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../static/t/openid_login.html:34
+msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgstr ""
+
+#: ../static/t/openid_login.html:36
+msgid "Click here to learn what OpenID is and how Citadel is using it."
+msgstr ""
 
 #: ../static/t/preferences.html:4 ../static/t/preferences.html:7
 msgid "Preferences and settings"
@@ -3157,6 +3157,18 @@ msgstr "Préférences et options"
 #: ../static/t/roombanner.html:14
 msgid "Select"
 msgstr "Sélectionner"
+
+#: ../static/t/roombanner.html:15
+msgid ")> <select id="
+msgstr ""
+
+#: ../static/t/roombanner.html:15
+msgid "><option> </option></select></li><??("
+msgstr ""
+
+#: ../static/t/roombanner.html:15
+msgid ",1)>"
+msgstr ""
 
 #: ../static/t/section_files_onefile.html:19
 msgid "Slideshow"
@@ -3546,21 +3558,26 @@ msgstr "Date et heure de la dernière connexion"
 msgid "Auto-purge after this many days"
 msgstr "Purge automatique après ce nombre de jours"
 
-#: ../static/t/view_message.html:7 ../static/t/view_message_print.html:7
+#: ../static/t/view_message.html:7 ../static/t/view_message_print.html:8
 #: ../static/t/view_message_replyquote.html:4
 #: ../static/t/view_submessage.html:4
 msgid "from "
 msgstr "de "
 
-#: ../static/t/view_message.html:23 ../static/t/view_message_print.html:14
+#: ../static/t/view_message.html:13 ../static/t/view_message_print.html:14
+#, fuzzy
+msgid "to"
+msgstr "à "
+
+#: ../static/t/view_message.html:23
 msgid "ReplyQuoted"
 msgstr "Répondre en citant"
 
-#: ../static/t/view_message.html:25 ../static/t/view_message_print.html:16
+#: ../static/t/view_message.html:25
 msgid "Forward"
 msgstr "Faire suivre"
 
-#: ../static/t/view_message.html:31 ../static/t/view_message_print.html:22
+#: ../static/t/view_message.html:31
 msgid "Headers"
 msgstr "Entêtes"
 
@@ -3602,6 +3619,23 @@ msgstr "Usagers actuellement dans"
 #: ../static/t/whosection.html:4
 msgid "(kill)"
 msgstr "(supprimer)"
+
+#~ msgid ""
+#~ "<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
+#~ "\"http://www.citadel.org/doku.php/documentation:openid\">Click here to "
+#~ "learn what OpenID is and how Citadel is using it.</a><li>Please log off "
+#~ "properly when finished. <li>You must use a browser that supports "
+#~ "<i>frames</i> and <i>cookies</i>. <li>Also keep in mind that if your "
+#~ "browser is configured to block pop-up windows, you will not be able to "
+#~ "receive any instant messages.<br></ul>"
+#~ msgstr ""
+#~ "<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
+#~ "\"http://www.citadel.org/doku.php/documentation:openid\">Click here to "
+#~ "learn what OpenID is and how Citadel is using it.</a><li>Please log off "
+#~ "properly when finished. <li>You must use a browser that supports "
+#~ "<i>frames</i> and <i>cookies</i>. <li>Also keep in mind that if your "
+#~ "browser is configured to block pop-up windows, you will not be able to "
+#~ "receive any instant messages.<br></ul>"
 
 #, fuzzy
 #~ msgid ""
@@ -3677,9 +3711,6 @@ msgstr "(supprimer)"
 #~ msgstr ""
 #~ "Le serveur Citadel doit redémarrer. Il sera de nouveau en service dans "
 #~ "une minute"
-
-#~ msgid "to "
-#~ msgstr "à "
 
 #~ msgid "ReplyAll"
 #~ msgstr "Répondre à tous"

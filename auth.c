@@ -51,43 +51,10 @@ void display_login(void)
  */
 void display_openid_login(char *mesg)
 {
-	char buf[SIZ];
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"login_screen\">\n");
-
-	if ((mesg != NULL) && (!IsEmptyStr(mesg))) {
-		stresc(buf, SIZ,  mesg, 0, 0);
-		svprintf(HKEY("MESG"), WCS_STRING, "%s", buf);
-	}
-
-	svprintf(HKEY("LOGIN_INSTRUCTIONS"), WCS_STRING,
-		_("<ul>"
-		"<li>Enter your OpenID URL and click &quot;Login&quot;."
-		"<li><a href=\"http://www.citadel.org/doku.php/documentation:openid\">"
-		"Click here to learn what OpenID is and how Citadel is using it.</a>"
-		"<li>Please log off properly when finished. "
-		"<li>You must use a browser that supports <i>frames</i> and "
-		"<i>cookies</i>. "
-		"<li>Also keep in mind that if your browser is "
-		"configured to block pop-up windows, you will not be able "
-		"to receive any instant messages.<br>"
-		"</ul>")
-	);
-
-	svput("HELLO", WCS_SERVCMD, "MESG hello");
-	
-	svprintf(HKEY("OFFER_CONVENTIONAL_LOGIN"), WCS_STRING,
-		"<div id=\"convlogin\">"
-		"<a href=\"display_login\">"
-		"%s</a>"
-		"</div>"
-		,
-		"Log in using a user name and password"
-	);
-
-	do_template("openid_login", NULL);
-	wDumpContent(2);
+  begin_burst();
+  output_headers(1, 0, 0, 0, 1, 0);
+  do_template("openid_login", NULL);
+  end_burst();
 }
 
 

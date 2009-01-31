@@ -21,20 +21,15 @@
         <?LANG:SELECT> <br>
 </div>
         <div class="logbuttons">
-        <input type="submit" name="login_action" value="<?_("Login")>" class="logbutton">
+        <input type="submit" name="login_action" value="<?_("Login")>"   class="logbutton">
 	<??("COND:SERV:NEWU", 1)>
         <input name="newuser_action" value="<?_("New User")>" class="logbutton" type="submit">
 	<??("X", 1)>
-	<?!("COND:SERV:NEWU", 2)>
-        <div style="display:none;">
-        <input name="newuser_action" value="<?_("New User")>" class="logbutton" type="submit">
-        </div>
-	<??("X", 2)>
         <input type="submit" name="exit_action" value="<?_("Exit")>"  class="logbutton">
         <br>
         </div>
 </form>
-<??("COND:SERV:OPENID", 3)>
+<?!("COND:SERV:OPENID", 3)>
   <div id="openid" class="login_using_openid_link">
   <a href="display_openid_login">
   <img src="static/openid-small.gif" border="0" valign="middle">
@@ -47,7 +42,7 @@
 <li><?_("<b>If you are a new user</b>, enter the name and password you wish to use, and click &quot;New User.&quot; ")></li>
 <li><?_("Please log off properly when finished. ")></li>
 <li><?_("See the")> <a href="http://www.citadel.org/doku.php/faq:everydayuse:webcit_browser"><?_("recommended browser list")></a> <?_("if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> turned on. ")></li>
-<li><?_("Also keep in mind that if your browser is configured to block pop-up windows, you will not be able to receive any instant messages.")><br/></li></ul>
+<li><?_("Also keep in mind that if your browser is configured to block pop-up windows, you will not be able to receive any instant messages.")></li></ul>
  
 </div>
 </div>

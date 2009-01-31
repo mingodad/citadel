@@ -414,6 +414,7 @@ int Conditional_ROOM_DISPLAY_MSG(StrBuf *Target, WCTemplputParams *TP) {
 	IterateStruct *ITC = CCTX;
 	int num_inset = ITC->n;
 	if ((num_inset >= WC->startmsg) && (WCC->num_displayed <= WCC->maxmsgs)) {
+
 	WCC->num_displayed = WCC->num_displayed+1;
 	return 1; /* Pass GO, collect $200 */
 	} 
