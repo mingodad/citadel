@@ -46,7 +46,7 @@
 <input type="text" NAME="c_mgesve_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_mgesve_port")>'></td></tr>
 
 <tr><td><?_("Perform RBL checks upon connect instead of after RCPT")></td><td>
-<input type="checkbox" NAME="c_rbl_at_greeting" VALUE="yes" '<?SERV:CFG("c_rbl_at_greeting")>'></td></tr>
+<input type="checkbox" NAME="c_rbl_at_greeting" VALUE="yes" <?%("COND:SERVCFG", 1, "c_rbl_at_greeting", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Keep original from headers in IMAP")></td><td>
 <input type="checkbox" NAME="c_imap_keep_from" VALUE="yes" <?%("COND:SERVCFG", 1, "c_imap_keep_from", 1, "CHECKED", "")>></td></tr>
