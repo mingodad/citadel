@@ -368,11 +368,12 @@ void blank_page(void) {
  * A template has been requested
  */
 void url_do_template(void) {
+	const StrBuf *MimeType;
 	const StrBuf *Tmpl = sbstr("template");
 	begin_burst();
-	output_headers(1, 0, 0, 0, 1, 0);
-	DoTemplate(SKEY(Tmpl), NULL, &NoCtx);
-	end_burst();
+	output_headers(0, 0, 0, 0, 1, 0);
+	MimeType = DoTemplate(SKEY(Tmpl), NULL, &NoCtx);
+	http_transmit_thing(ChrPtr(MimeType), 0);
 }
 
 
