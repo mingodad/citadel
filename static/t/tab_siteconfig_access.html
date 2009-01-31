@@ -2,7 +2,7 @@
 <table border="0">
 
 <tr><td><?_("Automatically grant room-aide status to users who create private rooms")></td><td>
-<input type="checkbox" name="c_creataide" value="yes" '<?SERV:CFG("c_creataide")>'></td></tr>
+<input type="checkbox" name="c_creataide" value="yes" <?%("COND:SERVCFG", 1, "c_creataide", 1, "CHECKED", "")>></td></tr>
 
 <tr><td><?_("Initial access level for new users")></td><td>
 <select name="c_initax" size="1">
