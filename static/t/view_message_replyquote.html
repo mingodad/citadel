@@ -5,7 +5,7 @@
       <??("COND:MAIL:ANON",1)><?MAIL:SUMM:FROM("X")> &lt;<?MAIL:SUMM:RFCA("X")>&gt;<??("X", 1)>
       <?!("COND:MAIL:ANON",2)>***<??("X", 2)>
     </span>
-    <p class="message_subject"><?MAIL:SUMM:SUBJECT></p>
+    <p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p>
   </div><?ITERATE("MAIL:MIME:ATTACH:ATT", "load_attachments")>
   
   <div class="message_content">

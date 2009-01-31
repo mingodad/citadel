@@ -10,7 +10,7 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <??("COND:MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",3)> @ <?MAIL:SUMM:H_NODE><??("X",3)>
 <??("X", 1)>
  <?!("COND:MAIL:ANON", 4)>***<??("X", 4)>
- <?MAIL:SUMM:TO("X")><br/>
+ <?_("to")> <?MAIL:SUMM:TO("X")><br/>
  <?!("COND:MAIL:SUMM:CCCC", 5)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 5)>
 
 
@@ -32,7 +32,7 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 
    <a href="#" onclick="window.open('printmsg/<?MAIL:SUMM:N>', 'print<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Print")><span>]</span></a>
  </p>
- <p class="message_subject"><?MAIL:SUMM:SUBJECT></p>
+ <p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p>
 </div>
 <div class="message_content"><div>
 <?MAIL:BODY>
