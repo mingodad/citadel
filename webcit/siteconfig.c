@@ -175,8 +175,8 @@ void load_siteconfig(void)
 	}
 
 	serv_puts("GPEX mailboxes");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
 
 		CfgToken = NewStrBuf();
@@ -187,6 +187,7 @@ void load_siteconfig(void)
 		StrBufExtract_token(CfgToken, Buf, 1, '|');
 		Put(Cfg, HKEY("mboxvalue"), CfgToken, HFreeStrBuf);
 	}
+	FreeStrBuf(&Buf);
 }
 
 
