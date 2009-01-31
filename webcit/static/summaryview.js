@@ -247,6 +247,7 @@ function CtdlMessageListClick(evt) {
   if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
     unmarkAllRows();
     markedRowId = parent.ctdlRowId;
+    document.getElementById("preview_pane").innerHTML = "";
     new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
     markRow(parent);
     new Ajax.Request('ajax_servcmd', {

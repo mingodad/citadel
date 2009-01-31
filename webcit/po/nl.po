@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-29 16:32-0500\n"
+"POT-Creation-Date: 2009-01-31 18:13+1100\n"
 "PO-Revision-Date: 2009-01-28 21:56+0100\n"
 "Last-Translator: Wim Kuilman\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
@@ -29,7 +29,7 @@ msgstr "Toevoegen"
 msgid "Deleted"
 msgstr "Verwijderd"
 
-#: ../auth.c:22 ../auth.c:123 ../static/t/tab_siteconfig_access.html:10
+#: ../auth.c:22 ../auth.c:90 ../static/t/tab_siteconfig_access.html:10
 #: ../static/t/tab_siteconfig_access.html:36
 #: ../static/t/userlist_detailview.html:23
 msgid "New User"
@@ -65,65 +65,48 @@ msgstr "Voorkeursgebruiker"
 msgid "Aide"
 msgstr "Beheerder"
 
-#: ../auth.c:65
-msgid ""
-"<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
-"\"http://www.citadel.org/doku.php/documentation:openid\">Click here to learn "
-"what OpenID is and how Citadel is using it.</a><li>Please log off properly "
-"when finished. <li>You must use a browser that supports <i>frames</i> and "
-"<i>cookies</i>. <li>Also keep in mind that if your browser is configured to "
-"block pop-up windows, you will not be able to receive any instant messages."
-"<br></ul>"
-msgstr ""
-"<ul><li>Tik uw OpenID URL in en klik op &quot;Inloggen.&quot; <li><b><a href="
-"\"http://www.citadel.org/doku.php/documentation:openid\">Klik hier voor meer "
-"info over OpenID en hoe Citadel het gebruikt.</a><li>Log correct uit als u "
-"klaar bent. <li>Uw browser moet <i>frames</i> en <i>cookies</i> "
-"ondersteunen. <li>Als uw browser pop-up vensters blokkeert, zult u geen "
-"directe berichten kunnen ontvangen.<br /></ul>"
-
-#: ../auth.c:103
+#: ../auth.c:70
 #, c-format
 msgid "Your OpenID <tt>%s</tt> was successfully verified."
 msgstr "Uw OpenID <tt>%s</tt> is geverifieerd."
 
-#: ../auth.c:112
+#: ../auth.c:79
 #, c-format
 msgid "However, the user name '%s' conflicts with an existing user."
 msgstr "Maar, de gebruikersnaam '%s' botst met een bestaande gebruiker."
 
-#: ../auth.c:120
+#: ../auth.c:87
 msgid "Please specify the user name you would like to use."
 msgstr "Geef alstublieft de gebruikersnaam die u wilt gebruiken."
 
-#: ../auth.c:122 ../who.c:190 ../static/t/login.html:16
+#: ../auth.c:89 ../who.c:190 ../static/t/login.html:16
 #: ../static/t/userlist_detailview.html:16
 msgid "User name:"
 msgstr "Gebruikersnaam: "
 
-#: ../auth.c:124 ../paging.c:497
+#: ../auth.c:91 ../paging.c:497
 msgid "Exit"
 msgstr "Stoppen"
 
-#: ../auth.c:126
+#: ../auth.c:93
 #, c-format
 msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 msgstr "%s - op basis van <a href=\"http://www.citadel.org\">Citadel</a>"
 
-#: ../auth.c:245 ../auth.c:873
+#: ../auth.c:212 ../auth.c:840
 msgid "Blank passwords are not allowed."
 msgstr "Wachtwoorden mogen niet leeg zijn."
 
-#: ../auth.c:279 ../auth.c:369 ../auth.c:476
+#: ../auth.c:246 ../auth.c:336 ../auth.c:443
 msgid "Your password was not accepted."
 msgstr "Uw wachtwoord is niet geaccepteerd."
 
-#: ../auth.c:583 ../static/t/iconbar.html:77
+#: ../auth.c:550 ../static/t/iconbar.html:77
 #: ../static/t/menu_basic_commands.html:19
 msgid "Log off"
 msgstr "Uitloggen"
 
-#: ../auth.c:596
+#: ../auth.c:563
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -131,68 +114,68 @@ msgstr ""
 "Dit programma was niet in staat om contact te maken - of te houden met de "
 "Citadel server. Meld dit probleem alstublieft bij uw systeembeheerder."
 
-#: ../auth.c:602
+#: ../auth.c:569
 msgid "Read More..."
 msgstr "Lees verder..."
 
-#: ../auth.c:607
+#: ../auth.c:574
 msgid "Log in again"
 msgstr "Opnieuw inloggen"
 
-#: ../auth.c:610 ../roomops.c:328
+#: ../auth.c:577 ../roomops.c:328
 msgid "Close window"
 msgstr "Venster sluiten"
 
-#: ../auth.c:630 ../static/t/aide_usermanagement.html:3
+#: ../auth.c:597 ../static/t/aide_usermanagement.html:3
 msgid "Validate new users"
 msgstr "Nieuwe gebruikers goedkeuren"
 
-#: ../auth.c:653
+#: ../auth.c:620
 msgid "No users require validation at this time."
 msgstr "Er zijn geen gebruikers die goedgekeurd moeten worden."
 
-#: ../auth.c:701
+#: ../auth.c:668
 msgid "very weak"
 msgstr "erg zwak"
 
-#: ../auth.c:704
+#: ../auth.c:671
 msgid "weak"
 msgstr "zwak"
 
-#: ../auth.c:707
+#: ../auth.c:674
 msgid "ok"
 msgstr "ok"
 
-#: ../auth.c:711
+#: ../auth.c:678
 msgid "strong"
 msgstr "sterk"
 
-#: ../auth.c:729
+#: ../auth.c:696
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Huidig toegangsniveau %d (%s)\n"
 
-#: ../auth.c:737
+#: ../auth.c:704
 msgid "Select access level for this user:"
 msgstr "Selecteer toegangsniveau voor deze gebruiker: "
 
-#: ../auth.c:799 ../static/t/menu_your_info.html:4
+#: ../auth.c:766 ../static/t/menu_your_info.html:4
 msgid "Change your password"
 msgstr "Uw wachtwoord wijzigen"
 
-#: ../auth.c:823
+#: ../auth.c:790
 msgid "Enter new password:"
 msgstr "Uw nieuwe wachtwoord: "
 
-#: ../auth.c:827
+#: ../auth.c:794
 msgid "Enter it again to confirm:"
 msgstr "Nogmaals als bevestiging: "
 
-#: ../auth.c:833
+#: ../auth.c:800
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: ../auth.c:835 ../calendar.c:747 ../event.c:719 ../graphics.c:58
+#: ../auth.c:802 ../calendar.c:747 ../event.c:719 ../graphics.c:58
 #: ../iconbar.c:391 ../mainmenu.c:250 ../messages.c:1467 ../notes.c:87
 #: ../paging.c:55 ../roomops.c:1541 ../roomops.c:1909 ../roomops.c:2589
 #: ../roomops.c:2748 ../roomops.c:2813 ../sieve.c:209 ../sysmsgs.c:52
@@ -200,11 +183,11 @@ msgstr "Wachtwoord wijzigen"
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: ../auth.c:854
+#: ../auth.c:821
 msgid "Cancelled.  Password was not changed."
 msgstr "Geannuleerd: Wachtwoord niet gewijzigd."
 
-#: ../auth.c:865
+#: ../auth.c:832
 msgid "They don't match.  Password was not changed."
 msgstr "Ze komen niet overeen. Wachtwoord is niet gewijzigd."
 
@@ -402,7 +385,7 @@ msgstr "Bewaren"
 
 #: ../calendar.c:746 ../event.c:717 ../static/t/msg_listview.html:30
 #: ../static/t/section_aide_inetconf_entry.html:7
-#: ../static/t/view_message.html:29 ../static/t/view_message_print.html:20
+#: ../static/t/view_message.html:29
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -1097,7 +1080,7 @@ msgid "Move this message to:"
 msgstr "Dit bericht verplaatsen naar: "
 
 #: ../messages.c:1465 ../static/t/msg_listview.html:28
-#: ../static/t/view_message.html:27 ../static/t/view_message_print.html:18
+#: ../static/t/view_message.html:27
 msgid "Move"
 msgstr "Verplaatsen"
 
@@ -1139,11 +1122,11 @@ msgstr "Voorkeursnaam voor bulletinboard berichten"
 msgid "Mailbox view mode"
 msgstr "Mailboxweergave"
 
-#: ../msg_renderers.c:491 ../vcard_edit.c:71 ../static/t/whosection.html:6
+#: ../msg_renderers.c:492 ../vcard_edit.c:71 ../static/t/whosection.html:6
 msgid "edit"
 msgstr "bewerken"
 
-#: ../msg_renderers.c:905
+#: ../msg_renderers.c:906
 msgid "I don't know how to display "
 msgstr "Ik weet niet hoe ik moet tonen"
 
@@ -1855,7 +1838,7 @@ msgstr "Bekijk als ruimte"
 msgid "Show empty floors"
 msgstr "Toon lege verdiepingen"
 
-#: ../rss.c:30 ../static/t/view_message_print.html:12
+#: ../rss.c:30
 msgid "Reply"
 msgstr "Antwoord"
 
@@ -2144,7 +2127,7 @@ msgstr "en dan"
 msgid "Add rule"
 msgstr "Voeg regel toe"
 
-#: ../siteconfig.c:242
+#: ../siteconfig.c:243
 msgid "Your system configuration has been updated."
 msgstr "Uw systeeminstellingen zijn bijgewerkt."
 
@@ -2834,6 +2817,7 @@ msgid "To:"
 msgstr "Naar: "
 
 #: ../static/t/edit_message.html:59 ../static/t/view_message.html:14
+#: ../static/t/view_message_print.html:15
 msgid "CC:"
 msgstr "CC: "
 
@@ -2841,7 +2825,9 @@ msgstr "CC: "
 msgid "BCC:"
 msgstr "BCC: "
 
-#: ../static/t/edit_message.html:73
+#: ../static/t/edit_message.html:73 ../static/t/view_message.html:35
+#: ../static/t/view_message_print.html:18
+#: ../static/t/view_message_replyquote.html:8
 msgid "Subject:"
 msgstr "Onderwerp: "
 
@@ -2946,7 +2932,7 @@ msgstr "Switch naar menu"
 msgid "My folders"
 msgstr "Mailmap"
 
-#: ../static/t/login.html:5
+#: ../static/t/login.html:5 ../static/t/openid_login.html:5
 msgid "powered by"
 msgstr "op basis van "
 
@@ -2954,56 +2940,57 @@ msgstr "op basis van "
 msgid "Password:"
 msgstr "Wachtwoord: "
 
-#: ../static/t/login.html:20
+#: ../static/t/login.html:20 ../static/t/openid_login.html:18
 msgid "Language:"
 msgstr "Taal: "
 
-#: ../static/t/login.html:41
+#: ../static/t/login.html:36
 msgid "Log in using OpenID"
 msgstr "Login met OpenID"
 
-#: ../static/t/login.html:45
+#: ../static/t/login.html:40
 msgid "If you already have an account on"
 msgstr "als u al een account heeft op "
 
-#: ../static/t/login.html:46
+#: ../static/t/login.html:41
 msgid "enter your user name and password and click &quot;Login.&quot;"
-msgstr "Vul uw gebruikersnaam en wachtwoord in en klik op &quot;Inloggen.&quot;"
+msgstr ""
+"Vul uw gebruikersnaam en wachtwoord in en klik op &quot;Inloggen.&quot;"
 
-#: ../static/t/login.html:47
+#: ../static/t/login.html:42
 msgid ""
 "<b>If you are a new user</b>, enter the name and password you wish to use, "
 "and click &quot;New User.&quot; "
 msgstr ""
-"<b>Als u een nieuwe gebruiker bent</b>, vul uw gebruikersnaam in en "
-"het wachtwoord dat u wilt gebruiken en klik op &quot;Nieuwe gebruiker."
+"<b>Als u een nieuwe gebruiker bent</b>, vul uw gebruikersnaam in en het "
+"wachtwoord dat u wilt gebruiken en klik op &quot;Nieuwe gebruiker."
 
-#: ../static/t/login.html:48
+#: ../static/t/login.html:43 ../static/t/openid_login.html:37
 msgid "Please log off properly when finished. "
 msgstr "Log correct uit als u klaar bent."
 
-#: ../static/t/login.html:49
+#: ../static/t/login.html:44 ../static/t/openid_login.html:38
 #, fuzzy
 msgid "See the"
 msgstr "Verwijderen"
 
-#: ../static/t/login.html:49
+#: ../static/t/login.html:44 ../static/t/openid_login.html:38
 msgid "recommended browser list"
 msgstr ""
 
-#: ../static/t/login.html:49
+#: ../static/t/login.html:44 ../static/t/openid_login.html:38
 msgid ""
 "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
 "turned on. "
 msgstr ""
 
-#: ../static/t/login.html:50
+#: ../static/t/login.html:45 ../static/t/openid_login.html:39
 msgid ""
 "Also keep in mind that if your browser is configured to block pop-up "
 "windows, you will not be able to receive any instant messages."
 msgstr ""
-"Als uw browser pop-up "
-"vensters blokkeert, zult u geen directe berichten kunnen ontvangen."
+"Als uw browser pop-up vensters blokkeert, zult u geen directe berichten "
+"kunnen ontvangen."
 
 #: ../static/t/menu_advanced_roomcommands.html:3
 msgid "Edit or delete this room"
@@ -3141,9 +3128,26 @@ msgid "Copy"
 msgstr "Kopieer"
 
 #: ../static/t/msg_listview.html:31 ../static/t/view_message.html:33
-#: ../static/t/view_message_print.html:24
 msgid "Print"
 msgstr "Print"
+
+#: ../static/t/openid_login.html:16
+msgid "OpenID URL:"
+msgstr ""
+
+#: ../static/t/openid_login.html:31
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../static/t/openid_login.html:34
+#, fuzzy
+msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgstr ""
+"Vul uw gebruikersnaam en wachtwoord in en klik op &quot;Inloggen.&quot;"
+
+#: ../static/t/openid_login.html:36
+msgid "Click here to learn what OpenID is and how Citadel is using it."
+msgstr "Klik hier voor meer info over OpenID en hoe Citadel het gebruikt."
 
 #: ../static/t/preferences.html:4 ../static/t/preferences.html:7
 msgid "Preferences and settings"
@@ -3152,6 +3156,18 @@ msgstr "Voorkeuren en instellingen"
 #: ../static/t/roombanner.html:14
 msgid "Select"
 msgstr "Selecteren"
+
+#: ../static/t/roombanner.html:15
+msgid ")> <select id="
+msgstr ""
+
+#: ../static/t/roombanner.html:15
+msgid "><option> </option></select></li><??("
+msgstr ""
+
+#: ../static/t/roombanner.html:15
+msgid ",1)>"
+msgstr ""
 
 #: ../static/t/section_files_onefile.html:19
 msgid "Slideshow"
@@ -3534,21 +3550,26 @@ msgstr "Datum en tijd laatste login"
 msgid "Auto-purge after this many days"
 msgstr "Opruimen na dit aantal dagen"
 
-#: ../static/t/view_message.html:7 ../static/t/view_message_print.html:7
+#: ../static/t/view_message.html:7 ../static/t/view_message_print.html:8
 #: ../static/t/view_message_replyquote.html:4
 #: ../static/t/view_submessage.html:4
 msgid "from "
 msgstr "van "
 
-#: ../static/t/view_message.html:23 ../static/t/view_message_print.html:14
+#: ../static/t/view_message.html:13 ../static/t/view_message_print.html:14
+#, fuzzy
+msgid "to"
+msgstr "aan "
+
+#: ../static/t/view_message.html:23
 msgid "ReplyQuoted"
 msgstr "AntwoordQuoted"
 
-#: ../static/t/view_message.html:25 ../static/t/view_message_print.html:16
+#: ../static/t/view_message.html:25
 msgid "Forward"
 msgstr "Doorsturen"
 
-#: ../static/t/view_message.html:31 ../static/t/view_message_print.html:22
+#: ../static/t/view_message.html:31
 msgid "Headers"
 msgstr "Headers"
 
@@ -3588,6 +3609,22 @@ msgstr "Gebruikers op dit moment op "
 #: ../static/t/whosection.html:4
 msgid "(kill)"
 msgstr "(beëindig)"
+
+#~ msgid ""
+#~ "<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
+#~ "\"http://www.citadel.org/doku.php/documentation:openid\">Click here to "
+#~ "learn what OpenID is and how Citadel is using it.</a><li>Please log off "
+#~ "properly when finished. <li>You must use a browser that supports "
+#~ "<i>frames</i> and <i>cookies</i>. <li>Also keep in mind that if your "
+#~ "browser is configured to block pop-up windows, you will not be able to "
+#~ "receive any instant messages.<br></ul>"
+#~ msgstr ""
+#~ "<ul><li>Tik uw OpenID URL in en klik op &quot;Inloggen.&quot; <li><b><a "
+#~ "href=\"http://www.citadel.org/doku.php/documentation:openid\">Klik hier "
+#~ "voor meer info over OpenID en hoe Citadel het gebruikt.</a><li>Log "
+#~ "correct uit als u klaar bent. <li>Uw browser moet <i>frames</i> en "
+#~ "<i>cookies</i> ondersteunen. <li>Als uw browser pop-up vensters "
+#~ "blokkeert, zult u geen directe berichten kunnen ontvangen.<br /></ul>"
 
 #~ msgid ""
 #~ "enter your user name and password and click &quot;Login.&quot;<li><b>If "
@@ -3658,9 +3695,6 @@ msgstr "(beëindig)"
 #~ msgid "The citadel server has to be restarted. It 'll be back in a minute."
 #~ msgstr ""
 #~ "De Citadel server moet opnieuw opstarten. Het is zo weer beschikbaar."
-
-#~ msgid "to "
-#~ msgstr "aan "
 
 #~ msgid "ReplyAll"
 #~ msgstr "AntwoordAllen"
