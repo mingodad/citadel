@@ -48,6 +48,7 @@ typedef struct _WCTemplate {
 	StrBuf *FileName;
 	int nTokensUsed;
 	int TokenSpace;
+	StrBuf *MimeType;
 	WCTemplateToken **Tokens;
 } WCTemplate;
 
@@ -325,6 +326,7 @@ void FreeWCTemplate(void *vFreeMe)
 	}
 	FreeStrBuf(&FreeMe->FileName);
 	FreeStrBuf(&FreeMe->Data);
+	FreeStrBuf(&FreeMe->MimeType);
 	free(FreeMe);
 }
 
@@ -1285,6 +1287,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	NewTemplate->nTokensUsed = 0;
 	NewTemplate->TokenSpace = 0;
 	NewTemplate->Tokens = NULL;
+	NewTemplate->MimeType = NewStrBufPlain(GuessMimeByFilename (SKEY(NewTemplate->FileName)), -1);
 	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
 		FreeWCTemplate(NewTemplate);
@@ -1504,7 +1507,7 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 
 
 
-void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams *CallingTP)
+const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams *CallingTP)
 {
 	WCTemplate *pTmpl = Tmpl;
 	int done = 0;
@@ -1529,7 +1532,7 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams *Calling
 				Target, 
 				"<pre>\nError loading Template [%s]\n See Logfile for details\n</pre>\n", 
 				ChrPtr(Tmpl->FileName));
-			return;
+			return NULL;
 		}
 
 	}
@@ -1576,13 +1579,16 @@ void ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams *Calling
 	if (LoadTemplates != 0) {
 		FreeWCTemplate(pTmpl);
 	}
+	return Tmpl->MimeType;
+
 }
 
 /**
  * \brief Display a variable-substituted template
  * \param templatename template file to load
+ * \returns the mimetype of the template its doing
  */
-void DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputParams *TP) 
+const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputParams *TP) 
 {
 	WCTemplputParams LocalTP;
 	HashList *Static;
@@ -1609,7 +1615,7 @@ void DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputPa
 	{
 		lprintf (1, "Can't to load a template with empty name!\n");
 		StrBufAppendPrintf(Target, "<pre>\nCan't to load a template with empty name!\n</pre>");
-		return;
+		return NULL;
 	}
 
 	if (!GetHash(StaticLocal, templatename, len, &vTmpl) &&
@@ -1622,11 +1628,12 @@ void DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputPa
 		dbg_PrintHash(Static, PrintTemplate, NULL);
 		PrintHash(Static, VarPrintTransition, PrintTemplate);
 #endif
-		return;
+		return NULL;
 	}
 	if (vTmpl == NULL) 
-		return;
-	ProcessTemplate(vTmpl, Target, TP);
+		return NULL;
+	return ProcessTemplate(vTmpl, Target, TP);
+
 }
 
 /*-----------------------------------------------------------------------------
