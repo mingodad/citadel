@@ -127,7 +127,8 @@ function loadMessages(transport) {
       var x=j;
       if (x==4) x=3;
       var classStmt = "col"+x;
-      tdElement.setAttribute("class", classStmt);
+      //tdElement.setAttribute("class", classStmt);
+      tdElement.className = classStmt;
 	} catch (e) {
 	  WCLog("Error on #"+msgId +" col"+j+":"+e);
 	}
@@ -144,7 +145,7 @@ function loadMessages(transport) {
   var delta = end.getTime() - start.getTime();
     WCLog("loadMessages construct: " + delta);
   } catch (e) {
-    window.alert(e);
+    //window.alert(e+"|"+e.description);
   }
   if (currentSortMode == null) {
   if (sortmode.length < 1) {

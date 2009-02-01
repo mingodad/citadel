@@ -592,12 +592,13 @@ body, #global {
 #summary_view {
 	height: 100px;
 	overflow-y: scroll;
+    overflow-x: hidden;
 	cursor: pointer;
 }
 #message_list_body {
     background-color: white !important;
 }
-#message_list_body > tr > td {
+#message_list_body tr td {
     overflow-y: hidden;
     overflow-x: hidden; /* stop long subjects overflowing */
 }
@@ -1094,7 +1095,10 @@ dt { clear: both; }
 .imsg {
 	text-align: center;
 }
-#summary_view > table {
+#summary_view table {
+    table-layout: fixed; /* stops long subjects overflowing */
+}
+#summary_view > table { /* hide from IE6 */
     width: 100%;
 }
 colgroup.entity {

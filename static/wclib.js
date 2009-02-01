@@ -28,6 +28,8 @@ var ns6=document.getElementById&&!document.all;
 Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
 Event.observe(window, 'load', fixbanner);
+Event.observe(window, 'load', resizeViewport);
+Event.observe(window, 'resize', resizeViewport);
 //document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
 document.observe('dom:loaded', function() { if (!!document.getElementById("ib_chat_launch")) { $('ib_chat_launch').observe('click', launchChat); } });
@@ -805,5 +807,27 @@ function fixOffsetBanner() {
     var contentDiv = document.getElementById("content");
     var newContentWidth = viewportWidth-iconbarWidth;
     contentDiv.style.width = newContentWidth+"px";
+  }
+}
+/** Attempt to stop overflowing in x-axis in IE */
+function resizeViewport() {
+  var documentWidth = 0;
+  var viewportWidth = document.viewport.getWidth();
+  var iconbar = $('iconbar');
+  var global = $('global');
+  if (typeof window.offsetWidth != 'undefined') {
+    documentWidth = window.offsetWidth;
+  } else {
+    documentWidth = document.documentElement.offsetWidth;
+  }
+  if (documentWidth > viewportWidth) {
+    WCLog("resizeViewport");
+    document.documentElement.style.width = viewportWidth+"px";
+    document.documentElement.style.overflowX = "hidden";
+    //viewportWidth = 0.98 * viewportWidth;
+    var newIconBarSize = 0.16 * viewportWidth;
+    var newContentSize = viewportWidth - newIconBarSize;
+    iconbar.style.width = newIconBarSize+"px";
+    global.style.width = newContentSize+"px";
   }
 }
