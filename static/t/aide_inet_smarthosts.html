@@ -2,7 +2,7 @@
 <?_("(if present, forward all outbound mail to one of these hosts)")>
 </span><br />
 <table border=0 cellspacing="2" cellpadding="2" width=94% class="altern" >
-<?ITERATE("SERVCFG:INET", "section_aide_inetconf_entry", "smarthost")>
+<?ITERATE("SERVCFG:INET", "section_aide_inetconf_entry", 0, 0, -1, "smarthost")>
 <form method="post" action="save_inetconf">
 <input type="hidden" name="nonce" value='<?NONCE>'>
 <tr><td>
