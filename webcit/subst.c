@@ -690,7 +690,8 @@ void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
 	}
 }
 
-void GetTemplateTokenString(WCTemplputParams *TP,
+void GetTemplateTokenString(StrBuf *Target, 
+			    WCTemplputParams *TP,
 			    int N,
 			    const char **Value, 
 			    long *len)
@@ -699,8 +700,9 @@ void GetTemplateTokenString(WCTemplputParams *TP,
 	WCTemplputParams SubTP;
 
 	if (TP->Tokens->nParameters < N) {
-		lprintf(1, "invalid token. this shouldn't have come till here.\n");
-		wc_backtrace(); 
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "invalid token %d. this shouldn't have come till here.\n", N);
 		*Value = "";
 		*len = 0;
 		return;
@@ -723,8 +725,15 @@ void GetTemplateTokenString(WCTemplputParams *TP,
 		*len = StrLength(Buf);
 		break;
 	case TYPE_LONG:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "Requesting parameter %d; of type LONG, want string.", N);
+		break;
 	case TYPE_PREFINT:
-		break; /* todo: string to text? */
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "Requesting parameter %d; of type PREFINT, want string.", N);
+		break;
 	case TYPE_GETTEXT:
 		*Value = _(TP->Tokens->Params[N]->Start);
 		*len = strlen(*Value);
@@ -742,8 +751,60 @@ void GetTemplateTokenString(WCTemplputParams *TP,
 		break;
 
 	default:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "unknown param type %d; [%d]", N, TP->Tokens->Params[N]->Type);
 		break;
-/*/todo log error */
+	}
+}
+
+long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long dflt)
+{
+	long Ret;
+	if (TP->Tokens->nParameters < N) {
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "invalid token %d. this shouldn't have come till here.\n", N);
+		wc_backtrace(); 
+		return 0;
+	}
+
+	switch (TP->Tokens->Params[N]->Type) {
+
+	case TYPE_STR:
+		return atol(TP->Tokens->Params[N]->Start);
+		break;
+	case TYPE_BSTR:
+		return  LBstr(TKEY(N));
+		break;
+	case TYPE_PREFSTR:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "requesting a prefstring in param %d want a number", N);
+		if (get_PREF_LONG(TKEY(N), &Ret, dflt))
+			return Ret;
+		return 0;		
+	case TYPE_LONG:
+		return TP->Tokens->Params[N]->lvalue;
+	case TYPE_PREFINT:
+		if (get_PREF_LONG(TKEY(N), &Ret, dflt))
+			return Ret;
+		return 0;		
+	case TYPE_GETTEXT:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "requesting a I18N string in param %d; want a number", N);
+		return 0;
+	case TYPE_SUBTEMPLATE:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "requesting a subtemplate in param %d; not supported for numbers", N);
+		return 0;
+	default:
+		LogTemplateError(Target, 
+				 "TokenParameter", N, TP, 
+				 "unknown param type %d; [%d]", N, TP->Tokens->Params[N]->Type);
+		return 0;
 	}
 }
 
@@ -1461,14 +1522,14 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 	case SV_CUST_STR_CONDITIONAL: /** Conditional put custom strings from params */
 		if (TP->Tokens->nParameters >= 6) {
 			if (EvaluateConditional(Target, 0, state, TP)) {
-				GetTemplateTokenString(TP, 5, &AppendMe, &AppendMeLen);
+				GetTemplateTokenString(Target, TP, 5, &AppendMe, &AppendMeLen);
 				StrBufAppendBufPlain(Target, 
 						     AppendMe, 
 						     AppendMeLen,
 						     0);
 			}
 			else{
-				GetTemplateTokenString(TP, 4, &AppendMe, &AppendMeLen);
+				GetTemplateTokenString(Target, TP, 4, &AppendMe, &AppendMeLen);
 				StrBufAppendBufPlain(Target, 
 						     AppendMe, 
 						     AppendMeLen,
@@ -1701,6 +1762,10 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	WCTemplputParams SubTP;
 	IterateStruct Status;
 
+	long StartAt = 0;
+	long StepWidth = 0;
+	long StopAt = -1;
+
 	memset(&Status, 0, sizeof(IterateStruct));
 	memcpy (&SubTP, &TP, sizeof(WCTemplputParams));
 	
@@ -1760,21 +1825,37 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	SubTP.Filter.ContextType = It->ContextType;
 	SubTP.Filter.ControlContextType = CTX_ITERATE;
 	SubTP.ControlContext = &Status;
-	it = GetNewHashPos(List, 0);
+	
+	if (HAVE_PARAM(3)) {
+		StartAt = GetTemplateTokenNumber(Target, TP, 3, 0);
+	}
+	if (HAVE_PARAM(4)) {
+		StepWidth = GetTemplateTokenNumber(Target, TP, 4, 0);
+	}
+	if (HAVE_PARAM(5)) {
+		StopAt = GetTemplateTokenNumber(Target, TP, 5, -1);
+	}
+	if (StopAt < 0) {
+		StopAt = GetCount(List)  + 1;
+	}
+	it = GetNewHashPos(List, StepWidth);
 	while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
-		if (DetectGroupChange && Status.n > 0) {
-			Status.GroupChange = (SortBy->GroupChange(vContext, vLastContext))? 1:0;
-		}
-		Status.LastN = ++Status.LastN == nMembersUsed;
-		SubTP.Context = vContext;
-		if (It->DoSubTemplate != NULL)
-			It->DoSubTemplate(SubBuf, &SubTP);
-		DoTemplate(TKEY(1), SubBuf, &SubTP);
+		if ((Status.n > StartAt) && (Status.n < StopAt)) {
+			if (DetectGroupChange && Status.n > 0) {
+				Status.GroupChange = (SortBy->GroupChange(vContext, vLastContext))? 1:0;
+			}
+			Status.LastN = (Status.n + 1) == nMembersUsed;
+			SubTP.Context = vContext;
+			if (It->DoSubTemplate != NULL)
+				It->DoSubTemplate(SubBuf, &SubTP);
+			DoTemplate(TKEY(1), SubBuf, &SubTP);
 			
-		StrBufAppendBuf(Target, SubBuf, 0);
-		FlushStrBuf(SubBuf);
-		Status.oddeven = ! Status.oddeven;
-		vLastContext = vContext;
+			StrBufAppendBuf(Target, SubBuf, 0);
+			FlushStrBuf(SubBuf);
+			Status.oddeven = ! Status.oddeven;
+			vLastContext = vContext;
+		}
+		Status.n++;
 	}
 	FreeStrBuf(&SubBuf);
 	DeleteHashPos(&it);
@@ -1924,7 +2005,7 @@ int ConditionalContextStr(StrBuf *Target, WCTemplputParams *TP)
 	const char *CompareToken;
 	long len;
 
-	GetTemplateTokenString(TP, 2, &CompareToken, &len);
+	GetTemplateTokenString(Target, TP, 2, &CompareToken, &len);
 	return strcmp(ChrPtr(TokenText), CompareToken) == 0;
 }
 
@@ -1945,7 +2026,8 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 		else {
 			const char *Ch;
 			long len;
-			GetTemplateTokenString(TP, 
+			GetTemplateTokenString(Target, 
+					       TP, 
 					       1,
 					       &Ch,
 					       &len);
@@ -1982,7 +2064,8 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 		else if (TP->Tokens->Params[i * 2]->Type == TYPE_GETTEXT) {
 			const char *Ch;
 			long len;
-			GetTemplateTokenString(TP, 
+			GetTemplateTokenString(Target, 
+					       TP, 
 					       i * 2,
 					       &Ch,
 					       &len);

@@ -182,7 +182,7 @@ typedef void (*HashDestructorFunc) (HashList **KillMe);
 
 extern WCTemplputParams NoCtx;
 
-
+#define HAVE_PARAM(a) (TP->Tokens->nParameters > a)
 
 
 #define ERR_NAME 0
@@ -214,10 +214,30 @@ void LogTemplateError (StrBuf *Target,
  * \param Value reference to the string of the token; don't free me.
  * \param len the length of Value
  */
-void GetTemplateTokenString(WCTemplputParams *TP,
+void GetTemplateTokenString(StrBuf *Target, 
+			    WCTemplputParams *TP,
 			    int N,
 			    const char **Value, 
 			    long *len);
+
+
+
+/**
+ * \Brief get the actual integer value of a token parameter
+ * in your tmplputs or conditionals use this function to access parameters that can also be 
+ * retrieved from dynamic facilities:
+ *  _ -> Gettext; retrieve this token from the i18n facilities
+ *  : -> lookup a setting of that name
+ *  B -> bstr; an URL-Parameter
+ *  = -> subtemplate; parse a template by this name, and treat its content as this tokens value 
+ * 
+ * \param N which token do you want to lookup?
+ * \param dflt default value to be retrieved if not found in preferences
+ * \returns the long value
+ */
+long GetTemplateTokenNumber(StrBuf *Target, 
+			    WCTemplputParams *TP, 
+			    int N, long dflt);
 
 /**
  * \Brief put a token value into the template
