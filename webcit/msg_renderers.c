@@ -403,6 +403,11 @@ int Conditional_MAIL_SUMM_TO(StrBuf *Target, WCTemplputParams *TP)
 	message_summary *Msg = (message_summary*) CTX;
 	return StrLength(Msg->to) != 0;
 }
+int Conditional_MAIL_SUMM_SUBJ(StrBuf *Target, WCTemplputParams *TP) 
+{
+	message_summary *Msg = (message_summary*) CTX;
+	return StrLength(Msg->subj) != 0;
+}
 void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
@@ -1143,6 +1148,7 @@ InitModule_MSGRENDERERS
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:ANON"), 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:TO"), 0, Conditional_MAIL_SUMM_TO, CTX_MAILSUM);	
+	RegisterConditional(HKEY("COND:MAIL:SUBJ"), 0, Conditional_MAIL_SUMM_SUBJ, CTX_MAILSUM);	
 
 	/* do we have mimetypes to iterate over? */
 	RegisterConditional(HKEY("COND:MAIL:MIME:ATTACH"), 0, Conditional_MAIL_MIME_ALL, CTX_MAILSUM);
