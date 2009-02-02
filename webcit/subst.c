@@ -1311,6 +1311,10 @@ void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	NewTemplate->nTokensUsed = 0;
 	NewTemplate->TokenSpace = 0;
 	NewTemplate->Tokens = NULL;
+	NewTemplate->MimeType = NewStrBufPlain(GuessMimeByFilename (SKEY(NewTemplate->FileName)), -1);
+	if (strstr(ChrPtr(NewTemplate->MimeType), "text") != NULL) {
+		StrBufAppendBufPlain(NewTemplate->MimeType, HKEY("; charset=utf-8"), 0);
+	}
 
 	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
 	return NewTemplate;
@@ -1836,11 +1840,11 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 		StopAt = GetTemplateTokenNumber(Target, TP, 5, -1);
 	}
 	if (StopAt < 0) {
-		StopAt = GetCount(List)  + 1;
+		StopAt = GetCount(List);
 	}
 	it = GetNewHashPos(List, StepWidth);
 	while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
-		if ((Status.n > StartAt) && (Status.n < StopAt)) {
+		if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
 			if (DetectGroupChange && Status.n > 0) {
 				Status.GroupChange = (SortBy->GroupChange(vContext, vLastContext))? 1:0;
 			}
