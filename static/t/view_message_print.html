@@ -11,12 +11,10 @@
 <??("COND:MAIL:SUMM:RFCA", 3)><??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",3)> @ <?MAIL:SUMM:H_NODE><??("X",3)>
 <??("X", 1)>
  <?!("COND:MAIL:ANON", 4)>***<??("X", 4)>
- <?_("to")> <?MAIL:SUMM:TO("X")><br/>
- <?!("COND:MAIL:SUMM:CCCC", 5)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 5)>
+ <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)><br/>
+<?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
+<?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p><??("X", 7)>
 </div>
-
-<p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p>
-
 <div class="message_content"><div align="justify">
 <?MAIL:BODY>    
 </div>
