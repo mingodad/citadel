@@ -568,7 +568,12 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	}
 	vector[6] = 0;
 	FlushStrBuf(TmpBuf);
-	vector[1] = lbstr("maxmsgs") == 9999999;
+	if (maxmsgs == 9999999) {
+		vector[1] = 1;
+		ret = maxmsgs;
+	}
+	else
+		vector[1] = 0;		
 	vector[2] = 0;
 	dbg_print_longvector(vector);
 	DoTemplate(HKEY("select_messageindex_all"), TmpBuf, &SubTP);
