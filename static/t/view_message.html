@@ -10,8 +10,8 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <??("COND:MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",3)> @ <?MAIL:SUMM:H_NODE><??("X",3)>
 <??("X", 1)>
  <?!("COND:MAIL:ANON", 4)>***<??("X", 4)>
- <?_("to")> <?MAIL:SUMM:TO("X")><br/>
- <?!("COND:MAIL:SUMM:CCCC", 5)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 5)>
+ <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)><br/>
+ <?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
 
 
 
@@ -36,12 +36,12 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 </div>
 <div class="message_content"><div>
 <?MAIL:BODY>
-<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 6)>
+<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 7)>
 <?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_message_inline_attach")>
-<?!("X", 6)>
-<?!("COND:MAIL:MIME:ATTACH:LINKS", 7)>
-<?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_message_list_attach")>
 <?!("X", 7)>
+<?!("COND:MAIL:MIME:ATTACH:LINKS", 8)>
+<?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_message_list_attach")>
+<?!("X", 8)>
 
 </div>
 </div>
