@@ -2148,6 +2148,12 @@ void editroom(void)
 		FreeStrBuf(&Buf);
 		return;
 	}
+
+	er_name = NewStrBuf();
+	er_password = NewStrBuf();
+	er_dirname = NewStrBuf();
+	er_roomaide = NewStrBuf();
+
 	StrBufCutLeft(Buf, 4);
 	StrBufExtract_token(er_name, Buf, 0, '|');
 	StrBufExtract_token(er_password, Buf, 1, '|');
