@@ -1731,7 +1731,7 @@ int CtdlOutputPreLoadedMsg(
 
 	/* nhdr=yes means that we're only displaying headers, no body */
 	if ( (TheMessage->cm_anon_type == MES_ANONONLY)
-	   && (mode == MT_CITADEL)
+	   && ((mode == MT_CITADEL) || (mode == MT_MIME))
 	   && (do_proto)
 	   ) {
 		cprintf("nhdr=yes\n");
