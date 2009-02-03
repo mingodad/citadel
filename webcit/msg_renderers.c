@@ -271,6 +271,11 @@ void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
 	message_summary *Msg = (message_summary*) CTX;
 	StrBufAppendTemplate(Target, TP, Msg->subj, 0);
 }
+int Conditional_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
+{
+	message_summary *Msg = (message_summary*) CTX;
+	return StrLength(Msg->subj) > 0;
+}
 
 
 void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -1146,6 +1151,7 @@ InitModule_MSGRENDERERS
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:H_NODE"), 0, Conditional_MAIL_SUMM_H_NODE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:OTHERNODE"), 0, Conditional_MAIL_SUMM_OTHERNODE, CTX_MAILSUM);
+	RegisterConditional(HKEY("COND:MAIL:SUMM:SUBJECT"), 0, Conditional_MAIL_SUMM_SUBJECT, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:ANON"), 0, Conditional_ANONYMOUS_MESSAGE, CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:TO"), 0, Conditional_MAIL_SUMM_TO, CTX_MAILSUM);	
 	RegisterConditional(HKEY("COND:MAIL:SUBJ"), 0, Conditional_MAIL_SUMM_SUBJ, CTX_MAILSUM);	
