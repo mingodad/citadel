@@ -1,7 +1,7 @@
 # translation of nl.po to Nederlands
 # Copyright (C) 2006-2008 The Citadel Project - http://www.citadel.org
 # This file is distributed under the GNU General Public License
-# 
+#
 # Wim Kuilman <wim.kuilman@esdalcollege.nl>, 2006, 2007.
 # Wim Kuilman <w.kuilman@icoss.net>, 2008, 2009.
 msgid ""
@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: nl\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-31 18:13+1100\n"
-"PO-Revision-Date: 2009-01-28 21:56+0100\n"
+"PO-Revision-Date: 2009-02-01 21:58+0100\n"
 "Last-Translator: Wim Kuilman\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -2928,9 +2928,8 @@ msgid "switch to menu"
 msgstr "Switch naar menu"
 
 #: ../static/t/iconbar.html:86
-#, fuzzy
 msgid "My folders"
-msgstr "Mailmap"
+msgstr "Mijn mappen"
 
 #: ../static/t/login.html:5 ../static/t/openid_login.html:5
 msgid "powered by"
@@ -2970,19 +2969,20 @@ msgid "Please log off properly when finished. "
 msgstr "Log correct uit als u klaar bent."
 
 #: ../static/t/login.html:44 ../static/t/openid_login.html:38
-#, fuzzy
 msgid "See the"
-msgstr "Verwijderen"
+msgstr "Bekijk de"
 
 #: ../static/t/login.html:44 ../static/t/openid_login.html:38
 msgid "recommended browser list"
-msgstr ""
+msgstr "aanbevolen browser lijst"
 
 #: ../static/t/login.html:44 ../static/t/openid_login.html:38
 msgid ""
 "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
 "turned on. "
 msgstr ""
+"als je problemen hebt met Webcit.</li> <li><i>Cookies</i> moeten "
+"worden toegestaan."
 
 #: ../static/t/login.html:45 ../static/t/openid_login.html:39
 msgid ""
@@ -3133,17 +3133,15 @@ msgstr "Print"
 
 #: ../static/t/openid_login.html:16
 msgid "OpenID URL:"
-msgstr ""
+msgstr "OpenID URL:"
 
 #: ../static/t/openid_login.html:31
 msgid "Log in using a user name and password"
-msgstr ""
+msgstr "Log in met gebruikersnaam en wachtwoord"
 
 #: ../static/t/openid_login.html:34
-#, fuzzy
 msgid "Enter your OpenID URL and click &quot;Login&quot;."
-msgstr ""
-"Vul uw gebruikersnaam en wachtwoord in en klik op &quot;Inloggen.&quot;"
+msgstr "Vul uw OpenID URL in en klik op &quot;Inloggen.&quot;"
 
 #: ../static/t/openid_login.html:36
 msgid "Click here to learn what OpenID is and how Citadel is using it."
@@ -3159,15 +3157,15 @@ msgstr "Selecteren"
 
 #: ../static/t/roombanner.html:15
 msgid ")> <select id="
-msgstr ""
+msgstr ")> <select id="
 
 #: ../static/t/roombanner.html:15
 msgid "><option> </option></select></li><??("
-msgstr ""
+msgstr "><option> </option></select></li><??("
 
 #: ../static/t/roombanner.html:15
 msgid ",1)>"
-msgstr ""
+msgstr ",1)>"
 
 #: ../static/t/section_files_onefile.html:19
 msgid "Slideshow"
@@ -3557,7 +3555,6 @@ msgid "from "
 msgstr "van "
 
 #: ../static/t/view_message.html:13 ../static/t/view_message_print.html:14
-#, fuzzy
 msgid "to"
 msgstr "aan "
 
@@ -3800,3 +3797,4 @@ msgstr "(beëindig)"
 
 #~ msgid "(This server does not support calendars)"
 #~ msgstr "(Deze server ondersteunt geen agenda's)"
+
