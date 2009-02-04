@@ -212,7 +212,7 @@ function IconBarRoomList() {
     var room = mailboxRooms[i];
     currentDropTargets.push(addRoomToList(mailboxUL, room));
   }
-  if (currentExpanded != null && currentExpanded == "Mailbox") {
+  if (currentExpanded != null && currentExpanded == _mailbox ) {
     expandFloor(mailboxSPAN);
   }
   for(var a=0; a<floors.length; a++) {
@@ -794,9 +794,9 @@ function fixbanner() {
   // Use prototype api methods here
   var elems = [$('room_banner'),$('actiondiv')];
   fixMissingCSSTable(elems);
-  var banner = $('banner'); 
+  /* var banner = $('banner'); 
   if (banner != null) {
-  }
+  } */
 }
 
 function fixOffsetBanner() {
@@ -809,7 +809,7 @@ function fixOffsetBanner() {
     contentDiv.style.width = newContentWidth+"px";
   }
 }
-/** Attempt to stop overflowing in x-axis in IE */
+/** Attempt to stop overflowing in x-axis in IE6 */
 function resizeViewport() {
   var documentWidth = 0;
   var viewportWidth = document.viewport.getWidth();
