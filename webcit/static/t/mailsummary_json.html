@@ -1,5 +1,6 @@
 { "nummsgs": <?READLOOP:TOTALMSGS>,
 "startmsg": <?READLOOP:STARTMSG>,
 "roomname": "<?ROOMNAME>",
-"msgs": [ <?ITERATE("MAIL:SUMM:MSGS", "mailsummary_json_section", B("startmsg"), B("maxmsgs"))> ]
+"msgs": [ <?ITERATE("MAIL:SUMM:MSGS", "mailsummary_json_section",
+B("startmsg"), 0, B("stopmsg"))> ]
 }
