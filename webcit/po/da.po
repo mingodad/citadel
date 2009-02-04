@@ -1,13 +1,13 @@
-﻿# Danish localization for WebCit
-# Copyright (C) 2006 The Citadel Project - http://www.citadel.org
-# This file is distributed under the GPL v2.
+# Danish localization for WebCit
+# Copyright (C) 2006-2009 The Citadel Project - http://www.citadel.org
+# This file is distributed under GPL v3
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: WebCit 6.82\n"
+"Project-Id-Version: WebCit 7.40\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-29 16:32-0500\n"
+"POT-Creation-Date: 2009-01-31 18:13+1100\n"
 "PO-Revision-Date: 2009-01-31 11:30+0100\n"
 "Last-Translator: Flemming Veggerby <fveggerby@dbmail.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -2262,7 +2262,7 @@ msgid ""
 "s.  Your system administrator is %s."
 msgstr ""
 "Du er forbundet til %s, bruger %s med %s, server version %s og lokaliseret i %"
-s.  Din systemadministrator er %s."
+"s.  Din systemadministrator er %s."
 
 #: ../summary.c:189
 msgid "Messages"
@@ -3077,7 +3077,7 @@ msgid ""
 "Also keep in mind that if your browser is configured to block pop-up "
 "windows, you will not be able to receive any instant messages."
 msgstr "Husk også at hvis din browser er sat til at blokere pop-ups, "
-"vil du ikke være i stand til at modtage popup medelelser.
+"vil du ikke være i stand til at modtage popup medelelser."
 
 #: ../static/t/menu_advanced_roomcommands.html:3
 msgid "Edit or delete this room"
@@ -3343,7 +3343,7 @@ msgid ""
 "options will have no effect."
 msgstr ""
 "NOTE: Denne Citadel server er blevet installeret uden support af LDAP. "
-"Disse indstillinger vil ikke have nogen betydning.
+"Disse indstillinger vil ikke have nogen betydning."
 
 #: ../static/t/tab_siteconfig_directory.html:10
 msgid "Host name of LDAP server (blank to disable)"
