@@ -1830,14 +1830,14 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	SubTP.Filter.ControlContextType = CTX_ITERATE;
 	SubTP.ControlContext = &Status;
 	
+	if (HAVE_PARAM(2)) {
+		StartAt = GetTemplateTokenNumber(Target, TP, 2, 0);
+	}
 	if (HAVE_PARAM(3)) {
-		StartAt = GetTemplateTokenNumber(Target, TP, 3, 0);
+		StepWidth = GetTemplateTokenNumber(Target, TP, 3, 0);
 	}
 	if (HAVE_PARAM(4)) {
-		StepWidth = GetTemplateTokenNumber(Target, TP, 4, 0);
-	}
-	if (HAVE_PARAM(5)) {
-		StopAt = GetTemplateTokenNumber(Target, TP, 5, -1);
+		StopAt = GetTemplateTokenNumber(Target, TP, 4, -1);
 	}
 	it = GetNewHashPos(List, StepWidth);
 	if (StopAt < 0) {
