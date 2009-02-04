@@ -68,9 +68,10 @@ function getMessages() {
     message_view.appendChild(loadingMsg);
   }
 roomName = getTextContent(document.getElementById("rmname"));
- var parameters = {'room':roomName, 'startmsg': startmsg};
+ var parameters = {'room':roomName, 'startmsg': startmsg, 'stopmsg': -1};
  if (is_safe_mode) {
-   parameters['maxmsgs'] = 500;
+   parameters['stopmsg'] = parseInt(startmsg)+500;
+   //parameters['maxmsgs'] = 500;
    if (currentSortMode != null) {
      var SortBy = currentSortMode[0];
      if (SortBy.charAt(0) == 'r') {
