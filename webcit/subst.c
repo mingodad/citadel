@@ -1839,10 +1839,10 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	if (HAVE_PARAM(5)) {
 		StopAt = GetTemplateTokenNumber(Target, TP, 5, -1);
 	}
+	it = GetNewHashPos(List, StepWidth);
 	if (StopAt < 0) {
 		StopAt = GetCount(List);
 	}
-	it = GetNewHashPos(List, StepWidth);
 	while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
 		if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
 			if (DetectGroupChange && Status.n > 0) {

@@ -70,11 +70,14 @@ body {
 	text-transform: uppercase;
 }
 
-.ib_button, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, .iconbar_text {
+.ib_button, #room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart, .iconbar_text{
 	background-color: #F0FFFF;
 	color: #333;
+} 
+#online_users:hover { /* separate in order for override */
+    background-color: #F0FFFF !important;
+	color: #333 !important;
 }
-
 #iconbar #button {
 	border: none;
 	list-style: none;
@@ -1096,7 +1099,7 @@ dt { clear: both; }
 	text-align: center;
 }
 #summary_view table {
-    table-layout: fixed; /* stops long subjects overflowing */
+/*    table-layout: fixed; stops long subjects overflowing */
 }
 #summary_view > table { /* hide from IE6 */
     width: 100%;
