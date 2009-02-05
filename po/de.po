@@ -256,7 +256,7 @@ msgstr "Serie"
 
 #: ../calendar.c:160 ../event.c:438
 msgid "This is a recurring event"
-msgstr "Dies ist ein Serienthermin"
+msgstr "Thermin Serie hinzufügen"
 
 #: ../calendar.c:169
 msgid "Attendee:"
@@ -622,7 +622,7 @@ msgstr "Serien Thermin"
 
 #: ../event.c:470
 msgid "Repeats every"
-msgstr "Wiederholt sich jeden"
+msgstr "Wiederholt sich alle"
 
 #: ../event.c:488
 msgid "on these weekdays:"
@@ -651,11 +651,11 @@ msgstr "Jahr an diesem Tag"
 
 #: ../event.c:639
 msgid "of"
-msgstr "von"
+msgstr "im"
 
 #: ../event.c:663
 msgid "Recurrence range"
-msgstr "Serien Spanne"
+msgstr "Serie endet..."
 
 #: ../event.c:671
 msgid "No ending date"
@@ -663,11 +663,11 @@ msgstr "Kein Enddatum"
 
 #: ../event.c:678
 msgid "Repeat this event"
-msgstr "Diesen Eintrag wiederholen"
+msgstr "Diesen Eintrag wiederholt sich"
 
 #: ../event.c:681
 msgid "times"
-msgstr "Anzahl"
+msgstr "mal"
 
 #: ../event.c:689
 msgid "Repeat this event until "
