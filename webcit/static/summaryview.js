@@ -179,9 +179,9 @@ function resortAndDisplay(sortMode) {
       var currentRow = rowArray[x];
       var className = currentRow.className;
     if (((x-1) % 2) == 0) {
-      className = "table-alt-row";
+      className += " table-alt-row";
     } else {
-      className = "table-row";
+      className += " table-row";
     }
     currentRow.className = className;
     /* Using element.onclick is evil, but until IE 
