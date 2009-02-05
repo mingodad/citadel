@@ -103,11 +103,16 @@ int connect_to_ldap(void)
 			"LDAP: Could not connect to %s:%d : %s\n",
 			config.c_ldap_host, config.c_ldap_port,
 			strerror(errno));
-		CtdlAideMessage(strerror(errno),
-			     "LDAP: Could not connect to server.");
+		CtdlAideMessage(strerror(errno), "LDAP: Could not connect to server.");
 		return -1;
 	}
-	else {
+
+	ldap_set_option(dirserver, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
+
+	CtdlLogPrintf(CTDL_INFO, "LDAP: Binding to %s\n", config.c_ldap_bind_dn);
+
+	i = ldap_simple_bind_s(dirserver, config.c_ldap_bind_dn, config.c_ldap_bind_pw);
+	if (i == LDAP_SUCCESS) {
 		CtdlAideMessage(
 			"WARNING: populating an external LDAP address book is deprecated.\n"
 			"This function will be discontinued in a future release.\n"
@@ -117,21 +122,10 @@ int connect_to_ldap(void)
 			"Warning: LDAP address book is deprecated"
 		);
 	}
-
-	ldap_set_option(dirserver, LDAP_OPT_PROTOCOL_VERSION,
-			&ldap_version);
-
-	CtdlLogPrintf(CTDL_INFO, "LDAP: Binding to %s\n", config.c_ldap_bind_dn);
-
-	i = ldap_simple_bind_s(dirserver,
-			       config.c_ldap_bind_dn,
-			       config.c_ldap_bind_pw);
-	if (i != LDAP_SUCCESS) {
-		CtdlLogPrintf(CTDL_CRIT, "LDAP: Cannot bind: %s (%d)\n",
-			ldap_err2string(i), i);
+	else {
+		CtdlLogPrintf(CTDL_CRIT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
 		dirserver = NULL;	/* FIXME disconnect from ldap */
-		CtdlAideMessage(ldap_err2string(i),
-			     "LDAP: Cannot bind to server");
+		CtdlAideMessage(ldap_err2string(i), "LDAP: Cannot bind to server");
 		return -1;
 	}
 	ldap_time_disconnect = 1;
