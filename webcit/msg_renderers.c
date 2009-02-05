@@ -420,6 +420,12 @@ void tmplput_MAIL_SUMM_ALLRCPT(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+
+void tmplput_SUMM_COUNT(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBufAppendPrintf(Target, "%d", GetCount( WC->summ));
+}
+
 HashList *iterate_get_mailsumm_All(StrBuf *Target, WCTemplputParams *TP)
 {
 	return WC->summ;
@@ -1122,6 +1128,7 @@ InitModule_MSGRENDERERS
 			 groupchange_sender,
 			 CTX_MAILSUM);
 
+	RegisterNamespace("SUMM:COUNT", 0, 0, tmplput_SUMM_COUNT, CTX_NONE);
 	/* iterate over all known mails in WC->summ */
 	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
 			 NULL,NULL, CTX_MAILSUM, CTX_NONE, IT_NOFLAG);
