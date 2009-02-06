@@ -614,6 +614,9 @@ body, #global {
 .col3 {
     width: 20%;
 }
+.col1, .col2, .col3 {
+    cursor: pointer;
+}
 .new_message {
     font-weight: bold; !important;
 }

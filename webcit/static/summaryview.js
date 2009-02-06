@@ -178,6 +178,8 @@ function resortAndDisplay(sortMode) {
     try {
       var currentRow = rowArray[x];
       var className = currentRow.className;
+      className = className.replace("table-alt-row","");
+      className = className.replace("table-row","");
     if (((x-1) % 2) == 0) {
       className += " table-alt-row";
     } else {
