@@ -18,10 +18,6 @@
 
 <?CSSLOCAL> 
 <script type="text/javascript" src="static/protoaculous1.6.packed.js"></script> 
-<!--
-<script type="text/javascript" src="static/prototype.js"></script>
-<script type="text/javascript" src="static/scriptaculous.js"></script>
--->
 <script type="text/javascript" src="static/niftycube.js"></script>
 <script type="text/javascript" src="static/BubbleTooltips.js"></script>
 <script type="text/javascript" src="static/datepicker-dev.js"></script>
@@ -30,6 +26,16 @@
 <script type="text/javascript" src="static/wclib.js"></script>
 <script type="text/javascript" src="static/roomops.js"></script>
 <script type="text/javascript" src="static/ctdldragdrop.js"></script>
+<!--[if lte IE 7]>
+<script type="text/javascript">
+var is_ie6 = true;
+</script>
+<![endif]-->
+<!--[if IE]>
+<style type="text/css">
+#summary_view table { table-layout: fixed; }
+</style>
+<![endif]-->
 </head>
 <body>
 <??("COND:LOGGEDIN",1)>

@@ -21,6 +21,7 @@ var markedRowId = null;
 var mouseDownEvent = null;
 var exitedMouseDown = false;
 
+var currentPage = 0;
 var sortModes = {
   "rdate" : sortRowsByDateDescending,
   "date" : sortRowsByDateAscending,
@@ -103,6 +104,7 @@ function loadMessages(transport) {
   var msgs = data['msgs'];
   var length = msgs.length;
   rowArray = new Array(); // store so they can be sorted
+  WCLog("Row array length: "+rowArray.length);
   var start = new Date();
   for(var i=0; i<length;i++) {
     var trElement = document.createElement("tr");
@@ -136,7 +138,7 @@ function loadMessages(transport) {
       }
     }
     if (data[5]) {
-      trElement.setAttribute("class", "new_message");
+      trElement.ctdlNewMsg = true;
     }
     trElement.dropEnabled = true;
     trElement.ctdlMarked = false;
@@ -167,8 +169,17 @@ function loadMessages(transport) {
   sizePreviewPane();
 }
 function resortAndDisplay(sortMode) {
+  WCLog("Begin resortAndDisplay");
   var start = new Date();
-  emptyElement(message_view);
+  /* We used to try and clear out the message_view element,
+     but stupid IE doesn't even do that properly */
+  var message_view_parent = message_view.parentNode;
+  message_view_parent.removeChild(message_view);
+  message_view = document.createElement("tbody");
+  message_view.setAttribute("id","message_list_body");
+  message_view.className="mailbox_summary";
+  message_view_parent.appendChild(message_view);
+  
   var fragment = document.createDocumentFragment();
   if (sortMode != null) {
     rowArray.sort(sortMode);
@@ -177,13 +188,15 @@ function resortAndDisplay(sortMode) {
   for(var x=0; x<length; ++x) {
     try {
       var currentRow = rowArray[x];
-      var className = currentRow.className;
-      className = className.replace("table-alt-row","");
-      className = className.replace("table-row","");
+      currentRow.setAttribute("class","");
+      var className = "";
     if (((x-1) % 2) == 0) {
-      className += " table-alt-row";
+      className = "table-alt-row";
     } else {
-      className += " table-row";
+      className = "table-row";
+    }
+    if (currentRow.ctdlNewMsg) {
+      className += " new_message";
     }
     currentRow.className = className;
     /* Using element.onclick is evil, but until IE 
@@ -316,10 +329,10 @@ function getSortMode(toggleElem) {
 function removeOldSortClass() {
   if (currentSorterToggle) {
     var classes = currentSorterToggle.className;
-    classes = classes.replace("current_sort_mode","");
+    /* classes = classes.replace("current_sort_mode","");
     classes = classes.replace("sort_ascending","");
-    classes = classes.replace("sort_descending","");
-    currentSorterToggle.className = classes;
+    classes = classes.replace("sort_descending",""); */
+    currentSorterToggle.className = "";
   }
 }
 function markRow( row) {
@@ -486,10 +499,11 @@ function normalizeHeaderTable() {
 
 function setupPageSelector() {
   var summpage = document.getElementById("summpage");
-  //var select_page = document.getElementById("selectpage");
+  var select_page = document.getElementById("selectpage");
   summpage.innerHTML = "";
   if (is_safe_mode) {
-    summpage.parentNode.setAttribute("style","display: inline !important"); //override webcit.css
+    WCLog("unhiding parent page");
+    select_page.className = "";
   } else {
     return;
   }
@@ -498,6 +512,9 @@ function setupPageSelector() {
     var opt = document.createElement("option");
     var startmsg = i * 500;
     opt.setAttribute("value",startmsg);
+    if (currentPage == i) {
+      opt.setAttribute("selected","selected");
+    }
     opt.appendChild(document.createTextNode((i+1)));
     summpage.appendChild(opt);
   }
@@ -505,6 +522,7 @@ function setupPageSelector() {
 function getPage(event) {
   var target = event.target;
   startmsg = target.options.item(target.selectedIndex).value;
+  currentPage = target.selectedIndex;
   //query = ""; // We are getting a page from the _entire_ msg list, don't query
   getMessages();
 }
