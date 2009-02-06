@@ -535,12 +535,6 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
 
-	if (u == NULL)
-	{
-		CtdlLogPrintf(CTDL_EMERG, "userdata got clobbz0red!  aaaaaaaaghhh!!!!\n");
-		abort();
-	}
-
 	/*
 	 * libSieve clobbers the stack if it encounters badly formed
 	 * headers.  Sanitize our headers by stripping nonprintable
@@ -633,30 +627,12 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	CtdlFreeMessage(msg);
 
-	if (u == NULL)
-	{
-		CtdlLogPrintf(CTDL_EMERG, "userdata got clobbz0red!  aaaaaaaaghhh!!!!\n");
-		abort();
-	}
-
 	sieve2_setvalue_string(sieve2_context, "allheaders", my.rfc822headers);
 	
-	if (u == NULL)
-	{
-		CtdlLogPrintf(CTDL_EMERG, "userdata got clobbz0red!  aaaaaaaaghhh!!!!\n");
-		abort();
-	}
-
 	CtdlLogPrintf(CTDL_DEBUG, "Calling sieve2_execute()\n");
 	res = sieve2_execute(sieve2_context, &my);
 	if (res != SIEVE2_OK) {
 		CtdlLogPrintf(CTDL_CRIT, "sieve2_execute() returned %d: %s\n", res, sieve2_errstr(res));
-	}
-
-	if (u == NULL)
-	{
-		CtdlLogPrintf(CTDL_EMERG, "userdata got clobbz0red!  aaaaaaaaghhh!!!!\n");
-		abort();
 	}
 
 	free(my.rfc822headers);
@@ -669,12 +645,6 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	if ( (!my.keep) && (my.cancel_implicit_keep) ) {
 		CtdlLogPrintf(CTDL_DEBUG, "keep is 0 -- deleting message from inbox\n");
 		CtdlDeleteMessages(CC->room.QRname, &msgnum, 1, "");
-	}
-
-	if (u == NULL)
-	{
-		CtdlLogPrintf(CTDL_EMERG, "userdata got clobbz0red!  aaaaaaaaghhh!!!!\n");
-		abort();
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "Completed sieve processing on msg <%ld>\n", msgnum);
