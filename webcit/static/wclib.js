@@ -20,6 +20,8 @@ var currentDropTarget = null;
 var supportsAddEventListener = (!!document.addEventListener);
 var today = new Date();
 
+var wc_log = "";
+var is_ie6 = false;
 if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko";
@@ -40,7 +42,11 @@ function CtdlRandomString()  {
 function emptyElement(element) {
   childNodes = element.childNodes;
   for(var i=0; i<childNodes.length; i++) {
+    try {
     element.removeChild(childNodes[i]);
+    } catch (e) {
+      WCLog(e+"|"+e.description);
+    }
   }
 }
 /** Implements superior internet explorer 'extract all child text from element' feature'. Falls back on buggy, patent violating standardized method */
@@ -766,6 +772,8 @@ function WCLog(msg) {
     console.log(msg);
   } else if (!!window.opera && !!opera.postError) {
     opera.postError(msg);
+  } else {
+    wc_log += msg + "\r\n";
   }
 }
 
@@ -794,11 +802,31 @@ function fixbanner() {
   // Use prototype api methods here
   var elems = [$('room_banner'),$('actiondiv')];
   fixMissingCSSTable(elems);
-  /* var banner = $('banner'); 
-  if (banner != null) {
-  } */
+  if (!is_ie6) {
+    Event.observe(window, 'resize', makeContentScrollable);
+    makeContentScrollable();
+  }
 }
-
+function makeContentScrollable() {
+if (document.getElementById("banner")
+      && document.getElementById("content") 
+      && !document.getElementById("summary_view")) {
+  WCLog("makeContentScrollable");
+    document.body.style.overflowY="hidden";
+    var global = $("global");
+    global.className += "scrollable";
+    var content = document.getElementById("content");
+    var banner = document.getElementById("banner");
+    var bannerHeight = banner.offsetHeight;
+    banner.style.width="100%";
+    var bannerPercent = (bannerHeight/document.viewport.getHeight())*100;
+    //banner.style.height=bannerPercent+"%";
+    content.style.overflowY="scroll";
+    //content.style.top=bannerPercent+"%";
+    content.style.height=(100-bannerPercent)+"%";
+    content.style.right="0px";
+  }
+}
 function fixOffsetBanner() {
   var banner = document.getElementById("banner");
   if (banner.offsetLeft > 0) {
@@ -815,6 +843,9 @@ function resizeViewport() {
   var viewportWidth = document.viewport.getWidth();
   var iconbar = $('iconbar');
   var global = $('global');
+  if (iconbar == null || global == null || document.documentElement == null) {
+    return;
+  }
   if (typeof window.offsetWidth != 'undefined') {
     documentWidth = window.offsetWidth;
   } else {

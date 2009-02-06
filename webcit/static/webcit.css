@@ -141,7 +141,6 @@ body {
 	padding: 0;
 }
 
-
 #banner a {
 	color: #FFF
 }
@@ -535,7 +534,9 @@ body, #global {
     left: 0;
     overflow-y: auto;
 }
-
+#global.scrollable {
+    position: fixed;
+}
 #important_message {
 	position: absolute;
 	top: 0; 
@@ -837,7 +838,7 @@ body, #global {
 	margin-top: 8px;
 	margin-right: 4px;
 }
-#selectpage {
+#selectpage.hidden {
     display: none !important;
 }
 
