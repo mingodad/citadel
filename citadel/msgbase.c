@@ -1780,6 +1780,9 @@ int CtdlOutputPreLoadedMsg(
 			if (k != 'M') {
 				if ( (TheMessage->cm_fields[k] != NULL)
 				   && (msgkeys[k] != NULL) ) {
+					if ((k == 'V') || (k == 'R') || (k == 'Y')) {
+						sanitize_truncated_recipient(TheMessage->cm_fields[k]);
+					}
 					if (k == 'A') {
 						if (do_proto) cprintf("%s=%s\n",
 							msgkeys[k],
