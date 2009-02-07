@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Citadel Team <room_citadel_development@uncensored.citadel.org>
 Uploaders: Wilfried Goesgens <w.goesgens@outgesourced.org>, Alexander Wirt <formorer@debian.org>
-Build-Depends: debhelper (>= 5)
+Build-Depends: debhelper (>= 5), zlib1g-dev
 Standards-Version: 3.7.3
 Homepage: http://citadel.org
 

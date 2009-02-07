@@ -1449,10 +1449,14 @@ int CompressBuffer(StrBuf *Buf)
 #ifdef HAVE_ZLIB
 	char *compressed_data = NULL;
 	size_t compressed_len, bufsize;
+	int i = 0;
 	
 	bufsize = compressed_len = ((Buf->BufUsed * 101) / 100) + 100;
 	compressed_data = malloc(compressed_len);
 	
+	/* Flush some space after the used payload so valgrind shuts up... */
+        while ((i < 10) && (Buf->BufUsed + i < Buf->BufSize))
+		Buf->buf[Buf->BufUsed + i++] = '\0';
 	if (compress_gzip((Bytef *) compressed_data,
 			  &compressed_len,
 			  (Bytef *) Buf->buf,
@@ -1462,6 +1466,10 @@ int CompressBuffer(StrBuf *Buf)
 		Buf->buf = compressed_data;
 		Buf->BufUsed = compressed_len;
 		Buf->BufSize = bufsize;
+		/* Flush some space after the used payload so valgrind shuts up... */
+		i = 0;
+		while ((i < 10) && (Buf->BufUsed + i < Buf->BufSize))
+			Buf->buf[Buf->BufUsed + i++] = '\0';
 		return 1;
 	} else {
 		free(compressed_data);
