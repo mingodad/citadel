@@ -11,8 +11,6 @@ void display_pushemail(void) {
 	int is_funambol = 0;
 	char mobnum[20];
 
-	svput("BOXTITLE", WCS_STRING, _("Push email and SMS settings"));
-	
 	/* Find any existing settings*/
 	if (goto_config_room() == 0) {
 		int msgnum = 0;
@@ -51,6 +49,11 @@ void display_pushemail(void) {
 			}
 		}
 		}
+		// TODO: do in a saner fashion. 
+		svput("PUSH_NONE", WCS_STRING, " "); // defaults
+		svput("PUSH_TEXT", WCS_STRING, " ");
+		svput("PUSH_FNBL", WCS_STRING, " ");
+		svput("SMSNUM", WCS_STRING, " ");
 	if (is_none) {
 		svput("PUSH_NONE", WCS_STRING, "checked=\"checked\"");
 	} else if (is_pager) {

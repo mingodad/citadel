@@ -197,6 +197,10 @@ function switch_to_menu_buttons() {
 }
 function IconBarRoomList() {
   var currentExpanded = ctdlLocalPrefs.readPref("rooms_expanded");
+  var curRoomName = "";
+  if (document.getElementById("rmname")) {
+    curRoomName = getTextContent(document.getElementById("rmname"));
+  }
   currentDropTargets = new Array();
   var iconbar = document.getElementById("iconbar");
   roomlist = document.getElementById("roomlist");
@@ -216,7 +220,7 @@ function IconBarRoomList() {
   var mailboxRooms = GetMailboxRooms();
   for(var i=0; i<mailboxRooms.length; i++) {
     var room = mailboxRooms[i];
-    currentDropTargets.push(addRoomToList(mailboxUL, room));
+    currentDropTargets.push(addRoomToList(mailboxUL, room, curRoomName));
   }
   if (currentExpanded != null && currentExpanded == _mailbox ) {
     expandFloor(mailboxSPAN);
@@ -237,7 +241,7 @@ function IconBarRoomList() {
     var roomsForFloor = GetRoomsByFloorNum(floornum);
     for(var b=0; b<roomsForFloor.length; b++) {
       var room = roomsForFloor[b];
-      currentDropTargets.push(addRoomToList(floorUL, room));
+      currentDropTargets.push(addRoomToList(floorUL, room, curRoomName));
     }
     if (currentExpanded != null && currentExpanded == name) {
       expandFloor(floorSPAN);
@@ -245,7 +249,7 @@ function IconBarRoomList() {
   }
 }
 
-function addRoomToList(floorUL,room) {
+function addRoomToList(floorUL,room, roomToEmphasize) {
   var roomName = room[RN_ROOM_NAME];
   var flag = room[RN_ROOM_FLAG];
   var curView = room[RN_CUR_VIEW];
@@ -274,6 +278,9 @@ function addRoomToList(floorUL,room) {
   }
   if (hasNewMsgs) {
     className += " room-newmsgs";
+  }
+  if (roomName == roomToEmphasize) {
+    className += " room-emphasized";
   }
   roomLI.setAttribute("class", className);
   roomA.dropTarget = true;
