@@ -44,7 +44,8 @@ void groupdav_put_bigics(StrBuf *dav_content, int offset)
 	hprintf("HTTP/1.1 204 No Content\r\n");
 	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
-	hprintf("Content-Length: 0\r\n");
+	begin_burst();
+	end_burst();
 }
 
 
@@ -125,7 +126,7 @@ void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 
 	/** PUT on the collection itself uploads an ICS of the entire collection.
 	 */
-	if (StrLength(dav_uid) > 0) {
+	if (StrLength(dav_uid) == 0) {
 		groupdav_put_bigics(dav_content, offset);
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
@@ -211,14 +212,13 @@ void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 	hprintf("HTTP/1.1 204 No Content\r\n");
 	lprintf(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
-	hprintf("etag: \"%ld\"\r\n", new_msgnum);
-	hprintf("Content-Length: 0\r\n");
-
+	hprintf("Etag: \"%ld\"\r\n", new_msgnum);
 	/* The item we replaced has probably already been deleted by
 	 * the Citadel server, but we'll do this anyway, just in case.
 	 */
 	serv_printf("DELE %ld", old_msgnum);
 	serv_getln(buf, sizeof buf);
+	begin_burst();
 	end_burst();
 	FreeStrBuf(&dav_roomname);
 	FreeStrBuf(&dav_uid);
