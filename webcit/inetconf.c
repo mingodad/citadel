@@ -206,7 +206,7 @@ void
 InitModule_INETCONF
 (void)
 {
-	WebcitAddUrlHandler(HKEY("save_inetconf"), new_save_inetconf, AJAX);
+	WebcitAddUrlHandler(HKEY("save_inetconf"), new_save_inetconf, 0);
 	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, InetCfgSubst, NULL, CTX_INETCFG, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("SERVCFG:FLUSHINETCFG",0, 0, DeleteInetConfHash, CTX_NONE);
 }
