@@ -140,7 +140,7 @@ void groupdav_get(StrBuf *dav_pathname) {
 
 	/** GET on the collection itself returns an ICS of the entire collection.
 	 */
-	if (StrLength(dav_uid) > 0) {
+	if (StrLength(dav_uid) == 0) {
 		groupdav_get_big_ics();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
