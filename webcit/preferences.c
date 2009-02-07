@@ -107,11 +107,9 @@ void GetPrefTypes(HashList *List)
 
 void ParsePref(HashList **List, StrBuf *ReadBuf)
 {
-	StrBuf *Key;
 	Preference *Data = NULL;
 	Preference *LastData = NULL;
 				
-	Key = NewStrBuf();
 	while (StrBuf_ServGetln(ReadBuf), 
 	       strcmp(ChrPtr(ReadBuf), "000")) 
 	{
@@ -633,6 +631,7 @@ void GetPreferences(HashList *Setting)
 		}
 	}
 	WCC->hash_prefs = Tmp;
+	DeleteHashPos(&It);
 }
 
 
