@@ -168,9 +168,10 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			escputs(WC->ImportantMessage);
 			wprintf("</span><br />\n"
 				"</div>\n"
-				"<script type=\"text/javascript\">\n"
-				"	 setTimeout('hide_imsg_popup()', 5000);	\n"
-				"</script>\n");
+			);
+			StrBufAppendPrintf(WC->trailing_javascript,
+				"setTimeout('hide_imsg_popup()', 5000);	\n"
+			);
 			WC->ImportantMessage[0] = 0;
 		}
 
