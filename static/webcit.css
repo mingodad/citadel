@@ -886,7 +886,8 @@ body, #global {
     padding: 0;
 }
 /** Override to disable list-style-image" */
-.room {
+.room a, .room a, .room a:visited, .room a:link {
+    color: #333333;
 }
 .room-private {
     list-style-image: url("/static/privatemess_16x.gif");
@@ -908,6 +909,9 @@ body, #global {
 }
 .room-newmsgs {
     font-weight: bold;
+}
+.room-emphasized {
+    text-decoration: underline;
 }
 /* Content */
 
