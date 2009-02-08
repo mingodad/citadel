@@ -849,12 +849,13 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 	while (*s && *s != separator) {
 		s++;
 	}
-
+	if (*s == separator)
+		s++;
 	ReducedBy = d - s;
 
 	/* Hack and slash */
 	if (*s) {
-		memmove(d, s, Source->BufUsed - (s - Source->buf));
+		memmove(d, s, Source->BufUsed - (s - Source->buf) + 1);
 		Source->BufUsed -= (ReducedBy + 1);
 	}
 	else if (d == Source->buf) {
