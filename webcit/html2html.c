@@ -100,6 +100,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	int i;
 	int linklen;
 	char charset[128];
+	StrBuf *BodyArea;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;                   /**< Buffer of characters to be converted */
@@ -210,8 +211,52 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		   ||(!strncasecmp(ptr, "HEAD", 4))
 		   ||(!strncasecmp(ptr, "/HEAD", 5))
 		   ||(!strncasecmp(ptr, "BODY", 4)) ) {
+			char *pBody = NULL;
+			
+			if (!strncasecmp(ptr, "BODY", 4)) {
+				pBody = ptr;
+			}
 			ptr = strchr(ptr, '>');
 			if ((ptr == NULL) || (ptr >= msgend)) break;
+			if ((pBody != NULL) && (ptr - pBody > 4)) {
+				char* src;
+				char *cid_start, *cid_end;
+
+				*ptr = '\0';
+				pBody += 4; 
+				while ((isspace(*pBody)) && (pBody < ptr))
+					pBody ++;
+				BodyArea = NewStrBufPlain(NULL,  ptr - pBody);
+
+				if (pBody < ptr) {
+					src = strstr(pBody, "cid:");
+					if (src) {
+						cid_start = src + 4;
+						cid_end = cid_start;
+						while ((*cid_end != '"') && 
+						       !isspace(*cid_end) &&
+						       (cid_end < ptr))
+							cid_end ++;
+
+						/* copy tag and attributes up to src="cid: */
+						StrBufAppendBufPlain(BodyArea, pBody, src - pBody, 0);
+
+						/* add in /webcit/mimepart/<msgno>/CID/ 
+						   trailing / stops dumb URL filters getting excited */
+						StrBufAppendPrintf(BodyArea,
+								   "/webcit/mimepart/%d/",msgnum);
+						StrBufAppendBufPlain(BodyArea, cid_start, cid_end - cid_start, 0);
+
+						if (ptr - cid_end > 0)
+							StrBufAppendBufPlain(BodyArea, 
+									     cid_end + 1, 
+									     ptr - cid_end, 0);
+					}
+					else 
+						StrBufAppendBufPlain(BodyArea, pBody, ptr - pBody, 0);
+				}
+				*ptr = '>';
+			}
 			++ptr;
 			if ((ptr == NULL) || (ptr >= msgend)) break;
 			msgstart = ptr;
@@ -292,6 +337,11 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		goto BAIL;
 	}
 
+	if (BodyArea != NULL) {
+		StrBufAppendBufPlain(converted_msg, HKEY("<table "), 0);  
+		StrBufAppendBuf(converted_msg, BodyArea, 0);
+		StrBufAppendBufPlain(converted_msg, HKEY(" width=\"100%\"><tr><td>"), 0);
+	}
 	ptr = msg;
 	msgend = strchr(msg, 0);
 	while (ptr < msgend) {
@@ -464,6 +514,8 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		}
 		if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 	}
+	if (BodyArea != NULL) 
+		StrBufAppendBufPlain(converted_msg, HKEY("</td></tr></table>"), 0);  
 
 	/**	uncomment these two lines to override conversion	*/
 	/**	memcpy(converted_msg, msg, content_length);		*/
