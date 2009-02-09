@@ -100,7 +100,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	int i;
 	int linklen;
 	char charset[128];
-	StrBuf *BodyArea;
+	StrBuf *BodyArea = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 	char *ibuf;                   /**< Buffer of characters to be converted */
