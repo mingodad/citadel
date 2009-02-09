@@ -21,8 +21,7 @@ void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
 	int len;
 
 	/* First, break off the "/groupdav/" prefix */
-	StrBufRemove_token(dav_pathname, 0, '/');
-	StrBufRemove_token(dav_pathname, 0, '/');
+	StrBufCutLeft(dav_pathname, 9);
 
 	/* Now extract the message euid */
 	n = StrBufNum_tokens(dav_pathname, '/');
@@ -30,10 +29,11 @@ void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
 	StrBufRemove_token(dav_pathname, n-1, '/');
 
 	/* What's left is the room name.  Remove trailing slashes. */
-	len = StrLength(dav_pathname);
-	if ((len > 0) && (ChrPtr(dav_pathname)[len-1] == '/')) {
-		StrBufCutRight(dav_pathname, 1);
-	}
+	//len = StrLength(dav_pathname);
+	//if ((len > 0) && (ChrPtr(dav_pathname)[len-1] == '/')) {
+	//	StrBufCutRight(dav_pathname, 1);
+	//}
+	StrBufCutLeft(dav_pathname, 1);
 
 	/* Go to the correct room. */
 	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_pathname))) {
