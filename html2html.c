@@ -514,8 +514,10 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		}
 		if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 	}
-	if (BodyArea != NULL) 
+	if (BodyArea != NULL) {
 		StrBufAppendBufPlain(converted_msg, HKEY("</td></tr></table>"), 0);  
+		FreeStrBuf(&BodyArea);
+	}
 
 	/**	uncomment these two lines to override conversion	*/
 	/**	memcpy(converted_msg, msg, content_length);		*/
