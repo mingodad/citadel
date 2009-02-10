@@ -116,12 +116,17 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	http_datestring(httpnow, sizeof httpnow, time(NULL));
 
 	if (do_httpheaders) {
-		hprintf("Content-type: text/html; charset=utf-8\r\n"
-			"Server: %s / %s\n"
-			"Connection: close\r\n",
-			PACKAGE_STRING, 
-			ChrPtr(WCC->serv_info->serv_software)
-		);
+		if (WCC->serv_info != NULL)
+			hprintf("Content-type: text/html; charset=utf-8\r\n"
+				"Server: %s / %s\n"
+				"Connection: close\r\n",
+				PACKAGE_STRING, 
+				ChrPtr(WCC->serv_info->serv_software));
+		else
+			hprintf("Content-type: text/html; charset=utf-8\r\n"
+				"Server: %s / [n/a]\n"
+				"Connection: close\r\n",
+				PACKAGE_STRING);
 	}
 
 	if (cache) {
