@@ -91,7 +91,7 @@ void display_openid_name_request(const StrBuf *claimed_id, const StrBuf *usernam
 	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
 
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
-		 ChrPtr(serv_info.serv_humannode));
+		 ChrPtr(WC->serv_info->serv_humannode));
 
 	do_template("openid_manual_create", NULL);
 	wDumpContent(2);

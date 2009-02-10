@@ -451,7 +451,7 @@ void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
 	wprintf("<label for=\"srchquery\">");
 	wprintf(_("Search: "));
 	wprintf("</label><input ");
-	wprintf("%s", serv_info.serv_fulltext_enabled ? "" : "disabled ");
+	wprintf("%s", WC->serv_info->serv_fulltext_enabled ? "" : "disabled ");
 	wprintf("type=\"text\" name=\"query\" id=\"srchquery\" size=\"15\" maxlength=\"128\" class=\"inputbox\">\n"
 		);
 	wprintf("</div></form>\n");
@@ -3820,7 +3820,7 @@ void jsonRoomFlr(void) {
 	/* Send as our own (application/json) content type */
   hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: application/json; charset=utf-8\r\n");
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
   hprintf("Connection: close\r\n");
   hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
   begin_burst();

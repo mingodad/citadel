@@ -10,6 +10,7 @@
  */
 void display_openids(void)
 {
+	wcsession *WCC = WC;
 	char buf[1024];
 	int bg = 0;
 
@@ -20,7 +21,7 @@ void display_openids(void)
 	svput("BOXTITLE", WCS_STRING, _("Manage Account/OpenID Associations"));
 	do_template("beginboxx", NULL);
 
-	if (serv_info.serv_supports_openid) {
+	if (WCC->serv_info->serv_supports_openid) {
 
 		wprintf("<table class=\"altern\">");
 	
@@ -43,7 +44,7 @@ void display_openids(void)
 		wprintf("</table><br />\n");
 	
 	        wprintf("<form method=\"POST\" action=\"openid_attach\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WCC->nonce);
 		wprintf(_("Add an OpenID: "));
 	        wprintf("<input type=\"text\" name=\"openid_url\" class=\"openid_urlarea\" size=\"40\">\n");
 	        wprintf("<input type=\"submit\" name=\"attach_button\" value=\"%s\">"
@@ -51,7 +52,7 @@ void display_openids(void)
 	}
 
 	else {
-		wprintf(_("%s does not permit authentication via OpenID."), ChrPtr(serv_info.serv_humannode));
+		wprintf(_("%s does not permit authentication via OpenID."), ChrPtr(WCC->serv_info->serv_humannode));
 	}
 
 	do_template("endbox", NULL);

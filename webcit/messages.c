@@ -43,7 +43,9 @@ typedef struct _MsgPartEvaluatorStruct {
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *PartNum) {
+int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *PartNum) 
+{
+	wcsession *WCC = WC;
 	StrBuf *Buf;
 	StrBuf *HdrToken;
 	StrBuf *FoundCharset;
@@ -208,8 +210,8 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	else 
 	{
 		if ((StrLength(Msg->OtherNode)>0) && 
-		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(serv_info.serv_nodename))) &&
-		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(serv_info.serv_humannode)) ))
+		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(WCC->serv_info->serv_nodename))) &&
+		    (strcasecmp(ChrPtr(Msg->OtherNode), ChrPtr(WCC->serv_info->serv_humannode)) ))
 		{
 			if (Msg->reply_to == NULL)
 				Msg->reply_to = NewStrBuf();
@@ -256,13 +258,14 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
  */
 void embed_message(void) {
 	long msgnum = 0L;
+	wcsession *WCC = WC;
 	const StrBuf *Tmpl = sbstr("template");
 
-	msgnum = StrTol(WC->UrlFragment2);
+	msgnum = StrTol(WCC->UrlFragment2);
 	if (StrLength(Tmpl) > 0) 
-		read_message(WC->WBuf, SKEY(Tmpl), msgnum, 0, NULL);
+		read_message(WCC->WBuf, SKEY(Tmpl), msgnum, 0, NULL);
 	else 
-		read_message(WC->WBuf, HKEY("view_message"), msgnum, 0, NULL);
+		read_message(WCC->WBuf, HKEY("view_message"), msgnum, 0, NULL);
 }
 
 
@@ -440,8 +443,8 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				StrBufExtract_token(Buf2, Buf, 3, '|');
 				if ((StrLength(Buf2) !=0 ) &&
 				    ( ((WCC->room_flags & QR_NETWORK)
-				       || ((strcasecmp(ChrPtr(Buf2), ChrPtr(serv_info.serv_nodename))
-					    && (strcasecmp(ChrPtr(Buf2), ChrPtr(serv_info.serv_fqdn))))))))
+				       || ((strcasecmp(ChrPtr(Buf2), ChrPtr(WCC->serv_info->serv_nodename))
+					    && (strcasecmp(ChrPtr(Buf2), ChrPtr(WCC->serv_info->serv_fqdn))))))))
 				{
 					StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
 					StrBufAppendBuf(Msg->from, Buf2, 0);
@@ -963,12 +966,12 @@ void post_mime_to_server(void) {
 	char *txtmail = NULL;
 
 	sprintf(top_boundary, "Citadel--Multipart--%s--%04x--%04x",
-		ChrPtr(serv_info.serv_fqdn),
+		ChrPtr(WCC->serv_info->serv_fqdn),
 		getpid(),
 		++seq
 	);
 	sprintf(alt_boundary, "Citadel--Multipart--%s--%04x--%04x",
-		ChrPtr(serv_info.serv_fqdn),
+		ChrPtr(WCC->serv_info->serv_fqdn),
 		getpid(),
 		++seq
 	);
@@ -1647,7 +1650,7 @@ void jsonMessageListHdr(void)
 	/* TODO: make a generic function */
   hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: application/json; charset=utf-8\r\n");
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
   hprintf("Connection: close\r\n");
   hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
   begin_burst();
@@ -1662,8 +1665,8 @@ void new_summary_view(void) {
 /** Output message list in JSON-format */
 void jsonMessageList(void) {
   const StrBuf *room = sbstr("room");
-  WC->is_ajax = 1; 
   long oper = (havebstr("query")) ? do_search : readnew;
+  WC->is_ajax = 1; 
   gotoroom(room);
   readloop(oper);
   WC->is_ajax = 0;

@@ -237,8 +237,8 @@ void siteconfig(void)
 	serv_getln(buf, sizeof buf);
 	serv_printf("SPEX mailboxes|%d|%d", ibstr("mboxpolicy"), ibstr("mboxvalue"));
 	serv_getln(buf, sizeof buf);
-	FreeStrBuf(&serv_info.serv_default_cal_zone);
-	serv_info.serv_default_cal_zone = NewStrBufDup(sbstr("c_default_cal_zone"));
+	FreeStrBuf(&WCC->serv_info->serv_default_cal_zone);
+	WCC->serv_info->serv_default_cal_zone = NewStrBufDup(sbstr("c_default_cal_zone"));
 
 	safestrncpy(WCC->ImportantMessage, _("Your system configuration has been updated."),
 		sizeof WCC->ImportantMessage);

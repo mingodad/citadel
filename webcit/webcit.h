@@ -214,7 +214,7 @@ struct urlcontent {
 /*
  * \brief information about us ???
  */ 
-struct serv_info {
+typedef struct _serv_info {
 	int serv_pid;			/* Process ID of the Citadel server */
 	StrBuf *serv_nodename;		/* Node name of the Citadel server */
 	StrBuf *serv_humannode;	        /* human readable node name of the Citadel server */
@@ -232,7 +232,7 @@ struct serv_info {
 	int serv_fulltext_enabled;	/* Does the server have the full text index enabled? */
 	StrBuf *serv_svn_revision;	/* SVN revision of the server */
 	int serv_supports_openid;	/* Does the server support authentication via OpenID? */
-};
+} ServInfo;
 
 
 
@@ -343,6 +343,7 @@ struct wcsession {
 	int chat_sock;				/**< Client socket to Citadel server - for chat */
 	time_t lastreq;				/**< Timestamp of most recent HTTP */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
+	ServInfo *serv_info;                   /**< Iformation about the citserver we're connected to */
 /* Request local Members */
 	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
 	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
@@ -488,7 +489,6 @@ extern char file_crpt_file_csr[PATH_MAX];
 extern char file_crpt_file_cer[PATH_MAX];
 #endif
 
-struct serv_info serv_info;
 extern char floorlist[128][SIZ];
 extern char *axdefs[];
 extern char *ctdlhost, *ctdlport;
@@ -526,7 +526,8 @@ void display_main_menu(void);
 void display_aide_menu(void);
 void display_advanced_menu(void);
 void slrp_highest(void);
-void get_serv_info(StrBuf *, char *);
+ServInfo *get_serv_info(StrBuf *, char *);
+void DeleteServInfo(ServInfo **FreeMe);
 int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
 int serv_getln(char *strbuf, int bufsize);
@@ -602,10 +603,8 @@ void confirm_delete_room(void);
 void validate(void);
 void display_graphics_upload(char *, char *, char *);
 void do_graphics_upload(char *upl_cmd);
-void serv_read(char *buf, int bytes);
 void serv_gets(char *strbuf);
 void serv_write(const char *buf, int nbytes);
-void serv_puts(const char *string);
 void serv_putbuf(const StrBuf *string);
 void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void load_floorlist(void);
