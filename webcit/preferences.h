@@ -8,11 +8,14 @@
 
 
 typedef void (*PrefEvalFunc)(StrBuf *Preference, long lvalue); 
-void RegisterPreference(const char *Setting, long SettingLen, 
-			const char *PrefStr, 
-			long Type, 
-			PrefEvalFunc OnLoad);
 
+void _RegisterPreference(const char *Setting, long SettingLen, 
+			 const char *PrefStr, 
+			 long Type, 
+			 PrefEvalFunc OnLoad, 
+			 const char *OnLoadName);
+
+#define RegisterPreference(a, b, c, d) _RegisterPreference(a, sizeof(a) -1, b, c, d, #d)
 
 void load_preferences(void);
 void save_preferences(void);

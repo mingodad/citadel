@@ -16,6 +16,7 @@ typedef struct _PrefDef {
 	StrBuf *Setting;
 	const char *PrefStr;
 	PrefEvalFunc OnLoad;
+	StrBuf *OnLoadName;
 } PrefDef;
 
 typedef struct _Preference {
@@ -32,6 +33,7 @@ void DestroyPrefDef(void *vPrefDef)
 {
 	PrefDef *Prefdef = (PrefDef*) vPrefDef;
 	FreeStrBuf(&Prefdef->Setting);
+	FreeStrBuf(&Prefdef->OnLoadName);
 	free(Prefdef);
 }
 
@@ -44,16 +46,22 @@ void DestroyPreference(void *vPref)
 	free(Pref);
 
 }
-void RegisterPreference(const char *Setting, long SettingLen, 
-			const char *PrefStr, 
-			long Type, 
-			PrefEvalFunc OnLoad)
+void _RegisterPreference(const char *Setting, long SettingLen, 
+			 const char *PrefStr, 
+			 long Type, 
+			 PrefEvalFunc OnLoad, 
+			 const char *OnLoadName)
 {
 	PrefDef *Newpref = (PrefDef*) malloc(sizeof(PrefDef));
 	Newpref->Setting = NewStrBufPlain(Setting, SettingLen);
 	Newpref->PrefStr = PrefStr;
 	Newpref->Type = Type;
 	Newpref->OnLoad = OnLoad;
+	if (Newpref->OnLoad != NULL) {
+		Newpref->OnLoadName = NewStrBufPlain(OnLoadName, -1);
+	}
+	else
+		Newpref->OnLoadName = NULL;
 	Put(PreferenceHooks, Setting, SettingLen, Newpref, DestroyPrefDef);
 }
 
@@ -86,20 +94,52 @@ void GetPrefTypes(HashList *List)
 	const char *Key;
 	void *vSetting;
 	void *vPrefDef;
-	Preference *Setting;
+	Preference *Pref;
 	PrefDef *PrefType;
 
 	It = GetNewHashPos(List, 0);
 	while (GetNextHashPos(List, It, &len, &Key, &vSetting)) 
 	{
-		Setting = (Preference*) vSetting;
-		if (GetHash(PreferenceHooks, SKEY(Setting->Key), &vPrefDef) && 
+		Pref = (Preference*) vSetting;
+		if (GetHash(PreferenceHooks, SKEY(Pref->Key), &vPrefDef) && 
 		    (vPrefDef != NULL)) 
 		{
 			PrefType = (PrefDef*) vPrefDef;
-			Setting->Type = PrefType;
-			if (PrefType->OnLoad != NULL)
-				PrefType->OnLoad(Setting->Val, Setting->lval);
+			Pref->Type = PrefType;
+
+			lprintf(1, "Loading [%s]with type [%ld] [\"%s\"]\n",
+				ChrPtr(Pref->Key),
+				Pref->Type->Type,
+				ChrPtr(Pref->Val));
+
+			switch (Pref->Type->Type)
+			{
+
+			case PRF_STRING:
+				break;
+			case PRF_INT:
+				Pref->lval = StrTol(Pref->Val);
+				Pref->decoded = 1;
+				break;
+			case PRF_QP_STRING:
+				Pref->DeQPed = NewStrBufPlain(NULL, StrLength(Pref->Val));
+				StrBufEUid_unescapize(Pref->DeQPed, Pref->Val);
+				Pref->decoded = 1;
+				break;
+			case PRF_YESNO:
+				Pref->lval = strcmp(ChrPtr(Pref->Val), "yes") == 0;
+				Pref->decoded = 1;
+				break;
+			}
+
+			if (PrefType->OnLoad != NULL){
+
+				lprintf(1, "Loading with: -> %s(\"%s\", %ld)\n",
+					ChrPtr(PrefType->OnLoadName),
+					ChrPtr(Pref->Val),
+					Pref->lval);
+				PrefType->OnLoad(Pref->Val, Pref->lval);
+			}
 		}
 	}
 	DeleteHashPos(&It);

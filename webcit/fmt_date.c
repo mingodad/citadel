@@ -279,7 +279,7 @@ void
 InitModule_DATETIME
 (void)
 {
-	RegisterPreference(HKEY("calhourformat"), _("Time format"), PRF_INT, LoadTimeformatSettingsCache);
+	RegisterPreference("calhourformat", _("Time format"), PRF_INT, LoadTimeformatSettingsCache);
 
 
 }

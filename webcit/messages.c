@@ -1676,25 +1676,25 @@ void
 InitModule_MSG
 (void)
 {
-	RegisterPreference(HKEY("use_sig"), 
+	RegisterPreference("use_sig",
 			   _("Attach signature to email messages?"), 
 			   PRF_YESNO, 
 			   NULL);
-	RegisterPreference(HKEY("signature"), _("Use this signature:"), PRF_QP_STRING, NULL);
-	RegisterPreference(HKEY("default_header_charset"), 
+	RegisterPreference("signature", _("Use this signature:"), PRF_QP_STRING, NULL);
+	RegisterPreference("default_header_charset", 
 			   _("Default character set for email headers:"), 
 			   PRF_STRING, 
 			   NULL);
-	RegisterPreference(HKEY("defaultfrom"), _("Preferred email address"), PRF_STRING, NULL);
-	RegisterPreference(HKEY("defaultname"), 
+	RegisterPreference("defaultfrom", _("Preferred email address"), PRF_STRING, NULL);
+	RegisterPreference("defaultname", 
 			   _("Preferred display name for email messages"), 
 			   PRF_STRING, 
 			   NULL);
-	RegisterPreference(HKEY("defaulthandle"), 
+	RegisterPreference("defaulthandle", 
 			   _("Preferred display name for bulletin board posts"), 
 			   PRF_STRING, 
 			   NULL);
-	RegisterPreference(HKEY("mailbox"),_("Mailbox view mode"), PRF_STRING, NULL);
+	RegisterPreference("mailbox",_("Mailbox view mode"), PRF_STRING, NULL);
 
 	WebcitAddUrlHandler(HKEY("readnew"), h_readnew, NEED_URL);
 	WebcitAddUrlHandler(HKEY("readold"), h_readold, NEED_URL);
