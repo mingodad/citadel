@@ -135,24 +135,8 @@ void groupdav_main(HashList *HTTPHeaders,
 		return;
 	}
 
-//	extract_token(dav_method, req->line, 0, ' ', sizeof dav_method);
-//	extract_token(dav_pathname, req->line, 1, ' ', sizeof dav_pathname);
-	//// TODO unescape_input(dav_pathname);
+	StrBufUnescape(DavPathname, 0);
 
-	/* If the request does not begin with "/groupdav", prepend it.  If
-	 * we happen to introduce a double-slash, that's ok; we'll strip it
-	 * in the next step.
-	 * 
-	 * (THIS IS DISABLED BECAUSE WE ARE NOW TRYING TO DO REAL DAV.)
-	 *
-	if (strncasecmp(dav_pathname, "/groupdav", 9)) {
-		char buf[512];
-		snprintf(buf, sizeof buf, "/groupdav/%s", dav_pathname);
-		safestrncpy(dav_pathname, buf, sizeof dav_pathname);
-	}
-	 *
-	 */
-	
 	/* Remove any stray double-slashes in pathname */
 	while (ds=strstr(ChrPtr(DavPathname), "//"), ds != NULL) {
 		strcpy(ds, ds+1);
