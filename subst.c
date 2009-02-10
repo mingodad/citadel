@@ -43,6 +43,20 @@ WCTemplputParams NoCtx;
 #define SV_SUBTEMPL 5
 #define SV_PREEVALUATED 6
 
+
+/*
+ * \brief Dynamic content for variable substitution in templates
+ */
+typedef struct _wcsubst {
+	ContextFilter Filter;
+	int wcs_type;			    /* which type of Substitution are we */
+	char wcs_key[32];		    /* copy of our hashkey for debugging */
+	StrBuf *wcs_value;		    /* if we're a string, keep it here */
+	long lvalue;                        /* type long? keep data here */
+	WCHandlerFunc wcs_function; /* funcion hook ???*/
+} wcsubst;
+
+
 typedef struct _WCTemplate {
 	StrBuf *Data;
 	StrBuf *FileName;

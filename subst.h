@@ -78,21 +78,6 @@ typedef void (*WCHandlerFunc)(StrBuf *Target, WCTemplputParams *TP);
 /* make a template token a lookup key: */
 #define TKEY(a) TP->Tokens->Params[a]->Start, TP->Tokens->Params[a]->len
 
-/* TODO: wcsubst should be private! */
-
-/*
- * \brief Dynamic content for variable substitution in templates
- */
-typedef struct _wcsubst {
-	ContextFilter Filter;
-	int wcs_type;			    /* which type of Substitution are we */
-	char wcs_key[32];		    /* copy of our hashkey for debugging */
-	StrBuf *wcs_value;		    /* if we're a string, keep it here */
-	long lvalue;                        /* type long? keep data here */
-	WCHandlerFunc wcs_function; /* funcion hook ???*/
-} wcsubst;
-
-
 /**
  * this is the signature of a conditional function 
  * Note: Target is just passed in for error messages; don't write onto it in regular cases.
