@@ -163,7 +163,7 @@ void display_rss(const StrBuf *roomname, StrBuf *request_method)
 	svput("XML_HEAD", WCS_STRING, "<?xml version=\"1.0\" ?>");
 	svput("XML_STYLE", WCS_STRING, "<?xml-stylesheet type=\"text/css\" href=\"/static/rss_browser.css\" ?>");
 	SVPutBuf("ROOM", WCC->wc_roomname, 1);
-	SVPutBuf("NODE", serv_info.serv_humannode, 1);
+	SVPutBuf("NODE", WCC->serv_info->serv_humannode, 1);
 	/* TODO:  Fix me */
 	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), ChrPtr(WCC->http_host));
 	
@@ -233,7 +233,7 @@ void display_rss(const StrBuf *roomname, StrBuf *request_method)
 			svput("SUBJ", WCS_STRING, _("From"));
 		}
 		svprintf(HKEY("IN_ROOM"), WCS_STRING, _("%s in %s"), from, room);
-		if (strcmp(hnod, ChrPtr(serv_info.serv_humannode)) && !IsEmptyStr(hnod)) {
+		if (strcmp(hnod, ChrPtr(WCC->serv_info->serv_humannode)) && !IsEmptyStr(hnod)) {
 			svprintf(HKEY("NODE"), WCS_STRING, _(" on %s"), hnod);
 		}
 		if (now) {

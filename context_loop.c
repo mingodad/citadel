@@ -32,6 +32,7 @@ void DestroySession(wcsession **sessions_to_kill)
 	if ((*sessions_to_kill)->cache_fold != NULL) {
 		free((*sessions_to_kill)->cache_fold);
 	}
+	DeleteServInfo(&((*sessions_to_kill)->serv_info));
 	DeleteHash(&((*sessions_to_kill)->attachments));
 	free_march_list((*sessions_to_kill));
 	DeleteHash(&((*sessions_to_kill)->hash_prefs));

@@ -366,10 +366,12 @@ int Conditional_MAIL_SUMM_CCCC(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_node(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
 	if ( (StrLength(HdrLine) > 0) &&
 	     ((WC->room_flags & QR_NETWORK)
-	      || ((strcasecmp(ChrPtr(HdrLine), ChrPtr(serv_info.serv_nodename))
-		   && (strcasecmp(ChrPtr(HdrLine), ChrPtr(serv_info.serv_fqdn))))))) {
+	      || ((strcasecmp(ChrPtr(HdrLine), ChrPtr(WCC->serv_info->serv_nodename))
+		   && (strcasecmp(ChrPtr(HdrLine), ChrPtr(WCC->serv_info->serv_fqdn))))))) {
 		FreeStrBuf(&Msg->OtherNode);
 		Msg->OtherNode = NewStrBufDup(HdrLine);
 	}

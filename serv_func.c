@@ -5,15 +5,31 @@
 #include "webcit.h"
 #include "webserver.h"
 
-struct serv_info serv_info; /**< our connection data to the server */
+
+void DeleteServInfo(ServInfo **FreeMe)
+{
+	FreeStrBuf(&(*FreeMe)->serv_nodename);
+	FreeStrBuf(&(*FreeMe)->serv_humannode);
+	FreeStrBuf(&(*FreeMe)->serv_fqdn);
+	FreeStrBuf(&(*FreeMe)->serv_software);
+	FreeStrBuf(&(*FreeMe)->serv_bbs_city);
+	FreeStrBuf(&(*FreeMe)->serv_sysadm);
+	FreeStrBuf(&(*FreeMe)->serv_moreprompt);
+	FreeStrBuf(&(*FreeMe)->serv_default_cal_zone);
+	FreeStrBuf(&(*FreeMe)->serv_svn_revision);
+	free(*FreeMe);
+	*FreeMe = NULL;
+}
+
 /*
  * get info about the server we've connected to
  *
  * browser_host		the citadell we want to connect to
  * user_agent		which browser uses our client?
  */
-void get_serv_info(StrBuf *browser_host, char *user_agent)
+ServInfo *get_serv_info(StrBuf *browser_host, char *user_agent)
 {
+	ServInfo *info;
 	StrBuf *Buf;
 	char buf[SIZ];
 	int a;
@@ -44,65 +60,69 @@ void get_serv_info(StrBuf *browser_host, char *user_agent)
 	serv_puts("INFO");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1')
-		return;
+		return NULL;
 
+	info = (ServInfo*)malloc(sizeof(ServInfo));
+	memset(info, 0, sizeof(ServInfo));
 	a = 0;
 	Buf = NewStrBuf();
 	while (StrBuf_ServGetln(Buf), (strcmp(ChrPtr(Buf), "000")!= 0)) {
 /*		lprintf (1, "a: %d [%s]", a, ChrPtr(Buf));*/
 		switch (a) {
 		case 0:
-			serv_info.serv_pid = StrToi(Buf);
-			WC->ctdl_pid = serv_info.serv_pid;
+			info->serv_pid = StrToi(Buf);
+			WC->ctdl_pid = info->serv_pid;
 			break;
 		case 1:
-			serv_info.serv_nodename = NewStrBufDup(Buf);
+			info->serv_nodename = NewStrBufDup(Buf);
 			break;
 		case 2:
-			serv_info.serv_humannode = NewStrBufDup(Buf);
+			info->serv_humannode = NewStrBufDup(Buf);
 			break;
 		case 3:
-			serv_info.serv_fqdn = NewStrBufDup(Buf);
+			info->serv_fqdn = NewStrBufDup(Buf);
 			break;
 		case 4:
-			serv_info.serv_software = NewStrBufDup(Buf);
+			info->serv_software = NewStrBufDup(Buf);
 			break;
 		case 5:
-			serv_info.serv_rev_level = StrToi(Buf);
+			info->serv_rev_level = StrToi(Buf);
 			break;
 		case 6:
-			serv_info.serv_bbs_city = NewStrBufDup(Buf);
+			info->serv_bbs_city = NewStrBufDup(Buf);
 			break;
 		case 7:
-			serv_info.serv_sysadm = NewStrBufDup(Buf);
+			info->serv_sysadm = NewStrBufDup(Buf);
 			break;
 		case 9:
-			serv_info.serv_moreprompt = NewStrBufDup(Buf);
+			info->serv_moreprompt = NewStrBufDup(Buf);
 			break;
 		case 14:
-			serv_info.serv_supports_ldap = StrToi(Buf);
+			info->serv_supports_ldap = StrToi(Buf);
 			break;
 		case 15:
-			serv_info.serv_newuser_disabled = StrToi(Buf);
+			info->serv_newuser_disabled = StrToi(Buf);
 			break;
 		case 16:
-			serv_info.serv_default_cal_zone = NewStrBufDup(Buf);
+			info->serv_default_cal_zone = NewStrBufDup(Buf);
 			break;
 		case 20:
-			serv_info.serv_supports_sieve = StrToi(Buf);
+			info->serv_supports_sieve = StrToi(Buf);
 			break;
 		case 21:
-			serv_info.serv_fulltext_enabled = StrToi(Buf);
+			info->serv_fulltext_enabled = StrToi(Buf);
 			break;
 		case 22:
-			serv_info.serv_svn_revision = NewStrBufDup(Buf);
+			info->serv_svn_revision = NewStrBufDup(Buf);
 			break;
 		case 23:
-			serv_info.serv_supports_openid = StrToi(Buf);
+			info->serv_supports_openid = StrToi(Buf);
 			break;
 		}
 		++a;
 	}
+	FreeStrBuf(&Buf);
+	return info;
 }
 
 
@@ -512,42 +532,42 @@ void tmplput_serv_ip(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_serv_nodename(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, serv_info.serv_nodename, 0);
+	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_nodename, 0);
 }
 
 void tmplput_serv_humannode(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, serv_info.serv_humannode, 0);
+	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_humannode, 0);
 }
 
 void tmplput_serv_fqdn(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, serv_info.serv_fqdn, 0);
+	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_fqdn, 0);
 }
 
 void tmplput_serv_software(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, serv_info.serv_software, 0);
+	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_software, 0);
 }
 
 void tmplput_serv_rev_level(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBufAppendPrintf(Target, "%d.%02d",
-			    serv_info.serv_rev_level / 100,
-			    serv_info.serv_rev_level % 100);
+			    WC->serv_info->serv_rev_level / 100,
+			    WC->serv_info->serv_rev_level % 100);
 }
 int conditional_serv_newuser_disabled(StrBuf *Target, WCTemplputParams *TP)
 {
-	return serv_info.serv_newuser_disabled != 0;
+	return WC->serv_info->serv_newuser_disabled != 0;
 }
 int conditional_serv_supports_openid(StrBuf *Target, WCTemplputParams *TP)
 {
-	return serv_info.serv_supports_openid != 0;
+	return WC->serv_info->serv_supports_openid != 0;
 }
 
 void tmplput_serv_bbs_city(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, serv_info.serv_bbs_city, 0);
+	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_bbs_city, 0);
 }
 
 

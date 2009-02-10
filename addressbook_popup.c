@@ -51,7 +51,7 @@ void display_address_book_middle_div(void) {
 	wprintf("<option value=\"__LOCAL_USERS__\" %s>", 
 		(strcmp(ChrPtr(DefAddrBook), "__LOCAL_USERS__") == 0)?
 		"selected=\"selected\" ":"");
-	escputs(ChrPtr(serv_info.serv_humannode));
+	escputs(ChrPtr(WC->serv_info->serv_humannode));
 	wprintf("</option>\n");
 
 	

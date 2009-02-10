@@ -90,7 +90,7 @@ void display_queue_msg(long msgnum)
 				atsign = strchr(sender, '@');
 				if (atsign != NULL) {
 					++atsign;
-					if (!strcasecmp(atsign, ChrPtr(serv_info.serv_nodename))) {
+					if (!strcasecmp(atsign, ChrPtr(WC->serv_info->serv_nodename))) {
 						--atsign;
 						*atsign = 0;
 					}

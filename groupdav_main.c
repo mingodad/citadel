@@ -22,7 +22,7 @@ void groupdav_common_headers(void) {
 	hprintf(
 		"Server: %s / %s\r\n"
 		"Connection: close\r\n",
-		PACKAGE_STRING, ChrPtr(serv_info.serv_software)
+		PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software)
 	);
 }
 
@@ -129,7 +129,7 @@ void groupdav_main(HashList *HTTPHeaders,
 		hprintf("HTTP/1.1 401 Unauthorized\r\n");
 		groupdav_common_headers();
 		hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n",
-			ChrPtr(serv_info.serv_humannode));
+			ChrPtr(WCC->serv_info->serv_humannode));
 		hprintf("Content-Length: 0\r\n");
 		end_burst();
 		return;

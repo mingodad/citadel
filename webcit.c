@@ -108,6 +108,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			int suppress_check,	/* 1 = suppress check for instant messages          */
 			int cache		/* 1 = allow browser to cache this page             */
 ) {
+	wcsession *WCC = WC;
 	char cookie[1024];
 	char httpnow[128];
 
@@ -119,7 +120,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			"Server: %s / %s\n"
 			"Connection: close\r\n",
 			PACKAGE_STRING, 
-			ChrPtr(serv_info.serv_software)
+			ChrPtr(WCC->serv_info->serv_software)
 		);
 	}
 
@@ -145,8 +146,8 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	}
 
 	stuff_to_cookie(cookie, 1024, 
-			WC->wc_session, WC->wc_username,
-			WC->wc_password, WC->wc_roomname);
+			WCC->wc_session, WCC->wc_username,
+			WCC->wc_password, WCC->wc_roomname);
 
 	if (unset_cookies) {
 		hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
@@ -169,13 +170,13 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			wprintf("</span><br />\n"
 				"</div>\n"
 			);
-			StrBufAppendPrintf(WC->trailing_javascript,
+			StrBufAppendPrintf(WCC->trailing_javascript,
 				"setTimeout('hide_imsg_popup()', 5000);	\n"
 			);
-			WC->ImportantMessage[0] = 0;
+			WCC->ImportantMessage[0] = 0;
 		}
 
-		if ( (WC->logged_in) && (!unset_cookies) ) {
+		if ( (WCC->logged_in) && (!unset_cookies) ) {
 		  //DoTemplate(HKEY("iconbar"), NULL, &NoCtx);
 			page_popup();
 		}
@@ -195,7 +196,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 void output_custom_content_header(const char *ctype) {
   hprintf("HTTP/1.1 200 OK\r\n");
   hprintf("Content-type: %s; charset=utf-8\r\n",ctype);
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(serv_info.serv_software));
+  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
   hprintf("Connection: close\r\n");
 }
 
@@ -395,7 +396,7 @@ void display_success(char *successmessage)
 void authorization_required(const char *message)
 {
 	hprintf("HTTP/1.1 401 Authorization Required\r\n");
-	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", ChrPtr(serv_info.serv_humannode));
+	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", ChrPtr(WC->serv_info->serv_humannode));
 	hprintf("Content-Type: text/html\r\n");
 	wprintf("<h1>");
 	wprintf(_("Authorization Required"));
@@ -827,16 +828,16 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 				locate_host(browser_host, WCC->http_sock);
 			}
 
-			get_serv_info(browser_host, user_agent);
-			if (serv_info.serv_rev_level < MINIMUM_CIT_VERSION) {
+			WCC->serv_info = get_serv_info(browser_host, user_agent);
+			if (WCC->serv_info->serv_rev_level < MINIMUM_CIT_VERSION) {
 				begin_burst();
 				wprintf(_("You are connected to a Citadel "
 					"server running Citadel %d.%02d. \n"
 					"In order to run this version of WebCit "
 					"you must also have Citadel %d.%02d or"
 					" newer.\n\n\n"),
-						serv_info.serv_rev_level / 100,
-						serv_info.serv_rev_level % 100,
+						WCC->serv_info->serv_rev_level / 100,
+						WCC->serv_info->serv_rev_level % 100,
 						MINIMUM_CIT_VERSION / 100,
 						MINIMUM_CIT_VERSION % 100
 					);

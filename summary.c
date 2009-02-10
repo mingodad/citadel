@@ -156,15 +156,16 @@ void calendar_section(void) {
  */
 void server_info_section(void) {
 	char message[512];
+	wcsession *WCC = WC;
 
 	snprintf(message, sizeof message,
 		_("You are connected to %s, running %s with %s, server build %s and located in %s.  Your system administrator is %s."),
-		 ChrPtr(serv_info.serv_humannode),
-		 ChrPtr(serv_info.serv_software),
+		 ChrPtr(WCC->serv_info->serv_humannode),
+		 ChrPtr(WCC->serv_info->serv_software),
 		 PACKAGE_STRING,
-		 ChrPtr(serv_info.serv_svn_revision),
-		 ChrPtr(serv_info.serv_bbs_city),
-		 ChrPtr(serv_info.serv_sysadm));
+		 ChrPtr(WCC->serv_info->serv_svn_revision),
+		 ChrPtr(WCC->serv_info->serv_bbs_city),
+		 ChrPtr(WCC->serv_info->serv_sysadm));
 	escputs(message);
 }
 

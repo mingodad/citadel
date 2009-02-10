@@ -49,7 +49,7 @@ void display_sieve(void)
 	int i;
 	int rules_script_is_active = 0;
 
-	if (!serv_info.serv_supports_sieve) {
+	if (!WC->serv_info->serv_supports_sieve) {
 		display_no_sieve();
 		return;
 	}

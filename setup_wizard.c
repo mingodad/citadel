@@ -19,7 +19,7 @@ void do_setup_wizard(void)
 	if (!strcasecmp(step, "Finish")) {
 		fp = fopen(wizard_filename, "w");
 		if (fp != NULL) {
-			fprintf(fp, "%d\n", serv_info.serv_rev_level);
+			fprintf(fp, "%d\n", WC->serv_info->serv_rev_level);
 			fclose(fp);
 		}
 		do_welcome();
