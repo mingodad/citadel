@@ -31,7 +31,7 @@ size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 	if (wc_locales[WC->selected_language] == NULL) {
 		return strftime(s, max, format, tm);
 	}
-	else { /* TODO: this gives empty strings on debian. */
+	else {
 		return strftime_l(s, max, format, tm, wc_locales[WC->selected_language]);
 	}
 #else

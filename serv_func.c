@@ -168,7 +168,7 @@ void _fmout(StrBuf *Target, char *align)
 		/** Activate embedded URL's */
 		url(buf, sizeof(buf));
 
-		escputs(buf);/*/ TODO: Target */
+		escputs(buf);
 		StrBufAppendBufPlain(Target, HKEY("\n"), 0);
 	}
 	if (bq == 1) {
