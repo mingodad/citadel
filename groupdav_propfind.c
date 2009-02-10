@@ -30,28 +30,15 @@ long locate_message_by_uid(const char *uid) {
 	char decoded_uid[1024];
 	long retval = (-1L);
 
-	/* Decode the uid */
+	/* decode the UID */
 	euid_unescapize(decoded_uid, uid);
 
-/**************  THE NEW WAY ***********************/
+	/* ask Citadel if we have this one */
 	serv_printf("EUID %s", decoded_uid);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		retval = atol(&buf[4]);
 	}
-/***************************************************/
-
-/**************  THE OLD WAY ***********************
-	serv_puts("MSGS ALL|0|1");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '8') {
-		serv_printf("exti|%s", decoded_uid);
-		serv_puts("000");
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			retval = atol(buf);
-		}
-	}
- ***************************************************/
 
 	return(retval);
 }
