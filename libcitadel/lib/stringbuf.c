@@ -1499,6 +1499,25 @@ int StrBufDecodeBase64(StrBuf *Buf)
 	return siz;
 }
 
+/**
+ * \brief replace all chars >0x20 && < 0x7F with Mute
+ * \param Mute char to put over invalid chars
+ * \param Buf Buffor to transform
+ */
+int StrBufSanitizeAscii(StrBuf *Buf, const char Mute)
+{
+	char *pch;
+
+	if (Buf == NULL) return -1;
+	pch = Buf->buf;
+	while (pch < Buf->buf + Buf->BufUsed) {
+		if ((*pch < 0x20) || (*pch > 0x7F))
+			*pch = Mute;
+		pch ++;
+	}
+	return Buf->BufUsed;
+}
+
 
 /**
  * \brief  remove escaped strings from i.e. the url string (like %20 for blanks)
