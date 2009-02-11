@@ -633,12 +633,9 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	}
 	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) &&
 	    (vLine!=NULL)) {
-/* TODO: wrap base64 in strbuf */
-		CtdlDecodeBase64(c_httpauth_string, ChrPtr((StrBuf*)vLine), StrLength((StrBuf*)vLine));
-		FlushStrBuf(Buf);
-		StrBufAppendBufPlain(Buf, c_httpauth_string, -1, 0);
-		StrBufExtract_token(c_httpauth_user, Buf, 0, ':');
-		StrBufExtract_token(c_httpauth_pass, Buf, 1, ':');
+		StrBufDecodeBase64((StrBuf*)vLine);
+		StrBufExtract_token(c_httpauth_user, (StrBuf*)vLine, 0, ':');
+		StrBufExtract_token(c_httpauth_pass, (StrBuf*)vLine, 1, ':');
 	}
 	if (GetHash(HTTPHeaders, HKEY("CONTENT-LENGTH"), &vLine) &&
 	    (vLine!=NULL)) {
