@@ -116,6 +116,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 	wcsession *WCC = WC;
 	char buf[SIZ];
 	StrBuf *FloorDiv;
+	StrBuf *Language = NULL;
 
 	WC->logged_in = 1;
 
@@ -153,7 +154,15 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 		WC->need_vali = extract_int(&buf[4], 2);
 		extract_token(WC->cs_inet_email, &buf[4], 3, '|', sizeof WC->cs_inet_email);
 	}
-
+	if (havebstr("language"))
+		set_preference("language", NewStrBufDup(SBSTR("language")), 1);
+	else {
+		get_preference("language", &Language);
+		if (Language != NULL) {
+			set_selected_language(ChrPtr(Language));
+			go_selected_language();		/* set locale */
+		}
+	}
 	get_preference("floordiv_expanded", &FloorDiv);
 	WC->floordiv_expanded = FloorDiv;
 }
@@ -231,7 +240,6 @@ void do_login(void)
 		}
 	}
 	if (WCC->logged_in) {
-		set_preference("language", NewStrBufPlain(bstr("language"), -1), 1);
 		if (WCC->need_regi) {
 			display_reg(1);
 		} else if (WCC->need_vali) {

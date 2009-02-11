@@ -608,7 +608,6 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		index[a] = arg[a-1];
 		sizes[a] = sizeof arg[a-1];
 	}
-/*///	index[9] = &foo; todo */
 	nBackDots = 0;
 	nEmpty = 0;
 	for ( a = 0; a < 9; ++a)
@@ -849,7 +848,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			}
 		}
 	}
-/*///////todo: restore language in this case */
+
 	/*
 	 * Functions which can be performed without logging in
 	 */
@@ -951,12 +950,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			serv_printf("PASS %s", ChrPtr(c_password));
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 2) {
-				StrBuf *Lang;
 				become_logged_in(c_username, c_password, Buf);
-				if (get_preference("language", &Lang)) {
-					set_selected_language(ChrPtr(Lang));
-					go_selected_language();		/* set locale */
-				}
 				get_preference("default_header_charset", &WCC->DefaultCharset);
 			}
 		}
