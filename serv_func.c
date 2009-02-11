@@ -8,6 +8,8 @@
 
 void DeleteServInfo(ServInfo **FreeMe)
 {
+	if (*FreeMe == NULL)
+		return;
 	FreeStrBuf(&(*FreeMe)->serv_nodename);
 	FreeStrBuf(&(*FreeMe)->serv_humannode);
 	FreeStrBuf(&(*FreeMe)->serv_fqdn);
