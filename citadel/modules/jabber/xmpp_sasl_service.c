@@ -118,7 +118,13 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 
         if (CC->logged_in) logout();  /* Client may try to log in twice.  Handle this. */
 
-	if (xmpp_auth_plain(authstring) == 0) {
+	if (CC->nologin) {
+		cprintf("<failure xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
+		cprintf("<system-shutdown/>");
+		cprintf("</failure>");
+	}
+
+	else if (xmpp_auth_plain(authstring) == 0) {
 		cprintf("<success xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"/>");
 	}
 
