@@ -725,6 +725,14 @@ void embed_room_banner(char *got, int navbar_style) {
 					"%s"
 					"</span></a></li>\n", _("Write mail")
 					);
+				wprintf(
+					"<li class=\"newmess\">"
+					"<a href=\"javascript:deleteAllSelectedMessages();\">"
+					"<img  src=\"static/delete.gif\" "
+					"alt=\"\"><span class=\"navbar_link\">"
+					"%s"
+					"</span></a></li>\n", _("Delete")
+					);
 				break;
 			default:
 				wprintf(

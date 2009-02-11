@@ -373,9 +373,8 @@ function deleteAllMarkedRows() {
   rowArray = newRowArray;
   resortAndDisplay(null);
 }
-function CtdlMessageListKeyUp(event) {
-  var key = event.which;
-  if (key == 46) { // DELETE
+
+function deleteAllSelectedMessages() {
     for(msgId in currentlyMarkedRows) {
       if (!room_is_trash) {
       new Ajax.Request('ajax_servcmd', 
@@ -389,7 +388,13 @@ function CtdlMessageListKeyUp(event) {
     }
     document.getElementById("preview_pane").innerHTML = "";
     deleteAllMarkedRows();
-  }
+}
+
+function CtdlMessageListKeyUp(event) {
+	var key = event.which;
+	if (key == 46) { // DELETE
+		deleteAllSelectedMessages();
+	}
 }
 
 function clearMessage(msgId) {
