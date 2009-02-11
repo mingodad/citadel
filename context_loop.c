@@ -319,8 +319,8 @@ void context_loop(int *sock)
 			continue;
 		}
 
+		StrBufSanitizeAscii(Line, '§');
 		StrBufExtract_token(HeaderName, Line, 0, ':');
-		/*/// TODO: filter bad chars! */
 
 		pchs = ChrPtr(Line);
 		pch = pchs + StrLength(HeaderName) + 1;
