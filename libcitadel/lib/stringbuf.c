@@ -975,6 +975,7 @@ long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator)
 	buf[0] = '\0';
 	tmp.BufSize = 64;
 	tmp.BufUsed = 0;
+	tmp.ConstBuf = 1;
 	if (StrBufExtract_token(&tmp, Source, parmnum, separator) > 0)
 		return(atoi(buf));
 	else
@@ -999,6 +1000,7 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 	buf[0] = '\0';
 	tmp.BufSize = 64;
 	tmp.BufUsed = 0;
+	tmp.ConstBuf = 1;
 	if (StrBufExtract_token(&tmp, Source, parmnum, separator) > 0) {
 		pnum = &buf[0];
 		if (*pnum == '-')
