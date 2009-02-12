@@ -146,16 +146,21 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
  * ajax embedder for the above mini calendar 
  */
 void ajax_mini_calendar(void) {
+	const StrBuf *Buf;
 	char urlformat[256];
-	int i, len;
-	char *escaped_urlformat;
+	int i, j, len;
+	const char *escaped_urlformat;
 
-	escaped_urlformat = bstr("urlformat");
-        len = strlen(escaped_urlformat) * 2 ;
-	for (i=0; i<len; ++i) {
-		urlformat[i] = xtoi(&escaped_urlformat[i*2], 2);
-		urlformat[i+1] = 0;
+	Buf = sbstr("urlformat");
+	escaped_urlformat = ChrPtr(Buf);
+        len = StrLength(Buf);
+	if (len * 2 > sizeof(urlformat))
+		len = sizeof(urlformat) / 2;
+
+	for (i=0, j = 0; i < len ; i+=2, j++) {
+		urlformat[j] = xtoi(&escaped_urlformat[i], 2);
 	}
+	urlformat[j] = '\0';
 
 	embeddable_mini_calendar( ibstr("year"), ibstr("month"), urlformat );
 }
