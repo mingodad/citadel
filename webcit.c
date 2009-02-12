@@ -828,8 +828,8 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 				}
 				locate_host(browser_host, WCC->http_sock);
 			}
-
-			WCC->serv_info = get_serv_info(browser_host, user_agent);
+			if (WCC->serv_info == NULL)
+				WCC->serv_info = get_serv_info(browser_host, user_agent);
 			if (WCC->serv_info->serv_rev_level < MINIMUM_CIT_VERSION) {
 				begin_burst();
 				wprintf(_("You are connected to a Citadel "
