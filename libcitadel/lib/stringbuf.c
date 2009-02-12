@@ -952,6 +952,7 @@ int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator)
 	buf[0] = '\0';
 	tmp.BufSize = 64;
 	tmp.BufUsed = 0;
+	tmp.ConstBuf = 1;
 	if (StrBufExtract_token(&tmp, Source, parmnum, separator) > 0)
 		return(atoi(buf));
 	else
