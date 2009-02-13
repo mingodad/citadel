@@ -5,7 +5,7 @@ var draggedElement = null;
 var currentDropTargets = null;
 var dropTarget = null;
 var dragAndDropElement = null;
-
+var oldSelectHandler = null;
 function mouseDownHandler(event) {
   var target = event.target;
   var actualTarget = target;
@@ -38,7 +38,7 @@ function mouseMoveHandler(event) {
   if (draggedElement != null) {
     if (dragAndDropElement == null) {
     dragAndDropElement = draggedElement.ctdlDnDElement();
-    dragAndDropElement.setAttribute("class", "draganddrop");
+    dragAndDropElement.className = "draganddrop";
     document.body.appendChild(dragAndDropElement);
     }
     var clientX = event.clientX+5;
@@ -59,19 +59,20 @@ function mouseMoveOut(event) {
   }
 }
 function setupDragDrop() {
-if (document.addEventListener != undefined) {
-     $(document.body).observe('mousedown', mouseDownHandler);
+  $(document.body).observe('mousedown', mouseDownHandler);
     $(document.body).observe('mouseup',mouseUpHandler);
     $(document.body).observe('mousemove',mouseMoveHandler);
     $(document.body).observe('mouseover', mouseMoveOver);
-    $(document.body).observe('mouseout', mouseMoveOut);
-    } 
+    $(document.body).observe('mouseout', mouseMoveOut); 
 }
 function turnOffTextSelect() {
   document.onmousedown = new Function("return false");
-document.onmouseup = new Function("return true");
+  document.onmouseup = new Function("return true");
+ oldSelectHandler = document.onselectstart;
+ document.onselectstart = function() { return false; };
 }
 function turnOnTextSelect() {
   document.onmousedown = null;
   document.onmouseup = null;
+  document.onselectstart = oldSelectHandler;
 }
