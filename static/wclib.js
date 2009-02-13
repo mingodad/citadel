@@ -214,7 +214,7 @@ function IconBarRoomList() {
   mailboxSPAN.appendChild(document.createTextNode(_mailbox));
   $(mailboxSPAN).observe('click', expandFloorEvent);
   mailboxLI.appendChild(mailboxSPAN);
-  mailboxLI.setAttribute("class", "floor");
+  mailboxLI.className = "floor";
   var mailboxUL = document.createElement("ul");
   mailboxLI.appendChild(mailboxUL);
   var mailboxRooms = GetMailboxRooms();
@@ -235,7 +235,7 @@ function IconBarRoomList() {
     floorSPAN.appendChild(document.createTextNode(name));
     $(floorSPAN).observe('click', expandFloorEvent);
     floorLI.appendChild(floorSPAN);
-    floorLI.setAttribute("class", "floor");
+    floorLI.className = "floor";
     var floorUL = document.createElement("ul");
     floorLI.appendChild(floorUL);
     var roomsForFloor = GetRoomsByFloorNum(floornum);

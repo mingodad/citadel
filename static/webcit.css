@@ -1106,11 +1106,9 @@ dt { clear: both; }
 .imsg {
 	text-align: center;
 }
-#summary_view table {
-/*    table-layout: fixed; stops long subjects overflowing */
-}
 #summary_view > table { /* hide from IE6 */
     width: 100%;
+    table-layout: fixed;
 }
 colgroup.entity {
 	text-align: center;
