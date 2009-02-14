@@ -8,12 +8,12 @@
 #include "webserver.h"
 
 
-void embeddable_mini_calendar(int year, int month, char *urlformat)
+void embeddable_mini_calendar(int year, int month)
 {
 	struct tm starting_tm;
 	struct tm tm;
 	time_t thetime;
-	int i, len;
+	int i;
 	time_t previous_month;
 	time_t next_month;
 	time_t colheader_time;
@@ -23,8 +23,7 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 	char weekstart_buf[16];
 	char url[256];
 	char div_id[256];
-	char escaped_urlformat[256];
-
+	
 	snprintf(div_id, sizeof div_id, "mini_calendar_%d", rand() );
 
 	/* Determine what day to start.
@@ -103,7 +102,7 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 			}
 
 			if (tm.tm_mon == month-1) {
-				snprintf(url, sizeof url, urlformat,
+				snprintf(url, sizeof url, "readfwd?calview=day&year=%d&month=%d&day=%d", 
 					tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday);
 				wprintf("<td><a href=\"%s\">%d</a></td>", url, tm.tm_mday);
 			}
@@ -124,22 +123,16 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
 	wprintf("</table>"			/** end of inner table */
 		"</div>\n");
 
-	/* javascript for previous and next month */
-	len = strlen(urlformat);
-	for (i=0; i<len; ++i) {
-		sprintf(&escaped_urlformat[i*2], "%02X", urlformat[i]);
-	}
-
 	wprintf("<script type=\"text/javascript\">							"
 		"	function minical_change_month(year, month) {					"
 		"		p = 'year=' + year + '&month=' + month					"
-		"			+ '&urlformat=%s&r=' + CtdlRandomString();			"
+		"			+ '&r=' + CtdlRandomString();			                "
 		"		new Ajax.Updater('%s', 'mini_calendar', 				"
 		"			{ method: 'get', parameters: p, evalScripts: true } );		"
 		"	}										"
 		"</script>\n"
 		,
-		escaped_urlformat, div_id
+		div_id
 		);
 
 }
@@ -148,18 +141,7 @@ void embeddable_mini_calendar(int year, int month, char *urlformat)
  * \brief  ajax embedder for the above mini calendar 
  */
 void ajax_mini_calendar(void) {
-	char urlformat[256];
-	int i, len;
-	char *escaped_urlformat;
-
-	escaped_urlformat = bstr("urlformat");
-        len = strlen(escaped_urlformat) * 2 ;
-	for (i=0; i<len; ++i) {
-		urlformat[i] = xtoi(&escaped_urlformat[i*2], 2);
-		urlformat[i+1] = 0;
-	}
-
-	embeddable_mini_calendar( ibstr("year"), ibstr("month"), urlformat );
+	embeddable_mini_calendar( ibstr("year"), ibstr("month"));
 }
 
 
@@ -1254,7 +1236,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	/** Embed a mini month calendar in this space */
 	wprintf("<br />\n");
-	embeddable_mini_calendar(year, month, "readfwd?calview=day&year=%d&month=%d&day=%d");
+	embeddable_mini_calendar(year, month);
 
 	wprintf("</font></center>\n");
 
