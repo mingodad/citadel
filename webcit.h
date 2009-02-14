@@ -577,7 +577,6 @@ void escputs1(const char *strbuf, int nbsp, int nolinebreaks);
 void msgesc(char *target, size_t tlen, char *strbuf);
 void msgescputs(char *strbuf);
 void msgescputs1(char *strbuf);
-void stripout(char *str, char leftboundary, char rightboundary);
 void dump_vars(void);
 void embed_main_menu(void);
 void serv_read(char *buf, int bytes);
