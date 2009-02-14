@@ -648,7 +648,7 @@ char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen)
  * Strip a boundarized substring out of a string (for example, remove
  * parentheses and anything inside them).
  */
-void stripout(char *str, char leftboundary, char rightboundary) {
+int stripout(char *str, char leftboundary, char rightboundary) {
 	int a;
         int lb = (-1);
         int rb = (-1);
@@ -660,12 +660,14 @@ void stripout(char *str, char leftboundary, char rightboundary) {
 
         if ( (lb > 0) && (rb > lb) ) {
                 strcpy(&str[lb - 1], &str[rb + 1]);
+		return 1;
         }
 
         else if ( (lb == 0) && (rb > lb) ) {
                 strcpy(str, &str[rb + 1]);
+		return 1;
         }
-
+	return 0;
 }
 
 
