@@ -42,40 +42,45 @@ int CompareUserStruct(const void *VUser1, const void *VUser2)
 
 int GetWholistSection(HashList *List, time_t now)
 {
-	StrBuf *Buf, *XBuf;
+	StrBuf *Buf;
 	wcsession *WCC = WC;
 	UserStateStruct *User, *OldUser;
 	void *VOldUser;
 	size_t BufLen;
 	char buf[SIZ];
+	const char *Pos;
 
 	serv_puts("RWHO");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		Buf = NewStrBuf();
-		XBuf = NewStrBuf();
 		while (BufLen = StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (BufLen <= 0)
 			    continue;
+			Pos = NULL;
 			User = (UserStateStruct*) malloc(sizeof(UserStateStruct));
-			User->Session = StrBufExtract_int(Buf, 0, '|');
+			User->Session = StrBufExtractNext_int(Buf, &Pos, '|');
 
-			StrBufExtract_token(XBuf, Buf, 1, '|');
-			User->UserName = NewStrBufDup(XBuf);
-
-			StrBufExtract_token(XBuf, Buf, 2, '|');
-			User->Room = NewStrBufDup(XBuf);
-
-			StrBufExtract_token(XBuf, Buf, 3, '|');
-			User->Host = NewStrBufDup(XBuf);
-
-			StrBufExtract_token(XBuf, Buf, 9, '|');
-			User->RealRoom = NewStrBufDup(XBuf);
-
-			StrBufExtract_token(XBuf, Buf, 10, '|');
-			User->RealHost = NewStrBufDup(XBuf);
+			User->UserName = NewStrBufPlain(NULL, BufLen);
+			StrBufExtract_NextToken(User->UserName, Buf, &Pos, '|');
 			
-			User->LastActive = StrBufExtract_long(Buf, 5, '|');
+			User->Room = NewStrBufPlain(NULL, BufLen);
+			StrBufExtract_NextToken(User->Room, Buf, &Pos, '|');
+
+			User->Host = NewStrBufPlain(NULL, BufLen);
+			StrBufExtract_NextToken(User->Host, Buf, &Pos, '|');
+
+			StrBufSkip_NTokenS(Buf, &Pos, '|', 1);
+
+			User->LastActive = StrBufExtractNext_long(Buf, &Pos, '|');
+			StrBufSkip_NTokenS(Buf, &Pos, '|', 3);
+
+			User->RealRoom = NewStrBufPlain(NULL, BufLen);
+			StrBufExtract_NextToken(User->RealRoom, Buf, &Pos, '|');
+
+			User->RealHost = NewStrBufPlain(NULL, BufLen);
+			StrBufExtract_NextToken(User->RealHost, Buf, &Pos, '|');
+			
 			User->Idle = (now - User->LastActive) > 900L;
 			User->IdleSince = (now - User->LastActive) / 60;
 			User->SessionCount = 1;
@@ -103,7 +108,6 @@ int GetWholistSection(HashList *List, time_t now)
 		}
 		SortByPayload(List, CompareUserStruct);
 
-		FreeStrBuf(&XBuf);
 		FreeStrBuf(&Buf);
 		return 1;
 	}
