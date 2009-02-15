@@ -936,6 +936,9 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 }
 
 
+
+
+
 /**
  * \brief a string tokenizer to fetch an integer
  * \param dest Destination StringBuffer
@@ -1002,6 +1005,207 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 	tmp.BufUsed = 0;
 	tmp.ConstBuf = 1;
 	if (StrBufExtract_token(&tmp, Source, parmnum, separator) > 0) {
+		pnum = &buf[0];
+		if (*pnum == '-')
+			pnum ++;
+		return (unsigned long) atol(pnum);
+	}
+	else 
+		return 0;
+}
+
+
+
+/**
+ * \brief a string tokenizer
+ * \param dest Destination StringBuffer
+ * \param Source StringBuffer to read into
+ * \param pStart pointer to the end of the last token. Feed with NULL.
+ * \param separator tokenizer param
+ * \returns -1 if not found, else length of token.
+ */
+int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pStart, char separator)
+{
+	const char *s, *EndBuffer;	//* source * /
+	int len = 0;			//* running total length of extracted string * /
+	int current_token = 0;		//* token currently being processed * /
+	 
+	if (dest != NULL) {
+		dest->buf[0] = '\0';
+		dest->BufUsed = 0;
+	}
+	else
+		return(-1);
+
+	if ((Source == NULL) || 
+	    (Source->BufUsed ==0)) {
+		return(-1);
+	}
+	if (*pStart == NULL)
+		*pStart = Source->buf;
+
+	EndBuffer = Source->buf + Source->BufUsed;
+
+	if ((*pStart < Source->buf) || 
+	    (*pStart >  EndBuffer)) {
+		return (-1);
+	}
+
+
+	s = *pStart;
+
+	//cit_backtrace();
+	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
+
+	while ((s<EndBuffer) && !IsEmptyStr(s)) {
+		if (*s == separator) {
+			++current_token;
+		}
+		if (len >= dest->BufSize)
+			if (!IncreaseBuf(dest, 1, -1)) {
+				*pStart = EndBuffer + 1;
+				break;
+			}
+		if ( (current_token == 0) && 
+		     (*s != separator)) {
+			dest->buf[len] = *s;
+			++len;
+		}
+		else if (current_token > 0) {
+			*pStart = s;
+			break;
+		}
+		++s;
+	}
+	*pStart = s;
+	(*pStart) ++;
+
+	dest->buf[len] = '\0';
+	dest->BufUsed = len;
+		//lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
+	//lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
+	return(len);
+}
+
+
+/**
+ * \brief a string tokenizer
+ * \param dest Destination StringBuffer
+ * \param Source StringBuffer to read into
+ * \param pStart pointer to the end of the last token. Feed with NULL.
+ * \param separator tokenizer param
+ * \returns -1 if not found, else length of token.
+ */
+int StrBufSkip_NTokenS(const StrBuf *Source, const char **pStart, char separator, int nTokens)
+{
+	const char *s, *EndBuffer;	//* source * /
+	int len = 0;			//* running total length of extracted string * /
+	int current_token = 0;		//* token currently being processed * /
+
+	if ((Source == NULL) || 
+	    (Source->BufUsed ==0)) {
+		return(-1);
+	}
+	if (nTokens == 0)
+		return Source->BufUsed;
+
+	if (*pStart == NULL)
+		*pStart = Source->buf;
+
+	EndBuffer = Source->buf + Source->BufUsed;
+
+	if ((*pStart < Source->buf) || 
+	    (*pStart >  EndBuffer)) {
+		return (-1);
+	}
+
+
+	s = *pStart;
+
+	//cit_backtrace();
+	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
+
+	while ((s<EndBuffer) && !IsEmptyStr(s)) {
+		if (*s == separator) {
+			++current_token;
+		}
+		if (current_token >= nTokens) {
+			break;
+		}
+		++s;
+	}
+	*pStart = s;
+	(*pStart) ++;
+
+	return(len);
+}
+
+/**
+ * \brief a string tokenizer to fetch an integer
+ * \param dest Destination StringBuffer
+ * \param parmnum n'th parameter to extract
+ * \param separator tokenizer param
+ * \returns 0 if not found, else integer representation of the token
+ */
+int StrBufExtractNext_int(const StrBuf* Source, const char **pStart, char separator)
+{
+	StrBuf tmp;
+	char buf[64];
+	
+	tmp.buf = buf;
+	buf[0] = '\0';
+	tmp.BufSize = 64;
+	tmp.BufUsed = 0;
+	tmp.ConstBuf = 1;
+	if (StrBufExtract_NextToken(&tmp, Source, pStart, separator) > 0)
+		return(atoi(buf));
+	else
+		return 0;
+}
+
+/**
+ * \brief a string tokenizer to fetch a long integer
+ * \param dest Destination StringBuffer
+ * \param parmnum n'th parameter to extract
+ * \param separator tokenizer param
+ * \returns 0 if not found, else long integer representation of the token
+ */
+long StrBufExtractNext_long(const StrBuf* Source, const char **pStart, char separator)
+{
+	StrBuf tmp;
+	char buf[64];
+	
+	tmp.buf = buf;
+	buf[0] = '\0';
+	tmp.BufSize = 64;
+	tmp.BufUsed = 0;
+	tmp.ConstBuf = 1;
+	if (StrBufExtract_NextToken(&tmp, Source, pStart, separator) > 0)
+		return(atoi(buf));
+	else
+		return 0;
+}
+
+
+/**
+ * \brief a string tokenizer to fetch an unsigned long
+ * \param dest Destination StringBuffer
+ * \param parmnum n'th parameter to extract
+ * \param separator tokenizer param
+ * \returns 0 if not found, else unsigned long representation of the token
+ */
+unsigned long StrBufExtractNext_unsigned_long(const StrBuf* Source, const char **pStart, char separator)
+{
+	StrBuf tmp;
+	char buf[64];
+	char *pnum;
+	
+	tmp.buf = buf;
+	buf[0] = '\0';
+	tmp.BufSize = 64;
+	tmp.BufUsed = 0;
+	tmp.ConstBuf = 1;
+	if (StrBufExtract_NextToken(&tmp, Source, pStart, separator) > 0) {
 		pnum = &buf[0];
 		if (*pnum == '-')
 			pnum ++;
