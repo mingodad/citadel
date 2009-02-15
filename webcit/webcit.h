@@ -340,6 +340,7 @@ struct wcsession {
 /* Session local Members */
 	int http_sock;				/**< HTTP server socket */
 	int serv_sock;				/**< Client socket to Citadel server */
+	StrBuf *ReadBuf;
 	int chat_sock;				/**< Client socket to Citadel server - for chat */
 	time_t lastreq;				/**< Timestamp of most recent HTTP */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
@@ -532,6 +533,7 @@ int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
 int serv_getln(char *strbuf, int bufsize);
 int StrBuf_ServGetln(StrBuf *buf);
+int StrBuf_ServGetlnBuffered(StrBuf *buf);
 int GetServerStatus(StrBuf *Line, long* FullState);
 void serv_puts(const char *string);
 void who(void);

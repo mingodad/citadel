@@ -54,7 +54,7 @@ int GetWholistSection(HashList *List, time_t now)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		Buf = NewStrBuf();
-		while (BufLen = StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while (BufLen = StrBuf_ServGetlnBuffered(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (BufLen <= 0)
 			    continue;
 			Pos = NULL;

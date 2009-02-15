@@ -788,6 +788,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	 * connection now.
 	 */
 	if (!WCC->connected) {
+		WCC->ReadBuf = NewStrBuf();
 		if (!strcasecmp(ctdlhost, "uds")) {
 			/* unix domain socket */
 			snprintf(buf, SIZ, "%s/citadel.socket", ctdlport);

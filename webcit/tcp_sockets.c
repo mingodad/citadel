@@ -190,6 +190,29 @@ int StrBuf_ServGetln(StrBuf *buf)
 	return rc;
 }
 
+int StrBuf_ServGetlnBuffered(StrBuf *buf)
+{
+	wcsession *WCC = WC;
+	const char *ErrStr;
+	int rc;
+
+	rc = StrBufTCP_read_buffered_line(buf, 
+					  WCC->ReadBuf, 
+					  &WCC->serv_sock, 
+					  5, 1, 
+					  &ErrStr);
+	if (rc < 0)
+	{
+		lprintf(1, "Server connection broken: %s\n",
+			ErrStr);
+		wc_backtrace();
+		WCC->serv_sock = (-1);
+		WCC->connected = 0;
+		WCC->logged_in = 0;
+	}
+	return rc;
+}
+
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 {
 	const char *Err;
