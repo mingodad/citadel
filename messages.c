@@ -1109,11 +1109,11 @@ void post_message(void)
 		 */
 		pch = strrchr(ChrPtr(att->FileName), '/');
 		if (pch != NULL) {
-			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName));
+			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName) + 1);
 		}
 		pch = strrchr(ChrPtr(att->FileName), '\\');
 		if (pch != NULL) {
-			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName));
+			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName) + 1);
 		}
 
 		/**
