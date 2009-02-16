@@ -332,10 +332,10 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
  */
 void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset)
 {
-  if ((AppendBuf == NULL) || (Buf == NULL) || (AppendBuf->buf == NULL))
+	if ((AppendBuf == NULL) || (Buf == NULL) || (AppendBuf->buf == NULL))
 		return;
 
-	if (Buf->BufSize - Offset < AppendBuf->BufUsed + Buf->BufUsed)
+	if (Buf->BufSize - Offset < AppendBuf->BufUsed + Buf->BufUsed + 1)
 		IncreaseBuf(Buf, 
 			    (Buf->BufUsed > 0), 
 			    AppendBuf->BufUsed + Buf->BufUsed);
@@ -584,13 +584,13 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 	if (len == 0) 
 		return;
 
-	eptr = Target->buf + Target->BufSize - 6; 
+	eptr = Target->buf + Target->BufSize - 8; 
 	tptr = Target->buf + Target->BufUsed;
 	
 	while (aptr < eiptr){
 		if(tptr >= eptr) {
 			IncreaseBuf(Target, 1, -1);
-			eptr = Target->buf + Target->BufSize - 6; 
+			eptr = Target->buf + Target->BufSize - 8; 
 			tptr = Target->buf + Target->BufUsed;
 		}
 	       
@@ -649,12 +649,12 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 		return -1;
 
 	bptr = Target->buf + Target->BufUsed;
-	eptr = Target->buf + Target->BufSize - 2; /* our biggest unit to put in...  */
+	eptr = Target->buf + Target->BufSize - 3; /* our biggest unit to put in...  */
 
 	while (aptr < eiptr){
 		if(bptr >= eptr) {
 			IncreaseBuf(Target, 1, -1);
-			eptr = Target->buf + Target->BufSize - 2; 
+			eptr = Target->buf + Target->BufSize - 3; 
 			bptr = Target->buf + Target->BufUsed;
 		}
 		else if (*aptr == '"') {
@@ -697,7 +697,7 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 	}
 	if (Offset + nChars < Source->BufUsed)
 	{
-		if (nChars > dest->BufSize)
+		if (nChars >= dest->BufSize)
 			IncreaseBuf(dest, 0, nChars + 1);
 		memcpy(dest->buf, Source->buf + Offset, nChars);
 		dest->BufUsed = nChars;
@@ -705,7 +705,7 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 		return nChars;
 	}
 	NCharsRemain = Source->BufUsed - Offset;
-	if (NCharsRemain > dest->BufSize)
+	if (NCharsRemain  >= dest->BufSize)
 		IncreaseBuf(dest, 0, NCharsRemain + 1);
 	memcpy(dest->buf, Source->buf + Offset, NCharsRemain);
 	dest->BufUsed = NCharsRemain;
@@ -1248,7 +1248,7 @@ int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 			break;
 		if (buf->buf[len] != '\r')
 			len ++;
-		if (!(len < buf->BufSize)) {
+		if (len >= buf->BufSize) {
 			buf->BufUsed = len;
 			buf->buf[len+1] = '\0';
 			IncreaseBuf(buf, 1, -1);
@@ -1372,7 +1372,7 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 		return -1;
 	if (!append)
 		FlushStrBuf(Buf);
-	if (Buf->BufUsed + nBytes > Buf->BufSize)
+	if (Buf->BufUsed + nBytes >= Buf->BufSize)
 		IncreaseBuf(Buf, 1, Buf->BufUsed + nBytes);
 
 	ptr = Buf->buf + Buf->BufUsed;
@@ -1814,12 +1814,12 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 	}
 	if (*target == NULL)
 		*target = NewStrBufPlain(NULL, sizeof(headerStr) + source->BufUsed * 2);
-	else if (sizeof(headerStr) + source->BufUsed > (*target)->BufSize)
+	else if (sizeof(headerStr) + source->BufUsed >= (*target)->BufSize)
 		IncreaseBuf(*target, sizeof(headerStr) + source->BufUsed, 0);
 	memcpy ((*target)->buf, headerStr, sizeof(headerStr) - 1);
 	(*target)->BufUsed = sizeof(headerStr) - 1;
 	for (i=0; (i < source->BufUsed); ++i) {
-		if ((*target)->BufUsed + 4 > (*target)->BufSize)
+		if ((*target)->BufUsed + 4 >= (*target)->BufSize)
 			IncreaseBuf(*target, 1, 0);
 		ch = (unsigned char) source->buf[i];
 		if ((ch < 32) || (ch > 126) || (ch == 61)) {
@@ -1832,7 +1832,7 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 		}
 	}
 	
-	if ((*target)->BufUsed + 4 > (*target)->BufSize)
+	if ((*target)->BufUsed + 4 >= (*target)->BufSize)
 		IncreaseBuf(*target, 1, 0);
 
 	(*target)->buf[(*target)->BufUsed++] = '?';
@@ -1924,7 +1924,7 @@ void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 	size_t obuflen;			/**< Length of output buffer */
 
 
-	if (ConvertBuf->BufUsed > TmpBuf->BufSize)
+	if (ConvertBuf->BufUsed >= TmpBuf->BufSize)
 		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed);
 
 	ic = *(iconv_t*)pic;
@@ -2190,7 +2190,7 @@ int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
 
 	optr = LineBuf->buf;
 	eptr = Buf->buf + Buf->BufUsed;
-	xptr = LineBuf->buf + LineBuf->BufSize;
+	xptr = LineBuf->buf + LineBuf->BufSize - 1;
 
 	while ((*ptr != '\n') &&
 	       (*ptr != '\r') &&
@@ -2202,7 +2202,7 @@ int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
 			LineBuf->BufUsed = optr - LineBuf->buf;
 			IncreaseBuf(LineBuf,  1, LineBuf->BufUsed + 1);
 			optr = LineBuf->buf + LineBuf->BufUsed;
-			xptr = LineBuf->buf + LineBuf->BufSize;
+			xptr = LineBuf->buf + LineBuf->BufSize - 1;
 		}
 	}
 	LineBuf->BufUsed = optr - LineBuf->buf;
