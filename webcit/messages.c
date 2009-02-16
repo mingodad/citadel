@@ -1718,11 +1718,5 @@ InitModule_MSG
 
 	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), jsonMessageList,0);
-
-	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart"), view_postpart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart_download"), download_postpart, NEED_URL);
-
 	return ;
 }
