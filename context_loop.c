@@ -42,6 +42,7 @@ void DestroySession(wcsession **sessions_to_kill)
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment1));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment2));
 	FreeStrBuf(&((*sessions_to_kill)->UrlFragment3));
+	FreeStrBuf(&((*sessions_to_kill)->UrlFragment4));
 	FreeStrBuf(&((*sessions_to_kill)->WBuf));
 	FreeStrBuf(&((*sessions_to_kill)->HBuf));
 	FreeStrBuf(&((*sessions_to_kill)->CLineBuf));
