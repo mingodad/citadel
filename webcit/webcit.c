@@ -999,9 +999,12 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 					WCC->UrlFragment2 = NewStrBuf();
 				if (WCC->UrlFragment3 == NULL)
 					WCC->UrlFragment3 = NewStrBuf();
-				StrBufPrintf(WCC->UrlFragment1, "%s", index[0]);
-				StrBufPrintf(WCC->UrlFragment2, "%s", index[1]);
-				StrBufPrintf(WCC->UrlFragment3, "%s", index[2]);
+				if (WCC->UrlFragment4 == NULL)
+					WCC->UrlFragment4 = NewStrBuf();
+				StrBufPlain(WCC->UrlFragment1, index[0], -1);
+				StrBufPlain(WCC->UrlFragment2, index[1], -1);
+				StrBufPlain(WCC->UrlFragment3, index[2], -1);
+				StrBufPlain(WCC->UrlFragment4, index[3], -1);
 			}
 			if ((Handler->Flags & AJAX) != 0)
 				begin_ajax_response();

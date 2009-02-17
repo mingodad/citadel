@@ -350,6 +350,7 @@ struct wcsession {
 	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *UrlFragment3;                   /**< third urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment4;                   /**< fourth urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *WBuf;                           /**< Our output buffer */
 	StrBuf *HBuf;                           /**< Our HeaderBuffer */
 	StrBuf *this_page;			/**< URL of current page */
