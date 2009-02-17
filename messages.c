@@ -1529,13 +1529,16 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
  * partnum		The MIME part to be output
  * force_download	Nonzero to force set the Content-Type: header to "application/octet-stream"
  */
-void mimepart(const char *msgnum, const char *partnum, int force_download)
+void mimepart(int force_download)
 {
+	wcsession *WCC = WC;
+
 	char buf[256];
 	off_t bytes;
 	char content_type[256];
-	
-	serv_printf("OPNA %s|%s", msgnum, partnum);
+	const char *ContentType = &content_type[0];
+
+	serv_printf("OPNA %s|%s", ChrPtr(WCC->UrlFragment2), ChrPtr(WCC->UrlFragment3));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		bytes = extract_long(&buf[4], 0);
@@ -1545,12 +1548,21 @@ void mimepart(const char *msgnum, const char *partnum, int force_download)
 		else {
 			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
 		}
-		output_headers(0, 0, 0, 0, 0, 0);
 
-		read_server_binary(WC->WBuf, bytes);
+		read_server_binary(WCC->WBuf, bytes);
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
-		http_transmit_thing(content_type, 0);
+
+		if (!force_download) {
+			if (!strcasecmp(ContentType, "application/octet-stream")) {
+				ContentType = GuessMimeByFilename(SKEY(WCC->UrlFragment4));
+			}
+			if (!strcasecmp(ContentType, "application/octet-stream")) {
+				ContentType = GuessMimeType(SKEY(WCC->WBuf));
+			}
+		}
+		output_headers(0, 0, 0, 0, 0, 0);
+		http_transmit_thing(ContentType, 0);
 	} else {
 		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
@@ -1616,15 +1628,11 @@ void MimeLoadData(wc_mime_attachment *Mime)
 
 
 void view_mimepart(void) {
-	mimepart(ChrPtr(WC->UrlFragment2),
-		 ChrPtr(WC->UrlFragment3),
-		 0);
+	mimepart(0);
 }
 
 void download_mimepart(void) {
-	mimepart(ChrPtr(WC->UrlFragment2),
-		 ChrPtr(WC->UrlFragment3),
-		 1);
+	mimepart(1);
 }
 
 void view_postpart(void) {
