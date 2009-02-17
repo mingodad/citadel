@@ -77,7 +77,7 @@ roomName = getTextContent(document.getElementById("rmname"));
      var SortBy = currentSortMode[0];
      if (SortBy.charAt(0) == 'r') {
        SortBy = SortBy.substr(1);
-       parameters["SortOrder"] = "2";
+       parameters["SortOrder"] = "0";
      }
      parameters["SortBy"] = SortBy;
    }
