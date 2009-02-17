@@ -788,7 +788,8 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	 * connection now.
 	 */
 	if (!WCC->connected) {
-		WCC->ReadBuf = NewStrBuf();
+		if (WCC->ReadBuf == NULL)
+			WCC->ReadBuf = NewStrBuf();
 		if (!strcasecmp(ctdlhost, "uds")) {
 			/* unix domain socket */
 			snprintf(buf, SIZ, "%s/citadel.socket", ctdlport);
@@ -801,6 +802,7 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 
 		if (WCC->serv_sock < 0) {
 			do_logout();
+			FreeStrBuf(&WCC->ReadBuf);
 			goto SKIP_ALL_THIS_CRAP;
 		}
 		else {
