@@ -537,7 +537,7 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 	Mime->PartNum = NewStrBuf();
 	StrBufExtract_token(Mime->PartNum, HdrLine, 2, '|');
 	StrBufTrim(Mime->PartNum);
-	if (strchr(ChrPtr(Mime->PartNum), '.') != NULL)
+	if (strchr(ChrPtr(Mime->PartNum), '.') != NULL) 
 		Mime->level = 2;
 	else
 		Mime->level = 1;
@@ -550,6 +550,10 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 	StrBufTrim(Mime->ContentType);
 	StrBufLowerCase(Mime->ContentType);
 
+	if (!strcmp(ChrPtr(Mime->ContentType), "application/octet-stream")) {
+		StrBufPlain(Mime->ContentType, 
+			    GuessMimeByFilename(SKEY(Mime->FileName)), -1);
+	}
 	Mime->length = StrBufExtract_int(HdrLine, 5, '|');
 
 	if ( (StrLength(Mime->FileName) == 0) && (StrLength(Mime->Name) > 0) ) {
