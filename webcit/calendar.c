@@ -813,7 +813,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 						   icalproperty_new_summary(bstr("summary")));
 		} else {
 			icalcomponent_add_property(vtodo,
-						   icalproperty_new_summary("Untitled Task"));
+						   icalproperty_new_summary(_("Untitled Task")));
 		}
 	
 		while (prop = icalcomponent_get_first_property(vtodo,

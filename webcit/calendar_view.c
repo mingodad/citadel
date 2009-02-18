@@ -1140,10 +1140,13 @@ void calendar_day_view(int year, int month, int day) {
                         "position: absolute;    "
                         "top: %ldpx; left: 0px; "
                         "height: %dpx;          "
+			"font-size: %dpx;	"
                         "\" >                   "
                         "<a href=\"display_edit_event?msgnum=0?calview=day"
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
-                        gap + ((hour - dayend - 1) * extratimeline ), extratimeline,
+                        gap + ((hour - dayend - 1) * extratimeline ),
+			extratimeline,
+			extratimeline - 2,
                         year, month, day, hour
                 );
 
