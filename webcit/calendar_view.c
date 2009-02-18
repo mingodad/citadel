@@ -1093,7 +1093,7 @@ void calendar_day_view(int year, int month, int day) {
 		}
 		else {
 			wprintf("%d:00%s</a> ",
-				(hour <= 12 ? hour : hour-12),
+				((hour == 0) ? 12 : (hour <= 12 ? hour : hour-12)),
 				(hour < 12 ? "am" : "pm")
 				);
 		}
