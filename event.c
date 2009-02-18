@@ -798,12 +798,11 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		}
 
 	 	if (havebstr("summary")) {
-	
 		 	icalcomponent_add_property(vevent,
 				  	icalproperty_new_summary(bstr("summary")));
 	 	} else {
 		 	icalcomponent_add_property(vevent,
-					icalproperty_new_summary("Untitled Event"));
+					icalproperty_new_summary(_("Untitled Event")));
 	 	}
 	
 	 	while (prop = icalcomponent_get_first_property(vevent,
