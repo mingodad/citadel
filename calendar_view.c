@@ -1027,6 +1027,8 @@ void calendar_day_view(int year, int month, int day) {
 	int timeline = TIMELINE;
 	int extratimeline = EXTRATIMELINE;
 	int gap = 0;
+	int hourlabel;
+	int extrahourlabel;
 
 	time_format = get_time_format_cached ();
 	get_pref_long("daystart", &daystart, 8);
@@ -1072,6 +1074,10 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Now the middle of the day... */
 
+	extrahourlabel = extratimeline - 2;
+	hourlabel = extrahourlabel * 150 / 100;
+	if (hourlabel > (timeline - 2)) hourlabel = timeline - 2;
+
 	for (hour = 0; hour < daystart; ++hour) {	/* could do HEIGHT=xx */
 		wprintf("<dt class=\"extrahour\" 	"
 			"style=\"		"
@@ -1084,7 +1090,7 @@ void calendar_day_view(int year, int month, int day) {
 			"?calview=day?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
 			(hour * extratimeline ),
 			extratimeline,
-			extratimeline - 2,
+			extrahourlabel,
 			year, month, day, hour
 			);
 
@@ -1115,7 +1121,7 @@ void calendar_day_view(int year, int month, int day) {
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
                         gap + ((hour - daystart) * timeline ),
 			timeline,
-			timeline - 2,
+			hourlabel,
                         year, month, day, hour
 			);
 
@@ -1146,7 +1152,7 @@ void calendar_day_view(int year, int month, int day) {
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
                         gap + ((hour - dayend - 1) * extratimeline ),
 			extratimeline,
-			extratimeline - 2,
+			extrahourlabel,
                         year, month, day, hour
                 );
 
