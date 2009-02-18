@@ -1345,11 +1345,11 @@ td.events_of_the_day {
 }
 
 .events_of_the_day dl dt.hour {
-	font-size: 160%;
+	/* font-size: 160%; commenting out because we need to line it up with the actual size */
 }
 
 .events_of_the_day dl dt.extrahour {
-	font-size: 80%;
+	/* font-size: 80%; commenting out because we need to line it up with the actual size */
 }
 
 .hour_label, .extra_events dl dt {

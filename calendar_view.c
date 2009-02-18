@@ -7,6 +7,9 @@
 #include "webcit.h"
 #include "webserver.h"
 
+/* These define how high the hour rows are in the day view */
+#define TIMELINE	30
+#define EXTRATIMELINE	(TIMELINE / 2)
 
 void embeddable_mini_calendar(int year, int month)
 {
@@ -936,15 +939,15 @@ void calendar_day_view_display_events(time_t thetime,
 				/* Calculate the location of the top of the box */
 				if (event_te.tm_hour < dstart) {
 					startmin = diffmin = event_te.tm_min / 6;
-					top = (event_te.tm_hour * 10) + startmin;
+					top = (event_te.tm_hour * EXTRATIMELINE) + startmin;
 				}
 				else if ((event_te.tm_hour >= dstart) && (event_te.tm_hour <= dend)) {
 					startmin = diffmin = (event_te.tm_min / 2);
-					top = (dstart * 10) + ((event_te.tm_hour - dstart) * 30) + startmin;
+					top = (dstart * EXTRATIMELINE) + ((event_te.tm_hour - dstart) * TIMELINE) + startmin;
 				}
 				else if (event_te.tm_hour >dend) {
 					startmin = diffmin = event_te.tm_min / 6;
-					top = (dstart * 10) + ((dend - dstart - 1) * 30) + ((event_tm.tm_hour - dend + 1) * 10) + startmin ;
+					top = (dstart * EXTRATIMELINE) + ((dend - dstart - 1) * TIMELINE) + ((event_tm.tm_hour - dend + 1) * EXTRATIMELINE) + startmin ;
 				}
 				else {
 					/* should never get here */
@@ -953,15 +956,15 @@ void calendar_day_view_display_events(time_t thetime,
 				/* Calculate the location of the bottom of the box */
 				if (event_tm.tm_hour < dstart) {
 					endmin = diffmin = event_tm.tm_min / 6;
-					bottom = (event_tm.tm_hour * 10) + endmin;
+					bottom = (event_tm.tm_hour * EXTRATIMELINE) + endmin;
 				}
 				else if ((event_tm.tm_hour >= dstart) && (event_tm.tm_hour <= dend)) {
 					endmin = diffmin = (event_tm.tm_min / 2);
-					bottom = (dstart * 10) + ((event_tm.tm_hour - dstart) * 30) + endmin ;
+					bottom = (dstart * EXTRATIMELINE) + ((event_tm.tm_hour - dstart) * TIMELINE) + endmin ;
 				}
 				else if (event_tm.tm_hour >dend) {
 					endmin = diffmin = event_tm.tm_min / 6;
-					bottom = (dstart * 10) + ((dend - dstart + 1) * 30) + ((event_tm.tm_hour - dend - 1) * 10) + endmin;
+					bottom = (dstart * EXTRATIMELINE) + ((dend - dstart + 1) * TIMELINE) + ((event_tm.tm_hour - dend - 1) * EXTRATIMELINE) + endmin;
 				}
 				else {
 					/* should never get here */
@@ -1021,8 +1024,8 @@ void calendar_day_view(int year, int month, int day) {
 	char d_str[128];
 	int time_format;
 	time_t today_t;
-	int timeline = 30;
-	int extratimeline = 0;
+	int timeline = TIMELINE;
+	int extratimeline = EXTRATIMELINE;
 	int gap = 0;
 
 	time_format = get_time_format_cached ();
@@ -1069,18 +1072,19 @@ void calendar_day_view(int year, int month, int day) {
 
 	/* Now the middle of the day... */
 
-	extratimeline = timeline / 3;	
-
 	for (hour = 0; hour < daystart; ++hour) {	/* could do HEIGHT=xx */
 		wprintf("<dt class=\"extrahour\" 	"
 			"style=\"		"
 			"position: absolute; 	"
 			"top: %dpx; left: 0px; 	"
-			"height: %dpx;		"	
+			"height: %dpx;		"
+			"font-size: %dpx;	"
 			"\" >			"
 			"<a href=\"display_edit_event?msgnum=0"
 			"?calview=day?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
-			(hour * extratimeline ), extratimeline, 
+			(hour * extratimeline ),
+			extratimeline,
+			extratimeline - 2,
 			year, month, day, hour
 			);
 
@@ -1103,12 +1107,15 @@ void calendar_day_view(int year, int month, int day) {
                 wprintf("<dt class=\"hour\"     "
                         "style=\"               "
                         "position: absolute;    "
-                        "top: %ldpx; left: 0px;  "
+                        "top: %ldpx; left: 0px; "
                         "height: %dpx;          "
+			"font-size: %dpx;	"
                         "\" >                   "
                         "<a href=\"display_edit_event?msgnum=0?calview=day"
                         "?year=%d?month=%d?day=%d?hour=%d?minute=0\">",
-                        gap + ((hour - daystart) * timeline ), timeline,
+                        gap + ((hour - daystart) * timeline ),
+			timeline,
+			timeline - 2,
                         year, month, day, hour
 			);
 
