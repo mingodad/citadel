@@ -118,6 +118,9 @@ int connect_to_ldap(void)
 			"This function will be discontinued in a future release.\n"
 			"Please migrate to vCard-based address books as soon as possible.\n"
 			"Visit the Citadel support forum if you need further assistance.\n"
+			"\n"
+			"More information about this change is available at:\n"
+			"http://www.citadel.org/doku.php/faq:systemadmin:ldap_deprecated\n"
 			,
 			"Warning: LDAP address book is deprecated"
 		);
