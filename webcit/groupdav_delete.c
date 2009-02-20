@@ -18,7 +18,6 @@ void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
 	long dav_msgnum = (-1);
 	char buf[SIZ];
 	int n = 0;
-	int len;
 
 	/* First, break off the "/groupdav/" prefix */
 	StrBufCutLeft(dav_pathname, 9);

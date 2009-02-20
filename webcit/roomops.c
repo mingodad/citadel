@@ -3736,7 +3736,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
 	if (ChrPtr(Buf)[0] == '1') while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
 			int a;
-			const char *floorNum;
+			const char *floorNum = NULL;
 			floor = NewHash(1, NULL);
 			for(a=0; a<FLOOR_PARAM_LEN; a++) {
 				Buf2 = NewStrBuf();
@@ -3779,7 +3779,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
 	if (ChrPtr(buf)[0] == '1') while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
 			int i;
-			const char *rmName;
+			const char *rmName = NULL;
 			room = NewHash(1, NULL);
 			for(i=0; i<ROOM_PARAM_LEN; i++) {
 				buf2 = NewStrBuf();
