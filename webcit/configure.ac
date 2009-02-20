@@ -63,10 +63,12 @@ dnl Configure compiler flags for GCC
 if test "$GCC" = yes; then
 	case "$host" in
 		*-*-solaris*)
-			CFLAGS="$CFLAGS -Wall -Wno-char-subscripts --pedantic"
+dnl			CFLAGS="$CFLAGS -Wall -Wno-char-subscripts --pedantic"
+			CFLAGS="$CFLAGS -Wall -Wno-char-subscripts"
 		;;
 		*)
-			CFLAGS="$CFLAGS -Wall --pedantic"
+dnl			CFLAGS="$CFLAGS -Wall --pedantic"
+			CFLAGS="$CFLAGS -Wall"
 		;;
 	esac
 fi
