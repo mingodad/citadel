@@ -231,25 +231,25 @@ function sortRowsByDateDescending(a, b) {
 function sortRowsBySubjectAscending(a, b) {
   var subjectOne = getTextContent(a.getElementsByTagName("td")[0]).toLowerCase();
   var subjectTwo = getTextContent(b.getElementsByTagName("td")[0]).toLowerCase();
-  return (subjectOne.charCodeAt(0) - subjectTwo.charCodeAt(0));
+  return strcmp(subjectOne, subjectTwo);
 }
 
 function sortRowsBySubjectDescending(a, b) {
   var subjectOne = getTextContent(a.getElementsByTagName("td")[0]).toLowerCase();
   var subjectTwo = getTextContent(b.getElementsByTagName("td")[0]).toLowerCase();
-  return (subjectTwo.charCodeAt(0) - subjectOne.charCodeAt(0));
+  return strcmp(subjectOne, subjectTwo);
 }
 
 function sortRowsByFromAscending(a, b) {
   var fromOne = getTextContent(a.getElementsByTagName("td")[1]).toLowerCase();
   var fromTwo = getTextContent(b.getElementsByTagName("td")[1]).toLowerCase();
-  return (fromOne.charCodeAt(0) - fromTwo.charCodeAt(0));
+  return strcmp(fromOne, fromTwo);
 }
 
 function sortRowsByFromDescending(a, b) {
   var fromOne = getTextContent(a.getElementsByTagName("td")[1]).toLowerCase();
   var fromTwo = getTextContent(b.getElementsByTagName("td")[1]).toLowerCase();
-  return (fromTwo.charCodeAt(0) - fromOne.charCodeAt(0));
+  return strcmp(fromOne, fromTwo);
 }
 
 function CtdlMessageListClick(evt) {
