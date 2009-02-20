@@ -133,7 +133,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("SEQUENCE == %d<br />\n", sequence);
 	*************************************************************/
 
-	wprintf("<FORM NAME=\"EventForm\" METHOD=\"POST\" action=\"save_event\">\n");
+	wprintf("<form name=\"EventForm\" method=\"POST\" action=\"save_event\">\n");
 	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
@@ -388,6 +388,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" id=\"attendees_box\" wrap=soft "
+		"onchange=\"EnableOrDisableCheckButton();\" "
+		"onKeyPress=\"EnableOrDisableCheckButton();\" "
 		"ROWS=10 COLS=72 WIDTH=72>\n",
 		(organizer_is_me ? "" : "DISABLED ")
 	);
@@ -708,8 +710,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
 		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"check_button\" "
-				"VALUE=\"%s\">\n"
+		"<INPUT TYPE=\"submit\" id=\"check_button\" NAME=\"check_button\" VALUE=\"%s\">\n"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n"
 		"</CENTER>\n",
@@ -724,8 +725,9 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</div>\n");			/* end 'fix_scrollbar_bug' div */
 
 	StrBufAppendPrintf(WC->trailing_javascript,
-		"eventEditAllDay();	\n"
-		"RecurrenceShowHide();	\n"
+		"eventEditAllDay();		\n"
+		"RecurrenceShowHide();		\n"
+		"EnableOrDisableCheckButton();	\n"
 	);
 	address_book_popup();
 	wDumpContent(1);

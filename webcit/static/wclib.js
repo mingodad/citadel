@@ -783,6 +783,23 @@ function RecurrenceShowHide() {
 	}
 
 }
+
+
+// Enable or disable the 'check attendee availability' button depending on whether
+// the attendees list is empty
+function EnableOrDisableCheckButton()
+{
+	if ($('attendees_box').value.length == 0) {
+		$('check_button').disabled = true;
+	}
+	else {
+		$('check_button').disabled = false;
+	}
+}
+
+
+
+
 function launchChat(event) {
 window.open('chat', 'ctdl_chat_window', 'toolbar=no,location=no,directories=no,copyhistory=no,status=no,scrollbars=yes,resizable=yes');
 }
