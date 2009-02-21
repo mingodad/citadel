@@ -101,6 +101,8 @@ void LogPrintMessages(long err)
 	int n = nSizPort + nSizErrmsg + 5;
 
 	Message = (char*) malloc(n * SIZ);
+	
+	DetailErrorFlags = DetailErrorFlags & ~err;
 
 	switch (err)
 	{
