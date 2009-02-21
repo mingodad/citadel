@@ -725,33 +725,33 @@ const char *GuessMimeType(const char *data, size_t dlen)
 const char* GuessMimeByFilename(const char *what, size_t len)
 {
 	/* we know some hardcoded on our own, try them... */
-	if (!strncasecmp(&what[len - 4], ".gif", 4))
+	if ((len > 3) && !strncasecmp(&what[len - 4], ".gif", 4))
 		return "image/gif";
-	else if (!strncasecmp(&what[len - 3], ".js", 3))
+	else if ((len > 2) && !strncasecmp(&what[len - 3], ".js", 3))
 		return  "text/javascript";
-	else if (!strncasecmp(&what[len - 4], ".txt", 4))
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".txt", 4))
 		return "text/plain";
-	else if (!strncasecmp(&what[len - 4], ".css", 4))
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".css", 4))
 		return "text/css";
-	else if (!strncasecmp(&what[len - 4], ".jpg", 4))
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".jpg", 4))
 		return "image/jpeg";
-	else if (!strncasecmp(&what[len - 4], ".png", 4))
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".png", 4))
 		return "image/png";
-	else if (!strncasecmp(&what[len - 4], ".ico", 4))
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".ico", 4))
 		return "image/x-icon";
-	else if (!strncasecmp(&what[len - 5], ".html", 5))
+	else if ((len > 4) && !strncasecmp(&what[len - 5], ".html", 5))
 		return "text/html";
-	else if (!strncasecmp(&what[len - 4], ".htm", 4))
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".htm", 4))
 		return "text/html";
-	else if (!strncasecmp(&what[len - 4], ".wml", 4))
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".wml", 4))
 		return "text/vnd.wap.wml";
-	else if (!strncasecmp(&what[len - 5], ".wmls", 5))
+	else if ((len > 4) && !strncasecmp(&what[len - 5], ".wmls", 5))
 		return "text/vnd.wap.wmlscript";
-	else if (!strncasecmp(&what[len - 5], ".wmlc", 5))
+	else if ((len > 4) && !strncasecmp(&what[len - 5], ".wmlc", 5))
 		return "application/vnd.wap.wmlc";
-	else if (!strncasecmp(&what[len - 6], ".wmlsc", 6))
+	else if ((len > 5) && !strncasecmp(&what[len - 6], ".wmlsc", 6))
 		return "application/vnd.wap.wmlscriptc";
-	else if (!strncasecmp(&what[len - 5], ".wbmp", 5))
+	else if ((len > 4) && !strncasecmp(&what[len - 5], ".wbmp", 5))
 		return "image/vnd.wap.wbmp";
 	else
 		/* and let xdgmime do the fallback. */
