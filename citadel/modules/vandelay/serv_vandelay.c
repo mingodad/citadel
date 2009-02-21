@@ -901,8 +901,7 @@ void artv_do_import(void) {
 
 void cmd_artv(char *cmdbuf) {
 	char cmd[32];
-	static int is_running = 0;
-
+	
 	if (CtdlAccessCheck(ac_internal)) return;
 	
 	if (CtdlTrySingleUser())
