@@ -55,7 +55,7 @@ void connection_died(CtdlIPC* ipc, int using_ssl) {
 
 #ifdef HAVE_OPENSSL
 	if (using_ssl) {
-		printf(stderr, "Last error: %s\n", ERR_reason_error_string(ERR_get_error()));
+		fprintf(stderr, "Last error: %s\n", ERR_reason_error_string(ERR_get_error()));
 		SSL_free(ipc->ssl);
 		ipc->ssl = NULL;
 	} else
