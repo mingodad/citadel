@@ -534,41 +534,65 @@ void tmplput_serv_ip(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_serv_nodename(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_nodename, 0);
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return;
+	StrBufAppendTemplate(Target, TP, WCC->serv_info->serv_nodename, 0);
 }
 
 void tmplput_serv_humannode(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_humannode, 0);
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return;
+	StrBufAppendTemplate(Target, TP, WCC->serv_info->serv_humannode, 0);
 }
 
 void tmplput_serv_fqdn(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_fqdn, 0);
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return;
+	StrBufAppendTemplate(Target, TP, WCC->serv_info->serv_fqdn, 0);
 }
 
 void tmplput_serv_software(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_software, 0);
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return;
+	StrBufAppendTemplate(Target, TP, WCC->serv_info->serv_software, 0);
 }
 
 void tmplput_serv_rev_level(StrBuf *Target, WCTemplputParams *TP)
 {
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return;
 	StrBufAppendPrintf(Target, "%d.%02d",
-			    WC->serv_info->serv_rev_level / 100,
-			    WC->serv_info->serv_rev_level % 100);
+			    WCC->serv_info->serv_rev_level / 100,
+			    WCC->serv_info->serv_rev_level % 100);
 }
 int conditional_serv_newuser_disabled(StrBuf *Target, WCTemplputParams *TP)
 {
-	return WC->serv_info->serv_newuser_disabled != 0;
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return 0;
+	return WCC->serv_info->serv_newuser_disabled != 0;
 }
 int conditional_serv_supports_openid(StrBuf *Target, WCTemplputParams *TP)
 {
-	return WC->serv_info->serv_supports_openid != 0;
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return 0;
+	return WCC->serv_info->serv_supports_openid != 0;
 }
 
 void tmplput_serv_bbs_city(StrBuf *Target, WCTemplputParams *TP)
 {
+	wcsession *WCC = WC;
+	if (WCC->serv_info == NULL)
+		return;
 	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_bbs_city, 0);
 }
 

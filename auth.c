@@ -536,16 +536,17 @@ void end_webcit_session(void) {
  */
 void do_logout(void)
 {
+	wcsession *WCC = WC;
 	char buf[SIZ];
 
-	FlushStrBuf(WC->wc_username);
-	FlushStrBuf(WC->wc_password);
-	FlushStrBuf(WC->wc_roomname);
-	FlushStrBuf(WC->wc_fullname);
+	FlushStrBuf(WCC->wc_username);
+	FlushStrBuf(WCC->wc_password);
+	FlushStrBuf(WCC->wc_roomname);
+	FlushStrBuf(WCC->wc_fullname);
 
 	/* FIXME: this is to suppress the iconbar displaying, because we aren't
 	   actually logged out yet */
-	WC->logged_in = 0;
+	WCC->logged_in = 0;
 	
 	/** Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
@@ -558,7 +559,7 @@ void do_logout(void)
 	serv_puts("MESG goodbye");
 	serv_getln(buf, sizeof buf);
 
-	if (WC->serv_sock >= 0) {
+	if (WCC->serv_sock >= 0) {
 		if (buf[0] == '1') {
 			fmout("CENTER");
 		} else {
