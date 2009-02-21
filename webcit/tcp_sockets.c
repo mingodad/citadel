@@ -124,7 +124,7 @@ inline void _serv_read(char *buf, int bytes, wcsession *WCC)
 	int len, rlen;
 
 	len = 0;
-	while (len < bytes) {
+	while ((len < bytes) && (WCC->serv_sock != -1)){
 		rlen = read(WCC->serv_sock, &buf[len], bytes - len);
 		if (rlen < 1) {
 			lprintf(1, "Server connection broken: %s\n",
@@ -164,7 +164,7 @@ int serv_getln(char *strbuf, int bufsize)
 		if ((ch != 13) && (ch != 10)) {
 			strbuf[len++] = ch;
 		}
-	} while ((ch != 10) && (ch != 0) && (len < (bufsize-1)));
+	} while ((ch != 10) && (ch != 0) && (len < (bufsize-1)) && (WCC->serv_sock != -1));
 	strbuf[len] = 0;
 #ifdef SERV_TRACE
 	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
