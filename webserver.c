@@ -853,9 +853,17 @@ int main(int argc, char **argv)
 	if (DumpTemplateI18NStrings) {
 		FILE *fd;
 		StrBufAppendBufPlain(I18nDump, HKEY("}\n"), 0);
+	        if (StrLength(I18nDump) < 50) {
+			lprintf(1, "********************************************************************************\n");
+			lprintf(1, "*        No strings found in templates! are you shure they're there?           *\n");
+			lprintf(1, "********************************************************************************\n");
+			return -1;
+		}
 		fd = fopen(I18nDumpFile, "w");
 	        if (fd == NULL) {
-			lprintf(1, "unable to open I18N dumpfile [%s]\n", I18nDumpFile);
+			lprintf(1, "********************************************************************************\n");
+			lprintf(1, "*                  unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
+			lprintf(1, "********************************************************************************\n");
 			return -1;
 		}
 		fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
