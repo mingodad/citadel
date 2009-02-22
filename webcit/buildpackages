@@ -65,6 +65,10 @@ case $1 in
 	fi
 	cd ..; tar --exclude .svn --exclude "debian/*" $NONDFSG -cvhzf webcit-${WEBCIT_VERSION}.tar.gz webcit-${WEBCIT_VERSION}/
 	;;
+    i18n)
+	./webcit -G `pwd`/i18n_templatelist.c
+	cd po;  ./create-pot.sh
+	;;
     *)
 	echo "Not yet implemented. we have: debian "
 	;;
