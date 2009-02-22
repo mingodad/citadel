@@ -5,7 +5,7 @@
 # Copyright (C) 2005 By wilfried Goesgens
 # This file is distributed under the GPL
 # FIRST AUTHOR <w.goesgens@outgesourced.org> 2005
-# "äöäö
+# "ä ö ü
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
@@ -412,7 +412,7 @@ msgstr "Löschen"
 
 #: ../calendar.c:816
 msgid "Untitled Task"
-msgstr ""
+msgstr "Task ohne Titel"
 
 #: ../calendar.c:1191
 msgid "Calendar day view begins at:"
@@ -708,7 +708,7 @@ msgstr "Verfügbarkeit der Teilnehmer überprüfen"
 
 #: ../event.c:807
 msgid "Untitled Event"
-msgstr ""
+msgstr "Ereignis ohne Titel"
 
 #: ../floors.c:33
 msgid "Add/change/delete floors"
@@ -1023,22 +1023,19 @@ msgstr "bearbeiten"
 
 #: ../i18n_templatelist.c:49 ../i18n_templatelist.c:213
 msgid "idle since"
-msgstr ""
+msgstr "inaktiv seit"
 
 #: ../i18n_templatelist.c:50 ../i18n_templatelist.c:214
-#, fuzzy
 msgid "Minutes"
 msgstr "Minuten"
 
 #: ../i18n_templatelist.c:51 ../i18n_templatelist.c:215
-#, fuzzy
 msgid "active"
-msgstr "Vorläufig"
+msgstr "aktiv"
 
 #: ../i18n_templatelist.c:52
-#, fuzzy
 msgid "Powered by Citadel"
-msgstr "Das 'Powered by Citadel'-Logo anzeigen"
+msgstr "mit Citadel Technologie"
 
 #: ../i18n_templatelist.c:53 ../iconbar.c:193
 msgid "Your summary page"
@@ -1079,7 +1076,6 @@ msgid "Tasks"
 msgstr "Aufgaben"
 
 #: ../i18n_templatelist.c:65
-#, fuzzy
 msgid "List all your accessible rooms"
 msgstr "Alle zugänglichen Räume auflisten"
 
@@ -1184,7 +1180,6 @@ msgstr "Lese #"
 #: ../i18n_templatelist.c:92 ../i18n_templatelist.c:120
 #: ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7
-#, fuzzy
 msgid "messages"
 msgstr "Nachrichten"
 
@@ -1398,15 +1393,14 @@ msgid "Local host aliases"
 msgstr "Aliase für diese Maschine"
 
 #: ../i18n_templatelist.c:149
-#, fuzzy
 msgid "The citadel server has to be restarted. It will be back in a minute."
 msgstr ""
-"Der Citadel-Server wurde neu gestartet. Er wird in kürze wieder verfuegbar "
+"Der Citadel-Server wird neu gestartet. Er wird in kürze wieder verfuegbar "
 "sein."
 
 #: ../i18n_templatelist.c:150 ../static/t/tab_siteconfig_pop3.html:2
 msgid "POP3"
-msgstr ""
+msgstr "POP3"
 
 #: ../i18n_templatelist.c:151 ../static/t/tab_siteconfig_pop3.html:6
 msgid "POP3 listener port (-1 to disable)"
@@ -1463,9 +1457,8 @@ msgid "Edit or Delete users"
 msgstr "Benutzer bearbeiten/löschen"
 
 #: ../i18n_templatelist.c:163 ../static/t/pushemail.html:2
-#, fuzzy
 msgid "Configure Push Email"
-msgstr "Mobile Push-EMail"
+msgstr "Push-EMail Konfigurieren"
 
 #: ../i18n_templatelist.c:164 ../static/t/pushemail.html:8
 msgid "Push email and SMS settings"
@@ -1476,19 +1469,23 @@ msgid ""
 "If your administrator has enabled the functionality, Citadel can notify a "
 "Funambol server that you haved recieved new email and automatically "
 "syncronize any devices you have with the Funambol client installed."
-msgstr ""
+msgstr "Wenn der Administrator freigeschaltet hat, kann Citadel dem "
+"Funambol Server automatisch benachrichtigen, das eine neue EMail "
+"eingetroffen ist und sie auf Endgerähte mit Funambol Cliet synchronisieren."
 
 #: ../i18n_templatelist.c:166 ../static/t/pushemail.html:19
 msgid ""
 "Alternatively, if the administrator has configured it, Citadel can send a "
 "text message to you when new mail arrives."
-msgstr ""
+msgstr "Alternativ kann der Administrator das versenden einer SMS mit der "
+"Zusammenfassung der mail senden lassen."
 
 #: ../i18n_templatelist.c:167 ../static/t/pushemail.html:28
 msgid ""
 "(Use international format, without any leading zeros, spaces or hypens, like "
 "+61415011501)"
-msgstr ""
+msgstr "(bitte das internationale Nummernformat ohne führende Nullen, "
+"Leerzeichen oder Trennstriche angeben, ala +4917234567890)"
 
 #: ../i18n_templatelist.c:168 ../i18n_templatelist.c:189
 #: ../i18n_templatelist.c:281 ../i18n_templatelist.c:429
@@ -1748,14 +1745,12 @@ msgid "(hosts running the ClamAV clamd service)"
 msgstr "(Maschine, auf der Ihr ClamAV läuft)"
 
 #: ../i18n_templatelist.c:250 ../static/t/newstartpage.html:4
-#, fuzzy
 msgid "New start page"
-msgstr "Als Startseite setzen"
+msgstr "Neue Startseite setzen"
 
 #: ../i18n_templatelist.c:251 ../static/t/newstartpage.html:9
-#, fuzzy
 msgid "Your start page has been changed."
-msgstr "Ihre Änderungen wurden gespeichert"
+msgstr "Ihre neue Startseite wurde geändert"
 
 #: ../i18n_templatelist.c:252 ../i18n_templatelist.c:345
 #: ../static/t/login.html:5 ../static/t/openid_login.html:5
@@ -1772,9 +1767,8 @@ msgid "Language:"
 msgstr "Sprache:"
 
 #: ../i18n_templatelist.c:256 ../i18n_templatelist.c:348
-#, fuzzy
 msgid "Login"
-msgstr "Letzte Anmeldung"
+msgstr "Anmelden"
 
 #: ../i18n_templatelist.c:259 ../static/t/login.html:36
 msgid "Log in using OpenID"
@@ -1948,9 +1942,8 @@ msgid "Port number"
 msgstr "Portnummer"
 
 #: ../i18n_templatelist.c:319
-#, fuzzy
 msgid "Save changes?"
-msgstr "Änderungen übernehmen"
+msgstr "Änderungen übernehmen?"
 
 #: ../i18n_templatelist.c:321 ../static/t/box_edituser_select.html:1
 msgid ""
@@ -1977,16 +1970,14 @@ msgid "Delete this user?"
 msgstr "Diesen Benutzer wirklich löschen?"
 
 #: ../i18n_templatelist.c:331
-#, fuzzy
 msgid "Add node?"
-msgstr "Knoten Hinzufügen"
+msgstr "Knoten Hinzufügen?"
 
 #: ../i18n_templatelist.c:333 ../static/t/view_message_list_attach.html:3
 msgid "View"
 msgstr "Anzeigen"
 
 #: ../i18n_templatelist.c:335
-#, fuzzy
 msgid "Do you really want to kill this session?"
 msgstr "Wollen Sie diese OpenID wirklich Löschen?"
 
@@ -1995,9 +1986,8 @@ msgid "Users currently on "
 msgstr "Angemeldete Benutzer auf"
 
 #: ../i18n_templatelist.c:337
-#, fuzzy
 msgid "Delete this entry?"
-msgstr "Diese Notiz Löschen?"
+msgstr "Diesen Eintrag löschen?"
 
 #: ../i18n_templatelist.c:339 ../static/t/roombanner.html:14
 msgid "Select page: "
@@ -2091,7 +2081,7 @@ msgstr "SpamAssassin-Maschinen"
 
 #: ../i18n_templatelist.c:378 ../static/t/aide_inetconf.html:23
 msgid "ClamAV clamd hosts"
-msgstr ""
+msgstr "ClamAV Clamd Maschine"
 
 #: ../i18n_templatelist.c:379 ../static/t/aide_inetconf.html:24
 msgid "Masqueradable domains"
@@ -2374,7 +2364,9 @@ msgid ""
 "Your icon bar has been updated.  Please select any of its choices to "
 "continue.<br/><span style=\"font-weight: bold;\">You may need to force "
 "refresh (SHIFT-F5) in order for changes to take effect</span>"
-msgstr ""
+msgstr "Die Iconleiste wurde geändert. Bitte ein Icon drücken zum "
+"fortfahren.<br><span style=\"font-weight: bold;\">Evtl. ist es nötig mit"
+"SHIFT-F5 ein Neuladen zu erzwingen.</bold>"
 
 #: ../inetconf.c:111 ../inetconf.c:120 ../inetconf.c:132 ../inetconf.c:155
 #: ../netconf.c:166 ../netconf.c:193 ../netconf.c:201 ../netconf.c:250
@@ -3738,7 +3730,7 @@ msgstr "Ein Fehler ist aufgetreten."
 
 #: ../vcard_edit.c:1150
 msgid "Could Not decode vcard photo\n"
-msgstr ""
+msgstr "Konnte VCard photo nicht dekodieren\n"
 
 #: ../webcit.c:407
 msgid "Authorization Required"
@@ -3836,11 +3828,12 @@ msgstr ""
 msgid ""
 "(Note: this does not change your browser's home page. It changes the page "
 "you begin on when you log on to"
-msgstr ""
+msgstr "(Anmerkung: dies setzt nicht die Homepage im Browser. Es ändert "
+"die gezeigte Seite beim anmelden an"
 
 #: ../static/t/pushemail.html:31
 msgid "Don't send any notifications"
-msgstr ""
+msgstr "Nicht benachrichtigen"
 
 #~ msgid ""
 #~ "<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
