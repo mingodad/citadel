@@ -751,7 +751,7 @@ int main(int argc, char **argv)
 			break;
 		case 'G':
 			DumpTemplateI18NStrings = 1;
-			I18nDump = NewStrBufPlain(HKEY("int foo(void)\n{\n"));
+			I18nDump = NewStrBufPlain(HKEY("int templatestrings(void)\n{\n"));
 			I18nDumpFile = optarg;
 			break;
 		default:
