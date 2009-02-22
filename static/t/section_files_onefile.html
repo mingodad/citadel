@@ -11,6 +11,7 @@
 <td><?FILE:SIZE></td>
 <td><?FILE:MIMETYPE></td>
 <td><?FILE:COMMENT("X")></td>
+<??("COND:AIDE", 4)><td><a href="delete_file?file=<?FILE:NAME("U")>"><img src="static/delete.gif" alt="<?_("Delete File")>"></a></td><??("X", 4)>
 </tr>
 
 <?!("COND:ITERATE:LASTN", 2)>

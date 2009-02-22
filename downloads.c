@@ -278,6 +278,27 @@ void download_file(void)
 
 
 
+void delete_file(void)
+{
+	StrBuf *Buf;
+	char buf[256];
+	
+	safestrncpy(buf, bstr("file"), sizeof buf);
+	unescape_input(buf);
+	serv_printf("DELF %s", buf);
+	Buf = NewStrBuf();
+	StrBuf_ServGetln(Buf);
+	GetServerStatus(Buf, NULL);
+	StrBufCutLeft(Buf, 4);
+	strcpy(WC->ImportantMessage, ChrPtr(Buf));
+	do_template("files", CTX_NONE);
+	output_headers(0, 0, 0, 0, 0, 0);
+	end_burst();
+	FreeStrBuf(&Buf);
+}
+
+
+
 void upload_file(void)
 {
 	const char *MimeType;
@@ -293,6 +314,8 @@ void upload_file(void)
 	{
 		strcpy(WCC->ImportantMessage, &buf[4]);
 		do_template("files", NULL);
+		output_headers(0, 0, 0, 0, 0, 0);
+		end_burst();
 		return;
 	}
 
@@ -317,6 +340,8 @@ void upload_file(void)
 	serv_getln(buf, sizeof buf);
 	strcpy(WCC->ImportantMessage, &buf[4]);
 	do_template("files", CTX_NONE);
+	output_headers(0, 0, 0, 0, 0, 0);
+	end_burst();
 }
 
 
@@ -414,5 +439,6 @@ InitModule_DOWNLOAD
 	WebcitAddUrlHandler(HKEY("image"), output_image, 0);
 	WebcitAddUrlHandler(HKEY("display_mime_icon"), display_mime_icon , 0);
 	WebcitAddUrlHandler(HKEY("download_file"), download_file, NEED_URL);
+	WebcitAddUrlHandler(HKEY("delete_file"), delete_file, NEED_URL);
 	WebcitAddUrlHandler(HKEY("upload_file"), upload_file, 0);
 }
