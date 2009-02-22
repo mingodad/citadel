@@ -14,8 +14,7 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
 <?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p><??("X", 7)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
-   <a href="display_enter
-?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+   <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
    <a href="display_enter?replyquote=<?MAIL:SUMM:N>&recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
    <a href="display_enter?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
    <a href="confirm_move_msg?msgid=<?MAIL:SUMM:N>"><span>[</span><?_("Move")><span>]</span></a> 

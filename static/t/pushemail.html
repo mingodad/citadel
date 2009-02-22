@@ -1,5 +1,5 @@
     <div id="banner">
-      <h1>Configure Push Email</h1>
+      <h1><?_("Configure Push Email")></h1>
     </div>
 
     <div id="content" class="config_service">
@@ -12,12 +12,11 @@
 
       <div id="pushemail">
         <div class="instructions">
-          <p>If your administrator has enabled the functionality, Citadel can notify a
-          Funambol server that you haved recieved new email and automatically syncronize
-          any devices you have with the Funambol client installed.</p>
+          <p>
+<?_("If your administrator has enabled the functionality, Citadel can notify a Funambol server that you haved recieved new email and automatically syncronize any devices you have with the Funambol client installed.")></p>
 
-          <p>Alternatively, if the administrator has configured it, Citadel can send a
-          text message to you when new mail arrives.</p>
+          <p>
+<?_("Alternatively, if the administrator has configured it, Citadel can send a text message to you when new mail arrives.")></p>
         </div>
 
         <form id="pushconfig" method="post" action="save_pushemail">
@@ -26,11 +25,10 @@
 
           <p class="option"><input type="radio" name="pushsetting" value=
           "textmessage" <?PUSH_TEXT> ><strong>Send a text message</strong> to... <input type="text"
-          name="user_sms_number" size="20" <?SMSNUM> > (Use international format, without any
-          leading zeros, spaces or hypens, like +61415011501)</p>
+          name="user_sms_number" size="20" <?SMSNUM> > <?_("(Use international format, without any leading zeros, spaces or hypens, like +61415011501)")></p>
 
           <p class="option"><input type="radio" name="pushsetting" value=
-          "none" <?PUSH_NONE> ><strong>Don't send any notifications</strong></p>
+          "none" <?PUSH_NONE> ><strong><?_("Don't send any notifications"></strong></p>
 
           <p><input type="submit" name="submit" value="Save settings"></p>
         </form>
