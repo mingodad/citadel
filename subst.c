@@ -32,9 +32,11 @@ HashList *Iterators;
 HashList *Conditionals;
 HashList *SortHash;
 
+int DumpTemplateI18NStrings = 0;
 int LoadTemplates = 0;
 int dbg_bactrace_template_errors = 0;
 WCTemplputParams NoCtx;
+StrBuf *I18nDump = NULL;
 
 #define SV_GETTEXT 1
 #define SV_CONDITIONAL 2
@@ -1138,6 +1140,9 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	       (*pch == ',' )||
 	       (*pch == '\n')) pch ++;
 
+	if (DumpTemplateI18NStrings && (Parm->Type == TYPE_GETTEXT)) {
+		StrBufAppendPrintf(I18nDump, "_(\"%s\");\n", Parm->Start);
+	}
 	*pCh = pch;
 	return Parm;
 }
@@ -1249,6 +1254,9 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 				NewToken->nParameters);
 			NewToken->Flags = 0;
 			break;
+		}
+		if (DumpTemplateI18NStrings) {
+			StrBufAppendPrintf(I18nDump, "_(\"%s\");\n", NewToken->Params[0]->Start);
 		}
 		break;
 	case SV_SUBTEMPL:

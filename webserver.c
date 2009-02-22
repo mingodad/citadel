@@ -612,6 +612,8 @@ const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return fo
 #endif 
 extern int dbg_analyze_msg;
 extern int dbg_bactrace_template_errors;
+extern int DumpTemplateI18NStrings;
+extern StrBuf *I18nDump;
 void InitTemplateCache(void);
 extern int LoadTemplates;
 extern void LoadZoneFiles(void);
@@ -640,6 +642,7 @@ int main(int argc, char **argv)
 	char *mo = NULL;
 #endif /* ENABLE_NLS */
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
+	const char *I18nDumpFile;
 
 	WildFireInitBacktrace(argv[0], 2);
 
@@ -675,9 +678,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cfsZ")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:G:cfsZ")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:G:cfZ")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -746,12 +749,17 @@ int main(int argc, char **argv)
 		case 's':
 			is_https = 1;
 			break;
+		case 'G':
+			DumpTemplateI18NStrings = 1;
+			I18nDump = NewStrBufPlain(HKEY("int foo(void)\n{\n"));
+			I18nDumpFile = optarg;
+			break;
 		default:
 			fprintf(stderr, "usage: webcit "
 				"[-i ip_addr] [-p http_port] "
 				"[-t tracefile] [-c] [-f] "
 				"[-T Templatedebuglevel] "
-				"[-d] [-Z] "
+				"[-d] [-Z] [-G i18ndumpfile] "
 #ifdef HAVE_OPENSSL
 				"[-s] "
 #endif
@@ -766,7 +774,7 @@ int main(int argc, char **argv)
 	}
 
 	/* daemonize, if we were asked to */
-	if (running_as_daemon) {
+	if (!DumpTemplateI18NStrings && running_as_daemon) {
 		start_daemon(pidfile);
 	}
 	else {
@@ -842,6 +850,18 @@ int main(int argc, char **argv)
 	initialize_axdefs();
 
 	InitTemplateCache();
+	if (DumpTemplateI18NStrings) {
+		FILE *fd;
+		StrBufAppendBufPlain(I18nDump, HKEY("}\n"), 0);
+		fd = fopen(I18nDumpFile, "w");
+	        if (fd == NULL) {
+			lprintf(1, "unable to open I18N dumpfile [%s]\n", I18nDumpFile);
+			return -1;
+		}
+		fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
+		fclose(fd);
+		return 0;
+	}
 
 	if (!access("static.local/webcit.css", R_OK)) {
 		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
