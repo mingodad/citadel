@@ -24,10 +24,6 @@ DEFAULT=/etc/default/webcit
 LOGDIR=/var/log/webcit/
 
 
-unset LANG
-unset LANGUAGE
-unset LC_ALL
-unset LOCALE
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
 
@@ -52,6 +48,14 @@ fi
 if test -f $DEFAULT; then
   . $DEFAULT
 fi
+
+unset LANG
+unset LANGUAGE
+unset LC_ALL
+unset LOCALE
+if test -n "$WEBCIT_LANG" -a "$WEBCIT_LANG" != "UNLIMITED"; then
+    export LANG=$WEBCIT_LANG
+fi 
 
 if test -z "$TZ"; then
 	if test -e /etc/timezone; then

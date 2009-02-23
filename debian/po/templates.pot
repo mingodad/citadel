@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: w.goesgens@outgesourced.org\n"
-"POT-Creation-Date: 2007-05-17 21:33+0200\n"
+"Report-Msgid-Bugs-To: webcit@packages.debian.org\n"
+"POT-Creation-Date: 2009-02-23 23:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,61 +19,83 @@ msgstr ""
 #. Type: select
 #. Choices
 #: ../citadel-webcit.templates:1001
-msgid "Apache, Apache-SSL, Apache2, All, Internal"
+msgid "Apache2, Internal"
 msgstr ""
 
 #. Type: select
 #. Description
 #: ../citadel-webcit.templates:1002
-msgid "Should Webcit be integrated in your Apache?"
+msgid "Integration with Apache webservers:"
 msgstr ""
 
 #. Type: select
 #. Description
 #: ../citadel-webcit.templates:1002
 msgid ""
-" If you want Webcit to run alongside with one of your other installed\n"
-" Apache Webservers, select it from the list, else use Internal to make\n"
-" Webcit use its own HTTP Server Facilities."
+"If you want Webcit to run alongside with one of your other installed Apache "
+"webservers, select it from the list, else use Internal to make Webcit use "
+"its own HTTP server facilities."
 msgstr ""
 
 #. Type: string
 #. Description
 #: ../citadel-webcit.templates:2001
-msgid "Webcit HTTP Port"
+msgid "Webcit HTTP port:"
 msgstr ""
 
 #. Type: string
 #. Description
 #: ../citadel-webcit.templates:2001
 msgid ""
-" Select the Port, which the plain HTTP webcit server should listen on.\n"
-" Select Port 80 if you don't have another webserver running.-1 to disable."
+"Select the port which the plain HTTP Webcit server should listen on. Use "
+"port 80 if you don't have another webserver running or enter -1 to disable "
+"it."
 msgstr ""
 
 #. Type: string
 #. Description
 #: ../citadel-webcit.templates:3001
-msgid "WebCit HTTPS port"
+msgid "Webcit HTTPS port:"
 msgstr ""
 
 #. Type: string
 #. Description
 #: ../citadel-webcit.templates:3001
 msgid ""
-" Select the Port, which the SSL HTTP webcit server should listen on. -1 to "
-"disable."
+"Select the port which the SSL HTTP Webcit server should listen on or enter -"
+"1 to disable it."
+msgstr ""
+
+#. Type: string
+#. Choices
+#: ../citadel-webcit.templates:4001
+msgid "UNLIMITED, da_DA, de_DE, en_GB, es_ES, fr_FR, it_IT, nl_NL, pt_BR"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../citadel-webcit.templates:4002
+msgid "Limit Webcits Login language selection"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../citadel-webcit.templates:4002
+msgid ""
+"Select language for the Webcit should run in; select UNLIMITED  to leave "
+"this choice to your user at the login prompt.  (hint: localeconf has to "
+"enable the locale so webcit can use it)"
 msgstr ""
 
 #. Type: note
 #. Description
-#: ../citadel-webcit.templates:4001
+#: ../citadel-webcit.templates:5001
 msgid "Citadel/UX"
 msgstr ""
 
 #. Type: note
 #. Description
-#: ../citadel-webcit.templates:4001
+#: ../citadel-webcit.templates:5001
 msgid ""
 " Citadel-webcit will be running soon. Log into it with your citadel\n"
 " Administrator user, and do the fine setup. Log in as the user you\n"

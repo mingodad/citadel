@@ -9,6 +9,10 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+include /usr/share/quilt/quilt.make
+
+upstreamversion := $(shell dpkg-parsechangelog | sed -n 's/^Version: *\([^-]\+\)-.\+/\1/p')
+
 DESTDIR=$(CURDIR)/debian/citadel-webcit
 
 EXTRA_ARGS=
@@ -29,9 +33,15 @@ ifneq (,$(findstring urldebug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -D DEBUG_URLSTRINGS
 endif
 
-configure: configure-stamp
+configure: patch configure-stamp
 configure-stamp:
 	dh_testdir
+ifneq "$(wildcard /usr/share/misc/config.sub)" ""
+	cp -f /usr/share/misc/config.sub config.sub
+endif
+ifneq "$(wildcard /usr/share/misc/config.guess)" ""
+	cp -f /usr/share/misc/config.guess config.guess
+endif
 	CFLAGS="$(CFLAGS)" ./configure \
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
@@ -52,12 +62,11 @@ configure-stamp:
 
 build: build-stamp
 
-build-stamp: configure-stamp 
+build-stamp: configure
 	dh_testdir
 
 # Add here commands to compile the package.
 	$(MAKE)
-#docbook-to-man debian/webcit.sgml > webcit.1
 
 	touch build-stamp
 
@@ -67,7 +76,8 @@ clean:
 	rm -f build-stamp configure-stamp
 
 # Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	[ ! -f Makefile ] || $(MAKE) clean
+	debconf-updatepo
 
 	dh_clean 
 
@@ -94,23 +104,13 @@ binary-arch: build install
 	dh_installdocs
 	dh_installexamples
 	dh_install
-#	dh_installmenu
 	dh_installdebconf	
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
 	dh_installinit --name=webcit
-#	dh_installcron
-#	dh_installinfo
 	dh_installman
 	dh_link
 	dh_strip
 	dh_compress
 	dh_fixperms
-#	dh_perl
-#	dh_python
-#	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol

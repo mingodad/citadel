@@ -1,10 +1,10 @@
 Source: webcit
 Section: web
-Priority: optional
+Priority: extra
 Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
 Build-Depends: debhelper (>= 4), po-debconf, libical-dev (>=0.30), gettext, locales,
- libcitadel-dev
-Standards-Version: 3.7.2
+ libcitadel-dev (>= 7.37), quilt (>= 0.40), autotools-dev, libssl-dev
+Standards-Version: 3.8.0
 
 Package: citadel-webcit
 Architecture: any
