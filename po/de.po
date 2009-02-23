@@ -1787,7 +1787,7 @@ msgid ""
 "<b>If you are a new user</b>, enter the name and password you wish to use, "
 "and click &quot;New User.&quot; "
 msgstr ""
-"<b>Wenn Sie noch keinen Benutzer haben</b> einen Loginnamen und Passort "
+"<b>Wenn Sie noch keinen Benutzer haben</b> einen Loginnamen und Passwort "
 "eingeben das verwendet werden soll; dann &quot;Neuer Benutzer&quot; Klicken"
 
 #: ../i18n_templatelist.c:263 ../i18n_templatelist.c:353
@@ -1811,7 +1811,7 @@ msgid ""
 "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
 "turned on. "
 msgstr ""
-"wenn es Probleme mit Webcit gibt..</li> <li><i>Cookies</i>müßen aktiviert "
+"wenn es Probleme mit Webcit gibt..</li> <li><i>Cookies</i> müßen aktiviert "
 "sein. "
 
 #: ../i18n_templatelist.c:267 ../i18n_templatelist.c:357
