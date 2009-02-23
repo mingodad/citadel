@@ -8,7 +8,15 @@ set -e
 case "$1" in
   purge)
 	echo "/etc/citadel/www/keys not removed. "
+	for server in apache apache-ssl apache2; do
+	    if [ -h "/etc/${server}/conf.d/webcit.conf" ]; then
+		rm -f "/etc/${server}/conf.d/webcit.conf"
+                invoke-rc.d $server reload || true
+	    fi
+	done
+	
 	rm -f /etc/default/webcit
+
 	db_purge 'citadel/WebcitHttpsPort' || true
 	db_purge 'citadel/WebcitHttpPort' || true
 	db_purge 'citadel/WebcitApacheIntegration' ||true

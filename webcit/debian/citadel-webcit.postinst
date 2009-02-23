@@ -16,31 +16,22 @@ case "$1" in
 
 	db_get citadel/WebcitApacheIntegration &&WWWTYPE="$RET"
 	db_stop
-# Hack: make webcit use gnome icons. roll your own if wanted.
-	if test ! -L /usr/share/citadel-webcit/static/icons; then
-	    ln -sf /usr/share/icons/gnome/24x24/mimetypes  /usr/share/citadel-webcit/static/icons || true
-	fi
+
 	#DEBHELPER#
-	if test ! -L /usr/share/citadel-webcit/static/; then
-	    if test -d /usr/share/prototypejs; then 
-		ln -sf /usr/share/prototypejs/prototype.js /usr/share/citadel-webcit/static/	
-	    else
-		ln -sf /usr/share/javascript/prototype/prototype.js /usr/share/citadel-webcit/static/	
-	    fi
-	fi
+	
 # update the webserver, if needed
 	case "$WWWTYPE" in
 	    "Apache")
 		webservers="apache" 
-		/usr/sbin/aenmod proxy||true
+		aenmod proxy||true
 		;;
 	    "Apache-SSL")
 		webservers="apache-ssl" 
 		;;
 	    "Apache2")
 		webservers="apache2"
-		/usr/sbin/a2enmod proxy||true
-		/usr/sbin/a2enmod proxy_http||true
+		a2enmod proxy||true
+		a2enmod proxy_http||true
 		;;
 	    "All")
 		webservers="apache apache-ssl apache2" 
@@ -51,7 +42,7 @@ case "$1" in
 	esac
 	for server in $webservers; do
 	    if [ -d "/etc/${server}/conf.d" ]; then
-		if [ ! -e "/etc/${server}/conf.d/webcit-citadel" ] ; then
+		if [ ! -e "/etc/${server}/conf.d/webcit.conf" ] ; then
 		    ln -sf /etc/citadel/webcit.conf "/etc/${server}/conf.d/webcit.conf"
                 fi
                 invoke-rc.d $server reload || true
