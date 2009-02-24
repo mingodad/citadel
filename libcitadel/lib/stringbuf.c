@@ -1713,11 +1713,11 @@ int StrBufDecodeBase64(StrBuf *Buf)
  */
 int StrBufSanitizeAscii(StrBuf *Buf, const char Mute)
 {
-	char *pch;
+	unsigned char *pch;
 
 	if (Buf == NULL) return -1;
-	pch = Buf->buf;
-	while (pch < Buf->buf + Buf->BufUsed) {
+	pch = (unsigned char *)Buf->buf;
+	while (pch < (unsigned char *)Buf->buf + Buf->BufUsed) {
 		if ((*pch < 0x20) || (*pch > 0x7F))
 			*pch = Mute;
 		pch ++;
