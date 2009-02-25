@@ -550,11 +550,11 @@ void install_init_scripts(void)
 #ifdef HAVE_USELOCALE 
 		fprintf(fp, "unset LANG\n");
 #else
-		fprintf(fp, "export LANG=c\n");
+		fprintf(fp, "export WEBCIT_LANG=c\n");
 #endif
 	}
 	else {
-		fprintf(fp, "export LANG=%s\n", AvailLang[localechoice - localeoffset]);
+		fprintf(fp, "export WEBCIT_LANG=%s\n", AvailLang[localechoice - localeoffset]);
 
 	}
 #else

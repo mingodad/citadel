@@ -53,9 +53,7 @@ unset LANG
 unset LANGUAGE
 unset LC_ALL
 unset LOCALE
-if test -n "$WEBCIT_LANG" -a "$WEBCIT_LANG" != "UNLIMITED"; then
-    export LANG=$WEBCIT_LANG
-fi 
+
 
 if test -z "$TZ"; then
 	if test -e /etc/timezone; then
