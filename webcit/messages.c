@@ -122,7 +122,10 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 					state++;
 				}
 			}
-			else lprintf(1, "don't know how to handle message header[%s]\n", ChrPtr(HdrToken));
+			else LogError(Target, 
+				      __FUNCTION__,  
+				      "don't know how to handle message header[%s]\n", 
+				      ChrPtr(HdrToken));
 			break;
 		case 1:/* Message Mime Header */
 			if (StrLength(Buf) == 0) {

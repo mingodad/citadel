@@ -1,4 +1,4 @@
-
+\
 extern HashList *Conditionals;
 extern HashList *GlobalNS;
 extern HashList *Iterators;
@@ -176,6 +176,15 @@ void LogTemplateError (StrBuf *Target,
 		       int ErrorPos, 
 		       WCTemplputParams *TP, 
 		       const char *Format, ...)__attribute__((__format__(__printf__,5,6)));
+
+
+/**
+ * \Brief log an error while in global context; print it to Wildfire / Target
+ * \param Target your Target Buffer to print the error message next to the log
+ * \param Type What sort of thing are we talking about? Tokens? Conditionals?
+ * \param Format for the custom error message
+ */ 
+void LogError (StrBuf *Target, const char *Type, const char *Format, ...);
 
 /**
  * \Brief get the actual value of a token parameter

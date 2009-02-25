@@ -172,8 +172,10 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			Type, 
 			ChrPtr(Error));
 	}
+/*
 	if (Target == NULL) 
 		return;
+*/
 	WCC = WC;
 	Header = NewStrBuf();
 	if (TP->Tokens != NULL) 
@@ -225,6 +227,45 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		SerializeJson(Header, WildFireException(HKEY(__FILE__), __LINE__, Info, 1), 1);
 		WildFireSerializePayload(Header, WCC->HBuf, &WCC->nWildfireHeaders, NULL);
 	}
+	FreeStrBuf(&Header);
+	FreeStrBuf(&Info);
+	FreeStrBuf(&Error);
+/*
+	if (dbg_bactrace_template_errors)
+		wc_backtrace(); 
+*/
+}
+
+
+
+
+void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
+{
+	wcsession *WCC;
+	StrBuf *Header;
+	StrBuf *Error;
+	StrBuf *Info;
+        va_list arg_ptr;
+
+	Info = NewStrBuf();
+	Error = NewStrBuf();
+
+        va_start(arg_ptr, Format);
+	StrBufVAppendPrintf(Error, Format, arg_ptr);
+	va_end(arg_ptr);
+
+	lprintf(1, ChrPtr(Error));
+
+	WCC = WC;
+	Header = NewStrBuf();
+
+
+	SerializeJson(Header, WildFireException(Type, strlen(Type),
+						0,
+						Info,
+						1), 1);
+	WildFireSerializePayload(Header, WCC->HBuf, &WCC->nWildfireHeaders, NULL);
+	
 	FreeStrBuf(&Header);
 	FreeStrBuf(&Info);
 	FreeStrBuf(&Error);
