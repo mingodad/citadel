@@ -164,6 +164,8 @@ void get_control(void)
 		if (control_fp != NULL) {
 			lock_control();
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
+			fchmod(fileno(control_fp), 
+			       S_IRUSR|S_IWUSR);
 		}
 	}
 	if (control_fp == NULL) {
@@ -171,6 +173,8 @@ void get_control(void)
 		if (control_fp != NULL) {
 			lock_control();
 			fchown(fileno(control_fp), config.c_ctdluid, -1);
+			fchmod(fileno(control_fp), 
+			       S_IRUSR|S_IWUSR);
 			memset(&CitControl, 0, sizeof(struct CitControl));
 			fwrite(&CitControl, sizeof(struct CitControl),
 			       1, control_fp);
@@ -188,6 +192,7 @@ void get_control(void)
 	fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
 	already_have_control = 1;
 	chown(file_citadel_control, config.c_ctdluid, (-1));
+	
 }
 
 /*

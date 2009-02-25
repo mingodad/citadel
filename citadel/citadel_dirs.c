@@ -40,6 +40,7 @@ char ctdl_message_dir[PATH_MAX]="messages";
 char ctdl_usrpic_dir[PATH_MAX]="userpics";
 char ctdl_bbsbase_dir[PATH_MAX]="";
 char ctdl_etc_dir[PATH_MAX]="";
+char ctdl_autoetc_dir[PATH_MAX]="";
 /* attention! this may be non volatile on some oses */
 char ctdl_run_dir[PATH_MAX]="";
 char ctdl_spool_dir[PATH_MAX]="network";
@@ -133,6 +134,15 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 #endif
 	StripSlashes(ctdl_sbin_dir, 1);
 	StripSlashes(ctdl_bin_dir, 1);
+
+#ifndef HAVE_AUTO_ETC_DIR
+	basedir=ctdldir;
+#else
+	basedir=AUTO_ETC_DIR;
+#endif
+	COMPUTE_DIRECTORY(ctdl_autoetc_dir);
+	StripSlashes(ctdl_autoetc_dir, 1);
+
 #ifndef HAVE_ETC_DIR
 	basedir=ctdldir;
 #else
@@ -218,18 +228,18 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	snprintf(file_arcq, 
 			 sizeof file_arcq,
 			 "%srefcount_adjustments.dat",
-			 ctdl_etc_dir);
+			 ctdl_autoetc_dir);
 	StripSlashes(file_arcq, 0);
 	snprintf(file_citadel_control, 
 			 sizeof file_citadel_control,
 			 "%scitadel.control",
-			 ctdl_etc_dir
+			 ctdl_autoetc_dir
 			 );
 	StripSlashes(file_citadel_control, 0);
 	snprintf(file_citadel_config, 
 			 sizeof file_citadel_config,
 			 "%scitadel.config",
-			 ctdl_etc_dir);
+			 ctdl_autoetc_dir);
 	StripSlashes(file_citadel_config, 0);
 	snprintf(file_citadel_rc, 
 			 sizeof file_citadel_rc,

@@ -50,6 +50,7 @@ configure-stamp:
 		--with-staticdatadir=/etc/citadel/ \
 		--with-ssldir=/etc/ssl/citadel/ \
 		--with-utility-bindir=/usr/lib/citadel-server/ \
+		--with-autosysconfdir=/var/lib/citadel/data/ \
 		--with-pam \
 		--with-db \
 		--with-zlib \

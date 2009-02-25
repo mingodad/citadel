@@ -95,6 +95,18 @@ AC_ARG_WITH(sysconfdir,
 			]
 )
 
+dnl Checks for the Configdir
+AC_ARG_WITH(autosysconfdir, 
+			[  --with-autosysconfdir	 directory to store the automaticaly maintained configs under],
+			[ if test "x$withval" != "xno" ; then
+					    AC_DEFINE(HAVE_AUTO_ETC_DIR, [], [should we search our automatic config in an alternate place?])
+						AC_DEFINE_UNQUOTED(AUTO_ETC_DIR, "$withval", [where to search our automatic config files])
+						MAKE_AUTO_ETC_DIR=$withval
+						AC_SUBST(MAKE_AUTO_ETC_DIR)
+			  fi
+			]
+)
+
 dnl Checks for where to put our utilities
 AC_ARG_WITH(utility-bindir, 
 			[  --with-utility-bindir   directory where to find helper binaries],

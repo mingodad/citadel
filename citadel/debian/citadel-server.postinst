@@ -40,6 +40,17 @@ case "$1" in
 #This is not debian conformant, and uniq to the citadel.org debs.
 	export ALTER_ETC_SERVICES=yes
 #
+        if test -S /var/run/citadel/citadel.socket; then 
+            /usr/sbin/sendcommand "DOWN"
+        fi
+        while test -S /var/run/citadel/citadel.socket; do 
+            sleep 1
+        done
+	if test ! -f /var/lib/citadel/data/citadel.control -a -f /etc/citadel/citadel.control; then
+	    mv /etc/citadel/citadel.control /var/lib/citadel/data/
+	    mv /etc/citadel/citadel.config /var/lib/citadel/data/
+	fi
+
         echo -n "applying your settings.... "
         /usr/lib/citadel-server/setup -q
 	echo "done"
