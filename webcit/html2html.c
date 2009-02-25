@@ -123,8 +123,8 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		if (ptr == NULL) {
 			StrBufAppendPrintf(Target, "<b>");
 			StrBufAppendPrintf(Target, _("realloc() error! couldn't get %d bytes: %s"),
-				buffer_length + 1,
-				strerror(errno));
+					buffer_length + 1,
+					strerror(errno));
 			StrBufAppendPrintf(Target, "</b><br /><br />\n");
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				/** flush */
@@ -193,7 +193,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 							stripquotes(meta_http_equiv);
 							stripquotes(meta_content);
 							extract_charset_from_meta(charset,
-								meta_http_equiv, meta_content);
+									meta_http_equiv, meta_content);
 						}
 						free(meta_content);
 					}
@@ -208,11 +208,11 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		 * the tag to be removed.
 		 */	
 		if ( (!strncasecmp(ptr, "HTML", 4))
-		   ||(!strncasecmp(ptr, "HEAD", 4))
-		   ||(!strncasecmp(ptr, "/HEAD", 5))
-		   ||(!strncasecmp(ptr, "BODY", 4)) ) {
+				||(!strncasecmp(ptr, "HEAD", 4))
+				||(!strncasecmp(ptr, "/HEAD", 5))
+				||(!strncasecmp(ptr, "BODY", 4)) ) {
 			char *pBody = NULL;
-			
+
 			if (!strncasecmp(ptr, "BODY", 4)) {
 				pBody = ptr;
 			}
@@ -234,8 +234,8 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 						cid_start = src + 4;
 						cid_end = cid_start;
 						while ((*cid_end != '"') && 
-						       !isspace(*cid_end) &&
-						       (cid_end < ptr))
+								!isspace(*cid_end) &&
+								(cid_end < ptr))
 							cid_end ++;
 
 						/* copy tag and attributes up to src="cid: */
@@ -244,13 +244,13 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 						/* add in /webcit/mimepart/<msgno>/CID/ 
 						   trailing / stops dumb URL filters getting excited */
 						StrBufAppendPrintf(BodyArea,
-								   "/webcit/mimepart/%d/",msgnum);
+								"/webcit/mimepart/%d/",msgnum);
 						StrBufAppendBufPlain(BodyArea, cid_start, cid_end - cid_start, 0);
 
 						if (ptr - cid_end > 0)
 							StrBufAppendBufPlain(BodyArea, 
-									     cid_end + 1, 
-									     ptr - cid_end, 0);
+									cid_end + 1, 
+									ptr - cid_end, 0);
 					}
 					else 
 						StrBufAppendBufPlain(BodyArea, pBody, ptr - pBody, 0);
@@ -267,11 +267,11 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		 * the tag to be removed.
 		 */
 		if ( (!strncasecmp(ptr, "/HTML", 5))
-		   ||(!strncasecmp(ptr, "/BODY", 5)) ) {
+				||(!strncasecmp(ptr, "/BODY", 5)) ) {
 			--ptr;
 			msgend = ptr;
 			strcpy(ptr, "");
-			
+
 		}
 
 		++ptr;
@@ -287,14 +287,14 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	/** Convert foreign character sets to UTF-8 if necessary. */
 #ifdef HAVE_ICONV
 	if ( (strcasecmp(charset, "us-ascii"))
-	   && (strcasecmp(charset, "UTF-8"))
-	   && (strcasecmp(charset, ""))
-	) {
+			&& (strcasecmp(charset, "UTF-8"))
+			&& (strcasecmp(charset, ""))
+	   ) {
 		lprintf(9, "Converting %s to UTF-8\n", charset);
 		ctdl_iconv_open("UTF-8", charset, &ic);
 		if (ic == (iconv_t)(-1) ) {
 			lprintf(5, "%s:%d iconv_open() failed: %s\n",
-				__FILE__, __LINE__, strerror(errno));
+					__FILE__, __LINE__, strerror(errno));
 		}
 	}
 	if  (Source == NULL) {
@@ -321,7 +321,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			msg = (char*)ChrPtr(Source); /* TODO: get rid of this. */
 		}
 	}
-		
+
 #endif
 
 	/**
@@ -366,7 +366,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		if (!strncasecmp(ptr, "<a href=\"mailto:", 16)) {
 			content_length += 64;
 			StrBufAppendPrintf(converted_msg,
-				"<a href=\"display_enter?force_room=_MAIL_&recp=");
+					"<a href=\"display_enter?force_room=_MAIL_&recp=");
 			ptr = &ptr[16];
 			++alevel;
 			++brak;
@@ -376,8 +376,8 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			++alevel;
 			++brak;
 			if ( ((strchr(ptr, ':') < strchr(ptr, '/')))
-			     &&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
-			     ) {
+					&&  ((strchr(ptr, '/') < strchr(ptr, '>'))) 
+			   ) {
 				/* open external links to new window */
 				StrBufAppendPrintf(converted_msg, new_window);
 				ptr = &ptr[8];
@@ -400,21 +400,21 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			++brak;
 
 			if (src && 
-				(cid_start=strchr(src,':')) && 
-				(cid_end=strchr(cid_start,'"')) &&
-				(cid_end < tag_end)) {
+					(cid_start=strchr(src,':')) && 
+					(cid_end=strchr(cid_start,'"')) &&
+					(cid_end < tag_end)) {
 
 				/* copy tag and attributes up to src="cid: */
 				StrBufAppendBufPlain(converted_msg, ptr, src - ptr, 0);
 				cid_start++;
 
 				/* add in /webcit/mimepart/<msgno>/CID/ 
-  			   	   trailing / stops dumb URL filters getting excited */
+				   trailing / stops dumb URL filters getting excited */
 				StrBufAppendPrintf(converted_msg,
-					"src=\"/webcit/mimepart/%d/",msgnum);
+						"src=\"/webcit/mimepart/%d/",msgnum);
 				StrBufAppendBufPlain(converted_msg, cid_start, cid_end - cid_start, 0);
 				StrBufAppendBufPlain(converted_msg, "/\"", -1, 0);
-				
+
 				ptr = cid_end+1;
 			}
 			StrBufAppendBufPlain(converted_msg, ptr, tag_end - ptr, 0);
@@ -461,7 +461,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 					char *ltreviewptr;
 					char *nbspreviewptr;
 					char linkedchar;
-					int len = linklen;
+					int len;
 					
 					len = linklen;
 					linkedchar = ptr[len];
