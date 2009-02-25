@@ -437,6 +437,9 @@ void WildFireSerializePayload(StrBuf *JsonBuffer, StrBuf *OutBuf, int *MsgCount,
 	if (OutBuf == NULL) {
 		FreeStrBuf(&Header);
 	}
+	FreeStrBuf(&N);
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&HeaderName);
 }
 
 

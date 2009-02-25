@@ -219,6 +219,7 @@ void SerializeJson(StrBuf *Target, JsonValue *Val, int FreeVal)
 			vPrevious = vValue;
 		}
 		StrBufAppendBufPlain(Target, HKEY("]"), 0);
+		DeleteHashPos(&It);
 		break;
 	case JSON_OBJECT:
 		vPrevious = NULL;
@@ -241,6 +242,7 @@ void SerializeJson(StrBuf *Target, JsonValue *Val, int FreeVal)
 			vPrevious = vValue;
 		}
 		StrBufAppendBufPlain(Target, HKEY("}"), 0);
+		DeleteHashPos(&It);
 		break;
 	}
 	if(FreeVal) {
