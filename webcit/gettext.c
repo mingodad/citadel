@@ -234,14 +234,14 @@ void stop_selected_language(void) {
 
 void preset_locale(void)
 {
-#ifndef HAVE_USELOCALE
 #ifdef HAVE_GETTEXT
 	char *language;
 	
-	lprintf(9, "Nailing locale to %s\n", getenv("LANG"));
-	language = getenv("LANG");
-	setlocale(LC_MESSAGES, language);
-#endif
+	language = getenv("WEBCIT_LANG");
+	if (!IsEmptyStr(language) && (strcmp(language, "UNLIMITED") != 0)) {
+		lprintf(9, "Nailing locale to %s\n", language);
+		setlocale(LC_MESSAGES, language);
+	}
 #endif
 }
 

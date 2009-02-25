@@ -793,6 +793,7 @@ int main(int argc, char **argv)
 #ifdef ENABLE_NLS
 	initialize_locales();
 
+
 	locale = setlocale(LC_ALL, "");
 
 	mo = malloc(strlen(webcitdir) + 20);
