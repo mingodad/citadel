@@ -238,7 +238,7 @@ void preset_locale(void)
 	char *language;
 	
 	language = getenv("WEBCIT_LANG");
-	if (!IsEmptyStr(language) && (strcmp(language, "UNLIMITED") != 0)) {
+	if ((language) && (!IsEmptyStr(language)) && (strcmp(language, "UNLIMITED") != 0)) {
 		lprintf(9, "Nailing locale to %s\n", language);
 		setlocale(LC_MESSAGES, language);
 	}
