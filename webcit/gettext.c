@@ -173,6 +173,12 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 		Lang = "C";
 #endif
 
+
+	if (nLocalesLoaded == 1) {
+		wprintf("<p>%s</p>", AvailLangLoaded[0]);
+		return;
+	}
+
 	wprintf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
 
 	for (i=0; i < nLocalesLoaded; ++i) {
@@ -194,9 +200,8 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
  * \param lang the locale to set.
  */
 void set_selected_language(const char *lang) {
-	int i;
-
 #ifdef HAVE_USELOCALE
+	int i;
 	for (i=0; i<nLocalesLoaded; ++i) {
 		if (!strcasecmp(lang, AvailLangLoaded[i])) {
 			WC->selected_language = i;
@@ -255,13 +260,26 @@ void preset_locale(void)
 void initialize_locales(void) {
 	int i;
 	char buf[32];
+	char *language = NULL;
+	
+	language = getenv("WEBCIT_LANG");
+	if ((language) && (!IsEmptyStr(language)) && (strcmp(language, "UNLIMITED") != 0)) {
+		lprintf(9, "Nailing locale to %s\n", language);
+		setlocale(LC_MESSAGES, language);
+	}
+	else language = NULL;
 
 #ifdef HAVE_USELOCALE
 	/* create default locale */
 	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
 #endif
 
+
+
+
 	for (i = 0; i < NUM_LANGS; ++i) {
+		if ((language != NULL) && (strcmp(AvailLang[i], language) != 0))
+			continue;
 		if (i == 0) {
 			sprintf(buf, "%s", AvailLang[i]);	/* locale 0 (C) is ascii, not utf-8 */
 		}
@@ -285,15 +303,37 @@ void initialize_locales(void) {
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
+#else
+		setenv("LANG", buf, 1);
+		AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
+		nLocalesLoaded++;
 #endif
 	}
+	if ((language != NULL) && (nLocalesLoaded == 0)) {
+		lprintf(1, "Your selected locale [%s] isn't available on your system. falling back to C\n", language);
+#ifdef HAVE_USELOCALE
+		wc_locales[0] = newlocale(
+			(LC_MESSAGES_MASK|LC_TIME_MASK),
+			AvailLang[0],
+			Empty_Locale);		
+#else
+		setenv("LANG", AvailLang[0], 1);
+#endif
+		AvailLangLoaded[0] = AvailLang[0];
+		nLocalesLoaded = 1;
+	}
+#ifndef HAVE_USELOCALE
+
+
+#endif
+
 }
 
 
 void ShutdownLocale(void)
 {
-	int i;
 #ifdef HAVE_USELOCALE
+	int i;
 	for (i = 0; i < nLocalesLoaded; ++i) {
 		if (Empty_Locale != wc_locales[i])
 			freelocale(wc_locales[i]);
@@ -344,10 +384,10 @@ const char *get_selected_language(void) {
 #ifdef HAVE_USELOCALE
 	return AvailLang[WC->selected_language];
 #else
-	return "en"
+	return "en";
 #endif
 #else
-	return "en"
+	return "en";
 #endif
 }
 
