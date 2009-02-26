@@ -237,19 +237,6 @@ void stop_selected_language(void) {
 #endif
 }
 
-void preset_locale(void)
-{
-#ifdef HAVE_GETTEXT
-	char *language;
-	
-	language = getenv("WEBCIT_LANG");
-	if ((language) && (!IsEmptyStr(language)) && (strcmp(language, "UNLIMITED") != 0)) {
-		lprintf(9, "Nailing locale to %s\n", language);
-		setlocale(LC_MESSAGES, language);
-	}
-#endif
-}
-
 #ifdef HAVE_USELOCALE
 	locale_t Empty_Locale;
 #endif
@@ -265,8 +252,7 @@ void initialize_locales(void) {
 	language = getenv("WEBCIT_LANG");
 	if ((language) && (!IsEmptyStr(language)) && (strcmp(language, "UNLIMITED") != 0)) {
 		lprintf(9, "Nailing locale to %s\n", language);
-		setlocale(LC_MESSAGES, language);
-	}
+ 	}
 	else language = NULL;
 
 #ifdef HAVE_USELOCALE
@@ -304,9 +290,16 @@ void initialize_locales(void) {
 			nLocalesLoaded++;
 		}
 #else
-		setenv("LANG", buf, 1);
-		AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
-		nLocalesLoaded++;
+		if (language != NULL) {
+			setenv("LANG", buf, 1);
+			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
+			nLocalesLoaded++;
+		}
+		else if (nLocalesLoaded == 0) {
+			setenv("LANG", buf, 1);
+			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
+			nLocalesLoaded++;
+		}
 #endif
 	}
 	if ((language != NULL) && (nLocalesLoaded == 0)) {
@@ -317,6 +310,7 @@ void initialize_locales(void) {
 			AvailLang[0],
 			Empty_Locale);		
 #else
+		setlocale(LC_MESSAGES, AvailLang[0]);
 		setenv("LANG", AvailLang[0], 1);
 #endif
 		AvailLangLoaded[0] = AvailLang[0];
@@ -363,9 +357,6 @@ void go_selected_language(void) {
 void stop_selected_language(void) {
 }
 
-void preset_locale(void)
-{
-}
 #endif	/* ENABLE_NLS */
 
 
