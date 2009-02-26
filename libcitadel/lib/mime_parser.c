@@ -739,6 +739,8 @@ const char* GuessMimeByFilename(const char *what, size_t len)
 		return "image/png";
 	else if ((len > 3) && !strncasecmp(&what[len - 4], ".ico", 4))
 		return "image/x-icon";
+	else if ((len > 3) && !strncasecmp(&what[len - 4], ".vcf", 4))
+		return "text/x-vcard";
 	else if ((len > 4) && !strncasecmp(&what[len - 5], ".html", 5))
 		return "text/html";
 	else if ((len > 3) && !strncasecmp(&what[len - 4], ".htm", 4))
