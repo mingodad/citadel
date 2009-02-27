@@ -62,7 +62,7 @@ endif
 
 build: build-stamp
 
-build-stamp: configure
+build-stamp: configure-stamp
 	dh_testdir
 
 # Add here commands to compile the package.
@@ -71,7 +71,7 @@ build-stamp: configure
 	touch build-stamp
 
 clean:
-	dh_testdir
+	dh_testconfigure-stampdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
