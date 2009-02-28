@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: webcit@packages.debian.org\n"
-"POT-Creation-Date: 2009-02-23 23:41+0100\n"
+"POT-Creation-Date: 2009-02-28 11:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,25 +66,25 @@ msgid ""
 "1 to disable it."
 msgstr ""
 
-#. Type: string
+#. Type: select
 #. Choices
 #: ../citadel-webcit.templates:4001
 msgid "UNLIMITED, da_DA, de_DE, en_GB, es_ES, fr_FR, it_IT, nl_NL, pt_BR"
 msgstr ""
 
-#. Type: string
+#. Type: select
 #. Description
 #: ../citadel-webcit.templates:4002
 msgid "Limit Webcits Login language selection"
 msgstr ""
 
-#. Type: string
+#. Type: select
 #. Description
 #: ../citadel-webcit.templates:4002
 msgid ""
 "Select language for the Webcit should run in; select UNLIMITED  to leave "
-"this choice to your user at the login prompt.  (hint: localeconf has to "
-"enable the locale so webcit can use it)"
+"this choice to your user at the login prompt.  hint: localeconf has to "
+"enable the locale so webcit can use it"
 msgstr ""
 
 #. Type: note

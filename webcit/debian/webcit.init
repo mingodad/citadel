@@ -54,7 +54,6 @@ unset LANGUAGE
 unset LC_ALL
 unset LOCALE
 
-
 if test -z "$TZ"; then
 	if test -e /etc/timezone; then
 		TZ=`cat /etc/timezone`
@@ -110,7 +109,8 @@ do_stop()
 
 do_reload() {
         do_stop
-        do_start
+	do_start $WEBCIT_HTTP_PORT $WEBCIT_CITADEL_IP $WEBCIT_CITADEL_PORT "" "$LISTEN"  "$WEBCIT_APACHEFLAG"
+	do_start $WEBCIT_HTTPS_PORT $WEBCIT_CITADEL_IP $WEBCIT_CITADEL_PORT -s "$LISTEN"  "$WEBCIT_APACHEFLAG"
 	return 0
 }
 

@@ -8,7 +8,7 @@ Standards-Version: 3.8.0
 
 Package: citadel-webcit
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, tinymce, citadel-common, openssl, locales, libjs-prototype
+Depends: ${shlibs:Depends}, ${misc:Depends}, debconf, tinymce, citadel-common, openssl, locales, libjs-prototype, libjs-scriptaculous
 Suggests: citadel-server, apache2 | apache, localepurge, gnome-icon-theme
 Recommends: shared-mime-info
 Description: web-based frontend to Citadel groupware server
@@ -17,6 +17,4 @@ Description: web-based frontend to Citadel groupware server
  By combining WebCit and Citadel, you can have a versatile online environment
  with many users concurrently accessing the same system using the user
  interface of their choice (text, web, or downloaded client software).
- .
-  Homepage: http://www.citadel.org
 

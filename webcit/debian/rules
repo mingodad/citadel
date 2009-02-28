@@ -70,8 +70,8 @@ build-stamp: configure-stamp
 
 	touch build-stamp
 
-clean:
-	dh_testconfigure-stampdir
+clean: configure-stamp
+	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
@@ -87,6 +87,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	$(MAKE) install-bin install-locale install-wwwdata DESTDIR=$(DESTDIR)
+	chmod a-x -R $(DESTDIR)/usr/share/citadel-webcit/static/*
+	find $(DESTDIR)/usr/share/locale/ -name webcit.mo -exec chmod a-x {} \;
 	rm $(DESTDIR)/usr/share/citadel-webcit/static/prototype.js
 #	mkdir -p $(DESTDIR)/etc/citadel; cp webcit.conf $(DESTDIR)/etc/citadel/
 
