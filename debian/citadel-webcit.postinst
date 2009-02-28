@@ -14,7 +14,29 @@ case "$1" in
 		mkdir -p /var/run/citadel/keys
 	fi
 
-	db_get citadel/WebcitApacheIntegration &&WWWTYPE="$RET"
+	if test -e /etc/default/webcit; then
+                . /etc/default/webcit
+	else
+                WEBCIT_CITADEL_IP=127.0.0.1
+                WEBCIT_CITADEL_PORT=504
+	fi
+
+	db_get citadel/WebcitApacheIntegration && WWWTYPE="$RET"
+	if test "$WWWTYPE" = "Internal"; then
+		echo 'export WEBCIT_APACHEFLAG=" "' > /etc/default/webcit
+		echo "export WEBCIT_LISTEN_IP=${WEBCIT_LISTEN_IP:-0.0.0.0}" >> /etc/default/webcit
+	else
+		echo 'export WEBCIT_APACHEFLAG="-f"' > /etc/default/webcit
+		echo "export WEBCIT_LISTEN_IP=${WEBCIT_LISTEN_IP:-127.0.0.1}" >> /etc/default/webcit
+	fi
+	
+	db_get citadel/WebcitHttpPort && echo "export WEBCIT_HTTP_PORT=$RET" >> /etc/default/webcit
+	db_get citadel/WebcitHttpsPort && echo "export WEBCIT_HTTPS_PORT=$RET" >> /etc/default/webcit
+	db_get citadel/WebcitOfferLang && echo "export WEBCIT_LANG=$RET" >> /etc/default/webcit
+	
+	echo "export WEBCIT_CITADEL_PORT=$WEBCIT_CITADEL_PORT" >> /etc/default/webcit
+	echo "export WEBCIT_CITADEL_IP=$WEBCIT_CITADEL_IP" >> /etc/default/webcit
+
 	db_stop
 
 	#DEBHELPER#
