@@ -192,7 +192,7 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 	long len;
 	int intext = 0;
 
-	StrBufAppendPrintf(Target, "<div class=\"fmout\">\n", align);
+	StrBufAppendPrintf(Target, "<div class=\"fmout-%s\">\n", align);
 	while ((n = StrBufSipLine(Line, Source, &BufPtr), n >= 0) && !done)
 	{
 		done = n == 0;
