@@ -2,7 +2,7 @@ Source: webcit
 Section: web
 Priority: extra
 Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
-Build-Depends: debhelper (>= 4), po-debconf, libical-dev (>=0.30), gettext, locales,
+Build-Depends: debhelper (>= 4), po-debconf, libical-dev (>=0.43), gettext, locales,
  libcitadel-dev (>= 7.37), quilt (>= 0.40), autotools-dev, libssl-dev
 Standards-Version: 3.8.0
 
