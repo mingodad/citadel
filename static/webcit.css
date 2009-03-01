@@ -617,6 +617,8 @@ body, #global {
 }
 .col1, .col2, .col3 {
     cursor: pointer;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
 }
 .new_message {
     font-weight: bold; !important;
