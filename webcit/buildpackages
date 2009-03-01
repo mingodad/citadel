@@ -48,7 +48,7 @@ case $1 in
 	    mkdir tmp
 	    cp -rL webcit-$WEBCIT_VERSION tmp
 	    cd tmp/webcit-$WEBCIT_VERSION
-	    rm -rf `find -name .svn ` svn*tmp* build-stamp configure-stamp *~ config.guess  config.log config.status autom4te.cache
+	    rm -rf `find -name .svn ` svn*tmp* build-stamp configure-stamp *~ config.guess  config.log config.status autom4te.cache Makefile 
 	    find -type f -exec chmod a-x {} \;
 	    chmod a+x configure debian/rules po/create-pot.sh mk_module_init.sh
 	    cd ..
@@ -70,6 +70,6 @@ case $1 in
 	cd po;  ./create-pot.sh
 	;;
     *)
-	echo "Not yet implemented. we have: debian "
+	echo "Not yet implemented. we have: debian, sourcedist, i18n (needs ready compiled & installed webcit in your system)"
 	;;
 esac
