@@ -27,7 +27,6 @@ build: build-stamp
 build-stamp:
 	dh_testdir
 
-# ./configure
 	CFLAGS="$(CFLAGS)"; LDFLAGS="$(LDFLAGS)";  ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 		$(EXTRA_ARGS) \
 		--prefix=/usr
@@ -42,7 +41,7 @@ clean:
 	dh_testroot
 	rm -f build-stamp install*-stamp
 
-	-$(MAKE) distclean
+	[ ! -f Makefile ] || $(MAKE) distclean
 
 	dh_clean
 
@@ -78,14 +77,14 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
-#	dh_installdocs -plibcitadel1
-	dh_installchangelogs -plibcitadel
+	dh_installchangelogs -a -plibcitadel2
+	dh_installdocs -a
 	dh_install -a --sourcedir=debian/tmp
 	dh_link -a
-	dh_strip -a --dbg-package=libcitadel1-dbg
+	dh_strip -a --dbg-package=libcitadel2-dbg
 	dh_compress -a
 	dh_fixperms -a
-	dh_makeshlibs -a -V 'libcitadel1'
+	dh_makeshlibs -a -V
 	dh_installdeb -a
 	dh_shlibdeps -a
 	dh_gencontrol -a
