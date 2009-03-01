@@ -1,7 +1,7 @@
 etc/citadel/mail.aliases
 etc/citadel/public_clients
-etc/citadel/messages
 usr/share/citadel-server/help
+etc/citadel/messages 
 usr/lib/citadel-server/setup
 usr/lib/citadel-server/base64
 usr/lib/citadel-server/chkpwd
@@ -10,10 +10,11 @@ usr/lib/citadel-server/citserver.unstripped
 usr/lib/citadel-server/migrate_aliases.sh
 usr/lib/citadel-server/aidepost
 usr/sbin/citmail
-usr/sbin/citserver
 usr/lib/citadel-server/msgform
-usr/sbin/sendcommand
 usr/lib/citadel-server/userlist
+usr/sbin/citserver
+usr/sbin/sendcommand
+
 usr/share/doc/citadel-server/examples/database_cleanup.sh
 usr/share/doc/citadel-server/welcomemail.html
 usr/share/doc/citadel-server/welcomemail.txt

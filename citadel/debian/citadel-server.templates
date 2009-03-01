@@ -1,28 +1,31 @@
 Template: citadel/ServerIPAddress
 Type: string
 Default: 0.0.0.0
-_Description: Listen IP for Citadel
-  Specify the IP address on which your server will run.  If you
-  specify 0.0.0.0, Citadel will listen on all addresses.  
-  You can usually skip this unless you are running multiple 
-  instances of Citadel on the same computer.
+_Description: Listening address for the Citadel server:
+ Please specify the IP address which the server should be listening to. If you
+ specify 0.0.0.0, the server will listen on all addresses.
+ .
+ This can usually be left to the default unless multiple instances
+ of Citadel are running on the same computer.
 
 Template: citadel/LoginType
 Type: boolean
 Default: false
-_Description: Enable external Accounting Mode
-  Do you want to use Host based authentication or Citadel internal?
-  Host based accounting could be /etc/passwd or an LDAP directory.
-  WARNING: do not change this setting once your system is installed.
-  Answer "no" unless you completely understand this option.
+_Description: Enable external authentication mode?
+ Please choose the user authentication mode. By default Citadel will
+ use its own internal user accounts database. If you accept this
+ option, Citadel users will have accounts on the host system,
+ authenticated via /etc/passwd (or LDAP).
+ .
+ Do not accept this option unless you are sure it is required, since
+ changing back requires a full reinstall of Citadel.
 
 Template: citadel/Administrator
 Type: string
 Default: Administrator
-_Description: Citadel Administrator
-  Enter the name of the Citadeladministrator (which is probably
-  you).  When an account is created with this name, it will
-  automatically be given administrator-level access.
+_Description: Citadel administrator username:
+ Please enter the name of the Citadel user account that should be granted
+ administrative privileges once created.
 
 Template: citadel/Installnote
 Type: note

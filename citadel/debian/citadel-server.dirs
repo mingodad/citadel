@@ -1,5 +1,4 @@
 usr/share/citadel-server/help
-usr/share/citadel-server/messages
 var/lib/citadel/bio
 var/lib/citadel/bitbucket
 var/lib/citadel/data

@@ -7,14 +7,20 @@ set -e
 . /usr/share/debconf/confmodule
 db_version 2.0
 
-# glitch: this mustn't be in /var/run/
-if test -f /var/run/refcount_adjustments.dat; then
-    mv /var/run/refcount_adjustments.dat /etc/citadel/
-fi
+move_file()
+{
+	[ ! -f $1 ] && return
+	[ -f $2 ] && return
+	mv -f $1 $2
+}
+
 case "$1" in
     configure)
         chown -R citadel:citadel /etc/citadel
         chown -R citadel:citadel /var/lib/citadel /var/spool/citadel
+	move_file /var/run/refcount_adjustments.dat /etc/citadel/data/refcount_adjustments.dat
+	move_file /etc/citadel/citadel.control /var/lib/citadel/data/citadel.control
+	move_file /etc/citadel/citadel.config /var/lib/citadel/data/citadel.config
 
         db_get citadel/Administrator && admin="$RET"
         db_get citadel/ServerIPAddress && ip_addr="$RET"
@@ -30,7 +36,7 @@ case "$1" in
         export CITADEL='/var/run/citadel'
 	export CITADEL_PORT=504
         export CITADEL_INSTALLER=yes
-	export CITADEL_UID=`grep citadel /etc/passwd | cut -d :  -f 3`
+	 export CITADEL_UID=`grep citadel /etc/passwd | cut -d :  -f 3`
         export ACT_AS_MTA=no
         export SYSADMIN_NAME=$admin
         export CREATE_XINETD_ENTRY=no
