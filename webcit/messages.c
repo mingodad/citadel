@@ -663,6 +663,7 @@ void readloop(long oper)
 	int sortit = 0;
 	int defaultsortorder = 0;
 	WCTemplputParams SubTP;
+	char *ab_name;
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
 		WCC->wc_view = VIEW_MAILBOX;
@@ -852,13 +853,15 @@ void readloop(long oper)
 				display_note(Msg, Msg->is_new);
 				break;
 			case VIEW_ADDRESSBOOK:
-				fetch_ab_name(Msg, buf);
+				ab_name = NULL;
+				fetch_ab_name(Msg, &ab_name);
 				++num_ab;
 				addrbook = realloc(addrbook,
 						   (sizeof(addrbookent) * num_ab) );
-				safestrncpy(addrbook[num_ab-1].ab_name, buf,
+				safestrncpy(addrbook[num_ab-1].ab_name, ab_name,
 					    sizeof(addrbook[num_ab-1].ab_name));
 				addrbook[num_ab-1].ab_msgnum = Msg->msgnum;
+				free(ab_name);
 				break;
 			case VIEW_BBS: /* Tag the mails we want to show in bbview... */
 			default:

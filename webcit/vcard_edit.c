@@ -58,7 +58,7 @@ void display_addressbook(long msgnum, char alpha) {
 		if (vcard_source != NULL) {
 
 			/** Display the summary line */
-			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL,msgnum);
+			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL, msgnum);
 
 			/** If it's my vCard I can edit it */
 			if (	(!strcasecmp(ChrPtr(WC->wc_roomname), USERCONFIGROOM))
@@ -105,7 +105,7 @@ void lastfirst_firstlast(char *namebuf) {
  * \param msgnum the citadel message number
  * \param namebuf where to put the name in???
  */
-void fetch_ab_name(message_summary *Msg, char *namebuf) {
+void fetch_ab_name(message_summary *Msg, char **namebuf) {
 	char buf[SIZ];
 	char mime_partnum[SIZ];
 	char mime_filename[SIZ];
@@ -118,7 +118,6 @@ void fetch_ab_name(message_summary *Msg, char *namebuf) {
 	message_summary summ;/// TODO this will lak
 
 	if (namebuf == NULL) return;
-	strcpy(namebuf, "");
 
 	memset(&summ, 0, sizeof(summ));
 	//////safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
@@ -154,14 +153,19 @@ void fetch_ab_name(message_summary *Msg, char *namebuf) {
 			free(vcard_source);
 		}
 	}
-
-	lastfirst_firstlast(namebuf);
-	striplt(namebuf);
-	len = strlen(namebuf);
-	for (i=0; i<len; ++i) {
-		if (namebuf[i] != ';') return;
+	if (*namebuf != NULL) {
+		lastfirst_firstlast(*namebuf);
+		striplt(*namebuf);
+		len = strlen(*namebuf);
+		for (i=0; i<len; ++i) {
+			if ((*namebuf)[i] != ';') return;
+		}
+		free (*namebuf);
+		(*namebuf) = strdup(_("(no name)"));
 	}
-	strcpy(namebuf, _("(no name)"));
+	else {
+		(*namebuf) = strdup(_("(no name)"));
+	}
 }
 
 
@@ -214,14 +218,49 @@ void vcard_n_prettyize(char *name)
  * \param v the vcard to retrieve the name from
  * \param storename where to put the name at
  */
-void fetchname_parsed_vcard(struct vCard *v, char *storename) {
+void fetchname_parsed_vcard(struct vCard *v, char **storename) {
 	char *name;
+	char *prop;
+	char buf[SIZ];
+	int j, n, len;
+	int is_qp = 0;
+	int is_b64 = 0;
 
-	strcpy(storename, "");
+	*storename = NULL;
 
 	name = vcard_get_prop(v, "n", 1, 0, 0);
 	if (name != NULL) {
-		strcpy(storename, name);
+		len = strlen(name);
+		prop = vcard_get_prop(v, "n", 1, 0, 1);
+		n = num_tokens(prop, ';');
+
+		for (j=0; j<n; ++j) {
+			extract_token(buf, prop, j, ';', sizeof buf);
+			if (!strcasecmp(buf, "encoding=quoted-printable")) {
+				is_qp = 1;
+			}
+			if (!strcasecmp(buf, "encoding=base64")) {
+				is_b64 = 1;
+			}
+		}
+		if (is_qp) {
+			// %ff can become 6 bytes in utf8 
+			*storename = malloc(len * 2 + 3); 
+			j = CtdlDecodeQuotedPrintable(
+				*storename, name,
+				len);
+			(*storename)[j] = 0;
+		}
+		else if (is_b64) {
+			// ff will become one byte..
+			*storename = malloc(len + 50);
+			CtdlDecodeBase64(
+				*storename, name,
+				len);
+		}
+		else {
+			*storename = strdup(name);
+		}
 		/* vcard_n_prettyize(storename); */
 	}
 
@@ -499,8 +538,13 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum
  * \param storename where to store???
  * \param msgnum Citadel message pointer
  */
-void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, 
-	long msgnum) {
+void display_vcard(StrBuf *Target, 
+		   const char *vcard_source, 
+		   char alpha, 
+		   int full, 
+		   char **storename, 
+		   long msgnum) 
+{
 	struct vCard *v;
 	char *name;
 	StrBuf *Buf;

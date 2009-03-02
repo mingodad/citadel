@@ -586,8 +586,8 @@ void serv_read(char *buf, int bytes);
 
 void SetAccessCommand(long Oper);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
-void fetch_ab_name(message_summary *Msg, char *namebuf);
-void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char *storename, long msgnum);
+void fetch_ab_name(message_summary *Msg, char **namebuf);
+void display_vcard(StrBuf *Target, const char *vcard_source, char alpha, int full, char **storename, long msgnum);
 void jsonMessageList(void);
 void new_summary_view(void);
 void getseen(void);
