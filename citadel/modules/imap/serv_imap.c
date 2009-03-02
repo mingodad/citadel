@@ -447,11 +447,20 @@ void imap_output_capability_string(void) {
 
 	/* We are building a partial implementation of METADATA for the sole purpose
 	 * of interoperating with the ical/vcard version of the Bynari Insight Connector.
-	 * If you were expecting something else, comment out one or both of these
-	 * extension advertisements.
+	 * It is not a full RFC5464 implementation, but it should refuse non-Bynari
+	 * metadata in a compatible and graceful way.
 	 */
 	cprintf(" METADATA");
-	/* cprintf(" LIST-EXTENDED"); */
+
+	/*
+	 * LIST-EXTENDED was originally going to be required by the METADATA extension.
+	 * It was mercifully removed prior to the finalization of RFC5464.  We started
+	 * implementing this but stopped when we learned that it would not be needed.
+	 * If you uncomment this declaration you are responsible for writing a lot of new
+	 * code.
+	 *
+	 * cprintf(" LIST-EXTENDED")
+	 */
 }
 
 /*

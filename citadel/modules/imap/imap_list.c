@@ -108,7 +108,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	char **patterns;
 	int return_subscribed = 0;
 	int return_children = 0;
-	int return_metadata = 0;
+	int return_metadata = 0;		/* FIXME obsolete remove this */
 	int i = 0;
 	int match = 0;
 
@@ -120,7 +120,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	patterns = (char **) data_for_callback[3];
 	return_subscribed = (int) data_for_callback[4];
 	return_children = (int) data_for_callback[5];
-	return_metadata = (int) data_for_callback[6];
+	return_metadata = (int) data_for_callback[6];		/* FIXME obsolete remove this */
 
 	/* Only list rooms to which the user has access!! */
 	yes_output_this_room = 0;
@@ -170,7 +170,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 			imap_strout(buf);
 
 			if (return_metadata) {
-				cprintf(" (METADATA ())");	/* FIXME */
+				cprintf(" (METADATA ())");	/* FIXME obsolete remove this */
 			}
 
 			cprintf("\r\n");
@@ -200,10 +200,10 @@ void imap_list(int num_parms, char *parms[])
 	int extended_list_in_use = 0;
 	int return_subscribed = 0;
 	int return_children = 0;
-	int return_metadata = 0;
-	int select_metadata_left = (-1);
-	int select_metadata_right = (-1);
-	int select_metadata_nest = 0;
+	int return_metadata = 0;		/* FIXME obsolete remove this */
+	int select_metadata_left = (-1);	/* FIXME obsolete remove this */
+	int select_metadata_right = (-1);	/* FIXME obsolete remove this */
+	int select_metadata_nest = 0;		/* FIXME obsolete remove this */
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -389,7 +389,7 @@ void imap_list(int num_parms, char *parms[])
 	data_for_callback[3] = (char *) patterns;
 	data_for_callback[4] = (char *) return_subscribed;
 	data_for_callback[5] = (char *) return_children;
-	data_for_callback[6] = (char *) return_metadata;
+	data_for_callback[6] = (char *) return_metadata;	/* FIXME obsolete remove this */
 
 	/* The non-extended LIST command is required to treat an empty
 	 * ("" string) mailbox name argument as a special request to return the
