@@ -1017,8 +1017,11 @@ void StrBufAppendTemplate(StrBuf *Target,
 		StrEscAppend(Target, Source, NULL, 0, 0);
 		break;
 	case 'J':
-	  StrECMAEscAppend(Target, Source, NULL);
+		StrECMAEscAppend(Target, Source, NULL);
 	  break;
+	case 'U':
+		StrBufUrlescAppend(Target, Source, NULL);
+		break;
 	default:
 		StrBufAppendBuf(Target, Source, 0);
 	}
