@@ -411,7 +411,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 				/* add in /webcit/mimepart/<msgno>/CID/ 
 				   trailing / stops dumb URL filters getting excited */
 				StrBufAppendPrintf(converted_msg,
-						"src=\"/webcit/mimepart/%d/",msgnum);
+						" src=\"/webcit/mimepart/%d/",msgnum);
 				StrBufAppendBufPlain(converted_msg, cid_start, cid_end - cid_start, 0);
 				StrBufAppendBufPlain(converted_msg, "/\"", -1, 0);
 
