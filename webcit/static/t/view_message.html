@@ -14,9 +14,18 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
 <?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p><??("X", 7)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
+
+   <?!("COND:BSTR", 8, "Mail")>
+   <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+   <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:ALLRCPT("U")>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+   <a href="display_enter?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+   <??("X", 8)>
+
+   <??("COND:BSTR", 9, "Mail")>
    <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
    <a href="display_enter?replyquote=<?MAIL:SUMM:N>&recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
-   <a href="display_enter?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+   <?!("X", 9)>
+
    <a href="confirm_move_msg?msgid=<?MAIL:SUMM:N>"><span>[</span><?_("Move")><span>]</span></a> 
    <a href="delete_msg?msgid=<?MAIL:SUMM:N>" onclick="return confirm('<?_("Delete this message?")>');"><span>[</span><?_("Delete")><span>]</span> </a> 
    <a href="#" onclick="window.open('msgheaders/<?MAIL:SUMM:N>', 'headers<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Headers")><span>]</span></a>
@@ -25,12 +34,12 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 </div>
 <div class="message_content"><div>
 <?MAIL:BODY>
-<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 8)>
+<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
 <?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_message_inline_attach")>
-<?!("X", 8)>
-<?!("COND:MAIL:MIME:ATTACH:LINKS", 9)>
+<?!("X", 10)>
+<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
 <?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_message_list_attach")>
-<?!("X", 9)>
+<?!("X", 11)>
 
 </div>
 </div>
