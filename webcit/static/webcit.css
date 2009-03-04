@@ -84,7 +84,7 @@ body {
 }
 
 .ib_button {
-	font-size: 100%;
+	font-size: 90%;
 }
 
 #room_infos, #address_book_popup, .mimepart, .room_actions form select {
