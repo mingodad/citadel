@@ -71,7 +71,7 @@ enum LogLevel {
 
 char *libcitadel_version_string(void);
 int libcitadel_version_number(void);
-
+void ShutDownLibCitadel(void);
 
 /*
  * MIME parser declarations
@@ -307,8 +307,6 @@ int LoadIconDir(const char *DirName);
 
 /* Select the icon for a given MIME type */
 const char *GetIconFilename(char *MimeType, size_t len);
-
-void ShutDownLibCitadel(void);
 
 
 /* tools */

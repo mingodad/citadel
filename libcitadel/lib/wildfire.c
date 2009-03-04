@@ -19,7 +19,7 @@
 #endif
 
 #include "libcitadel.h"
-
+#include "libcitadellocal.h"
 
 
 ConstStr WF_MsgStrs[] = {
@@ -193,6 +193,14 @@ static int ParseBacktrace(char *Line,
 #endif
 long BaseFrames = 0;
 StrBuf *FullBinaryName = NULL;
+
+void WildFireShutdown(void)
+{
+	close(addr2line_write_pipe[0]);
+	close(addr2line_read_pipe[0]);
+
+	FreeStrBuf(&FullBinaryName);
+}
 
 void WildFireInitBacktrace(const char *argvNull, int AddBaseFrameSkip)
 {

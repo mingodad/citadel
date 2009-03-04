@@ -22,6 +22,7 @@
 
 #include "xdgmime/xdgmime.h"
 #include "libcitadel.h"
+#include "libcitadellocal.h"
 
 void extract_key(char *target, char *source, char *key)
 {
@@ -891,7 +892,7 @@ const char *GetIconFilename(char *MimeType, size_t len)
 	return Icon->FileName;
 }
 
-void ShutDownLibCitadel(void)
+void ShutDownLibCitadelMime(void)
 {
 	DeleteHash(&IconHash);
 }

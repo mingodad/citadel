@@ -13,6 +13,8 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include "libcitadel.h"
+#include "xdgmime/xdgmime.h"
+#include "libcitadellocal.h"
 
 char *libcitadel_version_string(void) {
 	return "$Id$";
@@ -20,4 +22,11 @@ char *libcitadel_version_string(void) {
 
 int libcitadel_version_number(void) {
 	return LIBCITADEL_VERSION_NUMBER;
+}
+
+void ShutDownLibCitadel(void)
+{
+	ShutDownLibCitadelMime();
+
+	xdg_mime_shutdown();
 }
