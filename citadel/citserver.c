@@ -817,16 +817,6 @@ void cmd_ipgm(char *argbuf)
 		CtdlLogPrintf(CTDL_ERR, "Warning: ipgm authentication failed.\n");
 		CC->kill_me = 1;
 	}
-
-	/* Now change the ipgm secret for the next round.
-	 * (Disabled because it breaks concurrent scripts.  The fact that
-	 * we no longer accept IPGM over the network should be sufficient
-	 * to prevent brute-force attacks.  If you don't agree, uncomment
-	 * this block.)
-	get_config();
-	config.c_ipgm_secret = rand();
-	put_config();
-	*/
 }
 
 
@@ -844,18 +834,20 @@ void cmd_down(char *argbuf) {
 		restart_server = extract_int(argbuf, 0);
 		
 		if (restart_server > 0)
-			Reply = "%d Restarting server.  See you soon.\n";
+		{
+			Reply = "%d citserver will now shut down and automatically restart.\n";
+		}
 		if ((restart_server > 0) && !running_as_daemon)
 		{
-			CtdlLogPrintf(CTDL_ERR, "The user requested restart, but not running as deamon! Geronimooooooo!\n");
-			Reply = "%d Warning, not running in deamon mode. maybe we will come up again, but don't lean on it.\n";
+			CtdlLogPrintf(CTDL_ERR, "The user requested restart, but not running as daemon! Geronimooooooo!\n");
+			Reply = "%d Warning: citserver is not running in daemon mode and is therefore unlikely to restart automatically.\n";
 			state = ERROR;
 		}
 		cprintf(Reply, state);
 	}
 	else
 	{
-		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN);
+		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN); 
 	}
 	CtdlThreadStopAll();
 }
