@@ -599,7 +599,12 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	if (supplied_vtodo != NULL) {
 		vtodo = supplied_vtodo;
 
-		/**
+		/*
+		 * It's safe to convert to UTC here because there are no recurrences to worry about.
+		 */
+		ical_dezonify(vtodo);
+
+		/*
 		 * If we're looking at a fully encapsulated VCALENDAR
 		 * rather than a VTODO component, attempt to use the first
 		 * relevant VTODO subcomponent.  If there is none, the
