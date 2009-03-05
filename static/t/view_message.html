@@ -17,7 +17,7 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 
    <?!("COND:BSTR", 8, "Mail")>
    <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
-   <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:ALLRCPT("U")>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+   <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
    <a href="display_enter?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
    <??("X", 8)>
 
