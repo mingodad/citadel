@@ -263,7 +263,7 @@ function CtdlMessageListClick(evt) {
     unmarkAllRows();
     markedRowId = parent.ctdlRowId;
     document.getElementById("preview_pane").innerHTML = "";
-    new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
+    new Ajax.Updater('preview_pane', 'msg/'+msgId+'?Mail=1', {method: 'get'});
     markRow(parent);
     new Ajax.Request('ajax_servcmd', {
       method: 'post',
