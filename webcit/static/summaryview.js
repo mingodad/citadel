@@ -158,7 +158,7 @@ function loadMessages(transport) {
   currentSorterToggle = toggles[sortmode];
   }
   if (!is_safe_mode) {
-  resortAndDisplay(sortRowsByDateDescending);
+  resortAndDisplay(currentSortMode[1]);
   } else {
     setupPageSelector();
     resortAndDisplay(null);
@@ -237,7 +237,7 @@ function sortRowsBySubjectAscending(a, b) {
 function sortRowsBySubjectDescending(a, b) {
   var subjectOne = getTextContent(a.getElementsByTagName("td")[0]).toLowerCase();
   var subjectTwo = getTextContent(b.getElementsByTagName("td")[0]).toLowerCase();
-  return strcmp(subjectOne, subjectTwo);
+  return strcmp(subjectTwo, subjectOne);
 }
 
 function sortRowsByFromAscending(a, b) {
@@ -249,7 +249,7 @@ function sortRowsByFromAscending(a, b) {
 function sortRowsByFromDescending(a, b) {
   var fromOne = getTextContent(a.getElementsByTagName("td")[1]).toLowerCase();
   var fromTwo = getTextContent(b.getElementsByTagName("td")[1]).toLowerCase();
-  return strcmp(fromOne, fromTwo);
+  return strcmp(fromTwo, fromOne);
 }
 
 function CtdlMessageListClick(evt) {
