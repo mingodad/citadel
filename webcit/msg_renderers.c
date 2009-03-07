@@ -441,7 +441,7 @@ void tmplput_MAIL_SUMM_DATE_BRIEF(StrBuf *Target, WCTemplputParams *TP)
 {
 	char datebuf[64];
 	message_summary *Msg = (message_summary*) CTX;
-	webcit_fmt_date(datebuf, Msg->date, 1);
+	webcit_fmt_date(datebuf, Msg->date, DATEFMT_BRIEF);
 	StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
 
@@ -449,7 +449,7 @@ void tmplput_MAIL_SUMM_DATE_FULL(StrBuf *Target, WCTemplputParams *TP)
 {
 	char datebuf[64];
 	message_summary *Msg = (message_summary*) CTX;
-	webcit_fmt_date(datebuf, Msg->date, 0);
+	webcit_fmt_date(datebuf, Msg->date, DATEFMT_FULL);
 	StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
 void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, WCTemplputParams *TP)

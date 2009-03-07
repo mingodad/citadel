@@ -721,7 +721,11 @@ long guess_calhourformat(void);
 int get_time_format_cached (void);
 int xtoi(const char *in, size_t len);
 const char *get_selected_language(void);
-void webcit_fmt_date(char *buf, time_t thetime, int brief);
+
+#define DATEFMT_FULL 0
+#define DATEFMT_BRIEF 1
+#define DATEFMT_RAWDATE 2
+void webcit_fmt_date(char *buf, time_t thetime, int Format);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 void free_attachments(wcsession *sess);
 void summary(void);

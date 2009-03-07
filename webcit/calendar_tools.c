@@ -81,7 +81,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	}
 
 	wprintf(_("Hour: "));
-	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
+	wprintf("<SELECT NAME=\"%s_hour\" ID=\"%s_hour\" SIZE=\"1\">\n", prefix, prefix);
 	for (i=0; i<=23; ++i) {
 
 		if (time_format == WC_TIMEFORMAT_24) {
@@ -101,7 +101,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	wprintf("</SELECT>\n");
 
 	wprintf(_("Minute: "));
-	wprintf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
+	wprintf("<SELECT NAME=\"%s_minute\" ID=\"%s_minute\" SIZE=\"1\">\n", prefix, prefix);
 	for (i=0; i<=59; ++i) {
 		if ( (i % 5 == 0) || (tm.tm_min == i) ) {
 			wprintf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",

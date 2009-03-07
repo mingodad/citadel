@@ -290,7 +290,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 						}
 						else {
 							tt = icaltime_as_timet(t);
-							webcit_fmt_date(buf, tt, 1);
+							webcit_fmt_date(buf, tt, DATEFMT_BRIEF);
 							wprintf("<i>%s</i> %s<br>",
 								_("Starting date/time:"), buf);
 							
@@ -302,7 +302,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 							if (q != NULL) {
 								t = icalproperty_get_dtend(q);
 								tt = icaltime_as_timet(t);
-								webcit_fmt_date(buf, tt, 1);
+								webcit_fmt_date(buf, tt, DATEFMT_BRIEF);
 								wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 							}
 							
@@ -913,9 +913,9 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wprintf("<br />");
 								}
-                                webcit_fmt_date(buf, event_tt, 1);
+                                webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
                                 wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
-                                webcit_fmt_date(buf, event_tte, 1);
+                                webcit_fmt_date(buf, event_tte, DATEFMT_BRIEF);
                                 wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
@@ -992,9 +992,9 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wprintf("<br />");
 								}
-                                webcit_fmt_date(buf, event_tt, 1);
+                                webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
                                 wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
-                                webcit_fmt_date(buf, event_tte, 1);
+                                webcit_fmt_date(buf, event_tte, DATEFMT_BRIEF);
                                 wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
@@ -1435,7 +1435,7 @@ void render_calendar_view(struct calview *c)
 /*
  * Helper function for do_tasks_view().  Returns the due date/time of a vtodo.
  */
-time_t get_task_due_date(icalcomponent *vtodo) {
+time_t get_task_due_date(icalcomponent *vtodo, int *is_date) {
 	icalproperty *p;
 
 	if (vtodo == NULL) {
@@ -1451,13 +1451,17 @@ time_t get_task_due_date(icalcomponent *vtodo) {
 		return get_task_due_date(
 			icalcomponent_get_first_component(
 				vtodo, ICAL_VTODO_COMPONENT
-				)
+				), is_date
 			);
 	}
 
 	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
 	if (p != NULL) {
-		return(icaltime_as_timet(icalproperty_get_due(p)));
+		struct icaltimetype t = icalproperty_get_due(p);
+
+		if (is_date)
+			*is_date = t.is_date;
+		return(icaltime_as_timet(t));
 	}
 	else {
 		return(0L);
@@ -1475,8 +1479,8 @@ int task_due_cmp(const void *vtask1, const void *vtask2) {
 	time_t t1;
 	time_t t2;
 
-	t1 =  get_task_due_date(Task1->cal);
-	t2 =  get_task_due_date(Task2->cal);
+	t1 =  get_task_due_date(Task1->cal, NULL);
+	t2 =  get_task_due_date(Task2->cal, NULL);
 	if (t1 < t2) return(-1);
 	if (t1 > t2) return(1);
 	return(0);
@@ -1545,6 +1549,7 @@ void do_tasks_view(void) {
 	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
 	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
 		icalproperty_status todoStatus;
+		int is_date;
 
 		Cal = (disp_cal*)vCal;
 		wprintf("<tr><td>");
@@ -1567,10 +1572,10 @@ void do_tasks_view(void) {
 		wprintf("</a>\n");
 		wprintf("</td>\n");
 
-		due = get_task_due_date(Cal->cal);
+		due = get_task_due_date(Cal->cal, &is_date);
 		wprintf("<td><span");
 		if (due > 0) {
-			webcit_fmt_date(buf, due, 0);
+			webcit_fmt_date(buf, due, is_date ? DATEFMT_RAWDATE : DATEFMT_FULL);
 			wprintf(">%s",buf);
 		}
 		else {
