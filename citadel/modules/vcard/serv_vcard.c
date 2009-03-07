@@ -247,13 +247,16 @@ void ctdl_vcard_to_directory(struct CtdlMessage *msg, int op) {
 			}
 		}
 
-		if (!strcasecmp(v->prop[i].name, "tel;home"))
+		if ( (!strcasecmp(v->prop[i].name, "tel;home"))
+		   || (!strcasecmp(v->prop[i].name, "tel;type=home")) )
 			(void) CtdlDoDirectoryServiceFunc("homePhone", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 		else
-		if (!strcasecmp(v->prop[i].name, "tel;fax"))
+		if ( (!strcasecmp(v->prop[i].name, "tel;fax"))
+		   || (!strcasecmp(v->prop[i].name, "tel;type=fax")) )
 			(void) CtdlDoDirectoryServiceFunc("facsimileTelephoneNumber", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 		else
-		if (!strcasecmp(v->prop[i].name, "tel;cell"))
+		if ( (!strcasecmp(v->prop[i].name, "tel;cell"))
+		   || (!strcasecmp(v->prop[i].name, "tel;type=cell")) )
 			(void) CtdlDoDirectoryServiceFunc("mobile", v->prop[i].value, &objectlist, "ldap", DIRECTORY_ATTRIB_ADD);
 		else
 		if ( (!strcasecmp(v->prop[i].name, "tel"))
@@ -879,7 +882,7 @@ void cmd_regi(char *argbuf) {
 				}
 			}
 		}
-		if (a==5) vcard_set_prop(my_vcard, "tel;home", buf, 0);
+		if (a==5) vcard_set_prop(my_vcard, "tel", buf, 0);
 		if (a==6) vcard_set_prop(my_vcard, "email;internet", buf, 0);
 		if (a==7) strcpy(tmpcountry, buf);
 		++a;
@@ -945,7 +948,7 @@ void cmd_greg(char *argbuf)
 	extract_token(buf, adr, 5, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* zip */
 
-	s = vcard_get_prop(v, "tel;home", 0, 0, 0);
+	s = vcard_get_prop(v, "tel", 0, 0, 0);
 	if (s == NULL) s = vcard_get_prop(v, "tel", 1, 0, 0);
 	if (s != NULL) {
 		cprintf("%s\n", s);
