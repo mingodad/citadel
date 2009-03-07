@@ -647,12 +647,24 @@ function HandleRSVP(question_divname, title_divname, msgnum, cal_partnum, sc) {
 // TODO: Collapse into one function
 function toggleTaskDtStart(event) {
 	var checkBox = $('nodtstart');
+	var checkBoxTime = $('dtstart_time');
 	dtStart = document.getElementById("dtstart");
+	dtStartHour = document.getElementById("dtstart_hour");
+	dtStartMinute = document.getElementById("dtstart_minute");
 	if (checkBox.checked) {
 		dtStart.disabled = true;
+		dtStartHour.disabled = true;
+		dtStartMinute.disabled = true;
 		dtStart.style.textDecoration = "line-through";
 	} else {
 		dtStart.disabled = false;
+		if (checkBoxTime.checked) {
+			dtStartHour.disabled = false;
+			dtStartMinute.disabled = false;
+		} else {
+			dtStartHour.disabled = true;
+			dtStartMinute.disabled = true;
+		}
 		dtStart.style.textDecoration = "";
 		if (dtStart.value.length == 0)
 			dtStart.dpck._initCurrentDate();
@@ -660,12 +672,24 @@ function toggleTaskDtStart(event) {
 }
 function toggleTaskDue(event) {
 	var checkBox = $('nodue');
+	var checkBoxTime = $('due_time');
 	dueField = document.getElementById("due");
+	dueFieldHour = document.getElementById("due_hour");
+	dueFieldMinute = document.getElementById("due_minute");
 	if (checkBox.checked) {
 		dueField.disabled = true;
+		dueFieldHour.disabled = true;
+		dueFieldMinute.disabled = true;
 		dueField.style.textDecoration = "line-through";
 	} else {
 		dueField.disabled = false;
+		if (checkBoxTime.checked) {
+			dueFieldHour.disabled = false;
+			dueFieldMinute.disabled = false;
+		} else {
+			dueFieldHour.disabled = true;
+			dueFieldMinute.disabled = true;
+		}
 		dueField.style.textDecoration = "";
 		if (dueField.value.length == 0)
 			dueField.dpck._initCurrentDate();
@@ -677,7 +701,9 @@ function ToggleTaskDateOrNoDateActivate(event) {
 		toggleTaskDtStart(null);
 		toggleTaskDue(null);
 		$('nodtstart').observe('click', toggleTaskDtStart);
+		$('dtstart_time').observe('click', toggleTaskDtStart);
 		$('nodue').observe('click', toggleTaskDue);
+		$('due_time').observe('click', toggleTaskDue);
 	} 
 }
 function TaskViewGatherCategoriesFromTable() {

@@ -125,7 +125,7 @@ void cal_process_object(StrBuf *Target,
 			}
 			else {
 				tt = icaltime_as_timet(t);
-				webcit_fmt_date(buf, tt, 0);
+				webcit_fmt_date(buf, tt, DATEFMT_FULL);
 				StrBufAppendPrintf(Target, "<dt>");
 				StrBufAppendPrintf(Target, _("Starting date/time:"));
 				StrBufAppendPrintf(Target, "</dt><dd>%s</dd>", buf);
@@ -136,7 +136,7 @@ void cal_process_object(StrBuf *Target,
 		if (p != NULL) {
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
-			webcit_fmt_date(buf, tt, 0);
+			webcit_fmt_date(buf, tt, DATEFMT_FULL);
 			StrBufAppendPrintf(Target, "<dt>");
 			StrBufAppendPrintf(Target, _("Ending date/time:"));
 			StrBufAppendPrintf(Target, "</dt><dd>%s</dd>", buf);
@@ -683,6 +683,13 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	else
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
 	display_icaltimetype_as_webform(&IcalTime, "dtstart", 0);
+
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"dtstart_time\" ID=\"dtstart_time\" VALUE=\"yes\"");
+	if (!IcalTime.is_date) {
+		wprintf("CHECKED=\"CHECKED\"");
+	}
+	wprintf(">");
+	wprintf(_("Time associated"));
 	wprintf("</TD></TR>\n");
 
 	wprintf("<TR><TD>");
@@ -704,7 +711,13 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	else
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
 	display_icaltimetype_as_webform(&IcalTime, "due", 0);
-		
+
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"due_time\" ID=\"due_time\" VALUE=\"yes\"");
+	if (!IcalTime.is_date) {
+		wprintf("CHECKED=\"CHECKED\"");
+	}
+	wprintf(">");
+	wprintf(_("Time associated"));
 	wprintf("</TD></TR>\n");
 	todoStatus = icalcomponent_get_status(vtodo);
 	wprintf("<TR><TD>\n");
@@ -837,7 +850,12 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			icalproperty_free(prop);
 		}
 		if (IsEmptyStr(bstr("nodtstart"))) {
-			icaltime_from_webform(&t, "dtstart");
+			if (yesbstr("dtstart_time")) {
+				icaltime_from_webform(&t, "dtstart");
+			}
+			else {
+				icaltime_from_webform_dateonly(&t, "dtstart");
+			}
 			icalcomponent_add_property(vtodo,
 						   icalproperty_new_dtstart(t)
 				);
@@ -880,7 +898,12 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			icalproperty_free(prop);
 		}
 		if (IsEmptyStr(bstr("nodue"))) {
-			icaltime_from_webform(&t, "due");
+			if (yesbstr("due_time")) {
+				icaltime_from_webform(&t, "due");
+			}
+			else {
+				icaltime_from_webform_dateonly(&t, "due");
+			}
 			icalcomponent_add_property(vtodo,
 						   icalproperty_new_due(t)
 				);

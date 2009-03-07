@@ -47,7 +47,7 @@ size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 /*
  * Format a date/time stamp for output 
  */
-void webcit_fmt_date(char *buf, time_t thetime, int brief)
+void webcit_fmt_date(char *buf, time_t thetime, int Format)
 {
 	struct tm tm;
 	struct tm today_tm;
@@ -60,34 +60,44 @@ void webcit_fmt_date(char *buf, time_t thetime, int brief)
 
 	localtime_r(&thetime, &tm);
 
-	if (brief) {
+	/*
+	 * DATEFMT_FULL:      full display 
+	 * DATEFMT_BRIEF:     if date == today, show only the time
+	 *		      otherwise, for messages up to 6 months old, 
+	 *                 show the month and day, and the time
+	 *		      older than 6 months, show only the date
+	 * DATEFMT_RAWDATE:   show full date, regardless of age 
+	 */
 
-		/* If date == today, show only the time */
-		if ((tm.tm_year == today_tm.tm_year)
-		  &&(tm.tm_mon == today_tm.tm_mon)
-		  &&(tm.tm_mday == today_tm.tm_mday)) {
-			if (time_format == WC_TIMEFORMAT_24) 
-				wc_strftime(buf, 32, "%k:%M", &tm);
+	switch (Format) {
+		case DATEFMT_BRIEF:
+			if ((tm.tm_year == today_tm.tm_year)
+			  &&(tm.tm_mon == today_tm.tm_mon)
+			  &&(tm.tm_mday == today_tm.tm_mday)) {
+				if (time_format == WC_TIMEFORMAT_24) 
+					wc_strftime(buf, 32, "%k:%M", &tm);
+				else
+					wc_strftime(buf, 32, "%l:%M%p", &tm);
+			}
+			else if (today_timet - thetime < 15552000) {
+				if (time_format == WC_TIMEFORMAT_24) 
+					wc_strftime(buf, 32, "%b %d %k:%M", &tm);
+				else
+					wc_strftime(buf, 32, "%b %d %l:%M%p", &tm);
+			}
+			else {
+				wc_strftime(buf, 32, "%b %d %Y", &tm);
+			}
+			break;
+		case DATEFMT_FULL:
+			if (time_format == WC_TIMEFORMAT_24)
+				wc_strftime(buf, 32, "%a %b %d %Y %T %Z", &tm);
 			else
-				wc_strftime(buf, 32, "%l:%M%p", &tm);
-		}
-		/* Otherwise, for messages up to 6 months old, show the month and day, and the time */
-		else if (today_timet - thetime < 15552000) {
-			if (time_format == WC_TIMEFORMAT_24) 
-				wc_strftime(buf, 32, "%b %d %k:%M", &tm);
-			else
-				wc_strftime(buf, 32, "%b %d %l:%M%p", &tm);
-		}
-		/* older than 6 months, show only the date */
-		else {
-			wc_strftime(buf, 32, "%b %d %Y", &tm);
-		}
-	}
-	else {
-		if (time_format == WC_TIMEFORMAT_24)
-			wc_strftime(buf, 32, "%a %b %d %Y %T %Z", &tm);
-		else
-			wc_strftime(buf, 32, "%a %b %d %Y %r %Z", &tm);
+				wc_strftime(buf, 32, "%a %b %d %Y %r %Z", &tm);
+			break;
+		case DATEFMT_RAWDATE:
+			wc_strftime(buf, 32, "%a %b %d %Y", &tm);
+			break;
 	}
 }
 
