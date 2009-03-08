@@ -1,8 +1,11 @@
 Webcit Core is Copyright by the Citadel Development Team 1998 - 2009
 Webcit contains components under different Licenses, here their authors and list:
 
-Scriptaculus: Copyright (c) 2005-2007 Thomas Fuchs (http://script.aculo.us, 
-  http://mir.aculo.us) MIT-style license.
+Scriptaculus: Copyright (c) 2005-2007 
+	      Thomas Fuchs, Marty Haught, Ivan Krstic, Jon Tirsen, Sammi Williams
+	      (http://script.aculo.us, http://mir.aculo.us, http://blogs.law.harvard.edu/ivan, 
+ 	       http://www.tirsen.com, http://www.oriontransfer.co.nz) 
+	      MIT-style license.
 PrototypeJS: Copyright (c) 2005-2008 Sam Stephenson; http://www.prototypejs.org/; 
   MIT License (http://dev.rubyonrails.org/browser/spinoffs/prototype/trunk/LICENSE?format=raw)
 strcmp: http://kevin.vanzonneveld.net; original by: Waldo Malqui Silva input by: Steve Hilder
@@ -11,6 +14,7 @@ DatePicker: widget using Prototype and Scriptaculous. (c) 2007 Mathieu Jondet <m
   DatePicker is freely distributable under the same terms as Prototype. -> 
 NanoTree: Martin Mouritzen. (martin@nano.dk) LGPL V3
 Nifty Corners Cube: Alessandro Fulciniti (a.fulciniti@html.it); GPV V2 or Later
+Bubble Tooltips: Alessandro Fulciniti (http://web-graphics.com) Public Domain, GPL V3 by Art Cancro
 StdExt: Copyright (c) 2005 Michael Schuerig http://www.schuerig.de/michael/javascript/stdext.js LGPL V2.1 or later
 TinyMCE: Moxiecode tinymce.org LGPL V2.1 or later
 
