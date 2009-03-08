@@ -2,7 +2,7 @@
  * $Id$
  *
  * Citadel "system dependent" stuff.
- * See copyright.txt for copyright information.
+ * See COPYING for copyright information.
  *
  * Here's where we (hopefully) have most parts of the Citadel server that
  * would need to be altered to run the server in a non-POSIX environment.

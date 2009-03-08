@@ -2,7 +2,7 @@
  * $Id: sysdep.c 5882 2007-12-13 19:46:05Z davew $
  *
  * Citadel "system dependent" stuff.
- * See copyright.txt for copyright information.
+ * See COPYING for copyright information.
  *
  * Here's where we have the Citadel thread implimentation
  *

@@ -2,7 +2,7 @@
  * $Id$
  *
  * Main Citadel header file
- * See copyright.txt for copyright information.
+ * See COPYING for copyright information.
  */
 
 /* system customizations are in sysconfig.h */

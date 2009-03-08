@@ -2,7 +2,7 @@
  * $Id$
  *
  * Citadel message support routines
- * see copyright.txt for copyright information
+ * see COPYING for copyright information
  */
 
 #include "sysdep.h"
