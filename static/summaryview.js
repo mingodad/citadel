@@ -1,7 +1,10 @@
-/** Webcit Summary View v2
-    All comments, flowers and death threats to Mathew McBride
-    <matt@mcbridematt.dhs.org> / <matt@comalies>
-*/
+/**
+ * Webcit Summary View v2
+ *   All comments, flowers and death threats to Mathew McBride
+ *   <matt@mcbridematt.dhs.org> / <matt@comalies>
+ * Copyright 2009 The Citadel Team
+ * Licensed under the GPL V3
+ */
 document.observe("dom:loaded", createMessageView);
 
 var message_view = null;

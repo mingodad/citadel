@@ -1,9 +1,11 @@
-//
-// $Id$
-//
-// JavaScript function library for WebCit.
-//
-//
+/*
+ * $Id$
+ * Copyright 2005 - 2009 The Citadel Team
+ * Licensed under the GPL V3
+ *
+ * JavaScript function library for WebCit.
+ *
+ */
 
 
 var browserType;

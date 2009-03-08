@@ -6,7 +6,7 @@
  *
  * The original version of this module was released into the public
  * domain.  This version is distributed as part of the Citadel system
- * under the terms of the GNU General Public License v2.
+ * under the terms of the GNU General Public License v3.
  *
  */
 
