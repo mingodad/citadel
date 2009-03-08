@@ -31,8 +31,7 @@ EXEEXT=@EXEEXT@
 CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) 
 NOINST_TARGETS=stress$(EXEEXT)
 SERVER_TARGETS=citserver$(EXEEXT)
-SERV_MODULES=crc16.o \
-	md5.o \
+SERV_MODULES= md5.o \
 	ical_dezonify.o
 
 include Make_modules
@@ -85,7 +84,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	setup.c snprintf.c \
 	stress.c support.c sysdep.c user_ops.c userlist.c \
 	whobbs.c \
-	crc16.c journaling.c citadel_dirs.c threads.c
+	journaling.c citadel_dirs.c threads.c
 
 
 include Make_sources
