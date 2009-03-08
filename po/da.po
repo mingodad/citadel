@@ -1,12 +1,12 @@
 # Danish localization for WebCit
-# Copyright (C) 2006-2009 The Citadel Project - http://www.citadel.org
+# Copyright (C) 2006 - 2009 The Citadel Project - http://www.citadel.org
 # This file is distributed under GPL v3
-#
+# Flemming Veggerby <fveggerby@dbmail.dk> 2008 - 2009
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: WebCit 7.40\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: WebCit\n"
+"Report-Msgid-Bugs-To: <room_citadel_translators@uncensored.citadel.org>\n"
 "POT-Creation-Date: 2009-02-22 12:41+0100\n"
 "PO-Revision-Date: 2009-01-31 11:30+0100\n"
 "Last-Translator: Flemming Veggerby <fveggerby@dbmail.dk>\n"

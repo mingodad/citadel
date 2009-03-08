@@ -1,17 +1,20 @@
-# translation of pt_BR.po to
-# translation of webcit.po to
-# Copyright (C) YEAR The Citadel Project - http://www.citadel.org
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# translation of webcit.po to pt_BR.po
+# Copyright (C) 2008 - 2009 The Citadel Project - http://www.citadel.org
+# Marco Goncalves <room_citadel_translators@uncensored.citadel.org>, 2008.
+#
+# Brazilian / Portuguese tranlation
+# Copyright (C) 2005 - 2009 By Marco Goncalves
+# This file is distributed under GPL v3
+#
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: pt_BR\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: WebCit\n"
+"Report-Msgid-Bugs-To: <room_citadel_translators@uncensored.citadel.org>\n"
 "POT-Creation-Date: 2009-02-22 12:41+0100\n"
 "PO-Revision-Date: 2008-04-22 23:35-0300\n"
 "Last-Translator: Marco Gonçalves\n"
-"Language-Team:  <en@li.org>\n"
+"Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

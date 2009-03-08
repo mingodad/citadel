@@ -1,16 +1,20 @@
-# WebCit
-# Copyright (C) 2006 The Citadel Project - http://www.citadel.org
-# This file is distributed under the terms of the GNU General Public License v2.
+# translation of webcit.po to es_ES.po
+# Copyright (C) 2008 - 2009 The Citadel Project - http://www.citadel.org
+# Gabriel C. Huertas <gabrielhuertas@terra.es>
+#
+# Spanish translation
+# Copyright (C) 2005 - 2009 By Gabriel C. Huertas
+# This file is distributed under GPL v2 <TODO>
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: WEBCIT 6.40\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: WebCit\n"
+"Report-Msgid-Bugs-To: <room_citadel_translators@uncensored.citadel.org>\n"
 "POT-Creation-Date: 2009-02-22 12:41+0100\n"
 "PO-Revision-Date: 2006-04-13 16:23-0500\n"
 "Last-Translator: Gabriel C. Huertas <gabrielhuertas@terra.es>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"Language-Team: Spanish <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
