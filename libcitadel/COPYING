@@ -1,9 +1,13 @@
 LibCitadel is distributed under the GPL V3. It contains a copy of
 two other modules: 
   * xdgmime; http://www.freedesktop.org s xdgmime library in 
-    lib/xdgmime, which is courtesy of Jonathan Blandford  
-    <jrb@@redhat.com> and is distributed under LGPL V2 or the 
+    lib/xdgmime, which is distributed under LGPL V2 (or later) or the 
     Academic Free License, version 2.0
+    XDG Mime is courtesy of:
+      Jonathan Blandford <jrb@@redhat.com>
+      Copyright (C) 2004  Red Hat, Inc.
+      Matthias Clasen <mclasen@redhat.com>
+
   * Hashlittle, http://jok.is-a-geek.net/; hashing algorithm
     courtesy of By Bob Jenkins, 2006. bob_jenkins@burtleburtle.net. 
     Its license:
