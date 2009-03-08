@@ -6,8 +6,8 @@
 # Wim Kuilman <w.kuilman@icoss.net>, 2008, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: nl\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: WebCit\n"
+"Report-Msgid-Bugs-To: <room_citadel_translators@uncensored.citadel.org>\n"
 "POT-Creation-Date: 2009-02-22 12:41+0100\n"
 "PO-Revision-Date: 2009-02-10 22:14+0100\n"
 "Last-Translator: Wim Kuilman\n"

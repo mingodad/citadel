@@ -1,16 +1,16 @@
-# translation of it.po to italian
-# Copyright (C) 2005 The Citadel Project - http://www.citadel.org
+# translation of webcit.po to it.po
+# Copyright (C) 2005 - 2009 The Citadel Project - http://www.citadel.org
 # This file is distributed under the same license as the WebCit package.
 #
 # Gabriele Tassoni <tasso@fastwebnet.it>, 2005, 2006.
 msgid ""
 msgstr ""
-"Project-Id-Version: it\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: WebCit\n"
+"Report-Msgid-Bugs-To: <room_citadel_translators@uncensored.citadel.org>\n"
 "POT-Creation-Date: 2009-02-22 12:41+0100\n"
 "PO-Revision-Date: 2006-12-20 14:18+0100\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
-"Language-Team: italian <it@li.org>\n"
+"Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
