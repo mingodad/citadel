@@ -1,3 +1,7 @@
+/*
+ * Copyright 2005 - 2009 The Citadel Team
+ * Licensed under the GPL V3
+ */
 @import url("datepicker.css");
 @media print {
 	input#toggler, .toolbar { display: none }

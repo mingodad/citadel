@@ -1,3 +1,8 @@
+/*
+ * Copyright 2005 - 2009 The Citadel Team
+ * Licensed under the GPL V3
+ */
+
 var currentMsgDisplay = null;
 function CtdlLoadMsgMouseDown(event, msgnum) {
   /* 	if (currentMsgDisplay != null) {

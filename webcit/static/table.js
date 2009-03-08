@@ -1,6 +1,9 @@
 var categories;
-/** Task view table sorter
+/** 
+ * Task view table sorter
  * Written by Mathew McBride <matt@mcbridematt.dhs.org>
+ * Copyright 2009 The Citadel Team
+ * Licensed under the GPL V3
  */
 function gatherCategoriesFromTable() {
 	var tbody = document.getElementById("taskview");

@@ -21,6 +21,12 @@ Object.inspect = function(obj) {
 
 // borrowed from http://www.schuerig.de/michael/javascript/stdext.js
 // Copyright (c) 2005, Michael Schuerig, michael@schuerig.de
+// License
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// See http://www.gnu.org/copyleft/lesser.html
 
 Array.flatten = function(array, excludeUndefined) {
   if (excludeUndefined === undefined) {

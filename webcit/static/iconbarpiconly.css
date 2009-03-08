@@ -1,3 +1,12 @@
+/*
+ * $Id: iconbaricns.css 7193 2009-03-07 17:24:58Z dothebart $
+ * Copyright 2005 - 2009 The Citadel Team
+ * Licensed under the GPL V3
+ *
+ * Styles for the WebCit Iconbar in textonly mode.
+ *
+ */
+
 @import url("/static/iconbaricns.css");
 
 .ib_button {

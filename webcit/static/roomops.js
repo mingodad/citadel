@@ -1,3 +1,8 @@
+/*
+ * Copyright 1998 - 2009 The Citadel Team
+ * Licensed under the GPL V3
+ */
+
 // ROOM list vars:
 var rooms = null;
 
