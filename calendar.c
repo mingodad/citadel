@@ -675,6 +675,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf(_("No date"));
 	
 	wprintf(" ");
+	wprintf("<span ID=\"dtstart_date\">");
 	wprintf(_("or"));
 	wprintf(" ");
 	if (p != NULL) {
@@ -684,13 +685,13 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
 	display_icaltimetype_as_webform(&IcalTime, "dtstart", 0);
 
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"dtstart_time\" ID=\"dtstart_time\" VALUE=\"yes\"");
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"dtstart_time_assoc\" ID=\"dtstart_time_assoc\" VALUE=\"yes\"");
 	if (!IcalTime.is_date) {
 		wprintf("CHECKED=\"CHECKED\"");
 	}
 	wprintf(">");
 	wprintf(_("Time associated"));
-	wprintf("</TD></TR>\n");
+	wprintf("</span></TD></TR>\n");
 
 	wprintf("<TR><TD>");
 	wprintf(_("Due date:"));
@@ -703,6 +704,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	wprintf(">");
 	wprintf(_("No date"));
 	wprintf(" ");
+	wprintf("<span ID=\"due_date\">\n");
 	wprintf(_("or"));
 	wprintf(" ");
 	if (p != NULL) {
@@ -712,13 +714,13 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
 	display_icaltimetype_as_webform(&IcalTime, "due", 0);
 
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"due_time\" ID=\"due_time\" VALUE=\"yes\"");
+	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"due_time_assoc\" ID=\"due_time_assoc\" VALUE=\"yes\"");
 	if (!IcalTime.is_date) {
 		wprintf("CHECKED=\"CHECKED\"");
 	}
 	wprintf(">");
 	wprintf(_("Time associated"));
-	wprintf("</TD></TR>\n");
+	wprintf("</span></TD></TR>\n");
 	todoStatus = icalcomponent_get_status(vtodo);
 	wprintf("<TR><TD>\n");
 	wprintf(_("Completed:"));
