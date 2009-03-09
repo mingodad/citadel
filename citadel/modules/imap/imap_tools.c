@@ -26,10 +26,10 @@
 
 /* String handling helpers */
 
-/* This code uses some pretty narsty string manipulation. To make everything
+/* This code uses some pretty nasty string manipulation. To make everything
  * manageable, we use this semi-high-level string manipulation API. Strings are
- * always \0-terminated, despite the fact that we keep track of the size. */
-
+ * always \0-terminated, despite the fact that we keep track of the size.
+ */
 struct string {
 	char* buffer;
 	int maxsize;

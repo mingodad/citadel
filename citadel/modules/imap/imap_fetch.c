@@ -348,7 +348,7 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 
 /*
  * Output an envelope address (or set of addresses) in the official,
- * convuluted, braindead format.  (Note that we can't use this for
+ * convoluted, braindead format.  (Note that we can't use this for
  * the "From" address because its data may come from a number of different
  * fields.  But we can use it for "To" and possibly others.
  */
@@ -598,7 +598,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * fetching the entire RFC822 message from disk if the client was only
 	 * asking for the headers.  Unfortunately, fetching only the Citadel
 	 * headers omits "Content-type:" and this behavior breaks the iPhone
-	 * email client.  So we have to fetch the whole message from disk.  The
+	 * email client.  So we have to fetch the whole message from disk.
 	 *
 	 *	if (!strncasecmp(section, "HEADER", 6)) {
 	 *		need_body = 0;
@@ -848,12 +848,11 @@ void imap_fetch_bodystructure_part(
 	/* More gratuitous complexity */
 	if ((!strcasecmp(cbmaintype, "MESSAGE"))
 	   && (!strcasecmp(cbsubtype, "RFC822"))) {
-		/* FIXME
-                     A body type of type MESSAGE and subtype RFC822
-                     contains, immediately after the basic fields, the
-                     envelope structure, body structure, and size in
-                     text lines of the encapsulated message.
-		*/
+		/* FIXME: message/rfc822 also needs to output the envelope structure,
+		 * body structure, and line count of the encapsulated message.  Fortunately
+		 * there are not yet any clients depending on this, so we can get away
+		 * with not implementing it for now.
+		 */
 	}
 
 	/* MD5 value of body part; we can get away with NIL'ing this */

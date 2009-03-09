@@ -762,7 +762,7 @@ void imap_select(int num_parms, char *parms[])
 	 * 
 	 * Unfortunately, omitting \Deleted as a PERMANENTFLAGS flag causes
 	 * some clients (particularly Thunderbird) to misbehave -- they simply
-	 * electing not to transmit the flag at all.  So we have to advertise
+	 * elect not to transmit the flag at all.  So we have to advertise
 	 * \Deleted as a PERMANENTFLAGS flag, even though it technically isn't.
 	 */
 	cprintf("* FLAGS (\\Deleted \\Seen \\Answered)\r\n");

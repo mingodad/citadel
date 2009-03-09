@@ -108,7 +108,6 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	char **patterns;
 	int return_subscribed = 0;
 	int return_children = 0;
-	int return_metadata = 0;		/* FIXME obsolete remove this */
 	int i = 0;
 	int match = 0;
 
@@ -120,7 +119,6 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	patterns = (char **) data_for_callback[3];
 	return_subscribed = (int) data_for_callback[4];
 	return_children = (int) data_for_callback[5];
-	return_metadata = (int) data_for_callback[6];		/* FIXME obsolete remove this */
 
 	/* Only list rooms to which the user has access!! */
 	yes_output_this_room = 0;
@@ -168,11 +166,6 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 		if (match) {
 			cprintf("* %s (%s) \"/\" ", verb, return_options);
 			imap_strout(buf);
-
-			if (return_metadata) {
-				cprintf(" (METADATA ())");	/* FIXME obsolete remove this */
-			}
-
 			cprintf("\r\n");
 		}
 	}
@@ -187,7 +180,7 @@ void imap_list(int num_parms, char *parms[])
 	int subscribed_rooms_only = 0;
 	char verb[16];
 	int i, j, paren_nest;
-	char *data_for_callback[7];
+	char *data_for_callback[6];
 	int num_patterns = 1;
 	char *patterns[MAX_PATTERNS];
 	int selection_left = (-1);
@@ -200,10 +193,6 @@ void imap_list(int num_parms, char *parms[])
 	int extended_list_in_use = 0;
 	int return_subscribed = 0;
 	int return_children = 0;
-	int return_metadata = 0;		/* FIXME obsolete remove this */
-	int select_metadata_left = (-1);	/* FIXME obsolete remove this */
-	int select_metadata_right = (-1);	/* FIXME obsolete remove this */
-	int select_metadata_nest = 0;		/* FIXME obsolete remove this */
 
 	if (num_parms < 4) {
 		cprintf("%s BAD arguments invalid\r\n", parms[0]);
@@ -224,21 +213,19 @@ void imap_list(int num_parms, char *parms[])
 	}
 
 	/*
-	 * In order to implement draft-ietf-imapext-list-extensions-18
-	 * ("LIST Command Extensions") we need to:
+	 * Partial implementation of LIST-EXTENDED (which will not get used because
+	 * we don't advertise it in our capabilities string).  Several requirements:
 	 *
-	 * 1. Extract "selection options"
-	 *				(Extraction: done
-	 *				SUBSCRIBED option: done
-	 *				RECURSIVEMATCH option: not done yet
-	 *				REMOTE: safe to silently ignore)
+	 * Extraction of selection options:
+	 *	SUBSCRIBED option: done
+	 *	RECURSIVEMATCH option: not done yet
+	 *	REMOTE: safe to silently ignore
 	 *
-	 * 2. Extract "return options"
-	 *				(Extraction: done
-	 *				SUBSCRIBED option: done
-	 *				CHILDREN option: done, but needs a non-ugly rewrite)
+	 * Extraction of return options:
+	 *	SUBSCRIBED option: done
+	 *	CHILDREN option: done, but needs a non-ugly rewrite
 	 *
-	 * 3. Determine whether there is more than one match pattern (done)
+	 * Multiple match patterns: done
 	 */
 
 	/*
@@ -277,20 +264,7 @@ void imap_list(int num_parms, char *parms[])
 
 		for (i=selection_left; i<=selection_right; ++i) {
 
-			/* are we in the middle of a metadata select block? */
-			if ((select_metadata_left >= 0) && (select_metadata_right < 0)) {
-				select_metadata_nest += haschar(parms[i], '(') - haschar(parms[i], ')') ;
-				if (select_metadata_nest == 0) {
-					select_metadata_right = i;
-				}
-			}
-
-			else if (!strcasecmp(parms[i], "METADATA")) {
-				select_metadata_left = i+1;
-				select_metadata_nest = 0;
-			}
-
-			else if (!strcasecmp(parms[i], "SUBSCRIBED")) {
+			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
 				subscribed_rooms_only = 1;
 			}
 
@@ -301,9 +275,6 @@ void imap_list(int num_parms, char *parms[])
 		}
 
 	}
-
-	CtdlLogPrintf(CTDL_DEBUG, "select metadata: %d to %d\n", select_metadata_left, select_metadata_right);
-	/* FIXME blah, we have to do something with this */
 
 	/* The folder root appears immediately after the selection options,
 	 * or in position 2 if no selection options were specified.
@@ -370,10 +341,6 @@ void imap_list(int num_parms, char *parms[])
 				return_children = 1;
 			}
 
-			else if (!strcasecmp(parms[i], "METADATA")) {
-				return_metadata = 1;
-			}
-
 			if (paren_nest == 0) {
 				return_right = i;	/* found end of patterns */
 				i = num_parms + 1;	/* break out of the loop */
@@ -389,7 +356,6 @@ void imap_list(int num_parms, char *parms[])
 	data_for_callback[3] = (char *) patterns;
 	data_for_callback[4] = (char *) return_subscribed;
 	data_for_callback[5] = (char *) return_children;
-	data_for_callback[6] = (char *) return_metadata;	/* FIXME obsolete remove this */
 
 	/* The non-extended LIST command is required to treat an empty
 	 * ("" string) mailbox name argument as a special request to return the
