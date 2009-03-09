@@ -649,52 +649,42 @@ function HandleRSVP(question_divname, title_divname, msgnum, cal_partnum, sc) {
 // TODO: Collapse into one function
 function toggleTaskDtStart(event) {
 	var checkBox = $('nodtstart');
-	var checkBoxTime = $('dtstart_time');
-	dtStart = document.getElementById("dtstart");
-	dtStartHour = document.getElementById("dtstart_hour");
-	dtStartMinute = document.getElementById("dtstart_minute");
+	var checkBoxTime = $('dtstart_time_assoc');
+	var dtstart = document.getElementById("dtstart");
+	var dtstart_date = document.getElementById("dtstart_date");
+	var dtstart_time = document.getElementById("dtstart_time");
 	if (checkBox.checked) {
-		dtStart.disabled = true;
-		dtStartHour.disabled = true;
-		dtStartMinute.disabled = true;
-		dtStart.style.textDecoration = "line-through";
+		dtstart_date.style.visibility = "hidden";
+		dtstart_time.style.visibility = "hidden";
 	} else {
-		dtStart.disabled = false;
 		if (checkBoxTime.checked) {
-			dtStartHour.disabled = false;
-			dtStartMinute.disabled = false;
+			dtstart_time.style.visibility = "visible";
 		} else {
-			dtStartHour.disabled = true;
-			dtStartMinute.disabled = true;
+			dtstart_time.style.visibility = "hidden";
 		}
-		dtStart.style.textDecoration = "";
-		if (dtStart.value.length == 0)
-			dtStart.dpck._initCurrentDate();
+		dtstart_date.style.visibility = "visible";
+		if (dtstart.value.length == 0)
+			dtstart.dpck._initCurrentDate();
 	}
 }
 function toggleTaskDue(event) {
 	var checkBox = $('nodue');
-	var checkBoxTime = $('due_time');
-	dueField = document.getElementById("due");
-	dueFieldHour = document.getElementById("due_hour");
-	dueFieldMinute = document.getElementById("due_minute");
+	var checkBoxTime = $('due_time_assoc');
+	var due = document.getElementById("due");
+	var due_date = document.getElementById("due_date");
+	var due_time = document.getElementById("due_time");
 	if (checkBox.checked) {
-		dueField.disabled = true;
-		dueFieldHour.disabled = true;
-		dueFieldMinute.disabled = true;
-		dueField.style.textDecoration = "line-through";
+		due_date.style.visibility = "hidden";
+		due_time.style.visibility = "hidden";
 	} else {
-		dueField.disabled = false;
 		if (checkBoxTime.checked) {
-			dueFieldHour.disabled = false;
-			dueFieldMinute.disabled = false;
+			due_time.style.visibility = "visible";
 		} else {
-			dueFieldHour.disabled = true;
-			dueFieldMinute.disabled = true;
+			due_time.style.visibility = "hidden";
 		}
-		dueField.style.textDecoration = "";
-		if (dueField.value.length == 0)
-			dueField.dpck._initCurrentDate();
+		due_date.style.visibility = "visible";
+		if (due.value.length == 0)
+			due.dpck._initCurrentDate();
 	}
 }
 function ToggleTaskDateOrNoDateActivate(event) {
@@ -703,9 +693,9 @@ function ToggleTaskDateOrNoDateActivate(event) {
 		toggleTaskDtStart(null);
 		toggleTaskDue(null);
 		$('nodtstart').observe('click', toggleTaskDtStart);
-		$('dtstart_time').observe('click', toggleTaskDtStart);
+		$('dtstart_time_assoc').observe('click', toggleTaskDtStart);
 		$('nodue').observe('click', toggleTaskDue);
-		$('due_time').observe('click', toggleTaskDue);
+		$('due_time_assoc').observe('click', toggleTaskDue);
 	} 
 }
 function TaskViewGatherCategoriesFromTable() {
@@ -724,13 +714,14 @@ function attachDatePicker(relative) {
 }
 function eventEditAllDay() {
 	var allDayCheck = document.getElementById("alldayevent");
-	var dtend= document.getElementById("dtendcell");
+	var dtend = document.getElementById("dtendcell");
+	var dtstart_time = document.getElementById("dtstart_time");
 	if(allDayCheck.checked) {
-		//dtend.disabled = true;
-		dtend.style.textDecoration = "line-through";
+		dtstart_time.style.visibility = "hidden";
+		dtend.style.visibility = "hidden";
 	} else {
-		//dtend_day.disabled = false;
-		dtend.style.textDecoration = "";
+		dtstart_time.style.visibility = "visible";
+		dtend.style.visibility = "visible";
 	}
 }
 
