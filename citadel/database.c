@@ -907,9 +907,10 @@ void cdb_trunc(int cdb)
 				/* txabort(tid); */
 				goto retry;
 			} else {
-				CtdlLogPrintf(CTDL_EMERG,
-					"cdb_truncate(%d): %s\n", cdb,
-					db_strerror(ret));
+				CtdlLogPrintf(CTDL_EMERG, "cdb_truncate(%d): %s\n", cdb, db_strerror(ret));
+				if (ret == ENOMEM) {
+					CtdlLogPrintf(CTDL_EMERG, "You may need to tune your database; please read http://www.citadel.org/doku.php/faq:troubleshooting:out_of_lock_entries for more information.\n");
+				}
 				abort();
 			}
 		} else {
