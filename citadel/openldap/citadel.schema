@@ -2,7 +2,7 @@
 
 # (c) 2006 Art Cancro <ajc@uncensored.citadel.org>
 
-# This file is distributed under the terms of the GNU General Public License v2.
+# This file is distributed under the terms of the GNU General Public License v3.
 
 # This schema depends on the core.schema, cosine.schema and the inetorgperson.schema
 # as provided by third parties such as OpenLDAP.  It also depends on rfc2739 schema,
