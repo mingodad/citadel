@@ -79,4 +79,11 @@ fails).
        5 = Delivery to this address failed permanently.  The error message
            should be placed in the fourth field so that a bounce message may
            be generated.
- 
+
+
+ INSTRUCTION:	envelope_from
+ SYNTAX:	envelope_from|blurdybloop@example.com
+ DESCRIPTION:
+    Sets a value to be used as the envelope sender during the 'MAIL FROM:'
+    phase of the SMTP transaction.  If an envelope sender is not supplied,
+    one is extracted from the message body.

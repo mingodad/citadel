@@ -908,7 +908,7 @@ void smtp_command_loop(void) {
  *
  */
 void smtp_try(const char *key, const char *addr, int *status,
-	      char *dsn, size_t n, long msgnum)
+	      char *dsn, size_t n, long msgnum, char *envelope_from)
 {
 	int sock = (-1);
 	char mxhosts[1024];
@@ -946,52 +946,55 @@ void smtp_try(const char *key, const char *addr, int *status,
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
 
-	/* Extract something to send later in the 'MAIL FROM:' command */
-	strcpy(mailfrom, "");
-	scan_done = 0;
-	ptr = msgtext;
-	do {
-		if (ptr = memreadline(ptr, buf, sizeof buf), *ptr == 0) {
-			scan_done = 1;
-		}
-		if (!strncasecmp(buf, "From:", 5)) {
-			safestrncpy(mailfrom, &buf[5], sizeof mailfrom);
-			striplt(mailfrom);
-			for (i=0; mailfrom[i]; ++i) {
-				if (!isprint(mailfrom[i])) {
-					strcpy(&mailfrom[i], &mailfrom[i+1]);
-					i=0;
+	/* If no envelope_from is supplied, extract one from the message */
+	if ( (envelope_from == NULL) || (IsEmptyStr(envelope_from)) ) {
+		strcpy(mailfrom, "");
+		scan_done = 0;
+		ptr = msgtext;
+		do {
+			if (ptr = memreadline(ptr, buf, sizeof buf), *ptr == 0) {
+				scan_done = 1;
+			}
+			if (!strncasecmp(buf, "From:", 5)) {
+				safestrncpy(mailfrom, &buf[5], sizeof mailfrom);
+				striplt(mailfrom);
+				for (i=0; mailfrom[i]; ++i) {
+					if (!isprint(mailfrom[i])) {
+						strcpy(&mailfrom[i], &mailfrom[i+1]);
+						i=0;
+					}
 				}
+	
+				/* Strip out parenthesized names */
+				lp = (-1);
+				rp = (-1);
+				for (i=0; mailfrom[i]; ++i) {
+					if (mailfrom[i] == '(') lp = i;
+					if (mailfrom[i] == ')') rp = i;
+				}
+				if ((lp>0)&&(rp>lp)) {
+					strcpy(&mailfrom[lp-1], &mailfrom[rp+1]);
+				}
+	
+				/* Prefer brokketized names */
+				lp = (-1);
+				rp = (-1);
+				for (i=0; mailfrom[i]; ++i) {
+					if (mailfrom[i] == '<') lp = i;
+					if (mailfrom[i] == '>') rp = i;
+				}
+				if ( (lp>=0) && (rp>lp) ) {
+					mailfrom[rp] = 0;
+					strcpy(mailfrom, &mailfrom[lp]);
+				}
+	
+				scan_done = 1;
 			}
-
-			/* Strip out parenthesized names */
-			lp = (-1);
-			rp = (-1);
-			for (i=0; mailfrom[i]; ++i) {
-				if (mailfrom[i] == '(') lp = i;
-				if (mailfrom[i] == ')') rp = i;
-			}
-			if ((lp>0)&&(rp>lp)) {
-				strcpy(&mailfrom[lp-1], &mailfrom[rp+1]);
-			}
-
-			/* Prefer brokketized names */
-			lp = (-1);
-			rp = (-1);
-			for (i=0; mailfrom[i]; ++i) {
-				if (mailfrom[i] == '<') lp = i;
-				if (mailfrom[i] == '>') rp = i;
-			}
-			if ( (lp>=0) && (rp>lp) ) {
-				mailfrom[rp] = 0;
-				strcpy(mailfrom, &mailfrom[lp]);
-			}
-
-			scan_done = 1;
-		}
-	} while (scan_done == 0);
-	if (IsEmptyStr(mailfrom)) strcpy(mailfrom, "someone@somewhere.org");
-	stripallbut(mailfrom, '<', '>');
+		} while (scan_done == 0);
+		if (IsEmptyStr(mailfrom)) strcpy(mailfrom, "someone@somewhere.org");
+		stripallbut(mailfrom, '<', '>');
+		envelope_from = mailfrom;
+	}
 
 	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);
@@ -1132,7 +1135,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* previous command succeeded, now try the MAIL FROM: command */
-	snprintf(buf, sizeof buf, "MAIL FROM:<%s>\r\n", mailfrom);
+	snprintf(buf, sizeof buf, "MAIL FROM:<%s>\r\n", envelope_from);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(sock, buf, strlen(buf));
 	if (ml_sock_gets(sock, buf) < 0) {
@@ -1516,6 +1519,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	char key[1024];
 	char addr[1024];
 	char dsn[1024];
+	char envelope_from[1024];
 	long text_msgid = (-1);
 	int incomplete_deliveries_remaining;
 	time_t attempted = 0L;
@@ -1523,6 +1527,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	time_t retry = SMTP_RETRY_INTERVAL;
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: smtp_do_procmsg(%ld)\n", msgnum);
+	strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
@@ -1551,6 +1556,9 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		extract_token(key, buf, 0, '|', sizeof key);
 		if (!strcasecmp(key, "msgid")) {
 			text_msgid = extract_long(buf, 1);
+		}
+		if (!strcasecmp(key, "envelope_from")) {
+			extract_token(envelope_from, buf, 1, '|', sizeof envelope_from);
 		}
 		if (!strcasecmp(key, "retry")) {
 			/* double the retry interval after each attempt */
@@ -1612,7 +1620,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			--i;
 			--lines;
 			CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Trying <%s>\n", addr);
-			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid);
+			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid, envelope_from);
 			if (status != 2) {
 				if (results == NULL) {
 					results = malloc(1024);
