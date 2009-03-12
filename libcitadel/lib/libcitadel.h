@@ -327,6 +327,7 @@ unsigned long extract_unsigned_long(const char *source, int parmnum);
 void CtdlInitBase64Table(void);
 size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int linebreaks);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
+inline unsigned int decode_hex(char *Source);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void striplt(char *);
 int haschar(const char *st, int ch);
