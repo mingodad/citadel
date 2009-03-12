@@ -669,18 +669,28 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	long I;
 	struct vCard *v;
 	int is_UserConf=0;
+	int is_MY_UserConf=0;
 	int is_GAB=0;
+	char roomname[ROOMNAMELEN];
 
+	if (msg->cm_format_type != 4) return(0);
 	if (!CC->logged_in) return(0);	/* Only do this if logged in. */
 
-	/* If this isn't the configuration room, or if this isn't a MIME
-	 * message, don't bother.
-	 */
-	if (msg->cm_fields['O'] == NULL) return(0);
-	if (!strcasecmp(msg->cm_fields['O'], USERCONFIGROOM)) is_UserConf = 1;
-	if (!strcasecmp(msg->cm_fields['O'], ADDRESS_BOOK_ROOM)) is_GAB = 1;
+	/* We're interested in user config rooms only. */
+
+	if ( (strlen(CC->room.QRname) >= 12) && (!strcasecmp(&CC->room.QRname[11], USERCONFIGROOM)) ) {
+		is_UserConf = 1;	/* It's someone's config room */
+	}
+	MailboxName(roomname, sizeof roomname, &CC->user, USERCONFIGROOM);
+	if (!strcasecmp(CC->room.QRname, roomname)) {
+		is_UserConf = 1;
+		is_MY_UserConf = 1;	/* It's MY config room */
+	}
+	if (!strcasecmp(CC->room.QRname, ADDRESS_BOOK_ROOM)) {
+		is_GAB = 1;		/* It's the Global Address Book */
+	}
+
 	if (!is_UserConf && !is_GAB) return(0);
-	if (msg->cm_format_type != 4) return(0);
 
 	ptr = msg->cm_fields['M'];
 	if (ptr == NULL) return(0);
@@ -700,12 +710,14 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			if (I < 0L) return(0);
 
 			/* Store our Internet return address in memory */
-			v = vcard_load(msg->cm_fields['M']);
-			extract_inet_email_addrs(CC->cs_inet_email, sizeof CC->cs_inet_email,
+			if (is_MY_UserConf) {
+				v = vcard_load(msg->cm_fields['M']);
+				extract_inet_email_addrs(CC->cs_inet_email, sizeof CC->cs_inet_email,
 						CC->cs_inet_other_emails, sizeof CC->cs_inet_other_emails,
 						v, 1);
-			extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
-			vcard_free(v);
+				extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
+				vcard_free(v);
+			}
 
 			if (!is_GAB)
 			{	// This is not the GAB
