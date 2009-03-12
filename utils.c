@@ -42,7 +42,7 @@ long unescape_input(char *buf)
 				hex[1] = buf[a + 2];
 				hex[2] = 0;
 				b = 0;
-				sscanf(hex, "%02x", &b);
+				b = decode_hex(hex);
 				buf[a] = (char) b;
 				len = buflen - a - 2;
 				if (len > 0)
