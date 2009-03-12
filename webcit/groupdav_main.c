@@ -66,7 +66,7 @@ void euid_unescapize(char *target, const char *source) {
 			hex[1] = source[a + 2];
 			hex[2] = 0;
 			b = 0;
-			sscanf(hex, "%02x", &b);
+			b = decode_hex(hex);
 			target[target_length] = b;
 			target[++target_length] = 0;
 			a += 2;
