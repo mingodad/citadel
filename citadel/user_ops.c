@@ -728,9 +728,7 @@ void logout(void)
 		purge_user(CCC->user.fullname);
 
 	/* Free any output buffers */
-	if (CCC->output_buffer != NULL) {
-		unbuffer_output();
-	}
+	unbuffer_output();
 }
 
 /*

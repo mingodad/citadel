@@ -548,9 +548,8 @@ void CtdlFillSystemContext(struct CitContext *context, char *name)
 }
 
 /*
- * The following functions implement output buffering. If the kernel supplies
- * native TCP buffering (Linux & *BSD), use that; otherwise, emulate it with
- * user-space buffering.
+ * The following functions implement output buffering on operating systems which
+ * support it (such as Linux and various BSD flavors).
  */
 #ifndef HAVE_DARWIN
 #ifdef TCP_CORK
@@ -563,64 +562,27 @@ void CtdlFillSystemContext(struct CitContext *context, char *name)
 #endif /* TCP_CORK */
 #endif /* HAVE_DARWIN */
 
-#ifdef HAVE_TCP_BUFFERING
 static unsigned on = 1, off = 0;
+
 void buffer_output(void) {
-	struct CitContext *ctx = MyContext();
-	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
-	ctx->buffering = 1;
+#ifdef HAVE_TCP_BUFFERING
+	setsockopt(CC->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
+#endif
 }
 
 void unbuffer_output(void) {
-	struct CitContext *ctx = MyContext();
-	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
-	ctx->buffering = 0;
+#ifdef HAVE_TCP_BUFFERING
+	setsockopt(CC->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
+#endif
 }
 
 void flush_output(void) {
-	struct CitContext *ctx = MyContext();
-	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
-	setsockopt(ctx->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
+#ifdef HAVE_TCP_BUFFERING
+	struct CitContext *CCC = CC;
+	setsockopt(CCC->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
+	setsockopt(CCC->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
+#endif
 }
-#else 
-#ifdef HAVE_DARWIN
-/* Stub functions for Darwin/OS X where TCP buffering isn't liked at all */
-void buffer_output(void) {
-	CC->buffering = 0;
-}
-void unbuffer_output(void) {
-	CC->buffering = 0;
-}
-void flush_output(void) {
-}
-#else
-void buffer_output(void) {
-	if (CC->buffering == 0) {
-		CC->buffering = 1;
-		CC->buffer_len = 0;
-		CC->output_buffer = malloc(SIZ);
-	}
-}
-
-void flush_output(void) {
-	if (CC->buffering == 1) {
-		client_write(CC->output_buffer, CC->buffer_len);
-		CC->buffer_len = 0;
-	}
-}
-
-void unbuffer_output(void) {
-	if (CC->buffering == 1) {
-		CC->buffering = 0;
-		/* We don't call flush_output because we can't. */
-		client_write(CC->output_buffer, CC->buffer_len);
-		CC->buffer_len = 0;
-		free(CC->output_buffer);
-		CC->output_buffer = NULL;
-	}
-}
-#endif /* HAVE_DARWIN */
-#endif /* HAVE_TCP_BUFFERING */
 
 
 
@@ -650,19 +612,6 @@ int client_write(char *buf, int nbytes)
 		Ctx->redirect_buffer[Ctx->redirect_len] = 0;
 		return 0;
 	}
-
-#ifndef HAVE_TCP_BUFFERING
-	/* If we're buffering for later, do that now. */
-	if (Ctx->buffering) {
-		old_buffer_len = Ctx->buffer_len;
-		Ctx->buffer_len += nbytes;
-		Ctx->output_buffer = realloc(Ctx->output_buffer, Ctx->buffer_len);
-		memcpy(&Ctx->output_buffer[old_buffer_len], buf, nbytes);
-		return 0;
-	}
-#endif
-
-	/* Ok, at this point we're not buffering.  Go ahead and write. */
 
 #ifdef HAVE_OPENSSL
 	if (Ctx->redirect_ssl) {
