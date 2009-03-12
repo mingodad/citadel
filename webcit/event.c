@@ -590,8 +590,12 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	int rrymonth = t_start.month;
 	int which_rryeartype_is_preselected = 0;
 
-	if ( (recur.by_day[0] != ICAL_RECURRENCE_ARRAY_MAX) 
-	   && (recur.by_month[0] != ICAL_RECURRENCE_ARRAY_MAX) ) {
+	if (
+		(recur.by_day[0] != ICAL_RECURRENCE_ARRAY_MAX) 
+		&& (recur.by_day[0] != 0) 
+		&& (recur.by_month[0] != ICAL_RECURRENCE_ARRAY_MAX)
+		&& (recur.by_month[0] != 0)
+	) {
 		which_rryeartype_is_preselected = 1;
 		rrymweek = icalrecurrencetype_day_position(recur.by_day[0]);
 		rrymweekday = icalrecurrencetype_day_day_of_week(recur.by_day[0]) - 1;
