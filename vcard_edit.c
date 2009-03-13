@@ -792,8 +792,15 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *forc
 		i = 0;
 		while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
 			value = vcard_get_prop(v, "", 0, i++, 0);
-	
-			if (!strcasecmp(key, "n")) {
+
+			char prp[256];	/* property name */
+			char prm[256];	/* parameters */
+
+			extract_token(prp, key, 0, ';', sizeof prp);
+			safestrncpy(prm, key, sizeof prm);
+			remove_token(prm, 0, ';');
+
+			if (!strcasecmp(prp, "n")) {
 				extract_token(lastname, value, 0, ';', sizeof lastname);
 				extract_token(firstname, value, 1, ';', sizeof firstname);
 				extract_token(middlename, value, 2, ';', sizeof middlename);
@@ -801,19 +808,19 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *forc
 				extract_token(suffix, value, 4, ';', sizeof suffix);
 			}
 
-			else if (!strcasecmp(key, "fn")) {
+			else if (!strcasecmp(prp, "fn")) {
 				safestrncpy(fullname, value, sizeof fullname);
 			}
 
-			else if (!strcasecmp(key, "title")) {
+			else if (!strcasecmp(prp, "title")) {
 				safestrncpy(title, value, sizeof title);
 			}
 	
-			else if (!strcasecmp(key, "org")) {
+			else if (!strcasecmp(prp, "org")) {
 				safestrncpy(org, value, sizeof org);
 			}
 	
-			else if ( (!strcasecmp(key, "adr")) || (!strncasecmp(key, "adr;", 4)) ) {
+			else if (!strcasecmp(prp, "adr")) {
 				extract_token(pobox, value, 0, ';', sizeof pobox);
 				extract_token(extadr, value, 1, ';', sizeof extadr);
 				extract_token(street, value, 2, ';', sizeof street);
@@ -822,25 +829,27 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *forc
 				extract_token(zipcode, value, 5, ';', sizeof zipcode);
 				extract_token(country, value, 6, ';', sizeof country);
 			}
-	
-			else if ( (!strcasecmp(key, "tel;home")) || (!strcasecmp(key, "tel;type=home")) ) {
-				extract_token(hometel, value, 0, ';', sizeof hometel);
+
+			else if (!strcasecmp(prp, "tel")) {
+
+				if (bmstrcasestr(prm, "home")) {
+					extract_token(hometel, value, 0, ';', sizeof hometel);
+				}
+				else if (bmstrcasestr(prm, "work")) {
+					extract_token(worktel, value, 0, ';', sizeof worktel);
+				}
+				else if (bmstrcasestr(prm, "fax")) {
+					extract_token(faxtel, value, 0, ';', sizeof faxtel);
+				}
+				else if (bmstrcasestr(prm, "cell")) {
+					extract_token(mobiletel, value, 0, ';', sizeof mobiletel);
+				}
+				else {	/* Missing or unknown type; put it in the home phone */
+					extract_token(hometel, value, 0, ';', sizeof hometel);
+				}
 			}
 	
-			else if ( (!strcasecmp(key, "tel;work")) || (!strcasecmp(key, "tel;type=work")) ) {
-				extract_token(worktel, value, 0, ';', sizeof worktel);
-			}
-	
-			else if ( (!strcasecmp(key, "tel;fax")) || (!strcasecmp(key, "tel;type=fax")) ) {
-				extract_token(faxtel, value, 0, ';', sizeof faxtel);
-			}
-	
-			else if ( (!strcasecmp(key, "tel;cell")) || (!strcasecmp(key, "tel;type=cell")) ) {
-				extract_token(mobiletel, value, 0, ';', sizeof mobiletel);
-			}
-	
-			else if ( (!strcasecmp(key, "email;internet"))
-			     || (!strcasecmp(key, "email;type=internet")) ) {
+			else if ( (!strcasecmp(prp, "email")) && (bmstrcasestr(prm, "internet")) ) {
 				if (primary_inetemail[0] == 0) {
 					safestrncpy(primary_inetemail, value, sizeof primary_inetemail);
 				}
@@ -851,7 +860,10 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *forc
 					strcat(other_inetemail, value);
 				}
 			}
-	
+
+			/* Unrecognized properties are preserved here so we don't discard them
+			 * just because the vCard was edited with WebCit.
+			 */
 			else {
 				strcat(extrafields, key);
 				strcat(extrafields, ":");
