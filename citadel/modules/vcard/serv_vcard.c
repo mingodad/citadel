@@ -87,6 +87,7 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 				void (*callback)(char *, char *) ) {
 	struct vCard *v;
 	char *s;
+	char *k;
 	char *addr;
 	char citadel_address[SIZ];
 	int instance = 0;
@@ -104,8 +105,9 @@ void vcard_extract_internet_addresses(struct CtdlMessage *msg,
 	 * the "email;internet" key
 	 */
 	do {
-		s = vcard_get_prop(v, "email;internet", 0, instance++, 0);
-		if (s != NULL) {
+		s = vcard_get_prop(v, "email", 1, instance, 0);		/* get any 'email' field */
+		k = vcard_get_prop(v, "email", 1, instance++, 1);	/* but also learn it with attrs */
+		if ( (s != NULL) && (k != NULL) && (bmstrcasestr(k, "internet")) ) {
 			addr = strdup(s);
 			striplt(addr);
 			if (!IsEmptyStr(addr)) {
@@ -402,36 +404,39 @@ void cmd_igab(char *argbuf) {
 void extract_inet_email_addrs(char *emailaddrbuf, size_t emailaddrbuf_len,
 				char *secemailaddrbuf, size_t secemailaddrbuf_len,
 				struct vCard *v, int local_addrs_only) {
-	char *s, *addr;
+	char *s, *k, *addr;
 	int instance = 0;
 	int saved_instance = 0;
 
-	/* Go through the vCard searching for *all* instances of
-	 * the "email;internet" key
+	/* Go through the vCard searching for *all* Internet email addresses
 	 */
-	while (s = vcard_get_prop(v, "email;internet", 0, instance++, 0),  s != NULL) {
-		addr = strdup(s);
-		striplt(addr);
-		if (!IsEmptyStr(addr)) {
-			if ( (IsDirectory(addr, 1)) || 
-			     (!local_addrs_only) ) {
-				++saved_instance;
-				if ((saved_instance == 1) && (emailaddrbuf != NULL)) {
-					safestrncpy(emailaddrbuf, addr, emailaddrbuf_len);
-				}
-				else if ((saved_instance == 2) && (secemailaddrbuf != NULL)) {
-					safestrncpy(secemailaddrbuf, addr, secemailaddrbuf_len);
-				}
-				else if ((saved_instance > 2) && (secemailaddrbuf != NULL)) {
-					if ( (strlen(addr) + strlen(secemailaddrbuf) + 2) 
-					   < secemailaddrbuf_len ) {
-						strcat(secemailaddrbuf, "|");
-						strcat(secemailaddrbuf, addr);
+	while (s = vcard_get_prop(v, "email", 1, instance, 0),  s != NULL) {
+		k = vcard_get_prop(v, "email", 1, instance, 1);
+		if ( (s != NULL) && (k != NULL) && (bmstrcasestr(k, "internet")) ) {
+			addr = strdup(s);
+			striplt(addr);
+			if (!IsEmptyStr(addr)) {
+				if ( (IsDirectory(addr, 1)) || 
+			     	(!local_addrs_only) ) {
+					++saved_instance;
+					if ((saved_instance == 1) && (emailaddrbuf != NULL)) {
+						safestrncpy(emailaddrbuf, addr, emailaddrbuf_len);
+					}
+					else if ((saved_instance == 2) && (secemailaddrbuf != NULL)) {
+						safestrncpy(secemailaddrbuf, addr, secemailaddrbuf_len);
+					}
+					else if ((saved_instance > 2) && (secemailaddrbuf != NULL)) {
+						if ( (strlen(addr) + strlen(secemailaddrbuf) + 2) 
+					   	< secemailaddrbuf_len ) {
+							strcat(secemailaddrbuf, "|");
+							strcat(secemailaddrbuf, addr);
+						}
 					}
 				}
 			}
+			free(addr);
 		}
-		free(addr);
+		++instance;
 	}
 }
 
@@ -445,9 +450,9 @@ void extract_friendly_name(char *namebuf, size_t namebuf_len, struct vCard *v)
 {
 	char *s;
 
-	s = vcard_get_prop(v, "fn", 0, 0, 0);
+	s = vcard_get_prop(v, "fn", 1, 0, 0);
 	if (s == NULL) {
-		s = vcard_get_prop(v, "n", 0, 0, 0);
+		s = vcard_get_prop(v, "n", 1, 0, 0);
 	}
 
 	if (s != NULL) {
@@ -545,7 +550,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		return(1);
 	}
 
-	s = vcard_get_prop(v, "FN", 0, 0, 0);
+	s = vcard_get_prop(v, "fn", 1, 0, 0);
 	if (s) CtdlLogPrintf(CTDL_DEBUG, "vCard beforesave hook running for <%s>\n", s);
 
 	if (yes_my_citadel_config) {
@@ -598,7 +603,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	/* If the vCard has no UID, then give it one. */
-	s = vcard_get_prop(v, "UID", 0, 0, 0);
+	s = vcard_get_prop(v, "UID", 1, 0, 0);
 	if (s == NULL) {
 		generate_uuid(buf);
 		vcard_set_prop(v, "UID", buf, 0);
@@ -618,7 +623,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 		free(msg->cm_fields['E']);
 		msg->cm_fields['E'] = NULL;
 	}
-	s = vcard_get_prop(v, "UID", 0, 0, 0);
+	s = vcard_get_prop(v, "UID", 1, 0, 0);
 	if (s != NULL) {
 		msg->cm_fields['E'] = strdup(s);
 		if (msg->cm_fields['U'] == NULL) {
@@ -629,9 +634,9 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	/*
 	 * Set the Subject to the name in the vCard.
 	 */
-	s = vcard_get_prop(v, "FN", 0, 0, 0);
+	s = vcard_get_prop(v, "FN", 1, 0, 0);
 	if (s == NULL) {
-		s = vcard_get_prop(v, "N", 0, 0, 0);
+		s = vcard_get_prop(v, "N", 1, 0, 0);
 	}
 	if (s != NULL) {
 		if (msg->cm_fields['U'] != NULL) {
@@ -945,10 +950,10 @@ void cmd_greg(char *argbuf)
 	cprintf("%d %s\n", LISTING_FOLLOWS, usbuf.fullname);
 	cprintf("%ld\n", usbuf.usernum);
 	cprintf("%s\n", usbuf.password);
-	s = vcard_get_prop(v, "n", 0, 0, 0);
+	s = vcard_get_prop(v, "n", 1, 0, 0);
 	cprintf("%s\n", s ? s : " ");	/* name */
 
-	s = vcard_get_prop(v, "adr", 0, 0, 0);
+	s = vcard_get_prop(v, "adr", 1, 0, 0);
 	snprintf(adr, sizeof adr, "%s", s ? s : " ");/* address... */
 
 	extract_token(buf, adr, 2, ';', sizeof buf);
@@ -960,7 +965,7 @@ void cmd_greg(char *argbuf)
 	extract_token(buf, adr, 5, ';', sizeof buf);
 	cprintf("%s\n", buf);				/* zip */
 
-	s = vcard_get_prop(v, "tel", 0, 0, 0);
+	s = vcard_get_prop(v, "tel", 1, 0, 0);
 	if (s == NULL) s = vcard_get_prop(v, "tel", 1, 0, 0);
 	if (s != NULL) {
 		cprintf("%s\n", s);
@@ -1491,7 +1496,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			vmsg->cm_anon_type = MES_NORMAL;
 			vmsg->cm_format_type = FMT_RFC822;
 			vmsg->cm_fields['A'] = strdup("Citadel");
-			vmsg->cm_fields['E'] =  strdup(vcard_get_prop(v, "UID", 0, 0, 0));
+			vmsg->cm_fields['E'] =  strdup(vcard_get_prop(v, "UID", 1, 0, 0));
 			ser = vcard_serialize(v);
 			if (ser != NULL) {
 				vmsg->cm_fields['M'] = malloc(strlen(ser) + 1024);
