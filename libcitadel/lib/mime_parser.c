@@ -71,24 +71,32 @@ char *fixed_partnum(char *supplied_partnum) {
 }
 
 
-inline unsigned int decode_hex(char *Source)
+unsigned int decode_hex(char *Source)
 {
 	int ret = 0;
 	if (*Source  < 'A') {
 		ret += (*Source - '0');
 	}
+	else if (*Source > 'Z') {
+		ret += (*Source - 'a' + 10);
+	}
 	else {
 		ret += (*Source - 'A' + 10);
 	}
+
 	ret = ret << 4;
+
 	if (*(Source + 1) < 'A') {
 		ret += (*(Source + 1) - '0');
+	}
+	else if (*(Source + 1) > 'Z') {
+		ret += (*(Source + 1) - 'a' + 10);
 	}
 	else {
 		ret += (*(Source + 1) - 'A' + 10);
 	}
 	if (ret > 255)
-		return 0;
+		return '?';
 	return ret;
 }
 
