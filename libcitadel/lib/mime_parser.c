@@ -71,34 +71,40 @@ char *fixed_partnum(char *supplied_partnum) {
 }
 
 
-unsigned int decode_hex(char *Source)
+static inline unsigned int _decode_hex(char *Source)
 {
 	int ret = 0;
-	if (*Source  < 'A') {
+	if      ((*Source >= '0') && (*Source <= '9')) {
 		ret += (*Source - '0');
 	}
-	else if (*Source > 'Z') {
+	else if ((*Source >= 'A') && (*Source <= 'F')) {
+		ret += (*Source - 'A' + 10);
+	}
+	else if ((*Source >= 'a') && (*Source <= 'f')) {
 		ret += (*Source - 'a' + 10);
 	}
 	else {
-		ret += (*Source - 'A' + 10);
+		return '?';
 	}
-
+		
 	ret = ret << 4;
-
-	if (*(Source + 1) < 'A') {
-		ret += (*(Source + 1) - '0');
+	
+	if      ((*(Source + 1) >= '0') && (*(Source + 1) <= '9')) {
+		ret |= (*(Source + 1) - '0');
 	}
-	else if (*(Source + 1) > 'Z') {
-		ret += (*(Source + 1) - 'a' + 10);
+	else if ((*(Source + 1) >= 'A') && (*(Source + 1) <= 'F')) {
+		ret |= (*(Source + 1) - 'A' + 10);
+	}
+	else if ((*(Source + 1) >= 'a') && (*(Source + 1) <= 'f')) {
+		ret |= (*(Source + 1) - 'a' + 10);
 	}
 	else {
-		ret += (*(Source + 1) - 'A' + 10);
-	}
-	if (ret > 255)
 		return '?';
+	}
 	return ret;
 }
+
+unsigned int decode_hex(char *Source) {return _decode_hex(Source);}
 
 /*
  * Convert "quoted-printable" to binary.  Returns number of bytes decoded.
@@ -122,7 +128,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 		else if (encoded[pos] == '=')
 		{
 			ch = 0;
-			ch = decode_hex(&encoded[pos+1]);
+			ch = _decode_hex(&encoded[pos+1]);
 			pos += 3;
 			decoded[decoded_length++] = ch;
 		}

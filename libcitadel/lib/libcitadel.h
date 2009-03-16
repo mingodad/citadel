@@ -249,7 +249,7 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, char separator);
 long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator);
 int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator);
-inline int StrBufNum_tokens(const StrBuf *source, char tok);
+int StrBufNum_tokens(const StrBuf *source, char tok);
 int StrBufRemove_token(StrBuf *Source, int parmnum, char separator);
 
 int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pStart, char separator);
@@ -327,7 +327,7 @@ unsigned long extract_unsigned_long(const char *source, int parmnum);
 void CtdlInitBase64Table(void);
 size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int linebreaks);
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
-inline unsigned int decode_hex(char *Source);
+unsigned int decode_hex(char *Source);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
 void striplt(char *);
 int haschar(const char *st, int ch);

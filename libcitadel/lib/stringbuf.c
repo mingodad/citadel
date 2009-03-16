@@ -806,7 +806,7 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
  * \param tok    Tokenizer char to count
  * \returns numbers of tokenizer chars found
  */
-inline int StrBufNum_tokens(const StrBuf *source, char tok)
+int StrBufNum_tokens(const StrBuf *source, char tok)
 {
 	if (source == NULL)
 		return 0;
