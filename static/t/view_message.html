@@ -15,21 +15,34 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p><??("X", 7)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
 
-   <??("COND:ROOM:TYPE_IS", 8, "VIEW_BBS")>
+<?!("COND:MAIL:SUMM:RFCA", 8)>
+   <??("COND:ROOM:TYPE_IS", 9, "VIEW_BBS")>
    <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
    <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
    <a href="display_enter?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
-   <??("X", 8)>
+   <??("X", 9)>
 
-   <?!("COND:ROOM:TYPE_IS", 9, "VIEW_BBS")>
+   <?!("COND:ROOM:TYPE_IS", 10, "VIEW_BBS")>
    <a href="display_enter?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
    <a href="display_enter?replyquote=<?MAIL:SUMM:N>&recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
-   <?!("X", 9)>
+   <?!("X", 10)>
+<?!("X", 8)>
+<??("COND:MAIL:SUMM:RFCA", 11)>
+   <??("COND:ROOM:TYPE_IS", 12, "VIEW_BBS")>
+   <a href="display_enter?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+   <a href="display_enter?recp=<?MAIL:SUMM:FROM("U")>%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+   <a href="display_enter?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+   <??("X", 12)>
 
+   <?!("COND:ROOM:TYPE_IS", 13, "VIEW_BBS")>
+   <a href="display_enter?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+   <a href="display_enter?replyquote=<?MAIL:SUMM:N>&recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
+   <?!("X", 13)>
+<??("X", 11)>
    <a href="confirm_move_msg?msgid=<?MAIL:SUMM:N>"><span>[</span><?_("Move")><span>]</span></a> 
-<?!("COND:ROOM:EDITACCESS", 10)>
+<?!("COND:ROOM:EDITACCESS", 14)>
    <a href="delete_msg?msgid=<?MAIL:SUMM:N>" onclick="return confirm('<?_("Delete this message?")>');"><span>[</span><?_("Delete")><span>]</span> </a> 
-<??("X", 10)>
+<??("X", 14)>
    <a href="#" onclick="window.open('msgheaders/<?MAIL:SUMM:N>', 'headers<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Headers")><span>]</span></a>
    <a href="#" onclick="window.open('printmsg/<?MAIL:SUMM:N>', 'print<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Print")><span>]</span></a>
  </p>
