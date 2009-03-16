@@ -225,22 +225,30 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("</TD></TR>\n");
 
-	/*
-	 * If this is an all-day-event, set the end time to be identical to
-	 * the start time (the hour/minute/second will be set to midnight).
-	 * Otherwise extract or create it.
-	 */
 	wprintf("<TR><TD><B>");
 	wprintf(_("End"));
 	wprintf("</B></TD><TD id=\"dtendcell\">\n");
-	if (t_start.is_date) {
-		t_end = t_start;
+	p = icalcomponent_get_first_property(vevent,
+						ICAL_DTEND_PROPERTY);
+	if (p != NULL) {
+		t_end = icalproperty_get_dtend(p);
+		
+		/*
+		 * If this is an all-day-event, the end time is set to real end
+		 * day + 1, so we have to adjust accordingly. 
+		 */
+		if (t_start.is_date) {
+			icaltime_adjust(&t_end, -1, 0, 0, 0);
+		}
 	}
 	else {
-		p = icalcomponent_get_first_property(vevent,
-							ICAL_DTEND_PROPERTY);
-		if (p != NULL) {
-			t_end = icalproperty_get_dtend(p);
+		/*
+		 * If this is an all-day-event, set the end time to be identical to
+		 * the start time (the hour/minute/second will be set to midnight).
+		 * Otherwise extract or create it.
+		 */
+		if (t_start.is_date) {
+			t_end = t_start;
 		}
 		else {
 			/*
@@ -871,13 +879,20 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 			icalproperty_free(prop);
 		}
 
-		if (all_day_event == 0) {
-			icaltime_from_webform(&t, "dtend");	
-			icalcomponent_add_property(vevent,
-				icalproperty_new_dtend(icaltime_normalize(t)
-				)
-			);
+		if (all_day_event) {
+			icaltime_from_webform_dateonly(&t, "dtend");	
+
+			/* with this field supposed to be non-inclusive we have to add one day */
+			icaltime_adjust(&t, 1, 0, 0, 0);
 		}
+		else {
+			icaltime_from_webform(&t, "dtend");	
+		}
+
+		icalcomponent_add_property(vevent,
+			icalproperty_new_dtend(icaltime_normalize(t)
+			)
+		);
 
 		/* recurrence rules -- begin */
 

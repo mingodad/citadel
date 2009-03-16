@@ -714,14 +714,14 @@ function attachDatePicker(relative) {
 }
 function eventEditAllDay() {
 	var allDayCheck = document.getElementById("alldayevent");
-	var dtend = document.getElementById("dtendcell");
+	var dtend_time = document.getElementById("dtend_time");
 	var dtstart_time = document.getElementById("dtstart_time");
 	if(allDayCheck.checked) {
 		dtstart_time.style.visibility = "hidden";
-		dtend.style.visibility = "hidden";
+		dtend_time.style.visibility = "hidden";
 	} else {
 		dtstart_time.style.visibility = "visible";
-		dtend.style.visibility = "visible";
+		dtend_time.style.visibility = "visible";
 	}
 }
 
