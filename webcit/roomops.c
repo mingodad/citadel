@@ -4008,6 +4008,47 @@ int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 		  (WCC->is_mailbox) ));
 }
 
+int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	if ((WCC == NULL) ||
+	    (TP->Tokens->nParameters < 3) ||
+	    (TP->Tokens->Params[2]->Type != TYPE_STR)||
+	    (TP->Tokens->Params[2]->len < 7))
+		return 0;
+
+	switch(WCC->wc_view) {
+	case VIEW_BBS:
+		return TP->Tokens->Params[2]->Start[7]=='B';
+	case VIEW_MAILBOX:
+		return TP->Tokens->Params[2]->Start[7]=='M';
+	case VIEW_ADDRESSBOOK:
+		return TP->Tokens->Params[2]->Start[7]=='A';
+	case VIEW_TASKS:
+		return TP->Tokens->Params[2]->Start[7]=='T';
+	case VIEW_NOTES:
+		return TP->Tokens->Params[2]->Start[7]=='N';
+	case VIEW_WIKI:
+		return TP->Tokens->Params[2]->Start[7]=='W';
+	case VIEW_JOURNAL:
+		return TP->Tokens->Params[2]->Start[7]=='J';
+
+	case VIEW_CALENDAR:
+		if (TP->Tokens->Params[2]->len < 13)
+			return 0;
+		return TP->Tokens->Params[2]->Start[10]=='E';
+
+	case VIEW_CALBRIEF:
+		if (TP->Tokens->Params[3]->len < 13)
+			return 0;
+		return TP->Tokens->Params[2]->Start[10]=='B';
+
+	default:
+		return 0;
+	}
+}
+
 void 
 InitModule_ROOMOPS
 (void)
@@ -4046,6 +4087,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("json_roomflr"), jsonRoomFlr, 0);
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, 0);
 
+	RegisterConditional(HKEY("COND:ROOM:TYPE_IS"), 0, ConditionalIsRoomtype, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_INUSE"), 0, ConditionalRoomHas_QR_INUSE, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PRIVATE"), 0, ConditionalRoomHas_QR_PRIVATE, CTX_NONE);

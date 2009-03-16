@@ -24,7 +24,7 @@ req.onreadystatechange = function (aEvt) {
   }
 };
 req.send(null); */
-  window.location = "/mobilemsg/"+msgnum+"?Mail=1";
+  window.location = "/mobilemsg/"+msgnum;
 }
 function CtdlHideMsg() {
 	currentMsgDisplay.style.display = "none";
