@@ -518,7 +518,10 @@ void sieve_do_msg(long msgnum, void *userdata) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "Performing sieve processing on msg <%ld>\n", msgnum);
 
-	msg = CtdlFetchMessage(msgnum, 0);
+	/*
+	 * Make sure you include message body so you can get those second-level headers ;)
+	 */
+	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;
 
 	/*
