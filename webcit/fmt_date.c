@@ -67,6 +67,7 @@ void webcit_fmt_date(char *buf, time_t thetime, int Format)
 	 *                 show the month and day, and the time
 	 *		      older than 6 months, show only the date
 	 * DATEFMT_RAWDATE:   show full date, regardless of age 
+	 * DATEFMT_LOCALEDATE:   show full date as prefered for the locale
 	 */
 
 	switch (Format) {
@@ -97,6 +98,9 @@ void webcit_fmt_date(char *buf, time_t thetime, int Format)
 			break;
 		case DATEFMT_RAWDATE:
 			wc_strftime(buf, 32, "%a %b %d %Y", &tm);
+			break;
+		case DATEFMT_LOCALEDATE:
+			wc_strftime(buf, 32, "%x", &tm);
 			break;
 	}
 }

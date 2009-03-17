@@ -725,6 +725,7 @@ const char *get_selected_language(void);
 #define DATEFMT_FULL 0
 #define DATEFMT_BRIEF 1
 #define DATEFMT_RAWDATE 2
+#define DATEFMT_LOCALEDATE 3
 void webcit_fmt_date(char *buf, time_t thetime, int Format);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 void free_attachments(wcsession *sess);

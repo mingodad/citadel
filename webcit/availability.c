@@ -54,27 +54,40 @@ int ical_ctdl_is_overlap(
 	if (icaltime_is_null_time(t1start)) return(0);
 	if (icaltime_is_null_time(t2start)) return(0);
 
-	/* First, check for all-day events */
-	if (t1start.is_date) {
-		if (!icaltime_compare_date_only(t1start, t2start)) {
-			return(1);
-		}
-		if (!icaltime_is_null_time(t2end)) {
-			if (!icaltime_compare_date_only(t1start, t2end)) {
-				return(1);
-			}
+	/* if either event lacks end time, assume end = start */
+	if (icaltime_is_null_time(t1end))
+		memcpy(&t1end, &t1start, sizeof(struct icaltimetype));
+	else {
+		if (t1end.is_date && icaltime_compare(t1start, t1end)) {
+                        /*
+                         * the end date is non-inclusive so adjust it by one
+                         * day because our test is inclusive, note that a day is
+                         * not too much because we are talking about all day
+                         * events
+			 * if start = end we assume that nevertheless the whole
+			 * day is meant
+                         */
+			icaltime_adjust(&t1end, -1, 0, 0, 0);	
 		}
 	}
 
-	if (t2start.is_date) {
-		if (!icaltime_compare_date_only(t2start, t1start)) {
-			return(1);
+	if (icaltime_is_null_time(t2end))
+		memcpy(&t2end, &t2start, sizeof(struct icaltimetype));
+	else {
+		if (t2end.is_date && icaltime_compare(t2start, t2end)) {
+			icaltime_adjust(&t2end, -1, 0, 0, 0);	
 		}
-		if (!icaltime_is_null_time(t1end)) {
-			if (!icaltime_compare_date_only(t2start, t1end)) {
-				return(1);
-			}
-		}
+	}
+
+	/* First, check for all-day events */
+	if (t1start.is_date || t2start.is_date) {
+		/* If event 1 ends before event 2 starts, we're in the clear. */
+		if (icaltime_compare_date_only(t1end, t2start) < 0) return(0);
+
+		/* If event 2 ends before event 1 starts, we're also ok. */
+		if (icaltime_compare_date_only(t2end, t1start) < 0) return(0);
+
+		return(1);
 	}
 
 	/* lprintf (9, "Comparing t1start %d:%d t1end %d:%d t2start %d:%d t2end %d:%d \n",
@@ -83,10 +96,6 @@ int ical_ctdl_is_overlap(
 	*/
 
 	/* Now check for overlaps using date *and* time. */
-
-	/* First, bail out if either event 1 or event 2 is missing end time. */
-	if (icaltime_is_null_time(t1end)) return(0);
-	if (icaltime_is_null_time(t2end)) return(0);
 
 	/* If event 1 ends before event 2 starts, we're in the clear. */
 	if (icaltime_compare(t1end, t2start) <= 0) return(0);
