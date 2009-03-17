@@ -163,6 +163,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 	struct icaltimetype end_t;
 	struct icaltimetype today_start_t;
 	struct icaltimetype today_end_t;
+	struct icaltimetype today_t;
 	struct tm starting_tm;
 	struct tm ending_tm;
 	int all_day_event = 0;
@@ -200,6 +201,14 @@ void calendar_month_view_display_events(int year, int month, int day)
 	today_end_t.is_utc = 1;
 
 	/*
+	 * Create another one without caring about the timezone for all day events.
+	 */
+	today_t = icaltime_null_date();
+	today_t.year = year;
+	today_t.month = month;
+	today_t.day = day;
+
+	/*
 	 * Now loop through our list of events to see which ones occur today.
 	 */
 	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
@@ -224,7 +233,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 
 		if (all_day_event)
 		{
-			show_event = ((t.year == year) && (t.month == month) && (t.day == day));
+			show_event = ical_ctdl_is_overlap(t, end_t, today_t, icaltime_null_time());
 		}
 		else
 		{
@@ -275,33 +284,62 @@ void calendar_month_view_display_events(int year, int month, int day)
 					
 					q = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 					if (q != NULL) {
+						int no_end = 0;
+
 						t = icalproperty_get_dtstart(q);
-						
+						q = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
+						if (q != NULL) {
+							end_t = icalproperty_get_dtend(q);
+						}
+						else {
+							/*
+							 * events with starting date/time equal
+							 * ending date/time might get only
+							 * DTSTART but no DTEND
+							 */
+							no_end = 1;
+						}
+
 						if (t.is_date) {
+							/* all day event */
 							struct tm d_tm;
-							char d_str[32];
+
+							if (!no_end) {
+								/* end given, have to adjust it */
+								icaltime_adjust(&end_t, -1, 0, 0, 0);
+							}
 							memset(&d_tm, 0, sizeof d_tm);
 							d_tm.tm_year = t.year - 1900;
 							d_tm.tm_mon = t.month - 1;
 							d_tm.tm_mday = t.day;
-							wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
-							wprintf("<i>%s</i> %s<br>",
-								_("Date:"), d_str);
+							wc_strftime(buf, sizeof buf, "%x", &d_tm);
+
+							if (no_end || !icaltime_compare(t, end_t)) {
+								wprintf("<i>%s</i> %s<br>",
+									_("Date:"), buf);
+							}
+							else {
+								wprintf("<i>%s</i> %s<br>",
+									_("Starting date:"), buf);
+								d_tm.tm_year = end_t.year - 1900;
+								d_tm.tm_mon = end_t.month - 1;
+								d_tm.tm_mday = end_t.day;
+								wc_strftime(buf, sizeof buf, "%x", &d_tm);
+								wprintf("<i>%s</i> %s<br>",
+									_("Ending date:"), buf);
+							}
 						}
 						else {
 							tt = icaltime_as_timet(t);
 							webcit_fmt_date(buf, tt, DATEFMT_BRIEF);
-							wprintf("<i>%s</i> %s<br>",
-								_("Starting date/time:"), buf);
-							
-							/*
-							 * Embed the 'show end date/time' loop inside here so it
-							 * only executes if this is NOT an all day event.
-							 */
-							q = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
-							if (q != NULL) {
-								t = icalproperty_get_dtend(q);
-								tt = icaltime_as_timet(t);
+							if (no_end || !icaltime_compare(t, end_t)) {
+								wprintf("<i>%s</i> %s<br>",
+									_("Date/time:"), buf);
+							}
+							else {
+								wprintf("<i>%s</i> %s<br>",
+									_("Starting date/time:"), buf);
+								tt = icaltime_as_timet(end_t);
 								webcit_fmt_date(buf, tt, DATEFMT_BRIEF);
 								wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 							}
@@ -770,6 +808,7 @@ void calendar_day_view_display_events(time_t thetime,
 	struct icaltimetype end_t;
 	struct icaltimetype today_start_t;
 	struct icaltimetype today_end_t;
+	struct icaltimetype today_t;
 	struct tm starting_tm;
 	struct tm ending_tm;
 	int top = 0;
@@ -780,8 +819,6 @@ void calendar_day_view_display_events(time_t thetime,
 	int endmin = 0;
 
         char buf[256];
-        struct tm d_tm;
-        char d_str[32];
 
 	if (GetCount(WCC->disp_cal_items) == 0) {
 		/* nothing to display */
@@ -809,6 +846,14 @@ void calendar_day_view_display_events(time_t thetime,
 	today_end_t = icaltime_from_timet_with_zone(mktime(&ending_tm), 0, icaltimezone_get_utc_timezone());
 	today_end_t.is_utc = 1;
 
+	/*
+	 * Create another one without caring about the timezone for all day events.
+	 */
+	today_t = icaltime_null_date();
+	today_t.year = year;
+	today_t.month = month;
+	today_t.day = day;
+
 	/* Now loop through our list of events to see which ones occur today.
 	 */
 	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
@@ -827,25 +872,38 @@ void calendar_day_view_display_events(time_t thetime,
 		else {
 			memset(&t, 0, sizeof t);
 		}
+
+		if (t.is_date) all_day_event = 1;
+
 		q = icalcomponent_get_first_property(Cal->cal, ICAL_DTEND_PROPERTY);
 		if (q != NULL) {
 			end_t = icalproperty_get_dtend(q);
-			event_tte = icaltime_as_timet(end_t);
-			localtime_r(&event_tte, &event_tm);
 		}
 		else {
-			memset(&end_t, 0, sizeof end_t);
+			/* no end given means end = start */
+			memcpy(&end_t, &t, sizeof(struct icaltimetype));
 		}
-		if (t.is_date) all_day_event = 1;
 
 		if (all_day_event)
 		{
-			show_event = ((t.year == year) && (t.month == month) && (t.day == day) && (notime_events));
+			show_event = ical_ctdl_is_overlap(t, end_t, today_t, icaltime_null_time());
+			if (icaltime_compare(t, end_t)) {
+				/*
+				 * the end date is non-inclusive so adjust it by one
+				 * day because our test is inclusive, note that a day is
+				 * not to much because we are talking about all day
+				 * events
+				 */
+				icaltime_adjust(&end_t, -1, 0, 0, 0);
+			}
 		}
 		else
 		{
 			show_event = ical_ctdl_is_overlap(t, end_t, today_start_t, today_end_t);
 		}
+
+		event_tte = icaltime_as_timet(end_t);
+		localtime_r(&event_tte, &event_tm);
 
 		/* If we determined that this event occurs today, then display it.
 	 	 */
@@ -874,13 +932,17 @@ void calendar_day_view_display_events(time_t thetime,
                                         wprintf("<i>%s</i> ", _("Location:"));
                                         escputs((char *)icalproperty_get_comment(q));
                                         wprintf("<br />");
-								}
-                                memset(&d_tm, 0, sizeof d_tm);
-                                d_tm.tm_year = t.year - 1900;
-                                d_tm.tm_mon = t.month - 1;
-                                d_tm.tm_mday = t.day;
-                                wc_strftime(d_str, sizeof d_str, "%x", &d_tm);
-                                wprintf("<i>%s</i> %s<br>",_("Date:"), d_str);
+				}
+				if (!icaltime_compare(t, end_t)) { /* one day only */
+					webcit_fmt_date(buf, event_tt, DATEFMT_LOCALEDATE);
+					wprintf("<i>%s</i> %s<br>", _("Date:"), buf);
+				}
+				else {
+					webcit_fmt_date(buf, event_tt, DATEFMT_LOCALEDATE);
+					wprintf("<i>%s</i> %s<br>", _("Starting date:"), buf);
+					webcit_fmt_date(buf, event_tte, DATEFMT_LOCALEDATE);
+					wprintf("<i>%s</i> %s<br>", _("Ending date:"), buf);
+				}
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
                                         wprintf("<i>%s</i> ", _("Notes:"));
@@ -992,10 +1054,16 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wprintf("<br />");
 								}
-                                webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
-                                wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
-                                webcit_fmt_date(buf, event_tte, DATEFMT_BRIEF);
-                                wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
+				if (!icaltime_compare(t, end_t)) { /* one day only */
+					webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
+					wprintf("<i>%s</i> %s<br>", _("Date/time:"), buf);
+				}
+				else {
+					webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
+					wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
+					webcit_fmt_date(buf, event_tte, DATEFMT_BRIEF);
+					wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
+				}
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
                                         wprintf("<i>%s</i> ", _("Notes:"));

@@ -242,25 +242,34 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		}
 	}
 	else {
-		/*
-		 * If this is an all-day-event, set the end time to be identical to
-		 * the start time (the hour/minute/second will be set to midnight).
-		 * Otherwise extract or create it.
-		 */
-		if (t_start.is_date) {
-			t_end = t_start;
+		if (created_new_vevent == 1) {
+			/* set default duration */
+			if (t_start.is_date) {
+				/*
+				 * If this is an all-day-event, set the end time to be identical to
+				 * the start time (the hour/minute/second will be set to midnight).
+				 */
+				t_end = t_start;
+			}
+			else {
+				/*
+				 * If this is not an all-day event and there is no
+				 * end time specified, make the default one hour
+				 * from the start time.
+				 */
+				t_end = t_start;
+				t_end.hour += 1;
+				t_end.second = 0;
+				t_end = icaltime_normalize(t_end);
+				/* t_end = icaltime_from_timet(now, 0); */
+			}
 		}
 		else {
 			/*
-			 * If this is not an all-day event and there is no
-			 * end time specified, make the default one hour
-			 * from the start time.
+			 * If an existing event has no end date/time this is
+			 * supposed to mean end = start.
 			 */
 			t_end = t_start;
-			t_end.hour += 1;
-			t_end.second = 0;
-			t_end = icaltime_normalize(t_end);
-			/* t_end = icaltime_from_timet(now, 0); */
 		}
 	}
 	display_icaltimetype_as_webform(&t_end, "dtend", 0);
