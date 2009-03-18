@@ -845,6 +845,8 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 						MINIMUM_CIT_VERSION / 100,
 						MINIMUM_CIT_VERSION % 100
 					);
+				hprintf("HTTP/1.1 200 OK\r\n");
+				hprintf("Content-type: text/plain; charset=utf-8\r\n");
 				end_burst();
 				end_webcit_session();
 				goto SKIP_ALL_THIS_CRAP;
