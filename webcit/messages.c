@@ -399,6 +399,7 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	long len;
 	int n;
 	int skipit;
+	const char *Ptr;
 
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
@@ -408,23 +409,24 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 	
 	Buf = NewStrBuf();
 	serv_puts(servcmd);
-	StrBuf_ServGetln(Buf);
+	StrBuf_ServGetlnBuffered(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
 		FreeStrBuf(&Buf);
 		return (nummsgs);
 	}
 	Buf2 = NewStrBuf();
-	while (len = StrBuf_ServGetln(Buf),
+	while (len = StrBuf_ServGetlnBuffered(Buf),
 	       ((len != 3)  ||
 		strcmp(ChrPtr(Buf), "000")!= 0))
 	{
 		if (nummsgs < maxload) {
 			skipit = 0;
+			Ptr = NULL;
 			Msg = (message_summary*)malloc(sizeof(message_summary));
 			memset(Msg, 0, sizeof(message_summary));
 
-			Msg->msgnum = StrBufExtract_long(Buf, 0, '|');
-			Msg->date = StrBufExtract_long(Buf, 1, '|');
+			Msg->msgnum = StrBufExtractNext_long(Buf, &Ptr, '|');
+			Msg->date = StrBufExtractNext_long(Buf, &Ptr, '|');
 			/* 
 			 * as citserver probably gives us messages in forward date sorting
 			 * nummsgs should be the same order as the message date.
@@ -436,14 +438,14 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 			}
 			if (!skipit) {
 				Msg->from = NewStrBufPlain(NULL, StrLength(Buf));
-				StrBufExtract_token(Buf2, Buf, 2, '|');
+				StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
 				if (StrLength(Buf2) != 0) {
 					/** Handle senders with RFC2047 encoding */
 					StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset, FoundCharset);
 				}
 			
 				/** Nodename */
-				StrBufExtract_token(Buf2, Buf, 3, '|');
+				StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
 				if ((StrLength(Buf2) !=0 ) &&
 				    ( ((WCC->room_flags & QR_NETWORK)
 				       || ((strcasecmp(ChrPtr(Buf2), ChrPtr(WCC->serv_info->serv_nodename))
@@ -456,9 +458,9 @@ int load_msg_ptrs(char *servcmd, int with_headers)
 				/** Not used:
 				    StrBufExtract_token(Msg->inetaddr, Buf, 4, '|');
 				*/
-
+				StrBufSkip_NTokenS(Buf, &Ptr, '|', 1);
 				Msg->subj = NewStrBufPlain(NULL, StrLength(Buf));
-				StrBufExtract_token(Buf2,  Buf, 5, '|');
+				StrBufExtract_NextToken(Buf2,  Buf, &Ptr, '|');
 				if (StrLength(Buf2) == 0)
 					StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
 				else {
