@@ -1160,9 +1160,10 @@ void post_message(void)
 		{
 			const StrBuf *ref = sbstr("references");
 			references = NewStrBufPlain(ChrPtr(ref), StrLength(ref));
-			lprintf(9, "Converting: %s\n", ChrPtr(references));
+			if (*ChrPtr(references) == '|') {	/* remove leading '|' if present */
+				StrBufCutLeft(references, 1);
+			}
 			StrBufReplaceChars(references, '|', '!');
-			lprintf(9, "Converted: %s\n", ChrPtr(references));
 		}
 		if (havebstr("subject")) {
 			const StrBuf *Subj;
