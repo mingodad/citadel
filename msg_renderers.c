@@ -1132,7 +1132,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:ORGROOM", 0, 2, tmplput_MAIL_SUMM_ORGROOM,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:RFCA", 0, 2, tmplput_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:OTHERNODE", 2, 0, tmplput_MAIL_SUMM_OTHERNODE,  CTX_MAILSUM);
-	RegisterNamespace("MAIL:SUMM:REFIDS", 0, 0, tmplput_MAIL_SUMM_REFIDS,  CTX_MAILSUM);
+	RegisterNamespace("MAIL:SUMM:REFIDS", 0, 1, tmplput_MAIL_SUMM_REFIDS,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:INREPLYTO", 0, 2, tmplput_MAIL_SUMM_INREPLYTO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  CTX_NONE);
