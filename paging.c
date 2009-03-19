@@ -1,15 +1,11 @@
 /*
  * $Id$
  */
-/**
- * \defgroup PageFunc Functions which implement the chat and paging facilities.
- * \ingroup ClientPower
- */
-/*@{*/
+
 #include "webcit.h"
 
-/**
- * \brief display the form for paging (x-messaging) another user
+/*
+ * display the form for paging (x-messaging) another user
  */
 void display_page(void)
 {
@@ -501,6 +497,25 @@ void chat_send(void) {
 	wDumpContent(0);
 }
 
+
+void ajax_send_instant_message(void) {
+	char recp[256];
+	char buf[256];
+
+	safestrncpy(recp, bstr("recp"), sizeof recp);
+
+	serv_printf("SEXP %s|-", recp);
+	serv_getln(buf, sizeof buf);
+
+	if (buf[0] == '4') {
+		text_to_server(bstr("msg"));
+		serv_puts("000");
+	}
+
+	escputs(buf);	/* doesn't really matter what we return - the client ignores it */
+}
+
+
 void 
 InitModule_PAGING
 (void)
@@ -510,6 +525,5 @@ InitModule_PAGING
 	WebcitAddUrlHandler(HKEY("chat"), do_chat, 0);
 	WebcitAddUrlHandler(HKEY("chat_recv"), chat_recv, 0);
 	WebcitAddUrlHandler(HKEY("chat_send"), chat_send, 0);
+	WebcitAddUrlHandler(HKEY("ajax_send_instant_message"), ajax_send_instant_message, AJAX);
 }
-
-/*@}*/
