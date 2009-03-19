@@ -181,7 +181,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	if ( (userbuf->axlevel >= 6)
 	   || (userbuf->usernum == roombuf->QRroomaide)
 	   ) {
-		retval = retval | UA_ADMINALLOWED | UA_DELETEALLOWED;
+		retval = retval | UA_ADMINALLOWED | UA_DELETEALLOWED | UA_POSTALLOWED;
 	}
 
 NEWMSG:	/* By the way, we also check for the presence of new messages */
