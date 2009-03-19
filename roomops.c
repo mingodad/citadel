@@ -4020,30 +4020,23 @@ int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
 
 	switch(WCC->wc_view) {
 	case VIEW_BBS:
-		return TP->Tokens->Params[2]->Start[7]=='B';
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_BBS"));
 	case VIEW_MAILBOX:
-		return TP->Tokens->Params[2]->Start[7]=='M';
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_MAILBOX"));
 	case VIEW_ADDRESSBOOK:
-		return TP->Tokens->Params[2]->Start[7]=='A';
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_ADDRESSBOOK"));
 	case VIEW_TASKS:
-		return TP->Tokens->Params[2]->Start[7]=='T';
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_TASKS"));
 	case VIEW_NOTES:
-		return TP->Tokens->Params[2]->Start[7]=='N';
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_NOTES"));
 	case VIEW_WIKI:
-		return TP->Tokens->Params[2]->Start[7]=='W';
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_WIKI"));
 	case VIEW_JOURNAL:
-		return TP->Tokens->Params[2]->Start[7]=='J';
-
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_JOURNAL"));
 	case VIEW_CALENDAR:
-		if (TP->Tokens->Params[2]->len < 13)
-			return 0;
-		return TP->Tokens->Params[2]->Start[10]=='E';
-
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_CALENDAR"));
 	case VIEW_CALBRIEF:
-		if (TP->Tokens->Params[3]->len < 13)
-			return 0;
-		return TP->Tokens->Params[2]->Start[10]=='B';
-
+		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_CALBRIEF"));
 	default:
 		return 0;
 	}
