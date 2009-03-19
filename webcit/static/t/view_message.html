@@ -18,8 +18,8 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 
 
 <?!("COND:ROOM:TYPE_IS", 8, "VIEW_BBS")>
-   <a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
-   <a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>&recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
+   <a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+   <a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>&recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
 <?!("X", 8)>
 
 
@@ -27,15 +27,15 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <??("COND:ROOM:TYPE_IS", 9, "VIEW_BBS")>
 
 	<?!("COND:MAIL:SUMM:RFCA", 10)>
-		<a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E%2C<?MAIL:SUMM:ALLRCPT("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E%2C<?MAIL:SUMM:ALLRCPT("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
 	<?!("X", 10)>
 
 	<??("COND:MAIL:SUMM:RFCA", 11)>
-		<a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?recp=<?MAIL:SUMM:FROM("U")>%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL_SUMM_REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?recp=<?MAIL:SUMM:FROM("U")>%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
 	<??("X", 11)>
 
 <??("X", 9)>
