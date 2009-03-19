@@ -14,9 +14,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <limits.h>
 #include <netdb.h>
 #include <string.h>
+#include <errno.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -271,21 +273,17 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
  */
 int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 {
-	const char *i;
 	int a1, a2, a3, a4;
 	char tbuf[256];
 	int rbl;
 	int num_rbl;
 	char rbl_domains[SIZ];
 	char txt_answer[1024];
+	char dotted_quad[32];
 
 	strcpy(message_to_spammer, "ok");
-
-	i = (const char *) addr;
-	a1 = ((*i++) & 0xff);
-	a2 = ((*i++) & 0xff);
-	a3 = ((*i++) & 0xff);
-	a4 = ((*i++) & 0xff);
+	safestrncpy(dotted_quad, inet_ntoa(*addr), sizeof dotted_quad);
+	sscanf(dotted_quad, "%d.%d.%d.%d", &a1, &a2, &a3, &a4);
 
 	/* See if we have any RBL domains configured */
 	num_rbl = get_hosts(rbl_domains, "rbl");
@@ -312,26 +310,24 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 /*
  * Check to see if the client host is on some sort of spam list (RBL)
  * If spammer, returns nonzero and places reason in 'message_to_spammer'
+ *
+ * PORTABILITY NOTE!  I've made my best effort to rewrite this in a portable fashion.
+ * If anyone makes changes to this function, please shout-out so we can test it to
+ * make sure it didn't break on Linux!
  */
 int rbl_check(char *message_to_spammer) {
-	struct sockaddr_in sin;
-	int len;	/* should be socklen_t but doesn't work on Macintosh */
-	struct timeval tv1, tv2;
-	suseconds_t total_time = 0;
+	int r;
+	struct sockaddr_in peer;
+	socklen_t peer_len = 0;
 
-	gettimeofday(&tv1, NULL);
-	len = 0;
-	memset (&sin, 0, sizeof (struct sockaddr_in));
-	if (!getpeername(CC->client_socket, (struct sockaddr *) &sin, (socklen_t *)&len)) {
-		return(rbl_check_addr(&sin.sin_addr, message_to_spammer));
+	peer_len = sizeof(peer);
+	r = getpeername(CC->client_socket, &peer, &peer_len);
+	if (r == 0) {
+		return(rbl_check_addr(&peer.sin_addr, message_to_spammer));
 	}
-	
-	gettimeofday(&tv2, NULL);
-	total_time = (tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000));
-	CtdlLogPrintf(CTDL_DEBUG, "RBL check completed in %ld.%ld seconds\n",
-		(total_time / 1000000),
-		(total_time % 1000000)
-	);
+	else {
+		CtdlLogPrintf(CTDL_INFO, "RBL getpeername() failed: %s\n", strerror(errno));
+	}
 	return(0);
 }
 
