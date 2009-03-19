@@ -1696,6 +1696,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
  */
 void smtp_do_queue(void) {
 	static int doing_queue = 0;
+	int num_processed = 0;
 
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -1715,10 +1716,9 @@ void smtp_do_queue(void) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 		return;
 	}
-	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
-		SPOOLMIME, NULL, smtp_do_procmsg, NULL);
+	num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 
-	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed\n");
+	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
 	run_queue_now = 0;
 	doing_queue = 0;
 }
