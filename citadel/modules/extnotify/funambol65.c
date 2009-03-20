@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <time.h>
 #include <libcitadel.h>
+#include <errno.h>
 
 #include "citadel.h"
 #include "citadel_dirs.h"
@@ -34,20 +35,45 @@
 int notify_funambol_server(char *user) {
 	char port[1024];
 	int sock = -1;
-	char *buf;
-	char *SOAPMessage;
-	char *SOAPHeader;
-	char *funambolCreds;
-	FILE *template;
+	char *buf = NULL;
+	char *SOAPMessage = NULL;
+	char *SOAPHeader = NULL;
+	char *funambolCreds = NULL;
+	FILE *template = NULL;
 	
 	sprintf(port, "%d", config.c_funambol_port);
 	sock = sock_connect(config.c_funambol_host, port, "tcp");
 	if (sock >= 0) 
 		CtdlLogPrintf(CTDL_DEBUG, "Connected to Funambol!\n");
-	else 
+	else {
+		char buf[SIZ];
+
+		snprintf(buf, SIZ, 
+			 "Unable to connect to %s:%d [%s]; won't send notification\r\n", 
+			 config.c_funambol_host, 
+			 config.c_funambol_port, 
+			 strerror(errno));
+		CtdlLogPrintf(CTDL_ERR, buf);
+
+		aide_message(buf, "External notifier unable to connect remote host!");
 		goto bail;
+	}
 	// Load the template SOAP message. Get mallocs done too
 	template = fopen(file_funambol_msg, "r");
+
+	if (template == NULL) {
+		char buf[SIZ];
+
+		snprintf(buf, SIZ, 
+			 "Cannot load template file %s [%s]won't send notification\r\n", 
+			 file_funambol_msg, strerror(errno));
+		CtdlLogPrintf(CTDL_ERR, buf);
+
+		aide_message(buf, "External notifier unable to find message template!");
+		goto free;
+	}
+
+
 	buf = malloc(SIZ);
 	memset(buf, 0, SIZ);
 	SOAPMessage = malloc(3072);
@@ -65,7 +91,14 @@ int notify_funambol_server(char *user) {
 	fclose(template);
 	
 	if (strlen(SOAPMessage) < 0) {
-		printf("Cannot load template file\r\n");
+		char buf[SIZ];
+
+		snprintf(buf, SIZ, 
+			 "Cannot load template file %s; won't send notification\r\n", 
+			 file_funambol_msg);
+		CtdlLogPrintf(CTDL_ERR, buf);
+
+		aide_message(buf, "External notifier unable to load message template!");
 		goto free;
 	}
 	// Do substitutions

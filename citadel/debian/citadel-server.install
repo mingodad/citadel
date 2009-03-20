@@ -1,6 +1,7 @@
 etc/citadel/mail.aliases
 etc/citadel/public_clients
 usr/share/citadel-server/help
+usr/share/citadel-server/funambol_newmail_soap.xml
 etc/citadel/messages 
 usr/lib/citadel-server/setup
 usr/lib/citadel-server/base64

@@ -206,7 +206,7 @@ install-data:
 		 network/systems; do \
 		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
 	done
-	@for i in citadel.rc public_clients \
+	@for i in funambol_newmail_soap.xml citadel.rc public_clients \
 		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
@@ -233,7 +233,7 @@ install-data-new:
 	done
 
 	$(srcdir)/mkinstalldirs $(DESTDIR)$(HELP_DIR)/help
-	@for i in  \
+	@for i in  funambol_newmail_soap.xml \
 		 `find $(srcdir)/help -type f | grep -v .svn`; do \
 		echo $(INSTALL_DATA) $$i $(DESTDIR)$(HELP_DIR)/$$i; \
 		$(INSTALL_DATA) $$i $(DESTDIR)$(HELP_DIR)/$$i; \
