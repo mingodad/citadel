@@ -245,6 +245,10 @@ void calendar_month_view_display_events(int year, int month, int day)
 	 	 */
 		if (show_event) {
 			p = icalcomponent_get_first_property(Cal->cal, ICAL_SUMMARY_PROPERTY);
+			if (p == NULL) {
+				p = icalproperty_new_summary(_("Untitled Event"));
+				icalcomponent_add_property(Cal->cal, p);
+			}
 			if (p != NULL) {
 
 				if (all_day_event) {
@@ -438,6 +442,10 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 			p = icalcomponent_get_first_property(
 				Cal->cal,
 				ICAL_SUMMARY_PROPERTY);
+			if (p == NULL) {
+				p = icalproperty_new_summary(_("Untitled Event"));
+				icalcomponent_add_property(Cal->cal, p);
+			}
 			e = icalcomponent_get_first_property(
 				Cal->cal, 
 				ICAL_DTEND_PROPERTY);
@@ -908,6 +916,10 @@ void calendar_day_view_display_events(time_t thetime,
 		/* If we determined that this event occurs today, then display it.
 	 	 */
 		p = icalcomponent_get_first_property(Cal->cal,ICAL_SUMMARY_PROPERTY);
+		if (p == NULL) {
+			p = icalproperty_new_summary(_("Untitled Event"));
+			icalcomponent_add_property(Cal->cal, p);
+		}
 
 		if ((show_event) && (p != NULL)) {
 
@@ -1362,6 +1374,10 @@ int calendar_summary_view(void) {
 			) {
 
 				p = icalcomponent_get_first_property(Cal->cal, ICAL_SUMMARY_PROPERTY);
+				if (p == NULL) {
+					p = icalproperty_new_summary(_("Untitled Task"));
+					icalcomponent_add_property(Cal->cal, p);
+				}
 				if (p != NULL) {
 
 
