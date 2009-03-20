@@ -297,7 +297,7 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
                 extract_token(&tbuf[strlen(tbuf)], rbl_domains, rbl, '|', (sizeof tbuf - strlen(tbuf)));
 
 		if (rblcheck_backend(tbuf, txt_answer, sizeof txt_answer)) {
-			sprintf(message_to_spammer, "5.7.1 %s", txt_answer);
+			strcpy(message_to_spammer, txt_answer);
 			CtdlLogPrintf(CTDL_INFO, "RBL: %s\n", txt_answer);
 			return(1);
 		}
