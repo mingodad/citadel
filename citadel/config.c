@@ -63,7 +63,7 @@ void get_config(void) {
 	int desired_mode = (S_IFREG | S_IRUSR | S_IWUSR) ;
 	if (st.st_mode != desired_mode) {
 		fprintf(stderr, "%s must be set to permissions mode %03o but they are %03o\n",
-			file_citadel_config, desired_mode, st.st_mode);
+			file_citadel_config, (desired_mode & 0xFFF), (st.st_mode & 0xFFF));
 		exit(CTDLEXIT_CONFIG);
 	}
 #endif
