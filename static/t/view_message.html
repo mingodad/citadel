@@ -12,7 +12,7 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
  <?!("COND:MAIL:ANON", 4)>****<??("X", 4)>
  <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)><br/>
 <?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
-<?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></p><??("X", 7)>
+<?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
 <?!("COND:ROOM:TYPE_IS", 8, "VIEW_BBS")>
    <a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
