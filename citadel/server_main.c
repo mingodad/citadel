@@ -310,6 +310,14 @@ int main(int argc, char **argv)
 		start_chkpwd_daemon();
 	}
 
+
+	/*
+	 * check, whether we're fired up another time after a crash.
+	 * if, post an aide message, so the admin has a chance to react.
+	 */
+	checkcrash ();
+
+
 	/*
 	 * Now that we've bound the sockets, change to the Citadel user id and its
 	 * corresponding group ids

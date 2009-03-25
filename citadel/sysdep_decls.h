@@ -70,6 +70,7 @@ void sysdep_master_cleanup (void);
 void kill_session (int session_to_kill);
 void *sd_context_loop (struct CitContext *con);
 void start_daemon (int do_close_stdio);
+void checkcrash(void);
 void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void *worker_thread (void *arg);

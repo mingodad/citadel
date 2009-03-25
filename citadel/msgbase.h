@@ -100,7 +100,7 @@ void cmd_dlat (char *cmdbuf);
 long send_message (struct CtdlMessage *);
 void loadtroom (void);
 long CtdlSubmitMsg(struct CtdlMessage *, struct recptypes *, char *, int);
-void quickie_message (char *, char *, char *, char *, char *, int, char *);
+void quickie_message (const char *, const char *, char *, char *, const char *, int, const char *);
 void cmd_ent0 (char *entargs);
 void cmd_dele (char *delstr);
 void cmd_move (char *args);

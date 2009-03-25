@@ -3031,8 +3031,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 /*
  * Convenience function for generating small administrative messages.
  */
-void quickie_message(char *from, char *fromaddr, char *to, char *room, char *text, 
-			int format_type, char *subject)
+void quickie_message(const char *from, const char *fromaddr, char *to, char *room, const char *text, 
+			int format_type, const char *subject)
 {
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;

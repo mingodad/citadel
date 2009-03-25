@@ -896,6 +896,9 @@ void graceful_shutdown(int signum) {
 	exit(0);
 }
 
+int nFireUps = 0;
+int nFireUpsNonRestart = 0;
+pid_t ForkedPid = 1;
 
 /*
  * Start running as a daemon.
@@ -951,9 +954,8 @@ void start_daemon(int unused) {
 			}
 			waitpid(current_child, &status, 0);
 		}
-
 		do_restart = 0;
-
+		nFireUpsNonRestart = nFireUps;
 		/* Did the main process exit with an actual exit code? */
 		if (WIFEXITED(status)) {
 
@@ -970,12 +972,16 @@ void start_daemon(int unused) {
 			/* Any other exit code means we should restart. */
 			else {
 				do_restart = 1;
+				nFireUps++;
+				ForkedPid = current_child;
 			}
 		}
 
 		/* Any other type of termination (signals, etc.) should also restart. */
 		else {
 			do_restart = 1;
+			nFireUps++;
+			ForkedPid = current_child;
 		}
 
 	} while (do_restart);
@@ -984,6 +990,28 @@ void start_daemon(int unused) {
 	exit(WEXITSTATUS(status));
 }
 
+
+
+void checkcrash(void)
+{
+	if (nFireUpsNonRestart != nFireUps)
+	{
+		StrBuf *CrashMail;
+
+		CrashMail = NewStrBuf();
+		CtdlLogPrintf (CTDL_ALERT, "----------------sending crash mail\n");
+		StrBufPrintf(CrashMail, 
+			     "Your CitServer is just recovering from an unexpected termination.\n"
+			     " this maybe the result of an error in citserver or an external influence.\n"
+			     " You can get more information on this by enabling coredumping; for more information see\n"
+			     " http://citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files\n"
+			     " If you already did, the file you're looking for most probably is %score.%d\n"
+			     " Yours faithfully...",
+			     ctdl_run_dir, ForkedPid);
+		aide_message(ChrPtr(CrashMail), "Citadel server crashed.");
+		FreeStrBuf(&CrashMail);
+	}
+}
 
 
 /*
