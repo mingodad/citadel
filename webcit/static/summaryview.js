@@ -272,6 +272,7 @@ function CtdlMessageListClick(evt) {
       method: 'post',
 	  parameters: 'g_cmd=SEEN ' + msgId + '|1',
 	  onComplete: CtdlMarkRowAsRead(parent)});
+  // If the shift key modifier is used, mark a range...
   } else if (event.button != 2 && event.shiftKey) {
     markRow(parent);
     var rowId = parent.ctdlRowId;
@@ -288,8 +289,14 @@ function CtdlMessageListClick(evt) {
       WCLog("Marking row "+x);
       markRow(rowArray[x]);
     }
+  // If the ctrl key modifier is used, toggle one message
   } else if (event.button != 2 && (event.ctrlKey || event.altKey)) {
-    markRow(parent);
+    if (parent.ctdlMarked == true) {
+      unmarkRow(parent);
+    }
+    else {
+      markRow(parent);
+    }
   }
 }
 function CtdlMarkRowAsRead(rowElement) {
@@ -338,7 +345,7 @@ function removeOldSortClass() {
     currentSorterToggle.className = "";
   }
 }
-function markRow( row) {
+function markRow(row) {
   var msgId = row.ctdlMsgId;
   row.className = row.className += " marked_row";
   row.ctdlMarked = true;
