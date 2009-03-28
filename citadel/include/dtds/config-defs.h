@@ -89,3 +89,4 @@ CFG_VALUE(INTEGER(c_xmpp_s2s_port),		" XMPP server-to-server port (usually 5269)
 CFG_VALUE(TIME(c_pop3_fetch),		" How often to fetch POP3 messages");
 CFG_VALUE(TIME(c_pop3_fastest),		" Users can specify POP3 fetching this often");
 CFG_VALUE(INTEGER(c_spam_flag_only),	" 1 = flag instead of reject spam");
+CFG_VALUE(INTEGER(c_xmpps_c2s_port),		" XMPP client-to-server SSL port (usually 5223)");
