@@ -113,8 +113,8 @@
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		743		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	743		/* min required Citadel ver */
+#define CLIENT_VERSION		744		/* This version of WebCit */
+#define MINIMUM_CIT_VERSION	744		/* min required Citadel ver */
 #define	LIBCITADEL_MIN		743		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
@@ -292,7 +292,11 @@ typedef struct _disp_cal {
 	int is_repeat;
 } disp_cal;						
 
-
+typedef struct _ical_map {
+	const char *Name;
+	long NameLen;
+	long eenum;
+} IcalEnumMap;
 
 /*
  * Address book entry (keep it short and sweet, it's just a quickie lookup
