@@ -424,18 +424,6 @@ void xmpp_greeting(void) {
 }
 
 
-/*
- * Here's where our XMPPs session begins its happy day.
- */
-void xmpps_greeting(void) {
-	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
-#ifdef HAVE_OPENSSL
-	if (!CC->redirect_ssl) CC->kill_me = 1;		/* kill session if no crypto */
-#endif
-	xmpp_greeting();
-}
-
-
 /* 
  * Main command loop for XMPP sessions.
  */
@@ -484,7 +472,6 @@ void xmpp_logout_hook(void) {
 
 
 const char *CitadelServiceXMPP="XMPP";
-const char *CitadelServiceXMPPs="XMPPs";
 
 CTDL_MODULE_INIT(jabber)
 {
@@ -495,21 +482,6 @@ CTDL_MODULE_INIT(jabber)
 					xmpp_command_loop,
 					xmpp_async_loop,
 					CitadelServiceXMPP);
-		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
-                CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
-                CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);
-                CtdlRegisterSessionHook(xmpp_login_hook, EVT_UNSTEALTH);
-                CtdlRegisterSessionHook(xmpp_logout_hook, EVT_STEALTH);
-
-#ifdef HAVE_OPENSSL
-		CtdlRegisterServiceHook(config.c_xmpps_c2s_port,
-					NULL,
-					xmpps_greeting,
-					xmpp_command_loop,
-					xmpp_async_loop,
-					CitadelServiceXMPPs);
-#endif
-
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);

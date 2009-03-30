@@ -1212,7 +1212,7 @@ int main(int argc, char *argv[])
 	if (config.c_managesieve_port == 0) config.c_managesieve_port = 2020;
 	if (config.c_xmpp_c2s_port == 0) config.c_xmpp_c2s_port = 5222;
 	if (config.c_xmpp_s2s_port == 0) config.c_xmpp_s2s_port = 5269;
-	if (config.c_xmpps_c2s_port == 0) config.c_xmpps_c2s_port = 5223;
+
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr <= MAXSETUP; ++curr) {
 		edit_value(curr);

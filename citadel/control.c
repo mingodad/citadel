@@ -389,7 +389,6 @@ void cmd_conf(char *argbuf)
 		cprintf("%ld\n", config.c_pop3_fetch);
 		cprintf("%ld\n", config.c_pop3_fastest);
 		cprintf("%d\n", config.c_spam_flag_only);
-		cprintf("%d\n", config.c_xmpps_c2s_port);
 		cprintf("000\n");
 	}
 
@@ -645,9 +644,6 @@ void cmd_conf(char *argbuf)
 				break;
 			case 66:
 				config.c_spam_flag_only = atoi(buf);
-				break;
-			case 67:
-				config.c_xmpps_c2s_port = atoi(buf);
 				break;
 			}
 			++a;

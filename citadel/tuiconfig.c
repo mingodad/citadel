@@ -173,7 +173,6 @@ void do_system_configuration(CtdlIPC *ipc)
 	strprompt("ManageSieve server port (-1 to disable)", &sc[51][0], 5);
 
 	strprompt("XMPP (Jabber) client to server port (-1 to disable)", &sc[62][0], 5);
-	strprompt("XMPP (Jabber) client to server SSL port (-1 to disable)", &sc[67][0], 5);
 	/* No prompt because we don't implement this service yet, it's just a placeholder */
 	/* strprompt("XMPP (Jabber) server to server port (-1 to disable)", &sc[63][0], 5); */
 
