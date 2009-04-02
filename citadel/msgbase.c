@@ -1019,7 +1019,12 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 	||	(!IsEmptyStr(cbid) && (!strcasecmp(CC->download_desired_section, cbid)))
 	) {
 		*found_it = 1;
-		cprintf("%d %d\n", BINARY_FOLLOWS, (int)length);
+		cprintf("%d %d|-1|%s|%s\n",
+			BINARY_FOLLOWS,
+			(int)length,
+			filename,
+			cbtype
+		);
 		client_write(content, length);
 	}
 }
