@@ -32,6 +32,8 @@ struct CtdlMessage {
 
 
 
+#define CTDLEXIT_SHUTDOWN	0	/* Normal shutdown; do NOT auto-restart */
+
 /*
  * Exit codes 101 through 109 are used for conditions in which
  * we deliberately do NOT want the service to automatically
@@ -43,10 +45,6 @@ struct CtdlMessage {
 #define CTDLEXIT_OOD		104	/* Out Of Date config - rerun setup */
 #define CTDLEXIT_DB		105	/* Unable to initialize database */
 #define CTDLEXIT_LIBCITADEL	106	/* Incorrect version of libcitadel */
-#define CTDLEXIT_SHUTDOWN	150	/* we're going down. watcher don't 
-					 * fire us up again. 
-					 */
-
 
 
 

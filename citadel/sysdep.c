@@ -962,19 +962,24 @@ void start_daemon(int unused) {
 		nFireUpsNonRestart = nFireUps;
 		/* Did the main process exit with an actual exit code? */
 		if (WIFEXITED(status)) {
+		
+			CtdlLogPrintf(CTDL_DEBUG, "[31m WIFEXITED! [0m\n");
 
 			/* Exit code 0 means the watcher should exit */
 			if (WEXITSTATUS(status) == CTDLEXIT_SHUTDOWN) {
+				CtdlLogPrintf(CTDL_DEBUG, "[31m CTDLEXIT_SHUTDOWN [0m\n");
 				do_restart = 0;
 			}
 
 			/* Exit code 101-109 means the watcher should exit */
 			else if ( (WEXITSTATUS(status) >= 101) && (WEXITSTATUS(status) <= 109) ) {
+				CtdlLogPrintf(CTDL_DEBUG, "[31m CTDLEXIT NO RESTART [0m\n");
 				do_restart = 0;
 			}
 
 			/* Any other exit code means we should restart. */
 			else {
+				CtdlLogPrintf(CTDL_DEBUG, "[31m ANY OTHER EXIT CODE [0m\n");
 				do_restart = 1;
 				nFireUps++;
 				ForkedPid = current_child;
@@ -983,6 +988,7 @@ void start_daemon(int unused) {
 
 		/* Any other type of termination (signals, etc.) should also restart. */
 		else {
+			CtdlLogPrintf(CTDL_DEBUG, "[31m NON-EXIT TERMINATION [0m\n");
 			do_restart = 1;
 			nFireUps++;
 			ForkedPid = current_child;
