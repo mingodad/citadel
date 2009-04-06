@@ -964,7 +964,7 @@ void start_daemon(int unused) {
 		if (WIFEXITED(status)) {
 
 			/* Exit code 0 means the watcher should exit */
-			if (WEXITSTATUS(status) == 0) {
+			if (WEXITSTATUS(status) == CTDLEXIT_SHUTDOWN) {
 				do_restart = 0;
 			}
 

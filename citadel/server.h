@@ -43,6 +43,9 @@ struct CtdlMessage {
 #define CTDLEXIT_OOD		104	/* Out Of Date config - rerun setup */
 #define CTDLEXIT_DB		105	/* Unable to initialize database */
 #define CTDLEXIT_LIBCITADEL	106	/* Incorrect version of libcitadel */
+#define CTDLEXIT_SHUTDOWN	150	/* we're going down. watcher don't 
+					 * fire us up again. 
+					 */
 
 
 
