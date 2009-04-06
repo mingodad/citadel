@@ -993,16 +993,20 @@ void checkcrash(void)
 		StrBuf *CrashMail;
 
 		CrashMail = NewStrBuf();
-		CtdlLogPrintf (CTDL_ALERT, "----------------sending crash mail\n");
+		CtdlLogPrintf(CTDL_ALERT, "Posting crash message\n");
 		StrBufPrintf(CrashMail, 
-			     "Your CitServer is just recovering from an unexpected termination.\n"
-			     " this maybe the result of an error in citserver or an external influence.\n"
-			     " You can get more information on this by enabling coredumping; for more information see\n"
-			     " http://citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files\n"
-			     " If you already did, the file you're looking for most probably is %score.%d\n"
-			     " Yours faithfully...",
-			     ctdl_run_dir, ForkedPid);
-		aide_message(ChrPtr(CrashMail), "Citadel server crashed.");
+			" \n"
+			" The Citadel server process (citserver) terminated unexpectedly."
+			"\n \n"
+			" This could be the result of a bug in the server program, or some external "
+			"factor.  You can obtain more information about this by enabling core dumps. "
+			"For more information, please see: "
+			"http://citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files"
+			"\n \n"
+			" If you have already done this, the core dump is likely to be found at %score.%d\n"
+			,
+			ctdl_run_dir, ForkedPid);
+		aide_message(ChrPtr(CrashMail), "Citadel server process terminated unexpectedly");
 		FreeStrBuf(&CrashMail);
 	}
 }
