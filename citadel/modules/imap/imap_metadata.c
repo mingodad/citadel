@@ -123,7 +123,7 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 		set_view = VIEW_MAILBOX;
 	}
 
-	ret = imap_grabroom(roomname, parms[2], 0);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
 			parms[0]);
@@ -200,7 +200,7 @@ void imap_getmetadata(int num_parms, char *parms[]) {
 		return;
 	}
 
-	ret = imap_grabroom(roomname, parms[2], 0);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
 			parms[0]);

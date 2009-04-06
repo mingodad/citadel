@@ -69,7 +69,7 @@ int imap_do_copy(char *destination_folder) {
 		return(0);
 	}
 
-	i = imap_grabroom(roomname, destination_folder, 0);
+	i = imap_grabroom(roomname, destination_folder, 1);
 	if (i != 0) return(i);
 
 	/*
@@ -359,7 +359,7 @@ void imap_append(int num_parms, char *parms[]) {
 	Imap->transmitted_message = NULL;
 	Imap->transmitted_length = 0;
 
-	ret = imap_grabroom(roomname, parms[2], 0);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
 			parms[0]);

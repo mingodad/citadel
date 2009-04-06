@@ -146,7 +146,7 @@ void imap_getacl(int num_parms, char *parms[]) {
 	/*
 	 * Search for the specified room or folder
 	 */
-	ret = imap_grabroom(roomname, parms[2], 0);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
 			parms[0]);
@@ -219,7 +219,7 @@ void imap_listrights(int num_parms, char *parms[]) {
 	/*
 	 * Search for the specified room/folder
 	 */
-	ret = imap_grabroom(roomname, parms[2], 0);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
 			parms[0]);
@@ -294,7 +294,7 @@ void imap_myrights(int num_parms, char *parms[]) {
 		return;
 	}
 
-	ret = imap_grabroom(roomname, parms[2], 0);
+	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
 			parms[0]);
