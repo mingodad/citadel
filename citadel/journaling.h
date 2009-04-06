@@ -1,4 +1,4 @@
-/* $Id: $ */
+/* $Id$ */
 
 struct jnlq {
 	struct jnlq *next;
