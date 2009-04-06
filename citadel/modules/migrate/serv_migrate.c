@@ -938,7 +938,7 @@ CTDL_MODULE_INIT(migrate)
 	if (!threading)
 	{
 		CtdlRegisterProtoHook(cmd_migr, "MIGR", "Across-the-wire migration");
-		CtdlRegisterProtoHook(cmd_migr, "ARTV", "Across-the-wire migration (legacy calling syntax)"
+		CtdlRegisterProtoHook(cmd_migr, "ARTV", "Across-the-wire migration (legacy syntax)");
 	}
 	
 	/* return our Subversion id for the Log */
