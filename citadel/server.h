@@ -45,6 +45,7 @@ struct CtdlMessage {
 #define CTDLEXIT_OOD		104	/* Out Of Date config - rerun setup */
 #define CTDLEXIT_DB		105	/* Unable to initialize database */
 #define CTDLEXIT_LIBCITADEL	106	/* Incorrect version of libcitadel */
+#define CTDL_EXIT_UNSUP_AUTH	107	/* Unsupported auth mode configured */
 
 
 

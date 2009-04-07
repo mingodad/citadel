@@ -541,6 +541,13 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 
 	}
 
+#ifdef HAVE_LDAP
+	else if (config.c_auth_mode == AUTHMODE_LDAP) {
+
+		/* LDAP auth mode FIXME_LDAP */
+	}
+#endif
+
 	else {
 		/* native auth mode */
 
@@ -860,6 +867,13 @@ int CtdlTryPassword(char *password)
 		}
 	}
 
+#ifdef HAVE_LDAP
+	else if (config.c_auth_mode == AUTHMODE_LDAP) {
+
+		/* LDAP auth mode FIXME_LDAP */
+	}
+#endif
+
 	else {
 
 		/* native auth mode */
@@ -1067,6 +1081,8 @@ int create_user(char *newusername, int become_user)
 			return (ERROR + NO_SUCH_USER);
 		}
 	}
+
+	/* FIXME_LDAP put something here */
 	
 	if ((retval = internal_create_user(username, &usbuf, uid)) != 0)
 		return retval;

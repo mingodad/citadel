@@ -79,6 +79,14 @@ void get_config(void) {
 		exit(CTDLEXIT_LIBCITADEL);
 	}
 
+	/* Only allow LDAP auth mode if we actually have LDAP support */
+#ifndef HAVE_LDAP
+	if (config.c_auth_mode == AUTHMODE_LDAP) {
+		fprintf(stderr, "Your system is configured for LDAP authentication,\n"
+				"but you are running a server built without OpenLDAP support.\n");
+		exit(CTDL_EXIT_UNSUP_AUTH);
+	}
+#endif
 
 	/* Check to see whether 'setup' must first be run to update data file formats */
 	if (config.c_setup_level < REV_MIN) {
