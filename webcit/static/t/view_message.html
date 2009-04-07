@@ -6,9 +6,10 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
  <span><?MAIL:SUMM:DATEFULL></span>
  <?_("from ")>
  <??("COND:MAIL:ANON",1)>
-<?!("COND:MAIL:SUMM:RFCA", 2)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
-<??("COND:MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",3)> @ <?MAIL:SUMM:H_NODE><??("X",3)>
-<??("X", 1)>
+   <?!("COND:MAIL:SUMM:RFCA", 2)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
+   <??("COND:MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> 
+      <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
+ <??("X", 1)>
  <?!("COND:MAIL:ANON", 4)>****<??("X", 4)>
  <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)><br/>
 <?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
@@ -25,9 +26,9 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
 	<?!("X", 10)>
 	<??("COND:MAIL:SUMM:RFCA", 11)>
-		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:FROM("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:FROM("U")>%2C<?MAIL:SUMM:ALLRCPT("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
-		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?recp=<?MAIL:SUMM:FROM("U")>%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
 	<??("X", 11)>
 <??("X", 9)>
 <?!("COND:ROOM:EDITACCESS", 14)>
