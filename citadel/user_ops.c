@@ -544,8 +544,29 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 
 #ifdef HAVE_LDAP
 	else if (config.c_auth_mode == AUTHMODE_LDAP) {
+	
+		/* LDAP auth mode */
 
-		/* LDAP auth mode FIXME_LDAP */
+		int ldap_uid;
+		char ldap_cn[256];
+		char ldap_dn[256];
+
+		found_user = CtdlTryUserLDAP(username, ldap_dn, sizeof ldap_dn, ldap_cn, sizeof ldap_cn, &ldap_uid);
+		if (found_user != 0) {
+			return login_not_found;
+		}
+
+		found_user = getuserbyuid(&CC->user, ldap_uid);
+		if (found_user != 0) {
+			create_user(ldap_cn, 0);
+			found_user = getuserbyuid(&CC->user, ldap_uid);
+		}
+
+		if (found_user == 0) {
+			if (CC->ldap_dn != NULL) free(CC->ldap_dn);
+			CC->ldap_dn = strdup(ldap_dn);
+		}
+
 	}
 #endif
 
@@ -871,7 +892,14 @@ int CtdlTryPassword(char *password)
 #ifdef HAVE_LDAP
 	else if (config.c_auth_mode == AUTHMODE_LDAP) {
 
-		/* LDAP auth mode FIXME_LDAP */
+		/* LDAP auth mode */
+
+		if ((CC->ldap_dn) && (!CtdlTryPasswordLDAP(CC->ldap_dn, password))) {
+			code = 0;
+		}
+		else {
+			code = (-1);
+		}
 	}
 #endif
 

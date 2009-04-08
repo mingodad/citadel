@@ -5,7 +5,6 @@
 
 int ldap_version = 3;
 
-#ifdef HAVE_LDAP
 
 #include "sysdep.h"
 #include <errno.h>
@@ -54,11 +53,16 @@ int ldap_version = 3;
 #include "threads.h"
 #include "citadel_ldap.h"
 
+#ifdef HAVE_LDAP
+
 #define LDAP_DEPRECATED 1	/* Needed to suppress misleading warnings */
 
 #include <ldap.h>
 
-int CtdlTryUserLDAP(char *username, char *found_dn, int found_dn_size, char *fullname, int fullname_size)
+int CtdlTryUserLDAP(char *username,
+		char *found_dn, int found_dn_size,
+		char *fullname, int fullname_size,
+		int *uid)
 {
 	LDAP *ldserver = NULL;
 	int i;
@@ -138,6 +142,9 @@ int CtdlTryUserLDAP(char *username, char *found_dn, int found_dn_size, char *ful
 		if (values) {
 			if (values[0]) {
 				CtdlLogPrintf(CTDL_DEBUG, "uidNumber = %s\n", values[0]);
+				if (uid != NULL) {
+					*uid = atoi(values[0]);
+				}
 			}
 			ldap_value_free(values);
 		}
@@ -172,7 +179,7 @@ int CtdlTryUserLDAP(char *username, char *found_dn, int found_dn_size, char *ful
 int CtdlTryPasswordLDAP(char *user_dn, char *password)
 {
 	LDAP *ldserver = NULL;
-	int i;
+	int i = (-1);
 
 	ldserver = ldap_init(CTDL_LDAP_HOST, CTDL_LDAP_PORT);
 	if (ldserver) {
@@ -187,7 +194,11 @@ int CtdlTryPasswordLDAP(char *user_dn, char *password)
 		ldap_unbind(ldserver);
 	}
 
-	return((i == LDAP_SUCCESS) ? 0 : 1);
+	if (i == LDAP_SUCCESS) {
+		return(0);
+	}
+
+	return(1);
 }
 
 
