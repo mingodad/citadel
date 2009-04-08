@@ -130,15 +130,21 @@ char *setup_text[] = {
 "of Citadel on the same computer and there is something else\n"
 "already using port 504.\n",
 
-"Normally, a Citadel system uses a \"black box\" authentication mode.\n"
-"This means that users do not have accounts or home directories on\n"
-"the underlying host system -- Citadel manages its own user database.\n"
-"However, if you wish to override this behavior, you can enable the\n"
-"host based authentication mode which is traditional for Unix systems.\n"
+
+
+"How would you like to authenticate users on your Citadel system?\n"
+"\n"
+" 0. Self contained authentication - Citadel maintains its own user database\n"
+"    (This mode is *strongly* recommended)\n"
+"\n"
+" 1. Authenticate users against the host system (unix or linux accounts)\n"
+"\n"
+" 2. Authenticate users against an external LDAP directory\n"
+"\n"
 "WARNING: do *not* change this setting once your system is installed.\n"
 "\n"
-"(Answer \"no\" unless you completely understand this option)\n"
-"Do you want to enable host based authentication mode?\n"
+"(Answer \"0\" unless you completely understand this option)\n"
+"Which authentication mode do you want to use?\n"
 
 };
 
@@ -849,7 +855,7 @@ void edit_value(int curr)
 			}
 		}
 		else {
-			set_bool_val(curr, &config.c_auth_mode);
+			set_int_val(curr, &config.c_auth_mode);
 		}
 		break;
 
