@@ -74,17 +74,14 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	citmail.c citserver.c client_chat.c client_passwords.c \
 	clientsocket.c commands.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
-	housekeeping.c ical_dezonify.c \
-	internet_addressing.c ecrash.c \
+	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
 	ipc_c_tcp.c locate_host.c md5.c messages.c  \
 	msgbase.c msgform.c parsedate.c policy.c \
 	room_ops.c rooms.c routines.c routines2.c tuiconfig.c euidindex.c \
 	screen.c sendcommand.c getmail.c \
-	server_main.c \
-	setup.c snprintf.c \
+	server_main.c setup.c snprintf.c ldap.c \
 	stress.c support.c sysdep.c user_ops.c userlist.c \
-	whobbs.c \
-	journaling.c citadel_dirs.c threads.c
+	whobbs.c journaling.c citadel_dirs.c threads.c
 
 
 include Make_sources
@@ -133,7 +130,7 @@ SERV_OBJS = server_main.o \
 	internet_addressing.o journaling.o \
 	parsedate.o genstamp.o ecrash.o threads.o\
 	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES) \
-	svn_revision.o
+	svn_revision.o ldap.o
 
 citserver$(EXEEXT): $(SERV_OBJS)
 	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver$(EXEEXT)

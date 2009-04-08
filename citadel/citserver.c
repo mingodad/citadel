@@ -262,6 +262,12 @@ void RemoveContext (struct CitContext *con)
 	CtdlLogPrintf(CTDL_DEBUG, "Closing socket %d\n", con->client_socket);
 	close(con->client_socket);
 
+	/* If using AUTHMODE_LDAP, free the DN */
+	if (con->ldap_dn) {
+		free(con->ldap_dn);
+		con->ldap_dn = NULL;
+	}
+
 	CtdlLogPrintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }
 

@@ -50,6 +50,7 @@
 #include "citadel_dirs.h"
 #include "genstamp.h"
 #include "threads.h"
+#include "citadel_ldap.h"
 
 /* These pipes are used to talk to the chkpwd daemon, which is forked during startup */
 int chkpwd_write_pipe[2];

@@ -1,8 +1,7 @@
 /*
  * $Id$
  *
- * This function reads the citadel.config file.  It should be called at
- * the beginning of EVERY Citadel program.
+ * Read and write the citadel.config file
  *
  */
 

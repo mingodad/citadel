@@ -145,6 +145,7 @@ struct CitContext {
 	struct ma_info *ma;			/* multipart/alternative data */
 	const char *ServiceName;		/* readable purpose of this session */
 	void *openid_data;			/* Data stored by the OpenID module */
+	char *ldap_dn;				/* DN of user when using AUTHMODE_LDAP */
 };
 
 typedef struct CitContext t_context;
