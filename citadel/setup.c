@@ -144,7 +144,9 @@ char *setup_text[] = {
 "\n"
 " 1. Authenticate users against the host system (unix or linux accounts)\n"
 "\n"
-" 2. Authenticate users against an external LDAP directory\n"
+" 2. Authenticate users against an external LDAP directory (RFC 2307 compliant)\n"
+"\n"
+" 3. Authenticate users against nonstandard MS Active Directory LDAP\n"
 "\n"
 "WARNING: do *not* change this setting once your system is installed.\n"
 "\n"
@@ -1309,7 +1311,9 @@ int main(int argc, char *argv[])
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr <= MAXSETUP; ++curr) {
 		edit_value(curr);
-		if ((curr == 6) && (config.c_auth_mode != AUTHMODE_LDAP)) curr += 5;	/* skip LDAP questions */
+		if ((curr == 6) && (config.c_auth_mode != AUTHMODE_LDAP) && (config.c_auth_mode != AUTHMODE_LDAP_AD)) {
+			curr += 5;	/* skip LDAP questions if we're not authenticating against LDAP */
+		}
 	}
 
 /***** begin version update section ***** */

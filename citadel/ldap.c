@@ -99,7 +99,12 @@ int CtdlTryUserLDAP(char *username,
 	tv.tv_sec = 10;
 	tv.tv_usec = 0;
 
-	sprintf(searchstring, SEARCH_STRING, username);
+	if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
+		sprintf(searchstring, "(sAMAccountName=%s)", username);
+	}
+	else {
+		sprintf(searchstring, "(&(objectclass=posixAccount)(uid=%s))", username);
+	}
 
 	i = ldap_search_st(ldserver,
 		config.c_ldap_base_dn,
@@ -134,32 +139,50 @@ int CtdlTryUserLDAP(char *username,
 			CtdlLogPrintf(CTDL_DEBUG, "dn = %s\n", user_dn);
 		}
 
-		values = ldap_get_values(ldserver, search_result, "cn");
-		if (values) {
-			if (values[0]) {
-				if (fullname) safestrncpy(fullname, values[0], fullname_size);
-				CtdlLogPrintf(CTDL_DEBUG, "cn = %s\n", values[0]);
-			}
-			ldap_value_free(values);
-		}
-
-		values = ldap_get_values(ldserver, search_result, "uidNumber");
-		if (values) {
-			if (values[0]) {
-				CtdlLogPrintf(CTDL_DEBUG, "uidNumber = %s\n", values[0]);
-				if (uid != NULL) {
-					*uid = atoi(values[0]);
+		if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
+			values = ldap_get_values(ldserver, search_result, "displayName");
+			if (values) {
+				if (values[0]) {
+					if (fullname) safestrncpy(fullname, values[0], fullname_size);
+					CtdlLogPrintf(CTDL_DEBUG, "displayName = %s\n", values[0]);
 				}
+				ldap_value_free(values);
 			}
-			ldap_value_free(values);
+		}
+		else {
+			values = ldap_get_values(ldserver, search_result, "cn");
+			if (values) {
+				if (values[0]) {
+					if (fullname) safestrncpy(fullname, values[0], fullname_size);
+					CtdlLogPrintf(CTDL_DEBUG, "cn = %s\n", values[0]);
+				}
+				ldap_value_free(values);
+			}
 		}
 
-		values = ldap_get_values(ldserver, search_result, "objectGUID");
-		if (values) {
-			if (values[0]) {
-				CtdlLogPrintf(CTDL_DEBUG, "objectGUID = (%d characers)\n", strlen(values[0]));
+		if (config.c_auth_mode == AUTHMODE_LDAP_AD) {
+			values = ldap_get_values(ldserver, search_result, "objectGUID");
+			if (values) {
+				if (values[0]) {
+					if (uid != NULL) {
+						*uid = abs(HashLittle(values[0], strlen(values[0])));
+						CtdlLogPrintf(CTDL_DEBUG, "uid hashed from objectGUID = %d\n", *uid);
+					}
+				}
+				ldap_value_free(values);
 			}
-			ldap_value_free(values);
+		}
+		else {
+			values = ldap_get_values(ldserver, search_result, "uidNumber");
+			if (values) {
+				if (values[0]) {
+					CtdlLogPrintf(CTDL_DEBUG, "uidNumber = %s\n", values[0]);
+					if (uid != NULL) {
+						*uid = atoi(values[0]);
+					}
+				}
+				ldap_value_free(values);
+			}
 		}
 
 	}

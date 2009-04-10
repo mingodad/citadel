@@ -80,7 +80,7 @@ void get_config(void) {
 
 	/* Only allow LDAP auth mode if we actually have LDAP support */
 #ifndef HAVE_LDAP
-	if (config.c_auth_mode == AUTHMODE_LDAP) {
+	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
 		fprintf(stderr, "Your system is configured for LDAP authentication,\n"
 				"but you are running a server built without OpenLDAP support.\n");
 		exit(CTDL_EXIT_UNSUP_AUTH);

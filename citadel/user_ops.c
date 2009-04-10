@@ -543,7 +543,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	}
 
 #ifdef HAVE_LDAP
-	else if (config.c_auth_mode == AUTHMODE_LDAP) {
+	else if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
 	
 		/* LDAP auth mode */
 
@@ -890,7 +890,7 @@ int CtdlTryPassword(char *password)
 	}
 
 #ifdef HAVE_LDAP
-	else if (config.c_auth_mode == AUTHMODE_LDAP) {
+	else if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
 
 		/* LDAP auth mode */
 
@@ -1112,7 +1112,7 @@ int create_user(char *newusername, int become_user)
 	}
 
 #ifdef HAVE_LDAP
-	if (config.c_auth_mode == AUTHMODE_LDAP) {
+	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
 		if (CtdlTryUserLDAP(username, NULL, 0, username, sizeof username, &uid) != 0) {
 			return(ERROR + NO_SUCH_USER);
 		}

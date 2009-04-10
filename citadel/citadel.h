@@ -41,7 +41,7 @@ extern "C" {
 #define REV_LEVEL	760		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	760		/* Oldest compatible export files */
-#define LIBCITADEL_MIN	744		/* Minimum required version of libcitadel */
+#define LIBCITADEL_MIN	760		/* Minimum required version of libcitadel */
 
 #define SERVER_TYPE 0			/* zero for stock Citadel; other developers please
 					   obtain SERVER_TYPE codes for your implementations */
@@ -278,7 +278,8 @@ enum {
  */
 #define AUTHMODE_NATIVE		0	/* Native (self-contained or "black box") */
 #define AUTHMODE_HOST		1	/* Authenticate against the host OS user database */
-#define AUTHMODE_LDAP		2	/* Authenticate against an LDAP server */
+#define AUTHMODE_LDAP		2	/* Authenticate against an LDAP server with RFC 2307 schema */
+#define AUTHMODE_LDAP_AD	3	/* Authenticate against non-standard MS Active Directory LDAP */
 
 #ifdef __cplusplus
 }
