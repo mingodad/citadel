@@ -151,11 +151,21 @@ char *setup_text[] = {
 "(Answer \"0\" unless you completely understand this option)\n"
 "Which authentication mode do you want to use?\n",
 
-	"LDAP host FIXME\n",
-	"LDAP port number FIXME\n",
-	"LDAP base DN FIXME\n",
-	"LDAP bind DN FIXME\n",
-	"LDAP bind password FIXME\n"
+"Please enter the host name or IP address of your LDAP server.\n",
+
+"Please enter the port number of the LDAP service (usually 389).\n",
+
+"Please enter the Base DN to search for authentication\n"
+"(for example: dc=example,dc=com)\n",
+
+"Please enter the DN of an account to use for binding to the LDAP server\n"
+"for performing queries.  The account does not require any other\n"
+"privileges.  If your LDAP server allows anonymous queries, you can.\n"
+"leave this blank.\n",
+
+"If you entered a Bind DN in the previous question, you must now enter\n"
+"the password associated with that account.  Otherwise, you can leave this\n"
+"blank.\n"
 
 };
 
