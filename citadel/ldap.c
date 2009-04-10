@@ -75,17 +75,22 @@ int CtdlTryUserLDAP(char *username,
 
 	if (fullname) safestrncpy(fullname, username, fullname_size);
 
-	ldserver = ldap_init(CTDL_LDAP_HOST, CTDL_LDAP_PORT);
+	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver == NULL) {
 		CtdlLogPrintf(CTDL_ALERT, "LDAP: Could not connect to %s:%d : %s\n",
-			CTDL_LDAP_HOST, CTDL_LDAP_PORT,
+			config.c_ldap_host, config.c_ldap_port,
 			strerror(errno));
 		return(errno);
 	}
 
 	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
 
-	i = ldap_simple_bind_s(ldserver, BIND_DN, BIND_PW);
+	striplt(config.c_ldap_bind_dn);
+	striplt(config.c_ldap_bind_pw);
+	i = ldap_simple_bind_s(ldserver,
+		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
+		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
+	);
 	if (i != LDAP_SUCCESS) {
 		CtdlLogPrintf(CTDL_ALERT, "LDAP: Cannot bind: %s (%d)\n", ldap_err2string(i), i);
 		return(i);
@@ -97,7 +102,7 @@ int CtdlTryUserLDAP(char *username,
 	sprintf(searchstring, SEARCH_STRING, username);
 
 	i = ldap_search_st(ldserver,
-		BASE_DN,
+		config.c_ldap_base_dn,
 		LDAP_SCOPE_SUBTREE,
 		searchstring,
 		NULL,	// return all attributes
@@ -181,7 +186,7 @@ int CtdlTryPasswordLDAP(char *user_dn, char *password)
 	LDAP *ldserver = NULL;
 	int i = (-1);
 
-	ldserver = ldap_init(CTDL_LDAP_HOST, CTDL_LDAP_PORT);
+	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver) {
 		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
 		i = ldap_simple_bind_s(ldserver, user_dn, password);
