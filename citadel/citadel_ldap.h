@@ -9,5 +9,5 @@
 #define BIND_PW		NULL			/* put pw here for authenticated bind */
 #define SEARCH_STRING	"(&(objectclass=posixAccount)(uid=%s))"
 
-int CtdlTryUserLDAP(char *username, char *found_dn, int found_dn_size, char *fullname, int fullname_size, int *found_uid);
+int CtdlTryUserLDAP(char *username, char *found_dn, int found_dn_size, char *fullname, int fullname_size, uid_t *found_uid);
 int CtdlTryPasswordLDAP(char *user_dn, char *password);

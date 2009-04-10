@@ -547,7 +547,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 	
 		/* LDAP auth mode */
 
-		int ldap_uid;
+		uid_t ldap_uid;
 		char ldap_cn[256];
 		char ldap_dn[256];
 
@@ -558,7 +558,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 
 		found_user = getuserbyuid(&CC->user, ldap_uid);
 		if (found_user != 0) {
-			create_user(ldap_cn, 0);
+			create_user(trythisname, 0);
 			found_user = getuserbyuid(&CC->user, ldap_uid);
 		}
 
@@ -1111,7 +1111,13 @@ int create_user(char *newusername, int become_user)
 		}
 	}
 
-	/* FIXME_LDAP put something here */
+#ifdef HAVE_LDAP
+	if (config.c_auth_mode == AUTHMODE_LDAP) {
+		if (CtdlTryUserLDAP(username, NULL, 0, username, sizeof username, &uid) != 0) {
+			return(ERROR + NO_SUCH_USER);
+		}
+	}
+#endif /* HAVE_LDAP */
 	
 	if ((retval = internal_create_user(username, &usbuf, uid)) != 0)
 		return retval;

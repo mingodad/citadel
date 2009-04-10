@@ -62,7 +62,7 @@ int ldap_version = 3;
 int CtdlTryUserLDAP(char *username,
 		char *found_dn, int found_dn_size,
 		char *fullname, int fullname_size,
-		int *uid)
+		uid_t *uid)
 {
 	LDAP *ldserver = NULL;
 	int i;
@@ -73,7 +73,7 @@ int CtdlTryUserLDAP(char *username,
 	char **values;
 	char *user_dn = NULL;
 
-	safestrncpy(fullname, username, fullname_size);
+	if (fullname) safestrncpy(fullname, username, fullname_size);
 
 	ldserver = ldap_init(CTDL_LDAP_HOST, CTDL_LDAP_PORT);
 	if (ldserver == NULL) {
@@ -132,7 +132,7 @@ int CtdlTryUserLDAP(char *username,
 		values = ldap_get_values(ldserver, search_result, "cn");
 		if (values) {
 			if (values[0]) {
-				safestrncpy(fullname, values[0], fullname_size);
+				if (fullname) safestrncpy(fullname, values[0], fullname_size);
 				CtdlLogPrintf(CTDL_DEBUG, "cn = %s\n", values[0]);
 			}
 			ldap_value_free(values);
@@ -170,7 +170,7 @@ int CtdlTryUserLDAP(char *username,
 		return(4);
 	}
 
-	safestrncpy(found_dn, user_dn, found_dn_size);
+	if (found_dn) safestrncpy(found_dn, user_dn, found_dn_size);
 	ldap_memfree(user_dn);
 	return(0);
 }
