@@ -32,7 +32,7 @@
 #endif
 
 
-#define MAXSETUP 6	/* How many setup questions to ask */
+#define MAXSETUP 11	/* How many setup questions to ask */
 
 #define UI_TEXT		0	/* Default setup type -- text only */
 #define UI_DIALOG	2	/* Use the 'dialog' program */
@@ -57,7 +57,12 @@ char *setup_titles[] =
 	"Citadel User ID",
 	"Server IP address",
 	"Server port number",
-	"Authentication mode"
+	"Authentication mode",
+	"LDAP host",
+	"LDAP port number",
+	"LDAP base DN",
+	"LDAP bind DN",
+	"LDAP bind password"
 };
 
 /**
@@ -144,7 +149,13 @@ char *setup_text[] = {
 "WARNING: do *not* change this setting once your system is installed.\n"
 "\n"
 "(Answer \"0\" unless you completely understand this option)\n"
-"Which authentication mode do you want to use?\n"
+"Which authentication mode do you want to use?\n",
+
+	"LDAP host FIXME\n",
+	"LDAP port number FIXME\n",
+	"LDAP base DN FIXME\n",
+	"LDAP bind DN FIXME\n",
+	"LDAP bind password FIXME\n"
 
 };
 
@@ -859,7 +870,73 @@ void edit_value(int curr)
 		}
 		break;
 
+	case 7:
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("LDAP_HOST")) {
+				strcpy(config.c_ldap_host, getenv("LDAP_HOST"));
+			}
+		}
+		else
+		{
+			set_str_val(curr, config.c_ldap_host);
+		}
+		break;
+
+	case 8:
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("LDAP_PORT")) {
+				config.c_ldap_port = atoi(getenv("LDAP_PORT"));
+			}
+		}
+		else
+		{
+			set_int_val(curr, &config.c_ldap_port);
+		}
+		break;
+
+	case 9:
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("LDAP_BASE_DN")) {
+				strcpy(config.c_ldap_base_dn, getenv("LDAP_BASE_DN"));
+			}
+		}
+		else
+		{
+			set_str_val(curr, config.c_ldap_base_dn);
+		}
+		break;
+
+	case 10:
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("LDAP_BIND_DN")) {
+				strcpy(config.c_ldap_bind_dn, getenv("LDAP_BIND_DN"));
+			}
+		}
+		else
+		{
+			set_str_val(curr, config.c_ldap_bind_dn);
+		}
+		break;
+
+	case 11:
+		if (setup_type == UI_SILENT)
+		{
+			if (getenv("LDAP_BIND_PW")) {
+				strcpy(config.c_ldap_bind_pw, getenv("LDAP_BIND_PW"));
+			}
+		}
+		else
+		{
+			set_str_val(curr, config.c_ldap_bind_pw);
+		}
+		break;
+
 	}
+
 }
 
 /*
@@ -1222,6 +1299,7 @@ int main(int argc, char *argv[])
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr <= MAXSETUP; ++curr) {
 		edit_value(curr);
+		if ((curr == 6) && (config.c_auth_mode != AUTHMODE_LDAP)) curr += 5;	/* skip LDAP questions */
 	}
 
 /***** begin version update section ***** */
