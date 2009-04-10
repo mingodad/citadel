@@ -213,15 +213,15 @@ void do_system_configuration(CtdlIPC *ipc)
 	if (ipc->ServInfo.supports_ldap) {
 		a = strlen(&sc[32][0]);
 		a = (a ? 1 : 0);	/* Set only to 1 or 0 */
-		a = boolprompt("Connect this Citadel to an external LDAP directory", a);
+		a = boolprompt("Do you want to configure LDAP authentication?", a);
 		if (a) {
 			strprompt("Host name of LDAP server",
 				&sc[32][0], 127);
 			strprompt("Port number of LDAP service",
 				&sc[33][0], 5);
 			strprompt("Base DN", &sc[34][0], 255);
-			strprompt("Bind DN", &sc[35][0], 255);
-			strprompt("Password for bind DN", &sc[36][0], 255);
+			strprompt("Bind DN (or blank for anonymous bind)", &sc[35][0], 255);
+			strprompt("Password for bind DN (or blank for anonymous bind)", &sc[36][0], 255);
 		}
 		else {
 			strcpy(&sc[32][0], "");
