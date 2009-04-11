@@ -798,4 +798,10 @@ void reference_free_handler(void *ptr)
 }
 
 
+/*
+ * This exposes the hashlittle() function to consumers.
+ */
+int HashLittle(const void *key, size_t length) {
+	return (int)hashlittle(key, length, 1);
+}
 

@@ -387,6 +387,7 @@ long StrBufUnescape(StrBuf *Buf, int StripBlanks);
  * Hash list implementation for Citadel
  */
 #define HKEY(a) a, (sizeof(a) - 1)
+
 typedef struct HashList HashList;
 
 typedef struct HashKey HashKey;
@@ -424,6 +425,7 @@ const void *GetSearchPayload(const void *HashVoid);
 void SortByPayload(HashList *Hash, CompareFunc SortBy);
 void generic_free_handler(void *ptr);
 void reference_free_handler(void *ptr);
+int HashLittle(const void *key, size_t length);
 
 
 void convert_spaces_to_underscores(char *str);
