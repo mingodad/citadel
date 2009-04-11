@@ -566,17 +566,19 @@ static unsigned on = 1, off = 0;
 
 void buffer_output(void) {
 #ifdef HAVE_TCP_BUFFERING
-	if (!CC->redirect_ssl) {
+#ifdef HAVE_OPENSSL
+	if (!CC->redirect_ssl)
+#endif
 		setsockopt(CC->client_socket, IPPROTO_TCP, TCP_CORK, &on, 4);
-	}
 #endif
 }
 
 void unbuffer_output(void) {
 #ifdef HAVE_TCP_BUFFERING
-	if (!CC->redirect_ssl) {
+#ifdef HAVE_OPENSSL
+	if (!CC->redirect_ssl)
+#endif
 		setsockopt(CC->client_socket, IPPROTO_TCP, TCP_CORK, &off, 4);
-	}
 #endif
 }
 
