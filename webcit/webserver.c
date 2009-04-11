@@ -394,6 +394,7 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
 	const char *Error, *pch, *pchs;
 	int rlen, len, retval = 0;
 
+#ifdef HAVE_OPENSSL
 	if (is_https) {
 		int ntries = 0;
 		if (StrLength(CLineBuf) > 0) {
@@ -441,6 +442,7 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
 			return -1;
 	}
 	else 
+#endif
 		return StrBufTCP_read_buffered_line_fast(Target, 
 							 CLineBuf,
 							 Pos,
