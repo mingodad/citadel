@@ -642,7 +642,7 @@ int main(int argc, char **argv)
 	char *mo = NULL;
 #endif /* ENABLE_NLS */
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
-	const char *I18nDumpFile;
+	const char *I18nDumpFile = NULL;
 
 	WildFireInitBacktrace(argv[0], 2);
 
