@@ -346,7 +346,8 @@ struct wcsession {
 /* Session local Members */
 	int http_sock;				/**< HTTP server socket */
 	int serv_sock;				/**< Client socket to Citadel server */
-	StrBuf *ReadBuf;
+	StrBuf *ReadBuf;                        /**< here we keep our stuff while reading linebuffered from the server. */
+	const char *ReadPos;                    /**< whats our read position in ReadBuf? */
 	int chat_sock;				/**< Client socket to Citadel server - for chat */
 	time_t lastreq;				/**< Timestamp of most recent HTTP */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
