@@ -1005,6 +1005,7 @@ void load_ical_object(long msgnum, int unread,
 	) 
 {
 	StrBuf *Buf;
+	const char *bptr;
 	size_t BufLen;
 	char buf[1024];
 	char from[128] = "";
@@ -1025,12 +1026,13 @@ void load_ical_object(long msgnum, int unread,
 
 	Buf = NewStrBuf();
 	while (BufLen = StrBuf_ServGetlnBuffered(Buf), strcmp(ChrPtr(Buf), "000")) {
-		if (!strncasecmp(ChrPtr(Buf), "part=", 5)) {
-			extract_token(mime_filename, &ChrPtr(Buf)[5], 1, '|', sizeof mime_filename);
-			extract_token(mime_partnum, &ChrPtr(Buf)[5], 2, '|', sizeof mime_partnum);
-			extract_token(mime_disposition, &ChrPtr(Buf)[5], 3, '|', sizeof mime_disposition);
-			extract_token(mime_content_type, &ChrPtr(Buf)[5], 4, '|', sizeof mime_content_type);
-			mime_length = extract_int(&ChrPtr(Buf)[5], 5);
+		bptr = ChrPtr(Buf);
+		if (!strncasecmp(bptr, "part=", 5)) {
+			extract_token(mime_filename, &bptr[5], 1, '|', sizeof mime_filename);
+			extract_token(mime_partnum, &bptr[5], 2, '|', sizeof mime_partnum);
+			extract_token(mime_disposition, &bptr[5], 3, '|', sizeof mime_disposition);
+			extract_token(mime_content_type, &bptr[5], 4, '|', sizeof mime_content_type);
+			mime_length = extract_int(&bptr[5], 5);
 
 			if (  (!strcasecmp(mime_content_type, "text/calendar"))
 			      || (!strcasecmp(mime_content_type, "application/ics"))
@@ -1039,8 +1041,8 @@ void load_ical_object(long msgnum, int unread,
 				strcpy(relevant_partnum, mime_partnum);
 			}
 		}
-		else if (!strncasecmp(ChrPtr(Buf), "from=", 4)) {
-			extract_token(from, ChrPtr(Buf), 1, '=', sizeof(from));
+		else if (!strncasecmp(bptr, "from=", 4)) {
+			extract_token(from, bptr, 1, '=', sizeof(from));
 		}
 	}
 	FreeStrBuf(&Buf);
