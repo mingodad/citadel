@@ -99,8 +99,8 @@ Section: devel
 Priority: extra
 Architecture: any
 Depends: ${misc:Depends},
-         citadel-server (= ${binary:Version})
-         citadel-mta (= ${binary:Version})
+         citadel-server (= ${binary:Version}),
+         citadel-mta (= ${binary:Version}),
          citadel-client (= ${binary:Version})
 Description: complete and feature-rich groupware server - debugging symbols
  Citadel is a complete and feature-rich open source groupware platform.
