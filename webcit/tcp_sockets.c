@@ -144,6 +144,9 @@ inline void _serv_read(char *buf, int bytes, wcsession *WCC)
 void serv_read(char *buf, int bytes)
 {
 	wcsession *WCC = WC;
+
+	WCC->ReadPos = NULL;
+
 	_serv_read(buf, bytes, WCC);
 }
 
@@ -156,6 +159,7 @@ int serv_getln(char *strbuf, int bufsize)
 	int ch, len;
 	char buf[2];
 
+	WCC->ReadPos = NULL;
 	len = 0;
 	strbuf[0] = 0;
 	do {
@@ -174,18 +178,20 @@ int serv_getln(char *strbuf, int bufsize)
 
 int StrBuf_ServGetln(StrBuf *buf)
 {
+	wcsession *WCC = WC;
 	const char *ErrStr;
 	int rc;
 
-	rc = StrBufTCP_read_line(buf, &WC->serv_sock, 0, &ErrStr);
+	WCC->ReadPos = NULL;
+	rc = StrBufTCP_read_line(buf, &WCC->serv_sock, 0, &ErrStr);
 	if (rc < 0)
 	{
 		lprintf(1, "Server connection broken: %s\n",
 			ErrStr);
 		wc_backtrace();
-		WC->serv_sock = (-1);
-		WC->connected = 0;
-		WC->logged_in = 0;
+		WCC->serv_sock = (-1);
+		WCC->connected = 0;
+		WCC->logged_in = 0;
 	}
 	return rc;
 }
@@ -196,11 +202,12 @@ int StrBuf_ServGetlnBuffered(StrBuf *buf)
 	const char *ErrStr;
 	int rc;
 
-	rc = StrBufTCP_read_buffered_line(buf, 
-					  WCC->ReadBuf, 
-					  &WCC->serv_sock, 
-					  5, 1, 
-					  &ErrStr);
+	rc = StrBufTCP_read_buffered_line_fast(buf, 
+					       WCC->ReadBuf, 
+					       &WCC->ReadPos, 
+					       &WCC->serv_sock, 
+					       5, 1, 
+					       &ErrStr);
 	if (rc < 0)
 	{
 		lprintf(1, "Server connection broken: %s\n",
@@ -215,18 +222,20 @@ int StrBuf_ServGetlnBuffered(StrBuf *buf)
 
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 {
+	wcsession *WCC = WC;
 	const char *Err;
 	int rc;
 	
-	rc = StrBufReadBLOB(buf, &WC->serv_sock, 1, BlobSize, &Err);
+	WCC->ReadPos = NULL;
+	rc = StrBufReadBLOB(buf, &WCC->serv_sock, 1, BlobSize, &Err);
 	if (rc < 0)
 	{
 		lprintf(1, "Server connection broken: %s\n",
 			Err);
 		wc_backtrace();
-		WC->serv_sock = (-1);
-		WC->connected = 0;
-		WC->logged_in = 0;
+		WCC->serv_sock = (-1);
+		WCC->connected = 0;
+		WCC->logged_in = 0;
 	}
 	return rc;
 }
@@ -263,9 +272,13 @@ void serv_write(const char *buf, int nbytes)
  */
 void serv_puts(const char *string)
 {
+	wcsession *WCC = WC;
 #ifdef SERV_TRACE
 	lprintf(9, "%3d<%s\n", WC->serv_sock, string);
 #endif
+	FlushStrBuf(WCC->ReadBuf);
+	WCC->ReadPos = NULL;
+
 	serv_write(string, strlen(string));
 	serv_write("\n", 1);
 }
@@ -276,9 +289,13 @@ void serv_puts(const char *string)
  */
 void serv_putbuf(const StrBuf *string)
 {
+	wcsession *WCC = WC;
 #ifdef SERV_TRACE
 	lprintf(9, "%3d<%s\n", WC->serv_sock, ChrPtr(string));
 #endif
+	FlushStrBuf(WCC->ReadBuf);
+	WCC->ReadPos = NULL;
+
 	serv_write(ChrPtr(string), StrLength(string));
 	serv_write("\n", 1);
 }
@@ -291,9 +308,13 @@ void serv_putbuf(const StrBuf *string)
  */
 void serv_printf(const char *format,...)
 {
+	wcsession *WCC = WC;
 	va_list arg_ptr;
 	char buf[SIZ];
 	size_t len;
+
+	FlushStrBuf(WCC->ReadBuf);
+	WCC->ReadPos = NULL;
 
 	va_start(arg_ptr, format);
 	vsnprintf(buf, sizeof buf, format, arg_ptr);
