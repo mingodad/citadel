@@ -1351,6 +1351,107 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 }
 
 /**
+ * \brief Read a line from socket
+ * flushes and closes the FD on error
+ * \param buf the buffer to get the input to
+ * \param Pos pointer to the current read position, should be NULL initialized!
+ * \param fd pointer to the filedescriptor to read
+ * \param append Append to an existing string or replace?
+ * \param Error strerror() on error 
+ * \returns numbers of chars read
+ */
+int StrBufTCP_read_buffered_line_fast(StrBuf *Line, 
+				      StrBuf *buf, 
+				      const char **Pos,
+				      int *fd, 
+				      int timeout, 
+				      int selectresolution, 
+				      const char **Error)
+{
+	int len, rlen;
+	int nSuccessLess = 0;
+	fd_set rfds;
+	const char *pch = NULL;
+        int fdflags;
+	struct timeval tv;
+
+	if ((buf->BufUsed > 0) && (Pos != NULL)) {
+		if (*Pos == NULL)
+			*Pos = buf->buf;
+		pch = strchr(*Pos, '\n');
+		if (pch != NULL) {
+			rlen = 0;
+			len = pch - *Pos;
+			if (len > 0 && (*(pch - 1) == '\r') )
+				rlen ++;
+			StrBufSub(Line, buf, (*Pos - buf->buf), len - rlen);
+			*Pos = pch + 1;
+			return len - rlen;
+		}
+	}
+	
+	if (*Pos != NULL) {
+		StrBufCutLeft(buf, (*Pos - buf->buf));
+		*Pos = NULL;
+	}
+	
+	if (buf->BufSize - buf->BufUsed < 10)
+		IncreaseBuf(buf, 1, -1);
+
+	fdflags = fcntl(*fd, F_GETFL);
+	if ((fdflags & O_NONBLOCK) == O_NONBLOCK)
+		return -1;
+
+	while ((nSuccessLess < timeout) && (pch == NULL)) {
+		tv.tv_sec = selectresolution;
+		tv.tv_usec = 0;
+		
+		FD_ZERO(&rfds);
+		FD_SET(*fd, &rfds);
+		if (select(*fd + 1, NULL, &rfds, NULL, &tv) == -1) {
+			*Error = strerror(errno);
+			close (*fd);
+			*fd = -1;
+			return -1;
+		}		
+		if (FD_ISSET(*fd, &rfds)) {
+			rlen = read(*fd, 
+				    &buf->buf[buf->BufUsed], 
+				    buf->BufSize - buf->BufUsed - 1);
+			if (rlen < 1) {
+				*Error = strerror(errno);
+				close(*fd);
+				*fd = -1;
+				return -1;
+			}
+			else if (rlen > 0) {
+				nSuccessLess = 0;
+				buf->BufUsed += rlen;
+				buf->buf[buf->BufUsed] = '\0';
+				if (buf->BufUsed + 10 > buf->BufSize) {
+					IncreaseBuf(buf, 1, -1);
+				}
+				pch = strchr(buf->buf, '\n');
+				continue;
+			}
+		}
+		nSuccessLess ++;
+	}
+	if (pch != NULL) {
+		*Pos = buf->buf;
+		rlen = 0;
+		len = pch - *Pos;
+		if (len > 0 && (*(pch - 1) == '\r') )
+			rlen ++;
+		StrBufSub(Line, buf, 0, len - rlen);
+		*Pos = *Pos + len + 1;
+		return len - rlen;
+	}
+	return -1;
+
+}
+
+/**
  * \brief Input binary data from socket
  * flushes and closes the FD on error
  * \param buf the buffer to get the input to

@@ -241,6 +241,13 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 				 int timeout, 
 				 int selectresolution, 
 				 const char **Error);
+int StrBufTCP_read_buffered_line_fast(StrBuf *Line, 
+				      StrBuf *buf, 
+				      const char **Pos,
+				      int *fd, 
+				      int timeout, 
+				      int selectresolution, 
+				      const char **Error);
 
 int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr);
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);

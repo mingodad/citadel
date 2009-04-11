@@ -16,7 +16,7 @@ Description: Citadel toolbox
 Package: libcitadel2-dbg
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, libcitadel2 (= ${binary:Version})
+Depends: ${shlibs:Depends}, libcitadel2
 Description: Debugging symbols for libcitadel2
  This library contains the commonly used routines for the citadel suite.
  .

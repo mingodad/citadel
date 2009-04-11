@@ -1,3 +1,9 @@
+libcitadel (7.50-73) unstable; urgency=low
+
+  * release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 17 Mar 2009 00:00:00 +0002
+
 libcitadel (7.43-72) unstable; urgency=low
 
   * Beta release
