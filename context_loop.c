@@ -332,7 +332,7 @@ void context_loop(int *sock)
 	/* finish linebuffered fast reading, cut the read part: */
 	StrBufCutLeft(Buf, Pos - ChrPtr(Buf));
 
-	dbg_PrintHash(HTTPHeaders, nix, NULL); 
+/*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
 
 
 	/*
