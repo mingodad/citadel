@@ -389,7 +389,7 @@ void graceful_shutdown_watcher(int signum) {
 }
 
 
-int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf)
+int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
 {
 	const char *Error, *pch, *pchs;
 	int rlen, len, retval = 0;
@@ -441,12 +441,13 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf)
 			return -1;
 	}
 	else 
-		return StrBufTCP_read_buffered_line(Target, 
-						    CLineBuf,
-						    sock,
-						    5,
-						    1,
-						    &Error);
+		return StrBufTCP_read_buffered_line_fast(Target, 
+							 CLineBuf,
+							 Pos,
+							 sock,
+							 5,
+							 1,
+							 &Error);
 }
 
 

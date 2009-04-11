@@ -162,16 +162,6 @@ int GenerateSessionID(void)
 	return ++seq;
 }
 
-/*
- * Collapse multiple cookies on one line
- */
-int ReqGetStrBuf(int *sock, StrBuf *Target, StrBuf *buf)
-{
-	
-	return ClientGetLine(sock, Target, buf);
-}
-
-
 
 /*
  * lingering_close() a`la Apache. see
@@ -260,6 +250,7 @@ const char *nix(void *vptr) {return ChrPtr( (StrBuf*)vptr);}
  */
 void context_loop(int *sock)
 {
+	const char *Pos = NULL;
 	const char *buf;
 	int desired_session = 0;
 	int got_cookie = 0;
@@ -295,7 +286,9 @@ void context_loop(int *sock)
 	do {
 		nLine ++;
 		Line = NewStrBuf();
-		if (ReqGetStrBuf(sock, Line, Buf) < 0) return;
+
+
+		if (ClientGetLine(sock, Line, Buf, &Pos) < 0) return;
 
 		LineLen = StrLength(Line);
 
@@ -336,8 +329,10 @@ void context_loop(int *sock)
 		LastLine = Line;
 	} while (LineLen > 0);
 	FreeStrBuf(&HeaderName);
+	/* finish linebuffered fast reading, cut the read part: */
+	StrBufCutLeft(Buf, Pos - ChrPtr(Buf));
 
-/*///	dbg_PrintHash(HTTPHeaders, nix, NULL); */
+	dbg_PrintHash(HTTPHeaders, nix, NULL); 
 
 
 	/*
