@@ -290,9 +290,15 @@ typedef struct _disp_cal {
 
 	int multi_day_event;
 	int is_repeat;
+	icalcomponent *SortBy;		/* cal items for display */
+	icalproperty_status Status;
 } disp_cal;						
 
-
+typedef struct _IcalEnumMap {
+	const char *Name;
+	long NameLen;
+	icalproperty_kind map;
+} IcalEnumMap;
 
 /*
  * Address book entry (keep it short and sweet, it's just a quickie lookup
