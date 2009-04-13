@@ -493,6 +493,15 @@ void delete_msglist(struct ctdlroom *whichroom)
 
 
 
+/*
+ * Message pointer compare function for sort_msglist()
+ */
+int sort_msglist_cmp(long *m1, long *m2) {
+	if (*m1 > *m2) return(1);
+	if (*m1 < *m2) return(-1);
+	return(0);
+}
+
 
 /*
  * sort message pointers
@@ -500,25 +509,15 @@ void delete_msglist(struct ctdlroom *whichroom)
  */
 int sort_msglist(long listptrs[], int oldcount)
 {
-	int a, b;
-	long hold1, hold2;
 	int numitems;
 
 	numitems = oldcount;
-	if (numitems < 2)
+	if (numitems < 2) {
 		return (oldcount);
+	}
 
 	/* do the sort */
-	for (a = numitems - 2; a >= 0; --a) {
-		for (b = 0; b <= a; ++b) {
-			if (listptrs[b] > (listptrs[b + 1])) {
-				hold1 = listptrs[b];
-				hold2 = listptrs[b + 1];
-				listptrs[b] = hold2;
-				listptrs[b + 1] = hold1;
-			}
-		}
-	}
+	qsort(listptrs, numitems, sizeof(long), sort_msglist_cmp);
 
 	/* and yank any nulls */
 	while ((numitems > 0) && (listptrs[0] == 0L)) {
