@@ -217,9 +217,9 @@ void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset) {
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
-	char msgnum[256];
+	StrBuf *MsgNum;
+	long BufLen;
 	long dav_msgnum = (-1);
-	char buf[256];
 	char uid[256];
 	char encoded_uid[256];
 	long *msgs = NULL;
@@ -394,25 +394,30 @@ void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_
 
 	/** Transmit the collection listing (FIXME check depth and starting point) */
 
+	MsgNum = NewStrBuf ();
 	serv_puts("MSGS ALL");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while (serv_getln(msgnum, sizeof msgnum), strcmp(msgnum, "000")) {
-		msgs = realloc(msgs, ++num_msgs * sizeof(long));
-		msgs[num_msgs-1] = atol(msgnum);
-	}
+
+	StrBuf_ServGetln(MsgNum);
+	if (GetServerStatus(MsgNum, NULL) == 1)
+		while (BufLen = StrBuf_ServGetlnBuffered(MsgNum), strcmp(ChrPtr(MsgNum), "000"))  {
+			msgs = realloc(msgs, ++num_msgs * sizeof(long));
+			msgs[num_msgs-1] = StrTol(MsgNum);
+		}
 
 	if (num_msgs > 0) for (i=0; i<num_msgs; ++i) {
 
 		strcpy(uid, "");
 		now = (-1);
 		serv_printf("MSG0 %ld|3", msgs[i]);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			if (!strncasecmp(buf, "exti=", 5)) {
-				strcpy(uid, &buf[5]);
-			}
-			else if (!strncasecmp(buf, "time=", 5)) {
-				now = atol(&buf[5]);
+		StrBuf_ServGetln(MsgNum);
+		if (GetServerStatus(MsgNum, NULL) == 1)
+			while (BufLen = StrBuf_ServGetlnBuffered(MsgNum), strcmp(ChrPtr(MsgNum), "000")) 
+			{
+				if (!strncasecmp(ChrPtr(MsgNum), "exti=", 5)) {
+					strcpy(uid, &ChrPtr(MsgNum)[5]);
+				}
+				else if (!strncasecmp(ChrPtr(MsgNum), "time=", 5)) {
+					now = atol(&ChrPtr(MsgNum)[5]);
 			}
 		}
 
@@ -451,6 +456,7 @@ void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_
 			wprintf("</response>");
 		}
 	}
+	FreeStrBuf(&MsgNum);
 
 	wprintf("</multistatus>\n");
 	end_burst();
