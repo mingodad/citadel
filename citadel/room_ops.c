@@ -496,9 +496,9 @@ void delete_msglist(struct ctdlroom *whichroom)
 /*
  * Message pointer compare function for sort_msglist()
  */
-int sort_msglist_cmp(long *m1, long *m2) {
-	if (*m1 > *m2) return(1);
-	if (*m1 < *m2) return(-1);
+int sort_msglist_cmp(const void *m1, const void *m2) {
+	if ((*(const long *)m1) > (*(const long *)m2)) return(1);
+	if ((*(const long *)m1) < (*(const long *)m2)) return(-1);
 	return(0);
 }
 
