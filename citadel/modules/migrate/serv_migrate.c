@@ -268,7 +268,7 @@ void migr_export_message(long msgnum) {
 	CtdlFreeMessage(msg);
 
 	int encoded_len = 0;
-	int encoded_alloc = smr.len * 139 / 100;	/* well-tested formula for predicting encoded size */
+	int encoded_alloc = smr.len * 14 / 10;	/* well-tested formula for predicting encoded size */
 	char *encoded_msg = malloc(encoded_alloc);
 
 	if (encoded_msg != NULL) {
