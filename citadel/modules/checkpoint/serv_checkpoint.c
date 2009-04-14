@@ -1,5 +1,5 @@
 /*
- * $Id: serv_checkpoint.c 5756 2007-11-16 17:15:22Z ajc $
+ * $Id$
  *
  * checkpointing module for the database
  */
@@ -68,5 +68,5 @@ CTDL_MODULE_INIT(checkpoint) {
 		CtdlThreadCreate ("checkpoint", CTDLTHREAD_BIGSTACK, checkpoint_thread, NULL);
 	}
 	/* return our Subversion id for the Log */
-	return "$Id: serv_autocompletion.c 5756 2007-11-16 17:15:22Z ajc $";
+	return "$Id$";
 }

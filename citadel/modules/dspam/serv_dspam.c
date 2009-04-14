@@ -1,5 +1,5 @@
 /*
- * $Id: serv_dspam.c 5876 2007-12-10 23:22:03Z dothebart $
+ * $Id$
  *
  * This module glues libDSpam to the Citadel server in order to implement
  * DSPAM Spamchecking 
@@ -228,7 +228,7 @@ void serv_dspam_shutdown (void)
 
 CTDL_MODULE_INIT(dspam)
 {
-	return "$Id: serv_dspam.c 5876 2007-12-10 23:22:03Z dothebart $" "disabled.";
+	return "$Id$" "disabled.";
 	if (!threading)
 	{
 #ifdef HAVE_LIBDSPAM
@@ -249,6 +249,6 @@ CTDL_MODULE_INIT(dspam)
 	}
 	
         /* return our Subversion id for the Log */
-	return "$Id: serv_dspam.c 5876 2007-12-10 23:22:03Z dothebart $";
+	return "$Id$";
 }
 

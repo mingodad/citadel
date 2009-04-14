@@ -1,5 +1,5 @@
 /*
- * $Id: sysdep.c 5882 2007-12-13 19:46:05Z davew $
+ * $Id$
  *
  * Citadel "system dependent" stuff.
  * See COPYING for copyright information.

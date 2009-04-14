@@ -1,5 +1,5 @@
 /*
- * $Id: sendcommand.c 5736 2007-11-10 23:12:19Z dothebart $
+ * $Id$
  *
  * Command-line utility to transmit a server command.
  *

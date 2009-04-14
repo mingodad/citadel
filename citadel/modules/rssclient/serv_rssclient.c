@@ -1,5 +1,5 @@
 /*
- * $Id: serv_rssclient.c 5652 2007-10-29 20:14:48Z ajc $
+ * $Id$
  *
  * Bring external RSS feeds into rooms.
  *
@@ -589,5 +589,5 @@ CTDL_MODULE_INIT(rssclient)
 		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, 0);
 	}
 	/* return our Subversion id for the Log */
-        return "$Id: serv_rssclient.c 5652 2007-10-29 20:14:48Z ajc $";
+        return "$Id$";
 }

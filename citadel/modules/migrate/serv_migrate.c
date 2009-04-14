@@ -1,5 +1,6 @@
 /*
- * $Id: serv_migrate.c 7274 2009-03-27 15:11:14Z ajc $
+ * $Id$
+ *
  * Copyright (c) 2000-2009 by the citadel.org development team
  *
  * This module dumps and/or loads the Citadel database in XML format.
@@ -942,5 +943,5 @@ CTDL_MODULE_INIT(migrate)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id: serv_migrate.c 7274 2009-03-27 15:11:14Z ajc $";
+	return "$Id$";
 }
