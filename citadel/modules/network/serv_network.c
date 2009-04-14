@@ -452,6 +452,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
 	namelist *nptr;
+	char bounce_to[256];
 
 	if (sc->num_msgs_spooled < 1) {
 		fclose(sc->digestfp);
@@ -527,10 +528,17 @@ void network_deliver_digest(SpoolControl *sc) {
 		strcat(recps, nptr->name);
 	}
 
+	/* Where do we want bounces and other noise to be heard?  Surely not the list members! */
+	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
+
 	/* Now submit the message */
 	valid = validate_recipients(recps, NULL, 0);
 	free(recps);
-	CtdlSubmitMsg(msg, valid, NULL, 0);
+	if (valid != NULL) {
+		valid->bounce_to = strdup(bounce_to);
+		valid->envelope_from = strdup(bounce_to);
+		CtdlSubmitMsg(msg, valid, NULL, 0);
+	}
 	CtdlFreeMessage(msg);
 	free_recipients(valid);
 }
@@ -544,6 +552,7 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 	size_t recps_len = SIZ;
 	struct recptypes *valid;
 	namelist *nptr;
+	char bounce_to[256];
 
 	/* Don't do this if there were no recipients! */
 	if (sc->listrecps == NULL) return;
@@ -574,11 +583,18 @@ void network_deliver_list(struct CtdlMessage *msg, SpoolControl *sc) {
 		strcat(recps, nptr->name);
 	}
 
+	/* Where do we want bounces and other noise to be heard?  Surely not the list members! */
+	snprintf(bounce_to, sizeof bounce_to, "room_aide@%s", config.c_fqdn);
+
 	/* Now submit the message */
 	valid = validate_recipients(recps, NULL, 0);
 	free(recps);
-	CtdlSubmitMsg(msg, valid, NULL, 0);
-	free_recipients(valid);
+	if (valid != NULL) {
+		valid->bounce_to = strdup(bounce_to);
+		valid->envelope_from = strdup(bounce_to);
+		CtdlSubmitMsg(msg, valid, NULL, 0);
+		free_recipients(valid);
+	}
 	/* Do not call CtdlFreeMessage(msg) here; the caller will free it. */
 }
 
