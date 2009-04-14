@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  * Configuration for LDAP authentication.  Most of this stuff gets pulled out of our site config file.
  */
 

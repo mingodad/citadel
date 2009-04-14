@@ -1,5 +1,11 @@
 /*
- * 
+ * $Id$
+ *
+ * These functions implement the portions of AUTHMODE_LDAP and AUTHMODE_LDAP_AD which
+ * actually speak to the LDAP server.
+ *
+ * Copyright (c) 2009 by Art Cancro and the citadel.org development team.
+ * This program is released under the terms of the GNU General Public License v3
  */
 
 

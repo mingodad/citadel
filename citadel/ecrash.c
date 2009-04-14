@@ -1,6 +1,7 @@
 /*
- * File: eCrash.c
- * @author David Frascone
+ * $Id$
+ *
+ * author: David Frascone
  * 
  *  eCrash Implementation
  *
