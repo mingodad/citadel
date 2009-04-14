@@ -2634,6 +2634,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	int qualified_for_journaling = 0;
 	struct CitContext *CCC = CC;		/* CachedCitContext - performance boost */
 	char bounce_to[1024] = "";
+	size_t tmp = 0;
 
 	CtdlLogPrintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2806,14 +2807,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* For internet mail, drop a copy in the outbound queue room */
-	if (recps != NULL)
-	 if (recps->num_internet > 0) {
+	if ((recps != NULL) && (recps->num_internet > 0)) {
 		CtdlSaveMsgPointerInRoom(SMTP_SPOOLOUT_ROOM, newmsgid, 0, msg);
 	}
 
 	/* If other rooms are specified, drop them there too. */
-	if (recps != NULL)
-	 if (recps->num_room > 0)
+	if ((recps != NULL) && (recps->num_room > 0))
 	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
 		extract_token(recipient, recps->recp_room, i,
 					'|', sizeof recipient);
@@ -2828,7 +2827,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	lputuser(&CCC->user);
 
 	/* Decide where bounces need to be delivered */
-	if (CCC->logged_in) {
+	if ((recps != NULL) && (recps->bounce_to != NULL)) {
+		safestrncpy(bounce_to, recps->bounce_to, sizeof bounce_to);
+	}
+	else if (CCC->logged_in) {
 		snprintf(bounce_to, sizeof bounce_to, "%s@%s", CCC->user.fullname, config.c_nodename);
 	}
 	else {
@@ -2838,8 +2840,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* If this is private, local mail, make a copy in the
 	 * recipient's mailbox and bump the reference count.
 	 */
-	if (recps != NULL)
-	 if (recps->num_local > 0)
+	if ((recps != NULL) && (recps->num_local > 0))
 	  for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
 		extract_token(recipient, recps->recp_local, i,
 					'|', sizeof recipient);
@@ -2896,8 +2897,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * node.  We'll revisit this again in a year or so when everyone has
 	 * a network spool receiver that can handle the new style messages.
 	 */
-	if (recps != NULL)
-	 if (recps->num_ignet > 0)
+	if ((recps != NULL) && (recps->num_ignet > 0))
 	  for (i=0; i<num_tokens(recps->recp_ignet, '|'); ++i) {
 		extract_token(recipient, recps->recp_ignet, i,
 				'|', sizeof recipient);
@@ -2939,8 +2939,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * not happen because the delivery instructions message does not
 	 * contain a recipient.
 	 */
-	if (recps != NULL)
-	 if (recps->num_internet > 0) {
+	if ((recps != NULL) && (recps->num_internet > 0)) {
 		CtdlLogPrintf(CTDL_DEBUG, "Generating delivery instructions\n");
 		instr_alloc = 1024;
 		instr = malloc(instr_alloc);
@@ -2951,8 +2950,13 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			bounce_to
 		);
 
+		if (recps->envelope_from != NULL) {
+			tmp = strlen(instr);
+			snprintf(&instr[tmp], instr_alloc-tmp, "envelope_from|%s\n", recps->envelope_from);
+		}
+
 	  	for (i=0; i<num_tokens(recps->recp_internet, '|'); ++i) {
-			size_t tmp = strlen(instr);
+			tmp = strlen(instr);
 			extract_token(recipient, recps->recp_internet, i, '|', sizeof recipient);
 			if ((tmp + strlen(recipient) + 32) > instr_alloc) {
 				instr_alloc = instr_alloc * 2;
@@ -3684,6 +3688,8 @@ void free_recipients(struct recptypes *valid) {
 	if (valid->recp_ignet != NULL)		free(valid->recp_ignet);
 	if (valid->recp_room != NULL)		free(valid->recp_room);
 	if (valid->display_recp != NULL)	free(valid->display_recp);
+	if (valid->bounce_to != NULL)		free(valid->bounce_to);
+	if (valid->envelope_from != NULL)	free(valid->envelope_from);
 	free(valid);
 }
 

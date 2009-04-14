@@ -66,6 +66,8 @@ struct recptypes {
 	char *recp_ignet;
 	char *recp_room;
 	char *display_recp;
+	char *bounce_to;
+	char *envelope_from;
 };
 
 #define RECPTYPES_MAGIC 0xfeeb
