@@ -63,7 +63,7 @@
  * successful delivery has been accomplished after SMTP_GIVE_UP seconds, the
  * message will be returned to its sender.
  */
-#define	SMTP_RETRY_INTERVAL	900	/* 15 minutes */
+#define	SMTP_RETRY_INTERVAL	300	/* 5 minutes */
 #define SMTP_RETRY_MAX		43200	/* 12 hours */
 #define SMTP_GIVE_UP		432000	/* 5 days */
 
