@@ -564,6 +564,8 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	int len = 0;
 	void *vHandler;
 	WebcitHandler *Handler;
+	struct timeval tx_start;
+	struct timeval tx_finish;
 
 	/*
 	 * We stuff these with the values coming from the client cookies,
@@ -576,6 +578,8 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 	StrBuf *c_httpauth_user;
 	StrBuf *c_httpauth_pass;
 	wcsession *WCC;
+
+	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
 	
 	Buf = NewStrBuf();
 	c_username = NewStrBuf();
@@ -1047,6 +1051,14 @@ SKIP_ALL_THIS_CRAP:
 	}
 	FreeStrBuf(&WCC->trailing_javascript);
 	WCC->http_host = NULL;
+
+	/* How long did this transaction take? */
+	gettimeofday(&tx_finish, NULL);
+	
+	lprintf(9, "Transaction completed in %ld microseconds.\n",
+		(tx_finish.tv_sec*1000000 + tx_finish.tv_usec)
+		- (tx_start.tv_sec*1000000 + tx_start.tv_usec)
+	);
 }
 
 
