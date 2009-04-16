@@ -1055,9 +1055,9 @@ SKIP_ALL_THIS_CRAP:
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
 	
-	lprintf(9, "Transaction completed in %ld microseconds.\n",
-		(tx_finish.tv_sec*1000000 + tx_finish.tv_usec)
-		- (tx_start.tv_sec*1000000 + tx_start.tv_usec)
+	lprintf(9, "Transaction completed in %ld.%06ld seconds.\n",
+		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
 	);
 }
 
