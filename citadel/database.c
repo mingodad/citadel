@@ -104,8 +104,7 @@ static void txcommit(DB_TXN * tid)
 	ret = tid->commit(tid, 0);
 
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: txn_commit: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_*: txn_commit: %s\n", db_strerror(ret));
 		abort();
 	}
 }
@@ -118,15 +117,14 @@ static void txbegin(DB_TXN ** tid)
 	ret = dbenv->txn_begin(dbenv, NULL, tid, 0);
 
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: txn_begin: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_*: txn_begin: %s\n", db_strerror(ret));
 		abort();
 	}
 }
 
 static void dbpanic(DB_ENV * env, int errval)
 {
-	CtdlLogPrintf(CTDL_EMERG, "cdb_*: Berkeley DB panic: %d\n", errval);
+	CtdlLogPrintf(CTDL_EMERG, "cdb_*: Berkeley DB panic: %s\n", db_strerror(errval));
 }
 
 static void cclose(DBC * cursor)
@@ -134,8 +132,7 @@ static void cclose(DBC * cursor)
 	int ret;
 
 	if ((ret = cursor->c_close(cursor))) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: c_close: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_*: c_close: %s\n", db_strerror(ret));
 		abort();
 	}
 }
@@ -147,8 +144,7 @@ static void bailIfCursor(DBC ** cursors, const char *msg)
 	for (i = 0; i < MAXCDB; i++)
 		if (cursors[i] != NULL) {
 			CtdlLogPrintf(CTDL_EMERG,
-				"cdb_*: cursor still in progress on cdb %02x: %s\n",
-				i, msg);
+				"cdb_*: cursor still in progress on cdb %02x: %s\n", i, msg);
 			abort();
 		}
 }
@@ -231,13 +227,10 @@ void cdb_checkpoint(void)
 	int ret;
 
 	CtdlLogPrintf(CTDL_DEBUG, "-- db checkpoint --\n");
-	ret = dbenv->txn_checkpoint(dbenv,
-				    MAX_CHECKPOINT_KBYTES,
-				    MAX_CHECKPOINT_MINUTES, 0);
+	ret = dbenv->txn_checkpoint(dbenv, MAX_CHECKPOINT_KBYTES, MAX_CHECKPOINT_MINUTES, 0);
 
 	if (ret != 0) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_checkpoint: txn_checkpoint: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_checkpoint: txn_checkpoint: %s\n", db_strerror(ret));
 		abort();
 	}
 
