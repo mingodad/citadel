@@ -1089,7 +1089,6 @@ void load_ical_object(long msgnum, int unread,
 			body_bytes += 2;
 		}
 	}
-	if (relevant_source != NULL) lprintf(9, "Here it is:\n%s\n", relevant_source);
 	FreeStrBuf(&Buf);
 
 	/* If MSG4 didn't give us the part we wanted, but we know that we can find it
