@@ -1017,6 +1017,7 @@ void load_ical_object(long msgnum, int unread,
 	char relevant_partnum[256];
 	char *relevant_source = NULL;
 	icalcomponent *cal, *c;
+	int phase = 0;				/* 0 = citadel headers, 1 = mime headers, 2 = body */
 
 	relevant_partnum[0] = '\0';
 	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
@@ -1027,7 +1028,7 @@ void load_ical_object(long msgnum, int unread,
 	Buf = NewStrBuf();
 	while (BufLen = StrBuf_ServGetlnBuffered(Buf), strcmp(ChrPtr(Buf), "000")) {
 		bptr = ChrPtr(Buf);
-		if (!strncasecmp(bptr, "part=", 5)) {
+		if ((phase == 0) && (!strncasecmp(bptr, "part=", 5))) {
 			extract_token(mime_filename, &bptr[5], 1, '|', sizeof mime_filename);
 			extract_token(mime_partnum, &bptr[5], 2, '|', sizeof mime_partnum);
 			extract_token(mime_disposition, &bptr[5], 3, '|', sizeof mime_disposition);
@@ -1041,9 +1042,22 @@ void load_ical_object(long msgnum, int unread,
 				strcpy(relevant_partnum, mime_partnum);
 			}
 		}
-		else if (!strncasecmp(bptr, "from=", 4)) {
+		else if ((phase == 0) && (!strncasecmp(bptr, "from=", 4))) {
 			extract_token(from, bptr, 1, '=', sizeof(from));
 		}
+		else if ((phase == 0) && (!strncasecmp(bptr, "text", 4))) {
+			phase = 1;
+		}
+		else if ((phase == 1) && (IsEmptyStr(bptr))) {
+			phase = 2;
+		}
+/**
+ ** FIXME optimize here
+ **
+		else if ((phase == 1) && (!strncasecmp(bptr, "Content-type:", 13))) {
+			lprintf(9, "%s\n", bptr);
+		}
+ **/
 	}
 	FreeStrBuf(&Buf);
 
