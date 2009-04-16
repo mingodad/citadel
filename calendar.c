@@ -275,7 +275,6 @@ void cal_process_object(StrBuf *Target,
 
 /*
  * Deserialize a calendar object in a message so it can be displayed.
- *
  */
 void cal_process_attachment(wc_mime_attachment *Mime) 
 {
@@ -298,9 +297,8 @@ void cal_process_attachment(wc_mime_attachment *Mime)
 
 
 
-/**
- * \brief accept/decline meeting
- * Respond to a meeting request
+/*
+ * Respond to a meeting request - accept/decline meeting
  */
 void respond_to_request(void) 
 {
@@ -344,8 +342,8 @@ void respond_to_request(void)
 
 
 
-/**
- * \brief Handle an incoming RSVP
+/*
+ * Handle an incoming RSVP
  */
 void handle_rsvp(void) 
 {
@@ -627,7 +625,7 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		created_new_vtodo = 1;
 	}
 	
-	/*/ TODO: Can we take all this and move it into a template?	 */
+	/* TODO: Can we take all this and move it into a template?	 */
 	output_headers(1, 1, 1, 0, 0, 0);
 	wprintf("<!-- start task edit form -->");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
@@ -778,9 +776,10 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 }
 
 /*
- * \brief Save an edited task
- * \param supplied_vtodo the task to save
- * \param msgnum number of the mesage in our db
+ * Save an edited task
+ *
+ * supplied_vtodo 	the task to save
+ * msgnum		number of the mesage in our db
  */
 void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from, int unread,
 				struct calview *calv)
@@ -920,7 +919,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 				);
 		}
 
-		/** Increment the sequence ID */
+		/* Increment the sequence ID */
 		lprintf(9, "Increment the sequence ID\n");
 		while (prop = icalcomponent_get_first_property(vtodo,
 							       ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
@@ -936,7 +935,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 					   icalproperty_new_sequence(sequence)
 			);
 
-		/**
+		/*
 		 * Encapsulate event into full VCALENDAR component.  Clone it first,
 		 * for two reasons: one, it's easier to just free the whole thing
 		 * when we're done instead of unbundling, but more importantly, we
@@ -955,7 +954,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 			serv_puts(icalcomponent_as_ical_string(encaps));
 			serv_puts("000");
 
-			/**
+			/*
 			 * Probably not necessary; the server will see the UID
 			 * of the object and delete the old one anyway, but
 			 * just in case...
@@ -1063,38 +1062,39 @@ void load_ical_object(long msgnum, int unread,
 
 	if (!IsEmptyStr(relevant_partnum)) {
 		relevant_source = load_mimepart(msgnum, relevant_partnum);
-		if (relevant_source != NULL) {
+	}
 
-			cal = icalcomponent_new_from_string(relevant_source);
-			if (cal != NULL) {
+	if (relevant_source != NULL) {
+		cal = icalcomponent_new_from_string(relevant_source);
+		if (cal != NULL) {
 
-				/* A which_kind of (-1) means just load the whole thing */
-				if (which_kind == (-1)) {
+			/* A which_kind of (-1) means just load the whole thing */
+			if (which_kind == (-1)) {
+				callback(cal, msgnum, from, unread, calv);
+			}
+
+			/* Otherwise recurse and hunt */
+			else {
+
+				/* Simple components of desired type */
+				if (icalcomponent_isa(cal) == which_kind) {
 					callback(cal, msgnum, from, unread, calv);
 				}
 
-				/* Otherwise recurse and hunt */
-				else {
-
-					/* Simple components of desired type */
-					if (icalcomponent_isa(cal) == which_kind) {
-						callback(cal, msgnum, from, unread, calv);
-					}
-	
-					/* Subcomponents of desired type */
-					for (c = icalcomponent_get_first_component(cal, which_kind);
-				     	(c != 0);
-				     	c = icalcomponent_get_next_component(cal, which_kind)) {
-						callback(c, msgnum, from, unread, calv);
-					}
-
+				/* Subcomponents of desired type */
+				for (c = icalcomponent_get_first_component(cal, which_kind);
+			     	(c != 0);
+			     	c = icalcomponent_get_next_component(cal, which_kind)) {
+					callback(c, msgnum, from, unread, calv);
 				}
 
-				icalcomponent_free(cal);
 			}
-			free(relevant_source);
+
+			icalcomponent_free(cal);
 		}
+		free(relevant_source);
 	}
+
 	icalmemory_free_ring();
 }
 
@@ -1102,7 +1102,6 @@ void load_ical_object(long msgnum, int unread,
  * Display a calendar item
  */
 void load_calendar_item(message_summary *Msg, int unread, struct calview *c) {
-	/*load_ical_object(Msg->msgnum, unread, ICAL_VEVENT_COMPONENT, display_individual_cal, c);*/
 	load_ical_object(Msg->msgnum, unread, (-1), display_individual_cal, c);
 }
 
@@ -1179,7 +1178,6 @@ void save_event(void) {
 	msgnum = lbstr("msgnum");
 
 	if (msgnum > 0L) {
-		/* load_ical_object(msgnum, 0, ICAL_VEVENT_COMPONENT, save_individual_event, NULL); */
 		load_ical_object(msgnum, 0, (-1), save_individual_event, NULL);
 	}
 	else {
