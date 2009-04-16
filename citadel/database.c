@@ -90,7 +90,7 @@ static void txabort(DB_TXN * tid)
 	ret = tid->abort(tid);
 
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: txn_abort: %s\n",
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): txn_abort: %s\n",
 			db_strerror(ret));
 		abort();
 	}
@@ -104,7 +104,7 @@ static void txcommit(DB_TXN * tid)
 	ret = tid->commit(tid, 0);
 
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: txn_commit: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): txn_commit: %s\n", db_strerror(ret));
 		abort();
 	}
 }
@@ -117,14 +117,14 @@ static void txbegin(DB_TXN ** tid)
 	ret = dbenv->txn_begin(dbenv, NULL, tid, 0);
 
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: txn_begin: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): txn_begin: %s\n", db_strerror(ret));
 		abort();
 	}
 }
 
 static void dbpanic(DB_ENV * env, int errval)
 {
-	CtdlLogPrintf(CTDL_EMERG, "cdb_*: Berkeley DB panic: %s\n", db_strerror(errval));
+	CtdlLogPrintf(CTDL_EMERG, "bdb(): PANIC: %s\n", db_strerror(errval));
 }
 
 static void cclose(DBC * cursor)
@@ -132,7 +132,7 @@ static void cclose(DBC * cursor)
 	int ret;
 
 	if ((ret = cursor->c_close(cursor))) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: c_close: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): c_close: %s\n", db_strerror(ret));
 		abort();
 	}
 }
@@ -144,7 +144,7 @@ static void bailIfCursor(DBC ** cursors, const char *msg)
 	for (i = 0; i < MAXCDB; i++)
 		if (cursors[i] != NULL) {
 			CtdlLogPrintf(CTDL_EMERG,
-				"cdb_*: cursor still in progress on cdb %02x: %s\n", i, msg);
+				"bdb(): cursor still in progress on cdb %02x: %s\n", i, msg);
 			abort();
 		}
 }
@@ -158,7 +158,7 @@ void check_handles(void *arg)
 
 		if (tsd->tid != NULL) {
 			CtdlLogPrintf(CTDL_EMERG,
-				"cdb_*: transaction still in progress!");
+				"bdb(): transaction still in progress!");
 			abort();
 		}
 	}
@@ -257,7 +257,7 @@ void open_databases(void)
 	int dbversion_major, dbversion_minor, dbversion_patch;
 	int current_dbversion = 0;
 
-	CtdlLogPrintf(CTDL_DEBUG, "cdb_*: open_databases() starting\n");
+	CtdlLogPrintf(CTDL_DEBUG, "bdb(): open_databases() starting\n");
 	CtdlLogPrintf(CTDL_DEBUG, "Compiled db: %s\n", DB_VERSION_STRING);
 	CtdlLogPrintf(CTDL_INFO, "  Linked db: %s\n",
 		db_version(&dbversion_major, &dbversion_minor, &dbversion_patch));
@@ -291,11 +291,11 @@ void open_databases(void)
 	chmod(ctdl_data_dir, 0700);
 	chown(ctdl_data_dir, CTDLUID, (-1));
 
-	CtdlLogPrintf(CTDL_DEBUG, "cdb_*: Setting up DB environment\n");
+	CtdlLogPrintf(CTDL_DEBUG, "bdb(): Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
 	ret = db_env_create(&dbenv, 0);
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: db_env_create: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): db_env_create: %s\n", db_strerror(ret));
 		CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 		exit(CTDLEXIT_DB);
 	}
@@ -315,14 +315,14 @@ void open_databases(void)
 	 */
 	ret = dbenv->set_cachesize(dbenv, 0, 64 * 1024, 0);
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: set_cachesize: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): set_cachesize: %s\n", db_strerror(ret));
 		dbenv->close(dbenv, 0);
 		CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 		exit(CTDLEXIT_DB);
 	}
 
 	if ((ret = dbenv->set_lk_detect(dbenv, DB_LOCK_DEFAULT))) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_*: set_lk_detect: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): set_lk_detect: %s\n", db_strerror(ret));
 		dbenv->close(dbenv, 0);
 		CtdlLogPrintf(CTDL_EMERG, "exit code %d\n", ret);
 		exit(CTDLEXIT_DB);
