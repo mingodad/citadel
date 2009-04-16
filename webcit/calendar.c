@@ -1020,6 +1020,7 @@ void load_ical_object(long msgnum, int unread,
 	char msg4_content_type[256] = "";
 	char msg4_content_encoding[256] = "";
 	int msg4_content_length = 0;
+	int msg4_content_alloc = 0;
 	int body_bytes = 0;
 
 	relevant_partnum[0] = '\0';
@@ -1063,7 +1064,8 @@ void load_ical_object(long msgnum, int unread,
 				)
 			) {
 				if (relevant_source != NULL) free(relevant_source);
-				relevant_source = malloc(msg4_content_length);
+				msg4_content_alloc = msg4_content_length * 2;
+				relevant_source = malloc(msg4_content_alloc);
 				relevant_source[0] = 0;
 				body_bytes = 0;
 			}
@@ -1081,11 +1083,13 @@ void load_ical_object(long msgnum, int unread,
 			msg4_content_length = atoi(&bptr[16]);
 		}
 		else if (relevant_source != NULL) {
-			safestrncpy(&relevant_source[body_bytes], bptr, msg4_content_length-body_bytes);
-			safestrncpy(&relevant_source[body_bytes], "\r\n", msg4_content_length-body_bytes);
-			body_bytes += (StrLength(Buf) + 2);
+			safestrncpy(&relevant_source[body_bytes], bptr, msg4_content_alloc-body_bytes);
+			body_bytes += BufLen;
+			safestrncpy(&relevant_source[body_bytes], "\r\n", msg4_content_alloc-body_bytes);
+			body_bytes += 2;
 		}
 	}
+	if (relevant_source != NULL) lprintf(9, "Here it is:\n%s\n", relevant_source);
 	FreeStrBuf(&Buf);
 
 	/* If MSG4 didn't give us the part we wanted, but we know that we can find it
