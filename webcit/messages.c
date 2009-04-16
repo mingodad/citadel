@@ -684,7 +684,7 @@ void readloop(long oper)
 	case VIEW_CALBRIEF:
 	case VIEW_CALENDAR:
 		load_seen = 1;
-		strcpy(cmd, "MSGS ALL|||1");
+		strcpy(cmd, "MSGS ALL");
 		maxmsgs = 32767;
 		parse_calendar_view_request(&calv);
 		break;
