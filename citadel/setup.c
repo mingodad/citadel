@@ -499,7 +499,7 @@ void install_init_scripts(void)
 			"case \"$1\" in\n"
 			"\n"
 			"start)		echo -n \"Starting Citadel... \"\n"
-			"		if $CITADEL_DIR/citserver -d -h$CITADEL_DIR\n"
+			"		if $CITADEL_DIR/citserver -lmail -d -h$CITADEL_DIR\n"
 			"		then\n"
 			"			echo \"ok\"\n"
 			"		else\n"
