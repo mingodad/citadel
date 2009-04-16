@@ -1017,6 +1017,10 @@ void load_ical_object(long msgnum, int unread,
 	char *relevant_source = NULL;
 	icalcomponent *cal, *c;
 	int phase = 0;				/* 0 = citadel headers, 1 = mime headers, 2 = body */
+	char msg4_content_type[256] = "";
+	char msg4_content_encoding[256] = "";
+	int msg4_content_length = 0;
+	int body_bytes = 0;
 
 	relevant_partnum[0] = '\0';
 	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
@@ -1049,18 +1053,45 @@ void load_ical_object(long msgnum, int unread,
 		}
 		else if ((phase == 1) && (IsEmptyStr(bptr))) {
 			phase = 2;
+
+			if (
+				(msg4_content_length > 0)
+				&& (!strcasecmp(msg4_content_encoding, "7bit"))
+				&& (	(!strcasecmp(mime_content_type, "text/calendar"))
+					|| (!strcasecmp(mime_content_type, "application/ics"))
+					|| (!strcasecmp(mime_content_type, "text/vtodo"))
+				)
+			) {
+				if (relevant_source != NULL) free(relevant_source);
+				relevant_source = malloc(msg4_content_length);
+				relevant_source[0] = 0;
+				body_bytes = 0;
+			}
+
 		}
-/**
- ** FIXME optimize here
- **
-		else if ((phase == 1) && (!strncasecmp(bptr, "Content-type:", 13))) {
-			lprintf(9, "%s\n", bptr);
+		else if ((phase == 1) && (!strncasecmp(bptr, "Content-type: ", 14))) {
+			safestrncpy(msg4_content_type, &bptr[14], sizeof msg4_content_type);
+			striplt(msg4_content_type);
 		}
- **/
+		else if ((phase == 1) && (!strncasecmp(bptr, "Content-transfer-encoding: ", 27))) {
+			safestrncpy(msg4_content_encoding, &bptr[27], sizeof msg4_content_encoding);
+			striplt(msg4_content_type);
+		}
+		else if ((phase == 1) && (!strncasecmp(bptr, "Content-length: ", 16))) {
+			msg4_content_length = atoi(&bptr[16]);
+		}
+		else if (relevant_source != NULL) {
+			safestrncpy(&relevant_source[body_bytes], bptr, msg4_content_length-body_bytes);
+			safestrncpy(&relevant_source[body_bytes], "\r\n", msg4_content_length-body_bytes);
+			body_bytes += (StrLength(Buf) + 2);
+		}
 	}
 	FreeStrBuf(&Buf);
 
-	if (!IsEmptyStr(relevant_partnum)) {
+	/* If MSG4 didn't give us the part we wanted, but we know that we can find it
+	 * as one of the other MIME parts, attempt to load it now.
+	 */
+	if ((relevant_source == NULL) && (!IsEmptyStr(relevant_partnum))) {
 		relevant_source = load_mimepart(msgnum, relevant_partnum);
 	}
 
