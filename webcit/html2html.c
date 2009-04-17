@@ -502,10 +502,10 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		 * so we don't turn things that look like URL's into
 		 * links, when they're already links - or image sources.
 		 */
-		if (*(ptr-1) == '<') {
+		if ((ptr > msg) && (*(ptr-1) == '<')) {
 			++brak;
 		}
-		if (*(ptr-1) == '>') {
+		if ((ptr > msg) && (*(ptr-1) == '>')) {
 			--brak;
 			if ((scriptlevel == 0) && (script_start_pos >= 0)) {
 				StrBufCutRight(converted_msg, StrLength(converted_msg) - script_start_pos);
