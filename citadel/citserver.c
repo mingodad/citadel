@@ -1074,10 +1074,6 @@ void do_command_loop(void) {
 		cprintf("%d%cok\n", CIT_OK, CtdlCheckExpress() );
 	}
 	
-	else if (!strncasecmp(cmdbuf, "XYZZY", 5)) {
-		cprintf("%d Nothing happens.\n", CIT_OK);
-	}
-	
 	else if (!strncasecmp(cmdbuf, "QNOP", 4)) {
 		/* do nothing, this command returns no response */
 	}
@@ -1141,7 +1137,7 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"GETU",4)) {
-		cmd_getu();
+		cmd_getu(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"SETU",4)) {

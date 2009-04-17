@@ -1338,7 +1338,7 @@ void cmd_creu(char *cmdbuf)
 /*
  * get user parameters
  */
-void cmd_getu(void)
+void cmd_getu(char *cmdbuf)
 {
 
 	if (CtdlAccessCheck(ac_logged_in))

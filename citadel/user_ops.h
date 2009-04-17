@@ -19,7 +19,7 @@ void do_login(void);
 void cmd_newu (char *cmdbuf);
 void cmd_creu (char *cmdbuf);
 void cmd_setp (char *new_pw);
-void cmd_getu (void);
+void cmd_getu (char *cmdbuf);
 void cmd_setu (char *new_parms);
 void cmd_slrp (char *new_ptr);
 int CtdlInvtKick(char *iuser, int op);
