@@ -212,7 +212,11 @@ int FourHash(const char *key, long length)
 	const unsigned char *ptr = (const unsigned char*)key;
 
 	for (i = 0; i < 4; i++, ptr ++) 
-		ret = (ret << 8) | *ptr;
+		ret = (ret << 8) | 
+			( ((*ptr >= 'a') &&
+			   (*ptr <= 'z'))? 
+			  *ptr - 'a' + 'A': 
+			  *ptr);
 
 	return ret;
 }
