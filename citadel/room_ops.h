@@ -17,23 +17,8 @@ void lgetfloor (struct floor *flbuf, int floor_num);
 void putfloor (struct floor *flbuf, int floor_num);
 void lputfloor (struct floor *flbuf, int floor_num);
 int sort_msglist (long int *listptrs, int oldcount);
-void cmd_lrms (char *argbuf);
-void cmd_lkra (char *argbuf);
-void cmd_lkrn (char *argbuf);
-void cmd_lkro (char *argbuf);
-void cmd_lzrm (char *argbuf);
-void cmd_lprm (char *argbuf);
 void usergoto (char *where, int display_result, int transiently,
 			int *msgs, int *new);
-void cmd_goto (char *gargs);
-void cmd_whok (char *cmdbuf);
-void cmd_rdir (char *cmdbuf);
-void cmd_getr (char *cmdbuf);
-void cmd_setr (char *args);
-void cmd_geta (char *cmdbuf);
-void cmd_seta (char *new_ra);
-void cmd_rinf (void);
-void cmd_kill (char *argbuf);
 unsigned create_room(char *new_room_name,
 			int new_room_type,
 			char *new_room_pass,
@@ -41,12 +26,6 @@ unsigned create_room(char *new_room_name,
 			int really_create,
 			int avoid_access,
 			int new_room_view);
-void cmd_cre8 (char *args);
-void cmd_einf (char *ok);
-void cmd_lflr (void);
-void cmd_cflr (char *argbuf);
-void cmd_kflr (char *argbuf);
-void cmd_eflr (char *argbuf);
 void ForEachRoom(void (*CallBack)(struct ctdlroom *EachRoom, void *out_data),
 	void *in_data);
 void schedule_room_for_deletion(struct ctdlroom *qrbuf);
@@ -70,3 +49,5 @@ enum {
 	crr_invalid_floor,		/* target floor does not exist */
 	crr_access_denied		/* not allowed to edit this room */
 };
+
+

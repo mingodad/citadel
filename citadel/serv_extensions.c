@@ -46,10 +46,11 @@ struct SearchFunctionHook *SearchFunctionHookTable = NULL;
 
 struct ProtoFunctionHook {
 	void (*handler) (char *cmdbuf);
-	char *cmd;
-	char *desc;
-	struct ProtoFunctionHook *next;
-} *ProtoHookList = NULL;
+	const char *cmd;
+	const char *desc;
+};
+
+HashList *ProtoHookList = NULL;
 
 
 struct DirectoryServiceHook {
@@ -193,21 +194,36 @@ void AddPortError(char *Port, char *ErrorMessage)
 
 int DLoader_Exec_Cmd(char *cmdbuf)
 {
+	void *vP;
 	struct ProtoFunctionHook *p;
 
-	for (p = ProtoHookList; p; p = p->next) {
-		if (!strncasecmp(cmdbuf, p->cmd, 4)) {
-			p->handler(&cmdbuf[5]);
-			return 1;
-		}
+	if (GetHash(ProtoHookList, cmdbuf, 4, &vP) && (vP != NULL)) {
+		p = (struct ProtoFunctionHook*) vP;
+		p->handler(&cmdbuf[5]);
+		return 1;
 	}
 	return 0;
 }
 
+int FourHash(const char *key, long length) 
+{
+	int i;
+	int ret = 0;
+	const unsigned char *ptr = (const unsigned char*)key;
+
+	for (i = 0; i < 4; i++, ptr ++) 
+		ret = (ret << 8) | *ptr;
+
+	return ret;
+}
 
 void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 {
 	struct ProtoFunctionHook *p;
+
+	if (ProtoHookList == NULL)
+		ProtoHookList = NewHash (1, FourHash);
+
 
 	p = (struct ProtoFunctionHook *)
 		malloc(sizeof(struct ProtoFunctionHook));
@@ -219,56 +235,15 @@ void CtdlRegisterProtoHook(void (*handler) (char *), char *cmd, char *desc)
 	p->handler = handler;
 	p->cmd = cmd;
 	p->desc = desc;
-	p->next = ProtoHookList;
-	ProtoHookList = p;
+
+	Put(ProtoHookList, cmd, 4, p, NULL);
 	CtdlLogPrintf(CTDL_INFO, "Registered server command %s (%s)\n", cmd, desc);
-}
-
-
-void CtdlUnregisterProtoHook(void (*handler) (char *), char *cmd)
-{
-	struct ProtoFunctionHook *cur = NULL;
-	struct ProtoFunctionHook *p = NULL;
-	struct ProtoFunctionHook *lastcur = NULL;
-
-	for (cur = ProtoHookList; 
-	     cur != NULL; 
-	     cur = (cur != NULL)? cur->next: NULL) {
-		/* This will also remove duplicates if any */
-		while (cur != NULL &&
-				handler == cur->handler &&
-				!strcmp(cmd, cur->cmd)) {
-			CtdlLogPrintf(CTDL_INFO, "Unregistered server command %s (%s)\n",
-					cmd, cur->desc);
-			p = cur->next;
-			if (cur == ProtoHookList) {
-				ProtoHookList = p;
-			}
-			else if (lastcur != NULL)
-			{
-				lastcur->next = p;
-			}
-			free(cur);
-			cur = p;
-		}
-		lastcur = cur;
-	}
 }
 
 void CtdlDestroyProtoHooks(void)
 {
-	struct ProtoFunctionHook *cur, *p;
 
-	cur = ProtoHookList; 
-	while (cur != NULL)
-	{
-		CtdlLogPrintf(CTDL_INFO, "Destroyed server command %s (%s)\n",
-			cur->cmd, cur->desc);
-		p = cur->next;
-		free(cur);
-		cur = p;
-	}
-	ProtoHookList = NULL;
+	DeleteHash(&ProtoHookList);
 }
 
 

@@ -44,6 +44,8 @@
 #include "control.h"
 #include "euidindex.h"
 
+#include "ctdl_module.h"
+
 /*
  * The structure of an euidindex record *key* is:
  *
@@ -250,4 +252,9 @@ void cmd_euid(char *cmdbuf) {
 	cprintf("%d not found\n", ERROR + MESSAGE_NOT_FOUND);
 }
 
-
+CTDL_MODULE_INIT(euidindex)
+{
+	CtdlRegisterProtoHook(cmd_euid, "EUID", "Autoconverted. TODO: document me.");
+	/* return our Subversion id for the Log */
+	return "$Id$";
+}

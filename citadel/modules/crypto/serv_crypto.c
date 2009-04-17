@@ -56,8 +56,6 @@ static unsigned long id_callback(void)
 void destruct_ssl(void)
 {
 	int a;
-	CtdlUnregisterProtoHook(cmd_stls, "STLS");
-	CtdlUnregisterProtoHook(cmd_gtls, "GTLS");
 	for (a = 0; a < CRYPTO_num_locks(); a++) 
 		free(SSLCritters[a]);
 	free (SSLCritters);

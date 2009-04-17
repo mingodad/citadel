@@ -52,6 +52,8 @@
 #include "threads.h"
 #include "citadel_ldap.h"
 
+#include "ctdl_module.h"
+
 /* These pipes are used to talk to the chkpwd daemon, which is forked during startup */
 int chkpwd_write_pipe[2];
 int chkpwd_read_pipe[2];
@@ -1523,6 +1525,8 @@ void cmd_invt_kick(char *iuser, int op) {
 	return;
 }
 
+void cmd_invt(char *iuser) {cmd_invt_kick(iuser, 1);}
+void cmd_kick(char *iuser) {cmd_invt_kick(iuser, 0);}
 
 /*
  * Forget (Zap) the current room (API call)
@@ -1556,7 +1560,7 @@ int CtdlForgetThisRoom(void) {
 /*
  * forget (Zap) the current room
  */
-void cmd_forg(void)
+void cmd_forg(char *argbuf)
 {
 
 	if (CtdlAccessCheck(ac_logged_in)) {
@@ -1574,7 +1578,7 @@ void cmd_forg(void)
 /*
  * Get Next Unregistered User
  */
-void cmd_gnur(void)
+void cmd_gnur(char *argbuf)
 {
 	struct cdbdata *cdbus;
 	struct ctdluser usbuf;
@@ -1727,7 +1731,7 @@ void cmd_list(char *cmdbuf)
 /*
  * assorted info we need to check at login
  */
-void cmd_chek(void)
+void cmd_chek(char *argbuf)
 {
 	int mail = 0;
 	int regis = 0;
@@ -1996,4 +2000,39 @@ void cmd_renu(char *cmdbuf)
 	}
 
 	cprintf("%d An unknown error occurred.\n", ERROR);
+}
+
+
+
+/*****************************************************************************/
+/*                      MODULE INITIALIZATION STUFF                          */
+/*****************************************************************************/
+
+
+CTDL_MODULE_INIT(user_ops)
+{
+	CtdlRegisterProtoHook(cmd_user, "USER", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_pass, "PASS", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_creu, "CREU", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_setp, "SETP", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_getu, "GETU", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_setu, "SETU", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_slrp, "SLRP", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_invt, "INVT", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_kick, "KICK", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_forg, "FORG", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_gnur, "GNUR", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_vali, "VALI", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_list, "LIST", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_chek, "CHEK", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_qusr, "QUSR", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_agup, "AGUP", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_asup, "ASUP", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_seen, "SEEN", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_gtsn, "GTSN", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_view, "VIEW", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_renu, "RENU", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_newu, "NEWU", "Autoconverted. TODO: document me.");
+	/* return our Subversion id for the Log */
+	return "$Id$";
 }

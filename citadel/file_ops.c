@@ -45,6 +45,8 @@
 #include "snprintf.h"
 #endif
 
+#include "ctdl_module.h"
+
 /*
  * network_talking_to()  --  concurrency checker
  */
@@ -516,7 +518,7 @@ void cmd_uimg(char *cmdbuf)
 /*
  * close the download file
  */
-void cmd_clos(void)
+void cmd_clos(char *cmdbuf)
 {
 	char buf[256];
 
@@ -768,4 +770,27 @@ void cmd_nuop(char *cmdbuf)
 
 	CC->upload_type = UPL_NET;
 	cprintf("%d Ok\n", CIT_OK);
+}
+
+
+/*****************************************************************************/
+/*                      MODULE INITIALIZATION STUFF                          */
+/*****************************************************************************/
+
+CTDL_MODULE_INIT(file_ops)
+{
+	CtdlRegisterProtoHook(cmd_delf, "DELF", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_movf, "MOVF", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_open, "OPEN", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_clos, "CLOS", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_uopn, "UOPN", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_ucls, "UCLS", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_read, "READ", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_writ, "WRIT", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_oimg, "OIMG", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_ndop, "NDOP", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_nuop, "NUOP", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Autoconverted. TODO: document me.");
+        /* return our Subversion id for the Log */
+	return "$Id$";
 }

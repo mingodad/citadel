@@ -121,6 +121,17 @@ void initialise_modules (int threading)
         CtdlLogPrintf (CTDL_INFO, "Initialise modules, CtdlThreads enabled.\n");
     else
         CtdlLogPrintf (CTDL_INFO, "Initialise modules, CtdlThreads not yet enabled.\n");
+/* static server initialization: */
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(citserver));
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(control));
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(euidindex));
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(file_ops));
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(msgbase));
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(policy));
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(room_ops));
+        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(user_ops));
+/* dynamic modules: */
+
 EOF
 
 
@@ -138,6 +149,15 @@ cat <<EOF > $H_FILE
 extern size_t nSizErrmsg;
 void initialise_modules (int threading);
 void upgrade_modules(void);
+
+	CTDL_MODULE_INIT(citserver);
+	CTDL_MODULE_INIT(control);
+	CTDL_MODULE_INIT(euidindex);
+	CTDL_MODULE_INIT(file_ops);
+	CTDL_MODULE_INIT(msgbase);
+	CTDL_MODULE_INIT(policy);
+	CTDL_MODULE_INIT(room_ops);
+	CTDL_MODULE_INIT(user_ops);
 EOF
 
 for i in serv_*.c

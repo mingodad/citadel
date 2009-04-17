@@ -1988,9 +1988,9 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	size_t reqsize;
 	icalproperty *p;
 	struct icaltimetype t;
-	icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
+	const icaltimezone *attached_zones[5] = { NULL, NULL, NULL, NULL, NULL };
 	int i;
-	icaltimezone *z;
+	const icaltimezone *z;
 	int num_zones_attached = 0;
 	int zone_already_attached;
 

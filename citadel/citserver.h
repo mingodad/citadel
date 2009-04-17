@@ -19,19 +19,6 @@ void master_cleanup (int exitcode);
 void RemoveContext (struct CitContext *);
 void set_wtmpsupp (char *newtext);
 void set_wtmpsupp_to_current_room(void);
-void cmd_info (char *cmdbuf);
-void cmd_time (void);
-void cmd_iden (char *argbuf);
-void cmd_mesg (char *mname);
-void cmd_emsg (char *mname);
-void cmd_term (char *cmdbuf);
-void cmd_more (void);
-void cmd_echo (char *etext);
-void cmd_ipgm (char *argbuf);
-void cmd_down (char *argbuf);
-void cmd_halt (void);
-void cmd_scdn (char *argbuf);
-void cmd_extn (char *argbuf);
 void do_command_loop(void);
 void do_async_loop(void);
 void begin_session(struct CitContext *con);
@@ -57,3 +44,4 @@ enum {
 
 
 extern time_t server_startup_time;
+

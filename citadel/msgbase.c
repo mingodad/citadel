@@ -54,6 +54,8 @@
 #include "serv_network.h"
 #include "threads.h"
 
+#include "ctdl_module.h"
+
 long config_msgnum;
 struct addresses_to_be_filed *atbf = NULL;
 
@@ -4693,4 +4695,27 @@ void cmd_isme(char *argbuf) {
 		cprintf("%d Not you.\n", ERROR + ILLEGAL_VALUE);
 	}
 
+}
+
+
+/*****************************************************************************/
+/*                      MODULE INITIALIZATION STUFF                          */
+/*****************************************************************************/
+
+CTDL_MODULE_INIT(msgbase)
+{
+	CtdlRegisterProtoHook(cmd_msgs, "MSGS", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_msg0, "MSG0", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_msg2, "MSG2", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_msg3, "MSG3", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_msg4, "MSG4", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_msgp, "MSGP", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_opna, "OPNA", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_dlat, "DLAT", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_ent0, "ENT0", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_dele, "DELE", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_move, "MOVE", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_isme, "ISME", "Autoconverted. TODO: document me.");
+        /* return our Subversion id for the Log */
+	return "$Id$";
 }

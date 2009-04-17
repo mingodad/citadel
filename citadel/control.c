@@ -47,6 +47,8 @@
 #include "snprintf.h"
 #endif
 
+#include "ctdl_module.h"
+
 struct CitControl CitControl;
 extern struct config config;
 FILE *control_fp = NULL;
@@ -695,4 +697,17 @@ void cmd_conf(char *argbuf)
 		cprintf("%d Illegal option(s) specified.\n",
 			ERROR + ILLEGAL_VALUE);
 	}
+}
+
+
+/*****************************************************************************/
+/*                      MODULE INITIALIZATION STUFF                          */
+/*****************************************************************************/
+
+
+CTDL_MODULE_INIT(control)
+{
+	CtdlRegisterProtoHook(cmd_conf, "CONF", "Autoconverted. TODO: document me.");
+	/* return our Subversion id for the Log */
+	return "$Id$";
 }

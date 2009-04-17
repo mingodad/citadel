@@ -64,7 +64,6 @@ void CtdlRegisterCleanupHook(void (*fcn_ptr)(void));
 void CtdlUnregisterCleanupHook(void (*fcn_ptr)(void));
 
 void CtdlRegisterProtoHook(void (*handler)(char *), char *cmd, char *desc);
-void CtdlUnregisterProtoHook(void (*handler)(char *), char *cmd);
 
 void CtdlRegisterServiceHook(int tcp_port,
 			     char *sockpath,

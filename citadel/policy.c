@@ -35,6 +35,7 @@
 #include "msgbase.h"
 #include "citserver.h"
 
+#include "ctdl_module.h"
 
 /*
  * Retrieve the applicable expire policy for a specific room
@@ -178,4 +179,14 @@ void cmd_spex(char *argbuf) {
 
 }
 
+/*****************************************************************************/
+/*                      MODULE INITIALIZATION STUFF                          */
+/*****************************************************************************/
 
+CTDL_MODULE_INIT(policy)
+{
+	CtdlRegisterProtoHook(cmd_gpex, "GPEX", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_spex, "SPEX", "Autoconverted. TODO: document me.");
+        /* return our Subversion id for the Log */
+	return "$Id$";
+}

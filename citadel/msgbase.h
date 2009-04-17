@@ -3,7 +3,7 @@
 #ifndef MSGBASE_H
 #define MSGBASE_H
 
-#define aide_message(text, subject)      quickie_message("Citadel",NULL,NULL,AIDEROOM,text,0,subject)
+#define aide_message(text, subject)      quickie_message("Citadel",NULL,NULL,AIDEROOM,text,FMT_CITADEL,subject)
 
 enum {
 	MSGS_ALL,
