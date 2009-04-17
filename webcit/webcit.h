@@ -60,9 +60,6 @@
 #define _(string)	(string)
 #endif
 
-/* gomf = Get Outta My Face - cheezy little macro to suppress warn_unused_result */
-#define gomf(x) if(x);
-
 #define IsEmptyStr(a) ((a)[0] == '\0')
 /*
  * Uncomment to dump an HTTP trace to stderr
