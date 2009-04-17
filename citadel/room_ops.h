@@ -26,11 +26,11 @@ void cmd_lprm (char *argbuf);
 void usergoto (char *where, int display_result, int transiently,
 			int *msgs, int *new);
 void cmd_goto (char *gargs);
-void cmd_whok (void);
-void cmd_rdir (void);
-void cmd_getr (void);
+void cmd_whok (char *cmdbuf);
+void cmd_rdir (char *cmdbuf);
+void cmd_getr (char *cmdbuf);
 void cmd_setr (char *args);
-void cmd_geta (void);
+void cmd_geta (char *cmdbuf);
 void cmd_seta (char *new_ra);
 void cmd_rinf (void);
 void cmd_kill (char *argbuf);

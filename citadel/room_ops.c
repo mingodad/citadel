@@ -1086,7 +1086,7 @@ void cmd_goto(char *gargs)
 }
 
 
-void cmd_whok(void)
+void cmd_whok(char *cmdbuf)
 {
 	struct ctdluser temp;
 	struct cdbdata *cdbus;
@@ -1112,7 +1112,7 @@ void cmd_whok(void)
 /*
  * RDIR command for room directory
  */
-void cmd_rdir(void)
+void cmd_rdir(char *cmdbuf)
 {
 	char buf[256];
 	char comment[256];
@@ -1202,7 +1202,7 @@ void cmd_rdir(void)
 /*
  * get room parameters (aide or room aide command)
  */
-void cmd_getr(void)
+void cmd_getr(char *cmdbuf)
 {
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
@@ -1498,7 +1498,7 @@ void cmd_setr(char *args)
 /* 
  * get the name of the room aide for this room
  */
-void cmd_geta(void)
+void cmd_geta(char *cmdbuf)
 {
 	struct ctdluser usbuf;
 

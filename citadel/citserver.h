@@ -19,7 +19,7 @@ void master_cleanup (int exitcode);
 void RemoveContext (struct CitContext *);
 void set_wtmpsupp (char *newtext);
 void set_wtmpsupp_to_current_room(void);
-void cmd_info (void);
+void cmd_info (char *cmdbuf);
 void cmd_time (void);
 void cmd_iden (char *argbuf);
 void cmd_mesg (char *mname);

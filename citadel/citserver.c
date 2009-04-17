@@ -278,7 +278,7 @@ void RemoveContext (struct CitContext *con)
 /*
  * cmd_info()  -  tell the client about this server
  */
-void cmd_info(void) {
+void cmd_info(char *cmdbuf) {
 	cprintf("%d Server info:\n", LISTING_FOLLOWS);
 	cprintf("%d\n", CC->cs_pid);
 	cprintf("%s\n", config.c_nodename);
@@ -1153,11 +1153,11 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"WHOK",4)) {
-		cmd_whok();
+		cmd_whok(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"RDIR",4)) {
-		cmd_rdir();
+		cmd_rdir(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"EUID",4)) {
@@ -1193,7 +1193,7 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"INFO",4)) {
-		cmd_info();
+		cmd_info(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"SLRP",4)) {
@@ -1201,15 +1201,15 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"INVT",4)) {
-		cmd_invt_kick(&cmdbuf[5],1);
+		cmd_invt_kick(&cmdbuf[5], 1);
 	}
 
 	else if (!strncasecmp(cmdbuf,"KICK",4)) {
-		cmd_invt_kick(&cmdbuf[5],0);
+		cmd_invt_kick(&cmdbuf[5], 0);
 	}
 
 	else if (!strncasecmp(cmdbuf,"GETR",4)) {
-		cmd_getr();
+		cmd_getr(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"SETR",4)) {
@@ -1217,7 +1217,7 @@ void do_command_loop(void) {
 	}
 
 	else if (!strncasecmp(cmdbuf,"GETA",4)) {
-		cmd_geta();
+		cmd_geta(&cmdbuf[5]);
 	}
 
 	else if (!strncasecmp(cmdbuf,"SETA",4)) {
