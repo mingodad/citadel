@@ -172,8 +172,12 @@ int yesno(char *question, int default_value)
 				question,
 				( default_value ? "Yes" : "No" )
 			);
-			fgets(buf, sizeof buf, stdin);
-			answer = tolower(buf[0]);
+			if (fgets(buf, sizeof buf, stdin)) {
+				answer = tolower(buf[0]);
+			}
+			else {
+				answer = default_value;
+			}
 			if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
 				answer = default_value;
 			else if (answer == 'y')
