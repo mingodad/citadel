@@ -670,7 +670,7 @@ msgstr "des Monats"
 
 #: ../event.c:608
 msgid "every "
-msgstr "jedes"
+msgstr "jedes "
 
 #: ../event.c:609
 msgid "year on this date"
