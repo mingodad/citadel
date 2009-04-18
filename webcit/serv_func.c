@@ -607,22 +607,26 @@ void tmplput_mesg(StrBuf *Target, WCTemplputParams *TP)
 	Buf = NewStrBuf();
 	Line = NewStrBuf();
 	serv_printf("MESG %s", TP->Tokens->Params[0]->Start);
+
 	StrBuf_ServGetln(Line);
-	while (!Done &&  (StrBuf_ServGetln(Line)>=0)) {
-		if ( (StrLength(Line)==3) && 
-		    !strcmp(ChrPtr(Line), "000")) 
-			Done = 1;
-		else
-		{
-			if (n > 0)
-				StrBufAppendBufPlain(Buf, "\n", 1, 0);
-			StrBufAppendBuf(Buf, Line, 0);
+	if (GetServerStatus(Line, NULL) == 1) {
+		while (!Done &&  (StrBuf_ServGetln(Line)>=0)) {
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000")) 
+				Done = 1;
+			else
+			{
+				if (n > 0)
+					StrBufAppendBufPlain(Buf, "\n", 1, 0);
+				StrBufAppendBuf(Buf, Line, 0);
+			}
+			n++;
 		}
-		n++;
+	
+		FlushStrBuf(Line);
+		FmOut(Line, "center", Buf);
+		StrBufAppendTemplate(Target, TP, Line, 1);
 	}
-	FlushStrBuf(Line);
-	FmOut(Line, "center", Buf);
-	StrBufAppendTemplate(Target, TP, Line, 1);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&Line);
 }
