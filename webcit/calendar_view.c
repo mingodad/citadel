@@ -335,7 +335,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 						}
 						else {
 							tt = icaltime_as_timet(t);
-							webcit_fmt_date(buf, tt, DATEFMT_BRIEF);
+							webcit_fmt_date(buf, 256, tt, DATEFMT_BRIEF);
 							if (no_end || !icaltime_compare(t, end_t)) {
 								wprintf("<i>%s</i> %s<br>",
 									_("Date/time:"), buf);
@@ -344,7 +344,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 								wprintf("<i>%s</i> %s<br>",
 									_("Starting date/time:"), buf);
 								tt = icaltime_as_timet(end_t);
-								webcit_fmt_date(buf, tt, DATEFMT_BRIEF);
+								webcit_fmt_date(buf, 256, tt, DATEFMT_BRIEF);
 								wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 							}
 							
@@ -946,13 +946,13 @@ void calendar_day_view_display_events(time_t thetime,
                                         wprintf("<br />");
 				}
 				if (!icaltime_compare(t, end_t)) { /* one day only */
-					webcit_fmt_date(buf, event_tt, DATEFMT_LOCALEDATE);
+					webcit_fmt_date(buf, 256, event_tt, DATEFMT_LOCALEDATE);
 					wprintf("<i>%s</i> %s<br>", _("Date:"), buf);
 				}
 				else {
-					webcit_fmt_date(buf, event_tt, DATEFMT_LOCALEDATE);
+					webcit_fmt_date(buf, 256, event_tt, DATEFMT_LOCALEDATE);
 					wprintf("<i>%s</i> %s<br>", _("Starting date:"), buf);
-					webcit_fmt_date(buf, event_tte, DATEFMT_LOCALEDATE);
+					webcit_fmt_date(buf, 256, event_tte, DATEFMT_LOCALEDATE);
 					wprintf("<i>%s</i> %s<br>", _("Ending date:"), buf);
 				}
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
@@ -987,9 +987,9 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wprintf("<br />");
 								}
-                                webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
+                                webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
                                 wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
-                                webcit_fmt_date(buf, event_tte, DATEFMT_BRIEF);
+                                webcit_fmt_date(buf, 256, event_tte, DATEFMT_BRIEF);
                                 wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
                                 if (q) {
@@ -1067,13 +1067,13 @@ void calendar_day_view_display_events(time_t thetime,
                                         wprintf("<br />");
 								}
 				if (!icaltime_compare(t, end_t)) { /* one day only */
-					webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
+					webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
 					wprintf("<i>%s</i> %s<br>", _("Date/time:"), buf);
 				}
 				else {
-					webcit_fmt_date(buf, event_tt, DATEFMT_BRIEF);
+					webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
 					wprintf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
-					webcit_fmt_date(buf, event_tte, DATEFMT_BRIEF);
+					webcit_fmt_date(buf, 256, event_tte, DATEFMT_BRIEF);
 					wprintf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 				}
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_DESCRIPTION_PROPERTY);
@@ -1359,7 +1359,7 @@ int calendar_summary_view(void) {
 			else {
 				all_day_event = 0;
 			}
-			fmt_time(timestring, event_tt);
+			fmt_time(timestring, SIZ, event_tt);
 
 			if (all_day_event) {
 				gmtime_r(&event_tt, &event_tm);
@@ -1659,7 +1659,7 @@ void do_tasks_view(void) {
 		due = get_task_due_date(Cal->cal, &is_date);
 		wprintf("<td><span");
 		if (due > 0) {
-			webcit_fmt_date(buf, due, is_date ? DATEFMT_RAWDATE : DATEFMT_FULL);
+			webcit_fmt_date(buf, SIZ, due, is_date ? DATEFMT_RAWDATE : DATEFMT_FULL);
 			wprintf(">%s",buf);
 		}
 		else {

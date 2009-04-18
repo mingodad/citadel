@@ -833,6 +833,16 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 			}
 			if (WCC->serv_info == NULL)
 				WCC->serv_info = get_serv_info(browser_host, user_agent);
+			if (WCC->serv_info == NULL){
+				begin_burst();
+				wprintf(_("Received unexpected answer from Citadel "
+					  "server; bailing out."));
+				hprintf("HTTP/1.1 200 OK\r\n");
+				hprintf("Content-type: text/plain; charset=utf-8\r\n");
+				end_burst();
+				end_webcit_session();
+				goto SKIP_ALL_THIS_CRAP;
+			}
 			if (WCC->serv_info->serv_rev_level < MINIMUM_CIT_VERSION) {
 				begin_burst();
 				wprintf(_("You are connected to a Citadel "
