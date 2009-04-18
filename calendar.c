@@ -125,7 +125,7 @@ void cal_process_object(StrBuf *Target,
 			}
 			else {
 				tt = icaltime_as_timet(t);
-				webcit_fmt_date(buf, tt, DATEFMT_FULL);
+				webcit_fmt_date(buf, 256, tt, DATEFMT_FULL);
 				StrBufAppendPrintf(Target, "<dt>");
 				StrBufAppendPrintf(Target, _("Starting date/time:"));
 				StrBufAppendPrintf(Target, "</dt><dd>%s</dd>", buf);
@@ -136,7 +136,7 @@ void cal_process_object(StrBuf *Target,
 		if (p != NULL) {
 			t = icalproperty_get_dtend(p);
 			tt = icaltime_as_timet(t);
-			webcit_fmt_date(buf, tt, DATEFMT_FULL);
+			webcit_fmt_date(buf, 256, tt, DATEFMT_FULL);
 			StrBufAppendPrintf(Target, "<dt>");
 			StrBufAppendPrintf(Target, _("Ending date/time:"));
 			StrBufAppendPrintf(Target, "</dt><dd>%s</dd>", buf);

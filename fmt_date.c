@@ -47,7 +47,7 @@ size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm)
 /*
  * Format a date/time stamp for output 
  */
-void webcit_fmt_date(char *buf, time_t thetime, int Format)
+void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format)
 {
 	struct tm tm;
 	struct tm today_tm;
@@ -76,31 +76,31 @@ void webcit_fmt_date(char *buf, time_t thetime, int Format)
 			  &&(tm.tm_mon == today_tm.tm_mon)
 			  &&(tm.tm_mday == today_tm.tm_mday)) {
 				if (time_format == WC_TIMEFORMAT_24) 
-					wc_strftime(buf, 32, "%k:%M", &tm);
+					wc_strftime(buf, siz, "%k:%M", &tm);
 				else
-					wc_strftime(buf, 32, "%l:%M%p", &tm);
+					wc_strftime(buf, siz, "%l:%M%p", &tm);
 			}
 			else if (today_timet - thetime < 15552000) {
 				if (time_format == WC_TIMEFORMAT_24) 
-					wc_strftime(buf, 32, "%b %d %k:%M", &tm);
+					wc_strftime(buf, siz, "%b %d %k:%M", &tm);
 				else
-					wc_strftime(buf, 32, "%b %d %l:%M%p", &tm);
+					wc_strftime(buf, siz, "%b %d %l:%M%p", &tm);
 			}
 			else {
-				wc_strftime(buf, 32, "%b %d %Y", &tm);
+				wc_strftime(buf, siz, "%b %d %Y", &tm);
 			}
 			break;
 		case DATEFMT_FULL:
 			if (time_format == WC_TIMEFORMAT_24)
-				wc_strftime(buf, 32, "%a %b %d %Y %T %Z", &tm);
+				wc_strftime(buf, siz, "%a %b %d %Y %T %Z", &tm);
 			else
-				wc_strftime(buf, 32, "%a %b %d %Y %r %Z", &tm);
+				wc_strftime(buf, siz, "%a %b %d %Y %r %Z", &tm);
 			break;
 		case DATEFMT_RAWDATE:
-			wc_strftime(buf, 32, "%a %b %d %Y", &tm);
+			wc_strftime(buf, siz, "%a %b %d %Y", &tm);
 			break;
 		case DATEFMT_LOCALEDATE:
-			wc_strftime(buf, 32, "%x", &tm);
+			wc_strftime(buf, siz, "%x", &tm);
 			break;
 	}
 }
@@ -110,10 +110,10 @@ void webcit_fmt_date(char *buf, time_t thetime, int Format)
  * Try to guess whether the user will prefer 12 hour or 24 hour time based on the locale.
  */
 long guess_calhourformat(void) {
-	char buf[32];
+	char buf[64];
 	struct tm tm;
 	memset(&tm, 0, sizeof tm);
-	wc_strftime(buf, 32, "%X", &tm);
+	wc_strftime(buf, 64, "%X", &tm);
 	if (buf[strlen(buf)-1] == 'M') {
 		return 12;
 	}
@@ -154,7 +154,7 @@ int get_time_format_cached (void)
  * buf		the output buffer
  * thetime	time to format into buf
  */
-void fmt_time(char *buf, time_t thetime)
+void fmt_time(char *buf, size_t siz, time_t thetime)
 {
 	struct tm *tm;
 	int hour;
@@ -170,12 +170,12 @@ void fmt_time(char *buf, time_t thetime)
 		hour = hour - 12;
 
 	if (time_format == WC_TIMEFORMAT_24) {
-		sprintf(buf, "%d:%02d",
+		snprintf(buf, siz, "%d:%02d",
 			tm->tm_hour, tm->tm_min
 		);
 	}
 	else {
-		sprintf(buf, "%d:%02d%s",
+		snprintf(buf, siz, "%d:%02d%s",
 			hour, tm->tm_min, ((tm->tm_hour > 12) ? "pm" : "am")
 		);
 	}

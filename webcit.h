@@ -623,7 +623,7 @@ void smart_goto(const StrBuf *);
 void worker_entry(void);
 void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *ReqType, StrBuf *ReadBuf);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
-void fmt_time(char *buf, time_t thetime);
+void fmt_time(char *buf, size_t siz, time_t thetime);
 void httpdate(char *buf, time_t thetime);
 time_t httpdate_to_timestamp(StrBuf *buf);
 void end_webcit_session(void);
@@ -643,8 +643,6 @@ char *load_mimepart(long msgnum, char *partnum);
 void MimeLoadData(wc_mime_attachment *Mime);
 int pattern2(char *search, char *patn);
 void do_edit_vcard(long, char *, char *, const char *);
-void striplt(char *);
-void stripltlen(char *, int *);
 void select_user_to_edit(char *message, char *preselect);
 void delete_user(char *);
 void do_change_view(int);
@@ -733,7 +731,7 @@ const char *get_selected_language(void);
 #define DATEFMT_BRIEF 1
 #define DATEFMT_RAWDATE 2
 #define DATEFMT_LOCALEDATE 3
-void webcit_fmt_date(char *buf, time_t thetime, int Format);
+void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
 int fetch_http(char *url, char *target_buf, int maxbytes);
 void free_attachments(wcsession *sess);
 void summary(void);
