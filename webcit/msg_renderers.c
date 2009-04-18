@@ -455,7 +455,7 @@ void tmplput_MAIL_SUMM_DATE_FULL(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
-	StrBufAppendPrintf(Target, 64, "%ld", Msg->date, 0);
+	StrBufAppendPrintf(Target, "%ld", Msg->date, 0);
 }
 
 
