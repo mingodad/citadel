@@ -460,22 +460,40 @@ char *rfc2047encode(char *line, long length)
 /*
  * Strip leading and trailing spaces from a string
  */
-void striplt(char *buf)
+long striplt(char *buf)
 {
-	size_t len;
-	int a;
+	int CountTrail = 0;
+	int FromStart = 1;
+	char *aptr, *bptr;
 
-	if (buf==NULL) return;
-	if (IsEmptyStr(buf)) return;
-	len = strlen(buf);
-        while ((!IsEmptyStr(buf)) && (isspace(buf[len - 1])))
-                buf[--len] = 0;
-	if (IsEmptyStr(buf)) return;
-	a = 0;
-        while ((!IsEmptyStr(buf)) && (isspace(buf[a])))
-		a++;
-	if (a > 0)
-                memmove(buf, &buf[a], len - a + 1);
+	if ((buf==NULL) || (IsEmptyStr(buf)))
+		return 0;
+
+	bptr = aptr = buf;
+
+	while (!IsEmptyStr(aptr)) {
+		if (isspace(*aptr)) {
+			if (FromStart)
+				aptr ++;
+			else {
+				CountTrail ++;
+				*bptr = *aptr;
+				aptr++; bptr++;
+			}
+		}
+		else {
+			CountTrail = 0;
+			*bptr = *aptr;
+			aptr++; bptr++;
+		}
+	}
+
+	if (CountTrail > 0) {
+		bptr -= CountTrail;
+	}
+
+	*bptr = '\0';
+	return bptr - buf;
 }
 
 
@@ -767,20 +785,15 @@ void generate_uuid(char *buf) {
  * The code is roughly based on the strstr() replacement from 'tin' written
  * by Urs Jannsen.
  */
-char *bmstrcasestr(char *text, char *pattern) {
+inline char *_bmstrcasestr_len(char *text, size_t textlen, char *pattern, size_t patlen) {
 
 	register unsigned char *p, *t;
 	register int i, j, *delta;
 	register size_t p1;
 	int deltaspace[256];
-	size_t textlen;
-	size_t patlen;
 
 	if (!text) return(NULL);
 	if (!pattern) return(NULL);
-
-	textlen = strlen (text);
-	patlen = strlen (pattern);
 
 	/* algorithm fails if pattern is empty */
 	if ((p1 = patlen) == 0)
@@ -823,7 +836,29 @@ char *bmstrcasestr(char *text, char *pattern) {
 	return (NULL);
 }
 
+/*
+ * bmstrcasestr() -- case-insensitive substring search
+ *
+ * This uses the Boyer-Moore search algorithm and is therefore quite fast.
+ * The code is roughly based on the strstr() replacement from 'tin' written
+ * by Urs Jannsen.
+ */
+char *bmstrcasestr(char *text, char *pattern) {
+	size_t textlen;
+	size_t patlen;
 
+	if (!text) return(NULL);
+	if (!pattern) return(NULL);
+
+	textlen = strlen (text);
+	patlen = strlen (pattern);
+
+	return _bmstrcasestr_len(text, textlen, pattern, patlen);
+}
+
+char *bmstrcasestr_len(char *text, size_t textlen, char *pattern, size_t patlen) {
+	return _bmstrcasestr_len(text, textlen, pattern, patlen);
+}
 
 /*
  * Local replacement for controversial C library function that generates

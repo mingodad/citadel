@@ -77,7 +77,7 @@ void ShutDownLibCitadel(void);
  * MIME parser declarations
  */
 
-void extract_key(char *target, char *source, char *key);
+void extract_key(char *target, char *source, long sourcelen, char *key, long keylen);
 
 void mime_parser(char *content_start, char *content_end,
 		void (*CallBack)
@@ -336,7 +336,7 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 unsigned int decode_hex(char *Source);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
-void striplt(char *);
+long striplt(char *);
 int haschar(const char *st, int ch);
 void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
@@ -353,6 +353,7 @@ char *CtdlTempFileName(char *prefix1, int prefix2);
 FILE *CtdlTempFile(void);
 void generate_uuid(char *buf);
 char *bmstrcasestr(char *text, char *pattern);
+char *bmstrcasestr_len(char *text, size_t textlen, char *pattern, size_t patlen);
 void CtdlMakeTempFileName(char *name, int len);
 char *rfc2047encode(char *line, long length);
 int is_msg_in_mset(const char *mset, long msgnum);

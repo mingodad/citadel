@@ -24,20 +24,31 @@
 #include "libcitadel.h"
 #include "libcitadellocal.h"
 
-void extract_key(char *target, char *source, char *key)
+void extract_key(char *target, char *source, long sourcelen, char *key, long keylen)
 {
+	char *lookat;
 	char *ptr;
-	char looking_for[256];
+	//char looking_for[256];
 	int double_quotes = 0;
 
-	snprintf(looking_for, sizeof looking_for, "%s=", key);
+	lookat = source;
+	//snprintf(looking_for, sizeof looking_for, "%s=", key);
 
-	ptr = bmstrcasestr(source, looking_for);
+	while ((lookat != NULL)) {
+		ptr = bmstrcasestr_len(lookat, sourcelen, key, keylen);
+		lookat = ptr;
+		if ((ptr != NULL) &&
+		    (*(ptr + keylen) == '='))
+			lookat = NULL;
+
+
+	}
+	//ptr = bmstrcasestr(source, looking_for);
 	if (ptr == NULL) {
 		strcpy(target, "");
 		return;
 	}
-	strcpy(target, (ptr + strlen(looking_for)));
+	strcpy(target, (ptr + keylen + 1));
 
 	for (ptr=target; (*ptr != 0); ++ptr) {
 
@@ -57,6 +68,7 @@ void extract_key(char *target, char *source, char *key)
 			}
 		}
 	}
+	*ptr = '\0';
 }
 
 
@@ -309,9 +321,11 @@ void the_mime_parser(char *partnum,
 	char *next_boundary;
 	char *content_type;
 	char *charset;
+	size_t content_type_len;
 	size_t content_length;
 	char *encoding;
 	char *disposition;
+	size_t disposition_len;
 	char *id;
 	char *name = NULL;
 	char *content_type_name;
@@ -330,41 +344,41 @@ void the_mime_parser(char *partnum,
 	ptr = content_start;
 	content_length = 0;
 
-	boundary = malloc(SIZ);
-	memset(boundary, 0, SIZ);
+	boundary = malloc(SIZ * 12);
+	*boundary = '\0';
 
-	startary = malloc(SIZ);
-	memset(startary, 0, SIZ);
+	startary = boundary + SIZ * 1;
+	*startary = '\0';
 
-	endary = malloc(SIZ);
-	memset(endary, 0, SIZ);
+	endary = boundary + SIZ * 2;
+	*endary = '\0';
 
-	header = malloc(SIZ);
-	memset(header, 0, SIZ);
+	header = boundary + SIZ * 3;
+	*header = '\0';
 
-	content_type = malloc(SIZ);
-	memset(content_type, 0, SIZ);
+	content_type = boundary + SIZ * 4;
+	*content_type = '\0';
 
-	charset = malloc(SIZ);
-	memset(charset, 0, SIZ);
+	charset = boundary + SIZ * 5;
+	*charset = '\0';
 
-	encoding = malloc(SIZ);
-	memset(encoding, 0, SIZ);
+	encoding = boundary + SIZ * 6;
+	*encoding = '\0';
 
-	content_type_name = malloc(SIZ);
-	memset(content_type_name, 0, SIZ);
+	content_type_name = boundary + SIZ * 7;
+	*content_type_name = '\0';
 
-	content_disposition_name = malloc(SIZ);
-	memset(content_disposition_name, 0, SIZ);
+	content_disposition_name = boundary + SIZ * 8;
+	*content_disposition_name = '\0';
 
-	filename = malloc(SIZ);
-	memset(filename, 0, SIZ);
+	filename = boundary + SIZ * 9;
+	*filename = '\0';
 
-	disposition = malloc(SIZ);
-	memset(disposition, 0, SIZ);
+	disposition = boundary + SIZ * 10;
+	*disposition = '\0';
 
-	id = malloc(SIZ);
-	memset(id, 0, SIZ);
+	id = boundary + SIZ * 11;
+	*id = '\0';
 
 	/* If the caller didn't supply an endpointer, generate one by measure */
 	if (content_end == NULL) {
@@ -388,11 +402,13 @@ void the_mime_parser(char *partnum,
 
 		if (!isspace(buf[0])) {
 			if (!strncasecmp(header, "Content-type:", 13)) {
-				strcpy(content_type, &header[13]);
-				striplt(content_type);
-				extract_key(content_type_name, content_type, "name");
-				extract_key(charset, content_type, "charset");
-				extract_key(boundary, header, "boundary");
+				memcpy (content_type, &header[13], headerlen - 12);
+				content_type_len = striplt (content_type);
+
+				extract_key(content_type_name, content_type, content_type_len, HKEY("name"));
+				extract_key(charset,           content_type, content_type_len, HKEY("charset"));
+				extract_key(boundary,          header,       headerlen,        HKEY("boundary"));
+
 				/* Deal with weird headers */
 				if (strchr(content_type, ' '))
 					*(strchr(content_type, ' ')) = '\0';
@@ -400,10 +416,10 @@ void the_mime_parser(char *partnum,
 					*(strchr(content_type, ';')) = '\0';
 			}
 			if (!strncasecmp(header, "Content-Disposition:", 20)) {
-				strcpy(disposition, &header[20]);
-				striplt(disposition);
-				extract_key(content_disposition_name, disposition, "name");
-				extract_key(filename, disposition, "filename");
+				memcpy (disposition, &header[20], headerlen - 19);
+				disposition_len = striplt(disposition);
+				extract_key(content_disposition_name, disposition, disposition_len,  HKEY("name"));
+				extract_key(filename,                 disposition, disposition_len, HKEY("filename"));
 			}
 			if (!strncasecmp(header, "Content-ID:", 11)) {
 				strcpy(id, &header[11]);
@@ -455,9 +471,8 @@ void the_mime_parser(char *partnum,
 		}
 
 		/* Figure out where the boundaries are */
-		snprintf(startary, SIZ, "--%s", boundary);
+		startary_len = snprintf(startary, SIZ, "--%s", boundary);
 		snprintf(endary, SIZ, "--%s--", boundary);
-		startary_len = strlen(startary);
 
 		part_start = NULL;
 		do {
@@ -618,17 +633,6 @@ void the_mime_parser(char *partnum,
 
 end_parser:	/* free the buffers!  end the oppression!! */
 	free(boundary);
-	free(startary);
-	free(endary);	
-	free(header);
-	free(content_type);
-	free(charset);
-	free(encoding);
-	free(content_type_name);
-	free(content_disposition_name);
-	free(filename);
-	free(disposition);
-	free(id);
 }
 
 
