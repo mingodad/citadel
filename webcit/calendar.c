@@ -991,6 +991,45 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 
 
 
+void process_ical_object(long msgnum, int unread,
+			 char *from, 
+			 char *FlatIcal, 
+			 icalcomponent_kind which_kind,
+			 IcalCallbackFunc CallBack,
+			 struct calview *calv
+	) 
+{
+	icalcomponent *cal, *c;
+
+	cal = icalcomponent_new_from_string(FlatIcal);
+	if (cal != NULL) {
+
+		/* A which_kind of (-1) means just load the whole thing */
+		if (which_kind == (-1)) {
+			CallBack(cal, msgnum, from, unread, calv);
+		}
+		
+		/* Otherwise recurse and hunt */
+		else {
+			
+			/* Simple components of desired type */
+			if (icalcomponent_isa(cal) == which_kind) {
+				CallBack(cal, msgnum, from, unread, calv);
+			}
+			
+			/* Subcomponents of desired type */
+			for (c = icalcomponent_get_first_component(cal, which_kind);
+			     (c != 0);
+			     c = icalcomponent_get_next_component(cal, which_kind)) {
+				CallBack(c, msgnum, from, unread, calv);
+			}
+			
+		}
+		
+		icalcomponent_free(cal);
+	}
+}
+
 /*
  * Code common to all icalendar display handlers.  Given a message number and a MIME
  * type, we load the message and hunt for that MIME type.  If found, we load
@@ -998,9 +1037,10 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
  * the requested object type, and feed it to the specified handler.
  */
 void load_ical_object(long msgnum, int unread,
-			   icalcomponent_kind which_kind,
-			   void (*callback)(icalcomponent *, long, char*, int, struct calview *),
-			   struct calview *calv
+		      icalcomponent_kind which_kind,
+		      IcalCallbackFunc CallBack,
+		      struct calview *calv,
+		      int RenderAsync
 	) 
 {
 	StrBuf *Buf;
@@ -1015,7 +1055,6 @@ void load_ical_object(long msgnum, int unread,
 	int mime_length;
 	char relevant_partnum[256];
 	char *relevant_source = NULL;
-	icalcomponent *cal, *c;
 	int phase = 0;				/* 0 = citadel headers, 1 = mime headers, 2 = body */
 	char msg4_content_type[256] = "";
 	char msg4_content_encoding[256] = "";
@@ -1099,34 +1138,16 @@ void load_ical_object(long msgnum, int unread,
 	}
 
 	if (relevant_source != NULL) {
-		cal = icalcomponent_new_from_string(relevant_source);
-		if (cal != NULL) {
+		process_ical_object(msgnum, unread,
+				    from, 
+				    relevant_source, 
+				    which_kind,
+				    CallBack,
+				    calv);
 
-			/* A which_kind of (-1) means just load the whole thing */
-			if (which_kind == (-1)) {
-				callback(cal, msgnum, from, unread, calv);
-			}
 
-			/* Otherwise recurse and hunt */
-			else {
-
-				/* Simple components of desired type */
-				if (icalcomponent_isa(cal) == which_kind) {
-					callback(cal, msgnum, from, unread, calv);
-				}
-
-				/* Subcomponents of desired type */
-				for (c = icalcomponent_get_first_component(cal, which_kind);
-			     	(c != 0);
-			     	c = icalcomponent_get_next_component(cal, which_kind)) {
-					callback(c, msgnum, from, unread, calv);
-				}
-
-			}
-
-			icalcomponent_free(cal);
-		}
 		free(relevant_source);
+
 	}
 
 	icalmemory_free_ring();
@@ -1136,14 +1157,14 @@ void load_ical_object(long msgnum, int unread,
  * Display a calendar item
  */
 void load_calendar_item(message_summary *Msg, int unread, struct calview *c) {
-	load_ical_object(Msg->msgnum, unread, (-1), display_individual_cal, c);
+	load_ical_object(Msg->msgnum, unread, (-1), display_individual_cal, c, 1);
 }
 
 /*
  * Display task view
  */
 void display_task(message_summary *Msg, int unread) {
-	load_ical_object(Msg->msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal, NULL);
+	load_ical_object(Msg->msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal, NULL, 0);
 }
 
 /*
@@ -1161,9 +1182,9 @@ void display_edit_task(void) {
 	if (msgnum > 0L) {
 		/* existing task */
 		load_ical_object(msgnum, 0,
-				      ICAL_VTODO_COMPONENT,
-				      display_edit_individual_task,
-				      NULL
+				 ICAL_VTODO_COMPONENT,
+				 display_edit_individual_task,
+				 NULL, 0
 		);
 	}
 	else {
@@ -1179,7 +1200,7 @@ void save_task(void) {
 	long msgnum = 0L;
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
-		load_ical_object(msgnum, 0, ICAL_VTODO_COMPONENT, save_individual_task, NULL);
+		load_ical_object(msgnum, 0, ICAL_VTODO_COMPONENT, save_individual_task, NULL, 0);
 	}
 	else {
 		save_individual_task(NULL, 0L, "", 0, NULL);
@@ -1195,7 +1216,7 @@ void display_edit_event(void) {
 	msgnum = lbstr("msgnum");
 	if (msgnum > 0L) {
 		/* existing event */
-		load_ical_object(msgnum, 0, ICAL_VEVENT_COMPONENT, display_edit_individual_event, NULL);
+		load_ical_object(msgnum, 0, ICAL_VEVENT_COMPONENT, display_edit_individual_event, NULL, 0);
 	}
 	else {
 		/* new event */
@@ -1212,7 +1233,7 @@ void save_event(void) {
 	msgnum = lbstr("msgnum");
 
 	if (msgnum > 0L) {
-		load_ical_object(msgnum, 0, (-1), save_individual_event, NULL);
+		load_ical_object(msgnum, 0, (-1), save_individual_event, NULL, 0);
 	}
 	else {
 		save_individual_event(NULL, 0L, "", 0, NULL);

@@ -776,6 +776,7 @@ extern char *hourname[];	/* Names of hours (12am, 1am, etc.) */
 
 void http_datestring(char *buf, size_t n, time_t xtime);
 
+typedef void (*IcalCallbackFunc)(icalcomponent *, long, char*, int, struct calview *);
 
 typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{
