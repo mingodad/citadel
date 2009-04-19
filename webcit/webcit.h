@@ -706,6 +706,7 @@ extern char *months[];
 extern char *days[];
 int read_server_binary(StrBuf *Ret, size_t total_len);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
+int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
 int goto_config_room(void);
 long locate_user_vcard_in_this_room(void);
