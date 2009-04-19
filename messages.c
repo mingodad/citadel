@@ -85,7 +85,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
 	Msg->MsgBody->msgnum = msgnum;
 	FoundCharset = NewStrBuf();
-	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
+	while ((StrBuf_ServGetlnBuffered(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
 		    !strcmp(ChrPtr(Buf), "000")) 
 		{
@@ -155,7 +155,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 		case 2: /* Message Body */
 			
 			if (Msg->MsgBody->size_known > 0) {
-				StrBuf_ServGetBLOB(Msg->MsgBody->Data, Msg->MsgBody->length);
+				StrBuf_ServGetBLOBBuffered(Msg->MsgBody->Data, Msg->MsgBody->length);
 				state ++;
 				/*/ todo: check next line, if not 000, append following lines */
 			}
@@ -354,7 +354,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 
 	serv_printf("MSG0 %ld|1", MsgNum);	/* ask for headers only */
 	
-	StrBuf_ServGetln(Buf);
+	StrBuf_ServGetlnBuffered(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
 		FreeStrBuf(&Buf);
 		return NULL;
@@ -362,7 +362,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 
 	Msg = (message_summary*)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
-	while (len = StrBuf_ServGetln(Buf),
+	while (len = StrBuf_ServGetlnBuffered(Buf),
 	       ((len != 3)  ||
 		strcmp(ChrPtr(Buf), "000")== 0)){
 		buf = ChrPtr(Buf);
@@ -1614,23 +1614,24 @@ char *load_mimepart(long msgnum, char *partnum)
  */
 void MimeLoadData(wc_mime_attachment *Mime)
 {
-	char buf[SIZ];
+	StrBuf *Buf;
 	off_t bytes;
 /* TODO: is there a chance the contenttype is different  to the one we know?	 */
 	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '6') {
-		bytes = extract_long(&buf[4], 0);
-
+	Buf = NewStrBuf();
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 6) {
+		bytes = extract_long(&(ChrPtr(Buf)[4]), 0);
+				     
 		if (Mime->Data == NULL)
 			Mime->Data = NewStrBufPlain(NULL, bytes);
-		StrBuf_ServGetBLOB(Mime->Data, bytes);
-
+		StrBuf_ServGetBLOBBuffered(Mime->Data, bytes);
 	}
 	else {
 		FlushStrBuf(Mime->Data);
 		/* TODO XImportant message */
 	}
+	FreeStrBuf(&Buf);
 }
 
 
