@@ -29,6 +29,7 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
