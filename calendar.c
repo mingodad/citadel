@@ -1044,9 +1044,9 @@ void load_ical_object(long msgnum, int unread,
 	) 
 {
 	StrBuf *Buf;
+	StrBuf *Data;
 	const char *bptr;
-	size_t BufLen;
-	char buf[1024];
+	int Done = 0;
 	char from[128] = "";
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -1059,73 +1059,85 @@ void load_ical_object(long msgnum, int unread,
 	char msg4_content_type[256] = "";
 	char msg4_content_encoding[256] = "";
 	int msg4_content_length = 0;
-	int msg4_content_alloc = 0;
-	int body_bytes = 0;
 
 	relevant_partnum[0] = '\0';
-	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
-	serv_puts(buf);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') return;
-
+	serv_printf("MSG4 %ld", msgnum);	/* we need the mime headers */
 	Buf = NewStrBuf();
-	while (BufLen = StrBuf_ServGetlnBuffered(Buf), strcmp(ChrPtr(Buf), "000")) {
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
+		FreeStrBuf (&Buf);
+		return;
+	}
+	while ((StrBuf_ServGetlnBuffered(Buf)>=0) && !Done) {
+		if ( (StrLength(Buf)==3) && 
+		     !strcmp(ChrPtr(Buf), "000")) {
+			Done = 1;
+			break;
+		}
 		bptr = ChrPtr(Buf);
-		if ((phase == 0) && (!strncasecmp(bptr, "part=", 5))) {
-			extract_token(mime_filename, &bptr[5], 1, '|', sizeof mime_filename);
-			extract_token(mime_partnum, &bptr[5], 2, '|', sizeof mime_partnum);
-			extract_token(mime_disposition, &bptr[5], 3, '|', sizeof mime_disposition);
-			extract_token(mime_content_type, &bptr[5], 4, '|', sizeof mime_content_type);
-			mime_length = extract_int(&bptr[5], 5);
+		switch (phase) {
+		case 0:
+			if (!strncasecmp(bptr, "part=", 5)) {
+				extract_token(mime_filename, &bptr[5], 1, '|', sizeof mime_filename);
+				extract_token(mime_partnum, &bptr[5], 2, '|', sizeof mime_partnum);
+				extract_token(mime_disposition, &bptr[5], 3, '|', sizeof mime_disposition);
+				extract_token(mime_content_type, &bptr[5], 4, '|', sizeof mime_content_type);
+				mime_length = extract_int(&bptr[5], 5);
 
-			if (  (!strcasecmp(mime_content_type, "text/calendar"))
-			      || (!strcasecmp(mime_content_type, "application/ics"))
-			      || (!strcasecmp(mime_content_type, "text/vtodo"))
-				) {
-				strcpy(relevant_partnum, mime_partnum);
+				if (  (!strcasecmp(mime_content_type, "text/calendar"))
+				      || (!strcasecmp(mime_content_type, "application/ics"))
+				      || (!strcasecmp(mime_content_type, "text/vtodo"))
+					) {
+					strcpy(relevant_partnum, mime_partnum);
+				}
 			}
-		}
-		else if ((phase == 0) && (!strncasecmp(bptr, "from=", 4))) {
-			extract_token(from, bptr, 1, '=', sizeof(from));
-		}
-		else if ((phase == 0) && (!strncasecmp(bptr, "text", 4))) {
-			phase = 1;
-		}
-		else if ((phase == 1) && (IsEmptyStr(bptr))) {
-			phase = 2;
-
-			if (
-				(msg4_content_length > 0)
-				&& (!strcasecmp(msg4_content_encoding, "7bit"))
-				&& (	(!strcasecmp(mime_content_type, "text/calendar"))
+			else if (!strncasecmp(bptr, "from=", 4)) {
+				extract_token(from, bptr, 1, '=', sizeof(from));
+			}
+			else if ((phase == 0) && (!strncasecmp(bptr, "text", 4))) {
+				phase = 1;
+			}
+		break;
+		case 1:
+			if (!IsEmptyStr(bptr)) {
+				if (!strncasecmp(bptr, "Content-type: ", 14)) {
+					safestrncpy(msg4_content_type, &bptr[14], sizeof msg4_content_type);
+					striplt(msg4_content_type);
+				}
+				else if (!strncasecmp(bptr, "Content-transfer-encoding: ", 27)) {
+					safestrncpy(msg4_content_encoding, &bptr[27], sizeof msg4_content_encoding);
+					striplt(msg4_content_type);
+				}
+				else if ((!strncasecmp(bptr, "Content-length: ", 16))) {
+					msg4_content_length = atoi(&bptr[16]);
+				}
+				break;
+			}
+			else {
+				phase++;
+				
+				if ((msg4_content_length > 0)
+				    && ( !strcasecmp(msg4_content_encoding, "7bit"))
+				    && ((!strcasecmp(mime_content_type, "text/calendar"))
 					|| (!strcasecmp(mime_content_type, "application/ics"))
 					|| (!strcasecmp(mime_content_type, "text/vtodo"))
-				)
-			) {
-				if (relevant_source != NULL) free(relevant_source);
-				msg4_content_alloc = msg4_content_length * 2;
-				relevant_source = malloc(msg4_content_alloc);
-				relevant_source[0] = 0;
-				body_bytes = 0;
+					    )
+					) 
+				{
+				}
 			}
-
-		}
-		else if ((phase == 1) && (!strncasecmp(bptr, "Content-type: ", 14))) {
-			safestrncpy(msg4_content_type, &bptr[14], sizeof msg4_content_type);
-			striplt(msg4_content_type);
-		}
-		else if ((phase == 1) && (!strncasecmp(bptr, "Content-transfer-encoding: ", 27))) {
-			safestrncpy(msg4_content_encoding, &bptr[27], sizeof msg4_content_encoding);
-			striplt(msg4_content_type);
-		}
-		else if ((phase == 1) && (!strncasecmp(bptr, "Content-length: ", 16))) {
-			msg4_content_length = atoi(&bptr[16]);
-		}
-		else if (relevant_source != NULL) {
-			safestrncpy(&relevant_source[body_bytes], bptr, msg4_content_alloc-body_bytes);
-			body_bytes += BufLen;
-			safestrncpy(&relevant_source[body_bytes], "\r\n", msg4_content_alloc-body_bytes);
-			body_bytes += 2;
+		case 2:
+			Data = NewStrBufPlain(NULL, msg4_content_length * 2);
+			if (msg4_content_length > 0) {
+				StrBuf_ServGetBLOBBuffered(Data, msg4_content_length);
+				phase ++;
+			}
+			else {
+				StrBufAppendBuf(Data, Buf, 0);
+				StrBufAppendBufPlain(Data, "\r\n", 1, 0);
+			}
+		case 3:
+			StrBufAppendBuf(Data, Buf, 0);
 		}
 	}
 	FreeStrBuf(&Buf);
@@ -1133,20 +1145,22 @@ void load_ical_object(long msgnum, int unread,
 	/* If MSG4 didn't give us the part we wanted, but we know that we can find it
 	 * as one of the other MIME parts, attempt to load it now.
 	 */
-	if ((relevant_source == NULL) && (!IsEmptyStr(relevant_partnum))) {
+	if ((Data == NULL) && (!IsEmptyStr(relevant_partnum))) {
 		relevant_source = load_mimepart(msgnum, relevant_partnum);
 	}
 
-	if (relevant_source != NULL) {
+	if ((relevant_source != NULL) || (Data != NULL)) {
+		relevant_source = (char*) ChrPtr(Data);
 		process_ical_object(msgnum, unread,
 				    from, 
 				    relevant_source, 
 				    which_kind,
 				    CallBack,
 				    calv);
-
-
-		free(relevant_source);
+		if (Data != NULL)
+			FreeStrBuf (&Data);
+		else
+			free(relevant_source);
 
 	}
 

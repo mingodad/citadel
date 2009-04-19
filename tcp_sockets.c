@@ -220,6 +220,31 @@ int StrBuf_ServGetlnBuffered(StrBuf *buf)
 	return rc;
 }
 
+int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
+{
+	wcsession *WCC = WC;
+	const char *Err;
+	int rc;
+	
+	rc = StrBufReadBLOBBuffered(buf, 
+				    WCC->ReadBuf, 
+				    &WCC->ReadPos,
+				    &WCC->serv_sock, 
+				    1, 
+				    BlobSize, 
+				    &Err);
+	if (rc < 0)
+	{
+		lprintf(1, "Server connection broken: %s\n",
+			Err);
+		wc_backtrace();
+		WCC->serv_sock = (-1);
+		WCC->connected = 0;
+		WCC->logged_in = 0;
+	}
+	return rc;
+}
+
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 {
 	wcsession *WCC = WC;
