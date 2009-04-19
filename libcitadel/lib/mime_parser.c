@@ -26,29 +26,16 @@
 
 void extract_key(char *target, char *source, long sourcelen, char *key, long keylen)
 {
-	char *lookat;
 	char *ptr;
-	//char looking_for[256];
 	int double_quotes = 0;
 
-	lookat = source;
-	//snprintf(looking_for, sizeof looking_for, "%s=", key);
+	ptr = bmstrcasestr_len(source, sourcelen, key, keylen);
 
-	while ((lookat != NULL)) {
-		ptr = bmstrcasestr_len(lookat, sourcelen, key, keylen);
-		lookat = ptr;
-		if ((ptr != NULL) &&
-		    (*(ptr + keylen) == '='))
-			lookat = NULL;
-
-
-	}
-	//ptr = bmstrcasestr(source, looking_for);
 	if (ptr == NULL) {
 		strcpy(target, "");
 		return;
 	}
-	strcpy(target, (ptr + keylen + 1));
+	strcpy(target, (ptr + keylen));
 
 	for (ptr=target; (*ptr != 0); ++ptr) {
 
@@ -405,9 +392,9 @@ void the_mime_parser(char *partnum,
 				memcpy (content_type, &header[13], headerlen - 12);
 				content_type_len = striplt (content_type);
 
-				extract_key(content_type_name, content_type, content_type_len, HKEY("name"));
-				extract_key(charset,           content_type, content_type_len, HKEY("charset"));
-				extract_key(boundary,          header,       headerlen,        HKEY("boundary"));
+				extract_key(content_type_name, content_type, content_type_len, HKEY("name="));
+				extract_key(charset,           content_type, content_type_len, HKEY("charset="));
+				extract_key(boundary,          header,       headerlen,        HKEY("boundary="));
 
 				/* Deal with weird headers */
 				if (strchr(content_type, ' '))
@@ -415,24 +402,24 @@ void the_mime_parser(char *partnum,
 				if (strchr(content_type, ';'))
 					*(strchr(content_type, ';')) = '\0';
 			}
-			if (!strncasecmp(header, "Content-Disposition:", 20)) {
+			else if (!strncasecmp(header, "Content-Disposition:", 20)) {
 				memcpy (disposition, &header[20], headerlen - 19);
 				disposition_len = striplt(disposition);
-				extract_key(content_disposition_name, disposition, disposition_len,  HKEY("name"));
-				extract_key(filename,                 disposition, disposition_len, HKEY("filename"));
+				extract_key(content_disposition_name, disposition, disposition_len,  HKEY("name="));
+				extract_key(filename,                 disposition, disposition_len, HKEY("filename="));
 			}
-			if (!strncasecmp(header, "Content-ID:", 11)) {
+			else if (!strncasecmp(header, "Content-ID:", 11)) {
 				strcpy(id, &header[11]);
 				striplt(id);
 				stripallbut(id, '<', '>');
 			}
-			if (!strncasecmp(header, "Content-length: ", 15)) {
+			else if (!strncasecmp(header, "Content-length: ", 15)) {
 				char clbuf[10];
 				safestrncpy(clbuf, &header[15], sizeof clbuf);
 				striplt(clbuf);
 				content_length = (size_t) atol(clbuf);
 			}
-			if (!strncasecmp(header, "Content-transfer-encoding: ", 26)) {
+			else if (!strncasecmp(header, "Content-transfer-encoding: ", 26)) {
 				strcpy(encoding, &header[26]);
 				striplt(encoding);
 			}
