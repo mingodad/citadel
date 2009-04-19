@@ -235,6 +235,13 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
 
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error);
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error);
+int StrBufReadBLOBBuffered(StrBuf *Buf, 
+			   StrBuf *IOBuf, 
+			   const char **BufPos,
+			   int *fd, 
+			   int append, 
+			   long nBytes, 
+			   const char **Error);
 int StrBufTCP_read_buffered_line(StrBuf *Line, 
 				 StrBuf *buf, 
 				 int *fd, 

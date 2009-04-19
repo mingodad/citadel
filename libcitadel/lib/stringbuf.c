@@ -1509,6 +1509,93 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 }
 
 /**
+ * \brief Input binary data from socket
+ * flushes and closes the FD on error
+ * \param buf the buffer to get the input to
+ * \param fd pointer to the filedescriptor to read
+ * \param append Append to an existing string or replace?
+ * \param nBytes the maximal number of bytes to read
+ * \param Error strerror() on error 
+ * \returns numbers of chars read
+ */
+int StrBufReadBLOBBuffered(StrBuf *Buf, 
+			   StrBuf *IOBuf, 
+			   const char **BufPos,
+			   int *fd, 
+			   int append, 
+			   long nBytes, 
+			   const char **Error)
+{
+        fd_set wset;
+        int fdflags;
+	int len, rlen, slen;
+	int nRead;
+	char *ptr;
+
+	if ((Buf == NULL) || (*fd == -1) || (IOBuf == NULL))
+		return -1;
+	if (!append)
+		FlushStrBuf(Buf);
+	if (Buf->BufUsed + nBytes >= Buf->BufSize)
+		IncreaseBuf(Buf, 1, Buf->BufUsed + nBytes);
+
+
+	len = *BufPos - IOBuf->buf;
+	rlen = IOBuf->BufUsed - len;
+
+	if ((IOBuf->BufUsed > 0) && 
+	    ((IOBuf->BufUsed - len > 0))) {
+		if (rlen <= nBytes) {
+			memcpy(Buf->buf + Buf->BufUsed, *BufPos, rlen);
+			Buf->BufUsed += rlen;
+			Buf->buf[Buf->BufUsed] = '\0';
+			*BufPos = NULL; FlushStrBuf(IOBuf);
+			nRead = rlen;
+			if (nRead == nBytes)
+				return nBytes;
+		}
+		else {
+			memcpy(Buf->buf + Buf->BufUsed, *BufPos, nBytes);
+			Buf->BufUsed += nBytes;
+			Buf->buf[Buf->BufUsed] = '\0';
+			*BufPos += nBytes;
+			return nBytes;
+		}
+	}
+
+	ptr = Buf->buf + Buf->BufUsed;
+
+	slen = len = Buf->BufUsed;
+
+	fdflags = fcntl(*fd, F_GETFL);
+
+	while (nRead < nBytes) {
+               if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+                        FD_ZERO(&wset);
+                        FD_SET(*fd, &wset);
+                        if (select(*fd + 1, NULL, &wset, NULL, NULL) == -1) {
+				*Error = strerror(errno);
+                                return -1;
+                        }
+                }
+
+                if ((rlen = read(*fd, 
+				 ptr,
+				 nBytes - nRead)) == -1) {
+			close(*fd);
+			*fd = -1;
+			*Error = strerror(errno);
+                        return rlen;
+                }
+		nRead += rlen;
+		ptr += rlen;
+		Buf->BufUsed += rlen;
+	}
+	Buf->buf[Buf->BufUsed] = '\0';
+	return nRead;
+}
+
+/**
  * \brief Cut nChars from the start of the string
  * \param Buf Buffer to modify
  * \param nChars how many chars should be skipped?
