@@ -621,7 +621,11 @@ void shutdown_sessions(void);
 void do_housekeeping(void);
 void smart_goto(const StrBuf *);
 void worker_entry(void);
-void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *ReqType, StrBuf *ReadBuf);
+void session_loop(HashList *HTTPHeaders, 
+		  StrBuf *ReqLine, 
+		  StrBuf *ReqType, 
+		  StrBuf *ReadBuf, 
+		  const char **Pos);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
 void fmt_time(char *buf, size_t siz, time_t thetime);
 void httpdate(char *buf, time_t thetime);

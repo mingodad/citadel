@@ -199,13 +199,18 @@ int ig_uds_server(char *sockpath, int queue_len)
  *      0       Request timed out.
  *	-1   	Connection is broken, or other error.
  */
-int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeout)
+int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, const char **Pos, int bytes, int timeout)
 {
 	const char *Error;
 	int retval = 0;
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
+		long bufremain = StrLength(Buf) - (*Pos - ChrPtr(Buf));
+		StrBufAppendBufPlain(Target, *Pos, bufremain, 0);
+		*Pos = NULL;
+		FlushStrBuf(Buf);
+
 		while ((StrLength(Buf) + StrLength(Target) < bytes) &&
 		       (retval >= 0))
 			retval = client_read_sslbuffer(Buf, timeout);
@@ -225,14 +230,12 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, int bytes, int timeou
 	}
 #endif
 
-	if (StrLength(Buf) > 0) {/*/// todo: what if Buf > bytes?*/
-		StrBufAppendBuf(Target, Buf, 0);
-	}
-	retval = StrBufReadBLOB(Target, 
-			   sock, 
-			   (StrLength(Target) > 0), 
-			   bytes - StrLength(Target), 
-				&Error);
+	retval = StrBufReadBLOBBuffered(Target, 
+					Buf, Pos, 
+					sock, 
+					1, 
+					bytes,
+					&Error);
 	if (retval < 0) {
 		lprintf(2, "client_read() failed: %s\n",
 			Error);
@@ -357,23 +360,6 @@ long end_burst(void)
 
 	return StrLength(WCC->WBuf);
 }
-
-
-
-/*
- * Read data from the client socket with default timeout.
- * (This is implemented in terms of client_read_to() and could be
- * justifiably moved out of sysdep.c)
- *
- * sock		the socket fd to read from
- * buf		the buffer to write to
- * bytes	Number of bytes to read
- */
-int client_read(int *sock, StrBuf *Target, StrBuf *buf, int bytes)
-{
-	return (client_read_to(sock, Target, buf, bytes, SLEEPING));
-}
-
 
 
 /*
