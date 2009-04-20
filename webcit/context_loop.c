@@ -329,8 +329,6 @@ void context_loop(int *sock)
 		LastLine = Line;
 	} while (LineLen > 0);
 	FreeStrBuf(&HeaderName);
-	/* finish linebuffered fast reading, cut the read part: */
-	StrBufCutLeft(Buf, Pos - ChrPtr(Buf));
 
 /*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
 
@@ -550,7 +548,7 @@ void context_loop(int *sock)
 	}
 	go_selected_language();					/* set locale */
 #endif
-	session_loop(HTTPHeaders, ReqLine, ReqType, Buf);				/* do transaction */
+	session_loop(HTTPHeaders, ReqLine, ReqType, Buf, &Pos);				/* do transaction */
 #ifdef ENABLE_NLS
 	stop_selected_language();				/* unset locale */
 #endif

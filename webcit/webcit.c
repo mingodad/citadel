@@ -540,7 +540,11 @@ int is_mobile_ua(char *user_agent) {
 /*
  * Entry point for WebCit transaction
  */
-void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method, StrBuf *ReadBuf)
+void session_loop(HashList *HTTPHeaders, 
+		  StrBuf *ReqLine, 
+		  StrBuf *request_method, 
+		  StrBuf *ReadBuf,
+		  const char **Pos)
 {
 	StrBuf *Buf;
 	const char *pch, *pchs, *pche;
@@ -694,7 +698,11 @@ void session_loop(HashList *HTTPHeaders, StrBuf *ReqLine, StrBuf *request_method
 		body_start = StrLength(content);
 
 		/** Read the entire input data at once. */
-		client_read(&WCC->http_sock, content, ReadBuf, ContentLength + body_start);
+		client_read_to(&WCC->http_sock, 
+			       content, 
+			       ReadBuf, Pos,
+			       ContentLength,
+			       SLEEPING);
 
 		if (!strncasecmp(ChrPtr(ContentType), "application/x-www-form-urlencoded", 33)) {
 			StrBufCutLeft(content, body_start);
