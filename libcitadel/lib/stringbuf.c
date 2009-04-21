@@ -1524,12 +1524,15 @@ int StrBufReadBLOBBuffered(StrBuf *Buf,
 			   int *fd, 
 			   int append, 
 			   long nBytes, 
+			   int check, 
 			   const char **Error)
 {
+	int nSelects = 0;
+	int SelRes;
         fd_set wset;
         int fdflags;
 	int len, rlen, slen;
-	int nRead;
+	int nRead = 0;
 	char *ptr;
 
 	if ((Buf == NULL) || (*fd == -1) || (IOBuf == NULL))
@@ -1569,24 +1572,43 @@ int StrBufReadBLOBBuffered(StrBuf *Buf,
 
 	fdflags = fcntl(*fd, F_GETFL);
 
+	SelRes = 1;
 	while (nRead < nBytes) {
-               if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+		if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
                         FD_SET(*fd, &wset);
-                        if (select(*fd + 1, NULL, &wset, NULL, NULL) == -1) {
-				*Error = strerror(errno);
-                                return -1;
-                        }
-                }
-
-                if ((rlen = read(*fd, 
-				 ptr,
-				 nBytes - nRead)) == -1) {
-			close(*fd);
-			*fd = -1;
+			SelRes = select(*fd + 1, NULL, &wset, NULL, NULL);
+		}
+		if (SelRes == -1) {
 			*Error = strerror(errno);
-                        return rlen;
-                }
+			return -1;
+		}
+		else if (SelRes) {
+			nSelects = 0;
+			if ((rlen = read(*fd, 
+					 ptr,
+					 nBytes - nRead)) == -1) {
+				close(*fd);
+				*fd = -1;
+				*Error = strerror(errno);
+				return rlen;
+			}
+		}
+		else {
+			nSelects ++;
+			if ((check == NNN_TERM) && 
+			    (nRead > 5) &&
+			    (strncmp(Buf->buf + Buf->BufUsed - 5, "\n000\n", 5) == 0)) 
+			{
+				StrBufPlain(IOBuf, HKEY("\n000\n"));
+				StrBufCutRight(Buf, 5);
+				return Buf->BufUsed;
+			}
+			if (nSelects > 10) {
+				FlushStrBuf(Buf);
+				return -1;
+			}
+		}
 		nRead += rlen;
 		ptr += rlen;
 		Buf->BufUsed += rlen;
