@@ -235,6 +235,7 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, const char **Pos, int
 					sock, 
 					1, 
 					bytes,
+					O_TERM,
 					&Error);
 	if (retval < 0) {
 		lprintf(2, "client_read() failed: %s\n",
