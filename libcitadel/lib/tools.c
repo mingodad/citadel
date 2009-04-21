@@ -460,44 +460,35 @@ char *rfc2047encode(char *line, long length)
 /*
  * Strip leading and trailing spaces from a string
  */
-long striplt(char *buf)
-{
-	int CountTrail = 0;
-	int FromStart = 1;
-	char *aptr, *bptr;
+size_t striplt(char *buf) {
+	char *first_nonspace = NULL;
+	char *last_nonspace = NULL;
+	char *ptr;
+	size_t new_len = 0;
 
-	if ((buf==NULL) || (IsEmptyStr(buf)))
+	if (!buf) {
 		return 0;
+	}
 
-	bptr = aptr = buf;
-
-	while (!IsEmptyStr(aptr)) {
-		if (isspace(*aptr)) {
-			if (FromStart)
-				aptr ++;
-			else {
-				CountTrail ++;
-				*bptr = *aptr;
-				aptr++; bptr++;
+	for (ptr=buf; *ptr!=0; ++ptr) {
+		if (!isspace(*ptr)) {
+			if (!first_nonspace) {
+				first_nonspace = ptr;
 			}
-		}
-		else {
-			CountTrail = 0;
-			*bptr = *aptr;
-			aptr++; bptr++;
+			last_nonspace = ptr;
 		}
 	}
 
-	if (CountTrail > 0) {
-		bptr -= CountTrail;
+	if ((!first_nonspace) || (!last_nonspace)) {
+		buf[0] = 0;
+		return 0;
 	}
 
-	*bptr = '\0';
-	return bptr - buf;
+	new_len = last_nonspace - first_nonspace + 1;
+	memcpy(buf, first_nonspace, new_len);
+	buf[new_len] = 0;
+	return new_len;
 }
-
-
-
 
 
 /**

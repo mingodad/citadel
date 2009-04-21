@@ -617,8 +617,11 @@ void cmd_user(char *cmdbuf)
 	char username[256];
 	int a;
 
+	CtdlLogPrintf(CTDL_DEBUG, "cmd_user(%s)\n", cmdbuf);
 	extract_token(username, cmdbuf, 0, '|', sizeof username);
+	CtdlLogPrintf(CTDL_DEBUG, "username: %s\n", username);
 	striplt(username);
+	CtdlLogPrintf(CTDL_DEBUG, "username: %s\n", username);
 
 	a = CtdlLoginExistingUser(NULL, username);
 	switch (a) {

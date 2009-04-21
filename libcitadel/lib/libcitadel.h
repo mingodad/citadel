@@ -343,7 +343,7 @@ size_t CtdlEncodeBase64(char *dest, const char *source, size_t sourcelen, int li
 int CtdlDecodeBase64(char *dest, const char *source, size_t length);
 unsigned int decode_hex(char *Source);
 int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen);
-long striplt(char *);
+size_t striplt(char *);
 int haschar(const char *st, int ch);
 void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
