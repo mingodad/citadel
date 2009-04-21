@@ -232,6 +232,7 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 				    &WCC->serv_sock, 
 				    1, 
 				    BlobSize, 
+				    NNN_TERM,
 				    &Err);
 	if (rc < 0)
 	{
