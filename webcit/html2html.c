@@ -70,6 +70,9 @@ void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_
 			strcpy(charset, "UTF-8");
 		}
 
+		/* Remove wandering punctuation */
+		if ((ptr=strchr(charset, '\"'))) *ptr = 0;
+		striplt(charset);
 	}
 }
 
@@ -395,15 +398,6 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		/** Fixup <img src="cid:... ...> to fetch the mime part */
 		else if (!strncasecmp(ptr, "<img ", 5)) {
 			char* tag_end=strchr(ptr,'>');
-
-			/* FIXME - BLOCKER - FIGURE OUT WHY THIS IS B0RKEN
-			if (!tag_end) {
-				lprintf(9, "tag_end is null and ptr is:\n");
-				lprintf(9, "%s\n", ptr);
-				abort();
-			}
-			 */
-
 			char* src=strstr(ptr, " src=\"cid:");
 			char *cid_start, *cid_end;
 			++brak;
@@ -429,9 +423,6 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			}
 			StrBufAppendBufPlain(converted_msg, ptr, tag_end - ptr, 0);
 			ptr = tag_end;
-			/* FIXME - BLOCKER
-			if (!ptr) { lprintf(9, "ptr is NULL\n"); abort(); }
-			 */
 		}
 
 		/**
