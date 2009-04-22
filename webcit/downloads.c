@@ -436,8 +436,8 @@ InitModule_DOWNLOAD
 
 	RegisterConditional(HKEY("COND:FILE:ISPIC"), 0, Conditional_FILE_ISPIC, CTX_FILELIST);
 
-	WebcitAddUrlHandler(HKEY("image"), output_image, 0);
-	WebcitAddUrlHandler(HKEY("display_mime_icon"), display_mime_icon , 0);
+	WebcitAddUrlHandler(HKEY("image"), output_image, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("display_mime_icon"), display_mime_icon , ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("download_file"), download_file, NEED_URL);
 	WebcitAddUrlHandler(HKEY("delete_file"), delete_file, NEED_URL);
 	WebcitAddUrlHandler(HKEY("upload_file"), upload_file, 0);
