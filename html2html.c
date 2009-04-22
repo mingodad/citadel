@@ -70,6 +70,9 @@ void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_
 			strcpy(charset, "UTF-8");
 		}
 
+		/* Remove wandering punctuation */
+		if ((ptr=strchr(charset, '\"'))) *ptr = 0;
+		striplt(charset);
 	}
 }
 
@@ -395,15 +398,26 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		/** Fixup <img src="cid:... ...> to fetch the mime part */
 		else if (!strncasecmp(ptr, "<img ", 5)) {
 			char* tag_end=strchr(ptr,'>');
+
+			/* FIXME - handle this situation (maybe someone opened an <img cid... 
+			 * and then ended the message)
+			 */
+			if (!tag_end) {
+				lprintf(9, "tag_end is null and ptr is:\n");
+				lprintf(9, "%s\n", ptr);
+				lprintf(9, "Theoretical bytes remaining: %d\n", msgend - ptr);
+			}
+
 			char* src=strstr(ptr, " src=\"cid:");
 			char *cid_start, *cid_end;
 			++brak;
 
-			if (src && 
-					(cid_start=strchr(src,':')) && 
-					(cid_end=strchr(cid_start,'"')) &&
-					(cid_end < tag_end)) {
-
+			if (src
+				&& tag_end
+				&& (cid_start=strchr(src,':'))
+				&& (cid_end=strchr(cid_start,'"'))
+				&& (cid_end < tag_end)
+			) {
 				/* copy tag and attributes up to src="cid: */
 				StrBufAppendBufPlain(converted_msg, ptr, src - ptr, 0);
 				cid_start++;
@@ -497,23 +511,27 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			ptr++;
 		}
 
-		/**
-		 * We need to know when we're inside a tag,
-		 * so we don't turn things that look like URL's into
-		 * links, when they're already links - or image sources.
-		 */
-		if ((ptr > msg) && (*(ptr-1) == '<')) {
-			++brak;
-		}
-		if ((ptr > msg) && (*(ptr-1) == '>')) {
-			--brak;
-			if ((scriptlevel == 0) && (script_start_pos >= 0)) {
-				StrBufCutRight(converted_msg, StrLength(converted_msg) - script_start_pos);
-				script_start_pos = (-1);
+
+		if ((ptr >= msg) && (ptr <= msgend)) {
+			/*
+			 * We need to know when we're inside a tag,
+			 * so we don't turn things that look like URL's into
+			 * links, when they're already links - or image sources.
+			 */
+			if ((ptr > msg) && (*(ptr-1) == '<')) {
+				++brak;
 			}
+			if ((ptr > msg) && (*(ptr-1) == '>')) {
+				--brak;
+				if ((scriptlevel == 0) && (script_start_pos >= 0)) {
+					StrBufCutRight(converted_msg, StrLength(converted_msg) - script_start_pos);
+					script_start_pos = (-1);
+				}
+			}
+			if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 		}
-		if (!strncasecmp(ptr, "</A>", 3)) --alevel;
 	}
+
 	if (BodyArea != NULL) {
 		StrBufAppendBufPlain(converted_msg, HKEY("</td></tr></table>"), 0);  
 		FreeStrBuf(&BodyArea);
