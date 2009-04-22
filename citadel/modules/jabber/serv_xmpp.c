@@ -55,8 +55,6 @@ struct xmpp_event *xmpp_queue = NULL;
 
 void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "New XMPP stream.\n");
-
 	while (*attr) {
 		if (!strcasecmp(attr[0], "to")) {
 			safestrncpy(XMPP->server_name, attr[1], sizeof XMPP->server_name);
@@ -112,11 +110,12 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 		strcpy(el, ++sep);
 	}
 
+	/*
 	CtdlLogPrintf(CTDL_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
-
 	for (i=0; attr[i] != NULL; i+=2) {
 		CtdlLogPrintf(CTDL_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
 	}
+	uncomment for more verbosity */
 
 	if (!strcasecmp(el, "stream")) {
 		xmpp_stream_start(data, supplied_el, attr);
@@ -182,10 +181,12 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		strcpy(el, ++sep);
 	}
 
+	/*
 	CtdlLogPrintf(CTDL_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
 	if (XMPP->chardata_len > 0) {
 		CtdlLogPrintf(CTDL_DEBUG, "          chardata: %s\n", XMPP->chardata);
 	}
+	uncomment for more verbosity */
 
 	if (!strcasecmp(el, "resource")) {
 		if (XMPP->chardata_len > 0) {
@@ -384,7 +385,6 @@ void xmpp_cleanup_function(void) {
 	/* Don't do this stuff if this is not a XMPP session! */
 	if (CC->h_command_function != xmpp_command_loop) return;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Performing XMPP cleanup hook\n");
 	if (XMPP->chardata != NULL) {
 		free(XMPP->chardata);
 		XMPP->chardata = NULL;
