@@ -438,14 +438,12 @@ void server_to_text()
  * server READ commands.
  * \return the read content as StrBuf
  */
-int read_server_binary(StrBuf *Ret, size_t total_len) 
+int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf) 
 {
 	char buf[SIZ];
 	size_t bytes = 0;
 	size_t thisblock = 0;
-	StrBuf *Buf;
 	
-	Buf = NewStrBuf();
 	if (Ret == NULL)
 	    return -1;
 
@@ -460,18 +458,18 @@ int read_server_binary(StrBuf *Ret, size_t total_len)
 			}
 		}
 		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
-		if (StrBuf_ServGetln(Buf) > 0)
+		if (StrBuf_ServGetlnBuffered(Buf) > 0)
 		{
 			if (GetServerStatus(Buf, NULL) == 6)
 			{
-			    StrBufCutLeft(Buf, 4); /*/ TODO : thisblock = (size_t)atoi(&buf[4]); */
+			    StrBufCutLeft(Buf, 4);
 			    thisblock = StrTol(Buf);
 			    if (!WC->connected) {
 				    FlushStrBuf(Ret); 
 				    FreeStrBuf(&Buf); 
 				    return -1; 
 			    }
-			    StrBuf_ServGetBLOB(Ret, thisblock);
+			    StrBuf_ServGetBLOBBuffered(Ret, thisblock);
 			    bytes += thisblock;
 		    }
 		    else {
@@ -481,7 +479,6 @@ int read_server_binary(StrBuf *Ret, size_t total_len)
 		    }
 		}
 	}
-	FreeStrBuf(&Buf);
 	return StrLength(Ret);
 }
 

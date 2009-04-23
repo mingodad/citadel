@@ -283,7 +283,7 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 /*
  * dump out static pages from disk
  */
-void output_static(char *what)
+void output_static(const char *what)
 {
 	int fd;
 	struct stat statbuf;

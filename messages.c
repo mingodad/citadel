@@ -1541,44 +1541,47 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 void mimepart(int force_download)
 {
 	wcsession *WCC = WC;
-
-	char buf[256];
+	StrBuf *Buf;
 	off_t bytes;
-	char content_type[256];
-	const char *ContentType = &content_type[0];
+	StrBuf *ContentType = NewStrBufPlain(HKEY("application/octet-stream"));
+	const char *CT;
 
+	Buf = NewStrBuf();
 	serv_printf("OPNA %s|%s", ChrPtr(WCC->UrlFragment2), ChrPtr(WCC->UrlFragment3));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		bytes = extract_long(&buf[4], 0);
-		if (force_download) {
-			strcpy(content_type, "application/octet-stream");
-		}
-		else {
-			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
+		if (!force_download) {
+			StrBufExtract_token(ContentType, Buf, 3, '|');
 		}
 
-		read_server_binary(WCC->WBuf, bytes);
+		read_server_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
-		serv_getln(buf, sizeof buf);
+		StrBuf_ServGetlnBuffered(Buf);
+		CT = ChrPtr(ContentType);
 
 		if (!force_download) {
-			if (!strcasecmp(ContentType, "application/octet-stream")) {
-				ContentType = GuessMimeByFilename(SKEY(WCC->UrlFragment4));
+			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
+				CT = GuessMimeByFilename(SKEY(WCC->UrlFragment4));
 			}
-			if (!strcasecmp(ContentType, "application/octet-stream")) {
-				ContentType = GuessMimeType(SKEY(WCC->WBuf));
+			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
+				CT = GuessMimeType(SKEY(WCC->WBuf));
 			}
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
-		http_transmit_thing(ContentType, 0);
+		http_transmit_thing(CT, 0);
 	} else {
-		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
+		StrBufCutLeft(Buf, 4);
+		hprintf("HTTP/1.1 404 %s\n", ChrPtr(Buf));
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf(_("An error occurred while retrieving this part: %s\n"), &buf[4]);
+		wprintf(_("An error occurred while retrieving this part: %s\n"), 
+			ChrPtr(Buf));
 		end_burst();
 	}
+	FreeStrBuf(&ContentType);
+	FreeStrBuf(&Buf);
 }
 
 

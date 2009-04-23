@@ -576,7 +576,7 @@ void output_headers(    int do_httpheaders,
 void output_custom_content_header(const char *ctype);
 void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
-void output_static(char *what);
+void output_static(const char *what);
 
 void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
@@ -708,7 +708,7 @@ int ical_ctdl_is_overlap(
 
 extern char *months[];
 extern char *days[];
-int read_server_binary(StrBuf *Ret, size_t total_len);
+int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
