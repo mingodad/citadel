@@ -38,13 +38,15 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		lprintf(1, "Can't create socket: %s\n",
+		lprintf(1, "Can't create socket[%s]: %s\n",
+			sockpath,
 			strerror(errno));
 		return(-1);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		lprintf(1, "Can't connect: %s\n",
+		lprintf(1, "Can't connect [%s]: %s\n",
+			sockpath,
 			strerror(errno));
 		close(s);
 		return(-1);

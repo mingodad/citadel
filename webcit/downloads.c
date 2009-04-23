@@ -240,40 +240,40 @@ void display_mime_icon(void)
 
 void download_file(void)
 {
-	char buf[256];
+	wcsession *WCC = WC;
+	StrBuf *Buf;
 	off_t bytes;
-	char content_type[256];
-	char *content = NULL;
+	StrBuf *ContentType = NewStrBufPlain(HKEY("application/octet-stream"));
 
 	/* Setting to nonzero forces a MIME type of application/octet-stream */
 	int force_download = 1;
 	
-	safestrncpy(buf, ChrPtr(WC->UrlFragment2), sizeof buf);
-	unescape_input(buf);
-	serv_printf("OPEN %s", buf);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		bytes = extract_long(&buf[4], 0);
-		content = malloc(bytes + 2);
-		if (force_download) {
-			strcpy(content_type, "application/octet-stream");
-		}
-		else {
-			extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
+	Buf = NewStrBuf();
+	StrBufUnescape(WCC->UrlFragment2, 1);
+	serv_printf("OPEN %s", ChrPtr(WCC->UrlFragment2));
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
+		if (!force_download) {
+			StrBufExtract_token(ContentType, Buf, 3, '|');
 		}
 		output_headers(0, 0, 0, 0, 0, 0);
-		read_server_binary(WC->WBuf, bytes);
+		read_server_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
-		serv_getln(buf, sizeof buf);
-		http_transmit_thing(content_type, 0);
-		free(content);
+		StrBuf_ServGetlnBuffered(Buf);
+		http_transmit_thing(ChrPtr(ContentType), 0);
 	} else {
-		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
+		StrBufCutLeft(Buf, 4);
+		hprintf("HTTP/1.1 404 %s\n", ChrPtr(Buf));
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf(_("An error occurred while retrieving this file: %s\n"), &buf[4]);
+		wprintf(_("An error occurred while retrieving this file: %s\n"), 
+			ChrPtr(Buf));
 		end_burst();
 	}
+	FreeStrBuf(&ContentType);
+	FreeStrBuf(&Buf);
 }
 
 
@@ -352,22 +352,23 @@ void upload_file(void)
  */
 void output_image(void)
 {
-	char blank_gif[SIZ];
+	StrBuf *Buf;
 	wcsession *WCC = WC;
-	char buf[SIZ];
 	off_t bytes;
 	const char *MimeType;
 	
+	Buf = NewStrBuf();
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		bytes = extract_long(&buf[4], 0);
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
 
 		/** Read it from the server */
 		
-		if (read_server_binary(WCC->WBuf, bytes) > 0) {
+		if (read_server_binary(WCC->WBuf, bytes, Buf) > 0) {
 			serv_puts("CLOS");
-			serv_getln(buf, sizeof buf);
+			StrBuf_ServGetlnBuffered(Buf);
 		
 			MimeType = GuessMimeType (ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
 			/** Write it to the browser */
@@ -385,8 +386,9 @@ void output_image(void)
 	 * Instead of an ugly 404, send a 1x1 transparent GIF
 	 * when there's no such image on the server.
 	 */
-	snprintf (blank_gif, SIZ, "%s%s", static_dirs[0], "/blank.gif");
-	output_static(blank_gif);
+	StrBufPrintf (Buf, "%s%s", static_dirs[0], "/blank.gif");
+	output_static(ChrPtr(Buf));
+	FreeStrBuf(&Buf);
 }
 
 void 
