@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 	int a;
 	char cmd[SIZ];
 	char buf[SIZ];
-	int watchdog = 5;
+	int watchdog = 60;
 
 	int relh=0;
 	int home=0;

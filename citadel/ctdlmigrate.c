@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 
 	printf("ctdlmigrate will now begin a database migration...\n");
 
-	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s MIGR export",
+	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s -w3600 MIGR export",
 		socket_path, remote_user, remote_host, remote_sendcommand);
 	source_artv = popen(cmd, "r");
 	if (!source_artv) {
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 		exit(2);
 	}
 
-	snprintf(cmd, sizeof cmd, "%s MIGR import", sendcommand);
+	snprintf(cmd, sizeof cmd, "%s -w3600 MIGR import", sendcommand);
 	target_artv = popen(cmd, "w");
 	if (!target_artv) {
 		printf("\n%s\n\n", strerror(errno));
