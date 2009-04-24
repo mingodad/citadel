@@ -48,9 +48,15 @@ int main(int argc, char *argv[])
 	char sendcommand[PATH_MAX];
 	int exitcode;
 	char cmd[PATH_MAX];
+	char buf[PATH_MAX];
 	char socket_path[PATH_MAX];
 	char remote_user[256];
 	char remote_host[256];
+	char remote_sendcommand[PATH_MAX];
+	FILE *source_artv;
+	FILE *target_artv;
+	int linecount = 0;
+	char spinning[4] = "-\\|/" ;
 	
 	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 	CtdlMakeTempFileName(socket_path, sizeof socket_path);
@@ -124,8 +130,64 @@ int main(int argc, char *argv[])
 		exit(exitcode);
 	}
 
+	printf("\nLocating the remote 'sendcommand' and Citadel installation...\n");
+	snprintf(remote_sendcommand, sizeof remote_sendcommand, "/usr/local/citadel/sendcommand");
+	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s NOOP",
+		socket_path, remote_user, remote_host, remote_sendcommand);
+	exitcode = system(cmd);
+	if (exitcode != 0) {
+		snprintf(remote_sendcommand, sizeof remote_sendcommand, "/usr/sbin/sendcommand");
+		snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s NOOP",
+			socket_path, remote_user, remote_host, remote_sendcommand);
+		exitcode = system(cmd);
+	}
+	if (exitcode != 0) {
+		printf("\nUnable to locate Citadel programs on the remote system.  Please enter\n"
+			"the name of the directory on %s which contains the 'sendcommand' program.\n"
+			"(example: /opt/foo/citadel)\n"
+			"--> ", remote_host);
+		gets(buf);
+		snprintf(remote_sendcommand, sizeof remote_sendcommand, "%s/sendcommand", buf);
+		snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s NOOP",
+			socket_path, remote_user, remote_host, remote_sendcommand);
+		exitcode = system(cmd);
+	}
+	printf("\n");
+	if (exitcode != 0) {
+		printf("ctdlmigrate was unable to attach to the remote Citadel system.\n\n");
+		exit(exitcode);
+	}
 
+	printf("ctdlmigrate will now begin a database migration...\n");
 
+	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s MIGR export",
+		socket_path, remote_user, remote_host, remote_sendcommand);
+	source_artv = popen(cmd, "r");
+	if (!source_artv) {
+		printf("\n%s\n\n", strerror(errno));
+		exit(2);
+	}
+
+	snprintf(cmd, sizeof cmd, "%s MIGR import", sendcommand);
+	target_artv = popen(cmd, "w");
+	if (!target_artv) {
+		printf("\n%s\n\n", strerror(errno));
+		exit(3);
+	}
+
+	while (fgets(buf, sizeof buf, source_artv) != NULL) {
+		fwrite(buf, strlen(buf), 1, target_artv);
+		++linecount;
+		if ((linecount % 100) == 0) {
+			printf("%c\r", spinning[((linecount / 100) % 4)]);
+			fflush(stdout);
+		}
+	}
+
+	pclose(source_artv);
+	pclose(target_artv);
+
+	// FIXME handle -h on both sides
 	// FIXME kill the master ssh session
 	printf("If this program was finished we would do more.  FIXME\n");
 	exit(0);
