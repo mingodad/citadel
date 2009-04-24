@@ -40,7 +40,8 @@ UTIL_TARGETS=citmail$(EXEEXT) sendcommand$(EXEEXT)
 
 UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
 	chkpw$(EXEEXT) chkpwd$(EXEEXT) userlist$(EXEEXT) \
-	getmail$(EXEEXT) aidepost$(EXEEXT) msgform$(EXEEXT)
+	getmail$(EXEEXT) aidepost$(EXEEXT) msgform$(EXEEXT) \
+	ctdlmigrate$(EXEEXT)
 
 prefix=@prefix@
 srcdir=@srcdir@
@@ -81,7 +82,7 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	screen.c sendcommand.c getmail.c \
 	server_main.c setup.c snprintf.c ldap.c \
 	stress.c support.c sysdep.c user_ops.c userlist.c \
-	whobbs.c journaling.c citadel_dirs.c threads.c
+	whobbs.c journaling.c citadel_dirs.c threads.c ctdlmigrate.c
 
 
 include Make_sources
@@ -147,6 +148,9 @@ citmail$(EXEEXT): citmail.o citadel_dirs.o
 # setup does need LIBS defined, because it uses network functions which are in -lsocket -lnsl on Solaris.
 setup$(EXEEXT): setup.o citadel_dirs.o
 	$(CC) setup.o citadel_dirs.o $(LDFLAGS) -o setup$(EXEEXT) $(LIBS) $(SETUP_LIBS)
+
+ctdlmigrate$(EXEEXT): ctdlmigrate.o citadel_dirs.o
+	$(CC) ctdlmigrate.o citadel_dirs.o $(LDFLAGS) -o ctdlmigrate$(EXEEXT) $(LIBS)
 
 chkpwd$(EXEEXT): chkpwd.o auth.o
 	$(CC) chkpwd.o auth.o $(LDFLAGS) -o chkpwd$(EXEEXT) $(chkpwd_LIBS)
