@@ -897,6 +897,23 @@ void migr_do_import(void) {
 
 
 /*
+ * Dump out the pathnames of directories which can be copied "as is"
+ */
+void migr_do_listdirs(void) {
+	cprintf("%d Don't forget these:\n", LISTING_FOLLOWS);
+	cprintf("bio|%s\n",		ctdl_bio_dir);
+	cprintf("files|%s\n",		ctdl_file_dir);
+	cprintf("userpics|%s\n",	ctdl_usrpic_dir);
+	cprintf("messages|%s\n",	ctdl_message_dir);
+	cprintf("netconfigs|%s\n",	ctdl_netcfg_dir);
+	cprintf("keys|%s\n",		ctdl_key_dir);
+	cprintf("images|%s\n",		ctdl_image_dir);
+	cprintf("info|%s\n",		ctdl_info_dir);
+	cprintf("000\n");
+}
+
+
+/*
  * Common code appears in this section
  */
 
@@ -917,6 +934,9 @@ void cmd_migr(char *cmdbuf) {
 		}
 		else if (!strcasecmp(cmd, "import")) {
 			migr_do_import();
+		}
+		else if (!strcasecmp(cmd, "listdirs")) {
+			migr_do_listdirs();
 		}
 		else {
 			cprintf("%d illegal command\n", ERROR + ILLEGAL_VALUE);
