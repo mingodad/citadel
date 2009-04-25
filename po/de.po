@@ -1725,7 +1725,7 @@ msgstr "Moderatoren erlauben, Räume zu vergessen"
 
 #: ../i18n_templatelist.c:243 ../static/t/tab_siteconfig_access.html:47
 msgid "Disable self-service user account creation"
-msgstr "Erzeugen von Accounts am Anmeldeprompt verbieten"
+msgstr "Erzeugen von Benutzerkonten am Anmeldeprompt verbieten"
 
 #: ../i18n_templatelist.c:244 ../static/t/tab_siteconfig_access.html:50
 msgid "Enable host based authentication mode"
@@ -1776,7 +1776,7 @@ msgstr "Mit einem OpenID Konto Anmelden"
 
 #: ../i18n_templatelist.c:260 ../static/t/login.html:40
 msgid "If you already have an account on"
-msgstr "Wenn schon ein Accaunt existiert auf"
+msgstr "Wenn schon ein Benutzerkonto existiert auf"
 
 #: ../i18n_templatelist.c:261 ../static/t/login.html:41
 msgid "enter your user name and password and click &quot;Login.&quot;"
@@ -3027,7 +3027,7 @@ msgstr "Die Systemvorgabe benutzen"
 msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
-msgstr "Mails von diesen POP3 Accounts abholen und in diesem Raum ablegen:"
+msgstr "Mails von diesen POP3 Konten abholen und in diesem Raum ablegen:"
 
 #: ../roomops.c:1946
 msgid "Remote host"
