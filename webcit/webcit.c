@@ -346,7 +346,7 @@ void output_static(const char *what)
  * titlebarmsg		text to display in the title bar
  * messagetext		body of the box
  */
-void convenience_page(char *titlebarcolor, char *titlebarmsg, char *messagetext)
+void convenience_page(const char *titlebarcolor, const char *titlebarmsg, const char *messagetext)
 {
 	hprintf("HTTP/1.1 200 OK\n");
 	output_headers(1, 1, 2, 0, 0, 0);

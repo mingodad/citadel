@@ -1588,26 +1588,23 @@ void mimepart(int force_download)
 /*
  * Read any MIME part of a message, from the server, into memory.
  */
-char *load_mimepart(long msgnum, char *partnum)
+StrBuf *load_mimepart(long msgnum, char *partnum)
 {
-	char buf[SIZ];
 	off_t bytes;
-	char content_type[SIZ];
-	char *content;
+	StrBuf *Buf;
 	
+	Buf = NewStrBuf();
 	serv_printf("DLAT %ld|%s", msgnum, partnum);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '6') {
-		bytes = extract_long(&buf[4], 0);
-		extract_token(content_type, &buf[4], 3, '|', sizeof content_type);
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 6) {
+		StrBufCutLeft(Buf, 4);
+		bytes = StrBufExtract_long(Buf, 0, '|');
 
-		content = malloc(bytes + 2);
-		serv_read(content, bytes);
-
-		content[bytes] = 0;	/* null terminate for good measure */
-		return(content);
+		StrBuf_ServGetBLOBBuffered(Buf, bytes);
+		return(Buf);
 	}
 	else {
+		FreeStrBuf(&Buf);
 		return(NULL);
 	}
 }

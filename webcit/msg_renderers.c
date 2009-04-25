@@ -495,7 +495,7 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 		}
 
 		/* In all cases, display the full card */
-		display_vcard(Buf, ChrPtr(Mime->Data), 0, 1, NULL, Mime->msgnum);
+		display_vcard(Buf, Mime->Data, 0, 1, NULL, Mime->msgnum);
 		FreeStrBuf(&Mime->Data);
 		Mime->Data = Buf;
 	}

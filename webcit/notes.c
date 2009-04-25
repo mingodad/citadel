@@ -141,81 +141,140 @@ void display_vnote_div(struct vnote *v) {
 /*
  * Fetch a message from the server and extract a vNote from it
  */
-struct vnote *vnote_new_from_msg(long msgnum) {
-	char buf[1024];
+struct vnote *vnote_new_from_msg(long msgnum,int unread) 
+{
+	StrBuf *Buf;
+	StrBuf *Data;
+	const char *bptr;
+	int Done = 0;
+	char from[128] = "";
+	char uid_from_headers[256];
 	char mime_partnum[256];
 	char mime_filename[256];
 	char mime_content_type[256];
 	char mime_disposition[256];
 	int mime_length;
 	char relevant_partnum[256];
-	char *relevant_source = NULL;
-	char uid_from_headers[256];
-	int in_body = 0;
-	int body_line_len = 0;
-	int body_len = 0;
+	int phase = 0;				/* 0 = citadel headers, 1 = mime headers, 2 = body */
+	char msg4_content_type[256] = "";
+	char msg4_content_encoding[256] = "";
+	int msg4_content_length = 0;
 	struct vnote *vnote_from_body = NULL;
 
-	relevant_partnum[0] = 0;
-	uid_from_headers[0] = 0;
-	sprintf(buf, "MSG4 %ld", msgnum);	/* we need the mime headers */
-	serv_puts(buf);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') return NULL;
+	relevant_partnum[0] = '\0';
+	serv_printf("MSG4 %ld", msgnum);	/* we need the mime headers */
+	Buf = NewStrBuf();
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
+		FreeStrBuf (&Buf);
+		return NULL;
+	}
+	while ((StrBuf_ServGetlnBuffered(Buf)>=0) && !Done) {
+		if ( (StrLength(Buf)==3) && 
+		     !strcmp(ChrPtr(Buf), "000")) {
+			Done = 1;
+			break;
+		}
+		bptr = ChrPtr(Buf);
+		switch (phase) {
+		case 0:
+			if (!strncasecmp(bptr, "exti=", 5)) {
+				safestrncpy(uid_from_headers, &(ChrPtr(Buf)[5]), sizeof uid_from_headers);
+			}
+			else if (!strncasecmp(bptr, "part=", 5)) {
+				extract_token(mime_filename, &bptr[5], 1, '|', sizeof mime_filename);
+				extract_token(mime_partnum, &bptr[5], 2, '|', sizeof mime_partnum);
+				extract_token(mime_disposition, &bptr[5], 3, '|', sizeof mime_disposition);
+				extract_token(mime_content_type, &bptr[5], 4, '|', sizeof mime_content_type);
+				mime_length = extract_int(&bptr[5], 5);
 
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "exti=", 5)) {
-			safestrncpy(uid_from_headers, &buf[5], sizeof uid_from_headers);
-		}
-		else if (!strncasecmp(buf, "part=", 5)) {
-			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
-			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
-			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
-			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
-			mime_length = extract_int(&buf[5], 5);
-
-			if (!strcasecmp(mime_content_type, "text/vnote")) {
-				strcpy(relevant_partnum, mime_partnum);
+				if (  (!strcasecmp(mime_content_type, "text/calendar"))
+				      || (!strcasecmp(mime_content_type, "application/ics"))
+				      || (!strcasecmp(mime_content_type, "text/vtodo"))
+					) {
+					strcpy(relevant_partnum, mime_partnum);
+				}
 			}
-		}
-		else if ((in_body) && (IsEmptyStr(relevant_partnum)) && (!IsEmptyStr(uid_from_headers))) {
-			// Convert an old-style note to a vNote
-			if (!vnote_from_body) {
-				vnote_from_body = vnote_new();
-				vnote_from_body->uid = strdup(uid_from_headers);
-				vnote_from_body->color_red = pastel_palette[3][0];
-				vnote_from_body->color_green = pastel_palette[3][1];
-				vnote_from_body->color_blue = pastel_palette[3][2];
-				vnote_from_body->body = malloc(32768);
-				vnote_from_body->body[0] = 0;
-				body_len = 0;
+			else if (!strncasecmp(bptr, "from=", 4)) {
+				extract_token(from, bptr, 1, '=', sizeof(from));
 			}
-			body_line_len = strlen(buf);
-			if ((body_len + body_line_len + 10) < 32768) {
-				strcpy(&vnote_from_body->body[body_len++], " ");
-				strcpy(&vnote_from_body->body[body_len], buf);
-				body_len += body_line_len;
+			else if ((phase == 0) && (!strncasecmp(bptr, "text", 4))) {
+				phase = 1;
 			}
-		}
-		else if (IsEmptyStr(buf)) {
-			in_body = 1;
+		break;
+		case 1:
+			if (!IsEmptyStr(bptr)) {
+				if (!strncasecmp(bptr, "Content-type: ", 14)) {
+					safestrncpy(msg4_content_type, &bptr[14], sizeof msg4_content_type);
+					striplt(msg4_content_type);
+				}
+				else if (!strncasecmp(bptr, "Content-transfer-encoding: ", 27)) {
+					safestrncpy(msg4_content_encoding, &bptr[27], sizeof msg4_content_encoding);
+					striplt(msg4_content_type);
+				}
+				else if ((!strncasecmp(bptr, "Content-length: ", 16))) {
+					msg4_content_length = atoi(&bptr[16]);
+				}
+				break;
+			}
+			else {
+				phase++;
+				
+				if ((msg4_content_length > 0)
+				    && ( !strcasecmp(msg4_content_encoding, "7bit"))
+				    && ((!strcasecmp(mime_content_type, "text/calendar"))
+					|| (!strcasecmp(mime_content_type, "application/ics"))
+					|| (!strcasecmp(mime_content_type, "text/vtodo"))
+					    )
+					) 
+				{
+				}
+			}
+		case 2:
+			Data = NewStrBufPlain(NULL, msg4_content_length * 2);
+			if (msg4_content_length > 0) {
+				StrBuf_ServGetBLOBBuffered(Data, msg4_content_length);
+				phase ++;
+			}
+			else {
+				StrBufAppendBuf(Data, Buf, 0);
+				StrBufAppendBufPlain(Data, "\r\n", 1, 0);
+			}
+		case 3:
+			StrBufAppendBuf(Data, Buf, 0);
 		}
 	}
+	FreeStrBuf(&Buf);
 
-	if (!IsEmptyStr(relevant_partnum)) {
-		relevant_source = load_mimepart(msgnum, relevant_partnum);
-		if (relevant_source != NULL) {
-			struct vnote *v = vnote_new_from_str(relevant_source);
-			free(relevant_source);
+	/* If MSG4 didn't give us the part we wanted, but we know that we can find it
+	 * as one of the other MIME parts, attempt to load it now.
+	 */
+	if ((Data == NULL) && (!IsEmptyStr(relevant_partnum))) {
+		Data = load_mimepart(msgnum, relevant_partnum);
+	}
+
+
+	if ((IsEmptyStr(relevant_partnum)) && (StrLength(Data) > 0 )) {
+		if (!IsEmptyStr(uid_from_headers)) {
+			// Convert an old-style note to a vNote
+			vnote_from_body = vnote_new();
+			vnote_from_body->uid = strdup(uid_from_headers);
+			vnote_from_body->color_red = pastel_palette[3][0];
+			vnote_from_body->color_green = pastel_palette[3][1];
+			vnote_from_body->color_blue = pastel_palette[3][2];
+			vnote_from_body->body = malloc(StrLength(Data) + 1);
+			vnote_from_body->body[0] = 0;
+			memcpy(vnote_from_body->body, ChrPtr(Data), StrLength(Data) + 1);
+			return vnote_from_body;
+		}
+		else {
+			struct vnote *v = vnote_new_from_str(ChrPtr(Data));
 			return(v);
 		}
 	}
-
-	if (vnote_from_body) {
-		return(vnote_from_body);
-	}
 	return NULL;
 }
+
 
 
 /*
@@ -282,7 +341,7 @@ void ajax_update_note(void) {
 	}
 
 	// If we get to this point it's an update, not a delete
-	v = vnote_new_from_msg(msgnum);
+	v = vnote_new_from_msg(msgnum, 0);
 	if (!v) {
 		begin_ajax_response();
 		wprintf("Cannot locate a vNote within message %d\n", msgnum);
@@ -343,7 +402,7 @@ void display_note(message_summary *Msg, int unread) {
 
 	memset(&TP, 0, sizeof(WCTemplputParams));
 	TP.Filter.ContextType = CTX_VNOTE;
-	v = vnote_new_from_msg(Msg->msgnum);
+	v = vnote_new_from_msg(Msg->msgnum, unread);
 	if (v) {
 //		display_vnote_div(v);
 		TP.Context = v;

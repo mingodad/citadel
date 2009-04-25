@@ -1146,10 +1146,10 @@ void load_ical_object(long msgnum, int unread,
 	 * as one of the other MIME parts, attempt to load it now.
 	 */
 	if ((Data == NULL) && (!IsEmptyStr(relevant_partnum))) {
-		relevant_source = load_mimepart(msgnum, relevant_partnum);
+		Data = load_mimepart(msgnum, relevant_partnum);
 	}
 
-	if ((relevant_source != NULL) || (Data != NULL)) {
+	if (Data != NULL) {
 		relevant_source = (char*) ChrPtr(Data);
 		process_ical_object(msgnum, unread,
 				    from, 
@@ -1157,11 +1157,7 @@ void load_ical_object(long msgnum, int unread,
 				    which_kind,
 				    CallBack,
 				    calv);
-		if (Data != NULL)
-			FreeStrBuf (&Data);
-		else
-			free(relevant_source);
-
+		FreeStrBuf (&Data);
 	}
 
 	icalmemory_free_ring();

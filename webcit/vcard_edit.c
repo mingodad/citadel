@@ -46,7 +46,7 @@ void display_addressbook(long msgnum, char alpha) {
 	///char mime_disposition[SIZ];
 	//int mime_length;
 	char vcard_partnum[SIZ];
-	char *vcard_source = NULL;
+	StrBuf *vcard_source = NULL;
 	message_summary summ;////TODO: this will leak
 
 	memset(&summ, 0, sizeof(summ));
@@ -71,7 +71,7 @@ void display_addressbook(long msgnum, char alpha) {
 				wprintf("[%s]</a>", _("edit"));
 			}
 
-			free(vcard_source);
+			FreeStrBuf(&vcard_source);
 		}
 	}
 
@@ -113,7 +113,7 @@ void fetch_ab_name(message_summary *Msg, char **namebuf) {
 	char mime_disposition[SIZ];
 	int mime_length;
 	char vcard_partnum[SIZ];
-	char *vcard_source = NULL;
+	StrBuf *vcard_source = NULL;
 	int i, len;
 	message_summary summ;/// TODO this will lak
 
@@ -150,7 +150,7 @@ void fetch_ab_name(message_summary *Msg, char **namebuf) {
 			/* Grab the name off the card */
 			display_vcard(WC->WBuf, vcard_source, 0, 0, namebuf, Msg->msgnum);
 
-			free(vcard_source);
+			FreeStrBuf(&vcard_source);
 		}
 	}
 	if (*namebuf != NULL) {
@@ -539,7 +539,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum
  * \param msgnum Citadel message pointer
  */
 void display_vcard(StrBuf *Target, 
-		   const char *vcard_source, 
+		   StrBuf *vcard_source, 
 		   char alpha, 
 		   int full, 
 		   char **storename, 
@@ -551,7 +551,7 @@ void display_vcard(StrBuf *Target,
 	StrBuf *Buf2;
 	char this_alpha = 0;
 
-	v = vcard_load((char*)vcard_source); ///TODO
+	v = VCardLoad(vcard_source);
 
 	if (v == NULL) return;
 
@@ -697,8 +697,9 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
  * to start with a blank card.
  */
 void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *force_room) {
+	StrBuf *Buf;
 	char buf[SIZ];
-	char *serialized_vcard = NULL;
+	StrBuf *serialized_vcard = NULL;
 	size_t total_len = 0;
 	struct vCard *v;
 	int i;
@@ -770,31 +771,30 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *forc
 				strcat(whatuser, &buf[5]);
 			}
 		}
-	
-		sprintf(buf, "DLAT %ld|%s", msgnum, partnum);
-		serv_puts(buf);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] != '6') {
-			convenience_page("770000", "Error", &buf[4]);
+		Buf = NewStrBuf();
+		serv_printf(buf, "DLAT %ld|%s", msgnum, partnum);
+		StrBuf_ServGetlnBuffered(Buf);
+		if (GetServerStatus(Buf, NULL) != 6) {
+			convenience_page("770000", "Error", &(ChrPtr(Buf)[4]));
 			return;
 		}
-	
-		total_len = atoi(&buf[4]);
-		serialized_vcard = malloc(total_len + 2);
+		
+		StrBufCutLeft(Buf, 4);
+		total_len = StrBufExtract_long(Buf, 0, '|');
 
-		serv_read(serialized_vcard, total_len);
-		serialized_vcard[total_len] = 0;
+		StrBuf_ServGetBLOBBuffered(Buf, total_len);
 	
-		v = vcard_load(serialized_vcard);
-		free(serialized_vcard);
+		v = VCardLoad(Buf);
+		FreeStrBuf(&Buf);
 	
 		/* Populate the variables for our form */
 		i = 0;
 		while (key = vcard_get_prop(v, "", 0, i, 1), key != NULL) {
-			value = vcard_get_prop(v, "", 0, i++, 0);
-
 			char prp[256];	/* property name */
 			char prm[256];	/* parameters */
+
+			value = vcard_get_prop(v, "", 0, i++, 0);
+
 
 			extract_token(prp, key, 0, ';', sizeof prp);
 			safestrncpy(prm, key, sizeof prm);
@@ -1078,6 +1078,7 @@ void submit_vcard(void) {
 	struct vCard *v;
 	char *serialized_vcard;
 	char buf[SIZ];
+	StrBuf *Buf;
 	int i;
 
 	if (!havebstr("ok_button")) { 
@@ -1098,11 +1099,12 @@ void submit_vcard(void) {
 	}
 
 	/** Make a vCard structure out of the data supplied in the form */
-
-	snprintf(buf, sizeof buf, "begin:vcard\r\n%s\r\nend:vcard\r\n",
-		bstr("extrafields")
+	Buf = NewStrBuf();
+	StrBufPrintf(Buf, "begin:vcard\r\n%s\r\nend:vcard\r\n",
+		     bstr("extrafields")
 	);
-	v = vcard_load(buf);	/** Start with the extra fields */
+	v = VCardLoad(Buf);	/** Start with the extra fields */
+	FreeStrBuf(&Buf);
 	if (v == NULL) {
 		safestrncpy(WC->ImportantMessage,
 			_("An error has occurred."),
@@ -1183,7 +1185,7 @@ void submit_vcard(void) {
 void display_vcard_photo_img(void)
 {
 	long msgnum = 0L;
-	char *vcard;
+	StrBuf *vcard;
 	struct vCard *v;
 	char *photosrc;
 	const char *contentType;
@@ -1192,7 +1194,7 @@ void display_vcard_photo_img(void)
 	msgnum = StrTol(WCC->UrlFragment2);
 	
 	vcard = load_mimepart(msgnum,"1");
-	v = vcard_load(vcard);
+	v = VCardLoad(vcard);
 	
 	photosrc = vcard_get_prop(v, "PHOTO", 1,0,0);
 	FlushStrBuf(WCC->WBuf);
