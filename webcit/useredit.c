@@ -708,7 +708,8 @@ InitModule_USEREDIT
 	RegisterConditional(HKEY("COND:USERACCESS"), 0,   ConditionalUserAccess, CTX_USERLIST);
 	RegisterConditional(HKEY("COND:USERLIST:FLAG:USE_INTERNET"), 0, ConditionalFlagINetEmail, CTX_USERLIST);
 
-	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("USERLIST", 0, NULL, iterate_load_userlist, NULL, DeleteHash, CTX_USERLIST, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
+	
 
 
 	RegisterSortFunc(HKEY("user:name"),
