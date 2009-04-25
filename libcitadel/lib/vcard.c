@@ -91,7 +91,12 @@ void vcard_add_prop(struct vCard *v, char *propname, char *propvalue) {
 	v->prop[v->numprops-1].value = strdup(propvalue);
 }
 
-
+/*
+ * Constructor - returns a new struct vcard given a serialized vcard
+ */
+struct vCard *VCardLoad(StrBuf *vbtext) {
+	return vcard_load((char*)ChrPtr(vbtext));
+}
 
 /*
  * Constructor - returns a new struct vcard given a serialized vcard
