@@ -4,7 +4,7 @@
 # Stefan Kleinschmidt <stefan@waldstrasse.homeip.net>
 # German localization
 # Copyright (C) 2005 - 2009 By Wilfried Gösgens
-# This file is distributed under the GPL V 3
+# This file is distributed under the revised BSD license
 # "ä ö ü
 msgid ""
 msgstr ""
