@@ -397,8 +397,9 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		}
 		/** Fixup <img src="cid:... ...> to fetch the mime part */
 		else if (!strncasecmp(ptr, "<img ", 5)) {
+			char *cid_start, *cid_end;
 			char* tag_end=strchr(ptr,'>');
-
+			char* src;
 			/* FIXME - handle this situation (maybe someone opened an <img cid... 
 			 * and then ended the message)
 			 */
@@ -408,8 +409,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 				lprintf(9, "Theoretical bytes remaining: %d\n", msgend - ptr);
 			}
 
-			char* src=strstr(ptr, " src=\"cid:");
-			char *cid_start, *cid_end;
+			src=strstr(ptr, " src=\"cid:");
 			++brak;
 
 			if (src

@@ -699,7 +699,6 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *force_room) {
 	StrBuf *Buf;
 	char buf[SIZ];
-	StrBuf *serialized_vcard = NULL;
 	size_t total_len = 0;
 	struct vCard *v;
 	int i;

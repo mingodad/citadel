@@ -143,15 +143,6 @@ inline void _serv_read(char *buf, int bytes, wcsession *WCC)
 	}
 }
 
-void serv_read(char *buf, int bytes)
-{
-	wcsession *WCC = WC;
-
-	WCC->ReadPos = NULL;
-
-	_serv_read(buf, bytes, WCC);
-}
-
 /*
  *  input string from pipe
  */

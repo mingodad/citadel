@@ -589,7 +589,6 @@ void msgescputs(char *strbuf);
 void msgescputs1(char *strbuf);
 void dump_vars(void);
 void embed_main_menu(void);
-void serv_read(char *buf, int bytes);
 
 void SetAccessCommand(long Oper);
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
