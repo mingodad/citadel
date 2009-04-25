@@ -259,8 +259,10 @@ void display_generic(void)
  */
 void do_generic(void)
 {
-	char buf[SIZ];
-	char gcontent[SIZ];
+
+	wcsession *WCC = WC;
+	int Done = 0;
+	StrBuf *Buf;
 	char *junk;
 	size_t len;
 
@@ -271,45 +273,53 @@ void do_generic(void)
 
 	output_headers(1, 1, 0, 0, 0, 0);
 
-	serv_printf("%s", bstr("g_cmd"));
-	serv_getln(buf, sizeof buf);
+	serv_puts(bstr("g_cmd"));
 
 	svput("BOXTITLE", WCS_STRING, _("Server command results"));
 	do_template("beginboxx", NULL);
 
 	wprintf("<table border=0><tr><td>Command:</td><td><tt>");
-	escputs(bstr("g_cmd"));
+	StrEscAppend(WCC->WBuf, sbstr("g_cmd"), NULL, 0, 0);
 	wprintf("</tt></td></tr><tr><td>Result:</td><td><tt>");
-	escputs(buf);
+	StrEscAppend(WCC->WBuf, Buf, NULL, 0, 0);
+	StrBufAppendBufPlain(WCC->WBuf, HKEY("<br>\n"), 0);
 	wprintf("</tt></td></tr></table><br />\n");
-
-	if (buf[0] == '8') {
-		serv_printf("\n\n000");
-	}
-	if ((buf[0] == '1') || (buf[0] == '8')) {
-		while (serv_getln(gcontent, sizeof gcontent), strcmp(gcontent, "000")) {
-			escputs(gcontent);
-			wprintf("<br />\n");
+	
+	switch (GetServerStatus(Buf, NULL)) {
+	case 8:
+		serv_puts("\n\n000");
+		if ( (StrLength(Buf)==3) && 
+		     !strcmp(ChrPtr(Buf), "000")) {
+			StrBufAppendBufPlain(WCC->WBuf, HKEY("\000"), 0);
+			break;
 		}
-		wprintf("000");
-	}
-	if (buf[0] == '4') {
+	case 1:
+		while (!Done) {
+			StrBuf_ServGetlnBuffered(Buf);
+			if ( (StrLength(Buf)==3) && 
+			     !strcmp(ChrPtr(Buf), "000")) {
+				Done = 1;
+			}
+			StrEscAppend(WCC->WBuf, Buf, NULL, 0, 0);
+			StrBufAppendBufPlain(WCC->WBuf, HKEY("<br>\n"), 0);
+		}
+		break;
+	case 4:
 		text_to_server(bstr("g_input"));
 		serv_puts("000");
-	}
-	if (buf[0] == '6') {
-		len = atol(&buf[4]);
-		junk = malloc(len);
-		serv_read(junk, len);
-		free(junk);
-	}
-	if (buf[0] == '7') {
-		len = atol(&buf[4]);
+		break;
+	case 6:
+		len = atol(&ChrPtr(Buf)[4]);
+		StrBuf_ServGetBLOBBuffered(Buf, len);
+		break;
+	case 7:
+		len = atol(&ChrPtr(Buf)[4]);
 		junk = malloc(len);
 		memset(junk, 0, len);
 		serv_write(junk, len);
 		free(junk);
 	}
+	
 	wprintf("<hr />");
 	wprintf("<a href=\"display_generic\">Enter another command</a><br />\n");
 	wprintf("<a href=\"display_advanced\">Return to menu</a>\n");

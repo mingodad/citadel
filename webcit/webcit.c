@@ -469,7 +469,6 @@ void ajax_servcmd(void)
 			     !strcmp(ChrPtr(Buf), "000")) {
 				Done = 1;
 			}
-			lprintf (1,"ajax: [%s]\n",ChrPtr(Buf));
 			StrBufAppendBuf(WCC->WBuf, Buf, 0);
 			StrBufAppendBufPlain(WCC->WBuf, HKEY("\n"), 0);
 		}
