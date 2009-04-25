@@ -502,6 +502,35 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 
 }
 
+void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
+{
+	MimeLoadData(Mime);
+	if (StrLength(Mime->Data) > 0) {
+		struct vnote *v;
+		StrBuf *Buf;
+
+		Buf = NewStrBuf();
+		v = vnote_new_from_str(ChrPtr(Mime->Data));
+		if (v) {
+			WCTemplputParams TP;
+			
+			memset(&TP, 0, sizeof(WCTemplputParams));
+			TP.Filter.ContextType = CTX_VNOTE;
+			TP.Context = v;
+			DoTemplate(HKEY("mail_vnoteitem"),
+				   Buf, &TP);
+			
+			vnote_free(v);
+			
+			FreeStrBuf(&Mime->Data);
+			Mime->Data = Buf;
+		}
+		else
+			FlushStrBuf(Mime->Data);
+	}
+
+}
+
 void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
 	if (StrLength(Mime->Data) == 0) {
@@ -1179,6 +1208,7 @@ InitModule_MSGRENDERERS
 
 	/* mime renderers translate an attachment into webcit viewable html text */
 	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
+	RegisterMimeRenderer(HKEY("text/vnote"), render_MIME_VNote);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard);
 	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard);
 	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS);
