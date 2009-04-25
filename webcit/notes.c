@@ -21,124 +21,6 @@ int pastel_palette[9][3] = {
 
 
 /*
- * Display a <div> containing a rendered sticky note.
- */
-void display_vnote_div(struct vnote *v) {
-	int i;
-
-
-	wprintf("<div id=\"note-%s\" ", v->uid);	/* begin outer div */
-	wprintf("class=\"stickynote_outer\" ");
-	wprintf("style=\"");
-	wprintf("left: %dpx; ", v->pos_left);
-	wprintf("top: %dpx; ", v->pos_top);
-	wprintf("width: %dpx; ", v->pos_width);
-	wprintf("height: %dpx; ", v->pos_height);
-	wprintf("background-color: #%02X%02X%02X ", v->color_red, v->color_green, v->color_blue);
-	wprintf("\">");
-
-
-
-
-
-	wprintf("<div id=\"titlebar-%s\" ", v->uid);	/* begin title bar div */
-	wprintf("class=\"stickynote_titlebar\" ");
-	wprintf("onMouseDown=\"NotesDragMouseDown(event,'%s')\" ", v->uid);
-	wprintf("style=\"");
-	wprintf("background-color: #%02X%02X%02X ", v->color_red/2, v->color_green/2, v->color_blue/2);
-	wprintf("\">");
-
-	wprintf("<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%%><tr>");
-
-	wprintf("<td align=left valign=middle>");
-	wprintf("<img onclick=\"NotesClickPalette(event,'%s')\" ", v->uid);
-	wprintf("src=\"static/8paint16.gif\">");
-
-	wprintf("</td>");
-
-	wprintf("<td></td>");	// nothing in the title bar, it's just for dragging
-
-	wprintf("<td align=right valign=middle>");
-	wprintf("<img onclick=\"DeleteStickyNote(event,'%s','%s')\" ", v->uid, _("Delete this note?") );
-	wprintf("src=\"static/closewindow.gif\">");
-	wprintf("</td></tr></table>");
-
-	wprintf("</div>\n");				// end title bar div
-
-
-
-
-
-	wprintf("<div id=\"notebody-%s\" ", v->uid);	// begin body div
-	wprintf("class=\"stickynote_body\"");
-	wprintf(">");
-	escputs(v->body);
-	wprintf("</div>\n");				// end body div
-
-        StrBufAppendPrintf(WC->trailing_javascript,
-		" new Ajax.InPlaceEditor('notebody-%s', 'ajax_update_note?note_uid=%s', "
-		"{rows:%d,cols:%d,onEnterHover:false,onLeaveHover:false,"
-		"okText:'%s',cancelText:'%s',clickToEditText:'%s'});",
-		v->uid,
-		v->uid,
-		(v->pos_height / 16) - 5,
-		(v->pos_width / 9) - 1,
-		_("Save"),
-		_("Cancel"),
-		_("Click on any note to edit it.")
-	);
-
-	wprintf("<div id=\"resize-%s\" ", v->uid);	// begin resize handle div
-	wprintf("class=\"stickynote_resize\" ");
-	wprintf("onMouseDown=\"NotesResizeMouseDown(event,'%s')\"", v->uid);
-	wprintf("> </div>");				// end resize handle div
-
-
-
-
-	/* embed color selector - it doesn't have to be inside the title bar html because
-	 * it's a separate div placed by css
-	 */
-	wprintf("<div id=\"palette-%s\" ", v->uid);	// begin stickynote_palette div
-	wprintf("class=\"stickynote_palette\">");
-
-	wprintf("<table border=0 cellpadding=0 cellspacing=0>");
-	for (i=0; i<9; ++i) {
-		if ((i%3)==0) wprintf("<tr>");
-		wprintf("<td ");
-		wprintf("onClick=\"NotesClickColor(event,'%s',%d,%d,%d,'#%02x%02x%02x','#%02x%02x%02x')\" ",
-			v->uid,
-			pastel_palette[i][0],		// color values to pass to ajax call
-			pastel_palette[i][1],
-			pastel_palette[i][2],
-			pastel_palette[i][0],		// new color of note
-			pastel_palette[i][1],
-			pastel_palette[i][2],
-			pastel_palette[i][0] / 2,	// new color of title bar
-			pastel_palette[i][1] / 2,
-			pastel_palette[i][2] / 2
-		);
-		wprintf("bgcolor=\"#%02x%02x%02x\"> </td>",
-			pastel_palette[i][0],
-			pastel_palette[i][1],
-			pastel_palette[i][2]
-		);
-		if (((i+1)%3)==0) wprintf("</tr>");
-	}
-	wprintf("</table>");
-
-	wprintf("</div>");				// end stickynote_palette div
-
-
-
-
-
-	wprintf("</div>\n");				// end outer div
-}
-
-
-
-/*
  * Fetch a message from the server and extract a vNote from it
  */
 struct vnote *vnote_new_from_msg(long msgnum,int unread) 
@@ -404,7 +286,6 @@ void display_note(message_summary *Msg, int unread) {
 	TP.Filter.ContextType = CTX_VNOTE;
 	v = vnote_new_from_msg(Msg->msgnum, unread);
 	if (v) {
-//		display_vnote_div(v);
 		TP.Context = v;
 		DoTemplate(HKEY("vnoteitem"),
 			   WC->WBuf, &TP);
