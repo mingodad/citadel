@@ -378,7 +378,6 @@ void url_do_template(void) {
 	const StrBuf *MimeType;
 	const StrBuf *Tmpl = sbstr("template");
 	begin_burst();
-	output_headers(0, 0, 0, 0, 1, 0);
 	MimeType = DoTemplate(SKEY(Tmpl), NULL, &NoCtx);
 	http_transmit_thing(ChrPtr(MimeType), 0);
 }

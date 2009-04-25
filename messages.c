@@ -1515,7 +1515,6 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 		else {
 			content_type = NewStrBufDup(part->ContentType);
 		}
-		output_headers(0, 0, 0, 0, 0, 0);
 		StrBufAppendBuf(WC->WBuf, part->Data, 0);
 		http_transmit_thing(ChrPtr(content_type), 0);
 	} else {
@@ -1569,7 +1568,6 @@ void mimepart(int force_download)
 				CT = GuessMimeType(SKEY(WCC->WBuf));
 			}
 		}
-		output_headers(0, 0, 0, 0, 0, 0);
 		http_transmit_thing(CT, 0);
 	} else {
 		StrBufCutLeft(Buf, 4);

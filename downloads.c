@@ -258,7 +258,6 @@ void download_file(void)
 		if (!force_download) {
 			StrBufExtract_token(ContentType, Buf, 3, '|');
 		}
-		output_headers(0, 0, 0, 0, 0, 0);
 		read_server_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
 		StrBuf_ServGetlnBuffered(Buf);
