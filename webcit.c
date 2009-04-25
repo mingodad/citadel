@@ -441,44 +441,55 @@ void end_ajax_response(void) {
  */
 void ajax_servcmd(void)
 {
-	char buf[1024];
-	char gcontent[1024];
+	wcsession *WCC = WC;
+	int Done = 0;
+	StrBuf *Buf;
 	char *junk;
 	size_t len;
 
 	begin_ajax_response();
-
-	serv_printf("%s", bstr("g_cmd"));
-	serv_getln(buf, sizeof buf);
-	wprintf("%s\n", buf);
-
-	if (buf[0] == '8') {
-		serv_printf("\n\n000");
-	}
-	if ((buf[0] == '1') || (buf[0] == '8')) {
-		while (serv_getln(gcontent, sizeof gcontent), strcmp(gcontent, "000")) {
-			wprintf("%s\n", gcontent);
+	Buf = NewStrBuf();
+	serv_puts(bstr("g_cmd"));
+	StrBuf_ServGetln(Buf);
+	StrBufAppendBuf(WCC->WBuf, Buf, 0);
+	StrBufAppendBufPlain(WCC->WBuf, HKEY("\n"), 0);
+	
+	switch (GetServerStatus(Buf, NULL)) {
+	case 8:
+		serv_puts("\n\n000");
+		if ( (StrLength(Buf)==3) && 
+		     !strcmp(ChrPtr(Buf), "000")) {
+			StrBufAppendBufPlain(WCC->WBuf, HKEY("\000"), 0);
+			break;
 		}
-		wprintf("000");
-	}
-	if (buf[0] == '4') {
+	case 1:
+		while (!Done) {
+			StrBuf_ServGetlnBuffered(Buf);
+			if ( (StrLength(Buf)==3) && 
+			     !strcmp(ChrPtr(Buf), "000")) {
+				Done = 1;
+			}
+			lprintf (1,"ajax: [%s]\n",ChrPtr(Buf));
+			StrBufAppendBuf(WCC->WBuf, Buf, 0);
+			StrBufAppendBufPlain(WCC->WBuf, HKEY("\n"), 0);
+		}
+		break;
+	case 4:
 		text_to_server(bstr("g_input"));
 		serv_puts("000");
-	}
-	if (buf[0] == '6') {
-		len = atol(&buf[4]);
-		junk = malloc(len);
-		serv_read(junk, len);
-		free(junk);
-	}
-	if (buf[0] == '7') {
-		len = atol(&buf[4]);
+		break;
+	case 6:
+		len = atol(&ChrPtr(Buf)[4]);
+		StrBuf_ServGetBLOBBuffered(Buf, len);
+		break;
+	case 7:
+		len = atol(&ChrPtr(Buf)[4]);
 		junk = malloc(len);
 		memset(junk, 0, len);
 		serv_write(junk, len);
 		free(junk);
 	}
-
+	
 	end_ajax_response();
 	
 	/*
@@ -488,8 +499,9 @@ void ajax_servcmd(void)
 	 * that page_popup() doesn't try to open it a second time.
 	 */
 	if (!strncasecmp(bstr("g_cmd"), "GEXP", 4)) {
-		WC->last_pager_check = time(NULL);
+		WCC->last_pager_check = time(NULL);
 	}
+	FreeStrBuf(&Buf);
 }
 
 
