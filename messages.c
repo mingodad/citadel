@@ -35,56 +35,34 @@ typedef struct _MsgPartEvaluatorStruct {
 /*----------------------------------------------------------------------------*/
 
 
-
-/*
- * I wanna SEE that message!
- *
- * msgnum		Message number to display
- * printable_view	Nonzero to display a printable view
- * section		Optional for encapsulated message/rfc822 submessage
- */
-int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *PartNum) 
+int load_message(message_summary *Msg, 
+		 StrBuf *FoundCharset,
+		 StrBuf **Error)
 {
 	wcsession *WCC = WC;
 	StrBuf *Buf;
 	StrBuf *HdrToken;
-	StrBuf *FoundCharset;
-	HashPos  *it;
-	void *vMime;
-	message_summary *Msg = NULL;
 	headereval *Hdr;
 	void *vHdr;
 	char buf[SIZ];
 	int Done = 0;
 	int state=0;
-	long len;
-	const char *Key;
-	WCTemplputParams SubTP;
-
+	
 	Buf = NewStrBuf();
-	lprintf(1, "----------%s---------MSG4 %ld|%s--------------\n", tmpl, msgnum, ChrPtr(PartNum));
-	serv_printf("MSG4 %ld|%s", msgnum, ChrPtr(PartNum));
+	lprintf(1, "-------------------MSG4 %ld|%s--------------\n", Msg->msgnum, ChrPtr(Msg->PartNum));
+	serv_printf("MSG4 %ld|%s", Msg->msgnum, ChrPtr(Msg->PartNum));
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
-		StrBufAppendPrintf(Target, "<strong>");
-		StrBufAppendPrintf(Target, _("ERROR:"));
-		StrBufAppendPrintf(Target, "</strong> %s<br />\n", &buf[4]);
+		*Error = NewStrBuf();
+		StrBufAppendPrintf(*Error, "<strong>");
+		StrBufAppendPrintf(*Error, _("ERROR:"));
+		StrBufAppendPrintf(*Error, "</strong> %s<br />\n", &buf[4]);
 		FreeStrBuf(&Buf);
 		return 0;
 	}
 
 	/** begin everythingamundo table */
-
-
 	HdrToken = NewStrBuf();
-	Msg = (message_summary *)malloc(sizeof(message_summary));
-	memset(Msg, 0, sizeof(message_summary));
-	Msg->msgnum = msgnum;
-	Msg->PartNum = PartNum;
-	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
-	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
-	Msg->MsgBody->msgnum = msgnum;
-	FoundCharset = NewStrBuf();
 	while ((StrBuf_ServGetlnBuffered(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
 		    !strcmp(ChrPtr(Buf), "000")) 
@@ -121,11 +99,12 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 				if (Hdr->Type == 1) {
 					state++;
 				}
-			}
+			}/* TODO: 
 			else LogError(Target, 
 				      __FUNCTION__,  
 				      "don't know how to handle message header[%s]\n", 
 				      ChrPtr(HdrToken));
+			 */
 			break;
 		case 1:/* Message Mime Header */
 			if (StrLength(Buf) == 0) {
@@ -176,28 +155,6 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	/* now we put the body mimepart we read above into the mimelist */
 	Put(Msg->AllAttach, SKEY(Msg->MsgBody->PartNum), Msg->MsgBody, DestroyMime);
 	
-	/* strip the bare contenttype, so we ommit charset etc. */
-	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');
-	StrBufTrim(Buf);
-	/* look up the renderer, that will convert this mimeitem into the htmlized form */
-	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
-	    (vHdr != NULL)) {
-		RenderMimeFuncStruct *Render;
-		Render = (RenderMimeFuncStruct*)vHdr;
-		Render->f(Msg->MsgBody, NULL, FoundCharset);
-	}
-
-	if (StrLength(Msg->reply_references)> 0) {
-		/* Trim down excessively long lists of thread references.  We eliminate the
-		 * second one in the list so that the thread root remains intact.
-		 */
-		int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
-		int rrlen = StrLength(Msg->reply_references);
-		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-			StrBufRemove_token(Msg->reply_references, 1, '|');
-		}
-	}
-
 	/* Generate a reply-to address */
 	if (StrLength(Msg->Rfca) > 0) {
 		if (Msg->reply_to == NULL)
@@ -230,6 +187,69 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 			StrBufAppendBuf(Msg->reply_to, Msg->from, 0);
 		}
 	}
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&HdrToken);
+	return 1;
+}
+
+
+
+/*
+ * I wanna SEE that message!
+ *
+ * msgnum		Message number to display
+ * printable_view	Nonzero to display a printable view
+ * section		Optional for encapsulated message/rfc822 submessage
+ */
+int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, const StrBuf *PartNum) 
+{
+	StrBuf *Buf;
+	StrBuf *FoundCharset;
+	HashPos  *it;
+	void *vMime;
+	message_summary *Msg = NULL;
+	void *vHdr;
+	long len;
+	const char *Key;
+	WCTemplputParams SubTP;
+	StrBuf *Error = NULL;
+
+	Buf = NewStrBuf();
+	FoundCharset = NewStrBuf();
+	Msg = (message_summary *)malloc(sizeof(message_summary));
+	memset(Msg, 0, sizeof(message_summary));
+	Msg->msgnum = msgnum;
+	Msg->PartNum = PartNum;
+	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
+	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
+	Msg->MsgBody->msgnum = msgnum;
+
+	if (!load_message(Msg, FoundCharset, &Error)) {
+		StrBufAppendBuf(Target, Error, 0);
+		FreeStrBuf(&Error);
+	}
+
+	/* strip the bare contenttype, so we ommit charset etc. */
+	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');
+	StrBufTrim(Buf);
+	/* look up the renderer, that will convert this mimeitem into the htmlized form */
+	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
+	    (vHdr != NULL)) {
+		RenderMimeFuncStruct *Render;
+		Render = (RenderMimeFuncStruct*)vHdr;
+		Render->f(Msg->MsgBody, NULL, FoundCharset);
+	}
+
+	if (StrLength(Msg->reply_references)> 0) {
+		/* Trim down excessively long lists of thread references.  We eliminate the
+		 * second one in the list so that the thread root remains intact.
+		 */
+		int rrtok = num_tokens(ChrPtr(Msg->reply_references), '|');
+		int rrlen = StrLength(Msg->reply_references);
+		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+			StrBufRemove_token(Msg->reply_references, 1, '|');
+		}
+	}
 
 	/* now check if we need to translate some mimeparts, and remove the duplicate */
 	it = GetNewHashPos(Msg->AllAttach, 0);
@@ -246,10 +266,12 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
-	FreeStrBuf(&HdrToken);
 	FreeStrBuf(&Buf);
 	return 1;
 }
+
+
+
 
 
 
@@ -266,9 +288,9 @@ void embed_message(void) {
 
 	msgnum = StrTol(WCC->UrlFragment2);
 	if (StrLength(Tmpl) > 0) 
-		read_message(WCC->WBuf, SKEY(Tmpl), msgnum, 0, NULL);
+		read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL);
 	else 
-		read_message(WCC->WBuf, HKEY("view_message"), msgnum, 0, NULL);
+		read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL);
 }
 
 
@@ -289,7 +311,7 @@ void print_message(void) {
 
 	begin_burst();
 
-	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, 1, NULL);
+	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, NULL);
 
 	wDumpContent(0);
 }
@@ -305,7 +327,7 @@ void mobile_message_view(void) {
   output_headers(1, 0, 0, 0, 0, 1);
   begin_burst();
   do_template("msgcontrols", NULL);
-  read_message(WC->WBuf, HKEY("view_message"), msgnum,1, NULL);
+  read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL);
   wDumpContent(0);
 }
 
@@ -388,7 +410,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
  * servcmd:		the citadel command to send to the citserver
  * with_headers:	also include some of the headers with the message numbers (more expensive)
  */
-int load_msg_ptrs(char *servcmd, int with_headers)
+int load_msg_ptrs(const char *servcmd, int with_headers)
 {
 	StrBuf* FoundCharset = NULL;
         wcsession *WCC = WC;
@@ -897,7 +919,7 @@ void readloop(long oper)
 			/** if we do a split bbview in the future, begin messages div here */
 			
 			for (a=0; a<num_displayed; ++a) {
-				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], 0, NULL);
+				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], NULL);
 			}
 			
 			/** if we do a split bbview in the future, end messages div here */
@@ -931,7 +953,7 @@ DONE:
 		break;
 	case VIEW_ADDRESSBOOK:
 		if (is_singlecard)
-			read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), 0, NULL);
+			read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), NULL);
 		else
 			do_addrbook_view(addrbook, num_ab);	/** Render the address book */
 		break;
