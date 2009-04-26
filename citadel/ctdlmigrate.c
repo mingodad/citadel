@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id$
  *
  * Across-the-wire migration utility for Citadel
  *
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	char yesno[5];
 	char sendcommand[PATH_MAX];
-	int exitcode;
+	int cmdexit;
 	char cmd[PATH_MAX];
 	char buf[PATH_MAX];
 	char socket_path[PATH_MAX];
@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
 	FILE *target_artv;
 	int linecount = 0;
 	char spinning[4] = "-\\|/" ;
+	int exitcode = 0;
 	
 	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 	CtdlMakeTempFileName(socket_path, sizeof socket_path);
@@ -114,8 +115,8 @@ int main(int argc, char *argv[])
 	printf("Locating 'sendcommand' and checking connectivity to Citadel...\n");
 	snprintf(sendcommand, sizeof sendcommand, "%s/sendcommand", ctdl_utilbin_dir);
 	snprintf(cmd, sizeof cmd, "%s 'NOOP'", sendcommand);
-	exitcode = system(cmd);
-	if (exitcode != 0) {
+	cmdexit = system(cmd);
+	if (cmdexit != 0) {
 		printf("\nctdlmigrate was unable to attach to the Citadel server\n"
 			"here on the target system.  Is Citadel running?\n\n");
 		exit(1);
@@ -134,35 +135,37 @@ int main(int argc, char *argv[])
 	printf("\nEstablishing an SSH connection to the source system...\n\n");
 	unlink(socket_path);
 	snprintf(cmd, sizeof cmd, "ssh -MNf -S %s %s@%s", socket_path, remote_user, remote_host);
-	exitcode = system(cmd);
-	if (exitcode != 0) {
+	cmdexit = system(cmd);
+	if (cmdexit != 0) {
 		printf("\nctdlmigrate was unable to establish an SSH connection to the\n"
 			"source system, and cannot continue.\n\n");
-		exit(exitcode);
+		exitcode = cmdexit;
+		goto THEEND;
 	}
 
 	printf("\nTesting a command over the connection...\n\n");
 	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s 'echo Remote commands are executing successfully.'",
 		socket_path, remote_user, remote_host);
-	exitcode = system(cmd);
+	cmdexit = system(cmd);
 	printf("\n");
-	if (exitcode != 0) {
+	if (cmdexit != 0) {
 		printf("Remote commands are not succeeding.\n\n");
-		exit(exitcode);
+		exitcode = cmdexit;
+		goto THEEND;
 	}
 
 	printf("\nLocating the remote 'sendcommand' and Citadel installation...\n");
 	snprintf(remote_sendcommand, sizeof remote_sendcommand, "/usr/local/citadel/sendcommand");
 	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s NOOP",
 		socket_path, remote_user, remote_host, remote_sendcommand);
-	exitcode = system(cmd);
-	if (exitcode != 0) {
+	cmdexit = system(cmd);
+	if (cmdexit != 0) {
 		snprintf(remote_sendcommand, sizeof remote_sendcommand, "/usr/sbin/sendcommand");
 		snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s NOOP",
 			socket_path, remote_user, remote_host, remote_sendcommand);
-		exitcode = system(cmd);
+		cmdexit = system(cmd);
 	}
-	if (exitcode != 0) {
+	if (cmdexit != 0) {
 		printf("\nUnable to locate Citadel programs on the remote system.  Please enter\n"
 			"the name of the directory on %s which contains the 'sendcommand' program.\n"
 			"(example: /opt/foo/citadel)\n"
@@ -171,12 +174,13 @@ int main(int argc, char *argv[])
 		snprintf(remote_sendcommand, sizeof remote_sendcommand, "%s/sendcommand", buf);
 		snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s NOOP",
 			socket_path, remote_user, remote_host, remote_sendcommand);
-		exitcode = system(cmd);
+		cmdexit = system(cmd);
 	}
 	printf("\n");
-	if (exitcode != 0) {
+	if (cmdexit != 0) {
 		printf("ctdlmigrate was unable to attach to the remote Citadel system.\n\n");
-		exit(exitcode);
+		exitcode = cmdexit;
+		goto THEEND;
 	}
 
 	printf("ctdlmigrate will now begin a database migration...\n");
@@ -186,18 +190,21 @@ int main(int argc, char *argv[])
 	source_artv = popen(cmd, "r");
 	if (!source_artv) {
 		printf("\n%s\n\n", strerror(errno));
-		exit(2);
+		exitcode = 2;
+		goto THEEND;
 	}
 
 	snprintf(cmd, sizeof cmd, "%s -w3600 MIGR import", sendcommand);
 	target_artv = popen(cmd, "w");
 	if (!target_artv) {
 		printf("\n%s\n\n", strerror(errno));
-		exit(3);
+		exitcode = 3;
+		goto THEEND;
 	}
 
 	while (fgets(buf, sizeof buf, source_artv) != NULL) {
 		if (fwrite(buf, strlen(buf), 1, target_artv) < 1) {
+			exitcode = 4;
 			printf("%s\n", strerror(errno));
 			goto FAIL;
 		}
@@ -214,5 +221,7 @@ FAIL:	pclose(source_artv);
 	// FIXME handle -h on both sides
 	// FIXME kill the master ssh session
 	printf("If this program was finished we would do more.  FIXME\n");
-	exit(0);
+
+THEEND:	unlink(socket_path);
+	exit(exitcode);
 }
