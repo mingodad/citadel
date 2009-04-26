@@ -733,6 +733,8 @@ void validate(void)
  */
 void display_reg(int during_login)
 {
+	message_summary *VCMsg;
+	wc_mime_attachment *VCAtt;
 	long vcard_msgnum;
 
 	if (goto_config_room() != 0) {
@@ -741,7 +743,7 @@ void display_reg(int during_login)
 		return;
 	}
 
-	vcard_msgnum = locate_user_vcard_in_this_room();
+	vcard_msgnum = locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 	if (vcard_msgnum < 0L) {
 		if (during_login) do_welcome();
 		else display_main_menu();
@@ -749,10 +751,10 @@ void display_reg(int during_login)
 	}
 
 	if (during_login) {
-		do_edit_vcard(vcard_msgnum, "1", "do_welcome", USERCONFIGROOM);
+		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "do_welcome", USERCONFIGROOM);
 	}
 	else {
-		do_edit_vcard(vcard_msgnum, "1", "display_main_menu", USERCONFIGROOM);
+		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "display_main_menu", USERCONFIGROOM);
 	}
 
 }

@@ -50,7 +50,11 @@ int load_message(message_summary *Msg,
 	
 	Buf = NewStrBuf();
 	lprintf(1, "-------------------MSG4 %ld|%s--------------\n", Msg->msgnum, ChrPtr(Msg->PartNum));
-	serv_printf("MSG4 %ld|%s", Msg->msgnum, ChrPtr(Msg->PartNum));
+	if (Msg->PartNum != NULL)
+		serv_printf("MSG4 %ld|%s", Msg->msgnum, ChrPtr(Msg->PartNum));
+	else
+		serv_printf("MSG4 %ld", Msg->msgnum);
+
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
 		*Error = NewStrBuf();
@@ -70,7 +74,8 @@ int load_message(message_summary *Msg,
 			Done = 1;
 			if (state < 2) {
 				lprintf(1, _("unexpected end of message"));
-				
+				if (Msg->MsgBody->Data == NULL)
+					Msg->MsgBody->Data = NewStrBuf();
 				Msg->MsgBody->ContentType = NewStrBufPlain(HKEY("text/html"));
 				StrBufAppendPrintf(Msg->MsgBody->Data, "<div><i>");
 				StrBufAppendPrintf(Msg->MsgBody->Data, _("unexpected end of message"));
@@ -1327,7 +1332,7 @@ void display_enter(void)
 	 * message" command really means "add new entry."
 	 */
 	if (WCC->wc_default_view == VIEW_ADDRESSBOOK) {
-		do_edit_vcard(-1, "", "", ChrPtr(WCC->wc_roomname));
+		do_edit_vcard(-1, "", NULL, NULL, "",  ChrPtr(WCC->wc_roomname));
 		return;
 	}
 

@@ -645,7 +645,11 @@ void remove_token(char *source, int parmnum, char separator);
 StrBuf *load_mimepart(long msgnum, char *partnum);
 void MimeLoadData(wc_mime_attachment *Mime);
 int pattern2(char *search, char *patn);
-void do_edit_vcard(long, char *, char *, const char *);
+void do_edit_vcard(long msgnum, char *partnum, 
+		   message_summary *VCMsg,
+		   wc_mime_attachment *VCAtt,
+		   char *return_to, 
+		   const char *force_room);
 void select_user_to_edit(const char *message, const char *preselect);
 void delete_user(char *);
 void do_change_view(int);
@@ -712,7 +716,8 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
 int goto_config_room(void);
-long locate_user_vcard_in_this_room(void);
+long locate_user_vcard_in_this_room(message_summary **VCMsg,
+				    wc_mime_attachment **VCAtt);
 void sleeeeeeeeeep(int);
 void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
