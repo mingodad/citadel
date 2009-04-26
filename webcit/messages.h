@@ -88,4 +88,4 @@ void readloop(long oper);
 int  read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, int printable_view, const StrBuf *section);
 
 
-int load_msg_ptrs(char *servcmd, int with_headers);
+int load_msg_ptrs(const char *servcmd, int with_headers);

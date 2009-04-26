@@ -646,7 +646,7 @@ StrBuf *load_mimepart(long msgnum, char *partnum);
 void MimeLoadData(wc_mime_attachment *Mime);
 int pattern2(char *search, char *patn);
 void do_edit_vcard(long, char *, char *, const char *);
-void select_user_to_edit(char *message, char *preselect);
+void select_user_to_edit(const char *message, const char *preselect);
 void delete_user(char *);
 void do_change_view(int);
 void folders(void);
