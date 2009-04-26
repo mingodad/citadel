@@ -37,6 +37,27 @@
 
 
 
+/*
+ * Replacement for gets() that doesn't throw a compiler warning.
+ * We're only using it for some simple prompts, so we don't need
+ * to worry about attackers exploiting it.
+ */
+void getz(char *buf) {
+	char *ptr;
+
+	ptr = fgets(buf, 32767, stdin);
+	if (!ptr) {
+		buf[0] = 0;
+		return;
+	}
+
+	ptr = strchr(buf, '\n');
+	if (ptr) *ptr = 0;
+}
+
+
+
+
 
 int main(int argc, char *argv[])
 {
@@ -104,11 +125,11 @@ int main(int argc, char *argv[])
 	printf("Enter the host name or IP address of the source system\n"
 		"(example: ctdl.foo.org)\n"
 		"--> ");
-	gets(remote_host);
+	getz(remote_host);
 	printf("\nEnter the name of a user on %s who has full access to Citadel files\n"
 		"(usually root)\n--> ",
 		remote_host);
-	gets(remote_user);
+	getz(remote_user);
 
 	printf("\nEstablishing an SSH connection to the source system...\n\n");
 	unlink(socket_path);
@@ -146,7 +167,7 @@ int main(int argc, char *argv[])
 			"the name of the directory on %s which contains the 'sendcommand' program.\n"
 			"(example: /opt/foo/citadel)\n"
 			"--> ", remote_host);
-		gets(buf);
+		getz(buf);
 		snprintf(remote_sendcommand, sizeof remote_sendcommand, "%s/sendcommand", buf);
 		snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s NOOP",
 			socket_path, remote_user, remote_host, remote_sendcommand);
@@ -176,7 +197,10 @@ int main(int argc, char *argv[])
 	}
 
 	while (fgets(buf, sizeof buf, source_artv) != NULL) {
-		fwrite(buf, strlen(buf), 1, target_artv);
+		if (fwrite(buf, strlen(buf), 1, target_artv) < 1) {
+			printf("%s\n", strerror(errno));
+			goto FAIL;
+		}
 		++linecount;
 		if ((linecount % 100) == 0) {
 			printf("%c\r", spinning[((linecount / 100) % 4)]);
@@ -184,7 +208,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	pclose(source_artv);
+FAIL:	pclose(source_artv);
 	pclose(target_artv);
 
 	// FIXME handle -h on both sides
