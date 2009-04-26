@@ -17,7 +17,7 @@ struct wc_mime_attachment {
 	StrBuf *ContentType;
 	StrBuf *Charset;
 	StrBuf *Data;
-	size_t length;			   /* length of the mimeatachment */
+	size_t length;			   /* length of the mimeattachment */
 	long size_known;
 	long lvalue;               /* if we put a long... */
 	long msgnum;		/**< the message number on the citadel server derived from message_summary */
@@ -48,14 +48,14 @@ typedef struct _message_summary {
 	StrBuf *OtherNode;
 	const StrBuf *PartNum;
 
-	HashList *Attachments;  /**< list of Accachments */
+	HashList *Attachments;  /**< list of Attachments */
 	HashList *Submessages;
 	HashList *AttachLinks;
 
 	HashList *AllAttach;
 
 	int is_new;         /**< is it yet read? */
-	int hasattachments;	/* does it have atachments? */
+	int hasattachments;	/* does it have attachments? */
 
 
 	/** The mime part of the message */
@@ -91,7 +91,7 @@ int read_message(StrBuf *Target,
 		 const StrBuf *section);
 int load_message(message_summary *Msg, 
 		 StrBuf *FoundCharset,
-		 StrBuf **Error)
+		 StrBuf **Error);
 
 
 int load_msg_ptrs(const char *servcmd, int with_headers);

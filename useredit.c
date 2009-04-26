@@ -11,7 +11,7 @@
  *  message the header message???
  *  preselect which user should be selected in the browser
  */
-void select_user_to_edit(char *message, char *preselect)
+void select_user_to_edit(const char *message, const char *preselect)
 {
 	output_headers(1, 0, 0, 0, 1, 0);
 	do_template("edituser_select", NULL);
@@ -60,6 +60,7 @@ UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
 void DeleteUserListEntry(void *vUserList)
 {
 	UserListEntry *ul = (UserListEntry*) vUserList;
+	if (!ul) return;
 	FreeStrBuf(&ul->UserName);
 	FreeStrBuf(&ul->Passvoid);
 	free(ul);
@@ -240,9 +241,9 @@ int GroupchangenPosts(const void *vUser1, const void *vUser2)
 
 HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 {
+	int Done = 0;
 	CompareFunc SortIt;
 	HashList *Hash;
-	char buf[SIZ];
 	StrBuf *Buf;
 	UserListEntry* ul;
 	char nnn[64];
@@ -252,13 +253,18 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 
 	memset(&SubTP, 0, sizeof(WCTemplputParams));	
         serv_puts("LIST");
-        serv_getln(buf, sizeof buf);
-        if (buf[0] == '1') {
+	Buf = NewStrBuf();
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
 		Hash = NewHash(1, NULL);
 
-		Buf = NewStrBuf();
-		while ((len = StrBuf_ServGetln(Buf),
-			strcmp(ChrPtr(Buf), "000"))) {
+		while (!Done) {
+			len = StrBuf_ServGetlnBuffered(Buf);
+			if ((len == 3) &&
+			    (strcmp(ChrPtr(Buf), "000")==0)) {
+				Done = 1;
+				break;
+			}
 			ul = NewUserListEntry(Buf);
 			if (ul == NULL)
 				continue;
@@ -266,7 +272,6 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 			nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
 			Put(Hash, nnn, nUsed, ul, DeleteUserListEntry); 
 		}
-		FreeStrBuf(&Buf);
 		SubTP.Filter.ContextType = CTX_USERLIST;
 		SortIt = RetrieveSort(&SubTP, HKEY("USER"), HKEY("user:uid"), 0);
 		if (SortIt != NULL)
@@ -275,6 +280,7 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 			SortByPayload(Hash, CompareUID);
 		return Hash;
         }
+	FreeStrBuf(&Buf);
 	return NULL;
 }
 
@@ -385,60 +391,67 @@ int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
  *  Locate the message number of a user's vCard in the current room
  *  Returns the message id of his vcard
  */
-long locate_user_vcard_in_this_room() {
-	char buf[SIZ];
+long locate_user_vcard_in_this_room(message_summary **VCMsg,
+				    wc_mime_attachment **VCAtt)
+{
+	wcsession *WCC = WC;
+	HashPos *at;
+	HashPos *att;
+	const char *HashKey;
+	long HKLen;
+	void *vMsg;
+	message_summary *Msg;
+	wc_mime_attachment *Att;
+
+
+	int Done;
+	StrBuf *Buf;
 	long vcard_msgnum = (-1L);
-	char content_type[SIZ];
-	char partnum[SIZ];
 	int already_tried_creating_one = 0;
+	StrBuf *FoundCharset = NewStrBuf();
+	StrBuf *Error = NULL;
 
-	struct stuff_t {
-		struct stuff_t *next;
-		long msgnum;
-	};
-
-	struct stuff_t *stuff = NULL;
-	struct stuff_t *ptr;
-
+	
+	Buf = NewStrBuf();
 TRYAGAIN:
+	Done = 0;
 	/** Search for the user's vCard */
-	serv_puts("MSGS ALL");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		ptr = malloc(sizeof(struct stuff_t));
-		ptr->msgnum = atol(buf);
-		ptr->next = stuff;
-		stuff = ptr;
-	}
+	if (load_msg_ptrs("MSGS ALL||||1", 1) > 0) {
+		at = GetNewHashPos(WCC->summ, 0);
+		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
+			Msg = (message_summary*) vMsg;		
+			Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
+			memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
+			Msg->MsgBody->msgnum = Msg->msgnum;
 
-	/** Iterate through the message list looking for vCards */
-	while (stuff != NULL) {
-		serv_printf("MSG0 %ld|2", stuff->msgnum);
-		serv_getln(buf, sizeof buf);
-		if (buf[0]=='1') {
-			while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				if (!strncasecmp(buf, "part=", 5)) {
-					extract_token(partnum, &buf[5], 2, '|', sizeof partnum);
-					extract_token(content_type, &buf[5], 4, '|', sizeof content_type);
-					if (  (!strcasecmp(content_type, "text/x-vcard"))
-					   || (!strcasecmp(content_type, "text/vcard")) ) {
-						vcard_msgnum = stuff->msgnum;
+			load_message(Msg, 
+				     FoundCharset,
+				     &Error);
+			
+			if (Msg->AllAttach != NULL) {
+				att = GetNewHashPos(Msg->AllAttach, 0);
+				while (GetNextHashPos(Msg->AllAttach, att, &HKLen, &HashKey, &vMsg)) {
+					Att = (wc_mime_attachment*) vMsg;
+					if (  (strcasecmp(ChrPtr(Att->ContentType), "text/x-vcard") == 0) ||
+					      (strcasecmp(ChrPtr(Att->ContentType), "text/vcard")   == 0) ) {
+						*VCAtt = Att;
+						*VCMsg = Msg;
+						if (Att->Data == NULL)
+							MimeLoadData(Att);
 					}
 				}
 			}
+			FreeStrBuf(&Error); /*< don't care... */
+			
 		}
-
-		ptr = stuff->next;
-		free(stuff);
-		stuff = ptr;
+		DeleteHashPos(&at);		
 	}
-
 	/** If there's no vcard, create one */
-	if ((vcard_msgnum < 0) && (already_tried_creating_one == 0)) {
+	if ((*VCMsg == NULL) && (already_tried_creating_one == 0)) {
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '4') {
+		StrBuf_ServGetlnBuffered(Buf);
+		if (GetServerStatus(Buf, NULL) != 4) {
 			serv_puts("Content-type: text/x-vcard");
 			serv_puts("");
 			serv_puts("begin:vcard");
@@ -447,7 +460,7 @@ TRYAGAIN:
 		}
 		goto TRYAGAIN;
 	}
-
+	FreeStrBuf(&Buf);
 	return(vcard_msgnum);
 }
 
@@ -457,50 +470,59 @@ TRYAGAIN:
  *  username the name of the user
  *  usernum the citadel-uid of the user
  */
-void display_edit_address_book_entry(char *username, long usernum) {
+void display_edit_address_book_entry(const char *username, long usernum) {
+	message_summary *VCMsg = NULL;
+	wc_mime_attachment *VCAtt = NULL;
 	char roomname[SIZ];
-	char buf[SIZ];
+	StrBuf *Buf;
 	char error_message[SIZ];
 	long vcard_msgnum = (-1L);
 
 	/** Locate the user's config room, creating it if necessary */
-	sprintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
-	serv_printf("GOTO %s||1", roomname);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') {
-		serv_printf("CRE8 1|%s|5|||1|", roomname);
-		serv_getln(buf, sizeof buf);
-		serv_printf("GOTO %s||1", roomname);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] != '2') {
+	Buf = NewStrBuf();
+	serv_printf("GOTO %010ld.%s||1", usernum, USERCONFIGROOM);
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		serv_printf("CRE8 1|%010ld.%s|5|||1|", usernum, USERCONFIGROOM);
+		StrBuf_ServGetlnBuffered(Buf);
+		GetServerStatus(Buf, NULL);
+		serv_printf("GOTO %010ld.%s||1", usernum, USERCONFIGROOM);
+		StrBuf_ServGetlnBuffered(Buf);
+		if (GetServerStatus(Buf, NULL) != 2) {
+			StrBufCutLeft(Buf, 4);
 			sprintf(error_message,
 				"<img src=\"static/error.gif\" align=center>"
-				"%s<br /><br />\n", &buf[4]);
+				"%s<br /><br />\n", ChrPtr(Buf));
 			select_user_to_edit(error_message, username);
+			FreeStrBuf(&Buf);
 			return;
 		}
 	}
+	FreeStrBuf(&Buf);
 
-	vcard_msgnum = locate_user_vcard_in_this_room();
+	locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 
-	if (vcard_msgnum < 0) {
+	if (VCMsg == NULL) {
 		sprintf(error_message,
 			"<img src=\"static/error.gif\" align=center>%s<br /><br />\n",
 			_("An error occurred while trying to create or edit this address book entry.")
-		);
+			);
 		select_user_to_edit(error_message, username);
 		return;
 	}
 
-	do_edit_vcard(vcard_msgnum, "1", "select_user_to_edit", roomname);
+	do_edit_vcard(vcard_msgnum, "1", 
+		      VCMsg,
+		      VCAtt,
+		      "select_user_to_edit", 
+		      roomname);
 }
 
 
-void display_edituser(char *supplied_username, int is_new) {
+void display_edituser(const char *supplied_username, int is_new) {
 	UserListEntry* UL;
 	StrBuf *Buf;
 	char error_message[1024];
-	char MajorStatus;
 	char username[256];
 
 	if (supplied_username != NULL) {
@@ -512,10 +534,9 @@ void display_edituser(char *supplied_username, int is_new) {
 
 	Buf = NewStrBuf();
 	serv_printf("AGUP %s", username);
-	StrBuf_ServGetln(Buf);
-	MajorStatus = ChrPtr(Buf)[0];
-	StrBufCutLeft(Buf, 4);
-	if (MajorStatus != '2') {
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		StrBufCutLeft(Buf, 4);
 		/*TODO ImportantMessage */
 		sprintf(error_message,
 			"<img src=\"static/error.gif\" align=center>"
@@ -525,14 +546,15 @@ void display_edituser(char *supplied_username, int is_new) {
 		return;
 	}
 	else {
+		StrBufCutLeft(Buf, 4);
 		UL = NewUserListOneEntry(Buf);
-		if (havebstr("edit_abe_button")) {
+		if ((UL != NULL) && havebstr("edit_abe_button")) {
 			display_edit_address_book_entry(username, UL->UID);
 		}
-		else if (havebstr("delete_button")) {
+		else if ((UL != NULL) && havebstr("delete_button")) {
 			delete_user(username);
 		}
-		else {
+		else if (UL != NULL) {
 			WCTemplputParams SubTP;
 			memset(&SubTP, 0, sizeof(WCTemplputParams));
 			SubTP.Filter.ContextType = CTX_USERLIST;
@@ -552,10 +574,9 @@ void display_edituser(char *supplied_username, int is_new) {
  */
 void edituser(void) {
 	char message[SIZ];
-	char buf[SIZ];
 	int is_new = 0;
 	unsigned int flags = 0;
-	char *username;
+	const char *username;
 
 	is_new = ibstr("is_new");
 	safestrncpy(message, "", sizeof message);
@@ -563,9 +584,10 @@ void edituser(void) {
 
 	if (!havebstr("ok_button")) {
 		safestrncpy(message, _("Changes were not saved."), sizeof message);
-	}
-	
+	}	
 	else {
+		StrBuf *Buf = NewStrBuf();
+
 		flags = ibstr("flags");
 		if (yesbstr("inetmail")) {
 			flags |= US_INTERNET;
@@ -576,11 +598,12 @@ void edituser(void) {
 
 		if ((havebstr("newname")) && (strcasecmp(bstr("username"), bstr("newname")))) {
 			serv_printf("RENU %s|%s", bstr("username"), bstr("newname"));
-			serv_getln(buf, sizeof buf);
-			if (buf[0] != '2') {
+			StrBuf_ServGetlnBuffered(Buf);
+			if (GetServerStatus(Buf, NULL) == 2) {
+				StrBufCutLeft(Buf, 4);
 				sprintf(&message[strlen(message)],
 					"<img src=\"static/error.gif\" align=center>"
-					"%s<br /><br />\n", &buf[4]);
+					"%s<br /><br />\n", ChrPtr(Buf));
 			}
 			else {
 				username = bstr("newname");
@@ -598,12 +621,14 @@ void edituser(void) {
 			bstr("lastcall"),
 			bstr("purgedays")
 		);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] != '2') {
+		StrBuf_ServGetlnBuffered(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			StrBufCutLeft(Buf, 4);
 			sprintf(&message[strlen(message)],
 				"<img src=\"static/error.gif\" align=center>"
-				"%s<br /><br />\n", &buf[4]);
+				"%s<br /><br />\n", ChrPtr(Buf));
 		}
+		FreeStrBuf(&Buf);
 	}
 
 	/**
@@ -623,20 +648,23 @@ void edituser(void) {
  *  username the name of the user to remove
  */
 void delete_user(char *username) {
-	char buf[SIZ];
+	StrBuf *Buf;
 	char message[SIZ];
 
+	Buf = NewStrBuf();
 	serv_printf("ASUP %s|0|0|0|0|0|", username);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') {
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBufCutLeft(Buf, 4);
 		sprintf(message,
 			"<img src=\"static/error.gif\" align=center>"
-			"%s<br /><br />\n", &buf[4]);
+			"%s<br /><br />\n", ChrPtr(Buf));
 	}
 	else {
 		safestrncpy(message, "", sizeof message);
 	}
 	select_user_to_edit(message, bstr("username"));
+	FreeStrBuf(&Buf);
 }
 		
 
@@ -646,20 +674,20 @@ void delete_user(char *username) {
  * take the web environment username and create it on the citadel server
  */
 void create_user(void) {
-	char buf[SIZ];
+	long FullState;
+	StrBuf *Buf;
 	char error_message[SIZ];
-	char username[SIZ];
+	const char *username;
 
-	safestrncpy(username, bstr("username"), sizeof username);
-
+	Buf = NewStrBuf();
+	username = bstr("username");
 	serv_printf("CREU %s", username);
-	serv_getln(buf, sizeof buf);
-
-	if (buf[0] == '2') {
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, &FullState) == 2) {
 		sprintf(WC->ImportantMessage, _("A new user has been created."));
 		display_edituser(username, 1);
 	}
-	else if (!strncmp(buf, "570", 3)) {
+	else if (FullState == 570) {
 		sprintf(error_message,
 			"<img src=\"static/error.gif\" align=center>"
 			"%s<br /><br />\n",
@@ -670,12 +698,13 @@ void create_user(void) {
 		select_user_to_edit(error_message, NULL);
 	}
 	else {
+		StrBufCutLeft(Buf, 4);
 		sprintf(error_message,
 			"<img src=\"static/error.gif\" align=center>"
-			"%s<br /><br />\n", &buf[4]);
+			"%s<br /><br />\n", ChrPtr(Buf));
 		select_user_to_edit(error_message, NULL);
 	}
-
+	FreeStrBuf(&Buf);
 }
 
 

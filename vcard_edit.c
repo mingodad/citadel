@@ -696,7 +696,11 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
  * and MIME part number to fetch.  Or, specify -1 for the message number
  * to start with a blank card.
  */
-void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *force_room) {
+void do_edit_vcard(long msgnum, char *partnum, 
+		   message_summary *VCMsg,
+		   wc_mime_attachment *VCAtt,
+		   char *return_to, 
+		   const char *force_room) {
 	StrBuf *Buf;
 	char buf[SIZ];
 	size_t total_len = 0;
@@ -753,37 +757,44 @@ void do_edit_vcard(long msgnum, char *partnum, char *return_to, const char *forc
 
 	safestrncpy(whatuser, "", sizeof whatuser);
 
-	if (msgnum >= 0) {
-		sprintf(buf, "MSG0 %ld|1", msgnum);
-		serv_puts(buf);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] != '1') {
-			convenience_page("770000", _("Error"), &buf[4]);
-			return;
-		}
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			if (!strncasecmp(buf, "from=", 5)) {
-				safestrncpy(whatuser, &buf[5], sizeof whatuser);
+	if ((msgnum >= 0) || 
+	    ((VCMsg != NULL) && (VCAtt != NULL)))
+	{
+		if ((VCMsg == NULL) && (VCAtt == NULL)) {
+			sprintf(buf, "MSG0 %ld|1", msgnum);
+			serv_puts(buf);
+			serv_getln(buf, sizeof buf);
+			if (buf[0] != '1') {
+				convenience_page("770000", _("Error"), &buf[4]);
+				return;
 			}
-			else if (!strncasecmp(buf, "node=", 5)) {
-				strcat(whatuser, " @ ");
-				strcat(whatuser, &buf[5]);
+			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+				if (!strncasecmp(buf, "from=", 5)) {
+					safestrncpy(whatuser, &buf[5], sizeof whatuser);
+				}
+				else if (!strncasecmp(buf, "node=", 5)) {
+					strcat(whatuser, " @ ");
+					strcat(whatuser, &buf[5]);
+				}
 			}
-		}
-		Buf = NewStrBuf();
-		serv_printf(buf, "DLAT %ld|%s", msgnum, partnum);
-		StrBuf_ServGetlnBuffered(Buf);
-		if (GetServerStatus(Buf, NULL) != 6) {
-			convenience_page("770000", "Error", &(ChrPtr(Buf)[4]));
-			return;
-		}
+			Buf = NewStrBuf();
+			serv_printf(buf, "DLAT %ld|%s", msgnum, partnum);
+			StrBuf_ServGetlnBuffered(Buf);
+			if (GetServerStatus(Buf, NULL) != 6) {
+				convenience_page("770000", "Error", &(ChrPtr(Buf)[4]));
+				return;
+			}
+			
+			StrBufCutLeft(Buf, 4);
+			total_len = StrBufExtract_long(Buf, 0, '|');
+			
+			StrBuf_ServGetBLOBBuffered(Buf, total_len);
 		
-		StrBufCutLeft(Buf, 4);
-		total_len = StrBufExtract_long(Buf, 0, '|');
-
-		StrBuf_ServGetBLOBBuffered(Buf, total_len);
-	
-		v = VCardLoad(Buf);
+			v = VCardLoad(Buf);
+		}
+		else {
+			v = VCardLoad(VCAtt->Data);
+		}
 		FreeStrBuf(&Buf);
 	
 		/* Populate the variables for our form */
@@ -1065,7 +1076,7 @@ void edit_vcard(void) {
 
 	msgnum = lbstr("msgnum");
 	partnum = bstr("partnum");
-	do_edit_vcard(msgnum, partnum, "", NULL);
+	do_edit_vcard(msgnum, partnum, NULL, NULL, "", NULL);
 }
 
 
