@@ -3,9 +3,15 @@
  *
  * Across-the-wire migration utility for Citadel
  *
+ * Yes, we used goto, and gets(), and committed all sorts of other heinous sins here.
+ * The scope of this program isn't wide enough to make a difference.  If you don't like
+ * it you can rewrite it.
+ *
  * Copyright (c) 2009 citadel.org
  *
  * This program is licensed to you under the terms of the GNU General Public License v3
+ *
+ * FIXME handle -h on both sides
  *
  */
 
@@ -74,8 +80,8 @@ int main(int argc, char *argv[])
 	char remote_user[256];
 	char remote_host[256];
 	char remote_sendcommand[PATH_MAX];
-	FILE *source_artv;
-	FILE *target_artv;
+	FILE *sourcefp = NULL;
+	FILE *targetfp = NULL;
 	int linecount = 0;
 	char spinning[4] = "-\\|/" ;
 	int exitcode = 0;
@@ -214,23 +220,23 @@ int main(int argc, char *argv[])
 
 	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s -w3600 MIGR export",
 		socket_path, remote_user, remote_host, remote_sendcommand);
-	source_artv = popen(cmd, "r");
-	if (!source_artv) {
+	sourcefp = popen(cmd, "r");
+	if (!sourcefp) {
 		printf("\n%s\n\n", strerror(errno));
 		exitcode = 2;
 		goto THEEND;
 	}
 
 	snprintf(cmd, sizeof cmd, "%s -w3600 MIGR import", sendcommand);
-	target_artv = popen(cmd, "w");
-	if (!target_artv) {
+	targetfp = popen(cmd, "w");
+	if (!targetfp) {
 		printf("\n%s\n\n", strerror(errno));
 		exitcode = 3;
 		goto THEEND;
 	}
 
-	while (fgets(buf, sizeof buf, source_artv) != NULL) {
-		if (fwrite(buf, strlen(buf), 1, target_artv) < 1) {
+	while (fgets(buf, sizeof buf, sourcefp) != NULL) {
+		if (fwrite(buf, strlen(buf), 1, targetfp) < 1) {
 			exitcode = 4;
 			printf("%s\n", strerror(errno));
 			goto FAIL;
@@ -242,11 +248,65 @@ int main(int argc, char *argv[])
 		}
 	}
 
-FAIL:	pclose(source_artv);
-	pclose(target_artv);
+FAIL:	if (sourcefp) pclose(sourcefp);
+	if (targetfp) pclose(targetfp);
+	if (exitcode != 0) goto THEEND;
 
-	// FIXME handle -h on both sides
-	printf("If this program was finished we would do more.  FIXME\n");
+	/* We need to copy a bunch of other stuff, and will do so using rsync */
+
+	snprintf(cmd, sizeof cmd, "ssh -S %s %s@%s %s MIGR listdirs",
+		socket_path, remote_user, remote_host, remote_sendcommand);
+	sourcefp = popen(cmd, "r");
+	if (!sourcefp) {
+		printf("\n%s\n\n", strerror(errno));
+		exitcode = 2;
+		goto THEEND;
+	}
+	while ((fgets(buf, sizeof buf, sourcefp)) && (strcmp(buf, "000"))) {
+		buf[strlen(buf)-1] = 0;
+
+		if (!strncasecmp(buf, "bio|", 4)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[4], ctdl_bio_dir);
+		}
+		else if (!strncasecmp(buf, "files|", 6)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[6], ctdl_file_dir);
+		}
+		else if (!strncasecmp(buf, "userpics|", 9)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[9], ctdl_usrpic_dir);
+		}
+		else if (!strncasecmp(buf, "messages|", 9)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[9], ctdl_message_dir);
+		}
+		else if (!strncasecmp(buf, "netconfigs|", 11)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[11], ctdl_netcfg_dir);
+		}
+		else if (!strncasecmp(buf, "keys|", 5)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[5], ctdl_key_dir);
+		}
+		else if (!strncasecmp(buf, "images|", 7)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[7], ctdl_image_dir);
+		}
+		else if (!strncasecmp(buf, "info|", 5)) {
+			snprintf(cmd, sizeof cmd, "rsync -va --rsh='ssh -S %s' %s@%s:%s/ %s/",
+				socket_path, remote_user, remote_host, &buf[5], ctdl_info_dir);
+		}
+		else {
+			strcpy(cmd, "false");	/* cheap and sleazy way to throw an error */
+		}
+		printf("%s\n", cmd);
+		cmdexit = system(cmd);
+		if (cmdexit != 0) {
+			exitcode += cmdexit;
+		}
+	}
+	pclose(sourcefp);
 
 THEEND:	kill(sshpid, SIGKILL);
 	unlink(socket_path);
