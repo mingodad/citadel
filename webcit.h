@@ -370,6 +370,7 @@ struct wcsession {
 
 	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
 	char ImportantMessage[SIZ];		/**< ??? todo */
+	StrBuf *ImportantMsg;
 
 /* accounting */
 	StrBuf *wc_username;			/**< login name of current user */
@@ -386,7 +387,7 @@ struct wcsession {
 	int need_vali;				/**< New users require validation. */
 
 /* Preferences */
-	char cs_inet_email[256];		/**< User's preferred Internet addr. */
+	StrBuf *cs_inet_email;  		/**< User's preferred Internet addr. */
 	char reply_to[512];			/**< reply-to address */
 	HashList *hash_prefs;			/**< WebCit preferences for this user */
 	StrBuf *DefaultCharset;                 /**< Charset the user preferes */

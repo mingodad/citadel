@@ -122,8 +122,7 @@ void fetch_ab_name(message_summary *Msg, char **namebuf) {
 	memset(&summ, 0, sizeof(summ));
 	//////safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
 
-	sprintf(buf, "MSG0 %ld|0", Msg->msgnum);	/** unfortunately we need the mime info now */
-	serv_puts(buf);
+	serv_printf(buf, "MSG0 %ld|0", Msg->msgnum);	/** unfortunately we need the mime info now */
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
@@ -1085,6 +1084,7 @@ void edit_vcard(void) {
  *  parse edited vcard from the browser
  */
 void submit_vcard(void) {
+	wcsession *WCC = WC;
 	struct vCard *v;
 	char *serialized_vcard;
 	char buf[SIZ];
@@ -1097,7 +1097,31 @@ void submit_vcard(void) {
 	}
 
 	if (havebstr("force_room")) {
-		gotoroom(sbstr("force_room"));
+		if (gotoroom(sbstr("force_room")) != 200) {
+			StrBufAppendBufPlain(WCC->ImportantMsg,
+					     _("Unable to enter the room to save your message"),
+					     -1, 0);
+			StrBufAppendBufPlain(WCC->ImportantMsg,
+					     HKEY(": "), 0);
+			StrBufAppendBuf(WCC->ImportantMsg, sbstr("force_room"), 0);
+			StrBufAppendBufPlain(WCC->ImportantMsg,
+					     HKEY("; "), 0);
+					       
+			StrBufAppendBufPlain(WCC->ImportantMsg,
+					     _("Aborting."),
+					     -1, 0);
+			/// todo: call the master dispatcher again...
+			if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
+				select_user_to_edit(NULL, NULL);
+			}
+			else if (!strcmp(bstr("return_to"), "do_welcome")) {
+				do_welcome();
+			}
+			else {
+				readloop(readnew);
+			}
+			return;
+		}
 	}
 
 	sprintf(buf, "ENT0 1|||4||");
@@ -1116,9 +1140,9 @@ void submit_vcard(void) {
 	v = VCardLoad(Buf);	/** Start with the extra fields */
 	FreeStrBuf(&Buf);
 	if (v == NULL) {
-		safestrncpy(WC->ImportantMessage,
+		safestrncpy(WCC->ImportantMessage,
 			_("An error has occurred."),
-			sizeof WC->ImportantMessage
+			sizeof WCC->ImportantMessage
 		);
 		edit_vcard();
 		return;
@@ -1162,9 +1186,9 @@ void submit_vcard(void) {
 	serialized_vcard = vcard_serialize(v);
 	vcard_free(v);
 	if (serialized_vcard == NULL) {
-		safestrncpy(WC->ImportantMessage,
+		safestrncpy(WCC->ImportantMessage,
 			_("An error has occurred."),
-			sizeof WC->ImportantMessage
+			sizeof WCC->ImportantMessage
 		);
 		edit_vcard();
 		return;

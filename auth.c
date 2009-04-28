@@ -114,11 +114,11 @@ void display_openid_name_request(const StrBuf *claimed_id, const StrBuf *usernam
 void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_response)
 {
 	wcsession *WCC = WC;
-	char buf[SIZ];
+	StrBuf *Buf;
 	StrBuf *FloorDiv;
 	StrBuf *Language = NULL;
 
-	WC->logged_in = 1;
+	WCC->logged_in = 1;
 
 	if (WCC->wc_fullname == NULL)
 		WCC->wc_fullname = NewStrBufPlain(NULL, StrLength(serv_response));
@@ -146,13 +146,19 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 
 	load_preferences();
 
+	Buf = NewStrBuf();
 	serv_puts("CHEK");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		WC->new_mail = extract_int(&buf[4], 0);
-		WC->need_regi = extract_int(&buf[4], 1);
-		WC->need_vali = extract_int(&buf[4], 2);
-		extract_token(WC->cs_inet_email, &buf[4], 3, '|', sizeof WC->cs_inet_email);
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		const char *pch;
+
+		pch = ChrPtr(Buf) + 4;
+		WCC->new_mail = StrBufExtractNext_long(Buf, &pch, '|');
+		WCC->need_regi = StrBufExtractNext_long(Buf, &pch, '|');
+		WCC->need_vali = StrBufExtractNext_long(Buf, &pch, '|');
+		if (WCC->cs_inet_email == NULL)
+			WCC->cs_inet_email  = NewStrBuf();
+		StrBufExtract_NextToken(WCC->cs_inet_email, Buf, &pch, '|');
 	}
 	if (havebstr("language"))
 		set_preference("language", NewStrBufDup(SBSTR("language")), 1);
@@ -164,7 +170,8 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 		}
 	}
 	get_preference("floordiv_expanded", &FloorDiv);
-	WC->floordiv_expanded = FloorDiv;
+	WCC->floordiv_expanded = FloorDiv;
+	FreeStrBuf(&Buf);
 }
 
 
