@@ -11,7 +11,7 @@
  *  message the header message???
  *  preselect which user should be selected in the browser
  */
-void select_user_to_edit(const char *message, const char *preselect)
+void select_user_to_edit(const char *preselect)
 {
 	output_headers(1, 0, 0, 0, 1, 0);
 	do_template("edituser_select", NULL);
@@ -471,11 +471,11 @@ TRYAGAIN:
  *  usernum the citadel-uid of the user
  */
 void display_edit_address_book_entry(const char *username, long usernum) {
+	wcsession *WCC = WC;
 	message_summary *VCMsg = NULL;
 	wc_mime_attachment *VCAtt = NULL;
 	StrBuf *roomname;
 	StrBuf *Buf;
-	char error_message[SIZ];
 	long vcard_msgnum = (-1L);
 
 	/** Locate the user's config room, creating it if necessary */
@@ -491,11 +491,9 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 		serv_printf("GOTO %s||1", ChrPtr(roomname));
 		StrBuf_ServGetlnBuffered(Buf);
 		if (GetServerStatus(Buf, NULL) != 2) {
-			StrBufCutLeft(Buf, 4);
-			sprintf(error_message,
-				"<img src=\"static/error.gif\" align=center>"
-				"%s<br /><br />\n", ChrPtr(Buf));
-			select_user_to_edit(error_message, username);
+			FlushStrBuf(WCC->ImportantMsg);
+			StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+			select_user_to_edit(username);
 			FreeStrBuf(&Buf);
 			FreeStrBuf(&roomname);
 			return;
@@ -506,11 +504,10 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 	locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 
 	if (VCMsg == NULL) {
-		sprintf(error_message,
-			"<img src=\"static/error.gif\" align=center>%s<br /><br />\n",
-			_("An error occurred while trying to create or edit this address book entry.")
-			);
-		select_user_to_edit(error_message, username);
+		StrBufPlain(WCC->ImportantMsg, 
+			    _("An error occurred while trying to create or edit this address book entry."), 
+			    0);
+		select_user_to_edit(username);
 		FreeStrBuf(&roomname);
 		return;
 	}
@@ -525,9 +522,9 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 
 
 void display_edituser(const char *supplied_username, int is_new) {
+	wcsession *WCC = WC;
 	UserListEntry* UL;
 	StrBuf *Buf;
-	char error_message[1024];
 	char username[256];
 
 	if (supplied_username != NULL) {
@@ -541,12 +538,9 @@ void display_edituser(const char *supplied_username, int is_new) {
 	serv_printf("AGUP %s", username);
 	StrBuf_ServGetlnBuffered(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		StrBufCutLeft(Buf, 4);
-		/*TODO ImportantMessage */
-		sprintf(error_message,
-			"<img src=\"static/error.gif\" align=center>"
-			"%s<br /><br />\n", ChrPtr(Buf));
-		select_user_to_edit(error_message, username);
+		FlushStrBuf(WCC->ImportantMsg);
+		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+		select_user_to_edit(username);
 		FreeStrBuf(&Buf);
 		return;
 	}
@@ -578,17 +572,16 @@ void display_edituser(const char *supplied_username, int is_new) {
  *  do the backend operation of the user edit on the server
  */
 void edituser(void) {
-	char message[SIZ];
+	wcsession *WCC = WC;
 	int is_new = 0;
 	unsigned int flags = 0;
 	const char *username;
 
 	is_new = ibstr("is_new");
-	safestrncpy(message, "", sizeof message);
 	username = bstr("username");
 
 	if (!havebstr("ok_button")) {
-		safestrncpy(message, _("Changes were not saved."), sizeof message);
+		StrBufPlain(WCC->ImportantMsg, _("Changes were not saved."), -1);
 	}	
 	else {
 		StrBuf *Buf = NewStrBuf();
@@ -605,10 +598,8 @@ void edituser(void) {
 			serv_printf("RENU %s|%s", bstr("username"), bstr("newname"));
 			StrBuf_ServGetlnBuffered(Buf);
 			if (GetServerStatus(Buf, NULL) == 2) {
-				StrBufCutLeft(Buf, 4);
-				sprintf(&message[strlen(message)],
-					"<img src=\"static/error.gif\" align=center>"
-					"%s<br /><br />\n", ChrPtr(Buf));
+				FlushStrBuf(WCC->ImportantMsg);
+				StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);				
 			}
 			else {
 				username = bstr("newname");
@@ -628,10 +619,7 @@ void edituser(void) {
 		);
 		StrBuf_ServGetlnBuffered(Buf);
 		if (GetServerStatus(Buf, NULL) == 2) {
-			StrBufCutLeft(Buf, 4);
-			sprintf(&message[strlen(message)],
-				"<img src=\"static/error.gif\" align=center>"
-				"%s<br /><br />\n", ChrPtr(Buf));
+			StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
 		}
 		FreeStrBuf(&Buf);
 	}
@@ -644,7 +632,7 @@ void edituser(void) {
 		display_edit_address_book_entry(username, lbstr("usernum") );
 	}
 	else {
-		select_user_to_edit(message, username);
+		select_user_to_edit(username);
 	}
 }
 
@@ -653,22 +641,16 @@ void edituser(void) {
  *  username the name of the user to remove
  */
 void delete_user(char *username) {
+	wcsession *WCC = WC;
 	StrBuf *Buf;
-	char message[SIZ];
-
+	
 	Buf = NewStrBuf();
 	serv_printf("ASUP %s|0|0|0|0|0|", username);
 	StrBuf_ServGetlnBuffered(Buf);
-	if (GetServerStatus(Buf, NULL) == 2) {
-		StrBufCutLeft(Buf, 4);
-		sprintf(message,
-			"<img src=\"static/error.gif\" align=center>"
-			"%s<br /><br />\n", ChrPtr(Buf));
-	}
-	else {
-		safestrncpy(message, "", sizeof message);
-	}
-	select_user_to_edit(message, bstr("username"));
+	if (GetServerStatus(Buf, NULL) != 2) 
+		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+
+	select_user_to_edit( bstr("username"));
 	FreeStrBuf(&Buf);
 }
 		
@@ -679,9 +661,9 @@ void delete_user(char *username) {
  * take the web environment username and create it on the citadel server
  */
 void create_user(void) {
+	wcsession *WCC = WC;
 	long FullState;
 	StrBuf *Buf;
-	char error_message[SIZ];
 	const char *username;
 
 	Buf = NewStrBuf();
@@ -693,27 +675,22 @@ void create_user(void) {
 		display_edituser(username, 1);
 	}
 	else if (FullState == 570) {
-		sprintf(error_message,
-			"<img src=\"static/error.gif\" align=center>"
-			"%s<br /><br />\n",
-			_("You are attempting to create a new user from within Citadel "
-			"while running in host based authentication mode.  In this mode, "
-			"you must create new users on the host system, not within Citadel.")
-		);
-		select_user_to_edit(error_message, NULL);
+		StrBufPlain(WCC->ImportantMsg, 
+			    _("You are attempting to create a new user from within Citadel "
+			      "while running in host based authentication mode.  In this mode, "
+			      "you must create new users on the host system, not within Citadel."), 
+			    0);
+		select_user_to_edit(NULL);
 	}
 	else {
-		StrBufCutLeft(Buf, 4);
-		sprintf(error_message,
-			"<img src=\"static/error.gif\" align=center>"
-			"%s<br /><br />\n", ChrPtr(Buf));
-		select_user_to_edit(error_message, NULL);
+		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
+		select_user_to_edit(NULL);
 	}
 	FreeStrBuf(&Buf);
 }
 
 
-void _select_user_to_edit(void){select_user_to_edit(NULL, NULL);}
+void _select_user_to_edit(void){select_user_to_edit(NULL);}
 void _display_edituser(void) {display_edituser(NULL, 0);}
 
 void 

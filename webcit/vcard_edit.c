@@ -1112,7 +1112,7 @@ void submit_vcard(void) {
 					     -1, 0);
 			/// todo: call the master dispatcher again...
 			if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
-				select_user_to_edit(NULL, NULL);
+				select_user_to_edit(NULL);
 			}
 			else if (!strcmp(bstr("return_to"), "do_welcome")) {
 				do_welcome();
@@ -1201,7 +1201,7 @@ void submit_vcard(void) {
 	free(serialized_vcard);
 
 	if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
-		select_user_to_edit(NULL, NULL);
+		select_user_to_edit(NULL);
 	}
 	else if (!strcmp(bstr("return_to"), "do_welcome")) {
 		do_welcome();
