@@ -10,8 +10,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
-"Report-Msgid-Bugs-To: <room_citadel_translators@uncensored.citadel.org>\n"
-"POT-Creation-Date: 2009-02-22 12:41+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-04-28 15:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: David Given <dg@cowlark.com>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -19,56 +19,48 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../addressbook_popup.c:178 ../i18n_templatelist.c:401 ../roomops.c:1745
-#: ../roomops.c:1776 ../roomops.c:2018 ../roomops.c:2074
+#: ../addressbook_popup.c:178 ../roomops.c:1745 ../roomops.c:1776
+#: ../roomops.c:2018 ../roomops.c:2074
 msgid "Add"
 msgstr ""
 
-#: ../auth.c:21 ../i18n_templatelist.c:222 ../i18n_templatelist.c:235
-#: ../i18n_templatelist.c:302 ../static/t/tab_siteconfig_access.html:9
+#: ../auth.c:21 ../static/t/tab_siteconfig_access.html:9
 #: ../static/t/tab_siteconfig_access.html:35
 #: ../static/t/userlist_detailview.html:22
 msgid "Deleted"
 msgstr ""
 
-#: ../auth.c:22 ../auth.c:90 ../i18n_templatelist.c:223
-#: ../i18n_templatelist.c:236 ../i18n_templatelist.c:257
-#: ../i18n_templatelist.c:303 ../static/t/tab_siteconfig_access.html:10
+#: ../auth.c:22 ../auth.c:90 ../static/t/tab_siteconfig_access.html:10
 #: ../static/t/tab_siteconfig_access.html:36
 #: ../static/t/userlist_detailview.html:23
 msgid "New User"
 msgstr ""
 
-#: ../auth.c:23 ../i18n_templatelist.c:224 ../i18n_templatelist.c:237
-#: ../i18n_templatelist.c:304 ../static/t/tab_siteconfig_access.html:11
+#: ../auth.c:23 ../static/t/tab_siteconfig_access.html:11
 #: ../static/t/tab_siteconfig_access.html:37
 #: ../static/t/userlist_detailview.html:24
 msgid "Problem User"
 msgstr ""
 
-#: ../auth.c:24 ../i18n_templatelist.c:225 ../i18n_templatelist.c:238
-#: ../i18n_templatelist.c:305 ../static/t/tab_siteconfig_access.html:12
+#: ../auth.c:24 ../static/t/tab_siteconfig_access.html:12
 #: ../static/t/tab_siteconfig_access.html:38
 #: ../static/t/userlist_detailview.html:25
 msgid "Local User"
 msgstr ""
 
-#: ../auth.c:25 ../i18n_templatelist.c:226 ../i18n_templatelist.c:239
-#: ../i18n_templatelist.c:306 ../static/t/tab_siteconfig_access.html:13
+#: ../auth.c:25 ../static/t/tab_siteconfig_access.html:13
 #: ../static/t/tab_siteconfig_access.html:39
 #: ../static/t/userlist_detailview.html:26
 msgid "Network User"
 msgstr ""
 
-#: ../auth.c:26 ../i18n_templatelist.c:227 ../i18n_templatelist.c:240
-#: ../i18n_templatelist.c:307 ../static/t/tab_siteconfig_access.html:14
+#: ../auth.c:26 ../static/t/tab_siteconfig_access.html:14
 #: ../static/t/tab_siteconfig_access.html:40
 #: ../static/t/userlist_detailview.html:27
 msgid "Preferred User"
 msgstr ""
 
-#: ../auth.c:27 ../i18n_templatelist.c:228 ../i18n_templatelist.c:241
-#: ../i18n_templatelist.c:308 ../static/t/tab_siteconfig_access.html:15
+#: ../auth.c:27 ../static/t/tab_siteconfig_access.html:15
 #: ../static/t/tab_siteconfig_access.html:41
 #: ../static/t/userlist_detailview.html:28
 msgid "Aide"
@@ -88,14 +80,12 @@ msgstr ""
 msgid "Please specify the user name you would like to use."
 msgstr ""
 
-#: ../auth.c:89 ../i18n_templatelist.c:253 ../i18n_templatelist.c:296
-#: ../who.c:194 ../static/t/login.html:16
+#: ../auth.c:89 ../who.c:194 ../static/t/login.html:16
 #: ../static/t/userlist_detailview.html:16
 msgid "User name:"
 msgstr ""
 
-#: ../auth.c:91 ../i18n_templatelist.c:258 ../i18n_templatelist.c:349
-#: ../paging.c:497
+#: ../auth.c:91 ../paging.c:493
 msgid "Exit"
 msgstr ""
 
@@ -104,7 +94,7 @@ msgstr ""
 msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 msgstr ""
 
-#: ../auth.c:221 ../auth.c:847
+#: ../auth.c:221 ../auth.c:849
 msgid "Blank passwords are not allowed."
 msgstr ""
 
@@ -112,8 +102,7 @@ msgstr ""
 msgid "Your password was not accepted."
 msgstr ""
 
-#: ../auth.c:557 ../i18n_templatelist.c:42 ../i18n_templatelist.c:76
-#: ../i18n_templatelist.c:77 ../static/t/iconbar.html:76
+#: ../auth.c:557 ../static/t/iconbar.html:76
 #: ../static/t/menu_basic_commands.html:19
 msgid "Log off"
 msgstr ""
@@ -136,8 +125,7 @@ msgstr ""
 msgid "Close window"
 msgstr ""
 
-#: ../auth.c:604 ../i18n_templatelist.c:414
-#: ../static/t/aide_usermanagement.html:3
+#: ../auth.c:604 ../static/t/aide_usermanagement.html:3
 msgid "Validate new users"
 msgstr ""
 
@@ -170,50 +158,47 @@ msgstr ""
 msgid "Select access level for this user:"
 msgstr ""
 
-#: ../auth.c:773 ../i18n_templatelist.c:407 ../static/t/menu_your_info.html:4
+#: ../auth.c:775 ../static/t/menu_your_info.html:4
 msgid "Change your password"
 msgstr ""
 
-#: ../auth.c:797
+#: ../auth.c:799
 msgid "Enter new password:"
 msgstr ""
 
-#: ../auth.c:801
+#: ../auth.c:803
 msgid "Enter it again to confirm:"
 msgstr ""
 
-#: ../auth.c:807
+#: ../auth.c:809
 msgid "Change password"
 msgstr ""
 
-#: ../auth.c:809 ../calendar.c:747 ../event.c:720 ../graphics.c:58
-#: ../i18n_templatelist.c:4 ../i18n_templatelist.c:136
-#: ../i18n_templatelist.c:279 ../i18n_templatelist.c:313
-#: ../i18n_templatelist.c:320 ../i18n_templatelist.c:332
-#: ../i18n_templatelist.c:383 ../iconbar.c:391 ../mainmenu.c:250
-#: ../messages.c:1478 ../notes.c:87 ../paging.c:55 ../roomops.c:1549
-#: ../roomops.c:1917 ../roomops.c:2603 ../roomops.c:2762 ../roomops.c:2827
-#: ../sieve.c:209 ../sysmsgs.c:52 ../vcard_edit.c:995 ../who.c:204
+#: ../auth.c:811 ../calendar.c:765 ../event.c:741 ../graphics.c:58
+#: ../iconbar.c:391 ../mainmenu.c:250 ../messages.c:1514 ../paging.c:51
+#: ../roomops.c:1549 ../roomops.c:1917 ../roomops.c:2603 ../roomops.c:2762
+#: ../roomops.c:2827 ../sieve.c:209 ../sysmsgs.c:52 ../vcard_edit.c:1061
+#: ../who.c:204
 msgid "Cancel"
 msgstr ""
 
-#: ../auth.c:828
+#: ../auth.c:830
 msgid "Cancelled.  Password was not changed."
 msgstr ""
 
-#: ../auth.c:839
+#: ../auth.c:841
 msgid "They don't match.  Password was not changed."
 msgstr ""
 
-#: ../availability.c:130
+#: ../availability.c:139
 msgid "availability unknown"
 msgstr ""
 
-#: ../availability.c:151
+#: ../availability.c:160
 msgid "free"
 msgstr ""
 
-#: ../availability.c:161
+#: ../availability.c:170
 msgid "BUSY"
 msgstr ""
 
@@ -233,32 +218,31 @@ msgstr ""
 msgid "This is an unknown type of calendar item."
 msgstr ""
 
-#: ../calendar.c:89 ../calendar.c:651 ../calendar_view.c:257
-#: ../calendar_view.c:869 ../calendar_view.c:907 ../calendar_view.c:986
+#: ../calendar.c:89 ../calendar.c:654 ../calendar_view.c:270
+#: ../calendar_view.c:939 ../calendar_view.c:981 ../calendar_view.c:1060
 msgid "Summary:"
 msgstr ""
 
-#: ../calendar.c:98 ../calendar_view.c:265 ../calendar_view.c:874
-#: ../calendar_view.c:912 ../calendar_view.c:991
+#: ../calendar.c:98 ../calendar_view.c:278 ../calendar_view.c:944
+#: ../calendar_view.c:986 ../calendar_view.c:1065
 msgid "Location:"
 msgstr ""
 
-#: ../calendar.c:123 ../calendar_view.c:289 ../calendar_view.c:883
+#: ../calendar.c:123 ../calendar_view.c:323 ../calendar_view.c:950
 msgid "Date:"
 msgstr ""
 
-#: ../calendar.c:130 ../calendar_view.c:295 ../calendar_view.c:917
-#: ../calendar_view.c:996
+#: ../calendar.c:130 ../calendar_view.c:345 ../calendar_view.c:991
+#: ../calendar_view.c:1075
 msgid "Starting date/time:"
 msgstr ""
 
-#: ../calendar.c:141 ../calendar_view.c:306 ../calendar_view.c:919
-#: ../calendar_view.c:998
+#: ../calendar.c:141 ../calendar_view.c:348 ../calendar_view.c:993
+#: ../calendar_view.c:1077
 msgid "Ending date/time:"
 msgstr ""
 
-#: ../calendar.c:150 ../calendar.c:727 ../i18n_templatelist.c:421
-#: ../static/t/files.html:38
+#: ../calendar.c:150 ../calendar.c:745 ../static/t/files.html:38
 msgid "Description:"
 msgstr ""
 
@@ -266,7 +250,7 @@ msgstr ""
 msgid "Recurrence"
 msgstr ""
 
-#: ../calendar.c:160 ../event.c:440
+#: ../calendar.c:160 ../event.c:457
 msgid "This is a recurring event"
 msgstr ""
 
@@ -320,204 +304,222 @@ msgstr ""
 msgid "Ignore"
 msgstr ""
 
-#: ../calendar.c:287
+#: ../calendar.c:286
 msgid "There was an error parsing this calendar item."
 msgstr ""
 
-#: ../calendar.c:321
+#: ../calendar.c:319
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
 msgstr ""
 
-#: ../calendar.c:325
+#: ../calendar.c:323
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
 msgstr ""
 
-#: ../calendar.c:329
+#: ../calendar.c:327
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
 
-#: ../calendar.c:334
+#: ../calendar.c:332
 msgid "A reply has been sent to the meeting organizer."
 msgstr "A reply has been sent to the meeting organiser."
 
-#: ../calendar.c:366
+#: ../calendar.c:364
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr ""
 
-#: ../calendar.c:368
+#: ../calendar.c:366
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr ""
 
-#: ../calendar.c:632
+#: ../calendar.c:635
 msgid "Edit task"
 msgstr ""
 
-#: ../calendar.c:662
+#: ../calendar.c:665
 msgid "Start date:"
 msgstr ""
 
-#: ../calendar.c:670 ../calendar.c:692
+#: ../calendar.c:673 ../calendar.c:703
 msgid "No date"
 msgstr ""
 
-#: ../calendar.c:673 ../calendar.c:694
+#: ../calendar.c:677 ../calendar.c:706
 msgid "or"
 msgstr ""
 
-#: ../calendar.c:684
+#: ../calendar.c:691 ../calendar.c:720
+msgid "Time associated"
+msgstr ""
+
+#: ../calendar.c:695
 msgid "Due date:"
 msgstr ""
 
-#: ../calendar.c:706
+#: ../calendar.c:724
 msgid "Completed:"
 msgstr ""
 
-#: ../calendar.c:717
+#: ../calendar.c:735
 msgid "Category:"
 msgstr ""
 
-#: ../calendar.c:745 ../event.c:717 ../i18n_templatelist.c:278 ../notes.c:86
+#: ../calendar.c:763 ../event.c:738
 msgid "Save"
 msgstr ""
 
-#: ../calendar.c:746 ../event.c:718 ../i18n_templatelist.c:12
-#: ../i18n_templatelist.c:290 ../i18n_templatelist.c:338
-#: ../i18n_templatelist.c:344 ../roomops.c:734
+#: ../calendar.c:764 ../event.c:739 ../roomops.c:734
 #: ../static/t/msg_listview.html:30
 #: ../static/t/section_aide_inetconf_entry.html:7
-#: ../static/t/view_message.html:21
+#: ../static/t/view_message.html:36
 msgid "Delete"
 msgstr ""
 
-#: ../calendar.c:816
+#: ../calendar.c:835 ../calendar_view.c:1378
 msgid "Untitled Task"
 msgstr ""
 
-#: ../calendar.c:1191
+#: ../calendar.c:1304
 msgid "Calendar day view begins at:"
 msgstr ""
 
-#: ../calendar.c:1192
+#: ../calendar.c:1305
 msgid "Calendar day view ends at:"
 msgstr ""
 
-#: ../calendar.c:1193
+#: ../calendar.c:1306
 msgid "Week starts on:"
 msgstr ""
 
-#: ../calendar_tools.c:83
+#: ../calendar_tools.c:86
 msgid "Hour: "
 msgstr ""
 
-#: ../calendar_tools.c:103
+#: ../calendar_tools.c:106
 msgid "Minute: "
 msgstr ""
 
-#: ../calendar_tools.c:174
+#: ../calendar_tools.c:177
 msgid "(status unknown)"
 msgstr ""
 
-#: ../calendar_tools.c:190
+#: ../calendar_tools.c:193
 msgid "(needs action)"
 msgstr ""
 
-#: ../calendar_tools.c:193
+#: ../calendar_tools.c:196
 msgid "(accepted)"
 msgstr ""
 
-#: ../calendar_tools.c:196
+#: ../calendar_tools.c:199
 msgid "(declined)"
 msgstr ""
 
-#: ../calendar_tools.c:199
+#: ../calendar_tools.c:202
 msgid "(tenative)"
 msgstr ""
 
-#: ../calendar_tools.c:202
+#: ../calendar_tools.c:205
 msgid "(delegated)"
 msgstr ""
 
-#: ../calendar_tools.c:205
+#: ../calendar_tools.c:208
 msgid "(completed)"
 msgstr ""
 
-#: ../calendar_tools.c:208
+#: ../calendar_tools.c:211
 msgid "(in process)"
 msgstr ""
 
-#: ../calendar_tools.c:211
+#: ../calendar_tools.c:214
 msgid "(none)"
 msgstr ""
 
-#: ../calendar_view.c:256 ../calendar_view.c:868 ../calendar_view.c:906
-#: ../calendar_view.c:985 ../rss.c:233 ../sieve.c:994
+#: ../calendar_view.c:249 ../calendar_view.c:446 ../calendar_view.c:920
+#: ../event.c:828
+msgid "Untitled Event"
+msgstr ""
+
+#: ../calendar_view.c:269 ../calendar_view.c:938 ../calendar_view.c:980
+#: ../calendar_view.c:1059 ../rss.c:233 ../sieve.c:994
 msgid "From"
 msgstr ""
 
-#: ../calendar_view.c:316 ../calendar_view.c:886 ../calendar_view.c:922
-#: ../calendar_view.c:1001 ../roomops.c:1695
+#: ../calendar_view.c:327 ../calendar_view.c:954
+msgid "Starting date:"
+msgstr ""
+
+#: ../calendar_view.c:333 ../calendar_view.c:956
+msgid "Ending date:"
+msgstr ""
+
+#: ../calendar_view.c:341 ../calendar_view.c:1071
+msgid "Date/time:"
+msgstr ""
+
+#: ../calendar_view.c:358 ../calendar_view.c:960 ../calendar_view.c:996
+#: ../calendar_view.c:1081 ../roomops.c:1695
 msgid "Notes:"
 msgstr ""
 
-#: ../calendar_view.c:693
+#: ../calendar_view.c:739
 msgid "Week"
 msgstr ""
 
-#: ../calendar_view.c:695
+#: ../calendar_view.c:741
 msgid "Hours"
 msgstr ""
 
-#: ../calendar_view.c:696 ../i18n_templatelist.c:5 ../i18n_templatelist.c:341
-#: ../sieve.c:996 ../static/t/msg_listview.html:10
+#: ../calendar_view.c:742 ../sieve.c:996 ../static/t/msg_listview.html:10
 #: ../static/t/summary_header.html:9
 msgid "Subject"
 msgstr ""
 
-#: ../calendar_view.c:697 ../event.c:180
+#: ../calendar_view.c:743 ../event.c:180
 msgid "Start"
 msgstr ""
 
-#: ../calendar_view.c:698 ../event.c:234
+#: ../calendar_view.c:744 ../event.c:229
 msgid "End"
 msgstr ""
 
-#: ../calendar_view.c:867 ../calendar_view.c:893 ../event.c:223
+#: ../calendar_view.c:937 ../calendar_view.c:967 ../event.c:223
 msgid "All day event"
 msgstr ""
 
-#: ../calendar_view.c:905 ../calendar_view.c:929
+#: ../calendar_view.c:979 ../calendar_view.c:1003
 msgid "Ongoing event"
 msgstr ""
 
-#: ../calendar_view.c:1520
+#: ../calendar_view.c:1608
 msgid "Completed?"
 msgstr ""
 
-#: ../calendar_view.c:1522
+#: ../calendar_view.c:1610
 msgid "Name of task"
 msgstr ""
 
-#: ../calendar_view.c:1524
+#: ../calendar_view.c:1612
 msgid "Date due"
 msgstr ""
 
-#: ../calendar_view.c:1526
+#: ../calendar_view.c:1614
 msgid "Category"
 msgstr ""
 
-#: ../calendar_view.c:1528
+#: ../calendar_view.c:1616
 msgid "Show All"
 msgstr ""
 
-#: ../downloads.c:274
+#: ../downloads.c:270
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
 msgstr ""
@@ -526,7 +528,7 @@ msgstr ""
 msgid "Event"
 msgstr ""
 
-#: ../event.c:41 ../event.c:372 ../event.c:384
+#: ../event.c:41 ../event.c:389 ../event.c:401
 msgid "Attendees"
 msgstr ""
 
@@ -534,8 +536,7 @@ msgstr ""
 msgid "Add or edit an event"
 msgstr ""
 
-#: ../event.c:158 ../i18n_templatelist.c:54 ../iconbar.c:192
-#: ../static/t/iconbar.html:12
+#: ../event.c:158 ../iconbar.c:192 ../static/t/iconbar.html:12
 msgid "Summary"
 msgstr ""
 
@@ -543,165 +544,158 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-#: ../event.c:262 ../i18n_templatelist.c:62 ../iconbar.c:246
-#: ../static/t/iconbar.html:32
+#: ../event.c:279 ../iconbar.c:246 ../static/t/iconbar.html:32
 msgid "Notes"
 msgstr ""
 
-#: ../event.c:304
+#: ../event.c:321
 msgid "Organizer"
 msgstr "Organiser"
 
-#: ../event.c:309
+#: ../event.c:326
 msgid "(you are the organizer)"
 msgstr "(you are the organiser)"
 
-#: ../event.c:327
+#: ../event.c:344
 msgid "Show time as:"
 msgstr ""
 
-#: ../event.c:350
+#: ../event.c:367
 msgid "Free"
 msgstr ""
 
-#: ../event.c:358
+#: ../event.c:375
 msgid "Busy"
 msgstr ""
 
-#: ../event.c:375
+#: ../event.c:392
 msgid "(One per line)"
 msgstr ""
 
-#: ../event.c:385 ../i18n_templatelist.c:60 ../i18n_templatelist.c:392
-#: ../i18n_templatelist.c:393 ../iconbar.c:228
-#: ../static/t/edit_message.html:54 ../static/t/iconbar.html:27
+#: ../event.c:402 ../iconbar.c:228 ../static/t/edit_message.html:54
+#: ../static/t/iconbar.html:27
 msgid "Contacts"
 msgstr ""
 
-#: ../event.c:448
+#: ../event.c:465
 msgid "seconds"
 msgstr ""
 
-#: ../event.c:449
+#: ../event.c:466
 msgid "minutes"
 msgstr ""
 
-#: ../event.c:450
+#: ../event.c:467
 msgid "hours"
 msgstr ""
 
-#: ../event.c:451
+#: ../event.c:468
 msgid "days"
 msgstr ""
 
-#: ../event.c:452
+#: ../event.c:469
 msgid "weeks"
 msgstr ""
 
-#: ../event.c:453
+#: ../event.c:470
 msgid "months"
 msgstr ""
 
-#: ../event.c:454
+#: ../event.c:471
 msgid "years"
 msgstr ""
 
-#: ../event.c:455
+#: ../event.c:472
 msgid "never"
 msgstr ""
 
-#: ../event.c:460
+#: ../event.c:477
 msgid "first"
 msgstr ""
 
-#: ../event.c:461
+#: ../event.c:478
 msgid "second"
 msgstr ""
 
-#: ../event.c:462
+#: ../event.c:479
 msgid "third"
 msgstr ""
 
-#: ../event.c:463
+#: ../event.c:480
 msgid "fourth"
 msgstr ""
 
-#: ../event.c:464
+#: ../event.c:481
 msgid "fifth"
 msgstr ""
 
-#: ../event.c:468
+#: ../event.c:485
 msgid "Recurrence rule"
 msgstr ""
 
-#: ../event.c:472
+#: ../event.c:489
 msgid "Repeats every"
 msgstr ""
 
-#: ../event.c:490
+#: ../event.c:507
 msgid "on these weekdays:"
 msgstr ""
 
-#: ../event.c:550
+#: ../event.c:567
 #, c-format
 msgid "on day %s%d%s of the month"
 msgstr ""
 
-#: ../event.c:559 ../event.c:617
+#: ../event.c:576 ../event.c:638
 msgid "on the "
 msgstr ""
 
-#: ../event.c:583
+#: ../event.c:600
 msgid "of the month"
 msgstr ""
 
-#: ../event.c:608
+#: ../event.c:629
 msgid "every "
 msgstr ""
 
-#: ../event.c:609
+#: ../event.c:630
 msgid "year on this date"
 msgstr ""
 
-#: ../event.c:641 ../i18n_templatelist.c:91 ../i18n_templatelist.c:119
-#: ../static/t/msg_listselector_bottom.html:7
+#: ../event.c:662 ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7
 msgid "of"
 msgstr ""
 
-#: ../event.c:665
+#: ../event.c:686
 msgid "Recurrence range"
 msgstr ""
 
-#: ../event.c:673
+#: ../event.c:694
 msgid "No ending date"
 msgstr ""
 
-#: ../event.c:680
+#: ../event.c:701
 msgid "Repeat this event"
 msgstr ""
 
-#: ../event.c:683
+#: ../event.c:704
 msgid "times"
 msgstr ""
 
-#: ../event.c:691
+#: ../event.c:712
 msgid "Repeat this event until "
 msgstr ""
 
-#: ../event.c:719
+#: ../event.c:740
 msgid "Check attendee availability"
-msgstr ""
-
-#: ../event.c:807
-msgid "Untitled Event"
 msgstr ""
 
 #: ../floors.c:33
 msgid "Add/change/delete floors"
 msgstr ""
 
-#: ../floors.c:50 ../vcard_edit.c:717 ../wiki.c:58 ../wiki.c:68
+#: ../floors.c:50 ../vcard_edit.c:768 ../wiki.c:58 ../wiki.c:68
 msgid "Error"
 msgstr ""
 
@@ -749,7 +743,7 @@ msgstr ""
 msgid "New floor has been created."
 msgstr ""
 
-#: ../fmt_date.c:282
+#: ../fmt_date.c:296
 msgid "Time format"
 msgstr ""
 
@@ -765,7 +759,7 @@ msgstr ""
 msgid "Please select a file to upload:"
 msgstr ""
 
-#: ../graphics.c:54 ../i18n_templatelist.c:422
+#: ../graphics.c:54
 msgid "Upload"
 msgstr ""
 
@@ -801,1420 +795,9 @@ msgstr ""
 msgid "the icon for this floor"
 msgstr ""
 
-#: ../html2html.c:125
+#: ../html2html.c:128
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
-msgstr ""
-
-#: ../i18n_templatelist.c:3 ../i18n_templatelist.c:312 ../iconbar.c:390
-#: ../roomops.c:1548 ../roomops.c:1823 ../roomops.c:1915 ../sieve.c:207
-#: ../sysmsgs.c:50 ../vcard_edit.c:994
-msgid "Save changes"
-msgstr ""
-
-#: ../i18n_templatelist.c:6 ../i18n_templatelist.c:342 ../sieve.c:998
-#: ../smtpqueue.c:194 ../static/t/msg_listview.html:11
-#: ../static/t/summary_header.html:10
-msgid "Sender"
-msgstr ""
-
-#: ../i18n_templatelist.c:7 ../i18n_templatelist.c:343
-#: ../static/t/msg_listview.html:12 ../static/t/summary_header.html:11
-msgid "Date"
-msgstr ""
-
-#: ../i18n_templatelist.c:8 ../static/t/msg_listview.html:20
-msgid "Loading messages from server, please wait"
-msgstr ""
-
-#: ../i18n_templatelist.c:9 ../static/t/msg_listview.html:27
-msgid "Open in new window"
-msgstr ""
-
-#: ../i18n_templatelist.c:10 ../i18n_templatelist.c:288 ../messages.c:1476
-#: ../static/t/msg_listview.html:28 ../static/t/view_message.html:20
-msgid "Move"
-msgstr ""
-
-#: ../i18n_templatelist.c:11 ../static/t/msg_listview.html:29
-msgid "Copy"
-msgstr ""
-
-#: ../i18n_templatelist.c:13 ../i18n_templatelist.c:292
-#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:23
-msgid "Print"
-msgstr ""
-
-#: ../i18n_templatelist.c:14 ../static/t/display_ignet_confirmdelete.html:5
-msgid "Confirm delete"
-msgstr ""
-
-#: ../i18n_templatelist.c:15 ../static/t/display_ignet_confirmdelete.html:11
-msgid "Are you sure you want to delete "
-msgstr ""
-
-#: ../i18n_templatelist.c:16 ../i18n_templatelist.c:131
-#: ../i18n_templatelist.c:245 ../iconbar.c:172 ../iconbar.c:190
-#: ../iconbar.c:208 ../iconbar.c:226 ../iconbar.c:244 ../iconbar.c:262
-#: ../iconbar.c:280 ../iconbar.c:298 ../iconbar.c:318 ../iconbar.c:338
-#: ../iconbar.c:358 ../iconbar.c:378 ../roomops.c:1982
-#: ../static/t/box_preferences.html:198
-#: ../static/t/display_ignet_confirmdelete.html:14
-#: ../static/t/tab_siteconfig_access.html:53
-msgid "Yes"
-msgstr ""
-
-#: ../i18n_templatelist.c:17 ../i18n_templatelist.c:132
-#: ../i18n_templatelist.c:246 ../iconbar.c:173 ../iconbar.c:191
-#: ../iconbar.c:209 ../iconbar.c:227 ../iconbar.c:245 ../iconbar.c:263
-#: ../iconbar.c:281 ../iconbar.c:299 ../iconbar.c:319 ../iconbar.c:339
-#: ../iconbar.c:359 ../iconbar.c:379 ../roomops.c:1982
-#: ../static/t/box_preferences.html:200
-#: ../static/t/display_ignet_confirmdelete.html:16
-#: ../static/t/tab_siteconfig_access.html:56
-msgid "No"
-msgstr ""
-
-#: ../i18n_templatelist.c:18 ../static/t/aide_inet_masqdomains.html:2
-msgid "(Domains as which users are allowed to masquerade)"
-msgstr ""
-
-#: ../i18n_templatelist.c:19 ../static/t/files_jspicview.html:6
-msgid "Pictures in"
-msgstr ""
-
-#: ../i18n_templatelist.c:20 ../i18n_templatelist.c:218
-#: ../i18n_templatelist.c:442 ../static/t/display_aide_menu.html:19
-#: ../static/t/display_serverrestart.html:30
-#: ../static/t/subject_floorconfig.html:1
-msgid "Rooms and Floors"
-msgstr ""
-
-#: ../i18n_templatelist.c:21 ../i18n_templatelist.c:441
-#: ../static/t/display_aide_menu.html:17
-#: ../static/t/subject_aiderestart.html:1
-msgid "Shutdown Citadel"
-msgstr ""
-
-#: ../i18n_templatelist.c:22 ../static/t/menu_basic_commands.html:3
-msgid "List known rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:23 ../static/t/menu_basic_commands.html:3
-msgid "Where can I go from here?"
-msgstr ""
-
-#: ../i18n_templatelist.c:24 ../roomops.c:769
-#: ../static/t/menu_basic_commands.html:4
-msgid "Goto next room"
-msgstr ""
-
-#: ../i18n_templatelist.c:25 ../static/t/menu_basic_commands.html:4
-msgid "...with <em>unread</em> messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:26 ../static/t/menu_basic_commands.html:5
-msgid "Skip to next room"
-msgstr ""
-
-#: ../i18n_templatelist.c:27 ../static/t/menu_basic_commands.html:5
-msgid "(come back here later)"
-msgstr ""
-
-#: ../i18n_templatelist.c:28 ../roomops.c:547
-#: ../static/t/menu_basic_commands.html:6
-msgid "Ungoto"
-msgstr ""
-
-#: ../i18n_templatelist.c:29 ../static/t/menu_basic_commands.html:6
-msgid "oops! Back to "
-msgstr ""
-
-#: ../i18n_templatelist.c:30 ../roomops.c:556
-#: ../static/t/menu_basic_commands.html:10
-msgid "Read new messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:31 ../static/t/menu_basic_commands.html:10
-msgid "...in this room"
-msgstr ""
-
-#: ../i18n_templatelist.c:32 ../roomops.c:656
-#: ../static/t/menu_basic_commands.html:11
-msgid "Read all messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:33 ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
-msgstr ""
-
-#: ../i18n_templatelist.c:34 ../roomops.c:744
-#: ../static/t/menu_basic_commands.html:12
-msgid "Enter a message"
-msgstr ""
-
-#: ../i18n_templatelist.c:35 ../static/t/menu_basic_commands.html:12
-msgid "(post in this room)"
-msgstr ""
-
-#: ../i18n_templatelist.c:36 ../static/t/menu_basic_commands.html:13
-msgid "File library"
-msgstr ""
-
-#: ../i18n_templatelist.c:37 ../static/t/menu_basic_commands.html:13
-msgid "(List files available for download)"
-msgstr ""
-
-#: ../i18n_templatelist.c:38 ../static/t/menu_basic_commands.html:17
-msgid "Summary page"
-msgstr ""
-
-#: ../i18n_templatelist.c:39 ../static/t/menu_basic_commands.html:17
-msgid "Summary of my account"
-msgstr ""
-
-#: ../i18n_templatelist.c:40 ../static/t/menu_basic_commands.html:18
-msgid "User list"
-msgstr ""
-
-#: ../i18n_templatelist.c:41 ../static/t/menu_basic_commands.html:18
-msgid "(all registered users)"
-msgstr ""
-
-#: ../i18n_templatelist.c:43 ../static/t/menu_basic_commands.html:19
-msgid "Bye!"
-msgstr ""
-
-#: ../i18n_templatelist.c:44 ../static/t/display_serverrestartpage.html:4
-msgid "Message to your Users:"
-msgstr ""
-
-#: ../i18n_templatelist.c:45 ../i18n_templatelist.c:84 ../roomops.c:1948
-#: ../static/t/wholiststatic.html:6 ../static/t/wholistsummarysection.html:5
-msgid "User name"
-msgstr ""
-
-#: ../i18n_templatelist.c:46 ../i18n_templatelist.c:85
-#: ../static/t/wholiststatic.html:7 ../static/t/wholistsummarysection.html:6
-msgid "Room"
-msgstr ""
-
-#: ../i18n_templatelist.c:47 ../static/t/whosection.html:4
-msgid "(kill)"
-msgstr ""
-
-#: ../i18n_templatelist.c:48 ../msg_renderers.c:494 ../vcard_edit.c:71
-#: ../static/t/whosection.html:6
-msgid "edit"
-msgstr ""
-
-#: ../i18n_templatelist.c:49 ../i18n_templatelist.c:213
-msgid "idle since"
-msgstr ""
-
-#: ../i18n_templatelist.c:50 ../i18n_templatelist.c:214
-msgid "Minutes"
-msgstr ""
-
-#: ../i18n_templatelist.c:51 ../i18n_templatelist.c:215
-msgid "active"
-msgstr ""
-
-#: ../i18n_templatelist.c:52
-msgid "Powered by Citadel"
-msgstr ""
-
-#: ../i18n_templatelist.c:53 ../iconbar.c:193
-msgid "Your summary page"
-msgstr ""
-
-#: ../i18n_templatelist.c:55
-msgid "Go to your email inbox"
-msgstr ""
-
-#: ../i18n_templatelist.c:56 ../static/t/iconbar.html:17
-msgid "Mail"
-msgstr ""
-
-#: ../i18n_templatelist.c:57
-msgid "Go to your personal calendar"
-msgstr ""
-
-#: ../i18n_templatelist.c:58 ../iconbar.c:264 ../roomops.c:38
-#: ../static/t/iconbar.html:22
-msgid "Calendar"
-msgstr ""
-
-#: ../i18n_templatelist.c:59
-msgid "Go to your personal address book"
-msgstr ""
-
-#: ../i18n_templatelist.c:61
-msgid "Go to your personal notes"
-msgstr ""
-
-#: ../i18n_templatelist.c:63
-msgid "Go to your personal task list"
-msgstr ""
-
-#: ../i18n_templatelist.c:64 ../iconbar.c:282 ../summary.c:203
-#: ../static/t/iconbar.html:37
-msgid "Tasks"
-msgstr ""
-
-#: ../i18n_templatelist.c:65
-msgid "List all your accessible rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:66 ../iconbar.c:300 ../static/t/iconbar.html:42
-msgid "Rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:67
-msgid "See who is online right now"
-msgstr ""
-
-#: ../i18n_templatelist.c:68 ../static/t/iconbar.html:47
-msgid "Online users"
-msgstr ""
-
-#: ../i18n_templatelist.c:69 ../static/t/iconbar.html:51
-msgid "Loading"
-msgstr ""
-
-#: ../i18n_templatelist.c:70 ../iconbar.c:340 ../static/t/iconbar.html:56
-msgid "Chat"
-msgstr ""
-
-#: ../i18n_templatelist.c:71
-msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr ""
-
-#: ../i18n_templatelist.c:72 ../static/t/iconbar.html:62
-msgid "Advanced"
-msgstr ""
-
-#: ../i18n_templatelist.c:73
-msgid "Room and system administration functions"
-msgstr ""
-
-#: ../i18n_templatelist.c:74 ../roomops.c:1198 ../roomops.c:1202
-#: ../static/t/iconbar.html:68
-msgid "Administration"
-msgstr ""
-
-#: ../i18n_templatelist.c:75
-msgid "Log off now?"
-msgstr ""
-
-#: ../i18n_templatelist.c:78 ../static/t/iconbar.html:80
-msgid "customize this menu"
-msgstr "customise this menu"
-
-#: ../i18n_templatelist.c:79 ../static/t/iconbar.html:83
-msgid "switch to room list"
-msgstr ""
-
-#: ../i18n_templatelist.c:80 ../static/t/iconbar.html:84
-msgid "switch to menu"
-msgstr ""
-
-#: ../i18n_templatelist.c:81 ../static/t/iconbar.html:85
-msgid "My folders"
-msgstr ""
-
-#: ../i18n_templatelist.c:82 ../i18n_templatelist.c:334
-#: ../static/t/view_message_inline_attach.html:4
-#: ../static/t/view_message_list_attach.html:4
-msgid "Download"
-msgstr ""
-
-#: ../i18n_templatelist.c:83 ../i18n_templatelist.c:271
-#: ../i18n_templatelist.c:369 ../static/t/display_sitewide_config.html:18
-#: ../static/t/subject_pushmail.html:1
-#: ../static/t/tab_siteconfig_pushmail.html:2
-msgid "Push Email"
-msgstr ""
-
-#: ../i18n_templatelist.c:86 ../static/t/wholiststatic.html:8
-msgid "From host"
-msgstr ""
-
-#: ../i18n_templatelist.c:87 ../static/t/wholiststatic.html:14
-msgid "Click on a name to read user info.  Click on"
-msgstr ""
-
-#: ../i18n_templatelist.c:88 ../static/t/wholiststatic.html:16
-msgid "to send an instant message to that user."
-msgstr ""
-
-#: ../i18n_templatelist.c:89 ../static/t/box_serverrestartpagedo.html:3
-msgid ""
-"Please wait while your users are being paged, the citadel server will be "
-"restarted after that... "
-msgstr ""
-
-#: ../i18n_templatelist.c:90 ../i18n_templatelist.c:118
-#: ../static/t/msg_listselector_bottom.html:2
-#: ../static/t/msg_listselector_top.html:2
-msgid "Reading #"
-msgstr ""
-
-#: ../i18n_templatelist.c:92 ../i18n_templatelist.c:120
-#: ../static/t/msg_listselector_bottom.html:7
-#: ../static/t/msg_listselector_top.html:7
-msgid "messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:93 ../i18n_templatelist.c:121
-#: ../static/t/msg_listselector_bottom.html:12
-#: ../static/t/msg_listselector_top.html:12
-msgid "oldest to newest"
-msgstr ""
-
-#: ../i18n_templatelist.c:94 ../i18n_templatelist.c:122
-#: ../static/t/msg_listselector_bottom.html:20
-#: ../static/t/msg_listselector_top.html:20
-msgid "newest to oldest"
-msgstr ""
-
-#: ../i18n_templatelist.c:95 ../static/t/tab_siteconfig_directory.html:2
-msgid "Configure the LDAP connector for Citadel"
-msgstr ""
-
-#: ../i18n_templatelist.c:96 ../i18n_templatelist.c:170
-#: ../static/t/tab_siteconfig_directory.html:4
-#: ../static/t/tab_siteconfig_network.html:3
-msgid ""
-"Changes made on this screen will not take effect until you restart the "
-"Citadel server."
-msgstr ""
-
-#: ../i18n_templatelist.c:97 ../static/t/tab_siteconfig_directory.html:5
-msgid ""
-"NOTE: This Citadel server has been built without LDAP support.  These "
-"options will have no effect."
-msgstr ""
-
-#: ../i18n_templatelist.c:98 ../static/t/tab_siteconfig_directory.html:10
-msgid "Host name of LDAP server (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:99 ../static/t/tab_siteconfig_directory.html:14
-msgid "Port number of LDAP server (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:100 ../static/t/tab_siteconfig_directory.html:17
-msgid "Base DN"
-msgstr ""
-
-#: ../i18n_templatelist.c:101 ../static/t/tab_siteconfig_directory.html:20
-msgid "Bind DN"
-msgstr ""
-
-#: ../i18n_templatelist.c:102 ../static/t/tab_siteconfig_directory.html:23
-msgid "Password for bind DN"
-msgstr ""
-
-#: ../i18n_templatelist.c:103 ../static/t/tab_siteconfig_tuning.html:1
-msgid "Advanced server fine-tuning controls"
-msgstr ""
-
-#: ../i18n_templatelist.c:104 ../static/t/tab_siteconfig_tuning.html:4
-msgid "Server connection idle timeout (in seconds)"
-msgstr ""
-
-#: ../i18n_templatelist.c:105 ../static/t/tab_siteconfig_tuning.html:7
-msgid "Maximum concurrent sessions (0 = no limit)"
-msgstr ""
-
-#: ../i18n_templatelist.c:106 ../static/t/tab_siteconfig_tuning.html:10
-msgid "Default user purge time (days)"
-msgstr ""
-
-#: ../i18n_templatelist.c:107 ../static/t/tab_siteconfig_tuning.html:13
-msgid "Default room purge time (days)"
-msgstr ""
-
-#: ../i18n_templatelist.c:108 ../static/t/tab_siteconfig_tuning.html:16
-msgid "Maximum message length"
-msgstr ""
-
-#: ../i18n_templatelist.c:109 ../static/t/tab_siteconfig_tuning.html:19
-msgid "Minimum number of worker threads"
-msgstr ""
-
-#: ../i18n_templatelist.c:110 ../static/t/tab_siteconfig_tuning.html:22
-msgid "Maximum number of worker threads"
-msgstr ""
-
-#: ../i18n_templatelist.c:111 ../static/t/tab_siteconfig_tuning.html:25
-msgid "Automatically delete committed database logs"
-msgstr ""
-
-#: ../i18n_templatelist.c:112 ../static/t/tab_siteconfig_indexing.html:2
-msgid "Indexing and Journaling"
-msgstr ""
-
-#: ../i18n_templatelist.c:113 ../static/t/tab_siteconfig_indexing.html:3
-msgid "Warning: these facilities are resource intensive."
-msgstr ""
-
-#: ../i18n_templatelist.c:114 ../static/t/tab_siteconfig_indexing.html:7
-msgid "Enable full text index"
-msgstr ""
-
-#: ../i18n_templatelist.c:115 ../static/t/tab_siteconfig_indexing.html:10
-msgid "Perform journaling of email messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:116 ../static/t/tab_siteconfig_indexing.html:14
-msgid "Perform journaling of non-email messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:117 ../static/t/tab_siteconfig_indexing.html:17
-msgid "Email destination of journalized messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:123 ../static/t/aide_inet_smarthosts.html:2
-msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr ""
-
-#: ../i18n_templatelist.c:124 ../static/t/box_preferences.html:9
-msgid "Tree (folders) view"
-msgstr ""
-
-#: ../i18n_templatelist.c:125 ../static/t/box_preferences.html:11
-msgid "Table (rooms) view"
-msgstr ""
-
-#: ../i18n_templatelist.c:126 ../static/t/box_preferences.html:20
-msgid "12 hour (am/pm)"
-msgstr ""
-
-#: ../i18n_templatelist.c:127 ../static/t/box_preferences.html:25
-msgid "24 hour"
-msgstr ""
-
-#: ../i18n_templatelist.c:128 ../static/t/box_preferences.html:152
-msgid "Sunday"
-msgstr ""
-
-#: ../i18n_templatelist.c:129 ../static/t/box_preferences.html:153
-msgid "Monday"
-msgstr ""
-
-#: ../i18n_templatelist.c:130 ../static/t/box_preferences.html:174
-msgid "No signature"
-msgstr ""
-
-#: ../i18n_templatelist.c:133 ../static/t/box_preferences.html:238
-msgid "Full-functionality"
-msgstr ""
-
-#: ../i18n_templatelist.c:134 ../static/t/box_preferences.html:241
-msgid "Safe mode"
-msgstr ""
-
-#: ../i18n_templatelist.c:135
-msgid "Change"
-msgstr ""
-
-#: ../i18n_templatelist.c:137 ../static/t/tab_siteconfig_general.html:2
-msgid "General site configuration items"
-msgstr ""
-
-#: ../i18n_templatelist.c:138 ../static/t/tab_siteconfig_general.html:6
-msgid "Change Login Logo"
-msgstr ""
-
-#: ../i18n_templatelist.c:139 ../static/t/tab_siteconfig_general.html:7
-msgid "Change Logout Logo"
-msgstr ""
-
-#: ../i18n_templatelist.c:140 ../i18n_templatelist.c:315
-#: ../i18n_templatelist.c:327 ../static/t/add_node.html:15
-#: ../static/t/edit_node.html:15 ../static/t/tab_siteconfig_general.html:9
-msgid "Node name"
-msgstr ""
-
-#: ../i18n_templatelist.c:141 ../static/t/tab_siteconfig_general.html:12
-msgid "Fully qualified domain name"
-msgstr ""
-
-#: ../i18n_templatelist.c:142 ../static/t/tab_siteconfig_general.html:15
-msgid "Human-readable node name"
-msgstr ""
-
-#: ../i18n_templatelist.c:143 ../static/t/tab_siteconfig_general.html:18
-msgid "Telephone number"
-msgstr ""
-
-#: ../i18n_templatelist.c:144 ../static/t/tab_siteconfig_general.html:21
-msgid "Paginator prompt (for text mode clients)"
-msgstr ""
-
-#: ../i18n_templatelist.c:145 ../static/t/tab_siteconfig_general.html:24
-msgid "Geographic location of this system"
-msgstr ""
-
-#: ../i18n_templatelist.c:146 ../static/t/tab_siteconfig_general.html:27
-msgid "Name of system administrator"
-msgstr ""
-
-#: ../i18n_templatelist.c:147 ../static/t/tab_siteconfig_general.html:30
-msgid "Default timezone for unzoned calendar items"
-msgstr ""
-
-#: ../i18n_templatelist.c:148 ../i18n_templatelist.c:373
-#: ../static/t/aide_inetconf.html:14 ../static/t/subject_inet_aliases.html:1
-msgid "Local host aliases"
-msgstr ""
-
-#: ../i18n_templatelist.c:149
-msgid "The citadel server has to be restarted. It will be back in a minute."
-msgstr ""
-
-#: ../i18n_templatelist.c:150 ../static/t/tab_siteconfig_pop3.html:2
-msgid "POP3"
-msgstr ""
-
-#: ../i18n_templatelist.c:151 ../static/t/tab_siteconfig_pop3.html:6
-msgid "POP3 listener port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:152 ../static/t/tab_siteconfig_pop3.html:9
-msgid "POP3 over SSL port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:153 ../static/t/tab_siteconfig_pop3.html:12
-msgid "POP3 fetch frequency in seconds"
-msgstr ""
-
-#: ../i18n_templatelist.c:154 ../static/t/tab_siteconfig_pop3.html:15
-msgid "POP3 fastest fetch frequency in seconds"
-msgstr ""
-
-#: ../i18n_templatelist.c:155 ../static/t/display_netconf.html:4
-msgid "Network configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:156 ../i18n_templatelist.c:314
-#: ../i18n_templatelist.c:326 ../static/t/add_node.html:5
-#: ../static/t/display_netconf.html:10 ../static/t/edit_node.html:5
-msgid "Add a new node"
-msgstr ""
-
-#: ../i18n_templatelist.c:157 ../static/t/display_netconf.html:14
-msgid "Currently configured nodes"
-msgstr ""
-
-#: ../i18n_templatelist.c:158 ../i18n_templatelist.c:365
-#: ../static/t/display_sitewide_config.html:14
-#: ../static/t/subject_tuning.html:1
-msgid "Tuning"
-msgstr ""
-
-#: ../i18n_templatelist.c:159 ../static/t/edituser_select.html:5
-msgid "Edit or delete users"
-msgstr ""
-
-#: ../i18n_templatelist.c:160 ../i18n_templatelist.c:361
-#: ../static/t/display_sitewide_config.html:6
-#: ../static/t/edituser_select.html:10
-msgid "You need to be aide to view this."
-msgstr ""
-
-#: ../i18n_templatelist.c:161 ../static/t/edituser_select.html:17
-msgid "Add users"
-msgstr ""
-
-#: ../i18n_templatelist.c:162 ../static/t/edituser_select.html:19
-msgid "Edit or Delete users"
-msgstr ""
-
-#: ../i18n_templatelist.c:163 ../static/t/pushemail.html:2
-msgid "Configure Push Email"
-msgstr ""
-
-#: ../i18n_templatelist.c:164 ../static/t/pushemail.html:8
-msgid "Push email and SMS settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:165 ../static/t/pushemail.html:16
-msgid ""
-"If your administrator has enabled the functionality, Citadel can notify a "
-"Funambol server that you haved recieved new email and automatically "
-"syncronize any devices you have with the Funambol client installed."
-msgstr ""
-
-#: ../i18n_templatelist.c:166 ../static/t/pushemail.html:19
-msgid ""
-"Alternatively, if the administrator has configured it, Citadel can send a "
-"text message to you when new mail arrives."
-msgstr ""
-
-#: ../i18n_templatelist.c:167 ../static/t/pushemail.html:28
-msgid ""
-"(Use international format, without any leading zeros, spaces or hypens, like "
-"+61415011501)"
-msgstr ""
-
-#: ../i18n_templatelist.c:168 ../i18n_templatelist.c:189
-#: ../i18n_templatelist.c:281 ../i18n_templatelist.c:429
-#: ../i18n_templatelist.c:430 ../static/t/view_message.html:7
-#: ../static/t/view_message_print.html:8
-#: ../static/t/view_message_replyquote.html:1
-#: ../static/t/view_submessage.html:4
-msgid "from "
-msgstr ""
-
-#: ../i18n_templatelist.c:169 ../static/t/tab_siteconfig_network.html:2
-msgid "Network services"
-msgstr ""
-
-#: ../i18n_templatelist.c:171 ../static/t/tab_siteconfig_network.html:7
-msgid "SMTP MTA port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:172 ../static/t/tab_siteconfig_network.html:10
-msgid "Correct forged From: lines during authenticated SMTP"
-msgstr ""
-
-#: ../i18n_templatelist.c:173 ../static/t/tab_siteconfig_network.html:13
-msgid "Flag message as spam, instead of rejecting it"
-msgstr ""
-
-#: ../i18n_templatelist.c:174 ../static/t/tab_siteconfig_network.html:16
-msgid "IMAP listener port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:175 ../static/t/tab_siteconfig_network.html:20
-msgid "Network run frequency (in seconds)"
-msgstr ""
-
-#: ../i18n_templatelist.c:176 ../static/t/tab_siteconfig_network.html:23
-msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr ""
-
-#: ../i18n_templatelist.c:177 ../static/t/tab_siteconfig_network.html:26
-msgid "SMTP MSA port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:178 ../static/t/tab_siteconfig_network.html:29
-msgid "IMAP over SSL port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:179 ../static/t/tab_siteconfig_network.html:32
-msgid "SMTP over SSL port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:180 ../static/t/tab_siteconfig_network.html:35
-msgid "Instantly expunge deleted messages in IMAP"
-msgstr ""
-
-#: ../i18n_templatelist.c:181 ../static/t/tab_siteconfig_network.html:39
-msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr ""
-
-#: ../i18n_templatelist.c:182 ../static/t/tab_siteconfig_network.html:42
-msgid "Postfix TCP Dictionary Port"
-msgstr ""
-
-#: ../i18n_templatelist.c:183 ../static/t/tab_siteconfig_network.html:42
-msgid "-1 to disable"
-msgstr ""
-
-#: ../i18n_templatelist.c:184 ../static/t/tab_siteconfig_network.html:45
-msgid "ManageSieve Port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:185 ../static/t/tab_siteconfig_network.html:48
-msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr ""
-
-#: ../i18n_templatelist.c:186 ../static/t/tab_siteconfig_network.html:51
-msgid "Keep original from headers in IMAP"
-msgstr ""
-
-#: ../i18n_templatelist.c:187 ../static/t/tab_siteconfig_network.html:54
-msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:188 ../static/t/tab_siteconfig_network.html:57
-msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:190 ../i18n_templatelist.c:282
-#: ../static/t/view_message.html:13 ../static/t/view_message_print.html:14
-msgid "to"
-msgstr ""
-
-#: ../i18n_templatelist.c:191 ../i18n_templatelist.c:283
-#: ../i18n_templatelist.c:390 ../i18n_templatelist.c:394
-#: ../static/t/edit_message.html:59 ../static/t/view_message.html:14
-#: ../static/t/view_message_print.html:15
-msgid "CC:"
-msgstr ""
-
-#: ../i18n_templatelist.c:192 ../i18n_templatelist.c:284
-#: ../i18n_templatelist.c:396 ../i18n_templatelist.c:431
-#: ../static/t/edit_message.html:73 ../static/t/view_message.html:15
-#: ../static/t/view_message_print.html:16
-#: ../static/t/view_message_replyquote.html:2
-msgid "Subject:"
-msgstr ""
-
-#: ../i18n_templatelist.c:193 ../static/t/edituser_add.html:1
-msgid ""
-"To create a new user account, enter the desired user name in the box below "
-"and click 'Create'."
-msgstr ""
-
-#: ../i18n_templatelist.c:194 ../static/t/edituser_add.html:5
-msgid "New user: "
-msgstr ""
-
-#: ../i18n_templatelist.c:195 ../sieve.c:670
-msgid "Create"
-msgstr ""
-
-#: ../i18n_templatelist.c:196 ../static/t/tab_siteconfig_autopurger.html:2
-msgid "Configure automatic expiry of old messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:197 ../static/t/tab_siteconfig_autopurger.html:3
-msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr ""
-
-#: ../i18n_templatelist.c:198 ../static/t/tab_siteconfig_autopurger.html:7
-msgid "Hour to run database auto-purge"
-msgstr ""
-
-#: ../i18n_templatelist.c:199 ../static/t/tab_siteconfig_autopurger.html:67
-msgid "Default message expire policy for public rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:200 ../i18n_templatelist.c:206 ../roomops.c:1871
-#: ../roomops.c:1898 ../static/t/tab_siteconfig_autopurger.html:69
-#: ../static/t/tab_siteconfig_autopurger.html:87
-msgid "Never automatically expire messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:201 ../i18n_templatelist.c:207 ../roomops.c:1875
-#: ../roomops.c:1902 ../static/t/tab_siteconfig_autopurger.html:72
-#: ../static/t/tab_siteconfig_autopurger.html:90
-msgid "Expire by message count"
-msgstr ""
-
-#: ../i18n_templatelist.c:202 ../i18n_templatelist.c:208 ../roomops.c:1879
-#: ../roomops.c:1906 ../static/t/tab_siteconfig_autopurger.html:74
-#: ../static/t/tab_siteconfig_autopurger.html:93
-msgid "Expire by message age"
-msgstr ""
-
-#: ../i18n_templatelist.c:203 ../i18n_templatelist.c:209 ../roomops.c:1881
-#: ../roomops.c:1908 ../static/t/tab_siteconfig_autopurger.html:76
-#: ../static/t/tab_siteconfig_autopurger.html:95
-msgid "Number of messages or days: "
-msgstr ""
-
-#: ../i18n_templatelist.c:204 ../static/t/tab_siteconfig_autopurger.html:82
-msgid "Default message expire policy for private mailboxes"
-msgstr ""
-
-#: ../i18n_templatelist.c:205 ../static/t/tab_siteconfig_autopurger.html:84
-msgid "Same policy as public rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:210 ../static/t/display_main_menu.html:8
-msgid "Basic commands"
-msgstr ""
-
-#: ../i18n_templatelist.c:211 ../static/t/display_main_menu.html:11
-msgid "Your info"
-msgstr ""
-
-#: ../i18n_templatelist.c:212 ../static/t/display_main_menu.html:13
-msgid "Advanced room commands"
-msgstr ""
-
-#: ../i18n_templatelist.c:216 ../static/t/section_ignetconf.html:4
-msgid "(Edit)"
-msgstr ""
-
-#: ../i18n_templatelist.c:217 ../smtpqueue.c:135
-#: ../static/t/section_ignetconf.html:5
-msgid "(Delete)"
-msgstr ""
-
-#: ../i18n_templatelist.c:219 ../static/t/tab_siteconfig_access.html:1
-msgid "Access controls and site policy settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:220 ../static/t/tab_siteconfig_access.html:4
-msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:221 ../static/t/tab_siteconfig_access.html:7
-msgid "Initial access level for new users"
-msgstr ""
-
-#: ../i18n_templatelist.c:229 ../static/t/tab_siteconfig_access.html:18
-msgid "Require registration for new users"
-msgstr ""
-
-#: ../i18n_templatelist.c:230 ../static/t/tab_siteconfig_access.html:21
-msgid "Quarantine messages from problem users"
-msgstr ""
-
-#: ../i18n_templatelist.c:231 ../static/t/tab_siteconfig_access.html:24
-msgid "Name of quarantine room"
-msgstr ""
-
-#: ../i18n_templatelist.c:232 ../static/t/tab_siteconfig_access.html:27
-msgid "Restrict access to Internet mail"
-msgstr ""
-
-#: ../i18n_templatelist.c:233 ../static/t/tab_siteconfig_access.html:30
-msgid "Name of room to log pages"
-msgstr ""
-
-#: ../i18n_templatelist.c:234 ../static/t/tab_siteconfig_access.html:33
-msgid "Access level required to create rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:242 ../static/t/tab_siteconfig_access.html:44
-msgid "Allow aides to zap (forget) rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:243 ../static/t/tab_siteconfig_access.html:47
-msgid "Disable self-service user account creation"
-msgstr ""
-
-#: ../i18n_templatelist.c:244 ../static/t/tab_siteconfig_access.html:50
-msgid "Enable host based authentication mode"
-msgstr ""
-
-#: ../i18n_templatelist.c:247 ../static/t/tab_siteconfig_access.html:60
-msgid "Master user name (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:248 ../static/t/tab_siteconfig_access.html:63
-msgid "Master user password"
-msgstr ""
-
-#: ../i18n_templatelist.c:249 ../static/t/aide_inet_clamav.html:2
-msgid "(hosts running the ClamAV clamd service)"
-msgstr ""
-
-#: ../i18n_templatelist.c:250 ../static/t/newstartpage.html:4
-msgid "New start page"
-msgstr ""
-
-#: ../i18n_templatelist.c:251 ../static/t/newstartpage.html:9
-msgid "Your start page has been changed."
-msgstr ""
-
-#: ../i18n_templatelist.c:252 ../i18n_templatelist.c:345
-#: ../static/t/login.html:5 ../static/t/openid_login.html:5
-msgid "powered by"
-msgstr ""
-
-#: ../i18n_templatelist.c:254 ../static/t/login.html:18
-msgid "Password:"
-msgstr ""
-
-#: ../i18n_templatelist.c:255 ../i18n_templatelist.c:347
-#: ../static/t/login.html:20 ../static/t/openid_login.html:18
-msgid "Language:"
-msgstr ""
-
-#: ../i18n_templatelist.c:256 ../i18n_templatelist.c:348
-msgid "Login"
-msgstr ""
-
-#: ../i18n_templatelist.c:259 ../static/t/login.html:36
-msgid "Log in using OpenID"
-msgstr ""
-
-#: ../i18n_templatelist.c:260 ../static/t/login.html:40
-msgid "If you already have an account on"
-msgstr ""
-
-#: ../i18n_templatelist.c:261 ../static/t/login.html:41
-msgid "enter your user name and password and click &quot;Login.&quot;"
-msgstr ""
-
-#: ../i18n_templatelist.c:262 ../static/t/login.html:42
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-
-#: ../i18n_templatelist.c:263 ../i18n_templatelist.c:353
-#: ../static/t/login.html:43 ../static/t/openid_login.html:34
-msgid "Please log off properly when finished. "
-msgstr ""
-
-#: ../i18n_templatelist.c:264 ../i18n_templatelist.c:354
-#: ../static/t/login.html:44 ../static/t/openid_login.html:35
-msgid "See the"
-msgstr ""
-
-#: ../i18n_templatelist.c:265 ../i18n_templatelist.c:355
-#: ../static/t/login.html:44 ../static/t/openid_login.html:35
-msgid "recommended browser list"
-msgstr ""
-
-#: ../i18n_templatelist.c:266 ../i18n_templatelist.c:356
-#: ../static/t/login.html:44 ../static/t/openid_login.html:35
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-
-#: ../i18n_templatelist.c:267 ../i18n_templatelist.c:357
-#: ../static/t/login.html:45 ../static/t/openid_login.html:36
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
-msgstr ""
-
-#: ../i18n_templatelist.c:268 ../static/t/aide_restart.html:2
-msgid "Restart Now"
-msgstr ""
-
-#: ../i18n_templatelist.c:269 ../static/t/aide_restart.html:3
-msgid "Restart after paging users"
-msgstr ""
-
-#: ../i18n_templatelist.c:270 ../static/t/aide_restart.html:4
-msgid "Restart when all users are idle"
-msgstr ""
-
-#: ../i18n_templatelist.c:272 ../static/t/tab_siteconfig_pushmail.html:6
-msgid "Funambol server host (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:273 ../static/t/tab_siteconfig_pushmail.html:9
-msgid "Funambol server port "
-msgstr ""
-
-#: ../i18n_templatelist.c:274 ../static/t/tab_siteconfig_pushmail.html:12
-msgid "Funambol sync source"
-msgstr ""
-
-#: ../i18n_templatelist.c:275 ../static/t/tab_siteconfig_pushmail.html:15
-msgid "Funambol auth details (user:pass)"
-msgstr ""
-
-#: ../i18n_templatelist.c:276 ../static/t/tab_siteconfig_pushmail.html:18
-msgid "External pager tool (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:277 ../notes.c:62
-msgid "Delete this note?"
-msgstr ""
-
-#: ../i18n_templatelist.c:280 ../notes.c:88 ../notes.c:384
-msgid "Click on any note to edit it."
-msgstr ""
-
-#: ../i18n_templatelist.c:285 ../rss.c:30 ../static/t/view_message.html:17
-msgid "Reply"
-msgstr ""
-
-#: ../i18n_templatelist.c:286 ../static/t/view_message.html:18
-msgid "ReplyQuoted"
-msgstr ""
-
-#: ../i18n_templatelist.c:287 ../static/t/view_message.html:19
-msgid "Forward"
-msgstr ""
-
-#: ../i18n_templatelist.c:289
-msgid "Delete this message?"
-msgstr ""
-
-#: ../i18n_templatelist.c:291 ../static/t/view_message.html:22
-msgid "Headers"
-msgstr ""
-
-#: ../i18n_templatelist.c:293 ../static/t/box_serverrestart.html:3
-msgid "Please wait while the Citadel server is restarted... "
-msgstr ""
-
-#: ../i18n_templatelist.c:294 ../static/t/aide_inet_rbldns.html:2
-msgid "(hosts running a Realtime Blackhole List)"
-msgstr ""
-
-#: ../i18n_templatelist.c:295 ../static/t/userlist_detailview.html:4
-msgid "Edit user account: "
-msgstr ""
-
-#: ../i18n_templatelist.c:297 ../roomops.c:1950
-#: ../static/t/userlist_detailview.html:17
-msgid "Password"
-msgstr ""
-
-#: ../i18n_templatelist.c:298 ../static/t/userlist_detailview.html:18
-msgid "Permission to send Internet mail"
-msgstr ""
-
-#: ../i18n_templatelist.c:299 ../static/t/userlist_detailview.html:19
-msgid "Number of logins"
-msgstr ""
-
-#: ../i18n_templatelist.c:300 ../static/t/userlist_detailview.html:20
-msgid "Messages submitted"
-msgstr ""
-
-#: ../i18n_templatelist.c:301 ../static/t/userlist_detailview.html:21
-msgid "Access level"
-msgstr ""
-
-#: ../i18n_templatelist.c:309 ../static/t/userlist_detailview.html:30
-msgid "User ID number"
-msgstr ""
-
-#: ../i18n_templatelist.c:310 ../static/t/userlist_detailview.html:31
-msgid "Date and time of last login"
-msgstr ""
-
-#: ../i18n_templatelist.c:311 ../static/t/userlist_detailview.html:36
-msgid "Auto-purge after this many days"
-msgstr ""
-
-#: ../i18n_templatelist.c:316 ../i18n_templatelist.c:328
-#: ../static/t/add_node.html:17 ../static/t/edit_node.html:17
-msgid "Shared secret"
-msgstr ""
-
-#: ../i18n_templatelist.c:317 ../i18n_templatelist.c:329
-#: ../static/t/add_node.html:19 ../static/t/edit_node.html:19
-msgid "Host or IP address"
-msgstr ""
-
-#: ../i18n_templatelist.c:318 ../i18n_templatelist.c:330
-#: ../static/t/add_node.html:21 ../static/t/edit_node.html:21
-msgid "Port number"
-msgstr ""
-
-#: ../i18n_templatelist.c:319
-msgid "Save changes?"
-msgstr ""
-
-#: ../i18n_templatelist.c:321 ../static/t/box_edituser_select.html:1
-msgid ""
-"To edit an existing user account, select the user name from the list and "
-"click 'Edit'."
-msgstr ""
-
-#: ../i18n_templatelist.c:322
-msgid "Edit configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:323
-msgid "Edit address book entry"
-msgstr ""
-
-#: ../i18n_templatelist.c:324
-msgid "Delete user"
-msgstr ""
-
-#: ../i18n_templatelist.c:325
-msgid "Delete this user?"
-msgstr ""
-
-#: ../i18n_templatelist.c:331
-msgid "Add node?"
-msgstr ""
-
-#: ../i18n_templatelist.c:333 ../static/t/view_message_list_attach.html:3
-msgid "View"
-msgstr ""
-
-#: ../i18n_templatelist.c:335
-msgid "Do you really want to kill this session?"
-msgstr ""
-
-#: ../i18n_templatelist.c:336 ../static/t/who.html:14
-msgid "Users currently on "
-msgstr ""
-
-#: ../i18n_templatelist.c:337
-msgid "Delete this entry?"
-msgstr ""
-
-#: ../i18n_templatelist.c:339 ../static/t/roombanner.html:14
-msgid "Select page: "
-msgstr ""
-
-#: ../i18n_templatelist.c:340 ../static/t/aide_inet_dirnames.html:2
-msgid "(domains mapped with the Global Address Book)"
-msgstr ""
-
-#: ../i18n_templatelist.c:346 ../static/t/openid_login.html:16
-msgid "OpenID URL:"
-msgstr ""
-
-#: ../i18n_templatelist.c:350 ../static/t/openid_login.html:28
-msgid "Log in using a user name and password"
-msgstr ""
-
-#: ../i18n_templatelist.c:351 ../static/t/openid_login.html:31
-msgid "Enter your OpenID URL and click &quot;Login&quot;."
-msgstr ""
-
-#: ../i18n_templatelist.c:352 ../static/t/openid_login.html:33
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr ""
-
-#: ../i18n_templatelist.c:358 ../static/t/wholiststatic_header.html:1
-msgid "Users currently on"
-msgstr ""
-
-#: ../i18n_templatelist.c:359 ../static/t/aide_inet_aliases.html:2
-msgid "(domains for which this host receives mail)"
-msgstr ""
-
-#: ../i18n_templatelist.c:360 ../static/t/display_sitewide_config.html:3
-msgid "Site configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:362 ../static/t/display_sitewide_config.html:11
-msgid "General"
-msgstr ""
-
-#: ../i18n_templatelist.c:363 ../static/t/display_sitewide_config.html:12
-msgid "Access"
-msgstr ""
-
-#: ../i18n_templatelist.c:364 ../static/t/display_sitewide_config.html:13
-msgid "Network"
-msgstr ""
-
-#: ../i18n_templatelist.c:366 ../static/t/display_sitewide_config.html:15
-msgid "Directory"
-msgstr ""
-
-#: ../i18n_templatelist.c:367 ../static/t/display_sitewide_config.html:16
-msgid "Auto-purger"
-msgstr ""
-
-#: ../i18n_templatelist.c:368 ../static/t/display_sitewide_config.html:17
-msgid "Indexing/Journaling"
-msgstr ""
-
-#: ../i18n_templatelist.c:370 ../static/t/display_sitewide_config.html:19
-msgid "Pop3"
-msgstr ""
-
-#: ../i18n_templatelist.c:371 ../i18n_templatelist.c:437
-#: ../static/t/aide_inetconf.html:5 ../static/t/display_aide_menu.html:5
-msgid "System Administration Menu"
-msgstr ""
-
-#: ../i18n_templatelist.c:372 ../i18n_templatelist.c:438
-#: ../static/t/aide_inetconf.html:6 ../static/t/display_aide_menu.html:6
-msgid "Room Aide Menu"
-msgstr ""
-
-#: ../i18n_templatelist.c:374 ../static/t/aide_inetconf.html:15
-msgid "Directory domains"
-msgstr ""
-
-#: ../i18n_templatelist.c:375 ../static/t/aide_inetconf.html:16
-msgid "Smart hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:376 ../static/t/aide_inetconf.html:21
-msgid "RBL hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:377 ../static/t/aide_inetconf.html:22
-msgid "SpamAssassin hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:378 ../static/t/aide_inetconf.html:23
-msgid "ClamAV clamd hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:379 ../static/t/aide_inetconf.html:24
-msgid "Masqueradable domains"
-msgstr ""
-
-#: ../i18n_templatelist.c:380 ../static/t/section_files_onefile.html:19
-msgid "Slideshow"
-msgstr ""
-
-#: ../i18n_templatelist.c:381 ../paging.c:54
-msgid "Send message"
-msgstr ""
-
-#: ../i18n_templatelist.c:382
-msgid "Post message"
-msgstr ""
-
-#: ../i18n_templatelist.c:384 ../static/t/edit_message.html:20
-msgid "from"
-msgstr ""
-
-#: ../i18n_templatelist.c:385 ../i18n_templatelist.c:386
-#: ../static/t/edit_message.html:26 ../static/t/edit_message.html:35
-msgid "Anonymous"
-msgstr ""
-
-#: ../i18n_templatelist.c:387 ../static/t/edit_message.html:44
-msgid "in"
-msgstr ""
-
-#: ../i18n_templatelist.c:388 ../i18n_templatelist.c:389
-#: ../static/t/edit_message.html:48
-msgid "To:"
-msgstr ""
-
-#: ../i18n_templatelist.c:391 ../i18n_templatelist.c:395
-#: ../static/t/edit_message.html:65
-msgid "BCC:"
-msgstr ""
-
-#: ../i18n_templatelist.c:397 ../static/t/edit_message.html:74
-msgid "Subject (optional):"
-msgstr ""
-
-#: ../i18n_templatelist.c:398 ../static/t/edit_message.html:89
-msgid "--- forwarded message ---"
-msgstr ""
-
-#: ../i18n_templatelist.c:399 ../static/t/edit_message.html:111
-msgid "Attachments:"
-msgstr ""
-
-#: ../i18n_templatelist.c:400 ../static/t/edit_message.html:115
-msgid "Attach file:"
-msgstr ""
-
-#: ../i18n_templatelist.c:402 ../static/t/aide_floorconfig.html:2
-msgid "Add, change, or delete floors"
-msgstr ""
-
-#: ../i18n_templatelist.c:403 ../i18n_templatelist.c:404
-#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
-msgid "Preferences and settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:405 ../static/t/menu_your_info.html:2
-msgid "Change your preferences and settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:406 ../static/t/menu_your_info.html:3
-msgid "Update your contact information"
-msgstr ""
-
-#: ../i18n_templatelist.c:408 ../static/t/menu_your_info.html:5
-msgid "Enter your 'bio'"
-msgstr ""
-
-#: ../i18n_templatelist.c:409 ../static/t/menu_your_info.html:6
-msgid "Edit your online photo"
-msgstr ""
-
-#: ../i18n_templatelist.c:410 ../sieve.c:22 ../sieve.c:107
-#: ../static/t/menu_your_info.html:7
-msgid "View/edit server-side mail filters"
-msgstr ""
-
-#: ../i18n_templatelist.c:411 ../static/t/menu_your_info.html:8
-msgid "Edit your push email settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:412 ../static/t/menu_your_info.html:9
-msgid "Manage your OpenIDs"
-msgstr ""
-
-#: ../i18n_templatelist.c:413 ../static/t/aide_usermanagement.html:2
-msgid "Add, change, delete user accounts"
-msgstr ""
-
-#: ../i18n_templatelist.c:415 ../static/t/files.html:3
-msgid "Files available for download in"
-msgstr ""
-
-#: ../i18n_templatelist.c:416 ../static/t/files.html:18
-msgid "Filename"
-msgstr ""
-
-#: ../i18n_templatelist.c:417 ../static/t/files.html:19
-msgid "Size"
-msgstr ""
-
-#: ../i18n_templatelist.c:418 ../static/t/files.html:20
-msgid "Content"
-msgstr ""
-
-#: ../i18n_templatelist.c:419 ../static/t/files.html:21
-msgid "Description"
-msgstr ""
-
-#: ../i18n_templatelist.c:420 ../static/t/files.html:35
-msgid "Upload a file:"
-msgstr ""
-
-#: ../i18n_templatelist.c:423 ../static/t/menu_advanced_roomcommands.html:3
-msgid "Edit or delete this room"
-msgstr ""
-
-#: ../i18n_templatelist.c:424 ../static/t/menu_advanced_roomcommands.html:5
-msgid "Go to a 'hidden' room"
-msgstr ""
-
-#: ../i18n_templatelist.c:425 ../roomops.c:2489
-#: ../static/t/menu_advanced_roomcommands.html:6
-msgid "Create a new room"
-msgstr ""
-
-#: ../i18n_templatelist.c:426 ../static/t/menu_advanced_roomcommands.html:7
-msgid "Zap (forget) this room"
-msgstr ""
-
-#: ../i18n_templatelist.c:427 ../static/t/menu_advanced_roomcommands.html:8
-msgid "List all forgotten rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:428 ../sieve.c:1008
-#: ../static/t/select_messageindex_all.html:1
-msgid "All"
-msgstr ""
-
-#: ../i18n_templatelist.c:432 ../static/t/aide_global_config.html:2
-msgid "Edit site-wide configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:433 ../static/t/aide_global_config.html:3
-msgid "Domain names and Internet mail configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:434 ../static/t/aide_global_config.html:4
-msgid "Configure replication with other Citadel servers"
-msgstr ""
-
-#: ../i18n_templatelist.c:435 ../smtpqueue.c:251
-#: ../static/t/aide_global_config.html:5
-msgid "View the outbound SMTP queue"
-msgstr ""
-
-#: ../i18n_templatelist.c:436 ../static/t/aide_inet_spamass.html:2
-msgid "(hosts running the SpamAssassin service)"
-msgstr ""
-
-#: ../i18n_templatelist.c:439 ../static/t/display_aide_menu.html:13
-msgid "Global Configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:440 ../static/t/display_aide_menu.html:15
-msgid "User account management"
 msgstr ""
 
 #: ../iconbar.c:129 ../iconbar.c:452
@@ -2243,12 +826,32 @@ msgid ""
 "the left side of the screen."
 msgstr ""
 
+#: ../iconbar.c:172 ../iconbar.c:190 ../iconbar.c:208 ../iconbar.c:226
+#: ../iconbar.c:244 ../iconbar.c:262 ../iconbar.c:280 ../iconbar.c:298
+#: ../iconbar.c:318 ../iconbar.c:338 ../iconbar.c:358 ../iconbar.c:378
+#: ../roomops.c:1982 ../static/t/box_preferences.html:198
+#: ../static/t/display_ignet_confirmdelete.html:14
+msgid "Yes"
+msgstr ""
+
+#: ../iconbar.c:173 ../iconbar.c:191 ../iconbar.c:209 ../iconbar.c:227
+#: ../iconbar.c:245 ../iconbar.c:263 ../iconbar.c:281 ../iconbar.c:299
+#: ../iconbar.c:319 ../iconbar.c:339 ../iconbar.c:359 ../iconbar.c:379
+#: ../roomops.c:1982 ../static/t/box_preferences.html:200
+#: ../static/t/display_ignet_confirmdelete.html:16
+msgid "No"
+msgstr ""
+
 #: ../iconbar.c:174
 msgid "Site logo"
 msgstr ""
 
 #: ../iconbar.c:175
 msgid "An icon describing this site"
+msgstr ""
+
+#: ../iconbar.c:193
+msgid "Your summary page"
 msgstr ""
 
 #: ../iconbar.c:210
@@ -2267,12 +870,24 @@ msgstr ""
 msgid "Your personal notes"
 msgstr ""
 
+#: ../iconbar.c:264 ../roomops.c:38 ../static/t/iconbar.html:22
+msgid "Calendar"
+msgstr ""
+
 #: ../iconbar.c:265
 msgid "A shortcut to your personal calendar"
 msgstr ""
 
+#: ../iconbar.c:282 ../summary.c:203 ../static/t/iconbar.html:37
+msgid "Tasks"
+msgstr ""
+
 #: ../iconbar.c:283
 msgid "A shortcut to your personal task list"
+msgstr ""
+
+#: ../iconbar.c:300 ../static/t/iconbar.html:42
+msgid "Rooms"
 msgstr ""
 
 #: ../iconbar.c:301
@@ -2291,6 +906,10 @@ msgstr ""
 
 #: ../iconbar.c:322
 msgid "Clicking this icon displays a list of all users currently logged in."
+msgstr ""
+
+#: ../iconbar.c:340 ../static/t/iconbar.html:56
+msgid "Chat"
 msgstr ""
 
 #: ../iconbar.c:341
@@ -2313,6 +932,11 @@ msgstr ""
 
 #: ../iconbar.c:381
 msgid "Displays the 'Powered by Citadel' icon"
+msgstr ""
+
+#: ../iconbar.c:390 ../roomops.c:1548 ../roomops.c:1823 ../roomops.c:1915
+#: ../sieve.c:207 ../sysmsgs.c:50 ../vcard_edit.c:1060
+msgid "Save changes"
 msgstr ""
 
 #: ../iconbar.c:460
@@ -2389,107 +1013,120 @@ msgstr ""
 msgid "Send command"
 msgstr ""
 
-#: ../mainmenu.c:277
+#: ../mainmenu.c:278
 msgid "Server command results"
 msgstr ""
 
-#: ../messages.c:70
+#: ../messages.c:62
 msgid "ERROR:"
 msgstr ""
 
-#: ../messages.c:94 ../messages.c:98
+#: ../messages.c:76 ../messages.c:81
 msgid "unexpected end of message"
 msgstr ""
 
-#: ../messages.c:460
+#: ../messages.c:492
 msgid "(no subject)"
 msgstr ""
 
-#: ../messages.c:755
+#: ../messages.c:788
 msgid "No new messages."
 msgstr ""
 
-#: ../messages.c:758
+#: ../messages.c:791
 msgid "No old messages."
 msgstr ""
 
-#: ../messages.c:761
+#: ../messages.c:794
 msgid "No messages here."
 msgstr ""
 
-#: ../messages.c:1133
+#: ../messages.c:1168
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr ""
 
-#: ../messages.c:1139
+#: ../messages.c:1174
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 
-#: ../messages.c:1209
+#: ../messages.c:1245
 #, c-format
 msgid "Message has been sent.\n"
 msgstr ""
 
-#: ../messages.c:1212
+#: ../messages.c:1248
 #, c-format
 msgid "Message has been posted.\n"
 msgstr ""
 
-#: ../messages.c:1422
+#: ../messages.c:1458
 #, c-format
 msgid "The message was not moved."
 msgstr ""
 
-#: ../messages.c:1447
+#: ../messages.c:1483
 msgid "Confirm move of message"
 msgstr ""
 
-#: ../messages.c:1455
+#: ../messages.c:1491
 msgid "Move this message to:"
 msgstr ""
 
-#: ../messages.c:1516
+#: ../messages.c:1512 ../static/t/msg_listview.html:28
+#: ../static/t/view_message.html:35
+msgid "Move"
+msgstr ""
+
+#: ../messages.c:1551
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr ""
 
-#: ../messages.c:1570
+#: ../messages.c:1604
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr ""
 
-#: ../messages.c:1688
+#: ../messages.c:1723
 msgid "Attach signature to email messages?"
 msgstr ""
 
-#: ../messages.c:1691
+#: ../messages.c:1726
 msgid "Use this signature:"
 msgstr ""
 
-#: ../messages.c:1693
+#: ../messages.c:1728
 msgid "Default character set for email headers:"
 msgstr ""
 
-#: ../messages.c:1696
+#: ../messages.c:1731
 msgid "Preferred email address"
 msgstr ""
 
-#: ../messages.c:1698
+#: ../messages.c:1733
 msgid "Preferred display name for email messages"
 msgstr ""
 
-#: ../messages.c:1702
+#: ../messages.c:1737
 msgid "Preferred display name for bulletin board posts"
 msgstr ""
 
-#: ../messages.c:1705
+#: ../messages.c:1740
 msgid "Mailbox view mode"
 msgstr ""
 
-#: ../msg_renderers.c:914
+#: ../msg_renderers.c:494 ../vcard_edit.c:71 ../static/t/whosection.html:6
+msgid "edit"
+msgstr ""
+
+#: ../msg_renderers.c:943
 msgid "I don't know how to display "
+msgstr ""
+
+#: ../notes.c:324
+msgid "Click on any note to edit it."
 msgstr ""
 
 #: ../openid.c:21
@@ -2517,27 +1154,31 @@ msgstr ""
 msgid "%s does not permit authentication via OpenID."
 msgstr ""
 
-#: ../paging.c:23
+#: ../paging.c:19
 msgid "Send instant message"
 msgstr ""
 
-#: ../paging.c:32
+#: ../paging.c:28
 msgid "Send an instant message to: "
 msgstr ""
 
-#: ../paging.c:46
+#: ../paging.c:42
 msgid "Enter message text:"
 msgstr ""
 
-#: ../paging.c:74
+#: ../paging.c:50
+msgid "Send message"
+msgstr ""
+
+#: ../paging.c:70
 msgid "Message was not sent."
 msgstr ""
 
-#: ../paging.c:88
+#: ../paging.c:84
 msgid "Message has been sent to "
 msgstr ""
 
-#: ../paging.c:157
+#: ../paging.c:153
 msgid ""
 "You have one or more instant messages waiting, but the Citadel Instant "
 "Messenger window failed to open.  This is probably because you have a popup "
@@ -2545,23 +1186,23 @@ msgid ""
 "this site if you wish to receive instant messages."
 msgstr ""
 
-#: ../paging.c:295 ../paging.c:457
+#: ../paging.c:291 ../paging.c:453
 msgid "An error occurred while setting up the chat socket."
 msgstr ""
 
-#: ../paging.c:322
+#: ../paging.c:318
 msgid "Now exiting chat mode."
 msgstr ""
 
-#: ../paging.c:494
+#: ../paging.c:490
 msgid "Send"
 msgstr ""
 
-#: ../paging.c:495
+#: ../paging.c:491
 msgid "Help"
 msgstr ""
 
-#: ../paging.c:496
+#: ../paging.c:492
 msgid "List users"
 msgstr ""
 
@@ -2638,6 +1279,14 @@ msgstr ""
 msgid "%d new of %d messages%s"
 msgstr ""
 
+#: ../roomops.c:547 ../static/t/menu_basic_commands.html:6
+msgid "Ungoto"
+msgstr ""
+
+#: ../roomops.c:556 ../static/t/menu_basic_commands.html:10
+msgid "Read new messages"
+msgstr ""
+
 #: ../roomops.c:570
 msgid "View contacts"
 msgstr ""
@@ -2670,6 +1319,10 @@ msgstr ""
 msgid "Wiki home"
 msgstr ""
 
+#: ../roomops.c:656 ../static/t/menu_basic_commands.html:11
+msgid "Read all messages"
+msgstr ""
+
 #: ../roomops.c:671
 msgid "Add new contact"
 msgstr ""
@@ -2694,6 +1347,10 @@ msgstr ""
 msgid "Write mail"
 msgstr ""
 
+#: ../roomops.c:744 ../static/t/menu_basic_commands.html:12
+msgid "Enter a message"
+msgstr ""
+
 #: ../roomops.c:757
 msgid ""
 "Leave all messages marked as unread, go to next room with unread messages"
@@ -2705,6 +1362,14 @@ msgstr ""
 
 #: ../roomops.c:768
 msgid "Mark all messages as read, go to next room with unread messages"
+msgstr ""
+
+#: ../roomops.c:769 ../static/t/menu_basic_commands.html:4
+msgid "Goto next room"
+msgstr ""
+
+#: ../roomops.c:1198 ../roomops.c:1202 ../static/t/iconbar.html:68
+msgid "Administration"
 msgstr ""
 
 #: ../roomops.c:1213 ../roomops.c:1217
@@ -2941,6 +1606,30 @@ msgstr ""
 msgid "Use the default policy for this floor"
 msgstr ""
 
+#: ../roomops.c:1871 ../roomops.c:1898
+#: ../static/t/tab_siteconfig_autopurger.html:69
+#: ../static/t/tab_siteconfig_autopurger.html:87
+msgid "Never automatically expire messages"
+msgstr ""
+
+#: ../roomops.c:1875 ../roomops.c:1902
+#: ../static/t/tab_siteconfig_autopurger.html:72
+#: ../static/t/tab_siteconfig_autopurger.html:90
+msgid "Expire by message count"
+msgstr ""
+
+#: ../roomops.c:1879 ../roomops.c:1906
+#: ../static/t/tab_siteconfig_autopurger.html:74
+#: ../static/t/tab_siteconfig_autopurger.html:93
+msgid "Expire by message age"
+msgstr ""
+
+#: ../roomops.c:1881 ../roomops.c:1908
+#: ../static/t/tab_siteconfig_autopurger.html:76
+#: ../static/t/tab_siteconfig_autopurger.html:95
+msgid "Number of messages or days: "
+msgstr ""
+
 #: ../roomops.c:1888
 msgid "Message expire policy for this floor"
 msgstr ""
@@ -2957,6 +1646,15 @@ msgstr ""
 
 #: ../roomops.c:1946
 msgid "Remote host"
+msgstr ""
+
+#: ../roomops.c:1948 ../static/t/wholiststatic.html:6
+#: ../static/t/wholistsummarysection.html:5
+msgid "User name"
+msgstr ""
+
+#: ../roomops.c:1950 ../static/t/userlist_detailview.html:17
+msgid "Password"
 msgstr ""
 
 #: ../roomops.c:1952
@@ -3025,6 +1723,10 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
+#: ../roomops.c:2489 ../static/t/menu_advanced_roomcommands.html:6
+msgid "Create a new room"
+msgstr ""
+
 #: ../roomops.c:2525
 msgid "Default view for room: "
 msgstr ""
@@ -3084,12 +1786,17 @@ msgstr ""
 msgid "Folder list"
 msgstr ""
 
-#: ../roomops.c:4016
+#: ../roomops.c:4050
 msgid "Room list view"
 msgstr ""
 
-#: ../roomops.c:4019
+#: ../roomops.c:4053
 msgid "Show empty floors"
+msgstr ""
+
+#: ../rss.c:30 ../static/t/view_message.html:19
+#: ../static/t/view_message.html:24 ../static/t/view_message.html:29
+msgid "Reply"
 msgstr ""
 
 #: ../rss.c:36
@@ -3122,6 +1829,10 @@ msgstr ""
 #: ../rss.c:240
 #, c-format
 msgid "%s"
+msgstr ""
+
+#: ../sieve.c:22 ../sieve.c:107 ../static/t/menu_your_info.html:7
+msgid "View/edit server-side mail filters"
 msgstr ""
 
 #: ../sieve.c:32
@@ -3171,6 +1882,10 @@ msgstr ""
 
 #: ../sieve.c:667
 msgid "Script name: "
+msgstr ""
+
+#: ../sieve.c:670
+msgid "Create"
 msgstr ""
 
 #: ../sieve.c:674
@@ -3233,6 +1948,11 @@ msgstr ""
 msgid "Reply-to"
 msgstr ""
 
+#: ../sieve.c:998 ../smtpqueue.c:194 ../static/t/msg_listview.html:11
+#: ../static/t/summary_header.html:10
+msgid "Sender"
+msgstr ""
+
 #: ../sieve.c:999
 msgid "Resent-From"
 msgstr ""
@@ -3267,6 +1987,10 @@ msgstr ""
 
 #: ../sieve.c:1007
 msgid "Message size"
+msgstr ""
+
+#: ../sieve.c:1008 ../static/t/select_messageindex_all.html:1
+msgid "All"
 msgstr ""
 
 #: ../sieve.c:1027
@@ -3353,6 +2077,10 @@ msgstr ""
 msgid "Your system configuration has been updated."
 msgstr ""
 
+#: ../smtpqueue.c:135 ../static/t/section_ignetconf.html:5
+msgid "(Delete)"
+msgstr ""
+
 #: ../smtpqueue.c:188
 msgid "Message ID"
 msgstr ""
@@ -3375,6 +2103,10 @@ msgstr ""
 
 #: ../smtpqueue.c:216
 msgid "You do not have permission to view this resource."
+msgstr ""
+
+#: ../smtpqueue.c:251 ../static/t/aide_global_config.html:5
+msgid "View the outbound SMTP queue"
 msgstr ""
 
 #: ../smtpqueue.c:269
@@ -3451,21 +2183,21 @@ msgstr ""
 msgid "Your bio"
 msgstr ""
 
-#: ../useredit.c:489
+#: ../useredit.c:508
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
 msgstr ""
 
-#: ../useredit.c:565
+#: ../useredit.c:586
 msgid "Changes were not saved."
 msgstr ""
 
-#: ../useredit.c:659
+#: ../useredit.c:687
 #, c-format
 msgid "A new user has been created."
 msgstr ""
 
-#: ../useredit.c:666
+#: ../useredit.c:694
 msgid ""
 "You are attempting to create a new user from within Citadel while running in "
 "host based authentication mode.  In this mode, you must create new users on "
@@ -3510,149 +2242,153 @@ msgstr ""
 msgid "Click here to send an instant message to %s"
 msgstr ""
 
-#: ../vcard_edit.c:164
+#: ../vcard_edit.c:164 ../vcard_edit.c:167
 msgid "(no name)"
 msgstr ""
 
-#: ../vcard_edit.c:390
+#: ../vcard_edit.c:429
 msgid " (work)"
 msgstr ""
 
-#: ../vcard_edit.c:392
+#: ../vcard_edit.c:431
 msgid " (home)"
 msgstr ""
 
-#: ../vcard_edit.c:394
+#: ../vcard_edit.c:433
 msgid " (cell)"
 msgstr " (mobile)"
 
-#: ../vcard_edit.c:405 ../vcard_edit.c:899
+#: ../vcard_edit.c:444 ../vcard_edit.c:965
 msgid "Address:"
 msgstr ""
 
-#: ../vcard_edit.c:473
+#: ../vcard_edit.c:512
 msgid "Telephone:"
 msgstr ""
 
-#: ../vcard_edit.c:478
+#: ../vcard_edit.c:517
 msgid "E-mail:"
 msgstr ""
 
-#: ../vcard_edit.c:560
+#: ../vcard_edit.c:604
 msgid "This address book is empty."
 msgstr ""
 
-#: ../vcard_edit.c:574
+#: ../vcard_edit.c:618
 msgid "An internal error has occurred."
 msgstr ""
 
-#: ../vcard_edit.c:826
+#: ../vcard_edit.c:892
 msgid "Edit contact information"
 msgstr ""
 
-#: ../vcard_edit.c:847
+#: ../vcard_edit.c:913
 msgid "Prefix"
 msgstr ""
 
-#: ../vcard_edit.c:847
+#: ../vcard_edit.c:913
 msgid "First"
 msgstr ""
 
-#: ../vcard_edit.c:847
+#: ../vcard_edit.c:913
 msgid "Middle"
 msgstr ""
 
-#: ../vcard_edit.c:847
+#: ../vcard_edit.c:913
 msgid "Last"
 msgstr ""
 
-#: ../vcard_edit.c:847
+#: ../vcard_edit.c:913
 msgid "Suffix"
 msgstr ""
 
-#: ../vcard_edit.c:868
+#: ../vcard_edit.c:934
 msgid "Display name:"
 msgstr ""
 
-#: ../vcard_edit.c:875
+#: ../vcard_edit.c:941
 msgid "Title:"
 msgstr ""
 
-#: ../vcard_edit.c:882
+#: ../vcard_edit.c:948
 msgid "Organization:"
 msgstr ""
 
-#: ../vcard_edit.c:893
+#: ../vcard_edit.c:959
 msgid "PO box:"
 msgstr ""
 
-#: ../vcard_edit.c:909
+#: ../vcard_edit.c:975
 msgid "City:"
 msgstr ""
 
-#: ../vcard_edit.c:915
+#: ../vcard_edit.c:981
 msgid "State:"
 msgstr ""
 
-#: ../vcard_edit.c:921
+#: ../vcard_edit.c:987
 msgid "ZIP code:"
 msgstr ""
 
-#: ../vcard_edit.c:927
+#: ../vcard_edit.c:993
 msgid "Country:"
 msgstr ""
 
-#: ../vcard_edit.c:937
+#: ../vcard_edit.c:1003
 msgid "Home telephone:"
 msgstr ""
 
-#: ../vcard_edit.c:943
+#: ../vcard_edit.c:1009
 msgid "Work telephone:"
 msgstr ""
 
-#: ../vcard_edit.c:949
+#: ../vcard_edit.c:1015
 msgid "Mobile telephone:"
 msgstr ""
 
-#: ../vcard_edit.c:955
+#: ../vcard_edit.c:1021
 msgid "Fax number:"
 msgstr ""
 
-#: ../vcard_edit.c:966
+#: ../vcard_edit.c:1032
 msgid "Primary Internet e-mail address"
 msgstr ""
 
-#: ../vcard_edit.c:973
+#: ../vcard_edit.c:1039
 msgid "Internet e-mail aliases"
 msgstr ""
 
-#: ../vcard_edit.c:1052 ../vcard_edit.c:1098
+#: ../vcard_edit.c:1120 ../vcard_edit.c:1166
 msgid "An error has occurred."
 msgstr ""
 
-#: ../vcard_edit.c:1150
+#: ../vcard_edit.c:1218
 msgid "Could Not decode vcard photo\n"
 msgstr ""
 
-#: ../webcit.c:407
+#: ../webcit.c:406
 msgid "Authorization Required"
 msgstr ""
 
-#: ../webcit.c:409
+#: ../webcit.c:408
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
 
-#: ../webcit.c:814
+#: ../webcit.c:836
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
 
-#: ../webcit.c:838
+#: ../webcit.c:860
+msgid "Received unexpected answer from Citadel server; bailing out."
+msgstr ""
+
+#: ../webcit.c:870
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -3715,14 +2451,1130 @@ msgid ""
 "create this page."
 msgstr ""
 
+#: ../static/t/add_node.html:5 ../static/t/display_netconf.html:10
+#: ../static/t/edit_node.html:5
+msgid "Add a new node"
+msgstr ""
+
+#: ../static/t/add_node.html:15 ../static/t/edit_node.html:15
+#: ../static/t/tab_siteconfig_general.html:9
+msgid "Node name"
+msgstr ""
+
+#: ../static/t/add_node.html:17 ../static/t/edit_node.html:17
+msgid "Shared secret"
+msgstr ""
+
+#: ../static/t/add_node.html:19 ../static/t/edit_node.html:19
+msgid "Host or IP address"
+msgstr ""
+
+#: ../static/t/add_node.html:21 ../static/t/edit_node.html:21
+msgid "Port number"
+msgstr ""
+
+#: ../static/t/aide_floorconfig.html:2
+msgid "Add, change, or delete floors"
+msgstr ""
+
+#: ../static/t/aide_global_config.html:2
+msgid "Edit site-wide configuration"
+msgstr ""
+
+#: ../static/t/aide_global_config.html:3
+msgid "Domain names and Internet mail configuration"
+msgstr ""
+
+#: ../static/t/aide_global_config.html:4
+msgid "Configure replication with other Citadel servers"
+msgstr ""
+
+#: ../static/t/aide_inet_aliases.html:2
+msgid "(domains for which this host receives mail)"
+msgstr ""
+
+#: ../static/t/aide_inet_clamav.html:2
+msgid "(hosts running the ClamAV clamd service)"
+msgstr ""
+
+#: ../static/t/aide_inet_dirnames.html:2
+msgid "(domains mapped with the Global Address Book)"
+msgstr ""
+
+#: ../static/t/aide_inet_masqdomains.html:2
+msgid "(Domains as which users are allowed to masquerade)"
+msgstr ""
+
+#: ../static/t/aide_inet_rbldns.html:2
+msgid "(hosts running a Realtime Blackhole List)"
+msgstr ""
+
+#: ../static/t/aide_inet_smarthosts.html:2
+msgid "(if present, forward all outbound mail to one of these hosts)"
+msgstr ""
+
+#: ../static/t/aide_inet_spamass.html:2
+msgid "(hosts running the SpamAssassin service)"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:5 ../static/t/display_aide_menu.html:5
+msgid "System Administration Menu"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:6 ../static/t/display_aide_menu.html:6
+msgid "Room Aide Menu"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:14 ../static/t/subject_inet_aliases.html:1
+msgid "Local host aliases"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:15
+msgid "Directory domains"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:16
+msgid "Smart hosts"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:21
+msgid "RBL hosts"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:22
+msgid "SpamAssassin hosts"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:23
+msgid "ClamAV clamd hosts"
+msgstr ""
+
+#: ../static/t/aide_inetconf.html:24
+msgid "Masqueradable domains"
+msgstr ""
+
+#: ../static/t/aide_restart.html:2
+msgid "Restart Now"
+msgstr ""
+
+#: ../static/t/aide_restart.html:3
+msgid "Restart after paging users"
+msgstr ""
+
+#: ../static/t/aide_restart.html:4
+msgid "Restart when all users are idle"
+msgstr ""
+
+#: ../static/t/aide_usermanagement.html:2
+msgid "Add, change, delete user accounts"
+msgstr ""
+
+#: ../static/t/box_edituser_select.html:1
+msgid ""
+"To edit an existing user account, select the user name from the list and "
+"click 'Edit'."
+msgstr ""
+
+#: ../static/t/box_preferences.html:9
+msgid "Tree (folders) view"
+msgstr ""
+
+#: ../static/t/box_preferences.html:11
+msgid "Table (rooms) view"
+msgstr ""
+
+#: ../static/t/box_preferences.html:20
+msgid "12 hour (am/pm)"
+msgstr ""
+
+#: ../static/t/box_preferences.html:25
+msgid "24 hour"
+msgstr ""
+
+#: ../static/t/box_preferences.html:152
+msgid "Sunday"
+msgstr ""
+
+#: ../static/t/box_preferences.html:153
+msgid "Monday"
+msgstr ""
+
+#: ../static/t/box_preferences.html:174
+msgid "No signature"
+msgstr ""
+
+#: ../static/t/box_preferences.html:238
+msgid "Full-functionality"
+msgstr ""
+
+#: ../static/t/box_preferences.html:241
+msgid "Safe mode"
+msgstr ""
+
+#: ../static/t/box_preferences.html:242
+msgid ""
+"Safe mode is less intensive on your web browser, but not as fully featured."
+msgstr ""
+
+#: ../static/t/box_serverrestart.html:3
+msgid "Please wait while the Citadel server is restarted... "
+msgstr ""
+
+#: ../static/t/box_serverrestartpagedo.html:3
+msgid ""
+"Please wait while your users are being paged, the citadel server will be "
+"restarted after that... "
+msgstr ""
+
+#: ../static/t/display_aide_menu.html:13
+msgid "Global Configuration"
+msgstr ""
+
+#: ../static/t/display_aide_menu.html:15
+msgid "User account management"
+msgstr ""
+
+#: ../static/t/display_aide_menu.html:17
+#: ../static/t/subject_aiderestart.html:1
+msgid "Shutdown Citadel"
+msgstr ""
+
+#: ../static/t/display_aide_menu.html:19
+#: ../static/t/subject_floorconfig.html:1
+msgid "Rooms and Floors"
+msgstr ""
+
+#: ../static/t/display_ignet_confirmdelete.html:5
+msgid "Confirm delete"
+msgstr ""
+
+#: ../static/t/display_ignet_confirmdelete.html:11
+msgid "Are you sure you want to delete "
+msgstr ""
+
+#: ../static/t/display_main_menu.html:8
+msgid "Basic commands"
+msgstr ""
+
+#: ../static/t/display_main_menu.html:11
+msgid "Your info"
+msgstr ""
+
+#: ../static/t/display_main_menu.html:13
+msgid "Advanced room commands"
+msgstr ""
+
+#: ../static/t/display_netconf.html:4
+msgid "Network configuration"
+msgstr ""
+
+#: ../static/t/display_netconf.html:14
+msgid "Currently configured nodes"
+msgstr ""
+
+#: ../static/t/display_serverrestart.html:30
+msgid "Restart Citadel"
+msgstr ""
+
+#: ../static/t/display_serverrestartpage.html:4
+msgid "Message to your Users:"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:3
+msgid "Site configuration"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:6
+#: ../static/t/edituser_select.html:10
+msgid "You need to be aide to view this."
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:11
+msgid "General"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:12
+msgid "Access"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:13
+msgid "Network"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:14
+#: ../static/t/subject_tuning.html:1
+msgid "Tuning"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:15
+msgid "Directory"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:16
+msgid "Auto-purger"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:17
+msgid "Indexing/Journaling"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:18
+#: ../static/t/subject_pushmail.html:1
+#: ../static/t/tab_siteconfig_pushmail.html:2
+msgid "Push Email"
+msgstr ""
+
+#: ../static/t/display_sitewide_config.html:19
+msgid "Pop3"
+msgstr ""
+
+#: ../static/t/edit_message.html:20
+msgid "from"
+msgstr ""
+
+#: ../static/t/edit_message.html:26 ../static/t/edit_message.html:35
+msgid "Anonymous"
+msgstr ""
+
+#: ../static/t/edit_message.html:44
+msgid "in"
+msgstr ""
+
+#: ../static/t/edit_message.html:48
+msgid "To:"
+msgstr ""
+
+#: ../static/t/edit_message.html:59 ../static/t/view_message.html:15
+#: ../static/t/view_message_print.html:15
+msgid "CC:"
+msgstr ""
+
+#: ../static/t/edit_message.html:65
+msgid "BCC:"
+msgstr ""
+
+#: ../static/t/edit_message.html:73 ../static/t/view_message.html:16
+#: ../static/t/view_message_print.html:16
+#: ../static/t/view_message_replyquote.html:9
+msgid "Subject:"
+msgstr ""
+
+#: ../static/t/edit_message.html:74
+msgid "Subject (optional):"
+msgstr ""
+
+#: ../static/t/edit_message.html:89
+msgid "--- forwarded message ---"
+msgstr ""
+
+#: ../static/t/edit_message.html:112
+msgid "Attachments:"
+msgstr ""
+
+#: ../static/t/edit_message.html:116
+msgid "Attach file:"
+msgstr ""
+
+#: ../static/t/edituser_add.html:1
+msgid ""
+"To create a new user account, enter the desired user name in the box below "
+"and click 'Create'."
+msgstr ""
+
+#: ../static/t/edituser_add.html:5
+msgid "New user: "
+msgstr ""
+
+#: ../static/t/edituser_select.html:5
+msgid "Edit or delete users"
+msgstr ""
+
+#: ../static/t/edituser_select.html:17
+msgid "Add users"
+msgstr ""
+
+#: ../static/t/edituser_select.html:19
+msgid "Edit or Delete users"
+msgstr ""
+
+#: ../static/t/files.html:3
+msgid "Files available for download in"
+msgstr ""
+
+#: ../static/t/files.html:18
+msgid "Filename"
+msgstr ""
+
+#: ../static/t/files.html:19
+msgid "Size"
+msgstr ""
+
+#: ../static/t/files.html:20
+msgid "Content"
+msgstr ""
+
+#: ../static/t/files.html:21
+msgid "Description"
+msgstr ""
+
+#: ../static/t/files.html:35
+msgid "Upload a file:"
+msgstr ""
+
+#: ../static/t/files_jspicview.html:6
+msgid "Pictures in"
+msgstr ""
+
+#: ../static/t/iconbar.html:17
+msgid "Mail"
+msgstr ""
+
+#: ../static/t/iconbar.html:47
+msgid "Online users"
+msgstr ""
+
+#: ../static/t/iconbar.html:51
+msgid "Loading"
+msgstr ""
+
+#: ../static/t/iconbar.html:62
+msgid "Advanced"
+msgstr ""
+
+#: ../static/t/iconbar.html:80
+msgid "customize this menu"
+msgstr "customise this menu"
+
+#: ../static/t/iconbar.html:83
+msgid "switch to room list"
+msgstr ""
+
+#: ../static/t/iconbar.html:84
+msgid "switch to menu"
+msgstr ""
+
+#: ../static/t/iconbar.html:85
+msgid "My folders"
+msgstr ""
+
+#: ../static/t/login.html:5 ../static/t/openid_login.html:5
+msgid "powered by"
+msgstr ""
+
+#: ../static/t/login.html:18
+msgid "Password:"
+msgstr ""
+
+#: ../static/t/login.html:20 ../static/t/openid_login.html:18
+msgid "Language:"
+msgstr ""
+
+#: ../static/t/login.html:36
+msgid "Log in using OpenID"
+msgstr ""
+
+#: ../static/t/login.html:40
+msgid "If you already have an account on"
+msgstr ""
+
+#: ../static/t/login.html:41
+msgid "enter your user name and password and click &quot;Login.&quot;"
+msgstr ""
+
+#: ../static/t/login.html:42
+msgid ""
+"<b>If you are a new user</b>, enter the name and password you wish to use, "
+"and click &quot;New User.&quot; "
+msgstr ""
+
+#: ../static/t/login.html:43 ../static/t/openid_login.html:34
+msgid "Please log off properly when finished. "
+msgstr ""
+
+#: ../static/t/login.html:44 ../static/t/openid_login.html:35
+msgid "See the"
+msgstr ""
+
+#: ../static/t/login.html:44 ../static/t/openid_login.html:35
+msgid "recommended browser list"
+msgstr ""
+
+#: ../static/t/login.html:44 ../static/t/openid_login.html:35
+msgid ""
+"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
+"turned on. "
+msgstr ""
+
+#: ../static/t/login.html:45 ../static/t/openid_login.html:36
+msgid ""
+"Also keep in mind that if your browser is configured to block pop-up "
+"windows, you will not be able to receive any instant messages."
+msgstr ""
+
+#: ../static/t/menu_advanced_roomcommands.html:3
+msgid "Edit or delete this room"
+msgstr ""
+
+#: ../static/t/menu_advanced_roomcommands.html:5
+msgid "Go to a 'hidden' room"
+msgstr ""
+
+#: ../static/t/menu_advanced_roomcommands.html:7
+msgid "Zap (forget) this room"
+msgstr ""
+
+#: ../static/t/menu_advanced_roomcommands.html:8
+msgid "List all forgotten rooms"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:3
+msgid "List known rooms"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:3
+msgid "Where can I go from here?"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:4
+msgid "...with <em>unread</em> messages"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:5
+msgid "Skip to next room"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:5
+msgid "(come back here later)"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:6
+msgid "oops! Back to "
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:10
+msgid "...in this room"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:11
+msgid "...old <EM>and</EM> new"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:12
+msgid "(post in this room)"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:13
+msgid "File library"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:13
+msgid "(List files available for download)"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:17
+msgid "Summary page"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:17
+msgid "Summary of my account"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:18
+msgid "User list"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:18
+msgid "(all registered users)"
+msgstr ""
+
+#: ../static/t/menu_basic_commands.html:19
+msgid "Bye!"
+msgstr ""
+
+#: ../static/t/menu_your_info.html:2
+msgid "Change your preferences and settings"
+msgstr ""
+
+#: ../static/t/menu_your_info.html:3
+msgid "Update your contact information"
+msgstr ""
+
+#: ../static/t/menu_your_info.html:5
+msgid "Enter your 'bio'"
+msgstr ""
+
+#: ../static/t/menu_your_info.html:6
+msgid "Edit your online photo"
+msgstr ""
+
+#: ../static/t/menu_your_info.html:8
+msgid "Edit your push email settings"
+msgstr ""
+
+#: ../static/t/menu_your_info.html:9
+msgid "Manage your OpenIDs"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:2
+#: ../static/t/msg_listselector_top.html:2
+msgid "Reading #"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:7
+#: ../static/t/msg_listselector_top.html:7
+msgid "messages"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:12
+#: ../static/t/msg_listselector_top.html:12
+msgid "oldest to newest"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:20
+#: ../static/t/msg_listselector_top.html:20
+msgid "newest to oldest"
+msgstr ""
+
+#: ../static/t/msg_listview.html:12 ../static/t/summary_header.html:11
+msgid "Date"
+msgstr ""
+
+#: ../static/t/msg_listview.html:20
+msgid "Loading messages from server, please wait"
+msgstr ""
+
+#: ../static/t/msg_listview.html:27
+msgid "Open in new window"
+msgstr ""
+
+#: ../static/t/msg_listview.html:29
+msgid "Copy"
+msgstr ""
+
+#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:39
+msgid "Print"
+msgstr ""
+
+#: ../static/t/newstartpage.html:4
+msgid "New start page"
+msgstr ""
+
+#: ../static/t/newstartpage.html:9
+msgid "Your start page has been changed."
+msgstr ""
+
 #: ../static/t/newstartpage.html:12
 msgid ""
 "(Note: this does not change your browser's home page. It changes the page "
 "you begin on when you log on to"
 msgstr ""
 
+#: ../static/t/openid_login.html:16
+msgid "OpenID URL:"
+msgstr ""
+
+#: ../static/t/openid_login.html:28
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../static/t/openid_login.html:31
+msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgstr ""
+
+#: ../static/t/openid_login.html:33
+msgid "Click here to learn what OpenID is and how Citadel is using it."
+msgstr ""
+
+#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
+msgid "Preferences and settings"
+msgstr ""
+
+#: ../static/t/pushemail.html:2
+msgid "Configure Push Email"
+msgstr ""
+
+#: ../static/t/pushemail.html:8
+msgid "Push email and SMS settings"
+msgstr ""
+
+#: ../static/t/pushemail.html:16
+msgid ""
+"If your administrator has enabled the functionality, Citadel can notify a "
+"Funambol server that you haved recieved new email and automatically "
+"syncronize any devices you have with the Funambol client installed."
+msgstr ""
+
+#: ../static/t/pushemail.html:19
+msgid ""
+"Alternatively, if the administrator has configured it, Citadel can send a "
+"text message to you when new mail arrives."
+msgstr ""
+
+#: ../static/t/pushemail.html:28
+msgid ""
+"(Use international format, without any leading zeros, spaces or hypens, like "
+"+61415011501)"
+msgstr ""
+
 #: ../static/t/pushemail.html:31
 msgid "Don't send any notifications"
+msgstr ""
+
+#: ../static/t/roombanner.html:14
+msgid "Select page: "
+msgstr ""
+
+#: ../static/t/section_files_onefile.html:20
+msgid "Slideshow"
+msgstr ""
+
+#: ../static/t/section_ignetconf.html:4
+msgid "(Edit)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:1
+msgid "Access controls and site policy settings"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:4
+msgid "Automatically grant room-aide status to users who create private rooms"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:7
+msgid "Initial access level for new users"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:18
+msgid "Require registration for new users"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:21
+msgid "Quarantine messages from problem users"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:24
+msgid "Name of quarantine room"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:27
+msgid "Restrict access to Internet mail"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:30
+msgid "Name of room to log pages"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:33
+msgid "Access level required to create rooms"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:44
+msgid "Allow aides to zap (forget) rooms"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:47
+msgid "Disable self-service user account creation"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:50
+msgid "Authentication mode"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:52
+msgid "Self contained"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:53
+msgid "Host based"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:54
+msgid "LDAP (RFC2307)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:55
+msgid "LDAP (Active Directory)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:58
+msgid "Master user name (blank to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_access.html:61
+msgid "Master user password"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_autopurger.html:2
+msgid "Configure automatic expiry of old messages"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_autopurger.html:3
+msgid "These settings may be overridden on a per-floor or per-room basis."
+msgstr ""
+
+#: ../static/t/tab_siteconfig_autopurger.html:7
+msgid "Hour to run database auto-purge"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_autopurger.html:67
+msgid "Default message expire policy for public rooms"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_autopurger.html:82
+msgid "Default message expire policy for private mailboxes"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_autopurger.html:84
+msgid "Same policy as public rooms"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:2
+msgid "Configure the LDAP connector for Citadel"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:4
+#: ../static/t/tab_siteconfig_network.html:3
+msgid ""
+"Changes made on this screen will not take effect until you restart the "
+"Citadel server."
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:5
+msgid ""
+"NOTE: This Citadel server has been built without LDAP support.  These "
+"options will have no effect."
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:10
+msgid "Host name of LDAP server (blank to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:14
+msgid "Port number of LDAP server (blank to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:17
+msgid "Base DN"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:20
+msgid "Bind DN"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_directory.html:23
+msgid "Password for bind DN"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:2
+msgid "General site configuration items"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:6
+msgid "Change Login Logo"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:7
+msgid "Change Logout Logo"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:12
+msgid "Fully qualified domain name"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:15
+msgid "Human-readable node name"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:18
+msgid "Telephone number"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:21
+msgid "Paginator prompt (for text mode clients)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:24
+msgid "Geographic location of this system"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:27
+msgid "Name of system administrator"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_general.html:30
+msgid "Default timezone for unzoned calendar items"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_indexing.html:2
+msgid "Indexing and Journaling"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_indexing.html:3
+msgid "Warning: these facilities are resource intensive."
+msgstr ""
+
+#: ../static/t/tab_siteconfig_indexing.html:7
+msgid "Enable full text index"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_indexing.html:10
+msgid "Perform journaling of email messages"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_indexing.html:14
+msgid "Perform journaling of non-email messages"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_indexing.html:17
+msgid "Email destination of journalized messages"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:2
+msgid "Network services"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:7
+msgid "SMTP MTA port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:10
+msgid "Correct forged From: lines during authenticated SMTP"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:13
+msgid "Flag message as spam, instead of rejecting it"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:16
+msgid "IMAP listener port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:20
+msgid "Network run frequency (in seconds)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:23
+msgid "Server IP address (0.0.0.0 for 'any')"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:26
+msgid "SMTP MSA port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:29
+msgid "IMAP over SSL port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:32
+msgid "SMTP over SSL port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:35
+msgid "Instantly expunge deleted messages in IMAP"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:39
+msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:42
+msgid "Postfix TCP Dictionary Port"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:42
+msgid "-1 to disable"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:45
+msgid "ManageSieve Port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:48
+msgid "Perform RBL checks upon connect instead of after RCPT"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:51
+msgid "Keep original from headers in IMAP"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:54
+msgid "XMPP (Jabber) client to server port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_network.html:57
+msgid "XMPP (Jabber) server to server port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pop3.html:2
+msgid "POP3"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pop3.html:6
+msgid "POP3 listener port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pop3.html:9
+msgid "POP3 over SSL port (-1 to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pop3.html:12
+msgid "POP3 fetch frequency in seconds"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pop3.html:15
+msgid "POP3 fastest fetch frequency in seconds"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pushmail.html:6
+msgid "Funambol server host (blank to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pushmail.html:9
+msgid "Funambol server port "
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pushmail.html:12
+msgid "Funambol sync source"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pushmail.html:15
+msgid "Funambol auth details (user:pass)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_pushmail.html:18
+msgid "External pager tool (blank to disable)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:1
+msgid "Advanced server fine-tuning controls"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:4
+msgid "Server connection idle timeout (in seconds)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:7
+msgid "Maximum concurrent sessions (0 = no limit)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:10
+msgid "Default user purge time (days)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:13
+msgid "Default room purge time (days)"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:16
+msgid "Maximum message length"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:19
+msgid "Minimum number of worker threads"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:22
+msgid "Maximum number of worker threads"
+msgstr ""
+
+#: ../static/t/tab_siteconfig_tuning.html:25
+msgid "Automatically delete committed database logs"
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:4
+msgid "Edit user account: "
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:18
+msgid "Permission to send Internet mail"
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:19
+msgid "Number of logins"
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:20
+msgid "Messages submitted"
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:21
+msgid "Access level"
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:30
+msgid "User ID number"
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:31
+msgid "Date and time of last login"
+msgstr ""
+
+#: ../static/t/userlist_detailview.html:36
+msgid "Auto-purge after this many days"
+msgstr ""
+
+#: ../static/t/view_message.html:7 ../static/t/view_message_print.html:8
+#: ../static/t/view_message_replyquote.html:4
+#: ../static/t/view_message_replyquote.html:8
+#: ../static/t/view_submessage.html:4
+msgid "from "
+msgstr ""
+
+#: ../static/t/view_message.html:14 ../static/t/view_message_print.html:14
+msgid "to"
+msgstr ""
+
+#: ../static/t/view_message.html:20
+msgid "ReplyQuoted"
+msgstr ""
+
+#: ../static/t/view_message.html:25 ../static/t/view_message.html:30
+msgid "ReplyAll"
+msgstr ""
+
+#: ../static/t/view_message.html:26 ../static/t/view_message.html:31
+msgid "Forward"
+msgstr ""
+
+#: ../static/t/view_message.html:38
+msgid "Headers"
+msgstr ""
+
+#: ../static/t/view_message_inline_attach.html:4
+#: ../static/t/view_message_list_attach.html:4
+msgid "Download"
+msgstr ""
+
+#: ../static/t/view_message_list_attach.html:3
+msgid "View"
+msgstr ""
+
+#: ../static/t/who.html:14
+msgid "Users currently on "
+msgstr ""
+
+#: ../static/t/wholiststatic.html:7 ../static/t/wholistsummarysection.html:6
+msgid "Room"
+msgstr ""
+
+#: ../static/t/wholiststatic.html:8
+msgid "From host"
+msgstr ""
+
+#: ../static/t/wholiststatic.html:14
+msgid "Click on a name to read user info.  Click on"
+msgstr ""
+
+#: ../static/t/wholiststatic.html:16
+msgid "to send an instant message to that user."
+msgstr ""
+
+#: ../static/t/wholiststatic_header.html:1
+msgid "Users currently on"
+msgstr ""
+
+#: ../static/t/whosection.html:4
+msgid "(kill)"
 msgstr ""
 
 #~ msgid "Customize this menu"
