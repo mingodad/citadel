@@ -794,7 +794,12 @@ long gotoroom(const StrBuf *gname)
 	if  (GetServerStatus(Buf, &err) != 2) {
 		serv_puts("GOTO _BASEROOM_");
 		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, &err) != 2) {
+		/* 
+		 * well, we know that this is the fallback case, 
+		 * but we're interested that the first command 
+		 * didn't work out in first place.
+		 */
+		if (GetServerStatus(Buf, NULL) != 2) {
 			FreeStrBuf(&Buf);
 			return err;
 		}

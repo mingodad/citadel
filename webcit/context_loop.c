@@ -52,6 +52,8 @@ void DestroySession(wcsession **sessions_to_kill)
 	FreeStrBuf(&((*sessions_to_kill)->wc_roomname));
 	FreeStrBuf(&((*sessions_to_kill)->httpauth_user));
 	FreeStrBuf(&((*sessions_to_kill)->httpauth_pass));
+	FreeStrBuf(&((*sessions_to_kill)->ImportantMsg));
+	FreeStrBuf(&((*sessions_to_kill)->cs_inet_email));
 	free((*sessions_to_kill));
 	(*sessions_to_kill) = NULL;
 }
@@ -537,6 +539,8 @@ void context_loop(int *sock)
 	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
+	if (TheSession->ImportantMsg == NULL)
+		TheSession->ImportantMsg = NewStrBuf();
 	TheSession->urlstrings = NewHash(1,NULL);
 	TheSession->vars = NewHash(1,NULL);
 	TheSession->http_sock = *sock;

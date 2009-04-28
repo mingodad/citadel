@@ -293,7 +293,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	 */
 	if (icalcomponent_get_first_property(vevent, ICAL_ORGANIZER_PROPERTY)
 	   == NULL) {
-		sprintf(organizer_string, "MAILTO:%s", WC->cs_inet_email);
+		sprintf(organizer_string, "MAILTO:%s", ChrPtr(WC->cs_inet_email));
 		icalcomponent_add_property(vevent,
 			icalproperty_new_organizer(organizer_string)
 		);

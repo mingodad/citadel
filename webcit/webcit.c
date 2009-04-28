@@ -168,21 +168,34 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		do_template("head", NULL);
 
 		/* check for ImportantMessages (these display in a div overlaying the main screen) */
-		if (!IsEmptyStr(WC->ImportantMessage)) {
+		if (!IsEmptyStr(WCC->ImportantMessage)) {
 			wprintf("<div id=\"important_message\">\n"
 				"<span class=\"imsg\">");
-			escputs(WC->ImportantMessage);
+			StrEscAppend(WCC->WBuf, NULL, WCC->ImportantMessage, 0, 0);
 			wprintf("</span><br />\n"
 				"</div>\n"
 			);
-			StrBufAppendPrintf(WCC->trailing_javascript,
-				"setTimeout('hide_imsg_popup()', 5000);	\n"
+			StrBufAppendBufPlain(WCC->trailing_javascript,
+					     HKEY("setTimeout('hide_imsg_popup()', 5000);	\n"), 
+					     0
 			);
 			WCC->ImportantMessage[0] = 0;
 		}
-
+		else if (StrLength(WCC->ImportantMsg) > 0) {
+			wprintf("<div id=\"important_message\">\n"
+				"<span class=\"imsg\">");
+			StrEscAppend(WCC->WBuf, WCC->ImportantMsg, NULL, 0, 0);
+			wprintf("</span><br />\n"
+				"</div>\n"
+			);
+			StrBufAppendBufPlain(WCC->trailing_javascript,
+					     HKEY("setTimeout('hide_imsg_popup()', 5000);	\n"),
+					     0
+			);
+			FlushStrBuf(WCC->ImportantMsg);
+		}
 		if ( (WCC->logged_in) && (!unset_cookies) ) {
-		  //DoTemplate(HKEY("iconbar"), NULL, &NoCtx);
+			/*DoTemplate(HKEY("iconbar"), NULL, &NoCtx);*/
 			page_popup();
 		}
 
@@ -1107,7 +1120,8 @@ int ConditionalImportantMesage(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	if (WCC != NULL)
-		return (!IsEmptyStr(WCC->ImportantMessage));
+		return ((!IsEmptyStr(WCC->ImportantMessage)) || 
+			(StrLength(WCC->ImportantMsg) > 0));
 	else
 		return 0;
 }
@@ -1117,12 +1131,14 @@ void tmplput_importantmessage(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
-/*
-		StrBufAppendTemplate(Target, nArgs, Tokens, Context, ContextType,
-				     WCC->ImportantMessage, 0);
-*/
-		StrEscAppend(Target, NULL, WCC->ImportantMessage, 0, 0);
-		WCC->ImportantMessage[0] = '\0';
+		if (!IsEmptyStr(WCC->ImportantMessage)) {
+			StrEscAppend(Target, NULL, WCC->ImportantMessage, 0, 0);
+			WCC->ImportantMessage[0] = '\0';
+		}
+		else if (StrLength(WCC->ImportantMsg) > 0) {
+			StrEscAppend(Target, WCC->ImportantMsg, NULL, 0, 0);
+			FlushStrBuf(WCC->ImportantMsg);
+		}
 	}
 }
 

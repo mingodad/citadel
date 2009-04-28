@@ -473,20 +473,22 @@ TRYAGAIN:
 void display_edit_address_book_entry(const char *username, long usernum) {
 	message_summary *VCMsg = NULL;
 	wc_mime_attachment *VCAtt = NULL;
-	char roomname[SIZ];
+	StrBuf *roomname;
 	StrBuf *Buf;
 	char error_message[SIZ];
 	long vcard_msgnum = (-1L);
 
 	/** Locate the user's config room, creating it if necessary */
 	Buf = NewStrBuf();
-	serv_printf("GOTO %010ld.%s||1", usernum, USERCONFIGROOM);
+	roomname = NewStrBuf();
+	StrBufPrintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
+	serv_printf("GOTO %s||1", ChrPtr(roomname));
 	StrBuf_ServGetlnBuffered(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		serv_printf("CRE8 1|%010ld.%s|5|||1|", usernum, USERCONFIGROOM);
+		serv_printf("CRE8 1|%s|5|||1|", ChrPtr(roomname));
 		StrBuf_ServGetlnBuffered(Buf);
 		GetServerStatus(Buf, NULL);
-		serv_printf("GOTO %010ld.%s||1", usernum, USERCONFIGROOM);
+		serv_printf("GOTO %s||1", ChrPtr(roomname));
 		StrBuf_ServGetlnBuffered(Buf);
 		if (GetServerStatus(Buf, NULL) != 2) {
 			StrBufCutLeft(Buf, 4);
@@ -495,6 +497,7 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 				"%s<br /><br />\n", ChrPtr(Buf));
 			select_user_to_edit(error_message, username);
 			FreeStrBuf(&Buf);
+			FreeStrBuf(&roomname);
 			return;
 		}
 	}
@@ -508,6 +511,7 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 			_("An error occurred while trying to create or edit this address book entry.")
 			);
 		select_user_to_edit(error_message, username);
+		FreeStrBuf(&roomname);
 		return;
 	}
 
@@ -515,7 +519,8 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 		      VCMsg,
 		      VCAtt,
 		      "select_user_to_edit", 
-		      roomname);
+		      ChrPtr(roomname));
+	FreeStrBuf(&roomname);
 }
 
 
