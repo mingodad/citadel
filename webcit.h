@@ -651,7 +651,8 @@ void do_edit_vcard(long msgnum, char *partnum,
 		   wc_mime_attachment *VCAtt,
 		   char *return_to, 
 		   const char *force_room);
-void select_user_to_edit(const char *message, const char *preselect);
+
+void select_user_to_edit(const char *preselect);
 void delete_user(char *);
 void do_change_view(int);
 void folders(void);
