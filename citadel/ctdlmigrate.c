@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 	CtdlMakeTempFileName(socket_path, sizeof socket_path);
 
-	system("clear");
+	cmdexit = system("clear");
 	printf(	"-------------------------------------------\n"
 		"Over-the-wire migration utility for Citadel\n"
 		"-------------------------------------------\n"

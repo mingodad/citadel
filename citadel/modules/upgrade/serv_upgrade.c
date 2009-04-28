@@ -251,6 +251,17 @@ void update_config(void) {
 		config.c_xmpp_s2s_port = 5269;
 	}
 
+	/* Erase LDAP config that might be left over from the old connector
+	 * which served a different purpose.
+	 */
+	if (CitControl.version < 760) {
+		strcpy(config.c_ldap_host, "");
+		config.c_ldap_port = 389;
+		strcpy(config.c_ldap_base_dn, "");
+		strcpy(config.c_ldap_bind_dn, "");
+		strcpy(config.c_ldap_bind_pw, "");
+	}
+
 	if (IsEmptyStr(config.c_default_cal_zone)) {
 		guess_time_zone();
 	}
