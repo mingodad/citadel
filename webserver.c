@@ -275,13 +275,10 @@ long end_burst(void)
         fd_set wset;
         int fdflags;
 
-	//#ifdef HAVE_ZLIB
-	/* Perform gzip compression, if enabled and supported by client */
 	if (!DisableGzip && (WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
 	{
 		hprintf("Content-encoding: gzip\r\n");
 	}
-	//#endif	/* HAVE_ZLIB */
 
 	hprintf("Content-length: %d\r\n\r\n", StrLength(WCC->WBuf));
 

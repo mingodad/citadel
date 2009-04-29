@@ -54,6 +54,7 @@ void DestroySession(wcsession **sessions_to_kill)
 	FreeStrBuf(&((*sessions_to_kill)->httpauth_pass));
 	FreeStrBuf(&((*sessions_to_kill)->ImportantMsg));
 	FreeStrBuf(&((*sessions_to_kill)->cs_inet_email));
+	FreeStrBuf(&((*sessions_to_kill)->MigrateReadLineBuf));
 	free((*sessions_to_kill));
 	(*sessions_to_kill) = NULL;
 }
@@ -516,6 +517,9 @@ void context_loop(int *sock)
 		}
 		else TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
 
+		if (TheSession->MigrateReadLineBuf != NULL)
+			FlushStrBuf(TheSession->MigrateReadLineBuf);
+		else TheSession->MigrateReadLineBuf = NewStrBuf();
 		TheSession->CLineBuf = NewStrBuf();
 		TheSession->hash_prefs = NewHash(1,NULL);	/* Get a hash table for the user preferences */
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);

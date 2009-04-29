@@ -153,7 +153,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 		const char *pch;
 
 		pch = ChrPtr(Buf) + 4;
-		WCC->new_mail = StrBufExtractNext_long(Buf, &pch, '|');
+		WCC->new_mail  = StrBufExtractNext_long(Buf, &pch, '|');
 		WCC->need_regi = StrBufExtractNext_long(Buf, &pch, '|');
 		WCC->need_vali = StrBufExtractNext_long(Buf, &pch, '|');
 		if (WCC->cs_inet_email == NULL)

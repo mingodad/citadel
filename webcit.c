@@ -805,7 +805,7 @@ void session_loop(HashList *HTTPHeaders,
 	}
 
 	/* If the client sent a nonce that is incorrect, kill the request. */
-	if (strlen(bstr("nonce")) > 0) {
+	if (havebstr("nonce")) {
 		lprintf(9, "Comparing supplied nonce %s to session nonce %ld\n", 
 			bstr("nonce"), WCC->nonce);
 		if (ibstr("nonce") != WCC->nonce) {

@@ -36,6 +36,7 @@ typedef struct _UserListEntry {
 
 UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
 {
+	const char *Pos;
 	UserListEntry *ul;
 
 	if (StrLength(SerializedUser) < 8) 
@@ -45,15 +46,15 @@ UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
 	ul->UserName = NewStrBuf();
 	ul->Passvoid = NewStrBuf();
 
-	StrBufExtract_token(ul->UserName, SerializedUser, 0, '|');
-	StrBufExtract_token(ul->Passvoid, SerializedUser, 1, '|');
-	ul->Flags = (unsigned int)StrBufExtract_long(SerializedUser, 2, '|');
-	ul->nLogons = StrBufExtract_int(SerializedUser, 3, '|');
-	ul->nPosts = StrBufExtract_int(SerializedUser, 4, '|');
-	ul->AccessLevel = StrBufExtract_int(SerializedUser, 5, '|');
-	ul->UID = StrBufExtract_int(SerializedUser, 6, '|');
-	ul->LastLogonT = StrBufExtract_long(SerializedUser, 7, '|');
-	ul->DaysTillPurge = StrBufExtract_int(SerializedUser, 8, '|');
+	StrBufExtract_NextToken(ul->UserName,               SerializedUser, &Pos, '|');
+	StrBufExtract_NextToken(ul->Passvoid,               SerializedUser, &Pos, '|');
+	ul->Flags         = StrBufExtractNext_unsigned_long(SerializedUser, &Pos, '|');
+	ul->nLogons       = StrBufExtractNext_int(          SerializedUser, &Pos, '|');
+	ul->nPosts        = StrBufExtractNext_int(          SerializedUser, &Pos, '|');
+	ul->AccessLevel   = StrBufExtractNext_int(          SerializedUser, &Pos, '|');
+	ul->UID           = StrBufExtractNext_int(          SerializedUser, &Pos, '|');
+	ul->LastLogonT    = StrBufExtractNext_long(         SerializedUser, &Pos, '|');
+	ul->DaysTillPurge = StrBufExtractNext_int(          SerializedUser, &Pos, '|');
 	return ul;
 }
 
@@ -68,6 +69,7 @@ void DeleteUserListEntry(void *vUserList)
 
 UserListEntry* NewUserListEntry(StrBuf *SerializedUserList)
 {
+	const char *Pos = NULL;
 	UserListEntry *ul;
 
 	if (StrLength(SerializedUserList) < 8) 
@@ -77,13 +79,13 @@ UserListEntry* NewUserListEntry(StrBuf *SerializedUserList)
 	ul->UserName = NewStrBuf();
 	ul->Passvoid = NewStrBuf();
 
-	StrBufExtract_token(ul->UserName, SerializedUserList, 0, '|');
-	ul->AccessLevel = StrBufExtract_int(SerializedUserList, 1, '|');
-	ul->UID = StrBufExtract_int(SerializedUserList, 2, '|');
-	ul->LastLogonT = StrBufExtract_long(SerializedUserList, 3, '|');
-	ul->nLogons = StrBufExtract_int(SerializedUserList, 4, '|');
-	ul->nPosts = StrBufExtract_int(SerializedUserList, 5, '|');
-	StrBufExtract_token(ul->Passvoid, SerializedUserList, 6, '|');
+	StrBufExtract_NextToken(ul->UserName,    SerializedUserList, &Pos, '|');
+	ul->AccessLevel = StrBufExtractNext_int( SerializedUserList, &Pos, '|');
+	ul->UID         = StrBufExtractNext_int( SerializedUserList, &Pos, '|');
+	ul->LastLogonT  = StrBufExtractNext_long(SerializedUserList, &Pos, '|');
+	ul->nLogons     = StrBufExtractNext_int( SerializedUserList, &Pos, '|');
+	ul->nPosts      = StrBufExtractNext_int( SerializedUserList, &Pos, '|');
+	StrBufExtract_NextToken(ul->Passvoid,    SerializedUserList, &Pos, '|');
 	ul->Flags = 0;
 	ul->DaysTillPurge = -1;
 	return ul;

@@ -115,60 +115,6 @@ int tcp_connectsock(char *host, char *service)
 
 
 
-
-/*
- *  Input binary data from socket
- *  buf the buffer to get the input to
- *  bytes the maximal number of bytes to read
- */
-inline void _serv_read(char *buf, int bytes, wcsession *WCC)
-{
-	int len, rlen;
-
-	len = 0;
-	while ((len < bytes) && (WCC->serv_sock != -1)){
-		rlen = read(WCC->serv_sock, &buf[len], bytes - len);
-		if (rlen < 1) {
-			lprintf(1, "Server connection broken: %s\n",
-				strerror(errno));
-			wc_backtrace();
-			close(WCC->serv_sock);
-			WCC->serv_sock = (-1);
-			WCC->connected = 0;
-			WCC->logged_in = 0;
-			memset(buf, 0, bytes);
-			return;
-		}
-		len = len + rlen;
-	}
-}
-
-/*
- *  input string from pipe
- */
-int serv_getln(char *strbuf, int bufsize)
-{
-	wcsession *WCC = WC;
-	int ch, len;
-	char buf[2];
-
-	WCC->ReadPos = NULL;
-	len = 0;
-	strbuf[0] = 0;
-	do {
-		_serv_read(&buf[0], 1, WCC);
-		ch = buf[0];
-		if ((ch != 13) && (ch != 10)) {
-			strbuf[len++] = ch;
-		}
-	} while ((ch != 10) && (ch != 0) && (len < (bufsize-1)) && (WCC->serv_sock != -1));
-	strbuf[len] = 0;
-#ifdef SERV_TRACE
-	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
-#endif
-	return len;
-}
-
 int StrBuf_ServGetln(StrBuf *buf)
 {
 	wcsession *WCC = WC;
@@ -188,6 +134,29 @@ int StrBuf_ServGetln(StrBuf *buf)
 	}
 	return rc;
 }
+
+/*
+ *  input string from pipe
+ */
+int serv_getln(char *strbuf, int bufsize)
+{
+	wcsession *WCC = WC;
+	int len;
+	
+	WCC->ReadPos = NULL;
+
+	StrBuf_ServGetln(WCC->MigrateReadLineBuf);
+	len = StrLength(WCC->MigrateReadLineBuf);
+	if (len > bufsize)
+		len = bufsize - 1;
+	memcpy(strbuf, ChrPtr(WCC->MigrateReadLineBuf), len);
+	strbuf[len] = 0;
+#ifdef SERV_TRACE
+	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
+#endif
+	return len;
+}
+
 
 int StrBuf_ServGetlnBuffered(StrBuf *buf)
 {
