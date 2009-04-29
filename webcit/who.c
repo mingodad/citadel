@@ -40,20 +40,17 @@ int CompareUserStruct(const void *VUser1, const void *VUser2)
 }
 
 
-int GetWholistSection(HashList *List, time_t now)
+int GetWholistSection(HashList *List, time_t now, StrBuf *Buf)
 {
-	StrBuf *Buf;
 	wcsession *WCC = WC;
 	UserStateStruct *User, *OldUser;
 	void *VOldUser;
 	size_t BufLen;
-	char buf[SIZ];
 	const char *Pos;
 
 	serv_puts("RWHO");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
-		Buf = NewStrBuf();
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
 		while (BufLen = StrBuf_ServGetlnBuffered(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (BufLen <= 0)
 			    continue;
@@ -111,8 +108,10 @@ int GetWholistSection(HashList *List, time_t now)
 		FreeStrBuf(&Buf);
 		return 1;
 	}
-	else
+	else {
+		FreeStrBuf(&Buf);
 		return 0;
+	}
 }
 
 /*
@@ -216,21 +215,25 @@ void _terminate_session(void) {
 HashList *GetWholistHash(StrBuf *Target, WCTemplputParams *TP)
 
 {
+	StrBuf *Buf;
 	HashList *List;
-	char buf[SIZ];
         time_t now;
 
+	Buf = NewStrBuf();
+
 	serv_puts("TIME");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		now = extract_long(&buf[4], 0);
+	StrBuf_ServGetlnBuffered(Buf);
+	if (GetServerStatus(Buf, NULL)  == 2) {
+		const char *pos = ChrPtr(Buf) + 4;
+		now = StrBufExtractNext_long(Buf, &pos, '|');
 	}
 	else {
 		now = time(NULL);
 	}
 
 	List = NewHash(1, NULL);
-	GetWholistSection(List, now);
+	GetWholistSection(List, now, Buf);
+	FreeStrBuf(&Buf);
 	return List;
 }
 
