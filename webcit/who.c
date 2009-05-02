@@ -104,12 +104,9 @@ int GetWholistSection(HashList *List, time_t now, StrBuf *Buf)
 				    User, DestroyUserStruct);
 		}
 		SortByPayload(List, CompareUserStruct);
-
-		FreeStrBuf(&Buf);
 		return 1;
 	}
 	else {
-		FreeStrBuf(&Buf);
 		return 0;
 	}
 }
