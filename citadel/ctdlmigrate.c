@@ -308,7 +308,23 @@ FAIL:	if (sourcefp) pclose(sourcefp);
 	}
 	pclose(sourcefp);
 
-THEEND:	kill(sshpid, SIGKILL);
+THEEND:	if (exitcode == 0) {
+		printf("\n\n *** Citadel migration was successful! *** \n\n");
+	}
+	else {
+		printf("\n\n *** Citadel migration was unsuccessful. *** \n\n");
+	}
+	printf("\nShutting down the socket connection...\n\n");
+	snprintf(cmd, sizeof cmd, "ssh -S %s -N -O exit %s@%s",
+		socket_path, remote_user, remote_host);
+	cmdexit = system(cmd);
+	printf("\n");
+	if (cmdexit != 0) {
+		printf("There was an error shutting down the socket.\n\n");
+		exitcode = cmdexit;
+	}
+
+	/* kill(sshpid, SIGKILL); */
 	unlink(socket_path);
 	exit(exitcode);
 }
