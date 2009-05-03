@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
 	int linecount = 0;
 	char spinning[4] = "-\\|/" ;
 	int exitcode = 0;
-	pid_t sshpid;
 	
 	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
 	CtdlMakeTempFileName(socket_path, sizeof socket_path);
@@ -139,40 +138,14 @@ int main(int argc, char *argv[])
 		remote_host);
 	getz(remote_user);
 
-	sshpid = fork();
-	if (sshpid < 0)
-	{
-		printf("\n%s\n", strerror(errno));
-		exitcode = errno;
-		goto THEEND;
-	}
-	else if (sshpid == 0)
-	{
-		printf("\nEstablishing an SSH connection to the source system...\n\n");
-		unlink(socket_path);
-		snprintf(cmd, sizeof cmd, "%s@%s", remote_user, remote_host);
-		execlp("ssh", "ssh", "-MNf", "-S", socket_path, cmd, NULL);
-		cmdexit = errno;
-		printf("\n%s\n", strerror(cmdexit));
-		exit(cmdexit);		/* child process exits */
-	}
-
-	/* If we get here we are the parent process */
-	if (waitpid(sshpid, &cmdexit, 0) <= 0) {
-		exitcode = errno;
-		printf("\n%s\n", strerror(errno));
-		goto THEEND;
-	}
-
-	if (WIFSIGNALED(cmdexit)) {
-		exitcode = errno;
-		printf("\n%s\n", strerror(errno));
-		goto THEEND;
-	}
-
-	if ((WIFEXITED(cmdexit)) && (WEXITSTATUS(cmdexit) != 0)) {
-		exitcode = WEXITSTATUS(cmdexit);
-		printf("\n%s\n", strerror(errno));
+	printf("\nEstablishing an SSH connection to the source system...\n\n");
+	unlink(socket_path);
+	snprintf(cmd, sizeof cmd, "ssh -MNf -S %s %s@%s", socket_path, remote_user, remote_host);
+	cmdexit = system(cmd);
+	printf("\n");
+	if (cmdexit != 0) {
+		printf("This program was unable to establish an SSH session to the source system.\n\n");
+		exitcode = cmdexit;
 		goto THEEND;
 	}
 
@@ -324,7 +297,6 @@ THEEND:	if (exitcode == 0) {
 		exitcode = cmdexit;
 	}
 
-	/* kill(sshpid, SIGKILL); */
 	unlink(socket_path);
 	exit(exitcode);
 }
