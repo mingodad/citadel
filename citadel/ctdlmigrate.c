@@ -11,7 +11,7 @@
  *
  * This program is licensed to you under the terms of the GNU General Public License v3
  *
- * FIXME handle -h on both sides
+ * (Note: a useful future enhancement might be to support "-h" on both sides)
  *
  */
 
