@@ -717,7 +717,7 @@ int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
-int goto_config_room(void);
+int goto_config_room(StrBuf *Buf);
 long locate_user_vcard_in_this_room(message_summary **VCMsg,
 				    wc_mime_attachment **VCAtt);
 void sleeeeeeeeeep(int);

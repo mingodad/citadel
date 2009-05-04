@@ -147,12 +147,18 @@ void GetPrefTypes(HashList *List)
 
 void ParsePref(HashList **List, StrBuf *ReadBuf)
 {
+	int Done = 0;
 	Preference *Data = NULL;
 	Preference *LastData = NULL;
 				
-	while (StrBuf_ServGetln(ReadBuf), 
-	       strcmp(ChrPtr(ReadBuf), "000")) 
+	while (!Done && StrBuf_ServGetln(ReadBuf))
 	{
+		if ( (StrLength(ReadBuf)==3) && 
+		     !strcmp(ChrPtr(ReadBuf), "000")) {
+			Done = 1;
+			break;
+		}
+
 		if ((ChrPtr(ReadBuf)[0] == ' ') &&
 		    (Data != NULL)) {
 			StrBufAppendBuf(Data->Val, ReadBuf, 1);
@@ -194,9 +200,12 @@ void load_preferences(void)
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
-	if (goto_config_room() != 0) return;	/* oh well. */
-
 	ReadBuf = NewStrBuf();
+	if (goto_config_room(ReadBuf) != 0) {
+		FreeStrBuf(&ReadBuf);
+		return;	/* oh well. */
+	}
+
 	serv_puts("MSGS ALL|0|1");
 	StrBuf_ServGetln(ReadBuf);
 	if (GetServerStatus(ReadBuf, NULL) == 8) {
@@ -238,17 +247,19 @@ void load_preferences(void)
  * \brief Goto the user's configuration room, creating it if necessary.
  * \return 0 on success or nonzero upon failure.
  */
-int goto_config_room(void) {
-	char buf[SIZ];
-
+int goto_config_room(StrBuf *Buf) 
+{
 	serv_printf("GOTO %s", USERCONFIGROOM);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') { /* try to create the config room if not there */
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) { /* try to create the config room if not there */
 		serv_printf("CRE8 1|%s|4|0", USERCONFIGROOM);
-		serv_getln(buf, sizeof buf);
+		StrBuf_ServGetln(Buf);
+		GetServerStatus(Buf, NULL);
+
 		serv_printf("GOTO %s", USERCONFIGROOM);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] != '2') return(1);
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) != 2) 
+			return(1);
 	}
 	return(0);
 }
@@ -318,7 +329,10 @@ void save_preferences(void)
 	long msgnum = 0L;
 	
 	ReadBuf = NewStrBuf();
-	if (goto_config_room() != 0) return;	/* oh well. */
+	if (goto_config_room(ReadBuf) != 0) {
+		FreeStrBuf(&ReadBuf);
+		return;	/* oh well. */
+	}
 	serv_puts("MSGS ALL|0|1");
 	StrBuf_ServGetln(ReadBuf);
 	if (GetServerStatus(ReadBuf, NULL) == 8) {
