@@ -49,9 +49,9 @@ int GetWholistSection(HashList *List, time_t now, StrBuf *Buf)
 	const char *Pos;
 
 	serv_puts("RWHO");
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
-		while (BufLen = StrBuf_ServGetlnBuffered(Buf), strcmp(ChrPtr(Buf), "000")) {
+		while (BufLen = StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (BufLen <= 0)
 			    continue;
 			Pos = NULL;
@@ -219,7 +219,7 @@ HashList *GetWholistHash(StrBuf *Target, WCTemplputParams *TP)
 	Buf = NewStrBuf();
 
 	serv_puts("TIME");
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL)  == 2) {
 		const char *pos = ChrPtr(Buf) + 4;
 		now = StrBufExtractNext_long(Buf, &pos, '|');

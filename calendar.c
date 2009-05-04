@@ -1063,12 +1063,12 @@ void load_ical_object(long msgnum, int unread,
 	relevant_partnum[0] = '\0';
 	serv_printf("MSG4 %ld", msgnum);	/* we need the mime headers */
 	Buf = NewStrBuf();
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
 		FreeStrBuf (&Buf);
 		return;
 	}
-	while ((StrBuf_ServGetlnBuffered(Buf)>=0) && !Done) {
+	while (!Done && (StrBuf_ServGetln(Buf)>=0)) {
 		if ( (StrLength(Buf)==3) && 
 		     !strcmp(ChrPtr(Buf), "000")) {
 			Done = 1;

@@ -458,7 +458,7 @@ int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 			}
 		}
 		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
-		if (StrBuf_ServGetlnBuffered(Buf) > 0)
+		if (StrBuf_ServGetln(Buf) > 0)
 		{
 			if (GetServerStatus(Buf, NULL) == 6)
 			{

@@ -67,7 +67,7 @@ int load_message(message_summary *Msg,
 
 	/** begin everythingamundo table */
 	HdrToken = NewStrBuf();
-	while ((StrBuf_ServGetlnBuffered(Buf)>=0) && !Done) {
+	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
 		    !strcmp(ChrPtr(Buf), "000")) 
 		{
@@ -381,7 +381,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 
 	serv_printf("MSG0 %ld|1", MsgNum);	/* ask for headers only */
 	
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
 		FreeStrBuf(&Buf);
 		return NULL;
@@ -389,7 +389,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 
 	Msg = (message_summary*)malloc(sizeof(message_summary));
 	memset(Msg, 0, sizeof(message_summary));
-	while (len = StrBuf_ServGetlnBuffered(Buf),
+	while (len = StrBuf_ServGetln(Buf),
 	       ((len != 3)  ||
 		strcmp(ChrPtr(Buf), "000")== 0)){
 		buf = ChrPtr(Buf);
@@ -436,13 +436,13 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 	
 	Buf = NewStrBuf();
 	serv_puts(servcmd);
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
 		FreeStrBuf(&Buf);
 		return (nummsgs);
 	}
 	Buf2 = NewStrBuf();
-	while (len = StrBuf_ServGetlnBuffered(Buf),
+	while (len = StrBuf_ServGetln(Buf),
 	       ((len != 3)  ||
 		strcmp(ChrPtr(Buf), "000")!= 0))
 	{
@@ -1574,7 +1574,7 @@ void mimepart(int force_download)
 
 	Buf = NewStrBuf();
 	serv_printf("OPNA %s|%s", ChrPtr(WCC->UrlFragment2), ChrPtr(WCC->UrlFragment3));
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
@@ -1584,7 +1584,7 @@ void mimepart(int force_download)
 
 		read_server_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
-		StrBuf_ServGetlnBuffered(Buf);
+		StrBuf_ServGetln(Buf);
 		CT = ChrPtr(ContentType);
 
 		if (!force_download) {
@@ -1620,7 +1620,7 @@ StrBuf *load_mimepart(long msgnum, char *partnum)
 	
 	Buf = NewStrBuf();
 	serv_printf("DLAT %ld|%s", msgnum, partnum);
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 6) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
@@ -1644,7 +1644,7 @@ void MimeLoadData(wc_mime_attachment *Mime)
 /* TODO: is there a chance the contenttype is different  to the one we know?	 */
 	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
 	Buf = NewStrBuf();
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 6) {
 		bytes = extract_long(&(ChrPtr(Buf)[4]), 0);
 				     
