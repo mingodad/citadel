@@ -49,7 +49,6 @@ void load_inetconf(void)
 	void *vHash;
 	HashList *Hash;
 	char nnn[64];
-	char buf[SIZ];
 	int i, len, nUsed;
 	
 	WCC->InetCfg = NewHash(1, NULL);
@@ -60,10 +59,10 @@ void load_inetconf(void)
 	}
 
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
-	serv_getln(buf, sizeof buf);
-	
-	if (buf[0] == '1') {
-		Buf = NewStrBuf();
+	Buf = NewStrBuf();
+	StrBuf_ServGetln(Buf);
+		
+	if (GetServerStatus(Buf, NULL) == 1) {
 		CfgToken = NewStrBuf();
 		while ((len = StrBuf_ServGetln(Buf),
 			strcmp(ChrPtr(Buf), "000"))) {
@@ -83,9 +82,9 @@ void load_inetconf(void)
 			nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
 			Put(Hash, nnn, nUsed, Value, HFreeStrBuf); 
 		}
-		FreeStrBuf(&Buf);
 		FreeStrBuf(&CfgToken);
 	}
+	FreeStrBuf(&Buf);
 }
 
 
@@ -96,10 +95,10 @@ void new_save_inetconf(void) {
 	wcsession *WCC = WC;
 	HashList *Hash;
 	StrBuf *Str;
+	StrBuf *Buf;
 	const StrBuf *eType, *eNum, *eName;
 	char nnn[64];
 	void *vHash, *vStr;
-	char buf[SIZ];
 	int i, nUsed;
 
 	load_inetconf();
@@ -108,7 +107,7 @@ void new_save_inetconf(void) {
 	GetHash(WCC->InetCfg, ChrPtr(eType), StrLength(eType), &vHash);
 	Hash = (HashList*) vHash;
 	if (Hash == NULL) {
-		sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+		StrBufPrintf(WCC->ImportantMsg, _("Invalid Parameter"));
 		url_do_template();
 		return;
 	}
@@ -117,19 +116,19 @@ void new_save_inetconf(void) {
 		eNum = sbstr("ename");
 		if (!GetHash(Hash, ChrPtr(eNum), StrLength(eNum), &vStr) ||
 		    (vStr == NULL)) {
-			sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+			StrBufPrintf(WCC->ImportantMsg, _("Invalid Parameter"));
 			url_do_template();
 			return;
 		}
 
 		Str = (StrBuf*)vStr;
-		sprintf(WC->ImportantMessage, _("%s has been deleted."), ChrPtr(Str));
+		StrBufPrintf(WCC->ImportantMsg, _("%s has been deleted."), ChrPtr(Str));
 		FlushStrBuf(Str);	
 	}
 	else if (!strcasecmp(bstr("oper"), "add")) {
 		eName = sbstr("ename");
 		if (eName == NULL) {
-			sprintf(WC->ImportantMessage, _("Invalid Parameter"));
+			StrBufPrintf(WCC->ImportantMsg, _("Invalid Parameter"));
 			url_do_template();
 			return;
 		}
@@ -138,12 +137,15 @@ void new_save_inetconf(void) {
 		nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
 	
 		Put(Hash, nnn, nUsed, NewStrBufDup(eName), HFreeStrBuf); 
-		sprintf(WC->ImportantMessage, "%s added.", ChrPtr(eName));
+		StrBufPrintf(WCC->ImportantMsg, "%s %s", 
+			     /*<domain> added status message*/ _("added."), 
+			     ChrPtr(eName));
 	}
 
+	Buf = NewStrBuf();
 	serv_printf("CONF PUTSYS|application/x-citadel-internet-config");
-	serv_getln(buf, SIZ);
-	if (buf[0] == '4') {
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 4) {
 		for (i = 0; i < (sizeof(CfgNames) / sizeof(ConstStrBuf)); i++) {
 			HashPos *where;
 			const char *Key;
@@ -171,7 +173,7 @@ void new_save_inetconf(void) {
 		serv_puts("000");
 		DeleteHash(&WCC->InetCfg);
 	}
-	
+	FreeStrBuf(&Buf);
 	url_do_template();
 }
 
