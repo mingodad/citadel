@@ -399,7 +399,7 @@ void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_
 
 	StrBuf_ServGetln(MsgNum);
 	if (GetServerStatus(MsgNum, NULL) == 1)
-		while (BufLen = StrBuf_ServGetlnBuffered(MsgNum), strcmp(ChrPtr(MsgNum), "000"))  {
+		while (BufLen = StrBuf_ServGetln(MsgNum), strcmp(ChrPtr(MsgNum), "000"))  {
 			msgs = realloc(msgs, ++num_msgs * sizeof(long));
 			msgs[num_msgs-1] = StrTol(MsgNum);
 		}
@@ -411,7 +411,7 @@ void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_
 		serv_printf("MSG0 %ld|3", msgs[i]);
 		StrBuf_ServGetln(MsgNum);
 		if (GetServerStatus(MsgNum, NULL) == 1)
-			while (BufLen = StrBuf_ServGetlnBuffered(MsgNum), strcmp(ChrPtr(MsgNum), "000")) 
+			while (BufLen = StrBuf_ServGetln(MsgNum), strcmp(ChrPtr(MsgNum), "000")) 
 			{
 				if (!strncasecmp(ChrPtr(MsgNum), "exti=", 5)) {
 					strcpy(uid, &ChrPtr(MsgNum)[5]);

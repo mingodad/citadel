@@ -63,6 +63,7 @@ int uds_connectsock(char *sockpath)
  */
 int tcp_connectsock(char *host, char *service)
 {
+        int fdflags;
 	struct hostent *phe;
 	struct servent *pse;
 	struct protoent *ppe;
@@ -110,30 +111,13 @@ int tcp_connectsock(char *host, char *service)
 	alarm(0);
 	signal(SIGALRM, SIG_IGN);
 
+	fdflags = fcntl(s, F_GETFL);
+	fdflags = fdflags | O_NONBLOCK;
+	fcntl(s, F_SETFD, fdflags);
 	return (s);
 }
 
 
-
-int StrBuf_ServGetln(StrBuf *buf)
-{
-	wcsession *WCC = WC;
-	const char *ErrStr;
-	int rc;
-
-	WCC->ReadPos = NULL;
-	rc = StrBufTCP_read_line(buf, &WCC->serv_sock, 0, &ErrStr);
-	if (rc < 0)
-	{
-		lprintf(1, "Server connection broken: %s\n",
-			ErrStr);
-		wc_backtrace();
-		WCC->serv_sock = (-1);
-		WCC->connected = 0;
-		WCC->logged_in = 0;
-	}
-	return rc;
-}
 
 /*
  *  input string from pipe
@@ -142,15 +126,15 @@ int serv_getln(char *strbuf, int bufsize)
 {
 	wcsession *WCC = WC;
 	int len;
-	
-	WCC->ReadPos = NULL;
 
+	*strbuf = '\0';
 	StrBuf_ServGetln(WCC->MigrateReadLineBuf);
 	len = StrLength(WCC->MigrateReadLineBuf);
 	if (len > bufsize)
 		len = bufsize - 1;
 	memcpy(strbuf, ChrPtr(WCC->MigrateReadLineBuf), len);
-	strbuf[len] = 0;
+	FlushStrBuf(WCC->MigrateReadLineBuf);
+	strbuf[len] = '\0';
 #ifdef SERV_TRACE
 	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
 #endif
@@ -158,7 +142,7 @@ int serv_getln(char *strbuf, int bufsize)
 }
 
 
-int StrBuf_ServGetlnBuffered(StrBuf *buf)
+int StrBuf_ServGetln(StrBuf *buf)
 {
 	wcsession *WCC = WC;
 	const char *ErrStr;

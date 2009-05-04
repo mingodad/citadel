@@ -72,22 +72,27 @@ int is_view_allowed_as_default(int which_view)
 /*
  * load the list of floors
  */
-void load_floorlist(void)
+void load_floorlist(StrBuf *Buf)
 {
 	int a;
-	char buf[SIZ];
+	int Done = 0;
 
 	for (a = 0; a < MAX_FLOORS; ++a)
 		floorlist[a][0] = 0;
 
 	serv_puts("LFLR");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') {
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
 		strcpy(floorlist[0], "Main Floor");
 		return;
 	}
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		extract_token(floorlist[extract_int(buf, 0)], buf, 1, '|', sizeof floorlist[0]);
+	while (!Done && (StrBuf_ServGetln(Buf)>=0)) {
+		if ( (StrLength(Buf)==3) && 
+		     !strcmp(ChrPtr(Buf), "000")) {
+			Done = 1;
+			break;
+		}
+		extract_token(floorlist[StrBufExtract_int(Buf, 0, '|')], ChrPtr(Buf), 1, '|', sizeof floorlist[0]);
 	}
 }
 
@@ -1157,6 +1162,7 @@ int set_roomflags(room_states *RoomOps)
  */
 void display_editroom(void)
 {
+	StrBuf *Buf;
 	char buf[SIZ];
 	char cmd[1024];
 	char node[256];
@@ -1184,7 +1190,9 @@ void display_editroom(void)
 	tab = bstr("tab");
 	if (IsEmptyStr(tab)) tab = "admin";
 
-	load_floorlist();
+	Buf = NewStrBuf();
+	load_floorlist(Buf);
+	FreeStrBuf(&Buf);
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	wprintf("<div class=\"fix_scrollbar_bug\">");
@@ -2477,15 +2485,18 @@ void display_whok(void)
  */
 void display_entroom(void)
 {
+	StrBuf *Buf;
 	int i;
 	char buf[SIZ];
 
+	Buf = NewStrBuf();
 	serv_puts("CRE8 0");
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
+		FreeStrBuf(&Buf);
 		return;
 	}
 
@@ -2508,7 +2519,7 @@ void display_entroom(void)
 	wprintf("<tr class=\"odd\"><td>");
 	wprintf(_("Resides on floor: "));
 	wprintf("</td><td>");
-        load_floorlist(); 
+        load_floorlist(Buf); 
         wprintf("<select name=\"er_floor\" size=\"1\">\n");
         for (i = 0; i < 128; ++i)
                 if (!IsEmptyStr(floorlist[i])) {
@@ -2617,6 +2628,7 @@ void display_entroom(void)
 	do_template("endbox", NULL);
 
 	wDumpContent(1);
+	FreeStrBuf(&Buf);
 }
 
 
@@ -3448,6 +3460,7 @@ void burn_folder_cache(time_t age)
  */
 
 void list_all_rooms_by_floor(const char *viewpref) {
+	StrBuf *Buf;
 	char buf[SIZ];
 	int swap = 0;
 	struct folder *fold = NULL;
@@ -3471,10 +3484,11 @@ void list_all_rooms_by_floor(const char *viewpref) {
 		do_iconbar_view(WC->cache_fold, WC->cache_max_folders, WC->cache_num_floors);
 		return;
 	}
+	Buf = NewStrBuf();
 
 	/** Grab the floor table so we know how to build the list... */
-	load_floorlist();
-
+	load_floorlist(Buf);
+	FreeStrBuf(&Buf);
 	/** Start with the mailboxes */
 	max_folders = 1;
 	alloc_folders = 1;

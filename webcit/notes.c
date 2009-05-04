@@ -46,12 +46,12 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 	relevant_partnum[0] = '\0';
 	serv_printf("MSG4 %ld", msgnum);	/* we need the mime headers */
 	Buf = NewStrBuf();
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
 		FreeStrBuf (&Buf);
 		return NULL;
 	}
-	while ((StrBuf_ServGetlnBuffered(Buf)>=0) && !Done) {
+	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
 		     !strcmp(ChrPtr(Buf), "000")) {
 			Done = 1;

@@ -295,7 +295,7 @@ void do_generic(void)
 		}
 	case 1:
 		while (!Done) {
-			StrBuf_ServGetlnBuffered(Buf);
+			StrBuf_ServGetln(Buf);
 			if ( (StrLength(Buf)==3) && 
 			     !strcmp(ChrPtr(Buf), "000")) {
 				Done = 1;

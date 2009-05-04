@@ -778,7 +778,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 			}
 			Buf = NewStrBuf();
 			serv_printf(buf, "DLAT %ld|%s", msgnum, partnum);
-			StrBuf_ServGetlnBuffered(Buf);
+			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) != 6) {
 				convenience_page("770000", "Error", &(ChrPtr(Buf)[4]));
 				return;

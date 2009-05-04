@@ -251,7 +251,7 @@ void download_file(void)
 	Buf = NewStrBuf();
 	StrBufUnescape(WCC->UrlFragment2, 1);
 	serv_printf("OPEN %s", ChrPtr(WCC->UrlFragment2));
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
@@ -260,7 +260,7 @@ void download_file(void)
 		}
 		read_server_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
-		StrBuf_ServGetlnBuffered(Buf);
+		StrBuf_ServGetln(Buf);
 		http_transmit_thing(ChrPtr(ContentType), 0);
 	} else {
 		StrBufCutLeft(Buf, 4);
@@ -358,7 +358,7 @@ void output_image(void)
 	
 	Buf = NewStrBuf();
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
@@ -367,7 +367,7 @@ void output_image(void)
 		
 		if (read_server_binary(WCC->WBuf, bytes, Buf) > 0) {
 			serv_puts("CLOS");
-			StrBuf_ServGetlnBuffered(Buf);
+			StrBuf_ServGetln(Buf);
 		
 			MimeType = GuessMimeType (ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
 			/** Write it to the browser */

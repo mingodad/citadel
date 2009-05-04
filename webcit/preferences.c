@@ -190,8 +190,8 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
  */
 void load_preferences(void) 
 {
+	int Done = 0;
 	StrBuf *ReadBuf;
-	char buf[SIZ];
 	long msgnum = 0L;
 	
 	if (goto_config_room() != 0) return;	/* oh well. */
@@ -203,8 +203,14 @@ void load_preferences(void)
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		msgnum = atol(buf);
+	while (!Done &&
+	       StrBuf_ServGetln(ReadBuf)) {
+		if ( (StrLength(ReadBuf)==3) && 
+		     !strcmp(ChrPtr(ReadBuf), "000")) {
+			Done = 1;
+			break;
+		}
+		msgnum = StrTol(ReadBuf);
 	}
 
 	if (msgnum > 0L) {
@@ -307,28 +313,37 @@ void WritePrefsToServer(HashList *Hash)
  */
 void save_preferences(void) 
 {
-	char buf[SIZ];
+	int Done;
+	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
+	ReadBuf = NewStrBuf();
 	if (goto_config_room() != 0) return;	/* oh well. */
 	serv_puts("MSGS ALL|0|1");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '8') {
+	StrBuf_ServGetln(ReadBuf);
+	if (GetServerStatus(ReadBuf, NULL) == 8) {
 		serv_puts("subj|__ WebCit Preferences __");
 		serv_puts("000");
 	}
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		msgnum = atol(buf);
+	while (!Done &&
+	       StrBuf_ServGetln(ReadBuf)) {
+		if ( (StrLength(ReadBuf)==3) && 
+		     !strcmp(ChrPtr(ReadBuf), "000")) {
+			Done = 1;
+			break;
+		}
+		msgnum = StrTol(ReadBuf);
 	}
 
 	if (msgnum > 0L) {
 		serv_printf("DELE %ld", msgnum);
-		serv_getln(buf, sizeof buf);
+		StrBuf_ServGetln(ReadBuf);
+		GetServerStatus(ReadBuf, NULL);
 	}
 
 	serv_printf("ENT0 1||0|1|__ WebCit Preferences __|");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '4') {
+	StrBuf_ServGetln(ReadBuf);
+	if (GetServerStatus(ReadBuf, NULL) == 4) {
 
 		WritePrefsToServer(WC->hash_prefs);
 		serv_puts("");
@@ -337,7 +352,8 @@ void save_preferences(void)
 
 	/** Go back to the room we're supposed to be in */
 	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
-	serv_getln(buf, sizeof buf);
+	StrBuf_ServGetln(ReadBuf);
+	FreeStrBuf(&ReadBuf);
 }
 
 /**
