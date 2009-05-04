@@ -740,16 +740,20 @@ void validate(void)
  */
 void display_reg(int during_login)
 {
+	StrBuf *Buf;
 	message_summary *VCMsg;
 	wc_mime_attachment *VCAtt;
 	long vcard_msgnum;
 
-	if (goto_config_room() != 0) {
+	Buf = NewStrBuf();
+	if (goto_config_room(Buf) != 0) {
 		if (during_login) do_welcome();
 		else display_main_menu();
+		FreeStrBuf(&Buf);
 		return;
 	}
 
+	FreeStrBuf(&Buf);
 	vcard_msgnum = locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 	if (vcard_msgnum < 0L) {
 		if (during_login) do_welcome();
