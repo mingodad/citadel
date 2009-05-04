@@ -34,9 +34,8 @@ typedef struct _UserListEntry {
 } UserListEntry;
 
 
-UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser)
+UserListEntry* NewUserListOneEntry(StrBuf *SerializedUser, const char *Pos)
 {
-	const char *Pos;
 	UserListEntry *ul;
 
 	if (StrLength(SerializedUser) < 8) 
@@ -256,12 +255,12 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 	memset(&SubTP, 0, sizeof(WCTemplputParams));	
         serv_puts("LIST");
 	Buf = NewStrBuf();
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
 		Hash = NewHash(1, NULL);
 
 		while (!Done) {
-			len = StrBuf_ServGetlnBuffered(Buf);
+			len = StrBuf_ServGetln(Buf);
 			if ((len == 3) &&
 			    (strcmp(ChrPtr(Buf), "000")==0)) {
 				Done = 1;
@@ -452,7 +451,7 @@ TRYAGAIN:
 	if ((*VCMsg == NULL) && (already_tried_creating_one == 0)) {
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
-		StrBuf_ServGetlnBuffered(Buf);
+		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) != 4) {
 			serv_puts("Content-type: text/x-vcard");
 			serv_puts("");
@@ -485,13 +484,13 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 	roomname = NewStrBuf();
 	StrBufPrintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
 	serv_printf("GOTO %s||1", ChrPtr(roomname));
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
 		serv_printf("CRE8 1|%s|5|||1|", ChrPtr(roomname));
-		StrBuf_ServGetlnBuffered(Buf);
+		StrBuf_ServGetln(Buf);
 		GetServerStatus(Buf, NULL);
 		serv_printf("GOTO %s||1", ChrPtr(roomname));
-		StrBuf_ServGetlnBuffered(Buf);
+		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) != 2) {
 			FlushStrBuf(WCC->ImportantMsg);
 			StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
@@ -524,6 +523,7 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 
 
 void display_edituser(const char *supplied_username, int is_new) {
+	const char *Pos;
 	wcsession *WCC = WC;
 	UserListEntry* UL;
 	StrBuf *Buf;
@@ -538,7 +538,7 @@ void display_edituser(const char *supplied_username, int is_new) {
 
 	Buf = NewStrBuf();
 	serv_printf("AGUP %s", username);
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
 		FlushStrBuf(WCC->ImportantMsg);
 		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
@@ -547,8 +547,8 @@ void display_edituser(const char *supplied_username, int is_new) {
 		return;
 	}
 	else {
-		StrBufCutLeft(Buf, 4);
-		UL = NewUserListOneEntry(Buf);
+		Pos = ChrPtr(Buf) + 4;
+		UL = NewUserListOneEntry(Buf, Pos);
 		if ((UL != NULL) && havebstr("edit_abe_button")) {
 			display_edit_address_book_entry(username, UL->UID);
 		}
@@ -598,7 +598,7 @@ void edituser(void) {
 
 		if ((havebstr("newname")) && (strcasecmp(bstr("username"), bstr("newname")))) {
 			serv_printf("RENU %s|%s", bstr("username"), bstr("newname"));
-			StrBuf_ServGetlnBuffered(Buf);
+			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 2) {
 				FlushStrBuf(WCC->ImportantMsg);
 				StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);				
@@ -619,7 +619,7 @@ void edituser(void) {
 			bstr("lastcall"),
 			bstr("purgedays")
 		);
-		StrBuf_ServGetlnBuffered(Buf);
+		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) == 2) {
 			StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
 		}
@@ -648,7 +648,7 @@ void delete_user(char *username) {
 	
 	Buf = NewStrBuf();
 	serv_printf("ASUP %s|0|0|0|0|0|", username);
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) 
 		StrBufAppendBuf(WCC->ImportantMsg, Buf, 4);
 
@@ -671,7 +671,7 @@ void create_user(void) {
 	Buf = NewStrBuf();
 	username = bstr("username");
 	serv_printf("CREU %s", username);
-	StrBuf_ServGetlnBuffered(Buf);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, &FullState) == 2) {
 		sprintf(WC->ImportantMessage, _("A new user has been created."));
 		display_edituser(username, 1);
