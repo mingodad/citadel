@@ -33,9 +33,9 @@ ServInfo *get_serv_info(StrBuf *browser_host, char *user_agent)
 {
 	ServInfo *info;
 	StrBuf *Buf;
-	char buf[SIZ];
 	int a;
 
+	Buf = NewStrBuf();
 	/** Tell the server what kind of client is connecting */
 	serv_printf("IDEN %d|%d|%d|%s|%s",
 		    DEVELOPER_ID,
@@ -44,11 +44,11 @@ ServInfo *get_serv_info(StrBuf *browser_host, char *user_agent)
 		    user_agent,
 		    ChrPtr(browser_host)
 	);
-	serv_getln(buf, sizeof buf);
+	StrBuf_ServGetln(Buf);
 
 	/** Tell the server what kind of richtext we prefer */
 	serv_puts("MSGP text/calendar|text/html|text/plain");
-	serv_getln(buf, sizeof buf);
+	StrBuf_ServGetln(Buf);
 
 	/*
 	 * Tell the server that when we save a calendar event, we
@@ -56,18 +56,19 @@ ServInfo *get_serv_info(StrBuf *browser_host, char *user_agent)
 	 * instead of by the client.
 	 */
 	serv_puts("ICAL sgi|1");
-	serv_getln(buf, sizeof buf);
+	StrBuf_ServGetln(Buf);
 
 	/** Now ask the server to tell us a little bit about itself... */
 	serv_puts("INFO");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1')
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
+		FreeStrBuf(&Buf);
 		return NULL;
+	}
 
 	info = (ServInfo*)malloc(sizeof(ServInfo));
 	memset(info, 0, sizeof(ServInfo));
 	a = 0;
-	Buf = NewStrBuf();
 	while (StrBuf_ServGetln(Buf), (strcmp(ChrPtr(Buf), "000")!= 0)) {
 /*		lprintf (1, "a: %d [%s]", a, ChrPtr(Buf));*/
 		switch (a) {
