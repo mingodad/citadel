@@ -2175,8 +2175,9 @@ inline static void DecodeSegment(StrBuf *Target,
 	StrBuf StaticBuf;
 	char charset[128];
 	char encoding[16];
+#ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1);
-
+#endif
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
 	 */
@@ -2216,16 +2217,19 @@ inline static void DecodeSegment(StrBuf *Target,
 	else {
 		StrBufAppendBuf(ConvertBuf2, ConvertBuf, 0);
 	}
-
+#ifdef HAVE_ICONV
 	ctdl_iconv_open("UTF-8", charset, &ic);
 	if (ic != (iconv_t)(-1) ) {		
+#endif
 		StrBufConvert(ConvertBuf2, ConvertBuf, &ic);
 		StrBufAppendBuf(Target, ConvertBuf2, 0);
+#ifdef HAVE_ICONV
 		iconv_close(ic);
 	}
 	else {
 		StrBufAppendBufPlain(Target, HKEY("(unreadable)"), 0);
 	}
+#endif
 }
 /*
  * Handle subjects with RFC2047 encoding such as:
@@ -2235,7 +2239,9 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 {
 	StrBuf *ConvertBuf, *ConvertBuf2;
 	char *start, *end, *next, *nextend, *ptr = NULL;
+#ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
+#endif
 	const char *eptr;
 	int passes = 0;
 	int i, len, delta;
@@ -2261,11 +2267,13 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 	    (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
 	    (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) )
 	{
+#ifdef HAVE_ICONV
 		ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset), &ic);
 		if (ic != (iconv_t)(-1) ) {
 			StrBufConvert((StrBuf*)DecodeMe, ConvertBuf, &ic);///TODO: don't void const?
 			iconv_close(ic);
 		}
+#endif
 	}
 
 	/* pre evaluate the first pair */
