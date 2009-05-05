@@ -196,6 +196,7 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
  */
 void load_preferences(void) 
 {
+	wcsession *WCC = WC;
 	int Done = 0;
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
@@ -231,15 +232,17 @@ void load_preferences(void)
 				strcmp(ChrPtr(ReadBuf), "000"))) {
 			}
 			if (!strcmp(ChrPtr(ReadBuf), "text")) {
-				ParsePref(&WC->hash_prefs, ReadBuf);
+				ParsePref(&WCC->hash_prefs, ReadBuf);
 			}
 		}
 	}
 
 	/* Go back to the room we're supposed to be in */
-	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
-	StrBuf_ServGetln(ReadBuf);
-	GetServerStatus(ReadBuf, NULL);
+	if (StrLength(WCC->wc_roomname) > 0) {
+		serv_printf("GOTO %s", ChrPtr(WCC->wc_roomname));
+		StrBuf_ServGetln(ReadBuf);
+		GetServerStatus(ReadBuf, NULL);
+	}
 	FreeStrBuf(&ReadBuf);
 }
 
@@ -266,6 +269,7 @@ int goto_config_room(StrBuf *Buf)
 
 void WritePrefsToServer(HashList *Hash)
 {
+	wcsession *WCC = WC;
 	long len;
 	HashPos *HashPos;
 	void *vPref;
@@ -273,7 +277,7 @@ void WritePrefsToServer(HashList *Hash)
 	Preference *Pref;
 	StrBuf *SubBuf = NULL;
 	
-	Hash = WC->hash_prefs;
+	Hash = WCC->hash_prefs;
 #ifdef DBG_PREFS_HASH
 	dbg_PrintHash(Hash, PrintPref, NULL);
 #endif
@@ -324,7 +328,8 @@ void WritePrefsToServer(HashList *Hash)
  */
 void save_preferences(void) 
 {
-	int Done;
+	wcsession *WCC = WC;
+	int Done = 0;
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
@@ -359,14 +364,17 @@ void save_preferences(void)
 	StrBuf_ServGetln(ReadBuf);
 	if (GetServerStatus(ReadBuf, NULL) == 4) {
 
-		WritePrefsToServer(WC->hash_prefs);
+		WritePrefsToServer(WCC->hash_prefs);
 		serv_puts("");
 		serv_puts("000");
 	}
 
 	/** Go back to the room we're supposed to be in */
-	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
-	StrBuf_ServGetln(ReadBuf);
+	if (StrLength(WCC->wc_roomname) > 0) {
+		serv_printf("GOTO %s", ChrPtr(WCC->wc_roomname));
+		StrBuf_ServGetln(ReadBuf);
+		GetServerStatus(ReadBuf, NULL);
+	}
 	FreeStrBuf(&ReadBuf);
 }
 
@@ -421,6 +429,7 @@ void set_preference_backend(const char *key, size_t keylen,
 			    int save_to_server, 
 			    PrefDef *PrefType) 
 {
+	wcsession *WCC = WC;
 	void *vPrefDef;
 	Preference *Pref;
 
@@ -502,9 +511,9 @@ void set_preference_backend(const char *key, size_t keylen,
 			break;
 		}
 	}
-	Put(WC->hash_prefs, key, keylen, Pref, DestroyPreference);
+	Put(WCC->hash_prefs, key, keylen, Pref, DestroyPreference);
 	
-	if (save_to_server) WC->SavePrefsToServer = 1;
+	if (save_to_server) WCC->SavePrefsToServer = 1;
 }
 
 void set_PREFERENCE(const char *key, size_t keylen, StrBuf *value, int save_to_server) 
