@@ -145,7 +145,7 @@ int serv_getln(char *strbuf, int bufsize)
 int StrBuf_ServGetln(StrBuf *buf)
 {
 	wcsession *WCC = WC;
-	const char *ErrStr;
+	const char *ErrStr = NULL;
 	int rc;
 
 	rc = StrBufTCP_read_buffered_line_fast(buf, 
