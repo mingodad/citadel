@@ -462,6 +462,8 @@ TRYAGAIN:
 		goto TRYAGAIN;
 	}
 	FreeStrBuf(&Buf);
+	FreeStrBuf(&FoundCharset);
+
 	return(vcard_msgnum);
 }
 
