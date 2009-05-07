@@ -106,52 +106,48 @@ void lastfirst_firstlast(char *namebuf) {
  * \param namebuf where to put the name in???
  */
 void fetch_ab_name(message_summary *Msg, char **namebuf) {
-	char buf[SIZ];
-	char mime_partnum[SIZ];
-	char mime_filename[SIZ];
-	char mime_content_type[SIZ];
-	char mime_disposition[SIZ];
-	int mime_length;
-	char vcard_partnum[SIZ];
-	StrBuf *vcard_source = NULL;
-	int i, len;
-	message_summary summ;/// TODO this will lak
+	HashPos  *it;
+	StrBuf *FoundCharset = NewStrBuf();
+	StrBuf *Error;
+	void *vMime;
+	const char *Key;
+	long len;
+	int i;
+	wc_mime_attachment *Mime;
+	wc_mime_attachment *VCMime = NULL;
 
 	if (namebuf == NULL) return;
 
-	memset(&summ, 0, sizeof(summ));
-	//////safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
+	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
+	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
+	Msg->MsgBody->msgnum = Msg->msgnum;
 
-	serv_printf("MSG0 %ld|0", Msg->msgnum);	/** unfortunately we need the mime info now */
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') return;
+	load_message(Msg, FoundCharset, &Error);
 
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		if (!strncasecmp(buf, "part=", 5)) {
-			extract_token(mime_filename, &buf[5], 1, '|', sizeof mime_filename);
-			extract_token(mime_partnum, &buf[5], 2, '|', sizeof mime_partnum);
-			extract_token(mime_disposition, &buf[5], 3, '|', sizeof mime_disposition);
-			extract_token(mime_content_type, &buf[5], 4, '|', sizeof mime_content_type);
-			mime_length = extract_int(&buf[5], 5);
-
-			if (  (!strcasecmp(mime_content_type, "text/x-vcard"))
-			   || (!strcasecmp(mime_content_type, "text/vcard")) ) {
-				strcpy(vcard_partnum, mime_partnum);
-			}
-
+	/* look up the vcard... */
+	it = GetNewHashPos(Msg->AllAttach, 0);
+	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
+	       (vMime != NULL)) 
+	{
+		Mime = (wc_mime_attachment*) vMime;
+		if ((strcmp(ChrPtr(Mime->ContentType),
+			   "text/x-vcard") == 0) ||
+		    (strcmp(ChrPtr(Mime->ContentType),
+			    "text/vcard") == 0))
+		{
+			VCMime = Mime;
+			break;
 		}
 	}
+	DeleteHashPos(&it);
+	if (VCMime == NULL)
+		return;
 
-	if (!IsEmptyStr(vcard_partnum)) {
-		vcard_source = load_mimepart(Msg->msgnum, vcard_partnum);
-		if (vcard_source != NULL) {
+	MimeLoadData(VCMime);
 
-			/* Grab the name off the card */
-			display_vcard(WC->WBuf, vcard_source, 0, 0, namebuf, Msg->msgnum);
+	/* Grab the name off the card */
+	display_vcard(WC->WBuf, VCMime->Data, 0, 0, namebuf, Msg->msgnum);
 
-			FreeStrBuf(&vcard_source);
-		}
-	}
 	if (*namebuf != NULL) {
 		lastfirst_firstlast(*namebuf);
 		striplt(*namebuf);
