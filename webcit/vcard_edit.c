@@ -122,7 +122,7 @@ void fetch_ab_name(message_summary *Msg, char **namebuf) {
 	memset(&summ, 0, sizeof(summ));
 	//////safestrncpy(summ.subj, "(no subject)", sizeof summ.subj);
 
-	serv_printf(buf, "MSG0 %ld|0", Msg->msgnum);	/** unfortunately we need the mime info now */
+	serv_printf("MSG0 %ld|0", Msg->msgnum);	/** unfortunately we need the mime info now */
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
