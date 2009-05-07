@@ -884,6 +884,8 @@ void readloop(long oper)
 			case VIEW_ADDRESSBOOK:
 				ab_name = NULL;
 				fetch_ab_name(Msg, &ab_name);
+				if (ab_name == NULL) 
+					break;
 				++num_ab;
 				addrbook = realloc(addrbook,
 						   (sizeof(addrbookent) * num_ab) );
