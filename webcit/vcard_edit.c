@@ -100,23 +100,18 @@ void lastfirst_firstlast(char *namebuf) {
 	sprintf(namebuf, "%s; %s", lastname, firstname);
 }
 
-/**
- * \brief fetch what??? name
- * \param msgnum the citadel message number
- * \param namebuf where to put the name in???
- */
-void fetch_ab_name(message_summary *Msg, char **namebuf) {
+
+
+wc_mime_attachment *load_vcard(message_summary *Msg) 
+{
 	HashPos  *it;
 	StrBuf *FoundCharset = NewStrBuf();
 	StrBuf *Error;
 	void *vMime;
 	const char *Key;
 	long len;
-	int i;
 	wc_mime_attachment *Mime;
 	wc_mime_attachment *VCMime = NULL;
-
-	if (namebuf == NULL) return;
 
 	Msg->MsgBody =  (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
 	memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
@@ -141,9 +136,27 @@ void fetch_ab_name(message_summary *Msg, char **namebuf) {
 	}
 	DeleteHashPos(&it);
 	if (VCMime == NULL)
-		return;
+		return NULL;
 
 	MimeLoadData(VCMime);
+	return VCMime;
+}
+
+/**
+ * \brief fetch what??? name
+ * \param msgnum the citadel message number
+ * \param namebuf where to put the name in???
+ */
+void fetch_ab_name(message_summary *Msg, char **namebuf) {
+	long len;
+	int i;
+	wc_mime_attachment *VCMime = NULL;
+
+	if (namebuf == NULL) return;
+
+	VCMime = load_vcard(Msg);
+	if (VCMime == NULL)
+		return;
 
 	/* Grab the name off the card */
 	display_vcard(WC->WBuf, VCMime->Data, 0, 0, namebuf, Msg->msgnum);
@@ -696,9 +709,9 @@ void do_edit_vcard(long msgnum, char *partnum,
 		   wc_mime_attachment *VCAtt,
 		   char *return_to, 
 		   const char *force_room) {
+	message_summary *Msg = NULL;
+	wc_mime_attachment *VCMime = NULL;
 	StrBuf *Buf;
-	char buf[SIZ];
-	size_t total_len = 0;
 	struct vCard *v;
 	int i;
 	char *key, *value;
@@ -756,36 +769,18 @@ void do_edit_vcard(long msgnum, char *partnum,
 	    ((VCMsg != NULL) && (VCAtt != NULL)))
 	{
 		if ((VCMsg == NULL) && (VCAtt == NULL)) {
-			sprintf(buf, "MSG0 %ld|1", msgnum);
-			serv_puts(buf);
-			serv_getln(buf, sizeof buf);
-			if (buf[0] != '1') {
-				convenience_page("770000", _("Error"), &buf[4]);
+
+			Msg = (message_summary *) malloc(sizeof(message_summary));
+			memset(Msg, 0, sizeof(message_summary));
+			Msg->msgnum = msgnum;
+			VCMime = load_vcard(Msg);
+			if (VCMime == NULL) {
+				convenience_page("770000", _("Error"), "");///TODO: important message
+				DestroyMessageSummary(Msg);
 				return;
 			}
-			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				if (!strncasecmp(buf, "from=", 5)) {
-					safestrncpy(whatuser, &buf[5], sizeof whatuser);
-				}
-				else if (!strncasecmp(buf, "node=", 5)) {
-					strcat(whatuser, " @ ");
-					strcat(whatuser, &buf[5]);
-				}
-			}
-			Buf = NewStrBuf();
-			serv_printf(buf, "DLAT %ld|%s", msgnum, partnum);
-			StrBuf_ServGetln(Buf);
-			if (GetServerStatus(Buf, NULL) != 6) {
-				convenience_page("770000", "Error", &(ChrPtr(Buf)[4]));
-				return;
-			}
-			
-			StrBufCutLeft(Buf, 4);
-			total_len = StrBufExtract_long(Buf, 0, '|');
-			
-			StrBuf_ServGetBLOBBuffered(Buf, total_len);
 		
-			v = VCardLoad(Buf);
+			v = VCardLoad(VCMime->Data);
 		}
 		else {
 			v = VCardLoad(VCAtt->Data);
@@ -1059,6 +1054,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 	wprintf("</td></tr></table>\n");
 	do_template("endbox", NULL);
 	wDumpContent(1);
+	DestroyMessageSummary(Msg);
 }
 
 
