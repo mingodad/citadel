@@ -1054,7 +1054,8 @@ void do_edit_vcard(long msgnum, char *partnum,
 	wprintf("</td></tr></table>\n");
 	do_template("endbox", NULL);
 	wDumpContent(1);
-	DestroyMessageSummary(Msg);
+	if (Msg != NULL)
+		DestroyMessageSummary(Msg);
 }
 
 
