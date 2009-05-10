@@ -20,28 +20,6 @@ wcsession *SessionList = NULL; /**< our sessions ????*/
 pthread_key_t MyConKey;         /**< TSD key for MySession() */
 
 
-
-void DestroySession(wcsession **sessions_to_kill)
-{
-	close((*sessions_to_kill)->serv_sock);
-	close((*sessions_to_kill)->chat_sock);
-/*
-//		if ((*sessions_to_kill)->preferences != NULL) {
-//			free((*sessions_to_kill)->preferences);
-//		}
-*/
-	if ((*sessions_to_kill)->cache_fold != NULL) {
-		free((*sessions_to_kill)->cache_fold);
-	}
-	DeleteServInfo(&((*sessions_to_kill)->serv_info));
-	free_march_list((*sessions_to_kill));
-	
-	session_destroy_modules(*sessions_to_kill);
-
-	free((*sessions_to_kill));
-	(*sessions_to_kill) = NULL;
-}
-
 void shutdown_sessions(void)
 {
 	wcsession *sptr;
@@ -101,7 +79,7 @@ void do_housekeeping(void)
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
 
-		DestroySession(&sessions_to_kill);
+		session_destroy_modules(&sessions_to_kill);
 		sessions_to_kill = sptr;
 		--num_sessions;
 	}
