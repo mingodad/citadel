@@ -564,7 +564,6 @@ int is_mobile_ua(char *user_agent) {
  * Entry point for WebCit transaction
  */
 void session_loop(StrBuf *ReqLine, 
-		  StrBuf *request_method, 
 		  StrBuf *ReadBuf,
 		  const char **Pos)
 {
@@ -944,7 +943,7 @@ void session_loop(StrBuf *ReqLine,
 	/* This needs to run early */
 #ifdef TECH_PREVIEW
 	if (!strcasecmp(action, "rss")) {
-		display_rss(sbstr("room"), request_method);
+		display_rss(sbstr("room"));
 		goto SKIP_ALL_THIS_CRAP;
 	}
 #endif
@@ -955,7 +954,7 @@ void session_loop(StrBuf *ReqLine,
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
 		groupdav_main(WCC->headers, 
-			      ReqLine, request_method,
+			      ReqLine, 
 			      ContentType, /* do GroupDAV methods */
 			      ContentLength, content, body_start);
 		if (!WCC->logged_in) {
@@ -969,9 +968,11 @@ void session_loop(StrBuf *ReqLine,
 	 * Automatically send requests with any method other than GET or
 	 * POST to the GroupDAV code as well.
 	 */
-	if ((strcasecmp(ChrPtr(request_method), "GET")) && (strcasecmp(ChrPtr(request_method), "POST"))) {
+	if ((WCC->eReqType != eGET) &&
+	    (WCC->eReqType != ePOST) &&
+	    (WCC->eReqType != eHEAD)) {
 		groupdav_main(WCC->headers, ReqLine, 
-			      request_method, ContentType, /** do GroupDAV methods */
+			      ContentType, /** do GroupDAV methods */
 			      ContentLength, content, body_start);
 		if (!WCC->logged_in) {
 			WCC->killthis = 1;	/** If not logged in, don't */
@@ -1077,12 +1078,6 @@ SKIP_ALL_THIS_CRAP:
 		FreeStrBuf(&content);
 		content = NULL;
 	}
-	DeleteHash(&WCC->urlstrings);
-	if (WCC->upload_length > 0) {
-		free(WCC->upload);
-		WCC->upload_length = 0;
-	}
-	FreeStrBuf(&WCC->trailing_javascript);
 	WCC->http_host = NULL;
 
 	/* How long did this transaction take? */
@@ -1206,6 +1201,13 @@ void
 SessionDetachModule_WEBCIT
 (wcsession *sess)
 {
+	DeleteHash(&sess->urlstrings);
+	if (sess->upload_length > 0) {
+		free(sess->upload);
+		sess->upload_length = 0;
+	}
+	FreeStrBuf(&sess->trailing_javascript);
+
 	if (StrLength(sess->WBuf) > SIZ * 30) /* Bigger than 120K? release. */
 	{
 		FreeStrBuf(&sess->WBuf);

@@ -328,6 +328,17 @@ enum {
 	eNone
 };
 
+enum {
+	eGET,
+	ePOST,
+	eOPTIONS,
+	ePROPFIND,
+	ePUT,
+	eDELETE,
+	eHEAD,
+	eNONE
+};
+const char *ReqStrs[eNONE];
 /*
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
@@ -353,7 +364,9 @@ struct wcsession {
 	time_t lastreq;				/**< Timestamp of most recent HTTP */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
 	ServInfo *serv_info;                   /**< Iformation about the citserver we're connected to */
+
 /* Request local Members */
+	long eReqType;                          /**< eGET, ePOST.... */
 	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
 	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
@@ -619,7 +632,6 @@ void do_housekeeping(void);
 void smart_goto(const StrBuf *);
 void worker_entry(void);
 void session_loop(StrBuf *ReqLine, 
-		  StrBuf *ReqType, 
 		  StrBuf *ReadBuf, 
 		  const char **Pos);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
@@ -721,7 +733,7 @@ void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
 void do_selected_iconbar(void);
 void spawn_another_worker_thread(void);
-void display_rss(const StrBuf *roomname, StrBuf *request_method);
+void display_rss(const StrBuf *roomname);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);

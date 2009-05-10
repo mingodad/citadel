@@ -86,7 +86,6 @@ void euid_unescapize(char *target, const char *source) {
  */
 void groupdav_main(HashList *HTTPHeaders,
 		   StrBuf *DavPathname,
-		   StrBuf *DavMethod,
 		   StrBuf *dav_content_type,
 		   int dav_content_length,
 		   StrBuf *dav_content,
@@ -164,62 +163,62 @@ void groupdav_main(HashList *HTTPHeaders,
 		}
 	}
 
+	switch (WCC->eReqType)
+	{
 	/*
 	 * The OPTIONS method is not required by GroupDAV.  This is an
 	 * experiment to determine what might be involved in supporting
 	 * other variants of DAV in the future.
 	 */
-	if (!strcasecmp(ChrPtr(DavMethod), "OPTIONS")) {
+	case eOPTIONS:
 		groupdav_options(DavPathname);
-		return;
-	}
+		break;
+
 
 	/*
 	 * The PROPFIND method is basically used to list all objects in a
 	 * room, or to list all relevant rooms on the server.
 	 */
-	if (!strcasecmp(ChrPtr(DavMethod), "PROPFIND")) {
+	case ePROPFIND:
 		groupdav_propfind(DavPathname, dav_depth,
 				  dav_content_type, dav_content, 
 				  Offset);
-		return;
-	}
+		break;
 
 	/*
 	 * The GET method is used for fetching individual items.
 	 */
-	if (!strcasecmp(ChrPtr(DavMethod), "GET")) {
+	case eGET:
 		groupdav_get(DavPathname);
-		return;
-	}
-
+		break;
+	
 	/*
 	 * The PUT method is used to add or modify items.
 	 */
-	if (!strcasecmp(ChrPtr(DavMethod), "PUT")) {
+	case ePUT:
 		groupdav_put(DavPathname, dav_ifmatch,
 			     ChrPtr(dav_content_type), dav_content, 
 			     Offset);
-		return;
-	}
-
+		break;
+	
 	/*
 	 * The DELETE method kills, maims, and destroys.
 	 */
-	if (!strcasecmp(ChrPtr(DavMethod), "DELETE")) {
+	case eDELETE:
 		groupdav_delete(DavPathname, dav_ifmatch);
-		return;
-	}
+		break;
+	default:
 
 	/*
 	 * Couldn't find what we were looking for.  Die in a car fire.
 	 */
-	hprintf("HTTP/1.1 501 Method not implemented\r\n");
-	groupdav_common_headers();
-	hprintf("Content-Type: text/plain\r\n");
-	wprintf("GroupDAV method \"%s\" is not implemented.\r\n",
-		ChrPtr(DavMethod));
-	end_burst();
+		hprintf("HTTP/1.1 501 Method not implemented\r\n");
+		groupdav_common_headers();
+		hprintf("Content-Type: text/plain\r\n");
+		wprintf("GroupDAV method \"%s\" is not implemented.\r\n",
+			ReqStrs[WCC->eReqType]);
+		end_burst();
+	}
 }
 
 
