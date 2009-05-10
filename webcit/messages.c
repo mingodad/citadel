@@ -426,7 +426,7 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 	long len;
 	int n;
 	int skipit;
-	const char *Ptr;
+	const char *Ptr = NULL;
 
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
