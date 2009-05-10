@@ -43,7 +43,7 @@ void display_rss_control(char *reply_to, char *subject)
  * roomname the room we sould print out as rss 
  * request_method the way the rss is requested????
  */
-void display_rss(const StrBuf *roomname, StrBuf *request_method)
+void display_rss(const StrBuf *roomname)
 {
 	message_summary *Msg;
 	wcsession *WCC = WC;
@@ -156,7 +156,7 @@ void display_rss(const StrBuf *roomname, StrBuf *request_method)
 	hprintf("Content-Type: application/rss+xml\r\n");
 	hprintf("Server: %s\r\n", PACKAGE_STRING);
 	hprintf("Connection: close\r\n");
-	if (!strcasecmp(ChrPtr(request_method), "HEAD"))
+	if (WCC->eReqType == eHEAD)
 		return;
 
 	/* <?xml.. etc confuses our subst parser, so do it here */

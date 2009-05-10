@@ -18,7 +18,7 @@ pthread_mutex_t SessionListMutex;
 wcsession *SessionList = NULL; /**< our sessions ????*/
 
 pthread_key_t MyConKey;         /**< TSD key for MySession() */
-
+HashList *HttpReqTypes = NULL;
 
 void shutdown_sessions(void)
 {
@@ -214,6 +214,8 @@ int is_bogus(StrBuf *http_cmd) {
  */
 void context_loop(int *sock)
 {
+	long eReqType = eGET;
+	int isbogus = 0;
 	const char *Pos = NULL;
 	const char *buf;
 	int desired_session = 0;
@@ -223,11 +225,10 @@ void context_loop(int *sock)
 	char httpauth_string[1024];
 	char httpauth_user[1024];
 	char httpauth_pass[1024];
-	int session_is_new = 0;
 	int nLine = 0;
 	int LineLen;
 	void *vLine;
-	StrBuf *Buf, *Line, *LastLine, *HeaderName, *ReqLine, *ReqType, *HTTPVersion;
+	StrBuf *Buf, *Line, *LastLine, *HeaderName, *ReqLine;
 	const char *pch, *pchs, *pche;
 	HashList *HTTPHeaders;
 
@@ -257,6 +258,28 @@ void context_loop(int *sock)
 
 		if (nLine == 1) {
 			ReqLine = Line;
+			/* The requesttype... GET, POST... */
+			StrBufExtract_token(HeaderName, ReqLine, 0, ' ');
+			if (GetHash(HttpReqTypes, SKEY(HeaderName), &vLine) &&
+			    (vLine != NULL))
+			{
+				eReqType = *(long*)vLine;
+			}
+			else {
+				eReqType = eGET;
+				isbogus = 1;
+				break;
+			}
+			StrBufCutLeft(ReqLine, StrLength(HeaderName) + 1);
+			/* the HTTP Version... */
+			StrBufExtract_token(HeaderName, ReqLine, 1, ' ');
+			StrBufCutRight(ReqLine, StrLength(HeaderName) + 1);
+			if ((StrLength(HeaderName) == 0) ||
+			    is_bogus(ReqLine)) {
+				eReqType = eGET;
+				isbogus = 1;
+				break;
+			}
 			continue;
 		}
 		if (LineLen == 0) {
@@ -291,7 +314,12 @@ void context_loop(int *sock)
 		Put(HTTPHeaders, SKEY(HeaderName), Line, HFreeStrBuf);
 		LastLine = Line;
 	} while (LineLen > 0);
+
 	FreeStrBuf(&HeaderName);
+
+	if (isbogus)
+		StrBufPlain(ReqLine, HKEY("/404"));
+
 
 /*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
 
@@ -299,7 +327,8 @@ void context_loop(int *sock)
 	/*
 	 * Can we compress?
 	 */
-	if (GetHash(HTTPHeaders, HKEY("ACCEPT-ENCODING"), &vLine) && 
+	if (!isbogus &&
+	    GetHash(HTTPHeaders, HKEY("ACCEPT-ENCODING"), &vLine) && 
 	    (vLine != NULL)) {
 		buf = ChrPtr((StrBuf*)vLine);
 		if (strstr(&buf[16], "gzip")) {
@@ -310,7 +339,8 @@ void context_loop(int *sock)
 	/*
 	 * Browser-based sessions use cookies for session authentication
 	 */
-	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
+	if (!isbogus &&
+	    GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
 	    (vLine != NULL)) {
 		cookie_to_stuff(vLine, &desired_session,
 				NULL, NULL, NULL);
@@ -320,7 +350,8 @@ void context_loop(int *sock)
 	/*
 	 * GroupDAV-based sessions use HTTP authentication
 	 */
-	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
+	if (!isbogus &&
+	    GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
 	    (vLine != NULL)) {
 		Line = (StrBuf*)vLine;
 		if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
@@ -333,26 +364,23 @@ void context_loop(int *sock)
 			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
 	}
 
-	if (GetHash(HTTPHeaders, HKEY("IF-MODIFIED-SINCE"), &vLine) && 
+	if (!isbogus &&
+	    GetHash(HTTPHeaders, HKEY("IF-MODIFIED-SINCE"), &vLine) && 
 	    (vLine != NULL)) {
 		if_modified_since = httpdate_to_timestamp((StrBuf*)vLine);
 	}
 
 
 
-	ReqType = NewStrBuf();
-	HTTPVersion = NewStrBuf();
-	StrBufExtract_token(HTTPVersion, ReqLine, 2, ' ');
-	StrBufExtract_token(ReqType, ReqLine, 0, ' ');
-	StrBufCutLeft(ReqLine, StrLength(ReqType) + 1);
-	StrBufCutRight(ReqLine, StrLength(HTTPVersion) + 1);
 
 	/*
 	 * If the request is prefixed by "/webcit" then chop that off.  This
 	 * allows a front end web server to forward all /webcit requests to us
 	 * while still using the same web server port for other things.
 	 */
-	if ( (StrLength(ReqLine) >= 8) && (strstr(ChrPtr(ReqLine), "/webcit/")) ) {
+	if (!isbogus &&
+	    (StrLength(ReqLine) >= 8) && 
+	    (strstr(ChrPtr(ReqLine), "/webcit/")) ) {
 		StrBufCutLeft(ReqLine, 7);
 	}
 
@@ -364,33 +392,27 @@ void context_loop(int *sock)
 	    (strncmp(ChrPtr(ReqLine), "/wholist_section", 16) != 0) &&
 	    (strstr(ChrPtr(ReqLine), "wholist_section") == NULL)) {
 #endif
-		lprintf(5, "HTTP: %s %s %s\n", ChrPtr(ReqType), ChrPtr(ReqLine), ChrPtr(HTTPVersion));
+		lprintf(5, "HTTP: %s %s\n", ReqStrs[eReqType], ChrPtr(ReqLine));
 #ifdef TECH_PREVIEW
 	}
 #endif
 
-	/** Check for bogus requests */
-	if ((StrLength(HTTPVersion) == 0) ||
-	    (StrLength(ReqType) == 0) || 
-	    is_bogus(ReqLine)) {
-		StrBufPlain(ReqLine, HKEY("/404 HTTP/1.1"));
-		StrBufPlain(ReqType, HKEY("GET"));
-	}
-	FreeStrBuf(&HTTPVersion);
 
 	/**
 	 * While we're at it, gracefully handle requests for the
 	 * robots.txt and favicon.ico files.
 	 */
-	if (!strncasecmp(ChrPtr(ReqLine), "/robots.txt", 11)) {
+	if ((StrLength(ReqLine) >= 11) &&
+	    !strncasecmp(ChrPtr(ReqLine), "/robots.txt", 11)) {
 		StrBufPlain(ReqLine, 
 			    HKEY("/static/robots.txt"
 				 "?force_close_session=yes HTTP/1.1"));
-		StrBufPlain(ReqType, HKEY("GET"));
+		eReqType = eGET;
 	}
-	else if (!strncasecmp(ChrPtr(ReqLine), "/favicon.ico", 12)) {
+	else if ((StrLength(ReqLine) >= 11) &&
+		 !strncasecmp(ChrPtr(ReqLine), "/favicon.ico", 12)) {
 		StrBufPlain(ReqLine, HKEY("/static/favicon.ico"));
-		StrBufPlain(ReqType, HKEY("GET"));
+		eReqType = eGET;
 	}
 
 	/**
@@ -478,9 +500,7 @@ void context_loop(int *sock)
 		TheSession->is_mobile = -1;
 		SessionList = TheSession;
 		pthread_mutex_unlock(&SessionListMutex);
-		session_is_new = 1;
 	}
-	TheSession->headers = HTTPHeaders;
 
 	/*
 	 * A future improvement might be to check the session integrity
@@ -493,13 +513,14 @@ void context_loop(int *sock)
 	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
+	TheSession->eReqType = eReqType;
+	TheSession->headers = HTTPHeaders;
 	TheSession->lastreq = time(NULL);			/* log */
 	TheSession->http_sock = *sock;
 	TheSession->gzip_ok = gzip_ok;
 
 	session_attach_modules(TheSession);
-
-	session_loop(ReqLine, ReqType, Buf, &Pos);				/* do transaction */
+	session_loop(ReqLine, Buf, &Pos);				/* do transaction */
 	session_detach_modules(TheSession);
 
 	TheSession->headers = NULL;
@@ -508,7 +529,6 @@ void context_loop(int *sock)
 	/* Free the request buffer */
 	DeleteHash(&HTTPHeaders);
 	FreeStrBuf(&ReqLine);
-	FreeStrBuf(&ReqType);
 	FreeStrBuf(&Buf);
 }
 
@@ -529,6 +549,59 @@ void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0); 
 }
 
+const char *ReqStrs[eNONE] = {
+	"GET",
+	"POST",
+	"OPTIONS",
+	"PROPFIND",
+	"PUT",
+	"DELETE",
+	"HEAD"
+};
+
+void
+ServerStartModule_CONTEXT
+(void)
+{
+	long *v;
+	HttpReqTypes = NewHash(1, NULL);
+
+
+	v = malloc(sizeof(long));
+	*v = eGET;
+	Put(HttpReqTypes, HKEY("GET"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = ePOST;
+	Put(HttpReqTypes, HKEY("POST"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = eOPTIONS;
+	Put(HttpReqTypes, HKEY("OPTIONS"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = ePROPFIND;
+	Put(HttpReqTypes, HKEY("PROPFIND"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = ePUT;
+	Put(HttpReqTypes, HKEY("PUT"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = eDELETE;
+	Put(HttpReqTypes, HKEY("DELETE"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = eHEAD;
+	Put(HttpReqTypes, HKEY("HEAD"), v, NULL);
+}
+
+void 
+ServerShutdownModule_CONTEXT
+(void)
+{
+	DeleteHash(&HttpReqTypes);
+}
 
 
 void 

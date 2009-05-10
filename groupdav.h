@@ -16,7 +16,6 @@ struct epdata {
 void groupdav_common_headers(void);
 void groupdav_main(HashList *HTTPHeaders,
 		   StrBuf *DavPathname,
-		   StrBuf *DavMethod,
 		   StrBuf *dav_content_type,
 		   int dav_content_length,
 		   StrBuf *dav_content,
