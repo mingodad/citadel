@@ -19,7 +19,7 @@
  * the exact minute.  :)
  */
 static char *unset = "; expires=28-May-1971 18:10:00 GMT";
-
+StrBuf *csslocal = NULL;
 HashList *HandlerHash = NULL;
 
 void WebcitAddUrlHandler(const char * UrlString, 
@@ -563,8 +563,7 @@ int is_mobile_ua(char *user_agent) {
 /*
  * Entry point for WebCit transaction
  */
-void session_loop(HashList *HTTPHeaders, 
-		  StrBuf *ReqLine, 
+void session_loop(StrBuf *ReqLine, 
 		  StrBuf *request_method, 
 		  StrBuf *ReadBuf,
 		  const char **Pos)
@@ -617,13 +616,6 @@ void session_loop(HashList *HTTPHeaders,
 	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
 
 	WCC= WC;
-	if (WCC->WBuf == NULL)
-		WC->WBuf = NewStrBufPlain(NULL, 32768);
-	FlushStrBuf(WCC->WBuf);
-
-	if (WCC->HBuf == NULL)
-		WCC->HBuf = NewStrBuf();
-	FlushStrBuf(WCC->HBuf);
 
 	WCC->upload_length = 0;
 	WCC->upload = NULL;
@@ -654,28 +646,28 @@ void session_loop(HashList *HTTPHeaders,
 	}
 
 
-	if (GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
+	if (GetHash(WCC->headers, HKEY("COOKIE"), &vLine) && 
 	    (vLine != NULL)){
 		cookie_to_stuff((StrBuf *)vLine, NULL,
 				c_username,
 				c_password,
 				c_roomname);
 	}
-	if (GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) &&
+	if (GetHash(WCC->headers, HKEY("AUTHORIZATION"), &vLine) &&
 	    (vLine!=NULL)) {
 		StrBufDecodeBase64((StrBuf*)vLine);
 		StrBufExtract_token(c_httpauth_user, (StrBuf*)vLine, 0, ':');
 		StrBufExtract_token(c_httpauth_pass, (StrBuf*)vLine, 1, ':');
 	}
-	if (GetHash(HTTPHeaders, HKEY("CONTENT-LENGTH"), &vLine) &&
+	if (GetHash(WCC->headers, HKEY("CONTENT-LENGTH"), &vLine) &&
 	    (vLine!=NULL)) {
 		ContentLength = StrToi((StrBuf*)vLine);
 	}
-	if (GetHash(HTTPHeaders, HKEY("CONTENT-TYPE"), &vLine) &&
+	if (GetHash(WCC->headers, HKEY("CONTENT-TYPE"), &vLine) &&
 	    (vLine!=NULL)) {
 		ContentType = (StrBuf*)vLine;
 	}
-	if (GetHash(HTTPHeaders, HKEY("USER-AGENT"), &vLine) &&
+	if (GetHash(WCC->headers, HKEY("USER-AGENT"), &vLine) &&
 	    (vLine!=NULL)) {
 		safestrncpy(user_agent, ChrPtr((StrBuf*)vLine), sizeof user_agent);
 #ifdef TECH_PREVIEW
@@ -688,17 +680,17 @@ void session_loop(HashList *HTTPHeaders,
 #endif
 	}
 	if ((follow_xff) &&
-	    GetHash(HTTPHeaders, HKEY("X-FORWARDED-HOST"), &vLine) &&
+	    GetHash(WCC->headers, HKEY("X-FORWARDED-HOST"), &vLine) &&
 	    (vLine != NULL)) {
 		WCC->http_host = (StrBuf*)vLine;
 	}
 	if ((StrLength(WCC->http_host) == 0) && 
-	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) &&
+	    GetHash(WCC->headers, HKEY("HOST"), &vLine) &&
 	    (vLine!=NULL)) {
 		WCC->http_host = (StrBuf*)vLine;
 	}
 
-	if (GetHash(HTTPHeaders, HKEY("X-FORWARDED-FOR"), &vLine) &&
+	if (GetHash(WCC->headers, HKEY("X-FORWARDED-FOR"), &vLine) &&
 	    (vLine!=NULL)) {
 		browser_host = (StrBuf*) vLine;
 
@@ -861,7 +853,7 @@ void session_loop(HashList *HTTPHeaders,
 			if ( (!follow_xff) || (StrLength(browser_host) == 0) ) {
 				if (browser_host == NULL) {
 					browser_host = NewStrBuf();
-					Put(HTTPHeaders, HKEY("FreeMeWithTheOtherHeaders"), 
+					Put(WCC->headers, HKEY("FreeMeWithTheOtherHeaders"), 
 					    browser_host, HFreeStrBuf);
 				}
 				locate_host(browser_host, WCC->http_sock);
@@ -962,7 +954,7 @@ void session_loop(HashList *HTTPHeaders,
 	 * our session's authentication.
 	 */
 	if (!strncasecmp(action, "groupdav", 8)) {
-		groupdav_main(HTTPHeaders, 
+		groupdav_main(WCC->headers, 
 			      ReqLine, request_method,
 			      ContentType, /* do GroupDAV methods */
 			      ContentLength, content, body_start);
@@ -978,7 +970,7 @@ void session_loop(HashList *HTTPHeaders,
 	 * POST to the GroupDAV code as well.
 	 */
 	if ((strcasecmp(ChrPtr(request_method), "GET")) && (strcasecmp(ChrPtr(request_method), "POST"))) {
-		groupdav_main(HTTPHeaders, ReqLine, 
+		groupdav_main(WCC->headers, ReqLine, 
 			      request_method, ContentType, /** do GroupDAV methods */
 			      ContentLength, content, body_start);
 		if (!WCC->logged_in) {
@@ -1152,18 +1144,17 @@ void tmplput_trailing_javascript(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_csslocal(StrBuf *Target, WCTemplputParams *TP)
 {
-	extern StrBuf *csslocal;
 	StrBufAppendBuf(Target, 
 			csslocal, 0);
 }
 
-
-
+extern char static_local_dir[PATH_MAX];
 
 void 
 InitModule_WEBCIT
 (void)
 {
+	char dir[SIZ];
 	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX);
@@ -1173,4 +1164,68 @@ InitModule_WEBCIT
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, CTX_NONE);
+
+	snprintf(dir, SIZ, "%s/static.local/webcit.css", static_local_dir);
+	if (!access(dir, R_OK)) {
+		lprintf(9, "Using local Stylesheet [%s]\n", dir);
+		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
+	}
+	else
+		lprintf(9, "Didn't find site local Stylesheet [%s]\n", dir);
+
 }
+
+void
+ServerStartModule_WEBCIT
+(void)
+{
+	HandlerHash = NewHash(1, NULL);
+}
+
+
+void 
+ServerShutdownModule_WEBCIT
+(void)
+{
+	FreeStrBuf(&csslocal);
+	DeleteHash(&HandlerHash);
+}
+
+
+
+void
+SessionNewModule_WEBCIT
+(wcsession *sess)
+{
+	sess->ImportantMsg = NewStrBuf();
+	sess->WBuf = NewStrBuf();
+	sess->HBuf = NewStrBuf();
+}
+
+void
+SessionDetachModule_WEBCIT
+(wcsession *sess)
+{
+	if (StrLength(sess->WBuf) > SIZ * 30) /* Bigger than 120K? release. */
+	{
+		FreeStrBuf(&sess->WBuf);
+		sess->WBuf = NewStrBuf();
+	}
+	else
+		FlushStrBuf(sess->WBuf);
+	FlushStrBuf(sess->HBuf);
+}
+
+void 
+SessionDestroyModule_WEBCIT
+(wcsession *sess)
+{
+	FreeStrBuf(&sess->WBuf);
+	FreeStrBuf(&sess->HBuf);
+	FreeStrBuf(&sess->UrlFragment1);
+	FreeStrBuf(&sess->UrlFragment2);
+	FreeStrBuf(&sess->UrlFragment3);
+	FreeStrBuf(&sess->UrlFragment4);
+	FreeStrBuf(&sess->ImportantMsg);
+}
+

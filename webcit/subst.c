@@ -177,6 +177,9 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		return;
 */
 	WCC = WC;
+	if (WCC == NULL)
+		return;
+
 	Header = NewStrBuf();
 	if (TP->Tokens != NULL) 
 	{
@@ -2530,5 +2533,75 @@ InitModule_SUBST
 	RegisterControlNS(HKEY("ITERATE:KEY"), 0, 0, tmplput_ITERATE_KEY, CTX_ITERATE);
 	RegisterControlNS(HKEY("ITERATE:N"), 0, 0, tmplput_ITERATE_LASTN, CTX_ITERATE);
 }
+
+void
+ServerStartModule_SUBST
+(void)
+{
+	WirelessTemplateCache = NewHash(1, NULL);
+	WirelessLocalTemplateCache = NewHash(1, NULL);
+	LocalTemplateCache = NewHash(1, NULL);
+	TemplateCache = NewHash(1, NULL);
+
+	GlobalNS = NewHash(1, NULL);
+	Iterators = NewHash(1, NULL);
+	Conditionals = NewHash(1, NULL);
+	SortHash = NewHash(1, NULL);
+}
+
+void
+FinalizeModule_SUBST
+(void)
+{
+
+}
+
+void 
+ServerShutdownModule_SUBST
+(void)
+{
+	DeleteHash(&WirelessTemplateCache);
+	DeleteHash(&WirelessLocalTemplateCache);
+	DeleteHash(&TemplateCache);
+	DeleteHash(&LocalTemplateCache);
+
+	DeleteHash(&GlobalNS);
+	DeleteHash(&Iterators);
+	DeleteHash(&Conditionals);
+	DeleteHash(&SortHash);
+
+}
+
+
+void
+SessionNewModule_SUBST
+(wcsession *sess)
+{
+
+}
+
+void
+SessionAttachModule_SUBST
+(wcsession *sess)
+{
+	sess->vars = NewHash(1,NULL);
+}
+
+void
+SessionDetachModule_SUBST
+(wcsession *sess)
+{
+	DeleteHash(&sess->vars);
+}
+
+void 
+SessionDestroyModule_SUBST  
+(wcsession *sess)
+{
+
+}
+
+
+
 
 /*@}*/

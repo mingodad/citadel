@@ -11,6 +11,8 @@
 #include "webcit.h"
 #include "webserver.h"
 
+extern int DisableGzip;
+
 /*
  *  register the timeout
  *  signum signalhandler number
@@ -99,6 +101,16 @@ int tcp_connectsock(char *host, char *service)
 		lprintf(1, "Can't create socket: %s\n", strerror(errno));
 		return (-1);
 	}
+
+	fdflags = fcntl(s, F_GETFL);
+	if (fdflags < 0)
+		lprintf(1, "unable to get socket flags!  %s.%s: %s \n",
+			host, service, strerror(errno));
+	fdflags = fdflags | O_NONBLOCK;
+	if (fcntl(s, F_SETFD, fdflags) < 0)
+		lprintf(1, "unable to set socket nonblocking flags!  %s.%s: %s \n",
+			host, service, strerror(errno));
+
 	signal(SIGALRM, timeout);
 	alarm(30);
 
@@ -112,8 +124,13 @@ int tcp_connectsock(char *host, char *service)
 	signal(SIGALRM, SIG_IGN);
 
 	fdflags = fcntl(s, F_GETFL);
+	if (fdflags < 0)
+		lprintf(1, "unable to get socket flags!  %s.%s: %s \n",
+			host, service, strerror(errno));
 	fdflags = fdflags | O_NONBLOCK;
-	fcntl(s, F_SETFD, fdflags);
+	if (fcntl(s, F_SETFD, fdflags) < 0)
+		lprintf(1, "unable to set socket nonblocking flags!  %s.%s: %s \n",
+			host, service, strerror(errno));
 	return (s);
 }
 
@@ -301,3 +318,372 @@ void serv_printf(const char *format,...)
 #endif
 }
 
+
+
+
+int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
+{
+	const char *Error, *pch, *pchs;
+	int rlen, len, retval = 0;
+
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		int ntries = 0;
+		if (StrLength(CLineBuf) > 0) {
+			pchs = ChrPtr(CLineBuf);
+			pch = strchr(pchs, '\n');
+			if (pch != NULL) {
+				rlen = 0;
+				len = pch - pchs;
+				if (len > 0 && (*(pch - 1) == '\r') )
+					rlen ++;
+				StrBufSub(Target, CLineBuf, 0, len - rlen);
+				StrBufCutLeft(CLineBuf, len + 1);
+				return len - rlen;
+			}
+		}
+
+		while (retval == 0) { 
+				pch = NULL;
+				pchs = ChrPtr(CLineBuf);
+				if (*pchs != '\0')
+					pch = strchr(pchs, '\n');
+				if (pch == NULL) {
+					retval = client_read_sslbuffer(CLineBuf, SLEEPING);
+					pchs = ChrPtr(CLineBuf);
+					pch = strchr(pchs, '\n');
+				}
+				if (retval == 0) {
+					sleeeeeeeeeep(1);
+					ntries ++;
+				}
+				if (ntries > 10)
+					return 0;
+		}
+		if ((retval > 0) && (pch != NULL)) {
+			rlen = 0;
+			len = pch - pchs;
+			if (len > 0 && (*(pch - 1) == '\r') )
+				rlen ++;
+			StrBufSub(Target, CLineBuf, 0, len - rlen);
+			StrBufCutLeft(CLineBuf, len + 1);
+			return len - rlen;
+
+		}
+		else 
+			return -1;
+	}
+	else 
+#endif
+		return StrBufTCP_read_buffered_line_fast(Target, 
+							 CLineBuf,
+							 Pos,
+							 sock,
+							 5,
+							 1,
+							 &Error);
+}
+
+/* 
+ * This is a generic function to set up a master socket for listening on
+ * a TCP port.  The server shuts down if the bind fails.
+ *
+ * ip_addr 	IP address to bind
+ * port_number	port number to bind
+ * queue_len	number of incoming connections to allow in the queue
+ */
+int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
+{
+	struct sockaddr_in sin;
+	int s, i;
+
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
+	if (ip_addr == NULL) {
+		sin.sin_addr.s_addr = INADDR_ANY;
+	} else {
+		sin.sin_addr.s_addr = inet_addr(ip_addr);
+	}
+
+	if (sin.sin_addr.s_addr == INADDR_NONE) {
+		sin.sin_addr.s_addr = INADDR_ANY;
+	}
+
+	if (port_number == 0) {
+		lprintf(1, "Cannot start: no port number specified.\n");
+		exit(WC_EXIT_BIND);
+	}
+	sin.sin_port = htons((u_short) port_number);
+
+	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
+	if (s < 0) {
+		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
+		exit(WC_EXIT_BIND);
+	}
+	/* Set some socket options that make sense. */
+	i = 1;
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+
+	#ifndef __APPLE__
+	fcntl(s, F_SETFL, O_NONBLOCK); /* maide: this statement is incorrect
+					  there should be a preceding F_GETFL
+					  and a bitwise OR with the previous
+					  fd flags */
+	#endif
+	
+	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		lprintf(1, "Can't bind: %s\n", strerror(errno));
+		exit(WC_EXIT_BIND);
+	}
+	if (listen(s, queue_len) < 0) {
+		lprintf(1, "Can't listen: %s\n", strerror(errno));
+		exit(WC_EXIT_BIND);
+	}
+	return (s);
+}
+
+
+
+/*
+ * Create a Unix domain socket and listen on it
+ * sockpath - file name of the unix domain socket
+ * queue_len - Number of incoming connections to allow in the queue
+ */
+int ig_uds_server(char *sockpath, int queue_len)
+{
+	struct sockaddr_un addr;
+	int s;
+	int i;
+	int actual_queue_len;
+
+	actual_queue_len = queue_len;
+	if (actual_queue_len < 5) actual_queue_len = 5;
+
+	i = unlink(sockpath);
+	if ((i != 0) && (errno != ENOENT)) {
+		lprintf(1, "webcit: can't unlink %s: %s\n",
+			sockpath, strerror(errno));
+		exit(WC_EXIT_BIND);
+	}
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		lprintf(1, "webcit: Can't create a socket: %s\n",
+			strerror(errno));
+		exit(WC_EXIT_BIND);
+	}
+
+	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		lprintf(1, "webcit: Can't bind: %s\n",
+			strerror(errno));
+		exit(WC_EXIT_BIND);
+	}
+
+	if (listen(s, actual_queue_len) < 0) {
+		lprintf(1, "webcit: Can't listen: %s\n",
+			strerror(errno));
+		exit(WC_EXIT_BIND);
+	}
+
+	chmod(sockpath, 0777);
+	return(s);
+}
+
+
+
+
+/*
+ * Read data from the client socket.
+ *
+ * sock		socket fd to read from
+ * buf		buffer to read into 
+ * bytes	number of bytes to read
+ * timeout	Number of seconds to wait before timing out
+ *
+ * Possible return values:
+ *      1       Requested number of bytes has been read.
+ *      0       Request timed out.
+ *	-1   	Connection is broken, or other error.
+ */
+int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, const char **Pos, int bytes, int timeout)
+{
+	const char *Error;
+	int retval = 0;
+
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		long bufremain = StrLength(Buf) - (*Pos - ChrPtr(Buf));
+		StrBufAppendBufPlain(Target, *Pos, bufremain, 0);
+		*Pos = NULL;
+		FlushStrBuf(Buf);
+
+		while ((StrLength(Buf) + StrLength(Target) < bytes) &&
+		       (retval >= 0))
+			retval = client_read_sslbuffer(Buf, timeout);
+		if (retval >= 0) {
+			StrBufAppendBuf(Target, Buf, 0); /* todo: Buf > bytes? */
+#ifdef HTTP_TRACING
+			write(2, "\033[32m", 5);
+			write(2, buf, bytes);
+			write(2, "\033[30m", 5);
+#endif
+			return 1;
+		}
+		else {
+			lprintf(2, "client_read_ssl() failed\n");
+			return -1;
+		}
+	}
+#endif
+
+	retval = StrBufReadBLOBBuffered(Target, 
+					Buf, Pos, 
+					sock, 
+					1, 
+					bytes,
+					O_TERM,
+					&Error);
+	if (retval < 0) {
+		lprintf(2, "client_read() failed: %s\n",
+			Error);
+		return retval;
+	}
+
+#ifdef HTTP_TRACING
+	write(2, "\033[32m", 5);
+	write(2, buf, bytes);
+	write(2, "\033[30m", 5);
+#endif
+	return 1;
+}
+
+
+/*
+ * Begin buffering HTTP output so we can transmit it all in one write operation later.
+ */
+void begin_burst(void)
+{
+	if (WC->WBuf == NULL) {
+		WC->WBuf = NewStrBufPlain(NULL, 32768);
+	}
+}
+
+
+/*
+ * Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
+ */
+long end_burst(void)
+{
+	wcsession *WCC = WC;
+        const char *ptr, *eptr;
+        long count;
+	ssize_t res;
+        fd_set wset;
+        int fdflags;
+
+	if (!DisableGzip && (WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
+	{
+		hprintf("Content-encoding: gzip\r\n");
+	}
+
+	hprintf("Content-length: %d\r\n\r\n", StrLength(WCC->WBuf));
+
+	ptr = ChrPtr(WCC->HBuf);
+	count = StrLength(WCC->HBuf);
+	eptr = ptr + count;
+
+#ifdef HAVE_OPENSSL
+	if (is_https) {
+		client_write_ssl(WCC->HBuf);
+		client_write_ssl(WCC->WBuf);
+		return (count);
+	}
+#endif
+
+	
+#ifdef HTTP_TRACING
+	
+	write(2, "\033[34m", 5);
+	write(2, ptr, StrLength(WCC->WBuf));
+	write(2, "\033[30m", 5);
+#endif
+	fdflags = fcntl(WC->http_sock, F_GETFL);
+
+	while (ptr < eptr) {
+                if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+                        FD_ZERO(&wset);
+                        FD_SET(WCC->http_sock, &wset);
+                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
+                                lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
+                                return -1;
+                        }
+                }
+
+                if ((res = write(WCC->http_sock, 
+				 ptr,
+				 count)) == -1) {
+                        lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
+		        wc_backtrace();
+                        return res;
+                }
+                count -= res;
+		ptr += res;
+        }
+
+	ptr = ChrPtr(WCC->WBuf);
+	count = StrLength(WCC->WBuf);
+	eptr = ptr + count;
+
+#ifdef HTTP_TRACING
+	
+	write(2, "\033[34m", 5);
+	write(2, ptr, StrLength(WCC->WBuf));
+	write(2, "\033[30m", 5);
+#endif
+
+        while (ptr < eptr) {
+                if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+                        FD_ZERO(&wset);
+                        FD_SET(WCC->http_sock, &wset);
+                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
+                                lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
+                                return -1;
+                        }
+                }
+
+                if ((res = write(WCC->http_sock, 
+				 ptr,
+				 count)) == -1) {
+                        lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
+			wc_backtrace();
+                        return res;
+                }
+                count -= res;
+		ptr += res;
+        }
+
+	return StrLength(WCC->WBuf);
+}
+
+
+
+void
+SessionNewModule_TCPSOCKETS
+(wcsession *sess)
+{
+	sess->CLineBuf = NewStrBuf();
+	sess->MigrateReadLineBuf = NewStrBuf();
+}
+
+void 
+SessionDestroyModule_TCPSOCKETS
+(wcsession *sess)
+{
+	FreeStrBuf(&sess->CLineBuf);
+	FreeStrBuf(&sess->ReadBuf);
+	FreeStrBuf(&sess->MigrateReadLineBuf);
+}

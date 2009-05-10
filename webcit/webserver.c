@@ -33,6 +33,9 @@ extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
+extern int ig_tcp_server(char *ip_addr, int port_number, int queue_len);
+extern int ig_uds_server(char *sockpath, int queue_len);
+
 
 char ctdl_key_dir[PATH_MAX]=SSL_DIR;
 char file_crpt_file_key[PATH_MAX]="";
@@ -40,10 +43,10 @@ char file_crpt_file_csr[PATH_MAX]="";
 char file_crpt_file_cer[PATH_MAX]="";
 
 char socket_dir[PATH_MAX];			/* where to talk to our citadel server */
-static const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/* nailed to what configure gives us. */
-static char static_dir[PATH_MAX];		/* calculated on startup */
-static char static_local_dir[PATH_MAX];		/* calculated on startup */
-static char static_icon_dir[PATH_MAX];          /* where should we find our mime icons? */
+const char editor_absolut_dir[PATH_MAX]=EDITORDIR;	/* nailed to what configure gives us. */
+char static_dir[PATH_MAX];		/* calculated on startup */
+char static_local_dir[PATH_MAX];		/* calculated on startup */
+char static_icon_dir[PATH_MAX];          /* where should we find our mime icons? */
 char  *static_dirs[]={				/* needs same sort order as the web mapping */
 	(char*)static_dir,			/* our templates on disk */
 	(char*)static_local_dir,		/* user provided templates disk */
@@ -74,291 +77,6 @@ char wizard_filename[PATH_MAX];	/* where's the setup wizard? */
 int running_as_daemon = 0;	/* should we deamonize on startup? */
 
 
-/* 
- * This is a generic function to set up a master socket for listening on
- * a TCP port.  The server shuts down if the bind fails.
- *
- * ip_addr 	IP address to bind
- * port_number	port number to bind
- * queue_len	number of incoming connections to allow in the queue
- */
-int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
-{
-	struct sockaddr_in sin;
-	int s, i;
-
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-	if (ip_addr == NULL) {
-		sin.sin_addr.s_addr = INADDR_ANY;
-	} else {
-		sin.sin_addr.s_addr = inet_addr(ip_addr);
-	}
-
-	if (sin.sin_addr.s_addr == INADDR_NONE) {
-		sin.sin_addr.s_addr = INADDR_ANY;
-	}
-
-	if (port_number == 0) {
-		lprintf(1, "Cannot start: no port number specified.\n");
-		exit(WC_EXIT_BIND);
-	}
-	sin.sin_port = htons((u_short) port_number);
-
-	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
-	if (s < 0) {
-		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
-		exit(WC_EXIT_BIND);
-	}
-	/* Set some socket options that make sense. */
-	i = 1;
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
-
-	#ifndef __APPLE__
-	fcntl(s, F_SETFL, O_NONBLOCK); /* maide: this statement is incorrect
-					  there should be a preceding F_GETFL
-					  and a bitwise OR with the previous
-					  fd flags */
-	#endif
-	
-	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		lprintf(1, "Can't bind: %s\n", strerror(errno));
-		exit(WC_EXIT_BIND);
-	}
-	if (listen(s, queue_len) < 0) {
-		lprintf(1, "Can't listen: %s\n", strerror(errno));
-		exit(WC_EXIT_BIND);
-	}
-	return (s);
-}
-
-
-
-/*
- * Create a Unix domain socket and listen on it
- * sockpath - file name of the unix domain socket
- * queue_len - Number of incoming connections to allow in the queue
- */
-int ig_uds_server(char *sockpath, int queue_len)
-{
-	struct sockaddr_un addr;
-	int s;
-	int i;
-	int actual_queue_len;
-
-	actual_queue_len = queue_len;
-	if (actual_queue_len < 5) actual_queue_len = 5;
-
-	i = unlink(sockpath);
-	if ((i != 0) && (errno != ENOENT)) {
-		lprintf(1, "webcit: can't unlink %s: %s\n",
-			sockpath, strerror(errno));
-		exit(WC_EXIT_BIND);
-	}
-
-	memset(&addr, 0, sizeof(addr));
-	addr.sun_family = AF_UNIX;
-	safestrncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
-
-	s = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (s < 0) {
-		lprintf(1, "webcit: Can't create a socket: %s\n",
-			strerror(errno));
-		exit(WC_EXIT_BIND);
-	}
-
-	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		lprintf(1, "webcit: Can't bind: %s\n",
-			strerror(errno));
-		exit(WC_EXIT_BIND);
-	}
-
-	if (listen(s, actual_queue_len) < 0) {
-		lprintf(1, "webcit: Can't listen: %s\n",
-			strerror(errno));
-		exit(WC_EXIT_BIND);
-	}
-
-	chmod(sockpath, 0777);
-	return(s);
-}
-
-
-
-
-/*
- * Read data from the client socket.
- *
- * sock		socket fd to read from
- * buf		buffer to read into 
- * bytes	number of bytes to read
- * timeout	Number of seconds to wait before timing out
- *
- * Possible return values:
- *      1       Requested number of bytes has been read.
- *      0       Request timed out.
- *	-1   	Connection is broken, or other error.
- */
-int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, const char **Pos, int bytes, int timeout)
-{
-	const char *Error;
-	int retval = 0;
-
-#ifdef HAVE_OPENSSL
-	if (is_https) {
-		long bufremain = StrLength(Buf) - (*Pos - ChrPtr(Buf));
-		StrBufAppendBufPlain(Target, *Pos, bufremain, 0);
-		*Pos = NULL;
-		FlushStrBuf(Buf);
-
-		while ((StrLength(Buf) + StrLength(Target) < bytes) &&
-		       (retval >= 0))
-			retval = client_read_sslbuffer(Buf, timeout);
-		if (retval >= 0) {
-			StrBufAppendBuf(Target, Buf, 0); /* todo: Buf > bytes? */
-#ifdef HTTP_TRACING
-			write(2, "\033[32m", 5);
-			write(2, buf, bytes);
-			write(2, "\033[30m", 5);
-#endif
-			return 1;
-		}
-		else {
-			lprintf(2, "client_read_ssl() failed\n");
-			return -1;
-		}
-	}
-#endif
-
-	retval = StrBufReadBLOBBuffered(Target, 
-					Buf, Pos, 
-					sock, 
-					1, 
-					bytes,
-					O_TERM,
-					&Error);
-	if (retval < 0) {
-		lprintf(2, "client_read() failed: %s\n",
-			Error);
-		return retval;
-	}
-
-#ifdef HTTP_TRACING
-	write(2, "\033[32m", 5);
-	write(2, buf, bytes);
-	write(2, "\033[30m", 5);
-#endif
-	return 1;
-}
-
-
-/*
- * Begin buffering HTTP output so we can transmit it all in one write operation later.
- */
-void begin_burst(void)
-{
-	if (WC->WBuf == NULL) {
-		WC->WBuf = NewStrBufPlain(NULL, 32768);
-	}
-}
-
-
-/*
- * Finish buffering HTTP output.  [Compress using zlib and] output with a Content-Length: header.
- */
-long end_burst(void)
-{
-	wcsession *WCC = WC;
-        const char *ptr, *eptr;
-        long count;
-	ssize_t res;
-        fd_set wset;
-        int fdflags;
-
-	if (!DisableGzip && (WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
-	{
-		hprintf("Content-encoding: gzip\r\n");
-	}
-
-	hprintf("Content-length: %d\r\n\r\n", StrLength(WCC->WBuf));
-
-	ptr = ChrPtr(WCC->HBuf);
-	count = StrLength(WCC->HBuf);
-	eptr = ptr + count;
-
-#ifdef HAVE_OPENSSL
-	if (is_https) {
-		client_write_ssl(WCC->HBuf);
-		client_write_ssl(WCC->WBuf);
-		return (count);
-	}
-#endif
-
-	
-#ifdef HTTP_TRACING
-	
-	write(2, "\033[34m", 5);
-	write(2, ptr, StrLength(WCC->WBuf));
-	write(2, "\033[30m", 5);
-#endif
-	fdflags = fcntl(WC->http_sock, F_GETFL);
-
-	while (ptr < eptr) {
-                if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
-                        FD_ZERO(&wset);
-                        FD_SET(WCC->http_sock, &wset);
-                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
-                                lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
-                                return -1;
-                        }
-                }
-
-                if ((res = write(WCC->http_sock, 
-				 ptr,
-				 count)) == -1) {
-                        lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
-		        wc_backtrace();
-                        return res;
-                }
-                count -= res;
-		ptr += res;
-        }
-
-	ptr = ChrPtr(WCC->WBuf);
-	count = StrLength(WCC->WBuf);
-	eptr = ptr + count;
-
-#ifdef HTTP_TRACING
-	
-	write(2, "\033[34m", 5);
-	write(2, ptr, StrLength(WCC->WBuf));
-	write(2, "\033[30m", 5);
-#endif
-
-        while (ptr < eptr) {
-                if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
-                        FD_ZERO(&wset);
-                        FD_SET(WCC->http_sock, &wset);
-                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
-                                lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
-                                return -1;
-                        }
-                }
-
-                if ((res = write(WCC->http_sock, 
-				 ptr,
-				 count)) == -1) {
-                        lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
-			wc_backtrace();
-                        return res;
-                }
-                count -= res;
-		ptr += res;
-        }
-
-	return StrLength(WCC->WBuf);
-}
-
 
 /*
  * Shut us down the regular way.
@@ -372,69 +90,6 @@ void graceful_shutdown_watcher(int signum) {
 		exit(0);
 }
 
-
-int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
-{
-	const char *Error, *pch, *pchs;
-	int rlen, len, retval = 0;
-
-#ifdef HAVE_OPENSSL
-	if (is_https) {
-		int ntries = 0;
-		if (StrLength(CLineBuf) > 0) {
-			pchs = ChrPtr(CLineBuf);
-			pch = strchr(pchs, '\n');
-			if (pch != NULL) {
-				rlen = 0;
-				len = pch - pchs;
-				if (len > 0 && (*(pch - 1) == '\r') )
-					rlen ++;
-				StrBufSub(Target, CLineBuf, 0, len - rlen);
-				StrBufCutLeft(CLineBuf, len + 1);
-				return len - rlen;
-			}
-		}
-
-		while (retval == 0) { 
-				pch = NULL;
-				pchs = ChrPtr(CLineBuf);
-				if (*pchs != '\0')
-					pch = strchr(pchs, '\n');
-				if (pch == NULL) {
-					retval = client_read_sslbuffer(CLineBuf, SLEEPING);
-					pchs = ChrPtr(CLineBuf);
-					pch = strchr(pchs, '\n');
-				}
-				if (retval == 0) {
-					sleeeeeeeeeep(1);
-					ntries ++;
-				}
-				if (ntries > 10)
-					return 0;
-		}
-		if ((retval > 0) && (pch != NULL)) {
-			rlen = 0;
-			len = pch - pchs;
-			if (len > 0 && (*(pch - 1) == '\r') )
-				rlen ++;
-			StrBufSub(Target, CLineBuf, 0, len - rlen);
-			StrBufCutLeft(CLineBuf, len + 1);
-			return len - rlen;
-
-		}
-		else 
-			return -1;
-	}
-	else 
-#endif
-		return StrBufTCP_read_buffered_line_fast(Target, 
-							 CLineBuf,
-							 Pos,
-							 sock,
-							 5,
-							 1,
-							 &Error);
-}
 
 
 
@@ -603,8 +258,54 @@ extern int DumpTemplateI18NStrings;
 extern StrBuf *I18nDump;
 void InitTemplateCache(void);
 extern int LoadTemplates;
-extern void LoadZoneFiles(void);
-StrBuf *csslocal = NULL;
+
+extern HashList *HandlerHash;
+
+
+void
+webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdir, char *relhome)
+{
+	char dirbuffer[PATH_MAX]="";
+	/* calculate all our path on a central place */
+    /* where to keep our config */
+	
+#define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
+	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
+			 (home&!relh)?webcitdir:basedir, \
+             ((basedir!=webcitdir)&(home&!relh))?basedir:"/", \
+             ((basedir!=webcitdir)&(home&!relh))?"/":"", \
+			 relhome, \
+             (relhome[0]!='\0')?"/":"",\
+			 dirbuffer,\
+			 (dirbuffer[0]!='\0')?"/":"");
+	basedir=RUNDIR;
+	COMPUTE_DIRECTORY(socket_dir);
+	basedir=WWWDIR "/static";
+	COMPUTE_DIRECTORY(static_dir);
+	basedir=WWWDIR "/static/icons";
+	COMPUTE_DIRECTORY(static_icon_dir);
+	basedir=WWWDIR "/static.local";
+	COMPUTE_DIRECTORY(static_local_dir);
+
+	snprintf(file_crpt_file_key,
+		 sizeof file_crpt_file_key, 
+		 "%s/citadel.key",
+		 ctdl_key_dir);
+	snprintf(file_crpt_file_csr,
+		 sizeof file_crpt_file_csr, 
+		 "%s/citadel.csr",
+		 ctdl_key_dir);
+	snprintf(file_crpt_file_cer,
+		 sizeof file_crpt_file_cer, 
+		 "%s/citadel.cer",
+		 ctdl_key_dir);
+
+	/* we should go somewhere we can leave our coredump, if enabled... */
+	lprintf(9, "Changing directory to %s\n", socket_dir);
+	if (chdir(webcitdir) != 0) {
+		perror("chdir");
+	}
+}
 /*
  * Here's where it all begins.
  */
@@ -615,7 +316,6 @@ int main(int argc, char **argv)
 	int a, i;	        	/* General-purpose variables */
 	char tracefile[PATH_MAX];
 	char ip_addr[256]="0.0.0.0";
-	char dirbuffer[PATH_MAX]="";
 	int relh=0;
 	int home=0;
 	int home_specified=0;
@@ -633,23 +333,10 @@ int main(int argc, char **argv)
 
 	WildFireInitBacktrace(argv[0], 2);
 
-	HandlerHash = NewHash(1, NULL);
-	PreferenceHooks = NewHash(1, NULL);
-	WirelessTemplateCache = NewHash(1, NULL);
-	WirelessLocalTemplateCache = NewHash(1, NULL);
-	LocalTemplateCache = NewHash(1, NULL);
-	TemplateCache = NewHash(1, NULL);
-	GlobalNS = NewHash(1, NULL);
-	Iterators = NewHash(1, NULL);
-	Conditionals = NewHash(1, NULL);
-	MsgHeaderHandler = NewHash(1, NULL);
-	MimeRenderHandler = NewHash(1, NULL);
-	SortHash = NewHash(1, NULL);
-
-	LoadZoneFiles();
+	start_modules ();
 
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	dbg_PrintHash(HandlerHash, nix, NULL);
+/*	dbg_PrintHash(HandlerHash, nix, NULL);*/
 #endif
 
 	/* Ensure that we are linked to the correct version of libcitadel */
@@ -768,6 +455,9 @@ int main(int argc, char **argv)
 		signal(SIGHUP, graceful_shutdown);
 	}
 
+	webcit_calc_dirs_n_files(relh, basedir, home, webcitdir, relhome);
+	LoadIconDir(static_icon_dir);
+
 	/* Tell 'em who's in da house */
 	lprintf(1, PACKAGE_STRING "\n");
 	lprintf(1, "Copyright (C) 1996-2009 by the Citadel development team.\n"
@@ -791,46 +481,13 @@ int main(int argc, char **argv)
 #endif
 
 
-	/* calculate all our path on a central place */
-    /* where to keep our config */
-	
-#define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
-	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
-			 (home&!relh)?webcitdir:basedir, \
-             ((basedir!=webcitdir)&(home&!relh))?basedir:"/", \
-             ((basedir!=webcitdir)&(home&!relh))?"/":"", \
-			 relhome, \
-             (relhome[0]!='\0')?"/":"",\
-			 dirbuffer,\
-			 (dirbuffer[0]!='\0')?"/":"");
-	basedir=RUNDIR;
-	COMPUTE_DIRECTORY(socket_dir);
-	basedir=WWWDIR "/static";
-	COMPUTE_DIRECTORY(static_dir);
-	basedir=WWWDIR "/static/icons";
-	COMPUTE_DIRECTORY(static_icon_dir);
-	basedir=WWWDIR "/static.local";
-	COMPUTE_DIRECTORY(static_local_dir);
 
-	snprintf(file_crpt_file_key,
-		 sizeof file_crpt_file_key, 
-		 "%s/citadel.key",
-		 ctdl_key_dir);
-	snprintf(file_crpt_file_csr,
-		 sizeof file_crpt_file_csr, 
-		 "%s/citadel.csr",
-		 ctdl_key_dir);
-	snprintf(file_crpt_file_cer,
-		 sizeof file_crpt_file_cer, 
-		 "%s/citadel.cer",
-		 ctdl_key_dir);
 
-	/* we should go somewhere we can leave our coredump, if enabled... */
-	lprintf(9, "Changing directory to %s\n", socket_dir);
-	if (chdir(webcitdir) != 0) {
-		perror("chdir");
-	}
-	LoadIconDir(static_icon_dir);
+
+
+
+
+
 
 	initialise_modules();
 	initialize_viewdefs();
@@ -858,9 +515,6 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	if (!access("static.local/webcit.css", R_OK)) {
-		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
-	}
 
 	/* Tell libical to return an error instead of aborting if it sees badly formed iCalendar data. */
 	icalerror_errors_are_fatal = 0;
@@ -936,31 +590,17 @@ int main(int argc, char **argv)
 	/* now the original thread becomes another worker */
 	worker_entry();
 	ShutDownLibCitadel ();
-	DeleteHash(&HandlerHash);
-	DeleteHash(&PreferenceHooks);
 	return 0;
 }
 
 
 void ShutDownWebcit(void)
 {
-	DeleteHash(&ZoneHash);
 	free_zone_directory ();
 	icaltimezone_release_zone_tab ();
 	icalmemory_free_ring ();
 	ShutDownLibCitadel ();
-	DeleteHash(&HandlerHash);
-	DeleteHash(&PreferenceHooks);
-	DeleteHash(&GlobalNS);
-	DeleteHash(&WirelessTemplateCache);
-	DeleteHash(&WirelessLocalTemplateCache);
-	DeleteHash(&TemplateCache);
-	DeleteHash(&LocalTemplateCache);
-	DeleteHash(&Iterators);
-	DeleteHash(&MimeRenderHandler);
-	DeleteHash(&Conditionals);
-	DeleteHash(&MsgHeaderHandler);
-	DeleteHash(&SortHash);
+	shutdown_modules ();
 #ifdef ENABLE_NLS
 	ShutdownLocale();
 #endif
@@ -1066,6 +706,18 @@ void worker_entry(void)
 					close(ssock);
 				}
 			}
+			else 
+			{
+				int fdflags; 
+				fdflags = fcntl(ssock, F_GETFL);
+				if (fdflags < 0)
+					lprintf(1, "unable to get server socket flags! %s \n",
+						strerror(errno));
+				fdflags = fdflags | O_NONBLOCK;
+				if (fcntl(ssock, F_SETFD, fdflags) < 0)
+					lprintf(1, "unable to set server socket nonblocking flags! %s \n",
+						strerror(errno));
+			}
 #endif
 
 			if (fail_this_transaction == 0) {
@@ -1137,4 +789,7 @@ void wc_backtrace(void)
 	free(strings);
 #endif
 }
+
+
+
 

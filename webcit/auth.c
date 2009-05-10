@@ -929,3 +929,17 @@ InitModule_AUTH
 
 	return ;
 }
+
+
+void 
+SessionDestroyModule_AUTH
+(wcsession *sess)
+{
+	FreeStrBuf(&sess->wc_username);
+	FreeStrBuf(&sess->wc_fullname);
+	FreeStrBuf(&sess->wc_password);
+	FreeStrBuf(&sess->wc_roomname);
+	FreeStrBuf(&sess->httpauth_user);
+	FreeStrBuf(&sess->httpauth_pass);
+	FreeStrBuf(&sess->cs_inet_email);
+}

@@ -795,12 +795,6 @@ int ConditionalHasRoomPreference(StrBuf *Target, WCTemplputParams *TP)
   
 	return 0;
 }
-void CfgZoneTempl(StrBuf *TemplBuffer, WCTemplputParams *TP)
-{
-	StrBuf *Zone = (StrBuf*) CTX;
-
-	SVPutBuf("ZONENAME", Zone, 1);
-}
 
 int ConditionalPreference(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -975,7 +969,6 @@ InitModule_PREFERENCES
 	RegisterNamespace("PREF:ROOM:VALUE", 1, 2, tmplput_CFG_RoomValue,  CTX_NONE);
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
-	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE, IT_NOFLAG);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
 	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHasPreference, CTX_NONE);
@@ -987,4 +980,37 @@ InitModule_PREFERENCES
 			 GetGVSNHash, NULL, DeleteGVSNHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 }
+
+
+void 
+ServerStartModule_PREFERENCES
+(void)
+{
+	PreferenceHooks = NewHash(1, NULL);
+}
+
+void 
+ServerShutdownModule_PREFERENCES
+(void)
+{
+	DeleteHash(&PreferenceHooks);
+}
+
+
+void
+SessionNewModule_PREFERENCES
+(wcsession *sess)
+{
+	sess->hash_prefs = NewHash(1,NULL);
+}
+
+void 
+SessionDestroyModule_PREFERENCES
+(wcsession *sess)
+{
+	DeleteHash(&sess->hash_prefs);
+}
+
+
+
 /*@}*/

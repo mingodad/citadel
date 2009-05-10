@@ -10,6 +10,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#include "modules_init.h"
 
 /* Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t SessionListMutex;
@@ -33,28 +34,10 @@ void DestroySession(wcsession **sessions_to_kill)
 		free((*sessions_to_kill)->cache_fold);
 	}
 	DeleteServInfo(&((*sessions_to_kill)->serv_info));
-	DeleteHash(&((*sessions_to_kill)->attachments));
 	free_march_list((*sessions_to_kill));
-	DeleteHash(&((*sessions_to_kill)->hash_prefs));
-	DeleteHash(&((*sessions_to_kill)->IconBarSettings));
-	DeleteHash(&((*sessions_to_kill)->ServCfg));
-	FreeStrBuf(&((*sessions_to_kill)->ReadBuf));
-	FreeStrBuf(&((*sessions_to_kill)->UrlFragment1));
-	FreeStrBuf(&((*sessions_to_kill)->UrlFragment2));
-	FreeStrBuf(&((*sessions_to_kill)->UrlFragment3));
-	FreeStrBuf(&((*sessions_to_kill)->UrlFragment4));
-	FreeStrBuf(&((*sessions_to_kill)->WBuf));
-	FreeStrBuf(&((*sessions_to_kill)->HBuf));
-	FreeStrBuf(&((*sessions_to_kill)->CLineBuf));
-	FreeStrBuf(&((*sessions_to_kill)->wc_username));
-	FreeStrBuf(&((*sessions_to_kill)->wc_fullname));
-	FreeStrBuf(&((*sessions_to_kill)->wc_password));
-	FreeStrBuf(&((*sessions_to_kill)->wc_roomname));
-	FreeStrBuf(&((*sessions_to_kill)->httpauth_user));
-	FreeStrBuf(&((*sessions_to_kill)->httpauth_pass));
-	FreeStrBuf(&((*sessions_to_kill)->ImportantMsg));
-	FreeStrBuf(&((*sessions_to_kill)->cs_inet_email));
-	FreeStrBuf(&((*sessions_to_kill)->MigrateReadLineBuf));
+	
+	session_destroy_modules(*sessions_to_kill);
+
 	free((*sessions_to_kill));
 	(*sessions_to_kill) = NULL;
 }
@@ -236,7 +219,7 @@ int is_bogus(StrBuf *http_cmd) {
 }
 
 
-const char *nix(void *vptr) {return ChrPtr( (StrBuf*)vptr);}
+/*const char *nix(void *vptr) {return ChrPtr( (StrBuf*)vptr);}*/
 
 /*
  * handle one request
@@ -267,7 +250,6 @@ void context_loop(int *sock)
 	int LineLen;
 	void *vLine;
 	StrBuf *Buf, *Line, *LastLine, *HeaderName, *ReqLine, *ReqType, *HTTPVersion;
-	StrBuf *accept_language = NULL;
 	const char *pch, *pchs, *pche;
 	HashList *HTTPHeaders;
 
@@ -378,10 +360,6 @@ void context_loop(int *sock)
 		if_modified_since = httpdate_to_timestamp((StrBuf*)vLine);
 	}
 
-	if (GetHash(HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
-	    (vLine != NULL)) {
-		accept_language = (StrBuf*) vLine;
-	}
 
 
 	ReqType = NewStrBuf();
@@ -464,7 +442,9 @@ void context_loop(int *sock)
 
 	if (TheSession == NULL) {
 		pthread_mutex_lock(&SessionListMutex);
-		for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
+		for (sptr = SessionList; 
+		     ((sptr != NULL) && (TheSession == NULL)); 
+		      sptr = sptr->next) {
 
 			/** If HTTP-AUTH, look for a session with matching credentials */
 			if ( (!IsEmptyStr(httpauth_user))
@@ -490,6 +470,7 @@ void context_loop(int *sock)
 		TheSession = (wcsession *)
 			malloc(sizeof(wcsession));
 		memset(TheSession, 0, sizeof(wcsession));
+		TheSession->headers = HTTPHeaders;
 		TheSession->serv_sock = (-1);
 		TheSession->chat_sock = (-1);
 	
@@ -506,22 +487,12 @@ void context_loop(int *sock)
 			TheSession->wc_session = desired_session;
 		}
 
-		if (TheSession->httpauth_user != NULL){
-			FlushStrBuf(TheSession->httpauth_user);
-			StrBufAppendBufPlain(TheSession->httpauth_user, httpauth_user, -1, 0);
-		}
-		else TheSession->httpauth_user = NewStrBufPlain(httpauth_user, -1);
-		if (TheSession->httpauth_user != NULL){
-			FlushStrBuf(TheSession->httpauth_pass);
-			StrBufAppendBufPlain(TheSession->httpauth_pass, httpauth_user, -1, 0);
-		}
-		else TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
+		TheSession->httpauth_user = NewStrBufPlain(httpauth_user, -1);
+		TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
 
-		if (TheSession->MigrateReadLineBuf != NULL)
-			FlushStrBuf(TheSession->MigrateReadLineBuf);
-		else TheSession->MigrateReadLineBuf = NewStrBuf();
-		TheSession->CLineBuf = NewStrBuf();
-		TheSession->hash_prefs = NewHash(1,NULL);	/* Get a hash table for the user preferences */
+		pthread_setspecific(MyConKey, (void *)TheSession);
+		session_new_modules(TheSession);
+
 		pthread_mutex_init(&TheSession->SessionMutex, NULL);
 		pthread_mutex_lock(&SessionListMutex);
 		TheSession->nonce = rand();
@@ -531,6 +502,7 @@ void context_loop(int *sock)
 		pthread_mutex_unlock(&SessionListMutex);
 		session_is_new = 1;
 	}
+	TheSession->headers = HTTPHeaders;
 
 	/*
 	 * A future improvement might be to check the session integrity
@@ -543,30 +515,16 @@ void context_loop(int *sock)
 	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
-	if (TheSession->ImportantMsg == NULL)
-		TheSession->ImportantMsg = NewStrBuf();
-	TheSession->urlstrings = NewHash(1,NULL);
-	TheSession->vars = NewHash(1,NULL);
-	TheSession->http_sock = *sock;
 	TheSession->lastreq = time(NULL);			/* log */
+	TheSession->http_sock = *sock;
 	TheSession->gzip_ok = gzip_ok;
-#ifdef ENABLE_NLS
-	if (session_is_new) {
-		httplang_to_locale(accept_language);
-	}
-	go_selected_language();					/* set locale */
-#endif
-	session_loop(HTTPHeaders, ReqLine, ReqType, Buf, &Pos);				/* do transaction */
-#ifdef ENABLE_NLS
-	stop_selected_language();				/* unset locale */
-#endif
-	DeleteHash(&TheSession->summ);
-	DeleteHash(&TheSession->urlstrings);
-	DeleteHash(&TheSession->vars);
-	FreeStrBuf(&TheSession->WBuf);
-	FreeStrBuf(&TheSession->HBuf);
-	
-	
+
+	session_attach_modules(TheSession);
+
+	session_loop(ReqLine, ReqType, Buf, &Pos);				/* do transaction */
+	session_detach_modules(TheSession);
+
+	TheSession->headers = NULL;
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
 	/* Free the request buffer */
@@ -574,12 +532,6 @@ void context_loop(int *sock)
 	FreeStrBuf(&ReqLine);
 	FreeStrBuf(&ReqType);
 	FreeStrBuf(&Buf);
-	/*
-	 * Free up any session-local substitution variables which
-	 * were set during this transaction
-	 */
-	
-	
 }
 
 void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)

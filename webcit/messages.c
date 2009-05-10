@@ -1765,3 +1765,10 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("roommsgs"), jsonMessageList,0);
 	return ;
 }
+
+void
+SessionDetachModule_MSG
+(wcsession *sess)
+{
+	DeleteHash(&sess->summ);
+}

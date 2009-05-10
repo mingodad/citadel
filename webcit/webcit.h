@@ -364,6 +364,7 @@ struct wcsession {
 	StrBuf *this_page;			/**< URL of current page */
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	HashList *vars; 			/**< HTTP variable substitutions for this page */
+	HashList *headers;                      /**< the headers the client sent us */
 	StrBuf *http_host;			/**< HTTP Host: header */
 	int is_ajax;                            /** < are we doing an ajax request? */
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
@@ -510,10 +511,6 @@ extern int setup_wizard;
 extern char wizard_filename[];
 extern time_t if_modified_since;
 extern int follow_xff;
-extern HashList *HandlerHash;
-extern HashList *PreferenceHooks;
-extern HashList *ZoneHash;
-extern HashList *SortHash;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
@@ -621,8 +618,7 @@ void shutdown_sessions(void);
 void do_housekeeping(void);
 void smart_goto(const StrBuf *);
 void worker_entry(void);
-void session_loop(HashList *HTTPHeaders, 
-		  StrBuf *ReqLine, 
+void session_loop(StrBuf *ReqLine, 
 		  StrBuf *ReqType, 
 		  StrBuf *ReadBuf, 
 		  const char **Pos);

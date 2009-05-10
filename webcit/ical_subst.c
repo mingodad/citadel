@@ -116,3 +116,10 @@ InitModule_ICAL_SUBST
 	CreateIcalComponendKindLookup ();
 
 }
+
+void 
+ServerShutdownModule_ICAL
+(void)
+{
+	DeleteHash(&IcalComponentMap);
+}
