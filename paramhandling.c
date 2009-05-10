@@ -420,3 +420,18 @@ InitModule_PARAMHANDLING
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, CTX_NONE);
 	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, CTX_NONE);
 }
+
+
+void
+SessionAttachModule_PARAMHANDLING
+(wcsession *sess)
+{
+	sess->urlstrings = NewHash(1,NULL);
+}
+
+void
+SessionDetachModule_PARAMHANDLING
+(wcsession *sess)
+{
+	DeleteHash(&sess->urlstrings);
+}

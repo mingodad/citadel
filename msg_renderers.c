@@ -1247,3 +1247,28 @@ InitModule_MSGRENDERERS
 	RegisterMsgHdr(HKEY("suff"), examine_suff, 0);
 	RegisterMsgHdr(HKEY("path"), examine_path, 0);
 }
+
+void 
+ServerStartModule_MSGRENDERERS
+(void)
+{
+	MsgHeaderHandler = NewHash(1, NULL);
+	MimeRenderHandler = NewHash(1, NULL);
+}
+
+void 
+ServerShutdownModule_MSGRENDERERS
+(void)
+{
+	DeleteHash(&MsgHeaderHandler);
+	DeleteHash(&MimeRenderHandler);
+}
+
+
+
+void 
+SessionDestroyModule_MSGRENDERERS
+(wcsession *sess)
+{
+	DeleteHash(&sess->attachments);
+}

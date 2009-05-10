@@ -489,4 +489,12 @@ InitModule_ICONBAR
 }
 
 
+
+void 
+SessionDestroyModule_ICONBAR
+(wcsession *sess)
+{
+	DeleteHash(&sess->IconBarSettings);
+}
+
 /*@}*/

@@ -388,3 +388,37 @@ InitModule_GETTEXT
 {
 	RegisterNamespace("LANG:SELECT", 0, 0, tmplput_offer_languages, CTX_NONE);
 }
+
+
+void
+SessionNewModule_GETTEXT
+(wcsession *sess)
+{
+#ifdef ENABLE_NLS
+	void *vLine;
+	
+	if (GetHash(WC->headers, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
+	    (vLine != NULL)) {
+		StrBuf *accept_language = (StrBuf*) vLine;
+		httplang_to_locale(accept_language);
+	}
+#endif
+}
+
+void
+SessionAttachModule_GETTEXT
+(wcsession *sess)
+{
+#ifdef ENABLE_NLS
+	go_selected_language();					/* set locale */
+#endif
+}
+
+void 
+SessionDestroyModule_GETTEXT
+(wcsession *sess)
+{
+#ifdef ENABLE_NLS
+	stop_selected_language();				/* unset locale */
+#endif
+}
