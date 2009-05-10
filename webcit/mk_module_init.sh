@@ -74,7 +74,7 @@ void shutdown_modules (void);
 void session_new_modules (wcsession *sess);
 void session_attach_modules (wcsession *sess);
 void session_detach_modules (wcsession *sess);
-void session_destroy_modules (wcsession *sess);
+void session_destroy_modules (wcsession **sess);
 
 
 
@@ -333,7 +333,7 @@ cat <<EOF  >>$C_FILE
 }
 
 
-void session_destroy_modules (wcsession *sess)
+void session_destroy_modules (wcsession **sess)
 {
 
 EOF
@@ -344,7 +344,7 @@ cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
 	lprintf (CTDL_INFO, "Initializing $HOOKNAME\n");
 #endif
-	$HOOK(sess);
+	$HOOK(*sess);
 EOF
 # Add this entry point to the .h file
 cat <<EOF >> $H_FILE
@@ -358,6 +358,8 @@ done
 
 
 cat <<EOF  >>$C_FILE
+	free((*sess));
+	(*sess) = NULL;
 }
 
 EOF

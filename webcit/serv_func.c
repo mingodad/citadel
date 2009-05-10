@@ -647,4 +647,12 @@ InitModule_SERVFUNC
 /*TODO //	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmplput_serv_ldap_enabled, 0); */
 }
 
+
+
+void 
+SessionDestroyModule_SERVFUNC
+(wcsession *sess)
+{
+	DeleteServInfo(&sess->serv_info);
+}
 /*@}*/

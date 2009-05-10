@@ -4126,4 +4126,16 @@ InitModule_ROOMOPS
 	RegisterNamespace("ROOM:INFO", 1, 2, tmplput_ROOM_Value, CTX_ROOMS);
 }
 
+
+
+void 
+SessionDestroyModule_ROOMOPS
+(wcsession *sess)
+{
+	if (sess->cache_fold != NULL) {
+		free(sess->cache_fold);
+	}
+	
+	free_march_list(sess);
+}
 /*@}*/

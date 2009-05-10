@@ -527,3 +527,12 @@ InitModule_PAGING
 	WebcitAddUrlHandler(HKEY("chat_send"), chat_send, 0);
 	WebcitAddUrlHandler(HKEY("ajax_send_instant_message"), ajax_send_instant_message, AJAX);
 }
+
+
+void 
+SessionDestroyModule_CHAT
+(wcsession *sess)
+{
+	if (sess->chat_sock > 0)
+		close(sess->chat_sock);
+}
