@@ -33,7 +33,7 @@
 * of new mail for a user
 * Returns 0 if unsuccessful
 */
-int notify_funambol_server(char *user) {
+int notify_funambol_server(char *user, char *msgid) {
 	char port[1024];
 	int sock = -1;
 	char *buf = NULL;
@@ -105,6 +105,7 @@ int notify_funambol_server(char *user) {
 	// Do substitutions
 	help_subst(SOAPMessage, "^notifyuser", user);
 	help_subst(SOAPMessage, "^syncsource", config.c_funambol_source);
+	help_subst(SOAPMessage, "^msgid", msgid);
 	
 	/* Build the HTTP request header */
 

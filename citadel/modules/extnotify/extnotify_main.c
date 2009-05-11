@@ -134,16 +134,17 @@ void process_notify(long msgnum, void *usrdata) {
     int fnblAllowed = strncasecmp(configMsg, FUNAMBOL_CONFIG_TEXT, strlen(FUNAMBOL_CONFIG_TEXT));
     int extPagerAllowed = strncasecmp(configMsg, PAGER_CONFIG_TEXT, strlen(PAGER_CONFIG_TEXT)); 
     if (fnblAllowed == 0) {
-        notify_funambol_server(msg->cm_fields['W']);
+	    notify_funambol_server(msg->cm_fields['W'], 
+				   msg->cm_fields['I']);
     } else if (extPagerAllowed == 0) {
-	char *number = strtok(configMsg, "textmessage\n");
-	int commandSiz = sizeof(config.c_pager_program) + strlen(number) + strlen(msg->cm_fields['W']) + 5;
-	char *command = malloc(commandSiz);
-	snprintf(command, commandSiz, "%s %s -u %s", config.c_pager_program, number, msg->cm_fields['W']);
-	system(command);
-	free(command);
+	    char *number = strtok(configMsg, "textmessage\n");
+	    int commandSiz = sizeof(config.c_pager_program) + strlen(number) + strlen(msg->cm_fields['W']) + 5;
+	    char *command = malloc(commandSiz);
+	    snprintf(command, commandSiz, "%s %s -u %s", config.c_pager_program, number, msg->cm_fields['W']);
+	    system(command);
+	    free(command);
     }
-    nuke:
+nuke:
     CtdlFreeMessage(msg);
     memset(configMsg, 0, sizeof(configMsg));
     long todelete[1];
