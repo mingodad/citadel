@@ -125,8 +125,6 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 		Data = load_mimepart(msgnum, relevant_partnum);
 	}
 
-	lprintf(9, "Data is: %s\n", ChrPtr(Data));
-
 	if (StrLength(Data) > 0) {
 		if (!IsEmptyStr(uid_from_headers)) {
 			// Convert an old-style note to a vNote
