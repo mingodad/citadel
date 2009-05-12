@@ -26,10 +26,9 @@ int pastel_palette[9][3] = {
 struct vnote *vnote_new_from_msg(long msgnum,int unread) 
 {
 	StrBuf *Buf;
-	StrBuf *Data;
+	StrBuf *Data = NULL;
 	const char *bptr;
 	int Done = 0;
-	char from[128] = "";
 	char uid_from_headers[256];
 	char mime_partnum[256];
 	char mime_filename[256];
@@ -70,15 +69,9 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 				extract_token(mime_content_type, &bptr[5], 4, '|', sizeof mime_content_type);
 				mime_length = extract_int(&bptr[5], 5);
 
-				if (  (!strcasecmp(mime_content_type, "text/calendar"))
-				      || (!strcasecmp(mime_content_type, "application/ics"))
-				      || (!strcasecmp(mime_content_type, "text/vtodo"))
-					) {
+				if (!strcasecmp(mime_content_type, "text/vnote")) {
 					strcpy(relevant_partnum, mime_partnum);
 				}
-			}
-			else if (!strncasecmp(bptr, "from=", 4)) {
-				extract_token(from, bptr, 1, '=', sizeof(from));
 			}
 			else if ((phase == 0) && (!strncasecmp(bptr, "text", 4))) {
 				phase = 1;
@@ -104,26 +97,23 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 				
 				if ((msg4_content_length > 0)
 				    && ( !strcasecmp(msg4_content_encoding, "7bit"))
-				    && ((!strcasecmp(mime_content_type, "text/calendar"))
-					|| (!strcasecmp(mime_content_type, "application/ics"))
-					|| (!strcasecmp(mime_content_type, "text/vtodo"))
-					    )
-					) 
-				{
+				    && (!strcasecmp(mime_content_type, "text/vnote"))
+				) { 
+					/* shouldn't we do something here? */
 				}
 			}
-		case 2:
-			Data = NewStrBufPlain(NULL, msg4_content_length * 2);
-			if (msg4_content_length > 0) {
-				StrBuf_ServGetBLOBBuffered(Data, msg4_content_length);
-				phase ++;
-			}
-			else {
-				StrBufAppendBuf(Data, Buf, 0);
-				StrBufAppendBufPlain(Data, "\r\n", 1, 0);
-			}
-		case 3:
-			StrBufAppendBuf(Data, Buf, 0);
+		//case 2:
+			//Data = NewStrBufPlain(NULL, msg4_content_length * 2);
+			//if (msg4_content_length > 0) {
+				//StrBuf_ServGetBLOBBuffered(Data, msg4_content_length);
+				//phase ++;
+			//}
+			//else {
+				//StrBufAppendBuf(Data, Buf, 0);
+				//StrBufAppendBufPlain(Data, "\r\n", 1, 0);
+			//}
+		//case 3:
+			//StrBufAppendBuf(Data, Buf, 0);
 		}
 	}
 	FreeStrBuf(&Buf);
@@ -135,8 +125,9 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 		Data = load_mimepart(msgnum, relevant_partnum);
 	}
 
+	lprintf(9, "Data is: %s\n", ChrPtr(Data));
 
-	if ((IsEmptyStr(relevant_partnum)) && (StrLength(Data) > 0 )) {
+	if (StrLength(Data) > 0) {
 		if (!IsEmptyStr(uid_from_headers)) {
 			// Convert an old-style note to a vNote
 			vnote_from_body = vnote_new();
@@ -147,10 +138,12 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 			vnote_from_body->body = malloc(StrLength(Data) + 1);
 			vnote_from_body->body[0] = 0;
 			memcpy(vnote_from_body->body, ChrPtr(Data), StrLength(Data) + 1);
+			FreeStrBuf(&Data);
 			return vnote_from_body;
 		}
 		else {
 			struct vnote *v = vnote_new_from_str(ChrPtr(Data));
+			FreeStrBuf(&Data);
 			return(v);
 		}
 	}
