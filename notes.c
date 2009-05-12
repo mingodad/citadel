@@ -41,6 +41,7 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 	char msg4_content_encoding[256] = "";
 	int msg4_content_length = 0;
 	struct vnote *vnote_from_body = NULL;
+	int vnote_inline = 0;			/* 1 = MSG4 gave us a text/x-vnote top level */
 
 	relevant_partnum[0] = '\0';
 	serv_printf("MSG4 %ld", msgnum);	/* we need the mime headers */
@@ -99,21 +100,25 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 				    && ( !strcasecmp(msg4_content_encoding, "7bit"))
 				    && (!strcasecmp(mime_content_type, "text/vnote"))
 				) { 
-					/* shouldn't we do something here? */
+					vnote_inline = 1;
 				}
 			}
-		//case 2:
-			//Data = NewStrBufPlain(NULL, msg4_content_length * 2);
-			//if (msg4_content_length > 0) {
-				//StrBuf_ServGetBLOBBuffered(Data, msg4_content_length);
-				//phase ++;
-			//}
-			//else {
-				//StrBufAppendBuf(Data, Buf, 0);
-				//StrBufAppendBufPlain(Data, "\r\n", 1, 0);
-			//}
-		//case 3:
-			//StrBufAppendBuf(Data, Buf, 0);
+		case 2:
+			if (vnote_inline) {
+				Data = NewStrBufPlain(NULL, msg4_content_length * 2);
+				if (msg4_content_length > 0) {
+					StrBuf_ServGetBLOBBuffered(Data, msg4_content_length);
+					phase ++;
+				}
+				else {
+					StrBufAppendBuf(Data, Buf, 0);
+					StrBufAppendBufPlain(Data, "\r\n", 1, 0);
+				}
+			}
+		case 3:
+			if (vnote_inline) {
+				StrBufAppendBuf(Data, Buf, 0);
+			}
 		}
 	}
 	FreeStrBuf(&Buf);
@@ -121,7 +126,7 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 	/* If MSG4 didn't give us the part we wanted, but we know that we can find it
 	 * as one of the other MIME parts, attempt to load it now.
 	 */
-	if ((Data == NULL) && (!IsEmptyStr(relevant_partnum))) {
+	if ((!vnote_inline) && (!IsEmptyStr(relevant_partnum))) {
 		Data = load_mimepart(msgnum, relevant_partnum);
 	}
 
