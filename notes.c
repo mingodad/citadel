@@ -126,7 +126,7 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 	}
 
 	if (StrLength(Data) > 0) {
-		if (!IsEmptyStr(uid_from_headers)) {
+		if (IsEmptyStr(uid_from_headers)) {
 			// Convert an old-style note to a vNote
 			vnote_from_body = vnote_new();
 			vnote_from_body->uid = strdup(uid_from_headers);
