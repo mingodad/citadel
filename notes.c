@@ -162,15 +162,37 @@ void write_vnote_to_server(struct vnote *v)
 {
 	char buf[1024];
 	char *pch;
+	char boundary[256];
+	static int seq = 0;
+
+	snprintf(boundary, sizeof boundary, "Citadel--Multipart--%s--%04x--%04x",
+		ChrPtr(WC->serv_info->serv_fqdn),
+		getpid(),
+		++seq
+	);
 
 	serv_puts("ENT0 1|||4");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '4') {
+		/* Remember, serv_printf() appends an extra newline */
+		serv_printf("Content-type: multipart/alternative; "
+			"boundary=\"%s\"\n", boundary);
+		serv_printf("This is a multipart message in MIME format.\n");
+		serv_printf("--%s", boundary);
+	
+		serv_puts("Content-type: text/plain; charset=utf-8");
+		serv_puts("Content-Transfer-Encoding: 7bit");
+		serv_puts("");
+		serv_puts(v->body);
+		serv_puts("");
+	
+		serv_printf("--%s", boundary);
 		serv_puts("Content-type: text/vnote");
 		serv_puts("");
 		pch = vnote_serialize(v);
 		serv_puts(pch);
 		free(pch);
+		serv_printf("--%s--", boundary);
 		serv_puts("000");
 	}
 }
