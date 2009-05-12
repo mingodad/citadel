@@ -1626,7 +1626,8 @@ StrBuf *load_mimepart(long msgnum, char *partnum)
 	if (GetServerStatus(Buf, NULL) == 6) {
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
-
+		FreeStrBuf(&Buf);
+		Buf = NewStrBuf();
 		StrBuf_ServGetBLOBBuffered(Buf, bytes);
 		return(Buf);
 	}
