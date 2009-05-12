@@ -95,10 +95,9 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 			}
 			else {
 				phase++;
-				
 				if ((msg4_content_length > 0)
 				    && ( !strcasecmp(msg4_content_encoding, "7bit"))
-				    && (!strcasecmp(mime_content_type, "text/vnote"))
+				    && (!strcasecmp(msg4_content_type, "text/vnote"))
 				) { 
 					vnote_inline = 1;
 				}
@@ -188,6 +187,7 @@ void write_vnote_to_server(struct vnote *v)
 	
 		serv_printf("--%s", boundary);
 		serv_puts("Content-type: text/vnote");
+		serv_puts("Content-Transfer-Encoding: 7bit");
 		serv_puts("");
 		pch = vnote_serialize(v);
 		serv_puts(pch);
