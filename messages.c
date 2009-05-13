@@ -206,7 +206,7 @@ int load_message(message_summary *Msg,
  * printable_view	Nonzero to display a printable view
  * section		Optional for encapsulated message/rfc822 submessage
  */
-int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, const StrBuf *PartNum) 
+int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, const StrBuf *PartNum, const StrBuf **OutMime) 
 {
 	StrBuf *Buf;
 	StrBuf *FoundCharset;
@@ -267,7 +267,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	SubTP.Filter.ContextType = CTX_MAILSUM;
 	SubTP.Context = Msg;
-	DoTemplate(tmpl, tmpllen, Target, &SubTP);
+	*OutMime = DoTemplate(tmpl, tmpllen, Target, &SubTP);
 
 	DestroyMessageSummary(Msg);
 	FreeStrBuf(&FoundCharset);
@@ -287,15 +287,40 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
  * msgnum_as_string == Message number, as a string instead of as a long int
  */
 void embed_message(void) {
+	const StrBuf *Mime;
 	long msgnum = 0L;
 	wcsession *WCC = WC;
-	const StrBuf *Tmpl = sbstr("template");
+	const StrBuf *Tmpl;
+	StrBuf *CmdBuf = NULL;
 
 	msgnum = StrTol(WCC->UrlFragment2);
-	if (StrLength(Tmpl) > 0) 
-		read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL);
-	else 
-		read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL);
+	switch (WCC->eReqType)
+	{
+	case eGET:
+	case ePOST:
+		Tmpl = sbstr("template");
+		if (StrLength(Tmpl) > 0) 
+			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime);
+		else 
+			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+		http_transmit_thing(ChrPtr(Mime), 0);
+		break;
+	case eDELETE:
+		CmdBuf = NewStrBuf ();
+		if (WCC->wc_is_trash) {	/** Delete from Trash is a real delete */
+			serv_printf("DELE %ld", msgnum);	
+		}
+		else {			/** Otherwise move it to Trash */
+			serv_printf("MOVE %ld|_TRASH_|0", msgnum);
+		}
+		StrBuf_ServGetln(CmdBuf);
+		FlushStrBuf(WCC->ImportantMsg);
+		StrBufAppendBuf(WCC->ImportantMsg, CmdBuf, 4);
+		break;
+	default:
+		break;
+
+	}
 }
 
 
@@ -306,6 +331,7 @@ void embed_message(void) {
  */
 void print_message(void) {
 	long msgnum = 0L;
+	const StrBuf *Mime;
 
 	msgnum = StrTol(WC->UrlFragment2);
 	output_headers(0, 0, 0, 0, 0, 0);
@@ -316,7 +342,7 @@ void print_message(void) {
 
 	begin_burst();
 
-	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, NULL);
+	read_message(WC->WBuf, HKEY("view_message_print"), msgnum, NULL, &Mime);
 
 	wDumpContent(0);
 }
@@ -326,14 +352,17 @@ void print_message(void) {
  *
  * @param msg_num_as_string Message number as a string instead of as a long int 
  */
-void mobile_message_view(void) {
-  long msgnum = 0L;
-  msgnum = StrTol(WC->UrlFragment2);
-  output_headers(1, 0, 0, 0, 0, 1);
-  begin_burst();
-  do_template("msgcontrols", NULL);
-  read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL);
-  wDumpContent(0);
+void mobile_message_view(void) 
+{
+	long msgnum = 0L;
+	const StrBuf *Mime;
+  
+	msgnum = StrTol(WC->UrlFragment2);
+	output_headers(1, 0, 0, 0, 0, 1);
+	begin_burst();
+	do_template("msgcontrols", NULL);
+	read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+	wDumpContent(0);
 }
 
 /**
@@ -693,6 +722,7 @@ void readloop(long oper)
 	int defaultsortorder = 0;
 	WCTemplputParams SubTP;
 	char *ab_name;
+	const StrBuf *Mime;
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
 		WCC->wc_view = VIEW_MAILBOX;
@@ -926,7 +956,7 @@ void readloop(long oper)
 			/** if we do a split bbview in the future, begin messages div here */
 			
 			for (a=0; a<num_displayed; ++a) {
-				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], NULL);
+				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], NULL, &Mime);
 			}
 			
 			/** if we do a split bbview in the future, end messages div here */
@@ -960,7 +990,7 @@ DONE:
 		break;
 	case VIEW_ADDRESSBOOK:
 		if (is_singlecard)
-			read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), NULL);
+			read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), NULL, &Mime);
 		else
 			do_addrbook_view(addrbook, num_ab);	/** Render the address book */
 		break;
@@ -1752,7 +1782,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("move_msg"), move_msg, 0);
 	WebcitAddUrlHandler(HKEY("delete_msg"), delete_msg, 0);
 	WebcitAddUrlHandler(HKEY("confirm_move_msg"), confirm_move_msg, 0);
-	WebcitAddUrlHandler(HKEY("msg"), embed_message, NEED_URL|AJAX);
+	WebcitAddUrlHandler(HKEY("msg"), embed_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);

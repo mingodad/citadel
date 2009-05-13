@@ -34,6 +34,7 @@ void str_wiki_index(char *s)
  */
 void display_wiki_page(void)
 {
+	const StrBuf *Mime;
 	const StrBuf *roomname;
 	char pagename[128];
 	char errmsg[256];
@@ -77,7 +78,7 @@ void display_wiki_page(void)
 	msgnum = locate_message_by_uid(pagename);
 	if (msgnum >= 0L) {
 		output_headers(1, 1, 1, 0, 0, 0);
-		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL);
+		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
 		wDumpContent(1);
 		return;
 	}
