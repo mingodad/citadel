@@ -462,8 +462,10 @@ void tmplput_MAIL_SUMM_DATE_NO(StrBuf *Target, WCTemplputParams *TP)
 
 void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
+	const StrBuf *TemplateMime;
+
 	Mime->Data = NewStrBufPlain(NULL, Mime->length);
-	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, Mime->PartNum);
+	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, Mime->PartNum, &TemplateMime);
 /*
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
@@ -775,12 +777,13 @@ int Conditional_MAIL_MIME_ATTACH(StrBuf *Target, WCTemplputParams *TP)
 /*----------------------------------------------------------------------------*/
 void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 {
+	const StrBuf *Mime;
         long MsgNum;
 	StrBuf *Buf;
 
 	MsgNum = LBstr(TKEY(0));
 	Buf = NewStrBuf();
-	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, NULL);
+	read_message(Buf, HKEY("view_message_replyquote"), MsgNum, NULL, &Mime);
 	StrBufAppendTemplate(Target, TP, Buf, 1);
 	FreeStrBuf(&Buf);
 }

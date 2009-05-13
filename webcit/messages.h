@@ -88,7 +88,8 @@ void readloop(long oper);
 int read_message(StrBuf *Target, 
 		 const char *tmpl, long tmpllen, 
 		 long msgnum, 
-		 const StrBuf *section);
+		 const StrBuf *section, 
+		 const StrBuf **OutMime);
 int load_message(message_summary *Msg, 
 		 StrBuf *FoundCharset,
 		 StrBuf **Error);
