@@ -277,9 +277,142 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 
 
 
+void
+HttpStatus(long CitadelStatus)
+{
+	long httpstatus = 502;
+	long MajorStat = MAJORCODE(CitadelStatus);
+	long MinorStat = MINORCODE(CitadelStatus);
+	
+	switch (MAJORCODE(CitadelStatus))
+	{
+	case LISTING_FOLLOWS:
+	case CIT_OK:
+		httpstatus = 201;
+		break;
+	case ERROR:
+		switch (MINORCODE(CitadelStatus))
+		{
+		case INTERNAL_ERROR:
+			httpstatus = 403;
+			break;
+			
+		case TOO_BIG:
+		case ILLEGAL_VALUE:
+		case HIGHER_ACCESS_REQUIRED:
+		case MAX_SESSIONS_EXCEEDED:
+		case RESOURCE_BUSY:
+		case RESOURCE_NOT_OPEN:
+		case NOT_HERE:
+		case INVALID_FLOOR_OPERATION:
+		case FILE_NOT_FOUND:
+		case ROOM_NOT_FOUND:
+			httpstatus = 409;
+			break;
+
+		case MESSAGE_NOT_FOUND:
+		case ALREADY_EXISTS:
+			httpstatus = 403;
+			break;
+
+		case NO_SUCH_SYSTEM:
+			httpstatus = 502;
+			break;
+
+		default:
+		case CMD_NOT_SUPPORTED:
+		case PASSWORD_REQUIRED:
+		case ALREADY_LOGGED_IN:
+		case USERNAME_REQUIRED:
+		case NOT_LOGGED_IN:
+		case SERVER_SHUTTING_DOWN:
+		case NO_SUCH_USER:
+		case ASYNC_GEXP:
+			httpstatus = 502;
+			break;
+		}
+		break;
+
+	default:
+	case BINARY_FOLLOWS:
+	case SEND_BINARY:
+	case START_CHAT_MODE:
+	case ASYNC_MSG:
+	case MORE_DATA:
+	case SEND_LISTING:
+		httpstatus = 502; /* aeh... whut? */
+		break;
+	}
 
 
+}
 
+/*
+ * Unadorned HTML output of an individual message, suitable
+ * for placing in a hidden iframe, for printing, or whatever
+ *
+ * msgnum_as_string == Message number, as a string instead of as a long int
+ */
+void handle_one_message(void) 
+{
+	long CitStatus;
+	int CopyMessage = 0;
+	const StrBuf *Destination;
+	void *vLine;
+	const StrBuf *Mime;
+	long msgnum = 0L;
+	wcsession *WCC = WC;
+	const StrBuf *Tmpl;
+	StrBuf *CmdBuf = NULL;
+
+	msgnum = StrTol(WCC->UrlFragment3);
+	gotoroom(WCC->UrlFragment2);
+	switch (WCC->eReqType)
+	{
+	case eGET:
+	case ePOST:
+		Tmpl = sbstr("template");
+		if (StrLength(Tmpl) > 0) 
+			read_message(WCC->WBuf, SKEY(Tmpl), msgnum, NULL, &Mime);
+		else 
+			read_message(WCC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
+		http_transmit_thing(ChrPtr(Mime), 0);
+		break;
+	case eDELETE:
+		CmdBuf = NewStrBuf ();
+		if (WCC->wc_is_trash) {	/** Delete from Trash is a real delete */
+			serv_printf("DELE %ld", msgnum);	
+		}
+		else {			/** Otherwise move it to Trash */
+			serv_printf("MOVE %ld|_TRASH_|0", msgnum);
+		}
+		StrBuf_ServGetln(CmdBuf);
+		FlushStrBuf(WCC->ImportantMsg);
+		StrBufAppendBuf(WCC->ImportantMsg, CmdBuf, 4);
+		GetServerStatus(CmdBuf, &CitStatus);
+		HttpStatus(CitStatus);
+		break;
+	case eCOPY:
+		CopyMessage = 1;
+	case eMOVE:
+		if (GetHash(WCC->headers, HKEY("DESTINATION"), &vLine) &&
+		    (vLine!=NULL)) {
+			Destination = (StrBuf*) vLine;
+			serv_printf("MOVE %ld|%s|%d", msgnum, ChrPtr(Destination), CopyMessage);
+			StrBuf_ServGetln(CmdBuf);
+			FlushStrBuf(WCC->ImportantMsg);
+			StrBufAppendBuf(WCC->ImportantMsg, CmdBuf, 4);
+			GetServerStatus(CmdBuf, &CitStatus);
+			HttpStatus(CitStatus);
+		}
+		else
+			HttpStatus(500);
+		break;
+	default:
+		break;
+
+	}
+}
 /*
  * Unadorned HTML output of an individual message, suitable
  * for placing in a hidden iframe, for printing, or whatever
@@ -1783,6 +1916,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("delete_msg"), delete_msg, 0);
 	WebcitAddUrlHandler(HKEY("confirm_move_msg"), confirm_move_msg, 0);
 	WebcitAddUrlHandler(HKEY("msg"), embed_message, NEED_URL);
+	WebcitAddUrlHandler(HKEY("message"), handle_one_message, NEED_URL|XHTTP_COMMANDS);
 	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);

@@ -556,7 +556,9 @@ const char *ReqStrs[eNONE] = {
 	"PROPFIND",
 	"PUT",
 	"DELETE",
-	"HEAD"
+	"HEAD",
+	"MOVE",
+	"COPY"
 };
 
 void
@@ -594,6 +596,14 @@ ServerStartModule_CONTEXT
 	v = malloc(sizeof(long));
 	*v = eHEAD;
 	Put(HttpReqTypes, HKEY("HEAD"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = eMOVE;
+	Put(HttpReqTypes, HKEY("MOVE"), v, NULL);
+
+	v = malloc(sizeof(long));
+	*v = eCOPY;
+	Put(HttpReqTypes, HKEY("COPY"), v, NULL);
 }
 
 void 
