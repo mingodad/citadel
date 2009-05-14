@@ -586,10 +586,18 @@ void do_logout(void)
 	wprintf("<hr /><div class=\"buttons\"> "
 		"<span class=\"button_link\"><a href=\".\">");
 	wprintf(_("Log in again"));
-	wprintf("</a></span>&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
+	wprintf("</a></span>");
+
+	/* The "close window" link is commented out because some browsers don't
+	 * allow it to work.
+	 *
+	wprintf("&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
 		"<a href=\"javascript:window.close();\">");
 	wprintf(_("Close window"));
-	wprintf("</a></span></div></div></div></div>\n");
+	wprintf("</a></span>");
+	 */
+
+	wprintf("</div></div></div></div>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
