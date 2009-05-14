@@ -195,6 +195,42 @@
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
+
+#define MAJORCODE(a) (((int)(a / 100) ) * 100)
+
+#define LISTING_FOLLOWS	100
+#define CIT_OK 		200	
+#define MORE_DATA 	300
+#define SEND_LISTING 	400
+#define ERROR 		500
+#define BINARY_FOLLOWS 	600
+#define SEND_BINARY 	700
+#define START_CHAT_MODE	800
+#define ASYNC_MSG 	900
+
+#define MINORCODE(a) (a % 100)
+#define ASYNC_GEXP 			02	
+#define INTERNAL_ERROR 			10	
+#define TOO_BIG 			11	
+#define ILLEGAL_VALUE 			12	
+#define NOT_LOGGED_IN 			20	
+#define CMD_NOT_SUPPORTED 		30	
+#define SERVER_SHUTTING_DOWN 		31	
+#define PASSWORD_REQUIRED 		40	
+#define ALREADY_LOGGED_IN 		41	
+#define USERNAME_REQUIRED 		42	
+#define HIGHER_ACCESS_REQUIRED 		50	
+#define MAX_SESSIONS_EXCEEDED 		51	
+#define RESOURCE_BUSY 			52	
+#define RESOURCE_NOT_OPEN 		53	
+#define NOT_HERE 			60	
+#define INVALID_FLOOR_OPERATION 	61	
+#define NO_SUCH_USER 			70	
+#define FILE_NOT_FOUND 			71	
+#define ROOM_NOT_FOUND 			72	
+#define NO_SUCH_SYSTEM 			73	
+#define ALREADY_EXISTS 			74	
+#define MESSAGE_NOT_FOUND 		75
 /*
  * NLI is the string that shows up in a who's online listing for sessions
  * that are active, but for which no user has yet authenticated.
@@ -336,6 +372,8 @@ enum {
 	ePUT,
 	eDELETE,
 	eHEAD,
+	eMOVE,
+	eCOPY,
 	eNONE
 };
 const char *ReqStrs[eNONE];
@@ -807,6 +845,7 @@ void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc
 #define AJAX (1<<0)
 #define ANONYMOUS (1<<1)
 #define NEED_URL (1<<2)
+#define XHTTP_COMMANDS (1<<3)
 
 
 /* These should be empty, but we have them for testing */
