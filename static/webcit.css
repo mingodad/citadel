@@ -1567,3 +1567,14 @@ li.event_unread span, a.event_read_title {
 	background: url('openid-small.gif') no-repeat scroll 0pt 50%;
 	padding-left: 18px;
 }
+
+.conftitle {
+	font-size: 140%;
+	font-weight: bold;
+	text-align: center;
+}
+
+.confdescr {
+	font-size: 110%;
+	text-align: center;
+}

@@ -1,10 +1,9 @@
-<center>
-<h1><?_("Configure the LDAP connector for Citadel")></h1>
+<div class="conftitle"><?_("Configure the LDAP connector for Citadel")></div>
 
-<??("COND:SUBST", 1, "SERV:LDAP_SUPP", "1")><h2><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></h2><??("X", 1)>
-<?!("COND:SUBST", 2, "SERV:LDAP_SUPP", "1")><h2><?_("NOTE: This Citadel server has been built without LDAP support.  These options will have no effect.")></h2><??("X", 2)>
+<??("COND:SUBST", 1, "SERV:LDAP_SUPP", "1")><div class="confdescr"><?_("Changes made on this screen will not take effect until you restart the Citadel server.")></div><??("X", 1)>
+<?!("COND:SUBST", 2, "SERV:LDAP_SUPP", "1")><div class="confdescr"><?_("NOTE: This Citadel server has been built without LDAP support.  These options will have no effect.")></div><??("X", 2)>
 
-</center>
+<hr>
 <table border="0">
 
 <tr><td><?_("Host name of LDAP server (blank to disable)")></td><td>
