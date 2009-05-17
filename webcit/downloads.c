@@ -235,7 +235,7 @@ void display_mime_icon(void)
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");
 	else
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[3], FileName);
-	//// TODO! output_static(FileBuf);
+	output_static(FileBuf);
 }
 
 void download_file(void)

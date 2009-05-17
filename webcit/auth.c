@@ -62,6 +62,7 @@ int ReEstablish_Session(void)
 		}
 	}
 	FreeStrBuf(&Buf);
+	return 0;
 }
 
 

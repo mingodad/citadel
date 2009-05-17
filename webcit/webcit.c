@@ -289,64 +289,6 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 }
 
 
-/*
- * dump out static pages from disk
- */
-void output_static(void)
-{
-	int fd;
-	struct stat statbuf;
-	off_t bytes;
-	off_t count = 0;
-	const char *content_type;
-	int len;
-	const char *Err;
-	char what[] = "TODO";
-	fd = open(what, O_RDONLY);
-	if (fd <= 0) {
-		lprintf(9, "output_static('%s')  -- NOT FOUND --\n", what);
-		hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
-		hprintf("Content-Type: text/plain\r\n");
-		wprintf("Cannot open %s: %s\r\n", what, strerror(errno));
-		end_burst();
-	} else {
-		len = strlen (what);
-		content_type = GuessMimeByFilename(what, len);
-
-		if (fstat(fd, &statbuf) == -1) {
-			lprintf(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
-			hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
-			hprintf("Content-Type: text/plain\r\n");
-			wprintf("Cannot fstat %s: %s\n", what, strerror(errno));
-			end_burst();
-			return;
-		}
-
-		count = 0;
-		bytes = statbuf.st_size;
-
-		if (StrBufReadBLOB(WC->WBuf, &fd, 1, bytes, &Err) < 0)
-		{
-			if (fd > 0) close(fd);
-			lprintf(9, "output_static('%s')  -- FREAD FAILED (%s) --\n", what, strerror(errno));
-				hprintf("HTTP/1.1 500 internal server error \r\n");
-				hprintf("Content-Type: text/plain\r\n");
-				end_burst();
-				return;
-		}
-
-
-		close(fd);
-#ifndef TECH_PREVIEW
-		lprintf(9, "output_static('%s')  %s\n", what, content_type);
-#endif
-		http_transmit_thing(content_type, 1);
-	}
-	if (yesbstr("force_close_session")) {
-		end_webcit_session();
-	}
-}
-
 
 /*
  * Convenience functions to display a page containing only a string
@@ -452,45 +394,6 @@ void do_404(void)
 	wprintf("Not found\r\n");
 	end_burst();
 }
-/* TODO: staticdata
-{
-	/* Static content can be sent without connecting to Citadel. * /
-	is_static = 0;
-	for (a=0; a<ndirs && ! is_static; ++a) {
-		if (!strcasecmp(action, (char*)static_content_dirs[a])) { /* map web to disk location * /
-			is_static = 1;
-			n_static = a;
-		}
-	}
-	if (is_static) {
-		if (nBackDots < 2)
-		{
-			snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s/%s/%s",
-				 static_dirs[n_static], 
-				 index[1], index[2], index[3], index[4], index[5], index[6], index[7]);
-			for (a=0; a<8; ++a) {
-				if (buf[strlen(buf)-1] == '/') {
-					buf[strlen(buf)-1] = 0;
-				}
-			}
-			for (a = 0; a < strlen(buf); ++a) {
-				if (isspace(buf[a])) {
-					buf[a] = 0;
-				}
-			}
-			output_static(buf);
-		}
-		else 
-		{
-			lprintf(9, "Suspicious request. Ignoring.");
-			hprintf("HTTP/1.1 404 Security check failed\r\n");
-			hprintf("Content-Type: text/plain\r\n\r\n");
-			wprintf("You have sent a malformed or invalid request.\r\n");
-			end_burst();
-		}
-		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect * /
-	}
-	}*/
 
 
 /*
@@ -657,29 +560,7 @@ void session_loop(void)
 	WCC->Hdr->nWildfireHeaders = 0;
 	if (WCC->Hdr->Handler != NULL)
 		Flags = WCC->Hdr->Handler->Flags; /* so we can temporarily add our own... */
-	/** Figure out the action * /
-	index[0] = action;
-	sizes[0] = sizeof action;
-	for (a=1; a<9; a++)
-	{
-		index[a] = arg[a-1];
-		sizes[a] = sizeof arg[a-1];
-	}
-	nBackDots = 0;
-	nEmpty = 0;
-/*
-  for ( a = 0; a < 9; ++a)
-  {
-  extract_token(index[a], ChrPtr(ReqLine), a + 1, '/', sizes[a]);
-  if (strstr(index[a], "?")) *strstr(index[a], "?") = 0;
-  if (strstr(index[a], "&")) *strstr(index[a], "&") = 0;
-  if (strstr(index[a], " ")) *strstr(index[a], " ") = 0;
-  if ((index[a][0] == '.') && (index[a][1] == '.'))
-  nBackDots++;
-  if (index[a][0] == '\0')
-  nEmpty++;
-  }
-*/
+
 	if (WCC->Hdr->ContentLength > 0) {
 		ReadPostData();
 	}
@@ -768,22 +649,6 @@ void session_loop(void)
 			display_login(NULL);
 		}
 		else {
-/*
-			if((WCC->Hdr->Handler->Flags & NEED_URL)) {
-				if (WCC->UrlFragment1 == NULL)
-					WCC->UrlFragment1 = NewStrBuf();
-				if (WCC->UrlFragment2 == NULL)
-					WCC->UrlFragment2 = NewStrBuf();
-				if (WCC->UrlFragment3 == NULL)
-					WCC->UrlFragment3 = NewStrBuf();
-				if (WCC->UrlFragment4 == NULL)
-					WCC->UrlFragment4 = NewStrBuf();
-				StrBufPlain(WCC->UrlFragment1, index[0], -1);
-				StrBufPlain(WCC->UrlFragment2, index[1], -1);
-				StrBufPlain(WCC->UrlFragment3, index[2], -1);
-				StrBufPlain(WCC->UrlFragment4, index[3], -1);
-			}
-*/
 			if ((WCC->Hdr->Handler->Flags & AJAX) != 0)
 				begin_ajax_response();
 			WCC->Hdr->Handler->F();
@@ -866,25 +731,6 @@ void tmplput_csslocal(StrBuf *Target, WCTemplputParams *TP)
 extern char static_local_dir[PATH_MAX];
 
 
-	/* TODO: integrate this into the static startup logic
-
-	 * While we're at it, gracefully handle requests for the
-	 * robots.txt and favicon.ico files.
-	 * /
-	if ((StrLength(ReqLine) >= 11) &&
-	    !strncasecmp(ChrPtr(ReqLine), "/robots.txt", 11)) {
-		StrBufPlain(ReqLine, 
-			    HKEY("/static/robots.txt"
-				 "?force_close_session=yes HTTP/1.1"));
-		Hdr.eReqType = eGET;
-	}
-	else if ((StrLength(ReqLine) >= 11) &&
-		 !strncasecmp(ChrPtr(ReqLine), "/favicon.ico", 12)) {
-		StrBufPlain(ReqLine, HKEY("/static/favicon.ico"));
-		Hdr.eReqType = eGET;
-	}
-
-*/
 void 
 InitModule_WEBCIT
 (void)
@@ -893,11 +739,6 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("404"), do_404, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
 
-	WebcitAddUrlHandler(HKEY("robots.txt"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("favicon.ico"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("static"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("static.local"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("tinymce"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
 
 	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
@@ -973,12 +814,6 @@ SessionDestroyModule_WEBCIT
 {
 	FreeStrBuf(&sess->WBuf);
 	FreeStrBuf(&sess->HBuf);
-	/*
-	FreeStrBuf(&sess->UrlFragment1);
-	FreeStrBuf(&sess->UrlFragment2);
-	FreeStrBuf(&sess->UrlFragment3);
-	FreeStrBuf(&sess->UrlFragment4);
-	*/
 	FreeStrBuf(&sess->ImportantMsg);
 }
 
