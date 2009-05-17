@@ -435,10 +435,6 @@ typedef struct _ParsedHttpHdrs {
 	StrBuf *browser_host;
 	StrBuf *user_agent;
 
-	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment3;                   /**< third urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment4;                   /**< fourth urlfragment, if NEED_URL is specified by the handler*/
 	StrBuf *this_page;			/**< URL of current page */
 	StrBuf *PlainArgs; /*TODO: freeme*/
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
@@ -695,7 +691,7 @@ void output_headers(    int do_httpheaders,
 void output_custom_content_header(const char *ctype);
 void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
-void output_static(void);
+void output_static(const char* What);
 
 void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
