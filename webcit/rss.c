@@ -12,7 +12,6 @@
 #define ALLOW_ANON_RSS 0
 #define ANON_RSS_USER ""
 #define ANON_RSS_PASS ""
-time_t if_modified_since;    /**< the last modified stamp */
 
 /*
  * view rss Config menu
@@ -135,7 +134,7 @@ void display_rss(const StrBuf *roomname)
 		}
 	}
 	/*/ Commented out. Play dumb for now, also doesn't work with anonrss hack */
-	/* if (if_modified_since > 0 && if_modified_since > now) {
+	/* if (WCC->Hdr->if_modified_since > 0 && WCC->Hdr->if_modified_since > now) {
 		lprintf(3, "RSS: Feed not updated since the last time you looked\n");
 		hprintf("HTTP/1.1 304 Not Modified\r\n");
 		hprintf("Last-Modified: %s\r\n", date);
@@ -156,7 +155,7 @@ void display_rss(const StrBuf *roomname)
 	hprintf("Content-Type: application/rss+xml\r\n");
 	hprintf("Server: %s\r\n", PACKAGE_STRING);
 	hprintf("Connection: close\r\n");
-	if (WCC->eReqType == eHEAD)
+	if (WCC->Hdr->eReqType == eHEAD)
 		return;
 
 	/* <?xml.. etc confuses our subst parser, so do it here */
@@ -165,7 +164,7 @@ void display_rss(const StrBuf *roomname)
 	SVPutBuf("ROOM", WCC->wc_roomname, 1);
 	SVPutBuf("NODE", WCC->serv_info->serv_humannode, 1);
 	/* TODO:  Fix me */
-	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), ChrPtr(WCC->http_host));
+	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host));
 	
 	/** Get room info for description */
 	serv_puts("RINF");
@@ -370,3 +369,10 @@ ENDITEM:
 }
 
 
+void 
+InitModule_RSS
+(void)
+{
+	WebcitAddUrlHandler(HKEY("do_welcome"), display_rss, COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+
+}

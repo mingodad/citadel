@@ -101,10 +101,10 @@ void groupdav_main(HashList *HTTPHeaders,
 	strcpy(dav_ifmatch, "");
 	dav_depth = 0;
 
-	if ((StrLength(WCC->http_host) == 0) &&
+	if ((StrLength(WCC->Hdr->http_host) == 0) &&
 	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) && 
 	    (vLine != NULL)) {
-		WCC->http_host = (StrBuf*)vLine;
+		WCC->Hdr->http_host = (StrBuf*)vLine;
 	}
 	if (GetHash(HTTPHeaders, HKEY("IF-MATCH"), &vLine) && 
 	    (vLine != NULL)) {
@@ -163,7 +163,7 @@ void groupdav_main(HashList *HTTPHeaders,
 		}
 	}
 
-	switch (WCC->eReqType)
+	switch (WCC->Hdr->eReqType)
 	{
 	/*
 	 * The OPTIONS method is not required by GroupDAV.  This is an
@@ -216,7 +216,7 @@ void groupdav_main(HashList *HTTPHeaders,
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		wprintf("GroupDAV method \"%s\" is not implemented.\r\n",
-			ReqStrs[WCC->eReqType]);
+			ReqStrs[WCC->Hdr->eReqType]);
 		end_burst();
 	}
 }
@@ -228,9 +228,19 @@ void groupdav_main(HashList *HTTPHeaders,
 void groupdav_identify_host(void) {
 	wcsession *WCC = WC;
 
-	if (StrLength(WCC->http_host)!=0) {
+	if (StrLength(WCC->Hdr->http_host)!=0) {
 		wprintf("%s://%s",
 			(is_https ? "https" : "http"),
-			ChrPtr(WCC->http_host));
+			ChrPtr(WCC->Hdr->http_host));
 	}
+}
+
+
+void 
+InitModule_GROUPDAV
+(void)
+{
+
+	WebcitAddUrlHandler(HKEY("groupdav"), do_logout, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+
 }

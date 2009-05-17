@@ -396,8 +396,8 @@ SessionNewModule_GETTEXT
 {
 #ifdef ENABLE_NLS
 	void *vLine;
-	
-	if (GetHash(WC->headers, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
+	////TODO: make me a header getter
+	if (GetHash(WC->Hdr->HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
 	    (vLine != NULL)) {
 		StrBuf *accept_language = (StrBuf*) vLine;
 		httplang_to_locale(accept_language);

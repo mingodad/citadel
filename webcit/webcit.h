@@ -346,6 +346,33 @@ typedef struct _addrbookent {
 } addrbookent;
 
 
+
+
+#define AJAX (1<<0)
+#define ANONYMOUS (1<<1)
+#define NEED_URL (1<<2)
+#define XHTTP_COMMANDS (1<<3)
+#define BOGUS (1<<4)
+#define URLNAMESPACE (1<<4)
+#define LOGCHATTY (1<<5)
+#define COOKIEUNNEEDED (1<<6)
+#define ISSTATIC (1<<7)
+#define FORCE_SESSIONCLOSE (1<<8)
+
+
+typedef void (*WebcitHandlerFunc)(void);
+typedef struct  _WebcitHandler{
+	WebcitHandlerFunc F;
+	long Flags;
+} WebcitHandler;
+void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, long Flags);
+
+
+
+
+
+
+
 typedef struct _headereval {
 	ExamineMsgHeaderFunc evaluator;
 	int Type;
@@ -377,6 +404,49 @@ enum {
 	eNONE
 };
 const char *ReqStrs[eNONE];
+
+
+
+typedef struct _ParsedHttpHdrs {
+	int http_sock;				/**< HTTP server socket */
+	const char *Pos;
+	StrBuf *ReadBuf;
+
+	long eReqType;                          /**< eGET, ePOST.... */
+	const WebcitHandler *Handler;
+	
+	int DontNeedAuth;
+	int got_cookie;
+	long ContentLength;
+	time_t if_modified_since;
+	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
+
+	StrBuf *c_username;
+	StrBuf *c_password;
+	StrBuf *c_roomname;
+	StrBuf *RawCookie;
+	int desired_session;
+
+	StrBuf *ContentType;
+
+	StrBuf *RawLine;/* TODO: freeme */
+	StrBuf *ReqLine;
+	StrBuf *http_host;			/**< HTTP Host: header */
+	StrBuf *browser_host;
+	StrBuf *user_agent;
+
+	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment3;                   /**< third urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *UrlFragment4;                   /**< fourth urlfragment, if NEED_URL is specified by the handler*/
+	StrBuf *this_page;			/**< URL of current page */
+	StrBuf *PlainArgs; /*TODO: freeme*/
+	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
+	HashList *HTTPHeaders;                  /**< the headers the client sent us */
+	int nWildfireHeaders;                   /**< how many wildfire headers did we already send? */
+} ParsedHttpHdrs;
+
+
 /*
  * One of these is kept for each active Citadel session.
  * HTTP transactions are bound to one at a time.
@@ -393,7 +463,6 @@ struct wcsession {
 	int nonce;				/**< session nonce (to prevent session riding) */
 
 /* Session local Members */
-	int http_sock;				/**< HTTP server socket */
 	int serv_sock;				/**< Client socket to Citadel server */
 	StrBuf *ReadBuf;                        /**< here we keep our stuff while reading linebuffered from the server. */
 	StrBuf *MigrateReadLineBuf;             /**< here we buffer legacy server read stuff */
@@ -402,25 +471,15 @@ struct wcsession {
 	time_t lastreq;				/**< Timestamp of most recent HTTP */
 	time_t last_pager_check;		/**< last time we polled for instant msgs */
 	ServInfo *serv_info;                   /**< Iformation about the citserver we're connected to */
+	int is_ajax;                            /** < are we doing an ajax request? */
 
 /* Request local Members */
-	long eReqType;                          /**< eGET, ePOST.... */
 	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
-	StrBuf *UrlFragment1;                   /**< first urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment2;                   /**< second urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment3;                   /**< third urlfragment, if NEED_URL is specified by the handler*/
-	StrBuf *UrlFragment4;                   /**< fourth urlfragment, if NEED_URL is specified by the handler*/
+	ParsedHttpHdrs *Hdr;
 	StrBuf *WBuf;                           /**< Our output buffer */
 	StrBuf *HBuf;                           /**< Our HeaderBuffer */
-	StrBuf *this_page;			/**< URL of current page */
-	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
-	HashList *vars; 			/**< HTTP variable substitutions for this page */
-	HashList *headers;                      /**< the headers the client sent us */
-	StrBuf *http_host;			/**< HTTP Host: header */
-	int is_ajax;                            /** < are we doing an ajax request? */
-	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
-	int nWildfireHeaders;                   /**< how many wildfire headers did we already send? */
 
+	HashList *vars; 			/**< HTTP variable substitutions for this page */
 	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
 	char ImportantMessage[SIZ];		/**< ??? todo */
 	StrBuf *ImportantMsg;
@@ -501,6 +560,17 @@ struct wcsession {
 
 };
 
+
+typedef void (*Header_Evaluator)(StrBuf *Line, ParsedHttpHdrs *hdr);
+
+typedef struct _HttpHeader {
+	Header_Evaluator H;
+	StrBuf *Val;
+	int HaveEvaluator;
+} OneHttpHeader;
+
+
+
 /* values for WC->current_iconbar */
 enum {
 	current_iconbar_menu,     /* view the icon menue */
@@ -560,7 +630,6 @@ extern char *server_cookie;
 extern int is_https;
 extern int setup_wizard;
 extern char wizard_filename[];
-extern time_t if_modified_since;
 extern int follow_xff;
 
 void InitialiseSemaphores(void);
@@ -585,7 +654,8 @@ void display_main_menu(void);
 void display_aide_menu(void);
 void display_advanced_menu(void);
 void slrp_highest(void);
-ServInfo *get_serv_info(StrBuf *, char *);
+ServInfo *get_serv_info(StrBuf *, StrBuf *);
+int GetConnected(void);
 void DeleteServInfo(ServInfo **FreeMe);
 int uds_connectsock(char *);
 int tcp_connectsock(char *, char *);
@@ -625,7 +695,7 @@ void output_headers(    int do_httpheaders,
 void output_custom_content_header(const char *ctype);
 void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
-void output_static(const char *what);
+void output_static(void);
 
 void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
@@ -651,6 +721,8 @@ void text_to_server_qp(char *ptr);
 void confirm_delete_msg(void);
 void display_success(char *);
 void authorization_required(const char *message);
+int ReEstablish_Session(void);
+
 void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
@@ -669,9 +741,7 @@ void shutdown_sessions(void);
 void do_housekeeping(void);
 void smart_goto(const StrBuf *);
 void worker_entry(void);
-void session_loop(StrBuf *ReqLine, 
-		  StrBuf *ReadBuf, 
-		  const char **Pos);
+void session_loop(void);
 size_t wc_strftime(char *s, size_t max, const char *format, const struct tm *tm);
 void fmt_time(char *buf, size_t siz, time_t thetime);
 void httpdate(char *buf, time_t thetime);
@@ -748,7 +818,6 @@ void ical_dezonify(icalcomponent *cal);
 void partstat_as_string(char *buf, icalproperty *attendee);
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
 void check_attendee_availability(icalcomponent *supplied_vevent);
-void do_freebusy(const char *req);
 int ical_ctdl_is_overlap(
                         struct icaltimetype t1start,
                         struct icaltimetype t1end,
@@ -834,19 +903,6 @@ extern char *hourname[];	/* Names of hours (12am, 1am, etc.) */
 void http_datestring(char *buf, size_t n, time_t xtime);
 
 typedef void (*IcalCallbackFunc)(icalcomponent *, long, char*, int, struct calview *);
-
-typedef void (*WebcitHandlerFunc)(void);
-typedef struct  _WebcitHandler{
-	WebcitHandlerFunc F;
-	long Flags;
-} WebcitHandler;
-void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, long Flags);
-
-#define AJAX (1<<0)
-#define ANONYMOUS (1<<1)
-#define NEED_URL (1<<2)
-#define XHTTP_COMMANDS (1<<3)
-
 
 /* These should be empty, but we have them for testing */
 #define DEFAULT_HTTPAUTH_USER	""

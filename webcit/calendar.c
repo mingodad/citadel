@@ -1257,7 +1257,9 @@ void save_event(void) {
 /*
  * Anonymous request of freebusy data for a user
  */
-void do_freebusy(const char *req) {
+void do_freebusy(void)
+{ /// TODO: request line const char *req) {
+	const char req[] = "";
 	char who[SIZ];
 	char buf[SIZ];
 	int len;
@@ -1296,7 +1298,6 @@ void do_freebusy(const char *req) {
 
 
 
-
 void 
 InitModule_CALENDAR
 (void)
@@ -1305,6 +1306,7 @@ InitModule_CALENDAR
 	RegisterPreference("dayend", _("Calendar day view ends at:"), PRF_INT, NULL);
 	RegisterPreference("weekstart", _("Week starts on:"), PRF_INT, NULL);
 
+	WebcitAddUrlHandler(HKEY("freebusy"), do_freebusy, COOKIEUNNEEDED|ANONYMOUS|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("display_edit_task"), display_edit_task, 0);
 	WebcitAddUrlHandler(HKEY("save_task"), save_task, 0);
 	WebcitAddUrlHandler(HKEY("display_edit_event"), display_edit_event, 0);

@@ -24,8 +24,8 @@ void ParseURLParams(StrBuf *url)
 	urlcontent *u;
 	wcsession *WCC = WC;
 
-	if (WCC->urlstrings == NULL)
-		WCC->urlstrings = NewHash(1, NULL);
+	if (WCC->Hdr->urlstrings == NULL)
+		WCC->Hdr->urlstrings = NewHash(1, NULL);
 	eptr = ChrPtr(url) + StrLength(url);
 	up = ChrPtr(url);
 	while ((up < eptr) && (!IsEmptyStr(up))) {
@@ -56,7 +56,7 @@ void ParseURLParams(StrBuf *url)
 			continue;
 		}
 
-		Put(WCC->urlstrings, u->url_key, keylen, u, free_url);
+		Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 		len = bptr - aptr;
 		u->url_data = NewStrBufPlain(aptr, len);
 		StrBufUnescape(u->url_data, 1);
@@ -77,7 +77,7 @@ void ParseURLParams(StrBuf *url)
  */
 void free_urls(void)
 {
-	DeleteHash(&WC->urlstrings);
+	DeleteHash(&WC->Hdr->urlstrings);
 }
 
 /*
@@ -93,8 +93,8 @@ void dump_vars(void)
 	const char *HKey;
 	HashPos *Cursor;
 	
-	Cursor = GetNewHashPos (WCC->urlstrings, 0);
-	while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
+	Cursor = GetNewHashPos (WCC->Hdr->urlstrings, 0);
+	while (GetNextHashPos(WCC->Hdr->urlstrings, Cursor, &HKLen, &HKey, &U)) {
 		u = (urlcontent*) U;
 		wprintf("%38s = %s\n", u->url_key, ChrPtr(u->url_data));
 	}
@@ -108,8 +108,8 @@ const char *XBstr(const char *key, size_t keylen, size_t *len)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U)) {
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, keylen, &U)) {
 		*len = StrLength(((urlcontent *)U)->url_data);
 		return ChrPtr(((urlcontent *)U)->url_data);
 	}
@@ -123,8 +123,8 @@ const char *XBSTR(const char *key, size_t *len)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) &&
-	    GetHash(WC->urlstrings, key, strlen (key), &U)){
+	if ((WC->Hdr->urlstrings != NULL) &&
+	    GetHash(WC->Hdr->urlstrings, key, strlen (key), &U)){
 		*len = StrLength(((urlcontent *)U)->url_data);
 		return ChrPtr(((urlcontent *)U)->url_data);
 	}
@@ -139,8 +139,8 @@ const char *BSTR(const char *key)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) &&
-	    GetHash(WC->urlstrings, key, strlen (key), &U))
+	if ((WC->Hdr->urlstrings != NULL) &&
+	    GetHash(WC->Hdr->urlstrings, key, strlen (key), &U))
 		return ChrPtr(((urlcontent *)U)->url_data);
 	else	
 		return ("");
@@ -150,8 +150,8 @@ const char *Bstr(const char *key, size_t keylen)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, keylen, &U))
 		return ChrPtr(((urlcontent *)U)->url_data);
 	else	
 		return ("");
@@ -161,8 +161,8 @@ const StrBuf *SBSTR(const char *key)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) &&
-	    GetHash(WC->urlstrings, key, strlen (key), &U))
+	if ((WC->Hdr->urlstrings != NULL) &&
+	    GetHash(WC->Hdr->urlstrings, key, strlen (key), &U))
 		return ((urlcontent *)U)->url_data;
 	else	
 		return NULL;
@@ -172,8 +172,8 @@ const StrBuf *SBstr(const char *key, size_t keylen)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, keylen, &U))
 		return ((urlcontent *)U)->url_data;
 	else	
 		return NULL;
@@ -183,8 +183,8 @@ long LBstr(const char *key, size_t keylen)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, keylen, &U))
 		return StrTol(((urlcontent *)U)->url_data);
 	else	
 		return (0);
@@ -194,8 +194,8 @@ long LBSTR(const char *key)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, strlen(key), &U))
 		return StrTol(((urlcontent *)U)->url_data);
 	else	
 		return (0);
@@ -205,8 +205,8 @@ int IBstr(const char *key, size_t keylen)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, keylen, &U))
 		return StrTol(((urlcontent *)U)->url_data);
 	else	
 		return (0);
@@ -216,8 +216,8 @@ int IBSTR(const char *key)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, strlen(key), &U))
 		return StrToi(((urlcontent *)U)->url_data);
 	else	
 		return (0);
@@ -227,8 +227,8 @@ int HaveBstr(const char *key, size_t keylen)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, keylen, &U))
 		return (StrLength(((urlcontent *)U)->url_data) != 0);
 	else	
 		return (0);
@@ -238,8 +238,8 @@ int HAVEBSTR(const char *key)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, strlen(key), &U))
 		return (StrLength(((urlcontent *)U)->url_data) != 0);
 	else	
 		return (0);
@@ -250,8 +250,8 @@ int YesBstr(const char *key, size_t keylen)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, keylen, &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, keylen, &U))
 		return strcmp( ChrPtr(((urlcontent *)U)->url_data), "yes") == 0;
 	else	
 		return (0);
@@ -261,8 +261,8 @@ int YESBSTR(const char *key)
 {
 	void *U;
 
-	if ((WC->urlstrings != NULL) && 
-	    GetHash(WC->urlstrings, key, strlen(key), &U))
+	if ((WC->Hdr->urlstrings != NULL) && 
+	    GetHash(WC->Hdr->urlstrings, key, strlen(key), &U))
 		return strcmp( ChrPtr(((urlcontent *)U)->url_data), "yes") == 0;
 	else	
 		return (0);
@@ -296,8 +296,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 #ifdef DEBUG_URLSTRINGS
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
 #endif
-	if (WC->urlstrings == NULL)
-		WC->urlstrings = NewHash(1, NULL);
+	if (WC->Hdr->urlstrings == NULL)
+		WC->Hdr->urlstrings = NewHash(1, NULL);
 
 	/* Form fields */
 	if ( (length > 0) && (IsEmptyStr(cbtype)) ) {
@@ -306,7 +306,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		safestrncpy(u->url_key, name, sizeof(u->url_key));
 		u->url_data = NewStrBufPlain(content, length);
 		
-		Put(WC->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
+		Put(WC->Hdr->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
 #ifdef DEBUG_URLSTRINGS
 		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
 			u->url_key, 
@@ -347,7 +347,7 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 	u = (urlcontent*)malloc(sizeof(urlcontent));
 	memcpy(u->url_key, key, keylen + 1);
 	u->url_data = Value;
-	Put(WC->urlstrings, u->url_key, keylen, u, free_url);
+	Put(WC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 }
 
 
@@ -377,11 +377,13 @@ void diagnostics(void)
 	output_headers(1, 1, 1, 0, 0, 0);
 	wprintf("Session: %d<hr />\n", WC->wc_session);
 	wprintf("Command: <br /><PRE>\n");
-	StrEscPuts(WC->UrlFragment1);
+/*	
+StrEscPuts(WC->UrlFragment1);
 	wprintf("<br />\n");
 	StrEscPuts(WC->UrlFragment2);
 	wprintf("<br />\n");
 	StrEscPuts(WC->UrlFragment3);
+*/
 	wprintf("</PRE><hr />\n");
 	wprintf("Variables: <br /><PRE>\n");
 	dump_vars();
@@ -396,16 +398,24 @@ void tmplput_url_part(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
-		if (TP->Tokens->Params[0]->lvalue == 0)
-			UrlBuf = WCC->UrlFragment1;
-		else if (TP->Tokens->Params[0]->lvalue == 1)
-			UrlBuf = WCC->UrlFragment2;
-		else
-			UrlBuf = WCC->UrlFragment3;
+		if (TP->Tokens->Params[0]->lvalue == 0) {
+			UrlBuf = NewStrBuf();
+			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 1, '/');
+		}
+		else if (TP->Tokens->Params[0]->lvalue == 1) {
+			UrlBuf = NewStrBuf();
+			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 2, '/');
+		}
+		else {
+			UrlBuf = NewStrBuf();
+			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 3, '/');
+		}
+
 		if (UrlBuf == NULL)  {
 			LogTemplateError(Target, "urlbuf", ERR_PARM1, TP, "not set.");
 		}
 		StrBufAppendTemplate(Target, TP, UrlBuf, 2);
+		FreeStrBuf(&UrlBuf);
 	}
 }
 
@@ -426,12 +436,12 @@ void
 SessionAttachModule_PARAMHANDLING
 (wcsession *sess)
 {
-	sess->urlstrings = NewHash(1,NULL);
+	sess->Hdr->urlstrings = NewHash(1,NULL);
 }
 
 void
 SessionDetachModule_PARAMHANDLING
 (wcsession *sess)
 {
-	DeleteHash(&sess->urlstrings);
+	DeleteHash(&sess->Hdr->urlstrings);
 }

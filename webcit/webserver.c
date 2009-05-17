@@ -480,15 +480,6 @@ int main(int argc, char **argv)
 	lprintf(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
 #endif
 
-
-
-
-
-
-
-
-
-
 	initialise_modules();
 	initialize_viewdefs();
 	initialize_axdefs();

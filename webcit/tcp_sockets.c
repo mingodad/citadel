@@ -585,7 +585,7 @@ long end_burst(void)
         fd_set wset;
         int fdflags;
 
-	if (!DisableGzip && (WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
+	if (!DisableGzip && (WCC->Hdr->gzip_ok) && CompressBuffer(WCC->WBuf))
 	{
 		hprintf("Content-encoding: gzip\r\n");
 	}
@@ -611,19 +611,19 @@ long end_burst(void)
 	write(2, ptr, StrLength(WCC->WBuf));
 	write(2, "\033[30m", 5);
 #endif
-	fdflags = fcntl(WC->http_sock, F_GETFL);
+	fdflags = fcntl(WC->Hdr->http_sock, F_GETFL);
 
 	while (ptr < eptr) {
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
-                        FD_SET(WCC->http_sock, &wset);
-                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
+                        FD_SET(WCC->Hdr->http_sock, &wset);
+                        if (select(WCC->Hdr->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
                                 lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
                                 return -1;
                         }
                 }
 
-                if ((res = write(WCC->http_sock, 
+                if ((res = write(WCC->Hdr->http_sock, 
 				 ptr,
 				 count)) == -1) {
                         lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
@@ -648,14 +648,14 @@ long end_burst(void)
         while (ptr < eptr) {
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
-                        FD_SET(WCC->http_sock, &wset);
-                        if (select(WCC->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
+                        FD_SET(WCC->Hdr->http_sock, &wset);
+                        if (select(WCC->Hdr->http_sock + 1, NULL, &wset, NULL, NULL) == -1) {
                                 lprintf(2, "client_write: Socket select failed (%s)\n", strerror(errno));
                                 return -1;
                         }
                 }
 
-                if ((res = write(WCC->http_sock, 
+                if ((res = write(WCC->Hdr->http_sock, 
 				 ptr,
 				 count)) == -1) {
                         lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));

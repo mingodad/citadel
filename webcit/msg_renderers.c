@@ -1107,6 +1107,7 @@ readloop_struct rlid[] = {
 
 void SetAccessCommand(long Oper)
 {
+/* TODO: whats achieved by this?
 	wcsession *WCC = WC;	
 
 	if (WCC->UrlFragment1 != NULL ) {
@@ -1116,6 +1117,7 @@ void SetAccessCommand(long Oper)
 	}
 	else 
 		WCC->UrlFragment1 = NewStrBufPlain(rlid[Oper].name.Key, rlid[Oper].name.len);
+*/
 }
 		
 
