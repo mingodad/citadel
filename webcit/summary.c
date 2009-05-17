@@ -101,6 +101,7 @@ void tasks_section(void) {
 			Msg = (message_summary*) vMsg;		
 			display_task(Msg, 0);
 		}
+		DeleteHashPos(&at);
 	}
 
 	if (calendar_summary_view() < 1) {
@@ -143,6 +144,7 @@ void calendar_section(void) {
 			Msg = (message_summary*) vMsg;		
 			load_calendar_item(Msg, 0, &c);
 		}
+		DeleteHashPos(&at);
 	}
 	if (calendar_summary_view() < 1) {
 		wprintf("<i>");

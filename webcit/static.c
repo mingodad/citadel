@@ -105,7 +105,7 @@ void output_static(const char *what)
 
 	fd = open(what, O_RDONLY);
 	if (fd <= 0) {
-		lprintf(9, "output_static('%s')  -- NOT FOUND --\n", what);
+		lprintf(9, "output_static('%s') [%s]  -- NOT FOUND --\n", what, ChrPtr(WC->Hdr->this_page));
 		hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 		hprintf("Content-Type: text/plain\r\n");
 		wprintf("Cannot open %s: %s\r\n", what, strerror(errno));
@@ -175,29 +175,26 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 {
 	char dirname[PATH_MAX];
 	char reldir[PATH_MAX];
-	StrBuf *FileName;
-	StrBuf *Tag;
-	StrBuf *Dir;
-	StrBuf *WebDir;
-	StrBuf *OneWebName;
+	StrBuf *FileName = NULL;
+	StrBuf *Dir = NULL;
+	StrBuf *WebDir = NULL;
+	StrBuf *OneWebName = NULL;
 	DIR *filedir = NULL;
 	struct dirent d;
 	struct dirent *filedir_entry;
 	int d_namelen;
 	int d_without_ext;
 		
-	Dir = NewStrBufPlain(DirName, -1);
-	WebDir = NewStrBufPlain(RelDir, -1);
-	OneWebName = NewStrBuf();
 	filedir = opendir (DirName);
 	if (filedir == NULL) {
-		FreeStrBuf(&Dir);
 		return 0;
 	}
 
-	FileName = NewStrBuf();
-	Tag = NewStrBuf();
-	while ((readdir_r(filedir, &d, &filedir_entry) == 0) &&
+	Dir = NewStrBufPlain(DirName, -1);
+	WebDir = NewStrBufPlain(RelDir, -1);
+	OneWebName = NewStrBuf();
+
+       	while ((readdir_r(filedir, &d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
 		char *PStart;
@@ -249,7 +246,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			StrBufAppendBufPlain(OneWebName, filedir_entry->d_name, d_namelen, 0);
 
 			Put(DirList, SKEY(OneWebName), FileName, HFreeStrBuf);
-			printf("[%s | %s]  \n", ChrPtr(OneWebName), ChrPtr(FileName));
+/*			printf("[%s | %s]  \n", ChrPtr(OneWebName), ChrPtr(FileName));*/
 			break;
 		default:
 			break;
@@ -258,9 +255,8 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 
 	}
 	closedir(filedir);
-	FreeStrBuf(&FileName);
-	FreeStrBuf(&Tag);
 	FreeStrBuf(&Dir);
+	FreeStrBuf(&WebDir);
 	FreeStrBuf(&OneWebName);
 	return 1;
 }

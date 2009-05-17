@@ -265,6 +265,7 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 	if (Args == NULL) /* whe're not that picky about params... TODO: this will spoil '&' in filenames.*/
 		Args = strchr(ChrPtr(Hdr->ReqLine), '&');
 	if (Args != NULL) {
+		Args ++; /* skip the ? */
 		Hdr->PlainArgs = NewStrBufPlain(
 			Args, 
 			StrLength(Hdr->ReqLine) -
@@ -361,6 +362,7 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 				pch ++;
 			StrBufCutLeft(Line, pch - pchs);
 			StrBufAppendBuf(LastLine, Line, 0);
+
 			FreeStrBuf(&Line);
 			continue;
 		}
@@ -555,10 +557,24 @@ void context_loop(int *sock)
 
 	session_attach_modules(TheSession);
 	session_loop();				/* do transaction */
+
+
+	/* How long did this transaction take? */
+	gettimeofday(&tx_finish, NULL);
+	
+	lprintf(9, "Transaction [%s] completed in %ld.%06ld seconds.\n",
+		ChrPtr(Hdr.this_page),
+		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
+	);
+
 	session_detach_modules(TheSession);
 
 	TheSession->Hdr = NULL;
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
+
+
+	http_destroy_modules(&Hdr);
 /* TODO
 
 	FreeStrBuf(&c_username);
@@ -568,16 +584,8 @@ void context_loop(int *sock)
 	FreeStrBuf(&c_httpauth_pass);
 */
 	/* Free the request buffer */
-	///DeleteHash(&HTTPHeaders);
 	///FreeStrBuf(&ReqLine);
 	
-	/* How long did this transaction take? */
-	gettimeofday(&tx_finish, NULL);
-	
-	lprintf(9, "Transaction completed in %ld.%06ld seconds.\n",
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
-	);
 }
 
 void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)
@@ -844,7 +852,19 @@ InitModule_CONTEXT
 
 	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS|BOGUS);
 
-	WebcitAddUrlHandler(HKEY("blank"), blank_page, URLNAMESPACE);
+	WebcitAddUrlHandler(HKEY("webcit"), blank_page, URLNAMESPACE);
 }
-//FreeStrBuf(&WCC->this_page);
 	
+
+
+void 
+HttpDestroyModule_CONTEXT
+(ParsedHttpHdrs *httpreq)
+{
+	FreeStrBuf(&httpreq->ReqLine);
+	FreeStrBuf(&httpreq->ReadBuf);
+	FreeStrBuf(&httpreq->PlainArgs);
+	FreeStrBuf(&httpreq->this_page);
+	DeleteHash(&httpreq->HTTPHeaders);
+
+}
