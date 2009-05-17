@@ -3313,7 +3313,7 @@ void set_floordiv_expanded(void) {
 	StrBuf *FloorDiv;
 	
 	FloorDiv = NewStrBuf();
-	StrBufExtract_token(FloorDiv, WCC->Hdr->ReqLine, 2, '/');
+	StrBufExtract_token(FloorDiv, WCC->Hdr->ReqLine, 0, '/');
 	set_preference("floordiv_expanded", FloorDiv, 1);
 	WCC->floordiv_expanded = FloorDiv;
 }

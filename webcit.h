@@ -364,6 +364,7 @@ typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{
 	WebcitHandlerFunc F;
 	long Flags;
+	StrBuf *Name;
 } WebcitHandler;
 void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, long Flags);
 

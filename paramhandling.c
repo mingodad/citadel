@@ -394,28 +394,30 @@ StrEscPuts(WC->UrlFragment1);
 
 void tmplput_url_part(StrBuf *Target, WCTemplputParams *TP)
 {
+	StrBuf *Name = NULL;
 	StrBuf *UrlBuf;
 	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
 		if (TP->Tokens->Params[0]->lvalue == 0) {
 			UrlBuf = NewStrBuf();
-			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 1, '/');
+			if (WCC->Hdr->Handler != NULL)
+				UrlBuf = Name = WCC->Hdr->Handler->Name;
 		}
 		else if (TP->Tokens->Params[0]->lvalue == 1) {
 			UrlBuf = NewStrBuf();
-			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 2, '/');
+			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 0, '/');
 		}
 		else {
 			UrlBuf = NewStrBuf();
-			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 3, '/');
+			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 1, '/');
 		}
 
 		if (UrlBuf == NULL)  {
 			LogTemplateError(Target, "urlbuf", ERR_PARM1, TP, "not set.");
 		}
 		StrBufAppendTemplate(Target, TP, UrlBuf, 2);
-		FreeStrBuf(&UrlBuf);
+		if (Name == NULL) FreeStrBuf(&UrlBuf);
 	}
 }
 
