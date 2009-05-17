@@ -42,7 +42,7 @@ void display_rss_control(char *reply_to, char *subject)
  * roomname the room we sould print out as rss 
  * request_method the way the rss is requested????
  */
-void display_rss(const StrBuf *roomname)
+void display_rss(void)
 {
 	message_summary *Msg;
 	wcsession *WCC = WC;
@@ -72,7 +72,8 @@ void display_rss(const StrBuf *roomname)
 	char msgn[256];
 	char content_type[256];
 	char charset[256];
-	
+	const StrBuf *roomname;
+
 	if (!WCC->logged_in) {
 		#ifdef ALLOW_ANON_RSS
 		StrBuf *User;
@@ -96,7 +97,7 @@ void display_rss(const StrBuf *roomname)
 		#endif
 	}
 
-	if (gotoroom(roomname)) {
+	if (gotoroom(WCC->Hdr->ReqLine)) {
 		lprintf(3, "RSS: Can't goto requested room\n");
 		hprintf("HTTP/1.1 404 Not Found\r\n");
 		hprintf("Content-Type: text/html\r\n");

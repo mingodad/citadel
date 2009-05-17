@@ -346,8 +346,6 @@ typedef struct _addrbookent {
 } addrbookent;
 
 
-
-
 #define AJAX (1<<0)
 #define ANONYMOUS (1<<1)
 #define NEED_URL (1<<2)
@@ -367,12 +365,6 @@ typedef struct  _WebcitHandler{
 	StrBuf *Name;
 } WebcitHandler;
 void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, long Flags);
-
-
-
-
-
-
 
 typedef struct _headereval {
 	ExamineMsgHeaderFunc evaluator;
@@ -406,7 +398,9 @@ enum {
 };
 const char *ReqStrs[eNONE];
 
-
+#define NO_AUTH 0
+#define AUTH_COOKIE 1
+#define AUTH_BASIC 2
 
 typedef struct _ParsedHttpHdrs {
 	int http_sock;				/**< HTTP server socket */
@@ -417,7 +411,7 @@ typedef struct _ParsedHttpHdrs {
 	const WebcitHandler *Handler;
 	
 	int DontNeedAuth;
-	int got_cookie;
+	int got_auth;
 	long ContentLength;
 	time_t if_modified_since;
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
@@ -566,6 +560,7 @@ typedef struct _HttpHeader {
 	int HaveEvaluator;
 } OneHttpHeader;
 
+void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F);
 
 
 /* values for WC->current_iconbar */
@@ -837,7 +832,6 @@ void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
 void do_selected_iconbar(void);
 void spawn_another_worker_thread(void);
-void display_rss(const StrBuf *roomname);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);

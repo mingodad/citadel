@@ -948,11 +948,46 @@ int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 void _display_openid_login(void) {display_openid_login(NULL);}
 void _display_reg(void) {display_reg(0);}
 
+void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	const char *Pos = NULL;
+	if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
+		StrBufCutLeft(Line, 6);
+		StrBufDecodeBase64(Line);
+		StrBufExtract_NextToken(hdr->c_username, Line, &Pos, ':');
+		StrBufExtract_NextToken(hdr->c_password, Line, &Pos, ':');
+		hdr->got_auth = AUTH_BASIC;
+	}
+	else 
+		lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
+}
+
+void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->RawCookie = Line;
+	if (hdr->DontNeedAuth)
+		return;
+/*
+	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
+	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
+	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
+*/
+	cookie_to_stuff(Line, &hdr->desired_session,
+			hdr->c_username,
+			hdr->c_password,
+			hdr->c_roomname);
+	hdr->got_auth = AUTH_COOKIE;
+}
+
+
 
 void 
 InitModule_AUTH
 (void)
 {
+	RegisterHeaderHandler(HKEY("COOKIE"), Header_HandleCookie);
+	RegisterHeaderHandler(HKEY("AUTHORIZATION"), Header_HandleAuth);
+
 	WebcitAddUrlHandler(HKEY(""), do_welcome, ANONYMOUS|COOKIEUNNEEDED); /* no url pattern at all? Show login. */
 	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("login"), do_login, ANONYMOUS|COOKIEUNNEEDED);
