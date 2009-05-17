@@ -43,6 +43,8 @@ SESS_ATTACH_FUNCS=`grep SessionAttachModule_ *.c |sed "s;.*:;;" |sort -u`
 SESS_DETACH_FUNCS=`grep SessionDetachModule_ *.c |sed "s;.*:;;" |sort -u`
 SESS_DESTROY_FUNCS=`grep SessionDestroyModule_ *.c |sed "s;.*:;;" |sort -u`
 
+HTTP_DESTROY_FUNCS=`grep HttpDestroyModule_ *.c |sed "s;.*:;;" |sort -u`
+
 
 #SESS_NEW_FUNCS=`grep SessionNewModule_ *.c |sed "s;.*:;;" |sort -u`
 
@@ -75,6 +77,8 @@ void session_new_modules (wcsession *sess);
 void session_attach_modules (wcsession *sess);
 void session_detach_modules (wcsession *sess);
 void session_destroy_modules (wcsession **sess);
+
+void http_destroy_modules (ParsedHttpHdrs *httpreq);
 
 
 
@@ -353,16 +357,50 @@ EOF
 done
 
 
-
-
-
-
 cat <<EOF  >>$C_FILE
 	free((*sess));
 	(*sess) = NULL;
 }
 
+
 EOF
+
+
+
+
+
+#********************************************************************************
+# DESTROY-Httprequest module logic.
+#********************************************************************************
+cat <<EOF >> $C_FILE
+
+void http_destroy_modules (ParsedHttpHdrs *httpreq)
+{
+EOF
+
+for HOOK in $HTTP_DESTROY_FUNCS; do
+HOOKNAME=`echo $HOOK |sed "s;HttpDestroyModule_;;"`
+# Add this entry point to the .c file
+cat <<EOF >> $C_FILE
+#ifdef DBG_PRINNT_HOOKS_AT_START
+	lprintf (CTDL_INFO, "Destructing $HOOKNAME\n");
+#endif
+	$HOOK(httpreq);
+EOF
+# Add this entry point to the .h file
+cat <<EOF >> $H_FILE
+extern void $HOOK(ParsedHttpHdrs *httpreq);
+EOF
+done
+
+cat <<EOF  >>$C_FILE
+}
+EOF
+
+
+
+
+
 
 
 cat <<EOF  >> $H_FILE

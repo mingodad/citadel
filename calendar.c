@@ -1044,7 +1044,7 @@ void load_ical_object(long msgnum, int unread,
 	) 
 {
 	StrBuf *Buf;
-	StrBuf *Data;
+	StrBuf *Data = NULL;
 	const char *bptr;
 	int Done = 0;
 	char from[128] = "";
@@ -1127,7 +1127,8 @@ void load_ical_object(long msgnum, int unread,
 				}
 			}
 		case 2:
-			Data = NewStrBufPlain(NULL, msg4_content_length * 2);
+			if (Data == NULL)
+				Data = NewStrBufPlain(NULL, msg4_content_length * 2);
 			if (msg4_content_length > 0) {
 				StrBuf_ServGetBLOBBuffered(Data, msg4_content_length);
 				phase ++;
@@ -1157,8 +1158,8 @@ void load_ical_object(long msgnum, int unread,
 				    which_kind,
 				    CallBack,
 				    calv);
-		FreeStrBuf (&Data);
 	}
+	FreeStrBuf (&Data);
 
 	icalmemory_free_ring();
 }

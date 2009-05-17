@@ -234,6 +234,7 @@ int GetConnected (void)
 			wprintf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));
 			end_burst();
 			end_webcit_session();
+			FreeStrBuf(&Buf);
 			return 1;
 		}
 
@@ -261,6 +262,7 @@ int GetConnected (void)
 			hprintf("Content-type: text/plain; charset=utf-8\r\n");
 			end_burst();
 			end_webcit_session();
+			FreeStrBuf(&Buf);
 			return 1;
 		}
 		if (WCC->serv_info->serv_rev_level < MINIMUM_CIT_VERSION) {
@@ -279,8 +281,10 @@ int GetConnected (void)
 			hprintf("Content-type: text/plain; charset=utf-8\r\n");
 			end_burst();
 			end_webcit_session();
+			FreeStrBuf(&Buf);
 			return 1;
 		}
+		FreeStrBuf(&Buf);
 	}
 	return 0;
 }
