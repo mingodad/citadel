@@ -270,7 +270,7 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 			Args, 
 			StrLength(Hdr->ReqLine) -
 			(Args - ChrPtr(Hdr->ReqLine)));
-		StrBufCutAt(Hdr->ReqLine, 0, Args);
+		StrBufCutAt(Hdr->ReqLine, 0, Args - 1);
 	} /* don't parse them yet, maybe we don't even care... */
 	
 	/* now lookup what we are going to do with this... */
@@ -440,13 +440,6 @@ void context_loop(int *sock)
 */
 
 /*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
-
-
-///HttpHeaderHandler
-
-
-
-
 
 	/*
 	 * If the request is prefixed by "/webcit" then chop that off.  This

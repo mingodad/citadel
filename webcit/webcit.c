@@ -22,6 +22,15 @@ static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 StrBuf *csslocal = NULL;
 HashList *HandlerHash = NULL;
 
+
+void DeleteWebcitHandler(void *vHandler)
+{
+	WebcitHandler *Handler = (WebcitHandler*) vHandler;
+	FreeStrBuf(&Handler->Name);
+	free (Handler);
+
+}
+
 void WebcitAddUrlHandler(const char * UrlString, 
 			 long UrlSLen, 
 			 WebcitHandlerFunc F, 
@@ -31,7 +40,8 @@ void WebcitAddUrlHandler(const char * UrlString,
 	NewHandler = (WebcitHandler*) malloc(sizeof(WebcitHandler));
 	NewHandler->F = F;
 	NewHandler->Flags = Flags;
-	Put(HandlerHash, UrlString, UrlSLen, NewHandler, NULL);
+	NewHandler->Name = NewStrBufPlain(UrlString, UrlSLen);
+	Put(HandlerHash, UrlString, UrlSLen, NewHandler, DeleteWebcitHandler);
 }
 
 
