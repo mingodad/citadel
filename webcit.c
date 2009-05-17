@@ -27,11 +27,7 @@ void WebcitAddUrlHandler(const char * UrlString,
 			 WebcitHandlerFunc F, 
 			 long Flags)
 {
-	WebcitHandler *NewHandler;
-
-	if (HandlerHash == NULL)
-		HandlerHash = NewHash(1, NULL);
-	
+	WebcitHandler *NewHandler;	
 	NewHandler = (WebcitHandler*) malloc(sizeof(WebcitHandler));
 	NewHandler->F = F;
 	NewHandler->Flags = Flags;
@@ -296,7 +292,7 @@ void print_menu_box(char* Title, char *Class, int nLines, ...)
 /*
  * dump out static pages from disk
  */
-void output_static(const char *what)
+void output_static(void)
 {
 	int fd;
 	struct stat statbuf;
@@ -305,7 +301,7 @@ void output_static(const char *what)
 	const char *content_type;
 	int len;
 	const char *Err;
-
+	char what[] = "TODO";
 	fd = open(what, O_RDONLY);
 	if (fd <= 0) {
 		lprintf(9, "output_static('%s')  -- NOT FOUND --\n", what);
@@ -448,6 +444,55 @@ void end_ajax_response(void) {
         wDumpContent(0);
 }
 
+	/* If it's a "force 404" situation then display the error and bail. */
+void do_404(void)
+{
+	hprintf("HTTP/1.1 404 Not found\r\n");
+	hprintf("Content-Type: text/plain\r\n");
+	wprintf("Not found\r\n");
+	end_burst();
+}
+/* TODO: staticdata
+{
+	/* Static content can be sent without connecting to Citadel. * /
+	is_static = 0;
+	for (a=0; a<ndirs && ! is_static; ++a) {
+		if (!strcasecmp(action, (char*)static_content_dirs[a])) { /* map web to disk location * /
+			is_static = 1;
+			n_static = a;
+		}
+	}
+	if (is_static) {
+		if (nBackDots < 2)
+		{
+			snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s/%s/%s",
+				 static_dirs[n_static], 
+				 index[1], index[2], index[3], index[4], index[5], index[6], index[7]);
+			for (a=0; a<8; ++a) {
+				if (buf[strlen(buf)-1] == '/') {
+					buf[strlen(buf)-1] = 0;
+				}
+			}
+			for (a = 0; a < strlen(buf); ++a) {
+				if (isspace(buf[a])) {
+					buf[a] = 0;
+				}
+			}
+			output_static(buf);
+		}
+		else 
+		{
+			lprintf(9, "Suspicious request. Ignoring.");
+			hprintf("HTTP/1.1 404 Security check failed\r\n");
+			hprintf("Content-Type: text/plain\r\n\r\n");
+			wprintf("You have sent a malformed or invalid request.\r\n");
+			end_burst();
+		}
+		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect * /
+	}
+	}*/
+
+
 /*
  * Wraps a Citadel server command in an AJAX transaction.
  */
@@ -540,79 +585,68 @@ void seconds_since_last_gexp(void)
 	}
 }
 
-/**
- * \brief Detects a 'mobile' user agent 
- */
-int is_mobile_ua(char *user_agent) {
-      if (strstr(user_agent,"iPhone OS") != NULL) {
-	return 1;
-      } else if (strstr(user_agent,"Windows CE") != NULL) {
-	return 1;
-      } else if (strstr(user_agent,"SymbianOS") != NULL) {
-	return 1;
-      } else if (strstr(user_agent, "Opera Mobi") != NULL) {
-	return 1;
-      } else if (strstr(user_agent, "Firefox/2.0.0 Opera 9.51 Beta") != NULL) {
-	      /*  For some reason a new install of Opera 9.51beta decided to spoof. */
-	  return 1;
-	  }
-      return 0;
+
+
+void ReadPostData(void)
+{
+	const char *content_end = NULL;
+	int body_start = 0;
+	wcsession *WCC = WC;
+	StrBuf *content = NULL;
+	
+	content = NewStrBuf();
+
+	StrBufPrintf(content, 
+		     "Content-type: %s\n"
+		     "Content-length: %ld\n\n",
+		     ChrPtr(WCC->Hdr->ContentType), 
+			     WCC->Hdr->ContentLength);
+/*
+  hprintf("Content-type: %s\n"
+  "Content-length: %d\n\n",
+  ContentType, ContentLength);
+*/
+	body_start = StrLength(content);
+
+	/** Read the entire input data at once. */
+	client_read_to(&WCC->Hdr->http_sock, 
+		       content, 
+		       WCC->Hdr->ReadBuf, &WCC->Hdr->Pos,
+		       WCC->Hdr->ContentLength,
+		       SLEEPING);
+	
+	if (!strncasecmp(ChrPtr(WCC->Hdr->ContentType), "application/x-www-form-urlencoded", 33)) {
+		StrBufCutLeft(content, body_start);
+		ParseURLParams(content);
+	} else if (!strncasecmp(ChrPtr(WCC->Hdr->ContentType), "multipart", 9)) {
+		content_end = ChrPtr(content) + 
+			WCC->Hdr->ContentLength + 
+			body_start;
+		mime_parser(ChrPtr(content), content_end, *upload_handler, NULL, NULL, NULL, 0);
+	}
+	FreeStrBuf(&content);
 }
 
 
 /*
  * Entry point for WebCit transaction
  */
-void session_loop(StrBuf *ReqLine, 
-		  StrBuf *ReadBuf,
-		  const char **Pos)
+void session_loop(void)
 {
+	int Flags = 0;
+	int xhttp;
 	StrBuf *Buf;
-	const char *pch, *pchs, *pche;
-	void *vLine;
-	char action[1024];
-	char arg[8][128];
-	size_t sizes[10];
-	char *index[10];
+	
 	char buf[SIZ];
-	int a, nBackDots, nEmpty;
-	int ContentLength = 0;
-	StrBuf *ContentType = NULL;
-	StrBuf *UrlLine = NULL;
-	StrBuf *content = NULL;
-	const char *content_end = NULL;
-	StrBuf *browser_host = NULL;
-	char user_agent[256];
-	int body_start = 0;
-	int is_static = 0;
-	int n_static = 0;
-	int len = 0;
-	void *vHandler;
-	WebcitHandler *Handler;
-	struct timeval tx_start;
-	struct timeval tx_finish;
 
 	/*
 	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
 	 */
-	StrBuf *c_username;
-	StrBuf *c_password;
-	StrBuf *c_roomname;
-	char c_httpauth_string[SIZ];
-	StrBuf *c_httpauth_user;
-	StrBuf *c_httpauth_pass;
 	wcsession *WCC;
 
-	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
 	
 	Buf = NewStrBuf();
-	c_username = NewStrBuf();
-	c_password = NewStrBuf();
-	c_roomname = NewStrBuf();
-	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
-	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
-	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
 
 	WCC= WC;
 
@@ -620,9 +654,10 @@ void session_loop(StrBuf *ReqLine,
 	WCC->upload = NULL;
 	WCC->is_mobile = 0;
 	WCC->trailing_javascript = NewStrBuf();
-	WCC->nWildfireHeaders = 0;
-
-	/** Figure out the action */
+	WCC->Hdr->nWildfireHeaders = 0;
+	if (WCC->Hdr->Handler != NULL)
+		Flags = WCC->Hdr->Handler->Flags; /* so we can temporarily add our own... */
+	/** Figure out the action * /
 	index[0] = action;
 	sizes[0] = sizeof action;
 	for (a=1; a<9; a++)
@@ -632,168 +667,26 @@ void session_loop(StrBuf *ReqLine,
 	}
 	nBackDots = 0;
 	nEmpty = 0;
-	for ( a = 0; a < 9; ++a)
-	{
-		extract_token(index[a], ChrPtr(ReqLine), a + 1, '/', sizes[a]);
-		if (strstr(index[a], "?")) *strstr(index[a], "?") = 0;
-		if (strstr(index[a], "&")) *strstr(index[a], "&") = 0;
-		if (strstr(index[a], " ")) *strstr(index[a], " ") = 0;
-		if ((index[a][0] == '.') && (index[a][1] == '.'))
-			nBackDots++;
-		if (index[a][0] == '\0')
-			nEmpty++;
-	}
-
-
-	if (GetHash(WCC->headers, HKEY("COOKIE"), &vLine) && 
-	    (vLine != NULL)){
-		cookie_to_stuff((StrBuf *)vLine, NULL,
-				c_username,
-				c_password,
-				c_roomname);
-	}
-	if (GetHash(WCC->headers, HKEY("AUTHORIZATION"), &vLine) &&
-	    (vLine!=NULL)) {
-		StrBufDecodeBase64((StrBuf*)vLine);
-		StrBufExtract_token(c_httpauth_user, (StrBuf*)vLine, 0, ':');
-		StrBufExtract_token(c_httpauth_pass, (StrBuf*)vLine, 1, ':');
-	}
-	if (GetHash(WCC->headers, HKEY("CONTENT-LENGTH"), &vLine) &&
-	    (vLine!=NULL)) {
-		ContentLength = StrToi((StrBuf*)vLine);
-	}
-	if (GetHash(WCC->headers, HKEY("CONTENT-TYPE"), &vLine) &&
-	    (vLine!=NULL)) {
-		ContentType = (StrBuf*)vLine;
-	}
-	if (GetHash(WCC->headers, HKEY("USER-AGENT"), &vLine) &&
-	    (vLine!=NULL)) {
-		safestrncpy(user_agent, ChrPtr((StrBuf*)vLine), sizeof user_agent);
-#ifdef TECH_PREVIEW
-		if ((WCC->is_mobile < 0) && is_mobile_ua(&buf[12])) {			
-			WCC->is_mobile = 1;
-		}
-		else {
-			WCC->is_mobile = 0;
-		}
-#endif
-	}
-	if ((follow_xff) &&
-	    GetHash(WCC->headers, HKEY("X-FORWARDED-HOST"), &vLine) &&
-	    (vLine != NULL)) {
-		WCC->http_host = (StrBuf*)vLine;
-	}
-	if ((StrLength(WCC->http_host) == 0) && 
-	    GetHash(WCC->headers, HKEY("HOST"), &vLine) &&
-	    (vLine!=NULL)) {
-		WCC->http_host = (StrBuf*)vLine;
-	}
-
-	if (GetHash(WCC->headers, HKEY("X-FORWARDED-FOR"), &vLine) &&
-	    (vLine!=NULL)) {
-		browser_host = (StrBuf*) vLine;
-
-		while (StrBufNum_tokens(browser_host, ',') > 1) {
-			StrBufRemove_token(browser_host, 0, ',');
-		}
-		StrBufTrim(browser_host);
-	}
-
-	if (ContentLength > 0) {
-		content = NewStrBuf();
-		StrBufPrintf(content, "Content-type: %s\n"
-			 "Content-length: %d\n\n",
-			 ChrPtr(ContentType), ContentLength);
 /*
-		hprintf("Content-type: %s\n"
-			"Content-length: %d\n\n",
-			ContentType, ContentLength);
+  for ( a = 0; a < 9; ++a)
+  {
+  extract_token(index[a], ChrPtr(ReqLine), a + 1, '/', sizes[a]);
+  if (strstr(index[a], "?")) *strstr(index[a], "?") = 0;
+  if (strstr(index[a], "&")) *strstr(index[a], "&") = 0;
+  if (strstr(index[a], " ")) *strstr(index[a], " ") = 0;
+  if ((index[a][0] == '.') && (index[a][1] == '.'))
+  nBackDots++;
+  if (index[a][0] == '\0')
+  nEmpty++;
+  }
 */
-		body_start = StrLength(content);
-
-		/** Read the entire input data at once. */
-		client_read_to(&WCC->http_sock, 
-			       content, 
-			       ReadBuf, Pos,
-			       ContentLength,
-			       SLEEPING);
-
-		if (!strncasecmp(ChrPtr(ContentType), "application/x-www-form-urlencoded", 33)) {
-			StrBufCutLeft(content, body_start);
-			ParseURLParams(content);
-		} else if (!strncasecmp(ChrPtr(ContentType), "multipart", 9)) {
-			content_end = ChrPtr(content) + ContentLength + body_start;
-			mime_parser(ChrPtr(content), content_end, *upload_handler, NULL, NULL, NULL, 0);
-		}
-	} else {
-		content = NULL;
+	if (WCC->Hdr->ContentLength > 0) {
+		ReadPostData();
 	}
-
-	/* make a note of where we are in case the user wants to save it */
-	WCC->this_page = NewStrBufDup(ReqLine);
-	StrBufRemove_token(WCC->this_page, 2, ' ');
-	StrBufRemove_token(WCC->this_page, 0, ' ');
 
 	/* If there are variables in the URL, we must grab them now */
-	UrlLine = NewStrBufDup(ReqLine);
-	len = StrLength(UrlLine);
-	pch = pchs = ChrPtr(UrlLine);
-	pche = pchs + len;
-	while (pch < pche) {
-		if ((*pch == '?') || (*pch == '&')) {
-			StrBufCutLeft(UrlLine, pch - pchs + 1);
-			ParseURLParams(UrlLine);
-			break;
-		}
-		pch ++;
-	}
-	FreeStrBuf(&UrlLine);
-
-	/* If it's a "force 404" situation then display the error and bail. */
-	if (!strcmp(action, "404")) {
-		hprintf("HTTP/1.1 404 Not found\r\n");
-		hprintf("Content-Type: text/plain\r\n");
-		wprintf("Not found\r\n");
-		end_burst();
-		goto SKIP_ALL_THIS_CRAP;
-	}
-
-	/* Static content can be sent without connecting to Citadel. */
-	is_static = 0;
-	for (a=0; a<ndirs && ! is_static; ++a) {
-		if (!strcasecmp(action, (char*)static_content_dirs[a])) { /* map web to disk location */
-			is_static = 1;
-			n_static = a;
-		}
-	}
-	if (is_static) {
-		if (nBackDots < 2)
-		{
-			snprintf(buf, sizeof buf, "%s/%s/%s/%s/%s/%s/%s/%s",
-				 static_dirs[n_static], 
-				 index[1], index[2], index[3], index[4], index[5], index[6], index[7]);
-			for (a=0; a<8; ++a) {
-				if (buf[strlen(buf)-1] == '/') {
-					buf[strlen(buf)-1] = 0;
-				}
-			}
-			for (a = 0; a < strlen(buf); ++a) {
-				if (isspace(buf[a])) {
-					buf[a] = 0;
-				}
-			}
-			output_static(buf);
-		}
-		else 
-		{
-			lprintf(9, "Suspicious request. Ignoring.");
-			hprintf("HTTP/1.1 404 Security check failed\r\n");
-			hprintf("Content-Type: text/plain\r\n\r\n");
-			wprintf("You have sent a malformed or invalid request.\r\n");
-			end_burst();
-		}
-		goto SKIP_ALL_THIS_CRAP;	/* Don't try to connect */
-	}
+	if (WCC->Hdr->PlainArgs != NULL)
+		ParseURLParams(WCC->Hdr->PlainArgs);
 
 	/* If the client sent a nonce that is incorrect, kill the request. */
 	if (havebstr("nonce")) {
@@ -814,123 +707,28 @@ void session_loop(StrBuf *ReqLine,
 	 * connection now.
 	 */
 	if (!WCC->connected) {
-		if (WCC->ReadBuf == NULL)
-			WCC->ReadBuf = NewStrBuf();
-		if (!strcasecmp(ctdlhost, "uds")) {
-			/* unix domain socket */
-			snprintf(buf, SIZ, "%s/citadel.socket", ctdlport);
-			WCC->serv_sock = uds_connectsock(buf);
-		}
-		else {
-			/* tcp socket */
-			WCC->serv_sock = tcp_connectsock(ctdlhost, ctdlport);
-		}
-
-		if (WCC->serv_sock < 0) {
-			do_logout();
-			FreeStrBuf(&WCC->ReadBuf);
+		if (GetConnected ())
 			goto SKIP_ALL_THIS_CRAP;
-		}
-		else {
-			WCC->connected = 1;
-			serv_getln(buf, sizeof buf);	/* get the server greeting */
-
-			/* Are there too many users already logged in? */
-			if (!strncmp(buf, "571", 3)) {
-				wprintf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));
-				end_burst();
-				end_webcit_session();
-				goto SKIP_ALL_THIS_CRAP;
-			}
-
-			/*
-			 * From what host is our user connecting?  Go with
-			 * the host at the other end of the HTTP socket,
-			 * unless we are following X-Forwarded-For: headers
-			 * and such a header has already turned up something.
-			 */
-			if ( (!follow_xff) || (StrLength(browser_host) == 0) ) {
-				if (browser_host == NULL) {
-					browser_host = NewStrBuf();
-					Put(WCC->headers, HKEY("FreeMeWithTheOtherHeaders"), 
-					    browser_host, HFreeStrBuf);
-				}
-				locate_host(browser_host, WCC->http_sock);
-			}
-			if (WCC->serv_info == NULL)
-				WCC->serv_info = get_serv_info(browser_host, user_agent);
-			if (WCC->serv_info == NULL){
-				begin_burst();
-				wprintf(_("Received unexpected answer from Citadel "
-					  "server; bailing out."));
-				hprintf("HTTP/1.1 200 OK\r\n");
-				hprintf("Content-type: text/plain; charset=utf-8\r\n");
-				end_burst();
-				end_webcit_session();
-				goto SKIP_ALL_THIS_CRAP;
-			}
-			if (WCC->serv_info->serv_rev_level < MINIMUM_CIT_VERSION) {
-				begin_burst();
-				wprintf(_("You are connected to a Citadel "
-					"server running Citadel %d.%02d. \n"
-					"In order to run this version of WebCit "
-					"you must also have Citadel %d.%02d or"
-					" newer.\n\n\n"),
-						WCC->serv_info->serv_rev_level / 100,
-						WCC->serv_info->serv_rev_level % 100,
-						MINIMUM_CIT_VERSION / 100,
-						MINIMUM_CIT_VERSION % 100
-					);
-				hprintf("HTTP/1.1 200 OK\r\n");
-				hprintf("Content-type: text/plain; charset=utf-8\r\n");
-				end_burst();
-				end_webcit_session();
-				goto SKIP_ALL_THIS_CRAP;
-			}
-		}
 	}
 
-	/*
-	 * Functions which can be performed without logging in
-	 */
-	if (!strcasecmp(action, "listsub")) {
-		do_listsub();
-		goto SKIP_ALL_THIS_CRAP;
-	}
-	if (!strcasecmp(action, "freebusy")) {
-		do_freebusy(ChrPtr(ReqLine));
-		goto SKIP_ALL_THIS_CRAP;
-	}
 
 	/*
 	 * If we're not logged in, but we have HTTP Authentication data,
 	 * try logging in to Citadel using that.
 	 */
 	if ((!WCC->logged_in)
-	    && (StrLength(c_httpauth_user) > 0)
-	    && (StrLength(c_httpauth_pass) > 0))
+	    && (StrLength(WCC->Hdr->c_username) > 0)
+	    && (StrLength(WCC->Hdr->c_password) > 0))
 	{
 		FlushStrBuf(Buf);
-		serv_printf("USER %s", ChrPtr(c_httpauth_user));
+		serv_printf("USER %s", ChrPtr(WCC->Hdr->c_username));
 		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) == 3) {
-			serv_printf("PASS %s", ChrPtr(c_httpauth_pass));
+			serv_printf("PASS %s", ChrPtr(WCC->Hdr->c_password));
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 2) {
-				become_logged_in(c_httpauth_user,
-						c_httpauth_pass, Buf);
-				if (WCC->httpauth_user == NULL)
-					WCC->httpauth_user = NewStrBufDup(c_httpauth_user);
-				else {
-					FlushStrBuf(WCC->httpauth_user);
-					StrBufAppendBuf(WCC->httpauth_user, c_httpauth_user, 0);
-				}
-				if (WCC->httpauth_pass == NULL)
-					WCC->httpauth_pass = NewStrBufDup(c_httpauth_pass);
-				else {
-					FlushStrBuf(WCC->httpauth_pass);
-					StrBufAppendBuf(WCC->httpauth_pass, c_httpauth_pass, 0);
-				}
+				become_logged_in(WCC->Hdr->c_username,
+						 WCC->Hdr->c_password, Buf);
 			} else {
 				/* Should only display when password is wrong */
 				authorization_required(&buf[4]);
@@ -940,63 +738,18 @@ void session_loop(StrBuf *ReqLine,
 		}
 	}
 
-	/* This needs to run early */
-#ifdef TECH_PREVIEW
-	if (!strcasecmp(action, "rss")) {
-		display_rss(sbstr("room"));
-		goto SKIP_ALL_THIS_CRAP;
-	}
-#endif
-
-	/* 
-	 * The GroupDAV stuff relies on HTTP authentication instead of
-	 * our session's authentication.
-	 */
-	if (!strncasecmp(action, "groupdav", 8)) {
-		groupdav_main(WCC->headers, 
-			      ReqLine, 
-			      ContentType, /* do GroupDAV methods */
-			      ContentLength, content, body_start);
-		if (!WCC->logged_in) {
-			WCC->killthis = 1;	/* If not logged in, don't */
-		}				/* keep the session active */
-		goto SKIP_ALL_THIS_CRAP;
-	}
-
-
-	/*
-	 * Automatically send requests with any method other than GET or
-	 * POST to the GroupDAV code as well.
-	 */
-	if ((WCC->eReqType != eGET) &&
-	    (WCC->eReqType != ePOST) &&
-	    (WCC->eReqType != eHEAD)) {
-		groupdav_main(WCC->headers, ReqLine, 
-			      ContentType, /** do GroupDAV methods */
-			      ContentLength, content, body_start);
-		if (!WCC->logged_in) {
-			WCC->killthis = 1;	/** If not logged in, don't */
-		}				/** keep the session active */
-		goto SKIP_ALL_THIS_CRAP;
-	}
+	xhttp = (WCC->Hdr->eReqType != eGET) &&
+		(WCC->Hdr->eReqType != ePOST) &&
+		(WCC->Hdr->eReqType != eHEAD);
 
 	/*
 	 * If we're not logged in, but we have username and password cookies
 	 * supplied by the browser, try using them to log in.
 	 */
 	if ((!WCC->logged_in)
-	   && (StrLength(c_username)>0)
-	   && (StrLength(c_password)>0)) {
-		serv_printf("USER %s", ChrPtr(c_username));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 3) {
-			serv_printf("PASS %s", ChrPtr(c_password));
-			StrBuf_ServGetln(Buf);
-			if (GetServerStatus(Buf, NULL) == 2) {
-				become_logged_in(c_username, c_password, Buf);
-				get_preference("default_header_charset", &WCC->DefaultCharset);
-			}
-		}
+	   && (StrLength(WCC->Hdr->c_username)>0)
+	   && (StrLength(WCC->Hdr->c_password)>0)) {
+		ReEstablish_Session();
 	}
 
 	/*
@@ -1004,35 +757,19 @@ void session_loop(StrBuf *ReqLine,
 	 * prior to doing anything else.
 	 */
 	if (havebstr("gotofirst")) {
-		gotoroom(sbstr("gotofirst"));	/* do this quietly to avoid session output! */
+		int ret;
+		ret = gotoroom(sbstr("gotofirst"));	/* do this quietly to avoid session output! */
+		if (ret != 0)
+			lprintf(1, "GOTOFIRST: Unable to change to [%s]; Reason: %d\n", bstr("gotofirst"), ret);
 	}
 
-	/*
-	 * If we don't have a current room, but a cookie specifying the
-	 * current room is supplied, make an effort to go there.
-	 */
-	if ((StrLength(WCC->wc_roomname) == 0) && (StrLength(c_roomname) > 0)) {
-		serv_printf("GOTO %s", ChrPtr(c_roomname));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			if (WCC->wc_roomname == NULL) {
-				WCC->wc_roomname = NewStrBufDup(c_roomname);
-			}
-			else {
-				FlushStrBuf(WCC->wc_roomname);
-				StrBufAppendBuf(WCC->wc_roomname, c_roomname, 0);
-			}
-		}
-	}
-	
-	GetHash(HandlerHash, action, strlen(action) /* TODO*/, &vHandler),
-		Handler = (WebcitHandler*) vHandler;
-	if (Handler != NULL) {
-		if (!WCC->logged_in && ((Handler->Flags & ANONYMOUS) == 0)) {
+	if (WCC->Hdr->Handler != NULL) {
+		if (!WCC->logged_in && ((WCC->Hdr->Handler->Flags & ANONYMOUS) == 0)) {
 			display_login(NULL);
 		}
 		else {
-			if((Handler->Flags & NEED_URL)) {
+/*
+			if((WCC->Hdr->Handler->Flags & NEED_URL)) {
 				if (WCC->UrlFragment1 == NULL)
 					WCC->UrlFragment1 = NewStrBuf();
 				if (WCC->UrlFragment2 == NULL)
@@ -1046,10 +783,11 @@ void session_loop(StrBuf *ReqLine,
 				StrBufPlain(WCC->UrlFragment3, index[2], -1);
 				StrBufPlain(WCC->UrlFragment4, index[3], -1);
 			}
-			if ((Handler->Flags & AJAX) != 0)
+*/
+			if ((WCC->Hdr->Handler->Flags & AJAX) != 0)
 				begin_ajax_response();
-			Handler->F();
-			if ((Handler->Flags & AJAX) != 0)
+			WCC->Hdr->Handler->F();
+			if ((WCC->Hdr->Handler->Flags & AJAX) != 0)
 				end_ajax_response();
 		}
 	}
@@ -1067,26 +805,8 @@ SKIP_ALL_THIS_CRAP:
 		WCC->SavePrefsToServer = 0;
 	}
 	FreeStrBuf(&Buf);
-	FreeStrBuf(&c_username);
-	FreeStrBuf(&c_password);
-	FreeStrBuf(&c_roomname);
-	FreeStrBuf(&c_httpauth_user);
-	FreeStrBuf(&c_httpauth_pass);
-	FreeStrBuf(&WCC->this_page);
 	fflush(stdout);
-	if (content != NULL) {
-		FreeStrBuf(&content);
-		content = NULL;
-	}
-	WCC->http_host = NULL;
-
-	/* How long did this transaction take? */
-	gettimeofday(&tx_finish, NULL);
-	
-	lprintf(9, "Transaction completed in %ld.%06ld seconds.\n",
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
-	);
+	WCC->Hdr->http_host = NULL;
 }
 
 
@@ -1145,14 +865,43 @@ void tmplput_csslocal(StrBuf *Target, WCTemplputParams *TP)
 
 extern char static_local_dir[PATH_MAX];
 
+
+	/* TODO: integrate this into the static startup logic
+
+	 * While we're at it, gracefully handle requests for the
+	 * robots.txt and favicon.ico files.
+	 * /
+	if ((StrLength(ReqLine) >= 11) &&
+	    !strncasecmp(ChrPtr(ReqLine), "/robots.txt", 11)) {
+		StrBufPlain(ReqLine, 
+			    HKEY("/static/robots.txt"
+				 "?force_close_session=yes HTTP/1.1"));
+		Hdr.eReqType = eGET;
+	}
+	else if ((StrLength(ReqLine) >= 11) &&
+		 !strncasecmp(ChrPtr(ReqLine), "/favicon.ico", 12)) {
+		StrBufPlain(ReqLine, HKEY("/static/favicon.ico"));
+		Hdr.eReqType = eGET;
+	}
+
+*/
 void 
 InitModule_WEBCIT
 (void)
 {
 	char dir[SIZ];
+	WebcitAddUrlHandler(HKEY("404"), do_404, ANONYMOUS|COOKIEUNNEEDED);
+	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+
+	WebcitAddUrlHandler(HKEY("robots.txt"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("favicon.ico"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("static"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("static.local"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("tinymce"), output_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+
 	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX);
+	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("ajax_servcmd"), ajax_servcmd, 0);
 
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
@@ -1201,7 +950,7 @@ void
 SessionDetachModule_WEBCIT
 (wcsession *sess)
 {
-	DeleteHash(&sess->urlstrings);
+	DeleteHash(&sess->Hdr->urlstrings);// TODO?
 	if (sess->upload_length > 0) {
 		free(sess->upload);
 		sess->upload_length = 0;
@@ -1224,10 +973,12 @@ SessionDestroyModule_WEBCIT
 {
 	FreeStrBuf(&sess->WBuf);
 	FreeStrBuf(&sess->HBuf);
+	/*
 	FreeStrBuf(&sess->UrlFragment1);
 	FreeStrBuf(&sess->UrlFragment2);
 	FreeStrBuf(&sess->UrlFragment3);
 	FreeStrBuf(&sess->UrlFragment4);
+	*/
 	FreeStrBuf(&sess->ImportantMsg);
 }
 

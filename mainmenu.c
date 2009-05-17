@@ -62,7 +62,7 @@ void display_generic(void)
 	wprintf("<br /><textarea name=\"g_input\" rows=10 cols=80 width=80></textarea><br />\n");
 
 	wprintf("<font size=-2>");
-	wprintf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), ChrPtr(WC->http_host));
+	wprintf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), ChrPtr(WC->Hdr->http_host));
 	wprintf("</font>\n");
 	wprintf("<input type=\"submit\" name=\"sc_button\" value=\"%s\">", _("Send command"));
 	wprintf("&nbsp;");
@@ -200,7 +200,7 @@ void display_shutdown(void)
 		output_headers(1, 0, 0, 0, 1, 0);
 		DoTemplate(HKEY("display_serverrestart"), NULL, &NoCtx);
 		end_burst();
-		lingering_close(WC->http_sock);
+		lingering_close(WC->Hdr->http_sock);
 		sleeeeeeeeeep(10);
 		serv_printf("NOOP");
 		serv_printf("NOOP");

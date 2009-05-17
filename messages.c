@@ -365,9 +365,9 @@ void handle_one_message(void)
 	const StrBuf *Tmpl;
 	StrBuf *CmdBuf = NULL;
 
-	msgnum = StrTol(WCC->UrlFragment3);
-	gotoroom(WCC->UrlFragment2);
-	switch (WCC->eReqType)
+	//msgnum = StrTol(WCC->UrlFragment3);
+	//gotoroom(WCC->UrlFragment2);
+	switch (WCC->Hdr->eReqType)
 	{
 	case eGET:
 	case ePOST:
@@ -395,7 +395,7 @@ void handle_one_message(void)
 	case eCOPY:
 		CopyMessage = 1;
 	case eMOVE:
-		if (GetHash(WCC->headers, HKEY("DESTINATION"), &vLine) &&
+		if (GetHash(WCC->Hdr->HTTPHeaders, HKEY("DESTINATION"), &vLine) &&
 		    (vLine!=NULL)) {
 			Destination = (StrBuf*) vLine;
 			serv_printf("MOVE %ld|%s|%d", msgnum, ChrPtr(Destination), CopyMessage);
@@ -426,8 +426,8 @@ void embed_message(void) {
 	const StrBuf *Tmpl;
 	StrBuf *CmdBuf = NULL;
 
-	msgnum = StrTol(WCC->UrlFragment2);
-	switch (WCC->eReqType)
+	msgnum = StrBufExtract_long(WCC->Hdr->ReqLine, 2, '/');
+	switch (WCC->Hdr->eReqType)
 	{
 	case eGET:
 	case ePOST:
@@ -466,7 +466,7 @@ void print_message(void) {
 	long msgnum = 0L;
 	const StrBuf *Mime;
 
-	msgnum = StrTol(WC->UrlFragment2);
+	msgnum = StrBufExtract_long(WC->Hdr->ReqLine, 2, '/');
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/html\r\n"
@@ -490,7 +490,7 @@ void mobile_message_view(void)
 	long msgnum = 0L;
 	const StrBuf *Mime;
   
-	msgnum = StrTol(WC->UrlFragment2);
+	msgnum = StrBufExtract_long(WC->Hdr->ReqLine, 2, '/');
 	output_headers(1, 0, 0, 0, 0, 1);
 	begin_burst();
 	do_template("msgcontrols", NULL);
@@ -507,7 +507,7 @@ void display_headers(void) {
 	long msgnum = 0L;
 	char buf[1024];
 
-	msgnum = StrTol(WC->UrlFragment2);
+	msgnum = StrBufExtract_long(WC->Hdr->ReqLine, 2, '/');
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/plain\r\n"
@@ -1731,14 +1731,18 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
  */
 void mimepart(int force_download)
 {
+	long msgnum, att;
 	wcsession *WCC = WC;
 	StrBuf *Buf;
 	off_t bytes;
 	StrBuf *ContentType = NewStrBufPlain(HKEY("application/octet-stream"));
 	const char *CT;
 
+	msgnum = StrBufExtract_long(WCC->Hdr->ReqLine, 2, '/');
+	att = StrBufExtract_long(WCC->Hdr->ReqLine, 3, '/');
+
 	Buf = NewStrBuf();
-	serv_printf("OPNA %s|%s", ChrPtr(WCC->UrlFragment2), ChrPtr(WCC->UrlFragment3));
+	serv_printf("OPNA %ld|%ld", msgnum, att);
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
@@ -1754,7 +1758,8 @@ void mimepart(int force_download)
 
 		if (!force_download) {
 			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
-				CT = GuessMimeByFilename(SKEY(WCC->UrlFragment4));
+				StrBufExtract_token(Buf, WCC->Hdr->ReqLine, 4, '/');
+				CT = GuessMimeByFilename(SKEY(Buf));
 			}
 			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
 				CT = GuessMimeType(SKEY(WCC->WBuf));
@@ -1837,15 +1842,29 @@ void download_mimepart(void) {
 }
 
 void view_postpart(void) {
-	postpart(WC->UrlFragment2,
-		 WC->UrlFragment3,
-		 0);
+	StrBuf *filename = NewStrBuf();
+	StrBuf *partnum = NewStrBuf();
+
+	StrBufExtract_token(partnum, WC->Hdr->ReqLine, 2, '/');
+	StrBufExtract_token(filename, WC->Hdr->ReqLine, 3, '/');
+
+	postpart(partnum, filename, 0);
+
+	FreeStrBuf(&filename);
+	FreeStrBuf(&partnum);
 }
 
 void download_postpart(void) {
-	postpart(WC->UrlFragment2,
-		 WC->UrlFragment3,
-		 1);
+	StrBuf *filename = NewStrBuf();
+	StrBuf *partnum = NewStrBuf();
+
+	StrBufExtract_token(partnum, WC->Hdr->ReqLine, 2, '/');
+	StrBufExtract_token(filename, WC->Hdr->ReqLine, 3, '/');
+
+	postpart(partnum, filename, 1);
+
+	FreeStrBuf(&filename);
+	FreeStrBuf(&partnum);
 }
 
 void h_readnew(void) { readloop(readnew);}
@@ -1916,7 +1935,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("delete_msg"), delete_msg, 0);
 	WebcitAddUrlHandler(HKEY("confirm_move_msg"), confirm_move_msg, 0);
 	WebcitAddUrlHandler(HKEY("msg"), embed_message, NEED_URL);
-	WebcitAddUrlHandler(HKEY("message"), handle_one_message, NEED_URL|XHTTP_COMMANDS);
+	WebcitAddUrlHandler(HKEY("message"), handle_one_message, NEED_URL|XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);

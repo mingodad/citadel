@@ -27,7 +27,42 @@ void initialize_axdefs(void) {
 	axdefs[6] = _("Aide");          /* chief */
 }
 
+int ReEstablish_Session(void)
+{
+	StrBuf *Buf = NewStrBuf();
+	wcsession *WCC = WC;
 
+	serv_printf("USER %s", ChrPtr(WCC->Hdr->c_username));
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 3) {
+		serv_printf("PASS %s", ChrPtr(WCC->Hdr->c_password));
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			become_logged_in(WCC->Hdr->c_username, 
+					 WCC->Hdr->c_password, Buf);
+			get_preference("default_header_charset", &WCC->DefaultCharset);
+		}
+	}
+	/*
+	 * If we don't have a current room, but a cookie specifying the
+	 * current room is supplied, make an effort to go there.
+	 */
+	if ((StrLength(WCC->wc_roomname) == 0) && (StrLength(WCC->Hdr->c_roomname) > 0)) {
+		serv_printf("GOTO %s", 
+			    ChrPtr(WCC->Hdr->c_roomname));
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			if (WCC->wc_roomname == NULL) {
+				WCC->wc_roomname = NewStrBufDup(WCC->Hdr->c_roomname);
+			}
+			else {
+				FlushStrBuf(WCC->wc_roomname);
+				StrBufAppendBuf(WCC->wc_roomname, WCC->Hdr->c_roomname, 0);
+			}
+		}
+	}
+	FreeStrBuf(&Buf);
+}
 
 
 /* 
@@ -330,8 +365,8 @@ void do_openid_login(void)
 		snprintf(buf, sizeof buf,
 			"OIDS %s|%s://%s/finalize_openid_login|%s://%s",
 			bstr("openid_url"),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->http_host),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->http_host)
+			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host),
+			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host)
 		);
 
 		serv_puts(buf);
@@ -379,8 +414,8 @@ void finalize_openid_login(void)
 				const char *HKey;
 				HashPos *Cursor;
 				
-				Cursor = GetNewHashPos (WCC->urlstrings, 0);
-				while (GetNextHashPos(WCC->urlstrings, Cursor, &HKLen, &HKey, &U)) {
+				Cursor = GetNewHashPos (WCC->Hdr->urlstrings, 0);
+				while (GetNextHashPos(WCC->Hdr->urlstrings, Cursor, &HKLen, &HKey, &U)) {
 					u = (urlcontent*) U;
 					if (!strncasecmp(u->url_key, "openid.", 7)) {
 						serv_printf("%s|%s", &u->url_key[7], ChrPtr(u->url_data));
@@ -917,13 +952,14 @@ void
 InitModule_AUTH
 (void)
 {
-	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("login"), do_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY(""), do_welcome, ANONYMOUS|COOKIEUNNEEDED); /* no url pattern at all? Show login. */
+	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, ANONYMOUS|COOKIEUNNEEDED);
+	WebcitAddUrlHandler(HKEY("login"), do_login, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("display_openid_login"), _display_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_login"), do_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), finalize_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_manual_create"), openid_manual_create, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("do_logout"), do_logout, 0);
+	WebcitAddUrlHandler(HKEY("do_logout"), do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("validate"), validate, 0);
 	WebcitAddUrlHandler(HKEY("display_reg"), _display_reg, 0);
 	WebcitAddUrlHandler(HKEY("display_changepw"), display_changepw, 0);

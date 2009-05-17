@@ -472,6 +472,7 @@ void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
  */
 
 void embed_room_banner(char *got, int navbar_style) {
+	wcsession *WCC = WC;
 	char buf[256];
 	char buf2[1024];
 	char with_files[256];
@@ -501,9 +502,9 @@ void embed_room_banner(char *got, int navbar_style) {
 	 * we want it to remember the URL as a "/dotskip" one instead of
 	 * a "skip" or "gotonext" or something like that.
 	 */
-	if (WC->this_page == NULL)
-		WC->this_page = NewStrBuf();
-	StrBufPrintf(WC->this_page, 
+	if (WCC->Hdr->this_page == NULL)
+		WCC->Hdr->this_page = NewStrBuf();
+	StrBufPrintf(WCC->Hdr->this_page, 
 		     "dotskip&room=%s",
 		     ChrPtr(WC->wc_roomname));
 
@@ -1818,7 +1819,7 @@ void display_editroom(void)
 		wprintf(_("The URL for subscribe/unsubscribe is: "));
 		wprintf("<TT>%s://%s/listsub</TT></td></tr>\n",
 			(is_https ? "https" : "http"),
-			ChrPtr(WC->http_host));
+			ChrPtr(WC->Hdr->http_host));
 		/* Public posting? */
 		wprintf("<tr><td>");
 		wprintf(_("Allow non-subscribers to mail to this room."));
@@ -3312,7 +3313,7 @@ void set_floordiv_expanded(void) {
 	StrBuf *FloorDiv;
 	
 	FloorDiv = NewStrBuf();
-	StrBufAppendBuf(FloorDiv, WCC->UrlFragment2, 0);
+	StrBufExtract_token(FloorDiv, WCC->Hdr->ReqLine, 2, '/');
 	set_preference("floordiv_expanded", FloorDiv, 1);
 	WCC->floordiv_expanded = FloorDiv;
 }

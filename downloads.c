@@ -235,7 +235,7 @@ void display_mime_icon(void)
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[0], "/diskette_24x.gif");
 	else
 		snprintf (FileBuf, SIZ, "%s%s", static_dirs[3], FileName);
-	output_static(FileBuf);
+	//// TODO! output_static(FileBuf);
 }
 
 void download_file(void)
@@ -249,8 +249,9 @@ void download_file(void)
 	int force_download = 1;
 	
 	Buf = NewStrBuf();
-	StrBufUnescape(WCC->UrlFragment2, 1);
-	serv_printf("OPEN %s", ChrPtr(WCC->UrlFragment2));
+	StrBufExtract_token(Buf, WCC->Hdr->ReqLine, 2, '/');
+	StrBufUnescape(Buf, 1);
+	serv_printf("OPEN %s", ChrPtr(Buf));
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
@@ -386,7 +387,7 @@ void output_image(void)
 	 * when there's no such image on the server.
 	 */
 	StrBufPrintf (Buf, "%s%s", static_dirs[0], "/blank.gif");
-	output_static(ChrPtr(Buf));
+	//// TDODO output_static(ChrPtr(Buf));
 	FreeStrBuf(&Buf);
 }
 

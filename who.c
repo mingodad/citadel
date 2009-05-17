@@ -321,6 +321,8 @@ void
 InitModule_WHO
 (void)
 {
+	
+
 	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
 	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
 

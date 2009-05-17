@@ -19,6 +19,16 @@ wcsession *SessionList = NULL; /**< our sessions ????*/
 
 pthread_key_t MyConKey;         /**< TSD key for MySession() */
 HashList *HttpReqTypes = NULL;
+HashList *HttpHeaderHandler = NULL;
+extern HashList *HandlerHash;
+
+void DestroyHttpHeaderHandler(void *V)
+{
+	OneHttpHeader *pHdr;
+	pHdr = (OneHttpHeader*) V;
+	FreeStrBuf(&pHdr->Val);
+	free(pHdr);
+}
 
 void shutdown_sessions(void)
 {
@@ -165,11 +175,33 @@ int lingering_close(int fd)
 
 
 
+
+/**
+ * \brief Detects a 'mobile' user agent 
+ */
+int is_mobile_ua(char *user_agent) {
+      if (strstr(user_agent,"iPhone OS") != NULL) {
+	return 1;
+      } else if (strstr(user_agent,"Windows CE") != NULL) {
+	return 1;
+      } else if (strstr(user_agent,"SymbianOS") != NULL) {
+	return 1;
+      } else if (strstr(user_agent, "Opera Mobi") != NULL) {
+	return 1;
+      } else if (strstr(user_agent, "Firefox/2.0.0 Opera 9.51 Beta") != NULL) {
+	      /*  For some reason a new install of Opera 9.51beta decided to spoof. */
+	  return 1;
+	  }
+      return 0;
+}
+
+
+
 /*
  * Look for commonly-found probes of malware such as worms, viruses, trojans, and Microsoft Office.
  * Short-circuit these requests so we don't have to send them through the full processing loop.
  */
-int is_bogus(StrBuf *http_cmd) {
+int is_bogus(StrBuf *http_cmd) {////TODO!
 	const char *url;
 	int i, max;
 	const char *bogus_prefixes[] = {
@@ -197,93 +229,126 @@ int is_bogus(StrBuf *http_cmd) {
 }
 
 
+int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
+{
+	const char *Args;
+	void *vLine, *vHandler;
+	const char *Pos = NULL;
+
+
+	Hdr->ReqLine = Line;
+	/* The requesttype... GET, POST... */
+	StrBufExtract_token(Buf, Hdr->ReqLine, 0, ' ');
+	if (GetHash(HttpReqTypes, SKEY(Buf), &vLine) &&
+	    (vLine != NULL))
+	{
+		Hdr->eReqType = *(long*)vLine;
+	}
+	else {
+		Hdr->eReqType = eGET;
+		return 1;
+	}
+	StrBufCutLeft(Hdr->ReqLine, StrLength(Buf) + 1);
+
+	/* the HTTP Version... */
+	StrBufExtract_token(Buf, Hdr->ReqLine, 1, ' ');
+	StrBufCutRight(Hdr->ReqLine, StrLength(Buf) + 1);
+	if ((StrLength(Buf) == 0) ||
+	    is_bogus(Hdr->ReqLine)) {
+		Hdr->eReqType = eGET;
+		return 1;
+	}
+
+	Hdr->this_page = NewStrBufDup(Hdr->ReqLine);
+	/* chop Filename / query arguments */
+	Args = strchr(ChrPtr(Hdr->ReqLine), '?');
+	if (Args == NULL) /* whe're not that picky about params... TODO: this will spoil '&' in filenames.*/
+		Args = strchr(ChrPtr(Hdr->ReqLine), '&');
+	if (Args != NULL) {
+		Hdr->PlainArgs = NewStrBufPlain(
+			Args, 
+			StrLength(Hdr->ReqLine) -
+			(Args - ChrPtr(Hdr->ReqLine)));
+		StrBufCutAt(Hdr->ReqLine, 0, Args);
+	} /* don't parse them yet, maybe we don't even care... */
+	
+	/* now lookup what we are going to do with this... */
+	/* skip first slash */
+	StrBufExtract_NextToken(Buf, Hdr->ReqLine, &Pos, '/');
+	do {
+		StrBufExtract_NextToken(Buf, Hdr->ReqLine, &Pos, '/');
+
+		GetHash(HandlerHash, SKEY(Buf), &vHandler),
+		Hdr->Handler = (WebcitHandler*) vHandler;
+		if (Hdr->Handler == NULL)
+			break;
+		/* are we about to ignore some prefix like webcit/ ? */
+		if ((Hdr->Handler->Flags & URLNAMESPACE) == 0)
+			break;
+	} while (1);
+	/* remove the handlername from the URL */
+	if (Pos != NULL) {
+		StrBufCutLeft(Hdr->ReqLine, 
+			      Pos - ChrPtr(Hdr->ReqLine));
+	}
+/*
+	if (Hdr->Handler == NULL)
+		return 1;
+*/
+	Hdr->HTTPHeaders = NewHash(1, NULL);
+
+	return 0;
+}
+
+int AnalyseHeaders(ParsedHttpHdrs *Hdr)
+{
+	OneHttpHeader *pHdr;
+	void *vHdr;
+	long HKLen;
+	const char *HashKey;
+	HashPos *at = GetNewHashPos(Hdr->HTTPHeaders, 0);
+	
+	while (GetNextHashPos(Hdr->HTTPHeaders, at, &HKLen, &HashKey, &vHdr) && 
+	       (vHdr != NULL)) {
+		pHdr = (OneHttpHeader *)vHdr;
+		if (pHdr->HaveEvaluator)
+			pHdr->H(pHdr->Val, Hdr);
+
+	}
+	DeleteHashPos(&at);
+	return 0;
+}
+
 /*const char *nix(void *vptr) {return ChrPtr( (StrBuf*)vptr);}*/
 
 /*
- * handle one request
- *
- * This loop gets called once for every HTTP connection made to WebCit.  At
- * this entry point we have an HTTP socket with a browser allegedly on the
- * other end, but we have not yet bound to a WebCit session.
- *
- * The job of this function is to locate the correct session and bind to it,
- * or create a session if necessary and bind to it, then run the WebCit
- * transaction loop.  Afterwards, we unbind from the session.  When this
- * function returns, the worker thread is then free to handle another
- * transaction.
+ * Read in the request
  */
-void context_loop(int *sock)
+int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 {
-	long eReqType = eGET;
-	int isbogus = 0;
-	const char *Pos = NULL;
-	const char *buf;
-	int desired_session = 0;
-	int got_cookie = 0;
-	int gzip_ok = 0;
-	wcsession *TheSession, *sptr;
-	char httpauth_string[1024];
-	char httpauth_user[1024];
-	char httpauth_pass[1024];
-	int nLine = 0;
-	int LineLen;
-	void *vLine;
-	StrBuf *Buf, *Line, *LastLine, *HeaderName, *ReqLine;
 	const char *pch, *pchs, *pche;
-	HashList *HTTPHeaders;
+	OneHttpHeader *pHdr;
+	StrBuf *Line, *LastLine, *HeaderName;
+	int nLine = 0;
+	void *vF;
+	int isbogus = 0;
 
-	strcpy(httpauth_string, "");
-	strcpy(httpauth_user, DEFAULT_HTTPAUTH_USER);
-	strcpy(httpauth_pass, DEFAULT_HTTPAUTH_PASS);
-
-	/*
-	 * Find out what it is that the web browser is asking for
-	 */
 	HeaderName = NewStrBuf();
-	Buf = NewStrBuf();
+	Hdr->ReadBuf = NewStrBuf();
 	LastLine = NULL;
-	HTTPHeaders = NewHash(1, NULL);
-
-	/*
-	 * Read in the request
-	 */
 	do {
 		nLine ++;
 		Line = NewStrBuf();
 
+		if (ClientGetLine(&Hdr->http_sock, Line, Hdr->ReadBuf, &Hdr->Pos) < 0) return 1;
 
-		if (ClientGetLine(sock, Line, Buf, &Pos) < 0) return;
-
-		LineLen = StrLength(Line);
-
-		if (nLine == 1) {
-			ReqLine = Line;
-			/* The requesttype... GET, POST... */
-			StrBufExtract_token(HeaderName, ReqLine, 0, ' ');
-			if (GetHash(HttpReqTypes, SKEY(HeaderName), &vLine) &&
-			    (vLine != NULL))
-			{
-				eReqType = *(long*)vLine;
-			}
-			else {
-				eReqType = eGET;
-				isbogus = 1;
-				break;
-			}
-			StrBufCutLeft(ReqLine, StrLength(HeaderName) + 1);
-			/* the HTTP Version... */
-			StrBufExtract_token(HeaderName, ReqLine, 1, ' ');
-			StrBufCutRight(ReqLine, StrLength(HeaderName) + 1);
-			if ((StrLength(HeaderName) == 0) ||
-			    is_bogus(ReqLine)) {
-				eReqType = eGET;
-				isbogus = 1;
-				break;
-			}
+		if (StrLength(Line) == 0) {
+			FreeStrBuf(&Line);
 			continue;
 		}
-		if (LineLen == 0) {
-			FreeStrBuf(&Line);
+		if (nLine == 1) {
+			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
+			if (isbogus) break;
 			continue;
 		}
 
@@ -311,64 +376,72 @@ void context_loop(int *sock)
 		StrBufCutLeft(Line, pch - pchs);
 
 		StrBufUpCase(HeaderName);
-		Put(HTTPHeaders, SKEY(HeaderName), Line, HFreeStrBuf);
+
+		pHdr = (OneHttpHeader*) malloc(sizeof(OneHttpHeader));
+		memset(pHdr, 0, sizeof(OneHttpHeader));
+		pHdr->Val = Line;
+
+		if (GetHash(HttpHeaderHandler, SKEY(HeaderName), &vF) &&
+		    (vF != NULL))
+		{
+			OneHttpHeader *FHdr = (OneHttpHeader*) vF;
+			pHdr->H = FHdr->H;
+			pHdr->HaveEvaluator = 1;
+		}
+		Put(Hdr->HTTPHeaders, SKEY(HeaderName), pHdr, DestroyHttpHeaderHandler);
 		LastLine = Line;
-	} while (LineLen > 0);
+	} while (Line != NULL);
 
 	FreeStrBuf(&HeaderName);
 
+	return isbogus;
+}
+
+
+
+/*
+ * handle one request
+ *
+ * This loop gets called once for every HTTP connection made to WebCit.  At
+ * this entry point we have an HTTP socket with a browser allegedly on the
+ * other end, but we have not yet bound to a WebCit session.
+ *
+ * The job of this function is to locate the correct session and bind to it,
+ * or create a session if necessary and bind to it, then run the WebCit
+ * transaction loop.  Afterwards, we unbind from the session.  When this
+ * function returns, the worker thread is then free to handle another
+ * transaction.
+ */
+void context_loop(int *sock)
+{
+	ParsedHttpHdrs Hdr;
+	int isbogus = 0;
+	wcsession *TheSession, *sptr;
+	struct timeval tx_start;
+	struct timeval tx_finish;
+	
+	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
+
+	memset(&Hdr, 0, sizeof(ParsedHttpHdrs));
+	Hdr.eReqType = eGET;
+	Hdr.http_sock = *sock;
+	/*
+	 * Find out what it is that the web browser is asking for
+	 */
+	isbogus = ReadHTTPRequset(&Hdr);
+
+	if (!isbogus)
+		isbogus = AnalyseHeaders(&Hdr);
+/*
 	if (isbogus)
 		StrBufPlain(ReqLine, HKEY("/404"));
-
+*/
 
 /*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
 
 
-	/*
-	 * Can we compress?
-	 */
-	if (!isbogus &&
-	    GetHash(HTTPHeaders, HKEY("ACCEPT-ENCODING"), &vLine) && 
-	    (vLine != NULL)) {
-		buf = ChrPtr((StrBuf*)vLine);
-		if (strstr(&buf[16], "gzip")) {
-			gzip_ok = 1;
-		}
-	}
+///HttpHeaderHandler
 
-	/*
-	 * Browser-based sessions use cookies for session authentication
-	 */
-	if (!isbogus &&
-	    GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
-	    (vLine != NULL)) {
-		cookie_to_stuff(vLine, &desired_session,
-				NULL, NULL, NULL);
-		got_cookie = 1;
-	}
-
-	/*
-	 * GroupDAV-based sessions use HTTP authentication
-	 */
-	if (!isbogus &&
-	    GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
-	    (vLine != NULL)) {
-		Line = (StrBuf*)vLine;
-		if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
-			StrBufCutLeft(Line, 6);
-			CtdlDecodeBase64(httpauth_string, ChrPtr(Line), StrLength(Line));
-			extract_token(httpauth_user, httpauth_string, 0, ':', sizeof httpauth_user);
-			extract_token(httpauth_pass, httpauth_string, 1, ':', sizeof httpauth_pass);
-		}
-		else 
-			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
-	}
-
-	if (!isbogus &&
-	    GetHash(HTTPHeaders, HKEY("IF-MODIFIED-SINCE"), &vLine) && 
-	    (vLine != NULL)) {
-		if_modified_since = httpdate_to_timestamp((StrBuf*)vLine);
-	}
 
 
 
@@ -377,14 +450,14 @@ void context_loop(int *sock)
 	 * If the request is prefixed by "/webcit" then chop that off.  This
 	 * allows a front end web server to forward all /webcit requests to us
 	 * while still using the same web server port for other things.
-	 */
+	 * /
 	if (!isbogus &&
 	    (StrLength(ReqLine) >= 8) && 
 	    (strstr(ChrPtr(ReqLine), "/webcit/")) ) {
 		StrBufCutLeft(ReqLine, 7);
 	}
 
-	/* Begin parsing the request. */
+	/* Begin parsing the request. * /
 #ifdef TECH_PREVIEW
 	if ((strncmp(ChrPtr(ReqLine), "/sslg", 5) != 0) &&
 	    (strncmp(ChrPtr(ReqLine), "/static/", 8) != 0) &&
@@ -392,48 +465,12 @@ void context_loop(int *sock)
 	    (strncmp(ChrPtr(ReqLine), "/wholist_section", 16) != 0) &&
 	    (strstr(ChrPtr(ReqLine), "wholist_section") == NULL)) {
 #endif
-		lprintf(5, "HTTP: %s %s\n", ReqStrs[eReqType], ChrPtr(ReqLine));
+		lprintf(5, "HTTP: %s %s\n", ReqStrs[Hdr.eReqType], ChrPtr(ReqLine));
 #ifdef TECH_PREVIEW
 	}
 #endif
 
-
-	/**
-	 * While we're at it, gracefully handle requests for the
-	 * robots.txt and favicon.ico files.
-	 */
-	if ((StrLength(ReqLine) >= 11) &&
-	    !strncasecmp(ChrPtr(ReqLine), "/robots.txt", 11)) {
-		StrBufPlain(ReqLine, 
-			    HKEY("/static/robots.txt"
-				 "?force_close_session=yes HTTP/1.1"));
-		eReqType = eGET;
-	}
-	else if ((StrLength(ReqLine) >= 11) &&
-		 !strncasecmp(ChrPtr(ReqLine), "/favicon.ico", 12)) {
-		StrBufPlain(ReqLine, HKEY("/static/favicon.ico"));
-		eReqType = eGET;
-	}
-
-	/**
-	 * These are the URL's which may be executed without a
-	 * session cookie already set.  If it's not one of these,
-	 * force the session to close because cookies are
-	 * probably disabled on the client browser.
-	 */
-	else if ( (StrLength(ReqLine) > 1 )
-		&& (strncasecmp(ChrPtr(ReqLine), "/listsub", 8))
-		&& (strncasecmp(ChrPtr(ReqLine), "/freebusy", 9))
-		&& (strncasecmp(ChrPtr(ReqLine), "/do_logout", 10))
-		&& (strncasecmp(ChrPtr(ReqLine), "/groupdav", 9))
-		&& (strncasecmp(ChrPtr(ReqLine), "/static", 7))
-		&& (strncasecmp(ChrPtr(ReqLine), "/rss", 4))
-		&& (strncasecmp(ChrPtr(ReqLine), "/404", 4))
-	        && (got_cookie == 0)) {
-		StrBufPlain(ReqLine, 
-			    HKEY("/static/nocookies.html"
-				 "?force_close_session=yes"));
-	}
+*/
 
 	/**
 	 * See if there's an existing session open with the desired ID or user/pass
@@ -446,15 +483,15 @@ void context_loop(int *sock)
 		     ((sptr != NULL) && (TheSession == NULL)); 
 		      sptr = sptr->next) {
 
-			/** If HTTP-AUTH, look for a session with matching credentials */
-			if ( (!IsEmptyStr(httpauth_user))
+			/** If HTTP-AUTH, look for a session with matching credentials * /
+			if ( (////TODO check auth type here...
 			     &&(!strcasecmp(ChrPtr(sptr->httpauth_user), httpauth_user))
 			     &&(!strcasecmp(ChrPtr(sptr->httpauth_pass), httpauth_pass)) ) {
 				TheSession = sptr;
 			}
 
 			/** If cookie-session, look for a session with matching session ID */
-			if ( (desired_session != 0) && (sptr->wc_session == desired_session)) {
+			if ( (Hdr.desired_session != 0) && (sptr->wc_session == Hdr.desired_session)) {
 				TheSession = sptr;
 			}
 
@@ -470,7 +507,7 @@ void context_loop(int *sock)
 		TheSession = (wcsession *)
 			malloc(sizeof(wcsession));
 		memset(TheSession, 0, sizeof(wcsession));
-		TheSession->headers = HTTPHeaders;
+		TheSession->Hdr = &Hdr;
 		TheSession->serv_sock = (-1);
 		TheSession->chat_sock = (-1);
 	
@@ -480,16 +517,16 @@ void context_loop(int *sock)
 		 * doesn't, and that's a Bad Thing because it causes lots of spurious sessions
 		 * to get created.
 		 */	
-		if (desired_session == 0) {
+		if (Hdr.desired_session == 0) {
 			TheSession->wc_session = GenerateSessionID();
 		}
 		else {
-			TheSession->wc_session = desired_session;
+			TheSession->wc_session = Hdr.desired_session;
 		}
-
+/*
 		TheSession->httpauth_user = NewStrBufPlain(httpauth_user, -1);
-		TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
-
+			TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
+*/
 		pthread_setspecific(MyConKey, (void *)TheSession);
 		session_new_modules(TheSession);
 
@@ -513,23 +550,34 @@ void context_loop(int *sock)
 	pthread_mutex_lock(&TheSession->SessionMutex);		/* bind */
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
-	TheSession->eReqType = eReqType;
-	TheSession->headers = HTTPHeaders;
 	TheSession->lastreq = time(NULL);			/* log */
-	TheSession->http_sock = *sock;
-	TheSession->gzip_ok = gzip_ok;
+	TheSession->Hdr = &Hdr;
 
 	session_attach_modules(TheSession);
-	session_loop(ReqLine, Buf, &Pos);				/* do transaction */
+	session_loop();				/* do transaction */
 	session_detach_modules(TheSession);
 
-	TheSession->headers = NULL;
+	TheSession->Hdr = NULL;
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
+/* TODO
 
+	FreeStrBuf(&c_username);
+	FreeStrBuf(&c_password);
+	FreeStrBuf(&c_roomname);
+	FreeStrBuf(&c_httpauth_user);
+	FreeStrBuf(&c_httpauth_pass);
+*/
 	/* Free the request buffer */
-	DeleteHash(&HTTPHeaders);
-	FreeStrBuf(&ReqLine);
-	FreeStrBuf(&Buf);
+	///DeleteHash(&HTTPHeaders);
+	///FreeStrBuf(&ReqLine);
+	
+	/* How long did this transaction take? */
+	gettimeofday(&tx_finish, NULL);
+	
+	lprintf(9, "Transaction completed in %ld.%06ld seconds.\n",
+		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
+	);
 }
 
 void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)
@@ -549,6 +597,156 @@ void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0); 
 }
 
+
+void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->RawCookie = Line;
+	if (hdr->DontNeedAuth)
+		return;
+/*
+	c_username = NewStrBuf();
+	c_password = NewStrBuf();
+	c_roomname = NewStrBuf();
+	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
+	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
+	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
+*/
+	cookie_to_stuff(Line, &hdr->desired_session,
+			hdr->c_username,
+			hdr->c_password,
+			hdr->c_roomname);
+	hdr->got_cookie = 1;
+}
+
+
+	/*
+	 * Browser-based sessions use cookies for session authentication
+	 * /
+	if (!isbogus &&
+	    GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
+	    (vLine != NULL)) {
+		cookie_to_stuff(vLine, &desired_session,
+				NULL, NULL, NULL);
+		got_cookie = 1;
+	}
+	*/
+	/*
+	 * GroupDAV-based sessions use HTTP authentication
+	 */
+/*
+	if (!isbogus &&
+	    GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
+	    (vLine != NULL)) {
+		Line = (StrBuf*)vLine;
+		if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
+			StrBufCutLeft(Line, 6);
+			CtdlDecodeBase64(httpauth_string, ChrPtr(Line), StrLength(Line));
+			extract_token(httpauth_user, httpauth_string, 0, ':', sizeof httpauth_user);
+			extract_token(httpauth_pass, httpauth_string, 1, ':', sizeof httpauth_pass);
+		}
+		else 
+			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
+	}
+
+*/
+void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	const char *Pos = NULL;
+	StrBufDecodeBase64(Line);
+	StrBufExtract_NextToken(hdr->c_username, Line, &Pos, ':');
+	StrBufExtract_NextToken(hdr->c_password, Line, &Pos, ':');
+}
+
+void Header_HandleContentLength(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->ContentLength = StrToi(Line);
+}
+
+void Header_HandleContentType(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->ContentType = Line;
+}
+
+void Header_HandleUserAgent(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->user_agent = Line;
+#ifdef TECH_PREVIEW
+/* TODO: do this later on session creating
+	if ((WCC->is_mobile < 0) && is_mobile_ua(&buf[12])) {			
+		WCC->is_mobile = 1;
+	}
+	else {
+		WCC->is_mobile = 0;
+	}
+*/
+#endif
+}
+
+
+void Header_HandleHost(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	if ((follow_xff) && (hdr->http_host != NULL))
+		return;
+	else
+		hdr->http_host = Line;
+}
+
+void Header_HandleXFFHost(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	if (follow_xff)
+		hdr->http_host = Line;
+}
+
+
+void Header_HandleXFF(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->browser_host = Line;
+
+	while (StrBufNum_tokens(hdr->browser_host, ',') > 1) {
+		StrBufRemove_token(hdr->browser_host, 0, ',');
+	}
+	StrBufTrim(hdr->browser_host);
+}
+
+void Header_HandleIfModSince(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->if_modified_since = httpdate_to_timestamp(Line);
+}
+
+void Header_HandleAcceptEncoding(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	/*
+	 * Can we compress?
+	 */
+	if (strstr(&ChrPtr(Line)[16], "gzip")) {
+		hdr->gzip_ok = 1;
+	}
+}
+
+/*
+{
+	c_username = NewStrBuf();
+	c_password = NewStrBuf();
+	c_roomname = NewStrBuf();
+	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
+	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
+	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
+}
+*/
+	/* *
+	 * These are the URL's which may be executed without a
+	 * session cookie already set.  If it's not one of these,
+	 * force the session to close because cookies are
+	 * probably disabled on the client browser.
+	 * /
+	else if ( (StrLength(ReqLine) > 1 )
+		&& (strncasecmp(ChrPtr(ReqLine), "/404", 4))
+	        && (Hdr.got_cookie == 0)) {
+		StrBufPlain(ReqLine, 
+			    HKEY("/static/nocookies.html"
+				 "?force_close_session=yes"));
+	}
+*/
 const char *ReqStrs[eNONE] = {
 	"GET",
 	"POST",
@@ -567,7 +765,7 @@ ServerStartModule_CONTEXT
 {
 	long *v;
 	HttpReqTypes = NewHash(1, NULL);
-
+	HttpHeaderHandler = NewHash(1, NULL);
 
 	v = malloc(sizeof(long));
 	*v = eGET;
@@ -611,14 +809,42 @@ ServerShutdownModule_CONTEXT
 (void)
 {
 	DeleteHash(&HttpReqTypes);
+	DeleteHash(&HttpHeaderHandler);
 }
 
-
+void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F)
+{
+	OneHttpHeader *pHdr;
+	pHdr = (OneHttpHeader*) malloc(sizeof(OneHttpHeader));
+	memset(pHdr, 0, sizeof(OneHttpHeader));
+	pHdr->H = F;
+	Put(HttpHeaderHandler, Name, Len, pHdr, DestroyHttpHeaderHandler);
+}
+extern void blank_page(void); ///TODO: remove me
 void 
 InitModule_CONTEXT
 (void)
 {
+	RegisterHeaderHandler(HKEY("COOKIE"), Header_HandleCookie);
+	RegisterHeaderHandler(HKEY("AUTHORIZATION"), Header_HandleAuth);
+	RegisterHeaderHandler(HKEY("CONTENT-LENGTH"), Header_HandleContentLength);
+	RegisterHeaderHandler(HKEY("CONTENT-TYPE"), Header_HandleContentType);
+	RegisterHeaderHandler(HKEY("USER-AGENT"), Header_HandleUserAgent);
+	RegisterHeaderHandler(HKEY("X-FORWARDED-HOST"), Header_HandleXFFHost);
+	RegisterHeaderHandler(HKEY("HOST"), Header_HandleHost);
+	RegisterHeaderHandler(HKEY("X-FORWARDED-FOR"), Header_HandleXFF);
+	RegisterHeaderHandler(HKEY("ACCEPT-ENCODING"), Header_HandleAcceptEncoding);
+	RegisterHeaderHandler(HKEY("IF-MODIFIED-SINCE"), Header_HandleIfModSince);
+
 	RegisterNamespace("CURRENT_USER", 0, 1, tmplput_current_user, CTX_NONE);
 	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, CTX_NONE);
 	RegisterNamespace("NONCE", 0, 0, tmplput_nonce, 0);
+
+
+
+	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS|BOGUS);
+
+	WebcitAddUrlHandler(HKEY("blank"), blank_page, URLNAMESPACE);
 }
+//FreeStrBuf(&WCC->this_page);
+	

@@ -61,7 +61,7 @@ void do_listsub(void)
 			email,
 			subtype,
 			(is_https ? "https" : "http"),
-			    ChrPtr(WC->http_host)
+			    ChrPtr(WC->Hdr->http_host)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -102,7 +102,7 @@ void do_listsub(void)
 			    room,
 			    email,
 			    (is_https ? "https" : "http"),
-			    ChrPtr(WC->http_host)
+			    ChrPtr(WC->Hdr->http_host)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -223,4 +223,15 @@ FORM:		wprintf("<form method=\"POST\" action=\"listsub\">\n");
 	wprintf("</BODY></HTML>\n");
 	wDumpContent(0);
 	end_webcit_session();
+}
+
+
+
+void 
+InitModule_LISTSUB
+(void)
+{
+	WebcitAddUrlHandler(HKEY("listsub"), do_listsub, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+
+
 }
