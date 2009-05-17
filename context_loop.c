@@ -283,7 +283,11 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		Hdr->Handler = (WebcitHandler*) vHandler;
 		if (Hdr->Handler == NULL)
 			break;
-		/* are we about to ignore some prefix like webcit/ ? */
+		/*
+		 * If the request is prefixed by "/webcit" then chop that off.  This
+		 * allows a front end web server to forward all /webcit requests to us
+		 * while still using the same web server port for other things.
+		 */
 		if ((Hdr->Handler->Flags & URLNAMESPACE) == 0)
 			break;
 	} while (1);
@@ -437,20 +441,11 @@ void context_loop(int *sock)
 /*
 	if (isbogus)
 		StrBufPlain(ReqLine, HKEY("/404"));
+TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 */
 
 /*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
 
-	/*
-	 * If the request is prefixed by "/webcit" then chop that off.  This
-	 * allows a front end web server to forward all /webcit requests to us
-	 * while still using the same web server port for other things.
-	 * /
-	if (!isbogus &&
-	    (StrLength(ReqLine) >= 8) && 
-	    (strstr(ChrPtr(ReqLine), "/webcit/")) ) {
-		StrBufCutLeft(ReqLine, 7);
-	}
 
 	/* Begin parsing the request. * /
 #ifdef TECH_PREVIEW
@@ -566,19 +561,7 @@ void context_loop(int *sock)
 	TheSession->Hdr = NULL;
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
-
 	http_destroy_modules(&Hdr);
-/* TODO
-
-	FreeStrBuf(&c_username);
-	FreeStrBuf(&c_password);
-	FreeStrBuf(&c_roomname);
-	FreeStrBuf(&c_httpauth_user);
-	FreeStrBuf(&c_httpauth_pass);
-*/
-	/* Free the request buffer */
-	///FreeStrBuf(&ReqLine);
-	
 }
 
 void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)
@@ -596,66 +579,6 @@ void tmplput_current_user(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0); 
-}
-
-
-void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
-{
-	hdr->RawCookie = Line;
-	if (hdr->DontNeedAuth)
-		return;
-/*
-	c_username = NewStrBuf();
-	c_password = NewStrBuf();
-	c_roomname = NewStrBuf();
-	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
-	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
-	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
-*/
-	cookie_to_stuff(Line, &hdr->desired_session,
-			hdr->c_username,
-			hdr->c_password,
-			hdr->c_roomname);
-	hdr->got_cookie = 1;
-}
-
-
-	/*
-	 * Browser-based sessions use cookies for session authentication
-	 * /
-	if (!isbogus &&
-	    GetHash(HTTPHeaders, HKEY("COOKIE"), &vLine) && 
-	    (vLine != NULL)) {
-		cookie_to_stuff(vLine, &desired_session,
-				NULL, NULL, NULL);
-		got_cookie = 1;
-	}
-	*/
-	/*
-	 * GroupDAV-based sessions use HTTP authentication
-	 */
-/*
-	if (!isbogus &&
-	    GetHash(HTTPHeaders, HKEY("AUTHORIZATION"), &vLine) && 
-	    (vLine != NULL)) {
-		Line = (StrBuf*)vLine;
-		if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
-			StrBufCutLeft(Line, 6);
-			CtdlDecodeBase64(httpauth_string, ChrPtr(Line), StrLength(Line));
-			extract_token(httpauth_user, httpauth_string, 0, ':', sizeof httpauth_user);
-			extract_token(httpauth_pass, httpauth_string, 1, ':', sizeof httpauth_pass);
-		}
-		else 
-			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
-	}
-
-*/
-void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
-{
-	const char *Pos = NULL;
-	StrBufDecodeBase64(Line);
-	StrBufExtract_NextToken(hdr->c_username, Line, &Pos, ':');
-	StrBufExtract_NextToken(hdr->c_password, Line, &Pos, ':');
 }
 
 void Header_HandleContentLength(StrBuf *Line, ParsedHttpHdrs *hdr)
@@ -723,31 +646,6 @@ void Header_HandleAcceptEncoding(StrBuf *Line, ParsedHttpHdrs *hdr)
 		hdr->gzip_ok = 1;
 	}
 }
-
-/*
-{
-	c_username = NewStrBuf();
-	c_password = NewStrBuf();
-	c_roomname = NewStrBuf();
-	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
-	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
-	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
-}
-*/
-	/* *
-	 * These are the URL's which may be executed without a
-	 * session cookie already set.  If it's not one of these,
-	 * force the session to close because cookies are
-	 * probably disabled on the client browser.
-	 * /
-	else if ( (StrLength(ReqLine) > 1 )
-		&& (strncasecmp(ChrPtr(ReqLine), "/404", 4))
-	        && (Hdr.got_cookie == 0)) {
-		StrBufPlain(ReqLine, 
-			    HKEY("/static/nocookies.html"
-				 "?force_close_session=yes"));
-	}
-*/
 const char *ReqStrs[eNONE] = {
 	"GET",
 	"POST",
@@ -826,8 +724,6 @@ void
 InitModule_CONTEXT
 (void)
 {
-	RegisterHeaderHandler(HKEY("COOKIE"), Header_HandleCookie);
-	RegisterHeaderHandler(HKEY("AUTHORIZATION"), Header_HandleAuth);
 	RegisterHeaderHandler(HKEY("CONTENT-LENGTH"), Header_HandleContentLength);
 	RegisterHeaderHandler(HKEY("CONTENT-TYPE"), Header_HandleContentType);
 	RegisterHeaderHandler(HKEY("USER-AGENT"), Header_HandleUserAgent);

@@ -387,7 +387,7 @@ void output_image(void)
 	 * when there's no such image on the server.
 	 */
 	StrBufPrintf (Buf, "%s%s", static_dirs[0], "/blank.gif");
-	//// TDODO output_static(ChrPtr(Buf));
+	output_static(ChrPtr(Buf));
 	FreeStrBuf(&Buf);
 }
 
