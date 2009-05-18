@@ -8,6 +8,7 @@
 #include "webserver.h"
 #include <ctype.h>
 
+extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
 void display_reg(int during_login);
 
@@ -950,23 +951,59 @@ void _display_reg(void) {display_reg(0);}
 
 void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	const char *Pos = NULL;
-	if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
-		StrBufCutLeft(Line, 6);
-		StrBufDecodeBase64(Line);
-		StrBufExtract_NextToken(hdr->c_username, Line, &Pos, ':');
-		StrBufExtract_NextToken(hdr->c_password, Line, &Pos, ':');
-		hdr->got_auth = AUTH_BASIC;
+	if (hdr->got_auth == NO_AUTH) /* don't override cookie auth... */
+	{
+		if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
+			StrBufCutLeft(Line, 6);
+			StrBufDecodeBase64(Line);
+			hdr->plainauth = Line;
+			hdr->got_auth = AUTH_BASIC;
+		}
+		else 
+			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
 	}
-	else 
-		lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
+}
+
+void CheckAuthBasic(ParsedHttpHdrs *hdr)
+{
+/*
+  todo: enable this if we can have other sessions than authenticated ones.
+	if (hdr->DontNeedAuth)
+		return;
+*/
+	StrBufAppendBuf(hdr->plainauth, hdr->user_agent, 0);
+	hdr->SessionKey = hashlittle(SKEY(hdr->plainauth), 89479832);
+	
+}
+
+void GetAuthBasic(ParsedHttpHdrs *hdr)
+{
+	const char *Pos = NULL;
+	if (hdr->c_username == NULL)
+		hdr->c_username = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
+	if (hdr->c_password == NULL)
+		hdr->c_password = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
+	StrBufExtract_NextToken(hdr->c_username, hdr->plainauth, &Pos, ':');
+	StrBufExtract_NextToken(hdr->c_password, hdr->plainauth, &Pos, ':');
 }
 
 void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	hdr->RawCookie = Line;
+	const char *pch;
+/*
+  todo: enable this if we can have other sessions than authenticated ones.
 	if (hdr->DontNeedAuth)
 		return;
+*/
+	hdr->RawCookie = Line;
+
+	pch = strstr(ChrPtr(hdr->RawCookie), "webcit=");
+	
+	if (pch != NULL)
+		StrBufCutLeft(hdr->RawCookie, (pch - ChrPtr(hdr->RawCookie)) + 7);
+
+	StrBufDecodeHex(hdr->RawCookie);
+
 	if (hdr->c_username == NULL)
 		hdr->c_username = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
 	if (hdr->c_password == NULL)
@@ -1020,7 +1057,6 @@ SessionDestroyModule_AUTH
 	FreeStrBuf(&sess->wc_fullname);
 	FreeStrBuf(&sess->wc_password);
 	FreeStrBuf(&sess->wc_roomname);
-	FreeStrBuf(&sess->httpauth_user);
 	FreeStrBuf(&sess->httpauth_pass);
 	FreeStrBuf(&sess->cs_inet_email);
 }

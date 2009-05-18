@@ -412,6 +412,7 @@ typedef struct _ParsedHttpHdrs {
 	
 	int DontNeedAuth;
 	int got_auth;
+	int SessionKey;
 	long ContentLength;
 	time_t if_modified_since;
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
@@ -429,6 +430,7 @@ typedef struct _ParsedHttpHdrs {
 	StrBuf *http_host;			/**< HTTP Host: header */
 	StrBuf *browser_host;
 	StrBuf *user_agent;
+	StrBuf *plainauth;
 
 	StrBuf *this_page;			/**< URL of current page */
 	StrBuf *PlainArgs; /*TODO: freeme*/
@@ -452,6 +454,7 @@ struct wcsession {
 	int is_mobile;			        /**< Client is a handheld browser */
 	int ctdl_pid;				/**< Session ID on the Citadel server */
 	int nonce;				/**< session nonce (to prevent session riding) */
+	int SessionKey;
 
 /* Session local Members */
 	int serv_sock;				/**< Client socket to Citadel server */
@@ -477,7 +480,6 @@ struct wcsession {
 
 /* accounting */
 	StrBuf *wc_username;			/**< login name of current user */
-	StrBuf *httpauth_user;  		/**< only for GroupDAV sessions */
 	StrBuf *wc_fullname;			/**< Screen name of current user */
 	StrBuf *wc_password;			/**< Password of current user */
 	StrBuf *httpauth_pass;  		/**< only for GroupDAV sessions */
@@ -713,6 +715,9 @@ void text_to_server_qp(char *ptr);
 void confirm_delete_msg(void);
 void display_success(char *);
 void authorization_required(const char *message);
+void CheckAuthBasic(ParsedHttpHdrs *hdr);
+void GetAuthBasic(ParsedHttpHdrs *hdr);
+
 int ReEstablish_Session(void);
 
 void server_to_text(void);
