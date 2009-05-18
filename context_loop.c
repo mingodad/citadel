@@ -296,12 +296,14 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		StrBufCutLeft(Hdr->ReqLine, 
 			      Pos - ChrPtr(Hdr->ReqLine));
 	}
-/*
-	if (Hdr->Handler == NULL)
-		return 1;
-*/
-	Hdr->HTTPHeaders = NewHash(1, NULL);
 
+	if (Hdr->Handler != NULL) {
+		if ((Hdr->Handler->Flags & BOGUS) != 0)
+			return 1;
+		Hdr->DontNeedAuth = (Hdr->Handler->Flags & ISSTATIC) != 0;
+	}
+
+	Hdr->HTTPHeaders = NewHash(1, NULL);
 	return 0;
 }
 
@@ -438,6 +440,10 @@ void context_loop(int *sock)
 
 	if (!isbogus)
 		isbogus = AnalyseHeaders(&Hdr);
+
+	if (Hdr.got_auth == AUTH_BASIC) 
+		CheckAuthBasic(&Hdr);
+
 /*
 	if (isbogus)
 		StrBufPlain(ReqLine, HKEY("/404"));
@@ -473,18 +479,26 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 		     ((sptr != NULL) && (TheSession == NULL)); 
 		      sptr = sptr->next) {
 
-			/** If HTTP-AUTH, look for a session with matching credentials * /
-			if ( (////TODO check auth type here...
-			     &&(!strcasecmp(ChrPtr(sptr->httpauth_user), httpauth_user))
-			     &&(!strcasecmp(ChrPtr(sptr->httpauth_pass), httpauth_pass)) ) {
-				TheSession = sptr;
-			}
-
+			/** If HTTP-AUTH, look for a session with matching credentials */
+			switch (Hdr.got_auth)
+			{
+			case AUTH_BASIC:
+				if ( (Hdr.SessionKey != sptr->SessionKey))
+					continue;
+				GetAuthBasic(&Hdr);
+				if ((!strcasecmp(ChrPtr(Hdr.c_username), ChrPtr(sptr->wc_username))) &&
+				    (!strcasecmp(ChrPtr(Hdr.c_password), ChrPtr(sptr->wc_password))) ) 
+					TheSession = sptr;
+				break;
+			case AUTH_COOKIE:
 			/** If cookie-session, look for a session with matching session ID */
-			if ( (Hdr.desired_session != 0) && (sptr->wc_session == Hdr.desired_session)) {
-				TheSession = sptr;
+				if ( (Hdr.desired_session != 0) && 
+				     (sptr->wc_session == Hdr.desired_session)) 
+					TheSession = sptr;
+				break;			     
+			case NO_AUTH:
+			     break;
 			}
-
 		}
 		pthread_mutex_unlock(&SessionListMutex);
 	}
@@ -498,6 +512,7 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 			malloc(sizeof(wcsession));
 		memset(TheSession, 0, sizeof(wcsession));
 		TheSession->Hdr = &Hdr;
+		TheSession->SessionKey = Hdr.SessionKey;
 		TheSession->serv_sock = (-1);
 		TheSession->chat_sock = (-1);
 	
@@ -513,10 +528,7 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 		else {
 			TheSession->wc_session = Hdr.desired_session;
 		}
-/*
-		TheSession->httpauth_user = NewStrBufPlain(httpauth_user, -1);
-			TheSession->httpauth_pass = NewStrBufPlain(httpauth_user, -1);
-*/
+
 		pthread_setspecific(MyConKey, (void *)TheSession);
 		session_new_modules(TheSession);
 

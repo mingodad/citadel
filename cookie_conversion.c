@@ -87,25 +87,6 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
 		     StrBuf *pass,
 		     StrBuf *room)
 {
-	const char *pch;
-	char buf[SIZ];
-	StrBuf *Buf;
-	int i, len;
-
-	pch = strstr(ChrPtr(cookie), "webcit=");
-	
-	if (pch != NULL)
-		StrBufCutLeft(cookie, (pch - ChrPtr(cookie)) + 7);
-
-	strcpy(buf, "");
-	len = StrLength(cookie) / 2;
-	pch = ChrPtr(cookie);
-	for (i=0; i<len; ++i) {
-		buf[i] = xtoi(&pch[i*2], 2);
-		buf[i+1] = 0;
-	}
-	Buf = NewStrBufPlain(buf, i);
-
 /* debug
 	char t[256];
 	extract_token(t, buf, 0, '|', sizeof t);
@@ -119,13 +100,12 @@ void cookie_to_stuff(StrBuf *cookie, int *session,
  debug */
 
 	if (session != NULL)
-		*session = StrBufExtract_int(Buf, 0, '|');
+		*session = StrBufExtract_int(cookie, 0, '|');
 	if (user != NULL)
-		StrBufExtract_token(user, Buf, 1, '|');
+		StrBufExtract_token(user, cookie, 1, '|');
 	if (pass != NULL)
-		StrBufExtract_token(pass, Buf, 2, '|');
+		StrBufExtract_token(pass, cookie, 2, '|');
 	if (room != NULL)
-		StrBufExtract_token(room, Buf, 3, '|');
-	FreeStrBuf(&Buf);
+		StrBufExtract_token(room, cookie, 3, '|');
 }
 /*@}*/
