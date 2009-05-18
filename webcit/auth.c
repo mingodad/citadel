@@ -967,11 +967,12 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 	hdr->RawCookie = Line;
 	if (hdr->DontNeedAuth)
 		return;
-/*
-	safestrncpy(c_httpauth_string, "", sizeof c_httpauth_string);
-	c_httpauth_user = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
-	c_httpauth_pass = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
-*/
+	if (hdr->c_username == NULL)
+		hdr->c_username = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
+	if (hdr->c_password == NULL)
+		hdr->c_password = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
+	if (hdr->c_roomname == NULL)
+		hdr->c_roomname = NewStrBuf();
 	cookie_to_stuff(Line, &hdr->desired_session,
 			hdr->c_username,
 			hdr->c_password,
