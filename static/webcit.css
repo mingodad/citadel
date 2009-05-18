@@ -657,7 +657,7 @@ body, #global {
 	margin: 0;
 }
 
-#content .boxlabel {
+#content .boxlabel, #global .boxlabel {
 	margin: 0;
 	padding: 0;
 	width: 100%;
