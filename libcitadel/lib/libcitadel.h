@@ -300,6 +300,7 @@ void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic);
 void ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic);
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset);
 int StrBufDecodeBase64(StrBuf *Buf);
+int StrBufDecodeHex(StrBuf *Buf);
 int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
 int StrBufSanitizeAscii(StrBuf *Buf, const char Mute);
 #define LB			(1)		/* Internal escape chars */

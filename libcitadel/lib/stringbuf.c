@@ -1414,7 +1414,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			*fd = -1;
 			return -1;
 		}		
-		if (FD_ISSET(*fd, &rfds)) {
+		if (FD_ISSET(*fd, &rfds) != 0) {
 			rlen = read(*fd, 
 				    &buf->buf[buf->BufUsed], 
 				    buf->BufSize - buf->BufUsed - 1);
@@ -1914,6 +1914,32 @@ int StrBufDecodeBase64(StrBuf *Buf)
 	Buf->buf = xferbuf;
 	Buf->BufUsed = siz;
 	return siz;
+}
+
+/**
+ * \brief decode a buffer from base 64 encoding; destroys original
+ * \param Buf Buffor to transform
+ */
+int StrBufDecodeHex(StrBuf *Buf)
+{
+	unsigned int ch;
+	char *pch, *pche, *pchi;
+
+	if (Buf == NULL) return -1;
+
+	pch = pchi = Buf->buf;
+	pche = pch + Buf->BufUsed;
+
+	while (pchi < pche){
+		ch = decode_hex(pchi);
+		*pch = ch;
+		pch ++;
+		pchi += 2;
+	}
+
+	*pch = '\0';
+	Buf->BufUsed = pch - Buf->buf;
+	return Buf->BufUsed;
 }
 
 /**
