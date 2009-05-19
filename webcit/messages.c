@@ -364,9 +364,18 @@ void handle_one_message(void)
 	wcsession *WCC = WC;
 	const StrBuf *Tmpl;
 	StrBuf *CmdBuf = NULL;
+	const char *pMsg;
 
-	//msgnum = StrTol(WCC->UrlFragment3);
-	//gotoroom(WCC->UrlFragment2);
+
+	pMsg = strchr(ChrPtr(WCC->Hdr->ReqLine), '/');
+	if (pMsg == NULL) {
+		HttpStatus(CitStatus);
+		return;
+	}
+
+	msgnum = atol(pMsg + 1);
+	StrBufCutAt(WCC->Hdr->ReqLine, 0, pMsg);
+	gotoroom(WCC->Hdr->ReqLine);
 	switch (WCC->Hdr->eReqType)
 	{
 	case eGET:
