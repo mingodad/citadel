@@ -971,6 +971,7 @@ void CheckAuthBasic(ParsedHttpHdrs *hdr)
 	if (hdr->DontNeedAuth)
 		return;
 */
+	StrBufAppendBufPlain(hdr->plainauth, HKEY(":"), 0);
 	StrBufAppendBuf(hdr->plainauth, hdr->user_agent, 0);
 	hdr->SessionKey = hashlittle(SKEY(hdr->plainauth), 89479832);
 	
