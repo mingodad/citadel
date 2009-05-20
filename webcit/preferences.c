@@ -989,6 +989,8 @@ ServerStartModule_PREFERENCES
 	PreferenceHooks = NewHash(1, NULL);
 }
 
+
+
 void 
 ServerShutdownModule_PREFERENCES
 (void)
@@ -996,6 +998,15 @@ ServerShutdownModule_PREFERENCES
 	DeleteHash(&PreferenceHooks);
 }
 
+void
+SessionDetachModule__PREFERENCES
+(wcsession *sess)
+{
+	if (sess->SavePrefsToServer) {
+		save_preferences();
+		sess->SavePrefsToServer = 0;
+	}
+}
 
 void
 SessionNewModule_PREFERENCES
