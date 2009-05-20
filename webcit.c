@@ -684,10 +684,6 @@ void session_loop(void)
 	}
 
 SKIP_ALL_THIS_CRAP:
-	if (WCC->SavePrefsToServer) {
-		save_preferences();
-		WCC->SavePrefsToServer = 0;
-	}
 	FreeStrBuf(&Buf);
 	fflush(stdout);
 	WCC->Hdr->http_host = NULL;
