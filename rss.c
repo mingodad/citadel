@@ -72,8 +72,7 @@ void display_rss(void)
 	char msgn[256];
 	char content_type[256];
 	char charset[256];
-	const StrBuf *roomname;
-
+	
 	if (!WCC->logged_in) {
 		#ifdef ALLOW_ANON_RSS
 		StrBuf *User;
