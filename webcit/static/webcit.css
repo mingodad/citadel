@@ -1127,9 +1127,6 @@ dt { clear: both; }
     width: 100%;
     table-layout: fixed;
 }
-#summary_view td {
-	font-size: 8pt;
-}
 colgroup.entity {
 	text-align: center;
 }
