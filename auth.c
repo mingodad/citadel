@@ -28,43 +28,6 @@ void initialize_axdefs(void) {
 	axdefs[6] = _("Aide");          /* chief */
 }
 
-int ReEstablish_Session(void)
-{
-	StrBuf *Buf = NewStrBuf();
-	wcsession *WCC = WC;
-
-	serv_printf("USER %s", ChrPtr(WCC->Hdr->c_username));
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 3) {
-		serv_printf("PASS %s", ChrPtr(WCC->Hdr->c_password));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			become_logged_in(WCC->Hdr->c_username, 
-					 WCC->Hdr->c_password, Buf);
-			get_preference("default_header_charset", &WCC->DefaultCharset);
-		}
-	}
-	/*
-	 * If we don't have a current room, but a cookie specifying the
-	 * current room is supplied, make an effort to go there.
-	 */
-	if ((StrLength(WCC->wc_roomname) == 0) && (StrLength(WCC->Hdr->c_roomname) > 0)) {
-		serv_printf("GOTO %s", 
-			    ChrPtr(WCC->Hdr->c_roomname));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			if (WCC->wc_roomname == NULL) {
-				WCC->wc_roomname = NewStrBufDup(WCC->Hdr->c_roomname);
-			}
-			else {
-				FlushStrBuf(WCC->wc_roomname);
-				StrBufAppendBuf(WCC->wc_roomname, WCC->Hdr->c_roomname, 0);
-			}
-		}
-	}
-	FreeStrBuf(&Buf);
-	return 0;
-}
 
 
 /* 
