@@ -604,8 +604,8 @@ void session_loop(void)
 
 
 	/*
-	 * If we're not logged in, but we have HTTP Authentication data,
-	 * try logging in to Citadel using that.
+	 * If we're not logged in, but we have authentication data (either from
+	 * a cookie or from http-auth), try logging in to Citadel using that.
 	 */
 	if ((!WCC->logged_in)
 	    && (StrLength(WCC->Hdr->c_username) > 0)
@@ -634,24 +634,33 @@ void session_loop(void)
 		(WCC->Hdr->eReqType != eHEAD);
 
 	/*
-	 * If we're not logged in, but we have username and password cookies
-	 * supplied by the browser, try using them to log in.
-	 */
-	if ((!WCC->logged_in)
-	   && (StrLength(WCC->Hdr->c_username)>0)
-	   && (StrLength(WCC->Hdr->c_password)>0)) {
-		ReEstablish_Session();
-	}
-
-	/*
 	 * If a 'gotofirst' parameter has been specified, attempt to goto that room
 	 * prior to doing anything else.
 	 */
 	if (havebstr("gotofirst")) {
 		int ret;
-		ret = gotoroom(sbstr("gotofirst"));	/* do this quietly to avoid session output! */
-		if (ret != 0)
-			lprintf(1, "GOTOFIRST: Unable to change to [%s]; Reason: %d\n", bstr("gotofirst"), ret);
+		ret = gotoroom(sbstr("gotofirst"));	/* do quietly to avoid session output! */
+		if ((ret/100) != 2) {
+			lprintf(1, "GOTOFIRST: Unable to change to [%s]; Reason: %d\n",
+				bstr("gotofirst"), ret);
+		}
+	}
+
+	/*
+	 * If we aren't in any room yet, but we have cookie data telling us where we're
+	 * supposed to be, and 'gotofirst' was not specified, then go there.
+	 */
+	else if ( (StrLength(WCC->wc_roomname) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
+		lprintf(9, "We are in '%s' but cookie indicates '%s', going there...\n",
+			ChrPtr(WCC->wc_roomname),
+			ChrPtr(WCC->Hdr->c_roomname)
+		);
+		int ret;
+		ret = gotoroom(WCC->Hdr->c_roomname);	/* do quietly to avoid session output! */
+		if ((ret/100) != 2) {
+			lprintf(1, "COOKIEGOTO: Unable to change to [%s]; Reason: %d\n",
+				ChrPtr(WCC->Hdr->c_roomname), ret);
+		}
 	}
 
 	if (WCC->Hdr->Handler != NULL) {

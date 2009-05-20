@@ -717,9 +717,6 @@ void display_success(char *);
 void authorization_required(const char *message);
 void CheckAuthBasic(ParsedHttpHdrs *hdr);
 void GetAuthBasic(ParsedHttpHdrs *hdr);
-
-int ReEstablish_Session(void);
-
 void server_to_text(void);
 void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
