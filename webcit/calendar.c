@@ -1032,6 +1032,7 @@ void load_ical_object(long msgnum, int unread,
 			if (  (!strcasecmp(mime_content_type, "text/calendar"))
 			      || (!strcasecmp(mime_content_type, "application/ics"))
 			      || (!strcasecmp(mime_content_type, "text/vtodo"))
+                              || (!strcasecmp(mime_content_type, "text/todo"))
 				) {
 				strcpy(relevant_partnum, mime_partnum);
 			}
