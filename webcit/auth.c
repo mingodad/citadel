@@ -996,13 +996,13 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 	if (hdr->DontNeedAuth)
 		return;
 */
+	pch = strstr(ChrPtr(Line), "webcit=");
+	if (pch == NULL) {
+		return;
+	}
+
 	hdr->RawCookie = Line;
-
-	pch = strstr(ChrPtr(hdr->RawCookie), "webcit=");
-	
-	if (pch != NULL)
-		StrBufCutLeft(hdr->RawCookie, (pch - ChrPtr(hdr->RawCookie)) + 7);
-
+	StrBufCutLeft(hdr->RawCookie, (pch - ChrPtr(hdr->RawCookie)) + 7);
 	StrBufDecodeHex(hdr->RawCookie);
 
 	if (hdr->c_username == NULL)
