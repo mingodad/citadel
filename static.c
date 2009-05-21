@@ -79,7 +79,7 @@ void output_static(const char *what)
 #ifndef TECH_PREVIEW
 		lprintf(9, "output_static('%s')  %s\n", what, content_type);
 #endif
-		http_transmit_thing(content_type, 1);
+		http_transmit_thing(content_type, 2);
 	}
 	if (yesbstr("force_close_session")) {
 		end_webcit_session();
