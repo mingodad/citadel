@@ -354,6 +354,7 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 			continue;
 		}
 		if (nLine == 1) {
+			lprintf(9, "%s\n", ChrPtr(Line));
 			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
 			if (isbogus) break;
 			continue;
