@@ -460,7 +460,7 @@ void context_loop(int *sock)
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
-		lprintf(9, "Transaction [%s] completed in %ld.%06ld seconds.\n",
+		lprintf(9, "SL: Transaction [%s] completed in %ld.%06ld seconds.\n",
 			ChrPtr(Hdr.this_page),
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000

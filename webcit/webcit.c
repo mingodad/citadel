@@ -135,7 +135,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 				PACKAGE_STRING);
 	}
 
-	if (cache) {
+	if (cache > 0) {
 		char httpTomorow[128];
 
 		http_datestring(httpTomorow, sizeof httpTomorow, 
@@ -156,20 +156,23 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		);
 	}
 
-	stuff_to_cookie(cookie, 1024, 
-			WCC->wc_session,
-			WCC->wc_username,
-			WCC->wc_password,
-			WCC->wc_roomname,
-			get_selected_language()
-	);
+	if (cache < 2) {
 
-	if (unset_cookies) {
-		hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
-	} else {
-		hprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
-		if (server_cookie != NULL) {
-			hprintf("%s\n", server_cookie);
+		stuff_to_cookie(cookie, 1024, 
+				WCC->wc_session,
+				WCC->wc_username,
+				WCC->wc_password,
+				WCC->wc_roomname,
+				get_selected_language()
+			);
+		
+		if (unset_cookies) {
+			hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
+		} else {
+			hprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
+			if (server_cookie != NULL) {
+				hprintf("%s\n", server_cookie);
+			}
 		}
 	}
 
@@ -254,7 +257,7 @@ void http_transmit_thing(const char *content_type,
 #ifndef TECH_PREVIEW
 	lprintf(9, "http_transmit_thing(%s)%s\n",
 		content_type,
-		(is_static ? " (static)" : "")
+		((is_static > 0) ? " (static)" : "")
 	);
 #endif
 	output_headers(0, 0, 0, 0, 0, is_static);
