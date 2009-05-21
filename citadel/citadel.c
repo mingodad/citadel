@@ -768,16 +768,6 @@ void  gotoroomstep(CtdlIPC *ipc, int direction, int mode)
 	char rmname[ROOMNAMELEN];
 	int rmslot = 0;
 	int rmtotal;
-	struct ctdlroom *attr = NULL;
-
-	/* Fetch the existing room config */
-	r = CtdlIPCGetRoomAttributes(ipc, &attr, buf);
-	if (r / 100 != 2) {
-		scr_printf("%s\n", buf);
-		return;
-	}
-	strcpy (room_name , attr->QRname); 
-	free(attr);
 
 	/* Ask the server for a room list */
 	r = CtdlIPCKnownRooms(ipc, SubscribedRooms, (-1), &listing, buf);
