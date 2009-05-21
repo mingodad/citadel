@@ -420,6 +420,7 @@ typedef struct _ParsedHttpHdrs {
 	StrBuf *c_username;
 	StrBuf *c_password;
 	StrBuf *c_roomname;
+	StrBuf *c_language;
 	StrBuf *RawCookie;
 	int desired_session;
 
@@ -630,13 +631,20 @@ void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
 void end_critical_section(int which_one);
 
-
-void stuff_to_cookie(char *cookie, size_t clen, int session,
-			StrBuf *user, StrBuf *pass, StrBuf *room);
-void cookie_to_stuff(StrBuf *cookie, int *session,
-		     StrBuf *user,
-		     StrBuf *pass,
-		     StrBuf *room);
+void stuff_to_cookie(char *cookie, size_t clen,
+		int session,
+		StrBuf *user,
+		StrBuf *pass,
+		StrBuf *room,
+		char *language
+);
+void cookie_to_stuff(StrBuf *cookie,
+		int *session,
+		StrBuf *user,
+		StrBuf *pass,
+		StrBuf *room,
+		StrBuf *language
+);
 void locate_host(StrBuf *TBuf, int);
 void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_response);
 void openid_manual_create(void);

@@ -116,7 +116,6 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 	wcsession *WCC = WC;
 	StrBuf *Buf;
 	StrBuf *FloorDiv;
-	StrBuf *Language = NULL;
 
 	WCC->logged_in = 1;
 
@@ -160,15 +159,6 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 			WCC->cs_inet_email  = NewStrBuf();
 		StrBufExtract_NextToken(WCC->cs_inet_email, Buf, &pch, '|');
 	}
-	if (havebstr("language"))
-		set_preference("language", NewStrBufDup(SBSTR("language")), 1);
-	else {
-		get_preference("language", &Language);
-		if (Language != NULL) {
-			set_selected_language(ChrPtr(Language));
-			go_selected_language();		/* set locale */
-		}
-	}
 	get_preference("floordiv_expanded", &FloorDiv);
 	WCC->floordiv_expanded = FloorDiv;
 	FreeStrBuf(&Buf);
@@ -182,6 +172,8 @@ void do_login(void)
 {
 	wcsession *WCC = WC;
 	StrBuf *Buf;
+
+	lprintf(9, "SELECTED LANGUAGE: '%s'\n", bstr("language"));
 
 	if (havebstr("language")) {
 		set_selected_language(bstr("language"));
@@ -974,10 +966,14 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 		hdr->c_password = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
 	if (hdr->c_roomname == NULL)
 		hdr->c_roomname = NewStrBuf();
+	if (hdr->c_language == NULL)
+		hdr->c_language = NewStrBuf();
 	cookie_to_stuff(Line, &hdr->desired_session,
 			hdr->c_username,
 			hdr->c_password,
-			hdr->c_roomname);
+			hdr->c_roomname,
+			hdr->c_language
+	);
 	hdr->got_auth = AUTH_COOKIE;
 }
 

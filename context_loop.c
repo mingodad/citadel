@@ -540,6 +540,12 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 		TheSession->is_mobile = -1;
 		SessionList = TheSession;
 		pthread_mutex_unlock(&SessionListMutex);
+
+		if (StrLength(Hdr.c_language) > 0) {
+			lprintf(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr.c_language));
+			set_selected_language(ChrPtr(Hdr.c_language));
+			go_selected_language();
+		}
 	}
 
 	/*
