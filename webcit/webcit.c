@@ -400,14 +400,6 @@ void end_ajax_response(void) {
         wDumpContent(0);
 }
 
-	/* If it's a "force 404" situation then display the error and bail. */
-void do_404(void)
-{
-	hprintf("HTTP/1.1 404 Not found\r\n");
-	hprintf("Content-Type: text/plain\r\n");
-	wprintf("Not found\r\n");
-	end_burst();
-}
 
 
 /*
@@ -755,14 +747,11 @@ InitModule_WEBCIT
 (void)
 {
 	char dir[SIZ];
-	WebcitAddUrlHandler(HKEY("404"), do_404, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-
-
-	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("ajax_servcmd"), ajax_servcmd, 0);
+	WebcitAddUrlHandler(HKEY("webcit"), blank_page, URLNAMESPACE);
 
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
