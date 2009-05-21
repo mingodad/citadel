@@ -195,39 +195,14 @@ int is_mobile_ua(char *user_agent) {
       return 0;
 }
 
-
-
-/*
- * Look for commonly-found probes of malware such as worms, viruses, trojans, and Microsoft Office.
- * Short-circuit these requests so we don't have to send them through the full processing loop.
- */
-int is_bogus(StrBuf *http_cmd) {////TODO!
-	const char *url;
-	int i, max;
-	const char *bogus_prefixes[] = {
-		"/scripts/root.exe",	/* Worms and trojans and viruses, oh my! */
-		"/c/winnt",
-		"/MSADC/",
-		"/_vti",		/* Broken Microsoft DAV implementation */
-		"/MSOffice",		/* Stoopid MSOffice thinks everyone is IIS */
-		"/nonexistenshit"	/* Exploit found in the wild January 2009 */
-	};
-
-	url = ChrPtr(http_cmd);
-	if (IsEmptyStr(url)) return(1);
-	++url;
-
-	max = sizeof(bogus_prefixes) / sizeof(char *);
-
-	for (i=0; i<max; ++i) {
-		if (!strncasecmp(url, bogus_prefixes[i], strlen(bogus_prefixes[i]))) {
-			return(2);
-		}
-	}
-
-	return(0);	/* probably ok */
+/* If it's a "force 404" situation then display the error and bail. */
+void do_404(void)
+{
+	hprintf("HTTP/1.1 404 Not found\r\n");
+	hprintf("Content-Type: text/plain\r\n");
+	wprintf("Not found\r\n");
+	end_burst();
 }
-
 
 int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 {
@@ -253,8 +228,8 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 	/* the HTTP Version... */
 	StrBufExtract_token(Buf, Hdr->ReqLine, 1, ' ');
 	StrBufCutRight(Hdr->ReqLine, StrLength(Buf) + 1);
-	if ((StrLength(Buf) == 0) ||
-	    is_bogus(Hdr->ReqLine)) {
+	
+	if (StrLength(Buf) == 0) {
 		Hdr->eReqType = eGET;
 		return 1;
 	}
@@ -288,8 +263,9 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		 * allows a front end web server to forward all /webcit requests to us
 		 * while still using the same web server port for other things.
 		 */
-		if ((Hdr->Handler->Flags & URLNAMESPACE) == 0)
-			break;
+		if ((Hdr->Handler->Flags & URLNAMESPACE) != 0)
+			continue;
+		break;
 	} while (1);
 	/* remove the handlername from the URL */
 	if (Pos != NULL) {
@@ -442,12 +418,64 @@ void context_loop(int *sock)
 	if (!isbogus)
 		isbogus = AnalyseHeaders(&Hdr);
 
+	if ((isbogus) ||
+	    ((Hdr.Handler != NULL) &&
+	     ((Hdr.Handler->Flags & BOGUS) != 0)))
+	{
+		wcsession *Bogus;
+		Bogus = (wcsession *)
+			malloc(sizeof(wcsession));
+		memset(Bogus, 0, sizeof(wcsession));
+		pthread_setspecific(MyConKey, (void *)Bogus);
+		Bogus->Hdr = &Hdr;
+		Bogus->WBuf = NewStrBuf();
+		Bogus->HBuf = NewStrBuf();
+		session_new_modules(Bogus);
+		do_404();
+		session_detach_modules(Bogus);
+		http_destroy_modules(&Hdr);
+		session_destroy_modules(&Bogus);
+		return;
+	}
+
+	if ((Hdr.Handler != NULL) && 
+	    ((Hdr.Handler->Flags & ISSTATIC) != 0))
+	{
+		wcsession *Static;
+
+		Static = (wcsession *)
+			malloc(sizeof(wcsession));
+		memset(Static, 0, sizeof(wcsession));
+		pthread_setspecific(MyConKey, (void *)Static);
+		Static->Hdr = &Hdr;
+		Static->WBuf = NewStrBuf();
+		Static->HBuf = NewStrBuf();
+		Static->serv_sock = (-1);
+		Static->chat_sock = (-1);
+		Static->is_mobile = -1;
+		session_new_modules(Static);
+		
+		Hdr.Handler->F();
+
+		/* How long did this transaction take? */
+		gettimeofday(&tx_finish, NULL);
+		
+		lprintf(9, "Transaction [%s] completed in %ld.%06ld seconds.\n",
+			ChrPtr(Hdr.this_page),
+			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
+			);
+
+		session_detach_modules(Static);
+		http_destroy_modules(&Hdr);
+		session_destroy_modules(&Static);
+		return;
+	}
+
 	if (Hdr.got_auth == AUTH_BASIC) 
 		CheckAuthBasic(&Hdr);
 
 /*
-	if (isbogus)
-		StrBufPlain(ReqLine, HKEY("/404"));
 TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 */
 
@@ -738,7 +766,8 @@ void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F)
 	pHdr->H = F;
 	Put(HttpHeaderHandler, Name, Len, pHdr, DestroyHttpHeaderHandler);
 }
-extern void blank_page(void); ///TODO: remove me
+
+
 void 
 InitModule_CONTEXT
 (void)
@@ -756,11 +785,17 @@ InitModule_CONTEXT
 	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, CTX_NONE);
 	RegisterNamespace("NONCE", 0, 0, tmplput_nonce, 0);
 
-
-
-	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS|BOGUS);
-
-	WebcitAddUrlHandler(HKEY("webcit"), blank_page, URLNAMESPACE);
+	WebcitAddUrlHandler(HKEY("404"), do_404, ANONYMOUS|COOKIEUNNEEDED);
+/*
+ * Look for commonly-found probes of malware such as worms, viruses, trojans, and Microsoft Office.
+ * Short-circuit these requests so we don't have to send them through the full processing loop.
+ */
+	WebcitAddUrlHandler(HKEY("scripts"), do_404, ANONYMOUS|BOGUS); /* /root.exe	/* Worms and trojans and viruses, oh my! */
+	WebcitAddUrlHandler(HKEY("c"), do_404, ANONYMOUS|BOGUS);        /* /winnt */
+	WebcitAddUrlHandler(HKEY("MSADC"), do_404, ANONYMOUS|BOGUS);
+	WebcitAddUrlHandler(HKEY("_vti"), do_404, ANONYMOUS|BOGUS);		/* Broken Microsoft DAV implementation */
+	WebcitAddUrlHandler(HKEY("MSOffice"), do_404, ANONYMOUS|BOGUS);		/* Stoopid MSOffice thinks everyone is IIS */
+	WebcitAddUrlHandler(HKEY("nonexistenshit"), do_404, ANONYMOUS|BOGUS);	/* Exploit found in the wild January 2009 */
 }
 	
 

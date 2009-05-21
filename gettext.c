@@ -47,7 +47,7 @@ typedef struct _lang_pref{
  * \param LocaleString the string from the browser http headers
  */
 
-void httplang_to_locale(StrBuf *LocaleString)
+void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 {
 	LangStruct wanted_locales[SEARCH_LANG];
 	LangStruct *ls;
@@ -152,7 +152,7 @@ void httplang_to_locale(StrBuf *LocaleString)
 		/** fall back to C */
 		nBest=0;
 	}
-	WC->selected_language=nBest;
+	sess->selected_language=nBest;
 	lprintf(9, "language found: %s\n", AvailLangLoaded[WC->selected_language]);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&SBuf);
@@ -397,10 +397,11 @@ SessionNewModule_GETTEXT
 #ifdef ENABLE_NLS
 	void *vLine;
 	////TODO: make me a header getter
-	if (GetHash(WC->Hdr->HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
+	if ((sess->Hdr->HTTPHeaders!= NULL) &&
+	    GetHash(sess->Hdr->HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
 	    (vLine != NULL)) {
 		StrBuf *accept_language = (StrBuf*) vLine;
-		httplang_to_locale(accept_language);
+		httplang_to_locale(accept_language, sess);
 	}
 #endif
 }
