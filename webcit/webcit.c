@@ -157,8 +157,12 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 	}
 
 	stuff_to_cookie(cookie, 1024, 
-			WCC->wc_session, WCC->wc_username,
-			WCC->wc_password, WCC->wc_roomname);
+			WCC->wc_session,
+			WCC->wc_username,
+			WCC->wc_password,
+			WCC->wc_roomname,
+			get_selected_language()
+	);
 
 	if (unset_cookies) {
 		hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);

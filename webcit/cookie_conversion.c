@@ -1,43 +1,28 @@
 /*
  * $Id$
  */
-/**
- * \defgroup CookieConversion Grep Cookies
- * Utility functions which convert the HTTP cookie format we use to and
- * from user/password/room strings.
- *
- * \ingroup WebcitHttpServer 
- */
-/*@{*/
+
 #include "webcit.h"
 
+typedef unsigned char byte;	      /* Byte type used by cookie_to_stuff() */
 
-#define TRUE  1    /**< for sure? */
-#define FALSE 0    /**< nope. */
-
-typedef unsigned char byte;	      /**< Byte type */
-
-/**
- * \brief find cookie
+/*
  * Pack all session info into one easy-to-digest cookie. Healthy and delicious!
- * \param cookie cookie string to create???
- * \param session the session we want to convert into a cookie
- * \param user the user to be associated with the cookie
- * \param pass his passphrase
- * \param room the room he wants to enter
  */
 void stuff_to_cookie(char *cookie, size_t clen, int session,
-		StrBuf *user, StrBuf *pass, StrBuf *room)
+		StrBuf *user, StrBuf *pass, StrBuf *room, char *language)
 {
 	char buf[SIZ];
 	int i;
 	int len;
 
-	len = snprintf(buf, SIZ, "%d|%s|%s|%s|", 
-		       session, 
-		       ChrPtr(user), 
-		       ChrPtr(pass), 
-		       ChrPtr(room));
+	len = snprintf(buf, SIZ, "%d|%s|%s|%s|%s|", 
+		session, 
+		ChrPtr(user), 
+		ChrPtr(pass), 
+		ChrPtr(room),
+		language
+	);
 
 	strcpy(cookie, "");
 	for (i=0; (i < len) && (i * 2 < clen); ++i) {
@@ -45,11 +30,8 @@ void stuff_to_cookie(char *cookie, size_t clen, int session,
 	}
 }
 
-/**
- * \brief	Convert unpacked hex string to an integer
- * \param	in	Input hex string
- * \param	len	the length of the string
- * \return	the corrosponding integer value
+/*
+ * Convert unpacked hex string to an integer
  */
 int xtoi(const char *in, size_t len)
 {
@@ -71,41 +53,29 @@ int xtoi(const char *in, size_t len)
 	return val;
 }
 
-/**
- * \brief Extract all that fun stuff out of the cookie.
- * \param cookie the cookie string
- * \param session the corrosponding session to return
- * \param user the user string
- * \param user_len the user stringlength
- * \param pass the passphrase
- * \param pass_len length of the passphrase string 
- * \param room the room he is in
- * \param room_len the length of the room string
+/*
+ * Extract all that fun stuff out of the cookie.
  */
-void cookie_to_stuff(StrBuf *cookie, int *session,
-		     StrBuf *user,
-		     StrBuf *pass,
-		     StrBuf *room)
+void cookie_to_stuff(StrBuf *cookie,
+			int *session,
+			StrBuf *user,
+			StrBuf *pass,
+			StrBuf *room,
+			StrBuf *language)
 {
-/* debug
-	char t[256];
-	extract_token(t, buf, 0, '|', sizeof t);
-	lprintf(9, "SESS: %s\n", t);
-	extract_token(t, buf, 1, '|', sizeof t);
-	lprintf(9, "USER: %s\n", t);
-	extract_token(t, buf, 2, '|', sizeof t);
-	lprintf(9, "PASS: %s\n", t);
-	extract_token(t, buf, 3, '|', sizeof t);
-	lprintf(9, "ROOM: %s\n", t);
- debug */
-
-	if (session != NULL)
+	if (session != NULL) {
 		*session = StrBufExtract_int(cookie, 0, '|');
-	if (user != NULL)
+	}
+	if (user != NULL) {
 		StrBufExtract_token(user, cookie, 1, '|');
-	if (pass != NULL)
+	}
+	if (pass != NULL) {
 		StrBufExtract_token(pass, cookie, 2, '|');
-	if (room != NULL)
+	}
+	if (room != NULL) {
 		StrBufExtract_token(room, cookie, 3, '|');
+	}
+	if (language != NULL) {
+		StrBufExtract_token(language, cookie, 4, '|');
+	}
 }
-/*@}*/
