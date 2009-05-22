@@ -485,7 +485,7 @@ size_t striplt(char *buf) {
 	}
 
 	new_len = last_nonspace - first_nonspace + 1;
-	memcpy(buf, first_nonspace, new_len);
+	memmove(buf, first_nonspace, new_len);
 	buf[new_len] = 0;
 	return new_len;
 }
