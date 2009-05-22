@@ -119,6 +119,7 @@ wc_mime_attachment *load_vcard(message_summary *Msg)
 
 	load_message(Msg, FoundCharset, &Error);
 
+	FreeStrBuf(&FoundCharset);
 	/* look up the vcard... */
 	it = GetNewHashPos(Msg->AllAttach, 0);
 	while (GetNextHashPos(Msg->AllAttach, it, &len, &Key, &vMime) && 
