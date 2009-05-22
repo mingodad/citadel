@@ -375,6 +375,7 @@ void output_image(void)
 			if (!IsEmptyStr(MimeType))
 			{
 				http_transmit_thing(MimeType, 0);
+				FreeStrBuf(&Buf);
 				return;
 			}
 		}
