@@ -395,12 +395,11 @@ StrEscPuts(WC->UrlFragment1);
 void tmplput_url_part(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Name = NULL;
-	StrBuf *UrlBuf;
+	StrBuf *UrlBuf = NULL;
 	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
 		if (TP->Tokens->Params[0]->lvalue == 0) {
-			UrlBuf = NewStrBuf();
 			if (WCC->Hdr->Handler != NULL)
 				UrlBuf = Name = WCC->Hdr->Handler->Name;
 		}
