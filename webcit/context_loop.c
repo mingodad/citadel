@@ -428,8 +428,6 @@ void context_loop(int *sock)
 		memset(Bogus, 0, sizeof(wcsession));
 		pthread_setspecific(MyConKey, (void *)Bogus);
 		Bogus->Hdr = &Hdr;
-		Bogus->WBuf = NewStrBuf();
-		Bogus->HBuf = NewStrBuf();
 		session_new_modules(Bogus);
 		do_404();
 		session_detach_modules(Bogus);
@@ -448,8 +446,6 @@ void context_loop(int *sock)
 		memset(Static, 0, sizeof(wcsession));
 		pthread_setspecific(MyConKey, (void *)Static);
 		Static->Hdr = &Hdr;
-		Static->WBuf = NewStrBuf();
-		Static->HBuf = NewStrBuf();
 		Static->serv_sock = (-1);
 		Static->chat_sock = (-1);
 		Static->is_mobile = -1;
