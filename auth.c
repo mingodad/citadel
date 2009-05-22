@@ -977,7 +977,15 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 	hdr->got_auth = AUTH_COOKIE;
 }
 
-
+void 
+HttpDestroyModule_AUTH
+(ParsedHttpHdrs *httpreq)
+{
+	FreeStrBuf(&httpreq->c_username);
+	FreeStrBuf(&httpreq->c_password);
+	FreeStrBuf(&httpreq->c_roomname);
+	FreeStrBuf(&httpreq->c_language);
+}
 
 void 
 InitModule_AUTH
