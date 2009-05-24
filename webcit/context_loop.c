@@ -243,7 +243,6 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		Hdr->HR.DontNeedAuth = (Hdr->HR.Handler->Flags & ISSTATIC) != 0;
 	}
 
-	Hdr->HTTPHeaders = NewHash(1, NULL);
 	return 0;
 }
 
@@ -294,6 +293,7 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 			continue;
 		}
 		if (nLine == 1) {
+			Hdr->HTTPHeaders = NewHash(1, NULL);
 			pHdr = (OneHttpHeader*) malloc(sizeof(OneHttpHeader));
 			memset(pHdr, 0, sizeof(OneHttpHeader));
 			pHdr->Val = Line;

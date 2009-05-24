@@ -870,9 +870,9 @@ void readloop(long oper)
 		WCC->wc_view = VIEW_MAILBOX;
 
 	if (!WCC->is_ajax) {
-	output_headers(1, 1, 1, 0, 0, 0);
+		output_headers(1, 1, 1, 0, 0, 0);
 	} else if (WCC->wc_view == VIEW_MAILBOX) {
-	  jsonMessageListHdr();
+		jsonMessageListHdr();
 	}
 
 	switch (WCC->wc_view) {
