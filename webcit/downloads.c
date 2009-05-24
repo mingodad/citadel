@@ -249,7 +249,7 @@ void download_file(void)
 	int force_download = 1;
 	
 	Buf = NewStrBuf();
-	StrBufExtract_token(Buf, WCC->Hdr->ReqLine, 0, '/');
+	StrBufExtract_token(Buf, WCC->Hdr->HR.ReqLine, 0, '/');
 	StrBufUnescape(Buf, 1);
 	serv_printf("OPEN %s", ChrPtr(Buf));
 	StrBuf_ServGetln(Buf);

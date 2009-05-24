@@ -75,8 +75,8 @@ void openid_attach(void) {
 		snprintf(buf, sizeof buf,
 			 "OIDS %s|%s://%s/finalize_openid_login|%s://%s",
 			 bstr("openid_url"),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host)
+			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->HR.http_host),
+			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->HR.http_host)
 		);
 
 		serv_puts(buf);

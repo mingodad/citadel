@@ -311,6 +311,7 @@ webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdi
  */
 int main(int argc, char **argv)
 {
+	size_t basesize = 2;            /* how big should strbufs be on creation? */
 	pthread_t SessThread;		/* Thread descriptor */
 	pthread_attr_t attr;		/* Thread attributes */
 	int a, i;	        	/* General-purpose variables */
@@ -352,9 +353,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:G:cfsZ")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:dD:G:cfsZ")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:T:x:dD:G:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
 #endif
 		switch (a) {
 		case 'h':
@@ -375,6 +376,11 @@ int main(int argc, char **argv)
 		case 'D':
 			pidfile = strdup(optarg);
 			running_as_daemon = 1;
+			break;
+		case 'B': /* Basesize */
+			basesize = atoi(optarg);
+			if (basesize > 2)
+				StartLibCitadel(basesize);
 			break;
 		case 'i':
 			safestrncpy(ip_addr, optarg, sizeof ip_addr);
@@ -712,9 +718,13 @@ void worker_entry(void)
 #endif
 
 			if (fail_this_transaction == 0) {
+				ParsedHttpHdrs Hdr;
+				memset(&Hdr, 0, sizeof(ParsedHttpHdrs));
+				Hdr.HR.eReqType = eGET;
+				Hdr.http_sock = ssock;
 
 				/* Perform an HTTP transaction... */
-				context_loop(&ssock);
+				context_loop(&Hdr);
 
 				/* Shut down SSL/TLS if required... */
 #ifdef HAVE_OPENSSL
@@ -724,7 +734,7 @@ void worker_entry(void)
 #endif
 
 				/* ...and close the socket. */
-				if (ssock > 0)
+				if (Hdr.http_sock > 0)
 					lingering_close(ssock);
 			}
 

@@ -61,7 +61,7 @@ void do_listsub(void)
 			email,
 			subtype,
 			(is_https ? "https" : "http"),
-			    ChrPtr(WC->Hdr->http_host)
+			    ChrPtr(WC->Hdr->HR.http_host)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -102,7 +102,7 @@ void do_listsub(void)
 			    room,
 			    email,
 			    (is_https ? "https" : "http"),
-			    ChrPtr(WC->Hdr->http_host)
+			    ChrPtr(WC->Hdr->HR.http_host)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {

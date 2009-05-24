@@ -96,7 +96,7 @@ void display_rss(void)
 		#endif
 	}
 
-	if (gotoroom(WCC->Hdr->ReqLine)) {
+	if (gotoroom(WCC->Hdr->HR.ReqLine)) {
 		lprintf(3, "RSS: Can't goto requested room\n");
 		hprintf("HTTP/1.1 404 Not Found\r\n");
 		hprintf("Content-Type: text/html\r\n");
@@ -155,7 +155,7 @@ void display_rss(void)
 	hprintf("Content-Type: application/rss+xml\r\n");
 	hprintf("Server: %s\r\n", PACKAGE_STRING);
 	hprintf("Connection: close\r\n");
-	if (WCC->Hdr->eReqType == eHEAD)
+	if (WCC->Hdr->HR.eReqType == eHEAD)
 		return;
 
 	/* <?xml.. etc confuses our subst parser, so do it here */
@@ -164,7 +164,7 @@ void display_rss(void)
 	SVPutBuf("ROOM", WCC->wc_roomname, 1);
 	SVPutBuf("NODE", WCC->serv_info->serv_humannode, 1);
 	/* TODO:  Fix me */
-	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host));
+	svprintf(HKEY("ROOM_LINK"), WCS_STRING, "%s://%s/", (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->HR.http_host));
 	
 	/** Get room info for description */
 	serv_puts("RINF");

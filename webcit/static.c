@@ -184,7 +184,7 @@ void output_flat_static(void)
 	void *vFile;
 	StrBuf *File;
 
-	if (GetHash(StaticFilemappings[0], SKEY(WCC->Hdr->Handler->Name), &vFile) &&
+	if (GetHash(StaticFilemappings[0], SKEY(WCC->Hdr->HR.Handler->Name), &vFile) &&
 	    (vFile != NULL))
 	{
 		File = (StrBuf*) vFile;
@@ -200,7 +200,7 @@ void output_static_safe(HashList *DirList)
 	void *vFile;
 	StrBuf *File;
 
-	if (GetHash(DirList, SKEY(WCC->Hdr->ReqLine), &vFile) &&
+	if (GetHash(DirList, SKEY(WCC->Hdr->HR.ReqLine), &vFile) &&
 	    (vFile != NULL))
 	{
 		File = (StrBuf*) vFile;

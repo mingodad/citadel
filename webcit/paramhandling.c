@@ -400,16 +400,16 @@ void tmplput_url_part(StrBuf *Target, WCTemplputParams *TP)
 	
 	if (WCC != NULL) {
 		if (TP->Tokens->Params[0]->lvalue == 0) {
-			if (WCC->Hdr->Handler != NULL)
-				UrlBuf = Name = WCC->Hdr->Handler->Name;
+			if (WCC->Hdr->HR.Handler != NULL)
+				UrlBuf = Name = WCC->Hdr->HR.Handler->Name;
 		}
 		else if (TP->Tokens->Params[0]->lvalue == 1) {
 			UrlBuf = NewStrBuf();
-			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 0, '/');
+			StrBufExtract_token(UrlBuf, WCC->Hdr->HR.ReqLine, 0, '/');
 		}
 		else {
 			UrlBuf = NewStrBuf();
-			StrBufExtract_token(UrlBuf, WCC->Hdr->ReqLine, 1, '/');
+			StrBufExtract_token(UrlBuf, WCC->Hdr->HR.ReqLine, 1, '/');
 		}
 
 		if (UrlBuf == NULL)  {

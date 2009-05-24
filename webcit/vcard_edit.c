@@ -1219,7 +1219,7 @@ void display_vcard_photo_img(void)
 	const char *contentType;
 	wcsession *WCC = WC;
 
-	msgnum = StrBufExtract_long(WCC->Hdr->ReqLine, 0, '/');
+	msgnum = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 0, '/');
 	
 	vcard = load_mimepart(msgnum,"1");
 	v = VCardLoad(vcard);
