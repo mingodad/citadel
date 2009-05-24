@@ -71,6 +71,7 @@ enum LogLevel {
 
 char *libcitadel_version_string(void);
 int libcitadel_version_number(void);
+void StartLibCitadel(size_t basesize);
 void ShutDownLibCitadel(void);
 
 /*
@@ -221,12 +222,15 @@ typedef struct _ConstStr {
 StrBuf* NewStrBuf(void);
 StrBuf* NewStrBufDup(const StrBuf *CopyMe);
 StrBuf* NewStrBufPlain(const char* ptr, int nChars);
+long StrBufShrinkToFit(StrBuf *Buf, int Force);
+
 int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars);
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant);
 #define NewConstStrBuf(a) _NewConstStrBuf(a, sizeof(a))
 void FreeStrBuf (StrBuf **FreeMe);
 void HFreeStrBuf (void *VFreeMe);
 int FlushStrBuf(StrBuf *buf);
+int FLUSHStrBuf(StrBuf *buf); /* expensive but doesn't leave content behind for others to find in case of errors */
 
 const char *ChrPtr(const StrBuf *Str);
 int StrLength(const StrBuf *Str);

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <sys/select.h>
 #include <fcntl.h>
+#include <sys/types.h>
 #define SHOW_ME_VAPPEND_PRINTF
 #include <stdarg.h>
 #include "libcitadel.h"
@@ -15,16 +16,16 @@
 #include <iconv.h>
 #endif
 
-#ifdef HAVE_ZLIB
-#include <zlib.h>
+#if HAVE_BACKTRACE
+#include <execinfo.h>
 #endif
-
 
 #ifdef HAVE_ZLIB
 #include <zlib.h>
 int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
                           const Bytef * source, uLong sourceLen, int level);
 #endif
+int BaseStrBufSize = SIZ;
 
 /**
  * Private Structure for the Stringbuffer
@@ -34,8 +35,42 @@ struct StrBuf {
 	long BufSize;      /**< how many spcae do we optain */
 	long BufUsed;      /**< StNumber of Chars used excluding the trailing \0 */
 	int ConstBuf;      /**< are we just a wrapper arround a static buffer and musn't we be changed? */
+#ifdef SIZE_DEBUG
+	long nIncreases;
+	char bt [SIZ];
+	char bt_lastinc [SIZ];
+#endif
 };
 
+#ifdef SIZE_DEBUG
+#if HAVE_BACKTRACE
+static void StrBufBacktrace(StrBuf *Buf, int which)
+{
+	int n;
+	char *pstart, *pch;
+	void *stack_frames[50];
+	size_t size, i;
+	char **strings;
+
+	if (which)
+		pstart = pch = Buf->bt;
+	else
+		pstart = pch = Buf->bt_lastinc;
+	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
+	strings = backtrace_symbols(stack_frames, size);
+	for (i = 0; i < size; i++) {
+		if (strings != NULL)
+			n = snprintf(pch, SIZ - (pch - pstart), "%s\\n", strings[i]);
+		else
+			n = snprintf(pch, SIZ - (pch - pstart), "%p\\n", stack_frames[i]);
+		pch += n;
+	}
+	free(strings);
+
+
+}
+#endif
+#endif
 
 /** 
  * \Brief Cast operator to Plain String 
@@ -94,7 +129,33 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 	free (Buf->buf);
 	Buf->buf = NewBuf;
 	Buf->BufSize *= 2;
+#ifdef SIZE_DEBUG
+	Buf->nIncreases++;
+#if HAVE_BACKTRACE
+	StrBufBacktrace(Buf, 1);
+#endif
+#endif
 	return Buf->BufSize;
+}
+
+/**
+ * \brief shrink long term buffers to their real size so they don't waste memory
+ * \param Buf buffer to shrink
+ * \param Force if not set, will just executed if the buffer is much to big; set for lifetime strings
+ * \returns physical size of the buffer
+ */
+long StrBufShrinkToFit(StrBuf *Buf, int Force)
+{
+	if (Force || 
+	    (Buf->BufUsed + (Buf->BufUsed / 3) > Buf->BufSize))
+	{
+		char *TmpBuf = (char*) malloc(Buf->BufUsed + 1);
+		memcpy (TmpBuf, Buf->buf, Buf->BufUsed + 1);
+		Buf->BufSize = Buf->BufUsed + 1;
+		free(Buf->buf);
+		Buf->buf = TmpBuf;
+	}
+	return Buf->BufUsed;
 }
 
 /**
@@ -106,11 +167,19 @@ StrBuf* NewStrBuf(void)
 	StrBuf *NewBuf;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
-	NewBuf->buf = (char*) malloc(SIZ);
+	NewBuf->buf = (char*) malloc(BaseStrBufSize);
 	NewBuf->buf[0] = '\0';
-	NewBuf->BufSize = SIZ;
+	NewBuf->BufSize = BaseStrBufSize;
 	NewBuf->BufUsed = 0;
 	NewBuf->ConstBuf = 0;
+#ifdef SIZE_DEBUG
+	NewBuf->nIncreases = 0;
+	NewBuf->bt[0] = '\0';
+	NewBuf->bt_lastinc[0] = '\0';
+#if HAVE_BACKTRACE
+	StrBufBacktrace(NewBuf, 0);
+#endif
+#endif
 	return NewBuf;
 }
 
@@ -132,6 +201,14 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 	NewBuf->BufUsed = CopyMe->BufUsed;
 	NewBuf->BufSize = CopyMe->BufSize;
 	NewBuf->ConstBuf = 0;
+#ifdef SIZE_DEBUG
+	NewBuf->nIncreases = 0;
+	NewBuf->bt[0] = '\0';
+	NewBuf->bt_lastinc[0] = '\0';
+#if HAVE_BACKTRACE
+	StrBufBacktrace(NewBuf, 0);
+#endif
+#endif
 	return NewBuf;
 }
 
@@ -146,7 +223,7 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 {
 	StrBuf *NewBuf;
-	size_t Siz = SIZ;
+	size_t Siz = BaseStrBufSize;
 	size_t CopySize;
 
 	NewBuf = (StrBuf*) malloc(sizeof(StrBuf));
@@ -170,6 +247,14 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 		NewBuf->BufUsed = 0;
 	}
 	NewBuf->ConstBuf = 0;
+#ifdef SIZE_DEBUG
+	NewBuf->nIncreases = 0;
+	NewBuf->bt[0] = '\0';
+	NewBuf->bt_lastinc[0] = '\0';
+#if HAVE_BACKTRACE
+	StrBufBacktrace(NewBuf, 0);
+#endif
+#endif
 	return NewBuf;
 }
 
@@ -216,6 +301,11 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 	NewBuf->BufSize = SizeOfStrConstant;
 	NewBuf->BufUsed = SizeOfStrConstant;
 	NewBuf->ConstBuf = 1;
+#ifdef SIZE_DEBUG
+	NewBuf->nIncreases = 0;
+	NewBuf->bt[0] = '\0';
+	NewBuf->bt_lastinc[0] = '\0';
+#endif
 	return NewBuf;
 }
 
@@ -236,6 +326,26 @@ int FlushStrBuf(StrBuf *buf)
 }
 
 /**
+ * \brief wipe the content of a Buf thoroughly (overwrite it -> expensive); keep its struct
+ * \param buf Buffer to wipe
+ */
+int FLUSHStrBuf(StrBuf *buf)
+{
+	if (buf == NULL)
+		return -1;
+	if (buf->ConstBuf)
+		return -1;
+	if (buf->BufUsed > 0) {
+		memset(buf->buf, 0, buf->BufUsed);
+		buf->BufUsed = 0;
+	}
+	return 0;
+}
+
+#ifdef SIZE_DEBUG
+int hFreeDbglog = -1;
+#endif
+/**
  * \brief Release a Buffer
  * Its a double pointer, so it can NULL your pointer
  * so fancy SIG11 appear instead of random results
@@ -245,6 +355,35 @@ void FreeStrBuf (StrBuf **FreeMe)
 {
 	if (*FreeMe == NULL)
 		return;
+#ifdef SIZE_DEBUG
+	if (hFreeDbglog == -1){
+		pid_t pid = getpid();
+		char path [SIZ];
+		snprintf(path, SIZ, "/tmp/libcitadel_strbuf_realloc.log.%d", pid);
+		hFreeDbglog = open(path, O_APPEND|O_CREAT|O_WRONLY);
+	}
+	if ((*FreeMe)->nIncreases > 0)
+	{
+		char buf[SIZ * 3];
+		long n;
+		n = snprintf(buf, SIZ * 3, "+|%ld|%ld|%ld|%s|%s|\n",
+			     (*FreeMe)->nIncreases,
+			     (*FreeMe)->BufUsed,
+			     (*FreeMe)->BufSize,
+			     (*FreeMe)->bt,
+			     (*FreeMe)->bt_lastinc);
+		n = write(hFreeDbglog, buf, n);
+	}
+	else
+	{
+		char buf[128];
+		long n;
+		n = snprintf(buf, 128, "_|0|%ld%ld|\n",
+			     (*FreeMe)->BufUsed,
+			     (*FreeMe)->BufSize);
+		n = write(hFreeDbglog, buf, n);
+	}
+#endif
 	if (!(*FreeMe)->ConstBuf) 
 		free((*FreeMe)->buf);
 	free(*FreeMe);
@@ -261,6 +400,35 @@ void HFreeStrBuf (void *VFreeMe)
 	StrBuf *FreeMe = (StrBuf*)VFreeMe;
 	if (FreeMe == NULL)
 		return;
+#ifdef SIZE_DEBUG
+	if (hFreeDbglog == -1){
+		pid_t pid = getpid();
+		char path [SIZ];
+		snprintf(path, SIZ, "/tmp/libcitadel_strbuf_realloc.log.%d", pid);
+		hFreeDbglog = open(path, O_APPEND|O_CREAT|O_WRONLY);
+	}
+	if (FreeMe->nIncreases > 0)
+	{
+		char buf[SIZ * 3];
+		long n;
+		n = snprintf(buf, SIZ * 3, "+|%ld|%ld|%ld|%s|%s|\n",
+			     FreeMe->nIncreases,
+			     FreeMe->BufUsed,
+			     FreeMe->BufSize,
+			     FreeMe->bt,
+			     FreeMe->bt_lastinc);
+		write(hFreeDbglog, buf, n);
+	}
+	else
+	{
+		char buf[128];
+		long n;
+		n = snprintf(buf, 128, "_|%ld|%ld%ld|\n",
+			     FreeMe->nIncreases,
+			     FreeMe->BufUsed,
+			     FreeMe->BufSize);
+	}
+#endif
 	if (!FreeMe->ConstBuf) 
 		free(FreeMe->buf);
 	free(FreeMe);
@@ -291,14 +459,15 @@ int StrToi(const StrBuf *Buf)
 	else
 		return 0;
 }
+
 /**
  * \brief Checks to see if the string is a pure number 
  */
 int StrBufIsNumber(const StrBuf *Buf) {
+  char * pEnd;
   if (Buf == NULL) {
 	return 0;
   }
-  char * pEnd;
   strtoll(Buf->buf, &pEnd, 10);
   if (pEnd == NULL && ((Buf->buf)-pEnd) != 0) {
     return 1;
@@ -1395,8 +1564,15 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 		*Pos = NULL;
 	}
 	
-	if (buf->BufSize - buf->BufUsed < 10)
+	if (buf->BufSize - buf->BufUsed < 10) {
+		long offset = 0;
+		
+		if (*Pos != NULL)
+			offset = *Pos - buf->buf;
 		IncreaseBuf(buf, 1, -1);
+		if (*Pos != NULL)
+			*Pos = buf->buf + offset;
+	}
 
 	fdflags = fcntl(*fd, F_GETFL);
 	if ((fdflags & O_NONBLOCK) == O_NONBLOCK)
@@ -1429,7 +1605,13 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				buf->BufUsed += rlen;
 				buf->buf[buf->BufUsed] = '\0';
 				if (buf->BufUsed + 10 > buf->BufSize) {
+					long offset = 0;
+					
+					if (*Pos != NULL)
+						offset = *Pos - buf->buf;
 					IncreaseBuf(buf, 1, -1);
+					if (*Pos != NULL)
+						*Pos = buf->buf + offset;
 				}
 				pch = strchr(buf->buf, '\n');
 				continue;
@@ -1539,9 +1721,16 @@ int StrBufReadBLOBBuffered(StrBuf *Buf,
 		return -1;
 	if (!append)
 		FlushStrBuf(Buf);
-	if (Buf->BufUsed + nBytes >= Buf->BufSize)
+	if (Buf->BufUsed + nBytes >= Buf->BufSize) {
+		long offset = 0;
+		
+		if (*BufPos != NULL)
+			offset = *BufPos - Buf->buf;
 		IncreaseBuf(Buf, 1, Buf->BufUsed + nBytes);
-
+		if (*BufPos != NULL)
+			*BufPos = Buf->buf + offset;
+	}
+	
 
 	len = *BufPos - IOBuf->buf;
 	rlen = IOBuf->BufUsed - len;

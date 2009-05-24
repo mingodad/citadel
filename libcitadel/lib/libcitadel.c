@@ -16,12 +16,18 @@
 #include "xdgmime/xdgmime.h"
 #include "libcitadellocal.h"
 
+extern int BaseStrBufSize;
 char *libcitadel_version_string(void) {
 	return "$Id$";
 }
 
 int libcitadel_version_number(void) {
 	return LIBCITADEL_VERSION_NUMBER;
+}
+
+void StartLibCitadel(size_t basesize)
+{
+	BaseStrBufSize = basesize;
 }
 
 void ShutDownLibCitadel(void)
