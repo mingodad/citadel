@@ -321,7 +321,7 @@ void serv_printf(const char *format,...)
 
 
 
-int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
+int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 {
 	const char *Error, *pch, *pchs;
 	int rlen, len, retval = 0;
@@ -329,28 +329,28 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
 #ifdef HAVE_OPENSSL
 	if (is_https) {
 		int ntries = 0;
-		if (StrLength(CLineBuf) > 0) {
-			pchs = ChrPtr(CLineBuf);
+		if (StrLength(Hdr->ReadBuf) > 0) {
+			pchs = ChrPtr(Hdr->ReadBuf);
 			pch = strchr(pchs, '\n');
 			if (pch != NULL) {
 				rlen = 0;
 				len = pch - pchs;
 				if (len > 0 && (*(pch - 1) == '\r') )
 					rlen ++;
-				StrBufSub(Target, CLineBuf, 0, len - rlen);
-				StrBufCutLeft(CLineBuf, len + 1);
+				StrBufSub(Target, Hdr->ReadBuf, 0, len - rlen);
+				StrBufCutLeft(Hdr->ReadBuf, len + 1);
 				return len - rlen;
 			}
 		}
 
 		while (retval == 0) { 
 				pch = NULL;
-				pchs = ChrPtr(CLineBuf);
+				pchs = ChrPtr(Hdr->ReadBuf);
 				if (*pchs != '\0')
 					pch = strchr(pchs, '\n');
 				if (pch == NULL) {
-					retval = client_read_sslbuffer(CLineBuf, SLEEPING);
-					pchs = ChrPtr(CLineBuf);
+					retval = client_read_sslbuffer(Hdr->ReadBuf, SLEEPING);
+					pchs = ChrPtr(Hdr->ReadBuf);
 					pch = strchr(pchs, '\n');
 				}
 				if (retval == 0) {
@@ -365,8 +365,8 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
 			len = pch - pchs;
 			if (len > 0 && (*(pch - 1) == '\r') )
 				rlen ++;
-			StrBufSub(Target, CLineBuf, 0, len - rlen);
-			StrBufCutLeft(CLineBuf, len + 1);
+			StrBufSub(Target, Hdr->ReadBuf, 0, len - rlen);
+			StrBufCutLeft(Hdr->ReadBuf, len + 1);
 			return len - rlen;
 
 		}
@@ -376,9 +376,9 @@ int ClientGetLine(int *sock, StrBuf *Target, StrBuf *CLineBuf, const char **Pos)
 	else 
 #endif
 		return StrBufTCP_read_buffered_line_fast(Target, 
-							 CLineBuf,
-							 Pos,
-							 sock,
+							 Hdr->ReadBuf,
+							 &Hdr->Pos,
+							 &Hdr->http_sock,
 							 5,
 							 1,
 							 &Error);
@@ -509,23 +509,23 @@ int ig_uds_server(char *sockpath, int queue_len)
  *      0       Request timed out.
  *	-1   	Connection is broken, or other error.
  */
-int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, const char **Pos, int bytes, int timeout)
+int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 {
 	const char *Error;
 	int retval = 0;
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		long bufremain = StrLength(Buf) - (*Pos - ChrPtr(Buf));
-		StrBufAppendBufPlain(Target, *Pos, bufremain, 0);
-		*Pos = NULL;
-		FlushStrBuf(Buf);
+		long bufremain = StrLength(Hdr->ReadBuf) - (Hdr->Pos - ChrPtr(Hdr->ReadBuf));
+		StrBufAppendBufPlain(Target, Hdr->Pos, bufremain, 0);
+		Hdr->Pos = NULL;
+		FlushStrBuf(Hdr->ReadBuf);
 
-		while ((StrLength(Buf) + StrLength(Target) < bytes) &&
+		while ((StrLength(Hdr->ReadBuf) + StrLength(Target) < bytes) &&
 		       (retval >= 0))
-			retval = client_read_sslbuffer(Buf, timeout);
+			retval = client_read_sslbuffer(Hdr->ReadBuf, timeout);
 		if (retval >= 0) {
-			StrBufAppendBuf(Target, Buf, 0); /* todo: Buf > bytes? */
+			StrBufAppendBuf(Target, Hdr->ReadBuf, 0); /* todo: Buf > bytes? */
 #ifdef HTTP_TRACING
 			write(2, "\033[32m", 5);
 			write(2, buf, bytes);
@@ -541,8 +541,9 @@ int client_read_to(int *sock, StrBuf *Target, StrBuf *Buf, const char **Pos, int
 #endif
 
 	retval = StrBufReadBLOBBuffered(Target, 
-					Buf, Pos, 
-					sock, 
+					Hdr->ReadBuf, 
+					&Hdr->Pos, 
+					&Hdr->http_sock, 
 					1, 
 					bytes,
 					O_TERM,
@@ -585,7 +586,7 @@ long end_burst(void)
         fd_set wset;
         int fdflags;
 
-	if (!DisableGzip && (WCC->Hdr->gzip_ok) && CompressBuffer(WCC->WBuf))
+	if (!DisableGzip && (WCC->Hdr->HR.gzip_ok) && CompressBuffer(WCC->WBuf))
 	{
 		hprintf("Content-encoding: gzip\r\n");
 	}
@@ -669,6 +670,42 @@ long end_burst(void)
 	return StrLength(WCC->WBuf);
 }
 
+
+/*
+ * lingering_close() a`la Apache. see
+ * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
+ */
+int lingering_close(int fd)
+{
+	char buf[SIZ];
+	int i;
+	fd_set set;
+	struct timeval tv, start;
+
+	gettimeofday(&start, NULL);
+	shutdown(fd, 1);
+	do {
+		do {
+			gettimeofday(&tv, NULL);
+			tv.tv_sec = SLEEPING - (tv.tv_sec - start.tv_sec);
+			tv.tv_usec = start.tv_usec - tv.tv_usec;
+			if (tv.tv_usec < 0) {
+				tv.tv_sec--;
+				tv.tv_usec += 1000000;
+			}
+			FD_ZERO(&set);
+			FD_SET(fd, &set);
+			i = select(fd + 1, &set, NULL, NULL, &tv);
+		} while (i == -1 && errno == EINTR);
+
+		if (i <= 0)
+			break;
+
+		i = read(fd, buf, sizeof buf);
+	} while (i != 0 && (i != -1 || errno == EINTR));
+
+	return close(fd);
+}
 
 
 void

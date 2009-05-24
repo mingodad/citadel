@@ -168,16 +168,16 @@ int GetConnected (void)
 		 * unless we are following X-Forwarded-For: headers
 		 * and such a header has already turned up something.
 		 */
-		if ( (!follow_xff) || (StrLength(WCC->Hdr->browser_host) == 0) ) {
-			if (WCC->Hdr->browser_host == NULL) {
-				WCC->Hdr->browser_host = NewStrBuf();
+		if ( (!follow_xff) || (StrLength(WCC->Hdr->HR.browser_host) == 0) ) {
+			if (WCC->Hdr->HR.browser_host == NULL) {
+				WCC->Hdr->HR.browser_host = NewStrBuf();
 				Put(WCC->Hdr->HTTPHeaders, HKEY("FreeMeWithTheOtherHeaders"), 
-				    WCC->Hdr->browser_host, HFreeStrBuf);
+				    WCC->Hdr->HR.browser_host, HFreeStrBuf);
 			}
-			locate_host(WCC->Hdr->browser_host, WCC->Hdr->http_sock);
+			locate_host(WCC->Hdr->HR.browser_host, WCC->Hdr->http_sock);
 		}
 		if (WCC->serv_info == NULL)
-			WCC->serv_info = get_serv_info(WCC->Hdr->browser_host, WCC->Hdr->user_agent);
+			WCC->serv_info = get_serv_info(WCC->Hdr->HR.browser_host, WCC->Hdr->HR.user_agent);
 		if (WCC->serv_info == NULL){
 			begin_burst();
 			wprintf(_("Received unexpected answer from Citadel "

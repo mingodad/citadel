@@ -402,42 +402,51 @@ const char *ReqStrs[eNONE];
 #define AUTH_COOKIE 1
 #define AUTH_BASIC 2
 
-typedef struct _ParsedHttpHdrs {
-	int http_sock;				/**< HTTP server socket */
-	const char *Pos;
-	StrBuf *ReadBuf;
 
+
+typedef struct _HdrRefs {
 	long eReqType;                          /**< eGET, ePOST.... */
-	const WebcitHandler *Handler;
-	
-	int DontNeedAuth;
-	int got_auth;
+	int desired_session;
 	int SessionKey;
+
+	int got_auth;
+	int DontNeedAuth;
 	long ContentLength;
 	time_t if_modified_since;
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
 
-	StrBuf *c_username;
-	StrBuf *c_password;
-	StrBuf *c_roomname;
-	StrBuf *c_language;
-	StrBuf *RawCookie;
-	int desired_session;
-
+	/* these are references into Hdr->HTTPHeaders, so we don't need to free them. */
 	StrBuf *ContentType;
-
-	StrBuf *RawLine;/* TODO: freeme */
+	StrBuf *RawCookie;
 	StrBuf *ReqLine;
 	StrBuf *http_host;			/**< HTTP Host: header */
 	StrBuf *browser_host;
 	StrBuf *user_agent;
 	StrBuf *plainauth;
 
+
+	const WebcitHandler *Handler;
+} HdrRefs;
+
+typedef struct _ParsedHttpHdrs {
+	int http_sock;				/**< HTTP server socket */
+	const char *Pos;
+	StrBuf *ReadBuf;
+
+	
+
+	StrBuf *c_username;
+	StrBuf *c_password;
+	StrBuf *c_roomname;
+	StrBuf *c_language;
 	StrBuf *this_page;			/**< URL of current page */
 	StrBuf *PlainArgs; /*TODO: freeme*/
+
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	HashList *HTTPHeaders;                  /**< the headers the client sent us */
 	int nWildfireHeaders;                   /**< how many wildfire headers did we already send? */
+
+	HdrRefs HR;
 } ParsedHttpHdrs;
 
 

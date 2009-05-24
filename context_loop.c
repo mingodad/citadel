@@ -137,42 +137,6 @@ int GenerateSessionID(void)
 }
 
 
-/*
- * lingering_close() a`la Apache. see
- * http://www.apache.org/docs/misc/fin_wait_2.html for rationale
- */
-int lingering_close(int fd)
-{
-	char buf[SIZ];
-	int i;
-	fd_set set;
-	struct timeval tv, start;
-
-	gettimeofday(&start, NULL);
-	shutdown(fd, 1);
-	do {
-		do {
-			gettimeofday(&tv, NULL);
-			tv.tv_sec = SLEEPING - (tv.tv_sec - start.tv_sec);
-			tv.tv_usec = start.tv_usec - tv.tv_usec;
-			if (tv.tv_usec < 0) {
-				tv.tv_sec--;
-				tv.tv_usec += 1000000;
-			}
-			FD_ZERO(&set);
-			FD_SET(fd, &set);
-			i = select(fd + 1, &set, NULL, NULL, &tv);
-		} while (i == -1 && errno == EINTR);
-
-		if (i <= 0)
-			break;
-
-		i = read(fd, buf, sizeof buf);
-	} while (i != 0 && (i != -1 || errno == EINTR));
-
-	return close(fd);
-}
-
 
 
 
@@ -211,72 +175,72 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 	const char *Pos = NULL;
 
 
-	Hdr->ReqLine = Line;
+	Hdr->HR.ReqLine = Line;
 	/* The requesttype... GET, POST... */
-	StrBufExtract_token(Buf, Hdr->ReqLine, 0, ' ');
+	StrBufExtract_token(Buf, Hdr->HR.ReqLine, 0, ' ');
 	if (GetHash(HttpReqTypes, SKEY(Buf), &vLine) &&
 	    (vLine != NULL))
 	{
-		Hdr->eReqType = *(long*)vLine;
+		Hdr->HR.eReqType = *(long*)vLine;
 	}
 	else {
-		Hdr->eReqType = eGET;
+		Hdr->HR.eReqType = eGET;
 		return 1;
 	}
-	StrBufCutLeft(Hdr->ReqLine, StrLength(Buf) + 1);
+	StrBufCutLeft(Hdr->HR.ReqLine, StrLength(Buf) + 1);
 
 	/* the HTTP Version... */
-	StrBufExtract_token(Buf, Hdr->ReqLine, 1, ' ');
-	StrBufCutRight(Hdr->ReqLine, StrLength(Buf) + 1);
+	StrBufExtract_token(Buf, Hdr->HR.ReqLine, 1, ' ');
+	StrBufCutRight(Hdr->HR.ReqLine, StrLength(Buf) + 1);
 	
 	if (StrLength(Buf) == 0) {
-		Hdr->eReqType = eGET;
+		Hdr->HR.eReqType = eGET;
 		return 1;
 	}
 
-	Hdr->this_page = NewStrBufDup(Hdr->ReqLine);
+	Hdr->this_page = NewStrBufDup(Hdr->HR.ReqLine);
 	/* chop Filename / query arguments */
-	Args = strchr(ChrPtr(Hdr->ReqLine), '?');
+	Args = strchr(ChrPtr(Hdr->HR.ReqLine), '?');
 	if (Args == NULL) /* whe're not that picky about params... TODO: this will spoil '&' in filenames.*/
-		Args = strchr(ChrPtr(Hdr->ReqLine), '&');
+		Args = strchr(ChrPtr(Hdr->HR.ReqLine), '&');
 	if (Args != NULL) {
 		Args ++; /* skip the ? */
 		Hdr->PlainArgs = NewStrBufPlain(
 			Args, 
-			StrLength(Hdr->ReqLine) -
-			(Args - ChrPtr(Hdr->ReqLine)));
-		StrBufCutAt(Hdr->ReqLine, 0, Args - 1);
+			StrLength(Hdr->HR.ReqLine) -
+			(Args - ChrPtr(Hdr->HR.ReqLine)));
+		StrBufCutAt(Hdr->HR.ReqLine, 0, Args - 1);
 	} /* don't parse them yet, maybe we don't even care... */
 	
 	/* now lookup what we are going to do with this... */
 	/* skip first slash */
-	StrBufExtract_NextToken(Buf, Hdr->ReqLine, &Pos, '/');
+	StrBufExtract_NextToken(Buf, Hdr->HR.ReqLine, &Pos, '/');
 	do {
-		StrBufExtract_NextToken(Buf, Hdr->ReqLine, &Pos, '/');
+		StrBufExtract_NextToken(Buf, Hdr->HR.ReqLine, &Pos, '/');
 
 		GetHash(HandlerHash, SKEY(Buf), &vHandler),
-		Hdr->Handler = (WebcitHandler*) vHandler;
-		if (Hdr->Handler == NULL)
+		Hdr->HR.Handler = (WebcitHandler*) vHandler;
+		if (Hdr->HR.Handler == NULL)
 			break;
 		/*
 		 * If the request is prefixed by "/webcit" then chop that off.  This
 		 * allows a front end web server to forward all /webcit requests to us
 		 * while still using the same web server port for other things.
 		 */
-		if ((Hdr->Handler->Flags & URLNAMESPACE) != 0)
+		if ((Hdr->HR.Handler->Flags & URLNAMESPACE) != 0)
 			continue;
 		break;
 	} while (1);
 	/* remove the handlername from the URL */
 	if (Pos != NULL) {
-		StrBufCutLeft(Hdr->ReqLine, 
-			      Pos - ChrPtr(Hdr->ReqLine));
+		StrBufCutLeft(Hdr->HR.ReqLine, 
+			      Pos - ChrPtr(Hdr->HR.ReqLine));
 	}
 
-	if (Hdr->Handler != NULL) {
-		if ((Hdr->Handler->Flags & BOGUS) != 0)
+	if (Hdr->HR.Handler != NULL) {
+		if ((Hdr->HR.Handler->Flags & BOGUS) != 0)
 			return 1;
-		Hdr->DontNeedAuth = (Hdr->Handler->Flags & ISSTATIC) != 0;
+		Hdr->HR.DontNeedAuth = (Hdr->HR.Handler->Flags & ISSTATIC) != 0;
 	}
 
 	Hdr->HTTPHeaders = NewHash(1, NULL);
@@ -323,13 +287,17 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 		nLine ++;
 		Line = NewStrBuf();
 
-		if (ClientGetLine(&Hdr->http_sock, Line, Hdr->ReadBuf, &Hdr->Pos) < 0) return 1;
+		if (ClientGetLine(Hdr, Line) < 0) return 1;
 
 		if (StrLength(Line) == 0) {
 			FreeStrBuf(&Line);
 			continue;
 		}
 		if (nLine == 1) {
+			pHdr = (OneHttpHeader*) malloc(sizeof(OneHttpHeader));
+			memset(pHdr, 0, sizeof(OneHttpHeader));
+			pHdr->Val = Line;
+			Put(Hdr->HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
 			lprintf(9, "%s\n", ChrPtr(Line));
 			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
 			if (isbogus) break;
@@ -397,9 +365,8 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
  * function returns, the worker thread is then free to handle another
  * transaction.
  */
-void context_loop(int *sock)
+void context_loop(ParsedHttpHdrs *Hdr)
 {
-	ParsedHttpHdrs Hdr;
 	int isbogus = 0;
 	wcsession *TheSession, *sptr;
 	struct timeval tx_start;
@@ -407,37 +374,34 @@ void context_loop(int *sock)
 	
 	gettimeofday(&tx_start, NULL);		/* start a stopwatch for performance timing */
 
-	memset(&Hdr, 0, sizeof(ParsedHttpHdrs));
-	Hdr.eReqType = eGET;
-	Hdr.http_sock = *sock;
 	/*
 	 * Find out what it is that the web browser is asking for
 	 */
-	isbogus = ReadHTTPRequset(&Hdr);
+	isbogus = ReadHTTPRequset(Hdr);
 
 	if (!isbogus)
-		isbogus = AnalyseHeaders(&Hdr);
+		isbogus = AnalyseHeaders(Hdr);
 
 	if ((isbogus) ||
-	    ((Hdr.Handler != NULL) &&
-	     ((Hdr.Handler->Flags & BOGUS) != 0)))
+	    ((Hdr->HR.Handler != NULL) &&
+	     ((Hdr->HR.Handler->Flags & BOGUS) != 0)))
 	{
 		wcsession *Bogus;
 		Bogus = (wcsession *)
 			malloc(sizeof(wcsession));
 		memset(Bogus, 0, sizeof(wcsession));
 		pthread_setspecific(MyConKey, (void *)Bogus);
-		Bogus->Hdr = &Hdr;
+		Bogus->Hdr = Hdr;
 		session_new_modules(Bogus);
 		do_404();
 		session_detach_modules(Bogus);
-		http_destroy_modules(&Hdr);
+		http_destroy_modules(Hdr);
 		session_destroy_modules(&Bogus);
 		return;
 	}
 
-	if ((Hdr.Handler != NULL) && 
-	    ((Hdr.Handler->Flags & ISSTATIC) != 0))
+	if ((Hdr->HR.Handler != NULL) && 
+	    ((Hdr->HR.Handler->Flags & ISSTATIC) != 0))
 	{
 		wcsession *Static;
 
@@ -445,31 +409,31 @@ void context_loop(int *sock)
 			malloc(sizeof(wcsession));
 		memset(Static, 0, sizeof(wcsession));
 		pthread_setspecific(MyConKey, (void *)Static);
-		Static->Hdr = &Hdr;
+		Static->Hdr = Hdr;
 		Static->serv_sock = (-1);
 		Static->chat_sock = (-1);
 		Static->is_mobile = -1;
 		session_new_modules(Static);
 		
-		Hdr.Handler->F();
+		Hdr->HR.Handler->F();
 
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
 		lprintf(9, "SL: Transaction [%s] completed in %ld.%06ld seconds.\n",
-			ChrPtr(Hdr.this_page),
+			ChrPtr(Hdr->this_page),
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
 			);
 
 		session_detach_modules(Static);
-		http_destroy_modules(&Hdr);
+		http_destroy_modules(Hdr);
 		session_destroy_modules(&Static);
 		return;
 	}
 
-	if (Hdr.got_auth == AUTH_BASIC) 
-		CheckAuthBasic(&Hdr);
+	if (Hdr->HR.got_auth == AUTH_BASIC) 
+		CheckAuthBasic(Hdr);
 
 /*
 TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
@@ -505,20 +469,20 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 		      sptr = sptr->next) {
 
 			/** If HTTP-AUTH, look for a session with matching credentials */
-			switch (Hdr.got_auth)
+			switch (Hdr->HR.got_auth)
 			{
 			case AUTH_BASIC:
-				if ( (Hdr.SessionKey != sptr->SessionKey))
+				if ( (Hdr->HR.SessionKey != sptr->SessionKey))
 					continue;
-				GetAuthBasic(&Hdr);
-				if ((!strcasecmp(ChrPtr(Hdr.c_username), ChrPtr(sptr->wc_username))) &&
-				    (!strcasecmp(ChrPtr(Hdr.c_password), ChrPtr(sptr->wc_password))) ) 
+				GetAuthBasic(Hdr);
+				if ((!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username))) &&
+				    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) 
 					TheSession = sptr;
 				break;
 			case AUTH_COOKIE:
 			/** If cookie-session, look for a session with matching session ID */
-				if ( (Hdr.desired_session != 0) && 
-				     (sptr->wc_session == Hdr.desired_session)) 
+				if ( (Hdr->HR.desired_session != 0) && 
+				     (sptr->wc_session == Hdr->HR.desired_session)) 
 					TheSession = sptr;
 				break;			     
 			case NO_AUTH:
@@ -536,8 +500,8 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 		TheSession = (wcsession *)
 			malloc(sizeof(wcsession));
 		memset(TheSession, 0, sizeof(wcsession));
-		TheSession->Hdr = &Hdr;
-		TheSession->SessionKey = Hdr.SessionKey;
+		TheSession->Hdr = Hdr;
+		TheSession->SessionKey = Hdr->HR.SessionKey;
 		TheSession->serv_sock = (-1);
 		TheSession->chat_sock = (-1);
 	
@@ -547,11 +511,11 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 		 * doesn't, and that's a Bad Thing because it causes lots of spurious sessions
 		 * to get created.
 		 */	
-		if (Hdr.desired_session == 0) {
+		if (Hdr->HR.desired_session == 0) {
 			TheSession->wc_session = GenerateSessionID();
 		}
 		else {
-			TheSession->wc_session = Hdr.desired_session;
+			TheSession->wc_session = Hdr->HR.desired_session;
 		}
 
 		pthread_setspecific(MyConKey, (void *)TheSession);
@@ -565,9 +529,9 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 		SessionList = TheSession;
 		pthread_mutex_unlock(&SessionListMutex);
 
-		if (StrLength(Hdr.c_language) > 0) {
-			lprintf(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr.c_language));
-			set_selected_language(ChrPtr(Hdr.c_language));
+		if (StrLength(Hdr->c_language) > 0) {
+			lprintf(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr->c_language));
+			set_selected_language(ChrPtr(Hdr->c_language));
 			go_selected_language();
 		}
 	}
@@ -584,7 +548,7 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
 	TheSession->lastreq = time(NULL);			/* log */
-	TheSession->Hdr = &Hdr;
+	TheSession->Hdr = Hdr;
 
 	session_attach_modules(TheSession);
 	session_loop();				/* do transaction */
@@ -594,7 +558,7 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 	gettimeofday(&tx_finish, NULL);
 	
 	lprintf(9, "Transaction [%s] completed in %ld.%06ld seconds.\n",
-		ChrPtr(Hdr.this_page),
+		ChrPtr(Hdr->this_page),
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
 	);
@@ -604,7 +568,7 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 	TheSession->Hdr = NULL;
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
 
-	http_destroy_modules(&Hdr);
+	http_destroy_modules(Hdr);
 }
 
 void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)
@@ -626,17 +590,17 @@ void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
 
 void Header_HandleContentLength(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	hdr->ContentLength = StrToi(Line);
+	hdr->HR.ContentLength = StrToi(Line);
 }
 
 void Header_HandleContentType(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	hdr->ContentType = Line;
+	hdr->HR.ContentType = Line;
 }
 
 void Header_HandleUserAgent(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	hdr->user_agent = Line;
+	hdr->HR.user_agent = Line;
 #ifdef TECH_PREVIEW
 /* TODO: do this later on session creating
 	if ((WCC->is_mobile < 0) && is_mobile_ua(&buf[12])) {			
@@ -652,32 +616,32 @@ void Header_HandleUserAgent(StrBuf *Line, ParsedHttpHdrs *hdr)
 
 void Header_HandleHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	if ((follow_xff) && (hdr->http_host != NULL))
+	if ((follow_xff) && (hdr->HR.http_host != NULL))
 		return;
 	else
-		hdr->http_host = Line;
+		hdr->HR.http_host = Line;
 }
 
 void Header_HandleXFFHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
 	if (follow_xff)
-		hdr->http_host = Line;
+		hdr->HR.http_host = Line;
 }
 
 
 void Header_HandleXFF(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	hdr->browser_host = Line;
+	hdr->HR.browser_host = Line;
 
-	while (StrBufNum_tokens(hdr->browser_host, ',') > 1) {
-		StrBufRemove_token(hdr->browser_host, 0, ',');
+	while (StrBufNum_tokens(hdr->HR.browser_host, ',') > 1) {
+		StrBufRemove_token(hdr->HR.browser_host, 0, ',');
 	}
-	StrBufTrim(hdr->browser_host);
+	StrBufTrim(hdr->HR.browser_host);
 }
 
 void Header_HandleIfModSince(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	hdr->if_modified_since = httpdate_to_timestamp(Line);
+	hdr->HR.if_modified_since = httpdate_to_timestamp(Line);
 }
 
 void Header_HandleAcceptEncoding(StrBuf *Line, ParsedHttpHdrs *hdr)
@@ -686,7 +650,7 @@ void Header_HandleAcceptEncoding(StrBuf *Line, ParsedHttpHdrs *hdr)
 	 * Can we compress?
 	 */
 	if (strstr(&ChrPtr(Line)[16], "gzip")) {
-		hdr->gzip_ok = 1;
+		hdr->HR.gzip_ok = 1;
 	}
 }
 const char *ReqStrs[eNONE] = {
@@ -800,7 +764,6 @@ void
 HttpDestroyModule_CONTEXT
 (ParsedHttpHdrs *httpreq)
 {
-	FreeStrBuf(&httpreq->ReqLine);
 	FreeStrBuf(&httpreq->ReadBuf);
 	FreeStrBuf(&httpreq->PlainArgs);
 	FreeStrBuf(&httpreq->this_page);

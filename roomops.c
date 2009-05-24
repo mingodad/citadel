@@ -1819,7 +1819,7 @@ void display_editroom(void)
 		wprintf(_("The URL for subscribe/unsubscribe is: "));
 		wprintf("<TT>%s://%s/listsub</TT></td></tr>\n",
 			(is_https ? "https" : "http"),
-			ChrPtr(WC->Hdr->http_host));
+			ChrPtr(WC->Hdr->HR.http_host));
 		/* Public posting? */
 		wprintf("<tr><td>");
 		wprintf(_("Allow non-subscribers to mail to this room."));
@@ -3313,7 +3313,7 @@ void set_floordiv_expanded(void) {
 	StrBuf *FloorDiv;
 	
 	FloorDiv = NewStrBuf();
-	StrBufExtract_token(FloorDiv, WCC->Hdr->ReqLine, 0, '/');
+	StrBufExtract_token(FloorDiv, WCC->Hdr->HR.ReqLine, 0, '/');
 	set_preference("floordiv_expanded", FloorDiv, 1);
 	WCC->floordiv_expanded = FloorDiv;
 }

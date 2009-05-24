@@ -511,8 +511,8 @@ void ReadPostData(void)
 	StrBufPrintf(content, 
 		     "Content-type: %s\n"
 		     "Content-length: %ld\n\n",
-		     ChrPtr(WCC->Hdr->ContentType), 
-			     WCC->Hdr->ContentLength);
+		     ChrPtr(WCC->Hdr->HR.ContentType), 
+			     WCC->Hdr->HR.ContentLength);
 /*
   hprintf("Content-type: %s\n"
   "Content-length: %d\n\n",
@@ -521,18 +521,16 @@ void ReadPostData(void)
 	body_start = StrLength(content);
 
 	/** Read the entire input data at once. */
-	client_read_to(&WCC->Hdr->http_sock, 
-		       content, 
-		       WCC->Hdr->ReadBuf, &WCC->Hdr->Pos,
-		       WCC->Hdr->ContentLength,
+	client_read_to(WCC->Hdr, content, 
+		       WCC->Hdr->HR.ContentLength,
 		       SLEEPING);
 	
-	if (!strncasecmp(ChrPtr(WCC->Hdr->ContentType), "application/x-www-form-urlencoded", 33)) {
+	if (!strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "application/x-www-form-urlencoded", 33)) {
 		StrBufCutLeft(content, body_start);
 		ParseURLParams(content);
-	} else if (!strncasecmp(ChrPtr(WCC->Hdr->ContentType), "multipart", 9)) {
+	} else if (!strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "multipart", 9)) {
 		content_end = ChrPtr(content) + 
-			WCC->Hdr->ContentLength + 
+			WCC->Hdr->HR.ContentLength + 
 			body_start;
 		mime_parser(ChrPtr(content), content_end, *upload_handler, NULL, NULL, NULL, 0);
 	}
@@ -567,10 +565,10 @@ void session_loop(void)
 	WCC->is_mobile = 0;
 	WCC->trailing_javascript = NewStrBuf();
 	WCC->Hdr->nWildfireHeaders = 0;
-	if (WCC->Hdr->Handler != NULL)
-		Flags = WCC->Hdr->Handler->Flags; /* so we can temporarily add our own... */
+	if (WCC->Hdr->HR.Handler != NULL)
+		Flags = WCC->Hdr->HR.Handler->Flags; /* so we can temporarily add our own... */
 
-	if (WCC->Hdr->ContentLength > 0) {
+	if (WCC->Hdr->HR.ContentLength > 0) {
 		ReadPostData();
 	}
 
@@ -628,9 +626,9 @@ void session_loop(void)
 		}
 	}
 
-	xhttp = (WCC->Hdr->eReqType != eGET) &&
-		(WCC->Hdr->eReqType != ePOST) &&
-		(WCC->Hdr->eReqType != eHEAD);
+	xhttp = (WCC->Hdr->HR.eReqType != eGET) &&
+		(WCC->Hdr->HR.eReqType != ePOST) &&
+		(WCC->Hdr->HR.eReqType != eHEAD);
 
 	/*
 	 * If a 'gotofirst' parameter has been specified, attempt to goto that room
@@ -650,11 +648,12 @@ void session_loop(void)
 	 * supposed to be, and 'gotofirst' was not specified, then go there.
 	 */
 	else if ( (StrLength(WCC->wc_roomname) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
+		int ret;
+
 		lprintf(9, "We are in '%s' but cookie indicates '%s', going there...\n",
 			ChrPtr(WCC->wc_roomname),
 			ChrPtr(WCC->Hdr->c_roomname)
 		);
-		int ret;
 		ret = gotoroom(WCC->Hdr->c_roomname);	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
 			lprintf(1, "COOKIEGOTO: Unable to change to [%s]; Reason: %d\n",
@@ -662,15 +661,15 @@ void session_loop(void)
 		}
 	}
 
-	if (WCC->Hdr->Handler != NULL) {
-		if (!WCC->logged_in && ((WCC->Hdr->Handler->Flags & ANONYMOUS) == 0)) {
+	if (WCC->Hdr->HR.Handler != NULL) {
+		if (!WCC->logged_in && ((WCC->Hdr->HR.Handler->Flags & ANONYMOUS) == 0)) {
 			display_login(NULL);
 		}
 		else {
-			if ((WCC->Hdr->Handler->Flags & AJAX) != 0)
+			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0)
 				begin_ajax_response();
-			WCC->Hdr->Handler->F();
-			if ((WCC->Hdr->Handler->Flags & AJAX) != 0)
+			WCC->Hdr->HR.Handler->F();
+			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0)
 				end_ajax_response();
 		}
 	}
@@ -685,7 +684,6 @@ void session_loop(void)
 SKIP_ALL_THIS_CRAP:
 	FreeStrBuf(&Buf);
 	fflush(stdout);
-	WCC->Hdr->http_host = NULL;
 }
 
 

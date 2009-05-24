@@ -322,8 +322,8 @@ void do_openid_login(void)
 		snprintf(buf, sizeof buf,
 			"OIDS %s|%s://%s/finalize_openid_login|%s://%s",
 			bstr("openid_url"),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->http_host)
+			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->HR.http_host),
+			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->HR.http_host)
 		);
 
 		serv_puts(buf);
@@ -906,13 +906,13 @@ void _display_reg(void) {display_reg(0);}
 
 void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	if (hdr->got_auth == NO_AUTH) /* don't override cookie auth... */
+	if (hdr->HR.got_auth == NO_AUTH) /* don't override cookie auth... */
 	{
 		if (strncasecmp(ChrPtr(Line), "Basic", 5) == 0) {
 			StrBufCutLeft(Line, 6);
 			StrBufDecodeBase64(Line);
-			hdr->plainauth = Line;
-			hdr->got_auth = AUTH_BASIC;
+			hdr->HR.plainauth = Line;
+			hdr->HR.got_auth = AUTH_BASIC;
 		}
 		else 
 			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
@@ -926,9 +926,9 @@ void CheckAuthBasic(ParsedHttpHdrs *hdr)
 	if (hdr->DontNeedAuth)
 		return;
 */
-	StrBufAppendBufPlain(hdr->plainauth, HKEY(":"), 0);
-	StrBufAppendBuf(hdr->plainauth, hdr->user_agent, 0);
-	hdr->SessionKey = hashlittle(SKEY(hdr->plainauth), 89479832);
+	StrBufAppendBufPlain(hdr->HR.plainauth, HKEY(":"), 0);
+	StrBufAppendBuf(hdr->HR.plainauth, hdr->HR.user_agent, 0);
+	hdr->HR.SessionKey = hashlittle(SKEY(hdr->HR.plainauth), 89479832);
 	
 }
 
@@ -939,8 +939,8 @@ void GetAuthBasic(ParsedHttpHdrs *hdr)
 		hdr->c_username = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
 	if (hdr->c_password == NULL)
 		hdr->c_password = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
-	StrBufExtract_NextToken(hdr->c_username, hdr->plainauth, &Pos, ':');
-	StrBufExtract_NextToken(hdr->c_password, hdr->plainauth, &Pos, ':');
+	StrBufExtract_NextToken(hdr->c_username, hdr->HR.plainauth, &Pos, ':');
+	StrBufExtract_NextToken(hdr->c_password, hdr->HR.plainauth, &Pos, ':');
 }
 
 void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
@@ -956,9 +956,9 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 		return;
 	}
 
-	hdr->RawCookie = Line;
-	StrBufCutLeft(hdr->RawCookie, (pch - ChrPtr(hdr->RawCookie)) + 7);
-	StrBufDecodeHex(hdr->RawCookie);
+	hdr->HR.RawCookie = Line;
+	StrBufCutLeft(hdr->HR.RawCookie, (pch - ChrPtr(hdr->HR.RawCookie)) + 7);
+	StrBufDecodeHex(hdr->HR.RawCookie);
 
 	if (hdr->c_username == NULL)
 		hdr->c_username = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
@@ -968,13 +968,13 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 		hdr->c_roomname = NewStrBuf();
 	if (hdr->c_language == NULL)
 		hdr->c_language = NewStrBuf();
-	cookie_to_stuff(Line, &hdr->desired_session,
+	cookie_to_stuff(Line, &hdr->HR.desired_session,
 			hdr->c_username,
 			hdr->c_password,
 			hdr->c_roomname,
 			hdr->c_language
 	);
-	hdr->got_auth = AUTH_COOKIE;
+	hdr->HR.got_auth = AUTH_COOKIE;
 }
 
 void 

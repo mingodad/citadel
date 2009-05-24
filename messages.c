@@ -367,16 +367,16 @@ void handle_one_message(void)
 	const char *pMsg;
 
 
-	pMsg = strchr(ChrPtr(WCC->Hdr->ReqLine), '/');
+	pMsg = strchr(ChrPtr(WCC->Hdr->HR.ReqLine), '/');
 	if (pMsg == NULL) {
 		HttpStatus(CitStatus);
 		return;
 	}
 
 	msgnum = atol(pMsg + 1);
-	StrBufCutAt(WCC->Hdr->ReqLine, 0, pMsg);
-	gotoroom(WCC->Hdr->ReqLine);
-	switch (WCC->Hdr->eReqType)
+	StrBufCutAt(WCC->Hdr->HR.ReqLine, 0, pMsg);
+	gotoroom(WCC->Hdr->HR.ReqLine);
+	switch (WCC->Hdr->HR.eReqType)
 	{
 	case eGET:
 	case ePOST:
@@ -435,8 +435,8 @@ void embed_message(void) {
 	const StrBuf *Tmpl;
 	StrBuf *CmdBuf = NULL;
 
-	msgnum = StrBufExtract_long(WCC->Hdr->ReqLine, 0, '/');
-	switch (WCC->Hdr->eReqType)
+	msgnum = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 0, '/');
+	switch (WCC->Hdr->HR.eReqType)
 	{
 	case eGET:
 	case ePOST:
@@ -475,7 +475,7 @@ void print_message(void) {
 	long msgnum = 0L;
 	const StrBuf *Mime;
 
-	msgnum = StrBufExtract_long(WC->Hdr->ReqLine, 0, '/');
+	msgnum = StrBufExtract_long(WC->Hdr->HR.ReqLine, 0, '/');
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/html\r\n"
@@ -499,7 +499,7 @@ void mobile_message_view(void)
 	long msgnum = 0L;
 	const StrBuf *Mime;
   
-	msgnum = StrBufExtract_long(WC->Hdr->ReqLine, 0, '/');
+	msgnum = StrBufExtract_long(WC->Hdr->HR.ReqLine, 0, '/');
 	output_headers(1, 0, 0, 0, 0, 1);
 	begin_burst();
 	do_template("msgcontrols", NULL);
@@ -516,7 +516,7 @@ void display_headers(void) {
 	long msgnum = 0L;
 	char buf[1024];
 
-	msgnum = StrBufExtract_long(WC->Hdr->ReqLine, 0, '/');
+	msgnum = StrBufExtract_long(WC->Hdr->HR.ReqLine, 0, '/');
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/plain\r\n"
@@ -1747,8 +1747,8 @@ void mimepart(int force_download)
 	StrBuf *ContentType = NewStrBufPlain(HKEY("application/octet-stream"));
 	const char *CT;
 
-	msgnum = StrBufExtract_long(WCC->Hdr->ReqLine, 0, '/');
-	att = StrBufExtract_long(WCC->Hdr->ReqLine, 1, '/');
+	msgnum = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 0, '/');
+	att = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 1, '/');
 
 	Buf = NewStrBuf();
 	serv_printf("OPNA %ld|%ld", msgnum, att);
@@ -1767,7 +1767,7 @@ void mimepart(int force_download)
 
 		if (!force_download) {
 			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
-				StrBufExtract_token(Buf, WCC->Hdr->ReqLine, 2, '/');
+				StrBufExtract_token(Buf, WCC->Hdr->HR.ReqLine, 2, '/');
 				CT = GuessMimeByFilename(SKEY(Buf));
 			}
 			if (!strcasecmp(ChrPtr(ContentType), "application/octet-stream")) {
@@ -1854,8 +1854,8 @@ void view_postpart(void) {
 	StrBuf *filename = NewStrBuf();
 	StrBuf *partnum = NewStrBuf();
 
-	StrBufExtract_token(partnum, WC->Hdr->ReqLine, 0, '/');
-	StrBufExtract_token(filename, WC->Hdr->ReqLine, 1, '/');
+	StrBufExtract_token(partnum, WC->Hdr->HR.ReqLine, 0, '/');
+	StrBufExtract_token(filename, WC->Hdr->HR.ReqLine, 1, '/');
 
 	postpart(partnum, filename, 0);
 
@@ -1867,8 +1867,8 @@ void download_postpart(void) {
 	StrBuf *filename = NewStrBuf();
 	StrBuf *partnum = NewStrBuf();
 
-	StrBufExtract_token(partnum, WC->Hdr->ReqLine, 0, '/');
-	StrBufExtract_token(filename, WC->Hdr->ReqLine, 1, '/');
+	StrBufExtract_token(partnum, WC->Hdr->HR.ReqLine, 0, '/');
+	StrBufExtract_token(filename, WC->Hdr->HR.ReqLine, 1, '/');
 
 	postpart(partnum, filename, 1);
 
