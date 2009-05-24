@@ -882,21 +882,25 @@ void changepw(void)
 
 int ConditionalAide(StrBuf *Target, WCTemplputParams *TP)
 {
-	return (WC->is_aide == 0);
+	wcsession *WCC = WC;
+	return (WCC != NULL)? (WC->is_aide == 0) : 0;
 }
 
 int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
 {
-	return (WC->is_room_aide == 0);
+	wcsession *WCC = WC;
+	return (WCC != NULL)? (WCC->is_room_aide == 0) : 0;
 }
 
-int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) {
-  return (WC->logged_in == 0);
+int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	return (WCC != NULL)? (WCC->logged_in == 0) : 0;
 }
 int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
-	return ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) );
+	return (WCC != NULL)? ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) ) : 0;
 }
 
 
