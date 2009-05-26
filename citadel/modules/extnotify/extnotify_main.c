@@ -135,7 +135,8 @@ void process_notify(long msgnum, void *usrdata) {
     int extPagerAllowed = strncasecmp(configMsg, PAGER_CONFIG_TEXT, strlen(PAGER_CONFIG_TEXT)); 
     if (fnblAllowed == 0) {
 	    notify_funambol_server(msg->cm_fields['W'], 
-				   msg->cm_fields['I']);
+				   msg->cm_fields['I'],
+				   msgnum);
     } else if (extPagerAllowed == 0) {
 	    char *number = strtok(configMsg, "textmessage\n");
 	    int commandSiz = sizeof(config.c_pager_program) + strlen(number) + strlen(msg->cm_fields['W']) + 5;

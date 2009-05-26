@@ -33,8 +33,9 @@
 * of new mail for a user
 * Returns 0 if unsuccessful
 */
-int notify_funambol_server(char *user, char *msgid) {
+int notify_funambol_server(char *user, char *msgid, long MsgNum) {
 	char port[1024];
+	char msgnumstr[128];
 	int sock = -1;
 	char *buf = NULL;
 	char *SOAPMessage = NULL;
@@ -73,7 +74,7 @@ int notify_funambol_server(char *user, char *msgid) {
 		aide_message(buf, "External notifier unable to find message template!");
 		goto free;
 	}
-
+	snprintf(msgnumstr, 128, "%ld", MsgNum);
 
 	buf = malloc(SIZ);
 	memset(buf, 0, SIZ);
@@ -106,7 +107,8 @@ int notify_funambol_server(char *user, char *msgid) {
 	help_subst(SOAPMessage, "^notifyuser", user);
 	help_subst(SOAPMessage, "^syncsource", config.c_funambol_source);
 	help_subst(SOAPMessage, "^msgid", msgid);
-	
+	help_subst(SOAPMessage, "^msgnum", msgnumstr);
+
 	/* Build the HTTP request header */
 
 	

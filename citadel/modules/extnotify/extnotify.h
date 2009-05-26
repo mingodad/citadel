@@ -15,7 +15,7 @@ extern "C" {
 
 #define FUNAMBOL_WS "/funambol/services/admin"
 
-int notify_funambol_server(char *user, char *msgid);
+int notify_funambol_server(char *user, char *msgid, long MsgNum);
 
 void extNotify_getPrefs(long configMsgNum, char *configMsg);
 long extNotify_getConfigMessage(char *username);
