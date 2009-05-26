@@ -74,32 +74,6 @@ char file_dspam_log[PATH_MAX] = "";
 
 
 
-void StripSlashes(char *Dir, int TrailingSlash)
-{
-	char *a, *b;
-
-	a = b = Dir;
-
-	while (!IsEmptyStr(a)) {
-		if (*a == '/') {
-			while (*a == '/')
-				a++;
-			*b = '/';
-			b++;
-		}
-		else {
-			*b = *a;
-			b++; a++;
-		}
-	}
-	if ((TrailingSlash) && (*(b - 1) != '/')){
-		*b = '/';
-		b++;
-	}
-	*b = '\0';
-
-}
-
 
 #define COMPUTE_DIRECTORY(SUBDIR) memcpy(dirbuffer,SUBDIR, sizeof dirbuffer);\
 	snprintf(SUBDIR,sizeof SUBDIR,  "%s%s%s%s%s%s%s", \
