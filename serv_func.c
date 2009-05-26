@@ -49,7 +49,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	StrBuf_ServGetln(Buf);
 
 	/** Tell the server what kind of richtext we prefer */
-	serv_puts("MSGP text/calendar|text/vnote|text/html|text/plain");
+	serv_puts("MSGP text/calendar|text/vnote|text/html|text/plain");//// TODO: register me...
 	StrBuf_ServGetln(Buf);
 
 	/*

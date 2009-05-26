@@ -100,6 +100,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	struct dirent *filedir_entry;
 	int d_namelen;
 	int d_without_ext;
+	int istoplevel;
 		
 	filedir = opendir (DirName);
 	if (filedir == NULL) {
@@ -108,6 +109,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 
 	Dir = NewStrBufPlain(DirName, -1);
 	WebDir = NewStrBufPlain(RelDir, -1);
+	istoplevel = IsEmptyStr(RelDir);
 	OneWebName = NewStrBuf();
 
        	while ((readdir_r(filedir, &d, &filedir_entry) == 0) &&
@@ -140,10 +142,16 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			if ((strcmp(filedir_entry->d_name, ".svn") == 0) ||
 			    (strcmp(filedir_entry->d_name, "t") == 0))
 				break;
-			snprintf(dirname, PATH_MAX, "%s/%s", 
+			snprintf(dirname, PATH_MAX, "%s/%s/", 
 				 DirName, filedir_entry->d_name);
-			snprintf(reldir, PATH_MAX, "%s/%s", 
-				 RelDir, filedir_entry->d_name);
+			if (istoplevel)
+				snprintf(reldir, PATH_MAX, "%s/", 
+					 filedir_entry->d_name);
+			else
+				snprintf(reldir, PATH_MAX, "%s/%s/", 
+					 RelDir, filedir_entry->d_name);
+			StripSlashes(dirname, 1);
+			StripSlashes(reldir, 1);
 			LoadStaticDir(dirname, DirList, reldir); 				 
 			break;
 		case DT_LNK: /* TODO: check whether its a file or a directory */
@@ -157,7 +165,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			FlushStrBuf(OneWebName);
 			StrBufAppendBuf(OneWebName, WebDir, 0);
 			if ((StrLength(OneWebName) != 0) && 
-			    (ChrPtr(OneWebName) [ StrLength(OneWebName)] != '/'))
+			    (ChrPtr(OneWebName) [ StrLength(OneWebName) - 1] != '/'))
 				StrBufAppendBufPlain(OneWebName, "/", 1, 0);
 			StrBufAppendBufPlain(OneWebName, filedir_entry->d_name, d_namelen, 0);
 
@@ -192,7 +200,7 @@ void output_flat_static(void)
 	}
 }
 
-
+extern void do_404(void);
 
 void output_static_safe(HashList *DirList)
 {
@@ -207,7 +215,10 @@ void output_static_safe(HashList *DirList)
 		output_static(ChrPtr(vFile));
 	}
 	else {
+		lprintf(1, "output_static_safe() file %s not found. \n", 
+			ChrPtr(WCC->Hdr->HR.ReqLine));
 ///TODO: detect image & output blank image
+		do_404();
 	}
 }
 void output_static_0(void)
@@ -261,4 +272,5 @@ InitModule_STATIC
 	WebcitAddUrlHandler(HKEY("static"), output_static_0, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
 	WebcitAddUrlHandler(HKEY("static.local"), output_static_1, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
 	WebcitAddUrlHandler(HKEY("tinymce"), output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("tiny_mce"), output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
 }
