@@ -1537,41 +1537,46 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				      int selectresolution, 
 				      const char **Error)
 {
+	const char *pche;
+	const char *pos;
 	int len, rlen;
 	int nSuccessLess = 0;
 	fd_set rfds;
 	const char *pch = NULL;
         int fdflags;
 	struct timeval tv;
-
-	if ((buf->BufUsed > 0) && (Pos != NULL)) {
-		if (*Pos == NULL)
-			*Pos = buf->buf;
-		pch = strchr(*Pos, '\n');
-		if (pch != NULL) {
+	
+	pos = *Pos;
+	if ((buf->BufUsed > 0) && 
+	    (pos != NULL) && 
+	    (pos < buf->buf + buf->BufUsed)) 
+	{
+		pche = buf->buf + buf->BufUsed;
+		pch = pos;
+		while ((pch <= pche) && (*pch != '\n'))
+			pch ++;
+		if (*pch == 0)
+			pch = NULL;
+		if ((pch != NULL) && 
+		    (pch <= pche)) 
+		{
 			rlen = 0;
-			len = pch - *Pos;
+			len = pch - pos;
 			if (len > 0 && (*(pch - 1) == '\r') )
 				rlen ++;
-			StrBufSub(Line, buf, (*Pos - buf->buf), len - rlen);
+			StrBufSub(Line, buf, (pos - buf->buf), len - rlen);
 			*Pos = pch + 1;
 			return len - rlen;
 		}
 	}
 	
-	if (*Pos != NULL) {
-		StrBufCutLeft(buf, (*Pos - buf->buf));
+	if (pos != NULL) {
+		StrBufCutLeft(buf, (pos - buf->buf));
 		*Pos = NULL;
 	}
 	
 	if (buf->BufSize - buf->BufUsed < 10) {
-		long offset = 0;
-		
-		if (*Pos != NULL)
-			offset = *Pos - buf->buf;
 		IncreaseBuf(buf, 1, -1);
-		if (*Pos != NULL)
-			*Pos = buf->buf + offset;
 	}
 
 	fdflags = fcntl(*fd, F_GETFL);
@@ -1605,13 +1610,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				buf->BufUsed += rlen;
 				buf->buf[buf->BufUsed] = '\0';
 				if (buf->BufUsed + 10 > buf->BufSize) {
-					long offset = 0;
-					
-					if (*Pos != NULL)
-						offset = *Pos - buf->buf;
 					IncreaseBuf(buf, 1, -1);
-					if (*Pos != NULL)
-						*Pos = buf->buf + offset;
 				}
 				pch = strchr(buf->buf, '\n');
 				continue;
@@ -1620,13 +1619,13 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 		nSuccessLess ++;
 	}
 	if (pch != NULL) {
-		*Pos = buf->buf;
+		pos = buf->buf;
 		rlen = 0;
-		len = pch - *Pos;
+		len = pch - pos;
 		if (len > 0 && (*(pch - 1) == '\r') )
 			rlen ++;
 		StrBufSub(Line, buf, 0, len - rlen);
-		*Pos = *Pos + len + 1;
+		*Pos = pos + len + 1;
 		return len - rlen;
 	}
 	return -1;
@@ -1713,49 +1712,48 @@ int StrBufReadBLOBBuffered(StrBuf *Buf,
 	int SelRes;
         fd_set wset;
         int fdflags;
-	int len, rlen, slen;
+	int len = 0;
+	int rlen, slen;
 	int nRead = 0;
 	char *ptr;
 
-	if ((Buf == NULL) || (*fd == -1) || (IOBuf == NULL))
+	if ((Buf == NULL) || (*fd == -1) || (IOBuf == NULL) || (BufPos == NULL))
 		return -1;
 	if (!append)
 		FlushStrBuf(Buf);
-	if (Buf->BufUsed + nBytes >= Buf->BufSize) {
-		long offset = 0;
-		
-		if (*BufPos != NULL)
-			offset = *BufPos - Buf->buf;
+	if (Buf->BufUsed + nBytes >= Buf->BufSize) 
 		IncreaseBuf(Buf, 1, Buf->BufUsed + nBytes);
-		if (*BufPos != NULL)
-			*BufPos = Buf->buf + offset;
-	}
 	
 
-	len = *BufPos - IOBuf->buf;
+	if (*BufPos > 0)
+		len = *BufPos - IOBuf->buf;
 	rlen = IOBuf->BufUsed - len;
 
 	if ((IOBuf->BufUsed > 0) && 
 	    ((IOBuf->BufUsed - len > 0))) {
-		if (rlen <= nBytes) {
+		if (rlen < nBytes) {
 			memcpy(Buf->buf + Buf->BufUsed, *BufPos, rlen);
 			Buf->BufUsed += rlen;
 			Buf->buf[Buf->BufUsed] = '\0';
-			*BufPos = NULL; FlushStrBuf(IOBuf);
 			nRead = rlen;
-			if (nRead == nBytes)
-				return nBytes;
+			*BufPos = NULL; 
+			FlushStrBuf(IOBuf);
 		}
-		else {
+		if (rlen >= nBytes) {
 			memcpy(Buf->buf + Buf->BufUsed, *BufPos, nBytes);
 			Buf->BufUsed += nBytes;
 			Buf->buf[Buf->BufUsed] = '\0';
-			*BufPos += nBytes;
+			if (rlen == nBytes) {
+				*BufPos = NULL; 
+				FlushStrBuf(IOBuf);
+			}
+			else 
+				*BufPos += nBytes;
 			return nBytes;
 		}
 	}
 
-	ptr = Buf->buf + Buf->BufUsed;
+	ptr = IOBuf->buf + Buf->BufUsed;
 
 	slen = len = Buf->BufUsed;
 
