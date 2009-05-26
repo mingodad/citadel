@@ -21,10 +21,10 @@ PROFILE_ARGS=
 
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
+	LDFLAGS += -pg 
 endif
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb -rdynamic -MD -MP -D TECH_PREVIEW -pedantic
-	LDFLAGS += -pg 
 	EXTRA_ARGS =  --with-backtrace
 else
 	CFLAGS += -O2
@@ -48,7 +48,7 @@ endif
 		--prefix=/usr/sbin/ \
 		--with-wwwdir=/usr/share/citadel-webcit \
 		--with-localedir=/usr/share/ \
-		--with-editordir=/usr/share/tinymce/www \
+		--with-editordir=/usr/share/tinymce/www/ \
 		--with-rundir=/var/run/citadel \
 		--with-ical --with-db --with-ldap \
                 --with-ssldir=/etc/ssl/webcit/ \
