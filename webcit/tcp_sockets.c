@@ -236,18 +236,22 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
  */
 void serv_write(const char *buf, int nbytes)
 {
+	wcsession *WCC = WC;
 	int bytes_written = 0;
 	int retval;
+
+	FlushStrBuf(WCC->ReadBuf);
+	WCC->ReadPos = NULL;
 	while (bytes_written < nbytes) {
-		retval = write(WC->serv_sock, &buf[bytes_written],
+		retval = write(WCC->serv_sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
 			lprintf(1, "Server connection broken: %s\n",
 				strerror(errno));
-			close(WC->serv_sock);
-			WC->serv_sock = (-1);
-			WC->connected = 0;
-			WC->logged_in = 0;
+			close(WCC->serv_sock);
+			WCC->serv_sock = (-1);
+			WCC->connected = 0;
+			WCC->logged_in = 0;
 			return;
 		}
 		bytes_written = bytes_written + retval;

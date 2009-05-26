@@ -262,6 +262,7 @@ extern int LoadTemplates;
 extern HashList *HandlerHash;
 
 
+
 void
 webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdir, char *relhome)
 {
@@ -286,6 +287,9 @@ webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdi
 	COMPUTE_DIRECTORY(static_icon_dir);
 	basedir=WWWDIR "/static.local";
 	COMPUTE_DIRECTORY(static_local_dir);
+	StripSlashes(static_dir, 1);
+	StripSlashes(static_icon_dir, 1);
+	StripSlashes(static_local_dir, 1);
 
 	snprintf(file_crpt_file_key,
 		 sizeof file_crpt_file_key, 
