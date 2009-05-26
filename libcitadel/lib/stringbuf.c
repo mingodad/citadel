@@ -1553,9 +1553,9 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	{
 		pche = buf->buf + buf->BufUsed;
 		pch = pos;
-		while ((pch <= pche) && (*pch != '\n'))
+		while ((pch < pche) && (*pch != '\n'))
 			pch ++;
-		if (*pch == 0)
+		if ((pch >= pche) || (*pch == '\0'))
 			pch = NULL;
 		if ((pch != NULL) && 
 		    (pch <= pche)) 

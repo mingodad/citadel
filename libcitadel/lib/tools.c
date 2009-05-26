@@ -456,6 +456,35 @@ char *rfc2047encode(char *line, long length)
 	return result;
 }
 
+/*
+ * removes double slashes from pathnames
+ * allows / disallows trailing slashes
+ */
+void StripSlashes(char *Dir, int TrailingSlash)
+{
+	char *a, *b;
+
+	a = b = Dir;
+
+	while (!IsEmptyStr(a)) {
+		if (*a == '/') {
+			while (*a == '/')
+				a++;
+			*b = '/';
+			b++;
+		}
+		else {
+			*b = *a;
+			b++; a++;
+		}
+	}
+	if ((TrailingSlash) && (*(b - 1) != '/')){
+		*b = '/';
+		b++;
+	}
+	*b = '\0';
+
+}
 
 /*
  * Strip leading and trailing spaces from a string
