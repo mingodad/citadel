@@ -128,7 +128,7 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 	}
 	free (Buf->buf);
 	Buf->buf = NewBuf;
-	Buf->BufSize *= 2;
+	Buf->BufSize = NewSize;
 #ifdef SIZE_DEBUG
 	Buf->nIncreases++;
 #if HAVE_BACKTRACE
@@ -1530,7 +1530,7 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
  * \returns numbers of chars read
  */
 int StrBufTCP_read_buffered_line_fast(StrBuf *Line, 
-				      StrBuf *buf, 
+				      StrBuf *IOBuf, 
 				      const char **Pos,
 				      int *fd, 
 				      int timeout, 
@@ -1547,11 +1547,11 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	struct timeval tv;
 	
 	pos = *Pos;
-	if ((buf->BufUsed > 0) && 
+	if ((IOBuf->BufUsed > 0) && 
 	    (pos != NULL) && 
-	    (pos < buf->buf + buf->BufUsed)) 
+	    (pos < IOBuf->buf + IOBuf->BufUsed)) 
 	{
-		pche = buf->buf + buf->BufUsed;
+		pche = IOBuf->buf + IOBuf->BufUsed;
 		pch = pos;
 		while ((pch < pche) && (*pch != '\n'))
 			pch ++;
@@ -1564,19 +1564,19 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			len = pch - pos;
 			if (len > 0 && (*(pch - 1) == '\r') )
 				rlen ++;
-			StrBufSub(Line, buf, (pos - buf->buf), len - rlen);
+			StrBufSub(Line, IOBuf, (pos - IOBuf->buf), len - rlen);
 			*Pos = pch + 1;
 			return len - rlen;
 		}
 	}
 	
 	if (pos != NULL) {
-		StrBufCutLeft(buf, (pos - buf->buf));
+		StrBufCutLeft(IOBuf, (pos - IOBuf->buf));
 		*Pos = NULL;
 	}
 	
-	if (buf->BufSize - buf->BufUsed < 10) {
-		IncreaseBuf(buf, 1, -1);
+	if (IOBuf->BufSize - IOBuf->BufUsed < 10) {
+		IncreaseBuf(IOBuf, 1, -1);
 	}
 
 	fdflags = fcntl(*fd, F_GETFL);
@@ -1597,8 +1597,8 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 		}		
 		if (FD_ISSET(*fd, &rfds) != 0) {
 			rlen = read(*fd, 
-				    &buf->buf[buf->BufUsed], 
-				    buf->BufSize - buf->BufUsed - 1);
+				    &IOBuf->buf[IOBuf->BufUsed], 
+				    IOBuf->BufSize - IOBuf->BufUsed - 1);
 			if (rlen < 1) {
 				*Error = strerror(errno);
 				close(*fd);
@@ -1607,24 +1607,24 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			}
 			else if (rlen > 0) {
 				nSuccessLess = 0;
-				buf->BufUsed += rlen;
-				buf->buf[buf->BufUsed] = '\0';
-				if (buf->BufUsed + 10 > buf->BufSize) {
-					IncreaseBuf(buf, 1, -1);
+				IOBuf->BufUsed += rlen;
+				IOBuf->buf[IOBuf->BufUsed] = '\0';
+				if (IOBuf->BufUsed + 10 > IOBuf->BufSize) {
+					IncreaseBuf(IOBuf, 1, -1);
 				}
-				pch = strchr(buf->buf, '\n');
+				pch = strchr(IOBuf->buf, '\n');
 				continue;
 			}
 		}
 		nSuccessLess ++;
 	}
 	if (pch != NULL) {
-		pos = buf->buf;
+		pos = IOBuf->buf;
 		rlen = 0;
 		len = pch - pos;
 		if (len > 0 && (*(pch - 1) == '\r') )
 			rlen ++;
-		StrBufSub(Line, buf, 0, len - rlen);
+		StrBufSub(Line, IOBuf, 0, len - rlen);
 		*Pos = pos + len + 1;
 		return len - rlen;
 	}
@@ -1699,15 +1699,17 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
  * \param Error strerror() on error 
  * \returns numbers of chars read
  */
-int StrBufReadBLOBBuffered(StrBuf *Buf, 
+int StrBufReadBLOBBuffered(StrBuf *Blob, 
 			   StrBuf *IOBuf, 
-			   const char **BufPos,
+			   const char **Pos,
 			   int *fd, 
 			   int append, 
 			   long nBytes, 
 			   int check, 
 			   const char **Error)
 {
+	const char *pche;
+	const char *pos;
 	int nSelects = 0;
 	int SelRes;
         fd_set wset;
@@ -1716,50 +1718,62 @@ int StrBufReadBLOBBuffered(StrBuf *Buf,
 	int rlen, slen;
 	int nRead = 0;
 	char *ptr;
+	const char *pch;
 
-	if ((Buf == NULL) || (*fd == -1) || (IOBuf == NULL) || (BufPos == NULL))
+	if ((Blob == NULL) || (*fd == -1) || (IOBuf == NULL) || (Pos == NULL))
 		return -1;
 	if (!append)
-		FlushStrBuf(Buf);
-	if (Buf->BufUsed + nBytes >= Buf->BufSize) 
-		IncreaseBuf(Buf, 1, Buf->BufUsed + nBytes);
+		FlushStrBuf(Blob);
+	if (Blob->BufUsed + nBytes >= Blob->BufSize) 
+		IncreaseBuf(Blob, append, Blob->BufUsed + nBytes);
 	
+	pos = *Pos;
 
-	if (*BufPos > 0)
-		len = *BufPos - IOBuf->buf;
+	if (pos > 0)
+		len = pos - IOBuf->buf;
 	rlen = IOBuf->BufUsed - len;
 
+
 	if ((IOBuf->BufUsed > 0) && 
-	    ((IOBuf->BufUsed - len > 0))) {
+	    (pos != NULL) && 
+	    (pos < IOBuf->buf + IOBuf->BufUsed)) 
+	{
+		pche = IOBuf->buf + IOBuf->BufUsed;
+		pch = pos;
+
 		if (rlen < nBytes) {
-			memcpy(Buf->buf + Buf->BufUsed, *BufPos, rlen);
-			Buf->BufUsed += rlen;
-			Buf->buf[Buf->BufUsed] = '\0';
+			memcpy(Blob->buf + Blob->BufUsed, pos, rlen);
+			Blob->BufUsed += rlen;
+			Blob->buf[Blob->BufUsed] = '\0';
 			nRead = rlen;
-			*BufPos = NULL; 
-			FlushStrBuf(IOBuf);
+			*Pos = NULL; 
 		}
 		if (rlen >= nBytes) {
-			memcpy(Buf->buf + Buf->BufUsed, *BufPos, nBytes);
-			Buf->BufUsed += nBytes;
-			Buf->buf[Buf->BufUsed] = '\0';
+			memcpy(Blob->buf + Blob->BufUsed, pos, nBytes);
+			Blob->BufUsed += nBytes;
+			Blob->buf[Blob->BufUsed] = '\0';
 			if (rlen == nBytes) {
-				*BufPos = NULL; 
+				*Pos = NULL; 
 				FlushStrBuf(IOBuf);
 			}
 			else 
-				*BufPos += nBytes;
+				*Pos += nBytes;
 			return nBytes;
 		}
 	}
 
-	ptr = IOBuf->buf + Buf->BufUsed;
+	FlushStrBuf(IOBuf);
+	if (IOBuf->BufSize < nBytes - nRead)
+		IncreaseBuf(IOBuf, 0, nBytes - nRead);
+	ptr = IOBuf->buf;
 
-	slen = len = Buf->BufUsed;
+	slen = len = Blob->BufUsed;
 
 	fdflags = fcntl(*fd, F_GETFL);
 
 	SelRes = 1;
+	nBytes -= nRead;
+	nRead = 0;
 	while (nRead < nBytes) {
 		if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
@@ -1772,9 +1786,10 @@ int StrBufReadBLOBBuffered(StrBuf *Buf,
 		}
 		else if (SelRes) {
 			nSelects = 0;
-			if ((rlen = read(*fd, 
-					 ptr,
-					 nBytes - nRead)) == -1) {
+			rlen = read(*fd, 
+				    ptr,
+				    nBytes - nRead);
+			if (rlen == -1) {
 				close(*fd);
 				*fd = -1;
 				*Error = strerror(errno);
@@ -1785,22 +1800,28 @@ int StrBufReadBLOBBuffered(StrBuf *Buf,
 			nSelects ++;
 			if ((check == NNN_TERM) && 
 			    (nRead > 5) &&
-			    (strncmp(Buf->buf + Buf->BufUsed - 5, "\n000\n", 5) == 0)) 
+			    (strncmp(IOBuf->buf + IOBuf->BufUsed - 5, "\n000\n", 5) == 0)) 
 			{
-				StrBufPlain(IOBuf, HKEY("\n000\n"));
-				StrBufCutRight(Buf, 5);
-				return Buf->BufUsed;
+				StrBufPlain(Blob, HKEY("\n000\n"));
+				StrBufCutRight(Blob, 5);
+				return Blob->BufUsed;
 			}
 			if (nSelects > 10) {
-				FlushStrBuf(Buf);
+				FlushStrBuf(IOBuf);
 				return -1;
 			}
 		}
-		nRead += rlen;
-		ptr += rlen;
-		Buf->BufUsed += rlen;
+		if (rlen > 0) {
+			nRead += rlen;
+			ptr += rlen;
+			IOBuf->BufUsed += rlen;
+		}
 	}
-	Buf->buf[Buf->BufUsed] = '\0';
+	if (nRead > nBytes) {
+		*Pos = IOBuf->buf + nBytes;
+	}
+	Blob->buf[Blob->BufUsed] = '\0';
+	StrBufAppendBufPlain(Blob, IOBuf->buf, nBytes, 0);
 	return nRead;
 }
 
