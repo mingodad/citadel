@@ -1,3 +1,4 @@
+
 #include "../sysdep.h"
 #include <ctype.h>
 #include <errno.h>
@@ -93,7 +94,7 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 	}
 	free (Buf->buf);
 	Buf->buf = NewBuf;
-	Buf->BufSize *= 2;
+	Buf->BufSize = NewSize;
 	return Buf->BufSize;
 }
 
