@@ -282,6 +282,8 @@ int add_ldap_object(char *cn, char *ou, void **object)
 	int num_values = 0;
 	int cur_attr;
 
+	if (!cn) return(-1);
+	if (!ou) return(-1);
 
 	CtdlLogPrintf(CTDL_DEBUG,
 		"LDAP: Adding ldap attribute name:\"%s\" value:\"%s\"\n",
