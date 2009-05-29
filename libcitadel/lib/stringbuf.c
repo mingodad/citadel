@@ -906,6 +906,7 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 		newused = Offset + nWritten;
 		if (newused >= Buf->BufSize) {
 			IncreaseBuf(Buf, 1, newused);
+			newused = Buf->BufSize + 1;
 		}
 		else {
 			Buf->BufUsed = Offset + nWritten;
@@ -938,6 +939,7 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 		newused = Buf->BufUsed + nWritten;
 		if (newused >= Buf->BufSize) {
 			IncreaseBuf(Buf, 1, newused);
+			newused = Buf->BufSize + 1;
 		}
 		else {
 			Buf->BufUsed += nWritten;
@@ -962,9 +964,12 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 		va_start(arg_ptr, format);
 		nWritten = vsnprintf(Buf->buf, Buf->BufSize, format, arg_ptr);
 		va_end(arg_ptr);
-		Buf->BufUsed = nWritten ;
-		if (nWritten >= Buf->BufSize)
+		if (nWritten >= Buf->BufSize) {
 			IncreaseBuf(Buf, 0, 0);
+			nWritten = Buf->BufSize + 1;
+			continue;
+		}
+		Buf->BufUsed = nWritten ;
 	}
 }
 
