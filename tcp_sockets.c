@@ -725,6 +725,7 @@ HttpDetachModule_TCPSOCKETS
 {
 
 	FlushStrBuf(httpreq->ReadBuf);
+	ReAdjustEmptyBuf(httpreq->ReadBuf, 4 * SIZ, SIZ);
 }
 
 void
