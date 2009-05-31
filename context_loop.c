@@ -136,8 +136,86 @@ int GenerateSessionID(void)
 	return ++seq;
 }
 
+wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex)
+{
+	wcsession  *sptr, *TheSession = NULL;	
+	
+	pthread_mutex_lock(ListMutex);
+	for (sptr = *wclist; 
+	     ((sptr != NULL) && (TheSession == NULL)); 
+	     sptr = sptr->next) {
+		
+		/** If HTTP-AUTH, look for a session with matching credentials */
+		switch (Hdr->HR.got_auth)
+		{
+		case AUTH_BASIC:
+			if ( (Hdr->HR.SessionKey != sptr->SessionKey))
+				continue;
+			GetAuthBasic(Hdr);
+			if ((!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username))) &&
+			    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) 
+				TheSession = sptr;
+			break;
+		case AUTH_COOKIE:
+			/** If cookie-session, look for a session with matching session ID */
+			if ( (Hdr->HR.desired_session != 0) && 
+			     (sptr->wc_session == Hdr->HR.desired_session)) 
+				TheSession = sptr;
+			break;			     
+		case NO_AUTH:
+			break;
+		}
+	}
+	pthread_mutex_unlock(ListMutex);
+	return TheSession;
+}
 
+wcsession *CreateSession(int Lockable, wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex)
+{
+	wcsession *TheSession;
+	lprintf(3, "Creating a new session\n");
+	TheSession = (wcsession *)
+		malloc(sizeof(wcsession));
+	memset(TheSession, 0, sizeof(wcsession));
+	TheSession->Hdr = Hdr;
+	TheSession->SessionKey = Hdr->HR.SessionKey;
+	TheSession->serv_sock = (-1);
+	TheSession->chat_sock = (-1);
+	TheSession->is_mobile = -1;
 
+	pthread_setspecific(MyConKey, (void *)TheSession);
+	
+	/* If we're recreating a session that expired, it's best to give it the same
+	 * session number that it had before.  The client browser ought to pick up
+	 * the new session number and start using it, but in some rare situations it
+	 * doesn't, and that's a Bad Thing because it causes lots of spurious sessions
+	 * to get created.
+	 */	
+	if (Hdr->HR.desired_session == 0) {
+		TheSession->wc_session = GenerateSessionID();
+	}
+	else {
+		TheSession->wc_session = Hdr->HR.desired_session;
+	}
+
+	session_new_modules(TheSession);
+
+	if (Lockable) {
+		pthread_mutex_init(&TheSession->SessionMutex, NULL);
+
+		if (ListMutex != NULL)
+			pthread_mutex_lock(ListMutex);
+
+		if (wclist != NULL) {
+			TheSession->nonce = rand();
+			TheSession->next = *wclist;
+			*wclist = TheSession;
+		}
+		if (ListMutex != NULL)
+			pthread_mutex_unlock(ListMutex);
+	}
+	return TheSession;
+}
 
 
 /**
@@ -368,7 +446,7 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 void context_loop(ParsedHttpHdrs *Hdr)
 {
 	int isbogus = 0;
-	wcsession *TheSession, *sptr;
+	wcsession *TheSession;
 	struct timeval tx_start;
 	struct timeval tx_finish;
 	
@@ -387,13 +465,11 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	     ((Hdr->HR.Handler->Flags & BOGUS) != 0)))
 	{
 		wcsession *Bogus;
-		Bogus = (wcsession *)
-			malloc(sizeof(wcsession));
-		memset(Bogus, 0, sizeof(wcsession));
-		pthread_setspecific(MyConKey, (void *)Bogus);
-		Bogus->Hdr = Hdr;
-		session_new_modules(Bogus);
+
+		Bogus = CreateSession(0, NULL, Hdr, NULL);
+
 		do_404();
+
 		session_detach_modules(Bogus);
 		http_destroy_modules(Hdr);
 		session_destroy_modules(&Bogus);
@@ -404,16 +480,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	    ((Hdr->HR.Handler->Flags & ISSTATIC) != 0))
 	{
 		wcsession *Static;
-
-		Static = (wcsession *)
-			malloc(sizeof(wcsession));
-		memset(Static, 0, sizeof(wcsession));
-		pthread_setspecific(MyConKey, (void *)Static);
-		Static->Hdr = Hdr;
-		Static->serv_sock = (-1);
-		Static->chat_sock = (-1);
-		Static->is_mobile = -1;
-		session_new_modules(Static);
+		Static = CreateSession(0, NULL, Hdr, NULL);
 		
 		Hdr->HR.Handler->F();
 
@@ -463,71 +530,14 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 	TheSession = NULL;
 
 	if (TheSession == NULL) {
-		pthread_mutex_lock(&SessionListMutex);
-		for (sptr = SessionList; 
-		     ((sptr != NULL) && (TheSession == NULL)); 
-		      sptr = sptr->next) {
-
-			/** If HTTP-AUTH, look for a session with matching credentials */
-			switch (Hdr->HR.got_auth)
-			{
-			case AUTH_BASIC:
-				if ( (Hdr->HR.SessionKey != sptr->SessionKey))
-					continue;
-				GetAuthBasic(Hdr);
-				if ((!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username))) &&
-				    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) 
-					TheSession = sptr;
-				break;
-			case AUTH_COOKIE:
-			/** If cookie-session, look for a session with matching session ID */
-				if ( (Hdr->HR.desired_session != 0) && 
-				     (sptr->wc_session == Hdr->HR.desired_session)) 
-					TheSession = sptr;
-				break;			     
-			case NO_AUTH:
-			     break;
-			}
-		}
-		pthread_mutex_unlock(&SessionListMutex);
+		TheSession = FindSession(&SessionList, Hdr, &SessionListMutex);
 	}
 
 	/**
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
-		lprintf(3, "Creating a new session\n");
-		TheSession = (wcsession *)
-			malloc(sizeof(wcsession));
-		memset(TheSession, 0, sizeof(wcsession));
-		TheSession->Hdr = Hdr;
-		TheSession->SessionKey = Hdr->HR.SessionKey;
-		TheSession->serv_sock = (-1);
-		TheSession->chat_sock = (-1);
-	
-		/* If we're recreating a session that expired, it's best to give it the same
-		 * session number that it had before.  The client browser ought to pick up
-		 * the new session number and start using it, but in some rare situations it
-		 * doesn't, and that's a Bad Thing because it causes lots of spurious sessions
-		 * to get created.
-		 */	
-		if (Hdr->HR.desired_session == 0) {
-			TheSession->wc_session = GenerateSessionID();
-		}
-		else {
-			TheSession->wc_session = Hdr->HR.desired_session;
-		}
-
-		pthread_setspecific(MyConKey, (void *)TheSession);
-		session_new_modules(TheSession);
-
-		pthread_mutex_init(&TheSession->SessionMutex, NULL);
-		pthread_mutex_lock(&SessionListMutex);
-		TheSession->nonce = rand();
-		TheSession->next = SessionList;
-		TheSession->is_mobile = -1;
-		SessionList = TheSession;
-		pthread_mutex_unlock(&SessionListMutex);
+		TheSession = CreateSession(1, &SessionList, Hdr, &SessionListMutex);
 
 		if (StrLength(Hdr->c_language) > 0) {
 			lprintf(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr->c_language));
