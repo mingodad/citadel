@@ -711,6 +711,30 @@ int lingering_close(int fd)
 	return close(fd);
 }
 
+void
+HttpNewModule_TCPSOCKETS
+(ParsedHttpHdrs *httpreq)
+{
+
+	httpreq->ReadBuf = NewStrBuf();
+}
+
+void
+HttpDetachModule_TCPSOCKETS
+(ParsedHttpHdrs *httpreq)
+{
+
+	FlushStrBuf(httpreq->ReadBuf);
+}
+
+void
+HttpDestroyModule_TCPSOCKETS
+(ParsedHttpHdrs *httpreq)
+{
+
+	FreeStrBuf(&httpreq->ReadBuf);
+}
+
 
 void
 SessionNewModule_TCPSOCKETS

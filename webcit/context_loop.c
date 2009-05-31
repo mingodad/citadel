@@ -276,17 +276,17 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		return 1;
 	}
 
-	Hdr->this_page = NewStrBufDup(Hdr->HR.ReqLine);
+	StrBufAppendBuf(Hdr->this_page, Hdr->HR.ReqLine, 0);
 	/* chop Filename / query arguments */
 	Args = strchr(ChrPtr(Hdr->HR.ReqLine), '?');
 	if (Args == NULL) /* whe're not that picky about params... TODO: this will spoil '&' in filenames.*/
 		Args = strchr(ChrPtr(Hdr->HR.ReqLine), '&');
 	if (Args != NULL) {
 		Args ++; /* skip the ? */
-		Hdr->PlainArgs = NewStrBufPlain(
-			Args, 
-			StrLength(Hdr->HR.ReqLine) -
-			(Args - ChrPtr(Hdr->HR.ReqLine)));
+		StrBufPlain(Hdr->PlainArgs, 
+			    Args, 
+			    StrLength(Hdr->HR.ReqLine) -
+			    (Args - ChrPtr(Hdr->HR.ReqLine)));
 		StrBufCutAt(Hdr->HR.ReqLine, 0, Args - 1);
 	} /* don't parse them yet, maybe we don't even care... */
 	
@@ -358,7 +358,6 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 	int isbogus = 0;
 
 	HeaderName = NewStrBuf();
-	Hdr->ReadBuf = NewStrBuf();
 	LastLine = NULL;
 	do {
 		nLine ++;
@@ -763,6 +762,13 @@ InitModule_CONTEXT
 }
 	
 
+void 
+HttpNewModule_CONTEXT
+(ParsedHttpHdrs *httpreq)
+{
+	httpreq->PlainArgs = NewStrBuf();
+	httpreq->this_page = NewStrBuf();
+}
 
 void 
 HttpDetachModule_CONTEXT
@@ -771,6 +777,7 @@ HttpDetachModule_CONTEXT
 	FlushStrBuf(httpreq->ReadBuf);
 	FlushStrBuf(httpreq->PlainArgs);
 	FlushStrBuf(httpreq->this_page);
+	FlushStrBuf(httpreq->PlainArgs);
 	DeleteHash(&httpreq->HTTPHeaders);
 	memset(&httpreq->HR, 0, sizeof(HdrRefs));
 }
@@ -779,9 +786,11 @@ void
 HttpDestroyModule_CONTEXT
 (ParsedHttpHdrs *httpreq)
 {
+	FreeStrBuf(&httpreq->this_page);
 	FreeStrBuf(&httpreq->ReadBuf);
 	FreeStrBuf(&httpreq->PlainArgs);
 	FreeStrBuf(&httpreq->this_page);
+	FreeStrBuf(&httpreq->PlainArgs);
 	DeleteHash(&httpreq->HTTPHeaders);
 
 }

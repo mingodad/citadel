@@ -964,14 +964,6 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 	StrBufCutLeft(hdr->HR.RawCookie, (pch - ChrPtr(hdr->HR.RawCookie)) + 7);
 	StrBufDecodeHex(hdr->HR.RawCookie);
 
-	if (hdr->c_username == NULL)
-		hdr->c_username = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
-	if (hdr->c_password == NULL)
-		hdr->c_password = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
-	if (hdr->c_roomname == NULL)
-		hdr->c_roomname = NewStrBuf();
-	if (hdr->c_language == NULL)
-		hdr->c_language = NewStrBuf();
 	cookie_to_stuff(Line, &hdr->HR.desired_session,
 			hdr->c_username,
 			hdr->c_password,
@@ -981,6 +973,15 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 	hdr->HR.got_auth = AUTH_COOKIE;
 }
 
+void 
+HttpNewModule_AUTH
+(ParsedHttpHdrs *httpreq)
+{
+	httpreq->c_username = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_USER));
+	httpreq->c_password = NewStrBufPlain(HKEY(DEFAULT_HTTPAUTH_PASS));
+	httpreq->c_roomname = NewStrBuf();
+	httpreq->c_language = NewStrBuf();
+}
 void 
 HttpDetachModule_AUTH
 (ParsedHttpHdrs *httpreq)
