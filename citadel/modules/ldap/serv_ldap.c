@@ -103,7 +103,6 @@ int connect_to_ldap(void)
 			"LDAP: Could not connect to %s:%d : %s\n",
 			config.c_ldap_host, config.c_ldap_port,
 			strerror(errno));
-		CtdlAideMessage(strerror(errno), "LDAP: Could not connect to server.");
 		return -1;
 	}
 
@@ -391,9 +390,6 @@ int save_ldap_object(char *cn, char *ou, void **object)
 	i = ldap_add_s(dirserver, this_dn, attrs);
 
 	if (i == LDAP_SERVER_DOWN) {
-		CtdlAideMessage
-		    ("The LDAP server appears to be down.\nThe save to LDAP did not occurr.\n",
-		     "LDAP: save failed");
 		end_critical_section(S_LDAP);
 		return -1;
 	}
@@ -419,9 +415,6 @@ int save_ldap_object(char *cn, char *ou, void **object)
 	if (i != LDAP_SUCCESS) {
 		CtdlLogPrintf(CTDL_ERR, "LDAP: ldap_add_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
-		CtdlAideMessage
-		    ("The LDAP server refused the save command.\nDid you update the schema?\n",
-		     "LDAP: save failed (schema?)");
 		end_critical_section(S_LDAP);
 		return -1;
 	}
@@ -506,9 +499,6 @@ int delete_from_ldap(char *cn, char *ou, void **object)
 
 	if (i == LDAP_SERVER_DOWN) {
 		end_critical_section(S_LDAP);
-		CtdlAideMessage
-		    ("The LDAP server appears to be down.\nThe delete from LDAP did not occurr.\n",
-		     "LDAP: delete failed");
 		return -1;
 	}
 
@@ -517,7 +507,6 @@ int delete_from_ldap(char *cn, char *ou, void **object)
 			"LDAP: ldap_delete_s() failed: %s (%d)\n",
 			ldap_err2string(i), i);
 		end_critical_section(S_LDAP);
-		CtdlAideMessage(ldap_err2string(i), "LDAP: delete failed");
 		return -1;
 	}
 	end_critical_section(S_LDAP);
