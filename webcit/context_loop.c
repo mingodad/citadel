@@ -774,7 +774,6 @@ void
 HttpDetachModule_CONTEXT
 (ParsedHttpHdrs *httpreq)
 {
-	FlushStrBuf(httpreq->ReadBuf);
 	FlushStrBuf(httpreq->PlainArgs);
 	FlushStrBuf(httpreq->this_page);
 	FlushStrBuf(httpreq->PlainArgs);
@@ -787,7 +786,6 @@ HttpDestroyModule_CONTEXT
 (ParsedHttpHdrs *httpreq)
 {
 	FreeStrBuf(&httpreq->this_page);
-	FreeStrBuf(&httpreq->ReadBuf);
 	FreeStrBuf(&httpreq->PlainArgs);
 	FreeStrBuf(&httpreq->this_page);
 	FreeStrBuf(&httpreq->PlainArgs);
