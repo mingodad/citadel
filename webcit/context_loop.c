@@ -477,7 +477,6 @@ void context_loop(ParsedHttpHdrs *Hdr)
 			ChrPtr(Hdr->this_page)
 			);
 		session_detach_modules(Bogus);
-		http_destroy_modules(Hdr);
 		session_destroy_modules(&Bogus);
 		return;
 	}
@@ -504,7 +503,6 @@ void context_loop(ParsedHttpHdrs *Hdr)
 				ChrPtr(Hdr->this_page)
 				);
 		session_detach_modules(Static);
-		http_destroy_modules(Hdr);
 		session_destroy_modules(&Static);
 		return;
 	}
@@ -575,8 +573,6 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 
 	TheSession->Hdr = NULL;
 	pthread_mutex_unlock(&TheSession->SessionMutex);	/* unbind */
-
-	http_destroy_modules(Hdr);
 }
 
 void tmplput_nonce(StrBuf *Target, WCTemplputParams *TP)
@@ -767,6 +763,17 @@ InitModule_CONTEXT
 }
 	
 
+
+void 
+HttpDetachModule_CONTEXT
+(ParsedHttpHdrs *httpreq)
+{
+	FlushStrBuf(httpreq->ReadBuf);
+	FlushStrBuf(httpreq->PlainArgs);
+	FlushStrBuf(httpreq->this_page);
+	DeleteHash(&httpreq->HTTPHeaders);
+	memset(&httpreq->HR, 0, sizeof(HdrRefs));
+}
 
 void 
 HttpDestroyModule_CONTEXT
