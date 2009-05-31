@@ -470,6 +470,12 @@ void context_loop(ParsedHttpHdrs *Hdr)
 
 		do_404();
 
+		lprintf(9, "HTTP: 404 [%ld.%06ld] %s %s \n",
+			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
+			ReqStrs[Hdr->HR.eReqType],
+			ChrPtr(Hdr->this_page)
+			);
 		session_detach_modules(Bogus);
 		http_destroy_modules(Hdr);
 		session_destroy_modules(&Bogus);
@@ -487,12 +493,16 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
-		lprintf(9, "SL: Transaction [%s] completed in %ld.%06ld seconds.\n",
-			ChrPtr(Hdr->this_page),
-			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
-			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
-			);
-
+#ifdef TECH_PREVIEW
+		if ((Hdr->HR.Handler == NULL) ||
+		    ((Hdr->HR.Handler->Flags & LOGCHATTY) == 0))
+#endif
+			lprintf(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
+				((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+				((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
+				ReqStrs[Hdr->HR.eReqType],
+				ChrPtr(Hdr->this_page)
+				);
 		session_detach_modules(Static);
 		http_destroy_modules(Hdr);
 		session_destroy_modules(&Static);
@@ -507,22 +517,6 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 */
 
 /*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
-
-
-	/* Begin parsing the request. * /
-#ifdef TECH_PREVIEW
-	if ((strncmp(ChrPtr(ReqLine), "/sslg", 5) != 0) &&
-	    (strncmp(ChrPtr(ReqLine), "/static/", 8) != 0) &&
-	    (strncmp(ChrPtr(ReqLine), "/tiny_mce/", 10) != 0) &&
-	    (strncmp(ChrPtr(ReqLine), "/wholist_section", 16) != 0) &&
-	    (strstr(ChrPtr(ReqLine), "wholist_section") == NULL)) {
-#endif
-		lprintf(5, "HTTP: %s %s\n", ReqStrs[Hdr.eReqType], ChrPtr(ReqLine));
-#ifdef TECH_PREVIEW
-	}
-#endif
-
-*/
 
 	/**
 	 * See if there's an existing session open with the desired ID or user/pass
@@ -567,11 +561,15 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 	/* How long did this transaction take? */
 	gettimeofday(&tx_finish, NULL);
 	
-	lprintf(9, "Transaction [%s] completed in %ld.%06ld seconds.\n",
-		ChrPtr(Hdr->this_page),
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
-		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000
-	);
+
+	if ((Hdr->HR.Handler == NULL) ||
+	    ((Hdr->HR.Handler->Flags & LOGCHATTY) == 0))
+		lprintf(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
+			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
+			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
+			ReqStrs[Hdr->HR.eReqType],
+			ChrPtr(Hdr->this_page)
+			);
 
 	session_detach_modules(TheSession);
 

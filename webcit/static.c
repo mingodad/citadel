@@ -267,10 +267,10 @@ InitModule_STATIC
 	LoadStaticDir(static_dirs[2], StaticFilemappings[2], "");
 	LoadStaticDir(static_dirs[3], StaticFilemappings[3], "");
 
-	WebcitAddUrlHandler(HKEY("robots.txt"), output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("favicon.ico"), output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("static"), output_static_0, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("static.local"), output_static_1, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("tinymce"), output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("tiny_mce"), output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("robots.txt"), output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("favicon.ico"), output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("static"), output_static_0, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("static.local"), output_static_1, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("tinymce"), output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("tiny_mce"), output_static_2, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 }
