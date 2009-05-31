@@ -831,9 +831,9 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 			bptr += 2;
 			Target->BufUsed += 2;
 		} else if (*aptr == '\\') {
-		  memcpy(bptr, "\\\\", 2);
-		  bptr += 2;
-		  Target->BufUsed += 2;
+			memcpy(bptr, "\\\\", 2);
+			bptr += 2;
+			Target->BufUsed += 2;
 		}
 		else{
 			*bptr = *aptr;
@@ -1542,8 +1542,8 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				      int selectresolution, 
 				      const char **Error)
 {
-	const char *pche;
-	const char *pos;
+	const char *pche = NULL;
+	const char *pos = NULL;
 	int len, rlen;
 	int nSuccessLess = 0;
 	fd_set rfds;
@@ -1576,7 +1576,10 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	}
 	
 	if (pos != NULL) {
-		StrBufCutLeft(IOBuf, (pos - IOBuf->buf));
+		if (pos > pche)
+			FlushStrBuf(IOBuf);
+		else 
+			StrBufCutLeft(IOBuf, (pos - IOBuf->buf));
 		*Pos = NULL;
 	}
 	
@@ -1588,6 +1591,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	if ((fdflags & O_NONBLOCK) == O_NONBLOCK)
 		return -1;
 
+	pch = NULL;
 	while ((nSuccessLess < timeout) && (pch == NULL)) {
 		tv.tv_sec = selectresolution;
 		tv.tv_usec = 0;
@@ -1617,7 +1621,13 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				if (IOBuf->BufUsed + 10 > IOBuf->BufSize) {
 					IncreaseBuf(IOBuf, 1, -1);
 				}
-				pch = strchr(IOBuf->buf, '\n');
+
+				pche = IOBuf->buf + IOBuf->BufUsed;
+				pch = IOBuf->buf;
+				while ((pch < pche) && (*pch != '\n'))
+					pch ++;
+				if ((pch >= pche) || (*pch == '\0'))
+					pch = NULL;
 				continue;
 			}
 		}
