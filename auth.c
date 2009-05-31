@@ -982,6 +982,16 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 }
 
 void 
+HttpDetachModule_AUTH
+(ParsedHttpHdrs *httpreq)
+{
+	FLUSHStrBuf(httpreq->c_username);
+	FLUSHStrBuf(httpreq->c_password);
+	FLUSHStrBuf(httpreq->c_roomname);
+	FLUSHStrBuf(httpreq->c_language);
+}
+
+void 
 HttpDestroyModule_AUTH
 (ParsedHttpHdrs *httpreq)
 {

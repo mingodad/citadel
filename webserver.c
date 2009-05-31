@@ -28,7 +28,7 @@ int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int time_to_die = 0;            /* Nonzero if server is shutting down */
 int DisableGzip = 0;
-extern void *context_loop(int*);
+extern void *context_loop(ParsedHttpHdrs *Hdr);
 extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
@@ -623,6 +623,10 @@ void worker_entry(void)
 	int ret;
 	struct timeval tv;
 	fd_set readset, tempset;
+	ParsedHttpHdrs Hdr;
+
+	memset(&Hdr, 0, sizeof(ParsedHttpHdrs));
+	Hdr.HR.eReqType = eGET;
 
 	tv.tv_sec = 0;
 	tv.tv_usec = 10000;
@@ -722,9 +726,6 @@ void worker_entry(void)
 #endif
 
 			if (fail_this_transaction == 0) {
-				ParsedHttpHdrs Hdr;
-				memset(&Hdr, 0, sizeof(ParsedHttpHdrs));
-				Hdr.HR.eReqType = eGET;
 				Hdr.http_sock = ssock;
 
 				/* Perform an HTTP transaction... */
@@ -740,12 +741,15 @@ void worker_entry(void)
 				/* ...and close the socket. */
 				if (Hdr.http_sock > 0)
 					lingering_close(ssock);
+				http_detach_modules(&Hdr);
+
 			}
 
 		}
 
 	} while (!time_to_die);
 
+	http_destroy_modules(&Hdr);
 	lprintf (1, "bye\n");
 	pthread_exit(NULL);
 }
