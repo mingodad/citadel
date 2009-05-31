@@ -63,8 +63,9 @@ void jabber_wholist_presence_dump(void)
 	for (i=0; i<nContexts; i++) {
 		if (cptr[i].logged_in) {
 			if (
-			   (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))		/* aides see everyone */
-			   && (cptr[i].user.usernum != CC->user.usernum)		/* don't show myself */
+				(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))	/* aides see everyone */
+				&& (cptr[i].user.usernum != CC->user.usernum)	/* don't show myself */
+				&& (cptr[i].can_receive_im)			/* IM-capable session */
 			   ) {
 				cprintf("<presence type=\"available\" from=\"%s\"></presence>",
 					cptr[i].cs_inet_email);
@@ -96,9 +97,11 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	/* Count the visible sessions for this user */
 	for (i=0; i<nContexts; i++) {
 		if (cptr[i].logged_in) {
-			if (  (!strcasecmp(cptr[i].cs_inet_email, presence_jid)) 
-			   && (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
-			   ) {
+			if (
+				(!strcasecmp(cptr[i].cs_inet_email, presence_jid)) 
+				&& (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
+				&& (cptr[i].can_receive_im)
+			) {
 				++visible_sessions;
 			}
 		}

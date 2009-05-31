@@ -591,6 +591,7 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 
 		if ( ((!strcasecmp(un, x_user))
 		    || (!strcasecmp(x_user, "broadcast")))
+		    && (ccptr->can_receive_im)
 		    && ((ccptr->disable_exp == 0)
 		    || (CC->user.axlevel >= 6)) ) {
 			if (do_send) {

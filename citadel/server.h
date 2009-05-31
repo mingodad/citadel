@@ -85,6 +85,7 @@ struct CitContext {
 	int is_async;		/* Nonzero if client accepts async msgs */
 	int async_waiting;	/* Nonzero if there are async msgs waiting */
 	int input_waiting;	/* Nonzero if there is client input waiting */
+	int can_receive_im;	/* Session is capable of receiving instant messages */
 
 	/* Client information */
 	int cs_clientdev;	/* client developer ID */

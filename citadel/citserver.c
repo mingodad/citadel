@@ -1009,8 +1009,8 @@ void citproto_begin_session() {
 		CC->kill_me = 1;
 	}
 	else {
-		cprintf("%d %s Citadel server ready.\n",
-			CIT_OK, config.c_nodename);
+		cprintf("%d %s Citadel server ready.\n", CIT_OK, config.c_nodename);
+		CC->can_receive_im = 1;
 	}
 }
 

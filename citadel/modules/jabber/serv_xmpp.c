@@ -421,6 +421,8 @@ void xmpp_greeting(void) {
 	XML_SetElementHandler(XMPP->xp, xmpp_xml_start, xmpp_xml_end);
 	XML_SetCharacterDataHandler(XMPP->xp, xmpp_xml_chardata);
 	// XML_SetUserData(XMPP->xp, something...);
+
+	CC->can_receive_im = 1;		/* This protocol is capable of receiving instant messages */
 }
 
 
