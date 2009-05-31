@@ -627,7 +627,7 @@ void worker_entry(void)
 
 	memset(&Hdr, 0, sizeof(ParsedHttpHdrs));
 	Hdr.HR.eReqType = eGET;
-
+	http_new_modules(&Hdr);	
 	tv.tv_sec = 0;
 	tv.tv_usec = 10000;
 	FD_ZERO(&readset);
@@ -676,6 +676,7 @@ void worker_entry(void)
 			end_critical_section(S_SHUTDOWN);
 			if (shutdown == 1)
 			{/* we're the one to cleanup the mess. */
+				http_destroy_modules(&Hdr);
 				lprintf(2, "I'm master shutdown: tagging sessions to be killed.\n");
 				shutdown_sessions();
 				lprintf(2, "master shutdown: waiting for others\n");
