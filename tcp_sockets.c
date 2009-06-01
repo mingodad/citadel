@@ -595,6 +595,8 @@ long end_burst(void)
 		hprintf("Content-encoding: gzip\r\n");
 	}
 
+	if (WCC->Hdr->HR.prohibit_caching)
+		hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
 	hprintf("Content-length: %d\r\n\r\n", StrLength(WCC->WBuf));
 
 	ptr = ChrPtr(WCC->HBuf);

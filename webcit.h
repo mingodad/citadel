@@ -414,6 +414,7 @@ typedef struct _HdrRefs {
 	long ContentLength;
 	time_t if_modified_since;
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
+	int prohibit_caching;
 
 	/* these are references into Hdr->HTTPHeaders, so we don't need to free them. */
 	StrBuf *ContentType;

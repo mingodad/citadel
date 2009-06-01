@@ -543,8 +543,10 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		TheSession = CreateSession(1, &SessionList, Hdr, &SessionListMutex);
 
 		if ((StrLength(Hdr->c_username) == 0) &&
-		    (!Hdr->HR.DontNeedAuth))
+		    (!Hdr->HR.DontNeedAuth)) {
 			OverrideRequest(Hdr, HKEY("GET /static/nocookies.html?force_close_session=yes HTTP/1.0"));
+			Hdr->HR.prohibit_caching = 1;
+		}
 		
 		if (StrLength(Hdr->c_language) > 0) {
 			lprintf(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr->c_language));
