@@ -3754,7 +3754,8 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
 	Buf = NewStrBuf();
 	serv_puts("LFLR"); /* get floors */
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
-	if (ChrPtr(Buf)[0] == '1') while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
+	if (GetServerStatus(Buf, NULL) == 1) 
+		while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
 			int a;
 			const char *floorNum = NULL;
 			floor = NewHash(1, NULL);
@@ -3797,7 +3798,8 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	buf = NewStrBuf();
 	rooms = NewHash(1, NULL);
 	StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
-	if (ChrPtr(buf)[0] == '1') while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
+	if (GetServerStatus(Buf, NULL) == 1) 
+		while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
 			int i;
 			const char *rmName = NULL;
 			room = NewHash(1, NULL);
@@ -3844,16 +3846,17 @@ void tmplput_ROOM_Value(StrBuf *TemplBuffer, WCTemplputParams *TP)
 	val = (StrBuf *)value;
 	StrECMAEscAppend(TemplBuffer, val, 0);
 }
-void jsonRoomFlr(void) {
+void jsonRoomFlr(void) 
+{
 	/* Send as our own (application/json) content type */
-  hprintf("HTTP/1.1 200 OK\r\n");
-  hprintf("Content-type: application/json; charset=utf-8\r\n");
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-  hprintf("Connection: close\r\n");
-  hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
-  begin_burst();
-  DoTemplate(HKEY("json_roomflr"),NULL,&NoCtx);
-  end_burst(); 
+	hprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("Content-type: application/json; charset=utf-8\r\n");
+	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
+	hprintf("Connection: close\r\n");
+	hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
+	begin_burst();
+	DoTemplate(HKEY("json_roomflr"),NULL,&NoCtx);
+	end_burst(); 
 }
 void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
 {
