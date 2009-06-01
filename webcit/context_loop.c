@@ -318,7 +318,13 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 	if (Hdr->HR.Handler != NULL) {
 		if ((Hdr->HR.Handler->Flags & BOGUS) != 0)
 			return 1;
-		Hdr->HR.DontNeedAuth = (Hdr->HR.Handler->Flags & ISSTATIC) != 0;
+		Hdr->HR.DontNeedAuth = (
+			((Hdr->HR.Handler->Flags & ISSTATIC) != 0) ||
+			((Hdr->HR.Handler->Flags & ANONYMOUS) != 0)
+			);
+	}
+	else {
+		Hdr->HR.DontNeedAuth = 1; /* Flat request? show him the login screen... */
 	}
 
 	return 0;
@@ -348,7 +354,7 @@ int AnalyseHeaders(ParsedHttpHdrs *Hdr)
 /*
  * Read in the request
  */
-int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
+int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 {
 	const char *pch, *pchs, *pche;
 	OneHttpHeader *pHdr;
@@ -427,7 +433,16 @@ int ReadHTTPRequset (ParsedHttpHdrs *Hdr)
 	return isbogus;
 }
 
+void OverrideRequest(ParsedHttpHdrs *Hdr, const char *Line, long len)
+{
+	StrBuf *Buf = NewStrBuf();
 
+	FlushStrBuf(Hdr->HR.ReqLine);
+	StrBufPlain(Hdr->HR.ReqLine, Line, len);
+	ReadHttpSubject(Hdr, Hdr->HR.ReqLine, Buf);
+
+	FreeStrBuf(&Buf);
+}
 
 /*
  * handle one request
@@ -454,7 +469,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	/*
 	 * Find out what it is that the web browser is asking for
 	 */
-	isbogus = ReadHTTPRequset(Hdr);
+	isbogus = ReadHTTPRequest(Hdr);
 
 	if (!isbogus)
 		isbogus = AnalyseHeaders(Hdr);
@@ -492,7 +507,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		gettimeofday(&tx_finish, NULL);
 		
 #ifdef TECH_PREVIEW
-		if ((Hdr->HR.Handler == NULL) ||
+		if ((Hdr->HR.Handler != NULL) ||
 		    ((Hdr->HR.Handler->Flags & LOGCHATTY) == 0))
 #endif
 			lprintf(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
@@ -509,9 +524,6 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	if (Hdr->HR.got_auth == AUTH_BASIC) 
 		CheckAuthBasic(Hdr);
 
-/*
-TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
-*/
 
 /*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
 
@@ -530,6 +542,10 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 	if (TheSession == NULL) {
 		TheSession = CreateSession(1, &SessionList, Hdr, &SessionListMutex);
 
+		if ((StrLength(Hdr->c_username) == 0) &&
+		    (!Hdr->HR.DontNeedAuth))
+			OverrideRequest(Hdr, HKEY("GET /static/nocookies.html?force_close_session=yes HTTP/1.0"));
+		
 		if (StrLength(Hdr->c_language) > 0) {
 			lprintf(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr->c_language));
 			set_selected_language(ChrPtr(Hdr->c_language));
@@ -559,8 +575,10 @@ TODO    HKEY("/static/nocookies.html?force_close_session=yes"));
 	gettimeofday(&tx_finish, NULL);
 	
 
-	if ((Hdr->HR.Handler == NULL) ||
+#ifdef TECH_PREVIEW
+	if ((Hdr->HR.Handler != NULL) &&
 	    ((Hdr->HR.Handler->Flags & LOGCHATTY) == 0))
+#endif
 		lprintf(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
