@@ -433,14 +433,12 @@ typedef struct _ParsedHttpHdrs {
 	const char *Pos;
 	StrBuf *ReadBuf;
 
-	
-
 	StrBuf *c_username;
 	StrBuf *c_password;
 	StrBuf *c_roomname;
 	StrBuf *c_language;
 	StrBuf *this_page;			/**< URL of current page */
-	StrBuf *PlainArgs; /*TODO: freeme*/
+	StrBuf *PlainArgs; 
 
 	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
 	HashList *HTTPHeaders;                  /**< the headers the client sent us */
