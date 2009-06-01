@@ -3798,7 +3798,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	buf = NewStrBuf();
 	rooms = NewHash(1, NULL);
 	StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err);
-	if (GetServerStatus(Buf, NULL) == 1) 
+	if (GetServerStatus(buf, NULL) == 1) 
 		while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
 			int i;
 			const char *rmName = NULL;
