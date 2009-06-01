@@ -593,19 +593,6 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		section, 
 		IsEmptyStr(section) ? "(empty)" : "");
 
-	/*
-	 * We used to have this great optimization in place that would avoid
-	 * fetching the entire RFC822 message from disk if the client was only
-	 * asking for the headers.  Unfortunately, fetching only the Citadel
-	 * headers omits "Content-type:" and this behavior breaks the iPhone
-	 * email client.  So we have to fetch the whole message from disk.
-	 *
-	 *	if (!strncasecmp(section, "HEADER", 6)) {
-	 *		need_body = 0;
-	 *	}
-	 *
-	 */
-
 	/* Burn the cache if we don't have the same section of the 
 	 * same message again.
 	 */
@@ -665,7 +652,11 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * fields, strip it down.
 	 */
 	else if (!strncasecmp(section, "HEADER", 6)) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_FAST, 0, 1, 0);
+		/* This used to work with HEADERS_FAST, but then Apple got stupid with their
+		 * IMAP library and this broke Mail.App and iPhone Mail, so we had to change it
+		 * to HEADERS_ONLY so the trendy hipsters with their iPhones can read mail.
+		 */
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, 0);
 		imap_strip_headers(section);
 	}
 
