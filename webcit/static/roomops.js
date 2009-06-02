@@ -40,7 +40,7 @@ var VIEW_CALBRIEF = 7;
 var VIEW_JOURNAL = 8;
 
 function FillRooms(callback) {
-  var roomFlr = new Ajax.Request("/json_roomflr", {method: 'get', onSuccess: function(transport) { ProcessRoomFlr(transport); callback.call(); }});
+  var roomFlr = new Ajax.Request("json_roomflr", {method: 'get', onSuccess: function(transport) { ProcessRoomFlr(transport); callback.call(); }});
 }
 function ProcessRoomFlr(transport) {
   var data = eval('('+transport.responseText+')');
