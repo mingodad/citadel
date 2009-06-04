@@ -1436,6 +1436,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	close(fd);
 
 	Line = 0;
+	StrBufShrinkToFit(NewTemplate->Data, 1);
 	pS = pch = ChrPtr(NewTemplate->Data);
 	pE = pS + StrLength(NewTemplate->Data);
 	while (pch < pE) {
