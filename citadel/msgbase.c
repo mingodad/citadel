@@ -4209,8 +4209,12 @@ void cmd_move(char *args)
 	is_copy = extract_int(args, 2);
 
 	if (getroom(&qtemp, targ) != 0) {
-		cprintf("%d '%s' does not exist.\n",
-			ERROR + ROOM_NOT_FOUND, targ);
+		cprintf("%d '%s' does not exist.\n", ERROR + ROOM_NOT_FOUND, targ);
+		return;
+	}
+
+	if (!strcasecmp(qtemp.QRname, CC->room.QRname)) {
+		cprintf("%d Source and target rooms are the same.\n", ERROR + ALREADY_EXISTS);
 		return;
 	}
 
