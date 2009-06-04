@@ -23,6 +23,11 @@ ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	LDFLAGS += -pg
 endif
 
+ifneq (,$(findstring sprofiling,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -D SIZE_DEBUG
+endif
+
+
 build: build-stamp
 build-stamp:
 	dh_testdir

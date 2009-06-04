@@ -25,7 +25,7 @@
 int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
                           const Bytef * source, uLong sourceLen, int level);
 #endif
-int BaseStrBufSize = SIZ;
+int BaseStrBufSize = 64;
 
 /**
  * Private Structure for the Stringbuffer
