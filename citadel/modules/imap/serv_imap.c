@@ -898,9 +898,13 @@ void imap_create(int num_parms, char *parms[])
 	int newroomview = 0;
 	char *notification_message = NULL;
 
+	if (num_parms < 3) {
+		cprintf("%s NO A foder name must be specified\r\n", parms[0]);
+		return;
+	}
+
 	if (strchr(parms[2], '\\') != NULL) {
-		cprintf("%s NO Invalid character in folder name\r\n",
-			parms[0]);
+		cprintf("%s NO Invalid character in folder name\r\n", parms[0]);
 		CtdlLogPrintf(CTDL_DEBUG, "invalid character in folder name\n");
 		return;
 	}
