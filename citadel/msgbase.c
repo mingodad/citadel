@@ -4704,18 +4704,19 @@ void cmd_isme(char *argbuf) {
 
 CTDL_MODULE_INIT(msgbase)
 {
-	CtdlRegisterProtoHook(cmd_msgs, "MSGS", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_msg0, "MSG0", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_msg2, "MSG2", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_msg3, "MSG3", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_msg4, "MSG4", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_msgp, "MSGP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_opna, "OPNA", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_dlat, "DLAT", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_ent0, "ENT0", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_dele, "DELE", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_move, "MOVE", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_isme, "ISME", "Autoconverted. TODO: document me.");
+	CtdlRegisterProtoHook(cmd_msgs, "MSGS", "Output a list of messages in the current room");
+	CtdlRegisterProtoHook(cmd_msg0, "MSG0", "Output a message in plain text format");
+	CtdlRegisterProtoHook(cmd_msg2, "MSG2", "Output a message in RFC822 format");
+	CtdlRegisterProtoHook(cmd_msg3, "MSG3", "Output a message in raw format (deprecated)");
+	CtdlRegisterProtoHook(cmd_msg4, "MSG4", "Output a message in the client's preferred format");
+	CtdlRegisterProtoHook(cmd_msgp, "MSGP", "Select preferred format for MSG4 output");
+	CtdlRegisterProtoHook(cmd_opna, "OPNA", "Open an attachment for download");
+	CtdlRegisterProtoHook(cmd_dlat, "DLAT", "Download an attachment");
+	CtdlRegisterProtoHook(cmd_ent0, "ENT0", "Enter a message");
+	CtdlRegisterProtoHook(cmd_dele, "DELE", "Delete a message");
+	CtdlRegisterProtoHook(cmd_move, "MOVE", "Move or copy a message to another room");
+	CtdlRegisterProtoHook(cmd_isme, "ISME", "Determine whether an email address belongs to a user");
+
         /* return our Subversion id for the Log */
 	return "$Id$";
 }
