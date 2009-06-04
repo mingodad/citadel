@@ -136,7 +136,7 @@ int GetConnected (void)
 	wcsession *WCC = WC;
 
 	if (WCC->ReadBuf == NULL)
-		WCC->ReadBuf = NewStrBuf();
+		WCC->ReadBuf = NewStrBufPlain(NULL, SIZ * 4);
 	if (is_uds) /* unix domain socket */
 		WCC->serv_sock = uds_connectsock(serv_sock_name);
 	else        /* tcp socket */
@@ -264,9 +264,9 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 {
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;
-	StrBuf *Line = NewStrBuf();
-	StrBuf *Line1 = NewStrBuf();
-	StrBuf *Line2 = NewStrBuf();
+	StrBuf *Line = NewStrBufPlain(NULL, SIZ);
+	StrBuf *Line1 = NewStrBufPlain(NULL, SIZ);
+	StrBuf *Line2 = NewStrBufPlain(NULL, SIZ);
 	int bn = 0;
 	int bq = 0;
 	int i, n, done = 0;

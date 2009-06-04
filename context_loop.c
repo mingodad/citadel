@@ -367,7 +367,7 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 	LastLine = NULL;
 	do {
 		nLine ++;
-		Line = NewStrBuf();
+		Line = NewStrBufPlain(NULL, SIZ / 4);
 
 		if (ClientGetLine(Hdr, Line) < 0) return 1;
 
@@ -786,8 +786,8 @@ void
 HttpNewModule_CONTEXT
 (ParsedHttpHdrs *httpreq)
 {
-	httpreq->PlainArgs = NewStrBuf();
-	httpreq->this_page = NewStrBuf();
+	httpreq->PlainArgs = NewStrBufPlain(NULL, SIZ);
+	httpreq->this_page = NewStrBufPlain(NULL, SIZ);
 }
 
 void 

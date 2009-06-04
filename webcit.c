@@ -506,7 +506,7 @@ void ReadPostData(void)
 	wcsession *WCC = WC;
 	StrBuf *content = NULL;
 	
-	content = NewStrBuf();
+	content = NewStrBufPlain(NULL, WCC->Hdr->HR.ContentLength + 256);
 
 	StrBufPrintf(content, 
 		     "Content-type: %s\n"
@@ -792,8 +792,8 @@ SessionNewModule_WEBCIT
 (wcsession *sess)
 {
 	sess->ImportantMsg = NewStrBuf();
-	sess->WBuf = NewStrBuf();
-	sess->HBuf = NewStrBuf();
+	sess->WBuf = NewStrBufPlain(NULL, SIZ * 4);
+	sess->HBuf = NewStrBufPlain(NULL, SIZ / 4);
 }
 
 void

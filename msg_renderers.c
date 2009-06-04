@@ -674,7 +674,7 @@ int Conditional_MAIL_SUMM_H_NODE(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_text(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
-	Msg->MsgBody->Data = NewStrBuf();
+	Msg->MsgBody->Data = NewStrBufPlain(NULL, SIZ);
 }
 
 void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
@@ -853,9 +853,9 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		}
 	}
 #endif
-	Line = NewStrBuf();
-	Line1 = NewStrBuf();
-	Line2 = NewStrBuf();
+	Line = NewStrBufPlain(NULL, SIZ);
+	Line1 = NewStrBufPlain(NULL, SIZ);
+	Line2 = NewStrBufPlain(NULL, SIZ);
 	Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
 
 	while ((n = StrBufSipLine(Line, Mime->Data, &BufPtr), n >= 0) && !done)

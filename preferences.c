@@ -201,7 +201,7 @@ void load_preferences(void)
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
-	ReadBuf = NewStrBuf();
+	ReadBuf = NewStrBufPlain(NULL, SIZ * 4);
 	if (goto_config_room(ReadBuf) != 0) {
 		FreeStrBuf(&ReadBuf);
 		return;	/* oh well. */
@@ -293,7 +293,7 @@ void WritePrefsToServer(HashList *Hash)
 			int n = 0;
 			size_t offset, nchars;
 			if (SubBuf == NULL)
-				SubBuf = NewStrBuf();
+				SubBuf = NewStrBufPlain(NULL, SIZ);
 			nchars = 1;
 			offset = 0;
 			while (nchars > 0) {
