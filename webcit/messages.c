@@ -719,7 +719,7 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	SubTP.Filter.ContextType = CTX_LONGVECTOR;
 	SubTP.Context = &vector;
-	TmpBuf = NewStrBuf();
+	TmpBuf = NewStrBufPlain(NULL, SIZ);
 	At = GetNewHashPos(WCC->summ, nMessages);
 	nItems = GetCount(WCC->summ);
 	ret = nMessages;
@@ -1000,8 +1000,8 @@ void readloop(long oper)
 	 */
 	switch (WCC->wc_view) {
 	case VIEW_BBS:
-		BBViewToolBar = NewStrBuf();
-		MessageDropdown = NewStrBuf();
+		BBViewToolBar = NewStrBufPlain(NULL, SIZ);
+		MessageDropdown = NewStrBufPlain(NULL, SIZ);
 
 		maxmsgs = DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg, num_displayed);
 		if (num_displayed < 0) {

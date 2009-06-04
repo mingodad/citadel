@@ -718,7 +718,7 @@ HttpNewModule_TCPSOCKETS
 (ParsedHttpHdrs *httpreq)
 {
 
-	httpreq->ReadBuf = NewStrBuf();
+	httpreq->ReadBuf = NewStrBufPlain(NULL, SIZ * 4);
 }
 
 void
