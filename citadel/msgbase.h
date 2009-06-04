@@ -162,7 +162,6 @@ int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 			   int crlf,		/* 0=LF, 1=CRLF */
 			   int flags		/* should the bessage be exported clean? */
 );
-int CtdlCopyMsgsToRoom(long *msgnum, int num_msgs, char *dest);
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
 
 enum {

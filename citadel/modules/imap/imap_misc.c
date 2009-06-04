@@ -85,7 +85,7 @@ int imap_do_copy(char *destination_folder) {
 	}
 
 	if (num_selected > 0) {
-		CtdlCopyMsgsToRoom(selected_msgs, num_selected, roomname);
+		CtdlSaveMsgPointersInRoom(roomname, selected_msgs, num_selected, 1, NULL);
 	}
 	free(selected_msgs);
 
