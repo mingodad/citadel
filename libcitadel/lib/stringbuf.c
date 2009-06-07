@@ -1104,9 +1104,11 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 		if (*s == separator) {
 			++current_token;
 		}
-		if (len >= dest->BufSize)
+		if (len >= dest->BufSize) {
+			dest->BufUsed = len;
 			if (!IncreaseBuf(dest, 1, -1))
 				break;
+		}
 		if ( (current_token == parmnum) && 
 		     (*s != separator)) {
 			dest->buf[len] = *s;
@@ -1255,11 +1257,13 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 		if (*s == separator) {
 			++current_token;
 		}
-		if (len >= dest->BufSize)
+		if (len >= dest->BufSize) {
+			dest->BufUsed = len;
 			if (!IncreaseBuf(dest, 1, -1)) {
 				*pStart = EndBuffer + 1;
 				break;
 			}
+		}
 		if ( (current_token == 0) && 
 		     (*s != separator)) {
 			dest->buf[len] = *s;
