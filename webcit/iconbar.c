@@ -19,8 +19,16 @@ void DontDeleteThis(void *Data){}
 long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 {
 	void *Data;
-	if (GetHash(WC->IconBarSettings, key, keylen,
-		    &Data))
+	wcsession *WCC = WC;
+
+	if (WCC == NULL) 
+		return defval;
+
+	if (GetHash(WCC->IconBarSettings, 
+		    key, 
+		    keylen,
+		    &Data) && 
+	    (Data != NULL))
 		return (long) Data;
 	else 
 		return defval;
@@ -37,44 +45,42 @@ inline const char *PrintInt(void *Prefstr)
 
 /** Produces a stylesheet which hides any iconbar icons the user does not want */
 void doUserIconStylesheet(void) {
-  HashPos *pos;
-  void *Data;
-  long value;
-  const char *key;
-  long HKLen;
-
-  LoadIconSettings();
-  output_custom_content_header("text/css");
-  hprintf("Cache-Control: private\r\n");
-  
-  begin_burst();
-  wprintf("#global { left: 16%%; }\r\n");
-  pos = GetNewHashPos(WC->IconBarSettings, 0);
-  while(GetNextHashPos(WC->IconBarSettings, pos, &HKLen, &key, &Data)) {
-    value = (long) Data;
-    if (value == 0 
-	&& strncasecmp("ib_displayas",key,12) 
-	&& strncasecmp("ib_logoff", key, 9)) {
-	    /* Don't shoot me for this */
-      wprintf("#%s { display: none !important; }\r\n",key);
-    } else if (!strncasecmp("ib_users",key, 8) && value == 2) {
-      wprintf("#online_users { display: block; !important } \r\n");
-    }
-  }
-  DeleteHashPos(&pos);
-  end_burst();
+	HashPos *pos;
+	void *Data;
+	long value;
+	const char *key;
+	long HKLen;
+	
+	output_custom_content_header("text/css");
+	hprintf("Cache-Control: private\r\n");
+	
+	begin_burst();
+	wprintf("#global { left: 16%%; }\r\n");
+	pos = GetNewHashPos(WC->IconBarSettings, 0);
+	while(GetNextHashPos(WC->IconBarSettings, pos, &HKLen, &key, &Data)) {
+		value = (long) Data;
+		if (value == 0 
+		    && strncasecmp("ib_displayas",key,12) 
+		    && strncasecmp("ib_logoff", key, 9)) {
+			/* Don't shoot me for this */
+			wprintf("#%s { display: none !important; }\r\n",key);
+		} else if (!strncasecmp("ib_users",key, 8) && value == 2) {
+			wprintf("#online_users { display: block; !important } \r\n");
+		}
+	}
+	DeleteHashPos(&pos);
+	end_burst();
 }
 
 int ConditionalIsActiveStylesheet(StrBuf *Target, WCTemplputParams *TP) {
-  long testFor = TP->Tokens->Params[3]->lvalue;
-  int ib_displayas = IconbarIsEnabled("ib_displayas",IB_PICTEXT);
-  return (testFor == ib_displayas);
+	long testFor = TP->Tokens->Params[3]->lvalue;
+	int ib_displayas = IconbarIsEnabled("ib_displayas",IB_PICTEXT);
+	return (testFor == ib_displayas);
 }
 
-void LoadIconSettings(void)
+void LoadIconSettings(StrBuf *iconbar, long lvalue)
 {
 	wcsession *WCC = WC;
-	StrBuf *iconbar = NULL;
 	StrBuf *buf;
 	StrBuf *key;
 	long val;
@@ -91,16 +97,14 @@ void LoadIconSettings(void)
 	 * configuration somewhere.
 	 */
 
-	if (get_preference("iconbar", &iconbar)) {
-		nTokens = StrBufNum_tokens(iconbar, ',');
-		for (i=0; i<nTokens; ++i) {
-			StrBufExtract_token(buf, iconbar, i, ',');
-			StrBufExtract_token(key, buf, 0, '=');
-			val = StrBufExtract_long(buf, 1, '=');
-			Put(WCC->IconBarSettings, 
-			    ChrPtr(key), StrLength(key),
-			    (void*)val, DontDeleteThis);
-		}
+	nTokens = StrBufNum_tokens(iconbar, ',');
+	for (i=0; i<nTokens; ++i) {
+		StrBufExtract_token(buf, iconbar, i, ',');
+		StrBufExtract_token(key, buf, 0, '=');
+		val = StrBufExtract_long(buf, 1, '=');
+		Put(WCC->IconBarSettings, 
+		    ChrPtr(key), StrLength(key),
+		    (void*)val, DontDeleteThis);
 	}
 
 #ifdef DBG_ICONBAR_HASH
@@ -120,8 +124,6 @@ void display_customize_iconbar(void) {
 	long val;
 
 	int ib_displayas;
-
-	LoadIconSettings();
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wprintf("<div id=\"banner\">");
@@ -480,12 +482,13 @@ void
 InitModule_ICONBAR
 (void)
 {
-  WebcitAddUrlHandler(HKEY("user_iconbar"), doUserIconStylesheet, 0);
-  WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
-  RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
+	WebcitAddUrlHandler(HKEY("user_iconbar"), doUserIconStylesheet, 0);
+	WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
+	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
 	WebcitAddUrlHandler(HKEY("display_customize_iconbar"), display_customize_iconbar, 0);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, 0);
 
+	RegisterPreference("iconbar", _("Iconbar Setting"), PRF_STRING, LoadIconSettings);
 }
 
 
