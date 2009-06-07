@@ -843,12 +843,16 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 			bptr = Target->buf + Target->BufUsed;
 		}
 		else if (*aptr == '"') {
-			memcpy(bptr, "\\\"", 2);
-			bptr += 2;
+			*bptr = '\\';
+			bptr ++;
+			*bptr = '"';
+			bptr ++;
 			Target->BufUsed += 2;
 		} else if (*aptr == '\\') {
-			memcpy(bptr, "\\\\", 2);
-			bptr += 2;
+			*bptr = '\\';
+			bptr ++;
+			*bptr = '\\';
+			bptr ++;
 			Target->BufUsed += 2;
 		}
 		else{
@@ -859,7 +863,7 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 		aptr ++;
 	}
 	*bptr = '\0';
-	if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
+	if ((bptr == eptr - 1 ) && !IsEmptyStr(aptr) )
 		return -1;
 	return Target->BufUsed;
 }
@@ -2637,23 +2641,97 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 	FreeStrBuf(&ConvertBuf2);
 }
 
-
-
-long StrBuf_Utf8StrLen(StrBuf *Buf)
+/**
+ * \brief evaluate the length of an utf8 special character sequence
+ * \param Char the character to examine
+ * \returns width of utf8 chars in bytes
+ */
+static inline int Ctdl_GetUtf8SequenceLength(char *CharS, char *CharE)
 {
-	return Ctdl_Utf8StrLen(Buf->buf);
+	int n = 1;
+        char test = (1<<7);
+	
+	while ((n < 8) && ((test & *CharS) != 0)) {
+		test = test << 1;
+		n ++;
+	}
+	if ((n > 6) || ((CharE - CharS) > n))
+		n = 1;
+	return n;
 }
 
+/**
+ * \brief detect whether this char starts an utf-8 encoded char
+ * \param Char character to inspect
+ * \returns yes or no
+ */
+static inline int Ctdl_IsUtf8SequenceStart(char Char)
+{
+/** 11??.???? indicates an UTF8 Sequence. */
+	return ((Char & 0xC0) != 0);
+}
+
+/**
+ * \brief measure the number of glyphs in an UTF8 string...
+ * \param str string to measure
+ * \returns the length of str
+ */
+long StrBuf_Utf8StrLen(StrBuf *Buf)
+{
+	int n = 0;
+	int m = 0;
+	char *aptr, *eptr;
+
+	if ((Buf == NULL) || (Buf->BufUsed == 0))
+		return 0;
+	aptr = Buf->buf;
+	eptr = Buf->buf + Buf->BufUsed;
+	while ((aptr < eptr) && (*aptr != '\0')) {
+		if (Ctdl_IsUtf8SequenceStart(*aptr)){
+			m = Ctdl_GetUtf8SequenceLength(aptr, eptr);
+			while ((aptr < eptr) && (m-- > 0) && (*aptr++ != '\0'))
+				n ++;
+		}
+		else {
+			n++;
+			aptr++;
+		}
+			
+	}
+	return n;
+}
+
+/**
+ * \brief cuts a string after maxlen glyphs
+ * \param str string to cut to maxlen glyphs
+ * \param maxlen how long may the string become?
+ * \returns pointer to maxlen or the end of the string
+ */
 long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
 {
-	char *CutAt;
+	char *aptr, *eptr;
+	int n = 0, m = 0;
 
-	CutAt = Ctdl_Utf8StrCut(Buf->buf, maxlen);
-	if (CutAt != NULL) {
-		Buf->BufUsed = CutAt - Buf->buf;
-		Buf->buf[Buf->BufUsed] = '\0';
+	aptr = Buf->buf;
+	eptr = Buf->buf + Buf->BufUsed;
+	while ((aptr < eptr) && (*aptr != '\0')) {
+		if (Ctdl_IsUtf8SequenceStart(*aptr)){
+			m = Ctdl_GetUtf8SequenceLength(aptr, eptr);
+			while ((m-- > 0) && (*aptr++ != '\0'))
+				n ++;
+		}
+		else {
+			n++;
+			aptr++;
+		}
+		if (n > maxlen) {
+			*aptr = '\0';
+			Buf->BufUsed = aptr - Buf->buf;
+			return Buf->BufUsed;
+		}			
 	}
-	return Buf->BufUsed;	
+	return Buf->BufUsed;
+
 }
 
 

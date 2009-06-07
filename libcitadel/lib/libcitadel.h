@@ -334,11 +334,6 @@ const char *GetIconFilename(char *MimeType, size_t len);
 
 /* tools */
 
-int Ctdl_IsUtf8SequenceStart(char Char);
-int Ctdl_GetUtf8SequenceLength(char Char);
-int Ctdl_Utf8StrLen(char *str);
-char *Ctdl_Utf8StrCut(char *str, int maxlen);
-
 
 int safestrncpy(char *dest, const char *src, size_t n);
 int num_tokens (const char *source, char tok);
