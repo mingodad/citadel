@@ -929,5 +929,3 @@ typedef void (*IcalCallbackFunc)(icalcomponent *, long, char*, int, struct calvi
 #define WC_TIMEFORMAT_AMPM 1
 #define WC_TIMEFORMAT_24 2
 
-
-void LoadIconSettings(void);
