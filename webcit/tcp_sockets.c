@@ -398,6 +398,7 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
  */
 int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
+	struct protoent *p;
 	struct sockaddr_in sin;
 	int s, i;
 
@@ -419,7 +420,9 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	}
 	sin.sin_port = htons((u_short) port_number);
 
-	s = socket(PF_INET, SOCK_STREAM, (getprotobyname("tcp")->p_proto));
+	p = getprotobyname("tcp");
+
+	s = socket(PF_INET, SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
 		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
 		exit(WC_EXIT_BIND);
