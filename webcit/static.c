@@ -170,7 +170,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			StrBufAppendBufPlain(OneWebName, filedir_entry->d_name, d_namelen, 0);
 
 			Put(DirList, SKEY(OneWebName), FileName, HFreeStrBuf);
-/*			printf("[%s | %s]  \n", ChrPtr(OneWebName), ChrPtr(FileName));*/
+			/* lprintf(9, "[%s | %s]\n", ChrPtr(OneWebName), ChrPtr(FileName)); */
 			break;
 		default:
 			break;
