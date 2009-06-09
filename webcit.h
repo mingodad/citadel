@@ -574,11 +574,6 @@ typedef struct _HttpHeader {
 void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F);
 
 
-/* values for WC->current_iconbar */
-enum {
-	current_iconbar_menu,     /* view the icon menue */
-	current_iconbar_roomlist  /* view the roomtree */
-};
 enum {
 	S_SELECT,
 	S_SHUTDOWN,
