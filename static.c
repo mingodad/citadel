@@ -123,6 +123,16 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 #endif
 		d_without_ext = d_namelen;
 
+		if (filedir_entry->d_type == DT_UNKNOWN) {
+			struct stat s;
+			char path[PATH_MAX];
+			snprintf(path, PATH_MAX, "%s/%s", 
+				DirName, filedir_entry->d_name);
+			if (stat(path, &s) == 0) {
+				filedir_entry->d_type = IFTODT(s.st_mode);
+			}
+		}
+
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
 			continue; /* Ignore backup files... */
 
