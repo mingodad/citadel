@@ -773,8 +773,8 @@ InitModule_CONTEXT
  * Look for commonly-found probes of malware such as worms, viruses, trojans, and Microsoft Office.
  * Short-circuit these requests so we don't have to send them through the full processing loop.
  */
-	WebcitAddUrlHandler(HKEY("scripts"), do_404, ANONYMOUS|BOGUS); /* /root.exe	/* Worms and trojans and viruses, oh my! */
-	WebcitAddUrlHandler(HKEY("c"), do_404, ANONYMOUS|BOGUS);        /* /winnt */
+	WebcitAddUrlHandler(HKEY("scripts"), do_404, ANONYMOUS|BOGUS);		/* /root.exe - Worms and trojans and viruses, oh my! */
+	WebcitAddUrlHandler(HKEY("c"), do_404, ANONYMOUS|BOGUS);		/* /winnt */
 	WebcitAddUrlHandler(HKEY("MSADC"), do_404, ANONYMOUS|BOGUS);
 	WebcitAddUrlHandler(HKEY("_vti"), do_404, ANONYMOUS|BOGUS);		/* Broken Microsoft DAV implementation */
 	WebcitAddUrlHandler(HKEY("MSOffice"), do_404, ANONYMOUS|BOGUS);		/* Stoopid MSOffice thinks everyone is IIS */
