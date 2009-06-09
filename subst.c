@@ -107,6 +107,7 @@ const char *CtxNames[]  = {
 	"Context ROOMS",
 	"Context FLOORS",
 	"Context ITERATE",
+	"Context ICAL",
 	"Context UNKNOWN"
 };
 

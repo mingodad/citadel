@@ -91,9 +91,9 @@ void do_generic(void)
 	}
 
 	output_headers(1, 1, 0, 0, 0, 0);
-
+	Buf = NewStrBuf();
 	serv_puts(bstr("g_cmd"));
-
+	StrBuf_ServGetln(Buf);
 	svput("BOXTITLE", WCS_STRING, _("Server command results"));
 	do_template("beginboxx", NULL);
 
@@ -143,6 +143,7 @@ void do_generic(void)
 	wprintf("<a href=\"display_generic\">Enter another command</a><br />\n");
 	wprintf("<a href=\"display_advanced\">Return to menu</a>\n");
 	do_template("endbox", NULL);
+	FreeStrBuf(&Buf);
 	wDumpContent(1);
 }
 
