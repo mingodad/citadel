@@ -160,8 +160,8 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 		}
 
 		if ((ChrPtr(ReadBuf)[0] == ' ') &&
-		    (Data != NULL)) {
-			StrBufAppendBuf(Data->Val, ReadBuf, 1);
+		    (LastData != NULL)) {
+			StrBufAppendBuf(LastData->Val, ReadBuf, 1);
 		}
 		else {
 			LastData = Data = malloc(sizeof(Preference));
@@ -185,6 +185,7 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 				DestroyPreference(Data);
 				LastData = NULL;
 			}
+			Data = NULL;
 		}
 	}
 	GetPrefTypes(*List);
