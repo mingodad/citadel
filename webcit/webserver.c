@@ -328,7 +328,7 @@ int main(int argc, char **argv)
 	char webcitdir[PATH_MAX] = DATADIR;
 	char *pidfile = NULL;
 	char *hdir;
-	const char *basedir;
+	const char *basedir = NULL;
 #ifdef ENABLE_NLS
 	char *locale = NULL;
 	char *mo = NULL;
