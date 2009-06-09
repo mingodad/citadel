@@ -5,7 +5,7 @@
 #include "webcit.h"
 
 #define MAX_SCRIPTS	100
-#define MAX_RULES	25
+#define MAX_RULES	50
 #define RULES_SCRIPT	"__WebCit_Generated_Script__"
 
 
