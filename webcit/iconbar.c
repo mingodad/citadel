@@ -6,11 +6,10 @@
 
 #include "webcit.h"
 
-
-/** Values for ib_displayas */
-#define IB_PICTEXT	0 /**< picture and text */
-#define IB_PICONLY	1 /**< just a picture */
-#define IB_TEXTONLY	2 /**< just text */
+/* Values for ib_displayas ... don't change these or you will break the templates */
+#define IB_PICTEXT	0	/* picture and text */
+#define IB_PICONLY	1	/* just a picture */
+#define IB_TEXTONLY	2	/* just text */
 
 void DontDeleteThis(void *Data){}
 
@@ -43,7 +42,7 @@ inline const char *PrintInt(void *Prefstr)
 }
 #endif
 
-/** Produces a stylesheet which hides any iconbar icons the user does not want */
+/* Produces a stylesheet which hides any iconbar icons the user does not want */
 void doUserIconStylesheet(void) {
 	HashPos *pos;
 	void *Data;
@@ -115,8 +114,8 @@ void LoadIconSettings(StrBuf *iconbar, long lvalue)
 	FreeStrBuf(&buf);
 }
 
-/**
- * \brief display a customized version of the iconbar
+/*
+ * display a customized version of the iconbar
  */
 void display_customize_iconbar(void) {
 	int i;
@@ -397,8 +396,8 @@ void display_customize_iconbar(void) {
 	wDumpContent(2);
 }
 
-/**
- * \brief commit the changes of an edited iconbar ????
+/*
+ * save changes to iconbar settings
  */
 void commit_iconbar(void) {
 	StrBuf *iconbar;
@@ -499,5 +498,3 @@ SessionDestroyModule_ICONBAR
 {
 	DeleteHash(&sess->IconBarSettings);
 }
-
-/*@}*/
