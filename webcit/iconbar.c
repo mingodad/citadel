@@ -72,8 +72,11 @@ void doUserIconStylesheet(void) {
 }
 
 int ConditionalIsActiveStylesheet(StrBuf *Target, WCTemplputParams *TP) {
-	long testFor = TP->Tokens->Params[3]->lvalue;
-	int ib_displayas = IconbarIsEnabled("ib_displayas",IB_PICTEXT);
+	long testFor;
+	int ib_displayas;
+
+	testFor = GetTemplateTokenNumber(Target, TP, 3, IB_PICTEXT);
+	ib_displayas = IconbarIsEnabled("ib_displayas", IB_PICTEXT);
 	return (testFor == ib_displayas);
 }
 
