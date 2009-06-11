@@ -173,8 +173,6 @@ void do_login(void)
 	wcsession *WCC = WC;
 	StrBuf *Buf;
 
-	lprintf(9, "SELECTED LANGUAGE: '%s'\n", bstr("language"));
-
 	if (havebstr("language")) {
 		set_selected_language(bstr("language"));
 		go_selected_language();
@@ -514,8 +512,10 @@ void do_welcome(void)
 	if (ChrPtr(Buf)[0] == '/') {
 		StrBufCutLeft(Buf, 1);
 	}
-	if (StrLength(Buf) == 0)
+	if (StrLength(Buf) == 0) {
 		StrBufAppendBufPlain(Buf, "dotgoto?room=_BASEROOM_", -1, 0);
+	}
+	lprintf(9, "Redirecting to user's start page: %s\n", ChrPtr(Buf));
 	http_redirect(ChrPtr(Buf));
 }
 
