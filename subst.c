@@ -38,6 +38,8 @@ int dbg_bactrace_template_errors = 0;
 WCTemplputParams NoCtx;
 StrBuf *I18nDump = NULL;
 
+const char EmptyStr[]="";
+
 #define SV_GETTEXT 1
 #define SV_CONDITIONAL 2
 #define SV_NEG_CONDITIONAL 3
@@ -776,11 +778,27 @@ void GetTemplateTokenString(StrBuf *Target,
 		*len = TP->Tokens->Params[N]->len;
 		break;
 	case TYPE_BSTR:
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type BSTR, empty lookup string not admitted.", N);
+			*len = 0;
+			*Value = EmptyStr;
+			break;
+		}
 		Buf = (StrBuf*) SBstr(TKEY(N));
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		break;
 	case TYPE_PREFSTR:
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type PREFSTR, empty lookup string not admitted.", N);
+			*len = 0;
+			*Value = EmptyStr;
+			break;
+		}
 		get_PREFERENCE(TKEY(N), &Buf);
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
@@ -800,6 +818,15 @@ void GetTemplateTokenString(StrBuf *Target,
 		*len = strlen(*Value);
 		break;
 	case TYPE_SUBTEMPLATE:
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type SUBTEMPLATE, empty lookup string not admitted.", N);
+			*len = 0;
+			*Value = EmptyStr;
+			break;
+		}
+
 		memset(&SubTP, 0, sizeof(WCTemplputParams *));
 		SubTP.Context = TP->Context;
 		SubTP.Filter.ContextType = TP->Filter.ContextType;
@@ -836,18 +863,36 @@ long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long df
 		return atol(TP->Tokens->Params[N]->Start);
 		break;
 	case TYPE_BSTR:
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type BSTR, empty lookup string not admitted.", N);
+			return 0;
+		}
 		return  LBstr(TKEY(N));
 		break;
 	case TYPE_PREFSTR:
 		LogTemplateError(Target, 
 				 "TokenParameter", N, TP, 
 				 "requesting a prefstring in param %d want a number", N);
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type PREFSTR, empty lookup string not admitted.", N);
+			return 0;
+		}
 		if (get_PREF_LONG(TKEY(N), &Ret, dflt))
 			return Ret;
 		return 0;		
 	case TYPE_LONG:
 		return TP->Tokens->Params[N]->lvalue;
 	case TYPE_PREFINT:
+		if (TP->Tokens->Params[N]->len == 0) {
+			LogTemplateError(Target, 
+					 "TokenParameter", N, TP, 
+					 "Requesting parameter %d; of type PREFINT, empty lookup string not admitted.", N);
+			return 0;
+		}
 		if (get_PREF_LONG(TKEY(N), &Ret, dflt))
 			return Ret;
 		return 0;		
