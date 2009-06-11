@@ -61,7 +61,7 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 	int nParts;
 	StrBuf *Buf = NULL;
 	StrBuf *SBuf = NULL;
-	
+
 	nParts=StrBufNum_tokens(LocaleString,',');
 	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++)
         {
@@ -395,12 +395,14 @@ SessionNewModule_GETTEXT
 (wcsession *sess)
 {
 #ifdef ENABLE_NLS
-	void *vLine;
-	////TODO: make me a header getter
-	if ((sess->Hdr->HTTPHeaders!= NULL) &&
-	    GetHash(sess->Hdr->HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), &vLine) && 
-	    (vLine != NULL)) {
-		StrBuf *accept_language = (StrBuf*) vLine;
+	OneHttpHeader *vLine = NULL;
+
+	if (	(sess->Hdr->HTTPHeaders != NULL)
+		&& GetHash(sess->Hdr->HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), (void *)&vLine)
+		&& (vLine != NULL)
+		&& (vLine->Val != NULL)
+	) {
+		StrBuf *accept_language = vLine->Val;
 		httplang_to_locale(accept_language, sess);
 	}
 #endif
