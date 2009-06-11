@@ -17,7 +17,7 @@ void DontDeleteThis(void *Data){}
 
 long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 {
-	void *Data;
+	void *Data = NULL;
 	wcsession *WCC = WC;
 
 	if (WCC == NULL) 
@@ -26,8 +26,7 @@ long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 	if (GetHash(WCC->IconBarSettings, 
 		    key, 
 		    keylen,
-		    &Data) && 
-	    (Data != NULL))
+		    &Data))
 		return (long) Data;
 	else 
 		return defval;
@@ -76,7 +75,7 @@ int ConditionalIsActiveStylesheet(StrBuf *Target, WCTemplputParams *TP) {
 	int ib_displayas;
 
 	testFor = GetTemplateTokenNumber(Target, TP, 3, IB_PICTEXT);
-	ib_displayas = IconbarIsEnabled("ib_displayas", IB_PICTEXT);
+	ib_displayas = IconbarIsENABLED(TKEY(2),0);
 	return (testFor == ib_displayas);
 }
 
@@ -117,292 +116,12 @@ void LoadIconSettings(StrBuf *iconbar, long lvalue)
 	FreeStrBuf(&buf);
 }
 
-/*
- * display a customized version of the iconbar
- */
-void display_customize_iconbar(void) {
-	int i;
-	int bar = 0;
-	long val;
-
-	int ib_displayas;
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">");
-	wprintf("<h1>");
-	wprintf(_("Customize the icon bar"));
-	wprintf("</h1></div>\n");
-
-	wprintf("<div id=\"content\" class=\"service\">\n");
-
-	wprintf("<div class=\"fix_scrollbar_bug\">");
-
-	wprintf("<form method=\"post\" action=\"commit_iconbar\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-
-	wprintf("<table class=\"altern\" >\n");
-	wprintf("<tr><td></td><td colspan=\"2\"><b>");
-	wprintf(_("Display icons as:"));
-	wprintf("</b>");
-	ib_displayas = IconbarIsEnabled("ib_displayas",IB_PICTEXT);
-	for (i=0; i<=2; ++i) {
-		wprintf("<input type=\"radio\" name=\"ib_displayas\" value=\"%d\"", i);
-		if (ib_displayas == i) wprintf(" CHECKED");
-		wprintf(">");
-		if (i == IB_PICTEXT)	wprintf(_("pictures and text"));
-		if (i == IB_PICONLY)	wprintf(_("pictures only"));
-		if (i == IB_TEXTONLY)	wprintf(_("text only"));
-		wprintf("\n");
-	}
-	wprintf("<br />\n");
-
-	wprintf(_("Select the icons you would like to see displayed "
-		"in the 'icon bar' menu on the left side of the "
-		"screen."));
-	wprintf("</td></tr>\n");
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_logo", 0);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_logo\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_logo\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"image&name=hello\" width=\"48\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Site logo"),
-		_("An icon describing this site")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_summary", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_summary\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_summary\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/summscreen_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Summary"),
-		_("Your summary page")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_inbox", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_inbox\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_inbox\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/privatemess_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Mail (inbox)"),
-		_("A shortcut to your email Inbox")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_contacts", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_contacts\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_contacts\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/viewcontacts_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Contacts"),
-		_("Your personal address book")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_notes", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_notes\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_notes\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/storenotes_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Notes"),
-		_("Your personal notes")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_calendar", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_calendar\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_calendar\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/calarea_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Calendar"),
-		_("A shortcut to your personal calendar")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_tasks", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_tasks\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_tasks\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/taskmanag_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Tasks"),
-		_("A shortcut to your personal task list")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_rooms", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_rooms\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_rooms\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/chatrooms_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Rooms"),
-		_("Clicking this icon displays a list of all accessible "
-		"rooms (or folders) available.")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_users", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_users\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_users\" value=\"no\" %s> %s <br />"
-		"<input type=\"radio\" name=\"ib_users\" value=\"yeslist\" %s> %s"
-		"</td><td>"
-		"<img src=\"static/usermanag_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b>"
-		"<br />%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		((val > 1) ? "CHECKED" : ""),_("Yes with users list"),
-		_("Who is online?"),
-		_("Clicking this icon displays a list of all users "
-		"currently logged in.")
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_chat", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_chat\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_chat\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/citadelchat_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Chat"),
-		_("Clicking this icon enters real-time chat mode "
-		"with other users in the same room.")
-		
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_advanced", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_advanced\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_advanced\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img src=\"static/advanpage2_48x.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Advanced options"),
-		_("Access to the complete menu of Citadel functions.")
-
-	);
-
-	bar = 1 - bar;
-	val = IconbarIsEnabled("ib_citadel", 1);
-	wprintf("<tr class=\"%s\"><td>"
-		"<input type=\"radio\" name=\"ib_citadel\" value=\"yes\" %s> %s &nbsp;&nbsp;&nbsp;"
-		"<input type=\"radio\" name=\"ib_citadel\" value=\"no\" %s> %s <br />"
-		"</td><td>"
-		"<img border=\"0\" width=\"48\" height=\"48\" "
-		"src=\"static/citadel-logo.gif\" alt=\"&nbsp;\">"
-		"</td><td>"
-		"<b>%s</b><br />"
-		"%s"
-		"</td></tr>\n",
-		(bar ? "even" : "odd"),
-		(val ? "CHECKED" : ""),_("Yes"),
-		(!val ? "CHECKED" : ""),_("No"),
-		_("Citadel logo"),
-		_("Displays the 'Powered by Citadel' icon")
-	);
-
-	wprintf("</table><br />\n"
-		"<center>"
-		"<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
-		"&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">"
-		"</center>\n",
-		_("Save changes"),
-		_("Cancel")
-	);
-
-	wprintf("</form></div>\n");
-	wDumpContent(2);
-}
 
 /*
  * save changes to iconbar settings
  */
 void commit_iconbar(void) {
+	const StrBuf *MimeType;
 	StrBuf *iconbar;
 	StrBuf *buf;
 	int i;
@@ -449,22 +168,10 @@ void commit_iconbar(void) {
 	FreeStrBuf(&buf);
 	set_preference("iconbar", iconbar, 1);
 
-	output_headers(1, 1, 2, 0, 0, 0);
-	/* TODO: TEMPLATE */
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Customize the icon bar"));
-	wprintf("</h1></div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
-	wprintf(
-		"<center><table border=1 bgcolor=\"#ffffff\"><tr><td>"
-		"<img src=\"static/advanpage2_48x.gif\">"
-		"&nbsp;");
-	wprintf(_("Your icon bar has been updated.  Please select any of its "
-		  "choices to continue.<br/><span style=\"font-weight: bold;\">You may need to force refresh (SHIFT-F5) in order for changes to take effect</span>"));
-	wprintf("</td></tr></table>\n");
-	wDumpContent(2);
+	begin_burst();
+	MimeType = DoTemplate(HKEY("iconbar_save"), NULL, &NoCtx);
+	http_transmit_thing(ChrPtr(MimeType), 0);
 #ifdef DBG_ICONBAR_HASH
 	dbg_PrintHash(WC->IconBarSetttings, PrintInt, NULL);
 #endif
@@ -487,7 +194,6 @@ InitModule_ICONBAR
 	WebcitAddUrlHandler(HKEY("user_iconbar"), doUserIconStylesheet, 0);
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
 	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
-	WebcitAddUrlHandler(HKEY("display_customize_iconbar"), display_customize_iconbar, 0);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, 0);
 
 	RegisterPreference("iconbar", _("Iconbar Setting"), PRF_STRING, LoadIconSettings);
