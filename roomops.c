@@ -329,7 +329,7 @@ void readinfo(StrBuf *Target, WCTemplputParams *TP)
                 wprintf("</div><div id=\"room_infos\" style=\"display:none;\">");
 		wprintf("<img class=\"close_infos\" "
                 	"onclick=\"javascript:Effect.Fade('room_infos', { duration: 0.5 });\" "
-			"src=\"static/closewindow.gif\" alt=\"%s\">",
+			"src=\"static/closewindow.gif\" alt=\"%s\"  width=\"16\" height=\"16\">",
 			_("Close window")
 			);
 		escputs(fullinfo);
@@ -366,37 +366,37 @@ void embed_room_graphic(StrBuf *Target, WCTemplputParams *TP)
 	else if (WC->wc_view == VIEW_ADDRESSBOOK) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/viewcontacts_48x.gif"
-			"\">"
+			"\" >"
 			);
 	}
 	else if ( (WC->wc_view == VIEW_CALENDAR) || (WC->wc_view == VIEW_CALBRIEF) ) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/calarea_48x.gif"
-			"\">"
+			"\" width=\"48\" height=\"48\">"
 			);
 	}
 	else if (WC->wc_view == VIEW_TASKS) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/taskmanag_48x.gif"
-			"\">"
+			"\" width=\"48\" height=\"48\">"
 			);
 	}
 	else if (WC->wc_view == VIEW_NOTES) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/storenotes_48x.gif"
-			"\">"
+			"\" width=\"48\" height=\"48\">"
 			);
 	}
 	else if (WC->wc_view == VIEW_MAILBOX) {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/privatemess_48x.gif"
-			"\">"
+			"\" width=\"48\" height=\"48\">"
 			);
 	}
 	else {
 		wprintf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/chatrooms_48x.gif"
-			"\">"
+			"\" width=\"48\" height=\"48\">"
 			);
 	}
 
@@ -548,7 +548,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		if (navbar_style == navbar_default) wprintf(
 			"<li class=\"ungoto\">"
 			"<a href=\"ungoto\">"
-			"<img src=\"static/ungoto2_24x.gif\" alt=\"\">"
+			"<img src=\"static/ungoto2_24x.gif\" alt=\"\" width=\"24\" height=\"24\">"
 			"<span class=\"navbar_link\">%s</span></A>"
 			"</li>\n", _("Ungoto")
 			);
@@ -557,7 +557,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			wprintf(
 				"<li class=\"newmess\">"
 				"<a href=\"readnew\">"
-				"<img src=\"static/newmess2_24x.gif\" alt=\"\">"
+				"<img src=\"static/newmess2_24x.gif\" alt=\"\" width=\"24\" height=\"24\">"
 				"<span class=\"navbar_link\">%s</span></A>"
 				"</li>\n", _("Read new messages")
 				);
@@ -570,7 +570,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"viewcontacts\">"
 					"<a href=\"readfwd\">"
 					"<img src=\"static/viewcontacts_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("View contacts")
@@ -581,7 +581,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"staskday\">"
 					"<a href=\"readfwd?calview=day\">"
 					"<img src=\"static/taskday2_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Day view")
@@ -590,7 +590,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"monthview\">"
 					"<a href=\"readfwd?calview=month\">"
 					"<img src=\"static/monthview2_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Month view")
@@ -601,7 +601,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"monthview\">"
 					"<a href=\"readfwd?calview=month\">"
 					"<img src=\"static/monthview2_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Calendar list")
@@ -612,7 +612,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"taskmanag\">"
 					"<a href=\"readfwd\">"
 					"<img src=\"static/taskmanag_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("View tasks")
@@ -623,7 +623,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"viewnotes\">"
 					"<a href=\"readfwd\">"
 					"<img src=\"static/viewnotes_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("View notes")
@@ -634,7 +634,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"readallmess\">"
 					"<a id=\"m_refresh\" href=\"readfwd\">"
 					"<img src=\"static/readallmess3_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Refresh message list")
@@ -645,7 +645,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"readallmess\">"
 					"<a href=\"readfwd\">"
 					"<img src=\"static/readallmess3_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Wiki home")
@@ -656,7 +656,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"readallmess\">"
 					"<a href=\"readfwd\">"
 					"<img src=\"static/readallmess3_24x.gif\" "
-					"alt=\"\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Read all messages")
@@ -672,7 +672,8 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"addnewcontact\">"
 					"<a href=\"display_enter\">"
 					"<img src=\"static/addnewcontact_24x.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
+					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Add new contact")
 					);
@@ -685,7 +686,8 @@ void embed_room_banner(char *got, int navbar_style) {
 				if (havebstr("day"  )) wprintf("?day=%s", bstr("day"));
 				wprintf("\">"
 					"<img  src=\"static/addevent_24x.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
+					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Add new event")
 					);
@@ -695,7 +697,8 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"newmess\">"
 					"<a href=\"display_enter\">"
 					"<img  src=\"static/newmess3_24x.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
+					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Add new task")
 					);
@@ -705,7 +708,8 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"enternewnote\">"
 					"<a href=\"add_new_note\">"
 					"<img  src=\"static/enternewnote_24x.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
+					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Add new note")
 					);
@@ -717,7 +721,8 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"newmess\">"
 					"<a href=\"display_enter?wikipage=%s\">"
 					"<img  src=\"static/newmess3_24x.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
+					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", buf, _("Edit this page")
 					);
@@ -727,7 +732,8 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"newmess\">"
 					"<a href=\"display_enter\">"
 					"<img  src=\"static/newmess3_24x.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
+					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Write mail")
 					);
@@ -735,7 +741,7 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"newmess\">"
 					"<a href=\"javascript:deleteAllSelectedMessages();\">"
 					"<img  src=\"static/delete.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\"><span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Delete")
 					);
@@ -745,7 +751,8 @@ void embed_room_banner(char *got, int navbar_style) {
 					"<li class=\"newmess\">"
 					"<a href=\"display_enter\">"
 					"<img  src=\"static/newmess3_24x.gif\" "
-					"alt=\"\"><span class=\"navbar_link\">"
+					"alt=\"\" width=\"24\" height=\"24\">"
+					"<span class=\"navbar_link\">"
 					"%s"
 					"</span></a></li>\n", _("Enter a message")
 					);
@@ -757,7 +764,8 @@ void embed_room_banner(char *got, int navbar_style) {
 			"<li class=\"skipthisroom\">"
 			"<a href=\"skip\" "
 			"title=\"%s\">"
-			"<img  src=\"static/skipthisroom_24x.gif\" alt=\"\">"
+			"<img  src=\"static/skipthisroom_24x.gif\" alt=\"\" "
+			"width=\"24\" height=\"24\">"
 			"<span class=\"navbar_link\">%s</span></a>"
 			"</li>\n",
 			_("Leave all messages marked as unread, go to next room with unread messages"),
@@ -768,7 +776,8 @@ void embed_room_banner(char *got, int navbar_style) {
 			"<li class=\"markngo\">"
 			"<a href=\"gotonext\" "
 			"title=\"%s\">"
-			"<img  src=\"static/markngo_24x.gif\" alt=\"\">"
+			"<img  src=\"static/markngo_24x.gif\" alt=\"\" "
+			"width=\"24\" height=\"24\">"
 			"<span class=\"navbar_link\">%s</span></a>"
 			"</li>\n",
 			_("Mark all messages as read, go to next room with unread messages"),
