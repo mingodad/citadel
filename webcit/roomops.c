@@ -654,7 +654,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			default:
 				wprintf(
 					"<li class=\"readallmess\">"
-					"<a href=\"readfwd?startmsg=20&maxmsgs=20&is_summary=0&SortBy=date&SortOrder=2\">"
+					"<a href=\"readfwd\">"
 					"<img src=\"static/readallmess3_24x.gif\" "
 					"alt=\"\">"
 					"<span class=\"navbar_link\">"
