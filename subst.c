@@ -1271,7 +1271,8 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	NewToken->NameEnd = NewToken->TokenEnd - 2;
 	NewToken->PreEval = NULL;
 	NewToken->FlatToken = NewStrBufPlain(pTmplStart + 2, pTmplEnd - pTmplStart - 2);
-	
+	StrBufShrinkToFit(NewToken->FlatToken, 1);
+
 	StrBufPeek(Buf, pTmplStart, + 1, '\0');
 	StrBufPeek(Buf, pTmplEnd, -1, '\0');
 	pch = NewToken->pName = pTmplStart + 2;
@@ -1432,6 +1433,7 @@ void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	memset(NewTemplate, 0, sizeof(WCTemplate));
 	NewTemplate->Data = NULL;
 	NewTemplate->FileName = NewStrBufDup(filename);
+	StrBufShrinkToFit(NewTemplate->FileName, 1);
 	NewTemplate->nTokensUsed = 0;
 	NewTemplate->TokenSpace = 0;
 	NewTemplate->Tokens = NULL;
@@ -1493,6 +1495,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 
 	Line = 0;
 	StrBufShrinkToFit(NewTemplate->Data, 1);
+	StrBufShrinkToFit(NewTemplate->MimeType, 1);
 	pS = pch = ChrPtr(NewTemplate->Data);
 	pE = pS + StrLength(NewTemplate->Data);
 	while (pch < pE) {
