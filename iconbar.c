@@ -15,6 +15,44 @@ void DontDeleteThis(void *Data){}
 
 #define IconbarIsEnabled(a, b) IconbarIsENABLED(a, sizeof(a) - 1, b)
 
+
+
+typedef struct _dflt_IB_Setting {
+	int DefVal;
+	const char *Key;
+	long len;
+}dflt_IB_Setting;
+
+dflt_IB_Setting IconbarDefaults[] = {
+	{0, HKEY("ib_displayas")},
+	{0, HKEY("ib_logo")},
+	{1, HKEY("ib_summary")},
+	{1, HKEY("ib_inbox")},
+	{1, HKEY("ib_calendar")},
+	{1, HKEY("ib_contacts")},
+	{1, HKEY("ib_notes")},
+	{1, HKEY("ib_tasks")},
+	{1, HKEY("ib_rooms")},
+	{1, HKEY("ib_users")},
+	{1, HKEY("ib_chat")},
+	{1, HKEY("ib_advanced")},
+	{1, HKEY("ib_logoff")},
+	{1, HKEY("ib_citadel")},
+	{0, HKEY("")}
+};
+
+HashList *IBDfl = NULL;
+
+long IconbarGetDefault(const char *key, size_t keylen)
+{
+	void *vIBDfl;
+
+	if (GetHash(IBDfl, key, keylen, &vIBDfl)) {
+		dflt_IB_Setting *Set = (dflt_IB_Setting*)vIBDfl;
+		return Set->DefVal;
+	}
+	return 0;
+}
 long IconbarIsENABLED(const char *key, size_t keylen, long defval)
 {
 	void *Data = NULL;
@@ -75,7 +113,7 @@ int ConditionalIsActiveStylesheet(StrBuf *Target, WCTemplputParams *TP) {
 	int ib_displayas;
 
 	testFor = GetTemplateTokenNumber(Target, TP, 3, IB_PICTEXT);
-	ib_displayas = IconbarIsENABLED(TKEY(2),0);
+	ib_displayas = IconbarIsENABLED(TKEY(2),IconbarGetDefault(TKEY(2)));
 	return (testFor == ib_displayas);
 }
 
@@ -126,21 +164,6 @@ void commit_iconbar(void) {
 	StrBuf *buf;
 	int i;
 
-	char *boxen[] = {
-		"ib_logo",
-		"ib_summary",
-		"ib_inbox",
-		"ib_calendar",
-		"ib_contacts",
-		"ib_notes",
-		"ib_tasks",
-		"ib_rooms",
-		"ib_users",
-		"ib_chat",
-		"ib_advanced",
-		"ib_logoff",
-		"ib_citadel"
-	};
 
 	if (!havebstr("ok_button")) {
 		display_main_menu();
@@ -150,18 +173,24 @@ void commit_iconbar(void) {
 	iconbar = NewStrBuf();
 	buf = NewStrBuf();
 	StrBufPrintf(iconbar, "ib_displayas=%d", ibstr("ib_displayas"));
-	for (i=0; i<(sizeof(boxen)/sizeof(char *)); ++i) {
+	for (i=0; i<(sizeof(IconbarDefaults)/sizeof(dflt_IB_Setting )); ++i) {
 		char *Val;
-		if (!strcasecmp(BSTR(boxen[i]), "yes")) {
+		if (!strcasecmp(Bstr(IconbarDefaults[i].Key,
+				     IconbarDefaults[i].len),
+				"yes")) 
+		{
 			Val = "1";
 		}
-		else if (!strcasecmp(BSTR(boxen[i]), "yeslist")) {
+		else if (!strcasecmp(Bstr(IconbarDefaults[i].Key,
+					  IconbarDefaults[i].len),
+				     "yeslist")) 
+		{
 			Val = "2";
 		}
 		else {
 			Val = "0";
 		}
-		StrBufPrintf(buf, ",%s=%s", boxen[i], Val);
+		StrBufPrintf(buf, ",%s=%s", IconbarDefaults[i].Key, Val);
 		StrBufAppendBuf(iconbar, buf, 0);
 
 	}
@@ -187,6 +216,34 @@ void tmplput_iconbar(StrBuf *Target, WCTemplputParams *TP)
 	}
 }
 
+
+void 
+ServerShutdownModule_ICONBAR
+(void)
+{
+	DeleteHash(&IBDfl);
+}
+
+
+
+void
+ServerStartModule_ICONBAR
+(void)
+{
+	int i = 0;
+	IBDfl = NewHash(1, NULL);
+
+	while (IconbarDefaults[i].len != 0)
+	{
+		Put(IBDfl, 
+		    IconbarDefaults[i].Key, 
+		    IconbarDefaults[i].len, 
+		    &IconbarDefaults[i], 
+		    reference_free_handler);
+		i++;
+	}
+}
+
 void 
 InitModule_ICONBAR
 (void)
@@ -205,5 +262,5 @@ void
 SessionDestroyModule_ICONBAR
 (wcsession *sess)
 {
-	DeleteHash(&sess->IconBarSettings);
+	DeleteHash(&IBDfl);
 }
