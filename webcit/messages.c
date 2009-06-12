@@ -1740,18 +1740,19 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
  */
 void mimepart(int force_download)
 {
-	long msgnum, att;
+	long msgnum;
+	StrBuf *att;
 	wcsession *WCC = WC;
 	StrBuf *Buf;
 	off_t bytes;
 	StrBuf *ContentType = NewStrBufPlain(HKEY("application/octet-stream"));
 	const char *CT;
 
+	att = Buf = NewStrBuf();
 	msgnum = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 0, '/');
-	att = StrBufExtract_long(WCC->Hdr->HR.ReqLine, 1, '/');
+	StrBufExtract_token(att, WCC->Hdr->HR.ReqLine, 1, '/');
 
-	Buf = NewStrBuf();
-	serv_printf("OPNA %ld|%ld", msgnum, att);
+	serv_printf("OPNA %ld|%s", msgnum, ChrPtr(att));
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 2) {
 		StrBufCutLeft(Buf, 4);
