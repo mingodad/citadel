@@ -977,6 +977,9 @@ void convert_room_name_macros(char *towhere, size_t maxlen) {
 	else if (!strcasecmp(towhere, "_TRASH_")) {
 		safestrncpy(towhere, USERTRASHROOM, maxlen);
 	}
+	else if (!strcasecmp(towhere, "_DRAFTS_")) {
+		safestrncpy(towhere, USERDRAFTROOM, maxlen);
+	}
 	else if (!strcasecmp(towhere, "_BITBUCKET_")) {
 		safestrncpy(towhere, config.c_twitroom, maxlen);
 	}

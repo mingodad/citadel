@@ -92,6 +92,7 @@
 #define USERTASKSROOM		"Tasks"
 #define USERCONTACTSROOM	"Contacts"
 #define USERNOTESROOM		"Notes"
+#define USERDRAFTROOM		"Drafts"
 #define USERTRASHROOM		"Trash"
 #define PAGELOGROOM		"Sent/Received Pages"
 #define SYSCONFIGROOM		"Local System Configuration"

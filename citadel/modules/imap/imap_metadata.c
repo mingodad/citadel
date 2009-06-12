@@ -228,6 +228,9 @@ void imap_getmetadata(int num_parms, char *parms[]) {
 	else if (!strcasecmp(&CC->room.QRname[11], SENTITEMS)) {
 		cprintf("mail.sentitems");
 	}
+	else if (!strcasecmp(&CC->room.QRname[11], USERDRAFTROOM)) {
+		cprintf("mail.drafts");
+	}
 	else if (!strcasecmp(&CC->room.QRname[11], USERCALENDARROOM)) {
 		cprintf("event.default");
 	}
