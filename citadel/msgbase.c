@@ -301,7 +301,7 @@ int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
 		if (template->cm_fields[i] != NULL) {
 			if (msg->cm_fields[i] == NULL) {
 				/* Considered equal if temmplate is empty string */
-				if (IsEmptyStr(template->cm_fields[i])) return 0;
+				if (IsEmptyStr(template->cm_fields[i])) continue;
 				return 1;
 			}
 			if (strcasecmp(msg->cm_fields[i],
