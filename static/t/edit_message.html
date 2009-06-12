@@ -10,6 +10,8 @@
 <input type="hidden" name="references" value="<?BSTR("references")>">
 
 <p class="send_edit_msg">
+  <input type="submit" name="save_button" value="<?_("Save to Drafts")>">
+&nbsp;
 <?!("COND:SUBST", 1, "RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Send message")>"><?!("X", 1)>
 <??("COND:SUBST", 2, "RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Post message")>"><?!("X", 2)>
 &nbsp;

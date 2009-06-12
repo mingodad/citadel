@@ -1278,6 +1278,7 @@ void post_message(void)
 	int is_anonymous = 0;
 	const StrBuf *display_name = NULL;
 	wcsession *WCC = WC;
+	StrBuf *Buf;
 	
 	if (havebstr("force_room")) {
 		gotoroom(sbstr("force_room"));
@@ -1356,11 +1357,31 @@ void post_message(void)
 		const StrBuf *my_email_addr = NULL;
 		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
+		int save_to_drafts;
+
+		save_to_drafts = havebstr("save_button");
+		Buf = NewStrBuf();
+
+		if (save_to_drafts) {
+		        /** temporarily change to the drafts room */
+		        serv_puts("GOTO _DRAFTS_");
+			StrBuf_ServGetln(Buf);
+			if (GetServerStatus(Buf, NULL) == 2) {
+				/* You probably don't even have a dumb Drafts folder */
+				StrBufCutLeft(Buf, 4);
+				lprintf(9, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
+				StrBufAppendBufPlain(WCC->ImportantMsg, _("Saved to Drafts failed: "), -1, 0);
+				StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
+				display_enter();
+				FreeStrBuf(&Buf);
+				return;
+			}
+		}
 
 		if (havebstr("references"))
 		{
 			const StrBuf *ref = sbstr("references");
-			references = NewStrBufPlain(ChrPtr(ref), StrLength(ref));
+			references = NewStrBufDup(ref);
 			if (*ChrPtr(references) == '|') {	/* remove leading '|' if present */
 				StrBufCutLeft(references, 1);
 			}
@@ -1394,40 +1415,64 @@ void post_message(void)
 
 		StrBufPrintf(CmdBuf, 
 			     CMD,
-			     ChrPtr(Recp),
+			     save_to_drafts?"":ChrPtr(Recp),
 			     is_anonymous,
 			     ChrPtr(encoded_subject),
 			     ChrPtr(display_name),
-			     ChrPtr(Cc),
-			     ChrPtr(Bcc),
+			     save_to_drafts?"":ChrPtr(Cc),
+			     save_to_drafts?"":ChrPtr(Bcc),
 			     ChrPtr(Wikipage),
 			     ChrPtr(my_email_addr),
 			     ChrPtr(references));
 		FreeStrBuf(&references);
+		FreeStrBuf(&encoded_subject);
 
 		lprintf(9, "%s\n", ChrPtr(CmdBuf));
 		serv_puts(ChrPtr(CmdBuf));
-		serv_getln(buf, sizeof buf);
 		FreeStrBuf(&CmdBuf);
-		FreeStrBuf(&encoded_subject);
-		if (buf[0] == '4') {
+
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 4) {
+			if (save_to_drafts) {
+				if (  (havebstr("recp"))
+				    || (havebstr("cc"  ))
+				    || (havebstr("bcc" )) ) {
+					/* save recipient headers or room to post to */
+					serv_printf("To: %s", ChrPtr(Recp));
+					serv_printf("Cc: %s", ChrPtr(Cc));
+					serv_printf("Bcc: %s", ChrPtr(Bcc));
+				} else {
+					serv_printf("X-Citadel-Room: %s", ChrPtr(WC->wc_roomname));
+				}
+			}
 			post_mime_to_server();
-			if (  (havebstr("recp"))
+			if (save_to_drafts) {
+				StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been saved to Drafts.\n"), -1, 0);
+				gotoroom(WCC->wc_roomname);
+				display_enter();
+				FreeStrBuf(&Buf);
+				return;
+			} else if (  (havebstr("recp"))
 			   || (havebstr("cc"  ))
 			   || (havebstr("bcc" ))
 			) {
-				sprintf(WCC->ImportantMessage, _("Message has been sent.\n"));
+				StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been sent.\n"), -1, 0);
 			}
 			else {
-				sprintf(WC->ImportantMessage, _("Message has been posted.\n"));
+				StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been posted.\n"), -1, 0);
 			}
 			dont_post = lbstr("postseq");
 		} else {
-			lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, buf);
-			sprintf(WC->ImportantMessage, "%s", &buf[4]);
+			StrBufCutLeft(Buf, 4);
+
+			lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
+			StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
+			if (save_to_drafts) gotoroom(WCC->wc_roomname);
 			display_enter();
+			FreeStrBuf(&Buf);
 			return;
 		}
+		FreeStrBuf(&Buf);
 	}
 
 	DeleteHash(&WCC->attachments);
