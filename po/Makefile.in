@@ -5,7 +5,7 @@ all: ../locale/de/LC_MESSAGES/webcit.mo \
 	../locale/da/LC_MESSAGES/webcit.mo \
 	../locale/fr/LC_MESSAGES/webcit.mo \
 	../locale/nl/LC_MESSAGES/webcit.mo \
-	../locale/pt_BR/LC_MESSAGES/webcit.mo
+	../locale/pt_BR/LC_MESSAGES/webcit.mo \
 	../locale/hu/LC_MESSAGES/webcit.mo
 
 ../locale/de/LC_MESSAGES/webcit.mo: de.po
