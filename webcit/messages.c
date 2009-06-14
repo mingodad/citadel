@@ -1366,7 +1366,7 @@ void post_message(void)
 		        /** temporarily change to the drafts room */
 		        serv_puts("GOTO _DRAFTS_");
 			StrBuf_ServGetln(Buf);
-			if (GetServerStatus(Buf, NULL) == 2) {
+			if (GetServerStatus(Buf, NULL) != 2) {
 				/* You probably don't even have a dumb Drafts folder */
 				StrBufCutLeft(Buf, 4);
 				lprintf(9, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
