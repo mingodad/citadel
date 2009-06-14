@@ -523,27 +523,38 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 
 #ifdef HAVE_OPENSSL
 	if (is_https) {
-		long bufremain = StrLength(Hdr->ReadBuf) - (Hdr->Pos - ChrPtr(Hdr->ReadBuf));
-		StrBufAppendBufPlain(Target, Hdr->Pos, bufremain, 0);
-		Hdr->Pos = NULL;
-		FlushStrBuf(Hdr->ReadBuf);
+		long bufremain;
 
-		while ((StrLength(Hdr->ReadBuf) + StrLength(Target) < bytes) &&
-		       (retval >= 0))
-			retval = client_read_sslbuffer(Hdr->ReadBuf, timeout);
-		if (retval >= 0) {
-			StrBufAppendBuf(Target, Hdr->ReadBuf, 0); /* todo: Buf > bytes? */
+		if (Hdr->Pos == NULL)
+			Hdr->Pos = ChrPtr(Hdr->ReadBuf);
+		bufremain = StrLength(Hdr->ReadBuf) - (Hdr->Pos - ChrPtr(Hdr->ReadBuf));
+
+		if (bytes < bufremain)
+			bufremain = bytes;
+		StrBufAppendBufPlain(Target, Hdr->Pos, bufremain, 0);
+		StrBufCutLeft(Hdr->ReadBuf, bufremain);
+
+		if (bytes > bufremain) 
+		{
+			while ((StrLength(Hdr->ReadBuf) + StrLength(Target) < bytes) &&
+			       (retval >= 0))
+				retval = client_read_sslbuffer(Hdr->ReadBuf, timeout);
+			if (retval >= 0) {
+				StrBufAppendBuf(Target, Hdr->ReadBuf, 0); /* todo: Buf > bytes? */
 #ifdef HTTP_TRACING
-			write(2, "\033[32m", 5);
-			write(2, buf, bytes);
-			write(2, "\033[30m", 5);
+				write(2, "\033[32m", 5);
+				write(2, buf, bytes);
+				write(2, "\033[30m", 5);
 #endif
+				return 1;
+			}
+			else {
+				lprintf(2, "client_read_ssl() failed\n");
+				return -1;
+			}
+		}
+		else 
 			return 1;
-		}
-		else {
-			lprintf(2, "client_read_ssl() failed\n");
-			return -1;
-		}
 	}
 #endif
 
