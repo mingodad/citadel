@@ -788,6 +788,19 @@ void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 	FreeStrBuf(&Buf);
 }
 
+void tmplput_EDIT_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
+{
+	const StrBuf *Mime;
+        long MsgNum;
+	StrBuf *Buf;
+
+	MsgNum = LBstr(TKEY(0));
+	Buf = NewStrBuf();
+	read_message(Buf, HKEY("view_message_edit"), MsgNum, NULL, &Mime);
+	StrBufAppendTemplate(Target, TP, Buf, 1);
+	FreeStrBuf(&Buf);
+}
+
 void tmplput_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
@@ -1170,6 +1183,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:SUMM:INREPLYTO", 0, 2, tmplput_MAIL_SUMM_INREPLYTO,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  CTX_NONE);
+	RegisterNamespace("MAIL:EDITTEXT", 1, 2, tmplput_EDIT_MAIL_BODY,  CTX_NONE);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:CCCC"), 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
