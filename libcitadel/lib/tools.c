@@ -495,7 +495,7 @@ size_t striplt(char *buf) {
 	char *ptr;
 	size_t new_len = 0;
 
-	if ((buf == NULL) || (*Buf == '\0')) {
+	if ((buf == NULL) || (*buf == '\0')) {
 		return 0;
 	}
 
