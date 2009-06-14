@@ -392,7 +392,7 @@ int starttls(int sock) {
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
 		if (ssl_error_reason == NULL)
-			lprintf(3, "SSL_accept failed: errval=%i, retval=%i\n", errval, retval);
+			lprintf(3, "SSL_accept failed: errval=%i, retval=%i %s\n", errval, retval, strerror(errval));
 		else
 			lprintf(3, "SSL_accept failed: %s\n", ssl_error_reason);
 		sleeeeeeeeeep(1);
@@ -405,7 +405,7 @@ int starttls(int sock) {
 		errval = SSL_get_error(newssl, retval);
 		ssl_error_reason = ERR_reason_error_string(ERR_get_error());
 		if (ssl_error_reason == NULL)
-			lprintf(3, "SSL_accept failed: errval=%i, retval=%i\n", errval, retval);
+			lprintf(3, "SSL_accept failed: errval=%i, retval=%i (%s)\n", errval, retval, strerror(errval));
 		else
 			lprintf(3, "SSL_accept failed: %s\n", ssl_error_reason);
 		SSL_free(newssl);
