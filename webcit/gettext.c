@@ -18,6 +18,7 @@ const char *AvailLang[NUM_LANGS] = {
 	"fr_FR",
 	"nl_NL",
 	"pt_BR"
+	"hu_HU"
 };
 
 const char *AvailLangLoaded[NUM_LANGS];

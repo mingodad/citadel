@@ -6,6 +6,7 @@ all: ../locale/de/LC_MESSAGES/webcit.mo \
 	../locale/fr/LC_MESSAGES/webcit.mo \
 	../locale/nl/LC_MESSAGES/webcit.mo \
 	../locale/pt_BR/LC_MESSAGES/webcit.mo
+	../locale/hu/LC_MESSAGES/webcit.mo
 
 ../locale/de/LC_MESSAGES/webcit.mo: de.po
 	[ -d ../locale/de/LC_MESSAGES ] || mkdir -p ../locale/de/LC_MESSAGES
@@ -38,3 +39,7 @@ all: ../locale/de/LC_MESSAGES/webcit.mo \
 ../locale/pt_BR/LC_MESSAGES/webcit.mo: pt_BR.po
 	[ -d ../locale/pt_BR/LC_MESSAGES ] || mkdir -p ../locale/pt_BR/LC_MESSAGES
 	msgfmt pt_BR.po -o ../locale/pt_BR/LC_MESSAGES/webcit.mo
+
+../locale/hu/LC_MESSAGES/webcit.mo: hu.po
+	[ -d ../locale/hu/LC_MESSAGES ] || mkdir -p ../locale/hu/LC_MESSAGES
+	msgfmt hu.po -o ../locale/hu/LC_MESSAGES/webcit.mo
