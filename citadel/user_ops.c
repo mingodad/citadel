@@ -695,7 +695,7 @@ void do_login(void)
 	create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
 	create_room(SENTITEMS, 4, "", 0, 1, 0, VIEW_MAILBOX);
 	create_room(USERTRASHROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
-	create_room(USERDRAFTROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
+	create_room(USERDRAFTROOM, 4, "", 0, 1, 0, VIEW_DRAFTS);
 
 	/* Run any startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
