@@ -216,7 +216,8 @@ void display_smtpqueue_inner_div(void) {
 		wprintf(_("You do not have permission to view this resource."));
 		wprintf("</div><br /><br />");
 	}
-
+	output_headers(0, 0, 0, 0, 0, 0);
+	end_burst();
 }
 
 /**
