@@ -3227,8 +3227,8 @@ struct CtdlMessage *CtdlMakeMessage(
 	/* Don't confuse the poor folks if it's not routed mail. */
 	strcpy(dest_node, "");
 
-	striplt(recipient);
-	striplt(recp_cc);
+	if (recipient != NULL) striplt(recipient);
+	if (recp_cc != NULL) striplt(recp_cc);
 
 	/* Path or Return-Path */
 	if (my_email == NULL) my_email = "";
@@ -3245,10 +3245,12 @@ struct CtdlMessage *CtdlMakeMessage(
 	snprintf(buf, sizeof buf, "%ld", (long)time(NULL));	/* timestamp */
 	msg->cm_fields['T'] = strdup(buf);
 
-	if (fake_name[0])					/* author */
+	if ((fake_name != NULL) && (fake_name[0])) {		/* author */
 		msg->cm_fields['A'] = strdup(fake_name);
-	else
+	}
+	else {
 		msg->cm_fields['A'] = strdup(author->fullname);
+	}
 
 	if (CC->room.QRflags & QR_MAILBOX) {		/* room */
 		msg->cm_fields['O'] = strdup(&CC->room.QRname[11]);
@@ -3260,10 +3262,10 @@ struct CtdlMessage *CtdlMakeMessage(
 	msg->cm_fields['N'] = strdup(NODENAME);		/* nodename */
 	msg->cm_fields['H'] = strdup(HUMANNODE);		/* hnodename */
 
-	if (recipient[0] != 0) {
+	if ((recipient != NULL) && (recipient[0] != 0)) {
 		msg->cm_fields['R'] = strdup(recipient);
 	}
-	if (recp_cc[0] != 0) {
+	if ((recp_cc != NULL) && (recp_cc[0] != 0)) {
 		msg->cm_fields['Y'] = strdup(recp_cc);
 	}
 	if (dest_node[0] != 0) {
