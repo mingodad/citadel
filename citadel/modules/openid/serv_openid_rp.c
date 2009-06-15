@@ -540,6 +540,8 @@ int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
+	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
 	if (!IsEmptyStr(config.c_ip_addr)) {
@@ -756,6 +758,8 @@ void cmd_oidf(char *argbuf) {
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
+	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
 	if (!IsEmptyStr(config.c_ip_addr)) {

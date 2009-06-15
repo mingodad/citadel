@@ -399,6 +399,8 @@ void rss_do_fetching(char *url, char *rooms) {
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rss_libcurl_callback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
+	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
 	if (!IsEmptyStr(config.c_ip_addr)) {
