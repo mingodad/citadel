@@ -958,6 +958,21 @@ void change_start_page(void)
 }
 
 
+void LoadStartpage(StrBuf *URL, long lvalue)
+{
+	const char *pch;
+	pch = strchr(ChrPtr(URL), '?');
+	if (pch == NULL) {
+		/* purge the sins of the past... */
+		pch = strchr(ChrPtr(URL), '&');
+		if (pch != NULL) {
+			StrBufPeek(URL, pch, -1, '?');
+			WC->SavePrefsToServer = 1;
+		}
+	}
+}
+
+
 void 
 InitModule_PREFERENCES
 (void)
@@ -965,6 +980,7 @@ InitModule_PREFERENCES
 	WebcitAddUrlHandler(HKEY("set_preferences"), set_preferences, 0);
 	WebcitAddUrlHandler(HKEY("change_start_page"), change_start_page, 0);
 
+	RegisterPreference("startpage", _("Prefered startpage"), PRF_STRING, LoadStartpage);
 
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
 	RegisterNamespace("PREF:ROOM:VALUE", 1, 2, tmplput_CFG_RoomValue,  CTX_NONE);
