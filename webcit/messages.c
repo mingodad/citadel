@@ -609,6 +609,11 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 
 			Msg->msgnum = StrBufExtractNext_long(Buf, &Ptr, '|');
 			Msg->date = StrBufExtractNext_long(Buf, &Ptr, '|');
+
+			if ((Msg->msgnum == 0) && (StrLength(Buf) < 32)) {
+				free(Msg);
+				continue;
+			}
 			/* 
 			 * as citserver probably gives us messages in forward date sorting
 			 * nummsgs should be the same order as the message date.
