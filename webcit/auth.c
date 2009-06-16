@@ -506,7 +506,7 @@ void do_welcome(void)
 	 */
 	if (!get_preference("startpage", &Buf)) {
 		Buf = NewStrBuf ();
-		StrBufPrintf(Buf, "dotskip&room=_BASEROOM_");
+		StrBufPrintf(Buf, "dotskip?room=_BASEROOM_");
 		set_preference("startpage", Buf, 1);
 	}
 	if (ChrPtr(Buf)[0] == '/') {
