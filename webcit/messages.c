@@ -22,18 +22,11 @@ void jsonMessageListHdr(void);
 
 void display_enter(void);
 
-/*----------------------------------------------------------------------------*/
-
-
 typedef void (*MsgPartEvaluatorFunc)(message_summary *Sum, StrBuf *Buf);
 
 typedef struct _MsgPartEvaluatorStruct {
 	MsgPartEvaluatorFunc f;
-}MsgPartEvaluatorStruct;
-
-
-/*----------------------------------------------------------------------------*/
-
+} MsgPartEvaluatorStruct;
 
 int load_message(message_summary *Msg, 
 		 StrBuf *FoundCharset,
@@ -49,11 +42,13 @@ int load_message(message_summary *Msg,
 	int state=0;
 	
 	Buf = NewStrBuf();
-	lprintf(1, "-------------------MSG4 %ld|%s--------------\n", Msg->msgnum, ChrPtr(Msg->PartNum));
-	if (Msg->PartNum != NULL)
+	lprintf(9, "MSG4 %ld|%s\n", Msg->msgnum, ChrPtr(Msg->PartNum));
+	if (Msg->PartNum != NULL) {
 		serv_printf("MSG4 %ld|%s", Msg->msgnum, ChrPtr(Msg->PartNum));
-	else
+	}
+	else {
 		serv_printf("MSG4 %ld", Msg->msgnum);
+	}
 
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
@@ -276,13 +271,10 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 }
 
 
-
 void
 HttpStatus(long CitadelStatus)
 {
 	long httpstatus = 502;
-	long MajorStat = MAJORCODE(CitadelStatus);
-	long MinorStat = MINORCODE(CitadelStatus);
 	
 	switch (MAJORCODE(CitadelStatus))
 	{
@@ -350,8 +342,6 @@ HttpStatus(long CitadelStatus)
 /*
  * Unadorned HTML output of an individual message, suitable
  * for placing in a hidden iframe, for printing, or whatever
- *
- * msgnum_as_string == Message number, as a string instead of as a long int
  */
 void handle_one_message(void) 
 {
@@ -422,11 +412,11 @@ void handle_one_message(void)
 
 	}
 }
+
+
 /*
  * Unadorned HTML output of an individual message, suitable
  * for placing in a hidden iframe, for printing, or whatever
- *
- * msgnum_as_string == Message number, as a string instead of as a long int
  */
 void embed_message(void) {
 	const StrBuf *Mime;
@@ -468,8 +458,6 @@ void embed_message(void) {
 
 /*
  * Printable view of a message
- *
- * msgnum_as_string == Message number, as a string instead of as a long int
  */
 void print_message(void) {
 	long msgnum = 0L;
@@ -491,8 +479,6 @@ void print_message(void) {
 
 /* 
  * Mobile browser view of message
- *
- * @param msg_num_as_string Message number as a string instead of as a long int 
  */
 void mobile_message_view(void) 
 {
@@ -507,10 +493,8 @@ void mobile_message_view(void)
 	wDumpContent(0);
 }
 
-/**
- * \brief Display a message's headers
- *
- * \param msgnum_as_string Message number, as a string instead of as a long int
+/*
+ * Display a message's headers
  */
 void display_headers(void) {
 	long msgnum = 0L;
@@ -642,7 +626,7 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 					StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset, FoundCharset);
 				}
 			
-				/** Nodename */
+				/* node name */
 				StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
 				if ((StrLength(Buf2) !=0 ) &&
 				    ( ((WCC->room_flags & QR_NETWORK)
@@ -653,9 +637,9 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 					StrBufAppendBuf(Msg->from, Buf2, 0);
 				}
 
-				/** Not used:
-				    StrBufExtract_token(Msg->inetaddr, Buf, 4, '|');
-				*/
+				/* Internet address (not used)
+				 *	StrBufExtract_token(Msg->inetaddr, Buf, 4, '|');
+				 */
 				StrBufSkip_NTokenS(Buf, &Ptr, '|', 1);
 				Msg->subj = NewStrBufPlain(NULL, StrLength(Buf));
 				StrBufExtract_NextToken(Buf2,  Buf, &Ptr, '|');
@@ -669,7 +653,6 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 						StrBufAppendBufPlain(Msg->subj, HKEY("..."), 0);
 					}
 				}
-
 
 				if ((StrLength(Msg->from) > 25) && 
 				    (StrBuf_Utf8StrLen(Msg->from) > 25)) {
@@ -760,7 +743,7 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 		}
 		done = !GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
 		
-		/**
+		/*
 		 * Bump these because although we're thinking in zero base, the user
 		 * is a drooling idiot and is thinking in one base.
 		 */
@@ -995,8 +978,8 @@ void readloop(long oper)
 
 	if (load_seen) load_seen_flags();
 	
-        /**
-	 * If we're to print s.th. above the message list...
+        /*
+	 * Print any inforation above the message list...
 	 */
 	switch (WCC->wc_view) {
 	case VIEW_BBS:
@@ -1028,13 +1011,11 @@ void readloop(long oper)
 	svputlong("READLOOP:TOTALMSGS", nummsgs);
 	svputlong("READLOOP:STARTMSG", startmsg);
 	svputlong("WCVIEW", WCC->wc_view);
+
 	/*
 	 * iterate over each message. if we need to load an attachment, do it here. 
 	 */
 	if (WCC->wc_view == VIEW_MAILBOX) goto NO_MSG_LOOP;
-	/*
-	 * iterate over each message. if we need to load an attachment, do it here. 
-	 */
 	at = GetNewHashPos(WCC->summ, 0);
 	num_displayed = i = 0;
 	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
@@ -1085,7 +1066,7 @@ void readloop(long oper)
 	}
 	DeleteHashPos(&at);
 
- NO_MSG_LOOP:	
+NO_MSG_LOOP:
 	/*
 	 * Done iterating the message list. now tasks we want to do after.
 	 */
@@ -1101,7 +1082,7 @@ void readloop(long oper)
 				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], NULL, &Mime);
 			}
 			
-			/** if we do a split bbview in the future, end messages div here */
+			/* if we do a split bbview in the future, end messages div here */
 			
 			free(displayed_msgs);
 			displayed_msgs = NULL;
@@ -1134,7 +1115,7 @@ DONE:
 		if (is_singlecard)
 			read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), NULL, &Mime);
 		else
-			do_addrbook_view(addrbook, num_ab);	/** Render the address book */
+			do_addrbook_view(addrbook, num_ab);	/* Render the address book */
 		break;
 	case VIEW_MAILBOX: 
 	case VIEW_BBS:
@@ -1297,22 +1278,23 @@ void post_message(void)
 		int n;
 		char N[64];
 
-		lprintf(9, "%s:%d: we are uploading %d bytes\n", __FILE__, __LINE__, WCC->upload_length);
-		/** There's an attachment.  Save it to this struct... */
+		/* There's an attachment.  Save it to this struct... */
+		lprintf(9, "Client is uploading %d bytes\n", WCC->upload_length);
 		att = malloc(sizeof(wc_mime_attachment));
 		memset(att, 0, sizeof(wc_mime_attachment ));
 		att->length = WCC->upload_length;
 		att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
 		att->FileName = NewStrBufPlain(WCC->upload_filename, -1);
 		
-		
-		if (WCC->attachments == NULL)
+		if (WCC->attachments == NULL) {
 			WCC->attachments = NewHash(1, NULL);
+		}
+
 		/* And add it to the list. */
 		n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
 		Put(WCC->attachments, N, n, att, DestroyMime);
 
-		/**
+		/*
 		 * Mozilla sends a simple filename, which is what we want,
 		 * but Satan's Browser sends an entire pathname.  Reduce
 		 * the path to just a filename if we need to.
@@ -1326,7 +1308,7 @@ void post_message(void)
 			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName) + 1);
 		}
 
-		/**
+		/*
 		 * Transfer control of this memory from the upload struct
 		 * to the attachment struct.
 		 */
@@ -1477,21 +1459,21 @@ void post_message(void)
 
 	DeleteHash(&WCC->attachments);
 
-	/**
+	/*
 	 *  We may have been supplied with instructions regarding the location
 	 *  to which we must return after posting.  If found, go there.
 	 */
 	if (havebstr("return_to")) {
 		http_redirect(bstr("return_to"));
 	}
-	/**
+	/*
 	 *  If we were editing a page in a wiki room, go to that page now.
 	 */
 	else if (havebstr("wikipage")) {
 		snprintf(buf, sizeof buf, "wiki?page=%s", bstr("wikipage"));
 		http_redirect(buf);
 	}
-	/**
+	/*
 	 *  Otherwise, just go to the "read messages" loop.
 	 */
 	else {
@@ -1502,8 +1484,8 @@ void post_message(void)
 
 
 
-/**
- * \brief display the message entry screen
+/*
+ * display the message entry screen
  */
 void display_enter(void)
 {
@@ -1528,14 +1510,14 @@ void display_enter(void)
 		is_anonymous = 1;
 	}
 
-	/** First test to see whether this is a room that requires recipients to be entered */
+	/* First test to see whether this is a room that requires recipients to be entered */
 	serv_puts("ENT0 0");
 	serv_getln(buf, sizeof buf);
 
-	if (!strncmp(buf, "570", 3)) {		/** 570 means that we need a recipient here */
+	if (!strncmp(buf, "570", 3)) {		/* 570 means that we need a recipient here */
 		recipient_required = 1;
 	}
-	else if (buf[0] != '2') {		/** Any other error means that we cannot continue */
+	else if (buf[0] != '2') {		/* Any other error means that we cannot continue */
 		sprintf(WCC->ImportantMessage, "%s", &buf[4]);
 		readloop(readnew);
 		return;
@@ -1611,15 +1593,15 @@ void display_enter(void)
 		serv_getln(buf, sizeof buf);
 		FreeStrBuf(&CmdBuf);
 
-		if (!strncmp(buf, "570", 3)) {	/** 570 means we have an invalid recipient listed */
+		if (!strncmp(buf, "570", 3)) {	/* 570 means we have an invalid recipient listed */
 			if (havebstr("recp") && 
 			    havebstr("cc"  ) && 
 			    havebstr("bcc" )) {
 				recipient_bad = 1;
 			}
 		}
-		else if (buf[0] != '2') {	/** Any other error means that we cannot continue */
-			wprintf("<em>%s</em><br />\n", &buf[4]);/*TODO -> important message */
+		else if (buf[0] != '2') {	/* Any other error means that we cannot continue */
+			wprintf("<em>%s</em><br />\n", &buf[4]);	/* TODO -> important message */
 			return;
 		}
 	}
@@ -1634,8 +1616,8 @@ void display_enter(void)
 	return;
 }
 
-/**
- * \brief delete a message
+/*
+ * delete a message
  */
 void delete_msg(void)
 {
@@ -1644,22 +1626,21 @@ void delete_msg(void)
 
 	msgid = lbstr("msgid");
 
-	if (WC->wc_is_trash) {	/** Delete from Trash is a real delete */
+	if (WC->wc_is_trash) {	/* Delete from Trash is a real delete */
 		serv_printf("DELE %ld", msgid);	
 	}
-	else {			/** Otherwise move it to Trash */
+	else {			/* Otherwise move it to Trash */
 		serv_printf("MOVE %ld|_TRASH_|0", msgid);
 	}
 
 	serv_getln(buf, sizeof buf);
 	sprintf(WC->ImportantMessage, "%s", &buf[4]);
-
 	readloop(readnew);
 }
 
 
-/**
- * \brief move a message to another folder
+/*
+ * move a message to another room
  */
 void move_msg(void)
 {
@@ -1679,9 +1660,6 @@ void move_msg(void)
 
 	readloop(readnew);
 }
-
-
-
 
 
 /*
@@ -1867,7 +1845,7 @@ void MimeLoadData(wc_mime_attachment *Mime)
 {
 	StrBuf *Buf;
 	off_t bytes;
-/* TODO: is there a chance the contenttype is different  to the one we know?	 */
+	/* TODO: is there a chance the content type is different from the one we know? */
 	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
@@ -1931,28 +1909,30 @@ void h_do_search(void) { readloop(do_search);}
 void jsonMessageListHdr(void) 
 {
 	/* TODO: make a generic function */
-  hprintf("HTTP/1.1 200 OK\r\n");
-  hprintf("Content-type: application/json; charset=utf-8\r\n");
-  hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-  hprintf("Connection: close\r\n");
-  hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
-  begin_burst();
+	hprintf("HTTP/1.1 200 OK\r\n");
+	hprintf("Content-type: application/json; charset=utf-8\r\n");
+	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
+	hprintf("Connection: close\r\n");
+	hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
+	begin_burst();
 }
+
 /* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */
 void new_summary_view(void) {
-  begin_burst();
-  DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
-  DoTemplate(HKEY("trailing"),NULL,&NoCtx);
-  end_burst();
+	begin_burst();
+	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
+	DoTemplate(HKEY("trailing"),NULL,&NoCtx);
+	end_burst();
 }
-/** Output message list in JSON-format */
+
+/* Output message list in JSON format */
 void jsonMessageList(void) {
-  const StrBuf *room = sbstr("room");
-  long oper = (havebstr("query")) ? do_search : readnew;
-  WC->is_ajax = 1; 
-  gotoroom(room);
-  readloop(oper);
-  WC->is_ajax = 0;
+	const StrBuf *room = sbstr("room");
+	long oper = (havebstr("query")) ? do_search : readnew;
+	WC->is_ajax = 1; 
+	gotoroom(room);
+	readloop(oper);
+	WC->is_ajax = 0;
 }
 
 void 
