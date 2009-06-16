@@ -1188,7 +1188,7 @@ void display_editroom(void)
 
 	/* print the tabbed dialog */
 	wprintf("<div align=\"center\">");
-	wprintf("<table id=\"AdminTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\""
+	wprintf("<table id=\"AdminTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
 		"<tr align=\"center\" style=\"cursor:pointer\"><td>&nbsp;</td>"
 		);
 
