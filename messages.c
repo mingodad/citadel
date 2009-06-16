@@ -622,7 +622,7 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 				Msg->from = NewStrBufPlain(NULL, StrLength(Buf));
 				StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
 				if (StrLength(Buf2) != 0) {
-					/** Handle senders with RFC2047 encoding */
+					/* Handle senders with RFC2047 encoding */
 					StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset, FoundCharset);
 				}
 			
