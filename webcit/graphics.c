@@ -48,7 +48,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	wprintf(_("Please select a file to upload:"));
 	wprintf("<input type=\"file\" name=\"filename\" size=\"35\">\n");
 
-	wprintf("<div class=\"uploadpic\"><img src=\"image&name=%s\"></div>\n", filename);
+	wprintf("<div class=\"uploadpic\"><img src=\"image?name=%s\"></div>\n", filename);
 
 	wprintf("<div class=\"buttons\">");
 	wprintf("<input type=\"submit\" name=\"upload_button\" value=\"%s\">\n", _("Upload"));
