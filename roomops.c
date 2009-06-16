@@ -11,20 +11,22 @@ char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 char *viewdefs[9]; /**< the different kinds of available views */
 
 /** See GetFloorListHash and GetRoomListHash for info on these. Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys. */
-const char FLOOR_PARAM_NAMES[(FLOOR_PARAM_LEN + 1)][15] = {"ID",
-							   "NAME", 
-							   "ROOMS"};
-const char ROOM_PARAM_NAMES[(ROOM_PARAM_LEN + 1)][20] = {"NAME",
-							 "FLAG",
-							 "FLOOR",
-							 "LISTORDER",
-							 "ACL",
-							 "CURVIEW",
-							 "DEFVIEW",
-							 "LASTCHANGE"};
-/* Because avoiding strlen at run time is a Good Thing(TM) */
-const int FLOOR_PARAM_NAMELEN[(FLOOR_PARAM_LEN +1)] = {2, 4, 5};
-const int ROOM_PARAM_NAMELEN[(ROOM_PARAM_LEN +1)] = {4, 4, 5, 9, 3, 7, 7, 8};
+
+#define FLOOR_PARAM_LEN 3
+const ConstStr FLOOR_PARAM_NAMES[] = {{HKEY("ID")},
+				      {HKEY("NAME")}, 
+				      {HKEY("ROOMS")}};
+
+#define ROOM_PARAM_LEN 8
+const ConstStr ROOM_PARAM_NAMES[] = {{HKEY("NAME")},
+				     {HKEY("FLAG")},
+				     {HKEY("FLOOR")},
+				     {HKEY("LISTORDER")},
+				     {HKEY("ACL")},
+				     {HKEY("CURVIEW")},
+				     {HKEY("DEFVIEW")},
+				     {HKEY("LASTCHANGE")}};
+
 
 void display_whok(void);
 
@@ -3766,17 +3768,18 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
 	if (GetServerStatus(Buf, NULL) == 1) 
 		while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) {
 			int a;
-			const char *floorNum = NULL;
+			const StrBuf *floorNum = NULL;
 			floor = NewHash(1, NULL);
 			for(a=0; a<FLOOR_PARAM_LEN; a++) {
 				Buf2 = NewStrBuf();
 				StrBufExtract_token(Buf2, Buf, a, '|');
 				if (a==0) {
-					floorNum = ChrPtr(Buf2); /* hmm, should we copy Buf2 first? */
+					floorNum = Buf2; /* hmm, should we copy Buf2 first? */
+					
 				}
-				Put(floor, FPKEY(a), Buf2, NULL);
+				Put(floor, CKEY(FLOOR_PARAM_NAMES[a]), Buf2, HFreeStrBuf);
 			}
-			Put(floors, HKEY(floorNum), floor, NULL);
+			Put(floors, SKEY(floorNum), floor, HDeleteHash);
 		}
 	FreeStrBuf(&Buf);
 	return floors;
@@ -3810,17 +3813,17 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	if (GetServerStatus(buf, NULL) == 1) 
 		while(StrBufTCP_read_line(buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(buf), "000")) {
 			int i;
-			const char *rmName = NULL;
+			StrBuf *rmName = NULL;
 			room = NewHash(1, NULL);
 			for(i=0; i<ROOM_PARAM_LEN; i++) {
 				buf2 = NewStrBuf();
 				StrBufExtract_token(buf2, buf, i, '|');
 				if (i==0) {
-					rmName = ChrPtr(buf2);
+					rmName = buf2;
 				}
-				Put(room, RPKEY(i), buf2, HFreeStrBuf);
+				Put(room, CKEY(ROOM_PARAM_NAMES[i]), buf2, HFreeStrBuf);
 			}
-			Put(rooms, rmName, strlen(rmName), room, HDeleteHash);
+			Put(rooms, SKEY(rmName), room, HDeleteHash);
 		}
 	SortByHashKey(rooms, 1);
 	/*SortByPayload(rooms, SortRoomsByListOrder);  */
@@ -3837,8 +3840,8 @@ int SortRoomsByListOrder(const void *room1, const void *room2)
 	StrBuf *listOrderBuf1;
 	StrBuf *listOrderBuf2;
   
-	GetHash(r1, RPKEY(3), (void *)&listOrderBuf1);
-	GetHash(r2, RPKEY(3), (void *)&listOrderBuf2);
+	GetHash(r1, CKEY(ROOM_PARAM_NAMES[3]), (void *)&listOrderBuf1);
+	GetHash(r2, CKEY(ROOM_PARAM_NAMES[3]), (void *)&listOrderBuf2);
 	l1 = atoi(ChrPtr(listOrderBuf1));
 	l2 = atoi(ChrPtr(listOrderBuf2));
 	if (l1 < l2) return -1;
@@ -4135,7 +4138,7 @@ InitModule_ROOMOPS
 	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, 0);
 	RegisterIterator("FLOORS", 0, NULL, GetFloorListHash, NULL, DeleteHash, CTX_FLOORS, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("FLOOR:INFO", 1, 2, tmplput_FLOOR_Value, CTX_FLOORS);
-	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("ROOM:INFO", 1, 2, tmplput_ROOM_Value, CTX_ROOMS);
 }
 
