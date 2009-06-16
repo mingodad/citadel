@@ -3818,9 +3818,9 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 				if (i==0) {
 					rmName = ChrPtr(buf2);
 				}
-				Put(room, RPKEY(i), buf2, NULL);
+				Put(room, RPKEY(i), buf2, HFreeStrBuf);
 			}
-			Put(rooms, rmName, strlen(rmName), room, NULL);
+			Put(rooms, rmName, strlen(rmName), room, HDeleteHash);
 		}
 	SortByHashKey(rooms, 1);
 	/*SortByPayload(rooms, SortRoomsByListOrder);  */
