@@ -2395,11 +2395,21 @@ static inline char *FindNextEnd (const StrBuf *Buf, char *bptr)
 	return end;
 }
 
+static inline void SwapBuffers(StrBuf *A, StrBuf *B)
+{
+	StrBuf C;
+
+	memcpy(&C, A, sizeof(*A));
+	memcpy(A, B, sizeof(*B));
+	memcpy(B, &C, sizeof(C));
+
+}
 
 void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 {
 #ifdef HAVE_ICONV
-	int BufSize;
+	long trycount = 0;
+	size_t siz;
 	iconv_t ic;
 	char *ibuf;			/**< Buffer of characters to be converted */
 	char *obuf;			/**< Buffer for converted characters */
@@ -2409,28 +2419,41 @@ void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 
 	if (ConvertBuf->BufUsed >= TmpBuf->BufSize)
 		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed);
-
+TRYAGAIN:
 	ic = *(iconv_t*)pic;
 	ibuf = ConvertBuf->buf;
 	ibuflen = ConvertBuf->BufUsed;
 	obuf = TmpBuf->buf;
 	obuflen = TmpBuf->BufSize;
 	
-	iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+	siz = iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
 
-	/* little card game: wheres the red lady? */
-	ibuf = ConvertBuf->buf;
-	BufSize = ConvertBuf->BufSize;
+	if (siz < 0) {
+		if (errno == E2BIG) {
+			trycount ++;			
+			IncreaseBuf(TmpBuf, 0, 0);
+			if (trycount < 5) 
+				goto TRYAGAIN;
 
-	ConvertBuf->buf = TmpBuf->buf;
-	ConvertBuf->BufSize = TmpBuf->BufSize;
-	ConvertBuf->BufUsed = TmpBuf->BufSize - obuflen;
-	ConvertBuf->buf[ConvertBuf->BufUsed] = '\0';
-	
-	TmpBuf->buf = ibuf;
-	TmpBuf->BufSize = BufSize;
-	TmpBuf->BufUsed = 0;
-	TmpBuf->buf[0] = '\0';
+		}
+		else if (errno == EILSEQ){ 
+			/* hm, invalid utf8 sequence... what to do now? */
+			/* An invalid multibyte sequence has been encountered in the input */
+		}
+		else if (errno == EINVAL) {
+			/* An incomplete multibyte sequence has been encountered in the input. */
+		}
+
+		FlushStrBuf(TmpBuf);
+	}
+	else {
+		TmpBuf->BufUsed = TmpBuf->BufSize - obuflen;
+		TmpBuf->buf[TmpBuf->BufUsed] = '\0';
+		
+		/* little card game: wheres the red lady? */
+		SwapBuffers(ConvertBuf, TmpBuf);
+		FlushStrBuf(TmpBuf);
+	}
 #endif
 }
 
