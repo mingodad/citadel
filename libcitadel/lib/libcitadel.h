@@ -218,7 +218,7 @@ typedef struct _ConstStr {
 	const char *Key;
 	long len;
 }ConstStr;
-
+#define CKEY(a) (a).Key, (a).len
 
 StrBuf* NewStrBuf(void);
 StrBuf* NewStrBufDup(const StrBuf *CopyMe);
