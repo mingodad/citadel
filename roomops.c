@@ -162,7 +162,7 @@ void room_tree_list(struct roomlisting *rp)
 	strcpy(rmname, rp->rlname);
 	f = rp->rlflags;
 
-	wprintf("<a href=\"dotgoto&room=");
+	wprintf("<a href=\"dotgoto?room=");
 	urlescputs(rmname);
 	wprintf("\"");
 	wprintf(">");
@@ -357,7 +357,7 @@ void embed_room_graphic(StrBuf *Target, WCTemplputParams *TP)
 	serv_puts("OIMG _roompic_");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
-		wprintf("<img height=\"64px\" src=\"image&name=_roompic_&room=");
+		wprintf("<img height=\"64px\" src=\"image?name=_roompic_&room=");
 		urlescputs(ChrPtr(WC->wc_roomname));
 		wprintf("\">");
 		serv_puts("CLOS");
@@ -505,7 +505,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	if (WCC->Hdr->this_page == NULL)
 		WCC->Hdr->this_page = NewStrBuf();
 	StrBufPrintf(WCC->Hdr->this_page, 
-		     "dotskip&room=%s",
+		     "dotskip?room=%s",
 		     ChrPtr(WC->wc_roomname));
 
 	/** Check for new mail. */
@@ -1221,7 +1221,7 @@ void display_editroom(void)
 		wprintf(_("Administration"));
 	}
 	else {
-		wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=admin\">");
+		wprintf("< tab_cell_edit\"><a href=\"display_editroom?tab=admin\">");
 		wprintf(_("Administration"));
 		wprintf("</a>");
 	}
@@ -1236,7 +1236,7 @@ void display_editroom(void)
 			wprintf(_("Configuration"));
 		}
 		else {
-			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=config\">");
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom?tab=config\">");
 			wprintf(_("Configuration"));
 			wprintf("</a>");
 		}
@@ -1249,7 +1249,7 @@ void display_editroom(void)
 			wprintf(_("Message expire policy"));
 		}
 		else {
-			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=expire\">");
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom?tab=expire\">");
 			wprintf(_("Message expire policy"));
 			wprintf("</a>");
 		}
@@ -1262,7 +1262,7 @@ void display_editroom(void)
 			wprintf(_("Access controls"));
 		}
 		else {
-			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=access\">");
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom?tab=access\">");
 			wprintf(_("Access controls"));
 			wprintf("</a>");
 		}
@@ -1275,7 +1275,7 @@ void display_editroom(void)
 			wprintf(_("Sharing"));
 		}
 		else {
-			wprintf(" tab_cell_edit\"><a href=\"display_editroom&tab=sharing\">");
+			wprintf(" tab_cell_edit\"><a href=\"display_editroom?tab=sharing\">");
 			wprintf(_("Sharing"));
 			wprintf("</a>");
 		}
@@ -1288,7 +1288,7 @@ void display_editroom(void)
 			wprintf(_("Mailing list service"));
 		}
 		else {
-			wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=listserv\">");
+			wprintf("< tab_cell_edit\"><a href=\"display_editroom?tab=listserv\">");
 			wprintf(_("Mailing list service"));
 			wprintf("</a>");
 		}
@@ -1303,7 +1303,7 @@ void display_editroom(void)
 		wprintf(_("Remote retrieval"));
 	}
 	else {
-		wprintf("< tab_cell_edit\"><a href=\"display_editroom&tab=feeds\">");
+		wprintf("< tab_cell_edit\"><a href=\"display_editroom?tab=feeds\">");
 		wprintf(_("Remote retrieval"));
 		wprintf("</a>");
 	}
@@ -1753,7 +1753,7 @@ void display_editroom(void)
 					extract_token(recp, buf, 1, '|', sizeof recp);
 			
 					escputs(recp);
-					wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line=listrecp|");
+					wprintf(" <a href=\"netedit?cmd=remove&tab=listserv&line=listrecp|");
 					urlescputs(recp);
 					wprintf("\">");
 					wprintf(_("(remove)"));
@@ -1783,7 +1783,7 @@ void display_editroom(void)
 					extract_token(recp, buf, 1, '|', sizeof recp);
 			
 					escputs(recp);
-					wprintf(" <a href=\"netedit&cmd=remove&tab=listserv&line="
+					wprintf(" <a href=\"netedit?cmd=remove&tab=listserv&line="
 						"digestrecp|");
 					urlescputs(recp);
 					wprintf("\">");
@@ -2007,7 +2007,7 @@ void display_editroom(void)
 					wprintf("<td>%ld</td>", extract_long(buf, 5));	/* Fetching interval */
 			
 					wprintf("<td class=\"button_link\">");
-					wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=pop3client|");
+					wprintf(" <a href=\"netedit?cmd=remove&tab=feeds&line=pop3client|");
 					urlescputs(recp);
 					wprintf("\">");
 					wprintf(_("(remove)"));
@@ -2074,7 +2074,7 @@ void display_editroom(void)
 					wprintf("</td>");
 
 					wprintf("<td class=\"button_link\">");
-					wprintf(" <a href=\"netedit&cmd=remove&tab=feeds&line=rssclient|");
+					wprintf(" <a href=\"netedit?cmd=remove&tab=feeds&line=rssclient|");
 					urlescputs(recp);
 					wprintf("\">");
 					wprintf(_("(remove)"));
@@ -3700,13 +3700,13 @@ void knrooms(void)
 		"OnChange=\"location.href=roomlistomatic.newview.options"
 		"[selectedIndex].value\">\n");
 
-	wprintf("<option %s value=\"knrooms&view=rooms\">"
+	wprintf("<option %s value=\"knrooms?view=rooms\">"
 		"View as room list"
 		"</option>\n",
 		( !strcasecmp(ChrPtr(ListView), "rooms") ? "SELECTED" : "" )
 		);
 
-	wprintf("<option %s value=\"knrooms&view=folders\">"
+	wprintf("<option %s value=\"knrooms?view=folders\">"
 		"View as folder list"
 		"</option>\n",
 		( !strcasecmp(ChrPtr(ListView), "folders") ? "SELECTED" : "" )

@@ -76,7 +76,7 @@ void userlist(void)
 			(bg ? "DDDDDD" : "FFFFFF")
 		);
 		if (has_bio) {
-			wprintf("<a href=\"showuser&who=");
+			wprintf("<a href=\"showuser?who=");
 			urlescputs(fl);
 			wprintf("\">");
 			escputs(fl);
@@ -140,7 +140,7 @@ void showuser(void)
 
 	wprintf("<center><table><tr><td>");
 	if (have_pic == 1) {
-		wprintf("<img src=\"image&name=_userpic_&parm=");
+		wprintf("<img src=\"image?name=_userpic_&parm=");
 		urlescputs(who);
 		wprintf("\">");
 	}

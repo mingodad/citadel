@@ -81,7 +81,7 @@ void display_floorconfig(StrBuf *prepend_html)
 			wprintf("</A></FONT><br />");
 		}
 		wprintf("<FONT SIZE=-1>"
-			"<a href=\"display_editfloorpic&"
+			"<a href=\"display_editfloorpic?"
 			"which_floor=%d\">", floornum);
 		wprintf(_("(edit graphic)"));
 		wprintf("</A></TD></TR></TABLE>");
