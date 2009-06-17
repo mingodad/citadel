@@ -43,7 +43,7 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_ctdlsh_OBJECTS = main.$(OBJEXT)
+am_ctdlsh_OBJECTS = main.$(OBJEXT) sockets.$(OBJEXT)
 ctdlsh_OBJECTS = $(am_ctdlsh_OBJECTS)
 ctdlsh_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -139,7 +139,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-ctdlsh_SOURCES = main.c
+ctdlsh_SOURCES = main.c sockets.c
 all: all-am
 
 .SUFFIXES:
@@ -207,6 +207,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sockets.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
