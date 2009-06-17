@@ -148,6 +148,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 	Buf = NewStrBuf();
 	serv_puts("CHEK");
 	StrBuf_ServGetln(Buf);
+	lprintf(9, "%s:%d CHEK server reply: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
 	if (GetServerStatus(Buf, NULL) == 2) {
 		const char *pch;
 
