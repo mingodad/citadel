@@ -10,9 +10,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
+#include <sys/un.h>
 #include <string.h>
 #include <pwd.h>
 #include <errno.h>
@@ -22,66 +20,29 @@
 #define INADDR_NONE 0xffffffff
 #endif
 
-int sock_connect(char *host, char *service, char *protocol)
+int uds_connectsock(char *sockpath)
 {
-	struct hostent *phe;
-	struct servent *pse;
-	struct protoent *ppe;
-	struct sockaddr_in sin;
-	struct sockaddr_in egress_sin;
-	int s, type;
+	struct sockaddr_un addr;
+	int s;
 
-	if (host == NULL) return(-1);
-	if (service == NULL) return(-1);
-	if (protocol == NULL) return(-1);
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, sockpath, sizeof addr.sun_path);
 
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-
-	pse = getservbyname(service, protocol);
-	if (pse) {
-		sin.sin_port = pse->s_port;
-	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		fprintf(stderr, "Can't get %s service entry: %s\n",
-			service, strerror(errno));
-		return(-1);
-	}
-	phe = gethostbyname(host);
-	if (phe) {
-		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		fprintf(stderr, "Can't get %s host entry: %s\n",
-			host, strerror(errno));
-		return(-1);
-	}
-	if ((ppe = getprotobyname(protocol)) == 0) {
-		fprintf(stderr, "Can't get %s protocol entry: %s\n",
-			protocol, strerror(errno));
-		return(-1);
-	}
-	if (!strcmp(protocol, "udp")) {
-		type = SOCK_DGRAM;
-	} else {
-		type = SOCK_STREAM;
-	}
-
-	s = socket(PF_INET, type, ppe->p_proto);
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		fprintf(stderr, "Can't create socket: %s\n", strerror(errno));
+		fprintf(stderr, "Can't create socket[%s]: %s\n", sockpath, strerror(errno));
 		return(-1);
 	}
 
-	/* Now try to connect to the remote host. */
-	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		fprintf(stderr, "Can't connect to %s:%s: %s\n",
-			host, service, strerror(errno));
+	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		fprintf(stderr, "Can't connect [%s]: %s\n", sockpath, strerror(errno));
 		close(s);
 		return(-1);
 	}
 
-	return (s);
+	return s;
 }
-
 
 
 /*
@@ -204,3 +165,5 @@ int sock_puts(int sock, char *buf)
 	if (j<0) return(j);
 	return(i+j);
 }
+
+

@@ -14,18 +14,21 @@ int main(int argc, char **argv)
 	char *cmd = NULL;
 	char *prompt = "> ";
 	int server_socket = 0;
+	char buf[1024];
+
+	printf("\nCitadel administration shell v" PACKAGE_VERSION "\n");
+	printf("(c) 2009 citadel.org GPLv3\n");
 
 	printf("Attaching to server...\r");
 	fflush(stdout);
-	server_socket = sock_connect("localhost", "504", "tcp");
+	server_socket = uds_connectsock("/root/ctdl/trunk/citadel/citadel.socket");
 	if (server_socket < 0) {
 		exit(1);
 	}
 	printf("                      \r");
 
-	printf("\nCitadel administration shell v" PACKAGE_VERSION "\n");
-	printf("(c) 2009 citadel.org GPLv3\n");
-	printf("Type a command.  Or don't.  We don't care.\n\n");
+	sock_getln(server_socket, buf, sizeof buf);
+	printf("%s\n", buf);
 
 	while (cmd = readline(prompt)) {
 
@@ -36,6 +39,11 @@ int main(int argc, char **argv)
 		printf("\nHaha, you said: '%s'\n\n", cmd);
 		free(cmd);
 	}
+	printf("\r");
 
+	sock_puts(server_socket, "QUIT");
+	sock_getln(server_socket, buf, sizeof buf);
+	printf("%s\n", buf);
+	close(server_socket);
 	exit(0);
 }
