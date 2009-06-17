@@ -811,7 +811,7 @@ long gotoroom(const StrBuf *gname)
 	/* move to the new room */
 	serv_printf("GOTO %s", ChrPtr(gname));
 	StrBuf_ServGetln(Buf);
-	lprintf(9, "%s:%d server reply: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
+	lprintf(9, "%s:%d GOTO server reply: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
 	if  (GetServerStatus(Buf, &err) != 2) {
 		serv_puts("GOTO _BASEROOM_");
 		StrBuf_ServGetln(Buf);
