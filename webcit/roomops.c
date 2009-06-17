@@ -6,11 +6,14 @@
 #include "webcit.h"
 #include "webserver.h"
 #define MAX_FLOORS 128
-char floorlist[MAX_FLOORS][SIZ]; /**< list of our floor names */
 
-char *viewdefs[9]; /**< the different kinds of available views */
+char floorlist[MAX_FLOORS][SIZ];	/* list of our floor names */
 
-/** See GetFloorListHash and GetRoomListHash for info on these. Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys. */
+char *viewdefs[9];			/* the different kinds of available views */
+
+/* See GetFloorListHash and GetRoomListHash for info on these.
+ * Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys.
+ */
 
 #define FLOOR_PARAM_LEN 3
 const ConstStr FLOOR_PARAM_NAMES[] = {{HKEY("ID")},
@@ -184,11 +187,8 @@ void room_tree_list(struct roomlisting *rp)
 }
 
 
-/** 
- * \brief Room ordering stuff (compare first by floor, then by order)
- * \param r1 first roomlist to compare
- * \param r2 second roomlist co compare
- * \return are they the same???
+/* 
+ * Room ordering stuff (compare first by floor, then by order)
  */
 int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 {
@@ -210,9 +210,8 @@ int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
 }
 
 
-/**
- * \brief Common code for all room listings
- * \param variety what???
+/*
+ * Common code for all room listings
  */
 void listrms(char *variety)
 {
@@ -223,7 +222,7 @@ void listrms(char *variety)
 	struct roomlisting *rp;
 	struct roomlisting *rs;
 
-	/** Ask the server for a room list */
+	/* Ask the server for a room list */
 	serv_puts(variety);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
@@ -266,7 +265,7 @@ void listrms(char *variety)
 
 	room_tree_list(rl);
 
-	/**
+	/*
 	 * If no rooms were listed, print an nbsp to make the cell
 	 * borders show up anyway.
 	 */
@@ -274,8 +273,8 @@ void listrms(char *variety)
 }
 
 
-/**
- * \brief list all forgotten rooms
+/*
+ * list all forgotten rooms
  */
 void zapped_list(void)
 {
@@ -300,8 +299,8 @@ void zapped_list(void)
 }
 
 
-/**
- * \brief read this room's info file (set v to 1 for verbose mode)
+/*
+ * read this room's info file (set v to 1 for verbose mode)
  */
 void readinfo(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -326,14 +325,15 @@ void readinfo(StrBuf *Target, WCTemplputParams *TP)
 
                 wprintf("<div class=\"infos\" "
 			"onclick=\"javascript:Effect.Appear('room_infos', { duration: 0.5 });\" "
-			">");
+			">"
+		);
 		escputs(briefinfo);
                 wprintf("</div><div id=\"room_infos\" style=\"display:none;\">");
 		wprintf("<img class=\"close_infos\" "
                 	"onclick=\"javascript:Effect.Fade('room_infos', { duration: 0.5 });\" "
 			"src=\"static/closewindow.gif\" alt=\"%s\"  width=\"16\" height=\"16\">",
 			_("Close window")
-			);
+		);
 		escputs(fullinfo);
                 wprintf("</div>");
 	}
@@ -345,12 +345,10 @@ void readinfo(StrBuf *Target, WCTemplputParams *TP)
 
 
 
-/**
- * \brief Display room banner icon.  
- * The server doesn't actually
- * need the room name, but we supply it in order to
- * keep the browser from using a cached icon from 
- * another room.
+/*
+ * Display room banner icon.  
+ * The server doesn't actually need the room name, but we supply it in
+ * order to keep the browser from using a cached icon from another room.
  */
 void embed_room_graphic(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -406,8 +404,8 @@ void embed_room_graphic(StrBuf *Target, WCTemplputParams *TP)
 
 
 
-/**
- * \brief Display the current view and offer an option to change it
+/*
+ * Display the current view and offer an option to change it
  */
 void embed_view_o_matic(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -424,17 +422,17 @@ void embed_view_o_matic(StrBuf *Target, WCTemplputParams *TP)
 		"[selectedIndex].value\">\n");
 
 	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
-		/**
+		/*
 		 * Only offer the views that make sense, given the default
 		 * view for the room.  For example, don't offer a Calendar
 		 * view in a non-Calendar room.
 		 */
 		if (
 			(i == WC->wc_view)
-			||	(i == WC->wc_default_view)			/**< default */
-			||	( (i == 0) && (WC->wc_default_view == 1) )	/**< mail or bulletin */
-			||	( (i == 1) && (WC->wc_default_view == 0) )	/**< mail or bulletin */
-			/** ||	( (i == 7) && (WC->wc_default_view == 3) )	(calendar list temporarily disabled) */
+			||	(i == WC->wc_default_view)			/* default */
+			||	( (i == 0) && (WC->wc_default_view == 1) )	/* mail or bulletin */
+			||	( (i == 1) && (WC->wc_default_view == 0) )	/* mail or bulletin */
+			/* ||	( (i == 7) && (WC->wc_default_view == 3) )	(calendar list temporarily disabled) */
 			) {
 
 			wprintf("<option %s value=\"changeview?view=%d\">",
@@ -448,8 +446,8 @@ void embed_view_o_matic(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-/**
- * \brief Display a search box
+/*
+ * Display a search box
  */
 void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -465,11 +463,11 @@ void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-/**
- * \brief		Embed the room banner
+/*
+ * Embed the room banner
  *
- * \param got		The information returned from a GOTO server command
- * \param navbar_style 	Determines which navigation buttons to display
+ * got			The information returned from a GOTO server command
+ * navbar_style 	Determines which navigation buttons to display
  *
  */
 
@@ -480,7 +478,7 @@ void embed_room_banner(char *got, int navbar_style) {
 	char with_files[256];
 	int file_count=0;
 	
-	/**
+	/*
 	 * We need to have the information returned by a GOTO server command.
 	 * If it isn't supplied, we fake it by issuing our own GOTO.
 	 */
@@ -492,25 +490,27 @@ void embed_room_banner(char *got, int navbar_style) {
 		got = buf;
 	}
 
-	/** The browser needs some information for its own use */
+	/* The browser needs some information for its own use */
 	wprintf("<script type=\"text/javascript\">	\n"
 		"	room_is_trash = %d;		\n"
 		"</script>\n",
 		WC->wc_is_trash
-		);
+	);
 
-	/**
+	/*
 	 * If the user happens to select the "make this my start page" link,
 	 * we want it to remember the URL as a "/dotskip" one instead of
 	 * a "skip" or "gotonext" or something like that.
 	 */
-	if (WCC->Hdr->this_page == NULL)
+	if (WCC->Hdr->this_page == NULL) {
 		WCC->Hdr->this_page = NewStrBuf();
+	}
 	StrBufPrintf(WCC->Hdr->this_page, 
 		     "dotskip?room=%s",
-		     ChrPtr(WC->wc_roomname));
+		     ChrPtr(WC->wc_roomname)
+	);
 
-	/** Check for new mail. */
+	/* Check for new mail. */
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->wc_view = extract_int(&got[4], 11);
 
@@ -3870,14 +3870,25 @@ void jsonRoomFlr(void)
 	DoTemplate(HKEY("json_roomflr"),NULL,&NoCtx);
 	end_burst(); 
 }
+
 void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0);
 }
 
-void _gotonext(void) { slrp_highest(); gotonext(); }
-void dotskip(void) {smart_goto(sbstr("room"));}
-void _display_private(void) { display_private("", 0); }
+void _gotonext(void) {
+	slrp_highest();
+	gotonext();
+}
+
+void dotskip(void) {
+	smart_goto(sbstr("room"));
+}
+
+void _display_private(void) {
+	display_private("", 0);
+}
+
 void dotgoto(void) {
 	if (WC->wc_view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
 		slrp_highest();
