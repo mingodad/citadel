@@ -801,13 +801,17 @@ long gotoroom(const StrBuf *gname)
 	static long ls = (-1L);
 	long err = 0;
 
+	lprintf(9, "%s:%d gotoroom(%s)\n", __FILE__, __LINE__, ChrPtr(gname));
+
 	/* store ungoto information */
 	strcpy(WC->ugname, ChrPtr(WC->wc_roomname));
 	WC->uglsn = ls;
 	Buf = NewStrBuf();
-	/** move to the new room */
+
+	/* move to the new room */
 	serv_printf("GOTO %s", ChrPtr(gname));
 	StrBuf_ServGetln(Buf);
+	lprintf(9, "%s:%d server reply: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
 	if  (GetServerStatus(Buf, &err) != 2) {
 		serv_puts("GOTO _BASEROOM_");
 		StrBuf_ServGetln(Buf);
@@ -828,6 +832,7 @@ long gotoroom(const StrBuf *gname)
 		FlushStrBuf(WC->wc_roomname);
 
 	StrBufExtract_token(WC->wc_roomname, Buf, 0, '|');
+	lprintf(9, "%s:%d extracted room name: %s\n", __FILE__, __LINE__, ChrPtr(WC->wc_roomname));
 	StrBufCutLeft(WC->wc_roomname, 4);
 	WC->room_flags = StrBufExtract_int(Buf, 4, '|');
 	/* highest_msg_read = extract_int(&buf[4],6);
@@ -987,6 +992,7 @@ void gotonext(void)
  * goto next room
  */
 void smart_goto(const StrBuf *next_room) {
+	lprintf(9, "%s:%d smart_goto(%s)\n", __FILE__, __LINE__, ChrPtr(next_room));
 	gotoroom(next_room);
 	readloop(readnew);
 }
@@ -3882,6 +3888,7 @@ void _gotonext(void) {
 }
 
 void dotskip(void) {
+	lprintf(9, "%s:%d dotskip?room=%s\n", __FILE__, __LINE__, ChrPtr(sbstr("room")));
 	smart_goto(sbstr("room"));
 }
 
