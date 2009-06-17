@@ -151,8 +151,8 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 	Preference *Data = NULL;
 	Preference *LastData = NULL;
 				
-	while (!Done && StrBuf_ServGetln(ReadBuf))
-	{
+	while (!Done) {
+		StrBuf_ServGetln(ReadBuf);
 		if ( (StrLength(ReadBuf)==3) && 
 		     !strcmp(ChrPtr(ReadBuf), "000")) {
 			Done = 1;
