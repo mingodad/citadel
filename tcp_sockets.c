@@ -14,9 +14,7 @@
 extern int DisableGzip;
 
 /*
- *  register the timeout
- *  signum signalhandler number
- * \return signals
+ * register the timeout
  */
 RETSIGTYPE timeout(int signum)
 {
