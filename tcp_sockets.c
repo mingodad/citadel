@@ -630,7 +630,7 @@ long end_burst(void)
 	write(2, ptr, StrLength(WCC->WBuf));
 	write(2, "\033[30m", 5);
 #endif
-	if (WCC->Hdr->http_sock != -1)
+	if (WCC->Hdr->http_sock == -1)
 		return -1;
 	fdflags = fcntl(WC->Hdr->http_sock, F_GETFL);
 
