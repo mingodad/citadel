@@ -41,6 +41,7 @@ void WebcitAddUrlHandler(const char * UrlString,
 	NewHandler->F = F;
 	NewHandler->Flags = Flags;
 	NewHandler->Name = NewStrBufPlain(UrlString, UrlSLen);
+	StrBufShrinkToFit(NewHandler->Name, 1);
 	Put(HandlerHash, UrlString, UrlSLen, NewHandler, DeleteWebcitHandler);
 }
 
