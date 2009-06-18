@@ -15,6 +15,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
+#include "ctdlsh.h"
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
@@ -167,3 +168,15 @@ int sock_puts(int sock, char *buf)
 }
 
 
+void sock_printf(int sock, const char *format,...)
+{
+	va_list arg_ptr;
+	char buf[4096];
+	size_t len;
+
+	va_start(arg_ptr, format);
+	vsnprintf(buf, sizeof buf, format, arg_ptr);
+	va_end(arg_ptr);
+
+	sock_write(sock, buf, strlen(buf));
+}
