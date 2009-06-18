@@ -598,7 +598,7 @@ long end_burst(void)
 	wcsession *WCC = WC;
         const char *ptr, *eptr;
         long count;
-	ssize_t res;
+	ssize_t res = 0;
         fd_set wset;
         int fdflags;
 
@@ -630,9 +630,11 @@ long end_burst(void)
 	write(2, ptr, StrLength(WCC->WBuf));
 	write(2, "\033[30m", 5);
 #endif
+	if (WCC->Hdr->http_sock != -1)
+		return -1;
 	fdflags = fcntl(WC->Hdr->http_sock, F_GETFL);
 
-	while (ptr < eptr) {
+	while ((ptr < eptr) && (WCC->Hdr->http_sock != -1)){
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
                         FD_SET(WCC->Hdr->http_sock, &wset);
@@ -642,7 +644,8 @@ long end_burst(void)
                         }
                 }
 
-                if ((res = write(WCC->Hdr->http_sock, 
+                if ((WCC->Hdr->http_sock == -1) || 
+		    (res = write(WCC->Hdr->http_sock, 
 				 ptr,
 				 count)) == -1) {
                         lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
@@ -664,7 +667,7 @@ long end_burst(void)
 	write(2, "\033[30m", 5);
 #endif
 
-        while (ptr < eptr) {
+        while ((ptr < eptr) && (WCC->Hdr->http_sock != -1)) {
                 if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
                         FD_ZERO(&wset);
                         FD_SET(WCC->Hdr->http_sock, &wset);
@@ -674,7 +677,8 @@ long end_burst(void)
                         }
                 }
 
-                if ((res = write(WCC->Hdr->http_sock, 
+                if ((WCC->Hdr->http_sock == -1) || 
+		    (res = write(WCC->Hdr->http_sock, 
 				 ptr,
 				 count)) == -1) {
                         lprintf(2, "client_write: Socket write failed (%s)\n", strerror(errno));
@@ -701,6 +705,8 @@ int lingering_close(int fd)
 	struct timeval tv, start;
 
 	gettimeofday(&start, NULL);
+	if (fd == -1)
+		return -1;
 	shutdown(fd, 1);
 	do {
 		do {
