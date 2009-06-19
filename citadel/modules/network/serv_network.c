@@ -4,7 +4,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (C) 2000-2005 by Art Cancro and others.
+ * Copyright (C) 2000-2009 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
  *
  * ** NOTE **   A word on the S_NETCONFIGS semaphore:
@@ -2238,9 +2238,8 @@ void cmd_netp(char *cmdbuf)
 	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
 
 	if (doing_queue) {
-		CtdlLogPrintf(CTDL_WARNING, "Network node <%s> refused - spooling", node);
-		cprintf("%d spooling - try again in a few minutes\n",
-			ERROR + RESOURCE_BUSY);
+		CtdlLogPrintf(CTDL_WARNING, "Network node <%s> refused - spooling\n", node);
+		cprintf("%d spooling - try again in a few minutes\n", ERROR + RESOURCE_BUSY);
 		return;
 	}
 
