@@ -364,9 +364,9 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum
 				thisvalue = strdup(v->prop[i].value);
 			}
 	
-			/** Various fields we may encounter ***/
+			/* Various fields we may encounter ***/
 	
-			/** N is name, but only if there's no FN already there */
+			/* N is name, but only if there's no FN already there */
 			if (!strcasecmp(firsttoken, "n")) {
 				if (IsEmptyStr(fullname)) {
 					strcpy(fullname, thisvalue);
@@ -374,17 +374,17 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum
 				}
 			}
 	
-			/** FN (full name) is a true 'display name' field */
+			/* FN (full name) is a true 'display name' field */
 			else if (!strcasecmp(firsttoken, "fn")) {
 				strcpy(fullname, thisvalue);
 			}
 
-			/** title */
+			/* title */
 			else if (!strcasecmp(firsttoken, "title")) {
 				strcpy(title, thisvalue);
 			}
 	
-			/** organization */
+			/* organization */
 			else if (!strcasecmp(firsttoken, "org")) {
 				strcpy(org, thisvalue);
 			}
@@ -520,17 +520,18 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum
 
 
 
-/**
- * \brief  Display a textual vCard
+/*
+ * Display a textual vCard
  * (Converts to a vCard object and then calls the actual display function)
  * Set 'full' to nonzero to display the whole card instead of a one-liner.
  * Or, if "storename" is non-NULL, just store the person's name in that
  * buffer instead of displaying the card at all.
- * \param vcard_source the buffer containing the vcard text
- * \param alpha what???
- * \param full should we usse all lines?
- * \param storename where to store???
- * \param msgnum Citadel message pointer
+ *
+ * vcard_source	the buffer containing the vcard text
+ * alpha	Display only if name begins with this letter of the alphabet
+ * full		Display the full vCard (otherwise just the display name)
+ * storename	If not NULL, also store the display name here
+ * msgnum	Citadel message pointer
  */
 void display_vcard(StrBuf *Target, 
 		   StrBuf *vcard_source, 
@@ -562,10 +563,11 @@ void display_vcard(StrBuf *Target,
 	if (storename != NULL) {
 		fetchname_parsed_vcard(v, storename);
 	}
-	else if (	(alpha == 0)
-			|| ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)) )
-			|| ((!isalpha(alpha)) && (!isalpha(this_alpha)))
-		) {
+	else if (
+		(alpha == 0)
+		|| ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)))
+		|| ((!isalpha(alpha)) && (!isalpha(this_alpha)))
+	) {
 		display_parsed_vcard(Target, v, full,msgnum);
 	}
 
@@ -574,10 +576,11 @@ void display_vcard(StrBuf *Target,
 
 
 
-/**
- * \brief Render the address book using info we gathered during the scan
- * \param addrbook the addressbook to render
- * \param num_ab the number of the addressbook
+/*
+ * Render the address book using info we gathered during the scan
+ *
+ * addrbook	the addressbook to render
+ * num_ab	the number of the addressbook
  */
 void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 	int i = 0;
@@ -1115,7 +1118,7 @@ void submit_vcard(void) {
 	StrBufPrintf(Buf, "begin:vcard\r\n%s\r\nend:vcard\r\n",
 		     bstr("extrafields")
 	);
-	v = VCardLoad(Buf);	/** Start with the extra fields */
+	v = VCardLoad(Buf);	/* Start with the extra fields */
 	FreeStrBuf(&Buf);
 	if (v == NULL) {
 		safestrncpy(WCC->ImportantMessage,
