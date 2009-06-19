@@ -14,23 +14,24 @@
 
 #define CTDLDIR	"/root/ctdl/trunk/citadel"
 
-
-int discover_ipgm_secret(void) {
+int discover_ipgm_secret(char *dirname) {
 	int fd;
 	struct partial_config ccc;
+	char configfile[1024];
 
-	fd = open(CTDLDIR "/citadel.config", O_RDONLY);
+	sprintf(configfile, "%s/citadel.config", dirname);
+	fd = open(configfile, O_RDONLY);
 	if (fd < 0) {
-		fprintf(stderr, "citadel.config: %s\n", strerror(errno));
+		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
 		return(-1);
 	}
 
 	if (read(fd, &ccc, sizeof(struct partial_config)) != sizeof(struct partial_config)) {
-		fprintf(stderr, "citadel.config: %s\n", strerror(errno));
+		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
 		return(-1);
 	}
 	if (close(fd) != 0) {
-		fprintf(stderr, "citadel.config: %s\n", strerror(errno));
+		fprintf(stderr, "%s: %s\n", configfile, strerror(errno));
 		return(-1);
 	}
 	return(ccc.c_ipgm_secret);
@@ -90,18 +91,39 @@ int main(int argc, char **argv)
 	int server_socket = 0;
 	char buf[1024];
 	int ipgm_secret = (-1);
+	int c;
+	char *ctdldir = CTDLDIR;
 
 	printf("\nCitadel administration shell v" PACKAGE_VERSION "\n");
 	printf("(c) 2009 citadel.org GPLv3\n");
 
-	ipgm_secret = discover_ipgm_secret();
+	opterr = 0;
+	while ((c = getopt (argc, argv, "h:")) != -1) {
+		switch(c) {
+		case 'h':
+			ctdldir = optarg;
+			break;
+		case '?':
+			if (optopt == 'h') {
+				fprintf(stderr, "Option -%c requires an argument\n", optopt);
+			}
+			else {
+				fprintf(stderr, "Unknown option '-%c'\n", optopt);
+				fprintf(stderr, "usage: %s [-h citadel_dir]\n", argv[0]);
+			}
+			exit(1);
+		}
+	}
+
+	ipgm_secret = discover_ipgm_secret(ctdldir);
 	if (ipgm_secret < 0) {
 		exit(1);
 	}
 
 	printf("Attaching to server...\r");
 	fflush(stdout);
-	server_socket = uds_connectsock(CTDLDIR "/citadel.socket");
+	sprintf(buf, "%s/citadel.socket", ctdldir);
+	server_socket = uds_connectsock(buf);
 	if (server_socket < 0) {
 		exit(1);
 	}
