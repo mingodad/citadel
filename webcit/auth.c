@@ -741,8 +741,8 @@ void validate(void)
 void display_reg(int during_login)
 {
 	StrBuf *Buf;
-	message_summary *VCMsg;
-	wc_mime_attachment *VCAtt;
+	message_summary *VCMsg = NULL;
+	wc_mime_attachment *VCAtt = NULL;
 	long vcard_msgnum;
 
 	Buf = NewStrBuf();
@@ -777,6 +777,8 @@ void display_reg(int during_login)
 	else {
 		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "display_main_menu", USERCONFIGROOM);
 	}
+
+	/* FIXME don't we have to free VCMsg and VCAtt ?? */
 }
 
 

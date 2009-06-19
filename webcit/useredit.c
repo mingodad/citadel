@@ -413,18 +413,17 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg, wc_mime_attachment 
 	void *vMsg;
 	message_summary *Msg;
 	wc_mime_attachment *Att;
-
 	int Done;
 	StrBuf *Buf;
 	long vcard_msgnum = (-1L);
 	int already_tried_creating_one = 0;
 	StrBuf *FoundCharset = NewStrBuf();
 	StrBuf *Error = NULL;
-	
+
 	Buf = NewStrBuf();
 TRYAGAIN:
 	Done = 0;
-	/** Search for the user's vCard */
+	/* Search for the user's vCard */
 	if (load_msg_ptrs("MSGS ALL||||1", 1) > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
@@ -447,6 +446,7 @@ TRYAGAIN:
 						*VCMsg = Msg;
 						if (Att->Data == NULL) {
 							MimeLoadData(Att);
+							vcard_msgnum = Msg->msgnum;
 						}
 					}
 				}
@@ -456,6 +456,7 @@ TRYAGAIN:
 		}
 		DeleteHashPos(&at);		
 	}
+
 	/* If there's no vcard, create one */
 	if ((*VCMsg == NULL) && (already_tried_creating_one == 0)) {
 		already_tried_creating_one = 1;

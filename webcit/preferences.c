@@ -247,23 +247,24 @@ void load_preferences(void)
 	FreeStrBuf(&ReadBuf);
 }
 
-/**
- * \brief Goto the user's configuration room, creating it if necessary.
- * \return 0 on success or nonzero upon failure.
+/*
+ * Goto the user's configuration room, creating it if necessary.
+ * returns 0 on success or nonzero upon failure.
  */
 int goto_config_room(StrBuf *Buf) 
 {
 	serv_printf("GOTO %s", USERCONFIGROOM);
 	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) { /* try to create the config room if not there */
+	if (GetServerStatus(Buf, NULL) != 2) {	/* try to create the config room if not there */
 		serv_printf("CRE8 1|%s|4|0", USERCONFIGROOM);
 		StrBuf_ServGetln(Buf);
 		GetServerStatus(Buf, NULL);
 
 		serv_printf("GOTO %s", USERCONFIGROOM);
 		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) != 2) 
+		if (GetServerStatus(Buf, NULL) != 2) {
 			return(1);
+		}
 	}
 	return(0);
 }
