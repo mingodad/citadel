@@ -5,10 +5,8 @@
 #include "webcit.h"
 
 
-/**
- * \brief Record compare function for sorting address book indices
- * \param ab1 adressbook one
- * \param ab2 adressbook two
+/*
+ * Record compare function for sorting address book indices
  */
 int abcmp(const void *ab1, const void *ab2) {
 	return(strcasecmp(
@@ -18,11 +16,9 @@ int abcmp(const void *ab1, const void *ab2) {
 }
 
 
-/**
- * \brief Helper function for do_addrbook_view()
+/*
+ * Helper function for do_addrbook_view()
  * Converts a name into a three-letter tab label
- * \param tabbuf the tabbuffer to add name to
- * \param name the name to add to the tabbuffer
  */
 void nametab(char *tabbuf, long len, char *name) {
 	stresc(tabbuf, len, name, 0, 0);
@@ -33,16 +29,12 @@ void nametab(char *tabbuf, long len, char *name) {
 }
 
 
-/**
- * \brief display the adressbook overview
- * \param msgnum the citadel message number
- * \param alpha what????
+/*
+ * display the adressbook overview
  */
 void display_addressbook(long msgnum, char alpha) {
 	//char buf[SIZ];
 	/* char mime_partnum[SIZ]; */
-/* 	char mime_filename[SIZ]; */
-/* 	char mime_content_type[SIZ]; */
 	///char mime_disposition[SIZ];
 	//int mime_length;
 	char vcard_partnum[SIZ];
@@ -50,17 +42,16 @@ void display_addressbook(long msgnum, char alpha) {
 	message_summary summ;////TODO: this will leak
 
 	memset(&summ, 0, sizeof(summ));
-	///safestrncpy(summ.subj, _("(no subject)"), sizeof summ.subj);
-///Load Message headers
-//	Msg = 
+	// safestrncpy(summ.subj, _("(no subject)"), sizeof summ.subj);
+	// Load Message headers
 	if (!IsEmptyStr(vcard_partnum)) {
 		vcard_source = load_mimepart(msgnum, vcard_partnum);
 		if (vcard_source != NULL) {
 
-			/** Display the summary line */
+			/* Display the summary line */
 			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL, msgnum);
 
-			/** If it's my vCard I can edit it */
+			/* If it's my vCard I can edit it */
 			if (	(!strcasecmp(ChrPtr(WC->wc_roomname), USERCONFIGROOM))
 				|| (!strcasecmp(&(ChrPtr(WC->wc_roomname)[11]), USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
@@ -79,9 +70,8 @@ void display_addressbook(long msgnum, char alpha) {
 
 
 
-/**
- * \brief  If it's an old "Firstname Lastname" style record, try to convert it.
- * \param namebuf name to analyze, reverse if nescessary
+/*
+ * If it's an old "Firstname Lastname" style record, try to convert it.
  */
 void lastfirst_firstlast(char *namebuf) {
 	char firstname[SIZ];
@@ -143,10 +133,8 @@ wc_mime_attachment *load_vcard(message_summary *Msg)
 	return VCMime;
 }
 
-/**
- * \brief fetch what??? name
- * \param msgnum the citadel message number
- * \param namebuf where to put the name in???
+/*
+ * fetch the display name off a vCard
  */
 void fetch_ab_name(message_summary *Msg, char **namebuf) {
 	long len;
@@ -179,9 +167,8 @@ void fetch_ab_name(message_summary *Msg, char **namebuf) {
 
 
 
-/**
- * \brief Turn a vCard "n" (name) field into something displayable.
- * \param name the name field to convert
+/*
+ * Turn a vCard "n" (name) field into something displayable.
  */
 void vcard_n_prettyize(char *name)
 {
@@ -218,14 +205,12 @@ void vcard_n_prettyize(char *name)
 
 
 
-/**
- * \brief preparse a vcard name
+/*
+ * preparse a vcard name
  * display_vcard() calls this after parsing the textual vCard into
  * our 'struct vCard' data object.
  * This gets called instead of display_parsed_vcard() if we are only looking
  * to extract the person's name instead of displaying the card.
- * \param v the vcard to retrieve the name from
- * \param storename where to put the name at
  */
 void fetchname_parsed_vcard(struct vCard *v, char **storename) {
 	char *name;
@@ -277,8 +262,8 @@ void fetchname_parsed_vcard(struct vCard *v, char **storename) {
 
 
 
-/**
- * \brief html print a vcard
+/*
+ * html print a vcard
  * display_vcard() calls this after parsing the textual vCard into
  * our 'struct vCard' data object.
  *
@@ -290,9 +275,9 @@ void fetchname_parsed_vcard(struct vCard *v, char **storename) {
  * fields we understand, and then render them in a pretty fashion at the
  * end.  Then we make a second pass, outputting all the fields we don't
  * understand in a simple two-column name/value format.
- * \param v the vCard to display
- * \param full display all items of the vcard?
- * \param msgnum Citadel message pointer
+ * v		the vCard to display
+ * full		display all items of the vcard?
+ * msgnum	Citadel message pointer
  */
 void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum) {
 	int i, j;
@@ -712,7 +697,6 @@ void do_edit_vcard(long msgnum, char *partnum,
 		   const char *force_room) {
 	message_summary *Msg = NULL;
 	wc_mime_attachment *VCMime = NULL;
-	StrBuf *Buf;
 	struct vCard *v;
 	int i;
 	char *key, *value;
@@ -786,7 +770,6 @@ void do_edit_vcard(long msgnum, char *partnum,
 		else {
 			v = VCardLoad(VCAtt->Data);
 		}
-		FreeStrBuf(&Buf);
 	
 		/* Populate the variables for our form */
 		i = 0;
@@ -877,7 +860,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 		vcard_free(v);
 	}
 
-	/** Display the form */
+	/* Display the form */
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	svput("BOXTITLE", WCS_STRING, _("Edit contact information"));
@@ -1055,12 +1038,13 @@ void do_edit_vcard(long msgnum, char *partnum,
 	wprintf("</td></tr></table>\n");
 	do_template("endbox", NULL);
 	wDumpContent(1);
-	if (Msg != NULL)
+	if (Msg != NULL) {
 		DestroyMessageSummary(Msg);
+	}
 }
 
 
-/**
+/*
  *  commit the edits to the citadel server
  */
 void edit_vcard(void) {
@@ -1074,7 +1058,7 @@ void edit_vcard(void) {
 
 
 
-/**
+/*
  *  parse edited vcard from the browser
  */
 void submit_vcard(void) {
@@ -1126,7 +1110,7 @@ void submit_vcard(void) {
 		return;
 	}
 
-	/** Make a vCard structure out of the data supplied in the form */
+	/* Make a vCard structure out of the data supplied in the form */
 	Buf = NewStrBuf();
 	StrBufPrintf(Buf, "begin:vcard\r\n%s\r\nend:vcard\r\n",
 		     bstr("extrafields")
