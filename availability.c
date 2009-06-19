@@ -112,15 +112,16 @@ int ical_ctdl_is_overlap(
 
 
 /*
- * \brief dig availability on citserver
  * Back end function for check_attendee_availability()
  * This one checks an individual attendee against a supplied
  * event start and end time.  All these fields have already been
  * broken out.  
- * \param attendee_string name of the attendee
- * \param event_start starttime of the event to check
- * \param event_end endtime of the event to check
- * \return The result is placed in 'annotation'.
+ *
+ * attendee_string	name of the attendee
+ * event_start		start time of the event to check
+ * event_end		end time of the event to check
+ *
+ * The result is placed in 'annotation'.
  */
 void check_individual_attendee(char *attendee_string,
 				struct icaltimetype event_start,
@@ -132,7 +133,7 @@ void check_individual_attendee(char *attendee_string,
 	icalproperty *thisfb = NULL;
 	struct icalperiodtype period;
 
-	/**
+	/*
 	 * Set to 'unknown' right from the beginning.  Unless we learn
 	 * something else, that's what we'll go with.
 	 */
@@ -143,7 +144,7 @@ void check_individual_attendee(char *attendee_string,
 		return;
 	}
 
-	/**
+	/*
 	 * Make sure we're looking at a VFREEBUSY by itself.  What we're probably
 	 * looking at initially is a VFREEBUSY encapsulated in a VCALENDAR.
 	 */
@@ -154,7 +155,7 @@ void check_individual_attendee(char *attendee_string,
 		fb = fbc;
 	}
 
-	/** Iterate through all FREEBUSY's looking for conflicts. */
+	/* Iterate through all FREEBUSY's looking for conflicts. */
 	if (fb != NULL) {
 
 		strcpy(annotation, _("free"));
@@ -179,11 +180,11 @@ void check_individual_attendee(char *attendee_string,
 
 
 
-/**
- * \brief check attendees availability
+/*
  * Check the availability of all attendees for an event (when possible)
  * and annotate accordingly.
- * \param vevent the event which should be compared with attendees calendar
+ *
+ * vevent	the event which should be compared with attendees calendar
  */
 void check_attendee_availability(icalcomponent *vevent) {
 	icalproperty *attendee = NULL;
@@ -199,7 +200,7 @@ void check_attendee_availability(icalcomponent *vevent) {
 		return;
 	}
 
-	/**
+	/*
 	 * If we're looking at a fully encapsulated VCALENDAR
 	 * rather than a VEVENT component, attempt to use the first
 	 * relevant VEVENT subcomponent.  If there is none, the
@@ -218,7 +219,7 @@ void check_attendee_availability(icalcomponent *vevent) {
 
 	ical_dezonify(vevent);		/**< Convert everything to UTC */
 
-	/**
+	/*
 	 * Learn the start and end times.
 	 */
 	dtstart_p = icalcomponent_get_first_property(vevent, ICAL_DTSTART_PROPERTY);
@@ -227,7 +228,7 @@ void check_attendee_availability(icalcomponent *vevent) {
 	dtend_p = icalcomponent_get_first_property(vevent, ICAL_DTEND_PROPERTY);
 	if (dtend_p != NULL) dtend_t = icalproperty_get_dtend(dtend_p);
 
-	/**
+	/*
 	 * Iterate through attendees.
 	 */
 	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDEE_PROPERTY);
