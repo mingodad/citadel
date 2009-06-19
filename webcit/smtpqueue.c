@@ -220,8 +220,8 @@ void display_smtpqueue_inner_div(void) {
 	end_burst();
 }
 
-/**
- * \brief display the outbound SMTP queue
+/*
+ * display the outbound SMTP queue
  */
 void display_smtpqueue(void)
 {
@@ -280,5 +280,3 @@ InitModule_SMTP_QUEUE
 	WebcitAddUrlHandler(HKEY("display_smtpqueue"), display_smtpqueue, 0);
 	WebcitAddUrlHandler(HKEY("display_smtpqueue_inner_div"), display_smtpqueue_inner_div, 0);
 }
-
-/*@}*/
