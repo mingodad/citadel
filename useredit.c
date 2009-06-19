@@ -6,10 +6,10 @@
 #include "webserver.h"
 
 
-/**
+/*
  *  show a list of available users to edit them
  *  message the header message???
- *  preselect which user should be selected in the browser
+ *  preselect = which user should be selected in the browser
  */
 void select_user_to_edit(const char *preselect)
 {
@@ -100,12 +100,14 @@ int CompareUserListName(const void *vUser1, const void *vUser2)
 
 	return strcmp(ChrPtr(u1->UserName), ChrPtr(u2->UserName));
 }
+
 int CompareUserListNameRev(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
 	UserListEntry *u2 = (UserListEntry*) GetSearchPayload(vUser2);
 	return strcmp(ChrPtr(u2->UserName), ChrPtr(u1->UserName));
 }
+
 int GroupchangeUserListName(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) vUser1;
@@ -114,7 +116,7 @@ int GroupchangeUserListName(const void *vUser1, const void *vUser2)
 }
 
 /*
- * Sort by AccessLevel
+ * Sort by access level
  */
 int CompareAccessLevel(const void *vUser1, const void *vUser2)
 {
@@ -123,6 +125,7 @@ int CompareAccessLevel(const void *vUser1, const void *vUser2)
 
 	return (u1->AccessLevel > u2->AccessLevel);
 }
+
 int CompareAccessLevelRev(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
@@ -130,6 +133,7 @@ int CompareAccessLevelRev(const void *vUser1, const void *vUser2)
 
 	return (u2->AccessLevel > u1->AccessLevel);
 }
+
 int GroupchangeAccessLevel(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) vUser1;
@@ -137,7 +141,6 @@ int GroupchangeAccessLevel(const void *vUser1, const void *vUser2)
 
 	return u2->AccessLevel != u1->AccessLevel;
 }
-
 
 /*
  * Sort by UID
@@ -149,6 +152,7 @@ int CompareUID(const void *vUser1, const void *vUser2)
 
 	return (u1->UID > u2->UID);
 }
+
 int CompareUIDRev(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
@@ -156,6 +160,7 @@ int CompareUIDRev(const void *vUser1, const void *vUser2)
 
 	return (u2->UID > u1->UID);
 }
+
 int GroupchangeUID(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) vUser1;
@@ -174,6 +179,7 @@ int CompareLastLogon(const void *vUser1, const void *vUser2)
 
 	return (u1->LastLogonT > u2->LastLogonT);
 }
+
 int CompareLastLogonRev(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
@@ -181,6 +187,7 @@ int CompareLastLogonRev(const void *vUser1, const void *vUser2)
 
 	return (u2->LastLogonT > u1->LastLogonT);
 }
+
 int GroupchangeLastLogon(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) vUser1;
@@ -199,6 +206,7 @@ int ComparenLogons(const void *vUser1, const void *vUser2)
 
 	return (u1->nLogons > u2->nLogons);
 }
+
 int ComparenLogonsRev(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
@@ -206,6 +214,7 @@ int ComparenLogonsRev(const void *vUser1, const void *vUser2)
 
 	return (u2->nLogons > u1->nLogons);
 }
+
 int GroupchangenLogons(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) vUser1;
@@ -224,6 +233,7 @@ int ComparenPosts(const void *vUser1, const void *vUser2)
 
 	return (u1->nPosts > u2->nPosts);
 }
+
 int ComparenPostsRev(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) GetSearchPayload(vUser1);
@@ -231,6 +241,7 @@ int ComparenPostsRev(const void *vUser1, const void *vUser2)
 
 	return (u2->nPosts > u1->nPosts);
 }
+
 int GroupchangenPosts(const void *vUser1, const void *vUser2)
 {
 	UserListEntry *u1 = (UserListEntry*) vUser1;
@@ -392,8 +403,7 @@ int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
  *  Locate the message number of a user's vCard in the current room
  *  Returns the message id of his vcard
  */
-long locate_user_vcard_in_this_room(message_summary **VCMsg,
-				    wc_mime_attachment **VCAtt)
+long locate_user_vcard_in_this_room(message_summary **VCMsg, wc_mime_attachment **VCAtt)
 {
 	wcsession *WCC = WC;
 	HashPos *at;
@@ -404,14 +414,12 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg,
 	message_summary *Msg;
 	wc_mime_attachment *Att;
 
-
 	int Done;
 	StrBuf *Buf;
 	long vcard_msgnum = (-1L);
 	int already_tried_creating_one = 0;
 	StrBuf *FoundCharset = NewStrBuf();
 	StrBuf *Error = NULL;
-
 	
 	Buf = NewStrBuf();
 TRYAGAIN:
@@ -425,29 +433,30 @@ TRYAGAIN:
 			memset(Msg->MsgBody, 0, sizeof(wc_mime_attachment));
 			Msg->MsgBody->msgnum = Msg->msgnum;
 
-			load_message(Msg, 
-				     FoundCharset,
-				     &Error);
+			load_message(Msg, FoundCharset, &Error);
 			
 			if (Msg->AllAttach != NULL) {
 				att = GetNewHashPos(Msg->AllAttach, 0);
 				while (GetNextHashPos(Msg->AllAttach, att, &HKLen, &HashKey, &vMsg)) {
 					Att = (wc_mime_attachment*) vMsg;
-					if (  (strcasecmp(ChrPtr(Att->ContentType), "text/x-vcard") == 0) ||
-					      (strcasecmp(ChrPtr(Att->ContentType), "text/vcard")   == 0) ) {
+					if (
+						(strcasecmp(ChrPtr(Att->ContentType), "text/x-vcard") == 0)
+						|| (strcasecmp(ChrPtr(Att->ContentType), "text/vcard") == 0)
+					) {
 						*VCAtt = Att;
 						*VCMsg = Msg;
-						if (Att->Data == NULL)
+						if (Att->Data == NULL) {
 							MimeLoadData(Att);
+						}
 					}
 				}
 			}
-			FreeStrBuf(&Error); /*< don't care... */
+			FreeStrBuf(&Error);	/* don't care... */
 			
 		}
 		DeleteHashPos(&at);		
 	}
-	/** If there's no vcard, create one */
+	/* If there's no vcard, create one */
 	if ((*VCMsg == NULL) && (already_tried_creating_one == 0)) {
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
@@ -468,7 +477,7 @@ TRYAGAIN:
 }
 
 
-/**
+/*
  *  Display the form for editing a user's address book entry
  *  username the name of the user
  *  usernum the citadel-uid of the user
@@ -481,7 +490,7 @@ void display_edit_address_book_entry(const char *username, long usernum) {
 	StrBuf *Buf;
 	long vcard_msgnum = (-1L);
 
-	/** Locate the user's config room, creating it if necessary */
+	/* Locate the user's config room, creating it if necessary */
 	Buf = NewStrBuf();
 	roomname = NewStrBuf();
 	StrBufPrintf(roomname, "%010ld.%s", usernum, USERCONFIGROOM);
@@ -572,7 +581,7 @@ void display_edituser(const char *supplied_username, int is_new) {
 	FreeStrBuf(&Buf);
 }
 
-/**
+/*
  *  do the backend operation of the user edit on the server
  */
 void edituser(void) {
@@ -628,7 +637,7 @@ void edituser(void) {
 		FreeStrBuf(&Buf);
 	}
 
-	/**
+	/*
 	 * If we are in the middle of creating a new user, move on to
 	 * the vCard edit screen.
 	 */
@@ -660,7 +669,7 @@ void delete_user(char *username) {
 		
 
 
-/**
+/*
  *  create a new user
  * take the web environment username and create it on the citadel server
  */
@@ -694,8 +703,15 @@ void create_user(void) {
 }
 
 
-void _select_user_to_edit(void){select_user_to_edit(NULL);}
-void _display_edituser(void) {display_edituser(NULL, 0);}
+void _select_user_to_edit(void) {
+	select_user_to_edit(NULL);
+}
+
+
+void _display_edituser(void) {
+	display_edituser(NULL, 0);
+}
+
 
 void 
 InitModule_USEREDIT

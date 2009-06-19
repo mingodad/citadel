@@ -747,8 +747,13 @@ void display_reg(int during_login)
 
 	Buf = NewStrBuf();
 	if (goto_config_room(Buf) != 0) {
-		if (during_login) do_welcome();
-		else display_main_menu();
+		lprintf(9, "display_reg() exiting because goto_config_room() failed\n");
+		if (during_login) {
+			do_welcome();
+		}
+		else {
+			display_main_menu();
+		}
 		FreeStrBuf(&Buf);
 		return;
 	}
@@ -756,8 +761,13 @@ void display_reg(int during_login)
 	FreeStrBuf(&Buf);
 	vcard_msgnum = locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 	if (vcard_msgnum < 0L) {
-		if (during_login) do_welcome();
-		else display_main_menu();
+		lprintf(9, "display_reg() exiting because locate_user_vcard_in_this_room() failed\n");
+		if (during_login) {
+			do_welcome();
+		}
+		else {
+			display_main_menu();
+		}
 		return;
 	}
 
@@ -767,7 +777,6 @@ void display_reg(int during_login)
 	else {
 		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "display_main_menu", USERCONFIGROOM);
 	}
-
 }
 
 
@@ -892,11 +901,14 @@ int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
 	return (WCC != NULL)? (WCC->is_room_aide == 0) : 0;
 }
 
+
 int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
 	return (WCC != NULL)? (WCC->logged_in == 0) : 0;
 }
+
+
 int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -904,9 +916,15 @@ int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+void _display_openid_login(void) {
+	display_openid_login(NULL);
+}
 
-void _display_openid_login(void) {display_openid_login(NULL);}
-void _display_reg(void) {display_reg(0);}
+
+void _display_reg(void) {
+	display_reg(0);
+}
+
 
 void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
