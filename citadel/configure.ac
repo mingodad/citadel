@@ -4,6 +4,8 @@ AC_PREREQ(2.52)
 AC_INIT([Citadel], [7.60], [http://www.citadel.org/])
 AC_REVISION([$Revision: 5108 $])
 AC_CONFIG_SRCDIR([citserver.c])
+AC_CONFIG_HEADER(sysdep.h)
+AC_CONFIG_MACRO_DIR([m4])
 AC_PREFIX_DEFAULT(/usr/local/citadel)
 if test "$prefix" = NONE; then
 	AC_DEFINE_UNQUOTED(CTDLDIR, "$ac_default_prefix", [define this to the Citadel home directory])
@@ -975,6 +977,11 @@ AC_CACHE_CHECK([under the bed], ac_cv_under_the_bed, [
 	esac
 	])
 
+
+STRUCT_UCRED
+
+
+
 dnl Done! Now write the Makefile and sysdep.h
 AC_SUBST(AUTH)
 AC_SUBST(RESOLV)
@@ -984,7 +991,6 @@ AC_SUBST(DATABASE)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
-AC_CONFIG_HEADER(sysdep.h)
 ./mk_module_init.sh
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT(database_cleanup.sh)

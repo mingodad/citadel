@@ -966,6 +966,7 @@ void begin_session(struct CitContext *con)
 	generate_nonce(con);
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
+	con->cs_UDSclientUID = -1;
 	con->cs_host[sizeof con->cs_host - 1] = 0;
 	len = sizeof sin;
 	if (!CC->is_local_socket) {
@@ -978,6 +979,34 @@ void begin_session(struct CitContext *con)
 	}
 	else {
 		strcpy(con->cs_host, "");
+#ifdef HAVE_STRUCT_UCRED
+		{
+			/* as http://www.wsinnovations.com/softeng/articles/uds.html told us... */
+			struct ucred credentials;
+			int ucred_length = sizeof(struct ucred);
+			
+			/*fill in the user data structure */
+			if(getsockopt(con->client_socket, SOL_SOCKET, SO_PEERCRED, &credentials, &ucred_length)) {
+				CtdlLogPrintf(CTDL_NOTICE, "could obtain credentials from unix domain socket");
+				
+			}
+			else {		
+				/* the process ID of the process on the other side of the socket */
+				/* credentials.pid; */
+				
+				/* the effective UID of the process on the other side of the socket  */
+				con->cs_UDSclientUID = credentials.uid;
+				
+				/* the effective primary GID of the process on the other side of the socket */
+				/* credentials.gid; */
+				
+				/* To get supplemental groups, we will have to look them up in our account
+				   database, after a reverse lookup on the UID to get the account name.
+				   We can take this opportunity to check to see if this is a legit account.
+				*/
+			}
+		}
+#endif
 	}
 	con->cs_flags = 0;
 	con->upload_type = UPL_FILE;

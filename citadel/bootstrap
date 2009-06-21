@@ -9,7 +9,7 @@
 rm -f .libs modules *.so *.lo *.la 2>/dev/null
 
 echo ... running aclocal ...
-aclocal
+aclocal  -I m4
 
 echo ... running autoconf ...
 autoconf

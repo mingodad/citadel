@@ -91,6 +91,7 @@ struct CitContext {
 	int cs_clientdev;	/* client developer ID */
 	int cs_clienttyp;	/* client type code */
 	int cs_clientver;	/* client version number */
+	uid_t cs_UDSclientUID;  /* the uid of the client when talking via UDS */
 	char cs_clientname[32];	/* name of client software */
 	char cs_host[64];	/* host logged in from */
 	char cs_addr[64];	/* address logged in from */

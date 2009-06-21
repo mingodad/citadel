@@ -659,15 +659,27 @@ void smtp_data(void) {
 	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
 	body = malloc(4096);
 
-	if (body != NULL) snprintf(body, 4096,
-		"Received: from %s (%s [%s])\n"
-		"	by %s; %s\n",
-			SMTP->helo_node,
-			CC->cs_host,
-			CC->cs_addr,
-			config.c_fqdn,
-			nowstamp);
-	
+	if (body != NULL) {
+		if (SMTP->is_lmtp && (CC->cs_UDSclientUID != -1)) {
+			snprintf(body, 4096,
+				 "Received: from %s (Citadel from userid %ld)\n"
+				 "	by %s; %s\n",
+				 SMTP->helo_node,
+				 CC->cs_UDSclientUID,
+				 config.c_fqdn,
+				 nowstamp);
+		}
+		else {
+			snprintf(body, 4096,
+				 "Received: from %s (%s [%s])\n"
+				 "	by %s; %s\n",
+				 SMTP->helo_node,
+				 CC->cs_host,
+				 CC->cs_addr,
+				 config.c_fqdn,
+				 nowstamp);
+		}
+	}
 	body = CtdlReadMessageBody(".", config.c_maxmsglen, body, 1, 0);
 	if (body == NULL) {
 		cprintf("550 Unable to save message: internal error.\r\n");

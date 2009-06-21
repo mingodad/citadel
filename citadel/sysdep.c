@@ -375,6 +375,9 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 	int s;
 	int i;
 	int actual_queue_len;
+#ifdef HAVE_STRUCT_UCRED
+	int passcred = 1;
+#endif
 
 	actual_queue_len = queue_len;
 	if (actual_queue_len < 5) actual_queue_len = 5;
@@ -430,6 +433,10 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 		CtdlLogPrintf(CTDL_EMERG, "%s\n", *errormessage);
 		return(-1);
 	}
+
+#ifdef HAVE_STRUCT_UCRED
+	setsockopt(s, SOL_SOCKET, SO_PASSCRED, &passcred, sizeof(passcred));
+#endif
 
 	chmod(sockpath, S_ISGID|S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP|S_IROTH|S_IWOTH|S_IXOTH);
 	return(s);
