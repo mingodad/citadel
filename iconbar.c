@@ -262,5 +262,5 @@ void
 SessionDestroyModule_ICONBAR
 (wcsession *sess)
 {
-	DeleteHash(&IBDfl);
+	DeleteHash(&sess->IconBarSettings);
 }
