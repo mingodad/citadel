@@ -776,13 +776,13 @@ void display_reg(int during_login)
 	}
 	else {
 		StrBuf *ReturnTo;
-		ReturnTo = NewStrBufPlain("display_main_menu?gotofirst=", 256);
-		//StrBufUrlescAppend(ReturnTo, WC->wc_roomname, NULL);
-		StrEscAppend(ReturnTo, WC->wc_roomname, NULL, 0, 0);
+		ReturnTo = NewStrBufPlain(NULL, 256);
+		StrBufUrlescAppend(ReturnTo, NULL, "display_main_menu?gotofirst=");
+		StrBufUrlescAppend(ReturnTo, WC->wc_roomname, NULL);
 		lprintf(9, "[32mwc_roomname: %s[0m\n", ChrPtr(WC->wc_roomname));
 		lprintf(9, "[31m   ReturnTo: %s[0m\n", ChrPtr(ReturnTo));
+		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, ChrPtr(ReturnTo), USERCONFIGROOM);
 		FreeStrBuf(&ReturnTo);
-		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "display_main_menu", USERCONFIGROOM);
 	}
 
 	/*
