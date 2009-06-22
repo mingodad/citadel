@@ -776,8 +776,7 @@ void display_reg(int during_login)
 	}
 	else {
 		StrBuf *ReturnTo;
-		ReturnTo = NewStrBufPlain(NULL, -1);
-		StrBufUrlescAppend(ReturnTo, NULL, "display_main_menu?gotofirst=");
+		ReturnTo = NewStrBufPlain(HKEY("display_main_menu?gotofirst="));
 		StrBufUrlescAppend(ReturnTo, WC->wc_roomname, NULL);
 		lprintf(9, "[32mwc_roomname: %s[0m\n", ChrPtr(WC->wc_roomname));
 		lprintf(9, "[31m   ReturnTo: %s[0m\n", ChrPtr(ReturnTo));
