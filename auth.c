@@ -775,10 +775,22 @@ void display_reg(int during_login)
 		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "do_welcome", USERCONFIGROOM);
 	}
 	else {
+		StrBuf *ReturnTo;
+		ReturnTo = NewStrBufPlain("display_main_menu?gotofirst=", 256);
+		//StrBufUrlescAppend(ReturnTo, WC->wc_roomname, NULL);
+		StrEscAppend(ReturnTo, WC->wc_roomname, NULL, 0, 0);
+		lprintf(9, "[32mwc_roomname: %s[0m\n", ChrPtr(WC->wc_roomname));
+		lprintf(9, "[31m   ReturnTo: %s[0m\n", ChrPtr(ReturnTo));
+		FreeStrBuf(&ReturnTo);
 		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "display_main_menu", USERCONFIGROOM);
 	}
 
-	/* FIXME don't we have to free VCMsg and VCAtt ?? */
+	/*
+		FIXME
+		1. don't we have to free VCMsg and VCAtt ??
+		2. Fix bug 268
+	*/
+
 }
 
 
