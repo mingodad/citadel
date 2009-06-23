@@ -13,32 +13,31 @@
 /*
  * The pathname is always going to be /groupdav/room_name/euid
  */
-void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
+void groupdav_delete(void) 
+{
+	wcsession *WCC = WC;
 	char dav_uid[SIZ];
 	long dav_msgnum = (-1);
 	char buf[SIZ];
 	int n = 0;
 
-	/* First, break off the "/groupdav/" prefix */
-	StrBufCutLeft(dav_pathname, 9);
-
 	/* Now extract the message euid */
-	n = StrBufNum_tokens(dav_pathname, '/');
-	extract_token(dav_uid, ChrPtr(dav_pathname), n-1, '/', sizeof dav_uid);
-	StrBufRemove_token(dav_pathname, n-1, '/');
+	n = StrBufNum_tokens(WCC->Hdr->HR.ReqLine, '/');
+	extract_token(dav_uid, ChrPtr(WCC->Hdr->HR.ReqLine), n-1, '/', sizeof dav_uid);
+	StrBufRemove_token(WCC->Hdr->HR.ReqLine, n-1, '/');
 
 	/* What's left is the room name.  Remove trailing slashes. */
-	//len = StrLength(dav_pathname);
-	//if ((len > 0) && (ChrPtr(dav_pathname)[len-1] == '/')) {
-	//	StrBufCutRight(dav_pathname, 1);
+	//len = StrLength(WCC->Hdr->HR.ReqLine);
+	//if ((len > 0) && (ChrPtr(WCC->Hdr->HR.ReqLinee)[len-1] == '/')) {
+	//	StrBufCutRight(WCC->Hdr->HR.ReqLine, 1);
 	//}
-	StrBufCutLeft(dav_pathname, 1);
+	StrBufCutLeft(WCC->Hdr->HR.ReqLine, 1);
 
 	/* Go to the correct room. */
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_pathname))) {
-		gotoroom(dav_pathname);
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(WCC->Hdr->HR.ReqLine))) {
+		gotoroom(WCC->Hdr->HR.ReqLine);
 	}
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_pathname))) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(WCC->Hdr->HR.ReqLine))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
@@ -61,8 +60,8 @@ void groupdav_delete(StrBuf *dav_pathname, char *dav_ifmatch) {
 	 * It's there ... check the ETag and make sure it matches
 	 * the message number.
 	 */
-	if (!IsEmptyStr(dav_ifmatch)) {
-		if (atol(dav_ifmatch) != dav_msgnum) {
+	if (StrLength(WCC->Hdr->HR.dav_ifmatch) > 0) {
+		if (StrTol(WCC->Hdr->HR.dav_ifmatch) != dav_msgnum) {
 			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			groupdav_common_headers();
 			hprintf("Content-Length: 0\r\n\r\n");

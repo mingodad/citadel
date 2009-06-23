@@ -544,8 +544,16 @@ void context_loop(ParsedHttpHdrs *Hdr)
 
 		if ((StrLength(Hdr->c_username) == 0) &&
 		    (!Hdr->HR.DontNeedAuth)) {
-			OverrideRequest(Hdr, HKEY("GET /static/nocookies.html?force_close_session=yes HTTP/1.0"));
-			Hdr->HR.prohibit_caching = 1;
+
+			if ((Hdr->HR.Handler != NULL) && 
+			    (XHTTP_COMMANDS & Hdr->HR.Handler->Flags) == XHTTP_COMMANDS) {
+				OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
+				Hdr->HR.prohibit_caching = 1;				
+			}
+			else {
+				OverrideRequest(Hdr, HKEY("GET /static/nocookies.html?force_close_session=yes HTTP/1.0"));
+				Hdr->HR.prohibit_caching = 1;
+			}
 		}
 		
 		if (StrLength(Hdr->c_language) > 0) {

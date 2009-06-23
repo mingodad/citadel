@@ -15,8 +15,9 @@
  * component.  This would be for webcal:// 'publish' operations, not
  * for GroupDAV.
  */
-void groupdav_put_bigics(StrBuf *dav_content, int offset)
+void groupdav_put_bigics(void)
 {
+	wcsession *WCC = WC;
 	char buf[1024];
 
 	/*
@@ -37,7 +38,7 @@ void groupdav_put_bigics(StrBuf *dav_content, int offset)
 		return;
 	}
 
-	serv_write(ChrPtr(dav_content) + offset, StrLength(dav_content) - offset);
+	serv_write(WCC->upload, WCC->upload_length);
 	serv_printf("\n000");
 
 	/* Report success and not much else. */
@@ -52,13 +53,12 @@ void groupdav_put_bigics(StrBuf *dav_content, int offset)
 
 /*
  * The pathname is always going to take one of two formats:
- * /groupdav/room_name/euid	(GroupDAV)
- * /groupdav/room_name		(webcal)
+ * [/groupdav/]room_name/euid	(GroupDAV)
+ * [/groupdav/]room_name		(webcal)
  */
-void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
-		  const char *dav_content_type, StrBuf *dav_content,
-		  int offset) 
+void groupdav_put(void) 
 {
+	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
 	long new_msgnum = (-2L);
@@ -66,7 +66,7 @@ void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 	char buf[SIZ];
 	int n = 0;
 
-	if (StrBufNum_tokens(dav_pathname, '/') < 3) {
+	if (StrBufNum_tokens(WCC->Hdr->HR.ReqLine, '/') < 2) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
@@ -77,8 +77,8 @@ void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 
 	dav_roomname = NewStrBuf();;
 	dav_uid = NewStrBuf();;
-	StrBufExtract_token(dav_roomname, dav_pathname, 2, '/');
-	StrBufExtract_token(dav_uid, dav_pathname, 3, '/');
+	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
+	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 	if ((!strcasecmp(ChrPtr(dav_uid), "ics")) || 
 	    (!strcasecmp(ChrPtr(dav_uid), "calendar.ics"))) {
 		FlushStrBuf(dav_uid);
@@ -107,14 +107,14 @@ void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 	 * client is expecting.  If not, the server probably contains a newer
 	 * version, so we fail...
 	 */
-	if (!IsEmptyStr(dav_ifmatch)) {
-		lprintf(9, "dav_ifmatch: %s\n", dav_ifmatch);
+	if (StrLength(WCC->Hdr->HR.dav_ifmatch) > 0) {
+		lprintf(9, "dav_ifmatch: %s\n", WCC->Hdr->HR.dav_ifmatch);
 		old_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
 		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
-		if (atol(dav_ifmatch) != old_msgnum) {
+		if (StrTol(WCC->Hdr->HR.dav_ifmatch) != old_msgnum) {
 			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			lprintf(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
-				atol(dav_ifmatch), old_msgnum);
+				StrTol(WCC->Hdr->HR.dav_ifmatch), old_msgnum);
 			groupdav_common_headers();
 			hprintf("Content-Length: 0\r\n");
 			end_burst();
@@ -127,7 +127,7 @@ void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 	/** PUT on the collection itself uploads an ICS of the entire collection.
 	 */
 	if (StrLength(dav_uid) == 0) {
-		groupdav_put_bigics(dav_content, offset);
+		groupdav_put_bigics();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
 		return;
@@ -151,8 +151,8 @@ void groupdav_put(StrBuf *dav_pathname, char *dav_ifmatch,
 	}
 
 	/* Send the content to the Citadel server */
-	serv_printf("Content-type: %s\n\n", dav_content_type);
-	serv_puts(ChrPtr(dav_content) + offset);
+	serv_printf("Content-type: %s\n\n", WCC->upload_content_type);
+	serv_puts(WCC->upload);
 	serv_puts("\n000");
 
 	/* Fetch the reply from the Citadel server */

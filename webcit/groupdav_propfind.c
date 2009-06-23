@@ -49,8 +49,9 @@ long locate_message_by_uid(const char *uid) {
  * List rooms (or "collections" in DAV terminology) which contain
  * interesting groupware objects.
  */
-void groupdav_collection_list(const char *dav_pathname, int dav_depth)
+void groupdav_collection_list(void)
 {
+	wcsession *WCC = WC;
 	char buf[256];
 	char roomname[256];
 	int view;
@@ -60,16 +61,13 @@ void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 	int is_groupware_collection = 0;
 	int starting_point = 1;		/**< 0 for /, 1 for /groupdav/ */
 
-	if (!strcmp(dav_pathname, "/")) {
+	if (WCC->Hdr->HR.Handler == NULL) {
 		starting_point = 0;
 	}
-	else if (!strcasecmp(dav_pathname, "/groupdav")) {
+	else if (StrLength(WCC->Hdr->HR.ReqLine) == 0) {
 		starting_point = 1;
 	}
-	else if (!strcasecmp(dav_pathname, "/groupdav/")) {
-		starting_point = 1;
-	}
-	else if ( (!strncasecmp(dav_pathname, "/groupdav/", 10)) && (strlen(dav_pathname) > 10) ) {
+	else {
 		starting_point = 2;
 	}
 
@@ -117,7 +115,7 @@ void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 	/**
 	 *	If the client is requesting "/groupdav", show a /groupdav subdirectory.
 	 */
-	if ((starting_point + dav_depth) >= 1) {
+	if ((starting_point + WCC->Hdr->HR.dav_depth) >= 1) {
 		wprintf("<response>");
 			wprintf("<href>");
 				groupdav_identify_host();
@@ -159,14 +157,18 @@ void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 		 * GroupDAV calendar even if the user has switched it to a
 		 * Calendar List view.
 		 */
-		if ((view == VIEW_CALENDAR) || (view == VIEW_TASKS) || (view == VIEW_ADDRESSBOOK) ) {
+		if ((view == VIEW_CALENDAR) || 
+		    (view == VIEW_TASKS) || 
+		    (view == VIEW_ADDRESSBOOK) ||
+		    (view == VIEW_NOTES) ||
+		    (view == VIEW_JOURNAL) ) {
 			is_groupware_collection = 1;
 		}
 		else {
 			is_groupware_collection = 0;
 		}
 
-		if ( (is_groupware_collection) && ((starting_point + dav_depth) >= 2) ) {
+		if ( (is_groupware_collection) && ((starting_point + WCC->Hdr->HR.dav_depth) >= 2) ) {
 			wprintf("<response>");
 
 			wprintf("<href>");
@@ -184,15 +186,21 @@ void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 			wprintf("<resourcetype><collection/>");
 
 			switch(view) {
-				case VIEW_CALENDAR:
-					wprintf("<G:vevent-collection />");
-					break;
-				case VIEW_TASKS:
-					wprintf("<G:vtodo-collection />");
-					break;
-				case VIEW_ADDRESSBOOK:
-					wprintf("<G:vcard-collection />");
-					break;
+			case VIEW_CALENDAR:
+				wprintf("<G:vevent-collection />");
+				break;
+			case VIEW_TASKS:
+				wprintf("<G:vtodo-collection />");
+				break;
+			case VIEW_ADDRESSBOOK:
+				wprintf("<G:vcard-collection />");
+				break;
+			case VIEW_NOTES:
+				wprintf("<G:vnotes-collection />");
+				break;
+			case VIEW_JOURNAL:
+				wprintf("<G:vjournal-collection />");
+				break;
 			}
 
 			wprintf("</resourcetype>");
@@ -214,7 +222,9 @@ void groupdav_collection_list(const char *dav_pathname, int dav_depth)
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_type, StrBuf *dav_content, int offset) {
+void groupdav_propfind(void) 
+{
+	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
 	StrBuf *MsgNum;
@@ -233,15 +243,15 @@ void groupdav_propfind(StrBuf *dav_pathname, int dav_depth, StrBuf *dav_content_
 
 	dav_roomname = NewStrBuf();
 	dav_uid = NewStrBuf();
-	StrBufExtract_token(dav_roomname, dav_pathname, 2, '/');
-	StrBufExtract_token(dav_uid, dav_pathname, 3, '/');
+	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
+	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 
 	/*
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
 	if (StrLength(dav_roomname) == 0) {
-		groupdav_collection_list(ChrPtr(dav_pathname), dav_depth);
+		groupdav_collection_list();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
 		return;

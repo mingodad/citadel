@@ -84,82 +84,34 @@ void euid_unescapize(char *target, const char *source) {
 /*
  * Main entry point for GroupDAV requests
  */
-void groupdav_main(HashList *HTTPHeaders,
-		   StrBuf *DavPathname,
-		   StrBuf *dav_content_type,
-		   int dav_content_length,
-		   StrBuf *dav_content,
-		   int Offset
-) {
+void groupdav_main(void)
+{
 	wcsession *WCC = WC;
-	void *vLine;
-	char dav_ifmatch[256];
-	int dav_depth;
-	char *ds;
 	int i, len;
 
-	strcpy(dav_ifmatch, "");
-	dav_depth = 0;
+	StrBufUnescape(WCC->Hdr->HR.ReqLine, 0);
 
-	if ((StrLength(WCC->Hdr->HR.http_host) == 0) &&
-	    GetHash(HTTPHeaders, HKEY("HOST"), &vLine) && 
-	    (vLine != NULL)) {
-		WCC->Hdr->HR.http_host = (StrBuf*)vLine;
-	}
-	if (GetHash(HTTPHeaders, HKEY("IF-MATCH"), &vLine) && 
-	    (vLine != NULL)) {
-		safestrncpy(dav_ifmatch, ChrPtr((StrBuf*)vLine),
-			    sizeof dav_ifmatch);
-	}
-	if (GetHash(HTTPHeaders, HKEY("DEPTH"), &vLine) && 
-	    (vLine != NULL)) {
-		if (!strcasecmp(ChrPtr((StrBuf*)vLine), "infinity")) {
-			dav_depth = 32767;
-		}
-		else if (strcmp(ChrPtr((StrBuf*)vLine), "0") == 0) {
-			dav_depth = 0;
-		}
-		else if (strcmp(ChrPtr((StrBuf*)vLine), "1") == 0) {
-			dav_depth = 1;
-		}
-	}
-
-	if (!WC->logged_in) {
-		hprintf("HTTP/1.1 401 Unauthorized\r\n");
-		groupdav_common_headers();
-		hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n",
-			ChrPtr(WCC->serv_info->serv_humannode));
-		hprintf("Content-Length: 0\r\n");
-		end_burst();
-		return;
-	}
-
-	StrBufUnescape(DavPathname, 0);
-
-	/* Remove any stray double-slashes in pathname */
-	while (ds=strstr(ChrPtr(DavPathname), "//"), ds != NULL) {
-		strcpy(ds, ds+1);
-	}
+	StrBufStripSlashes(WCC->Hdr->HR.ReqLine, 0);
 
 	/*
 	 * If there's an If-Match: header, strip out the quotes if present, and
 	 * then if all that's left is an asterisk, make it go away entirely.
 	 */
-	len = strlen(dav_ifmatch);
+	len = StrLength(WCC->Hdr->HR.dav_ifmatch);
 	if (len > 0) {
-		stripltlen(dav_ifmatch, &len);
-		if (dav_ifmatch[0] == '\"') {
-			memmove (dav_ifmatch, &dav_ifmatch[1], len);
+		StrBufTrim(WCC->Hdr->HR.dav_ifmatch);
+		if (ChrPtr(WCC->Hdr->HR.dav_ifmatch)[0] == '\"') {
+			StrBufCutLeft(WCC->Hdr->HR.dav_ifmatch, 1);
 			len --;
 			for (i=0; i<len; ++i) {
-				if (dav_ifmatch[i] == '\"') {
-					dav_ifmatch[i] = 0;
-					len = i - 1;
+				if (ChrPtr(WCC->Hdr->HR.dav_ifmatch)[i] == '\"') {
+					StrBufCutAt(WCC->Hdr->HR.dav_ifmatch, i, NULL);
+					len = StrLength(WCC->Hdr->HR.dav_ifmatch);
 				}
 			}
 		}
-		if (!strcmp(dav_ifmatch, "*")) {
-			strcpy(dav_ifmatch, "");
+		if (!strcmp(ChrPtr(WCC->Hdr->HR.dav_ifmatch), "*")) {
+			FlushStrBuf(WCC->Hdr->HR.dav_ifmatch);
 		}
 	}
 
@@ -171,7 +123,7 @@ void groupdav_main(HashList *HTTPHeaders,
 	 * other variants of DAV in the future.
 	 */
 	case eOPTIONS:
-		groupdav_options(DavPathname);
+		groupdav_options();
 		break;
 
 
@@ -180,32 +132,28 @@ void groupdav_main(HashList *HTTPHeaders,
 	 * room, or to list all relevant rooms on the server.
 	 */
 	case ePROPFIND:
-		groupdav_propfind(DavPathname, dav_depth,
-				  dav_content_type, dav_content, 
-				  Offset);
+		groupdav_propfind();
 		break;
 
 	/*
 	 * The GET method is used for fetching individual items.
 	 */
 	case eGET:
-		groupdav_get(DavPathname);
+		groupdav_get();
 		break;
 	
 	/*
 	 * The PUT method is used to add or modify items.
 	 */
 	case ePUT:
-		groupdav_put(DavPathname, dav_ifmatch,
-			     ChrPtr(dav_content_type), dav_content, 
-			     Offset);
+		groupdav_put();
 		break;
 	
 	/*
 	 * The DELETE method kills, maims, and destroys.
 	 */
 	case eDELETE:
-		groupdav_delete(DavPathname, dav_ifmatch);
+		groupdav_delete();
 		break;
 	default:
 
@@ -236,11 +184,30 @@ void groupdav_identify_host(void) {
 }
 
 
+void Header_HandleIfMatch(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->HR.dav_ifmatch = Line;
+}
+	
+void Header_HandleDepth(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	if (!strcasecmp(ChrPtr(Line), "infinity")) {
+		hdr->HR.dav_depth = 32767;
+	}
+	else if (strcmp(ChrPtr(Line), "0") == 0) {
+		hdr->HR.dav_depth = 0;
+	}
+	else if (strcmp(ChrPtr(Line), "1") == 0) {
+		hdr->HR.dav_depth = 1;
+	}
+}
+
 void 
 InitModule_GROUPDAV
 (void)
 {
-
-	WebcitAddUrlHandler(HKEY("groupdav"), do_logout, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("groupdav"), groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	RegisterHeaderHandler(HKEY("IF-MATCH"), Header_HandleIfMatch);
+	RegisterHeaderHandler(HKEY("DEPTH"), Header_HandleDepth);
 
 }

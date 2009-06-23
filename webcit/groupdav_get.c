@@ -86,7 +86,9 @@ void extract_preferred(char *name, char *filename, char *partnum, char *disp,
  * /groupdav/room_name/euid	(GroupDAV)
  * /groupdav/room_name		(webcal)
  */
-void groupdav_get(StrBuf *dav_pathname) {
+void groupdav_get(void)
+{
+	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
 	long dav_msgnum = (-1);
@@ -104,7 +106,7 @@ void groupdav_get(StrBuf *dav_pathname) {
 	char date[128];
 	struct epdata epdata;
 
-	if (StrBufNum_tokens(dav_pathname, '/') < 3) {
+	if (StrBufNum_tokens(WCC->Hdr->HR.ReqLine, '/') < 2) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
@@ -115,18 +117,18 @@ void groupdav_get(StrBuf *dav_pathname) {
 
 	dav_roomname = NewStrBuf();;
 	dav_uid = NewStrBuf();;
-	StrBufExtract_token(dav_roomname, dav_pathname, 2, '/');
-	StrBufExtract_token(dav_uid, dav_pathname, 3, '/');
+	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
+	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 	if ((!strcasecmp(ChrPtr(dav_uid), "ics")) || 
 	    (!strcasecmp(ChrPtr(dav_uid), "calendar.ics"))) {
 		FlushStrBuf(dav_uid);
 	}
 
 	/* Go to the correct room. */
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
 		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
@@ -226,11 +228,11 @@ void groupdav_get(StrBuf *dav_pathname) {
 	 */
 	if (!strncasecmp(content_type, "multipart/", 10)) {
 
-		if ( (WC->wc_default_view == VIEW_CALENDAR) || (WC->wc_default_view == VIEW_TASKS) ) {
+		if ( (WCC->wc_default_view == VIEW_CALENDAR) || (WCC->wc_default_view == VIEW_TASKS) ) {
 			strcpy(epdata.desired_content_type_1, "text/calendar");
 		}
 
-		else if (WC->wc_default_view == VIEW_ADDRESSBOOK) {
+		else if (WCC->wc_default_view == VIEW_ADDRESSBOOK) {
 			strcpy(epdata.desired_content_type_1, "text/vcard");
 			strcpy(epdata.desired_content_type_2, "text/x-vcard");
 		}
