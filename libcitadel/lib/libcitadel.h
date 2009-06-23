@@ -296,6 +296,7 @@ void StrBufCutAt(StrBuf *Buf, int AfternChars, const char *At);
 void StrBufTrim(StrBuf *Buf);
 void StrBufUpCase(StrBuf *Buf);
 void StrBufLowerCase(StrBuf *Buf);
+void StrBufStripSlashes(StrBuf *Dir, int RemoveTrailingSlash);
 void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source);
 void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
 

@@ -1962,6 +1962,36 @@ void StrBufLowerCase(StrBuf *Buf)
 	}
 }
 
+/**
+ * \Brief removes double slashes from pathnames
+ * \param Dir directory string to filter
+ * \param RemoveTrailingSlash allows / disallows trailing slashes
+ */
+void StrBufStripSlashes(StrBuf *Dir, int RemoveTrailingSlash)
+{
+	char *a, *b;
+
+	a = b = Dir->buf;
+
+	while (!IsEmptyStr(a)) {
+		if (*a == '/') {
+			while (*a == '/')
+				a++;
+			*b = '/';
+			b++;
+		}
+		else {
+			*b = *a;
+			b++; a++;
+		}
+	}
+	if ((RemoveTrailingSlash) && (*(b - 1) != '/')){
+		*b = '/';
+		b++;
+	}
+	*b = '\0';
+	Dir->BufUsed = b - Dir->buf;
+}
 
 /**
  * \brief unhide special chars hidden to the HTML escaper
