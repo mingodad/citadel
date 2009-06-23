@@ -1091,12 +1091,15 @@ void submit_vcard(void) {
 			StrBufAppendBufPlain(WCC->ImportantMsg,
 					     _("Aborting."),
 					     -1, 0);
-			/// todo: call the master dispatcher again...
+
 			if (!strcmp(bstr("return_to"), "select_user_to_edit")) {
 				select_user_to_edit(NULL);
 			}
 			else if (!strcmp(bstr("return_to"), "do_welcome")) {
 				do_welcome();
+			}
+			else if (!IsEmptyStr(bstr("return_to"))) {
+				http_redirect(bstr("return_to"));
 			}
 			else {
 				readloop(readnew);
@@ -1186,6 +1189,9 @@ void submit_vcard(void) {
 	}
 	else if (!strcmp(bstr("return_to"), "do_welcome")) {
 		do_welcome();
+	}
+	else if (!IsEmptyStr(bstr("return_to"))) {
+		http_redirect(bstr("return_to"));
 	}
 	else {
 		readloop(readnew);
