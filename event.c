@@ -820,6 +820,11 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 			icalproperty_free(prop);
 		}
 
+		/* Add NOW() to the calendar object... */
+		icalcomponent_set_dtstamp(vevent, 
+					  icaltime_from_timet(
+						  time(NULL), 0));
+
 	 	if (havebstr("summary")) {
 		 	icalcomponent_add_property(vevent,
 				  	icalproperty_new_summary(bstr("summary")));
