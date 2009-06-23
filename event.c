@@ -811,7 +811,7 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 
 	if ( (havebstr("save_button"))
 	   || (havebstr("check_button")) ) {
-		StrBuf *Buf = NewStrBuf();
+
 		/* Replace values in the component with ones from the form */
 
 		while (prop = icalcomponent_get_first_property(vevent,
@@ -821,20 +821,11 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		}
 
 	 	if (havebstr("summary")) {
-			FlushStrBuf(Buf);
-			StrBufRFC2047encode(&Buf, sbstr("summary"));
-			icalcomponent_add_property(
-				vevent,
-				icalproperty_new_summary(ChrPtr(Buf)));
+		 	icalcomponent_add_property(vevent,
+				  	icalproperty_new_summary(bstr("summary")));
 	 	} else {
-			StrBuf *Untitled;
-			FlushStrBuf(Buf);
-			Untitled = NewStrBufPlain(_("Untitled Event"), -1);
-			StrBufRFC2047encode(&Buf, Untitled);
-			FreeStrBuf(&Untitled);
-		 	icalcomponent_add_property(
-				vevent,
-				icalproperty_new_summary(ChrPtr(Buf)));
+		 	icalcomponent_add_property(vevent,
+					icalproperty_new_summary(_("Untitled Event")));
 	 	}
 	
 	 	while (prop = icalcomponent_get_first_property(vevent,
@@ -843,11 +834,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		 	icalproperty_free(prop);
 	 	}
 	 	if (havebstr("location")) {
-			FlushStrBuf(Buf);
-			StrBufRFC2047encode(&Buf, sbstr("location"));
-		 	icalcomponent_add_property(
-				vevent,
-				icalproperty_new_location(ChrPtr(Buf)));
+		 	icalcomponent_add_property(vevent,
+					icalproperty_new_location(bstr("location")));
 	 	}
 	 	while (prop = icalcomponent_get_first_property(vevent,
 				  ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
@@ -855,11 +843,8 @@ void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *fr
 		 	icalproperty_free(prop);
 	 	}
 	 	if (havebstr("description")) {
-			FlushStrBuf(Buf);
-			StrBufRFC2047encode(&Buf, sbstr("description"));
-		 	icalcomponent_add_property(
-				vevent,
-				icalproperty_new_description(ChrPtr(Buf)));
+		 	icalcomponent_add_property(vevent,
+			  	icalproperty_new_description(bstr("description")));
 	 	}
 
 		while (prop = icalcomponent_get_first_property(vevent,
@@ -1170,7 +1155,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			icalcomponent_free(encaps);
 			encaps = NULL;
 		}
-		FreeStrBuf(&Buf);
+
 	}
 
 	/*
