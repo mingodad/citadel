@@ -1026,7 +1026,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 	wprintf("\">\n");
 
 	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"");
-	urlescputs(return_to);
+	escputs(return_to);
 	wprintf("\">\n");
 
 	wprintf("<div class=\"buttons\">\n"
