@@ -12,7 +12,9 @@
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
-void groupdav_options(StrBuf *dav_pathname) {
+void groupdav_options(void)
+{
+	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
 	long dav_msgnum = (-1);
@@ -24,8 +26,8 @@ void groupdav_options(StrBuf *dav_pathname) {
 
 	dav_roomname = NewStrBuf();
 	dav_uid = NewStrBuf();
-	StrBufExtract_token(dav_roomname, dav_pathname, 2, '/');
-	StrBufExtract_token(dav_uid, dav_pathname, 3, '/');
+	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
+	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
 
 	/*
 	 * If the room name is blank, the client is doing a top-level OPTIONS.

@@ -366,14 +366,29 @@ void display_success(char *successmessage)
  * Authorization required page 
  * This is probably temporary and should be revisited 
  */
-void authorization_required(const char *message)
+void authorization_required(void)
 {
+	wcsession *WCC = WC;
+	const char *message = "";
+
 	hprintf("HTTP/1.1 401 Authorization Required\r\n");
+	hprintf(
+		"Server: %s / %s\r\n"
+		"Connection: close\r\n",
+		PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software)
+	);
 	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", ChrPtr(WC->serv_info->serv_humannode));
 	hprintf("Content-Type: text/html\r\n");
 	wprintf("<h1>");
 	wprintf(_("Authorization Required"));
 	wprintf("</h1>\r\n");
+	
+
+	if (WCC->ImportantMsg != NULL)
+		message = ChrPtr(WCC->ImportantMsg);
+	else if (WCC->ImportantMessage != NULL)
+		message = WCC->ImportantMessage;
+
 	wprintf(_("The resource you requested requires a valid username and password. "
 		"You could not be logged in: %s\n"), message);
 	wDumpContent(0);
@@ -548,8 +563,6 @@ void session_loop(void)
 	int xhttp;
 	StrBuf *Buf;
 	
-	char buf[SIZ];
-
 	/*
 	 * We stuff these with the values coming from the client cookies,
 	 * so we can use them to reconnect a timed out session if we have to.
@@ -620,7 +633,8 @@ void session_loop(void)
 						 WCC->Hdr->c_password, Buf);
 			} else {
 				/* Should only display when password is wrong */
-				authorization_required(&buf[4]);
+				WCC->ImportantMsg = NewStrBufPlain(ChrPtr(Buf) + 4, StrLength(Buf) - 4);
+				authorization_required();
 				FreeStrBuf(&Buf);
 				goto SKIP_ALL_THIS_CRAP;
 			}
@@ -676,10 +690,25 @@ void session_loop(void)
 	}
 	/* When all else fais, display the main menu. */
 	else {
-		if (!WCC->logged_in) 
-			display_login(NULL);
-		else
-			display_main_menu();
+		/* 
+		 * ordinary browser users get a nice login screen, DAV etc. requsets
+		 * are given a 401 so they can handle it appropriate.
+		 */
+		if (!WCC->logged_in)  {
+			if (xhttp)
+				authorization_required();
+			else 
+				display_login(NULL);
+		}
+		/*
+		 * Toplevel dav requests? or just a flat browser request? 
+		 */
+		else {
+			if (xhttp)
+				groupdav_main();
+			else
+				display_main_menu();
+		}
 	}
 
 SKIP_ALL_THIS_CRAP:
@@ -755,6 +784,7 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("ajax_servcmd"), ajax_servcmd, 0);
 	WebcitAddUrlHandler(HKEY("webcit"), blank_page, URLNAMESPACE);
 
+	WebcitAddUrlHandler(HKEY("401"), authorization_required, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);

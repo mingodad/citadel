@@ -415,6 +415,7 @@ typedef struct _HdrRefs {
 	time_t if_modified_since;
 	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
 	int prohibit_caching;
+	int dav_depth;
 
 	/* these are references into Hdr->HTTPHeaders, so we don't need to free them. */
 	StrBuf *ContentType;
@@ -424,7 +425,7 @@ typedef struct _HdrRefs {
 	StrBuf *browser_host;
 	StrBuf *user_agent;
 	StrBuf *plainauth;
-
+	StrBuf *dav_ifmatch;
 
 	const WebcitHandler *Handler;
 } HdrRefs;
@@ -725,7 +726,6 @@ void text_to_server(char *ptr);
 void text_to_server_qp(char *ptr);
 void confirm_delete_msg(void);
 void display_success(char *);
-void authorization_required(const char *message);
 void CheckAuthBasic(ParsedHttpHdrs *hdr);
 void GetAuthBasic(ParsedHttpHdrs *hdr);
 void server_to_text(void);
