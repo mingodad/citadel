@@ -171,18 +171,19 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		struct timeval tv;
 		struct tm tim;
 		time_t unixtime;
+		struct CitContext *CCC = CC;
 
 		gettimeofday(&tv, NULL);
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
-		if (CC->cs_pid != 0) {
+		if ((CCC != NULL) && (CCC->cs_pid != 0)) {
 			sprintf(buf,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] ",
 				tim.tm_year + 1900, tim.tm_mon + 1,
 				tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec, (long)tv.tv_usec,
-				CC->cs_pid);
+				CCC->cs_pid);
 		} else {
 			sprintf(buf,
 				"%04d/%02d/%02d %2d:%02d:%02d.%06ld ",
