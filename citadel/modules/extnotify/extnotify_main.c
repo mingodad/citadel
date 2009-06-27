@@ -131,13 +131,32 @@ void process_notify(long msgnum, void *usrdata) {
         goto nuke;
     }
     // Can Funambol take the message?
-    int fnblAllowed = strncasecmp(configMsg, FUNAMBOL_CONFIG_TEXT, strlen(FUNAMBOL_CONFIG_TEXT));
-    int extPagerAllowed = strncasecmp(configMsg, PAGER_CONFIG_TEXT, strlen(PAGER_CONFIG_TEXT)); 
+    int fnblAllowed = strncasecmp(configMsg, HKEY(FUNAMBOL_CONFIG_TEXT));
+    int extPagerAllowedHttp = strncasecmp(configMsg, HKEY(PAGER_CONFIG_HTTP)); 
+    int extPagerAllowedSystem = strncasecmp(configMsg, HKEY(PAGER_CONFIG_SYSTEM));
     if (fnblAllowed == 0) {
-	    notify_funambol_server(msg->cm_fields['W'], 
+	    char remoteurl[SIZ];
+	    snprintf(remoteurl, SIZ, "http://%s@%s:%d/%s",
+		     config.c_funambol_auth,
+		     config.c_funambol_host,
+		     config.c_funambol_port,
+		     FUNAMBOL_WS);
+	    notify_http_server(remoteurl, 
+			       file_funambol_msg,
+			       strlen(file_funambol_msg),/*GNA*/
+			       msg->cm_fields['W'], 
 				   msg->cm_fields['I'],
 				   msgnum);
-    } else if (extPagerAllowed == 0) {
+    } else if (extPagerAllowedHttp) {
+/*
+	    notify_http_server(remoteurl, 
+			       file_funambol_msg,
+			       strlen(file_funambol_msg),/ *GNA* /
+			       msg->cm_fields['W'], 
+				   msg->cm_fields['I'],
+				   msgnum);
+*/
+    } else if (extPagerAllowedSystem == 0) {
 	    char *number = strtok(configMsg, "textmessage\n");
 	    int commandSiz = sizeof(config.c_pager_program) + strlen(number) + strlen(msg->cm_fields['W']) + 5;
 	    char *command = malloc(commandSiz);
