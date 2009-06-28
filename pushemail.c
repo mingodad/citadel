@@ -8,10 +8,14 @@ void display_pushemail(void)
 {
 	int Done = 0;
 	StrBuf *Buf;
-	int is_none = 0;
-	int is_pager = 0;
-	int is_funambol = 0;
+	long vector[8] = {8, 0, 0, 1, 2, 3, 4, 5};
+	WCTemplputParams SubTP;
 	char mobnum[20];
+
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
+	SubTP.Filter.ContextType = CTX_LONGVECTOR;
+	SubTP.Context = &vector;
+	vector[0] = 16;
 
 	/* Find any existing settings*/
 	Buf = NewStrBuf();
@@ -59,12 +63,14 @@ void display_pushemail(void)
 						break;
 					}
 					if (strncasecmp(ChrPtr(Buf), "none", 4) == 0) {
-						is_none = 1;
+						vector[1] = 0;
 					} else if (strncasecmp(ChrPtr(Buf), "textmessage", 11) == 0) {
-						is_pager = 1;
+						vector[1] = 1;
 						i++;
 					} else if (strncasecmp(ChrPtr(Buf), "funambol", 8) == 0) {
-						is_funambol = 1;
+						vector[1] = 2;
+					} else if (strncasecmp(ChrPtr(Buf), "httpmessage", 12) == 0) {
+						vector[1] = 3;
 					} else if (i == 1) {
 						strncpy(mobnum, ChrPtr(Buf), 20);
 						i++;
@@ -73,26 +79,13 @@ void display_pushemail(void)
 			}
 		}
 		}
-		/* TODO: do in a saner fashion. */
-		svput("PUSH_NONE", WCS_STRING, " "); /* defaults */
-		svput("PUSH_TEXT", WCS_STRING, " ");
-		svput("PUSH_FNBL", WCS_STRING, " ");
 		svput("SMSNUM", WCS_STRING, " ");
-		if (is_none) {
-			svput("PUSH_NONE", WCS_STRING, "checked=\"checked\"");
-		} else if (is_pager) {
-			svput("PUSH_TEXT", WCS_STRING, "checked=\"checked\"");
-			svprintf(HKEY("SMSNUM"), WCS_STRING, "value=\"%s\"", mobnum);
-		} else if (is_funambol) {
-			svput("PUSH_FNBL", WCS_STRING, "checked=\"checked\"");
-		}
 		serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
 		StrBuf_ServGetln(Buf);
 		GetServerStatus(Buf, NULL);
 	}
 	output_headers(1, 1, 2, 0, 0, 0);
-	do_template("pushemail", NULL);
-/*do_template("endbox"); */
+	DoTemplate(HKEY("pushemail"), NULL, &SubTP);
 	wDumpContent(1);
 	FreeStrBuf(&Buf);
 }
@@ -121,6 +114,7 @@ void save_pushemail(void)
 		serv_puts("000");
 	} else {
 		printf("Junk in save_pushemail buffer!: %s\n", buf);
+		FreeStrBuf(&Buf);
 		return;
 	}
 
@@ -156,6 +150,7 @@ void save_pushemail(void)
 	StrBuf_ServGetln(Buf);
 	GetServerStatus(Buf, NULL);
 	http_redirect("display_pushemail");
+	FreeStrBuf(&Buf);
 }
 
 void 
