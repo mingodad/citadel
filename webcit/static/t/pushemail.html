@@ -3,6 +3,7 @@
     </div>
 
     <div id="content" class="config_service">
+    <p>
     <!-- NOT beginbox -->
     <div class="box">
     <div class="boxlabel"><?_("Push email and SMS settings")></div>
@@ -20,15 +21,27 @@
         </div>
 
         <form id="pushconfig" method="post" action="save_pushemail">
-          <p class="option"><input type="radio" name="pushsetting" value=
-          "funambol" <?PUSH_FNBL> ><strong>Notify Funambol server</strong></p>
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="funambol" <?%("COND:LONGVECTOR", 1, 1, 4, 'CHECKED', "")>>
+	    <strong><?_("Notify Funambol server")></strong>
+	  </p>
 
-          <p class="option"><input type="radio" name="pushsetting" value=
-          "textmessage" <?PUSH_TEXT> ><strong>Send a text message</strong> to... <input type="text"
-          name="user_sms_number" size="20" <?SMSNUM> > <?_("(Use international format, without any leading zeros, spaces or hypens, like +61415011501)")></p>
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="textmessage" <?%("COND:LONGVECTOR", 1, 1, 3, 'CHECKED', "")>>
+	    <strong><?_("Send a text message to...")></strong> 
+	    <input type="text" name="user_sms_number" size="20" value="<?SMSNUM>" >
+	    <?_("(Use international format, without any leading zeros, spaces or hypens, like +61415011501)")>
+	  </p>
 
-          <p class="option"><input type="radio" name="pushsetting" value=
-          "none" <?PUSH_NONE> ><strong><?_("Don't send any notifications"></strong></p>
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="httpmessage" <?%("COND:LONGVECTOR", 1, 1, 5, 'CHECKED', "")>>
+	    <strong><?_("Use custom notification scheme configured by your Admin")></strong>
+	  </p>
+
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="none" <?%("COND:LONGVECTOR", 1, 1, 2, 'CHECKED'q, "")>>
+	    <strong><?_("Don\'t send any notifications")></strong>
+	  </p>
 
           <p><input type="submit" name="submit" value="Save settings"></p>
         </form>
@@ -37,3 +50,4 @@
       </div>
       </div>
       </div>
+    </p>

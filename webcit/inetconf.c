@@ -16,6 +16,7 @@ typedef enum _e_cfg {
 	ic_spamass,
 	ic_masq,
 	ic_clamav,
+	ic_notify,
 	ic_max
 } ECfg;
 
@@ -33,7 +34,8 @@ ConstStrBuf CfgNames[] = {
 	{ HKEY("rbl") },
 	{ HKEY("spamassassin") },
 	{ HKEY("masqdomain") },
-	{ HKEY("clamav") }
+	{ HKEY("clamav") },
+	{ HKEY("notify") }
 };
 
 	
