@@ -48,7 +48,7 @@ struct fh_data {
 * Returns 0 if unsuccessful
 */
 int notify_http_server(char *remoteurl, 
-		       char* template, long tlen, 
+		       const char* template, long tlen, 
 		       char *user,
 		       char *msgid, 
 		       long MsgNum) 
@@ -63,7 +63,7 @@ int notify_http_server(char *remoteurl,
 	struct curl_slist * headers=NULL;
 	char errmsg[1024] = "";
 	char *SOAPMessage = NULL;
-	char *contenttype;
+	char *contenttype = NULL;
         struct fh_data fh = {
                 retbuf,
                 0,
@@ -114,8 +114,7 @@ int notify_http_server(char *remoteurl,
 		const char *mimetype;
 
 		Ftemplate = fopen(template, "r");
-		mimetype = GuessMimeByFilename(template, tlen);
-		if (template == NULL) {
+		if (Ftemplate == NULL) {
 			char buf[SIZ];
 
 			snprintf(buf, SIZ, 
@@ -126,6 +125,8 @@ int notify_http_server(char *remoteurl,
 			aide_message(buf, "External notifier unable to find message template!");
 			goto free;
 		}
+		mimetype = GuessMimeByFilename(template, tlen);
+
 		snprintf(msgnumstr, 128, "%ld", MsgNum);
 
 		buf = malloc(SIZ);

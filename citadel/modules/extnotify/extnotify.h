@@ -17,7 +17,7 @@ extern "C" {
 #define FUNAMBOL_WS "/funambol/services/admin"
 
 int notify_http_server(char *remoteurl, 
-		       char* template, 
+		       const char* template, 
 		       long tlen, 
 		       char *user,
 		       char *msgid, 
