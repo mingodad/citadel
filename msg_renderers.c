@@ -1,8 +1,7 @@
-/*----------------------------------------------------------------------------*/
 #include "webcit.h"
 #include "webserver.h"
 
-/**
+/*
  * message index functions
  */
 
@@ -772,9 +771,6 @@ int Conditional_MAIL_MIME_ATTACH(StrBuf *Target, WCTemplputParams *TP)
 	return GetCount(Msg->AllAttach) > 0;
 }
 
-
-
-/*----------------------------------------------------------------------------*/
 void tmplput_QUOTED_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 {
 	const StrBuf *Mime;
@@ -960,10 +956,6 @@ void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 	StrBufAppendBuf(Mime->Data, Mime->ContentType, 0);
 	StrBufAppendBufPlain(Mime->Data, HKEY("<br />\n"), 0);
 }
-
-
-
-
 
 
 HashList *iterate_get_mime_All(StrBuf *Target, WCTemplputParams *TP)
