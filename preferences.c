@@ -917,13 +917,6 @@ void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
 	wprintf("\">");
 	wprintf(_("Make this my start page"));
 	wprintf("</a>");
-#ifdef TECH_PREVIEW
-	wprintf("<br/><a href=\"rss?room=");
-	urlescputs(ChrPtr(WC->wc_roomname));
-	wprintf("\" title=\"RSS 2.0 feed for ");
-	escputs(ChrPtr(WC->wc_roomname));
-	wprintf("\"><img alt=\"RSS\" border=\"0\" src=\"static/xml_button.gif\" width=\"36\" height=\"14\" /></a>\n");
-#endif
 }
 
 
