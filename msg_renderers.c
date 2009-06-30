@@ -837,11 +837,6 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		MimeLoadData(Mime);
 	}
 
-	/* Boring old 80-column fixed format text gets handled this way... */
-	if ((strcasecmp(ChrPtr(Mime->Charset), "us-ascii") == 0) &&
-	    (strcasecmp(ChrPtr(Mime->Charset), "UTF-8") == 0))
-		ConvertIt = 0;
-
 #ifdef HAVE_ICONV
 	if (ConvertIt) {
 		if (StrLength(Mime->Charset) != 0)
@@ -851,6 +846,12 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		else if (StrLength(WC->DefaultCharset) > 0)
 			cs = WC->DefaultCharset;
 		if (cs == NULL) {
+			ConvertIt = 0;
+		}
+		else if (!strcasecmp(ChrPtr(cs), "utf-8")) {
+			ConvertIt = 0;
+		}
+		else if (!strcasecmp(ChrPtr(cs), "us-ascii")) {
 			ConvertIt = 0;
 		}
 		else {
@@ -897,7 +898,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 		for (i = bq; i < bn; i++)				
 			StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
 
-		if (ConvertIt == 1) {
+		if (ConvertIt) {
 			StrBufConvert(Line, Line1, &ic);
 		}
 
