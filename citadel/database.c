@@ -90,8 +90,7 @@ static void txabort(DB_TXN * tid)
 	ret = tid->abort(tid);
 
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "bdb(): txn_abort: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "bdb(): txn_abort: %s\n", db_strerror(ret));
 		abort();
 	}
 }
@@ -157,8 +156,7 @@ void check_handles(void *arg)
 		bailIfCursor(tsd->cursors, "in check_handles");
 
 		if (tsd->tid != NULL) {
-			CtdlLogPrintf(CTDL_EMERG,
-				"bdb(): transaction still in progress!");
+			CtdlLogPrintf(CTDL_EMERG, "bdb(): transaction still in progress!");
 			abort();
 		}
 	}
@@ -375,7 +373,8 @@ void open_databases(void)
 				   NULL,
 				   DB_BTREE,
 				   DB_CREATE | DB_AUTO_COMMIT | DB_THREAD,
-				   0600);
+				   0600
+		);
 		if (ret) {
 			CtdlLogPrintf(CTDL_EMERG, "db_open[%02x]: %s\n", i, db_strerror(ret));
 			if (ret == ENOMEM) {
@@ -415,7 +414,6 @@ void cdb_chmod_data(void) {
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "open_databases() finished\n");
-
 	CtdlRegisterProtoHook(cmd_cull, "CULL", "Cull database logs");
 }
 
@@ -446,8 +444,7 @@ void close_databases(void)
 		CtdlLogPrintf(CTDL_INFO, "Closing database %02x\n", a);
 		ret = dbp[a]->close(dbp[a], 0);
 		if (ret) {
-			CtdlLogPrintf(CTDL_EMERG,
-				"db_close: %s\n", db_strerror(ret));
+			CtdlLogPrintf(CTDL_EMERG, "db_close: %s\n", db_strerror(ret));
 		}
 
 	}
@@ -455,8 +452,7 @@ void close_databases(void)
 	/* Close the handle. */
 	ret = dbenv->close(dbenv, 0);
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG,
-			"DBENV->close: %s\n", db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "DBENV->close: %s\n", db_strerror(ret));
 	}
 }
 
@@ -547,19 +543,15 @@ int cdb_store(int cdb, void *ckey, int ckeylen, void *cdata, int cdatalen)
 		    + sizeof(struct CtdlCompressHeader);
 		destLen = (uLongf) buffer_len;
 		compressed_data = malloc(buffer_len);
-		if (compress2((Bytef *) (compressed_data +
-					 sizeof(struct
-						CtdlCompressHeader)),
-			      &destLen, (Bytef *) cdata, (uLongf) cdatalen,
-			      1) != Z_OK) {
+		if (compress2((Bytef *) (compressed_data + sizeof(struct CtdlCompressHeader)),
+			&destLen, (Bytef *) cdata, (uLongf) cdatalen, 1) != Z_OK)
+		{
 			CtdlLogPrintf(CTDL_EMERG, "compress2() error\n");
 			abort();
 		}
 		zheader.compressed_len = (size_t) destLen;
-		memcpy(compressed_data, &zheader,
-		       sizeof(struct CtdlCompressHeader));
-		ddata.size = (size_t) (sizeof(struct CtdlCompressHeader) +
-				       zheader.compressed_len);
+		memcpy(compressed_data, &zheader, sizeof(struct CtdlCompressHeader));
+		ddata.size = (size_t) (sizeof(struct CtdlCompressHeader) + zheader.compressed_len);
 		ddata.data = compressed_data;
 	}
 #endif
@@ -571,8 +563,7 @@ int cdb_store(int cdb, void *ckey, int ckeylen, void *cdata, int cdatalen)
 				    &ddata,	/* data */
 				    0);	/* flags */
 		if (ret) {
-			CtdlLogPrintf(CTDL_EMERG, "cdb_store(%d): %s\n", cdb,
-				db_strerror(ret));
+			CtdlLogPrintf(CTDL_EMERG, "cdb_store(%d): %s\n", cdb, db_strerror(ret));
 			abort();
 		}
 #ifdef HAVE_ZLIB
@@ -582,8 +573,7 @@ int cdb_store(int cdb, void *ckey, int ckeylen, void *cdata, int cdatalen)
 		return ret;
 
 	} else {
-		bailIfCursor(MYCURSORS,
-			     "attempt to write during r/o cursor");
+		bailIfCursor(MYCURSORS, "attempt to write during r/o cursor");
 
 	      retry:
 		txbegin(&tid);
@@ -604,8 +594,9 @@ int cdb_store(int cdb, void *ckey, int ckeylen, void *cdata, int cdatalen)
 		} else {
 			txcommit(tid);
 #ifdef HAVE_ZLIB
-			if (compressing)
+			if (compressing) {
 				free(compressed_data);
+			}
 #endif
 			return ret;
 		}
@@ -630,14 +621,13 @@ int cdb_delete(int cdb, void *key, int keylen)
 	if (MYTID != NULL) {
 		ret = dbp[cdb]->del(dbp[cdb], MYTID, &dkey, 0);
 		if (ret) {
-			CtdlLogPrintf(CTDL_EMERG, "cdb_delete(%d): %s\n", cdb,
-				db_strerror(ret));
-			if (ret != DB_NOTFOUND)
+			CtdlLogPrintf(CTDL_EMERG, "cdb_delete(%d): %s\n", cdb, db_strerror(ret));
+			if (ret != DB_NOTFOUND) {
 				abort();
+			}
 		}
 	} else {
-		bailIfCursor(MYCURSORS,
-			     "attempt to delete during r/o cursor");
+		bailIfCursor(MYCURSORS, "attempt to delete during r/o cursor");
 
 	      retry:
 		txbegin(&tid);
@@ -717,8 +707,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	}
 
 	if ((ret != 0) && (ret != DB_NOTFOUND)) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_fetch(%d): %s\n", cdb,
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_fetch(%d): %s\n", cdb, db_strerror(ret));
 		abort();
 	}
 
@@ -727,8 +716,7 @@ struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
 	tempcdb = (struct cdbdata *) malloc(sizeof(struct cdbdata));
 
 	if (tempcdb == NULL) {
-		CtdlLogPrintf(CTDL_EMERG,
-			"cdb_fetch: Cannot allocate memory for tempcdb\n");
+		CtdlLogPrintf(CTDL_EMERG, "cdb_fetch: Cannot allocate memory for tempcdb\n");
 		abort();
 	}
 
@@ -757,8 +745,9 @@ void cdb_free(struct cdbdata *cdb)
 
 void cdb_close_cursor(int cdb)
 {
-	if (MYCURSORS[cdb] != NULL)
+	if (MYCURSORS[cdb] != NULL) {
 		cclose(MYCURSORS[cdb]);
+	}
 
 	MYCURSORS[cdb] = NULL;
 }
@@ -774,8 +763,7 @@ void cdb_rewind(int cdb)
 
 	if (MYCURSORS[cdb] != NULL) {
 		CtdlLogPrintf(CTDL_EMERG,
-			"cdb_rewind: must close cursor on database %d before reopening.\n",
-			cdb);
+			"cdb_rewind: must close cursor on database %d before reopening.\n", cdb);
 		abort();
 		/* cclose(MYCURSORS[cdb]); */
 	}
@@ -785,8 +773,7 @@ void cdb_rewind(int cdb)
 	 */
 	ret = dbp[cdb]->cursor(dbp[cdb], MYTID, &MYCURSORS[cdb], 0);
 	if (ret) {
-		CtdlLogPrintf(CTDL_EMERG, "cdb_rewind: db_cursor: %s\n",
-			db_strerror(ret));
+		CtdlLogPrintf(CTDL_EMERG, "cdb_rewind: db_cursor: %s\n", db_strerror(ret));
 		abort();
 	}
 }
@@ -811,8 +798,7 @@ struct cdbdata *cdb_next_item(int cdb)
 
 	if (ret) {
 		if (ret != DB_NOTFOUND) {
-			CtdlLogPrintf(CTDL_EMERG, "cdb_next_item(%d): %s\n",
-				cdb, db_strerror(ret));
+			CtdlLogPrintf(CTDL_EMERG, "cdb_next_item(%d): %s\n", cdb, db_strerror(ret));
 			abort();
 		}
 		cclose(MYCURSORS[cdb]);
@@ -837,12 +823,10 @@ struct cdbdata *cdb_next_item(int cdb)
 void cdb_begin_transaction(void)
 {
 
-	bailIfCursor(MYCURSORS,
-		     "can't begin transaction during r/o cursor");
+	bailIfCursor(MYCURSORS, "can't begin transaction during r/o cursor");
 
 	if (MYTID != NULL) {
-		CtdlLogPrintf(CTDL_EMERG,
-			"cdb_begin_transaction: ERROR: nested transaction\n");
+		CtdlLogPrintf(CTDL_EMERG, "cdb_begin_transaction: ERROR: nested transaction\n");
 		abort();
 	}
 
@@ -866,8 +850,9 @@ void cdb_end_transaction(void)
 		CtdlLogPrintf(CTDL_EMERG,
 			"cdb_end_transaction: ERROR: txcommit(NULL) !!\n");
 		abort();
-	} else
+	} else {
 		txcommit(MYTID);
+	}
 
 	MYTID = NULL;
 }
@@ -886,8 +871,7 @@ void cdb_trunc(int cdb)
 			"cdb_trunc must not be called in a transaction.\n");
 		abort();
 	} else {
-		bailIfCursor(MYCURSORS,
-			     "attempt to write during r/o cursor");
+		bailIfCursor(MYCURSORS, "attempt to write during r/o cursor");
 
 	      retry:
 		/* txbegin(&tid); */
