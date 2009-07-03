@@ -15,7 +15,9 @@ onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden
 <?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
 <?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
  <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
+<!-- temporarily disabled for 7.60
  <a href="display_enter?edit=<?MAIL:SUMM:N>&recp=<?MAIL:SUMM:TO("U")>&cc=<?MAIL:SUMM:CCCC("U")>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "", "")>&force_room=_MAIL_"><span>[</span><?_("Edit")><span>]</span></a> 
+-->
 <?!("COND:ROOM:TYPE_IS", 8, "VIEW_BBS")>
    <a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
    <a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>&recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
