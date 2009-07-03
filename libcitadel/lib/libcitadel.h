@@ -59,7 +59,6 @@ enum LogLevel {
 #define	VIEW_WIKI		6	/* Wiki view */
 #define VIEW_CALBRIEF		7	/* Brief Calendar view */
 #define VIEW_JOURNAL		8	/* Journal view */
-#define VIEW_DRAFTS		9	/* Drafts folder */
 
 
 #ifndef IsEmptyStr

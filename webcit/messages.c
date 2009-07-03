@@ -1350,7 +1350,7 @@ void post_message(void)
 		Buf = NewStrBuf();
 
 		if (save_to_drafts) {
-		        /** temporarily change to the drafts room */
+		        /* temporarily change to the drafts room */
 		        serv_puts("GOTO _DRAFTS_");
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) != 2) {
