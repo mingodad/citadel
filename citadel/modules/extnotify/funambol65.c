@@ -29,19 +29,6 @@
 #include "msgbase.h"
 #include "ctdl_module.h"
 
-
-
-
-size_t extnotify_callback(void *ptr, size_t size, size_t nmemb, void *stream)
-{
-	return size * nmemb; /* don't care, just discard it so it doesn't end up on the console... */
-}
-struct fh_data {
-	char *buf;
-	int total_bytes_received;
-	int maxbytes;
-};
-
 /*
 * \brief Sends a message to the Funambol server notifying 
 * of new mail for a user
@@ -53,9 +40,9 @@ int notify_http_server(char *remoteurl,
 		       char *msgid, 
 		       long MsgNum) 
 {
+	char curl_errbuf[CURL_ERROR_SIZE];
 	char *pchs, *pche;
 	char userpass[SIZ];
-	char retbuf[SIZ];
 	char msgnumstr[128];
 	char *buf = NULL;
 	CURL *curl;
@@ -64,12 +51,8 @@ int notify_http_server(char *remoteurl,
 	char errmsg[1024] = "";
 	char *SOAPMessage = NULL;
 	char *contenttype = NULL;
-        struct fh_data fh = {
-                retbuf,
-                0,
-                SIZ
-        };
-		
+	StrBuf *ReplyBuf;
+
 	curl = curl_easy_init();
 	if (!curl) {
 		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
@@ -78,10 +61,12 @@ int notify_http_server(char *remoteurl,
 
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fh);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, extnotify_callback); /* don't care..*/
+	ReplyBuf = NewStrBuf();
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_errbuf);
 
 	pchs = strchr(remoteurl, ':');
 	pche = strchr(remoteurl, '@');
@@ -183,7 +168,30 @@ int notify_http_server(char *remoteurl,
 
 	res = curl_easy_perform(curl);
 	if (res) {
+		StrBuf *ErrMsg;
+
 		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", res, errmsg);
+		ErrMsg = NewStrBufPlain(HKEY("Error sending your Notification\n"));
+		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %d: %s\n", res, errmsg);
+		StrBufAppendBufPlain(ErrMsg, curl_errbuf, -1, 0);
+		StrBufAppendBufPlain(ErrMsg, HKEY("\nWas Trying to send: \n"), 0);
+		StrBufAppendBufPlain(ErrMsg, remoteurl, -1, 0);
+		if (tlen > 0) {
+			StrBufAppendBufPlain(ErrMsg, HKEY("\nThe Post document was: \n"), 0);
+			StrBufAppendBufPlain(ErrMsg, SOAPMessage, -1, 0);
+			StrBufAppendBufPlain(ErrMsg, HKEY("\n\n"), 0);			
+		}
+		if (StrLength(ReplyBuf) > 0) {			
+			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThe Serverreply was: \n\n"), 0);
+			StrBufAppendBuf(ErrMsg, ReplyBuf, 0);
+		}
+		else 
+			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThere was no Serverreply.\n\n"), 0);
+/* TODO: this will change the floor we're in :(
+		quickie_message("Citadel", NULL, NULL, AIDEROOM, ChrPtr(ErrMsg), FMT_FIXED, 
+				"Failed to notify external service about inbound mail");
+*/
+		FreeStrBuf(&ErrMsg);
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "Funambol notified\n");
@@ -193,72 +201,6 @@ free:
 	if (contenttype) free(contenttype);
 	if (SOAPMessage != NULL) free(SOAPMessage);
 	if (buf != NULL) free(buf);
+	FreeStrBuf (&ReplyBuf);
 	return 0;
 }
-
-
-/*	
-	sprintf(port, "%d", config.c_funambol_port);
-	sock = sock_connect(config.c_funambol_host, port, "tcp");
-	if (sock >= 0) 
-		CtdlLogPrintf(CTDL_DEBUG, "Connected to Funambol!\n");
-	else {
-		char buf[SIZ];
-
-		snprintf(buf, SIZ, 
-			 "Unable to connect to %s:%d [%s]; won't send notification\r\n", 
-			 config.c_funambol_host, 
-			 config.c_funambol_port, 
-			 strerror(errno));
-		CtdlLogPrintf(CTDL_ERR, buf);
-
-		aide_message(buf, "External notifier unable to connect remote host!");
-		goto bail;
-	}
-*/
-//	if (funambolCreds != NULL) free(funambolCreds);
-	//if (SOAPHeader != NULL) free(SOAPHeader);
-	///close(sock);
-
-	/* Build the HTTP request header */
-
-	
-/*
-	sprintf(SOAPHeader, "POST %s HTTP/1.0\r\nContent-type: text/xml; charset=utf-8\r\n",
-		FUNAMBOL_WS);
-	strcat(SOAPHeader,"Accept: application/soap+xml, application/dime, multipart/related, text/*\r\n");
-	sprintf(buf, "User-Agent: %s/%d\r\nHost: %s:%d\r\nCache-control: no-cache\r\n",
-		"Citadel",
-		REV_LEVEL,
-		config.c_funambol_host,
-		config.c_funambol_port
-		);
-	strcat(SOAPHeader,buf);
-	strcat(SOAPHeader,"Pragma: no-cache\r\nSOAPAction: \"\"\r\n");
-	sprintf(buf, "Content-Length: %d \r\n",
-		strlen(SOAPMessage));
-	strcat(SOAPHeader, buf);
-*/
-	
-/*	funambolCreds = malloc(strlen(config.c_funambol_auth)*2);
-	memset(funambolCreds, 0, strlen(config.c_funambol_auth)*2);
-	CtdlEncodeBase64(funambolCreds, config.c_funambol_auth, strlen(config.c_funambol_auth), 0);	
-	sprintf(buf, "Authorization: Basic %s\r\n\r\n",
-		funambolCreds);
-	strcat(SOAPHeader, buf);
-	
-	sock_write(sock, SOAPHeader, strlen(SOAPHeader));
-	sock_write(sock, SOAPMessage, strlen(SOAPMessage));
-	sock_shutdown(sock, SHUT_WR);
-	
-	/ * Response * /
-	CtdlLogPrintf(CTDL_DEBUG, "Awaiting response\n");
-        if (sock_getln(sock, buf, SIZ) < 0) {
-                goto free;
-        }
-        CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (strncasecmp(buf, "HTTP/1.1 200 OK", strlen("HTTP/1.1 200 OK"))) {
-		
-		goto free;
-	}
-*/

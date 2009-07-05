@@ -152,11 +152,11 @@ void do_extnotify_queue(void) {
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
 			   SPOOLMIME, NULL, process_notify, NotifyHosts);
 
-    while ((NotifyHosts != NULL) && (NotifyHosts[i] != NULL))
-	    FreeStrBuf(&NotifyHosts[i]);
+	while ((NotifyHosts != NULL) && (NotifyHosts[i] != NULL))
+		FreeStrBuf(&NotifyHosts[i]);
 
-    CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
-    doing_queue = 0;
+	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
+	doing_queue = 0;
 }
 /*!
  * \brief Process messages in the external notification queue
