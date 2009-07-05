@@ -564,6 +564,23 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, u
 	Buf->buf[Buf->BufUsed] = '\0';
 }
 
+/**
+ * \brief Callback for cURL to append the webserver reply to a buffer
+ * params pre-defined by the cURL API; see man 3 curl for mre info
+ */
+size_t CurlFillStrBuf_callback(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+
+	StrBuf *Target;
+
+	Target = stream;
+	if (ptr == NULL)
+		return 0;
+
+	StrBufAppendBufPlain(Target, ptr, size * nmemb, 0);
+	return size * nmemb;
+}
+
 
 /** 
  * \brief Escape a string for feeding out as a URL while appending it to a Buffer
@@ -746,7 +763,7 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
  * \param Source	source buffer; set to NULL if you just have a C-String
  * \param PlainIn       Plain-C string to append; set to NULL if unused
  */
-void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
+void StrMsgEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 {
 	const char *aptr, *eiptr;
 	char *tptr, *eptr;
@@ -794,6 +811,77 @@ void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn)
 			*(tptr++) = '9';
 			*tptr = ';';
 			Target->BufUsed += 5;
+		} else {
+			*tptr = *aptr;
+			Target->BufUsed++;
+		}
+		tptr++; aptr++;
+	}
+	*tptr = '\0';
+}
+
+
+
+/*
+ * \brief Append a string, escaping characters which have meaning in ICAL.  
+ * [\n,] 
+ * \param Target	target buffer
+ * \param Source	source buffer; set to NULL if you just have a C-String
+ * \param PlainIn       Plain-C string to append; set to NULL if unused
+ */
+void StrIcalEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
+{
+	const char *aptr, *eiptr;
+	char *tptr, *eptr;
+	long len;
+
+	if (((Source == NULL) && (PlainIn == NULL)) || (Target == NULL) )
+		return ;
+
+	if (PlainIn != NULL) {
+		aptr = PlainIn;
+		len = strlen(PlainIn);
+		eiptr = aptr + len;
+	}
+	else {
+		aptr = Source->buf;
+		eiptr = aptr + Source->BufUsed;
+		len = Source->BufUsed;
+	}
+
+	if (len == 0) 
+		return;
+
+	eptr = Target->buf + Target->BufSize - 8; 
+	tptr = Target->buf + Target->BufUsed;
+	
+	while (aptr < eiptr){
+		if(tptr + 3 >= eptr) {
+			IncreaseBuf(Target, 1, -1);
+			eptr = Target->buf + Target->BufSize - 8; 
+			tptr = Target->buf + Target->BufUsed;
+		}
+	       
+		if (*aptr == '\n') {
+			*tptr = '\\';
+			Target->BufUsed++;
+			tptr++;
+			*tptr = 'n';
+			Target->BufUsed++;
+		}
+		else if (*aptr == '\r') {
+			*tptr = '\\';
+			Target->BufUsed++;
+			tptr++;
+			*tptr = 'r';
+			Target->BufUsed++;
+		}
+		else if (*aptr == ',') {
+			*tptr = '\\';
+			Target->BufUsed++;
+			tptr++;
+			*tptr = ',';
+			Target->BufUsed++;
 		} else {
 			*tptr = *aptr;
 			Target->BufUsed++;

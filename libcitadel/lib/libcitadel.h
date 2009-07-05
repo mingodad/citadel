@@ -283,6 +283,7 @@ int StrBufExtractNext_int(const StrBuf* Source, const char **pStart, char separa
 
 void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, unsigned long Offset);
 void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset);
+size_t CurlFillStrBuf_callback(void *ptr, size_t size, size_t nmemb, void *stream);
 void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...);
 #ifdef SHOW_ME_VAPPEND_PRINTF
 /* so owe don't create an include depndency, this is just visible on demand. */
@@ -315,7 +316,8 @@ int StrBufSanitizeAscii(StrBuf *Buf, const char Mute);
 void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn);
 long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int nbsp, int nolinebreaks);
 long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn);
-void StrMsgEscAppend(StrBuf *Target, StrBuf *Source, const char *PlainIn);
+void StrMsgEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn);
+void StrIcalEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn);
 
 long StrTol(const StrBuf *Buf);
 int StrToi(const StrBuf *Buf);
