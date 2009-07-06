@@ -128,6 +128,7 @@ void new_save_inetconf(void) {
 		FlushStrBuf(Str);	
 	}
 	else if (!strcasecmp(bstr("oper"), "add")) {
+		StrBuf *name;
 		eName = sbstr("ename");
 		if (eName == NULL) {
 			StrBufPrintf(WCC->ImportantMsg, _("Invalid Parameter"));
@@ -137,8 +138,9 @@ void new_save_inetconf(void) {
 
 		nUsed = GetCount(Hash);
 		nUsed = snprintf(nnn, sizeof(nnn), "%d", nUsed+1);
-	
-		Put(Hash, nnn, nUsed, NewStrBufDup(eName), HFreeStrBuf); 
+		name = NewStrBufDup(eName);
+		StrBufTrim(name);
+		Put(Hash, nnn, nUsed, name, HFreeStrBuf); 
 		StrBufPrintf(WCC->ImportantMsg, "%s %s", 
 			     /*<domain> added status message*/ _("added."), 
 			     ChrPtr(eName));
