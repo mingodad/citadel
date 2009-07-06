@@ -90,7 +90,7 @@ int notify_http_server(char *remoteurl,
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
-	headers = curl_slist_append(headers,"Accept: application/soap+xml, application/dime, multipart/related, text/*");
+	headers = curl_slist_append(headers,"Accept: application/soap+xml, application/mime, multipart/related, text/*");
 	headers = curl_slist_append(headers,"Pragma: no-cache");
 
 	if (tlen > 0) {
@@ -146,7 +146,7 @@ int notify_http_server(char *remoteurl,
 		/* pass our list of custom made headers */
 
 		contenttype=(char*) malloc(40+strlen(mimetype));
-		sprintf(contenttype,"Content-type: %s; charset=utf-8", mimetype);
+		sprintf(contenttype,"Content-Type: %s; charset=utf-8", mimetype);
 
 		headers = curl_slist_append(headers, "SOAPAction: \"\"");
 		headers = curl_slist_append(headers, contenttype);
