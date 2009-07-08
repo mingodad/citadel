@@ -549,6 +549,9 @@ void ReadPostData(void)
 			WCC->Hdr->HR.ContentLength + 
 			body_start;
 		mime_parser(ChrPtr(content), content_end, *upload_handler, NULL, NULL, NULL, 0);
+	} else if (WCC->Hdr->HR.ContentLength > 0) {
+		WCC->upload = content;
+		content = NULL;
 	}
 	FreeStrBuf(&content);
 }
@@ -833,7 +836,7 @@ SessionDetachModule_WEBCIT
 {
 	DeleteHash(&sess->Hdr->urlstrings);// TODO?
 	if (sess->upload_length > 0) {
-		free(sess->upload);
+		FreeStrBuf(&sess->upload);
 		sess->upload_length = 0;
 	}
 	FreeStrBuf(&sess->trailing_javascript);

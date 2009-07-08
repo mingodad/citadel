@@ -38,7 +38,7 @@ void groupdav_put_bigics(void)
 		return;
 	}
 
-	serv_write(WCC->upload, WCC->upload_length);
+	serv_putbuf(WCC->upload);
 	serv_printf("\n000");
 
 	/* Report success and not much else. */
@@ -152,7 +152,7 @@ void groupdav_put(void)
 
 	/* Send the content to the Citadel server */
 	serv_printf("Content-type: %s\n\n", WCC->upload_content_type);
-	serv_puts(WCC->upload);
+	serv_putbuf(WCC->upload);
 	serv_puts("\n000");
 
 	/* Fetch the reply from the Citadel server */

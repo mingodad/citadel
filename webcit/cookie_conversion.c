@@ -10,7 +10,7 @@ typedef unsigned char byte;	      /* Byte type used by cookie_to_stuff() */
  * Pack all session info into one easy-to-digest cookie. Healthy and delicious!
  */
 void stuff_to_cookie(char *cookie, size_t clen, int session,
-		StrBuf *user, StrBuf *pass, StrBuf *room, char *language)
+		StrBuf *user, StrBuf *pass, StrBuf *room, const char *language)
 {
 	char buf[SIZ];
 	int i;

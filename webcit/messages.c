@@ -1317,10 +1317,9 @@ void post_message(void)
 		 * Transfer control of this memory from the upload struct
 		 * to the attachment struct.
 		 */
-		att->Data = NewStrBufPlain(WCC->upload, WCC->upload_length);
-		free(WCC->upload);
-		WCC->upload_length = 0;
+		att->Data = WCC->upload;
 		WCC->upload = NULL;
+		WCC->upload_length = 0;
 		display_enter();
 		return;
 	}

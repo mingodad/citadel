@@ -307,7 +307,7 @@ void upload_file(void)
 	long blocksize;
 	wcsession *WCC = WC;     /* stack this for faster access (WC is a function) */
 
-	MimeType = GuessMimeType(WCC->upload, WCC->upload_length); 
+	MimeType = GuessMimeType(ChrPtr(WCC->upload), WCC->upload_length); 
 	serv_printf("UOPN %s|%s|%s", WCC->upload_filename, MimeType, bstr("description"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2')
@@ -331,7 +331,7 @@ void upload_file(void)
 		if (buf[0] == '7')
 		{
 			blocksize = atoi(&buf[4]);
-			serv_write(&WCC->upload[bytes_transmitted], blocksize);
+			serv_write(&ChrPtr(WCC->upload)[bytes_transmitted], blocksize);
 			bytes_transmitted += blocksize;
 		}
 	}
