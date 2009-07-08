@@ -292,12 +292,13 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			void *content, char *cbtype, char *cbcharset,
 			size_t length, char *encoding, char *cbid, void *userdata)
 {
+	wcsession *WCC = WC;
 	urlcontent *u;
 #ifdef DEBUG_URLSTRINGS
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
 #endif
-	if (WC->Hdr->urlstrings == NULL)
-		WC->Hdr->urlstrings = NewHash(1, NULL);
+	if (WCC->Hdr->urlstrings == NULL)
+		WCC->Hdr->urlstrings = NewHash(1, NULL);
 
 	/* Form fields */
 	if ( (length > 0) && (IsEmptyStr(cbtype)) ) {
@@ -306,7 +307,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		safestrncpy(u->url_key, name, sizeof(u->url_key));
 		u->url_data = NewStrBufPlain(content, length);
 		
-		Put(WC->Hdr->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
+		Put(WCC->Hdr->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
 #ifdef DEBUG_URLSTRINGS
 		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
 			u->url_key, 
@@ -317,18 +318,13 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 
 	/** Uploaded files */
 	if ( (length > 0) && (!IsEmptyStr(cbtype)) ) {
-		WC->upload = malloc(length);
-		if (WC->upload != NULL) {
-			WC->upload_length = length;
-			safestrncpy(WC->upload_filename, filename,
-					sizeof(WC->upload_filename));
-			safestrncpy(WC->upload_content_type, cbtype,
-					sizeof(WC->upload_content_type));
-			memcpy(WC->upload, content, length);
-		}
-		else {
-			lprintf(3, "malloc() failed: %s\n", strerror(errno));
-		}
+		WCC->upload = NewStrBufPlain(content, length);
+		WCC->upload_length = length;
+		safestrncpy(WCC->upload_filename, filename,
+			    sizeof(WC->upload_filename));
+		safestrncpy(WCC->upload_content_type, cbtype,
+			    sizeof(WC->upload_content_type));
+		
 	}
 
 }

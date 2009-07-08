@@ -67,11 +67,12 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 void do_graphics_upload(char *filename)
 {
 	const char *MimeType;
+	wcsession *WCC = WC;
 	char buf[SIZ];
 	int bytes_remaining;
 	int pos = 0;
 	int thisblock;
-	bytes_remaining = WC->upload_length;
+	bytes_remaining = WCC->upload_length;
 
 	if (havebstr("cancel_button")) {
 		strcpy(WC->ImportantMessage,
@@ -80,20 +81,20 @@ void do_graphics_upload(char *filename)
 		return;
 	}
 
-	if (WC->upload_length == 0) {
+	if (WCC->upload_length == 0) {
 		strcpy(WC->ImportantMessage,
 			_("You didn't upload a file."));
 		display_main_menu();
 		return;
 	}
 	
-	MimeType = GuessMimeType(&WC->upload[0], bytes_remaining);
+	MimeType = GuessMimeType(ChrPtr(WCC->upload), bytes_remaining);
 	snprintf(buf, SIZ, "UIMG 1|%s|%s", MimeType, filename);
 	serv_puts(buf);
 
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
+		strcpy(WCC->ImportantMessage, &buf[4]);
 		display_main_menu();
 		return;
 	}
@@ -102,14 +103,14 @@ void do_graphics_upload(char *filename)
 		serv_printf("WRIT %d", thisblock);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] != '7') {
-			strcpy(WC->ImportantMessage, &buf[4]);
+			strcpy(WCC->ImportantMessage, &buf[4]);
 			serv_puts("UCLS 0");
 			serv_getln(buf, sizeof buf);
 			display_main_menu();
 			return;
 		}
 		thisblock = extract_int(&buf[4], 0);
-		serv_write(&WC->upload[pos], thisblock);
+		serv_write(&ChrPtr(WCC->upload)[pos], thisblock);
 		pos = pos + thisblock;
 		bytes_remaining = bytes_remaining - thisblock;
 	}

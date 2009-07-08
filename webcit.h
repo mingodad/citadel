@@ -529,7 +529,7 @@ struct wcsession {
 /* Uploading; mime attachments for composing messages */
 	HashList *attachments;             	/**< list of attachments for 'enter message' */
 	int upload_length;			/**< content length of http-uploaded data */
-	char *upload;				/**< pointer to http-uploaded data */
+	StrBuf *upload;				/**< pointer to http-uploaded data */
 	char upload_filename[PATH_MAX];		/**< filename of http-uploaded data */
 	char upload_content_type[256];		/**< content type of http-uploaded data */
 
@@ -640,7 +640,7 @@ void stuff_to_cookie(char *cookie, size_t clen,
 		StrBuf *user,
 		StrBuf *pass,
 		StrBuf *room,
-		char *language
+		const char *language
 );
 void cookie_to_stuff(StrBuf *cookie,
 		int *session,
