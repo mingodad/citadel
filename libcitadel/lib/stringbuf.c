@@ -1194,8 +1194,10 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 		}
 		if (len >= dest->BufSize) {
 			dest->BufUsed = len;
-			if (!IncreaseBuf(dest, 1, -1))
+			if (IncreaseBuf(dest, 1, -1) < 0) {
+				dest->BufUsed --;
 				break;
+			}
 		}
 		if ( (current_token == parmnum) && 
 		     (*s != separator)) {
@@ -1299,7 +1301,6 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 }
 
 
-
 /**
  * \brief a string tokenizer
  * \param dest Destination StringBuffer
@@ -1347,8 +1348,10 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 		}
 		if (len >= dest->BufSize) {
 			dest->BufUsed = len;
-			if (!IncreaseBuf(dest, 1, -1)) {
+
+			if (IncreaseBuf(dest, 1, -1) < 0) {
 				*pStart = EndBuffer + 1;
+				dest->BufUsed --;
 				break;
 			}
 		}
