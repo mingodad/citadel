@@ -793,7 +793,7 @@ InitModule_WEBCIT
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, CTX_NONE);
 
-	snprintf(dir, SIZ, "%s/static.local/webcit.css", static_local_dir);
+	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
 	if (!access(dir, R_OK)) {
 		lprintf(9, "Using local Stylesheet [%s]\n", dir);
 		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
