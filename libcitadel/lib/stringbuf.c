@@ -663,9 +663,9 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 			bptr += 2;
 			Target->BufUsed += 2;
 		} else if (*aptr == '\\') {
-		  memcpy(bptr, "\\\\", 2);
-		  bptr += 2;
-		  Target->BufUsed += 2;
+			memcpy(bptr, "\\\\", 2);
+			bptr += 2;
+			Target->BufUsed += 2;
 		}
 		else{
 			*bptr = *aptr;
@@ -1312,6 +1312,7 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 	if ((fdflags & O_NONBLOCK) == O_NONBLOCK)
 		return -1;
 
+	pch = NULL;
 	while ((nSuccessLess < timeout) && (pch == NULL)) {
 		tv.tv_sec = selectresolution;
 		tv.tv_usec = 0;
@@ -2128,10 +2129,11 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 			/* did we find a gab just filled with blanks? */
 			if (ptr == next)
 			{
+				long gap = next - start;
 				memmove (end + 2,
 					 next,
-					 len - (next - start));
-				
+					 len - (gap));
+				len -= gap;
 				/* now terminate the gab at the end */
 				delta = (next - end) - 2; ////TODO: const! 
 				((StrBuf*)DecodeMe)->BufUsed -= delta;
