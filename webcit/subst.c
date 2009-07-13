@@ -288,6 +288,7 @@ void RegisterNS(const char *NSName,
 	HashHandler *NewHandler;
 	
 	NewHandler = (HashHandler*) malloc(sizeof(HashHandler));
+	memset(NewHandler, 0, sizeof(HashHandler));
 	NewHandler->Filter.nMinArgs = nMinArgs;
 	NewHandler->Filter.nMaxArgs = nMaxArgs;
 	NewHandler->Filter.ContextType = ContextRequired;
@@ -307,6 +308,7 @@ void RegisterControlNS(const char *NSName,
 	HashHandler *NewHandler;
 	
 	NewHandler = (HashHandler*) malloc(sizeof(HashHandler));
+	memset(NewHandler, 0, sizeof(HashHandler));
 	NewHandler->Filter.nMinArgs = nMinArgs;
 	NewHandler->Filter.nMaxArgs = nMaxArgs;
 	NewHandler->Filter.ContextType = CTX_NONE;
@@ -1079,6 +1081,7 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 		if (Template->TokenSpace <= 0) {
 			Template->Tokens = (WCTemplateToken**)malloc(
 				sizeof(WCTemplateToken*) * 10);
+			memset(Template->Tokens, 0, sizeof(WCTemplateToken*));
 			Template->TokenSpace = 10;
 		}
 		else {
@@ -1100,10 +1103,12 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 {
 	const char *pch = *pCh;
 	const char *pchs, *pche;
-	TemplateParam *Parm = (TemplateParam *) malloc(sizeof(TemplateParam));
+	TemplateParam *Parm;
 	char quote = '\0';
 	int ParamBrace = 0;
 
+	Parm = (TemplateParam *) malloc(sizeof(TemplateParam));
+	memset(Parm, 0, sizeof(TemplateParam));
 	Parm->Type = TYPE_STR;
 
 	/* Skip leading whitespaces */
@@ -1246,9 +1251,11 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	void *vVar;
 	const char *pch;
 	TemplateParam *Param;
-	WCTemplateToken *NewToken = (WCTemplateToken*)malloc(sizeof(WCTemplateToken));
+	WCTemplateToken *NewToken;
 	WCTemplputParams TP;
 
+	NewToken = (WCTemplateToken*)malloc(sizeof(WCTemplateToken));
+	memset(NewToken, 0, sizeof(WCTemplateToken));
 	TP.Tokens = NewToken;
 	NewToken->FileName = pTmpl->FileName; /* to print meaningfull log messages... */
 	NewToken->Flags = 0;
@@ -1416,7 +1423,9 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 {
 	WCTemplate *NewTemplate;
+
 	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
+	memset(NewTemplate, 0, sizeof(WCTemplate));
 	NewTemplate->Data = NULL;
 	NewTemplate->FileName = NewStrBufDup(filename);
 	NewTemplate->nTokensUsed = 0;
@@ -1458,6 +1467,7 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 	}
 
 	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
+	memset(NewTemplate, 0, sizeof(WCTemplate));
 	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size);
 	NewTemplate->FileName = NewStrBufDup(filename);
 	NewTemplate->nTokensUsed = 0;
@@ -1840,7 +1850,10 @@ void RegisterITERATOR(const char *Name, long len,
 		      int XPectContextType, 
 		      int Flags)
 {
-	HashIterator *It = (HashIterator*)malloc(sizeof(HashIterator));
+	HashIterator *It;
+
+	It = (HashIterator*)malloc(sizeof(HashIterator));
+	memset(It, 0, sizeof(HashIterator));
 	It->StaticList = StaticList;
 	It->AdditionalParams = AdditionalParams;
 	It->GetHash = GetHash;
@@ -2082,7 +2095,10 @@ void RegisterConditional(const char *Name, long len,
 			 WCConditionalFunc CondF, 
 			 int ContextRequired)
 {
-	ConditionalStruct *Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
+	ConditionalStruct *Cond;
+
+	Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
+	memset(Cond, 0, sizeof(ConditionalStruct));
 	Cond->PlainName = Name;
 	Cond->Filter.nMaxArgs = nParams;
 	Cond->Filter.nMinArgs = nParams;
@@ -2097,7 +2113,10 @@ void RegisterControlConditional(const char *Name, long len,
 				WCConditionalFunc CondF, 
 				int ControlContextRequired)
 {
-	ConditionalStruct *Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
+	ConditionalStruct *Cond;
+
+	Cond = (ConditionalStruct*)malloc(sizeof(ConditionalStruct));
+	memset(Cond, 0, sizeof(ConditionalStruct));
 	Cond->PlainName = Name;
 	Cond->Filter.nMaxArgs = nParams;
 	Cond->Filter.nMinArgs = nParams;
@@ -2169,6 +2188,7 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 
 	nTabs = ntabs = TP->Tokens->nParameters / 2;
 	TabNames = (StrBuf **) malloc(ntabs * sizeof(StrBuf*));
+	memset(TabNames, 0, ntabs * sizeof(StrBuf*));
 
 	for (i = 0; i < ntabs; i++) {
 		if ((TP->Tokens->Params[i * 2]->Type == TYPE_STR) &&
@@ -2213,7 +2233,10 @@ void RegisterSortFunc(const char *name, long len,
 		      CompareFunc GroupChange, 
 		      long ContextType)
 {
-	SortStruct *NewSort = (SortStruct*) malloc(sizeof(SortStruct));
+	SortStruct *NewSort;
+
+	NewSort = (SortStruct*) malloc(sizeof(SortStruct));
+	memset(NewSort, 0, sizeof(SortStruct));
 	NewSort->Name = NewStrBufPlain(name, len);
 	if (prepend != NULL)
 		NewSort->PrefPrepend = NewStrBufPlain(prepend, preplen);

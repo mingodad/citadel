@@ -897,6 +897,10 @@ void gotonext(void)
 	 * First check to see if the march-mode list is already allocated.
 	 * If it is, pop the first room off the list and go there.
 	 */
+	if (havebstr("startmsg")) {
+		 readloop(readnew);
+		 return;
+	}
 
 	if (WC->march == NULL) {
 		serv_puts("LKRN");
@@ -989,6 +993,11 @@ void slrp_highest(void)
 void ungoto(void)
 {
 	StrBuf *Buf;
+
+	if (havebstr("startmsg")) {
+		readloop(readnew);
+		return;
+	}
 
 	if (!strcmp(WC->ugname, "")) {
 		smart_goto(WC->wc_roomname);
@@ -3844,6 +3853,10 @@ void _gotonext(void) { slrp_highest(); gotonext(); }
 void dotskip(void) {smart_goto(sbstr("room"));}
 void _display_private(void) { display_private("", 0); }
 void dotgoto(void) {
+	if (!havebstr("room")) {
+		readloop(readnew);
+		return;
+	}
 	if (WC->wc_view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
 		slrp_highest();
 	}
