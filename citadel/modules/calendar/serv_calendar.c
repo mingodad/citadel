@@ -2171,16 +2171,20 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 			serialized_request
 		);
 
-		msg = CtdlMakeMessage(&CC->user,
-			"",			/* No single recipient here */
-			"",			/* No single recipient here */
-			CC->room.QRname, 0, FMT_RFC822,
-			"",
-			"",
+		msg = CtdlMakeMessage(
+			&CC->user,
+			NULL,			/* No single recipient here */
+			NULL,			/* No single recipient here */
+			CC->room.QRname,
+			0,
+			FMT_RFC822,
+			NULL,
+			NULL,
 			summary_string,		/* Use summary for subject */
 			NULL,
 			request_message_text,
-			NULL);
+			NULL
+		);
 	
 		if (msg != NULL) {
 			valid = validate_recipients(attendees_string, NULL, 0);

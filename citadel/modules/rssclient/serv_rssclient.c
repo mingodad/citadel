@@ -162,8 +162,9 @@ void rss_save_item(struct rss_item *ri) {
 				msg->cm_fields['O'] = strdup(ri->channel_title);
 			}
 		}
-
-		msglen = 1024 + strlen(ri->link) + strlen(ri->description) ;
+		if (ri->link == NULL) 
+			ri->link = strdup("");
+		msglen += 1024 + strlen(ri->link) + strlen(ri->description) ;
 		msg->cm_fields['M'] = malloc(msglen);
 		snprintf(msg->cm_fields['M'], msglen,
 			"Content-type: text/html\r\n\r\n"

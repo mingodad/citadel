@@ -17,6 +17,7 @@
 #include <time.h>
 #include <libcitadel.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "citadel.h"
 #include "citadel_dirs.h"
