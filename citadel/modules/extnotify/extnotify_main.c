@@ -161,8 +161,9 @@ void do_extnotify_queue(void) {
 /*!
  * \brief Process messages in the external notification queue
  */
-void process_notify(long msgnum, void *usrdata) 
+void process_notify(long NotifyMsgnum, void *usrdata) 
 {
+	long msgnum;
 	long todelete[1];
 	int fnblAllowed;
 	int extPagerAllowedHttp;
@@ -175,7 +176,7 @@ void process_notify(long msgnum, void *usrdata)
 
 
 	NotifyHostList = (StrBuf**) usrdata;
-	msg = CtdlFetchMessage(msgnum, 1);
+	msg = CtdlFetchMessage(NotifyMsgnum, 1);
 	if ( msg->cm_fields['W'] == NULL) {
 		goto nuke;
 	}
@@ -205,7 +206,9 @@ void process_notify(long msgnum, void *usrdata)
 	fnblAllowed = strncasecmp(configMsg, HKEY(FUNAMBOL_CONFIG_TEXT));
 	extPagerAllowedHttp = strncasecmp(configMsg, HKEY(PAGER_CONFIG_HTTP)); 
 	extPagerAllowedSystem = strncasecmp(configMsg, HKEY(PAGER_CONFIG_SYSTEM));
-
+	pch = strstr(msg->cm_fields['M'], "msgid|");
+	if (pch != NULL) 
+		msgnum = atol(pch + sizeof("msgid"));
 	if (fnblAllowed == 0) {
 		char remoteurl[SIZ];
 		snprintf(remoteurl, SIZ, "http://%s@%s:%d/%s",
@@ -267,7 +270,7 @@ void process_notify(long msgnum, void *usrdata)
 nuke:
 	CtdlFreeMessage(msg);
 	memset(configMsg, 0, sizeof(configMsg));
-	todelete[0] = msgnum;
+	todelete[0] = NotifyMsgnum;
 	CtdlDeleteMessages(FNBL_QUEUE_ROOM, todelete, 1, "");
 }
 
