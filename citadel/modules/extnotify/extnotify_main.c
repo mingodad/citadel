@@ -52,6 +52,25 @@
 
 #include "ctdl_module.h"
 
+
+
+void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg)
+{
+	int nNext;
+	if (Ctx->NotifyErrors == NULL)
+		Ctx->NotifyErrors = NewHash(1, Flathash);
+
+	nNext = GetCount(Ctx->NotifyErrors) + 1;
+	Put(Ctx->NotifyErrors, 
+	    (char*)&nNext, 
+	    sizeof(int), 
+	    ErrMsg, 
+	    HFreeStrBuf);
+}
+
+
+
+
 StrBuf* GetNHBuf(int i, int allocit, StrBuf **NotifyHostList)
 {
 	if ((NotifyHostList[i] == NULL) && (allocit != 0))
@@ -125,9 +144,10 @@ void create_extnotify_queue(void) {
 /*!
  * \brief Run through the pager room queue
  */
-void do_extnotify_queue(void) {
+void do_extnotify_queue(void) 
+{
+	NotifyContext Ctx;
 	static int doing_queue = 0;
-	StrBuf **NotifyHosts;
 	int i = 0;
     
 	/*
@@ -144,16 +164,37 @@ void do_extnotify_queue(void) {
 	 */
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
     
-	NotifyHosts = GetNotifyHosts();
+	memset(&Ctx, 0, sizeof(NotifyContext));
+	Ctx.NotifyHostList = GetNotifyHosts();
 	if (getroom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
 		return;
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
-			   SPOOLMIME, NULL, process_notify, NotifyHosts);
+			   SPOOLMIME, NULL, process_notify, &Ctx);
 
-	while ((NotifyHosts != NULL) && (NotifyHosts[i] != NULL))
-		FreeStrBuf(&NotifyHosts[i]);
+	while ((Ctx.NotifyHostList != NULL) && (Ctx.NotifyHostList[i] != NULL))
+		FreeStrBuf(&Ctx.NotifyHostList[i]);
+
+	if (Ctx.NotifyErrors != NULL)
+	{
+		long len;
+		const char *Key;
+		HashPos *It;
+		void *vErr;
+		StrBuf *ErrMsg;
+
+		It = GetNewHashPos(Ctx.NotifyErrors, 0);
+		while (GetNextHashPos(Ctx.NotifyErrors, It, &len, &Key, &vErr) && 
+		       (vErr != NULL)) {
+			ErrMsg = (StrBuf*) vErr;
+			quickie_message("Citadel", NULL, NULL, AIDEROOM, ChrPtr(ErrMsg), FMT_FIXED, 
+					"Failed to notify external service about inbound mail");
+		}
+
+		DeleteHashPos(&It);
+		DeleteHash(&Ctx.NotifyErrors);
+	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
 	doing_queue = 0;
@@ -163,6 +204,7 @@ void do_extnotify_queue(void) {
  */
 void process_notify(long NotifyMsgnum, void *usrdata) 
 {
+	NotifyContext *Ctx;
 	long msgnum;
 	long todelete[1];
 	int fnblAllowed;
@@ -171,11 +213,10 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	char *pch;
 	long configMsgNum;
 	char configMsg[SIZ];
-	StrBuf **NotifyHostList;	
 	struct CtdlMessage *msg;
 
+	Ctx = (NotifyContext*) usrdata;
 
-	NotifyHostList = (StrBuf**) usrdata;
 	msg = CtdlFetchMessage(NotifyMsgnum, 1);
 	if ( msg->cm_fields['W'] == NULL) {
 		goto nuke;
@@ -221,7 +262,8 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 				   strlen(file_funambol_msg),/*GNA*/
 				   msg->cm_fields['W'], 
 				   msg->cm_fields['I'],
-				   msgnum);
+				   msgnum, 
+				   Ctx);
 	} else if (extPagerAllowedHttp == 0) {
 		int i = 0;
 		StrBuf *URL;
@@ -232,9 +274,9 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 		while(1)
 		{
 
-			URL = GetNHBuf(i*2, 0, NotifyHostList);
+			URL = GetNHBuf(i*2, 0, Ctx->NotifyHostList);
 			if (URL==NULL) break;
-			File = GetNHBuf(i*2 + 1, 0, NotifyHostList);
+			File = GetNHBuf(i*2 + 1, 0, Ctx->NotifyHostList);
 			if (File==NULL) break;
 
 			if (StrLength(File)>0)
@@ -250,7 +292,8 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 					   StrLength(FileBuf),
 					   msg->cm_fields['W'], 
 					   msg->cm_fields['I'],
-					   msgnum);
+					   msgnum, 
+					   Ctx);
 			i++;
 		}
 		FreeStrBuf(&FileBuf);

@@ -8,7 +8,6 @@
 * Based on bits of the previous serv_funambol
 * Contact: <matt@mcbridematt.dhs.org> / <matt@comalies>
 */
-#include "extnotify.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -29,6 +28,8 @@
 #include "msgbase.h"
 #include "ctdl_module.h"
 
+#include "extnotify.h"
+
 /*
 * \brief Sends a message to the Funambol server notifying 
 * of new mail for a user
@@ -38,7 +39,8 @@ int notify_http_server(char *remoteurl,
 		       const char* template, long tlen, 
 		       char *user,
 		       char *msgid, 
-		       long MsgNum) 
+		       long MsgNum, 
+		       NotifyContext *Ctx) 
 {
 	char curl_errbuf[CURL_ERROR_SIZE];
 	char *pchs, *pche;
@@ -187,11 +189,7 @@ int notify_http_server(char *remoteurl,
 		}
 		else 
 			StrBufAppendBufPlain(ErrMsg, HKEY("\n\nThere was no Serverreply.\n\n"), 0);
-/* TODO: this will change the floor we're in :(
-		quickie_message("Citadel", NULL, NULL, AIDEROOM, ChrPtr(ErrMsg), FMT_FIXED, 
-				"Failed to notify external service about inbound mail");
-*/
-		FreeStrBuf(&ErrMsg);
+		ExtNotify_PutErrorMessage(Ctx, ErrMsg);
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "Funambol notified\n");

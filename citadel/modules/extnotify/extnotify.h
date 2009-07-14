@@ -16,12 +16,20 @@ extern "C" {
 
 #define FUNAMBOL_WS "/funambol/services/admin"
 
+typedef struct _NotifyContext {
+	StrBuf **NotifyHostList;
+	HashList *NotifyErrors;
+} NotifyContext;
+
 int notify_http_server(char *remoteurl, 
 		       const char* template, 
 		       long tlen, 
 		       char *user,
 		       char *msgid, 
-		       long MsgNum);
+		       long MsgNum, 
+		       NotifyContext *Ctx);
+
+void ExtNotify_PutErrorMessage(NotifyContext *Ctx, StrBuf *ErrMsg);
 
 void extNotify_getPrefs(long configMsgNum, char *configMsg);
 long extNotify_getConfigMessage(char *username);
