@@ -280,6 +280,7 @@ void download_file(void)
 
 void delete_file(void)
 {
+	const StrBuf *MimeType;
 	StrBuf *Buf;
 	char buf[256];
 	
@@ -291,9 +292,8 @@ void delete_file(void)
 	GetServerStatus(Buf, NULL);
 	StrBufCutLeft(Buf, 4);
 	strcpy(WC->ImportantMessage, ChrPtr(Buf));
-	do_template("files", CTX_NONE);
-	output_headers(0, 0, 0, 0, 0, 0);
-	end_burst();
+	MimeType = DoTemplate(HKEY("files"), NULL, &NoCtx);
+	http_transmit_thing(ChrPtr(MimeType), 0);
 	FreeStrBuf(&Buf);
 }
 
@@ -301,6 +301,7 @@ void delete_file(void)
 
 void upload_file(void)
 {
+	const StrBuf *RetMimeType;
 	const char *MimeType;
 	char buf[1024];
 	long bytes_transmitted = 0;
@@ -313,9 +314,8 @@ void upload_file(void)
 	if (buf[0] != '2')
 	{
 		strcpy(WCC->ImportantMessage, &buf[4]);
-		do_template("files", NULL);
-		output_headers(0, 0, 0, 0, 0, 0);
-		end_burst();
+		RetMimeType = DoTemplate(HKEY("files"), NULL, &NoCtx);
+		http_transmit_thing(ChrPtr(RetMimeType), 0);
 		return;
 	}
 
@@ -339,9 +339,8 @@ void upload_file(void)
 	serv_puts("UCLS 1");
 	serv_getln(buf, sizeof buf);
 	strcpy(WCC->ImportantMessage, &buf[4]);
-	do_template("files", CTX_NONE);
-	output_headers(0, 0, 0, 0, 0, 0);
-	end_burst();
+	RetMimeType = DoTemplate(HKEY("files"), NULL, &NoCtx);
+	http_transmit_thing(ChrPtr(RetMimeType), 0);
 }
 
 
