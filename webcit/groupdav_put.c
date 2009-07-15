@@ -151,7 +151,7 @@ void groupdav_put(void)
 	}
 
 	/* Send the content to the Citadel server */
-	serv_printf("Content-type: %s\n\n", WCC->upload_content_type);
+	//serv_printf("Content-type: %s\n\n", WCC->upload_content_type);
 	serv_putbuf(WCC->upload);
 	serv_puts("\n000");
 
