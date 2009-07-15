@@ -799,7 +799,7 @@ InitModule_WEBCIT
 		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
 	}
 	else
-		lprintf(9, "Didn't find site local Stylesheet [%s]\n", dir);
+		lprintf(9, "No Site-local Stylesheet [%s] installed. \n", dir);
 
 }
 
