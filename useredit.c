@@ -450,6 +450,7 @@ TRYAGAIN:
 						}
 					}
 				}
+				DeleteHashPos(&att);
 			}
 			FreeStrBuf(&Error);	/* don't care... */
 			
