@@ -74,7 +74,7 @@ void display_openid_name_request(const StrBuf *claimed_id, const StrBuf *usernam
 
 	if (StrLength(username) > 0) {
 			Buf = NewStrBufPlain(NULL, StrLength(username));
-			StrEscAppend(Buf, claimed_id, NULL, 0, 0);
+			StrEscAppend(Buf, username, NULL, 0, 0);
 			svprintf(HKEY("REASON"), WCS_STRING,
 				 _("However, the user name '%s' conflicts with an existing user."), 
 				 ChrPtr(Buf));
