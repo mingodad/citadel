@@ -38,7 +38,43 @@ var toggles = {};
 
 var nummsgs = 0;
 var startmsg = 0;
+var is_safe_mode = true;
+/* The following code is VERY evil! Hopefully the need for it will evaporate in the future.
+   We only want newer browsers with Javascript JIT's to use the newer message view, unless the user explicitly chooses new/safe view */
+function determineSafeMode() {
+  if (summary_view_pref == false) {
+    var userAgent = navigator.userAgent;
+    var gecko = userAgent.indexOf("Gecko/");
+    var opera = userAgent.indexOf("Presto/"); // check for rendering engine
+    var chrome = userAgent.indexOf("Chrome/");
+    var safari = userAgent.indexOf("Safari/");
+    var phone = userAgent.indexOf("Mobile");
+    if (phone > 0) {
+      is_safe_mode = true; /* Don't serve to mobiles */
+    } else if (gecko > 0) {
+      var version = userAgent.substring(gecko+6,gecko+15);
+      if (version > 20090600) {
+	is_safe_mode = false;
+      }
+    } else if (opera > 0) {
+      var prestoVersion = userAgent.substring(opera+7,opera+10);
+      if (prestoVersion >= 2.2) {
+	is_safe_mode = false;
+      }
+    } else if (chrome > 0) {
+      is_safe_mode = false;
+    } else if (safari > 0) {
+      var safariVersion = userAgent.substring(safari+7,safari+10);
+      if (safariVersion >= 525) {
+	is_safe_mode = false;
+      }
+    }
+  } else {
+  is_safe_mode = true;
+  }
+}
 function createMessageView() {
+  determineSafeMode();
   message_view = document.getElementById("message_list_body");
   loadingMsg = document.getElementById("loading");
   getMessages();
