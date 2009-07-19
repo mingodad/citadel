@@ -162,7 +162,7 @@ int yesno(char *question, int default_value)
 {
 	int i = 0;
 	int answer = 0;
-	char buf[SIZ];
+	char buf[SIZ] = "";
 
 	switch (setup_type) {
 
@@ -172,14 +172,17 @@ int yesno(char *question, int default_value)
 				question,
 				( default_value ? "Yes" : "No" )
 			);
-			fgets(buf, sizeof buf, stdin);
-			answer = tolower(buf[0]);
-			if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
-				answer = default_value;
-			else if (answer == 'y')
-				answer = 1;
-			else if (answer == 'n')
-				answer = 0;
+			if (fgets(buf, sizeof buf, stdin))
+			{
+				answer = tolower(buf[0]);
+				if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
+					answer = default_value;
+				else if (answer == 'y')
+					answer = 1;
+				else if (answer == 'n')
+					answer = 0;
+			}
+
 		} while ((answer < 0) || (answer > 1));
 		break;
 
@@ -206,7 +209,7 @@ int yesno(char *question, int default_value)
 
 void set_value(char *prompt, char str[])
 {
-	char buf[SIZ];
+	char buf[SIZ] = "";
 	char dialog_result[PATH_MAX];
 	char setupmsg[SIZ];
 	FILE *fp;
@@ -219,12 +222,12 @@ void set_value(char *prompt, char str[])
 		printf("\n%s\n", prompt);
 		printf("This is currently set to:\n%s\n", str);
 		printf("Enter new value or press return to leave unchanged:\n");
-		fgets(buf, sizeof buf, stdin);
-		buf[strlen(buf) - 1] = 0;
+		if (fgets(buf, sizeof buf, stdin)) {
+			buf[strlen(buf) - 1] = 0;
+		}
 		if (strlen(buf) != 0)
 			strcpy(str, buf);
 		break;
-
 	case UI_DIALOG:
 		CtdlMakeTempFileName(dialog_result, sizeof dialog_result);
 		sprintf(buf, "exec %s --inputbox '%s' 19 72 '%s' 2>%s",
@@ -235,9 +238,10 @@ void set_value(char *prompt, char str[])
 		system(buf);
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
-			fgets(str, sizeof buf, fp);
-			if (str[strlen(str)-1] == 10) {
-				str[strlen(str)-1] = 0;
+			if (fgets(str, sizeof buf, fp)){
+				if (str[strlen(str)-1] == 10) {
+					str[strlen(str)-1] = 0;
+				}
 			}
 			fclose(fp);
 			unlink(dialog_result);
@@ -277,8 +281,8 @@ int GetLocalePrefs(void)
 		printf("\n%s\n", ChrPtr(Buf));
 		printf("This is currently set to:\n%ld\n", 0L);
 		printf("Enter new value or press return to leave unchanged:\n");
-		fgets(buf, sizeof buf, stdin);
-		return atoi(buf);
+		if (fgets(buf, sizeof buf, stdin))
+			return atoi(buf);
 		break;
 
 	case UI_DIALOG:
@@ -292,9 +296,10 @@ int GetLocalePrefs(void)
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
 			char *str = &buf[0];
-			fgets(str, sizeof buf, fp);
-			if (str[strlen(str)-1] == 10) {
-				str[strlen(str)-1] = 0;
+			if (fgets(str, sizeof buf, fp)){
+				if (str[strlen(str)-1] == 10) {
+					str[strlen(str)-1] = 0;
+				}
 			}
 			fclose(fp);
 			unlink(dialog_result);
@@ -316,7 +321,7 @@ void important_message(char *title, char *msgtext)
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		printf("       %s \n\n%s\n\n", title, msgtext);
 		printf("Press return to continue...");
-		fgets(buf, sizeof buf, stdin);
+		if (fgets(buf, sizeof buf, stdin));
 		break;
 
 	case UI_DIALOG:
@@ -423,7 +428,7 @@ void install_init_scripts(void)
 	fp = fopen(initfile, "r");
 	if (fp != NULL) {
 		if (yesno("WebCit already appears to be configured to start at boot.\n"
-		   "Would you like to keep your boot configuration as is?\n", 1) == 1) {
+			  "Would you like to keep your boot configuration as is?\n", 1) == 1) {
 			return;
 		}
 		fclose(fp);
@@ -432,8 +437,8 @@ void install_init_scripts(void)
 
 	/* Otherwise, prompt the user to create an entry. */
 	snprintf(question, sizeof question,
-		"Would you like to automatically start WebCit at boot?"
-	);
+		 "Would you like to automatically start WebCit at boot?"
+		);
 	if (yesno(question, 1) == 0)
 		return;
 
@@ -491,20 +496,20 @@ void install_init_scripts(void)
 
 	/* Now ask for the port numbers */
 	snprintf(question, sizeof question,
-		"On which port do you want WebCit to listen for HTTP "
-		"requests?\n\nYou can use the standard port (80) if you are "
-		"not running another\nweb server (such as Apache), otherwise "
-		"select another port.");
+		 "On which port do you want WebCit to listen for HTTP "
+		 "requests?\n\nYou can use the standard port (80) if you are "
+		 "not running another\nweb server (such as Apache), otherwise "
+		 "select another port.");
 	set_value(question, http_port);
 	uname(&my_utsname);
 	sprintf(suggested_url, "http://%s:%s/", my_utsname.nodename, http_port);
 
 #ifdef HAVE_OPENSSL
 	snprintf(question, sizeof question,
-		"On which port do you want WebCit to listen for HTTPS "
-		"requests?\n\nYou can use the standard port (443) if you are "
-		"not running another\nweb server (such as Apache), otherwise "
-		"select another port.");
+		 "On which port do you want WebCit to listen for HTTPS "
+		 "requests?\n\nYou can use the standard port (443) if you are "
+		 "not running another\nweb server (such as Apache), otherwise "
+		 "select another port.");
 	set_value(question, https_port);
 #endif
 
@@ -515,7 +520,7 @@ void install_init_scripts(void)
 	}
 	else {
 		snprintf(question, sizeof question,
-			"Is the Citadel service running on the same host as WebCit?");
+			 "Is the Citadel service running on the same host as WebCit?");
 		if (yesno(question, ((!strcasecmp(hostname, "uds")) ? 1 : 0))) {
 			strcpy(hostname, "uds");
 			if (atoi(portname) != 0) strcpy(portname, "/usr/local/citadel");
@@ -525,9 +530,9 @@ void install_init_scripts(void)
 			if (!strcasecmp(hostname, "uds")) strcpy(hostname, "127.0.0.1");
 			if (atoi(portname) == 0) strcpy(portname, "504");
 			set_value("Enter the host name or IP address of your "
-				"Citadel server.", hostname);
+				  "Citadel server.", hostname);
 			set_value("Enter the port number on which Citadel is "
-				"running (usually 504)", portname);
+				  "running (usually 504)", portname);
 		}
 	}
 
@@ -535,7 +540,10 @@ void install_init_scripts(void)
 	fp = fopen(initfile, "w");
 
 	fprintf(fp,	"#!/bin/sh\n"
-			"\n"
+		"\n"
+		"# uncomment this to create coredumps as described in\n"
+		"# http://www.citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files\n"
+		"# ulimit -c unlimited\n"
 			"WEBCIT_DIR=%s\n", setup_directory);
 	fprintf(fp,	"HTTP_PORT=%s\n", http_port);
 #ifdef HAVE_OPENSSL
