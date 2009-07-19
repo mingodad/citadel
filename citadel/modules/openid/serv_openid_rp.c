@@ -793,9 +793,11 @@ void cmd_oidf(char *argbuf) {
 		if (CC->logged_in) {
 			if (attach_openid(&CC->user, oiddata->claimed_id) == 0) {
 				cprintf("attach\n");
+				CtdlLogPrintf(CTDL_DEBUG, "OpenID attach succeeded\n");
 			}
 			else {
 				cprintf("fail\n");
+				CtdlLogPrintf(CTDL_DEBUG, "OpenID attach failed\n");
 			}
 		}
 
@@ -812,6 +814,7 @@ void cmd_oidf(char *argbuf) {
 			if (login_via_openid(oiddata->claimed_id) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
+				CtdlLogPrintf(CTDL_DEBUG, "Logged in using previously claimed OpenID\n");
 			}
 
 			/*
@@ -820,6 +823,7 @@ void cmd_oidf(char *argbuf) {
 			 */
 			else if (config.c_disable_newu) {
 				cprintf("fail\n");
+				CtdlLogPrintf(CTDL_DEBUG, "Creating user failed due to local policy\n");
 			}
 
 			/*
@@ -828,6 +832,7 @@ void cmd_oidf(char *argbuf) {
 			else if (openid_create_user_via_sreg(oiddata->claimed_id, keys) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
+				CtdlLogPrintf(CTDL_DEBUG, "Successfully auto-created new user\n");
 			}
 
 			/*
@@ -844,6 +849,7 @@ void cmd_oidf(char *argbuf) {
 				else {
 					cprintf("\n");
 				}
+				CtdlLogPrintf(CTDL_DEBUG, "The desired Simple Registration name is already taken.\n");
 			}
 		}
 	}
