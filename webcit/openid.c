@@ -86,6 +86,9 @@ void openid_attach(void) {
 			http_redirect(&buf[4]);
 			return;
 		}
+		else {
+			lprintf(CTDL_DEBUG, "OpenID attach failed: %s\n", &buf[4]);
+		}
 	}
 
 	/* If we get to this point then something failed. */
