@@ -9,6 +9,10 @@
 # Description:       control citadel server start at boot time
 ### END INIT INFO
 
+# uncomment this to create coredumps as described in
+# http://www.citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files
+# ulimit -c unlimited
+
 # Author: Wilfried Goesgens <citadel@outgesourced.org>
 
 RUNDIR=/var/run/citadel

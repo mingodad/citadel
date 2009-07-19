@@ -207,14 +207,16 @@ int yesno(char *question, int default_value)
 				question,
 				( default_value ? "Yes" : "No" )
 			);
-			fgets(buf, sizeof buf, stdin);
-			answer = tolower(buf[0]);
-			if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
-				answer = default_value;
-			else if (answer == 'y')
-				answer = 1;
-			else if (answer == 'n')
-				answer = 0;
+			if (fgets(buf, sizeof buf, stdin))
+			{
+				answer = tolower(buf[0]);
+				if ((buf[0]==0) || (buf[0]==13) || (buf[0]==10))
+					answer = default_value;
+				else if (answer == 'y')
+					answer = 1;
+				else if (answer == 'n')
+					answer = 0;
+			}
 		} while ((answer < 0) || (answer > 1));
 		break;
 
@@ -249,7 +251,7 @@ void important_message(char *title, char *msgtext)
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		printf("       %s \n\n%s\n\n", title, msgtext);
 		printf("Press return to continue...");
-		fgets(buf, sizeof buf, stdin);
+		if (fgets(buf, sizeof buf, stdin));
 		break;
 
 	case UI_DIALOG:
@@ -387,7 +389,7 @@ void delete_inittab_entry(void)
 		 sizeof looking_for,
 		 "%s/citserver", 
 		 ctdl_sbin_dir
-		 );
+		);
 
 	/* Now tweak /etc/inittab */
 	infp = fopen("/etc/inittab", "r");
@@ -462,7 +464,7 @@ void install_init_scripts(void)
 	fp = fopen(initfile, "r");
 	if (fp != NULL) {
 		if (yesno("Citadel already appears to be configured to start at boot.\n"
-		   "Would you like to keep your boot configuration as is?\n", 1) == 1) {
+			  "Would you like to keep your boot configuration as is?\n", 1) == 1) {
 			return;
 		}
 		fclose(fp);
@@ -480,54 +482,57 @@ void install_init_scripts(void)
 	}
 
 	fprintf(fp,	"#!/bin/sh\n"
-			"#\n"
-			"# Init file for Citadel\n"
-			"#\n"
-			"# chkconfig: - 79 30\n"
-			"# description: Citadel service\n"
-			"# processname: citserver\n"
-			"# pidfile: %s/citadel.pid\n"
-			"\n"
-			"CITADEL_DIR=%s\n"
-			,
-				setup_directory,
-				setup_directory
-			);
+		"#\n"
+		"# Init file for Citadel\n"
+		"#\n"
+		"# chkconfig: - 79 30\n"
+		"# description: Citadel service\n"
+		"# processname: citserver\n"
+		"# pidfile: %s/citadel.pid\n\n"
+		"# uncomment this to create coredumps as described in\n"
+		"# http://www.citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files\n"
+		"# ulimit -c unlimited\n"
+		"\n"
+		"CITADEL_DIR=%s\n"
+		,
+		setup_directory,
+		setup_directory
+		);
 	fprintf(fp,	"\n"
-			"test -d /var/run || exit 0\n"
-			"\n"
-			"case \"$1\" in\n"
-			"\n"
-			"start)		echo -n \"Starting Citadel... \"\n"
-			"		if $CITADEL_DIR/citserver -lmail -d -h$CITADEL_DIR\n"
-			"		then\n"
-			"			echo \"ok\"\n"
-			"		else\n"
-			"			echo \"failed\"\n"
-			"		fi\n");
+		"test -d /var/run || exit 0\n"
+		"\n"
+		"case \"$1\" in\n"
+		"\n"
+		"start)		echo -n \"Starting Citadel... \"\n"
+		"		if $CITADEL_DIR/citserver -lmail -d -h$CITADEL_DIR\n"
+		"		then\n"
+		"			echo \"ok\"\n"
+		"		else\n"
+		"			echo \"failed\"\n"
+		"		fi\n");
 	fprintf(fp,	"		;;\n"
-			"stop)		echo -n \"Stopping Citadel... \"\n"
-			"		if $CITADEL_DIR/sendcommand DOWN >/dev/null 2>&1 ; then\n"
-			"			echo \"ok\"\n"
-			"		else\n"
-			"			echo \"failed\"\n"
-			"		fi\n"
-			"		rm -f %s/citadel.pid 2>/dev/null\n"
-			,
-				setup_directory
-			);
+		"stop)		echo -n \"Stopping Citadel... \"\n"
+		"		if $CITADEL_DIR/sendcommand DOWN >/dev/null 2>&1 ; then\n"
+		"			echo \"ok\"\n"
+		"		else\n"
+		"			echo \"failed\"\n"
+		"		fi\n"
+		"		rm -f %s/citadel.pid 2>/dev/null\n"
+		,
+		setup_directory
+		);
 	fprintf(fp,	"		;;\n"
-			"restart)	if $CITADEL_DIR/sendcommand DOWN 1 >/dev/null 2>&1 ; then\n"
-			"			echo \"ok\"\n"
-			"		else\n"
-			"			echo \"failed\"\n"
-			"		fi\n"
-		        "               ;;\n"
-			"*)		echo \"Usage: $0 {start|stop|restart}\"\n"
-			"		exit 1\n"
-			"		;;\n"
-			"esac\n"
-	);
+		"restart)	if $CITADEL_DIR/sendcommand DOWN 1 >/dev/null 2>&1 ; then\n"
+		"			echo \"ok\"\n"
+		"		else\n"
+		"			echo \"failed\"\n"
+		"		fi\n"
+		"               ;;\n"
+		"*)		echo \"Usage: $0 {start|stop|restart}\"\n"
+		"		exit 1\n"
+		"		;;\n"
+		"esac\n"
+		);
 
 	fclose(fp);
 	chmod(initfile, 0755);
@@ -573,10 +578,10 @@ void check_xinetd_entry(void) {
 	}
 	else {
 		snprintf(buf, sizeof buf,
-			"Setup can configure the \"xinetd\" service to automatically\n"
-			"connect incoming telnet sessions to Citadel, bypassing the\n"
-			"host system login: prompt.  Would you like to do this?\n"
-		);
+			 "Setup can configure the \"xinetd\" service to automatically\n"
+			 "connect incoming telnet sessions to Citadel, bypassing the\n"
+			 "host system login: prompt.  Would you like to do this?\n"
+			);
 		if (yesno(buf, 1) == 0) {
 			return;
 		}
@@ -683,7 +688,7 @@ int test_server(char *setup_directory, char *relhomestr, int relhome) {
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
 		if ( (buf[0]=='2')
-		   && (strstr(buf, cookie) != NULL) ) {
+		     && (strstr(buf, cookie) != NULL) ) {
 			++found_it;
 		}
 	}
@@ -697,7 +702,7 @@ int test_server(char *setup_directory, char *relhomestr, int relhome) {
 
 void strprompt(char *prompt_title, char *prompt_text, char *str)
 {
-	char buf[SIZ];
+	char buf[SIZ] = "";
 	char setupmsg[SIZ];
 	char dialog_result[PATH_MAX];
 	FILE *fp = NULL;
@@ -710,8 +715,9 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		printf("\n%s\n", prompt_text);
 		printf("This is currently set to:\n%s\n", str);
 		printf("Enter new value or press return to leave unchanged:\n");
-		fgets(buf, sizeof buf, stdin);
-		buf[strlen(buf) - 1] = 0;
+		if (fgets(buf, sizeof buf, stdin)){
+			buf[strlen(buf) - 1] = 0;
+		}
 		if (!IsEmptyStr(buf))
 			strcpy(str, buf);
 		break;
@@ -726,9 +732,10 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		system(buf);
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
-			fgets(str, sizeof buf, fp);
-			if (str[strlen(str)-1] == 10) {
-				str[strlen(str)-1] = 0;
+			if (fgets(str, sizeof buf, fp)) {
+				if (str[strlen(str)-1] == 10) {
+					str[strlen(str)-1] = 0;
+				}
 			}
 			fclose(fp);
 			unlink(dialog_result);
