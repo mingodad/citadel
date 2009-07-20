@@ -186,6 +186,31 @@ void cmd_oidl(char *argbuf) {
 
 
 /*
+ * List ALL OpenIDs in the database
+ */
+void cmd_oida(char *argbuf) {
+	struct cdbdata *cdboi;
+	long usernum;
+
+	if (CtdlAccessCheck(ac_aide)) return;
+	cdb_rewind(CDB_OPENID);
+	cprintf("%d List of all OpenIDs in the database:\n", LISTING_FOLLOWS);
+
+	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
+		if (cdboi->len > sizeof(long)) {
+			memcpy(&usernum, cdboi->ptr, sizeof(long));
+			cprintf("%s|%ld\n",
+				cdboi->ptr + sizeof(long),
+				usernum
+			);
+		}
+		cdb_free(cdboi);
+	}
+	cprintf("000\n");
+}
+
+
+/*
  * Attempt to register (populate the vCard) the currently-logged-in user
  * using the data from Simple Registration Extension, if present.
  */
@@ -273,6 +298,11 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
  */
 void cmd_oidc(char *argbuf) {
 	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
+
+	if (!oiddata) {
+		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
+		return;
+	}
 
 	if (!oiddata->verified) {
 		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
@@ -903,6 +933,7 @@ CTDL_MODULE_INIT(openid_rp)
 			CtdlRegisterProtoHook(cmd_oidl, "OIDL", "List OpenIDs associated with an account");
 			CtdlRegisterProtoHook(cmd_oidd, "OIDD", "Detach an OpenID from an account");
 			CtdlRegisterProtoHook(cmd_oidc, "OIDC", "Create new user after validating OpenID");
+			CtdlRegisterProtoHook(cmd_oida, "OIDA", "List all OpenIDs in the database");
 		}
 		CtdlRegisterSessionHook(openid_cleanup_function, EVT_LOGOUT);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
