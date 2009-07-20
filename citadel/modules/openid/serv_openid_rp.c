@@ -191,6 +191,7 @@ void cmd_oidl(char *argbuf) {
 void cmd_oida(char *argbuf) {
 	struct cdbdata *cdboi;
 	long usernum;
+	struct ctdluser usbuf;
 
 	if (CtdlAccessCheck(ac_aide)) return;
 	cdb_rewind(CDB_OPENID);
@@ -199,9 +200,13 @@ void cmd_oida(char *argbuf) {
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
 			memcpy(&usernum, cdboi->ptr, sizeof(long));
-			cprintf("%s|%ld\n",
+			if (getuserbynumber(&usbuf, usernum) != 0) {
+				usbuf.fullname[0] = 0;
+			} 
+			cprintf("%s|%ld|%s\n",
 				cdboi->ptr + sizeof(long),
-				usernum
+				usernum,
+				usbuf.fullname
 			);
 		}
 		cdb_free(cdboi);
