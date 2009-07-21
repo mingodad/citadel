@@ -602,9 +602,14 @@ long end_burst(void)
         fd_set wset;
         int fdflags;
 
-	if (!DisableGzip && (WCC->Hdr->HR.gzip_ok) && CompressBuffer(WCC->WBuf))
+	if (!DisableGzip && (WCC->Hdr->HR.gzip_ok))
 	{
-		hprintf("Content-encoding: gzip\r\n");
+		if (CompressBuffer(WCC->WBuf) > 0)
+			hprintf("Content-encoding: gzip\r\n");
+		else {
+			lprintf(CTDL_ALERT, "Compression failed: %d [%s] sending uncompressed\n", errno, strerror(errno));
+			wc_backtrace();
+		}
 	}
 
 	if (WCC->Hdr->HR.prohibit_caching)
