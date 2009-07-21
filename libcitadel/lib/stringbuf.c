@@ -2236,10 +2236,12 @@ int CompressBuffer(StrBuf *Buf)
 	char *compressed_data = NULL;
 	size_t compressed_len, bufsize;
 	int i = 0;
-	
-	bufsize = compressed_len = ((Buf->BufUsed * 101) / 100) + 100;
+
+	bufsize = compressed_len = Buf->BufUsed +  (Buf->BufUsed / 100) + 100;
 	compressed_data = malloc(compressed_len);
 	
+	if (compressed_data == NULL)
+		return -1;
 	/* Flush some space after the used payload so valgrind shuts up... */
         while ((i < 10) && (Buf->BufUsed + i < Buf->BufSize))
 		Buf->buf[Buf->BufUsed + i++] = '\0';
