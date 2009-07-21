@@ -7,6 +7,7 @@
  */
 document.observe("dom:loaded", createMessageView);
 
+var msgs = null;
 var message_view = null;
 var loadingMsg = null;
 var rowArray = null;
@@ -24,11 +25,19 @@ var markedRowId = null;
 var mouseDownEvent = null;
 var exitedMouseDown = false;
 
+var trTemplate = new Array(11);
+trTemplate[0] = "<tr id=\"";
+trTemplate[2] = "\" citadel:dropenabled=\"dropenabled\" class=\"";
+trTemplate[4] = "\" citadel:dndelement=\"summaryViewDragAndDropHandler\" citadel:msgID=\"";
+trTemplate[6] = "\"><td class=\"col1\">";
+trTemplate[8] = "</td><td class=\"col2\">";
+trTemplate[10] = "</td><td class=\"col3\">";
+trTemplate[12] = "</td></tr>";
+
 var currentPage = 0;
 var sortModes = {
   "rdate" : sortRowsByDateDescending,
   "date" : sortRowsByDateAscending,
-  //  "reverse" : sortRowsByDateDescending,
   "subj" : sortRowsBySubjectAscending,
   "rsubj" : sortRowsBySubjectDescending,
   "sender": sortRowsByFromAscending,
@@ -38,43 +47,8 @@ var toggles = {};
 
 var nummsgs = 0;
 var startmsg = 0;
-var is_safe_mode = true;
-/* The following code is VERY evil! Hopefully the need for it will evaporate in the future.
-   We only want newer browsers with Javascript JIT's to use the newer message view, unless the user explicitly chooses new/safe view */
-function determineSafeMode() {
-  if (summary_view_pref == false) {
-    var userAgent = navigator.userAgent;
-    var gecko = userAgent.indexOf("Gecko/");
-    var opera = userAgent.indexOf("Presto/"); // check for rendering engine
-    var chrome = userAgent.indexOf("Chrome/");
-    var safari = userAgent.indexOf("Safari/");
-    var phone = userAgent.indexOf("Mobile");
-    if (phone > 0) {
-      is_safe_mode = true; /* Don't serve to mobiles */
-    } else if (gecko > 0) {
-      var version = userAgent.substring(gecko+6,gecko+15);
-      if (version > 20090600) {
-	is_safe_mode = false;
-      }
-    } else if (opera > 0) {
-      var prestoVersion = userAgent.substring(opera+7,opera+10);
-      if (prestoVersion >= 2.2) {
-	is_safe_mode = false;
-      }
-    } else if (chrome > 0) {
-      is_safe_mode = false;
-    } else if (safari > 0) {
-      var safariVersion = userAgent.substring(safari+7,safari+10);
-      if (safariVersion >= 525) {
-	is_safe_mode = false;
-      }
-    }
-  } else {
-  is_safe_mode = true;
-  }
-}
+
 function createMessageView() {
-  determineSafeMode();
   message_view = document.getElementById("message_list_body");
   loadingMsg = document.getElementById("loading");
   getMessages();
@@ -83,7 +57,6 @@ function createMessageView() {
   mlh_from = $('mlh_from');
   toggles["rdate"] = mlh_date;
   toggles["date"] = mlh_date;
-  // toggles["reverse"] = mlh_date;
   toggles["subj"] = mlh_subject;
   toggles["rsubj"] = mlh_subject;
   toggles["sender"] = mlh_from;
@@ -92,7 +65,6 @@ function createMessageView() {
   mlh_subject.observe('click',ApplySort);
   mlh_from.observe('click',ApplySort);
   $(document).observe('keyup',CtdlMessageListKeyUp,false);
-  //window.oncontextmenu = function() { return false; };  
   $('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
   $('m_refresh').observe('click', getMessages);
   document.getElementById('m_refresh').setAttribute("href","#");
@@ -110,7 +82,7 @@ function getMessages() {
 roomName = getTextContent(document.getElementById("rmname"));
  var parameters = {'room':roomName, 'startmsg': startmsg, 'stopmsg': -1};
  if (is_safe_mode) {
-   parameters['stopmsg'] = parseInt(startmsg)+500;
+   parameters['stopmsg'] = parseInt(startmsg)+499;
    //parameters['maxmsgs'] = 500;
    if (currentSortMode != null) {
      var SortBy = currentSortMode[0];
@@ -133,59 +105,24 @@ new Ajax.Request("roommsgs", {
       onFailure: function(e) { alert("Failure: " + e);}
 	});
 }
+function evalJSON(data) {
+  if (typeof(JSON) === 'object' && typeof(JSON.parse) === 'function') {
+    return JSON.parse(data);
+  } else {
+    return eval('('+data+')');
+  }
+}
 function loadMessages(transport) {
   try {
-  var data = eval('('+transport.responseText+')');
+    var data = evalJSON(transport.responseText);
   if (!!data && transport.responseText.length < 2) {
     alert("Message loading failed");
   } 
   nummsgs = data['nummsgs'];
-  var msgs = data['msgs'];
+  msgs = data['msgs'];
   var length = msgs.length;
-  rowArray = new Array(); // store so they can be sorted
+  rowArray = new Array(length); // store so they can be sorted
   WCLog("Row array length: "+rowArray.length);
-  var start = new Date();
-  for(var i=0; i<length;i++) {
-    var trElement = document.createElement("tr");
-    var data = msgs[i];
-    var msgId = data[0];
-    var rowId = "msg_" + msgId;
-    trElement.setAttribute("id",rowId);
-    //$(trElement).observe('click', CtdlMessageListClick);
-    trElement.ctdlMsgId = msgId;
-    for(var j=1; j<5;j++) { // 1=msgId (hidden), 4 date timestamp (hidden) 6 = isNew etc. 
-      var content = data[j];
-      if(content.length < 1) {
-	content = "(blank)";
-      }
-      if (j==3) {
-       	trElement.ctdlDate = content;
-      } else { 
-	try {
-      var tdElement = document.createElement("td");
-      trElement.appendChild(tdElement);
-      var txtContent = document.createTextNode(content);
-      tdElement.appendChild(txtContent);
-      var x=j;
-      if (x==4) x=3;
-      var classStmt = "col"+x;
-      //tdElement.setAttribute("class", classStmt);
-      tdElement.className = classStmt;
-	} catch (e) {
-	  WCLog("Error on #"+msgId +" col"+j+":"+e);
-	}
-      }
-    }
-    if (data[5]) {
-      trElement.ctdlNewMsg = true;
-    }
-    trElement.dropEnabled = true;
-    trElement.ctdlMarked = false;
-    rowArray[i] = trElement; 
-  } 
-  var end = new Date();
-  var delta = end.getTime() - start.getTime();
-    WCLog("loadMessages construct: " + delta);
   } catch (e) {
     //window.alert(e+"|"+e.description);
   }
@@ -209,94 +146,95 @@ function loadMessages(transport) {
 }
 function resortAndDisplay(sortMode) {
   WCLog("Begin resortAndDisplay");
-  var start = new Date();
+  
   /* We used to try and clear out the message_view element,
      but stupid IE doesn't even do that properly */
   var message_view_parent = message_view.parentNode;
   message_view_parent.removeChild(message_view);
-  message_view = document.createElement("tbody");
-  message_view.setAttribute("id","message_list_body");
-  message_view.className="mailbox_summary";
-  message_view_parent.appendChild(message_view);
-  
-  var fragment = document.createDocumentFragment();
+  var startSort = new Date();
   if (sortMode != null) {
-    rowArray.sort(sortMode);
+    msgs.sort(sortMode);
   }
-  var length = rowArray.length;
+  var endSort = new Date();
+  WCLog("Sort rowArray in " + (endSort-startSort));
+  var start = new Date();
+  var length = msgs.length;
+  var compiled = new Array(length+2);
+  compiled[0] = "<tbody xmlns:citadel=\"http://citadel.org\" id=\"message_list_body\" class=\"mailbox_summary\">";
   for(var x=0; x<length; ++x) {
     try {
-      var currentRow = rowArray[x];
-      currentRow.setAttribute("class","");
+      var currentRow = msgs[x];
+      trTemplate[1] = "msg_"+currentRow[0];
       var className = "";
     if (((x-1) % 2) == 0) {
-      className = "table-alt-row";
+      className += "table-alt-row";
     } else {
-      className = "table-row";
+      className += "table-row";
     }
-    if (currentRow.ctdlNewMsg) {
+    if (currentRow[5]) {
       className += " new_message";
     }
-    currentRow.className = className;
-    /* Using element.onclick is evil, but until IE 
-       supports addEventListener, it is much faster
-       than prototype observe */
-    currentRow.onclick = CtdlMessageListClick;
-    currentRow.ctdlDnDElement = summaryViewDragAndDropHandler;
-    currentRow.ctdlRowId = x;
-    fragment.appendChild(currentRow);
+    trTemplate[3] = className;
+    trTemplate[5] = currentRow[0];
+    trTemplate[7] = currentRow[1];
+    trTemplate[9] = currentRow[2];
+    trTemplate[11] = currentRow[4];
+    var i = x+1;
+    compiled[i] = trTemplate.join("");
     } catch (e) {
-      alert("Exception" + e);
+      alert("Exception on row " +  x + ":" + e);
     }
   }
-  message_view.appendChild(fragment);
+  compiled[length+2] = "</tbody>";
   var end = new Date();
+  WCLog("iterate: " + (end-start));
+  var compile = compiled.join("");
+  start = new Date();
+  $(message_view_parent).update(compile);
+  message_view_parent.onclick = CtdlMessageListClick;
+  message_view = message_view_parent.firstChild;
+  end = new Date();
     var delta = end.getTime() - start.getTime();
-    WCLog("resortAndDisplay sort and append: " + delta);
+    WCLog("append: " + delta);
   ApplySorterToggle();
   normalizeHeaderTable();
 }
 function sortRowsByDateAscending(a, b) {
-  var dateOne = a.ctdlDate;
-  var dateTwo = b.ctdlDate;
+  var dateOne = a[3];
+  var dateTwo = b[3];
   return (dateOne - dateTwo);
-}
+};
 function sortRowsByDateDescending(a, b) {
-  var dateOne = a.ctdlDate;
-  var dateTwo = b.ctdlDate;
+  var dateOne = a[3];
+  var dateTwo = b[3];
   return (dateTwo - dateOne);
-}
-
+};
 function sortRowsBySubjectAscending(a, b) {
-  var subjectOne = getTextContent(a.getElementsByTagName("td")[0]).toLowerCase();
-  var subjectTwo = getTextContent(b.getElementsByTagName("td")[0]).toLowerCase();
+  var subjectOne = a[1];
+  var subjectTwo = b[1];
   return strcmp(subjectOne, subjectTwo);
-}
-
+};
 function sortRowsBySubjectDescending(a, b) {
-  var subjectOne = getTextContent(a.getElementsByTagName("td")[0]).toLowerCase();
-  var subjectTwo = getTextContent(b.getElementsByTagName("td")[0]).toLowerCase();
+  var subjectOne = a[1];
+  var subjectTwo = b[1];
   return strcmp(subjectTwo, subjectOne);
-}
-
+};
 function sortRowsByFromAscending(a, b) {
-  var fromOne = getTextContent(a.getElementsByTagName("td")[1]).toLowerCase();
-  var fromTwo = getTextContent(b.getElementsByTagName("td")[1]).toLowerCase();
+  var fromOne = a[2];
+  var fromTwo = b[2];
   return strcmp(fromOne, fromTwo);
-}
-
+};
 function sortRowsByFromDescending(a, b) {
-  var fromOne = getTextContent(a.getElementsByTagName("td")[1]).toLowerCase();
-  var fromTwo = getTextContent(b.getElementsByTagName("td")[1]).toLowerCase();
+  var fromOne = a[2];
+  var fromTwo = b[2];
   return strcmp(fromTwo, fromOne);
-}
-
+};
 function CtdlMessageListClick(evt) {
   /* Since element.onload is used here, test to see if evt is defined */
   var event = evt ? evt : window.event; 
   var target = event.target ? event.target: event.srcElement; // and again..
   var parent = target.parentNode;
-  var msgId = parent.ctdlMsgId;
+  var msgId = parent.getAttribute("citadel:msgid");
   // If the ctrl key modifier wasn't used, unmark all rows and load the message
   if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
     unmarkAllRows();
@@ -382,15 +320,15 @@ function removeOldSortClass() {
   }
 }
 function markRow(row) {
-  var msgId = row.ctdlMsgId;
+  var msgId = row.getAttribute("citadel:msgid");
   row.className = row.className += " marked_row";
-  row.ctdlMarked = true;
+  row.setAttribute("citadel:marked","marked");
   currentlyMarkedRows[msgId] = row;
 }
 function unmarkRow(row) {
-  var msgId = row.ctdlMsgId;
+  var msgId = row.getAttribute("citadel:msgid");
   row.className = row.className.replace("marked_row","");
-  row.ctdlMarked = false;
+  row.removeAttribute("citadel:marked");
   delete currentlyMarkedRows[msgId];
 }
 function unmarkAllRows() {
@@ -558,10 +496,10 @@ function setupPageSelector() {
   } else {
     return;
   }
-  var pages = nummsgs / 500;
+  var pages = nummsgs / 499;
   for(var i=0; i<pages; i++) {
     var opt = document.createElement("option");
-    var startmsg = i * 500;
+    var startmsg = i * 499;
     opt.setAttribute("value",startmsg);
     if (currentPage == i) {
       opt.setAttribute("selected","selected");
