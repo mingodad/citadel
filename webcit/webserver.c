@@ -273,9 +273,14 @@ long end_burst(void)
 
 	//#ifdef HAVE_ZLIB
 	/* Perform gzip compression, if enabled and supported by client */
-	if (!DisableGzip && (WCC->gzip_ok) && CompressBuffer(WCC->WBuf))
+	if (!DisableGzip && (WCC->gzip_ok))
 	{
-		hprintf("Content-encoding: gzip\r\n");
+		if (CompressBuffer(WCC->WBuf) > 0)
+			hprintf("Content-encoding: gzip\r\n");
+		else {
+			lprintf(CTDL_ALERT, "Compression failed: %d [%s] sending uncompressed\n", errno, strerror(errno));
+			wc_backtrace();
+		}
 	}
 	//#endif	/* HAVE_ZLIB */
 
