@@ -106,9 +106,15 @@ new Ajax.Request("roommsgs", {
 	});
 }
 function evalJSON(data) {
+  var jsonData = null;
   if (typeof(JSON) === 'object' && typeof(JSON.parse) === 'function') {
-    return JSON.parse(data);
-  } else {
+    try {
+    jsonData = JSON.parse(data);
+    } catch (e) {
+      // ignore
+    }
+  }
+  if (jsonData == null) {
     return eval('('+data+')');
   }
 }
@@ -182,7 +188,7 @@ function resortAndDisplay(sortMode) {
     var i = x+1;
     compiled[i] = trTemplate.join("");
     } catch (e) {
-      alert("Exception on row " +  x + ":" + e);
+      WCLog("Exception on row " +  x + ":" + e);
     }
   }
   compiled[length+2] = "</tbody>";
