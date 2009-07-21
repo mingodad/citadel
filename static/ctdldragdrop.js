@@ -16,7 +16,7 @@ function mouseDownHandler(event) {
   if (target.nodeName.toLowerCase() == "td") {
     actualTarget = target.parentNode;
   }
-  if (!actualTarget.dropEnabled) {
+  if (!actualTarget.dropEnabled && actualTarget.getAttribute("citadel:dropenabled") == null) {
     return;
   }
   turnOffTextSelect();
@@ -41,7 +41,8 @@ function mouseUpHandler(event) {
 function mouseMoveHandler(event) {
   if (draggedElement != null) {
     if (dragAndDropElement == null) {
-    dragAndDropElement = draggedElement.ctdlDnDElement();
+      var dragAndDropElementFunction = (draggedElement.ctdlDnDElement) ? draggedElement.ctdlDndElement : eval(draggedElement.getAttribute("citadel:dndelement"));
+      dragAndDropElement = dragAndDropElementFunction.call();
     dragAndDropElement.className = "draganddrop";
     document.body.appendChild(dragAndDropElement);
     }
