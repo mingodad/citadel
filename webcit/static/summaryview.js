@@ -29,10 +29,11 @@ var trTemplate = new Array(11);
 trTemplate[0] = "<tr id=\"";
 trTemplate[2] = "\" citadel:dropenabled=\"dropenabled\" class=\"";
 trTemplate[4] = "\" citadel:dndelement=\"summaryViewDragAndDropHandler\" citadel:msgID=\"";
-trTemplate[6] = "\"><td class=\"col1\">";
-trTemplate[8] = "</td><td class=\"col2\">";
-trTemplate[10] = "</td><td class=\"col3\">";
-trTemplate[12] = "</td></tr>";
+trTemplate[6] = "\" citadel:ctdlrowid=\"";
+trTemplate[8] = "\"><td class=\"col1\">";
+trTemplate[10] = "</td><td class=\"col2\">";
+trTemplate[12] = "</td><td class=\"col3\">";
+trTemplate[14] = "</td></tr>";
 
 var currentPage = 0;
 var sortModes = {
@@ -182,9 +183,10 @@ function resortAndDisplay(sortMode) {
     }
     trTemplate[3] = className;
     trTemplate[5] = currentRow[0];
-    trTemplate[7] = currentRow[1];
-    trTemplate[9] = currentRow[2];
-    trTemplate[11] = currentRow[4];
+    trTemplate[6] = x;
+    trTemplate[9] = currentRow[1];
+    trTemplate[11] = currentRow[2];
+    trTemplate[13] = currentRow[4];
     var i = x+1;
     compiled[i] = trTemplate.join("");
     } catch (e) {
@@ -244,7 +246,7 @@ function CtdlMessageListClick(evt) {
   // If the ctrl key modifier wasn't used, unmark all rows and load the message
   if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
     unmarkAllRows();
-    markedRowId = parent.ctdlRowId;
+    markedRowId = parent.getAttribute("citadel:ctdlrowid");
     document.getElementById("preview_pane").innerHTML = "";
     new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
     markRow(parent);
