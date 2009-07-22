@@ -157,16 +157,23 @@ void display_editgoodbyepic(void) {
 
 void display_editfloorpic(void) {
 	char buf[SIZ];
-	snprintf(buf, SIZ, "UIMG 0|_floorpic_|%s",
+	snprintf(buf, SIZ, "_floorpic_|%s",
 		 bstr("which_floor"));
 	display_graphics_upload(_("the icon for this floor"),
 				buf,
 				"editfloorpic");
 }
 
+void editroompic(void) {
+	char buf[SIZ];
+	snprintf(buf, SIZ, "_roompic_|%s",
+		 bstr("which_room"));
+	do_graphics_upload(buf);
+}
+
 void editfloorpic(void){
 	char buf[SIZ];
-	snprintf(buf, SIZ, "UIMG 1|_floorpic_|%s",
+	snprintf(buf, SIZ, "_floorpic_|%s",
 		 bstr("which_floor"));
 	do_graphics_upload(buf);
 }
@@ -178,6 +185,7 @@ InitModule_GRAPHICS
 	WebcitAddUrlHandler(HKEY("display_editpic"), display_editpic, 0);
 	WebcitAddUrlHandler(HKEY("editpic"), editpic, 0);
 	WebcitAddUrlHandler(HKEY("display_editroompic"), display_editroompic, 0);
+	WebcitAddUrlHandler(HKEY("editroompic"), editroompic, 0);
 	WebcitAddUrlHandler(HKEY("display_edithello"), display_edithello, 0);
 	WebcitAddUrlHandler(HKEY("edithellopic"), edithellopic, 0);
 	WebcitAddUrlHandler(HKEY("display_editgoodbyepic"), display_editgoodbyepic, 0);

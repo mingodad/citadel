@@ -1342,7 +1342,9 @@ void display_editroom(void)
 		wprintf("');\">\n");
 		wprintf(_("Delete this room"));
 		wprintf("</a>\n"
-			"<li><a href=\"display_editroompic\">\n");
+			"<li><a href=\"display_editroompic?which_room=");
+		urlescputs(ChrPtr(WC->wc_roomname));
+		wprintf("\">\n");
 		wprintf(_("Set or change the icon for this room's banner"));
 		wprintf("</a>\n"
 			"<li><a href=\"display_editinfo\">\n");
