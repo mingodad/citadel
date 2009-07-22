@@ -274,7 +274,7 @@ function CtdlMessageListClick(evt) {
     }
   // If the ctrl key modifier is used, toggle one message
   } else if (event.button != 2 && (event.ctrlKey || event.altKey)) {
-    if (parent.ctdlMarked == true) {
+    if (parent.getAttribute("citadel:marked")) {
       unmarkRow(parent);
     }
     else {
