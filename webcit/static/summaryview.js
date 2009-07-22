@@ -28,7 +28,7 @@ var exitedMouseDown = false;
 var trTemplate = new Array(11);
 trTemplate[0] = "<tr id=\"";
 trTemplate[2] = "\" citadel:dropenabled=\"dropenabled\" class=\"";
-trTemplate[4] = "\" citadel:dndelement=\"summaryViewDragAndDropHandler\" citadel:msgID=\"";
+trTemplate[4] = "\" citadel:dndelement=\"summaryViewDragAndDropHandler\" citadel:msgid=\"";
 trTemplate[6] = "\" citadel:ctdlrowid=\"";
 trTemplate[8] = "\"><td class=\"col1\">";
 trTemplate[10] = "</td><td class=\"col2\">";
@@ -183,7 +183,7 @@ function resortAndDisplay(sortMode) {
     }
     trTemplate[3] = className;
     trTemplate[5] = currentRow[0];
-    trTemplate[6] = x;
+    trTemplate[7] = x;
     trTemplate[9] = currentRow[1];
     trTemplate[11] = currentRow[2];
     trTemplate[13] = currentRow[4];
