@@ -20,7 +20,7 @@ var mlh_from = null;
 var currentSorterToggle = null;
 var query = "";
 var currentlyMarkedRows = new Object();
-var markedRowId = null;
+var markedRowIndex = null;
 
 var mouseDownEvent = null;
 var exitedMouseDown = false;
@@ -246,7 +246,7 @@ function CtdlMessageListClick(evt) {
   // If the ctrl key modifier wasn't used, unmark all rows and load the message
   if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
     unmarkAllRows();
-    markedRowId = parent.getAttribute("citadel:ctdlrowid");
+    markedRowIndex = parent.rowIndex;
     document.getElementById("preview_pane").innerHTML = "";
     new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
     markRow(parent);
@@ -257,19 +257,20 @@ function CtdlMessageListClick(evt) {
   // If the shift key modifier is used, mark a range...
   } else if (event.button != 2 && event.shiftKey) {
     markRow(parent);
-    var rowId = parent.ctdlRowId;
+    var rowIndex = parent.rowIndex;
     var startMarkingFrom = 0;
     var finish = 0;
-    if (rowId > markedRowId) {
-      startMarkingFrom = markedRowId+1;
-      finish = rowId;
-    } else if (rowId < markedRowId) {
-      startMarkingFrom = rowId+1;
-      finish = markedRowId;
-    } 
+    if (rowIndex > markedRowIndex) {
+      startMarkingFrom = markedRowIndex+1;
+      finish = rowIndex;
+    } else if (rowIndex < markedRowIndex) {
+      startMarkingFrom = rowIndex+1;
+      finish = markedRowIndex;
+    }
+    WCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
     for(var x = startMarkingFrom; x<finish; x++) {
-      WCLog("Marking row "+x);
-      markRow(rowArray[x]);
+      WCLog("Marking row " + x);
+      markRow(parent.parentNode.rows[x]);
     }
   // If the ctrl key modifier is used, toggle one message
   } else if (event.button != 2 && (event.ctrlKey || event.altKey)) {
