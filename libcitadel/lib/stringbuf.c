@@ -2540,8 +2540,9 @@ void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 	size_t obuflen;			/**< Length of output buffer */
 
 
-	if (ConvertBuf->BufUsed >= TmpBuf->BufSize)
-		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed);
+	/* since we're converting to utf-8, one glyph may take up to 6 bytes */
+	if (ConvertBuf->BufUsed * 6 >= TmpBuf->BufSize)
+		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed * 6);
 TRYAGAIN:
 	ic = *(iconv_t*)pic;
 	ibuf = ConvertBuf->buf;
@@ -2710,8 +2711,13 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 
 	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMe));
 
-	if (start != DecodeMe->buf)
-		StrBufAppendBufPlain(Target, DecodeMe->buf, start - DecodeMe->buf, 0);
+	if (start != DecodeMe->buf) {
+		long nFront;
+		
+		nFront = start - DecodeMe->buf;
+		StrBufAppendBufPlain(Target, DecodeMe->buf, nFront, 0);
+		len -= nFront;
+	}
 	/*
 	 * Since spammers will go to all sorts of absurd lengths to get their
 	 * messages through, there are LOTS of corrupt headers out there.
