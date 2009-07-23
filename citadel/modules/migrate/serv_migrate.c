@@ -255,6 +255,25 @@ void migr_export_message(long msgnum) {
 	struct CtdlMessage *msg;
 	struct ser_ret smr;
 
+	/* We can use a static buffer here because there will never be more than
+	 * one of this operation happening at any given time, and it's really best
+	 * to just keep it allocated once instead of torturing malloc/free.
+	 * Call this function with msgnum "-1" to free the buffer when finished.
+	 */
+	static int encoded_alloc = 0;
+	static char *encoded_msg = NULL;
+
+	if (msgnum < 0) {
+		if ((encoded_alloc == 0) && (encoded_msg != NULL)) {
+			free(encoded_msg);
+			encoded_alloc = 0;
+			encoded_msg = NULL;
+		}
+		return;
+	}
+
+	/* Ok, here we go ... */
+
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) return;	/* fail silently */
 
@@ -268,14 +287,21 @@ void migr_export_message(long msgnum) {
 	serialize_message(&smr, msg);
 	CtdlFreeMessage(msg);
 
-	int encoded_len = 0;
-	int encoded_alloc = smr.len * 14 / 10;	/* well-tested formula for predicting encoded size */
-	char *encoded_msg = malloc(encoded_alloc);
+	/* Predict the buffer size we need.  Expand the buffer if necessary. */
+	int encoded_len = smr.len * 15 / 10 ;
+	if (encoded_len > encoded_alloc) {
+		encoded_alloc = encoded_len;
+		encoded_msg = realloc(encoded_msg, encoded_alloc);
+	}
 
-	if (encoded_msg != NULL) {
+	if (encoded_msg == NULL) {
+		/* Questionable hack that hopes it'll work next time and we only lose one message */
+		encoded_alloc = 0;
+	}
+	else {
+		/* Once we do the encoding we know the exact size */
 		encoded_len = CtdlEncodeBase64(encoded_msg, (char *)smr.ser, smr.len, 1);
 		client_write(encoded_msg, encoded_len);
-		free(encoded_msg);
 	}
 
 	free(smr.ser);
@@ -334,6 +360,8 @@ void migr_export_messages(void) {
 		CtdlLogPrintf(CTDL_INFO, "Exported %d messages.\n", count);
 	else
 		CtdlLogPrintf(CTDL_ERR, "Export aborted due to client disconnect! \n");
+
+	migr_export_message(-1L);	/* This frees the encoding buffer */
 }
 
 
