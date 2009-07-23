@@ -304,7 +304,7 @@ function addRoomToList(floorUL,room, roomToEmphasize) {
 }
 
 function roomListDropHandler(target, dropped) {
-  if (dropped.ctdlMsgId) {
+  if (dropped.getAttribute("citadel:msgid")) {
     var room = getTextContent(target);
     var msgIds = "";
     for(msgId in currentlyMarkedRows) { //defined in summaryview.js
