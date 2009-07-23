@@ -5,6 +5,14 @@
  * Copyright 2009 The Citadel Team
  * Licensed under the GPL V3
  */
+/* QA reminders: because I keep forgetting / get cursed.
+Can you:
+1. Resort messages in both normal and paged view.
+2. Select a range with shift-click 
+3. Select messages with ctrl-click
+4. Normal click will deselect everything done above
+5. Move messages, and they will disappear
+*/
 document.observe("dom:loaded", createMessageView);
 
 var msgs = null;
@@ -25,6 +33,9 @@ var markedRowIndex = null;
 var mouseDownEvent = null;
 var exitedMouseDown = false;
 
+var originalMarkedRow = null;
+var previousFinish = 0;
+var markedFrom = 0;
 var trTemplate = new Array(11);
 trTemplate[0] = "<tr id=\"";
 trTemplate[2] = "\" citadel:dropenabled=\"dropenabled\" class=\"";
@@ -116,8 +127,9 @@ function evalJSON(data) {
     }
   }
   if (jsonData == null) {
-    return eval('('+data+')');
+    jsonData = eval('('+data+')');
   }
+  return jsonData;
 }
 function loadMessages(transport) {
   try {
@@ -159,8 +171,12 @@ function resortAndDisplay(sortMode) {
   var message_view_parent = message_view.parentNode;
   message_view_parent.removeChild(message_view);
   var startSort = new Date();
+  try {
   if (sortMode != null) {
     msgs.sort(sortMode);
+  }
+  } catch (e) {
+    WCLog("Sort error: " + e);
   }
   var endSort = new Date();
   WCLog("Sort rowArray in " + (endSort-startSort));
@@ -245,8 +261,11 @@ function CtdlMessageListClick(evt) {
   var msgId = parent.getAttribute("citadel:msgid");
   // If the ctrl key modifier wasn't used, unmark all rows and load the message
   if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
+    previousFinish = 0;
+    markedFrom = 0;
     unmarkAllRows();
     markedRowIndex = parent.rowIndex;
+    originalMarkedRow = parent;
     document.getElementById("preview_pane").innerHTML = "";
     new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
     markRow(parent);
@@ -256,8 +275,13 @@ function CtdlMessageListClick(evt) {
 	  onComplete: CtdlMarkRowAsRead(parent)});
   // If the shift key modifier is used, mark a range...
   } else if (event.button != 2 && event.shiftKey) {
+    unmarkAllRows();
     markRow(parent);
+    markRow(originalMarkedRow);
     var rowIndex = parent.rowIndex;
+    if (markedFrom == 0) {
+      markedFrom = rowIndex;
+    }
     var startMarkingFrom = 0;
     var finish = 0;
     if (rowIndex > markedRowIndex) {
@@ -267,6 +291,7 @@ function CtdlMessageListClick(evt) {
       startMarkingFrom = rowIndex+1;
       finish = markedRowIndex;
     }
+    previousFinish = finish;
     WCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
     for(var x = startMarkingFrom; x<finish; x++) {
       WCLog("Marking row " + x);
@@ -348,22 +373,22 @@ function unmarkAllRows() {
 function deleteAllMarkedRows() {
   for(msgId in currentlyMarkedRows) {
     var row = currentlyMarkedRows[msgId];
-    var rowArrayId = row.ctdlRowId;
+    var rowArrayId = row.getAttribute("citadel:ctdlrowid");
     row.parentNode.removeChild(row);
     delete currentlyMarkedRows[msgId];
-    delete rowArray[rowArrayId];
+    delete msgs[rowArrayId];
   }
   // Now we have to reconstruct rowarray as the array length has changed */
-  var newRowArray = new Array();
+  var newMsgs = new Array(msgs.length-1);
   var x=0;
   for(var i=0; i<rowArray.length; i++) {
-    var currentRow = rowArray[i];
+    var currentRow = msgs[i];
     if (currentRow != null) {
-      newRowArray[x] = currentRow;
+      newMsgs[x] = currentRow;
       x++;
     }
   }
-  rowArray = newRowArray;
+  msgs = newMsgs;
   resortAndDisplay(null);
 }
 
