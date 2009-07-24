@@ -1090,6 +1090,11 @@ void servcmd_readfwd(char *buf, long bufsize)
 	snprintf(buf, bufsize, "MSGS ALL");
 }
 
+void servcmd_readgt(char *buf, long bufsize)
+{
+	snprintf(buf, bufsize, "MSGS GT|%s", bstr("gt"));
+}
+
 void servcmd_readnew(char *buf, long bufsize)
 {
 	snprintf(buf, bufsize, "MSGS NEW");
@@ -1106,27 +1111,9 @@ readloop_struct rlid[] = {
 	{ {HKEY("headers")},   servcmd_headers},
 	{ {HKEY("readfwd")},   servcmd_readfwd},
 	{ {HKEY("readnew")},   servcmd_readnew},
-	{ {HKEY("readold")},   servcmd_readold}
+	{ {HKEY("readold")},   servcmd_readold},
+	{ {HKEY("readgt")},   servcmd_readgt}
 };
-
-
-
-void SetAccessCommand(long Oper)
-{
-/* TODO: whats achieved by this?
-	wcsession *WCC = WC;	
-
-	if (WCC->UrlFragment1 != NULL ) {
-		FlushStrBuf(WCC->UrlFragment1);
-		StrBufAppendBufPlain(WCC->UrlFragment1, 
-				     rlid[Oper].name.Key, rlid[Oper].name.len, 0);
-	}
-	else 
-		WCC->UrlFragment1 = NewStrBufPlain(rlid[Oper].name.Key, rlid[Oper].name.len);
-*/
-}
-		
-
 
 
 
