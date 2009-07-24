@@ -73,7 +73,8 @@ enum {
 	headers,
 	readfwd,
 	readnew,
-	readold
+	readold,
+	readgt
 };
 
 typedef void (*readloop_servcmd)(char *buf, long bufsize);

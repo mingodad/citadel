@@ -817,7 +817,7 @@ extern readloop_struct rlid[];
 /*
  * command loop for reading messages
  *
- * Set oper to "readnew" or "readold" or "readfwd" or "headers"
+ * Set oper to "readnew" or "readold" or "readfwd" or "headers" or "readgt"
  */
 void readloop(long oper)
 {
@@ -927,7 +927,6 @@ void readloop(long oper)
 		care_for_empty_list = 1;
 
 		rlid[oper].cmd(cmd, sizeof(cmd));
-		SetAccessCommand(oper);
 
 		if (havebstr("maxmsgs"))
 			maxmsgs = ibstr("maxmsgs");
@@ -1909,6 +1908,7 @@ void h_readold(void) { readloop(readold);}
 void h_readfwd(void) { readloop(readfwd);}
 void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
+void h_readgt(void) { readloop(readgt);}
 
 void jsonMessageListHdr(void) 
 {
@@ -1967,6 +1967,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("readold"), h_readold, NEED_URL);
 	WebcitAddUrlHandler(HKEY("readfwd"), h_readfwd, NEED_URL);
 	WebcitAddUrlHandler(HKEY("headers"), h_headers, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readgt"), h_readgt, NEED_URL);
 	WebcitAddUrlHandler(HKEY("do_search"), h_do_search, 0);
 	WebcitAddUrlHandler(HKEY("display_enter"), display_enter, 0);
 	WebcitAddUrlHandler(HKEY("post"), post_message, 0);
