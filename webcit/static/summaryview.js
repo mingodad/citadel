@@ -8,7 +8,7 @@
 /* QA reminders: because I keep forgetting / get cursed.
 Can you:
 1. Resort messages in both normal and paged view.
-2. Select a range with shift-click 
+mv 2. Select a range with shift-click 
 3. Select messages with ctrl-click
 4. Normal click will deselect everything done above
 5. Move messages, and they will disappear
@@ -29,6 +29,7 @@ var currentSorterToggle = null;
 var query = "";
 var currentlyMarkedRows = new Object();
 var markedRowIndex = null;
+var currentlyHasRowsSelected = false;
 
 var mouseDownEvent = null;
 var exitedMouseDown = false;
@@ -45,6 +46,7 @@ trTemplate[8] = "\"><td class=\"col1\">";
 trTemplate[10] = "</td><td class=\"col2\">";
 trTemplate[12] = "</td><td class=\"col3\">";
 trTemplate[14] = "</td></tr>";
+
 
 var currentPage = 0;
 var sortModes = {
@@ -275,9 +277,14 @@ function CtdlMessageListClick(evt) {
 	  onComplete: CtdlMarkRowAsRead(parent)});
   // If the shift key modifier is used, mark a range...
   } else if (event.button != 2 && event.shiftKey) {
+    if (originalMarkedRow == null) {
+      originalMarkedRow = parent;
+      markRow(parent);
+    } else {
     unmarkAllRows();
     markRow(parent);
     markRow(originalMarkedRow);
+    }
     var rowIndex = parent.rowIndex;
     if (markedFrom == 0) {
       markedFrom = rowIndex;
