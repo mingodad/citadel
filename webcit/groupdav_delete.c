@@ -31,7 +31,7 @@ void groupdav_delete(void)
 	//if ((len > 0) && (ChrPtr(WCC->Hdr->HR.ReqLinee)[len-1] == '/')) {
 	//	StrBufCutRight(WCC->Hdr->HR.ReqLine, 1);
 	//}
-	StrBufCutLeft(WCC->Hdr->HR.ReqLine, 1);
+	//StrBufCutLeft(WCC->Hdr->HR.ReqLine, 1);
 
 	/* Go to the correct room. */
 	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(WCC->Hdr->HR.ReqLine))) {
