@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <sys/select.h>
 #include <fcntl.h>
+#include <sys/types.h>
 #define SHOW_ME_VAPPEND_PRINTF
 #include <stdarg.h>
 #include "libcitadel.h"
@@ -292,14 +293,15 @@ int StrToi(const StrBuf *Buf)
 	else
 		return 0;
 }
+
 /**
  * \brief Checks to see if the string is a pure number 
  */
 int StrBufIsNumber(const StrBuf *Buf) {
+  char * pEnd;
   if (Buf == NULL) {
 	return 0;
   }
-  char * pEnd;
   strtoll(Buf->buf, &pEnd, 10);
   if (pEnd == NULL && ((Buf->buf)-pEnd) != 0) {
     return 1;
@@ -659,12 +661,16 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 			bptr = Target->buf + Target->BufUsed;
 		}
 		else if (*aptr == '"') {
-			memcpy(bptr, "\\\"", 2);
-			bptr += 2;
+			*bptr = '\\';
+			bptr ++;
+			*bptr = '"';
+			bptr ++;
 			Target->BufUsed += 2;
 		} else if (*aptr == '\\') {
-			memcpy(bptr, "\\\\", 2);
-			bptr += 2;
+			*bptr = '\\';
+			bptr ++;
+			*bptr = '\\';
+			bptr ++;
 			Target->BufUsed += 2;
 		}
 		else{
@@ -675,7 +681,7 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 		aptr ++;
 	}
 	*bptr = '\0';
-	if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
+	if ((bptr == eptr - 1 ) && !IsEmptyStr(aptr) )
 		return -1;
 	return Target->BufUsed;
 }
@@ -918,8 +924,10 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 		}
 		if (len >= dest->BufSize) {
 			dest->BufUsed = len;
-			if (!IncreaseBuf(dest, 1, -1))
+			if (IncreaseBuf(dest, 1, -1) < 0) {
+				dest->BufUsed --;
 				break;
+			}
 		}
 		if ( (current_token == parmnum) && 
 		     (*s != separator)) {
@@ -1023,7 +1031,6 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 }
 
 
-
 /**
  * \brief a string tokenizer
  * \param dest Destination StringBuffer
@@ -1071,8 +1078,10 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 		}
 		if (len >= dest->BufSize) {
 			dest->BufUsed = len;
-			if (!IncreaseBuf(dest, 1, -1)) {
+
+			if (IncreaseBuf(dest, 1, -1) < 0) {
 				*pStart = EndBuffer + 1;
+				dest->BufUsed --;
 				break;
 			}
 		}
@@ -1720,6 +1729,32 @@ int StrBufDecodeBase64(StrBuf *Buf)
 }
 
 /**
+ * \brief decode a buffer from base 64 encoding; destroys original
+ * \param Buf Buffor to transform
+ */
+int StrBufDecodeHex(StrBuf *Buf)
+{
+	unsigned int ch;
+	char *pch, *pche, *pchi;
+
+	if (Buf == NULL) return -1;
+
+	pch = pchi = Buf->buf;
+	pche = pch + Buf->BufUsed;
+
+	while (pchi < pche){
+		ch = decode_hex(pchi);
+		*pch = ch;
+		pch ++;
+		pchi += 2;
+	}
+
+	*pch = '\0';
+	Buf->BufUsed = pch - Buf->buf;
+	return Buf->BufUsed;
+}
+
+/**
  * \brief replace all chars >0x20 && < 0x7F with Mute
  * \param Mute char to put over invalid chars
  * \param Buf Buffor to transform
@@ -1925,11 +1960,21 @@ static inline char *FindNextEnd (const StrBuf *Buf, char *bptr)
 	return end;
 }
 
+static inline void SwapBuffers(StrBuf *A, StrBuf *B)
+{
+	StrBuf C;
+
+	memcpy(&C, A, sizeof(*A));
+	memcpy(A, B, sizeof(*B));
+	memcpy(B, &C, sizeof(C));
+
+}
 
 void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 {
 #ifdef HAVE_ICONV
-	int BufSize;
+	long trycount = 0;
+	size_t siz;
 	iconv_t ic;
 	char *ibuf;			/**< Buffer of characters to be converted */
 	char *obuf;			/**< Buffer for converted characters */
@@ -1937,30 +1982,44 @@ void StrBufConvert(StrBuf *ConvertBuf, StrBuf *TmpBuf, void *pic)
 	size_t obuflen;			/**< Length of output buffer */
 
 
-	if (ConvertBuf->BufUsed >= TmpBuf->BufSize)
-		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed);
-
+	/* since we're converting to utf-8, one glyph may take up to 6 bytes */
+	if (ConvertBuf->BufUsed * 6 >= TmpBuf->BufSize)
+		IncreaseBuf(TmpBuf, 0, ConvertBuf->BufUsed * 6);
+TRYAGAIN:
 	ic = *(iconv_t*)pic;
 	ibuf = ConvertBuf->buf;
 	ibuflen = ConvertBuf->BufUsed;
 	obuf = TmpBuf->buf;
 	obuflen = TmpBuf->BufSize;
 	
-	iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
+	siz = iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
 
-	/* little card game: wheres the red lady? */
-	ibuf = ConvertBuf->buf;
-	BufSize = ConvertBuf->BufSize;
+	if (siz < 0) {
+		if (errno == E2BIG) {
+			trycount ++;			
+			IncreaseBuf(TmpBuf, 0, 0);
+			if (trycount < 5) 
+				goto TRYAGAIN;
 
-	ConvertBuf->buf = TmpBuf->buf;
-	ConvertBuf->BufSize = TmpBuf->BufSize;
-	ConvertBuf->BufUsed = TmpBuf->BufSize - obuflen;
-	ConvertBuf->buf[ConvertBuf->BufUsed] = '\0';
-	
-	TmpBuf->buf = ibuf;
-	TmpBuf->BufSize = BufSize;
-	TmpBuf->BufUsed = 0;
-	TmpBuf->buf[0] = '\0';
+		}
+		else if (errno == EILSEQ){ 
+			/* hm, invalid utf8 sequence... what to do now? */
+			/* An invalid multibyte sequence has been encountered in the input */
+		}
+		else if (errno == EINVAL) {
+			/* An incomplete multibyte sequence has been encountered in the input. */
+		}
+
+		FlushStrBuf(TmpBuf);
+	}
+	else {
+		TmpBuf->BufUsed = TmpBuf->BufSize - obuflen;
+		TmpBuf->buf[TmpBuf->BufUsed] = '\0';
+		
+		/* little card game: wheres the red lady? */
+		SwapBuffers(ConvertBuf, TmpBuf);
+		FlushStrBuf(TmpBuf);
+	}
 #endif
 }
 
@@ -1978,8 +2037,9 @@ inline static void DecodeSegment(StrBuf *Target,
 	StrBuf StaticBuf;
 	char charset[128];
 	char encoding[16];
+#ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1);
-
+#endif
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
 	 */
@@ -2019,16 +2079,19 @@ inline static void DecodeSegment(StrBuf *Target,
 	else {
 		StrBufAppendBuf(ConvertBuf2, ConvertBuf, 0);
 	}
-
+#ifdef HAVE_ICONV
 	ctdl_iconv_open("UTF-8", charset, &ic);
 	if (ic != (iconv_t)(-1) ) {		
+#endif
 		StrBufConvert(ConvertBuf2, ConvertBuf, &ic);
 		StrBufAppendBuf(Target, ConvertBuf2, 0);
+#ifdef HAVE_ICONV
 		iconv_close(ic);
 	}
 	else {
 		StrBufAppendBufPlain(Target, HKEY("(unreadable)"), 0);
 	}
+#endif
 }
 /*
  * Handle subjects with RFC2047 encoding such as:
@@ -2038,7 +2101,9 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 {
 	StrBuf *ConvertBuf, *ConvertBuf2;
 	char *start, *end, *next, *nextend, *ptr = NULL;
+#ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
+#endif
 	const char *eptr;
 	int passes = 0;
 	int i, len, delta;
@@ -2064,11 +2129,13 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 	    (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
 	    (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) )
 	{
+#ifdef HAVE_ICONV
 		ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset), &ic);
 		if (ic != (iconv_t)(-1) ) {
 			StrBufConvert((StrBuf*)DecodeMe, ConvertBuf, &ic);///TODO: don't void const?
 			iconv_close(ic);
 		}
+#endif
 	}
 
 	/* pre evaluate the first pair */
@@ -2086,8 +2153,13 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 
 	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMe));
 
-	if (start != DecodeMe->buf)
-		StrBufAppendBufPlain(Target, DecodeMe->buf, start - DecodeMe->buf, 0);
+	if (start != DecodeMe->buf) {
+		long nFront;
+		
+		nFront = start - DecodeMe->buf;
+		StrBufAppendBufPlain(Target, DecodeMe->buf, nFront, 0);
+		len -= nFront;
+	}
 	/*
 	 * Since spammers will go to all sorts of absurd lengths to get their
 	 * messages through, there are LOTS of corrupt headers out there.
