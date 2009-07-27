@@ -253,7 +253,12 @@ void fetchname_parsed_vcard(struct vCard *v, char **storename) {
 				len);
 		}
 		else {
-			*storename = strdup(name);
+			size_t len;
+
+			len = strlen (name);
+			
+			*storename = malloc(len + 3); /* \0 + eventualy missing ', '*/
+			memcpy(*storename, name, len + 1);
 		}
 		/* vcard_n_prettyize(storename); */
 	}
