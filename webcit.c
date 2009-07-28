@@ -758,7 +758,7 @@ void http_transmit_thing(char *thing, size_t length, const char *content_type,
 		char *compressed_data = NULL;
 		size_t compressed_len;
 
-		compressed_len =  ((length * 101) / 100) + 100;
+		compressed_len =  length + (length / 100) + 100;
 		compressed_data = malloc(compressed_len);
 
 		if (compress_gzip((Bytef *) compressed_data,

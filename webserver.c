@@ -408,7 +408,7 @@ void end_burst(void)
 		char *compressed_data = NULL;
 		size_t compressed_len;
 
-		compressed_len = ((the_len * 101) / 100) + 100;
+		compressed_len = the_len + (the_len / 100) + 100;
 		compressed_data = malloc(compressed_len);
 
 		if (compress_gzip((Bytef *) compressed_data,
