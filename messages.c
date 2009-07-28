@@ -466,7 +466,10 @@ void fetchname_parsed_vcard(struct vCard *v, char *storename) {
 
 	name = vcard_get_prop(v, "n", 1, 0, 0);
 	if (name != NULL) {
-		strcpy(storename, name);
+		len = strlen (name);
+			
+		*storename = malloc(len + 3); /* \0 + eventualy missing ', '*/
+		memcpy(*storename, name, len + 1);
 		/* vcard_n_prettyize(storename); */
 	}
 
