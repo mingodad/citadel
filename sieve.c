@@ -621,7 +621,7 @@ void save_sieve(void) {
 				if (buf[0] == '4') {
 					snprintf(this_name, sizeof this_name, "text_%s", script_names[i]);
 					striplt((char*)BSTR(this_name)); /* TODO: get rid of typecast*/
-					serv_printf("%s", bstr(this_name));
+					serv_printf("%s", BSTR(this_name));
 					serv_puts("000");
 				}
 			}
@@ -651,7 +651,9 @@ void display_add_remove_scripts(char *message)
 	
 	wprintf("<div id=\"content\" class=\"service\">\n");
 
-	if (message != NULL) wprintf(message);
+	if (message != NULL) {
+		wprintf("%s", message);
+	}
 
 	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
