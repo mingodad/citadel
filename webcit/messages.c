@@ -179,6 +179,7 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, in
 	/* strip the bare contenttype, so we ommit charset etc. */
 	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');
 	StrBufTrim(Buf);
+	StrBufLowerCase(Buf);
 	/* look up the renderer, that will convert this mimeitem into the htmlized form */
 	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 	    (vHdr != NULL)) {
