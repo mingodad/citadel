@@ -571,7 +571,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
  * servcmd:		the citadel command to send to the citserver
  * with_headers:	also include some of the headers with the message numbers (more expensive)
  */
-int load_msg_ptrs(const char *servcmd, int with_headers)
+int load_msg_ptrs(const char *servcmd, int with_headers, long *lowest_found, long *highest_found)
 {
 	StrBuf* FoundCharset = NULL;
         wcsession *WCC = WC;
@@ -583,6 +583,9 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 	int n;
 	int skipit;
 	const char *Ptr = NULL;
+
+	if (lowest_found) *lowest_found = LONG_MAX;
+	if (highest_found) *highest_found = LONG_MIN;
 
 	if (WCC->summ != NULL) {
 		DeleteHash(&WCC->summ);
@@ -598,9 +601,7 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 		return (nummsgs);
 	}
 	Buf2 = NewStrBuf();
-	while (len = StrBuf_ServGetln(Buf),
-	       ((len != 3)  ||
-		strcmp(ChrPtr(Buf), "000")!= 0))
+	while (len = StrBuf_ServGetln(Buf), ((len != 3) || strcmp(ChrPtr(Buf), "000")!= 0))
 	{
 		if (nummsgs < maxload) {
 			skipit = 0;
@@ -611,10 +612,20 @@ int load_msg_ptrs(const char *servcmd, int with_headers)
 			Msg->msgnum = StrBufExtractNext_long(Buf, &Ptr, '|');
 			Msg->date = StrBufExtractNext_long(Buf, &Ptr, '|');
 
+			if (nummsgs == 0) {
+				if ((lowest_found) && (Msg->msgnum < *lowest_found)) {
+					*lowest_found = Msg->msgnum;
+				}
+				if ((highest_found) && (Msg->msgnum > *highest_found)) {
+					*highest_found = Msg->msgnum;
+				}
+			}
+
 			if ((Msg->msgnum == 0) && (StrLength(Buf) < 32)) {
 				free(Msg);
 				continue;
 			}
+
 			/* 
 			 * as citserver probably gives us messages in forward date sorting
 			 * nummsgs should be the same order as the message date.
@@ -854,6 +865,8 @@ void readloop(long oper)
 	WCTemplputParams SubTP;
 	char *ab_name;
 	const StrBuf *Mime;
+	long lowest_found = (-1);
+	long highest_found = (-1);
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
 		WCC->wc_view = VIEW_MAILBOX;
@@ -939,7 +952,7 @@ void readloop(long oper)
 		
 	}
 
-	nummsgs = load_msg_ptrs(cmd, with_headers);
+	nummsgs = load_msg_ptrs(cmd, with_headers, &lowest_found, &highest_found);
 	if (nummsgs == 0) {
 		if (care_for_empty_list) {
 			wprintf("<div class=\"nomsgs\"><br><em>");
