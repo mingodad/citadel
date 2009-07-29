@@ -14,9 +14,9 @@ HashList *MsgEvaluators = NULL;
 HashList *MimeRenderHandler = NULL;
 int dbg_analyze_msg = 0;
 
-#define SUBJ_COL_WIDTH_PCT		50	/**< Mailbox view column width */
-#define SENDER_COL_WIDTH_PCT		30	/**< Mailbox view column width */
-#define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/**< Mailbox view column width */
+#define SUBJ_COL_WIDTH_PCT		50	/* Mailbox view column width */
+#define SENDER_COL_WIDTH_PCT		30	/* Mailbox view column width */
+#define DATE_PLUS_BUTTONS_WIDTH_PCT	20	/* Mailbox view column width */
 
 void jsonMessageListHdr(void);
 
@@ -60,7 +60,7 @@ int load_message(message_summary *Msg,
 		return 0;
 	}
 
-	/** begin everythingamundo table */
+	/* begin everythingamundo table */
 	HdrToken = NewStrBuf();
 	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
 		if ( (StrLength(Buf)==3) && 
@@ -380,10 +380,10 @@ void handle_one_message(void)
 		break;
 	case eDELETE:
 		CmdBuf = NewStrBuf ();
-		if (WCC->wc_is_trash) {	/** Delete from Trash is a real delete */
+		if (WCC->wc_is_trash) {	/* Delete from Trash is a real delete */
 			serv_printf("DELE %ld", msgnum);	
 		}
-		else {			/** Otherwise move it to Trash */
+		else {			/* Otherwise move it to Trash */
 			serv_printf("MOVE %ld|_TRASH_|0", msgnum);
 		}
 		StrBuf_ServGetln(CmdBuf);
@@ -440,10 +440,10 @@ void embed_message(void) {
 		break;
 	case eDELETE:
 		CmdBuf = NewStrBuf ();
-		if (WCC->wc_is_trash) {	/** Delete from Trash is a real delete */
+		if (WCC->wc_is_trash) {	/* Delete from Trash is a real delete */
 			serv_printf("DELE %ld", msgnum);	
 		}
-		else {			/** Otherwise move it to Trash */
+		else {			/* Otherwise move it to Trash */
 			serv_printf("MOVE %ld|_TRASH_|0", msgnum);
 		}
 		StrBuf_ServGetln(CmdBuf);
@@ -800,7 +800,7 @@ void load_seen_flags(void)
 	}
 	at = GetNewHashPos(WCC->summ, 0);
 	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
-		/** Are you a new message, or an old message? */
+		/* Are you a new message, or an old message? */
 		Msg = (message_summary*) vMsg;
 		if (is_msg_in_mset(ChrPtr(OldMsg), Msg->msgnum)) {
 			Msg->is_new = 0;
@@ -1081,7 +1081,7 @@ NO_MSG_LOOP:
 	  break;
 	case VIEW_BBS:
 		if (displayed_msgs != NULL) {
-			/** if we do a split bbview in the future, begin messages div here */
+			/* if we do a split bbview in the future, begin messages div here */
 			
 			for (a=0; a<num_displayed; ++a) {
 				read_message(WCC->WBuf, HKEY("view_message"), displayed_msgs[a], NULL, &Mime);
@@ -1112,7 +1112,7 @@ DONE:
 		render_calendar_view(&calv);
 		break;
 	case VIEW_TASKS:
-		do_tasks_view();	/** Render the task list */
+		do_tasks_view();	/* Render the task list */
 		break;
 	case VIEW_NOTES:
 		break;
@@ -1127,7 +1127,7 @@ DONE:
 	default:
 		break;
 	}
-	/** Note: wDumpContent() will output one additional </div> tag. */
+	/* Note: wDumpContent() will output one additional </div> tag. */
 	if (WCC->wc_view != VIEW_MAILBOX) {
 		/* We ought to move this out into template */
 		wDumpContent(1);
@@ -1532,7 +1532,7 @@ void display_enter(void)
 		subject_required = extract_int(&buf[4], 1);
 	}
 
-	/**
+	/*
 	 * Are we perhaps in an address book view?  If so, then an "enter
 	 * message" command really means "add new entry."
 	 */
