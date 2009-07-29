@@ -92,7 +92,7 @@ void tasks_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", 0);
+		num_msgs = load_msg_ptrs("MSGS ALL", 0, NULL, NULL);
 	}
 
 	if (num_msgs > 0) {
@@ -133,7 +133,7 @@ void calendar_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", 0);
+		num_msgs = load_msg_ptrs("MSGS ALL", 0, NULL, NULL);
 	}
 
 	parse_calendar_view_request(&c);

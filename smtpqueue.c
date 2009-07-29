@@ -178,7 +178,7 @@ void display_smtpqueue_inner_div(void) {
 	FreeStrBuf(&Buf);
 	if (!strcasecmp(ChrPtr(WCC->wc_roomname), "__CitadelSMTPspoolout__")) {
 
-		num_msgs = load_msg_ptrs("MSGS ALL", 0);
+		num_msgs = load_msg_ptrs("MSGS ALL", 0, NULL, NULL);
 		if (num_msgs > 0) {
                         wprintf("<table class=\"mailbox_summary\" rules=rows "
                         	"cellpadding=2 style=\"width:100%%;\">"

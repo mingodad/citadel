@@ -424,7 +424,7 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg, wc_mime_attachment 
 TRYAGAIN:
 	Done = 0;
 	/* Search for the user's vCard */
-	if (load_msg_ptrs("MSGS ALL||||1", 1) > 0) {
+	if (load_msg_ptrs("MSGS ALL||||1", 1, NULL, NULL) > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		

@@ -17,26 +17,23 @@ struct wc_mime_attachment {
 	StrBuf *ContentType;
 	StrBuf *Charset;
 	StrBuf *Data;
-	size_t length;			   /* length of the mimeattachment */
+	size_t length;		/* length of the mimeattachment */
 	long size_known;
-	long lvalue;               /* if we put a long... */
-	long msgnum;		/**< the message number on the citadel server derived from message_summary */
+	long lvalue;		/* if we put a long... */
+	long msgnum;		/* the message number on the citadel server derived from message_summary */
 	const RenderMimeFuncStruct *Renderer;
 };
 void DestroyMime(void *vMime);
 
 
-/*
- * \brief message summary structure. ???
- */
 typedef struct _message_summary {
-	time_t date;        /**< its creation date */
-	long msgnum;		/**< the message number on the citadel server */
+	time_t date;     	/* its creation date */
+	long msgnum;		/* the message number on the citadel server */
 	int nhdr;
 	int format_type;
-	StrBuf *from;		/**< the author */
-	StrBuf *to;		/**< the recipient */
-	StrBuf *subj;		/**< the title / subject */
+	StrBuf *from;		/* the author */
+	StrBuf *to;		/* the recipient */
+	StrBuf *subj;		/* the title / subject */
 	StrBuf *reply_inreplyto;
 	StrBuf *reply_references;
 	StrBuf *reply_to;
@@ -48,17 +45,17 @@ typedef struct _message_summary {
 	StrBuf *OtherNode;
 	const StrBuf *PartNum;
 
-	HashList *Attachments;  /**< list of Attachments */
+	HashList *Attachments;  /* list of attachments */
 	HashList *Submessages;
 	HashList *AttachLinks;
 
 	HashList *AllAttach;
 
-	int is_new;         /**< is it yet read? */
-	int hasattachments;	/* does it have attachments? */
+	int is_new;
+	int hasattachments;
 
 
-	/** The mime part of the message */
+	/* The mime part of the message */
 	wc_mime_attachment *MsgBody;
 } message_summary;
 void DestroyMessageSummary(void *vMsg);
@@ -96,4 +93,4 @@ int load_message(message_summary *Msg,
 		 StrBuf **Error);
 
 
-int load_msg_ptrs(const char *servcmd, int with_headers);
+int load_msg_ptrs(const char *servcmd, int with_headers, long *lowest_found, long *highest_found);
