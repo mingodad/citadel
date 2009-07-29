@@ -1,12 +1,6 @@
 /*
  * $Id$
  */
-/**
- * \defgroup Subst Variable substitution type stuff
- * \ingroup CitadelConfig
- */
-
-/*@{*/
 
 #include "sysdep.h"
 #include <sys/types.h>
@@ -20,7 +14,7 @@
 #include "webcit.h"
 #include "webserver.h"
 
-extern char *static_dirs[PATH_MAX];  /**< Disk representation */
+extern char *static_dirs[PATH_MAX];  /* Disk representation */
 
 HashList *WirelessTemplateCache;
 HashList *WirelessLocalTemplateCache;
@@ -49,15 +43,15 @@ const char EmptyStr[]="";
 
 
 /*
- * \brief Dynamic content for variable substitution in templates
+ * Dynamic content for variable substitution in templates
  */
 typedef struct _wcsubst {
 	ContextFilter Filter;
-	int wcs_type;			    /* which type of Substitution are we */
-	char wcs_key[32];		    /* copy of our hashkey for debugging */
-	StrBuf *wcs_value;		    /* if we're a string, keep it here */
-	long lvalue;                        /* type long? keep data here */
-	WCHandlerFunc wcs_function; /* funcion hook ???*/
+	int wcs_type;				/* which type of Substitution are we */
+	char wcs_key[32];			/* copy of our hashkey for debugging */
+	StrBuf *wcs_value;			/* if we're a string, keep it here */
+	long lvalue;				/* type long? keep data here */
+	WCHandlerFunc wcs_function;		/* funcion hook ???*/
 } wcsubst;
 
 
@@ -396,12 +390,13 @@ void FreeWCTemplate(void *vFreeMe)
 }
 
 
-/**
- * \brief debugging function to print array to log
+/*
+ * debugging function to print array to log
  */
 void VarPrintTransition(void *vVar1, void *vVar2, int odd){}
-/**
- * \brief debugging function to print array to log
+
+/*
+ * debugging function to print array to log
  */
 void VarPrintEntry(const char *Key, void *vSubst, int odd)
 {
@@ -426,8 +421,8 @@ void VarPrintEntry(const char *Key, void *vSubst, int odd)
 
 
 
-/**
- * \brief Clear out the list of substitution variables local to this session
+/*
+ * Clear out the list of substitution variables local to this session
  */
 void clear_substs(wcsession *wc) {
 
@@ -436,8 +431,8 @@ void clear_substs(wcsession *wc) {
 	}
 }
 
-/**
- * \brief Clear out the list of substitution variables local to this session
+/*
+ * Clear out the list of substitution variables local to this session
  */
 void clear_local_substs(void) {
 	clear_substs (WC);
@@ -497,8 +492,8 @@ void FlushPayload(wcsubst *ptr, int reusestrbuf, int type)
 }
 
 
-/**
- * \brief destructor; kill one entry.
+/*
+ * destructor; kill one entry.
  */
 void deletevar(void *data)
 {
@@ -536,12 +531,12 @@ wcsubst *NewSubstVar(const char *keyname, int keylen, int type)
 }
 
 
-/**
- * \brief Add a substitution variable (local to this session) (strlen version...)
- * \param keyname the replacementstring to substitute
- * \param keytype the kind of the key
- * \param format the format string ala printf
- * \param ... the arguments to substitute in the formatstring
+/*
+ * Add a substitution variable (local to this session) (strlen version...)
+ * keyname the replacementstring to substitute
+ * keytype the kind of the key
+ * format the format string ala printf
+ * ... the arguments to substitute in the formatstring
  */
 void SVPRINTF(char *keyname, int keytype, const char *format,...)
 {
@@ -552,7 +547,7 @@ void SVPRINTF(char *keyname, int keytype, const char *format,...)
 	wcsession *WCC = WC;
 	
 	keylen = strlen(keyname);
-	/**
+	/*
 	 * First look if we're doing a replacement of
 	 * an existing key
 	 */
@@ -567,18 +562,18 @@ void SVPRINTF(char *keyname, int keytype, const char *format,...)
 		ptr = NewSubstVar(keyname, keylen, keytype);
 	}
 
-	/** Format the string */
+	/* Format the string */
 	va_start(arg_ptr, format);
 	StrBufVAppendPrintf(ptr->wcs_value, format, arg_ptr);
 	va_end(arg_ptr);
 }
 
-/**
- * \brief Add a substitution variable (local to this session)
- * \param keyname the replacementstring to substitute
- * \param keytype the kind of the key
- * \param format the format string ala printf
- * \param ... the arguments to substitute in the formatstring
+/*
+ * Add a substitution variable (local to this session)
+ * keyname the replacementstring to substitute
+ * keytype the kind of the key
+ * format the format string ala printf
+ * ... the arguments to substitute in the formatstring
  */
 void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
 {
@@ -587,7 +582,7 @@ void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
 	wcsubst *ptr = NULL;
 	wcsession *WCC = WC;
 		
-	/**
+	/*
 	 * First look if we're doing a replacement of
 	 * an existing key
 	 */
@@ -608,12 +603,12 @@ void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
 	va_end(arg_ptr);
 }
 
-/**
- * \brief Add a substitution variable (local to this session)
- * \param keyname the replacementstring to substitute
- * \param keytype the kind of the key
- * \param format the format string ala printf
- * \param ... the arguments to substitute in the formatstring
+/*
+ * Add a substitution variable (local to this session)
+ * keyname the replacementstring to substitute
+ * keytype the kind of the key
+ * format the format string ala printf
+ * ... the arguments to substitute in the formatstring
  */
 void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
 {
@@ -622,7 +617,7 @@ void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
 	wcsession *WCC = WC;
 
 	
-	/**
+	/*
 	 * First look if we're doing a replacement of
 	 * an existing key
 	 */
@@ -2673,8 +2668,3 @@ SessionDestroyModule_SUBST
 {
 
 }
-
-
-
-
-/*@}*/
