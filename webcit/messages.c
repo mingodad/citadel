@@ -701,7 +701,10 @@ inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
 }
 
 
-long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMessages)
+/* startmsg is an index within the message list.
+ * starting_from is the Citadel message number to be supplied to a "MSGS GT" operation
+ */
+long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMessages, long starting_from)
 {
 	StrBuf *TmpBuf;
 	wcsession *WCC = WC;
@@ -727,6 +730,7 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	vector[2] = 1;
 	vector[1] = startmsg;
 	vector[3] = 0;
+	vector[7] = starting_from;
 
 	while (!done) {
 		vector[3] = abs(nMessages);
@@ -1004,7 +1008,8 @@ void readloop(long oper)
 		BBViewToolBar = NewStrBufPlain(NULL, SIZ);
 		MessageDropdown = NewStrBufPlain(NULL, SIZ);
 
-		maxmsgs = DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg, num_displayed);
+		maxmsgs = DrawMessageDropdown(MessageDropdown, maxmsgs, startmsg,
+						num_displayed, lowest_found-1);
 		if (num_displayed < 0) {
 			startmsg += maxmsgs;
 			if (num_displayed != maxmsgs)				
