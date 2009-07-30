@@ -147,10 +147,14 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		Err = (TP->Tokens!= NULL)? TP->Tokens->pName:"";
 		break;
 	case ERR_PARM1:
-		Err = (TP->Tokens!= NULL)? TP->Tokens->Params[0]->Start:"";
+		Err = ((TP->Tokens!= NULL) && 
+		       (TP->Tokens->nParameters > 0))? 
+			TP->Tokens->Params[0]->Start : "";
 		break;
 	case ERR_PARM2:
-		Err = (TP->Tokens!= NULL)? TP->Tokens->Params[1]->Start:"";
+		Err = ((TP->Tokens!= NULL) && 
+		       (TP->Tokens->nParameters > 1))? 
+			TP->Tokens->Params[1]->Start : "";
 		break;
 	}
 	if (TP->Tokens != NULL) 
