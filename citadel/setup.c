@@ -870,12 +870,22 @@ void edit_value(int curr)
 	case 6:
 		if (setup_type == UI_SILENT)
 		{
-			if (getenv("ENABLE_UNIX_AUTH")) {
-				if (!strcasecmp(getenv("ENABLE_UNIX_AUTH"), "yes")) {
+			const char *auth;
+			config.c_auth_mode = AUTHMODE_NATIVE;
+			auth = getenv("ENABLE_UNIX_AUTH");
+			if (auth != NULL)
+			{
+				if ((strcasecmp(auth, "yes") == 0) ||
+				    (strcasecmp(auth, "host") == 0))
+				{
 					config.c_auth_mode = AUTHMODE_HOST;
 				}
-				else {
-					config.c_auth_mode = AUTHMODE_NATIVE;
+				else if (strcasecmp(auth, "ldap") == 0){
+					config.c_auth_mode = AUTHMODE_LDAP;
+				}
+				else if ((strcasecmp(auth, "ldap_ad") == 0) ||
+					 (strcasecmp(auth, "active directory") == 0)){
+					config.c_auth_mode = AUTHMODE_LDAP_AD;
 				}
 			}
 		}

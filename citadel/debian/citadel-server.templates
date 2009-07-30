@@ -9,16 +9,56 @@ _Description: Listening address for the Citadel server:
  of Citadel are running on the same computer.
 
 Template: citadel/LoginType
-Type: boolean
-Default: false
+Type: select
+_Choices: Internal, Host, LDAP, Active Directory
+Default: Internal
 _Description: Enable external authentication mode?
  Please choose the user authentication mode. By default Citadel will
- use its own internal user accounts database. If you accept this
- option, Citadel users will have accounts on the host system,
- authenticated via /etc/passwd (or LDAP).
+ use its own internal user accounts database. If you choose Host, 
+ Citadel users will have accounts on the host system, 
+ authenticated via /etc/passwd or a PAM source. 
+ LDAP chooses an RFC 2307 compliant directory server, 
+ the last option chooses the nonstandard MS Active Directory LDAP scheme.
  .
- Do not accept this option unless you are sure it is required, since
+ Do not change this option unless you are sure it is required, since
  changing back requires a full reinstall of Citadel.
+
+
+Template: citadel/LDAPServer
+Type: string
+Default: 0.0.0.0
+_Description: LDAP host
+ Please enter the host name or IP address of your LDAP server.
+
+Template: citadel/LDAPServerPort
+Type: integer
+Default: 389
+_Description: LDAP port number
+ Please enter the port number of the LDAP service (usually 389).
+
+Template: citadel/LDAPBaseDN
+Type: string
+Default: dc=example,dc=com
+_Description: LDAP base DN
+ Please enter the Base DN to search for authentication
+ (for example: dc=example,dc=com),
+
+Template: citadel/LDAPBindDN
+Type: string
+Default: 
+_Description: LDAP bind DN
+ Please enter the DN of an account to use for binding to the LDAP server
+ for performing queries.  The account does not require any other
+ privileges.  If your LDAP server allows anonymous queries, you can.
+ leave this blank.
+
+Template: citadel/LDAPBindDNPassword
+Type: string
+Default: OpenSesame
+_Description: LDAP bind password
+ If you entered a Bind DN in the previous question, you must now enter
+ the password associated with that account.  Otherwise, you can leave this
+ blank.
 
 Template: citadel/Administrator
 Type: string
