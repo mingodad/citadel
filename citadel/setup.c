@@ -144,9 +144,9 @@ char *setup_text[] = {
 " 2. External LDAP - RFC 2307 compliant directory\n"
 " 3. External LDAP - nonstandard MS Active Directory\n"
 "\n"
-"WARNING: do not change this setting once your system is installed.\n"
+"For help: http://www.citadel.org/doku.php/faq:installation:authmodes\n"
 "\n"
-"Answer \"0\" unless you completely understand this option.\n",
+"ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n",
 
 "Please enter the host name or IP address of your LDAP server.\n",
 
