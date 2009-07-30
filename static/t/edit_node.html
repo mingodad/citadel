@@ -10,7 +10,7 @@
 <form method="POST" action="edit_node">
 <input type="hidden" name="nonce" value="<?NONCE>">
 <input type="hidden" name="template" value="display_netconf">
-<input type="hidden" name="index" value='<?ITERATE:KEY>'>
+<input type="hidden" name="index" value='<?BSTR("index")>'>
 <center><table border=0>
 <tr><td><?_("Node name")></td>
 <td><input type="text" name="node" maxlength="16" value='<?CFG:IGNET:NODE>'></td></tr>
