@@ -1,3 +1,39 @@
+webcit (7.60-80) stable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 28 Jul 2009 22:00:00 +0002
+
+webcit (7.52-77) stable; urgency=low
+
+  * bugfix of integer overflow in files application
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 21 Jul 2009 22:00:00 +0002
+
+webcit (7.52-76) stable; urgency=low
+
+  * new upstream maintenance version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sat, 18 Jul 2009 10:00:00 +0002
+
+webcit (7.51-75) stable; urgency=low
+
+  * new upstream maintainance version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 2 Jun 2009 16:00:00 +0002
+
+webcit (7.50b-74) stable; urgency=low
+
+  * new upstream maintainance version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 23 Apr 2009 16:00:00 +0002
+
+webcit (7.50-73) stable; urgency=low
+
+  * new upstream stable release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 9 Apr 2009 16:00:00 +0002
+
 webcit (7.43-72) unstable; urgency=low
 
   * Beta release
