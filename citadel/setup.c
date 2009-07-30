@@ -137,21 +137,16 @@ char *setup_text[] = {
 
 
 
-"How would you like to authenticate users on your Citadel system?\n"
+"Specify which authentication mode you wish to use.\n"
 "\n"
-" 0. Self contained authentication - Citadel maintains its own user database\n"
-"    (This mode is *strongly* recommended)\n"
+" 0. Self contained authentication\n"
+" 1. Host system integrated authentication\n"
+" 2. External LDAP - RFC 2307 compliant directory\n"
+" 3. External LDAP - nonstandard MS Active Directory\n"
 "\n"
-" 1. Authenticate users against the host system (unix or linux accounts)\n"
+"WARNING: do not change this setting once your system is installed.\n"
 "\n"
-" 2. Authenticate users against an external LDAP directory (RFC 2307 compliant)\n"
-"\n"
-" 3. Authenticate users against nonstandard MS Active Directory LDAP\n"
-"\n"
-"WARNING: do *not* change this setting once your system is installed.\n"
-"\n"
-"(Answer \"0\" unless you completely understand this option)\n"
-"Which authentication mode do you want to use?\n",
+"Answer \"0\" unless you completely understand this option.\n",
 
 "Please enter the host name or IP address of your LDAP server.\n",
 
