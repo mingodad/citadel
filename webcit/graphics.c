@@ -188,7 +188,7 @@ InitModule_GRAPHICS
 	WebcitAddUrlHandler(HKEY("editroompic"), editroompic, 0);
 	WebcitAddUrlHandler(HKEY("display_edithello"), display_edithello, 0);
 	WebcitAddUrlHandler(HKEY("edithellopic"), edithellopic, 0);
-	WebcitAddUrlHandler(HKEY("display_editgoodbyepic"), display_editgoodbyepic, 0);
+	WebcitAddUrlHandler(HKEY("display_editgoodbuye"), display_editgoodbyepic, 0);
 	WebcitAddUrlHandler(HKEY("editgoodbuyepic"), editgoodbuyepic, 0);
 	WebcitAddUrlHandler(HKEY("display_editfloorpic"), display_editfloorpic, 0);
 	WebcitAddUrlHandler(HKEY("editfloorpic"), editfloorpic, 0);
