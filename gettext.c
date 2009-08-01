@@ -4,10 +4,11 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#define SEARCH_LANG 20		/* how many langs should we parse? */
 
 #ifdef ENABLE_NLS
 /* actual supported locales */
-const char *AvailLang[NUM_LANGS] = {
+const char *AvailLang[] = {
 	"C",
 	"en_US",
 	"de_DE",
@@ -17,15 +18,16 @@ const char *AvailLang[NUM_LANGS] = {
 	"da_DK",
 	"fr_FR",
 	"nl_NL",
-	"pt_BR"
-	"hu_HU"
+	"pt_BR",
+	"hu_HU",
+	""
 };
 
-const char *AvailLangLoaded[NUM_LANGS];
+const char **AvailLangLoaded;
 long nLocalesLoaded = 0;
 
 #ifdef HAVE_USELOCALE
-locale_t wc_locales[NUM_LANGS]; /**< here we keep the parsed stuff */
+locale_t *wc_locales; /**< here we keep the parsed stuff */
 #endif
 
 /** Keep information about one locale */
@@ -246,17 +248,28 @@ void stop_selected_language(void) {
  * \brief Create a locale_t for each available language
  */
 void initialize_locales(void) {
+	int nLocales;
 	int i;
 	char buf[32];
 	char *language = NULL;
-	
+	char *locale;
+
+
+	nLocales = 0; 
+	while (!IsEmptyStr(AvailLang[nLocales]))
+		nLocales++;
+
 	language = getenv("WEBCIT_LANG");
 	if ((language) && (!IsEmptyStr(language)) && (strcmp(language, "UNLIMITED") != 0)) {
 		lprintf(9, "Nailing locale to %s\n", language);
  	}
 	else language = NULL;
 
+	AvailLangLoaded = malloc (sizeof(char*) * nLocales);
+	memset(AvailLangLoaded, 0, sizeof(char*) * nLocales);
 #ifdef HAVE_USELOCALE
+	wc_locales = malloc (sizeof(locale_t) * nLocales);
+	memset(wc_locales,0, sizeof(locale_t) * nLocales);
 	/* create default locale */
 	Empty_Locale = newlocale(LC_ALL_MASK, NULL, NULL);
 #endif
@@ -264,7 +277,7 @@ void initialize_locales(void) {
 
 
 
-	for (i = 0; i < NUM_LANGS; ++i) {
+	for (i = 0; i < nLocales; ++i) {
 		if ((language != NULL) && (strcmp(AvailLang[i], language) != 0))
 			continue;
 		if (i == 0) {
@@ -280,7 +293,7 @@ void initialize_locales(void) {
 			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
-			lprintf(1, "Error configuring locale for %s: %s\n",
+			lprintf(1, "Error configuring locale for "LOCALEDIR"locale/%s: %s\n",
 				buf,
 				strerror(errno)
 			);
@@ -322,10 +335,20 @@ void initialize_locales(void) {
 
 #endif
 
+#ifdef ENABLE_NLS
+	locale = setlocale(LC_ALL, "");
+
+	lprintf(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
+	lprintf(9, "Text domain: %s\n", textdomain("webcit"));
+	lprintf(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
+
+#endif
 }
 
 
-void ShutdownLocale(void)
+void 
+ServerShutdownModule_GETTEXT
+(void)
 {
 #ifdef HAVE_USELOCALE
 	int i;
@@ -333,6 +356,8 @@ void ShutdownLocale(void)
 		if (Empty_Locale != wc_locales[i])
 			freelocale(wc_locales[i]);
 	}
+	free(wc_locales);
+	free(AvailLangLoaded);
 #endif
 }
 
@@ -387,6 +412,7 @@ void
 InitModule_GETTEXT
 (void)
 {
+	initialize_locales();
 	RegisterNamespace("LANG:SELECT", 0, 0, tmplput_offer_languages, CTX_NONE);
 }
 
