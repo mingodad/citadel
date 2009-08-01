@@ -6,7 +6,7 @@
 #include "webserver.h"
 
 #ifdef HAVE_USELOCALE
-extern locale_t wc_locales[];
+extern locale_t *wc_locales;
 #endif
 
 typedef unsigned char byte;

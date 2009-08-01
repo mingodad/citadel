@@ -252,9 +252,10 @@ void set_value(char *prompt, char str[])
 }
 
 
-
+extern char **AvailLang;
 int GetLocalePrefs(void)
 {
+	int nLocales;
 	StrBuf *Buf;
 	char buf[SIZ];
 	char dialog_result[PATH_MAX];
@@ -263,6 +264,10 @@ int GetLocalePrefs(void)
 	int offs = 0;
 
 
+	nLocales = 0; 
+	while (!IsEmptyStr(AvailLang[nLocales]))
+		nLocales++;
+
 	Buf = NewStrBuf();
 
 	StrBufAppendBufPlain(Buf, HKEY("Select the locale webcit should use : \n"), 0);
@@ -270,7 +275,7 @@ int GetLocalePrefs(void)
 	StrBufAppendBufPlain(Buf, HKEY(" 0 Let the user select it at the login prompt (default)\n"), 0);
 	offs ++;
 #endif
-	for (i = 0; i < NUM_LANGS; i++) {
+	for (i = 0; i < nLocales; i++) {
 		StrBufAppendPrintf(Buf, " %ld: %s\n", i + offs, AvailLang[i]);
 
 	}

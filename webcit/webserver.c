@@ -329,10 +329,6 @@ int main(int argc, char **argv)
 	char *pidfile = NULL;
 	char *hdir;
 	const char *basedir = NULL;
-#ifdef ENABLE_NLS
-	char *locale = NULL;
-	char *mo = NULL;
-#endif /* ENABLE_NLS */
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
 	const char *I18nDumpFile = NULL;
 
@@ -477,18 +473,6 @@ int main(int argc, char **argv)
 
 
 	/* initialize the International Bright Young Thing */
-#ifdef ENABLE_NLS
-	initialize_locales();
-
-
-	locale = setlocale(LC_ALL, "");
-
-	mo = malloc(strlen(webcitdir) + 20);
-	lprintf(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
-	free(mo);
-	lprintf(9, "Text domain: %s\n", textdomain("webcit"));
-	lprintf(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
-#endif
 
 	initialise_modules();
 	initialize_viewdefs();
@@ -602,9 +586,6 @@ void ShutDownWebcit(void)
 	icalmemory_free_ring ();
 	ShutDownLibCitadel ();
 	shutdown_modules ();
-#ifdef ENABLE_NLS
-	ShutdownLocale();
-#endif
 #ifdef HAVE_OPENSSL
 	if (is_https) {
 		shutdown_ssl();

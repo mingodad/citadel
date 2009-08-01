@@ -877,6 +877,12 @@ enum {
 	navbar_default
 };
 
+/* actual supported locales */
+void TmplGettext(StrBuf *Target, WCTemplputParams *TP);
+void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
+void set_selected_language(const char *);
+void go_selected_language(void);
+void stop_selected_language(void);
 
 #ifdef HAVE_OPENSSL
 void init_ssl(void);
