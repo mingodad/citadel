@@ -87,7 +87,6 @@
 #include "sysdep.h"
 
 #include "subst.h"
-#include "wc_gettext.h"
 #include "messages.h"
 #include "paramhandling.h"
 #include "preferences.h"

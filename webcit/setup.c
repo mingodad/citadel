@@ -30,8 +30,6 @@ void RegisterNS(const char *NSName, long len,
 		int ContextRequired){}
 pthread_key_t MyConKey;
 
-#include "wc_gettext.h"
-
 #ifdef ENABLE_NLS
 
 #ifdef HAVE_USELOCALE 
