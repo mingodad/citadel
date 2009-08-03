@@ -1639,6 +1639,9 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 
 }
 
+static const char *ErrRBLF_WrongFDFlags="StrBufTCP_read_buffered_line_fast: don't work with fdflags & O_NONBLOCK";
+static const char *ErrRBLF_SelectFailed="StrBufTCP_read_buffered_line_fast: Select failed without reason";
+static const char *ErrRBLF_NotEnoughSentFromServer="StrBufTCP_read_buffered_line_fast: No complete line was sent from peer";
 /**
  * \brief Read a line from socket
  * flushes and closes the FD on error
@@ -1703,8 +1706,10 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	}
 
 	fdflags = fcntl(*fd, F_GETFL);
-	if ((fdflags & O_NONBLOCK) == O_NONBLOCK)
+	if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
+		*Error = ErrRBLF_WrongFDFlags;
 		return -1;
+	}
 
 	pch = NULL;
 	while ((nSuccessLess < timeout) && (pch == NULL)) {
@@ -1717,6 +1722,8 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			*Error = strerror(errno);
 			close (*fd);
 			*fd = -1;
+			if (*Error == NULL)
+				*Error = ErrRBLF_SelectFailed;
 			return -1;
 		}		
 		if (FD_ISSET(*fd, &rfds) != 0) {
@@ -1758,6 +1765,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 		*Pos = pos + len + 1;
 		return len - rlen;
 	}
+	*Error = ErrRBLF_NotEnoughSentFromServer;
 	return -1;
 
 }
@@ -1819,6 +1827,7 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 	return nRead;
 }
 
+const char *ErrRBB_too_many_selects = "StrBufReadBLOBBuffered: to many selects; aborting.";
 /**
  * \brief Input binary data from socket
  * flushes and closes the FD on error
@@ -1938,6 +1947,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 			}
 			if (nSelects > 10) {
 				FlushStrBuf(IOBuf);
+				*Error = ErrRBB_too_many_selects;
 				return -1;
 			}
 		}
