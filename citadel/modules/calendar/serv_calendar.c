@@ -1993,6 +1993,8 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 	const icaltimezone *z;
 	int num_zones_attached = 0;
 	int zone_already_attached;
+	icalparameter *tzidp = NULL;
+	const char *tzidc = NULL;
 
 	if (cal == NULL) {
 		CtdlLogPrintf(CTDL_ERR, "ERROR: trying to reply to NULL event?\n");
@@ -2097,6 +2099,15 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 		) {
 			t = icalproperty_get_dtstart(p);	// it's safe to use dtstart for all of them
 
+			/* Determine the tzid in order for some of the conditions below to work */
+			tzidp = icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER);
+			if (tzidp) {
+				tzidc = icalparameter_get_tzid(tzidp);
+			}
+			else {
+				tzidc = NULL;
+			}
+
 			/* First see if there's a timezone attached to the data structure itself */
 			if (icaltime_is_utc(t)) {
 				z = icaltimezone_get_utc_timezone();
@@ -2106,21 +2117,13 @@ void ical_send_out_invitations(icalcomponent *top_level_cal, icalcomponent *cal)
 			}
 
 			/* If not, try to determine the tzid from the parameter using attached zones */
-			if (!z) {
-				z = icalcomponent_get_timezone(top_level_cal,
-					icalparameter_get_tzid(
-						icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
-					)
-				);
+			if ((!z) && (tzidc)) {
+				z = icalcomponent_get_timezone(top_level_cal, tzidc);
 			}
 
 			/* Still no good?  Try our internal database */
-			if (!z) {
-				z = icaltimezone_get_builtin_timezone_from_tzid(
-					icalparameter_get_tzid(
-						icalproperty_get_first_parameter(p, ICAL_TZID_PARAMETER)
-					)
-				);
+			if ((!z) && (tzidc)) {
+				z = icaltimezone_get_builtin_timezone_from_tzid(tzidc);
 			}
 
 			if (z) {
