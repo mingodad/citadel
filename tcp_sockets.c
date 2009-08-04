@@ -214,7 +214,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	int rc;
 	
 	WCC->ReadPos = NULL;
-	rc = StrBufReadBLOB(buf, &WCC->serv_sock, 1, BlobSize, &Err);
+	rc = StrBufReadBLOB(buf, &WCC->serv_sock, 1, BlobSize, &ErrStr);
 	if (rc < 0)
 	{
 		lprintf(1, "Server connection broken: %s\n",
@@ -244,7 +244,7 @@ void serv_write(const char *buf, int nbytes)
 		retval = write(WCC->serv_sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
-			const char *StrError = strerror(errno));
+			const char *ErrStr = strerror(errno);
 			lprintf(1, "Server connection broken: %s\n",
 				(ErrStr)?ErrStr:"");
 			close(WCC->serv_sock);
