@@ -2248,16 +2248,21 @@ void cmd_netp(char *cmdbuf)
 	v = is_valid_node(nexthop, secret, node);
 
 	if (v != 0) {
-		snprintf (err_buf, sizeof(err_buf), "Unknown node <%s>\n", node);
+		snprintf(err_buf, sizeof err_buf,
+			"An unknown Citadel server called \"%s\" attempted to connect from %s [%s].\n",
+			node, CC->cs_host, CC->cs_addr
+		);
 		CtdlLogPrintf(CTDL_WARNING, err_buf);
-		cprintf("%d authentication failed\n",
-			ERROR + PASSWORD_REQUIRED);
+		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		aide_message(err_buf, "IGNet Networking.");
 		return;
 	}
 
 	if (strcasecmp(pass, secret)) {
-		snprintf (err_buf, sizeof(err_buf), "Bad password for network node <%s>", node);
+		snprintf(err_buf, sizeof err_buf,
+			"A Citadel server at %s [%s] failed to authenticate as network node \"%s\".\n",
+			CC->cs_host, CC->cs_addr, node
+		);
 		CtdlLogPrintf(CTDL_WARNING, err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
 		aide_message(err_buf, "IGNet Networking.");
@@ -2272,16 +2277,19 @@ void cmd_netp(char *cmdbuf)
 
 	safestrncpy(CC->net_node, node, sizeof CC->net_node);
 	network_talking_to(node, NTT_ADD);
-	CtdlLogPrintf(CTDL_NOTICE, "Network node <%s> logged in\n", CC->net_node);
-	cprintf("%d authenticated as network node '%s'\n", CIT_OK,
-		CC->net_node);
+	CtdlLogPrintf(CTDL_NOTICE, "Network node <%s> logged in from %s [%s]\n",
+		CC->net_node, CC->cs_host, CC->cs_addr
+	);
+	cprintf("%d authenticated as network node '%s'\n", CIT_OK, CC->net_node);
 }
+
 
 int network_room_handler (struct ctdlroom *room)
 {
 	network_queue_room(room, NULL);
 	return 0;
 }
+
 
 /*
  * Module entry point
