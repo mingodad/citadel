@@ -141,6 +141,10 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 	wcsession *sptr = NULL;
 	wcsession *TheSession = NULL;	
 	
+	if (Hdr->HR.got_auth == AUTH_BASIC) {
+		GetAuthBasic(Hdr);
+	}
+
 	pthread_mutex_lock(ListMutex);
 	for (sptr = *wclist; ((sptr != NULL) && (TheSession == NULL)); sptr = sptr->next) {
 		
@@ -150,7 +154,6 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 		case AUTH_BASIC:
 			if ( (Hdr->HR.SessionKey != sptr->SessionKey))
 				continue;
-			GetAuthBasic(Hdr);
 			if ((!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username))) &&
 			    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) {
 				TheSession = sptr;
@@ -175,8 +178,7 @@ wcsession *CreateSession(int Lockable, wcsession **wclist, ParsedHttpHdrs *Hdr, 
 {
 	wcsession *TheSession;
 	lprintf(3, "Creating a new session\n");
-	TheSession = (wcsession *)
-		malloc(sizeof(wcsession));
+	TheSession = (wcsession *) malloc(sizeof(wcsession));
 	memset(TheSession, 0, sizeof(wcsession));
 	TheSession->Hdr = Hdr;
 	TheSession->SessionKey = Hdr->HR.SessionKey;
@@ -535,11 +537,6 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	 */
 	if (TheSession == NULL) {
 		TheSession = CreateSession(1, &SessionList, Hdr, &SessionListMutex);
-
-		/* Yes, theoretically we did this already, but for some reason c_username and c_password
-		 * are already gone by now, so we fetch them again.
-		 */
-		GetAuthBasic(Hdr);
 
 		if ((StrLength(Hdr->c_username) == 0) && (!Hdr->HR.DontNeedAuth)) {
 
