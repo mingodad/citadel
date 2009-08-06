@@ -1172,8 +1172,11 @@ void cmd_rdir(char *cmdbuf)
 			stat(buf, &statbuf);	/* stat the file */
 			if (!(statbuf.st_mode & S_IFREG))
 			{
-				snprintf(buf2, sizeof buf2, "Command RDIR found something that is not a useable file. It should be cleaned up.\n RDIR found this non regular file:\n%s\n", buf);
-				aide_message(buf2, "RDIR found bad file");
+				snprintf(buf2, sizeof buf2,
+					"\"%s\" appears in the file directory for room \"%s\" but is not a regular file.  Directories, named pipes, sockets, etc. are not usable in Citadel room directories.\n",
+					buf, CC->room.QRname
+				);
+				aide_message(buf2, "Unusable data found in room directory");
 				continue;	/* not a useable file type so don't show it */
 			}
 			safestrncpy(comment, "", sizeof comment);
