@@ -138,14 +138,13 @@ int GenerateSessionID(void)
 
 wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex)
 {
-	wcsession  *sptr, *TheSession = NULL;	
+	wcsession *sptr = NULL;
+	wcsession *TheSession = NULL;	
 	
 	pthread_mutex_lock(ListMutex);
-	for (sptr = *wclist; 
-	     ((sptr != NULL) && (TheSession == NULL)); 
-	     sptr = sptr->next) {
+	for (sptr = *wclist; ((sptr != NULL) && (TheSession == NULL)); sptr = sptr->next) {
 		
-		/** If HTTP-AUTH, look for a session with matching credentials */
+		/* If HTTP-AUTH, look for a session with matching credentials */
 		switch (Hdr->HR.got_auth)
 		{
 		case AUTH_BASIC:
@@ -153,14 +152,16 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				continue;
 			GetAuthBasic(Hdr);
 			if ((!strcasecmp(ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username))) &&
-			    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) 
+			    (!strcasecmp(ChrPtr(Hdr->c_password), ChrPtr(sptr->wc_password))) ) {
 				TheSession = sptr;
+			}
 			break;
 		case AUTH_COOKIE:
-			/** If cookie-session, look for a session with matching session ID */
+			/* If cookie-session, look for a session with matching session ID */
 			if ( (Hdr->HR.desired_session != 0) && 
-			     (sptr->wc_session == Hdr->HR.desired_session)) 
+			     (sptr->wc_session == Hdr->HR.desired_session)) {
 				TheSession = sptr;
+			}
 			break;			     
 		case NO_AUTH:
 			break;
@@ -495,8 +496,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		return;
 	}
 
-	if ((Hdr->HR.Handler != NULL) && 
-	    ((Hdr->HR.Handler->Flags & ISSTATIC) != 0))
+	if ((Hdr->HR.Handler != NULL) && ((Hdr->HR.Handler->Flags & ISSTATIC) != 0))
 	{
 		wcsession *Static;
 		Static = CreateSession(0, NULL, Hdr, NULL);
@@ -521,29 +521,27 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		return;
 	}
 
-	if (Hdr->HR.got_auth == AUTH_BASIC) 
+	if (Hdr->HR.got_auth == AUTH_BASIC) {
 		CheckAuthBasic(Hdr);
-
-
-/*	dbg_PrintHash(HTTPHeaders, nix, NULL);  */
-
-	/**
-	 * See if there's an existing session open with the desired ID or user/pass
-	 */
-	TheSession = NULL;
-
-	if (TheSession == NULL) {
-		TheSession = FindSession(&SessionList, Hdr, &SessionListMutex);
 	}
 
-	/**
+	/*
+	 * See if there's an existing session open with the desired ID or user/pass
+	 */
+	TheSession = FindSession(&SessionList, Hdr, &SessionListMutex);
+
+	/*
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
 		TheSession = CreateSession(1, &SessionList, Hdr, &SessionListMutex);
 
-		if ((StrLength(Hdr->c_username) == 0) &&
-		    (!Hdr->HR.DontNeedAuth)) {
+		/* Yes, theoretically we did this already, but for some reason c_username and c_password
+		 * are already gone by now, so we fetch them again.
+		 */
+		GetAuthBasic(Hdr);
+
+		if ((StrLength(Hdr->c_username) == 0) && (!Hdr->HR.DontNeedAuth)) {
 
 			if ((Hdr->HR.Handler != NULL) && 
 			    (XHTTP_COMMANDS & Hdr->HR.Handler->Flags) == XHTTP_COMMANDS) {
