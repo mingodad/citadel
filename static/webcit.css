@@ -1578,3 +1578,11 @@ li.event_unread span, a.event_read_title {
 	font-size: 110%;
 	text-align: center;
 }
+
+#noscript_warning {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: #FF0000;
+	color: #FFFFFF;
+}
