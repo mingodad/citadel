@@ -187,7 +187,7 @@ void init_ssl(void)
 			if (pk=EVP_PKEY_new(), pk != NULL) {
 				EVP_PKEY_assign_RSA(pk, rsa);
 				if (req = X509_REQ_new(), req != NULL) {
-
+					const char *env;
 					/* Set the public key */
 					X509_REQ_set_pubkey(req, pk);
 					X509_REQ_set_version(req, 0L);
@@ -211,24 +211,37 @@ void init_ssl(void)
 						MBSTRING_ASC, "Mount Kisco", -1, -1, 0);
 					*/
 
+					env = getenv("O");
+					if (env == NULL)
+						env = "Organization name",
+
 					X509_NAME_add_entry_by_txt(
 						name, "O",
 						MBSTRING_ASC, 
-						(unsigned char*)"Organization name",
+						(unsigned char*)env, 
 						-1, -1, 0
 					);
+
+					env = getenv("OU");
+					if (env == NULL)
+						env = "Citadel server";
 
 					X509_NAME_add_entry_by_txt(
 						name, "OU",
 						MBSTRING_ASC, 
-						(unsigned char*)"Citadel server1",
+						(unsigned char*)env, 
 						-1, -1, 0
 					);
+
+					env = getenv("O");
+					if (env == NULL)
+						env = "*";
 
 					X509_NAME_add_entry_by_txt(
 						name, "CN",
 						MBSTRING_ASC, 
-						(unsigned char*)"*", -1, -1, 0
+						(unsigned char*)env,
+						-1, -1, 0
 					);
 				
 					X509_REQ_set_subject_name(req, name);
