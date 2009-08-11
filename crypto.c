@@ -233,7 +233,7 @@ void init_ssl(void)
 						-1, -1, 0
 					);
 
-					env = getenv("O");
+					env = getenv("CN");
 					if (env == NULL)
 						env = "*";
 
