@@ -62,6 +62,7 @@ int xmpp_auth_plain(char *authstring)
 
 
 	/* Take apart the authentication string */
+	memset(pass, 0, sizeof(pass));
 
 	CtdlDecodeBase64(decoded_authstring, authstring, strlen(authstring));
 	safestrncpy(ident, decoded_authstring, sizeof ident);

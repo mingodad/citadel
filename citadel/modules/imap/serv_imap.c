@@ -602,6 +602,7 @@ void imap_auth_plain(char *cmd)
 	char pass[256];
 	int result;
 
+	memset(pass, 0, sizeof(pass));
 	CtdlDecodeBase64(decoded_authstring, cmd, strlen(cmd));
 	safestrncpy(ident, decoded_authstring, sizeof ident);
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
@@ -641,6 +642,7 @@ void imap_auth_login_pass(char *cmd)
 {
 	char buf[SIZ];
 
+	memset(buf, 0, sizeof(buf));
 	CtdlDecodeBase64(buf, cmd, SIZ);
 	if (CtdlTryPassword(buf) == pass_ok) {
 		cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);

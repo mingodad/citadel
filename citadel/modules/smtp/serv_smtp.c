@@ -316,6 +316,7 @@ void smtp_get_user(char *argbuf) {
 void smtp_get_pass(char *argbuf) {
 	char password[SIZ];
 
+	memset(password, 0, sizeof(password));	
 	CtdlDecodeBase64(password, argbuf, SIZ);
 	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", password); */
 	if (CtdlTryPassword(password) == pass_ok) {

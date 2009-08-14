@@ -936,6 +936,7 @@ void cmd_pass(char *buf)
 	char password[256];
 	int a;
 
+	memset(password, 0, sizeof(password));
 	extract_token(password, buf, 0, '|', sizeof password);
 	a = CtdlTryPassword(password);
 
