@@ -930,7 +930,7 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 			eptr = Target->buf + Target->BufSize - 3; 
 			bptr = Target->buf + Target->BufUsed;
 		}
-		else if (*aptr == '"') {
+		if (*aptr == '"') {
 			*bptr = '\\';
 			bptr ++;
 			*bptr = '"';
