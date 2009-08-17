@@ -523,6 +523,9 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 #ifdef HAVE_OPENSSL
 	if (is_https) {
 		long bufremain;
+		long baselen;
+
+		baselen = StrLength(Target);
 
 		if (Hdr->Pos == NULL)
 			Hdr->Pos = ChrPtr(Hdr->ReadBuf);
@@ -535,7 +538,7 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 
 		if (bytes > bufremain) 
 		{
-			while ((StrLength(Hdr->ReadBuf) + StrLength(Target) < bytes) &&
+			while ((StrLength(Hdr->ReadBuf) + StrLength(Target) < bytes + baselen) &&
 			       (retval >= 0))
 				retval = client_read_sslbuffer(Hdr->ReadBuf, timeout);
 			if (retval >= 0) {
