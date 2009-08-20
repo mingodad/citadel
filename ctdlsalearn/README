@@ -11,6 +11,14 @@ and smash your kneecaps with a ball pean hammer.   THIS IS UNSUPPORTED.
 
 Still with us?  Ok, here's how to make it work.
 
+* Your Citadel server needs to be r7737 or newer.  That's where we fixed
+  a bug that prevents internal programs from deleting messages.  Without
+  this fix, messages won't get deleted from your spam and ham folders,
+  and they'll just pile up forever and get resubmitted to sa-learn on
+  every run.  Don't let this happen to you.
+
+* Back up your data.  I may have hidden an "rm -fr /" in here somewhere.
+
 * Open up src/main.c with your favorite text editor (which ought to
   be vi, not emacs).  Yes, you're editing the source code to configure
   the program.  Like I said, it's a work in progress.  I haven't written
