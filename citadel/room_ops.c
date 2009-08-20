@@ -57,7 +57,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
-		retval = (UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED);
+		retval = (UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED);
 		vbuf.v_view = 0;
 		goto SKIP_EVERYTHING;
 	}
