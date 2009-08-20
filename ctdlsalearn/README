@@ -1,5 +1,40 @@
+ctdlsalearn is a program that scans a specified set of "spam" and "ham"
+folders (rooms), and batch-submits their contents to the "sa-learn" program
+in order to train its Bayesian filters.
 
-This is unfinished.  Don't use it.  Don't touch it.  Go away.
+This is a work in progress.  It isn't finished.  You are only permitted to
+use this program if you promise not to whine about it if it doesn't work.
 
-Die in a car fire.
+I mean it!  If you complain in the Citadel Support forum that ctdlsalearn
+isn't working, I will hunt you down and jam ice picks into your eye sockets
+and smash your kneecaps with a ball pean hammer.   THIS IS UNSUPPORTED.
+
+Still with us?  Ok, here's how to make it work.
+
+* Open up src/main.c with your favorite text editor (which ought to
+  be vi, not emacs).  Yes, you're editing the source code to configure
+  the program.  Like I said, it's a work in progress.  I haven't written
+  a configuration tool yet.  If this is a problem for you, please either
+  write the configuration tool, or jump off a cliff; either one will
+  solve the problem.
+
+* Look for the references to "ctdldir".  Is one of the paths we're trying
+  a valid location for your Citadel installation?  If not, add yours.
+
+* Now look for the calls to do_room().  This is where you can specify the
+  locations of ham and spam folders.  The SpamAssassin folks tell us that
+  you need both in order for Bayesian filtering to work well.  ctdlsalearn
+  will attempt to *delete* messages from these folders after submitting
+  them, so don't be a schmuck and point it to your inbox.  Create ham and
+  spam folders for this purpose.  Probably you want to copy ham to your
+  ham folder, and move spam to your spam folder (unless you have some sick
+  fetish for spam and you like to keep it around).  Also note that if you
+  specify any rooms that are users' private mailboxes, you'll need to
+  prepend the namespace prefix (which is their user number, padded with
+  zeroes to ten digits, followed by a dot).
+ 
+  Yes, you can specify as many spam and ham folders as you want.
+
+* Compile the program and run it.  If it works, great; if not, re-read
+  the warning at the top of this document.
 
