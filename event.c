@@ -6,6 +6,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#include "calendar.h"
 
 /*
  * Display an event by itself (for editing)
@@ -13,7 +14,7 @@
  * msgnum		reference on the citserver
  */
 void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from,
-	int unread, struct calview *calv)
+	int unread, calview *calv)
 {
 	icalcomponent *vevent;
 	icalproperty *p;
@@ -765,7 +766,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
  * msgnum:		the index on the citserver
  */
 void save_individual_event(icalcomponent *supplied_vevent, long msgnum, char *from,
-			int unread, struct calview *calv) {
+			int unread, calview *calv) {
 	char buf[SIZ];
 	icalproperty *prop;
 	icalcomponent *vevent, *encaps;

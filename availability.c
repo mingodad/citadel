@@ -6,6 +6,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#include "calendar.h"
 
 /*
  * Utility function to fetch a VFREEBUSY type of thing for any specified user.

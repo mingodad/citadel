@@ -99,10 +99,33 @@ void display_wiki_page(void)
 	wDumpContent(1);
 }
 
+int wiki_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+					   void **ViewSpecific, 
+					   long oper, 
+					   char *cmd, 
+					   long len)
+{
+	char buf[SIZ];
+	sprintf(buf, "wiki?room=%s&page=home", ChrPtr(WC->wc_roomname));
+	http_redirect(buf);
+	return 300;
+}
+
 void 
 InitModule_WIKI
 (void)
 {
+	RegisterReadLoopHandlerset(
+		VIEW_WIKI,
+		wiki_GetParamsGetServerCall,
+		NULL,
+		NULL,
+		NULL,
+		NULL
+		);
+
 	WebcitAddUrlHandler(HKEY("wiki"), display_wiki_page, 0);
 	return ;
 }
+
+

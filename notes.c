@@ -296,13 +296,19 @@ void ajax_update_note(void) {
  *
  * msgnum = Message number on the local server of the note to be displayed
  */
-void display_note(message_summary *Msg, int unread) {
+////TODO: falscher hook
+int notes_LoadMsgFromServer(SharedMessageStatus *Stat, 
+			    void **ViewSpecific, 
+			    message_summary* Msg, 
+			    int is_new, 
+			    int i)
+{
 	struct vnote *v;
 	WCTemplputParams TP;
 
 	memset(&TP, 0, sizeof(WCTemplputParams));
 	TP.Filter.ContextType = CTX_VNOTE;
-	v = vnote_new_from_msg(Msg->msgnum, unread);
+	v = vnote_new_from_msg(Msg->msgnum, is_new);
 	if (v) {
 		TP.Context = v;
 		DoTemplate(HKEY("vnoteitem"),
@@ -322,6 +328,7 @@ void display_note(message_summary *Msg, int unread) {
 
 		vnote_free(v);
 	}
+	return 0;
 }
 
 
@@ -408,10 +415,41 @@ void tmpl_vcard_put_uid(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendBufPlain(Target, v->uid, -1, 0);
 }
 
+
+
+
+int notes_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+				 void **ViewSpecific, 
+				 long oper, 
+				 char *cmd, 
+				 long len)
+{
+	strcpy(cmd, "MSGS ALL");
+	Stat->maxmsgs = 32767;
+	wprintf("<div id=\"new_notes_here\"></div>\n");
+	return 200;
+
+}
+
+int notes_Cleanup(void **ViewSpecific)
+{
+	end_burst();
+	return 0;
+}
+
+
 void 
 InitModule_NOTES
 (void)
 {
+	RegisterReadLoopHandlerset(
+		VIEW_NOTES,
+		notes_GetParamsGetServerCall,
+		NULL,
+		notes_LoadMsgFromServer,
+		NULL,
+		notes_Cleanup);
+
 	WebcitAddUrlHandler(HKEY("add_new_note"), add_new_note, 0);
 	WebcitAddUrlHandler(HKEY("ajax_update_note"), ajax_update_note, 0);
 

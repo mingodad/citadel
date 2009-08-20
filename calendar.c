@@ -6,7 +6,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
-
+#include "calendar.h"
 
 /*
  * Process a calendar object.  At this point it's already been deserialized by cal_process_attachment()
@@ -396,7 +396,7 @@ void delete_cal(void *vCal)
  * any iCalendar objects and store them in a hash table.  Later on, the second phase will
  * use this hash table to render the calendar for display.
  */
-void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread, struct calview *calv)
+void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unread, calview *calv)
 {
 	icalproperty *ps = NULL;
 	struct icaltimetype dtstart, dtend;
@@ -579,415 +579,6 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 
 
 
-/*
- * Display a task by itself (for editing)
- */
-void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, char *from,
-			int unread, struct calview *calv)
-{
-	icalcomponent *vtodo;
-	icalproperty *p;
-	struct icaltimetype IcalTime;
-	time_t now;
-	int created_new_vtodo = 0;
-	icalproperty_status todoStatus;
-
-	now = time(NULL);
-
-	if (supplied_vtodo != NULL) {
-		vtodo = supplied_vtodo;
-
-		/*
-		 * It's safe to convert to UTC here because there are no recurrences to worry about.
-		 */
-		ical_dezonify(vtodo);
-
-		/*
-		 * If we're looking at a fully encapsulated VCALENDAR
-		 * rather than a VTODO component, attempt to use the first
-		 * relevant VTODO subcomponent.  If there is none, the
-		 * NULL returned by icalcomponent_get_first_component() will
-		 * tell the next iteration of this function to create a
-		 * new one.
-		 */
-		if (icalcomponent_isa(vtodo) == ICAL_VCALENDAR_COMPONENT) {
-			display_edit_individual_task(
-				icalcomponent_get_first_component(
-					vtodo, ICAL_VTODO_COMPONENT
-					), 
-				msgnum, from, unread, calv
-				);
-			return;
-		}
-	}
-	else {
-		vtodo = icalcomponent_new(ICAL_VTODO_COMPONENT);
-		created_new_vtodo = 1;
-	}
-	
-	/* TODO: Can we take all this and move it into a template?	 */
-	output_headers(1, 1, 1, 0, 0, 0);
-	wprintf("<!-- start task edit form -->");
-	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	/* Get summary early for title */
-	wprintf("<div class=\"box\">\n");
-	wprintf("<div class=\"boxlabel\">");
-	wprintf(_("Edit task"));
-	wprintf("- ");
-	if (p != NULL) {
-		escputs((char *)icalproperty_get_comment(p));
-	}
-	wprintf("</div>");
-	
-	wprintf("<div class=\"boxcontent\">\n");
-	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
-	wprintf("<div style=\"display: none;\">\n	");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n", msgnum);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"return_to_summary\" VALUE=\"%d\">\n",
-		ibstr("return_to_summary"));
-	wprintf("</div>");
-	wprintf("<table class=\"calendar_background\"><tr><td>");
-	wprintf("<TABLE STYLE=\"border: none;\">\n");
-
-	wprintf("<TR><TD>");
-	wprintf(_("Summary:"));
-	wprintf("</TD><TD>"
-		"<INPUT TYPE=\"text\" NAME=\"summary\" "
-		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
-	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
-	if (p != NULL) {
-		escputs((char *)icalproperty_get_comment(p));
-	}
-	wprintf("\"></TD></TR>\n");
-
-	wprintf("<TR><TD>");
-	wprintf(_("Start date:"));
-	wprintf("</TD><TD>");
-	p = icalcomponent_get_first_property(vtodo, ICAL_DTSTART_PROPERTY);
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodtstart\" ID=\"nodtstart\" VALUE=\"NODTSTART\" ");
-	if (p == NULL) {
-		wprintf("CHECKED=\"CHECKED\"");
-	}
-	wprintf(">");
-	wprintf(_("No date"));
-	
-	wprintf(" ");
-	wprintf("<span ID=\"dtstart_date\">");
-	wprintf(_("or"));
-	wprintf(" ");
-	if (p != NULL) {
-		IcalTime = icalproperty_get_dtstart(p);
-	}
-	else
-		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
-	display_icaltimetype_as_webform(&IcalTime, "dtstart", 0);
-
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"dtstart_time_assoc\" ID=\"dtstart_time_assoc\" VALUE=\"yes\"");
-	if (!IcalTime.is_date) {
-		wprintf("CHECKED=\"CHECKED\"");
-	}
-	wprintf(">");
-	wprintf(_("Time associated"));
-	wprintf("</span></TD></TR>\n");
-
-	wprintf("<TR><TD>");
-	wprintf(_("Due date:"));
-	wprintf("</TD><TD>");
-	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodue\" ID=\"nodue\" VALUE=\"NODUE\"");
-	if (p == NULL) {
-		wprintf("CHECKED=\"CHECKED\"");
-	}
-	wprintf(">");
-	wprintf(_("No date"));
-	wprintf(" ");
-	wprintf("<span ID=\"due_date\">\n");
-	wprintf(_("or"));
-	wprintf(" ");
-	if (p != NULL) {
-		IcalTime = icalproperty_get_due(p);
-	}
-	else
-		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
-	display_icaltimetype_as_webform(&IcalTime, "due", 0);
-
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"due_time_assoc\" ID=\"due_time_assoc\" VALUE=\"yes\"");
-	if (!IcalTime.is_date) {
-		wprintf("CHECKED=\"CHECKED\"");
-	}
-	wprintf(">");
-	wprintf(_("Time associated"));
-	wprintf("</span></TD></TR>\n");
-	todoStatus = icalcomponent_get_status(vtodo);
-	wprintf("<TR><TD>\n");
-	wprintf(_("Completed:"));
-	wprintf("</TD><TD>");
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"status\" VALUE=\"COMPLETED\"");
-	if (todoStatus == ICAL_STATUS_COMPLETED) {
-		wprintf(" CHECKED=\"CHECKED\"");
-	} 
-	wprintf(" >");
-	wprintf("</TD></TR>");
-	/* start category field */
-	p = icalcomponent_get_first_property(vtodo, ICAL_CATEGORIES_PROPERTY);
-	wprintf("<TR><TD>");
-	wprintf(_("Category:"));
-	wprintf("</TD><TD>");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"category\" MAXLENGTH=\"32\" SIZE=\"32\" VALUE=\"");
-	if (p != NULL) {
-		escputs((char *)icalproperty_get_categories(p));
-	}
-	wprintf("\">");
-	wprintf("</TD></TR>\n	");
-	/* end category field */
-	wprintf("<TR><TD>");
-	wprintf(_("Description:"));
-	wprintf("</TD><TD>");
-	wprintf("<TEXTAREA NAME=\"description\" "
-		"ROWS=\"10\" COLS=\"80\">\n"
-		);
-	p = icalcomponent_get_first_property(vtodo, ICAL_DESCRIPTION_PROPERTY);
-	if (p != NULL) {
-		escputs((char *)icalproperty_get_comment(p));
-	}
-	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
-
-	wprintf("<SPAN STYLE=\"text-align: center;\">"
-		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
-		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
-		"&nbsp;&nbsp;"
-		"<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">\n"
-		"</SPAN>\n",
-		_("Save"),
-		_("Delete"),
-		_("Cancel")
-		);
-	wprintf("</td></tr></table>");
-	wprintf("</FORM>\n");
-	wprintf("</div></div></div>\n");
-	wprintf("<!-- end task edit form -->");
-	wDumpContent(1);
-
-	if (created_new_vtodo) {
-		icalcomponent_free(vtodo);
-	}
-}
-
-/*
- * Save an edited task
- *
- * supplied_vtodo 	the task to save
- * msgnum		number of the mesage in our db
- */
-void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from, int unread,
-				struct calview *calv)
-{
-	char buf[SIZ];
-	int delete_existing = 0;
-	icalproperty *prop;
-	icalcomponent *vtodo, *encaps;
-	int created_new_vtodo = 0;
-	int i;
-	int sequence = 0;
-	struct icaltimetype t;
-
-	if (supplied_vtodo != NULL) {
-		vtodo = supplied_vtodo;
-		/**
-		 * If we're looking at a fully encapsulated VCALENDAR
-		 * rather than a VTODO component, attempt to use the first
-		 * relevant VTODO subcomponent.  If there is none, the
-		 * NULL returned by icalcomponent_get_first_component() will
-		 * tell the next iteration of this function to create a
-		 * new one.
-		 */
-		if (icalcomponent_isa(vtodo) == ICAL_VCALENDAR_COMPONENT) {
-			save_individual_task(
-				icalcomponent_get_first_component(
-					vtodo, ICAL_VTODO_COMPONENT), 
-				msgnum, from, unread, calv
-				);
-			return;
-		}
-	}
-	else {
-		vtodo = icalcomponent_new(ICAL_VTODO_COMPONENT);
-		created_new_vtodo = 1;
-	}
-
-	if (havebstr("save_button")) {
-
-		/** Replace values in the component with ones from the form */
-
-		while (prop = icalcomponent_get_first_property(vtodo,
-							       ICAL_SUMMARY_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		if (havebstr("summary")) {
-
-			icalcomponent_add_property(vtodo,
-						   icalproperty_new_summary(bstr("summary")));
-		} else {
-			icalcomponent_add_property(vtodo,
-						   icalproperty_new_summary(_("Untitled Task")));
-		}
-	
-		while (prop = icalcomponent_get_first_property(vtodo,
-							       ICAL_DESCRIPTION_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		if (havebstr("description")) {
-			icalcomponent_add_property(vtodo,
-						   icalproperty_new_description(bstr("description")));
-		}
-	
-		while (prop = icalcomponent_get_first_property(vtodo,
-							       ICAL_DTSTART_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		if (IsEmptyStr(bstr("nodtstart"))) {
-			if (yesbstr("dtstart_time")) {
-				icaltime_from_webform(&t, "dtstart");
-			}
-			else {
-				icaltime_from_webform_dateonly(&t, "dtstart");
-			}
-			icalcomponent_add_property(vtodo,
-						   icalproperty_new_dtstart(t)
-				);
-		}
-		while(prop = icalcomponent_get_first_property(vtodo,
-							      ICAL_STATUS_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo,prop);
-			icalproperty_free(prop);
-		}
-		while(prop = icalcomponent_get_first_property(vtodo,
-							      ICAL_PERCENTCOMPLETE_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo,prop);
-			icalproperty_free(prop);
-		}
-
-		if (havebstr("status")) {
-			icalproperty_status taskStatus = icalproperty_string_to_status(bstr("status"));
-			icalcomponent_set_status(vtodo, taskStatus);
-			icalcomponent_add_property(vtodo,
-				icalproperty_new_percentcomplete(
-					(strcasecmp(bstr("status"), "completed") ? 0 : 100)
-				)
-			);
-		}
-		else {
-			icalcomponent_add_property(vtodo, icalproperty_new_percentcomplete(0));
-		}
-		while (prop = icalcomponent_get_first_property(vtodo,
-							       ICAL_CATEGORIES_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo,prop);
-			icalproperty_free(prop);
-		}
-		if (!IsEmptyStr(bstr("category"))) {
-			prop = icalproperty_new_categories(bstr("category"));
-			icalcomponent_add_property(vtodo,prop);
-		}
-		while (prop = icalcomponent_get_first_property(vtodo,
-							       ICAL_DUE_PROPERTY), prop != NULL) {
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		if (IsEmptyStr(bstr("nodue"))) {
-			if (yesbstr("due_time")) {
-				icaltime_from_webform(&t, "due");
-			}
-			else {
-				icaltime_from_webform_dateonly(&t, "due");
-			}
-			icalcomponent_add_property(vtodo,
-						   icalproperty_new_due(t)
-				);
-		}
-		/** Give this task a UID if it doesn't have one. */
-		lprintf(9, "Give this task a UID if it doesn't have one.\n");
-		if (icalcomponent_get_first_property(vtodo,
-						     ICAL_UID_PROPERTY) == NULL) {
-			generate_uuid(buf);
-			icalcomponent_add_property(vtodo,
-						   icalproperty_new_uid(buf)
-				);
-		}
-
-		/* Increment the sequence ID */
-		lprintf(9, "Increment the sequence ID\n");
-		while (prop = icalcomponent_get_first_property(vtodo,
-							       ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
-			i = icalproperty_get_sequence(prop);
-			lprintf(9, "Sequence was %d\n", i);
-			if (i > sequence) sequence = i;
-			icalcomponent_remove_property(vtodo, prop);
-			icalproperty_free(prop);
-		}
-		++sequence;
-		lprintf(9, "New sequence is %d.  Adding...\n", sequence);
-		icalcomponent_add_property(vtodo,
-					   icalproperty_new_sequence(sequence)
-			);
-
-		/*
-		 * Encapsulate event into full VCALENDAR component.  Clone it first,
-		 * for two reasons: one, it's easier to just free the whole thing
-		 * when we're done instead of unbundling, but more importantly, we
-		 * can't encapsulate something that may already be encapsulated
-		 * somewhere else.
-		 */
-		lprintf(9, "Encapsulating into a full VCALENDAR component\n");
-		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vtodo));
-
-		/* Serialize it and save it to the message base */
-		serv_puts("ENT0 1|||4");
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '4') {
-			serv_puts("Content-type: text/calendar");
-			serv_puts("");
-			serv_puts(icalcomponent_as_ical_string(encaps));
-			serv_puts("000");
-
-			/*
-			 * Probably not necessary; the server will see the UID
-			 * of the object and delete the old one anyway, but
-			 * just in case...
-			 */
-			delete_existing = 1;
-		}
-		icalcomponent_free(encaps);
-	}
-
-	/**
-	 * If the user clicked 'Delete' then explicitly delete the message.
-	 */
-	if (havebstr("delete_button")) {
-		delete_existing = 1;
-	}
-
-	if ( (delete_existing) && (msgnum > 0L) ) {
-		serv_printf("DELE %ld", lbstr("msgnum"));
-		serv_getln(buf, sizeof buf);
-	}
-
-	if (created_new_vtodo) {
-		icalcomponent_free(vtodo);
-	}
-
-	/* Go back to wherever we came from */
-	if (ibstr("return_to_summary") == 1) {
-		summary();
-	}
-	else {
-		readloop(readfwd);
-	}
-}
 
 
 
@@ -996,7 +587,7 @@ void process_ical_object(long msgnum, int unread,
 			 char *FlatIcal, 
 			 icalcomponent_kind which_kind,
 			 IcalCallbackFunc CallBack,
-			 struct calview *calv
+			 calview *calv
 	) 
 {
 	icalcomponent *cal, *c;
@@ -1039,7 +630,7 @@ void process_ical_object(long msgnum, int unread,
 void load_ical_object(long msgnum, int unread,
 		      icalcomponent_kind which_kind,
 		      IcalCallbackFunc CallBack,
-		      struct calview *calv,
+		      calview *calv,
 		      int RenderAsync
 	) 
 {
@@ -1169,55 +760,15 @@ void load_ical_object(long msgnum, int unread,
 /*
  * Display a calendar item
  */
-void load_calendar_item(message_summary *Msg, int unread, struct calview *c) {
-	load_ical_object(Msg->msgnum, unread, (-1), display_individual_cal, c, 1);
-}
-
-/*
- * Display task view
- */
-void display_task(message_summary *Msg, int unread) {
-	load_ical_object(Msg->msgnum, unread, ICAL_VTODO_COMPONENT, display_individual_cal, NULL, 0);
-}
-
-/*
- * Display the editor component for a task
- */
-void display_edit_task(void) {
-	long msgnum = 0L;
-			
-	/* Force change the room if we have to */
-	if (havebstr("taskrm")) {
-		gotoroom(sbstr("taskrm"));
-	}
-
-	msgnum = lbstr("msgnum");
-	if (msgnum > 0L) {
-		/* existing task */
-		load_ical_object(msgnum, 0,
-				 ICAL_VTODO_COMPONENT,
-				 display_edit_individual_task,
-				 NULL, 0
-		);
-	}
-	else {
-		/* new task */
-		display_edit_individual_task(NULL, 0L, "", 0, NULL);
-	}
-}
-
-/*
- * save an edited task
- */
-void save_task(void) {
-	long msgnum = 0L;
-	msgnum = lbstr("msgnum");
-	if (msgnum > 0L) {
-		load_ical_object(msgnum, 0, ICAL_VTODO_COMPONENT, save_individual_task, NULL, 0);
-	}
-	else {
-		save_individual_task(NULL, 0L, "", 0, NULL);
-	}
+int calendar_LoadMsgFromServer(SharedMessageStatus *Stat, 
+			       void **ViewSpecific, 
+			       message_summary* Msg, 
+			       int is_new, 
+			       int i)
+{
+	calview *c = (calview*) *ViewSpecific;
+	load_ical_object(Msg->msgnum, is_new, (-1), display_individual_cal, c, 1);
+	return 0;
 }
 
 /*
@@ -1300,18 +851,48 @@ void do_freebusy(void)
 
 
 
+int calendar_Cleanup(void **ViewSpecific)
+{
+	calview *c;
+	
+	c = (calview *) *ViewSpecific;
+
+	wDumpContent(1);
+	free (c);
+	*ViewSpecific = NULL;
+
+	return 0;
+}
+
 
 void 
 InitModule_CALENDAR
 (void)
 {
+	RegisterReadLoopHandlerset(
+		VIEW_CALENDAR,
+		calendar_GetParamsGetServerCall,
+		NULL,
+		calendar_LoadMsgFromServer,
+		calendar_RenderView_or_Tail,
+		calendar_Cleanup);
+
+	RegisterReadLoopHandlerset(
+		VIEW_CALBRIEF,
+		calendar_GetParamsGetServerCall,
+		NULL,
+		calendar_LoadMsgFromServer,
+		calendar_RenderView_or_Tail,
+		calendar_Cleanup);
+
+
+
 	RegisterPreference("daystart", _("Calendar day view begins at:"), PRF_INT, NULL);
 	RegisterPreference("dayend", _("Calendar day view ends at:"), PRF_INT, NULL);
 	RegisterPreference("weekstart", _("Week starts on:"), PRF_INT, NULL);
 
 	WebcitAddUrlHandler(HKEY("freebusy"), do_freebusy, COOKIEUNNEEDED|ANONYMOUS|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("display_edit_task"), display_edit_task, 0);
-	WebcitAddUrlHandler(HKEY("save_task"), save_task, 0);
 	WebcitAddUrlHandler(HKEY("display_edit_event"), display_edit_event, 0);
 	WebcitAddUrlHandler(HKEY("save_event"), save_event, 0);
 	WebcitAddUrlHandler(HKEY("respond_to_request"), respond_to_request, 0);

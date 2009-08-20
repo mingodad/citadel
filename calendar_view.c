@@ -6,6 +6,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
+#include "calendar.h"
 
 /* These define how high the hour rows are in the day view */
 #define TIMELINE	30
@@ -1425,12 +1426,27 @@ int calendar_summary_view(void) {
 /*
  * Parse the URL variables in order to determine the scope and display of a calendar view
  */
-void parse_calendar_view_request(struct calview *c) {
+int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+				    void **ViewSpecific, 
+				    long oper, 
+				    char *cmd, 
+				    long len)
+{
+	calview *c;
 	time_t now;
 	struct tm tm;
-	char calview[32];
+	char cv[32];
+
 	int span = 3888000;
 
+	c = (calview*) malloc(sizeof(calview));
+	memset(c, 0, sizeof(calview));
+	*ViewSpecific = (void*)c;
+
+	Stat->load_seen = 1;
+	strcpy(cmd, "MSGS ALL");
+	Stat->maxmsgs = 32767;
+	
 	/* In case no date was specified, go with today */
 	now = time(NULL);
 	localtime_r(&now, &tm);
@@ -1445,20 +1461,20 @@ void parse_calendar_view_request(struct calview *c) {
 
 	/* How would you like that cooked? */
 	if (havebstr("calview")) {
-		strcpy(calview, bstr("calview"));
+		strcpy(cv, bstr("calview"));
 	}
 	else {
-		strcpy(calview, "month");
+		strcpy(cv, "month");
 	}
 
 	/* Display the selected view */
-	if (!strcasecmp(calview, "day")) {
+	if (!strcasecmp(cv, "day")) {
 		c->view = calview_day;
 	}
-	else if (!strcasecmp(calview, "week")) {
+	else if (!strcasecmp(cv, "week")) {
 		c->view = calview_week;
 	}
-	else if (!strcasecmp(calview, "summary")) {	/* shouldn't ever happen, but just in case */
+	else if (!strcasecmp(cv, "summary")) {	/* shouldn't ever happen, but just in case */
 		c->view = calview_day;
 	}
 	else {
@@ -1487,6 +1503,7 @@ void parse_calendar_view_request(struct calview *c) {
 
 	c->lower_bound = now - span;
 	c->upper_bound = now + span;
+	return 200;
 }
 
 
@@ -1494,8 +1511,12 @@ void parse_calendar_view_request(struct calview *c) {
 /*
  * Render a calendar view from data previously loaded into memory
  */
-void render_calendar_view(struct calview *c)
+int calendar_RenderView_or_Tail(SharedMessageStatus *Stat, 
+				void **ViewSpecific, 
+				long oper)
 {
+	calview *c = (calview*) *ViewSpecific;
+
 	if (c->view == calview_day) {
 		calendar_day_view(c->year, c->month, c->day);
 	}
@@ -1513,173 +1534,10 @@ void render_calendar_view(struct calview *c)
 
 	/* Free the in-memory list of calendar items */
 	DeleteHash(&WC->disp_cal_items);
-}
-
-
-/*
- * Helper function for do_tasks_view().  Returns the due date/time of a vtodo.
- */
-time_t get_task_due_date(icalcomponent *vtodo, int *is_date) {
-	icalproperty *p;
-
-	if (vtodo == NULL) {
-		return(0L);
-	}
-
-	/*
-	 * If we're looking at a fully encapsulated VCALENDAR
-	 * rather than a VTODO component, recurse into the data
-	 * structure until we get a VTODO.
-	 */
-	if (icalcomponent_isa(vtodo) == ICAL_VCALENDAR_COMPONENT) {
-		return get_task_due_date(
-			icalcomponent_get_first_component(
-				vtodo, ICAL_VTODO_COMPONENT
-				), is_date
-			);
-	}
-
-	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
-	if (p != NULL) {
-		struct icaltimetype t = icalproperty_get_due(p);
-
-		if (is_date)
-			*is_date = t.is_date;
-		return(icaltime_as_timet(t));
-	}
-	else {
-		return(0L);
-	}
-}
-
-
-/*
- * Compare the due dates of two tasks (this is for sorting)
- */
-int task_due_cmp(const void *vtask1, const void *vtask2) {
-	disp_cal * Task1 = (disp_cal *)GetSearchPayload(vtask1);
-	disp_cal * Task2 = (disp_cal *)GetSearchPayload(vtask2);
-
-	time_t t1;
-	time_t t2;
-
-	t1 =  get_task_due_date(Task1->cal, NULL);
-	t2 =  get_task_due_date(Task2->cal, NULL);
-	if (t1 < t2) return(-1);
-	if (t1 > t2) return(1);
-	return(0);
-}
-
-/*
- * qsort filter to move completed tasks to bottom of task list
- */
-int task_completed_cmp(const void *vtask1, const void *vtask2) {
-	disp_cal * Task1 = (disp_cal *)GetSearchPayload(vtask1);
-/*	disp_cal * Task2 = (disp_cal *)GetSearchPayload(vtask2); */
-
-	icalproperty_status t1 = icalcomponent_get_status((Task1)->cal);
-	/* icalproperty_status t2 = icalcomponent_get_status(((struct disp_cal *)task2)->cal); */
-	
-	if (t1 == ICAL_STATUS_COMPLETED) 
-		return 1;
 	return 0;
 }
 
 
 
-/*
- * do the whole task view stuff
- */
-void do_tasks_view(void) {
-	long hklen;
-	const char *HashKey;
-	void *vCal;
-	disp_cal *Cal;
-	HashPos *Pos;
-	int nItems;
-	time_t due;
-	char buf[SIZ];
-	icalproperty *p;
-	wcsession *WCC = WC;
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"calendar_view_background\"><tbody id=\"taskview\">\n<tr>\n"
-		"<th>");
-	wprintf(_("Completed?"));
-	wprintf("</th><th>");
-	wprintf(_("Name of task"));
-	wprintf("</th><th>");
-	wprintf(_("Date due"));
-	wprintf("</th><th>");
-	wprintf(_("Category"));
-	wprintf(" (<select id=\"selectcategory\"><option value=\"showall\">%s</option></select>)</th></tr>\n",
-		_("Show All"));
-
-	nItems = GetCount(WC->disp_cal_items);
-
-	/* Sort them if necessary
-	if (nItems > 1) {
-		SortByPayload(WC->disp_cal_items, task_due_cmp);
-	}
-	* this shouldn't be neccessary, since we sort by the start time.
-	*/
-
-	/* And then again, by completed */
-	if (nItems > 1) {
-		SortByPayload(WC->disp_cal_items, 
-			      task_completed_cmp);
-	}
-
-	Pos = GetNewHashPos(WCC->disp_cal_items, 0);
-	while (GetNextHashPos(WCC->disp_cal_items, Pos, &hklen, &HashKey, &vCal)) {
-		icalproperty_status todoStatus;
-		int is_date;
-
-		Cal = (disp_cal*)vCal;
-		wprintf("<tr><td>");
-		todoStatus = icalcomponent_get_status(Cal->cal);
-		wprintf("<input type=\"checkbox\" name=\"completed\" value=\"completed\" ");
-		if (todoStatus == ICAL_STATUS_COMPLETED) {
-			wprintf("checked=\"checked\" ");
-		}
-		wprintf("disabled=\"disabled\">\n</td><td>");
-		p = icalcomponent_get_first_property(Cal->cal,
-			ICAL_SUMMARY_PROPERTY);
-		wprintf("<a href=\"display_edit_task?msgnum=%ld?taskrm=", Cal->cal_msgnum);
-		urlescputs(ChrPtr(WC->wc_roomname));
-		wprintf("\">");
-		/* wprintf("<img align=middle "
-		"src=\"static/taskmanag_16x.gif\" border=0>&nbsp;"); */
-		if (p != NULL) {
-			escputs((char *)icalproperty_get_comment(p));
-		}
-		wprintf("</a>\n");
-		wprintf("</td>\n");
-
-		due = get_task_due_date(Cal->cal, &is_date);
-		wprintf("<td><span");
-		if (due > 0) {
-			webcit_fmt_date(buf, SIZ, due, is_date ? DATEFMT_RAWDATE : DATEFMT_FULL);
-			wprintf(">%s",buf);
-		}
-		else {
-			wprintf(">");
-		}
-		wprintf("</span></td>");
-		wprintf("<td>");
-		p = icalcomponent_get_first_property(Cal->cal,
-			ICAL_CATEGORIES_PROPERTY);
-		if (p != NULL) {
-			escputs((char *)icalproperty_get_categories(p));
-		}
-		wprintf("</td>");
-		wprintf("</tr>");
-	}
-
-	wprintf("</tbody></table></div>\n");
-
-	/* Free the list */
-	DeleteHash(&WC->disp_cal_items);
-	DeleteHashPos(&Pos);
-}
 
