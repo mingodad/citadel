@@ -91,7 +91,6 @@
 #include "paramhandling.h"
 #include "preferences.h"
 
-
 #ifdef HAVE_OPENSSL
 /* Work around RedHat's b0rken OpenSSL includes */
 #define OPENSSL_NO_KRB5
@@ -581,27 +580,6 @@ enum {
 };
 
 
-/*
- * calview contains data passed back and forth between the message fetching loop
- * and the calendar view renderer.
- */
-enum {
-	calview_month,
-	calview_day,
-	calview_week,
-	calview_brief,
-	calview_summary
-};
-
-struct calview {
-	int view;
-	int year;
-	int month;
-	int day;
-	time_t lower_bound;
-	time_t upper_bound;
-};
-
 #ifndef num_parms
 #define num_parms(source)		num_tokens(source, '|') 
 #endif
@@ -785,13 +763,9 @@ void output_html(const char *, int, int, StrBuf *, StrBuf *);
 void do_listsub(void);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(wc_mime_attachment *Mime);
-void load_calendar_item(message_summary *Msg, int unread, struct calview *c);
 void display_calendar(message_summary *Msg, int unread);
-void display_task(message_summary *Msg, int unread);
 void display_note(message_summary *Msg, int unread);
 void updatenote(void);
-void parse_calendar_view_request(struct calview *c);
-void render_calendar_view(struct calview *c);
 void do_tasks_view(void);
 int calendar_summary_view(void);
 void free_march_list(wcsession *wcf);
@@ -813,11 +787,6 @@ icaltimezone *get_default_icaltimezone(void);
 void display_icaltimetype_as_webform(struct icaltimetype *, char *, int);
 void icaltime_from_webform(struct icaltimetype *result, char *prefix);
 void icaltime_from_webform_dateonly(struct icaltimetype *result, char *prefix);
-void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from,
-	int unread, struct calview *calv);
-void save_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from,
-	int unread, struct calview *calv);
-void ical_dezonify(icalcomponent *cal);
 void partstat_as_string(char *buf, icalproperty *attendee);
 icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp);
 void check_attendee_availability(icalcomponent *supplied_vevent);
@@ -902,7 +871,6 @@ extern char *hourname[];	/* Names of hours (12am, 1am, etc.) */
 
 void http_datestring(char *buf, size_t n, time_t xtime);
 
-typedef void (*IcalCallbackFunc)(icalcomponent *, long, char*, int, struct calview *);
 
 /* These should be empty, but we have them for testing */
 #define DEFAULT_HTTPAUTH_USER	""

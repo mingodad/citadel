@@ -1,7 +1,7 @@
 
 extern HashList *MsgHeaderHandler;
 extern HashList *MimeRenderHandler;
-
+extern HashList *ReadLoopHandler;
 typedef struct wc_mime_attachment wc_mime_attachment;
 typedef void (*RenderMimeFunc)(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset);
 typedef struct _RenderMimeFuncStruct {
@@ -93,4 +93,104 @@ int load_message(message_summary *Msg,
 		 StrBuf **Error);
 
 
-int load_msg_ptrs(const char *servcmd, int with_headers, long *lowest_found, long *highest_found);
+
+
+typedef struct _SharedMessageStatus{
+	long load_seen;        /** should read information be loaded */
+	long sortit;           /** should we sort it using the standard sort API? */
+	long defaultsortorder; /** if we should sort it, which direction should be the default? */
+
+	long maxload;          /** how many headers should we accept from the server? defaults to 10k */
+	long maxmsgs;          /** how many message bodies do you want to load at most?*/
+	long reverse;          /** should the load-range be reversed? */
+
+	long startmsg;         /** which is the start message ????? */
+	long nummsgs;          /** How many messages are available to your view? */
+	long num_displayed;    /** counted up for LoadMsgFromServer */ /* TODO: unclear who should access this and why */
+
+	long lowest_found;     /** smallest Message ID found;  */
+	long highest_found;    /** highest Message ID found;  */
+
+}SharedMessageStatus;
+
+int load_msg_ptrs(const char *servcmd, SharedMessageStatus *Stat);
+
+typedef int (*GetParamsGetServerCall_func)(SharedMessageStatus *Stat, 
+					   void **ViewSpecific, 
+					   long oper, 
+					   char *cmd, 
+					   long len);
+
+typedef int (*PrintViewHeader_func)(SharedMessageStatus *Stat, void **ViewSpecific);
+
+typedef int (*LoadMsgFromServer_func)(SharedMessageStatus *Stat, 
+				      void **ViewSpecific, 
+				      message_summary* Msg, 
+				      int is_new, 
+				      int i);
+
+typedef int (*RenderView_or_Tail_func)(SharedMessageStatus *Stat, 
+				       void **ViewSpecific, 
+				       long oper);
+typedef int (*View_Cleanup_func)(void **ViewSpecific);
+
+void RegisterReadLoopHandlerset(
+	/**
+	 * RoomType: which View definition are you going to be called for
+	 */
+	int RoomType,
+
+	/**
+	 * GetParamsGetServerCall should do the following:
+	 *  * allocate your private context structure
+	 *  * evaluate your commandline arguments, put results to your private struct.
+	 *  * fill cmd with the command to load the message pointer list:
+	 *    * might depend on bstr/oper depending on your needs
+	 *    * might stay empty if no list should loaded and LoadMsgFromServer 
+	 *      is skipped.
+	 *  * influence the behaviour by presetting values on SharedMessageStatus
+	 */
+	GetParamsGetServerCall_func GetParamsGetServerCall,
+
+	/**
+	 * PrintViewHeader is here to print informations infront of your messages.
+	 * The message list is already loaded & sorted (if) so you can evaluate 
+	 * its result on the SharedMessageStatus struct.
+	 */
+	PrintViewHeader_func PrintViewHeader,
+
+	/**
+	 * LoadMsgFromServer is called for every message in the message list:
+	 *  * which is 
+	 *    * after 'startmsg'  
+	 *    * up to 'maxmsgs' after your 'startmsg'
+	 *  * it should load and parse messages from citserer.
+	 *  * depending on your needs you might want to print your message here...
+	 *  * if cmd was empty, its skipped alltogether.
+	 */
+	LoadMsgFromServer_func LoadMsgFromServer,
+
+	/**
+	 * RenderView_or_Tail is called last; 
+	 *  * if you used PrintViewHeader to print messages, you might want to print 
+	 *    trailing information here
+	 *  * if you just pre-loaded your messages, put your render code here.
+	 */
+	RenderView_or_Tail_func RenderView_or_Tail,
+
+	/**
+	 * ViewCleanup should just clear your private data so all your mem can go back to 
+	 * VALgrindHALLA.
+	 * it also should release the content for delivery via end_burst() or wDumpContent(1);
+	 */
+	View_Cleanup_func ViewCleanup
+	);
+/*
+GetParamsGetServerCall
+
+PrintViewHeader
+
+LoadMsgFromServer
+
+RenderView_or_Tail
+*/

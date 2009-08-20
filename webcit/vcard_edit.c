@@ -3,7 +3,7 @@
  */
 
 #include "webcit.h"
-
+#include "calendar.h"
 
 /*
  * Record compare function for sorting address book indices
@@ -1241,12 +1241,102 @@ void display_vcard_photo_img(void)
 	free(photosrc);
 }
 
+typedef struct _vcardview_struct {
+	long is_singlecard;
+	addrbookent *addrbook;
+	long num_ab;
 
+} vcardview_struct;
+
+int vcard_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+				 void **ViewSpecific, 
+				 long oper, 
+				 char *cmd, 
+				 long len)
+{
+	vcardview_struct *VS;
+
+	VS = (vcardview_struct*) malloc (sizeof(vcardview_struct));
+	memset(VS, 0, sizeof(vcardview_struct));
+	*ViewSpecific = (void*)VS;
+
+	VS->is_singlecard = ibstr("is_singlecard");
+	if (VS->is_singlecard != 1) {
+		if (oper == do_search) {
+			snprintf(cmd, len, "MSGS SEARCH|%s", bstr("query"));
+		}
+		else {
+			strcpy(cmd, "MSGS ALL");
+		}
+		Stat->maxmsgs = 9999999;
+	}
+	return 200;
+}
+
+int vcard_LoadMsgFromServer(SharedMessageStatus *Stat, 
+			    void **ViewSpecific, 
+			    message_summary* Msg, 
+			    int is_new, 
+			    int i)
+{
+	vcardview_struct *VS;
+	char *ab_name;
+
+	VS = (vcardview_struct*) *ViewSpecific;
+
+	ab_name = NULL;
+	fetch_ab_name(Msg, &ab_name);
+	if (ab_name == NULL) 
+		return 0;
+	++VS->num_ab;
+	VS->addrbook = realloc(VS->addrbook,
+			       (sizeof(addrbookent) * VS->num_ab) );
+	safestrncpy(VS->addrbook[VS->num_ab-1].ab_name, ab_name,
+		    sizeof(VS->addrbook[VS->num_ab-1].ab_name));
+	VS->addrbook[VS->num_ab-1].ab_msgnum = Msg->msgnum;
+	free(ab_name);
+	return 0;
+}
+
+
+int vcard_RenderView_or_Tail(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
+{
+	const StrBuf *Mime;
+	vcardview_struct *VS;
+
+	VS = (vcardview_struct*) *ViewSpecific;
+	if (VS->is_singlecard)
+		read_message(WC->WBuf, HKEY("view_message"), lbstr("startmsg"), NULL, &Mime);
+	else
+		do_addrbook_view(VS->addrbook, VS->num_ab);	/* Render the address book */
+	return 0;
+}
+
+int vcard_Cleanup(void **ViewSpecific)
+{
+	vcardview_struct *VS;
+
+	VS = (vcardview_struct*) *ViewSpecific;
+	end_burst();
+	if ((VS != NULL) && 
+	    (VS->addrbook != NULL))
+		free(VS->addrbook);
+	if (VS != NULL) 
+		free(VS);
+	return 0;
+}
 
 void 
 InitModule_VCARD
 (void)
 {
+	RegisterReadLoopHandlerset(
+		VIEW_ADDRESSBOOK,
+		vcard_GetParamsGetServerCall,
+		NULL,
+		vcard_LoadMsgFromServer,
+		vcard_RenderView_or_Tail,
+		vcard_Cleanup);
 	WebcitAddUrlHandler(HKEY("edit_vcard"), edit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("submit_vcard"), submit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("vcardphoto"), display_vcard_photo_img, NEED_URL);

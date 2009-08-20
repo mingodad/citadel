@@ -419,12 +419,15 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg, wc_mime_attachment 
 	int already_tried_creating_one = 0;
 	StrBuf *FoundCharset = NewStrBuf();
 	StrBuf *Error = NULL;
+	SharedMessageStatus Stat;
+
 
 	Buf = NewStrBuf();
 TRYAGAIN:
+	memset(&Stat, 0, sizeof(SharedMessageStatus));
 	Done = 0;
 	/* Search for the user's vCard */
-	if (load_msg_ptrs("MSGS ALL||||1", 1, NULL, NULL) > 0) {
+	if (load_msg_ptrs("MSGS ALL||||1", &Stat) > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		

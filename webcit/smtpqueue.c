@@ -169,7 +169,9 @@ void display_smtpqueue_inner_div(void) {
 	int i;
 	int num_msgs;
 	StrBuf *Buf;
+	SharedMessageStatus Stat;
 
+	memset(&Stat, 0, sizeof(SharedMessageStatus));
 	/* Check to see if we can go to the __CitadelSMTPspoolout__ room.
 	 * If not, we don't have access to the queue.
 	 */
@@ -178,7 +180,7 @@ void display_smtpqueue_inner_div(void) {
 	FreeStrBuf(&Buf);
 	if (!strcasecmp(ChrPtr(WCC->wc_roomname), "__CitadelSMTPspoolout__")) {
 
-		num_msgs = load_msg_ptrs("MSGS ALL", 0, NULL, NULL);
+		num_msgs = load_msg_ptrs("MSGS ALL", &Msg);
 		if (num_msgs > 0) {
                         wprintf("<table class=\"mailbox_summary\" rules=rows "
                         	"cellpadding=2 style=\"width:100%%;\">"

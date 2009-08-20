@@ -5,6 +5,7 @@
  */
 
 #include "webcit.h"
+#include "calendar.h"
 
 /*
  * Display today's date in a friendly format
@@ -84,7 +85,9 @@ void tasks_section(void) {
 	message_summary *Msg;
 	wcsession *WCC = WC;
 	StrBuf *Buf;
+	SharedMessageStatus Stat;
 
+	memset(&Stat, 0, sizeof(SharedMessageStatus));
 	Buf = NewStrBufPlain(HKEY("_TASKS_"));
 	gotoroom(Buf);
 	FreeStrBuf(&Buf);
@@ -92,14 +95,14 @@ void tasks_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", 0, NULL, NULL);
+		num_msgs = load_msg_ptrs("MSGS ALL", &Stat);
 	}
 
 	if (num_msgs > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		
-			display_task(Msg, 0);
+			tasks_LoadMsgFromServer(NULL, NULL, Msg, 0, 0);
 		}
 		DeleteHashPos(&at);
 	}
@@ -116,6 +119,7 @@ void tasks_section(void) {
  * Calendar section
  */
 void calendar_section(void) {
+	char cmd[SIZ];
 	int num_msgs = 0;
 	HashPos *at;
 	const char *HashKey;
@@ -123,9 +127,12 @@ void calendar_section(void) {
 	void *vMsg;
 	message_summary *Msg;
 	wcsession *WCC = WC;
-	struct calview c;
+	calview c;
 	StrBuf *Buf;
+	void *v = &c;
+	SharedMessageStatus Stat;
 
+	memset(&Stat, 0, sizeof(SharedMessageStatus));
 	Buf = NewStrBufPlain(HKEY("_CALENDAR_"));
 	gotoroom(Buf);
 	FreeStrBuf(&Buf);
@@ -133,16 +140,19 @@ void calendar_section(void) {
 		num_msgs = 0;
 	}
 	else {
-		num_msgs = load_msg_ptrs("MSGS ALL", 0, NULL, NULL);
+		num_msgs = load_msg_ptrs("MSGS ALL", &Stat);
 	}
-
-	parse_calendar_view_request(&c);
+	calendar_GetParamsGetServerCall(&Stat, 
+					&c,
+					readnew, 
+					cmd, 
+					sizeof(cmd));
 
 	if (num_msgs > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		
-			load_calendar_item(Msg, 0, &c);
+			calendar_LoadMsgFromServer(NULL, &v, Msg, 0, 0);
 		}
 		DeleteHashPos(&at);
 	}
