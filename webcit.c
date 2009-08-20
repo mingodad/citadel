@@ -392,7 +392,7 @@ void authorization_required(void)
 	wprintf(_("The resource you requested requires a valid username and password. "
 		"You could not be logged in: %s\n"), message);
 	wDumpContent(0);
-	
+	WCC->killthis = 1;
 }
 
 /*
