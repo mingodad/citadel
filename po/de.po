@@ -28,7 +28,7 @@ msgstr "Hinzufügen"
 #: ../static/t/tab_siteconfig_access.html:35
 #: ../static/t/userlist_detailview.html:22
 msgid "Deleted"
-msgstr "gelöscht"
+msgstr "Gelöscht"
 
 #: ../auth.c:22 ../auth.c:90 ../static/t/tab_siteconfig_access.html:10
 #: ../static/t/tab_siteconfig_access.html:36
@@ -168,7 +168,7 @@ msgstr "Ändern Sie Ihr Passwort"
 
 #: ../auth.c:799
 msgid "Enter new password:"
-msgstr "Bitte geben Sie ein neues Passwort ein"
+msgstr "Bitte geben Sie ein neues Passwort ein:"
 
 #: ../auth.c:803
 msgid "Enter it again to confirm:"
@@ -192,7 +192,7 @@ msgstr "Abgebrochen. Passwort wurde nicht gesetzt."
 
 #: ../auth.c:841
 msgid "They don't match.  Password was not changed."
-msgstr "Die Passwörter stimmen nicht überein. Passwort nicht geändert"
+msgstr "Die Passwörter stimmen nicht überein. Passwort nicht geändert."
 
 #: ../availability.c:139
 msgid "availability unknown"
@@ -248,7 +248,7 @@ msgstr "Endzeit/-Datum:"
 
 #: ../calendar.c:150 ../calendar.c:745 ../static/t/files.html:38
 msgid "Description:"
-msgstr "Beschreibung"
+msgstr "Beschreibung:"
 
 #: ../calendar.c:159 ../event.c:42
 msgid "Recurrence"
@@ -260,7 +260,7 @@ msgstr "Thermin Serie hinzufügen"
 
 #: ../calendar.c:169
 msgid "Attendee:"
-msgstr "Teilnehmer"
+msgstr "Teilnehmer:"
 
 #: ../calendar.c:209
 #, c-format
@@ -384,7 +384,7 @@ msgstr "Vollständig:"
 
 #: ../calendar.c:735
 msgid "Category:"
-msgstr "Kategorie"
+msgstr "Kategorie:"
 
 #: ../calendar.c:763 ../event.c:738
 msgid "Save"
@@ -411,7 +411,7 @@ msgstr "Kalender-Tagesübersicht endet bei:"
 
 #: ../calendar.c:1306
 msgid "Week starts on:"
-msgstr "Wochen starten an:"
+msgstr "Wochen starten am:"
 
 #: ../calendar_tools.c:86
 msgid "Hour: "
@@ -3204,7 +3204,7 @@ msgid ""
 msgstr ""
 "Wenn der Administrator freigeschaltet hat, kann Citadel dem Funambol Server "
 "automatisch benachrichtigen, das eine neue EMail eingetroffen ist und sie "
-"auf Endgerähte mit Funambol Cliet synchronisieren."
+"auf Endgeräte mit Funambol Client synchronisieren."
 
 #: ../static/t/pushemail.html:19
 msgid ""
@@ -3286,12 +3286,12 @@ msgstr "Erzeugen von Benutzerkonten am Anmeldeprompt verbieten"
 #: ../static/t/tab_siteconfig_access.html:50
 #, fuzzy
 msgid "Authentication mode"
-msgstr "Systemautentifizierung benutzen"
+msgstr "Systemauthentifizierung benutzen"
 
 #: ../static/t/tab_siteconfig_access.html:52
 #, fuzzy
 msgid "Self contained"
-msgstr "beinhaltet"
+msgstr "Integriert"
 
 #: ../static/t/tab_siteconfig_access.html:53
 #, fuzzy
@@ -3352,14 +3352,14 @@ msgid ""
 "Changes made on this screen will not take effect until you restart the "
 "Citadel server."
 msgstr ""
-"Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv"
+"Änderungen in diesem Menü werden erst mit Neustart des Citadel-Servers aktiv."
 
 #: ../static/t/tab_siteconfig_directory.html:5
 msgid ""
 "NOTE: This Citadel server has been built without LDAP support.  These "
 "options will have no effect."
 msgstr ""
-"Anmerkung: Dieser Citadelserver wurdo ohne LDAP-Support gebaut. Diese Option "
+"Anmerkung: Dieser Citadelserver wurde ohne LDAP-Support gebaut. Diese Option "
 "wird keine Auswirkung haben."
 
 #: ../static/t/tab_siteconfig_directory.html:10
@@ -3412,7 +3412,7 @@ msgstr "Eingabeaufforderung (nur für Textclients)"
 
 #: ../static/t/tab_siteconfig_general.html:24
 msgid "Geographic location of this system"
-msgstr "Geographische Position dieses Systems"
+msgstr "Geografische Position dieses Systems"
 
 #: ../static/t/tab_siteconfig_general.html:27
 msgid "Name of system administrator"
@@ -3428,7 +3428,7 @@ msgstr "Indizierung und Protokollierung"
 
 #: ../static/t/tab_siteconfig_indexing.html:3
 msgid "Warning: these facilities are resource intensive."
-msgstr "Warnung: Diese Dienste sind Ressourcen intensiv"
+msgstr "Warnung: Diese Dienste sind Ressourcen intensiv."
 
 #: ../static/t/tab_siteconfig_indexing.html:7
 msgid "Enable full text index"
@@ -3460,7 +3460,7 @@ msgstr "'From:' -Kopfzeilen bei authentifizierten SMTP korrigieren"
 
 #: ../static/t/tab_siteconfig_network.html:13
 msgid "Flag message as spam, instead of rejecting it"
-msgstr "Meldung als Spam Markieren, anstelle vererfen"
+msgstr "Meldung als Spam Markieren, anstelle verwerfen"
 
 #: ../static/t/tab_siteconfig_network.html:16
 msgid "IMAP listener port (-1 to disable)"
@@ -3488,13 +3488,13 @@ msgstr "SMTPS Serverport (-1 zum Abschalten)"
 
 #: ../static/t/tab_siteconfig_network.html:35
 msgid "Instantly expunge deleted messages in IMAP"
-msgstr "Löschen via IMAP nicht cachen?"
+msgstr "Löschen via IMAP nicht cachen (instant expunge)?"
 
 #: ../static/t/tab_siteconfig_network.html:39
 msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
 msgstr ""
-"Nicht autentifizierten SMTP clients erlauben die Domain dieser Citadel zu "
-"verwenden"
+"Nicht authentifizierten SMTP clients erlauben die Domain dieser Citadel- "
+"Installation zu verwenden"
 
 #: ../static/t/tab_siteconfig_network.html:42
 msgid "Postfix TCP Dictionary Port"
@@ -3514,7 +3514,7 @@ msgstr "RBL Prüfung schon beim Verbindungsaufbau durchführen"
 
 #: ../static/t/tab_siteconfig_network.html:51
 msgid "Keep original from headers in IMAP"
-msgstr "Orginal IMAP-Header behalten"
+msgstr "Original IMAP-Header behalten"
 
 #: ../static/t/tab_siteconfig_network.html:54
 msgid "XMPP (Jabber) client to server port (-1 to disable)"
@@ -3586,7 +3586,7 @@ msgstr "Automatische Raumlöschung nach (Tage)"
 
 #: ../static/t/tab_siteconfig_tuning.html:16
 msgid "Maximum message length"
-msgstr "Maximale Nachrichtenlänge"
+msgstr "Maximale Nachrichtenlänge (in Bytes)"
 
 #: ../static/t/tab_siteconfig_tuning.html:19
 msgid "Minimum number of worker threads"
@@ -3670,7 +3670,7 @@ msgstr "Anzeigen"
 
 #: ../static/t/who.html:14
 msgid "Users currently on "
-msgstr "Angemeldete Benutzer auf"
+msgstr "Angemeldete Benutzer auf "
 
 #: ../static/t/wholiststatic.html:7 ../static/t/wholistsummarysection.html:6
 msgid "Room"
@@ -3746,17 +3746,17 @@ msgstr "(beenden)"
 
 #~ msgid "The citadel server has to be restarted. It will be back in a minute."
 #~ msgstr ""
-#~ "Der Citadel-Server wird neu gestartet. Er wird in kürze wieder verfuegbar "
+#~ "Der Citadel-Server wird neu gestartet. Er wird in kürze wieder verfügbar "
 #~ "sein."
 
 #~ msgid "Login"
 #~ msgstr "Anmelden"
 
 #~ msgid "Delete this note?"
-#~ msgstr "Diese Notiz Löschen?"
+#~ msgstr "Diese Notiz löschen?"
 
 #~ msgid "Delete this message?"
-#~ msgstr "Diese Nachricht Löschen?"
+#~ msgstr "Diese Nachricht löschen?"
 
 #~ msgid "Save changes?"
 #~ msgstr "Änderungen übernehmen?"
@@ -3777,7 +3777,7 @@ msgstr "(beenden)"
 #~ msgstr "Knoten Hinzufügen?"
 
 #~ msgid "Do you really want to kill this session?"
-#~ msgstr "Wollen Sie diese OpenID wirklich Löschen?"
+#~ msgstr "Wollen Sie diese OpenID wirklich löschen?"
 
 #~ msgid "Delete this entry?"
 #~ msgstr "Diesen Eintrag löschen?"
