@@ -20,6 +20,7 @@ const char *AvailLang[] = {
 	"nl_NL",
 	"pt_BR",
 	"hu_HU",
+	"et_EE",
 	""
 };
 
