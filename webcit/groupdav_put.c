@@ -33,6 +33,7 @@ void groupdav_put_bigics(void)
 		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
+		begin_burst();
 		wprintf("%s\r\n", &buf[4]);
 		end_burst();
 		return;
@@ -70,6 +71,7 @@ void groupdav_put(void)
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
+		begin_burst();
 		wprintf("The object you requested was not found.\r\n");
 		end_burst();
 		return;
@@ -92,6 +94,7 @@ void groupdav_put(void)
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
+		begin_burst();
 		wprintf("There is no folder called \"%s\" on this server.\r\n",
 			ChrPtr(dav_roomname));
 		end_burst();
@@ -116,7 +119,7 @@ void groupdav_put(void)
 			lprintf(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
 				StrTol(WCC->Hdr->HR.dav_ifmatch), old_msgnum);
 			groupdav_common_headers();
-			hprintf("Content-Length: 0\r\n");
+			
 			end_burst();
 			FreeStrBuf(&dav_roomname);
 			FreeStrBuf(&dav_uid);
@@ -144,7 +147,7 @@ void groupdav_put(void)
 		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
-
+		begin_burst();
 		wprintf("%s\r\n", &buf[4]);
 		end_burst();
 		return;
@@ -181,6 +184,7 @@ void groupdav_put(void)
 		hprintf("HTTP/1.1 502 Bad Gateway\r\n");
 		groupdav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
+		begin_burst();
 		wprintf("new_msgnum is %ld\r\n"
 			"\r\n", new_msgnum);
 		end_burst();

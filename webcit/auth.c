@@ -957,7 +957,10 @@ void CheckAuthBasic(ParsedHttpHdrs *hdr)
 	StrBufAppendBufPlain(hdr->HR.plainauth, HKEY(":"), 0);
 	StrBufAppendBuf(hdr->HR.plainauth, hdr->HR.user_agent, 0);
 	hdr->HR.SessionKey = hashlittle(SKEY(hdr->HR.plainauth), 89479832);
-	
+/*
+	lprintf(1, "CheckAuthBasic: calculated sessionkey %ld\n", 
+		hdr->HR.SessionKey);
+*/
 }
 
 void GetAuthBasic(ParsedHttpHdrs *hdr)

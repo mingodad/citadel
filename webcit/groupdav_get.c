@@ -23,9 +23,11 @@ void groupdav_get_big_ics(void) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
+		begin_burst();
 		wprintf("%s\r\n",
 			&buf[4]
-			);/* TODO: do we need to end-burst here? */
+			);
+		end_burst();
 		return;
 	}
 

@@ -1231,6 +1231,7 @@ void display_vcard_photo_img(void)
 		hprintf("HTTP/1.1 500 %s\n","Unable to get photo");
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
+		begin_burst();
 		wprintf(_("Could Not decode vcard photo\n"));
 		end_burst();
 		return;

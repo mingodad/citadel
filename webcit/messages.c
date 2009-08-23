@@ -1480,6 +1480,7 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 		hprintf("HTTP/1.1 404 %s\n", ChrPtr(partnum));
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
+		begin_burst();
 		wprintf(_("An error occurred while retrieving this part: %s/%s\n"), 
 			ChrPtr(partnum), ChrPtr(filename));
 		end_burst();
@@ -1539,6 +1540,7 @@ void mimepart(int force_download)
 		hprintf("HTTP/1.1 404 %s\n", ChrPtr(Buf));
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
+		begin_burst();
 		wprintf(_("An error occurred while retrieving this part: %s\n"), 
 			ChrPtr(Buf));
 		end_burst();
