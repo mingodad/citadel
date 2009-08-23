@@ -25,3 +25,4 @@ void groupdav_folder_list(void);
 void euid_escapize(char *, const char *);
 void euid_unescapize(char *, const char *);
 void groupdav_identify_host(void);
+void groupdav_identify_hosthdr(void);

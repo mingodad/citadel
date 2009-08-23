@@ -183,6 +183,19 @@ void groupdav_identify_host(void) {
 	}
 }
 
+/*
+ * Output our host prefix for globally absolute URL's.
+ */  
+void groupdav_identify_hosthdr(void) {
+	wcsession *WCC = WC;
+
+	if (StrLength(WCC->Hdr->HR.http_host)!=0) {
+		hprintf("%s://%s",
+			(is_https ? "https" : "http"),
+			ChrPtr(WCC->Hdr->HR.http_host));
+	}
+}
+
 
 void Header_HandleIfMatch(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
