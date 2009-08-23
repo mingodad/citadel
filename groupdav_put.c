@@ -197,7 +197,7 @@ void groupdav_put(void)
 		groupdav_common_headers();
 		hprintf("etag: \"%ld\"\r\n", new_msgnum);
 		hprintf("Location: ");
-		groupdav_identify_host();
+		groupdav_identify_hosthdr();
 		hprintf("/groupdav/");/* TODO */
 		hurlescputs(ChrPtr(dav_roomname));
 	        euid_escapize(escaped_uid, ChrPtr(dav_uid));
