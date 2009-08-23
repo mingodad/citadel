@@ -46,6 +46,7 @@ void output_static(const char *what)
 		lprintf(9, "output_static('%s') [%s]  -- NOT FOUND --\n", what, ChrPtr(WC->Hdr->this_page));
 		hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 		hprintf("Content-Type: text/plain\r\n");
+		begin_burst();
 		wprintf("Cannot open %s: %s\r\n", what, strerror(errno));
 		end_burst();
 	} else {
@@ -56,6 +57,7 @@ void output_static(const char *what)
 			lprintf(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
 			hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 			hprintf("Content-Type: text/plain\r\n");
+			begin_burst();
 			wprintf("Cannot fstat %s: %s\n", what, strerror(errno));
 			end_burst();
 			return;

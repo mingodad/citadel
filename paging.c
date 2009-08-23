@@ -279,6 +279,7 @@ void chat_recv(void) {
 	output_headers(0, 0, 0, 0, 0, 0);
 
 	hprintf("Content-type: text/html; charset=utf-8\r\n");
+	begin_burst();
 	wprintf("<html>\n"
 		"<head>\n"
 		"<meta http-equiv=\"refresh\" content=\"3\" />\n"
@@ -426,6 +427,7 @@ void chat_send(void) {
 
 	output_headers(0, 0, 0, 0, 0, 0);
 	hprintf("Content-type: text/html; charset=utf-8\r\n");
+	begin_burst();
 	wprintf("<HTML>"
 		"<BODY onLoad=\"document.chatsendform.send_this.focus();\" >"
 	);

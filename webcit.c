@@ -241,6 +241,7 @@ void http_redirect(const char *whichpage) {
 	hprintf("Location: %s\r\n", whichpage);
 	hprintf("URI: %s\r\n", whichpage);
 	hprintf("Content-type: text/html; charset=utf-8\r\n");
+	begin_burst();
 	wprintf("<html><body>");
 	wprintf("Go <a href=\"%s\">here</A>.", whichpage);
 	wprintf("</body></html>\n");
@@ -379,6 +380,7 @@ void authorization_required(void)
 	);
 	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", ChrPtr(WC->serv_info->serv_humannode));
 	hprintf("Content-Type: text/html\r\n");
+	begin_burst();
 	wprintf("<h1>");
 	wprintf(_("Authorization Required"));
 	wprintf("</h1>\r\n");
@@ -392,7 +394,7 @@ void authorization_required(void)
 	wprintf(_("The resource you requested requires a valid username and password. "
 		"You could not be logged in: %s\n"), message);
 	wDumpContent(0);
-	WCC->killthis = 1;
+	end_webcit_session();
 }
 
 /*
@@ -601,6 +603,7 @@ void session_loop(void)
 			lprintf(9, "Ignoring request with mismatched nonce.\n");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
 			hprintf("Content-Type: text/plain\r\n\r\n");
+			begin_burst();
 			wprintf("Security check failed.\r\n");
 			end_burst();
 			goto SKIP_ALL_THIS_CRAP;

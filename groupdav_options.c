@@ -56,12 +56,12 @@ void groupdav_options(void)
 		groupdav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf(
-			"Content-Type: text/plain\r\n"
-			"\r\n"
+			"Content-Type: text/plain\r\n");
+		begin_burst();
+		wprintf(
 			"There is no folder called \"%s\" on this server.\r\n",
 			ChrPtr(dav_roomname)
 		);
-		begin_burst();
 		end_burst();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
@@ -77,16 +77,16 @@ void groupdav_options(void)
 		if (dav_msgnum < 0) {
 			hprintf("HTTP/1.1 404 not found\r\n");
 			groupdav_common_headers();
-			hprintf(
-				"Content-Type: text/plain\r\n"
-				"\r\n"
+			hprintf("Content-Type: text/plain\r\n");
+			begin_burst();
+			wprintf(
 				"Object \"%s\" was not found in the \"%s\" folder.\r\n",
 				ChrPtr(dav_uid),
 				ChrPtr(dav_roomname)
 			);
 			FreeStrBuf(&dav_roomname);
 			FreeStrBuf(&dav_uid);
-			begin_burst();end_burst();return;
+			end_burst();return;
 		}
 
 		hprintf("HTTP/1.1 200 OK\r\n");
@@ -94,7 +94,7 @@ void groupdav_options(void)
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("DAV: 1\r\n");
 		hprintf("Allow: OPTIONS, PROPFIND, GET, PUT, DELETE\r\n");
-		hprintf("\r\n");
+		
 		begin_burst();
 		end_burst();
 		FreeStrBuf(&dav_roomname);
@@ -114,7 +114,7 @@ void groupdav_options(void)
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("DAV: 1\r\n");
 	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
-	hprintf("\r\n");
 	begin_burst();
+	wprintf("\r\n");
 	end_burst();
 }
