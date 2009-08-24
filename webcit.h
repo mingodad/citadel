@@ -709,6 +709,8 @@ void save_edit(char *description, char *enter_cmd, int regoto);
 void display_edit(char *description, char *check_cmd,
 		  char *read_cmd, char *save_cmd, int with_room_banner);
 long gotoroom(const StrBuf *gname);
+void remove_march(const StrBuf *aaa);
+void dotskip(void);
 void confirm_delete_room(void);
 void validate(void);
 void display_graphics_upload(char *, char *, char *);
