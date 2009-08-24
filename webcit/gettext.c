@@ -363,8 +363,8 @@ ServerShutdownModule_GETTEXT
 }
 
 #else	/* ENABLE_NLS */
-const char *AvailLang[NUM_LANGS] = {
-	"C"};
+const char *AvailLang[] = {
+	"C", ""};
 
 /** \brief dummy for non NLS enabled systems */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
