@@ -250,7 +250,7 @@ void set_value(char *prompt, char str[])
 }
 
 
-extern char **AvailLang;
+extern const char *AvailLang[];
 int GetLocalePrefs(void)
 {
 	int nLocales;
