@@ -427,7 +427,7 @@ typedef void (*TransitionFunc) (void *Item1, void *Item2, int Odd);
 typedef void (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
 
 int Flathash(const char *str, long len);
-#define IKEY(a) (const char*)(&((int)a)), sizeof(int)
+#define IKEY(a) (const char*) &a, sizeof(a)
 
 HashList *NewHash(int Uniq, HashFunc F);
 void DeleteHash(HashList **Hash);
