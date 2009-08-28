@@ -1,4 +1,4 @@
-\
+
 extern HashList *Conditionals;
 extern HashList *GlobalNS;
 extern HashList *Iterators;

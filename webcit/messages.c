@@ -1687,7 +1687,6 @@ void RegisterReadLoopHandlerset(
 	Handler->ViewCleanup = ViewCleanup;
 
 	Put(ReadLoopHandler, IKEY(RoomType), Handler, NULL);
-
 }
 
 void 

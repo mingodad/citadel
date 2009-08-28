@@ -269,50 +269,6 @@ typedef struct _serv_info {
 } ServInfo;
 
 
-
-/*
- * \brief This struct holds a list of rooms for \\\<G\\\>oto operations.
- */
-struct march {
-	struct march *next;       /* pointer to next in linked list */
-	char march_name[128];     /* name of room */
-	int march_floor;          /* floor number of room */
-	int march_order;          /* sequence in which we are to visit this room */
-};
-
-/* *
- * \brief	This struct holds a list of rooms for client display.
- *		It is a binary tree.
- */
-struct roomlisting {
-	struct roomlisting *lnext;	/* pointer to 'left' tree node */
-	struct roomlisting *rnext;	/* pointer to 'right' tree node */
-	char rlname[128];		/* name of room */
-	unsigned rlflags;		/* room flags */
-	int rlfloor;			/* the floor it resides on */
-	int rlorder;			/* room listing order */
-};
-
-
-
-
-
-
-
-/**
- * \brief  Data structure for roomlist-to-folderlist conversion 
- */
-struct folder {
-	int floor;      /* which floor is it on */
-	char room[SIZ];	/* which roomname ??? */
-	char name[SIZ];	/* which is its own name??? */
-	int hasnewmsgs;	/* are there unread messages inside */
-	int is_mailbox;	/* is it a mailbox?  */
-	int selectable;	/* can we select it ??? */
-	int view;       /* whats its default view? inbox/calendar.... */
-	int num_rooms;	/* If this is a floor, how many rooms does it have */
-};
-
 typedef struct _disp_cal {					
 	icalcomponent *cal;		/* cal items for display */
 	long cal_msgnum;		/* cal msgids for display */
@@ -535,6 +491,7 @@ struct wcsession {
 	int remember_new_mail;			/**< last count of new mail messages */
 
 /* Roomiew control */
+	HashList *Floors;                       /**< floors our citserver has... */
 	HashList *summ;                         /**< list of messages for mailbox summary view */
   /** Perhaps these should be within a struct instead */
 	long startmsg;                          /**< message number to start at */
@@ -546,7 +503,7 @@ struct wcsession {
 	char last_chat_user[256];		/**< ??? todo */
 
 /* Iconbar controls */
-	struct folder *cache_fold;		/**< cache the iconbar room list */
+	struct __ofolder *cache_fold;		/**< cache the iconbar room list */
 	int cache_max_folders;			/**< ??? todo */
 	int cache_num_floors;			/**< ??? todo */
 	time_t cache_timestamp;			/**< ??? todo */

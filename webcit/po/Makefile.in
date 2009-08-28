@@ -46,6 +46,6 @@ all: ../locale/de/LC_MESSAGES/webcit.mo \
 	msgfmt hu.po -o ../locale/hu/LC_MESSAGES/webcit.mo
 
 ../locale/et_EE/LC_MESSAGES/webcit.mo: et_EE.po
-        [ -d ../locale/et_EE/LC_MESSAGES ] || mkdir -p ../locale/et_EE/LC_MESSAGES
-        msgfmt et_EE.po -o ../locale/et_EE/LC_MESSAGES/webcit.mo
+	[ -d ../locale/et_EE/LC_MESSAGES ] || mkdir -p ../locale/et_EE/LC_MESSAGES
+	msgfmt et_EE.po -o ../locale/et_EE/LC_MESSAGES/webcit.mo
 

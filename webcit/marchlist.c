@@ -1,6 +1,6 @@
 #include "webcit.h"
 #include "webserver.h"
-
+#include "roomops.h"
 
 /*
  * Free a session's march list
