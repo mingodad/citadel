@@ -209,8 +209,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			FlushStrBuf(WCC->ImportantMsg);
 		}
 		if ( (WCC->logged_in) && (!unset_cookies) ) {
-			/*DoTemplate(HKEY("iconbar"), NULL, &NoCtx);*/
-			page_popup();
+			DoTemplate(HKEY("paging"), NULL, &NoCtx);
 		}
 
 		if (do_room_banner == 1) {

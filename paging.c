@@ -139,58 +139,22 @@ void do_chat(void)
  * If there are instant messages waiting, and we notice that we haven't checked them in
  * a while, it probably means that we need to open the instant messenger window.
  */
-void page_popup(void)
+int Conditional_PAGE_WAITING(StrBuf *Target, WCTemplputParams *TP)
 {
 	int len;
 	char buf[SIZ];
 
 	/** JavaScript function to alert the user that popups are probably blocked */
-	wprintf("<script type=\"text/javascript\">	"
-		"function PopUpFailed() {	"
-		" alert(\"%s\");	"
-		"}	"
-		"</script>\n",
-		_("You have one or more instant messages waiting, but the Citadel Instant Messenger "
-		  "window failed to open.  This is probably because you have a popup blocker "
-		  "installed.  Please configure your popup blocker to allow popups from this site "
-		  "if you wish to receive instant messages.")
-	);
-
 	/** First, do the check as part of our page load. */
 	serv_puts("NOOP");
 	len = serv_getln(buf, sizeof buf);
 	if ((len >= 3) && (buf[3] == '*')) {
 		if ((time(NULL) - WC->last_pager_check) > 60) {
-			wprintf("<script type=\"text/javascript\">"
-				" var oWin = window.open('static/instant_messenger.html', "
-				" 'CTDL_MESSENGER', 'width=700,height=400');	"
-				" if (oWin==null || typeof(oWin)==\"undefined\") {	"
-				"  PopUpFailed();	"
-				" }	"
-				"</script>"
-			);	
+			return 1;
 		}
 	}
-
+	return 0;
 	/** Then schedule it to happen again a minute from now if the user is idle. */
-	wprintf("<script type=\"text/javascript\">	"
-		" function HandleSslp(sslg_xmlresponse) {	"
-		"  sslg_response = sslg_xmlresponse.responseText.substr(0, 1);	"
-		"  if (sslg_response == 'Y') {	"
-		"   var oWin = window.open('static/instant_messenger.html', 'CTDL_MESSENGER',	"
-		"    'width=700,height=400');	"
-		"   if (oWin==null || typeof(oWin)==\"undefined\") {	"
-		"    PopUpFailed();	"
-		"   }	"
-		"  }	"
-		" }	"
-		" function CheckPager() {	"
-		"  new Ajax.Request('sslg', { method: 'get', parameters: CtdlRandomString(),	"
-		"   onSuccess: HandleSslp } );	"
-		" }	"
-		" new PeriodicalExecuter(CheckPager, 30);	"
-		"</script>	"
-	);
 }
 
 
@@ -528,6 +492,7 @@ InitModule_PAGING
 	WebcitAddUrlHandler(HKEY("chat_recv"), chat_recv, 0);
 	WebcitAddUrlHandler(HKEY("chat_send"), chat_send, 0);
 	WebcitAddUrlHandler(HKEY("ajax_send_instant_message"), ajax_send_instant_message, AJAX);
+	RegisterConditional(HKEY("COND:PAGE:WAITING"), 0, Conditional_PAGE_WAITING, CTX_NONE);
 }
 
 
