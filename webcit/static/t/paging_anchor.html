@@ -1,0 +1,16 @@
+<script type="text/javascript"> function HandleSslp(sslg_xmlresponse) {
+  sslg_response = sslg_xmlresponse.responseText.substr(0, 1);
+  if (sslg_response == 'Y') {
+   var oWin = window.open('static/instant_messenger.html', 'CTDL_MESSENGER',
+    'width=700,height=400');
+   if (oWin==null || typeof(oWin)=="undefined") {
+    PopUpFailed();
+   }
+  }
+ }
+ function CheckPager() {
+  new Ajax.Request('sslg', { method: 'get', parameters: CtdlRandomString(),
+   onSuccess: HandleSslp } );
+ }
+ new PeriodicalExecuter(CheckPager, 30);
+</script>
