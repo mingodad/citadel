@@ -1,4 +1,6 @@
 
+#define VIRTUAL_MY_FLOOR -1
+
 /*
  * \brief This struct holds a list of rooms for \\\<G\\\>oto operations.
  */
