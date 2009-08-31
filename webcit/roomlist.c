@@ -27,13 +27,15 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
 		return WCC->Floors;
 	WCC->Floors = floors = NewHash(1, NULL);
 	Buf = NewStrBuf();
- 
+/* 
 	Floor = malloc(sizeof(floor));
 	Floor->ID = VIRTUAL_MY_FLOOR;
 	Floor->Name = NewStrBufPlain(_("My Folders"), -1);
 	Floor->NRooms = 0;
 	
 	Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
+*/
+
 	serv_puts("LFLR"); /* get floors */
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
 	if (GetServerStatus(Buf, NULL) == 1) 
@@ -137,10 +139,11 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 			room->view = StrBufExtractNext_long(Buf, &Pos, '|');
 			room->defview = StrBufExtractNext_long(Buf, &Pos, '|');
 			room->lastchange = StrBufExtractNext_long(Buf, &Pos, '|');
-
+/*
 			if ((room->QRFlags & QR_MAILBOX) && 
 			    (room->floorid == 0))
 				room->floorid = VIRTUAL_MY_FLOOR;
+*/
 			GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
 			room->Floor = (const floor*) vFloor;
 			Put(rooms, SKEY(room->name), room, DeleteFolder);
