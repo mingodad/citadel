@@ -48,7 +48,7 @@ inline char *FindNextEnd (char *bptr)
  * Handle subjects with RFC2047 encoding such as:
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
  */
-void utf8ify_rfc822_string(char *buf) {
+void utf8ify_rfc822_string(char **buf) {
 	char *start, *end, *next, *nextend, *ptr;
 	char newbuf[1024];
 	char charset[128];
@@ -71,9 +71,9 @@ void utf8ify_rfc822_string(char *buf) {
 	 *  handle it anyway by converting from a user-specified default
 	 *  charset to UTF-8 if we see any nonprintable characters.
 	 */
-	len = strlen(buf);
+	len = strlen(*buf);
 	for (i=0; i<len; ++i) {
-		if ((buf[i] < 32) || (buf[i] > 126)) {
+		if (((*buf)[i] < 32) || ((*buf)[i] > 126)) {
 			illegal_non_rfc2047_encoding = 1;
 			i = len; /*< take a shortcut, it won't be more than one. */
 		}
@@ -87,15 +87,15 @@ void utf8ify_rfc822_string(char *buf) {
 			if (ic != (iconv_t)(-1) ) {
 				ibuf = malloc(1024);
 				isav = ibuf;
-				safestrncpy(ibuf, buf, 1024);
+				safestrncpy(ibuf, *buf, 1023);
 				ibuflen = strlen(ibuf);
 				obuflen = 1024;
 				obuf = (char *) malloc(obuflen);
 				osav = obuf;
 				iconv(ic, &ibuf, &ibuflen, &obuf, &obuflen);
-				osav[1024-obuflen] = 0;
-				strcpy(buf, osav);
-				free(osav);
+				osav[1023-obuflen] = 0;
+				free(*buf);
+				*buf = osav;
 				iconv_close(ic);
 				free(isav);
 			}
@@ -104,8 +104,8 @@ void utf8ify_rfc822_string(char *buf) {
 
 	/* pre evaluate the first pair */
 	nextend = end = NULL;
-	len = strlen(buf);
-	start = strstr(buf, "=?");
+	len = strlen(*buf);
+	start = strstr(*buf, "=?");
 	if (start != NULL) 
 		end = FindNextEnd (start);
 
@@ -138,7 +138,7 @@ void utf8ify_rfc822_string(char *buf) {
 				/* now terminate the gab at the end */
 				delta = (next - end) - 2;
 				len -= delta;
-				buf[len] = '\0';
+				(*buf)[len] = '\0';
 
 				/* move next to its new location. */
 				next -= delta;
@@ -153,7 +153,7 @@ void utf8ify_rfc822_string(char *buf) {
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
 	 */
-	while (start=strstr(buf, "=?"), end=FindNextEnd((start != NULL)? start : buf),
+	while (start=strstr((*buf), "=?"), end=FindNextEnd((start != NULL)? start : (*buf)),
 		((start != NULL) && (end != NULL) && (end > start)) )
 	{
 		extract_token(charset, start, 1, '?', sizeof charset);
@@ -201,8 +201,9 @@ void utf8ify_rfc822_string(char *buf) {
 			remove_token(end, 0, '?');
 			strcpy(end, &end[1]);
 
-			snprintf(newbuf, sizeof newbuf, "%s%s%s", buf, osav, end);
-			strcpy(buf, newbuf);
+			snprintf(newbuf, sizeof newbuf, "%s%s%s", *buf, osav, end);
+			strcpy(*buf, newbuf);
+			
 			free(osav);
 			iconv_close(ic);
 		}
@@ -216,8 +217,8 @@ void utf8ify_rfc822_string(char *buf) {
 			remove_token(end, 0, '?');
 			strcpy(end, &end[1]);
 
-			snprintf(newbuf, sizeof newbuf, "%s(unreadable)%s", buf, end);
-			strcpy(buf, newbuf);
+			snprintf(newbuf, sizeof newbuf, "%s(unreadable)%s", *buf, end);
+			strcpy(*buf, newbuf);
 		}
 
 		free(isav);

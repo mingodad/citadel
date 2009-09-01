@@ -821,7 +821,7 @@ int client_read_sslbuffer(StrBuf *buf, int timeout);
 void client_write_ssl(const StrBuf *Buf);
 #endif
 
-void utf8ify_rfc822_string(char *buf);
+void utf8ify_rfc822_string(char **buf);
 
 void begin_burst(void);
 long end_burst(void);

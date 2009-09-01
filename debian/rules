@@ -24,7 +24,7 @@ ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	LDFLAGS += -pg 
 endif
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0 -ggdb -rdynamic -MD -MP -D TECH_PREVIEW -pedantic
+	CFLAGS += -O0 -ggdb -rdynamic -MD -MP -D TECH_PREVIEW -pedantic -Wformat-nonliteral
 	EXTRA_ARGS =  --with-backtrace
 else
 	CFLAGS += -O2
