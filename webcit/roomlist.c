@@ -15,26 +15,45 @@ void DeleteFloor(void *vFloor)
 	free(Floor);
 }
 
+int SortFloorsByNameOrder(const void *vfloor1, const void *vfloor2) 
+{
+	floor *f1 = (floor*) GetSearchPayload(vfloor1);
+	floor *f2 = (floor*) GetSearchPayload(vfloor2);
+	
+	/* prefer My floor over alpabetical sort */
+	if (f1->ID == VIRTUAL_MY_FLOOR)
+		return 1;
+	if (f2->ID == VIRTUAL_MY_FLOOR)
+		return -1;
+
+	return strcmp(ChrPtr(f1->Name), ChrPtr(f2->Name));
+}
+
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
 	const char *Err;
 	StrBuf *Buf;
 	HashList *floors;
+	HashPos *it;
 	floor *Floor;
+	void *vFloor;
 	const char *Pos;
+	int i;
 	wcsession *WCC = WC;
+	const char *HashKey;
+	long HKLen;
+
 
 	if (WCC->Floors != NULL)
 		return WCC->Floors;
 	WCC->Floors = floors = NewHash(1, NULL);
 	Buf = NewStrBuf();
-/* 
+
 	Floor = malloc(sizeof(floor));
 	Floor->ID = VIRTUAL_MY_FLOOR;
 	Floor->Name = NewStrBufPlain(_("My Folders"), -1);
 	Floor->NRooms = 0;
 	
 	Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
-*/
 
 	serv_puts("LFLR"); /* get floors */
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
@@ -55,6 +74,16 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
 		}
 	}
 	FreeStrBuf(&Buf);
+	
+	/* now lets pre-sort them alphabeticaly. */
+	i = 1;
+	SortByPayload(floors, SortFloorsByNameOrder);
+	it = GetNewHashPos(floors, 0);
+	while (	GetNextHashPos(floors, it, &HKLen, &HashKey, &vFloor)) 
+		((floor*) vFloor)->AlphaN = i++;
+	DeleteHashPos(&it);
+	SortByHashKeyStr(floors);
+
 	return floors;
 }
 
@@ -90,6 +119,7 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP)
 
 void DeleteFolder(void *vFolder)
 {
+	int i;
 	folder *room;
 	room = (folder*) vFolder;
 
@@ -98,6 +128,12 @@ void DeleteFolder(void *vFolder)
 
 	//// FreeStrBuf(&room->room);
 
+	if (room->RoomNameParts != NULL)
+	{
+		for (i=0; i < room->nRoomNameParts; i++)
+			FreeStrBuf(&room->RoomNameParts[i]);
+		free(room->RoomNameParts);
+	}
 	free(room);
 }
 
@@ -111,6 +147,8 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	const char *Err;
 	void *vFloor;
 	wcsession *WCC = WC;
+	CompareFunc SortIt;
+	WCTemplputParams SubTP;
 
 	Buf = NewStrBuf();
 	rooms = NewHash(1, NULL);
@@ -125,6 +163,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 			room = (folder*) malloc (sizeof(folder));
 			memset(room, 0, sizeof(folder));
 
+			/* Load the base data from the server reply */
 			room->name = NewStrBufPlain(NULL, StrLength(Buf));
 			StrBufExtract_NextToken(room->name, Buf, &Pos, '|');
 
@@ -140,17 +179,47 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 			room->defview = StrBufExtractNext_long(Buf, &Pos, '|');
 			room->lastchange = StrBufExtractNext_long(Buf, &Pos, '|');
 /*
+
+			/* Evaluate the Server sent data for later use */
+			/* find out, whether we are in a sub-room */
+			room->nRoomNameParts = StrBufNum_tokens(room->name, '\\');
+			if (room->nRoomNameParts > 1)
+			{
+				int i;
+
+				Pos = NULL;
+				room->RoomNameParts = malloc(sizeof(StrBuf*) * (room->nRoomNameParts + 1));
+				memset(room->RoomNameParts, 0, sizeof(StrBuf*) * (room->nRoomNameParts + 1));
+				for (i=0; i < room->nRoomNameParts; i++)
+				{
+					room->RoomNameParts[i] = NewStrBuf();
+					StrBufExtract_NextToken(room->RoomNameParts[i],
+								room->name, &Pos, '\\');
+				}
+			}
+
+			/* Private mailboxes on the main floor get remapped to the personal folder */
 			if ((room->QRFlags & QR_MAILBOX) && 
 			    (room->floorid == 0))
 				room->floorid = VIRTUAL_MY_FLOOR;
-*/
+			/* get a pointer to the floor we're on: */
 			GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
 			room->Floor = (const floor*) vFloor;
+
+
+
+			/* now we know everything, remember it... */
 			Put(rooms, SKEY(room->name), room, DeleteFolder);
 		}
 	}
-	SortByHashKey(rooms, 1);
-	/*SortByPayload(rooms, SortRoomsByListOrder);  */
+///	SortByHashKey(rooms, 1);
+
+	SubTP.Filter.ContextType = CTX_ROOMS;
+	SortIt = RetrieveSort(&SubTP, NULL, 0, HKEY("fileunsorted"), 0);
+	if (SortIt != NULL)
+		SortByPayload(rooms, SortIt);
+	else 
+		SortByPayload(rooms, SortRoomsByListOrder);
 	FreeStrBuf(&Buf);
 	return rooms;
 }
@@ -158,25 +227,179 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 /** Unused function that orders rooms by the listorder flag */
 int SortRoomsByListOrder(const void *room1, const void *room2) 
 {
-	folder *r1 = (folder*) room1;
-	folder *r2 = (folder*) room2;
+	folder *r1 = (folder*) GetSearchPayload(room1);
+	folder *r2 = (folder*) GetSearchPayload(room2);
   
 	if (r1->listorder == r2->listorder) return 0;
 	if (r1->listorder > r2->listorder) return 1;
 	return -1;
 }
 
-int SortRoomsByFloorAndName(const void *room1, const void *room2) 
+int CompareRoomListByFloorRoomPrivFirst(const void *room1, const void *room2) 
+{
+	folder *r1 = (folder*) GetSearchPayload(room1);
+	folder *r2 = (folder*) GetSearchPayload(room2);
+  
+	/**
+	 * are we on the same floor? else sort by floor.
+	 */
+	if (r1->Floor != r2->Floor)
+	{
+		/**
+		 * the private rooms are first in any case.
+		 */
+		if (r1->Floor->ID == VIRTUAL_MY_FLOOR)
+			return -1;
+		if (r2->Floor->ID == VIRTUAL_MY_FLOOR)
+			return 1;
+		/**
+		 * else decide alpaheticaly by floorname
+		 */
+		return (r1->Floor->AlphaN > r2->Floor->AlphaN)? 1 : -1;
+	}
+
+	/**
+	 * if we have different levels of subdirectories, 
+	 * we want the toplevel to be first, regardless of sort
+	 * sequence.
+	 */
+	if (((r1->nRoomNameParts > 1) || 
+	    (r2->nRoomNameParts > 1)    )&&
+	    (r1->nRoomNameParts != r2->nRoomNameParts))
+	{
+		int i, ret;
+		int nparts = (r1->nRoomNameParts > r2->nRoomNameParts)?
+			r2->nRoomNameParts : r1->nRoomNameParts;
+
+		for (i=0; i < nparts; i++)
+		{
+			ret = strcmp (ChrPtr(r1->name), 
+				      ChrPtr(r2->name));
+			/**
+			 * Deltas in common parts? exit here.
+			 */
+			if (ret != 0) 
+				return ret;
+		}
+
+		/**
+		 * who's a subdirectory of whom?
+		 */
+		if (r1->nRoomNameParts > r2->nRoomNameParts)
+			return 1;
+		else
+			return -1;
+
+	}
+
+	/**
+	 * else just sort alphabeticaly.
+	 */
+	return strcmp (ChrPtr(r1->name), 
+		       ChrPtr(r2->name));
+}
+
+int CompareRoomListByFloorRoomPrivFirstRev(const void *room1, const void *room2) 
+{
+	folder *r1 = (folder*) GetSearchPayload(room1);
+	folder *r2 = (folder*) GetSearchPayload(room2);
+  
+	/**
+	 * are we on the same floor? else sort by floor.
+	 */
+	if (r2->Floor != r1->Floor)
+	{
+		/**
+		 * the private rooms are first in any case.
+		 */
+		if (r1->Floor->ID == VIRTUAL_MY_FLOOR)
+			return -1;
+		if (r2->Floor->ID == VIRTUAL_MY_FLOOR)
+			return 1;
+		/**
+		 * else decide alpaheticaly by floorname
+		 */
+
+		return (r1->Floor->AlphaN < r2->Floor->AlphaN)? 1 : -1;
+	}
+
+	/**
+	 * if we have different levels of subdirectories, 
+	 * we want the toplevel to be first, regardless of sort
+	 * sequence.
+	 */
+	if (((r1->nRoomNameParts > 1) || 
+	    (r2->nRoomNameParts > 1)    )&&
+	    (r1->nRoomNameParts != r2->nRoomNameParts))
+	{
+		int i, ret;
+		int nparts = (r1->nRoomNameParts > r2->nRoomNameParts)?
+			r2->nRoomNameParts : r1->nRoomNameParts;
+
+		for (i=0; i < nparts; i++)
+		{
+			/**
+			 * special cases if one room is top-level...
+			 */
+			if (r2->nRoomNameParts == 1)
+				ret = strcmp (ChrPtr(r2->name), 
+					      ChrPtr(r1->RoomNameParts[i]));
+			else if (r1->nRoomNameParts == 1)
+				ret = strcmp (ChrPtr(r2->RoomNameParts[i]),
+					      ChrPtr(r1->name));
+			else 
+				ret = strcmp (ChrPtr(r2->RoomNameParts[i]), 
+					      ChrPtr(r1->RoomNameParts[i]));
+			/**
+			 * Deltas in common parts? exit here.
+			 */
+			if (ret != 0) 
+				return ret;
+		}
+
+		/**
+		 * who's a subdirectory of whom?
+		 */
+		if (r1->nRoomNameParts > r2->nRoomNameParts)
+			return 1;
+		else
+			return -1;
+	}
+
+	return strcmp (ChrPtr(r2->name), 
+		       ChrPtr(r1->name));
+}
+
+int GroupchangeRoomListByFloorRoomPrivFirst(const void *room1, const void *room2) 
 {
 	folder *r1 = (folder*) room1;
 	folder *r2 = (folder*) room2;
   
-	if (r1->Floor != r2->Floor)
-		return strcmp(ChrPtr(r1->Floor->Name), 
-			      ChrPtr(r2->Floor->Name));
-	return strcmp (ChrPtr(r1->name), 
-		       ChrPtr(r2->name));
+
+	if (r1->Floor == r2->Floor)
+		return 0;
+	else 
+	{
+		wcsession *WCC = WC;
+		static int columns = 3;
+		int boxes_per_column = 0;
+		int nf;
+
+		nf = GetCount(WCC->Floors);
+		while (nf % columns != 0) ++nf;
+		boxes_per_column = (nf / columns);
+		if (boxes_per_column < 1)
+			boxes_per_column = 1;
+		if (r1->Floor->AlphaN % boxes_per_column == 0)
+			return 2;
+		else 
+			return 1;
+///					wprintf("</td><td valign=top>\n");
+	}
 }
+
+
+
 
 
 
@@ -185,6 +408,31 @@ void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP)
 	folder *Folder = (folder *)(TP->Context);
 
 	StrBufAppendTemplate(Target, TP, Folder->name, 0);
+}
+void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP) 
+{
+	folder *room = (folder *)(TP->Context);
+
+	if (room->nRoomNameParts > 1)
+		StrBufAppendTemplate(Target, TP, 
+				      room->RoomNameParts[room->nRoomNameParts - 1], 0);
+	else 
+		StrBufAppendTemplate(Target, TP, room->name, 0);
+}
+void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP) 
+{
+	folder *room = (folder *)(TP->Context);
+	int i;
+        const char *AppendMe;
+        long AppendMeLen;
+
+
+	if (room->nRoomNameParts > 1)
+	{
+		GetTemplateTokenString(Target, TP, 0, &AppendMe, &AppendMeLen);
+		for (i = 0; i < room->nRoomNameParts; i++)
+			StrBufAppendBufPlain(Target, AppendMe, AppendMeLen, 0);
+	}
 }
 
 void tmplput_ROOM_ACL(StrBuf *Target, WCTemplputParams *TP) 
@@ -306,6 +554,9 @@ InitModule_ROOMLIST
 
 	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, CTX_ROOMS);
+
 	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LISTORDER", 0, 1, tmplput_ROOM_LISTORDER, CTX_ROOMS);
@@ -316,12 +567,11 @@ InitModule_ROOMLIST
 	RegisterNamespace("ROOM:INFO:FLOOR:NAME", 0, 1, tmplput_ROOM_FLOOR_NAME, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, CTX_ROOMS);
 
-/*
 	RegisterSortFunc(HKEY("byfloorroom"),
 			 NULL, 0,
 			 CompareRoomListByFloorRoomPrivFirst,
 			 CompareRoomListByFloorRoomPrivFirstRev,
 			 GroupchangeRoomListByFloorRoomPrivFirst,
 			 CTX_ROOMS);
-*/
+
 }

@@ -1,0 +1,11 @@
+<?!("COND:ITERATE:FIRSTN", 1)>
+<tr><td valign=top>
+<?=("beginbox_1")><?ROOM:INFO:FLOOR:NAME><?=("beginbox_2")>
+<?!("X", 1)>
+<?!("COND:ITERATE:ISGROUPCHANGE", 2)>
+<?=("endbox")><br>
+<?!("COND:ITERATE:ISGROUPCHANGE", 3, 2)></td><td valign=top> <?!("X", 3)>
+<?=("beginbox_1")><?ROOM:INFO:FLOOR:NAME><?=("beginbox_2")>
+<?!("X", 2)>
+&nbsp;<a href="dotgoto?room=<?ROOM:INFO:NAME("X")>"><span class="roomlist_old"><?ROOM:INFO:LEVELNTIMES("&nbsp;&nbsp;&nbsp;")><?ROOM:INFO:BASENAME></span></a><br />
+<?!("COND:ITERATE:LASTN", 2)><?=("endbox")></td></tr><??("X", 3)>
