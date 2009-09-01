@@ -348,7 +348,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum
 			len = strlen(v->prop[i].value);
 			/* if we have some untagged QP, detect it here. */
 			if (!is_qp && (strstr(v->prop[i].value, "=?")!=NULL))
-				utf8ify_rfc822_string(v->prop[i].value);
+				utf8ify_rfc822_string(&v->prop[i].value);
 
 			if (is_qp) {
 				// %ff can become 6 bytes in utf8 
