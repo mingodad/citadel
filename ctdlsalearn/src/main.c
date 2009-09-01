@@ -45,18 +45,24 @@ void do_room(int sock, char *roomname, char *salearnargs)
 	FILE *fp;
 	int i;
 
-	printf("Trying <%s>\n", roomname);
+	printf("%s: ", roomname);
+	fflush(stdout);
 	sock_printf(sock, "GOTO %s\n", roomname);
 	sock_getln(sock, buf, sizeof buf);
-	printf("%s\n", buf);
-	if (buf[0] != '2') return;
+	if (buf[0] != '2') {
+		printf("%s\n", &buf[4]);
+		return;
+	}
 
 	/* Only fetch enough message pointers to fill our buffer.
 	 * Since we're going to delete them, if there are more we will get them on the next run.
 	 */
 	sock_printf(sock, "MSGS LAST|%d\n", MAXMSGS);
 	sock_getln(sock, buf, sizeof buf);
-	if (buf[0] != '1') return;
+	if (buf[0] != '1') {
+		printf("%s\n", &buf[4]);
+		return;
+	}
 	while (sock_getln(sock, buf, sizeof buf), strcmp(buf, "000")) {
 		msgs[num_msgs++] = atol(buf);
 	}
@@ -78,7 +84,7 @@ void do_room(int sock, char *roomname, char *salearnargs)
 		if (pclose(fp) == 0) {
 			sock_printf(sock, "DELE %ld\n", msgs[i]);
 			sock_getln(sock, buf, sizeof buf);
-			printf("%s\n", buf);
+			printf("%s\n", &buf[4]);
 		}
 	}
 }
@@ -109,7 +115,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	printf("Attaching to server...\n");
+	printf("Connecting to Citadel server...\n");
 	fflush(stdout);
 	sprintf(buf, "%s/citadel.socket", ctdldir);
 	server_socket = uds_connectsock(buf);
@@ -118,11 +124,11 @@ int main(int argc, char **argv)
 	}
 
 	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", buf);
+	printf("%s\n", &buf[4]);
 
 	sock_printf(server_socket, "IPGM %d\n", ipgm_secret);
 	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", buf);
+	printf("%s\n", &buf[4]);
 
 	if (buf[0] == '2') {
 		do_room(server_socket, "0000000001.spam", "--spam");
@@ -131,7 +137,7 @@ int main(int argc, char **argv)
 
 	sock_puts(server_socket, "QUIT");
 	sock_getln(server_socket, buf, sizeof buf);
-	printf("%s\n", buf);
+	printf("%s\n", &buf[4]);
 	close(server_socket);
 	exit(0);
 }
