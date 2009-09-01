@@ -1977,7 +1977,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	while (GetNextHashPos(List, it, &Status.KeyLen, &Status.Key, &vContext)) {
 		if ((Status.n >= StartAt) && (Status.n <= StopAt)) {
 			if (DetectGroupChange && Status.n > 0) {
-				Status.GroupChange = (SortBy->GroupChange(vContext, vLastContext))? 1:0;
+				Status.GroupChange = SortBy->GroupChange(vContext, vLastContext);
 			}
 			Status.LastN = (Status.n + 1) == nMembersUsed;
 			SubTP.Context = vContext;
@@ -2002,7 +2002,10 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 int conditional_ITERATE_ISGROUPCHANGE(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CCTX;
-	return Ctx->GroupChange;
+	if (TP->Tokens->nParameters < 3)
+		return 	Ctx->GroupChange;
+
+	return TP->Tokens->Params[2]->lvalue == Ctx->GroupChange;
 }
 
 void tmplput_ITERATE_ODDEVEN(StrBuf *Target, WCTemplputParams *TP)
@@ -2027,6 +2030,12 @@ void tmplput_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 {
 	IterateStruct *Ctx = CCTX;
 	StrBufAppendPrintf(Target, "%d", Ctx->n);
+}
+
+int conditional_ITERATE_FIRSTN(StrBuf *Target, WCTemplputParams *TP)
+{
+	IterateStruct *Ctx = CCTX;
+	return Ctx->n == 0;
 }
 
 int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
@@ -2175,7 +2184,7 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 			Headline = NewStrBufPlain(Ch, len);
 		}
 	}
-       memcpy (&SubTP, TP, sizeof(WCTemplputParams));
+	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
 	SubTP.Context = Headline;
 	SubTP.Filter.ContextType = CTX_STRBUF;
 	DoTemplate(HKEY("beginbox"), Target, &SubTP);
@@ -2601,6 +2610,10 @@ InitModule_SUBST
 	RegisterControlConditional(HKEY("COND:ITERATE:LASTN"), 2, 
 				   conditional_ITERATE_LASTN, 
 				   CTX_ITERATE);
+	RegisterControlConditional(HKEY("COND:ITERATE:FIRSTN"), 2, 
+				   conditional_ITERATE_FIRSTN, 
+				   CTX_ITERATE);
+
 	RegisterControlNS(HKEY("ITERATE:ODDEVEN"), 0, 0, tmplput_ITERATE_ODDEVEN, CTX_ITERATE);
 	RegisterControlNS(HKEY("ITERATE:KEY"), 0, 0, tmplput_ITERATE_KEY, CTX_ITERATE);
 	RegisterControlNS(HKEY("ITERATE:N"), 0, 0, tmplput_ITERATE_LASTN, CTX_ITERATE);

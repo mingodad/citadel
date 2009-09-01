@@ -32,6 +32,7 @@ typedef struct _floor {
 	long ID;
 	StrBuf *Name;
 	long NRooms;
+	long AlphaN;
 } floor;
 
 /**
@@ -54,7 +55,8 @@ struct __ofolder {
  * \brief  Data structure for roomlist-to-folderlist conversion 
  */
 typedef struct _folder {
-	StrBuf *name;	/* which is its own name??? */
+	/* Data citserver tells us about the room */
+	StrBuf *name;	/* the full name of the room we're talking about */
 	int QRFlags;    /* roomflags */
 	int floorid;      /* which floor is it on */
 
@@ -67,8 +69,9 @@ typedef struct _folder {
 	int defview;
 	int lastchange; /* todo... */
 
-
-
+	/* later evaluated data from the serverdata */
+	long nRoomNameParts;
+	StrBuf **RoomNameParts;
 
 	const floor *Floor;   /* pint to the floor we're on.. */
 	StrBuf *room;	/* which roomname ??? */
