@@ -111,9 +111,9 @@
 #define PORT_NUM		2000		/* port number to listen on */
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
-#define CLIENT_VERSION		762		/* This version of WebCit */
+#define CLIENT_VERSION		763		/* This version of WebCit */
 #define MINIMUM_CIT_VERSION	761		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		761		/* min required libcitadel ver */
+#define	LIBCITADEL_MIN		763		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Target for inline URL's */
