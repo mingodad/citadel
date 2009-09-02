@@ -1209,10 +1209,8 @@ readloop_struct rlid[] = {
 
 /* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */
 void new_summary_view(void) {
-	begin_burst();
 	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
 	DoTemplate(HKEY("trailing"),NULL,&NoCtx);
-	end_burst();
 }
 
 
