@@ -509,8 +509,14 @@ function NotesResizeMouseMove(evt) {
 	divTop = parseInt(d.style.height);
 	divLeft = parseInt(d.style.width);
 
-	d.style.height = (divTop + y_increment) + 'px';
-	d.style.width = (divLeft + x_increment) + 'px';
+	newHeight = divTop + y_increment;
+	if (newHeight < 50) newHeight = 50;
+
+	newWidth = divLeft + x_increment;
+	if (newWidth < 50) newWidth = 50;
+
+	d.style.height = newHeight + 'px';
+	d.style.width = newWidth + 'px';
 
 	saved_x = x;
 	saved_y = y;
