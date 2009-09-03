@@ -1330,12 +1330,14 @@ int bbsview_PrintViewHeader(SharedMessageStatus *Stat, void **ViewSpecific)
 			Stat->maxmsgs = abs(Stat->maxmsgs);
 
 	}
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_STRBUF;
-	SubTP.Context = VS->MessageDropdown;
-	DoTemplate(HKEY("msg_listselector_top"), VS->BBViewToolBar, &SubTP);
-	StrBufAppendBuf(WC->WBuf, VS->BBViewToolBar, 0);
-	FlushStrBuf(VS->BBViewToolBar);
+	if (Stat->nummsgs > 0) {
+		memset(&SubTP, 0, sizeof(WCTemplputParams));
+		SubTP.Filter.ContextType = CTX_STRBUF;
+		SubTP.Context = VS->MessageDropdown;
+		DoTemplate(HKEY("msg_listselector_top"), VS->BBViewToolBar, &SubTP);
+		StrBufAppendBuf(WC->WBuf, VS->BBViewToolBar, 0);
+		FlushStrBuf(VS->BBViewToolBar);
+	}
 	return 200;
 }
 
