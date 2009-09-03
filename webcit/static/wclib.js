@@ -234,32 +234,37 @@ function IconBarRoomList() {
   mailboxLI.appendChild(mailboxUL);
   var mailboxRooms = GetMailboxRooms();
   for(var i=0; i<mailboxRooms.length; i++) {
-    var room = mailboxRooms[i];
-    currentDropTargets.push(addRoomToList(mailboxUL, room, curRoomName));
+	  var room = mailboxRooms[i];
+	  currentDropTargets.push(addRoomToList(mailboxUL, room, curRoomName));
   }
   if (currentExpanded != null && currentExpanded == _mailbox ) {
-    expandFloor(mailboxSPAN);
+	  expandFloor(mailboxSPAN);
   }
   for(var a=0; a<floors.length; a++) {
-    var floor = floors[a];
-    var floornum = floor[0];
-    var name = floor[1];
-    var floorLI = document.createElement("li");
-    ul.appendChild(floorLI);
-    var floorSPAN = document.createElement("span");
-    floorSPAN.appendChild(document.createTextNode(name));
-    $(floorSPAN).observe('click', expandFloorEvent);
-    floorLI.appendChild(floorSPAN);
-    floorLI.className = "floor";
-    var floorUL = document.createElement("ul");
-    floorLI.appendChild(floorUL);
-    var roomsForFloor = GetRoomsByFloorNum(floornum);
-    for(var b=0; b<roomsForFloor.length; b++) {
-      var room = roomsForFloor[b];
-      currentDropTargets.push(addRoomToList(floorUL, room, curRoomName));
-    }
-    if (currentExpanded != null && currentExpanded == name) {
-      expandFloor(floorSPAN);
+	  var floor = floors[a];
+	  var floornum = floor[0];
+    
+	  if (floornum != -1)
+	  {
+
+		  var name = floor[1];
+		  var floorLI = document.createElement("li");
+		  ul.appendChild(floorLI);
+		  var floorSPAN = document.createElement("span");
+		  floorSPAN.appendChild(document.createTextNode(name));
+		  $(floorSPAN).observe('click', expandFloorEvent);
+		  floorLI.appendChild(floorSPAN);
+		  floorLI.className = "floor";
+		  var floorUL = document.createElement("ul");
+		  floorLI.appendChild(floorUL);
+		  var roomsForFloor = GetRoomsByFloorNum(floornum);
+		  for(var b=0; b<roomsForFloor.length; b++) {
+			  var room = roomsForFloor[b];
+			  currentDropTargets.push(addRoomToList(floorUL, room, curRoomName));
+		  }
+		  if (currentExpanded != null && currentExpanded == name) {
+			  expandFloor(floorSPAN);
+		  }
     }
   }
 }
