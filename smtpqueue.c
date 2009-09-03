@@ -180,6 +180,9 @@ void display_smtpqueue_inner_div(void) {
 	FreeStrBuf(&Buf);
 	if (!strcasecmp(ChrPtr(WCC->wc_roomname), "__CitadelSMTPspoolout__")) {
 
+		Stat.maxload = 10000;
+		Stat.lowest_found = (-1);
+		Stat.highest_found = (-1);
 		num_msgs = load_msg_ptrs("MSGS ALL", &Stat);
 		if (num_msgs > 0) {
                         wprintf("<table class=\"mailbox_summary\" rules=rows "
@@ -200,12 +203,8 @@ void display_smtpqueue_inner_div(void) {
 
 			for (i=0; i<num_msgs; ++i) {
 				Msg = GetMessagePtrAt(i, WCC->summ);
-				if (Msg) {
-					lprintf(9, "%d of %d: %ld\n", i, num_msgs, Msg->msgnum);
+				if (Msg != NULL) {
 					display_queue_msg(Msg->msgnum);
-				}
-				else {
-					lprintf(9, "%d of %d: is NULL!\n", i, num_msgs);
 				}
 			}
 
