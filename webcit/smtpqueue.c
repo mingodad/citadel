@@ -131,7 +131,7 @@ void display_queue_msg(long msgnum)
 
 	wprintf("<tr><td>");
 	wprintf("%ld<br />", msgnum);
-	wprintf(" <a href=\"javascript:DeleteQueueMsg(%ld,%ld);\">%s</a>", 
+	wprintf(" <a href=\"javascript:DeleteSMTPqueueMsg(%ld,%ld);\">%s</a>", 
 		msgnum, msgid, _("(Delete)")
 	);
 
@@ -233,26 +233,6 @@ void display_smtpqueue(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 
-	wprintf("<script type=\"text/javascript\">				\n"
-		"function RefreshQueueDisplay() {				\n"
-		"	new Ajax.Updater('smtpqueue_inner_div', 		\n"
-		"	'display_smtpqueue_inner_div', { method: 'get',		\n"
-		"		parameters: Math.random() } );			\n"
-		"}								\n"
-		"								\n"
-		"function DeleteQueueMsg(msgnum1, msgnum2) {					\n"
- 		"	new Ajax.Request(							\n"
-		"		'ajax_servcmd', {						\n"
-		"			method: 'post',						\n"
-		"			parameters: 'g_cmd=DELE ' + msgnum1 + ',' + msgnum2,	\n"
-		"			onComplete: RefreshQueueDisplay()			\n"
-		"		}								\n"
-		"	);									\n"
-		"}										\n"
-		"								\n"
-		"</script>							\n"
-	);
-
 	wprintf("<div id=\"banner\">\n");
 	wprintf("<h1>");
 	wprintf(_("View the outbound SMTP queue"));
@@ -265,16 +245,17 @@ void display_smtpqueue(void)
 		"<table class=\"smtpqueue_background\">"
 		"<tr><td valign=top>\n");
 
-	wprintf("<div id=\"smtpqueue_inner_div\">");
-
-	display_smtpqueue_inner_div();
-
-	wprintf("</div>"
+	wprintf("<div id=\"smtpqueue_inner_div\">"
+		"<div align=\"center\"><img src=\"static/throbber.gif\"></div>"
+		"</div>"
 		"<div align=\"center\">"
-		"<a href=\"javascript:RefreshQueueDisplay();\">%s</a>"
+		"<a href=\"javascript:RefreshSMTPqueueDisplay();\">%s</a>"
 		"</div>"
 		"</td></tr></table></div>\n", _("Refresh this page")
 	);
+
+	StrBufAppendPrintf(WC->trailing_javascript, "RefreshSMTPqueueDisplay();\n");
+
 	wDumpContent(1);
 
 }
