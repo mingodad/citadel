@@ -425,6 +425,9 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg, wc_mime_attachment 
 	Buf = NewStrBuf();
 TRYAGAIN:
 	memset(&Stat, 0, sizeof(SharedMessageStatus));
+	Stat.maxload = 10000;
+	Stat.lowest_found = (-1);
+	Stat.highest_found = (-1);
 	Done = 0;
 	/* Search for the user's vCard */
 	if (load_msg_ptrs("MSGS ALL||||1", &Stat) > 0) {
