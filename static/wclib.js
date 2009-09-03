@@ -924,3 +924,19 @@ function resizeViewport() {
     global.style.width = newContentSize+"px";
   }
 }
+
+function RefreshSMTPqueueDisplay() {
+	new Ajax.Updater('smtpqueue_inner_div',
+	'display_smtpqueue_inner_div', { method: 'get',
+		parameters: Math.random() } );
+}
+
+function DeleteSMTPqueueMsg(msgnum1, msgnum2) {
+	new Ajax.Request(
+		'ajax_servcmd', {
+			method: 'post',
+			parameters: 'g_cmd=DELE ' + msgnum1 + ',' + msgnum2,
+			onComplete: RefreshSMTPqueueDisplay()
+		}
+	);
+}
