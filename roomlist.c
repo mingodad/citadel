@@ -240,6 +240,10 @@ int CompareRoomListByFloorRoomPrivFirst(const void *room1, const void *room2)
 	folder *r1 = (folder*) GetSearchPayload(room1);
 	folder *r2 = (folder*) GetSearchPayload(room2);
   
+	if ((r1->Floor == NULL)  ||
+	    (r2->Floor == NULL))
+		return 0;
+		
 	/**
 	 * are we on the same floor? else sort by floor.
 	 */
@@ -304,6 +308,10 @@ int CompareRoomListByFloorRoomPrivFirstRev(const void *room1, const void *room2)
 	folder *r1 = (folder*) GetSearchPayload(room1);
 	folder *r2 = (folder*) GetSearchPayload(room2);
   
+	if ((r1->Floor == NULL)  ||
+	    (r2->Floor == NULL))
+		return 0;
+		
 	/**
 	 * are we on the same floor? else sort by floor.
 	 */
@@ -376,6 +384,10 @@ int GroupchangeRoomListByFloorRoomPrivFirst(const void *room1, const void *room2
 	folder *r2 = (folder*) room2;
   
 
+	if ((r1->Floor == NULL)  ||
+	    (r2->Floor == NULL))
+		return 0;
+		
 	if (r1->Floor == r2->Floor)
 		return 0;
 	else 

@@ -68,7 +68,7 @@ function GetMailboxRooms() {
     var room = rooms[i];
     var floornum = room[RN_FLOOR_NUM];
     var flag = room[RN_ROOM_FLAG];
-    if ((flag & QR_MAILBOX) == QR_MAILBOX) {
+    if (floornum == -1) {
       roomsForFloor[x] = room;
       x++;
     }
