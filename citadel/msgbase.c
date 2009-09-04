@@ -339,7 +339,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		int target_setting, int which_set,
 		struct ctdluser *which_user, struct ctdlroom *which_room) {
 	struct cdbdata *cdbfr;
-	int i, j, k;
+	int i, k;
 	int is_seen = 0;
 	int was_seen = 0;
 	long lo = (-1L);
@@ -347,12 +347,13 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	struct visit vbuf;
 	long *msglist;
 	int num_msgs = 0;
-	char vset[SIZ];
+	StrBuf *vset;
+	StrBuf *setstr;
+	StrBuf *lostr;
+	StrBuf *histr;
+	const char *pvset;
 	char *is_set;	/* actually an array of booleans */
-	int num_sets;
-	int s;
 	int w = 0;
-	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 
 	/* Don't bother doing *anything* if we were passed a list of zero messages */
 	if (num_target_msgnums < 1) {
@@ -394,12 +395,14 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 
 	/* Decide which message set we're manipulating */
 	switch(which_set) {
-		case ctdlsetseen_seen:
-			safestrncpy(vset, vbuf.v_seen, sizeof vset);
-			break;
-		case ctdlsetseen_answered:
-			safestrncpy(vset, vbuf.v_answered, sizeof vset);
-			break;
+	case ctdlsetseen_seen:
+		vset = NewStrBufPlain(vbuf.v_seen, -1);
+		break;
+	case ctdlsetseen_answered:
+		vset = NewStrBufPlain(vbuf.v_answered, -1);
+		break;
+	default:
+		vset = NewStrBuf();
 	}
 
 
@@ -414,26 +417,28 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	}
 #endif
 
-	CtdlLogPrintf(CTDL_DEBUG, "before update: %s\n", vset);
+	CtdlLogPrintf(CTDL_DEBUG, "before update: %s\n", ChrPtr(vset));
 
 	/* Translate the existing sequence set into an array of booleans */
-	num_sets = num_tokens(vset, ',');
-	for (s=0; s<num_sets; ++s) {
-		extract_token(setstr, vset, s, ',', sizeof setstr);
-
-		extract_token(lostr, setstr, 0, ':', sizeof lostr);
-		if (num_tokens(setstr, ':') >= 2) {
-			extract_token(histr, setstr, 1, ':', sizeof histr);
+	setstr = NewStrBuf();
+	lostr = NewStrBuf();
+	histr = NewStrBuf();
+	pvset = NULL;
+	while (StrBufExtract_NextToken(setstr, vset, &pvset, ',')) {
+		StrBufExtract_token(lostr, setstr, 0, ':');
+		if (StrBufNum_tokens(setstr, ':') >= 2) {
+			StrBufExtract_token(histr, setstr, 1, ':');
 		}
 		else {
-			strcpy(histr, lostr);
+			FlushStrBuf(histr);
+			StrBufAppendBuf(histr, lostr, 0);
 		}
-		lo = atol(lostr);
-		if (!strcmp(histr, "*")) {
+		lo = StrTol(lostr);
+		if (!strcmp(ChrPtr(histr), "*")) {
 			hi = LONG_MAX;
 		}
 		else {
-			hi = atol(histr);
+			hi = StrTol(histr);
 		}
 
 		for (i = 0; i < num_msgs; ++i) {
@@ -442,10 +447,13 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			}
 		}
 	}
+	FreeStrBuf(&setstr);
+	FreeStrBuf(&lostr);
+	FreeStrBuf(&histr);
 
 
 	/* Now translate the array of booleans back into a sequence set */
-	strcpy(vset, "");
+	FlushStrBuf(vset);
 	was_seen = 0;
 	lo = (-1);
 	hi = (-1);
@@ -469,32 +477,32 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			hi = msglist[i-1];
 			w = 1;
 
-			if (!IsEmptyStr(vset)) {
-				strcat(vset, ",");
+			if (StrLength(vset) > 0) {
+				StrBufAppendBufPlain(vset, HKEY(","), 0);
 			}
 			if (lo == hi) {
-				sprintf(&vset[strlen(vset)], "%ld", hi);
+				StrBufAppendPrintf(vset, "%ld", hi);
 			}
 			else {
-				sprintf(&vset[strlen(vset)], "%ld:%ld", lo, hi);
+				StrBufAppendPrintf(vset, "%ld:%ld", lo, hi);
 			}
 		}
 		else if ((is_seen) && (i == num_msgs - 1)) {
 			w = 1;
-			if (!IsEmptyStr(vset)) {
-				strcat(vset, ",");
+			if (StrLength(vset) > 0) {
+				StrBufAppendBufPlain(vset, HKEY(","), 0);
 			}
 			if ((i==0) || (was_seen == 0)) {
-				sprintf(&vset[strlen(vset)], "%ld", msglist[i]);
+				StrBufAppendPrintf(vset, "%ld", msglist[i]);
 			}
 			else {
-				sprintf(&vset[strlen(vset)], "%ld:%ld", lo, msglist[i]);
+				StrBufAppendPrintf(vset, "%ld:%ld", lo, msglist[i]);
 			}
 		}
 
-		/* If the string is getting too long, truncate it at the beginning; repeat up to 9 times */
+		/* If the string is getting too long, truncate it at the beginning; repeat up to 9 times * /
 		if (w) for (j=0; j<9; ++j) {
-			if ((strlen(vset) + 20) > sizeof vset) {
+			if ((StrLength(vset) + 20) > sizeof vset) {
 				remove_token(vset, 0, ',');
 				if (which_set == ctdlsetseen_seen) {
 					char temp[SIZ];
@@ -504,25 +512,31 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 				}
 			}
 		}
+		we don't get to long anymore.
+		*/
 
 		was_seen = is_seen;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, " after update: %s\n", vset);
+	while (StrLength(vset) > SIZ)
+		StrBufRemove_token(vset, 0, ',');
+
+	CtdlLogPrintf(CTDL_DEBUG, " after update: %s\n", ChrPtr(vset));
 
 	/* Decide which message set we're manipulating */
 	switch (which_set) {
 		case ctdlsetseen_seen:
-			safestrncpy(vbuf.v_seen, vset, sizeof vbuf.v_seen);
+			safestrncpy(vbuf.v_seen, ChrPtr(vset), sizeof vbuf.v_seen);
 			break;
 		case ctdlsetseen_answered:
-			safestrncpy(vbuf.v_answered, vset, sizeof vbuf.v_answered);
+			safestrncpy(vbuf.v_answered, ChrPtr(vset), sizeof vbuf.v_answered);
 			break;
 	}
 
 	free(is_set);
 	free(msglist);
 	CtdlSetRelationship(&vbuf, which_user, which_room);
+	FreeStrBuf(&vset);
 }
 
 
