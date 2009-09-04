@@ -1137,8 +1137,8 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 
 	/* Hack and slash */
 	if (*s) {
-		memmove(d, s, Source->BufUsed - (s - Source->buf) + 1);
-		Source->BufUsed -= (ReducedBy + 1);
+		memmove(d, s, Source->BufUsed - (s - Source->buf));
+		Source->BufUsed += ReducedBy;
 	}
 	else if (d == Source->buf) {
 		*d = 0;
@@ -1146,7 +1146,7 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 	}
 	else {
 		*--d = 0;
-		Source->BufUsed -= (ReducedBy + 1);
+		Source->BufUsed += ReducedBy;
 	}
 	/*
 	while (*s) {
@@ -1301,6 +1301,26 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 }
 
 
+
+/**
+ * \briefa string tokenizer; Bounds checker
+ *  function to make shure whether StrBufExtract_NextToken and friends have reached the end of the string.
+ * \param Source our tokenbuffer
+ * \param pStart the token iterator pointer to inspect
+ * \returns whether the revolving pointer is inside of the search range
+ */
+int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
+{
+
+	if (*pStart == NULL)
+		return 1;
+	else if (*pStart >= Source->buf + Source->BufUsed)
+		return 0;
+	else if (*pStart <= Source->buf)
+		return 0;
+	return 1;
+}
+
 /**
  * \brief a string tokenizer
  * \param dest Destination StringBuffer
@@ -1328,6 +1348,8 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 	}
 	if (*pStart == NULL)
 		*pStart = Source->buf;
+	else if (*pStart >= Source->buf + Source->BufUsed)
+		return -1;
 
 	EndBuffer = Source->buf + Source->BufUsed;
 

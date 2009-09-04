@@ -274,6 +274,7 @@ int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator);
 int StrBufNum_tokens(const StrBuf *source, char tok);
 int StrBufRemove_token(StrBuf *Source, int parmnum, char separator);
 
+int StrBufHaveNextToken(const StrBuf *Source, const char **pStart);
 int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pStart, char separator);
 int StrBufSkip_NTokenS(const StrBuf *Source, const char **pStart, char separator, int nTokens);
 unsigned long StrBufExtractNext_unsigned_long(const StrBuf* Source, const char **pStart, char separator);
