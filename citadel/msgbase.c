@@ -425,6 +425,8 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	histr = NewStrBuf();
 	pvset = NULL;
 	while (StrBufExtract_NextToken(setstr, vset, &pvset, ',')) {
+		/* CtdlLogPrintf(CTDL_DEBUG, "Token: '%s'\n", ChrPtr(setstr));  NOTE ZERO-LENGTH TOKENS */
+
 		StrBufExtract_token(lostr, setstr, 0, ':');
 		if (StrBufNum_tokens(setstr, ':') >= 2) {
 			StrBufExtract_token(histr, setstr, 1, ':');
@@ -999,6 +1001,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
 		   char *encoding, char *cbid, void *cbuserdata)
 {
+	int rv = 0;
 
 	/* Silently go away if there's already a download open. */
 	if (CC->download_fp != NULL)
@@ -1012,7 +1015,7 @@ void mime_download(char *name, char *filename, char *partnum, char *disp,
 		if (CC->download_fp == NULL)
 			return;
 	
-		fwrite(content, length, 1, CC->download_fp);
+		rv = fwrite(content, length, 1, CC->download_fp);
 		fflush(CC->download_fp);
 		rewind(CC->download_fp);
 	
@@ -2653,6 +2656,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	struct CitContext *CCC = CC;		/* CachedCitContext - performance boost */
 	char bounce_to[1024] = "";
 	size_t tmp = 0;
+	int rv = 0;
 
 	CtdlLogPrintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
@@ -2935,7 +2939,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					 (long) getpid(), CCC->cs_pid, ++seqnum);
 			network_fp = fopen(submit_filename, "wb+");
 			if (network_fp != NULL) {
-				fwrite(smr.ser, smr.len, 1, network_fp);
+				rv = fwrite(smr.ser, smr.len, 1, network_fp);
 				fclose(network_fp);
 			}
 			free(smr.ser);
@@ -4359,6 +4363,7 @@ void PutMetaData(struct MetaData *smibuf)
 void AdjRefCount(long msgnum, int incr)
 {
 	struct arcq new_arcq;
+	int rv = 0;
 
 	begin_critical_section(S_SUPPMSGMAIN);
 	if (arcfp == NULL) {
@@ -4388,7 +4393,7 @@ void AdjRefCount(long msgnum, int incr)
 
 	new_arcq.arcq_msgnum = msgnum;
 	new_arcq.arcq_delta = incr;
-	fwrite(&new_arcq, sizeof(struct arcq), 1, arcfp);
+	rv = fwrite(&new_arcq, sizeof(struct arcq), 1, arcfp);
 	fflush(arcfp);
 
 	return;
