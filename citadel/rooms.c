@@ -845,6 +845,7 @@ void download(CtdlIPC *ipc, int proto)
 	FILE *tpipe = NULL;
 	int broken = 0;
 	int r;
+	int rv = 0;
 	void *file = NULL;	/* The downloaded file */
 	size_t filelen = 0L;	/* The downloaded file length */
 
@@ -905,7 +906,7 @@ void download(CtdlIPC *ipc, int proto)
 
 	screen_reset();
 	stty_ctdl(SB_RESTORE);
-	system(transmit_cmd);
+	rv = system(transmit_cmd);
 	stty_ctdl(SB_NO_INTR);
 	screen_set();
 

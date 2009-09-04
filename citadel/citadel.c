@@ -368,6 +368,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	int ugpos = uglistsize;
 	int r;				/* IPC result code */
 	struct ctdlipcroom *room = NULL;
+	int rv = 0;
 
 	/* store ungoto information */
 	if (fromungoto == 0) {
@@ -502,7 +503,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 		}
 		color(DIM_WHITE);
 		if (!IsEmptyStr(rc_gotmail_cmd)) {
-			system(rc_gotmail_cmd);
+			rv = system(rc_gotmail_cmd);
 		}
 	}
 	status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location,
@@ -1398,6 +1399,7 @@ int main(int argc, char **argv)
 	struct ctdluser *myself = NULL;
 	CtdlIPC* ipc;			/* Our server connection */
 	int r;				/* IPC result code */
+	int rv = 0;			/* fetch but ignore syscall return value to suppress warnings */
 
 	int relh=0;
 	int home=0;
@@ -1734,7 +1736,7 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				scr_printf("*** You have %d new private messages in Mail>\n", b);
 			color(DIM_WHITE);
 			if (!IsEmptyStr(rc_gotmail_cmd)) {
-				system(rc_gotmail_cmd);
+				rv = system(rc_gotmail_cmd);
 			}
 		}
 		if ((axlevel >= 6) && (chek.needvalid > 0)) {
