@@ -24,7 +24,7 @@ case "$1" in
 
         db_get citadel/Administrator &&      admin="$RET"
         db_get citadel/ServerIPAddress &&    ip_addr="$RET"
-        db_get citadel/LoginType &&          deb_enable_unix_auth="$RET"
+        db_get citadel/LoginType &&          ENABLE_UNIX_AUTH="$RET"; export ENABLE_UNIX_AUTH
         db_get citadel/LDAPServer &&         LDAP_HOST="$RET"; export LDAP_HOST
         db_get citadel/LDAPServerPort &&     LDAP_PORT="$RET"; export LDAP_PORT
         db_get citadel/LDAPBaseDN &&         LDAP_BASE_DN="$RET"; export LDAP_BASE_DN
