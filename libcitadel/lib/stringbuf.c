@@ -117,6 +117,9 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 			NewSize *= 2;
 
 	NewBuf= (char*) malloc(NewSize);
+	if (NewBuf == NULL)
+		return -1;
+
 	if (KeepOriginal && (Buf->BufUsed > 0))
 	{
 		memcpy(NewBuf, Buf->buf, Buf->BufUsed);
@@ -1311,7 +1314,10 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
  */
 int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
 {
-
+	const char *Null = NULL;
+	Null --;
+	if ((Source == NULL) || (*pStart == Null))
+		return 0;
 	if (*pStart == NULL)
 		return 1;
 	else if (*pStart >= Source->buf + Source->BufUsed)
@@ -1325,77 +1331,96 @@ int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
  * \brief a string tokenizer
  * \param dest Destination StringBuffer
  * \param Source StringBuffer to read into
- * \param pStart pointer to the end of the last token. Feed with NULL.
+ * \param pStart pointer to the end of the last token. Feed with NULL on start.
  * \param separator tokenizer param
  * \returns -1 if not found, else length of token.
  */
 int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pStart, char separator)
 {
-	const char *s, *EndBuffer;	//* source * /
-	int len = 0;			//* running total length of extracted string * /
-	int current_token = 0;		//* token currently being processed * /
+	const char *s;          /* source */
+	const char *EndBuffer;  /* end stop of source buffer */
+	int current_token = 0;	/* token currently being processed */
+	int len = 0;		/* running total length of extracted string */
+
+	if ((Source          == NULL) || 
+	    (Source->BufUsed == 0)      ) 
+	{
+		*pStart = NULL;
+		(*pStart) --; /* move it to the end of all being via underflow */
+		return -1;
+	}
 	 
-	if (dest != NULL) {
+	EndBuffer = Source->buf + Source->BufUsed;
+
+	if (dest != NULL) 
+	{
 		dest->buf[0] = '\0';
 		dest->BufUsed = 0;
 	}
 	else
-		return(-1);
-
-	if ((Source == NULL) || 
-	    (Source->BufUsed ==0)) {
-		return(-1);
-	}
-	if (*pStart == NULL)
-		*pStart = Source->buf;
-	else if (*pStart >= Source->buf + Source->BufUsed)
+	{
+		*pStart = EndBuffer + 1;
 		return -1;
-
-	EndBuffer = Source->buf + Source->BufUsed;
-
-	if ((*pStart < Source->buf) || 
-	    (*pStart >  EndBuffer)) {
-		return (-1);
 	}
 
+	if (*pStart == NULL)
+	{
+		*pStart = Source->buf; /* we're starting to examine this buffer. */
+	}
+	else if ((*pStart < Source->buf) || 
+		 (*pStart > EndBuffer  )   ) 
+	{
+		return -1; /* no more tokens to find. */
+	}
 
 	s = *pStart;
-
-	//cit_backtrace();
-	//lprintf (CTDL_DEBUG, "test >: n: %d sep: %c source: %s \n willi \n", parmnum, separator, source);
-
-	while ((s<EndBuffer) && !IsEmptyStr(s)) {
-		if (*s == separator) {
+	/* start to find the next token */
+	while ((s < EndBuffer) && !IsEmptyStr(s)) 
+	{
+		if (*s == separator) 
+		{
+			/* we found the next token */
 			++current_token;
 		}
-		if (len >= dest->BufSize) {
+
+		if (len >= dest->BufSize) 
+		{
+			/* our Dest-buffer isn't big enough, increase it. */
 			dest->BufUsed = len;
 
 			if (IncreaseBuf(dest, 1, -1) < 0) {
-				*pStart = EndBuffer + 1;
+				/* WHUT? no more mem? bail out. */
+				s = EndBuffer;
 				dest->BufUsed --;
 				break;
 			}
 		}
-		if ( (current_token == 0) && 
-		     (*s != separator)) {
-			dest->buf[len] = *s;
-			++len;
+
+		if ( (current_token == 0 ) &&   /* are we in our target token? */
+		     (separator     != *s)    ) /* don't copy the token itself */
+		{
+			dest->buf[len] = *s;    /* Copy the payload */
+			++len;                  /* remember the bigger size. */
 		}
-		else if (current_token > 0) {
-			*pStart = s;
-			break;
-		}
+
 		++s;
 	}
-	*pStart = s;
-	(*pStart) ++;
 
+	/* did we reach a \0 ? */
+	if ((s >= EndBuffer) || IsEmptyStr(s)) {
+		*pStart = EndBuffer + 1;
+	}
+	else {
+		*pStart = s;  /* remember the position for the next run */
+		(*pStart) ++; /* move behind the next token separator so 
+			       * we don't see it next time */
+	}
+
+	/* sanitize our extracted token */
 	dest->buf[len] = '\0';
-	dest->BufUsed = len;
-		//lprintf (CTDL_DEBUG,"test <!: %s\n", dest);
-	//lprintf (CTDL_DEBUG,"test <: %d; %s\n", len, dest);
-	return(len);
+	dest->BufUsed  = len;
+
+	return (len);
 }
 
 
