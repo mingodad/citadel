@@ -9,7 +9,7 @@ AC_INIT(libcitadel, 7.63, https://uncensored.citadel.org)
 
 AC_CONFIG_SRCDIR(Makefile.in)
 AC_CONFIG_AUX_DIR(conftools)
-
+AC_CONFIG_SRCDIR(tests/Makefile.in)
 
 dnl
 dnl Increment LIBREVISION if source code has changed at all
@@ -71,6 +71,10 @@ if test "x$ok_zlib" = xyes ; then
         LIBS="-lz $LIBS"
         AC_DEFINE(HAVE_ZLIB,[],[whether we have zlib])
 fi
+
+AC_CHECK_HEADER(CUnit/CUnit.h, [AC_DEFINE(ENABLE_TESTS, [], [whether we should compile the test-suite])])
+
+
 
 AC_CHECK_HEADERS(iconv.h)
 
@@ -165,7 +169,7 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 AC_CHECK_FUNCS(memmove bcopy)
 
-AC_CONFIG_FILES(Makefile libcitadel.pc)
+AC_CONFIG_FILES(Makefile libcitadel.pc tests/Makefile)
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT
 

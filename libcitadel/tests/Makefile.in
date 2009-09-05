@@ -1,0 +1,54 @@
+# $Id: Makefile.in 7752 2009-08-29 10:37:43Z dothebart $
+
+AUTOCONF=@AUTOCONF@
+CC=@CC@
+CFLAGS=@CFLAGS@
+DEFS=@DEFS@
+INSTALL=@INSTALL@
+LIBOBJS=@LIBOBJS@ -lcunit -lcitadel
+LIBS=@LIBS@
+LDFLAGS=@LDFLAGS@ -L ../lib/.libs
+SED=@SED@
+LCUNIT_DEFS=
+srcdir=../
+prefix=@prefix@
+top_builddir=`pwd`
+
+# End of configuration section
+
+TARGETS=stringbuf_test 
+all: $(TARGETS)
+
+
+.SUFFIXES: .cpp .c .o
+
+clean:
+	rm -f *.o 
+
+distclean: clean
+	rm -f Makefile config.cache config.log config.status \
+		po/Makefile \
+		$(srcdir)/TAGS
+
+stringbuf_test:	$(LIBOBJS) stringbuf_test.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	stringbuf_test.o \
+	-o stringbuf_test \
+	$(LIBS)
+
+.c.o:
+	$(CC) $(CFLAGS) $(DEFS) -c  $<
+
+Makefile: $(srcdir)/tests/Makefile.in $(srcdir)/config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+
+$(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
+	cd $(srcdir) && $(AUTOCONF)
+
+$(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
+	cd $(srcdir) && $(ACLOCAL)
+
+
