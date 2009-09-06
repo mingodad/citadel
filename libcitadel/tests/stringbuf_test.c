@@ -114,8 +114,36 @@ static void TestCreateBuf(void)
 	CU_ASSERT(StrBufIsNumber(Buf) == 1);
 
 	
-	
 }
+
+
+static void TestNextTokenizer(void)
+{
+	const char *pCh = NULL;
+	StrBuf *Buf;
+	StrBuf *Buf2;
+	long CountTokens = 0;
+	long HaveNextToken;
+	long HaveNextTokenF;
+
+	Buf = NewStrBufPlain(HKEY("abc,abc, 1, ,,"));
+	printf("\nTemplate: >%s<\n", ChrPtr(Buf));
+			     
+	Buf2 = NewStrBuf();
+	do
+	{
+		HaveNextTokenF = StrBufExtract_NextToken(Buf2, Buf, &pCh, ',');
+		printf("Token: >%s< >%s<\n", ChrPtr(Buf2), pCh);
+		CountTokens++;
+		HaveNextToken = StrBufHaveNextToken(Buf2, &pCh);
+		CU_ASSERT(HaveNextToken == 1);
+		
+		CU_ASSERT(CountTokens < 7);
+	} 
+	while (HaveNextTokenF);
+}
+
+
 
 static void testSuccessAssertTrue(void)
 {
@@ -245,6 +273,8 @@ static void AddStrBufSimlpeTests(void)
 	pGroup = CU_add_suite("TestStringBufSimpleAppenders", NULL, NULL);
 	pTest = CU_add_test(pGroup, "testCreateBuf", TestCreateBuf);
 
+	pGroup = CU_add_suite("TestStringTokenizer", NULL, NULL);
+	pTest = CU_add_test(pGroup, "testNextTokenizer", TestNextTokenizer);
 
 
 /*

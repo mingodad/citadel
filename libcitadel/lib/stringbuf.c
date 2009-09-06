@@ -1375,7 +1375,9 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 
 	s = *pStart;
 	/* start to find the next token */
-	while ((s < EndBuffer) && !IsEmptyStr(s)) 
+	while ((s < EndBuffer)      && 
+	       (!IsEmptyStr(s))     &&
+	       (current_token == 0) ) 
 	{
 		if (*s == separator) 
 		{
@@ -1406,14 +1408,12 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 		++s;
 	}
 
-	/* did we reach a \0 ? */
-	if ((s >= EndBuffer) || IsEmptyStr(s)) {
+	/* did we reach the end? */
+	if ((s > EndBuffer)) {
 		*pStart = EndBuffer + 1;
 	}
 	else {
 		*pStart = s;  /* remember the position for the next run */
-		(*pStart) ++; /* move behind the next token separator so 
-			       * we don't see it next time */
 	}
 
 	/* sanitize our extracted token */
