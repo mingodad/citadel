@@ -1318,25 +1318,20 @@ int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
 	Null --;
 	if ((Source == NULL) || (*pStart == Null))
 	{
-		printf( "1");
 		return 0;
 	}
 	if (*pStart == NULL)
 	{
-		printf( "2");
 		return 1;
 	}
 	else if (*pStart > Source->buf + Source->BufUsed)
 	{
-		printf( "3");
 		return 0;
 	}
 	else if (*pStart <= Source->buf)
 	{
-		printf( "4");
 		return 0;
 	}
-	printf( "5");
 
 	return 1;
 }
