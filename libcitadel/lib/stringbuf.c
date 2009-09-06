@@ -1317,13 +1317,27 @@ int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
 	const char *Null = NULL;
 	Null --;
 	if ((Source == NULL) || (*pStart == Null))
+	{
+		printf( "1");
 		return 0;
+	}
 	if (*pStart == NULL)
+	{
+		printf( "2");
 		return 1;
-	else if (*pStart >= Source->buf + Source->BufUsed)
+	}
+	else if (*pStart > Source->buf + Source->BufUsed)
+	{
+		printf( "3");
 		return 0;
+	}
 	else if (*pStart <= Source->buf)
+	{
+		printf( "4");
 		return 0;
+	}
+	printf( "5");
+
 	return 1;
 }
 
@@ -1375,8 +1389,7 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 
 	s = *pStart;
 	/* start to find the next token */
-	while ((s < EndBuffer)      && 
-	       (!IsEmptyStr(s))     &&
+	while ((s <= EndBuffer)      && 
 	       (current_token == 0) ) 
 	{
 		if (*s == separator) 
@@ -1399,6 +1412,7 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 		}
 
 		if ( (current_token == 0 ) &&   /* are we in our target token? */
+		     (!IsEmptyStr(s)     ) &&
 		     (separator     != *s)    ) /* don't copy the token itself */
 		{
 			dest->buf[len] = *s;    /* Copy the payload */
