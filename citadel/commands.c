@@ -1569,7 +1569,7 @@ void look_for_ansi(void)
 	struct timeval tv;
 	char abuf[512];
 	time_t now;
-	int a;
+	int a, rv;
 
 	if (rc_ansi_color == 0) {
 		enable_color = 0;
@@ -1594,7 +1594,7 @@ void look_for_ansi(void)
 			select(1, &rfds, NULL, NULL, &tv);
 			if (FD_ISSET(0, &rfds)) {
 				abuf[strlen(abuf) + 1] = 0;
-				read(0, &abuf[strlen(abuf)], 1);
+				rv = read(0, &abuf[strlen(abuf)], 1);
 			}
 		} while (FD_ISSET(0, &rfds));
 
