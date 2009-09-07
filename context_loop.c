@@ -319,7 +319,7 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 		break;
 	} while (1);
 	/* remove the handlername from the URL */
-	if (Pos != NULL) {
+	if ((Pos != NULL) && (Pos != StrBufNOTNULL)){
 		StrBufCutLeft(Hdr->HR.ReqLine, 
 			      Pos - ChrPtr(Hdr->HR.ReqLine));
 	}
