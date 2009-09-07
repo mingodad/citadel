@@ -54,6 +54,17 @@ static void test2(void)
 	CU_ASSERT((char *)3 == "THis is negative test. test 2");
 }
 */
+
+
+static void TestRevalidateStrBuf(StrBuf *Buf)
+{
+	CU_ASSERT(strlen(ChrPtr(Buf)) == StrLength(Buf));
+
+
+
+}
+
+
 static void TestCreateBuf(void)
 {
 	StrBuf *Buf;
@@ -67,6 +78,7 @@ static void TestCreateBuf(void)
 
 	CU_ASSERT(Buf == NULL);
 	Buf = NewStrBufPlain(HKEY("ABC"));
+	TestRevalidateStrBuf(Buf);
 	CU_ASSERT(StrLength(Buf) == 3);
 	CU_ASSERT_NSTRING_EQUAL("ABC", ChrPtr(Buf), 3);
 
@@ -75,13 +87,14 @@ static void TestCreateBuf(void)
 	{
 		StrBufAppendBufPlain(Buf, HKEY("ABC"), 0);
 		len += 3;
-		CU_ASSERT(StrLength(Buf) == len);		
+		CU_ASSERT(StrLength(Buf) == len);
 	}	
 	StrBufShrinkToFit(Buf, 1);
 	FreeStrBuf(&Buf);
 	CU_ASSERT(Buf == NULL);
 	
 	Buf = NewStrBufPlain(HKEY("ABC"));
+	TestRevalidateStrBuf(Buf);
 	len = StrLength(Buf);
 	for (i=0; i< 500; i ++)
 	{
@@ -89,7 +102,9 @@ static void TestCreateBuf(void)
 		len += 3;
 		CU_ASSERT(StrLength(Buf) == len);		
 	}
+	TestRevalidateStrBuf(Buf);
 	StrBufShrinkToFit(Buf, 1);
+	TestRevalidateStrBuf(Buf);
 
 	Buf2 = NewStrBufDup(Buf);
 	CU_ASSERT(StrLength(Buf) == StrLength(Buf2));		
@@ -119,16 +134,13 @@ static void TestCreateBuf(void)
 static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 {
 	const char *pCh = NULL;
-	char *NotNull;
 	StrBuf *Buf2;
 	long CountTokens = 0;
 	long HaveNextToken = 0;
 	long HaveNextTokenF = 0;
 
-	NotNull = NULL;
-	NotNull --;
-
 	printf("\n\nTemplate: >%s<\n", ChrPtr(Buf));
+	TestRevalidateStrBuf(Buf);
 			     
 	Buf2 = NewStrBuf();
 	while (HaveNextToken = StrBufHaveNextToken(Buf, &pCh),
@@ -139,9 +151,11 @@ static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 		
 		printf("Token: >%s< >%s< %ld:%ld\n", 
 		       ChrPtr(Buf2), 
-		       ((pCh != NULL) && (pCh != NotNull))? pCh : "N/A", 
+		       ((pCh != NULL) && (pCh != StrBufNOTNULL))? pCh : "N/A", 
 		       HaveNextToken, 
 		       HaveNextTokenF);
+		TestRevalidateStrBuf(Buf2);
+
 		CU_ASSERT(HaveNextToken == (HaveNextTokenF >= 0));
 		
 		CU_ASSERT(CountTokens <= NTokens);
@@ -196,105 +210,35 @@ static void TestNextTokenizer_One(void)
 
 
 
-static void testSuccessAssertTrue(void)
-{
-	CU_ASSERT_TRUE(CU_TRUE);
-	CU_ASSERT_TRUE(!CU_FALSE);
-}
-
-static void testSuccessAssertFalse(void)
-{
-	CU_ASSERT_FALSE(CU_FALSE);
-	CU_ASSERT_FALSE(!CU_TRUE);
-}
-
-static void testSuccessAssertEqual(void)
-{
+/*
+Some samples from the original...
 	CU_ASSERT_EQUAL(10, 10);
-	CU_ASSERT_EQUAL(0, 0);
 	CU_ASSERT_EQUAL(0, -0);
 	CU_ASSERT_EQUAL(-12, -12);
-}
-
-static void testSuccessAssertNotEqual(void)
-{
 	CU_ASSERT_NOT_EQUAL(10, 11);
 	CU_ASSERT_NOT_EQUAL(0, -1);
 	CU_ASSERT_NOT_EQUAL(-12, -11);
-}
-
-static void testSuccessAssertPtrEqual(void)
-{
 	CU_ASSERT_PTR_EQUAL((void*)0x100, (void*)0x100);
-}
-
-static void testSuccessAssertPtrNotEqual(void)
-{
 	CU_ASSERT_PTR_NOT_EQUAL((void*)0x100, (void*)0x101);
-}
-
-static void testSuccessAssertPtrNull(void)
-{
 	CU_ASSERT_PTR_NULL(NULL);
 	CU_ASSERT_PTR_NULL(0x0);
-}
-
-static void testSuccessAssertPtrNotNull(void)
-{
 	CU_ASSERT_PTR_NOT_NULL((void*)0x23);
-}
-
-static void testSuccessAssertStringEqual(void)
-{
-	char str1[] = "test" ;
-	char str2[] = "test" ;
-
 	CU_ASSERT_STRING_EQUAL(str1, str2);
-}
-
-static void testSuccessAssertStringNotEqual(void)
-{
-	char str1[] = "test" ;
-	char str2[] = "testtsg" ;
-
 	CU_ASSERT_STRING_NOT_EQUAL(str1, str2);
-}
-
-static void testSuccessAssertNStringEqual(void)
-{
-	char str1[] = "test" ;
-	char str2[] = "testgfsg" ;
-
 	CU_ASSERT_NSTRING_EQUAL(str1, str2, strlen(str1));
 	CU_ASSERT_NSTRING_EQUAL(str1, str1, strlen(str1));
 	CU_ASSERT_NSTRING_EQUAL(str1, str1, strlen(str1) + 1);
-}
-
-static void testSuccessAssertNStringNotEqual(void)
-{
-	char str1[] = "test" ;
-	char str2[] = "teet" ;
-	char str3[] = "testgfsg" ;
-
 	CU_ASSERT_NSTRING_NOT_EQUAL(str1, str2, 3);
 	CU_ASSERT_NSTRING_NOT_EQUAL(str1, str3, strlen(str1) + 1);
-}
-
-static void testSuccessAssertDoubleEqual(void)
-{
 	CU_ASSERT_DOUBLE_EQUAL(10, 10.0001, 0.0001);
 	CU_ASSERT_DOUBLE_EQUAL(10, 10.0001, -0.0001);
 	CU_ASSERT_DOUBLE_EQUAL(-10, -10.0001, 0.0001);
 	CU_ASSERT_DOUBLE_EQUAL(-10, -10.0001, -0.0001);
-}
-
-static void testSuccessAssertDoubleNotEqual(void)
-{
 	CU_ASSERT_DOUBLE_NOT_EQUAL(10, 10.001, 0.0001);
 	CU_ASSERT_DOUBLE_NOT_EQUAL(10, 10.001, -0.0001);
 	CU_ASSERT_DOUBLE_NOT_EQUAL(-10, -10.001, 0.0001);
 	CU_ASSERT_DOUBLE_NOT_EQUAL(-10, -10.001, -0.0001);
-}
+*/
 
 static void AddTests(void)
 {

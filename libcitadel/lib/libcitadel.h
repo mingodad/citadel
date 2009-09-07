@@ -66,6 +66,11 @@ enum LogLevel {
 #endif
 
 /*
+ * another word to indicate n/a for a pointer if NULL already has a "meaning"
+ */
+extern const char *StrBufNOTNULL;
+
+/*
  * Misc declarations
  */
 

@@ -27,6 +27,8 @@ int ZEXPORT compress_gzip(Bytef * dest, size_t * destLen,
 #endif
 int BaseStrBufSize = 64;
 
+const char *StrBufNOTNULL = ((char*) NULL) - 1;
+
 /**
  * Private Structure for the Stringbuffer
  */
@@ -1314,10 +1316,8 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
  */
 int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
 {
-	const char *Null = NULL;
-	Null --;
 	if ((Source == NULL) || 
-	    (*pStart == Null) ||
+	    (*pStart == StrBufNOTNULL) ||
 	    (Source->BufUsed == 0))
 	{
 		return 0;
@@ -1356,8 +1356,7 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 	if ((Source          == NULL) || 
 	    (Source->BufUsed == 0)      ) 
 	{
-		*pStart = NULL;
-		(*pStart) --; /* move it to the end of all being via underflow */
+		*pStart = StrBufNOTNULL;
 		return -1;
 	}
 	 
@@ -1421,8 +1420,7 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 
 	/* did we reach the end? */
 	if ((s > EndBuffer)) {
-		EndBuffer = NULL;
-		EndBuffer --;
+		EndBuffer = StrBufNOTNULL;
 		*pStart = EndBuffer;
 	}
 	else {

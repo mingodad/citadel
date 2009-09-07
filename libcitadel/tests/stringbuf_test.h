@@ -3,6 +3,7 @@
 #define CUNIT_AUTOMATED_H_SEEN
 
 #include <CUnit/CUnit.h>
+#include <CUnit/Basic.h>
 #include <CUnit/TestDB.h>
 
 
