@@ -119,10 +119,14 @@ static void TestCreateBuf(void)
 static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 {
 	const char *pCh = NULL;
+	char *NotNull;
 	StrBuf *Buf2;
 	long CountTokens = 0;
-	long HaveNextToken;
-	long HaveNextTokenF;
+	long HaveNextToken = 0;
+	long HaveNextTokenF = 0;
+
+	NotNull = NULL;
+	NotNull --;
 
 	printf("\n\nTemplate: >%s<\n", ChrPtr(Buf));
 			     
@@ -133,7 +137,11 @@ static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 	{
 		CountTokens++;
 		
-		printf("Token: >%s< >%s< %ld:%ld\n", ChrPtr(Buf2), pCh, HaveNextToken, HaveNextTokenF);
+		printf("Token: >%s< >%s< %ld:%ld\n", 
+		       ChrPtr(Buf2), 
+		       ((pCh != NULL) && (pCh != NotNull))? pCh : "N/A", 
+		       HaveNextToken, 
+		       HaveNextTokenF);
 		CU_ASSERT(HaveNextToken == (HaveNextTokenF >= 0));
 		
 		CU_ASSERT(CountTokens <= NTokens);
@@ -141,7 +149,7 @@ static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 	CU_ASSERT(HaveNextToken == (HaveNextTokenF >= 0));
 }
 
-static void TestNextTokenizer1(void)
+static void TestNextTokenizer_EndWithEmpty(void)
 {
 	StrBuf *Buf;
 
@@ -150,11 +158,38 @@ static void TestNextTokenizer1(void)
 	FreeStrBuf(&Buf);
 }
 
-static void TestNextTokenizer2(void)
+static void TestNextTokenizer_StartWithEmpty(void)
 {
 	StrBuf *Buf;
 
 	Buf = NewStrBufPlain(HKEY(",cde,abc, 1, ,,bbb"));
+	NextTokenizerIterateBuf(Buf, 8);
+	FreeStrBuf(&Buf);
+}
+
+static void TestNextTokenizer_Empty(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY(""));
+	NextTokenizerIterateBuf(Buf, 8);
+	FreeStrBuf(&Buf);
+}
+
+static void TestNextTokenizer_TwoEmpty(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY(","));
+	NextTokenizerIterateBuf(Buf, 8);
+	FreeStrBuf(&Buf);
+}
+
+static void TestNextTokenizer_One(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY("one"));
 	NextTokenizerIterateBuf(Buf, 8);
 	FreeStrBuf(&Buf);
 }
@@ -290,8 +325,12 @@ static void AddStrBufSimlpeTests(void)
 	pTest = CU_add_test(pGroup, "testCreateBuf", TestCreateBuf);
 
 	pGroup = CU_add_suite("TestStringTokenizer", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testNextTokenizer_1", TestNextTokenizer1);
-	pTest = CU_add_test(pGroup, "testNextTokenizer_2", TestNextTokenizer2);
+	pTest = CU_add_test(pGroup, "testNextTokenizer_EndWithEmpty", TestNextTokenizer_EndWithEmpty);
+	pTest = CU_add_test(pGroup, "testNextTokenizer_StartWithEmpty", TestNextTokenizer_StartWithEmpty);
+	pTest = CU_add_test(pGroup, "testNextTokenizer_StartWithEmpty", TestNextTokenizer_StartWithEmpty);
+	pTest = CU_add_test(pGroup, "testNextTokenizer_Empty", TestNextTokenizer_Empty);
+	pTest = CU_add_test(pGroup, "testNextTokenizer_TwoEmpty", TestNextTokenizer_TwoEmpty);
+	pTest = CU_add_test(pGroup, "testNextTokenizer_One", TestNextTokenizer_One);
 
 
 /*

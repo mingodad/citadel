@@ -1316,7 +1316,9 @@ int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
 {
 	const char *Null = NULL;
 	Null --;
-	if ((Source == NULL) || (*pStart == Null))
+	if ((Source == NULL) || 
+	    (*pStart == Null) ||
+	    (Source->BufUsed == 0))
 	{
 		return 0;
 	}
@@ -1419,7 +1421,9 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 
 	/* did we reach the end? */
 	if ((s > EndBuffer)) {
-		*pStart = EndBuffer + 1;
+		EndBuffer = NULL;
+		EndBuffer --;
+		*pStart = EndBuffer;
 	}
 	else {
 		*pStart = s;  /* remember the position for the next run */
