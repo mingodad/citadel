@@ -3707,6 +3707,9 @@ int ConditionalRoomHas_QR_MAILBOX(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+
+
+
 int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;

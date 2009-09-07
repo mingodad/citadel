@@ -60,10 +60,11 @@ typedef struct _folder {
 	int QRFlags;    /* roomflags */
 	int floorid;      /* which floor is it on */
 
-
 	int listorder; /* todo */
+	int QRFlags2;    /* Bitbucket NO2 */
 
-	StrBuf *ACL;    /* access Control list... */
+	long RAFlags;
+///	StrBuf *ACL;    /* access Control list... */
 
 	int view;       /* whats its default view? inbox/calendar.... */
 	int defview;
