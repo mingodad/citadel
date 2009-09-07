@@ -124,7 +124,7 @@ void DeleteFolder(void *vFolder)
 	room = (folder*) vFolder;
 
 	FreeStrBuf(&room->name);
-	FreeStrBuf(&room->ACL);
+	////FreeStrBuf(&room->ACL);
 
 	//// FreeStrBuf(&room->room);
 
@@ -169,16 +169,20 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 
 			room->QRFlags = StrBufExtractNext_long(Buf, &Pos, '|');
 			room->floorid = StrBufExtractNext_long(Buf, &Pos, '|');
-
 			room->listorder = StrBufExtractNext_long(Buf, &Pos, '|');
+			room->QRFlags2 = StrBufExtractNext_long(Buf, &Pos, '|');
 
+			room->RAFlags = StrBufExtractNext_long(Buf, &Pos, '|');
+
+/*
+ ACWHUT?
 			room->ACL = NewStrBufPlain(NULL, StrLength(Buf));
 			StrBufExtract_NextToken(room->ACL, Buf, &Pos, '|');
+*/
 
 			room->view = StrBufExtractNext_long(Buf, &Pos, '|');
 			room->defview = StrBufExtractNext_long(Buf, &Pos, '|');
 			room->lastchange = StrBufExtractNext_long(Buf, &Pos, '|');
-/*
 
 			/* Evaluate the Server sent data for later use */
 			/* find out, whether we are in a sub-room */
@@ -451,7 +455,7 @@ void tmplput_ROOM_ACL(StrBuf *Target, WCTemplputParams *TP)
 {
 	folder *Folder = (folder *)(TP->Context);
 
-	StrBufAppendTemplate(Target, TP, Folder->ACL, 0);
+	StrBufAppendPrintf(Target, "%ld", Folder->RAFlags, 0);
 }
 
 
@@ -523,15 +527,29 @@ void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP)
 
 
 
+int ConditionalRoomHas_UA_KNOWN(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return (Folder->RAFlags & UA_KNOWN) != 0;
+}
 
+int ConditionalRoomHas_UA_GOTOALLOWED(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return (Folder->RAFlags & UA_GOTOALLOWED) != 0;
+}
 
+int ConditionalRoomHas_UA_HASNEWMSGS(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return (Folder->RAFlags & UA_HASNEWMSGS) != 0;
+}
 
-
-
-
-
-
-
+int ConditionalRoomHas_UA_ZAPPED(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return (Folder->RAFlags & UA_ZAPPED) != 0;
+}
 
 
 void jsonRoomFlr(void) 
@@ -578,6 +596,14 @@ InitModule_ROOMLIST
 	RegisterNamespace("ROOM:INFO:FLOOR:ID", 0, 0, tmplput_ROOM_FLOOR_ID, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:FLOOR:NAME", 0, 1, tmplput_ROOM_FLOOR_NAME, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, CTX_ROOMS);
+
+
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_KNOWN"), 0, ConditionalRoomHas_UA_KNOWN, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_GOTOALLOWED"), 0, ConditionalRoomHas_UA_GOTOALLOWED, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_HASNEWMSGS"), 0, ConditionalRoomHas_UA_HASNEWMSGS, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_ZAPPED"), 0, ConditionalRoomHas_UA_ZAPPED, CTX_ROOMS);
+
+
 
 	RegisterSortFunc(HKEY("byfloorroom"),
 			 NULL, 0,
