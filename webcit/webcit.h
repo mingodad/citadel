@@ -171,6 +171,9 @@
 #define UA_GOTOALLOWED	4
 #define UA_HASNEWMSGS	8
 #define UA_ZAPPED	16
+#define UA_POSTALLOWED          32
+#define UA_ADMINALLOWED         64
+#define UA_DELETEALLOWED        128
 
 
 /*
