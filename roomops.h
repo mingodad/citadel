@@ -79,7 +79,7 @@ typedef struct _folder {
 
 
 	int hasnewmsgs;	/* are there unread messages inside */
-	int is_mailbox;	/* is it a mailbox?  */
+	int is_inbox;	/* is it a mailbox?  */
 	int selectable;	/* can we select it ??? */
 	int num_rooms;	/* If this is a floor, how many rooms does it have */
 

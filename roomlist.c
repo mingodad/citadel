@@ -205,7 +205,16 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 			/* Private mailboxes on the main floor get remapped to the personal folder */
 			if ((room->QRFlags & QR_MAILBOX) && 
 			    (room->floorid == 0))
+			{
 				room->floorid = VIRTUAL_MY_FLOOR;
+				if ((room->nRoomNameParts == 1) && 
+				    (StrLength(room->name) == 4) && 
+				    (strcmp(ChrPtr(room->name), "Mail") == 0))
+				{
+					room->is_inbox = 1;
+				}
+
+			}
 			/* get a pointer to the floor we're on: */
 			GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
 			room->Floor = (const floor*) vFloor;
@@ -570,6 +579,11 @@ int ConditionalRoomHas_UA_DELETEALLOWED(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return Folder->is_inbox;
+}
 
 
 
@@ -621,6 +635,7 @@ InitModule_ROOMLIST
 	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, CTX_ROOMS);
 
 
+	RegisterConditional(HKEY("COND:ROOM:INFO:IS_INBOX"), 0, ConditionalRoomIsInbox, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_KNOWN"), 0, ConditionalRoomHas_UA_KNOWN, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_GOTOALLOWED"), 0, ConditionalRoomHas_UA_GOTOALLOWED, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_HASNEWMSGS"), 0, ConditionalRoomHas_UA_HASNEWMSGS, CTX_ROOMS);
