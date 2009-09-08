@@ -88,6 +88,10 @@ void tasks_section(void) {
 	SharedMessageStatus Stat;
 
 	memset(&Stat, 0, sizeof(SharedMessageStatus));
+	Stat.maxload = 10000;
+	Stat.lowest_found = (-1);
+	Stat.highest_found = (-1);
+
 	Buf = NewStrBufPlain(HKEY("_TASKS_"));
 	gotoroom(Buf);
 	FreeStrBuf(&Buf);
@@ -133,6 +137,10 @@ void calendar_section(void) {
 	SharedMessageStatus Stat;
 
 	memset(&Stat, 0, sizeof(SharedMessageStatus));
+	Stat.maxload = 10000;
+	Stat.lowest_found = (-1);
+	Stat.highest_found = (-1);
+	
 	Buf = NewStrBufPlain(HKEY("_CALENDAR_"));
 	gotoroom(Buf);
 	FreeStrBuf(&Buf);
