@@ -424,7 +424,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	lostr = NewStrBuf();
 	histr = NewStrBuf();
 	pvset = NULL;
-	while (StrBufExtract_NextToken(setstr, vset, &pvset, ',')) {
+	while (StrBufExtract_NextToken(setstr, vset, &pvset, ',') >= 0) {
 		/* CtdlLogPrintf(CTDL_DEBUG, "Token: '%s'\n", ChrPtr(setstr));  NOTE ZERO-LENGTH TOKENS */
 
 		StrBufExtract_token(lostr, setstr, 0, ':');
