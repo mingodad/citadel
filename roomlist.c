@@ -551,6 +551,29 @@ int ConditionalRoomHas_UA_ZAPPED(StrBuf *Target, WCTemplputParams *TP)
 	return (Folder->RAFlags & UA_ZAPPED) != 0;
 }
 
+int ConditionalRoomHas_UA_POSTALLOWED(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return (Folder->RAFlags & UA_POSTALLOWED) != 0;
+}
+
+int ConditionalRoomHas_UA_ADMINALLOWED(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return (Folder->RAFlags & UA_ADMINALLOWED) != 0;
+}
+
+int ConditionalRoomHas_UA_DELETEALLOWED(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	return (Folder->RAFlags & UA_DELETEALLOWED) != 0;
+}
+
+
+
+
+
+
 
 void jsonRoomFlr(void) 
 {
@@ -602,8 +625,9 @@ InitModule_ROOMLIST
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_GOTOALLOWED"), 0, ConditionalRoomHas_UA_GOTOALLOWED, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_HASNEWMSGS"), 0, ConditionalRoomHas_UA_HASNEWMSGS, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_ZAPPED"), 0, ConditionalRoomHas_UA_ZAPPED, CTX_ROOMS);
-
-
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_POSTALLOWED"), 0, ConditionalRoomHas_UA_POSTALLOWED, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_ADMINALLOWED"), 0, ConditionalRoomHas_UA_ADMINALLOWED, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_DELETEALLOWED"), 0, ConditionalRoomHas_UA_DELETEALLOWED, CTX_ROOMS);
 
 	RegisterSortFunc(HKEY("byfloorroom"),
 			 NULL, 0,
