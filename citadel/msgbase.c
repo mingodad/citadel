@@ -425,7 +425,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	histr = NewStrBuf();
 	pvset = NULL;
 	while (StrBufExtract_NextToken(setstr, vset, &pvset, ',') >= 0) {
-		/* CtdlLogPrintf(CTDL_DEBUG, "Token: '%s'\n", ChrPtr(setstr));  NOTE ZERO-LENGTH TOKENS */
 
 		StrBufExtract_token(lostr, setstr, 0, ':');
 		if (StrBufNum_tokens(setstr, ':') >= 2) {
@@ -502,26 +501,38 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			}
 		}
 
-		/* If the string is getting too long, truncate it at the beginning; repeat up to 9 times * /
-		if (w) for (j=0; j<9; ++j) {
-			if ((StrLength(vset) + 20) > sizeof vset) {
-				remove_token(vset, 0, ',');
-				if (which_set == ctdlsetseen_seen) {
-					char temp[SIZ];
-					sprintf(temp, "1:%ld,", atol(vset)-1L);
-					strcat(temp, vset);
-					strcpy(vset, temp);
-				}
-			}
-		}
-		we don't get to long anymore.
-		*/
-
 		was_seen = is_seen;
 	}
 
-	while (StrLength(vset) > SIZ)
-		StrBufRemove_token(vset, 0, ',');
+	while (StrLength(vset) > SIZ) {
+		/*
+		 * If we're truncating the sequence set of messages marked with the 'seen' flag,
+		 * we want the earliest messages (the truncated ones) to be marked, not unmarked.
+		 * Otherwise messages at the beginning will suddenly appear to be 'unseen'.
+		 */
+		if (which_set == ctdlsetseen_seen) {
+			StrBuf *first_tok;
+			first_tok = NewStrBuf();
+			StrBufRemove_token(vset, 0, ',');
+			StrBufExtract_token(first_tok, vset, 0, ',');
+			StrBufRemove_token(vset, 0, ',');
+
+			if (StrBufNum_tokens(first_tok, ':') > 1) {
+				StrBufRemove_token(first_tok, 0, ':');
+			}
+			
+			StrBuf *new_set;
+			new_set = NewStrBuf();
+			StrBufAppendBufPlain(new_set, HKEY("1:"), 0);
+			StrBufAppendBuf(new_set, first_tok, 0);
+			StrBufAppendBufPlain(new_set, HKEY(":"), 0);
+			StrBufAppendBuf(new_set, vset, 0);
+
+			FreeStrBuf(&vset);
+			FreeStrBuf(&first_tok);
+			vset = new_set;
+		}
+	}
 
 	CtdlLogPrintf(CTDL_DEBUG, " after update: %s\n", ChrPtr(vset));
 
