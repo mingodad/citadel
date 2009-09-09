@@ -505,6 +505,9 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	}
 
 	while (StrLength(vset) > SIZ) {
+		StrBufRemove_token(vset, 0, ',');
+		w = 1;
+
 		/*
 		 * If we're truncating the sequence set of messages marked with the 'seen' flag,
 		 * we want the earliest messages (the truncated ones) to be marked, not unmarked.
@@ -513,7 +516,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		if (which_set == ctdlsetseen_seen) {
 			StrBuf *first_tok;
 			first_tok = NewStrBuf();
-			StrBufRemove_token(vset, 0, ',');
 			StrBufExtract_token(first_tok, vset, 0, ',');
 			StrBufRemove_token(vset, 0, ',');
 
@@ -548,7 +550,9 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 
 	free(is_set);
 	free(msglist);
-	CtdlSetRelationship(&vbuf, which_user, which_room);
+	if (w) {
+		CtdlSetRelationship(&vbuf, which_user, which_room);
+	}
 	FreeStrBuf(&vset);
 }
 
