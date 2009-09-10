@@ -484,7 +484,8 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 				StrBufAppendPrintf(vset, "%ld:%ld", lo, hi);
 			}
 		}
-		else if ((is_seen) && (i == num_msgs - 1)) {
+
+		if ((is_seen) && (i == num_msgs - 1)) {
 			if (StrLength(vset) > 0) {
 				StrBufAppendBufPlain(vset, HKEY(","), 0);
 			}
