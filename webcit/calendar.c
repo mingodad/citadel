@@ -812,14 +812,14 @@ void save_event(void) {
  * Anonymous request of freebusy data for a user
  */
 void do_freebusy(void)
-{ /// TODO: request line const char *req) {
-	const char req[] = "";
+{
+	const char *req = ChrPtr(WC->Hdr->HR.ReqLine);
 	char who[SIZ];
 	char buf[SIZ];
 	int len;
 	long lines;
 
-	extract_token(who, req, 1, ' ', sizeof who);
+	extract_token(who, req, 0, ' ', sizeof who);
 	if (!strncasecmp(who, "/freebusy/", 10)) {
 		strcpy(who, &who[10]);
 	}
