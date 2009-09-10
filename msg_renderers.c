@@ -509,9 +509,12 @@ void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 	if (StrLength(Mime->Data) > 0) {
 		struct vnote *v;
 		StrBuf *Buf;
+		char *vcard;
 
 		Buf = NewStrBuf();
-		v = vnote_new_from_str(ChrPtr(Mime->Data));
+		vcard = SmashStrBuf(&Mime->Data);
+		v = vnote_new_from_str(vcard);
+		free (vcard);
 		if (v) {
 			WCTemplputParams TP;
 			
@@ -522,12 +525,10 @@ void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 				   Buf, &TP);
 			
 			vnote_free(v);
-			
-			FreeStrBuf(&Mime->Data);
 			Mime->Data = Buf;
 		}
 		else
-			FlushStrBuf(Mime->Data);
+			Mime->Data = NewStrBuf();
 	}
 
 }

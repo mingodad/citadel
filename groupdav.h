@@ -14,6 +14,7 @@ struct epdata {
 
 
 void groupdav_common_headers(void);
+void groupdav_main(void);
 void groupdav_get(void);
 void groupdav_put(void);
 void groupdav_delete(void);

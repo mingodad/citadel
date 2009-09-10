@@ -701,7 +701,7 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 void do_edit_vcard(long msgnum, char *partnum, 
 		   message_summary *VCMsg,
 		   wc_mime_attachment *VCAtt,
-		   char *return_to, 
+		   const char *return_to, 
 		   const char *force_room) {
 	message_summary *Msg = NULL;
 	wc_mime_attachment *VCMime = NULL;
