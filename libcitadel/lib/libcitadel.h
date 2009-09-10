@@ -234,6 +234,7 @@ int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars);
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant);
 #define NewConstStrBuf(a) _NewConstStrBuf(a, sizeof(a))
 void FreeStrBuf (StrBuf **FreeMe);
+char *SmashStrBuf (StrBuf **SmashMe);
 void HFreeStrBuf (void *VFreeMe);
 int FlushStrBuf(StrBuf *buf);
 int FLUSHStrBuf(StrBuf *buf); /* expensive but doesn't leave content behind for others to find in case of errors */

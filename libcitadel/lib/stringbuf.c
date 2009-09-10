@@ -412,6 +412,55 @@ void FreeStrBuf (StrBuf **FreeMe)
 }
 
 /**
+ * \brief flatten a Buffer to the Char * we return 
+ * Its a double pointer, so it can NULL your pointer
+ * so fancy SIG11 appear instead of random results
+ * The Calle then owns the buffer and is responsible for freeing it.
+ * \param SmashMe Pointer Pointer to the buffer to release Buf from and free
+ * \return the pointer of the buffer; Callee owns the memory thereafter.
+ */
+char *SmashStrBuf (StrBuf **SmashMe)
+{
+	char *Ret;
+
+	if (*SmashMe == NULL)
+		return NULL;
+#ifdef SIZE_DEBUG
+	if (hFreeDbglog == -1){
+		pid_t pid = getpid();
+		char path [SIZ];
+		snprintf(path, SIZ, "/tmp/libcitadel_strbuf_realloc.log.%d", pid);
+		hFreeDbglog = open(path, O_APPEND|O_CREAT|O_WRONLY);
+	}
+	if ((*SmashMe)->nIncreases > 0)
+	{
+		char buf[SIZ * 3];
+		long n;
+		n = snprintf(buf, SIZ * 3, "S+|%ld|%ld|%ld|%s|%s|\n",
+			     (*SmashMe)->nIncreases,
+			     (*SmashMe)->BufUsed,
+			     (*SmashMe)->BufSize,
+			     (*SmashMe)->bt,
+			     (*SmashMe)->bt_lastinc);
+		n = write(hFreeDbglog, buf, n);
+	}
+	else
+	{
+		char buf[128];
+		long n;
+		n = snprintf(buf, 128, "S_|0|%ld%ld|\n",
+			     (*SmashMe)->BufUsed,
+			     (*SmashMe)->BufSize);
+		n = write(hFreeDbglog, buf, n);
+	}
+#endif
+	Ret = (*SmashMe)->buf;
+	free(*SmashMe);
+	*SmashMe = NULL;
+	return Ret;
+}
+
+/**
  * \brief Release the buffer
  * If you want put your StrBuf into a Hash, use this as Destructor.
  * \param VFreeMe untyped pointer to a StrBuf. be shure to do the right thing [TM]
