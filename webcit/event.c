@@ -36,8 +36,44 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	long weekstart = 0;
 	icalproperty *rrule = NULL;
 	struct icalrecurrencetype recur;
+	char weekday_is_selected[7];
+	int which_rrmonthtype_is_preselected = 0;
+
+	int rrmday;
+	int rrmweekday;
+
+	icaltimetype day1;
+	int weekbase;
+	int rrmweek;
+	int rrymweek;
+	int rrymweekday;
+	int rrymonth;
+	int which_rrend_is_preselected;
+	int which_rryeartype_is_preselected;
+
 
 	char *tabnames[3];
+	const char *frequency_units[8];
+	const char *ordinals[6];
+
+	frequency_units[0] = _("seconds");
+	frequency_units[1] = _("minutes");
+	frequency_units[2] = _("hours");
+	frequency_units[3] = _("days");
+	frequency_units[4] = _("weeks");
+	frequency_units[5] = _("months");
+	frequency_units[6] = _("years");
+	frequency_units[7] = _("never");
+
+
+	ordinals[0] = "0";
+	ordinals[1] = _("first");
+	ordinals[2] = _("second");
+	ordinals[3] = _("third");
+	ordinals[4] = _("fourth");
+	ordinals[5] = _("fifth");
+
+	
 	tabnames[0] = _("Event");
 	tabnames[1] = _("Attendees");
 	tabnames[2] = _("Recurrence");
@@ -462,26 +498,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wprintf("<table border=0 cellspacing=\"10\" width=100%%>\n");
 
-	char *frequency_units[] = {
-		_("seconds"),
-		_("minutes"),
-		_("hours"),
-		_("days"),
-		_("weeks"),
-		_("months"),
-		_("years"),
-		_("never")
-	};
-
-	char *ordinals[] = {
-		"0",
-		_("first"),
-		_("second"),
-		_("third"),
-		_("fourth"),
-		_("fifth")
-	};
-
 	wprintf("<tr><td><b>");
 	wprintf(_("Recurrence rule"));
 	wprintf("</b></td><td>");
@@ -507,7 +523,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("<div id=\"weekday_selector\">");	/* begin 'weekday_selector' div */
 	wprintf("%s<br>", _("on these weekdays:"));
 
-	char weekday_is_selected[7];
 	memset(weekday_is_selected, 0, 7);
 
 	for (i=0; i<ICAL_BY_DAY_SIZE; ++i) {
@@ -535,7 +550,6 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 
 
-	int which_rrmonthtype_is_preselected = 0;
 	wprintf("<div id=\"monthday_selector\">");	/* begin 'monthday_selector' div */
 
 	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_mday\" "
@@ -544,14 +558,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
 	);
 
-	int rrmday = t_start.day;
-	int rrmweekday = icaltime_day_of_week(t_start) - 1;
+	rrmday = t_start.day;
+	rrmweekday = icaltime_day_of_week(t_start) - 1;
 
 	/* Figure out what week of the month we're in */
-	icaltimetype day1 = t_start;
+	day1 = t_start;
 	day1.day = 1;
-	int weekbase = icaltime_week_number(day1);
-	int rrmweek = icaltime_week_number(t_start) - weekbase + 1;
+	weekbase = icaltime_week_number(day1);
+	rrmweek = icaltime_week_number(t_start) - weekbase + 1;
 
 	/* Are we going by day of the month or week/day? */
 
@@ -603,10 +617,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</div>\n");				/* end 'monthday_selector' div */
 
 
-	int rrymweek = rrmweek;
-	int rrymweekday = rrmweekday;
-	int rrymonth = t_start.month;
-	int which_rryeartype_is_preselected = 0;
+	rrymweek = rrmweek;
+	rrymweekday = rrmweekday;
+	rrymonth = t_start.month;
+	which_rryeartype_is_preselected = 0;
 
 	if (
 		(recur.by_day[0] != ICAL_RECURRENCE_ARRAY_MAX) 
@@ -679,7 +693,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wprintf("</td></tr>\n");
 
 
-	int which_rrend_is_preselected = 0;
+	which_rrend_is_preselected = 0;
 	if (!icaltime_is_null_time(recur.until)) which_rrend_is_preselected = 2;
 	if (recur.count > 0) which_rrend_is_preselected = 1;
 
