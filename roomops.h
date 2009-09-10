@@ -64,7 +64,6 @@ typedef struct _folder {
 	int QRFlags2;    /* Bitbucket NO2 */
 
 	long RAFlags;
-///	StrBuf *ACL;    /* access Control list... */
 
 	int view;       /* whats its default view? inbox/calendar.... */
 	int defview;
