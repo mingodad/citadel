@@ -504,36 +504,44 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		was_seen = is_seen;
 	}
 
-	while (StrLength(vset) > SIZ) {
+	/*
+	 * We will have to stuff this string back into a 4096 byte buffer, so if it's
+	 * larger than that now, truncate it by removing tokens from the beginning.
+	 * The limit of 100 iterations is there to prevent an infinite loop in case
+	 * something unexpected happens.
+	 */
+	int number_of_truncations = 0;
+	while ( (StrLength(vset) > SIZ) && (number_of_truncations < 100) ) {
 		StrBufRemove_token(vset, 0, ',');
 		w = 1;
+		++number_of_truncations;
+	}
 
-		/*
-		 * If we're truncating the sequence set of messages marked with the 'seen' flag,
-		 * we want the earliest messages (the truncated ones) to be marked, not unmarked.
-		 * Otherwise messages at the beginning will suddenly appear to be 'unseen'.
-		 */
-		if (which_set == ctdlsetseen_seen) {
-			StrBuf *first_tok;
-			first_tok = NewStrBuf();
-			StrBufExtract_token(first_tok, vset, 0, ',');
-			StrBufRemove_token(vset, 0, ',');
+	/*
+	 * If we're truncating the sequence set of messages marked with the 'seen' flag,
+	 * we want the earliest messages (the truncated ones) to be marked, not unmarked.
+	 * Otherwise messages at the beginning will suddenly appear to be 'unseen'.
+	 */
+	if ( (which_set == ctdlsetseen_seen) && (number_of_truncations > 0) ) {
+		StrBuf *first_tok;
+		first_tok = NewStrBuf();
+		StrBufExtract_token(first_tok, vset, 0, ',');
+		StrBufRemove_token(vset, 0, ',');
 
-			if (StrBufNum_tokens(first_tok, ':') > 1) {
-				StrBufRemove_token(first_tok, 0, ':');
-			}
-			
-			StrBuf *new_set;
-			new_set = NewStrBuf();
-			StrBufAppendBufPlain(new_set, HKEY("1:"), 0);
-			StrBufAppendBuf(new_set, first_tok, 0);
-			StrBufAppendBufPlain(new_set, HKEY(":"), 0);
-			StrBufAppendBuf(new_set, vset, 0);
-
-			FreeStrBuf(&vset);
-			FreeStrBuf(&first_tok);
-			vset = new_set;
+		if (StrBufNum_tokens(first_tok, ':') > 1) {
+			StrBufRemove_token(first_tok, 0, ':');
 		}
+		
+		StrBuf *new_set;
+		new_set = NewStrBuf();
+		StrBufAppendBufPlain(new_set, HKEY("1:"), 0);
+		StrBufAppendBuf(new_set, first_tok, 0);
+		StrBufAppendBufPlain(new_set, HKEY(":"), 0);
+		StrBufAppendBuf(new_set, vset, 0);
+
+		FreeStrBuf(&vset);
+		FreeStrBuf(&first_tok);
+		vset = new_set;
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, " after update: %s\n", ChrPtr(vset));
