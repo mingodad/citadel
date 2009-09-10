@@ -313,7 +313,7 @@ typedef struct _addrbookent {
 #define COOKIEUNNEEDED (1<<6)
 #define ISSTATIC (1<<7)
 #define FORCE_SESSIONCLOSE (1<<8)
-
+#define PARSE_REST_URL (1<<0)
 
 typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{
@@ -444,6 +444,7 @@ struct wcsession {
 	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
 	char ImportantMessage[SIZ];		/**< ??? todo */
 	StrBuf *ImportantMsg;
+	HashList *Directory;                    /**< Parts of the directory URL in snippets */
 
 /* accounting */
 	StrBuf *wc_username;			/**< login name of current user */
@@ -615,10 +616,6 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source);
 void pullquote_fmout(void);
 void wDumpContent(int);
 
-int Flathash(const char *str, long len);
-
-
-
 
 
 void UrlescPutStrBuf(const StrBuf *strbuf);
@@ -640,7 +637,6 @@ void wprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void output_static(const char* What);
 
-void print_menu_box(char* Title, char *Class, int nLines, ...);
 long stresc(char *target, long tSize, char *strbuf, int nbsp, int nolinebreaks);
 void escputs(const char *strbuf);
 void url(char *buf, size_t bufsize);
@@ -708,7 +704,7 @@ int pattern2(char *search, char *patn);
 void do_edit_vcard(long msgnum, char *partnum, 
 		   message_summary *VCMsg,
 		   wc_mime_attachment *VCAtt,
-		   char *return_to, 
+		   const char *return_to, 
 		   const char *force_room);
 
 void select_user_to_edit(const char *preselect);

@@ -272,41 +272,6 @@ void http_transmit_thing(const char *content_type,
 	end_burst();
 }
 
-/*
- * print menu box like used in the floor view or admin interface.
- * This function takes pair of strings as va_args, 
- * Title	Title string of the box
- * Class	CSS Class for the box
- * nLines	How many string pairs should we print? (URL, UrlText)
- * ...		Pairs of URL Strings and their Names
- */
-void print_menu_box(char* Title, char *Class, int nLines, ...)
-{
-	va_list arg_list;
-	long i;
-	
-	svput("BOXTITLE", WCS_STRING, Title);
-	do_template("beginboxx", NULL);
-	
-	wprintf("<ul class=\"%s\">", Class);
-	
-	va_start(arg_list, nLines);
-	for (i = 0; i < nLines; ++i)
-	{ 
-		wprintf("<li><a href=\"%s\">", va_arg(arg_list, char *));
-		wprintf((char *) va_arg(arg_list, char *));
-		wprintf("</a></li>\n");
-	}
-	va_end (arg_list);
-	
-	wprintf("</a></li>\n");
-	
-	wprintf("</ul>");
-	
-	do_template("endbox", NULL);
-}
-
-
 
 /*
  * Convenience functions to display a page containing only a string
@@ -546,16 +511,42 @@ void ReadPostData(void)
 		StrBufCutLeft(content, body_start);
 		ParseURLParams(content);
 	} else if (!strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "multipart", 9)) {
-		content_end = ChrPtr(content) + 
-			WCC->Hdr->HR.ContentLength + 
-			body_start;
-		mime_parser(ChrPtr(content), content_end, *upload_handler, NULL, NULL, NULL, 0);
+		char *Buf;
+		char *BufEnd;
+		Buf = SmashStrBuf(&content);
+		content_end = Buf + WCC->Hdr->HR.ContentLength + body_start;
+		mime_parser(Buf, BufEnd, *upload_handler, NULL, NULL, NULL, 0);
+		free(Buf);
 	} else if (WCC->Hdr->HR.ContentLength > 0) {
 		WCC->upload = content;
 		content = NULL;
 	}
 	FreeStrBuf(&content);
 }
+
+
+void ParseREST_URL(void)
+{
+	StrBuf *Buf;
+	wcsession *WCC = WC;
+	long i = 0;
+	const char *pCh = NULL;
+
+	WCC->Directory = NewHash(1, Flathash);
+
+	Buf = NewStrBuf();
+	while (StrBufExtract_NextToken(WCC->Hdr->HR.ReqLine, 
+				       Buf, &pCh,  '/') >= 0)
+	{
+		Put(WCC->Directory, IKEY(i), Buf, HFreeStrBuf);
+		i++;
+		Buf = NewStrBuf();
+	}
+	if (i == 0)
+		FreeStrBuf(&Buf);
+}
+
+
 
 
 /*
@@ -686,6 +677,10 @@ void session_loop(void)
 			display_login(NULL);
 		}
 		else {
+/*
+			if ((WCC->Hdr->HR.Handler->Flags & PARSE_REST_URL) != 0)
+				ParseREST_URL();
+*/
 			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0)
 				begin_ajax_response();
 			WCC->Hdr->HR.Handler->F();

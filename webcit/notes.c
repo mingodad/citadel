@@ -131,7 +131,7 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 
 	if (StrLength(Data) > 0) {
 		if (IsEmptyStr(uid_from_headers)) {
-			// Convert an old-style note to a vNote
+			/* Convert an old-style note to a vNote */
 			vnote_from_body = vnote_new();
 			vnote_from_body->uid = strdup(uid_from_headers);
 			vnote_from_body->color_red = pastel_palette[3][0];
@@ -144,8 +144,10 @@ struct vnote *vnote_new_from_msg(long msgnum,int unread)
 			return vnote_from_body;
 		}
 		else {
-			struct vnote *v = vnote_new_from_str(ChrPtr(Data));
-			FreeStrBuf(&Data);
+			char *Buf = SmashStrBuf(&Data);
+			
+			struct vnote *v = vnote_new_from_str(Buf);
+			free(Buf);
 			return(v);
 		}
 	}
@@ -216,7 +218,6 @@ void ajax_update_note(void) {
 		return;
 	}
 
-	// lprintf(9, "Note UID = %s\n", bstr("note_uid"));
 	serv_printf("EUID %s", bstr("note_uid"));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
@@ -226,9 +227,8 @@ void ajax_update_note(void) {
 		return;
 	}
 	msgnum = atol(&buf[4]);
-	// lprintf(9, "Note msg = %ld\n", msgnum);
-
-	// Was this request a delete operation?  If so, nuke it...
+	
+	/* Was this request a delete operation?  If so, nuke it... */
 	if (havebstr("deletenote")) {
 		if (!strcasecmp(bstr("deletenote"), "yes")) {
 			serv_printf("DELE %d", msgnum);
@@ -240,7 +240,7 @@ void ajax_update_note(void) {
 		}
 	}
 
-	// If we get to this point it's an update, not a delete
+	/* If we get to this point it's an update, not a delete */
 	v = vnote_new_from_msg(msgnum, 0);
 	if (!v) {
 		begin_ajax_response();
@@ -271,7 +271,7 @@ void ajax_update_note(void) {
         if (havebstr("blue")) {
 		v->color_blue = atoi(bstr("blue"));
 	}
-        if (havebstr("value")) {	// I would have preferred 'body' but InPlaceEditor hardcodes 'value'
+        if (havebstr("value")) {	/* I would have preferred 'body' but InPlaceEditor hardcodes 'value' */
 		if (v->body) free(v->body);
 		v->body = strdup(bstr("value"));
 	}
