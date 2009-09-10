@@ -353,7 +353,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	StrBuf *histr;
 	const char *pvset;
 	char *is_set;	/* actually an array of booleans */
-	int w = 0;
 
 	/* Don't bother doing *anything* if we were passed a list of zero messages */
 	if (num_target_msgnums < 1) {
@@ -469,14 +468,11 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			}
 		}
 
-		w = 0;	/* set to 1 if we write something to the string */
-
 		if ((was_seen == 0) && (is_seen == 1)) {
 			lo = msglist[i];
 		}
 		else if ((was_seen == 1) && (is_seen == 0)) {
 			hi = msglist[i-1];
-			w = 1;
 
 			if (StrLength(vset) > 0) {
 				StrBufAppendBufPlain(vset, HKEY(","), 0);
@@ -489,7 +485,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 			}
 		}
 		else if ((is_seen) && (i == num_msgs - 1)) {
-			w = 1;
 			if (StrLength(vset) > 0) {
 				StrBufAppendBufPlain(vset, HKEY(","), 0);
 			}
@@ -513,7 +508,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	int number_of_truncations = 0;
 	while ( (StrLength(vset) > SIZ) && (number_of_truncations < 100) ) {
 		StrBufRemove_token(vset, 0, ',');
-		w = 1;
 		++number_of_truncations;
 	}
 
@@ -558,9 +552,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 
 	free(is_set);
 	free(msglist);
-	if (w) {
-		CtdlSetRelationship(&vbuf, which_user, which_room);
-	}
+	CtdlSetRelationship(&vbuf, which_user, which_room);
 	FreeStrBuf(&vset);
 }
 
