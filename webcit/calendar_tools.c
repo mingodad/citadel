@@ -34,6 +34,7 @@ char *hourname[] = {
  */
 
 void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int date_only) {
+	wcsession *WCC = WC;
 	int i;
 	time_t now;
 	struct tm tm_now;
@@ -61,12 +62,12 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	}
 
 	wprintf("<input type=\"text\" name=\"");
-	wprintf(prefix);
+	StrBufAppendBufPlain(WCC->WBuf, prefix, -1, 0);
 	wprintf("\" id=\"");
-	wprintf(prefix);
+	StrBufAppendBufPlain(WCC->WBuf, prefix, -1, 0);
 	wprintf("\" size=\"10\" maxlength=\"10\" value=\"");
 	wc_strftime(timebuf, 32, "%Y-%m-%d", &tm);
-	wprintf(timebuf);
+	StrBufAppendBufPlain(WCC->WBuf, timebuf, -1, 0);
 	wprintf("\">");
 
 	StrBufAppendPrintf(WC->trailing_javascript, "attachDatePicker('");
@@ -81,7 +82,7 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	}
 
 	wprintf("<span ID=\"");
-	wprintf(prefix);
+	StrBufAppendBufPlain(WCC->WBuf, prefix, -1, 0);
 	wprintf("_time\">");
 	wprintf(_("Hour: "));
 	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
