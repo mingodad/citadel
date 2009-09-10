@@ -131,9 +131,8 @@ void calendar_section(void) {
 	void *vMsg;
 	message_summary *Msg;
 	wcsession *WCC = WC;
-	calview c;
 	StrBuf *Buf;
-	void *v = &c;
+	void *v = NULL;
 	SharedMessageStatus Stat;
 
 	memset(&Stat, 0, sizeof(SharedMessageStatus));
@@ -151,7 +150,7 @@ void calendar_section(void) {
 		num_msgs = load_msg_ptrs("MSGS ALL", &Stat);
 	}
 	calendar_GetParamsGetServerCall(&Stat, 
-					&c,
+					&v,
 					readnew, 
 					cmd, 
 					sizeof(cmd));
@@ -169,6 +168,7 @@ void calendar_section(void) {
 		wprintf(_("(Nothing)"));
 		wprintf("</i><br />\n");
 	}
+	calendar_Cleanup(&v);
 }
 
 /*
