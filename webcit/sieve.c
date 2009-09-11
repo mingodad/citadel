@@ -45,7 +45,7 @@ void display_sieve(void)
 	char script_names[MAX_SCRIPTS][64];
 	int num_scripts = 0;
 	int active_script = (-1);
-	char buf[256];
+	char buf[SIZ];		/* Don't make this buffer smaller or it will restrict line length */
 	int i;
 	int rules_script_is_active = 0;
 
