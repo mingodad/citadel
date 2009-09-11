@@ -620,9 +620,9 @@ void save_sieve(void) {
 				serv_getln(buf, sizeof buf);
 				if (buf[0] == '4') {
 					snprintf(this_name, sizeof this_name, "text_%s", script_names[i]);
-					striplt((char*)BSTR(this_name)); /* TODO: get rid of typecast*/
-					serv_printf("%s", BSTR(this_name));
-					serv_puts("000");
+					striplt((char *)BSTR(this_name)); /* TODO: get rid of typecast*/
+					serv_write(BSTR(this_name), strlen(BSTR(this_name)));
+					serv_puts("\n000");
 				}
 			}
 		}
