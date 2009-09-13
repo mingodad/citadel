@@ -48,6 +48,7 @@ int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				    long len);
 
 int calendar_Cleanup(void **ViewSpecific);
+int __calendar_Cleanup(void **ViewSpecific);
 
 void render_calendar_view(calview *c);
 void display_edit_individual_event(icalcomponent *supplied_vtodo, long msgnum, char *from,

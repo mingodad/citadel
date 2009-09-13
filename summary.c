@@ -168,7 +168,7 @@ void calendar_section(void) {
 		wprintf(_("(Nothing)"));
 		wprintf("</i><br />\n");
 	}
-	calendar_Cleanup(&v);
+	__calendar_Cleanup(&v);
 }
 
 /*
