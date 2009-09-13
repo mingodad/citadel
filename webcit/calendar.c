@@ -864,6 +864,18 @@ int calendar_Cleanup(void **ViewSpecific)
 	return 0;
 }
 
+int __calendar_Cleanup(void **ViewSpecific)
+{
+	calview *c;
+	
+	c = (calview *) *ViewSpecific;
+
+	free (c);
+	*ViewSpecific = NULL;
+
+	return 0;
+}
+
 
 void 
 InitModule_CALENDAR
