@@ -483,7 +483,6 @@ void seconds_since_last_gexp(void)
 
 void ReadPostData(void)
 {
-	const char *content_end = NULL;
 	int body_start = 0;
 	wcsession *WCC = WC;
 	StrBuf *content = NULL;
@@ -513,8 +512,11 @@ void ReadPostData(void)
 	} else if (!strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "multipart", 9)) {
 		char *Buf;
 		char *BufEnd;
+		long len;
+
+		len = StrLength(content);
 		Buf = SmashStrBuf(&content);
-		content_end = Buf + WCC->Hdr->HR.ContentLength + body_start;
+		BufEnd = Buf + len;
 		mime_parser(Buf, BufEnd, *upload_handler, NULL, NULL, NULL, 0);
 		free(Buf);
 	} else if (WCC->Hdr->HR.ContentLength > 0) {
