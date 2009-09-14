@@ -764,7 +764,8 @@ InitModule_CONTEXT
 	RegisterHeaderHandler(HKEY("CONTENT-LENGTH"), Header_HandleContentLength);
 	RegisterHeaderHandler(HKEY("CONTENT-TYPE"), Header_HandleContentType);
 	RegisterHeaderHandler(HKEY("USER-AGENT"), Header_HandleUserAgent);
-	RegisterHeaderHandler(HKEY("X-FORWARDED-HOST"), Header_HandleXFFHost);
+	RegisterHeaderHandler(HKEY("X-FORWARDED-HOST"), Header_HandleXFFHost); /* Apache way... */
+	RegisterHeaderHandler(HKEY("X-REAL-IP"), Header_HandleXFFHost);        /* NGinX way... */
 	RegisterHeaderHandler(HKEY("HOST"), Header_HandleHost);
 	RegisterHeaderHandler(HKEY("X-FORWARDED-FOR"), Header_HandleXFF);
 	RegisterHeaderHandler(HKEY("ACCEPT-ENCODING"), Header_HandleAcceptEncoding);
