@@ -52,6 +52,7 @@ void init_ssl(void)
 	X509_NAME *name = NULL;
 	FILE *fp;
 	char buf[SIZ];
+	int rv = 0;
 
 	if (!access("/var/run/egd-pool", F_OK)) {
 		RAND_egd("/var/run/egd-pool");
@@ -114,11 +115,14 @@ void init_ssl(void)
 	 */
 	if (!strcasecmp(ctdlhost, "uds")) {
 		sprintf(buf, "%s/keys/citadel.key", ctdlport);
-		symlink(buf, CTDL_KEY_PATH);
+		rv = symlink(buf, CTDL_KEY_PATH);
+		if (!rv) lprintf(1, "%s\n", strerror(errno));
 		sprintf(buf, "%s/keys/citadel.csr", ctdlport);
-		symlink(buf, CTDL_CSR_PATH);
+		rv = symlink(buf, CTDL_CSR_PATH);
+		if (!rv) lprintf(1, "%s\n", strerror(errno));
 		sprintf(buf, "%s/keys/citadel.cer", ctdlport);
-		symlink(buf, CTDL_CER_PATH);
+		rv = symlink(buf, CTDL_CER_PATH);
+		if (!rv) lprintf(1, "%s\n", strerror(errno));
 	}
 
 	/*

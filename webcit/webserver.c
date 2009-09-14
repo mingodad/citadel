@@ -99,11 +99,10 @@ void graceful_shutdown_watcher(int signum) {
  */
 pid_t current_child;
 void graceful_shutdown(int signum) {
-	char wd[SIZ];
 	FILE *FD;
 	int fd;
-	getcwd(wd, SIZ);
-	lprintf (1, "bye going down gracefull.[%d][%s]\n", signum, wd);
+
+	lprintf (1, "WebCit is being shut down on signal %d.\n", signum);
 	fd = msock;
 	msock = -1;
 	time_to_die = 1;
@@ -123,6 +122,8 @@ void start_daemon(char *pid_file)
 	pid_t child = 0;
 	FILE *fp;
 	int do_restart = 0;
+	int rv;
+	FILE *rvfp = NULL;
 
 	current_child = 0;
 
@@ -130,7 +131,7 @@ void start_daemon(char *pid_file)
 	 * We don't just call close() because we don't want these fd's
 	 * to be reused for other files.
 	 */
-	chdir("/");
+	rv = chdir("/");
 
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
@@ -143,9 +144,9 @@ void start_daemon(char *pid_file)
 
 	setsid();
 	umask(0);
-	freopen("/dev/null", "r", stdin);
-	freopen("/dev/null", "w", stdout);
-	freopen("/dev/null", "w", stderr);
+	rvfp = freopen("/dev/null", "r", stdin);
+	rvfp = freopen("/dev/null", "w", stdout);
+	rvfp = freopen("/dev/null", "w", stderr);
 	signal(SIGTERM, graceful_shutdown_watcher);
 	signal(SIGHUP, graceful_shutdown_watcher);
 
@@ -219,16 +220,15 @@ void spawn_another_worker_thread()
 	pthread_attr_t attr;	/* Thread attributes */
 	int ret;
 
-	lprintf(3, "Creating a new thread\n");
+	lprintf(3, "Creating a new thread.  Pool size is now %d\n", ++num_threads);
 
 	/* set attributes for the new thread */
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
 	/*
-	 * Our per-thread stacks need to be bigger than the default size, otherwise
-	 * the MIME parser crashes on FreeBSD, and the IMAP service crashes on
-	 * 64-bit Linux.
+	 * Our per-thread stacks need to be bigger than the default size,
+	 * otherwise the MIME parser crashes on FreeBSD.
 	 */
 	if ((ret = pthread_attr_setstacksize(&attr, 1024 * 1024))) {
 		lprintf(1, "pthread_attr_setstacksize: %s\n",
@@ -331,6 +331,7 @@ int main(int argc, char **argv)
 	const char *basedir = NULL;
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
 	const char *I18nDumpFile = NULL;
+	FILE *rvfp = NULL;
 
 	WildFireInitBacktrace(argv[0], 2);
 
@@ -393,9 +394,9 @@ int main(int argc, char **argv)
 			break;
 		case 't':
 			safestrncpy(tracefile, optarg, sizeof tracefile);
-			freopen(tracefile, "w", stdout);
-			freopen(tracefile, "w", stderr);
-			freopen(tracefile, "r", stdin);
+			rvfp = freopen(tracefile, "w", stdout);
+			rvfp = freopen(tracefile, "w", stderr);
+			rvfp = freopen(tracefile, "r", stdin);
 			break;
 		case 'T':
 			LoadTemplates = atoi(optarg);
