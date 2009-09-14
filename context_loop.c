@@ -15,12 +15,13 @@
 /* Only one thread may manipulate SessionList at a time... */
 pthread_mutex_t SessionListMutex;
 
-wcsession *SessionList = NULL; /**< our sessions ????*/
+wcsession *SessionList = NULL;	/* Linked list of all webcit sessions */
 
-pthread_key_t MyConKey;         /**< TSD key for MySession() */
+pthread_key_t MyConKey;         /* TSD key for MySession() */
 HashList *HttpReqTypes = NULL;
 HashList *HttpHeaderHandler = NULL;
 extern HashList *HandlerHash;
+int num_threads = 1;		/* Number of worker threads.  Start at 1 because the parent counts. */
 
 void DestroyHttpHeaderHandler(void *V)
 {
@@ -44,9 +45,8 @@ void do_housekeeping(void)
 	wcsession *sptr, *ss;
 	wcsession *sessions_to_kill = NULL;
 	int num_sessions = 0;
-	static int num_threads = MIN_WORKER_THREADS;
 
-	/**
+	/*
 	 * Lock the session list, moving any candidates for euthanasia into
 	 * a separate list.
 	 */
@@ -55,13 +55,12 @@ void do_housekeeping(void)
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
 		++num_sessions;
 
-		/** Kill idle sessions */
-		if ((time(NULL) - (sptr->lastreq)) >
-		   (time_t) WEBCIT_TIMEOUT) {
+		/* Kill idle sessions */
+		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
 			sptr->killthis = 1;
 		}
 
-		/** Remove sessions flagged for kill */
+		/* Remove sessions flagged for kill */
 		if (sptr->killthis) {
 
 			/** remove session from linked list */
@@ -80,7 +79,7 @@ void do_housekeeping(void)
 	}
 	pthread_mutex_unlock(&SessionListMutex);
 
-	/**
+	/*
 	 * Now free up and destroy the culled sessions.
 	 */
 	while (sessions_to_kill != NULL) {
@@ -94,14 +93,12 @@ void do_housekeeping(void)
 		--num_sessions;
 	}
 
-	/**
+	/*
 	 * If there are more sessions than threads, then we should spawn
 	 * more threads ... up to a predefined maximum.
 	 */
-	while ( (num_sessions > num_threads)
-	      && (num_threads <= MAX_WORKER_THREADS) ) {
+	while ( (num_sessions > num_threads) && (num_threads <= MAX_WORKER_THREADS) ) {
 		spawn_another_worker_thread();
-		++num_threads;
 		lprintf(3, "There are %d sessions and %d threads active.\n",
 			num_sessions, num_threads);
 	}
@@ -227,8 +224,8 @@ wcsession *CreateSession(int Lockable, wcsession **wclist, ParsedHttpHdrs *Hdr, 
 }
 
 
-/**
- * \brief Detects a 'mobile' user agent 
+/*
+ * Detects a 'mobile' user agent 
  */
 int is_mobile_ua(char *user_agent) {
       if (strstr(user_agent,"iPhone OS") != NULL) {

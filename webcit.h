@@ -240,16 +240,16 @@
 
 
 /*
- * \brief	Linked list of session variables encoded in an x-www-urlencoded content type
+ * Linked list of session variables encoded in an x-www-urlencoded content type
  */
 typedef struct urlcontent urlcontent;
 struct urlcontent {
-	char url_key[32];          /* the variable name */
-	StrBuf *url_data;            /* its value */
+	char url_key[32];		/* key */
+	StrBuf *url_data;		/* value */
 };
 
 /*
- * \brief information about us ???
+ * Information about the Citadel server to which we are connected
  */ 
 typedef struct _serv_info {
 	int serv_pid;			/* Process ID of the Citadel server */
@@ -261,7 +261,6 @@ typedef struct _serv_info {
 	StrBuf *serv_bbs_city;		/* Geographic location of the Citadel server */
 	StrBuf *serv_sysadm;		/* Name of system administrator */
 	StrBuf *serv_moreprompt;	/* Whats the commandline textprompt */
-	int serv_ok_floors;		/* nonzero == server supports floors */
 	int serv_supports_ldap;		/* is the server linked against an ldap tree for adresses? */
 	int serv_newuser_disabled;	/* Has the server disabled self-service new user creation? */
 	StrBuf *serv_default_cal_zone;  /* Default timezone for unspecified calendar items */
@@ -298,8 +297,8 @@ typedef struct _IcalEnumMap {
  * which we can use to get to the real meat and bones later)
  */
 typedef struct _addrbookent {
-	char ab_name[64]; /**< name string */
-	long ab_msgnum;   /**< message number of address book entry */
+	char ab_name[64];	/* name string */
+	long ab_msgnum;		/* message number of address book entry */
 } addrbookent;
 
 
@@ -362,7 +361,7 @@ const char *ReqStrs[eNONE];
 
 
 typedef struct _HdrRefs {
-	long eReqType;                          /**< eGET, ePOST.... */
+	long eReqType;				/* HTTP method */
 	int desired_session;
 	int SessionKey;
 
@@ -370,7 +369,7 @@ typedef struct _HdrRefs {
 	int DontNeedAuth;
 	long ContentLength;
 	time_t if_modified_since;
-	int gzip_ok;				/**< Nonzero if Accept-encoding: gzip */
+	int gzip_ok;				/* Nonzero if Accept-encoding: gzip */
 	int prohibit_caching;
 	int dav_depth;
 
@@ -378,7 +377,7 @@ typedef struct _HdrRefs {
 	StrBuf *ContentType;
 	StrBuf *RawCookie;
 	StrBuf *ReqLine;
-	StrBuf *http_host;			/**< HTTP Host: header */
+	StrBuf *http_host;			/* HTTP Host: header */
 	StrBuf *browser_host;
 	StrBuf *user_agent;
 	StrBuf *plainauth;
@@ -388,7 +387,7 @@ typedef struct _HdrRefs {
 } HdrRefs;
 
 typedef struct _ParsedHttpHdrs {
-	int http_sock;				/**< HTTP server socket */
+	int http_sock;				/* HTTP server socket */
 	const char *Pos;
 	StrBuf *ReadBuf;
 
@@ -396,12 +395,12 @@ typedef struct _ParsedHttpHdrs {
 	StrBuf *c_password;
 	StrBuf *c_roomname;
 	StrBuf *c_language;
-	StrBuf *this_page;			/**< URL of current page */
+	StrBuf *this_page;			/* URL of current page */
 	StrBuf *PlainArgs; 
 
-	HashList *urlstrings;		        /**< variables passed to webcit in a URL */
-	HashList *HTTPHeaders;                  /**< the headers the client sent us */
-	int nWildfireHeaders;                   /**< how many wildfire headers did we already send? */
+	HashList *urlstrings;		        /* variables passed to webcit in a URL */
+	HashList *HTTPHeaders;                  /* the headers the client sent us */
+	int nWildfireHeaders;                   /* how many wildfire headers did we already send? */
 
 	HdrRefs HR;
 } ParsedHttpHdrs;
@@ -414,111 +413,111 @@ typedef struct _ParsedHttpHdrs {
 typedef struct wcsession wcsession;
 struct wcsession {
 /* infrastructural members */
-	wcsession *next;			/**< Linked list */
-	pthread_mutex_t SessionMutex;		/**< mutex for exclusive access */
-	int wc_session;				/**< WebCit session ID */
-	int killthis;				/**< Nonzero == purge this session */
-	int is_mobile;			        /**< Client is a handheld browser */
-	int ctdl_pid;				/**< Session ID on the Citadel server */
-	int nonce;				/**< session nonce (to prevent session riding) */
+	wcsession *next;			/* Linked list */
+	pthread_mutex_t SessionMutex;		/* mutex for exclusive access */
+	int wc_session;				/* WebCit session ID */
+	int killthis;				/* Nonzero == purge this session */
+	int is_mobile;			        /* Client is a handheld browser */
+	int ctdl_pid;				/* Session ID on the Citadel server */
+	int nonce;				/* session nonce (to prevent session riding) */
 	int SessionKey;
 
 /* Session local Members */
-	int serv_sock;				/**< Client socket to Citadel server */
-	StrBuf *ReadBuf;                        /**< here we keep our stuff while reading linebuffered from the server. */
-	StrBuf *MigrateReadLineBuf;             /**< here we buffer legacy server read stuff */
-	const char *ReadPos;                    /**< whats our read position in ReadBuf? */
-	int chat_sock;				/**< Client socket to Citadel server - for chat */
-	time_t lastreq;				/**< Timestamp of most recent HTTP */
-	time_t last_pager_check;		/**< last time we polled for instant msgs */
-	ServInfo *serv_info;                   /**< Iformation about the citserver we're connected to */
-	int is_ajax;                            /** < are we doing an ajax request? */
+	int serv_sock;				/* Client socket to Citadel server */
+	StrBuf *ReadBuf;                        /* here we keep our stuff while reading linebuffered from the server. */
+	StrBuf *MigrateReadLineBuf;             /* here we buffer legacy server read stuff */
+	const char *ReadPos;                    /* whats our read position in ReadBuf? */
+	int chat_sock;				/* Client socket to Citadel server - for chat */
+	time_t lastreq;				/* Timestamp of most recent HTTP */
+	time_t last_pager_check;		/* last time we polled for instant msgs */
+	ServInfo *serv_info;			/* Information about the citserver we're connected to */
+	int is_ajax;                            /* are we doing an ajax request? */
 
 /* Request local Members */
-	StrBuf *CLineBuf;                       /**< linebuffering client stuff */
+	StrBuf *CLineBuf;                       /* linebuffering client stuff */
 	ParsedHttpHdrs *Hdr;
-	StrBuf *WBuf;                           /**< Our output buffer */
-	StrBuf *HBuf;                           /**< Our HeaderBuffer */
+	StrBuf *WBuf;                           /* Our output buffer */
+	StrBuf *HBuf;                           /* Our HeaderBuffer */
 
-	HashList *vars; 			/**< HTTP variable substitutions for this page */
-	StrBuf *trailing_javascript;		/**< extra javascript to be appended to page */
-	char ImportantMessage[SIZ];		/**< ??? todo */
+	HashList *vars; 			/* HTTP variable substitutions for this page */
+	StrBuf *trailing_javascript;		/* extra javascript to be appended to page */
+	char ImportantMessage[SIZ];
 	StrBuf *ImportantMsg;
-	HashList *Directory;                    /**< Parts of the directory URL in snippets */
+	HashList *Directory;			/* Parts of the directory URL in snippets */
 
 /* accounting */
-	StrBuf *wc_username;			/**< login name of current user */
-	StrBuf *wc_fullname;			/**< Screen name of current user */
-	StrBuf *wc_password;			/**< Password of current user */
-	StrBuf *httpauth_pass;  		/**< only for GroupDAV sessions */
-	int axlevel;				/**< this user's access level */
-	int is_aide;				/**< nonzero == this user is an Aide */
-	int is_room_aide;			/**< nonzero == this user is a Room Aide in this room */
-	int connected;				/**< nonzero == we are connected to Citadel */
-	int logged_in;				/**< nonzero == we are logged in  */
-	int need_regi;				/**< This user needs to register. */
-	int need_vali;				/**< New users require validation. */
+	StrBuf *wc_username;			/* login name of current user */
+	StrBuf *wc_fullname;			/* Screen name of current user */
+	StrBuf *wc_password;			/* Password of current user */
+	StrBuf *httpauth_pass;  		/* only for GroupDAV sessions */
+	int axlevel;				/* this user's access level */
+	int is_aide;				/* nonzero == this user is an Aide */
+	int is_room_aide;			/* nonzero == this user is a Room Aide in this room */
+	int connected;				/* nonzero == we are connected to Citadel */
+	int logged_in;				/* nonzero == we are logged in  */
+	int need_regi;				/* This user needs to register. */
+	int need_vali;				/* New users require validation. */
 
 /* Preferences */
-	StrBuf *cs_inet_email;  		/**< User's preferred Internet addr. */
-	char reply_to[512];			/**< reply-to address */
-	HashList *hash_prefs;			/**< WebCit preferences for this user */
-	StrBuf *DefaultCharset;                 /**< Charset the user preferes */
-	int downloaded_prefs;                   /** Has the client download its prefs yet? */
-	int SavePrefsToServer;                  /**< Should we save our preferences to the server at the end of the request? */
-	int selected_language;			/**< Language selected by user */
-	int time_format_cache;                  /**< which timeformat does our user like? */
+	StrBuf *cs_inet_email;  		/* User's preferred Internet addr. */
+	char reply_to[512];			/* reply-to address */
+	HashList *hash_prefs;			/* WebCit preferences for this user */
+	StrBuf *DefaultCharset;                 /* Charset the user preferes */
+	int downloaded_prefs;                   /* Has the client download its prefs yet? */
+	int SavePrefsToServer;                  /* Should we save our preferences to the server at the end of the request? */
+	int selected_language;			/* Language selected by user */
+	int time_format_cache;                  /* which timeformat does our user like? */
 
 /* current room related */
-	StrBuf *wc_roomname;			/**< Room we are currently in */
-	unsigned room_flags;			/**< flags associated with the current room */
-	unsigned room_flags2;			/**< flags associated with the current room */
-	int wc_view;				/**< view for the current room */
-	int wc_default_view;			/**< default view for the current room */
-	int wc_is_trash;			/**< nonzero == current room is a Trash folder */
-	int wc_floor;				/**< floor number of current room */
-	int is_mailbox;				/**< the current room is a private mailbox */
+	StrBuf *wc_roomname;			/* Room we are currently in */
+	unsigned room_flags;			/* flags associated with the current room */
+	unsigned room_flags2;			/* flags associated with the current room */
+	int wc_view;				/* view for the current room */
+	int wc_default_view;			/* default view for the current room */
+	int wc_is_trash;			/* nonzero == current room is a Trash folder */
+	int wc_floor;				/* floor number of current room */
+	int is_mailbox;				/* the current room is a private mailbox */
 
 /* next/previous room thingabob */
-	struct march *march;			/**< march mode room list */
-	char ugname[128];			/**< where does 'ungoto' take us */
-	long uglsn;				/**< last seen message number for ungoto */
+	struct march *march;			/* march mode room list */
+	char ugname[128];			/* where does 'ungoto' take us */
+	long uglsn;				/* last seen message number for ungoto */
 
 /* Uploading; mime attachments for composing messages */
-	HashList *attachments;             	/**< list of attachments for 'enter message' */
-	int upload_length;			/**< content length of http-uploaded data */
-	StrBuf *upload;				/**< pointer to http-uploaded data */
-	char upload_filename[PATH_MAX];		/**< filename of http-uploaded data */
-	char upload_content_type[256];		/**< content type of http-uploaded data */
+	HashList *attachments;             	/* list of attachments for 'enter message' */
+	int upload_length;			/* content length of http-uploaded data */
+	StrBuf *upload;				/* pointer to http-uploaded data */
+	char upload_filename[PATH_MAX];		/* filename of http-uploaded data */
+	char upload_content_type[256];		/* content type of http-uploaded data */
 
-	int new_mail;				/**< user has new mail waiting */
-	int remember_new_mail;			/**< last count of new mail messages */
+	int new_mail;				/* user has new mail waiting */
+	int remember_new_mail;			/* last count of new mail messages */
 
 /* Roomiew control */
-	HashList *Floors;                       /**< floors our citserver has... */
-	HashList *summ;                         /**< list of messages for mailbox summary view */
+	HashList *Floors;                       /* floors our citserver has... */
+	HashList *summ;                         /* list of messages for mailbox summary view */
   /** Perhaps these should be within a struct instead */
-	long startmsg;                          /**< message number to start at */
-	long maxmsgs;                           /**< maximum messages to display */
-        long num_displayed;                     /**< number of messages actually displayed */
-	HashList *disp_cal_items;               /**< sorted list of calendar items; startdate is the sort criteria. */
+	long startmsg;                          /* message number to start at */
+	long maxmsgs;                           /* maximum messages to display */
+        long num_displayed;                     /* number of messages actually displayed */
+	HashList *disp_cal_items;               /* sorted list of calendar items; startdate is the sort criteria. */
 
 
-	char last_chat_user[256];		/**< ??? todo */
+	char last_chat_user[256];
 
 /* Iconbar controls */
-	struct __ofolder *cache_fold;		/**< cache the iconbar room list */
-	int cache_max_folders;			/**< ??? todo */
-	int cache_num_floors;			/**< ??? todo */
-	time_t cache_timestamp;			/**< ??? todo */
-	HashList *IconBarSettings;             /**< which icons should be shown / not shown? */
-	const StrBuf *floordiv_expanded;	/**< which floordiv currently expanded */
+	struct __ofolder *cache_fold;		/* cache the iconbar room list */
+	int cache_max_folders;
+	int cache_num_floors;
+	time_t cache_timestamp;
+	HashList *IconBarSettings;		/* which icons should be shown / not shown? */
+	const StrBuf *floordiv_expanded;	/* which floordiv currently expanded */
 
 
 
 /* cache stuff for templates. TODO: find a smartrer way */
-	HashList *ServCfg;                      /**< cache our server config for editing */
-	HashList *InetCfg;                      /**< Our inet server config for editing */
+	HashList *ServCfg;                      /* cache our server config for editing */
+	HashList *InetCfg;                      /* Our inet server config for editing */
 
 };
 
@@ -568,6 +567,7 @@ extern int is_https;
 extern int setup_wizard;
 extern char wizard_filename[];
 extern int follow_xff;
+extern int num_threads;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
