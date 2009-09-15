@@ -328,6 +328,9 @@ void ctdl_thread_internal_change_state (CtdlThreadNode *this_thread, enum CtdlTh
  */
 void CtdlThreadStopAll(void)
 {
+	/* First run any registered shutdown hooks.  This probably doesn't belong here. */
+	PerformSessionHooks(EVT_SHUTDOWN);
+
 	//FIXME: The signalling of the condition should not be in the critical_section
 	// We need to build a list of threads we are going to signal and then signal them afterwards
 	

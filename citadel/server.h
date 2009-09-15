@@ -248,6 +248,7 @@ enum {
 	S_SCHEDULE_LIST,
  	S_SINGLE_USER,
   	S_LDAP,
+	S_IM_LOGS,
 	MAX_SEMAPHORES
 };
 
@@ -324,6 +325,7 @@ struct cdbdata {
 #define EVT_TIMER	50	/* Timer events are called once per minute
 				   and are not tied to any session */
 #define EVT_HOUSE	51	/* as needed houskeeping stuff */
+#define EVT_SHUTDOWN	52	/* Server is shutting down */
 
 #define EVT_PURGEUSER	100	/* Deleting a user */
 #define EVT_NEWUSER	102	/* Creating a user */

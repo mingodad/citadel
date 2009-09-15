@@ -132,9 +132,13 @@ void do_system_configuration(CtdlIPC *ipc)
 		"Allow Aides to Zap (forget) rooms",
 		atoi(&sc[26][0]))));
 
-	if (!IsEmptyStr(&sc[18][0])) logpages = 1;
-	else logpages = 0;
-	logpages = boolprompt("Log all pages", logpages);
+	if (!IsEmptyStr(&sc[18][0])) {
+		logpages = 1;
+	}
+	else {
+		logpages = 0;
+	}
+	logpages = boolprompt("Log all instant messages", logpages);
 	if (logpages) {
 		strprompt("Name of logging room", &sc[18][0], ROOMNAMELEN);
 	}

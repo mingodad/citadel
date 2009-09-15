@@ -44,13 +44,72 @@
 #include "snprintf.h"
 #endif
 
-
 #include "ctdl_module.h"
-
-
 
 struct ChatLine *ChatQueue = NULL;
 int ChatLastMsg = 0;
+
+struct imlog {
+	struct imlog *next;
+	long usernums[2];
+	time_t lastmsg;
+	StrBuf *conversation;
+};
+
+struct imlog *imlist = NULL;
+
+/*
+ * This function handles the logging of instant messages to disk.
+ */
+void log_instant_message(struct CitContext *me, struct CitContext *them, char *msgtext)
+{
+	long usernums[2];
+	long t;
+	struct imlog *iptr = NULL;
+	struct imlog *this_im = NULL;
+	
+	memset(usernums, 0, sizeof usernums);
+	usernums[0] = me->user.usernum;
+	usernums[1] = them->user.usernum;
+
+	/* Always put the lower user number first, so we can use the array as a hash value which
+	 * represents a pair of users.  For a broadcast message one of the users will be 0.
+	 */
+	if (usernums[0] > usernums[1]) {
+		t = usernums[0];
+		usernums[0] = usernums[1];
+		usernums[1] = t;
+	}
+
+	begin_critical_section(S_IM_LOGS);
+
+	/* Look for an existing conversation in the hash table.
+	 * If not found, create a new one.
+	 */
+
+	this_im = NULL;
+	for (iptr = imlist; iptr != NULL; iptr = iptr->next) {
+		if ((iptr->usernums[0] == usernums[0]) && (iptr->usernums[1] == usernums[1])) {
+			/* Existing conversation */
+			this_im = iptr;
+		}
+	}
+	if (this_im == NULL) {
+		/* New conversation */
+		this_im = malloc(sizeof(struct imlog));
+		memset(this_im, 0, sizeof (struct imlog));
+		this_im->usernums[0] = usernums[0];
+		this_im->usernums[1] = usernums[1];
+		this_im->conversation = NewStrBuf();
+		this_im->next = imlist;
+		imlist = this_im;
+	}
+
+	this_im->lastmsg = time(NULL);		/* Touch the timestamp so we know when to flush */
+	StrBufAppendPrintf(this_im->conversation, "%s: %s", me->user.fullname, msgtext);
+	end_critical_section(S_IM_LOGS);
+}
+
 
 /*
  * This message can be set to anything you want, but it is
@@ -523,8 +582,7 @@ void cmd_gexp_async(void) {
 /*
  * Back end support function for send_instant_message() and company
  */
-void add_xmsg_to_context(struct CitContext *ccptr, 
-			struct ExpressMessage *newmsg) 
+void add_xmsg_to_context(struct CitContext *ccptr, struct ExpressMessage *newmsg) 
 {
 	struct ExpressMessage *findend;
 
@@ -562,16 +620,10 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 {
 	int message_sent = 0;		/* number of successful sends */
 	struct CitContext *ccptr;
-	struct ExpressMessage *newmsg;
+	struct ExpressMessage *newmsg = NULL;
 	char *un;
 	size_t msglen = 0;
-	int do_send = 0;		/* set to 1 to actually page, not
-					 * just check to see if we can.
-					 */
-	struct savelist *sl = NULL;	/* list of rooms to save this page */
-	struct savelist *sptr;
-	struct CtdlMessage *logmsg = NULL;
-	long msgnum;
+	int do_send = 0;		/* 1 = send message; 0 = only check for valid recipient */
 
 	if (strlen(x_msg) > 0) {
 		msglen = strlen(x_msg) + 4;
@@ -611,64 +663,13 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 
 				/* and log it ... */
 				if (ccptr != CC) {
-					sptr = (struct savelist *)
-						malloc(sizeof(struct savelist));
-					sptr->next = sl;
-					MailboxName(sptr->roomname,
-						    sizeof sptr->roomname,
-						&ccptr->user, PAGELOGROOM);
-					sl = sptr;
+					log_instant_message(CC, ccptr, newmsg->text);
 				}
 			}
 			++message_sent;
 		}
 	}
 	end_critical_section(S_SESSION_TABLE);
-
-	/* Log the page to disk if configured to do so  */
-	if ( (do_send) && (message_sent) ) {
-
-		logmsg = malloc(sizeof(struct CtdlMessage));
-		memset(logmsg, 0, sizeof(struct CtdlMessage));
-		logmsg->cm_magic = CTDLMESSAGE_MAGIC;
-		logmsg->cm_anon_type = MES_NORMAL;
-		logmsg->cm_format_type = 0;
-		logmsg->cm_fields['A'] = strdup(lun);
-		logmsg->cm_fields['F'] = strdup(lem);
-		logmsg->cm_fields['N'] = strdup(NODENAME);
-		logmsg->cm_fields['O'] = strdup(PAGELOGROOM);
-		logmsg->cm_fields['R'] = strdup(x_user);
-		logmsg->cm_fields['M'] = strdup(x_msg);
-
-
-		/* Save a copy of the message in the sender's log room,
-		 * creating the room if necessary.
-		 */
-		create_room(PAGELOGROOM, 4, "", 0, 1, 0, VIEW_BBS);
-		msgnum = CtdlSubmitMsg(logmsg, NULL, PAGELOGROOM, 0);
-
-		/* Now save a copy in the global log room, if configured */
-		if (!IsEmptyStr(config.c_logpages)) {
-			create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
-			CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0, NULL);
-		}
-
-		/* Save a copy in each recipient's log room, creating those
-		 * rooms if necessary.  Note that we create as a type 5 room
-		 * rather than 4, which indicates that it's a personal room
-		 * but we've already supplied the namespace prefix.
-		 */
-		while (sl != NULL) {
-			create_room(sl->roomname, 5, "", 0, 1, 1, VIEW_BBS);
-			CtdlSaveMsgPointerInRoom(sl->roomname, msgnum, 0, NULL);
-			sptr = sl->next;
-			free(sl);
-			sl = sptr;
-		}
-
-		CtdlFreeMessage(logmsg);
-	}
-
 	return (message_sent);
 }
 
@@ -818,6 +819,108 @@ void cmd_reqt(char *argbuf) {
 }
 
 
+/*
+ * This is the back end for flush_conversations_to_disk()
+ * At this point we've isolated a single conversation (struct imlog)
+ * and are ready to write it to disk.
+ */
+void flush_individual_conversation(struct imlog *im) {
+	struct CtdlMessage *msg;
+	long msgnum = 0;
+	char roomname[ROOMNAMELEN];
+
+	msg = malloc(sizeof(struct CtdlMessage));
+	memset(msg, 0, sizeof(struct CtdlMessage));
+	msg->cm_magic = CTDLMESSAGE_MAGIC;
+	msg->cm_anon_type = MES_NORMAL;
+	msg->cm_format_type = FMT_CITADEL;
+	msg->cm_fields['A'] = strdup("Citadel");
+	msg->cm_fields['O'] = strdup(PAGELOGROOM);
+	msg->cm_fields['N'] = strdup(NODENAME);
+	msg->cm_fields['M'] = strdup(ChrPtr(im->conversation));
+
+	/* Start with usernums[1] because it's guaranteed to be higher than usernums[0],
+	 * so if there's only one party, usernums[0] will be zero but usernums[1] won't.
+	 * Create the room if necessary.  Note that we create as a type 5 room rather
+	 * than 4, which indicates that it's a personal room but we've already supplied
+	 * the namespace prefix.
+	 *
+	 * In the unlikely event that usernums[1] is zero, a room with an invalid namespace
+	 * prefix will be created.  That's ok because the auto-purger will clean it up later.
+	 */
+	snprintf(roomname, sizeof roomname, "%010ld.%s", im->usernums[1], PAGELOGROOM);
+	create_room(roomname, 5, "", 0, 1, 1, VIEW_BBS);
+	msgnum = CtdlSubmitMsg(msg, NULL, roomname, 0);
+	CtdlFreeMessage(msg);
+
+	/* If there is a valid user number in usernums[0], save a copy for them too. */
+	if (im->usernums[0] > 0) {
+		snprintf(roomname, sizeof roomname, "%010ld.%s", im->usernums[0], PAGELOGROOM);
+		create_room(roomname, 5, "", 0, 1, 1, VIEW_BBS);
+		CtdlSaveMsgPointerInRoom(roomname, msgnum, 0, NULL);
+	}
+
+	/* Finally, if we're logging instant messages globally, do that now. */
+	if (!IsEmptyStr(config.c_logpages)) {
+		create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
+		CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0, NULL);
+	}
+
+}
+
+/*
+ * Locate instant message conversations which have gone idle
+ * (or, if the server is shutting down, locate *all* conversations)
+ * and flush them to disk (in the participants' log rooms, etc.)
+ */
+void flush_conversations_to_disk(time_t if_older_than) {
+
+	struct imlog *flush_these = NULL;
+	struct imlog *dont_flush_these = NULL;
+	struct imlog *imptr = NULL;
+
+	begin_critical_section(S_IM_LOGS);
+	while (imlist)
+	{
+		imptr = imlist;
+		imlist = imlist->next;
+		if ((time(NULL) - imptr->lastmsg) > if_older_than)
+		{
+			/* This conversation qualifies.  Move it to the list of ones to flush. */
+			imptr->next = flush_these;
+			flush_these = imptr;
+		}
+		else  {
+			/* Move it to the list of ones not to flush. */
+			imptr->next = dont_flush_these;
+			dont_flush_these = imptr;
+		}
+	}
+	imlist = dont_flush_these;
+	end_critical_section(S_IM_LOGS);
+
+	/* We are now outside of the critical section, and we are the only thread holding a
+	 * pointer to a linked list of conversations to be flushed to disk.
+	 */
+	while (flush_these) {
+
+		flush_individual_conversation(flush_these);
+		imptr = flush_these;
+		flush_these = flush_these->next;
+		FreeStrBuf(&imptr->conversation);
+		free(imptr);
+	}
+}
+
+
+
+void chat_timer(void) {
+	flush_conversations_to_disk(300);	/* Anything that hasn't peeped in more than 5 minutes */
+}
+
+void chat_shutdown(void) {
+	flush_conversations_to_disk(0);		/* Get it ALL onto disk NOW. */
+}
 
 CTDL_MODULE_INIT(chat)
 {
@@ -832,6 +935,8 @@ CTDL_MODULE_INIT(chat)
 		CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC);
 		CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
 		CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
+		CtdlRegisterSessionHook(chat_timer, EVT_TIMER);
+		CtdlRegisterSessionHook(chat_shutdown, EVT_SHUTDOWN);
 	}
 	
 	/* return our Subversion id for the Log */
