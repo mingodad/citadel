@@ -653,7 +653,7 @@ int tasks_GetParamsGetServerCall(SharedMessageStatus *Stat,
 
 int tasks_Cleanup(void **ViewSpecific)
 {
-	end_burst();
+	wDumpContent(1);
 /* Tasks doesn't need the calview struct... 
 	free (*ViewSpecific);
 	*ViewSpecific = NULL;
