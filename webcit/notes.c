@@ -433,7 +433,7 @@ int notes_GetParamsGetServerCall(SharedMessageStatus *Stat,
 
 int notes_Cleanup(void **ViewSpecific)
 {
-	end_burst();
+	wDumpContent(1);
 	return 0;
 }
 

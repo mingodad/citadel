@@ -1318,7 +1318,7 @@ int vcard_Cleanup(void **ViewSpecific)
 	vcardview_struct *VS;
 
 	VS = (vcardview_struct*) *ViewSpecific;
-	end_burst();
+	wDumpContent(1);
 	if ((VS != NULL) && 
 	    (VS->addrbook != NULL))
 		free(VS->addrbook);
