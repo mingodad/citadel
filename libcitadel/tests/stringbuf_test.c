@@ -25,43 +25,10 @@
 #include "stringbuf_test.h"
 #include "../lib/libcitadel.h"
 
-static int success_init(void) { return 0; }
-static int success_clean(void) { return 0; }
-
-static void testSuccess1(void) { CU_ASSERT(1); }
-static void testSuccess2(void) { CU_ASSERT(1); }
-static void testSuccess3(void) { CU_ASSERT(1); }
-
-static int group_failure_init(void) { return 1;}
-static int group_failure_clean(void) { return 1; }
-
-static void testGroupFailure1(void) { CU_ASSERT(0); }
-static void testGroupFailure2(void) { CU_ASSERT(2); }
-
-static void testfailure1(void) { CU_ASSERT(12 <= 10); }
-static void testfailure2(void) { CU_ASSERT(2); }
-static void testfailure3(void) { CU_ASSERT(3); }
-/*
-static void test1(void)
-{
-	CU_ASSERT((char *)2 != "THis is positive test.");
-	CU_ASSERT((char *)2 == "THis is negative test. test 1");
-}
-
-static void test2(void)
-{
-	CU_ASSERT((char *)2 != "THis is positive test.");
-	CU_ASSERT((char *)3 == "THis is negative test. test 2");
-}
-*/
-
 
 static void TestRevalidateStrBuf(StrBuf *Buf)
 {
 	CU_ASSERT(strlen(ChrPtr(Buf)) == StrLength(Buf));
-
-
-
 }
 
 
@@ -161,7 +128,10 @@ static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 		CU_ASSERT(CountTokens <= NTokens);
 	} 
 	CU_ASSERT(HaveNextToken == (HaveNextTokenF >= 0));
+	FreeStrBuf(&Buf2);
 }
+
+
 
 static void TestNextTokenizer_EndWithEmpty(void)
 {
@@ -213,9 +183,112 @@ static void TestNextTokenizer_Sequence(void)
 	StrBuf *Buf;
         char *teststring = "40:24524,24662,24673,27869:27935,28393,28426,31247:31258,31731,31749,31761,31778,31782,31801:31803,31813,31904,31915,33708,33935,34619,34672,34720:34723,34766,34835,37594,38854,39235,39942,40030,40142,40520,40815,40907,41201,41578,41781,41954,42292,43110,43565,43801,43998,44180,44241,44295,44401,44561,44635,44798,44861,44946,45022,45137:45148,45166,45179,45707,47114,47141:47157,47194,47314,47349,47386,47489,47496,47534:47543,54460,54601,54637:54652";
         Buf = NewStrBufPlain(teststring, -1);
-	NextTokenizerIterateBuf(Buf, 8);
+	NextTokenizerIterateBuf(Buf, 67);
 	FreeStrBuf(&Buf);
 }
+
+
+
+static void NextLineterateBuf(StrBuf *Buf, int NLines)
+{
+	int n = 0;
+	const char *pCh = NULL;
+	StrBuf *OneLine;
+	StrBuf *ConcatenatedLines;
+	long CountTokens = 0;
+	
+	TestRevalidateStrBuf(Buf);
+			     
+	OneLine = NewStrBuf();
+	ConcatenatedLines = NewStrBuf();
+
+	printf("\n");
+
+	if (StrLength(Buf) > 0) 
+		do 
+		{
+			n = StrBufSipLine(OneLine, Buf, &pCh);
+			
+			CountTokens++;
+			
+			printf("Line: >%s< >%s<\n", 
+			       ChrPtr(OneLine), 
+			       ((pCh != NULL) && (pCh != StrBufNOTNULL))? pCh : "N/A");
+			TestRevalidateStrBuf(OneLine);
+			CU_ASSERT(CountTokens <= NLines);
+			StrBufAppendBuf(ConcatenatedLines, OneLine, 0);
+			
+			if ((pCh == StrBufNOTNULL) && 
+			    (*(ChrPtr(Buf) + StrLength(Buf) - 1) != '\n'))
+			{
+			}
+			else 
+				StrBufAppendBufPlain(ConcatenatedLines, HKEY("\n"), 0);
+			
+		} 
+		while ((pCh != StrBufNOTNULL) &&
+		       (pCh != NULL));
+	
+
+	printf("\n\nTemplate: >%s<\n", ChrPtr(Buf));
+	printf("\n\nAfter: >%s<\n", ChrPtr(ConcatenatedLines));
+	CU_ASSERT_NSTRING_EQUAL(ChrPtr(ConcatenatedLines), 
+				ChrPtr(Buf), 
+				StrLength(Buf));
+
+	FreeStrBuf(&OneLine);
+	FreeStrBuf(&ConcatenatedLines);
+}
+
+
+static void TestNextLine_Empty(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY(""));
+	NextLineterateBuf(Buf, 0);
+	FreeStrBuf(&Buf);
+}
+
+
+static void TestNextLine_OneLine(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY("abc\n"));
+	NextLineterateBuf(Buf, 1);
+	FreeStrBuf(&Buf);
+}
+
+
+static void TestNextLine_TwoLinesMissingCR(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY("abc\ncde"));
+	NextLineterateBuf(Buf, 2);
+	FreeStrBuf(&Buf);
+}
+
+
+static void TestNextLine_twolines(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY("abc\ncde\n"));
+	NextLineterateBuf(Buf, 2);
+	FreeStrBuf(&Buf);
+}
+
+static void TestNextLine_LongLine(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBufPlain(HKEY("abcde\n1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\n"));
+	NextLineterateBuf(Buf, 2);
+	FreeStrBuf(&Buf);
+}
+
 
 
 /*
@@ -248,25 +321,6 @@ Some samples from the original...
 	CU_ASSERT_DOUBLE_NOT_EQUAL(-10, -10.001, -0.0001);
 */
 
-static void AddTests(void)
-{
-	CU_pSuite pGroup = NULL;
-	CU_pTest pTest = NULL;
-
-	pGroup = CU_add_suite("Sucess", success_init, success_clean);
-	pTest = CU_add_test(pGroup, "testSuccess1", testSuccess1);
-	pTest = CU_add_test(pGroup, "testSuccess2", testSuccess2);
-	pTest = CU_add_test(pGroup, "testSuccess3", testSuccess3);
-	
-	pGroup = CU_add_suite("failure", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testfailure1", testfailure1);
-	pTest = CU_add_test(pGroup, "testfailure2", testfailure2);
-	pTest = CU_add_test(pGroup, "testfailure3", testfailure3);
-
-	pGroup = CU_add_suite("group_failure", group_failure_init, group_failure_clean);
-	pTest = CU_add_test(pGroup, "testGroupFailure1", testGroupFailure1);
-	pTest = CU_add_test(pGroup, "testGroupFailure2", testGroupFailure2);
-}
 
 static void AddStrBufSimlpeTests(void)
 {
@@ -286,35 +340,14 @@ static void AddStrBufSimlpeTests(void)
 	pTest = CU_add_test(pGroup, "testNextTokenizer_Sequence", TestNextTokenizer_Sequence);
 
 
-/*
-	pGroup = CU_add_suite("TestBooleanAssert", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSuccessAssertTrue", testSuccessAssertTrue);
-	pTest = CU_add_test(pGroup, "testSuccessAssertFalse", testSuccessAssertFalse);
+	pGroup = CU_add_suite("TestStrBufSipLine", NULL, NULL);
+	pTest = CU_add_test(pGroup, "TestNextLine_Empty", TestNextLine_Empty);
+	pTest = CU_add_test(pGroup, "TestNextLine_OneLine", TestNextLine_OneLine);
+	pTest = CU_add_test(pGroup, "TestNextLine_TwoLinesMissingCR", TestNextLine_TwoLinesMissingCR);
+	pTest = CU_add_test(pGroup, "TestNextLine_twolines", TestNextLine_twolines);
+ 	pTest = CU_add_test(pGroup, "TestNextLine_LongLine", TestNextLine_LongLine);
+	
 
-	pGroup = CU_add_suite("TestEqualityAssert", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSuccessAssertEqual", testSuccessAssertEqual);
-	pTest = CU_add_test(pGroup, "testSuccessAssertNotEqual", testSuccessAssertNotEqual);
-
-	pGroup = CU_add_suite("TestPointerAssert", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSuccessAssertPtrEqual", testSuccessAssertPtrEqual);
-	pTest = CU_add_test(pGroup, "testSuccessAssertPtrNotEqual", testSuccessAssertPtrNotEqual);
-
-	pGroup = CU_add_suite("TestNullnessAssert", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSuccessAssertPtrNull", testSuccessAssertPtrNull);
-	pTest = CU_add_test(pGroup, "testSuccessAssertPtrNotNull", testSuccessAssertPtrNotNull);
-
-	pGroup = CU_add_suite("TestStringAssert", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSuccessAssertStringEqual", testSuccessAssertStringEqual);
-	pTest = CU_add_test(pGroup, "testSuccessAssertStringNotEqual", testSuccessAssertStringNotEqual);
-
-	pGroup = CU_add_suite("TestNStringAssert", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSuccessAssertNStringEqual", testSuccessAssertNStringEqual);
-	pTest = CU_add_test(pGroup, "testSuccessAssertNStringNotEqual", testSuccessAssertNStringNotEqual);
-
-	pGroup = CU_add_suite("TestDoubleAssert", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSuccessAssertDoubleEqual", testSuccessAssertDoubleEqual);
-	pTest = CU_add_test(pGroup, "testSuccessAssertDoubleNotEqual", testSuccessAssertDoubleNotEqual);
-*/
 }
 
 
@@ -323,37 +356,24 @@ int main(int argc, char* argv[])
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	StartLibCitadel(8);
-	if (argc > 1) {
-		CU_BOOL Run = CU_FALSE ;
-
-		CU_set_output_filename("TestAutomated");
-		if (CU_initialize_registry()) {
-			printf("\nInitialize of test Registry failed.");
-		}
-
-		if (!strcmp("--test", argv[1])) {
-			Run = CU_TRUE ;
-			AddTests();
-		}
-		else if (!strcmp("--atest", argv[1])) {
-			Run = CU_TRUE ;
-			AddStrBufSimlpeTests();
-		}
-		else if (!strcmp("--alltest", argv[1])) {
-			Run = CU_TRUE ;
-			AddTests();
-//			AddAssertTests();
-		}
-		
-		if (CU_TRUE == Run) {
-			//CU_console_run_tests();
-    printf("\nTests completed with return value %d.\n", CU_basic_run_tests());
-
-			///CU_automated_run_tests();
-		}
-
-		CU_cleanup_registry();
+	CU_BOOL Run = CU_FALSE ;
+	
+	CU_set_output_filename("TestAutomated");
+	if (CU_initialize_registry()) {
+		printf("\nInitialize of test Registry failed.");
 	}
+	
+	Run = CU_TRUE ;
+	AddStrBufSimlpeTests();
+	
+	if (CU_TRUE == Run) {
+		//CU_console_run_tests();
+    printf("\nTests completed with return value %d.\n", CU_basic_run_tests());
+    
+    ///CU_automated_run_tests();
+	}
+	
+	CU_cleanup_registry();
 
 	return 0;
 }

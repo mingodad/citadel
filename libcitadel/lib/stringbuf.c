@@ -1964,6 +1964,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	int len = 0;
 	int rlen, slen;
 	int nRead = 0;
+	int nAlreadyRead = 0;
 	char *ptr;
 	const char *pch;
 
@@ -1992,7 +1993,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 			memcpy(Blob->buf + Blob->BufUsed, pos, rlen);
 			Blob->BufUsed += rlen;
 			Blob->buf[Blob->BufUsed] = '\0';
-			nRead = rlen;
+			nAlreadyRead = nRead = rlen;
 			*Pos = NULL; 
 		}
 		if (rlen >= nBytes) {
@@ -2070,7 +2071,10 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	}
 	Blob->buf[Blob->BufUsed] = '\0';
 	StrBufAppendBufPlain(Blob, IOBuf->buf, nBytes, 0);
-	return nRead;
+	if (*Pos == NULL) {
+		FlushStrBuf(IOBuf);
+	}
+	return nRead + nAlreadyRead;
 }
 
 /**
@@ -2814,7 +2818,9 @@ inline static void DecodeSegment(StrBuf *Target,
  */
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset)
 {
+	StrBuf *DecodedInvalidBuf = NULL;
 	StrBuf *ConvertBuf, *ConvertBuf2;
+	const StrBuf *DecodeMee = DecodeMe;
 	char *start, *end, *next, *nextend, *ptr = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
@@ -2847,7 +2853,9 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 #ifdef HAVE_ICONV
 		ctdl_iconv_open("UTF-8", ChrPtr(DefaultCharset), &ic);
 		if (ic != (iconv_t)(-1) ) {
-			StrBufConvert((StrBuf*)DecodeMe, ConvertBuf, &ic);///TODO: don't void const?
+			DecodedInvalidBuf = NewStrBufDup(DecodeMe);
+			StrBufConvert(DecodedInvalidBuf, ConvertBuf, &ic);///TODO: don't void const?
+			DecodeMee = DecodedInvalidBuf;
 			iconv_close(ic);
 		}
 #endif
@@ -2855,24 +2863,25 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 
 	/* pre evaluate the first pair */
 	nextend = end = NULL;
-	len = StrLength(DecodeMe);
-	start = strstr(DecodeMe->buf, "=?");
-	eptr = DecodeMe->buf + DecodeMe->BufUsed;
+	len = StrLength(DecodeMee);
+	start = strstr(DecodeMee->buf, "=?");
+	eptr = DecodeMee->buf + DecodeMee->BufUsed;
 	if (start != NULL) 
-		end = FindNextEnd (DecodeMe, start);
+		end = FindNextEnd (DecodeMee, start);
 	else {
-		StrBufAppendBuf(Target, DecodeMe, 0);
+		StrBufAppendBuf(Target, DecodeMee, 0);
 		FreeStrBuf(&ConvertBuf);
+		FreeStrBuf(&DecodedInvalidBuf);
 		return;
 	}
 
-	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMe));
+	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMee));
 
-	if (start != DecodeMe->buf) {
+	if (start != DecodeMee->buf) {
 		long nFront;
 		
-		nFront = start - DecodeMe->buf;
-		StrBufAppendBufPlain(Target, DecodeMe->buf, nFront, 0);
+		nFront = start - DecodeMee->buf;
+		StrBufAppendBufPlain(Target, DecodeMee->buf, nFront, 0);
 		len -= nFront;
 	}
 	/*
@@ -2889,7 +2898,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 	{
 		passes++;
 		DecodeSegment(Target, 
-			      DecodeMe, 
+			      DecodeMee, 
 			      start, 
 			      end, 
 			      ConvertBuf,
@@ -2900,7 +2909,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 		nextend = NULL;
 		if ((next != NULL) && 
 		    (next < eptr))
-			nextend = FindNextEnd(DecodeMe, next);
+			nextend = FindNextEnd(DecodeMee, next);
 		if (nextend == NULL)
 			next = NULL;
 
@@ -2925,8 +2934,8 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 				len -= gap;
 				/* now terminate the gab at the end */
 				delta = (next - end) - 2; ////TODO: const! 
-				((StrBuf*)DecodeMe)->BufUsed -= delta;
-				((StrBuf*)DecodeMe)->buf[DecodeMe->BufUsed] = '\0';
+				((StrBuf*)DecodeMee)->BufUsed -= delta;
+				((StrBuf*)DecodeMee)->buf[DecodeMee->BufUsed] = '\0';
 
 				/* move next to its new location. */
 				next -= delta;
@@ -2939,7 +2948,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 		end = nextend;
 	}
 	end = ptr;
-	nextend = DecodeMe->buf + DecodeMe->BufUsed;
+	nextend = DecodeMee->buf + DecodeMee->BufUsed;
 	if ((end != NULL) && (end < nextend)) {
 		ptr = end;
 		while ( (ptr < nextend) &&
@@ -2953,6 +2962,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 	}
 	FreeStrBuf(&ConvertBuf);
 	FreeStrBuf(&ConvertBuf2);
+	FreeStrBuf(&DecodedInvalidBuf);
 }
 
 /**
@@ -3061,10 +3071,13 @@ int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
 {
 	const char *aptr, *ptr, *eptr;
 	char *optr, *xptr;
-/////TODO: use NotNULL here too!
-	if (Buf == NULL)
-		return 0;
 
+	if ((Buf == NULL) || (*Ptr == StrBufNOTNULL)) {
+		*Ptr = StrBufNOTNULL;
+		return 0;
+	}
+
+	FlushStrBuf(LineBuf);
 	if (*Ptr==NULL)
 		ptr = aptr = Buf->buf;
 	else
@@ -3074,9 +3087,9 @@ int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
 	eptr = Buf->buf + Buf->BufUsed;
 	xptr = LineBuf->buf + LineBuf->BufSize - 1;
 
-	while ((*ptr != '\n') &&
-	       (*ptr != '\r') &&
-	       (ptr < eptr))
+	while ((ptr <= eptr) && 
+	       (*ptr != '\n') &&
+	       (*ptr != '\r') )
 	{
 		*optr = *ptr;
 		optr++; ptr++;
@@ -3087,14 +3100,22 @@ int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr)
 			xptr = LineBuf->buf + LineBuf->BufSize - 1;
 		}
 	}
+
+	if ((ptr >= eptr) && (optr > LineBuf->buf))
+		optr --;
 	LineBuf->BufUsed = optr - LineBuf->buf;
 	*optr = '\0';       
-	if (*ptr == '\r')
+	if ((ptr <= eptr) && (*ptr == '\r'))
 		ptr ++;
-	if (*ptr == '\n')
+	if ((ptr <= eptr) && (*ptr == '\n'))
 		ptr ++;
-
-	*Ptr = ptr;
+	
+	if (ptr < eptr) {
+		*Ptr = ptr;
+	}
+	else {
+		*Ptr = StrBufNOTNULL;
+	}
 
 	return Buf->BufUsed - (ptr - Buf->buf);
 }
