@@ -269,57 +269,62 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 	StrBuf *Line2 = NewStrBufPlain(NULL, SIZ);
 	int bn = 0;
 	int bq = 0;
-	int i, n, done = 0;
+	int i;
 	long len;
 	int intext = 0;
 
 	StrBufAppendPrintf(Target, "<div class=\"fmout-%s\">\n", align);
-	while ((n = StrBufSipLine(Line, Source, &BufPtr), n >= 0) && !done)
-	{
-		done = n == 0;
-		bq = 0;
-		i = 0;
-		ptr = ChrPtr(Line);
-		len = StrLength(Line);
-		pte = ptr + len;
 
-		if ((intext == 1) && (isspace(*ptr))) {
-			StrBufAppendBufPlain(Target, HKEY("<br>"), 0);
-		}
-		intext = 1;
-		if (isspace(*ptr)) while ((ptr < pte) &&
-		       ((*ptr == '>') ||
-			isspace(*ptr)))
+	if (StrLength(Source) > 0) 
+		do 
 		{
-			if (*ptr == '>')
-				bq++;
-			ptr ++;
-			i++;
-		}
+			StrBufSipLine(Line, Source, &BufPtr);
+			bq = 0;
+			i = 0;
+			ptr = ChrPtr(Line);
+			len = StrLength(Line);
+			pte = ptr + len;
 
-		/**
-		 * Quoted text should be displayed in italics and in a
-		 * different colour.  This code understands Citadel-style
-		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
-		 */
-		if (i > 0) StrBufCutLeft(Line, i);
+			if ((intext == 1) && (isspace(*ptr))) {
+				StrBufAppendBufPlain(Target, HKEY("<br>"), 0);
+			}
+			intext = 1;
+			if (isspace(*ptr)) while ((ptr < pte) &&
+						  ((*ptr == '>') ||
+						   isspace(*ptr)))
+					   {
+						   if (*ptr == '>')
+							   bq++;
+						   ptr ++;
+						   i++;
+					   }
+
+			/**
+			 * Quoted text should be displayed in italics and in a
+			 * different colour.  This code understands Citadel-style
+			 * " >" quotes and will convert to <BLOCKQUOTE> tags.
+			 */
+			if (i > 0) StrBufCutLeft(Line, i);
 		
 
-		for (i = bn; i < bq; i++)				
-			StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
-		for (i = bq; i < bn; i++)				
-			StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
-		bn = bq;
+			for (i = bn; i < bq; i++)				
+				StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
+			for (i = bq; i < bn; i++)				
+				StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
+			bn = bq;
 
-		if (StrLength(Line) == 0)
-			continue;
-		/** Activate embedded URL's */
-		UrlizeText(Line1, Line, Line2);
+			if (StrLength(Line) == 0)
+				continue;
+			/** Activate embedded URL's */
+			UrlizeText(Line1, Line, Line2);
 
-		StrEscAppend(Target, Line1, NULL, 0, 0);
+			StrEscAppend(Target, Line1, NULL, 0, 0);
 
-		StrBufAppendBufPlain(Target, HKEY("\n"), 0);
-	}
+			StrBufAppendBufPlain(Target, HKEY("\n"), 0);
+		}
+		while ((BufPtr != StrBufNOTNULL) &&
+		       (BufPtr != NULL));
+
 	for (i = 0; i < bn; i++)				
 		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
 	StrBufAppendBufPlain(Target, HKEY("</div><br>\n"), 0);

@@ -827,7 +827,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	int ConvertIt = 1;
 	int bn = 0;
 	int bq = 0;
-	int i, n, done = 0;
+	int i;
 	long len;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
@@ -869,47 +869,50 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	Line2 = NewStrBufPlain(NULL, SIZ);
 	Target = NewStrBufPlain(NULL, StrLength(Mime->Data));
 
-	while ((n = StrBufSipLine(Line, Mime->Data, &BufPtr), n >= 0) && !done)
-	{
-		done = n == 0;
-		bq = 0;
-		i = 0;
-		ptr = ChrPtr(Line);
-		len = StrLength(Line);
-		pte = ptr + len;
-		
-		while ((ptr < pte) &&
-		       ((*ptr == '>') ||
-			isspace(*ptr)))
+	if (StrLength(Mime->Data) > 0) 
+		do 
 		{
-			if (*ptr == '>')
-				bq++;
-			ptr ++;
-			i++;
-		}
-		if (i > 0) StrBufCutLeft(Line, i);
+			StrBufSipLine(Line, Mime->Data, &BufPtr);
+			bq = 0;
+			i = 0;
+			ptr = ChrPtr(Line);
+			len = StrLength(Line);
+			pte = ptr + len;
 		
-		if (StrLength(Line) == 0) {
-			StrBufAppendBufPlain(Target, HKEY("<tt></tt><br />\n"), 0);
-			continue;
+			while ((ptr < pte) &&
+			       ((*ptr == '>') ||
+				isspace(*ptr)))
+			{
+				if (*ptr == '>')
+					bq++;
+				ptr ++;
+				i++;
+			}
+			if (i > 0) StrBufCutLeft(Line, i);
+		
+			if (StrLength(Line) == 0) {
+				StrBufAppendBufPlain(Target, HKEY("<tt></tt><br />\n"), 0);
+				continue;
+			}
+
+			for (i = bn; i < bq; i++)				
+				StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
+			for (i = bq; i < bn; i++)				
+				StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
+
+			if (ConvertIt) {
+				StrBufConvert(Line, Line1, &ic);
+			}
+
+			StrBufAppendBufPlain(Target, HKEY("<tt>"), 0);
+			UrlizeText(Line1, Line, Line2);
+
+			StrEscAppend(Target, Line1, NULL, 0, 0);
+			StrBufAppendBufPlain(Target, HKEY("</tt><br />\n"), 0);
+			bn = bq;
 		}
-
-		for (i = bn; i < bq; i++)				
-			StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
-		for (i = bq; i < bn; i++)				
-			StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
-
-		if (ConvertIt) {
-			StrBufConvert(Line, Line1, &ic);
-		}
-
-		StrBufAppendBufPlain(Target, HKEY("<tt>"), 0);
-		UrlizeText(Line1, Line, Line2);
-
-		StrEscAppend(Target, Line1, NULL, 0, 0);
-		StrBufAppendBufPlain(Target, HKEY("</tt><br />\n"), 0);
-		bn = bq;
-	}
+	while ((BufPtr != StrBufNOTNULL) &&
+	       (BufPtr != NULL));
 
 	for (i = 0; i < bn; i++)				
 		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
