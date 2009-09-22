@@ -1055,10 +1055,18 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 {
 	va_list apl;
-	size_t BufSize = Buf->BufSize;
-	size_t nWritten = Buf->BufSize + 1;
-	size_t Offset = Buf->BufUsed;
-	size_t newused = Offset + nWritten;
+	size_t BufSize;
+	size_t nWritten;
+	size_t Offset;
+	size_t newused;
+
+	if ((Buf == NULL)  || (format == NULL))
+		return;
+
+	BufSize = Buf->BufSize;
+	nWritten = Buf->BufSize + 1;
+	Offset = Buf->BufUsed;
+	newused = Offset + nWritten;
 	
 	while (newused >= BufSize) {
 		va_copy(apl, ap);
@@ -1087,12 +1095,20 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
  */
 void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 {
-	size_t BufSize = Buf->BufSize;
-	size_t nWritten = Buf->BufSize + 1;
-	size_t Offset = Buf->BufUsed;
-	size_t newused = Offset + nWritten;
+	size_t BufSize;
+	size_t nWritten;
+	size_t Offset;
+	size_t newused;
 	va_list arg_ptr;
 	
+	if ((Buf == NULL)  || (format == NULL))
+		return;
+
+	BufSize = Buf->BufSize;
+	nWritten = Buf->BufSize + 1;
+	Offset = Buf->BufUsed;
+	newused = Offset + nWritten;
+
 	while (newused >= BufSize) {
 		va_start(arg_ptr, format);
 		nWritten = vsnprintf(Buf->buf + Buf->BufUsed, 
@@ -1120,9 +1136,13 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
  */
 void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 {
-	size_t nWritten = Buf->BufSize + 1;
+	size_t nWritten;
 	va_list arg_ptr;
 	
+	if ((Buf == NULL)  || (format == NULL))
+		return;
+
+	nWritten = Buf->BufSize + 1;
 	while (nWritten >= Buf->BufSize) {
 		va_start(arg_ptr, format);
 		nWritten = vsnprintf(Buf->buf, Buf->BufSize, format, arg_ptr);
