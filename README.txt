@@ -104,12 +104,12 @@ something like this:
  Several command-line options are also available.  Here's the usage for
 the "webcit" program:
   
- webcit [-i ip_addr] [-p http_port] [-s] [-t tracefile]
+ webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite] [-t tracefile]
            [-c] [-f] [remotehost [remoteport]]
  
    *or*
  
- webcit [-i ip_addr] [-p http_port] [-s] [-t tracefile]
+ webcit [-i ip_addr] [-p http_port] [-s] [-S cipher_suite] [-t tracefile]
            [-c] [-f] uds /your/citadel/directory
  
  Explained: 
@@ -141,6 +141,10 @@ the "webcit" program:
   -> The "-s" option causes WebCit to present an HTTPS (SSL-encrypted) web
      service.  If you want to do both HTTP and HTTPS, you can simply run two
      instances of WebCit on two different ports.
+
+  -> The "-S" option also enables HTTPS, but must be followed by a list of
+     cipher suites you wish to enable.  Please see http://openssl.org/docs/apps/ciphers.html
+     for a list of cipher strings.
 
   -> The "-f" option tells WebCit that it is allowed to follow the
      "X-Forwarded-For:" HTTP headers which may be added if your WebCit service

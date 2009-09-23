@@ -354,7 +354,7 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:dD:G:cfsZ")) != EOF)
+	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
 #else
 	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
 #endif
@@ -362,11 +362,12 @@ int main(int argc, char **argv)
 		case 'h':
 			hdir = strdup(optarg);
 			relh=hdir[0]!='/';
-			if (!relh) safestrncpy(webcitdir, hdir,
-								   sizeof webcitdir);
-			else
-				safestrncpy(relhome, relhome,
-							sizeof relhome);
+			if (!relh) {
+				safestrncpy(webcitdir, hdir, sizeof webcitdir);
+			}
+			else {
+				safestrncpy(relhome, relhome, sizeof relhome);
+			}
 			/* free(hdir); TODO: SHOULD WE DO THIS? */
 			home_specified = 1;
 			home=1;
@@ -427,9 +428,15 @@ int main(int argc, char **argv)
 				}
 			}
 			break;
+#ifdef HAVE_OPENSSL
 		case 's':
 			is_https = 1;
 			break;
+		case 'S':
+			is_https = 1;
+			ssl_cipher_list = strdup(optarg);
+			break;
+#endif
 		case 'G':
 			DumpTemplateI18NStrings = 1;
 			I18nDump = NewStrBufPlain(HKEY("int templatestrings(void)\n{\n"));
@@ -442,7 +449,7 @@ int main(int argc, char **argv)
 				"[-T Templatedebuglevel] "
 				"[-d] [-Z] [-G i18ndumpfile] "
 #ifdef HAVE_OPENSSL
-				"[-s] "
+				"[-s] [-S cipher_suites]"
 #endif
 				"[remotehost [remoteport]]\n");
 			return 1;

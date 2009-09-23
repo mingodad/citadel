@@ -14,10 +14,10 @@
 #define CTDL_CSR_PATH		file_crpt_file_csr
 #define CTDL_CER_PATH		file_crpt_file_cer
 #define SIGN_DAYS		3650			/* how long our certificate should live */
-#define WEBCIT_CIPHER_LIST	"DEFAULT"		/* See http://openssl.org/docs/apps/ciphers.html */
 
 SSL_CTX *ssl_ctx;		/* SSL context */
 pthread_mutex_t **SSLCritters;	/* Things needing locking */
+char *ssl_cipher_list = DEFAULT_SSL_CIPHER_LIST;
 
 pthread_key_t ThreadSSL;	/* Per-thread SSL context */
 
@@ -96,11 +96,11 @@ void init_ssl(void)
 		return;
 	}
 
-	if (!(SSL_CTX_set_cipher_list(ssl_ctx, WEBCIT_CIPHER_LIST))) {
+	lprintf(9, "Requesting cipher list: %s\n", ssl_cipher_list);
+	if (!(SSL_CTX_set_cipher_list(ssl_ctx, ssl_cipher_list))) {
 		lprintf(3, "SSL_CTX_set_cipher_list failed: %s\n", ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
-
 
 	CRYPTO_set_locking_callback(ssl_lock);
 	CRYPTO_set_id_callback(id_callback);

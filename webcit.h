@@ -97,7 +97,10 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+extern char *ssl_cipher_list;
+#define	DEFAULT_SSL_CIPHER_LIST	"DEFAULT"	/* See http://openssl.org/docs/apps/ciphers.html */
 #endif
+
 
 #define CALENDAR_ROOM_NAME	"Calendar"
 #define PRODID "-//Citadel//NONSGML Citadel Calendar//EN"
