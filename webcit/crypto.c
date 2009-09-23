@@ -14,6 +14,7 @@
 #define CTDL_CSR_PATH		file_crpt_file_csr
 #define CTDL_CER_PATH		file_crpt_file_cer
 #define SIGN_DAYS		3650			/* how long our certificate should live */
+#define WEBCIT_CIPHER_LIST	"DEFAULT"		/* See http://openssl.org/docs/apps/ciphers.html */
 
 SSL_CTX *ssl_ctx;		/* SSL context */
 pthread_mutex_t **SSLCritters;	/* Things needing locking */
@@ -91,10 +92,15 @@ void init_ssl(void)
 	SSL_load_error_strings();
 	ssl_method = SSLv23_server_method();
 	if (!(ssl_ctx = SSL_CTX_new(ssl_method))) {
-		lprintf(3, "SSL_CTX_new failed: %s\n",
-			ERR_reason_error_string(ERR_get_error()));
+		lprintf(3, "SSL_CTX_new failed: %s\n", ERR_reason_error_string(ERR_get_error()));
 		return;
 	}
+
+	if (!(SSL_CTX_set_cipher_list(ssl_ctx, WEBCIT_CIPHER_LIST))) {
+		lprintf(3, "SSL_CTX_set_cipher_list failed: %s\n", ERR_reason_error_string(ERR_get_error()));
+		return;
+	}
+
 
 	CRYPTO_set_locking_callback(ssl_lock);
 	CRYPTO_set_id_callback(id_callback);
@@ -151,7 +157,7 @@ void init_ssl(void)
 							NULL	/* no callbk */
 				) != 1) {
 					lprintf(3, "Cannot write key: %s\n",
-                                		ERR_reason_error_string(ERR_get_error()));
+						ERR_reason_error_string(ERR_get_error()));
 					unlink(CTDL_KEY_PATH);
 				}
 				fclose(fp);
