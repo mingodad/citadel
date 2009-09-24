@@ -865,7 +865,7 @@ void flush_individual_conversation(struct imlog *im) {
 	}
 	msg->cm_fields['O'] = strdup(PAGELOGROOM);
 	msg->cm_fields['N'] = strdup(NODENAME);
-	msg->cm_fields['M'] = strdup(ChrPtr(im->conversation));
+	msg->cm_fields['M'] = SmashStrBuf(&im->conversation);	/* we own this memory now */
 
 	/* Start with usernums[1] because it's guaranteed to be higher than usernums[0],
 	 * so if there's only one party, usernums[0] will be zero but usernums[1] won't.
@@ -932,10 +932,9 @@ void flush_conversations_to_disk(time_t if_older_than) {
 	 */
 	while (flush_these) {
 
-		flush_individual_conversation(flush_these);
+		flush_individual_conversation(flush_these);	/* This will free the string buffer */
 		imptr = flush_these;
 		flush_these = flush_these->next;
-		FreeStrBuf(&imptr->conversation);
 		free(imptr);
 	}
 }
