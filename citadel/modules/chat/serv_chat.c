@@ -111,20 +111,20 @@ void log_instant_message(struct CitContext *me, struct CitContext *them, char *m
 		this_im->conversation = NewStrBuf();
 		this_im->next = imlist;
 		imlist = this_im;
-		StrBufAppendBufPlain(this_im->conversation,
+		StrBufAppendBufPlain(this_im->conversation, HKEY(
 			"Content-type: text/html\r\n"
 			"Content-transfer-encoding: 7bit\r\n"
 			"\r\n"
-			"<html><body>\r\n",
-			-1, 0);
+			"<html><body>\r\n"
+			), 0);
 	}
 
 	this_im->lastmsg = time(NULL);		/* Touch the timestamp so we know when to flush */
-	StrBufAppendBufPlain(this_im->conversation, "<p><b>", -1, 0);
+	StrBufAppendBufPlain(this_im->conversation, HKEY("<p><b>"), 0);
 	StrBufAppendBufPlain(this_im->conversation, me->user.fullname, -1, 0);
-	StrBufAppendBufPlain(this_im->conversation, ":</b> ", -1, 0);
+	StrBufAppendBufPlain(this_im->conversation, HKEY(":</b> "), 0);
 	StrEscAppend(this_im->conversation, NULL, msgtext, 0, 0);
-	StrBufAppendBufPlain(this_im->conversation, "</p>\r\n", -1, 0);
+	StrBufAppendBufPlain(this_im->conversation, HKEY("</p>\r\n"), 0);
 	end_critical_section(S_IM_LOGS);
 }
 
@@ -259,13 +259,11 @@ void do_chat_listing(int allflag)
 		}
 
 		GenerateRoomDisplay(roomname, ccptr, CC);
-		if ((CC->user.axlevel < 6)
-		   && (!IsEmptyStr(ccptr->fake_roomname))) {
+		if ((CC->user.axlevel < 6) && (!IsEmptyStr(ccptr->fake_roomname))) {
 			strcpy(roomname, ccptr->fake_roomname);
 		}
 
-		if ((ccptr->cs_flags & CS_CHAT)
-		    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
+		if ((ccptr->cs_flags & CS_CHAT) && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
 			if ((allflag == 0) || (allflag == 1)) {
 				cprintf(":| %-25s <%s>:\n",
 					(ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user,
@@ -846,10 +844,10 @@ void flush_individual_conversation(struct imlog *im) {
 	long msgnum = 0;
 	char roomname[ROOMNAMELEN];
 
-	StrBufAppendBufPlain(im->conversation,
+	StrBufAppendBufPlain(im->conversation, HKEY(
 		"</body>\r\n"
-		"</html>\r\n",
-		-1, 0
+		"</html>\r\n"
+		), 0
 	);
 
 	msg = malloc(sizeof(struct CtdlMessage));
