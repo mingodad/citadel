@@ -103,13 +103,22 @@ void log_instant_message(struct CitContext *me, struct CitContext *them, char *m
 		this_im->conversation = NewStrBuf();
 		this_im->next = imlist;
 		imlist = this_im;
+		StrBufAppendBufPlain(this_im->conversation,
+			"Content-type: text/html\r\n"
+			"Content-transfer-encoding: 7bit\r\n\r\n"
+			"<html><head><title>instant message transcript</title></head>\r\n"
+			"<body>\r\n",
+			-1, 0);
 	}
 
 	this_im->lastmsg = time(NULL);		/* Touch the timestamp so we know when to flush */
-	StrBufAppendPrintf(this_im->conversation, "%s: %s", me->user.fullname, msgtext);
+	StrBufAppendBufPlain(this_im->conversation, "<p><b>", -1, 0);
+	StrBufAppendBufPlain(this_im->conversation, me->user.fullname, -1, 0);
+	StrBufAppendBufPlain(this_im->conversation, ":</b> ", -1, 0);
+	StrEscAppend(this_im->conversation, NULL, msgtext, 0, 0);
+	StrBufAppendBufPlain(this_im->conversation, "</p>\r\n", -1, 0);
 	end_critical_section(S_IM_LOGS);
 }
-
 
 /*
  * This message can be set to anything you want, but it is
@@ -829,11 +838,17 @@ void flush_individual_conversation(struct imlog *im) {
 	long msgnum = 0;
 	char roomname[ROOMNAMELEN];
 
+	StrBufAppendBufPlain(im->conversation,
+		"</body>\r\n"
+		"</html>\r\n",
+		-1, 0
+	);
+
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
-	msg->cm_format_type = FMT_CITADEL;
+	msg->cm_format_type = FMT_RFC822;
 	msg->cm_fields['A'] = strdup("Citadel");
 	msg->cm_fields['O'] = strdup(PAGELOGROOM);
 	msg->cm_fields['N'] = strdup(NODENAME);
@@ -942,4 +957,3 @@ CTDL_MODULE_INIT(chat)
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }
-
