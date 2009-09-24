@@ -113,9 +113,9 @@ void log_instant_message(struct CitContext *me, struct CitContext *them, char *m
 		imlist = this_im;
 		StrBufAppendBufPlain(this_im->conversation,
 			"Content-type: text/html\r\n"
-			"Content-transfer-encoding: 7bit\r\n\r\n"
-			"<html><head><title>instant message transcript</title></head>\r\n"
-			"<body>\r\n",
+			"Content-transfer-encoding: 7bit\r\n"
+			"\r\n"
+			"<html><body>\r\n",
 			-1, 0);
 	}
 
