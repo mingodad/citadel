@@ -52,6 +52,7 @@ int ChatLastMsg = 0;
 struct imlog {
 	struct imlog *next;
 	long usernums[2];
+	char usernames[2][128];
 	time_t lastmsg;
 	StrBuf *conversation;
 };
@@ -100,6 +101,13 @@ void log_instant_message(struct CitContext *me, struct CitContext *them, char *m
 		memset(this_im, 0, sizeof (struct imlog));
 		this_im->usernums[0] = usernums[0];
 		this_im->usernums[1] = usernums[1];
+		/* usernames[] and usernums[] might not be in the same order.  This is not an error. */
+		if (me) {
+			safestrncpy(this_im->usernames[0], me->user.fullname, sizeof this_im->usernames[0]);
+		}
+		if (them) {
+			safestrncpy(this_im->usernames[1], them->user.fullname, sizeof this_im->usernames[1]);
+		}
 		this_im->conversation = NewStrBuf();
 		this_im->next = imlist;
 		imlist = this_im;
@@ -849,7 +857,14 @@ void flush_individual_conversation(struct imlog *im) {
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
 	msg->cm_anon_type = MES_NORMAL;
 	msg->cm_format_type = FMT_RFC822;
-	msg->cm_fields['A'] = strdup("Citadel");
+	if (!IsEmptyStr(im->usernames[0])) {
+		msg->cm_fields['A'] = strdup(im->usernames[0]);
+	} else {
+		msg->cm_fields['A'] = strdup("Citadel");
+	}
+	if (!IsEmptyStr(im->usernames[1])) {
+		msg->cm_fields['R'] = strdup(im->usernames[1]);
+	}
 	msg->cm_fields['O'] = strdup(PAGELOGROOM);
 	msg->cm_fields['N'] = strdup(NODENAME);
 	msg->cm_fields['M'] = strdup(ChrPtr(im->conversation));
