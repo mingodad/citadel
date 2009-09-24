@@ -30,6 +30,7 @@
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
 #endif
+#include "commands.h"
 
 /* Note that some of these functions may not work with multiple instances. */
 
