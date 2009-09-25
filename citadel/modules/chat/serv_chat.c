@@ -54,6 +54,7 @@ struct imlog {
 	long usernums[2];
 	char usernames[2][128];
 	time_t lastmsg;
+	int last_serial;
 	StrBuf *conversation;
 };
 
@@ -62,7 +63,7 @@ struct imlog *imlist = NULL;
 /*
  * This function handles the logging of instant messages to disk.
  */
-void log_instant_message(struct CitContext *me, struct CitContext *them, char *msgtext)
+void log_instant_message(struct CitContext *me, struct CitContext *them, char *msgtext, int serial_number)
 {
 	long usernums[2];
 	long t;
@@ -119,12 +120,21 @@ void log_instant_message(struct CitContext *me, struct CitContext *them, char *m
 			), 0);
 	}
 
-	this_im->lastmsg = time(NULL);		/* Touch the timestamp so we know when to flush */
-	StrBufAppendBufPlain(this_im->conversation, HKEY("<p><b>"), 0);
-	StrBufAppendBufPlain(this_im->conversation, me->user.fullname, -1, 0);
-	StrBufAppendBufPlain(this_im->conversation, HKEY(":</b> "), 0);
-	StrEscAppend(this_im->conversation, NULL, msgtext, 0, 0);
-	StrBufAppendBufPlain(this_im->conversation, HKEY("</p>\r\n"), 0);
+
+	/* Since it's possible for this function to get called more than once if a user is logged
+	 * in on multiple sessions, we use the message's serial number to keep track of whether
+	 * we've already logged it.
+	 */
+	if (this_im->last_serial != serial_number)
+	{
+		this_im->lastmsg = time(NULL);		/* Touch the timestamp so we know when to flush */
+		this_im->last_serial = serial_number;
+		StrBufAppendBufPlain(this_im->conversation, HKEY("<p><b>"), 0);
+		StrBufAppendBufPlain(this_im->conversation, me->user.fullname, -1, 0);
+		StrBufAppendBufPlain(this_im->conversation, HKEY(":</b> "), 0);
+		StrEscAppend(this_im->conversation, NULL, msgtext, 0, 0);
+		StrBufAppendBufPlain(this_im->conversation, HKEY("</p>\r\n"), 0);
+	}
 	end_critical_section(S_IM_LOGS);
 }
 
@@ -639,6 +649,7 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 	char *un;
 	size_t msglen = 0;
 	int do_send = 0;		/* 1 = send message; 0 = only check for valid recipient */
+	static int serial_number = 0;	/* this keeps messages from getting logged twice */
 
 	if (strlen(x_msg) > 0) {
 		msglen = strlen(x_msg) + 4;
@@ -647,6 +658,7 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 
 	/* find the target user's context and append the message */
 	begin_critical_section(S_SESSION_TABLE);
+	++serial_number;
 	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 
 		if (ccptr->fake_username[0]) {
@@ -662,10 +674,8 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 		    && ((ccptr->disable_exp == 0)
 		    || (CC->user.axlevel >= 6)) ) {
 			if (do_send) {
-				newmsg = (struct ExpressMessage *)
-					malloc(sizeof (struct ExpressMessage));
-				memset(newmsg, 0,
-					sizeof (struct ExpressMessage));
+				newmsg = (struct ExpressMessage *) malloc(sizeof (struct ExpressMessage));
+				memset(newmsg, 0, sizeof (struct ExpressMessage));
 				time(&(newmsg->timestamp));
 				safestrncpy(newmsg->sender, lun, sizeof newmsg->sender);
 				safestrncpy(newmsg->sender_email, lem, sizeof newmsg->sender_email);
@@ -678,7 +688,7 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 
 				/* and log it ... */
 				if (ccptr != CC) {
-					log_instant_message(CC, ccptr, newmsg->text);
+					log_instant_message(CC, ccptr, newmsg->text, serial_number);
 				}
 			}
 			++message_sent;
