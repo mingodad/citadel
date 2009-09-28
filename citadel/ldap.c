@@ -236,6 +236,27 @@ int CtdlTryPasswordLDAP(char *user_dn, char *password)
 }
 
 
+/*
+ * Learn LDAP attributes and stuff them into the vCard.
+ * Returns nonzero if we changed anything.
+ */
+int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
+{
+	if (!ldap_dn) return(0);
+	if (!v) return(0);
 
+	/*
+	 * FIXME LDAPSTUB this is a stub function
+	 *
+	 * ldap_dn will contain the DN of the user, and v will contain a pointer to
+	 * the vCard that needs to be (re-)populated.  Put the requisite LDAP code here.
+	 *
+	vcard_set_prop(v, "email;internet", xxx, 0);
+	return(1);	* return nonzero to tell the caller that we made changes that need to be saved *
+	 *
+	 */
+
+	return(0);	/* return zero to tell the caller that we didn't make any changes */
+}
 
 #endif /* HAVE_LDAP */

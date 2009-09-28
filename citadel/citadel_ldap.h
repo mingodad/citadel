@@ -6,3 +6,4 @@
 
 int CtdlTryUserLDAP(char *username, char *found_dn, int found_dn_size, char *fullname, int fullname_size, uid_t *found_uid);
 int CtdlTryPasswordLDAP(char *user_dn, char *password);
+int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v);

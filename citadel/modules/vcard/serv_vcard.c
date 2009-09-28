@@ -4,7 +4,7 @@
  * A server-side module for Citadel which supports address book information
  * using the standard vCard format.
  * 
- * Copyright (c) 1999-2007 / released under the GNU General Public License
+ * Copyright (c) 1999-2009 / released under the GNU General Public License v3
  */
 
 /*
@@ -61,10 +61,8 @@
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "serv_vcard.h"
-
+#include "citadel_ldap.h"
 #include "ctdl_module.h"
-
-
 
 /*
  * set global flag calling for an aide to validate new users
@@ -83,8 +81,7 @@ void set_mm_valid(void) {
  * Extract Internet e-mail addresses from a message containing a vCard, and
  * perform a callback for any found.
  */
-void vcard_extract_internet_addresses(struct CtdlMessage *msg,
-				void (*callback)(char *, char *) ) {
+void vcard_extract_internet_addresses(struct CtdlMessage *msg, void (*callback)(char *, char *) ) {
 	struct vCard *v;
 	char *s;
 	char *k;
@@ -1192,11 +1189,12 @@ void vcard_session_login_hook(void) {
 	 * into the user's vCard.
 	 */
 	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
-
-		/* FIXME do something with this.
-		 * The DN of the account will be found in: CCC->ldap_dn
-		 */
-
+		v = vcard_get_user(&CCC->user);
+		if (v) {
+			if (Ctdl_LDAP_to_vCard(CCC->ldap_dn, v)) {
+				vcard_write_user(&CCC->user, v);
+			}
+		}
 	}
 #endif
 
