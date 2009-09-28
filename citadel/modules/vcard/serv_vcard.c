@@ -1184,24 +1184,33 @@ void vcard_create_room(void)
  */
 void vcard_session_login_hook(void) {
 	struct vCard *v = NULL;
+	struct CitContext *CCC = CC;		/* put this on the stack, just for speed */
 
+#ifdef HAVE_LDAP
 	/*
 	 * Is this an LDAP session?  If so, copy various LDAP attributes from the directory entry
 	 * into the user's vCard.
 	 */
-	/*   FIXME THIS IS NOT IMPLEMENTED YET */
+	if ((config.c_auth_mode == AUTHMODE_LDAP) || (config.c_auth_mode == AUTHMODE_LDAP_AD)) {
+
+		/* FIXME do something with this.
+		 * The DN of the account will be found in: CCC->ldap_dn
+		 */
+
+	}
+#endif
 
 	/*
 	 * Extract from the user's vCard, any Internet email addresses and the user's real name.
 	 * These are inserted into the session data for various message entry commands to use.
 	 */
-	v = vcard_get_user(&CC->user);
+	v = vcard_get_user(&CCC->user);
 	if (v) {
-		extract_inet_email_addrs(CC->cs_inet_email, sizeof CC->cs_inet_email,
-					CC->cs_inet_other_emails, sizeof CC->cs_inet_other_emails,
+		extract_inet_email_addrs(CCC->cs_inet_email, sizeof CCC->cs_inet_email,
+					CCC->cs_inet_other_emails, sizeof CCC->cs_inet_other_emails,
 					v, 1
 		);
-		extract_friendly_name(CC->cs_inet_fn, sizeof CC->cs_inet_fn, v);
+		extract_friendly_name(CCC->cs_inet_fn, sizeof CCC->cs_inet_fn, v);
 		vcard_free(v);
 	}
 
