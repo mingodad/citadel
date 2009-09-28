@@ -39,22 +39,16 @@ void initialize_viewdefs(void) {
 int is_view_allowed_as_default(int which_view)
 {
 	switch(which_view) {
-	case VIEW_BBS:		return(1);
-	case VIEW_MAILBOX:	return(1);
-	case VIEW_ADDRESSBOOK:	return(1);
-	case VIEW_CALENDAR:	return(1);
-	case VIEW_TASKS:	return(1);
-	case VIEW_NOTES:	return(1);
-
-#ifdef TECH_PREVIEW
-	case VIEW_WIKI:		return(1);
-#else /* TECH_PREVIEW */
-	case VIEW_WIKI:		return(0);	/* because it isn't finished yet */
-#endif /* TECH_PREVIEW */
-
-	case VIEW_CALBRIEF:	return(0);
-	case VIEW_JOURNAL:	return(0);
-	default:		return(0);	/* should never get here */
+		case VIEW_BBS:		return(1);
+		case VIEW_MAILBOX:	return(1);
+		case VIEW_ADDRESSBOOK:	return(1);
+		case VIEW_CALENDAR:	return(1);
+		case VIEW_TASKS:	return(1);
+		case VIEW_NOTES:	return(1);
+		case VIEW_WIKI:		return(0);	/* because it isn't finished yet */
+		case VIEW_CALBRIEF:	return(0);
+		case VIEW_JOURNAL:	return(0);
+		default:		return(0);	/* should never get here */
 	}
 }
 
