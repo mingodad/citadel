@@ -150,6 +150,7 @@ void control_find_user (struct ctdluser *EachUser, void *out_data)
 void get_control(void)
 {
 	static int already_have_control = 0;
+	int rv = 0;
 
 	/*
 	 * If we already have the control record in memory, there's no point
@@ -166,35 +167,30 @@ void get_control(void)
 		control_fp = fopen(file_citadel_control, "rb+");
 		if (control_fp != NULL) {
 			lock_control();
-			fchown(fileno(control_fp), config.c_ctdluid, -1);
-			fchmod(fileno(control_fp), 
-			       S_IRUSR|S_IWUSR);
+			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
+			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
 		}
 	}
 	if (control_fp == NULL) {
 		control_fp = fopen(file_citadel_control, "wb+");
 		if (control_fp != NULL) {
 			lock_control();
-			fchown(fileno(control_fp), config.c_ctdluid, -1);
-			fchmod(fileno(control_fp), 
-			       S_IRUSR|S_IWUSR);
+			rv = fchown(fileno(control_fp), config.c_ctdluid, -1);
+			rv = fchmod(fileno(control_fp), S_IRUSR|S_IWUSR);
 			memset(&CitControl, 0, sizeof(struct CitControl));
-			fwrite(&CitControl, sizeof(struct CitControl),
-			       1, control_fp);
+			rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
 			rewind(control_fp);
 		}
 	}
 	if (control_fp == NULL) {
-		CtdlLogPrintf(CTDL_ALERT, "ERROR opening %s: %s\n",
-				file_citadel_control,
-				strerror(errno));
+		CtdlLogPrintf(CTDL_ALERT, "ERROR opening %s: %s\n", file_citadel_control, strerror(errno));
 		return;
 	}
 
 	rewind(control_fp);
-	fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
+	rv = fread(&CitControl, sizeof(struct CitControl), 1, control_fp);
 	already_have_control = 1;
-	chown(file_citadel_control, config.c_ctdluid, (-1));
+	rv = chown(file_citadel_control, config.c_ctdluid, (-1));
 	
 }
 
@@ -203,11 +199,11 @@ void get_control(void)
  */
 void put_control(void)
 {
+	int rv = 0;
 
 	if (control_fp != NULL) {
 		rewind(control_fp);
-		fwrite(&CitControl, sizeof(struct CitControl), 1,
-		       control_fp);
+		rv = fwrite(&CitControl, sizeof(struct CitControl), 1, control_fp);
 		fflush(control_fp);
 	}
 }

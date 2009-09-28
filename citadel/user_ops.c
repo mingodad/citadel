@@ -772,6 +772,7 @@ void logout(void)
 static int validpw(uid_t uid, const char *pass)
 {
 	char buf[256];
+	int rv = 0;
 
 	if (IsEmptyStr(pass)) {
 		CtdlLogPrintf(CTDL_DEBUG, "refusing to check empty password for uid=%d using chkpwd...\n", uid);
@@ -781,9 +782,9 @@ static int validpw(uid_t uid, const char *pass)
 	CtdlLogPrintf(CTDL_DEBUG, "Validating password for uid=%d using chkpwd...\n", uid);
 
 	begin_critical_section(S_CHKPWD);
-	write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
-	write(chkpwd_write_pipe[1], pass, 256);
-	read(chkpwd_read_pipe[0], buf, 4);
+	rv = write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
+	rv = write(chkpwd_write_pipe[1], pass, 256);
+	rv = read(chkpwd_read_pipe[0], buf, 4);
 	end_critical_section(S_CHKPWD);
 
 	if (!strncmp(buf, "PASS", 4)) {
