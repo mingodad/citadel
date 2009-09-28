@@ -899,7 +899,7 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
 	if (IsDirectory(internet_addr, 0) == 0) return;
-	CtdlLogPrintf(CTDL_DEBUG, "Dir: %s --> %s\n", internet_addr, citadel_addr);
+	CtdlLogPrintf(CTDL_DEBUG, "Create directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
 	cdb_store(CDB_DIRECTORY, key, strlen(key), citadel_addr, strlen(citadel_addr)+1 );
 }
@@ -914,6 +914,7 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
+	CtdlLogPrintf(CTDL_DEBUG, "Delete directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
 	cdb_delete(CDB_DIRECTORY, key, strlen(key) );
 }
