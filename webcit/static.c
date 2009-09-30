@@ -100,7 +100,8 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	DIR *filedir = NULL;
 	struct dirent d;
 	struct dirent *filedir_entry;
-	int d_namelen;
+	int d_type = 0;
+        int d_namelen;
 	int d_without_ext;
 	int istoplevel;
 		
@@ -120,18 +121,27 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 		char *PStart;
 #ifdef _DIRENT_HAVE_D_NAMELEN
 		d_namelen = filedir_entry->d_namelen;
+		d_type = filedir_entry->d_type;
+#define DT_UNKNOWN     0
+#define DT_DIR         4
+#define DT_REG         8
+#define DT_LNK         10
+
+#define IFTODT(mode)   (((mode) & 0170000) >> 12)
+#define DTTOIF(dirtype)        ((dirtype) << 12)
+
 #else
 		d_namelen = strlen(filedir_entry->d_name);
 #endif
 		d_without_ext = d_namelen;
 
-		if (filedir_entry->d_type == DT_UNKNOWN) {
+		if (d_type == DT_UNKNOWN) {
 			struct stat s;
 			char path[PATH_MAX];
 			snprintf(path, PATH_MAX, "%s/%s", 
 				DirName, filedir_entry->d_name);
 			if (stat(path, &s) == 0) {
-				filedir_entry->d_type = IFTODT(s.st_mode);
+				d_type = IFTODT(s.st_mode);
 			}
 		}
 
@@ -147,7 +157,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 		    (filedir_entry->d_name[1] == '.'))
 			continue;
 
-		switch (filedir_entry->d_type)
+		switch (d_type)
 		{
 		case DT_DIR:
 			/* Skip directories we are not interested in... */
