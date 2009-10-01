@@ -5,7 +5,7 @@
 
 #include "webcit.h"
 #include "webserver.h"
-#include "roomops.h"
+
 
 void DeleteFloor(void *vFloor)
 {
@@ -29,7 +29,9 @@ int SortFloorsByNameOrder(const void *vfloor1, const void *vfloor2)
 	return strcmp(ChrPtr(f1->Name), ChrPtr(f2->Name));
 }
 
-HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) {
+HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) 
+{
+
 	const char *Err;
 	StrBuf *Buf;
 	HashList *floors;
@@ -124,9 +126,6 @@ void DeleteFolder(void *vFolder)
 	room = (folder*) vFolder;
 
 	FreeStrBuf(&room->name);
-	////FreeStrBuf(&room->ACL);
-
-	//// FreeStrBuf(&room->room);
 
 	if (room->RoomNameParts != NULL)
 	{
@@ -225,7 +224,6 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 			Put(rooms, SKEY(room->name), room, DeleteFolder);
 		}
 	}
-///	SortByHashKey(rooms, 1);
 
 	SubTP.Filter.ContextType = CTX_ROOMS;
 	SortIt = RetrieveSort(&SubTP, NULL, 0, HKEY("fileunsorted"), 0);
@@ -419,7 +417,6 @@ int GroupchangeRoomListByFloorRoomPrivFirst(const void *room1, const void *room2
 			return 2;
 		else 
 			return 1;
-///					wprintf("</td><td valign=top>\n");
 	}
 }
 
@@ -585,8 +582,102 @@ int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
 	return Folder->is_inbox;
 }
 
+void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP) 
+{
+	folder *Folder = (folder *)(TP->Context);
+	
+	switch(Folder->view) {
+	case VIEW_CALENDAR:
+		StrBufAppendBufPlain(Target, HKEY("vevent"), 0);
+		break;
+	case VIEW_TASKS:
+		StrBufAppendBufPlain(Target, HKEY("vtodo"), 0);
+		break;
+	case VIEW_ADDRESSBOOK:
+		StrBufAppendBufPlain(Target, HKEY("vcard"), 0);
+		break;
+	case VIEW_NOTES:
+		StrBufAppendBufPlain(Target, HKEY("vnotes"), 0);
+		break;
+	case VIEW_JOURNAL:
+		StrBufAppendBufPlain(Target, HKEY("vjournal"), 0);
+		break;
+	}
+}
 
 
+
+
+int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+
+	return ((Folder->view == VIEW_CALENDAR) || 
+		(Folder->view == VIEW_TASKS) || 
+		(Folder->view == VIEW_ADDRESSBOOK) ||
+		(Folder->view == VIEW_NOTES) ||
+		(Folder->view == VIEW_JOURNAL) );
+}
+
+
+
+int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession  *WCC = WC;
+
+	/** If we have dav_depth the client just wants the _current_ room without subfloors */
+	if (WCC->Hdr->HR.dav_depth == 0)
+		return 0;
+	    
+	return 1;
+}
+
+
+int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession  *WCC = WC;
+	folder     *Folder = (folder *)(TP->Context);
+	HashPos    *it;
+	StrBuf     * Dir;
+	void       *vDir;
+	long        len;
+        const char *Key;
+	int i;
+
+
+
+	if (Folder->Floor != WCC->CurrentFloor)
+		return 0;
+
+	if (GetCount(WCC->Directory) != Folder->nRoomNameParts)
+		return 0;
+
+	it = GetNewHashPos(WCC->Directory, 0);
+	for (i = 0; i < Folder->nRoomNameParts; i++)
+	{
+		if (!GetNextHashPos(WCC->Directory, it, &len, &Key, &vDir) ||
+		    (vDir == NULL))
+		{
+			DeleteHashPos(&it);
+			return 0;
+		}
+		Dir = (StrBuf*) vDir;
+		if (strcmp(ChrPtr(Folder->RoomNameParts[i]), 
+			   ChrPtr(Dir)) != 0)
+		{
+			DeleteHashPos(&it);
+			return 0;
+		}
+	}
+	DeleteHashPos(&it);
+
+	/** If we have dav_depth the client just wants the _current_ room without subfloors */
+	if ((WCC->Hdr->HR.dav_depth == 0) &&
+	    (i != Folder->nRoomNameParts))
+		return 0;
+
+	return 1;
+}
 
 
 void jsonRoomFlr(void) 
@@ -614,13 +705,15 @@ InitModule_ROOMLIST
 	RegisterNamespace("FLOOR:ID", 0, 0, tmplput_FLOOR_ID, CTX_FLOORS);
 	RegisterNamespace("FLOOR:NAME", 0, 1, tmplput_FLOOR_NAME, CTX_FLOORS);
 	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, CTX_FLOORS);
+	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
 
-
+	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
 	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, CTX_ROOMS);/// TODO!
 	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, CTX_ROOMS);
 
@@ -630,10 +723,12 @@ InitModule_ROOMLIST
 	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:DEFVIEW", 0, 1, tmplput_ROOM_DEFVIEW, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LASTCHANGE", 0, 1, tmplput_ROOM_LASTCHANGE, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:COLLECTIONTYPE", 0, 1, tmplput_ROOM_COLLECTIONTYPE, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:FLOOR:ID", 0, 0, tmplput_ROOM_FLOOR_ID, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:FLOOR:NAME", 0, 1, tmplput_ROOM_FLOOR_NAME, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, CTX_ROOMS);
 
+	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBROOM"), 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
 
 	RegisterConditional(HKEY("COND:ROOM:INFO:IS_INBOX"), 0, ConditionalRoomIsInbox, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_KNOWN"), 0, ConditionalRoomHas_UA_KNOWN, CTX_ROOMS);
@@ -643,6 +738,9 @@ InitModule_ROOMLIST
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_POSTALLOWED"), 0, ConditionalRoomHas_UA_POSTALLOWED, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_ADMINALLOWED"), 0, ConditionalRoomHas_UA_ADMINALLOWED, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_DELETEALLOWED"), 0, ConditionalRoomHas_UA_DELETEALLOWED, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:GROUPDAV_CONTENT"), 0, ConditionalRoomHasGroupdavContent, CTX_ROOMS);
+
+
 
 	RegisterSortFunc(HKEY("byfloorroom"),
 			 NULL, 0,

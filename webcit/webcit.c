@@ -530,9 +530,12 @@ void ReadPostData(void)
 void ParseREST_URL(void)
 {
 	StrBuf *Buf;
+	StrBuf *pFloor = NULL;
 	wcsession *WCC = WC;
 	long i = 0;
 	const char *pCh = NULL;
+	HashList *Floors;
+	void *vFloor;
 
 	WCC->Directory = NewHash(1, Flathash);
 
@@ -541,11 +544,23 @@ void ParseREST_URL(void)
 				       Buf, &pCh,  '/') >= 0)
 	{
 		Put(WCC->Directory, IKEY(i), Buf, HFreeStrBuf);
+		if (i==0)
+			pFloor = Buf;
 		i++;
 		Buf = NewStrBuf();
 	}
 	if (i == 0)
 		FreeStrBuf(&Buf);
+	else if (pFloor != NULL)
+	{
+		Floors = GetFloorListHash(NULL, NULL);
+		
+		if (Floors != NULL)
+		{
+			if (GetHash(Floors, SKEY(pFloor), &vFloor))
+				WCC->CurrentFloor = (floor*) vFloor;
+		}
+	}
 }
 
 
@@ -833,7 +848,8 @@ void
 SessionDetachModule_WEBCIT
 (wcsession *sess)
 {
-	DeleteHash(&sess->Hdr->urlstrings);// TODO?
+	DeleteHash(&sess->Directory);
+
 	if (sess->upload_length > 0) {
 		FreeStrBuf(&sess->upload);
 		sess->upload_length = 0;
