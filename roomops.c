@@ -5,7 +5,6 @@
 
 #include "webcit.h"
 #include "webserver.h"
-#include "roomops.h"
 #define MAX_FLOORS 128
 
 char floorlist[MAX_FLOORS][SIZ];	/* list of our floor names */

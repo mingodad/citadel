@@ -84,3 +84,4 @@ typedef struct _folder {
 
 }folder;
 
+HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
