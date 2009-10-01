@@ -1505,7 +1505,11 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 		/** Find one <? > */
 		pos = (-1);
 		for (; pch < pE; pch ++) {
-			if ((*pch=='<')&&(*(pch + 1)=='?'))
+			if ((*pch=='<')&&(*(pch + 1)=='?') &&
+			    !((pch == pS) && /* we must ommit a <?xml */
+			      (*(pch + 2) == 'x') && 
+			      (*(pch + 3) == 'm') && 
+			      (*(pch + 4) == 'l')))			     
 				break;
 			if (*pch=='\n') Line ++;
 		}
