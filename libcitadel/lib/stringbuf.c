@@ -1183,12 +1183,15 @@ int StrBufNum_tokens(const StrBuf *source, char tok)
 int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 {
 	int ReducedBy;
-	char *d, *s;		/* dest, source */
+	char *d, *s, *end;		/* dest, source */
 	int count = 0;
 
 	/* Find desired @parameter */
+	end = Source->buf + Source->BufUsed;
 	d = Source->buf;
-	while (count < parmnum) {
+	while ((count < parmnum) &&
+	       (d <= end))
+	{
 		/* End of string, bail! */
 		if (!*d) {
 			d = NULL;
@@ -1199,11 +1202,14 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 		}
 		d++;
 	}
-	if (!d) return 0;		/* @Parameter not found */
+	if ((d == NULL) || (d >= end))
+		return 0;		/* @Parameter not found */
 
 	/* Find next @parameter */
 	s = d;
-	while (*s && *s != separator) {
+	while ((*s && *s != separator) &&
+	       (s <= end))
+	{
 		s++;
 	}
 	if (*s == separator)

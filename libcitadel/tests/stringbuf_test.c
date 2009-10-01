@@ -290,6 +290,13 @@ static void TestNextLine_LongLine(void)
 }
 
 
+static void TestStrBufRemove_token_NotThere(void)
+{
+	StrBuf *Test = NewStrBufPlain(HKEY(" 127.0.0.1"));
+	StrBufRemove_token(Test, 0, ',');
+	TestRevalidateStrBuf(Test);
+	FreeStrBuf(&Test);
+}
 
 /*
 Some samples from the original...
@@ -322,6 +329,9 @@ Some samples from the original...
 */
 
 
+
+
+
 static void AddStrBufSimlpeTests(void)
 {
 	CU_pSuite pGroup = NULL;
@@ -347,6 +357,8 @@ static void AddStrBufSimlpeTests(void)
 	pTest = CU_add_test(pGroup, "TestNextLine_twolines", TestNextLine_twolines);
  	pTest = CU_add_test(pGroup, "TestNextLine_LongLine", TestNextLine_LongLine);
 	
+	pGroup = CU_add_suite("TestStrBufRemove_token", NULL, NULL);
+	pTest = CU_add_test(pGroup, "TestStrBufRemove_token_NotThere", TestStrBufRemove_token_NotThere);
 
 }
 
