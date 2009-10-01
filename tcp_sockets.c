@@ -415,7 +415,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	if (port_number == 0) {
 		lprintf(1, "Cannot start: no port number specified.\n");
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 	sin.sin_port = htons((u_short) port_number);
 
@@ -424,7 +424,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	s = socket(PF_INET, SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
 		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 	/* Set some socket options that make sense. */
 	i = 1;
@@ -439,11 +439,11 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	
 	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		lprintf(1, "Can't bind: %s\n", strerror(errno));
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 	if (listen(s, queue_len) < 0) {
 		lprintf(1, "Can't listen: %s\n", strerror(errno));
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 	return (s);
 }
@@ -469,7 +469,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 	if ((i != 0) && (errno != ENOENT)) {
 		lprintf(1, "webcit: can't unlink %s: %s\n",
 			sockpath, strerror(errno));
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 
 	memset(&addr, 0, sizeof(addr));
@@ -480,19 +480,19 @@ int ig_uds_server(char *sockpath, int queue_len)
 	if (s < 0) {
 		lprintf(1, "webcit: Can't create a socket: %s\n",
 			strerror(errno));
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 
 	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		lprintf(1, "webcit: Can't bind: %s\n",
 			strerror(errno));
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 
 	if (listen(s, actual_queue_len) < 0) {
 		lprintf(1, "webcit: Can't listen: %s\n",
 			strerror(errno));
-		exit(WC_EXIT_BIND);
+		return (-WC_EXIT_BIND);
 	}
 
 	chmod(sockpath, 0777);

@@ -552,6 +552,11 @@ int main(int argc, char **argv)
 		lprintf(2, "Attempting to bind to port %d...\n", http_port);
 		msock = ig_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
 	}
+	if (msock < 0)
+	{
+		ShutDownWebcit();
+		return -msock;
+	}
 
 	lprintf(2, "Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
