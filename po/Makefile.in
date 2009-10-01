@@ -1,51 +1,16 @@
-all: ../locale/de/LC_MESSAGES/webcit.mo \
-	../locale/it/LC_MESSAGES/webcit.mo \
-	../locale/en_GB/LC_MESSAGES/webcit.mo \
-	../locale/es/LC_MESSAGES/webcit.mo \
-	../locale/da/LC_MESSAGES/webcit.mo \
-	../locale/fr/LC_MESSAGES/webcit.mo \
-	../locale/nl/LC_MESSAGES/webcit.mo \
-	../locale/pt_BR/LC_MESSAGES/webcit.mo \
-	../locale/hu/LC_MESSAGES/webcit.mo \
-	../locale/et_EE/LC_MESSAGES/webcit.mo
+SRCS:=  $(wildcard *.po)
+OBJS:=  $(patsubst %.po, ../locale/%/LC_MESSAGES/webcit.mo, $(SRCS))
 
-../locale/de/LC_MESSAGES/webcit.mo: de.po
-	[ -d ../locale/de/LC_MESSAGES ] || mkdir -p ../locale/de/LC_MESSAGES
-	msgfmt de.po -o ../locale/de/LC_MESSAGES/webcit.mo
+.SUFFIXES: .po .mo
 
-../locale/it/LC_MESSAGES/webcit.mo: it.po
-	[ -d ../locale/it/LC_MESSAGES ] || mkdir -p ../locale/it/LC_MESSAGES
-	msgfmt it.po -o ../locale/it/LC_MESSAGES/webcit.mo
+.PHONY: all
 
-../locale/es/LC_MESSAGES/webcit.mo: es.po
-	[ -d ../locale/es/LC_MESSAGES ] || mkdir -p ../locale/es/LC_MESSAGES
-	msgfmt es.po -o ../locale/es/LC_MESSAGES/webcit.mo
+all: $(OBJS)
 
-../locale/en_GB/LC_MESSAGES/webcit.mo: en_GB.po
-	[ -d ../locale/en_GB/LC_MESSAGES ] || mkdir -p ../locale/en_GB/LC_MESSAGES
-	msgfmt en_GB.po -o ../locale/en_GB/LC_MESSAGES/webcit.mo
+clean:
+	rm -r ../locale/*
 
-../locale/da/LC_MESSAGES/webcit.mo: da.po
-	[ -d ../locale/da/LC_MESSAGES ] || mkdir -p ../locale/da/LC_MESSAGES
-	msgfmt da.po -o ../locale/da/LC_MESSAGES/webcit.mo
-
-../locale/fr/LC_MESSAGES/webcit.mo: fr.po
-	[ -d ../locale/fr/LC_MESSAGES ] || mkdir -p ../locale/fr/LC_MESSAGES
-	msgfmt fr.po -o ../locale/fr/LC_MESSAGES/webcit.mo
-
-../locale/nl/LC_MESSAGES/webcit.mo: nl.po
-	[ -d ../locale/nl/LC_MESSAGES ] || mkdir -p ../locale/nl/LC_MESSAGES
-	msgfmt nl.po -o ../locale/nl/LC_MESSAGES/webcit.mo
-
-../locale/pt_BR/LC_MESSAGES/webcit.mo: pt_BR.po
-	[ -d ../locale/pt_BR/LC_MESSAGES ] || mkdir -p ../locale/pt_BR/LC_MESSAGES
-	msgfmt pt_BR.po -o ../locale/pt_BR/LC_MESSAGES/webcit.mo
-
-../locale/hu/LC_MESSAGES/webcit.mo: hu.po
-	[ -d ../locale/hu/LC_MESSAGES ] || mkdir -p ../locale/hu/LC_MESSAGES
-	msgfmt hu.po -o ../locale/hu/LC_MESSAGES/webcit.mo
-
-../locale/et_EE/LC_MESSAGES/webcit.mo: et_EE.po
-	[ -d ../locale/et_EE/LC_MESSAGES ] || mkdir -p ../locale/et_EE/LC_MESSAGES
-	msgfmt et_EE.po -o ../locale/et_EE/LC_MESSAGES/webcit.mo
+../locale/%/LC_MESSAGES/webcit.mo: %.po
+	mkdir -p $(patsubst %.po, ../locale/%/LC_MESSAGES, $<)
+	msgfmt -o $@ $<
 
