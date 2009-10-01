@@ -477,6 +477,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	 */
 	isbogus = ReadHTTPRequest(Hdr);
 
+	Hdr->HR.dav_depth = 32767; /* TODO: find a general way to have non-0 defaults */
 	if (!isbogus)
 		isbogus = AnalyseHeaders(Hdr);
 
