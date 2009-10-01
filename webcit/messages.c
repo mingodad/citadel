@@ -952,6 +952,8 @@ void post_mime_to_server(void) {
 		it = GetNewHashPos(WCC->attachments, 0);
 		while (GetNextHashPos(WCC->attachments, it, &len, &Key, &vAtt)) {
 			att = (wc_mime_attachment *)vAtt;
+			if (att->length == 0)
+				continue;
 			encoded_length = ((att->length * 150) / 100);
 			encoded = malloc(encoded_length);
 			if (encoded == NULL) break;
