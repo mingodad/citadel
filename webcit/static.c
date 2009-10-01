@@ -98,7 +98,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 	StrBuf *WebDir = NULL;
 	StrBuf *OneWebName = NULL;
 	DIR *filedir = NULL;
-	struct dirent d;
+	struct dirent *d;
 	struct dirent *filedir_entry;
 	int d_type = 0;
         int d_namelen;
@@ -110,18 +110,26 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 		return 0;
 	}
 
+	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
+	if (d == NULL) {
+		return 0;
+	}
+
 	Dir = NewStrBufPlain(DirName, -1);
 	WebDir = NewStrBufPlain(RelDir, -1);
 	istoplevel = IsEmptyStr(RelDir);
 	OneWebName = NewStrBuf();
 
-       	while ((readdir_r(filedir, &d, &filedir_entry) == 0) &&
+	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
 	{
 		char *PStart;
 #ifdef _DIRENT_HAVE_D_NAMELEN
 		d_namelen = filedir_entry->d_namelen;
 		d_type = filedir_entry->d_type;
+#else
+
+#ifndef DT_UNKNOWN
 #define DT_UNKNOWN     0
 #define DT_DIR         4
 #define DT_REG         8
@@ -129,21 +137,11 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 
 #define IFTODT(mode)   (((mode) & 0170000) >> 12)
 #define DTTOIF(dirtype)        ((dirtype) << 12)
-
-#else
+#endif
 		d_namelen = strlen(filedir_entry->d_name);
+		d_type = DT_UNKNOWN;
 #endif
 		d_without_ext = d_namelen;
-
-		if (d_type == DT_UNKNOWN) {
-			struct stat s;
-			char path[PATH_MAX];
-			snprintf(path, PATH_MAX, "%s/%s", 
-				DirName, filedir_entry->d_name);
-			if (stat(path, &s) == 0) {
-				d_type = IFTODT(s.st_mode);
-			}
-		}
 
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
 			continue; /* Ignore backup files... */
@@ -156,6 +154,16 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 		    (filedir_entry->d_name[0] == '.') &&
 		    (filedir_entry->d_name[1] == '.'))
 			continue;
+
+		if (d_type == DT_UNKNOWN) {
+			struct stat s;
+			char path[PATH_MAX];
+			snprintf(path, PATH_MAX, "%s/%s", 
+				DirName, filedir_entry->d_name);
+			if (stat(path, &s) == 0) {
+				d_type = IFTODT(s.st_mode);
+			}
+		}
 
 		switch (d_type)
 		{
@@ -200,6 +208,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 
 
 	}
+	free(d);
 	closedir(filedir);
 	FreeStrBuf(&Dir);
 	FreeStrBuf(&WebDir);
