@@ -120,15 +120,16 @@ int tcp_connectsock(char *host, char *service)
 	}
 	alarm(0);
 	signal(SIGALRM, SIG_IGN);
-
-	fdflags = fcntl(s, F_GETFL);
-	if (fdflags < 0)
-		lprintf(1, "unable to get socket flags!  %s.%s: %s \n",
-			host, service, strerror(errno));
-	fdflags = fdflags | O_NONBLOCK;
-	if (fcntl(s, F_SETFD, fdflags) < 0)
-		lprintf(1, "unable to set socket nonblocking flags!  %s.%s: %s \n",
-			host, service, strerror(errno));
+	if (!is_https) {
+		fdflags = fcntl(s, F_GETFL);
+		if (fdflags < 0)
+			lprintf(1, "unable to get socket flags!  %s.%s: %s \n",
+				host, service, strerror(errno));
+		fdflags = fdflags | O_NONBLOCK;
+		if (fcntl(s, F_SETFD, fdflags) < 0)
+			lprintf(1, "unable to set socket nonblocking flags!  %s.%s: %s \n",
+				host, service, strerror(errno));
+	}
 	return (s);
 }
 
