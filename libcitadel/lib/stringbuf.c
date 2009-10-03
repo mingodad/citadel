@@ -1703,6 +1703,7 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 	fd_set rfds;
 	char *pch = NULL;
         int fdflags;
+	int IsNonBlock;
 	struct timeval tv;
 
 	if (buf->BufUsed > 0) {
@@ -1722,43 +1723,46 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 		IncreaseBuf(buf, 1, -1);
 
 	fdflags = fcntl(*fd, F_GETFL);
-	if ((fdflags & O_NONBLOCK) == O_NONBLOCK)
-		return -1;
+	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
 
 	while ((nSuccessLess < timeout) && (pch == NULL)) {
-		tv.tv_sec = selectresolution;
-		tv.tv_usec = 0;
-		
-		FD_ZERO(&rfds);
-		FD_SET(*fd, &rfds);
-		if (select(*fd + 1, NULL, &rfds, NULL, &tv) == -1) {
-			*Error = strerror(errno);
-			close (*fd);
-			*fd = -1;
-			return -1;
-		}		
-		if (FD_ISSET(*fd, &rfds)) {
-			rlen = read(*fd, 
-				    &buf->buf[buf->BufUsed], 
-				    buf->BufSize - buf->BufUsed - 1);
-			if (rlen < 1) {
+		if (IsNonBlock){
+			tv.tv_sec = selectresolution;
+			tv.tv_usec = 0;
+			
+			FD_ZERO(&rfds);
+			FD_SET(*fd, &rfds);
+			if (select(*fd + 1, NULL, &rfds, NULL, &tv) == -1) {
 				*Error = strerror(errno);
-				close(*fd);
+				close (*fd);
 				*fd = -1;
 				return -1;
 			}
-			else if (rlen > 0) {
-				nSuccessLess = 0;
-				buf->BufUsed += rlen;
-				buf->buf[buf->BufUsed] = '\0';
-				if (buf->BufUsed + 10 > buf->BufSize) {
-					IncreaseBuf(buf, 1, -1);
-				}
-				pch = strchr(buf->buf, '\n');
-				continue;
-			}
 		}
-		nSuccessLess ++;
+		if (IsNonBlock && !  FD_ISSET(*fd, &rfds)) {
+			nSuccessLess ++;
+			continue;
+		}
+		rlen = read(*fd, 
+			    &buf->buf[buf->BufUsed], 
+			    buf->BufSize - buf->BufUsed - 1);
+		if (rlen < 1) {
+			*Error = strerror(errno);
+			close(*fd);
+			*fd = -1;
+			return -1;
+		}
+		else if (rlen > 0) {
+			nSuccessLess = 0;
+			buf->BufUsed += rlen;
+			buf->buf[buf->BufUsed] = '\0';
+			if (buf->BufUsed + 10 > buf->BufSize) {
+				IncreaseBuf(buf, 1, -1);
+			}
+			pch = strchr(buf->buf, '\n');
+			continue;
+		}
+		
 	}
 	if (pch != NULL) {
 		rlen = 0;
@@ -1773,7 +1777,6 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 
 }
 
-static const char *ErrRBLF_WrongFDFlags="StrBufTCP_read_buffered_line_fast: don't work with fdflags & O_NONBLOCK";
 static const char *ErrRBLF_SelectFailed="StrBufTCP_read_buffered_line_fast: Select failed without reason";
 static const char *ErrRBLF_NotEnoughSentFromServer="StrBufTCP_read_buffered_line_fast: No complete line was sent from peer";
 /**
@@ -1801,6 +1804,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	fd_set rfds;
 	const char *pch = NULL;
         int fdflags;
+	int IsNonBlock;
 	struct timeval tv;
 	
 	pos = *Pos;
@@ -1840,54 +1844,55 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	}
 
 	fdflags = fcntl(*fd, F_GETFL);
-	if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
-		*Error = ErrRBLF_WrongFDFlags;
-		return -1;
-	}
+	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
 
 	pch = NULL;
 	while ((nSuccessLess < timeout) && (pch == NULL)) {
-		tv.tv_sec = selectresolution;
-		tv.tv_usec = 0;
+		if (IsNonBlock)
+		{
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
 		
-		FD_ZERO(&rfds);
-		FD_SET(*fd, &rfds);
-		if (select(*fd + 1, NULL, &rfds, NULL, &tv) == -1) {
-			*Error = strerror(errno);
-			close (*fd);
-			*fd = -1;
-			if (*Error == NULL)
-				*Error = ErrRBLF_SelectFailed;
-			return -1;
-		}		
-		if (FD_ISSET(*fd, &rfds) != 0) {
-			rlen = read(*fd, 
-				    &IOBuf->buf[IOBuf->BufUsed], 
-				    IOBuf->BufSize - IOBuf->BufUsed - 1);
-			if (rlen < 1) {
+			FD_ZERO(&rfds);
+			FD_SET(*fd, &rfds);
+			if (select((*fd) + 1, &rfds, NULL, NULL, &tv) == -1) {
 				*Error = strerror(errno);
-				close(*fd);
+				close (*fd);
 				*fd = -1;
+				if (*Error == NULL)
+					*Error = ErrRBLF_SelectFailed;
 				return -1;
 			}
-			else if (rlen > 0) {
-				nSuccessLess = 0;
-				IOBuf->BufUsed += rlen;
-				IOBuf->buf[IOBuf->BufUsed] = '\0';
-				if (IOBuf->BufUsed + 10 > IOBuf->BufSize) {
-					IncreaseBuf(IOBuf, 1, -1);
-				}
-
-				pche = IOBuf->buf + IOBuf->BufUsed;
-				pch = IOBuf->buf;
-				while ((pch < pche) && (*pch != '\n'))
-					pch ++;
-				if ((pch >= pche) || (*pch == '\0'))
-					pch = NULL;
+			if (! FD_ISSET(*fd, &rfds) != 0) {
+				nSuccessLess ++;
 				continue;
 			}
 		}
-		nSuccessLess ++;
+		rlen = read(*fd, 
+			    &IOBuf->buf[IOBuf->BufUsed], 
+			    IOBuf->BufSize - IOBuf->BufUsed - 1);
+		if (rlen < 1) {
+			*Error = strerror(errno);
+			close(*fd);
+			*fd = -1;
+			return -1;
+		}
+		else if (rlen > 0) {
+			nSuccessLess = 0;
+			IOBuf->BufUsed += rlen;
+			IOBuf->buf[IOBuf->BufUsed] = '\0';
+			if (IOBuf->BufUsed + 10 > IOBuf->BufSize) {
+				IncreaseBuf(IOBuf, 1, -1);
+			}
+			
+			pche = IOBuf->buf + IOBuf->BufUsed;
+			pch = IOBuf->buf;
+			while ((pch < pche) && (*pch != '\n'))
+				pch ++;
+			if ((pch >= pche) || (*pch == '\0'))
+				pch = NULL;
+			continue;
+		}
 	}
 	if (pch != NULL) {
 		pos = IOBuf->buf;
@@ -1916,12 +1921,14 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
  */
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error)
 {
-        fd_set wset;
-        int fdflags;
+	int fdflags;
 	int len, rlen, slen;
+	int nSuccessLess;
 	int nRead = 0;
 	char *ptr;
-
+	int IsNonBlock;
+	struct timeval tv;
+	fd_set rfds;
 	if ((Buf == NULL) || (*fd == -1))
 		return -1;
 	if (!append)
@@ -1934,16 +1941,29 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 	slen = len = Buf->BufUsed;
 
 	fdflags = fcntl(*fd, F_GETFL);
-
+	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
+	nSuccessLess = 0;
 	while (nRead < nBytes) {
-               if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
-                        FD_ZERO(&wset);
-                        FD_SET(*fd, &wset);
-                        if (select(*fd + 1, NULL, &wset, NULL, NULL) == -1) {
+		if (IsNonBlock)
+		{
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
+		
+			FD_ZERO(&rfds);
+			FD_SET(*fd, &rfds);
+			if (select(*fd + 1, &rfds, NULL, NULL, &tv) == -1) {
 				*Error = strerror(errno);
-                                return -1;
-                        }
-                }
+				close (*fd);
+				*fd = -1;
+				if (*Error == NULL)
+					*Error = ErrRBLF_SelectFailed;
+				return -1;
+			}
+			if (! FD_ISSET(*fd, &rfds) != 0) {
+				nSuccessLess ++;
+				continue;
+			}
+		}
 
                 if ((rlen = read(*fd, 
 				 ptr,
@@ -1985,14 +2005,17 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	const char *pos;
 	int nSelects = 0;
 	int SelRes;
-        fd_set wset;
-        int fdflags;
+	int fdflags;
 	int len = 0;
 	int rlen, slen;
 	int nRead = 0;
 	int nAlreadyRead = 0;
+	int IsNonBlock;
 	char *ptr;
+	fd_set rfds;
 	const char *pch;
+	struct timeval tv;
+	int nSuccessLess;
 
 	if ((Blob == NULL) || (*fd == -1) || (IOBuf == NULL) || (Pos == NULL))
 		return -1;
@@ -2044,34 +2067,44 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	slen = len = Blob->BufUsed;
 
 	fdflags = fcntl(*fd, F_GETFL);
+	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
 
 	SelRes = 1;
 	nBytes -= nRead;
 	nRead = 0;
 	while (nRead < nBytes) {
-		if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
-                        FD_ZERO(&wset);
-                        FD_SET(*fd, &wset);
-			SelRes = select(*fd + 1, NULL, &wset, NULL, NULL);
-		}
-		if (SelRes == -1) {
-			*Error = strerror(errno);
-			return -1;
-		}
-		else if (SelRes) {
-			nSelects = 0;
-			rlen = read(*fd, 
-				    ptr,
-				    nBytes - nRead);
-			if (rlen == -1) {
-				close(*fd);
-				*fd = -1;
+		if (IsNonBlock)
+		{
+			tv.tv_sec = 1;
+			tv.tv_usec = 0;
+		
+			FD_ZERO(&rfds);
+			FD_SET(*fd, &rfds);
+			if (select(*fd + 1, &rfds, NULL, NULL, &tv) == -1) {
 				*Error = strerror(errno);
-				return rlen;
+				close (*fd);
+				*fd = -1;
+				if (*Error == NULL)
+					*Error = ErrRBLF_SelectFailed;
+				return -1;
+			}
+			if (! FD_ISSET(*fd, &rfds) != 0) {
+				nSuccessLess ++;
+				continue;
 			}
 		}
-		else {
-			nSelects ++;
+		nSuccessLess = 0;
+		rlen = read(*fd, 
+			    ptr,
+			    nBytes - nRead);
+		if (rlen == -1) {
+			close(*fd);
+			*fd = -1;
+			*Error = strerror(errno);
+			return rlen;
+		}
+		else if (rlen == 0){
+			nSuccessLess ++;
 			if ((check == NNN_TERM) && 
 			    (nRead > 5) &&
 			    (strncmp(IOBuf->buf + IOBuf->BufUsed - 5, "\n000\n", 5) == 0)) 
@@ -2086,7 +2119,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 				return -1;
 			}
 		}
-		if (rlen > 0) {
+		else if (rlen > 0) {
 			nRead += rlen;
 			ptr += rlen;
 			IOBuf->BufUsed += rlen;

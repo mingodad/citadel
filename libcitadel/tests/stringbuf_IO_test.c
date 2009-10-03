@@ -45,6 +45,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <sys/utsname.h>
+#include <string.h>
 
 
 typedef void testfunc(int Sock);
@@ -180,7 +181,7 @@ static void worker_entry(testfunc F)
 
 		if ((msock == -1)||(time_to_die))
 		{/* ok, we're going down. */
-			exit(0);
+			return;
 		}
 		if (ssock < 0 ) continue;
 
@@ -218,7 +219,7 @@ static void SimpleLineBufTestFunc(int sock)
 	StrBuf *ReadBuffer;
 	StrBuf *Line;
 	const char *Pos = NULL;
-	const char *err;
+	const char *err = NULL;
 	int i;
 
 	ReadBuffer = NewStrBuf();
@@ -232,9 +233,10 @@ static void SimpleLineBufTestFunc(int sock)
 						  timeout,
 						  selres,
 						  &err);
+		TestRevalidateStrBuf(Line);
 		if (err != NULL)
 			printf("%s", err);
-		CU_ASSERT_PTR_NOT_NULL(err);
+		CU_ASSERT_PTR_NULL(err);
 		CU_ASSERT_NOT_EQUAL(sock, -1);
 		if (sock == -1)
 			break;
@@ -245,13 +247,132 @@ static void SimpleLineBufTestFunc(int sock)
 	time_to_die = 1;
 }
 
-
 static void SimpleLinebufferTest(void)
 {
 	msock = ig_tcp_server(ip_addr, listen_port, LISTEN_QUEUE_LENGTH);
 
 	worker_entry(SimpleLineBufTestFunc);
+	close (msock);
 }
+
+
+static void SimpleBlobTestFunc(int sock)
+{
+	StrBuf *ReadBuffer;
+	StrBuf *Blob;
+	const char *Pos = NULL;
+	const char *err = NULL;
+	
+	ReadBuffer = NewStrBuf();
+	Blob = NewStrBuf();
+
+	StrBufReadBLOBBuffered(Blob, 
+			       ReadBuffer, 
+			       &Pos,
+			       &sock,
+			       0,
+			       blobsize,
+			       0,
+			       &err);
+	TestRevalidateStrBuf(Blob);
+	if (err != NULL)
+		printf("%s", err);
+	CU_ASSERT(blobsize == StrLength(Blob));
+	CU_ASSERT_PTR_NULL(err);
+	CU_ASSERT_NOT_EQUAL(sock, -1);
+	if (sock == -1)
+	printf("BLOB: >%s<\n", ChrPtr(Blob));
+	
+	FreeStrBuf(&ReadBuffer);
+	FreeStrBuf(&Blob);
+	time_to_die = 1;
+}
+
+
+static void SimpleHttpPostTestFunc(int sock)
+{
+	StrBuf *ReadBuffer;
+	StrBuf *Blob;
+	StrBuf *Line;
+	const char *Pos = NULL;
+	const char *err = NULL;
+	int blobsize = 0;
+	int i;
+	const char *pch;
+	
+	ReadBuffer = NewStrBuf();
+	Blob = NewStrBuf();
+	Line = NewStrBuf();
+
+	for (i = 0; (i == 0) || (StrLength(Line) != 0); i++) {
+		StrBufTCP_read_buffered_line_fast(Line, 
+						  ReadBuffer, 
+						  &Pos,
+						  &sock,
+						  timeout,
+						  selres,
+						  &err);
+		TestRevalidateStrBuf(Line);
+		if (err != NULL)
+			printf("%s", err);
+		CU_ASSERT_PTR_NULL(err);
+		CU_ASSERT_NOT_EQUAL(sock, -1);
+		if (sock == -1)
+			break;
+		printf("LINE: >%s<\n", ChrPtr(Line));
+		pch = strstr(ChrPtr(Line), "Content-Length");
+		if (pch != NULL) {
+			blobsize = atol(ChrPtr(Line) + 
+					sizeof("Content-Length:"));
+
+		}
+		FlushStrBuf(Line);
+	}
+
+	StrBufReadBLOBBuffered(Blob, 
+			       ReadBuffer, 
+			       &Pos,
+			       &sock,
+			       0,
+			       blobsize,
+			       0,
+			       &err);
+	TestRevalidateStrBuf(Blob);
+	if (err != NULL)
+		printf("%s", err);
+	CU_ASSERT(blobsize != 0);
+	CU_ASSERT(blobsize == StrLength(Blob));
+	CU_ASSERT_PTR_NULL(err);
+	CU_ASSERT_NOT_EQUAL(sock, -1);
+	if (sock == -1)
+	printf("BLOB: >%s<\n", ChrPtr(Blob));
+	
+	FreeStrBuf(&ReadBuffer);
+	FreeStrBuf(&Blob);
+	FreeStrBuf(&Line);
+	time_to_die = 1;
+}
+
+
+static void SimpleBLOBbufferTest(void)
+{
+	msock = ig_tcp_server(ip_addr, listen_port, LISTEN_QUEUE_LENGTH);
+
+	worker_entry(SimpleBlobTestFunc);
+	close (msock);
+}
+
+static void SimpleMixedLineBlob(void)
+{
+	msock = ig_tcp_server(ip_addr, listen_port, LISTEN_QUEUE_LENGTH);
+
+	worker_entry(SimpleHttpPostTestFunc);
+	close (msock);
+}
+
+
+
+
 
 /*
 Some samples from the original...
@@ -293,8 +414,12 @@ static void AddStrBufSimlpeTests(void)
 	CU_pTest pTest = NULL;
 
 	pGroup = CU_add_suite("TestStringBufSimpleAppenders", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testSimpleLinebufferTest", SimpleLinebufferTest);
-
+	if (n_Lines_to_read > 0)
+		pTest = CU_add_test(pGroup, "testSimpleLinebufferTest", SimpleLinebufferTest);
+	else if (blobsize > 0)
+		pTest = CU_add_test(pGroup, "testSimpleBLOBbufferTest", SimpleBLOBbufferTest);
+	else 
+		pTest = CU_add_test(pGroup,"testSimpleMixedLineBlob", SimpleMixedLineBlob);
 
 }
 
@@ -316,10 +441,13 @@ int main(int argc, char* argv[])
 			safestrncpy(ip_addr, optarg, sizeof ip_addr);
 			break;
 		case 'n':
+			// do linetest?
 			n_Lines_to_read = atoi(optarg);
 			break;
 		case 'b':
+			// or blobtest?
 			blobsize = atoi(optarg);
+			// else run the simple http test
 			break;
 		case 't':
 			timeout = atoi(optarg);

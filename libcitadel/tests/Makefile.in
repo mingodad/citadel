@@ -5,9 +5,9 @@ CC=@CC@
 CFLAGS=@CFLAGS@
 DEFS=@DEFS@
 INSTALL=@INSTALL@
-LIBOBJS=@LIBOBJS@ -lcunit -lcitadel
+LIBOBJS=@LIBOBJS@ -lcunit
 LIBS=@LIBS@
-LDFLAGS=@LDFLAGS@ -L ../.libs
+LDFLAGS=@LDFLAGS@ -dn
 SED=@SED@
 LCUNIT_DEFS=
 srcdir=../
@@ -33,12 +33,14 @@ distclean: clean
 stringbuf_test:	$(LIBOBJS) stringbuf_test.o 
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	stringbuf_test.o \
+	../.libs/libcitadel.a \
 	-o stringbuf_test \
 	$(LIBS)
 
 stringbuf_IO_test:	$(LIBOBJS) stringbuf_IO_test.o 
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	stringbuf_IO_test.o \
+	../.libs/libcitadel.a \
 	-o stringbuf_io_test \
 	$(LIBS)
 
