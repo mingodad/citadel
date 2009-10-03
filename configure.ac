@@ -116,6 +116,7 @@ dnl  libcitadel will bring libz, so we don't need it here.     LDFLAGS="-lz $LDF
        AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
 fi
 
+
 dnl Here is the check for a libc integrated iconv
 AC_ARG_ENABLE(iconv,
 	[  --disable-iconv         do not use iconv charset conversion],
@@ -166,11 +167,12 @@ if test "$ok_iconv" = no; then
 		)
 fi	
 if test "$ok_iconv" != "no"; then
-	AC_MSG_RESULT(WebCit will be built with character set conversion.)
+	AC_MSG_RESULT(libcitadel will be built with character set conversion.)
 	AC_DEFINE(HAVE_ICONV,[],[whether we have iconv for charset conversion])
 else
-	AC_MSG_RESULT(WebCit will be built without character set conversion.)
+	AC_MSG_RESULT(libcitadel will be built without character set conversion.)
 fi
+
 
 AC_CHECK_LIB(intl, libintl_bindtextdomain, [LDFLAGS="$LDFLAGS -lintl"])
 
