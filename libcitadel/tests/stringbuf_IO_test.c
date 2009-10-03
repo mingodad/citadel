@@ -304,7 +304,7 @@ static void SimpleHttpPostTestFunc(int sock)
 	Blob = NewStrBuf();
 	Line = NewStrBuf();
 
-	for (i = 0; (i == 0) || (StrLength(Line) != 0); i++) {
+	for (i = 0; 1; i++) {
 		StrBufTCP_read_buffered_line_fast(Line, 
 						  ReadBuffer, 
 						  &Pos,
@@ -326,6 +326,8 @@ static void SimpleHttpPostTestFunc(int sock)
 					sizeof("Content-Length:"));
 
 		}
+		if (StrLength(Line) == 0)
+			break;
 		FlushStrBuf(Line);
 	}
 
@@ -340,6 +342,7 @@ static void SimpleHttpPostTestFunc(int sock)
 	TestRevalidateStrBuf(Blob);
 	if (err != NULL)
 		printf("%s", err);
+	printf("Blob said/read: %d / %d\n", blobsize, StrLength(Blob));
 	CU_ASSERT(blobsize != 0);
 	CU_ASSERT(blobsize == StrLength(Blob));
 	CU_ASSERT_PTR_NULL(err);
