@@ -16,7 +16,7 @@ top_builddir=`pwd`
 
 # End of configuration section
 
-TARGETS=stringbuf_test 
+TARGETS=stringbuf_test stringbuf_IO_test
 all: $(TARGETS)
 
 
@@ -34,6 +34,12 @@ stringbuf_test:	$(LIBOBJS) stringbuf_test.o
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	stringbuf_test.o \
 	-o stringbuf_test \
+	$(LIBS)
+
+stringbuf_IO_test:	$(LIBOBJS) stringbuf_IO_test.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	stringbuf_IO_test.o \
+	-o stringbuf_io_test \
 	$(LIBS)
 
 .c.o:
