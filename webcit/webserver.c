@@ -708,6 +708,7 @@ void worker_entry(void)
 				}
 			}
 			else 
+#endif
 			{
 				int fdflags; 
 				fdflags = fcntl(ssock, F_GETFL);
@@ -715,11 +716,10 @@ void worker_entry(void)
 					lprintf(1, "unable to get server socket flags! %s \n",
 						strerror(errno));
 				fdflags = fdflags | O_NONBLOCK;
-				if (fcntl(ssock, F_SETFD, fdflags) < 0)
+				if (fcntl(ssock, F_SETFL, fdflags) < 0)
 					lprintf(1, "unable to set server socket nonblocking flags! %s \n",
 						strerror(errno));
 			}
-#endif
 
 			if (fail_this_transaction == 0) {
 				Hdr.http_sock = ssock;
