@@ -1,3 +1,27 @@
+citadel (7.67-87) stable; urgency=low
+
+  * under construction
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 28 Sep 2009 18:00:00 +0001
+
+citadel (7.66-86) stable; urgency=low
+
+  * new upstream release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 28 Sep 2009 18:00:00 +0001
+
+citadel (7.63-84) stable; urgency=low
+
+  * some more fixes
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 4 Sep 2009 0:00:00 +0002
+
+citadel (7.63-83) stable; urgency=low
+
+   * new upstream release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 1 Sep 2009 8:00:00 +0002
+
 citadel (7.61-81) stable; urgency=low
 
   * new upstream release
