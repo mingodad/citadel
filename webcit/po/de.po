@@ -225,7 +225,7 @@ msgstr "Dies ist ein unbekanntes Kalender-Datum"
 #: ../calendar.c:89 ../calendar.c:654 ../calendar_view.c:270
 #: ../calendar_view.c:939 ../calendar_view.c:981 ../calendar_view.c:1060
 msgid "Summary:"
-msgstr "Zusammenfassung:"
+msgstr "Übersicht:"
 
 #: ../calendar.c:98 ../calendar_view.c:278 ../calendar_view.c:944
 #: ../calendar_view.c:986 ../calendar_view.c:1065
