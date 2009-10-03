@@ -816,7 +816,6 @@ void render_MAIL_variformat(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 
 void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
-	StrBuf *cs = NULL;
 	const char *ptr, *pte;
 	const char *BufPtr = NULL;
 	StrBuf *Line;
@@ -824,12 +823,13 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	StrBuf *Line2;
 	StrBuf *Target;
 
-	int ConvertIt = 1;
 	int bn = 0;
 	int bq = 0;
 	int i;
 	long len;
 #ifdef HAVE_ICONV
+	StrBuf *cs = NULL;
+	int ConvertIt = 1;
 	iconv_t ic = (iconv_t)(-1) ;
 #endif
 
@@ -899,11 +899,11 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 				StrBufAppendBufPlain(Target, HKEY("<blockquote>"), 0);
 			for (i = bq; i < bn; i++)				
 				StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
-
+#ifdef HAVE_ICONV
 			if (ConvertIt) {
 				StrBufConvert(Line, Line1, &ic);
 			}
-
+#endif
 			StrBufAppendBufPlain(Target, HKEY("<tt>"), 0);
 			UrlizeText(Line1, Line, Line2);
 

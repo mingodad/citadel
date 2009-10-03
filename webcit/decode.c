@@ -235,7 +235,7 @@ void utf8ify_rfc822_string(char **buf) {
 
 }
 #else
-inline void utf8ify_rfc822_string(char *a){};
+inline void utf8ify_rfc822_string(char **a){};
 
 #endif
 
