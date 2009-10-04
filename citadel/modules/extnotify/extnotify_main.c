@@ -205,7 +205,7 @@ void do_extnotify_queue(void)
 void process_notify(long NotifyMsgnum, void *usrdata) 
 {
 	NotifyContext *Ctx;
-	long msgnum;
+	long msgnum = 0;
 	long todelete[1];
 	int fnblAllowed;
 	int extPagerAllowedHttp;
