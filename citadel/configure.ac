@@ -710,17 +710,17 @@ fi
 
 
 dnl Checks for the libdspam mail spam scanning library.
-if test "x$with_libdspam" != xno ; then
-	AC_CHECK_HEADERS(dspam/libdspam.h,
-		[AC_CHECK_LIB(dspam, dspam_init,
-			[ok_libdspam=yes],,
-	)])
-fi
-
-if test "x$ok_libdspam" = xyes ; then
-	SERVER_LIBS="-ldspam $SERVER_LIBS"
-	AC_DEFINE(HAVE_LIBDSPAM, [], [(unfinished) define this if you have the libdspam mail spam scanning library available])
-fi
+dnl if test "x$with_libdspam" != xno ; then
+dnl 	AC_CHECK_HEADERS(dspam/libdspam.h,
+dnl 		[AC_CHECK_LIB(dspam, dspam_init,
+dnl 			[ok_libdspam=yes],,
+dnl 	)])
+dnl fi
+dnl 
+dnl if test "x$ok_libdspam" = xyes ; then
+dnl 	SERVER_LIBS="-ldspam $SERVER_LIBS"
+dnl 	AC_DEFINE(HAVE_LIBDSPAM, [], [(unfinished) define this if you have the libdspam mail spam scanning library available])
+dnl fi
 
 
 
@@ -991,19 +991,32 @@ AC_SUBST(DATABASE)
 AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
-./mk_module_init.sh
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT(database_cleanup.sh)
-
 
 if test -z "$DATABASE"; then
 	AC_MSG_WARN([No database driver was found. Please install Berkeley DB.])
 fi
 
+abs_srcdir="`cd $srcdir && pwd`"
+abs_builddir="`pwd`"
+if test "$abs_srcdir" != "$abs_builddir"; then
+   ln -s $abs_srcdir/include $abs_builddir
+   ln -s $abs_srcdir/Make_sources $abs_builddir
+   ln -s $abs_srcdir/Make_modules $abs_builddir
+   ln -s $abs_srcdir/*.h $abs_builddir
+   make mkdir-init
+fi
+
+if test -n "$srcdir"; then 
+   export srcdir=.
+fi
+
+
 echo ------------------------------------------------------------------------
 echo 'LDAP support:                    ' $ok_ldap
 echo 'Character set conversion support:' $ok_iconv
-echo 'DSpam Scanning support:          ' $ok_libdspam
+dnl echo 'DSpam Scanning support:          ' $ok_libdspam
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
 echo '(gmake) to compile Citadel.'

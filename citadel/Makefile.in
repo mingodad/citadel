@@ -12,6 +12,10 @@
 #
 ########################################################################
 
+prefix=@prefix@
+srcdir=@srcdir@
+VPATH=$(srcdir)
+
 TARGETS=@TARGETS@
 RUN_DIR=@MAKE_RUN_DIR@
 SPOOL_DIR=@MAKE_SPOOL_DIR@
@@ -43,8 +47,6 @@ UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
 	getmail$(EXEEXT) aidepost$(EXEEXT) msgform$(EXEEXT) \
 	ctdlmigrate$(EXEEXT)
 
-prefix=@prefix@
-srcdir=@srcdir@
 
 ACLOCAL=@ACLOCAL@
 AUTH=@AUTH@
@@ -69,7 +71,6 @@ YACC=@YACC@
 
 # End configuration section
 
-VPATH=$(srcdir)
 
 SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 	citmail.c citserver.c client_chat.c client_passwords.c \
@@ -86,6 +87,14 @@ SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
 
 
 include Make_sources
+
+# for VPATH builds (invoked by configure)
+mkdir-init:
+	DIRS=`/bin/ls $(VPATH)/modules/`
+	echo $(DIRS)
+	@for d in `/bin/ls $(VPATH)/modules/`; do \
+		(mkdir -p modules/$$d ) ; \
+	done
 
 svn_revision.c: ${SOURCES}
 	./mk_svn_revision.sh
