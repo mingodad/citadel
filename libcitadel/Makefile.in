@@ -77,7 +77,7 @@ uninstall:
 
 # for VPATH builds (invoked by configure)
 mkdir-init:
-	@for d in lib ; do \
+	@for d in lib lib/xdgmime tests ; do \
 		(mkdir $$d 2> /dev/null || test 1) ; \
 	done
 
