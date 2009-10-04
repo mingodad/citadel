@@ -95,6 +95,9 @@ static void AddStrBufSimlpeTests(void)
 
 	pGroup = CU_add_suite("TestStringBufConversions", NULL, NULL);
 	pTest = CU_add_test(pGroup, "testRFC822Decode", TestRFC822Decode);
+	pTest = CU_add_test(pGroup, "testRFC822Decode1", TestRFC822Decode);
+	pTest = CU_add_test(pGroup, "testRFC822Decode2", TestRFC822Decode);
+	pTest = CU_add_test(pGroup, "testRFC822Decode3", TestRFC822Decode);
 
 
 }
