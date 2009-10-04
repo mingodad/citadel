@@ -1847,7 +1847,9 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
 
 	pch = NULL;
-	while ((nSuccessLess < timeout) && (pch == NULL)) {
+	while ((nSuccessLess < timeout) && 
+	       (pch == NULL) &&
+	       (*fd != -1)) {
 		if (IsNonBlock)
 		{
 			tv.tv_sec = 1;
@@ -1943,7 +1945,9 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 	fdflags = fcntl(*fd, F_GETFL);
 	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
 	nSuccessLess = 0;
-	while (nRead < nBytes) {
+	while ((nRead < nBytes) && 
+	       (*fd != -1)) 
+	{
 		if (IsNonBlock)
 		{
 			tv.tv_sec = 1;
@@ -2072,7 +2076,8 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	SelRes = 1;
 	nBytes -= nRead;
 	nRead = 0;
-	while (nRead < nBytes) {
+	while ((nRead < nBytes) &&
+	       (*fd != -1)) {
 		if (IsNonBlock)
 		{
 			tv.tv_sec = 1;
