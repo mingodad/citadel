@@ -1,5 +1,9 @@
 # $Id$
 
+prefix=@prefix@
+srcdir=@srcdir@
+VPATH=$(srcdir)
+
 AUTOCONF=@AUTOCONF@
 CC=@CC@
 CFLAGS=@CFLAGS@
@@ -11,9 +15,6 @@ LDFLAGS=@LDFLAGS@
 SED=@SED@
 SETUP_LIBS=@SETUP_LIBS@
 PTHREAD_DEFS=@PTHREAD_DEFS@
-srcdir=@srcdir@
-prefix=@prefix@
-top_builddir=`pwd`
 LIB_SUBDIRS=
 PROG_SUBDIRS=@PROG_SUBDIRS@
 SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
@@ -23,6 +24,10 @@ WWWDIR=@WWWDIR@
 # End of configuration section
 
 all: all-progs-recursive webcit setup
+
+# for VPATH builds (invoked by configure)
+mkdir-init:
+	mkdir locale
 
 
 .SUFFIXES: .cpp .c .o
