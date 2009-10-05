@@ -5,8 +5,8 @@ CC=@CC@
 CFLAGS=@CFLAGS@
 DEFS=@DEFS@
 INSTALL=@INSTALL@
-LIBOBJS=@LIBOBJS@ -lcunit
-LIBS=@LIBS@
+LIBOBJS=@LIBOBJS@
+LIBS=@LIBS@  -lcunit
 LDFLAGS=@LDFLAGS@ -dn
 SED=@SED@
 LCUNIT_DEFS=
@@ -34,22 +34,19 @@ stringbuf_test:	$(LIBOBJS) stringbuf_test.o
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	stringbuf_test.o \
 	../.libs/libcitadel.a \
-	-o stringbuf_test \
-	$(LIBS)
+	-o stringbuf_test
 
 stringbuf_IO_test:	$(LIBOBJS) stringbuf_IO_test.o 
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	stringbuf_IO_test.o \
 	../.libs/libcitadel.a \
-	-o stringbuf_io_test \
-	$(LIBS)
+	-o stringbuf_io_test
 
 stringbuf_conversion_test:	$(LIBOBJS) stringbuf_conversion.o 
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	stringbuf_conversion.o \
 	../.libs/libcitadel.a \
-	-o stringbuf_conversion_test \
-	$(LIBS)
+	-o stringbuf_conversion_test 
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c  $<
