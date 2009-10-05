@@ -465,9 +465,31 @@ AC_ARG_WITH(editordir,
 )
 AC_DEFINE_UNQUOTED(EDITORDIR, "$editordir", [where to find our mail editor])
 
-./mk_module_init.sh
+abs_srcdir="`cd $srcdir && pwd`"
+abs_builddir="`pwd`"
+if test "$abs_srcdir" != "$abs_builddir"; then
+   CFLAGS="$CFLAGS -I $abs_builddir"
+fi
 AC_CONFIG_HEADER(sysdep.h)
 AC_OUTPUT(Makefile po/Makefile )
+
+if test "$abs_srcdir" != "$abs_builddir"; then
+   ln -s $abs_srcdir/static $abs_builddir
+   ln -s $abs_srcdir/tiny_mce $abs_builddir
+   ln -s $abs_srcdir/*.h $abs_builddir
+   make mkdir-init
+   
+else
+dnl just run it on devel systems and if non vdir build.
+   if test -d .svn; then
+      ./mk_module_init.sh
+   fi
+fi
+
+if test -n "$srcdir"; then 
+   export srcdir=.
+fi
+
 
 echo ------------------------------------------------------------------------
 echo 'Character set conversion support:' $ok_iconv
