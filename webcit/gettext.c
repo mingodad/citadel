@@ -294,13 +294,13 @@ void initialize_locales(void) {
 			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
-			lprintf(1, "Error configuring locale for "LOCALEDIR"locale/%s: %s\n",
+			lprintf(1, "locale for "LOCALEDIR"locale/%s: %s; disabled\n",
 				buf,
 				strerror(errno)
 			);
 		}
 		else {
-			lprintf(3, "Configured available locale: %s\n", buf);
+			lprintf(3, "Found locale: %s\n", buf);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
