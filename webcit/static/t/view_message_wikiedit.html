@@ -1,0 +1,4 @@
+<div class="message_content">
+<?MAIL:BODY>
+<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)><?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_message_inline_attach")><?!("X", 10)>
+</div>

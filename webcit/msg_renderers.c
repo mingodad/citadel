@@ -1,5 +1,6 @@
 #include "webcit.h"
 #include "webserver.h"
+#include "groupdav.h"
 
 /*
  * message index functions
@@ -798,6 +799,21 @@ void tmplput_EDIT_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 	FreeStrBuf(&Buf);
 }
 
+void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)	// FIXME
+{
+	const StrBuf *Mime;
+        long msgnum;
+	StrBuf *Buf;
+
+	msgnum = locate_message_by_uid(BSTR("wikipage"));
+	if (msgnum >= 0L) {
+		Buf = NewStrBuf();
+		read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime);
+		StrBufAppendTemplate(Target, TP, Buf, 1);
+		FreeStrBuf(&Buf);
+	}
+}
+
 void tmplput_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
@@ -1492,6 +1508,7 @@ InitModule_MSGRENDERERS
 	RegisterNamespace("MAIL:BODY", 0, 2, tmplput_MAIL_BODY,  CTX_MAILSUM);
 	RegisterNamespace("MAIL:QUOTETEXT", 1, 2, tmplput_QUOTED_MAIL_BODY,  CTX_NONE);
 	RegisterNamespace("MAIL:EDITTEXT", 1, 2, tmplput_EDIT_MAIL_BODY,  CTX_NONE);
+	RegisterNamespace("MAIL:EDITWIKI", 1, 2, tmplput_EDIT_WIKI_BODY,  CTX_NONE);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:RFCA"), 0, Conditional_MAIL_SUMM_RFCA,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:CCCC"), 0, Conditional_MAIL_SUMM_CCCC,  CTX_MAILSUM);
 	RegisterConditional(HKEY("COND:MAIL:SUMM:UNREAD"), 0, Conditional_MAIL_SUMM_UNREAD, CTX_MAILSUM);
