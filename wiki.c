@@ -106,7 +106,7 @@ int wiki_GetParamsGetServerCall(SharedMessageStatus *Stat,
 					   long len)
 {
 	char buf[SIZ];
-	sprintf(buf, "wiki?room=%s&page=home", ChrPtr(WC->wc_roomname));
+	sprintf(buf, "wiki?room=%s?page=home", ChrPtr(WC->wc_roomname));
 	http_redirect(buf);
 	return 300;
 }
@@ -122,10 +122,9 @@ InitModule_WIKI
 		NULL,
 		NULL,
 		NULL
-		);
+	);
 
 	WebcitAddUrlHandler(HKEY("wiki"), display_wiki_page, 0);
-	return ;
 }
 
 

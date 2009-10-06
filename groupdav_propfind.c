@@ -6,8 +6,7 @@
  * A few notes about our XML output:
  *
  * --> Yes, we are spewing tags directly instead of using an XML library.
- *     If you would like to rewrite this using libxml2, code it up and submit
- *     a patch.  Whining will be summarily ignored.
+ *     Whining about it will be summarily ignored.
  *
  * --> XML is deliberately output with no whitespace/newlines between tags.
  *     This makes it difficult to read, but we have discovered clients which
@@ -74,7 +73,7 @@ void groupdav_collection_list(void)
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
 
-	/**
+	/*
 	 * Be rude.  Completely ignore the XML request and simply send them
 	 * everything we know about.  Let the client sort it out.
 	 */
@@ -90,8 +89,8 @@ void groupdav_collection_list(void)
      		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
 
-	/**
-	 *	If the client is requesting the root, show a root node.
+	/*
+	 * If the client is requesting the root, show a root node.
 	 */
 	if (starting_point == 0) {
 		wprintf("<response>");
@@ -112,8 +111,8 @@ void groupdav_collection_list(void)
 		wprintf("</response>");
 	}
 
-	/**
-	 *	If the client is requesting "/groupdav", show a /groupdav subdirectory.
+	/*
+	 * If the client is requesting "/groupdav", show a /groupdav subdirectory.
 	 */
 	if ((starting_point + WCC->Hdr->HR.dav_depth) >= 1) {
 		wprintf("<response>");
@@ -134,8 +133,8 @@ void groupdav_collection_list(void)
 		wprintf("</response>");
 	}
 
-	/**
-	 *	Now go through the list and make it look like a DAV collection
+	/*
+	 * Now go through the list and make it look like a DAV collection
 	 */
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
@@ -157,11 +156,13 @@ void groupdav_collection_list(void)
 		 * GroupDAV calendar even if the user has switched it to a
 		 * Calendar List view.
 		 */
-		if ((view == VIEW_CALENDAR) || 
-		    (view == VIEW_TASKS) || 
-		    (view == VIEW_ADDRESSBOOK) ||
-		    (view == VIEW_NOTES) ||
-		    (view == VIEW_JOURNAL) ) {
+		if (	(view == VIEW_CALENDAR) || 
+			(view == VIEW_TASKS) || 
+			(view == VIEW_ADDRESSBOOK) ||
+			(view == VIEW_NOTES) ||
+			(view == VIEW_JOURNAL) ||
+			(view == VIEW_WIKI)
+		) {
 			is_groupware_collection = 1;
 		}
 		else {
@@ -200,6 +201,9 @@ void groupdav_collection_list(void)
 				break;
 			case VIEW_JOURNAL:
 				wprintf("<G:vjournal-collection />");
+				break;
+			case VIEW_WIKI:
+				wprintf("<G:wiki-collection />");
 				break;
 			}
 
@@ -363,13 +367,13 @@ void groupdav_propfind(void)
 	);
 
 
-	/** Transmit the collection resource (FIXME check depth and starting point) */
+	/* Transmit the collection resource (FIXME check depth and starting point) */
 	wprintf("<response>");
 
 	wprintf("<href>");
-		groupdav_identify_host();
-		wprintf("/groupdav/");
-		urlescputs(ChrPtr(WCC->wc_roomname));
+	groupdav_identify_host();
+	wprintf("/groupdav/");
+	urlescputs(ChrPtr(WCC->wc_roomname));
 	wprintf("</href>");
 
 	wprintf("<propstat>");
@@ -402,9 +406,9 @@ void groupdav_propfind(void)
 	wprintf("</propstat>");
 	wprintf("</response>");
 
-	/** Transmit the collection listing (FIXME check depth and starting point) */
+	/* Transmit the collection listing (FIXME check depth and starting point) */
 
-	MsgNum = NewStrBuf ();
+	MsgNum = NewStrBuf();
 	serv_puts("MSGS ALL");
 
 	StrBuf_ServGetln(MsgNum);
