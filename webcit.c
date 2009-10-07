@@ -521,6 +521,7 @@ void ReadPostData(void)
 		free(Buf);
 	} else if (WCC->Hdr->HR.ContentLength > 0) {
 		WCC->upload = content;
+		WCC->upload_length = StrLength(WCC->upload);
 		content = NULL;
 	}
 	FreeStrBuf(&content);
@@ -850,10 +851,9 @@ SessionDetachModule_WEBCIT
 {
 	DeleteHash(&sess->Directory);
 
-	if (sess->upload_length > 0) {
-		FreeStrBuf(&sess->upload);
-		sess->upload_length = 0;
-	}
+	FreeStrBuf(&sess->upload);
+	sess->upload_length = 0;
+	
 	FreeStrBuf(&sess->trailing_javascript);
 
 	if (StrLength(sess->WBuf) > SIZ * 30) /* Bigger than 120K? release. */
