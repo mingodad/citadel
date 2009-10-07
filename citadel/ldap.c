@@ -9,7 +9,7 @@
  */
 
 
-int ldap_version = 3;
+int ctdl_require_ldap_version = 3;
 
 
 #include "sysdep.h"
@@ -89,7 +89,7 @@ int CtdlTryUserLDAP(char *username,
 		return(errno);
 	}
 
-	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
+	ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 
 	striplt(config.c_ldap_bind_dn);
 	striplt(config.c_ldap_bind_pw);
@@ -217,7 +217,7 @@ int CtdlTryPasswordLDAP(char *user_dn, char *password)
 
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver) {
-		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ldap_version);
+		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
 		i = ldap_simple_bind_s(ldserver, user_dn, password);
 		if (i == LDAP_SUCCESS) {
 			CtdlLogPrintf(CTDL_DEBUG, "LDAP: bind succeeded\n");
