@@ -562,7 +562,9 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
  * API function to perform an operation for each qualifying message in the
  * current room.  (Returns the number of messages processed.)
  */
-int CtdlForEachMessage(int mode, long ref, char *search_string,
+int CtdlForEachMessage(int mode,
+			long ref,
+			char *search_string,
 			char *content_type,
 			struct CtdlMessage *compare,
 			void (*CallBack) (long, void *),
@@ -652,6 +654,30 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 				}
 			}
 		}
+	}
+
+	/* If an EUID was specified, throw away all messages except the correct one. */
+	if (mode == MSGS_EUID) {
+		long correct_msgnum;
+		int found_match = 0;
+
+		if ((num_msgs > 0) && (search_string) ) {
+			correct_msgnum = locate_message_by_euid(search_string, &CC->room);
+			if ( (num_msgs > 0) && (correct_msgnum >= 0L) ) {
+				for (i=0; i<num_msgs; ++i) {
+					if (msglist[i] == correct_msgnum) {
+						found_match = 1;
+					}
+				}
+			}
+		}
+		if (found_match) {
+			msglist[0] = correct_msgnum;
+			num_msgs = 1;
+		} else {
+			num_msgs = 0;	/* didn't find the right one ... dump the rest */
+		}
+		mode = MSGS_ALL;	/* treat it like 'read all' from now on */
 	}
 
 	/* If a search string was specified, get a message list from
@@ -780,6 +806,8 @@ void cmd_msgs(char *cmdbuf)
 		mode = MSGS_GT;
 	else if (!strncasecmp(which, "SEARCH", 6))
 		mode = MSGS_SEARCH;
+	else if (!strncasecmp(which, "EUID", 4))
+		mode = MSGS_EUID;
 	else
 		mode = MSGS_ALL;
 
@@ -822,7 +850,7 @@ void cmd_msgs(char *cmdbuf)
 
 	CtdlForEachMessage(mode,
 			( (mode == MSGS_SEARCH) ? 0 : cm_ref ),
-			( (mode == MSGS_SEARCH) ? search_string : NULL ),
+			( ((mode == MSGS_SEARCH)||(mode == MSGS_EUID)) ? search_string : NULL ),
 			NULL,
 			template,
 			(with_headers ? headers_listing : simple_listing),

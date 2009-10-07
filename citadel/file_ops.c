@@ -163,6 +163,7 @@ void cmd_movf(char *cmdbuf)
 	char buf[PATH_MAX];
 	int a;
 	struct ctdlroom qrbuf;
+	int rv = 0;
 
 	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
 	extract_token(newroom, cmdbuf, 1, '|', sizeof newroom);
@@ -216,7 +217,7 @@ void cmd_movf(char *cmdbuf)
 	snprintf(buf, sizeof buf,
 		 "cat ./files/%s/filedir |grep \"%s\" >>./files/%s/filedir",
 		 CC->room.QRdirname, filename, qrbuf.QRdirname);
-	system(buf);
+	rv = system(buf);
 	cprintf("%d File '%s' has been moved.\n", CIT_OK, filename);
 }
 
@@ -307,6 +308,7 @@ void cmd_oimg(char *cmdbuf)
 	char which_user[USERNAME_SIZE];
 	int which_floor;
 	int a;
+	int rv;
 
 	extract_token(filename, cmdbuf, 0, '|', sizeof filename);
 
@@ -363,7 +365,7 @@ void cmd_oimg(char *cmdbuf)
 			ERROR + FILE_NOT_FOUND, pathname, strerror(errno));
 		return;
 	}
-	fread(&MimeTestBuf[0], 1, 32, CC->download_fp);
+	rv = fread(&MimeTestBuf[0], 1, 32, CC->download_fp);
 	rewind (CC->download_fp);
 	OpenCmdResult(pathname, GuessMimeType(&MimeTestBuf[0], 32));
 }
@@ -650,6 +652,7 @@ void cmd_writ(char *cmdbuf)
 {
 	int bytes;
 	char *buf;
+	int rv;
 
 	unbuffer_output();
 
@@ -669,7 +672,7 @@ void cmd_writ(char *cmdbuf)
 	cprintf("%d %d\n", SEND_BINARY, bytes);
 	buf = malloc(bytes + 1);
 	client_read(buf, bytes);
-	fwrite(buf, bytes, 1, CC->upload_fp);
+	rv = fwrite(buf, bytes, 1, CC->upload_fp);
 	free(buf);
 }
 
