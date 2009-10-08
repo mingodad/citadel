@@ -13,8 +13,7 @@ enum {
 	MSGS_LAST,
 	MSGS_GT,
 	MSGS_EQ,
-	MSGS_SEARCH,
-	MSGS_EUID
+	MSGS_SEARCH
 };
 
 /*
