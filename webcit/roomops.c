@@ -650,6 +650,9 @@ void embed_room_banner(char *got, int navbar_style) {
 				break;
 			case VIEW_WIKI:
 				safestrncpy(buf, bstr("page"), sizeof buf);
+				if (IsEmptyStr(buf)) {
+					safestrncpy(buf, "home", sizeof buf);
+				}
 				str_wiki_index(buf);
 				wprintf(
 					"<li class=\"newmess\">"

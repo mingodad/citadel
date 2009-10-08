@@ -759,7 +759,7 @@ void readloop(long oper)
 	void *vMsg;
 	message_summary *Msg;
 	char cmd[256] = "";
-	int i;
+	int i, r;
 	wcsession *WCC = WC;
 	HashPos *at;
 	const char *HashKey;
@@ -790,11 +790,17 @@ void readloop(long oper)
 		jsonMessageListHdr();
 	}
 
-	switch(ViewMsg->GetParamsGetServerCall(
+	if (ViewMsg->GetParamsGetServerCall != NULL) {
+		r = ViewMsg->GetParamsGetServerCall(
 		       &Stat,
 		       &ViewSpecific,
 		       oper,
-		       cmd, sizeof(cmd)))
+		       cmd, sizeof(cmd)
+		);
+	} else {
+		r = 0;
+	}
+	switch(r)
 	{
 	case 400:
 	case 404:

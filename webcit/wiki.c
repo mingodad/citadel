@@ -32,16 +32,11 @@ void str_wiki_index(char *s)
 /*
  * Display a specific page from a wiki room
  */
-void display_wiki_page(void)
+void display_wiki_page_backend(const StrBuf *roomname, char *pagename)
 {
 	const StrBuf *Mime;
-	const StrBuf *roomname;
-	char pagename[128];
-	char errmsg[256];
 	long msgnum = (-1L);
 
-	roomname = sbstr("room");
-	safestrncpy(pagename, bstr("page"), sizeof pagename);
 	str_wiki_index(pagename);
 
 	if (StrLength(roomname) > 0) {
@@ -53,20 +48,14 @@ void display_wiki_page(void)
 	
 		/* If we're still not in the correct room, it doesn't exist. */
 		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
-			snprintf(errmsg, sizeof errmsg,
-				 _("There is no room called '%s'."),
-				 ChrPtr(roomname));
-			convenience_page("FF0000", _("Error"), errmsg);
+			wprintf(_("There is no room called '%s'."), ChrPtr(roomname));
 			return;
 		}
 
 	}
 
 	if (WC->wc_view != VIEW_WIKI) {
-		snprintf(errmsg, sizeof errmsg,
-			_("'%s' is not a Wiki room."),
-			 ChrPtr(roomname));
-		convenience_page("FF0000", _("Error"), errmsg);
+		wprintf(_("'%s' is not a Wiki room."), ChrPtr(roomname));
 		return;
 	}
 
@@ -77,13 +66,10 @@ void display_wiki_page(void)
 	/* Found it!  Now read it. */
 	msgnum = locate_message_by_uid(pagename);
 	if (msgnum >= 0L) {
-		output_headers(1, 1, 1, 0, 0, 0);
 		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
-		wDumpContent(1);
 		return;
 	}
 
-	output_headers(1, 1, 1, 0, 0, 0);
 	wprintf("<br /><br />"
 		"<div align=\"center\">"
 		"<table border=\"0\" bgcolor=\"#ffffff\" cellpadding=\"10\">"
@@ -96,19 +82,32 @@ void display_wiki_page(void)
 		"if you would like to create this page."));
 	wprintf("<br><br>");
 	wprintf("</td></tr></table></div>\n");
+}
+
+
+/*
+ * Display a specific page from a wiki room
+ */
+void display_wiki_page(void)
+{
+	const StrBuf *roomname;
+	char pagename[128];
+
+	output_headers(1, 1, 1, 0, 0, 0);
+	roomname = sbstr("room");
+	safestrncpy(pagename, bstr("page"), sizeof pagename);
+	display_wiki_page_backend(roomname, pagename);
 	wDumpContent(1);
 }
 
-int wiki_GetParamsGetServerCall(SharedMessageStatus *Stat, 
-					   void **ViewSpecific, 
-					   long oper, 
-					   char *cmd, 
-					   long len)
+
+int wiki_Cleanup(void **ViewSpecific)
 {
-	char buf[SIZ];
-	sprintf(buf, "wiki?room=%s?page=home", ChrPtr(WC->wc_roomname));
-	http_redirect(buf);
-	return 300;
+	char pagename[5];
+	safestrncpy(pagename, "home", sizeof pagename);
+	display_wiki_page_backend(WC->wc_roomname, pagename);
+	wDumpContent(1);
+	return 0;
 }
 
 void 
@@ -117,11 +116,11 @@ InitModule_WIKI
 {
 	RegisterReadLoopHandlerset(
 		VIEW_WIKI,
-		wiki_GetParamsGetServerCall,
 		NULL,
 		NULL,
 		NULL,
-		NULL
+		NULL,
+		wiki_Cleanup
 	);
 
 	WebcitAddUrlHandler(HKEY("wiki"), display_wiki_page, 0);
