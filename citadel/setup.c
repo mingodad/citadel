@@ -1465,20 +1465,23 @@ NEW_INST:
 			char buf[SIZ];
 			int found_it = 0;
 
-			snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\" 2>&1", 
-				  ctdl_sbin_dir, config.c_sysadm, admin_pass);
-			fp = popen(admin_cmd, "r");
-			if (fp != NULL) {
-				while (fgets(buf, sizeof buf, fp) != NULL) 
-				{
-					if ((atol(buf) == 574) || (atol(buf) == 200))
-						++found_it;
+			if (config.c_auth_mode == AUTHMODE_NATIVE) {
+				snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\" 2>&1", 
+				  	ctdl_sbin_dir, config.c_sysadm, admin_pass);
+				fp = popen(admin_cmd, "r");
+				if (fp != NULL) {
+					while (fgets(buf, sizeof buf, fp) != NULL) 
+					{
+						if ((atol(buf) == 574) || (atol(buf) == 200))
+							++found_it;
+					}
+					pclose(fp);
 				}
-				pclose(fp);
+			
+				if (found_it == 0) {
+					important_message("Error","Setup failed to create your admin user");
+				}
 			}
-		
-			if (found_it == 0)
-				important_message("Error","Setup failed to create your admin user");
 
 			if (setup_type != UI_SILENT)
 				important_message("Setup finished",
