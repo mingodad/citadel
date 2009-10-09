@@ -1112,6 +1112,7 @@ int main(int argc, char *argv[])
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
+	int rv;
 	
 	/* set an invalid setup type */
 	setup_type = (-1);
@@ -1136,11 +1137,11 @@ int main(int argc, char *argv[])
 		}
 		else if (!strncmp(argv[a], "-h", 2)) {
 			relh=argv[a][2]!='/';
-			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2],
-								   sizeof ctdl_home_directory);
-			else
-				safestrncpy(relhome, &argv[a][2],
-							sizeof relhome);
+			if (!relh) {
+				safestrncpy(ctdl_home_directory, &argv[a][2], sizeof ctdl_home_directory);
+			} else {
+				safestrncpy(relhome, &argv[a][2], sizeof relhome);
+			}
 			home = 1;
 		}
 
@@ -1183,7 +1184,7 @@ int main(int argc, char *argv[])
 
 	/* Try to stop Citadel if we can */
 	if (!access("/etc/init.d/citadel", X_OK)) {
-		system("/etc/init.d/citadel stop");
+		rv = system("/etc/init.d/citadel stop");
 	}
 
 	/* Make sure Citadel is not running. */
@@ -1225,8 +1226,9 @@ int main(int argc, char *argv[])
 		display_error("setup: cannot append citadel.config");
 		cleanup(errno);
 	}
-	for (a = 0; a < sizeof(struct config); ++a)
+	for (a = 0; a < sizeof(struct config); ++a) {
 		putc(0, fp);
+	}
 	fclose(fp);
 
 	/* now we re-open it, and read the old or blank configuration */
@@ -1235,7 +1237,7 @@ int main(int argc, char *argv[])
 		display_error("setup: cannot open citadel.config");
 		cleanup(errno);
 	}
-	fread((char *) &config, sizeof(struct config), 1, fp);
+	rv = fread((char *) &config, sizeof(struct config), 1, fp);
 	fclose(fp);
 
 	/* set some sample/default values in place of blanks... */
@@ -1244,28 +1246,25 @@ int main(int argc, char *argv[])
 			    sizeof config.c_nodename);
 	strtok(config.c_nodename, ".");
 	if (IsEmptyStr(config.c_fqdn) ) {
-		if ((he = gethostbyname(my_utsname.nodename)) != NULL)
-			safestrncpy(config.c_fqdn, he->h_name,
-				    sizeof config.c_fqdn);
-		else
-			safestrncpy(config.c_fqdn, my_utsname.nodename,
-				    sizeof config.c_fqdn);
+		if ((he = gethostbyname(my_utsname.nodename)) != NULL) {
+			safestrncpy(config.c_fqdn, he->h_name, sizeof config.c_fqdn);
+		} else {
+			safestrncpy(config.c_fqdn, my_utsname.nodename, sizeof config.c_fqdn);
+		}
 	}
-	if (IsEmptyStr(config.c_humannode))
+	if (IsEmptyStr(config.c_humannode)) {
 		strcpy(config.c_humannode, "My System");
-	if (IsEmptyStr(config.c_phonenum))
+	}
+	if (IsEmptyStr(config.c_phonenum)) {
 		strcpy(config.c_phonenum, "US 800 555 1212");
+	}
 	if (config.c_initax == 0) {
 		config.c_initax = 4;
 	}
-	if (IsEmptyStr(config.c_moreprompt))
-		strcpy(config.c_moreprompt, "<more>");
-	if (IsEmptyStr(config.c_twitroom))
-		strcpy(config.c_twitroom, "Trashcan");
-	if (IsEmptyStr(config.c_baseroom))
-		strcpy(config.c_baseroom, BASEROOM);
-	if (IsEmptyStr(config.c_aideroom))
-		strcpy(config.c_aideroom, "Aide");
+	if (IsEmptyStr(config.c_moreprompt)) strcpy(config.c_moreprompt, "<more>");
+	if (IsEmptyStr(config.c_twitroom)) strcpy(config.c_twitroom, "Trashcan");
+	if (IsEmptyStr(config.c_baseroom)) strcpy(config.c_baseroom, BASEROOM);
+	if (IsEmptyStr(config.c_aideroom)) strcpy(config.c_aideroom, "Aide");
 	if (config.c_port_number == 0) {
 		config.c_port_number = 504;
 	}
@@ -1274,18 +1273,21 @@ int main(int argc, char *argv[])
 	}
 	if (config.c_ctdluid == 0) {
 		pw = getpwnam("citadel");
-		if (pw != NULL)
+		if (pw != NULL) {
 			config.c_ctdluid = pw->pw_uid;
+		}
 	}
 	if (config.c_ctdluid == 0) {
 		pw = getpwnam("bbs");
-		if (pw != NULL)
+		if (pw != NULL) {
 			config.c_ctdluid = pw->pw_uid;
+		}
 	}
 	if (config.c_ctdluid == 0) {
 		pw = getpwnam("guest");
-		if (pw != NULL)
+		if (pw != NULL) {
 			config.c_ctdluid = pw->pw_uid;
+		}
 	}
 	if (config.c_createax == 0) {
 		config.c_createax = 3;
@@ -1356,44 +1358,44 @@ NEW_INST:
 
 	write_config_to_disk();
 
-	mkdir(ctdl_info_dir, 0700);
-	chmod(ctdl_info_dir, 0700);
-	chown(ctdl_info_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_info_dir, 0700);
+	rv = chmod(ctdl_info_dir, 0700);
+	rv = chown(ctdl_info_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_bio_dir, 0700);
-	chmod(ctdl_bio_dir, 0700);
-	chown(ctdl_bio_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_bio_dir, 0700);
+	rv = chmod(ctdl_bio_dir, 0700);
+	rv = chown(ctdl_bio_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_usrpic_dir, 0700);
-	chmod(ctdl_usrpic_dir, 0700);
-	chown(ctdl_usrpic_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_usrpic_dir, 0700);
+	rv = chmod(ctdl_usrpic_dir, 0700);
+	rv = chown(ctdl_usrpic_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_message_dir, 0700);
-	chmod(ctdl_message_dir, 0700);
-	chown(ctdl_message_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_message_dir, 0700);
+	rv = chmod(ctdl_message_dir, 0700);
+	rv = chown(ctdl_message_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_hlp_dir, 0700);
-	chmod(ctdl_hlp_dir, 0700);
-	chown(ctdl_hlp_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_hlp_dir, 0700);
+	rv = chmod(ctdl_hlp_dir, 0700);
+	rv = chown(ctdl_hlp_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_image_dir, 0700);
-	chmod(ctdl_image_dir, 0700);
-	chown(ctdl_image_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_image_dir, 0700);
+	rv = chmod(ctdl_image_dir, 0700);
+	rv = chown(ctdl_image_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_bb_dir, 0700);
-	chmod(ctdl_bb_dir, 0700);
-	chown(ctdl_bb_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_bb_dir, 0700);
+	rv = chmod(ctdl_bb_dir, 0700);
+	rv = chown(ctdl_bb_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_file_dir, 0700);
-	chmod(ctdl_file_dir, 0700);
-	chown(ctdl_file_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_file_dir, 0700);
+	rv = chmod(ctdl_file_dir, 0700);
+	rv = chown(ctdl_file_dir, config.c_ctdluid, -1);
 
-	mkdir(ctdl_netcfg_dir, 0700);
-	chmod(ctdl_netcfg_dir, 0700);
-	chown(ctdl_netcfg_dir, config.c_ctdluid, -1);
+	rv = mkdir(ctdl_netcfg_dir, 0700);
+	rv = chmod(ctdl_netcfg_dir, 0700);
+	rv = chown(ctdl_netcfg_dir, config.c_ctdluid, -1);
 
 	/* Delete files and directories used by older Citadel versions */
-	system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
+	rv = system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
 	unlink("citadel.log");
 	unlink("weekly");
 
@@ -1434,17 +1436,18 @@ NEW_INST:
 	/* Check for the 'db' nss and offer to disable it */
 	fixnss();
 
-	if ((pw = getpwuid(config.c_ctdluid)) == NULL)
+	if ((pw = getpwuid(config.c_ctdluid)) == NULL) {
 		gid = getgid();
-	else
+	} else {
 		gid = pw->pw_gid;
+	}
 
 	progress("Setting file permissions", 0, 3);
-	chown(ctdl_run_dir, config.c_ctdluid, gid);
+	rv = chown(ctdl_run_dir, config.c_ctdluid, gid);
 	progress("Setting file permissions", 1, 3);
-	chown(file_citadel_config, config.c_ctdluid, gid);
+	rv = chown(file_citadel_config, config.c_ctdluid, gid);
 	progress("Setting file permissions", 2, 3);
-	chmod(file_citadel_config, S_IRUSR | S_IWUSR);
+	rv = chmod(file_citadel_config, S_IRUSR | S_IWUSR);
 	progress("Setting file permissions", 3, 3);
 
 	/* 
@@ -1457,7 +1460,7 @@ NEW_INST:
 		}
 
 		if (!access("/etc/init.d/citadel", X_OK)) {
-			system("/etc/init.d/citadel start");
+			rv = system("/etc/init.d/citadel start");
 			sleep(3);
 		}
 
