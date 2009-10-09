@@ -1671,7 +1671,7 @@ int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 			break;
 		if (buf->buf[len] != '\r')
 			len ++;
-		if (len >= buf->BufSize) {
+		if (len + 2 >= buf->BufSize) {
 			buf->BufUsed = len;
 			buf->buf[len+1] = '\0';
 			IncreaseBuf(buf, 1, -1);
