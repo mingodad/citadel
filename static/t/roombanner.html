@@ -2,7 +2,11 @@
 <div>
 <div class="room_banner" id="room_banner" >
 <?ROOMPIC>
-<h1 id="rmname"><?ROOMNAME></h1>
+<h1 id="rmname"><?ROOMNAME>
+ <?!("COND:ROOM:TYPE_IS", 7, "VIEW_WIKI")>
+ : <?BSTR("page")>
+ <?!("X", 7)>
+</h1>
 <?ROOMINFO>
 <p id="nummsgs"><?NUMMSGS></p>
 </div>
