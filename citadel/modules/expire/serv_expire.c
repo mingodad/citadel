@@ -3,10 +3,11 @@
  *
  * This module handles the expiry of old messages and the purging of old users.
  *
- */
-
-
-/*
+ * You might also see this module affectionately referred to as the DAP (the Dreaded Auto-Purger).
+ *
+ * Copyright (c) 1988-2009 by citadel.org (Art Cancro, Wilifried Goesgens, and others)
+ * Brought to you, our happy user community, under the terms of the GNU General Public License v3
+ *
  * A brief technical discussion:
  *
  * Several of the purge operations found in this module operate in two
@@ -66,7 +67,7 @@
 #include "msgbase.h"
 #include "user_ops.h"
 #include "control.h"
-#include "serv_network.h"	/* Needed for defenition of UseTable */
+#include "serv_network.h"	/* Needed for definition of UseTable */
 #include "threads.h"
 
 #include "ctdl_module.h"
