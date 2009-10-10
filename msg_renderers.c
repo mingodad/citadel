@@ -61,14 +61,18 @@ void RegisterMsgHdr(const char *HeaderName, long HdrNLen, ExamineMsgHeaderFunc e
 	Put(MsgHeaderHandler, HeaderName, HdrNLen, ev, NULL);
 }
 
-void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, RenderMimeFunc MimeRenderer)
+void RegisterMimeRenderer(const char *HeaderName, long HdrNLen, 
+			  RenderMimeFunc MimeRenderer,
+			  int InlineRenderable,
+			  int Priority)
 {
 	RenderMimeFuncStruct *f;
 
 	f = (RenderMimeFuncStruct*) malloc(sizeof(RenderMimeFuncStruct));
 	f->f = MimeRenderer;
 	Put(MimeRenderHandler, HeaderName, HdrNLen, f, NULL);
-	
+	if (InlineRenderable)
+		RegisterEmbeddableMimeType(HeaderName, HdrNLen, 10000 - Priority);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1551,17 +1555,19 @@ InitModule_MSGRENDERERS
 			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE, IT_NOFLAG);
 
 	/* mime renderers translate an attachment into webcit viewable html text */
-	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL);
-	RegisterMimeRenderer(HKEY("text/vnote"), render_MIME_VNote);
-	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard);
-	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard);
-	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS);
-	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS);
-	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat);
-	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain);
-	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain);
-	RegisterMimeRenderer(HKEY("text/html"), render_MAIL_html);
-	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN);
+	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 1, 150);
+	RegisterMimeRenderer(HKEY("text/vnote"), render_MIME_VNote, 1, 300);
+	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard, 1, 201);
+	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard, 1, 200);
+	RegisterMimeRenderer(HKEY("text/calendar"), render_MIME_ICS, 1, 501);
+	RegisterMimeRenderer(HKEY("application/ics"), render_MIME_ICS, 1, 500);
+	RegisterMimeRenderer(HKEY("text/x-citadel-variformat"), render_MAIL_variformat, 1, 2);
+	RegisterMimeRenderer(HKEY("text/plain"), render_MAIL_text_plain, 1, 3);
+	RegisterMimeRenderer(HKEY("text"), render_MAIL_text_plain, 1, 1);
+	RegisterMimeRenderer(HKEY("text/html"), render_MAIL_html, 1, 100);
+	RegisterMimeRenderer(HKEY(""), render_MAIL_UNKNOWN, 0, 0);
+	/* and finalize the anouncement to the server... */
+	CreateMimeStr();
 
 	/* these headers are citserver replies to MSG4 and friends. one evaluator for each */
 	RegisterMsgHdr(HKEY("nhdr"), examine_nhdr, 0);

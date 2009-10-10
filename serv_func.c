@@ -1,4 +1,4 @@
-/*
+  /*
  * $Id$
  */
 
@@ -7,6 +7,23 @@
 
 int is_uds = 0;
 char serv_sock_name[PATH_MAX] = "";
+
+HashList *EmbeddableMimes = NULL;
+StrBuf *EmbeddableMimeStrs = NULL;
+
+
+void SetInlinMimeRenderers(void)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBuf();
+	/** Tell the server what kind of richtext we prefer */
+	serv_putbuf(EmbeddableMimeStrs);
+	StrBuf_ServGetln(Buf);
+
+	FreeStrBuf(&Buf);
+}
+
 
 void DeleteServInfo(ServInfo **FreeMe)
 {
@@ -46,10 +63,6 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 		    ChrPtr(user_agent),
 		    ChrPtr(browser_host)
 	);
-	StrBuf_ServGetln(Buf);
-
-	/** Tell the server what kind of richtext we prefer */
-	serv_puts("MSGP text/calendar|text/vnote|text/html|text/plain");//// TODO: register me...
 	StrBuf_ServGetln(Buf);
 
 	/*
@@ -206,6 +219,7 @@ int GetConnected (void)
 			end_webcit_session();
 			return 1;
 		}
+		SetInlinMimeRenderers();
 	}
 	return 0;
 }
@@ -721,6 +735,52 @@ void tmplput_mesg(StrBuf *Target, WCTemplputParams *TP)
 	}
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&Line);
+}
+
+
+void RegisterEmbeddableMimeType(const char *MimeType, long MTLen, int Priority)
+{
+	StrBuf *MT;
+	printf("%s - %ld\n", MimeType, Priority);
+	MT = NewStrBufPlain(MimeType, MTLen);
+	Put(EmbeddableMimes, IKEY(Priority), MT, HFreeStrBuf);
+}
+
+void CreateMimeStr(void)
+{
+	HashPos  *it;
+	void *vMime;
+	long len = 0;
+	const char *Key;
+
+	it = GetNewHashPos(EmbeddableMimes, 0);
+	while (GetNextHashPos(EmbeddableMimes, it, &len, &Key, &vMime) &&
+               (vMime != NULL)) {
+		printf("%s - \n", ChrPtr((StrBuf*) vMime));
+		if (StrLength(EmbeddableMimeStrs) > 0)
+			StrBufAppendBufPlain(EmbeddableMimeStrs, HKEY("|"), 0);
+		else 
+			StrBufAppendBufPlain(EmbeddableMimeStrs, HKEY("MSGP "), 0);
+		StrBufAppendBuf(EmbeddableMimeStrs, (StrBuf*) vMime, 0);
+	}
+	printf("------%ld-------------%s------%s------------\n", len, ChrPtr(EmbeddableMimeStrs), ChrPtr((StrBuf*) vMime));
+}
+
+void
+ServerStartModule_SERV_FUNC
+(void)
+{
+	EmbeddableMimes = NewHash(1, Flathash);
+	EmbeddableMimeStrs = NewStrBuf();
+}
+
+
+void
+ServerShutdownModule_SERV_FUNC
+(void)
+{
+	FreeStrBuf(&EmbeddableMimeStrs);
+	DeleteHash(&EmbeddableMimes);
 }
 
 void 
