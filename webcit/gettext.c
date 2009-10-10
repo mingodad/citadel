@@ -21,6 +21,7 @@ const char *AvailLang[] = {
 	"pt_BR",
 	"hu_HU",
 	"et_EE",
+	"ru_RU",
 	""
 };
 
@@ -305,9 +306,10 @@ void initialize_locales(void) {
 			nLocalesLoaded++;
 		}
 #else
-		if (language != NULL) {
+		if ((language != NULL) && (strcmp(language, AvailLang[i]) == 0)) {
 			setenv("LANG", buf, 1);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
+			setlocale(LC_MESSAGES, AvailLang[i]);
 			nLocalesLoaded++;
 		}
 		else if (nLocalesLoaded == 0) {
