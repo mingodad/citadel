@@ -605,6 +605,7 @@ void display_advanced_menu(void);
 void slrp_highest(void);
 ServInfo *get_serv_info(StrBuf *, StrBuf *);
 void RegisterEmbeddableMimeType(const char *MimeType, long MTLen, int Priority);
+void CreateMimeStr(void);
 int GetConnected(void);
 void DeleteServInfo(ServInfo **FreeMe);
 int uds_connectsock(char *);
