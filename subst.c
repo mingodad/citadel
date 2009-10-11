@@ -104,6 +104,7 @@ const char *CtxNames[]  = {
 	"Context FLOORS",
 	"Context ITERATE",
 	"Context ICAL",
+	"Context DavNamespace",
 	"Context UNKNOWN"
 };
 
@@ -178,8 +179,11 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		return;
 */
 	WCC = WC;
-	if (WCC == NULL)
-		return;
+	if (WCC == NULL) {
+		FreeStrBuf(&Info);
+		FreeStrBuf(&Error);
+		return; 
+	}
 
 	Header = NewStrBuf();
 	if (TP->Tokens != NULL) 
