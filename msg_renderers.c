@@ -1127,7 +1127,7 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 
 	while (!done) {
 		vector[3] = abs(nMessages);
-		lo = GetHashPosCounter(At);
+		lo = GetHashPosCounter(WCC->summ, At);
 		if (nMessages > 0) {
 			if (lo + nMessages >= nItems) {
 				hi = nItems - 1;
