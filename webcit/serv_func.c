@@ -764,6 +764,7 @@ void CreateMimeStr(void)
 		StrBufAppendBuf(EmbeddableMimeStrs, (StrBuf*) vMime, 0);
 	}
 	printf("------%ld-------------%s------%s------------\n", len, ChrPtr(EmbeddableMimeStrs), ChrPtr((StrBuf*) vMime));
+	DeleteHashPos(&it);
 }
 
 void
