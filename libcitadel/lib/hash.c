@@ -588,8 +588,13 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
  * \param the Iterator to analyze
  * \returns the n'th hashposition we point at
  */
-int GetHashPosCounter(HashPos *At)
+int GetHashPosCounter(HashList *Hash, HashPos *At)
 {
+	if ((Hash == NULL) || 
+	    (At->Position >= Hash->nMembersUsed) || 
+	    (At->Position < 0) ||
+	    (At->Position > Hash->nMembersUsed))
+		return 0;
 	return At->Position;
 }
 
@@ -619,7 +624,10 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 	long PayloadPos;
 	long offset = 0;
 
-	if ((Hash == NULL) || (At->Position >= Hash->nMembersUsed) || (At->Position < 0))
+	if ((Hash == NULL) || 
+	    (At->Position >= Hash->nMembersUsed) || 
+	    (At->Position < 0) ||
+	    (At->Position > Hash->nMembersUsed))
 		return 0;
 	*HKLen = Hash->LookupTable[At->Position]->HKLen;
 	*HashKey = Hash->LookupTable[At->Position]->HashKey;
@@ -633,14 +641,6 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 	else 
 		At->Position += ((At->Position) % abs(At->StepWidth)) * 
 			(At->StepWidth / abs(At->StepWidth));
-
-	if (At->Position > Hash->nMembersUsed) {
-		At->Position = Hash->nMembersUsed - 1;
-		return 0;
-	} else if (At->Position <= 0) {
-		At->Position = 0;
-		return 0;
-	}
 	return 1;
 }
 
@@ -657,7 +657,9 @@ int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **
 {
 	long PayloadPos;
 
-	if ((Hash == NULL) || (At >= Hash->nMembersUsed))
+	if ((Hash == NULL) || 
+	    (At < 0) || 
+	    (At > Hash->nMembersUsed))
 		return 0;
 	*HKLen = Hash->LookupTable[At]->HKLen;
 	*HashKey = Hash->LookupTable[At]->HashKey;
