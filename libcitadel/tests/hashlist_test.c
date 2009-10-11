@@ -63,7 +63,7 @@ static void test_iterate_hash(HashList *testh, int forward, int stepwidth)
 		printf("i: %d c: %d\n", i, *(int*) vTest);
 		i+=stepwidth;
 	}
-
+	DeleteHashPos(&it);
 }
 
 static void TestHashlistIteratorForward (void)
