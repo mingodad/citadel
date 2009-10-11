@@ -806,6 +806,7 @@ int PurgeStaleOpenIDassociations(void) {
 	void *Value;
 	const char *Key;
 	int num_deleted = 0;
+	long usernum = 0L;
 
 	keys = NewHash(1, NULL);
 	if (!keys) return(0);
@@ -814,15 +815,7 @@ int PurgeStaleOpenIDassociations(void) {
 	cdb_rewind(CDB_OPENID);
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
-			long usernum;
-			usernum = ((long)*(cdboi->ptr));
-			/* FIXME two different things here, trying to figure out whether this is the
-			 * source of a bug.
-			 */
-			CtdlLogPrintf(CTDL_DEBUG, "#1 Evaluating openid association for user %ld\n", usernum);
-			usernum = 0;
 			memcpy(&usernum, cdboi->ptr, sizeof(long));
-			CtdlLogPrintf(CTDL_DEBUG, "#2 Evaluating openid association for user %ld\n", usernum);
 			if (getuserbynumber(&usbuf, usernum) != 0) {
 				deleteme = strdup(cdboi->ptr + sizeof(long)),
 				Put(keys, deleteme, strlen(deleteme), deleteme, generic_free_handler);
