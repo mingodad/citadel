@@ -360,8 +360,8 @@ ServerShutdownModule_GETTEXT
 			freelocale(wc_locales[i]);
 	}
 	free(wc_locales);
-	free(AvailLangLoaded);
 #endif
+	free(AvailLangLoaded);
 }
 
 #else	/* ENABLE_NLS */
