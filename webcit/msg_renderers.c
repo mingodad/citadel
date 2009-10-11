@@ -1106,11 +1106,11 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	long ret;
 	long hklen;
 	const char *key;
-	int done = 0;
 	int nItems;
 	HashPos *At;
 	long vector[16];
 	WCTemplputParams SubTP;
+	int wantmore = 1;
 
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	SubTP.Filter.ContextType = CTX_LONGVECTOR;
@@ -1125,9 +1125,14 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 	vector[3] = 0;
 	vector[7] = starting_from;
 
-	while (!done) {
+	while (wantmore)
+	{
+	
 		vector[3] = abs(nMessages);
 		lo = GetHashPosCounter(WCC->summ, At);
+		wantmore = GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
+		if (!wantmore)
+			break;
 		if (nMessages > 0) {
 			if (lo + nMessages >= nItems) {
 				hi = nItems - 1;
@@ -1155,7 +1160,6 @@ long DrawMessageDropdown(StrBuf *Selector, long maxmsgs, long startmsg, int nMes
 					hi = lo + nMessages;
 			}
 		}
-		done = !GetNextHashPos(WCC->summ, At, &hklen, &key, &vMsg);
 		
 		/*
 		 * Bump these because although we're thinking in zero base, the user
