@@ -132,6 +132,7 @@ void openid_purge(struct ctdluser *usbuf) {
 	long len;
 	void *Value;
 	const char *Key;
+	long usernum = 0L;
 
 	keys = NewHash(1, NULL);
 	if (!keys) return;
@@ -140,7 +141,8 @@ void openid_purge(struct ctdluser *usbuf) {
 	cdb_rewind(CDB_OPENID);
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
-			if (((long)*(cdboi->ptr)) == usbuf->usernum) {
+			memcpy(&usernum, cdboi->ptr, sizeof(long));
+			if (usernum == usbuf->usernum) {
 				deleteme = strdup(cdboi->ptr + sizeof(long)),
 				Put(keys, deleteme, strlen(deleteme), deleteme, generic_free_handler);
 			}
@@ -168,6 +170,7 @@ void openid_purge(struct ctdluser *usbuf) {
  */
 void cmd_oidl(char *argbuf) {
 	struct cdbdata *cdboi;
+	long usernum = 0L;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	cdb_rewind(CDB_OPENID);
@@ -175,7 +178,8 @@ void cmd_oidl(char *argbuf) {
 
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
-			if (((long)*(cdboi->ptr)) == CC->user.usernum) {
+			memcpy(&usernum, cdboi->ptr, sizeof(long));
+			if (usernum == CC->user.usernum) {
 				cprintf("%s\n", cdboi->ptr + sizeof(long));
 			}
 		}
@@ -339,6 +343,7 @@ void cmd_oidd(char *argbuf) {
 	struct cdbdata *cdboi;
 	char id_to_detach[1024];
 	int this_is_mine = 0;
+	long usernum = 0L;
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	extract_token(id_to_detach, argbuf, 0, '|', sizeof id_to_detach);
@@ -349,7 +354,8 @@ void cmd_oidd(char *argbuf) {
 	cdb_rewind(CDB_OPENID);
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
-			if (((long)*(cdboi->ptr)) == CC->user.usernum) {
+			memcpy(&usernum, cdboi->ptr, sizeof(long));
+			if (usernum == CC->user.usernum) {
 				this_is_mine = 1;
 			}
 		}
