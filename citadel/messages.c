@@ -219,6 +219,7 @@ void citedit(CtdlIPC *ipc, FILE * fp)
 	struct cittext *textlist = NULL;
 	struct cittext *ptr;
 	char wordbuf[MAXWORDBUF];
+	int rv = 0;
 
 	/* first, load the text into the buffer */
 	fseek(fp, 0L, 0);
@@ -347,7 +348,7 @@ void citedit(CtdlIPC *ipc, FILE * fp)
 	}
 	putc(10, fp);
 	fflush(fp);
-	ftruncate(fileno(fp), ftell(fp));
+	rv = ftruncate(fileno(fp), ftell(fp));
 
 	/* and deallocate the memory we used */
 	while (textlist != NULL) {
@@ -773,18 +774,21 @@ void replace_string(char *filename, long int startpos)
 	char *ptr;
 	int substitutions = 0;
 	long msglen = 0L;
+	int rv;
 
 	scr_printf("Enter text to be replaced:\n: ");
 	ctdl_getline(srch_str, (sizeof(srch_str)-1) );
-	if (IsEmptyStr(srch_str))
+	if (IsEmptyStr(srch_str)) {
 		return;
+	}
 
 	scr_printf("Enter text to replace it with:\n: ");
 	ctdl_getline(rplc_str, (sizeof(rplc_str)-1) );
 
 	fp = fopen(filename, "r+");
-	if (fp == NULL)
+	if (fp == NULL) {
 		return;
+	}
 
 	wpos = startpos;
 	fseek(fp, startpos, 0);
@@ -803,18 +807,19 @@ void replace_string(char *filename, long int startpos)
 		if (strlen(buf) > 384) {
 			rpos = ftell(fp);
 			fseek(fp, wpos, 0);
-			fwrite((char *) buf, 128, 1, fp);
+			rv = fwrite((char *) buf, 128, 1, fp);
 			strcpy(buf, &buf[128]);
 			wpos = ftell(fp);
 			fseek(fp, rpos, 0);
 		}
 	}
 	fseek(fp, wpos, 0);
-	if (!IsEmptyStr(buf))
-		fwrite((char *) buf, strlen(buf), 1, fp);
+	if (!IsEmptyStr(buf)) {
+		rv = fwrite((char *) buf, strlen(buf), 1, fp);
+	}
 	wpos = ftell(fp);
 	fclose(fp);
-	truncate(filename, wpos);
+	rv = truncate(filename, wpos);
 	scr_printf("<R>eplace made %d substitution(s).\n\n", substitutions);
 }
 
@@ -1303,7 +1308,9 @@ void process_quote(void)
 
 	/* Display the quotable text with line numbers added */
 	line = 0;
-	fgets(buf, 128, qfile);
+	if (fgets(buf, 128, qfile) == NULL) {
+		/* we're skipping a line here */
+	}
 	while (fgets(buf, 128, qfile) != NULL) {
 		scr_printf("%3d %s", ++line, buf);
 	}
@@ -1315,7 +1322,9 @@ void process_quote(void)
 	qend = (buf[0] == 0) ? (line) : atoi(buf);
 	rewind(qfile);
 	line = 0;
-	fgets(buf, 128, qfile);
+	if (fgets(buf, 128, qfile) == NULL) {
+		/* we're skipping a line here */
+	}
 	tfile = fopen(temp, "w");
 	while (fgets(buf, 128, qfile) != NULL) {
 		if ((++line >= qstart) && (line <= qend))
@@ -1336,6 +1345,7 @@ void list_urls(CtdlIPC *ipc)
 {
 	int i;
 	char cmd[SIZ];
+	int rv;
 
 	if (num_urls == 0) {
 		scr_printf("There were no URL's in the previous message.\n\n");
@@ -1350,7 +1360,7 @@ void list_urls(CtdlIPC *ipc)
 		i = intprompt("Display which one", 1, 1, num_urls);
 
 	snprintf(cmd, sizeof cmd, rc_url_cmd, urls[i - 1]);
-	system(cmd);
+	rv = system(cmd);
 	scr_printf("\n");
 }
 
@@ -1502,6 +1512,7 @@ void readmsgs(CtdlIPC *ipc,
 	FILE *dest = NULL;		/* Alternate destination other than screen */
 	int r;				/* IPC response code */
 	static int att_seq = 0;		/* Attachment download sequence number */
+	int rv = 0;			/* silence the stupid warn_unused_result warnings */
 
 	if (c < 0)
 		b = (num_msgs - 1);
@@ -1587,7 +1598,9 @@ RMSGREAD:	scr_flush();
 			enable_color = hold_color;
 			f = fork();
 			if (f == 0) {
-				freopen(prtfile, "r", stdin);
+				if (freopen(prtfile, "r", stdin) == NULL) {
+					/* we probably should handle the error condition here */
+				}
 				screen_reset();
 				stty_ctdl(SB_RESTORE);
 				ka_system(printcmd);
@@ -1817,7 +1830,7 @@ DONE_QUOTING:	switch (e) {
 						filename);
 					save_buffer(attachment, extract_unsigned_long(cmd, 0), save_to);
 					snprintf(cmd, sizeof cmd, rc_open_cmd, save_to);
-					system(cmd);
+					rv = system(cmd);
 				}
 				else {			/* save attachment to disk */
 					destination_directory(save_to, filename);
