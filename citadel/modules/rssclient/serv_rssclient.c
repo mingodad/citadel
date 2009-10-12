@@ -167,7 +167,7 @@ void rss_save_item(struct rss_item *ri) {
 		msglen += 1024 + strlen(ri->link) + strlen(ri->description) ;
 		msg->cm_fields['M'] = malloc(msglen);
 		snprintf(msg->cm_fields['M'], msglen,
-			"Content-type: text/html\r\n\r\n"
+			"Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
 			"<html><body>\n"
 			"%s<br><br>\n"
 			"<a href=\"%s\">%s</a>\n"
