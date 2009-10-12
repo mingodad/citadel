@@ -175,7 +175,8 @@ void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 		CC->redirect_alloc = SIZ;
 		CtdlOutputMsg(msgnum, MT_RFC822,
 			(need_body ? HEADERS_ALL : HEADERS_FAST),
-			      0, 1, NULL, 0);
+			0, 1, NULL, SUPPRESS_ENV_TO
+		);
 		if (!need_body) cprintf("\r\n");	/* extra trailing newline */
 		IMAP->cached_rfc822_data = CC->redirect_buffer;
 		IMAP->cached_rfc822_len = CC->redirect_len;
@@ -640,11 +641,11 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	}
 
 	else if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, 0);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, SUPPRESS_ENV_TO);
 	}
 
 	else if (!strcmp(section, "")) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, 0);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, SUPPRESS_ENV_TO);
 	}
 
 	/*
@@ -656,7 +657,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 		 * IMAP library and this broke Mail.App and iPhone Mail, so we had to change it
 		 * to HEADERS_ONLY so the trendy hipsters with their iPhones can read mail.
 		 */
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, 0);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, SUPPRESS_ENV_TO);
 		imap_strip_headers(section);
 	}
 
@@ -664,7 +665,7 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	 * Strip it down if the client asked for everything _except_ headers.
 	 */
 	else if (!strncasecmp(section, "TEXT", 4)) {
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, 0);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, SUPPRESS_ENV_TO);
 	}
 
 	/*
@@ -908,7 +909,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 		CC->redirect_buffer = malloc(SIZ);
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
-		CtdlOutputPreLoadedMsg(msg, MT_RFC822, 0, 0, 1, 0);
+		CtdlOutputPreLoadedMsg(msg, MT_RFC822, 0, 0, 1, SUPPRESS_ENV_TO);
 		rfc822 = CC->redirect_buffer;
 		rfc822_len = CC->redirect_len;
 		CC->redirect_buffer = NULL;

@@ -151,9 +151,11 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		  int flags		/* should the bessage be exported clean? */
 );
 
-#define QP_EADDR (1<<0)
-#define CRLF (1<<1)
-#define ESC_DOT (1<<2)
+/* Flags which may be passed to CtdlOutputMsg() and CtdlOutputPreLoadedMsg() */
+#define QP_EADDR	(1<<0)		/* quoted-printable encode email addresses */
+#define CRLF		(1<<1)
+#define ESC_DOT		(1<<2)		/* output a line containing only "." as ".." instead */
+#define SUPPRESS_ENV_TO	(1<<3)		/* suppress Envelope-to: header (warning: destructive!) */
 
 int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 			   int mode,		/* how would you like that message? */

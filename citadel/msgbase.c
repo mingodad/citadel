@@ -1441,7 +1441,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		  int do_proto,		/* do Citadel protocol responses? */
 		  int crlf,		/* Use CRLF newlines instead of LF? */
 		  char *section, 	/* NULL or a message/rfc822 section */
-		  int flags		/* should the bessage be exported clean? */
+		  int flags		/* various flags; see msgbase.h */
 ) {
 	struct CtdlMessage *TheMessage = NULL;
 	int retcode = om_no_such_msg;
@@ -1707,6 +1707,13 @@ int CtdlOutputPreLoadedMsg(
 	 	return(om_no_such_msg);
 	}
 
+	/* Suppress envelope recipients if required to avoid disclosing BCC addresses.
+	 * Pad it with spaces in order to avoid changing the RFC822 length of the message.
+	 */
+	if ( (flags & SUPPRESS_ENV_TO) && (TheMessage->cm_fields['V'] != NULL) ) {
+		memset(TheMessage->cm_fields['V'], ' ', strlen(TheMessage->cm_fields['V']));
+	}
+		
 	/* Are we downloading a MIME component? */
 	if (mode == MT_DOWNLOAD) {
 		if (TheMessage->cm_format_type != FMT_RFC822) {
@@ -1814,7 +1821,7 @@ int CtdlOutputPreLoadedMsg(
 		      if (haschar(TheMessage->cm_fields['N'], '.') == 0) {
 			suppress_f = 1;
 		}
-		
+
 		/* Now spew the header fields in the order we like them. */
 		safestrncpy(allkeys, FORDER, sizeof allkeys);
 		for (i=0; i<strlen(allkeys); ++i) {
