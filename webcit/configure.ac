@@ -167,10 +167,10 @@ if test "$ok_iconv" = no; then
 		)
 fi	
 if test "$ok_iconv" != "no"; then
-	AC_MSG_RESULT(libcitadel will be built with character set conversion.)
+	AC_MSG_RESULT(webcit will be built with character set conversion.)
 	AC_DEFINE(HAVE_ICONV,[],[whether we have iconv for charset conversion])
 else
-	AC_MSG_RESULT(libcitadel will be built without character set conversion.)
+	AC_MSG_RESULT(webcit will be built without character set conversion.)
 fi
 
 
