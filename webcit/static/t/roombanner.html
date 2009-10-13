@@ -2,13 +2,14 @@
 <div>
 <div class="room_banner" id="room_banner" >
 <?ROOMPIC>
-<h1 id="rmname"><?ROOMNAME>
- <?!("COND:ROOM:TYPE_IS", 7, "VIEW_WIKI")>
- : <?BSTR("page")>
- <?!("X", 7)>
-</h1>
+<h1 id="rmname"><?ROOMNAME></h1>
+<?!("COND:ROOM:TYPE_IS", 7, "VIEW_WIKI")>
+<h2><?BSTR("page")></h2>
+<?!("X", 7)>
 <?ROOMINFO>
+<??("COND:ROOM:TYPE_IS", 8, "VIEW_WIKI")>
 <p id="nummsgs"><?NUMMSGS></p>
+<?!("X", 8)>
 </div>
 <div id="actiondiv">
 <ul class="room_actions">
