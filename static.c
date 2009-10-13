@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
+
 
 #include "webcit.h"
 #include "webserver.h"
