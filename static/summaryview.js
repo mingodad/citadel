@@ -1,18 +1,19 @@
-/**
+/*
  * Webcit Summary View v2
- *   All comments, flowers and death threats to Mathew McBride
- *   <matt@mcbridematt.dhs.org> / <matt@comalies>
+ * All comments, flowers and death threats to Mathew McBride
+ * <matt@mcbridematt.dhs.org> / <matt@comalies>
  * Copyright 2009 The Citadel Team
  * Licensed under the GPL V3
+ *
+ * QA reminders: because I keep forgetting / get cursed.
+ * After changing anything in here, make sure that you still can:
+ * 1. Resort messages in both normal and paged view.
+ * 2. Select a range with shift-click 
+ * 3. Select messages with ctrl-click
+ * 4. Normal click will deselect everything done above
+ * 5. Move messages, and they will disappear
  */
-/* QA reminders: because I keep forgetting / get cursed.
-Can you:
-1. Resort messages in both normal and paged view.
-mv 2. Select a range with shift-click 
-3. Select messages with ctrl-click
-4. Normal click will deselect everything done above
-5. Move messages, and they will disappear
-*/
+
 document.observe("dom:loaded", createMessageView);
 
 var msgs = null;
@@ -50,12 +51,12 @@ trTemplate[14] = "</td></tr>";
 
 var currentPage = 0;
 var sortModes = {
-  "rdate" : sortRowsByDateDescending,
-  "date" : sortRowsByDateAscending,
-  "subj" : sortRowsBySubjectAscending,
-  "rsubj" : sortRowsBySubjectDescending,
-  "sender": sortRowsByFromAscending,
-  "rsender" : sortRowsByFromDescending
+	"rdate" : sortRowsByDateDescending,
+	"date" : sortRowsByDateAscending,
+	"subj" : sortRowsBySubjectAscending,
+	"rsubj" : sortRowsBySubjectDescending,
+	"sender": sortRowsByFromAscending,
+	"rsender" : sortRowsByFromDescending
 };
 var toggles = {};
 
@@ -88,37 +89,39 @@ function createMessageView() {
   takeOverSearchOMatic();
   setupDragDrop(); // here for now
 }
+
 function getMessages() {
-  if (loadingMsg.parentNode == null) {
-    message_view.innerHTML = "";
-    message_view.appendChild(loadingMsg);
-  }
-roomName = getTextContent(document.getElementById("rmname"));
- var parameters = {'room':roomName, 'startmsg': startmsg, 'stopmsg': -1};
- if (is_safe_mode) {
-   parameters['stopmsg'] = parseInt(startmsg)+499;
-   //parameters['maxmsgs'] = 500;
-   if (currentSortMode != null) {
-     var SortBy = currentSortMode[0];
-     if (SortBy.charAt(0) == 'r') {
-       SortBy = SortBy.substr(1);
-       parameters["SortOrder"] = "0";
-     }
-     parameters["SortBy"] = SortBy;
-   }
- } 
- if (query.length > 0) {
-   parameters["query"] = query;
- }
-new Ajax.Request("roommsgs", {
-    method: 'get',
-	onSuccess: loadMessages,
-	parameters: parameters,
-	sanitize: false,
-      evalJSON: false,
-      onFailure: function(e) { alert("Failure: " + e);}
+	if (loadingMsg.parentNode == null) {
+		message_view.innerHTML = "";
+		message_view.appendChild(loadingMsg);
+	}
+	roomName = getTextContent(document.getElementById("rmname"));
+	var parameters = {'room':roomName, 'startmsg': startmsg, 'stopmsg': -1};
+	if (is_safe_mode) {
+		parameters['stopmsg'] = parseInt(startmsg)+499;
+		//parameters['maxmsgs'] = 500;
+		if (currentSortMode != null) {
+			var SortBy = currentSortMode[0];
+			if (SortBy.charAt(0) == 'r') {
+				SortBy = SortBy.substr(1);
+				parameters["SortOrder"] = "0";
+			}
+			parameters["SortBy"] = SortBy;
+		}
+	} 
+	if (query.length > 0) {
+		parameters["query"] = query;
+	}
+	new Ajax.Request("roommsgs", {
+		method: 'get',
+		onSuccess: loadMessages,
+		parameters: parameters,
+		sanitize: false,
+		evalJSON: false,
+		onFailure: function(e) { alert("Failure: " + e);}
 	});
 }
+
 function evalJSON(data) {
   var jsonData = null;
   if (typeof(JSON) === 'object' && typeof(JSON.parse) === 'function') {
