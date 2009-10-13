@@ -1238,7 +1238,6 @@ readloop_struct rlid[] = {
 /* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */
 void new_summary_view(void) {
 	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
-	DoTemplate(HKEY("trailing"),NULL,&NoCtx);
 }
 
 
@@ -1275,7 +1274,9 @@ int mailview_RenderView_or_Tail(SharedMessageStatus *Stat,
 {
 	WCTemplputParams SubTP;
 
-	DoTemplate(HKEY("mailsummary_json"),NULL, &SubTP);
+	if (WC->is_ajax)
+		DoTemplate(HKEY("mailsummary_json"),NULL, &SubTP);
+	
 	return 0;
 }
 
@@ -1283,10 +1284,11 @@ int mailview_Cleanup(void **ViewSpecific)
 {
 	/* Note: wDumpContent() will output one additional </div> tag. */
 	/* We ought to move this out into template */
-	if (WC->is_ajax) 
+	if (WC->is_ajax)
 		end_burst();
 	else
 		wDumpContent(1);
+
 	return 0;
 }
 
