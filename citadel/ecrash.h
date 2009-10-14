@@ -1,8 +1,8 @@
-/**
- * \file eCrash.h
- * @author David Frascone
+/*
+ * eCrash.h
+ * David Frascone
  * 
- *  eCrash types and prototypes.
+ * eCrash types and prototypes.
  *
  * vim: ts=4
  */
