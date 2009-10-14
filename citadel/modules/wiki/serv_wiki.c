@@ -54,7 +54,13 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	struct CitContext *CCC = CC;
 	long old_msgnum = (-1L);
 	struct CtdlMessage *old_msg = NULL;
-	int no_changes_were_made = 0;
+	char diff_old_filename[PATH_MAX];
+	char diff_new_filename[PATH_MAX];
+	char diff_cmd[PATH_MAX];
+	FILE *fp;
+	char *s;
+	char buf[1024];
+	int rv;
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -69,6 +75,9 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	/* If there's no EUID we can't do this. */
 	if (msg->cm_fields['E'] == NULL) return(0);
 
+	/* If there's no message text, obviously this is all b0rken and shouldn't happen at all */
+	if (msg->cm_fields['M'] == NULL) return(0);
+
 	/* See if we can retrieve the previous version. */
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CCC->room);
 	if (old_msgnum <= 0L) return(0);
@@ -76,28 +85,45 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	old_msg = CtdlFetchMessage(old_msgnum, 1);
 	if (old_msg == NULL) return(0);
 
-	if ((msg->cm_fields['M'] != NULL) && (old_msg->cm_fields['M'] != NULL)) {
-
-		/* If no changes were made, don't bother saving it again */
-		if (!strcmp(msg->cm_fields['M'], old_msg->cm_fields['M'])) {
-			no_changes_were_made = 1;
-		}
-
-		/* FIXME here's where diffs should be generated
-		 *
-		FILE *fp;
-		fp = fopen("/tmp/new.txt", "w");
-		fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
-		fclose(fp);
-		fp = fopen("/tmp/old.txt", "w");
-		fwrite(old_msg->cm_fields['M'], strlen(old_msg->cm_fields['M']), 1, fp);
-		fclose(fp);
-		 *
-		 */
+	if (old_msg->cm_fields['M'] == NULL) {		/* old version is corrupt? */
+		CtdlFreeMessage(old_msg);
+		return(0);
 	}
 
+	/* If no changes were made, don't bother saving it again */
+	if (!strcmp(msg->cm_fields['M'], old_msg->cm_fields['M'])) {
+		CtdlFreeMessage(old_msg);
+		return(1);
+	}
+
+	/*
+	 * Generate diffs
+	 */
+	CtdlMakeTempFileName(diff_old_filename, sizeof diff_old_filename);
+	CtdlMakeTempFileName(diff_new_filename, sizeof diff_new_filename);
+
+	fp = fopen(diff_new_filename, "w");
+	rv = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
+	fclose(fp);
+
+	fp = fopen(diff_old_filename, "w");
+	rv = fwrite(old_msg->cm_fields['M'], strlen(old_msg->cm_fields['M']), 1, fp);
+	fclose(fp);
+
 	CtdlFreeMessage(old_msg);
-	return(no_changes_were_made);
+
+	snprintf(diff_cmd, sizeof diff_cmd, "diff -u %s %s", diff_new_filename, diff_old_filename);
+	fp = popen(diff_cmd, "r");
+	if (fp != NULL) {
+		while (s = fgets(buf, sizeof buf, fp), (s != NULL)) {
+			CtdlLogPrintf(CTDL_DEBUG, "\033[32m%s\033[0m", s);
+		}
+		pclose(fp);
+	}
+
+	unlink(diff_old_filename);
+	unlink(diff_new_filename);
+	return(0);
 }
 
 
