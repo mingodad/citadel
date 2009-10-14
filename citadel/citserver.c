@@ -144,6 +144,7 @@ void master_startup(void) {
 	unsigned int seed;
 	FILE *urandom;
 	struct ctdlroom qrbuf;
+	int rv;
 	
 	CtdlLogPrintf(CTDL_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
@@ -178,7 +179,7 @@ void master_startup(void) {
 	CtdlLogPrintf(CTDL_INFO, "Seeding the pseudo-random number generator...\n");
 	urandom = fopen("/dev/urandom", "r");
 	if (urandom != NULL) {
-		fread(&seed, sizeof seed, 1, urandom);
+		rv = fread(&seed, sizeof seed, 1, urandom);
 		fclose(urandom);
 	}
 	else {
