@@ -316,6 +316,7 @@ void upload(CtdlIPC *ipc, int c)
 	int a, b;
 	FILE *fp, *lsfp;
 	int r;
+	int rv;
 
 	if ((room_flags & QR_UPLOAD) == 0) {
 		scr_printf("*** You cannot upload to this room.\n");
@@ -342,7 +343,7 @@ void upload(CtdlIPC *ipc, int c)
 	/* now do the transfer ... in a separate process */
 	xfer_pid = fork();
 	if (xfer_pid == 0) {
-		chdir(tempdir);
+		rv = chdir(tempdir);
 		switch (c) {
 		case 0:
 			stty_ctdl(0);
