@@ -102,20 +102,20 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	CtdlMakeTempFileName(diff_old_filename, sizeof diff_old_filename);
 	CtdlMakeTempFileName(diff_new_filename, sizeof diff_new_filename);
 
+	fp = fopen(diff_old_filename, "w");
+	rv = fwrite(old_msg->cm_fields['M'], strlen(old_msg->cm_fields['M']), 1, fp);
+	fclose(fp);
+	CtdlFreeMessage(old_msg);
+
 	fp = fopen(diff_new_filename, "w");
 	rv = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
 	fclose(fp);
 
-	fp = fopen(diff_old_filename, "w");
-	rv = fwrite(old_msg->cm_fields['M'], strlen(old_msg->cm_fields['M']), 1, fp);
-	fclose(fp);
-
-	CtdlFreeMessage(old_msg);
-
-	snprintf(diff_cmd, sizeof diff_cmd, "diff -u %s %s", diff_new_filename, diff_old_filename);
+	snprintf(diff_cmd, sizeof diff_cmd, "diff -u %s %s", diff_old_filename, diff_new_filename);
 	fp = popen(diff_cmd, "r");
 	if (fp != NULL) {
 		while (s = fgets(buf, sizeof buf, fp), (s != NULL)) {
+			/* FIXME now do something with it */
 			CtdlLogPrintf(CTDL_DEBUG, "\033[32m%s\033[0m", s);
 		}
 		pclose(fp);
