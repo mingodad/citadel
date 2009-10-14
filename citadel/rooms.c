@@ -534,7 +534,7 @@ void editthisroom(CtdlIPC *ipc)
 	attr->QRflags = set_room_attr(ipc, attr->QRflags, "Private room", QR_PRIVATE);
 	if (attr->QRflags & QR_PRIVATE) {
 		attr->QRflags = set_room_attr(ipc, attr->QRflags,
-				       "Accessible by guessing room name",
+				       "Hidden room (accessible to anyone who knows the room name)",
 				       QR_GUESSNAME);
 	}
 
@@ -1071,10 +1071,14 @@ void entroom(CtdlIPC *ipc)
 
 	IFNEXPERT formout(ipc, "roomaccess");
 	do {
-		scr_printf("<?>Help\n<1>Public room\n<2>Guess-name room\n"
-		       "<3>Passworded room\n<4>Invitation-only room\n"
-		       "<5>Personal room\n"
-			"Enter room type: ");
+		scr_printf("<?>Help\n"
+			"<1>Public room (shown to all users by default)\n"
+			"<2>Hidden room (accessible to anyone who knows the room name)\n"
+			"<3>Passworded room (hidden, plus requires a password to enter)\n"
+			"<4>Invitation-only room (requires access to be granted by an Aide)\n"
+		       	"<5>Personal room (accessible to you only)\n"
+			"Enter room type: "
+		);
 		do {
 			b = inkey();
 		} while (((b < '1') || (b > '5')) && (b != '?'));
@@ -1099,7 +1103,7 @@ void entroom(CtdlIPC *ipc)
 	if (b == 1)
 		scr_printf(" public room.");
 	if (b == 2)
-		scr_printf(" guess-name room.");
+		scr_printf(" hidden room.");
 	if (b == 3)
 		scr_printf(" passworded room, password: %s", new_room_pass);
 	if (b == 4)

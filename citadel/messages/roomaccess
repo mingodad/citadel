@@ -1,14 +1,14 @@
 Most rooms are public. Anyone on the system may get into a public room.
 Private rooms may take several forms:
  
- Guess-name: to gain access to this type of room, a user need only know
+ Hidden: to gain access to this type of room, a user need only know
 the room's name. No hints are given by the system.
  
- Passworded: same as guess-name but the user must also know a password
+ Passworded: same as hidden but the user must also know a password
 to get access.
  
  Invitation-only: users may only gain access to this type of room if
-an aide gives it to them. 
+an Aide gives it to them. 
  
  Personal: this type of room acts as a user-specific "mailbox."
   
