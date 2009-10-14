@@ -896,6 +896,7 @@ void post_mime_to_server(void) {
 	size_t encoded_length;
 	size_t encoded_strlen;
 	char *txtmail = NULL;
+	int include_text_alt = 0;	/* Set to nonzero to include multipart/alternative text/plain */
 
 	sprintf(top_boundary, "Citadel--Multipart--%s--%04x--%04x",
 		ChrPtr(WCC->serv_info->serv_fqdn),
@@ -917,6 +918,11 @@ void post_mime_to_server(void) {
 		is_multipart = 1;
 	}
 
+	/* Only do multipart/alternative for mailboxes.  BBS and Wiki rooms don't need it. */
+	if (WC->wc_view == VIEW_MAILBOX) {
+		include_text_alt = 1;
+	}
+
 	if (is_multipart) {
 		/* Remember, serv_printf() appends an extra newline */
 		serv_printf("Content-type: multipart/mixed; boundary=\"%s\"\n", top_boundary);
@@ -925,19 +931,21 @@ void post_mime_to_server(void) {
 	}
 
 	/* Remember, serv_printf() appends an extra newline */
-	serv_printf("Content-type: multipart/alternative; "
-		"boundary=\"%s\"\n", alt_boundary);
-	serv_printf("This is a multipart message in MIME format.\n");
-	serv_printf("--%s", alt_boundary);
+	if (include_text_alt) {
+		serv_printf("Content-type: multipart/alternative; "
+			"boundary=\"%s\"\n", alt_boundary);
+		serv_printf("This is a multipart message in MIME format.\n");
+		serv_printf("--%s", alt_boundary);
 
-	serv_puts("Content-type: text/plain; charset=utf-8");
-	serv_puts("Content-Transfer-Encoding: quoted-printable");
-	serv_puts("");
-	txtmail = html_to_ascii(bstr("msgtext"), 0, 80, 0);
-        text_to_server_qp(txtmail);     /* Transmit message in quoted-printable encoding */
-        free(txtmail);
+		serv_puts("Content-type: text/plain; charset=utf-8");
+		serv_puts("Content-Transfer-Encoding: quoted-printable");
+		serv_puts("");
+		txtmail = html_to_ascii(bstr("msgtext"), 0, 80, 0);
+        	text_to_server_qp(txtmail);     /* Transmit message in quoted-printable encoding */
+        	free(txtmail);
 
-	serv_printf("--%s", alt_boundary);
+		serv_printf("--%s", alt_boundary);
+	}
 
 	serv_puts("Content-type: text/html; charset=utf-8");
 	serv_puts("Content-Transfer-Encoding: quoted-printable");
@@ -946,7 +954,9 @@ void post_mime_to_server(void) {
 	text_to_server_qp(bstr("msgtext"));	/* Transmit message in quoted-printable encoding */
 	serv_puts("</body></html>\r\n");
 
-	serv_printf("--%s--", alt_boundary);
+	if (include_text_alt) {
+		serv_printf("--%s--", alt_boundary);
+	}
 	
 	if (is_multipart) {
 		long len;
