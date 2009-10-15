@@ -60,11 +60,11 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	char diff_new_filename[PATH_MAX];
 	char diff_cmd[PATH_MAX];
 	FILE *fp;
-	char *s;
 	char buf[1024];
 	int rv;
 	char history_page[1024];
 	char boundary[256];
+	int nbytes;
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -119,10 +119,13 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	snprintf(diff_cmd, sizeof diff_cmd, "diff -u %s %s", diff_old_filename, diff_new_filename);
 	fp = popen(diff_cmd, "r");
 	if (fp != NULL) {
-		while (s = fgets(buf, sizeof buf, fp), (s != NULL)) {
-			/* FIXME now do something with it */
-			CtdlLogPrintf(CTDL_DEBUG, "\033[32m%s\033[0m", s);
-		}
+		do {
+			nbytes = fread(buf, 1, sizeof buf, fp);
+			if (nbytes > 0) {
+				/* FIXME now do something with it */
+				CtdlLogPrintf(CTDL_DEBUG, "\033[32mREAD %d BYTES\033[0m\n", nbytes);
+			}
+		} while (nbytes == sizeof(buf));
 		pclose(fp);
 	}
 
@@ -149,7 +152,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		snprintf(boundary, sizeof boundary, "Citadel--Multipart--%04x--%08lx", getpid(), time(NULL));
 		history_msg->cm_fields['M'] = malloc(1024);
 		snprintf(history_msg->cm_fields['M'], 1024,
-			"Content-type: multipart/mixed; boundary=\"%s\"\n"
+			"Content-type: multipart/mixed; boundary=\"%s\"\n\n"
 			"This is a Citadel wiki history encoded as multipart MIME.\n"
 			"--%s--\n"
 			,
@@ -158,6 +161,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	/* Update the history message (regardless of whether it's new or existing) */
+	/* FIXME now do something with it */
+	CtdlLogPrintf(CTDL_DEBUG, "\033[31m%s\033[0m", history_msg->cm_fields['M']);
 
 	/* FIXME */
 
