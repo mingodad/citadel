@@ -41,6 +41,8 @@ StrBuf *get_ROOM_PREFS(const char *key, size_t keylen);
 
 #define set_room_pref(a, b, c) set_ROOM_PREFS(a, sizeof(a) - 1, b, c)
 void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_server);
+#define get_room_pref_long(a, b, c) get_ROOM_PREFS_LONG(a, sizeof(a) - 1, b, c)
+long get_ROOM_PREFS_LONG(const char *key, size_t keylen, long *value, long Default);
 
 
 #define get_x_pref(a, b) get_ROOM_PREFS(a, sizeof(a) - 1, b, sizeof(b) - 1)
