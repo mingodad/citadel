@@ -77,9 +77,12 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	int rv;
 	char history_page[1024];
 	char boundary[256];
+	char endary[260];
+	char buf[1024];
 	int nbytes = 0;
 	char *diffbuf = NULL;
 	size_t diffbuf_len = 0;
+	char *ptr = NULL;
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -158,8 +161,6 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		return(1);		/* No changes at all?  Abandon the post entirely! */
 	}
 
-	free(diffbuf);	/* FIXME do something with it */
-
 	/* Now look for the existing edit history */
 
 	history_msgnum = locate_message_by_euid(history_page, &CCC->room);
@@ -189,11 +190,68 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	/* Update the history message (regardless of whether it's new or existing) */
-	/* FIXME now do something with it */
-	CtdlLogPrintf(CTDL_DEBUG, "\033[31m%s\033[0m", history_msg->cm_fields['M']);
 
-	/* FIXME */
 
+	/* First, figure out the boundary string.  We do this even when we generated the
+	 * boundary string in the above code, just to be safe and consistent.
+	 */
+	strcpy(boundary, "");
+
+	ptr = history_msg->cm_fields['M'];
+	do {
+		ptr = memreadline(ptr, buf, sizeof buf);
+		if (*ptr != 0) {
+			striplt(buf);
+			if (!IsEmptyStr(buf) && (!strncasecmp(buf, "Content-type:", 13))) {
+				if (
+					(bmstrcasestr(buf, "multipart") != NULL)
+					&& (bmstrcasestr(buf, "boundary=") != NULL)
+				) {
+					safestrncpy(boundary, bmstrcasestr(buf, "\""), sizeof boundary);
+					char *qu;
+					qu = strchr(boundary, '\"');
+					if (qu) {
+						strcpy(boundary, ++qu);
+					}
+					qu = strchr(boundary, '\"');
+					if (qu) {
+						*qu = 0;
+					}
+				}
+			}
+		}
+	} while ( (IsEmptyStr(boundary)) && (*ptr != 0) );
+
+	if (!IsEmptyStr(boundary)) {
+		snprintf(endary, sizeof endary, "--%s--", boundary);
+		history_msg->cm_fields['M'] = realloc(history_msg->cm_fields['M'],
+			strlen(history_msg->cm_fields['M']) + strlen(diffbuf) + 512
+		);
+		ptr = bmstrcasestr(history_msg->cm_fields['M'], endary);
+		if (ptr != NULL) {
+			sprintf(ptr, "--%s\n"
+					"Content-type: text/plain\n"
+					"From: %s <%s>\n"
+					"\n"
+					"%s\n"
+					"--%s--\n"
+					,
+				boundary,
+				CCC->user.fullname,
+				CCC->cs_inet_email,
+				diffbuf,
+				boundary
+			);
+		}
+
+		history_msg->cm_fields['T'] = realloc(history_msg->cm_fields['T'], 32);
+		snprintf(history_msg->cm_fields['T'], 32, "%ld", time(NULL));
+	
+		CtdlLogPrintf(CTDL_DEBUG, "\033[31m%s\033[0m", history_msg->cm_fields['M']);
+		/* FIXME now do something with it */
+	}
+
+	free(diffbuf);
 	free(history_msg);
 	return(0);
 }
