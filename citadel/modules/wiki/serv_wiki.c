@@ -54,6 +54,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	struct CitContext *CCC = CC;
 	long old_msgnum = (-1L);
 	struct CtdlMessage *old_msg = NULL;
+	long history_msgnum = (-1L);
+	struct CtdlMessage *history_msg = NULL;
 	char diff_old_filename[PATH_MAX];
 	char diff_new_filename[PATH_MAX];
 	char diff_cmd[PATH_MAX];
@@ -61,6 +63,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	char *s;
 	char buf[1024];
 	int rv;
+	char history_page[1024];
+	char boundary[256];
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -81,6 +85,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	/* See if we can retrieve the previous version. */
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CCC->room);
 	if (old_msgnum <= 0L) return(0);
+	snprintf(history_page, sizeof history_page, "%s_HISTORY_", msg->cm_fields['E']);
 
 	old_msg = CtdlFetchMessage(old_msgnum, 1);
 	if (old_msg == NULL) return(0);
@@ -123,6 +128,40 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	unlink(diff_old_filename);
 	unlink(diff_new_filename);
+
+	/* Now look for the existing edit history */
+
+	history_msgnum = locate_message_by_euid(history_page, &CCC->room);
+	history_msg = NULL;
+	if (history_msgnum > 0L) {
+		history_msg = CtdlFetchMessage(old_msgnum, 1);
+	}
+
+	/* Create a new history message if necessary */
+	if (history_msg == NULL) {
+		history_msg = malloc(sizeof(struct CtdlMessage));
+		memset(history_msg, 0, sizeof(struct CtdlMessage));
+		history_msg->cm_magic = CTDLMESSAGE_MAGIC;
+		history_msg->cm_anon_type = MES_NORMAL;
+		history_msg->cm_format_type = FMT_RFC822;
+		history_msg->cm_fields['A'] = strdup("Citadel");
+		history_msg->cm_fields['R'] = strdup(CCC->room.QRname);
+		snprintf(boundary, sizeof boundary, "Citadel--Multipart--%04x--%08lx", getpid(), time(NULL));
+		history_msg->cm_fields['M'] = malloc(1024);
+		snprintf(history_msg->cm_fields['M'], 1024,
+			"Content-type: multipart/mixed; boundary=\"%s\"\n"
+			"This is a Citadel wiki history encoded as multipart MIME.\n"
+			"--%s--\n"
+			,
+			boundary, boundary
+		);
+	}
+
+	/* Update the history message (regardless of whether it's new or existing) */
+
+	/* FIXME */
+
+	free(history_msg);
 	return(0);
 }
 
