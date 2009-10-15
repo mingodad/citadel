@@ -44,6 +44,10 @@ struct StrBuf {
 #endif
 };
 
+
+static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *CharE);
+static inline int Ctdl_IsUtf8SequenceStart(const char Char);
+
 #ifdef SIZE_DEBUG
 #ifdef HAVE_BACKTRACE
 static void StrBufBacktrace(StrBuf *Buf, int which)
@@ -1010,6 +1014,133 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 		return -1;
 	return Target->BufUsed;
 }
+
+/**
+ * @brief Append a string, escaping characters which have meaning in HTML + json.  
+ *
+ * @param Target	target buffer
+ * @param Source	source buffer; set to NULL if you just have a C-String
+ * @param PlainIn       Plain-C string to append; set to NULL if unused
+ * @param nbsp		If nonzero, spaces are converted to non-breaking spaces.
+ * @param nolinebreaks	if set to 1, linebreaks are removed from the string.
+ *                      if set to 2, linebreaks are replaced by &ltbr/&gt
+ */
+long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int nbsp, int nolinebreaks)
+{
+	const char *aptr, *eiptr;
+	char *bptr, *eptr;
+	long len;
+	int IsUtf8Sequence = 0;
+
+	if (((Source == NULL) && (PlainIn == NULL)) || (Target == NULL) )
+		return -1;
+
+	if (PlainIn != NULL) {
+		aptr = PlainIn;
+		len = strlen(PlainIn);
+		eiptr = aptr + len;
+	}
+	else {
+		aptr = Source->buf;
+		eiptr = aptr + Source->BufUsed;
+		len = Source->BufUsed;
+	}
+
+	if (len == 0) 
+		return -1;
+
+	bptr = Target->buf + Target->BufUsed;
+	eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
+
+	while (aptr < eiptr){
+		if(bptr >= eptr) {
+			IncreaseBuf(Target, 1, -1);
+			eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
+			bptr = Target->buf + Target->BufUsed;
+		}
+		if (*aptr == '<') {
+			memcpy(bptr, "&lt;", 4);
+			bptr += 4;
+			Target->BufUsed += 4;
+		}
+		else if (*aptr == '>') {
+			memcpy(bptr, "&gt;", 4);
+			bptr += 4;
+			Target->BufUsed += 4;
+		}
+		else if (*aptr == '&') {
+			memcpy(bptr, "&amp;", 5);
+			bptr += 5;
+			Target->BufUsed += 5;
+		}
+		else if (*aptr == LB) {
+			*bptr = '<';
+			bptr ++;
+			Target->BufUsed ++;
+		}
+		else if (*aptr == RB) {
+			*bptr = '>';
+			bptr ++;
+			Target->BufUsed ++;
+		}
+		else if ((*aptr == 32) && (nbsp == 1)) {
+			memcpy(bptr, "&nbsp;", 6);
+			bptr += 6;
+			Target->BufUsed += 6;
+		}
+		else if ((*aptr == '\n') && (nolinebreaks == 1)) {
+			*bptr='\0';	/* nothing */
+		}
+		else if ((*aptr == '\n') && (nolinebreaks == 2)) {
+			memcpy(bptr, "&lt;br/&gt;", 11);
+			bptr += 11;
+			Target->BufUsed += 11;
+		}
+
+		else if ((*aptr == '\r') && (nolinebreaks != 0)) {
+			*bptr='\0';	/* nothing */
+		}
+
+		else if ((*aptr == '"') || (*aptr == QU)) {
+			*bptr = '\\';
+			bptr ++;
+			*bptr = '"';
+			bptr ++;
+			Target->BufUsed += 2;
+		} else if (*aptr == '\\') {
+			*bptr = '\\';
+			bptr ++;
+			*bptr = '\\';
+			bptr ++;
+			Target->BufUsed += 2;
+		}
+		else {
+			if (IsUtf8Sequence != 0) {
+				IsUtf8Sequence --;
+				*bptr = *aptr;
+				bptr++;
+				Target->BufUsed ++;
+			}
+			else {
+				if (*aptr >= 0x20)
+				{
+					IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
+
+					*bptr = *aptr;
+					bptr++;
+					Target->BufUsed ++;
+				}
+			}
+
+		}
+		aptr ++;
+	}
+	*bptr = '\0';
+	if ((bptr = eptr - 1 ) && !IsEmptyStr(aptr) )
+		return -1;
+	return Target->BufUsed;
+}
+
 
 /**
  * @brief extracts a substring from Source into dest
@@ -3034,7 +3165,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
  * @param Char the character to examine
  * @returns width of utf8 chars in bytes
  */
-static inline int Ctdl_GetUtf8SequenceLength(char *CharS, char *CharE)
+static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *CharE)
 {
 	int n = 1;
         char test = (1<<7);
@@ -3053,7 +3184,7 @@ static inline int Ctdl_GetUtf8SequenceLength(char *CharS, char *CharE)
  * @param Char character to inspect
  * @returns yes or no
  */
-static inline int Ctdl_IsUtf8SequenceStart(char Char)
+static inline int Ctdl_IsUtf8SequenceStart(const char Char)
 {
 /** 11??.???? indicates an UTF8 Sequence. */
 	return ((Char & 0xC0) != 0);
