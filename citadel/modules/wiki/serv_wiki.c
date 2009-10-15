@@ -60,11 +60,12 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	char diff_new_filename[PATH_MAX];
 	char diff_cmd[PATH_MAX];
 	FILE *fp;
-	char buf[1024];
 	int rv;
 	char history_page[1024];
 	char boundary[256];
-	int nbytes;
+	int nbytes = 0;
+	char *diffbuf = NULL;
+	size_t diffbuf_len = 0;
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 
@@ -116,21 +117,34 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	rv = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
 	fclose(fp);
 
+	diffbuf_len = 0;
+	diffbuf = NULL;
 	snprintf(diff_cmd, sizeof diff_cmd, "diff -u %s %s", diff_old_filename, diff_new_filename);
 	fp = popen(diff_cmd, "r");
 	if (fp != NULL) {
 		do {
-			nbytes = fread(buf, 1, sizeof buf, fp);
-			if (nbytes > 0) {
-				/* FIXME now do something with it */
-				CtdlLogPrintf(CTDL_DEBUG, "\033[32mREAD %d BYTES\033[0m\n", nbytes);
-			}
-		} while (nbytes == sizeof(buf));
+			diffbuf = realloc(diffbuf, diffbuf_len + 1025);
+			nbytes = fread(&diffbuf[diffbuf_len], 1, 1024, fp);
+			diffbuf_len += nbytes;
+		} while (nbytes == 1024);
+		diffbuf[diffbuf_len] = 0;
 		pclose(fp);
 	}
+	CtdlLogPrintf(CTDL_DEBUG, "diff length is %d bytes\n", diffbuf_len);
 
 	unlink(diff_old_filename);
 	unlink(diff_new_filename);
+
+	/* Determine whether this was a bogus (empty) edit */
+	if ((diffbuf_len = 0) && (diffbuf != NULL)) {
+		free(diffbuf);
+		diffbuf = NULL;
+	}
+	if (diffbuf == NULL) {
+		return(1);		/* No changes at all?  Abandon the post entirely! */
+	}
+
+	free(diffbuf);	/* FIXME do something with it */
 
 	/* Now look for the existing edit history */
 
