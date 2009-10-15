@@ -741,7 +741,6 @@ void tmplput_mesg(StrBuf *Target, WCTemplputParams *TP)
 void RegisterEmbeddableMimeType(const char *MimeType, long MTLen, int Priority)
 {
 	StrBuf *MT;
-	printf("%s - %ld\n", MimeType, Priority);
 	MT = NewStrBufPlain(MimeType, MTLen);
 	Put(EmbeddableMimes, IKEY(Priority), MT, HFreeStrBuf);
 }
@@ -756,14 +755,12 @@ void CreateMimeStr(void)
 	it = GetNewHashPos(EmbeddableMimes, 0);
 	while (GetNextHashPos(EmbeddableMimes, it, &len, &Key, &vMime) &&
                (vMime != NULL)) {
-		printf("%s - \n", ChrPtr((StrBuf*) vMime));
 		if (StrLength(EmbeddableMimeStrs) > 0)
 			StrBufAppendBufPlain(EmbeddableMimeStrs, HKEY("|"), 0);
 		else 
 			StrBufAppendBufPlain(EmbeddableMimeStrs, HKEY("MSGP "), 0);
 		StrBufAppendBuf(EmbeddableMimeStrs, (StrBuf*) vMime, 0);
 	}
-	printf("------%ld-------------%s------%s------------\n", len, ChrPtr(EmbeddableMimeStrs), ChrPtr((StrBuf*) vMime));
 	DeleteHashPos(&it);
 }
 
