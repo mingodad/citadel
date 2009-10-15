@@ -1073,6 +1073,9 @@ void StrBufAppendTemplate(StrBuf *Target,
 	case 'J':
 		StrECMAEscAppend(Target, Source, NULL);
 	  break;
+	case 'K':
+		StrHtmlEcmaEscAppend(Target, Source, NULL, 0, 0);
+	  break;
 	case 'U':
 		StrBufUrlescAppend(Target, Source, NULL);
 		break;
