@@ -2947,6 +2947,8 @@ inline static void DecodeSegment(StrBuf *Target,
 	char encoding[16];
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1);
+#else
+	void *ic = NULL;
 #endif
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
