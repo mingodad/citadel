@@ -624,6 +624,28 @@ void set_X_PREFS(const char *key, size_t keylen, const char *xkey, size_t xkeyle
 }
 
 
+long get_ROOM_PREFS_LONG(const char *key, size_t keylen, long *value, long Default)
+{
+	Preference *Pref;
+	int Ret;
+
+	Ret = get_room_prefs_backend(key, keylen, &Pref);
+
+	if (Ret == 0) {
+		*value = Default;
+		return 0;
+	}
+
+	if (Pref->decoded)
+		*value = Pref->lval;
+	else {
+		*value = Pref->lval = atol(ChrPtr(Pref->Val));
+		Pref->decoded = 1;
+	}
+	return Ret;
+}
+
+
 StrBuf *get_ROOM_PREFS(const char *key, size_t keylen)
 {
 	Preference *Pref;
@@ -782,6 +804,15 @@ void tmplput_CFG_Descr(StrBuf *Target, WCTemplputParams *TP)
 	SettingStr = PrefGetLocalStr(TKEY(0));
 	if (SettingStr != NULL) 
 		StrBufAppendBufPlain(Target, SettingStr, -1, 0);
+}
+void tmplput_CFG_RoomValueLong(StrBuf *Target, WCTemplputParams *TP)
+{
+	long lvalue;
+	long defval;
+
+	defval = GetTemplateTokenNumber(Target, TP, 1, 0);
+	get_ROOM_PREFS_LONG(TKEY(0), &lvalue, defval);
+	StrBufAppendPrintf(Target, "%ld", lvalue);
 }
 void tmplput_CFG_RoomValue(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -978,7 +1009,9 @@ InitModule_PREFERENCES
 
 	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
 	RegisterNamespace("PREF:ROOM:VALUE", 1, 2, tmplput_CFG_RoomValue,  CTX_NONE);
+	RegisterNamespace("PREF:ROOM:VALUE:INT", 1, 2, tmplput_CFG_RoomValueLong,  CTX_NONE);
 	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
+	
 	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
