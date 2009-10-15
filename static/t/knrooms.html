@@ -16,17 +16,26 @@
 	<select name="newview" size="1" 
 OnChange="location.href=roomlistomatic.newview.options[selectedIndex].value">
 
-<option <?%("COND:PREF", 1, "roomlistview", "rooms", "SELECTED", "")> value="knrooms?view=rooms"><?_("View as room list")></option>
-<option <?%("COND:PREF", 1, "roomlistview", "folders", "SELECTED", "")> value="knrooms?view=folders"><?_("View as folder list")></option>
+<option <?%("COND:PREF", 1, "roomlistview", "rooms", "SELECTED", "")> value="knrooms?view=rooms&template=knrooms&SortBy=byfloorroom&SortOrder=1"><?_("View as room list")></option>
+<option <?%("COND:PREF", 1, "roomlistview", "folders", "SELECTED", "")> value="knrooms?view=folders&template=knrooms&SortBy=byfloorroom&SortOrder=1"><?_("View as folder list")></option>
 <?%("COND:PREF", 1, "roomlistview", "table", "SELECTED", "")>
 </select>
 
 </form></li>
 </ul></div></div>
-<div id="content" class="service">
 
+<??("COND:PREF", 2, "roomlistview", "folders")>
+<div id="content" class="service">
 <table BORDER=0 WIDTH=96%% CELLPADDING=5>
 <?ITERATE("LKRA", "knrooms_rooms")>
 </table>
+<??("X", 2)>
 
+<?!("COND:PREF", 3, "roomlistview", "folders")>
+<div id="content" class="service">
+  <div id="roomlist_knrooms"></div>
+<?!("X", 3)>
+<script type="text/javascript">
+FillRooms(KNRoomsRoomList);
+</script>
 <?=("trailing")>

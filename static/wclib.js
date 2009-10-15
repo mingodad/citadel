@@ -210,7 +210,8 @@ function switch_to_menu_buttons() {
   var roomlist = document.getElementById("roomlist");
   roomlist.className += " hidden";
 }
-function IconBarRoomList() {
+
+function GenericTreeRoomList(roomlist) {
   var currentExpanded = ctdlLocalPrefs.readPref("rooms_expanded");
   var curRoomName = "";
   if (document.getElementById("rmname")) {
@@ -218,7 +219,6 @@ function IconBarRoomList() {
   }
   currentDropTargets = new Array();
   var iconbar = document.getElementById("iconbar");
-  roomlist = document.getElementById("roomlist");
   var ul = document.createElement("ul");
   roomlist.appendChild(ul);
   // Add mailbox, because they are special
@@ -267,6 +267,14 @@ function IconBarRoomList() {
 		  }
     }
   }
+}
+function IconBarRoomList() {
+  roomlist = document.getElementById("roomlist");
+  GenericTreeRoomList(roomlist);
+}
+function KNRoomsRoomList() {
+  roomlist = document.getElementById("roomlist_knrooms");
+  GenericTreeRoomList(roomlist);
 }
 
 function addRoomToList(floorUL,room, roomToEmphasize) {
