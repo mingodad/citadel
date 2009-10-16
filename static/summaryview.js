@@ -64,30 +64,30 @@ var nummsgs = 0;
 var startmsg = 0;
 
 function createMessageView() {
-  message_view = document.getElementById("message_list_body");
-  loadingMsg = document.getElementById("loading");
-  getMessages();
-  mlh_date = $("mlh_date");
-  mlh_subject = $('mlh_subject');
-  mlh_from = $('mlh_from');
-  toggles["rdate"] = mlh_date;
-  toggles["date"] = mlh_date;
-  toggles["subj"] = mlh_subject;
-  toggles["rsubj"] = mlh_subject;
-  toggles["sender"] = mlh_from;
-  toggles["rsender"] = mlh_from;
-  mlh_date.observe('click',ApplySort);
-  mlh_subject.observe('click',ApplySort);
-  mlh_from.observe('click',ApplySort);
-  $(document).observe('keyup',CtdlMessageListKeyUp,false);
-  $('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
-  $('m_refresh').observe('click', getMessages);
-  document.getElementById('m_refresh').setAttribute("href","#");
-  Event.observe(document.onresize ? document : window, "resize", normalizeHeaderTable);
-  Event.observe(document.onresize ? document : window, "resize", sizePreviewPane);
-  $('summpage').observe('change', getPage);
-  takeOverSearchOMatic();
-  setupDragDrop(); // here for now
+	message_view = document.getElementById("message_list_body");
+	loadingMsg = document.getElementById("loading");
+	getMessages();
+	mlh_date = $("mlh_date");
+	mlh_subject = $('mlh_subject');
+	mlh_from = $('mlh_from');
+	toggles["rdate"] = mlh_date;
+	toggles["date"] = mlh_date;
+	toggles["subj"] = mlh_subject;
+	toggles["rsubj"] = mlh_subject;
+	toggles["sender"] = mlh_from;
+	toggles["rsender"] = mlh_from;
+	mlh_date.observe('click',ApplySort);
+	mlh_subject.observe('click',ApplySort);
+	mlh_from.observe('click',ApplySort);
+	$(document).observe('keyup',CtdlMessageListKeyUp,false);
+	$('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
+	$('m_refresh').observe('click', getMessages);
+	document.getElementById('m_refresh').setAttribute("href","#");
+	Event.observe(document.onresize ? document : window, "resize", normalizeHeaderTable);
+	Event.observe(document.onresize ? document : window, "resize", sizePreviewPane);
+	$('summpage').observe('change', getPage);
+	takeOverSearchOMatic();
+	setupDragDrop(); // here for now
 }
 
 function getMessages() {
@@ -114,308 +114,308 @@ function getMessages() {
 	}
 	new Ajax.Request("roommsgs", {
 		method: 'get',
-		onSuccess: loadMessages,
-		parameters: parameters,
-		sanitize: false,
-		evalJSON: false,
-		onFailure: function(e) { alert("Failure: " + e);}
+				onSuccess: loadMessages,
+				parameters: parameters,
+				sanitize: false,
+				evalJSON: false,
+				onFailure: function(e) { alert("Failure: " + e);}
 	});
 }
 
 function evalJSON(data) {
-  var jsonData = null;
-  if (typeof(JSON) === 'object' && typeof(JSON.parse) === 'function') {
-    try {
-    jsonData = JSON.parse(data);
-    } catch (e) {
-      // ignore
-    }
-  }
-  if (jsonData == null) {
-    jsonData = eval('('+data+')');
-  }
-  return jsonData;
+	var jsonData = null;
+	if (typeof(JSON) === 'object' && typeof(JSON.parse) === 'function') {
+		try {
+			jsonData = JSON.parse(data);
+		} catch (e) {
+			// ignore
+		}
+	}
+	if (jsonData == null) {
+		jsonData = eval('('+data+')');
+	}
+	return jsonData;
 }
 function loadMessages(transport) {
-  try {
-    var data = evalJSON(transport.responseText);
-  if (!!data && transport.responseText.length < 2) {
-    alert("Message loading failed");
-  } 
-  nummsgs = data['nummsgs'];
-  msgs = data['msgs'];
-  var length = msgs.length;
-  rowArray = new Array(length); // store so they can be sorted
-  WCLog("Row array length: "+rowArray.length);
-  } catch (e) {
-    //window.alert(e+"|"+e.description);
-  }
-  if (currentSortMode == null) {
-  if (sortmode.length < 1) {
-    sortmode = "rdate";
-  }
-  currentSortMode = [sortmode, sortModes[sortmode]];
-  currentSorterToggle = toggles[sortmode];
-  }
-  if (!is_safe_mode) {
-  resortAndDisplay(currentSortMode[1]);
-  } else {
-    setupPageSelector();
-    resortAndDisplay(null);
-  }
-  if (loadingMsg.parentNode != null) {
-    loadingMsg.parentNode.removeChild(loadingMsg);
-  }
-  sizePreviewPane();
+	try {
+		var data = evalJSON(transport.responseText);
+		if (!!data && transport.responseText.length < 2) {
+			alert("Message loading failed");
+		} 
+		nummsgs = data['nummsgs'];
+		msgs = data['msgs'];
+		var length = msgs.length;
+		rowArray = new Array(length); // store so they can be sorted
+		WCLog("Row array length: "+rowArray.length);
+	} catch (e) {
+		//window.alert(e+"|"+e.description);
+	}
+	if (currentSortMode == null) {
+		if (sortmode.length < 1) {
+			sortmode = "rdate";
+		}
+		currentSortMode = [sortmode, sortModes[sortmode]];
+		currentSorterToggle = toggles[sortmode];
+	}
+	if (!is_safe_mode) {
+		resortAndDisplay(currentSortMode[1]);
+	} else {
+		setupPageSelector();
+		resortAndDisplay(null);
+	}
+	if (loadingMsg.parentNode != null) {
+		loadingMsg.parentNode.removeChild(loadingMsg);
+	}
+	sizePreviewPane();
 }
 function resortAndDisplay(sortMode) {
-  WCLog("Begin resortAndDisplay");
+	WCLog("Begin resortAndDisplay");
   
-  /* We used to try and clear out the message_view element,
-     but stupid IE doesn't even do that properly */
-  var message_view_parent = message_view.parentNode;
-  message_view_parent.removeChild(message_view);
-  var startSort = new Date();
-  try {
-  if (sortMode != null) {
-    msgs.sort(sortMode);
-  }
-  } catch (e) {
-    WCLog("Sort error: " + e);
-  }
-  var endSort = new Date();
-  WCLog("Sort rowArray in " + (endSort-startSort));
-  var start = new Date();
-  var length = msgs.length;
-  var compiled = new Array(length+2);
-  compiled[0] = "<tbody xmlns:citadel=\"http://citadel.org\" id=\"message_list_body\" class=\"mailbox_summary\">";
-  for(var x=0; x<length; ++x) {
-    try {
-      var currentRow = msgs[x];
-      trTemplate[1] = "msg_"+currentRow[0];
-      var className = "";
-    if (((x-1) % 2) == 0) {
-      className += "table-alt-row";
-    } else {
-      className += "table-row";
-    }
-    if (currentRow[5]) {
-      className += " new_message";
-    }
-    trTemplate[3] = className;
-    trTemplate[5] = currentRow[0];
-    trTemplate[7] = x;
-    trTemplate[9] = currentRow[1];
-    trTemplate[11] = currentRow[2];
-    trTemplate[13] = currentRow[4];
-    var i = x+1;
-    compiled[i] = trTemplate.join("");
-    } catch (e) {
-      WCLog("Exception on row " +  x + ":" + e);
-    }
-  }
-  compiled[length+2] = "</tbody>";
-  var end = new Date();
-  WCLog("iterate: " + (end-start));
-  var compile = compiled.join("");
-  start = new Date();
-  $(message_view_parent).update(compile);
-  message_view_parent.onclick = CtdlMessageListClick;
-  message_view = message_view_parent.firstChild;
-  end = new Date();
-    var delta = end.getTime() - start.getTime();
-    WCLog("append: " + delta);
-  ApplySorterToggle();
-  normalizeHeaderTable();
+	/* We used to try and clear out the message_view element,
+	   but stupid IE doesn't even do that properly */
+	var message_view_parent = message_view.parentNode;
+	message_view_parent.removeChild(message_view);
+	var startSort = new Date();
+	try {
+		if (sortMode != null) {
+			msgs.sort(sortMode);
+		}
+	} catch (e) {
+		WCLog("Sort error: " + e);
+	}
+	var endSort = new Date();
+	WCLog("Sort rowArray in " + (endSort-startSort));
+	var start = new Date();
+	var length = msgs.length;
+	var compiled = new Array(length+2);
+	compiled[0] = "<tbody xmlns:citadel=\"http://citadel.org\" id=\"message_list_body\" class=\"mailbox_summary\">";
+	for(var x=0; x<length; ++x) {
+		try {
+			var currentRow = msgs[x];
+			trTemplate[1] = "msg_"+currentRow[0];
+			var className = "";
+			if (((x-1) % 2) == 0) {
+				className += "table-alt-row";
+			} else {
+				className += "table-row";
+			}
+			if (currentRow[5]) {
+				className += " new_message";
+			}
+			trTemplate[3] = className;
+			trTemplate[5] = currentRow[0];
+			trTemplate[7] = x;
+			trTemplate[9] = currentRow[1];
+			trTemplate[11] = currentRow[2];
+			trTemplate[13] = currentRow[4];
+			var i = x+1;
+			compiled[i] = trTemplate.join("");
+		} catch (e) {
+			WCLog("Exception on row " +  x + ":" + e);
+		}
+	}
+	compiled[length+2] = "</tbody>";
+	var end = new Date();
+	WCLog("iterate: " + (end-start));
+	var compile = compiled.join("");
+	start = new Date();
+	$(message_view_parent).update(compile);
+	message_view_parent.onclick = CtdlMessageListClick;
+	message_view = message_view_parent.firstChild;
+	end = new Date();
+	var delta = end.getTime() - start.getTime();
+	WCLog("append: " + delta);
+	ApplySorterToggle();
+	normalizeHeaderTable();
 }
 function sortRowsByDateAscending(a, b) {
-  var dateOne = a[3];
-  var dateTwo = b[3];
-  return (dateOne - dateTwo);
+	var dateOne = a[3];
+	var dateTwo = b[3];
+	return (dateOne - dateTwo);
 };
 function sortRowsByDateDescending(a, b) {
-  var dateOne = a[3];
-  var dateTwo = b[3];
-  return (dateTwo - dateOne);
+	var dateOne = a[3];
+	var dateTwo = b[3];
+	return (dateTwo - dateOne);
 };
 function sortRowsBySubjectAscending(a, b) {
-  var subjectOne = a[1];
-  var subjectTwo = b[1];
-  return strcmp(subjectOne, subjectTwo);
+	var subjectOne = a[1];
+	var subjectTwo = b[1];
+	return strcmp(subjectOne, subjectTwo);
 };
 function sortRowsBySubjectDescending(a, b) {
-  var subjectOne = a[1];
-  var subjectTwo = b[1];
-  return strcmp(subjectTwo, subjectOne);
+	var subjectOne = a[1];
+	var subjectTwo = b[1];
+	return strcmp(subjectTwo, subjectOne);
 };
 function sortRowsByFromAscending(a, b) {
-  var fromOne = a[2];
-  var fromTwo = b[2];
-  return strcmp(fromOne, fromTwo);
+	var fromOne = a[2];
+	var fromTwo = b[2];
+	return strcmp(fromOne, fromTwo);
 };
 function sortRowsByFromDescending(a, b) {
-  var fromOne = a[2];
-  var fromTwo = b[2];
-  return strcmp(fromTwo, fromOne);
+	var fromOne = a[2];
+	var fromTwo = b[2];
+	return strcmp(fromTwo, fromOne);
 };
 function CtdlMessageListClick(evt) {
-  /* Since element.onload is used here, test to see if evt is defined */
-  var event = evt ? evt : window.event; 
-  var target = event.target ? event.target: event.srcElement; // and again..
-  var parent = target.parentNode;
-  var msgId = parent.getAttribute("citadel:msgid");
-  // If the ctrl key modifier wasn't used, unmark all rows and load the message
-  if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
-    previousFinish = 0;
-    markedFrom = 0;
-    unmarkAllRows();
-    markedRowIndex = parent.rowIndex;
-    originalMarkedRow = parent;
-    document.getElementById("preview_pane").innerHTML = "";
-    new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
-    markRow(parent);
-    new Ajax.Request('ajax_servcmd', {
-      method: 'post',
-	  parameters: 'g_cmd=SEEN ' + msgId + '|1',
-	  onComplete: CtdlMarkRowAsRead(parent)});
-  // If the shift key modifier is used, mark a range...
-  } else if (event.button != 2 && event.shiftKey) {
-    if (originalMarkedRow == null) {
-      originalMarkedRow = parent;
-      markRow(parent);
-    } else {
-    unmarkAllRows();
-    markRow(parent);
-    markRow(originalMarkedRow);
-    }
-    var rowIndex = parent.rowIndex;
-    if (markedFrom == 0) {
-      markedFrom = rowIndex;
-    }
-    var startMarkingFrom = 0;
-    var finish = 0;
-    if (rowIndex > markedRowIndex) {
-      startMarkingFrom = markedRowIndex+1;
-      finish = rowIndex;
-    } else if (rowIndex < markedRowIndex) {
-      startMarkingFrom = rowIndex+1;
-      finish = markedRowIndex;
-    }
-    previousFinish = finish;
-    WCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
-    for(var x = startMarkingFrom; x<finish; x++) {
-      WCLog("Marking row " + x);
-      markRow(parent.parentNode.rows[x]);
-    }
-  // If the ctrl key modifier is used, toggle one message
-  } else if (event.button != 2 && (event.ctrlKey || event.altKey)) {
-    if (parent.getAttribute("citadel:marked")) {
-      unmarkRow(parent);
-    }
-    else {
-      markRow(parent);
-    }
-  }
+	/* Since element.onload is used here, test to see if evt is defined */
+	var event = evt ? evt : window.event; 
+	var target = event.target ? event.target: event.srcElement; // and again..
+	var parent = target.parentNode;
+	var msgId = parent.getAttribute("citadel:msgid");
+	// If the ctrl key modifier wasn't used, unmark all rows and load the message
+	if (!event.shiftKey && !event.ctrlKey && !event.altKey) {
+		previousFinish = 0;
+		markedFrom = 0;
+		unmarkAllRows();
+		markedRowIndex = parent.rowIndex;
+		originalMarkedRow = parent;
+		document.getElementById("preview_pane").innerHTML = "";
+		new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
+		markRow(parent);
+		new Ajax.Request('ajax_servcmd', {
+			method: 'post',
+					parameters: 'g_cmd=SEEN ' + msgId + '|1',
+					onComplete: CtdlMarkRowAsRead(parent)});
+		// If the shift key modifier is used, mark a range...
+	} else if (event.button != 2 && event.shiftKey) {
+		if (originalMarkedRow == null) {
+			originalMarkedRow = parent;
+			markRow(parent);
+		} else {
+			unmarkAllRows();
+			markRow(parent);
+			markRow(originalMarkedRow);
+		}
+		var rowIndex = parent.rowIndex;
+		if (markedFrom == 0) {
+			markedFrom = rowIndex;
+		}
+		var startMarkingFrom = 0;
+		var finish = 0;
+		if (rowIndex > markedRowIndex) {
+			startMarkingFrom = markedRowIndex+1;
+			finish = rowIndex;
+		} else if (rowIndex < markedRowIndex) {
+			startMarkingFrom = rowIndex+1;
+			finish = markedRowIndex;
+		}
+		previousFinish = finish;
+		WCLog('startMarkingFrom=' + startMarkingFrom + ', finish=' + finish);
+		for(var x = startMarkingFrom; x<finish; x++) {
+			WCLog("Marking row " + x);
+			markRow(parent.parentNode.rows[x]);
+		}
+		// If the ctrl key modifier is used, toggle one message
+	} else if (event.button != 2 && (event.ctrlKey || event.altKey)) {
+		if (parent.getAttribute("citadel:marked")) {
+			unmarkRow(parent);
+		}
+		else {
+			markRow(parent);
+		}
+	}
 }
 function CtdlMarkRowAsRead(rowElement) {
-  var classes = rowElement.className;
-  classes = classes.replace("new_message","");
-  rowElement.className = classes;
+	var classes = rowElement.className;
+	classes = classes.replace("new_message","");
+	rowElement.className = classes;
 }
 function ApplySort(event) {
-  var target = event.target;
-  var sortId = target.id;
-  removeOldSortClass();
-  currentSorterToggle = target;
-  var sortModes = getSortMode(target); // returns [[key, func],[key,func]]
-  var sortModeToUse = null;
-  if (currentSortMode[0] == sortModes[0][0]) {
-    sortModeToUse = sortModes[1];
-  } else {
-    sortModeToUse = sortModes[0];
-  }
-  currentSortMode = sortModeToUse;
-  if (is_safe_mode) {
-    getMessages(); // in safe mode, we load from server already sorted
-  } else {
-  resortAndDisplay(sortModeToUse[1]);
-  }
+	var target = event.target;
+	var sortId = target.id;
+	removeOldSortClass();
+	currentSorterToggle = target;
+	var sortModes = getSortMode(target); // returns [[key, func],[key,func]]
+	var sortModeToUse = null;
+	if (currentSortMode[0] == sortModes[0][0]) {
+		sortModeToUse = sortModes[1];
+	} else {
+		sortModeToUse = sortModes[0];
+	}
+	currentSortMode = sortModeToUse;
+	if (is_safe_mode) {
+		getMessages(); // in safe mode, we load from server already sorted
+	} else {
+		resortAndDisplay(sortModeToUse[1]);
+	}
 }
 function getSortMode(toggleElem) {
-  var forward = null;
-  var reverse = null;
-  for(var key in toggles) {
-    var kr = (key.charAt(0) == 'r');
-    if (toggles[key] == toggleElem && !kr) {
-      forward = [key, sortModes[key]];
-    } else if (toggles[key] == toggleElem && kr) {
-      reverse = [key, sortModes[key]];
-    }
-  }
-  return [forward, reverse];
+	var forward = null;
+	var reverse = null;
+	for(var key in toggles) {
+		var kr = (key.charAt(0) == 'r');
+		if (toggles[key] == toggleElem && !kr) {
+			forward = [key, sortModes[key]];
+		} else if (toggles[key] == toggleElem && kr) {
+			reverse = [key, sortModes[key]];
+		}
+	}
+	return [forward, reverse];
 }
 function removeOldSortClass() {
-  if (currentSorterToggle) {
-    var classes = currentSorterToggle.className;
-    /* classes = classes.replace("current_sort_mode","");
-    classes = classes.replace("sort_ascending","");
-    classes = classes.replace("sort_descending",""); */
-    currentSorterToggle.className = "";
-  }
+	if (currentSorterToggle) {
+		var classes = currentSorterToggle.className;
+		/* classes = classes.replace("current_sort_mode","");
+		   classes = classes.replace("sort_ascending","");
+		   classes = classes.replace("sort_descending",""); */
+		currentSorterToggle.className = "";
+	}
 }
 function markRow(row) {
-  var msgId = row.getAttribute("citadel:msgid");
-  row.className = row.className += " marked_row";
-  row.setAttribute("citadel:marked","marked");
-  currentlyMarkedRows[msgId] = row;
+	var msgId = row.getAttribute("citadel:msgid");
+	row.className = row.className += " marked_row";
+	row.setAttribute("citadel:marked","marked");
+	currentlyMarkedRows[msgId] = row;
 }
 function unmarkRow(row) {
-  var msgId = row.getAttribute("citadel:msgid");
-  row.className = row.className.replace("marked_row","");
-  row.removeAttribute("citadel:marked");
-  delete currentlyMarkedRows[msgId];
+	var msgId = row.getAttribute("citadel:msgid");
+	row.className = row.className.replace("marked_row","");
+	row.removeAttribute("citadel:marked");
+	delete currentlyMarkedRows[msgId];
 }
 function unmarkAllRows() {
-  for(msgId in currentlyMarkedRows) {
-    unmarkRow(currentlyMarkedRows[msgId]);
-  }
+	for(msgId in currentlyMarkedRows) {
+		unmarkRow(currentlyMarkedRows[msgId]);
+	}
 }
 function deleteAllMarkedRows() {
-  for(msgId in currentlyMarkedRows) {
-    var row = currentlyMarkedRows[msgId];
-    var rowArrayId = row.getAttribute("citadel:ctdlrowid");
-    row.parentNode.removeChild(row);
-    delete currentlyMarkedRows[msgId];
-    delete msgs[rowArrayId];
-  }
-  // Now we have to reconstruct rowarray as the array length has changed */
-  var newMsgs = new Array(msgs.length-1);
-  var x=0;
-  for(var i=0; i<rowArray.length; i++) {
-    var currentRow = msgs[i];
-    if (currentRow != null) {
-      newMsgs[x] = currentRow;
-      x++;
-    }
-  }
-  msgs = newMsgs;
-  resortAndDisplay(null);
+	for(msgId in currentlyMarkedRows) {
+		var row = currentlyMarkedRows[msgId];
+		var rowArrayId = row.getAttribute("citadel:ctdlrowid");
+		row.parentNode.removeChild(row);
+		delete currentlyMarkedRows[msgId];
+		delete msgs[rowArrayId];
+	}
+	// Now we have to reconstruct rowarray as the array length has changed */
+	var newMsgs = new Array(msgs.length-1);
+	var x=0;
+	for(var i=0; i<rowArray.length; i++) {
+		var currentRow = msgs[i];
+		if (currentRow != null) {
+			newMsgs[x] = currentRow;
+			x++;
+		}
+	}
+	msgs = newMsgs;
+	resortAndDisplay(null);
 }
 
 function deleteAllSelectedMessages() {
-    for(msgId in currentlyMarkedRows) {
-      if (!room_is_trash) {
-      new Ajax.Request('ajax_servcmd', 
-		       {method: 'post',
-			   parameters: 'g_cmd=MOVE ' + msgId + '|_TRASH_|0'
-			   });
-      } else {
-	new Ajax.Request('ajax_servcmd', {method: 'post',
-	      parameters: 'g_cmd=DELE '+msgId});
-      }
-    }
-    document.getElementById("preview_pane").innerHTML = "";
-    deleteAllMarkedRows();
+	for(msgId in currentlyMarkedRows) {
+		if (!room_is_trash) {
+			new Ajax.Request('ajax_servcmd', 
+					 {method: 'post',
+							 parameters: 'g_cmd=MOVE ' + msgId + '|_TRASH_|0'
+							 });
+		} else {
+			new Ajax.Request('ajax_servcmd', {method: 'post',
+						parameters: 'g_cmd=DELE '+msgId});
+		}
+	}
+	document.getElementById("preview_pane").innerHTML = "";
+	deleteAllMarkedRows();
 }
 
 function CtdlMessageListKeyUp(event) {
@@ -426,148 +426,148 @@ function CtdlMessageListKeyUp(event) {
 }
 
 function clearMessage(msgId) {
-  var row = document.getElementById('msg_'+msgId);
-  row.parentNode.removeChild(row);
-  delete currentlyMarkedRows[msgId];
+	var row = document.getElementById('msg_'+msgId);
+	row.parentNode.removeChild(row);
+	delete currentlyMarkedRows[msgId];
 }
 
 function summaryViewContextMenu() {
-  if (!exitedMouseDown) {
-    var contextSource = document.getElementById("listViewContextMenu");
-    CtdlSpawnContextMenu(mouseDownEvent, contextSource);
-  }
+	if (!exitedMouseDown) {
+		var contextSource = document.getElementById("listViewContextMenu");
+		CtdlSpawnContextMenu(mouseDownEvent, contextSource);
+	}
 }
 
 function summaryViewDragAndDropHandler() {
-  var element = document.createElement("div");
-  var msgList = document.createElement("ul");
-  element.appendChild(msgList);
-  for(msgId in currentlyMarkedRows) {
-    msgRow = currentlyMarkedRows[msgId];
-    var subject = getTextContent(msgRow.getElementsByTagName("td")[0]);
-    var li = document.createElement("li");
-    msgList.appendChild(li);
-    setTextContent(li, subject);
-    li.ctdlMsgId = msgId;
-  }
-  return element;
+	var element = document.createElement("div");
+	var msgList = document.createElement("ul");
+	element.appendChild(msgList);
+	for(msgId in currentlyMarkedRows) {
+		msgRow = currentlyMarkedRows[msgId];
+		var subject = getTextContent(msgRow.getElementsByTagName("td")[0]);
+		var li = document.createElement("li");
+		msgList.appendChild(li);
+		setTextContent(li, subject);
+		li.ctdlMsgId = msgId;
+	}
+	return element;
 }
 
 var saved_y = 0;
 function CtdlResizeMouseDown(event) {
-  $(document).observe('mousemove', CtdlResizeMouseMove);
-  $(document).observe('mouseup', CtdlResizeMouseUp);
-  saved_y = event.clientY;
+	$(document).observe('mousemove', CtdlResizeMouseMove);
+	$(document).observe('mouseup', CtdlResizeMouseUp);
+	saved_y = event.clientY;
 }
 
 function sizePreviewPane() {
-  var preview_pane = document.getElementById("preview_pane");
-  var summary_view = document.getElementById("summary_view");
-  var banner = document.getElementById("banner");
-  var message_list_hdr = document.getElementById("message_list_hdr");
-  var content = $('global');  // we'd like to use prototype methods here
-  var childElements = content.childElements();
-  var sizeOfElementsAbove = 0;
-  var heightOfViewPort = document.viewport.getHeight() // prototypejs method
-  var bannerHeight = banner.offsetHeight;
-  var contentViewPortHeight = heightOfViewPort-banner.offsetHeight-message_list_hdr.offsetHeight;
-  contentViewPortHeight = 0.98 * contentViewPortHeight; // leave some error
-  // Set summary_view to 20%;
-  var summary_height = ctdlLocalPrefs.readPref("svheight");
-  if (summary_height == null) {
-    summary_height = 0.20 * contentViewPortHeight;
-  }
-  // Set preview_pane to the remainder
-  var preview_height = contentViewPortHeight - summary_height;
+	var preview_pane = document.getElementById("preview_pane");
+	var summary_view = document.getElementById("summary_view");
+	var banner = document.getElementById("banner");
+	var message_list_hdr = document.getElementById("message_list_hdr");
+	var content = $('global');  // we'd like to use prototype methods here
+	var childElements = content.childElements();
+	var sizeOfElementsAbove = 0;
+	var heightOfViewPort = document.viewport.getHeight() // prototypejs method
+		var bannerHeight = banner.offsetHeight;
+	var contentViewPortHeight = heightOfViewPort-banner.offsetHeight-message_list_hdr.offsetHeight;
+	contentViewPortHeight = 0.98 * contentViewPortHeight; // leave some error
+	// Set summary_view to 20%;
+	var summary_height = ctdlLocalPrefs.readPref("svheight");
+	if (summary_height == null) {
+		summary_height = 0.20 * contentViewPortHeight;
+	}
+	// Set preview_pane to the remainder
+	var preview_height = contentViewPortHeight - summary_height;
   
-  summary_view.style.height = (summary_height)+"px";
-  preview_pane.style.height = (preview_height)+"px";
+	summary_view.style.height = (summary_height)+"px";
+	preview_pane.style.height = (preview_height)+"px";
 }
 function CtdlResizeMouseMove(event) {
-  var clientX = event.clientX;
-  var clientY = event.clientY;
-  var summary_view = document.getElementById("summary_view");
-  var summaryViewHeight = summary_view.offsetHeight;
-  var increment = clientY-saved_y;
-  var summary_view_height = increment+summaryViewHeight;
-  summary_view.style.height = (summary_view_height)+"px";
-  // store summary view height 
-  ctdlLocalPrefs.setPref("svheight",summary_view_height);
-  var msglist = document.getElementById("preview_pane");
-  var msgListHeight = msglist.offsetHeight;
-  msglist.style.height = (msgListHeight-increment)+"px";
-  saved_y = clientY;
-  /* For some reason the grippy doesn't work without position: absolute
-     so we need to set its top pos manually all the time */
-  var resize = document.getElementById("resize_msglist");
-  var resizePos = resize.offsetTop;
-  resize.style.top = (resizePos+increment)+"px";
+	var clientX = event.clientX;
+	var clientY = event.clientY;
+	var summary_view = document.getElementById("summary_view");
+	var summaryViewHeight = summary_view.offsetHeight;
+	var increment = clientY-saved_y;
+	var summary_view_height = increment+summaryViewHeight;
+	summary_view.style.height = (summary_view_height)+"px";
+	// store summary view height 
+	ctdlLocalPrefs.setPref("svheight",summary_view_height);
+	var msglist = document.getElementById("preview_pane");
+	var msgListHeight = msglist.offsetHeight;
+	msglist.style.height = (msgListHeight-increment)+"px";
+	saved_y = clientY;
+	/* For some reason the grippy doesn't work without position: absolute
+	   so we need to set its top pos manually all the time */
+	var resize = document.getElementById("resize_msglist");
+	var resizePos = resize.offsetTop;
+	resize.style.top = (resizePos+increment)+"px";
 }
 function CtdlResizeMouseUp(event) {
-  $(document).stopObserving('mousemove', CtdlResizeMouseMove);
-  $(document).stopObserving('mouseup', CtdlResizeMouseUp);
+	$(document).stopObserving('mousemove', CtdlResizeMouseMove);
+	$(document).stopObserving('mouseup', CtdlResizeMouseUp);
 }
 function ApplySorterToggle() {
-  var className = currentSorterToggle.className;
-  className += " current_sort_mode";
-  if (currentSortMode[1] == sortRowsByDateDescending ||
-      currentSortMode[1] == sortRowsBySubjectDescending ||
-      currentSortMode[1] == sortRowsByFromDescending) {
-    className += " sort_descending";
-  } else {
-    className += " sort_ascending";
-  }
-  currentSorterToggle.className = className;
+	var className = currentSorterToggle.className;
+	className += " current_sort_mode";
+	if (currentSortMode[1] == sortRowsByDateDescending ||
+	    currentSortMode[1] == sortRowsBySubjectDescending ||
+	    currentSortMode[1] == sortRowsByFromDescending) {
+		className += " sort_descending";
+	} else {
+		className += " sort_ascending";
+	}
+	currentSorterToggle.className = className;
 }
 /** Hack to make the header table line up with the data */
 function normalizeHeaderTable() {
-  var message_list_hdr = document.getElementById("message_list_hdr");
-  var summary_view = document.getElementById("summary_view");
-  var resize_msglist = document.getElementById("resize_msglist");
-  var headerTable = message_list_hdr.getElementsByTagName("table")[0];
-  var dataTable = summary_view.getElementsByTagName("table")[0];
-  var dataTableWidth = dataTable.offsetWidth;
-  headerTable.style.width = dataTableWidth+"px";
+	var message_list_hdr = document.getElementById("message_list_hdr");
+	var summary_view = document.getElementById("summary_view");
+	var resize_msglist = document.getElementById("resize_msglist");
+	var headerTable = message_list_hdr.getElementsByTagName("table")[0];
+	var dataTable = summary_view.getElementsByTagName("table")[0];
+	var dataTableWidth = dataTable.offsetWidth;
+	headerTable.style.width = dataTableWidth+"px";
 }
 
 function setupPageSelector() {
-  var summpage = document.getElementById("summpage");
-  var select_page = document.getElementById("selectpage");
-  summpage.innerHTML = "";
-  if (is_safe_mode) {
-    WCLog("unhiding parent page");
-    select_page.className = "";
-  } else {
-    return;
-  }
-  var pages = nummsgs / 499;
-  for(var i=0; i<pages; i++) {
-    var opt = document.createElement("option");
-    var startmsg = i * 499;
-    opt.setAttribute("value",startmsg);
-    if (currentPage == i) {
-      opt.setAttribute("selected","selected");
-    }
-    opt.appendChild(document.createTextNode((i+1)));
-    summpage.appendChild(opt);
-  }
+	var summpage = document.getElementById("summpage");
+	var select_page = document.getElementById("selectpage");
+	summpage.innerHTML = "";
+	if (is_safe_mode) {
+		WCLog("unhiding parent page");
+		select_page.className = "";
+	} else {
+		return;
+	}
+	var pages = nummsgs / 499;
+	for(var i=0; i<pages; i++) {
+		var opt = document.createElement("option");
+		var startmsg = i * 499;
+		opt.setAttribute("value",startmsg);
+		if (currentPage == i) {
+			opt.setAttribute("selected","selected");
+		}
+		opt.appendChild(document.createTextNode((i+1)));
+		summpage.appendChild(opt);
+	}
 }
 function getPage(event) {
-  var target = event.target;
-  startmsg = target.options.item(target.selectedIndex).value;
-  currentPage = target.selectedIndex;
-  //query = ""; // We are getting a page from the _entire_ msg list, don't query
-  getMessages();
+	var target = event.target;
+	startmsg = target.options.item(target.selectedIndex).value;
+	currentPage = target.selectedIndex;
+	//query = ""; // We are getting a page from the _entire_ msg list, don't query
+	getMessages();
 }
 function takeOverSearchOMatic() {
-  var searchForm = document.getElementById("searchomatic").getElementsByTagName("form")[0];
-  // First disable the form post
-  searchForm.setAttribute("action","javascript:void();");
-  searchForm.removeAttribute("method");
-  $(searchForm).observe('submit', doSearch);
+	var searchForm = document.getElementById("searchomatic").getElementsByTagName("form")[0];
+	// First disable the form post
+	searchForm.setAttribute("action","javascript:void();");
+	searchForm.removeAttribute("method");
+	$(searchForm).observe('submit', doSearch);
 }
 function doSearch() {
-  query = document.getElementById("srchquery").value;
-  getMessages();
-  return false;
+	query = document.getElementById("srchquery").value;
+	getMessages();
+	return false;
 }
