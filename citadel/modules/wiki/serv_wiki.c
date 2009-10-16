@@ -117,18 +117,15 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	old_msg = CtdlFetchMessage(old_msgnum, 1);
 
-	if (old_msg != NULL) {
-
-		if (old_msg->cm_fields['M'] == NULL) {		/* old version is corrupt? */
-			CtdlFreeMessage(old_msg);
-			return(0);
-		}
+	if ((old_msg != NULL) && (old_msg->cm_fields['M'] == NULL)) {	/* old version is corrupt? */
+		CtdlFreeMessage(old_msg);
+		old_msg = NULL;
+	}
 	
-		/* If no changes were made, don't bother saving it again */
-		if (!strcmp(msg->cm_fields['M'], old_msg->cm_fields['M'])) {
-			CtdlFreeMessage(old_msg);
-			return(1);
-		}
+	/* If no changes were made, don't bother saving it again */
+	if ((old_msg != NULL) && (!strcmp(msg->cm_fields['M'], old_msg->cm_fields['M']))) {
+		CtdlFreeMessage(old_msg);
+		return(1);
 	}
 
 	/*
