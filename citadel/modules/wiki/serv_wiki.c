@@ -62,7 +62,7 @@
 
 /*
  * Before allowing a wiki page save to execute, we have to perform version control.
- * This involves fetching the old version of the page if it exists... FIXME finish this
+ * This involves fetching the old version of the page if it exists.
  */
 int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	struct CitContext *CCC = CC;
@@ -97,6 +97,16 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	/* If there's no EUID we can't do this. */
 	if (msg->cm_fields['E'] == NULL) return(0);
 
+	/* Make sure we're saving a real wiki page rather than a wiki history page.
+	 * This is important in order to avoid recursing infinitely into this hook.
+	 */
+	if (	(strlen(msg->cm_fields['E']) >= 9)
+		&& (!strcasecmp(&msg->cm_fields['E'][strlen(msg->cm_fields['E'])-9], "_HISTORY_"))
+	) {
+		CtdlLogPrintf(CTDL_DEBUG, "History page not being historied\n");
+		return(0);
+	}
+
 	/* If there's no message text, obviously this is all b0rken and shouldn't happen at all */
 	if (msg->cm_fields['M'] == NULL) return(0);
 
@@ -106,17 +116,19 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	snprintf(history_page, sizeof history_page, "%s_HISTORY_", msg->cm_fields['E']);
 
 	old_msg = CtdlFetchMessage(old_msgnum, 1);
-	if (old_msg == NULL) return(0);
 
-	if (old_msg->cm_fields['M'] == NULL) {		/* old version is corrupt? */
-		CtdlFreeMessage(old_msg);
-		return(0);
-	}
+	if (old_msg != NULL) {
 
-	/* If no changes were made, don't bother saving it again */
-	if (!strcmp(msg->cm_fields['M'], old_msg->cm_fields['M'])) {
-		CtdlFreeMessage(old_msg);
-		return(1);
+		if (old_msg->cm_fields['M'] == NULL) {		/* old version is corrupt? */
+			CtdlFreeMessage(old_msg);
+			return(0);
+		}
+	
+		/* If no changes were made, don't bother saving it again */
+		if (!strcmp(msg->cm_fields['M'], old_msg->cm_fields['M'])) {
+			CtdlFreeMessage(old_msg);
+			return(1);
+		}
 	}
 
 	/*
@@ -125,10 +137,12 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	CtdlMakeTempFileName(diff_old_filename, sizeof diff_old_filename);
 	CtdlMakeTempFileName(diff_new_filename, sizeof diff_new_filename);
 
-	fp = fopen(diff_old_filename, "w");
-	rv = fwrite(old_msg->cm_fields['M'], strlen(old_msg->cm_fields['M']), 1, fp);
-	fclose(fp);
-	CtdlFreeMessage(old_msg);
+	if (old_msg != NULL) {
+		fp = fopen(diff_old_filename, "w");
+		rv = fwrite(old_msg->cm_fields['M'], strlen(old_msg->cm_fields['M']), 1, fp);
+		fclose(fp);
+		CtdlFreeMessage(old_msg);
+	}
 
 	fp = fopen(diff_new_filename, "w");
 	rv = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
@@ -136,7 +150,11 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	diffbuf_len = 0;
 	diffbuf = NULL;
-	snprintf(diff_cmd, sizeof diff_cmd, "diff -u %s %s", diff_old_filename, diff_new_filename);
+	snprintf(diff_cmd, sizeof diff_cmd,
+		"diff -u %s %s",
+		((old_msg != NULL) ? diff_old_filename : "/dev/null"),
+		diff_new_filename
+	);
 	fp = popen(diff_cmd, "r");
 	if (fp != NULL) {
 		do {
@@ -166,7 +184,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	history_msgnum = locate_message_by_euid(history_page, &CCC->room);
 	history_msg = NULL;
 	if (history_msgnum > 0L) {
-		history_msg = CtdlFetchMessage(old_msgnum, 1);
+		history_msg = CtdlFetchMessage(history_msgnum, 1);
 	}
 
 	/* Create a new history message if necessary */
@@ -178,6 +196,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		history_msg->cm_format_type = FMT_RFC822;
 		history_msg->cm_fields['A'] = strdup("Citadel");
 		history_msg->cm_fields['R'] = strdup(CCC->room.QRname);
+		history_msg->cm_fields['E'] = strdup(history_page);
 		snprintf(boundary, sizeof boundary, "Citadel--Multipart--%04x--%08lx", getpid(), time(NULL));
 		history_msg->cm_fields['M'] = malloc(1024);
 		snprintf(history_msg->cm_fields['M'], 1024,
@@ -190,7 +209,6 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	/* Update the history message (regardless of whether it's new or existing) */
-
 
 	/* First, figure out the boundary string.  We do this even when we generated the
 	 * boundary string in the above code, just to be safe and consistent.
@@ -247,8 +265,10 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		history_msg->cm_fields['T'] = realloc(history_msg->cm_fields['T'], 32);
 		snprintf(history_msg->cm_fields['T'], 32, "%ld", time(NULL));
 	
-		CtdlLogPrintf(CTDL_DEBUG, "\033[31m%s\033[0m", history_msg->cm_fields['M']);
-		/* FIXME now do something with it */
+		CtdlSubmitMsg(history_msg, NULL, "", 0);
+	}
+	else {
+		CtdlLogPrintf(CTDL_ALERT, "Empty boundary string in history message.  No history!\n");
 	}
 
 	free(diffbuf);
