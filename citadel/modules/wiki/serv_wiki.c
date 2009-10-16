@@ -3,7 +3,7 @@
  *
  * Server-side module for Wiki rooms.  This will handle things like version control. 
  * 
- * Copyright (c) 2009-2009 by the citadel.org team
+ * Copyright (c) 2009 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -96,6 +96,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* If there's no EUID we can't do this. */
 	if (msg->cm_fields['E'] == NULL) return(0);
+	snprintf(history_page, sizeof history_page, "%s_HISTORY_", msg->cm_fields['E']);
 
 	/* Make sure we're saving a real wiki page rather than a wiki history page.
 	 * This is important in order to avoid recursing infinitely into this hook.
@@ -112,10 +113,12 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* See if we can retrieve the previous version. */
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CCC->room);
-	if (old_msgnum <= 0L) return(0);
-	snprintf(history_page, sizeof history_page, "%s_HISTORY_", msg->cm_fields['E']);
-
-	old_msg = CtdlFetchMessage(old_msgnum, 1);
+	if (old_msgnum > 0L) {
+		old_msg = CtdlFetchMessage(old_msgnum, 1);
+	}
+	else {
+		old_msg = NULL;
+	}
 
 	if ((old_msg != NULL) && (old_msg->cm_fields['M'] == NULL)) {	/* old version is corrupt? */
 		CtdlFreeMessage(old_msg);
@@ -194,11 +197,14 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		history_msg->cm_fields['A'] = strdup("Citadel");
 		history_msg->cm_fields['R'] = strdup(CCC->room.QRname);
 		history_msg->cm_fields['E'] = strdup(history_page);
+		history_msg->cm_fields['U'] = strdup(history_page);
 		snprintf(boundary, sizeof boundary, "Citadel--Multipart--%04x--%08lx", getpid(), time(NULL));
 		history_msg->cm_fields['M'] = malloc(1024);
 		snprintf(history_msg->cm_fields['M'], 1024,
 			"Content-type: multipart/mixed; boundary=\"%s\"\n\n"
 			"This is a Citadel wiki history encoded as multipart MIME.\n"
+			"Each part is comprised of a diff script representing one change set.\n"
+			"\n"
 			"--%s--\n"
 			,
 			boundary, boundary
