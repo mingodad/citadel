@@ -77,7 +77,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	int rv;
 	char history_page[1024];
 	char boundary[256];
-	char endary[260];
+	char prefixed_boundary[258];
 	char buf[1024];
 	int nbytes = 0;
 	char *diffbuf = NULL;
@@ -152,8 +152,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	diffbuf = NULL;
 	snprintf(diff_cmd, sizeof diff_cmd,
 		"diff -u %s %s",
-		((old_msg != NULL) ? diff_old_filename : "/dev/null"),
-		diff_new_filename
+		diff_new_filename,
+		((old_msg != NULL) ? diff_old_filename : "/dev/null")
 	);
 	fp = popen(diff_cmd, "r");
 	if (fp != NULL) {
@@ -243,26 +243,30 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		}
 	} while ( (IsEmptyStr(boundary)) && (*ptr != 0) );
 
+	/* Now look for the first boundary.  That is where we need to insert our fun.
+	 */
 	if (!IsEmptyStr(boundary)) {
-		snprintf(endary, sizeof endary, "--%s--", boundary);
+		snprintf(prefixed_boundary, sizeof prefixed_boundary, "--%s", boundary);
 		history_msg->cm_fields['M'] = realloc(history_msg->cm_fields['M'],
 			strlen(history_msg->cm_fields['M']) + strlen(diffbuf) + 512
 		);
-		ptr = bmstrcasestr(history_msg->cm_fields['M'], endary);
+		ptr = bmstrcasestr(history_msg->cm_fields['M'], prefixed_boundary);
 		if (ptr != NULL) {
+			char *the_rest_of_it = strdup(ptr);
 			sprintf(ptr, "--%s\n"
 					"Content-type: text/plain\n"
 					"From: %s <%s>\n"
 					"\n"
 					"%s\n"
-					"--%s--\n"
+					"%s"
 					,
 				boundary,
 				CCC->user.fullname,
 				CCC->cs_inet_email,
 				diffbuf,
-				boundary
+				the_rest_of_it
 			);
+			free(the_rest_of_it);
 		}
 
 		history_msg->cm_fields['T'] = realloc(history_msg->cm_fields['T'], 32);
