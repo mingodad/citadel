@@ -257,7 +257,7 @@ if [ -d "user_modules" ] ; then
 				if [ -f "$k" ] ; then
 # Add this .c file to the Makefile included list of SOURCES
 cat <<EOF >> $SRC_FILE
-SOURCES=\$(SOURCES) user_modules/$j/$k
+SOURCES += user_modules/$j/$k
 EOF
 
 # Generate a .o file name
