@@ -75,7 +75,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
@@ -260,7 +259,7 @@ void PurgeMessages(void) {
 		return;
 	}
 
-	ForEachRoom(GatherPurgeMessages, (void *)purgelist );
+	CtdlForEachRoom(GatherPurgeMessages, (void *)purgelist );
 	DoPurgeMessages(purgelist);
 	fclose(purgelist);
 }
@@ -311,7 +310,7 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 		if (qrbuf->QRflags & QR_NETWORK) return;
 		if (qrbuf->QRflags2 & QR2_SYSTEM) return;
 		if (!strcasecmp(qrbuf->QRname, SYSCONFIGROOM)) return;
-		if (is_noneditable(qrbuf)) return;
+		if (CtdlIsNonEditable(qrbuf)) return;
 
 		/* If we don't know the modification date, be safe and don't purge */
 		if (qrbuf->QRmtime <= (time_t)0) return;
@@ -353,7 +352,7 @@ int PurgeRooms(void) {
 	ForEachUser(AddValidUser, NULL);
 
 	/* Then cycle through the room file */
-	ForEachRoom(DoPurgeRooms, NULL);
+	CtdlForEachRoom(DoPurgeRooms, NULL);
 
 	/* Free the valid user list */
 	while (ValidUserList != NULL) {
@@ -367,11 +366,11 @@ int PurgeRooms(void) {
 	strcpy(transcript, "The following rooms have been auto-purged:\n");
 
 	while (RoomPurgeList != NULL) {
-		if (getroom(&qrbuf, RoomPurgeList->name) == 0) {
+		if (CtdlGetRoom(&qrbuf, RoomPurgeList->name) == 0) {
 			transcript=realloc(transcript, strlen(transcript)+SIZ);
 			snprintf(&transcript[strlen(transcript)], SIZ, " %s\n",
 				qrbuf.QRname);
-			delete_room(&qrbuf);
+			CtdlDeleteRoom(&qrbuf);
 		}
 		pptr = RoomPurgeList->next;
 		free(RoomPurgeList);
@@ -626,7 +625,7 @@ int PurgeVisits(void) {
 	int RoomIsValid, UserIsValid;
 
 	/* First, load up a table full of valid room/gen combinations */
-	ForEachRoom(AddValidRoom, NULL);
+	CtdlForEachRoom(AddValidRoom, NULL);
 
 	/* Then load up a table full of valid user numbers */
 	ForEachUser(AddValidUser, NULL);
@@ -966,7 +965,7 @@ void do_fsck_msg(long msgnum, void *userdata) {
 
 void do_fsck_room(struct ctdlroom *qrbuf, void *data)
 {
-	getroom(&CC->room, qrbuf->QRname);
+	CtdlGetRoom(&CC->room, qrbuf->QRname);
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, do_fsck_msg, NULL);
 }
 
@@ -992,7 +991,7 @@ void cmd_fsck(char *argbuf) {
 
 	cprintf("\nThis could take a while.  Please be patient!\n\n");
 	cprintf("Gathering pointers...\n");
-	ForEachRoom(do_fsck_room, NULL);
+	CtdlForEachRoom(do_fsck_room, NULL);
 
 	get_control();
 	cprintf("Checking message base...\n");

@@ -55,7 +55,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "control.h"
-#include "room_ops.h"
 #include "serv_fulltext.h"
 #include "ft_wordbreaker.h"
 #include "threads.h"
@@ -226,7 +225,7 @@ void ft_index_room(struct ctdlroom *qrbuf, void *data)
 	if (CtdlThreadCheckStop())
 		return;
 		
-	getroom(&CC->room, qrbuf->QRname);
+	CtdlGetRoom(&CC->room, qrbuf->QRname);
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, ft_index_msg, NULL);
 }
 
@@ -290,7 +289,7 @@ void do_fulltext_indexing(void) {
 	 * Now go through each room and find messages to index.
 	 */
 	ft_newhighest = CitControl.MMhighest;
-	ForEachRoom(ft_index_room, NULL);	/* load all msg pointers */
+	CtdlForEachRoom(ft_index_room, NULL);	/* load all msg pointers */
 
 	if (ft_num_msgs > 0) {
 		qsort(ft_newmsgs, ft_num_msgs, sizeof(long), longcmp);

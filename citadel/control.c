@@ -110,7 +110,7 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 		room_fixed = 1;
 	}
 		
-	getroom (&room, qrbuf->QRname);
+	CtdlGetRoom (&room, qrbuf->QRname);
 	
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &room.QRnumber, sizeof(long));
@@ -232,7 +232,7 @@ void check_control(void)
 	CtdlLogPrintf(CTDL_INFO, "Checking/re-building control record\n");
 	get_control();
 	// Find highest room number and message number.
-	ForEachRoom(control_find_highest, NULL);
+	CtdlForEachRoom(control_find_highest, NULL);
 	ForEachUser(control_find_user, NULL);
 	put_control();
 }
@@ -669,7 +669,7 @@ void cmd_conf(char *argbuf)
 		aide_message(buf,"Citadel Configuration Manager Message");
 
 		if (!IsEmptyStr(config.c_logpages))
-			create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
+			CtdlCreateRoom(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
 
 		/* If full text indexing has been disabled, invalidate the
 		 * index so it doesn't try to use it later.

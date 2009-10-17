@@ -171,7 +171,7 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
 	struct RoomProcList *ptr;
 	struct ctdlroom qr;
 
-	/* Lazy programming here.  Call this function as a ForEachRoom backend
+	/* Lazy programming here.  Call this function as a CtdlForEachRoom backend
 	 * in order to queue up the room names, or call it with a null room
 	 * to make it do the processing.
 	 */
@@ -187,12 +187,12 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
 	}
 
 	while (rplist != NULL) {
-		if (getroom(&qr, rplist->name) == 0) {
+		if (CtdlGetRoom(&qr, rplist->name) == 0) {
 			if (DoesThisRoomNeedEuidIndexing(&qr)) {
 				CtdlLogPrintf(CTDL_DEBUG,
 					"Rebuilding EUID index for <%s>\n",
 					rplist->name);
-				usergoto(rplist->name, 0, 0, NULL, NULL);
+				CtdlUserGoto(rplist->name, 0, 0, NULL, NULL);
 				CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,
 					rebuild_euid_index_for_msg, NULL);
 			}
@@ -209,7 +209,7 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
  */
 void rebuild_euid_index(void) {
 	cdb_trunc(CDB_EUIDINDEX);		/* delete the old indices */
-	ForEachRoom(rebuild_euid_index_for_room, NULL);	/* enumerate rm names */
+	CtdlForEachRoom(rebuild_euid_index_for_room, NULL);	/* enumerate rm names */
 	rebuild_euid_index_for_room(NULL, NULL);	/* and index them */
 }
 

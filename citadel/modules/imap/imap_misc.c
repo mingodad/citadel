@@ -53,7 +53,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -143,7 +142,7 @@ int imap_do_copy(char *destination_folder) {
 	}
 
 	/* Set the flags... */
-	i = getroom(&qrbuf, roomname);
+	i = CtdlGetRoom(&qrbuf, roomname);
 	if (i == 0) {
 		CtdlSetSeen(seen_yes, num_seen_yes, 1, ctdlsetseen_seen, NULL, &qrbuf);
 		CtdlSetSeen(seen_no, num_seen_no, 0, ctdlsetseen_seen, NULL, &qrbuf);
@@ -383,13 +382,13 @@ void imap_append(int num_parms, char *parms[]) {
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room.  (If another
+	 * CtdlUserGoto() formally takes us to the desired room.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (Imap->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	/* If the user is locally authenticated, FORCE the From: header to
 	 * show up as the real sender.  FIXME do we really want to do this?
@@ -441,7 +440,7 @@ void imap_append(int num_parms, char *parms[]) {
 	 * our happy day without violent explosions.
 	 */
 	if (Imap->selected) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	/* We don't need this buffer anymore */

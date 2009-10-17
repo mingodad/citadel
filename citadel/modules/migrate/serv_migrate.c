@@ -57,7 +57,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "user_ops.h"
-#include "room_ops.h"
 #include "control.h"
 #include "euidindex.h"
 
@@ -159,7 +158,7 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 
 	/* message list goes inside this tag */
 
-	getroom(&CC->room, buf->QRname);
+	CtdlGetRoom(&CC->room, buf->QRname);
 	client_write("<room_messages>", 15);
 	client_write("<FRname>", 8);	xml_strout(CC->room.QRname);	client_write("</FRname>\n", 10);
 	client_write("<FRmsglist>", 11);
@@ -175,7 +174,7 @@ void migr_export_rooms(void) {
 	char cmd[SIZ];
 	migr_global_message_list = fopen(migr_tempfilename1, "w");
 	if (migr_global_message_list != NULL) {
-		ForEachRoom(migr_export_rooms_backend, NULL);
+		CtdlForEachRoom(migr_export_rooms_backend, NULL);
 		fclose(migr_global_message_list);
 	}
 
@@ -199,7 +198,7 @@ void migr_export_floors(void) {
         for (i=0; i < MAXFLOORS; ++i) {
 		client_write("<floor>\n", 8);
 		cprintf("<f_num>%d</f_num>\n", i);
-                getfloor(&qfbuf, i);
+                CtdlGetFloor(&qfbuf, i);
 		buf = &qfbuf;
 		cprintf("<f_flags>%u</f_flags>\n", buf->f_flags);
 		client_write("<f_name>", 8); xml_strout(buf->f_name); client_write("</f_name>\n", 10);
@@ -761,7 +760,7 @@ void migr_xml_end(void *data, const char *el, const char **attr) {
 	else if (!strcasecmp(el, "QRdefaultview"))		qrbuf.QRdefaultview = atoi(migr_chardata);
 
 	else if (!strcasecmp(el, "room")) {
-		putroom(&qrbuf);
+		CtdlPutRoom(&qrbuf);
 		CtdlLogPrintf(CTDL_INFO, "Imported room: %s\n", qrbuf.QRname);
 	}
 
@@ -819,7 +818,7 @@ void migr_xml_end(void *data, const char *el, const char **attr) {
 	else if (!strcasecmp(el, "f_ep_expire_value"))		flbuf.f_ep.expire_value = atoi(migr_chardata);
 
 	else if (!strcasecmp(el, "floor")) {
-		putfloor(&flbuf, floornum);
+		CtdlPutFloor(&flbuf, floornum);
 		CtdlLogPrintf(CTDL_INFO, "Imported floor #%d (%s)\n", floornum, flbuf.f_name);
 	}
 

@@ -117,7 +117,7 @@ void check_ref_counts(void) {
 	}
 
 	cdb_begin_transaction();
-	ForEachRoom(check_ref_counts_backend, (void *)new_refcounts );
+	CtdlForEachRoom(check_ref_counts_backend, (void *)new_refcounts );
 	cdb_end_transaction();
 
 	for (a=0; a<MAXFLOORS; ++a) {

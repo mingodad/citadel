@@ -159,21 +159,21 @@ void master_startup(void) {
 	check_ref_counts();
 
 	CtdlLogPrintf(CTDL_INFO, "Creating base rooms (if necessary)\n");
-	create_room(config.c_baseroom,	0, "", 0, 1, 0, VIEW_BBS);
-	create_room(AIDEROOM,		3, "", 0, 1, 0, VIEW_BBS);
-	create_room(SYSCONFIGROOM,	3, "", 0, 1, 0, VIEW_BBS);
-	create_room(config.c_twitroom,	0, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(config.c_baseroom,	0, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(AIDEROOM,		3, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(SYSCONFIGROOM,	3, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(config.c_twitroom,	0, "", 0, 1, 0, VIEW_BBS);
 
 	/* The "Local System Configuration" room doesn't need to be visible */
-        if (lgetroom(&qrbuf, SYSCONFIGROOM) == 0) {
+        if (CtdlGetRoomLock(&qrbuf, SYSCONFIGROOM) == 0) {
                 qrbuf.QRflags2 |= QR2_SYSTEM;
-                lputroom(&qrbuf);
+                CtdlPutRoomLock(&qrbuf);
         }
 
 	/* Aide needs to be public postable, else we're not RFC conformant. */
-        if (lgetroom(&qrbuf, AIDEROOM) == 0) {
+        if (CtdlGetRoomLock(&qrbuf, AIDEROOM) == 0) {
                 qrbuf.QRflags2 |= QR2_SMTP_PUBLIC;
-                lputroom(&qrbuf);
+                CtdlPutRoomLock(&qrbuf);
         }
 
 	CtdlLogPrintf(CTDL_INFO, "Seeding the pseudo-random number generator...\n");

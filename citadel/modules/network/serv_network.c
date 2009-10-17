@@ -67,7 +67,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -1142,7 +1141,7 @@ void network_spoolout_room(char *room_to_spool) {
 	 * Normally this should never happen, but once in a while maybe a room gets
 	 * queued for networking and then deleted before it can happen.
 	 */
-	if (getroom(&CC->room, room_to_spool) != 0) {
+	if (CtdlGetRoom(&CC->room, room_to_spool) != 0) {
 		CtdlLogPrintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", room_to_spool);
 		return;
 	}
@@ -2175,7 +2174,7 @@ void *network_do_queue(void *args) {
 	 */
 	if (full_processing && !CtdlThreadCheckStop()) {
 		CtdlLogPrintf(CTDL_DEBUG, "network: loading outbound queue\n");
-		ForEachRoom(network_queue_room, NULL);
+		CtdlForEachRoom(network_queue_room, NULL);
 	}
 
 	if (rplist != NULL) {

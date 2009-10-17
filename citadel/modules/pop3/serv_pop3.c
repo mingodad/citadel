@@ -61,7 +61,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -195,7 +194,7 @@ int pop3_grab_mailbox(void) {
         struct visit vbuf;
 	int i;
 
-	if (getroom(&CC->room, MAILROOM) != 0) return(-1);
+	if (CtdlGetRoom(&CC->room, MAILROOM) != 0) return(-1);
 
 	/* Load up the messages */
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL,

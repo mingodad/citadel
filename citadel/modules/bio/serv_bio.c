@@ -53,7 +53,6 @@
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"

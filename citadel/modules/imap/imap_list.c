@@ -52,7 +52,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -80,7 +79,7 @@ void imap_list_floors(char *verb, int num_patterns, char **patterns)
 	int match = 0;
 
 	for (i = 0; i < MAXFLOORS; ++i) {
-		fl = cgetfloor(i);
+		fl = CtdlGetCachedFloor(i);
 		if (fl->f_flags & F_INUSE) {
 			match = 0;
 			for (j=0; j<num_patterns; ++j) {
@@ -360,7 +359,7 @@ void imap_list(int num_parms, char *parms[])
 		}
 	}
 
-	/* Now start setting up the data we're going to send to the ForEachRoom() callback.
+	/* Now start setting up the data we're going to send to the CtdlForEachRoom() callback.
 	 */
 	data_for_callback[0] = (char *) verb;
 	data_for_callback[1] = (char *) subscribed_rooms_only;
@@ -383,7 +382,7 @@ void imap_list(int num_parms, char *parms[])
 	 */
 	else {
 		imap_list_floors(verb, num_patterns, patterns);
-		ForEachRoom(imap_listroom, data_for_callback);
+		CtdlForEachRoom(imap_listroom, data_for_callback);
 	}
 
 	/* 

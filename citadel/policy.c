@@ -53,7 +53,7 @@ void GetExpirePolicy(struct ExpirePolicy *epbuf, struct ctdlroom *qrbuf) {
 	 * If the floor has its own policy, return it
 	 */
 	if ( (qrbuf->QRflags & QR_MAILBOX) == 0) {
-		fl = cgetfloor(qrbuf->QRfloor);
+		fl = CtdlGetCachedFloor(qrbuf->QRfloor);
 		if (fl->f_ep.expire_mode != 0) {
 			memcpy(epbuf, &fl->f_ep, sizeof(struct ExpirePolicy));
 			return;
@@ -89,7 +89,7 @@ void cmd_gpex(char *argbuf) {
 		memcpy(&exp, &CC->room.QRep, sizeof(struct ExpirePolicy));
 	}
 	else if (!strcasecmp(which, "floor")) {
-		fl = cgetfloor(CC->room.QRfloor);
+		fl = CtdlGetCachedFloor(CC->room.QRfloor);
 		memcpy(&exp, &fl->f_ep, sizeof(struct ExpirePolicy));
 	}
 	else if (!strcasecmp(which, "mailboxes")) {
@@ -131,9 +131,9 @@ void cmd_spex(char *argbuf) {
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;
 		}
-		lgetroom(&CC->room, CC->room.QRname);
+		CtdlGetRoomLock(&CC->room, CC->room.QRname);
 		memcpy(&CC->room.QRep, &exp, sizeof(struct ExpirePolicy));
-		lputroom(&CC->room);
+		CtdlPutRoomLock(&CC->room);
 		cprintf("%d Room expire policy has been updated.\n", CIT_OK);
 		return;
 	}

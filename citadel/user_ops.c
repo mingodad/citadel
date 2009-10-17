@@ -692,16 +692,16 @@ void do_login(void)
 	/* Create any personal rooms required by the system.
 	 * (Technically, MAILROOM should be there already, but just in case...)
 	 */
-	create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
-	create_room(SENTITEMS, 4, "", 0, 1, 0, VIEW_MAILBOX);
-	create_room(USERTRASHROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
-	/* create_room(USERDRAFTROOM, 4, "", 0, 1, 0, VIEW_MAILBOX); temporarily disabled for 7.60 */
+	CtdlCreateRoom(MAILROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
+	CtdlCreateRoom(SENTITEMS, 4, "", 0, 1, 0, VIEW_MAILBOX);
+	CtdlCreateRoom(USERTRASHROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
+	/* CtdlCreateRoom(USERDRAFTROOM, 4, "", 0, 1, 0, VIEW_MAILBOX); temporarily disabled for 7.60 */
 
 	/* Run any startup routines registered by loadable modules */
 	PerformSessionHooks(EVT_LOGIN);
 
 	/* Enter the lobby */
-	usergoto(config.c_baseroom, 0, 0, NULL, NULL);
+	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
 }
 
 
@@ -1135,13 +1135,13 @@ int create_user(char *newusername, int become_user)
 	 * Make the latter an invisible system room.
 	 */
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
-	create_room(mailboxname, 5, "", 0, 1, 1, VIEW_MAILBOX);
+	CtdlCreateRoom(mailboxname, 5, "", 0, 1, 1, VIEW_MAILBOX);
 
 	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
-	create_room(mailboxname, 5, "", 0, 1, 1, VIEW_BBS);
-	if (lgetroom(&qrbuf, mailboxname) == 0) {
+	CtdlCreateRoom(mailboxname, 5, "", 0, 1, 1, VIEW_BBS);
+	if (CtdlGetRoomLock(&qrbuf, mailboxname) == 0) {
 		qrbuf.QRflags2 |= QR2_SYSTEM;
-		lputroom(&qrbuf);
+		CtdlPutRoomLock(&qrbuf);
 	}
 
 	/* Perform any create functions registered by server extensions */
@@ -1557,7 +1557,7 @@ int CtdlForgetThisRoom(void) {
 	lputuser(&CC->user);
 
 	/* Return to the Lobby, so we don't end up in an undefined room */
-	usergoto(config.c_baseroom, 0, 0, NULL, NULL);
+	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
 	return(0);
 
 }
@@ -1923,7 +1923,7 @@ int InitialMailCheck()
 	int num_msgs = 0;
 
 	MailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
-	if (getroom(&mailbox, mailboxname) != 0)
+	if (CtdlGetRoom(&mailbox, mailboxname) != 0)
 		return (0);
 	CtdlGetRelationship(&vbuf, &CC->user, &mailbox);
 

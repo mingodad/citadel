@@ -43,7 +43,6 @@
 #include "support.h"
 #include "config.h"
 #include "user_ops.h"
-#include "room_ops.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "serv_calendar.h"
@@ -616,8 +615,8 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-	if (getroom(&CC->room, USERCALENDARROOM) != 0) {
-		getroom(&CC->room, hold_rm);
+	if (CtdlGetRoom(&CC->room, USERCALENDARROOM) != 0) {
+		CtdlGetRoom(&CC->room, hold_rm);
 		CtdlLogPrintf(CTDL_CRIT, "cannot get user calendar room\n");
 		return(2);
 	}
@@ -630,7 +629,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	 */
 	msgnum_being_replaced = locate_message_by_euid(uid, &CC->room);
 
-	getroom(&CC->room, hold_rm);	/* return to saved room */
+	CtdlGetRoom(&CC->room, hold_rm);	/* return to saved room */
 
 	CtdlLogPrintf(CTDL_DEBUG, "msgnum_being_replaced == %ld\n", msgnum_being_replaced);
 	if (msgnum_being_replaced == 0) {
@@ -1188,8 +1187,8 @@ void ical_hunt_for_conflicts(icalcomponent *cal) {
 
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-	if (getroom(&CC->room, USERCALENDARROOM) != 0) {
-		getroom(&CC->room, hold_rm);
+	if (CtdlGetRoom(&CC->room, USERCALENDARROOM) != 0) {
+		CtdlGetRoom(&CC->room, hold_rm);
 		cprintf("%d You do not have a calendar.\n", ERROR + ROOM_NOT_FOUND);
 		return;
 	}
@@ -1204,7 +1203,7 @@ void ical_hunt_for_conflicts(icalcomponent *cal) {
 	);
 
 	cprintf("000\n");
-	getroom(&CC->room, hold_rm);	/* return to saved room */
+	CtdlGetRoom(&CC->room, hold_rm);	/* return to saved room */
 
 }
 
@@ -1507,9 +1506,9 @@ void ical_freebusy(char *who) {
 
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-	if (getroom(&CC->room, calendar_room_name) != 0) {
+	if (CtdlGetRoom(&CC->room, calendar_room_name) != 0) {
 		cprintf("%d Cannot open calendar\n", ERROR + ROOM_NOT_FOUND);
-		getroom(&CC->room, hold_rm);
+		CtdlGetRoom(&CC->room, hold_rm);
 		return;
 	}
 
@@ -1519,7 +1518,7 @@ void ical_freebusy(char *who) {
 	if (fb == NULL) {
 		cprintf("%d Internal error: cannot allocate memory.\n",
 			ERROR + INTERNAL_ERROR);
-		getroom(&CC->room, hold_rm);
+		CtdlGetRoom(&CC->room, hold_rm);
 		return;
 	}
 
@@ -1561,7 +1560,7 @@ void ical_freebusy(char *who) {
 		icalcomponent_free(fb);
 		cprintf("%d Internal error: cannot allocate memory.\n",
 			ERROR + INTERNAL_ERROR);
-		getroom(&CC->room, hold_rm);
+		CtdlGetRoom(&CC->room, hold_rm);
 		return;
 	}
 
@@ -1582,7 +1581,7 @@ void ical_freebusy(char *who) {
 	cprintf("\n000\n");
 
 	/* Go back to the room from which we came... */
-	getroom(&CC->room, hold_rm);
+	CtdlGetRoom(&CC->room, hold_rm);
 }
 
 
@@ -1920,22 +1919,22 @@ void cmd_ical(char *argbuf)
 /*
  * We don't know if the calendar room exists so we just create it at login
  */
-void ical_create_room(void)
+void ical_CtdlCreateRoom(void)
 {
 	struct ctdlroom qr;
 	struct visit vbuf;
 
 	/* Create the calendar room if it doesn't already exist */
-	create_room(USERCALENDARROOM, 4, "", 0, 1, 0, VIEW_CALENDAR);
+	CtdlCreateRoom(USERCALENDARROOM, 4, "", 0, 1, 0, VIEW_CALENDAR);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
-	if (lgetroom(&qr, USERCALENDARROOM)) {
+	if (CtdlGetRoomLock(&qr, USERCALENDARROOM)) {
 		CtdlLogPrintf(CTDL_CRIT, "Couldn't get the user calendar room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
 	qr.QRdefaultview = VIEW_CALENDAR;	/* 3 = calendar view */
-	lputroom(&qr);
+	CtdlPutRoomLock(&qr);
 
 	/* Set the view to a calendar view */
 	CtdlGetRelationship(&vbuf, &CC->user, &qr);
@@ -1943,16 +1942,16 @@ void ical_create_room(void)
 	CtdlSetRelationship(&vbuf, &CC->user, &qr);
 
 	/* Create the tasks list room if it doesn't already exist */
-	create_room(USERTASKSROOM, 4, "", 0, 1, 0, VIEW_TASKS);
+	CtdlCreateRoom(USERTASKSROOM, 4, "", 0, 1, 0, VIEW_TASKS);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
-	if (lgetroom(&qr, USERTASKSROOM)) {
+	if (CtdlGetRoomLock(&qr, USERTASKSROOM)) {
 		CtdlLogPrintf(CTDL_CRIT, "Couldn't get the user calendar room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
 	qr.QRdefaultview = VIEW_TASKS;
-	lputroom(&qr);
+	CtdlPutRoomLock(&qr);
 
 	/* Set the view to a task list view */
 	CtdlGetRelationship(&vbuf, &CC->user, &qr);
@@ -1960,16 +1959,16 @@ void ical_create_room(void)
 	CtdlSetRelationship(&vbuf, &CC->user, &qr);
 
 	/* Create the notes room if it doesn't already exist */
-	create_room(USERNOTESROOM, 4, "", 0, 1, 0, VIEW_NOTES);
+	CtdlCreateRoom(USERNOTESROOM, 4, "", 0, 1, 0, VIEW_NOTES);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
-	if (lgetroom(&qr, USERNOTESROOM)) {
+	if (CtdlGetRoomLock(&qr, USERNOTESROOM)) {
 		CtdlLogPrintf(CTDL_CRIT, "Couldn't get the user calendar room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
 	qr.QRdefaultview = VIEW_NOTES;
-	lputroom(&qr);
+	CtdlPutRoomLock(&qr);
 
 	/* Set the view to a notes view */
 	CtdlGetRelationship(&vbuf, &CC->user, &qr);
@@ -2605,7 +2604,7 @@ CTDL_MODULE_INIT(calendar)
 		/* Initialize our hook functions */
 		CtdlRegisterMessageHook(ical_obj_beforesave, EVT_BEFORESAVE);
 		CtdlRegisterMessageHook(ical_obj_aftersave, EVT_AFTERSAVE);
-		CtdlRegisterSessionHook(ical_create_room, EVT_LOGIN);
+		CtdlRegisterSessionHook(ical_CtdlCreateRoom, EVT_LOGIN);
 		CtdlRegisterProtoHook(cmd_ical, "ICAL", "Citadel iCal commands");
 		CtdlRegisterSessionHook(ical_session_startup, EVT_START);
 		CtdlRegisterSessionHook(ical_session_shutdown, EVT_STOP);

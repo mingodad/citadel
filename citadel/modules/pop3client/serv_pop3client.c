@@ -46,7 +46,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "ctdl_module.h"
 #include "clientsocket.h"
 #include "msgbase.h"
@@ -323,7 +322,7 @@ void pop3client_scan(void) {
 	doing_pop3client = 1;
 
 	CtdlLogPrintf(CTDL_DEBUG, "pop3client started\n");
-	ForEachRoom(pop3client_scan_room, NULL);
+	CtdlForEachRoom(pop3client_scan_room, NULL);
 
 	while (palist != NULL && !CtdlThreadCheckStop()) {
 		if ((palist->interval && time(NULL) > (last_run + palist->interval))

@@ -55,7 +55,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -292,7 +291,7 @@ void imap_rescan_msgids(void)
 	 * Check to see if the room's contents have changed.
 	 * If not, we can avoid this rescan.
 	 */
-	getroom(&CC->room, CC->room.QRname);
+	CtdlGetRoom(&CC->room, CC->room.QRname);
 	if (IMAP->last_mtime == CC->room.QRmtime) {	/* No changes! */
 		return;
 	}
@@ -717,13 +716,13 @@ void imap_select(int num_parms, char *parms[])
 	roomflags = (i & 0xff00);
 
 	/* First try a regular match */
-	c = getroom(&QRscratch, towhere);
+	c = CtdlGetRoom(&QRscratch, towhere);
 
 	/* Then try a mailbox name match */
 	if (c != 0) {
 		MailboxName(augmented_roomname, sizeof augmented_roomname,
 			    &CC->user, towhere);
-		c = getroom(&QRscratch, augmented_roomname);
+		c = CtdlGetRoom(&QRscratch, augmented_roomname);
 		if (c == 0)
 			strcpy(towhere, augmented_roomname);
 	}
@@ -750,11 +749,11 @@ void imap_select(int num_parms, char *parms[])
 	imap_do_expunge();
 
 	/*
-	 * usergoto() formally takes us to the desired room, happily returning
+	 * CtdlUserGoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.
 	 */
 	memcpy(&CC->room, &QRscratch, sizeof(struct ctdlroom));
-	usergoto(NULL, 0, 0, &msgs, &new);
+	CtdlUserGoto(NULL, 0, 0, &msgs, &new);
 	IMAP->selected = 1;
 
 	if (!strcasecmp(parms[1], "EXAMINE")) {
@@ -881,7 +880,7 @@ void imap_namespace(int num_parms, char *parms[])
 	/* Show all floors as shared namespaces.  Neato! */
 	cprintf("(");
 	for (i = 0; i < MAXFLOORS; ++i) {
-		fl = cgetfloor(i);
+		fl = CtdlGetCachedFloor(i);
 		if (fl->f_flags & F_INUSE) {
 			if (floors > 0) cprintf(" ");
 			cprintf("(");
@@ -954,7 +953,7 @@ void imap_create(int num_parms, char *parms[])
 	CtdlLogPrintf(CTDL_INFO, "Create new room <%s> on floor <%d> with type <%d>\n",
 		roomname, floornum, newroomtype);
 
-	ret = create_room(roomname, newroomtype, "", floornum, 1, 0, newroomview);
+	ret = CtdlCreateRoom(roomname, newroomtype, "", floornum, 1, 0, newroomview);
 	if (ret == 0) {
 		/*** DO NOT CHANGE THIS ERROR MESSAGE IN ANY WAY!  BYNARI CONNECTOR DEPENDS ON IT! ***/
 		cprintf("%s NO Mailbox already exists, or create failed\r\n", parms[0]);
@@ -997,13 +996,13 @@ int imap_grabroom(char *returned_roomname, char *foldername, int zapped_ok)
 	}
 
 	/* First try a regular match */
-	c = getroom(&QRscratch, roomname);
+	c = CtdlGetRoom(&QRscratch, roomname);
 
 	/* Then try a mailbox name match */
 	if (c != 0) {
 		MailboxName(augmented_roomname, sizeof augmented_roomname,
 			    &CC->user, roomname);
-		c = getroom(&QRscratch, augmented_roomname);
+		c = CtdlGetRoom(&QRscratch, augmented_roomname);
 		if (c == 0)
 			strcpy(roomname, augmented_roomname);
 	}
@@ -1054,14 +1053,14 @@ void imap_status(int num_parms, char *parms[])
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room, happily returning
+	 * CtdlUserGoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * Tell the client what it wants to know.  In fact, tell it *more* than
@@ -1082,7 +1081,7 @@ void imap_status(int num_parms, char *parms[])
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	/*
@@ -1115,21 +1114,21 @@ void imap_subscribe(int num_parms, char *parms[])
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room, which has the side
+	 * CtdlUserGoto() formally takes us to the desired room, which has the side
 	 * effect of marking the room as not-zapped ... exactly the effect
 	 * we're looking for.
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * If another folder is selected, go back to that room so we can resume
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	cprintf("%s OK SUBSCRIBE completed\r\n", parms[0]);
@@ -1156,12 +1155,12 @@ void imap_unsubscribe(int num_parms, char *parms[])
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room.
+	 * CtdlUserGoto() formally takes us to the desired room.
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	/* 
 	 * Now make the API call to zap the room
@@ -1179,7 +1178,7 @@ void imap_unsubscribe(int num_parms, char *parms[])
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 }
 
@@ -1204,20 +1203,20 @@ void imap_delete(int num_parms, char *parms[])
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room, happily returning
+	 * CtdlUserGoto() formally takes us to the desired room, happily returning
 	 * the number of messages and number of new messages.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * Now delete the room.
 	 */
 	if (CtdlDoIHavePermissionToDeleteThisRoom(&CC->room)) {
-		schedule_room_for_deletion(&CC->room);
+		CtdlScheduleRoomForDeletion(&CC->room);
 		cprintf("%s OK DELETE completed\r\n", parms[0]);
 	} else {
 		cprintf("%s NO Can't delete this folder.\r\n", parms[0]);
@@ -1228,7 +1227,7 @@ void imap_delete(int num_parms, char *parms[])
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 }
 
@@ -1333,7 +1332,7 @@ void imap_rename(int num_parms, char *parms[])
 	 * (already did that) and create a new inbox.
 	 */
 	if (!strcasecmp(parms[2], "INBOX")) {
-		create_room(MAILROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
+		CtdlCreateRoom(MAILROOM, 4, "", 0, 1, 0, VIEW_MAILBOX);
 	}
 
 	/* Otherwise, do the subfolders.  Build a list of rooms to rename... */
@@ -1341,7 +1340,7 @@ void imap_rename(int num_parms, char *parms[])
 		irlparms.oldname = parms[2];
 		irlparms.newname = parms[3];
 		irlparms.irl = &irl;
-		ForEachRoom(imap_rename_backend, (void *) &irlparms);
+		CtdlForEachRoom(imap_rename_backend, (void *) &irlparms);
 
 		/* ... and now rename them. */
 		while (irl != NULL) {

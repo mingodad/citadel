@@ -53,7 +53,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -178,7 +177,7 @@ void spamstrings_init_backend(long msgnum, void *userdata) {
 
 
 void inetcfg_init(void) {
-	if (getroom(&CC->room, SYSCONFIGROOM) != 0) return;
+	if (CtdlGetRoom(&CC->room, SYSCONFIGROOM) != 0) return;
 	CtdlForEachMessage(MSGS_LAST, 1, NULL, INTERNETCFG, NULL,
 		inetcfg_init_backend, NULL);
 }

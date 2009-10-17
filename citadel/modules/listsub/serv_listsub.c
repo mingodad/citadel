@@ -52,7 +52,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -106,7 +105,7 @@ void do_subscribe(char *room, char *email, char *subtype, char *webpage) {
 	char scanemail[256];
 	int found_sub = 0;
 
-	if (getroom(&qrbuf, room) != 0) {
+	if (CtdlGetRoom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n", ERROR + ROOM_NOT_FOUND, room);
 		return;
 	}
@@ -246,7 +245,7 @@ void do_unsubscribe(char *room, char *email, char *webpage) {
 	char scanemail[256];
 	int found_sub = 0;
 
-	if (getroom(&qrbuf, room) != 0) {
+	if (CtdlGetRoom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
 			ERROR + ROOM_NOT_FOUND, room);
 		return;
@@ -395,7 +394,7 @@ void do_confirm(char *room, char *token) {
 
 	strcpy(address_to_unsubscribe, "");
 
-	if (getroom(&qrbuf, room) != 0) {
+	if (CtdlGetRoom(&qrbuf, room) != 0) {
 		cprintf("%d There is no list called '%s'\n",
 			ERROR + ROOM_NOT_FOUND, room);
 		return;

@@ -49,7 +49,6 @@
 #include "support.h"
 #include "config.h"
 #include "threads.h"
-#include "room_ops.h"
 #include "ctdl_module.h"
 #include "clientsocket.h"
 #include "msgbase.h"
@@ -580,7 +579,7 @@ void *rssclient_scan(void *args) {
 	doing_rssclient = 1;
 
 	CtdlLogPrintf(CTDL_DEBUG, "rssclient started\n");
-	ForEachRoom(rssclient_scan_room, NULL);
+	CtdlForEachRoom(rssclient_scan_room, NULL);
 
 	while (rnclist != NULL && !CtdlThreadCheckStop()) {
 		rss_do_fetching(rnclist->url, rnclist->rooms);

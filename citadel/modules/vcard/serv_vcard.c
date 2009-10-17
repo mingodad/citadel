@@ -68,7 +68,6 @@
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -191,8 +190,8 @@ void cmd_igab(char *argbuf) {
 
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 
-	if (getroom(&CC->room, ADDRESS_BOOK_ROOM) != 0) {
-		getroom(&CC->room, hold_rm);
+	if (CtdlGetRoom(&CC->room, ADDRESS_BOOK_ROOM) != 0) {
+		CtdlGetRoom(&CC->room, hold_rm);
 		cprintf("%d cannot get address book room\n", ERROR + ROOM_NOT_FOUND);
 		return;
 	}
@@ -205,7 +204,7 @@ void cmd_igab(char *argbuf) {
 	CtdlForEachMessage(MSGS_ALL, 0, NULL, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$",
 		NULL, vcard_add_to_directory, NULL);
 
-	getroom(&CC->room, hold_rm);	/* return to saved room */
+	CtdlGetRoom(&CC->room, hold_rm);	/* return to saved room */
 	cprintf("%d Directory has been rebuilt.\n", CIT_OK);
 }
 
@@ -604,8 +603,8 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
 	MailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
 
-	if (getroom(&CC->room, config_rm) != 0) {
-		getroom(&CC->room, hold_rm);
+	if (CtdlGetRoom(&CC->room, config_rm) != 0) {
+		CtdlGetRoom(&CC->room, hold_rm);
 		return vcard_new();
 	}
 
@@ -613,7 +612,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 	VCmsgnum = (-1);
 	CtdlForEachMessage(MSGS_LAST, 1, NULL, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$",
 		NULL, vcard_gu_backend, (void *)&VCmsgnum );
-	getroom(&CC->room, hold_rm);	/* return to saved room */
+	CtdlGetRoom(&CC->room, hold_rm);	/* return to saved room */
 
 	if (VCmsgnum < 0L) return vcard_new();
 
@@ -1162,22 +1161,22 @@ void check_get_greeting(void) {
 /*
  * We don't know if the Contacts room exists so we just create it at login
  */
-void vcard_create_room(void)
+void vcard_CtdlCreateRoom(void)
 {
 	struct ctdlroom qr;
 	struct visit vbuf;
 
 	/* Create the calendar room if it doesn't already exist */
-	create_room(USERCONTACTSROOM, 4, "", 0, 1, 0, VIEW_ADDRESSBOOK);
+	CtdlCreateRoom(USERCONTACTSROOM, 4, "", 0, 1, 0, VIEW_ADDRESSBOOK);
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
-	if (lgetroom(&qr, USERCONTACTSROOM)) {
+	if (CtdlGetRoomLock(&qr, USERCONTACTSROOM)) {
 		CtdlLogPrintf(CTDL_ERR, "Couldn't get the user CONTACTS room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
 	qr.QRdefaultview = VIEW_ADDRESSBOOK;	/* 2 = address book view */
-	lputroom(&qr);
+	CtdlPutRoomLock(&qr);
 
 	/* Set the view to a calendar view */
 	CtdlGetRelationship(&vbuf, &CC->user, &qr);
@@ -1229,7 +1228,7 @@ void vcard_session_login_hook(void) {
 	/*
 	 * Create the user's 'Contacts' room (personal address book) if it doesn't already exist.
 	 */
-	vcard_create_room();
+	vcard_CtdlCreateRoom();
 }
 
 
@@ -1318,7 +1317,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 	int i;
 
 	/* First remove any addresses we already have in the address book */
-	usergoto(aptr->roomname, 0, 0, NULL, NULL);
+	CtdlUserGoto(aptr->roomname, 0, 0, NULL, NULL);
 	CtdlForEachMessage(MSGS_ALL, 0, NULL, "^[Tt][Ee][Xx][Tt]/.*[Vv][Cc][Aa][Rr][Dd]$", NULL,
 		strip_addresses_already_have, aptr->collected_addresses);
 
@@ -1437,13 +1436,13 @@ CTDL_MODULE_INIT(vcard)
 		CtdlRegisterFixedOutputHook("text/vcard", vcard_fixed_output);
 
 		/* Create the Global ADdress Book room if necessary */
-		create_room(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
+		CtdlCreateRoom(ADDRESS_BOOK_ROOM, 3, "", 0, 1, 0, VIEW_ADDRESSBOOK);
 
 		/* Set expiration policy to manual; otherwise objects will be lost! */
-		if (!lgetroom(&qr, ADDRESS_BOOK_ROOM)) {
+		if (!CtdlGetRoomLock(&qr, ADDRESS_BOOK_ROOM)) {
 			qr.QRep.expire_mode = EXPIRE_MANUAL;
 			qr.QRdefaultview = VIEW_ADDRESSBOOK;	/* 2 = address book view */
-			lputroom(&qr);
+			CtdlPutRoomLock(&qr);
 
 			/*
 			 * Also make sure it has a netconfig file, so the networker runs

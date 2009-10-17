@@ -52,7 +52,6 @@
 #include "config.h"
 #include "control.h"
 #include "database.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "msgbase.h"
 #include "serv_upgrade.h"
@@ -114,7 +113,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 	struct RoomProcList *ptr;
 	struct ctdlroom qr;
 
-	/* Lazy programming here.  Call this function as a ForEachRoom backend
+	/* Lazy programming here.  Call this function as a CtdlForEachRoom backend
 	 * in order to queue up the room names, or call it with a null room
 	 * to make it do the processing.
 	 */
@@ -131,7 +130,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 
 	while (rplist != NULL) {
 
-		if (lgetroom(&qr, rplist->name) == 0) {
+		if (CtdlGetRoomLock(&qr, rplist->name) == 0) {
 			CtdlLogPrintf(CTDL_DEBUG, "Processing <%s>...\n", rplist->name);
 			if ( (qr.QRflags & QR_MAILBOX) == 0) {
 				CtdlLogPrintf(CTDL_DEBUG, "  -- not a mailbox\n");
@@ -141,7 +140,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 				qr.QRgen = time(NULL);
 				CtdlLogPrintf(CTDL_DEBUG, "  -- fixed!\n");
 			}
-			lputroom(&qr);
+			CtdlPutRoomLock(&qr);
 		}
 
 		ptr = rplist;
@@ -155,7 +154,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
  */
 void bump_mailbox_generation_numbers(void) {
 	CtdlLogPrintf(CTDL_WARNING, "Applying security fix to mailbox rooms\n");
-	ForEachRoom(cmd_bmbx_backend, NULL);
+	CtdlForEachRoom(cmd_bmbx_backend, NULL);
 	cmd_bmbx_backend(NULL, NULL);
 	return;
 }

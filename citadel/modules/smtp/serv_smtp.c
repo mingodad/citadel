@@ -75,7 +75,6 @@
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -1740,7 +1739,7 @@ void smtp_do_queue(void) {
 	 */
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
 
-	if (getroom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
+	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 		return;
 	}
@@ -1804,15 +1803,15 @@ void smtp_init_spoolout(void) {
 	 * Create the room.  This will silently fail if the room already
 	 * exists, and that's perfectly ok, because we want it to exist.
 	 */
-	create_room(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
+	CtdlCreateRoom(SMTP_SPOOLOUT_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
 
 	/*
 	 * Make sure it's set to be a "system room" so it doesn't show up
 	 * in the <K>nown rooms list for Aides.
 	 */
-	if (lgetroom(&qrbuf, SMTP_SPOOLOUT_ROOM) == 0) {
+	if (CtdlGetRoomLock(&qrbuf, SMTP_SPOOLOUT_ROOM) == 0) {
 		qrbuf.QRflags2 |= QR2_SYSTEM;
-		lputroom(&qrbuf);
+		CtdlPutRoomLock(&qrbuf);
 	}
 }
 

@@ -54,7 +54,6 @@
 #include "config.h"
 #include "msgbase.h"
 #include "user_ops.h"
-#include "room_ops.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"
@@ -498,7 +497,7 @@ void cmd_chat(char *argbuf)
 							CtdlInvtKick(CC->user.fullname, 0);
 
 							/* And return to the Lobby */
-							usergoto(config.c_baseroom, 0, 0, NULL, NULL);
+							CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
 							return;
 						}
 					}
@@ -903,20 +902,20 @@ void flush_individual_conversation(struct imlog *im) {
 	 * prefix will be created.  That's ok because the auto-purger will clean it up later.
 	 */
 	snprintf(roomname, sizeof roomname, "%010ld.%s", im->usernums[1], PAGELOGROOM);
-	create_room(roomname, 5, "", 0, 1, 1, VIEW_BBS);
+	CtdlCreateRoom(roomname, 5, "", 0, 1, 1, VIEW_BBS);
 	msgnum = CtdlSubmitMsg(msg, NULL, roomname, 0);
 	CtdlFreeMessage(msg);
 
 	/* If there is a valid user number in usernums[0], save a copy for them too. */
 	if (im->usernums[0] > 0) {
 		snprintf(roomname, sizeof roomname, "%010ld.%s", im->usernums[0], PAGELOGROOM);
-		create_room(roomname, 5, "", 0, 1, 1, VIEW_BBS);
+		CtdlCreateRoom(roomname, 5, "", 0, 1, 1, VIEW_BBS);
 		CtdlSaveMsgPointerInRoom(roomname, msgnum, 0, NULL);
 	}
 
 	/* Finally, if we're logging instant messages globally, do that now. */
 	if (!IsEmptyStr(config.c_logpages)) {
-		create_room(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
+		CtdlCreateRoom(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);
 		CtdlSaveMsgPointerInRoom(config.c_logpages, msgnum, 0, NULL);
 	}
 

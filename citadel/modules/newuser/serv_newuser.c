@@ -56,7 +56,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -89,7 +88,7 @@ void CopyNewUserGreetings(void) {
 	/* Go to the source room ... bail out silently if it's not there,
 	 * or if it's not private.
 	 */
-	if (getroom(&CC->room, NEWUSERGREETINGS) != 0) return;
+	if (CtdlGetRoom(&CC->room, NEWUSERGREETINGS) != 0) return;
 	if (! CC->room.QRflags & QR_PRIVATE ) return;
 
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));

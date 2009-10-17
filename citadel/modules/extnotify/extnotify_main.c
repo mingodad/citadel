@@ -57,7 +57,6 @@
 #include "support.h"
 #include "config.h"
 #include "control.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -147,15 +146,15 @@ StrBuf** GetNotifyHosts(void)
 void create_extnotify_queue(void) {
 	struct ctdlroom qrbuf;
     
-	create_room(FNBL_QUEUE_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
+	CtdlCreateRoom(FNBL_QUEUE_ROOM, 3, "", 0, 1, 0, VIEW_MAILBOX);
     
 	/*
 	 * Make sure it's set to be a "system room" so it doesn't show up
 	 * in the <K>nown rooms list for Aides.
 	 */
-	if (lgetroom(&qrbuf, FNBL_QUEUE_ROOM) == 0) {
+	if (CtdlGetRoomLock(&qrbuf, FNBL_QUEUE_ROOM) == 0) {
 		qrbuf.QRflags2 |= QR2_SYSTEM;
-		lputroom(&qrbuf);
+		CtdlPutRoomLock(&qrbuf);
 	}
 }
 /*!
@@ -183,7 +182,7 @@ void do_extnotify_queue(void)
     
 	memset(&Ctx, 0, sizeof(NotifyContext));
 	Ctx.NotifyHostList = GetNotifyHosts();
-	if (getroom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
+	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
 		return;
 	}
@@ -370,7 +369,7 @@ long extNotify_getConfigMessage(char *username) {
     
 	MailboxName(configRoomName, sizeof configRoomName, &user, USERCONFIGROOM);
 	// Fill qrbuf
-	getroom(&qrbuf, configRoomName);
+	CtdlGetRoom(&qrbuf, configRoomName);
 	/* Do something really, really stoopid here. Raid the room on ourselves,
 	 * loop through the messages manually and find it. I don't want
 	 * to use a CtdlForEachMessage callback here, as we would be

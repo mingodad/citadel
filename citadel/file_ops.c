@@ -195,7 +195,7 @@ void cmd_movf(char *cmdbuf)
 		return;
 	}
 
-	if (getroom(&qrbuf, newroom) != 0) {
+	if (CtdlGetRoom(&qrbuf, newroom) != 0) {
 		cprintf("%d '%s' does not exist.\n", ERROR + ROOM_NOT_FOUND, newroom);
 		return;
 	}

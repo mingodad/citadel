@@ -53,7 +53,6 @@
 #include "config.h"
 #include "msgbase.h"
 #include "user_ops.h"
-#include "room_ops.h"
 #include "database.h"
 #include "serv_autocompletion.h"
 
@@ -204,7 +203,7 @@ void cmd_auto(char *argbuf) {
 	 * Gather up message pointers in rooms containing vCards
 	 */
 	for (r=0; r < (sizeof(rooms_to_try) / sizeof(char *)); ++r) {
-		if (getroom(&CC->room, rooms_to_try[r]) == 0) {
+		if (CtdlGetRoom(&CC->room, rooms_to_try[r]) == 0) {
 			cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 			if (cdbfr != NULL) {
 				msglist = realloc(msglist, (num_msgs * sizeof(long)) + cdbfr->len + 1);
@@ -254,7 +253,7 @@ void cmd_auto(char *argbuf) {
 	
 	cprintf("000\n");
 	if (strcmp(CC->room.QRname, hold_rm)) {
-		getroom(&CC->room, hold_rm);    /* return to saved room */
+		CtdlGetRoom(&CC->room, hold_rm);    /* return to saved room */
 	}
 
 	if (msglist) {

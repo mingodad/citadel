@@ -2310,7 +2310,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	if (num_newmsgs > 1) supplied_msg = NULL;
 
 	/* Now the regular stuff */
-	if (lgetroom(&CC->room,
+	if (CtdlGetRoomLock(&CC->room,
 	   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   != 0) {
 		CtdlLogPrintf(CTDL_ERR, "No such room <%s>\n", roomname);
@@ -2377,7 +2377,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 
 	/* Update the highest-message pointer and unlock the room. */
 	CC->room.QRhighest = highest_msg;
-	lputroom(&CC->room);
+	CtdlPutRoomLock(&CC->room);
 
 	/* Perform replication checks if necessary */
 	if ( (DoesThisRoomNeedEuidIndexing(&CC->room)) && (do_repl_check) ) {
@@ -2418,7 +2418,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	PerformRoomHooks(&CC->room);
 
 	/* Go back to the room we were in before we wandered here... */
-	getroom(&CC->room, hold_rm);
+	CtdlGetRoom(&CC->room, hold_rm);
 
 	/* Bump the reference count for all messages which were merged */
 	for (i=0; i<num_msgs_to_be_merged; ++i) {
@@ -2772,8 +2772,8 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	CtdlLogPrintf(CTDL_DEBUG, "Final selection: %s\n", actual_rm);
 	if (strcasecmp(actual_rm, CCC->room.QRname)) {
-		/* getroom(&CCC->room, actual_rm); */
-		usergoto(actual_rm, 0, 1, NULL, NULL);
+		/* CtdlGetRoom(&CCC->room, actual_rm); */
+		CtdlUserGoto(actual_rm, 0, 1, NULL, NULL);
 	}
 
 	/*
@@ -2977,7 +2977,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	/* Go back to the room we started from */
 	CtdlLogPrintf(CTDL_DEBUG, "Returning to original room %s\n", hold_rm);
 	if (strcasecmp(hold_rm, CCC->room.QRname))
-		usergoto(hold_rm, 0, 1, NULL, NULL);
+		CtdlUserGoto(hold_rm, 0, 1, NULL, NULL);
 
 	/* For internet mail, generate delivery instructions.
 	 * Yes, this is recursive.  Deal with it.  Infinite recursion does
@@ -3589,7 +3589,7 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 					strcat(ret->recp_room, this_recp);
 				}
 				else if ( (!strncasecmp(this_recp, "room_", 5))
-				      && (!getroom(&tempQR, &this_recp_cooked[5])) ) {
+				      && (!CtdlGetRoom(&tempQR, &this_recp_cooked[5])) ) {
 
 				      	/* Save room so we can restore it later */
 					tempQR2 = CC->room;
@@ -4079,7 +4079,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 		room_name, num_dmsgnums, content_type);
 
 	/* get room record, obtaining a lock... */
-	if (lgetroom(&qrbuf, room_name) != 0) {
+	if (CtdlGetRoomLock(&qrbuf, room_name) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "CtdlDeleteMessages(): Room <%s> not found\n",
 			room_name);
 		if (need_to_free_re) regfree(&re);
@@ -4136,7 +4136,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 
 		qrbuf.QRhighest = msglist[num_msgs - 1];
 	}
-	lputroom(&qrbuf);
+	CtdlPutRoomLock(&qrbuf);
 
 	/* Go through the messages we pulled out of the index, and decrement
 	 * their reference counts by 1.  If this is the only room the message
@@ -4253,7 +4253,7 @@ void cmd_move(char *args)
 	targ[ROOMNAMELEN - 1] = 0;
 	is_copy = extract_int(args, 2);
 
-	if (getroom(&qtemp, targ) != 0) {
+	if (CtdlGetRoom(&qtemp, targ) != 0) {
 		cprintf("%d '%s' does not exist.\n", ERROR + ROOM_NOT_FOUND, targ);
 		return;
 	}
@@ -4607,8 +4607,8 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 	msg->cm_fields['M'] = encoded_message;
 
 	/* Create the requested room if we have to. */
-	if (getroom(&qrbuf, roomname) != 0) {
-		create_room(roomname, 
+	if (CtdlGetRoom(&qrbuf, roomname) != 0) {
+		CtdlCreateRoom(roomname, 
 			( (is_mailbox != NULL) ? 5 : 3 ),
 			"", 0, 1, 0, VIEW_BBS);
 	}
@@ -4643,8 +4643,8 @@ char *CtdlGetSysConfig(char *sysconfname) {
 	char buf[SIZ];
 	
 	strcpy(hold_rm, CC->room.QRname);
-	if (getroom(&CC->room, SYSCONFIGROOM) != 0) {
-		getroom(&CC->room, hold_rm);
+	if (CtdlGetRoom(&CC->room, SYSCONFIGROOM) != 0) {
+		CtdlGetRoom(&CC->room, hold_rm);
 		return NULL;
 	}
 
@@ -4671,7 +4671,7 @@ char *CtdlGetSysConfig(char *sysconfname) {
 		}
 	}
 
-	getroom(&CC->room, hold_rm);
+	CtdlGetRoom(&CC->room, hold_rm);
 
 	if (conf != NULL) do {
 		extract_token(buf, conf, 0, '\n', sizeof buf);

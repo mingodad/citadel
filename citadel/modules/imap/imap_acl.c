@@ -54,7 +54,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -67,6 +66,7 @@
 #include "genstamp.h"
 
 
+#include "ctdl_module.h"
 
 /*
  * Implements the SETACL command.
@@ -170,13 +170,13 @@ void imap_getacl(int num_parms, char *parms[]) {
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room.  (If another
+	 * CtdlUserGoto() formally takes us to the desired room.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	cprintf("* ACL");
 	cprintf(" ");
@@ -209,7 +209,7 @@ void imap_getacl(int num_parms, char *parms[]) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	cprintf("%s OK GETACL completed\r\n", parms[0]);
@@ -260,13 +260,13 @@ void imap_listrights(int num_parms, char *parms[]) {
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room.  (If another
+	 * CtdlUserGoto() formally takes us to the desired room.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 
 	/*
@@ -286,7 +286,7 @@ void imap_listrights(int num_parms, char *parms[]) {
 	 * our happy day without violent explosions.
 	 */
 	if (IMAP->selected) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	cprintf("%s OK LISTRIGHTS completed\r\n", parms[0]);
@@ -318,13 +318,13 @@ void imap_myrights(int num_parms, char *parms[]) {
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room.  (If another
+	 * CtdlUserGoto() formally takes us to the desired room.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
 	imap_acl_flags(rights, ra);
@@ -337,7 +337,7 @@ void imap_myrights(int num_parms, char *parms[]) {
 	 * If a different folder was previously selected, return there now.
 	 */
 	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	cprintf("%s OK MYRIGHTS completed\r\n", parms[0]);

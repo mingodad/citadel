@@ -51,7 +51,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "policy.h"
 #include "database.h"
 #include "msgbase.h"
@@ -178,12 +177,12 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 
 	/* First try a mailbox name match (check personal mail folders first) */
 	snprintf(foldername, sizeof foldername, "%010ld.%s", cs->usernum, dest_folder);
-	c = getroom(&CC->room, foldername);
+	c = CtdlGetRoom(&CC->room, foldername);
 
 	/* Then a regular room name match (public and private rooms) */
 	if (c != 0) {
 		safestrncpy(foldername, dest_folder, sizeof foldername);
-		c = getroom(&CC->room, foldername);
+		c = CtdlGetRoom(&CC->room, foldername);
 	}
 
 	if (c != 0) {
@@ -192,13 +191,13 @@ int ctdl_fileinto(sieve2_context_t *s, void *my)
 	}
 
 	/* Yes, we actually have to go there */
-	usergoto(NULL, 0, 0, NULL, NULL);
+	CtdlUserGoto(NULL, 0, 0, NULL, NULL);
 
 	c = CtdlSaveMsgPointersInRoom(NULL, &cs->msgnum, 1, 0, NULL);
 
 	/* Go back to the room we came from */
 	if (strcasecmp(original_room_name, CC->room.QRname)) {
-		usergoto(original_room_name, 0, 0, NULL, NULL);
+		CtdlUserGoto(original_room_name, 0, 0, NULL, NULL);
 	}
 
 	if (c == 0) {
@@ -883,7 +882,7 @@ void sieve_do_room(char *roomname) {
 	 * require execution.
 	 */
 	snprintf(u.config_roomname, sizeof u.config_roomname, "%010ld.%s", atol(roomname), USERCONFIGROOM);
-	if (getroom(&CC->room, u.config_roomname) != 0) {
+	if (CtdlGetRoom(&CC->room, u.config_roomname) != 0) {
 		CtdlLogPrintf(CTDL_DEBUG, "<%s> does not exist.  No processing is required.\n", u.config_roomname);
 		return;
 	}
@@ -902,7 +901,7 @@ void sieve_do_room(char *roomname) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "Rules found.  Performing Sieve processing for <%s>\n", roomname);
 
-	if (getroom(&CC->room, roomname) != 0) {
+	if (CtdlGetRoom(&CC->room, roomname) != 0) {
 		CtdlLogPrintf(CTDL_CRIT, "ERROR: cannot load <%s>\n", roomname);
 		return;
 	}
@@ -991,7 +990,7 @@ void msiv_load(struct sdm_userdata *u) {
 	strcpy(hold_rm, CC->room.QRname);       /* save current room */
 
 	/* Take a spin through the user's personal address book */
-	if (getroom(&CC->room, USERCONFIGROOM) == 0) {
+	if (CtdlGetRoom(&CC->room, USERCONFIGROOM) == 0) {
 	
 		u->config_msgnum = (-1);
 		strcpy(u->config_roomname, CC->room.QRname);
@@ -1001,7 +1000,7 @@ void msiv_load(struct sdm_userdata *u) {
 	}
 
 	if (strcmp(CC->room.QRname, hold_rm)) {
-		getroom(&CC->room, hold_rm);    /* return to saved room */
+		CtdlGetRoom(&CC->room, hold_rm);    /* return to saved room */
 	}
 }
 

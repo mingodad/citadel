@@ -163,4 +163,48 @@ int CtdlIsSingleUser(void);
  */
 long CtdlGetCurrentMessageNumber(void);
 
+
+
+/*
+ * Expose various room operation functions from room_ops.c to the modules API
+ */
+
+unsigned CtdlCreateRoom(char *new_room_name,
+			int new_room_type,
+			char *new_room_pass,
+			int new_room_floor,
+			int really_create,
+			int avoid_access,
+			int new_room_view);
+int CtdlGetRoom(struct ctdlroom *qrbuf, char *room_name);
+int CtdlGetRoomLock(struct ctdlroom *qrbuf, char *room_name);
+int CtdlDoIHavePermissionToDeleteThisRoom(struct ctdlroom *qr);
+void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
+		int *result, int *view);
+void CtdlPutRoomLock(struct ctdlroom *qrbuf);
+void CtdlForEachRoom(void (*CallBack)(struct ctdlroom *EachRoom, void *out_data),
+	void *in_data);
+void CtdlDeleteRoom(struct ctdlroom *qrbuf);
+int CtdlRenameRoom(char *old_name, char *new_name, int new_floor);
+void CtdlUserGoto (char *where, int display_result, int transiently,
+			int *msgs, int *new);
+struct floor *CtdlGetCachedFloor(int floor_num);
+void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf);
+void CtdlGetFloor (struct floor *flbuf, int floor_num);
+void CtdlPutFloor (struct floor *flbuf, int floor_num);
+int CtdlIsNonEditable(struct ctdlroom *qrbuf);
+void CtdlPutRoom(struct ctdlroom *);
+
+/*
+ * Possible return values for CtdlRenameRoom()
+ */
+enum {
+	crr_ok,				/* success */
+	crr_room_not_found,		/* room not found */
+	crr_already_exists,		/* new name already exists */
+	crr_noneditable,		/* cannot edit this room */
+	crr_invalid_floor,		/* target floor does not exist */
+	crr_access_denied		/* not allowed to edit this room */
+};
+
 #endif /* CTDL_MODULE_H */

@@ -29,7 +29,6 @@
 #include <libcitadel.h>
 #include "citadel.h"
 #include "sysdep_decls.h"
-#include "room_ops.h"
 #include "internet_addressing.h"
 #include "imap_tools.h"
 #include "ctdl_module.h"
@@ -500,7 +499,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 	{
 		/* Otherwise, prefix the floor name as a "public folders" moniker. */
 
-		fl = cgetfloor(qrbuf->QRfloor);
+		fl = CtdlGetCachedFloor(qrbuf->QRfloor);
 		p = toimap(p, bufend, fl->f_name);
 		if (p < bufend)
 			*p++ = '/';
@@ -575,7 +574,7 @@ int imap_roomname(char *rbuf, int bufsize, char *foldername)
 		
 		for (i = 0; i < MAXFLOORS; ++i)
 		{
-			fl = cgetfloor(i);
+			fl = CtdlGetCachedFloor(i);
 			if (fl->f_flags & F_INUSE)
 			{
 				if (strcasecmp(floorname, fl->f_name) == 0)

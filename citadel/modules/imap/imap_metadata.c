@@ -55,7 +55,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "room_ops.h"
 #include "user_ops.h"
 #include "policy.h"
 #include "database.h"
@@ -67,7 +66,7 @@
 #include "imap_misc.h"
 #include "genstamp.h"
 
-
+#include "ctdl_module.h"
 
 /*
  * Implements the SETMETADATA command.
@@ -146,13 +145,13 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room.  (If another
+	 * CtdlUserGoto() formally takes us to the desired room.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	/*
 	 * Always set the per-user view to the requested one.
@@ -177,9 +176,9 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 			)
 		||	(msgs == 0)		/* hack: if room is empty, assume we just created it */
 	) {
-		lgetroom(&CC->room, CC->room.QRname);
+		CtdlGetRoomLock(&CC->room, CC->room.QRname);
 		CC->room.QRdefaultview = set_view;
-		lputroom(&CC->room);
+		CtdlPutRoomLock(&CC->room);
 		cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
 	}
 
@@ -192,7 +191,7 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	 * If a different folder was previously selected, return there now.
 	 */
 	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 	return;
 }
@@ -223,13 +222,13 @@ void imap_getmetadata(int num_parms, char *parms[]) {
 	}
 
 	/*
-	 * usergoto() formally takes us to the desired room.  (If another
+	 * CtdlUserGoto() formally takes us to the desired room.  (If another
 	 * folder is selected, save its name so we can return there!!!!!)
 	 */
 	if (IMAP->selected) {
 		strcpy(savedroom, CC->room.QRname);
 	}
-	usergoto(roomname, 0, 0, &msgs, &new);
+	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	cprintf("* METADATA ");
 	imap_strout(parms[2]);
@@ -295,7 +294,7 @@ void imap_getmetadata(int num_parms, char *parms[]) {
 	 * If a different folder was previously selected, return there now.
 	 */
 	if ( (IMAP->selected) && (strcasecmp(roomname, savedroom)) ) {
-		usergoto(savedroom, 0, 0, &msgs, &new);
+		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
 	cprintf("%s OK GETMETADATA complete\r\n", parms[0]);
