@@ -451,6 +451,10 @@ var sub {
 	background-color: #EEEECC;
 }
 
+.caltoday {
+	background-color: #4040FF;
+}
+
 .current_sort_mode {
     background-color: white;
 }
