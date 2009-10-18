@@ -596,8 +596,9 @@ void calendar_month_view(int year, int month, int day) {
 
 		wprintf("<td class=\"cal%s\"><div class=\"day\">",
 			((tm.tm_mon != month-1) ? "out" :
+				((tm.tm_mday == day) ? "today" :
 				((tm.tm_wday==0 || tm.tm_wday==6) ? "weekend" :
-					"day"))
+					"day")))
 			);
 		if ((i==0) || (tm.tm_mday == 1)) {
 			wc_strftime(colheader_label, sizeof colheader_label, "%B", &tm);
