@@ -573,6 +573,7 @@ void calendar_month_view(int year, int month, int day) {
 	/* Inner table (the real one) */
 	wprintf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
 		"bgcolor=#204B78 id=\"inner_month\"><tr>");
+	wprintf("<th align=center width=2%%></th>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
 		colheader_time = thetime + (i * 86400) ;
@@ -591,7 +592,9 @@ void calendar_month_view(int year, int month, int day) {
 
 		/* Before displaying the first day of the week, start a new row */
 		if ((i % 7) == 0) {
-			wprintf("<tr>");
+			wprintf("<tr><td class=\"week_of_year\">");
+			wc_strftime(colheader_label, sizeof colheader_label, "%V", &tm);
+                        wprintf("%s ", colheader_label);
 		}
 
 		wprintf("<td class=\"cal%s\"><div class=\"day\">",
