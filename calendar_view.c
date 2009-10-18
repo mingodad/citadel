@@ -1106,7 +1106,7 @@ void calendar_day_view(int year, int month, int day) {
 	long daystart;
 	long dayend;
 	struct tm d_tm;
-	char d_str[128];
+	char d_str[160];
 	int time_format;
 	time_t today_t;
 	int timeline = TIMELINE;
@@ -1288,6 +1288,7 @@ void calendar_day_view(int year, int month, int day) {
 
 	wc_strftime(d_str, sizeof d_str,
 		"<td align=center>"
+		"<font size=+2>%A</font><br />"
 		"<font size=+2>%B</font><br />"
 		"<font size=+3>%d</font><br />"
 		"<font size=+2>%Y</font><br />"
