@@ -328,16 +328,16 @@ InitModule_WHO
 
 	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, NULL, DeleteWholistHash, CTX_WHO, CTX_NONE, IT_NOFLAG);
 
-	RegisterNamespace("WHO:NAME",        0, 1, tmplput_who_username, CTX_WHO);
-	RegisterNamespace("WHO:ROOM",        0, 1, tmplput_who_room, CTX_WHO);
-	RegisterNamespace("WHO:HOST",        0, 1, tmplput_who_host, CTX_WHO);
-	RegisterNamespace("WHO:REALROOM",    0, 1, tmplput_who_realroom, CTX_WHO);
-	RegisterNamespace("WHO:REALHOST",    0, 1, tmplput_who_realhost, CTX_WHO);
-	RegisterNamespace("WHO:LASTACTIVE",  0, 1, tmplput_who_lastactive, CTX_WHO);
-	RegisterNamespace("WHO:IDLESINCE",   0, 1, tmplput_who_idlesince, CTX_WHO);
-	RegisterNamespace("WHO:SESSION",     0, 1, tmplput_who_session, CTX_WHO);
-	RegisterNamespace("WHO:NSESSIONS",   0, 1, tmplput_who_nsessions, CTX_WHO);
-	RegisterNamespace("WHO:NSESSIONS",   0, 1, tmplput_who_nsessions, CTX_WHO);
+	RegisterNamespace("WHO:NAME",        0, 1, tmplput_who_username, NULL, CTX_WHO);
+	RegisterNamespace("WHO:ROOM",        0, 1, tmplput_who_room, NULL, CTX_WHO);
+	RegisterNamespace("WHO:HOST",        0, 1, tmplput_who_host, NULL, CTX_WHO);
+	RegisterNamespace("WHO:REALROOM",    0, 1, tmplput_who_realroom, NULL, CTX_WHO);
+	RegisterNamespace("WHO:REALHOST",    0, 1, tmplput_who_realhost, NULL, CTX_WHO);
+	RegisterNamespace("WHO:LASTACTIVE",  0, 1, tmplput_who_lastactive, NULL, CTX_WHO);
+	RegisterNamespace("WHO:IDLESINCE",   0, 1, tmplput_who_idlesince, NULL, CTX_WHO);
+	RegisterNamespace("WHO:SESSION",     0, 1, tmplput_who_session, NULL, CTX_WHO);
+	RegisterNamespace("WHO:NSESSIONS",   0, 1, tmplput_who_nsessions, NULL, CTX_WHO);
+	RegisterNamespace("WHO:NSESSIONS",   0, 1, tmplput_who_nsessions, NULL, CTX_WHO);
 
 	RegisterConditional(HKEY("WHO:IDLE"),      1, conditional_who_idle, CTX_WHO);
 	RegisterConditional(HKEY("WHO:NSESSIONS"), 1, conditional_who_nsessions, CTX_WHO);

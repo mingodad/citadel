@@ -730,18 +730,18 @@ InitModule_USEREDIT
 	WebcitAddUrlHandler(HKEY("edituser"), edituser, 0);
 	WebcitAddUrlHandler(HKEY("create_user"), create_user, 0);
 
-	RegisterNamespace("USERLIST:USERNAME",      0, 1, tmplput_USERLIST_UserName, CTX_USERLIST);
-	RegisterNamespace("USERLIST:PASSWD",        0, 1, tmplput_USERLIST_Password, CTX_USERLIST);
-	RegisterNamespace("USERLIST:ACCLVLNO",      0, 0, tmplput_USERLIST_AccessLevelNo, CTX_USERLIST);
-	RegisterNamespace("USERLIST:ACCLVLSTR",     0, 0, tmplput_USERLIST_AccessLevelStr, CTX_USERLIST);
-	RegisterNamespace("USERLIST:UID",           0, 0, tmplput_USERLIST_UID, CTX_USERLIST);
-	RegisterNamespace("USERLIST:LASTLOGON:STR", 0, 0, tmplput_USERLIST_LastLogonStr, CTX_USERLIST);
-	RegisterNamespace("USERLIST:LASTLOGON:NO",  0, 0, tmplput_USERLIST_LastLogonNo, CTX_USERLIST);
-	RegisterNamespace("USERLIST:NLOGONS",       0, 0, tmplput_USERLIST_nLogons, CTX_USERLIST);
-	RegisterNamespace("USERLIST:NPOSTS",        0, 0, tmplput_USERLIST_nPosts, CTX_USERLIST);
+	RegisterNamespace("USERLIST:USERNAME",      0, 1, tmplput_USERLIST_UserName, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:PASSWD",        0, 1, tmplput_USERLIST_Password, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:ACCLVLNO",      0, 0, tmplput_USERLIST_AccessLevelNo, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:ACCLVLSTR",     0, 0, tmplput_USERLIST_AccessLevelStr, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:UID",           0, 0, tmplput_USERLIST_UID, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:LASTLOGON:STR", 0, 0, tmplput_USERLIST_LastLogonStr, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:LASTLOGON:NO",  0, 0, tmplput_USERLIST_LastLogonNo, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:NLOGONS",       0, 0, tmplput_USERLIST_nLogons, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:NPOSTS",        0, 0, tmplput_USERLIST_nPosts, NULL, CTX_USERLIST);
 						    
-	RegisterNamespace("USERLIST:FLAGS",         0, 0, tmplput_USERLIST_Flags, CTX_USERLIST);
-	RegisterNamespace("USERLIST:DAYSTILLPURGE", 0, 0, tmplput_USERLIST_DaysTillPurge, CTX_USERLIST);
+	RegisterNamespace("USERLIST:FLAGS",         0, 0, tmplput_USERLIST_Flags, NULL, CTX_USERLIST);
+	RegisterNamespace("USERLIST:DAYSTILLPURGE", 0, 0, tmplput_USERLIST_DaysTillPurge, NULL, CTX_USERLIST);
 
 	RegisterConditional(HKEY("COND:USERNAME"),  0,    ConditionalUser, CTX_USERLIST);
 	RegisterConditional(HKEY("COND:USERACCESS"), 0,   ConditionalUserAccess, CTX_USERLIST);

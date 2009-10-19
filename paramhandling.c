@@ -424,8 +424,8 @@ InitModule_PARAMHANDLING
 	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
 
 	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
-	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, CTX_NONE);
-	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, CTX_NONE);
+	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, NULL, CTX_NONE);
+	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, NULL, CTX_NONE);
 }
 
 

@@ -27,6 +27,7 @@ void RegisterNS(const char *NSName, long len,
 		int nMinArgs, 
 		int nMaxArgs, 
 		WCHandlerFunc HandlerFunc,
+		WCPreevalFunc PreEvalFunc,
 		int ContextRequired){}
 pthread_key_t MyConKey;
 

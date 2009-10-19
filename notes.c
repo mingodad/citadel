@@ -453,14 +453,14 @@ InitModule_NOTES
 	WebcitAddUrlHandler(HKEY("add_new_note"), add_new_note, 0);
 	WebcitAddUrlHandler(HKEY("ajax_update_note"), ajax_update_note, 0);
 
-	RegisterNamespace("VNOTE:POS:LEFT", 0, 0, tmpl_vcard_put_posleft, CTX_VNOTE);
-	RegisterNamespace("VNOTE:POS:TOP", 0, 0, tmpl_vcard_put_postop, CTX_VNOTE);
-	RegisterNamespace("VNOTE:POS:WIDTH", 0, 0, tmpl_vcard_put_poswidth, CTX_VNOTE);
-	RegisterNamespace("VNOTE:POS:HEIGHT", 0, 0, tmpl_vcard_put_posheight, CTX_VNOTE);
-	RegisterNamespace("VNOTE:POS:HEIGHT2", 0, 0, tmpl_vcard_put_posheight2, CTX_VNOTE);
-	RegisterNamespace("VNOTE:POS:WIDTH2", 0, 0, tmpl_vcard_put_width2, CTX_VNOTE);
-	RegisterNamespace("VNOTE:COLOR", 0, 0, tmpl_vcard_put_color, CTX_VNOTE);
-	RegisterNamespace("VNOTE:BGCOLOR", 0, 0,tmpl_vcard_put_bgcolor, CTX_VNOTE);
-	RegisterNamespace("VNOTE:MSG", 0, 1, tmpl_vcard_put_message, CTX_VNOTE);
-	RegisterNamespace("VNOTE:UID", 0, 0, tmpl_vcard_put_uid, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:LEFT", 0, 0, tmpl_vcard_put_posleft, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:TOP", 0, 0, tmpl_vcard_put_postop, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:WIDTH", 0, 0, tmpl_vcard_put_poswidth, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:HEIGHT", 0, 0, tmpl_vcard_put_posheight, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:HEIGHT2", 0, 0, tmpl_vcard_put_posheight2, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:POS:WIDTH2", 0, 0, tmpl_vcard_put_width2, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:COLOR", 0, 0, tmpl_vcard_put_color, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:BGCOLOR", 0, 0,tmpl_vcard_put_bgcolor, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:MSG", 0, 1, tmpl_vcard_put_message, NULL, CTX_VNOTE);
+	RegisterNamespace("VNOTE:UID", 0, 0, tmpl_vcard_put_uid, NULL, CTX_VNOTE);
 }

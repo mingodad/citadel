@@ -792,14 +792,14 @@ InitModule_SERVFUNC
 	RegisterConditional(HKEY("COND:SERV:OPENID"), 2, conditional_serv_supports_openid, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERV:NEWU"), 2, conditional_serv_newuser_disabled, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERV:HAVEFULLTEXT"), 2, conditional_serv_fulltext_enabled, CTX_NONE);
-	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip, CTX_NONE);
-	RegisterNamespace("SERV:NODENAME", 0, 1, tmplput_serv_nodename, CTX_NONE);
-	RegisterNamespace("SERV:HUMANNODE", 0, 1, tmplput_serv_humannode, CTX_NONE);
-	RegisterNamespace("SERV:FQDN", 0, 1, tmplput_serv_fqdn, CTX_NONE);
-	RegisterNamespace("SERV:SOFTWARE", 0, 1, tmplput_serv_software, CTX_NONE);
-	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, CTX_NONE);
-	RegisterNamespace("SERV:BBS_CITY", 0, 1, tmplput_serv_bbs_city, CTX_NONE);
-	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, CTX_NONE);
+	RegisterNamespace("SERV:PID", 0, 0, tmplput_serv_ip, NULL, CTX_NONE);
+	RegisterNamespace("SERV:NODENAME", 0, 1, tmplput_serv_nodename, NULL, CTX_NONE);
+	RegisterNamespace("SERV:HUMANNODE", 0, 1, tmplput_serv_humannode, NULL, CTX_NONE);
+	RegisterNamespace("SERV:FQDN", 0, 1, tmplput_serv_fqdn, NULL, CTX_NONE);
+	RegisterNamespace("SERV:SOFTWARE", 0, 1, tmplput_serv_software, NULL, CTX_NONE);
+	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, NULL, CTX_NONE);
+	RegisterNamespace("SERV:BBS_CITY", 0, 1, tmplput_serv_bbs_city, NULL, CTX_NONE);
+	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, NULL, CTX_NONE);
 /*TODO //	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmplput_serv_ldap_enabled, 0); */
 }
 

@@ -77,6 +77,9 @@ typedef struct WCTemplputParams WCTemplputParams;
 /* this is the signature of a tmplput function */
 typedef void (*WCHandlerFunc)(StrBuf *Target, WCTemplputParams *TP);
 
+/* if you want to pre-evaluate parts of your token, or do additional syntax, use this. */ 
+typedef int (*WCPreevalFunc)(WCTemplateToken *Token);
+
 /* make a template token a lookup key: */
 #define TKEY(a) TP->Tokens->Params[a]->Start, TP->Tokens->Params[a]->len
 
@@ -124,6 +127,7 @@ struct WCTemplateToken {
 	int Flags;
 	/* pointer to our runntime evaluator; so we can cache this and save hash-lookups */
 	void *PreEval;
+	void *Preeval2;
 
 	/* if we have parameters here we go: */
 	/* do we have parameters or not? */
@@ -167,11 +171,11 @@ extern WCTemplputParams NoCtx;
 #define ERR_PARM1 1
 #define ERR_PARM2 2
 /**
- * \Brief log an error while evaluating a token; print it to the actual template 
- * \param Target your Target Buffer to print the error message next to the log
- * \param Type What sort of thing are we talking about? Tokens? Conditionals?
- * \param TP grab our set of default information here
- * \param Format for the custom error message
+ * @Brief log an error while evaluating a token; print it to the actual template 
+ * @param Target your Target Buffer to print the error message next to the log
+ * @param Type What sort of thing are we talking about? Tokens? Conditionals?
+ * @param TP grab our set of default information here
+ * @param Format for the custom error message
  */ 
 void LogTemplateError (StrBuf *Target, 
 		       const char *Type, 
@@ -181,15 +185,15 @@ void LogTemplateError (StrBuf *Target,
 
 
 /**
- * \Brief log an error while in global context; print it to Wildfire / Target
- * \param Target your Target Buffer to print the error message next to the log
- * \param Type What sort of thing are we talking about? Tokens? Conditionals?
- * \param Format for the custom error message
+ * @Brief log an error while in global context; print it to Wildfire / Target
+ * @param Target your Target Buffer to print the error message next to the log
+ * @param Type What sort of thing are we talking about? Tokens? Conditionals?
+ * @param Format for the custom error message
  */ 
 void LogError (StrBuf *Target, const char *Type, const char *Format, ...);
 
 /**
- * \Brief get the actual value of a token parameter
+ * @Brief get the actual value of a token parameter
  * in your tmplputs or conditionals use this function to access parameters that can also be 
  * retrieved from dynamic facilities:
  *  _ -> Gettext; retrieve this token from the i18n facilities
@@ -197,9 +201,9 @@ void LogError (StrBuf *Target, const char *Type, const char *Format, ...);
  *  B -> bstr; an URL-Parameter
  *  = -> subtemplate; parse a template by this name, and treat its content as this tokens value 
  * 
- * \param N which token do you want to lookup?
- * \param Value reference to the string of the token; don't free me.
- * \param len the length of Value
+ * @param N which token do you want to lookup?
+ * @param Value reference to the string of the token; don't free me.
+ * @param len the length of Value
  */
 void GetTemplateTokenString(StrBuf *Target, 
 			    WCTemplputParams *TP,
@@ -210,7 +214,7 @@ void GetTemplateTokenString(StrBuf *Target,
 
 
 /**
- * \Brief get the actual integer value of a token parameter
+ * @Brief get the actual integer value of a token parameter
  * in your tmplputs or conditionals use this function to access parameters that can also be 
  * retrieved from dynamic facilities:
  *  _ -> Gettext; retrieve this token from the i18n facilities
@@ -218,8 +222,8 @@ void GetTemplateTokenString(StrBuf *Target,
  *  B -> bstr; an URL-Parameter
  *  = -> subtemplate; parse a template by this name, and treat its content as this tokens value 
  * 
- * \param N which token do you want to lookup?
- * \param dflt default value to be retrieved if not found in preferences
+ * @param N which token do you want to lookup?
+ * @param dflt default value to be retrieved if not found in preferences
  * \returns the long value
  */
 long GetTemplateTokenNumber(StrBuf *Target, 
@@ -227,16 +231,16 @@ long GetTemplateTokenNumber(StrBuf *Target,
 			    int N, long dflt);
 
 /**
- * \Brief put a token value into the template
+ * @Brief put a token value into the template
  * use this function to append your strings into a Template. 
  * it can escape your string according to the token at FormattypeIndex:
  *  H: de-QP and utf8-ify
  *  X: escapize for HTML
  *  J: JSON Escapize
- * \param Target the destination buffer
- * \param TP the template token information
- * \param Source string to append
- * \param FormatTypeIndex which parameter contains the escaping functionality?
+ * @param Target the destination buffer
+ * @param TP the template token information
+ * @param Source string to append
+ * @param FormatTypeIndex which parameter contains the escaping functionality?
  *        if this token doesn't have as much parameters, plain append is done.
  */
 void StrBufAppendTemplate(StrBuf *Target, 
@@ -245,13 +249,34 @@ void StrBufAppendTemplate(StrBuf *Target,
 			  int FormatTypeIndex);
 
 
-#define RegisterNamespace(a, b, c, d, e) RegisterNS(a, sizeof(a)-1, b, c, d, e)
+#define RegisterNamespace(a, b, c, d, e, f) RegisterNS(a, sizeof(a)-1, b, c, d, e, f)
+/**
+ * @Brief register a template token handler
+ * call this function in your InitModule_MODULENAME which will be called at the server start
+ * @param nMinArgs how much parameters does your token require at least?
+ * @param nMaxArgs how many parameters does your token accept?
+ * @param HandlerFunc your callback when the template is rendered and your token is there 
+ * @param PreEvalFunc is called when the template is parsed; you can do additional 
+ *        syntax checks here or pre-evaluate stuff for better performance
+ * @param ContextRequired if your token requires a specific context, else say CTX_NONE here.
+ */
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
 		int nMaxArgs, 
 		WCHandlerFunc HandlerFunc,
+		WCPreevalFunc PreEvalFunc,
 		int ContextRequired);
 
+/**
+ * @Brief register a conditional token <pair> handler
+ * call this function in your InitModule_MODULENAME which will be called at the server start
+ * conditionals can be ? or ! with a pair or % similar to an implicit if
+ * @param Name whats the name of your conditional? should start with COND:
+ * @param len the token length so we don't have to measure it.
+ * @param nParams how many parameters does your conditional need on top of the default conditional parameters
+ * @param CondF your Callback to be called when the template is evaluated at runtime; return 0 or 1 to us please.
+ * @param ContextRequired if your token requires a specific context, else say CTX_NONE here.
+ */
 void RegisterConditional(const char *Name, long len, 
 			 int nParams,
 			 WCConditionalFunc CondF, 

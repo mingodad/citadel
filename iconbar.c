@@ -251,7 +251,7 @@ InitModule_ICONBAR
 	WebcitAddUrlHandler(HKEY("user_iconbar"), doUserIconStylesheet, 0);
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), commit_iconbar, 0);
 	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
-	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, 0);
+	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, NULL, CTX_NONE);
 
 	RegisterPreference("iconbar", _("Iconbar Setting"), PRF_STRING, LoadIconSettings);
 }

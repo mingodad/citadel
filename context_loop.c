@@ -772,9 +772,9 @@ InitModule_CONTEXT
 	RegisterHeaderHandler(HKEY("ACCEPT-ENCODING"), Header_HandleAcceptEncoding);
 	RegisterHeaderHandler(HKEY("IF-MODIFIED-SINCE"), Header_HandleIfModSince);
 
-	RegisterNamespace("CURRENT_USER", 0, 1, tmplput_current_user, CTX_NONE);
-	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, CTX_NONE);
-	RegisterNamespace("NONCE", 0, 0, tmplput_nonce, 0);
+	RegisterNamespace("CURRENT_USER", 0, 1, tmplput_current_user, NULL, CTX_NONE);
+	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, NULL, CTX_NONE);
+	RegisterNamespace("NONCE", 0, 0, tmplput_nonce, NULL, 0);
 
 	WebcitAddUrlHandler(HKEY("404"), do_404, ANONYMOUS|COOKIEUNNEEDED);
 /*

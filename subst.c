@@ -66,7 +66,7 @@ typedef struct _WCTemplate {
 
 typedef struct _HashHandler {
 	ContextFilter Filter;
-
+	WCPreevalFunc PreEvalFunc;
 	WCHandlerFunc HandlerFunc;
 }HashHandler;
 
@@ -289,6 +289,7 @@ void RegisterNS(const char *NSName,
 		int nMinArgs, 
 		int nMaxArgs, 
 		WCHandlerFunc HandlerFunc, 
+		WCPreevalFunc PreevalFunc,
 		int ContextRequired)
 {
 	HashHandler *NewHandler;
@@ -300,6 +301,7 @@ void RegisterNS(const char *NSName,
 	NewHandler->Filter.ContextType = ContextRequired;
 	NewHandler->Filter.ControlContextType = CTX_NONE;
 
+	NewHandler->PreEvalFunc = PreevalFunc;
 	NewHandler->HandlerFunc = HandlerFunc;	
 	Put(GlobalNS, NSName, len, NewHandler, NULL);
 }
@@ -1350,6 +1352,8 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			else {
 				NewToken->PreEval = Handler;
 				NewToken->Flags = SV_PREEVALUATED;		
+				if (Handler->PreEvalFunc != NULL)
+					Handler->PreEvalFunc(NewToken);
 			}
 		}
 		break;
@@ -1892,9 +1896,27 @@ typedef struct _iteratestruct {
 	int LastN;
 	}IterateStruct; 
 
+int preeval_iterate(WCTemplateToken *Token)
+{
+	WCTemplputParams TPP;
+	WCTemplputParams *TP;
+	void *vIt;
+
+	memset(&TPP, 0, sizeof(WCTemplputParams));
+	TP = &TPP;
+	TP->Tokens = Token;
+	if (!GetHash(Iterators, TKEY(0), &vIt)) {
+		LogTemplateError(
+			NULL, "Iterator", ERR_NAME, TP,
+			"not found");
+		return 0;
+	}
+	Token->Preeval2 = vIt;
+	return 1;
+}
+
 void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 {
-	void *vIt;
 	HashIterator *It;
 	HashList *List;
 	HashPos  *it;
@@ -1915,13 +1937,12 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	memset(&Status, 0, sizeof(IterateStruct));
 	memcpy (&SubTP, &TP, sizeof(WCTemplputParams));
 	
-	if (!GetHash(Iterators, TKEY(0), &vIt)) {
+	It = (HashIterator*) TP->Tokens->Preeval2;
+	if (It == NULL) {
 		LogTemplateError(
 			Target, "Iterator", ERR_PARM1, TP, "Unknown!");
 		return;
 	}
-
-	It = (HashIterator*) vIt;
 
 	if (TP->Tokens->nParameters < It->AdditionalParams + 2) {
 		LogTemplateError(                               
@@ -2603,14 +2624,14 @@ InitModule_SUBST
 (void)
 {
 	memset(&NoCtx, 0, sizeof(WCTemplputParams));
-	RegisterNamespace("SORT:ICON", 1, 2, tmplput_SORT_ICON, CTX_NONE);
-	RegisterNamespace("SORT:ORDER", 1, 2, tmplput_SORT_ORDER, CTX_NONE);
-	RegisterNamespace("SORT:NEXT", 1, 2, tmplput_SORT_NEXT, CTX_NONE);
-	RegisterNamespace("CONTEXTSTR", 0, 1, tmplput_ContextString, CTX_STRBUF);
-	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, CTX_NONE);
-	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, CTX_NONE);
-	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, CTX_NONE);
-	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, CTX_LONGVECTOR);
+	RegisterNamespace("SORT:ICON", 1, 2, tmplput_SORT_ICON, NULL, CTX_NONE);
+	RegisterNamespace("SORT:ORDER", 1, 2, tmplput_SORT_ORDER, NULL, CTX_NONE);
+	RegisterNamespace("SORT:NEXT", 1, 2, tmplput_SORT_NEXT, NULL, CTX_NONE);
+	RegisterNamespace("CONTEXTSTR", 0, 1, tmplput_ContextString, NULL, CTX_STRBUF);
+	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, preeval_iterate, CTX_NONE);
+	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, NULL, CTX_NONE);
+	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, NULL, CTX_NONE);
+	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, NULL, CTX_LONGVECTOR);
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
 	RegisterConditional(HKEY("COND:CONTEXTSTR"), 3, ConditionalContextStr, CTX_STRBUF);
 	RegisterConditional(HKEY("COND:LONGVECTOR"), 4, ConditionalLongVector, CTX_LONGVECTOR);

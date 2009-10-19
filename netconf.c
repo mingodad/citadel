@@ -306,10 +306,10 @@ InitModule_NETCONF
 	WebcitAddUrlHandler(HKEY("delete_node"), delete_node, 0);
 
                                                                                           
-        RegisterNamespace("CFG:IGNET:NODE", 0, 1, tmplput_NodeName, CTX_NODECONF);
-        RegisterNamespace("CFG:IGNET:SECRET", 0, 1, tmplput_Secret, CTX_NODECONF);
-        RegisterNamespace("CFG:IGNET:HOST", 0, 1, tmplput_Host, CTX_NODECONF);
-        RegisterNamespace("CFG:IGNET:PORT", 0, 1, tmplput_Port, CTX_NODECONF);
+        RegisterNamespace("CFG:IGNET:NODE", 0, 1, tmplput_NodeName, NULL, CTX_NODECONF);
+        RegisterNamespace("CFG:IGNET:SECRET", 0, 1, tmplput_Secret, NULL, CTX_NODECONF);
+        RegisterNamespace("CFG:IGNET:HOST", 0, 1, tmplput_Host, NULL, CTX_NODECONF);
+        RegisterNamespace("CFG:IGNET:PORT", 0, 1, tmplput_Port, NULL, CTX_NODECONF);
 
 	RegisterIterator("NODECONFIG", 0, NULL, load_netconf, NULL, DeleteHash, CTX_NODECONF, CTX_NONE, IT_NOFLAG);
 }
