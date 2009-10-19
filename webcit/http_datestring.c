@@ -81,8 +81,8 @@ void
 InitModule_DATE
 (void)
 {
-	RegisterNamespace("DATE:NOW:STR", 0, 0, tmplput_nowstr, CTX_NONE);
-	RegisterNamespace("DATE:NOW:NO", 0, 0, tmplput_nowno, CTX_NONE);
+	RegisterNamespace("DATE:NOW:STR", 0, 0, tmplput_nowstr, NULL, CTX_NONE);
+	RegisterNamespace("DATE:NOW:NO", 0, 0, tmplput_nowno, NULL, CTX_NONE);
 }
 
 /*@}*/

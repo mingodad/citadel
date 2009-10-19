@@ -702,31 +702,31 @@ InitModule_ROOMLIST
 	WebcitAddUrlHandler(HKEY("json_roomflr"), jsonRoomFlr, 0);
 
 
-	RegisterNamespace("FLOOR:ID", 0, 0, tmplput_FLOOR_ID, CTX_FLOORS);
-	RegisterNamespace("FLOOR:NAME", 0, 1, tmplput_FLOOR_NAME, CTX_FLOORS);
-	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, CTX_FLOORS);
+	RegisterNamespace("FLOOR:ID", 0, 0, tmplput_FLOOR_ID, NULL, CTX_FLOORS);
+	RegisterNamespace("FLOOR:NAME", 0, 1, tmplput_FLOOR_NAME, NULL, CTX_FLOORS);
+	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, NULL, CTX_FLOORS);
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
-	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, CTX_ROOMS);/// TODO!
-	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);/// TODO!
+	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, NULL, CTX_ROOMS);
 
-	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:LISTORDER", 0, 1, tmplput_ROOM_LISTORDER, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:DEFVIEW", 0, 1, tmplput_ROOM_DEFVIEW, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:LASTCHANGE", 0, 1, tmplput_ROOM_LASTCHANGE, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:COLLECTIONTYPE", 0, 1, tmplput_ROOM_COLLECTIONTYPE, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:FLOOR:ID", 0, 0, tmplput_ROOM_FLOOR_ID, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:FLOOR:NAME", 0, 1, tmplput_ROOM_FLOOR_NAME, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:LISTORDER", 0, 1, tmplput_ROOM_LISTORDER, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:DEFVIEW", 0, 1, tmplput_ROOM_DEFVIEW, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:LASTCHANGE", 0, 1, tmplput_ROOM_LASTCHANGE, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:COLLECTIONTYPE", 0, 1, tmplput_ROOM_COLLECTIONTYPE, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:FLOOR:ID", 0, 0, tmplput_ROOM_FLOOR_ID, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:FLOOR:NAME", 0, 1, tmplput_ROOM_FLOOR_NAME, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, NULL, CTX_ROOMS);
 
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBROOM"), 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
 

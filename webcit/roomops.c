@@ -3171,7 +3171,7 @@ InitModule_ROOMOPS
                            NULL);
         RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO, NULL);
 
-	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, 0);
+	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, NULL, CTX_NONE);
 
 	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
 	WebcitAddUrlHandler(HKEY("dotgoto"), dotgoto, NEED_URL);
@@ -3192,7 +3192,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
 	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
 	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
-	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, 0);
+	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, NULL, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:ROOM:TYPE_IS"), 0, ConditionalIsRoomtype, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);
@@ -3214,7 +3214,7 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
-	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, 0);
+	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, NULL, CTX_NONE);
 	RegisterIterator("FLOORS", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_NOFLAG);
 
 

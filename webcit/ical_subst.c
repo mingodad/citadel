@@ -82,6 +82,7 @@ void CreateIcalComponendKindLookup(void)
 			   0, 
 			   10, 
 			   tmplput_ICalItem,
+			   NULL, 
 			   CTX_ICAL);
 		Put(IcalComponentMap, 
 		    icalproperty_kind_map[i].Name, 

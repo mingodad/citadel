@@ -314,7 +314,7 @@ InitModule_SITECONFIG
 {
 	WebcitAddUrlHandler(HKEY("siteconfig"), siteconfig, CTX_NONE);
 
-	RegisterNamespace("SERV:CFG", 1, 2, tmplput_servcfg, CTX_NONE);
+	RegisterNamespace("SERV:CFG", 1, 2, tmplput_servcfg, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst, CTX_NONE);
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE, IT_NOFLAG);

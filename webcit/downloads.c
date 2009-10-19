@@ -431,10 +431,10 @@ InitModule_DOWNLOAD
 			 GroupchangeFilelistBySequence,
 			 CTX_FILELIST);
 
-	RegisterNamespace("FILE:NAME", 0, 2, tmplput_FILE_NAME, CTX_FILELIST);
-	RegisterNamespace("FILE:SIZE", 0, 1, tmplput_FILE_SIZE, CTX_FILELIST);
-	RegisterNamespace("FILE:MIMETYPE", 0, 2, tmplput_FILEMIMETYPE, CTX_FILELIST);
-	RegisterNamespace("FILE:COMMENT", 0, 2, tmplput_FILE_COMMENT, CTX_FILELIST);
+	RegisterNamespace("FILE:NAME", 0, 2, tmplput_FILE_NAME, NULL, CTX_FILELIST);
+	RegisterNamespace("FILE:SIZE", 0, 1, tmplput_FILE_SIZE, NULL, CTX_FILELIST);
+	RegisterNamespace("FILE:MIMETYPE", 0, 2, tmplput_FILEMIMETYPE, NULL, CTX_FILELIST);
+	RegisterNamespace("FILE:COMMENT", 0, 2, tmplput_FILE_COMMENT, NULL, CTX_FILELIST);
 
 	RegisterConditional(HKEY("COND:FILE:ISPIC"), 0, Conditional_FILE_ISPIC, CTX_FILELIST);
 

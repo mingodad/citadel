@@ -1007,12 +1007,12 @@ InitModule_PREFERENCES
 
 	RegisterPreference("startpage", _("Prefered startpage"), PRF_STRING, LoadStartpage);
 
-	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, CTX_NONE);
-	RegisterNamespace("PREF:ROOM:VALUE", 1, 2, tmplput_CFG_RoomValue,  CTX_NONE);
-	RegisterNamespace("PREF:ROOM:VALUE:INT", 1, 2, tmplput_CFG_RoomValueLong,  CTX_NONE);
-	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, CTX_NONE);
+	RegisterNamespace("OFFERSTARTPAGE", 0, 0, offer_start_page, NULL, CTX_NONE);
+	RegisterNamespace("PREF:ROOM:VALUE", 1, 2, tmplput_CFG_RoomValue,  NULL, CTX_NONE);
+	RegisterNamespace("PREF:ROOM:VALUE:INT", 1, 2, tmplput_CFG_RoomValueLong,  NULL, CTX_NONE);
+	RegisterNamespace("PREF:VALUE", 1, 2, tmplput_CFG_Value, NULL, CTX_NONE);
 	
-	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, CTX_NONE);
+	RegisterNamespace("PREF:DESCR", 1, 1, tmplput_CFG_Descr, NULL, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:PREF"), 4, ConditionalPreference, CTX_NONE);
 	RegisterConditional(HKEY("COND:PREF:SET"), 4, ConditionalHasPreference, CTX_NONE);
