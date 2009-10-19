@@ -416,7 +416,7 @@ InitModule_GETTEXT
 (void)
 {
 	initialize_locales();
-	RegisterNamespace("LANG:SELECT", 0, 0, tmplput_offer_languages, CTX_NONE);
+	RegisterNamespace("LANG:SELECT", 0, 0, tmplput_offer_languages, NULL, CTX_NONE);
 }
 
 
