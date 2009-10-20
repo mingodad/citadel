@@ -247,21 +247,29 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	if (!IsEmptyStr(boundary)) {
 		snprintf(prefixed_boundary, sizeof prefixed_boundary, "--%s", boundary);
 		history_msg->cm_fields['M'] = realloc(history_msg->cm_fields['M'],
-			strlen(history_msg->cm_fields['M']) + strlen(diffbuf) + 512
+			strlen(history_msg->cm_fields['M']) + strlen(diffbuf) + 1024
 		);
 		ptr = bmstrcasestr(history_msg->cm_fields['M'], prefixed_boundary);
 		if (ptr != NULL) {
 			char *the_rest_of_it = strdup(ptr);
+			char memo[512];
+			char encoded_memo[768];
+			snprintf(memo, sizeof memo, "%s|%s|%ld", 
+				CCC->user.fullname,
+				CCC->cs_inet_email,
+				time(NULL)
+			);
+			CtdlEncodeBase64(encoded_memo, memo, strlen(memo), 0);
 			sprintf(ptr, "--%s\n"
 					"Content-type: text/plain\n"
-					"From: %s <%s>\n"
+					"Content-Disposition: inline; filename=\"%s\"\n"
+					"Content-Transfer-Encoding: 8bit\n"
 					"\n"
 					"%s\n"
 					"%s"
 					,
 				boundary,
-				CCC->user.fullname,
-				CCC->cs_inet_email,
+				encoded_memo,
 				diffbuf,
 				the_rest_of_it
 			);
