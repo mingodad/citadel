@@ -66,9 +66,18 @@ void http_datestring(char *buf, size_t n, time_t xtime) {
 
 void tmplput_nowstr(StrBuf *Target, WCTemplputParams *TP)
 {
+	char buf[64];
+	long bufused;
 	time_t now;
+	
 	now = time(NULL);
-	StrEscAppend(Target, NULL, asctime(localtime(&now)), 0, 0);
+	asctime_r(localtime(&now), buf);
+	bufused = strlen(buf);
+	if ((bufused > 0) && (buf[bufused - 1] == '\n')) {
+		buf[bufused - 1] = '\0';
+		bufused --;
+	}
+	StrEscAppend(Target, NULL, buf, 0, 0);
 }
 void tmplput_nowno(StrBuf *Target, WCTemplputParams *TP)
 {
