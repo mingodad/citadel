@@ -298,12 +298,12 @@ void
 InitModule_NETCONF
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_edit_node"), display_edit_node, 0);
+	WebcitAddUrlHandler(HKEY("display_edit_node"), "", 0, display_edit_node, 0);
 
-	WebcitAddUrlHandler(HKEY("edit_node"), edit_node, 0);
-	WebcitAddUrlHandler(HKEY("display_netconf"), display_netconf, 0);
-	WebcitAddUrlHandler(HKEY("display_confirm_delete_node"), display_confirm_delete_node, 0);
-	WebcitAddUrlHandler(HKEY("delete_node"), delete_node, 0);
+	WebcitAddUrlHandler(HKEY("edit_node"), "", 0, edit_node, 0);
+	WebcitAddUrlHandler(HKEY("display_netconf"), "", 0, display_netconf, 0);
+	WebcitAddUrlHandler(HKEY("display_confirm_delete_node"), "", 0, display_confirm_delete_node, 0);
+	WebcitAddUrlHandler(HKEY("delete_node"), "", 0, delete_node, 0);
 
                                                                                           
         RegisterNamespace("CFG:IGNET:NODE", 0, 1, tmplput_NodeName, NULL, CTX_NODECONF);

@@ -169,6 +169,6 @@ void
 InitModule_USERLIST
 (void)
 {
-	WebcitAddUrlHandler(HKEY("userlist"), userlist, 0);
-	WebcitAddUrlHandler(HKEY("showuser"), showuser, 0);
+	WebcitAddUrlHandler(HKEY("userlist"), "", 0, userlist, 0);
+	WebcitAddUrlHandler(HKEY("showuser"), "", 0, showuser, 0);
 }

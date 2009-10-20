@@ -54,7 +54,7 @@ void
 InitModule_AUTO_COMPLETE
 (void)
 {
-	WebcitAddUrlHandler(HKEY("recp_autocomplete"), _recp_autocomplete, 0);
-	WebcitAddUrlHandler(HKEY("cc_autocomplete"),   _cc_autocomplete, 0);
-	WebcitAddUrlHandler(HKEY("bcc_autocomplete"),  _bcc_autocomplete, 0);
+	WebcitAddUrlHandler(HKEY("recp_autocomplete"), "", 0, _recp_autocomplete, 0);
+	WebcitAddUrlHandler(HKEY("cc_autocomplete"),   "", 0, _cc_autocomplete, 0);
+	WebcitAddUrlHandler(HKEY("bcc_autocomplete"),  "", 0, _bcc_autocomplete, 0);
 }

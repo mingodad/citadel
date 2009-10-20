@@ -182,14 +182,14 @@ void
 InitModule_GRAPHICS
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_editpic"), display_editpic, 0);
-	WebcitAddUrlHandler(HKEY("editpic"), editpic, 0);
-	WebcitAddUrlHandler(HKEY("display_editroompic"), display_editroompic, 0);
-	WebcitAddUrlHandler(HKEY("editroompic"), editroompic, 0);
-	WebcitAddUrlHandler(HKEY("display_edithello"), display_edithello, 0);
-	WebcitAddUrlHandler(HKEY("edithellopic"), edithellopic, 0);
-	WebcitAddUrlHandler(HKEY("display_editgoodbuye"), display_editgoodbyepic, 0);
-	WebcitAddUrlHandler(HKEY("editgoodbuyepic"), editgoodbuyepic, 0);
-	WebcitAddUrlHandler(HKEY("display_editfloorpic"), display_editfloorpic, 0);
-	WebcitAddUrlHandler(HKEY("editfloorpic"), editfloorpic, 0);
+	WebcitAddUrlHandler(HKEY("display_editpic"), "", 0, display_editpic, 0);
+	WebcitAddUrlHandler(HKEY("editpic"), "", 0, editpic, 0);
+	WebcitAddUrlHandler(HKEY("display_editroompic"), "", 0, display_editroompic, 0);
+	WebcitAddUrlHandler(HKEY("editroompic"), "", 0, editroompic, 0);
+	WebcitAddUrlHandler(HKEY("display_edithello"), "", 0, display_edithello, 0);
+	WebcitAddUrlHandler(HKEY("edithellopic"), "", 0, edithellopic, 0);
+	WebcitAddUrlHandler(HKEY("display_editgoodbuye"), "", 0, display_editgoodbyepic, 0);
+	WebcitAddUrlHandler(HKEY("editgoodbuyepic"), "", 0, editgoodbuyepic, 0);
+	WebcitAddUrlHandler(HKEY("display_editfloorpic"), "", 0, display_editfloorpic, 0);
+	WebcitAddUrlHandler(HKEY("editfloorpic"), "", 0, editfloorpic, 0);
 }

@@ -110,8 +110,8 @@ void
 InitModule_SYSMSG
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_editinfo"), display_editinfo, 0);
-	WebcitAddUrlHandler(HKEY("editinfo"), editinfo, 0);
-	WebcitAddUrlHandler(HKEY("display_editbio"), display_editbio, 0);
-	WebcitAddUrlHandler(HKEY("editbio"), editbio, 0);
+	WebcitAddUrlHandler(HKEY("display_editinfo"), "", 0, display_editinfo, 0);
+	WebcitAddUrlHandler(HKEY("editinfo"), "", 0, editinfo, 0);
+	WebcitAddUrlHandler(HKEY("display_editbio"), "", 0, display_editbio, 0);
+	WebcitAddUrlHandler(HKEY("editbio"), "", 0, editbio, 0);
 }

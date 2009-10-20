@@ -264,6 +264,6 @@ void
 InitModule_SMTP_QUEUE
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_smtpqueue"), display_smtpqueue, 0);
-	WebcitAddUrlHandler(HKEY("display_smtpqueue_inner_div"), display_smtpqueue_inner_div, 0);
+	WebcitAddUrlHandler(HKEY("display_smtpqueue"), "", 0, display_smtpqueue, 0);
+	WebcitAddUrlHandler(HKEY("display_smtpqueue_inner_div"), "", 0, display_smtpqueue_inner_div, 0);
 }

@@ -123,7 +123,7 @@ InitModule_WIKI
 		wiki_Cleanup
 	);
 
-	WebcitAddUrlHandler(HKEY("wiki"), display_wiki_page, 0);
+	WebcitAddUrlHandler(HKEY("wiki"), "", 0, display_wiki_page, 0);
 }
 
 

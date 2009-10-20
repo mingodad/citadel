@@ -1002,8 +1002,8 @@ void
 InitModule_PREFERENCES
 (void)
 {
-	WebcitAddUrlHandler(HKEY("set_preferences"), set_preferences, 0);
-	WebcitAddUrlHandler(HKEY("change_start_page"), change_start_page, 0);
+	WebcitAddUrlHandler(HKEY("set_preferences"), "", 0, set_preferences, 0);
+	WebcitAddUrlHandler(HKEY("change_start_page"), "", 0, change_start_page, 0);
 
 	RegisterPreference("startpage", _("Prefered startpage"), PRF_STRING, LoadStartpage);
 

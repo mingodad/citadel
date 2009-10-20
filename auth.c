@@ -1036,19 +1036,19 @@ InitModule_AUTH
 	RegisterHeaderHandler(HKEY("COOKIE"), Header_HandleCookie);
 	RegisterHeaderHandler(HKEY("AUTHORIZATION"), Header_HandleAuth);
 
-	WebcitAddUrlHandler(HKEY(""), do_welcome, ANONYMOUS|COOKIEUNNEEDED); /* no url pattern at all? Show login. */
-	WebcitAddUrlHandler(HKEY("do_welcome"), do_welcome, ANONYMOUS|COOKIEUNNEEDED);
-	WebcitAddUrlHandler(HKEY("login"), do_login, ANONYMOUS|COOKIEUNNEEDED);
-	WebcitAddUrlHandler(HKEY("display_openid_login"), _display_openid_login, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("openid_login"), do_openid_login, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("finalize_openid_login"), finalize_openid_login, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("openid_manual_create"), openid_manual_create, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("do_logout"), do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
-	WebcitAddUrlHandler(HKEY("validate"), validate, 0);
-	WebcitAddUrlHandler(HKEY("display_reg"), _display_reg, 0);
-	WebcitAddUrlHandler(HKEY("display_changepw"), display_changepw, 0);
-	WebcitAddUrlHandler(HKEY("changepw"), changepw, 0);
-	WebcitAddUrlHandler(HKEY("termquit"), do_logout, 0);
+	WebcitAddUrlHandler(HKEY(""), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED); /* no url pattern at all? Show login. */
+	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
+	WebcitAddUrlHandler(HKEY("login"), "", 0, do_login, ANONYMOUS|COOKIEUNNEEDED);
+	WebcitAddUrlHandler(HKEY("display_openid_login"), "", 0, _display_openid_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("openid_login"), "", 0, do_openid_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("openid_manual_create"), "", 0, openid_manual_create, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("validate"), "", 0, validate, 0);
+	WebcitAddUrlHandler(HKEY("display_reg"), "", 0, _display_reg, 0);
+	WebcitAddUrlHandler(HKEY("display_changepw"), "", 0, display_changepw, 0);
+	WebcitAddUrlHandler(HKEY("changepw"), "", 0, changepw, 0);
+	WebcitAddUrlHandler(HKEY("termquit"), "", 0, do_logout, 0);
 
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
