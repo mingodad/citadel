@@ -219,7 +219,7 @@ void
 InitModule_GROUPDAV
 (void)
 {
-	WebcitAddUrlHandler(HKEY("groupdav"), groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("groupdav"), "", 0, groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	RegisterHeaderHandler(HKEY("IF-MATCH"), Header_HandleIfMatch);
 	RegisterHeaderHandler(HKEY("DEPTH"), Header_HandleDepth);
 
