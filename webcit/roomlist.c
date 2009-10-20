@@ -699,7 +699,7 @@ void
 InitModule_ROOMLIST
 (void)
 {
-	WebcitAddUrlHandler(HKEY("json_roomflr"), jsonRoomFlr, 0);
+	WebcitAddUrlHandler(HKEY("json_roomflr"), "", 0, jsonRoomFlr, 0);
 
 
 	RegisterNamespace("FLOOR:ID", 0, 0, tmplput_FLOOR_ID, NULL, CTX_FLOORS);

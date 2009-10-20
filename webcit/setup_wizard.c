@@ -56,5 +56,5 @@ void
 InitModule_SETUP_WIZARD
 (void)
 {
-	WebcitAddUrlHandler(HKEY("setup_wizard"), do_setup_wizard, 0);
+	WebcitAddUrlHandler(HKEY("setup_wizard"), "", 0, do_setup_wizard, 0);
 }

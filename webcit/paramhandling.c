@@ -421,7 +421,7 @@ void
 InitModule_PARAMHANDLING
 (void)
 {
-	WebcitAddUrlHandler(HKEY("diagnostics"), diagnostics, NEED_URL);
+	WebcitAddUrlHandler(HKEY("diagnostics"), "", 0, diagnostics, NEED_URL);
 
 	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, NULL, CTX_NONE);

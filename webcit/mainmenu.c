@@ -250,10 +250,10 @@ void
 InitModule_MAINMENU
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_aide_menu"), display_aide_menu, 0);
-	WebcitAddUrlHandler(HKEY("server_shutdown"), display_shutdown, 0);
-	WebcitAddUrlHandler(HKEY("display_main_menu"), display_main_menu, 0);
-	WebcitAddUrlHandler(HKEY("display_generic"), display_generic, 0);
-	WebcitAddUrlHandler(HKEY("do_generic"), do_generic, 0);
-	WebcitAddUrlHandler(HKEY("display_menubar"), _display_menubar, 0);
+	WebcitAddUrlHandler(HKEY("display_aide_menu"), "", 0, display_aide_menu, 0);
+	WebcitAddUrlHandler(HKEY("server_shutdown"), "", 0, display_shutdown, 0);
+	WebcitAddUrlHandler(HKEY("display_main_menu"), "", 0, display_main_menu, 0);
+	WebcitAddUrlHandler(HKEY("display_generic"), "", 0, display_generic, 0);
+	WebcitAddUrlHandler(HKEY("do_generic"), "", 0, do_generic, 0);
+	WebcitAddUrlHandler(HKEY("display_menubar"), "", 0, _display_menubar, 0);
 }

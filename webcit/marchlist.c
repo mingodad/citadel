@@ -234,7 +234,7 @@ InitModule_MARCHLIST
 (void)
 {
 
-	WebcitAddUrlHandler(HKEY("gotonext"), _gotonext, NEED_URL);
-	WebcitAddUrlHandler(HKEY("skip"), gotonext, NEED_URL);
-	WebcitAddUrlHandler(HKEY("ungoto"), ungoto, NEED_URL);
+	WebcitAddUrlHandler(HKEY("gotonext"), "", 0, _gotonext, NEED_URL);
+	WebcitAddUrlHandler(HKEY("skip"), "", 0, gotonext, NEED_URL);
+	WebcitAddUrlHandler(HKEY("ungoto"), "", 0, ungoto, NEED_URL);
 }

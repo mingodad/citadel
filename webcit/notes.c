@@ -450,8 +450,8 @@ InitModule_NOTES
 		NULL,
 		notes_Cleanup);
 
-	WebcitAddUrlHandler(HKEY("add_new_note"), add_new_note, 0);
-	WebcitAddUrlHandler(HKEY("ajax_update_note"), ajax_update_note, 0);
+	WebcitAddUrlHandler(HKEY("add_new_note"), "", 0, add_new_note, 0);
+	WebcitAddUrlHandler(HKEY("ajax_update_note"), "", 0, ajax_update_note, 0);
 
 	RegisterNamespace("VNOTE:POS:LEFT", 0, 0, tmpl_vcard_put_posleft, NULL, CTX_VNOTE);
 	RegisterNamespace("VNOTE:POS:TOP", 0, 0, tmpl_vcard_put_postop, NULL, CTX_VNOTE);

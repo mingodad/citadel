@@ -486,12 +486,12 @@ void
 InitModule_PAGING
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_page"), display_page, 0);
-	WebcitAddUrlHandler(HKEY("page_user"), page_user, 0);
-	WebcitAddUrlHandler(HKEY("chat"), do_chat, 0);
-	WebcitAddUrlHandler(HKEY("chat_recv"), chat_recv, 0);
-	WebcitAddUrlHandler(HKEY("chat_send"), chat_send, 0);
-	WebcitAddUrlHandler(HKEY("ajax_send_instant_message"), ajax_send_instant_message, AJAX);
+	WebcitAddUrlHandler(HKEY("display_page"), "", 0, display_page, 0);
+	WebcitAddUrlHandler(HKEY("page_user"), "", 0, page_user, 0);
+	WebcitAddUrlHandler(HKEY("chat"), "", 0, do_chat, 0);
+	WebcitAddUrlHandler(HKEY("chat_recv"), "", 0, chat_recv, 0);
+	WebcitAddUrlHandler(HKEY("chat_send"), "", 0, chat_send, 0);
+	WebcitAddUrlHandler(HKEY("ajax_send_instant_message"), "", 0, ajax_send_instant_message, AJAX);
 	RegisterConditional(HKEY("COND:PAGE:WAITING"), 0, Conditional_PAGE_WAITING, CTX_NONE);
 }
 

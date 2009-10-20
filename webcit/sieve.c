@@ -1172,9 +1172,9 @@ void
 InitModule_SIEVE
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_sieve"), display_sieve, 0);
-	WebcitAddUrlHandler(HKEY("save_sieve"), save_sieve, 0);
-	WebcitAddUrlHandler(HKEY("display_add_remove_scripts"), _display_add_remove_scripts, 0);
-	WebcitAddUrlHandler(HKEY("create_script"), create_script, 0);
-	WebcitAddUrlHandler(HKEY("delete_script"), delete_script, 0);
+	WebcitAddUrlHandler(HKEY("display_sieve"), "", 0, display_sieve, 0);
+	WebcitAddUrlHandler(HKEY("save_sieve"), "", 0, save_sieve, 0);
+	WebcitAddUrlHandler(HKEY("display_add_remove_scripts"), "", 0, _display_add_remove_scripts, 0);
+	WebcitAddUrlHandler(HKEY("create_script"), "", 0, create_script, 0);
+	WebcitAddUrlHandler(HKEY("delete_script"), "", 0, delete_script, 0);
 }

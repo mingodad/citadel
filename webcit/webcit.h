@@ -323,8 +323,11 @@ typedef struct  _WebcitHandler{
 	WebcitHandlerFunc F;
 	long Flags;
 	StrBuf *Name;
+	StrBuf *DisplayName;
 } WebcitHandler;
-void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, WebcitHandlerFunc F, long Flags);
+
+
+void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, const char *DisplayName, long dslen, WebcitHandlerFunc F, long Flags);
 
 typedef struct _headereval {
 	ExamineMsgHeaderFunc evaluator;

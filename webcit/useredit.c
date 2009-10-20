@@ -725,10 +725,10 @@ void
 InitModule_USEREDIT
 (void)
 {
-	WebcitAddUrlHandler(HKEY("select_user_to_edit"), _select_user_to_edit, 0);
-	WebcitAddUrlHandler(HKEY("display_edituser"), _display_edituser, 0);
-	WebcitAddUrlHandler(HKEY("edituser"), edituser, 0);
-	WebcitAddUrlHandler(HKEY("create_user"), create_user, 0);
+	WebcitAddUrlHandler(HKEY("select_user_to_edit"), "", 0, _select_user_to_edit, 0);
+	WebcitAddUrlHandler(HKEY("display_edituser"), "", 0, _display_edituser, 0);
+	WebcitAddUrlHandler(HKEY("edituser"), "", 0, edituser, 0);
+	WebcitAddUrlHandler(HKEY("create_user"), "", 0, create_user, 0);
 
 	RegisterNamespace("USERLIST:USERNAME",      0, 1, tmplput_USERLIST_UserName, NULL, CTX_USERLIST);
 	RegisterNamespace("USERLIST:PASSWD",        0, 1, tmplput_USERLIST_Password, NULL, CTX_USERLIST);

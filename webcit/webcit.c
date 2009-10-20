@@ -31,8 +31,8 @@ void DeleteWebcitHandler(void *vHandler)
 
 }
 
-void WebcitAddUrlHandler(const char * UrlString, 
-			 long UrlSLen, 
+void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, 
+			 const char *DisplayName, long dslen,
 			 WebcitHandlerFunc F, 
 			 long Flags)
 {
@@ -42,6 +42,8 @@ void WebcitAddUrlHandler(const char * UrlString,
 	NewHandler->Flags = Flags;
 	NewHandler->Name = NewStrBufPlain(UrlString, UrlSLen);
 	StrBufShrinkToFit(NewHandler->Name, 1);
+	NewHandler->DisplayName = NewStrBufPlain(DisplayName, dslen);
+	StrBufShrinkToFit(NewHandler->DisplayName, 1);
 	Put(HandlerHash, UrlString, UrlSLen, NewHandler, DeleteWebcitHandler);
 }
 
@@ -796,13 +798,13 @@ InitModule_WEBCIT
 (void)
 {
 	char dir[SIZ];
-	WebcitAddUrlHandler(HKEY("blank"), blank_page, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
-	WebcitAddUrlHandler(HKEY("do_template"), url_do_template, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("sslg"), seconds_since_last_gexp, AJAX|LOGCHATTY);
-	WebcitAddUrlHandler(HKEY("ajax_servcmd"), ajax_servcmd, 0);
-	WebcitAddUrlHandler(HKEY("webcit"), blank_page, URLNAMESPACE);
+	WebcitAddUrlHandler(HKEY("blank"), "", 0, blank_page, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+	WebcitAddUrlHandler(HKEY("do_template"), "", 0, url_do_template, ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("sslg"), "", 0, seconds_since_last_gexp, AJAX|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("ajax_servcmd"), "", 0, ajax_servcmd, 0);
+	WebcitAddUrlHandler(HKEY("webcit"), "", 0, blank_page, URLNAMESPACE);
 
-	WebcitAddUrlHandler(HKEY("401"), authorization_required, ANONYMOUS|COOKIEUNNEEDED);
+	WebcitAddUrlHandler(HKEY("401"), "", 0, authorization_required, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, NULL, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);

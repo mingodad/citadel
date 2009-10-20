@@ -157,6 +157,6 @@ void
 InitModule_PUSHMAIL
 (void)
 {
-	WebcitAddUrlHandler(HKEY("display_pushemail"), display_pushemail, 0);
-	WebcitAddUrlHandler(HKEY("save_pushemail"), save_pushemail, 0);
+	WebcitAddUrlHandler(HKEY("display_pushemail"), "", 0, display_pushemail, 0);
+	WebcitAddUrlHandler(HKEY("save_pushemail"), "", 0, save_pushemail, 0);
 }

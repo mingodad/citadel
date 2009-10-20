@@ -231,7 +231,7 @@ void
 InitModule_LISTSUB
 (void)
 {
-	WebcitAddUrlHandler(HKEY("listsub"), do_listsub, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("listsub"), "", 0, do_listsub, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 
 
 }

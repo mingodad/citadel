@@ -323,8 +323,8 @@ InitModule_WHO
 {
 	
 
-	WebcitAddUrlHandler(HKEY("terminate_session"), _terminate_session, 0);
-	WebcitAddUrlHandler(HKEY("edit_me"), edit_me, 0);
+	WebcitAddUrlHandler(HKEY("terminate_session"), "", 0, _terminate_session, 0);
+	WebcitAddUrlHandler(HKEY("edit_me"), "", 0, edit_me, 0);
 
 	RegisterIterator("WHOLIST", 0, NULL, GetWholistHash, NULL, DeleteWholistHash, CTX_WHO, CTX_NONE, IT_NOFLAG);
 

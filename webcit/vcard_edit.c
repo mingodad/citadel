@@ -1338,8 +1338,8 @@ InitModule_VCARD
 		vcard_LoadMsgFromServer,
 		vcard_RenderView_or_Tail,
 		vcard_Cleanup);
-	WebcitAddUrlHandler(HKEY("edit_vcard"), edit_vcard, 0);
-	WebcitAddUrlHandler(HKEY("submit_vcard"), submit_vcard, 0);
-	WebcitAddUrlHandler(HKEY("vcardphoto"), display_vcard_photo_img, NEED_URL);
+	WebcitAddUrlHandler(HKEY("edit_vcard"), "", 0, edit_vcard, 0);
+	WebcitAddUrlHandler(HKEY("submit_vcard"), "", 0, submit_vcard, 0);
+	WebcitAddUrlHandler(HKEY("vcardphoto"), "", 0, display_vcard_photo_img, NEED_URL);
 }
 

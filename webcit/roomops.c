@@ -3173,25 +3173,25 @@ InitModule_ROOMOPS
 
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, NULL, CTX_NONE);
 
-	WebcitAddUrlHandler(HKEY("knrooms"), knrooms, 0);
-	WebcitAddUrlHandler(HKEY("dotgoto"), dotgoto, NEED_URL);
-	WebcitAddUrlHandler(HKEY("dotskip"), dotskip, NEED_URL);
-	WebcitAddUrlHandler(HKEY("display_private"), _display_private, 0);
-	WebcitAddUrlHandler(HKEY("goto_private"), goto_private, NEED_URL);
-	WebcitAddUrlHandler(HKEY("zapped_list"), zapped_list, 0);
-	WebcitAddUrlHandler(HKEY("display_zap"), display_zap, 0);
-	WebcitAddUrlHandler(HKEY("zap"), zap, 0);
-	WebcitAddUrlHandler(HKEY("display_entroom"), display_entroom, 0);
-	WebcitAddUrlHandler(HKEY("entroom"), entroom, 0);
-	WebcitAddUrlHandler(HKEY("display_whok"), display_whok, 0);
-	WebcitAddUrlHandler(HKEY("do_invt_kick"), do_invt_kick, 0);
-	WebcitAddUrlHandler(HKEY("display_editroom"), display_editroom, 0);
-	WebcitAddUrlHandler(HKEY("netedit"), netedit, 0);
-	WebcitAddUrlHandler(HKEY("editroom"), editroom, 0);
-	WebcitAddUrlHandler(HKEY("delete_room"), delete_room, 0);
-	WebcitAddUrlHandler(HKEY("set_room_policy"), set_room_policy, 0);
-	WebcitAddUrlHandler(HKEY("changeview"), change_view, 0);
-	WebcitAddUrlHandler(HKEY("toggle_self_service"), toggle_self_service, 0);
+	WebcitAddUrlHandler(HKEY("knrooms"), "", 0, knrooms, 0);
+	WebcitAddUrlHandler(HKEY("dotgoto"), "", 0, dotgoto, NEED_URL);
+	WebcitAddUrlHandler(HKEY("dotskip"), "", 0, dotskip, NEED_URL);
+	WebcitAddUrlHandler(HKEY("display_private"), "", 0, _display_private, 0);
+	WebcitAddUrlHandler(HKEY("goto_private"), "", 0, goto_private, NEED_URL);
+	WebcitAddUrlHandler(HKEY("zapped_list"), "", 0, zapped_list, 0);
+	WebcitAddUrlHandler(HKEY("display_zap"), "", 0, display_zap, 0);
+	WebcitAddUrlHandler(HKEY("zap"), "", 0, zap, 0);
+	WebcitAddUrlHandler(HKEY("display_entroom"), "", 0, display_entroom, 0);
+	WebcitAddUrlHandler(HKEY("entroom"), "", 0, entroom, 0);
+	WebcitAddUrlHandler(HKEY("display_whok"), "", 0, display_whok, 0);
+	WebcitAddUrlHandler(HKEY("do_invt_kick"), "", 0, do_invt_kick, 0);
+	WebcitAddUrlHandler(HKEY("display_editroom"), "", 0, display_editroom, 0);
+	WebcitAddUrlHandler(HKEY("netedit"), "", 0, netedit, 0);
+	WebcitAddUrlHandler(HKEY("editroom"), "", 0, editroom, 0);
+	WebcitAddUrlHandler(HKEY("delete_room"), "", 0, delete_room, 0);
+	WebcitAddUrlHandler(HKEY("set_room_policy"), "", 0, set_room_policy, 0);
+	WebcitAddUrlHandler(HKEY("changeview"), "", 0, change_view, 0);
+	WebcitAddUrlHandler(HKEY("toggle_self_service"), "", 0, toggle_self_service, 0);
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, NULL, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:ROOM:TYPE_IS"), 0, ConditionalIsRoomtype, CTX_NONE);

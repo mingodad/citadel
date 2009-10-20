@@ -903,10 +903,10 @@ InitModule_CALENDAR
 	RegisterPreference("dayend", _("Calendar day view ends at:"), PRF_INT, NULL);
 	RegisterPreference("weekstart", _("Week starts on:"), PRF_INT, NULL);
 
-	WebcitAddUrlHandler(HKEY("freebusy"), do_freebusy, COOKIEUNNEEDED|ANONYMOUS|FORCE_SESSIONCLOSE);
-	WebcitAddUrlHandler(HKEY("display_edit_task"), display_edit_task, 0);
-	WebcitAddUrlHandler(HKEY("display_edit_event"), display_edit_event, 0);
-	WebcitAddUrlHandler(HKEY("save_event"), save_event, 0);
-	WebcitAddUrlHandler(HKEY("respond_to_request"), respond_to_request, 0);
-	WebcitAddUrlHandler(HKEY("handle_rsvp"), handle_rsvp, 0);
+	WebcitAddUrlHandler(HKEY("freebusy"), "", 0, do_freebusy, COOKIEUNNEEDED|ANONYMOUS|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("display_edit_task"), "", 0, display_edit_task, 0);
+	WebcitAddUrlHandler(HKEY("display_edit_event"), "", 0, display_edit_event, 0);
+	WebcitAddUrlHandler(HKEY("save_event"), "", 0, save_event, 0);
+	WebcitAddUrlHandler(HKEY("respond_to_request"), "", 0, respond_to_request, 0);
+	WebcitAddUrlHandler(HKEY("handle_rsvp"), "", 0, handle_rsvp, 0);
 }

@@ -204,9 +204,9 @@ void
 InitModule_FLOORS
 (void)
 {
-	WebcitAddUrlHandler(HKEY("delete_floor"), delete_floor, 0);
-	WebcitAddUrlHandler(HKEY("rename_floor"), rename_floor, 0);
-	WebcitAddUrlHandler(HKEY("create_floor"), create_floor, 0);
-	WebcitAddUrlHandler(HKEY("display_floorconfig"), _display_floorconfig, 0);
+	WebcitAddUrlHandler(HKEY("delete_floor"), "", 0, delete_floor, 0);
+	WebcitAddUrlHandler(HKEY("rename_floor"), "", 0, rename_floor, 0);
+	WebcitAddUrlHandler(HKEY("create_floor"), "", 0, create_floor, 0);
+	WebcitAddUrlHandler(HKEY("display_floorconfig"), "", 0, _display_floorconfig, 0);
 }
 /*@}*/

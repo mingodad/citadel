@@ -1731,30 +1731,30 @@ InitModule_MSG
 			   NULL);
 	RegisterPreference("mailbox",_("Mailbox view mode"), PRF_STRING, NULL);
 
-	WebcitAddUrlHandler(HKEY("readnew"), h_readnew, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readold"), h_readold, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readfwd"), h_readfwd, NEED_URL);
-	WebcitAddUrlHandler(HKEY("headers"), h_headers, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readgt"), h_readgt, NEED_URL);
-	WebcitAddUrlHandler(HKEY("do_search"), h_do_search, 0);
-	WebcitAddUrlHandler(HKEY("display_enter"), display_enter, 0);
-	WebcitAddUrlHandler(HKEY("post"), post_message, 0);
-	WebcitAddUrlHandler(HKEY("move_msg"), move_msg, 0);
-	WebcitAddUrlHandler(HKEY("delete_msg"), delete_msg, 0);
-	WebcitAddUrlHandler(HKEY("confirm_move_msg"), confirm_move_msg, 0);
-	WebcitAddUrlHandler(HKEY("msg"), embed_message, NEED_URL);
-	WebcitAddUrlHandler(HKEY("message"), handle_one_message, NEED_URL|XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
-	WebcitAddUrlHandler(HKEY("printmsg"), print_message, NEED_URL);
-	WebcitAddUrlHandler(HKEY("mobilemsg"), mobile_message_view, NEED_URL);
-	WebcitAddUrlHandler(HKEY("msgheaders"), display_headers, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readnew"), "", 0, h_readnew, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readold"), "", 0, h_readold, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readfwd"), "", 0, h_readfwd, NEED_URL);
+	WebcitAddUrlHandler(HKEY("headers"), "", 0, h_headers, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readgt"), "", 0, h_readgt, NEED_URL);
+	WebcitAddUrlHandler(HKEY("do_search"), "", 0, h_do_search, 0);
+	WebcitAddUrlHandler(HKEY("display_enter"), "", 0, display_enter, 0);
+	WebcitAddUrlHandler(HKEY("post"), "", 0, post_message, 0);
+	WebcitAddUrlHandler(HKEY("move_msg"), "", 0, move_msg, 0);
+	WebcitAddUrlHandler(HKEY("delete_msg"), "", 0, delete_msg, 0);
+	WebcitAddUrlHandler(HKEY("confirm_move_msg"), "", 0, confirm_move_msg, 0);
+	WebcitAddUrlHandler(HKEY("msg"), "", 0, embed_message, NEED_URL);
+	WebcitAddUrlHandler(HKEY("message"), "", 0, handle_one_message, NEED_URL|XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("printmsg"), "", 0, print_message, NEED_URL);
+	WebcitAddUrlHandler(HKEY("mobilemsg"), "", 0, mobile_message_view, NEED_URL);
+	WebcitAddUrlHandler(HKEY("msgheaders"), "", 0, display_headers, NEED_URL);
 
-	WebcitAddUrlHandler(HKEY("mimepart"), view_mimepart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("mimepart_download"), download_mimepart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart"), view_postpart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart_download"), download_postpart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("mimepart"), "", 0, view_mimepart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("mimepart_download"), "", 0, download_mimepart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("postpart"), "", 0, view_postpart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("postpart_download"), "", 0, download_postpart, NEED_URL);
 
 	/* json */
-	WebcitAddUrlHandler(HKEY("roommsgs"), jsonMessageList,0);
+	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
 	return ;
 }
 

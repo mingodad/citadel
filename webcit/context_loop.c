@@ -776,17 +776,17 @@ InitModule_CONTEXT
 	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, NULL, CTX_NONE);
 	RegisterNamespace("NONCE", 0, 0, tmplput_nonce, NULL, 0);
 
-	WebcitAddUrlHandler(HKEY("404"), do_404, ANONYMOUS|COOKIEUNNEEDED);
+	WebcitAddUrlHandler(HKEY("404"), "", 0, do_404, ANONYMOUS|COOKIEUNNEEDED);
 /*
  * Look for commonly-found probes of malware such as worms, viruses, trojans, and Microsoft Office.
  * Short-circuit these requests so we don't have to send them through the full processing loop.
  */
-	WebcitAddUrlHandler(HKEY("scripts"), do_404, ANONYMOUS|BOGUS);		/* /root.exe - Worms and trojans and viruses, oh my! */
-	WebcitAddUrlHandler(HKEY("c"), do_404, ANONYMOUS|BOGUS);		/* /winnt */
-	WebcitAddUrlHandler(HKEY("MSADC"), do_404, ANONYMOUS|BOGUS);
-	WebcitAddUrlHandler(HKEY("_vti"), do_404, ANONYMOUS|BOGUS);		/* Broken Microsoft DAV implementation */
-	WebcitAddUrlHandler(HKEY("MSOffice"), do_404, ANONYMOUS|BOGUS);		/* Stoopid MSOffice thinks everyone is IIS */
-	WebcitAddUrlHandler(HKEY("nonexistenshit"), do_404, ANONYMOUS|BOGUS);	/* Exploit found in the wild January 2009 */
+	WebcitAddUrlHandler(HKEY("scripts"), "", 0, do_404, ANONYMOUS|BOGUS);		/* /root.exe - Worms and trojans and viruses, oh my! */
+	WebcitAddUrlHandler(HKEY("c"), "", 0, do_404, ANONYMOUS|BOGUS);		/* /winnt */
+	WebcitAddUrlHandler(HKEY("MSADC"), "", 0, do_404, ANONYMOUS|BOGUS);
+	WebcitAddUrlHandler(HKEY("_vti"), "", 0, do_404, ANONYMOUS|BOGUS);		/* Broken Microsoft DAV implementation */
+	WebcitAddUrlHandler(HKEY("MSOffice"), "", 0, do_404, ANONYMOUS|BOGUS);		/* Stoopid MSOffice thinks everyone is IIS */
+	WebcitAddUrlHandler(HKEY("nonexistenshit"), "", 0, do_404, ANONYMOUS|BOGUS);	/* Exploit found in the wild January 2009 */
 }
 	
 
