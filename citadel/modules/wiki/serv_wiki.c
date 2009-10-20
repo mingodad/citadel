@@ -291,6 +291,16 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 }
 
 
+
+/*
+ * commands related to wiki management
+ */
+void cmd_wiki(char *argbuf) {
+	cprintf("%d FIXME not finished\n", ERROR);
+}
+
+
+
 /*
  * Module initialization
  */
@@ -299,6 +309,7 @@ CTDL_MODULE_INIT(wiki)
 	if (!threading)
 	{
 		CtdlRegisterMessageHook(wiki_upload_beforesave, EVT_BEFORESAVE);
+	        CtdlRegisterProtoHook(cmd_wiki, "WIKI", "Commands related to Wiki management");
 	}
 
 	/* return our Subversion id for the Log */
