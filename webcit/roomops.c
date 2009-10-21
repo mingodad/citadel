@@ -44,7 +44,7 @@ int is_view_allowed_as_default(int which_view)
 		case VIEW_CALENDAR:	return(1);
 		case VIEW_TASKS:	return(1);
 		case VIEW_NOTES:	return(1);
-		case VIEW_WIKI:		return(0);	/* because it isn't finished yet */
+		case VIEW_WIKI:		return(1);
 		case VIEW_CALBRIEF:	return(0);
 		case VIEW_JOURNAL:	return(0);
 		default:		return(0);	/* should never get here */

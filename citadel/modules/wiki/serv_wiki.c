@@ -252,12 +252,16 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		ptr = bmstrcasestr(history_msg->cm_fields['M'], prefixed_boundary);
 		if (ptr != NULL) {
 			char *the_rest_of_it = strdup(ptr);
+			char uuid[32];
 			char memo[512];
 			char encoded_memo[768];
-			snprintf(memo, sizeof memo, "%s|%s|%ld", 
+			generate_uuid(uuid);
+			snprintf(memo, sizeof memo, "%s|%ld|%s|%s", 
+				uuid,
+				time(NULL),
 				CCC->user.fullname,
-				CCC->cs_inet_email,
-				time(NULL)
+				config.c_nodename
+				/* no longer logging CCC->cs_inet_email */
 			);
 			CtdlEncodeBase64(encoded_memo, memo, strlen(memo), 0);
 			sprintf(ptr, "--%s\n"
@@ -291,14 +295,89 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 }
 
 
+/*
+ * MIME Parser callback for wiki_history()
+ *
+ * The "filename" field will contain a memo field.  All we have to do is decode
+ * the base64 and output it.  The data is already in a delimited format suitable
+ * for our client protocol.
+ */
+void wiki_history_callback(char *name, char *filename, char *partnum, char *disp,
+		   void *content, char *cbtype, char *cbcharset, size_t length,
+		   char *encoding, char *cbid, void *cbuserdata)
+{
+	char memo[1024];
+
+	CtdlDecodeBase64(memo, filename, strlen(filename));
+	cprintf("%s\n", memo);
+}
+
+
+/*
+ * Fetch a list of revisions for a particular wiki page
+ */
+void wiki_history(char *pagename) {
+	int r;
+	char history_page_name[270];
+	long msgnum;
+	struct CtdlMessage *msg;
+
+	r = CtdlDoIHavePermissionToReadMessagesInThisRoom();
+	if (r != om_ok) {
+		if (r == om_not_logged_in) {
+			cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
+		}
+		else {
+			cprintf("%d An unknown error has occurred.\n", ERROR);
+		}
+		return;
+	}
+
+	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
+	msgnum = locate_message_by_euid(history_page_name, &CC->room);
+	if (msgnum > 0L) {
+		msg = CtdlFetchMessage(msgnum, 1);
+	}
+	else {
+		msg = NULL;
+	}
+
+	if ((msg != NULL) && (msg->cm_fields['M'] == NULL)) {
+		CtdlFreeMessage(msg);
+		msg = NULL;
+	}
+
+	if (msg == NULL) {
+		cprintf("%d Revision history for '%s' was not found.\n", ERROR+MESSAGE_NOT_FOUND, pagename);
+		return;
+	}
+
+	
+	cprintf("%d Revision history for '%s'\n", LISTING_FOLLOWS, pagename);
+	mime_parser(msg->cm_fields['M'], NULL, *wiki_history_callback, NULL, NULL, NULL, 0);
+	cprintf("000\n");
+
+	CtdlFreeMessage(msg);
+	return;
+}
+
 
 /*
  * commands related to wiki management
  */
 void cmd_wiki(char *argbuf) {
-	cprintf("%d FIXME not finished\n", ERROR);
+	char subcmd[32];
+	char pagename[256];
 
-	/* mime_parser(mptr, NULL, *mime_download, NULL, NULL, NULL, 0); */
+	extract_token(subcmd, argbuf, 0, '|', sizeof subcmd);
+
+	if (!strcasecmp(subcmd, "history")) {
+		extract_token(pagename, argbuf, 1, '|', sizeof subcmd);
+		wiki_history(pagename);
+		return;
+	}
+
+	cprintf("%d Invalid subcommand\n", ERROR + CMD_NOT_SUPPORTED);
 }
 
 
