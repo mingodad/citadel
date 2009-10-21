@@ -297,6 +297,8 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
  */
 void cmd_wiki(char *argbuf) {
 	cprintf("%d FIXME not finished\n", ERROR);
+
+	/* mime_parser(mptr, NULL, *mime_download, NULL, NULL, NULL, 0); */
 }
 
 

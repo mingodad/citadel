@@ -160,11 +160,12 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 int CtdlOutputPreLoadedMsg(struct CtdlMessage *,
 			   int mode,		/* how would you like that message? */
 			   int headers_only,	/* eschew the message body? */
-			   int do_proto,		/* do Citadel protocol responses? */
+			   int do_proto,	/* do Citadel protocol responses? */
 			   int crlf,		/* 0=LF, 1=CRLF */
 			   int flags		/* should the bessage be exported clean? */
 );
 int CtdlDoIHavePermissionToDeleteMessagesFromThisRoom(void);
+int CtdlDoIHavePermissionToReadMessagesInThisRoom(void);
 
 enum {
 	POST_LOGGED_IN,

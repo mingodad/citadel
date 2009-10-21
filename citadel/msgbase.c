@@ -1431,6 +1431,16 @@ void extract_encapsulated_message(char *name, char *filename, char *partnum, cha
 
 
 
+
+
+int CtdlDoIHavePermissionToReadMessagesInThisRoom(void) {
+	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
+		return(om_not_logged_in);
+	}
+	return(om_ok);
+}
+
+
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
  * 
@@ -1446,16 +1456,24 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	struct CtdlMessage *TheMessage = NULL;
 	int retcode = om_no_such_msg;
 	struct encapmsg encap;
+	int r;
 
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlOutputMsg() msgnum=%ld, mode=%d, section=%s\n", 
+	CtdlLogPrintf(CTDL_DEBUG, "CtdlOutputMsg(msgnum=%ld, mode=%d, section=%s)\n", 
 		msg_num, mode,
 		(section ? section : "<>")
 	);
 
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		if (do_proto) cprintf("%d Not logged in.\n",
-			ERROR + NOT_LOGGED_IN);
-		return(om_not_logged_in);
+	r = CtdlDoIHavePermissionToReadMessagesInThisRoom();
+	if (r != om_ok) {
+		if (do_proto) {
+			if (r == om_not_logged_in) {
+				cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
+			}
+			else {
+				cprintf("%d An unknown error has occurred.\n", ERROR);
+			}
+		}
+		return(r);
 	}
 
 	/* FIXME: check message id against msglist for this room */
