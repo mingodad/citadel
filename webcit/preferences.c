@@ -808,9 +808,10 @@ void tmplput_CFG_Descr(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_CFG_RoomValueLong(StrBuf *Target, WCTemplputParams *TP)
 {
 	long lvalue;
-	long defval;
+	long defval = 0;
 
-	defval = GetTemplateTokenNumber(Target, TP, 1, 0);
+	if (TP->Tokens->nParameters > 1)
+		defval = GetTemplateTokenNumber(Target, TP, 1, 0);
 	get_ROOM_PREFS_LONG(TKEY(0), &lvalue, defval);
 	StrBufAppendPrintf(Target, "%ld", lvalue);
 }

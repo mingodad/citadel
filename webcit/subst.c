@@ -769,7 +769,7 @@ void GetTemplateTokenString(StrBuf *Target,
 	StrBuf *Buf;
 	WCTemplputParams SubTP;
 
-	if (TP->Tokens->nParameters < N) {
+	if (N >= TP->Tokens->nParameters) {
 		LogTemplateError(Target, 
 				 "TokenParameter", N, TP, 
 				 "invalid token %d. this shouldn't have come till here.\n", N);
@@ -856,7 +856,7 @@ void GetTemplateTokenString(StrBuf *Target,
 long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long dflt)
 {
 	long Ret;
-	if (TP->Tokens->nParameters < N) {
+	if (N >= TP->Tokens->nParameters) {
 		LogTemplateError(Target, 
 				 "TokenParameter", N, TP, 
 				 "invalid token %d. this shouldn't have come till here.\n", N);
@@ -2619,6 +2619,12 @@ int ConditionalLongVector(StrBuf *Target, WCTemplputParams *TP)
 	return 0;
 }
 
+
+void tmplput_CURRENT_FILE(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBufAppendTemplate(Target, TP, TP->Tokens->FileName, 0);
+}
+
 void 
 InitModule_SUBST
 (void)
@@ -2649,6 +2655,9 @@ InitModule_SUBST
 	RegisterControlNS(HKEY("ITERATE:ODDEVEN"), 0, 0, tmplput_ITERATE_ODDEVEN, CTX_ITERATE);
 	RegisterControlNS(HKEY("ITERATE:KEY"), 0, 0, tmplput_ITERATE_KEY, CTX_ITERATE);
 	RegisterControlNS(HKEY("ITERATE:N"), 0, 0, tmplput_ITERATE_LASTN, CTX_ITERATE);
+	RegisterNamespace("CURRENTFILE", 0, 1, tmplput_CURRENT_FILE, NULL, CTX_NONE);
+
+
 }
 
 void
