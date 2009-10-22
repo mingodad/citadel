@@ -21,10 +21,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "stringbuf_test.h"
 #include "../lib/libcitadel.h"
 
+
+int fromstdin = 0;
 
 static void TestRevalidateStrBuf(StrBuf *Buf)
 {
@@ -87,6 +91,36 @@ static void TestRFC822Decode(void)
 }
 
 
+static void TestRFC822DecodeStdin(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Target;
+	StrBuf *Source;
+	StrBuf *DefaultCharset;
+	StrBuf *FoundCharset;
+	
+	DefaultCharset = NewStrBufPlain(HKEY("iso-8859-1"));
+	FoundCharset = NewStrBuf();
+	Source = NewStrBuf();
+
+	while (fdin == 0) {
+
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		Target = NewStrBuf();
+		
+		StrBuf_RFC822_to_Utf8(Target, Source, DefaultCharset, FoundCharset);
+		
+		TestRevalidateStrBuf(Target);
+		printf("the ugly multi:>%s<\n", ChrPtr(Target));
+		FreeStrBuf(&Target);
+	}
+	FreeStrBuf(&Source);
+	FreeStrBuf(&FoundCharset);
+	FreeStrBuf(&DefaultCharset);
+}
+
+
 
 static void AddStrBufSimlpeTests(void)
 {
@@ -94,17 +128,31 @@ static void AddStrBufSimlpeTests(void)
 	CU_pTest pTest = NULL;
 
 	pGroup = CU_add_suite("TestStringBufConversions", NULL, NULL);
-	pTest = CU_add_test(pGroup, "testRFC822Decode", TestRFC822Decode);
-	pTest = CU_add_test(pGroup, "testRFC822Decode1", TestRFC822Decode);
-	pTest = CU_add_test(pGroup, "testRFC822Decode2", TestRFC822Decode);
-	pTest = CU_add_test(pGroup, "testRFC822Decode3", TestRFC822Decode);
-
+	if (!fromstdin) {
+		pTest = CU_add_test(pGroup, "testRFC822Decode", TestRFC822Decode);
+		pTest = CU_add_test(pGroup, "testRFC822Decode1", TestRFC822Decode);
+		pTest = CU_add_test(pGroup, "testRFC822Decode2", TestRFC822Decode);
+		pTest = CU_add_test(pGroup, "testRFC822Decode3", TestRFC822Decode);
+	}
+	else
+		pTest = CU_add_test(pGroup, "testRFC822Decode3", TestRFC822DecodeStdin);
 
 }
 
 
 int main(int argc, char* argv[])
 {
+	int a;
+
+	while ((a = getopt(argc, argv, "i")) != EOF)
+		switch (a) {
+		case 'i':
+			fromstdin = 1;
+			
+			break;
+		}
+
+
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	StartLibCitadel(8);
