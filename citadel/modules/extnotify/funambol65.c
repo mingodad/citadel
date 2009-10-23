@@ -125,7 +125,7 @@ int notify_http_server(char *remoteurl,
 				 file_funambol_msg, strerror(errno));
 			CtdlLogPrintf(CTDL_ERR, buf);
 
-			aide_message(buf, "External notifier unable to find message template!");
+			CtdlAideMessage(buf, "External notifier unable to find message template!");
 			goto free;
 		}
 		mimetype = GuessMimeByFilename(template, tlen);
@@ -150,7 +150,7 @@ int notify_http_server(char *remoteurl,
 				 file_funambol_msg);
 			CtdlLogPrintf(CTDL_ERR, buf);
 
-			aide_message(buf, "External notifier unable to load message template!");
+			CtdlAideMessage(buf, "External notifier unable to load message template!");
 			goto free;
 		}
 		// Do substitutions

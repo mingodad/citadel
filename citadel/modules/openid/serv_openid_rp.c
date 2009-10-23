@@ -129,7 +129,7 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
 
 	snprintf(buf, sizeof buf, "User <%s> (#%ld) has claimed the OpenID URL %s\n",
 		who->fullname, who->usernum, claimed_id);
-	aide_message(buf, "OpenID claim");
+	CtdlAideMessage(buf, "OpenID claim");
 	CtdlLogPrintf(CTDL_INFO, "%s", buf);
 	return(0);
 }

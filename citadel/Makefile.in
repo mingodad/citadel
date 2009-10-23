@@ -354,6 +354,11 @@ clean:
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.o ;\
 	done
+	if test -d $(srcdir)/user_modules ; then \
+		for i in $(srcdir)/user_modules/* ; do \
+			rm -f $$i/*.o ;\
+		done \
+	fi
 	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS)
 
 
@@ -367,6 +372,11 @@ distclean: cleaner
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.d ;\
 	done
+	if test -d $(srcdir)/user_modules ; then \
+		for i in $(srcdir)/user_modules/* ; do \
+			rm -f $$i/*.o ;\
+		done \
+	fi
 
 .c.d:
 	@echo Checking dependencies for $<

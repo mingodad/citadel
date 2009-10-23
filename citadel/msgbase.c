@@ -3113,6 +3113,10 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 
 
+void aide_message (char *text, char *subject)
+{
+	quickie_message("Citadel",NULL,NULL,AIDEROOM,text,FMT_CITADEL,subject);
+}
 
 
 /*

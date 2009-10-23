@@ -1015,7 +1015,7 @@ void checkcrash(void)
 			" If you have already done this, the core dump is likely to be found at %score.%d\n"
 			,
 			ctdl_run_dir, ForkedPid);
-		aide_message(ChrPtr(CrashMail), "Citadel server process terminated unexpectedly");
+		CtdlAideMessage(ChrPtr(CrashMail), "Citadel server process terminated unexpectedly");
 		FreeStrBuf(&CrashMail);
 	}
 }

@@ -969,7 +969,7 @@ void imap_create(int num_parms, char *parms[])
 			((ret & QR_PRIVATE) ? " [private]" : ""),
 			((ret & QR_GUESSNAME) ? " [hidden]" : "")
 		);
-		aide_message(notification_message, "Room Creation Message");
+		CtdlAideMessage(notification_message, "Room Creation Message");
 		free(notification_message);
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "imap_create() completed\n");
@@ -1362,7 +1362,7 @@ void imap_rename(int num_parms, char *parms[])
 		parms[3],
 		CC->curr_user
 	);
-	aide_message(buf, "IMAP folder rename");
+	CtdlAideMessage(buf, "IMAP folder rename");
 
 	cprintf("%s OK RENAME completed\r\n", parms[0]);
 }

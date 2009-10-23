@@ -216,7 +216,7 @@ static void cdb_cull_logs(void)
 					 " This log file is no longer in use "
 					 "and may be safely deleted.\n",
 					 *file, strerror(errno));
-				aide_message(errmsg, "Database Warning Message");
+				CtdlAideMessage(errmsg, "Database Warning Message");
 			}
 		}
 		free(list);

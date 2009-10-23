@@ -378,7 +378,7 @@ int PurgeRooms(void) {
 		++num_rooms_purged;
 	}
 
-	if (num_rooms_purged > 0) aide_message(transcript, "Room Autopurger Message");
+	if (num_rooms_purged > 0) CtdlAideMessage(transcript, "Room Autopurger Message");
 	free(transcript);
 
 	CtdlLogPrintf(CTDL_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
@@ -578,19 +578,19 @@ int PurgeUsers(void) {
 		}
 	}
 
-	if (num_users_purged > 0) aide_message(transcript, "User Purge Message");
+	if (num_users_purged > 0) CtdlAideMessage(transcript, "User Purge Message");
 	free(transcript);
 
 	if(users_corrupt_msg)
 	{
-		aide_message(users_corrupt_msg, "User Corruption Message");
+		CtdlAideMessage(users_corrupt_msg, "User Corruption Message");
 		free (users_corrupt_msg);
 		users_corrupt_msg = NULL;
 	}
 	
 	if(users_zero_msg)
 	{
-		aide_message(users_zero_msg, "User Zero Message");
+		CtdlAideMessage(users_zero_msg, "User Zero Message");
 		free (users_zero_msg);
 		users_zero_msg = NULL;
 	}

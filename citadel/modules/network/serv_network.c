@@ -2027,7 +2027,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	if (strcmp(connected_to, node))
 	{
 		snprintf (err_buf, sizeof(err_buf), "Connected to node \"%s\" but I was expecting to connect to node \"%s\".", connected_to, node);
-		aide_message(err_buf, "IGNet Networking error.");
+		CtdlAideMessage(err_buf, "IGNet Networking error.");
 	}
 
 	/* Identify ourselves */
@@ -2266,7 +2266,7 @@ void cmd_netp(char *cmdbuf)
 		);
 		CtdlLogPrintf(CTDL_WARNING, err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
-		aide_message(err_buf, "IGNet Networking.");
+		CtdlAideMessage(err_buf, "IGNet Networking.");
 		return;
 	}
 
@@ -2277,7 +2277,7 @@ void cmd_netp(char *cmdbuf)
 		);
 		CtdlLogPrintf(CTDL_WARNING, err_buf);
 		cprintf("%d authentication failed\n", ERROR + PASSWORD_REQUIRED);
-		aide_message(err_buf, "IGNet Networking.");
+		CtdlAideMessage(err_buf, "IGNet Networking.");
 		return;
 	}
 

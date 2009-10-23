@@ -666,7 +666,7 @@ void cmd_conf(char *argbuf)
 		snprintf(buf, sizeof buf,
 			 "The global system configuration has been edited by %s.\n",
 			 CC->curr_user);
-		aide_message(buf,"Citadel Configuration Manager Message");
+		CtdlAideMessage(buf,"Citadel Configuration Manager Message");
 
 		if (!IsEmptyStr(config.c_logpages))
 			CtdlCreateRoom(config.c_logpages, 3, "", 0, 1, 1, VIEW_BBS);

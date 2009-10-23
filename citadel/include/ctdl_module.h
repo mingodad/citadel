@@ -27,11 +27,7 @@
 
 void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
 
-/*
- * Fix the interface to aide_message so that it complies with the Coding style
- */
- 
-#define CtdlAideMessage(TEXT, SUBJECT) aide_message(TEXT, SUBJECT)
+#define CtdlAideMessage(TEXT, SUBJECT) quickie_message("Citadel",NULL,NULL,AIDEROOM,TEXT,FMT_CITADEL,SUBJECT) 
 
 /*
  * Hook functions available to modules.

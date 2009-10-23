@@ -3,7 +3,6 @@
 #ifndef MSGBASE_H
 #define MSGBASE_H
 
-#define aide_message(text, subject)      quickie_message("Citadel",NULL,NULL,AIDEROOM,text,FMT_CITADEL,subject)
 
 enum {
 	MSGS_ALL,
@@ -211,5 +210,14 @@ struct CtdlMessage *CtdlMakeMessage(
 );
 int CtdlCheckInternetMailPermission(struct ctdluser *who);
 int CtdlIsMe(char *addr, int addr_buf_len);
+
+/*
+ * Use of aide_message is deprecated.
+ * It has been replaced with CtdlAideMessage.
+ * All parameters remain the same.
+*/
+void aide_message(char *text, char *subject) __attribute__ ((deprecated));
+
+
 
 #endif /* MSGBASE_H */

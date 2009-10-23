@@ -1169,7 +1169,7 @@ int create_user(char *newusername, int become_user)
 		CC->cs_host,
 		CC->cs_addr
 	);
-	aide_message(buf, "User Creation Notice");
+	CtdlAideMessage(buf, "User Creation Notice");
 	CtdlLogPrintf(CTDL_NOTICE, "New user <%s> created\n", username);
 	return (0);
 }
@@ -1487,7 +1487,7 @@ int CtdlInvtKick(char *iuser, int op) {
 		((op == 1) ? "invited to" : "kicked out of"),
 		CC->room.QRname,
 		CC->user.fullname);
-	aide_message(bbb,"User Admin Message");
+	CtdlAideMessage(bbb,"User Admin Message");
 
 	return(0);
 }
@@ -1863,7 +1863,7 @@ void cmd_asup(char *cmdbuf)
 		snprintf(notify, SIZ, 
 			 "User \"%s\" has been deleted by %s.\n",
 			 usbuf.fullname, CC->user.fullname);
-		aide_message(notify, "User Deletion Message");
+		CtdlAideMessage(notify, "User Deletion Message");
 	}
 
 	cprintf("%d Ok", CIT_OK);
