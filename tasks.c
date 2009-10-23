@@ -89,17 +89,17 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 	icalproperty *p;
 	wcsession *WCC = WC;
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"calendar_view_background\"><tbody id=\"taskview\">\n<tr>\n"
 		"<th>");
-	wprintf(_("Completed?"));
-	wprintf("</th><th>");
-	wprintf(_("Name of task"));
-	wprintf("</th><th>");
-	wprintf(_("Date due"));
-	wprintf("</th><th>");
-	wprintf(_("Category"));
-	wprintf(" (<select id=\"selectcategory\"><option value=\"showall\">%s</option></select>)</th></tr>\n",
+	wc_printf(_("Completed?"));
+	wc_printf("</th><th>");
+	wc_printf(_("Name of task"));
+	wc_printf("</th><th>");
+	wc_printf(_("Date due"));
+	wc_printf("</th><th>");
+	wc_printf(_("Category"));
+	wc_printf(" (<select id=\"selectcategory\"><option value=\"showall\">%s</option></select>)</th></tr>\n",
 		_("Show All"));
 
 	nItems = GetCount(WC->disp_cal_items);
@@ -123,47 +123,47 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 		int is_date;
 
 		Cal = (disp_cal*)vCal;
-		wprintf("<tr><td>");
+		wc_printf("<tr><td>");
 		todoStatus = icalcomponent_get_status(Cal->cal);
-		wprintf("<input type=\"checkbox\" name=\"completed\" value=\"completed\" ");
+		wc_printf("<input type=\"checkbox\" name=\"completed\" value=\"completed\" ");
 		if (todoStatus == ICAL_STATUS_COMPLETED) {
-			wprintf("checked=\"checked\" ");
+			wc_printf("checked=\"checked\" ");
 		}
-		wprintf("disabled=\"disabled\">\n</td><td>");
+		wc_printf("disabled=\"disabled\">\n</td><td>");
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_SUMMARY_PROPERTY);
-		wprintf("<a href=\"display_edit_task?msgnum=%ld?taskrm=", Cal->cal_msgnum);
+		wc_printf("<a href=\"display_edit_task?msgnum=%ld?taskrm=", Cal->cal_msgnum);
 		urlescputs(ChrPtr(WC->wc_roomname));
-		wprintf("\">");
-		/* wprintf("<img align=middle "
+		wc_printf("\">");
+		/* wc_printf("<img align=middle "
 		"src=\"static/taskmanag_16x.gif\" border=0>&nbsp;"); */
 		if (p != NULL) {
 			escputs((char *)icalproperty_get_comment(p));
 		}
-		wprintf("</a>\n");
-		wprintf("</td>\n");
+		wc_printf("</a>\n");
+		wc_printf("</td>\n");
 
 		due = get_task_due_date(Cal->cal, &is_date);
-		wprintf("<td><span");
+		wc_printf("<td><span");
 		if (due > 0) {
 			webcit_fmt_date(buf, SIZ, due, is_date ? DATEFMT_RAWDATE : DATEFMT_FULL);
-			wprintf(">%s",buf);
+			wc_printf(">%s",buf);
 		}
 		else {
-			wprintf(">");
+			wc_printf(">");
 		}
-		wprintf("</span></td>");
-		wprintf("<td>");
+		wc_printf("</span></td>");
+		wc_printf("<td>");
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_CATEGORIES_PROPERTY);
 		if (p != NULL) {
 			escputs((char *)icalproperty_get_categories(p));
 		}
-		wprintf("</td>");
-		wprintf("</tr>");
+		wc_printf("</td>");
+		wc_printf("</tr>");
 	}
 
-	wprintf("</tbody></table></div>\n");
+	wc_printf("</tbody></table></div>\n");
 
 	/* Free the list */
 	DeleteHash(&WC->disp_cal_items);
@@ -220,55 +220,55 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 	
 	/* TODO: Can we take all this and move it into a template?	 */
 	output_headers(1, 1, 1, 0, 0, 0);
-	wprintf("<!-- start task edit form -->");
+	wc_printf("<!-- start task edit form -->");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
 	/* Get summary early for title */
-	wprintf("<div class=\"box\">\n");
-	wprintf("<div class=\"boxlabel\">");
-	wprintf(_("Edit task"));
-	wprintf("- ");
+	wc_printf("<div class=\"box\">\n");
+	wc_printf("<div class=\"boxlabel\">");
+	wc_printf(_("Edit task"));
+	wc_printf("- ");
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("</div>");
+	wc_printf("</div>");
 	
-	wprintf("<div class=\"boxcontent\">\n");
-	wprintf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
-	wprintf("<div style=\"display: none;\">\n	");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n", msgnum);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"return_to_summary\" VALUE=\"%d\">\n",
+	wc_printf("<div class=\"boxcontent\">\n");
+	wc_printf("<FORM METHOD=\"POST\" action=\"save_task\">\n");
+	wc_printf("<div style=\"display: none;\">\n	");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n", msgnum);
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"return_to_summary\" VALUE=\"%d\">\n",
 		ibstr("return_to_summary"));
-	wprintf("</div>");
-	wprintf("<table class=\"calendar_background\"><tr><td>");
-	wprintf("<TABLE STYLE=\"border: none;\">\n");
+	wc_printf("</div>");
+	wc_printf("<table class=\"calendar_background\"><tr><td>");
+	wc_printf("<TABLE STYLE=\"border: none;\">\n");
 
-	wprintf("<TR><TD>");
-	wprintf(_("Summary:"));
-	wprintf("</TD><TD>"
+	wc_printf("<TR><TD>");
+	wc_printf(_("Summary:"));
+	wc_printf("</TD><TD>"
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vtodo, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("\"></TD></TR>\n");
+	wc_printf("\"></TD></TR>\n");
 
-	wprintf("<TR><TD>");
-	wprintf(_("Start date:"));
-	wprintf("</TD><TD>");
+	wc_printf("<TR><TD>");
+	wc_printf(_("Start date:"));
+	wc_printf("</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DTSTART_PROPERTY);
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodtstart\" ID=\"nodtstart\" VALUE=\"NODTSTART\" ");
+	wc_printf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodtstart\" ID=\"nodtstart\" VALUE=\"NODTSTART\" ");
 	if (p == NULL) {
-		wprintf("CHECKED=\"CHECKED\"");
+		wc_printf("CHECKED=\"CHECKED\"");
 	}
-	wprintf(">");
-	wprintf(_("No date"));
+	wc_printf(">");
+	wc_printf(_("No date"));
 	
-	wprintf(" ");
-	wprintf("<span ID=\"dtstart_date\">");
-	wprintf(_("or"));
-	wprintf(" ");
+	wc_printf(" ");
+	wc_printf("<span ID=\"dtstart_date\">");
+	wc_printf(_("or"));
+	wc_printf(" ");
 	if (p != NULL) {
 		IcalTime = icalproperty_get_dtstart(p);
 	}
@@ -276,28 +276,28 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
 	display_icaltimetype_as_webform(&IcalTime, "dtstart", 0);
 
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"dtstart_time_assoc\" ID=\"dtstart_time_assoc\" VALUE=\"yes\"");
+	wc_printf("<INPUT TYPE=\"CHECKBOX\" NAME=\"dtstart_time_assoc\" ID=\"dtstart_time_assoc\" VALUE=\"yes\"");
 	if (!IcalTime.is_date) {
-		wprintf("CHECKED=\"CHECKED\"");
+		wc_printf("CHECKED=\"CHECKED\"");
 	}
-	wprintf(">");
-	wprintf(_("Time associated"));
-	wprintf("</span></TD></TR>\n");
+	wc_printf(">");
+	wc_printf(_("Time associated"));
+	wc_printf("</span></TD></TR>\n");
 
-	wprintf("<TR><TD>");
-	wprintf(_("Due date:"));
-	wprintf("</TD><TD>");
+	wc_printf("<TR><TD>");
+	wc_printf(_("Due date:"));
+	wc_printf("</TD><TD>");
 	p = icalcomponent_get_first_property(vtodo, ICAL_DUE_PROPERTY);
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodue\" ID=\"nodue\" VALUE=\"NODUE\"");
+	wc_printf("<INPUT TYPE=\"CHECKBOX\" NAME=\"nodue\" ID=\"nodue\" VALUE=\"NODUE\"");
 	if (p == NULL) {
-		wprintf("CHECKED=\"CHECKED\"");
+		wc_printf("CHECKED=\"CHECKED\"");
 	}
-	wprintf(">");
-	wprintf(_("No date"));
-	wprintf(" ");
-	wprintf("<span ID=\"due_date\">\n");
-	wprintf(_("or"));
-	wprintf(" ");
+	wc_printf(">");
+	wc_printf(_("No date"));
+	wc_printf(" ");
+	wc_printf("<span ID=\"due_date\">\n");
+	wc_printf(_("or"));
+	wc_printf(" ");
 	if (p != NULL) {
 		IcalTime = icalproperty_get_due(p);
 	}
@@ -305,48 +305,48 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		IcalTime = icaltime_current_time_with_zone(get_default_icaltimezone());
 	display_icaltimetype_as_webform(&IcalTime, "due", 0);
 
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"due_time_assoc\" ID=\"due_time_assoc\" VALUE=\"yes\"");
+	wc_printf("<INPUT TYPE=\"CHECKBOX\" NAME=\"due_time_assoc\" ID=\"due_time_assoc\" VALUE=\"yes\"");
 	if (!IcalTime.is_date) {
-		wprintf("CHECKED=\"CHECKED\"");
+		wc_printf("CHECKED=\"CHECKED\"");
 	}
-	wprintf(">");
-	wprintf(_("Time associated"));
-	wprintf("</span></TD></TR>\n");
+	wc_printf(">");
+	wc_printf(_("Time associated"));
+	wc_printf("</span></TD></TR>\n");
 	todoStatus = icalcomponent_get_status(vtodo);
-	wprintf("<TR><TD>\n");
-	wprintf(_("Completed:"));
-	wprintf("</TD><TD>");
-	wprintf("<INPUT TYPE=\"CHECKBOX\" NAME=\"status\" VALUE=\"COMPLETED\"");
+	wc_printf("<TR><TD>\n");
+	wc_printf(_("Completed:"));
+	wc_printf("</TD><TD>");
+	wc_printf("<INPUT TYPE=\"CHECKBOX\" NAME=\"status\" VALUE=\"COMPLETED\"");
 	if (todoStatus == ICAL_STATUS_COMPLETED) {
-		wprintf(" CHECKED=\"CHECKED\"");
+		wc_printf(" CHECKED=\"CHECKED\"");
 	} 
-	wprintf(" >");
-	wprintf("</TD></TR>");
+	wc_printf(" >");
+	wc_printf("</TD></TR>");
 	/* start category field */
 	p = icalcomponent_get_first_property(vtodo, ICAL_CATEGORIES_PROPERTY);
-	wprintf("<TR><TD>");
-	wprintf(_("Category:"));
-	wprintf("</TD><TD>");
-	wprintf("<INPUT TYPE=\"text\" NAME=\"category\" MAXLENGTH=\"32\" SIZE=\"32\" VALUE=\"");
+	wc_printf("<TR><TD>");
+	wc_printf(_("Category:"));
+	wc_printf("</TD><TD>");
+	wc_printf("<INPUT TYPE=\"text\" NAME=\"category\" MAXLENGTH=\"32\" SIZE=\"32\" VALUE=\"");
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_categories(p));
 	}
-	wprintf("\">");
-	wprintf("</TD></TR>\n	");
+	wc_printf("\">");
+	wc_printf("</TD></TR>\n	");
 	/* end category field */
-	wprintf("<TR><TD>");
-	wprintf(_("Description:"));
-	wprintf("</TD><TD>");
-	wprintf("<TEXTAREA NAME=\"description\" "
+	wc_printf("<TR><TD>");
+	wc_printf(_("Description:"));
+	wc_printf("</TD><TD>");
+	wc_printf("<TEXTAREA NAME=\"description\" "
 		"ROWS=\"10\" COLS=\"80\">\n"
 		);
 	p = icalcomponent_get_first_property(vtodo, ICAL_DESCRIPTION_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("</TEXTAREA></TD></TR></TABLE>\n");
+	wc_printf("</TEXTAREA></TD></TR></TABLE>\n");
 
-	wprintf("<SPAN STYLE=\"text-align: center;\">"
+	wc_printf("<SPAN STYLE=\"text-align: center;\">"
 		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
@@ -357,10 +357,10 @@ void display_edit_individual_task(icalcomponent *supplied_vtodo, long msgnum, ch
 		_("Delete"),
 		_("Cancel")
 		);
-	wprintf("</td></tr></table>");
-	wprintf("</FORM>\n");
-	wprintf("</div></div></div>\n");
-	wprintf("<!-- end task edit form -->");
+	wc_printf("</td></tr></table>");
+	wc_printf("</FORM>\n");
+	wc_printf("</div></div></div>\n");
+	wc_printf("<!-- end task edit form -->");
 	wDumpContent(1);
 
 	if (created_new_vtodo) {

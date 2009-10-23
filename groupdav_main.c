@@ -163,7 +163,7 @@ void groupdav_main(void)
 		hprintf("HTTP/1.1 501 Method not implemented\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf("GroupDAV method \"%s\" is not implemented.\r\n",
+		wc_printf("GroupDAV method \"%s\" is not implemented.\r\n",
 			ReqStrs[WCC->Hdr->HR.eReqType]);
 		end_burst();
 	}
@@ -177,7 +177,7 @@ void groupdav_identify_host(void) {
 	wcsession *WCC = WC;
 
 	if (StrLength(WCC->Hdr->HR.http_host)!=0) {
-		wprintf("%s://%s",
+		wc_printf("%s://%s",
 			(is_https ? "https" : "http"),
 			ChrPtr(WCC->Hdr->HR.http_host));
 	}

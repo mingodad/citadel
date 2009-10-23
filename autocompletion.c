@@ -25,22 +25,22 @@ void recp_autocomplete(char *partial) {
 		PACKAGE_STRING);
 	begin_burst();
 
-	wprintf("<ul>");
+	wc_printf("<ul>");
 
 	serv_printf("AUTO %s", partial);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while(serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(name, buf, 0, '|', sizeof name);
-			wprintf("<li>");
+			wc_printf("<li>");
 			escputs(name);
-			wprintf("</li>");
+			wc_printf("</li>");
 		}
 	}
 
-	wprintf("</ul>");
+	wc_printf("</ul>");
 
-	wprintf("\r\n\r\n");
+	wc_printf("\r\n\r\n");
 	wDumpContent(0);
 }
 

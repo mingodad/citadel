@@ -19,7 +19,7 @@ void output_date(void) {
 	localtime_r(&now, &tm);
 
 	wc_strftime(buf, 32, "%A, %x", &tm);
-	wprintf("%s", buf);
+	wc_printf("%s", buf);
 }
 
 
@@ -31,7 +31,7 @@ void output_date(void) {
 void dummy_section(void) {
 	svput("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
 	do_template("beginboxx", NULL);
-	wprintf(_("(nothing)"));
+	wc_printf(_("(nothing)"));
 	do_template("endbox", NULL);
 }
 
@@ -50,7 +50,7 @@ void new_messages_section(void) {
 	number_of_rooms_to_check = num_tokens(rooms_to_check, '|');
 	if (number_of_rooms_to_check == 0) return;
 
-	wprintf("<table border=0 width=100%%>\n");
+	wc_printf("<table border=0 width=100%%>\n");
 	for (i=0; i<number_of_rooms_to_check; ++i) {
 		extract_token(room, rooms_to_check, i, '|', sizeof room);
 
@@ -58,17 +58,17 @@ void new_messages_section(void) {
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			extract_token(room, &buf[4], 0, '|', sizeof room);
-			wprintf("<tr><td><a href=\"dotgoto?room=");
+			wc_printf("<tr><td><a href=\"dotgoto?room=");
 			urlescputs(room);
-			wprintf("\">");
+			wc_printf("\">");
 			escputs(room);
-			wprintf("</a></td><td>%d/%d</td></tr>\n",
+			wc_printf("</a></td><td>%d/%d</td></tr>\n",
 				extract_int(&buf[4], 1),
 				extract_int(&buf[4], 2)
 			);
 		}
 	}
-	wprintf("</table>\n");
+	wc_printf("</table>\n");
 
 }
 
@@ -112,9 +112,9 @@ void tasks_section(void) {
 	}
 
 	if (calendar_summary_view() < 1) {
-		wprintf("<i>");
-		wprintf(_("(None)"));
-		wprintf("</i><br />\n");
+		wc_printf("<i>");
+		wc_printf(_("(None)"));
+		wc_printf("</i><br />\n");
 	}
 }
 
@@ -164,9 +164,9 @@ void calendar_section(void) {
 		DeleteHashPos(&at);
 	}
 	if (calendar_summary_view() < 1) {
-		wprintf("<i>");
-		wprintf(_("(Nothing)"));
-		wprintf("</i><br />\n");
+		wc_printf("<i>");
+		wc_printf(_("(Nothing)"));
+		wc_printf("</i><br />\n");
 	}
 	__calendar_Cleanup(&v);
 }
@@ -197,82 +197,82 @@ void server_info_section(void) {
  * not people I consider worthwhile, I still want them to use WebCit.
  */
 void summary_inner_div(void) {
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table width=\"100%%\" cellspacing=\"10\" cellpadding=\"0\">"
 		"<tr valign=top>");
 
 	/*
 	 * Column One
 	 */
-	wprintf("<td width=33%%>");
-	wprintf("<div class=\"box\">");	
-	wprintf("<div class=\"boxlabel\">");	
-	wprintf(_("Messages"));
-	wprintf("</div><div class=\"boxcontent\">");	
-	wprintf("<div id=\"msg_inner\">");	
+	wc_printf("<td width=33%%>");
+	wc_printf("<div class=\"box\">");	
+	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf(_("Messages"));
+	wc_printf("</div><div class=\"boxcontent\">");	
+	wc_printf("<div id=\"msg_inner\">");	
 	new_messages_section();
-	wprintf("</div></div></div>");
-	wprintf("</td>");
+	wc_printf("</div></div></div>");
+	wc_printf("</td>");
 
 	/*
 	 * Column Two 
 	 */
-	wprintf("<td width=33%%>");
-	wprintf("<div class=\"box\">");	
-	wprintf("<div class=\"boxlabel\">");	
-	wprintf(_("Tasks"));
-	wprintf("</div><div class=\"boxcontent\">");	
-	wprintf("<div id=\"tasks_inner\">");	
+	wc_printf("<td width=33%%>");
+	wc_printf("<div class=\"box\">");	
+	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf(_("Tasks"));
+	wc_printf("</div><div class=\"boxcontent\">");	
+	wc_printf("<div id=\"tasks_inner\">");	
 	tasks_section();
-	wprintf("</div></div></div>");
-	wprintf("</td>");
+	wc_printf("</div></div></div>");
+	wc_printf("</td>");
 
 	/*
 	 * Column Three
 	 */
-	wprintf("<td width=33%%>");
-	wprintf("<div class=\"box\">");	
-	wprintf("<div class=\"boxlabel\">");	
-	wprintf(_("Today&nbsp;on&nbsp;your&nbsp;calendar"));
-	wprintf("</div><div class=\"boxcontent\">");	
-	wprintf("<div id=\"calendar_inner\">");	
+	wc_printf("<td width=33%%>");
+	wc_printf("<div class=\"box\">");	
+	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf(_("Today&nbsp;on&nbsp;your&nbsp;calendar"));
+	wc_printf("</div><div class=\"boxcontent\">");	
+	wc_printf("<div id=\"calendar_inner\">");	
 	calendar_section();
-	wprintf("</div></div></div>");
-	wprintf("</td>");
+	wc_printf("</div></div></div>");
+	wc_printf("</td>");
 
-	wprintf("</tr><tr valign=top>");
+	wc_printf("</tr><tr valign=top>");
 
 	/*
 	 * Row Two - Column One
 	 */
-	wprintf("<td colspan=2>");
-	wprintf("<div class=\"box\">");	
-	wprintf("<div class=\"boxlabel\">");	
-	wprintf(_("Who's&nbsp;online&nbsp;now"));
-	wprintf("</div><div class=\"boxcontent\">");	
-	wprintf("<div id=\"who_inner\">");	
+	wc_printf("<td colspan=2>");
+	wc_printf("<div class=\"box\">");	
+	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf(_("Who's&nbsp;online&nbsp;now"));
+	wc_printf("</div><div class=\"boxcontent\">");	
+	wc_printf("<div id=\"who_inner\">");	
 	do_template("wholistsummarysection", NULL);
-	wprintf("</div></div></div>");
-	wprintf("</td>");
+	wc_printf("</div></div></div>");
+	wc_printf("</td>");
 
 	/*
 	 * Row Two - Column Two
 	 */
-	wprintf("<td width=33%%>");
-	wprintf("<div class=\"box\">");	
-	wprintf("<div class=\"boxlabel\">");	
-	wprintf(_("About&nbsp;this&nbsp;server"));
-	wprintf("</div><div class=\"boxcontent\">");	
-	wprintf("<div id=\"info_inner\">");	
+	wc_printf("<td width=33%%>");
+	wc_printf("<div class=\"box\">");	
+	wc_printf("<div class=\"boxlabel\">");	
+	wc_printf(_("About&nbsp;this&nbsp;server"));
+	wc_printf("</div><div class=\"boxcontent\">");	
+	wc_printf("<div id=\"info_inner\">");	
 	server_info_section();
-	wprintf("</div></div></div>");
-	wprintf("</td>");
+	wc_printf("</div></div></div>");
+	wc_printf("</td>");
 
 
 	/*
 	 * End of columns
 	 */
-	wprintf("</tr></table>");
+	wc_printf("</tr></table>");
 }
 
 
@@ -283,33 +283,33 @@ void summary(void) {
 	char title[256];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<div class=\"room_banner\">");
-        wprintf("<img src=\"static/summscreen_48x.gif\">");
-        wprintf("<h1>");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<div class=\"room_banner\">");
+        wc_printf("<img src=\"static/summscreen_48x.gif\">");
+        wc_printf("<h1>");
         snprintf(title, sizeof title, _("Summary page for %s"), ChrPtr(WC->wc_fullname));
         escputs(title);
-        wprintf("</h1><h2>");
+        wc_printf("</h1><h2>");
         output_date();
-        wprintf("</h2></div>");
-	wprintf("<div id=\"actiondiv\">");
-	wprintf("<ul class=\"room_actions\">\n");
-	wprintf("<li class=\"start_page\">");
+        wc_printf("</h2></div>");
+	wc_printf("<div id=\"actiondiv\">");
+	wc_printf("<ul class=\"room_actions\">\n");
+	wc_printf("<li class=\"start_page\">");
 	offer_start_page(NULL, &NoCtx);
-        wprintf("</li></ul>");
-        wprintf("</div>");
-        wprintf("</div>");
+        wc_printf("</li></ul>");
+        wc_printf("</div>");
+        wc_printf("</div>");
 
 	/*
 	 * You guessed it ... we're going to refresh using ajax.
 	 * In the future we might consider updating individual sections of the summary
 	 * instead of the whole thing.
 	 */
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 	summary_inner_div();
-	wprintf("</div>\n");
+	wc_printf("</div>\n");
 
-	wprintf(
+	wc_printf(
 		"<script type=\"text/javascript\">					"
 		" new Ajax.PeriodicalUpdater('msg_inner', 'new_messages_html',		"
 		"                            { method: 'get', frequency: 60 }  );	"

@@ -249,7 +249,7 @@ void jsescputs(char *strbuf)
 	char outbuf[SIZ];
 	
 	jsesc(outbuf, SIZ, strbuf);
-	wprintf("%s", outbuf);
+	wc_printf("%s", outbuf);
 }
 
 /*

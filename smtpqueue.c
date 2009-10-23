@@ -129,36 +129,36 @@ void display_queue_msg(long msgnum)
 
 	}
 
-	wprintf("<tr><td>");
-	wprintf("%ld<br />", msgnum);
-	wprintf(" <a href=\"javascript:DeleteSMTPqueueMsg(%ld,%ld);\">%s</a>", 
+	wc_printf("<tr><td>");
+	wc_printf("%ld<br />", msgnum);
+	wc_printf(" <a href=\"javascript:DeleteSMTPqueueMsg(%ld,%ld);\">%s</a>", 
 		msgnum, msgid, _("(Delete)")
 	);
 
-	wprintf("</td><td>");
+	wc_printf("</td><td>");
 	if (submitted > 0) {
 		webcit_fmt_date(buf, 1024, submitted, 1);
-		wprintf("%s", buf);
+		wc_printf("%s", buf);
 	}
 	else {
-		wprintf("&nbsp;");
+		wc_printf("&nbsp;");
 	}
 
-	wprintf("</td><td>");
+	wc_printf("</td><td>");
 	if (last_attempt > 0) {
 		webcit_fmt_date(buf, 1024, last_attempt, 1);
-		wprintf("%s", buf);
+		wc_printf("%s", buf);
 	}
 	else {
-		wprintf("&nbsp;");
+		wc_printf("&nbsp;");
 	}
 
-	wprintf("</td><td>");
+	wc_printf("</td><td>");
 	escputs(sender);
 
-	wprintf("</td><td>");
-	wprintf("%s", recipients);
-	wprintf("</td></tr>\n");
+	wc_printf("</td><td>");
+	wc_printf("%s", recipients);
+	wc_printf("</td></tr>\n");
 
 }
 
@@ -185,21 +185,21 @@ void display_smtpqueue_inner_div(void) {
 		Stat.highest_found = (-1);
 		num_msgs = load_msg_ptrs("MSGS ALL", &Stat);
 		if (num_msgs > 0) {
-                        wprintf("<table class=\"mailbox_summary\" rules=rows "
+                        wc_printf("<table class=\"mailbox_summary\" rules=rows "
                         	"cellpadding=2 style=\"width:100%%;\">"
 			);
 
-			wprintf("<tr><td><b><i>");
-			wprintf(_("Message ID"));
-			wprintf("</i></b></td><td><b><i>");
-			wprintf(_("Date/time submitted"));
-			wprintf("</i></b></td><td><b><i>");
-			wprintf(_("Last attempt"));
-			wprintf("</i></b></td><td><b><i>");
-			wprintf(_("Sender"));
-			wprintf("</i></b></td><td><b><i>");
-			wprintf(_("Recipients"));
-			wprintf("</i></b></td></tr>\n");
+			wc_printf("<tr><td><b><i>");
+			wc_printf(_("Message ID"));
+			wc_printf("</i></b></td><td><b><i>");
+			wc_printf(_("Date/time submitted"));
+			wc_printf("</i></b></td><td><b><i>");
+			wc_printf(_("Last attempt"));
+			wc_printf("</i></b></td><td><b><i>");
+			wc_printf(_("Sender"));
+			wc_printf("</i></b></td><td><b><i>");
+			wc_printf(_("Recipients"));
+			wc_printf("</i></b></td></tr>\n");
 
 			for (i=0; i<num_msgs; ++i) {
 				Msg = GetMessagePtrAt(i, WCC->summ);
@@ -208,19 +208,19 @@ void display_smtpqueue_inner_div(void) {
 				}
 			}
 
-			wprintf("</table>");
+			wc_printf("</table>");
 
 		}
 		else {
-			wprintf("<br /><br /><div align=\"center\">");
-			wprintf(_("The queue is empty."));
-			wprintf("</div><br /><br />");
+			wc_printf("<br /><br /><div align=\"center\">");
+			wc_printf(_("The queue is empty."));
+			wc_printf("</div><br /><br />");
 		}
 	}
 	else {
-		wprintf("<br /><br /><div align=\"center\">");
-		wprintf(_("You do not have permission to view this resource."));
-		wprintf("</div><br /><br />");
+		wc_printf("<br /><br /><div align=\"center\">");
+		wc_printf(_("You do not have permission to view this resource."));
+		wc_printf("</div><br /><br />");
 	}
 	output_headers(0, 0, 0, 0, 0, 0);
 	end_burst();
@@ -233,19 +233,19 @@ void display_smtpqueue(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
 
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("View the outbound SMTP queue"));
-	wprintf("</h1>\n");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<h1>");
+	wc_printf(_("View the outbound SMTP queue"));
+	wc_printf("</h1>\n");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"smtpqueue_background\">"
 		"<tr><td valign=top>\n");
 
-	wprintf("<div id=\"smtpqueue_inner_div\">"
+	wc_printf("<div id=\"smtpqueue_inner_div\">"
 		"<div align=\"center\"><img src=\"static/throbber.gif\"></div>"
 		"</div>"
 		"<div align=\"center\">"

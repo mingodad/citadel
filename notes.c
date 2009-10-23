@@ -213,7 +213,7 @@ void ajax_update_note(void) {
 
         if (!havebstr("note_uid")) {
 		begin_ajax_response();
-		wprintf("Received ajax_update_note() request without a note UID.");
+		wc_printf("Received ajax_update_note() request without a note UID.");
 		end_ajax_response();
 		return;
 	}
@@ -222,7 +222,7 @@ void ajax_update_note(void) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		begin_ajax_response();
-		wprintf("Cannot find message containing vNote with the requested uid!");
+		wc_printf("Cannot find message containing vNote with the requested uid!");
 		end_ajax_response();
 		return;
 	}
@@ -234,7 +234,7 @@ void ajax_update_note(void) {
 			serv_printf("DELE %d", msgnum);
 			serv_getln(buf, sizeof buf);
 			begin_ajax_response();
-			wprintf("%s", buf);
+			wc_printf("%s", buf);
 			end_ajax_response();
 			return;
 		}
@@ -244,7 +244,7 @@ void ajax_update_note(void) {
 	v = vnote_new_from_msg(msgnum, 0);
 	if (!v) {
 		begin_ajax_response();
-		wprintf("Cannot locate a vNote within message %d\n", msgnum);
+		wc_printf("Cannot locate a vNote within message %d\n", msgnum);
 		end_ajax_response();
 		return;
 	}
@@ -426,7 +426,7 @@ int notes_GetParamsGetServerCall(SharedMessageStatus *Stat,
 {
 	strcpy(cmd, "MSGS ALL");
 	Stat->maxmsgs = 32767;
-	wprintf("<div id=\"new_notes_here\"></div>\n");
+	wc_printf("<div id=\"new_notes_here\"></div>\n");
 	return 200;
 
 }

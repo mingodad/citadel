@@ -268,7 +268,7 @@ void download_file(void)
 		hprintf("HTTP/1.1 404 %s\n", ChrPtr(Buf));
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf(_("An error occurred while retrieving this file: %s\n"), 
+		wc_printf(_("An error occurred while retrieving this file: %s\n"), 
 			ChrPtr(Buf));
 		end_burst();
 	}

@@ -96,7 +96,7 @@ void dump_vars(void)
 	Cursor = GetNewHashPos (WCC->Hdr->urlstrings, 0);
 	while (GetNextHashPos(WCC->Hdr->urlstrings, Cursor, &HKLen, &HKey, &U)) {
 		u = (urlcontent*) U;
-		wprintf("%38s = %s\n", u->url_key, ChrPtr(u->url_data));
+		wc_printf("%38s = %s\n", u->url_key, ChrPtr(u->url_data));
 	}
 }
 
@@ -371,19 +371,19 @@ void tmplput_bstr(StrBuf *Target, WCTemplputParams *TP)
 void diagnostics(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
-	wprintf("Session: %d<hr />\n", WC->wc_session);
-	wprintf("Command: <br /><PRE>\n");
+	wc_printf("Session: %d<hr />\n", WC->wc_session);
+	wc_printf("Command: <br /><PRE>\n");
 /*	
 StrEscPuts(WC->UrlFragment1);
-	wprintf("<br />\n");
+	wc_printf("<br />\n");
 	StrEscPuts(WC->UrlFragment2);
-	wprintf("<br />\n");
+	wc_printf("<br />\n");
 	StrEscPuts(WC->UrlFragment3);
 */
-	wprintf("</PRE><hr />\n");
-	wprintf("Variables: <br /><PRE>\n");
+	wc_printf("</PRE><hr />\n");
+	wc_printf("Variables: <br /><PRE>\n");
 	dump_vars();
-	wprintf("</PRE><hr />\n");
+	wc_printf("</PRE><hr />\n");
 	wDumpContent(1);
 }
 

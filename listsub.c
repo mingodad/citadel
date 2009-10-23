@@ -31,13 +31,13 @@ void do_listsub(void)
 	output_headers(1, 0, 0, 1, 1, 0);
 	begin_burst();
 
-	wprintf("<HTML><HEAD>\n"
+	wc_printf("<HTML><HEAD>\n"
 		"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\n"
 		"<link href=\"static/webcit.css\" rel=\"stylesheet\" type=\"text/css\">\n"
 		"<TITLE>\n"
 	);
-	wprintf(_("List subscription"));
-	wprintf("</TITLE></HEAD><BODY>\n");
+	wc_printf(_("List subscription"));
+	wc_printf("</TITLE></HEAD><BODY>\n");
 
 	strcpy(cmd, bstr("cmd"));
 	strcpy(room, bstr("room"));
@@ -45,12 +45,12 @@ void do_listsub(void)
 	strcpy(email, bstr("email"));
 	strcpy(subtype, bstr("subtype"));
 
-	wprintf("<div align=center>");
-	wprintf("<table border=0 width=75%%><tr><td>");
+	wc_printf("<div align=center>");
+	wc_printf("<table border=0 width=75%%><tr><td>");
 
 	svput("BOXTITLE", WCS_STRING, _("List subscribe/unsubscribe"));
 	do_template("beginboxx", NULL);
-	wprintf("<div align=center><br>");
+	wc_printf("<div align=center><br>");
 
 	/*
 	 * Subscribe command
@@ -68,10 +68,10 @@ void do_listsub(void)
 			stresc(escaped_email, 256, email, 0, 0);
 			stresc(escaped_room, 256, room, 0, 0);
 
-			wprintf("<CENTER><H1>");
-			wprintf(_("Confirmation request sent"));
-			wprintf("</H1>");
-			wprintf(_("You are subscribing <TT>%s"
+			wc_printf("<CENTER><H1>");
+			wc_printf(_("Confirmation request sent"));
+			wc_printf("</H1>");
+			wc_printf(_("You are subscribing <TT>%s"
 				"</TT> to the <b>%s</b> mailing list.  "
 				"The listserver has "
 				"sent you an e-mail with one additional "
@@ -84,10 +84,10 @@ void do_listsub(void)
 				"e-mailed to you and your subscription will "
 				"be confirmed.<br />\n"),
 				escaped_email, escaped_room);
-			wprintf("<a href=\"listsub\">%s</A></CENTER>\n", _("Go back..."));
+			wc_printf("<a href=\"listsub\">%s</A></CENTER>\n", _("Go back..."));
 		}
 		else {
-			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"
+			wc_printf("<FONT SIZE=+1><B>ERROR: %s</B>"
 				"</FONT><br /><br />\n",
 				&buf[4]);
 			goto FORM;
@@ -106,12 +106,12 @@ void do_listsub(void)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			wprintf("<CENTER><H1>Confirmation request sent</H1>"
+			wc_printf("<CENTER><H1>Confirmation request sent</H1>"
 				"You are unsubscribing <TT>");
 			escputs(email);
-			wprintf("</TT> from the &quot;");
+			wc_printf("</TT> from the &quot;");
 			escputs(room);
-			wprintf("&quot; mailing list.  The listserver has "
+			wc_printf("&quot; mailing list.  The listserver has "
 				"sent you an e-mail with one additional "
 				"Web link for you to click on to confirm "
 				"your unsubscription.  This extra step is for "
@@ -125,7 +125,7 @@ void do_listsub(void)
 			);
 		}
 		else {
-			wprintf("<FONT SIZE=+1><B>ERROR: %s</B>"
+			wc_printf("<FONT SIZE=+1><B>ERROR: %s</B>"
 				"</FONT><br /><br />\n",
 				&buf[4]);
 			goto FORM;
@@ -142,10 +142,10 @@ void do_listsub(void)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			wprintf("<CENTER><H1>Confirmation successful!</H1>");
+			wc_printf("<CENTER><H1>Confirmation successful!</H1>");
 		}
 		else {
-			wprintf("<CENTER><H1>Confirmation failed.</H1>"
+			wc_printf("<CENTER><H1>Confirmation failed.</H1>"
 				"This could mean one of two things:<UL>\n"
 				"<LI>You waited too long to confirm your "
 				"subscribe/unsubscribe request (the "
@@ -157,16 +157,16 @@ void do_listsub(void)
 				"The error returned by the server was: "
 			);
 		}
-		wprintf("%s</CENTER><br />\n", &buf[4]);
+		wc_printf("%s</CENTER><br />\n", &buf[4]);
 	}
 
 	/*
 	 * Any other (invalid) command causes the form to be displayed
 	 */
 	else {
-FORM:		wprintf("<form method=\"POST\" action=\"listsub\">\n");
+FORM:		wc_printf("<form method=\"POST\" action=\"listsub\">\n");
 
-		wprintf("Name of list: "
+		wc_printf("Name of list: "
         		"<select name=\"room\" size=1>\n");
 
         	serv_puts("LPRM");
@@ -176,24 +176,24 @@ FORM:		wprintf("<form method=\"POST\" action=\"listsub\">\n");
 				extract_token(sroom, buf, 0, '|', sizeof sroom);
 				self = extract_int(buf, 4) & QR2_SELFLIST ;
 				if (self) {
-					wprintf("<option value=\"");
+					wc_printf("<option value=\"");
 					escputs(sroom);
-					wprintf("\">");
+					wc_printf("\">");
 					escputs(sroom);
-					wprintf("</option>\n");
+					wc_printf("</option>\n");
 				}
                 	}
 		}
-        	wprintf("</select><br><br>\n");
+        	wc_printf("</select><br><br>\n");
 
-		wprintf("Your e-mail address: "
+		wc_printf("Your e-mail address: "
 			"<INPUT TYPE=\"text\" NAME=\"email\" "
 			"VALUE=\""
 		);
 		escputs(email);
-		wprintf("\" maxlength=128 size=60><br><br>\n");
+		wc_printf("\" maxlength=128 size=60><br><br>\n");
 
-		wprintf("(If subscribing) preferred format: "
+		wc_printf("(If subscribing) preferred format: "
 			"<INPUT TYPE=\"radio\" NAME=\"subtype\" "
 			"VALUE=\"list\" CHECKED>One message at a time&nbsp; "
 			"<INPUT TYPE=\"radio\" NAME=\"subtype\" "
@@ -206,7 +206,7 @@ FORM:		wprintf("<form method=\"POST\" action=\"listsub\">\n");
 			"</FORM>\n"
 		);
 
-		wprintf("<hr>When you attempt to subscribe or unsubscribe to "
+		wc_printf("<hr>When you attempt to subscribe or unsubscribe to "
 			"a mailing list, you will receive an e-mail containing"
 			" one additional web link to click on for final "
 			"confirmation.  This extra step is for your "
@@ -216,11 +216,11 @@ FORM:		wprintf("<form method=\"POST\" action=\"listsub\">\n");
 
 	}
 
-	wprintf("</div>");
+	wc_printf("</div>");
 	do_template("endbox", NULL);
-	wprintf("</td></tr></table></div>");
+	wc_printf("</td></tr></table></div>");
 
-	wprintf("</BODY></HTML>\n");
+	wc_printf("</BODY></HTML>\n");
 	wDumpContent(0);
 	end_webcit_session();
 }

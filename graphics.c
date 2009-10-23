@@ -34,30 +34,30 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 
 	FreeStrBuf(&Buf);
 
-	wprintf("<form enctype=\"multipart/form-data\" action=\"%s\" "
+	wc_printf("<form enctype=\"multipart/form-data\" action=\"%s\" "
 		"method=\"post\" name=\"graphicsupload\">\n", uplurl);
 
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<input type=\"hidden\" name=\"which_room\" value=\"");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<input type=\"hidden\" name=\"which_room\" value=\"");
 	urlescputs(bstr("which_room"));
-	wprintf("\">\n");
+	wc_printf("\">\n");
 
-	wprintf(_("You can upload an image directly from your computer"));
-	wprintf("<br /><br />\n");
+	wc_printf(_("You can upload an image directly from your computer"));
+	wc_printf("<br /><br />\n");
 
-	wprintf(_("Please select a file to upload:"));
-	wprintf("<input type=\"file\" name=\"filename\" size=\"35\">\n");
+	wc_printf(_("Please select a file to upload:"));
+	wc_printf("<input type=\"file\" name=\"filename\" size=\"35\">\n");
 
-	wprintf("<div class=\"uploadpic\"><img src=\"image?name=%s\"></div>\n", filename);
+	wc_printf("<div class=\"uploadpic\"><img src=\"image?name=%s\"></div>\n", filename);
 
-	wprintf("<div class=\"buttons\">");
-	wprintf("<input type=\"submit\" name=\"upload_button\" value=\"%s\">\n", _("Upload"));
-	wprintf("&nbsp;");
-	wprintf("<input type=\"reset\" value=\"%s\">\n", _("Reset form"));
-	wprintf("&nbsp;");
-	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
-	wprintf("</div>\n");
-	wprintf("</form>\n");
+	wc_printf("<div class=\"buttons\">");
+	wc_printf("<input type=\"submit\" name=\"upload_button\" value=\"%s\">\n", _("Upload"));
+	wc_printf("&nbsp;");
+	wc_printf("<input type=\"reset\" value=\"%s\">\n", _("Reset form"));
+	wc_printf("&nbsp;");
+	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wc_printf("</div>\n");
+	wc_printf("</form>\n");
 
 	do_template("endbox", NULL);
 

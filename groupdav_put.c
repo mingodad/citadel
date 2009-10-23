@@ -34,7 +34,7 @@ void groupdav_put_bigics(void)
 		groupdav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
 		begin_burst();
-		wprintf("%s\r\n", &buf[4]);
+		wc_printf("%s\r\n", &buf[4]);
 		end_burst();
 		return;
 	}
@@ -72,7 +72,7 @@ void groupdav_put(void)
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf("The object you requested was not found.\r\n");
+		wc_printf("The object you requested was not found.\r\n");
 		end_burst();
 		return;
 	}
@@ -95,7 +95,7 @@ void groupdav_put(void)
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf("There is no folder called \"%s\" on this server.\r\n",
+		wc_printf("There is no folder called \"%s\" on this server.\r\n",
 			ChrPtr(dav_roomname));
 		end_burst();
 		FreeStrBuf(&dav_roomname);
@@ -148,7 +148,7 @@ void groupdav_put(void)
 		groupdav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
 		begin_burst();
-		wprintf("%s\r\n", &buf[4]);
+		wc_printf("%s\r\n", &buf[4]);
 		end_burst();
 		return;
 	}
@@ -185,7 +185,7 @@ void groupdav_put(void)
 		groupdav_common_headers();
 		hprintf("Content-type: text/plain\r\n");
 		begin_burst();
-		wprintf("new_msgnum is %ld\r\n"
+		wc_printf("new_msgnum is %ld\r\n"
 			"\r\n", new_msgnum);
 		end_burst();
 		FreeStrBuf(&dav_roomname);

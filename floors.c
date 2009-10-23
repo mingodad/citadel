@@ -28,105 +28,105 @@ void display_floorconfig(StrBuf *prepend_html)
 	int refcount;
 
         output_headers(1, 1, 2, 0, 0, 0);
-        wprintf("<div id=\"banner\">\n");
-        wprintf("<h1>");
-	wprintf(_("Add/change/delete floors"));
-	wprintf("</h1>");
-        wprintf("</div>\n");
+        wc_printf("<div id=\"banner\">\n");
+        wc_printf("<h1>");
+	wc_printf(_("Add/change/delete floors"));
+	wc_printf("</h1>");
+        wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
                                                                                                                              
 	if (prepend_html != NULL) {
-		wprintf("<br /><b><i>");
+		wc_printf("<br /><b><i>");
 		StrBufAppendBuf(WC->WBuf, prepend_html, 0);
-		wprintf("</i></b><br /><br />\n");
+		wc_printf("</i></b><br /><br />\n");
 	}
 
 	serv_printf("LFLR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-        	wprintf("<TABLE  class=\"floors_config\"><TR><TD>");
-        	wprintf("<SPAN CLASS=\"titlebar\">");
-		wprintf(_("Error"));
-		wprintf("</SPAN>\n");
-        	wprintf("</TD></TR></TABLE>\n");
-        	wprintf("%s<br />\n", &buf[4]);
+        	wc_printf("<TABLE  class=\"floors_config\"><TR><TD>");
+        	wc_printf("<SPAN CLASS=\"titlebar\">");
+		wc_printf(_("Error"));
+		wc_printf("</SPAN>\n");
+        	wc_printf("</TD></TR></TABLE>\n");
+        	wc_printf("%s<br />\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<TABLE BORDER=1 WIDTH=100%% bgcolor=\"#ffffff\">\n"
 		"<TR><TH>");
-	wprintf(_("Floor number"));
-	wprintf("</TH><TH>");
-	wprintf(_("Floor name"));
-	wprintf("</TH><TH>");
-	wprintf(_("Number of rooms"));
-	wprintf("</TH><TH>");
-	wprintf(_("Floor CSS"));
-	wprintf("</TH></TR>\n");
+	wc_printf(_("Floor number"));
+	wc_printf("</TH><TH>");
+	wc_printf(_("Floor name"));
+	wc_printf("</TH><TH>");
+	wc_printf(_("Number of rooms"));
+	wc_printf("</TH><TH>");
+	wc_printf(_("Floor CSS"));
+	wc_printf("</TH></TR>\n");
 
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		floornum = extract_int(buf, 0);
 		extract_token(floorname, buf, 1, '|', sizeof floorname);
 		refcount = extract_int(buf, 2);
 
-		wprintf("<TR><TD><TABLE border=0><TR><TD>%d", floornum);
+		wc_printf("<TR><TD><TABLE border=0><TR><TD>%d", floornum);
 		if (refcount == 0) {
-			wprintf("</TD><TD>"
+			wc_printf("</TD><TD>"
 				"<a href=\"delete_floor?floornum=%d\">"
 				"<FONT SIZE=-1>", floornum);
-			wprintf(_("(delete floor)"));
-			wprintf("</A></FONT><br />");
+			wc_printf(_("(delete floor)"));
+			wc_printf("</A></FONT><br />");
 		}
-		wprintf("<FONT SIZE=-1>"
+		wc_printf("<FONT SIZE=-1>"
 			"<a href=\"display_editfloorpic?"
 			"which_floor=%d\">", floornum);
-		wprintf(_("(edit graphic)"));
-		wprintf("</A></TD></TR></TABLE>");
-		wprintf("</TD>");
+		wc_printf(_("(edit graphic)"));
+		wc_printf("</A></TD></TR></TABLE>");
+		wc_printf("</TD>");
 
-		wprintf("<TD>"
+		wc_printf("<TD>"
 			"<FORM METHOD=\"POST\" action=\"rename_floor\">"
 			"<INPUT TYPE=\"hidden\" NAME=\"floornum\" "
 			"VALUE=\"%d\">"
 			"<INPUT TYPE=\"text\" NAME=\"floorname\" "
 			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
 			floornum, floorname);
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
+		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+		wc_printf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 			"VALUE=\"%s\">"
 			"</FORM></TD>", _("Change name"));
 
-		wprintf("<TD>%d</TD>\n", refcount);
+		wc_printf("<TD>%d</TD>\n", refcount);
 
-		wprintf("<TD>"
+		wc_printf("<TD>"
 			"<FORM METHOD=\"POST\" action=\"set_floor_css\">"
 			"<INPUT TYPE=\"hidden\" NAME=\"floornum\" "
 			"VALUE=\"%d\">"
 			"<INPUT TYPE=\"text\" NAME=\"floorcss\" "
 			"VALUE=\"%s\" MAXLENGTH=\"250\">\n",
 			floornum, floorname);
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-		wprintf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
+		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+		wc_printf("<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 			"VALUE=\"%s\">"
 			"</FORM></TD>", _("Change CSS"));
 
-		wprintf("</TR>\n");
+		wc_printf("</TR>\n");
 	}
 
-	wprintf("<TR><TD>&nbsp;</TD>"
+	wc_printf("<TR><TD>&nbsp;</TD>"
 		"<TD><FORM METHOD=\"POST\" action=\"create_floor\">");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"text\" NAME=\"floorname\" "
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<INPUT TYPE=\"text\" NAME=\"floorname\" "
 		"MAXLENGTH=\"250\">\n"
 		"<INPUT TYPE=\"SUBMIT\" NAME=\"sc\" "
 		"VALUE=\"%s\">"
 		"</FORM></TD>"
 		"<TD>&nbsp;</TD></TR>\n", _("Create new floor"));
 
-	wprintf("</table></div>\n");
+	wc_printf("</table></div>\n");
 	wDumpContent(1);
 }
 

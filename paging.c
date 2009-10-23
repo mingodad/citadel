@@ -14,44 +14,44 @@ void display_page(void)
 	strcpy(recp, bstr("recp"));
 
         output_headers(1, 1, 2, 0, 0, 0);
-        wprintf("<div id=\"banner\">\n");
-        wprintf("<h1>");
-	wprintf(_("Send instant message"));
-	wprintf("</h1>");
-        wprintf("</div>\n");
+        wc_printf("<div id=\"banner\">\n");
+        wc_printf("<h1>");
+	wc_printf(_("Send instant message"));
+	wc_printf("</h1>");
+        wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-        wprintf("<div class=\"fix_scrollbar_bug\">"
+        wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"paging_background\"><tr><td>\n");
 
-	wprintf(_("Send an instant message to: "));
+	wc_printf(_("Send an instant message to: "));
 	escputs(recp);
-	wprintf("<br>\n");
+	wc_printf("<br>\n");
 
-	wprintf("<FORM METHOD=\"POST\" action=\"page_user\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<input type=\"hidden\" name=\"template\" value=\"who\">\n");
+	wc_printf("<FORM METHOD=\"POST\" action=\"page_user\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<input type=\"hidden\" name=\"template\" value=\"who\">\n");
 
-	wprintf("<TABLE border=0 width=100%%><TR><TD>\n");
+	wc_printf("<TABLE border=0 width=100%%><TR><TD>\n");
 
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"");
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"recp\" VALUE=\"");
 	escputs(recp);
-	wprintf("\">\n");
+	wc_printf("\">\n");
 
-	wprintf(_("Enter message text:"));
-	wprintf("<br />");
+	wc_printf(_("Enter message text:"));
+	wc_printf("<br />");
 
-	wprintf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
+	wc_printf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
 		"WIDTH=40></TEXTAREA>\n");
 
-	wprintf("</TD></TR></TABLE><br />\n");
+	wc_printf("</TD></TR></TABLE><br />\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">", _("Send message"));
-	wprintf("<br /><a href=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">", _("Send message"));
+	wc_printf("<br /><a href=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
 
-	wprintf("</FORM></CENTER>\n");
-	wprintf("</td></tr></table></div>\n");
+	wc_printf("</FORM></CENTER>\n");
+	wc_printf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
@@ -244,7 +244,7 @@ void chat_recv(void) {
 
 	hprintf("Content-type: text/html; charset=utf-8\r\n");
 	begin_burst();
-	wprintf("<html>\n"
+	wc_printf("<html>\n"
 		"<head>\n"
 		"<meta http-equiv=\"refresh\" content=\"3\" />\n"
 		"</head>\n"
@@ -253,8 +253,8 @@ void chat_recv(void) {
 	);
 
 	if (setup_chat_socket() != 0) {
-		wprintf(_("An error occurred while setting up the chat socket."));
-		wprintf("</BODY></HTML>\n");
+		wc_printf(_("An error occurred while setting up the chat socket."));
+		wc_printf("</BODY></HTML>\n");
 		wDumpContent(0);
 		return;
 	}
@@ -300,7 +300,7 @@ void chat_recv(void) {
 	if (end_chat_now) {
 		close(WC->chat_sock);
 		WC->chat_sock = (-1);
-		wprintf("<img src=\"static/blank.gif\" onLoad=\"parent.window.close();\">\n");
+		wc_printf("<img src=\"static/blank.gif\" onLoad=\"parent.window.close();\">\n");
 	}
 
 	if (!IsEmptyStr(output_data)) {
@@ -311,7 +311,7 @@ void chat_recv(void) {
 		}
 
 		/** Output our fun to the other frame. */
-		wprintf("<img src=\"static/blank.gif\" WIDTH=1 HEIGHT=1\n"
+		wc_printf("<img src=\"static/blank.gif\" WIDTH=1 HEIGHT=1\n"
 			"onLoad=\" \n"
 		);
 
@@ -322,10 +322,10 @@ void chat_recv(void) {
 
 			if (strcasecmp(cl_text, "NOOP")) {
 
-				wprintf("parent.chat_transcript.document.write('");
+				wc_printf("parent.chat_transcript.document.write('");
 	
 				if (strcasecmp(cl_user, WC->last_chat_user)) {
-					wprintf("<TABLE border=0 WIDTH=100%% "
+					wc_printf("<TABLE border=0 WIDTH=100%% "
 						"CELLSPACING=1 CELLPADDING=0 "
 						"BGCOLOR=&quot;#FFFFFF&quot;>"
 						"<TR><TD></TR></TD></TABLE>"
@@ -333,50 +333,50 @@ void chat_recv(void) {
 	
 				}
 
-				wprintf("<TABLE border=0 WIDTH=100%% "
+				wc_printf("<TABLE border=0 WIDTH=100%% "
 					"CELLSPACING=0 CELLPADDING=0 "
 					"BGCOLOR=&quot;#EEEEEE&quot;>");
 	
-				wprintf("<TR><TD>");
+				wc_printf("<TR><TD>");
 	
 				if (!strcasecmp(cl_user, ":")) {
-					wprintf("<I>");
+					wc_printf("<I>");
 				}
 
 				if (strcasecmp(cl_user, WC->last_chat_user)) {
-					wprintf("<B>");
+					wc_printf("<B>");
 	
 					if (!strcasecmp(cl_user, ChrPtr(WC->wc_fullname))) {
-						wprintf("<FONT COLOR=&quot;#FF0000&quot;>");
+						wc_printf("<FONT COLOR=&quot;#FF0000&quot;>");
 					}
 					else {
-						wprintf("<FONT COLOR=&quot;#0000FF&quot;>");
+						wc_printf("<FONT COLOR=&quot;#0000FF&quot;>");
 					}
 					jsescputs(cl_user);
 	
-					wprintf("</FONT>: </B>");
+					wc_printf("</FONT>: </B>");
 				}
 				else {
-					wprintf("&nbsp;&nbsp;&nbsp;");
+					wc_printf("&nbsp;&nbsp;&nbsp;");
 				}
 				jsescputs(cl_text);
 				if (!strcasecmp(cl_user, ":")) {
-					wprintf("</I>");
+					wc_printf("</I>");
 				}
 
-				wprintf("</TD></TR></TABLE>");
-				wprintf("'); \n");
+				wc_printf("</TD></TR></TABLE>");
+				wc_printf("'); \n");
 
 				strcpy(WC->last_chat_user, cl_user);
 			}
 		}
 
-		wprintf("parent.chat_transcript.scrollTo(999999,999999);\">\n");
+		wc_printf("parent.chat_transcript.scrollTo(999999,999999);\">\n");
 	}
 
 	free(output_data);
 
-	wprintf("</BODY></HTML>\n");
+	wc_printf("</BODY></HTML>\n");
 	wDumpContent(0);
 }
 
@@ -392,7 +392,7 @@ void chat_send(void) {
 	output_headers(0, 0, 0, 0, 0, 0);
 	hprintf("Content-type: text/html; charset=utf-8\r\n");
 	begin_burst();
-	wprintf("<HTML>"
+	wc_printf("<HTML>"
 		"<BODY onLoad=\"document.chatsendform.send_this.focus();\" >"
 	);
 
@@ -416,8 +416,8 @@ void chat_send(void) {
 	}
 
 	if (setup_chat_socket() != 0) {
-		wprintf(_("An error occurred while setting up the chat socket."));
-		wprintf("</BODY></HTML>\n");
+		wc_printf(_("An error occurred while setting up the chat socket."));
+		wc_printf("</BODY></HTML>\n");
 		wDumpContent(0);
 		return;
 	}
@@ -448,18 +448,18 @@ void chat_send(void) {
 	WC->serv_sock = WC->chat_sock;
 	WC->chat_sock = i;
 
-	wprintf("<FORM METHOD=\"POST\" action=\"chat_send\" NAME=\"chatsendform\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
+	wc_printf("<FORM METHOD=\"POST\" action=\"chat_send\" NAME=\"chatsendform\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<INPUT TYPE=\"text\" SIZE=\"80\" MAXLENGTH=\"%d\" "
 		"NAME=\"send_this\">\n", SIZ-10);
-	wprintf("<br />");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">\n", _("Send"));
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"help_button\" VALUE=\"%s\">\n", _("Help"));
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"list_button\" VALUE=\"%s\">\n", _("List users"));
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"exit_button\" VALUE=\"%s\">\n", _("Exit"));
-	wprintf("</FORM>\n");
+	wc_printf("<br />");
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">\n", _("Send"));
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"help_button\" VALUE=\"%s\">\n", _("Help"));
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"list_button\" VALUE=\"%s\">\n", _("List users"));
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"exit_button\" VALUE=\"%s\">\n", _("Exit"));
+	wc_printf("</FORM>\n");
 
-	wprintf("</BODY></HTML>\n");
+	wc_printf("</BODY></HTML>\n");
 	wDumpContent(0);
 }
 

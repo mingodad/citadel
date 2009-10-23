@@ -149,39 +149,39 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	/* Begin output */
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Add or edit an event"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<h1>");
+	wc_printf(_("Add or edit an event"));
+	wc_printf("</h1>");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">");
+	wc_printf("<div class=\"fix_scrollbar_bug\">");
 
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
-	wprintf("UID == ");
+	wc_printf("UID == ");
 	p = icalcomponent_get_first_property(vevent, ICAL_UID_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("<br />\n");
-	wprintf("SEQUENCE == %d<br />\n", sequence);
+	wc_printf("<br />\n");
+	wc_printf("SEQUENCE == %d<br />\n", sequence);
 	*************************************************************/
 
-	wprintf("<form name=\"EventForm\" method=\"POST\" action=\"save_event\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<form name=\"EventForm\" method=\"POST\" action=\"save_event\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"msgnum\" VALUE=\"%ld\">\n",
 		msgnum);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"calview\" VALUE=\"%s\">\n",
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"calview\" VALUE=\"%s\">\n",
 		bstr("calview"));
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"year\" VALUE=\"%s\">\n",
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"year\" VALUE=\"%s\">\n",
 		bstr("year"));
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"month\" VALUE=\"%s\">\n",
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"month\" VALUE=\"%s\">\n",
 		bstr("month"));
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"day\" VALUE=\"%s\">\n",
 		bstr("day"));
 
 
@@ -189,33 +189,33 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	begin_tab(0, 3);
 
 	/* Put it in a borderless table so it lines up nicely */
-	wprintf("<TABLE border=0 width=100%%>\n");
+	wc_printf("<TABLE border=0 width=100%%>\n");
 
-	wprintf("<TR><TD><B>");
-	wprintf(_("Summary"));
-	wprintf("</B></TD><TD>\n"
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("Summary"));
+	wc_printf("</B></TD><TD>\n"
 		"<INPUT TYPE=\"text\" NAME=\"summary\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vevent, ICAL_SUMMARY_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("\"></TD></TR>\n");
+	wc_printf("\"></TD></TR>\n");
 
-	wprintf("<TR><TD><B>");
-	wprintf(_("Location"));
-	wprintf("</B></TD><TD>\n"
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("Location"));
+	wc_printf("</B></TD><TD>\n"
 		"<INPUT TYPE=\"text\" NAME=\"location\" "
 		"MAXLENGTH=\"64\" SIZE=\"64\" VALUE=\"");
 	p = icalcomponent_get_first_property(vevent, ICAL_LOCATION_PROPERTY);
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("\"></TD></TR>\n");
+	wc_printf("\"></TD></TR>\n");
 
-	wprintf("<TR><TD><B>");
-	wprintf(_("Start"));
-	wprintf("</B></TD><TD>\n");
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("Start"));
+	wc_printf("</B></TD><TD>\n");
 	p = icalcomponent_get_first_property(vevent, ICAL_DTSTART_PROPERTY);
 	if (p != NULL) {
 		t_start = icalproperty_get_dtstart(p);
@@ -253,18 +253,18 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	display_icaltimetype_as_webform(&t_start, "dtstart", 0);
 
-	wprintf("<INPUT TYPE=\"checkbox\" id=\"alldayevent\" NAME=\"alldayevent\" "
+	wc_printf("<INPUT TYPE=\"checkbox\" id=\"alldayevent\" NAME=\"alldayevent\" "
 		"VALUE=\"yes\" onclick=\"eventEditAllDay();\""
 		" %s >%s",
 		(t_start.is_date ? "CHECKED=\"CHECKED\"" : "" ),
 		_("All day event")
 	);
 
-	wprintf("</TD></TR>\n");
+	wc_printf("</TD></TR>\n");
 
-	wprintf("<TR><TD><B>");
-	wprintf(_("End"));
-	wprintf("</B></TD><TD id=\"dtendcell\">\n");
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("End"));
+	wc_printf("</B></TD><TD id=\"dtendcell\">\n");
 	p = icalcomponent_get_first_property(vevent,
 						ICAL_DTEND_PROPERTY);
 	if (p != NULL) {
@@ -310,11 +310,11 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		}
 	}
 	display_icaltimetype_as_webform(&t_end, "dtend", 0);
-	wprintf("</TD></TR>\n");
+	wc_printf("</TD></TR>\n");
 
-	wprintf("<TR><TD><B>");
-	wprintf(_("Notes"));
-	wprintf("</B></TD><TD>\n"
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("Notes"));
+	wc_printf("</B></TD><TD>\n"
 		"<TEXTAREA NAME=\"description\" wrap=soft "
 		"ROWS=5 COLS=72 WIDTH=72>\n"
 	);
@@ -322,7 +322,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wprintf("</TEXTAREA></TD></TR>");
+	wc_printf("</TEXTAREA></TD></TR>");
 
 	/*
 	 * For a new event, the user creating the event should be the
@@ -354,14 +354,14 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		}
 	}
 
-	wprintf("<TR><TD><B>");
-	wprintf(_("Organizer"));
-	wprintf("</B></TD><TD>");
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("Organizer"));
+	wc_printf("</B></TD><TD>");
 	escputs(organizer_string);
 	if (organizer_is_me) {
-		wprintf(" <FONT SIZE=-1><I>");
-		wprintf(_("(you are the organizer)"));
-		wprintf("</I></FONT>\n");
+		wc_printf(" <FONT SIZE=-1><I>");
+		wc_printf(_("(you are the organizer)"));
+		wc_printf("</I></FONT>\n");
 	}
 
 	/*
@@ -370,16 +370,16 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	 * especially if this is a new event and there is no organizer already
 	 * in the calendar object.
 	 */
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"organizer\" VALUE=\"");
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"organizer\" VALUE=\"");
 	escputs(organizer_string);
-	wprintf("\">");
+	wc_printf("\">");
 
-	wprintf("</TD></TR>\n");
+	wc_printf("</TD></TR>\n");
 
 	/* Transparency */
-	wprintf("<TR><TD><B>");
-	wprintf(_("Show time as:"));
-	wprintf("</B></TD><TD>");
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("Show time as:"));
+	wc_printf("</B></TD><TD>");
 
 	p = icalcomponent_get_first_property(vevent, ICAL_TRANSP_PROPERTY);
 	if (p == NULL) {
@@ -396,41 +396,41 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		v = NULL;
 	}
 
-	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"transparent\"");
+	wc_printf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"transparent\"");
 	if ((v != NULL) && (icalvalue_get_transp(v) == ICAL_TRANSP_TRANSPARENT)) {
-		wprintf(" CHECKED");
+		wc_printf(" CHECKED");
 	}
-	wprintf(">");
-	wprintf(_("Free"));
-	wprintf("&nbsp;&nbsp;");
+	wc_printf(">");
+	wc_printf(_("Free"));
+	wc_printf("&nbsp;&nbsp;");
 
-	wprintf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"opaque\"");
+	wc_printf("<INPUT TYPE=\"radio\" NAME=\"transp\" VALUE=\"opaque\"");
 	if ((v != NULL) && (icalvalue_get_transp(v) == ICAL_TRANSP_OPAQUE)) {
-		wprintf(" CHECKED");
+		wc_printf(" CHECKED");
 	}
-	wprintf(">");
-	wprintf(_("Busy"));
+	wc_printf(">");
+	wc_printf(_("Busy"));
 
-	wprintf("</TD></TR>\n");
+	wc_printf("</TD></TR>\n");
 
 
 	/* Done with properties. */
-	wprintf("</TABLE>\n");
+	wc_printf("</TABLE>\n");
 
 	end_tab(0, 3);
 
 	/* Attendees tab (need to move things here) */
 	begin_tab(1, 3);
-	wprintf("<TABLE border=0 width=100%%>\n");	/* same table style as the event tab */
-	wprintf("<TR><TD><B>");
-	wprintf(_("Attendees"));
-	wprintf("</B><br />"
+	wc_printf("<TABLE border=0 width=100%%>\n");	/* same table style as the event tab */
+	wc_printf("<TR><TD><B>");
+	wc_printf(_("Attendees"));
+	wc_printf("</B><br />"
 		"<font size=-2>");
-	wprintf(_("(One per line)"));
-	wprintf("</font>\n");
+	wc_printf(_("(One per line)"));
+	wc_printf("</font>\n");
 
 	/* Pop open an address book -- begin */
-	wprintf(
+	wc_printf(
 		"&nbsp;<a href=\"javascript:PopOpenAddressBook('attendees_box|%s');\" "
 		"title=\"%s\">"
 		"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
@@ -440,7 +440,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	);
 	/* Pop open an address book -- end */
 
-	wprintf("</TD><TD>"
+	wc_printf("</TD><TD>"
 		"<TEXTAREA %s NAME=\"attendees\" id=\"attendees_box\" wrap=soft "
 		"onchange=\"EnableOrDisableCheckButton();\" "
 		"onKeyPress=\"EnableOrDisableCheckButton();\" "
@@ -457,17 +457,17 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 			/* screen name or email address */
 			strcpy(attendee_string, &attendee_string[7]);
 			striplt(attendee_string);
-			if (i++) wprintf("\n");
+			if (i++) wc_printf("\n");
 			escputs(attendee_string);
-			wprintf(" ");
+			wc_printf(" ");
 
 			/* participant status */
 			partstat_as_string(buf, attendee);
 			escputs(buf);
 		}
 	}
-	wprintf("</TEXTAREA></TD></TR>\n");
-	wprintf("</TABLE>\n");
+	wc_printf("</TEXTAREA></TD></TR>\n");
+	wc_printf("</TABLE>\n");
 	end_tab(1, 3);
 
 	/* Recurrence tab */
@@ -486,7 +486,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		recur.freq = ICAL_WEEKLY_RECURRENCE;
 	}
 
-	wprintf("<INPUT TYPE=\"checkbox\" id=\"is_recur\" NAME=\"is_recur\" "
+	wc_printf("<INPUT TYPE=\"checkbox\" id=\"is_recur\" NAME=\"is_recur\" "
 		"VALUE=\"yes\" "
 		"onclick=\"RecurrenceShowHide();\""
 		" %s >%s",
@@ -494,34 +494,34 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("This is a recurring event")
 	);
 
-	wprintf("<div id=\"rrule_div\">\n");		/* begin 'rrule_div' div */
+	wc_printf("<div id=\"rrule_div\">\n");		/* begin 'rrule_div' div */
 
-	wprintf("<table border=0 cellspacing=\"10\" width=100%%>\n");
+	wc_printf("<table border=0 cellspacing=\"10\" width=100%%>\n");
 
-	wprintf("<tr><td><b>");
-	wprintf(_("Recurrence rule"));
-	wprintf("</b></td><td>");
+	wc_printf("<tr><td><b>");
+	wc_printf(_("Recurrence rule"));
+	wc_printf("</b></td><td>");
 
 	if ((recur.freq < 0) || (recur.freq > 6)) recur.freq = 4;
-	wprintf("%s ", _("Repeats every"));
+	wc_printf("%s ", _("Repeats every"));
 
-	wprintf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
-	wprintf("value=\"%d\">&nbsp;", recur.interval);
+	wc_printf("<input type=\"text\" name=\"interval\" maxlength=\"3\" size=\"3\" ");
+	wc_printf("value=\"%d\">&nbsp;", recur.interval);
 
-	wprintf("<select name=\"freq\" id=\"freq_selector\" size=\"1\" "
+	wc_printf("<select name=\"freq\" id=\"freq_selector\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (i=0; i<(sizeof frequency_units / sizeof(char *)); ++i) {
-		wprintf("<option %s%svalue=\"%d\">%s</option>\n",
+		wc_printf("<option %s%svalue=\"%d\">%s</option>\n",
 			((i == recur.freq) ? "selected " : ""),
 			(((i == recur.freq) || ((i>=3)&&(i<=6))) ? "" : "disabled "),
 			i,
 			frequency_units[i]
 		);
 	}
-	wprintf("</select>\n");
+	wc_printf("</select>\n");
 
-	wprintf("<div id=\"weekday_selector\">");	/* begin 'weekday_selector' div */
-	wprintf("%s<br>", _("on these weekdays:"));
+	wc_printf("<div id=\"weekday_selector\">");	/* begin 'weekday_selector' div */
+	wc_printf("%s<br>", _("on these weekdays:"));
 
 	memset(weekday_is_selected, 0, 7);
 
@@ -540,19 +540,19 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	for (j=0; j<7; ++j) {
 		i = ((j + (int)weekstart) % 7);
-		wprintf("<input type=\"checkbox\" name=\"weekday%d\" value=\"yes\"", i);
-		if (weekday_is_selected[i]) wprintf(" checked");
-		wprintf(">%s\n", weekday_labels[i]);
+		wc_printf("<input type=\"checkbox\" name=\"weekday%d\" value=\"yes\"", i);
+		if (weekday_is_selected[i]) wc_printf(" checked");
+		wc_printf(">%s\n", weekday_labels[i]);
 	}
-	wprintf("</div>\n");				/* end 'weekday_selector' div */
+	wc_printf("</div>\n");				/* end 'weekday_selector' div */
 
 
 
 
 
-	wprintf("<div id=\"monthday_selector\">");	/* begin 'monthday_selector' div */
+	wc_printf("<div id=\"monthday_selector\">");	/* begin 'monthday_selector' div */
 
-	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_mday\" "
+	wc_printf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_mday\" "
 		"value=\"rrmonthtype_mday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrmonthtype_is_preselected == 0) ? "checked" : "")
@@ -579,42 +579,42 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		rrmweekday = icalrecurrencetype_day_day_of_week(recur.by_day[0]) - 1;
 	}
 
-	wprintf(_("on day %s%d%s of the month"), "<span id=\"rrmday\">", rrmday, "</span>");
-	wprintf("<br />\n");
+	wc_printf(_("on day %s%d%s of the month"), "<span id=\"rrmday\">", rrmday, "</span>");
+	wc_printf("<br />\n");
 
-	wprintf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_wday\" "
+	wc_printf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_wday\" "
 		"value=\"rrmonthtype_wday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrmonthtype_is_preselected == 1) ? "checked" : "")
 	);
 
-	wprintf(_("on the "));
-	wprintf("<select name=\"rrmweek\" id=\"rrmweek\" size=\"1\" "
+	wc_printf(_("on the "));
+	wc_printf("<select name=\"rrmweek\" id=\"rrmweek\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (i=1; i<=5; ++i) {
-		wprintf("<option %svalue=\"%d\">%s</option>\n",
+		wc_printf("<option %svalue=\"%d\">%s</option>\n",
 			((i==rrmweek) ? "selected " : ""),
 			i,
 			ordinals[i]
 		);
 	}
-	wprintf("</select> \n");
+	wc_printf("</select> \n");
 
-	wprintf("<select name=\"rrmweekday\" id=\"rrmweekday\" size=\"1\" "
+	wc_printf("<select name=\"rrmweekday\" id=\"rrmweekday\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (j=0; j<7; ++j) {
 		i = ((j + (int)weekstart) % 7);
-		wprintf("<option %svalue=\"%d\">%s</option>\n",
+		wc_printf("<option %svalue=\"%d\">%s</option>\n",
 			((i==rrmweekday) ? "selected " : ""),
 			i,
 			weekday_labels[i]
 		);
 	}
-	wprintf("</select>");
+	wc_printf("</select>");
 
-	wprintf(" %s<br />\n", _("of the month"));
+	wc_printf(" %s<br />\n", _("of the month"));
 
-	wprintf("</div>\n");				/* end 'monthday_selector' div */
+	wc_printf("</div>\n");				/* end 'monthday_selector' div */
 
 
 	rrymweek = rrmweek;
@@ -634,114 +634,114 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		rrymonth = recur.by_month[0];
 	}
 
-	wprintf("<div id=\"yearday_selector\">");	/* begin 'yearday_selector' div */
+	wc_printf("<div id=\"yearday_selector\">");	/* begin 'yearday_selector' div */
 
-	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ymday\" "
+	wc_printf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ymday\" "
 		"value=\"rryeartype_ymday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rryeartype_is_preselected == 0) ? "checked" : "")
 	);
-	wprintf(_("every "));
-	wprintf("<span id=\"ymday\">%s</span><br />", _("year on this date"));
+	wc_printf(_("every "));
+	wc_printf("<span id=\"ymday\">%s</span><br />", _("year on this date"));
 
-	wprintf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ywday\" "
+	wc_printf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ywday\" "
 		"value=\"rryeartype_ywday\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rryeartype_is_preselected == 1) ? "checked" : "")
 	);
 
-	wprintf(_("on the "));
-	wprintf("<select name=\"rrymweek\" id=\"rrymweek\" size=\"1\" "
+	wc_printf(_("on the "));
+	wc_printf("<select name=\"rrymweek\" id=\"rrymweek\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (i=1; i<=5; ++i) {
-		wprintf("<option %svalue=\"%d\">%s</option>\n",
+		wc_printf("<option %svalue=\"%d\">%s</option>\n",
 			((i==rrymweek) ? "selected " : ""),
 			i,
 			ordinals[i]
 		);
 	}
-	wprintf("</select> \n");
+	wc_printf("</select> \n");
 
-	wprintf("<select name=\"rrymweekday\" id=\"rrymweekday\" size=\"1\" "
+	wc_printf("<select name=\"rrymweekday\" id=\"rrymweekday\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (j=0; j<7; ++j) {
 		i = ((j + (int)weekstart) % 7);
-		wprintf("<option %svalue=\"%d\">%s</option>\n",
+		wc_printf("<option %svalue=\"%d\">%s</option>\n",
 			((i==rrymweekday) ? "selected " : ""),
 			i,
 			weekday_labels[i]
 		);
 	}
-	wprintf("</select>");
+	wc_printf("</select>");
 
-	wprintf(" %s ", _("of"));
+	wc_printf(" %s ", _("of"));
 
-	wprintf("<select name=\"rrymonth\" id=\"rrymonth\" size=\"1\" "
+	wc_printf("<select name=\"rrymonth\" id=\"rrymonth\" size=\"1\" "
 		"onChange=\"RecurrenceShowHide();\">\n");
 	for (i=1; i<=12; ++i) {
-		wprintf("<option %svalue=\"%d\">%s</option>\n",
+		wc_printf("<option %svalue=\"%d\">%s</option>\n",
 			((i==rrymonth) ? "selected " : ""),
 			i,
 			month_labels[i-1]
 		);
 	}
-	wprintf("</select>");
-	wprintf("<br />\n");
+	wc_printf("</select>");
+	wc_printf("<br />\n");
 
-	wprintf("</div>\n");				/* end 'yearday_selector' div */
+	wc_printf("</div>\n");				/* end 'yearday_selector' div */
 
-	wprintf("</td></tr>\n");
+	wc_printf("</td></tr>\n");
 
 
 	which_rrend_is_preselected = 0;
 	if (!icaltime_is_null_time(recur.until)) which_rrend_is_preselected = 2;
 	if (recur.count > 0) which_rrend_is_preselected = 1;
 
-	wprintf("<tr><td><b>");
-	wprintf(_("Recurrence range"));
-	wprintf("</b></td><td>\n");
+	wc_printf("<tr><td><b>");
+	wc_printf(_("Recurrence range"));
+	wc_printf("</b></td><td>\n");
 
-	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_none\" "
+	wc_printf("<input type=\"radio\" name=\"rrend\" id=\"rrend_none\" "
 		"value=\"rrend_none\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 0) ? "checked" : "")
 	);
-	wprintf("%s<br />\n", _("No ending date"));
+	wc_printf("%s<br />\n", _("No ending date"));
 
-	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_count\" "
+	wc_printf("<input type=\"radio\" name=\"rrend\" id=\"rrend_count\" "
 		"value=\"rrend_count\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 1) ? "checked" : "")
 	);
-	wprintf(_("Repeat this event"));
-	wprintf(" <input type=\"text\" name=\"rrcount\" id=\"rrcount\" maxlength=\"3\" size=\"3\" ");
-	wprintf("value=\"%d\"> ", recur.count);
-	wprintf(_("times"));
-	wprintf("<br />\n");
+	wc_printf(_("Repeat this event"));
+	wc_printf(" <input type=\"text\" name=\"rrcount\" id=\"rrcount\" maxlength=\"3\" size=\"3\" ");
+	wc_printf("value=\"%d\"> ", recur.count);
+	wc_printf(_("times"));
+	wc_printf("<br />\n");
 
-	wprintf("<input type=\"radio\" name=\"rrend\" id=\"rrend_until\" "
+	wc_printf("<input type=\"radio\" name=\"rrend\" id=\"rrend_until\" "
 		"value=\"rrend_until\" "
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 2) ? "checked" : "")
 	);
-	wprintf(_("Repeat this event until "));
+	wc_printf(_("Repeat this event until "));
 
 	if (icaltime_is_null_time(recur.until)) {
 		recur.until = icaltime_add(t_start, icaldurationtype_from_int(604800));
 	}
 	display_icaltimetype_as_webform(&recur.until, "rruntil", 1);
-	wprintf("<br />\n");
+	wc_printf("<br />\n");
 
-	wprintf("</td></tr>\n");
+	wc_printf("</td></tr>\n");
 
-	wprintf("</table>\n");
-	wprintf("</div>\n");				/* end 'rrule' div */
+	wc_printf("</table>\n");
+	wc_printf("</div>\n");				/* end 'rrule' div */
 
 	end_tab(2, 3);
 
 	/* submit buttons (common area beneath the tabs) */
 	begin_tab(3, 3);
-	wprintf("<CENTER>"
+	wc_printf("<CENTER>"
 		"<INPUT TYPE=\"submit\" NAME=\"save_button\" VALUE=\"%s\">"
 		"&nbsp;&nbsp;"
 		"<INPUT TYPE=\"submit\" NAME=\"delete_button\" VALUE=\"%s\">\n"
@@ -755,10 +755,10 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		_("Check attendee availability"),
 		_("Cancel")
 	);
-	wprintf("</FORM>\n");
+	wc_printf("</FORM>\n");
 	end_tab(3, 3);
 
-	wprintf("</div>\n");			/* end 'fix_scrollbar_bug' div */
+	wc_printf("</div>\n");			/* end 'fix_scrollbar_bug' div */
 
 	StrBufAppendPrintf(WC->trailing_javascript,
 		"eventEditAllDay();		\n"
