@@ -85,7 +85,7 @@ void groupdav_collection_list(void)
 
 	begin_burst();
 
-	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+	wc_printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
      		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
 
@@ -93,44 +93,44 @@ void groupdav_collection_list(void)
 	 * If the client is requesting the root, show a root node.
 	 */
 	if (starting_point == 0) {
-		wprintf("<response>");
-			wprintf("<href>");
+		wc_printf("<response>");
+			wc_printf("<href>");
 				groupdav_identify_host();
-				wprintf("/");
-			wprintf("</href>");
-			wprintf("<propstat>");
-				wprintf("<status>HTTP/1.1 200 OK</status>");
-				wprintf("<prop>");
-					wprintf("<displayname>/</displayname>");
-					wprintf("<resourcetype><collection/></resourcetype>");
-					wprintf("<getlastmodified>");
+				wc_printf("/");
+			wc_printf("</href>");
+			wc_printf("<propstat>");
+				wc_printf("<status>HTTP/1.1 200 OK</status>");
+				wc_printf("<prop>");
+					wc_printf("<displayname>/</displayname>");
+					wc_printf("<resourcetype><collection/></resourcetype>");
+					wc_printf("<getlastmodified>");
 						escputs(datestring);
-					wprintf("</getlastmodified>");
-				wprintf("</prop>");
-			wprintf("</propstat>");
-		wprintf("</response>");
+					wc_printf("</getlastmodified>");
+				wc_printf("</prop>");
+			wc_printf("</propstat>");
+		wc_printf("</response>");
 	}
 
 	/*
 	 * If the client is requesting "/groupdav", show a /groupdav subdirectory.
 	 */
 	if ((starting_point + WCC->Hdr->HR.dav_depth) >= 1) {
-		wprintf("<response>");
-			wprintf("<href>");
+		wc_printf("<response>");
+			wc_printf("<href>");
 				groupdav_identify_host();
-				wprintf("/groupdav");
-			wprintf("</href>");
-			wprintf("<propstat>");
-				wprintf("<status>HTTP/1.1 200 OK</status>");
-				wprintf("<prop>");
-					wprintf("<displayname>GroupDAV</displayname>");
-					wprintf("<resourcetype><collection/></resourcetype>");
-					wprintf("<getlastmodified>");
+				wc_printf("/groupdav");
+			wc_printf("</href>");
+			wc_printf("<propstat>");
+				wc_printf("<status>HTTP/1.1 200 OK</status>");
+				wc_printf("<prop>");
+					wc_printf("<displayname>GroupDAV</displayname>");
+					wc_printf("<resourcetype><collection/></resourcetype>");
+					wc_printf("<getlastmodified>");
 						escputs(datestring);
-					wprintf("</getlastmodified>");
-				wprintf("</prop>");
-			wprintf("</propstat>");
-		wprintf("</response>");
+					wc_printf("</getlastmodified>");
+				wc_printf("</prop>");
+			wc_printf("</propstat>");
+		wc_printf("</response>");
 	}
 
 	/*
@@ -170,53 +170,53 @@ void groupdav_collection_list(void)
 		}
 
 		if ( (is_groupware_collection) && ((starting_point + WCC->Hdr->HR.dav_depth) >= 2) ) {
-			wprintf("<response>");
+			wc_printf("<response>");
 
-			wprintf("<href>");
+			wc_printf("<href>");
 			groupdav_identify_host();
-			wprintf("/groupdav/");
+			wc_printf("/groupdav/");
 			urlescputs(roomname);
-			wprintf("/</href>");
+			wc_printf("/</href>");
 
-			wprintf("<propstat>");
-			wprintf("<status>HTTP/1.1 200 OK</status>");
-			wprintf("<prop>");
-			wprintf("<displayname>");
+			wc_printf("<propstat>");
+			wc_printf("<status>HTTP/1.1 200 OK</status>");
+			wc_printf("<prop>");
+			wc_printf("<displayname>");
 			escputs(roomname);
-			wprintf("</displayname>");
-			wprintf("<resourcetype><collection/>");
+			wc_printf("</displayname>");
+			wc_printf("<resourcetype><collection/>");
 
 			switch(view) {
 			case VIEW_CALENDAR:
-				wprintf("<G:vevent-collection />");
+				wc_printf("<G:vevent-collection />");
 				break;
 			case VIEW_TASKS:
-				wprintf("<G:vtodo-collection />");
+				wc_printf("<G:vtodo-collection />");
 				break;
 			case VIEW_ADDRESSBOOK:
-				wprintf("<G:vcard-collection />");
+				wc_printf("<G:vcard-collection />");
 				break;
 			case VIEW_NOTES:
-				wprintf("<G:vnotes-collection />");
+				wc_printf("<G:vnotes-collection />");
 				break;
 			case VIEW_JOURNAL:
-				wprintf("<G:vjournal-collection />");
+				wc_printf("<G:vjournal-collection />");
 				break;
 			case VIEW_WIKI:
-				wprintf("<G:wiki-collection />");
+				wc_printf("<G:wiki-collection />");
 				break;
 			}
 
-			wprintf("</resourcetype>");
-			wprintf("<getlastmodified>");
+			wc_printf("</resourcetype>");
+			wc_printf("<getlastmodified>");
 				escputs(datestring);
-			wprintf("</getlastmodified>");
-			wprintf("</prop>");
-			wprintf("</propstat>");
-			wprintf("</response>");
+			wc_printf("</getlastmodified>");
+			wc_printf("</prop>");
+			wc_printf("</propstat>");
+			wc_printf("</response>");
 		}
 	}
-	wprintf("</multistatus>\n");
+	wc_printf("</multistatus>\n");
 
 	end_burst();
 }
@@ -270,7 +270,7 @@ void groupdav_propfind(void)
 		groupdav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf("There is no folder called \"%s\" on this server.\r\n",
+		wc_printf("There is no folder called \"%s\" on this server.\r\n",
 			ChrPtr(dav_roomname)
 		);
 		end_burst();
@@ -290,7 +290,7 @@ void groupdav_propfind(void)
 			hprintf("HTTP/1.1 404 not found\r\n");
 			groupdav_common_headers();
 			hprintf("Content-Type: text/plain\r\n");
-			wprintf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
+			wc_printf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
 				ChrPtr(dav_uid),
 				ChrPtr(dav_roomname)
 			);
@@ -312,31 +312,31 @@ void groupdav_propfind(void)
 	
 		begin_burst();
 	
-		wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+		wc_printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
      			"<multistatus xmlns=\"DAV:\">"
 		);
 
-		wprintf("<response>");
+		wc_printf("<response>");
 		
-		wprintf("<href>");
+		wc_printf("<href>");
 		groupdav_identify_host();
-		wprintf("/groupdav/");
+		wc_printf("/groupdav/");
 		urlescputs(ChrPtr(WCC->wc_roomname));
 		euid_escapize(encoded_uid, ChrPtr(dav_uid));
-		wprintf("/%s", encoded_uid);
-		wprintf("</href>");
-		wprintf("<propstat>");
-		wprintf("<status>HTTP/1.1 200 OK</status>");
-		wprintf("<prop>");
-		wprintf("<getetag>\"%ld\"</getetag>", dav_msgnum);
-		wprintf("<getlastmodified>");
+		wc_printf("/%s", encoded_uid);
+		wc_printf("</href>");
+		wc_printf("<propstat>");
+		wc_printf("<status>HTTP/1.1 200 OK</status>");
+		wc_printf("<prop>");
+		wc_printf("<getetag>\"%ld\"</getetag>", dav_msgnum);
+		wc_printf("<getlastmodified>");
 		escputs(datestring);
-		wprintf("</getlastmodified>");
-		wprintf("</prop>");
-		wprintf("</propstat>");
+		wc_printf("</getlastmodified>");
+		wc_printf("</prop>");
+		wc_printf("</propstat>");
 
-		wprintf("</response>\n");
-		wprintf("</multistatus>\n");
+		wc_printf("</response>\n");
+		wc_printf("</multistatus>\n");
 		end_burst();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
@@ -362,49 +362,49 @@ void groupdav_propfind(void)
 
 	begin_burst();
 
-	wprintf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+	wc_printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
      		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
 	);
 
 
 	/* Transmit the collection resource (FIXME check depth and starting point) */
-	wprintf("<response>");
+	wc_printf("<response>");
 
-	wprintf("<href>");
+	wc_printf("<href>");
 	groupdav_identify_host();
-	wprintf("/groupdav/");
+	wc_printf("/groupdav/");
 	urlescputs(ChrPtr(WCC->wc_roomname));
-	wprintf("</href>");
+	wc_printf("</href>");
 
-	wprintf("<propstat>");
-	wprintf("<status>HTTP/1.1 200 OK</status>");
-	wprintf("<prop>");
-	wprintf("<displayname>");
+	wc_printf("<propstat>");
+	wc_printf("<status>HTTP/1.1 200 OK</status>");
+	wc_printf("<prop>");
+	wc_printf("<displayname>");
 	escputs(ChrPtr(WCC->wc_roomname));
-	wprintf("</displayname>");
-	wprintf("<resourcetype><collection/>");
+	wc_printf("</displayname>");
+	wc_printf("<resourcetype><collection/>");
 
 	switch(WCC->wc_default_view) {
 		case VIEW_CALENDAR:
-			wprintf("<G:vevent-collection />");
+			wc_printf("<G:vevent-collection />");
 			break;
 		case VIEW_TASKS:
-			wprintf("<G:vtodo-collection />");
+			wc_printf("<G:vtodo-collection />");
 			break;
 		case VIEW_ADDRESSBOOK:
-			wprintf("<G:vcard-collection />");
+			wc_printf("<G:vcard-collection />");
 			break;
 	}
 
-	wprintf("</resourcetype>");
+	wc_printf("</resourcetype>");
 	/* FIXME get the mtime
-	wprintf("<getlastmodified>");
+	wc_printf("<getlastmodified>");
 		escputs(datestring);
-	wprintf("</getlastmodified>");
+	wc_printf("</getlastmodified>");
 	*/
-	wprintf("</prop>");
-	wprintf("</propstat>");
-	wprintf("</response>");
+	wc_printf("</prop>");
+	wc_printf("</propstat>");
+	wc_printf("</response>");
 
 	/* Transmit the collection listing (FIXME check depth and starting point) */
 
@@ -436,43 +436,43 @@ void groupdav_propfind(void)
 		}
 
 		if (!IsEmptyStr(uid)) {
-			wprintf("<response>");
-				wprintf("<href>");
+			wc_printf("<response>");
+				wc_printf("<href>");
 					groupdav_identify_host();
-					wprintf("/groupdav/");
+					wc_printf("/groupdav/");
 					urlescputs(ChrPtr(WCC->wc_roomname));
 					euid_escapize(encoded_uid, uid);
-					wprintf("/%s", encoded_uid);
-				wprintf("</href>");
+					wc_printf("/%s", encoded_uid);
+				wc_printf("</href>");
 				switch(WCC->wc_default_view) {
 				case VIEW_CALENDAR:
-					wprintf("<getcontenttype>text/x-ical</getcontenttype>");
+					wc_printf("<getcontenttype>text/x-ical</getcontenttype>");
 					break;
 				case VIEW_TASKS:
-					wprintf("<getcontenttype>text/x-ical</getcontenttype>");
+					wc_printf("<getcontenttype>text/x-ical</getcontenttype>");
 					break;
 				case VIEW_ADDRESSBOOK:
-					wprintf("<getcontenttype>text/x-vcard</getcontenttype>");
+					wc_printf("<getcontenttype>text/x-vcard</getcontenttype>");
 					break;
 				}
-				wprintf("<propstat>");
-					wprintf("<status>HTTP/1.1 200 OK</status>");
-					wprintf("<prop>");
-						wprintf("<getetag>\"%ld\"</getetag>", msgs[i]);
+				wc_printf("<propstat>");
+					wc_printf("<status>HTTP/1.1 200 OK</status>");
+					wc_printf("<prop>");
+						wc_printf("<getetag>\"%ld\"</getetag>", msgs[i]);
 					if (now > 0L) {
 						http_datestring(datestring, sizeof datestring, now);
-						wprintf("<getlastmodified>");
+						wc_printf("<getlastmodified>");
 						escputs(datestring);
-						wprintf("</getlastmodified>");
+						wc_printf("</getlastmodified>");
 					}
-					wprintf("</prop>");
-				wprintf("</propstat>");
-			wprintf("</response>");
+					wc_printf("</prop>");
+				wc_printf("</propstat>");
+			wc_printf("</response>");
 		}
 	}
 	FreeStrBuf(&MsgNum);
 
-	wprintf("</multistatus>\n");
+	wc_printf("</multistatus>\n");
 	end_burst();
 
 	if (msgs != NULL) {

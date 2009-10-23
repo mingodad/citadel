@@ -35,22 +35,22 @@ void display_edit(char *description, char *check_cmd,
 	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("Edit %s"), description);
 	do_template("beginboxx", NULL);
 
-	wprintf(_("Enter %s below. Text is formatted to the reader's browser."
+	wc_printf(_("Enter %s below. Text is formatted to the reader's browser."
 		" A newline is forced by preceding the next line by a blank."), description);
 
-	wprintf("<form method=\"post\" action=\"%s\">\n", save_cmd);
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<textarea name=\"msgtext\" wrap=soft "
+	wc_printf("<form method=\"post\" action=\"%s\">\n", save_cmd);
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<textarea name=\"msgtext\" wrap=soft "
 		"rows=10 cols=80 width=80>\n");
 	serv_puts(read_cmd);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1')
 		server_to_text();
-	wprintf("</textarea><div class=\"buttons\" >\n");
-	wprintf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
-	wprintf("&nbsp;");
-	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br />\n", _("Cancel"));
-	wprintf("</div></form>\n");
+	wc_printf("</textarea><div class=\"buttons\" >\n");
+	wc_printf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
+	wc_printf("&nbsp;");
+	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br />\n", _("Cancel"));
+	wc_printf("</div></form>\n");
 
 	do_template("endbox", NULL);
 	wDumpContent(1);

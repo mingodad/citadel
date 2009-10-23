@@ -12,12 +12,12 @@
  */
 void address_book_popup(void) {
 	/* Open a new div, hidden initially, for address book popups. */
-	wprintf("</div>\n");	/* End of 'content' div */
-	wprintf("<div id=\"address_book_popup\" style=\"display:none;\">");
-	wprintf("<div id=\"address_book_popup_container_div\">");
-	wprintf("<div id=\"address_book_popup_middle_div\"></div>");
-	wprintf("<div id=\"address_book_inner_div\"></div>");
-	wprintf("</div>");
+	wc_printf("</div>\n");	/* End of 'content' div */
+	wc_printf("<div id=\"address_book_popup\" style=\"display:none;\">");
+	wc_printf("<div id=\"address_book_popup_container_div\">");
+	wc_printf("<div id=\"address_book_popup_middle_div\"></div>");
+	wc_printf("<div id=\"address_book_inner_div\"></div>");
+	wc_printf("</div>");
 	/* The 'address_book_popup' div will be closed by wDumpContent() */
 }
 
@@ -38,21 +38,21 @@ void display_address_book_middle_div(void) {
 
 	DefAddrBook = get_room_pref("defaddrbook");
 
-	wprintf("<table border=0 width=100%%><tr valign=middle>");
-	wprintf("<td align=left><img src=\"static/viewcontacts_32x.gif\"></td>");
-	wprintf("<td align=center>");
+	wc_printf("<table border=0 width=100%%><tr valign=middle>");
+	wc_printf("<td align=left><img src=\"static/viewcontacts_32x.gif\"></td>");
+	wc_printf("<td align=center>");
 
-	wprintf("<form>"
+	wc_printf("<form>"
 		"<select class=\"address_book_popup_title\" size=1 id=\"which_addr_book\" "
 		" onChange=\"PopulateAddressBookInnerDiv($('which_addr_book').value,'%s')\">",
 		bstr("target_input")
 	);
 
-	wprintf("<option value=\"__LOCAL_USERS__\" %s>", 
+	wc_printf("<option value=\"__LOCAL_USERS__\" %s>", 
 		(strcmp(ChrPtr(DefAddrBook), "__LOCAL_USERS__") == 0)?
 		"selected=\"selected\" ":"");
 	escputs(ChrPtr(WC->serv_info->serv_humannode));
-	wprintf("</option>\n");
+	wc_printf("</option>\n");
 
 	
 	List = NewHash(1, NULL);
@@ -69,26 +69,26 @@ void display_address_book_middle_div(void) {
 	SortByHashKey(List, 1);
 	it = GetNewHashPos(List, 0);
 	while (GetNextHashPos(List, it, &len, &VCName, &Namee)) {
-		wprintf("<option value=\"");
+		wc_printf("<option value=\"");
 		urlescputs((char*)Namee);
 		if (strcmp(ChrPtr(DefAddrBook), Namee) == 0)
-			wprintf("\" selected=\"selected\" >");
+			wc_printf("\" selected=\"selected\" >");
 		else
-			wprintf("\">");
+			wc_printf("\">");
 		escputs((char*)Namee);
-		wprintf("</option>\n");
+		wc_printf("</option>\n");
 	}
 	DeleteHashPos(&it);
 	DeleteHash(&List);
-	wprintf("</select></form>");
+	wc_printf("</select></form>");
 
-	wprintf("</td>");
-	wprintf("<td align=right "
+	wc_printf("</td>");
+	wc_printf("<td align=right "
 		"onclick=\"javascript:$('address_book_popup').style.display='none';\" "
 		"><img src=\"static/closewindow.gif\">");
-	wprintf("</td></tr></table>");
+	wc_printf("</td></tr></table>");
 
-	wprintf("<script type=\"text/javascript\">PopulateAddressBookInnerDiv($('which_addr_book').value,'%s');</script>",
+	wc_printf("<script type=\"text/javascript\">PopulateAddressBookInnerDiv($('which_addr_book').value,'%s');</script>",
 		bstr("target_input")
 	);
 
@@ -117,7 +117,7 @@ void display_address_book_inner_div() {
 	begin_ajax_response();
 
 	List = NewHash(1, NULL);
-	wprintf("<div align=center><form onSubmit=\"return false;\">"
+	wc_printf("<div align=center><form onSubmit=\"return false;\">"
 		"<select multiple name=\"whichaddr\" id=\"whichaddr\" size=\"15\">\n");
 
 	if (!strcasecmp(bstr("which_addr_book"), "__LOCAL_USERS__")) {
@@ -136,11 +136,11 @@ void display_address_book_inner_div() {
 		SortByHashKey(List, 1);
 		it = GetNewHashPos(List, 0);
 		while (GetNextHashPos(List, it, &len, &VCName, &Namee)) {
-			wprintf("<option value=\"");
+			wc_printf("<option value=\"");
 			escputs((char*)Namee);
-			wprintf("\">");
+			wc_printf("\">");
 			escputs((char*)Namee);
-			wprintf("</option>\n");
+			wc_printf("</option>\n");
 		}
 		DeleteHashPos(&it);
 		DeleteHash(&List);
@@ -161,11 +161,11 @@ void display_address_book_inner_div() {
 		SortByHashKey(List, 1);
 		it = GetNewHashPos(List, 0);
 		while (GetNextHashPos(List, it, &len, &VCName, (void**)&Namee)) {
-			wprintf("<option value=\"");
+			wc_printf("<option value=\"");
 			escputs((char*)Namee);
-			wprintf("\">");
+			wc_printf("\">");
 			escputs((char*)Namee);
-			wprintf("</option>\n");
+			wc_printf("</option>\n");
 		}
 		DeleteHashPos(&it);
 		DeleteHash(&List);
@@ -173,26 +173,26 @@ void display_address_book_inner_div() {
 		FreeStrBuf(&saved_roomname);
 	}
 
-	wprintf("</select>\n");
+	wc_printf("</select>\n");
 
-	wprintf("%s: ", _("Add"));
+	wc_printf("%s: ", _("Add"));
 
 	num_targets = num_tokens(bstr("target_input"), '|');
 	for (i=0; i<num_targets; i+=2) {
 		extract_token(target_id, bstr("target_input"), i, '|', sizeof target_id);
 		extract_token(target_label, bstr("target_input"), i+1, '|', sizeof target_label);
-		wprintf("<INPUT TYPE=\"submit\" NAME=\"select_button\" VALUE=\"%s\" ", target_label);
-		wprintf("onClick=\"AddContactsToTarget($('%s'),$('whichaddr'));\">", target_id);
+		wc_printf("<INPUT TYPE=\"submit\" NAME=\"select_button\" VALUE=\"%s\" ", target_label);
+		wc_printf("onClick=\"AddContactsToTarget($('%s'),$('whichaddr'));\">", target_id);
 	}
 
 	/* This 'close window' button works.  Omitting it because we already have a close button
 	 * in the upper right corner, and this one takes up space.
 	 *
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"close_button\" VALUE=\"%s\" ", _("Close window"));
-	wprintf("onclick=\"javascript:$('address_book_popup').style.display='none';\">");
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"close_button\" VALUE=\"%s\" ", _("Close window"));
+	wc_printf("onclick=\"javascript:$('address_book_popup').style.display='none';\">");
 	 */
 
-	wprintf("</form></div>\n");
+	wc_printf("</form></div>\n");
 
 	end_ajax_response();
 }

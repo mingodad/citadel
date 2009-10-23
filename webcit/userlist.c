@@ -37,25 +37,25 @@ void userlist(void)
 			bio = bptr;
 		}
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<h1>");
 	snprintf(title, sizeof title, _("User list for %s"), ChrPtr(WC->serv_info->serv_humannode));
 	escputs(title);
-	wprintf("</h1>");
-        wprintf("</div>");
+	wc_printf("</h1>");
+        wc_printf("</div>");
 
-        wprintf("<div id=\"content\" class=\"service\">\n");
+        wc_printf("<div id=\"content\" class=\"service\">\n");
 
 	serv_puts("LIST");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wprintf("<em>%s</em><br />\n", &buf[4]);
+		wc_printf("<em>%s</em><br />\n", &buf[4]);
 		goto DONE;
 	}
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"userlist_background\"><tr><td>\n");
-	wprintf("<tr><th>%s</th><th>%s</th><th>%s</th>"
+	wc_printf("<tr><th>%s</th><th>%s</th><th>%s</th>"
 			"<th>%s</th><th>%s</th><th>%s</th></tr>",
 			_("User Name"),
 			_("Number"),
@@ -72,34 +72,34 @@ void userlist(void)
 				has_bio = 1;
 		}
 		bg = 1 - bg;
-		wprintf("<tr bgcolor=\"#%s\"><td>",
+		wc_printf("<tr bgcolor=\"#%s\"><td>",
 			(bg ? "DDDDDD" : "FFFFFF")
 		);
 		if (has_bio) {
-			wprintf("<a href=\"showuser?who=");
+			wc_printf("<a href=\"showuser?who=");
 			urlescputs(fl);
-			wprintf("\">");
+			wc_printf("\">");
 			escputs(fl);
-			wprintf("</A>");
+			wc_printf("</A>");
 		} else {
 			escputs(fl);
 		}
-		wprintf("</td><td>%ld</td><td>%d</td><td>",
+		wc_printf("</td><td>%ld</td><td>%d</td><td>",
 			extract_long(buf, 2),
 			extract_int(buf, 1));
 		lc = extract_long(buf, 3);
 		localtime_r(&lc, &tmbuf);
-		wprintf("%02d/%02d/%04d ",
+		wc_printf("%02d/%02d/%04d ",
 			(tmbuf.tm_mon + 1),
 			tmbuf.tm_mday,
 			(tmbuf.tm_year + 1900));
 
 
-		wprintf("</td><td>%ld</td><td>%5ld</td></tr>\n",
+		wc_printf("</td><td>%ld</td><td>%5ld</td></tr>\n",
 			extract_long(buf, 4), extract_long(buf, 5));
 
 	}
-	wprintf("</table></div>\n");
+	wc_printf("</table></div>\n");
 DONE:	wDumpContent(1);
 }
 
@@ -116,16 +116,16 @@ void showuser(void)
 	strcpy(who, bstr("who"));
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/usermanag_48x.gif\">");
-        wprintf("<h1>");
-	wprintf(_("User profile"));
-        wprintf("</h1>");
-        wprintf("</div>");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<img src=\"static/usermanag_48x.gif\">");
+        wc_printf("<h1>");
+	wc_printf(_("User profile"));
+        wc_printf("</h1>");
+        wc_printf("</div>");
 
-        wprintf("<div id=\"content\" class=\"service\">\n");
+        wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"userlist_background\"><tr><td>\n");
 
 	serv_printf("OIMG _userpic_|%s", who);
@@ -138,30 +138,30 @@ void showuser(void)
 		have_pic = 0;
 	}
 
-	wprintf("<center><table><tr><td>");
+	wc_printf("<center><table><tr><td>");
 	if (have_pic == 1) {
-		wprintf("<img src=\"image?name=_userpic_&parm=");
+		wc_printf("<img src=\"image?name=_userpic_&parm=");
 		urlescputs(who);
-		wprintf("\">");
+		wc_printf("\">");
 	}
-	wprintf("</td><td><h1>");
+	wc_printf("</td><td><h1>");
 	escputs(who);
-	wprintf("</h1></td></tr></table></center>\n");
+	wc_printf("</h1></td></tr></table></center>\n");
 	serv_printf("RBIO %s", who);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		fmout("JUSTIFY");
 	}
-	wprintf("<br /><a href=\"display_page?recp=");
+	wc_printf("<br /><a href=\"display_page?recp=");
 	urlescputs(who);
-	wprintf("\">"
+	wc_printf("\">"
 		"<img src=\"static/citadelchat_24x.gif\" "
 		"align=middle border=0>&nbsp;&nbsp;");
 	snprintf(buf, sizeof buf, _("Click here to send an instant message to %s"), who);
 	escputs(buf);
-	wprintf("</a>\n");
+	wc_printf("</a>\n");
 
-	wprintf("</td></tr></table></div>\n");
+	wc_printf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 

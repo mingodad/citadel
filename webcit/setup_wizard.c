@@ -28,27 +28,27 @@ void do_setup_wizard(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/citadel-logo.gif\" WIDTH=64 HEIGHT=64");
-	wprintf("<h1>&nbsp;First time setup</h1>");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<img src=\"static/citadel-logo.gif\" WIDTH=64 HEIGHT=64");
+	wc_printf("<h1>&nbsp;First time setup</h1>");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<form method=\"post\" action=\"setup_wizard\">\n"
 	);
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
-	wprintf("<div align=center>"
+	wc_printf("<div align=center>"
 		"This is where the setup wizard will be placed.<br>\n"
 		"For now, just click Finish.<br><br>\n"
 	);
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Next\">\n");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Finish\">\n");
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Next\">\n");
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Finish\">\n");
 
-	wprintf("</form></div></div>\n");
+	wc_printf("</form></div></div>\n");
 	wDumpContent(1);
 }
 

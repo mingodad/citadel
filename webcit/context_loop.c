@@ -248,7 +248,7 @@ void do_404(void)
 {
 	hprintf("HTTP/1.1 404 Not found\r\n");
 	hprintf("Content-Type: text/plain\r\n");
-	wprintf("Not found\r\n");
+	wc_printf("Not found\r\n");
 	end_burst();
 }
 

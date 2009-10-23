@@ -23,6 +23,8 @@ char suggested_url[SIZ];
 
 /* some copies... */
 int lprintf(int loglevel, const char *format, ...){return 0;}
+void wc_printf(const char *format,...){}
+
 void RegisterNS(const char *NSName, long len, 
 		int nMinArgs, 
 		int nMaxArgs, 

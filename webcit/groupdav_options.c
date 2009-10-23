@@ -58,7 +58,7 @@ void groupdav_options(void)
 		hprintf(
 			"Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf(
+		wc_printf(
 			"There is no folder called \"%s\" on this server.\r\n",
 			ChrPtr(dav_roomname)
 		);
@@ -79,7 +79,7 @@ void groupdav_options(void)
 			groupdav_common_headers();
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
-			wprintf(
+			wc_printf(
 				"Object \"%s\" was not found in the \"%s\" folder.\r\n",
 				ChrPtr(dav_uid),
 				ChrPtr(dav_roomname)
@@ -115,6 +115,6 @@ void groupdav_options(void)
 	hprintf("DAV: 1\r\n");
 	hprintf("Allow: OPTIONS, PROPFIND, GET, PUT\r\n");
 	begin_burst();
-	wprintf("\r\n");
+	wc_printf("\r\n");
 	end_burst();
 }

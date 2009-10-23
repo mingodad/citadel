@@ -16,23 +16,23 @@ void display_no_sieve(void) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/advanpage2_48x.gif\">");
-	wprintf("<h1>");
-	wprintf(_("View/edit server-side mail filters"));
-	wprintf("</h1>\n");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<img src=\"static/advanpage2_48x.gif\">");
+	wc_printf("<h1>");
+	wc_printf(_("View/edit server-side mail filters"));
+	wc_printf("</h1>\n");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"sieve_background\">"
 		"<tr><td valign=top>\n");
 
-	wprintf(_("This installation of Citadel was built without support for server-side mail filtering."
+	wc_printf(_("This installation of Citadel was built without support for server-side mail filtering."
 		"<br>Please contact your system administrator if you require this feature.<br>"));
 
-	wprintf("</td></tr></table></div>\n");
+	wc_printf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
@@ -73,7 +73,7 @@ void display_sieve(void)
 
 	output_headers(1, 1, 2, 0, 0, 0);
 
-	wprintf("<script type=\"text/javascript\">					\n"
+	wc_printf("<script type=\"text/javascript\">					\n"
 		"									\n"
 		"var previously_active_script;						\n"
 		"									\n"
@@ -101,117 +101,117 @@ void display_sieve(void)
 		"</script>								\n"
 	);
 
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/advanpage2_48x.gif\">");
-	wprintf("<h1>");
-	wprintf(_("View/edit server-side mail filters"));
-	wprintf("</h1>\n");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<img src=\"static/advanpage2_48x.gif\">");
+	wc_printf("<h1>");
+	wc_printf(_("View/edit server-side mail filters"));
+	wc_printf("</h1>\n");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"sieve_background\">"
 		"<tr><td valign=top>\n");
 
 
-	wprintf("<form id=\"sieveform\" method=\"post\" action=\"save_sieve\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<form id=\"sieveform\" method=\"post\" action=\"save_sieve\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
-	wprintf(_("When new mail arrives: "));
-        wprintf("<select name=\"bigaction\" size=1 onChange=\"ToggleSievePanels();\">\n");
+	wc_printf(_("When new mail arrives: "));
+        wc_printf("<select name=\"bigaction\" size=1 onChange=\"ToggleSievePanels();\">\n");
 
-	wprintf("<option %s value=\"0\">", ((active_script < 0) ? "selected" : ""));
-	wprintf(_("Leave it in my inbox without filtering"));
-	wprintf("</option>\n");
+	wc_printf("<option %s value=\"0\">", ((active_script < 0) ? "selected" : ""));
+	wc_printf(_("Leave it in my inbox without filtering"));
+	wc_printf("</option>\n");
 
-	wprintf("<option %s value=\"1\">", ((rules_script_is_active) ? "selected" : ""));
-	wprintf(_("Filter it according to rules selected below"));
-	wprintf("</option>\n");
+	wc_printf("<option %s value=\"1\">", ((rules_script_is_active) ? "selected" : ""));
+	wc_printf(_("Filter it according to rules selected below"));
+	wc_printf("</option>\n");
 
-	wprintf("<option %s value=\"2\">",
+	wc_printf("<option %s value=\"2\">",
 			(((active_script >= 0) && (!rules_script_is_active)) ? "selected" : ""));
-	wprintf(_("Filter it through a manually edited script (advanced users only)"));
-	wprintf("</option>\n");
+	wc_printf(_("Filter it through a manually edited script (advanced users only)"));
+	wc_printf("</option>\n");
 
-	wprintf("</select>");
+	wc_printf("</select>");
 
 
 
 	/* The "no filtering" div */
 
-	wprintf("<div id=\"sievediv0\" style=\"display:none\">\n");
-	wprintf("<div align=\"center\"><br /><br />");
-	wprintf(_("Your incoming mail will not be filtered through any scripts."));
-	wprintf("<br /><br /></div>\n");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"sievediv0\" style=\"display:none\">\n");
+	wc_printf("<div align=\"center\"><br /><br />");
+	wc_printf(_("Your incoming mail will not be filtered through any scripts."));
+	wc_printf("<br /><br /></div>\n");
+	wc_printf("</div>\n");
 
 	/* The "webcit managed scripts" div */
 
-	wprintf("<div id=\"sievediv1\" style=\"display:none\">\n");
+	wc_printf("<div id=\"sievediv1\" style=\"display:none\">\n");
 	display_rules_editor_inner_div();
-	wprintf("</div>\n");
+	wc_printf("</div>\n");
 
 	/* The "I'm smart and can write my own Sieve scripts" div */
 
-	wprintf("<div id=\"sievediv2\" style=\"display:none\">\n");
+	wc_printf("<div id=\"sievediv2\" style=\"display:none\">\n");
 
 	if (num_scripts > 0) {
-		wprintf(_("The currently active script is: "));
-        	wprintf("<select name=\"active_script\" size=1 onChange=\"ToggleScriptPanels();\">\n");
+		wc_printf(_("The currently active script is: "));
+        	wc_printf("<select name=\"active_script\" size=1 onChange=\"ToggleScriptPanels();\">\n");
 		for (i=0; i<num_scripts; ++i) {
 			if (strcasecmp(script_names[i], RULES_SCRIPT)) {
-				wprintf("<option %s value=\"%s\">%s</option>\n",
+				wc_printf("<option %s value=\"%s\">%s</option>\n",
 					((active_script == i) ? "selected" : ""),
 					script_names[i],
 					script_names[i]
 				);
 			}
 		}
-		wprintf("</select>\n");
+		wc_printf("</select>\n");
 	}
 
-	wprintf("&nbsp;&nbsp;&nbsp;");
-	wprintf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add or delete scripts"));
+	wc_printf("&nbsp;&nbsp;&nbsp;");
+	wc_printf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add or delete scripts"));
 
-	wprintf("<br />\n");
+	wc_printf("<br />\n");
 
 	if (num_scripts > 0) {
 		for (i=0; i<num_scripts; ++i) {
 			if (strcasecmp(script_names[i], RULES_SCRIPT)) {
-				wprintf("<div id=\"script_%s\" style=\"display:none\">\n", script_names[i]);
-				wprintf("<textarea name=\"text_%s\" wrap=soft rows=20 cols=80 width=80>\n",
+				wc_printf("<div id=\"script_%s\" style=\"display:none\">\n", script_names[i]);
+				wc_printf("<textarea name=\"text_%s\" wrap=soft rows=20 cols=80 width=80>\n",
 					script_names[i]);
 				serv_printf("MSIV getscript|%s", script_names[i]);
 				serv_getln(buf, sizeof buf);
 				if (buf[0] == '1') while(serv_getln(buf, sizeof (buf)), strcmp(buf, "000")) {
-					wprintf("%s\n", buf);
+					wc_printf("%s\n", buf);
 				}
-				wprintf("</textarea>\n");
-				wprintf("</div>\n");
+				wc_printf("</textarea>\n");
+				wc_printf("</div>\n");
 			}
 		}
 	}
 
-	wprintf("<script type=\"text/javascript\">	\n"
+	wc_printf("<script type=\"text/javascript\">	\n"
 		"ToggleScriptPanels();			\n"
 		"</script>				\n"
 	);
 
-	wprintf("</div>\n");
+	wc_printf("</div>\n");
 
 
 	/* The rest of this is common for all panels... */
 
-	wprintf("<div align=\"center\"><br>");
-	wprintf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
-	wprintf("&nbsp;");
-	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
-	wprintf("</div></form>\n");
+	wc_printf("<div align=\"center\"><br>");
+	wc_printf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
+	wc_printf("&nbsp;");
+	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
+	wc_printf("</div></form>\n");
 
-	wprintf("</td></tr></table></div>\n");
+	wc_printf("</td></tr></table></div>\n");
 
-	wprintf("<script type=\"text/javascript\">	\n"
+	wc_printf("<script type=\"text/javascript\">	\n"
 		"ToggleSievePanels();			\n"
 		"</script>				\n"
 	);
@@ -643,31 +643,31 @@ void display_add_remove_scripts(char *message)
 	char script_name[256];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<img src=\"static/advanpage2_48x.gif\">");
-	wprintf(_("Add or delete scripts"));
-	wprintf("</h1>\n");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<img src=\"static/advanpage2_48x.gif\">");
+	wc_printf(_("Add or delete scripts"));
+	wc_printf("</h1>\n");
+	wc_printf("</div>\n");
 	
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
 	if (message != NULL) {
-		wprintf("%s", message);
+		wc_printf("%s", message);
 	}
 
-	wprintf("<table border=0 cellspacing=10><tr valign=top><td>\n");
+	wc_printf("<table border=0 cellspacing=10><tr valign=top><td>\n");
 
 	svput("BOXTITLE", WCS_STRING, _("Add a new script"));
 	do_template("beginboxx", NULL);
 
-	wprintf(_("To create a new script, enter the desired "
+	wc_printf(_("To create a new script, enter the desired "
 		"script name in the box below and click 'Create'."));
-	wprintf("<br /><br />");
+	wc_printf("<br /><br />");
 
-        wprintf("<center><form method=\"POST\" action=\"create_script\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-        wprintf(_("Script name: "));
-        wprintf("<input type=\"text\" name=\"script_name\"><br />\n"
+        wc_printf("<center><form method=\"POST\" action=\"create_script\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+        wc_printf(_("Script name: "));
+        wc_printf("<input type=\"text\" name=\"script_name\"><br />\n"
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
 		"</form></center>\n", _("Create"));
 
@@ -675,24 +675,24 @@ void display_add_remove_scripts(char *message)
 
 	svput("BOXTITLE", WCS_STRING, _("Edit scripts"));
 	do_template("beginboxx", NULL);
-	wprintf("<br /><div align=center><a href=\"display_sieve\">%s</a><br /><br />\n",
+	wc_printf("<br /><div align=center><a href=\"display_sieve\">%s</a><br /><br />\n",
 		_("Return to the script editing screen")
 	);
 	do_template("endbox", NULL);
 
-	wprintf("</td><td>");
+	wc_printf("</td><td>");
 
 	svput("BOXTITLE", WCS_STRING, _("Delete scripts"));
 	do_template("beginboxx", NULL);
 
-	wprintf(_("To delete an existing script, select the script "
+	wc_printf(_("To delete an existing script, select the script "
 		"name from the list and click 'Delete'."));
-	wprintf("<br /><br />");
+	wc_printf("<br /><br />");
 	
-        wprintf("<center>"
+        wc_printf("<center>"
 		"<form method=\"POST\" action=\"delete_script\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-        wprintf("<select name=\"script_name\" size=10 style=\"width:100%%\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+        wc_printf("<select name=\"script_name\" size=10 style=\"width:100%%\">\n");
 
         serv_puts("MSIV listscripts");
         serv_getln(buf, sizeof buf);
@@ -700,20 +700,20 @@ void display_add_remove_scripts(char *message)
                 while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
                         extract_token(script_name, buf, 0, '|', sizeof script_name);
 			if ( (extract_int(buf, 1) == 0) && (strcasecmp(script_name, RULES_SCRIPT)) ) {
-                        	wprintf("<option>");
+                        	wc_printf("<option>");
                         	escputs(script_name);
-                        	wprintf("</option>\n");
+                        	wc_printf("</option>\n");
 			}
                 }
         }
-        wprintf("</select><br />\n");
+        wc_printf("</select><br />\n");
 
-        wprintf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
+        wc_printf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete script"), _("Delete this script?"));
-        wprintf("</form></center>\n");
+        wc_printf("</form></center>\n");
 	do_template("endbox", NULL);
 
-	wprintf("</td></tr></table>\n");
+	wc_printf("</td></tr></table>\n");
 
 	wDumpContent(1);
 }
@@ -820,7 +820,7 @@ void display_rules_editor_inner_div(void) {
  * This script should get called by every onChange event...
  *
  */
-	wprintf("<script type=\"text/javascript\">					\n"
+	wc_printf("<script type=\"text/javascript\">					\n"
 		"									\n"
 		"var highest_active_rule = (-1);					\n"
 		"									\n"
@@ -828,9 +828,9 @@ void display_rules_editor_inner_div(void) {
 /*
  * Show only the active rows...
  */
-	wprintf("  highest_active_rule = (-1);						\n");
-	wprintf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
-	wprintf("   if ($('active'+i).checked) {					\n"
+	wc_printf("  highest_active_rule = (-1);						\n");
+	wc_printf("  for (i=0; i<%d; ++i) {						\n", MAX_RULES);
+	wc_printf("   if ($('active'+i).checked) {					\n"
 		"     $('rule' + i).style.display = 'block';				\n"
 		"     highest_active_rule = i;						\n"
 		"   }									\n"
@@ -841,7 +841,7 @@ void display_rules_editor_inner_div(void) {
 /*
  * Show only the fields relevant to the rules...
  */
-	wprintf("  for (i=0; i<=highest_active_rule; ++i) {				\n"
+	wc_printf("  for (i=0; i<=highest_active_rule; ++i) {				\n"
 		"    d = ($('movedown'+i));						\n"
 		"    if (i < highest_active_rule) {					\n"
 		"      d.style.display = 'block';					\n"
@@ -884,7 +884,7 @@ void display_rules_editor_inner_div(void) {
 		"      $('div_automsg'+i).style.display = 'none';			\n"
 		"    }									\n"
 		"    if (highest_active_rule < %d) {					\n", MAX_RULES-1 );
-	wprintf("      $('div_addrule').style.display = 'block';			\n"
+	wc_printf("      $('div_addrule').style.display = 'block';			\n"
 		"    } else {								\n"
 		"      $('div_addrule').style.display = 'none';				\n"
 		"    }									\n"
@@ -934,9 +934,9 @@ void display_rules_editor_inner_div(void) {
 	);
 
 
-	wprintf("<br />");
+	wc_printf("<br />");
 
-	wprintf("<table cellpadding=2 width=100%%>");
+	wc_printf("<table cellpadding=2 width=100%%>");
 
 	for (i=0; i<MAX_RULES; ++i) {
 
@@ -955,42 +955,42 @@ void display_rules_editor_inner_div(void) {
 		
 		/* now generate the table row */
 
-		wprintf("<tr id=\"rule%d\" bgcolor=\"#%s\">",
+		wc_printf("<tr id=\"rule%d\" bgcolor=\"#%s\">",
 			i,
 			((i%2) ? "DDDDDD" : "FFFFFF")
 		);
 
-		wprintf("<td width=5%% align=\"center\">");
+		wc_printf("<td width=5%% align=\"center\">");
 
-		wprintf("<div style=\"display:none\">");
-		wprintf("<input type=\"checkbox\" name=\"active%d\" id=\"active%d\" %s>",
+		wc_printf("<div style=\"display:none\">");
+		wc_printf("<input type=\"checkbox\" name=\"active%d\" id=\"active%d\" %s>",
 			i, i,
 			(active ? "checked" : "")
 		);
-		wprintf("</div>");
+		wc_printf("</div>");
 
-		if (i>0) wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
+		if (i>0) wc_printf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
 			"<img border=\"0\" src=\"static/up_pointer.gif\" "
 			"title=\"%s\"/></a>",
 			i-1, i, _("Move rule up") );
 
-		wprintf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
+		wc_printf("<a href=\"javascript:SwapRules(%d,%d);UpdateRules();\">"
 			"<img id=\"movedown%d\" border=\"0\" src=\"static/down_pointer.gif\" "
 			"title=\"%s\"/></a>",
 			i, i+1, i, _("Move rule down") );
 
-		wprintf("<a href=\"javascript:DeleteRule(%d);UpdateRules();\">"
+		wc_printf("<a href=\"javascript:DeleteRule(%d);UpdateRules();\">"
 			"<img id=\"delete%d\" border=\"0\" src=\"static/delete.gif\" "
 			"title=\"%s\"/></a>",
 			i, i, _("Delete rule") );
 
-		wprintf("</td>");
+		wc_printf("</td>");
 
-		wprintf("<td width=5%% align=\"center\">");
-		wprintf("<font size=+2>%d</font>", i+1);
-		wprintf("</td>");
+		wc_printf("<td width=5%% align=\"center\">");
+		wc_printf("<font size=+2>%d</font>", i+1);
+		wc_printf("</td>");
 
-		wprintf("<td width=20%%>%s ", _("If") );
+		wc_printf("<td width=20%%>%s ", _("If") );
 
 		char *hfield_values[15][2] = {
 			{	"from",		_("From")		},
@@ -1010,20 +1010,20 @@ void display_rules_editor_inner_div(void) {
 			{	"all",		_("All")		}
 		};
 
-		wprintf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<select id=\"hfield%d\" name=\"hfield%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		for (j=0; j<15; ++j) {
-			wprintf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>",
 				( (!strcasecmp(hfield, hfield_values[j][0])) ? "selected" : ""),
 				hfield_values[j][0],
 				hfield_values[j][1]
 			);
 		}
 
-		wprintf("</select>");
-		wprintf("</td>");
+		wc_printf("</select>");
+		wc_printf("</td>");
 
-		wprintf("<td width=20%%>");
+		wc_printf("<td width=20%%>");
 
 		char *compare_values[6][2] = {
 			{	"contains",	_("contains")		},
@@ -1034,49 +1034,49 @@ void display_rules_editor_inner_div(void) {
 			{	"notmatches",	_("does not match")	}
 		};
 
-		wprintf("<div id=\"div_compare%d\">", i);
-		wprintf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<div id=\"div_compare%d\">", i);
+		wc_printf("<select id=\"compare%d\" name=\"compare%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		for (j=0; j<6; ++j) {
-			wprintf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>",
 				( (!strcasecmp(compare, compare_values[j][0])) ? "selected" : ""),
 				compare_values[j][0],
 				compare_values[j][1]
 			);
 		}
-		wprintf("</select>");
+		wc_printf("</select>");
 
-		wprintf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\" value=\"", i, i);
+		wc_printf("<input type=\"text\" id=\"htext%d\" name=\"htext%d\" value=\"", i, i);
 		escputs(htext);
-		wprintf("\"></div>");
+		wc_printf("\"></div>");
 
-		wprintf("<div id=\"div_nocompare%d\">", i);
-		wprintf("%s", _("(All messages)"));
-		wprintf("</div>");
+		wc_printf("<div id=\"div_nocompare%d\">", i);
+		wc_printf("%s", _("(All messages)"));
+		wc_printf("</div>");
 
 		char *sizecomp_values[2][2] = {
 			{	"larger",	_("is larger than")	},
 			{	"smaller",	_("is smaller than")	}
 		};
 
-		wprintf("<div id=\"div_size%d\">", i);
-		wprintf("<select id=\"sizecomp%d\" name=\"sizecomp%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<div id=\"div_size%d\">", i);
+		wc_printf("<select id=\"sizecomp%d\" name=\"sizecomp%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		for (j=0; j<2; ++j) {
-			wprintf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>",
 				( (!strcasecmp(sizecomp, sizecomp_values[j][0])) ? "selected" : ""),
 				sizecomp_values[j][0],
 				sizecomp_values[j][1]
 			);
 		}
-		wprintf("</select>");
+		wc_printf("</select>");
 
-		wprintf("<input type=\"text\" id=\"sizeval%d\" name=\"sizeval%d\" value=\"%d\">",
+		wc_printf("<input type=\"text\" id=\"sizeval%d\" name=\"sizeval%d\" value=\"%d\">",
 			i, i, sizeval);
-		wprintf("bytes");
-		wprintf("</div>");
+		wc_printf("bytes");
+		wc_printf("</div>");
 
-		wprintf("</td>");
+		wc_printf("</td>");
 
 		char *action_values[6][2] = {
 			{	"keep",		_("Keep")		},
@@ -1087,81 +1087,81 @@ void display_rules_editor_inner_div(void) {
 			{	"vacation",	_("Vacation")		}
 		};
 
-		wprintf("<td width=20%%>");
-		wprintf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<td width=20%%>");
+		wc_printf("<select id=\"action%d\" name=\"action%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		for (j=0; j<6; ++j) {
-			wprintf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>",
 				( (!strcasecmp(action, action_values[j][0])) ? "selected" : ""),
 				action_values[j][0],
 				action_values[j][1]
 			);
 		}
-		wprintf("</select>");
+		wc_printf("</select>");
 
-		wprintf("<div id=\"div_fileinto%d\">", i);
-		wprintf("<select name=\"fileinto%d\" id=\"fileinto%d\">", i, i);
+		wc_printf("<div id=\"div_fileinto%d\">", i);
+		wc_printf("<select name=\"fileinto%d\" id=\"fileinto%d\">", i, i);
 		for (j=0; j<num_roomnames; ++j) {
-			wprintf("<option ");
+			wc_printf("<option ");
 			if (!strcasecmp(rooms[j].name, fileinto)) {
-				wprintf("selected ");
+				wc_printf("selected ");
 			}
-			wprintf("value=\"");
+			wc_printf("value=\"");
 			escputs(rooms[j].name);
-			wprintf("\">");
+			wc_printf("\">");
 			escputs(rooms[j].name);
-			wprintf("</option>\n");
+			wc_printf("</option>\n");
 		}
-		wprintf("</select>\n");
-		wprintf("</div>");
+		wc_printf("</select>\n");
+		wc_printf("</div>");
 
-		wprintf("<div id=\"div_redirect%d\">", i);
-		wprintf("<input type=\"text\" id=\"redirect%d\" name=\"redirect%d\" value=\"", i, i);
+		wc_printf("<div id=\"div_redirect%d\">", i);
+		wc_printf("<input type=\"text\" id=\"redirect%d\" name=\"redirect%d\" value=\"", i, i);
 		escputs(redirect);
-		wprintf("\"></div>");
+		wc_printf("\"></div>");
 
-		wprintf("<div id=\"div_automsg%d\">", i);
-		wprintf(_("Message:"));
-		wprintf("<br />");
-		wprintf("<textarea name=\"automsg%d\" id=\"automsg%d\" wrap=soft rows=5>\n", i, i);
+		wc_printf("<div id=\"div_automsg%d\">", i);
+		wc_printf(_("Message:"));
+		wc_printf("<br />");
+		wc_printf("<textarea name=\"automsg%d\" id=\"automsg%d\" wrap=soft rows=5>\n", i, i);
 		escputs(automsg);
-		wprintf("</textarea>");
-		wprintf("</div>");
+		wc_printf("</textarea>");
+		wc_printf("</div>");
 
-		wprintf("</td>");
+		wc_printf("</td>");
 
 		char *final_values[2][2] = {
 			{	"continue",	_("continue processing")	},
 			{	"stop",		_("stop")			}
 		};
 
-		wprintf("<td width=10%% align=\"center\">%s</td>", _("and then") );
+		wc_printf("<td width=10%% align=\"center\">%s</td>", _("and then") );
 
-		wprintf("<td width=20%%>");
-		wprintf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">",
+		wc_printf("<td width=20%%>");
+		wc_printf("<select name=\"final%d\" id=\"final%d\" size=1 onChange=\"UpdateRules();\">",
 			i, i);
 		for (j=0; j<2; ++j) {
-			wprintf("<option %s value=\"%s\">%s</option>",
+			wc_printf("<option %s value=\"%s\">%s</option>",
 				( (!strcasecmp(final, final_values[j][0])) ? "selected" : ""),
 				final_values[j][0],
 				final_values[j][1]
 			);
 		}
-		wprintf("</select>");
-		wprintf("</td>");
+		wc_printf("</select>");
+		wc_printf("</td>");
 
-		wprintf("</tr>\n");
+		wc_printf("</tr>\n");
 
 	}
 
-	wprintf("</table>");
-	wprintf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">%s</a><br /></div>\n",
+	wc_printf("</table>");
+	wc_printf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">%s</a><br /></div>\n",
 		_("Add rule")
 	);
 
-	wprintf("<script type=\"text/javascript\">					\n");
-	wprintf("UpdateRules();								\n");
-	wprintf("</script>								\n");
+	wc_printf("<script type=\"text/javascript\">					\n");
+	wc_printf("UpdateRules();								\n");
+	wc_printf("</script>								\n");
 
 	free(rooms);
 }

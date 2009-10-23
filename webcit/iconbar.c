@@ -91,7 +91,7 @@ void doUserIconStylesheet(void) {
 	hprintf("Cache-Control: private\r\n");
 	
 	begin_burst();
-	wprintf("#global { left: 16%%; }\r\n");
+	wc_printf("#global { left: 16%%; }\r\n");
 	pos = GetNewHashPos(WC->IconBarSettings, 0);
 	while(GetNextHashPos(WC->IconBarSettings, pos, &HKLen, &key, &Data)) {
 		value = (long) Data;
@@ -99,9 +99,9 @@ void doUserIconStylesheet(void) {
 		    && strncasecmp("ib_displayas",key,12) 
 		    && strncasecmp("ib_logoff", key, 9)) {
 			/* Don't shoot me for this */
-			wprintf("#%s { display: none !important; }\r\n",key);
+			wc_printf("#%s { display: none !important; }\r\n",key);
 		} else if (!strncasecmp("ib_users",key, 8) && value == 2) {
-			wprintf("#online_users { display: block; !important } \r\n");
+			wc_printf("#online_users { display: block; !important } \r\n");
 		}
 	}
 	DeleteHashPos(&pos);

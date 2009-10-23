@@ -48,14 +48,14 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename)
 	
 		/* If we're still not in the correct room, it doesn't exist. */
 		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
-			wprintf(_("There is no room called '%s'."), ChrPtr(roomname));
+			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
 			return;
 		}
 
 	}
 
 	if (WC->wc_view != VIEW_WIKI) {
-		wprintf(_("'%s' is not a Wiki room."), ChrPtr(roomname));
+		wc_printf(_("'%s' is not a Wiki room."), ChrPtr(roomname));
 		return;
 	}
 
@@ -70,18 +70,18 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename)
 		return;
 	}
 
-	wprintf("<br /><br />"
+	wc_printf("<br /><br />"
 		"<div align=\"center\">"
 		"<table border=\"0\" bgcolor=\"#ffffff\" cellpadding=\"10\">"
 		"<tr><td align=\"center\">"
 	);
-	wprintf("<br><b>");
-	wprintf(_("There is no page called '%s' here."), pagename);
-	wprintf("</b><br><br>");
-	wprintf(_("Select the 'Edit this page' link in the room banner "
+	wc_printf("<br><b>");
+	wc_printf(_("There is no page called '%s' here."), pagename);
+	wc_printf("</b><br><br>");
+	wc_printf(_("Select the 'Edit this page' link in the room banner "
 		"if you would like to create this page."));
-	wprintf("<br><br>");
-	wprintf("</td></tr></table></div>\n");
+	wc_printf("<br><br>");
+	wc_printf("</td></tr></table></div>\n");
 }
 
 

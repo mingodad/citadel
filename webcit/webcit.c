@@ -51,7 +51,7 @@ void WebcitAddUrlHandler(const char * UrlString, long UrlSLen,
 /*
  * web-printing funcion. uses our vsnprintf wrapper
  */
-void wprintf(const char *format,...)
+void wc_printf(const char *format,...)
 {
 	wcsession *WCC = WC;
 	va_list arg_ptr;
@@ -89,7 +89,7 @@ void hprintf(const char *format,...)
 void wDumpContent(int print_standard_html_footer)
 {
 	if (print_standard_html_footer) {
-		wprintf("</div> <!-- end of 'content' div -->\n");
+		wc_printf("</div> <!-- end of 'content' div -->\n");
 		do_template("trailing", NULL);
 	}
 
@@ -185,10 +185,10 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 		/* check for ImportantMessages (these display in a div overlaying the main screen) */
 		if (!IsEmptyStr(WCC->ImportantMessage)) {
-			wprintf("<div id=\"important_message\">\n"
+			wc_printf("<div id=\"important_message\">\n"
 				"<span class=\"imsg\">");
 			StrEscAppend(WCC->WBuf, NULL, WCC->ImportantMessage, 0, 0);
-			wprintf("</span><br />\n"
+			wc_printf("</span><br />\n"
 				"</div>\n"
 			);
 			StrBufAppendBufPlain(WCC->trailing_javascript,
@@ -198,10 +198,10 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			WCC->ImportantMessage[0] = 0;
 		}
 		else if (StrLength(WCC->ImportantMsg) > 0) {
-			wprintf("<div id=\"important_message\">\n"
+			wc_printf("<div id=\"important_message\">\n"
 				"<span class=\"imsg\">");
 			StrEscAppend(WCC->WBuf, WCC->ImportantMsg, NULL, 0, 0);
-			wprintf("</span><br />\n"
+			wc_printf("</span><br />\n"
 				"</div>\n"
 			);
 			StrBufAppendBufPlain(WCC->trailing_javascript,
@@ -215,14 +215,14 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		}
 
 		if (do_room_banner == 1) {
-			wprintf("<div id=\"banner\">\n");
+			wc_printf("<div id=\"banner\">\n");
 			embed_room_banner(NULL, navbar_default);
-			wprintf("</div>\n");
+			wc_printf("</div>\n");
 		}
 	}
 
 	if (do_room_banner == 1) {
-		wprintf("<div id=\"content\">\n");
+		wc_printf("<div id=\"content\">\n");
 	}
 }
 
@@ -243,9 +243,9 @@ void http_redirect(const char *whichpage) {
 	hprintf("URI: %s\r\n", whichpage);
 	hprintf("Content-type: text/html; charset=utf-8\r\n");
 	begin_burst();
-	wprintf("<html><body>");
-	wprintf("Go <a href=\"%s\">here</A>.", whichpage);
-	wprintf("</body></html>\n");
+	wc_printf("<html><body>");
+	wc_printf("Go <a href=\"%s\">here</A>.", whichpage);
+	wc_printf("</body></html>\n");
 	end_burst();
 }
 
@@ -286,14 +286,14 @@ void convenience_page(const char *titlebarcolor, const char *titlebarmsg, const 
 {
 	hprintf("HTTP/1.1 200 OK\n");
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<table width=100%% border=0 bgcolor=\"#%s\"><tr><td>", titlebarcolor);
-	wprintf("<span class=\"titlebar\">%s</span>\n", titlebarmsg);
-	wprintf("</td></tr></table>\n");
-	wprintf("</div>\n<div id=\"content\">\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<table width=100%% border=0 bgcolor=\"#%s\"><tr><td>", titlebarcolor);
+	wc_printf("<span class=\"titlebar\">%s</span>\n", titlebarmsg);
+	wc_printf("</td></tr></table>\n");
+	wc_printf("</div>\n<div id=\"content\">\n");
 	escputs(messagetext);
 
-	wprintf("<hr />\n");
+	wc_printf("<hr />\n");
 	wDumpContent(1);
 }
 
@@ -347,9 +347,9 @@ void authorization_required(void)
 	hprintf("WWW-Authenticate: Basic realm=\"%s\"\r\n", ChrPtr(WC->serv_info->serv_humannode));
 	hprintf("Content-Type: text/html\r\n");
 	begin_burst();
-	wprintf("<h1>");
-	wprintf(_("Authorization Required"));
-	wprintf("</h1>\r\n");
+	wc_printf("<h1>");
+	wc_printf(_("Authorization Required"));
+	wc_printf("</h1>\r\n");
 	
 
 	if (WCC->ImportantMsg != NULL)
@@ -357,7 +357,7 @@ void authorization_required(void)
 	else if (WCC->ImportantMessage != NULL)
 		message = WCC->ImportantMessage;
 
-	wprintf(_("The resource you requested requires a valid username and password. "
+	wc_printf(_("The resource you requested requires a valid username and password. "
 		"You could not be logged in: %s\n"), message);
 	wDumpContent(0);
 	end_webcit_session();
@@ -466,17 +466,17 @@ void seconds_since_last_gexp(void)
 	char buf[256];
 
 	if ( (time(NULL) - WC->last_pager_check) < 30) {
-		wprintf("NO\n");
+		wc_printf("NO\n");
 	}
 	else {
 		memset(buf, 0, 5);
 		serv_puts("NOOP");
 		serv_getln(buf, sizeof buf);
 		if (buf[3] == '*') {
-			wprintf("YES");
+			wc_printf("YES");
 		}
 		else {
-			wprintf("NO");
+			wc_printf("NO");
 		}
 	}
 }
@@ -614,7 +614,7 @@ void session_loop(void)
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
 			hprintf("Content-Type: text/plain\r\n\r\n");
 			begin_burst();
-			wprintf("Security check failed.\r\n");
+			wc_printf("Security check failed.\r\n");
 			end_burst();
 			goto SKIP_ALL_THIS_CRAP;
 		}

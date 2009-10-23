@@ -515,7 +515,7 @@ void display_headers(void) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			wprintf("%s\n", buf);
+			wc_printf("%s\n", buf);
 		}
 	}
 
@@ -1354,7 +1354,7 @@ void display_enter(void)
 			}
 		}
 		else if (buf[0] != '2') {	/* Any other error means that we cannot continue */
-			wprintf("<em>%s</em><br />\n", &buf[4]);	/* TODO -> important message */
+			wc_printf("<em>%s</em><br />\n", &buf[4]);	/* TODO -> important message */
 			return;
 		}
 	}
@@ -1428,43 +1428,43 @@ void confirm_move_msg(void)
 
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Confirm move of message"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<h1>");
+	wc_printf(_("Confirm move of message"));
+	wc_printf("</h1>");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<CENTER>");
+	wc_printf("<CENTER>");
 
-	wprintf(_("Move this message to:"));
-	wprintf("<br />\n");
+	wc_printf(_("Move this message to:"));
+	wc_printf("<br />\n");
 
-	wprintf("<form METHOD=\"POST\" action=\"move_msg\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
+	wc_printf("<form METHOD=\"POST\" action=\"move_msg\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<INPUT TYPE=\"hidden\" NAME=\"msgid\" VALUE=\"%s\">\n", bstr("msgid"));
 
-	wprintf("<SELECT NAME=\"target_room\" SIZE=5>\n");
+	wc_printf("<SELECT NAME=\"target_room\" SIZE=5>\n");
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			extract_token(targ, buf, 0, '|', sizeof targ);
-			wprintf("<OPTION>");
+			wc_printf("<OPTION>");
 			escputs(targ);
-			wprintf("\n");
+			wc_printf("\n");
 		}
 	}
-	wprintf("</SELECT>\n");
-	wprintf("<br />\n");
+	wc_printf("</SELECT>\n");
+	wc_printf("<br />\n");
 
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"move_button\" VALUE=\"%s\">", _("Move"));
-	wprintf("&nbsp;");
-	wprintf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-	wprintf("</form></CENTER>\n");
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"move_button\" VALUE=\"%s\">", _("Move"));
+	wc_printf("&nbsp;");
+	wc_printf("<INPUT TYPE=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
+	wc_printf("</form></CENTER>\n");
 
-	wprintf("</CENTER>\n");
+	wc_printf("</CENTER>\n");
 	wDumpContent(1);
 }
 
@@ -1499,7 +1499,7 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf(_("An error occurred while retrieving this part: %s/%s\n"), 
+		wc_printf(_("An error occurred while retrieving this part: %s/%s\n"), 
 			ChrPtr(partnum), ChrPtr(filename));
 		end_burst();
 	}
@@ -1559,7 +1559,7 @@ void mimepart(int force_download)
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf(_("An error occurred while retrieving this part: %s\n"), 
+		wc_printf(_("An error occurred while retrieving this part: %s\n"), 
 			ChrPtr(Buf));
 		end_burst();
 	}

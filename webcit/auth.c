@@ -63,7 +63,7 @@ void display_openid_name_request(const StrBuf *claimed_id, const StrBuf *usernam
 	StrBuf *Buf = NULL;
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"login_screen\">\n");
+	wc_printf("<div id=\"login_screen\">\n");
 
 	Buf = NewStrBufPlain(NULL, StrLength(claimed_id));
 	StrEscAppend(Buf, claimed_id, NULL, 0, 0);
@@ -550,11 +550,11 @@ void do_logout(void)
 	/** Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
 
-	wprintf("<div id=\"logout_screen\">");
-        wprintf("<div class=\"box\">");
-        wprintf("<div class=\"boxlabel\">");
-	wprintf(_("Log off"));
-        wprintf("</div><div class=\"boxcontent\">");	
+	wc_printf("<div id=\"logout_screen\">");
+        wc_printf("<div class=\"box\">");
+        wc_printf("<div class=\"boxlabel\">");
+	wc_printf(_("Log off"));
+        wc_printf("</div><div class=\"boxcontent\">");	
 	serv_puts("MESG goodbye");
 	serv_getln(buf, sizeof buf);
 
@@ -562,34 +562,34 @@ void do_logout(void)
 		if (buf[0] == '1') {
 			fmout("CENTER");
 		} else {
-			wprintf("Goodbye\n");
+			wc_printf("Goodbye\n");
 		}
 	}
 	else {
-		wprintf(_("This program was unable to connect or stay "
+		wc_printf(_("This program was unable to connect or stay "
 			"connected to the Citadel server.  Please report "
 			"this problem to your system administrator.")
 		);
-		wprintf("<a href=\"http://www.citadel.org/doku.php/"
+		wc_printf("<a href=\"http://www.citadel.org/doku.php/"
 			"faq:mastering_your_os:net#netstat\">%s</a>", 
 			_("Read More..."));
 	}
 
-	wprintf("<hr /><div class=\"buttons\"> "
+	wc_printf("<hr /><div class=\"buttons\"> "
 		"<span class=\"button_link\"><a href=\".\">");
-	wprintf(_("Log in again"));
-	wprintf("</a></span>");
+	wc_printf(_("Log in again"));
+	wc_printf("</a></span>");
 
 	/* The "close window" link is commented out because some browsers don't
 	 * allow it to work.
 	 *
-	wprintf("&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
+	wc_printf("&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
 		"<a href=\"javascript:window.close();\">");
-	wprintf(_("Close window"));
-	wprintf("</a></span>");
+	wc_printf(_("Close window"));
+	wc_printf("</a></span>");
 	 */
 
-	wprintf("</div></div></div></div>\n");
+	wc_printf("</div></div></div></div>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
@@ -606,13 +606,13 @@ void validate(void)
 	int a;
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Validate new users"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<h1>");
+	wc_printf(_("Validate new users"));
+	wc_printf("</h1>");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
 	/* If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
@@ -621,7 +621,7 @@ void validate(void)
 			serv_printf("VALI %s|%s", buf, bstr("axlevel"));
 			serv_getln(buf, sizeof buf);
 			if (buf[0] != '2') {
-				wprintf("<b>%s</b><br>\n", &buf[4]);
+				wc_printf("<b>%s</b><br>\n", &buf[4]);
 			}
 		}
 	}
@@ -630,21 +630,21 @@ void validate(void)
 	serv_puts("GNUR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
-		wprintf("<b>");
-		wprintf(_("No users require validation at this time."));
-		wprintf("</b><br>\n");
+		wc_printf("<b>");
+		wc_printf(_("No users require validation at this time."));
+		wc_printf("</b><br>\n");
 		wDumpContent(1);
 		return;
 	}
 	if (buf[0] != '3') {
-		wprintf("<b>%s</b><br>\n", &buf[4]);
+		wc_printf("<b>%s</b><br>\n", &buf[4]);
 		wDumpContent(1);
 		return;
 	}
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"auth_validate\"><tr><td>\n");
-	wprintf("<div id=\"validate\">");
+	wc_printf("<div id=\"validate\">");
 
 	safestrncpy(user, &buf[4], sizeof user);
 	serv_printf("GREG %s", user);
@@ -655,7 +655,7 @@ void validate(void)
 			serv_getln(buf, sizeof buf);
 			++a;
 			if (a == 1)
-				wprintf("#%s<br><H1>%s</H1>",
+				wc_printf("#%s<br><H1>%s</H1>",
 					buf, &cmd[4]);
 			if (a == 2) {
 				char *pch;
@@ -692,41 +692,41 @@ void validate(void)
 					pch = _("strong");
 				}
 
-				wprintf("PW: %s<br>\n", pch);
+				wc_printf("PW: %s<br>\n", pch);
 			}
 			if (a == 3)
-				wprintf("%s<br>\n", buf);
+				wc_printf("%s<br>\n", buf);
 			if (a == 4)
-				wprintf("%s<br>\n", buf);
+				wc_printf("%s<br>\n", buf);
 			if (a == 5)
-				wprintf("%s, ", buf);
+				wc_printf("%s, ", buf);
 			if (a == 6)
-				wprintf("%s ", buf);
+				wc_printf("%s ", buf);
 			if (a == 7)
-				wprintf("%s<br>\n", buf);
+				wc_printf("%s<br>\n", buf);
 			if (a == 8)
-				wprintf("%s<br>\n", buf);
+				wc_printf("%s<br>\n", buf);
 			if (a == 9)
-				wprintf(_("Current access level: %d (%s)\n"),
+				wc_printf(_("Current access level: %d (%s)\n"),
 					atoi(buf), axdefs[atoi(buf)]);
 		} while (strcmp(buf, "000"));
 	} else {
-		wprintf("<H1>%s</H1>%s<br />\n", user, &cmd[4]);
+		wc_printf("<H1>%s</H1>%s<br />\n", user, &cmd[4]);
 	}
 
-	wprintf("<hr />");
-	wprintf(_("Select access level for this user:"));
-	wprintf("<br />\n");
+	wc_printf("<hr />");
+	wc_printf(_("Select access level for this user:"));
+	wc_printf("<br />\n");
 	for (a = 0; a <= 6; ++a) {
-		wprintf("<a href=\"validate?nonce=%d?user=", WC->nonce);
+		wc_printf("<a href=\"validate?nonce=%d?user=", WC->nonce);
 		urlescputs(user);
-		wprintf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
+		wc_printf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);
 	}
-	wprintf("<br />\n");
+	wc_printf("<br />\n");
 
-	wprintf("</div>\n");
-	wprintf("</td></tr></table></div>\n");
+	wc_printf("</div>\n");
+	wc_printf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
@@ -807,7 +807,7 @@ void display_changepw(void)
 	FreeStrBuf(&Buf);
 
 	if (!IsEmptyStr(WC->ImportantMessage)) {
-		wprintf("<span class=\"errormsg\">"
+		wc_printf("<span class=\"errormsg\">"
 			"%s</span><br />\n", WC->ImportantMessage);
 		safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 	}
@@ -818,25 +818,25 @@ void display_changepw(void)
 		fmout("CENTER");
 	}
 
-	wprintf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wprintf("<table class=\"altern\" ");
-	wprintf("<tr class=\"even\"><td>");
-	wprintf(_("Enter new password:"));
-	wprintf("</td><td>");
-	wprintf("<input type=\"password\" name=\"newpass1\" value=\"\" maxlength=\"20\"></td></tr>\n");
-	wprintf("<tr class=\"odd\"><td>");
-	wprintf(_("Enter it again to confirm:"));
-	wprintf("</td><td>");
-	wprintf("<input type=\"password\" name=\"newpass2\" value=\"\" maxlength=\"20\"></td></tr>\n");
-	wprintf("</table>\n");
+	wc_printf("<form name=\"changepwform\" action=\"changepw\" method=\"post\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<table class=\"altern\" ");
+	wc_printf("<tr class=\"even\"><td>");
+	wc_printf(_("Enter new password:"));
+	wc_printf("</td><td>");
+	wc_printf("<input type=\"password\" name=\"newpass1\" value=\"\" maxlength=\"20\"></td></tr>\n");
+	wc_printf("<tr class=\"odd\"><td>");
+	wc_printf(_("Enter it again to confirm:"));
+	wc_printf("</td><td>");
+	wc_printf("<input type=\"password\" name=\"newpass2\" value=\"\" maxlength=\"20\"></td></tr>\n");
+	wc_printf("</table>\n");
 
-	wprintf("<div class=\"buttons\">\n");
-	wprintf("<input type=\"submit\" name=\"change_action\" value=\"%s\">", _("Change password"));
-	wprintf("&nbsp;");
-	wprintf("<input type=\"submit\" name=\"cancel_action\" value=\"%s\">\n", _("Cancel"));
-	wprintf("</div>\n");
-	wprintf("</form>\n");
+	wc_printf("<div class=\"buttons\">\n");
+	wc_printf("<input type=\"submit\" name=\"change_action\" value=\"%s\">", _("Change password"));
+	wc_printf("&nbsp;");
+	wc_printf("<input type=\"submit\" name=\"cancel_action\" value=\"%s\">\n", _("Cancel"));
+	wc_printf("</div>\n");
+	wc_printf("</form>\n");
 
 	do_template("endbox", NULL);
 	wDumpContent(1);

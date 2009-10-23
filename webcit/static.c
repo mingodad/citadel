@@ -26,7 +26,7 @@ HashList *StaticFilemappings[4] = {NULL, NULL, NULL, NULL};
 			lprintf(9, "Suspicious request. Ignoring.");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
 			hprintf("Content-Type: text/plain\r\n\r\n");
-			wprintf("You have sent a malformed or invalid request.\r\n");
+			wc_printf("You have sent a malformed or invalid request.\r\n");
 			end_burst();
 		}
 */
@@ -49,7 +49,7 @@ void output_static(const char *what)
 		hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf("Cannot open %s: %s\r\n", what, strerror(errno));
+		wc_printf("Cannot open %s: %s\r\n", what, strerror(errno));
 		end_burst();
 	} else {
 		len = strlen (what);
@@ -60,7 +60,7 @@ void output_static(const char *what)
 			hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
-			wprintf("Cannot fstat %s: %s\n", what, strerror(errno));
+			wc_printf("Cannot fstat %s: %s\n", what, strerror(errno));
 			end_burst();
 			return;
 		}

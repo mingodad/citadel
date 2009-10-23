@@ -475,9 +475,9 @@ void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset
 		for (i=0; i<num_tokens(mime_submessages, '|'); ++i) {
 			extract_token(buf, mime_submessages, i, '|', sizeof buf);
 			/ ** use printable_view to suppress buttons * /
-			wprintf("<blockquote>");
+			wc_printf("<blockquote>");
 			read_message(Mime->msgnum, 1, ChrPtr(Mime->Section));
-			wprintf("</blockquote>");
+			wc_printf("</blockquote>");
 		}
 	}
 */
@@ -1405,18 +1405,18 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	VS = (bbsview_struct*)*ViewSpecific;
 	if (Stat->nummsgs == 0) {
-		wprintf("<div class=\"nomsgs\"><br><em>");
+		wc_printf("<div class=\"nomsgs\"><br><em>");
 		switch (oper) {
 		case readnew:
-			wprintf(_("No new messages."));
+			wc_printf(_("No new messages."));
 			break;
 		case readold:
-			wprintf(_("No old messages."));
+			wc_printf(_("No old messages."));
 			break;
 		default:
-			wprintf(_("No messages here."));
+			wc_printf(_("No messages here."));
 		}
-		wprintf("</em><br></div>\n");
+		wc_printf("</em><br></div>\n");
 	}
 	else 
 	{

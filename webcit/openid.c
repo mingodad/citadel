@@ -16,47 +16,47 @@ void display_openids(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	wprintf("<div class=\"fix_scrollbar_bug\">");
+	wc_printf("<div class=\"fix_scrollbar_bug\">");
 
 	svput("BOXTITLE", WCS_STRING, _("Manage Account/OpenID Associations"));
 	do_template("beginboxx", NULL);
 
 	if (WCC->serv_info->serv_supports_openid) {
 
-		wprintf("<table class=\"altern\">");
+		wc_printf("<table class=\"altern\">");
 	
 		serv_puts("OIDL");
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			bg = 1 - bg;
-			wprintf("<tr class=\"%s\">", (bg ? "even" : "odd"));
-			wprintf("<td><img src=\"static/openid-small.gif\"></td><td>");
+			wc_printf("<tr class=\"%s\">", (bg ? "even" : "odd"));
+			wc_printf("<td><img src=\"static/openid-small.gif\"></td><td>");
 			escputs(buf);
-			wprintf("</td><td>");
-			wprintf("<a href=\"openid_detach?id_to_detach=");
+			wc_printf("</td><td>");
+			wc_printf("<a href=\"openid_detach?id_to_detach=");
 			urlescputs(buf);
-			wprintf("\" onClick=\"return confirm('%s');\">",
+			wc_printf("\" onClick=\"return confirm('%s');\">",
 				_("Do you really want to delete this OpenID?"));
-			wprintf("%s</a>", _("(delete)"));
-			wprintf("</td></tr>\n");
+			wc_printf("%s</a>", _("(delete)"));
+			wc_printf("</td></tr>\n");
 		}
 	
-		wprintf("</table><br />\n");
+		wc_printf("</table><br />\n");
 	
-	        wprintf("<form method=\"POST\" action=\"openid_attach\">\n");
-		wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WCC->nonce);
-		wprintf(_("Add an OpenID: "));
-	        wprintf("<input type=\"text\" name=\"openid_url\" class=\"openid_urlarea\" size=\"40\">\n");
-	        wprintf("<input type=\"submit\" name=\"attach_button\" value=\"%s\">"
+	        wc_printf("<form method=\"POST\" action=\"openid_attach\">\n");
+		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WCC->nonce);
+		wc_printf(_("Add an OpenID: "));
+	        wc_printf("<input type=\"text\" name=\"openid_url\" class=\"openid_urlarea\" size=\"40\">\n");
+	        wc_printf("<input type=\"submit\" name=\"attach_button\" value=\"%s\">"
 			"</form></center>\n", _("Attach"));
 	}
 
 	else {
-		wprintf(_("%s does not permit authentication via OpenID."), ChrPtr(WCC->serv_info->serv_humannode));
+		wc_printf(_("%s does not permit authentication via OpenID."), ChrPtr(WCC->serv_info->serv_humannode));
 	}
 
 	do_template("endbox", NULL);
-	wprintf("</div>");
+	wc_printf("</div>");
 	wDumpContent(2);
 }
 

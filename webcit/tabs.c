@@ -26,25 +26,25 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 		"}										\n"
 	);
 
-	wprintf("<table id=\"TheTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
+	wc_printf("<table id=\"TheTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
 		"<tr align=\"center\" style=\"cursor:pointer\"><td>&nbsp;</td>"
 	);
 
 	for (i=0; i<num_tabs; ++i) {
-		wprintf("<td id=\"tabtd%d\" class=\"%s\" "
+		wc_printf("<td id=\"tabtd%d\" class=\"%s\" "
 			"onClick='tabsel(\"%d\");'"
 			">",
 			i,
 			( (i==0) ? "tab_cell_label" : "tab_cell_edit" ),
 			i
 			);
-		wprintf("%s", tabnames[i]);
-		wprintf("</td>");
+		wc_printf("%s", tabnames[i]);
+		wc_printf("</td>");
 
-		wprintf("<td>&nbsp;</td>\n");
+		wc_printf("<td>&nbsp;</td>\n");
 	}
 
-	wprintf("</tr></table>\n");
+	wc_printf("</tr></table>\n");
 }
 
 /*
@@ -57,13 +57,13 @@ void tabbed_dialog(int num_tabs, char *tabnames[]) {
 void begin_tab(int tabnum, int num_tabs) {
 
 	if (tabnum == num_tabs) {
-		wprintf("<!-- begin tab-common epilogue -->\n");
-		wprintf("<div class=\"tabcontent_submit\">");
+		wc_printf("<!-- begin tab-common epilogue -->\n");
+		wc_printf("<div class=\"tabcontent_submit\">");
 	}
 
 	else {
-		wprintf("<!-- begin tab %d of %d -->\n", tabnum, num_tabs);
-		wprintf("<div id=\"tabdiv%d\" style=\"display:%s\" class=\"tabcontent\" >",
+		wc_printf("<!-- begin tab %d of %d -->\n", tabnum, num_tabs);
+		wc_printf("<div id=\"tabdiv%d\" style=\"display:%s\" class=\"tabcontent\" >",
 			tabnum,
 			( (tabnum == 0) ? "block" : "none" )
 		);
@@ -79,16 +79,16 @@ void begin_tab(int tabnum, int num_tabs) {
 void end_tab(int tabnum, int num_tabs) {
 
 	if (tabnum == num_tabs) {
-		wprintf("</div> <!-- end of 'tabcontent_submit' div -->\n");
-		wprintf("<!-- end tab-common epilogue -->\n");
+		wc_printf("</div> <!-- end of 'tabcontent_submit' div -->\n");
+		wc_printf("<!-- end tab-common epilogue -->\n");
 	}
 
 	else {
-		wprintf("</div>\n");
-		wprintf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
+		wc_printf("</div>\n");
+		wc_printf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
 	
 		if (tabnum == num_tabs-1) {
-			wprintf("<script type=\"text/javascript\">"
+			wc_printf("<script type=\"text/javascript\">"
 				" Nifty(\"table#TheTabs td\", \"small transparent top\");"
 				"</script>"
 			);

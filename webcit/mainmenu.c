@@ -35,41 +35,41 @@ void display_aide_menu(void)
 void display_generic(void)
 {
 	output_headers(1, 1, 2, 0, 0, 0);
-	wprintf("<div id=\"banner\">\n");
-	wprintf("<h1>");
-	wprintf(_("Enter a server command"));
-	wprintf("</h1>");
-	wprintf("</div>\n");
+	wc_printf("<div id=\"banner\">\n");
+	wc_printf("<h1>");
+	wc_printf(_("Enter a server command"));
+	wc_printf("</h1>");
+	wc_printf("</div>\n");
 
-	wprintf("<div id=\"content\" class=\"service\">\n");
+	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"mainmenu_background\"><tr><td>\n");
 
-	wprintf("<center>");
-	wprintf(_("This screen allows you to enter Citadel server commands which are "
+	wc_printf("<center>");
+	wc_printf(_("This screen allows you to enter Citadel server commands which are "
 		"not supported by WebCit.  If you do not know what that means, "
 		"then this screen will not be of much use to you."));
-	wprintf("<br />\n");
+	wc_printf("<br />\n");
 
-	wprintf("<form method=\"post\" action=\"do_generic\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<form method=\"post\" action=\"do_generic\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
-	wprintf(_("Enter command:"));
-	wprintf("<br /><input type=\"text\" name=\"g_cmd\" size=80 maxlength=\"250\"><br />\n");
+	wc_printf(_("Enter command:"));
+	wc_printf("<br /><input type=\"text\" name=\"g_cmd\" size=80 maxlength=\"250\"><br />\n");
 
-	wprintf(_("Command input (if requesting SEND_LISTING transfer mode):"));
-	wprintf("<br /><textarea name=\"g_input\" rows=10 cols=80 width=80></textarea><br />\n");
+	wc_printf(_("Command input (if requesting SEND_LISTING transfer mode):"));
+	wc_printf("<br /><textarea name=\"g_input\" rows=10 cols=80 width=80></textarea><br />\n");
 
-	wprintf("<font size=-2>");
-	wprintf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), ChrPtr(WC->Hdr->HR.http_host));
-	wprintf("</font>\n");
-	wprintf("<input type=\"submit\" name=\"sc_button\" value=\"%s\">", _("Send command"));
-	wprintf("&nbsp;");
-	wprintf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br />\n", _("Cancel"));
+	wc_printf("<font size=-2>");
+	wc_printf(_("Detected host header is %s://%s"), (is_https ? "https" : "http"), ChrPtr(WC->Hdr->HR.http_host));
+	wc_printf("</font>\n");
+	wc_printf("<input type=\"submit\" name=\"sc_button\" value=\"%s\">", _("Send command"));
+	wc_printf("&nbsp;");
+	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br />\n", _("Cancel"));
 
-	wprintf("</form></center>\n");
-	wprintf("</td></tr></table></div>\n");
+	wc_printf("</form></center>\n");
+	wc_printf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 
@@ -97,12 +97,12 @@ void do_generic(void)
 	svput("BOXTITLE", WCS_STRING, _("Server command results"));
 	do_template("beginboxx", NULL);
 
-	wprintf("<table border=0><tr><td>Command:</td><td><tt>");
+	wc_printf("<table border=0><tr><td>Command:</td><td><tt>");
 	StrEscAppend(WCC->WBuf, sbstr("g_cmd"), NULL, 0, 0);
-	wprintf("</tt></td></tr><tr><td>Result:</td><td><tt>");
+	wc_printf("</tt></td></tr><tr><td>Result:</td><td><tt>");
 	StrEscAppend(WCC->WBuf, Buf, NULL, 0, 0);
 	StrBufAppendBufPlain(WCC->WBuf, HKEY("<br>\n"), 0);
-	wprintf("</tt></td></tr></table><br />\n");
+	wc_printf("</tt></td></tr></table><br />\n");
 	
 	switch (GetServerStatus(Buf, NULL)) {
 	case 8:
@@ -139,9 +139,9 @@ void do_generic(void)
 		free(junk);
 	}
 	
-	wprintf("<hr />");
-	wprintf("<a href=\"display_generic\">Enter another command</a><br />\n");
-	wprintf("<a href=\"display_advanced\">Return to menu</a>\n");
+	wc_printf("<hr />");
+	wc_printf("<a href=\"display_generic\">Enter another command</a><br />\n");
+	wc_printf("<a href=\"display_advanced\">Return to menu</a>\n");
 	do_template("endbox", NULL);
 	FreeStrBuf(&Buf);
 	wDumpContent(1);
@@ -158,7 +158,7 @@ void display_menubar(int as_single_page) {
 
 	if (as_single_page) {
 		output_headers(0, 0, 0, 0, 0, 0);
-		wprintf("<html>\n"
+		wc_printf("<html>\n"
 			"<head>\n"
 			"<title>MenuBar</title>\n"
 			"<style type=\"text/css\">\n"

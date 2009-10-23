@@ -56,10 +56,10 @@ void display_addressbook(long msgnum, char alpha) {
 				|| (!strcasecmp(&(ChrPtr(WC->wc_roomname)[11]), USERCONFIGROOM))
 				|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-				wprintf("<a href=\"edit_vcard?"
+				wc_printf("<a href=\"edit_vcard?"
 					"msgnum=%ld&partnum=%s\">",
 					msgnum, vcard_partnum);
-				wprintf("[%s]</a>", _("edit"));
+				wc_printf("[%s]</a>", _("edit"));
 			}
 
 			FreeStrBuf(&vcard_source);
@@ -602,9 +602,9 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 	char **tablabels;
 
 	if (num_ab == 0) {
-		wprintf("<br /><br /><br /><div align=\"center\"><i>");
-		wprintf(_("This address book is empty."));
-		wprintf("</i></div>\n");
+		wc_printf("<br /><br /><br /><div align=\"center\"><i>");
+		wc_printf(_("This address book is empty."));
+		wc_printf("</i></div>\n");
 		return;
 	}
 
@@ -616,9 +616,9 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 
 	tablabels = malloc(num_pages * sizeof (char *));
 	if (tablabels == NULL) {
-		wprintf("<br /><br /><br /><div align=\"center\"><i>");
-		wprintf(_("An internal error has occurred."));
-		wprintf("</i></div>\n");
+		wc_printf("<br /><br /><br /><div align=\"center\"><i>");
+		wc_printf(_("An internal error has occurred."));
+		wc_printf("</i></div>\n");
 		return;
 	}
 
@@ -640,43 +640,43 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 		if ((i / NAMESPERPAGE) != page) {	/* New tab */
 			page = (i / NAMESPERPAGE);
 			if (page > 0) {
-				wprintf("</tr></table>\n");
+				wc_printf("</tr></table>\n");
 				end_tab(page-1, num_pages);
 			}
 			begin_tab(page, num_pages);
-			wprintf("<table border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
+			wc_printf("<table border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
 			displayed = 0;
 		}
 
 		if ((displayed % 4) == 0) {
 			if (displayed > 0) {
-				wprintf("</tr>\n");
+				wc_printf("</tr>\n");
 			}
 			bg = 1 - bg;
-			wprintf("<tr bgcolor=\"#%s\">",
+			wc_printf("<tr bgcolor=\"#%s\">",
 				(bg ? "DDDDDD" : "FFFFFF")
 			);
 		}
 	
-		wprintf("<td>");
+		wc_printf("<td>");
 
-		wprintf("<a href=\"readfwd?startmsg=%ld?is_singlecard=1",
+		wc_printf("<a href=\"readfwd?startmsg=%ld?is_singlecard=1",
 			addrbook[i].ab_msgnum);
-		wprintf("?maxmsgs=1?is_summary=0?alpha=%s\">", bstr("alpha"));
+		wc_printf("?maxmsgs=1?is_summary=0?alpha=%s\">", bstr("alpha"));
 		vcard_n_prettyize(addrbook[i].ab_name);
 		escputs(addrbook[i].ab_name);
-		wprintf("</a></td>\n");
+		wc_printf("</a></td>\n");
 		++displayed;
 	}
 
 	/* Placeholders for empty columns at end */
 	if ((num_ab % 4) != 0) {
 		for (i=0; i<(4-(num_ab % 4)); ++i) {
-			wprintf("<td>&nbsp;</td>");
+			wc_printf("<td>&nbsp;</td>");
 		}
 	}
 
-	wprintf("</tr></table>\n");
+	wc_printf("</tr></table>\n");
 	end_tab((num_pages-1), num_pages);
 
 	begin_tab(num_pages, num_pages);
@@ -874,19 +874,19 @@ void do_edit_vcard(long msgnum, char *partnum,
 	svput("BOXTITLE", WCS_STRING, _("Edit contact information"));
 	do_template("beginboxx", NULL);
 
-	wprintf("<form method=\"POST\" action=\"submit_vcard\">\n");
-	wprintf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
+	wc_printf("<form method=\"POST\" action=\"submit_vcard\">\n");
+	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	if (force_room != NULL) {
-		wprintf("<input type=\"hidden\" name=\"force_room\" value=\"");
+		wc_printf("<input type=\"hidden\" name=\"force_room\" value=\"");
 		escputs(force_room);
-		wprintf("\">\n");
+		wc_printf("\">\n");
 	}
 
-	wprintf("<div class=\"fix_scrollbar_bug\">"
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"vcard_edit_background\"><tr><td>\n");
 
-	wprintf("<table border=0><tr>"
+	wc_printf("<table border=0><tr>"
 		"<td>%s</td>"
 		"<td>%s</td>"
 		"<td>%s</td>"
@@ -894,147 +894,147 @@ void do_edit_vcard(long msgnum, char *partnum,
 		"<td>%s</td></tr>\n",
 		_("Prefix"), _("First"), _("Middle"), _("Last"), _("Suffix")
 	);
-	wprintf("<tr><td><input type=\"text\" name=\"prefix\" "
+	wc_printf("<tr><td><input type=\"text\" name=\"prefix\" "
 		"value=\"%s\" maxlength=\"5\" size=\"5\"></td>",
 		prefix);
-	wprintf("<td><input type=\"text\" name=\"firstname\" "
+	wc_printf("<td><input type=\"text\" name=\"firstname\" "
 		"value=\"%s\" maxlength=\"29\"></td>",
 		firstname);
-	wprintf("<td><input type=\"text\" name=\"middlename\" "
+	wc_printf("<td><input type=\"text\" name=\"middlename\" "
 		"value=\"%s\" maxlength=\"29\"></td>",
 		middlename);
-	wprintf("<td><input type=\"text\" name=\"lastname\" "
+	wc_printf("<td><input type=\"text\" name=\"lastname\" "
 		"value=\"%s\" maxlength=\"29\"></td>",
 		lastname);
-	wprintf("<td><input type=\"text\" name=\"suffix\" "
+	wc_printf("<td><input type=\"text\" name=\"suffix\" "
 		"value=\"%s\" maxlength=\"10\" size=\"10\"></td></tr></table>\n",
 		suffix);
 
-	wprintf("<table  class=\"vcard_edit_background_alt\">");
-	wprintf("<tr><td>");
+	wc_printf("<table  class=\"vcard_edit_background_alt\">");
+	wc_printf("<tr><td>");
 
-	wprintf(_("Display name:"));
-	wprintf("<br>"
+	wc_printf(_("Display name:"));
+	wc_printf("<br>"
 		"<input type=\"text\" name=\"fullname\" "
 		"value=\"%s\" maxlength=\"40\"><br><br>\n",
 		fullname
 	);
 
-	wprintf(_("Title:"));
-	wprintf("<br>"
+	wc_printf(_("Title:"));
+	wc_printf("<br>"
 		"<input type=\"text\" name=\"title\" "
 		"value=\"%s\" maxlength=\"40\"><br><br>\n",
 		title
 	);
 
-	wprintf(_("Organization:"));
-	wprintf("<br>"
+	wc_printf(_("Organization:"));
+	wc_printf("<br>"
 		"<input type=\"text\" name=\"org\" "
 		"value=\"%s\" maxlength=\"40\"><br><br>\n",
 		org
 	);
 
-	wprintf("</td><td>");
+	wc_printf("</td><td>");
 
-	wprintf("<table border=0>");
-	wprintf("<tr><td>");
-	wprintf(_("PO box:"));
-	wprintf("</td><td>"
+	wc_printf("<table border=0>");
+	wc_printf("<tr><td>");
+	wc_printf(_("PO box:"));
+	wc_printf("</td><td>"
 		"<input type=\"text\" name=\"pobox\" "
 		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		pobox);
-	wprintf("<tr><td>");
-	wprintf(_("Address:"));
-	wprintf("</td><td>"
+	wc_printf("<tr><td>");
+	wc_printf(_("Address:"));
+	wc_printf("</td><td>"
 		"<input type=\"text\" name=\"extadr\" "
 		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		extadr);
-	wprintf("<tr><td> </td><td>"
+	wc_printf("<tr><td> </td><td>"
 		"<input type=\"text\" name=\"street\" "
 		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		street);
-	wprintf("<tr><td>");
-	wprintf(_("City:"));
-	wprintf("</td><td>"
+	wc_printf("<tr><td>");
+	wc_printf(_("City:"));
+	wc_printf("</td><td>"
 		"<input type=\"text\" name=\"city\" "
 		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		city);
-	wprintf("<tr><td>");
-	wprintf(_("State:"));
-	wprintf("</td><td>"
+	wc_printf("<tr><td>");
+	wc_printf(_("State:"));
+	wc_printf("</td><td>"
 		"<input type=\"text\" name=\"state\" "
 		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		state);
-	wprintf("<tr><td>");
-	wprintf(_("ZIP code:"));
-	wprintf("</td><td>"
+	wc_printf("<tr><td>");
+	wc_printf(_("ZIP code:"));
+	wc_printf("</td><td>"
 		"<input type=\"text\" name=\"zipcode\" "
 		"value=\"%s\" maxlength=\"10\"></td></tr>\n",
 		zipcode);
-	wprintf("<tr><td>");
-	wprintf(_("Country:"));
-	wprintf("</td><td>"
+	wc_printf("<tr><td>");
+	wc_printf(_("Country:"));
+	wc_printf("</td><td>"
 		"<input type=\"text\" name=\"country\" "
 		"value=\"%s\" maxlength=\"29\" width=\"5\"></td></tr>\n",
 		country);
-	wprintf("</table>\n");
+	wc_printf("</table>\n");
 
-	wprintf("</table>\n");
+	wc_printf("</table>\n");
 
-	wprintf("<table border=0><tr><td>");
-	wprintf(_("Home telephone:"));
-	wprintf("</td>"
+	wc_printf("<table border=0><tr><td>");
+	wc_printf(_("Home telephone:"));
+	wc_printf("</td>"
 		"<td><input type=\"text\" name=\"hometel\" "
 		"value=\"%s\" maxlength=\"29\"></td>\n",
 		hometel);
-	wprintf("<td>");
-	wprintf(_("Work telephone:"));
-	wprintf("</td>"
+	wc_printf("<td>");
+	wc_printf(_("Work telephone:"));
+	wc_printf("</td>"
 		"<td><input type=\"text\" name=\"worktel\" "
 		"value=\"%s\" maxlength=\"29\"></td></tr>\n",
 		worktel);
-	wprintf("<tr><td>");
-	wprintf(_("Mobile telephone:"));
-	wprintf("</td>"
+	wc_printf("<tr><td>");
+	wc_printf(_("Mobile telephone:"));
+	wc_printf("</td>"
 		"<td><input type=\"text\" name=\"mobiletel\" "
 		"value=\"%s\" maxlength=\"29\"></td>\n",
 		mobiletel);
-	wprintf("<td>");
-	wprintf(_("Fax number:"));
-	wprintf("</td>"
+	wc_printf("<td>");
+	wc_printf(_("Fax number:"));
+	wc_printf("</td>"
 		"<td><input type=\"text\" name=\"faxtel\" "
 		"value=\"%s\" maxlength=\"29\"></td></tr></table>\n",
 		faxtel);
 
-	wprintf("<table class=\"vcard_edit_background_alt\">");
-	wprintf("<tr><td>");
+	wc_printf("<table class=\"vcard_edit_background_alt\">");
+	wc_printf("<tr><td>");
 
-	wprintf("<table border=0><TR>"
+	wc_printf("<table border=0><TR>"
 		"<td valign=top>");
-	wprintf(_("Primary Internet e-mail address"));
-	wprintf("<br />"
+	wc_printf(_("Primary Internet e-mail address"));
+	wc_printf("<br />"
 		"<input type=\"text\" name=\"primary_inetemail\" "
 		"size=40 maxlength=60 value=\"");
 	escputs(primary_inetemail);
-	wprintf("\"><br />"
+	wc_printf("\"><br />"
 		"</td><td valign=top>");
-	wprintf(_("Internet e-mail aliases"));
-	wprintf("<br />"
+	wc_printf(_("Internet e-mail aliases"));
+	wc_printf("<br />"
 		"<textarea name=\"other_inetemail\" rows=5 cols=40 width=40>");
 	escputs(other_inetemail);
-	wprintf("</textarea></td></tr></table>\n");
+	wc_printf("</textarea></td></tr></table>\n");
 
-	wprintf("</td></tr></table>\n");
+	wc_printf("</td></tr></table>\n");
 
-	wprintf("<input type=\"hidden\" name=\"extrafields\" value=\"");
+	wc_printf("<input type=\"hidden\" name=\"extrafields\" value=\"");
 	escputs(extrafields);
-	wprintf("\">\n");
+	wc_printf("\">\n");
 
-	wprintf("<input type=\"hidden\" name=\"return_to\" value=\"");
+	wc_printf("<input type=\"hidden\" name=\"return_to\" value=\"");
 	escputs(return_to);
-	wprintf("\">\n");
+	wc_printf("\">\n");
 
-	wprintf("<div class=\"buttons\">\n"
+	wc_printf("<div class=\"buttons\">\n"
 		"<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
 		"&nbsp;"
 		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">"
@@ -1043,7 +1043,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 		_("Cancel")
 	);
 	
-	wprintf("</td></tr></table>\n");
+	wc_printf("</td></tr></table>\n");
 	do_template("endbox", NULL);
 	wDumpContent(1);
 	if (Msg != NULL) {
@@ -1232,7 +1232,7 @@ void display_vcard_photo_img(void)
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf(_("Could Not decode vcard photo\n"));
+		wc_printf(_("Could Not decode vcard photo\n"));
 		end_burst();
 		return;
 	}

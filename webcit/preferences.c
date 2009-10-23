@@ -944,11 +944,11 @@ void DeleteGVSNHash(HashList **KillMe)
  */
 void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
 {
-	wprintf("<a href=\"change_start_page?startpage=");
+	wc_printf("<a href=\"change_start_page?startpage=");
 	urlescputs(ChrPtr(WC->Hdr->this_page));
-	wprintf("\">");
-	wprintf(_("Make this my start page"));
-	wprintf("</a>");
+	wc_printf("\">");
+	wc_printf(_("Make this my start page"));
+	wc_printf("</a>");
 }
 
 

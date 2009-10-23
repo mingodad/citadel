@@ -24,7 +24,7 @@ void groupdav_get_big_ics(void) {
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
-		wprintf("%s\r\n",
+		wc_printf("%s\r\n",
 			&buf[4]
 			);
 		end_burst();
@@ -36,7 +36,7 @@ void groupdav_get_big_ics(void) {
 	hprintf("Content-type: text/calendar; charset=UTF-8\r\n");
 	begin_burst();
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		wprintf("%s\r\n", buf);
+		wc_printf("%s\r\n", buf);
 	}
 	end_burst();
 }
@@ -112,7 +112,7 @@ void groupdav_get(void)
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf("The object you requested was not found.\r\n");
+		wc_printf("The object you requested was not found.\r\n");
 		end_burst();
 		return;
 	}
@@ -134,7 +134,7 @@ void groupdav_get(void)
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf("There is no folder called \"%s\" on this server.\r\n",
+		wc_printf("There is no folder called \"%s\" on this server.\r\n",
 			ChrPtr(dav_roomname));
 		end_burst();
 		FreeStrBuf(&dav_roomname);
@@ -158,7 +158,7 @@ void groupdav_get(void)
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
+		wc_printf("Object \"%s\" was not found in the \"%s\" folder.\r\n",
 			ChrPtr(dav_uid),
 			ChrPtr(dav_roomname));
 		end_burst();
@@ -255,7 +255,7 @@ void groupdav_get(void)
 			ptr = memreadline(ptr, buf, sizeof buf);
 	
 			if (in_body) {
-				wprintf("%s\r\n", buf);
+				wc_printf("%s\r\n", buf);
 			}
 			else if ((buf[0] == 0) && (in_body == 0)) {
 				in_body = 1;

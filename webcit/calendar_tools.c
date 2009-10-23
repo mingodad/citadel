@@ -61,14 +61,14 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 		localtime_r(&tt, &tm);
 	}
 
-	wprintf("<input type=\"text\" name=\"");
+	wc_printf("<input type=\"text\" name=\"");
 	StrBufAppendBufPlain(WCC->WBuf, prefix, -1, 0);
-	wprintf("\" id=\"");
+	wc_printf("\" id=\"");
 	StrBufAppendBufPlain(WCC->WBuf, prefix, -1, 0);
-	wprintf("\" size=\"10\" maxlength=\"10\" value=\"");
+	wc_printf("\" size=\"10\" maxlength=\"10\" value=\"");
 	wc_strftime(timebuf, 32, "%Y-%m-%d", &tm);
 	StrBufAppendBufPlain(WCC->WBuf, timebuf, -1, 0);
-	wprintf("\">");
+	wc_printf("\">");
 
 	StrBufAppendPrintf(WC->trailing_javascript, "attachDatePicker('");
 	StrBufAppendPrintf(WC->trailing_javascript, prefix);
@@ -78,46 +78,46 @@ void display_icaltimetype_as_webform(struct icaltimetype *t, char *prefix, int d
 	 * This keeps the data model consistent.
 	 */
 	if (date_only) {
-		wprintf("<div style=\"display:none\">");
+		wc_printf("<div style=\"display:none\">");
 	}
 
-	wprintf("<span ID=\"");
+	wc_printf("<span ID=\"");
 	StrBufAppendBufPlain(WCC->WBuf, prefix, -1, 0);
-	wprintf("_time\">");
-	wprintf(_("Hour: "));
-	wprintf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
+	wc_printf("_time\">");
+	wc_printf(_("Hour: "));
+	wc_printf("<SELECT NAME=\"%s_hour\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=23; ++i) {
 
 		if (time_format == WC_TIMEFORMAT_24) {
-			wprintf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
+			wc_printf("<OPTION %s VALUE=\"%d\">%d</OPTION>\n",
 				((tm.tm_hour == i) ? "SELECTED" : ""),
 				i, i
 				);
 		}
 		else {
-			wprintf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
+			wc_printf("<OPTION %s VALUE=\"%d\">%s</OPTION>\n",
 				((tm.tm_hour == i) ? "SELECTED" : ""),
 				i, hourname[i]
 				);
 		}
 
 	}
-	wprintf("</SELECT>\n");
+	wc_printf("</SELECT>\n");
 
-	wprintf(_("Minute: "));
-	wprintf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
+	wc_printf(_("Minute: "));
+	wc_printf("<SELECT NAME=\"%s_minute\" SIZE=\"1\">\n", prefix);
 	for (i=0; i<=59; ++i) {
 		if ( (i % 5 == 0) || (tm.tm_min == i) ) {
-			wprintf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",
+			wc_printf("<OPTION %s VALUE=\"%d\">:%02d</OPTION>\n",
 				((tm.tm_min == i) ? "SELECTED" : ""),
 				i, i
 				);
 		}
 	}
-	wprintf("</SELECT></span>\n");
+	wc_printf("</SELECT></span>\n");
 
 	if (date_only) {
-		wprintf("</div>");
+		wc_printf("</div>");
 	}
 }
 

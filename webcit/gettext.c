@@ -180,24 +180,24 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 
 
 	if (nLocalesLoaded == 1) {
-		wprintf("<p>%s</p>", AvailLangLoaded[0]);
+		wc_printf("<p>%s</p>", AvailLangLoaded[0]);
 		return;
 	}
 
-	wprintf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
+	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
 
 	for (i=0; i < nLocalesLoaded; ++i) {
 #ifndef HAVE_USELOCALE
 		if (strcmp(AvailLangLoaded[i], Lang) == 0)
 #endif
-		wprintf("<option %s value=%s>%s</option>\n",
+		wc_printf("<option %s value=%s>%s</option>\n",
 			((WC->selected_language == i) ? "selected" : ""),
 			AvailLangLoaded[i],
 			AvailLangLoaded[i]
 		);
 	}
 
-	wprintf("</select>\n");
+	wc_printf("</select>\n");
 }
 
 /**
@@ -371,7 +371,7 @@ const char *AvailLang[] = {
 /** \brief dummy for non NLS enabled systems */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {
-	wprintf("English (US)");
+	wc_printf("English (US)");
 }
 
 /** \brief dummy for non NLS enabled systems */

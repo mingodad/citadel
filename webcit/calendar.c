@@ -314,27 +314,27 @@ void respond_to_request(void)
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wprintf("<img src=\"static/calarea_48x.gif\"><span>");
+		wc_printf("<img src=\"static/calarea_48x.gif\"><span>");
 		if (!strcasecmp(bstr("sc"), "accept")) {
-			wprintf(_("You have accepted this meeting invitation.  "
+			wc_printf(_("You have accepted this meeting invitation.  "
 				"It has been entered into your calendar.")
 			);
 		} else if (!strcasecmp(bstr("sc"), "tentative")) {
-			wprintf(_("You have tentatively accepted this meeting invitation.  "
+			wc_printf(_("You have tentatively accepted this meeting invitation.  "
 				"It has been 'pencilled in' to your calendar.")
 			);
 		} else if (!strcasecmp(bstr("sc"), "decline")) {
-			wprintf(_("You have declined this meeting invitation.  "
+			wc_printf(_("You have declined this meeting invitation.  "
 				  "It has <b>not</b> been entered into your calendar.")
 				);
 		}
-		wprintf(" ");
-		wprintf(_("A reply has been sent to the meeting organizer."));
-		wprintf("</span>");
+		wc_printf(" ");
+		wc_printf(_("A reply has been sent to the meeting organizer."));
+		wc_printf("</span>");
 	} else {
-		wprintf("<img align=\"center\" src=\"static/error.gif\"><span>");
-		wprintf("%s\n", &buf[4]);
-		wprintf("</span>");
+		wc_printf("<img align=\"center\" src=\"static/error.gif\"><span>");
+		wc_printf("%s\n", &buf[4]);
+		wc_printf("</span>");
 	}
 
 	end_ajax_response();
@@ -359,18 +359,18 @@ void handle_rsvp(void)
 	serv_getln(buf, sizeof buf);
 
 	if (buf[0] == '2') {
-		wprintf("<img src=\"static/calarea_48x.gif\"><span>");
+		wc_printf("<img src=\"static/calarea_48x.gif\"><span>");
 		if (!strcasecmp(bstr("sc"), "update")) {
-			wprintf(_("Your calendar has been updated to reflect this RSVP."));
+			wc_printf(_("Your calendar has been updated to reflect this RSVP."));
 		} else if (!strcasecmp(bstr("sc"), "ignore")) {
-			wprintf(_("You have chosen to ignore this RSVP. "
+			wc_printf(_("You have chosen to ignore this RSVP. "
 				  "Your calendar has <b>not</b> been updated.")
 				);
 		}
-		wprintf("</span>");
+		wc_printf("</span>");
 	} else {
-		wprintf("<img src=\"static/error.gif\"><span> %s\n", &buf[4]);
-		wprintf("</span>");
+		wc_printf("<img src=\"static/error.gif\"><span> %s\n", &buf[4]);
+		wc_printf("</span>");
 	}
 
 	end_ajax_response();
@@ -840,7 +840,7 @@ void do_freebusy(void)
 		hprintf("HTTP/1.1 404 %s\n", &buf[4]);
 		output_headers(0, 0, 0, 0, 0, 0);
 		hprintf("Content-Type: text/plain\r\n");
-		wprintf("%s\n", &buf[4]);
+		wc_printf("%s\n", &buf[4]);
 		end_burst();
 		return;
 	}
