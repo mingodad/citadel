@@ -66,6 +66,7 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename)
 	/* Found it!  Now read it. */
 	msgnum = locate_message_by_uid(pagename);
 	if (msgnum >= 0L) {
+		wprintf("FIXME can we put wiki nav links in or something?<br>\n");
 		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
 		return;
 	}
@@ -101,6 +102,24 @@ void display_wiki_page(void)
 }
 
 
+/*
+ * Display the revision history for a wiki page
+ */
+void display_wiki_history(void)
+{
+	const StrBuf *roomname;
+	char pagename[128];
+
+	output_headers(1, 1, 1, 0, 0, 0);
+	roomname = sbstr("room");
+	safestrncpy(pagename, bstr("page"), sizeof pagename);
+
+	wprintf("FIXME put something here<br>\n");
+
+	wDumpContent(1);
+}
+
+
 int wiki_Cleanup(void **ViewSpecific)
 {
 	char pagename[5];
@@ -124,6 +143,7 @@ InitModule_WIKI
 	);
 
 	WebcitAddUrlHandler(HKEY("wiki"), "", 0, display_wiki_page, 0);
+	WebcitAddUrlHandler(HKEY("wiki_history"), "", 0, display_wiki_history, 0);
 }
 
 
