@@ -66,7 +66,6 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename)
 	/* Found it!  Now read it. */
 	msgnum = locate_message_by_uid(pagename);
 	if (msgnum >= 0L) {
-		wprintf("FIXME can we put wiki nav links in or something?<br>\n");
 		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
 		return;
 	}
@@ -114,7 +113,7 @@ void display_wiki_history(void)
 	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
 
-	wprintf("FIXME put something here<br>\n");
+	do_template("wiki_history", NULL);
 
 	wDumpContent(1);
 }
