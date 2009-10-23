@@ -663,6 +663,31 @@ void embed_room_banner(char *got, int navbar_style) {
 					"%s"
 					"</span></a></li>\n", buf, _("Edit this page")
 					);
+
+				if (bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), "wiki_history")) {
+					/* already viewing history; display a link to the current page */
+					wprintf(
+						"<li class=\"newmess\">"
+						"<a href=\"wiki?page=%s\">"
+						"<img  src=\"static/newmess3_24x.gif\" "
+						"alt=\"\" width=\"24\" height=\"24\">"
+						"<span class=\"navbar_link\">"
+						"%s"
+						"</span></a></li>\n", buf, _("Current version")
+						);
+				}
+				else {
+					/* display a link to the history */
+					wprintf(
+						"<li class=\"newmess\">"
+						"<a href=\"wiki_history?page=%s\">"
+						"<img  src=\"static/newmess3_24x.gif\" "
+						"alt=\"\" width=\"24\" height=\"24\">"
+						"<span class=\"navbar_link\">"
+						"%s"
+						"</span></a></li>\n", buf, _("History")
+						);
+				}
 				break;
 			case VIEW_MAILBOX:
 				wprintf(
