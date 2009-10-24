@@ -102,19 +102,56 @@ void display_wiki_page(void)
 
 
 /*
+ * Display the revision history for a wiki page (template callback)
+ */
+void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
+{
+	const StrBuf *roomname;
+	char pagename[128];
+	StrBuf *Buf;
+
+	roomname = sbstr("room");
+	safestrncpy(pagename, bstr("page"), sizeof pagename);
+	str_wiki_index(pagename);
+
+	if (StrLength(roomname) > 0) {
+
+		/* If we're not in the correct room, try going there. */
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+			gotoroom(roomname);
+		}
+	
+		/* If we're still not in the correct room, it doesn't exist. */
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
+			return;
+		}
+
+	}
+
+	serv_printf("WIKI history|%s", pagename);
+	Buf = NewStrBuf();
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		while(StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+			wc_printf("<tt>%s</tt><br>\n", ChrPtr(Buf));
+		}
+	}
+	else {
+		wc_printf("%s", ChrPtr(Buf));
+	}
+
+	FreeStrBuf(&Buf);
+}
+
+
+/*
  * Display the revision history for a wiki page
  */
 void display_wiki_history(void)
 {
-	const StrBuf *roomname;
-	char pagename[128];
-
 	output_headers(1, 1, 1, 0, 0, 0);
-	roomname = sbstr("room");
-	safestrncpy(pagename, bstr("page"), sizeof pagename);
-
 	do_template("wiki_history", NULL);
-
 	wDumpContent(1);
 }
 
@@ -143,6 +180,5 @@ InitModule_WIKI
 
 	WebcitAddUrlHandler(HKEY("wiki"), "", 0, display_wiki_page, 0);
 	WebcitAddUrlHandler(HKEY("wiki_history"), "", 0, display_wiki_history, 0);
+	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
 }
-
-
