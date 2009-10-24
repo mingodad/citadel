@@ -2,7 +2,12 @@
 <script type="text/javascript">
 var is_safe_mode = <?%("COND:PREF", 1, :"mailbox", "client-nosort",
 "true", "false")>;
-var sortmode = "<?PREF:ROOM:VALUE("sort")>";
+var SortBy = "<?PREF:ROOM:VALUE("SortBy")>";
+var SortOrder = <?PREF:ROOM:VALUE:INT("SortOrder")>;
+var nummsgs = <?READLOOP:TOTALMSGS>;
+var startmsg = <?READLOOP:STARTMSG>;
+var roomname = "<?ROOMNAME>";
+/*sortmode*/
 </script>
 <div id="message_list_hdr">
 <table>
@@ -14,7 +19,11 @@ var sortmode = "<?PREF:ROOM:VALUE("sort")>";
 	</table>
 </div>
 <div id="summary_view">
-  <table><tbody id="message_list_body" class="mailbox_summary"><tr style="display: none;"><td colspan="4"></td></tr></tbody></table>
+  <table><tbody id="message_list_body" class="mailbox_summary"><tr style="display: none;"><td colspan="4"></td></tr></tbody>
+<?ITERATE("MAIL:SUMM:MSGS", "mailsummary_section"))> 
+</table>
+
+
     <div id="loading">
       <p><img src="static/throbber.gif" alt=""></p>
       <p><?_("Loading messages from server, please wait")></p>

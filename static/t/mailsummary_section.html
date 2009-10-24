@@ -1,0 +1,7 @@
+
+<tr id="msg_<?MAIL:SUMM:N>" citadel:dropenabled="dropenabled" class="table-alt-row" citadel:dndelement="summaryViewDragAndDropHandler" citadel:msgid="<?MAIL:SUMM:N>" citadel:ctdlrowid="<?ITERATE:N>">
+<td class="col1"><?MAIL:SUMM:SUBJECT("K")></td>
+<td class="col2"><?MAIL:SUMM:FROM("K")></td>
+<td class="col4"><div class="dateno"><?MAIL:SUMM:DATENO><div><div class="read"><?%("COND:MAIL:SUMM:UNREAD",1, 0, 0, "true","false")><?ITERATE:ODDEVEN></div></td>
+<td class="col3"><?MAIL:SUMM:DATEBRIEF></td>
+</tr>
