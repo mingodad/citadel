@@ -999,10 +999,14 @@ fi
 abs_srcdir="`cd $srcdir && pwd`"
 abs_builddir="`pwd`"
 if test "$abs_srcdir" != "$abs_builddir"; then
-   ln -s $abs_srcdir/include $abs_builddir
-   ln -s $abs_srcdir/Make_sources $abs_builddir
-   ln -s $abs_srcdir/Make_modules $abs_builddir
-   ln -s $abs_srcdir/*.h $abs_builddir
+   ln -sf $abs_srcdir/include $abs_builddir
+   ln -sf $abs_srcdir/Make_sources $abs_builddir
+   ln -sf $abs_srcdir/Make_modules $abs_builddir
+   for i in $abs_srcdir/*.h ; do
+      if test "$abs_srcdir/sysdep.h" != "$i"; then
+         ln -sf $i $abs_builddir
+      fi
+   done
    for d in `/bin/ls $abs_srcdir/modules/`; do 
 	(mkdir -p $abs_builddir/modules/$d) 
    done
