@@ -100,7 +100,7 @@ mkdir-init:
 	done
 
 svn_revision.c: ${SOURCES}
-	./mk_svn_revision.sh
+	./scripts/mk_svn_revision.sh
 
 DEP_FILES=$(SOURCES:.c=.d) modules_init.d modules_upgrade.d
 
