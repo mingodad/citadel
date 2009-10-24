@@ -19,43 +19,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <signal.h>
-#include <pwd.h>
-#include <errno.h>
-#include <sys/types.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <sys/wait.h>
-#include <string.h>
-#include <limits.h>
-#include <libcitadel.h>
-#include "support.h"
-#include "config.h"
-#include "serv_autocompletion.h"
-
 #include "ctdl_module.h"
 
 
-#ifndef HAVE_SNPRINTF
-#include "snprintf.h"
-#endif
+#include "serv_autocompletion.h"
 
 
 

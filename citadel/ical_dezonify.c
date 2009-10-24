@@ -26,6 +26,8 @@
 #include "config.h"
 #include "ical_dezonify.h"
 
+#include "ctdl_module.h"
+
 
 /*
  * Figure out which time zone needs to be used for timestamps that are

@@ -59,6 +59,9 @@ int ctdl_require_ldap_version = 3;
 #include "threads.h"
 #include "citadel_ldap.h"
 
+#include "ctdl_module.h"
+
+
 #ifdef HAVE_LDAP
 
 #define LDAP_DEPRECATED 1	/* Needed to suppress misleading warnings */

@@ -48,6 +48,8 @@
 #include "config.h"
 #include "clientsocket.h"
 
+#include "ctdl_module.h"
+
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
 #endif

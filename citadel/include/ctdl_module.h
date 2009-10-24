@@ -3,7 +3,40 @@
 #ifndef CTDL_MODULE_H
 #define CTDL_MODULE_H
 
+#include "sysdep.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <ctype.h>
+#include <signal.h>
+#include <pwd.h>
+#include <errno.h>
+#include <sys/types.h>
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#include <sys/wait.h>
+#include <string.h>
+#include <limits.h>
+
+
+#ifndef HAVE_SNPRINTF
+#include "snprintf.h"
+#endif
+
+
 #include <libcitadel.h>
+
 #include "server.h"
 #include "sysdep_decls.h"
 #include "msgbase.h"
@@ -218,5 +251,22 @@ enum {
 	ac_aide,
 	ac_internal
 };
+
+
+
+/*
+ * API declarations from serv_extensions.h
+ */
+void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, char *search_string, char *func_name);
+/* 
+ * Global system configuration.  Don't change anything here.  It's all in dtds/config-defs.h now.
+ */
+struct config {
+#include "datadefinitions.h"
+#include "dtds/config-defs.h"
+#include "undef_data.h"
+};
+
+extern struct config config;
 
 #endif /* CTDL_MODULE_H */

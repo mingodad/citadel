@@ -44,6 +44,7 @@
 #include "parsedate.h"
 #include "database.h"
 
+#include "ctdl_module.h"
 
 #ifndef HAVE_SNPRINTF
 #include "snprintf.h"

@@ -33,6 +33,10 @@
 #include "server.h"
 #include "config.h"
 
+
+#include "ctdl_module.h"
+
+
 struct config config;
 
 /*
