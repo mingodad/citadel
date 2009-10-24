@@ -55,7 +55,7 @@
 #include "user_ops.h"
 #include "housekeeping.h"
 #include "svn_revision.h"
-#include "citadel_dirs.c"
+#include "citadel_dirs.h"
 
 #include "modules_init.h"
 #include "ecrash.h"

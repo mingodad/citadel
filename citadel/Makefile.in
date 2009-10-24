@@ -72,18 +72,21 @@ YACC=@YACC@
 # End configuration section
 
 
-SOURCES=aidepost.c auth.c base64.c chkpwd.c chkpw.c citadel.c citadel_ipc.c \
-	citmail.c citserver.c client_chat.c client_passwords.c \
-	clientsocket.c commands.c config.c control.c $(DATABASE) \
+SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
+	utils/setup.c utils/msgform.c utils/chkpw.c \
+	utils/sendcommand.c utils/getmail.c utils/userlist.c \
+	utils/ctdlmigrate.c utils/base64.c utils/chkpwd.c \
+	utillib/citadel_ipc.c utillib/citadel_dirs.c utillib/ipc_c_tcp.c \
+	textclient/client_chat.c textclient/client_passwords.c \
+	textclient/commands.c textclient/messages.c textclient/rooms.c \
+	textclient/routines.c textclient/routines2.c textclient/tuiconfig.c \
+	textclient/citadel.c textclient/screen.c \
+	citserver.c clientsocket.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
-	ipc_c_tcp.c locate_host.c md5.c messages.c  \
-	msgbase.c msgform.c parsedate.c policy.c \
-	room_ops.c rooms.c routines.c routines2.c tuiconfig.c euidindex.c \
-	screen.c sendcommand.c getmail.c \
-	server_main.c setup.c snprintf.c ldap.c \
-	stress.c support.c sysdep.c user_ops.c userlist.c \
-	whobbs.c journaling.c citadel_dirs.c threads.c ctdlmigrate.c
+	locate_host.c md5.c auth.c msgbase.c parsedate.c policy.c \
+	room_ops.c euidindex.c server_main.c snprintf.c ldap.c \
+	support.c sysdep.c user_ops.c journaling.c threads.c 
 
 
 include Make_sources
@@ -108,13 +111,19 @@ server: $(SERVER_TARGETS) $(SERV_MODULES)
 
 utils: $(UTIL_TARGETS) $(UTILBIN_TARGETS)
 
-citadel$(EXEEXT): citadel.o citadel_ipc.o client_chat.o client_passwords.o \
-	commands.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o tuiconfig.o screen.o citadel_dirs.o ecrash.o $(LIBOBJS)
-	$(CC) citadel.o citadel_ipc.o client_chat.o client_passwords.o \
-	commands.o ipc_c_tcp.o md5.o messages.o rooms.o routines.o \
-	routines2.o tuiconfig.o screen.o citadel_dirs.o ecrash.o $(LIBOBJS) \
-	$(LDFLAGS) -o citadel $(LIBS)
+citadel$(EXEEXT): textclient/citadel.o utillib/citadel_ipc.o \
+		textclient/client_chat.o textclient/client_passwords.o \
+		textclient/commands.o utillib/ipc_c_tcp.o md5.o \
+		textclient/messages.o textclient/rooms.o textclient/routines.o \
+		textclient/routines2.o textclient/tuiconfig.o \
+		textclient/screen.o utillib/citadel_dirs.o ecrash.o $(LIBOBJS)
+	$(CC) textclient/citadel.o utillib/citadel_ipc.o \
+		textclient/client_chat.o textclient/client_passwords.o \
+		textclient/commands.o utillib/ipc_c_tcp.o md5.o \
+		textclient/messages.o textclient/rooms.o textclient/routines.o \
+		textclient/routines2.o textclient/tuiconfig.o \
+		textclient/screen.o utillib/citadel_dirs.o ecrash.o $(LIBOBJS) \
+		$(LDFLAGS) -o citadel $(LIBS)
 
 .y.c:
 	$(YACC) $(YFLAGS) $<
@@ -131,7 +140,7 @@ Make_modules: modules_init.c
 
 modules_upgrade.c: modules_init.c
 
-SERV_OBJS = server_main.o \
+SERV_OBJS = server_main.o utillib/citadel_dirs.o\
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
 	$(DATABASE:.c=.o) domain.o \
 	control.o policy.o config.o support.o room_ops.o \
@@ -148,48 +157,65 @@ citserver$(EXEEXT): $(SERV_OBJS)
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
 
-aidepost$(EXEEXT): aidepost.o config.o
-	$(CC) aidepost.o config.o citadel_dirs.o $(LDFLAGS) -o aidepost$(EXEEXT) $(LIBS)
+aidepost$(EXEEXT): utils/aidepost.o config.o
+	$(CC) utils/aidepost.o config.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o aidepost$(EXEEXT) $(LIBS)
 
-citmail$(EXEEXT): citmail.o citadel_dirs.o
-	$(CC) citmail.o citadel_dirs.o $(LDFLAGS) -o citmail$(EXEEXT) $(LIBS)
+citmail$(EXEEXT): utils/citmail.o utillib/citadel_dirs.o
+	$(CC) utils/citmail.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o citmail$(EXEEXT) $(LIBS)
 
 # setup does need LIBS defined, because it uses network functions which are in -lsocket -lnsl on Solaris.
-setup$(EXEEXT): setup.o citadel_dirs.o
-	$(CC) setup.o citadel_dirs.o $(LDFLAGS) -o setup$(EXEEXT) $(LIBS) $(SETUP_LIBS)
+setup$(EXEEXT): utils/setup.o utillib/citadel_dirs.o
+	$(CC) utils/setup.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o setup$(EXEEXT) $(LIBS) $(SETUP_LIBS)
 
-ctdlmigrate$(EXEEXT): ctdlmigrate.o citadel_dirs.o
-	$(CC) ctdlmigrate.o citadel_dirs.o $(LDFLAGS) -o ctdlmigrate$(EXEEXT) $(LIBS)
+ctdlmigrate$(EXEEXT): utils/ctdlmigrate.o utillib/citadel_dirs.o
+	$(CC) utils/ctdlmigrate.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o ctdlmigrate$(EXEEXT) $(LIBS)
 
-chkpwd$(EXEEXT): chkpwd.o auth.o
-	$(CC) chkpwd.o auth.o $(LDFLAGS) -o chkpwd$(EXEEXT) $(chkpwd_LIBS)
+chkpwd$(EXEEXT): utils/chkpwd.o auth.o
+	$(CC) utils/chkpwd.o auth.o $(LDFLAGS) -o chkpwd$(EXEEXT) $(chkpwd_LIBS)
 
-chkpw$(EXEEXT): chkpw.o auth.o citadel_dirs.o
-	$(CC) chkpw.o auth.o citadel_dirs.o $(LDFLAGS) -o chkpw$(EXEEXT) $(chkpwd_LIBS)
+chkpw$(EXEEXT): utils/chkpw.o auth.o utillib/citadel_dirs.o
+	$(CC) utils/chkpw.o auth.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o chkpw$(EXEEXT) $(chkpwd_LIBS)
 
-whobbs$(EXEEXT): whobbs.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
-	$(CC) whobbs.o ipc_c_tcp.o citadel_ipc.o  citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o whobbs$(EXEEXT) $(LIBS)
+whobbs$(EXEEXT): utils/whobbs.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS)
+	$(CC) utils/whobbs.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS) \
+		$(LDFLAGS) -o whobbs$(EXEEXT) $(LIBS)
 
-stress$(EXEEXT): stress.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
-	$(CC) stress.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o stress$(EXEEXT) $(LIBS)
+stress$(EXEEXT): utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS)
+	$(CC) utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS) \
+		$(LDFLAGS) -o stress$(EXEEXT) $(LIBS)
 
-sendcommand$(EXEEXT): sendcommand.o ipc_c_tcp.o citadel_ipc.o config.o  $(LIBOBJS)
-	$(CC) sendcommand.o ipc_c_tcp.o citadel_ipc.o config.o  \
-	 citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o sendcommand$(EXEEXT) $(LIBS)
+sendcommand$(EXEEXT): utils/sendcommand.o utillib/ipc_c_tcp.o \
+		utillib/citadel_ipc.o config.o  $(LIBOBJS)
+	$(CC) utils/sendcommand.o utillib/ipc_c_tcp.o \
+		utillib/citadel_ipc.o config.o utillib/citadel_dirs.o \
+		$(LIBOBJS) $(LDFLAGS) -o sendcommand$(EXEEXT) $(LIBS)
 
-getmail$(EXEEXT): getmail.o ipc_c_tcp.o citadel_ipc.o config.o  $(LIBOBJS)
-	$(CC) getmail.o ipc_c_tcp.o citadel_ipc.o config.o  \
-	 citadel_dirs.o $(LIBOBJS) $(LDFLAGS) -o getmail$(EXEEXT) $(LIBS)
+getmail$(EXEEXT): utils/getmail.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		config.o  $(LIBOBJS)
+	$(CC) utils/getmail.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		config.o utillib/citadel_dirs.o \
+		$(LIBOBJS) $(LDFLAGS) -o getmail$(EXEEXT) $(LIBS)
 
-base64$(EXEEXT): base64.o
-	$(CC) base64.o $(LDFLAGS) -o base64$(EXEEXT)
+base64$(EXEEXT): utils/base64.o
+	$(CC) utils/base64.o $(LDFLAGS) -o base64$(EXEEXT)
 
-userlist$(EXEEXT): userlist.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o $(LIBOBJS)
-	$(CC) userlist.o ipc_c_tcp.o citadel_ipc.o citadel_dirs.o \
-	$(LIBOBJS) $(LDFLAGS) -o userlist$(EXEEXT) $(LIBS)
+userlist$(EXEEXT): utils/userlist.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS)
+	$(CC) utils/userlist.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o \
+		$(LIBOBJS) $(LDFLAGS) -o userlist$(EXEEXT) $(LIBS)
 
-msgform$(EXEEXT): msgform.o
-	$(CC) msgform.o $(LDFLAGS) -o msgform$(EXEEXT)
+msgform$(EXEEXT): utils/msgform.o
+	$(CC) utils/msgform.o $(LDFLAGS) -o msgform$(EXEEXT)
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 
@@ -351,6 +377,9 @@ install-exec-new: all
 
 clean:
 	rm -f *.o 
+	rm -f utils/*.o ;\
+	rm -f utillib/*.o ;\
+	rm -f textclient/*.o ;\
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.o ;\
 	done
@@ -369,6 +398,9 @@ cleaner: clean
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d 
+	rm -f utils/*.d ;
+	rm -f utillib/*.d ;
+	rm -f textclient/*.d ;
 	for i in $(srcdir)/modules/* ; do \
 		rm -f $$i/*.d ;\
 	done
