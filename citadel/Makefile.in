@@ -98,6 +98,12 @@ mkdir-init:
 	@for d in `/bin/ls $(VPATH)/modules/`; do \
 		(mkdir -p modules/$$d ) ; \
 	done
+	DIRS=`/bin/ls $(VPATH)/user_modules/`
+	echo $(DIRS)
+	@for d in `/bin/ls $(VPATH)/user_modules/`; do \
+		(mkdir -p user_modules/$$d ) ; \
+	done
+	mkdir -p utils utillib textclient
 
 svn_revision.c: ${SOURCES}
 	./scripts/mk_svn_revision.sh

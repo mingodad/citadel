@@ -1005,7 +1005,15 @@ if test "$abs_srcdir" != "$abs_builddir"; then
    ln -s $abs_srcdir/Make_sources $abs_builddir
    ln -s $abs_srcdir/Make_modules $abs_builddir
    ln -s $abs_srcdir/*.h $abs_builddir
-   make mkdir-init
+   for d in `/bin/ls $abs_srcdir/modules/`; do 
+	(mkdir -p $abs_builddir/modules/$d) 
+   done
+   for d in `/bin/ls $abs_srcdir/user_modules/`; do 
+	(mkdir -p $abs_builddir/user_modules/$d) 
+   done
+   mkdir -p $abs_builddir/utils
+   mkdir -p $abs_builddir/utillib
+   mkdir -p $abs_builddir/textclient
 fi
 
 if test -n "$srcdir"; then 
