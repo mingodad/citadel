@@ -680,7 +680,7 @@ void smtp_data(void) {
 				 "Received: from %s (Citadel from userid %ld)\n"
 				 "	by %s; %s\n",
 				 SMTP->helo_node,
-				 CC->cs_UDSclientUID,
+				 (long int) CC->cs_UDSclientUID,
 				 config.c_fqdn,
 				 nowstamp);
 		}
