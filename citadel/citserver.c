@@ -999,7 +999,7 @@ void begin_session(struct CitContext *con)
 		{
 			/* as http://www.wsinnovations.com/softeng/articles/uds.html told us... */
 			struct ucred credentials;
-			int ucred_length = sizeof(struct ucred);
+			socklen_t ucred_length = sizeof(struct ucred);
 			
 			/*fill in the user data structure */
 			if(getsockopt(con->client_socket, SOL_SOCKET, SO_PEERCRED, &credentials, &ucred_length)) {
