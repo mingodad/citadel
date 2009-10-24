@@ -251,7 +251,7 @@ AC_ARG_WITH(ssl,
 AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
-AC_ARG_WITH(with_libdspam, [  --with-libdspam         use libdspam mail spam scanning library])
+dnl AC_ARG_WITH(with_libdspam, [  --with-libdspam         use libdspam mail spam scanning library])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
@@ -456,13 +456,11 @@ dnl Determine the system's authentication capabilities.
 dnl We currently support PAM, standard getpwnam(), and getspnam()
 dnl (Linux shadow passwords)
 
-	if test "$with_pam" = yes; then
-		save_LIBS=$LIBS
-		AC_CHECK_LIB(pam, pam_start, [chkpwd_LIBS="-lpam $chkpwd_LIBS"
-			LIBS="-lpam $LIBS"])
-		AC_CHECK_FUNCS(pam_start)
-		test "$enable_chkpwd" != no && LIBS=$save_LIBS
-	fi
+save_LIBS=$LIBS
+AC_CHECK_LIB(pam, pam_start, [chkpwd_LIBS="-lpam $chkpwd_LIBS"
+	LIBS="-lpam $LIBS"])
+AC_CHECK_FUNCS(pam_start)
+test "$enable_chkpwd" != no && LIBS=$save_LIBS
 	if test "$ac_cv_func_pam_start" = no -o "$with_pam" != yes; then
 		save_LIBS=$LIBS
 		AC_SEARCH_LIBS(getspnam, shadow, [
@@ -1008,9 +1006,11 @@ if test "$abs_srcdir" != "$abs_builddir"; then
    for d in `/bin/ls $abs_srcdir/modules/`; do 
 	(mkdir -p $abs_builddir/modules/$d) 
    done
-   for d in `/bin/ls $abs_srcdir/user_modules/`; do 
-	(mkdir -p $abs_builddir/user_modules/$d) 
-   done
+   if test -d "$abs_srcdir/user_modules/"; then
+      for d in `/bin/ls $abs_srcdir/user_modules/`; do 
+      	(mkdir -p $abs_builddir/user_modules/$d) 
+   	done
+   fi
    mkdir -p $abs_builddir/utils
    mkdir -p $abs_builddir/utillib
    mkdir -p $abs_builddir/textclient
