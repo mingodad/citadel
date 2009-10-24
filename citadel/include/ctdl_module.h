@@ -203,4 +203,20 @@ enum {
 	crr_access_denied		/* not allowed to edit this room */
 };
 
+
+
+/*
+ * API declarations from citserver.h
+ */
+int CtdlAccessCheck(int);
+/* 'required access level' values which may be passed to CtdlAccessCheck()
+ */
+enum {
+	ac_none,
+	ac_logged_in,
+	ac_room_aide,
+	ac_aide,
+	ac_internal
+};
+
 #endif /* CTDL_MODULE_H */

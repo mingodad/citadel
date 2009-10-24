@@ -46,14 +46,8 @@
 #include <string.h>
 #include <limits.h>
 #include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "msgbase.h"
-#include "user_ops.h"
-#include "database.h"
 #include "serv_autocompletion.h"
 
 #include "ctdl_module.h"
