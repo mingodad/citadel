@@ -1335,6 +1335,7 @@ InitModule_VCARD
 		VIEW_ADDRESSBOOK,
 		vcard_GetParamsGetServerCall,
 		NULL,
+		NULL, 
 		vcard_LoadMsgFromServer,
 		vcard_RenderView_or_Tail,
 		vcard_Cleanup);

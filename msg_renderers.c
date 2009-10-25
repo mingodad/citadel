@@ -1236,6 +1236,56 @@ readloop_struct rlid[] = {
 };
 
 
+int ParseMessageListHeaders_Detail(StrBuf *Line, 
+				   const char **pos, 
+				   message_summary *Msg, 
+				   StrBuf *ConversionBuffer)
+{
+	wcsession *WCC = WC;
+
+	Msg->from = NewStrBufPlain(NULL, StrLength(Line));
+	StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
+	if (StrLength(ConversionBuffer) != 0) {
+		/* Handle senders with RFC2047 encoding */
+		StrBuf_RFC822_to_Utf8(Msg->from, ConversionBuffer, WCC->DefaultCharset, NULL);
+	}
+			
+	/* node name */
+	StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
+	if ((StrLength(ConversionBuffer) !=0 ) &&
+	    ( ((WCC->room_flags & QR_NETWORK)
+	       || ((strcasecmp(ChrPtr(ConversionBuffer), ChrPtr(WCC->serv_info->serv_nodename))
+		    && (strcasecmp(ChrPtr(ConversionBuffer), ChrPtr(WCC->serv_info->serv_fqdn))))))))
+	{
+		StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
+		StrBufAppendBuf(Msg->from, ConversionBuffer, 0);
+	}
+
+	/* Internet address (not used)
+	 *	StrBufExtract_token(Msg->inetaddr, Line, 4, '|');
+	 */
+	StrBufSkip_NTokenS(Line, pos, '|', 1);
+	Msg->subj = NewStrBufPlain(NULL, StrLength(Line));
+	StrBufExtract_NextToken(ConversionBuffer,  Line, pos, '|');
+	if (StrLength(ConversionBuffer) == 0)
+		StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
+	else {
+		StrBuf_RFC822_to_Utf8(Msg->subj, ConversionBuffer, WCC->DefaultCharset, NULL);
+		if ((StrLength(Msg->subj) > 75) && 
+		    (StrBuf_Utf8StrLen(Msg->subj) > 75)) {
+			StrBuf_Utf8StrCut(Msg->subj, 72);
+			StrBufAppendBufPlain(Msg->subj, HKEY("..."), 0);
+		}
+	}
+
+	if ((StrLength(Msg->from) > 25) && 
+	    (StrBuf_Utf8StrLen(Msg->from) > 25)) {
+		StrBuf_Utf8StrCut(Msg->from, 23);
+		StrBufAppendBufPlain(Msg->from, HKEY("..."), 0);
+	}
+	return 1;
+}
+
 int mailview_GetParamsGetServerCall(SharedMessageStatus *Stat, 
 				    void **ViewSpecific, 
 				    long oper, 
@@ -1452,6 +1502,7 @@ InitModule_MSGRENDERERS
 		VIEW_MAILBOX,
 		mailview_GetParamsGetServerCall,
 		NULL, /// TODO: is this right?
+		ParseMessageListHeaders_Detail,
 		NULL, //// ""
 		mailview_RenderView_or_Tail,
 		mailview_Cleanup);
@@ -1460,6 +1511,7 @@ InitModule_MSGRENDERERS
 		VIEW_BBS,
 		bbsview_GetParamsGetServerCall,
 		bbsview_PrintViewHeader,
+		NULL,
 		bbsview_LoadMsgFromServer,
 		bbsview_RenderView_or_Tail,
 		bbsview_Cleanup);

@@ -669,6 +669,7 @@ InitModule_TASKS
 		VIEW_TASKS,
 		tasks_GetParamsGetServerCall,
 		NULL,
+		NULL,
 		tasks_LoadMsgFromServer,
 		tasks_RenderView_or_Tail,
 		tasks_Cleanup);

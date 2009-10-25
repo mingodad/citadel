@@ -446,6 +446,7 @@ InitModule_NOTES
 		VIEW_NOTES,
 		notes_GetParamsGetServerCall,
 		NULL,
+		NULL,
 		notes_LoadMsgFromServer,
 		NULL,
 		notes_Cleanup);

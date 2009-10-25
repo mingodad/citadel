@@ -74,6 +74,18 @@ enum {
 	readgt
 };
 
+/**
+ * @brief function to parse the | separated message headers list
+ * @param Line the raw line with your message data
+ * @param Msg put your parser results here...
+ * @param ConversionBuffer if you need some workbuffer, don't free me!
+ * @returns 0: failure, trash this message. 1: all right, store it
+ */
+typedef int (*load_msg_ptrs_detailheaders) (StrBuf *Line, 
+					    const char **pos, 
+					    message_summary *Msg, 
+					    StrBuf *ConversionBuffer);
+
 typedef void (*readloop_servcmd)(char *buf, long bufsize);
 
 typedef struct _readloopstruct {
@@ -113,7 +125,9 @@ typedef struct _SharedMessageStatus{
 
 }SharedMessageStatus;
 
-int load_msg_ptrs(const char *servcmd, SharedMessageStatus *Stat);
+int load_msg_ptrs(const char *servcmd, 
+		  SharedMessageStatus *Stat, 
+		  load_msg_ptrs_detailheaders LH);
 
 typedef int (*GetParamsGetServerCall_func)(SharedMessageStatus *Stat, 
 					   void **ViewSpecific, 
@@ -160,6 +174,12 @@ void RegisterReadLoopHandlerset(
 	PrintViewHeader_func PrintViewHeader,
 
 	/**
+	 * LH is the function, you specify if you want to load more than just message
+	 * numbers from the server during the listing fetch operation.
+	 */
+	load_msg_ptrs_detailheaders LH,
+
+	/**
 	 * LoadMsgFromServer is called for every message in the message list:
 	 *  * which is 
 	 *    * after 'startmsg'  
@@ -194,3 +214,9 @@ LoadMsgFromServer
 
 RenderView_or_Tail
 */
+
+
+int ParseMessageListHeaders_Detail(StrBuf *Line, 
+				   const char **pos, 
+				   message_summary *Msg, 
+				   StrBuf *ConversionBuffer);

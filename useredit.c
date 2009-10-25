@@ -430,7 +430,7 @@ TRYAGAIN:
 	Stat.highest_found = (-1);
 	Done = 0;
 	/* Search for the user's vCard */
-	if (load_msg_ptrs("MSGS ALL||||1", &Stat) > 0) {
+	if (load_msg_ptrs("MSGS ALL||||1", &Stat, NULL) > 0) {
 		at = GetNewHashPos(WCC->summ, 0);
 		while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		

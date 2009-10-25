@@ -183,7 +183,7 @@ void display_smtpqueue_inner_div(void) {
 		Stat.maxload = 10000;
 		Stat.lowest_found = (-1);
 		Stat.highest_found = (-1);
-		num_msgs = load_msg_ptrs("MSGS ALL", &Stat);
+		num_msgs = load_msg_ptrs("MSGS ALL", &Stat, NULL);
 		if (num_msgs > 0) {
                         wc_printf("<table class=\"mailbox_summary\" rules=rows "
                         	"cellpadding=2 style=\"width:100%%;\">"
