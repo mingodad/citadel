@@ -365,7 +365,7 @@ long extNotify_getConfigMessage(char *username) {
 	int a;
 
 	// Get the user
-	getuser(&user, username);
+	CtdlGetUser(&user, username);
     
 	MailboxName(configRoomName, sizeof configRoomName, &user, USERCONFIGROOM);
 	// Fill qrbuf

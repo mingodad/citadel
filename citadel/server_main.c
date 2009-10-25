@@ -262,12 +262,12 @@ int main(int argc, char **argv)
 /**
  * Load the user for the masterCC or create them if they don't exist
  */
-	if (getuser(&masterCC.user, "SYS_Citadel"))
+	if (CtdlGetUser(&masterCC.user, "SYS_Citadel"))
 	{
 		/** User doesn't exist. We can't use create user here as the user number needs to be 0 */
 		strcpy (masterCC.user.fullname, "SYS_Citadel") ;
-		putuser(&masterCC.user);
-		getuser(&masterCC.user, "SYS_Citadel"); /** Just to be safe */
+		CtdlPutUser(&masterCC.user);
+		CtdlGetUser(&masterCC.user, "SYS_Citadel"); /** Just to be safe */
 	}
 	
 	/*

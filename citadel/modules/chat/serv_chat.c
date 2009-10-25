@@ -752,7 +752,7 @@ void cmd_sexp(char *argbuf)
 	if (!strcmp(x_msg, "-")) {
 		message_sent = PerformXmsgHooks(lun, lem, x_user, "");
 		if (message_sent == 0) {
-			if (getuser(NULL, x_user))
+			if (CtdlGetUser(NULL, x_user))
 				cprintf("%d '%s' does not exist.\n",
 						ERROR + NO_SUCH_USER, x_user);
 			else
@@ -790,7 +790,7 @@ void cmd_sexp(char *argbuf)
 				cprintf(" to %d users", message_sent);
 			cprintf(".\n");
 		} else {
-			if (getuser(NULL, x_user))
+			if (CtdlGetUser(NULL, x_user))
 				cprintf("%d '%s' does not exist.\n",
 						ERROR + NO_SUCH_USER, x_user);
 			else

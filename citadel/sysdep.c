@@ -550,7 +550,7 @@ void CtdlFillSystemContext(struct CitContext *context, char *name)
 		context->user.usernum = get_new_user_number();
 		CtdlLogPrintf(CTDL_DEBUG, "Upgrading system user \"%s\" from user number 0 to user number %d\n", context->user.fullname, context->user.usernum);
 		/* add user to the database */
-		putuser(&(context->user));
+		CtdlPutUser(&(context->user));
 		cdb_store(CDB_USERSBYNUMBER, &(context->user.usernum), sizeof(long), context->user.fullname, strlen(context->user.fullname)+1);
 	}
 }

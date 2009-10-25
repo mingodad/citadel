@@ -608,7 +608,7 @@ void cmd_lrms(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (getuser(&CC->user, CC->curr_user)) {
+	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
@@ -646,7 +646,7 @@ void cmd_lkra(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	
-	if (getuser(&CC->user, CC->curr_user)) {
+	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
@@ -715,7 +715,7 @@ void cmd_lkrn(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	
-	if (getuser(&CC->user, CC->curr_user)) {
+	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
@@ -754,7 +754,7 @@ void cmd_lkro(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	
-	if (getuser(&CC->user, CC->curr_user)) {
+	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
@@ -793,7 +793,7 @@ void cmd_lzrm(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	
-	if (getuser(&CC->user, CC->curr_user)) {
+	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
@@ -1018,7 +1018,7 @@ void cmd_goto(char *gargs)
 	extract_token(password, gargs, 1, '|', sizeof password);
 	transiently = extract_int(gargs, 2);
 
-	getuser(&CC->user, CC->curr_user);
+	CtdlGetUser(&CC->user, CC->curr_user);
 
 	/*
 	 * Handle some of the macro named rooms
@@ -1133,7 +1133,7 @@ void cmd_rdir(char *cmdbuf)
 	if (CtdlAccessCheck(ac_logged_in)) return;
 	
 	CtdlGetRoom(&CC->room, CC->room.QRname);
-	getuser(&CC->user, CC->curr_user);
+	CtdlGetUser(&CC->user, CC->curr_user);
 
 	if ((CC->room.QRflags & QR_DIRECTORY) == 0) {
 		cprintf("%d not here.\n", ERROR + NOT_HERE);
@@ -1532,7 +1532,7 @@ void cmd_seta(char *new_ra)
 
 	if (CtdlAccessCheck(ac_room_aide)) return;
 
-	if (getuser(&usbuf, new_ra) != 0) {
+	if (CtdlGetUser(&usbuf, new_ra) != 0) {
 		newu = (-1L);
 	} else {
 		newu = usbuf.usernum;

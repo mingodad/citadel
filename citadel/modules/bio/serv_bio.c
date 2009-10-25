@@ -22,44 +22,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <pwd.h>
-#include <errno.h>
-#include <sys/types.h>
-
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
-#include <sys/wait.h>
-#include <string.h>
-#include <limits.h>
-#include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "citserver.h"
-#include "support.h"
-#include "config.h"
-#include "control.h"
-#include "user_ops.h"
-#include "policy.h"
-#include "database.h"
-#include "msgbase.h"
-#include "citadel_dirs.h"
-
 #include "ctdl_module.h"
+
+
 
 /*
  * enter user bio
@@ -101,7 +66,7 @@ void cmd_rbio(char *cmdbuf)
 	FILE *fp;
 
 	extract_token(buf, cmdbuf, 0, '|', sizeof buf);
-	if (getuser(&ruser, buf) != 0) {
+	if (CtdlGetUser(&ruser, buf) != 0) {
 		cprintf("%d No such user.\n",ERROR + NO_SUCH_USER);
 		return;
 	}
@@ -138,7 +103,7 @@ void cmd_lbio(char *cmdbuf) {
 
 	cprintf("%d\n", LISTING_FOLLOWS);
 	while (fgets(buf, sizeof buf, ls)!=NULL)
-		if (getuserbynumber(&usbuf,atol(buf))==0)
+		if (CtdlGetUserByNumber(&usbuf,atol(buf))==0)
 			cprintf("%s\n", usbuf.fullname);
 	pclose(ls);
 	cprintf("000\n");

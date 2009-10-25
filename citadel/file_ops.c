@@ -326,7 +326,7 @@ void cmd_oimg(char *cmdbuf)
 
 	if (!strcasecmp(filename, "_userpic_")) {
 		extract_token(which_user, cmdbuf, 1, '|', sizeof which_user);
-		if (getuser(&usbuf, which_user) != 0) {
+		if (CtdlGetUser(&usbuf, which_user) != 0) {
 			cprintf("%d No such user.\n",
 				ERROR + NO_SUCH_USER);
 			return;

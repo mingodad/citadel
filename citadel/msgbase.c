@@ -608,7 +608,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	}
 
 	/* Learn about the user and room in question */
-	getuser(&CC->user, CC->curr_user);
+	CtdlGetUser(&CC->user, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
 	/* Load the message list */
@@ -2900,9 +2900,9 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Bump this user's messages posted counter. */
 	CtdlLogPrintf(CTDL_DEBUG, "Updating user\n");
-	lgetuser(&CCC->user, CCC->curr_user);
+	CtdlGetUserLock(&CCC->user, CCC->curr_user);
 	CCC->user.posted = CCC->user.posted + 1;
-	lputuser(&CCC->user);
+	CtdlPutUserLock(&CCC->user);
 
 	/* Decide where bounces need to be delivered */
 	if ((recps != NULL) && (recps->bounce_to != NULL)) {
@@ -2924,7 +2924,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 					'|', sizeof recipient);
 		CtdlLogPrintf(CTDL_DEBUG, "Delivering private local mail to <%s>\n",
 			recipient);
-		if (getuser(&userbuf, recipient) == 0) {
+		if (CtdlGetUser(&userbuf, recipient) == 0) {
 			// Add a flag so the Funambol module knows its mail
 			msg->cm_fields['W'] = strdup(recipient);
 			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
@@ -3655,7 +3655,7 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 					CC->room = tempQR2;
 
 				}
-				else if (getuser(&tempUS, this_recp) == 0) {
+				else if (CtdlGetUser(&tempUS, this_recp) == 0) {
 					++ret->num_local;
 					strcpy(this_recp, tempUS.fullname);
 					if (!IsEmptyStr(ret->recp_local)) {
@@ -3663,7 +3663,7 @@ struct recptypes *validate_recipients(char *supplied_recipients,
 					}
 					strcat(ret->recp_local, this_recp);
 				}
-				else if (getuser(&tempUS, this_recp_cooked) == 0) {
+				else if (CtdlGetUser(&tempUS, this_recp_cooked) == 0) {
 					++ret->num_local;
 					strcpy(this_recp, tempUS.fullname);
 					if (!IsEmptyStr(ret->recp_local)) {
@@ -4300,7 +4300,7 @@ void cmd_move(char *args)
 		return;
 	}
 
-	getuser(&CC->user, CC->curr_user);
+	CtdlGetUser(&CC->user, CC->curr_user);
 	CtdlRoomAccess(&qtemp, &CC->user, &ra, NULL);
 
 	/* Check for permission to perform this operation.

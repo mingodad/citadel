@@ -105,7 +105,7 @@ void local_to_inetemail(char *inetemail, char *localuser, size_t inetemail_len) 
 	struct vCard *v;
 
 	strcpy(inetemail, "");
-	if (getuser(&us, localuser) != 0) {
+	if (CtdlGetUser(&us, localuser) != 0) {
 		return;
 	}
 

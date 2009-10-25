@@ -41,6 +41,7 @@
 #include "sysdep_decls.h"
 #include "msgbase.h"
 #include "threads.h"
+#include "citadel_dirs.h"
 /*
  * define macros for module init stuff
  */
@@ -268,5 +269,17 @@ struct config {
 };
 
 extern struct config config;
+
+
+
+/*
+ * Expose API calls from user_ops.c
+ */
+int CtdlGetUser(struct ctdluser *usbuf, char name[]);
+int CtdlGetUserLock(struct ctdluser *usbuf, char *name);
+void CtdlPutUser(struct ctdluser *usbuf);
+void CtdlPutUserLock(struct ctdluser *usbuf);
+int CtdlGetUserByNumber(struct ctdluser *usbuf, long number);
+
 
 #endif /* CTDL_MODULE_H */

@@ -1,12 +1,17 @@
 /* $Id$ */
 int hash (char *str);
-int getuser (struct ctdluser *, char *);
-int lgetuser (struct ctdluser *, char *);
-void putuser (struct ctdluser *);
-void lputuser (struct ctdluser *);
+/* getuser is deprecated, use CtdlGetUser instead */
+int getuser (struct ctdluser *, char *) __attribute__ ((deprecated));
+/* lgetuser is deprecated, use CtdlGetUserLock instead */
+int lgetuser (struct ctdluser *, char *) __attribute__ ((deprecated));
+/* putuser is deprecated, use CtdlPutUser instead */
+void putuser (struct ctdluser *) __attribute__ ((deprecated));
+/* lputuser is deprecated, use CtdlPutUserLock instead */
+void lputuser (struct ctdluser *) __attribute__ ((deprecated));
 int is_aide (void);
 int is_room_aide (void);
-int getuserbynumber (struct ctdluser *usbuf, long int number);
+/* getuserbynumber is deprecated, use CtdlGetUserByNumber instead */
+int getuserbynumber (struct ctdluser *usbuf, long int number) __attribute__ ((deprecated));
 void rebuild_usersbynumber(void);
 void cmd_user (char *cmdbuf);
 void session_startup (void);

@@ -1441,7 +1441,7 @@ void ical_freebusy(char *who) {
 	int config_lines = 0;
 
 	/* First try an exact match. */
-	found_user = getuser(&usbuf, who);
+	found_user = CtdlGetUser(&usbuf, who);
 
 	/* If not found, try it as an unqualified email address. */
 	if (found_user != 0) {
@@ -1450,7 +1450,7 @@ void ical_freebusy(char *who) {
 		CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", buf);
 		if (recp != NULL) {
 			if (recp->num_local == 1) {
-				found_user = getuser(&usbuf, recp->recp_local);
+				found_user = CtdlGetUser(&usbuf, recp->recp_local);
 			}
 			free_recipients(recp);
 		}
@@ -1465,7 +1465,7 @@ void ical_freebusy(char *who) {
 		recp = validate_recipients(buf, NULL, 0);
 		if (recp != NULL) {
 			if (recp->num_local == 1) {
-				found_user = getuser(&usbuf, recp->recp_local);
+				found_user = CtdlGetUser(&usbuf, recp->recp_local);
 			}
 			free_recipients(recp);
 		}
@@ -1488,7 +1488,7 @@ void ical_freebusy(char *who) {
 				recp = validate_recipients(buf, NULL, 0);
 				if (recp != NULL) {
 					if (recp->num_local == 1) {
-						found_user = getuser(&usbuf, recp->recp_local);
+						found_user = CtdlGetUser(&usbuf, recp->recp_local);
 					}
 					free_recipients(recp);
 				}

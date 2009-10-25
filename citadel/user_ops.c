@@ -85,6 +85,16 @@ INLINE void makeuserkey(char *key, char *username) {
  */
 int getuser(struct ctdluser *usbuf, char name[])
 {
+	return CtdlGetUser(usbuf, name);
+}
+
+
+/*
+ * CtdlGetUser()  -  retrieve named user into supplied buffer.
+ *	       returns 0 on success
+ */
+int CtdlGetUser(struct ctdluser *usbuf, char name[])
+{
 
 	char usernamekey[USERNAME_SIZE];
 	struct cdbdata *cdbus;
@@ -111,13 +121,13 @@ int getuser(struct ctdluser *usbuf, char name[])
 
 
 /*
- * lgetuser()  -  same as getuser() but locks the record
+ * CtdlGetUserLock()  -  same as getuser() but locks the record
  */
-int lgetuser(struct ctdluser *usbuf, char *name)
+int CtdlGetUserLock(struct ctdluser *usbuf, char *name)
 {
 	int retcode;
 
-	retcode = getuser(usbuf, name);
+	retcode = CtdlGetUser(usbuf, name);
 	if (retcode == 0) {
 		begin_critical_section(S_USERS);
 	}
@@ -126,9 +136,18 @@ int lgetuser(struct ctdluser *usbuf, char *name)
 
 
 /*
- * putuser()  -  write user buffer into the correct place on disk
+ * lgetuser()  -  same as getuser() but locks the record
  */
-void putuser(struct ctdluser *usbuf)
+int lgetuser(struct ctdluser *usbuf, char *name)
+{
+	return CtdlGetUserLock(usbuf, name);
+}
+
+
+/*
+ * CtdlPutUser()  -  write user buffer into the correct place on disk
+ */
+void CtdlPutUser(struct ctdluser *usbuf)
 {
 	char usernamekey[USERNAME_SIZE];
 
@@ -143,12 +162,30 @@ void putuser(struct ctdluser *usbuf)
 
 
 /*
+ * putuser()  -  write user buffer into the correct place on disk
+ */
+void putuser(struct ctdluser *usbuf)
+{
+	CtdlPutUser(usbuf);
+}
+
+
+/*
+ * CtdlPutUserLock()  -  same as putuser() but locks the record
+ */
+void CtdlPutUserLock(struct ctdluser *usbuf)
+{
+	CtdlPutUser(usbuf);
+	end_critical_section(S_USERS);
+}
+
+
+/*
  * lputuser()  -  same as putuser() but locks the record
  */
 void lputuser(struct ctdluser *usbuf)
 {
-	putuser(usbuf);
-	end_critical_section(S_USERS);
+	CtdlPutUserLock(usbuf);
 }
 
 
@@ -180,12 +217,12 @@ int rename_user(char *oldname, char *newname) {
 	/* Lock up and get going */
 	begin_critical_section(S_USERS);
 
-	if (getuser(&usbuf, newname) == 0) {
+	if (CtdlGetUser(&usbuf, newname) == 0) {
 		retcode = RENAMEUSER_ALREADY_EXISTS;
 	}
 	else {
 
-		if (getuser(&usbuf, oldname) != 0) {
+		if (CtdlGetUser(&usbuf, oldname) != 0) {
 			retcode = RENAMEUSER_NOT_FOUND;
 		}
 
@@ -198,7 +235,7 @@ int rename_user(char *oldname, char *newname) {
 				CtdlLogPrintf(CTDL_DEBUG, "Renaming <%s> to <%s>\n", oldname, newname);
 				cdb_delete(CDB_USERS, oldnamekey, strlen(oldnamekey));
 				safestrncpy(usbuf.fullname, newname, sizeof usbuf.fullname);
-				putuser(&usbuf);
+				CtdlPutUser(&usbuf);
 				cdb_store(CDB_USERSBYNUMBER, &usbuf.usernum, sizeof(long),
 					usbuf.fullname, strlen(usbuf.fullname)+1 );
 
@@ -361,12 +398,12 @@ int is_room_aide(void)
 }
 
 /*
- * getuserbynumber() -	get user by number
+ * CtdlGetUserByNumber() -	get user by number
  * 			returns 0 if user was found
  *
  * Note: fetching a user this way requires one additional database operation.
  */
-int getuserbynumber(struct ctdluser *usbuf, long number)
+int CtdlGetUserByNumber(struct ctdluser *usbuf, long number)
 {
 	struct cdbdata *cdbun;
 	int r;
@@ -378,9 +415,20 @@ int getuserbynumber(struct ctdluser *usbuf, long number)
 	}
 
 	CtdlLogPrintf(CTDL_INFO, "User %ld maps to %s\n", number, cdbun->ptr);
-	r = getuser(usbuf, cdbun->ptr);
+	r = CtdlGetUser(usbuf, cdbun->ptr);
 	cdb_free(cdbun);
 	return(r);
+}
+
+/*
+ * getuserbynumber() -	get user by number
+ * 			returns 0 if user was found
+ *
+ * Note: fetching a user this way requires one additional database operation.
+ */
+int getuserbynumber(struct ctdluser *usbuf, long number)
+{
+	return CtdlGetUserByNumber(usbuf, number);
 }
 
 
@@ -578,7 +626,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 		struct recptypes *valid = NULL;
 	
 		/* First, try to log in as if the supplied name is a display name */
-		found_user = getuser(&CC->user, username);
+		found_user = CtdlGetUser(&CC->user, username);
 	
 		/* If that didn't work, try to log in as if the supplied name
 	 	* is an e-mail address
@@ -587,7 +635,7 @@ int CtdlLoginExistingUser(char *authname, char *trythisname)
 			valid = validate_recipients(username, NULL, 0);
 			if (valid != NULL) {
 				if (valid->num_local == 1) {
-					found_user = getuser(&CC->user, valid->recp_local);
+					found_user = CtdlGetUser(&CC->user, valid->recp_local);
 				}
 				free_recipients(valid);
 			}
@@ -657,7 +705,7 @@ void do_login(void)
 	CC->logged_in = 1;
 	CtdlLogPrintf(CTDL_NOTICE, "<%s> logged in\n", CC->curr_user);
 
-	lgetuser(&CC->user, CC->curr_user);
+	CtdlGetUserLock(&CC->user, CC->curr_user);
 	++(CC->user.timescalled);
 	CC->previous_login = CC->user.lastcall;
 	time(&CC->user.lastcall);
@@ -678,7 +726,7 @@ void do_login(void)
 		}
 	}
 
-	lputuser(&CC->user);
+	CtdlPutUserLock(&CC->user);
 
 	/*
 	 * Populate CC->cs_inet_email with a default address.  This will be
@@ -853,7 +901,7 @@ int CtdlTryPassword(char *password)
 		CtdlLogPrintf(CTDL_WARNING, "CtdlTryPassword: no user selected\n");
 		return pass_no_user;
 	}
-	if (getuser(&CC->user, CC->curr_user)) {
+	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		CtdlLogPrintf(CTDL_ERR, "CtdlTryPassword: internal error\n");
 		return pass_internal_error;
 	}
@@ -882,9 +930,9 @@ int CtdlTryPassword(char *password)
 			 * this is a security hazard, comment it out.
 			 */
 
-			lgetuser(&CC->user, CC->curr_user);
+			CtdlGetUserLock(&CC->user, CC->curr_user);
 			safestrncpy(CC->user.password, password, sizeof CC->user.password);
-			lputuser(&CC->user);
+			CtdlPutUserLock(&CC->user);
 
 			/*
 			 * (sooper-seekrit hack ends here)
@@ -977,7 +1025,7 @@ int purge_user(char pname[])
 	if (IsEmptyStr(pname))
 		return (ERROR + NO_SUCH_USER);
 
-	if (getuser(&usbuf, pname) != 0) {
+	if (CtdlGetUser(&usbuf, pname) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot purge user <%s> - not found\n", pname);
 		return (ERROR + NO_SUCH_USER);
 	}
@@ -996,7 +1044,7 @@ int purge_user(char pname[])
 	if (user_is_logged_in == 1) {
 		CtdlLogPrintf(CTDL_WARNING, "User <%s> is logged in; not deleting.\n", pname);
 		usbuf.axlevel = 0;
-		putuser(&usbuf);
+		CtdlPutUser(&usbuf);
 		return (1);
 	}
 	CtdlLogPrintf(CTDL_NOTICE, "Deleting user <%s>\n", pname);
@@ -1035,7 +1083,7 @@ int purge_user(char pname[])
 
 int internal_create_user (char *username, struct ctdluser *usbuf, uid_t uid)
 {
-	if (!getuser(usbuf, username)) {
+	if (!CtdlGetUser(usbuf, username)) {
 		return (ERROR + ALREADY_EXISTS);
 	}
 
@@ -1059,7 +1107,7 @@ int internal_create_user (char *username, struct ctdluser *usbuf, uid_t uid)
 	usbuf->usernum = get_new_user_number();
 
 	/* add user to the database */
-	putuser(usbuf);
+	CtdlPutUser(usbuf);
 	cdb_store(CDB_USERSBYNUMBER, &usbuf->usernum, sizeof(long), usbuf->fullname, strlen(usbuf->fullname)+1);
 
 	return 0;
@@ -1158,7 +1206,7 @@ int create_user(char *newusername, int become_user)
 		do_login();
 	
 		/* Check to make sure we're still who we think we are */
-		if (getuser(&CC->user, CC->curr_user)) {
+		if (CtdlGetUser(&CC->user, CC->curr_user)) {
 			return (ERROR + INTERNAL_ERROR);
 		}
 	}
@@ -1244,9 +1292,9 @@ void cmd_newu(char *cmdbuf)
  */
 void CtdlSetPassword(char *new_pw)
 {
-	lgetuser(&CC->user, CC->curr_user);
+	CtdlGetUserLock(&CC->user, CC->curr_user);
 	safestrncpy(CC->user.password, new_pw, sizeof(CC->user.password));
-	lputuser(&CC->user);
+	CtdlPutUserLock(&CC->user);
 	CtdlLogPrintf(CTDL_INFO, "Password changed for user <%s>\n", CC->curr_user);
 	PerformSessionHooks(EVT_SETPASS);
 }
@@ -1321,9 +1369,9 @@ void cmd_creu(char *cmdbuf)
 
 	if (a == 0) {
 		if (!IsEmptyStr(password)) {
-			lgetuser(&tmp, username);
+			CtdlGetUserLock(&tmp, username);
 			safestrncpy(tmp.password, password, sizeof(tmp.password));
-			lputuser(&tmp);
+			CtdlPutUserLock(&tmp);
 		}
 		cprintf("%d User '%s' created %s.\n", CIT_OK, username,
 				(!IsEmptyStr(password)) ? "and password set" :
@@ -1352,7 +1400,7 @@ void cmd_getu(char *cmdbuf)
 	if (CtdlAccessCheck(ac_logged_in))
 		return;
 
-	getuser(&CC->user, CC->curr_user);
+	CtdlGetUser(&CC->user, CC->curr_user);
 	cprintf("%d %d|%d|%d|\n",
 		CIT_OK,
 		CC->user.USscreenwidth,
@@ -1373,14 +1421,14 @@ void cmd_setu(char *new_parms)
 		cprintf("%d Usage error.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
-	lgetuser(&CC->user, CC->curr_user);
+	CtdlGetUserLock(&CC->user, CC->curr_user);
 	CC->user.USscreenwidth = extract_int(new_parms, 0);
 	CC->user.USscreenheight = extract_int(new_parms, 1);
 	CC->user.flags = CC->user.flags & (~US_USER_SET);
 	CC->user.flags = CC->user.flags |
 	    (extract_int(new_parms, 2) & US_USER_SET);
 
-	lputuser(&CC->user);
+	CtdlPutUserLock(&CC->user);
 	cprintf("%d Ok\n", CIT_OK);
 }
 
@@ -1403,7 +1451,7 @@ void cmd_slrp(char *new_ptr)
 		newlr = atol(new_ptr);
 	}
 
-	lgetuser(&CC->user, CC->curr_user);
+	CtdlGetUserLock(&CC->user, CC->curr_user);
 
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 	memcpy(&original_vbuf, &vbuf, sizeof(struct visit));
@@ -1416,7 +1464,7 @@ void cmd_slrp(char *new_ptr)
 		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 	}
 
-	lputuser(&CC->user);
+	CtdlPutUserLock(&CC->user);
 	cprintf("%d %ld\n", CIT_OK, newlr);
 }
 
@@ -1466,7 +1514,7 @@ int CtdlInvtKick(char *iuser, int op) {
 	struct visit vbuf;
 	char bbb[SIZ];
 
-	if (getuser(&USscratch, iuser) != 0) {
+	if (CtdlGetUser(&USscratch, iuser) != 0) {
 		return(1);
 	}
 
@@ -1547,14 +1595,14 @@ int CtdlForgetThisRoom(void) {
 		return(1);
 	}
 
-	lgetuser(&CC->user, CC->curr_user);
+	CtdlGetUserLock(&CC->user, CC->curr_user);
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 
 	vbuf.v_flags = vbuf.v_flags | V_FORGET;
 	vbuf.v_flags = vbuf.v_flags & ~V_ACCESS;
 
 	CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
-	lputuser(&CC->user);
+	CtdlPutUserLock(&CC->user);
 
 	/* Return to the Lobby, so we don't end up in an undefined room */
 	CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
@@ -1647,7 +1695,7 @@ void cmd_vali(char *v_args)
 		return;
 	}
 
-	if (lgetuser(&userbuf, user) != 0) {
+	if (CtdlGetUserLock(&userbuf, user) != 0) {
 		cprintf("%d '%s' not found.\n", ERROR + NO_SUCH_USER, user);
 		return;
 	}
@@ -1655,7 +1703,7 @@ void cmd_vali(char *v_args)
 	userbuf.axlevel = newax;
 	userbuf.flags = (userbuf.flags & ~US_NEEDVALID);
 
-	lputuser(&userbuf);
+	CtdlPutUserLock(&userbuf);
 
 	/* If the access level was set to zero, delete the user */
 	if (newax == 0) {
@@ -1747,7 +1795,7 @@ void cmd_chek(char *argbuf)
 		return;
 	}
 
-	getuser(&CC->user, CC->curr_user);	/* no lock is needed here */
+	CtdlGetUser(&CC->user, CC->curr_user);	/* no lock is needed here */
 	if ((REGISCALL != 0) && ((CC->user.flags & US_REGIS) == 0))
 		regis = 1;
 
@@ -1771,7 +1819,7 @@ void cmd_qusr(char *who)
 {
 	struct ctdluser usbuf;
 
-	if (getuser(&usbuf, who) == 0) {
+	if (CtdlGetUser(&usbuf, who) == 0) {
 		cprintf("%d %s\n", CIT_OK, usbuf.fullname);
 	} else {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
@@ -1792,7 +1840,7 @@ void cmd_agup(char *cmdbuf)
 	}
 
 	extract_token(requested_user, cmdbuf, 0, '|', sizeof requested_user);
-	if (getuser(&usbuf, requested_user) != 0) {
+	if (CtdlGetUser(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
@@ -1827,7 +1875,7 @@ void cmd_asup(char *cmdbuf)
 		return;
 
 	extract_token(requested_user, cmdbuf, 0, '|', sizeof requested_user);
-	if (lgetuser(&usbuf, requested_user) != 0) {
+	if (CtdlGetUserLock(&usbuf, requested_user) != 0) {
 		cprintf("%d No such user.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
@@ -1852,7 +1900,7 @@ void cmd_asup(char *cmdbuf)
 	if (np > 8) {
 		usbuf.USuserpurge = extract_int(cmdbuf, 8);
 	}
-	lputuser(&usbuf);
+	CtdlPutUserLock(&usbuf);
 	if (usbuf.axlevel == 0) {
 		if (purge_user(requested_user) == 0) {
 			deleted = 1;

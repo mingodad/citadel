@@ -5,6 +5,7 @@
  *
  */
 
+#include "ctdl_module.h"
 
 #include <stdlib.h>
 #include <unistd.h>
