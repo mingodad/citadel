@@ -435,11 +435,6 @@ var sub {
 	background-color: #204B78;
 }
 
-.week_of_year {
-	background-color: #e1e1e1;
-	font-size: 70%;	
-}
-
 .day {
 	font-weight: 700;
 }
@@ -454,10 +449,6 @@ var sub {
 
 .calweekend {
 	background-color: #EEEECC;
-}
-
-.caltoday {
-	background-color: #4040FF;
 }
 
 .current_sort_mode {

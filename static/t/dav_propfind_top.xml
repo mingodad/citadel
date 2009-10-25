@@ -1,4 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<multistatus xmlns="DAV:" xmlns:G="http://groupdav.org/">
-<?=("dav_propfind_upper_dirs")>
-</multistatus>
+<?xml version="1.0" encoding="utf-8"?>"
+<multistatus xmlns="DAV:" xmlns:G"http://groupdav.org/">"
+<response>
+<href>
+<?DAV:HOSTNAME>/
+</href>
+<propstat>
+<status>HTTP/1.1 200 OK</status>
+<prop>
+<displayname>/</displayname>
+<resourcetype><collection/></resourcetype>
+<getlastmodified>
+<?DATE:NOW:STR>
+</getlastmodified>
+</prop>
+</propstat>
+</response>

@@ -316,7 +316,7 @@ typedef struct _addrbookent {
 #define COOKIEUNNEEDED (1<<6)
 #define ISSTATIC (1<<7)
 #define FORCE_SESSIONCLOSE (1<<8)
-#define PARSE_REST_URL (1<<0)
+#define PARSE_REST_URL (1<<9)
 
 typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{
@@ -502,7 +502,8 @@ struct wcsession {
 	int remember_new_mail;			/* last count of new mail messages */
 
 /* Roomiew control */
-	HashList *Floors;                       /* floors our citserver has... */
+	HashList *Floors;                       /* floors our citserver has hashed numeric for quicker access*/
+	HashList *FloorsByName;                 /* same but hashed by its name */
 	HashList *summ;                         /* list of messages for mailbox summary view */
   /** Perhaps these should be within a struct instead */
 	long startmsg;                          /* message number to start at */

@@ -1,5 +1,6 @@
+<!--<?CURRENTFILE>-->
 <?!("COND:ROOM:REST:ISSUBFLOOR", 1)><response>
-<href><?DAV:HOSTNAME>/groupdav/<?FLOOR:NAME("X")>/</href>
+<href><?DAV:HOSTNAME>/<?DAV:NAMESPACE>/<?FLOOR:NAME("U")>/</href>
 <propstat>
 <status>HTTP/1.1 200 OK</status>
 <prop>

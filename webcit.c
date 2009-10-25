@@ -47,7 +47,12 @@ void WebcitAddUrlHandler(const char * UrlString, long UrlSLen,
 	Put(HandlerHash, UrlString, UrlSLen, NewHandler, DeleteWebcitHandler);
 }
 
-
+void tmplput_HANDLER_DISPLAYNAME(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	if (WCC->Hdr->HR.Handler != NULL)
+		StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.Handler->DisplayName, 0);
+}
 /*
  * web-printing funcion. uses our vsnprintf wrapper
  */
@@ -540,32 +545,56 @@ void ParseREST_URL(void)
 	HashList *Floors;
 	void *vFloor;
 
+	lprintf(1, "parsing rest URL: %s\n", ChrPtr(WCC->Hdr->HR.ReqLine));
+
 	WCC->Directory = NewHash(1, Flathash);
 
 	Buf = NewStrBuf();
-	while (StrBufExtract_NextToken(WCC->Hdr->HR.ReqLine, 
-				       Buf, &pCh,  '/') >= 0)
+	while (StrBufExtract_NextToken(Buf, WCC->Hdr->HR.ReqLine, &pCh,  '/') >= 0)
 	{
-		Put(WCC->Directory, IKEY(i), Buf, HFreeStrBuf);
-		if (i==0)
-			pFloor = Buf;
+		if (StrLength(Buf) != 0) {
+			/* ignore empty path segments */
+			StrBufUnescape(Buf, 1);
+			Put(WCC->Directory, IKEY(i), Buf, HFreeStrBuf);
+			if (i==0)
+				pFloor = Buf;
+			Buf = NewStrBuf();
+		}
 		i++;
-		Buf = NewStrBuf();
 	}
-	if (i == 0)
-		FreeStrBuf(&Buf);
-	else if (pFloor != NULL)
+
+	FreeStrBuf(&Buf);
+	if (pFloor != NULL)
 	{
 		Floors = GetFloorListHash(NULL, NULL);
 		
 		if (Floors != NULL)
 		{
-			if (GetHash(Floors, SKEY(pFloor), &vFloor))
+			if (GetHash(WCC->FloorsByName, SKEY(pFloor), &vFloor))
 				WCC->CurrentFloor = (floor*) vFloor;
 		}
 	}
 }
 
+int Conditional_REST_DEPTH(StrBuf *Target, WCTemplputParams *TP)
+{
+	long Depth, IsDepth;
+	long offset = 0;
+	wcsession *WCC = WC;
+
+	if (WCC->Hdr->HR.Handler != NULL)
+		offset ++;
+	Depth = GetTemplateTokenNumber(Target, TP, 2, 0);
+	IsDepth = GetCount(WCC->Directory) + offset;
+
+///	LogTemplateError(Target, "bla", 1, TP, "REST_DEPTH: %ld : %ld\n", Depth, IsDepth);
+	if (Depth < 0) {
+		Depth = -Depth;
+		return IsDepth > Depth;
+	}
+	else 
+		return Depth == IsDepth;
+}
 
 
 
@@ -697,10 +726,10 @@ void session_loop(void)
 			display_login(NULL);
 		}
 		else {
-/*
+
 			if ((WCC->Hdr->HR.Handler->Flags & PARSE_REST_URL) != 0)
 				ParseREST_URL();
-*/
+
 			if ((WCC->Hdr->HR.Handler->Flags & AJAX) != 0)
 				begin_ajax_response();
 			WCC->Hdr->HR.Handler->F();
@@ -806,9 +835,12 @@ InitModule_WEBCIT
 
 	WebcitAddUrlHandler(HKEY("401"), "", 0, authorization_required, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
+	RegisterConditional(HKEY("REST:DEPTH"), 0, Conditional_REST_DEPTH, CTX_NONE);
+
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, NULL, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, NULL, CTX_NONE);
+	RegisterNamespace("URL:DISPLAYNAME", 0, 1, tmplput_HANDLER_DISPLAYNAME, NULL, CTX_NONE);
 
 	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
 	if (!access(dir, R_OK)) {

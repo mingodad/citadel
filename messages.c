@@ -786,8 +786,6 @@ void readloop(long oper)
 	ViewMsg = (RoomRenderer*) vViewMsg;
 	if (!WCC->is_ajax) {
 		output_headers(1, 1, 1, 0, 0, 0);
-	} else if (WCC->wc_view == VIEW_MAILBOX) {
-		jsonMessageListHdr();
 	}
 
 	if (ViewMsg->GetParamsGetServerCall != NULL) {
@@ -1662,27 +1660,6 @@ void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
 void h_readgt(void) { readloop(readgt);}
 
-void jsonMessageListHdr(void) 
-{
-	/* TODO: make a generic function */
-	hprintf("HTTP/1.1 200 OK\r\n");
-	hprintf("Content-type: application/json; charset=utf-8\r\n");
-	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-	hprintf("Connection: close\r\n");
-	hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
-	begin_burst();
-}
-
-
-/* Output message list in JSON format */
-void jsonMessageList(void) {
-	const StrBuf *room = sbstr("room");
-	long oper = (havebstr("query")) ? do_search : readnew;
-	WC->is_ajax = 1; 
-	gotoroom(room);
-	readloop(oper);
-	WC->is_ajax = 0;
-}
 
 void RegisterReadLoopHandlerset(
 	int RoomType,
@@ -1753,8 +1730,6 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("postpart"), "", 0, view_postpart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("postpart_download"), "", 0, download_postpart, NEED_URL);
 
-	/* json */
-	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
 	return ;
 }
 

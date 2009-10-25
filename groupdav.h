@@ -27,3 +27,5 @@ void euid_escapize(char *, const char *);
 void euid_unescapize(char *, const char *);
 void groupdav_identify_host(void);
 void groupdav_identify_hosthdr(void);
+
+void RegisterDAVNamespace(const char * UrlString, long UrlSLen, const char *DisplayName, long dslen, WebcitHandlerFunc F, long Flags);

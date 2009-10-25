@@ -35,6 +35,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	const char *Err;
 	StrBuf *Buf;
 	HashList *floors;
+	HashList *floorsbyname;
 	HashPos *it;
 	floor *Floor;
 	void *vFloor;
@@ -47,15 +48,17 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 
 	if (WCC->Floors != NULL)
 		return WCC->Floors;
-	WCC->Floors = floors = NewHash(1, NULL);
+	WCC->Floors = floors = NewHash(1, Flathash);
+	WCC->FloorsByName = floorsbyname = NewHash(1, NULL);
 	Buf = NewStrBuf();
 
 	Floor = malloc(sizeof(floor));
 	Floor->ID = VIRTUAL_MY_FLOOR;
 	Floor->Name = NewStrBufPlain(_("My Folders"), -1);
 	Floor->NRooms = 0;
-	
+	lprintf(0, "Floor: [%s]\n", ChrPtr(Floor->Name));
 	Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
+	Put(floorsbyname, SKEY(Floor->Name), Floor, reference_free_handler);
 
 	serv_puts("LFLR"); /* get floors */
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
@@ -71,8 +74,10 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 			Floor->Name = NewStrBufPlain(NULL, StrLength(Buf));
 			StrBufExtract_NextToken(Floor->Name, Buf, &Pos, '|');
 			Floor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
+			lprintf(0, "Floor: [%s]\n", ChrPtr(Floor->Name));
 
 			Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
+			Put(floorsbyname, SKEY(Floor->Name), Floor, reference_free_handler);
 		}
 	}
 	FreeStrBuf(&Buf);
@@ -91,21 +96,21 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)(TP->Context);
+	floor *Floor = (floor *)CTX;
 
 	StrBufAppendPrintf(Target, "%d", Floor->ID);
 }
 
 void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)(TP->Context);
+	floor *Floor = (floor *)CTX;
 
 	StrBufAppendTemplate(Target, TP, Floor->Name, 0);
 }
 
 void tmplput_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)(TP->Context);
+	floor *Floor = (floor *)CTX;
 
 	StrBufAppendPrintf(Target, "%d", Floor->NRooms);
 }
@@ -427,13 +432,13 @@ int GroupchangeRoomListByFloorRoomPrivFirst(const void *room1, const void *room2
 
 void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 
 	StrBufAppendTemplate(Target, TP, Folder->name, 0);
 }
 void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *room = (folder *)(TP->Context);
+	folder *room = (folder *)CTX;
 
 	if (room->nRoomNameParts > 1)
 		StrBufAppendTemplate(Target, TP, 
@@ -443,7 +448,7 @@ void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP)
 }
 void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *room = (folder *)(TP->Context);
+	folder *room = (folder *)CTX;
 	int i;
         const char *AppendMe;
         long AppendMeLen;
@@ -459,7 +464,7 @@ void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_ACL(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 
 	StrBufAppendPrintf(Target, "%ld", Folder->RAFlags, 0);
 }
@@ -467,7 +472,7 @@ void tmplput_ROOM_ACL(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_QRFLAGS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->QRFlags);
 }
 
@@ -475,33 +480,33 @@ void tmplput_ROOM_QRFLAGS(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_FLOORID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->floorid);
 }
 
 void tmplput_ROOM_LISTORDER(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->listorder);
 }
 void tmplput_ROOM_VIEW(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->view);
 }
 void tmplput_ROOM_DEFVIEW(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->defview);
 }
 void tmplput_ROOM_LASTCHANGE(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->lastchange);
 }
 void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	const floor *Floor = Folder->Floor;
 
 	if (Floor == NULL)
@@ -512,7 +517,7 @@ void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	const floor *Floor = Folder->Floor;
 
 	if (Floor == NULL)
@@ -523,7 +528,7 @@ void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	const floor *Floor = Folder->Floor;
 
 	if (Floor == NULL)
@@ -535,56 +540,56 @@ void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalRoomHas_UA_KNOWN(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return (Folder->RAFlags & UA_KNOWN) != 0;
 }
 
 int ConditionalRoomHas_UA_GOTOALLOWED(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return (Folder->RAFlags & UA_GOTOALLOWED) != 0;
 }
 
 int ConditionalRoomHas_UA_HASNEWMSGS(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return (Folder->RAFlags & UA_HASNEWMSGS) != 0;
 }
 
 int ConditionalRoomHas_UA_ZAPPED(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return (Folder->RAFlags & UA_ZAPPED) != 0;
 }
 
 int ConditionalRoomHas_UA_POSTALLOWED(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return (Folder->RAFlags & UA_POSTALLOWED) != 0;
 }
 
 int ConditionalRoomHas_UA_ADMINALLOWED(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return (Folder->RAFlags & UA_ADMINALLOWED) != 0;
 }
 
 int ConditionalRoomHas_UA_DELETEALLOWED(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return (Folder->RAFlags & UA_DELETEALLOWED) != 0;
 }
 
 
 int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	return Folder->is_inbox;
 }
 
 void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP) 
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
 	
 	switch(Folder->view) {
 	case VIEW_CALENDAR:
@@ -602,6 +607,9 @@ void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP)
 	case VIEW_JOURNAL:
 		StrBufAppendBufPlain(Target, HKEY("vjournal"), 0);
 		break;
+	case VIEW_WIKI:
+		StrBufAppendBufPlain(Target, HKEY("wiki"), 0);
+		break;
 	}
 }
 
@@ -610,7 +618,9 @@ void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP)
 
 int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
 {
-	folder *Folder = (folder *)(TP->Context);
+	folder *Folder = (folder *)CTX;
+
+	lprintf(0, "-> %s: %ld\n", ChrPtr(Folder->name), Folder->view);
 
 	return ((Folder->view == VIEW_CALENDAR) || 
 		(Folder->view == VIEW_TASKS) || 
@@ -624,59 +634,94 @@ int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
-
-	/** If we have dav_depth the client just wants the _current_ room without subfloors */
-	if (WCC->Hdr->HR.dav_depth == 0)
-		return 0;
-	    
-	return 1;
+	floor *Floor = (floor *)CTX;
+	/** if we have dav_depth the client just wants the subfloors */
+	if ((WCC->Hdr->HR.dav_depth == 1) && 
+	    (GetCount(WCC->Directory) == 0))
+		return 1;
+	return WCC->CurrentFloor == Floor;
 }
 
 
 int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
-	folder     *Folder = (folder *)(TP->Context);
+	folder     *Folder = (folder *)CTX;
 	HashPos    *it;
 	StrBuf     * Dir;
 	void       *vDir;
 	long        len;
         const char *Key;
-	int i;
+	int i, j, urlp;
+	int delta;
 
 
-
+	/* list only folders relative to the current floor... */
 	if (Folder->Floor != WCC->CurrentFloor)
 		return 0;
 
-	if (GetCount(WCC->Directory) != Folder->nRoomNameParts)
+	urlp = GetCount(WCC->Directory);
+	delta = Folder->nRoomNameParts - urlp + 1;
+
+	lprintf(0, "%s: %ld - %ld ", ChrPtr(Folder->name), urlp, 
+		Folder->nRoomNameParts);
+	/* list only the floors which are in relation to the dav_depth header */
+	if (WCC->Hdr->HR.dav_depth != delta) {
+		lprintf(0, "1\n");
 		return 0;
+	}
+
 
 	it = GetNewHashPos(WCC->Directory, 0);
-	for (i = 0; i < Folder->nRoomNameParts; i++)
-	{
-		if (!GetNextHashPos(WCC->Directory, it, &len, &Key, &vDir) ||
+	/* Fast forward the floorname we checked above... */
+	GetNextHashPos(WCC->Directory, it, &len, &Key, &vDir);
+
+	if (Folder->nRoomNameParts > 1) {		
+		for (i = 0, j = 1; 
+		     (i > Folder->nRoomNameParts) && (j > urlp); 
+		     i++, j++)
+		{
+			if (!GetNextHashPos(WCC->Directory, 
+					    it, &len, &Key, &vDir) ||
+			    (vDir == NULL))
+			{
+				DeleteHashPos(&it);
+
+				lprintf(0, "3\n");
+				return 0;
+			}
+			Dir = (StrBuf*) vDir;
+			if (strcmp(ChrPtr(Folder->RoomNameParts[i]), 
+				   ChrPtr(Dir)) != 0)
+			{
+				DeleteHashPos(&it);
+				lprintf(0, "4\n");
+				return 0;
+			}
+		}
+		DeleteHashPos(&it);
+		return 1;
+	}
+	else {
+		if (!GetNextHashPos(WCC->Directory, 
+				    it, &len, &Key, &vDir) ||
 		    (vDir == NULL))
 		{
 			DeleteHashPos(&it);
-			return 0;
+			
+			lprintf(0, "5\n");
+			return WCC->Hdr->HR.dav_depth == 1;
 		}
+		DeleteHashPos(&it);
 		Dir = (StrBuf*) vDir;
-		if (strcmp(ChrPtr(Folder->RoomNameParts[i]), 
-			   ChrPtr(Dir)) != 0)
-		{
-			DeleteHashPos(&it);
-			return 0;
+		if (WCC->Hdr->HR.dav_depth == 0) {
+			return (strcmp(ChrPtr(Folder->name), 
+				       ChrPtr(Dir))
+				== 0);
+
 		}
-	}
-	DeleteHashPos(&it);
-
-	/** If we have dav_depth the client just wants the _current_ room without subfloors */
-	if ((WCC->Hdr->HR.dav_depth == 0) &&
-	    (i != Folder->nRoomNameParts))
 		return 0;
-
-	return 1;
+	}
 }
 
 

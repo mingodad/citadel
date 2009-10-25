@@ -1235,11 +1235,6 @@ readloop_struct rlid[] = {
 	{ {HKEY("readgt")},    servcmd_readgt}
 };
 
-/* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */
-void new_summary_view(void) {
-	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
-}
-
 
 int mailview_GetParamsGetServerCall(SharedMessageStatus *Stat, 
 				    void **ViewSpecific, 
@@ -1247,24 +1242,23 @@ int mailview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				    char *cmd, 
 				    long len)
 {
-	if (!WC->is_ajax) {
-		new_summary_view();
-		return 200;
-	} else {
-		Stat->defaultsortorder = 2;
-		Stat->sortit = 1;
-		Stat->load_seen = 1;
-		/* Generally using maxmsgs|startmsg is not required
-		   in mailbox view, but we have a 'safemode' for clients
-		   (*cough* Exploder) that simply can't handle too many */
-		if (havebstr("maxmsgs"))  Stat->maxmsgs  = ibstr("maxmsgs");
-		else                      Stat->maxmsgs  = 9999999;
-		if (havebstr("startmsg")) Stat->startmsg = lbstr("startmsg");
-		snprintf(cmd, len, "MSGS %s|%s||1",
-			 (oper == do_search) ? "SEARCH" : "ALL",
-			 (oper == do_search) ? bstr("query") : ""
-			);
-	}
+	Stat->defaultsortorder = 2;
+	Stat->sortit = 1;
+	Stat->load_seen = 1;
+	/* Generally using maxmsgs|startmsg is not required
+	   in mailbox view, but we have a 'safemode' for clients
+	   (*cough* Exploder) that simply can't handle too many */
+	if (havebstr("maxmsgs"))  
+		Stat->maxmsgs  = ibstr("maxmsgs");
+	else  
+		Stat->maxmsgs  = 9999999;
+	if (havebstr("startmsg")) 
+		Stat->startmsg = lbstr("startmsg");
+	
+	snprintf(cmd, len, "MSGS %s|%s||1",
+		 (oper == do_search) ? "SEARCH" : "ALL",
+		 (oper == do_search) ? bstr("query") : ""
+		);
 	return 200;
 }
 
@@ -1272,10 +1266,8 @@ int mailview_RenderView_or_Tail(SharedMessageStatus *Stat,
 				void **ViewSpecific, 
 				long oper)
 {
-	WCTemplputParams SubTP;
-
-	if (WC->is_ajax)
-		DoTemplate(HKEY("mailsummary_json"),NULL, &SubTP);
+	
+	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
 	
 	return 0;
 }
@@ -1284,10 +1276,7 @@ int mailview_Cleanup(void **ViewSpecific)
 {
 	/* Note: wDumpContent() will output one additional </div> tag. */
 	/* We ought to move this out into template */
-	if (WC->is_ajax)
-		end_burst();
-	else
-		wDumpContent(1);
+	wDumpContent(1);
 
 	return 0;
 }

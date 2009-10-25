@@ -85,13 +85,14 @@ void groupdav_collection_list(void)
 
 	begin_burst();
 
-	wc_printf("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-     		"<multistatus xmlns=\"DAV:\" xmlns:G=\"http://groupdav.org/\">"
-	);
 
 	/*
 	 * If the client is requesting the root, show a root node.
 	 */
+	do_template("dav_propfind_top", NULL);
+	end_burst();
+	return;
+	
 	if (starting_point == 0) {
 		wc_printf("<response>");
 			wc_printf("<href>");
@@ -112,30 +113,13 @@ void groupdav_collection_list(void)
 	}
 
 	/*
-	 * If the client is requesting "/groupdav", show a /groupdav subdirectory.
-	 */
-	if ((starting_point + WCC->Hdr->HR.dav_depth) >= 1) {
-		wc_printf("<response>");
-			wc_printf("<href>");
-				groupdav_identify_host();
-				wc_printf("/groupdav");
-			wc_printf("</href>");
-			wc_printf("<propstat>");
-				wc_printf("<status>HTTP/1.1 200 OK</status>");
-				wc_printf("<prop>");
-					wc_printf("<displayname>GroupDAV</displayname>");
-					wc_printf("<resourcetype><collection/></resourcetype>");
-					wc_printf("<getlastmodified>");
-						escputs(datestring);
-					wc_printf("</getlastmodified>");
-				wc_printf("</prop>");
-			wc_printf("</propstat>");
-		wc_printf("</response>");
-	}
-
-	/*
+	 *	If the client is requesting "/groupdav", show a /groupdav subdirectory.
 	 * Now go through the list and make it look like a DAV collection
-	 */
+	 *
+
+	if ((starting_point + WCC->Hdr->HR.dav_depth) >= 2) {
+		do_template("dav_propfind_groupdav_roomlist", NULL);
+/*
 	serv_puts("LKRA");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -145,7 +129,7 @@ void groupdav_collection_list(void)
 		mtime = extract_long(buf, 8);
 		http_datestring(datestring, sizeof datestring, mtime);
 
-		/*
+		/ *
 		 * For now, only list rooms that we know a GroupDAV client
 		 * might be interested in.  In the future we may add
 		 * the rest.
@@ -155,7 +139,7 @@ void groupdav_collection_list(void)
 		 * allows, for example, a Calendar room to appear as a
 		 * GroupDAV calendar even if the user has switched it to a
 		 * Calendar List view.
-		 */
+		 * /
 		if (	(view == VIEW_CALENDAR) || 
 			(view == VIEW_TASKS) || 
 			(view == VIEW_ADDRESSBOOK) ||
@@ -216,7 +200,7 @@ void groupdav_collection_list(void)
 			wc_printf("</response>");
 		}
 	}
-	wc_printf("</multistatus>\n");
+*/
 
 	end_burst();
 }
@@ -254,12 +238,12 @@ void groupdav_propfind(void)
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
-	if (StrLength(dav_roomname) == 0) {
+//	if (StrLength(dav_roomname) == 0) {
 		groupdav_collection_list();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
 		return;
-	}
+//	}
 
 	/* Go to the correct room. */
 	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
