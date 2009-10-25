@@ -810,7 +810,7 @@ void tmplput_CFG_RoomValueLong(StrBuf *Target, WCTemplputParams *TP)
 	long lvalue;
 	long defval = 0;
 
-	if (TP->Tokens->nParameters > 1)
+	if (HAVE_PARAM(1))
 		defval = GetTemplateTokenNumber(Target, TP, 1, 0);
 	get_ROOM_PREFS_LONG(TKEY(0), &lvalue, defval);
 	StrBufAppendPrintf(Target, "%ld", lvalue);
@@ -837,7 +837,7 @@ int ConditionalPreference(StrBuf *Target, WCTemplputParams *TP)
 	if (!get_PREFERENCE(TKEY(2), &Pref)) 
 		return 0;
 	
-	if (TP->Tokens->nParameters == 3) {
+	if (!HAVE_PARAM(3)) {
 		return 1;
 	}
 	else if (TP->Tokens->Params[3]->Type == TYPE_STR)
