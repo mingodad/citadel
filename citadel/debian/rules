@@ -53,10 +53,6 @@ configure-stamp:
 		--with-autosysconfdir=/var/lib/citadel/data/ \
 		--with-pam \
 		--with-db \
-		--with-zlib \
-		--with-ldap \
-		--with-libical \
-		--with-libsieve \
 		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS) $(THREAD_ARGS)
 
 	touch configure-stamp

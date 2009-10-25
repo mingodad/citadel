@@ -296,6 +296,28 @@ void headers_listing(long msgnum, void *userdata)
 	CtdlFreeMessage(msg);
 }
 
+/*
+ * Back end for the MSGS command: output EUID header.
+ */
+void headers_euid(long msgnum, void *userdata)
+{
+	struct CtdlMessage *msg;
+
+	msg = CtdlFetchMessage(msgnum, 0);
+	if (msg == NULL) {
+		cprintf("%ld||\n", msgnum);
+		return;
+	}
+
+	cprintf("%ld|%s|\n",
+		msgnum,
+		(msg->cm_fields['U'] ? msg->cm_fields['U'] : "")
+	);
+	CtdlFreeMessage(msg);
+}
+
+
+
 
 
 /* Determine if a given message matches the fields in a message template.
@@ -580,7 +602,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 int CtdlForEachMessage(int mode, long ref, char *search_string,
 			char *content_type,
 			struct CtdlMessage *compare,
-			void (*CallBack) (long, void *),
+                        ForEachMsgCallback CallBack,
 			void *userdata)
 {
 
@@ -773,14 +795,26 @@ void cmd_msgs(char *cmdbuf)
 	int i;
 	int with_template = 0;
 	struct CtdlMessage *template = NULL;
-	int with_headers = 0;
 	char search_string[1024];
+	ForEachMsgCallback CallBack;
 
 	extract_token(which, cmdbuf, 0, '|', sizeof which);
 	cm_ref = extract_int(cmdbuf, 1);
 	extract_token(search_string, cmdbuf, 1, '|', sizeof search_string);
 	with_template = extract_int(cmdbuf, 2);
-	with_headers = extract_int(cmdbuf, 3);
+	switch (extract_int(cmdbuf, 3))
+	{
+	default:
+	case MSG_HDRS_BRIEF:
+		CallBack = simple_listing;
+		break;
+	case MSG_HDRS_ALL:
+		CallBack = headers_listing;
+		break;
+	case MSG_HDRS_EUID:
+		CallBack = headers_euid;
+		break;
+	}
 
 	strcat(which, "   ");
 	if (!strncasecmp(which, "OLD", 3))
@@ -836,13 +870,12 @@ void cmd_msgs(char *cmdbuf)
 	}
 
 	CtdlForEachMessage(mode,
-			( (mode == MSGS_SEARCH) ? 0 : cm_ref ),
-			( (mode == MSGS_SEARCH) ? search_string : NULL ),
-			NULL,
-			template,
-			(with_headers ? headers_listing : simple_listing),
-			NULL
-	);
+			   ( (mode == MSGS_SEARCH) ? 0 : cm_ref ),
+			   ( (mode == MSGS_SEARCH) ? search_string : NULL ),
+			   NULL,
+			   template,
+			   CallBack,
+			   NULL);
 	if (template != NULL) CtdlFreeMessage(template);
 	cprintf("000\n");
 }

@@ -15,6 +15,12 @@ enum {
 	MSGS_SEARCH
 };
 
+enum {
+	MSG_HDRS_BRIEF = 0,
+	MSG_HDRS_ALL = 1,
+	MSG_HDRS_EUID = 4
+};
+
 /*
  * Possible return codes from CtdlOutputMsg()
  */
@@ -112,12 +118,13 @@ void TDAP_AdjRefCount(long, int);
 int TDAP_ProcessAdjRefCountQueue(void);
 void simple_listing(long, void *);
 int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template);
+typedef void (*ForEachMsgCallback)(long MsgNumber, void *UserData);
 int CtdlForEachMessage(int mode,
 			long ref,
 			char *searchstring,
 			char *content_type,
 			struct CtdlMessage *compare,
-                        void (*CallBack) (long, void *),
+                        ForEachMsgCallback CallBack,
 			void *userdata);
 int CtdlDeleteMessages(char *, long *, int, char *);
 void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
