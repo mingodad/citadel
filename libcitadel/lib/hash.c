@@ -8,18 +8,19 @@
 
 typedef struct Payload Payload;
 
+/**
+ * @brief Hash Payload storage Structure; filled in linear.
+ */
 struct Payload {
-	/**
-	 * \brief Hash Payload storage Structure; filled in linear.
-	 */
 	void *Data; /**< the Data belonging to this storage */
 	DeleteHashDataFunc Destructor; /**< if we want to destroy Data, do it with this function. */
 };
 
+
+/**
+ * @brief Hash key element; sorted by key
+ */
 struct HashKey {
-        /**
-	 * \brief Hash key element; sorted by key
-	 */
 	long Key;         /**< Numeric Hashkey comperator for hash sorting */
 	long Position;    /**< Pointer to a Payload struct in the Payload Aray */
 	char *HashKey;    /**< the Plaintext Hashkey */
@@ -27,10 +28,10 @@ struct HashKey {
 	Payload *PL;      /**< pointer to our payload for sorting */
 };
 
+/**
+ * @brief Hash structure; holds arrays of Hashkey and Payload. 
+ */
 struct HashList {
-	/**
-	 * \brief Hash structure; holds arrays of Hashkey and Payload. 
-	 */
 	Payload **Members;     /**< Our Payload members. This fills up linear */
 	HashKey **LookupTable; /**< Hash Lookup table. Elements point to members, and are sorted by their hashvalue */
 	char **MyKeys;         /**< this keeps the members for a call of GetHashKeys */
@@ -41,21 +42,21 @@ struct HashList {
 	long uniq;             /**< are the keys going to be uniq? */
 };
 
+/**
+ * @brief Anonymous Hash Iterator Object. used for traversing the whole array from outside 
+ */
 struct HashPos {
-	/**
-	 * \brief Anonymous Hash Iterator Object. used for traversing the whole array from outside 
-	 */
-	long Position;
-	int StepWidth;
+	long Position;        /**< Position inside of the hash */
+	int StepWidth;        /**< small? big? forward? backward? */
 };
 
 
 /**
- * \brief Iterate over the hash and call PrintEntry. 
- * \param Hash your Hashlist structure
- * \param Trans is called so you could for example print 'A:' if the next entries are like that.
+ * @brief Iterate over the hash and call PrintEntry. 
+ * @param Hash your Hashlist structure
+ * @param Trans is called so you could for example print 'A:' if the next entries are like that.
  *        Must be aware to receive NULL in both pointers.
- * \param PrintEntry print entry one by one
+ * @param PrintEntry print entry one by one
  * \returns the number of items printed
  */
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry)
@@ -95,10 +96,10 @@ int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry
 
 
 /**
- * \brief verify the contents of a hash list; here for debugging purposes.
- * \param Hash your Hashlist structure
- * \param First Functionpointer to allow you to print your payload
- * \param Second Functionpointer to allow you to print your payload
+ * @brief verify the contents of a hash list; here for debugging purposes.
+ * @param Hash your Hashlist structure
+ * @param First Functionpointer to allow you to print your payload
+ * @param Second Functionpointer to allow you to print your payload
  * \returns 0
  */
 int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Second)
@@ -152,7 +153,7 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 
 
 /**
- * \brief instanciate a new hashlist
+ * @brief instanciate a new hashlist
  * \returns the newly allocated list. 
  */
 HashList *NewHash(int Uniq, HashFunc F)
@@ -183,9 +184,9 @@ int GetCount(HashList *Hash)
 
 
 /**
- * \brief private destructor for one hash element.
+ * @brief private destructor for one hash element.
  * Crashing? go one frame up and do 'print *FreeMe->LookupTable[i]'
- * \param Data an element to free using the user provided destructor, or just plain free
+ * @param Data an element to free using the user provided destructor, or just plain free
  */
 static void DeleteHashPayload (Payload *Data)
 {
@@ -197,7 +198,7 @@ static void DeleteHashPayload (Payload *Data)
 }
 
 /**
- * \brief Destructor for nested hashes
+ * @brief Destructor for nested hashes
  */
 void HDeleteHash(void *vHash)
 {
@@ -206,9 +207,9 @@ void HDeleteHash(void *vHash)
 }
 
 /**
- * \brief destroy a hashlist and all of its members
+ * @brief destroy a hashlist and all of its members
  * Crashing? do 'print *FreeMe->LookupTable[i]'
- * \param Hash Hash to destroy. Is NULL'ed so you are shure its done.
+ * @param Hash Hash to destroy. Is NULL'ed so you are shure its done.
  */
 void DeleteHash(HashList **Hash)
 {
@@ -245,8 +246,8 @@ void DeleteHash(HashList **Hash)
 }
 
 /**
- * \brief Private function to increase the hash size.
- * \param Hash the Hasharray to increase
+ * @brief Private function to increase the hash size.
+ * @param Hash the Hasharray to increase
  */
 static void IncreaseHashSize(HashList *Hash)
 {
@@ -276,14 +277,14 @@ static void IncreaseHashSize(HashList *Hash)
 
 
 /**
- * \brief private function to add a new item to / replace an existing in -  the hashlist
+ * @brief private function to add a new item to / replace an existing in -  the hashlist
  * if the hash list is full, its re-alloced with double size.
  * \parame Hash our hashlist to manipulate
- * \param HashPos where should we insert / replace?
- * \param HashKeyStr the Hash-String
- * \param HKLen length of HashKeyStr
- * \param Data your Payload to add
- * \param Destructor Functionpointer to free Data. if NULL, default free() is used.
+ * @param HashPos where should we insert / replace?
+ * @param HashKeyStr the Hash-String
+ * @param HKLen length of HashKeyStr
+ * @param Data your Payload to add
+ * @param Destructor Functionpointer to free Data. if NULL, default free() is used.
  */
 static void InsertHashItem(HashList *Hash, 
 			   long HashPos, 
@@ -336,10 +337,10 @@ static void InsertHashItem(HashList *Hash,
 }
 
 /**
- * \brief if the user has tainted the hash, but wants to insert / search items by their key
+ * @brief if the user has tainted the hash, but wants to insert / search items by their key
  *  we need to search linear through the array. You have been warned that this will take more time!
- * \param Hash Our Hash to manipulate
- * \param HashBinKey the Hash-Number to lookup. 
+ * @param Hash Our Hash to manipulate
+ * @param HashBinKey the Hash-Number to lookup. 
  * \returns the position (most closely) matching HashBinKey (-> Caller needs to compare! )
  */
 static long FindInTaintedHash(HashList *Hash, long HashBinKey)
@@ -358,9 +359,9 @@ static long FindInTaintedHash(HashList *Hash, long HashBinKey)
 }
 
 /**
- * \brief Private function to lookup the Item / the closest position to put it in
- * \param Hash Our Hash to manipulate
- * \param HashBinKey the Hash-Number to lookup. 
+ * @brief Private function to lookup the Item / the closest position to put it in
+ * @param Hash Our Hash to manipulate
+ * @param HashBinKey the Hash-Number to lookup. 
  * \returns the position (most closely) matching HashBinKey (-> Caller needs to compare! )
  */
 static long FindInHash(HashList *Hash, long HashBinKey)
@@ -412,9 +413,9 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 
 
 /**
- * \brief another hashing algorithm; treat it as just a pointer to long.
- * \param str Our pointer to the long value
- * \param len the length of the data pointed to; needs to be sizeof int, else we won't use it!
+ * @brief another hashing algorithm; treat it as just a pointer to long.
+ * @param str Our pointer to the long value
+ * @param len the length of the data pointed to; needs to be sizeof int, else we won't use it!
  * \returns the calculated hash value
  */
 int Flathash(const char *str, long len)
@@ -425,9 +426,9 @@ int Flathash(const char *str, long len)
 }
 
 /**
- * \brief private abstract wrapper around the hashing algorithm
- * \param HKey the hash string
- * \param HKLen length of HKey
+ * @brief private abstract wrapper around the hashing algorithm
+ * @param HKey the hash string
+ * @param HKLen length of HKey
  * \returns the calculated hash value
  */
 inline static long CalcHashKey (HashList *Hash, const char *HKey, long HKLen)
@@ -443,12 +444,12 @@ inline static long CalcHashKey (HashList *Hash, const char *HKey, long HKLen)
 
 
 /**
- * \brief Add a new / Replace an existing item in the Hash
- * \param HashList the list to manipulate
- * \param HKey the hash-string to store Data under
- * \param HKeyLen Length of HKey
- * \param Data the payload you want to associate with HKey
- * \param DeleteIt if not free() should be used to delete Data set to NULL, else DeleteIt is used.
+ * @brief Add a new / Replace an existing item in the Hash
+ * @param HashList the list to manipulate
+ * @param HKey the hash-string to store Data under
+ * @param HKeyLen Length of HKey
+ * @param Data the payload you want to associate with HKey
+ * @param DeleteIt if not free() should be used to delete Data set to NULL, else DeleteIt is used.
  */
 void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt)
 {
@@ -491,11 +492,11 @@ void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDat
 }
 
 /**
- * \brief Lookup the Data associated with HKey
- * \param Hash the Hashlist to search in
- * \param HKey the hashkey to look up
- * \param HKLen length of HKey
- * \param Data returns the Data associated with HKey
+ * @brief Lookup the Data associated with HKey
+ * @param Hash the Hashlist to search in
+ * @param HKey the hashkey to look up
+ * @param HKLen length of HKey
+ * @param Data returns the Data associated with HKey
  * \returns 0 if not found, 1 if.
  */
 int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data)
@@ -535,10 +536,10 @@ int GetKey(HashList *Hash, char *HKey, long HKLen, void **Payload)
 }
 
 /**
- * \brief get the Keys present in this hash, simila to array_keys() in PHP
+ * @brief get the Keys present in this hash, simila to array_keys() in PHP
  *  Attention: List remains to Hash! don't modify or free it!
- * \param Hash Your Hashlist to extract the keys from
- * \param List returns the list of hashkeys stored in Hash
+ * @param Hash Your Hashlist to extract the keys from
+ * @param List returns the list of hashkeys stored in Hash
  */
 int GetHashKeys(HashList *Hash, char ***List)
 {
@@ -558,9 +559,9 @@ int GetHashKeys(HashList *Hash, char ***List)
 }
 
 /**
- * \brief creates a hash-linear iterator object
- * \param Hash the list we reference
- * \param in which step width should we iterate?
+ * @brief creates a hash-linear iterator object
+ * @param Hash the list we reference
+ * @param in which step width should we iterate?
  *  If negative, the last position matching the 
  *  step-raster is provided.
  * \returns the hash iterator
@@ -584,8 +585,8 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 }
 
 /**
- * \brief retrieve the counter from the itteratoor
- * \param the Iterator to analyze
+ * @brief retrieve the counter from the itteratoor
+ * @param the Iterator to analyze
  * \returns the n'th hashposition we point at
  */
 int GetHashPosCounter(HashList *Hash, HashPos *At)
@@ -599,7 +600,7 @@ int GetHashPosCounter(HashList *Hash, HashPos *At)
 }
 
 /**
- * \brief frees a linear hash iterator
+ * @brief frees a linear hash iterator
  */
 void DeleteHashPos(HashPos **DelMe)
 {
@@ -612,11 +613,11 @@ void DeleteHashPos(HashPos **DelMe)
 
 
 /**
- * \brief Get the data located where HashPos Iterator points at, and Move HashPos one forward
- * \param Hash your Hashlist to follow
- * \param HKLen returns Length of Hashkey Returned
- * \param HashKey returns the Hashkey corrosponding to HashPos
- * \param Data returns the Data found at HashPos
+ * @brief Get the data located where HashPos Iterator points at, and Move HashPos one forward
+ * @param Hash your Hashlist to follow
+ * @param HKLen returns Length of Hashkey Returned
+ * @param HashKey returns the Hashkey corrosponding to HashPos
+ * @param Data returns the Data found at HashPos
  * \returns whether the item was found or not.
  */
 int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
@@ -643,12 +644,12 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 }
 
 /**
- * \brief Get the data located where At points to
+ * @brief Get the data located where At points to
  * note: you should prefer iterator operations instead of using me.
- * \param Hash your Hashlist peek from
- * \param HKLen returns Length of Hashkey Returned
- * \param HashKey returns the Hashkey corrosponding to HashPos
- * \param Data returns the Data found at HashPos
+ * @param Hash your Hashlist peek from
+ * @param HKLen returns Length of Hashkey Returned
+ * @param HashKey returns the Hashkey corrosponding to HashPos
+ * @param Data returns the Data found at HashPos
  * \returns whether the item was found or not.
  */
 int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **Data)
@@ -667,9 +668,9 @@ int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **
 }
 
 /**
- * \brief sorting function for sorting the Hash alphabeticaly by their strings
- * \param Key1 first item
- * \param Key2 second item
+ * @brief sorting function for sorting the Hash alphabeticaly by their strings
+ * @param Key1 first item
+ * @param Key2 second item
  */
 static int SortByKeys(const void *Key1, const void* Key2)
 {
@@ -681,9 +682,9 @@ static int SortByKeys(const void *Key1, const void* Key2)
 }
 
 /**
- * \brief sorting function for sorting the Hash alphabeticaly reverse by their strings
- * \param Key1 first item
- * \param Key2 second item
+ * @brief sorting function for sorting the Hash alphabeticaly reverse by their strings
+ * @param Key1 first item
+ * @param Key2 second item
  */
 static int SortByKeysRev(const void *Key1, const void* Key2)
 {
@@ -695,9 +696,9 @@ static int SortByKeysRev(const void *Key1, const void* Key2)
 }
 
 /**
- * \brief sorting function to regain hash-sequence and revert tainted status
- * \param Key1 first item
- * \param Key2 second item
+ * @brief sorting function to regain hash-sequence and revert tainted status
+ * @param Key1 first item
+ * @param Key2 second item
  */
 static int SortByHashKeys(const void *Key1, const void* Key2)
 {
@@ -710,11 +711,11 @@ static int SortByHashKeys(const void *Key1, const void* Key2)
 
 
 /**
- * \brief sort the hash alphabeticaly by their keys.
+ * @brief sort the hash alphabeticaly by their keys.
  * Caution: This taints the hashlist, so accessing it later 
  * will be significantly slower! You can un-taint it by SortByHashKeyStr
- * \param Hash the list to sort
- * \param Order 0/1 Forward/Backward
+ * @param Hash the list to sort
+ * @param Order 0/1 Forward/Backward
  */
 void SortByHashKey(HashList *Hash, int Order)
 {
@@ -726,9 +727,9 @@ void SortByHashKey(HashList *Hash, int Order)
 }
 
 /**
- * \brief sort the hash by their keys (so it regains untainted state).
+ * @brief sort the hash by their keys (so it regains untainted state).
  * this will result in the sequence the hashing allgorithm produces it by default.
- * \param Hash the list to sort
+ * @param Hash the list to sort
  */
 void SortByHashKeyStr(HashList *Hash)
 {
@@ -740,8 +741,8 @@ void SortByHashKeyStr(HashList *Hash)
 
 
 /**
- * \brief gives user sort routines access to the hash payload
- * \param Searchentry to retrieve Data to
+ * @brief gives user sort routines access to the hash payload
+ * @param Searchentry to retrieve Data to
  * \returns Data belonging to HashVoid
  */
 const void *GetSearchPayload(const void *HashVoid)
@@ -750,10 +751,10 @@ const void *GetSearchPayload(const void *HashVoid)
 }
 
 /**
- * \brief sort the hash by your sort function. see the following sample.
+ * @brief sort the hash by your sort function. see the following sample.
  * this will result in the sequence the hashing allgorithm produces it by default.
- * \param Hash the list to sort
- * \param SortBy Sortfunction; see below how to implement this
+ * @param Hash the list to sort
+ * @param SortBy Sortfunction; see below how to implement this
  */
 void SortByPayload(HashList *Hash, CompareFunc SortBy)
 {

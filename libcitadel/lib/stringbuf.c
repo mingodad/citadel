@@ -31,6 +31,63 @@ const char *StrBufNOTNULL = ((char*) NULL) - 1;
 
 /**
  * @defgroup StrBuf Stringbuffer, A class for manipulating strings with dynamic buffers
+ * StrBuf is a versatile class, aiding the handling of dynamic strings
+ *  * reduce de/reallocations
+ *  * reduce the need to remeasure it
+ *  * reduce scanning over the string (in @ref StrBuf_NextTokenizer "Tokenizers")
+ *  * allow asyncroneous IO for line and Blob based operations
+ *  * reduce the use of memove in those
+ *  * Quick filling in several operations with append functions
+ */
+
+/**
+ * @defgroup StrBuf_DeConstructors Create/Destroy StrBufs
+ * @ingroup StrBuf
+ */
+
+/**
+ * @defgroup StrBuf_Cast Cast operators to interact with char* based code
+ * @ingroup StrBuf
+ * use these operators to interfere with code demanding char*; 
+ * if you need to own the content, smash me. Avoid, since we loose the length information.
+ */
+
+/**
+ * @defgroup StrBuf_Filler Create/Replace/Append Content into a StrBuf
+ * @ingroup StrBuf
+ * operations to get your Strings into a StrBuf, manipulating them, or appending
+ */
+/**
+ * @defgroup StrBuf_NextTokenizer Fast tokenizer to pull tokens in sequence 
+ * @ingroup StrBuf
+ * Quick tokenizer; demands of the user to pull its tokens in sequence
+ */
+
+/**
+ * @defgroup StrBuf_Tokenizer tokenizer Functions; Slow ones.
+ * @ingroup StrBuf
+ * versatile tokenizer; random access to tokens, but slower; Prefer the @ref StrBuf_NextTokenizer "Next Tokenizer"
+ */
+
+/**
+ * @defgroup StrBuf_BufferedIO Buffered IO with Asynchroneous reads and no unneeded memmoves (the fast ones)
+ * @ingroup StrBuf
+ * File IO to fill StrBufs; Works with work-buffer shared across several calls;
+ * External Cursor to maintain the current read position inside of the buffer
+ * the non-fast ones will use memove to keep the start of the buffer the read buffer (which is slower) 
+ */
+
+/**
+ * @defgroup StrBuf_IO FileIO; Prefer @ref StrBuf_BufferedIO
+ * @ingroup StrBuf
+ * Slow I/O; avoid.
+ */
+
+/**
+ * @defgroup StrBuf_DeEnCoder functions to translate the contents of a buffer
+ * @ingroup StrBuf
+ * these functions translate the content of a buffer into another representation;
+ * some are combined Fillers and encoders
  */
 
 /**
@@ -42,9 +99,9 @@ struct StrBuf {
 	long BufUsed;      /**< StNumber of Chars used excluding the trailing \\0 */
 	int ConstBuf;      /**< are we just a wrapper arround a static buffer and musn't we be changed? */
 #ifdef SIZE_DEBUG
-	long nIncreases;
-	char bt [SIZ];
-	char bt_lastinc [SIZ];
+	long nIncreases;   /**< for profiling; cound how many times we needed more */
+	char bt [SIZ];     /**< Stacktrace of last increase */
+	char bt_lastinc [SIZ]; /**< How much did we increase last time? */
 #endif
 };
 
@@ -83,7 +140,7 @@ static void StrBufBacktrace(StrBuf *Buf, int which)
 #endif
 
 /** 
- * @ingroup StrBuf
+ * @ingroup StrBuf_Cast
  * @brief Cast operator to Plain String 
  * @note if the buffer is altered by StrBuf operations, this pointer may become 
  *  invalid. So don't lean on it after altering the buffer!
@@ -100,7 +157,7 @@ inline const char *ChrPtr(const StrBuf *Str)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Cast
  * @brief since we know strlen()'s result, provide it here.
  * @param Str the string to return the length to
  * @returns contentlength of the buffer
@@ -111,7 +168,7 @@ inline int StrLength(const StrBuf *Str)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief local utility function to resize the buffer
  * @param Buf the buffer whichs storage we should increase
  * @param KeepOriginal should we copy the original buffer or just start over with a new one
@@ -155,7 +212,7 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief shrink an _EMPTY_ buffer if its Buffer superseeds threshhold to NewSize. Buffercontent is thoroughly ignored and flushed.
  * @param Buf Buffer to shrink (has to be empty)
  * @param ThreshHold if the buffer is bigger then this, its readjusted
@@ -172,7 +229,7 @@ void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief shrink long term buffers to their real size so they don't waste memory
  * @param Buf buffer to shrink
  * @param Force if not set, will just executed if the buffer is much to big; set for lifetime strings
@@ -193,7 +250,7 @@ long StrBufShrinkToFit(StrBuf *Buf, int Force)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief Allocate a new buffer with default buffer size
  * @returns the new stringbuffer
  */
@@ -219,7 +276,7 @@ StrBuf* NewStrBuf(void)
 }
 
 /** 
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief Copy Constructor; returns a duplicate of CopyMe
  * @param CopyMe Buffer to faxmilate
  * @returns the new stringbuffer
@@ -249,7 +306,7 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief create a new Buffer using an existing c-string
  * this function should also be used if you want to pre-suggest
  * the buffer size to allocate in conjunction with ptr == NULL
@@ -296,8 +353,9 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief Set an existing buffer from a c-string
+ * @param Buf buffer to load
  * @param ptr c-string to put into 
  * @param nChars set to -1 if we should work 0-terminated
  * @returns the new length of the string
@@ -326,7 +384,7 @@ int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief use strbuf as wrapper for a string constant for easy handling
  * @param StringConstant a string to wrap
  * @param SizeOfStrConstant should be sizeof(StringConstant)-1
@@ -350,7 +408,7 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief flush the content of a Buf; keep its struct
  * @param buf Buffer to flush
  */
@@ -366,6 +424,7 @@ int FlushStrBuf(StrBuf *buf)
 }
 
 /**
+ * @ingroup StrBuf_DeConstructors
  * @brief wipe the content of a Buf thoroughly (overwrite it -> expensive); keep its struct
  * @param buf Buffer to wipe
  */
@@ -386,7 +445,7 @@ int FLUSHStrBuf(StrBuf *buf)
 int hFreeDbglog = -1;
 #endif
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief Release a Buffer
  * Its a double pointer, so it can NULL your pointer
  * so fancy SIG11 appear instead of random results
@@ -432,7 +491,7 @@ void FreeStrBuf (StrBuf **FreeMe)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief flatten a Buffer to the Char * we return 
  * Its a double pointer, so it can NULL your pointer
  * so fancy SIG11 appear instead of random results
@@ -482,7 +541,7 @@ char *SmashStrBuf (StrBuf **SmashMe)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeConstructors
  * @brief Release the buffer
  * If you want put your StrBuf into a Hash, use this as Destructor.
  * @param VFreeMe untyped pointer to a StrBuf. be shure to do the right thing [TM]
@@ -670,11 +729,11 @@ size_t CurlFillStrBuf_callback(void *ptr, size_t size, size_t nmemb, void *strea
 
 
 /** 
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeEnCoder
  * @brief Escape a string for feeding out as a URL while appending it to a Buffer
- * @param outbuf the output buffer
- * @param oblen the size of outbuf to sanitize
- * @param strbuf the input buffer
+ * @param OutBuf the output buffer
+ * @param In Buffer to encode
+ * @param PlainIn way in from plain old c strings
  */
 void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 {
@@ -732,7 +791,7 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeEnCoder
  * @brief Append a string, escaping characters which have meaning in HTML.  
  *
  * @param Target	target buffer
@@ -846,7 +905,7 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeEnCoder
  * @brief Append a string, escaping characters which have meaning in HTML.  
  * Converts linebreaks into blanks; escapes single quotes
  * @param Target	target buffer
@@ -913,7 +972,7 @@ void StrMsgEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeEnCoder
  * @brief Append a string, escaping characters which have meaning in ICAL.  
  * [\n,] 
  * @param Target	target buffer
@@ -983,7 +1042,7 @@ void StrIcalEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeEnCoder
  * @brief Append a string, escaping characters which have meaning in JavaScript strings .  
  *
  * @param Target	target buffer
@@ -1050,7 +1109,7 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_DeEnCoder
  * @brief Append a string, escaping characters which have meaning in HTML + json.  
  *
  * @param Target	target buffer
@@ -1216,7 +1275,7 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
  * @ingroup StrBuf
  * @brief sprintf like function appending the formated string to the buffer
  * vsnprintf version to wrap into own calls
- * @param Buf Buffer to extend by format and @params
+ * @param Buf Buffer to extend by format and Params
  * @param format printf alike format to add
  * @param ap va_list containing the items for format
  */
@@ -1301,7 +1360,6 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
  * @brief sprintf like function putting the formated string into the buffer
  * @param Buf Buffer to extend by format and Parameters
  * @param format printf alike format to add
- * @param ap va_list containing the items for format
  */
 void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 {
@@ -1327,7 +1385,7 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Tokenizer
  * @brief Counts the numbmer of tokens in a buffer
  * @param source String to count tokens in
  * @param tok    Tokenizer char to count
@@ -1344,11 +1402,11 @@ int StrBufNum_tokens(const StrBuf *source, char tok)
  * remove_token() - a tokenizer that kills, maims, and destroys
  */
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Tokenizer
  * @brief a string tokenizer
  * @param Source StringBuffer to read into
- * @param parmnum n'th @parameter to remove
- * @param separator tokenizer @param
+ * @param parmnum n'th Parameter to remove
+ * @param separator tokenizer character
  * @returns -1 if not found, else length of token.
  */
 int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
@@ -1411,7 +1469,7 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Tokenizer
  * @brief a string tokenizer
  * @param dest Destination StringBuffer
  * @param Source StringBuffer to read into
@@ -1479,7 +1537,7 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Tokenizer
  * @brief a string tokenizer to fetch an integer
  * @param Source String containing tokens
  * @param parmnum n'th Parameter to extract
@@ -1503,7 +1561,7 @@ int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Tokenizer
  * @brief a string tokenizer to fetch a long integer
  * @param Source String containing tokens
  * @param parmnum n'th Parameter to extract
@@ -1528,7 +1586,7 @@ long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Tokenizer
  * @brief a string tokenizer to fetch an unsigned long
  * @param Source String containing tokens
  * @param parmnum n'th Parameter to extract
@@ -1559,7 +1617,7 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_NextTokenizer
  * @brief a string tokenizer; Bounds checker
  *  function to make shure whether StrBufExtract_NextToken and friends have reached the end of the string.
  * @param Source our tokenbuffer
@@ -1591,7 +1649,7 @@ int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_NextTokenizer
  * @brief a string tokenizer
  * @param dest Destination StringBuffer
  * @param Source StringBuffer to read into
@@ -1689,12 +1747,12 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_NextTokenizer
  * @brief a string tokenizer
- * @param dest Destination StringBuffer
  * @param Source StringBuffer to read from
  * @param pStart pointer to the end of the last token. Feed with NULL.
- * @param separator tokenizer @param
+ * @param separator tokenizer character
+ * @param nTokens number of tokens to fastforward over
  * @returns -1 if not found, else length of token.
  */
 int StrBufSkip_NTokenS(const StrBuf *Source, const char **pStart, char separator, int nTokens)
@@ -1742,7 +1800,7 @@ int StrBufSkip_NTokenS(const StrBuf *Source, const char **pStart, char separator
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_NextTokenizer
  * @brief a string tokenizer to fetch an integer
  * @param Source StringBuffer to read from
  * @param pStart Cursor on the tokenstring
@@ -1766,7 +1824,7 @@ int StrBufExtractNext_int(const StrBuf* Source, const char **pStart, char separa
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_NextTokenizer
  * @brief a string tokenizer to fetch a long integer
  * @param Source StringBuffer to read from
  * @param pStart Cursor on the tokenstring
@@ -1791,7 +1849,7 @@ long StrBufExtractNext_long(const StrBuf* Source, const char **pStart, char sepa
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_NextTokenizer
  * @brief a string tokenizer to fetch an unsigned long
  * @param Source StringBuffer to read from
  * @param pStart Cursor on the tokenstring
@@ -1822,7 +1880,7 @@ unsigned long StrBufExtractNext_unsigned_long(const StrBuf* Source, const char *
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_IO
  * @brief Read a line from socket
  * flushes and closes the FD on error
  * @param buf the buffer to get the input to
@@ -1865,12 +1923,14 @@ int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_BufferedIO
  * @brief Read a line from socket
  * flushes and closes the FD on error
+ * @param Line the line to read from the fd / I/O Buffer
  * @param buf the buffer to get the input to
  * @param fd pointer to the filedescriptor to read
- * @param append Append to an existing string or replace?
+ * @param timeout number of successless selects until we bail out
+ * @param selectresolution how long to wait on each select
  * @param Error strerror() on error 
  * @returns numbers of chars read
  */
@@ -1963,13 +2023,15 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 static const char *ErrRBLF_SelectFailed="StrBufTCP_read_buffered_line_fast: Select failed without reason";
 static const char *ErrRBLF_NotEnoughSentFromServer="StrBufTCP_read_buffered_line_fast: No complete line was sent from peer";
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_BufferedIO
  * @brief Read a line from socket
  * flushes and closes the FD on error
- * @param buf the buffer to get the input to
+ * @param Line Line to read from the fd / I/O Buffer
+ * @param IOBuf the buffer to get the input to
  * @param Pos pointer to the current read position, should be NULL initialized!
  * @param fd pointer to the filedescriptor to read
- * @param append Append to an existing string or replace?
+ * @param timeout number of successless selects until we bail out
+ * @param selectresolution how long to wait on each select
  * @param Error strerror() on error 
  * @returns numbers of chars read
  */
@@ -2096,9 +2158,10 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 }
 
 /**
+ * @ingroup StrBuf_IO
  * @brief Input binary data from socket
  * flushes and closes the FD on error
- * @param buf the buffer to get the input to
+ * @param Buf the buffer to get the input to
  * @param fd pointer to the filedescriptor to read
  * @param append Append to an existing string or replace?
  * @param nBytes the maximal number of bytes to read
@@ -2171,12 +2234,16 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 
 const char *ErrRBB_too_many_selects = "StrBufReadBLOBBuffered: to many selects; aborting.";
 /**
+ * @ingroup StrBuf_BufferedIO
  * @brief Input binary data from socket
  * flushes and closes the FD on error
- * @param buf the buffer to get the input to
+ * @param Blob put binary thing here
+ * @param IOBuf the buffer to get the input to
+ * @param Pos offset inside of IOBuf
  * @param fd pointer to the filedescriptor to read
  * @param append Append to an existing string or replace?
  * @param nBytes the maximal number of bytes to read
+ * @param check whether we should search for '000\n' terminators in case of timeouts
  * @param Error strerror() on error 
  * @returns numbers of chars read
  */
@@ -2326,6 +2393,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Cut nChars from the start of the string
  * @param Buf Buffer to modify
  * @param nChars how many chars should be skipped?
@@ -2342,6 +2410,7 @@ void StrBufCutLeft(StrBuf *Buf, int nChars)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Cut the trailing n Chars from the string
  * @param Buf Buffer to modify
  * @param nChars how many chars should be trunkated?
@@ -2357,6 +2426,7 @@ void StrBufCutRight(StrBuf *Buf, int nChars)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Cut the string after n Chars
  * @param Buf Buffer to modify
  * @param AfternChars after how many chars should we trunkate the string?
@@ -2376,9 +2446,9 @@ void StrBufCutAt(StrBuf *Buf, int AfternChars, const char *At)
 
 
 /**
+ * @ingroup StrBuf
  * @brief Strip leading and trailing spaces from a string; with premeasured and adjusted length.
- * @param buf the string to modify
- * @param len length of the string. 
+ * @param Buf the string to modify
  */
 void StrBufTrim(StrBuf *Buf)
 {
@@ -2398,6 +2468,7 @@ void StrBufTrim(StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief uppercase the contents of a buffer
  * @param Buf the buffer to translate
  */
@@ -2415,6 +2486,7 @@ void StrBufUpCase(StrBuf *Buf)
 
 
 /**
+ * @ingroup StrBuf
  * @brief lowercase the contents of a buffer
  * @param Buf the buffer to translate
  */
@@ -2431,6 +2503,7 @@ void StrBufLowerCase(StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief removes double slashes from pathnames
  * @param Dir directory string to filter
  * @param RemoveTrailingSlash allows / disallows trailing slashes
@@ -2462,6 +2535,7 @@ void StrBufStripSlashes(StrBuf *Dir, int RemoveTrailingSlash)
 }
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief unhide special chars hidden to the HTML escaper
  * @param target buffer to put the unescaped string in
  * @param source buffer to unescape
@@ -2503,6 +2577,7 @@ void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source)
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief hide special chars from the HTML escapers and friends
  * @param target buffer to put the escaped string in
  * @param source buffer to escape
@@ -2538,18 +2613,25 @@ void StrBufEUid_escapize(StrBuf *target, const StrBuf *source)
 	target->buf[target->BufUsed + 1] = '\0';
 }
 
-/**
- * @brief uses the same calling syntax as compress2(), but it
- *   creates a stream compatible with HTTP "Content-encoding: gzip"
- */
 #ifdef HAVE_ZLIB
 #define DEF_MEM_LEVEL 8 /*< memlevel??? */
 #define OS_CODE 0x03	/*< unix */
-int ZEXPORT compress_gzip(Bytef * dest,         /*< compressed buffer*/
-			  size_t * destLen,     /*< length of the compresed data */
-			  const Bytef * source, /*< source to encode */
-			  uLong sourceLen,      /*< length of source to encode */
-			  int level)            /*< compression level */
+
+/**
+ * @ingroup StrBuf_DeEnCoder
+ * @brief uses the same calling syntax as compress2(), but it
+ *   creates a stream compatible with HTTP "Content-encoding: gzip"
+ * @param dest compressed buffer
+ * @param destLen length of the compresed data 
+ * @param source source to encode
+ * @param sourceLen length of source to encode 
+ * @param level compression level
+ */
+int ZEXPORT compress_gzip(Bytef * dest,
+			  size_t * destLen,
+			  const Bytef * source,
+			  uLong sourceLen,     
+			  int level)
 {
 	const int gz_magic[2] = { 0x1f, 0x8b };	/* gzip magic header */
 
@@ -2605,7 +2687,10 @@ int ZEXPORT compress_gzip(Bytef * dest,         /*< compressed buffer*/
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
+ * @brief compress the buffer with gzip
  * Attention! If you feed this a Const String, you must maintain the uncompressed buffer yourself!
+ * @param Buf buffer whose content is to be gzipped
  */
 int CompressBuffer(StrBuf *Buf)
 {
@@ -2644,6 +2729,7 @@ int CompressBuffer(StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief decode a buffer from base 64 encoding; destroys original
  * @param Buf Buffor to transform
  */
@@ -2664,6 +2750,7 @@ int StrBufDecodeBase64(StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief decode a buffer from base 64 encoding; destroys original
  * @param Buf Buffor to transform
  */
@@ -2690,6 +2777,7 @@ int StrBufDecodeHex(StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief replace all chars >0x20 && < 0x7F with Mute
  * @param Mute char to put over invalid chars
  * @param Buf Buffor to transform
@@ -2710,6 +2798,7 @@ int StrBufSanitizeAscii(StrBuf *Buf, const char Mute)
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief remove escaped strings from i.e. the url string (like %20 for blanks)
  * @param Buf Buffer to translate
  * @param StripBlanks Reduce several blanks to one?
@@ -2756,6 +2845,7 @@ long StrBufUnescape(StrBuf *Buf, int StripBlanks)
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief	RFC2047-encode a header field if necessary.
  *		If no non-ASCII characters are found, the string
  *		will be copied verbatim without encoding.
@@ -2825,10 +2915,11 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief replaces all occurances of 'search' by 'replace'
  * @param buf Buffer to modify
  * @param search character to search
- * @param relpace character to replace search by
+ * @param replace character to replace search by
  */
 void StrBufReplaceChars(StrBuf *buf, char search, char replace)
 {
@@ -2844,12 +2935,14 @@ void StrBufReplaceChars(StrBuf *buf, char search, char replace)
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief Wrapper around iconv_open()
  * Our version adds aliases for non-standard Microsoft charsets
  * such as 'MS950', aliasing them to names like 'CP950'
  *
  * @param tocode	Target encoding
  * @param fromcode	Source encoding
+ * @param pic           anonimized pointer to iconv struct
  */
 void  ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic)
 {
@@ -2871,6 +2964,7 @@ void  ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic)
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief find one chunk of a RFC822 encoded string
  * @param Buffer where to search
  * @param bptr where to start searching
@@ -2901,6 +2995,7 @@ static inline char *FindNextEnd (const StrBuf *Buf, char *bptr)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief swaps the contents of two StrBufs
  * this is to be used to have cheap switched between a work-buffer and a target buffer 
  * @param A First one
@@ -2918,6 +3013,7 @@ static inline void SwapBuffers(StrBuf *A, StrBuf *B)
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief convert one buffer according to the preselected iconv pointer PIC
  * @param ConvertBuf buffer we need to translate
  * @param TmpBuf To share a workbuffer over several iterations. prepare to have it filled with useless stuff afterwards.
@@ -2978,6 +3074,7 @@ TRYAGAIN:
 
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief catches one RFC822 encoded segment, and decodes it.
  * @param Target buffer to fill with result
  * @param DecodeMe buffer with stuff to process
@@ -3058,6 +3155,7 @@ inline static void DecodeSegment(StrBuf *Target,
 }
 
 /**
+ * @ingroup StrBuf_DeEnCoder
  * @brief Handle subjects with RFC2047 encoding such as:
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
  * @param Target where to put the decoded string to 
@@ -3216,6 +3314,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 }
 
 /**
+ * @ingroup StrBuf
  * @brief evaluate the length of an utf8 special character sequence
  * @param Char the character to examine
  * @returns width of utf8 chars in bytes
@@ -3235,6 +3334,7 @@ static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *Char
 }
 
 /**
+ * @ingroup StrBuf
  * @brief detect whether this char starts an utf-8 encoded char
  * @param Char character to inspect
  * @returns yes or no
@@ -3246,9 +3346,10 @@ static inline int Ctdl_IsUtf8SequenceStart(const char Char)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief measure the number of glyphs in an UTF8 string...
- * @param str string to measure
- * @returns the length of str
+ * @param Buf string to measure
+ * @returns the number of glyphs in Buf
  */
 long StrBuf_Utf8StrLen(StrBuf *Buf)
 {
@@ -3276,10 +3377,11 @@ long StrBuf_Utf8StrLen(StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief cuts a string after maxlen glyphs
- * @param str string to cut to maxlen glyphs
+ * @param Buf string to cut to maxlen glyphs
  * @param maxlen how long may the string become?
- * @returns pointer to maxlen or the end of the string
+ * @returns current length of the string
  */
 long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
 {
@@ -3310,6 +3412,7 @@ long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
 
 
 /**
+ * @ingroup StrBuf
  * @brief extract a "next line" from Buf; Ptr to persist across several iterations
  * @param LineBuf your line will be copied here.
  * @param Buf BLOB with lines of text...
