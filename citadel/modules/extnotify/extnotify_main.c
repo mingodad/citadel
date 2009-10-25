@@ -367,7 +367,7 @@ long extNotify_getConfigMessage(char *username) {
 	// Get the user
 	CtdlGetUser(&user, username);
     
-	MailboxName(configRoomName, sizeof configRoomName, &user, USERCONFIGROOM);
+	CtdlMailboxName(configRoomName, sizeof configRoomName, &user, USERCONFIGROOM);
 	// Fill qrbuf
 	CtdlGetRoom(&qrbuf, configRoomName);
 	/* Do something really, really stoopid here. Raid the room on ourselves,

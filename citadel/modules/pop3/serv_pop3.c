@@ -265,7 +265,7 @@ void pop3_apop(char *argbuf)
    	return;
    }
    
-   if (getuser(&CC->user, CC->curr_user))
+   if (CtdlGetUser(&CC->user, CC->curr_user))
    {
    	cprintf("-ERR No such user.\r\n");
    	return;
@@ -504,14 +504,14 @@ void pop3_update(void) {
 
 	/* Set last read pointer */
 	if (POP3->num_msgs > 0) {
-		lgetuser(&CC->user, CC->curr_user);
+		CtdlGetUserLock(&CC->user, CC->curr_user);
 
 		CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
 		snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld",
 			POP3->msgs[POP3->num_msgs-1].msgnum);
 		CtdlSetRelationship(&vbuf, &CC->user, &CC->room);
 
-		lputuser(&CC->user);
+		CtdlPutUserLock(&CC->user);
 	}
 
 }

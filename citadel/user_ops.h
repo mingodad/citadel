@@ -27,14 +27,9 @@ void ListThisUser(struct ctdluser *usbuf, void *data);
 int NewMailCount(void);
 int InitialMailCheck(void);
 void put_visit(struct visit *newvisit);
-void CtdlGetRelationship(struct visit *vbuf,
-                        struct ctdluser *rel_user,
-                        struct ctdlroom *rel_room);
-void CtdlSetRelationship(struct visit *newvisit,
-                        struct ctdluser *rel_user,
-                        struct ctdlroom *rel_room);
+/* MailboxName is deprecated us CtdlMailboxName instead */
 void MailboxName(char *buf, size_t n, const struct ctdluser *who,
-		 const char *prefix);
+		 const char *prefix) __attribute__ ((deprecated));
 int GenerateRelationshipIndex(  char *IndexBuf,
                                 long RoomID,
                                 long RoomGen,

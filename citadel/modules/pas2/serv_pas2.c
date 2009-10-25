@@ -69,7 +69,7 @@ void cmd_pas2(char *argbuf)
 	
 	extract_token(pw, argbuf, 0, '|', sizeof pw);
 	
-	if (getuser(&CC->user, CC->curr_user))
+	if (CtdlGetUser(&CC->user, CC->curr_user))
 	{
 		cprintf("%d Unable to find user record for %s.\n", ERROR + NO_SUCH_USER, CC->curr_user);
 		return;

@@ -219,7 +219,7 @@ void cmd_oida(char *argbuf) {
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
 			memcpy(&usernum, cdboi->ptr, sizeof(long));
-			if (getuserbynumber(&usbuf, usernum) != 0) {
+			if (CtdlGetUserByNumber(&usbuf, usernum) != 0) {
 				usbuf.fullname[0] = 0;
 			} 
 			cprintf("%s|%ld|%s\n",
@@ -404,7 +404,7 @@ int openid_create_user_via_sreg(char *claimed_id, HashList *sreg_keys)
 
 	CtdlLogPrintf(CTDL_DEBUG, "The desired account name is <%s>\n", desired_name);
 
-	if (!getuser(&CC->user, desired_name)) {
+	if (!CtdlGetUser(&CC->user, desired_name)) {
 		CtdlLogPrintf(CTDL_DEBUG, "<%s> is already taken by another user.\n", desired_name);
 		memset(&CC->user, 0, sizeof(struct ctdluser));
 		return(5);
@@ -438,7 +438,7 @@ int login_via_openid(char *claimed_id)
 	memcpy(&usernum, cdboi->ptr, sizeof(long));
 	cdb_free(cdboi);
 
-	if (!getuserbynumber(&CC->user, usernum)) {
+	if (!CtdlGetUserByNumber(&CC->user, usernum)) {
 		/* Now become the user we just created */
 		safestrncpy(CC->curr_user, CC->user.fullname, sizeof CC->curr_user);
 		do_login();

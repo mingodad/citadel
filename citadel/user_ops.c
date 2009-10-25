@@ -361,6 +361,12 @@ void CtdlGetRelationship(struct visit *vbuf,
 }
 
 
+void CtdlMailboxName(char *buf, size_t n, const struct ctdluser *who, const char *prefix)
+{
+	snprintf(buf, n, "%010ld.%s", who->usernum, prefix);
+}
+
+
 void MailboxName(char *buf, size_t n, const struct ctdluser *who, const char *prefix)
 {
 	snprintf(buf, n, "%010ld.%s", who->usernum, prefix);
@@ -1182,10 +1188,10 @@ int create_user(char *newusername, int become_user)
 	 * Give the user a private mailbox and a configuration room.
 	 * Make the latter an invisible system room.
 	 */
-	MailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
+	CtdlMailboxName(mailboxname, sizeof mailboxname, &usbuf, MAILROOM);
 	CtdlCreateRoom(mailboxname, 5, "", 0, 1, 1, VIEW_MAILBOX);
 
-	MailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
+	CtdlMailboxName(mailboxname, sizeof mailboxname, &usbuf, USERCONFIGROOM);
 	CtdlCreateRoom(mailboxname, 5, "", 0, 1, 1, VIEW_BBS);
 	if (CtdlGetRoomLock(&qrbuf, mailboxname) == 0) {
 		qrbuf.QRflags2 |= QR2_SYSTEM;
@@ -1970,7 +1976,7 @@ int InitialMailCheck()
 	long *msglist = NULL;
 	int num_msgs = 0;
 
-	MailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
+	CtdlMailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
 	if (CtdlGetRoom(&mailbox, mailboxname) != 0)
 		return (0);
 	CtdlGetRelationship(&vbuf, &CC->user, &mailbox);

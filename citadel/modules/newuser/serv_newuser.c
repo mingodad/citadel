@@ -83,7 +83,7 @@ void CopyNewUserGreetings(void) {
 	if (CC->user.timescalled != 1) return;
 
 	/* This user's mailbox. */
-	MailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
+	CtdlMailboxName(mailboxname, sizeof mailboxname, &CC->user, MAILROOM);
 
 	/* Go to the source room ... bail out silently if it's not there,
 	 * or if it's not private.

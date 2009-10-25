@@ -27,6 +27,9 @@
 
 #include <sys/wait.h>
 #include <string.h>
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #include <limits.h>
 
 
@@ -280,6 +283,13 @@ int CtdlGetUserLock(struct ctdluser *usbuf, char *name);
 void CtdlPutUser(struct ctdluser *usbuf);
 void CtdlPutUserLock(struct ctdluser *usbuf);
 int CtdlGetUserByNumber(struct ctdluser *usbuf, long number);
+void CtdlGetRelationship(struct visit *vbuf,
+                        struct ctdluser *rel_user,
+                        struct ctdlroom *rel_room);
+void CtdlSetRelationship(struct visit *newvisit,
+                        struct ctdluser *rel_user,
+                        struct ctdlroom *rel_room);
+void CtdlMailboxName(char *buf, size_t n, const struct ctdluser *who, const char *prefix);
 
 
 #endif /* CTDL_MODULE_H */

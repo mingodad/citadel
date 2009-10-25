@@ -2927,7 +2927,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		if (CtdlGetUser(&userbuf, recipient) == 0) {
 			// Add a flag so the Funambol module knows its mail
 			msg->cm_fields['W'] = strdup(recipient);
-			MailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
+			CtdlMailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
 			BumpNewMailCounter(userbuf.usernum);
 			if (!IsEmptyStr(config.c_funambol_host) || !IsEmptyStr(config.c_pager_program)) {
@@ -3065,7 +3065,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	if (collected_addresses != NULL) {
 		aptr = (struct addresses_to_be_filed *)
 			malloc(sizeof(struct addresses_to_be_filed));
-		MailboxName(actual_rm, sizeof actual_rm,
+		CtdlMailboxName(actual_rm, sizeof actual_rm,
 			&CCC->user, USERCONTACTSROOM);
 		aptr->roomname = strdup(actual_rm);
 		aptr->collected_addresses = collected_addresses;
@@ -4585,7 +4585,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 	char *encoded_message = NULL;
 
 	if (is_mailbox != NULL) {
-		MailboxName(roomname, sizeof roomname, is_mailbox, req_room);
+		CtdlMailboxName(roomname, sizeof roomname, is_mailbox, req_room);
 	}
 	else {
 		safestrncpy(roomname, req_room, sizeof(roomname));

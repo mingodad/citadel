@@ -71,12 +71,12 @@ void fix_sys_user_name(void)
 	char usernamekey[USERNAME_SIZE];
 
 	/** If we have a user called Citadel rename them to SYS_Citadel */
-	if (getuser(&usbuf, "Citadel") == 0)
+	if (CtdlGetUser(&usbuf, "Citadel") == 0)
 	{
 		rename_user("Citadel", "SYS_Citadel");
 	}
 
-	while (getuserbynumber(&usbuf, 0) == 0)
+	while (CtdlGetUserByNumber(&usbuf, 0) == 0)
 	{
 		/* delete user with number 0 and no name */
 		if (IsEmptyStr(usbuf.fullname))
@@ -84,12 +84,12 @@ void fix_sys_user_name(void)
 		else
 		{ /* temporarily set this user to -1 */
 			usbuf.usernum = -1;
-			putuser(&usbuf);
+			CtdlPutUser(&usbuf);
 		}
 	}
 
 	/** Make sure user SYS_* is user 0 */
-	while (getuserbynumber(&usbuf, -1) == 0)
+	while (CtdlGetUserByNumber(&usbuf, -1) == 0)
 	{
 		if (strncmp(usbuf.fullname, "SYS_", 4))
 		{	/** Delete any user 0 that doesn't start with SYS_ */
@@ -99,7 +99,7 @@ void fix_sys_user_name(void)
 		else
 		{
 			usbuf.usernum = 0;
-			putuser(&usbuf);
+			CtdlPutUser(&usbuf);
 		}
 	}
 }
@@ -185,12 +185,12 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 
 	while (uplist != NULL) {
 
-		if (lgetuser(&us, uplist->user) == 0) {
+		if (CtdlGetUserLock(&us, uplist->user) == 0) {
 			CtdlLogPrintf(CTDL_DEBUG, "Processing <%s>...\n", uplist->user);
 			if (us.uid == CTDLUID) {
 				us.uid = (-1);
 			}
-			lputuser(&us);
+			CtdlPutUserLock(&us);
 		}
 
 		ptr = uplist;

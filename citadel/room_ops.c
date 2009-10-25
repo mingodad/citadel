@@ -1030,7 +1030,7 @@ void cmd_goto(char *gargs)
 
 	/* Then try a mailbox name match */
 	if (c != 0) {
-		MailboxName(augmented_roomname, sizeof augmented_roomname,
+		CtdlMailboxName(augmented_roomname, sizeof augmented_roomname,
 			    &CC->user, towhere);
 		c = CtdlGetRoom(&QRscratch, augmented_roomname);
 		if (c == 0)
@@ -1512,7 +1512,7 @@ void cmd_geta(char *cmdbuf)
 
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
-	if (getuserbynumber(&usbuf, CC->room.QRroomaide) == 0) {
+	if (CtdlGetUserByNumber(&usbuf, CC->room.QRroomaide) == 0) {
 		cprintf("%d %s\n", CIT_OK, usbuf.fullname);
 	} else {
 		cprintf("%d \n", CIT_OK);
@@ -1795,7 +1795,7 @@ unsigned CtdlCreateRoom(char *new_room_name,
 	 * name accordingly (prepend the user number)
 	 */
 	if (new_room_type == 4) {
-		MailboxName(qrbuf.QRname, sizeof qrbuf.QRname, &CC->user, new_room_name);
+		CtdlMailboxName(qrbuf.QRname, sizeof qrbuf.QRname, &CC->user, new_room_name);
 	}
 	else {
 		safestrncpy(qrbuf.QRname, new_room_name, sizeof qrbuf.QRname);

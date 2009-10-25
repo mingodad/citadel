@@ -719,7 +719,7 @@ void migr_xml_end(void *data, const char *el, const char **attr) {
 	else if (!strcasecmp(el, "u_fullname"))			safestrncpy(usbuf.fullname, migr_chardata, sizeof usbuf.fullname);
 
 	else if (!strcasecmp(el, "user")) {
-		putuser(&usbuf);
+		CtdlPutUser(&usbuf);
 		CtdlLogPrintf(CTDL_INFO, "Imported user: %s\n", usbuf.fullname);
 	}
 

@@ -379,7 +379,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 			memcpy(&usbuf, &CC->user, sizeof(struct ctdluser));
 		}
 		
-		else if (getuserbynumber(&usbuf, what_user) == 0) {
+		else if (CtdlGetUserByNumber(&usbuf, what_user) == 0) {
 			/* We fetched a valid user record */
 		}
 
@@ -500,7 +500,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 	if ( (strlen(CC->room.QRname) >= 12) && (!strcasecmp(&CC->room.QRname[11], USERCONFIGROOM)) ) {
 		is_UserConf = 1;	/* It's someone's config room */
 	}
-	MailboxName(roomname, sizeof roomname, &CC->user, USERCONFIGROOM);
+	CtdlMailboxName(roomname, sizeof roomname, &CC->user, USERCONFIGROOM);
 	if (!strcasecmp(CC->room.QRname, roomname)) {
 		is_UserConf = 1;
 		is_MY_UserConf = 1;	/* It's MY config room */
@@ -553,18 +553,18 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 * Assume they don't need validating.
 			 */
 			if (CC->user.axlevel >= 6) {
-				lgetuser(&CC->user, CC->curr_user);
+				CtdlGetUserLock(&CC->user, CC->curr_user);
 				CC->user.flags |= US_REGIS;
-				lputuser(&CC->user);
+				CtdlPutUserLock(&CC->user);
 				return (0);
 			}
 			
 			set_mm_valid();
 
 			/* ...which also means we need to flag the user */
-			lgetuser(&CC->user, CC->curr_user);
+			CtdlGetUserLock(&CC->user, CC->curr_user);
 			CC->user.flags |= (US_REGIS|US_NEEDVALID);
-			lputuser(&CC->user);
+			CtdlPutUserLock(&CC->user);
 
 			return(0);
 		}
@@ -601,7 +601,7 @@ struct vCard *vcard_get_user(struct ctdluser *u) {
 	long VCmsgnum;
 
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
-	MailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
+	CtdlMailboxName(config_rm, sizeof config_rm, u, USERCONFIGROOM);
 
 	if (CtdlGetRoom(&CC->room, config_rm) != 0) {
 		CtdlGetRoom(&CC->room, hold_rm);
@@ -754,7 +754,7 @@ void cmd_greg(char *argbuf)
 		return;
 	}
 
-	if (getuser(&usbuf, who) != 0) {
+	if (CtdlGetUser(&usbuf, who) != 0) {
 		cprintf("%d '%s' not found.\n", ERROR + NO_SUCH_USER, who);
 		return;
 	}

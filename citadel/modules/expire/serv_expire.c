@@ -829,7 +829,7 @@ int PurgeStaleOpenIDassociations(void) {
 	while (cdboi = cdb_next_item(CDB_OPENID), cdboi != NULL) {
 		if (cdboi->len > sizeof(long)) {
 			memcpy(&usernum, cdboi->ptr, sizeof(long));
-			if (getuserbynumber(&usbuf, usernum) != 0) {
+			if (CtdlGetUserByNumber(&usbuf, usernum) != 0) {
 				deleteme = strdup(cdboi->ptr + sizeof(long)),
 				Put(keys, deleteme, strlen(deleteme), deleteme, generic_free_handler);
 			}

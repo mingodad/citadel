@@ -25,29 +25,14 @@
 
 #define PRODID "-//Citadel//NONSGML Citadel Calendar//EN"
 
-#include "sysdep.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
+#include "ctdl_module.h"
+
 #include <libical/ical.h>
-#include <libcitadel.h>
-#include "citadel.h"
-#include "server.h"
-#include "citserver.h"
-#include "support.h"
-#include "config.h"
-#include "user_ops.h"
+
 #include "msgbase.h"
 #include "internet_addressing.h"
 #include "serv_calendar.h"
 #include "euidindex.h"
-#include "ctdl_module.h"
 #include "ical_dezonify.h"
 
 
@@ -670,7 +655,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	icalcomponent_free(original_event);	/* Don't need this anymore. */
 	if (serialized_event == NULL) return(2);
 
-	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
+	CtdlMailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
 
 	message_text = malloc(strlen(serialized_event) + SIZ);
 	if (message_text != NULL) {
@@ -1501,7 +1486,7 @@ void ical_freebusy(char *who) {
 		return;
 	}
 
-	MailboxName(calendar_room_name, sizeof calendar_room_name,
+	CtdlMailboxName(calendar_room_name, sizeof calendar_room_name,
 		&usbuf, USERCALENDARROOM);
 
 	strcpy(hold_rm, CC->room.QRname);	/* save current room */
@@ -2473,7 +2458,7 @@ int ical_obj_aftersave(struct CtdlMessage *msg)
 	 */
 
 	/* First determine if this is our room */
-	MailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
+	CtdlMailboxName(roomname, sizeof roomname, &CC->user, USERCALENDARROOM);
 	if (strcasecmp(roomname, CC->room.QRname)) {
 		return(0);	/* Not the Calendar room -- don't do anything. */
 	}
