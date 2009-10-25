@@ -578,7 +578,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		summary();
 	}
 	else {
-		readloop(readfwd);
+		readloop(readfwd, eUseDefault);
 	}
 }
 

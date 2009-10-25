@@ -718,7 +718,7 @@ typedef struct _RoomRenderer{
  *
  * Set oper to "readnew" or "readold" or "readfwd" or "headers" or "readgt"
  */
-void readloop(long oper)
+void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 {
 	RoomRenderer *ViewMsg;
 	void *vViewMsg;
@@ -741,7 +741,10 @@ void readloop(long oper)
 	Stat.maxload = 10000;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	GetHash(ReadLoopHandler, IKEY(WCC->wc_view), &vViewMsg);
+	if (ForceRenderer == eUseDefault)
+		GetHash(ReadLoopHandler, IKEY(WCC->wc_view), &vViewMsg);
+	else 
+		GetHash(ReadLoopHandler, IKEY(ForceRenderer), &vViewMsg);
 	if (vViewMsg == NULL) {
 		WCC->wc_view = VIEW_BBS;
 		GetHash(ReadLoopHandler, IKEY(WCC->wc_view), &vViewMsg);
@@ -1194,7 +1197,7 @@ void post_message(void)
 	 *  Otherwise, just go to the "read messages" loop.
 	 */
 	else {
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 	}
 }
 
@@ -1236,7 +1239,7 @@ void display_enter(void)
 	}
 	else if (buf[0] != '2') {		/* Any other error means that we cannot continue */
 		sprintf(WCC->ImportantMessage, "%s", &buf[4]);
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 		return;
 	}
 
@@ -1352,7 +1355,7 @@ void delete_msg(void)
 
 	serv_getln(buf, sizeof buf);
 	sprintf(WC->ImportantMessage, "%s", &buf[4]);
-	readloop(readnew);
+	readloop(readnew, eUseDefault);
 }
 
 
@@ -1375,7 +1378,7 @@ void move_msg(void)
 		sprintf(WC->ImportantMessage, (_("The message was not moved.")));
 	}
 
-	readloop(readnew);
+	readloop(readnew, eUseDefault);
 }
 
 
@@ -1619,12 +1622,12 @@ void download_postpart(void) {
 	FreeStrBuf(&partnum);
 }
 
-void h_readnew(void) { readloop(readnew);}
-void h_readold(void) { readloop(readold);}
-void h_readfwd(void) { readloop(readfwd);}
-void h_headers(void) { readloop(headers);}
-void h_do_search(void) { readloop(do_search);}
-void h_readgt(void) { readloop(readgt);}
+void h_readnew(void) { readloop(readnew, eUseDefault);}
+void h_readold(void) { readloop(readold, eUseDefault);}
+void h_readfwd(void) { readloop(readfwd, eUseDefault);}
+void h_headers(void) { readloop(headers, eUseDefault);}
+void h_do_search(void) { readloop(do_search, eUseDefault);}
+void h_readgt(void) { readloop(readgt, eUseDefault);}
 
 
 void RegisterReadLoopHandlerset(

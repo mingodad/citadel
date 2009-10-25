@@ -351,7 +351,7 @@ void add_new_note(void) {
 		vnote_free(v);
 	}
 	
-	readloop(readfwd);
+	readloop(readfwd, eUseDefault);
 }
 
 

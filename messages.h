@@ -65,6 +65,12 @@ typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrB
 
 void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime);
 
+
+typedef enum _eCustomRoomRenderer {
+	eUseDefault = VIEW_JOURNAL + 100, 
+	eReadEUIDS
+}eCustomRoomRenderer;
+
 enum {
 	do_search,
 	headers,
@@ -94,7 +100,7 @@ typedef struct _readloopstruct {
 } readloop_struct;
 
 
-void readloop(long oper);
+void readloop(long oper, eCustomRoomRenderer ForceRenderer);
 int read_message(StrBuf *Target, 
 		 const char *tmpl, long tmpllen, 
 		 long msgnum, 
