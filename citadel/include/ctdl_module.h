@@ -225,6 +225,10 @@ struct floor *CtdlGetCachedFloor(int floor_num);
 void CtdlScheduleRoomForDeletion(struct ctdlroom *qrbuf);
 void CtdlGetFloor (struct floor *flbuf, int floor_num);
 void CtdlPutFloor (struct floor *flbuf, int floor_num);
+void CtdlPutFloorLock(struct floor *flbuf, int floor_num);
+int CtdlGetFloorByName(const char *floor_name);
+int CtdlGetFloorByNameLock(const char *floor_name);
+int CtdlGetAvailableFloor(void);
 int CtdlIsNonEditable(struct ctdlroom *qrbuf);
 void CtdlPutRoom(struct ctdlroom *);
 
@@ -291,5 +295,11 @@ void CtdlSetRelationship(struct visit *newvisit,
                         struct ctdlroom *rel_room);
 void CtdlMailboxName(char *buf, size_t n, const struct ctdluser *who, const char *prefix);
 
+
+/*
+ * Expose API calls from msgbase.c
+ */
+char *CtdlGetSysConfig(char *sysconfname);
+void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
 
 #endif /* CTDL_MODULE_H */

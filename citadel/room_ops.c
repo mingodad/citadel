@@ -344,6 +344,62 @@ void CtdlPutRoomLock(struct ctdlroom *qrbuf)
 
 /****************************************************************************/
 
+
+/*
+ * CtdlGetFloorByName()  -  retrieve the number of the named floor
+ * return < 0 if not found else return floor number
+ */
+int CtdlGetFloorByName(const char *floor_name)
+{
+	int a;
+	struct floor *flbuf = NULL;
+
+	for (a = 0; a < MAXFLOORS; ++a) {
+		flbuf = CtdlGetCachedFloor(a);
+
+		/* check to see if it already exists */
+		if ((!strcasecmp(flbuf->f_name, floor_name))
+		    && (flbuf->f_flags & F_INUSE)) {
+			return a;
+		}
+	}
+	return -1;
+}
+
+
+
+/*
+ * CtdlGetFloorByNameLock()  -  retrieve floor number for given floor and lock the floor list.
+ */
+int CtdlGetFloorByNameLock(const char *floor_name)
+{
+	begin_critical_section(S_FLOORTAB);
+	return CtdlGetFloorByName(floor_name);
+}
+
+
+
+/*
+ * CtdlGetAvailableFloor()  -  Return number of first unused floor
+ * return < 0 if none available
+ */
+int CtdlGetAvailableFloor(void)
+{
+	int a;
+	struct floor *flbuf = NULL;
+
+	for (a = 0; a < MAXFLOORS; a++) {
+		flbuf = CtdlGetCachedFloor(a);
+
+		/* check to see if it already exists */
+		if ((flbuf->f_flags & F_INUSE) == 0) {
+			return a;
+		}
+	}
+	return -1;
+}
+
+
 /*
  * CtdlGetFloor()  -  retrieve floor data from disk
  */
@@ -438,15 +494,26 @@ void CtdlPutFloor(struct floor *flbuf, int floor_num)
 }
 
 
+
 /*
- * lputfloor()  -  same as CtdlPutFloor() but unlocks the record (if supported)
+ * CtdlPutFloorLock()  -  same as CtdlPutFloor() but unlocks the record (if supported)
  */
-void lputfloor(struct floor *flbuf, int floor_num)
+void CtdlPutFloorLock(struct floor *flbuf, int floor_num)
 {
 
 	CtdlPutFloor(flbuf, floor_num);
 	end_critical_section(S_FLOORTAB);
 
+}
+
+
+
+/*
+ * lputfloor()  -  same as CtdlPutFloor() but unlocks the record (if supported)
+ */
+void lputfloor(struct floor *flbuf, int floor_num)
+{
+	CtdlPutFloorLock(flbuf, floor_num);
 }
 
 

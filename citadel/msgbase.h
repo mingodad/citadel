@@ -146,8 +146,6 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 				int do_repl_check, struct CtdlMessage *supplied_msg);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
 char *CtdlReadMessageBody(char *terminator, size_t maxlen, char *exist, int crlf, int sock);
-char *CtdlGetSysConfig(char *sysconfname);
-void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		  int mode,		/* how would you like that message? */
 		  int headers_only,	/* eschew the message body? */
