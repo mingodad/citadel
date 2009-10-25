@@ -30,12 +30,16 @@ int BaseStrBufSize = 64;
 const char *StrBufNOTNULL = ((char*) NULL) - 1;
 
 /**
+ * @defgroup StrBuf Stringbuffer, A class for manipulating strings with dynamic buffers
+ */
+
+/**
  * Private Structure for the Stringbuffer
  */
 struct StrBuf {
 	char *buf;         /**< the pointer to the dynamic buffer */
 	long BufSize;      /**< how many spcae do we optain */
-	long BufUsed;      /**< StNumber of Chars used excluding the trailing \0 */
+	long BufUsed;      /**< StNumber of Chars used excluding the trailing \\0 */
 	int ConstBuf;      /**< are we just a wrapper arround a static buffer and musn't we be changed? */
 #ifdef SIZE_DEBUG
 	long nIncreases;
@@ -79,8 +83,9 @@ static void StrBufBacktrace(StrBuf *Buf, int which)
 #endif
 
 /** 
+ * @ingroup StrBuf
  * @brief Cast operator to Plain String 
- * Note: if the buffer is altered by StrBuf operations, this pointer may become 
+ * @note if the buffer is altered by StrBuf operations, this pointer may become 
  *  invalid. So don't lean on it after altering the buffer!
  *  Since this operation is considered cheap, rather call it often than risking
  *  your pointer to become invalid!
@@ -95,6 +100,7 @@ inline const char *ChrPtr(const StrBuf *Str)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief since we know strlen()'s result, provide it here.
  * @param Str the string to return the length to
  * @returns contentlength of the buffer
@@ -105,6 +111,7 @@ inline int StrLength(const StrBuf *Str)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief local utility function to resize the buffer
  * @param Buf the buffer whichs storage we should increase
  * @param KeepOriginal should we copy the original buffer or just start over with a new one
@@ -148,6 +155,7 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief shrink an _EMPTY_ buffer if its Buffer superseeds threshhold to NewSize. Buffercontent is thoroughly ignored and flushed.
  * @param Buf Buffer to shrink (has to be empty)
  * @param ThreshHold if the buffer is bigger then this, its readjusted
@@ -164,6 +172,7 @@ void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief shrink long term buffers to their real size so they don't waste memory
  * @param Buf buffer to shrink
  * @param Force if not set, will just executed if the buffer is much to big; set for lifetime strings
@@ -184,6 +193,7 @@ long StrBufShrinkToFit(StrBuf *Buf, int Force)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Allocate a new buffer with default buffer size
  * @returns the new stringbuffer
  */
@@ -209,8 +219,9 @@ StrBuf* NewStrBuf(void)
 }
 
 /** 
+ * @ingroup StrBuf
  * @brief Copy Constructor; returns a duplicate of CopyMe
- * @params CopyMe Buffer to faxmilate
+ * @param CopyMe Buffer to faxmilate
  * @returns the new stringbuffer
  */
 StrBuf* NewStrBufDup(const StrBuf *CopyMe)
@@ -238,6 +249,7 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief create a new Buffer using an existing c-string
  * this function should also be used if you want to pre-suggest
  * the buffer size to allocate in conjunction with ptr == NULL
@@ -284,6 +296,7 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Set an existing buffer from a c-string
  * @param ptr c-string to put into 
  * @param nChars set to -1 if we should work 0-terminated
@@ -313,9 +326,10 @@ int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
 
 
 /**
+ * @ingroup StrBuf
  * @brief use strbuf as wrapper for a string constant for easy handling
  * @param StringConstant a string to wrap
- * @param SizeOfConstant should be sizeof(StringConstant)-1
+ * @param SizeOfStrConstant should be sizeof(StringConstant)-1
  */
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 {
@@ -336,6 +350,7 @@ StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant)
 
 
 /**
+ * @ingroup StrBuf
  * @brief flush the content of a Buf; keep its struct
  * @param buf Buffer to flush
  */
@@ -371,6 +386,7 @@ int FLUSHStrBuf(StrBuf *buf)
 int hFreeDbglog = -1;
 #endif
 /**
+ * @ingroup StrBuf
  * @brief Release a Buffer
  * Its a double pointer, so it can NULL your pointer
  * so fancy SIG11 appear instead of random results
@@ -416,6 +432,7 @@ void FreeStrBuf (StrBuf **FreeMe)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief flatten a Buffer to the Char * we return 
  * Its a double pointer, so it can NULL your pointer
  * so fancy SIG11 appear instead of random results
@@ -465,6 +482,7 @@ char *SmashStrBuf (StrBuf **SmashMe)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Release the buffer
  * If you want put your StrBuf into a Hash, use this as Destructor.
  * @param VFreeMe untyped pointer to a StrBuf. be shure to do the right thing [TM]
@@ -509,6 +527,7 @@ void HFreeStrBuf (void *VFreeMe)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Wrapper around atol
  */
 long StrTol(const StrBuf *Buf)
@@ -522,6 +541,7 @@ long StrTol(const StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Wrapper around atoi
  */
 int StrToi(const StrBuf *Buf)
@@ -535,6 +555,7 @@ int StrToi(const StrBuf *Buf)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Checks to see if the string is a pure number 
  */
 int StrBufIsNumber(const StrBuf *Buf) {
@@ -549,8 +570,10 @@ int StrBufIsNumber(const StrBuf *Buf) {
   return 0;
 } 
 /**
+ * @ingroup StrBuf
  * @brief modifies a Single char of the Buf
  * You can point to it via char* or a zero-based integer
+ * @param Buf The buffer to manipulate
  * @param ptr char* to zero; use NULL if unused
  * @param nThChar zero based pointer into the string; use -1 if unused
  * @param PeekValue The Character to place into the position
@@ -568,6 +591,7 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Append a StringBuffer to the buffer
  * @param Buf Buffer to modify
  * @param AppendBuf Buffer to copy at the end of our buffer
@@ -592,6 +616,7 @@ void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset)
 
 
 /**
+ * @ingroup StrBuf
  * @brief Append a C-String to the buffer
  * @param Buf Buffer to modify
  * @param AppendBuf Buffer to copy at the end of our buffer
@@ -623,8 +648,12 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, u
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Callback for cURL to append the webserver reply to a buffer
- * @params pre-defined by the cURL API; see man 3 curl for mre info
+ * @param ptr pre-defined by the cURL API; see man 3 curl for mre info
+ * @param size pre-defined by the cURL API; see man 3 curl for mre info
+ * @param nmemb pre-defined by the cURL API; see man 3 curl for mre info
+ * @param stream pre-defined by the cURL API; see man 3 curl for mre info
  */
 size_t CurlFillStrBuf_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 {
@@ -641,6 +670,7 @@ size_t CurlFillStrBuf_callback(void *ptr, size_t size, size_t nmemb, void *strea
 
 
 /** 
+ * @ingroup StrBuf
  * @brief Escape a string for feeding out as a URL while appending it to a Buffer
  * @param outbuf the output buffer
  * @param oblen the size of outbuf to sanitize
@@ -702,6 +732,7 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Append a string, escaping characters which have meaning in HTML.  
  *
  * @param Target	target buffer
@@ -815,6 +846,7 @@ long StrEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn, int
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Append a string, escaping characters which have meaning in HTML.  
  * Converts linebreaks into blanks; escapes single quotes
  * @param Target	target buffer
@@ -881,6 +913,7 @@ void StrMsgEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 
 
 /**
+ * @ingroup StrBuf
  * @brief Append a string, escaping characters which have meaning in ICAL.  
  * [\n,] 
  * @param Target	target buffer
@@ -950,6 +983,7 @@ void StrIcalEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Append a string, escaping characters which have meaning in JavaScript strings .  
  *
  * @param Target	target buffer
@@ -1016,6 +1050,7 @@ long StrECMAEscAppend(StrBuf *Target, const StrBuf *Source, const char *PlainIn)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Append a string, escaping characters which have meaning in HTML + json.  
  *
  * @param Target	target buffer
@@ -1143,6 +1178,7 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 
 
 /**
+ * @ingroup StrBuf
  * @brief extracts a substring from Source into dest
  * @param dest buffer to place substring into
  * @param Source string to copy substring from
@@ -1177,6 +1213,7 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 }
 
 /**
+ * @ingroup StrBuf
  * @brief sprintf like function appending the formated string to the buffer
  * vsnprintf version to wrap into own calls
  * @param Buf Buffer to extend by format and @params
@@ -1219,10 +1256,10 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief sprintf like function appending the formated string to the buffer
- * @param Buf Buffer to extend by format and @params
+ * @param Buf Buffer to extend by format and Params
  * @param format printf alike format to add
- * @param ap va_list containing the items for format
  */
 void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 {
@@ -1260,8 +1297,9 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief sprintf like function putting the formated string into the buffer
- * @param Buf Buffer to extend by format and @params
+ * @param Buf Buffer to extend by format and Parameters
  * @param format printf alike format to add
  * @param ap va_list containing the items for format
  */
@@ -1289,8 +1327,9 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 
 
 /**
+ * @ingroup StrBuf
  * @brief Counts the numbmer of tokens in a buffer
- * @param Source String to count tokens in
+ * @param source String to count tokens in
  * @param tok    Tokenizer char to count
  * @returns numbers of tokenizer chars found
  */
@@ -1305,6 +1344,7 @@ int StrBufNum_tokens(const StrBuf *source, char tok)
  * remove_token() - a tokenizer that kills, maims, and destroys
  */
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer
  * @param Source StringBuffer to read into
  * @param parmnum n'th @parameter to remove
@@ -1371,11 +1411,12 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer
  * @param dest Destination StringBuffer
  * @param Source StringBuffer to read into
- * @param parmnum n'th @parameter to extract
- * @param separator tokenizer @param
+ * @param parmnum n'th Parameter to extract
+ * @param separator tokenizer character
  * @returns -1 if not found, else length of token.
  */
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator)
@@ -1438,10 +1479,11 @@ int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char se
 
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer to fetch an integer
- * @param dest Destination StringBuffer
- * @param parmnum n'th @parameter to extract
- * @param separator tokenizer @param
+ * @param Source String containing tokens
+ * @param parmnum n'th Parameter to extract
+ * @param separator tokenizer character
  * @returns 0 if not found, else integer representation of the token
  */
 int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator)
@@ -1461,10 +1503,11 @@ int StrBufExtract_int(const StrBuf* Source, int parmnum, char separator)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer to fetch a long integer
- * @param dest Destination StringBuffer
- * @param parmnum n'th @parameter to extract
- * @param separator tokenizer @param
+ * @param Source String containing tokens
+ * @param parmnum n'th Parameter to extract
+ * @param separator tokenizer character
  * @returns 0 if not found, else long integer representation of the token
  */
 long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator)
@@ -1485,10 +1528,11 @@ long StrBufExtract_long(const StrBuf* Source, int parmnum, char separator)
 
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer to fetch an unsigned long
- * @param dest Destination StringBuffer
- * @param parmnum n'th @parameter to extract
- * @param separator tokenizer @param
+ * @param Source String containing tokens
+ * @param parmnum n'th Parameter to extract
+ * @param separator tokenizer character
  * @returns 0 if not found, else unsigned long representation of the token
  */
 unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, char separator)
@@ -1515,7 +1559,8 @@ unsigned long StrBufExtract_unsigned_long(const StrBuf* Source, int parmnum, cha
 
 
 /**
- * @briefa string tokenizer; Bounds checker
+ * @ingroup StrBuf
+ * @brief a string tokenizer; Bounds checker
  *  function to make shure whether StrBufExtract_NextToken and friends have reached the end of the string.
  * @param Source our tokenbuffer
  * @param pStart the token iterator pointer to inspect
@@ -1546,11 +1591,12 @@ int StrBufHaveNextToken(const StrBuf *Source, const char **pStart)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer
  * @param dest Destination StringBuffer
  * @param Source StringBuffer to read into
  * @param pStart pointer to the end of the last token. Feed with NULL on start.
- * @param separator tokenizer @param
+ * @param separator tokenizer 
  * @returns -1 if not found, else length of token.
  */
 int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pStart, char separator)
@@ -1643,9 +1689,10 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer
  * @param dest Destination StringBuffer
- * @param Source StringBuffer to read into
+ * @param Source StringBuffer to read from
  * @param pStart pointer to the end of the last token. Feed with NULL.
  * @param separator tokenizer @param
  * @returns -1 if not found, else length of token.
@@ -1695,10 +1742,11 @@ int StrBufSkip_NTokenS(const StrBuf *Source, const char **pStart, char separator
 }
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer to fetch an integer
- * @param dest Destination StringBuffer
- * @param parmnum n'th @parameter to extract
- * @param separator tokenizer @param
+ * @param Source StringBuffer to read from
+ * @param pStart Cursor on the tokenstring
+ * @param separator tokenizer character
  * @returns 0 if not found, else integer representation of the token
  */
 int StrBufExtractNext_int(const StrBuf* Source, const char **pStart, char separator)
@@ -1718,10 +1766,11 @@ int StrBufExtractNext_int(const StrBuf* Source, const char **pStart, char separa
 }
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer to fetch a long integer
- * @param dest Destination StringBuffer
- * @param parmnum n'th @parameter to extract
- * @param separator tokenizer @param
+ * @param Source StringBuffer to read from
+ * @param pStart Cursor on the tokenstring
+ * @param separator tokenizer character
  * @returns 0 if not found, else long integer representation of the token
  */
 long StrBufExtractNext_long(const StrBuf* Source, const char **pStart, char separator)
@@ -1742,10 +1791,11 @@ long StrBufExtractNext_long(const StrBuf* Source, const char **pStart, char sepa
 
 
 /**
+ * @ingroup StrBuf
  * @brief a string tokenizer to fetch an unsigned long
- * @param dest Destination StringBuffer
- * @param parmnum n'th @parameter to extract
- * @param separator tokenizer @param
+ * @param Source StringBuffer to read from
+ * @param pStart Cursor on the tokenstring
+ * @param separator tokenizer character
  * @returns 0 if not found, else unsigned long representation of the token
  */
 unsigned long StrBufExtractNext_unsigned_long(const StrBuf* Source, const char **pStart, char separator)
@@ -1772,6 +1822,7 @@ unsigned long StrBufExtractNext_unsigned_long(const StrBuf* Source, const char *
 
 
 /**
+ * @ingroup StrBuf
  * @brief Read a line from socket
  * flushes and closes the FD on error
  * @param buf the buffer to get the input to
@@ -1814,6 +1865,7 @@ int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error)
 }
 
 /**
+ * @ingroup StrBuf
  * @brief Read a line from socket
  * flushes and closes the FD on error
  * @param buf the buffer to get the input to
@@ -1911,6 +1963,7 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 static const char *ErrRBLF_SelectFailed="StrBufTCP_read_buffered_line_fast: Select failed without reason";
 static const char *ErrRBLF_NotEnoughSentFromServer="StrBufTCP_read_buffered_line_fast: No complete line was sent from peer";
 /**
+ * @ingroup StrBuf
  * @brief Read a line from socket
  * flushes and closes the FD on error
  * @param buf the buffer to get the input to
