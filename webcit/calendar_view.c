@@ -501,14 +501,22 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 void calendar_month_view(int year, int month, int day) {
 	struct tm starting_tm;
 	struct tm tm;
+	struct tm today_tm;
 	time_t thetime;
 	int i;
 	time_t previous_month;
 	time_t next_month;
 	time_t colheader_time;
+	time_t today_timet;
 	struct tm colheader_tm;
 	char colheader_label[32];
 	long weekstart = 0;
+
+	/*
+	 * Make sure we know which day is today.
+	 */
+	today_timet = time(NULL);
+	localtime_r(&today_timet, &today_tm);
 
 	/*
 	 * Determine what day to start.  If an impossible value is found, start on Sunday.
@@ -599,7 +607,7 @@ void calendar_month_view(int year, int month, int day) {
 
 		wc_printf("<td class=\"cal%s\"><div class=\"day\">",
 			((tm.tm_mon != month-1) ? "out" :
-				((tm.tm_mday == day) ? "today" :
+				(((tm.tm_year == today_tm.tm_year) && (tm.tm_mon == today_tm.tm_mon) && (tm.tm_mday == today_tm.tm_mday)) ? "today" :
 				((tm.tm_wday==0 || tm.tm_wday==6) ? "weekend" :
 					"day")))
 			);
