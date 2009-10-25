@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<multistatus xmlns="DAV:" xmlns:G"http://groupdav.org/">"
+<multistatus xmlns="DAV:" xmlns:G="http://groupdav.org/">
 <response>
 <href>
 <?DAV:HOSTNAME>/
@@ -15,4 +15,5 @@
 </prop>
 </propstat>
 </response>
+<?ITERATE("LKRA", "dav_propfind_groupdav_roomlist_oneroom")>
 </multistatus>

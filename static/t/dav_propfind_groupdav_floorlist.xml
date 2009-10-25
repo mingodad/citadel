@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<multistatus xmlns="DAV:" xmlns:G="http://groupdav.org/">
+<??("DAV:DEPTH", 1, 0)><?=("dav_propfind_upper_dirs")><??("X", 1)>
+<??("DAV:DEPTH", 2, 1)><?ITERATE("DAV:NAMESPACES", "dav_propfind_namespaces")><??("X", 2)>
+<?ITERATE("LFLR", "dav_propfind_groupdav_floorlist_onefloor")>
+</multistatus>
