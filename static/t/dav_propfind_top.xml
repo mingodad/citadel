@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <multistatus xmlns="DAV:" xmlns:G="http://groupdav.org/">
-<?=("dav_propfind_upper_dirs")>
+<??("DAV:DEPTH",  1, 0)><??("REST:DEPTH",  2, 0)><?=("dav_propfind_top_actual"                                )><??("X",  2)><??("X",  1)>
+<??("DAV:DEPTH",  3, 1)><??("REST:DEPTH",  4, 0)><?ITERATE("DAV:NAMESPACES", "dav_propfind_namespace_one"     )><??("X",  4)><??("X",  3)>
+<??("DAV:DEPTH",  5, 0)><??("REST:DEPTH",  6, 1)><?ITERATE("LFLR", "dav_propfind_floorlist_actual"            )><??("X",  6)><??("X",  5)>
+<??("DAV:DEPTH",  7, 0)><??("REST:DEPTH",  8, 1)><?ITERATE("LFLR", "dav_propfind_floorlist_one"               )><??("X",  8)><??("X",  7)>
+<??("DAV:DEPTH",  9, 1)><??("REST:DEPTH", 10, 1)><?ITERATE("LKRA", "dav_propfind_groupdav_roomlist_actual"    )><??("X", 10)><??("X",  9)>
+<??("DAV:DEPTH", 11, 0)><??("REST:DEPTH", 12, 2)><?ITERATE("LKRA", "dav_propfind_groupdav_roomlist_one"       )><??("X", 12)><??("X", 11)>
 </multistatus>

@@ -3,7 +3,7 @@
 <propstat>
 <status>HTTP/1.1 200 OK</status>
 <prop>
-<displayname></displayname>
+<displayname>WebCit</displayname>
 <resourcetype><collection/></resourcetype>
 <getlastmodified><?DATE:NOW:STR></getlastmodified>
 </prop>
