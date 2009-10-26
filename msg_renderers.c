@@ -449,6 +449,12 @@ void tmplput_MAIL_SUMM_DATE_BRIEF(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendBufPlain(Target, datebuf, -1, 0);
 }
 
+void tmplput_MAIL_SUMM_EUID(StrBuf *Target, WCTemplputParams *TP)
+{
+	message_summary *Msg = (message_summary*) CTX;
+	StrBufAppendTemplate(Target, TP, Msg->euid, 0);
+}
+
 void tmplput_MAIL_SUMM_DATE_FULL(StrBuf *Target, WCTemplputParams *TP)
 {
 	char datebuf[64];
@@ -1540,6 +1546,7 @@ InitModule_MSGRENDERERS
 	RegisterIterator("MAIL:SUMM:MSGS", 0, NULL, iterate_get_mailsumm_All,
 			 NULL,NULL, CTX_MAILSUM, CTX_NONE, IT_NOFLAG);
 
+	RegisterNamespace("MAIL:SUMM:EUID", 0, 1, tmplput_MAIL_SUMM_EUID, NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATEBRIEF", 0, 0, tmplput_MAIL_SUMM_DATE_BRIEF, NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATEFULL", 0, 0, tmplput_MAIL_SUMM_DATE_FULL, NULL, CTX_MAILSUM);
 	RegisterNamespace("MAIL:SUMM:DATENO",  0, 0, tmplput_MAIL_SUMM_DATE_NO,  NULL, CTX_MAILSUM);

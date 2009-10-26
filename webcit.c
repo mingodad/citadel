@@ -587,7 +587,7 @@ int Conditional_REST_DEPTH(StrBuf *Target, WCTemplputParams *TP)
 	Depth = GetTemplateTokenNumber(Target, TP, 2, 0);
 	IsDepth = GetCount(WCC->Directory) + offset;
 
-///	LogTemplateError(Target, "bla", 1, TP, "REST_DEPTH: %ld : %ld\n", Depth, IsDepth);
+	LogTemplateError(Target, "bla", 1, TP, "REST_DEPTH: %ld : %ld\n", Depth, IsDepth);
 	if (Depth < 0) {
 		Depth = -Depth;
 		return IsDepth > Depth;
@@ -835,7 +835,7 @@ InitModule_WEBCIT
 
 	WebcitAddUrlHandler(HKEY("401"), "", 0, authorization_required, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
-	RegisterConditional(HKEY("REST:DEPTH"), 0, Conditional_REST_DEPTH, CTX_NONE);
+	RegisterConditional(HKEY("COND:REST:DEPTH"), 0, Conditional_REST_DEPTH, CTX_NONE);
 
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, NULL, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);

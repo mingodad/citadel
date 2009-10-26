@@ -308,8 +308,9 @@ void
 InitModule_GROUPDAV
 (void)
 {
-	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_GROUPDAV_HOSTNAME, NULL, CTX_NONE);
 	RegisterDAVNamespace(HKEY("groupdav"), HKEY("GroupDAV"), groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+
+	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_GROUPDAV_HOSTNAME, NULL, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:DAV:NS"), 0, Conditional_DAV_NS,  CTX_NONE);
 

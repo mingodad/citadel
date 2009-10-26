@@ -31,6 +31,7 @@ typedef struct _message_summary {
 	long msgnum;		/* the message number on the citadel server */
 	int nhdr;
 	int format_type;
+	StrBuf *euid;
 	StrBuf *from;		/* the author */
 	StrBuf *to;		/* the recipient */
 	StrBuf *subj;		/* the title / subject */

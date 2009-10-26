@@ -44,169 +44,37 @@ long locate_message_by_uid(const char *uid) {
 
 
 
-/*
- * List rooms (or "collections" in DAV terminology) which contain
- * interesting groupware objects.
- */
-void groupdav_collection_list(void)
+
+long GotoRestRoom()
 {
 	wcsession *WCC = WC;
-	char buf[256];
-	char roomname[256];
-	int view;
-	char datestring[256];
-	time_t now;
-	time_t mtime;
-	int is_groupware_collection = 0;
-	int starting_point = 1;		/**< 0 for /, 1 for /groupdav/ */
+	long Count;
+	long State;
 
-	if (WCC->Hdr->HR.Handler == NULL) {
-		starting_point = 0;
-	}
-	else if (StrLength(WCC->Hdr->HR.ReqLine) == 0) {
-		starting_point = 1;
-	}
-	else {
-		starting_point = 2;
-	}
+	State = REST_TOPLEVEL;
 
-	now = time(NULL);
-	http_datestring(datestring, sizeof datestring, now);
+	if (WCC->Hdr->HR.Handler != NULL) 
+		State |= REST_IN_NAMESPACE;
 
-	/*
-	 * Be rude.  Completely ignore the XML request and simply send them
-	 * everything we know about.  Let the client sort it out.
-	 */
-	hprintf("HTTP/1.0 207 Multi-Status\r\n");
-	groupdav_common_headers();
-	hprintf("Date: %s\r\n", datestring);
-	hprintf("Content-type: text/xml\r\n");
-	hprintf("Content-encoding: identity\r\n");
-
-	begin_burst();
-
-
-	/*
-	 * If the client is requesting the root, show a root node.
-	 */
-	do_template("dav_propfind_top", NULL);
-	end_burst();
-	return;
+	Count = GetCount(WCC->Directory);
 	
-	if (starting_point == 0) {
-		wc_printf("<response>");
-			wc_printf("<href>");
-				groupdav_identify_host();
-				wc_printf("/");
-			wc_printf("</href>");
-			wc_printf("<propstat>");
-				wc_printf("<status>HTTP/1.1 200 OK</status>");
-				wc_printf("<prop>");
-					wc_printf("<displayname>/</displayname>");
-					wc_printf("<resourcetype><collection/></resourcetype>");
-					wc_printf("<getlastmodified>");
-						escputs(datestring);
-					wc_printf("</getlastmodified>");
-				wc_printf("</prop>");
-			wc_printf("</propstat>");
-		wc_printf("</response>");
+	if (Count == 0) return State;
+
+	if (Count >= 1) State |=REST_IN_FLOOR;
+	if (Count == 1) return State;
+	
+	if (Count >= 3) {
+		State |= REST_IN_FLOOR;
+		////GOTO ROOM!
 	}
+	if (Count == 3) return State;
 
-	/*
-	 *	If the client is requesting "/groupdav", show a /groupdav subdirectory.
-	 * Now go through the list and make it look like a DAV collection
-	 *
+	/// TODO: ID detection
+	/// TODO: File detection
 
-	if ((starting_point + WCC->Hdr->HR.dav_depth) >= 2) {
-		do_template("dav_propfind_groupdav_roomlist", NULL);
-/*
-	serv_puts("LKRA");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
-		extract_token(roomname, buf, 0, '|', sizeof roomname);
-		view = extract_int(buf, 7);
-		mtime = extract_long(buf, 8);
-		http_datestring(datestring, sizeof datestring, mtime);
-
-		/ *
-		 * For now, only list rooms that we know a GroupDAV client
-		 * might be interested in.  In the future we may add
-		 * the rest.
-		 *
-		 * We determine the type of objects which are stored in each
-		 * room by looking at the *default* view for the room.  This
-		 * allows, for example, a Calendar room to appear as a
-		 * GroupDAV calendar even if the user has switched it to a
-		 * Calendar List view.
-		 * /
-		if (	(view == VIEW_CALENDAR) || 
-			(view == VIEW_TASKS) || 
-			(view == VIEW_ADDRESSBOOK) ||
-			(view == VIEW_NOTES) ||
-			(view == VIEW_JOURNAL) ||
-			(view == VIEW_WIKI)
-		) {
-			is_groupware_collection = 1;
-		}
-		else {
-			is_groupware_collection = 0;
-		}
-
-		if ( (is_groupware_collection) && ((starting_point + WCC->Hdr->HR.dav_depth) >= 2) ) {
-			wc_printf("<response>");
-
-			wc_printf("<href>");
-			groupdav_identify_host();
-			wc_printf("/groupdav/");
-			urlescputs(roomname);
-			wc_printf("/</href>");
-
-			wc_printf("<propstat>");
-			wc_printf("<status>HTTP/1.1 200 OK</status>");
-			wc_printf("<prop>");
-			wc_printf("<displayname>");
-			escputs(roomname);
-			wc_printf("</displayname>");
-			wc_printf("<resourcetype><collection/>");
-
-			switch(view) {
-			case VIEW_CALENDAR:
-				wc_printf("<G:vevent-collection />");
-				break;
-			case VIEW_TASKS:
-				wc_printf("<G:vtodo-collection />");
-				break;
-			case VIEW_ADDRESSBOOK:
-				wc_printf("<G:vcard-collection />");
-				break;
-			case VIEW_NOTES:
-				wc_printf("<G:vnotes-collection />");
-				break;
-			case VIEW_JOURNAL:
-				wc_printf("<G:vjournal-collection />");
-				break;
-			case VIEW_WIKI:
-				wc_printf("<G:wiki-collection />");
-				break;
-			}
-
-			wc_printf("</resourcetype>");
-			wc_printf("<getlastmodified>");
-				escputs(datestring);
-			wc_printf("</getlastmodified>");
-			wc_printf("</prop>");
-			wc_printf("</propstat>");
-			wc_printf("</response>");
-		}
-	}
-*/
-
-	end_burst();
+	return State;
 }
-
-
-
 /*
  * The pathname is always going to be /groupdav/room_name/msg_num
  */
@@ -225,6 +93,7 @@ void groupdav_propfind(void)
 	int i;
 	char datestring[256];
 	time_t now;
+	long State;
 
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
@@ -238,12 +107,43 @@ void groupdav_propfind(void)
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
-//	if (StrLength(dav_roomname) == 0) {
-		groupdav_collection_list();
+	State = GotoRestRoom();
+	if (((State & REST_IN_ROOM) == 0) ||
+	    ((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME) == 0) &&
+	     (WCC->Hdr->HR.dav_depth == 0)))
+	{
+		now = time(NULL);
+		http_datestring(datestring, sizeof datestring, now);
+
+		/*
+		 * Be rude.  Completely ignore the XML request and simply send them
+		 * everything we know about.  Let the client sort it out.
+		 */
+		hprintf("HTTP/1.0 207 Multi-Status\r\n");
+		groupdav_common_headers();
+		hprintf("Date: %s\r\n", datestring);
+		hprintf("Content-type: text/xml\r\n");
+		hprintf("Content-encoding: identity\r\n");
+
+		begin_burst();
+
+
+		/*
+		 * If the client is requesting the root, show a root node.
+		 */
+		do_template("dav_propfind_top", NULL);
+		end_burst();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
 		return;
-//	}
+	}
+
+	if ((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME)) == 0) {
+		readloop(headers, eReadEUIDS);
+		return;
+
+	}
+
 
 	/* Go to the correct room. */
 	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
@@ -462,4 +362,68 @@ void groupdav_propfind(void)
 	if (msgs != NULL) {
 		free(msgs);
 	}
+}
+
+
+
+int ParseMessageListHeaders_EUID(StrBuf *Line, 
+				 const char **pos, 
+				 message_summary *Msg, 
+				 StrBuf *ConversionBuffer)
+{
+	Msg->euid = NewStrBuf();
+	StrBufExtract_NextToken(Msg->euid,  Line, pos, '|');
+	return StrLength(Msg->euid) > 0;
+}
+
+int DavUIDL_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+				    void **ViewSpecific, 
+				    long oper, 
+				    char *cmd, 
+				    long len)
+{
+	Stat->defaultsortorder = 0;
+	Stat->sortit = 0;
+	Stat->load_seen = 0;
+	Stat->maxmsgs  = 9999999;
+
+	snprintf(cmd, len, "MSGS ALL|||2");
+	return 200;
+}
+
+int DavUIDL_RenderView_or_Tail(SharedMessageStatus *Stat, 
+				void **ViewSpecific, 
+				long oper)
+{
+	
+	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
+	
+	return 0;
+}
+
+int DavUIDL_Cleanup(void **ViewSpecific)
+{
+	/* Note: wDumpContent() will output one additional </div> tag. */
+	/* We ought to move this out into template */
+	wDumpContent(1);
+
+	return 0;
+}
+
+
+
+
+void 
+InitModule_PROPFIND
+(void)
+{
+	RegisterReadLoopHandlerset(
+		eReadEUIDS,
+		DavUIDL_GetParamsGetServerCall,
+		NULL, /// TODO: is this right?
+		ParseMessageListHeaders_EUID,
+		NULL, //// ""
+		DavUIDL_RenderView_or_Tail,
+		DavUIDL_Cleanup);
+
 }

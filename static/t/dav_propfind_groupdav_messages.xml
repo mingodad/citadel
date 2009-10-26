@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<multistatus xmlns="DAV:" xmlns:G="http://groupdav.org/">
+<??("DAV:DEPTH",  9, 1)><??("REST:DEPTH", 10, 1)><?ITERATE("MAIL:SUMM:MSGS", "dav_propfind_groupdav_messages_one"    )><??("X", 10)><??("X",  9)>
+</multistatus>
