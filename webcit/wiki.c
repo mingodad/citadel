@@ -31,8 +31,10 @@ void str_wiki_index(char *s)
 
 /*
  * Display a specific page from a wiki room
+ *
+ * "rev" may be set to an empty string to display the current version.
  */
-void display_wiki_page_backend(const StrBuf *roomname, char *pagename)
+void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev)
 {
 	const StrBuf *Mime;
 	long msgnum = (-1L);
@@ -63,7 +65,7 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename)
 		strcpy(pagename, "home");
 	}
 
-	/* Found it!  Now read it. */
+	/* Found it!  Now read it.   FIXME this is where we have to add the ability to read an old rev */
 	msgnum = locate_message_by_uid(pagename);
 	if (msgnum >= 0L) {
 		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
@@ -92,11 +94,13 @@ void display_wiki_page(void)
 {
 	const StrBuf *roomname;
 	char pagename[128];
+	char rev[128];
 
 	output_headers(1, 1, 1, 0, 0, 0);
 	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
-	display_wiki_page_backend(roomname, pagename);
+	safestrncpy(rev, bstr("rev"), sizeof rev);
+	display_wiki_page_backend(roomname, pagename, rev);
 	wDumpContent(1);
 }
 
@@ -215,7 +219,7 @@ int wiki_Cleanup(void **ViewSpecific)
 {
 	char pagename[5];
 	safestrncpy(pagename, "home", sizeof pagename);
-	display_wiki_page_backend(WC->wc_roomname, pagename);
+	display_wiki_page_backend(WC->wc_roomname, pagename, "");
 	wDumpContent(1);
 	return 0;
 }

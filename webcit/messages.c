@@ -230,11 +230,12 @@ int read_message(StrBuf *Target, const char *tmpl, long tmpllen, long msgnum, co
 		FreeStrBuf(&Error);
 	}
 
-	/* strip the bare contenttype, so we ommit charset etc. */
+	/* Extract just the content-type (omit attributes such as "charset") */
 	StrBufExtract_token(Buf, Msg->MsgBody->ContentType, 0, ';');
 	StrBufTrim(Buf);
 	StrBufLowerCase(Buf);
-	/* look up the renderer, that will convert this mimeitem into the htmlized form */
+
+	/* Locate a renderer capable of converting this MIME part into HTML */
 	if (GetHash(MimeRenderHandler, SKEY(Buf), &vHdr) &&
 	    (vHdr != NULL)) {
 		RenderMimeFuncStruct *Render;
