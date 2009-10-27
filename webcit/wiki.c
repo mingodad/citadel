@@ -109,6 +109,7 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 	const StrBuf *roomname;
 	char pagename[128];
 	StrBuf *Buf;
+	int row = 0;
 
 	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
@@ -133,9 +134,62 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
+
+		time_t rev_date;
+		char rev_date_displayed[64];
+		StrBuf *rev_uuid = NewStrBuf();
+		StrBuf *author = NewStrBuf();
+		StrBuf *node = NewStrBuf();
+
+		wc_printf("<div class=\"fix_scrollbar_bug\">"
+			"<table class=\"wiki_history_background\">"
+		);
+
+		wc_printf("<th>%s</th>", _("Date"));
+		wc_printf("<th>%s</th>", _("Author"));
+
 		while(StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
-			wc_printf("<tt>%s</tt><br>\n", ChrPtr(Buf));
+
+			StrBufExtract_token(rev_uuid, Buf, 0, '|');
+			rev_date = extract_long(ChrPtr(Buf), 1);
+			webcit_fmt_date(rev_date_displayed, sizeof rev_date_displayed, rev_date, DATEFMT_FULL);
+			StrBufExtract_token(author, Buf, 2, '|');
+			StrBufExtract_token(node, Buf, 3, '|');
+
+			wc_printf("<tr bgcolor=\"%s\">", (row ? "#FFFFFF" : "#DDDDDD"));
+			row = 1 - row;
+			wc_printf("<td>%s</td><td>", rev_date_displayed);
+
+			if (!strcasecmp(ChrPtr(node), (char *)WC->serv_info->serv_nodename)) {
+				escputs(ChrPtr(author));
+				wc_printf(" @ ");
+				escputs(ChrPtr(node));
+			}
+			else {
+				wc_printf("<a href=\"showuser?who=");
+				urlescputs(ChrPtr(author));
+				wc_printf("\">");
+				escputs(ChrPtr(author));
+				wc_printf("</a>");
+			}
+
+			wc_printf("</td><td><a href=\"wiki?page=%s?rev=%s\">%s</a></td>",
+				bstr("page"),
+				ChrPtr(rev_uuid),
+				_("(show)")
+			);
+			wc_printf("</td><td><a href=\"wiki_revert?page=%s?rev=%s\">%s</a></td>",
+				bstr("page"),
+				ChrPtr(rev_uuid),
+				_("(revert)")
+			);
+			wc_printf("</tr>\n");
 		}
+
+		wc_printf("</table>\n");
+		FreeStrBuf(&author);
+		FreeStrBuf(&node);
+		FreeStrBuf(&rev_uuid);
 	}
 	else {
 		wc_printf("%s", ChrPtr(Buf));
@@ -143,6 +197,7 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 
 	FreeStrBuf(&Buf);
 }
+
 
 
 /*
