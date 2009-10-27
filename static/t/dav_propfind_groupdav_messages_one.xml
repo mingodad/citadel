@@ -1,4 +1,4 @@
-<!--<?CURRENTFILE>-->
+<!--<?CURRENTFILE> : <?ROOM:INFO:FLOOR:NAME("X")> : <?ROOM:INFO:NAME("X")> -->
 <?!("COND:DAV:NSCURRENT", 1)><response>
 <href><?DAV:HOSTNAME>/<?DAV:NAMESPACE></href>
 <propstat>

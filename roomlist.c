@@ -663,7 +663,7 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 	urlp = GetCount(WCC->Directory);
 	delta = Folder->nRoomNameParts - urlp + 1;
 
-	lprintf(0, "%s: %ld - %ld ", ChrPtr(Folder->name), urlp, 
+	lprintf(0, "\n->%s: %ld - %ld ", ChrPtr(Folder->name), urlp, 
 		Folder->nRoomNameParts);
 	/* list only the floors which are in relation to the dav_depth header */
 	if (WCC->Hdr->HR.dav_depth != delta) {
