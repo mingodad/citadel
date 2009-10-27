@@ -362,18 +362,80 @@ void wiki_history(char *pagename) {
 }
 
 
+
+/*
+ * Fetch a specific revision of a wiki page
+ */
+void wiki_rev(char *pagename, char *rev)
+{
+	int r;
+	char history_page_name[270];
+	long msgnum;
+	struct CtdlMessage *msg;
+
+	r = CtdlDoIHavePermissionToReadMessagesInThisRoom();
+	if (r != om_ok) {
+		if (r == om_not_logged_in) {
+			cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
+		}
+		else {
+			cprintf("%d An unknown error has occurred.\n", ERROR);
+		}
+		return;
+	}
+
+	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
+	msgnum = locate_message_by_euid(history_page_name, &CC->room);
+	if (msgnum > 0L) {
+		msg = CtdlFetchMessage(msgnum, 1);
+	}
+	else {
+		msg = NULL;
+	}
+
+	if ((msg != NULL) && (msg->cm_fields['M'] == NULL)) {
+		CtdlFreeMessage(msg);
+		msg = NULL;
+	}
+
+	if (msg == NULL) {
+		cprintf("%d Revision history for '%s' was not found.\n", ERROR+MESSAGE_NOT_FOUND, pagename);
+		return;
+	}
+
+	
+/*
+   FIXME do something here
+	mime_parser(msg->cm_fields['M'], NULL, *wiki_history_callback, NULL, NULL, NULL, 0);
+ */
+
+	CtdlFreeMessage(msg);
+	cprintf("%d FIXME not finished yet, check the log to find out wtf\n", ERROR);
+	return;
+}
+
+
+
 /*
  * commands related to wiki management
  */
 void cmd_wiki(char *argbuf) {
 	char subcmd[32];
 	char pagename[256];
+	char rev[128];
 
 	extract_token(subcmd, argbuf, 0, '|', sizeof subcmd);
 
 	if (!strcasecmp(subcmd, "history")) {
-		extract_token(pagename, argbuf, 1, '|', sizeof subcmd);
+		extract_token(pagename, argbuf, 1, '|', sizeof pagename);
 		wiki_history(pagename);
+		return;
+	}
+
+	if (!strcasecmp(subcmd, "rev")) {
+		extract_token(pagename, argbuf, 1, '|', sizeof pagename);
+		extract_token(rev, argbuf, 2, '|', sizeof rev);
+		wiki_rev(pagename, rev);
 		return;
 	}
 
