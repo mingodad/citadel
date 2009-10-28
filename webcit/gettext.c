@@ -411,12 +411,23 @@ const char *get_selected_language(void) {
 #endif
 }
 
+
+void Header_HandleAcceptLanguage(StrBuf *Line, ParsedHttpHdrs *hdr)
+{
+	hdr->HR.browser_language = Line;
+}
+
 void 
 InitModule_GETTEXT
 (void)
 {
 	initialize_locales();
-	RegisterNamespace("LANG:SELECT", 0, 0, tmplput_offer_languages, NULL, CTX_NONE);
+	
+	RegisterHeaderHandler(HKEY("ACCEPT-LANGUAGE"), 
+			      Header_HandleAcceptLanguage);
+			      
+	RegisterNamespace("LANG:SELECT", 0, 0, 
+			  tmplput_offer_languages, NULL, CTX_NONE);
 }
 
 
@@ -425,15 +436,8 @@ SessionNewModule_GETTEXT
 (wcsession *sess)
 {
 #ifdef ENABLE_NLS
-	OneHttpHeader *vLine = NULL;
-
-	if (	(sess->Hdr->HTTPHeaders != NULL)
-		&& GetHash(sess->Hdr->HTTPHeaders, HKEY("ACCEPT-LANGUAGE"), (void *)&vLine)
-		&& (vLine != NULL)
-		&& (vLine->Val != NULL)
-	) {
-		StrBuf *accept_language = vLine->Val;
-		httplang_to_locale(accept_language, sess);
+	if (sess->Hdr->HR.browser_language != NULL) {
+		httplang_to_locale(sess->Hdr->HR.browser_language, sess);
 	}
 #endif
 }

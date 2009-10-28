@@ -386,6 +386,7 @@ typedef struct _HdrRefs {
 	StrBuf *ReqLine;
 	StrBuf *http_host;			/* HTTP Host: header */
 	StrBuf *browser_host;
+	StrBuf *browser_language;
 	StrBuf *user_agent;
 	StrBuf *plainauth;
 	StrBuf *dav_ifmatch;

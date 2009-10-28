@@ -31,6 +31,7 @@ void RegisterNS(const char *NSName, long len,
 		WCHandlerFunc HandlerFunc,
 		WCPreevalFunc PreEvalFunc,
 		int ContextRequired){}
+void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F){}
 pthread_key_t MyConKey;
 
 #ifdef ENABLE_NLS
