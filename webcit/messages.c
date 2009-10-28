@@ -819,7 +819,7 @@ void readloop(long oper)
 	if (Stat.sortit) {
 		CompareFunc SortIt;
 		memset(&SubTP, 0, sizeof(WCTemplputParams));
-		SubTP.Filter.ContextType = CTX_NONE;
+		SubTP.Filter.ContextType = CTX_MAILSUM;
 		SubTP.Context = NULL;
 		SortIt =  RetrieveSort(&SubTP, NULL, 0,
 				       HKEY("date"), Stat.defaultsortorder);

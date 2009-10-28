@@ -2294,6 +2294,11 @@ void RegisterSortFunc(const char *name, long len,
 	NewSort->Reverse = Reverse;
 	NewSort->GroupChange = GroupChange;
 	NewSort->ContextType = ContextType;
+	if (ContextType == CTX_NONE) {
+		lprintf(1, "sorting requires a context. CTX_NONE won't make it.\n");
+		exit(1);
+	}
+		
 	Put(SortHash, name, len, NewSort, DestroySortStruct);
 }
 
@@ -2345,6 +2350,9 @@ CompareFunc RetrieveSort(WCTemplputParams *TP,
 		}
 	}
 	SortBy = (SortStruct*)vSortBy;
+
+	if (SortBy->ContextType != TP->Filter.ContextType)
+		return NULL;
 
 	/** Ok, its us, lets see in which direction we should sort... */
 	if (havebstr("SortOrder")) {
