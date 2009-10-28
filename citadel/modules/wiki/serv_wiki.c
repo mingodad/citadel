@@ -371,7 +371,9 @@ void wiki_rev(char *pagename, char *rev)
 	int r;
 	char history_page_name[270];
 	long msgnum;
+	char temp[PATH_MAX];
 	struct CtdlMessage *msg;
+	FILE *fp;
 
 	r = CtdlDoIHavePermissionToReadMessagesInThisRoom();
 	if (r != om_ok) {
@@ -383,6 +385,44 @@ void wiki_rev(char *pagename, char *rev)
 		}
 		return;
 	}
+
+	/* Begin by fetching the current version of the page.  We're going to patch
+	 * backwards through the diffs until we get the one we want.
+	 */
+	msgnum = locate_message_by_euid(pagename, &CC->room);
+	if (msgnum > 0L) {
+		msg = CtdlFetchMessage(msgnum, 1);
+	}
+	else {
+		msg = NULL;
+	}
+
+	if ((msg != NULL) && (msg->cm_fields['M'] == NULL)) {
+		CtdlFreeMessage(msg);
+		msg = NULL;
+	}
+
+	if (msg == NULL) {
+		cprintf("%d Page '%s' was not found.\n", ERROR+MESSAGE_NOT_FOUND, pagename);
+		return;
+	}
+
+	/* Output it to a file... */
+
+	CtdlMakeTempFileName(temp, sizeof temp);
+	fp = fopen(temp, "w");
+	if (fp != NULL) {
+		r = fwrite(msg->cm_fields['M'], strlen(msg->cm_fields['M']), 1, fp);
+		fclose(fp);
+	}
+	else {
+		CtdlLogPrintf(CTDL_ALERT, "Cannot open %s: %s\n", temp, strerror(errno));
+	}
+	CtdlFreeMessage(msg);
+
+	/* Now go get the revision history and patch backwards through the diffs until
+	 * we get to the revision we want.
+	 */
 
 	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
 	msgnum = locate_message_by_euid(history_page_name, &CC->room);
@@ -452,7 +492,7 @@ CTDL_MODULE_INIT(wiki)
 	if (!threading)
 	{
 		CtdlRegisterMessageHook(wiki_upload_beforesave, EVT_BEFORESAVE);
-	        CtdlRegisterProtoHook(cmd_wiki, "WIKI", "Commands related to Wiki management");
+		CtdlRegisterProtoHook(cmd_wiki, "WIKI", "Commands related to Wiki management");
 	}
 
 	/* return our Subversion id for the Log */
