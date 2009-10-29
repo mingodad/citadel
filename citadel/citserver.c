@@ -1168,23 +1168,25 @@ void do_async_loop(void) {
 
 CTDL_MODULE_INIT(citserver)
 {
-	CtdlRegisterProtoHook(cmd_noop, "NOOP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_qnop, "QNOP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_quit, "QUIT", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_lout, "LOUT", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_asyn, "ASYN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_info, "INFO", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_mesg, "MESG", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_emsg, "EMSG", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_echo, "ECHO", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_more, "MORE", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_iden, "IDEN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_ipgm, "IPGM", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_term, "TERM", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_down, "DOWN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_halt, "HALT", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_scdn, "SCDN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_time, "TIME", "Autoconverted. TODO: document me.");
+	if (!threading) {
+		CtdlRegisterProtoHook(cmd_noop, "NOOP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_qnop, "QNOP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_quit, "QUIT", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_lout, "LOUT", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_asyn, "ASYN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_info, "INFO", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_mesg, "MESG", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_emsg, "EMSG", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_echo, "ECHO", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_more, "MORE", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_iden, "IDEN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_ipgm, "IPGM", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_term, "TERM", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_down, "DOWN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_halt, "HALT", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_time, "TIME", "Autoconverted. TODO: document me.");
+	}
         /* return our Subversion id for the Log */
 	return "$Id$";
 }

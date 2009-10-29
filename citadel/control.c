@@ -719,7 +719,9 @@ void cmd_conf(char *argbuf)
 
 CTDL_MODULE_INIT(control)
 {
-	CtdlRegisterProtoHook(cmd_conf, "CONF", "Autoconverted. TODO: document me.");
+	if (!threading) {
+		CtdlRegisterProtoHook(cmd_conf, "CONF", "Autoconverted. TODO: document me.");
+	}
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

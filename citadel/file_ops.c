@@ -782,18 +782,20 @@ void cmd_nuop(char *cmdbuf)
 
 CTDL_MODULE_INIT(file_ops)
 {
-	CtdlRegisterProtoHook(cmd_delf, "DELF", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_movf, "MOVF", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_open, "OPEN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_clos, "CLOS", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_uopn, "UOPN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_ucls, "UCLS", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_read, "READ", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_writ, "WRIT", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_oimg, "OIMG", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_ndop, "NDOP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_nuop, "NUOP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Autoconverted. TODO: document me.");
+	if (!threading) {
+		CtdlRegisterProtoHook(cmd_delf, "DELF", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_movf, "MOVF", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_open, "OPEN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_clos, "CLOS", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_uopn, "UOPN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_ucls, "UCLS", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_read, "READ", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_writ, "WRIT", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_oimg, "OIMG", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_ndop, "NDOP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_nuop, "NUOP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Autoconverted. TODO: document me.");
+	}
         /* return our Subversion id for the Log */
 	return "$Id$";
 }

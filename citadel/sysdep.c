@@ -1008,9 +1008,10 @@ void checkcrash(void)
 			" The Citadel server process (citserver) terminated unexpectedly."
 			"\n \n"
 			" This could be the result of a bug in the server program, or some external "
-			"factor.  You can obtain more information about this by enabling core dumps. "
-			"For more information, please see: "
-			"http://citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files"
+			"factor.\n \n"
+			" You can obtain more information about this by enabling core dumps.\n \n"
+			" For more information, please see:\n \n"
+			" http://citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files"
 			"\n \n"
 			" If you have already done this, the core dump is likely to be found at %score.%d\n"
 			,

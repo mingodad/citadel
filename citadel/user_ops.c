@@ -2071,28 +2071,30 @@ void cmd_renu(char *cmdbuf)
 
 CTDL_MODULE_INIT(user_ops)
 {
-	CtdlRegisterProtoHook(cmd_user, "USER", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_pass, "PASS", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_creu, "CREU", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_setp, "SETP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_getu, "GETU", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_setu, "SETU", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_slrp, "SLRP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_invt, "INVT", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_kick, "KICK", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_forg, "FORG", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_gnur, "GNUR", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_vali, "VALI", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_list, "LIST", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_chek, "CHEK", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_qusr, "QUSR", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_agup, "AGUP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_asup, "ASUP", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_seen, "SEEN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_gtsn, "GTSN", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_view, "VIEW", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_renu, "RENU", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_newu, "NEWU", "Autoconverted. TODO: document me.");
+	if (!threading) {
+		CtdlRegisterProtoHook(cmd_user, "USER", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_pass, "PASS", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_creu, "CREU", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_setp, "SETP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_getu, "GETU", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_setu, "SETU", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_slrp, "SLRP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_invt, "INVT", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_kick, "KICK", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_forg, "FORG", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_gnur, "GNUR", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_vali, "VALI", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_list, "LIST", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_chek, "CHEK", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_qusr, "QUSR", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_agup, "AGUP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_asup, "ASUP", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_seen, "SEEN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_gtsn, "GTSN", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_view, "VIEW", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_renu, "RENU", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_newu, "NEWU", "Autoconverted. TODO: document me.");
+	}
 	/* return our Subversion id for the Log */
 	return "$Id$";
 }

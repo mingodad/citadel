@@ -185,8 +185,10 @@ void cmd_spex(char *argbuf) {
 
 CTDL_MODULE_INIT(policy)
 {
-	CtdlRegisterProtoHook(cmd_gpex, "GPEX", "Autoconverted. TODO: document me.");
-	CtdlRegisterProtoHook(cmd_spex, "SPEX", "Autoconverted. TODO: document me.");
+	if (!threading) {
+		CtdlRegisterProtoHook(cmd_gpex, "GPEX", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_spex, "SPEX", "Autoconverted. TODO: document me.");
+	}
         /* return our Subversion id for the Log */
 	return "$Id$";
 }
