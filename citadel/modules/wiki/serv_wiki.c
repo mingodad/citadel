@@ -362,6 +362,73 @@ void wiki_history(char *pagename) {
 }
 
 
+struct HistoryEraserCallBackData {
+	char *tempfilename;		/* name of temp file being patched */
+	char *stop_when;		/* stop when we hit this uuid */
+	int done;			/* set to nonzero when we're done patching */
+};
+
+
+
+/*
+ * MIME Parser callback for wiki_rev()
+ *
+ * The "filename" field will contain a memo field.  All we have to do is decode
+ * the base64 and output it.  The data is already in a delimited format suitable
+ * for our client protocol.
+ */
+void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
+		   void *content, char *cbtype, char *cbcharset, size_t length,
+		   char *encoding, char *cbid, void *cbuserdata)
+{
+	struct HistoryEraserCallBackData *hecbd = (struct HistoryEraserCallBackData *)cbuserdata;
+	char memo[1024];
+	char this_rev[256];
+	FILE *fp;
+	char *ptr = NULL;
+	char buf[1024];
+
+	/* Did a previous callback already indicate that we've reached our target uuid?
+	 * If so, don't process anything else.
+	 */
+	if (hecbd->done) {
+		return;
+	}
+
+	CtdlDecodeBase64(memo, filename, strlen(filename));
+	extract_token(this_rev, memo, 0, '|', sizeof this_rev);
+	CtdlLogPrintf(CTDL_DEBUG, "callback found rev: %s\n", this_rev);
+
+	/* Perform the patch */
+	fp = popen("patch -f -s -p0 >/dev/null 2>/dev/null", "w");
+	if (fp) {
+		/* Replace the filenames in the patch with the tempfilename we're actually tweaking */
+		fprintf(fp, "--- %s\n", hecbd->tempfilename);
+		fprintf(fp, "+++ %s\n", hecbd->tempfilename);
+
+		ptr = (char *)content;
+		int linenum = 0;
+		do {
+			++linenum;
+			ptr = memreadline(ptr, buf, sizeof buf);
+			if (*ptr != 0) {
+				if (linenum <= 2) {
+					/* skip the first two lines; they contain bogus filenames */
+				}
+				else {
+					fprintf(fp, "%s\n", buf);
+				}
+			}
+		} while ((*ptr != 0) && ((int)ptr < ((int)content + length)));
+		pclose(fp);
+	}
+
+	if (!strcasecmp(this_rev, hecbd->stop_when)) {
+		CtdlLogPrintf(CTDL_DEBUG, "Found our target rev.  Stopping!\n");
+		hecbd->done = 1;
+	}
+}
+
 
 /*
  * Fetch a specific revision of a wiki page
@@ -374,6 +441,7 @@ void wiki_rev(char *pagename, char *rev)
 	char temp[PATH_MAX];
 	struct CtdlMessage *msg;
 	FILE *fp;
+	struct HistoryEraserCallBackData hecbd;
 
 	r = CtdlDoIHavePermissionToReadMessagesInThisRoom();
 	if (r != om_ok) {
@@ -443,14 +511,23 @@ void wiki_rev(char *pagename, char *rev)
 		return;
 	}
 
-	
-/*
-   FIXME do something here
-	mime_parser(msg->cm_fields['M'], NULL, *wiki_history_callback, NULL, NULL, NULL, 0);
- */
+	memset(&hecbd, 0, sizeof(struct HistoryEraserCallBackData));
+	hecbd.tempfilename = temp;
+	hecbd.stop_when = rev;
 
+	mime_parser(msg->cm_fields['M'], NULL, *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
 	CtdlFreeMessage(msg);
-	cprintf("%d FIXME not finished yet, check the log to find out wtf\n", ERROR);
+
+	if (hecbd.done == 0) {
+		cprintf("%d Revision '%s' of page '%s' was not found.\n",
+			ERROR + MESSAGE_NOT_FOUND, rev, pagename
+		);
+	}
+	else {
+		cprintf("%d FIXME not finished yet, check the log to find out wtf\n", ERROR);
+	}
+
+	/* unlink(temp); FIXME uncomment this when we're done.  reverted page is now sitting in /tmp */
 	return;
 }
 
