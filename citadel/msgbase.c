@@ -2717,7 +2717,7 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		   struct recptypes *recps,	/* recipients (if mail) */
 		   char *force,			/* force a particular room? */
-		   int flags			/* should the bessage be exported clean? */
+		   int flags			/* should the message be exported clean? */
 ) {
 	char submit_filename[128];
 	char generated_timestamp[32];

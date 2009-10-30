@@ -433,7 +433,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 /*
  * Fetch a specific revision of a wiki page
  */
-void wiki_rev(char *pagename, char *rev)
+void wiki_rev(char *pagename, char *rev, char *operation)
 {
 	int r;
 	char history_page_name[270];
@@ -442,6 +442,7 @@ void wiki_rev(char *pagename, char *rev)
 	struct CtdlMessage *msg;
 	FILE *fp;
 	struct HistoryEraserCallBackData hecbd;
+	int rv;
 
 	r = CtdlDoIHavePermissionToReadMessagesInThisRoom();
 	if (r != om_ok) {
@@ -523,11 +524,36 @@ void wiki_rev(char *pagename, char *rev)
 			ERROR + MESSAGE_NOT_FOUND, rev, pagename
 		);
 	}
-	else {
+	else if (!strcasecmp(operation, "fetch")) {
+		msg = malloc(sizeof(struct CtdlMessage));
+		memset(msg, 0, sizeof(struct CtdlMessage));
+		msg->cm_magic = CTDLMESSAGE_MAGIC;
+		msg->cm_anon_type = MES_NORMAL;
+		msg->cm_format_type = FMT_RFC822;
+		msg->cm_fields['A'] = strdup("Citadel");
+		fp = fopen(temp, "r");
+		if (fp) {
+			long len;
+			fseek(fp, 0L, SEEK_END);
+			len = ftell(fp);
+			fseek(fp, 0L, SEEK_SET);
+			msg->cm_fields['M'] = malloc(len + 1);
+			rv = fread(msg->cm_fields['M'], len, 1, fp);
+			msg->cm_fields['M'][len] = 0;
+			fclose(fp);
+		}
+		msgnum = CtdlSubmitMsg(msg, NULL, "Lobby", 0);	/* FIXME put somewhere else */
+		CtdlFreeMessage(msg);
+		cprintf("%d %ld\n", CIT_OK, msgnum);
+	}
+	else if (!strcasecmp(operation, "revert")) {
 		cprintf("%d FIXME not finished yet, check the log to find out wtf\n", ERROR);
 	}
+	else {
+		cprintf("%d An unknown operation was requested.\n", ERROR+CMD_NOT_SUPPORTED);
+	}
 
-	/* unlink(temp); FIXME uncomment this when we're done.  reverted page is now sitting in /tmp */
+	unlink(temp);
 	return;
 }
 
@@ -540,6 +566,7 @@ void cmd_wiki(char *argbuf) {
 	char subcmd[32];
 	char pagename[256];
 	char rev[128];
+	char operation[16];
 
 	extract_token(subcmd, argbuf, 0, '|', sizeof subcmd);
 
@@ -552,7 +579,8 @@ void cmd_wiki(char *argbuf) {
 	if (!strcasecmp(subcmd, "rev")) {
 		extract_token(pagename, argbuf, 1, '|', sizeof pagename);
 		extract_token(rev, argbuf, 2, '|', sizeof rev);
-		wiki_rev(pagename, rev);
+		extract_token(operation, argbuf, 3, '|', sizeof operation);
+		wiki_rev(pagename, rev, operation);
 		return;
 	}
 
