@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Server-side module for Wiki rooms.  This will handle things like version control. 
+ * Server-side module for Wiki rooms.  This handles things like version control. 
  * 
  * Copyright (c) 2009 by the citadel.org team
  *
@@ -58,6 +58,21 @@
 #include "msgbase.h"
 #include "euidindex.h"
 #include "ctdl_module.h"
+
+/*
+ * Data passed back and forth between wiki_rev() and its MIME parser callback
+ */
+struct HistoryEraserCallBackData {
+	char *tempfilename;		/* name of temp file being patched */
+	char *stop_when;		/* stop when we hit this uuid */
+	int done;			/* set to nonzero when we're done patching */
+};
+
+/*
+ * Name of the temporary room we create to store old revisions when someone requests them.
+ * We put it in an invalid namespace so the DAP cleans up after us later.
+ */
+char *wwm = "9999999999.WikiWaybackMachine";
 
 /*
  * Before allowing a wiki page save to execute, we have to perform version control.
@@ -361,21 +376,14 @@ void wiki_history(char *pagename) {
 	return;
 }
 
-
-struct HistoryEraserCallBackData {
-	char *tempfilename;		/* name of temp file being patched */
-	char *stop_when;		/* stop when we hit this uuid */
-	int done;			/* set to nonzero when we're done patching */
-};
-
-
-
 /*
  * MIME Parser callback for wiki_rev()
  *
- * The "filename" field will contain a memo field.  All we have to do is decode
- * the base64 and output it.  The data is already in a delimited format suitable
- * for our client protocol.
+ * The "filename" field will contain a memo field, which includes (among other things)
+ * the uuid of this revision.  After we hit the desired revision, we stop processing.
+ *
+ * The "content" filed will contain "diff" output suitable for applying via "patch"
+ * to our temporary file.
  */
 void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 		   void *content, char *cbtype, char *cbcharset, size_t length,
@@ -424,14 +432,17 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 	}
 
 	if (!strcasecmp(this_rev, hecbd->stop_when)) {
-		CtdlLogPrintf(CTDL_DEBUG, "Found our target rev.  Stopping!\n");
+		/* Found our target rev.  Tell any subsequent callbacks to suppress processing. */
+		CtdlLogPrintf(CTDL_DEBUG, "Target revision has been reached -- stop patching.\n");
 		hecbd->done = 1;
 	}
 }
 
 
 /*
- * Fetch a specific revision of a wiki page
+ * Fetch a specific revision of a wiki page.  The "operation" string may be set to "fetch" in order
+ * to simply fetch the desired revision and store it in a temporary location for viewing, or "revert"
+ * to revert the currently active page to that revision.
  */
 void wiki_rev(char *pagename, char *rev, char *operation)
 {
@@ -476,7 +487,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		return;
 	}
 
-	/* Output it to a file... */
+	/* Output it to a temporary file */
 
 	CtdlMakeTempFileName(temp, sizeof temp);
 	fp = fopen(temp, "w");
@@ -489,9 +500,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	}
 	CtdlFreeMessage(msg);
 
-	/* Now go get the revision history and patch backwards through the diffs until
-	 * we get to the revision we want.
-	 */
+	/* Get the revision history */
 
 	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
 	msgnum = locate_message_by_euid(history_page_name, &CC->room);
@@ -512,6 +521,10 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		return;
 	}
 
+	/* Start patching backwards (newest to oldest) through the revision history until we
+	 * hit the revision uuid requested by the user.  (The callback will perform each one.)
+	 */
+
 	memset(&hecbd, 0, sizeof(struct HistoryEraserCallBackData));
 	hecbd.tempfilename = temp;
 	hecbd.stop_when = rev;
@@ -519,11 +532,15 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	mime_parser(msg->cm_fields['M'], NULL, *wiki_rev_callback, NULL, NULL, (void *)&hecbd, 0);
 	CtdlFreeMessage(msg);
 
+	/* Were we successful? */
 	if (hecbd.done == 0) {
 		cprintf("%d Revision '%s' of page '%s' was not found.\n",
 			ERROR + MESSAGE_NOT_FOUND, rev, pagename
 		);
 	}
+
+	/* We have the desired revision on disk.  Now do something with it. */
+
 	else if (!strcasecmp(operation, "fetch")) {
 		msg = malloc(sizeof(struct CtdlMessage));
 		memset(msg, 0, sizeof(struct CtdlMessage));
@@ -542,15 +559,17 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			msg->cm_fields['M'][len] = 0;
 			fclose(fp);
 		}
-		char *wwm = "9999999999.WikiWaybackMachine";
-		CtdlCreateRoom(wwm, 5, "", 0, 1, 1, VIEW_BBS);
-		msgnum = CtdlSubmitMsg(msg, NULL, wwm, 0);	/* FIXME put somewhere else */
+		CtdlCreateRoom(wwm, 5, "", 0, 1, 1, VIEW_BBS);	/* If it already exists, not an error */
+		msgnum = CtdlSubmitMsg(msg, NULL, wwm, 0);	/* Store the revision here */
 		CtdlFreeMessage(msg);
-		cprintf("%d %ld\n", CIT_OK, msgnum);
+		cprintf("%d %ld\n", CIT_OK, msgnum);		/* And give the client a msgnum */
 	}
+
 	else if (!strcasecmp(operation, "revert")) {
 		cprintf("%d FIXME not finished yet, check the log to find out wtf\n", ERROR);
 	}
+
+	/* We did all this work for nothing.  Express anguish to the caller. */
 	else {
 		cprintf("%d An unknown operation was requested.\n", ERROR+CMD_NOT_SUPPORTED);
 	}
