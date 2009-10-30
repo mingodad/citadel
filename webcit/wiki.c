@@ -168,16 +168,12 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 
 		while(StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 
-			StrBufExtract_token(rev_uuid, Buf, 0, '|');
 			rev_date = extract_long(ChrPtr(Buf), 1);
 			webcit_fmt_date(rev_date_displayed, sizeof rev_date_displayed, rev_date, DATEFMT_FULL);
 			StrBufExtract_token(author, Buf, 2, '|');
-			StrBufExtract_token(node, Buf, 3, '|');
 
-			wc_printf("<tr bgcolor=\"%s\">", (row ? "#FFFFFF" : "#DDDDDD"));
-			row = 1 - row;
+			wc_printf("<tr bgcolor=\"%s\">", ((row%2) ? "#FFFFFF" : "#DDDDDD"));
 			wc_printf("<td>%s</td><td>", rev_date_displayed);
-
 			if (!strcasecmp(ChrPtr(node), (char *)WC->serv_info->serv_nodename)) {
 				escputs(ChrPtr(author));
 				wc_printf(" @ ");
@@ -190,18 +186,39 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 				escputs(ChrPtr(author));
 				wc_printf("</a>");
 			}
+			wc_printf("</td>");
 
-			wc_printf("</td><td><a href=\"wiki?page=%s?rev=%s\">%s</a></td>",
-				bstr("page"),
-				ChrPtr(rev_uuid),
-				_("(show)")
-			);
-			wc_printf("</td><td><a href=\"wiki_revert?page=%s?rev=%s\">%s</a></td>",
-				bstr("page"),
-				ChrPtr(rev_uuid),
-				_("(revert)")
-			);
+			if (row == 0) {
+				wc_printf("<td><a href=\"wiki?page=%s\">%s</a></td>",
+					bstr("page"),
+					_("(show)")
+				);
+				wc_printf("<td>(%s)</td>", _("Current version"));
+			}
+
+			else {
+				wc_printf("<td><a href=\"wiki?page=%s?rev=%s\">%s</a></td>",
+					bstr("page"),
+					ChrPtr(rev_uuid),
+					_("(show)")
+				);
+				wc_printf("</td><td><a href=\"wiki_revert?page=%s?rev=%s\">%s</a></td>",
+					bstr("page"),
+					ChrPtr(rev_uuid),
+					_("(revert)")
+				);
+			}
 			wc_printf("</tr>\n");
+
+			/* Extract all fields except the author and date after displaying the row.  This
+			 * is deliberate, because the timestamp reflects when the diff was written, not
+			 * when the version which it reflects was written.  Similarly, the name associated
+			 * with each diff is the author who created the newer version of the page that
+			 * made the diff happen.
+			 */
+			StrBufExtract_token(rev_uuid, Buf, 0, '|');
+			StrBufExtract_token(node, Buf, 3, '|');
+			++row;
 		}
 
 		wc_printf("</table>\n");
