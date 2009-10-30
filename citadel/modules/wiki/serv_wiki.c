@@ -542,7 +542,9 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			msg->cm_fields['M'][len] = 0;
 			fclose(fp);
 		}
-		msgnum = CtdlSubmitMsg(msg, NULL, "Lobby", 0);	/* FIXME put somewhere else */
+		char *wwm = "9999999999.WikiWaybackMachine";
+		CtdlCreateRoom(wwm, 5, "", 0, 1, 1, VIEW_BBS);
+		msgnum = CtdlSubmitMsg(msg, NULL, wwm, 0);	/* FIXME put somewhere else */
 		CtdlFreeMessage(msg);
 		cprintf("%d %ld\n", CIT_OK, msgnum);
 	}

@@ -1820,7 +1820,7 @@ void cmd_kill(char *argbuf)
 /*
  * Internal code to create a new room (returns room flags)
  *
- * Room types:  0=public, 1=guessname, 2=passworded, 3=inv-only,
+ * Room types:  0=public, 1=hidden, 2=passworded, 3=invitation-only,
  *              4=mailbox, 5=mailbox, but caller supplies namespace
  */
 unsigned CtdlCreateRoom(char *new_room_name,
