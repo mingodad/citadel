@@ -33,7 +33,12 @@ OnChange="location.href=roomlistomatic.newview.options[selectedIndex].value">
 
 <?!("COND:PREF", 3, "roomlistview", "folders")>
 <div id="content" class="service">
-  <div id="roomlist_knrooms"></div>
+<div class="box">
+ <div class="boxlabel"><?_("Room Listing")></div>
+  <div class="boxcontent">
+   <div id="roomlist_knrooms"></div>
+  </div>
+</div>
 <?!("X", 3)>
 <script type="text/javascript">
 FillRooms(KNRoomsRoomList);
