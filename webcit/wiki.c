@@ -38,6 +38,7 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
 {
 	const StrBuf *Mime;
 	long msgnum = (-1L);
+	char buf[256];
 
 	str_wiki_index(pagename);
 
@@ -65,8 +66,21 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
 		strcpy(pagename, "home");
 	}
 
-	/* Found it!  Now read it.   FIXME this is where we have to add the ability to read an old rev */
-	msgnum = locate_message_by_uid(pagename);
+	/* Found it!  Now read it. */
+
+	if ((rev != NULL) && (strlen(rev) > 0)) {
+		/* read an older revision */
+		serv_printf("WIKI rev|%s|%s|fetch", pagename, rev);
+		serv_getln(buf, sizeof buf);
+		if (buf[0] == '2') {
+			msgnum = extract_long(&buf[4], 0);
+		}
+	}
+	else {
+		/* read the current revision? */
+		msgnum = locate_message_by_uid(pagename);
+	}
+
 	if (msgnum >= 0L) {
 		read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
 		return;
@@ -239,5 +253,6 @@ InitModule_WIKI
 
 	WebcitAddUrlHandler(HKEY("wiki"), "", 0, display_wiki_page, 0);
 	WebcitAddUrlHandler(HKEY("wiki_history"), "", 0, display_wiki_history, 0);
+	/* WebcitAddUrlHandler(HKEY("wiki_revert"), "", 0, wiki_revert, 0); FIXME implement this */
 	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
 }
