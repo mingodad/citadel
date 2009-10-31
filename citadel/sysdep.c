@@ -1123,6 +1123,9 @@ void InitializeMasterCC(void) {
  * Bind a thread to a context.  (It's inline merely to speed things up.)
  */
 INLINE void become_session(struct CitContext *which_con) {
+	if (which_con)
+		ctdl_thread_internal_change_state(CT, CTDL_THREAD_RUNNING);
+
 	citthread_setspecific(MyConKey, (void *)which_con );
 }
 

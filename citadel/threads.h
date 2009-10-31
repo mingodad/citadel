@@ -136,6 +136,7 @@ void ctdl_thread_internal_calc_loadavg(void);
 void ctdl_thread_internal_free_tsd(void);
 CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thread_func) (void *arg), void *args);
 void ctdl_thread_internal_check_scheduled(void);
+void ctdl_thread_internal_change_state (CtdlThreadNode *this_thread, enum CtdlThreadState new_state);
 
 void InitialiseSemaphores(void);
 int try_critical_section (int which_one);

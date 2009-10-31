@@ -407,12 +407,33 @@ double CtdlThreadGetWorkerAvg(void)
 
 double CtdlThreadGetLoadAvg(void)
 {
-	double ret;
-	
+	double load_avg[3] ;
+
+	int ret;
+	int smp_num_cpus;
+
+	/* Borrowed this straight from procps */
+	smp_num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+	if(smp_num_cpus<1) smp_num_cpus=1; /* SPARC glibc is buggy */
+
+	ret = getloadavg(load_avg, 3);
+	if (ret < 0)
+		return 0;
+	return load_avg[0] / smp_num_cpus;
+/*
+ * This old chunk of code return a value that indicated the load on citserver
+ * This value could easily reach 100 % even when citserver was doing very little and
+ * hence the machine has much more spare capacity.
+ * Because this value was used to determine if the machine was under heavy load conditions
+ * from other processes in the system then citserver could be strangled un-necesarily
+ * What we are actually trying to achieve is to strangle citserver if the machine is heavily loaded.
+ * So we have changed this.
+
 	begin_critical_section(S_THREAD_LIST);
 	ret =  CtdlThreadLoadAvg;
 	end_critical_section(S_THREAD_LIST);
 	return ret;
+*/
 }
 
 
@@ -623,7 +644,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 	CtdlThreadLoadAvg = load_avg/num_threads;
 	CtdlThreadWorkerAvg = worker_avg/workers;
 #ifdef WITH_THREADLOG
-	CtdlLogPrintf(CTDL_INFO, "System load average %.2f, workers averag %.2f, threads %d, workers %d, sessions %d\n", CtdlThreadLoadAvg, CtdlThreadWorkerAvg, num_threads, num_workers, num_sessions);
+	CtdlLogPrintf(CTDL_INFO, "System load average %.2f, workers averag %.2f, threads %d, workers %d, sessions %d\n", CtdlThreadGetLoadAvg(), CtdlThreadWorkerAvg, num_threads, num_workers, num_sessions);
 #endif
 }
 
@@ -1300,25 +1321,29 @@ void go_threading(void)
 #ifdef NEW_WORKER
 		if ((((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkers() <= num_sessions) ) || CtdlThreadGetWorkers() < config.c_min_workers) && (CT->state > CTDL_THREAD_STOP_REQ))
 #else
-		if ((((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkerAvg() > 60) && (CtdlThreadGetLoadAvg() < 90) ) || CtdlThreadGetWorkers() < config.c_min_workers) && (CT->state > CTDL_THREAD_STOP_REQ))
+		if ((((CtdlThreadGetWorkers() < config.c_max_workers) && (CtdlThreadGetWorkerAvg() > 60)) || CtdlThreadGetWorkers() < config.c_min_workers) && (CT->state > CTDL_THREAD_STOP_REQ))
 #endif /* NEW_WORKER */
 		{
-			for (i=0; i<5 ; i++)
-			{
+			/* Only start new threads if we are not going to overload the machine */
+			if (CtdlThreadGetLoadAvg() < ((double)1.00)) {
+				for (i=0; i<5 ; i++) {
 #ifdef NEW_WORKER
-				CtdlThreadCreate("Worker Thread (new)",
-					CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
-					new_worker_thread,
-					NULL
-					);
+					CtdlThreadCreate("Worker Thread (new)",
+						CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
+						new_worker_thread,
+						NULL
+						);
 #else
-				CtdlThreadCreate("Worker Thread",
-					CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
-					worker_thread,
-					NULL
-					);
+					CtdlThreadCreate("Worker Thread",
+						CTDLTHREAD_BIGSTACK + CTDLTHREAD_WORKER,
+						worker_thread,
+						NULL
+						);
 #endif /* NEW_WORKER */
+				}
 			}
+			else
+				CtdlLogPrintf (CTDL_WARNING, "Server strangled due to machine load average too high.\n");
 		}
 		
 		CtdlThreadGC();
