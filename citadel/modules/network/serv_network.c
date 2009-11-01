@@ -82,6 +82,7 @@
 #include "snprintf.h"
 #endif
 
+#include "context.h"
 
 #include "ctdl_module.h"
 

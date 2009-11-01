@@ -56,6 +56,7 @@
 #include "threads.h"
 
 #include "ctdl_module.h"
+#include "context.h"
  
 /*
  * Main loop for the checkpoint thread.

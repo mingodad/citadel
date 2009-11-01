@@ -60,6 +60,7 @@
 #include "housekeeping.h"
 #include "modules/crypto/serv_crypto.h"	/* Needed for init_ssl, client_write_ssl, client_read_ssl, destruct_ssl */
 #include "ecrash.h"
+#include "context.h"
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -87,62 +88,10 @@ struct igheap *igheap = NULL;
 #endif
 
 
-citthread_key_t MyConKey;				/* TSD key for MyContext() */
-
 int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
-
-struct CitContext masterCC;
-time_t last_purge = 0;				/* Last dead session purge */
-int num_sessions = 0;				/* Current number of sessions */
 
 int syslog_facility = LOG_DAEMON;
 int enable_syslog = 0;
-
-
-/* Flag for single user mode */
-static int want_single_user = 0;
-
-/* Try to go single user */
-
-int CtdlTrySingleUser(void)
-{
-	int can_do = 0;
-	
-	begin_critical_section(S_SINGLE_USER);
-	if (want_single_user)
-		can_do = 0;
-	else
-	{
-		can_do = 1;
-		want_single_user = 1;
-	}
-	end_critical_section(S_SINGLE_USER);
-	return can_do;
-}
-
-void CtdlEndSingleUser(void)
-{
-	begin_critical_section(S_SINGLE_USER);
-	want_single_user = 0;
-	end_critical_section(S_SINGLE_USER);
-}
-
-
-int CtdlWantSingleUser(void)
-{
-	return want_single_user;
-}
-
-int CtdlIsSingleUser(void)
-{
-	if (want_single_user)
-	{
-		/* check for only one context here */
-		if (num_sessions == 1)
-			return TRUE;
-	}
-	return FALSE;
-}
 
 
 /*
@@ -446,116 +395,6 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage)
 
 
 /*
- * Return a pointer to the CitContext structure bound to the thread which
- * called this function.  If there's no such binding (for example, if it's
- * called by the housekeeper thread) then a generic 'master' CC is returned.
- *
- * This function is used *VERY* frequently and must be kept small.
- */
-struct CitContext *MyContext(void) {
-
-	register struct CitContext *c;
-
-	return ((c = (struct CitContext *) citthread_getspecific(MyConKey),
-		c == NULL) ? &masterCC : c
-	);
-}
-
-
-/*
- * Initialize a new context and place it in the list.  The session number
- * used to be the PID (which is why it's called cs_pid), but that was when we
- * had one process per session.  Now we just assign them sequentially, starting
- * at 1 (don't change it to 0 because masterCC uses 0).
- */
-struct CitContext *CreateNewContext(void) {
-	struct CitContext *me;
-	static int next_pid = 0;
-
-	me = (struct CitContext *) malloc(sizeof(struct CitContext));
-	if (me == NULL) {
-		CtdlLogPrintf(CTDL_ALERT, "citserver: can't allocate memory!!\n");
-		return NULL;
-	}
-
-	memset(me, 0, sizeof(struct CitContext));
-	
-	/* Give the contaxt a name. Hopefully makes it easier to track */
-	strcpy (me->user.fullname, "SYS_notauth");
-	
-	/* The new context will be created already in the CON_EXECUTING state
-	 * in order to prevent another thread from grabbing it while it's
-	 * being set up.
-	 */
-	me->state = CON_EXECUTING;
-	/*
-	 * Generate a unique session number and insert this context into
-	 * the list.
-	 */
-	begin_critical_section(S_SESSION_TABLE);
-	me->cs_pid = ++next_pid;
-	me->prev = NULL;
-	me->next = ContextList;
-	ContextList = me;
-	if (me->next != NULL) {
-		me->next->prev = me;
-	}
-	++num_sessions;
-	end_critical_section(S_SESSION_TABLE);
-	return (me);
-}
-
-
-struct CitContext *CtdlGetContextArray(int *count)
-{
-	int nContexts, i;
-	struct CitContext *nptr, *cptr;
-	
-	nContexts = num_sessions;
-	nptr = malloc(sizeof(struct CitContext) * nContexts);
-	if (!nptr)
-		return NULL;
-	begin_critical_section(S_SESSION_TABLE);
-	for (cptr = ContextList, i=0; cptr != NULL && i < nContexts; cptr = cptr->next, i++)
-		memcpy(&nptr[i], cptr, sizeof (struct CitContext));
-	end_critical_section (S_SESSION_TABLE);
-	
-	*count = i;
-	return nptr;
-}
-
-
-
-/**
- * This function fills in a context and its user field correctly
- * Then creates/loads that user
- */
-void CtdlFillSystemContext(struct CitContext *context, char *name)
-{
-	char sysname[USERNAME_SIZE];
-
-	memset(context, 0, sizeof(struct CitContext));
-	context->internal_pgm = 1;
-	context->cs_pid = 0;
-	strcpy (sysname, "SYS_");
-	strcat (sysname, name);
-	/* internal_create_user has the side effect of loading the user regardless of wether they
-	 * already existed or needed to be created
-	 */
-	internal_create_user (sysname, &(context->user), -1) ;
-	
-	/* Check to see if the system user needs upgrading */
-	if (context->user.usernum == 0)
-	{	/* old system user with number 0, upgrade it */
-		context->user.usernum = get_new_user_number();
-		CtdlLogPrintf(CTDL_DEBUG, "Upgrading system user \"%s\" from user number 0 to user number %d\n", context->user.fullname, context->user.usernum);
-		/* add user to the database */
-		CtdlPutUser(&(context->user));
-		cdb_store(CDB_USERSBYNUMBER, &(context->user.usernum), sizeof(long), context->user.fullname, strlen(context->user.fullname)+1);
-	}
-}
-
-/*
  * The following functions implement output buffering on operating systems which
  * support it (such as Linux and various BSD flavors).
  */
@@ -792,36 +631,6 @@ int client_getln(char *buf, int bufsize)
 /*
  * Cleanup any contexts that are left lying around
  */
-void context_cleanup(void)
-{
-	struct CitContext *ptr = NULL;
-	struct CitContext *rem = NULL;
-
-	/*
-	 * Clean up the contexts.
-	 * There are no threads so no critical_section stuff is needed.
-	 */
-	ptr = ContextList;
-	
-	/* We need to update the ContextList because some modules may want to itterate it
-	 * Question is should we NULL it before iterating here or should we just keep updating it
-	 * as we remove items?
-	 *
-	 * Answer is to NULL it first to prevent modules from doing any actions on the list at all
-	 */
-	ContextList=NULL;
-	while (ptr != NULL){
-		/* Remove the session from the active list */
-		rem = ptr->next;
-		--num_sessions;
-		
-		CtdlLogPrintf(CTDL_DEBUG, "Purging session %d\n", ptr->cs_pid);
-		RemoveContext(ptr);
-		free (ptr);
-		ptr = rem;
-	}
-}
-
 
 
 void close_masters (void)
@@ -884,23 +693,6 @@ void sysdep_master_cleanup(void) {
 }
 
 
-
-/*
- * Terminate another session.
- * (This could justifiably be moved out of sysdep.c because it
- * no longer does anything that is system-dependent.)
- */
-void kill_session(int session_to_kill) {
-	struct CitContext *ptr;
-
-	begin_critical_section(S_SESSION_TABLE);
-	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-		if (ptr->cs_pid == session_to_kill) {
-			ptr->kill_me = 1;
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-}
 
 pid_t current_child;
 void graceful_shutdown(int signum) {
@@ -1043,92 +835,6 @@ int convert_login(char NameToConvert[]) {
 	}
 }
 
-/*
- * Purge all sessions which have the 'kill_me' flag set.
- * This function has code to prevent it from running more than once every
- * few seconds, because running it after every single unbind would waste a lot
- * of CPU time and keep the context list locked too much.  To force it to run
- * anyway, set "force" to nonzero.
- */
-void dead_session_purge(int force) {
-	struct CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
-	struct CitContext *rem = NULL;	/* list of sessions to be destroyed */
-	
-	if (force == 0) {
-		if ( (time(NULL) - last_purge) < 5 ) {
-			return;	/* Too soon, go away */
-		}
-	}
-	time(&last_purge);
-
-	if (try_critical_section(S_SESSION_TABLE))
-		return;
-		
-	ptr = ContextList;
-	while (ptr) {
-		ptr2 = ptr;
-		ptr = ptr->next;
-		
-		if ( (ptr2->state == CON_IDLE) && (ptr2->kill_me) ) {
-			/* Remove the session from the active list */
-			if (ptr2->prev) {
-				ptr2->prev->next = ptr2->next;
-			}
-			else {
-				ContextList = ptr2->next;
-			}
-			if (ptr2->next) {
-				ptr2->next->prev = ptr2->prev;
-			}
-
-			--num_sessions;
-			/* And put it on our to-be-destroyed list */
-			ptr2->next = rem;
-			rem = ptr2;
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-
-	/* Now that we no longer have the session list locked, we can take
-	 * our time and destroy any sessions on the to-be-killed list, which
-	 * is allocated privately on this thread's stack.
-	 */
-	while (rem != NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "Purging session %d\n", rem->cs_pid);
-		RemoveContext(rem);
-		ptr = rem;
-		rem = rem->next;
-		free(ptr);
-	}
-}
-
-
-
-
-
-/*
- * masterCC is the context we use when not attached to a session.  This
- * function initializes it.
- */
-void InitializeMasterCC(void) {
-	memset(&masterCC, 0, sizeof(struct CitContext));
-	masterCC.internal_pgm = 1;
-	masterCC.cs_pid = 0;
-}
-
-
-
-
-/*
- * Bind a thread to a context.  (It's inline merely to speed things up.)
- */
-INLINE void become_session(struct CitContext *which_con) {
-	if (which_con)
-		ctdl_thread_internal_change_state(CT, CTDL_THREAD_RUNNING);
-
-	citthread_setspecific(MyConKey, (void *)which_con );
-}
-
 
 
 /* 
@@ -1189,7 +895,8 @@ do_select:	force_purge = 0;
 
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-			if (ptr->state == CON_IDLE) {
+			/* Dont select on dead sessions only truly idle ones */
+			if ((ptr->state == CON_IDLE)) {
 				FD_SET(ptr->client_socket, &readfds);
 				if (ptr->client_socket > highest)
 					highest = ptr->client_socket;

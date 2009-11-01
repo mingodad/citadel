@@ -73,6 +73,7 @@
 #include "policy.h"
 #include "control.h"
 #include "euidindex.h"
+#include "context.h"
 #include "svn_revision.h"
 
 #ifndef HAVE_SNPRINTF
@@ -82,8 +83,6 @@
 #include "ctdl_module.h"
 
 
-struct CitContext *ContextList = NULL;
-struct CitContext* next_session = NULL;
 char *unique_session_numbers;
 int ScheduledShutdown = 0;
 time_t server_startup_time;
@@ -248,46 +247,6 @@ void master_cleanup(int exitcode) {
 		exitcode = CTDLEXIT_SHUTDOWN;
 	exit(exitcode);
 }
-
-
-
-/*
- * Terminate a session.
- */
-void RemoveContext (struct CitContext *con)
-{
-	if (con==NULL) {
-		CtdlLogPrintf(CTDL_ERR,
-			"WARNING: RemoveContext() called with NULL!\n");
-		return;
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "RemoveContext() session %d\n", con->cs_pid);
-
-	/* Run any cleanup routines registered by loadable modules.
-	 * Note: We have to "become_session()" because the cleanup functions
-	 *       might make references to "CC" assuming it's the right one.
-	 */
-	become_session(con);
-	logout();
-	PerformSessionHooks(EVT_STOP);
-	become_session(NULL);
-
-	CtdlLogPrintf(CTDL_NOTICE, "[%3d] Session ended.\n", con->cs_pid);
-
-	/* If the client is still connected, blow 'em away. */
-	CtdlLogPrintf(CTDL_DEBUG, "Closing socket %d\n", con->client_socket);
-	close(con->client_socket);
-
-	/* If using AUTHMODE_LDAP, free the DN */
-	if (con->ldap_dn) {
-		free(con->ldap_dn);
-		con->ldap_dn = NULL;
-	}
-
-	CtdlLogPrintf(CTDL_DEBUG, "Done with RemoveContext()\n");
-}
-
-
 
 
 
@@ -873,6 +832,7 @@ void cmd_down(char *argbuf) {
 	{
 		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN); 
 	}
+	CC->kill_me = 1; /* Even the DOWN command has to follow correct proceedure when disconecting */
 	CtdlThreadStopAll();
 }
 

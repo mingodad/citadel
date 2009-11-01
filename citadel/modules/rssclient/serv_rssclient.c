@@ -56,6 +56,7 @@
 #include "database.h"
 #include "citadel_dirs.h"
 #include "md5.h"
+#include "context.h"
 
 
 struct rssnetcfg {

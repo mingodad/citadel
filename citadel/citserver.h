@@ -33,7 +33,6 @@ void cit_backtrace(void);
 void cit_panic_backtrace(int SigNum);
 void master_startup (void);
 void master_cleanup (int exitcode);
-void RemoveContext (struct CitContext *);
 void set_wtmpsupp (char *newtext);
 void set_wtmpsupp_to_current_room(void);
 void do_command_loop(void);

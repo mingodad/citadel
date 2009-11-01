@@ -38,6 +38,7 @@
 #include "config.h"
 #include "citserver.h"
 #include "sysdep_decls.h"
+#include "context.h"
 
 /*
  * define this to use the new worker_thread method of handling connections
@@ -1196,14 +1197,7 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 	 * or timeout so this thread could stop if asked to do so.
 	 * Anything else means it needs to continue unless the system is shutting down
 	 */
-	if (ret <= 0)
-	{
-		/**
-		 * select says nothing to do so we can change to running if we haven't been asked to stop.
-		 */
-		ctdl_thread_internal_change_state(CT, CTDL_THREAD_RUNNING);
-	}
-	else
+	if (ret > 0)
 	{
 		/**
 		 * The select says this thread needs to do something useful.
@@ -1226,6 +1220,8 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 		}
 		citthread_mutex_unlock(&CT->ThreadMutex);
 	}
+
+	ctdl_thread_internal_change_state(CT, CTDL_THREAD_RUNNING);
 
 	return ret;
 }
@@ -1347,7 +1343,7 @@ void go_threading(void)
 		}
 		
 		CtdlThreadGC();
-		
+
 		if (CtdlThreadGetCount() <= 1) // Shutting down clean up the garbage collector
 		{
 			CtdlThreadGC();
@@ -1574,7 +1570,6 @@ int execute_session(struct CitContext *bind_me)
 
 
 
-extern void dead_session_purge(int force);
 
 /*
  * A new worker_thread loop.

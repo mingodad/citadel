@@ -58,6 +58,7 @@
 #include "serv_fulltext.h"
 #include "ft_wordbreaker.h"
 #include "threads.h"
+#include "context.h"
 
 #include "ctdl_module.h"
 

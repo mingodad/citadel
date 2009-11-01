@@ -49,16 +49,11 @@ void cprintf (const char *format, ...);
 void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
 void vCtdlLogPrintf (enum LogLevel loglevel, const char *format, va_list arg_ptr);
 
-extern pthread_key_t MyConKey;			/* TSD key for MyContext() */
-
 extern int enable_syslog;
 
 void init_sysdep (void);
 int ig_tcp_server (char *ip_addr, int port_number, int queue_len,char **errormessage);
 int ig_uds_server(char *sockpath, int queue_len, char **errormessage);
-struct CitContext *MyContext (void);
-struct CitContext *CreateNewContext (void);
-void InitMyContext (struct CitContext *con);
 void buffer_output(void);
 void unbuffer_output(void);
 void flush_output(void);
@@ -68,20 +63,15 @@ int client_read (char *buf, int bytes);
 int client_getln (char *buf, int maxbytes);
 void sysdep_master_cleanup (void);
 void kill_session (int session_to_kill);
-void *sd_context_loop (struct CitContext *con);
 void start_daemon (int do_close_stdio);
 void checkcrash(void);
 void cmd_nset (char *cmdbuf);
 int convert_login (char *NameToConvert);
 void *worker_thread (void *arg);
-void *context_cleanup_thread (void *arg);
-void become_session(struct CitContext *which_con);
-void InitializeMasterCC(void);
 void init_master_fdset(void);
 void create_worker(void);
 
 
-extern int num_sessions;
 extern volatile int exit_signal;
 extern volatile int shutdown_and_halt;
 extern volatile int running_as_daemon;

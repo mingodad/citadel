@@ -86,7 +86,8 @@ SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
 	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
 	locate_host.c md5.c auth.c msgbase.c parsedate.c policy.c \
 	room_ops.c euidindex.c server_main.c snprintf.c ldap.c \
-	support.c sysdep.c user_ops.c journaling.c threads.c 
+	support.c sysdep.c user_ops.c journaling.c threads.c \
+	context.c
 
 
 include Make_sources
@@ -153,7 +154,7 @@ SERV_OBJS = server_main.o utillib/citadel_dirs.o\
 	file_ops.o msgbase.o euidindex.o \
 	locate_host.o housekeeping.o \
 	internet_addressing.o journaling.o \
-	parsedate.o genstamp.o ecrash.o threads.o\
+	parsedate.o genstamp.o ecrash.o threads.o context.o \
 	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES) \
 	svn_revision.o ldap.o
 

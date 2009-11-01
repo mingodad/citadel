@@ -57,6 +57,8 @@
 #include "svn_revision.h"
 #include "citadel_dirs.h"
 
+#include "context.h"
+
 #include "modules_init.h"
 #include "ecrash.h"
 
@@ -70,8 +72,6 @@
 const char *CitadelServiceUDS="citadel-UDS";
 const char *CitadelServiceTCP="citadel-TCP";
 
-
-extern struct CitContext masterCC;
 
 
 void go_threading(void);
