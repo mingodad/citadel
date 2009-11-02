@@ -450,6 +450,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	char history_page_name[270];
 	long msgnum;
 	char temp[PATH_MAX];
+	char timestamp[64];
 	struct CtdlMessage *msg;
 	FILE *fp;
 	struct HistoryEraserCallBackData hecbd;
@@ -542,13 +543,12 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 
 	/* We have the desired revision on disk.  Now do something with it. */
 
-	else if (!strcasecmp(operation, "fetch")) {
+	else if ( (!strcasecmp(operation, "fetch")) || (!strcasecmp(operation, "revert")) ) {
 		msg = malloc(sizeof(struct CtdlMessage));
 		memset(msg, 0, sizeof(struct CtdlMessage));
 		msg->cm_magic = CTDLMESSAGE_MAGIC;
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
-		msg->cm_fields['A'] = strdup("Citadel");
 		fp = fopen(temp, "r");
 		if (fp) {
 			fseek(fp, 0L, SEEK_END);
@@ -560,42 +560,34 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			msg->cm_fields['M'][len] = 0;
 			fclose(fp);
 		}
-		CtdlCreateRoom(wwm, 5, "", 0, 1, 1, VIEW_BBS);	/* If it already exists, not an error */
-		msgnum = CtdlSubmitMsg(msg, NULL, wwm, 0);	/* Store the revision here */
-		CtdlFreeMessage(msg);
-		cprintf("%d %ld\n", CIT_OK, msgnum);		/* And give the client a msgnum */
-	}
-
-	else if (!strcasecmp(operation, "revert")) {
-		msg = malloc(sizeof(struct CtdlMessage));
-		memset(msg, 0, sizeof(struct CtdlMessage));
-		msg->cm_magic = CTDLMESSAGE_MAGIC;
-		msg->cm_anon_type = MES_NORMAL;
-		msg->cm_format_type = FMT_RFC822;
-		msg->cm_fields['A'] = strdup(CC->user.fullname);
-		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
-		msg->cm_fields['O'] = strdup(CC->room.QRname);
-		msg->cm_fields['N'] = strdup(NODENAME);
-		msg->cm_fields['E'] = strdup(pagename);
-		/* FIXME do 'T' */
-		fp = fopen(temp, "r");
-		if (fp) {
-			fseek(fp, 0L, SEEK_END);
-			len = ftell(fp);
-			fseek(fp, 0L, SEEK_SET);
-			msg->cm_fields['M'] = malloc(len + 1);
-			rv = fread(msg->cm_fields['M'], len, 1, fp);
-			CtdlLogPrintf(CTDL_DEBUG, "\033[31mdid %d blocks of %d bytes\033[0m\n", rv, len);
-			msg->cm_fields['M'][len] = 0;
-			fclose(fp);
+		if (len <= 0) {
+			msgnum = (-1L);
 		}
-		msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Store it back into the room */
-		CtdlFreeMessage(msg);
-		if (msgnum >= 0L) {
-			cprintf("%d %ld\n", CIT_OK, msgnum);		/* And give the client a msgnum */
+		else if (!strcasecmp(operation, "fetch")) {
+			msg->cm_fields['A'] = strdup("Citadel");
+			CtdlCreateRoom(wwm, 5, "", 0, 1, 1, VIEW_BBS);	/* Not an error if already exists */
+			msgnum = CtdlSubmitMsg(msg, NULL, wwm, 0);	/* Store the revision here */
+		}
+		else if (!strcasecmp(operation, "revert")) {
+			snprintf(timestamp, sizeof timestamp, "%ld", time(NULL));
+			msg->cm_fields['T'] = strdup(timestamp);
+			msg->cm_fields['A'] = strdup(CC->user.fullname);
+			msg->cm_fields['F'] = strdup(CC->cs_inet_email);
+			msg->cm_fields['O'] = strdup(CC->room.QRname);
+			msg->cm_fields['N'] = strdup(NODENAME);
+			msg->cm_fields['E'] = strdup(pagename);
+			msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Replace the current revision */
 		}
 		else {
-			cprintf("%d An internal error has occurred.\n", ERROR+INTERNAL_ERROR);
+			/* Theoretically it is impossible to get here, but throw an error anyway */
+			msgnum = (-1L);
+		}
+		CtdlFreeMessage(msg);
+		if (msgnum >= 0L) {
+			cprintf("%d %ld\n", CIT_OK, msgnum);		/* Give the client a msgnum */
+		}
+		else {
+			cprintf("%d Error %ld has occurred.\n", ERROR+INTERNAL_ERROR, msgnum);
 		}
 	}
 
