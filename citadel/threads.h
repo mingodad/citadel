@@ -126,6 +126,7 @@ struct ThreadTSD {
 
 extern double CtdlThreadLoadAvg;
 extern double CtdlThreadWorkerAvg;
+extern long statcount;		/* are we doing a stats check? */
 extern citthread_key_t ThreadKey;
 
 void ctdl_thread_internal_init_tsd(void);

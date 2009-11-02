@@ -121,6 +121,11 @@ int main(int argc, char **argv)
 			running_as_daemon = 1;
 		}
 
+		/* run a few stats if -s was specified */
+		else if (!strncmp(argv[a], "-s", 2)) {
+			statcount = atoi(&argv[a][2]);
+		}
+
 		/* -x specifies the desired logging level */
 		else if (!strncmp(argv[a], "-x", 2)) {
 			verbosity = atoi(&argv[a][2]);
@@ -155,7 +160,7 @@ int main(int argc, char **argv)
 			CtdlLogPrintf(CTDL_EMERG,	"citserver: usage: "
 					"citserver "
 					"[-lLogFacility] "
-					"[-d] [-D] "
+					"[-d] [-D] [-s]"
 					" [-tTraceFile]"
 					" [-xLogLevel] [-hHomeDir]\n");
 			exit(1);
