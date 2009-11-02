@@ -1448,7 +1448,7 @@ int bbsview_Cleanup(void **ViewSpecific)
 	bbsview_struct *VS;
 
 	VS = (bbsview_struct*)*ViewSpecific;
-	end_burst();
+	wDumpContent(1);
 	FreeStrBuf(&VS->BBViewToolBar);
 	FreeStrBuf(&VS->MessageDropdown);
 	free(VS);
