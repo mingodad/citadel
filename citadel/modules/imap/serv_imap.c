@@ -221,10 +221,8 @@ void imap_add_single_msgid(long msgnum, void *userdata)
 	++IMAP->num_msgs;
 	if (IMAP->num_msgs > IMAP->num_alloc) {
 		IMAP->num_alloc += REALLOC_INCREMENT;
-		IMAP->msgids = realloc(IMAP->msgids,
-					(IMAP->num_alloc * sizeof(long)) );
-		IMAP->flags = realloc(IMAP->flags,
-					(IMAP->num_alloc * sizeof(long)) );
+		IMAP->msgids = realloc(IMAP->msgids, (IMAP->num_alloc * sizeof(long)) );
+		IMAP->flags = realloc(IMAP->flags, (IMAP->num_alloc * sizeof(long)) );
 	}
 	IMAP->msgids[IMAP->num_msgs - 1] = msgnum;
 	IMAP->flags[IMAP->num_msgs - 1] = 0;
@@ -282,8 +280,7 @@ void imap_rescan_msgids(void)
 	int num_recent = 0;
 
 	if (IMAP->selected == 0) {
-		CtdlLogPrintf(CTDL_ERR,
-			"imap_load_msgids() can't run; no room selected\n");
+		CtdlLogPrintf(CTDL_ERR, "imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
 
@@ -367,6 +364,8 @@ void imap_rescan_msgids(void)
 
 	/*
 	 * Now peruse the room for *new* messages only.
+	 * This logic is probably the cause of Bug # 368
+	 * [ http://bugzilla.citadel.org/show_bug.cgi?id=368 ]
 	 */
 	if (num_msgs > 0) {
 		for (j = 0; j < num_msgs; ++j) {
