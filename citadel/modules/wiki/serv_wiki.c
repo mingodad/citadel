@@ -453,6 +453,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	struct CtdlMessage *msg;
 	FILE *fp;
 	struct HistoryEraserCallBackData hecbd;
+	long len = 0L;
 	int rv;
 
 	r = CtdlDoIHavePermissionToReadMessagesInThisRoom();
@@ -550,12 +551,12 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		msg->cm_fields['A'] = strdup("Citadel");
 		fp = fopen(temp, "r");
 		if (fp) {
-			long len;
 			fseek(fp, 0L, SEEK_END);
 			len = ftell(fp);
 			fseek(fp, 0L, SEEK_SET);
 			msg->cm_fields['M'] = malloc(len + 1);
 			rv = fread(msg->cm_fields['M'], len, 1, fp);
+			CtdlLogPrintf(CTDL_DEBUG, "\033[32mdid %d blocks of %d bytes\033[0m\n", rv, len);
 			msg->cm_fields['M'][len] = 0;
 			fclose(fp);
 		}
@@ -566,7 +567,36 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	}
 
 	else if (!strcasecmp(operation, "revert")) {
-		cprintf("%d FIXME not finished yet, check the log to find out wtf\n", ERROR);
+		msg = malloc(sizeof(struct CtdlMessage));
+		memset(msg, 0, sizeof(struct CtdlMessage));
+		msg->cm_magic = CTDLMESSAGE_MAGIC;
+		msg->cm_anon_type = MES_NORMAL;
+		msg->cm_format_type = FMT_RFC822;
+		msg->cm_fields['A'] = strdup(CC->user.fullname);
+		msg->cm_fields['F'] = strdup(CC->cs_inet_email);
+		msg->cm_fields['O'] = strdup(CC->room.QRname);
+		msg->cm_fields['N'] = strdup(NODENAME);
+		msg->cm_fields['E'] = strdup(pagename);
+		/* FIXME do 'T' */
+		fp = fopen(temp, "r");
+		if (fp) {
+			fseek(fp, 0L, SEEK_END);
+			len = ftell(fp);
+			fseek(fp, 0L, SEEK_SET);
+			msg->cm_fields['M'] = malloc(len + 1);
+			rv = fread(msg->cm_fields['M'], len, 1, fp);
+			CtdlLogPrintf(CTDL_DEBUG, "\033[31mdid %d blocks of %d bytes\033[0m\n", rv, len);
+			msg->cm_fields['M'][len] = 0;
+			fclose(fp);
+		}
+		msgnum = CtdlSubmitMsg(msg, NULL, "", 0);	/* Store it back into the room */
+		CtdlFreeMessage(msg);
+		if (msgnum >= 0L) {
+			cprintf("%d %ld\n", CIT_OK, msgnum);		/* And give the client a msgnum */
+		}
+		else {
+			cprintf("%d An internal error has occurred.\n", ERROR+INTERNAL_ERROR);
+		}
 	}
 
 	/* We did all this work for nothing.  Express anguish to the caller. */
