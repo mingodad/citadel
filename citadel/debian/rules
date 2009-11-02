@@ -76,10 +76,10 @@ clean:
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp configure-stamp
 
-	[ ! -f Makefile ] || $(MAKE) distclean
 
 	dh_clean 
 	rm -f config.status config.log
+#[ ! -f Makefile ] || $(MAKE) distclean
 
 install: install-indep install-arch
 install-indep: build-indep
