@@ -813,7 +813,7 @@ InitModule_WEBCIT
 	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
 	if (!access(dir, R_OK)) {
 		lprintf(9, "Using local Stylesheet [%s]\n", dir);
-		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\">"));
+		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\" />"));
 	}
 	else
 		lprintf(9, "No Site-local Stylesheet [%s] installed. \n", dir);
