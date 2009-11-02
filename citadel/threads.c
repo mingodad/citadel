@@ -1238,6 +1238,7 @@ void *simulation_worker (void*arg) {
 	struct CitContext *this;
 
 	this = CreateNewContext();
+	CtdlThreadSleep(1);
 	this->kill_me = 1;
 	this->state = CON_IDLE;
 	dead_session_purge(1);
@@ -1252,7 +1253,7 @@ void *simulation_thread (void *arg)
 {
 	long stats = statcount;
 
-	while(stats) {
+	while(stats && !CtdlThreadCheckStop()) {
 		CtdlThreadCreate("Connection simulation worker", CTDLTHREAD_BIGSTACK, simulation_worker, NULL);
 		stats--;
 	}
@@ -1390,7 +1391,7 @@ void go_threading(void)
 #ifdef THREADS_USESIGNALS
 		if (CtdlThreadGetCount() && CT->state > CTDL_THREAD_STOP_REQ)
 #else
-		if (CtdlThreadGetCount() && !statcount)
+		if (CtdlThreadGetCount())
 #endif
 			CtdlThreadSleep(1);
 	}
