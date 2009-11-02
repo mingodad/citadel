@@ -33,8 +33,9 @@ void str_wiki_index(char *s)
  * Display a specific page from a wiki room
  *
  * "rev" may be set to an empty string to display the current version.
+ * "do_revert" may be set to nonzero to perform a reversion to the specified version.
  */
-void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev)
+void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev, int do_revert)
 {
 	const StrBuf *Mime;
 	long msgnum = (-1L);
@@ -70,7 +71,7 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
 
 	if ((rev != NULL) && (strlen(rev) > 0)) {
 		/* read an older revision */
-		serv_printf("WIKI rev|%s|%s|fetch", pagename, rev);
+		serv_printf("WIKI rev|%s|%s|%s", pagename, rev, (do_revert ? "revert" : "fetch") );
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			msgnum = extract_long(&buf[4], 0);
@@ -109,12 +110,14 @@ void display_wiki_page(void)
 	const StrBuf *roomname;
 	char pagename[128];
 	char rev[128];
+	int do_revert = 0;
 
 	output_headers(1, 1, 1, 0, 0, 0);
 	roomname = sbstr("room");
 	safestrncpy(pagename, bstr("page"), sizeof pagename);
 	safestrncpy(rev, bstr("rev"), sizeof rev);
-	display_wiki_page_backend(roomname, pagename, rev);
+	do_revert = atoi(bstr("revert"));
+	display_wiki_page_backend(roomname, pagename, rev, do_revert);
 	wDumpContent(1);
 }
 
@@ -202,7 +205,7 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 					ChrPtr(rev_uuid),
 					_("(show)")
 				);
-				wc_printf("</td><td><a href=\"wiki_revert?page=%s?rev=%s\">%s</a></td>",
+				wc_printf("<td><a href=\"wiki?page=%s?rev=%s?revert=1\">%s</a></td>",
 					bstr("page"),
 					ChrPtr(rev_uuid),
 					_("(revert)")
@@ -250,7 +253,7 @@ int wiki_Cleanup(void **ViewSpecific)
 {
 	char pagename[5];
 	safestrncpy(pagename, "home", sizeof pagename);
-	display_wiki_page_backend(WC->wc_roomname, pagename, "");
+	display_wiki_page_backend(WC->wc_roomname, pagename, "", 0);
 	wDumpContent(1);
 	return 0;
 }
@@ -270,6 +273,5 @@ InitModule_WIKI
 
 	WebcitAddUrlHandler(HKEY("wiki"), "", 0, display_wiki_page, 0);
 	WebcitAddUrlHandler(HKEY("wiki_history"), "", 0, display_wiki_history, 0);
-	/* WebcitAddUrlHandler(HKEY("wiki_revert"), "", 0, wiki_revert, 0); FIXME implement this */
 	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
 }
