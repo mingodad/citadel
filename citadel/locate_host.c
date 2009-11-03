@@ -26,6 +26,7 @@
 #include "sysdep_decls.h"
 #include "config.h"
 #include "domain.h"
+#include "context.h"
 #include "ctdl_module.h"
 
 #ifdef HAVE_RESOLV_H

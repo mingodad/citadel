@@ -2742,7 +2742,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	struct addresses_to_be_filed *aptr = NULL;
 	char *saved_rfc822_version = NULL;
 	int qualified_for_journaling = 0;
-	struct CitContext *CCC = CC;		/* CachedCitContext - performance boost */
+	CitContext *CCC = CC;		/* CachedCitContext - performance boost */
 	char bounce_to[1024] = "";
 	size_t tmp = 0;
 	int rv = 0;

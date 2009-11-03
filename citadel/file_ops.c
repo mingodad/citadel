@@ -549,7 +549,7 @@ void cmd_clos(char *cmdbuf)
 /*
  * abort an upload
  */
-void abort_upl(struct CitContext *who)
+void abort_upl(CitContext *who)
 {
 	if (who->upload_fp != NULL) {
 		fclose(who->upload_fp);

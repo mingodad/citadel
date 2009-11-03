@@ -53,7 +53,7 @@
  * beginning because the pointer to our place in the list becomes invalid.
  */
 void terminate_idle_sessions(void) {
-	struct CitContext *ccptr;
+	CitContext *ccptr;
 	time_t now;
 	int session_to_kill;
 	int killed = 0;

@@ -120,7 +120,7 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		struct timeval tv;
 		struct tm tim;
 		time_t unixtime;
-		struct CitContext *CCC = CC;
+		CitContext *CCC = CC;
 
 		gettimeofday(&tv, NULL);
 		/* Promote to time_t; types differ on some OSes (like darwin) */
@@ -450,7 +450,7 @@ int client_write(char *buf, int nbytes)
 	int old_buffer_len = 0;
 #endif
 	fd_set wset;
-	t_context *Ctx;
+	CitContext *Ctx;
 	int fdflags;
 
 	Ctx = CC;
@@ -868,11 +868,11 @@ int convert_login(char NameToConvert[]) {
 void *worker_thread(void *arg) {
 	int i;
 	int highest;
-	struct CitContext *ptr;
-	struct CitContext *bind_me = NULL;
+	CitContext *ptr;
+	CitContext *bind_me = NULL;
 	fd_set readfds;
 	int retval = 0;
-	struct CitContext *con= NULL;	/* Temporary context pointer */
+	CitContext *con= NULL;	/* Temporary context pointer */
 	struct ServiceFunctionHook *serviceptr;
 	int ssock;			/* Descriptor for client socket */
 	struct timeval tv;

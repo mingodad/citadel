@@ -18,6 +18,7 @@
  */
 
 #include "serv_extensions.h"
+#include "context.h"
 
 /* Simple linked list structures ... used in a bunch of different places. */
 struct RoomProcList {
@@ -40,8 +41,8 @@ void do_async_loop(void);
 void begin_session(struct CitContext *con);
 void citproto_begin_session(void);
 void GenerateRoomDisplay(char *real_room,
-                        struct CitContext *viewed,
-                        struct CitContext *viewer);
+                        CitContext *viewed,
+                        CitContext *viewer);
 extern int panic_fd;
 char CtdlCheckExpress(void);
 

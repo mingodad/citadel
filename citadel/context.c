@@ -75,9 +75,8 @@
 citthread_key_t MyConKey;				/* TSD key for MyContext() */
 
 
-struct CitContext masterCC;
-struct CitContext *ContextList = NULL;
-// struct CitContext* next_session = NULL;
+CitContext masterCC;
+CitContext *ContextList = NULL;
 
 time_t last_purge = 0;				/* Last dead session purge */
 int num_sessions = 0;				/* Current number of sessions */
@@ -135,11 +134,11 @@ int CtdlIsSingleUser(void)
  *
  * This function is used *VERY* frequently and must be kept small.
  */
-struct CitContext *MyContext(void) {
+CitContext *MyContext(void) {
 
-	register struct CitContext *c;
+	register CitContext *c;
 
-	return ((c = (struct CitContext *) citthread_getspecific(MyConKey),
+	return ((c = (CitContext *) citthread_getspecific(MyConKey),
 		c == NULL) ? &masterCC : c
 	);
 }
@@ -150,7 +149,7 @@ struct CitContext *MyContext(void) {
 /*
  * Terminate a session.
  */
-void RemoveContext (struct CitContext *con)
+void RemoveContext (CitContext *con)
 {
 	if (con==NULL) {
 		CtdlLogPrintf(CTDL_ERR,
@@ -186,24 +185,22 @@ void RemoveContext (struct CitContext *con)
 
 
 
-
 /*
  * Initialize a new context and place it in the list.  The session number
  * used to be the PID (which is why it's called cs_pid), but that was when we
  * had one process per session.  Now we just assign them sequentially, starting
  * at 1 (don't change it to 0 because masterCC uses 0).
  */
-struct CitContext *CreateNewContext(void) {
-	struct CitContext *me;
+CitContext *CreateNewContext(void) {
+	CitContext *me;
 	static int next_pid = 0;
 
-	me = (struct CitContext *) malloc(sizeof(struct CitContext));
+	me = (CitContext *) malloc(sizeof(CitContext));
 	if (me == NULL) {
 		CtdlLogPrintf(CTDL_ALERT, "citserver: can't allocate memory!!\n");
 		return NULL;
 	}
-
-	memset(me, 0, sizeof(struct CitContext));
+	memset(me, 0, sizeof(CitContext));
 	
 	/* Give the contaxt a name. Hopefully makes it easier to track */
 	strcpy (me->user.fullname, "SYS_notauth");
@@ -231,18 +228,18 @@ struct CitContext *CreateNewContext(void) {
 }
 
 
-struct CitContext *CtdlGetContextArray(int *count)
+CitContext *CtdlGetContextArray(int *count)
 {
 	int nContexts, i;
-	struct CitContext *nptr, *cptr;
+	CitContext *nptr, *cptr;
 	
 	nContexts = num_sessions;
-	nptr = malloc(sizeof(struct CitContext) * nContexts);
+	nptr = malloc(sizeof(CitContext) * nContexts);
 	if (!nptr)
 		return NULL;
 	begin_critical_section(S_SESSION_TABLE);
 	for (cptr = ContextList, i=0; cptr != NULL && i < nContexts; cptr = cptr->next, i++)
-		memcpy(&nptr[i], cptr, sizeof (struct CitContext));
+		memcpy(&nptr[i], cptr, sizeof (CitContext));
 	end_critical_section (S_SESSION_TABLE);
 	
 	*count = i;
@@ -255,11 +252,11 @@ struct CitContext *CtdlGetContextArray(int *count)
  * This function fills in a context and its user field correctly
  * Then creates/loads that user
  */
-void CtdlFillSystemContext(struct CitContext *context, char *name)
+void CtdlFillSystemContext(CitContext *context, char *name)
 {
 	char sysname[USERNAME_SIZE];
 
-	memset(context, 0, sizeof(struct CitContext));
+	memset(context, 0, sizeof(CitContext));
 	context->internal_pgm = 1;
 	context->cs_pid = 0;
 	strcpy (sysname, "SYS_");
@@ -285,8 +282,8 @@ void CtdlFillSystemContext(struct CitContext *context, char *name)
  */
 void context_cleanup(void)
 {
-	struct CitContext *ptr = NULL;
-	struct CitContext *rem = NULL;
+	CitContext *ptr = NULL;
+	CitContext *rem = NULL;
 
 	/*
 	 * Clean up the contexts.
@@ -321,7 +318,7 @@ void context_cleanup(void)
  * no longer does anything that is system-dependent.)
  */
 void kill_session(int session_to_kill) {
-	struct CitContext *ptr;
+	CitContext *ptr;
 
 	begin_critical_section(S_SESSION_TABLE);
 	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
@@ -340,8 +337,8 @@ void kill_session(int session_to_kill) {
  * anyway, set "force" to nonzero.
  */
 void dead_session_purge(int force) {
-	struct CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
-	struct CitContext *rem = NULL;	/* list of sessions to be destroyed */
+	CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
+	CitContext *rem = NULL;	/* list of sessions to be destroyed */
 	
 	if (force == 0) {
 		if ( (time(NULL) - last_purge) < 5 ) {
@@ -400,7 +397,7 @@ void dead_session_purge(int force) {
  * function initializes it.
  */
 void InitializeMasterCC(void) {
-	memset(&masterCC, 0, sizeof(struct CitContext));
+	memset(&masterCC, 0, sizeof( CitContext));
 	masterCC.internal_pgm = 1;
 	masterCC.cs_pid = 0;
 }
@@ -411,7 +408,7 @@ void InitializeMasterCC(void) {
 /*
  * Bind a thread to a context.  (It's inline merely to speed things up.)
  */
-INLINE void become_session(struct CitContext *which_con) {
+INLINE void become_session(CitContext *which_con) {
 	citthread_setspecific(MyConKey, (void *)which_con );
 }
 

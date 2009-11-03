@@ -640,8 +640,8 @@ void cmd_emsg(char *mname)
  * user also knows the rooms.
  */
 void GenerateRoomDisplay(char *real_room,
-			struct CitContext *viewed,
-			struct CitContext *viewer) {
+			CitContext *viewed,
+			CitContext *viewer) {
 
 	int ra;
 
@@ -708,7 +708,7 @@ int CtdlAccessCheck(int required_level) {
 void cmd_term(char *cmdbuf)
 {
 	int session_num;
-	struct CitContext *ccptr;
+	CitContext *ccptr;
 	int found_it = 0;
 	int allowed = 0;
 
@@ -901,7 +901,7 @@ void cmd_asyn(char *argbuf)
  * RFC 1725 et al specify a PID to be placed in front of the nonce.
  * Quoth BTX: That would be stupid.
  */
-void generate_nonce(struct CitContext *con) {
+void generate_nonce(CitContext *con) {
 	struct timeval tv;
 
 	memset(con->cs_nonce, NONCE_SIZE, 0);
@@ -917,7 +917,7 @@ void generate_nonce(struct CitContext *con) {
 /*
  * Back-end function for starting a session
  */
-void begin_session(struct CitContext *con)
+void begin_session(CitContext *con)
 {
 	socklen_t len;
 	struct sockaddr_in sin;

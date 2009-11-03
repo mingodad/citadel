@@ -1267,7 +1267,7 @@ void go_threading(void)
 	CtdlThreadNode *last_worker;
 	struct timeval start, now, result;
 	double last_duration;
-	
+
 	/*
 	 * Initialise the thread system
 	 */
@@ -1359,7 +1359,9 @@ void go_threading(void)
 #endif /* NEW_WORKER */
 		{
 			/* Only start new threads if we are not going to overload the machine */
-			if (CtdlThreadGetLoadAvg() < ((double)1.00)) {
+			/* Temporarily set to 10 should be enough to make sure we don't stranglew the server
+			 * at least until we make this a config option */
+			if (CtdlThreadGetLoadAvg() < ((double)10.00)) {
 				for (i=0; i<5 ; i++) {
 #ifdef NEW_WORKER
 					CtdlThreadCreate("Worker Thread (new)",
@@ -1433,7 +1435,7 @@ void select_on_master(void)
         int m, i;
         int retval = 0;
         struct timeval tv;
-        struct CitContext *con;
+        CitContext *con;
         const char *old_name;
 
 
@@ -1519,7 +1521,7 @@ void select_on_master(void)
  * If the select succeeds the thread goes off to handle the client request.
  * If the list of client connections is empty the threads all sleep for one second
  */
-struct CitContext *select_on_client(void)
+CitContext *select_on_client(void)
 {
 	fd_set readfds;
 	struct timeval tv;
@@ -1586,7 +1588,7 @@ struct CitContext *select_on_client(void)
 /*
  * Do the worker threads work when needed
  */
-int execute_session(struct CitContext *bind_me)
+int execute_session(CitContext *bind_me)
 {
 	int force_purge;
 	
@@ -1623,7 +1625,7 @@ int execute_session(struct CitContext *bind_me)
  
 void *new_worker_thread(void *arg)
 {
-	struct CitContext *bind_me;
+	CitContext *bind_me;
 	int force_purge;
 	
 	while (!CtdlThreadCheckStop()) {

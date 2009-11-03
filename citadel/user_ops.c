@@ -51,6 +51,7 @@
 #include "genstamp.h"
 #include "threads.h"
 #include "citadel_ldap.h"
+#include "context.h"
 
 #include "ctdl_module.h"
 
@@ -196,7 +197,7 @@ void lputuser(struct ctdluser *usbuf)
  *
  */
 int rename_user(char *oldname, char *newname) {
-	struct CitContext *cptr;
+	CitContext *cptr;
 	int retcode = RENAMEUSER_OK;
 	struct ctdluser usbuf;
 
@@ -204,6 +205,11 @@ int rename_user(char *oldname, char *newname) {
 	char newnamekey[USERNAME_SIZE];
 
 	/* We cannot rename a user who is currently logged in */
+/* FIXME: This is very broken!!!!
+ * We check that the user is not already logged in because we can't rename them
+ * if they are logged in.
+ * BUT THEN WE LEAVE A HUGE WINDOW FOR THEM TO LOG IN BEFORE WE LOCK TO RENAME THEM!!!!!
+ */
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 		if (!strcasecmp(cptr->user.fullname, oldname)) {
 			return(RENAMEUSER_LOGGED_IN);
@@ -775,7 +781,7 @@ void logged_in_response(void)
  */
 void logout(void)
 {
-	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
+	CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	/*
 	 * If there is a download in progress, abort it.
 	 */
@@ -1022,7 +1028,7 @@ int purge_user(char pname[])
 	char filename[64];
 	struct ctdluser usbuf;
 	char usernamekey[USERNAME_SIZE];
-	struct CitContext *ccptr;
+	CitContext *ccptr;
 	int user_is_logged_in = 0;
 
 	makeuserkey(usernamekey, pname);
@@ -1934,7 +1940,7 @@ void cmd_asup(char *cmdbuf)
  * receive a new mail notification without having to hit the database.
  */
 void BumpNewMailCounter(long which_user) {
-	struct CitContext *ptr;
+	CitContext *ptr;
 
 	begin_critical_section(S_SESSION_TABLE);
 
