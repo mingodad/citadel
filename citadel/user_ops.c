@@ -209,6 +209,7 @@ int rename_user(char *oldname, char *newname) {
  * We check that the user is not already logged in because we can't rename them
  * if they are logged in.
  * BUT THEN WE LEAVE A HUGE WINDOW FOR THEM TO LOG IN BEFORE WE LOCK TO RENAME THEM!!!!!
+ * We are also traversing an un-locked context list which is a very bad thing to do.
  */
 	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
 		if (!strcasecmp(cptr->user.fullname, oldname)) {
