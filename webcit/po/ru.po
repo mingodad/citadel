@@ -2958,7 +2958,7 @@ msgid "...in this room"
 msgstr ""
 
 #: ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
+msgid "...old <em>and</em> new"
 msgstr ""
 
 #: ../static/t/menu_basic_commands.html:12

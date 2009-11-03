@@ -3127,7 +3127,7 @@ msgstr "Hvor kan jeg komme hen?"
 #: ../static/t/menu_basic_commands.html:4
 #, fuzzy
 msgid "...with <em>unread</em> messages"
-msgstr "...med <EM>ikke læste</EM> meddelelser"
+msgstr "...med <em>ikke læste</em> meddelelser"
 
 #: ../static/t/menu_basic_commands.html:5
 msgid "Skip to next room"
@@ -3147,8 +3147,8 @@ msgid "...in this room"
 msgstr "...i dette rum"
 
 #: ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
-msgstr "...gamle <EM>og</EM> nye"
+msgid "...old <em>and</em> new"
+msgstr "...gamle <em>og</em> nye"
 
 #: ../static/t/menu_basic_commands.html:12
 msgid "(post in this room)"

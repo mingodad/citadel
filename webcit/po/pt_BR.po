@@ -3102,8 +3102,8 @@ msgid "...in this room"
 msgstr "...nessa sala"
 
 #: ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
-msgstr "...antigas <EM>e</EM> novas"
+msgid "...old <em>and</em> new"
+msgstr "...antigas <em>e</em> novas"
 
 #: ../static/t/menu_basic_commands.html:12
 msgid "(post in this room)"

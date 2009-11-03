@@ -3072,8 +3072,8 @@ msgid "...in this room"
 msgstr "...in deze ruimte"
 
 #: ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
-msgstr "...oude <EM>en</EM> nieuwe"
+msgid "...old <em>and</em> new"
+msgstr "...oude <em>en</em> nieuwe"
 
 #: ../static/t/menu_basic_commands.html:12
 msgid "(post in this room)"

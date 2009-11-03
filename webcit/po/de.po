@@ -3053,8 +3053,8 @@ msgid "...in this room"
 msgstr "... in diesem Raum"
 
 #: ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
-msgstr "... alte <EM>und</EM> neue"
+msgid "...old <em>and</em> new"
+msgstr "... alte <em>und</em> neue"
 
 #: ../static/t/menu_basic_commands.html:12
 msgid "(post in this room)"

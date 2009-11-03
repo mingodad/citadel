@@ -3121,7 +3121,7 @@ msgstr "¿A dónde se puede ir desde aquí?"
 #: ../static/t/menu_basic_commands.html:4
 #, fuzzy
 msgid "...with <em>unread</em> messages"
-msgstr "...con <EM>mensajes</EM> no leídos"
+msgstr "...con <em>mensajes</em> no leídos"
 
 #: ../static/t/menu_basic_commands.html:5
 msgid "Skip to next room"
@@ -3141,8 +3141,8 @@ msgid "...in this room"
 msgstr "... en esta sala"
 
 #: ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
-msgstr "...viejos <EM>y</EM> nuevos"
+msgid "...old <em>and</em> new"
+msgstr "...viejos <em>y</em> nuevos"
 
 #: ../static/t/menu_basic_commands.html:12
 msgid "(post in this room)"

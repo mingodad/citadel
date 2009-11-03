@@ -2989,7 +2989,7 @@ msgid "...in this room"
 msgstr "...selles toas"
 
 #: ../static/t/menu_basic_commands.html:11
-msgid "...old <EM>and</EM> new"
+msgid "...old <em>and</em> new"
 msgstr "...nii vanu kui uusi"
 
 #: ../static/t/menu_basic_commands.html:12
