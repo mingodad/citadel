@@ -777,7 +777,15 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 			}
 		}
 		if (c == 1) {
-			sprintf(pt,"%%%02X", *pch);
+			char ch;
+			ch = *pch;
+			*pt = '%';
+			*(pt + 1) =  ((ch & 0xF0) > 0x90) ?
+				('A' + ((ch & 0xF0) >> 4) - 0x0A) : 
+				('0' + ((ch & 0xF0) >> 4)) ;
+			*(pt + 2) =  ((ch & 0x0F) > 0x09) ?
+				('A' + (ch & 0x0F) - 0x0A) : 
+				('0' + (ch & 0x0F)) ;
 			pt += 3;
 			OutBuf->BufUsed += 3;
 			pch ++;

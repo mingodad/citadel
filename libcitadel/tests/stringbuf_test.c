@@ -298,6 +298,20 @@ static void TestStrBufRemove_token_NotThere(void)
 	FreeStrBuf(&Test);
 }
 
+
+static void TestStrBufUrlescAppend(void)
+{
+	const char *expect = "%20%2B%23%26%3B%60%27%7C%2A%3F%2D%7E%3C%3E%5E%28%29%5B%5D%7B%7D%2F%24%22%5C";
+	StrBuf *In = NewStrBufPlain(HKEY( " +#&;`'|*?-~<>^()[]{}/$\"\\"));
+	StrBuf *Out = NewStrBuf();
+
+	StrBufUrlescAppend (Out, In, NULL);
+	printf ("%s<\n%s<\n%s\n", ChrPtr(In), ChrPtr(Out), expect);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Out), expect);
+	FreeStrBuf(&In);
+	FreeStrBuf(&Out);
+}
+
 /*
 Some samples from the original...
 	CU_ASSERT_EQUAL(10, 10);
@@ -360,6 +374,8 @@ static void AddStrBufSimlpeTests(void)
 	pGroup = CU_add_suite("TestStrBufRemove_token", NULL, NULL);
 	pTest = CU_add_test(pGroup, "TestStrBufRemove_token_NotThere", TestStrBufRemove_token_NotThere);
 
+	pGroup = CU_add_suite("TestStrBuf_escapers", NULL, NULL);
+	pTest = CU_add_test(pGroup, "TestStrBufUrlescAppend", TestStrBufUrlescAppend);
 }
 
 
