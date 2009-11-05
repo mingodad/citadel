@@ -2028,22 +2028,24 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	if (strcmp(connected_to, node))
 	{
 		snprintf (err_buf, sizeof(err_buf), "Connected to node \"%s\" but I was expecting to connect to node \"%s\".", connected_to, node);
-		CtdlAideMessage(err_buf, "IGNet Networking error.");
+		CtdlLogPrintf(CTDL_ERR, "%s\n", err_buf);
+		CtdlAideMessage(err_buf, "Network error");
 	}
-
-	/* Identify ourselves */
-	snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
-	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
-	if (buf[0] != '2') goto bail;
-
-	/* At this point we are authenticated. */
-	if (!CtdlThreadCheckStop())
-		receive_spool(sock, node);
-	if (!CtdlThreadCheckStop())
-		transmit_spool(sock, node);
+	else {
+		/* We're talking to the correct node.  Now identify ourselves. */
+		snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
+		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+		if (sock_puts(sock, buf) <0) goto bail;
+		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+		if (buf[0] != '2') goto bail;
+	
+		/* At this point we are authenticated. */
+		if (!CtdlThreadCheckStop())
+			receive_spool(sock, node);
+		if (!CtdlThreadCheckStop())
+			transmit_spool(sock, node);
+	}
 
 	sock_puts(sock, "QUIT");
 bail:	sock_close(sock);
