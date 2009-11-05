@@ -339,7 +339,7 @@ void migr_export_messages(void) {
 	char buf[SIZ];
 	long msgnum;
 	int count = 0;
-	t_context *Ctx;
+	CitContext *Ctx;
 
 	Ctx = CC;
 	migr_global_message_list = fopen(migr_tempfilename1, "r");
@@ -368,7 +368,7 @@ void migr_export_messages(void) {
 void migr_do_export(void) {
 	struct config *buf;
 	buf = &config;
-	t_context *Ctx;
+	CitContext *Ctx;
 
 	Ctx = CC;
 	cprintf("%d Exporting all Citadel databases.\n", LISTING_FOLLOWS);

@@ -51,6 +51,9 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <limits.h>
+
+#include "ctdl_module.h"
+
 #include "citadel.h"
 #include "server.h"
 #include "citserver.h"
@@ -62,11 +65,8 @@
 #include "msgbase.h"
 
 
-#include "ctdl_module.h"
 
 
-
-extern struct CitContext *ContextList;
 
 
 /*

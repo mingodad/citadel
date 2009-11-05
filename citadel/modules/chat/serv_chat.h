@@ -1,7 +1,9 @@
 /* $Id$ */
+#include "ctdl_module.h"
+
 void ChatUnloadingTest(void);
 void allwrite (char *cmdbuf, int flag, char *username);
-t_context *find_context (char **unstr);
+CitContext *find_context (char **unstr);
 void do_chat_listing (int allflag);
 void cmd_chat (char *argbuf);
 void cmd_pexp (char *argbuf); /* arg unused */

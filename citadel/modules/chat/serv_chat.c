@@ -230,9 +230,9 @@ void allwrite(char *cmdbuf, int flag, char *username)
 }
 
 
-t_context *find_context(char **unstr)
+CitContext *find_context(char **unstr)
 {
-	t_context *t_cc, *found_cc = NULL;
+	CitContext *t_cc, *found_cc = NULL;
 	char *name, *tptr;
 
 	if ((!*unstr) || (!unstr))

@@ -45,6 +45,8 @@
 #include "msgbase.h"
 #include "threads.h"
 #include "citadel_dirs.h"
+#include "context.h"
+
 /*
  * define macros for module init stuff
  */
