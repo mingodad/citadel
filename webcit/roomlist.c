@@ -31,7 +31,7 @@ int SortFloorsByNameOrder(const void *vfloor1, const void *vfloor2)
 
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP) 
 {
-
+	int Done = 0;
 	const char *Err;
 	StrBuf *Buf;
 	HashList *floors;
@@ -61,19 +61,25 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
 	if (GetServerStatus(Buf, NULL) == 1) 
 	{
-		while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), strcmp(ChrPtr(Buf), "000")) 
-		{
+		while(!Done && StrBuf_ServGetln(Buf))
+			if ( (StrLength(Buf)==3) && 
+			     !strcmp(ChrPtr(Buf), "000")) 
+			{
+				Done = 1;
+			}
+			else
+			{
 			
-			Pos = NULL;
+				Pos = NULL;
 
-			Floor = malloc(sizeof(floor));
-			Floor->ID = StrBufExtractNext_int(Buf, &Pos, '|');
-			Floor->Name = NewStrBufPlain(NULL, StrLength(Buf));
-			StrBufExtract_NextToken(Floor->Name, Buf, &Pos, '|');
-			Floor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
+				Floor = malloc(sizeof(floor));
+				Floor->ID = StrBufExtractNext_int(Buf, &Pos, '|');
+				Floor->Name = NewStrBufPlain(NULL, StrLength(Buf));
+				StrBufExtract_NextToken(Floor->Name, Buf, &Pos, '|');
+				Floor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
 
-			Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
-		}
+				Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
+			}
 	}
 	FreeStrBuf(&Buf);
 	
@@ -139,6 +145,7 @@ void DeleteFolder(void *vFolder)
 
 HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP) 
 {
+	int Done = 0;
 	HashList *rooms;
 	folder *room;
 	StrBuf *Buf;
@@ -154,75 +161,79 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
 	if (GetServerStatus(Buf, NULL) == 1) 
 	{
-		while(StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err), 
-		      strcmp(ChrPtr(Buf), "000")) 
-		{
+		while(!Done && StrBuf_ServGetln(Buf))
+			if ( (StrLength(Buf)==3) && 
+			     !strcmp(ChrPtr(Buf), "000")) 
+			{
+				Done = 1;
+			}
+			else
+			{				
+				Pos = NULL;
+				room = (folder*) malloc (sizeof(folder));
+				memset(room, 0, sizeof(folder));
 
-			Pos = NULL;
-			room = (folder*) malloc (sizeof(folder));
-			memset(room, 0, sizeof(folder));
+				/* Load the base data from the server reply */
+				room->name = NewStrBufPlain(NULL, StrLength(Buf));
+				StrBufExtract_NextToken(room->name, Buf, &Pos, '|');
 
-			/* Load the base data from the server reply */
-			room->name = NewStrBufPlain(NULL, StrLength(Buf));
-			StrBufExtract_NextToken(room->name, Buf, &Pos, '|');
+				room->QRFlags = StrBufExtractNext_long(Buf, &Pos, '|');
+				room->floorid = StrBufExtractNext_int(Buf, &Pos, '|');
+				room->listorder = StrBufExtractNext_long(Buf, &Pos, '|');
+				room->QRFlags2 = StrBufExtractNext_long(Buf, &Pos, '|');
 
-			room->QRFlags = StrBufExtractNext_long(Buf, &Pos, '|');
-			room->floorid = StrBufExtractNext_int(Buf, &Pos, '|');
-			room->listorder = StrBufExtractNext_long(Buf, &Pos, '|');
-			room->QRFlags2 = StrBufExtractNext_long(Buf, &Pos, '|');
-
-			room->RAFlags = StrBufExtractNext_long(Buf, &Pos, '|');
+				room->RAFlags = StrBufExtractNext_long(Buf, &Pos, '|');
 
 /*
- ACWHUT?
-			room->ACL = NewStrBufPlain(NULL, StrLength(Buf));
-			StrBufExtract_NextToken(room->ACL, Buf, &Pos, '|');
+  ACWHUT?
+  room->ACL = NewStrBufPlain(NULL, StrLength(Buf));
+  StrBufExtract_NextToken(room->ACL, Buf, &Pos, '|');
 */
 
-			room->view = StrBufExtractNext_long(Buf, &Pos, '|');
-			room->defview = StrBufExtractNext_long(Buf, &Pos, '|');
-			room->lastchange = StrBufExtractNext_long(Buf, &Pos, '|');
+				room->view = StrBufExtractNext_long(Buf, &Pos, '|');
+				room->defview = StrBufExtractNext_long(Buf, &Pos, '|');
+				room->lastchange = StrBufExtractNext_long(Buf, &Pos, '|');
 
-			/* Evaluate the Server sent data for later use */
-			/* find out, whether we are in a sub-room */
-			room->nRoomNameParts = StrBufNum_tokens(room->name, '\\');
-			if (room->nRoomNameParts > 1)
-			{
-				int i;
-
-				Pos = NULL;
-				room->RoomNameParts = malloc(sizeof(StrBuf*) * (room->nRoomNameParts + 1));
-				memset(room->RoomNameParts, 0, sizeof(StrBuf*) * (room->nRoomNameParts + 1));
-				for (i=0; i < room->nRoomNameParts; i++)
+				/* Evaluate the Server sent data for later use */
+				/* find out, whether we are in a sub-room */
+				room->nRoomNameParts = StrBufNum_tokens(room->name, '\\');
+				if (room->nRoomNameParts > 1)
 				{
-					room->RoomNameParts[i] = NewStrBuf();
-					StrBufExtract_NextToken(room->RoomNameParts[i],
-								room->name, &Pos, '\\');
-				}
-			}
+					int i;
 
-			/* Private mailboxes on the main floor get remapped to the personal folder */
-			if ((room->QRFlags & QR_MAILBOX) && 
-			    (room->floorid == 0))
-			{
-				room->floorid = VIRTUAL_MY_FLOOR;
-				if ((room->nRoomNameParts == 1) && 
-				    (StrLength(room->name) == 4) && 
-				    (strcmp(ChrPtr(room->name), "Mail") == 0))
-				{
-					room->is_inbox = 1;
+					Pos = NULL;
+					room->RoomNameParts = malloc(sizeof(StrBuf*) * (room->nRoomNameParts + 1));
+					memset(room->RoomNameParts, 0, sizeof(StrBuf*) * (room->nRoomNameParts + 1));
+					for (i=0; i < room->nRoomNameParts; i++)
+					{
+						room->RoomNameParts[i] = NewStrBuf();
+						StrBufExtract_NextToken(room->RoomNameParts[i],
+									room->name, &Pos, '\\');
+					}
 				}
 
+				/* Private mailboxes on the main floor get remapped to the personal folder */
+				if ((room->QRFlags & QR_MAILBOX) && 
+				    (room->floorid == 0))
+				{
+					room->floorid = VIRTUAL_MY_FLOOR;
+					if ((room->nRoomNameParts == 1) && 
+					    (StrLength(room->name) == 4) && 
+					    (strcmp(ChrPtr(room->name), "Mail") == 0))
+					{
+						room->is_inbox = 1;
+					}
+
+				}
+				/* get a pointer to the floor we're on: */
+				GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
+				room->Floor = (const floor*) vFloor;
+
+
+
+				/* now we know everything, remember it... */
+				Put(rooms, SKEY(room->name), room, DeleteFolder);
 			}
-			/* get a pointer to the floor we're on: */
-			GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
-			room->Floor = (const floor*) vFloor;
-
-
-
-			/* now we know everything, remember it... */
-			Put(rooms, SKEY(room->name), room, DeleteFolder);
-		}
 	}
 
 	SubTP.Filter.ContextType = CTX_ROOMS;
