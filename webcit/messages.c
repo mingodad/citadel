@@ -63,7 +63,7 @@ int load_message(message_summary *Msg,
 
 	/* begin everythingamundo table */
 	HdrToken = NewStrBuf();
-	while ((StrBuf_ServGetln(Buf)>=0) && !Done) {
+	while (!Done && StrBuf_ServGetln(Buf)>=0) {
 		if ( (StrLength(Buf)==3) && 
 		    !strcmp(ChrPtr(Buf), "000")) 
 		{
