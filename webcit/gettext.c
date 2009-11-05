@@ -436,7 +436,8 @@ SessionNewModule_GETTEXT
 (wcsession *sess)
 {
 #ifdef ENABLE_NLS
-	if (sess->Hdr->HR.browser_language != NULL) {
+	if (!sess->Hdr->HR.Static && 
+	    (sess->Hdr->HR.browser_language != NULL)) {
 		httplang_to_locale(sess->Hdr->HR.browser_language, sess);
 	}
 #endif

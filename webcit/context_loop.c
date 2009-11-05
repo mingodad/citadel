@@ -177,7 +177,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 	return TheSession;
 }
 
-wcsession *CreateSession(int Lockable, wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex)
+wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex)
 {
 	wcsession *TheSession;
 	lprintf(3, "Creating a new session\n");
@@ -203,7 +203,7 @@ wcsession *CreateSession(int Lockable, wcsession **wclist, ParsedHttpHdrs *Hdr, 
 	else {
 		TheSession->wc_session = Hdr->HR.desired_session;
 	}
-
+	Hdr->HR.Static = Static;
 	session_new_modules(TheSession);
 
 	if (Lockable) {
@@ -487,7 +487,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	{
 		wcsession *Bogus;
 
-		Bogus = CreateSession(0, NULL, Hdr, NULL);
+		Bogus = CreateSession(0, 1, NULL, Hdr, NULL);
 
 		do_404();
 
@@ -505,7 +505,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	if ((Hdr->HR.Handler != NULL) && ((Hdr->HR.Handler->Flags & ISSTATIC) != 0))
 	{
 		wcsession *Static;
-		Static = CreateSession(0, NULL, Hdr, NULL);
+		Static = CreateSession(0, 1, NULL, Hdr, NULL);
 		
 		Hdr->HR.Handler->F();
 
@@ -540,7 +540,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	 * Create a new session if we have to
 	 */
 	if (TheSession == NULL) {
-		TheSession = CreateSession(1, &SessionList, Hdr, &SessionListMutex);
+		TheSession = CreateSession(1, 0, &SessionList, Hdr, &SessionListMutex);
 
 		if ((StrLength(Hdr->c_username) == 0) && (!Hdr->HR.DontNeedAuth)) {
 
