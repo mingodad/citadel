@@ -47,7 +47,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 
 	if (WCC->Floors != NULL)
 		return WCC->Floors;
-	WCC->Floors = floors = NewHash(1, NULL);
+	WCC->Floors = floors = NewHash(1, Flathash);
 	Buf = NewStrBuf();
 
 	Floor = malloc(sizeof(floor));
@@ -67,7 +67,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 			Pos = NULL;
 
 			Floor = malloc(sizeof(floor));
-			Floor->ID = StrBufExtractNext_long(Buf, &Pos, '|');
+			Floor->ID = StrBufExtractNext_int(Buf, &Pos, '|');
 			Floor->Name = NewStrBufPlain(NULL, StrLength(Buf));
 			StrBufExtract_NextToken(Floor->Name, Buf, &Pos, '|');
 			Floor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
@@ -167,7 +167,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 			StrBufExtract_NextToken(room->name, Buf, &Pos, '|');
 
 			room->QRFlags = StrBufExtractNext_long(Buf, &Pos, '|');
-			room->floorid = StrBufExtractNext_long(Buf, &Pos, '|');
+			room->floorid = StrBufExtractNext_int(Buf, &Pos, '|');
 			room->listorder = StrBufExtractNext_long(Buf, &Pos, '|');
 			room->QRFlags2 = StrBufExtractNext_long(Buf, &Pos, '|');
 
@@ -318,11 +318,11 @@ int CompareRoomListByFloorRoomPrivFirstRev(const void *room1, const void *room2)
 {
 	folder *r1 = (folder*) GetSearchPayload(room1);
 	folder *r2 = (folder*) GetSearchPayload(room2);
-  
+
 	if ((r1->Floor == NULL)  ||
 	    (r2->Floor == NULL))
 		return 0;
-		
+
 	/**
 	 * are we on the same floor? else sort by floor.
 	 */

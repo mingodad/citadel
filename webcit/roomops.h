@@ -29,7 +29,7 @@ struct roomlisting {
 
 
 typedef struct _floor {
-	long ID;
+	int ID;
 	StrBuf *Name;
 	long NRooms;
 	long AlphaN;
@@ -57,17 +57,17 @@ struct __ofolder {
 typedef struct _folder {
 	/* Data citserver tells us about the room */
 	StrBuf *name;	/* the full name of the room we're talking about */
-	int QRFlags;    /* roomflags */
+	long QRFlags;    /* roomflags */
 	int floorid;      /* which floor is it on */
 
-	int listorder; /* todo */
-	int QRFlags2;    /* Bitbucket NO2 */
+	long listorder; /* todo */
+	long QRFlags2;    /* Bitbucket NO2 */
 
 	long RAFlags;
 
-	int view;       /* whats its default view? inbox/calendar.... */
-	int defview;
-	int lastchange; /* todo... */
+	long view;       /* whats its default view? inbox/calendar.... */
+	long defview;
+	long lastchange; /* todo... */
 
 	/* later evaluated data from the serverdata */
 	long nRoomNameParts;
@@ -80,7 +80,7 @@ typedef struct _folder {
 	int hasnewmsgs;	/* are there unread messages inside */
 	int is_inbox;	/* is it a mailbox?  */
 	int selectable;	/* can we select it ??? */
-	int num_rooms;	/* If this is a floor, how many rooms does it have */
+	long num_rooms;	/* If this is a floor, how many rooms does it have */
 
 }folder;
 
