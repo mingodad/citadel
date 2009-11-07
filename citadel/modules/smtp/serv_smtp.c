@@ -122,6 +122,7 @@ enum {				/* Command states for login authentication */
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 
+citthread_mutex_t smtp_send_lock;
 
 
 /*****************************************************************************/
@@ -1716,14 +1717,24 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 
 
+
 /*
  * smtp_do_queue()
  * 
  * Run through the queue sending out messages.
  */
-void smtp_do_queue(void) {
-	static int doing_queue = 0;
+void *smtp_do_queue(void *arg) {
+/*
+ * Don't need this, the mutex at thread creation handles it
+ *	static int doing_queue = 0;
+*/
 	int num_processed = 0;
+	struct CitContext smtp_queue_CC;
+
+	CtdlLogPrintf(CTDL_DEBUG, "smtp_queue_thread() initializing\n");
+
+	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
+	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC );
 
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -1731,9 +1742,11 @@ void smtp_do_queue(void) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_queue) return;
-	doing_queue = 1;
-
+/*
+ * Don't need this, the mutex at thread creation handles it
+ *	if (doing_queue) return;
+ *	doing_queue = 1;
+ */
 	/* 
 	 * Go ahead and run the queue
 	 */
@@ -1741,13 +1754,43 @@ void smtp_do_queue(void) {
 
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
-		return;
+		return NULL;
 	}
 	num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
 	run_queue_now = 0;
-	doing_queue = 0;
+/*
+ * Don't need this, the mutex at thread creation handles it
+ *	doing_queue = 0;
+ */
+	citthread_mutex_unlock (&smtp_send_lock);
+
+	CtdlLogPrintf(CTDL_DEBUG, "smtp_queue_thread() exiting\n");
+	
+	return NULL;
+
+}
+
+
+
+/*
+ * smtp_queue_thread
+ *
+ * Create a thread to run the SMTP queue
+ *
+ * This was created as a response to a situation seen on Uncensored where a bad remote was holding
+ * up SMTP sending for long times.
+ * Converting to a thread does not fix the problem caused by the bad remote but it does prevent
+ * the SMTP sending from stopping housekeeping and the EVT_TIMER event system which in turn prevented
+ * other things from happening.
+ */
+void smtp_queue_thread (void)
+{
+	if (citthread_mutex_trylock (&smtp_send_lock))
+		CtdlLogPrintf(CTDL_DEBUG, "SMTP queue run already in progress\n");
+	else
+		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, smtp_do_queue, NULL);
 }
 
 
@@ -1832,6 +1875,7 @@ void smtp_cleanup_function(void) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "Performing SMTP cleanup hook\n");
 	free(SMTP);
+	citthread_mutex_destroy (&smtp_send_lock);
 }
 
 
@@ -1884,9 +1928,10 @@ CTDL_MODULE_INIT(smtp)
 					CitadelServiceSMTP_LMTP_UNF);
 
 		smtp_init_spoolout();
-		CtdlRegisterSessionHook(smtp_do_queue, EVT_TIMER);
+		CtdlRegisterSessionHook(smtp_queue_thread, EVT_TIMER);
 		CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
+		citthread_mutex_init (&smtp_send_lock, NULL);
 	}
 	
 	/* return our Subversion id for the Log */
