@@ -442,7 +442,8 @@ TRYAGAIN:
 			
 			if (Msg->AllAttach != NULL) {
 				att = GetNewHashPos(Msg->AllAttach, 0);
-				while (GetNextHashPos(Msg->AllAttach, att, &HKLen, &HashKey, &vMsg)) {
+				while (GetNextHashPos(Msg->AllAttach, att, &HKLen, &HashKey, &vMsg) && 
+				       (vcard_msgnum == -1)) {
 					Att = (wc_mime_attachment*) vMsg;
 					if (
 						(strcasecmp(ChrPtr(Att->ContentType), "text/x-vcard") == 0)
@@ -450,9 +451,9 @@ TRYAGAIN:
 					) {
 						*VCAtt = Att;
 						*VCMsg = Msg;
+						vcard_msgnum = Msg->msgnum;
 						if (Att->Data == NULL) {
 							MimeLoadData(Att);
-							vcard_msgnum = Msg->msgnum;
 						}
 					}
 				}
