@@ -125,6 +125,12 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	/* If there's no message text, obviously this is all b0rken and shouldn't happen at all */
 	if (msg->cm_fields['M'] == NULL) return(0);
 
+	/* Set the message subject identical to the page name */
+	if (msg->cm_fields['U'] != NULL) {
+		free(msg->cm_fields['U']);
+	}
+	msg->cm_fields['U'] = strdup(msg->cm_fields['E']);
+
 	/* See if we can retrieve the previous version. */
 	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CCC->room);
 	if (old_msgnum > 0L) {
