@@ -85,39 +85,30 @@
 <tr><td colspan="3">
 <input type="hidden" name="sig_inserted" value="yes">
 
+
+
+
 <textarea name="msgtext" cols="80" rows="15">
-<?BSTR("msgtext")>
-<?!("COND:BSTR", 1, "fwdquote")>
-&lt;br /&gt;
+<?BSTR("msgtext", "X")><?!("COND:BSTR", 1, "fwdquote")>&lt;br /&gt;
   &lt;div align=center&gt;
     &lt;i&gt;
       <?_("--- forwarded message ---")>
     &lt;/i&gt;
   &lt;/div&gt;
   <?MAIL:QUOTETEXT("fwdquote", "X")>
-&lt;br /&gt;
-<?!("X", 1)>
-<?!("COND:BSTR", 2, "replyquote")>
+&lt;br /&gt;<?!("X", 1)><?!("COND:BSTR", 2, "replyquote")>
 &lt;br /&gt;
     <?MAIL:QUOTETEXT("replyquote", "X")>
-&lt;br /&gt;
-<?!("X", 2)>
-<?!("COND:BSTR", 3, "edit")>
-    <?MAIL:EDITTEXT("edit", "X")>
-<?!("X", 3)>
-<??("COND:BSTR", 4, "edit")>
-  <??("COND:BSTR", 5, "sig_inserted", "yes")>
-    <?!("COND:PREF", 6, "use_sig", "yes")>
-      &lt;br&gt;&lt;p&gt;--&nbsp;&lt;br&gt;
-      <?PREF:VALUE("signature","H")>
+&lt;br /&gt;<?!("X", 2)><?!("COND:BSTR", 3, "edit")><?MAIL:EDITTEXT("edit", "X")><?!("X", 3)>
+<??("COND:BSTR", 4, "edit")><??("COND:BSTR", 5, "sig_inserted", "yes")><?!("COND:PREF", 6, "use_sig", "yes")>
+&lt;br&gt;&lt;p&gt;--&nbsp;&lt;br&gt;<?PREF:VALUE("signature","H")>
       &lt;/p&gt;
-    <?!("X", 6)>
-  <??("X", 5)>
-<?!("X", 4)>
-<?!("COND:ROOM:TYPE_IS", 7, "VIEW_WIKI")>
-<?MAIL:EDITWIKI("X")>
-<?!("X", 7)>
+<?!("X", 6)><??("X", 5)><?!("X", 4)><?!("COND:ROOM:TYPE_IS", 7, "VIEW_WIKI")><?MAIL:EDITWIKI("X")><?!("X", 7)>
 </textarea>
+
+
+
+
 <?=("richedit")>
 
 <div class="attachment buttons">
