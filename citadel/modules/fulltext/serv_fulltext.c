@@ -232,7 +232,7 @@ void ft_index_room(struct ctdlroom *qrbuf, void *data)
 
 
 /*
- * Begin the fulltext indexing process.  (Called as an EVT_TIMER event)
+ * Begin the fulltext indexing process.
  */
 void do_fulltext_indexing(void) {
 	int i;
