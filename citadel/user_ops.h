@@ -35,35 +35,11 @@ int GenerateRelationshipIndex(  char *IndexBuf,
                                 long RoomGen,
                                 long UserID);
 int CtdlAssociateSystemUser(char *screenname, char *loginname);
-int CtdlLoginExistingUser(char *authname, char *username);
-
-/*
- * Values which may be returned by CtdlLoginExistingUser()
- */
-enum {
-	pass_ok,
-	pass_already_logged_in,
-	pass_no_user,
-	pass_internal_error,
-	pass_wrong_password
-};
 
 
 
 
-int CtdlTryPassword(char *password);
 void CtdlSetPassword(char *new_pw);
-
-/*
- * Values which may be returned by CtdlTryPassword()
- */
-enum {
-	login_ok,
-	login_already_logged_in,
-	login_too_many_users,
-	login_not_found
-};
-
 
 int CtdlForgetThisRoom(void);
 
