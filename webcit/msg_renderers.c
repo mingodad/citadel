@@ -1066,8 +1066,9 @@ void tmplput_MIME_LoadData(StrBuf *Target, WCTemplputParams *TP)
 	wc_mime_attachment *mime = (wc_mime_attachment*) CTX;
 	wc_mime_attachment *att;
 	
-	if ( (!strcasecmp(ChrPtr(mime->Disposition), "inline"))||
-	     (!strcasecmp(ChrPtr(mime->Disposition), "attachment")) ) 
+	if (( (!strcasecmp(ChrPtr(mime->Disposition), "inline"))||
+	      (!strcasecmp(ChrPtr(mime->Disposition), "attachment"))) && 
+	    (strcasecmp(ChrPtr(mime->ContentType), "application/ms-tnef")!=0))
 	{
  		
  		int n;
