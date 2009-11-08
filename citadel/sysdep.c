@@ -1009,6 +1009,9 @@ do_select:	force_purge = 0;
 					serviceptr->h_greeting_function();
 					become_session(NULL);
 					con->state = CON_IDLE;
+					retval--;
+					if (retval)
+						CtdlLogPrintf (CTDL_DEBUG, "Select said more than 1 fd to handle but we only handle one\n");
 					goto do_select;
 				}
 			}
