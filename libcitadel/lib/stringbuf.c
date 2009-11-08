@@ -757,10 +757,8 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 {
 	const char *pch, *pche;
 	char *pt, *pte;
-	int b, c, len;
-	const char ec[] = " +#&;`'|*?-~<>^()[]{}/$\"\\";
-	int eclen = sizeof(ec) -1;
-
+	int len;
+	
 	if (((In == NULL) && (PlainIn == NULL)) || (OutBuf == NULL) )
 		return;
 	if (PlainIn != NULL) {
@@ -786,26 +784,24 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 			pte = OutBuf->buf + OutBuf->BufSize - 4; /**< we max append 3 chars at once plus the \0 */
 			pt = OutBuf->buf + OutBuf->BufUsed;
 		}
-		
-		c = 0;
-		for (b = 0; b < eclen; ++b) {
-			if (*pch == ec[b]) {
-				c = 1;
-				b += eclen;
-			}
-		}
-		if (c == 1) {
+
+		if((*pch >= 'a' && *pch <= 'z') ||
+		   (*pch >= '@' && *pch <= 'Z') || /* @ A-Z */
+		   (*pch >= '0' && *pch <= ':') || /* 0-9 : */
+		   (*pch == '!') || (*pch == '_') || 
+		   (*pch == ',') || (*pch == '.') || 
+		   (*pch == ','))
+		{
+			*(pt++) = *(pch++);
+			OutBuf->BufUsed++;
+		}			
+		else {
 			*pt = '%';
-			
 			*(pt + 1) = HexList[(unsigned char)*pch][0];
 			*(pt + 2) = HexList[(unsigned char)*pch][1];
 			pt += 3;
 			OutBuf->BufUsed += 3;
 			pch ++;
-		}
-		else {
-			*(pt++) = *(pch++);
-			OutBuf->BufUsed++;
 		}
 	}
 	*pt = '\0';
