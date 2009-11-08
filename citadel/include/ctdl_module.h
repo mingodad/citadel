@@ -330,4 +330,13 @@ enum {
 char *CtdlGetSysConfig(char *sysconfname);
 void CtdlPutSysConfig(char *sysconfname, char *sysconfdata);
 
+
+
+
+/*
+ * Expose API calls from euidindex.c
+ */
+long CtdlLocateMessageByEuid(char *euid, struct ctdlroom *qrbuf);
+
+
 #endif /* CTDL_MODULE_H */

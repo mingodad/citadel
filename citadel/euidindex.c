@@ -91,6 +91,10 @@ int DoesThisRoomNeedEuidIndexing(struct ctdlroom *qrbuf) {
  * its message number.
  */
 long locate_message_by_euid(char *euid, struct ctdlroom *qrbuf) {
+	return CtdlLocateMessageByEuid (euid, qrbuf);
+}
+
+long CtdlLocateMessageByEuid(char *euid, struct ctdlroom *qrbuf) {
 	char *key;
 	int key_len;
 	struct cdbdata *cdb_euid;
