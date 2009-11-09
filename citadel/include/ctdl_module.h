@@ -321,6 +321,8 @@ enum {
 	login_not_found
 };
 
+void CtdlUserLogout(void);
+
 
 
 

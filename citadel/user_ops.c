@@ -782,6 +782,12 @@ void logged_in_response(void)
  */
 void logout(void)
 {
+	CtdlUserLogout();
+}
+
+
+void CtdlUserLogout(void)
+{
 	CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 	/*
 	 * If there is a download in progress, abort it.

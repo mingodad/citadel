@@ -16,7 +16,8 @@ void rebuild_usersbynumber(void);
 void cmd_user (char *cmdbuf);
 void session_startup (void);
 void logged_in_response(void);
-void logout (void);
+/* logout() is deprecated use CtdlUserLogout() instead */
+void logout (void) __attribute__ ((deprecated));
 int purge_user (char *pname);
 int create_user (char *newusername, int become_user);
 void do_login(void);
