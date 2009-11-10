@@ -612,7 +612,7 @@ void session_loop(void)
 		if (ibstr("nonce") != WCC->nonce) {
 			lprintf(9, "Ignoring request with mismatched nonce.\n");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
-			hprintf("Content-Type: text/plain\r\n\r\n");
+			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
 			wc_printf("Security check failed.\r\n");
 			end_burst();
