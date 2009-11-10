@@ -75,6 +75,16 @@ struct imlog {
 
 struct imlog *imlist = NULL;
 
+
+
+
+/*
+ * FIXME: OMG this module is realy horrible to the rest of the system when accessing contexts.
+ * It pays no regard at all to how long it may have the context list locked for. 
+ * It carries out IO whilst the context list is locked.
+ * I'd recomend disabling this module altogether for the moment.
+ */
+
 /*
  * This function handles the logging of instant messages to disk.
  */
