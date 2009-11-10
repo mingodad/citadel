@@ -3384,14 +3384,13 @@ long StrBuf_Utf8StrLen(StrBuf *Buf)
 	while ((aptr < eptr) && (*aptr != '\0')) {
 		if (Ctdl_IsUtf8SequenceStart(*aptr)){
 			m = Ctdl_GetUtf8SequenceLength(aptr, eptr);
-			while ((aptr < eptr) && (m-- > 0) && (*aptr++ != '\0'))
-				n ++;
+			while ((aptr < eptr) && (*aptr++ != '\0')&& (m-- > 0) );
+			n ++;
 		}
 		else {
 			n++;
 			aptr++;
 		}
-			
 	}
 	return n;
 }
