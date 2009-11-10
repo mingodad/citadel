@@ -218,6 +218,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		history_msg->cm_fields['R'] = strdup(CCC->room.QRname);
 		history_msg->cm_fields['E'] = strdup(history_page);
 		history_msg->cm_fields['U'] = strdup(history_page);
+		history_msg->cm_fields['1'] = strdup("1");		/* suppress full text indexing */
 		snprintf(boundary, sizeof boundary, "Citadel--Multipart--%04x--%08lx", getpid(), time(NULL));
 		history_msg->cm_fields['M'] = malloc(1024);
 		snprintf(history_msg->cm_fields['M'], 1024,

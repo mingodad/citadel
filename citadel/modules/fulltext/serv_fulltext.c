@@ -125,6 +125,19 @@ void ft_index_message(long msgnum, int op) {
 	struct cdbdata *cdb_bucket;
 	char *msgtext;
 	int tok;
+	struct CtdlMessage *msg = NULL;
+
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) {
+		CtdlLogPrintf(CTDL_ERR, "ft_index_message() could not load msg %ld\n", msgnum);
+		return;
+	}
+
+	if (msg->cm_fields['1'] != NULL) {
+		CtdlLogPrintf(CTDL_DEBUG, "ft_index_message() excluded msg %ld\n", msgnum);
+		CtdlFreeMessage(msg);
+		return;
+	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "ft_index_message() %s msg %ld\n",
 		(op ? "adding" : "removing") , msgnum
@@ -136,7 +149,8 @@ void ft_index_message(long msgnum, int op) {
 	CC->redirect_buffer = malloc(SIZ);
 	CC->redirect_len = 0;
 	CC->redirect_alloc = SIZ;
-	CtdlOutputMsg(msgnum, MT_CITADEL, HEADERS_ALL, 0, 1, NULL, 0);
+	CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_ALL, 0, 1, 0);
+	CtdlFreeMessage(msg);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
 	CC->redirect_len = 0;
