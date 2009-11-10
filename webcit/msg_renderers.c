@@ -803,7 +803,7 @@ void tmplput_EDIT_MAIL_BODY(StrBuf *Target, WCTemplputParams *TP)
 	FreeStrBuf(&Buf);
 }
 
-void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)	// FIXME
+void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)
 {
 	const StrBuf *Mime;
         long msgnum;
