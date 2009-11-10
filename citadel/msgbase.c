@@ -309,10 +309,7 @@ void headers_euid(long msgnum, void *userdata)
 		return;
 	}
 
-	cprintf("%ld|%s|\n",
-		msgnum,
-		(msg->cm_fields['U'] ? msg->cm_fields['U'] : "")
-	);
+	cprintf("%ld|%s|\n", msgnum, (msg->cm_fields['E'] ? msg->cm_fields['E'] : ""));
 	CtdlFreeMessage(msg);
 }
 
