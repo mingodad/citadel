@@ -708,35 +708,19 @@ int CtdlAccessCheck(int required_level) {
 void cmd_term(char *cmdbuf)
 {
 	int session_num;
-	CitContext *ccptr;
-	int found_it = 0;
-	int allowed = 0;
+	int terminated = 0;
 
 	session_num = extract_int(cmdbuf, 0);
-	if (session_num == CC->cs_pid) {
+
+	terminated = CtdlTerminateOtherSession(session_num);
+
+	if (terminated < 0) {
 		cprintf("%d You can't kill your own session.\n", ERROR + ILLEGAL_VALUE);
 		return;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Locating session to kill\n");
-	begin_critical_section(S_SESSION_TABLE);
-	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if (session_num == ccptr->cs_pid) {
-			found_it = 1;
-			if ((ccptr->user.usernum == CC->user.usernum)
-			   || (CC->user.axlevel >= 6)) {
-				allowed = 1;
-				ccptr->kill_me = 1;
-			}
-			else {
-				allowed = 0;
-			}
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-
-	if (found_it) {
-		if (allowed) {
+	if (terminated & TERM_FOUND) {
+		if (terminated == TERM_KILLED) {
 			cprintf("%d Session terminated.\n", CIT_OK);
 		}
 		else {

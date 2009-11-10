@@ -150,5 +150,10 @@ void dead_session_purge(int force);
 void BumpNewMailCounter(long) __attribute__ ((deprecated));
 
 void terminate_idle_sessions(void);
-
+int CtdlTerminateOtherSession (int session_num);
+/* bits returned by CtdlTerminateOtherSession */
+#define TERM_FOUND	0x01
+#define TERM_ALLOWED	0x02
+#define TERM_KILLED	0x03
+#define TERM_NOTALLOWED -1
 #endif /* CONTEXT_H */

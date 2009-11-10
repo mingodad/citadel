@@ -129,6 +129,40 @@ int CtdlIsSingleUser(void)
 
 
 
+
+/*
+ * Locate a context by its session number and terminate it if the user is able.
+ * User can NOT terminate their current session.
+ * User CAN terminate any other session that has them logged in.
+ * Aide CAN terminate any session except the current one.
+ */
+int CtdlTerminateOtherSession (int session_num)
+{
+	int ret = 0;
+	CitContext *ccptr;
+
+	if (session_num == CC->cs_pid) {
+		return TERM_NOTALLOWED;
+	}
+
+	CtdlLogPrintf(CTDL_DEBUG, "Locating session to kill\n");
+	begin_critical_section(S_SESSION_TABLE);
+	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
+		if (session_num == ccptr->cs_pid) {
+			ret |= TERM_FOUND;
+			if ((ccptr->user.usernum == CC->user.usernum)
+			   || (CC->user.axlevel >= 6)) {
+				ret |= TERM_ALLOWED;
+				ccptr->kill_me = 1;
+			}
+		}
+	}
+	end_critical_section(S_SESSION_TABLE);
+	return ret;
+}
+
+
+
 /*
  * Check to see if the user who we just sent mail to is logged in.  If yes,
  * bump the 'new mail' counter for their session.  That enables them to
