@@ -137,7 +137,6 @@ int users_not_purged;
 char *users_corrupt_msg = NULL;
 char *users_zero_msg = NULL;
 struct ctdlroomref *rr = NULL;
-extern struct CitContext *ContextList;
 int force_purge_now = 0;			/* set to nonzero to force a run right now */
 
 
