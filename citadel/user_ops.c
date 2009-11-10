@@ -197,25 +197,11 @@ void lputuser(struct ctdluser *usbuf)
  *
  */
 int rename_user(char *oldname, char *newname) {
-	CitContext *cptr;
 	int retcode = RENAMEUSER_OK;
 	struct ctdluser usbuf;
 
 	char oldnamekey[USERNAME_SIZE];
 	char newnamekey[USERNAME_SIZE];
-
-	/* We cannot rename a user who is currently logged in */
-/* FIXME: This is very broken!!!!
- * We check that the user is not already logged in because we can't rename them
- * if they are logged in.
- * BUT THEN WE LEAVE A HUGE WINDOW FOR THEM TO LOG IN BEFORE WE LOCK TO RENAME THEM!!!!!
- * We are also traversing an un-locked context list which is a very bad thing to do.
- */
-	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
-		if (!strcasecmp(cptr->user.fullname, oldname)) {
-			return(RENAMEUSER_LOGGED_IN);
-		}
-	}
 
 	/* Create the database keys... */
 	makeuserkey(oldnamekey, oldname);
@@ -223,6 +209,12 @@ int rename_user(char *oldname, char *newname) {
 
 	/* Lock up and get going */
 	begin_critical_section(S_USERS);
+
+	/* We cannot rename a user who is currently logged in */
+	if (CtdlIsUserLoggedIn(oldname)) {
+		end_critical_section(S_USERS);
+		return RENAMEUSER_LOGGED_IN;
+	}
 
 	if (CtdlGetUser(&usbuf, newname) == 0) {
 		retcode = RENAMEUSER_ALREADY_EXISTS;

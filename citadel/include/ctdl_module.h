@@ -189,6 +189,9 @@ int CtdlWantSingleUser(void);
 int CtdlIsSingleUser(void);
 
 
+int CtdlIsUserLoggedIn (char *user_name);
+
+
 /*
  * CtdlGetCurrentMessageNumber()  -  Obtain the current highest message number in the system
  * This provides a quick way to initialise a variable that might be used to indicate
