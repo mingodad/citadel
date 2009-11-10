@@ -250,11 +250,13 @@ void display_wiki_history(void)
 
 
 /*
- * 
+ * Display a list of all pages in a Wiki room (template callback)
  */
 void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 {
 	const StrBuf *roomname;
+	StrBuf *Buf;
+	int row = 0;
 
 	roomname = sbstr("room");
 	if (StrLength(roomname) > 0) {
@@ -270,14 +272,40 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 		}
 	}
 
+	serv_printf("MSGS ALL|||4");
+	Buf = NewStrBuf();
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		StrBuf *pagetitle = NewStrBuf();
 
-	/* FIXME put something here */
+		wc_printf("<div class=\"fix_scrollbar_bug\">"
+			"<table class=\"wiki_history_background\">"	/* FIXME make its own class */
+		);
+
+		wc_printf("<th>%s</th>", _("Page title"));
+
+		while(StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+			StrBufExtract_token(pagetitle, Buf, 1, '|');
+
+			if (!bmstrcasestr((char *)ChrPtr(pagetitle), "_HISTORY_")) {	/* no history pages */
+				wc_printf("<tr bgcolor=\"%s\">", ((row%2) ? "#FFFFFF" : "#DDDDDD"));
+				wc_printf("<td>");
+				escputs(ChrPtr(pagetitle));		/* FIXME make it linkable */
+				wc_printf("</td>");
+				wc_printf("</tr>\n");
+				++row;
+			}
+		}
+		wc_printf("</table>\n");
+		FreeStrBuf(&pagetitle);
+	}
+
+	FreeStrBuf(&Buf);
 }
 
 
-
 /*
- * 
+ * Display a list of all pages in a Wiki room
  */
 void display_wiki_pagelist(void)
 {
@@ -313,4 +341,5 @@ InitModule_WIKI
 	WebcitAddUrlHandler(HKEY("wiki_history"), "", 0, display_wiki_history, 0);
 	WebcitAddUrlHandler(HKEY("wiki_pagelist"), "", 0, display_wiki_pagelist, 0);
 	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
+	RegisterNamespace("WIKI:DISPLAYPAGELIST", 0, 0, tmplput_display_wiki_pagelist, NULL, CTX_NONE);
 }

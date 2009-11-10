@@ -577,7 +577,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			case VIEW_WIKI:
 				wc_printf(
 					"<li class=\"readallmess\">"
-					"<a href=\"readfwd\">"
+					"<a href=\"wiki?page=home\">"
 					"<img src=\"static/readallmess3_24x.gif\" "
 					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
