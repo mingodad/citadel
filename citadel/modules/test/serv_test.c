@@ -47,7 +47,6 @@
 #include <limits.h>
 #include "ctdl_module.h"
 
-extern struct CitContext *ContextList;
 
 void CleanupTest(void) {
 	CtdlLogPrintf(CTDL_DEBUG, "--- test of adding an unload hook --- \n");
