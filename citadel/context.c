@@ -223,6 +223,44 @@ CitContext *MyContext(void) {
 
 
 /*
+ * Terminate idle sessions.  This function pounds through the session table
+ * comparing the current time to each session's time-of-last-command.  If an
+ * idle session is found it is terminated, then the search restarts at the
+ * beginning because the pointer to our place in the list becomes invalid.
+ */
+void terminate_idle_sessions(void)
+{
+	CitContext *ccptr;
+	time_t now;
+	int session_to_kill;
+	int killed = 0;
+	int longrunners = 0;
+
+	now = time(NULL);
+	session_to_kill = 0;
+	begin_critical_section(S_SESSION_TABLE);
+	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
+		if (  (ccptr!=CC)
+	   	&& (config.c_sleeping > 0)
+	   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
+			if (!ccptr->dont_term) {
+				ccptr->kill_me = 1;
+				++killed;
+			}
+			else 
+				longrunners ++;
+		}
+	}
+	end_critical_section(S_SESSION_TABLE);
+	if (killed > 0)
+		CtdlLogPrintf(CTDL_INFO, "Terminated %d idle sessions\n", killed);
+	if (longrunners > 0)
+		CtdlLogPrintf(CTDL_INFO, "Didn't terminate %d protected idle sessions;\n", killed);
+}
+
+
+
+/*
  * Terminate a session.
  */
 void RemoveContext (CitContext *con)

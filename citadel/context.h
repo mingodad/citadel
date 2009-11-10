@@ -149,5 +149,6 @@ void dead_session_purge(int force);
 /* Deprecated, user CtdlBumpNewMailCounter() instead */
 void BumpNewMailCounter(long) __attribute__ ((deprecated));
 
+void terminate_idle_sessions(void);
 
 #endif /* CONTEXT_H */
