@@ -45,7 +45,6 @@ void CtdlSetPassword(char *new_pw);
 int CtdlForgetThisRoom(void);
 
 void cmd_newu (char *cmdbuf);
-void BumpNewMailCounter(long);
 void start_chkpwd_daemon(void);
 
 

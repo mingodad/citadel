@@ -1934,26 +1934,6 @@ void cmd_asup(char *cmdbuf)
 
 
 /*
- * Check to see if the user who we just sent mail to is logged in.  If yes,
- * bump the 'new mail' counter for their session.  That enables them to
- * receive a new mail notification without having to hit the database.
- */
-void BumpNewMailCounter(long which_user) {
-	CitContext *ptr;
-
-	begin_critical_section(S_SESSION_TABLE);
-
-	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-		if (ptr->user.usernum == which_user) {
-			ptr->newmail += 1;
-		}
-	}
-
-	end_critical_section(S_SESSION_TABLE);
-}
-
-
-/*
  * Count the number of new mail messages the user has
  */
 int NewMailCount()

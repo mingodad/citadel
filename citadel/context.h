@@ -146,6 +146,8 @@ INLINE void become_session(struct CitContext *which_con);
 void InitializeMasterCC(void);
 void dead_session_purge(int force);
 
+/* Deprecated, user CtdlBumpNewMailCounter() instead */
+void BumpNewMailCounter(long) __attribute__ ((deprecated));
 
 
 #endif /* CONTEXT_H */

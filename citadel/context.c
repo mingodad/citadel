@@ -130,6 +130,32 @@ int CtdlIsSingleUser(void)
 
 
 /*
+ * Check to see if the user who we just sent mail to is logged in.  If yes,
+ * bump the 'new mail' counter for their session.  That enables them to
+ * receive a new mail notification without having to hit the database.
+ */
+void BumpNewMailCounter(long which_user) 
+{
+	CtdlBumpNewMailCounter(which_user);
+}
+
+void CtdlBumpNewMailCounter(long which_user)
+{
+	CitContext *ptr;
+
+	begin_critical_section(S_SESSION_TABLE);
+
+	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
+		if (ptr->user.usernum == which_user) {
+			ptr->newmail += 1;
+		}
+	}
+
+	end_critical_section(S_SESSION_TABLE);
+}
+
+
+/*
  * Check to see if a user is currently logged in
  * Take care with what you do as a result of this test.
  * The user may not have been logged in when this function was called BUT
@@ -160,7 +186,7 @@ int CtdlIsUserLoggedIn (char *user_name)
  * The user may not have been logged in when this function was called BUT
  * because of threading the user might be logged in before you test the result.
  */
-int CtdlIsUserLoggedInByNum (int usernum)
+int CtdlIsUserLoggedInByNum (long usernum)
 {
 	CitContext *cptr;
 	int ret = 0;
