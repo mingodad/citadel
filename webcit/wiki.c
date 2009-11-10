@@ -249,6 +249,44 @@ void display_wiki_history(void)
 }
 
 
+/*
+ * 
+ */
+void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
+{
+	const StrBuf *roomname;
+
+	roomname = sbstr("room");
+	if (StrLength(roomname) > 0) {
+		/* If we're not in the correct room, try going there. */
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+			gotoroom(roomname);
+		}
+	
+		/* If we're still not in the correct room, it doesn't exist. */
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
+			return;
+		}
+	}
+
+
+	/* FIXME put something here */
+}
+
+
+
+/*
+ * 
+ */
+void display_wiki_pagelist(void)
+{
+	output_headers(1, 1, 1, 0, 0, 0);
+	do_template("wiki_pagelist", NULL);
+	wDumpContent(1);
+}
+
+
 int wiki_Cleanup(void **ViewSpecific)
 {
 	char pagename[5];
@@ -273,5 +311,6 @@ InitModule_WIKI
 
 	WebcitAddUrlHandler(HKEY("wiki"), "", 0, display_wiki_page, 0);
 	WebcitAddUrlHandler(HKEY("wiki_history"), "", 0, display_wiki_history, 0);
+	WebcitAddUrlHandler(HKEY("wiki_pagelist"), "", 0, display_wiki_pagelist, 0);
 	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
 }
