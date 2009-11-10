@@ -233,7 +233,7 @@ void cmd_euid(char *cmdbuf) {
 	if (CtdlAccessCheck(ac_logged_in)) return;
 
 	extract_token(euid, cmdbuf, 0, '|', sizeof euid);
-	msgnum = locate_message_by_euid(euid, &CC->room);
+	msgnum = CtdlLocateMessageByEuid(euid, &CC->room);
 	if (msgnum <= 0L) {
 		cprintf("%d not found\n", ERROR + MESSAGE_NOT_FOUND);
 		return;

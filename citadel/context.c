@@ -239,7 +239,7 @@ void RemoveContext (CitContext *con)
 	 *       might make references to "CC" assuming it's the right one.
 	 */
 	become_session(con);
-	logout();
+	CtdlUserLogout();
 	PerformSessionHooks(EVT_STOP);
 	become_session(NULL);
 

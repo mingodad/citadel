@@ -1040,7 +1040,7 @@ void cmd_quit(char *argbuf)
 void cmd_lout(char *argbuf)
 {
 	if (CC->logged_in) 
-		logout();
+		CtdlUserLogout();
 	cprintf("%d logged out.\n", CIT_OK);
 }
 

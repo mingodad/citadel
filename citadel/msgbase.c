@@ -2699,7 +2699,7 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 	/*CtdlLogPrintf(CTDL_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
 		msg->cm_fields['E'], CC->room.QRname);*/
 
-	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CC->room);
+	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields['E'], &CC->room);
 	if (old_msgnum > 0L) {
 		CtdlLogPrintf(CTDL_DEBUG, "ReplicationChecks() replacing message %ld\n", old_msgnum);
 		CtdlDeleteMessages(CC->room.QRname, &old_msgnum, 1, "");
@@ -2959,7 +2959,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			msg->cm_fields['W'] = strdup(recipient);
 			CtdlMailboxName(actual_rm, sizeof actual_rm, &userbuf, MAILROOM);
 			CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 0, msg);
-			BumpNewMailCounter(userbuf.usernum);
+			CtdlBumpNewMailCounter(userbuf.usernum);
 			if (!IsEmptyStr(config.c_funambol_host) || !IsEmptyStr(config.c_pager_program)) {
 			/* Generate a instruction message for the Funambol notification
 			 * server, in the same style as the SMTP queue

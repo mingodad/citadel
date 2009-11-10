@@ -612,7 +612,7 @@ int ical_update_my_calendar_with_reply(icalcomponent *cal) {
 	 * Citadel always sets the message EUID to the iCalendar UID of
 	 * the event, this will work.
 	 */
-	msgnum_being_replaced = locate_message_by_euid(uid, &CC->room);
+	msgnum_being_replaced = CtdlLocateMessageByEuid(uid, &CC->room);
 
 	CtdlGetRoom(&CC->room, hold_rm);	/* return to saved room */
 
