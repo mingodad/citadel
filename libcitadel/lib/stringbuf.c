@@ -1226,21 +1226,24 @@ long StrHtmlEcmaEscAppend(StrBuf *Target, const StrBuf *Source, const char *Plai
 			Target->BufUsed += 2;
 		}
 		else {
-			if (IsUtf8Sequence != 0) {
-				IsUtf8Sequence --;
+			if (((unsigned char)*aptr) >= 0x20)
+			{
+				IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
+				
 				*bptr = *aptr;
-				bptr++;
 				Target->BufUsed ++;
-			}
-			else {
-				if (*aptr >= 0x20)
-				{
-					IsUtf8Sequence =  Ctdl_GetUtf8SequenceLength(aptr, eiptr);
-
+				while (IsUtf8Sequence > 1){
+					if(bptr + IsUtf8Sequence >= eptr) {
+						IncreaseBuf(Target, 1, -1);
+						eptr = Target->buf + Target->BufSize - 11; /* our biggest unit to put in...  */
+						bptr = Target->buf + Target->BufUsed - 1;
+					}
+					bptr++; aptr++;
+					IsUtf8Sequence --;
 					*bptr = *aptr;
-					bptr++;
 					Target->BufUsed ++;
 				}
+				bptr++;
 			}
 
 		}
@@ -3345,7 +3348,7 @@ static inline int Ctdl_GetUtf8SequenceLength(const char *CharS, const char *Char
 		test = test << 1;
 		n ++;
 	}
-	if ((n > 6) || ((CharE - CharS) > n))
+	if ((n > 6) || ((CharE - CharS) < n))
 		n = 1;
 	return n;
 }
@@ -3410,8 +3413,8 @@ long StrBuf_Utf8StrCut(StrBuf *Buf, int maxlen)
 	while ((aptr < eptr) && (*aptr != '\0')) {
 		if (Ctdl_IsUtf8SequenceStart(*aptr)){
 			m = Ctdl_GetUtf8SequenceLength(aptr, eptr);
-			while ((m-- > 0) && (*aptr++ != '\0'))
-				n ++;
+			while ((*aptr++ != '\0') && (m-- > 0));
+			n ++;
 		}
 		else {
 			n++;
