@@ -151,6 +151,32 @@ int CtdlIsUserLoggedIn (char *user_name)
 	return ret;
 }
 
+
+
+/*
+ * Check to see if a user is currently logged in.
+ * Basically same as CtdlIsUserLoggedIn() but uses the user number instead.
+ * Take care with what you do as a result of this test.
+ * The user may not have been logged in when this function was called BUT
+ * because of threading the user might be logged in before you test the result.
+ */
+int CtdlIsUserLoggedInByNum (int usernum)
+{
+	CitContext *cptr;
+	int ret = 0;
+
+	begin_critical_section(S_SESSION_TABLE);
+	for (cptr = ContextList; cptr != NULL; cptr = cptr->next) {
+		if (cptr->user.usernum == usernum) {
+			ret = 1;
+		}
+	}
+	end_critical_section(S_SESSION_TABLE);
+	return ret;
+}
+
+
+
 /*
  * Return a pointer to the CitContext structure bound to the thread which
  * called this function.  If there's no such binding (for example, if it's

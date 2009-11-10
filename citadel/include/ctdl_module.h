@@ -190,6 +190,7 @@ int CtdlIsSingleUser(void);
 
 
 int CtdlIsUserLoggedIn (char *user_name);
+int CtdlIsUserLoggedInByNum (int usernum);
 
 
 /*

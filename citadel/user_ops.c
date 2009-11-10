@@ -1027,8 +1027,6 @@ int purge_user(char pname[])
 	char filename[64];
 	struct ctdluser usbuf;
 	char usernamekey[USERNAME_SIZE];
-	CitContext *ccptr;
-	int user_is_logged_in = 0;
 
 	makeuserkey(usernamekey, pname);
 
@@ -1044,21 +1042,23 @@ int purge_user(char pname[])
 	 * set the access level to 0, and let the account get swept up
 	 * during the next purge.
 	 */
-	user_is_logged_in = 0;
-	begin_critical_section(S_SESSION_TABLE);
-	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if (ccptr->user.usernum == usbuf.usernum) {
-			user_is_logged_in = 1;
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-	if (user_is_logged_in == 1) {
+	if (CtdlIsUserLoggedInByNum(usbuf.usernum)) {
 		CtdlLogPrintf(CTDL_WARNING, "User <%s> is logged in; not deleting.\n", pname);
 		usbuf.axlevel = 0;
 		CtdlPutUser(&usbuf);
 		return (1);
 	}
 	CtdlLogPrintf(CTDL_NOTICE, "Deleting user <%s>\n", pname);
+
+/*
+ * FIXME:
+ * This should all be wrapped in a S_USERS mutex.
+ * Without the mutex the user could log in before we get to the next function
+ * That would truly mess things up :-(
+ * I would like to see the S_USERS start before the CtdlIsUserLoggedInByNum() above
+ * and end after the user has been deleted from the database, below.
+ * Question is should we enter the EVT_PURGEUSER whilst S_USERS is active?
+ */
 
 	/* Perform any purge functions registered by server extensions */
 	PerformUserHooks(&usbuf, EVT_PURGEUSER);
