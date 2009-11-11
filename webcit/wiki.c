@@ -272,7 +272,13 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 		}
 	}
 
-	serv_printf("MSGS ALL|||4");
+	if (!IsEmptyStr(bstr("query"))) {
+		serv_printf("MSGS SEARCH|%s||4", bstr("query"));	/* search-reduced list */
+	}
+	else {
+		serv_printf("MSGS ALL|||4");				/* full list */
+	}
+
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
@@ -305,7 +311,7 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 
 
 /*
- * Display a list of all pages in a Wiki room
+ * Display a list of all pages in a Wiki room.  Search requests in a Wiki room also go here.
  */
 void display_wiki_pagelist(void)
 {

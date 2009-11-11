@@ -751,7 +751,7 @@ typedef struct _RoomRenderer{
 /*
  * command loop for reading messages
  *
- * Set oper to "readnew" or "readold" or "readfwd" or "headers" or "readgt"
+ * Set oper to "readnew" or "readold" or "readfwd" or "headers" or "readgt" or "do_search"
  */
 void readloop(long oper)
 {
@@ -769,8 +769,14 @@ void readloop(long oper)
 	SharedMessageStatus Stat;
 	void *ViewSpecific;
 
-	if (havebstr("is_summary") && (1 == (ibstr("is_summary"))))
+	if (havebstr("is_summary") && (1 == (ibstr("is_summary")))) {
 		WCC->wc_view = VIEW_MAILBOX;
+	}
+
+	if (WCC->wc_view == VIEW_WIKI) {
+		display_wiki_pagelist();
+		return;
+	}
 
 	memset(&Stat, 0, sizeof(SharedMessageStatus));
 	Stat.maxload = 10000;
@@ -781,8 +787,9 @@ void readloop(long oper)
 		WCC->wc_view = VIEW_BBS;
 		GetHash(ReadLoopHandler, IKEY(WCC->wc_view), &vViewMsg);
 	}
-	if (vViewMsg == NULL)
-		return;///TODO: print message
+	if (vViewMsg == NULL) {
+		return;			// TODO: print message
+	}
 
 	ViewMsg = (RoomRenderer*) vViewMsg;
 	if (!WCC->is_ajax) {

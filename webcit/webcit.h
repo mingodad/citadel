@@ -793,6 +793,7 @@ long guess_calhourformat(void);
 int get_time_format_cached (void);
 int xtoi(const char *in, size_t len);
 const char *get_selected_language(void);
+void display_wiki_pagelist(void);
 
 #define DATEFMT_FULL 0
 #define DATEFMT_BRIEF 1
