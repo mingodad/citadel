@@ -773,7 +773,7 @@ void readloop(long oper)
 		WCC->wc_view = VIEW_MAILBOX;
 	}
 
-	if (WCC->wc_view == VIEW_WIKI) {
+	if ((oper == do_search) && (WCC->wc_view == VIEW_WIKI)) {
 		display_wiki_pagelist();
 		return;
 	}

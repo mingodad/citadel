@@ -285,7 +285,7 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 		StrBuf *pagetitle = NewStrBuf();
 
 		wc_printf("<div class=\"fix_scrollbar_bug\">"
-			"<table class=\"wiki_history_background\">"	/* FIXME make its own class */
+			"<table class=\"wiki_pagelist_background\">"
 		);
 
 		wc_printf("<th>%s</th>", _("Page title"));
@@ -295,9 +295,11 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 
 			if (!bmstrcasestr((char *)ChrPtr(pagetitle), "_HISTORY_")) {	/* no history pages */
 				wc_printf("<tr bgcolor=\"%s\">", ((row%2) ? "#FFFFFF" : "#DDDDDD"));
-				wc_printf("<td>");
-				escputs(ChrPtr(pagetitle));		/* FIXME make it linkable */
-				wc_printf("</td>");
+				wc_printf("<td><a href=\"wiki?page=");
+				urlescputs(ChrPtr(pagetitle));
+				wc_printf("\">");
+				escputs(ChrPtr(pagetitle));
+				wc_printf("</a></td>");
 				wc_printf("</tr>\n");
 				++row;
 			}
