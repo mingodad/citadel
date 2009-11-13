@@ -1724,52 +1724,25 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
  * Run through the queue sending out messages.
  */
 void *smtp_do_queue(void *arg) {
-/*
- * Don't need this, the mutex at thread creation handles it
- *	static int doing_queue = 0;
-*/
 	int num_processed = 0;
 	struct CitContext smtp_queue_CC;
 
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_queue_thread() initializing\n");
+	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
 
 	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
 	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC );
 
-	/*
-	 * This is a simple concurrency check to make sure only one queue run
-	 * is done at a time.  We could do this with a mutex, but since we
-	 * don't really require extremely fine granularity here, we'll do it
-	 * with a static variable instead.
-	 */
-/*
- * Don't need this, the mutex at thread creation handles it
- *	if (doing_queue) return;
- *	doing_queue = 1;
- */
-	/* 
-	 * Go ahead and run the queue
-	 */
-	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
-
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
-		return NULL;
 	}
-	num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
+	else {
+		num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
+	}
 
-	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
 	run_queue_now = 0;
-/*
- * Don't need this, the mutex at thread creation handles it
- *	doing_queue = 0;
- */
 	citthread_mutex_unlock (&smtp_send_lock);
-
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_queue_thread() exiting\n");
-	
-	return NULL;
-
+	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
+	return(NULL);
 }
 
 
@@ -1787,10 +1760,12 @@ void *smtp_do_queue(void *arg) {
  */
 void smtp_queue_thread (void)
 {
-	if (citthread_mutex_trylock (&smtp_send_lock))
+	if (citthread_mutex_trylock (&smtp_send_lock)) {
 		CtdlLogPrintf(CTDL_DEBUG, "SMTP queue run already in progress\n");
-	else
+	}
+	else {
 		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, smtp_do_queue, NULL);
+	}
 }
 
 
