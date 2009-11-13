@@ -809,7 +809,7 @@ void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)
         long msgnum;
 	StrBuf *Buf;
 
-	msgnum = locate_message_by_uid(BSTR("wikipage"));
+	msgnum = locate_message_by_uid(BSTR("page"));
 	if (msgnum >= 0L) {
 		Buf = NewStrBuf();
 		read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime);

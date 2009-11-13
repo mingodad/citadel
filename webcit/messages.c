@@ -1143,7 +1143,7 @@ void post_message(void)
 		Recp = sbstr("recp");
 		Cc = sbstr("cc");
 		Bcc = sbstr("bcc");
-		Wikipage = sbstr("wikipage");
+		Wikipage = sbstr("page");
 		my_email_addr = sbstr("my_email_addr");
 		
 		CmdBuf = NewStrBufPlain(NULL, 
@@ -1230,8 +1230,8 @@ void post_message(void)
 	/*
 	 *  If we were editing a page in a wiki room, go to that page now.
 	 */
-	else if (havebstr("wikipage")) {
-		snprintf(buf, sizeof buf, "wiki?page=%s", bstr("wikipage"));
+	else if (havebstr("page")) {
+		snprintf(buf, sizeof buf, "wiki?page=%s", bstr("page"));
 		http_redirect(buf);
 	}
 	/*
@@ -1332,7 +1332,7 @@ void display_enter(void)
 		Recp = sbstr("recp");
 		Cc = sbstr("cc");
 		Bcc = sbstr("bcc");
-		Wikipage = sbstr("wikipage");
+		Wikipage = sbstr("page");
 		
 		CmdBuf = NewStrBufPlain(NULL, 
 					sizeof (CMD) + 

@@ -656,7 +656,7 @@ void embed_room_banner(char *got, int navbar_style) {
 				str_wiki_index(buf);
 				wc_printf(
 					"<li class=\"newmess\">"
-					"<a href=\"display_enter?wikipage=%s\">"
+					"<a href=\"display_enter?page=%s\">"
 					"<img  src=\"static/newmess3_24x.gif\" "
 					"alt=\"\" width=\"24\" height=\"24\">"
 					"<span class=\"navbar_link\">"
