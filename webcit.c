@@ -548,6 +548,7 @@ void ParseREST_URL(void)
 	lprintf(1, "parsing rest URL: %s\n", ChrPtr(WCC->Hdr->HR.ReqLine));
 
 	WCC->Directory = NewHash(1, Flathash);
+	WCC->CurrentFloor = NULL;
 
 	Buf = NewStrBuf();
 	while (StrBufExtract_NextToken(Buf, WCC->Hdr->HR.ReqLine, &pCh,  '/') >= 0)

@@ -42,6 +42,95 @@ long locate_message_by_uid(const char *uid) {
 	return(retval);
 }
 
+const folder *GetRESTFolder(int IgnoreFloor)
+{
+	wcsession  *WCC = WC;
+	void *vFolder;
+	const folder *ThisFolder = NULL;
+	HashPos    *itd, *itfl;
+	StrBuf     * Dir;
+	void       *vDir;
+	long        len;
+        const char *Key;
+	int i, j, urlp;
+	int delta;
+
+
+
+	itfl = GetNewHashPos(WCC->Floors, 0);
+
+	while (GetNextHashPos(WCC->Floors, itfl, &len, &Key, &vFolder) && 
+	       (ThisFolder == NULL))
+	{
+		ThisFolder = vFolder;
+		if (!IgnoreFloor && /* so we can handle legacy URLS... */
+		    (ThisFolder->Floor != WCC->CurrentFloor))
+			continue;
+
+
+		if (ThisFolder->nRoomNameParts > 1) 
+		{
+			/*TODO: is that number all right? */
+			if (GetCount(WCC->Directory) - ThisFolder->nRoomNameParts != 2)
+				continue;
+
+			itd  = GetNewHashPos(WCC->Directory, 0);
+			GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir); //TODO: how many to fast forward?
+	/* Fast forward the floorname we checked above... */
+			for (i = 0, j = 1; 
+			     (i > ThisFolder->nRoomNameParts) && (j > urlp); 
+			     i++, j++, GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir))
+			{
+				Dir = (StrBuf*)vDir;
+				if (strcmp(ChrPtr(ThisFolder->RoomNameParts[i]), 
+					   ChrPtr(Dir)) != 0)
+				{
+					DeleteHashPos(&itd);
+					continue;
+				}
+			}
+			DeleteHashPos(&itd);
+			DeleteHashPos(&itfl);
+			return ThisFolder;
+		}
+		else {
+			
+			if (GetCount(WCC->Directory) - ThisFolder->nRoomNameParts != 2)
+				continue;
+			itd  = GetNewHashPos(WCC->Directory, 0);
+			
+			
+			if (!GetNextHashPos(WCC->Directory, 
+					    itd, &len, &Key, &vDir) ||
+			    (vDir == NULL))
+			{
+				DeleteHashPos(&itd);
+				
+				lprintf(0, "5\n");
+				continue;
+			}
+			DeleteHashPos(&itd);
+			Dir = (StrBuf*) vDir;
+			if (strcmp(ChrPtr(ThisFolder->name), 
+					       ChrPtr(Dir))
+			    != 0)
+			{
+				DeleteHashPos(&itd);
+				
+				lprintf(0, "5\n");
+				continue;
+			}
+			
+			DeleteHashPos(&itfl);
+			DeleteHashPos(&itd);
+			
+			return ThisFolder;;
+		}
+	}
+	DeleteHashPos(&itfl);
+	return NULL;
+}
+
 
 
 
@@ -50,6 +139,7 @@ long GotoRestRoom()
 	wcsession *WCC = WC;
 	long Count;
 	long State;
+	folder *ThisFolder;
 
 	State = REST_TOPLEVEL;
 
@@ -65,8 +155,38 @@ long GotoRestRoom()
 	
 	if (Count >= 3) {
 		State |= REST_IN_FLOOR;
-		////GOTO ROOM!
+		ThisFolder = GetRESTFolder(0);
+		WCC->ThisRoom = ThisFolder;
+		if (ThisFolder != NULL)
+		{
+			gotoroom(ThisFolder->name);
+			State |= REST_IN_ROOM;
+			return State;
+		}
+		
 	}
+
+
+	/* 
+	 * More than 3 params and no floor found? 
+	 * -> fall back to old non-floored notation
+	 */
+
+	if ((Count >= 3) && (WCC->CurrentFloor == NULL))
+	{
+		ThisFolder = GetRESTFolder(1);
+		WCC->ThisRoom = ThisFolder;
+		if (ThisFolder != NULL)
+		{
+			gotoroom(ThisFolder->name);
+			State |= REST_IN_ROOM;
+			return State;
+		}
+
+
+	}
+
+
 	if (Count == 3) return State;
 
 	/// TODO: ID detection
@@ -109,7 +229,7 @@ void groupdav_propfind(void)
 	 */
 	State = GotoRestRoom();
 	if (((State & REST_IN_ROOM) == 0) ||
-	    ((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME) == 0) &&
+	    (((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME)) == 0) &&
 	     (WCC->Hdr->HR.dav_depth == 0)))
 	{
 		now = time(NULL);

@@ -121,7 +121,9 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP)
 	if (WCC->Floors == NULL)
 		GetFloorListHash(Target, TP);
 	serv_puts("LKRA");
-	return GetRoomListHash(Target, TP);
+	if (WCC->Rooms == NULL) 
+		WCC->Rooms =  GetRoomListHash(Target, TP);
+	return WCC->Rooms;
 }
 
 void DeleteFolder(void *vFolder)
@@ -739,6 +741,12 @@ void jsonRoomFlr(void)
 }
 
 
+void 
+SessionDetachModule_ROOMLIST
+(wcsession *sess)
+{
+	DeleteHash(&sess->Floors);
+}
 
 void 
 InitModule_ROOMLIST
@@ -754,7 +762,7 @@ InitModule_ROOMLIST
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
-	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
+	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
 	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);

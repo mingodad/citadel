@@ -478,6 +478,7 @@ struct wcsession {
 
 /* current room related */
 	StrBuf *wc_roomname;			/* Room we are currently in */
+	const folder *ThisRoom;                 /* if REST found a room, remember it here. */
 	unsigned room_flags;			/* flags associated with the current room */
 	unsigned room_flags2;			/* flags associated with the current room */
 	int wc_view;				/* view for the current room */
@@ -504,6 +505,7 @@ struct wcsession {
 /* Roomiew control */
 	HashList *Floors;                       /* floors our citserver has hashed numeric for quicker access*/
 	HashList *FloorsByName;                 /* same but hashed by its name */
+	HashList *Rooms;                        /* our directory structure as loaded by LKRA */
 	HashList *summ;                         /* list of messages for mailbox summary view */
   /** Perhaps these should be within a struct instead */
 	long startmsg;                          /* message number to start at */
