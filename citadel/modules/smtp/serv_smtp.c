@@ -122,7 +122,7 @@ enum {				/* Command states for login authentication */
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 
-citthread_mutex_t smtp_send_lock;
+/* citthread_mutex_t smtp_send_lock; */
 
 
 /*****************************************************************************/
@@ -1723,14 +1723,14 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
  * 
  * Run through the queue sending out messages.
  */
-void *smtp_do_queue(void *arg) {
+void *smtp_do_queue(void /* *arg */) {
 	int num_processed = 0;
-	struct CitContext smtp_queue_CC;
+	/* struct CitContext smtp_queue_CC; */
 
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
 
-	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
-	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC );
+	/* CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
+	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC ); */
 
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
@@ -1740,7 +1740,7 @@ void *smtp_do_queue(void *arg) {
 	}
 
 	run_queue_now = 0;
-	citthread_mutex_unlock (&smtp_send_lock);
+	/* citthread_mutex_unlock (&smtp_send_lock); */
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
 	return(NULL);
 }
@@ -1760,11 +1760,20 @@ void *smtp_do_queue(void *arg) {
  */
 void smtp_queue_thread (void)
 {
-	if (citthread_mutex_trylock (&smtp_send_lock)) {
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP queue run already in progress\n");
-	}
-	else {
-		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, smtp_do_queue, NULL);
+	/*
+	 * if (citthread_mutex_trylock (&smtp_send_lock)) {
+	 *	CtdlLogPrintf(CTDL_DEBUG, "SMTP queue run already in progress\n");
+	 * }
+	 * else {
+	 *	CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, smtp_do_queue, NULL);
+	 * }
+	 */
+
+	static int queue_running = 0;	/* The mutex locking isn't working.  Gotta do this. */
+	if (!queue_running) {
+		queue_running = 1;
+		smtp_do_queue();
+		queue_running = 0;
 	}
 }
 
@@ -1850,7 +1859,7 @@ void smtp_cleanup_function(void) {
 
 	CtdlLogPrintf(CTDL_DEBUG, "Performing SMTP cleanup hook\n");
 	free(SMTP);
-	citthread_mutex_destroy (&smtp_send_lock);
+	/* citthread_mutex_destroy (&smtp_send_lock); */
 }
 
 
@@ -1906,7 +1915,7 @@ CTDL_MODULE_INIT(smtp)
 		CtdlRegisterSessionHook(smtp_queue_thread, EVT_TIMER);
 		CtdlRegisterSessionHook(smtp_cleanup_function, EVT_STOP);
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
-		citthread_mutex_init (&smtp_send_lock, NULL);
+		/* citthread_mutex_init (&smtp_send_lock, NULL); */
 	}
 	
 	/* return our Subversion id for the Log */
