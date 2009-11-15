@@ -393,27 +393,30 @@ void get_inet_rec_type(CtdlIPC *ipc, char *buf) {
 	int sel;
 
 	keyopt(" <1> localhost      (Alias for this computer)\n");
-	keyopt(" <2> smart-host     (Forward all outbound mail to this host)\n");
-	keyopt(" <3> directory      (Consult the Global Address Book)\n");
-	keyopt(" <4> SpamAssassin   (Address of SpamAssassin server)\n");
-	keyopt(" <5> RBL            (domain suffix of spam hunting RBL)\n");
-	keyopt(" <6> masq domains   (Domains as which users are allowed to masquerade)\n");
-	keyopt(" <7> ClamAV         (Address of ClamAV clamd server)\n");
+	keyopt(" <2> smart host     (Forward all outbound mail to this host)\n");
+	keyopt(" <3> fallback host  (Send mail to this host only if direct delivery fails)\n");
+	keyopt(" <4> directory      (Consult the Global Address Book)\n");
+	keyopt(" <5> SpamAssassin   (Address of SpamAssassin server)\n");
+	keyopt(" <6> RBL            (domain suffix of spam hunting RBL)\n");
+	keyopt(" <7> masq domains   (Domains as which users are allowed to masquerade)\n");
+	keyopt(" <8> ClamAV         (Address of ClamAV clamd server)\n");
 	sel = intprompt("Which one", 1, 1, 7);
 	switch(sel) {
 		case 1:	strcpy(buf, "localhost");
 			return;
 		case 2:	strcpy(buf, "smarthost");
 			return;
-		case 3:	strcpy(buf, "directory");
+		case 3:	strcpy(buf, "fallbackhost");
 			return;
-		case 4:	strcpy(buf, "spamassassin");
+		case 4:	strcpy(buf, "directory");
 			return;
-		case 5:	strcpy(buf, "rbl");
+		case 5:	strcpy(buf, "spamassassin");
 			return;
-		case 6:	strcpy(buf, "masqdomain");
+		case 6:	strcpy(buf, "rbl");
 			return;
-		case 7:	strcpy(buf, "clamav");
+		case 7:	strcpy(buf, "masqdomain");
+			return;
+		case 8:	strcpy(buf, "clamav");
 			return;
 	}
 }
