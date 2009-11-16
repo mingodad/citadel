@@ -2151,6 +2151,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			IOBuf->buf[IOBuf->BufUsed] = '\0';
 			if (IOBuf->BufUsed + 10 > IOBuf->BufSize) {
 				IncreaseBuf(IOBuf, 1, -1);
+				*Pos = NULL;
 			}
 			
 			pche = IOBuf->buf + IOBuf->BufUsed;
