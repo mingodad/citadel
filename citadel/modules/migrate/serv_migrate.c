@@ -577,7 +577,7 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 }
 
 
-void migr_xml_end(void *data, const char *el, const char **attr) {
+void migr_xml_end(void *data, const char *el) {
 	char *ptr;
 	int msgcount = 0;
 	long msgnum = 0L;
