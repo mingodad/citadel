@@ -252,6 +252,7 @@ AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
 
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 dnl AC_ARG_WITH(with_libdspam, [  --with-libdspam         use libdspam mail spam scanning library])
+AC_ARG_WITH(with_gc, [  --with-gc             use the Boehm-Demers-Weiser garbage collection library])
 
 if test "x$with_db" != xno -a "x$with_db" != xyes -a "$with_db"; then
 	db_dir="$with_db"
@@ -707,6 +708,23 @@ fi
 
 
 
+dnl Checks for the Boehm-Demers-Weiser garbage collection library.
+if test "x$with_gc" != xno ; then
+	AC_CHECK_HEADERS(gc/gc.h,
+		[AC_CHECK_LIB(gc, GC_init,
+			[ok_gc=yes],,
+	)])
+fi
+
+if test "x$ok_gc" = xyes ; then
+	SERVER_LIBS="-lgc $SERVER_LIBS"
+	AC_DEFINE(HAVE_GC, [], [define this if you have Boehm-Demers-Weiser available])
+fi
+
+
+
+
+
 dnl Checks for the libdspam mail spam scanning library.
 dnl if test "x$with_libdspam" != xno ; then
 dnl 	AC_CHECK_HEADERS(dspam/libdspam.h,
@@ -1028,6 +1046,7 @@ fi
 echo ------------------------------------------------------------------------
 echo 'LDAP support:                    ' $ok_ldap
 echo 'Character set conversion support:' $ok_iconv
+echo 'Boehm-Demers-Weiser support:     ' $ok_gc
 dnl echo 'DSpam Scanning support:          ' $ok_libdspam
 echo 
 echo 'Note: if you are not using Linux, make sure you are using GNU make'
