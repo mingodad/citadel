@@ -183,7 +183,9 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 			diffbuf_len += nbytes;
 		} while (nbytes == 1024);
 		diffbuf[diffbuf_len] = 0;
-		pclose(fp);
+		if (pclose(fp) != 0) {
+			CtdlLogPrintf(CTDL_ERR, "pclose() returned an error - diff failed\n");
+		}
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "diff length is %d bytes\n", diffbuf_len);
 
@@ -422,7 +424,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 	CtdlLogPrintf(CTDL_DEBUG, "callback found rev: %s\n", this_rev);
 
 	/* Perform the patch */
-	fp = popen("patch -f -s -p0 >/dev/null 2>/dev/null", "w");
+	fp = popen("patch -f -s -p0 --global-reject-file=/dev/null >/dev/null 2>/dev/null", "w");
 	if (fp) {
 		/* Replace the filenames in the patch with the tempfilename we're actually tweaking */
 		fprintf(fp, "--- %s\n", hecbd->tempfilename);
@@ -442,7 +444,9 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 				}
 			}
 		} while ((*ptr != 0) && ((int)ptr < ((int)content + length)));
-		pclose(fp);
+		if (pclose(fp) != 0) {
+			CtdlLogPrintf(CTDL_ERR, "pclose() returned an error - patch failed\n");
+		}
 	}
 
 	if (!strcasecmp(this_rev, hecbd->stop_when)) {
