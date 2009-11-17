@@ -217,14 +217,14 @@ int network_usetable(struct CtdlMessage *msg) {
 	cdbut = cdb_fetch(CDB_USETABLE, msgid, strlen(msgid));
 	if (cdbut != NULL) {
 		cdb_free(cdbut);
+		CtdlLogPrintf(CTDL_DEBUG, "network_usetable() : we already have %s\n", msgid);
 		return(1);
 	}
 
 	/* If we got to this point, it's unique: add it. */
 	strcpy(ut.ut_msgid, msgid);
 	ut.ut_timestamp = time(NULL);
-	cdb_store(CDB_USETABLE, msgid, strlen(msgid),
-		&ut, sizeof(struct UseTable) );
+	cdb_store(CDB_USETABLE, msgid, strlen(msgid), &ut, sizeof(struct UseTable) );
 	return(0);
 }
 
@@ -1484,6 +1484,8 @@ void network_process_buffer(char *buffer, long size) {
 	unsigned char firstbyte;
 	unsigned char lastbyte;
 
+	CtdlLogPrintf(CTDL_DEBUG, "network_process_buffer() processing %ld bytes\n", size);
+
 	/* Validate just a little bit.  First byte should be FF and * last byte should be 00. */
 	firstbyte = buffer[0];
 	lastbyte = buffer[size-1];
@@ -1582,17 +1584,14 @@ void network_process_buffer(char *buffer, long size) {
 
 	/* Learn network topology from the path */
 	if ((msg->cm_fields['N'] != NULL) && (msg->cm_fields['P'] != NULL)) {
-		network_learn_topology(msg->cm_fields['N'], 
-					msg->cm_fields['P']);
+		network_learn_topology(msg->cm_fields['N'], msg->cm_fields['P']);
 	}
 
 	/* Is the sending node giving us a very persuasive suggestion about
 	 * which room this message should be saved in?  If so, go with that.
 	 */
 	if (msg->cm_fields['C'] != NULL) {
-		safestrncpy(target_room,
-			msg->cm_fields['C'],
-			sizeof target_room);
+		safestrncpy(target_room, msg->cm_fields['C'], sizeof target_room);
 	}
 
 	/* Otherwise, does it have a recipient?  If so, validate it... */
@@ -1604,6 +1603,7 @@ void network_process_buffer(char *buffer, long size) {
 				"Please check the address and try sending the message again.\n");
 			msg = NULL;
 			free_recipients(recp);
+			CtdlLogPrintf(CTDL_DEBUG, "Bouncing message due to invalid recipient address.\n");
 			return;
 		}
 		strcpy(target_room, "");	/* no target room if mail */
@@ -1613,9 +1613,7 @@ void network_process_buffer(char *buffer, long size) {
 	 * it has the O field (Originating room) set.
 	 */
 	else if (msg->cm_fields['O'] != NULL) {
-		safestrncpy(target_room,
-			msg->cm_fields['O'],
-			sizeof target_room);
+		safestrncpy(target_room, msg->cm_fields['O'], sizeof target_room);
 	}
 
 	/* Strip out fields that are only relevant during transit */

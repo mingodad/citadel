@@ -234,7 +234,14 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* Update the history message (regardless of whether it's new or existing) */
 
-	/* First, figure out the boundary string.  We do this even when we generated the
+	/* Remove the Message-ID from the old version of the history message.  This will cause a brand
+	 * new one to be generated, avoiding an uninitentional hit of the loop zapper when we replicate.
+	 */
+	if (history_msg->cm_fields['I'] != NULL) {
+		free(history_msg->cm_fields['I']);
+	}
+
+	/* Figure out the boundary string.  We do this even when we generated the
 	 * boundary string in the above code, just to be safe and consistent.
 	 */
 	strcpy(boundary, "");
