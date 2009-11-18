@@ -58,14 +58,21 @@
 #include "md5.h"
 #include "context.h"
 
+typedef struct rssnetcfg rssnetcfg;
 
 struct rssnetcfg {
-	struct rssnetcfg *next;
+	rssnetcfg *next;
 	char url[256];
 	char *rooms;
+	time_t last_error_when;
+	int ItemType;
 };
 
-struct rss_item {
+#define RSS_UNSET 0
+#define RSS_RSS 1
+#define RSS_ATOM 2
+
+typedef struct _rss_item {
 	char *chardata;
 	int chardata_len;
 	char *roomlist;
@@ -78,15 +85,197 @@ struct rss_item {
 	char channel_title[256];
 	int item_tag_nesting;
 	char *author_or_creator;
-};
+}rss_item;
+
+
+typedef struct _rsscollection {
+	rss_item *Item;
+	rssnetcfg *Cfg;
+	
+
+} rsscollection;
 
 struct rssnetcfg *rnclist = NULL;
 
 
+#if 0
+#ifdef HAVE_ICONV
+#include <iconv.h>
+
+
+/* 
+ * dug this out of the trashcan of the midgard project, lets see if it works for us.
+ * original code by Alexander Bokovoy <bokovoy@avilink.ne> distributed under GPL V2 or later
+ */
+
+/* Returns: 
+ >= 0 - successfull, 0 means conversion doesn't use multibyte sequences 
+   -1 - error during iconv_open call 
+   -2 - error during iconv_close call 
+   ---------------------------------- 
+   This function expects that multibyte encoding in 'charset' wouldn't have 
+   characters with more than 3 bytes. It is not intended to convert UTF-8 because 
+   we'll never receive UTF-8 in our handler (it is handled by Exat itself). 
+*/ 
+static int 
+fill_encoding_info (const char *charset, XML_Encoding * info) 
+{ 
+  iconv_t cd = (iconv_t)(-1); 
+  int flag; 
+	CtdlLogPrintf(0, "RSS: fill encoding info ...\n");
+ 
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN 
+  cd = iconv_open ("UCS-2LE", charset); 
+#else 
+  cd = iconv_open ("UCS-2BE", charset); 
+#endif 
+ 
+  if (cd == (iconv_t) (-1)) 
+    { 
+      return -1; 
+    } 
+ 
+  { 
+    unsigned short out; 
+    unsigned char buf[4]; 
+    unsigned int i0, i1, i2; 
+    int result; 
+    flag = 0; 
+    for (i0 = 0; i0 < 0x100; i0++) 
+      { 
+        buf[0] = i0; 
+        info->map[i0] = 0; 
+        //result = try (cd, buf, 1, &out); 
+        if (result < 0) 
+          { 
+          } 
+        else if (result > 0) 
+          { 
+            info->map[i0] = out; 
+          } 
+        else 
+          { 
+            for (i1 = 0; i1 < 0x100; i1++) 
+              { 
+                buf[1] = i1; 
+                ///result = try (cd, buf, 2, &out); 
+                if (result < 0) 
+                  { 
+                  } 
+                else if (result > 0) 
+                  { 
+                    flag++; 
+                    info->map[i0] = -2; 
+                  } 
+                else 
+                  { 
+                    for (i2 = 0; i2 < 0x100; i2++) 
+                      { 
+                        buf[2] = i2; 
+                        ////result = try (cd, buf, 3, &out); 
+                        if (result < 0) 
+                          { 
+                          } 
+                        else if (result > 0) 
+                          { 
+                            flag++; 
+                            info->map[i0] = -3; 
+                          } 
+                      } 
+                  } 
+              } 
+          } 
+      } 
+  } 
+ 
+  if (iconv_close (cd) < 0) 
+    { 
+      return -2; 
+    } 
+  return flag; 
+} 
+
+static int 
+iconv_convertor (void *data, const char *s) 
+{ 
+  XML_Encoding *info = data; 
+  int res; 
+	CtdlLogPrintf(0, "RSS: Converting ...\n");
+
+  if (s == NULL) 
+    return -1; 
+/*
+  GByteArray *result; 
+  result = g_byte_array_new (); 
+  if (process_block (info->data, (char *) s, strlen (s), result) == 0) 
+    { 
+      res = *(result->data); 
+      g_byte_array_free (result, TRUE); 
+      return res; 
+    } 
+  g_byte_array_free (result, TRUE); 
+*/
+  return -1; 
+} 
+
+static void 
+my_release (void *data) 
+{ 
+  iconv_t cd = (iconv_t) data; 
+  if (iconv_close (cd) != 0) 
+    { 
+/// TODO: uh no.      exit (1); 
+    } 
+} 
+int 
+handle_unknown_xml_encoding (void *encodingHandleData, 
+			     const XML_Char * name, 
+			     XML_Encoding * info) 
+{ 
+  int result; 
+  CtdlLogPrintf(0, "RSS: unknown encoding ...\n");
+  result = fill_encoding_info (name, info); 
+  if (result >= 0) 
+    { 
+      /*  
+        Special case: client asked for reverse conversion, we'll provide him with 
+        iconv descriptor which handles it. Client should release it by himself. 
+      */ 
+      if(encodingHandleData != NULL) 
+            *((iconv_t *)encodingHandleData) = iconv_open(name, "UTF-8"); 
+      /*  
+         Optimization: we do not need conversion function if encoding is one-to-one,  
+         info->map table will be enough  
+       */ 
+      if (result == 0) 
+        { 
+          info->data = NULL; 
+          info->convert = NULL; 
+          info->release = NULL; 
+          return 1; 
+        } 
+      /*  
+         We do need conversion function because this encoding uses multibyte sequences 
+       */ 
+      info->data = (void *) iconv_open ("UTF-8", name); 
+      if ((int)info->data == -1) 
+        return -1; 
+      info->convert = iconv_convertor; 
+      info->release = my_release; 
+      return 1; 
+    } 
+  if(encodingHandleData != NULL)  
+    *(iconv_t *)encodingHandleData = NULL; 
+  return 0; 
+} 
+
+#endif
+#endif
+
 /*
  * Commit a fetched and parsed RSS item to disk
  */
-void rss_save_item(struct rss_item *ri) {
+void rss_save_item(rsscollection *rssc) {
 
 	struct MD5Context md5context;
 	u_char rawdigest[MD5_DIGEST_LEN];
@@ -97,7 +286,9 @@ void rss_save_item(struct rss_item *ri) {
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;
 	int msglen = 0;
+	rss_item *ri = rssc->Item;
 
+	CtdlLogPrintf(0, "RSS: saving item...\n");
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
 	memset(recp, 0, sizeof(struct recptypes));
@@ -240,48 +431,85 @@ time_t rdf_parsedate(char *p)
 	return(time(NULL));
 }
 
+#define RSS_UNSET 0
+#define RSS_RSS 1
+#define RSS_ATOM 2
 
+void flush_rss_ite(rss_item *ri)
+{
+	/* Initialize the feed item data structure */
+	if (ri->guid != NULL) free(ri->guid);
+	ri->guid = NULL;
+	if (ri->title != NULL) free(ri->title);
+	ri->title = NULL;
+	if (ri->link != NULL) free(ri->link);
+	ri->link = NULL;
+	if (ri->author_or_creator != NULL) free(ri->author_or_creator);
+	ri->author_or_creator = NULL;
+	if (ri->description != NULL) free(ri->description);
+	ri->description = NULL;
+	/* Throw away any existing character data */
+	if (ri->chardata_len > 0) {
+		free(ri->chardata);
+		ri->chardata = 0;
+		ri->chardata_len = 0;
+	}
+}
 
 void rss_xml_start(void *data, const char *supplied_el, const char **attr) {
-	struct rss_item *ri = (struct rss_item *) data;
+	rsscollection *rssc = (rsscollection*) data;
+	rss_item *ri = rssc->Item;
 	char el[256];
 	char *sep = NULL;
 
 	/* Axe the namespace, we don't care about it */
+///	CtdlLogPrintf(0, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
 	safestrncpy(el, supplied_el, sizeof el);
 	while (sep = strchr(el, ':'), sep) {
 		strcpy(el, ++sep);
 	}
 
-	if (!strcasecmp(el, "item")) {
-		++ri->item_tag_nesting;
-
-		/* Initialize the feed item data structure */
-		if (ri->guid != NULL) free(ri->guid);
-		ri->guid = NULL;
-		if (ri->title != NULL) free(ri->title);
-		ri->title = NULL;
-		if (ri->link != NULL) free(ri->link);
-		ri->link = NULL;
-		if (ri->author_or_creator != NULL) free(ri->author_or_creator);
-		ri->author_or_creator = NULL;
-		if (ri->description != NULL) free(ri->description);
-		ri->description = NULL;
-
-		/* Throw away any existing character data */
-		if (ri->chardata_len > 0) {
-			free(ri->chardata);
-			ri->chardata = 0;
-			ri->chardata_len = 0;
-		}
+	if (((rssc->Cfg->ItemType == RSS_UNSET) || 
+	     (rssc->Cfg->ItemType == RSS_RSS)) &&
+	    !strcasecmp(el, "item")) 
+	{
+		ri->item_tag_nesting ++ ;
+		rssc->Cfg->ItemType = RSS_RSS;
+		flush_rss_ite(ri);
 	}
+	else if (((rssc->Cfg->ItemType == RSS_UNSET) || 
+		  (rssc->Cfg->ItemType == RSS_ATOM)) &&
+		 !strcasecmp(el, "entry")) { /* Atom feed... */
+		CtdlLogPrintf(0, "RSS: found atom...\n");
+		++ri->item_tag_nesting;
+		rssc->Cfg->ItemType = RSS_ATOM;
+		flush_rss_ite(ri);
+	}
+	else if ((rssc->Cfg->ItemType == RSS_ATOM) &&
+		 !strcasecmp(el, "link"))
+	{
+		int found ;
+		int i;
 
+		for (found = 0, i = 0;!found && attr[i] != NULL; i+=2)
+		{
+			if (!strcmp(attr[i], "href"))
+			{
+				found = 1;
+				if (ri->link != NULL)
+					free(ri->link);
+				ri->link = strdup(attr[i+1]);
+				striplt(ri->link);
+			}
+		}
 
+	}
 
 }
 
 void rss_xml_end(void *data, const char *supplied_el) {
-	struct rss_item *ri = (struct rss_item *) data;
+	rsscollection *rssc = (rsscollection*) data;
+	rss_item *ri = rssc->Item;
 	char el[256];
 	char *sep = NULL;
 
@@ -290,53 +518,86 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	while (sep = strchr(el, ':'), sep) {
 		strcpy(el, ++sep);
 	}
+//	CtdlLogPrintf(0, "RSS: END %s...\n", el);
 
 	if ( (!strcasecmp(el, "title")) && (ri->item_tag_nesting == 0) && (ri->chardata != NULL) ) {
 		safestrncpy(ri->channel_title, ri->chardata, sizeof ri->channel_title);
 		striplt(ri->channel_title);
 	}
 
-	if ( (!strcasecmp(el, "guid")) && (ri->chardata != NULL) ) {
+	if ( (rssc->Cfg->ItemType == RSS_RSS) && 
+	     (!strcasecmp(el, "guid")) && (ri->chardata != NULL) ) {
+		if (ri->guid != NULL) free(ri->guid);
+		striplt(ri->chardata);
+		ri->guid = strdup(ri->chardata);
+	}
+	else if ( (rssc->Cfg->ItemType == RSS_ATOM) && 
+		  (!strcasecmp(el, "id")) && (ri->chardata != NULL) ) {
 		if (ri->guid != NULL) free(ri->guid);
 		striplt(ri->chardata);
 		ri->guid = strdup(ri->chardata);
 	}
 
-	if ( (!strcasecmp(el, "title")) && (ri->chardata != NULL) ) {
+
+	else if ( (!strcasecmp(el, "title")) && (ri->chardata != NULL) ) {
 		if (ri->title != NULL) free(ri->title);
 		striplt(ri->chardata);
 		ri->title = strdup(ri->chardata);
 	}
 
-	if ( (!strcasecmp(el, "link")) && (ri->chardata != NULL) ) {
-		if (ri->link != NULL) free(ri->link);
-		striplt(ri->chardata);
-		ri->link = strdup(ri->chardata);
-	}
-
-	if ( (!strcasecmp(el, "description")) && (ri->chardata != NULL) ) {
+	else if ((rssc->Cfg->ItemType == RSS_ATOM) && 
+		 (!strcasecmp(el, "content")) && 
+		 (ri->chardata != NULL) ) {
 		if (ri->description != NULL) free(ri->description);
 		ri->description = strdup(ri->chardata);
 	}
-
-	if ( ((!strcasecmp(el, "pubdate")) || (!strcasecmp(el, "date"))) && (ri->chardata != NULL) ) {
+	else if ( (rssc->Cfg->ItemType == RSS_RSS) && 
+		  (!strcasecmp(el, "description")) &&
+		  (ri->chardata != NULL) ) {
+		if (ri->description != NULL) free(ri->description);
+		ri->description = strdup(ri->chardata);
+	}
+		  
+	else if ((rssc->Cfg->ItemType == RSS_ATOM) && 
+		 ((!strcasecmp(el, "published")) ||
+		  (!strcasecmp(el, "updated"))) &&
+		 (ri->chardata != NULL) ) {
 		striplt(ri->chardata);
 		ri->pubdate = rdf_parsedate(ri->chardata);
 	}
 
-	if ( ((!strcasecmp(el, "author")) || (!strcasecmp(el, "creator"))) && (ri->chardata != NULL) ) {
+
+	else if ((rssc->Cfg->ItemType == RSS_RSS) && 
+		 ((!strcasecmp(el, "pubdate")) || 
+		  (!strcasecmp(el, "date"))) && 
+		 (ri->chardata != NULL) ) {
+		striplt(ri->chardata);
+		ri->pubdate = rdf_parsedate(ri->chardata);
+	}
+
+	else if ((rssc->Cfg->ItemType == RSS_ATOM) && 
+		 ((!strcasecmp(el, "author")) || 
+		  (!strcasecmp(el, "creator"))) && 
+		 (ri->chardata != NULL) ) {
 		if (ri->author_or_creator != NULL) free(ri->author_or_creator);
 		striplt(ri->chardata);
 		ri->author_or_creator = strdup(ri->chardata);
 	}
 
-	if (!strcasecmp(el, "item")) {
+	else if ((rssc->Cfg->ItemType == RSS_RSS) && 
+		 !strcasecmp(el, "item")) {
 		--ri->item_tag_nesting;
-		rss_save_item(ri);
+		rss_save_item(rssc);
+	}
+	else if ((rssc->Cfg->ItemType == RSS_ATOM) && 
+		 !strcasecmp(el, "entry")) {
+		--ri->item_tag_nesting;
+		rss_save_item(rssc);
 	}
 
-	if ( (!strcasecmp(el, "rss")) || (!strcasecmp(el, "rdf")) ) {
-		CtdlLogPrintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
+	else if ( (!strcasecmp(el, "rss")) || 
+		  (!strcasecmp(el, "rdf")) ) {
+//		CtdlLogPrintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
 		ri->done_parsing = 1;
 	}
 
@@ -353,7 +614,8 @@ void rss_xml_end(void *data, const char *supplied_el) {
  * This callback stores up the data which appears in between tags.
  */
 void rss_xml_chardata(void *data, const XML_Char *s, int len) {
-	struct rss_item *ri = (struct rss_item *) data;
+	rsscollection *rssc = (rsscollection*) data;
+	rss_item *ri = rssc->Item;
 	int old_len;
 	int new_len;
 	char *new_buffer;
@@ -385,15 +647,19 @@ size_t rss_libcurl_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 /*
  * Begin a feed parse
  */
-void rss_do_fetching(char *url, char *rooms) {
-	struct rss_item ri;
+void rss_do_fetching(rssnetcfg *Cfg) {
+	rsscollection rssc;
+	rss_item ri;
 	XML_Parser xp;
 
 	CURL *curl;
 	CURLcode res;
 	char errmsg[1024] = "";
 
-	CtdlLogPrintf(CTDL_DEBUG, "Fetching RSS feed <%s>\n", url);
+	rssc.Item = &ri;
+	rssc.Cfg = Cfg;
+
+	CtdlLogPrintf(CTDL_DEBUG, "Fetching RSS feed <%s>\n", Cfg->url);
 
 	curl = curl_easy_init();
 	if (!curl) {
@@ -408,7 +674,7 @@ void rss_do_fetching(char *url, char *rooms) {
 		return;
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_URL, Cfg->url);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, xp);
@@ -425,12 +691,18 @@ void rss_do_fetching(char *url, char *rooms) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
-	memset(&ri, 0, sizeof(struct rss_item));
-	ri.roomlist = rooms;
+	memset(&ri, 0, sizeof(rss_item));
+	ri.roomlist = Cfg->rooms;
+#ifdef HAVE_ICONV
+#if 0
+	XML_SetUnknownEncodingHandler(xp,
+				      handle_unknown_xml_encoding,
+				      NULL);
+#endif
+#endif
 	XML_SetElementHandler(xp, rss_xml_start, rss_xml_end);
 	XML_SetCharacterDataHandler(xp, rss_xml_chardata);
-	XML_SetUserData(xp, &ri);
-
+	XML_SetUserData(xp, &rssc);
 	if (CtdlThreadCheckStop())
 	{
 		XML_ParserFree(xp);
@@ -449,29 +721,19 @@ void rss_do_fetching(char *url, char *rooms) {
 	if (CtdlThreadCheckStop())
 		goto shutdown ;
 
-	if (ri.done_parsing == 0) XML_Parse(xp, "", 0, 1);
+	if (ri.done_parsing == 0)
+		XML_Parse(xp, "", 0, 1);
 
+
+	CtdlLogPrintf(CTDL_ALERT, "RSS: XML Status [%s] \n", 
+		      XML_ErrorString(
+			      XML_GetErrorCode(xp)));
 
 shutdown:
 	curl_easy_cleanup(curl);
 	XML_ParserFree(xp);
 
-	/* Free the feed item data structure */
-	if (ri.guid != NULL) free(ri.guid);
-	ri.guid = NULL;
-	if (ri.title != NULL) free(ri.title);
-	ri.title = NULL;
-	if (ri.link != NULL) free(ri.link);
-	ri.link = NULL;
-	if (ri.author_or_creator != NULL) free(ri.author_or_creator);
-	ri.author_or_creator = NULL;
-	if (ri.description != NULL) free(ri.description);
-	ri.description = NULL;
-	if (ri.chardata_len > 0) {
-		free(ri.chardata);
-		ri.chardata = 0;
-		ri.chardata_len = 0;
-	}
+	flush_rss_ite(&ri);
 }
 
 
@@ -485,8 +747,8 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	char instr[32];
 	FILE *fp;
 	char feedurl[256];
-	struct rssnetcfg *rncptr = NULL;
-	struct rssnetcfg *use_this_rncptr = NULL;
+	rssnetcfg *rncptr = NULL;
+	rssnetcfg *use_this_rncptr = NULL;
 	int len = 0;
 	char *ptr = NULL;
 
@@ -522,7 +784,8 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 
 			/* Otherwise create a new client request */
 			if (use_this_rncptr == NULL) {
-				rncptr = (struct rssnetcfg *) malloc(sizeof(struct rssnetcfg));
+				rncptr = (rssnetcfg *) malloc(sizeof(rssnetcfg));
+				rncptr->ItemType = RSS_UNSET;
 				if (rncptr != NULL) {
 					rncptr->next = rnclist;
 					safestrncpy(rncptr->url, feedurl, sizeof rncptr->url);
@@ -561,8 +824,8 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 void *rssclient_scan(void *args) {
 	static time_t last_run = 0L;
 	static int doing_rssclient = 0;
-	struct rssnetcfg *rptr = NULL;
-	struct CitContext rssclientCC;
+	rssnetcfg *rptr = NULL;
+	CitContext rssclientCC;
 
 	/* Give this thread its own private CitContext */
 	CtdlFillSystemContext(&rssclientCC, "rssclient");
@@ -583,7 +846,7 @@ void *rssclient_scan(void *args) {
 	CtdlForEachRoom(rssclient_scan_room, NULL);
 
 	while (rnclist != NULL && !CtdlThreadCheckStop()) {
-		rss_do_fetching(rnclist->url, rnclist->rooms);
+		rss_do_fetching(rnclist);
 		rptr = rnclist;
 		rnclist = rnclist->next;
 		if (rptr->rooms != NULL) free(rptr->rooms);
