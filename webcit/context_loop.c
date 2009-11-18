@@ -411,9 +411,10 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 		StrBufExtract_token(HeaderName, Line, 0, ':');
 
 		pchs = ChrPtr(Line);
+		pche = pchs + StrLength(Line);
 		pch = pchs + StrLength(HeaderName) + 1;
 		pche = pchs + StrLength(Line);
-		while (isspace(*pch) && (pch < pche))
+		while ((pch < pche) && isspace(*pch))
 			pch ++;
 		StrBufCutLeft(Line, pch - pchs);
 
