@@ -242,6 +242,7 @@ int yesno(char *question, int default_value)
 void important_message(char *title, char *msgtext)
 {
 	char buf[SIZ];
+	int rv;
 
 	switch (setup_type) {
 
@@ -256,7 +257,7 @@ void important_message(char *title, char *msgtext)
 		sprintf(buf, "exec %s --msgbox '%s' 19 72",
 			getenv("CTDL_DIALOG"),
 			msgtext);
-		system(buf);
+		rv = system(buf);
 		break;
 	case UI_SILENT:
 		fprintf(stderr, "%s\n", msgtext);
@@ -381,6 +382,7 @@ void delete_inittab_entry(void)
 	char buf[1024];
 	char outfilename[32];
 	int changes_made = 0;
+	int rv;
 
 	/* Determine the fully qualified path name of citserver */
 	snprintf(looking_for, 
@@ -418,10 +420,10 @@ void delete_inittab_entry(void)
 
 	while (fgets(buf, sizeof buf, infp) != NULL) {
 		if (strstr(buf, looking_for) != NULL) {
-			fwrite("#", 1, 1, outfp);
+			rv = fwrite("#", 1, 1, outfp);
 			++changes_made;
 		}
-		fwrite(buf, strlen(buf), 1, outfp);
+		rv = fwrite(buf, strlen(buf), 1, outfp);
 	}
 
 	fclose(infp);
@@ -429,8 +431,8 @@ void delete_inittab_entry(void)
 
 	if (changes_made) {
 		sprintf(buf, "/bin/mv -f %s /etc/inittab 2>/dev/null", outfilename);
-		system(buf);
-		system("/sbin/init q 2>/dev/null");
+		rv = system(buf);
+		rv = system("/sbin/init q 2>/dev/null");
 	}
 	else {
 		unlink(outfilename);
@@ -448,6 +450,7 @@ void install_init_scripts(void)
 	FILE *fp;
 	char *initfile = "/etc/init.d/citadel";
 	char command[SIZ];
+	int rv;
 
 	if ((stat("/etc/init.d/", &etcinitd) == -1) && 
 	    (errno == ENOENT))
@@ -536,11 +539,11 @@ void install_init_scripts(void)
 	chmod(initfile, 0755);
 
 	/* Set up the run levels. */
-	system("/bin/rm -f /etc/rc?.d/[SK]??citadel 2>/dev/null");
+	rv = system("/bin/rm -f /etc/rc?.d/[SK]??citadel 2>/dev/null");
 	snprintf(command, sizeof(command), "for x in 2 3 4 5 ; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/S79citadel ; done 2>/dev/null", initfile);
-	system(command);
+	rv = system(command);
 	snprintf(command, sizeof(command),"for x in 0 6 S; do [ -d /etc/rc$x.d ] && ln -s %s /etc/rc$x.d/K30citadel ; done 2>/dev/null", initfile);
-	system(command);
+	rv = system(command);
 
 }
 
@@ -558,6 +561,7 @@ void check_xinetd_entry(void) {
 	FILE *fp;
 	char buf[SIZ];
 	int already_citadel = 0;
+	int rv;
 
 	fp = fopen(filename, "r+");
 	if (fp == NULL) return;		/* Not there.  Oh well... */
@@ -603,7 +607,7 @@ void check_xinetd_entry(void) {
 	fclose(fp);
 
 	/* Now try to restart the service */
-	system("/etc/init.d/xinetd restart >/dev/null 2>&1");
+	rv = system("/etc/init.d/xinetd restart >/dev/null 2>&1");
 }
 
 
@@ -615,6 +619,7 @@ void disable_other_mta(char *mta) {
 	char buf[SIZ];
 	FILE *fp;
 	int lines = 0;
+	int rv;
 
 	sprintf(buf, "/bin/ls -l /etc/rc*.d/S*%s 2>/dev/null; "
 		"/bin/ls -l /etc/rc.d/rc*.d/S*%s 2>/dev/null",
@@ -647,9 +652,9 @@ void disable_other_mta(char *mta) {
 	
 
 	sprintf(buf, "for x in /etc/rc*.d/S*%s; do mv $x `echo $x |sed s/S/K/g`; done >/dev/null 2>&1", mta);
-	system(buf);
+	rv = system(buf);
 	sprintf(buf, "/etc/init.d/%s stop >/dev/null 2>&1", mta);
-	system(buf);
+	rv = system(buf);
 }
 
 
@@ -704,6 +709,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 	char setupmsg[SIZ];
 	char dialog_result[PATH_MAX];
 	FILE *fp = NULL;
+	int rv;
 
 	strcpy(setupmsg, "");
 
@@ -727,7 +733,7 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 			prompt_text,
 			str,
 			dialog_result);
-		system(buf);
+		rv = system(buf);
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
 			if (fgets(str, sizeof buf, fp)) {
@@ -973,6 +979,7 @@ void write_config_to_disk(void)
 {
 	FILE *fp;
 	int fd;
+	int rv;
 
 	if ((fd = creat(file_citadel_config, S_IRUSR | S_IWUSR)) == -1) {
 		display_error("setup: cannot open citadel.config");
@@ -983,7 +990,7 @@ void write_config_to_disk(void)
 		display_error("setup: cannot open citadel.config");
 		cleanup(1);
 	}
-	fwrite((char *) &config, sizeof(struct config), 1, fp);
+	rv = fwrite((char *) &config, sizeof(struct config), 1, fp);
 	fclose(fp);
 }
 
@@ -1021,6 +1028,7 @@ void fixnss(void) {
 	int changed = 0;
 	int file_changed = 0;
 	char new_filename[64];
+	int rv;
 
 	fp_read = fopen(NSSCONF, "r");
 	if (fp_read == NULL) {
@@ -1086,7 +1094,7 @@ void fixnss(void) {
 
 	if (yesno(question, 1)) {
 		sprintf(buf, "/bin/mv -f %s %s", new_filename, NSSCONF);
-		system(buf);
+		rv = system(buf);
 		chmod(NSSCONF, 0644);
 	}
 	unlink(new_filename);
