@@ -1438,8 +1438,8 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 	/* Find desired @parameter */
 	end = Source->buf + Source->BufUsed;
 	d = Source->buf;
-	while ((count < parmnum) &&
-	       (d <= end))
+	while ((d <= end) && 
+	       (count < parmnum))
 	{
 		/* End of string, bail! */
 		if (!*d) {
@@ -1456,8 +1456,8 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 
 	/* Find next @parameter */
 	s = d;
-	while ((*s && *s != separator) &&
-	       (s <= end))
+	while ((s <= end) && 
+	       (*s && *s != separator))
 	{
 		s++;
 	}
@@ -1466,16 +1466,20 @@ int StrBufRemove_token(StrBuf *Source, int parmnum, char separator)
 	ReducedBy = d - s;
 
 	/* Hack and slash */
-	if (*s) {
+	if (s >= end) {
+		return 0;
+	}
+	else if (*s) {
 		memmove(d, s, Source->BufUsed - (s - Source->buf));
 		Source->BufUsed += ReducedBy;
+		Source->buf[Source->BufUsed] = '\0';
 	}
 	else if (d == Source->buf) {
 		*d = 0;
 		Source->BufUsed = 0;
 	}
 	else {
-		*--d = 0;
+		*--d = '\0';
 		Source->BufUsed += ReducedBy;
 	}
 	/*
