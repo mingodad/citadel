@@ -9,19 +9,19 @@
  * is perfect.  Indeed, with so much gratuitous complexity, *all* IMAP
  * implementations have bugs.
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -69,7 +69,6 @@
 #include "imap_acl.h"
 #include "imap_metadata.h"
 #include "imap_misc.h"
-
 
 #include "ctdl_module.h"
 
@@ -398,11 +397,6 @@ void imap_rescan_msgids(void)
 }
 
 
-
-
-
-
-
 /*
  * This cleanup function blows away the temporary memory and files used by
  * the IMAP server.
@@ -475,6 +469,7 @@ void imap_output_capability_string(void) {
 	 */
 }
 
+
 /*
  * implements the CAPABILITY command
  */
@@ -485,7 +480,6 @@ void imap_capability(int num_parms, char *parms[])
 	cprintf("\r\n");
 	cprintf("%s OK CAPABILITY completed\r\n", parms[0]);
 }
-
 
 
 /*
@@ -502,7 +496,6 @@ void imap_id(int num_parms, char *parms[])
 	cprintf("* ID NIL\r\n");
 	cprintf("%s OK ID completed\r\n", parms[0]);
 }
-
 
 
 /*
@@ -529,6 +522,7 @@ void imap_greeting(void)
 	imap_output_capability_string();
 	cprintf("] %s IMAP4rev1 %s ready\r\n", config.c_fqdn, CITADEL);
 }
+
 
 /*
  * IMAPS is just like IMAP, except it goes crypto right away.
@@ -606,6 +600,7 @@ void imap_authenticate(int num_parms, char *parms[])
 	}
 }
 
+
 void imap_auth_plain(char *cmd)
 {
 	char decoded_authstring[1024];
@@ -638,6 +633,7 @@ void imap_auth_plain(char *cmd)
 	cprintf("%s NO authentication failed\r\n", IMAP->authseq);
 }
 
+
 void imap_auth_login_user(char *cmd)
 {
 	char buf[SIZ];
@@ -649,6 +645,7 @@ void imap_auth_login_user(char *cmd)
 	IMAP->authstate = imap_as_expecting_password;
 	return;
 }
+
 
 void imap_auth_login_pass(char *cmd)
 {
@@ -675,15 +672,9 @@ void imap_starttls(int num_parms, char *parms[])
 	char nosup_response[SIZ];
 	char error_response[SIZ];
 
-	sprintf(ok_response,
-		"%s OK begin TLS negotiation now\r\n",
-		parms[0]);
-	sprintf(nosup_response,
-		"%s NO TLS not supported here\r\n",
-		parms[0]);
-	sprintf(error_response,
-		"%s BAD Internal error\r\n",
-		parms[0]);
+	sprintf(ok_response,	"%s OK begin TLS negotiation now\r\n",	parms[0]);
+	sprintf(nosup_response,	"%s NO TLS not supported here\r\n",	parms[0]);
+	sprintf(error_response,	"%s BAD Internal error\r\n",		parms[0]);
 	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 }
 
@@ -719,11 +710,11 @@ void imap_select(int num_parms, char *parms[])
 
 	/* Then try a mailbox name match */
 	if (c != 0) {
-		CtdlMailboxName(augmented_roomname, sizeof augmented_roomname,
-			    &CC->user, towhere);
+		CtdlMailboxName(augmented_roomname, sizeof augmented_roomname, &CC->user, towhere);
 		c = CtdlGetRoom(&QRscratch, augmented_roomname);
-		if (c == 0)
+		if (c == 0) {
 			strcpy(towhere, augmented_roomname);
+		}
 	}
 
 	/* If the room exists, check security/access */
@@ -739,8 +730,7 @@ void imap_select(int num_parms, char *parms[])
 
 	/* Fail here if no such room */
 	if (!ok) {
-		cprintf("%s NO ... no such room, or access denied\r\n",
-			parms[0]);
+		cprintf("%s NO ... no such room, or access denied\r\n", parms[0]);
 		return;
 	}
 
@@ -784,9 +774,9 @@ void imap_select(int num_parms, char *parms[])
 
 	cprintf("%s OK [%s] %s completed\r\n",
 		parms[0],
-		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"), parms[1]);
+		(IMAP->readonly ? "READ-ONLY" : "READ-WRITE"), parms[1]
+	);
 }
-
 
 
 /*
@@ -822,8 +812,7 @@ int imap_do_expunge(void)
 		imap_rescan_msgids();
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Expunged %d messages from <%s>\n",
-		num_expunged, CC->room.QRname);
+	CtdlLogPrintf(CTDL_DEBUG, "Expunged %d messages from <%s>\n", num_expunged, CC->room.QRname);
 	return (num_expunged);
 }
 
@@ -895,7 +884,6 @@ void imap_namespace(int num_parms, char *parms[])
 	cprintf("\r\n");
 	cprintf("%s OK NAMESPACE completed\r\n", parms[0]);
 }
-
 
 
 /*
@@ -1090,7 +1078,6 @@ void imap_status(int num_parms, char *parms[])
 }
 
 
-
 /*
  * Implements the SUBSCRIBE command
  *
@@ -1180,7 +1167,6 @@ void imap_unsubscribe(int num_parms, char *parms[])
 		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 }
-
 
 
 /*
@@ -1367,8 +1353,6 @@ void imap_rename(int num_parms, char *parms[])
 }
 
 
-
-
 /* 
  * Main command loop for IMAP sessions.
  */
@@ -1427,7 +1411,6 @@ void imap_command_loop(void)
 		imap_auth_login_pass(cmdbuf);
 		return;
 	}
-
 
 	/* Ok, at this point we're in normal command mode.
 	 * If the command just submitted does not contain a literal, we

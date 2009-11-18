@@ -21,7 +21,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -64,9 +63,8 @@
 #include "imap_fetch.h"
 #include "imap_misc.h"
 #include "genstamp.h"
-
-
 #include "ctdl_module.h"
+
 
 /*
  * Implements the SETACL command.
@@ -102,7 +100,7 @@ void imap_acl_flags(char *rights, int ra)
 	 */
 	if (	(ra & UA_KNOWN)					/* known rooms */
 	   ||	((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))	/* zapped rooms */
-	   ) {
+	) {
 		strcat(rights, "l");
 		strcat(rights, "r");
 		strcat(rights, "s");
@@ -134,8 +132,9 @@ void imap_acl_flags(char *rights, int ra)
 			 * commands are not yet implemented, omitting the flag should
 			 * theoretically prevent compliant clients from attempting to
 			 * perform them.
+			 *
+			 * strcat(rights, "a");
 			 */
-			/* strcat(rights, "a"); * commented out */
 		}
 	}
 }
@@ -164,8 +163,7 @@ void imap_getacl(int num_parms, char *parms[]) {
 	 */
 	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			parms[0]);
+		cprintf("%s NO Invalid mailbox name or access denied\r\n", parms[0]);
 		return;
 	}
 
@@ -237,8 +235,7 @@ void imap_listrights(int num_parms, char *parms[]) {
 	 */
 	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			parms[0]);
+		cprintf("%s NO Invalid mailbox name or access denied\r\n", parms[0]);
 		return;
 	}
 
@@ -254,8 +251,7 @@ void imap_listrights(int num_parms, char *parms[]) {
 		free_recipients(valid);
 	}
 	if (ret != 0) {
-		cprintf("%s NO Invalid user name or access denied\r\n",
-			parms[0]);
+		cprintf("%s NO Invalid user name or access denied\r\n", parms[0]);
 		return;
 	}
 
@@ -268,7 +264,6 @@ void imap_listrights(int num_parms, char *parms[]) {
 	}
 	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
-
 	/*
 	 * Now output the list of rights
 	 */
@@ -279,7 +274,6 @@ void imap_listrights(int num_parms, char *parms[]) {
 	cprintf(" ");
 	imap_strout("");		/* FIXME ... do something here */
 	cprintf("\r\n");
-
 
 	/*
 	 * If another folder is selected, go back to that room so we can resume
@@ -312,8 +306,7 @@ void imap_myrights(int num_parms, char *parms[]) {
 
 	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			parms[0]);
+		cprintf("%s NO Invalid mailbox name or access denied\r\n", parms[0]);
 		return;
 	}
 
@@ -343,5 +336,3 @@ void imap_myrights(int num_parms, char *parms[]) {
 	cprintf("%s OK MYRIGHTS completed\r\n", parms[0]);
 	return;
 }
-
-

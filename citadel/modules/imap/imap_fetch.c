@@ -101,6 +101,7 @@ void imap_fetch_flags(int seq) {
 	cprintf(")");
 }
 
+
 void imap_fetch_internaldate(struct CtdlMessage *msg) {
 	char buf[SIZ];
 	time_t msgdate;
@@ -606,7 +607,8 @@ void imap_fetch_body(long msgnum, char *item, int is_peek) {
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "Section is: %s%s\n", 
 		section, 
-		IsEmptyStr(section) ? "(empty)" : "");
+		IsEmptyStr(section) ? "(empty)" : ""
+	);
 
 	/* Burn the cache if we don't have the same section of the 
 	 * same message again.
@@ -1283,7 +1285,6 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 			}
 		}
 	}
-
 }
 
 
