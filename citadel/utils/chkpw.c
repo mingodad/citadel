@@ -48,10 +48,11 @@ int chkpwd_read_pipe[2];
 static int validpw(uid_t uid, const char *pass)
 {
 	char buf[256];
+	int rv;
 
-	write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
-	write(chkpwd_write_pipe[1], pass, 256);
-	read(chkpwd_read_pipe[0], buf, 4);
+	rv = write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
+	rv = write(chkpwd_write_pipe[1], pass, 256);
+	rv = read(chkpwd_read_pipe[0], buf, 4);
 
 	if (!strncmp(buf, "PASS", 4)) {
 		printf("pass\n");
@@ -109,6 +110,7 @@ int main(int argc, char **argv) {
 	struct passwd *p;
 	int uid;
 	char ctdldir[PATH_MAX]=CTDLDIR;
+	char *ptr;
 	
 	calc_dirs_n_files(0,0,"", ctdldir, 0);
 	
@@ -121,7 +123,7 @@ int main(int argc, char **argv) {
 	}
 	while(1) {
 		printf("\n\nUsername: ");
-		fgets(buf, sizeof buf, stdin);
+		ptr = fgets(buf, sizeof buf, stdin);
 		buf[strlen(buf)-1] = 0;
 		p = getpwnam(buf);
 		if (p == NULL) {
@@ -131,7 +133,7 @@ int main(int argc, char **argv) {
 			uid = p->pw_uid;
 			printf("     uid: %d\n", uid);
 			printf("Password: ");
-			fgets(buf, sizeof buf, stdin);
+			ptr = fgets(buf, sizeof buf, stdin);
 			buf[strlen(buf)-1] = 0;
 			validpw(uid, buf);
 		}

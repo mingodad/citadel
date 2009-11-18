@@ -47,9 +47,10 @@ int set_lockfile(void)
 {
 	FILE *lfp;
 	int onppid;
+	int rv;
 
 	if ((lfp = fopen(LOCKFILE, "r")) != NULL) {
-		fscanf(lfp, "%d", &onppid);
+		rv = fscanf(lfp, "%d", &onppid);
 		fclose(lfp);
 		if (!kill(onppid, 0) || errno == EPERM)
 			return 1;
