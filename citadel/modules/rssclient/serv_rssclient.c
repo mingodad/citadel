@@ -85,6 +85,7 @@ typedef struct _rss_item {
 	char channel_title[256];
 	int item_tag_nesting;
 	char *author_or_creator;
+	char *author_url;
 }rss_item;
 
 
@@ -575,13 +576,28 @@ void rss_xml_end(void *data, const char *supplied_el) {
 		ri->pubdate = rdf_parsedate(ri->chardata);
 	}
 
-	else if ((rssc->Cfg->ItemType == RSS_ATOM) && 
+	else if ((rssc->Cfg->ItemType == RSS_RSS) && 
 		 ((!strcasecmp(el, "author")) || 
 		  (!strcasecmp(el, "creator"))) && 
 		 (ri->chardata != NULL) ) {
 		if (ri->author_or_creator != NULL) free(ri->author_or_creator);
 		striplt(ri->chardata);
 		ri->author_or_creator = strdup(ri->chardata);
+	}
+
+	else if ((rssc->Cfg->ItemType == RSS_ATOM) && 
+		 (!strcasecmp(el, "name")) && 
+		 (ri->chardata != NULL) ) {
+		if (ri->author_or_creator != NULL) free(ri->author_or_creator);
+		striplt(ri->chardata);
+		ri->author_or_creator = strdup(ri->chardata);
+	}
+	else if ((rssc->Cfg->ItemType == RSS_ATOM) && 
+		 (!strcasecmp(el, "uri")) && 
+		 (ri->chardata != NULL) ) {
+		if (ri->author_url != NULL) free(ri->author_url);
+		striplt(ri->chardata);
+		ri->author_url = strdup(ri->chardata);
 	}
 
 	else if ((rssc->Cfg->ItemType == RSS_RSS) && 
