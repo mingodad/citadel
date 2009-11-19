@@ -539,6 +539,11 @@ void rss_xml_end(void *data, const char *supplied_el) {
 		ri->guid = strdup(ri->chardata);
 	}
 
+	else if ( (rssc->Cfg->ItemType == RSS_RSS) && (!strcasecmp(el, "link")) && (ri->chardata != NULL) ) {
+		if (ri->link != NULL) free(ri->link);
+		striplt(ri->chardata);
+		ri->link = strdup(ri->chardata);
+	}
 
 	else if ( (!strcasecmp(el, "title")) && (ri->chardata != NULL) ) {
 		if (ri->title != NULL) free(ri->title);
