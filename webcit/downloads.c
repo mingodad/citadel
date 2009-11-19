@@ -175,7 +175,7 @@ HashList* LoadFileList(StrBuf *Target, WCTemplputParams *TP)
 	int HavePic;
 	WCTemplputParams SubTP;
 
-	memset(&TP, 0, sizeof(WCTemplputParams));
+	memset(&SubTP, 0, sizeof(WCTemplputParams));
 	serv_puts("RDIR");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return NULL;
