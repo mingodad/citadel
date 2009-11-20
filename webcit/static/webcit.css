@@ -457,7 +457,7 @@ var sub {
 }
 
 .caltoday {
-	background-color: #4040FF;
+	background-color: #EEEEFF;
 }
 
 .current_sort_mode {
@@ -1401,7 +1401,7 @@ td.events_of_the_day {
 	margin: 4px;
 }
 
-.calday, .calout, .calweekend {
+.calday, .calout, .calweekend, .caltoday {
 	width: 14%;
 	height: 60px;
 	text-align: left;
