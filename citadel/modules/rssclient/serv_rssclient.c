@@ -470,20 +470,27 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr) {
 		strcpy(el, ++sep);
 	}
 
-	if (((rssc->Cfg->ItemType == RSS_UNSET) || 
-	     (rssc->Cfg->ItemType == RSS_RSS)) &&
+	if ((rssc->Cfg->ItemType == RSS_UNSET) &&
+	    !strcasecmp(el, "rss")) 
+	{
+		rssc->Cfg->ItemType = RSS_RSS;
+	}
+	else if ((rssc->Cfg->ItemType == RSS_UNSET) &&
+	    !strcasecmp(el, "feed")) 
+	{
+		rssc->Cfg->ItemType = RSS_ATOM;
+	}
+	else if ((rssc->Cfg->ItemType == RSS_RSS) &&
 	    !strcasecmp(el, "item")) 
 	{
 		ri->item_tag_nesting ++ ;
-		rssc->Cfg->ItemType = RSS_RSS;
 		flush_rss_ite(ri);
 	}
-	else if (((rssc->Cfg->ItemType == RSS_UNSET) || 
-		  (rssc->Cfg->ItemType == RSS_ATOM)) &&
-		 !strcasecmp(el, "entry")) { /* Atom feed... */
+	else if ( (rssc->Cfg->ItemType == RSS_ATOM) &&
+		 !strcasecmp(el, "entry")) 
+	{ /* Atom feed... */
 		CtdlLogPrintf(0, "RSS: found atom...\n");
 		++ri->item_tag_nesting;
-		rssc->Cfg->ItemType = RSS_ATOM;
 		flush_rss_ite(ri);
 	}
 	else if ((rssc->Cfg->ItemType == RSS_ATOM) &&
