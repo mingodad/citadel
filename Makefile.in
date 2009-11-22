@@ -21,6 +21,90 @@ SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS)
 LOCALEDIR=@LOCALEDIR@
 WWWDIR=@WWWDIR@
 
+SETUP_OBJECTS=gettext.o setup.o
+
+WEBCIT_OBJECTS=webserver.o \
+	webcit.o \
+	context_loop.o \
+	modules_init.o \
+	\
+	cookie_conversion.o \
+	\
+	locate_host.o \
+	sysdep.o \
+	utils.o \
+	decode.o \
+	html2html.o \
+	http_datestring.o \
+	fmt_date.o \
+	\
+	subst.o \
+	preferences.o \
+	paramhandling.o \
+	serv_func.o \
+	tcp_sockets.o \
+	crypto.o \
+	gettext.o \
+	tabs.o \
+	\
+	netconf.o \
+	inetconf.o \
+	siteconfig.o \
+	smtpqueue.o \
+	pushemail.o \
+	sieve.o \
+	\
+	static.o \
+	graphics.o \
+	downloads.o \
+	\
+	auth.o \
+	openid.o \
+	who.o \
+	userlist.o \
+	useredit.o \
+	sysmsgs.o \
+	\
+	listsub.o \
+	\
+	setup_wizard.o \
+	summary.o \
+	mainmenu.o \
+	iconbar.o \
+	\
+	floors.o \
+	roomops.o \
+	roomlist.o \
+	marchlist.o \
+	\
+	messages.o \
+	msg_renderers.o \
+	wiki.o \
+	\
+	paging.o \
+	\
+	vcard_edit.o \
+	addressbook_popup.o \
+	autocompletion.o \
+	\
+	ical_maps.o \
+	ical_subst.o \
+	ical_dezonify.o \
+	calendar.o \
+	calendar_tools.o \
+	calendar_view.o \
+	tasks.o \
+	event.o \
+	availability.o \
+	notes.o \
+	\
+	groupdav_main.o \
+	groupdav_get.o \
+	groupdav_propfind.o \
+	groupdav_options.o \
+	groupdav_delete.o \
+	groupdav_put.o
+
 # End of configuration section
 
 all: all-progs-recursive webcit setup
@@ -33,7 +117,7 @@ mkdir-init:
 .SUFFIXES: .cpp .c .o
 
 clean:
-	rm -f *.o webcit webcit setup
+	rm -f $(WEBCIT_OBJECTS) $(SETUP_OBJECTS) webcit setup
 	rm -fr locale/*
 
 distclean: clean
@@ -41,39 +125,12 @@ distclean: clean
 		po/Makefile \
 		$(srcdir)/TAGS
 
-setup: setup.o gettext.o
-	$(CC) $(LDFLAGS) $(LIBOBJS) gettext.o setup.o -o setup \
+setup: $(SETUP_OBJECTS)
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(SETUP_OBJECTS) -o setup \
 	$(LIBS) $(SETUP_LIBS)
 
-webcit: webserver.o context_loop.o ical_dezonify.o \
-	cookie_conversion.o locate_host.o floors.o summary.o \
-	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o marchlist.o \
-	roomops.o roomlist.o messages.o msg_renderers.o userlist.o paging.o sysmsgs.o \
-	useredit.o vcard_edit.o preferences.o html2html.o listsub.o \
-	graphics.o netconf.o siteconfig.o subst.o \
-	calendar.o calendar_tools.o calendar_view.o tasks.o event.o smtpqueue.o \
-	availability.o iconbar.o crypto.o inetconf.o notes.o wiki.o \
-	groupdav_main.o groupdav_get.o groupdav_propfind.o fmt_date.o \
-	groupdav_options.o autocompletion.o gettext.o tabs.o sieve.o \
-	groupdav_delete.o groupdav_put.o http_datestring.o setup_wizard.o \
-	downloads.o addressbook_popup.o pushemail.o sysdep.o openid.o \
-	decode.o modules_init.o paramhandling.o utils.o \
-	ical_maps.o ical_subst.o static.o \
-	$(LIBOBJS)
-	$(CC) $(LDFLAGS) -o webcit $(LIBOBJS) \
-	webserver.o context_loop.o cookie_conversion.o marchlist.o \
-	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
-	roomops.o roomlist.o messages.o msg_renderers.o userlist.o paging.o sysmsgs.o \
-	useredit.o locate_host.o siteconfig.o subst.o vcard_edit.o floors.o \
-	graphics.o netconf.o preferences.o html2html.o openid.o \
-	summary.o calendar.o calendar_tools.o calendar_view.o tasks.o event.o wiki.o \
-	availability.o ical_dezonify.o iconbar.o crypto.o inetconf.o notes.o \
-	groupdav_main.o groupdav_get.o groupdav_propfind.o groupdav_delete.o \
-	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o \
-	groupdav_put.o http_datestring.o setup_wizard.o fmt_date.o modules_init.o \
-	gettext.o downloads.o addressbook_popup.o pushemail.o sysdep.o decode.o \
-	paramhandling.o utils.o ical_maps.o ical_subst.o static.o \
-	$(LIBS)
+webcit: $(WEBCIT_OBJECTS) $(LIBOBJS)
+	$(CC) $(LDFLAGS) -o webcit $(LIBOBJS) $(WEBCIT_OBJECTS) $(LIBS)
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) -c $(PTHREAD_DEFS) $<
