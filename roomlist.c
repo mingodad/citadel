@@ -9,16 +9,16 @@
 
 void DeleteFloor(void *vFloor)
 {
-	floor *Floor;
-	Floor = (floor*) vFloor;
-	FreeStrBuf(&Floor->Name);
-	free(Floor);
+	Floor *dFloor;
+	dFloor = (Floor*) vFloor;
+	FreeStrBuf(&dFloor->Name);
+	free(dFloor);
 }
 
 int SortFloorsByNameOrder(const void *vfloor1, const void *vfloor2) 
 {
-	floor *f1 = (floor*) GetSearchPayload(vfloor1);
-	floor *f2 = (floor*) GetSearchPayload(vfloor2);
+	Floor *f1 = (Floor*) GetSearchPayload(vfloor1);
+	Floor *f2 = (Floor*) GetSearchPayload(vfloor2);
 	
 	/* prefer My floor over alpabetical sort */
 	if (f1->ID == VIRTUAL_MY_FLOOR)
@@ -37,7 +37,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	HashList *floors;
 	HashList *floorsbyname;
 	HashPos *it;
-	floor *Floor;
+	Floor *ReadFloor;
 	void *vFloor;
 	const char *Pos;
 	int i;
@@ -52,13 +52,13 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	WCC->FloorsByName = floorsbyname = NewHash(1, NULL);
 	Buf = NewStrBuf();
 
-	Floor = malloc(sizeof(floor));
-	Floor->ID = VIRTUAL_MY_FLOOR;
-	Floor->Name = NewStrBufPlain(_("My Folders"), -1);
-	Floor->NRooms = 0;
-	lprintf(0, "Floor: [%s]\n", ChrPtr(Floor->Name));
-	Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
-	Put(floorsbyname, SKEY(Floor->Name), Floor, reference_free_handler);
+	ReadFloor = malloc(sizeof(Floor));
+	ReadFloor->ID = VIRTUAL_MY_FLOOR;
+	ReadFloor->Name = NewStrBufPlain(_("My Folders"), -1);
+	ReadFloor->NRooms = 0;
+	lprintf(0, "Floor: [%s]\n", ChrPtr(ReadFloor->Name));
+	Put(floors, IKEY(ReadFloor->ID), ReadFloor, DeleteFloor);
+	Put(floorsbyname, SKEY(ReadFloor->Name), ReadFloor, reference_free_handler);
 
 	serv_puts("LFLR"); /* get floors */
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
@@ -69,15 +69,15 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 			
 			Pos = NULL;
 
-			Floor = malloc(sizeof(floor));
-			Floor->ID = StrBufExtractNext_long(Buf, &Pos, '|');
-			Floor->Name = NewStrBufPlain(NULL, StrLength(Buf));
-			StrBufExtract_NextToken(Floor->Name, Buf, &Pos, '|');
-			Floor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
-			lprintf(0, "Floor: [%s]\n", ChrPtr(Floor->Name));
+			ReadFloor = malloc(sizeof(Floor));
+			ReadFloor->ID = StrBufExtractNext_long(Buf, &Pos, '|');
+			ReadFloor->Name = NewStrBufPlain(NULL, StrLength(Buf));
+			StrBufExtract_NextToken(ReadFloor->Name, Buf, &Pos, '|');
+			ReadFloor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
+			lprintf(0, "Floor: [%s]\n", ChrPtr(ReadFloor->Name));
 
-			Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
-			Put(floorsbyname, SKEY(Floor->Name), Floor, reference_free_handler);
+			Put(floors, IKEY(ReadFloor->ID), ReadFloor, DeleteFloor);
+			Put(floorsbyname, SKEY(ReadFloor->Name), ReadFloor, reference_free_handler);
 		}
 	}
 	FreeStrBuf(&Buf);
@@ -87,7 +87,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	SortByPayload(floors, SortFloorsByNameOrder);
 	it = GetNewHashPos(floors, 0);
 	while (	GetNextHashPos(floors, it, &HKLen, &HashKey, &vFloor)) 
-		((floor*) vFloor)->AlphaN = i++;
+		((Floor*) vFloor)->AlphaN = i++;
 	DeleteHashPos(&it);
 	SortByHashKeyStr(floors);
 
@@ -96,23 +96,23 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)CTX;
+	Floor *myFloor = (Floor *)CTX;
 
-	StrBufAppendPrintf(Target, "%d", Floor->ID);
+	StrBufAppendPrintf(Target, "%d", myFloor->ID);
 }
 
 void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)CTX;
+	Floor *myFloor = (Floor *)CTX;
 
-	StrBufAppendTemplate(Target, TP, Floor->Name, 0);
+	StrBufAppendTemplate(Target, TP, myFloor->Name, 0);
 }
 
 void tmplput_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)CTX;
+	Floor *myFloor = (Floor *)CTX;
 
-	StrBufAppendPrintf(Target, "%d", Floor->NRooms);
+	StrBufAppendPrintf(Target, "%d", myFloor->NRooms);
 }
 HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP) 
 {
@@ -223,7 +223,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 			}
 			/* get a pointer to the floor we're on: */
 			GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
-			room->Floor = (const floor*) vFloor;
+			room->Floor = (const Floor*) vFloor;
 
 
 
@@ -509,33 +509,33 @@ void tmplput_ROOM_LASTCHANGE(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
-	const floor *Floor = Folder->Floor;
+	const Floor *MyFloor = Folder->Floor;
 
-	if (Floor == NULL)
+	if (MyFloor == NULL)
 		return;
 
-	StrBufAppendPrintf(Target, "%d", Floor->ID);
+	StrBufAppendPrintf(Target, "%d", MyFloor->ID);
 }
 
 void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
-	const floor *Floor = Folder->Floor;
+	const Floor *MyFloor = Folder->Floor;
 
-	if (Floor == NULL)
+	if (MyFloor == NULL)
 		return;
 
-	StrBufAppendTemplate(Target, TP, Floor->Name, 0);
+	StrBufAppendTemplate(Target, TP, MyFloor->Name, 0);
 }
 
 void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
-	const floor *Floor = Folder->Floor;
+	const Floor *MyFloor = Folder->Floor;
 
-	if (Floor == NULL)
+	if (MyFloor == NULL)
 		return;
-	StrBufAppendPrintf(Target, "%d", Floor->NRooms);
+	StrBufAppendPrintf(Target, "%d", MyFloor->NRooms);
 }
 
 
@@ -636,12 +636,12 @@ int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
-	floor *Floor = (floor *)CTX;
+	Floor *MyFloor = (Floor *)CTX;
 	/** if we have dav_depth the client just wants the subfloors */
 	if ((WCC->Hdr->HR.dav_depth == 1) && 
 	    (GetCount(WCC->Directory) == 0))
 		return 1;
-	return WCC->CurrentFloor == Floor;
+	return WCC->CurrentFloor == MyFloor;
 }
 
 

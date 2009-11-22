@@ -572,7 +572,7 @@ void ParseREST_URL(void)
 		if (Floors != NULL)
 		{
 			if (GetHash(WCC->FloorsByName, SKEY(pFloor), &vFloor))
-				WCC->CurrentFloor = (floor*) vFloor;
+				WCC->CurrentFloor = (Floor*) vFloor;
 		}
 	}
 }
