@@ -1,0 +1,135 @@
+# $Id: Makefile.in 7860 2009-10-05 20:25:07Z dothebart $
+
+prefix=@prefix@
+srcdir=@srcdir@
+VPATH=$(srcdir)
+
+AUTOCONF=@AUTOCONF@
+CC=@CC@
+CFLAGS=@CFLAGS@
+DEFS=@DEFS@
+INSTALL=@INSTALL@
+LIBOBJS=@LIBOBJS@
+LIBS=@LIBS@ -lcunit
+LDFLAGS=@LDFLAGS@
+SED=@SED@
+SETUP_LIBS=@SETUP_LIBS@
+PTHREAD_DEFS=@PTHREAD_DEFS@
+LIB_SUBDIRS=
+PROG_SUBDIRS=@PROG_SUBDIRS@
+SUBDIRS=$(LIB_SUBDIRS) $(PROG_SUBDIRS) 
+LOCALEDIR=@LOCALEDIR@
+WWWDIR=@WWWDIR@
+
+TEST_OBJECTS= \
+	../webcit.o \
+	../context_loop.o \
+	../modules_init.o \
+	\
+	../cookie_conversion.o \
+	\
+	../locate_host.o \
+	../sysdep.o \
+	../utils.o \
+	../decode.o \
+	../html2html.o \
+	../http_datestring.o \
+	../fmt_date.o \
+	\
+	../subst.o \
+	../preferences.o \
+	../paramhandling.o \
+	../serv_func.o \
+	../tcp_sockets.o \
+	../crypto.o \
+	../gettext.o \
+	../tabs.o \
+	\
+	../netconf.o \
+	../inetconf.o \
+	../siteconfig.o \
+	../smtpqueue.o \
+	../pushemail.o \
+	../sieve.o \
+	\
+	../static.o \
+	../graphics.o \
+	../downloads.o \
+	\
+	../auth.o \
+	../openid.o \
+	../who.o \
+	../userlist.o \
+	../useredit.o \
+	../sysmsgs.o \
+	\
+	../listsub.o \
+	\
+	../setup_wizard.o \
+	../summary.o \
+	../mainmenu.o \
+	../iconbar.o \
+	\
+	../floors.o \
+	../roomops.o \
+	../roomlist.o \
+	../marchlist.o \
+	\
+	../messages.o \
+	../msg_renderers.o \
+	../wiki.o \
+	\
+	../paging.o \
+	\
+	../vcard_edit.o \
+	../addressbook_popup.o \
+	../autocompletion.o \
+	\
+	../ical_maps.o \
+	../ical_subst.o \
+	../ical_dezonify.o \
+	../calendar.o \
+	../calendar_tools.o \
+	../calendar_view.o \
+	../tasks.o \
+	../event.o \
+	../availability.o \
+	../notes.o \
+	\
+	../groupdav_main.o \
+	../groupdav_get.o \
+	../groupdav_propfind.o \
+	../groupdav_options.o \
+	../groupdav_delete.o \
+	../groupdav_put.o
+
+# End of configuration section
+
+all: test
+
+.SUFFIXES: .cpp .c .o
+
+clean:
+	rm -f $(WEBCIT_OBJECTS)  
+
+
+test: $(TEST_OBJECTS) $(LIBOBJS) test_main.o
+	$(CC) $(LDFLAGS) -o test $(LIBOBJS) test_main.o $(TEST_OBJECTS) $(LIBS)
+
+.c.o:
+	$(CC) $(CFLAGS) -I ../ $(DEFS) -c $(PTHREAD_DEFS) $<
+
+.cpp.o:
+	$(CC) $(CFLAGS) -I ../ $(DEFS) -c $(PTHREAD_DEFS) $<
+
+Makefile: $(srcdir)/Makefile.in ../config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+
+$(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
+	cd $(srcdir) && $(AUTOCONF)
+
+$(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
+	cd $(srcdir) && $(ACLOCAL)

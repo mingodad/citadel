@@ -101,6 +101,8 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 dnl AC_FUNC_VPRINTF
 AC_REPLACE_FUNCS(snprintf)
+AC_CHECK_HEADER(CUnit/CUnit.h, [AC_DEFINE(ENABLE_TESTS, [], [whether we should compile the test-suite])])
+
 AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h iconv.h xlocale.h)
 
 dnl Checks for the zlib compression library.
@@ -471,7 +473,7 @@ if test "$abs_srcdir" != "$abs_builddir"; then
    CFLAGS="$CFLAGS -I $abs_builddir"
 fi
 AC_CONFIG_HEADER(sysdep.h)
-AC_OUTPUT(Makefile po/Makefile )
+AC_OUTPUT(Makefile po/Makefile tests/Makefile)
 
 if test "$abs_srcdir" != "$abs_builddir"; then
    ln -s $abs_srcdir/static $abs_builddir
