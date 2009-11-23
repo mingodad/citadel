@@ -410,7 +410,12 @@ time_t rdf_parsedate(char *p)
 
 	memset(&tm, 0, sizeof tm);
 
-	/* YYYY-MM-DDTHH:MM format...
+	/*
+	 * If the timestamp appears to be in W3C datetime format, try to
+	 * parse it.  See also: http://www.w3.org/TR/NOTE-datetime
+	 *
+	 * This code, along with parsedate.c, is a potential candidate for
+	 * moving into libcitadel.
 	 */
 	if ( (p[4] == '-') && (p[7] == '-') ) {
 		tm.tm_year = atoi(&p[0]) - 1900;
