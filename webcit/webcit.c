@@ -172,9 +172,12 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		if (unset_cookies) {
 			hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
 		} else {
-			hprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
 			if (server_cookie != NULL) {
-				hprintf("%s\n", server_cookie);
+				hprintf("Set-cookie: webcit=%s; path=/ %s\r\n", 
+					cookie, server_cookie);
+			}
+			else {
+				hprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
 			}
 		}
 	}
