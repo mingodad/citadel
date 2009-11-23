@@ -28,29 +28,20 @@ extern int msock;			/* master listening socket */
 extern int verbosity;		/* Logging level */
 extern char static_icon_dir[PATH_MAX];          /* where should we find our mime icons */
 
-#if HAVE_BACKTRACE
-#include <execinfo.h>
-#endif
-#ifndef HAVE_SNPRINTF
-int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
-#endif
-
-int msock;			/* master listening socket */
 int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int DisableGzip = 0;
-extern void *context_loop(ParsedHttpHdrs *Hdr);
-extern void *housekeeping_loop(void);
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
+extern void test_worker_entry(void);
 extern int ig_tcp_server(char *ip_addr, int port_number, int queue_len);
 extern int ig_uds_server(char *sockpath, int queue_len);
 extern void webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdir, char *relhome);
 
-char socket_dir[PATH_MAX];			/* where to talk to our citadel server */
 
+char socket_dir[PATH_MAX];			/* where to talk to our citadel server */
 
 char *server_cookie = NULL;	/* our Cookie connection to the client */
 int http_port = PORT_NUM;	/* Port to listen on */
@@ -78,7 +69,6 @@ extern int LoadTemplates;
 int main(int argc, char **argv)
 {
 	size_t basesize = 2;            /* how big should strbufs be on creation? */
-	pthread_t SessThread;		/* Thread descriptor */
 	pthread_attr_t attr;		/* Thread attributes */
 	int a;	        	/* General-purpose variables */
 	char tracefile[PATH_MAX];
@@ -91,10 +81,8 @@ int main(int argc, char **argv)
 	char *hdir;
 	const char *basedir = NULL;
 	char uds_listen_path[PATH_MAX];	/* listen on a unix domain socket? */
-	const char *I18nDumpFile = NULL;
 	FILE *rvfp = NULL;
-	int rv = 0;
-
+	
 	WildFireInitBacktrace(argv[0], 2);
 
 	start_modules ();
@@ -111,11 +99,7 @@ int main(int argc, char **argv)
 	strcpy(uds_listen_path, "");
 
 	/* Parse command line */
-#ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:G:U:P:cfsS:Z")) != EOF)
-#else
-	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:G:U:P:cfZ")) != EOF)
-#endif
+	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:U:P:cf:Z")) != EOF)
 		switch (a) {
 		case 'U':
 			Username = NewStrBufPlain(optarg, -1);
@@ -185,20 +169,6 @@ int main(int argc, char **argv)
 				}
 			}
 			break;
-#ifdef HAVE_OPENSSL
-		case 's':
-			is_https = 1;
-			break;
-		case 'S':
-			is_https = 1;
-			ssl_cipher_list = strdup(optarg);
-			break;
-#endif
-		case 'G':
-			DumpTemplateI18NStrings = 1;
-			I18nDump = NewStrBufPlain(HKEY("int templatestrings(void)\n{\n"));
-			I18nDumpFile = optarg;
-			break;
 		default:
 			fprintf(stderr, "usage: webcit "
 				"[-i ip_addr] [-p http_port] "
@@ -237,30 +207,6 @@ int main(int argc, char **argv)
 	initialize_axdefs();
 
 	InitTemplateCache();
-	if (DumpTemplateI18NStrings) {
-		FILE *fd;
-		StrBufAppendBufPlain(I18nDump, HKEY("}\n"), 0);
-	        if (StrLength(I18nDump) < 50) {
-			lprintf(1, "********************************************************************************\n");
-			lprintf(1, "*        No strings found in templates! are you shure they're there?           *\n");
-			lprintf(1, "********************************************************************************\n");
-			return -1;
-		}
-		fd = fopen(I18nDumpFile, "w");
-	        if (fd == NULL) {
-			lprintf(1, "********************************************************************************\n");
-			lprintf(1, "*                  unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
-			lprintf(1, "********************************************************************************\n");
-			return -1;
-		}
-		rv = fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
-		fclose(fd);
-		return 0;
-	}
-
-
-	/* Tell libical to return an error instead of aborting if it sees badly formed iCalendar data. */
-	icalerror_errors_are_fatal = 0;
 
 	/* Use our own prefix on tzid's generated from system tzdata */
 	icaltimezone_set_tzid_prefix("/citadel.org/");
@@ -281,34 +227,6 @@ int main(int argc, char **argv)
 	 * up before the session is bound, and it gets torn down between
 	 * transactions.
 	 */
-#ifdef HAVE_OPENSSL
-	if (pthread_key_create(&ThreadSSL, NULL) != 0) {
-		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
-	}
-#endif
-
-	/*
-	 * Bind the server to our favorite port.
-	 * There is no need to check for errors, because ig_tcp_server()
-	 * exits if it doesn't succeed.
-	 */
-
-	if (!IsEmptyStr(uds_listen_path)) {
-		lprintf(2, "Attempting to create listener socket at %s...\n", uds_listen_path);
-		msock = ig_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
-	}
-	else {
-		lprintf(2, "Attempting to bind to port %d...\n", http_port);
-		msock = ig_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
-	}
-	if (msock < 0)
-	{
-		ShutDownWebcit();
-		return -msock;
-	}
-
-	lprintf(2, "Listening on socket %d\n", msock);
-	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&SessionListMutex, NULL);
 
@@ -317,21 +235,10 @@ int main(int argc, char **argv)
 	 */
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	pthread_create(&SessThread, &attr,
-		       (void *(*)(void *)) housekeeping_loop, NULL);
 
-
-	/*
-	 * If this is an HTTPS server, fire up SSL
-	 */
-#ifdef HAVE_OPENSSL
-	if (is_https) {
-		init_ssl();
-	}
-#endif
+	test_worker_entry();
 
 	/* now the original thread becomes another worker */
-	worker_entry();
 	ShutDownLibCitadel ();
 	return 0;
 }

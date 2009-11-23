@@ -103,6 +103,9 @@ TEST_OBJECTS= \
 	../groupdav_delete.o \
 	../groupdav_put.o
 
+TEST_COMMON_OBJECTS = \
+	test_tools.o
+
 # End of configuration section
 
 all: test
@@ -113,8 +116,9 @@ clean:
 	rm -f $(WEBCIT_OBJECTS)  
 
 
-test: $(TEST_OBJECTS) $(LIBOBJS) test_main.o
-	$(CC) $(LDFLAGS) -o test $(LIBOBJS) test_main.o $(TEST_OBJECTS) $(LIBS)
+test: $(TEST_OBJECTS) $(TEST_COMMON_OBJECTS) $(LIBOBJS) test_main.o
+	$(CC) $(LDFLAGS) -o test $(LIBOBJS) test_main.o \
+		$(TEST_OBJECTS) $(TEST_COMMON_OBJECTS) $(LIBS)
 
 .c.o:
 	$(CC) $(CFLAGS) -I ../ $(DEFS) -c $(PTHREAD_DEFS) $<
