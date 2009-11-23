@@ -53,6 +53,7 @@ int running_as_daemon = 0;	/* should we deamonize on startup? */
 
 /* #define DBG_PRINNT_HOOKS_AT_START */
 #ifdef DBG_PRINNT_HOOKS_AT_START
+extern HashList *HandlerHash;
 const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 #endif 
@@ -63,7 +64,6 @@ extern StrBuf *I18nDump;
 void InitTemplateCache(void);
 extern int LoadTemplates;
 
-extern HashList *HandlerHash;
 
 
 
