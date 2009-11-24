@@ -221,14 +221,6 @@ int main(int argc, char **argv)
 	}
 	InitialiseSemaphores ();
 
-	/*
-	 * Set up a place to put thread-specific SSL data.
-	 * We don't stick this in the wcsession struct because SSL starts
-	 * up before the session is bound, and it gets torn down between
-	 * transactions.
-	 */
-
-	pthread_mutex_init(&SessionListMutex, NULL);
 
 	/*
 	 * Start up the housekeeping thread
@@ -238,8 +230,10 @@ int main(int argc, char **argv)
 
 	test_worker_entry();
 
-	/* now the original thread becomes another worker */
-	ShutDownLibCitadel ();
+	ShutDownWebcit();
+	FreeStrBuf(&Username);
+	FreeStrBuf(&Passvoid);
+
 	return 0;
 }
 
