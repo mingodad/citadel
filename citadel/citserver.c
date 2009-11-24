@@ -88,8 +88,8 @@ int ScheduledShutdown = 0;
 time_t server_startup_time;
 int panic_fd;
 
-/**
- * \brief print the actual stack frame.
+/*
+ * print the actual stack frame.
  */
 void cit_backtrace(void)
 {
@@ -111,8 +111,8 @@ void cit_backtrace(void)
 #endif
 }
 
-/**
- * \brief print the actual stack frame.
+/*
+ * print the actual stack frame.
  */
 void cit_panic_backtrace(int SigNum)
 {
@@ -160,7 +160,7 @@ void master_startup(void) {
 	CtdlLogPrintf(CTDL_INFO, "Creating base rooms (if necessary)\n");
 	CtdlCreateRoom(config.c_baseroom,	0, "", 0, 1, 0, VIEW_BBS);
 	CtdlCreateRoom(AIDEROOM,		3, "", 0, 1, 0, VIEW_BBS);
-	CtdlCreateRoom(SYSCONFIGROOM,	3, "", 0, 1, 0, VIEW_BBS);
+	CtdlCreateRoom(SYSCONFIGROOM,		3, "", 0, 1, 0, VIEW_BBS);
 	CtdlCreateRoom(config.c_twitroom,	0, "", 0, 1, 0, VIEW_BBS);
 
 	/* The "Local System Configuration" room doesn't need to be visible */
@@ -357,10 +357,7 @@ int is_public_client(void)
 
 #define LOCALHOSTSTR "127.0.0.1"
 
-	snprintf(public_clients_file, 
-			 sizeof public_clients_file,
-			 "%s/public_clients",
-			 ctdl_etc_dir);
+	snprintf(public_clients_file, sizeof public_clients_file, "%s/public_clients", ctdl_etc_dir);
 
 	/*
 	 * Check the time stamp on the public_clients file.  If it's been
@@ -496,7 +493,8 @@ void cmd_iden(char *argbuf)
 		(rev_level / 100),
 		(rev_level % 100),
 		desc,
-		CC->cs_host);
+		CC->cs_host
+	);
 	cprintf("%d Ok\n",CIT_OK);
 }
 
@@ -734,15 +732,13 @@ void cmd_term(char *cmdbuf)
 }
 
 
-
-
-
 /* 
  * get the paginator prompt
  */
 void cmd_more(char *argbuf) {
 	cprintf("%d %s\n", CIT_OK, config.c_moreprompt);
 }
+
 
 /*
  * echo 
@@ -753,9 +749,8 @@ void cmd_echo(char *etext)
 }
 
 
-
 /* 
- * identify as internal program
+ * Perform privilege escalation for an internal program
  */
 void cmd_ipgm(char *argbuf)
 {
@@ -768,8 +763,7 @@ void cmd_ipgm(char *argbuf)
 	 */
 	if (!CC->is_local_socket) {
 		sleep(5);
-		cprintf("%d Authentication failed.\n",
-			ERROR + PASSWORD_REQUIRED);
+		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
 	}
 	else if (secret == config.c_ipgm_secret) {
 		CC->internal_pgm = 1;
@@ -779,8 +773,7 @@ void cmd_ipgm(char *argbuf)
 	}
 	else {
 		sleep(5);
-		cprintf("%d Authentication failed.\n",
-			ERROR + PASSWORD_REQUIRED);
+		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
 		CtdlLogPrintf(CTDL_ERR, "Warning: ipgm authentication failed.\n");
 		CC->kill_me = 1;
 	}
@@ -820,6 +813,7 @@ void cmd_down(char *argbuf) {
 	CtdlThreadStopAll();
 }
 
+
 /*
  * Halt the server without exiting the server process.
  */
@@ -831,6 +825,7 @@ void cmd_halt(char *argbuf) {
 	CtdlThreadStopAll();
 	shutdown_and_halt = 1;
 }
+
 
 /*
  * Schedule or cancel a server shutdown
@@ -894,8 +889,6 @@ void generate_nonce(CitContext *con) {
 	snprintf(con->cs_nonce, NONCE_SIZE, "<%d%ld@%s>",
 		rand(), (long)tv.tv_usec, config.c_fqdn);
 }
-
-
 
 
 /*
@@ -1004,16 +997,17 @@ void citproto_begin_session() {
 }
 
 
-
 void cmd_noop(char *argbuf)
 {
 	cprintf("%d%cok\n", CIT_OK, CtdlCheckExpress() );
 }
 
+
 void cmd_qnop(char *argbuf)
 {
 	/* do nothing, this command returns no response */
 }
+
 
 void cmd_quit(char *argbuf)
 {
@@ -1021,12 +1015,14 @@ void cmd_quit(char *argbuf)
 	CC->kill_me = 1;
 }
 
+
 void cmd_lout(char *argbuf)
 {
 	if (CC->logged_in) 
 		CtdlUserLogout();
 	cprintf("%d logged out.\n", CIT_OK);
 }
+
 
 /*
  * This loop recognizes all server commands.
@@ -1101,11 +1097,6 @@ void do_async_loop(void) {
 }
 
 
-
-
-
-
-
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
 /*****************************************************************************/
@@ -1113,23 +1104,23 @@ void do_async_loop(void) {
 CTDL_MODULE_INIT(citserver)
 {
 	if (!threading) {
-		CtdlRegisterProtoHook(cmd_noop, "NOOP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_qnop, "QNOP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_quit, "QUIT", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_lout, "LOUT", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_asyn, "ASYN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_info, "INFO", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_mesg, "MESG", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_emsg, "EMSG", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_echo, "ECHO", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_more, "MORE", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_iden, "IDEN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_ipgm, "IPGM", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_term, "TERM", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_down, "DOWN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_halt, "HALT", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_time, "TIME", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_noop, "NOOP", "no operation");
+		CtdlRegisterProtoHook(cmd_qnop, "QNOP", "no operation with no response");
+		CtdlRegisterProtoHook(cmd_quit, "QUIT", "log out and disconnect from server");
+		CtdlRegisterProtoHook(cmd_lout, "LOUT", "log out but do not disconnect from server");
+		CtdlRegisterProtoHook(cmd_asyn, "ASYN", "enable asynchronous server responses");
+		CtdlRegisterProtoHook(cmd_info, "INFO", "fetch server capabilities and configuration");
+		CtdlRegisterProtoHook(cmd_mesg, "MESG", "fetch system banners");
+		CtdlRegisterProtoHook(cmd_emsg, "EMSG", "submit system banners");
+		CtdlRegisterProtoHook(cmd_echo, "ECHO", "echo text back to the client");
+		CtdlRegisterProtoHook(cmd_more, "MORE", "fetch the paginator prompt");
+		CtdlRegisterProtoHook(cmd_iden, "IDEN", "identify the client software and location");
+		CtdlRegisterProtoHook(cmd_ipgm, "IPGM", "perform privilege escalation for internal programs");
+		CtdlRegisterProtoHook(cmd_term, "TERM", "terminate another running session");
+		CtdlRegisterProtoHook(cmd_down, "DOWN", "perform a server shutdown");
+		CtdlRegisterProtoHook(cmd_halt, "HALT", "halt the server without exiting the server process");
+		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "schedule or cancel a server shutdown");
+		CtdlRegisterProtoHook(cmd_time, "TIME", "fetch the date and time from the server");
 	}
         /* return our Subversion id for the Log */
 	return "$Id$";
