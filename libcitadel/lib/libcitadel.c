@@ -33,6 +33,6 @@ void StartLibCitadel(size_t basesize)
 void ShutDownLibCitadel(void)
 {
 	ShutDownLibCitadelMime();
-
+	WildFireShutdown();
 	xdg_mime_shutdown();
 }
