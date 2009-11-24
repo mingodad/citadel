@@ -2044,6 +2044,7 @@ int StrBufTCP_read_buffered_line(StrBuf *Line,
 
 }
 
+static const char *ErrRBLF_PreConditionFailed="StrBufTCP_read_buffered_line_fast: Wrong arguments or invalid Filedescriptor";
 static const char *ErrRBLF_SelectFailed="StrBufTCP_read_buffered_line_fast: Select failed without reason";
 static const char *ErrRBLF_NotEnoughSentFromServer="StrBufTCP_read_buffered_line_fast: No complete line was sent from peer";
 /**
@@ -2077,6 +2078,14 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	int IsNonBlock;
 	struct timeval tv;
 	
+	if ((Line == NULL) ||
+	    (IOBuf == NULL) ||
+	    (*fd == -1))
+	{
+		*Error = ErrRBLF_PreConditionFailed;
+		return -1;
+	}
+
 	pos = *Pos;
 	if ((IOBuf->BufUsed > 0) && 
 	    (pos != NULL) && 
@@ -2182,6 +2191,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 
 }
 
+static const char *ErrRBLF_BLOBPreConditionFailed="StrBufReadBLOB: Wrong arguments or invalid Filedescriptor";
 /**
  * @ingroup StrBuf_IO
  * @brief Input binary data from socket
@@ -2203,8 +2213,12 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 	int IsNonBlock;
 	struct timeval tv;
 	fd_set rfds;
+
 	if ((Buf == NULL) || (*fd == -1))
+	{
+		*Error = ErrRBLF_BLOBPreConditionFailed;
 		return -1;
+	}
 	if (!append)
 		FlushStrBuf(Buf);
 	if (Buf->BufUsed + nBytes >= Buf->BufSize)
@@ -2257,6 +2271,7 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 	return nRead;
 }
 
+const char *ErrRBB_BLOBFPreConditionFailed = "StrBufReadBLOBBuffered: to many selects; aborting.";
 const char *ErrRBB_too_many_selects = "StrBufReadBLOBBuffered: to many selects; aborting.";
 /**
  * @ingroup StrBuf_BufferedIO
@@ -2298,7 +2313,11 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	int nSuccessLess;
 
 	if ((Blob == NULL) || (*fd == -1) || (IOBuf == NULL) || (Pos == NULL))
+	{
+		*Error = ErrRBB_BLOBFPreConditionFailed;
 		return -1;
+	}
+
 	if (!append)
 		FlushStrBuf(Blob);
 	if (Blob->BufUsed + nBytes >= Blob->BufSize) 
