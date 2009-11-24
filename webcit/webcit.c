@@ -27,8 +27,8 @@ void DeleteWebcitHandler(void *vHandler)
 {
 	WebcitHandler *Handler = (WebcitHandler*) vHandler;
 	FreeStrBuf(&Handler->Name);
+	FreeStrBuf(&Handler->DisplayName);
 	free (Handler);
-
 }
 
 void WebcitAddUrlHandler(const char * UrlString, long UrlSLen, 
