@@ -16,8 +16,8 @@
 	<select name="newview" size="1" 
 OnChange="location.href=roomlistomatic.newview.options[selectedIndex].value">
 
-<option <?%("COND:PREF", 1, "roomlistview", "rooms", "SELECTED", "")> value="knrooms?view=rooms&template=knrooms&SortBy=byfloorroom&SortOrder=1"><?_("View as room list")></option>
-<option <?%("COND:PREF", 1, "roomlistview", "folders", "SELECTED", "")> value="knrooms?view=folders&template=knrooms&SortBy=byfloorroom&SortOrder=1"><?_("View as folder list")></option>
+<option <?%("COND:PREF", 1, "roomlistview", "rooms", "SELECTED", "")> value="knrooms?view=rooms?template=knrooms?SortBy=byfloorroom?SortOrder=1"><?_("View as room list")></option>
+<option <?%("COND:PREF", 1, "roomlistview", "folders", "SELECTED", "")> value="knrooms?view=folders?template=knrooms?SortBy=byfloorroom?SortOrder=1"><?_("View as folder list")></option>
 <?%("COND:PREF", 1, "roomlistview", "table", "SELECTED", "")>
 </select>
 

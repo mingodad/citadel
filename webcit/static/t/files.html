@@ -15,10 +15,10 @@
 
 <table class="downloads_background">
 <tr>
-  <th><?_("Filename")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filename")>&SortBy=<?SORT:NEXT("filename")>"><img border="0" src="<?SORT:ICON("filename")>" /></a> </th>
-  <th><?_("Size")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filesize")>&SortBy=<?SORT:NEXT("filesize")>"><img border="0" src="<?SORT:ICON("filesize")>" /></a> </th>
-  <th><?_("Content")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filemime")>&SortBy=<?SORT:NEXT("filemime")>"><img border="0" src="<?SORT:ICON("filemime")>" /></a> </th>
-  <th><?_("Description")>&nbsp;<a href="do_template?template=files&SortOrder=<?SORT:ORDER("filesubject")>&SortBy=<?SORT:NEXT("filesubject")>"><img border="0" src="<?SORT:ICON("filesubject")>" /></a> </th>
+  <th><?_("Filename")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filename")>&SortBy=<?SORT:NEXT("filename")>"><img border="0" src="<?SORT:ICON("filename")>" /></a> </th>
+  <th><?_("Size")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filesize")>&SortBy=<?SORT:NEXT("filesize")>"><img border="0" src="<?SORT:ICON("filesize")>" /></a> </th>
+  <th><?_("Content")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filemime")>&SortBy=<?SORT:NEXT("filemime")>"><img border="0" src="<?SORT:ICON("filemime")>" /></a> </th>
+  <th><?_("Description")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filesubject")>&SortBy=<?SORT:NEXT("filesubject")>"><img border="0" src="<?SORT:ICON("filesubject")>" /></a> </th>
 </tr>
 <?ITERATE("ROOM:FILES", "section_files_onefile")>
 

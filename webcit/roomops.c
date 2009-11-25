@@ -1560,7 +1560,7 @@ void display_editroom(void)
 					extract_token(recp, buf, 1, '|', sizeof recp);
 			
 					escputs(recp);
-					wc_printf(" <a href=\"netedit?cmd=remove&tab=listserv&line=listrecp|");
+					wc_printf(" <a href=\"netedit?cmd=remove?tab=listserv?line=listrecp|");
 					urlescputs(recp);
 					wc_printf("\">");
 					wc_printf(_("(remove)"));
@@ -1590,7 +1590,7 @@ void display_editroom(void)
 					extract_token(recp, buf, 1, '|', sizeof recp);
 			
 					escputs(recp);
-					wc_printf(" <a href=\"netedit?cmd=remove&tab=listserv&line="
+					wc_printf(" <a href=\"netedit?cmd=remove?tab=listserv?line="
 						"digestrecp|");
 					urlescputs(recp);
 					wc_printf("\">");
@@ -1814,7 +1814,7 @@ void display_editroom(void)
 					wc_printf("<td>%ld</td>", extract_long(buf, 5));	/* Fetching interval */
 			
 					wc_printf("<td class=\"button_link\">");
-					wc_printf(" <a href=\"netedit?cmd=remove&tab=feeds&line=pop3client|");
+					wc_printf(" <a href=\"netedit?cmd=remove?tab=feeds?line=pop3client|");
 					urlescputs(recp);
 					wc_printf("\">");
 					wc_printf(_("(remove)"));
@@ -1881,7 +1881,7 @@ void display_editroom(void)
 					wc_printf("</td>");
 
 					wc_printf("<td class=\"button_link\">");
-					wc_printf(" <a href=\"netedit?cmd=remove&tab=feeds&line=rssclient|");
+					wc_printf(" <a href=\"netedit?cmd=remove?tab=feeds?line=rssclient|");
 					urlescputs(recp);
 					wc_printf("\">");
 					wc_printf(_("(remove)"));

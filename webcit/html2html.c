@@ -369,7 +369,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		if (!strncasecmp(ptr, "<a href=\"mailto:", 16)) {
 			content_length += 64;
 			StrBufAppendPrintf(converted_msg,
-					"<a href=\"display_enter?force_room=_MAIL_&recp=");
+					"<a href=\"display_enter?force_room=_MAIL_?recp=");
 			ptr = &ptr[16];
 			++alevel;
 			++brak;

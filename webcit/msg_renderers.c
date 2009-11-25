@@ -495,7 +495,7 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 			|| (!strcasecmp(&(ChrPtr(WCC->wc_roomname)[11]), USERCONFIGROOM))
 			|| (WC->wc_view == VIEW_ADDRESSBOOK)
 			) {
-			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld&partnum=%s\">",
+			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld?partnum=%s\">",
 				Mime->msgnum, ChrPtr(Mime->PartNum));
 			StrBufAppendPrintf(Buf, "[%s]</a>", _("edit"));
 		}
