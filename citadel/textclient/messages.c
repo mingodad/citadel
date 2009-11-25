@@ -74,6 +74,7 @@ extern char room_name[];
 extern char tempdir[];
 extern unsigned room_flags;
 extern unsigned room_flags2;
+extern int entmsg_ok;
 extern long highest_msg_read;
 extern char temp[];
 extern char temp2[];
@@ -1093,10 +1094,17 @@ int entmsg(CtdlIPC *ipc,
 	int r;			/* IPC response code */
 	int subject_required = 0;
 
-	if (c > 0)
+	if (!entmsg_ok) {
+		scr_printf("You may not enter messages in this type of room.\n");
+		return(1);
+	}
+
+	if (c > 0) {
 		mode = 1;
-	else
+	}
+	else {
 		mode = 0;
+	}
 
 	strcpy(subject, "");
 

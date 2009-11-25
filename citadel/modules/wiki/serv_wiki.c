@@ -108,8 +108,9 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	/* If this isn't a MIME message, don't bother. */
 	if (msg->cm_format_type != 4) return(0);
 
-	/* If there's no EUID we can't do this. */
-	if (msg->cm_fields['E'] == NULL) return(0);
+	/* If there's no EUID we can't do this.  Reject the post. */
+	if (msg->cm_fields['E'] == NULL) return(1);
+
 	snprintf(history_page, sizeof history_page, "%s_HISTORY_", msg->cm_fields['E']);
 
 	/* Make sure we're saving a real wiki page rather than a wiki history page.
@@ -132,7 +133,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	msg->cm_fields['U'] = strdup(msg->cm_fields['E']);
 
 	/* See if we can retrieve the previous version. */
-	old_msgnum = locate_message_by_euid(msg->cm_fields['E'], &CCC->room);
+	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields['E'], &CCC->room);
 	if (old_msgnum > 0L) {
 		old_msg = CtdlFetchMessage(old_msgnum, 1);
 	}
@@ -203,7 +204,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 
 	/* Now look for the existing edit history */
 
-	history_msgnum = locate_message_by_euid(history_page, &CCC->room);
+	history_msgnum = CtdlLocateMessageByEuid(history_page, &CCC->room);
 	history_msg = NULL;
 	if (history_msgnum > 0L) {
 		history_msg = CtdlFetchMessage(history_msgnum, 1);
@@ -365,7 +366,7 @@ void wiki_history(char *pagename) {
 	}
 
 	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
-	msgnum = locate_message_by_euid(history_page_name, &CC->room);
+	msgnum = CtdlLocateMessageByEuid(history_page_name, &CC->room);
 	if (msgnum > 0L) {
 		msg = CtdlFetchMessage(msgnum, 1);
 	}
@@ -489,7 +490,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	/* Begin by fetching the current version of the page.  We're going to patch
 	 * backwards through the diffs until we get the one we want.
 	 */
-	msgnum = locate_message_by_euid(pagename, &CC->room);
+	msgnum = CtdlLocateMessageByEuid(pagename, &CC->room);
 	if (msgnum > 0L) {
 		msg = CtdlFetchMessage(msgnum, 1);
 	}
@@ -523,7 +524,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 	/* Get the revision history */
 
 	snprintf(history_page_name, sizeof history_page_name, "%s_HISTORY_", pagename);
-	msgnum = locate_message_by_euid(history_page_name, &CC->room);
+	msgnum = CtdlLocateMessageByEuid(history_page_name, &CC->room);
 	if (msgnum > 0L) {
 		msg = CtdlFetchMessage(msgnum, 1);
 	}

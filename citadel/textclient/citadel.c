@@ -92,6 +92,7 @@ int screenwidth;
 int screenheight;
 unsigned room_flags;
 unsigned room_flags2;
+int entmsg_ok = 0;
 char room_name[ROOMNAMELEN];
 char *uglist[UGLISTLEN]; /* size of the ungoto list */
 long uglistlsn[UGLISTLEN]; /* current read position for all the ungoto's. Not going to make any friends with this one. */
@@ -469,6 +470,19 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	room_flags2 = room->RRflags2;
 	from_floor = curr_floor;
 	curr_floor = room->RRfloor;
+
+	/* Determine, based on the room's default view, whether an <E>nter message
+	 * command will be valid here.
+	 */
+	switch(room->RRdefaultview) {
+		case VIEW_BBS:
+		case VIEW_MAILBOX:
+					entmsg_ok = 1;
+					break;
+		default:
+					entmsg_ok = 0;
+					break;
+	}
 
 	remove_march(room_name, 0);
 	if (!strcasecmp(towhere, "_BASEROOM_"))
