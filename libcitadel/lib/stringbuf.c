@@ -2079,9 +2079,12 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	struct timeval tv;
 	
 	if ((Line == NULL) ||
+	    (Pos == NULL) ||
 	    (IOBuf == NULL) ||
 	    (*fd == -1))
 	{
+		if (Pos != NULL)
+			*Pos = NULL;
 		*Error = ErrRBLF_PreConditionFailed;
 		return -1;
 	}
@@ -2120,6 +2123,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	
 	if (IOBuf->BufSize - IOBuf->BufUsed < 10) {
 		IncreaseBuf(IOBuf, 1, -1);
+		*Pos = NULL;
 	}
 
 	fdflags = fcntl(*fd, F_GETFL);
@@ -2314,6 +2318,8 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 
 	if ((Blob == NULL) || (*fd == -1) || (IOBuf == NULL) || (Pos == NULL))
 	{
+		if (*Pos != NULL)
+			*Pos = NULL;
 		*Error = ErrRBB_BLOBFPreConditionFailed;
 		return -1;
 	}
@@ -2359,6 +2365,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	}
 
 	FlushStrBuf(IOBuf);
+	*Pos = NULL;
 	if (IOBuf->BufSize < nBytes - nRead)
 		IncreaseBuf(IOBuf, 0, nBytes - nRead);
 	ptr = IOBuf->buf;
