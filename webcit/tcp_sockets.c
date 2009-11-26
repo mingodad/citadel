@@ -781,6 +781,7 @@ SessionDestroyModule_TCPSOCKETS
 {
 	FreeStrBuf(&sess->CLineBuf);
 	FreeStrBuf(&sess->ReadBuf);
+	sess->ReadPos = NULL;
 	FreeStrBuf(&sess->MigrateReadLineBuf);
 	if (sess->serv_sock > 0)
 		close(sess->serv_sock);
