@@ -25,6 +25,7 @@ HashList *GlobalNS;
 HashList *Iterators;
 HashList *Conditionals;
 HashList *SortHash;
+HashList *Defines;
 
 int DumpTemplateI18NStrings = 0;
 int LoadTemplates = 0;
@@ -780,6 +781,7 @@ void GetTemplateTokenString(StrBuf *Target,
 
 	switch (TP->Tokens->Params[N]->Type) {
 
+	case TYPE_INTDEFINE:
 	case TYPE_STR:
 		*Value = TP->Tokens->Params[N]->Start;
 		*len = TP->Tokens->Params[N]->len;
@@ -890,7 +892,8 @@ long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long df
 		}
 		if (get_PREF_LONG(TKEY(N), &Ret, dflt))
 			return Ret;
-		return 0;		
+		return 0;
+	case TYPE_INTDEFINE:
 	case TYPE_LONG:
 		return TP->Tokens->Params[N]->lvalue;
 	case TYPE_PREFINT:
@@ -1111,7 +1114,12 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 	Template->Tokens[(Template->nTokensUsed)++] = NewToken;
 }
 
-TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, WCTemplateToken *Tokens, WCTemplate *pTmpl)
+TemplateParam *GetNextParameter(StrBuf *Buf, 
+				const char **pCh, 
+				const char *pe, 
+				WCTemplateToken *Tokens, 
+				WCTemplate *pTmpl, 
+				WCTemplputParams *TP)
 {
 	const char *pch = *pCh;
 	const char *pchs, *pche;
@@ -1144,6 +1152,10 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 			pch ++;
 			ParamBrace = 1;
 		}
+	}
+	else if (*pch == '#') {
+		Parm->Type = TYPE_INTDEFINE;
+		pch ++;
 	}
 	else if (*pch == '_') {
 		Parm->Type = TYPE_GETTEXT;
@@ -1249,6 +1261,25 @@ TemplateParam *GetNextParameter(StrBuf *Buf, const char **pCh, const char *pe, W
 	if (DumpTemplateI18NStrings && (Parm->Type == TYPE_GETTEXT)) {
 		StrBufAppendPrintf(I18nDump, "_(\"%s\");\n", Parm->Start);
 	}
+	if (Parm->Type == TYPE_INTDEFINE)
+	{
+		void *vPVal;
+
+		if (GetHash(Defines, Parm->Start, Parm->len, &vPVal) &&
+		    (vPVal != NULL))
+		{
+			long *PVal;
+			PVal = (long*) vPVal;
+		
+			Parm->lvalue = *PVal;
+		}
+		else 
+		{
+			LogTemplateError(NULL, "Define", ERR_PARM1, TP,
+					 "%s isn't known!!",
+					 Parm->Start);
+		}
+	}
 	*pCh = pch;
 	return Parm;
 }
@@ -1299,7 +1330,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 					"Warning, Non welformed Token; missing right parenthesis");
 			}
 			while (pch < pTmplEnd - 1) {
-				Param = GetNextParameter(Buf, &pch, pTmplEnd - 1, NewToken, pTmpl);
+				Param = GetNextParameter(Buf, &pch, pTmplEnd - 1, NewToken, pTmpl, &TP);
 				if (Param != NULL) {
 					NewToken->HaveParameters = 1;
 					if (NewToken->nParameters > MAXPARAM) {
@@ -2174,6 +2205,18 @@ void RegisterControlConditional(const char *Name, long len,
 	Put(Conditionals, Name, len, Cond, NULL);
 }
 
+void RegisterTokenParamDefine(const char *Name, long len, 
+			      long Value)
+{
+	long *PVal;
+
+	PVal = (long*)malloc(sizeof(long));
+	*PVal = Value;
+	Put(Defines, Name, len, PVal, NULL);
+}
+
+HashList *Defines;
+
 /*-----------------------------------------------------------------------------
  *                      Context Strings
  */
@@ -2681,6 +2724,7 @@ ServerStartModule_SUBST
 	Iterators = NewHash(1, NULL);
 	Conditionals = NewHash(1, NULL);
 	SortHash = NewHash(1, NULL);
+	Defines = NewHash(1, NULL);
 }
 
 void
@@ -2703,7 +2747,7 @@ ServerShutdownModule_SUBST
 	DeleteHash(&Iterators);
 	DeleteHash(&Conditionals);
 	DeleteHash(&SortHash);
-
+	DeleteHash(&Defines);
 }
 
 

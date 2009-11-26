@@ -15,6 +15,7 @@ extern HashList *LocalTemplateCache;
 #define TYPE_GETTEXT 5
 #define TYPE_BSTR 6
 #define TYPE_SUBTEMPLATE 7
+#define TYPE_INTDEFINE 8
 #define MAXPARAM  20
 
 
@@ -282,7 +283,17 @@ void RegisterConditional(const char *Name, long len,
 			 WCConditionalFunc CondF, 
 			 int ContextRequired);
 
-
+/**
+ * @brief register a string that will represent a long value
+ * this will allow to resolve <?...(#"Name")> to Value; that way 
+ * plain strings can be used an lexed in templates without having the 
+ * lookup overhead at runtime.
+ * @param Name The name of the define
+ * @param len length of Name
+ * @param Value the value to associate with Name
+ */
+void RegisterTokenParamDefine(const char *Name, long len, 
+			      long Value);
 
 #define IT_NOFLAG 0
 #define IT_FLAG_DETECT_GROUPCHANGE (1<<0)
