@@ -81,6 +81,8 @@ typedef struct _readloopstruct {
 	readloop_servcmd cmd;
 } readloop_struct;
 
+extern readloop_struct rlid[];
+
 
 void readloop(long oper);
 int read_message(StrBuf *Target, 

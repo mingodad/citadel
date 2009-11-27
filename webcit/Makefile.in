@@ -50,7 +50,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o marchlist.o \
 	roomops.o roomlist.o messages.o msg_renderers.o userlist.o paging.o sysmsgs.o \
 	useredit.o vcard_edit.o preferences.o html2html.o listsub.o \
-	graphics.o netconf.o siteconfig.o subst.o \
+	graphics.o netconf.o siteconfig.o subst.o bbsview_renderer.o \
 	calendar.o calendar_tools.o calendar_view.o tasks.o event.o smtpqueue.o \
 	availability.o iconbar.o crypto.o inetconf.o notes.o wiki.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o fmt_date.o \
@@ -65,7 +65,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	webcit.o auth.o tcp_sockets.o mainmenu.o serv_func.o who.o listsub.o \
 	roomops.o roomlist.o messages.o msg_renderers.o userlist.o paging.o sysmsgs.o \
 	useredit.o locate_host.o siteconfig.o subst.o vcard_edit.o floors.o \
-	graphics.o netconf.o preferences.o html2html.o openid.o \
+	graphics.o netconf.o preferences.o html2html.o openid.o bbsview_renderer.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o tasks.o event.o wiki.o \
 	availability.o ical_dezonify.o iconbar.o crypto.o inetconf.o notes.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o groupdav_delete.o \
