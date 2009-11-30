@@ -746,6 +746,8 @@ SessionDetachModule_ROOMLIST
 (wcsession *sess)
 {
 	DeleteHash(&sess->Floors);
+	DeleteHash(&sess->Rooms);
+	DeleteHash(&sess->FloorsByName);
 }
 
 void 
