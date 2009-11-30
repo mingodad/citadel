@@ -165,7 +165,7 @@ if test "x$with_zlib" != xno ; then
 fi
 
 if test "x$ok_zlib" = xyes ; then
-dnl  libcitadel will bring libz, so we don't need it here.     LDFLAGS="-lz $LDFLAGS" 
+       LDFLAGS="-lz $LDFLAGS" 
        AC_DEFINE(HAVE_ZLIB, [], [define this if you have zlib compression available])
 fi
 
@@ -406,7 +406,7 @@ dnl Checks for libraries.
 dnl We want to test for the following in libc before checking for their
 dnl respective libraries, because some systems (like Irix) have both, and the
 dnl non-libc versions may be broken.
-AC_CHECK_FUNCS(crypt gethostbyname connect flock getpwnam_r getpwuid_r)
+AC_CHECK_FUNCS(crypt gethostbyname connect flock getpwnam_r getpwuid_r getloadavg)
 
 
 dnl disable backtrace if we don't want it.

@@ -410,16 +410,18 @@ double CtdlThreadGetWorkerAvg(void)
 
 double CtdlThreadGetLoadAvg(void)
 {
-	double load_avg[3] ;
+	double load_avg[3] = {0.0, 0.0, 0.0};
 
-	int ret;
+	int ret = 0;
 	int smp_num_cpus;
 
 	/* Borrowed this straight from procps */
 	smp_num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
 	if(smp_num_cpus<1) smp_num_cpus=1; /* SPARC glibc is buggy */
 
+#ifdef HAVE_GETLOADAVG
 	ret = getloadavg(load_avg, 3);
+#endif
 	if (ret < 0)
 		return 0;
 	return load_avg[0] / smp_num_cpus;
