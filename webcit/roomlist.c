@@ -704,6 +704,12 @@ void jsonRoomFlr(void)
 	end_burst(); 
 }
 
+void 
+SessionDetachModule_ROOMLIST
+(wcsession *sess)
+{
+	DeleteHash(&sess->Floors);
+}
 
 
 void 
