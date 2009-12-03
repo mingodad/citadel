@@ -592,7 +592,7 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
  * @param At HashPos to update
  * \returns 0 if not found
  */
-int SetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
+int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
 {
 	long HashBinKey;
 	long HashAt;
