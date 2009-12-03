@@ -773,6 +773,10 @@ void readloop(long oper)
 		WCC->wc_view = VIEW_MAILBOX;
 	}
 
+	if (havebstr("is_ajax") && (1 == (ibstr("is_ajax")))) {
+		WCC->is_ajax = 1;
+	}
+
 	if ((oper == do_search) && (WCC->wc_view == VIEW_WIKI)) {
 		display_wiki_pagelist();
 		return;
