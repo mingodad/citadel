@@ -585,6 +585,71 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 }
 
 /**
+ * @brief Set iterator object to point to key. If not found, don't change iterator
+ * @param Hash the list we reference
+ * @param HKey key to search for
+ * @param HKLen length of key
+ * @param At HashPos to update
+ * \returns 0 if not found
+ */
+int SetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
+{
+	long HashBinKey;
+	long HashAt;
+
+	if (Hash == NULL)
+		return 0;
+
+	if (HKLen <= 0) {
+		return  0;
+	}
+	/** first, find out were we could be... */
+	HashBinKey = CalcHashKey(Hash, HKey, HKLen);
+	HashAt = FindInHash(Hash, HashBinKey);
+	if ((HashAt < 0) || /**< Not found at the lower edge? */
+	    (HashAt >= Hash->nMembersUsed) || /**< Not found at the upper edge? */
+	    (Hash->LookupTable[HashAt]->Key != HashBinKey)) { /**< somewhere inbetween but no match? */
+		return 0;
+	}
+	/** GOTCHA! */
+	At->Position = Hash->LookupTable[HashAt]->Position;
+	return 1;
+}
+
+/**
+ * @brief Delete from the Hash the entry at Position
+ * @param Hash the list we reference
+ * @param At the position within the Hash
+ * \returns 0 if not found
+ */
+int DeleteEntryFromHash(HashList *Hash, HashPos *At)
+{
+	if (Hash == NULL)
+		return 0;
+
+	if ((Hash == NULL) || 
+	    (At->Position >= Hash->nMembersUsed) || 
+	    (At->Position < 0) ||
+	    (At->Position > Hash->nMembersUsed))
+		return 0;
+	/** get rid of our payload */
+	if (Hash->Members[At->Position] != NULL)
+	{
+		DeleteHashPayload(Hash->Members[At->Position]);
+		free(Hash->Members[At->Position]);
+		Hash->Members[At->Position] = NULL;
+	}
+	/** delete our hashing data */
+	if (Hash->LookupTable[At->Position] != NULL)
+	{
+		free(Hash->LookupTable[At->Position]->HashKey);
+		free(Hash->LookupTable[At->Position]);
+		Hash->LookupTable[At->Position] = NULL;
+	}
+	return 1;
+}
+
+/**
  * @brief retrieve the counter from the itteratoor
  * @param the Iterator to analyze
  * \returns the n'th hashposition we point at
