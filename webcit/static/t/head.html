@@ -11,9 +11,9 @@
 <link href="static/bt.css" rel="stylesheet" type="text/css">
 
 <??("COND:LOGGEDIN",1)>
-<link href="user_iconbar" rel="stylesheet" type="text/css">
-<link href="static/iconbaricns.css" rel="<?%("COND:ICONBAR:ACTIVE", 1 , "ib_displayas", 0, "", "alternate ")>stylesheet" type="text/css" id="style_iconbar_icns" title="Default iconbar">
-<link href="static/iconbarpiconly.css" rel="<?%("COND:ICONBAR:ACTIVE", 1 , "ib_displayas", 1, "","alternate ")>stylesheet" type="text/css" id="style_iconbar_piconly" title="Iconbar without text">
+<link href="do_template?template=iconbar_user" rel="stylesheet" type="text/css">
+<link href="static/iconbaricns.css" rel="<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_displayas", "", "alternate ")>stylesheet" type="text/css" id="style_iconbar_icns" title="Default iconbar">
+<link href="static/iconbarpiconly.css" rel="<?%("COND:ICONBAR:ACTIVE", 1, 1, #"ib_displayas", "","alternate ")>stylesheet" type="text/css" id="style_iconbar_piconly" title="Iconbar without text">
 <??("X",1)>
 
 <?CSSLOCAL> 

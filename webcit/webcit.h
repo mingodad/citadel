@@ -520,7 +520,7 @@ struct wcsession {
 	int cache_max_folders;
 	int cache_num_floors;
 	time_t cache_timestamp;
-	HashList *IconBarSettings;		/* which icons should be shown / not shown? */
+	long *IBSettingsVec;                    /* which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/* which floordiv currently expanded */
 
 

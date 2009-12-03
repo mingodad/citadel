@@ -16,58 +16,54 @@ void DontDeleteThis(void *Data){}
 #define IconbarIsEnabled(a, b) IconbarIsENABLED(a, sizeof(a) - 1, b)
 
 
-
+HashList *IB_Seeting_Order = NULL;
 typedef struct _dflt_IB_Setting {
-	int DefVal;
-	const char *Key;
-	long len;
+	int         DefVal;  /* default value for non-set users */
+	long        n;       /* counter for internal purposes   */
+	const char *Key;     /* Stringvalue */
+	long        len;     /* Length... */
 }dflt_IB_Setting;
 
+long nIBV = 0;
 dflt_IB_Setting IconbarDefaults[] = {
-	{0, HKEY("ib_displayas")},
-	{0, HKEY("ib_logo")},
-	{1, HKEY("ib_summary")},
-	{1, HKEY("ib_inbox")},
-	{1, HKEY("ib_calendar")},
-	{1, HKEY("ib_contacts")},
-	{1, HKEY("ib_notes")},
-	{1, HKEY("ib_tasks")},
-	{1, HKEY("ib_rooms")},
-	{1, HKEY("ib_users")},
-	{1, HKEY("ib_chat")},
-	{1, HKEY("ib_advanced")},
-	{1, HKEY("ib_logoff")},
-	{1, HKEY("ib_citadel")},
-	{0, HKEY("")}
+	{0,  0, HKEY("unused")},
+	{0,  1, HKEY("ib_displayas")},
+	{0,  2, HKEY("ib_logo")},
+	{1,  3, HKEY("ib_summary")},
+	{1,  4, HKEY("ib_inbox")},
+	{1,  5, HKEY("ib_calendar")},
+	{1,  6, HKEY("ib_contacts")},
+	{1,  7, HKEY("ib_notes")},
+	{1,  8, HKEY("ib_tasks")},
+	{1,  9, HKEY("ib_rooms")},
+	{1, 10, HKEY("ib_users")},
+	{1, 11, HKEY("ib_chat")},
+	{1, 12, HKEY("ib_advanced")},
+	{1, 13, HKEY("ib_logoff")},
+	{1, 14, HKEY("ib_citadel")},
+	{0, 15, HKEY("")}
 };
 
 HashList *IBDfl = NULL;
 
-long IconbarGetDefault(const char *key, size_t keylen)
-{
-	void *vIBDfl;
 
+long IconbarIsENABLED(long val, const char *key, size_t keylen)
+{
+	void *vIBDfl = NULL;
+	wcsession *WCC = WC;
+
+	if ((WCC != NULL) && 
+	    (WCC->IBSettingsVec != NULL) && 
+	    (val < nIBV))
+	{
+		return WCC->IBSettingsVec[val];
+	}
 	if (GetHash(IBDfl, key, keylen, &vIBDfl)) {
 		dflt_IB_Setting *Set = (dflt_IB_Setting*)vIBDfl;
 		return Set->DefVal;
 	}
-	return 0;
-}
-long IconbarIsENABLED(const char *key, size_t keylen, long defval)
-{
-	void *Data = NULL;
-	wcsession *WCC = WC;
-
-	if (WCC == NULL) 
-		return defval;
-
-	if (GetHash(WCC->IconBarSettings, 
-		    key, 
-		    keylen,
-		    &Data))
-		return (long) Data;
 	else 
-		return defval;
+		return 1;
 }
 
 #ifdef DBG_ICONBAR_HASH
@@ -79,7 +75,7 @@ inline const char *PrintInt(void *Prefstr)
 }
 #endif
 
-/* Produces a stylesheet which hides any iconbar icons the user does not want */
+/* Produces a stylesheet which hides any iconbar icons the user does not want * /
 void doUserIconStylesheet(void) {
 	HashPos *pos;
 	void *Data;
@@ -98,7 +94,7 @@ void doUserIconStylesheet(void) {
 		if (value == 0 
 		    && strncasecmp("ib_displayas",key,12) 
 		    && strncasecmp("ib_logoff", key, 9)) {
-			/* Don't shoot me for this */
+			/ * Don't shoot me for this * /
 			wc_printf("#%s { display: none !important; }\r\n",key);
 		} else if (!strncasecmp("ib_users",key, 8) && value == 2) {
 			wc_printf("#online_users { display: block; !important } \r\n");
@@ -108,27 +104,65 @@ void doUserIconStylesheet(void) {
 	end_burst();
 }
 
+void doUserIconStylesheet(void) {
+	HashPos *pos;
+	void *Data;
+	long value;
+	const char *key;
+	long HKLen;
+	
+//	output_custom_content_header("text/css");
+	const StrBuf *MimeType;
+	begin_burst();
+	MimeType = DoTemplate(HKEY("user_iconbar"), NULL, &NoCtx);
+	http_transmit_thing(ChrPtr(MimeType), 0);
+	hprintf("Cache-Control: private\r\n");
+	
+	end_burst();
+}
+
+*/
+
+
 int ConditionalIsActiveStylesheet(StrBuf *Target, WCTemplputParams *TP) {
 	long testFor;
-	int ib_displayas;
+	long lookAt;
+	long ib_displayas;
 
-	testFor = GetTemplateTokenNumber(Target, TP, 3, IB_PICTEXT);
-	ib_displayas = IconbarIsENABLED(TKEY(2),IconbarGetDefault(TKEY(2)));
+	lookAt = GetTemplateTokenNumber(Target, TP, 3, IB_PICTEXT);
+	testFor = GetTemplateTokenNumber(Target, TP, 2, IB_PICTEXT);
+
+
+
+	ib_displayas = IconbarIsENABLED(lookAt, TKEY(3));
+
+	printf ("%ld == %ld ? %s : %s\n", 
+		testFor, 
+		ib_displayas, 
+		IconbarDefaults[lookAt ].Key, 
+		ChrPtr(TP->Tokens->FlatToken));
+
+
 	return (testFor == ib_displayas);
 }
 
 void LoadIconSettings(StrBuf *iconbar, long lvalue)
 {
+	void *vIBDfl;
+	dflt_IB_Setting *Set;
+	const char *pCh = NULL;
+
 	wcsession *WCC = WC;
 	StrBuf *buf;
 	StrBuf *key;
 	long val;
-	int i, nTokens;
 
-	buf = NewStrBuf();;
+	buf = NewStrBuf();
 	key = NewStrBuf();
-	if (WCC->IconBarSettings == NULL)
-		WCC->IconBarSettings = NewHash(1, NULL);
+	if (WCC->IBSettingsVec == NULL)
+	{
+		WCC->IBSettingsVec = (long*) malloc (nIBV * sizeof(long));
+	}
 	/**
 	 * The initialized values of these variables also happen to
 	 * specify the default values for users who haven't customized
@@ -136,16 +170,18 @@ void LoadIconSettings(StrBuf *iconbar, long lvalue)
 	 * configuration somewhere.
 	 */
 
-	nTokens = StrBufNum_tokens(iconbar, ',');
-	for (i=0; i<nTokens; ++i) {
-		StrBufExtract_token(buf, iconbar, i, ',');
+	while (StrBufExtract_NextToken(buf, iconbar, &pCh,  ',') >= 0)
+	{
 		StrBufExtract_token(key, buf, 0, '=');
 		val = StrBufExtract_long(buf, 1, '=');
-		Put(WCC->IconBarSettings, 
-		    ChrPtr(key), StrLength(key),
-		    (void*)val, DontDeleteThis);
-	}
 
+		if (!GetHash(IBDfl, SKEY(key), &vIBDfl)) 
+			continue;
+		Set = (dflt_IB_Setting*)vIBDfl;
+
+		WCC->IBSettingsVec[Set->n] = val;
+		printf("%ld %s %s -> %ld \n", Set->n, Set->Key, IconbarDefaults[Set->n].Key, val);
+	}
 #ifdef DBG_ICONBAR_HASH
 	dbg_PrintHash(WCC->IconBarSetttings, PrintInt, NULL);
 #endif
@@ -230,7 +266,7 @@ void
 ServerStartModule_ICONBAR
 (void)
 {
-	int i = 0;
+	int i = 1;
 	IBDfl = NewHash(1, NULL);
 
 	while (IconbarDefaults[i].len != 0)
@@ -248,12 +284,22 @@ void
 InitModule_ICONBAR
 (void)
 {
-	WebcitAddUrlHandler(HKEY("user_iconbar"), "", 0, doUserIconStylesheet, 0);
+	long l;
+
+	/*WebcitAddUrlHandler(HKEY("user_iconbar"), "", 0, doUserIconStylesheet, 0); */
 	WebcitAddUrlHandler(HKEY("commit_iconbar"), "", 0, commit_iconbar, 0);
 	RegisterConditional(HKEY("COND:ICONBAR:ACTIVE"), 3, ConditionalIsActiveStylesheet, CTX_NONE);
 	RegisterNamespace("ICONBAR", 0, 0, tmplput_iconbar, NULL, CTX_NONE);
 
 	RegisterPreference("iconbar", _("Iconbar Setting"), PRF_STRING, LoadIconSettings);
+	l = 1;
+	while (IconbarDefaults[l].len != 0)
+	{
+		RegisterTokenParamDefine(IconbarDefaults[l].Key, 
+					 IconbarDefaults[l].len, l);
+		l ++;
+	}
+	nIBV = l;
 }
 
 
@@ -262,5 +308,6 @@ void
 SessionDestroyModule_ICONBAR
 (wcsession *sess)
 {
-	DeleteHash(&sess->IconBarSettings);
+	if (sess->IBSettingsVec != NULL)
+		free(sess->IBSettingsVec);
 }
