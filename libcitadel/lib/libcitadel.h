@@ -447,7 +447,7 @@ int GetHashKeys(HashList *Hash, char ***List);
 int dbg_PrintHash(HashList *Hash, PrintHashContent first, PrintHashContent Second);
 int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry);
 HashPos *GetNewHashPos(HashList *Hash, int StepWidth);
-int SetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At);
+int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At);
 int DeleteEntryFromHash(HashList *Hash, HashPos *At);
 int GetHashPosCounter(HashList *Hash, HashPos *At);
 void DeleteHashPos(HashPos **DelMe);
