@@ -17,5 +17,4 @@
 
 <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_chat"     , "#ib_chat      { display: none !important; }" , "")>
 <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_advanced" , "#ib_advanced  { display: none !important; }" , "")>
-<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_logoff"   , "#ib_logoff    { display: none !important; }" , "")>
 <?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_citadel"  , "#ib_citadel   { display: none !important; }" , "")>
