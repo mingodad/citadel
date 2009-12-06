@@ -37,6 +37,7 @@ struct HashList {
 	char **MyKeys;         /**< this keeps the members for a call of GetHashKeys */
 	HashFunc Algorithm;    /**< should we use an alternating algorithm to calc the hash values? */
 	long nMembersUsed;     /**< how many pointers inside of the array are used? */
+	long nLookpTableItems; /**< how many items of the lookup table are used? */
 	long MemberSize;       /**< how big is Members and LookupTable? */
 	long tainted;          /**< if 0, we're hashed, else s.b. else sorted us in his own way. */
 	long uniq;             /**< are the keys going to be uniq? */
@@ -69,7 +70,7 @@ int PrintHash(HashList *Hash, TransitionFunc Trans, PrintHashDataFunc PrintEntry
 	if (Hash == NULL)
 		return 0;
 
-	for (i=0; i < Hash->nMembersUsed; i++) {
+	for (i=0; i < Hash->nLookpTableItems; i++) {
 		if (i==0) {
 			Previous = NULL;
 		}
@@ -116,11 +117,11 @@ int dbg_PrintHash(HashList *Hash, PrintHashContent First, PrintHashContent Secon
 	if (Hash->MyKeys != NULL)
 		free (Hash->MyKeys);
 
-	Hash->MyKeys = (char**) malloc(sizeof(char*) * Hash->nMembersUsed);
+	Hash->MyKeys = (char**) malloc(sizeof(char*) * Hash->nLookpTableItems);
 #ifdef DEBUG
 	printf("----------------------------------\n");
 #endif
-	for (i=0; i < Hash->nMembersUsed; i++) {
+	for (i=0; i < Hash->nLookpTableItems; i++) {
 		
 		if (Hash->LookupTable[i] == NULL)
 		{
@@ -179,7 +180,7 @@ HashList *NewHash(int Uniq, HashFunc F)
 int GetCount(HashList *Hash)
 {
 	if(Hash==NULL) return 0;
-	return Hash->nMembersUsed;
+	return Hash->nLookpTableItems;
 }
 
 
@@ -219,6 +220,7 @@ void DeleteHash(HashList **Hash)
 	FreeMe = *Hash;
 	if (FreeMe == NULL)
 		return;
+	/* even if there are sparse members already deleted... */
 	for (i=0; i < FreeMe->nMembersUsed; i++)
 	{
 		/** get rid of our payload */
@@ -257,6 +259,16 @@ static void IncreaseHashSize(HashList *Hash)
 	
 	if (Hash == NULL)
 		return ;
+
+	/** If we grew to much, this might be the place to rehash and shrink again.
+	if ((Hash->NMembersUsed > Hash->nLookpTableItems) && 
+	    ((Hash->NMembersUsed - Hash->nLookpTableItems) > 
+	     (Hash->nLookpTableItems / 10)))
+	{
+
+
+	}
+	*/
 
 	/** double our payload area */
 	NewPayloadArea = (Payload**) malloc(sizeof(Payload*) * Hash->MemberSize * 2);
@@ -317,11 +329,11 @@ static void InsertHashItem(HashList *Hash,
 	/** our payload is queued at the end... */
 	NewHashKey->Position = Hash->nMembersUsed;
 	/** but if we should be sorted into a specific place... */
-	if ((Hash->nMembersUsed != 0) && 
-	    (HashPos != Hash->nMembersUsed) ) {
+	if ((Hash->nLookpTableItems != 0) && 
+	    (HashPos != Hash->nLookpTableItems) ) {
 		long ItemsAfter;
 
-		ItemsAfter = Hash->nMembersUsed - HashPos;
+		ItemsAfter = Hash->nLookpTableItems - HashPos;
 		/** make space were we can fill us in */
 		if (ItemsAfter > 0)
 		{
@@ -334,6 +346,7 @@ static void InsertHashItem(HashList *Hash,
 	Hash->Members[Hash->nMembersUsed] = NewPayloadItem;
 	Hash->LookupTable[HashPos] = NewHashKey;
 	Hash->nMembersUsed++;
+	Hash->nLookpTableItems++;
 }
 
 /**
@@ -350,7 +363,7 @@ static long FindInTaintedHash(HashList *Hash, long HashBinKey)
 	if (Hash == NULL)
 		return 0;
 
-	for (SearchPos = 0; SearchPos < Hash->nMembersUsed; SearchPos ++) {
+	for (SearchPos = 0; SearchPos < Hash->nLookpTableItems; SearchPos ++) {
 		if (Hash->LookupTable[SearchPos]->Key == HashBinKey){
 			return SearchPos;
 		}
@@ -375,10 +388,10 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 	if (Hash->tainted)
 		return FindInTaintedHash(Hash, HashBinKey);
 
-	SearchPos = Hash->nMembersUsed / 2;
+	SearchPos = Hash->nLookpTableItems / 2;
 	StepWidth = SearchPos / 2;
 	while ((SearchPos > 0) && 
-	       (SearchPos < Hash->nMembersUsed)) 
+	       (SearchPos < Hash->nLookpTableItems)) 
 	{
 		/** Did we find it? */
 		if (Hash->LookupTable[SearchPos]->Key == HashBinKey){
@@ -400,7 +413,7 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 				SearchPos --;
 			}
 			else {
-				if ((SearchPos + 1 < Hash->nMembersUsed) && 
+				if ((SearchPos + 1 < Hash->nLookpTableItems) && 
 				    (Hash->LookupTable[SearchPos + 1]->Key > HashBinKey))
 					return SearchPos;
 				SearchPos ++;
@@ -515,7 +528,7 @@ int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data)
 	HashBinKey = CalcHashKey(Hash, HKey, HKLen);
 	HashAt = FindInHash(Hash, HashBinKey);
 	if ((HashAt < 0) || /**< Not found at the lower edge? */
-	    (HashAt >= Hash->nMembersUsed) || /**< Not found at the upper edge? */
+	    (HashAt >= Hash->nLookpTableItems) || /**< Not found at the upper edge? */
 	    (Hash->LookupTable[HashAt]->Key != HashBinKey)) { /**< somewhere inbetween but no match? */
 		*Data = NULL;
 		return 0;
@@ -549,13 +562,13 @@ int GetHashKeys(HashList *Hash, char ***List)
 	if (Hash->MyKeys != NULL)
 		free (Hash->MyKeys);
 
-	Hash->MyKeys = (char**) malloc(sizeof(char*) * Hash->nMembersUsed);
-	for (i=0; i < Hash->nMembersUsed; i++) {
+	Hash->MyKeys = (char**) malloc(sizeof(char*) * Hash->nLookpTableItems);
+	for (i=0; i < Hash->nLookpTableItems; i++) {
 	
 		Hash->MyKeys[i] = Hash->LookupTable[i]->HashKey;
 	}
 	*List = (char**)Hash->MyKeys;
-	return Hash->nMembersUsed;
+	return Hash->nLookpTableItems;
 }
 
 /**
@@ -576,7 +589,7 @@ HashPos *GetNewHashPos(HashList *Hash, int StepWidth)
 	else
 		Ret->StepWidth = 1;
 	if (Ret->StepWidth <  0) {
-		Ret->Position = Hash->nMembersUsed - 1;
+		Ret->Position = Hash->nLookpTableItems - 1;
 	}
 	else {
 		Ret->Position = 0;
@@ -607,7 +620,7 @@ int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
 	HashBinKey = CalcHashKey(Hash, HKey, HKLen);
 	HashAt = FindInHash(Hash, HashBinKey);
 	if ((HashAt < 0) || /**< Not found at the lower edge? */
-	    (HashAt >= Hash->nMembersUsed) || /**< Not found at the upper edge? */
+	    (HashAt >= Hash->nLookpTableItems) || /**< Not found at the upper edge? */
 	    (Hash->LookupTable[HashAt]->Key != HashBinKey)) { /**< somewhere inbetween but no match? */
 		return 0;
 	}
@@ -624,27 +637,49 @@ int GetHashPosFromKey(HashList *Hash, const char *HKey, long HKLen, HashPos *At)
  */
 int DeleteEntryFromHash(HashList *Hash, HashPos *At)
 {
+	Payload *FreeMe;
 	if (Hash == NULL)
 		return 0;
 
+	/* if lockable, lock here */
 	if ((Hash == NULL) || 
-	    (At->Position >= Hash->nMembersUsed) || 
+	    (At->Position >= Hash->nLookpTableItems) || 
 	    (At->Position < 0) ||
-	    (At->Position > Hash->nMembersUsed))
-		return 0;
-	/** get rid of our payload */
-	if (Hash->Members[At->Position] != NULL)
+	    (At->Position > Hash->nLookpTableItems))
 	{
-		DeleteHashPayload(Hash->Members[At->Position]);
-		free(Hash->Members[At->Position]);
-		Hash->Members[At->Position] = NULL;
+		/* unlock... */
+		return 0;
 	}
+
+	FreeMe = Hash->Members[At->Position];
+	Hash->Members[At->Position] = NULL;
+
+
 	/** delete our hashing data */
 	if (Hash->LookupTable[At->Position] != NULL)
 	{
 		free(Hash->LookupTable[At->Position]->HashKey);
 		free(Hash->LookupTable[At->Position]);
-		Hash->LookupTable[At->Position] = NULL;
+		if (At->Position < Hash->nLookpTableItems)
+		{
+			memmove(&Hash->LookupTable[At->Position],
+				&Hash->LookupTable[At->Position + 1],
+				(Hash->nLookpTableItems - At->Position - 1) * 
+				sizeof(HashKey*));
+
+		}
+		else 
+			Hash->LookupTable[At->Position] = NULL;
+		Hash->nLookpTableItems--;
+	}
+	/* unlock... */
+
+
+	/** get rid of our payload */
+	if (FreeMe != NULL)
+	{
+		DeleteHashPayload(FreeMe);
+		free(FreeMe);
 	}
 	return 1;
 }
@@ -657,9 +692,9 @@ int DeleteEntryFromHash(HashList *Hash, HashPos *At)
 int GetHashPosCounter(HashList *Hash, HashPos *At)
 {
 	if ((Hash == NULL) || 
-	    (At->Position >= Hash->nMembersUsed) || 
+	    (At->Position >= Hash->nLookpTableItems) || 
 	    (At->Position < 0) ||
-	    (At->Position > Hash->nMembersUsed))
+	    (At->Position > Hash->nLookpTableItems))
 		return 0;
 	return At->Position;
 }
@@ -690,9 +725,9 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 	long PayloadPos;
 
 	if ((Hash == NULL) || 
-	    (At->Position >= Hash->nMembersUsed) || 
+	    (At->Position >= Hash->nLookpTableItems) || 
 	    (At->Position < 0) ||
-	    (At->Position > Hash->nMembersUsed))
+	    (At->Position > Hash->nLookpTableItems))
 		return 0;
 	*HKLen = Hash->LookupTable[At->Position]->HKLen;
 	*HashKey = Hash->LookupTable[At->Position]->HashKey;
@@ -723,7 +758,7 @@ int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **
 
 	if ((Hash == NULL) || 
 	    (At < 0) || 
-	    (At > Hash->nMembersUsed))
+	    (At > Hash->nLookpTableItems))
 		return 0;
 	*HKLen = Hash->LookupTable[At]->HKLen;
 	*HashKey = Hash->LookupTable[At]->HashKey;
@@ -731,6 +766,28 @@ int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **
 	*Data = Hash->Members[PayloadPos]->Data;
 	return 1;
 }
+
+/**
+ * @brief Get the data located where At points to
+ * note: you should prefer iterator operations instead of using me.
+ * @param Hash your Hashlist peek from
+ * @param HKLen returns Length of Hashkey Returned
+ * @param HashKey returns the Hashkey corrosponding to HashPos
+ * @param Data returns the Data found at HashPos
+ * \returns whether the item was found or not.
+ */
+/*
+long GetHashIDAt(HashList *Hash,long At)
+{
+	if ((Hash == NULL) || 
+	    (At < 0) || 
+	    (At > Hash->nLookpTableItems))
+		return 0;
+
+	return Hash->LookupTable[At]->Key;
+}
+*/
+
 
 /**
  * @brief sorting function for sorting the Hash alphabeticaly by their strings
@@ -784,9 +841,9 @@ static int SortByHashKeys(const void *Key1, const void* Key2)
  */
 void SortByHashKey(HashList *Hash, int Order)
 {
-	if (Hash->nMembersUsed < 2)
+	if (Hash->nLookpTableItems < 2)
 		return;
-	qsort(Hash->LookupTable, Hash->nMembersUsed, sizeof(HashKey*), 
+	qsort(Hash->LookupTable, Hash->nLookpTableItems, sizeof(HashKey*), 
 	      (Order)?SortByKeys:SortByKeysRev);
 	Hash->tainted = 1;
 }
@@ -799,9 +856,9 @@ void SortByHashKey(HashList *Hash, int Order)
 void SortByHashKeyStr(HashList *Hash)
 {
 	Hash->tainted = 0;
-	if (Hash->nMembersUsed < 2)
+	if (Hash->nLookpTableItems < 2)
 		return;
-	qsort(Hash->LookupTable, Hash->nMembersUsed, sizeof(HashKey*), SortByHashKeys);
+	qsort(Hash->LookupTable, Hash->nLookpTableItems, sizeof(HashKey*), SortByHashKeys);
 }
 
 
@@ -823,9 +880,9 @@ const void *GetSearchPayload(const void *HashVoid)
  */
 void SortByPayload(HashList *Hash, CompareFunc SortBy)
 {
-	if (Hash->nMembersUsed < 2)
+	if (Hash->nLookpTableItems < 2)
 		return;
-	qsort(Hash->LookupTable, Hash->nMembersUsed, sizeof(HashKey*), SortBy);
+	qsort(Hash->LookupTable, Hash->nLookpTableItems, sizeof(HashKey*), SortBy);
 	Hash->tainted = 1;
 }
 
