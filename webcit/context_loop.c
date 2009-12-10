@@ -180,7 +180,8 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex)
 {
 	wcsession *TheSession;
-	lprintf(3, "Creating a new session\n");
+	if (!Static)
+		lprintf(3, "Creating a new session\n");
 	TheSession = (wcsession *) malloc(sizeof(wcsession));
 	memset(TheSession, 0, sizeof(wcsession));
 	TheSession->Hdr = Hdr;
