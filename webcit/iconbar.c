@@ -75,52 +75,8 @@ inline const char *PrintInt(void *Prefstr)
 }
 #endif
 
-/* Produces a stylesheet which hides any iconbar icons the user does not want * /
-void doUserIconStylesheet(void) {
-	HashPos *pos;
-	void *Data;
-	long value;
-	const char *key;
-	long HKLen;
-	
-	output_custom_content_header("text/css");
+/* 
 	hprintf("Cache-Control: private\r\n");
-	
-	begin_burst();
-	wc_printf("#global { left: 16%%; }\r\n");
-	pos = GetNewHashPos(WC->IconBarSettings, 0);
-	while(GetNextHashPos(WC->IconBarSettings, pos, &HKLen, &key, &Data)) {
-		value = (long) Data;
-		if (value == 0 
-		    && strncasecmp("ib_displayas",key,12) 
-		    && strncasecmp("ib_logoff", key, 9)) {
-			/ * Don't shoot me for this * /
-			wc_printf("#%s { display: none !important; }\r\n",key);
-		} else if (!strncasecmp("ib_users",key, 8) && value == 2) {
-			wc_printf("#online_users { display: block; !important } \r\n");
-		}
-	}
-	DeleteHashPos(&pos);
-	end_burst();
-}
-
-void doUserIconStylesheet(void) {
-	HashPos *pos;
-	void *Data;
-	long value;
-	const char *key;
-	long HKLen;
-	
-//	output_custom_content_header("text/css");
-	const StrBuf *MimeType;
-	begin_burst();
-	MimeType = DoTemplate(HKEY("user_iconbar"), NULL, &NoCtx);
-	http_transmit_thing(ChrPtr(MimeType), 0);
-	hprintf("Cache-Control: private\r\n");
-	
-	end_burst();
-}
-
 */
 
 
@@ -135,13 +91,13 @@ int ConditionalIsActiveStylesheet(StrBuf *Target, WCTemplputParams *TP) {
 
 
 	ib_displayas = IconbarIsENABLED(lookAt, TKEY(3));
-
+/*
 	printf ("%ld == %ld ? %s : %s\n", 
 		testFor, 
 		ib_displayas, 
 		IconbarDefaults[lookAt ].Key, 
 		ChrPtr(TP->Tokens->FlatToken));
-
+*/
 
 	return (testFor == ib_displayas);
 }
@@ -180,7 +136,7 @@ void LoadIconSettings(StrBuf *iconbar, long lvalue)
 		Set = (dflt_IB_Setting*)vIBDfl;
 
 		WCC->IBSettingsVec[Set->n] = val;
-		printf("%ld %s %s -> %ld \n", Set->n, Set->Key, IconbarDefaults[Set->n].Key, val);
+/*		printf("%ld %s %s -> %ld \n", Set->n, Set->Key, IconbarDefaults[Set->n].Key, val);*/
 	}
 #ifdef DBG_ICONBAR_HASH
 	dbg_PrintHash(WCC->IconBarSetttings, PrintInt, NULL);
