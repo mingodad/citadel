@@ -468,7 +468,10 @@ void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset
 {
 	const StrBuf *TemplateMime;
 
-	Mime->Data = NewStrBufPlain(NULL, Mime->length);
+	if (Mime->Data == NULL) 
+		Mime->Data = NewStrBufPlain(NULL, Mime->length);
+	else 
+		FlushStrBuf(Mime->Data);
 	read_message(Mime->Data, HKEY("view_submessage"), Mime->msgnum, Mime->PartNum, &TemplateMime);
 /*
 	if ( (!IsEmptyStr(mime_submessages)) && (!section[0]) ) {
@@ -532,10 +535,13 @@ void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 			vnote_free(v);
 			Mime->Data = Buf;
 		}
-		else
-			Mime->Data = NewStrBuf();
+		else {
+			if (Mime->Data == NULL)
+				Mime->Data = NewStrBuf();
+			else
+				FlushStrBuf(Mime->Data);
+		}
 	}
-
 }
 
 void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
@@ -679,7 +685,10 @@ int Conditional_MAIL_SUMM_H_NODE(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_text(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
-	Msg->MsgBody->Data = NewStrBufPlain(NULL, SIZ);
+	if (Msg->MsgBody->Data == NULL)
+		Msg->MsgBody->Data = NewStrBufPlain(NULL, SIZ);
+	else
+		FlushStrBuf(Msg->MsgBody->Data);
 }
 
 void examine_msg4_partnum(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
