@@ -345,10 +345,9 @@ void CtdlThreadStopAll(void)
 	GC_thread->state = CTDL_THREAD_STOP_REQ;
 	while(this_thread)
 	{
-#ifdef THREADS_USESIGNALS
 		if (!citthread_equal(this_thread->tid, GC_thread->tid))
 			citthread_kill(this_thread->tid, SIGHUP);
-#endif
+
 		ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 		citthread_cond_signal(&this_thread->ThreadCond);
 		citthread_cond_signal(&this_thread->SleepCond);
@@ -510,13 +509,13 @@ int CtdlThreadCheckStop(void)
 	
 	state = CT->state;
 
-#ifdef THREADS_USESIGNALS
 	if (CT->signal)
 	{
 		CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, CT->signal);
+		if (CT->signal == SIGHUP)
+			CT->state = CTDL_THREAD_STOP_REQ;
 		CT->signal = 0;
 	}
-#endif
 	if(state == CTDL_THREAD_STOP_REQ)
 	{
 		CT->state = CTDL_THREAD_STOPPING;
@@ -546,10 +545,10 @@ void CtdlThreadStop(CtdlThreadNode *thread)
 		return;
 	if (!(this_thread->thread_func))
 		return; 	// Don't stop garbage collector
-#ifdef THREADS_USESIGNALS
+
 	if (!citthread_equal(this_thread->tid, GC_thread->tid))
 		citthread_kill(this_thread->tid, SIGHUP);
-#endif
+
 	ctdl_thread_internal_change_state (this_thread, CTDL_THREAD_STOP_REQ);
 	citthread_cond_signal(&this_thread->ThreadCond);
 	citthread_cond_signal(&this_thread->SleepCond);
@@ -663,7 +662,7 @@ void CtdlThreadGC (void)
 	CtdlThreadNode *this_thread, *that_thread;
 	int workers = 0, sys_workers;
 	int ret=0;
-	
+
 	begin_critical_section(S_THREAD_LIST);
 	
 	/* Handle exiting of garbage collector thread */
@@ -1267,8 +1266,10 @@ void go_threading(void)
 	ctdl_thread_internal_init();
 
 	/* Second call to module init functions now that threading is up */
-	if (!statcount)
+	if (!statcount) {
 		initialise_modules(1);
+		CtdlThreadCreate("select_on_master", CTDLTHREAD_BIGSTACK, select_on_master, NULL);
+	}
 	else {
 		CtdlLogPrintf(CTDL_EMERG, "Running connection simulation stats\n");
 		gettimeofday(&start, NULL);

@@ -4,6 +4,19 @@
 #define CTDL_MODULE_H
 
 #include "sysdep.h"
+
+#ifdef HAVE_GC
+#define GC_THREADS
+#define GC_REDIRECT_TO_LOCAL
+#include <gc/gc_local_alloc.h>
+#else
+#define GC_MALLOC malloc
+#define GC_MALLOC_ATOMIC malloc
+#define GC_FREE free
+#define GC_REALLOC realloc
+#endif
+
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>

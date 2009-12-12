@@ -243,7 +243,7 @@ void master_cleanup(int exitcode) {
 	
 	if (restart_server != 0)
 		exit(1);
-	if ((running_as_daemon != 0) && (exitcode == 0))
+	if ((running_as_daemon != 0) && ((exitcode == 0) ))
 		exitcode = CTDLEXIT_SHUTDOWN;
 	exit(exitcode);
 }

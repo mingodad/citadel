@@ -159,11 +159,10 @@ volatile int restart_server = 0;
 volatile int running_as_daemon = 0;
 
 static RETSIGTYPE signal_cleanup(int signum) {
-#ifdef THREADS_USESIGNALS
+
 	if (CT)
 		CT->signal = signum;
 	else
-#endif
 	{
 		CtdlLogPrintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
 		exit_signal = signum;
@@ -480,13 +479,25 @@ int client_write(char *buf, int nbytes)
 			FD_ZERO(&wset);
 			FD_SET(Ctx->client_socket, &wset);
 			if (select(1, NULL, &wset, NULL, NULL) == -1) {
-				CtdlLogPrintf(CTDL_ERR,
-					"client_write(%d bytes) select failed: %s (%d)\n",
-					nbytes - bytes_written,
-					strerror(errno), errno);
-				cit_backtrace();
-				Ctx->kill_me = 1;
-				return -1;
+				if (errno == EINTR)
+				{
+					CtdlLogPrintf(CTDL_DEBUG, "client_write(%d bytes) select() interrupted.\n", nbytes-bytes_written);
+					if (CtdlThreadCheckStop()) {
+						CC->kill_me = 1;
+						return (-1);
+					} else {
+						/* can't trust fd's and stuff so we need to re-create them */
+						continue;
+					}
+				} else {
+					CtdlLogPrintf(CTDL_ERR,
+						"client_write(%d bytes) select failed: %s (%d)\n",
+						nbytes - bytes_written,
+						strerror(errno), errno);
+					cit_backtrace();
+					Ctx->kill_me = 1;
+					return -1;
+				}
 			}
 		}
 
@@ -559,7 +570,17 @@ int client_read_to(char *buf, int bytes, int timeout)
 		{
 			if (errno == EINTR)
 			{
-				CtdlLogPrintf(CTDL_DEBUG, "Interrupted select().\n");
+				CtdlLogPrintf(CTDL_DEBUG, "Interrupted select() in client_read_to().\n");
+				if (CtdlThreadCheckStop()) {
+					CC->kill_me = 1;
+					return (-1);
+				} else {
+					/* can't trust fd's and stuff so we need to re-create them */
+					continue;
+				}
+			}
+			else {
+				CtdlLogPrintf(CTDL_DEBUG, "Failed select() in client_read_to().\n");
 				CC->kill_me = 1;
 				return (-1);
 			}
@@ -866,18 +887,13 @@ int convert_login(char NameToConvert[]) {
  */
  
 void *worker_thread(void *arg) {
-	int i;
 	int highest;
 	CitContext *ptr;
 	CitContext *bind_me = NULL;
 	fd_set readfds;
 	int retval = 0;
-	CitContext *con= NULL;	/* Temporary context pointer */
-	struct ServiceFunctionHook *serviceptr;
-	int ssock;			/* Descriptor for client socket */
 	struct timeval tv;
 	int force_purge = 0;
-	int m;
 	
 
 	while (!CtdlThreadCheckStop()) {
@@ -904,6 +920,11 @@ do_select:	force_purge = 0;
 			if ((bind_me == NULL) && (ptr->state == CON_READY)) {
 				bind_me = ptr;
 				ptr->state = CON_EXECUTING;
+				break;
+			}
+			if ((bind_me == NULL) && (ptr->state == CON_STARTING)) {
+				bind_me = ptr;
+				break;
 			}
 		}
 		end_critical_section(S_SESSION_TABLE);
@@ -916,16 +937,6 @@ do_select:	force_purge = 0;
 		 * which a previous thread marked for attention, so we go
 		 * ahead and get ready to select().
 		 */
-
-		/* First, add the various master sockets to the fdset. */
-		for (serviceptr = ServiceHookTable; serviceptr != NULL;
-	    	serviceptr = serviceptr->next ) {
-			m = serviceptr->msock;
-			FD_SET(m, &readfds);
-			if (m > highest) {
-				highest = m;
-			}
-		}
 
 		if (!CtdlThreadCheckStop()) {
 			tv.tv_sec = 1;		/* wake up every second if no input */
@@ -947,6 +958,7 @@ do_select:	force_purge = 0;
 			if (errno != EINTR) {
 				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
+				continue;
 			} else {
 				CtdlLogPrintf(CTDL_DEBUG, "Interrupted CtdlThreadSelect.\n");
 				if (CtdlThreadCheckStop()) return(NULL);
@@ -955,66 +967,6 @@ do_select:	force_purge = 0;
 		}
 		else if(retval == 0) {
 			if (CtdlThreadCheckStop()) return(NULL);
-			goto SKIP_SELECT;
-		}
-		/* Next, check to see if it's a new client connecting
-		 * on a master socket.
-		 */
-		else for (serviceptr = ServiceHookTable; serviceptr != NULL;
-		     serviceptr = serviceptr->next ) {
-
-			if (FD_ISSET(serviceptr->msock, &readfds)) {
-				ssock = accept(serviceptr->msock, NULL, 0);
-				if (ssock >= 0) {
-					CtdlLogPrintf(CTDL_DEBUG,
-						"New client socket %d\n",
-						ssock);
-
-					/* The master socket is non-blocking but the client
-					 * sockets need to be blocking, otherwise certain
-					 * operations barf on FreeBSD.  Not a fatal error.
-					 */
-					if (fcntl(ssock, F_SETFL, 0) < 0) {
-						CtdlLogPrintf(CTDL_EMERG,
-							"citserver: Can't set socket to blocking: %s\n",
-							strerror(errno));
-					}
-
-					/* New context will be created already
-					 * set up in the CON_EXECUTING state.
-					 */
-					con = CreateNewContext();
-
-					/* Assign our new socket number to it. */
-					con->client_socket = ssock;
-					con->h_command_function =
-						serviceptr->h_command_function;
-					con->h_async_function =
-						serviceptr->h_async_function;
-					con->ServiceName =
-						serviceptr->ServiceName;
-					
-					/* Determine whether it's a local socket */
-					if (serviceptr->sockpath != NULL)
-						con->is_local_socket = 1;
-	
-					/* Set the SO_REUSEADDR socket option */
-					i = 1;
-					setsockopt(ssock, SOL_SOCKET,
-						SO_REUSEADDR,
-						&i, sizeof(i));
-
-					become_session(con);
-					begin_session(con);
-					serviceptr->h_greeting_function();
-					become_session(NULL);
-					con->state = CON_IDLE;
-					retval--;
-					if (retval)
-						CtdlLogPrintf (CTDL_DEBUG, "Select said more than 1 fd to handle but we only handle one\n");
-					goto do_select;
-				}
-			}
 		}
 
 		/* It must be a client socket.  Find a context that has data
@@ -1044,6 +996,11 @@ SKIP_SELECT:
 		if (bind_me != NULL) {
 			become_session(bind_me);
 
+			if (bind_me->state == CON_STARTING) {
+				bind_me->state = CON_EXECUTING;
+				begin_session(bind_me);
+				bind_me->h_greeting_function();
+			}
 			/* If the client has sent a command, execute it. */
 			if (CC->input_waiting) {
 				CC->h_command_function();
@@ -1070,6 +1027,130 @@ SKIP_SELECT:
 	return(NULL);
 }
 
+
+
+
+/*
+ * A function to handle selecting on master sockets.
+ * In other words it handles new connections.
+ * It is a thread.
+ */
+void *select_on_master (void *arg)
+{
+	struct ServiceFunctionHook *serviceptr;
+	fd_set master_fds;
+	int highest;
+	struct timeval tv;
+	int ssock;			/* Descriptor for client socket */
+	CitContext *con= NULL;	/* Temporary context pointer */
+	int m;
+	int i;
+	int retval;
+
+	while (!CtdlThreadCheckStop()) {
+		/* Initialize the fdset. */
+		FD_ZERO(&master_fds);
+		highest = 0;
+
+		/* First, add the various master sockets to the fdset. */
+		for (serviceptr = ServiceHookTable; serviceptr != NULL;
+	    	serviceptr = serviceptr->next ) {
+			m = serviceptr->msock;
+			FD_SET(m, &master_fds);
+			if (m > highest) {
+				highest = m;
+			}
+		}
+
+		if (!CtdlThreadCheckStop()) {
+			tv.tv_sec = 60;		/* wake up every second if no input */
+			tv.tv_usec = 0;
+			retval = CtdlThreadSelect(highest + 1, &master_fds, NULL, NULL, &tv);
+		}
+		else
+			return NULL;
+
+		/* Now figure out who made this select() unblock.
+		 * First, check for an error or exit condition.
+		 */
+		if (retval < 0) {
+			if (errno == EBADF) {
+				CtdlLogPrintf(CTDL_NOTICE, "select() failed: (%s)\n",
+					strerror(errno));
+				continue;
+			}
+			if (errno != EINTR) {
+				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
+				CtdlThreadStopAll();
+			} else {
+				CtdlLogPrintf(CTDL_DEBUG, "Interrupted CtdlThreadSelect.\n");
+				if (CtdlThreadCheckStop()) return(NULL);
+				continue;
+			}
+		}
+		else if(retval == 0) {
+			if (CtdlThreadCheckStop()) return(NULL);
+			continue;
+		}
+		/* Next, check to see if it's a new client connecting
+		 * on a master socket.
+		 */
+		else for (serviceptr = ServiceHookTable; serviceptr != NULL;
+		     serviceptr = serviceptr->next ) {
+
+			if (FD_ISSET(serviceptr->msock, &master_fds)) {
+				ssock = accept(serviceptr->msock, NULL, 0);
+				if (ssock >= 0) {
+					CtdlLogPrintf(CTDL_DEBUG,
+						"New client socket %d\n",
+						ssock);
+
+					/* The master socket is non-blocking but the client
+					 * sockets need to be blocking, otherwise certain
+					 * operations barf on FreeBSD.  Not a fatal error.
+					 */
+					if (fcntl(ssock, F_SETFL, 0) < 0) {
+						CtdlLogPrintf(CTDL_EMERG,
+							"citserver: Can't set socket to blocking: %s\n",
+							strerror(errno));
+					}
+
+					/* New context will be created already
+					 * set up in the CON_EXECUTING state.
+					 */
+					con = CreateNewContext();
+
+					/* Assign our new socket number to it. */
+					con->client_socket = ssock;
+					con->h_command_function =
+						serviceptr->h_command_function;
+					con->h_async_function =
+						serviceptr->h_async_function;
+					con->h_greeting_function = serviceptr->h_greeting_function;
+					con->ServiceName =
+						serviceptr->ServiceName;
+					
+					/* Determine whether it's a local socket */
+					if (serviceptr->sockpath != NULL)
+						con->is_local_socket = 1;
+	
+					/* Set the SO_REUSEADDR socket option */
+					i = 1;
+					setsockopt(ssock, SOL_SOCKET,
+						SO_REUSEADDR,
+						&i, sizeof(i));
+
+					con->state = CON_STARTING;
+
+					retval--;
+					if (retval == 0)
+						break;
+				}
+			}
+		}
+	}
+	return NULL;
+}
 
 
 

@@ -99,6 +99,13 @@ int main(int argc, char **argv)
 	eCrashParameters params;
 //	eCrashSymbolTable symbol_table;
 #endif
+
+#ifdef HAVE_GC
+	GC_INIT();
+	GC_find_leak = 1;
+#endif
+
+
 	/* initialise semaphores here. Patch by Matt and davew
 	 * its called here as they are needed by CtdlLogPrintf for thread safety
 	 */

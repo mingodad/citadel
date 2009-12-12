@@ -43,6 +43,7 @@ struct CitContext {
 	unsigned cs_flags;	/* miscellaneous flags */
 	void (*h_command_function) (void) ;	/* service command function */
 	void (*h_async_function) (void) ;	/* do async msgs function */
+	void (*h_greeting_function) (void) ;	/* greeting function for session startup */
 	int is_async;		/* Nonzero if client accepts async msgs */
 	int async_waiting;	/* Nonzero if there are async msgs waiting */
 	int input_waiting;	/* Nonzero if there is client input waiting */
@@ -125,6 +126,7 @@ typedef struct CitContext CitContext;
  */
 enum {
 	CON_IDLE,		/* This context is doing nothing */
+	CON_STARTING,		/* This context needs the greeting outputting */
 	CON_READY,		/* This context needs attention */
 	CON_EXECUTING		/* This context is bound to a thread */
 };

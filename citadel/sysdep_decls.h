@@ -70,7 +70,7 @@ int convert_login (char *NameToConvert);
 void *worker_thread (void *arg);
 void init_master_fdset(void);
 void create_worker(void);
-
+void *select_on_master (void *arg);
 
 extern volatile int exit_signal;
 extern volatile int shutdown_and_halt;
