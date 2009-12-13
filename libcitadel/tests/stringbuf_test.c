@@ -38,10 +38,27 @@ static void TestCreateBuf(void)
 	StrBuf *Buf2;
 	long len;
 	long i;
+	char *ch;
 
 	Buf = NewStrBuf();
 	CU_ASSERT(Buf != NULL);
 	FreeStrBuf(&Buf);
+
+	Buf = NewStrBufPlain(ChrPtr(NULL), StrLength(NULL));
+	CU_ASSERT(Buf != NULL);
+	FreeStrBuf(&Buf);
+
+
+	Buf = NewStrBufDup(NULL);
+	CU_ASSERT(Buf != NULL);
+	StrBufPlain(Buf, "abc", -1);
+	TestRevalidateStrBuf(Buf);
+	StrBufPlain(Buf, HKEY("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+	TestRevalidateStrBuf(Buf);
+	FreeStrBuf(&Buf);
+
+	FlushStrBuf(NULL);
+	FLUSHStrBuf(NULL);
 
 	CU_ASSERT(Buf == NULL);
 	Buf = NewStrBufPlain(HKEY("ABC"));
@@ -57,6 +74,10 @@ static void TestCreateBuf(void)
 		CU_ASSERT(StrLength(Buf) == len);
 	}	
 	StrBufShrinkToFit(Buf, 1);
+	FlushStrBuf(Buf);
+	CU_ASSERT(StrLength(Buf) == 0);
+	ReAdjustEmptyBuf(Buf, 1, 1);
+	TestRevalidateStrBuf(Buf);
 	FreeStrBuf(&Buf);
 	CU_ASSERT(Buf == NULL);
 	
@@ -87,15 +108,31 @@ static void TestCreateBuf(void)
 	CU_ASSERT(StrLength(Buf) == 0);
 
 	FreeStrBuf(&Buf);
-	FreeStrBuf(&Buf2);
+	HFreeStrBuf(Buf2);
 	CU_ASSERT(Buf == NULL);
-	CU_ASSERT(Buf2 == NULL);
+	CU_ASSERT(Buf2 != NULL);
 
 
+	Buf2 = NewStrBuf();
 	Buf = NewStrBufPlain(HKEY("123456"));
-///	CU_ASSERT(StrBufIsNumber(Buf) == 1); Todo: this is buggy.
-	FreeStrBuf(&Buf);
-	
+	CU_ASSERT(StrBufIsNumber(Buf) == 1); ///Todo: this is buggy.
+	CU_ASSERT(StrBufIsNumber(NULL) == 0);
+	CU_ASSERT(StrBufIsNumber(Buf2) == 0);
+
+	CU_ASSERT(StrTol(Buf) == 123456);
+	CU_ASSERT(StrTol(NULL) == 0);
+	CU_ASSERT(StrTol(Buf2) == 0);
+
+	CU_ASSERT(StrToi(Buf) == 123456);
+	CU_ASSERT(StrToi(NULL) == 0);
+	CU_ASSERT(StrToi(Buf2) == 0);
+	ch = SmashStrBuf(NULL);
+	CU_ASSERT(ch == NULL);
+	i = StrLength(Buf);
+	ch = SmashStrBuf(&Buf);
+	CU_ASSERT(strlen(ch) == i);
+	free(ch);
+	FreeStrBuf(&Buf2);
 }
 
 static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
@@ -292,7 +329,8 @@ static void TestNextLine_LongLine(void)
 
 static void TestStrBufRemove_token_NotThere(void)
 {
-	StrBuf *Test = NewStrBufPlain(HKEY(" 127.0.0.1"));
+//	StrBuf *Test = NewStrBufPlain(HKEY(" 127.0.0.1"));
+	StrBuf *Test = NewStrBufPlain(HKEY(" 10.122.44.30, 10.122.44.30"));
 	StrBufRemove_token(Test, 0, ',');
 	TestRevalidateStrBuf(Test);
 	FreeStrBuf(&Test);

@@ -23,7 +23,7 @@ all: $(TARGETS)
 .SUFFIXES: .cpp .c .o
 
 clean:
-	rm -f *.o 
+	rm -f *.o *.gcda *.gcov *.gcno $(TARGETS)
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \
@@ -40,7 +40,7 @@ stringbuf_IO_test:	$(LIBOBJS) stringbuf_IO_test.o
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
 	stringbuf_IO_test.o \
 	../.libs/libcitadel.a \
-	-o stringbuf_io_test
+	-o stringbuf_IO_test
 
 stringbuf_conversion_test:	$(LIBOBJS) stringbuf_conversion.o 
 	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \

@@ -57,7 +57,7 @@ install-pkgconfigDATA: $(pkgconfig_DATA)
 
 
 clean:
-	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs
+	cd lib && rm -f $(LIBRARY) *.o *.lo *.gcda *.gcov *.gcno && rm -rf .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs
 	rm -rf .libs libcitadel.la
 
 clobber: clean

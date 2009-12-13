@@ -521,7 +521,7 @@ char *SmashStrBuf (StrBuf **SmashMe)
 {
 	char *Ret;
 
-	if (*SmashMe == NULL)
+	if ((SmashMe == NULL) || (*SmashMe == NULL))
 		return NULL;
 #ifdef SIZE_DEBUG
 	if (hFreeDbglog == -1){
