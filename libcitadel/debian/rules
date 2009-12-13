@@ -27,6 +27,11 @@ ifneq (,$(findstring sprofiling,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -D SIZE_DEBUG
 endif
 
+ifneq (,$(findstring gcov,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -fprofile-arcs -ftest-coverage
+	LDFLAGS += -fprofile-arcs -ftest-coverage
+endif
+
 
 build: build-stamp
 build-stamp:
