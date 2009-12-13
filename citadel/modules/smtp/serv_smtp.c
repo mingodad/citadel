@@ -97,7 +97,7 @@
 
 
 
-struct citsmtp {		/* Information about the current session */
+typedef struct _citsmtp {		/* Information about the current session */
 	int command_state;
 	char helo_node[SIZ];
 	char from[SIZ];
@@ -108,7 +108,7 @@ struct citsmtp {		/* Information about the current session */
 	int is_lmtp;
 	int is_unfiltered;
 	int is_msa;
-};
+}citsmtp;
 
 enum {				/* Command states for login authentication */
 	smtp_command,
@@ -117,7 +117,7 @@ enum {				/* Command states for login authentication */
 	smtp_plain
 };
 
-#define SMTP		((struct citsmtp *)CC->session_specific_data)
+#define SMTP		((citsmtp *)CC->session_specific_data)
 
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
@@ -135,19 +135,21 @@ citthread_mutex_t smtp_send_lock;
  */
 void smtp_greeting(int is_msa)
 {
+	citsmtp *sSMTP;
 	char message_to_spammer[1024];
 
 	strcpy(CC->cs_clientname, "SMTP session");
 	CC->internal_pgm = 1;
 	CC->cs_flags |= CS_STEALTH;
-	CC->session_specific_data = malloc(sizeof(struct citsmtp));
-	memset(SMTP, 0, sizeof(struct citsmtp));
-	SMTP->is_msa = is_msa;
+	CC->session_specific_data = malloc(sizeof(citsmtp));
+	memset(SMTP, 0, sizeof(citsmtp));
+	sSMTP = SMTP;
+	sSMTP->is_msa = is_msa;
 
 	/* If this config option is set, reject connections from problem
 	 * addresses immediately instead of after they execute a RCPT
 	 */
-	if ( (config.c_rbl_at_greeting) && (SMTP->is_msa == 0) ) {
+	if ( (config.c_rbl_at_greeting) && (sSMTP->is_msa == 0) ) {
 		if (rbl_check(message_to_spammer)) {
 			if (CtdlThreadCheckStop())
 				cprintf("421 %s\r\n", message_to_spammer);
@@ -218,9 +220,10 @@ void smtp_mta_greeting(void) {
  * We also have an unfiltered LMTP socket that bypasses spam filters.
  */
 void lmtp_unfiltered_greeting(void) {
+	citsmtp *sSMTP = SMTP;
 	smtp_greeting(0);
-	SMTP->is_lmtp = 1;
-	SMTP->is_unfiltered = 1;
+	sSMTP->is_lmtp = 1;
+	sSMTP->is_unfiltered = 1;
 }
 
 
@@ -241,22 +244,23 @@ void smtp_auth_greeting(void) {
  * which_command:  0=HELO, 1=EHLO, 2=LHLO
  */
 void smtp_hello(char *argbuf, int which_command) {
+	citsmtp *sSMTP = SMTP;
 
-	safestrncpy(SMTP->helo_node, argbuf, sizeof SMTP->helo_node);
+	safestrncpy(sSMTP->helo_node, argbuf, sizeof sSMTP->helo_node);
 
-	if ( (which_command != 2) && (SMTP->is_lmtp) ) {
+	if ( (which_command != 2) && (sSMTP->is_lmtp) ) {
 		cprintf("500 Only LHLO is allowed when running LMTP\r\n");
 		return;
 	}
 
-	if ( (which_command == 2) && (SMTP->is_lmtp == 0) ) {
+	if ( (which_command == 2) && (sSMTP->is_lmtp == 0) ) {
 		cprintf("500 LHLO is only allowed when running LMTP\r\n");
 		return;
 	}
 
 	if (which_command == 0) {
 		cprintf("250 Hello %s (%s [%s])\r\n",
-			SMTP->helo_node,
+			sSMTP->helo_node,
 			CC->cs_host,
 			CC->cs_addr
 		);
@@ -264,7 +268,7 @@ void smtp_hello(char *argbuf, int which_command) {
 	else {
 		if (which_command == 1) {
 			cprintf("250-Hello %s (%s [%s])\r\n",
-				SMTP->helo_node,
+				sSMTP->helo_node,
 				CC->cs_host,
 				CC->cs_addr
 			);
@@ -282,7 +286,7 @@ void smtp_hello(char *argbuf, int which_command) {
 		 * the SMTP-MSA port, not on the SMTP-MTA port, due to
 		 * questionable reliability of TLS in certain sending MTA's.
 		 */
-		if ( (!CC->redirect_ssl) && (SMTP->is_msa) ) {
+		if ( (!CC->redirect_ssl) && (sSMTP->is_msa) ) {
 			cprintf("250-STARTTLS\r\n");
 		}
 #endif	/* HAVE_OPENSSL */
@@ -310,17 +314,18 @@ void smtp_help(void) {
 void smtp_get_user(char *argbuf) {
 	char buf[SIZ];
 	char username[SIZ];
+	citsmtp *sSMTP = SMTP;
 
 	CtdlDecodeBase64(username, argbuf, SIZ);
 	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", username); */
 	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		CtdlEncodeBase64(buf, "Password:", 9, 0);
 		cprintf("334 %s\r\n", buf);
-		SMTP->command_state = smtp_password;
+		sSMTP->command_state = smtp_password;
 	}
 	else {
 		cprintf("500 No such user.\r\n");
-		SMTP->command_state = smtp_command;
+		sSMTP->command_state = smtp_command;
 	}
 }
 
@@ -437,16 +442,17 @@ void smtp_auth(char *argbuf) {
 void smtp_rset(int do_response) {
 	int is_lmtp;
 	int is_unfiltered;
+	citsmtp *sSMTP = SMTP;
 
 	/*
 	 * Our entire SMTP state is discarded when a RSET command is issued,
 	 * but we need to preserve this one little piece of information, so
 	 * we save it for later.
 	 */
-	is_lmtp = SMTP->is_lmtp;
-	is_unfiltered = SMTP->is_unfiltered;
+	is_lmtp = sSMTP->is_lmtp;
+	is_unfiltered = sSMTP->is_unfiltered;
 
-	memset(SMTP, 0, sizeof(struct citsmtp));
+	memset(sSMTP, 0, sizeof(citsmtp));
 
 	/*
 	 * It is somewhat ambiguous whether we want to log out when a RSET
@@ -462,8 +468,8 @@ void smtp_rset(int do_response) {
 	/*
 	 * Reinstate this little piece of information we saved (see above).
 	 */
-	SMTP->is_lmtp = is_lmtp;
-	SMTP->is_unfiltered = is_unfiltered;
+	sSMTP->is_lmtp = is_lmtp;
+	sSMTP->is_unfiltered = is_unfiltered;
 
 	if (do_response) {
 		cprintf("250 Zap!\r\n");
@@ -475,19 +481,22 @@ void smtp_rset(int do_response) {
  * after the DATA command finishes.
  */
 void smtp_data_clear(void) {
-	strcpy(SMTP->from, "");
-	strcpy(SMTP->recipients, "");
-	SMTP->number_of_recipients = 0;
-	SMTP->delivery_mode = 0;
-	SMTP->message_originated_locally = 0;
+	citsmtp *sSMTP = SMTP;
+
+	strcpy(sSMTP->from, "");
+	strcpy(sSMTP->recipients, "");
+	sSMTP->number_of_recipients = 0;
+	sSMTP->delivery_mode = 0;
+	sSMTP->message_originated_locally = 0;
 }
 
 const char *smtp_get_Recipients(void)
 {
-	if (SMTP == NULL)
-		return NULL;
-	else return SMTP->from;
+	citsmtp *sSMTP = SMTP;
 
+	if (sSMTP == NULL)
+		return NULL;
+	else return sSMTP->from;
 }
 
 /*
@@ -497,8 +506,9 @@ void smtp_mail(char *argbuf) {
 	char user[SIZ];
 	char node[SIZ];
 	char name[SIZ];
+	citsmtp *sSMTP = SMTP;
 
-	if (!IsEmptyStr(SMTP->from)) {
+	if (!IsEmptyStr(sSMTP->from)) {
 		cprintf("503 Only one sender permitted\r\n");
 		return;
 	}
@@ -508,10 +518,10 @@ void smtp_mail(char *argbuf) {
 		return;
 	}
 
-	strcpy(SMTP->from, &argbuf[5]);
-	striplt(SMTP->from);
-	if (haschar(SMTP->from, '<') > 0) {
-		stripallbut(SMTP->from, '<', '>');
+	strcpy(sSMTP->from, &argbuf[5]);
+	striplt(sSMTP->from);
+	if (haschar(sSMTP->from, '<') > 0) {
+		stripallbut(sSMTP->from, '<', '>');
 	}
 
 	/* We used to reject empty sender names, until it was brought to our
@@ -520,21 +530,21 @@ void smtp_mail(char *argbuf) {
 	 * address so we don't have to contend with the empty string causing
 	 * other code to fail when it's expecting something there.
 	 */
-	if (IsEmptyStr(SMTP->from)) {
-		strcpy(SMTP->from, "someone@example.com");
+	if (IsEmptyStr(sSMTP->from)) {
+		strcpy(sSMTP->from, "someone@example.com");
 	}
 
 	/* If this SMTP connection is from a logged-in user, force the 'from'
 	 * to be the user's Internet e-mail address as Citadel knows it.
 	 */
 	if (CC->logged_in) {
-		safestrncpy(SMTP->from, CC->cs_inet_email, sizeof SMTP->from);
-		cprintf("250 Sender ok <%s>\r\n", SMTP->from);
-		SMTP->message_originated_locally = 1;
+		safestrncpy(sSMTP->from, CC->cs_inet_email, sizeof sSMTP->from);
+		cprintf("250 Sender ok <%s>\r\n", sSMTP->from);
+		sSMTP->message_originated_locally = 1;
 		return;
 	}
 
-	else if (SMTP->is_lmtp) {
+	else if (sSMTP->is_lmtp) {
 		/* Bypass forgery checking for LMTP */
 	}
 
@@ -542,10 +552,10 @@ void smtp_mail(char *argbuf) {
 	 * this system (unless, of course, c_allow_spoofing is enabled)
 	 */
 	else if (config.c_allow_spoofing == 0) {
-		process_rfc822_addr(SMTP->from, user, node, name);
+		process_rfc822_addr(sSMTP->from, user, node, name);
 		if (CtdlHostAlias(node) != hostalias_nomatch) {
 			cprintf("550 You must log in to send mail from %s\r\n", node);
-			strcpy(SMTP->from, "");
+			strcpy(sSMTP->from, "");
 			return;
 		}
 	}
@@ -562,8 +572,9 @@ void smtp_rcpt(char *argbuf) {
 	char recp[1024];
 	char message_to_spammer[SIZ];
 	struct recptypes *valid = NULL;
+	citsmtp *sSMTP = SMTP;
 
-	if (IsEmptyStr(SMTP->from)) {
+	if (IsEmptyStr(sSMTP->from)) {
 		cprintf("503 Need MAIL before RCPT\r\n");
 		return;
 	}
@@ -573,9 +584,9 @@ void smtp_rcpt(char *argbuf) {
 		return;
 	}
 
-	if ( (SMTP->is_msa) && (!CC->logged_in) ) {
+	if ( (sSMTP->is_msa) && (!CC->logged_in) ) {
 		cprintf("550 You must log in to send mail on this port.\r\n");
-		strcpy(SMTP->from, "");
+		strcpy(sSMTP->from, "");
 		return;
 	}
 
@@ -583,14 +594,14 @@ void smtp_rcpt(char *argbuf) {
 	striplt(recp);
 	stripallbut(recp, '<', '>');
 
-	if ( (strlen(recp) + strlen(SMTP->recipients) + 1 ) >= SIZ) {
+	if ( (strlen(recp) + strlen(sSMTP->recipients) + 1 ) >= SIZ) {
 		cprintf("452 Too many recipients\r\n");
 		return;
 	}
 
 	/* RBL check */
 	if ( (!CC->logged_in)	/* Don't RBL authenticated users */
-	   && (!SMTP->is_lmtp) ) {	/* Don't RBL LMTP clients */
+	   && (!sSMTP->is_lmtp) ) {	/* Don't RBL LMTP clients */
 		if (config.c_rbl_at_greeting == 0) {	/* Don't RBL again if we already did it */
 			if (rbl_check(message_to_spammer)) {
 				if (CtdlThreadCheckStop())
@@ -605,7 +616,7 @@ void smtp_rcpt(char *argbuf) {
 
 	valid = validate_recipients(recp, 
 				    smtp_get_Recipients (),
-				    (SMTP->is_lmtp)? POST_LMTP:
+				    (sSMTP->is_lmtp)? POST_LMTP:
 				       (CC->logged_in)? POST_LOGGED_IN:
 				                        POST_EXTERNAL);
 	if (valid->num_error != 0) {
@@ -625,8 +636,8 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	if (valid->num_internet > 0) {
-		if ( (SMTP->message_originated_locally == 0)
-		   && (SMTP->is_lmtp == 0) ) {
+		if ( (sSMTP->message_originated_locally == 0)
+		   && (sSMTP->is_lmtp == 0) ) {
 			cprintf("551 <%s> - relaying denied\r\n", recp);
 			free_recipients(valid);
 			return;
@@ -634,11 +645,11 @@ void smtp_rcpt(char *argbuf) {
 	}
 
 	cprintf("250 RCPT ok <%s>\r\n", recp);
-	if (!IsEmptyStr(SMTP->recipients)) {
-		strcat(SMTP->recipients, ",");
+	if (!IsEmptyStr(sSMTP->recipients)) {
+		strcat(sSMTP->recipients, ",");
 	}
-	strcat(SMTP->recipients, recp);
-	SMTP->number_of_recipients += 1;
+	strcat(sSMTP->recipients, recp);
+	sSMTP->number_of_recipients += 1;
 	if (valid != NULL)  {
 		free_recipients(valid);
 	}
@@ -659,13 +670,14 @@ void smtp_data(void) {
 	int scan_errors;
 	int i;
 	char result[SIZ];
+	citsmtp *sSMTP = SMTP;
 
-	if (IsEmptyStr(SMTP->from)) {
+	if (IsEmptyStr(sSMTP->from)) {
 		cprintf("503 Need MAIL command first.\r\n");
 		return;
 	}
 
-	if (SMTP->number_of_recipients < 1) {
+	if (sSMTP->number_of_recipients < 1) {
 		cprintf("503 Need RCPT command first.\r\n");
 		return;
 	}
@@ -676,11 +688,11 @@ void smtp_data(void) {
 	body = malloc(4096);
 
 	if (body != NULL) {
-		if (SMTP->is_lmtp && (CC->cs_UDSclientUID != -1)) {
+		if (sSMTP->is_lmtp && (CC->cs_UDSclientUID != -1)) {
 			snprintf(body, 4096,
 				 "Received: from %s (Citadel from userid %ld)\n"
 				 "	by %s; %s\n",
-				 SMTP->helo_node,
+				 sSMTP->helo_node,
 				 (long int) CC->cs_UDSclientUID,
 				 config.c_fqdn,
 				 nowstamp);
@@ -689,7 +701,7 @@ void smtp_data(void) {
 			snprintf(body, 4096,
 				 "Received: from %s (%s [%s])\n"
 				 "	by %s; %s\n",
-				 SMTP->helo_node,
+				 sSMTP->helo_node,
 				 CC->cs_host,
 				 CC->cs_addr,
 				 config.c_fqdn,
@@ -732,18 +744,18 @@ void smtp_data(void) {
 	if (msg->cm_fields['P'] != NULL) {
 		free(msg->cm_fields['P']);
 	}
-	msg->cm_fields['P'] = strdup(SMTP->from);
+	msg->cm_fields['P'] = strdup(sSMTP->from);
 
 	/* Set the "envelope to" address */
 	if (msg->cm_fields['V'] != NULL) {
 		free(msg->cm_fields['V']);
 	}
-	msg->cm_fields['V'] = strdup(SMTP->recipients);
+	msg->cm_fields['V'] = strdup(sSMTP->recipients);
 
 	/* Submit the message into the Citadel system. */
-	valid = validate_recipients(SMTP->recipients, 
+	valid = validate_recipients(sSMTP->recipients, 
 				    smtp_get_Recipients (),
-				    (SMTP->is_lmtp)? POST_LMTP:
+				    (sSMTP->is_lmtp)? POST_LMTP:
 				       (CC->logged_in)? POST_LOGGED_IN:
 				                        POST_EXTERNAL);
 
@@ -751,7 +763,7 @@ void smtp_data(void) {
 	 * submission (such as virus checkers or spam filters), call them now
 	 * and give them an opportunity to reject the message.
 	 */
-	if (SMTP->is_unfiltered) {
+	if (sSMTP->is_unfiltered) {
 		scan_errors = 0;
 	}
 	else {
@@ -783,8 +795,8 @@ void smtp_data(void) {
 	 * have different results, we can get away with just spitting out the
 	 * same message once for each recipient.
 	 */
-	if (SMTP->is_lmtp) {
-		for (i=0; i<SMTP->number_of_recipients; ++i) {
+	if (sSMTP->is_lmtp) {
+		for (i=0; i<sSMTP->number_of_recipients; ++i) {
 			cprintf("%s", result);
 		}
 	}
@@ -799,8 +811,8 @@ void smtp_data(void) {
 		syslog((LOG_MAIL | LOG_INFO),
 			"%ld: from=<%s>, nrcpts=%d, relay=%s [%s], stat=%s",
 			msgnum,
-			SMTP->from,
-			SMTP->number_of_recipients,
+			sSMTP->from,
+			sSMTP->number_of_recipients,
 			CC->cs_host,
 			CC->cs_addr,
 			result
@@ -840,6 +852,7 @@ void smtp_starttls(void)
  */
 void smtp_command_loop(void) {
 	char cmdbuf[SIZ];
+	citsmtp *sSMTP = SMTP;
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
@@ -851,15 +864,15 @@ void smtp_command_loop(void) {
 	CtdlLogPrintf(CTDL_INFO, "SMTP server: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
-	if (SMTP->command_state == smtp_user) {
+	if (sSMTP->command_state == smtp_user) {
 		smtp_get_user(cmdbuf);
 	}
 
-	else if (SMTP->command_state == smtp_password) {
+	else if (sSMTP->command_state == smtp_password) {
 		smtp_get_pass(cmdbuf);
 	}
 
-	else if (SMTP->command_state == smtp_plain) {
+	else if (sSMTP->command_state == smtp_plain) {
 		smtp_try_plain(cmdbuf);
 	}
 
