@@ -47,6 +47,7 @@ struct config config;
 void get_config(void) {
 	FILE *cfp;
 	struct stat st;
+	int rv;
 
 	if (chdir(ctdl_bbsbase_dir) != 0) {
 		fprintf(stderr,
@@ -66,7 +67,7 @@ void get_config(void) {
 				strerror(errno));
 		exit(CTDLEXIT_CONFIG);
 	}
-	fread((char *) &config, sizeof(struct config), 1, cfp);
+	rv = fread((char *) &config, sizeof(struct config), 1, cfp);
 	if (fstat(fileno(cfp), &st)) {
 		perror(file_citadel_config);
 		exit(CTDLEXIT_CONFIG);
@@ -167,11 +168,12 @@ void get_config(void) {
 void put_config(void)
 {
 	FILE *cfp;
+	int rv;
 
 	if ((cfp = fopen(file_citadel_config, "rb+")) == NULL)
 		perror(file_citadel_config);
 	else {
-		fwrite((char *) &config, sizeof(struct config), 1, cfp);
+		rv = fwrite((char *) &config, sizeof(struct config), 1, cfp);
 		fclose(cfp);
 	}
 }
