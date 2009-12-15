@@ -17,14 +17,31 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#define SHOW_ME_VAPPEND_PRINTF
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "stringbuf_test.h"
 #include "../lib/libcitadel.h"
 
+
+/*
+ * Stolen from wc_printf; we need to test that other printf too... 
+ */
+static void TEST_StrBufAppendPrintf(StrBuf *WBuf, const char *format,...)
+{
+	va_list arg_ptr;
+
+	if (WBuf == NULL)
+		return;
+
+	va_start(arg_ptr, format);
+	StrBufVAppendPrintf(WBuf, format, arg_ptr);
+	va_end(arg_ptr);
+}
 
 static void TestRevalidateStrBuf(StrBuf *Buf)
 {
@@ -36,6 +53,7 @@ static void TestCreateBuf(void)
 {
 	StrBuf *Buf;
 	StrBuf *Buf2;
+	StrBuf *Buf3;
 	long len;
 	long i;
 	char *ch;
@@ -93,6 +111,21 @@ static void TestCreateBuf(void)
 	TestRevalidateStrBuf(Buf);
 	StrBufShrinkToFit(Buf, 1);
 	TestRevalidateStrBuf(Buf);
+	FreeStrBuf(&Buf);
+
+	Buf = NewStrBufPlain(HKEY("ABC"));
+	TestRevalidateStrBuf(Buf);
+	len = StrLength(Buf);
+	for (i=0; i< 500; i ++)
+	{
+		TEST_StrBufAppendPrintf(Buf, "%s", "ABC");
+		len += 3;
+		CU_ASSERT(StrLength(Buf) == len);		
+	}
+	TestRevalidateStrBuf(Buf);
+	StrBufShrinkToFit(Buf, 1);
+	TestRevalidateStrBuf(Buf);
+
 
 	Buf2 = NewStrBufDup(Buf);
 	CU_ASSERT(StrLength(Buf) == StrLength(Buf2));		
@@ -107,17 +140,20 @@ static void TestCreateBuf(void)
 	FLUSHStrBuf(Buf);
 	CU_ASSERT(StrLength(Buf) == 0);
 
-	FreeStrBuf(&Buf);
+	HFreeStrBuf(NULL);
 	HFreeStrBuf(Buf2);
-	CU_ASSERT(Buf == NULL);
 	CU_ASSERT(Buf2 != NULL);
 
-
+	FreeStrBuf(&Buf);
+	CU_ASSERT(Buf == NULL);
+	
 	Buf2 = NewStrBuf();
+	Buf3 = NewStrBufPlain(HKEY("abcd"));
 	Buf = NewStrBufPlain(HKEY("123456"));
-	CU_ASSERT(StrBufIsNumber(Buf) == 1); ///Todo: this is buggy.
+	CU_ASSERT(StrBufIsNumber(Buf) == 1);
 	CU_ASSERT(StrBufIsNumber(NULL) == 0);
 	CU_ASSERT(StrBufIsNumber(Buf2) == 0);
+	CU_ASSERT(StrBufIsNumber(Buf3) == 0);
 
 	CU_ASSERT(StrTol(Buf) == 123456);
 	CU_ASSERT(StrTol(NULL) == 0);
