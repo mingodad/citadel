@@ -1,0 +1,9 @@
+#%PAM-1.0
+#
+# /etc/pam.d/citadel: PAM configuration file for Linux-PAM.
+#
+# $Id$
+#
+auth       include system-auth
+account    include system-auth
+session    include system-auth

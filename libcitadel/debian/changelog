@@ -1,0 +1,117 @@
+libcitadel (7.67-85) unstable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 1 Sep 2009 8:00:00 +0002
+
+libcitadel (7.66-84) unstable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 28 Sep 2009 18:00:00 +0001
+
+libcitadel (7.63-83) unstable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 1 Sep 2009 8:00:00 +0002
+
+libcitadel (7.61-82) unstable; urgency=low
+
+  * tiny bugfix
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 17 Aug 2009 23:00:00 +0002
+
+libcitadel (7.61-81) unstable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 6 Aug 2009 10:00:00 +0002
+
+libcitadel (7.60-80) unstable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 28 Jul 2009 00:00:00 +0002
+
+libcitadel (7.50-73) unstable; urgency=low
+
+  * release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 17 Mar 2009 00:00:00 +0002
+
+libcitadel (7.43-72) unstable; urgency=low
+
+  * Beta release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 17 Mar 2009 00:00:00 +0002
+
+libcitadel (7.42-71) unstable; urgency=low
+
+  * Beta release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 25 Feb 2009 00:00:00 +0002
+
+libcitadel (7.41-70) unstable; urgency=low
+
+  * Beta release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 20 Feb 2009 18:00:00 +0002
+
+libcitadel (7.38-8) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 1 Aug 2008 22:00:00 +0002
+
+libcitadel (7.37-7) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 19 Jun 2008 22:00:00 +0002
+
+libcitadel (1.14-6) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 30 May 2008 19:00:00 +0002
+
+libcitadel (1.09-5) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 22 Apr 2008 19:00:00 +0002
+
+libcitadel (1.08-5) stable; urgency=low
+  
+   * minor upstream bugfixes
+  
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 17 Mar 2008 22:00:00 +0001
+
+libcitadel (1.08-4) stable; urgency=high 
+
+   * release 1.08; hashing / sorting implemented
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mo, 3 Mar 2008 22:00:00 +0001 
+libcitadel (1.07-8) stable; urgency=high
+
+   * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sat, 23 Feb 2008 0:00:00 +0001 
+
+libcitadel (1.06-7) stable; urgency=high 
+
+   * mime to icon guessing
+   * fixed hash lookups
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sat, 23 Feb 2008 0:00:00 +0001 
+libcitadel (1.05-4) stable; urgency=high 
+
+   * include xdgmime
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 12 Feb 2008 0:00:00 +0001 
+libcitadel (1.03-3) unstable; urgency=low
+  
+    * initial debian release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 18 Nov 2007 23:55:21 +0100

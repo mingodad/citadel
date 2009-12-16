@@ -1,0 +1,9 @@
+# public_clients
+#
+# This file contains a list of hosts at which well-known public
+# copies of client software exist.  If the originating host
+# for a client is one of these, then the server will use the
+# location of the user that it is told by the client.
+
+localhost
+127.0.0.1

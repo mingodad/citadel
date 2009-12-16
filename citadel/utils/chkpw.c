@@ -1,0 +1,143 @@
+/* 
+ *
+ *
+ * Copyright (c) 1987-2009 by the citadel.org team
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#include <errno.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <pwd.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
+#include <limits.h>
+#include <dirent.h>
+
+
+#include "citadel.h"
+#include "sysdep.h"
+#include "citadel_dirs.h"
+/* These pipes are used to talk to the chkpwd daemon, which is forked during startup */
+int chkpwd_write_pipe[2];
+int chkpwd_read_pipe[2];
+
+/*
+ * Validate a password on the host unix system by talking to the chkpwd daemon
+ */
+static int validpw(uid_t uid, const char *pass)
+{
+	char buf[256];
+	int rv;
+
+	rv = write(chkpwd_write_pipe[1], &uid, sizeof(uid_t));
+	rv = write(chkpwd_write_pipe[1], pass, 256);
+	rv = read(chkpwd_read_pipe[0], buf, 4);
+
+	if (!strncmp(buf, "PASS", 4)) {
+		printf("pass\n");
+		return(1);
+	}
+
+	printf("fail\n");
+	return 0;
+}
+
+/* 
+ * Start up the chkpwd daemon so validpw() has something to talk to
+ */
+void start_chkpwd_daemon(void) {
+	pid_t chkpwd_pid;
+	struct stat filestats;
+	int i;
+
+	printf("Starting chkpwd daemon for host authentication mode\n");
+
+	if ((stat(file_chkpwd, &filestats)==-1) ||
+	    (filestats.st_size==0)){
+		printf("didn't find chkpwd daemon in %s: %s\n", file_chkpwd, strerror(errno));
+		abort();
+	}
+	if (pipe(chkpwd_write_pipe) != 0) {
+		printf("Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
+		abort();
+	}
+	if (pipe(chkpwd_read_pipe) != 0) {
+		printf("Unable to create pipe for chkpwd daemon: %s\n", strerror(errno));
+		abort();
+	}
+
+	chkpwd_pid = fork();
+	if (chkpwd_pid < 0) {
+		printf("Unable to fork chkpwd daemon: %s\n", strerror(errno));
+		abort();
+	}
+	if (chkpwd_pid == 0) {
+		dup2(chkpwd_write_pipe[0], 0);
+		dup2(chkpwd_read_pipe[1], 1);
+		for (i=2; i<256; ++i) close(i);
+		execl(file_chkpwd, file_chkpwd, NULL);
+		printf("Unable to exec chkpwd daemon: %s\n", strerror(errno));
+		abort();
+		exit(errno);
+	}
+}
+
+
+
+int main(int argc, char **argv) {
+	char buf[256];
+	struct passwd *p;
+	int uid;
+	char ctdldir[PATH_MAX]=CTDLDIR;
+	char *ptr;
+	
+	calc_dirs_n_files(0,0,"", ctdldir, 0);
+	
+	printf("\n\n ** host auth mode test utility **\n\n");
+	start_chkpwd_daemon();
+
+	if (getuid() != 0){
+		printf("\n\nERROR: you need to be root to run this!\n\n");
+		return(1);
+	}
+	while(1) {
+		printf("\n\nUsername: ");
+		ptr = fgets(buf, sizeof buf, stdin);
+		buf[strlen(buf)-1] = 0;
+		p = getpwnam(buf);
+		if (p == NULL) {
+			printf("Not found\n");
+		}
+		else {
+			uid = p->pw_uid;
+			printf("     uid: %d\n", uid);
+			printf("Password: ");
+			ptr = fgets(buf, sizeof buf, stdin);
+			buf[strlen(buf)-1] = 0;
+			validpw(uid, buf);
+		}
+	}
+
+	return(0);
+}

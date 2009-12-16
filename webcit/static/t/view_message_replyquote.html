@@ -1,0 +1,14 @@
+<blockquote> <div class="message_header"> <span><?MAIL:SUMM:DATEFULL></span> 
+
+<??("COND:MAIL:ANON",1)>
+<span><?_("from ")>
+<?!("COND:MAIL:SUMM:RFCA", 2)>"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;<?!("X", 2)>
+<??("COND:MAIL:SUMM:RFCA", 3)><?MAIL:SUMM:FROM("X")><??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
+</span>
+<?!("COND:MAIL:ANON",5)><span><?_("from ")>***</span><??("X", 5)>
+<?!("COND:MAIL:SUBJ",6)><span class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT></span><?!("X", 6)>
+</div><?ITERATE("MAIL:MIME:ATTACH:ATT", "load_attachments")>  
+ <div class="message_content"> <?MAIL:BODY>
+ <?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)><?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_message_inline_attach")><?!("X", 10)>
+</div>
+</blockquote>

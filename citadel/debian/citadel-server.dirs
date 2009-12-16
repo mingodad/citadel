@@ -1,0 +1,11 @@
+usr/share/citadel-server/help
+var/lib/citadel/bio
+var/lib/citadel/bitbucket
+var/lib/citadel/data
+var/lib/citadel/files
+var/lib/citadel/images
+var/lib/citadel/info
+var/lib/citadel/userpics
+var/run/citadel
+var/spool/citadel/network/spoolin
+var/spool/citadel/network/spoolout

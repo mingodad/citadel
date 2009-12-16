@@ -1,0 +1,177 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          citadel
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: control citadel server start at boot time
+# Description:       control citadel server start at boot time
+### END INIT INFO
+
+# uncomment this to create coredumps as described in
+# http://www.citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files
+# ulimit -c unlimited
+
+# Author: Wilfried Goesgens <citadel@outgesourced.org>
+
+RUNDIR=/var/run/citadel
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Citadel Groupware "
+NAME=citserver
+DAEMON=/usr/sbin/$NAME
+PIDFILE=$RUNDIR/citadel.pid
+DAEMON_ARGS=" -d -x3 -lmail -t/dev/null"
+SCRIPTNAME=/etc/init.d/citadel
+SENDCOMMAND=/usr/sbin/sendcommand
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+MODERN=
+
+# Load the VERBOSE setting and other rcS variables
+if test -f /lib/init/vars.sh ; then
+    . /lib/init/vars.sh
+    MODERN=1
+fi
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+if test -f /lib/lsb/init-functions; then
+    . /lib/lsb/init-functions
+    MODERN=1
+fi
+
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+        # for ubuntu: check our volatile dirs.
+        if test ! -d $RUNDIR; then
+	    mkdir -p $RUNDIR
+	fi
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+	if $DAEMON \
+		$DAEMON_ARGS ; then
+	    return 0
+	else
+	    return 2
+	fi
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+	#   other if a failure occurred
+        if $SENDCOMMAND "DOWN" >/dev/null 2>&1 ; then
+	    if test ! -f "$PIDFILE"; then 
+	    	echo Unable to find Citserver. Not running?
+		return 1
+	    fi
+	    PID=`cat $PIDFILE`
+	    rm -f $PIDFILE
+	    count=0;
+	    while test -S /var/run/citadel/citadel.socket -o -d /proc/$PID; do 
+		count=$(($count+1))
+		sleep 1
+		echo -n "."
+		if test "$count" = "10"; then
+		    kill $PID
+		fi
+		if test "$count" = "20"; then
+		    kill -9 $PID
+		    rm -rf /var/run/citadel/*
+		fi
+	    done
+		return 0
+	else
+	    rm -f $PIDFILE
+	    return 2
+	fi
+}
+
+#
+# Function that sends a SIGHUP to the daemon/service
+#
+do_reload() {
+	# Return
+	#   0 if daemon could not be restarted
+	#   1 if daemon has been restarted
+	#   other if a failure occurred
+        if $SENDCOMMAND "DOWN 1" 2>&1|grep '200 Restarting'>/dev/null ; then
+	    return 1
+	fi
+	return 0
+}
+
+case "$1" in
+  start)
+	if test -n "$MODERN"; then
+	    [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+	else
+	    echo "Starting $DESC" "$NAME"
+	fi
+
+	do_start
+	if test -n "$MODERN"; then
+	    case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	    esac
+	fi
+	;;
+  stop)
+	if test -n "$MODERN"; then
+	    [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+	else
+	    echo "Stopping $DESC" "$NAME"
+	fi
+	do_stop
+	if test -n "$MODERN"; then
+	    case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	    esac
+	fi
+	;;
+  restart|force-reload)
+	if test -n "$MODERN"; then
+	    log_daemon_msg "Restarting $DESC" "$NAME"
+	else
+	    echo "Restarting $DESC" "$NAME"
+	fi
+
+	do_reload
+
+	if test -n "$MODERN"; then
+	    case "$?" in
+		0)
+		    log_end_msg 0
+		    ;;
+		1)
+	  	# Failed to stop
+		    log_end_msg 1
+		    ;;
+	    esac
+	fi
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	exit 3
+	;;
+esac
+
+exit 0

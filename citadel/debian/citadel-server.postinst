@@ -1,0 +1,111 @@
+#!/bin/sh
+# postinst script for citadel-server
+
+set -e
+
+# source debconf stuff
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+move_file()
+{
+	[ ! -f $1 ] && return
+	[ -f $2 ] && return
+	mv -f $1 $2
+}
+
+case "$1" in
+    configure)
+        chown -R citadel:citadel /etc/citadel
+        chown -R citadel:citadel /var/lib/citadel /var/spool/citadel
+	move_file /var/run/refcount_adjustments.dat /etc/citadel/data/refcount_adjustments.dat
+	move_file /etc/citadel/citadel.control /var/lib/citadel/data/citadel.control
+	move_file /etc/citadel/citadel.config /var/lib/citadel/data/citadel.config
+
+        db_get citadel/Administrator &&      admin="$RET"
+        db_get citadel/ServerIPAddress &&    ip_addr="$RET"
+        db_get citadel/LoginType &&          ENABLE_UNIX_AUTH="$RET"; export ENABLE_UNIX_AUTH
+        db_get citadel/LDAPServer &&         LDAP_HOST="$RET"; export LDAP_HOST
+        db_get citadel/LDAPServerPort &&     LDAP_PORT="$RET"; export LDAP_PORT
+        db_get citadel/LDAPBaseDN &&         LDAP_BASE_DN="$RET"; export LDAP_BASE_DN
+        db_get citadel/LDAPBindDN &&         LDAP_BIND_DN="$RET"; export LDAP_BIND_DN
+        db_get citadel/LDAPBindDNPassword && LDAP_BIND_PW="$RET"; export LDAP_BIND_PW
+
+
+        export IP_ADDR=$ip_addr
+        export CITADEL='/var/run/citadel'
+	export CITADEL_PORT=504
+        export CITADEL_INSTALLER=yes
+	 export CITADEL_UID=`grep citadel /etc/passwd | cut -d :  -f 3`
+        export ACT_AS_MTA=no
+        export SYSADMIN_NAME=$admin
+        export CREATE_XINETD_ENTRY=no
+        export CREATE_INITTAB_ENTRY=no
+        export NO_INIT_SCRIPTS=yes
+
+#This is not debian conformant, and uniq to the citadel.org debs.
+	export ALTER_ETC_SERVICES=yes
+#
+        if test -S /var/run/citadel/citadel.socket; then 
+            /usr/sbin/sendcommand "DOWN"
+        fi
+        while test -S /var/run/citadel/citadel.socket; do 
+            sleep 1
+        done
+	if test ! -f /var/lib/citadel/data/citadel.control -a -f /etc/citadel/citadel.control; then
+	    mv /etc/citadel/citadel.control /var/lib/citadel/data/
+	    mv /etc/citadel/citadel.config /var/lib/citadel/data/
+	fi
+
+        echo -n "applying your settings.... "
+        /usr/lib/citadel-server/setup -q
+	echo "done"
+        # we're in a fresh install, so we send the welcome message.
+        if test -z "$2"; then
+	    echo "migrating mail aliases from other mailers"
+	    /usr/lib/citadel-server/migrate_aliases.sh /etc/citadel/mail.aliases
+	    i=0;
+	    while test ! -S /var/run/citadel/lmtp.socket -a "$i" -lt "10"; do
+		sleep 1
+		i=$(($i + 1))
+	    done
+	    if test -S /var/run/citadel/lmtp.socket ; then
+		echo "sending welcome mail"
+		export SEPERATOR=2600908b3f21ae7f692b973ed26e212d
+		export WELCOMEHTML=/usr/share/doc/citadel-server/welcomemail.html
+		export WELCOMETXT=/usr/share/doc/citadel-server/welcomemail.txt
+		export FROM=room_citadel_stats@uncensored.citadel.org
+		export TO=room_lobby
+		(
+                    printf "MIME-Version: 1.0\r\nContent-Type: multipart/alternative; \r\n boundary=$SEPERATOR\r\n\r\nThis is a multi-part message in MIME format.\r\n\r\n--$SEPERATOR\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n"; 
+                    cat $WELCOMETXT
+                    printf "\r\n\r\n--$SEPERATOR\r\nContent-Type: text/html; charset=US-ASCII\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n"
+                    cat $WELCOMEHTML; 
+                    printf "\r\n\r\n--$SEPERATOR--\r\n\r\n") | \
+			/usr/sbin/citmail -bm -r "$FROM" "$TO"
+            fi
+	fi
+
+        if test -S /var/run/citadel/citadel.socket; then 
+            /usr/sbin/sendcommand "DOWN"
+        fi
+
+        while test -S /var/run/citadel/citadel.socket; do 
+            sleep 1
+        done
+
+        db_stop
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

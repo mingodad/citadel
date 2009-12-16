@@ -1,0 +1,35 @@
+
+Package builders: you can set the following environment variables
+before running setup in quiet mode (setup -q) in order to keep it
+quiet but still do setup.
+
+First, please set CITADEL_INSTALLER to "yes"
+
+Then set:
+
+CITADEL			Directory in which Citadel is installed
+
+SLAPD_BINARY		Location of slapd (optional)
+LDAP_CONFIG		Location of slapd.conf (optional)
+
+SUPPORT			Location of libraries, etc. (optional)
+			(i.e. /usr/local/ctdlsupport)
+
+CTDL_DIALOG		Location of the 'dialog' program (optional)
+
+ACT_AS_MTA		When other MTA's (Postfix, etc.) are found, setup
+			will offer to disable them in order to keep them
+			from interfering with Citadel.  Set this variable to
+			"yes" to always disable the other MTA without asking,
+			or to "no" to never disable the other MTA.
+
+CREATE_INITTAB_ENTRY	Set to "yes" to automatically create an entry in
+			/etc/inittab to start the Citadel server, if needed.
+
+CREATE_XINETD_ENTRY	Set to "yes" to automatically configure xinetd to route
+			telnet connections into a Citadel client, if needed.
+
+SYSADMIN_NAME		Name of system administrator.
+
+NO_INIT_SCRIPTS		Set to non-null to suppress the creation of init
+			scripts when running on a SysV-init based host.

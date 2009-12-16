@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="" />
+<title>LoginEditcontactLogout</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">LoginEditcontactLogout</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>uname</td>
+	<td>testuser</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>pname</td>
+	<td>testpass</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>lname</td>
+	<td>label=C</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>login_action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Summary</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=testuser</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//ul[@id='button']/li[2]/a/img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='msg_inner']/table/tbody/tr[1]/td[1]/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='navbar']/ul/li[3]/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>subject_id</td>
+	<td>hallo</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>send_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//ul[@id='button']/li[4]/a/img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=17</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=exact:12:00</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>summary</td>
+	<td>testevent</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>location</td>
+	<td>testcity</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>description</td>
+	<td>testing events</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>tabtd1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>attendees_box</td>
+	<td>testtest@outgesourced.org</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>tabtd2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>tabtd1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>save_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=testevent</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>save_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=testevent</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>delete_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//ul[@id='button']/li[5]/a/img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Add new contact</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>firstname</td>
+	<td>testcontact</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>lastname</td>
+	<td>testname</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>primary_inetemail</td>
+	<td>testtest@outgesourced.org</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>ok_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=testname, testcontact</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=[edit]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>extadr</td>
+	<td>testroad</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>ok_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Log off</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertConfirmation</td>
+	<td>Log off now?</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

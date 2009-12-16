@@ -1,0 +1,70 @@
+/*
+ * Copyright 2005 - 2009 The Citadel Team
+ * Licensed under the GPL V3
+ * styles for mobile clients
+ */
+body {
+}
+#button li {
+	display: inline; 
+	padding-right: 5px;
+}
+#button li img {
+	display: none;
+}
+img {
+	border: none;
+	text-decoration: none;
+}
+#message_list div div {
+	border-bottom: 1px dotted black;
+	padding: 5px 5px 5px 5px;
+	/* background-color: white; */
+}
+.subject {
+	color: gray;
+}
+body[orient="portrait"] {
+	max-width: 320px;
+}
+body {
+	font-family: sans-serif;
+	font-size: 11px;
+}
+.msgview {
+	display: none;
+	background-color: white !important;
+}
+.message_content {
+    background-color: white;
+}
+#login_form label, #login_form input, #login_form select, #login_form div{
+	display: list-item;
+	text-align: center !important;
+	margin: 0px auto;
+}
+#navbar ul li {
+	display: inline;
+	padding-right: 5px;
+}
+#navbar ul li img {
+	vertical-align: middle;
+}
+#navbar ul li a {
+	text-decoration: none;
+}
+.sticky {
+    background-color: gray;
+    border: 1px solid black;
+    width: 100%;
+}
+#vcontent {
+}
+.roomname {
+	background-color: #022750;
+	color: white;
+	border-radius: 5px;
+}
+.roomname img{
+	vertical-align: middle;
+}

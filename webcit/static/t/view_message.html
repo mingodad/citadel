@@ -1,0 +1,58 @@
+<div class="fix_scrollbar_bug message"
+onMouseOver=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="visible"
+onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden" >
+
+<??("COND:ROOM:TYPE_IS", 12, "VIEW_WIKI")><!-- skip headers for wiki rooms -->
+<div class="message_header">
+ <span><?MAIL:SUMM:DATEFULL></span>
+ <?_("from ")>
+ <??("COND:MAIL:ANON",1)>
+   <?!("COND:MAIL:SUMM:RFCA", 2)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>">"<?MAIL:SUMM:FROM("X")>" &lt;<?MAIL:SUMM:RFCA>&gt;</a><?!("X", 2)>
+   <??("COND:MAIL:SUMM:RFCA", 3)><a href="showuser?who=<?MAIL:SUMM:FROM("Q")>"><?MAIL:SUMM:FROM("X")></a> 
+      <??("X", 3)><?!("COND:MAIL:SUMM:OTHERNODE",4)> @ <?MAIL:SUMM:H_NODE><??("X",4)>
+ <??("X", 1)>
+ <?!("COND:MAIL:ANON", 4)>****<??("X", 4)>
+ <?!("COND:MAIL:TO", 5)><?_("to")> <?MAIL:SUMM:TO("X")><?!("X", 5)><br/>
+<?!("COND:MAIL:SUMM:CCCC", 6)><?_("CC:")><?MAIL:SUMM:CCCC("X")><??("X", 6)>
+<?!("COND:MAIL:SUBJ", 7)><p class="message_subject"><?_("Subject:")> <?MAIL:SUMM:SUBJECT("X")></p><??("X", 7)>
+ <p style="visibility: hidden;" id="msg<?MAIL:SUMM:N>" class="msgbuttons">
+<!-- temporarily disabled for 7.60
+ <a href="display_enter?edit=<?MAIL:SUMM:N>&recp=<?MAIL:SUMM:TO("U")>&cc=<?MAIL:SUMM:CCCC("U")>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "", "")>&force_room=_MAIL_"><span>[</span><?_("Edit")><span>]</span></a> 
+-->
+<?!("COND:ROOM:TYPE_IS", 8, "VIEW_BBS")>
+   <a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+   <a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>&recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%%20", "Re:")>"><span>[</span><?_("ReplyQuoted")><span>]</span></a> 
+<?!("X", 8)>
+<??("COND:ROOM:TYPE_IS", 9, "VIEW_BBS")>
+	<?!("COND:MAIL:SUMM:RFCA", 10)>
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=%22<?MAIL:SUMM:FROM("U")>%22%3C<?MAIL:SUMM:RFCA("U")>%3E%2C<?MAIL:SUMM:ALLRCPT("U")>?subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+	<?!("X", 10)>
+	<??("COND:MAIL:SUMM:RFCA", 11)>
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:FROM("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("Reply")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?replyquote=<?MAIL:SUMM:N>?recp=<?MAIL:SUMM:FROM("U")>%2C<?MAIL:SUMM:ALLRCPT("U")>&references=<?MAIL:SUMM:INREPLYTO("U")>%3C<?MAIL:SUMM:RFCA("U")>%3E&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Re:%20", "Re:")>"><span>[</span><?_("ReplyAll")><span>]</span></a> 
+		<a href="display_enter?references=<?MAIL:SUMM:REFIDS("U")>%7C<?MAIL:SUMM:INREPLYTO("U")>?fwdquote=<?MAIL:SUMM:N>&subject=<?MAIL:SUMM:SUBJECT("U", 0, "Fwd:%%20", "Fwd:")>"><span>[</span><?_("Forward")><span>]</span></a> 
+	<??("X", 11)>
+<??("X", 9)>
+<?!("COND:ROOM:EDITACCESS", 14)>
+   <a href="confirm_move_msg?msgid=<?MAIL:SUMM:N>"><span>[</span><?_("Move")><span>]</span></a> 
+   <a href="delete_msg?msgid=<?MAIL:SUMM:N>" onclick="return confirm('<?_("Delete this message?")>');"><span>[</span><?_("Delete")><span>]</span> </a> 
+<??("X", 14)>
+   <a href="#" onclick="window.open('msgheaders/<?MAIL:SUMM:N>', 'headers<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Headers")><span>]</span></a>
+   <a href="#" onclick="window.open('printmsg/<?MAIL:SUMM:N>', 'print<?MAIL:SUMM:N>', 'toolbar=no,location=no,directories=no,copyhistory=no,status=yes,scrollbars=yes,resizable=yes,width=600,height=400'); "><span>[</span><?_("Print")><span>]</span></a>
+ </p>
+</div>
+<?!("X", 12)>
+<div class="message_content"><div>
+<?MAIL:BODY>
+<?!("COND:MAIL:MIME:ATTACH:SUBMESSAGES", 10)>
+<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_message_inline_attach")>
+<?!("X", 10)>
+<?!("COND:MAIL:MIME:ATTACH:LINKS", 11)>
+<?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_message_list_attach")>
+<?!("X", 11)>
+
+</div>
+</div>
+</div>

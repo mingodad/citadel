@@ -1,0 +1,20 @@
+#global { left: 16%; }
+
+# { display: none !important; }
+
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_displayas", "#ib_displayas { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_logo"     , "#ib_logo      { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_summary"  , "#ib_summary   { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_inbox"    , "#ib_inbox     { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_calendar" , "#ib_calendar  { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_contacts" , "#ib_contacts  { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_notes"    , "#ib_notes     { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_tasks"    , "#ib_tasks     { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_rooms"    , "#ib_rooms     { display: none !important; }" , "")>
+
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_users"    , "#ib_users     { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 2, #"ib_users"    , "#online_users { display: block; !important }", "")>
+
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_chat"     , "#ib_chat      { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_advanced" , "#ib_advanced  { display: none !important; }" , "")>
+<?%("COND:ICONBAR:ACTIVE", 1, 0, #"ib_citadel"  , "#ib_citadel   { display: none !important; }" , "")>

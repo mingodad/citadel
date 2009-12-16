@@ -1,0 +1,62 @@
+Every client for the Citadel system is capable of identifying itself with
+a developer code, client code, and client version.  Here are the known values
+for these fields.
+ 
+ 
+Developer codes (and where known, client codes)
+
+ 0	The Citadel core development team
+	(See copyright.txt for the list of people involved in the project)
+	Here are the client ID's we've used:
+
+	Client	Name		Status		Description
+	0	Citadel		deployed	Citadel text based client
+	1	lcit		dead		Curses-based text client
+	2	WinCit		legacy		Visual Basic client for Win16
+	4	WebCit		deployed	Web-based access to Citadel
+	5	Shaggy		dead		Java-powered client
+	6	Daphne		dead		wx multiplatform "fat" client
+	7	Shaggy (new)	unknown		Java-powered client
+						<chilly@uncensored.citadel.org>
+	8	ctdlphp		deployed	PHP interface to Citadel
+ 
+ 1	Brian Ledbetter <brian@shadowcom.net>
+
+	Client	Name		Status		Description
+	0	libCxClient	deployed	Client-side API library
+	1	Infusion	deployed	Groupware for Citadel
+
+ 2	OST Systems, Inc.
+	Matthew Scott <mscott@springfieldtech.com>
+
+	Client	Name		Status		Description
+	0	CivisLink	development	Python Citadel protocol library
+ 
+ 3	Jesse Vincent <jrvincent@wesleyan.edu>
+ 
+ 4	Brian Costello <btx@calyx.net>
+ 
+ 5	Robert Abatecola <robert@tsgus.com> 
+ 
+ 6	Bastille <tdf@area51.v-wave.com>
+ 
+ 7      Walden Leverich <waldenl@techsoftinc.com>
+
+ 8      Michael Hampton <error@citadel.org>
+
+        Client  Name            Status          Description
+	0       libcitadel      in development  Client-side API library
+	1       D.O.C.          dead            Dave's Own Citadel look-alike
+	8	stress		deployed	Citadel server stress tester
+	16      Courier         in development  GTK+ Unix/Win32 Client
+ 
+ 31	Stuart Cianos <scianos@alphavida.com>
+ 
+ 69     Anticlimactic Teleservices
+        Don Kimberlin (err head) <donkimberlin@hotmail.com>
+
+ 71	Robert Barta <rho@cpan.org>
+ 
+ 177	Kevin Fisher <kgf@golden.net>
+ 
+ 226	David Given <dg@cowlark.com>

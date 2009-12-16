@@ -1,0 +1,31 @@
+<?=("head")>
+<?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+
+<script type="text/javascript">
+function ConfirmKill() { 
+return confirm('<?_("Do you really want to kill this session?")>');
+}
+</script>
+
+<div id="banner">
+<div class="room_banner">
+<img src="static/usermanag_48x.gif">
+<h1>
+<?_("Users currently on ")><?SERV:HUMANNODE>
+</h1></div>
+<div id="actiondiv">
+<ul class="room_actions">
+<li class="start_page">
+	<?OFFERSTARTPAGE>
+</li></ul>
+</div>
+</div>
+<div id="content" class="fix_scrollbar_bug who_is_online">
+<?DOBOXED("wholiststatic", "wholiststatic_header")>
+</div>
+<script type="text/javascript">
+ new Ajax.PeriodicalUpdater('do_template', 'template=wholiststatic',
+                            { method: 'get', frequency: 30 }  );
+</script>
+<?=("trailing")>
+

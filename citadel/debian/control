@@ -1,0 +1,112 @@
+Source: citadel
+Section: mail
+Priority: extra
+Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
+Build-Depends: debhelper (>= 4), po-debconf, bison, autotools-dev,
+ libdb-dev, libical-dev (>=0.43), libldap2-dev, libncurses5-dev,
+ libpam0g-dev, libsieve2-dev, libssl-dev, libexpat1-dev, libcitadel-dev (>= 7.42),
+ libcurl4-openssl-dev | libcurl3-openssl-dev, zlib1g-dev
+Standards-Version: 3.8.0
+
+Package: citadel-server
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common, openssl
+Recommends: db4.4-util | db4.3-util, shared-mime-info
+Suggests: postfix | exim4 | citadel-mta | mail-transport-agent
+Conflicts: pop3-server, imap-server
+Provides: pop3-server, imap-server
+Description: complete and feature-rich groupware server
+ Citadel is a complete and feature-rich open source groupware platform.
+  * Email, calendaring/scheduling, address books
+  * Bulletin boards, mailing list server, instant messaging
+  * Multiple domain support
+  * An intuitive, attractive AJAX-style web interface
+ .
+ The Citadel system is extremely versatile. It provides numerous front ends to
+ present to users, such as a text-based interface, an AJAX-style web interface,
+ and many popular PIM clients using SMTP/POP/IMAP. All of these can be used
+ simultaneously.
+ .
+ It's also extremely scalable. Not only can a well-equipped Citadel server
+ support a large number of concurrent users, but you can also build
+ a distributed network of Citadel nodes that share rooms and their content.
+
+Package: citadel-suite
+Architecture: all
+Depends: citadel-common, citadel-server, citadel-mta, citadel-webcit, citadel-client, ${misc:Depends}
+Description: complete and feature-rich groupware server; metapackage for full installation
+ Citadel is a complete and feature-rich open source groupware platform.
+  * Email, calendaring/scheduling, address books
+  * Bulletin boards, mailing list server, instant messaging
+  * Multiple domain support
+  * An intuitive, attractive AJAX-style web interface
+ .
+ The Citadel system is extremely versatile. It provides numerous front ends to
+ present to users, such as a text-based interface, an AJAX-style web interface,
+ and many popular PIM clients using SMTP/POP/IMAP. All of these can be used
+ simultaneously.
+ .
+ It's also extremely scalable. Not only can a well-equipped Citadel server
+ support a large number of concurrent users, but you can also build
+ a distributed network of Citadel nodes that share rooms and their content.
+
+Package: citadel-common
+Architecture: all
+Depends: adduser, ${misc:Depends}
+Description: complete and feature-rich groupware server
+ Citadel is a complete and feature-rich open source groupware platform.
+  * Email, calendaring/scheduling, address books
+  * Bulletin boards, mailing list server, instant messaging
+  * Multiple domain support
+  * An intuitive, attractive AJAX-style web interface
+ .
+ This package contains the common files.
+
+Package: citadel-mta
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, citadel-server, citadel-common
+Conflicts: mail-transport-agent
+Provides: mail-transport-agent
+Replaces: mail-transport-agent
+Description: complete and feature-rich groupware server (mail transport agent)
+ This package contains the mail transport agent component for Citadel,
+ a complete and feature-rich open source groupware platform.
+ .
+ See the 'citadel-server' package for more informations.
+
+Package: citadel-client
+Architecture: any
+Recommends: shared-mime-info
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, citadel-common
+Description: complete and feature-rich groupware server (command line client)
+ This is package contains the command line client for Citadel, a complete and
+ feature-rich open source groupware platform.
+ .
+ See the 'citadel-server' package for more informations.
+
+Package: citadel-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Description: complete and feature-rich groupware server (documentation)
+ This package contains documentation for Citadel, a complete and feature-rich
+ open source groupware platform.
+ .
+ See the 'citadel-server' package for more informations.
+
+Package: citadel-dbg
+Section: devel
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends},
+         citadel-server (= ${binary:Version}),
+         citadel-mta (= ${binary:Version}),
+         citadel-client (= ${binary:Version})
+Description: complete and feature-rich groupware server - debugging symbols
+ Citadel is a complete and feature-rich open source groupware platform.
+  * Email, calendaring/scheduling, address books
+  * Bulletin boards, mailing list server, instant messaging
+  * Multiple domain support
+  * An intuitive, attractive AJAX-style web interface
+ .
+ This package provides the debugging symbols for the Citadel server.

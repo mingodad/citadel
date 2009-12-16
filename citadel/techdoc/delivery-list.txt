@@ -1,0 +1,89 @@
+Description of the custom MIME type "application/x-citadel-delivery-list"
+
+ This MIME type may be found in the outbound queue room on Citadel systems,
+which is typically called "__CitadelSMTPspoolout__".  The room is flagged as
+a "system" room, which means that it's completely hidden to everyone, although
+an Aide can get to it if the full name is specified (but unlike a normal
+hidden room, it does not appear in the known rooms list on subsequent visits).
+ 
+ Messages in this format contain delivery instructions.  Therefore, for each
+message in the queue to be delivered to one or more recipients, there will be
+*two* messages in the room: one containing the actual message, and the other
+containing delivery instructions.  It is expected that the instructions
+message may be replaced at any time (using an Exclusive ID field) if delivery
+to only some of the recipients has been accomplished.
+ 
+ Citadel keeps reference counts of each message on disk.  Therefore if a
+message contains a mixture of local and remote recipients, there may be two
+or more references to the message itself, one of them being the one in the
+queue.
+  
+ A delivery list contains one or more lines of text, each line containing
+a single instruction (usually a recipient).  Fields are separated by the
+vertical bar character ("|") and there will always be at least one field on
+each line.
+ 
+ 
+ 
+ INSTRUCTION:  msgid
+ SYNTAX:       msgid|0000000
+ DESCRIPTION:  
+    Defines the actual message for which we are providing delivery
+    instructions.  This instruction must precede all the others.  When
+    all deliveries have either succeeded or failed, both the instructions and
+    the copy of the message itself in the queue room should be deleted.  The
+    second parameter specifies the message ID in the local database.
+ 
+ 
+ INSTRUCTION:  submitted
+ SYNTAX:       submitted|999999999
+ DESCRIPTION:
+    Contains a timestamp designating when this message was first entered into
+    the system.
+ 
+ 
+ INSTRUCTION:  attempted
+ SYNTAX:       attempted|999999999
+ DESCRIPTION:
+    Contains a timestamp designating the date/time of the last delivery
+    attempt.
+ 
+ 
+ INSTRUCTION:  retry
+ SYNTAX:       retry|9999999
+ DESCRIPTION:
+    Citadel does not retry SMTP delivery at a fixed interval.  Instead, it
+starts at a nominal interval (15 minutes by default) and then doubles the
+interval after each failed attempt.  This instruction contains the interval
+which should currently be followed (and doubled again, if the next delivery
+fails).
+  
+  
+ INSTRUCTION:  bounceto
+ SYNTAX:       bounceto|Big Bad Sender[@host]
+ DESCRIPTION:
+    Where to send "bounce" messages (delivery status notifications).  The
+    contents of the second field are supplied as the "recipient" field to
+    CtdlSaveMsg(), and therefore may be a local username, a user on another
+    Citadel, or an Internet e-mail address.
+ 
+ 
+ INSTRUCTION:  remote
+ SYNTAX:       remote|friko@mumjiboolean.com|0|delivery status message
+ DESCRIPTION:
+    Names a recipient on a remote system to which the message should be
+    delivered.  The third parameter may contain any of the following values:
+       0 = No delivery has yet been attempted
+       2 = Delivery was successful
+       4 = A transient error was experienced ... try again later
+       5 = Delivery to this address failed permanently.  The error message
+           should be placed in the fourth field so that a bounce message may
+           be generated.
+
+
+ INSTRUCTION:	envelope_from
+ SYNTAX:	envelope_from|blurdybloop@example.com
+ DESCRIPTION:
+    Sets a value to be used as the envelope sender during the 'MAIL FROM:'
+    phase of the SMTP transaction.  If an envelope sender is not supplied,
+    one is extracted from the message body.

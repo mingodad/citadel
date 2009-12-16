@@ -1,0 +1,53 @@
+    <div id="banner">
+      <h1><?_("Configure Push Email")></h1>
+    </div>
+
+    <div id="content" class="config_service">
+    <p>
+    <!-- NOT beginbox -->
+    <div class="box">
+    <div class="boxlabel"><?_("Push email and SMS settings")></div>
+    <div class="boxcontent">
+	<!-- still not begin box -->
+    <!-- Begin Push email configure -->
+
+      <div id="pushemail">
+        <div class="instructions">
+          <p>
+<?_("If your administrator has enabled the functionality, Citadel can notify a Funambol server that you haved recieved new email and automatically syncronize any devices you have with the Funambol client installed.")></p>
+
+          <p>
+<?_("Alternatively, if the administrator has configured it, Citadel can send a text message to you when new mail arrives.")></p>
+        </div>
+
+        <form id="pushconfig" method="post" action="save_pushemail">
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="funambol" <?%("COND:LONGVECTOR", 1, 1, 4, 'CHECKED', "")>>
+	    <strong><?_("Notify Funambol server")></strong>
+	  </p>
+
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="textmessage" <?%("COND:LONGVECTOR", 1, 1, 3, 'CHECKED', "")>>
+	    <strong><?_("Send a text message to...")></strong> 
+	    <input type="text" name="user_sms_number" size="20" value="<?SMSNUM>" >
+	    <?_("(Use international format, without any leading zeros, spaces or hypens, like +61415011501)")>
+	  </p>
+
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="httpmessage" <?%("COND:LONGVECTOR", 1, 1, 5, 'CHECKED', "")>>
+	    <strong><?_("Use custom notification scheme configured by your Admin")></strong>
+	  </p>
+
+          <p class="option">
+	    <input type="radio" name="pushsetting" value="none" <?%("COND:LONGVECTOR", 1, 1, 2, "CHECKED", "")>>
+	    <strong><?_("Don‘t send any notifications")></strong>
+	  </p>
+
+          <p><input type="submit" name="submit" value="Save settings"></p>
+        </form>
+        <br>
+        <br>
+      </div>
+      </div>
+      </div>
+    </p>

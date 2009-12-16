@@ -1,0 +1,169 @@
+#########################################################################
+#                                                                       #
+# Process this file with top-level configure script to produce Makefile #
+#                                                                       #
+#########################################################################
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+libdir = @libdir@
+includedir = @includedir@
+man1dir = @mandir@/man1
+
+datarootdir = @datarootdir@
+
+top_builddir = .
+pkgconfig_DATA = libcitadel.pc
+pkgconfigdir = $(libdir)/pkgconfig
+
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+mkinstalldirs = $(SHELL) $(top_srcdir)/conftools/mkinstalldirs
+
+APIHEADER = $(srcdir)/lib/libcitadel.h
+LIBRARY = libcitadel.la
+
+DESTDIR = $(INSTALL_ROOT)
+
+default:  buildlib
+
+buildlib: $(LIBRARY)
+
+all: $(LIBRARY)
+
+libcitadel.pc: $(top_builddir)/config.status libcitadel.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+
+pkgconfigDATA_INSTALL = $(INSTALL_DATA)
+install-pkgconfigDATA: $(pkgconfig_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgconfigdir)
+	@list='$(pkgconfig_DATA)'; for p in $$list; do \
+		if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+		f="`echo $$p | sed -e 's|^.*/||'`"; \
+		echo " $(pkgconfigDATA_INSTALL) $$d$$p $(DESTDIR)$(pkgconfigdir)/$$f"; \
+		$(pkgconfigDATA_INSTALL) $$d$$p $(DESTDIR)$(pkgconfigdir)/$$f; \
+	done
+
+
+clean:
+	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs xdgmime/*.o xdgmime/*.lo xdgmime/.libs
+	rm -rf .libs libcitadel.la
+
+clobber: clean
+
+distclean: clean
+	rm -f config.status config.log config.cache libtool
+	rm -f Makefile
+
+install: $(LIBRARY) $(APIHEADER) install-pkgconfigDATA
+	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
+	$(LIBTOOL) --mode=install $(INSTALL) $(LIBRARY) $(DESTDIR)$(libdir)/$(LIBRARY)
+	for FN in $(APIHEADER) ; do $(INSTALL_DATA) $$FN $(DESTDIR)$(includedir) ; done
+
+uninstall:
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$(LIBRARY)
+	rm -f $(DESTDIR)$(includedir)/libcitadel.h
+
+# for VPATH builds (invoked by configure)
+mkdir-init:
+	@for d in lib lib/xdgmime tests ; do \
+		(mkdir $$d 2> /dev/null || test 1) ; \
+	done
+
+CC = @CC@
+CXX = @CXX@
+LIBTOOL = @LIBTOOL@
+
+INCLUDES = -I$(srcdir)/lib -I.
+LDFLAGS = @LDFLAGS@ @LIBS@
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+CXXFLAGS = @CXXFLAGS@
+VSNFLAG = -version-info @LIBCURRENT@:@LIBREVISION@:@LIBAGE@
+
+### autoconf this?
+LTFLAGS = --silent
+
+COMPILE = $(CC) $(INCLUDES) $(CFLAGS) $(DEFS) $(CPPFLAGS)
+CXXCOMPILE = $(CXX) $(INCLUDES) $(CXXFLAGS) $(DEFS) $(CPPFLAGS)
+LTCOMPILE = $(LIBTOOL) $(LTFLAGS) --mode=compile $(COMPILE)
+LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG) -rpath $(libdir) $(LDFLAGS) -o $@
+LINK_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) $(LDFLAGS) -o $@
+LINK_CXX_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(CXXCOMPILE) $(LDFLAGS) -o $@
+
+LIB_OBJS = lib/libcitadel.lo \
+	lib/mime_parser.lo \
+	lib/tools.lo \
+	lib/vcard.lo \
+	lib/vnote.lo \
+	lib/hash.lo \
+	lib/lookup3.lo \
+	lib/stringbuf.lo \
+	lib/json.lo \
+	lib/wildfire.lo \
+	lib/xdgmime/xdgmime.lo \
+	lib/xdgmime/xdgmimeglob.lo \
+	lib/xdgmime/xdgmimeint.lo \
+	lib/xdgmime/xdgmimemagic.lo \
+	lib/xdgmime/xdgmimealias.lo \
+	lib/xdgmime/xdgmimeparent.lo \
+	lib/xdgmime/xdgmimecache.lo \
+	lib/html_to_ascii.lo
+
+$(LIBRARY): $(LIB_OBJS)
+	$(LINK_LIB) $(LIB_OBJS)
+
+lib/libcitadel.lo: lib/libcitadel.c lib/libcitadel.h
+lib/mime_parser.lo: lib/mime_parser.c lib/libcitadel.h
+lib/tools.lo: lib/tools.c lib/libcitadel.h
+lib/vcard.lo: lib/vcard.c lib/libcitadel.h
+lib/vnote.lo: lib/vnote.c lib/libcitadel.h
+lib/lookup3.lo: lib/lookup3.c lib/libcitadel.h
+lib/hash.lo: lib/hash.c lib/libcitadel.h
+lib/json.lo: lib/json.c lib/libcitadel.h
+lib/wildfire.lo: lib/wildfire.c lib/libcitadel.h
+lib/xdgmime/xdgmime.lo: lib/xdgmime/xdgmime.c 
+lib/xdgmime/xdgmimeglob.lo:  lib/xdgmime/xdgmimeglob.c 
+lib/xdgmime/xdgmimeint.lo:  lib/xdgmime/xdgmimeint.c 
+lib/xdgmime/xdgmimemagic.lo:  lib/xdgmime/xdgmimemagic.c 
+lib/xdgmime/xdgmimealias.lo:  lib/xdgmime/xdgmimealias.c 
+lib/xdgmime/xdgmimeparent.lo:  lib/xdgmime/xdgmimeparent.c 
+lib/xdgmime/xdgmimecache.lo: lib/xdgmime/xdgmimecache.c
+lib/html_to_ascii.lo: lib/html_to_ascii.c
+
+.SUFFIXES: .c .cpp .lo .o
+
+.cpp.o:
+	$(CXXCOMPILE) -o $@ -c $<
+.c.o:
+	$(COMPILE) -o $@ -c $<
+.c.lo:
+	$(LTCOMPILE) -o $@ -c $<
+
+.PHONY: buildlib all \
+	clean distclean extraclean maintainer-clean \
+	dist distdir \
+	install uninstall
+
+
+
+
+#
+#xdgmime.o 
+#xdgmimeglob.o 
+#xdgmimeint.o 
+#xdgmimemagic.o 
+#xdgmimealias.o 
+#xdgmimeparent.o 
+#xdgmimecache.o

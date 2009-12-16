@@ -1,0 +1,29 @@
+<!--begin title bar div-->
+<div id='titlebar-<?VNOTE:UID>'
+ class="stickynote_titlebar"
+ style=" background-color: #<?VNOTE:BGCOLOR>"
+>
+<table border=0 cellpadding=0 cellspacing=0 valign=middle width=100%><tr>
+<td align=left valign=middle>
+</td>
+<td></td><!-- nothing in the title bar, its just for dragging-->
+<td align=right valign=middle>
+</td></tr></table>
+</div>
+<!--end title bar div; begin body div-->
+<div id="notebody-<?VNOTE:UID>"	class="stickynote_body">
+  <?VNOTE:MSG("X")>
+</div>
+<!--end body div-->
+<div id="resize-<?VNOTE:UID>" 
+     class="stickynote_resize" onMouseDown="NotesResizeMouseDown(event,'<?VNOTE:UID>')"> </div>
+
+</div>
+
+<div id="resize-<?VNOTE:UID>"
+ class="stickynote_resize"
+ onMouseDown="NotesResizeMouseDown(event,'<?VNOTE:UID>')">
+</div>
+<!--end resize handle div-->
+
+

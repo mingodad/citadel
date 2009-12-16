@@ -1,0 +1,18 @@
+<div class="conftitle"><?_("POP3")></div>
+<hr>
+
+<table border="0">
+
+<tr><td><?_("POP3 listener port (-1 to disable)")></td><td>
+<input type="text" name="c_pop3_port" maxlength="5" value='<?SERV:CFG("c_pop3_port")>'></td></tr>
+
+<tr><td><?_("POP3 over SSL port (-1 to disable)")></td><td>
+<input type="text" NAME="c_pop3s_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_pop3s_port")>'></td></tr>
+
+<tr><td><?_("POP3 fetch frequency in seconds")></td><td>
+<input type="text" name="c_pop3_fetch" MAXLENGTH="5" value='<?SERV:CFG("c_pop3_fetch")>'></td></tr>
+
+<tr><td><?_("POP3 fastest fetch frequency in seconds")></td><td>
+<input type="text" name="c_pop3_fastest" MAXLENGTH="5" value='<?SERV:CFG("c_pop3_fastest")>'></td></tr>
+
+</table>	

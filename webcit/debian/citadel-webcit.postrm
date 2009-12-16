@@ -1,0 +1,36 @@
+#! /bin/sh
+# Abort if any command returns an error value
+set -e
+. /usr/share/debconf/confmodule
+
+#DEBHELPER#
+
+case "$1" in
+  purge)
+	echo "/etc/citadel/www/keys not removed. "
+	for server in apache apache-ssl apache2; do
+	    if [ -h "/etc/${server}/conf.d/webcit.conf" ]; then
+		rm -f "/etc/${server}/conf.d/webcit.conf"
+                invoke-rc.d $server reload || true
+	    fi
+	done
+	
+	rm -f /etc/default/webcit
+
+	db_purge 'citadel/WebcitHttpsPort' || true
+	db_purge 'citadel/WebcitHttpPort' || true
+	db_purge 'citadel/WebcitApacheIntegration' ||true
+    ;;
+  disappear)
+    if test "$2" != overwriter; then
+      echo "$0: undocumented call to \`postrm $*'" 1>&2
+      exit 0
+    fi
+    ;;
+  remove|upgrade|failed-upgrade|abort-install|abort-upgrade)
+    ;;
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 0;;
+esac
+
+exit 0

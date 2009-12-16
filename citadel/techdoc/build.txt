@@ -1,0 +1,32 @@
+Some notes on the build process...
+  
+ Oct 28 01:57 1998 from LoanShark @uncnsrd 
+
+  autodependency generation is implemented by generating a bunch of .d  
+files (with another suffix rule) using $(CC) - M and "-include"-ing them 
+from the main Makefile. the .d files are made to depend on the .c files 
+they correspond to, and the referenced header files, so they're updated as 
+needed. the only version of make that I know for sure works with this is 
+GNU make, but the Makefile should still work on other versions of Unix 
+make, just without the autodependency stuff. 
+
+
+ Oct 28 20:49 1998 from LoanShark @uncnsrd 
+one thing I forgot to mention about the autodependency generation: for a 
+file to be included in the autodepend process, it must be listed in the 
+SOURCES macro near the top of Makefile.in. 
+  also, I've added an 'install' target to the makefile. this will make it  
+possible to build RPM's, and bring the installation process closer to that 
+of other packages, which if you're using the new configure script goes 
+like this: 
+  ./configure [--enable-ansi-color] [--disable-autologin] [--prefix=/foo] 
+  
+  --prefix specifies the location Citadel will run from,  
+/usr/local/citadel by default. 
+  to build a highly optimized version without debugging symbols, you could 
+ do something like this (with the bourne shell): 
+  CC=egcs CFLAGS='-O6 -fomit-frame-pointer' ./configure   
+  after configuring, simply type `make', then su to a user who has  
+appropriate permissions, and `make install'. then run setup as usual. 
+  are there any other areas that need to be cleared up? 
+

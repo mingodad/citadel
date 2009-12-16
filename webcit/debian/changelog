@@ -1,0 +1,196 @@
+webcit (7.65-86) stable; urgency=low
+
+  * more fixes
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 4 Sep 2009 0:00:00 +0002
+
+webcit (7.63-85) stable; urgency=low
+
+  * fix double handling of begin/endburst
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 2 Sep 2009 8:00:00 +0002
+
+webcit (7.63-84) stable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 1 Sep 2009 8:00:00 +0002
+
+webcit (7.62-82) stable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 17 Aug 2009 23:00:00 +0002
+
+webcit (7.61-81) stable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 6 Aug 2009 10:00:00 +0002
+
+
+webcit (7.60-80) stable; urgency=low
+
+  * new release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 28 Jul 2009 22:00:00 +0002
+
+webcit (7.52-77) stable; urgency=low
+
+  * bugfix of integer overflow in files application
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 21 Jul 2009 22:00:00 +0002
+
+webcit (7.52-76) stable; urgency=low
+
+  * new upstream maintenance version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sat, 18 Jul 2009 10:00:00 +0002
+
+webcit (7.51-75) stable; urgency=low
+
+  * new upstream maintainance version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 2 Jun 2009 16:00:00 +0002
+
+webcit (7.50b-74) stable; urgency=low
+
+  * new upstream maintainance version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 23 Apr 2009 16:00:00 +0002
+
+webcit (7.50-73) stable; urgency=low
+
+  * new upstream stable release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 9 Apr 2009 16:00:00 +0002
+
+webcit (7.43-72) unstable; urgency=low
+
+  * Beta release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 17 Mar 2009 8:00:00 +0002
+
+webcit (7.42-71) unstable; urgency=low
+
+  * Beta release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 27 Feb 2009 8:00:00 +0002
+
+webcit (7.41-70) unstable; urgency=low
+
+  * Beta release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 20 Feb 2009 18:00:00 +0002
+
+webcit (7.37-36) stable; urgency=low
+
+  * fix tiny JS error anoying HTTP IM Users
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 16 Jul 2008 14:00:00 +0002
+
+webcit (7.37-35) stable; urgency=low
+
+  * tiny bugfix with i18n makefiles
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 22 Jun 2008 22:00:00 +0002
+
+webcit (7.37-34) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 19 Jun 2008 22:00:00 +0002
+
+webcit (7.36-33) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 30 May 2008 19:00:00 +0002
+
+webcit (7.35-32) stable; urgency=low
+
+  * fix prototype package integration
+  * updated brazillian translation
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 22 Apr 2008 8:00:00 +0001
+webcit (7.35-31) stable; urgency=low
+
+  * New citadel version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 22 Apr 2008 19:00:00 +0002
+
+webcit (7.34-29) stable; urgency=high
+
+  * fix bug in addressbook popup
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 5 Mar 2008 22:00:00 +0001
+
+webcit (7.33-28) stable; urgency=high
+
+  * adjusted license; new sorting in lists
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mo, 3 Mar 2008 22:00:00 +0001
+
+webcit (7.31-27) stable; urgency=high
+
+  * initial mime detection support
+  * don't nail the users to GIF
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 12 Feb 2008 0:00:00 +0001
+
+webcit (7.30-26) stable; urgency=high
+
+  * Fix room admin dialog
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 6 Feb 2008 20:00:00 +0001
+webcit (7.30-25) stable; urgency=high
+
+  * New citadel version.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 1 Feb 2008 10:00:00 +0001
+webcit (7.24-24) stable; urgency=high
+
+  * fixed missing locales and image calculation
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 21 Nov 2007 0:01:21 +0002
+webcit (7.24-23) stable; urgency=high
+
+  * crash in notes fixed.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 16 Nov 2007 0:01:21 +0002
+webcit (7.23-22) stable; urgency=high
+
+  * fix some IE rendering bugs
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Thu, 8 Nov 2007 23:01:21 +0002
+webcit (7.22-21) stable; urgency=high
+
+  * fixed ssl related directory access crash
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Di, 30 Oct 2007 18:10:00 +0002
+webcit (7.22-20) stable; urgency=high
+
+  * Lots of stylesheet fixes. Performance improvements.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Do, 25 Oct 2007 18:10:00 +0002
+webcit (7.13-19) stable; urgency=high
+
+  * update to actual Webcit release. Fix several conditions of CPU abuse.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fr, 3 Aug 2007 18:10:00 +0002
+webcit (7.12-18) stable; urgency=high
+
+  * update to actual Citadel SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Sun, 8 Jul 2007 8:10:00 +0000
+webcit (7.11-17) stable; urgency=high
+
+  * update to actual Citadel SVN. many new features. see Packages changelog.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fr, 6 Jul 2007 22:10:00 +0000
+webcit (7.07-0ubuntu1) stable; urgency=low
+
+  * initial ubuntu release.
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Fri, 06 Apr 2007 19:07:00 +0000
+

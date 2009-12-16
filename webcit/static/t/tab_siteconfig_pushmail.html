@@ -1,0 +1,20 @@
+<div class="conftitle"><?_("Push Email")></div>
+<hr>
+<table border="0">
+
+<tr><td><?_("Funambol server host (blank to disable)")></td><td>
+<input type="text" NAME="c_funambol_host" MAXLENGTH="255" VALUE='<?SERV:CFG("c_funambol_host")>'></td></tr>
+
+<tr><td><?_("Funambol server port ")></td><td>
+<input type="text" NAME="c_funambol_port" MAXLENGTH="5" VALUE='<?SERV:CFG("c_funambol_port")>'></td></tr>
+
+<tr><td><?_("Funambol sync source")></td><td>
+<input type="text" NAME="c_funambol_source" MAXLENGTH="255" VALUE='<?SERV:CFG("c_funambol_source")>'></td></tr>
+
+<tr><td><?_("Funambol auth details (user:pass)")></td><td>
+<input type="text" NAME="c_funambol_auth" MAXLENGTH="255" VALUE='<?SERV:CFG("c_funambol_auth")>'></td></tr>
+
+<tr><td><?_("External pager tool (blank to disable)")></td><td>
+<input type="text" NAME="c_pager_program" MAXLENGTH="255" VALUE='<?SERV:CFG("c_pager_program")>'></td></tr>
+
+</table>

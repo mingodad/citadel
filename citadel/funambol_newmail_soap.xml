@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><soapenv:Body><sendNotificationMessages soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+<arg0 xsi:type="soapenc:string" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">^notifyuser</arg0><arg1 xsi:type="soapenc:string" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+&lt;java version=&quot;1.5.0_13&quot; class=&quot;java.beans.XMLDecoder&quot;&gt; 
+ &lt;array class=&quot;com.funambol.framework.core.Alert&quot; length=&quot;1&quot;&gt; 
+  &lt;void index=&quot;0&quot;&gt; 
+   &lt;object class=&quot;com.funambol.framework.core.Alert&quot;&gt; 
+    &lt;void property=&quot;cmdID&quot;&gt; 
+     &lt;object class=&quot;com.funambol.framework.core.CmdID&quot;/&gt; 
+    &lt;/void&gt; 
+    &lt;void property=&quot;data&quot;&gt; 
+     &lt;int&gt;206&lt;/int&gt; 
+    &lt;/void&gt; 
+    &lt;void property=&quot;items&quot;&gt; 
+     &lt;void method=&quot;add&quot;&gt; 
+      &lt;object class=&quot;com.funambol.framework.core.Item&quot;&gt; 
+       &lt;void property=&quot;meta&quot;&gt; 
+        &lt;object class=&quot;com.funambol.framework.core.Meta&quot;&gt; 
+         &lt;void property=&quot;metInf&quot;&gt; 
+          &lt;void property=&quot;type&quot;&gt; 
+           &lt;string&gt;application/vnd.omads-email+xml&lt;/string&gt; 
+          &lt;/void&gt; 
+         &lt;/void&gt; 
+        &lt;/object&gt; 
+       &lt;/void&gt; 
+       &lt;void property=&quot;target&quot;&gt; 
+        &lt;object class=&quot;com.funambol.framework.core.Target&quot;&gt; 
+         &lt;void property=&quot;locURI&quot;&gt; 
+          &lt;string&gt;^syncsource&lt;/string&gt; 
+         &lt;/void&gt; 
+        &lt;/object&gt; 
+       &lt;/void&gt; 
+      &lt;/object&gt; 
+     &lt;/void&gt; 
+    &lt;/void&gt; 
+   &lt;/object&gt; 
+  &lt;/void&gt; 
+ &lt;/array&gt; 
+&lt;/java&gt; 
+</arg1><arg2 href="#id0"/></sendNotificationMessages>
+<multiRef id="id0" soapenc:root="0" soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xsi:type="soapenc:int" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">1</multiRef></soapenv:Body></soapenv:Envelope>

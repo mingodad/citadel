@@ -1,0 +1,85 @@
+<div id="iconbar">
+  <div id="iconbar_container">
+  <div id="citlogo" class="logo_citadel">
+    <img src="/static/citadel-logo.gif" alt="<?_("Powered by Citadel")>"  width="120" height="35">
+  </div>
+  <div id="switch" class="iconbar_text"><span></span></div>
+  <div id="roomlist"></div>
+  <div id="iconbar_menu">
+<ul id="button">
+<li id="ib_summary" class="ib_button">
+    <a class="ib_button_link" href="summary" title="<?_("Your summary page")>"><span>
+        <?_("Summary")>
+    </span></a>
+</li>
+<li id="ib_inbox" class="ib_button">
+    <a class="ib_button_link" href="dotgoto?room=_MAIL_" title="<?_("Go to your email inbox")>"><span>
+       <?_("Mail")></span>
+    </a>
+</li>
+<li id="ib_calendar" class="ib_button">
+    <a class="ib_button_link" href="dotgoto?room=_CALENDAR_" title="<?_("Go to your personal calendar")>"><span>
+       <?_("Calendar")></span>
+    </a>
+</li>
+<li id="ib_contacts" class="ib_button">
+    <a class="ib_button_link" href="dotgoto?room=_CONTACTS_" title="<?_("Go to your personal address book")>"><span>
+    	    <?_("Contacts")></span>
+    </a>
+</li>
+<li id="ib_notes" class="ib_button">
+    <a class="ib_button_link" href="dotgoto?room=_NOTES_" title="<?_("Go to your personal notes")>"><span>
+       <?_("Notes")></span>
+    </a>
+</li>
+<li id="ib_tasks" class="ib_button">
+<a class="ib_button_link" href="dotgoto?room=_TASKS_" title="<?_("Go to your personal task list")>"><span>
+<?_("Tasks")></span>
+</a>
+</li>
+<li id="ib_rooms" class="ib_button">
+<a class="ib_button_link" href="knrooms?template=knrooms?SortBy=byfloorroom?SortOrder=1" title="<?_("List all your accessible rooms")>"><span>
+<?_("Rooms")></span>
+</a>
+</li>
+<li id="ib_users" class="ib_button">
+<a class="ib_button_link" href="do_template?template=who" title="<?_("See who is online right now")>"><span>
+<?_("Online users")>
+</span>
+</a>
+<ul id="online_users">
+<li><?_("Loading")></li>
+</ul>
+</li>
+<li id="ib_chat" class="ib_button">
+<a class="ib_button_link" href="#" id="ib_chat_launch"><span>
+<?_("Chat")>
+</span>
+</a>
+</li>
+<li id="ib_advanced" class="ib_button">
+<a class="ib_button_link" href="do_template?template=display_main_menu" title="<?_("Advanced Options Menu: Advanced Room commands, Account Info, and Chat")>"><span>
+<?_("Advanced")>
+</span>
+</a>
+</li>
+<??("COND:AIDE", 1)>
+<li id="ib_admin" class="ib_button">
+<a class="ib_button_link" href="do_template?template=display_aide_menu" title="<?_("Room and system administration functions")>"><span><?_("Administration")></span></a>
+</li>
+<??("X",1)>
+</ul>
+</div>
+<div id="ib_logoff" class="ib_button">
+<a class="ib_button_link" href="termquit" onclick="return confirm('<?_("Log off now?")>');"title="<?_("Log off")>"><span><?_("Log off")></span></a>
+</div>
+<div id="customize" class="iconbar_text">
+  <span><a href="do_template?template=iconbar_edit"><?_("customize this menu")></a></span>
+</div>
+<div class="ctdlTemplate">
+<span id="rmlist_template"><?_("switch to room list")></span>
+<span id="mnlist_template"><?_("switch to menu")></span>
+<span id="mbox_template"><?_("My folders")></span>
+</div>
+</div>
+</div>

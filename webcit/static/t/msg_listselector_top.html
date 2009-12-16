@@ -1,0 +1,23 @@
+<form name="msgomatictop" class="selector_top" >
+<p><?_("Reading #")>
+<select name="whichones" size="1" 
+	OnChange="location.href=msgomatictop.whichones.options[selectedIndex].value">
+<?CONTEXTSTR>
+</select>
+<?_("of")> <?SUMM:COUNT> <?_("messages")>
+<input type="radio" name="direction" value="" 
+  OnChange="location.href='<?URLPART(0)>?SortBy=date?SortOrder=1'"
+  <?%("COND:BSTR", 1, "SortOrder", 1, "checked", "")>
+>
+<?_("oldest to newest")> 
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+<input type="radio" name="direction" value="" 
+  OnChange="location.href='<?URLPART(0)>?SortBy=date?SortOrder=2'"
+  <?%("COND:BSTR", 1, "SortOrder", 2, "checked", "")>
+>
+<?_("newest to oldest")>
+</p>
+</form>
+

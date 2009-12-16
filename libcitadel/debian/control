@@ -1,0 +1,33 @@
+Source: libcitadel
+Section: libs
+Priority: extra
+Maintainer: Citadel Team <room_citadel_development@uncensored.citadel.org>
+Uploaders: Wilfried Goesgens <w.goesgens@outgesourced.org>, Alexander Wirt <formorer@debian.org>
+Build-Depends: debhelper (>= 5), zlib1g-dev
+Standards-Version: 3.8.0
+Homepage: http://citadel.org
+
+Package: libcitadel2
+Architecture: any
+Depends: ${shlibs:Depends}, shared-mime-info
+Description: Citadel toolbox
+ This library contains the commonly used routines for the citadel suite.
+
+Package: libcitadel2-dbg
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, libcitadel2
+Description: Debugging symbols for libcitadel2
+ This library contains the commonly used routines for the citadel suite.
+ .
+ This package provides the debugging symbols.
+
+Package: libcitadel-dev
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, pkg-config,
+ libcitadel2 (= ${binary:Version})
+Description: Development files for libcitadel2
+ This library contains the commonly used routines for the citadel suite.
+ .
+ This package provides development files and static libraries.

@@ -1,0 +1,72 @@
+# $Id: Makefile.in 7752 2009-08-29 10:37:43Z dothebart $
+
+AUTOCONF=@AUTOCONF@
+CC=@CC@
+CFLAGS=@CFLAGS@
+DEFS=@DEFS@
+INSTALL=@INSTALL@
+LIBOBJS=@LIBOBJS@
+LIBS=@LIBS@  -lcunit
+LDFLAGS=@LDFLAGS@ -dn
+SED=@SED@
+LCUNIT_DEFS=
+srcdir=../
+prefix=@prefix@
+top_builddir=`pwd`
+
+# End of configuration section
+
+TARGETS=stringbuf_test stringbuf_IO_test stringbuf_conversion_test hashlist_test
+all: $(TARGETS)
+
+
+.SUFFIXES: .cpp .c .o
+
+clean:
+	rm -f *.o 
+
+distclean: clean
+	rm -f Makefile config.cache config.log config.status \
+		po/Makefile \
+		$(srcdir)/TAGS
+
+stringbuf_test:	$(LIBOBJS) stringbuf_test.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	stringbuf_test.o \
+	../.libs/libcitadel.a \
+	-o stringbuf_test
+
+stringbuf_IO_test:	$(LIBOBJS) stringbuf_IO_test.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	stringbuf_IO_test.o \
+	../.libs/libcitadel.a \
+	-o stringbuf_io_test
+
+stringbuf_conversion_test:	$(LIBOBJS) stringbuf_conversion.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	stringbuf_conversion.o \
+	../.libs/libcitadel.a \
+	-o stringbuf_conversion_test 
+
+hashlist_test:	$(LIBOBJS) hashlist_test.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	hashlist_test.o \
+	../.libs/libcitadel.a \
+	-o hashlist_test 
+
+.c.o:
+	$(CC) $(CFLAGS) $(DEFS) -c  $<
+
+Makefile: $(srcdir)/tests/Makefile.in $(srcdir)/config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+
+$(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
+	cd $(srcdir) && $(AUTOCONF)
+
+$(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
+	cd $(srcdir) && $(ACLOCAL)
+
+

@@ -1,0 +1,15 @@
+<br><blockquote>
+<div class="message_header">
+  <span><?MAIL:SUMM:DATEFULL></span>
+  <span><?_("from ")>
+    <??("COND:MAIL:ANON",1)><?MAIL:SUMM:FROM("X")><??("X", 1)>
+    <?!("COND:MAIL:ANON",2)>***<??("X", 2)>
+  </span>
+  <p class="message_subject"><?MAIL:SUMM:SUBJECT></p>
+</div>
+
+<div class="message_content">
+<?MAIL:BODY>    
+</div>
+
+</blockquote>

@@ -1,0 +1,437 @@
+# Makefile for Citadel
+#
+# NOTE: normally you should not have to modify the Makefile.  All
+# system-dependent configuration is in the "configure" script, which
+# uses "Makefile.in" to generate a "Makefile".  In the rare instance
+# that you have to modify something here, please take note:
+# 1. Edit Makefile.in, -not- Makefile.
+# 2. Send e-mail to ajc@uncensored.citadel.org and let me know what you
+#    did, so any necessary changes can be put into the next release.
+#
+# $Id$
+#
+########################################################################
+
+prefix=@prefix@
+srcdir=@srcdir@
+VPATH=$(srcdir)
+
+TARGETS=@TARGETS@
+RUN_DIR=@MAKE_RUN_DIR@
+SPOOL_DIR=@MAKE_SPOOL_DIR@
+ETC_DIR=@MAKE_ETC_DIR@
+DATA_DIR=@MAKE_DATA_DIR@
+STATICDATA_DIR=@MAKE_STATICDATA_DIR@
+HELP_DIR=@MAKE_HELP_DIR@
+DOC_DIR=@MAKE_DOC_DIR@
+UTILBIN_DIR=@MAKE_UTILBIN_DIR@
+DEPEND_FLAG=@DEPEND_FLAG@
+all: $(TARGETS)
+
+.SUFFIXES: .o .d .c
+
+EXEEXT=@EXEEXT@
+
+CLIENT_TARGETS=citadel$(EXEEXT) whobbs$(EXEEXT) 
+NOINST_TARGETS=stress$(EXEEXT)
+SERVER_TARGETS=citserver$(EXEEXT)
+SERV_MODULES= md5.o \
+	ical_dezonify.o
+
+include Make_modules
+
+UTIL_TARGETS=citmail$(EXEEXT) sendcommand$(EXEEXT)
+
+UTILBIN_TARGETS= base64$(EXEEXT) setup$(EXEEXT) \
+	chkpw$(EXEEXT) chkpwd$(EXEEXT) userlist$(EXEEXT) \
+	getmail$(EXEEXT) aidepost$(EXEEXT) msgform$(EXEEXT) \
+	ctdlmigrate$(EXEEXT)
+
+
+ACLOCAL=@ACLOCAL@
+AUTH=@AUTH@
+AUTOCONF=@AUTOCONF@
+chkpwd_LIBS=@chkpwd_LIBS@
+CC=@CC@
+CFLAGS=@CFLAGS@ -I ./include/
+CPPFLAGS=@CPPFLAGS@ -I. -I ./include/
+DATABASE=@DATABASE@
+DEFS=@DEFS@
+LDFLAGS=@LDFLAGS@
+LIBS=@LIBS@
+LIBOBJS=@LIBOBJS@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+RESOLV=@RESOLV@
+SHELL=/bin/sh
+SERVER_LDFLAGS=@SERVER_LDFLAGS@
+SERVER_LIBS=@SERVER_LIBS@
+SETUP_LIBS=@SETUP_LIBS@
+YACC=@YACC@
+
+# End configuration section
+
+
+SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
+	utils/setup.c utils/msgform.c utils/chkpw.c \
+	utils/sendcommand.c utils/getmail.c utils/userlist.c \
+	utils/ctdlmigrate.c utils/base64.c utils/chkpwd.c \
+	utillib/citadel_ipc.c utillib/citadel_dirs.c utillib/ipc_c_tcp.c \
+	textclient/client_chat.c textclient/client_passwords.c \
+	textclient/commands.c textclient/messages.c textclient/rooms.c \
+	textclient/routines.c textclient/routines2.c textclient/tuiconfig.c \
+	textclient/citadel.c textclient/screen.c \
+	citserver.c clientsocket.c config.c control.c $(DATABASE) \
+	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
+	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
+	locate_host.c md5.c auth.c msgbase.c parsedate.c policy.c \
+	room_ops.c euidindex.c server_main.c snprintf.c ldap.c \
+	support.c sysdep.c user_ops.c journaling.c threads.c \
+	context.c
+
+
+include Make_sources
+
+# for VPATH builds (invoked by configure)
+mkdir-init:
+	DIRS=`/bin/ls $(VPATH)/modules/`
+	echo $(DIRS)
+	@for d in `/bin/ls $(VPATH)/modules/`; do \
+		(mkdir -p modules/$$d ) ; \
+	done
+	DIRS=`/bin/ls $(VPATH)/user_modules/`
+	echo $(DIRS)
+	@for d in `/bin/ls $(VPATH)/user_modules/`; do \
+		(mkdir -p user_modules/$$d ) ; \
+	done
+	mkdir -p utils utillib textclient
+
+svn_revision.c: ${SOURCES}
+	./scripts/mk_svn_revision.sh
+
+DEP_FILES=$(SOURCES:.c=.d) modules_init.d modules_upgrade.d
+
+noinst: $(NOINST_TARGETS)
+client: $(CLIENT_TARGETS)
+
+server: $(SERVER_TARGETS) $(SERV_MODULES)
+
+utils: $(UTIL_TARGETS) $(UTILBIN_TARGETS)
+
+citadel$(EXEEXT): textclient/citadel.o utillib/citadel_ipc.o \
+		textclient/client_chat.o textclient/client_passwords.o \
+		textclient/commands.o utillib/ipc_c_tcp.o md5.o \
+		textclient/messages.o textclient/rooms.o textclient/routines.o \
+		textclient/routines2.o textclient/tuiconfig.o \
+		textclient/screen.o utillib/citadel_dirs.o ecrash.o $(LIBOBJS)
+	$(CC) textclient/citadel.o utillib/citadel_ipc.o \
+		textclient/client_chat.o textclient/client_passwords.o \
+		textclient/commands.o utillib/ipc_c_tcp.o md5.o \
+		textclient/messages.o textclient/rooms.o textclient/routines.o \
+		textclient/routines2.o textclient/tuiconfig.o \
+		textclient/screen.o utillib/citadel_dirs.o ecrash.o $(LIBOBJS) \
+		$(LDFLAGS) -o citadel $(LIBS)
+
+.y.c:
+	$(YACC) $(YFLAGS) $<
+	mv -f y.tab.c $@
+
+#
+#
+
+parsedate.o: parsedate.c
+
+Make_sources: modules_init.c
+
+Make_modules: modules_init.c
+
+modules_upgrade.c: modules_init.c
+
+SERV_OBJS = server_main.o utillib/citadel_dirs.o\
+	user_ops.o citserver.o sysdep.o serv_extensions.o \
+	$(DATABASE:.c=.o) domain.o \
+	control.o policy.o config.o support.o room_ops.o \
+	file_ops.o msgbase.o euidindex.o \
+	locate_host.o housekeeping.o \
+	internet_addressing.o journaling.o \
+	parsedate.o genstamp.o ecrash.o threads.o context.o \
+	clientsocket.o modules_init.o modules_upgrade.o $(AUTH) $(SERV_MODULES) \
+	svn_revision.o ldap.o
+
+citserver$(EXEEXT): $(SERV_OBJS)
+	$(CC) $(SERV_OBJS) $(LDFLAGS) $(SERVER_LDFLAGS) $(LIBS) $(SERVER_LIBS) $(RESOLV) -o citserver$(EXEEXT)
+
+.c.o:
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) -c $< -o $@
+
+aidepost$(EXEEXT): utils/aidepost.o config.o
+	$(CC) utils/aidepost.o config.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o aidepost$(EXEEXT) $(LIBS)
+
+citmail$(EXEEXT): utils/citmail.o utillib/citadel_dirs.o
+	$(CC) utils/citmail.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o citmail$(EXEEXT) $(LIBS)
+
+# setup does need LIBS defined, because it uses network functions which are in -lsocket -lnsl on Solaris.
+setup$(EXEEXT): utils/setup.o utillib/citadel_dirs.o
+	$(CC) utils/setup.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o setup$(EXEEXT) $(LIBS) $(SETUP_LIBS)
+
+ctdlmigrate$(EXEEXT): utils/ctdlmigrate.o utillib/citadel_dirs.o
+	$(CC) utils/ctdlmigrate.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o ctdlmigrate$(EXEEXT) $(LIBS)
+
+chkpwd$(EXEEXT): utils/chkpwd.o auth.o
+	$(CC) utils/chkpwd.o auth.o $(LDFLAGS) -o chkpwd$(EXEEXT) $(chkpwd_LIBS)
+
+chkpw$(EXEEXT): utils/chkpw.o auth.o utillib/citadel_dirs.o
+	$(CC) utils/chkpw.o auth.o utillib/citadel_dirs.o \
+		$(LDFLAGS) -o chkpw$(EXEEXT) $(chkpwd_LIBS)
+
+whobbs$(EXEEXT): utils/whobbs.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS)
+	$(CC) utils/whobbs.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS) \
+		$(LDFLAGS) -o whobbs$(EXEEXT) $(LIBS)
+
+stress$(EXEEXT): utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS)
+	$(CC) utils/stress.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS) \
+		$(LDFLAGS) -o stress$(EXEEXT) $(LIBS)
+
+sendcommand$(EXEEXT): utils/sendcommand.o utillib/ipc_c_tcp.o \
+		utillib/citadel_ipc.o config.o  $(LIBOBJS)
+	$(CC) utils/sendcommand.o utillib/ipc_c_tcp.o \
+		utillib/citadel_ipc.o config.o utillib/citadel_dirs.o \
+		$(LIBOBJS) $(LDFLAGS) -o sendcommand$(EXEEXT) $(LIBS)
+
+getmail$(EXEEXT): utils/getmail.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		config.o  $(LIBOBJS)
+	$(CC) utils/getmail.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		config.o utillib/citadel_dirs.o \
+		$(LIBOBJS) $(LDFLAGS) -o getmail$(EXEEXT) $(LIBS)
+
+base64$(EXEEXT): utils/base64.o
+	$(CC) utils/base64.o $(LDFLAGS) -o base64$(EXEEXT)
+
+userlist$(EXEEXT): utils/userlist.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o $(LIBOBJS)
+	$(CC) utils/userlist.o utillib/ipc_c_tcp.o utillib/citadel_ipc.o \
+		utillib/citadel_dirs.o \
+		$(LIBOBJS) $(LDFLAGS) -o userlist$(EXEEXT) $(LIBS)
+
+msgform$(EXEEXT): utils/msgform.o
+	$(CC) utils/msgform.o $(LDFLAGS) -o msgform$(EXEEXT)
+
+.PHONY: install-data install-doc install-exec clean cleaner distclean
+
+install: install-exec install-data install-doc
+	@echo 
+	@echo Installation is complete.
+	@echo Now go to your Citadel directory and run 'setup'.
+	@echo 
+
+install-new: install-exec-new install-data-new install-doc-new
+	@echo 
+	@echo Installation is complete.
+	@echo Now go to your Citadel directory and run 'setup'.
+	@echo 
+
+upgrade: install-exec install-doc
+	@echo
+	@echo Upgrade is complete.
+	@echo Now go to your Citadel directory and run 'setup'.
+	@echo
+
+install-data:
+	@for i in help messages network/spoolin network/spoolout \
+		 network/systems; do \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
+	done
+	@for i in funambol_newmail_soap.xml notify_about_newmail.js citadel.rc public_clients \
+		 `find $(srcdir)/help $(srcdir)/messages $(srcdir)/network -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+	done
+	-@if test -d $(DESTDIR)/etc/pam.d; then \
+		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
+		$(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
+	fi
+
+install-data-new:
+	@for i in network/spoolin network/spoolout network/systems; do \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(RUN_DIR)/$$i; \
+	done
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(ETC_DIR)/
+	$(INSTALL_DATA) $(srcdir)/public_clients $(DESTDIR)$(ETC_DIR)/public_clients
+	$(INSTALL_DATA) $(srcdir)/citadel.rc $(DESTDIR)$(ETC_DIR)/citadel.rc
+	$(INSTALL_DATA) $(srcdir)/network/mail.aliases $(DESTDIR)$(ETC_DIR)/mail.aliases$
+
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(STATICDATA_DIR)/messages
+	@for i in  \
+		 `find $(srcdir)/messages  -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(STATICDATA_DIR)/$$i; \
+	done
+
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(HELP_DIR)/help
+	@for i in  funambol_newmail_soap.xml notify_about_newmail.js \
+		 `find $(srcdir)/help -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(HELP_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(HELP_DIR)/$$i; \
+	done
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolin
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/spoolout
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(SPOOL_DIR)/network/systems
+	-@if test -d $(DESTDIR)/etc/pam.d; then \
+		echo $(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
+		$(INSTALL_DATA) $(srcdir)/citadel.pam $(DESTDIR)/etc/pam.d/citadel; \
+	fi
+	@for i in bio bitbucket files images info userpics; do \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(DATA_DIR)/$$i; \
+	done
+
+install-doc:
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/docs
+	@for i in `find $(srcdir)/docs -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+	done
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/techdoc
+	@for i in `find $(srcdir)/techdoc -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(prefix)/$$i; \
+	done
+	@for i in `cd openldap; find $(srcdir)/ -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) openldap/$$i $(DESTDIR)$(prefix)/$$i; \
+		$(INSTALL_DATA) openldap/$$i $(DESTDIR)$(prefix)/$$i; \
+	done
+	echo $(INSTALL_DATA) README.txt $(DESTDIR)$(prefix)/README.txt
+	$(INSTALL_DATA) README.txt $(DESTDIR)$(prefix)/README.txt
+
+install-doc-new:
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR)/docs
+	@for i in `find $(srcdir)/docs -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+	done
+	@$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR)/techdoc
+	@for i in `find $(srcdir)/techdoc -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+	done
+	@for i in `cd openldap; find $(srcdir)/ -type f | grep -v .svn`; do \
+		echo $(INSTALL_DATA) $$i $(DESTDIR)$(DOC_DIR)/$$i; \
+		$(INSTALL_DATA) openldap/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
+	done
+	$(INSTALL_DATA) README.txt $(DESTDIR)$(DOC_DIR)/README.txt
+
+install-exec: all
+	@for i in bio bitbucket files images info userpics; do \
+		$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/$$i; \
+	done
+	@for i in $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
+			$(INSTALL) $$i $(DESTDIR)$(prefix)/$$i; \
+		fi \
+	done
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(prefix)/unstripped
+	cp $(SERVER_TARGETS) $(DESTDIR)$(prefix)/unstripped/
+
+	@for i in utilsmenu database_cleanup.sh migrate_aliases.sh citadel-openldap.schema; do \
+		if test -f $(srcdir)/$$i; then \
+			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
+			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(prefix)/$$i; \
+		fi \
+	done
+
+install-exec-new: all
+	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/sbin; 
+	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
+	$(srcdir)/mkinstalldirs $(DESTDIR)/usr/bin; 
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(UTILBIN_DIR); 
+	$(srcdir)/mkinstalldirs $(DESTDIR)$(DOC_DIR);
+	@for i in $(SERVER_TARGETS) $(UTIL_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
+			$(INSTALL) $$i $(DESTDIR)/usr/sbin/$$i; \
+		fi \
+	done
+	cp citserver $(DESTDIR)/$(UTILBIN_DIR)/citserver.unstripped
+	cp migrate_aliases.sh $(DESTDIR)/$(UTILBIN_DIR)/
+	@for i in $(UTILBIN_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(DESTDIR)/$(UTILBIN_DIR)/$$i; \
+			$(INSTALL) $$i $(DESTDIR)/$(UTILBIN_DIR)/$$i; \
+		fi \
+	done
+
+	$(INSTALL) citmail $(DESTDIR)/usr/sbin/sendmail;
+	@for i in $(CLIENT_TARGETS); do \
+		if test -f $$i; then \
+			echo $(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
+			$(INSTALL) $$i $(DESTDIR)/usr/bin/$$i; \
+		fi \
+	done
+	@for i in utilsmenu database_cleanup.sh citadel-openldap.schema ; do \
+		if test -f $(srcdir)/$$i; then \
+			echo $(INSTALL) $(srcdir)/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
+			$(INSTALL) $(srcdir)/$$i $(DESTDIR)$(DOC_DIR)/$$i; \
+		fi \
+	done
+
+clean:
+	rm -f *.o 
+	rm -f utils/*.o ;\
+	rm -f utillib/*.o ;\
+	rm -f textclient/*.o ;\
+	for i in $(srcdir)/modules/* ; do \
+		rm -f $$i/*.o ;\
+	done
+	if test -d $(srcdir)/user_modules ; then \
+		for i in $(srcdir)/user_modules/* ; do \
+			rm -f $$i/*.o ;\
+		done \
+	fi
+	rm -f $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS)
+
+
+cleaner: clean
+	rm -rf $(CLIENT_TARGETS) $(SERVER_TARGETS) $(UTIL_TARGETS) $(UTILBIN_TARGETS) $(NOINST_TARGETS) database_cleanup.sh *.la
+	rm -rf modules_upgrade.c modules_init.c modules_init.h Make_modules Make_sources
+
+distclean: cleaner
+	find . -name '*~' -o -name '.#*' | xargs rm -f
+	rm -f Makefile sysdep.h config.cache config.log config.status *.d 
+	rm -f utils/*.d ;
+	rm -f utillib/*.d ;
+	rm -f textclient/*.d ;
+	for i in $(srcdir)/modules/* ; do \
+		rm -f $$i/*.d ;\
+	done
+	if test -d $(srcdir)/user_modules ; then \
+		for i in $(srcdir)/user_modules/* ; do \
+			rm -f $$i/*.o ;\
+		done \
+	fi
+
+.c.d:
+	@echo Checking dependencies for $<
+	@$(CC) $(DEPEND_FLAG) $(CPPFLAGS) $< | sed -e 's!$*.o!$*.o $*/.o $@!' > $@
+	@test -s $@ || rm -f $@
+
+Makefile: $(srcdir)/Makefile.in config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/configure
+	$(SHELL) ./config.status --recheck
+
+$(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
+	cd $(srcdir) && $(AUTOCONF)
+
+$(srcdir)/aclocal.m4: $(srcdir)/acinclude.m4
+	cd $(srcdir) && $(ACLOCAL)
+
+-include $(DEP_FILES)

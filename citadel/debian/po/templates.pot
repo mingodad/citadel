@@ -1,0 +1,81 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: citadel@outgesourced.org\n"
+"POT-Creation-Date: 2006-12-30 12:33+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: string
+#. Description
+#: ../citadel-server.templates:1001
+msgid "Listen IP for Citadel"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../citadel-server.templates:1001
+msgid ""
+" Specify the IP address on which your server will run.  If you\n"
+" specify 0.0.0.0, Citadel will listen on all addresses.\n"
+" You can usually skip this unless you are running multiple\n"
+" instances of Citadel on the same computer."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../citadel-server.templates:2001
+msgid "Enable external Accounting Mode"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../citadel-server.templates:2001
+msgid ""
+" Do you want to use Host based authentication or Citadel internal?\n"
+" Host based accounting could be /etc/passwd or an LDAP directory.\n"
+" WARNING: do not change this setting once your system is installed.\n"
+" Answer \"no\" unless you completely understand this option."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../citadel-server.templates:3001
+msgid "Citadel Administrator"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../citadel-server.templates:3001
+msgid ""
+" Enter the name of the Citadeladministrator (which is probably\n"
+" you).  When an account is created with this name, it will\n"
+" automatically be given administrator-level access."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../citadel-server.templates:4001
+msgid "Citadel/UX"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../citadel-server.templates:4001
+msgid ""
+" For post configuring your Citadel Server, use citadel-webcit with your\n"
+" browser, log in as the user you specified as the Administrator, and\n"
+" review the Points under the Administration menu. If you have further\n"
+" questions review www.citadel.org, specialy the FAQ and Documentation\n"
+" section."
+msgstr ""

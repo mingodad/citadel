@@ -1,0 +1,75 @@
+
+BUILDING THE CITADEL SYSTEM WITH PRIVATE LIBRARIES
+--------------------------------------------------
+
+This method is known to work on Linux and FreeBSD systems.  It is a way of
+building the Citadel system with its own private copies of Berkeley DB and
+libical.  This avoids conflicts with any other version of these libraries
+which may already exist on your host system.
+
+You can perform your builds in any directory (such as /usr/src or even your
+home directory).  The target directories will be:
+
+* /usr/local/citadel           (Citadel server, text client, utilities)
+* /usr/local/webcit            (the WebCit front end)
+* /usr/local/ctdlsupport       (libical, libdb, and their headers, etc.)
+
+The behavior of Easy Install is based upon this methodology.
+
+1. Unpack the Berkeley DB tarball.  chdir to the "build_unix" directory
+   and build the package with these commands:
+ 
+ ../dist/configure --prefix=/usr/local/ctdlsupport
+ make
+ make install
+
+2. Unpack the libical tarball and build it with these commands:
+ 
+ ./configure --prefix=/usr/local/ctdlsupport
+ make
+ make install
+ 
+3. Set these environment variables for the rest of the build.
+   (This assumes you're using the 'bash' shell.  Otherwise you're on your own.)
+ 
+export CFLAGS='-I/usr/local/ctdlsupport/include'
+export CPPFLAGS='-I/usr/local/ctdlsupport/include'
+export LDFLAGS='-L/usr/local/ctdlsupport/lib -Wl,--rpath -Wl,/usr/local/ctdlsupport/lib'
+ 
+ -L tells the build system where to find libraries during the build process,
+while -Wl,--rpath inserts that same library path into the Citadel binaries
+so they know where to find the libs at runtime.  Since we can't depend on
+the correct version of Berkeley DB already being on the system, this is how
+we carry our own along.  It's better than static linking everything.
+
+4. If LDAP support is required, unpack the OpenLDAP tarball and build with:
+
+./configure --prefix=/usr/local/ctdlsupport --with-db=/usr/local/ctdlsupport
+make
+make depend
+make install
+
+5. Now you're ready to build the Citadel server.  Unpack the Citadel tarball
+   and build it with these commands:
+
+./configure --prefix=/usr/local/citadel --with-db=/usr/local/ctdlsupport
+make
+make install
+ 
+ ** NOTE: if you already have a Citadel server in /usr/local/citadel, change
+ the 'make install' to 'make upgrade'.  And I'm sure you remembered to shut
+ down your Citadel service and make a backup before starting, right?
+
+6. Finally, unpack the WebCit tarball and build it with these commands:
+
+./configure --prefix=/usr/local/webcit
+make
+make install
+
+
+
+All of your software is now in place.  Run /usr/local/citadel/setup to configure
+the Citadel server, and /usr/local/webcit/setup to configure WebCit.  If you are
+on a Linux machine, setup will tweak /etc/inittab to automatically start the
+services.  If you are on a FreeBSD machine, you will need to manually configure
+your startup scripts to start the services.

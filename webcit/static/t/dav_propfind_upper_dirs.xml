@@ -1,0 +1,22 @@
+<response>
+<href><?DAV:HOSTNAME>/</href>
+<propstat>
+<status>HTTP/1.1 200 OK</status>
+<prop>
+<displayname>/</displayname>
+<resourcetype><collection/></resourcetype>
+<getlastmodified><?DATE:NOW:STR></getlastmodified>
+</prop>
+</propstat>
+</response>
+<response>
+<href><?DAV:HOSTNAME>/groupdav</href>
+<propstat>
+<status>HTTP/1.1 200 OK</status>
+<prop>
+<displayname>GroupDAV</displayname>
+<resourcetype><collection/></resourcetype>
+<getlastmodified><?DATE:NOW:STR></getlastmodified>
+</prop>
+</propstat>
+</response>

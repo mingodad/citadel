@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<multistatus xmlns="DAV:" xmlns:G="http://groupdav.org/">
+<?=("dav_propfind_upper_dirs")>
+</multistatus>
