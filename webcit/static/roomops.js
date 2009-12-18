@@ -20,6 +20,7 @@ var RN_ACCESS_CONTROL = 4;
 var RN_CUR_VIEW = 5;
 var RN_DEF_VIEW = 6;
 var RN_LAST_CHANGE = 7;
+var RN_RAFLAGS = 8;
 
 var QR_PRIVATE = 4;
 var QR_MAILBOX = 16384;

@@ -482,6 +482,11 @@ void tmplput_ROOM_QRFLAGS(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendPrintf(Target, "%d", Folder->QRFlags);
 }
 
+void tmplput_ROOM_RAFLAGS(StrBuf *Target, WCTemplputParams *TP) 
+{
+	folder *Folder = (folder *)(TP->Context);
+	StrBufAppendPrintf(Target, "%d", Folder->RAFlags);
+}
 
 
 void tmplput_ROOM_FLOORID(StrBuf *Target, WCTemplputParams *TP) 
@@ -736,6 +741,7 @@ InitModule_ROOMLIST
 
 	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, NULL, CTX_ROOMS);
+	RegisterNamespace("ROOM:INFO:RAFLAGS", 0, 1, tmplput_ROOM_RAFLAGS, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LISTORDER", 0, 1, tmplput_ROOM_LISTORDER, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:DEFVIEW", 0, 1, tmplput_ROOM_DEFVIEW, NULL, CTX_ROOMS);
