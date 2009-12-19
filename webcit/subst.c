@@ -2242,7 +2242,7 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 {
 	WCTemplputParams SubTP;
 
-	StrBuf *Headline;
+	StrBuf *Headline = NULL;
 	if (TP->Tokens->nParameters == 2) {
 		if (TP->Tokens->Params[1]->Type == TYPE_STR) {
 			Headline = NewStrBuf();
@@ -2259,6 +2259,7 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 			Headline = NewStrBufPlain(Ch, len);
 		}
 	}
+	/* else TODO error? logging? */
 	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
 	SubTP.Context = Headline;
 	SubTP.Filter.ContextType = CTX_STRBUF;
