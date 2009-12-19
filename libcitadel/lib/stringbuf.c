@@ -1,4 +1,4 @@
-#include "../sysdep.h"
+#include "sysdep.h"
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>

@@ -6,13 +6,15 @@
 ECHO=/usr/bin/printf
 
 
+SCRIPT_DIR=`dirname $0`
+SRC_DIR=`dirname $SCRIPT_DIR`
 CUR_DIR=`pwd`
 C_FILE="$CUR_DIR/svn_revision.c"
 H_FILE="$CUR_DIR/svn_revision.h"
 
 
 # determine if this code base came from subversion.
-if test -d .svn  ; then
+if test -d $SRC_DIR/.svn  ; then
 	echo "have subversion repository"
 	SVNVERSION=`which svnversion`
 	if test -x $SVNVERSION  ; then
