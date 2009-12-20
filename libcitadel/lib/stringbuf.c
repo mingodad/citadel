@@ -871,6 +871,7 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
  */
 void StrBufCutLeft(StrBuf *Buf, int nChars)
 {
+	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
 	if (nChars >= Buf->BufUsed) {
 		FlushStrBuf(Buf);
 		return;
@@ -888,6 +889,7 @@ void StrBufCutLeft(StrBuf *Buf, int nChars)
  */
 void StrBufCutRight(StrBuf *Buf, int nChars)
 {
+	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
 	if (nChars >= Buf->BufUsed) {
 		FlushStrBuf(Buf);
 		return;
@@ -905,6 +907,7 @@ void StrBufCutRight(StrBuf *Buf, int nChars)
  */
 void StrBufCutAt(StrBuf *Buf, int AfternChars, const char *At)
 {
+	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
 	if (At != NULL){
 		AfternChars = At - Buf->buf;
 	}
@@ -947,6 +950,8 @@ void StrBufUpCase(StrBuf *Buf)
 {
 	char *pch, *pche;
 
+	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
+
 	pch = Buf->buf;
 	pche = pch + Buf->BufUsed;
 	while (pch < pche) {
@@ -964,6 +969,8 @@ void StrBufUpCase(StrBuf *Buf)
 void StrBufLowerCase(StrBuf *Buf) 
 {
 	char *pch, *pche;
+
+	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
 
 	pch = Buf->buf;
 	pche = pch + Buf->BufUsed;
@@ -987,9 +994,22 @@ void StrBufLowerCase(StrBuf *Buf)
  */
 int StrBufNum_tokens(const StrBuf *source, char tok)
 {
-	if (source == NULL)
+	char *pch, *pche;
+	long NTokens;
+	if ((source == NULL) || (source->BufUsed == 0))
 		return 0;
-	return num_tokens(source->buf, tok);
+	if ((source->BufUsed == 1) && (*source->buf == tok))
+		return 2;
+	NTokens = 1;
+	pch = source->buf;
+	pche = pch + source->BufUsed;
+	while (pch < pche)
+	{
+		if (*pch == tok)
+			NTokens ++;
+		pch ++;
+	}
+	return NTokens;
 }
 
 /**

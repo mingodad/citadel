@@ -27,7 +27,7 @@
 #include "stringbuf_test.h"
 #include "../lib/libcitadel.h"
 
-
+int Quiet = 0;
 /*
  * Stolen from wc_printf; we need to test that other printf too... 
  */
@@ -53,16 +53,19 @@ static void TestCreateBuf(void)
 {
 	StrBuf *Buf;
 	StrBuf *Buf2;
-	StrBuf *Buf3;
 	long len;
 	long i;
-	char *ch;
 
 	Buf = NewStrBuf();
 	CU_ASSERT(Buf != NULL);
 	FreeStrBuf(&Buf);
 
 	Buf = NewStrBufPlain(ChrPtr(NULL), StrLength(NULL));
+	CU_ASSERT(Buf != NULL);
+	FreeStrBuf(&Buf);
+
+	/* make it alloc a bigger buffer... */
+	Buf = NewStrBufPlain(NULL, SIZ);
 	CU_ASSERT(Buf != NULL);
 	FreeStrBuf(&Buf);
 
@@ -113,6 +116,25 @@ static void TestCreateBuf(void)
 	TestRevalidateStrBuf(Buf);
 	FreeStrBuf(&Buf);
 
+
+	Buf = NewStrBufPlain(HKEY("ABC"));
+	Buf2 = NewStrBufPlain(HKEY("------"));
+	TestRevalidateStrBuf(Buf);
+	len = StrLength(Buf);
+	for (i=0; i< 50; i ++)
+	{
+		StrBufPrintf(Buf, "%s", ChrPtr(Buf2));
+		CU_ASSERT(StrLength(Buf) == StrLength(Buf2));		
+
+		StrBufAppendBufPlain(Buf2, HKEY("ABCDEFG"), 0);
+	}
+	TestRevalidateStrBuf(Buf);
+	StrBufShrinkToFit(Buf, 1);
+	TestRevalidateStrBuf(Buf);
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&Buf2);	
+
+
 	Buf = NewStrBufPlain(HKEY("ABC"));
 	TestRevalidateStrBuf(Buf);
 	len = StrLength(Buf);
@@ -147,6 +169,19 @@ static void TestCreateBuf(void)
 	FreeStrBuf(&Buf);
 	CU_ASSERT(Buf == NULL);
 	
+}
+
+
+
+
+static void TestBufNumbers(void)
+{
+	StrBuf *Buf;
+	StrBuf *Buf2;
+	StrBuf *Buf3;
+	char *ch;
+	int i;
+
 	Buf2 = NewStrBuf();
 	Buf3 = NewStrBufPlain(HKEY("abcd"));
 	Buf = NewStrBufPlain(HKEY("123456"));
@@ -171,17 +206,147 @@ static void TestCreateBuf(void)
 	FreeStrBuf(&Buf2);
 }
 
+static void TestStrBufPeek(void)
+{
+	StrBuf *Buf;
+	const char *pch;
+
+	Buf = NewStrBufPlain(HKEY("0123456"));
+	pch = ChrPtr(Buf);
+
+	CU_ASSERT(StrBufPeek(NULL, pch + 4, -1, 'A') == -1);
+
+	CU_ASSERT(StrBufPeek(Buf, pch + 4, -1, 'A') == 4);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "0123A56");
+
+	CU_ASSERT(StrBufPeek(Buf, pch - 1, -1, 'A') == -1);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "0123A56");
+
+	CU_ASSERT(StrBufPeek(Buf, pch + 10, -1, 'A') == -1);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "0123A56");
+
+	CU_ASSERT(StrBufPeek(Buf, NULL, -1, 'A') == -1);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "0123A56");
+
+	CU_ASSERT(StrBufPeek(Buf, NULL, 10, 'A') == -1);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "0123A56");
+
+	CU_ASSERT(StrBufPeek(Buf, NULL, 5, 'A') == 5);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "0123AA6");
+}
+
+static void TestBufStringManipulation(void)
+{
+	long len, i = 0;
+	StrBuf *dest = NewStrBuf ();
+	StrBuf *Buf = NewStrBufPlain(HKEY("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"));
+
+	StrBufSub(dest, Buf, -5, i);
+	len = StrLength(Buf);
+	for (i = 0; i < len + 10; i++)
+	{
+		StrBufSub(dest, Buf, 5, i);
+		if (i + 5 < len)
+		{
+			CU_ASSERT(StrLength(dest) == i);
+		}
+		else
+		{
+			CU_ASSERT(StrLength(dest) == len - 5);
+		}
+	}
+	FreeStrBuf(&dest);
+	dest = NewStrBuf ();
+	StrBufSub(dest, Buf, -5, 200);
+
+	StrBufCutLeft(Buf, 5);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"67890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+	CU_ASSERT(StrLength(Buf) == 95);
+
+	StrBufCutRight(Buf, 5);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345");
+	CU_ASSERT(StrLength(Buf) == 90);
+
+	StrBufCutAt(Buf, 80, NULL);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"67890123456789012345678901234567890123456789012345678901234567890123456789012345");
+	CU_ASSERT(StrLength(Buf) == 80);
+
+	StrBufCutAt(Buf, -1, ChrPtr(Buf) + 70);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"6789012345678901234567890123456789012345678901234567890123456789012345");
+	CU_ASSERT(StrLength(Buf) == 70);
+
+
+	StrBufCutAt(Buf, 0, ChrPtr(Buf) + 60);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"678901234567890123456789012345678901234567890123456789012345");
+	CU_ASSERT(StrLength(Buf) == 60);
+
+	StrBufCutAt(Buf, 0, ChrPtr(Buf) + 70);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"678901234567890123456789012345678901234567890123456789012345");
+	CU_ASSERT(StrLength(Buf) == 60);
+
+	StrBufCutAt(Buf, 70, NULL);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"678901234567890123456789012345678901234567890123456789012345");
+	CU_ASSERT(StrLength(Buf) == 60);
+
+
+	StrBufCutLeft(Buf, 70);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"");
+	CU_ASSERT(StrLength(Buf) == 0);
+
+	StrBufPlain(Buf, HKEY("678901234567890123456789012345678901234567890123456789012345"));
+	StrBufCutRight(Buf, 70);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"");
+	CU_ASSERT(StrLength(Buf) == 0);
+
+	FreeStrBuf(&dest);
+	FreeStrBuf(&Buf);
+
+	Buf = NewStrBufPlain(HKEY(" \tabc\t "));
+	StrBufTrim(Buf);
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf),"abc");
+	CU_ASSERT(StrLength(Buf) == 3);
+
+	StrBufUpCase(NULL);
+	FlushStrBuf(Buf);
+	StrBufUpCase(Buf);
+	StrBufPlain(Buf, HKEY("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+	StrBufUpCase(Buf);
+
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+
+
+	StrBufLowerCase(NULL);
+	FlushStrBuf(Buf);
+	StrBufLowerCase(Buf);
+	StrBufPlain(Buf, HKEY("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+	StrBufLowerCase(Buf);
+
+	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789");
+
+
+	FreeStrBuf(&Buf);
+
+}
+
 static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 {
+	long FoundTokens;
 	const char *pCh = NULL;
 	StrBuf *Buf2;
 	long CountTokens = 0;
 	long HaveNextToken = 0;
 	long HaveNextTokenF = 0;
 
-	printf("\n\nTemplate: >%s<\n", ChrPtr(Buf));
 	TestRevalidateStrBuf(Buf);
-			     
+	FoundTokens = StrBufNum_tokens(Buf, ',');
+	if (!Quiet) 
+		printf("\n\nTemplate: >%s< %d, %ld\n", 
+		       ChrPtr(Buf), 
+		       NTokens, 
+		       FoundTokens);
+
+	CU_ASSERT(FoundTokens == NTokens);
+
 	Buf2 = NewStrBuf();
 	while (HaveNextToken = StrBufHaveNextToken(Buf, &pCh),
 	       HaveNextTokenF = StrBufExtract_NextToken(Buf2, Buf, &pCh, ','),
@@ -189,11 +354,11 @@ static void NextTokenizerIterateBuf(StrBuf *Buf, int NTokens)
 	{
 		CountTokens++;
 		
-		printf("Token: >%s< >%s< %ld:%ld\n", 
-		       ChrPtr(Buf2), 
-		       ((pCh != NULL) && (pCh != StrBufNOTNULL))? pCh : "N/A", 
-		       HaveNextToken, 
-		       HaveNextTokenF);
+		if (!Quiet) printf("Token: >%s< >%s< %ld:%ld\n", 
+				   ChrPtr(Buf2), 
+				   ((pCh != NULL) && (pCh != StrBufNOTNULL))? pCh : "N/A", 
+				   HaveNextToken, 
+				   HaveNextTokenF);
 		TestRevalidateStrBuf(Buf2);
 
 		CU_ASSERT(HaveNextToken == (HaveNextTokenF >= 0));
@@ -211,7 +376,7 @@ static void TestNextTokenizer_EndWithEmpty(void)
 	StrBuf *Buf;
 
 	Buf = NewStrBufPlain(HKEY("abc,abc, 1, ,,"));
-	NextTokenizerIterateBuf(Buf, 7);
+	NextTokenizerIterateBuf(Buf, 6);
 	FreeStrBuf(&Buf);
 }
 
@@ -220,7 +385,7 @@ static void TestNextTokenizer_StartWithEmpty(void)
 	StrBuf *Buf;
 
 	Buf = NewStrBufPlain(HKEY(",cde,abc, 1, ,,bbb"));
-	NextTokenizerIterateBuf(Buf, 8);
+	NextTokenizerIterateBuf(Buf, 7);
 	FreeStrBuf(&Buf);
 }
 
@@ -229,7 +394,7 @@ static void TestNextTokenizer_Empty(void)
 	StrBuf *Buf;
 
 	Buf = NewStrBufPlain(HKEY(""));
-	NextTokenizerIterateBuf(Buf, 8);
+	NextTokenizerIterateBuf(Buf, 0);
 	FreeStrBuf(&Buf);
 }
 
@@ -238,7 +403,7 @@ static void TestNextTokenizer_TwoEmpty(void)
 	StrBuf *Buf;
 
 	Buf = NewStrBufPlain(HKEY(","));
-	NextTokenizerIterateBuf(Buf, 8);
+	NextTokenizerIterateBuf(Buf, 2);
 	FreeStrBuf(&Buf);
 }
 
@@ -247,7 +412,7 @@ static void TestNextTokenizer_One(void)
 	StrBuf *Buf;
 
 	Buf = NewStrBufPlain(HKEY("one"));
-	NextTokenizerIterateBuf(Buf, 8);
+	NextTokenizerIterateBuf(Buf, 1);
 	FreeStrBuf(&Buf);
 }
 
@@ -275,7 +440,7 @@ static void NextLineterateBuf(StrBuf *Buf, int NLines)
 	OneLine = NewStrBuf();
 	ConcatenatedLines = NewStrBuf();
 
-	printf("\n");
+	if (!Quiet) printf("\n");
 
 	if (StrLength(Buf) > 0) 
 		do 
@@ -284,9 +449,9 @@ static void NextLineterateBuf(StrBuf *Buf, int NLines)
 			
 			CountTokens++;
 			
-			printf("Line: >%s< >%s<\n", 
-			       ChrPtr(OneLine), 
-			       ((pCh != NULL) && (pCh != StrBufNOTNULL))? pCh : "N/A");
+			if (!Quiet) printf("Line: >%s< >%s<\n", 
+					   ChrPtr(OneLine), 
+					   ((pCh != NULL) && (pCh != StrBufNOTNULL))? pCh : "N/A");
 			TestRevalidateStrBuf(OneLine);
 			CU_ASSERT(CountTokens <= NLines);
 			StrBufAppendBuf(ConcatenatedLines, OneLine, 0);
@@ -303,8 +468,8 @@ static void NextLineterateBuf(StrBuf *Buf, int NLines)
 		       (pCh != NULL));
 	
 
-	printf("\n\nTemplate: >%s<\n", ChrPtr(Buf));
-	printf("\n\nAfter: >%s<\n", ChrPtr(ConcatenatedLines));
+	if (!Quiet) printf("\n\nTemplate: >%s<\n", ChrPtr(Buf));
+	if (!Quiet) printf("\n\nAfter: >%s<\n", ChrPtr(ConcatenatedLines));
 	CU_ASSERT_NSTRING_EQUAL(ChrPtr(ConcatenatedLines), 
 				ChrPtr(Buf), 
 				StrLength(Buf));
@@ -380,7 +545,7 @@ static void TestStrBufUrlescAppend(void)
 	StrBuf *Out = NewStrBuf();
 
 	StrBufUrlescAppend (Out, In, NULL);
-	printf ("%s<\n%s<\n%s\n", ChrPtr(In), ChrPtr(Out), expect);
+	if (!Quiet) printf ("%s<\n%s<\n%s\n", ChrPtr(In), ChrPtr(Out), expect);
 	CU_ASSERT_STRING_EQUAL(ChrPtr(Out), expect);
 	FreeStrBuf(&In);
 	FreeStrBuf(&Out);
@@ -427,6 +592,10 @@ static void AddStrBufSimlpeTests(void)
 
 	pGroup = CU_add_suite("TestStringBufSimpleAppenders", NULL, NULL);
 	pTest = CU_add_test(pGroup, "testCreateBuf", TestCreateBuf);
+	pTest = CU_add_test(pGroup, "TestBufNumbers", TestBufNumbers);
+	pTest = CU_add_test(pGroup, "TestStrBufPeek", TestStrBufPeek);
+	pTest = CU_add_test(pGroup, "TestBufStringManipulation", TestBufStringManipulation);
+
 
 	pGroup = CU_add_suite("TestStringTokenizer", NULL, NULL);
 	pTest = CU_add_test(pGroup, "testNextTokenizer_EndWithEmpty", TestNextTokenizer_EndWithEmpty);
@@ -459,6 +628,9 @@ int main(int argc, char* argv[])
 
 	StartLibCitadel(8);
 	CU_BOOL Run = CU_FALSE ;
+
+	if (argc > 0)
+		Quiet = 1; // todo: -q ;-)
 	
 	CU_set_output_filename("TestAutomated");
 	if (CU_initialize_registry()) {
@@ -470,7 +642,7 @@ int main(int argc, char* argv[])
 	
 	if (CU_TRUE == Run) {
 		//CU_console_run_tests();
-    printf("\nTests completed with return value %d.\n", CU_basic_run_tests());
+		printf("\nTests completed with return value %d.\n", CU_basic_run_tests());
     
     ///CU_automated_run_tests();
 	}
