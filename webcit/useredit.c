@@ -467,6 +467,7 @@ TRYAGAIN:
 
 	/* If there's no vcard, create one */
 	if ((*VCMsg == NULL) && (already_tried_creating_one == 0)) {
+		FlushStrBuf(Buf);
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
 		StrBuf_ServGetln(Buf);
@@ -477,6 +478,8 @@ TRYAGAIN:
 			serv_puts("end:vcard");
 			serv_puts("000");
 		}
+		else 
+			lprintf(1, "Error while creating user vcard: %s\n", ChrPtr(Buf));
 		goto TRYAGAIN;
 	}
 	FreeStrBuf(&Buf);
