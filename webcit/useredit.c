@@ -471,7 +471,7 @@ TRYAGAIN:
 		already_tried_creating_one = 1;
 		serv_puts("ENT0 1|||4");
 		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) != 4) {
+		if (GetServerStatus(Buf, NULL) == 4) {
 			serv_puts("Content-type: text/x-vcard");
 			serv_puts("");
 			serv_puts("begin:vcard");
