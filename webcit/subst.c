@@ -1,14 +1,19 @@
 /*
  * $Id$
  */
-
 #include "sysdep.h"
+
+
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+
+#include <unistd.h>
+#include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
+
 #define SHOW_ME_VAPPEND_PRINTF
 
 #include "webcit.h"
@@ -1592,74 +1597,185 @@ const char* PrintTemplate(void *vSubst)
 
 }
 
-int LoadTemplateDir(const char *DirName, HashList *wireless, HashList *big)
+int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, const StrBuf *BaseKey)
 {
+	int Toplevel;
 	StrBuf *FileName;
-	StrBuf *Tag;
-	StrBuf *Dir;
+	StrBuf *Key;
+	StrBuf *SubKey;
+	StrBuf *SubDirectory;
 	DIR *filedir = NULL;
 	struct dirent *filedir_entry;
+	struct dirent *d;
+	int d_type = 0;
 	int d_namelen;
 	int d_without_ext;
 	int IsMobile;
 	
-	Dir = NewStrBuf();
-	StrBufPrintf(Dir, "%s/t", DirName);
-	filedir = opendir (ChrPtr(Dir));
-	if (filedir == NULL) {
-		FreeStrBuf(&Dir);
+	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
+	if (d == NULL) {
 		return 0;
 	}
 
+	filedir = opendir (ChrPtr(DirName));
+	if (filedir == NULL) {
+		free(d);
+		return 0;
+	}
+
+	Toplevel = StrLength(BaseKey) == 0;
+	SubDirectory = NewStrBuf();
+	SubKey = NewStrBuf();
 	FileName = NewStrBuf();
-	Tag = NewStrBuf();
-	while ((filedir_entry = readdir(filedir)))
+	Key = NewStrBuf();
+	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
+	       (filedir_entry != NULL))
 	{
 		char *MinorPtr;
 		char *PStart;
 #ifdef _DIRENT_HAVE_D_NAMELEN
 		d_namelen = filedir_entry->d_namelen;
+		d_type = filedir_entry->d_type;
 #else
+
+#ifndef DT_UNKNOWN
+#define DT_UNKNOWN     0
+#define DT_DIR         4
+#define DT_REG         8
+#define DT_LNK         10
+
+#define IFTODT(mode)   (((mode) & 0170000) >> 12)
+#define DTTOIF(dirtype)        ((dirtype) << 12)
+#endif
 		d_namelen = strlen(filedir_entry->d_name);
+		d_type = DT_UNKNOWN;
 #endif
 		d_without_ext = d_namelen;
-		while ((d_without_ext > 0) && (filedir_entry->d_name[d_without_ext] != '.'))
-			d_without_ext --;
-		if ((d_without_ext == 0) || (d_namelen < 3))
-			continue;
+
 		if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
 			continue; /* Ignore backup files... */
 
-		IsMobile = (strstr(filedir_entry->d_name, ".m.html")!= NULL);
-		PStart = filedir_entry->d_name;
-		StrBufPrintf(FileName, "%s/%s", ChrPtr(Dir),  filedir_entry->d_name);
-		MinorPtr = strchr(filedir_entry->d_name, '.');
-		if (MinorPtr != NULL)
-			*MinorPtr = '\0';
-		StrBufPlain(Tag, filedir_entry->d_name, MinorPtr - filedir_entry->d_name);
+		if ((d_namelen == 1) && 
+		    (filedir_entry->d_name[0] == '.'))
+			continue;
 
-		if (LoadTemplates > 1)
-			lprintf(1, "%s %d %s\n",ChrPtr(FileName), IsMobile, ChrPtr(Tag));
-		if (LoadTemplates == 0)
-			load_template(FileName, Tag, (IsMobile)?wireless:big);
-		else
-			prepare_template(FileName, Tag, (IsMobile)?wireless:big);
+		if ((d_namelen == 2) && 
+		    (filedir_entry->d_name[0] == '.') &&
+		    (filedir_entry->d_name[1] == '.'))
+			continue;
+
+		if (d_type == DT_UNKNOWN) {
+			struct stat s;
+			char path[PATH_MAX];
+			snprintf(path, PATH_MAX, "%s/%s", 
+				 ChrPtr(DirName), filedir_entry->d_name);
+			if (stat(path, &s) == 0) {
+				d_type = IFTODT(s.st_mode);
+			}
+		}
+		switch (d_type)
+		{
+		case DT_DIR:
+			/* Skip directories we are not interested in... */
+			if (strcmp(filedir_entry->d_name, ".svn") == 0)
+				break;
+
+			FlushStrBuf(SubKey);
+			if (!Toplevel) {
+				/* If we're not toplevel, the upper dirs count as foo_bar_<local name>*/
+				StrBufAppendBuf(SubKey, BaseKey, 0);
+				StrBufAppendBufPlain(SubKey, HKEY("_"), 0);
+			}
+			StrBufAppendBufPlain(SubKey, filedir_entry->d_name, d_namelen, 0);
+
+			FlushStrBuf(SubDirectory);
+			StrBufAppendBuf(SubDirectory, DirName, 0);
+			if (ChrPtr(SubDirectory)[StrLength(SubDirectory) - 1] != '/')
+				StrBufAppendBufPlain(SubDirectory, HKEY("/"), 0);
+			StrBufAppendBufPlain(SubDirectory, filedir_entry->d_name, d_namelen, 0);
+
+			LoadTemplateDir(SubDirectory, wireless, big, SubKey);
+
+			break;
+		case DT_LNK: /* TODO: check whether its a file or a directory */
+		case DT_REG:
+
+
+			while ((d_without_ext > 0) && (filedir_entry->d_name[d_without_ext] != '.'))
+				d_without_ext --;
+			if ((d_without_ext == 0) || (d_namelen < 3))
+				continue;
+			if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
+				continue; /* Ignore backup files... */
+			/* .m.xxx is for mobile useragents! */
+			if (d_without_ext > 2)
+				IsMobile = (filedir_entry->d_name[d_without_ext - 1] == 'm') &&
+					(filedir_entry->d_name[d_without_ext - 2] == '.');
+			PStart = filedir_entry->d_name;
+			StrBufPrintf(FileName, "%s/%s", ChrPtr(DirName),  filedir_entry->d_name);
+			MinorPtr = strchr(filedir_entry->d_name, '.');
+			if (MinorPtr != NULL)
+				*MinorPtr = '\0';
+			FlushStrBuf(Key);
+			if (!Toplevel) {
+				/* If we're not toplevel, the upper dirs count as foo_bar_<local name>*/
+				StrBufAppendBuf(Key, BaseKey, 0);
+				StrBufAppendBufPlain(Key, HKEY("_"), 0);
+			}
+			StrBufAppendBufPlain(Key, filedir_entry->d_name, MinorPtr - filedir_entry->d_name, 0);
+
+			if (LoadTemplates > 1)
+				lprintf(1, "%s %d %s\n", ChrPtr(FileName), IsMobile, ChrPtr(Key));
+			if (LoadTemplates == 0)
+				load_template(FileName, Key, (IsMobile)?wireless:big);
+			else
+				prepare_template(FileName, Key, (IsMobile)?wireless:big);
+		default:
+			break;
+		}
 	}
+	free(d);
 	closedir(filedir);
 	FreeStrBuf(&FileName);
-	FreeStrBuf(&Tag);
-	FreeStrBuf(&Dir);
+	FreeStrBuf(&Key);
+	FreeStrBuf(&SubDirectory);
+	FreeStrBuf(&SubKey);
 	return 1;
 }
 
 void InitTemplateCache(void)
 {
-	LoadTemplateDir(static_dirs[0],
+	StrBuf *Key;
+	StrBuf *Dir;
+
+	Dir = NewStrBuf();
+	Key = NewStrBuf();
+
+	/* Primary Template set... */
+	StrBufPrintf(Dir, "%s/t", static_dirs[0]);
+	LoadTemplateDir(Dir,
 			WirelessTemplateCache,
-			TemplateCache);
-	LoadTemplateDir(static_dirs[1],
+			TemplateCache, 
+			Key);
+
+	/* User local Template set */
+	StrBufPrintf(Dir, "%s/t", static_dirs[1]);
+	LoadTemplateDir(Dir,
 			WirelessLocalTemplateCache,
-			LocalTemplateCache);
+			LocalTemplateCache, 
+			Key);
+	
+	/* Debug Templates, just to be loaded while debugging. */
+	
+	StrBufPrintf(Dir, "%s/dbg", static_dirs[0]);
+	LoadTemplateDir(Dir,
+			WirelessTemplateCache,
+			TemplateCache, 
+			Key);
+
+
+	FreeStrBuf(&Dir);
+	FreeStrBuf(&Key);
 }
 
 
