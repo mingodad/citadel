@@ -23,7 +23,7 @@ void display_aide_menu(void)
 {
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
-	DoTemplate(HKEY("display_aide_menu"), NULL, &NoCtx);
+	DoTemplate(HKEY("aide_display_menu"), NULL, &NoCtx);
 	end_burst();
 }
 
@@ -214,7 +214,7 @@ void display_shutdown(void)
 		{
 			begin_burst();
 			output_headers(1, 0, 0, 0, 1, 0);
-			DoTemplate(HKEY("display_serverrestartpage"), NULL, &NoCtx);
+			DoTemplate(HKEY("aide_display_serverrestart_page"), NULL, &NoCtx);
 			end_burst();
 		}
 		else
@@ -223,7 +223,7 @@ void display_shutdown(void)
 			serv_getln(buf, sizeof buf); /* TODO: should we care? */
 			begin_burst();
 			output_headers(1, 0, 0, 0, 1, 0);
-			DoTemplate(HKEY("display_serverrestartpagedo"), NULL, &NoCtx);
+			DoTemplate(HKEY("aide_display_serverrestart_page"), NULL, &NoCtx);
 			end_burst();			
 		}
 	}
@@ -239,7 +239,7 @@ void display_shutdown(void)
 		}
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
-		DoTemplate(HKEY("display_aide_menu"), NULL, &NoCtx);
+		DoTemplate(HKEY("aide_display_menu"), NULL, &NoCtx);
 		end_burst();			
 	}
 }

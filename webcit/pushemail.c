@@ -85,7 +85,7 @@ void display_pushemail(void)
 		GetServerStatus(Buf, NULL);
 	}
 	output_headers(1, 1, 2, 0, 0, 0);
-	DoTemplate(HKEY("pushemail"), NULL, &SubTP);
+	DoTemplate(HKEY("prefs_pushemail"), NULL, &SubTP);
 	wDumpContent(1);
 	FreeStrBuf(&Buf);
 }

@@ -1,0 +1,14 @@
+<span class="menudesc">
+<?_("(URLS for notifications when users receive new mails; )")> <?_("Syntax: Notificationtemplatename:http[s]://user:password@hostname/path")>
+</span><br />
+<table border=0 cellspacing="2" cellpadding="2" width=94% class="altern" >
+<?ITERATE("SERVCFG:INET", ="aide_inet_section", 0, 0, -1, "notify")>
+<form method="post" action="save_inetconf">
+<input type="hidden" name="nonce" value='<?NONCE>'>
+<tr><td>
+<input type="text" name="ename" maxlength="256">
+<input type="hidden" name="etype" VALUE="notify">
+</td><td align=left>
+<input type="submit" name="oper" value="Add">
+<input type="hidden" name="template" value="aide_display_inetconf">
+</td></tr></table></form>

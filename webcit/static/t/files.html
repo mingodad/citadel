@@ -20,7 +20,7 @@
   <th><?_("Content")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filemime")>&SortBy=<?SORT:NEXT("filemime")>"><img border="0" src="<?SORT:ICON("filemime")>" /></a> </th>
   <th><?_("Description")>&nbsp;<a href="do_template?template=files?SortOrder=<?SORT:ORDER("filesubject")>&SortBy=<?SORT:NEXT("filesubject")>"><img border="0" src="<?SORT:ICON("filesubject")>" /></a> </th>
 </tr>
-<?ITERATE("ROOM:FILES", "section_files_onefile")>
+<?ITERATE("ROOM:FILES", ="files_section_onefile")>
 
 
 

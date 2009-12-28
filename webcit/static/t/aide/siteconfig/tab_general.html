@@ -1,0 +1,35 @@
+<div class="conftitle"><?_("General site configuration items")></div>
+<hr>
+<table border="0">
+
+<tr><td><a href="display_edithello"> <?_("Change Login Logo")> </a></td>
+<td><a href="display_editgoodbuye"> <?_("Change Logout Logo")> </a></td></tr>
+
+<tr><td><?_("Node name")></td><td>
+<input type="text" name="c_nodename" maxlength="15" value='<?SERV:CFG("c_nodename")>'></td></tr>
+
+<tr><td><?_("Fully qualified domain name")></td><td>
+<input type="text" name="c_fqdn" maxlength="63" value='<?SERV:CFG("c_fqdn")>'></td></tr>
+
+<tr><td><?_("Human-readable node name")></td><td>
+<input type="text" name="c_humannode" maxlength="20" value='<?SERV:CFG("c_humannode")>'></td></tr>
+
+<tr><td><?_("Telephone number")></td><td>
+<input type="text" name="c_phonenum" maxlength="15" value='<?SERV:CFG("c_phonenum")>'></td></tr>
+
+<tr><td><?_("Paginator prompt (for text mode clients)")></td><td>
+<input type="text" name="c_moreprompt" maxlength="79" value='<?SERV:CFG("c_moreprompt")>'></td></tr>
+
+<tr><td><?_("Geographic location of this system")></td><td>
+<input type="text" name="c_bbs_city" maxlength="31" value='<?SERV:CFG("c_bbs_city")>'></td></tr>
+
+<tr><td><?_("Name of system administrator")></td><td>
+<input type="text" name="c_sysadm" MAXLENGTH="25" VALUE='<?SERV:CFG("c_sysadm")>'></td></tr>
+
+<tr><td><?_("Default timezone for unzoned calendar items")></td><td>
+<select name="c_default_cal_zone" size="1">
+<?ITERATE("PREF:ZONE", ="aide_siteconfig_tzsection")>
+</select>
+</td></tr>
+
+</table>

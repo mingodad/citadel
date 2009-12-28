@@ -1,0 +1,21 @@
+<?=("head")>
+<?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<div id="banner">
+  <h1><?_("Network configuration")></h1>
+</div>
+
+<div id="content" class="service">
+
+<center>
+<a href="do_template?template=aide_ignetconf_add"><?_("Add a new node")></a><br />
+</center>
+
+<table class="netconf_banner"><tr><td>
+<span class="titlebar"><?_("Currently configured nodes")></span>
+</td></tr></table>
+
+<center><table border=0>
+<?ITERATE("NODECONFIG", ="aide_ignetconf_section")>
+</table></center>
+
+<?=("trailing")>
