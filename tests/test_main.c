@@ -35,7 +35,7 @@ int DisableGzip = 0;
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
-extern void test_worker_entry(void);
+extern void run_tests(void);
 extern int ig_tcp_server(char *ip_addr, int port_number, int queue_len);
 extern int ig_uds_server(char *sockpath, int queue_len);
 extern void webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdir, char *relhome);
@@ -228,7 +228,7 @@ int main(int argc, char **argv)
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	test_worker_entry();
+	run_tests();
 
 	ShutDownWebcit();
 	FreeStrBuf(&Username);
