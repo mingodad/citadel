@@ -123,7 +123,7 @@ fill_encoding_info (const char *charset, XML_Encoding * info)
 { 
   iconv_t cd = (iconv_t)(-1); 
   int flag; 
-	CtdlLogPrintf(0, "RSS: fill encoding info ...\n");
+	CtdlLogPrintf(CTDL_DEBUG, "RSS: fill encoding info ...\n");
  
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN 
   cd = iconv_open ("UCS-2LE", charset); 
@@ -201,7 +201,7 @@ iconv_convertor (void *data, const char *s)
 { 
   XML_Encoding *info = data; 
   int res; 
-	CtdlLogPrintf(0, "RSS: Converting ...\n");
+	CtdlLogPrintf(CTDL_DEBUG, "RSS: **********Converting ...\n");
 
   if (s == NULL) 
     return -1; 
@@ -234,7 +234,7 @@ handle_unknown_xml_encoding (void *encodingHandleData,
 			     XML_Encoding * info) 
 { 
   int result; 
-  CtdlLogPrintf(0, "RSS: unknown encoding ...\n");
+  CtdlLogPrintf(CTDL_DEBUG, "RSS: unknown encoding ...\n");
   result = fill_encoding_info (name, info); 
   if (result >= 0) 
     { 
@@ -289,7 +289,7 @@ void rss_save_item(rsscollection *rssc) {
 	int msglen = 0;
 	rss_item *ri = rssc->Item;
 
-	CtdlLogPrintf(0, "RSS: saving item...\n");
+	CtdlLogPrintf(CTDL_DEBUG, "RSS: saving item...\n");
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
 	memset(recp, 0, sizeof(struct recptypes));
@@ -469,7 +469,7 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr) {
 	char *sep = NULL;
 
 	/* Axe the namespace, we don't care about it */
-///	CtdlLogPrintf(0, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
+///	CtdlLogPrintf(CTDL_DEBUG, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
 	safestrncpy(el, supplied_el, sizeof el);
 	while (sep = strchr(el, ':'), sep) {
 		strcpy(el, ++sep);
@@ -477,17 +477,17 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr) {
 
 	if ((rssc->Cfg->ItemType == RSS_UNSET) && !strcasecmp(el, "rss")) 
 	{
-		CtdlLogPrintf(9, "RSS: This is an RSS feed.\n");
+		CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an RSS feed.\n");
 		rssc->Cfg->ItemType = RSS_RSS;
 	}
 	if ((rssc->Cfg->ItemType == RSS_UNSET) && !strcasecmp(el, "rdf")) 
 	{
-		CtdlLogPrintf(9, "RSS: This is an RDF feed.\n");
+		CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an RDF feed.\n");
 		rssc->Cfg->ItemType = RSS_RSS;
 	}
 	else if ((rssc->Cfg->ItemType == RSS_UNSET) && !strcasecmp(el, "feed")) 
 	{
-		CtdlLogPrintf(9, "RSS: This is an ATOM feed.\n");
+		CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an ATOM feed.\n");
 		rssc->Cfg->ItemType = RSS_ATOM;
 	}
 	else if ((rssc->Cfg->ItemType == RSS_RSS) &&
@@ -535,7 +535,7 @@ void rss_xml_end(void *data, const char *supplied_el) {
 	while (sep = strchr(el, ':'), sep) {
 		strcpy(el, ++sep);
 	}
-//	CtdlLogPrintf(0, "RSS: END %s...\n", el);
+//	CtdlLogPrintf(CTDL_DEBUG, "RSS: END %s...\n", el);
 
 	if ( (!strcasecmp(el, "title")) && (ri->item_tag_nesting == 0) && (ri->chardata != NULL) ) {
 		safestrncpy(ri->channel_title, ri->chardata, sizeof ri->channel_title);
