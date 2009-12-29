@@ -282,8 +282,9 @@ function addRoomToList(floorUL,room, roomToEmphasize) {
   var flag = room[RN_ROOM_FLAG];
   var curView = room[RN_CUR_VIEW];
   var view = room[RN_DEF_VIEW];
+  var raflags = room[RN_RAFLAGS];
   var isMailBox = ((flag & QR_MAILBOX) == QR_MAILBOX);
-  var hasNewMsgs = ((curView & UA_HASNEWMSGS) == UA_HASNEWMSGS);
+  var hasNewMsgs = ((raflags & UA_HASNEWMSGS) == UA_HASNEWMSGS);
   var roomLI = document.createElement("li");
   var roomA = document.createElement("a");
   roomA.setAttribute("href","dotgoto?room="+roomName);
