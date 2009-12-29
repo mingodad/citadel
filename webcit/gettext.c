@@ -67,10 +67,10 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 	StrBuf *Buf = NULL;
 	StrBuf *SBuf = NULL;
 
-	nParts=StrBufNum_tokens(LocaleString,',');
-	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++)
+	nParts = StrBufNum_tokens(LocaleString, ',');
+	for (i=0; ((i<nParts) && (i < SEARCH_LANG)); i++)
         {
-		char lbuf[16];
+		char lbuf[32];
 		int blen;
 			
 		if (Buf == NULL) {
@@ -82,82 +82,98 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 			FlushStrBuf(SBuf);
 		}
 
-		ls=&wanted_locales[i];
+		ls = &wanted_locales[i];
 
-		StrBufExtract_token(Buf,LocaleString, i,',');
+		StrBufExtract_token(Buf, LocaleString, i, ',');
 		/** we are searching, if this list item has something like ;q=n*/
-		if (StrBufNum_tokens(Buf,'=')>1) {
+		if (StrBufNum_tokens(Buf, '=') > 1) {
 			int sbuflen, k;
-			StrBufExtract_token(SBuf,Buf, 1,'=');
-			sbuflen=StrLength(SBuf);
-			for (k=0; k<sbuflen; k++) 
-				if (ChrPtr(SBuf)[k]=='.') 
+			StrBufExtract_token(SBuf, Buf, 1, '=');
+			sbuflen = StrLength(SBuf);
+			for (k = 0; k < sbuflen; k++) 
+				if (ChrPtr(SBuf)[k] == '.') 
 					StrBufPeek(SBuf, NULL, k, '0');
-			ls->priority=StrTol(SBuf);
+			ls->priority = StrTol(SBuf);
 		}
 		else {
-			ls->priority=1000;
+			ls->priority = 1000;
 		}
+
 		/** get the locale part */
-		StrBufExtract_token(SBuf ,Buf, 0, ';');
+		StrBufExtract_token(SBuf, Buf, 0, ';');
+
 		/** get the lang part, which should be allways there */
-		extract_token(&ls->lang[0], ChrPtr(SBuf), 0, '-', 16);
+		extract_token(&ls->lang[0], 
+			      ChrPtr(SBuf), 
+			      0, '-', 
+			      sizeof(ls->lang));
+
 		/** get the area code if any. */
-		if (StrBufNum_tokens(SBuf,'-') > 1) {
-			extract_token(&ls->region[0],ChrPtr(SBuf),1,'-',16);
+		if (StrBufNum_tokens(SBuf, '-') > 1) {
+			extract_token(&ls->region[0], 
+				      ChrPtr(SBuf), 
+				      1, '-', 
+				      sizeof(ls->region));
 		}
 		else { /** no ara code? use lang code */
 			blen=strlen(&ls->lang[0]);
-			memcpy(&ls->region[0], ls->lang,blen);
-			ls->region[blen]='\0';
-		} /** area codes are uppercase */
-		blen=strlen(&ls->region[0]);
-		for (j=0; j<blen; j++)
-		{
-			int chars=toupper(ls->region[j]);
-			ls->region[j]=(char)chars;/** \todo ?! */
+			memcpy(&ls->region[0], ls->lang, blen);
+			ls->region[blen] = '\0';
 		}
-		sprintf(&lbuf[0],"%s_%s",&ls->lang[0],&ls->region[0]);
+
+		/** area codes are uppercase */
+		blen = strlen(&ls->region[0]);
+		for (j = 0; j < blen; j++)
+		{
+			int chars;
+			chars = toupper(ls->region[j]);
+			ls->region[j] = (char)chars;/** \todo ?! */
+		}
+		snprintf(&lbuf[0], 
+			 sizeof(lbuf), 
+			 "%s_%s", 
+			 &ls->lang[0], 
+			 &ls->region[0]);
 			
 		/** check if we have this lang */
-		ls->availability=1;
-		ls->selectedlang=-1;
-		for (j=0; j<nLocalesLoaded; j++) {
+		ls->availability = 1;
+		ls->selectedlang = -1;
+		for (j = 0; j < nLocalesLoaded; j++) {
 			int result;
 			/** match against the LANG part */
-			result=strcasecmp(&ls->lang[0], AvailLangLoaded[j]);
-			if ((result<0)&&(result<ls->availability)){
-				ls->availability=result;
-				ls->selectedlang=j;
+			result = strcasecmp(&ls->lang[0], AvailLangLoaded[j]);
+			if ((result < 0) && (result < ls->availability)){
+				ls->availability = result;
+				ls->selectedlang = j;
 			}
 			/** match against lang and locale */
-			if (0==strcasecmp(&lbuf[0], AvailLangLoaded[j])){
-				ls->availability=0;
-				ls->selectedlang=j;
-				j=nLocalesLoaded;
+			if (0 == strcasecmp(&lbuf[0], AvailLangLoaded[j])){
+				ls->availability = 0;
+				ls->selectedlang = j;
+				j = nLocalesLoaded;
 			}
 		}
         }
 	
-	prio=0;
-	av=-1000;
-	nBest=-1;
-	for (i=0; ((i<nParts)&&(i<SEARCH_LANG)); i++) {
-		ls=&wanted_locales[i];
-		if ((ls->availability<=0)&& 
-		   (av<ls->availability)&&
-		   (prio<ls->priority)&&
-		   (ls->selectedlang!=-1)) {
-			nBest=ls->selectedlang;
-			av=ls->availability;
-			prio=ls->priority;
+	prio = 0;
+	av = -1000;
+	nBest = -1;
+	for (i = 0; ((i < nParts) && (i<SEARCH_LANG)); i++) {
+		ls = &wanted_locales[i];
+		if ((ls->availability <= 0) && 
+		    (av < ls->availability) &&
+		    (prio < ls->priority) &&
+		    (ls->selectedlang != -1)) {
+			nBest = ls->selectedlang;
+			av = ls->availability;
+			prio = ls->priority;
 		}
 	}
 	if (nBest == -1) {
 		/** fall back to C */
 		nBest=0;
 	}
-	sess->selected_language=nBest;
+	sess->selected_language = nBest;
 	lprintf(9, "language found: %s\n", AvailLangLoaded[WC->selected_language]);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&SBuf);
@@ -207,7 +223,7 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 void set_selected_language(const char *lang) {
 #ifdef HAVE_USELOCALE
 	int i;
-	for (i=0; i<nLocalesLoaded; ++i) {
+	for (i = 0; i<nLocalesLoaded; ++i) {
 		if (!strcasecmp(lang, AvailLangLoaded[i])) {
 			WC->selected_language = i;
 		}
