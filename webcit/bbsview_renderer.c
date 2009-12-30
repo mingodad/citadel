@@ -348,10 +348,16 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 
 
 /*
- * FIXME do we even need this?
+ * begin_ajax_response() was moved from bbsview_LoadMsgFromServer() to here ...
  */
 int bbsview_PrintViewHeader(SharedMessageStatus *Stat, void **ViewSpecific)
 {
+	lprintf(9, "bbsview_PrintViewHeader() has been called.\n");
+
+	if (WC->is_ajax) {
+		begin_ajax_response();		/* for non-ajax, headers are output in messages.c */
+	}
+
 	return 200;
 }
 
@@ -367,9 +373,7 @@ int bbsview_LoadMsgFromServer(SharedMessageStatus *Stat,
 {
 	struct bbsview *BBS = (struct bbsview *) *ViewSpecific;
 
-	if (WC->is_ajax) {
-		begin_ajax_response();		/* for non-ajax, headers are output in messages.c */
-	}
+	lprintf(9, "bbsview_LoadMsgFromServer() has been called.\n");
 
 	if (BBS->num_msgs < Stat->maxmsgs) {
 
@@ -424,7 +428,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	const StrBuf *Mime;
 	char morediv[64];
 
-	lprintf(9, "bbsview_RenderView_or_Tail() has been called\n");
+	lprintf(9, "starting bbsview_RenderView_or_Tail() - there are %d messages.\n", BBS->num_msgs);
 
 	/* Handle the empty message set gracefully... */
 	if (Stat->nummsgs == 0) {
@@ -474,13 +478,17 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	
 		wc_printf("<div class=\"moreprompt\">"
 			"&darr; &darr; &darr; %s &darr; &darr; &darr;"
-			"</div>", _("more"));
-		wc_printf("</a><br><br><br>");
+			"</div>", _("more")
+		);
+		wc_printf("</a>");
 	}
 	else {
-		wc_printf("thththththat's all, folks!<br><br><br><br>");
+		wc_printf("<div class=\"moreprompt\">"
+			"&darr; &darr; &darr; %s &darr; &darr; &darr;"
+			"</div>", "no more messages FIXME"
+		);
 	}
-	wc_printf("</div>");
+	wc_printf("<br><br><br><br></div>");
 
 	return(0);
 }
@@ -489,14 +497,16 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 int bbsview_Cleanup(void **ViewSpecific)
 {
 	struct bbsview *BBS = (struct bbsview *) *ViewSpecific;
-	lprintf(9, "bbsview_Cleanup() has been called\n");
+	lprintf(9, "bbsview_Cleanup() has been called.\n");
 	free(BBS);
 
 	if (WC->is_ajax) {
+		lprintf(9, "end_ajax_response() has been called.\n");
 		end_ajax_response();
 		WC->is_ajax = 0;
 	}
 	else {
+		lprintf(9, "wDumpContent() has been called.\n");
 		wDumpContent(1);
 	}
 	return 0;
