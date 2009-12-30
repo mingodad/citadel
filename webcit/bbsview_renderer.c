@@ -468,7 +468,8 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	}
 
 	wc_printf("<div id=\"%s\">", morediv);
-	if (Stat->nummsgs > 0) {
+	/* if (Stat->nummsgs > 0) { */
+	if (Stat->nummsgs >= Stat->maxmsgs) {
 		wc_printf("<a href=\"javascript:moremsgs('%s', %ld, %ld, %d );\">",
 			morediv,
 			BBS->msgs[BBS->num_msgs-1],
@@ -483,10 +484,23 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		wc_printf("</a>");
 	}
 	else {
-		wc_printf("<div class=\"moreprompt\">"
-			"&darr; &darr; &darr; %s &darr; &darr; &darr;"
-			"</div>", "no more messages FIXME"
+		long gt = 0;	/* if new messages appear later, where will they begin? */
+		if (Stat->nummsgs > 0) {
+			gt = BBS->msgs[BBS->num_msgs-1];
+		}
+		else {
+			gt = atol(bstr("gt"));
+		}
+		wc_printf("<a href=\"javascript:moremsgs('%s', %ld, %ld, %d );\">",
+			morediv,
+			gt,
+			Stat->maxmsgs,
+			(Stat->reverse ? 2 : 1)
 		);
+		wc_printf("<div class=\"moreprompt\">");
+		wc_printf("no more ... gt would have been %ld ... FIXME", gt);
+		wc_printf("</div>");
+		wc_printf("</a>");
 	}
 	wc_printf("<br><br><br><br></div>");
 
