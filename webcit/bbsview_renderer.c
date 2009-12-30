@@ -375,21 +375,19 @@ int bbsview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 	lprintf(9, "bbsview_LoadMsgFromServer() has been called.\n");
 
-	if (BBS->num_msgs < Stat->maxmsgs) {
-
-		if (BBS->alloc_msgs == 0) {
-			BBS->alloc_msgs = Stat->maxmsgs;
-			BBS->msgs = malloc(BBS->alloc_msgs * sizeof(long));
-		}
-	
-		/* Theoretically this never happens because the initial allocation == maxmsgs */
-		if (BBS->num_msgs >= BBS->alloc_msgs) {
-			BBS->alloc_msgs *= 2;
-			BBS->msgs = realloc(BBS->msgs, (BBS->alloc_msgs * sizeof(long)));
-		}
-	
-		BBS->msgs[BBS->num_msgs++] = Msg->msgnum;
+	if (BBS->alloc_msgs == 0) {
+		BBS->alloc_msgs = Stat->maxmsgs;
+		BBS->msgs = malloc(BBS->alloc_msgs * sizeof(long));
 	}
+
+	/* Theoretically this never happens because the initial allocation == maxmsgs */
+	if (BBS->num_msgs >= BBS->alloc_msgs) {
+		BBS->alloc_msgs *= 2;
+		BBS->msgs = realloc(BBS->msgs, (BBS->alloc_msgs * sizeof(long)));
+	}
+
+	BBS->msgs[BBS->num_msgs++] = Msg->msgnum;
+
 	return 200;
 }
 
@@ -426,9 +424,77 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	struct bbsview *BBS = (struct bbsview *) *ViewSpecific;
 	int i;
 	const StrBuf *Mime;
+	char olderdiv[64];
 	char newerdiv[64];
+	int doing_older_messages = 0;
+	int doing_newer_messages = 0;
+
+	snprintf(olderdiv, sizeof olderdiv, "olderdiv%08lx%08x", time(NULL), rand());
+	snprintf(newerdiv, sizeof newerdiv, "newerdiv%08lx%08x", time(NULL), rand());
 
 	lprintf(9, "starting bbsview_RenderView_or_Tail() - there are %d messages.\n", BBS->num_msgs);
+
+	/* If this is the initial page load (and not an update), supply the required JavaScript code */
+	if (!WC->is_ajax) {
+	   StrBufAppendPrintf(WC->trailing_javascript,
+		"	function moremsgs(target_div, gt_or_lt, gt_or_lt_value, maxmsgs, sortorder) {	\n"
+		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"><br><br><br></div>';	\n"
+		"		p = gt_or_lt + '=' + gt_or_lt_value + '&maxmsgs=' + maxmsgs		\n"
+		"			+ '&is_summary=0&SortOrder=' + sortorder + '&is_ajax=1'		\n"
+		"			+ '&gt_or_lt=' + gt_or_lt					\n"
+		"			+ '&r=' + CtdlRandomString();			                \n"
+		"		new Ajax.Updater(target_div, 'read' + gt_or_lt,	 				\n"
+		"			{ method: 'get', parameters: p, evalScripts: true } );		\n"
+		"	}										\n"
+		"",
+		_("Loading")
+	   );
+	}
+
+
+	/* Determine whether we are in the middle of a 'click for older messages' or 'click for
+	 * newer messages' operation.  If neither, then we are in the initial page load.
+	 */
+	if (!strcasecmp(bstr("gt_or_lt"), "lt")) {
+		doing_older_messages = 1;
+		doing_newer_messages = 0;
+		lprintf(9, "\033[31m ** OLDER MESSAGES ** \033[0m\n");
+	}
+	else if (!strcasecmp(bstr("gt_or_lt"), "gt")) {
+		doing_older_messages = 0;
+		doing_newer_messages = 1;
+		lprintf(9, "\033[32m ** NEWER MESSAGES ** \033[0m\n");
+	}
+	else {
+		doing_older_messages = 0;
+		doing_newer_messages = 0;
+		lprintf(9, "\033[33m ** INITIAL PAGE LOAD ** \033[0m\n");
+	}
+
+
+	/* Supply the link to prepend the previous 20 messages */
+
+	if (doing_newer_messages == 0) {
+		wc_printf("<div id=\"%s\">", olderdiv);
+		/* if (Stat->nummsgs > 0) { */
+		if (Stat->nummsgs > 0) {
+			wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %ld, %d );\">",
+				olderdiv,
+				BBS->msgs[0],
+				Stat->maxmsgs,
+				(Stat->reverse ? 2 : 1)
+			);
+		
+			wc_printf("<div class=\"moreprompt\">"
+				"&uarr; &uarr; &uarr; %s &uarr; &uarr; &uarr;"
+				"</div>", _("click here for older messages")
+			);
+			wc_printf("</a>");
+		}
+		wc_printf("<br></div>");
+	}
+
+
 
 	/* Handle the empty message set gracefully... */
 	if (Stat->nummsgs == 0) {
@@ -443,6 +509,25 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	else {
 		lprintf(9, "sorting %d messages\n", BBS->num_msgs);
 		qsort(BBS->msgs, (size_t)(BBS->num_msgs), sizeof(long), (Stat->reverse ? bbsview_sortfunc_reverse : bbsview_sortfunc_forward));
+
+		/* Cut it down to 20 messages (or whatever value Stat->maxmsgs is set to) */
+
+		if (BBS->num_msgs > Stat->maxmsgs) {
+
+			if (doing_older_messages) {
+				/* LT ... cut it down to the LAST 20 messages received */
+				memcpy(&BBS->msgs[0], &BBS->msgs[BBS->num_msgs - Stat->maxmsgs],
+					(Stat->maxmsgs * sizeof(long))
+				);
+				BBS->num_msgs = Stat->maxmsgs;
+			}
+			else {
+				/* GT ... cut it down to the FIRST 20 messages received */
+				BBS->num_msgs = Stat->maxmsgs;
+			}
+		}
+
+		/* Now render them */
 	
 		for (i=0; i<BBS->num_msgs; ++i) {
 			read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
@@ -450,59 +535,48 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	}
 
-	snprintf(newerdiv, sizeof newerdiv, "newerdiv%08lx%08x", time(NULL), rand());
 
-	if (!WC->is_ajax) {	/* only supply the script during the initial page load */
-	   StrBufAppendPrintf(WC->trailing_javascript,
-		"	function moremsgs(target_div, subcmd_name, subcmd_value, maxmsgs, sortorder) {	\n"
-		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"><br><br><br></div>';	\n"
-		"		p = subcmd_name + '=' + subcmd_value + '&maxmsgs=' + maxmsgs		\n"
-		"			+ '&is_summary=0&SortOrder=' + sortorder + '&is_ajax=1'		\n"
-		"			+ '&r=' + CtdlRandomString();			                \n"
-		"		new Ajax.Updater(target_div, 'readgt',	 				\n"
-		"			{ method: 'get', parameters: p, evalScripts: true } );		\n"
-		"	}										\n"
-		"",
-		_("Loading")
-	   );
-	}
+	/* Supply the link to append the next 20 messages */
 
-	wc_printf("<div id=\"%s\">", newerdiv);
-	/* if (Stat->nummsgs > 0) { */
-	if (Stat->nummsgs >= Stat->maxmsgs) {
-		wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
-			newerdiv,
-			BBS->msgs[BBS->num_msgs-1],
-			Stat->maxmsgs,
-			(Stat->reverse ? 2 : 1)
-		);
-	
-		wc_printf("<div class=\"moreprompt\">"
-			"&darr; &darr; &darr; %s &darr; &darr; &darr;"
-			"</div>", _("newer messages")
-		);
-		wc_printf("</a>");
-	}
-	else {
-		long gt = 0;	/* if new messages appear later, where will they begin? */
-		if (Stat->nummsgs > 0) {
-			gt = BBS->msgs[BBS->num_msgs-1];
+	if (doing_older_messages == 0) {
+		wc_printf("<div id=\"%s\">", newerdiv);
+		/* if (Stat->nummsgs > 0) { */
+		if (Stat->nummsgs >= Stat->maxmsgs) {
+			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
+				newerdiv,
+				BBS->msgs[BBS->num_msgs-1],
+				Stat->maxmsgs,
+				(Stat->reverse ? 2 : 1)
+			);
+		
+			wc_printf("<div class=\"moreprompt\">"
+				"&darr; &darr; &darr; %s &darr; &darr; &darr;"
+				"</div>", _("click here for newer messages")
+			);
+			wc_printf("</a>");
 		}
 		else {
-			gt = atol(bstr("gt"));
+			long gt = 0;	/* if new messages appear later, where will they begin? */
+			if (Stat->nummsgs > 0) {
+				gt = BBS->msgs[BBS->num_msgs-1];
+			}
+			else {
+				gt = atol(bstr("gt"));
+			}
+			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
+				newerdiv,
+				gt,
+				Stat->maxmsgs,
+				(Stat->reverse ? 2 : 1)
+			);
+			wc_printf("<div class=\"moreprompt\">");
+			wc_printf("no more ... gt would have been %ld ... FIXME", gt);
+			wc_printf("</div>");
+			wc_printf("</a>");
 		}
-		wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
-			newerdiv,
-			gt,
-			Stat->maxmsgs,
-			(Stat->reverse ? 2 : 1)
-		);
-		wc_printf("<div class=\"moreprompt\">");
-		wc_printf("no more ... gt would have been %ld ... FIXME", gt);
-		wc_printf("</div>");
-		wc_printf("</a>");
+		wc_printf("<br><br><br><br></div>");
 	}
-	wc_printf("<br><br><br><br></div>");
+
 
 	return(0);
 }

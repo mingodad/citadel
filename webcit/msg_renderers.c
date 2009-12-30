@@ -1129,6 +1129,11 @@ void servcmd_readgt(char *buf, long bufsize)
 	snprintf(buf, bufsize, "MSGS GT|%s", bstr("gt"));
 }
 
+void servcmd_readlt(char *buf, long bufsize)
+{
+	snprintf(buf, bufsize, "MSGS LT|%s", bstr("lt"));
+}
+
 void servcmd_readnew(char *buf, long bufsize)
 {
 	snprintf(buf, bufsize, "MSGS NEW");
@@ -1141,12 +1146,13 @@ void servcmd_readold(char *buf, long bufsize)
 
 
 readloop_struct rlid[] = {
-	{ {HKEY("do_search")}, servcmd_do_search},
-	{ {HKEY("headers")},   servcmd_headers},
-	{ {HKEY("readfwd")},   servcmd_readfwd},
-	{ {HKEY("readnew")},   servcmd_readnew},
-	{ {HKEY("readold")},   servcmd_readold},
-	{ {HKEY("readgt")},    servcmd_readgt}
+	{ {HKEY("do_search")},	servcmd_do_search	},
+	{ {HKEY("headers")},	servcmd_headers		},
+	{ {HKEY("readfwd")},	servcmd_readfwd		},
+	{ {HKEY("readnew")},	servcmd_readnew		},
+	{ {HKEY("readold")},	servcmd_readold		},
+	{ {HKEY("readgt")},	servcmd_readgt		},
+	{ {HKEY("readlt")},	servcmd_readlt		}
 };
 
 /* Spit out the new summary view. This is basically a static page, so clients can cache the layout, all the dirty work is javascript :) */

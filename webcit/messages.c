@@ -751,7 +751,7 @@ typedef struct _RoomRenderer{
 /*
  * command loop for reading messages
  *
- * Set oper to "readnew" or "readold" or "readfwd" or "headers" or "readgt" or "do_search"
+ * Set oper to "readnew" or "readold" or "readfwd" or "headers" or "readgt" or "readlt" or "do_search"
  */
 void readloop(long oper)
 {
@@ -1673,6 +1673,7 @@ void h_readfwd(void) { readloop(readfwd);}
 void h_headers(void) { readloop(headers);}
 void h_do_search(void) { readloop(do_search);}
 void h_readgt(void) { readloop(readgt);}
+void h_readlt(void) { readloop(readlt);}
 
 void jsonMessageListHdr(void) 
 {
@@ -1748,6 +1749,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("readfwd"), "", 0, h_readfwd, NEED_URL);
 	WebcitAddUrlHandler(HKEY("headers"), "", 0, h_headers, NEED_URL);
 	WebcitAddUrlHandler(HKEY("readgt"), "", 0, h_readgt, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readlt"), "", 0, h_readlt, NEED_URL);
 	WebcitAddUrlHandler(HKEY("do_search"), "", 0, h_do_search, 0);
 	WebcitAddUrlHandler(HKEY("display_enter"), "", 0, display_enter, 0);
 	WebcitAddUrlHandler(HKEY("post"), "", 0, post_message, 0);
