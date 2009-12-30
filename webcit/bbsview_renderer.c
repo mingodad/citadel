@@ -454,9 +454,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	if (!WC->is_ajax) {	/* only supply the script during the initial page load */
 	   StrBufAppendPrintf(WC->trailing_javascript,
-		"	function moremsgs(target_div, gt, maxmsgs, sortorder) {				\n"
+		"	function moremsgs(target_div, subcmd_name, subcmd_value, maxmsgs, sortorder) {	\n"
 		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"><br><br><br></div>';	\n"
-		"		p = 'gt=' + gt + '&maxmsgs=' + maxmsgs					\n"
+		"		p = subcmd_name + '=' + subcmd_value + '&maxmsgs=' + maxmsgs		\n"
 		"			+ '&is_summary=0&SortOrder=' + sortorder + '&is_ajax=1'		\n"
 		"			+ '&r=' + CtdlRandomString();			                \n"
 		"		new Ajax.Updater(target_div, 'readgt',	 				\n"
@@ -470,7 +470,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	wc_printf("<div id=\"%s\">", morediv);
 	/* if (Stat->nummsgs > 0) { */
 	if (Stat->nummsgs >= Stat->maxmsgs) {
-		wc_printf("<a href=\"javascript:moremsgs('%s', %ld, %ld, %d );\">",
+		wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
 			morediv,
 			BBS->msgs[BBS->num_msgs-1],
 			Stat->maxmsgs,
@@ -491,7 +491,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		else {
 			gt = atol(bstr("gt"));
 		}
-		wc_printf("<a href=\"javascript:moremsgs('%s', %ld, %ld, %d );\">",
+		wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
 			morediv,
 			gt,
 			Stat->maxmsgs,
