@@ -451,7 +451,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	if (!WC->is_ajax) {	/* only supply the script during the initial page load */
 	   StrBufAppendPrintf(WC->trailing_javascript,
 		"	function moremsgs(target_div, gt, maxmsgs, sortorder) {				\n"
-		"		$(target_div).innerHTML = '%s ... <img src=\"static/throbber.gif\">';	\n"
+		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"><br><br><br></div>';	\n"
 		"		p = 'gt=' + gt + '&maxmsgs=' + maxmsgs					\n"
 		"			+ '&is_summary=0&SortOrder=' + sortorder + '&is_ajax=1'		\n"
 		"			+ '&r=' + CtdlRandomString();			                \n"
@@ -472,8 +472,10 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			(Stat->reverse ? 2 : 1)
 		);
 	
-		wc_printf("div \"%s\" - click for more messages<br><br><br><br>", morediv);
-		wc_printf("</a>");
+		wc_printf("<div class=\"moreprompt\">"
+			"&darr; &darr; &darr; %s &darr; &darr; &darr;"
+			"</div>", _("more"));
+		wc_printf("</a><br><br><br>");
 	}
 	else {
 		wc_printf("thththththat's all, folks!<br><br><br><br>");

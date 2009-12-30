@@ -560,6 +560,12 @@ body, #global {
 #hellomsg, .fmout, .nomsgs {
     text-align: center;
 }
+
+.moreprompt {
+	text-align: center;
+	font-size: 150%;
+}
+
 #login_screen, #logout_screen {
 	margin: 0;
 	padding: 3% 6% 3% 6%;
