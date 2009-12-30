@@ -426,7 +426,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	struct bbsview *BBS = (struct bbsview *) *ViewSpecific;
 	int i;
 	const StrBuf *Mime;
-	char morediv[64];
+	char newerdiv[64];
 
 	lprintf(9, "starting bbsview_RenderView_or_Tail() - there are %d messages.\n", BBS->num_msgs);
 
@@ -450,7 +450,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	}
 
-	snprintf(morediv, sizeof morediv, "morediv%08lx%08x", time(NULL), rand());
+	snprintf(newerdiv, sizeof newerdiv, "newerdiv%08lx%08x", time(NULL), rand());
 
 	if (!WC->is_ajax) {	/* only supply the script during the initial page load */
 	   StrBufAppendPrintf(WC->trailing_javascript,
@@ -467,11 +467,11 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	   );
 	}
 
-	wc_printf("<div id=\"%s\">", morediv);
+	wc_printf("<div id=\"%s\">", newerdiv);
 	/* if (Stat->nummsgs > 0) { */
 	if (Stat->nummsgs >= Stat->maxmsgs) {
 		wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
-			morediv,
+			newerdiv,
 			BBS->msgs[BBS->num_msgs-1],
 			Stat->maxmsgs,
 			(Stat->reverse ? 2 : 1)
@@ -479,7 +479,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	
 		wc_printf("<div class=\"moreprompt\">"
 			"&darr; &darr; &darr; %s &darr; &darr; &darr;"
-			"</div>", _("more")
+			"</div>", _("newer messages")
 		);
 		wc_printf("</a>");
 	}
@@ -492,7 +492,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			gt = atol(bstr("gt"));
 		}
 		wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
-			morediv,
+			newerdiv,
 			gt,
 			Stat->maxmsgs,
 			(Stat->reverse ? 2 : 1)
