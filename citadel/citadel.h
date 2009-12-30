@@ -54,7 +54,7 @@ extern "C" {
  * usually more strict because you're not really supposed to dump/load and
  * upgrade at the same time.
  */
-#define REV_LEVEL	770		/* This version */
+#define REV_LEVEL	780		/* This version */
 #define REV_MIN		591		/* Oldest compatible database */
 #define EXPORT_REV_MIN	760		/* Oldest compatible export files */
 #define LIBCITADEL_MIN	770		/* Minimum required version of libcitadel */

@@ -757,6 +757,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 				       || ((mode == MSGS_LAST) && (a >= (num_msgs - ref)))
 				   || ((mode == MSGS_FIRST) && (a < ref))
 				|| ((mode == MSGS_GT) && (thismsg > ref))
+				|| ((mode == MSGS_LT) && (thismsg < ref))
 				|| ((mode == MSGS_EQ) && (thismsg == ref))
 			    )
 			    ) {
@@ -824,6 +825,8 @@ void cmd_msgs(char *cmdbuf)
 		mode = MSGS_LAST;
 	else if (!strncasecmp(which, "GT", 2))
 		mode = MSGS_GT;
+	else if (!strncasecmp(which, "LT", 2))
+		mode = MSGS_LT;
 	else if (!strncasecmp(which, "SEARCH", 6))
 		mode = MSGS_SEARCH;
 	else
