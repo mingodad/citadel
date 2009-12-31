@@ -20,13 +20,14 @@ void groupdav_delete(void)
 	long dav_msgnum = (-1);
 	char buf[SIZ];
 	int n = 0;
-
+	StrBuf *dav_roomname = NewStrBuf();
+	
 	/* Now extract the message euid */
 	n = StrBufNum_tokens(WCC->Hdr->HR.ReqLine, '/');
 	extract_token(dav_uid, ChrPtr(WCC->Hdr->HR.ReqLine), n-1, '/', sizeof dav_uid);
-	StrBufRemove_token(WCC->Hdr->HR.ReqLine, n-1, '/');
+	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
 
-	/* What's left is the room name.  Remove trailing slashes. */
+	///* What's left is the room name.  Remove trailing slashes. */
 	//len = StrLength(WCC->Hdr->HR.ReqLine);
 	//if ((len > 0) && (ChrPtr(WCC->Hdr->HR.ReqLinee)[len-1] == '/')) {
 	//	StrBufCutRight(WCC->Hdr->HR.ReqLine, 1);
@@ -34,13 +35,16 @@ void groupdav_delete(void)
 	//StrBufCutLeft(WCC->Hdr->HR.ReqLine, 1);
 
 	/* Go to the correct room. */
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(WCC->Hdr->HR.ReqLine))) {
-		gotoroom(WCC->Hdr->HR.ReqLine);
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
+		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(WCC->Hdr->HR.ReqLine))) {
+	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
+		begin_burst();
+		end_burst();
+		FreeStrBuf(&dav_roomname);
 		return;
 	}
 
@@ -53,6 +57,9 @@ void groupdav_delete(void)
 		hprintf("HTTP/1.1 404 Not Found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
+		begin_burst();
+		end_burst();
+		FreeStrBuf(&dav_roomname);
 		return;
 	}
 
@@ -65,6 +72,9 @@ void groupdav_delete(void)
 			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
 			groupdav_common_headers();
 			hprintf("Content-Length: 0\r\n\r\n");
+			begin_burst();
+			end_burst();
+			FreeStrBuf(&dav_roomname);
 			return;
 		}
 	}
@@ -78,11 +88,16 @@ void groupdav_delete(void)
 		hprintf("HTTP/1.1 204 No Content\r\n");	/* success */
 		groupdav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
+		begin_burst();
+		end_burst();
 	}
 	else {
 		hprintf("HTTP/1.1 403 Forbidden\r\n");	/* access denied */
 		groupdav_common_headers();
 		hprintf("Content-Length: 0\r\n\r\n");
+		begin_burst();
+		end_burst();
 	}
+	FreeStrBuf(&dav_roomname);
 	return;
 }
