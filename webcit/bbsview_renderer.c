@@ -229,7 +229,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		
 			wc_printf("<div class=\"moreprompt\">"
 				"&uarr; &uarr; &uarr; %s &uarr; &uarr; &uarr;"
-				"</div>", _("click here for older messages")
+				"</div>", _("older messages")
 			);
 			wc_printf("</a>");
 		}
@@ -273,7 +273,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		
 			wc_printf("<div class=\"moreprompt\">"
 				"&darr; &darr; &darr; %s &darr; &darr; &darr;"
-				"</div>", _("click here for newer messages")
+				"</div>", _("newer messages")
 			);
 			wc_printf("</a>");
 		}
@@ -292,7 +292,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 				(Stat->reverse ? 2 : 1)
 			);
 			wc_printf("<div class=\"moreprompt\">");
-			wc_printf("no more ... gt would have been %ld ... FIXME", gt);
+			wc_printf("%s", _("no more messages"));
 			wc_printf("</div>");
 			wc_printf("</a>");
 		}
