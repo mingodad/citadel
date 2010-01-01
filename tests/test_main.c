@@ -178,6 +178,7 @@ int main(int argc, char **argv)
 #ifdef HAVE_OPENSSL
 				"[-s] [-S cipher_suites]"
 #endif
+				"[-U Username -P Password]"
 				""
 				"[remotehost [remoteport]]\n");
 			return 1;

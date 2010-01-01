@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<multistatus xmlns="DAV:" xmlns:G="http://groupdav.org/">
+<?!("COND:REST:DEPTH",  1, 0)><!--1--><?!("COND:DAV:DEPTH",  2, 0)><!--:1--><?=("dav_propfind_top_actual"                            )><??("X",  2)><??("X",  1)>
+<?!("COND:REST:DEPTH",  3, 0)><!--2--><?!("COND:DAV:DEPTH",  4, 1)><!--:2--><?ITERATE("DAV:NS", "dav_propfind_namespace_one"         )><??("X",  4)><??("X",  3)>
+<?!("COND:REST:DEPTH",  5, 1)><!--3--><?!("COND:DAV:DEPTH",  6, 0)><!--:3--><?ITERATE("DAV:NS", "dav_propfind_namespace_actual"      )><??("X",  6)><??("X",  5)>
+<?!("COND:REST:DEPTH",  7, 1)><!--4--><?!("COND:DAV:DEPTH",  8, 1)><!--:4--><?ITERATE("LFLR", "dav_propfind_floorlist_actual"        )><??("X",  8)><??("X",  7)>
+<?!("COND:REST:DEPTH",  9, 2)><!--5--><?!("COND:DAV:DEPTH", 10, 0)><!--:5--><?ITERATE("LFLR", "dav_propfind_floorlist_one"           )><??("X", 10)><??("X",  9)>
+<?!("COND:REST:DEPTH", 11, 2)><!--6--><?!("COND:DAV:DEPTH", 12, 1)><!--:6--><?ITERATE("LKRA", "dav_propfind_groupdav_roomlist_one"   )><??("X", 12)><??("X", 11)>
+<?!("COND:REST:DEPTH", 13, 3)><!--7--><?!("COND:DAV:DEPTH", 14, 0)><!--:7--><?ITERATE("LKRA", "dav_propfind_groupdav_roomlist_actual")><??("X", 14)><??("X", 13)>
+</multistatus>

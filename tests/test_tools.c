@@ -44,7 +44,7 @@ void SetUpContext(void)
 int SetUpConnection(void)
 {
 	StrBuf *Response;
-	if (GetConnected ())
+	if (!GetConnected ())
 	{
 		Response = NewStrBuf();
 		become_logged_in(Username, Passvoid, Response);
@@ -63,17 +63,32 @@ void SetHttpURL(ParsedHttpHdrs *Hdr, const char *Title, long tlen, StrBuf *Buf)
 	FreeStrBuf(&Line);
 }
 
+/* from context_loop.c: */
+extern void DestroyHttpHeaderHandler(void *V);
+extern int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf);
 void SetUpRequest(const char *UrlPath)
 {
+	OneHttpHeader *pHdr;
+	wcsession *WCC = WC;
 	StrBuf *Buf;
-	StrBuf *UrlBuf;
+	StrBuf *Line, *HeaderName;
 
+	HeaderName = NewStrBuf();
 	Buf = NewStrBuf();
-	UrlBuf = NewStrBuf();
-	StrBufPrintf(UrlBuf, "GET %s HTTP/1.0\r\n", UrlPath);
+	Line = NewStrBuf();
+	StrBufPrintf(Line, "GET %s HTTP/1.0\r\n", UrlPath);
+
+	WCC->Hdr->HTTPHeaders = NewHash(1, NULL);
+	pHdr = (OneHttpHeader*) malloc(sizeof(OneHttpHeader));
+	memset(pHdr, 0, sizeof(OneHttpHeader));
+	pHdr->Val = Line;
+	Put(Hdr.HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
+	lprintf(9, "%s\n", ChrPtr(Line));
+
+	if (ReadHttpSubject(&Hdr, Line, HeaderName))
+		CU_FAIL("Failed to parse Request line / me is bogus!");
 
 	FreeStrBuf(&Buf);
-	FreeStrBuf(&UrlBuf);
 }
 
 
@@ -82,11 +97,11 @@ void TearDownRequest(void)
 {
 /* End Context loop */
 	http_detach_modules(&Hdr);
-	http_destroy_modules(&Hdr);
 }
 
 void TearDownContext(void)
 {
+	http_destroy_modules(&Hdr);
 /* End Session Loop */
 	session_detach_modules(TheSession);
 	session_destroy_modules(&TheSession);
@@ -121,71 +136,102 @@ void test_groupdav_directorycommands(void)
 	{
 		SetUpRequest("/");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
 		TearDownRequest();
 
 		SetUpRequest("/");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 
 		SetUpRequest("/groupdav");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 
 		SetUpRequest("/groupdav/My%20Folders");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/My%20Folders");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/My%20Folders/");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/My%20Folders/");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/My%20Folders/Calendar");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/My%20Folders/Calendar");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/My%20Folders/Calendar/");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/groupdav/My%20Folders/Calendar/");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 
 		SetUpRequest("/");
 		SetGroupdavHeaders(0);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 
 		SetUpRequest("/");
 		SetGroupdavHeaders(1);
+		groupdav_main();
 		FlushHeaders();
+		TearDownRequest();
 	}
 
 
@@ -237,14 +283,14 @@ static void AddTests(void)
 {
 	CU_pSuite pGroup = NULL;
 	CU_pTest pTest = NULL;
-
+/*
 	pGroup = CU_add_suite("TestLocaleEvaluator", NULL, NULL);
 	pTest = CU_add_test(pGroup, "Test ie7", test_gettext_headerevaluation_ie7);
 	pTest = CU_add_test(pGroup, "Test Opera", test_gettext_headerevaluation_Opera);
 	pTest = CU_add_test(pGroup, "Test firefox1", test_gettext_headerevaluation_firefox1);
 	pTest = CU_add_test(pGroup, "Test firefox2", test_gettext_headerevaluation_firefox2);
 	pTest = CU_add_test(pGroup, "Test firefox3", test_gettext_headerevaluation_firefox3);
-
+*/
 	pGroup = CU_add_suite("TestUrlPatterns", NULL, NULL);
 	pTest = CU_add_test(pGroup, "Test", test_groupdav_directorycommands);
 

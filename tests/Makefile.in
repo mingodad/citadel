@@ -1,7 +1,7 @@
 # $Id: Makefile.in 7860 2009-10-05 20:25:07Z dothebart $
 
 prefix=@prefix@
-srcdir=@srcdir@
+srcdir=@srcdir@/../
 VPATH=$(srcdir)
 
 AUTOCONF=@AUTOCONF@
@@ -126,11 +126,11 @@ test: $(TEST_OBJECTS) $(TEST_COMMON_OBJECTS) $(LIBOBJS) test_main.o
 .cpp.o:
 	$(CC) $(CFLAGS) -I ../ $(DEFS) -c $(PTHREAD_DEFS) $<
 
-Makefile: $(srcdir)/Makefile.in ../config.status
-	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) ./config.status
+Makefile: $(srcdir)/Makefile.in $(srcdir)/config.status
+	CONFIG_FILES=Makefile CONFIG_HEADERS= $(SHELL) $(srcdir)/config.status
 
 config.status: $(srcdir)/configure
-	$(SHELL) ./config.status --recheck
+	$(SHELL) $(srcdir)/config.status --recheck
 
 $(srcdir)/configure: $(srcdir)/configure.ac $(srcdir)/aclocal.m4
 	cd $(srcdir) && $(AUTOCONF)

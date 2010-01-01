@@ -1,0 +1,12 @@
+<!--<?CURRENTFILE> : <?ROOM:INFO:FLOOR:NAME("X")> : <?ROOM:INFO:NAME("X")> -->
+<?!("COND:DAV:NSCURRENT", 1)><response>
+<href><?DAV:HOSTNAME>/<?DAV:NAMESPACE></href>
+<propstat>
+<status>HTTP/1.1 200 OK</status>
+<prop>
+<displayname><?URL:DISPLAYNAME><?MAIL:SUMM:EUID></displayname>
+<resourcetype><collection/></resourcetype>
+<getlastmodified><?DATE:NOW:STR></getlastmodified>
+</prop>
+</propstat>
+</response><?!("X",1)>

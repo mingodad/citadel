@@ -1389,7 +1389,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	case SV_NEG_CONDITIONAL:
 		if (NewToken->nParameters <2) {
 			LogTemplateError(
-				NULL, "Conditional", ERR_NAME, &TP,
+				NULL, "Conditional", ERR_PARM1, &TP,
 				"require at least 2 parameters, you gave %d params", 
 				NewToken->nParameters);
 			NewToken->Flags = 0;
@@ -1397,7 +1397,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 		}
 		if (NewToken->Params[1]->lvalue == 0) {
 			LogTemplateError(
-				NULL, "Conditional", ERR_NAME, &TP,
+				NULL, "Conditional", ERR_PARM1, &TP,
 				"Conditional ID (Parameter 1) mustn't be 0!");
 			NewToken->Flags = 0;
 			break;
@@ -1411,7 +1411,7 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 			    (NewToken->Params[0]->Start[0] == 'X'))
 				break;
 			LogTemplateError(
-				NULL, "Conditional", ERR_NAME, &TP,
+				NULL, "Conditional", ERR_PARM1, &TP,
 				"Not found!");
 /*
 			NewToken->Error = NewStrBuf();
@@ -1693,7 +1693,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 			}
 			StrBufAppendBufPlain(Key, filedir_entry->d_name, MinorPtr - filedir_entry->d_name, 0);
 
-			if (LoadTemplates > 1)
+			if (LoadTemplates >= 1)
 				lprintf(1, "%s %d %s\n", ChrPtr(FileName), IsMobile, ChrPtr(Key));
 			if (LoadTemplates == 0)
 				load_template(FileName, Key, (IsMobile)?wireless:big);
@@ -1721,19 +1721,22 @@ void InitTemplateCache(void)
 	Key = NewStrBuf();
 
 	/* Primary Template set... */
+/*
 	StrBufPrintf(Dir, "%s/t", static_dirs[0]);
 	LoadTemplateDir(Dir,
 			WirelessTemplateCache,
 			TemplateCache, 
 			Key);
 
+*/
 	/* User local Template set */
+/*
 	StrBufPrintf(Dir, "%s/t", static_dirs[1]);
 	LoadTemplateDir(Dir,
 			WirelessLocalTemplateCache,
 			LocalTemplateCache, 
 			Key);
-	
+*/	
 	/* Debug Templates, just to be loaded while debugging. */
 	
 	StrBufPrintf(Dir, "%s/dbg", static_dirs[0]);
@@ -1930,7 +1933,7 @@ const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCT
 		TP = &LocalTP;
 	}
 
-	if (WC->is_mobile) {
+	if (WC->is_mobile > 0) {
 		Static = WirelessTemplateCache;
 		StaticLocal = WirelessLocalTemplateCache;
 	}
@@ -2023,7 +2026,7 @@ int preeval_iterate(WCTemplateToken *Token)
 	TP->Tokens = Token;
 	if (!GetHash(Iterators, TKEY(0), &vIt)) {
 		LogTemplateError(
-			NULL, "Iterator", ERR_NAME, TP,
+			NULL, "Iterator", ERR_PARM1, TP,
 			"not found");
 		return 0;
 	}

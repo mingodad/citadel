@@ -139,7 +139,7 @@ long GotoRestRoom()
 	wcsession *WCC = WC;
 	long Count;
 	long State;
-	folder *ThisFolder;
+	const folder *ThisFolder;
 
 	State = REST_TOPLEVEL;
 
