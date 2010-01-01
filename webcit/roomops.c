@@ -475,7 +475,7 @@ void embed_room_banner(char *got, int navbar_style) {
  
 	do_template("roombanner", NULL);
 	/* roombanner contains this for mobile */
-	if (navbar_style != navbar_none && !WC->is_mobile) { 
+	if (navbar_style != navbar_none && (WC->is_mobile < 1)) { 
 
 		wc_printf("<div id=\"navbar\"><ul>");
 
