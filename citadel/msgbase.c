@@ -929,61 +929,84 @@ void memfmout(
 	char *mptr,		/* where are we going to get our text from? */
 	const char *nl)		/* string to terminate lines with */
 {
-	int b, c;
-	int real = 0;
-	int old = 0;
-	cit_uint8_t ch;
-	char aaa[140];
-	char buffer[SIZ];
-	static int width = 80;
+	StrBuf *OutBuf;
+	char *LineStart;
+	char *LastBlank;
+	size_t len;
+	size_t NLLen;
+	char *eptr;
+	int NLFound, NLFoundLastTime;
+	int Found;
 
-	strcpy(aaa, "");
-	old = 255;
-	strcpy(buffer, "");
-	c = 1;			/* c is the current pos */
+	len = strlen (mptr);
+	NLLen = strlen (nl);
+	eptr = mptr + len;
 
+	OutBuf = NewStrBufPlain(NULL, 200);
+	
+	NLFound = NLFoundLastTime = 0;
 	do {
-		ch = *mptr++;
+		size_t i;
+		LineStart = LastBlank = mptr;
+		Found = 'x';
 
-		old = real;
-		real = ch;
+		for (i = 0; Found == 'x'; i++)
+		{
+			if (LineStart[i] == '\n')
+				Found = '\n';
+			else if (LineStart[i] == '\r')
+				Found = '\r';
+			else if (LineStart[i] == ' ')
+				LastBlank = &LineStart[i];
+			else if ((i > 80) && (LineStart != LastBlank))
+				Found = ' ';
+			else if (LineStart[i] == '\0')
+				Found = '\0';
+		}
+		switch (Found)
+		{
+		case '\n':
+			if (LineStart[i + 1] == '\r')
+				mptr = &LineStart[i + 1];
+			else 
+				mptr = &LineStart[i];
+			i--;
+			NLFound = 1;
+			break;
+		case '\r':
+			if (LineStart[i + 1] == '\n')
+				mptr = &LineStart[i + 1];
+			else 
+				mptr = &LineStart[i];
+			i--;
+			NLFound = 1;
+			break;
+		case '\0':
+			mptr = &LineStart[i];
+			i--;
+			NLFound = 0;
+			break;
+		case ' ':
+			mptr = LastBlank + 1;
+			i = LastBlank - LineStart;
+			NLFound = 0;
+			break;
+		case 'x':
+			/* WHUT? */
+			break;
+		}
+		if (NLFoundLastTime)
+			StrBufPlain(OutBuf, HKEY(" "));
+		else
+			FlushStrBuf(OutBuf);
+		StrBufAppendBufPlain(OutBuf, LineStart, i, 0);
+		StrBufAppendBufPlain(OutBuf, nl, NLLen, 0);
 
-		if (((ch == 13) || (ch == 10)) && (old != 13) && (old != 10)) {
-			ch = 32;
-		}
-		if (((old == 13) || (old == 10)) && (isspace(real))) {
-			cprintf("%s", nl);
-			c = 1;
-		}
-		if (ch > 32) {
-			if (((strlen(aaa) + c) > (width - 5)) && (strlen(aaa) > (width - 5))) {
-				cprintf("%s%s", nl, aaa);
-				c = strlen(aaa);
-				aaa[0] = 0;
-			}
-			b = strlen(aaa);
-			aaa[b] = ch;
-			aaa[b + 1] = 0;
-		}
-		if (ch == 32) {
-			if ((strlen(aaa) + c) > (width - 5)) {
-				cprintf("%s", nl);
-				c = 1;
-			}
-			cprintf("%s ", aaa);
-			++c;
-			c = c + strlen(aaa);
-			strcpy(aaa, "");
-		}
-		if ((ch == 13) || (ch == 10)) {
-			cprintf("%s%s", aaa, nl);
-			c = 1;
-			strcpy(aaa, "");
-		}
+		cputbuf(OutBuf);
+		NLFoundLastTime = NLFound;
+	} while (*mptr != '\0');
 
-	} while (ch > 0);
-
-	cprintf("%s%s", aaa, nl);
+	FreeStrBuf(&OutBuf);
 }
 
 
