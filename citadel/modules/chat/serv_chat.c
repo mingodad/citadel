@@ -568,7 +568,7 @@ void cmd_pexp(char *argbuf)
 			cprintf("Message ");
 		cprintf("from %s:\n", ptr->sender);
 		if (ptr->text != NULL)
-			memfmout(ptr->text, 0, "\n");
+			memfmout(ptr->text, "\n");
 
 		holdptr = ptr->next;
 		if (ptr->text != NULL) free(ptr->text);
@@ -606,7 +606,7 @@ void cmd_gexp(char *argbuf) {
 	);
 
 	if (ptr->text != NULL) {
-		memfmout(ptr->text, 0, "\n");
+		memfmout(ptr->text, "\n");
 		if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
 		free(ptr->text);
 	}

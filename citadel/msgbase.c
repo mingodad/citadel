@@ -3,7 +3,7 @@
  *
  * Implements the message store.
  * 
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2010 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -927,10 +927,9 @@ void do_help_subst(char *buffer)
  */
 void memfmout(
 	char *mptr,		/* where are we going to get our text from? */
-	char subst,		/* nonzero if we should do substitutions */
-	char *nl)		/* string to terminate lines with */
+	const char *nl)		/* string to terminate lines with */
 {
-	int a, b, c;
+	int b, c;
 	int real = 0;
 	int old = 0;
 	cit_uint8_t ch;
@@ -944,22 +943,7 @@ void memfmout(
 	c = 1;			/* c is the current pos */
 
 	do {
-		if (subst) {
-			while (ch = *mptr, ((ch != 0) && (strlen(buffer) < 126))) {
-				ch = *mptr++;
-				buffer[strlen(buffer) + 1] = 0;
-				buffer[strlen(buffer)] = ch;
-			}
-
-			if (buffer[0] == '^')
-				do_help_subst(buffer);
-
-			buffer[strlen(buffer) + 1] = 0;
-			a = buffer[0];
-			strcpy(buffer, &buffer[1]);
-		} else {
-			ch = *mptr++;
-		}
+		ch = *mptr++;
 
 		old = real;
 		real = ch;
@@ -1743,7 +1727,7 @@ int CtdlOutputPreLoadedMsg(
 	char allkeys[30];
 	char display_name[256];
 	char *mptr, *mpptr;
-	char *nl;	/* newline string */
+	const char *nl;	/* newline string */
 	int suppress_f = 0;
 	int subject_found = 0;
 	struct ma_info ma;
@@ -2166,7 +2150,7 @@ START_TEXT:
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/x-citadel-variformat\n\n");
 		}
-		memfmout(mptr, 0, nl);
+		memfmout(mptr, nl);
 	}
 
 	/* If the message on disk is format 4 (MIME), we've gotta hand it
