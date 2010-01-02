@@ -40,6 +40,8 @@
 #define SIZE_T_FMT "%ld"
 #endif
 
+void cputbuf(const StrBuf *Buf);
+
 #ifdef __GNUC__
 void cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)));
 #else
