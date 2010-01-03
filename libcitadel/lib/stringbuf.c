@@ -293,7 +293,7 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
  */
 void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize)
 {
-	if (Buf->BufUsed > ThreshHold) {
+	if ((Buf != NULL) && (Buf->BufUsed > ThreshHold)) {
 		free(Buf->buf);
 		Buf->buf = (char*) malloc(NewSize);
 		Buf->BufUsed = 0;
@@ -310,6 +310,8 @@ void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize)
  */
 long StrBufShrinkToFit(StrBuf *Buf, int Force)
 {
+	if (Buf == NULL)
+		return -1;
 	if (Force || 
 	    (Buf->BufUsed + (Buf->BufUsed / 3) > Buf->BufSize))
 	{
@@ -2173,6 +2175,9 @@ long StrBufUnescape(StrBuf *Buf, int StripBlanks)
 	int a, b;
 	char hex[3];
 	long len;
+
+	if (Buf == NULL)
+		return -1;
 
 	while ((Buf->BufUsed > 0) && (isspace(Buf->buf[Buf->BufUsed - 1]))){
 		Buf->buf[Buf->BufUsed - 1] = '\0';
