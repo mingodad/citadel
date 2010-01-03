@@ -24,18 +24,40 @@
 #include "libcitadel.h"
 #include "libcitadellocal.h"
 
-void extract_key(char *target, char *source, long sourcelen, char *key, long keylen)
+void extract_key(char *target, char *source, long sourcelen, char *key, long keylen, char KeyEnd)
 {
-	char *ptr;
+	char *sptr, *ptr;
 	int double_quotes = 0;
+	long RealKeyLen = keylen;
 
-	ptr = bmstrcasestr_len(source, sourcelen, key, keylen);
+	sptr = source;
 
+	while (sptr != NULL)
+	{
+		ptr = bmstrcasestr_len(sptr, sourcelen - (sptr - source), 
+				       key, keylen);
+		if(ptr != NULL)
+		{
+			while (isspace(*(ptr + RealKeyLen)))
+				RealKeyLen ++;
+			if (*(ptr + RealKeyLen) == KeyEnd)
+			{
+				sptr = NULL;
+				RealKeyLen ++;				
+			}
+			else
+			{
+				sptr = ptr + RealKeyLen + 1;
+			}
+		}
+		else 
+			sptr = ptr;
+	}
 	if (ptr == NULL) {
-		strcpy(target, "");
+		*target = '\0';
 		return;
 	}
-	strcpy(target, (ptr + keylen));
+	strcpy(target, (ptr + RealKeyLen));
 
 	for (ptr=target; (*ptr != 0); ++ptr) {
 
@@ -392,9 +414,9 @@ void the_mime_parser(char *partnum,
 				memcpy (content_type, &header[13], headerlen - 12);
 				content_type_len = striplt (content_type);
 
-				extract_key(content_type_name, content_type, content_type_len, HKEY("name="));
-				extract_key(charset,           content_type, content_type_len, HKEY("charset="));
-				extract_key(boundary,          header,       headerlen,        HKEY("boundary="));
+				extract_key(content_type_name, content_type, content_type_len, HKEY("name"), '=');
+				extract_key(charset,           content_type, content_type_len, HKEY("charset"), '=');
+				extract_key(boundary,          header,       headerlen,        HKEY("boundary"), '=');
 
 				/* Deal with weird headers */
 				if (strchr(content_type, ' '))
@@ -405,8 +427,8 @@ void the_mime_parser(char *partnum,
 			else if (!strncasecmp(header, "Content-Disposition:", 20)) {
 				memcpy (disposition, &header[20], headerlen - 19);
 				disposition_len = striplt(disposition);
-				extract_key(content_disposition_name, disposition, disposition_len,  HKEY("name="));
-				extract_key(filename,                 disposition, disposition_len, HKEY("filename="));
+				extract_key(content_disposition_name, disposition, disposition_len,  HKEY("name"), '=');
+				extract_key(filename,                 disposition, disposition_len, HKEY("filename"), '=');
 			}
 			else if (!strncasecmp(header, "Content-ID:", 11)) {
 				strcpy(id, &header[11]);

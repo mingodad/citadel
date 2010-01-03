@@ -83,7 +83,7 @@ void ShutDownLibCitadel(void);
  * MIME parser declarations
  */
 
-void extract_key(char *target, char *source, long sourcelen, char *key, long keylen);
+void extract_key(char *target, char *source, long sourcelen, char *key, long keylen, char KeyEnd);
 
 void mime_parser(char *content_start, char *content_end,
 		void (*CallBack)
