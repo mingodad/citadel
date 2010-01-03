@@ -453,10 +453,12 @@ int main(int argc, char* argv[])
 			// else run the simple http test
 			break;
 		case 't':
-			timeout = atoi(optarg);
+			if (optarg != NULL)
+				timeout = atoi(optarg);
 			break;
 		case 's':
-			selres = atoi(optarg);
+			if (optarg != NULL)
+				selres = atoi(optarg);
 			break;
 		}
 	}

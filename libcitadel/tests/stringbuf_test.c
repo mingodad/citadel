@@ -17,7 +17,6 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#define SHOW_ME_VAPPEND_PRINTF
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +24,7 @@
 #include <stdarg.h>
 
 #include "stringbuf_test.h"
+#define SHOW_ME_VAPPEND_PRINTF
 #include "../lib/libcitadel.h"
 
 int Quiet = 0;
@@ -585,7 +585,7 @@ Some samples from the original...
 
 
 
-static void AddStrBufSimlpeTests(void)
+static void AddStrBufSimpleTests(void)
 {
 	CU_pSuite pGroup = NULL;
 	CU_pTest pTest = NULL;
@@ -638,7 +638,7 @@ int main(int argc, char* argv[])
 	}
 	
 	Run = CU_TRUE ;
-	AddStrBufSimlpeTests();
+	AddStrBufSimpleTests();
 	
 	if (CU_TRUE == Run) {
 		//CU_console_run_tests();
