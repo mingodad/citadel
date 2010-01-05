@@ -2112,15 +2112,15 @@ void network_poll_other_citadel_nodes(int full_poll) {
  * It's ok if these directories already exist.  Just fail silently.
  */
 void create_spool_dirs(void) {
-	if (mkdir(ctdl_spool_dir, 0700) != 0)
+	if ((mkdir(ctdl_spool_dir, 0700) != 0) && (errno != EEXIST))
 		CtdlLogPrintf(CTDL_EMERG, "unable to create directory [%s]: %s", ctdl_spool_dir, strerror(errno));
 	if (chown(ctdl_spool_dir, CTDLUID, (-1)) != 0)
 		CtdlLogPrintf(CTDL_EMERG, "unable to set the access rights for [%s]: %s", ctdl_spool_dir, strerror(errno));
-	if (mkdir(ctdl_netin_dir, 0700) != 0)
+	if ((mkdir(ctdl_netin_dir, 0700) != 0) && (errno != EEXIST))
 		CtdlLogPrintf(CTDL_EMERG, "unable to create directory [%s]: %s", ctdl_netin_dir, strerror(errno));
 	if (chown(ctdl_netin_dir, CTDLUID, (-1)) != 0)
 		CtdlLogPrintf(CTDL_EMERG, "unable to set the access rights for [%s]: %s", ctdl_netin_dir, strerror(errno));
-	if (mkdir(ctdl_netout_dir, 0700) != 0)
+	if ((mkdir(ctdl_netout_dir, 0700) != 0) && (errno != EEXIST))
 		CtdlLogPrintf(CTDL_EMERG, "unable to create directory [%s]: %s", ctdl_netout_dir, strerror(errno));
 	if (chown(ctdl_netout_dir, CTDLUID, (-1)) != 0)
 		CtdlLogPrintf(CTDL_EMERG, "unable to set the access rights for [%s]: %s", ctdl_netout_dir, strerror(errno));
