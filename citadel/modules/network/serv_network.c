@@ -463,6 +463,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	long msglen;
 	char *recps = NULL;
 	size_t recps_len = SIZ;
+	size_t siz;
 	struct recptypes *valid;
 	namelist *nptr;
 	char bounce_to[256];
@@ -509,8 +510,8 @@ void network_deliver_digest(SpoolControl *sc) {
 
 	msg->cm_fields['M'] = malloc(msglen + 1);
 	fseek(sc->digestfp, 0L, SEEK_SET);
-	fread(msg->cm_fields['M'], (size_t)msglen, 1, sc->digestfp);
-	msg->cm_fields['M'][msglen] = 0;
+	siz = fread(msg->cm_fields['M'], (size_t)msglen, 1, sc->digestfp);
+	msg->cm_fields['M'][siz] = '\0';
 
 	fclose(sc->digestfp);
 	sc->digestfp = NULL;
@@ -1643,14 +1644,15 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 	long hold_pos;
 	long size;
 	char *buffer;
+	size_t siz;
 
 	hold_pos = ftell(fp);
 	size = msgend - msgstart + 1;
 	buffer = malloc(size);
 	if (buffer != NULL) {
 		fseek(fp, msgstart, SEEK_SET);
-		fread(buffer, size, 1, fp);
-		network_process_buffer(buffer, size);
+		siz = fread(buffer, size, 1, fp);
+		network_process_buffer(buffer, siz);
 		free(buffer);
 	}
 
@@ -1785,6 +1787,7 @@ void network_purge_spoolout(void) {
  * receive network spool from the remote system
  */
 void receive_spool(int sock, char *remote_nodename) {
+	size_t siz;
 	long download_len = 0L;
 	long bytes_received = 0L;
 	long bytes_copied = 0L;
@@ -1893,8 +1896,8 @@ void receive_spool(int sock, char *remote_nodename) {
 				if (plen > sizeof buf) {
 					plen = sizeof buf;
 				}
-				fread(buf, plen, 1, fp);
-				fwrite(buf, plen, 1, newfp);
+				siz = fread(buf, plen, 1, fp);
+				fwrite(buf, siz, 1, newfp);
 				bytes_copied += plen;
 			}
 			fclose(newfp);
@@ -2109,12 +2112,18 @@ void network_poll_other_citadel_nodes(int full_poll) {
  * It's ok if these directories already exist.  Just fail silently.
  */
 void create_spool_dirs(void) {
-	mkdir(ctdl_spool_dir, 0700);
-	chown(ctdl_spool_dir, CTDLUID, (-1));
-	mkdir(ctdl_netin_dir, 0700);
-	chown(ctdl_netin_dir, CTDLUID, (-1));
-	mkdir(ctdl_netout_dir, 0700);
-	chown(ctdl_netout_dir, CTDLUID, (-1));
+	if (mkdir(ctdl_spool_dir, 0700) != 0)
+		CtdlLogPrintf(CTDL_EMERG, "unable to create directory [%s]: %s", ctdl_spool_dir, strerror(errno));
+	if (chown(ctdl_spool_dir, CTDLUID, (-1)) != 0)
+		CtdlLogPrintf(CTDL_EMERG, "unable to set the access rights for [%s]: %s", ctdl_spool_dir, strerror(errno));
+	if (mkdir(ctdl_netin_dir, 0700) != 0)
+		CtdlLogPrintf(CTDL_EMERG, "unable to create directory [%s]: %s", ctdl_netin_dir, strerror(errno));
+	if (chown(ctdl_netin_dir, CTDLUID, (-1)) != 0)
+		CtdlLogPrintf(CTDL_EMERG, "unable to set the access rights for [%s]: %s", ctdl_netin_dir, strerror(errno));
+	if (mkdir(ctdl_netout_dir, 0700) != 0)
+		CtdlLogPrintf(CTDL_EMERG, "unable to create directory [%s]: %s", ctdl_netout_dir, strerror(errno));
+	if (chown(ctdl_netout_dir, CTDLUID, (-1)) != 0)
+		CtdlLogPrintf(CTDL_EMERG, "unable to set the access rights for [%s]: %s", ctdl_netout_dir, strerror(errno));
 }
 
 
