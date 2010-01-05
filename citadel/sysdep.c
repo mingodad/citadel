@@ -441,7 +441,7 @@ void flush_output(void) {
 /*
  * client_write()   ...    Send binary data to the client.
  */
-int client_write(char *buf, int nbytes)
+int client_write(const char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;

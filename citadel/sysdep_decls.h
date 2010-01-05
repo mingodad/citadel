@@ -59,7 +59,7 @@ int ig_uds_server(char *sockpath, int queue_len, char **errormessage);
 void buffer_output(void);
 void unbuffer_output(void);
 void flush_output(void);
-int client_write (char *buf, int nbytes);
+int client_write (const char *buf, int nbytes);
 int client_read_to (char *buf, int bytes, int timeout);
 int client_read (char *buf, int bytes);
 int client_getln (char *buf, int maxbytes);
