@@ -165,7 +165,14 @@ int main(int argc, char **argv)
 		}
 
 		else if (!strncmp(argv[a], "-t", 2)) {
-			freopen(&argv[a][2], "w", stderr);
+			if (freopen(&argv[a][2], "w", stderr) != stderr)
+			{
+				CtdlLogPrintf(CTDL_EMERG, 
+					      "unable to open your trace log [%s]: %s", 
+					      &argv[a][2], 
+					      strerror(errno));
+				exit(1);
+			}
 		}
 
 		else if (!strncmp(argv[a], "-D", 2)) {
@@ -261,8 +268,16 @@ int main(int argc, char **argv)
 #else // HAVE_GETPWUID_R
 		pwp = NULL;
 #endif // HAVE_GETPWUID_R
-		mkdir(ctdl_run_dir, 0755);
-		chown(ctdl_run_dir, config.c_ctdluid, (pwp==NULL)?-1:pw.pw_gid);
+
+		if ((mkdir(ctdl_run_dir, 0755) != 0) && (errno != EEXIST))
+			CtdlLogPrintf(CTDL_EMERG, 
+				      "unable to create run directory [%s]: %s", 
+				      ctdl_run_dir, strerror(errno));
+
+		if (chown(ctdl_run_dir, config.c_ctdluid, (pwp==NULL)?-1:pw.pw_gid) != 0)
+			CtdlLogPrintf(CTDL_EMERG, 
+				      "unable to set the access rights for [%s]: %s", 
+				      ctdl_run_dir, strerror(errno));
 	}
 			
 

@@ -301,10 +301,21 @@ void open_databases(void)
 	 * Silently try to create the database subdirectory.  If it's
 	 * already there, no problem.
 	 */
-	mkdir(ctdl_data_dir, 0700);
-	chmod(ctdl_data_dir, 0700);
-	chown(ctdl_data_dir, CTDLUID, (-1));
-
+	if ((mkdir(ctdl_data_dir, 0700) != 0) && (errno != EEXIST)){
+		CtdlLogPrintf(CTDL_EMERG, 
+			      "unable to create database directory [%s]: %s", 
+			      ctdl_data_dir, strerror(errno));
+	}
+	if (chmod(ctdl_data_dir, 0700) != 0){
+		CtdlLogPrintf(CTDL_EMERG, 
+			      "unable to set database directory accessrights [%s]: %s", 
+			      ctdl_data_dir, strerror(errno));
+	}
+	if (chown(ctdl_data_dir, CTDLUID, (-1)) != 0){
+		CtdlLogPrintf(CTDL_EMERG, 
+			      "unable to set the owner for [%s]: %s", 
+			      ctdl_data_dir, strerror(errno));
+	}
 	CtdlLogPrintf(CTDL_DEBUG, "bdb(): Setting up DB environment\n");
 	db_env_set_func_yield(sched_yield);
 	ret = db_env_create(&dbenv, 0);

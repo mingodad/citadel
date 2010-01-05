@@ -745,7 +745,10 @@ void start_daemon(int unused) {
 	 * We don't just call close() because we don't want these fd's
 	 * to be reused for other files.
 	 */
-	chdir(ctdl_run_dir);
+	if (chdir(ctdl_run_dir) != 0)
+		CtdlLogPrintf(CTDL_EMERG, 
+			      "unable to change into directory [%s]: %s", 
+			      ctdl_run_dir, strerror(errno));
 
 	child = fork();
 	if (child != 0) {
@@ -758,9 +761,13 @@ void start_daemon(int unused) {
 
 	setsid();
 	umask(0);
-        freopen("/dev/null", "r", stdin);
-        freopen("/dev/null", "w", stdout);
-        freopen("/dev/null", "w", stderr);
+        if ((freopen("/dev/null", "r", stdin) != stdin) || 
+	    (freopen("/dev/null", "w", stdout) != stdout) || 
+	    (freopen("/dev/null", "w", stderr) != stderr))
+		CtdlLogPrintf(CTDL_EMERG, 
+			      "unable to reopen stdin/out/err %s", 
+			      strerror(errno));
+		
 
 	do {
 		current_child = fork();
