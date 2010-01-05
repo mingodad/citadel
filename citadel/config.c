@@ -67,7 +67,14 @@ void get_config(void) {
 				strerror(errno));
 		exit(CTDLEXIT_CONFIG);
 	}
+	memset(&config, 0, sizeof(struct config));
 	rv = fread((char *) &config, sizeof(struct config), 1, cfp);
+	if (rv != sizeof(struct config))
+	{
+		fprintf(stderr, 
+			"Warning: The config file %s has unexpected size. \n",
+			file_citadel_config);
+	}
 	if (fstat(fileno(cfp), &st)) {
 		perror(file_citadel_config);
 		exit(CTDLEXIT_CONFIG);
