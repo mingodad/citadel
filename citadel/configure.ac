@@ -710,7 +710,7 @@ fi
 
 dnl Checks for the Boehm-Demers-Weiser garbage collection library.
 if test "x$with_gc" != xno ; then
-	AC_CHECK_HEADERS(gc/gc.h,
+	AC_CHECK_HEADERS(gc/gc_local_alloc.h,
 		[AC_CHECK_LIB(gc, GC_init,
 			[ok_gc=yes],,
 	)])
