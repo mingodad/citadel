@@ -564,6 +564,8 @@ body, #global {
 .moreprompt {
 	text-align: center;
 	font-size: 150%;
+	background-color: #004E79;
+	color: #dddddd;
 }
 
 #login_screen, #logout_screen {

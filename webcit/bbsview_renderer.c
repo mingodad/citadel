@@ -159,7 +159,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	if (!WC->is_ajax) {
 	   StrBufAppendPrintf(WC->trailing_javascript,
 		"	function moremsgs(target_div, gt_or_lt, gt_or_lt_value, maxmsgs, sortorder) {	\n"
-		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"><br><br><br></div>';	\n"
+		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"></div>';	\n"
 		"		p = gt_or_lt + '=' + gt_or_lt_value + '&maxmsgs=' + maxmsgs		\n"
 		"			+ '&is_summary=0&SortOrder=' + sortorder + '&is_ajax=1'		\n"
 		"			+ '&gt_or_lt=' + gt_or_lt					\n"
@@ -233,7 +233,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			);
 			wc_printf("</a>");
 		}
-		wc_printf("<br></div>");
+		wc_printf("</div>");
 	}
 
 
@@ -296,9 +296,15 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			wc_printf("</div>");
 			wc_printf("</a>");
 		}
-		wc_printf("<br><br><br><br></div>");
+		wc_printf("</div>");
 	}
 
+	/* Leave a little padding at the bottom, but only for the initial page load -- don't keep
+	 * adding it every time we extend the visible message set.
+	 */
+	if (!WC->is_ajax) {
+		wc_printf("<br><br><br><br>");
+	}
 
 	return(0);
 }

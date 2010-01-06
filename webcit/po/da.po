@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-28 15:50-0400\n"
+"POT-Creation-Date: 2010-01-06 15:23-0500\n"
 "PO-Revision-Date: 2009-01-31 11:30+0100\n"
 "Last-Translator: Flemming Veggerby <fveggerby@dbmail.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -15,50 +15,36 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../addressbook_popup.c:178 ../roomops.c:1745 ../roomops.c:1776
-#: ../roomops.c:2018 ../roomops.c:2074
+#: ../addressbook_popup.c:178 ../roomops.c:1575 ../roomops.c:1606
+#: ../roomops.c:1848 ../roomops.c:1904
 msgid "Add"
 msgstr "Tilføj"
 
-#: ../auth.c:21 ../static/t/tab_siteconfig_access.html:9
-#: ../static/t/tab_siteconfig_access.html:35
-#: ../static/t/userlist_detailview.html:22
+#: ../auth.c:22
 msgid "Deleted"
 msgstr "Slettet"
 
-#: ../auth.c:22 ../auth.c:90 ../static/t/tab_siteconfig_access.html:10
-#: ../static/t/tab_siteconfig_access.html:36
-#: ../static/t/userlist_detailview.html:23
+#: ../auth.c:23 ../auth.c:90
 msgid "New User"
 msgstr "Ny Bruger"
 
-#: ../auth.c:23 ../static/t/tab_siteconfig_access.html:11
-#: ../static/t/tab_siteconfig_access.html:37
-#: ../static/t/userlist_detailview.html:24
+#: ../auth.c:24
 msgid "Problem User"
 msgstr "Problem Bruger"
 
-#: ../auth.c:24 ../static/t/tab_siteconfig_access.html:12
-#: ../static/t/tab_siteconfig_access.html:38
-#: ../static/t/userlist_detailview.html:25
+#: ../auth.c:25
 msgid "Local User"
 msgstr "Lokal Bruger"
 
-#: ../auth.c:25 ../static/t/tab_siteconfig_access.html:13
-#: ../static/t/tab_siteconfig_access.html:39
-#: ../static/t/userlist_detailview.html:26
+#: ../auth.c:26
 msgid "Network User"
 msgstr "Netværk Bruger"
 
-#: ../auth.c:26 ../static/t/tab_siteconfig_access.html:14
-#: ../static/t/tab_siteconfig_access.html:40
-#: ../static/t/userlist_detailview.html:27
+#: ../auth.c:27
 msgid "Preferred User"
 msgstr "Foretrukken Bruger"
 
-#: ../auth.c:27 ../static/t/tab_siteconfig_access.html:15
-#: ../static/t/tab_siteconfig_access.html:41
-#: ../static/t/userlist_detailview.html:28
+#: ../auth.c:28
 msgid "Aide"
 msgstr "Systemansvarlig"
 
@@ -76,12 +62,11 @@ msgstr "Men Brugernavnet '%s* konflikter med en eksisterende bruger."
 msgid "Please specify the user name you would like to use."
 msgstr "Skriv det Brugernavn du gerne vil have."
 
-#: ../auth.c:89 ../who.c:194 ../static/t/login.html:16
-#: ../static/t/userlist_detailview.html:16
+#: ../auth.c:89 ../who.c:190 ../static/t/login.html:19
 msgid "User name:"
 msgstr "Brugernavn"
 
-#: ../auth.c:91 ../paging.c:493
+#: ../auth.c:91 ../paging.c:459
 msgid "Exit"
 msgstr "Afslut"
 
@@ -90,20 +75,19 @@ msgstr "Afslut"
 msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 msgstr "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 
-#: ../auth.c:221 ../auth.c:849
+#: ../auth.c:218 ../auth.c:875
 msgid "Blank passwords are not allowed."
 msgstr "Blanke adgangskoder er ikke tilladt."
 
-#: ../auth.c:254 ../auth.c:344 ../auth.c:449
+#: ../auth.c:251 ../auth.c:341 ../auth.c:446
 msgid "Your password was not accepted."
 msgstr "Din adgangskode blev ikke accepteret."
 
-#: ../auth.c:557 ../static/t/iconbar.html:76
-#: ../static/t/menu_basic_commands.html:19
+#: ../auth.c:556 ../static/t/iconbar.html:74
 msgid "Log off"
 msgstr "Log af"
 
-#: ../auth.c:570
+#: ../auth.c:569
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -111,94 +95,113 @@ msgstr ""
 "Dette program kunne ikke tilslutte eller forblive tilsluttet til Citadel "
 "serveren.  KOntakt din Systemadministrator."
 
-#: ../auth.c:576
+#: ../auth.c:575
 msgid "Read More..."
 msgstr "Læs mere..."
 
-#: ../auth.c:581
+#: ../auth.c:580
 msgid "Log in again"
 msgstr "Log på igen"
 
-#: ../auth.c:584 ../roomops.c:328
-msgid "Close window"
-msgstr "Luk vinduet"
-
-#: ../auth.c:604 ../static/t/aide_usermanagement.html:3
+#: ../auth.c:611
 msgid "Validate new users"
 msgstr "Validér nye brugere"
 
-#: ../auth.c:627
+#: ../auth.c:634
 msgid "No users require validation at this time."
 msgstr "Ingen brugere kræver validering på dette tidspunkt."
 
-#: ../auth.c:675
+#: ../auth.c:682
 msgid "very weak"
 msgstr "meget svag"
 
-#: ../auth.c:678
+#: ../auth.c:685
 msgid "weak"
 msgstr "svag"
 
-#: ../auth.c:681
+#: ../auth.c:688
 msgid "ok"
 msgstr "ok"
 
-#: ../auth.c:685
+#: ../auth.c:692
 msgid "strong"
 msgstr "stærk"
 
-#: ../auth.c:703
+#: ../auth.c:710
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Aktuelt brugerniveau: %d (%s)\n"
 
-#: ../auth.c:711
+#: ../auth.c:718
 msgid "Select access level for this user:"
 msgstr "Vælg brugerniveau for denne bruger:"
 
-#: ../auth.c:775 ../static/t/menu_your_info.html:4
+#: ../auth.c:801
 msgid "Change your password"
 msgstr "Skift din adgangskode"
 
-#: ../auth.c:799
+#: ../auth.c:825
 msgid "Enter new password:"
 msgstr "Skriv ny adgangskode:"
 
-#: ../auth.c:803
+#: ../auth.c:829
 msgid "Enter it again to confirm:"
 msgstr "Skriv adgangskode igen:"
 
-#: ../auth.c:809
+#: ../auth.c:835
 msgid "Change password"
 msgstr "Skift adgangskode"
 
-#: ../auth.c:811 ../calendar.c:765 ../event.c:741 ../graphics.c:58
-#: ../iconbar.c:391 ../mainmenu.c:250 ../messages.c:1514 ../paging.c:51
-#: ../roomops.c:1549 ../roomops.c:1917 ../roomops.c:2603 ../roomops.c:2762
-#: ../roomops.c:2827 ../sieve.c:209 ../sysmsgs.c:52 ../vcard_edit.c:1061
-#: ../who.c:204
+#: ../auth.c:837 ../event.c:756 ../graphics.c:58 ../mainmenu.c:69
+#: ../messages.c:1476 ../paging.c:51 ../roomops.c:1379 ../roomops.c:1747
+#: ../roomops.c:2436 ../roomops.c:2596 ../roomops.c:2661 ../sieve.c:209
+#: ../sysmsgs.c:52 ../tasks.c:358 ../vcard_edit.c:1043 ../who.c:200
 msgid "Cancel"
 msgstr "Afbryd"
 
-#: ../auth.c:830
+#: ../auth.c:856
 msgid "Cancelled.  Password was not changed."
 msgstr "Afbrudt.  Adgangskode blev ikke ændret."
 
-#: ../auth.c:841
+#: ../auth.c:867
 msgid "They don't match.  Password was not changed."
 msgstr "Adgangskoder matcher ikke.  Adgangskode blev ikke ændret."
 
-#: ../availability.c:139
+#: ../availability.c:141
 msgid "availability unknown"
 msgstr "tilgængelighed ukendt"
 
-#: ../availability.c:160
+#: ../availability.c:162
 msgid "free"
 msgstr "fri"
 
-#: ../availability.c:170
+#: ../availability.c:172
 msgid "BUSY"
 msgstr "OPTAGET"
+
+#: ../bbsview_renderer.c:171 ../static/t/iconbar.html:51
+#, fuzzy
+msgid "Loading"
+msgstr "Indlæser"
+
+#: ../bbsview_renderer.c:232
+#, fuzzy
+msgid "older messages"
+msgstr "Ingen gamle meddelelser."
+
+#: ../bbsview_renderer.c:245
+msgid "No messages here."
+msgstr "Ingen meddelelser her."
+
+#: ../bbsview_renderer.c:276
+#, fuzzy
+msgid "newer messages"
+msgstr "Ingen nye meddelelser."
+
+#: ../bbsview_renderer.c:295
+#, fuzzy
+msgid "no more messages"
+msgstr "Anonyme meddelelser"
 
 #: ../calendar.c:67
 msgid "Meeting invitation"
@@ -216,39 +219,39 @@ msgstr "Publiseret aftale"
 msgid "This is an unknown type of calendar item."
 msgstr "Dette er en ukendt type kalender emne."
 
-#: ../calendar.c:89 ../calendar.c:654 ../calendar_view.c:270
-#: ../calendar_view.c:939 ../calendar_view.c:981 ../calendar_view.c:1060
+#: ../calendar.c:89 ../calendar_view.c:271 ../calendar_view.c:952
+#: ../calendar_view.c:994 ../calendar_view.c:1073 ../tasks.c:247
 msgid "Summary:"
 msgstr "Summering:"
 
-#: ../calendar.c:98 ../calendar_view.c:278 ../calendar_view.c:944
-#: ../calendar_view.c:986 ../calendar_view.c:1065
+#: ../calendar.c:98 ../calendar_view.c:279 ../calendar_view.c:957
+#: ../calendar_view.c:999 ../calendar_view.c:1078
 msgid "Location:"
 msgstr "Lokation:"
 
-#: ../calendar.c:123 ../calendar_view.c:323 ../calendar_view.c:950
+#: ../calendar.c:123 ../calendar_view.c:324 ../calendar_view.c:963
 msgid "Date:"
 msgstr "Dato:"
 
-#: ../calendar.c:130 ../calendar_view.c:345 ../calendar_view.c:991
-#: ../calendar_view.c:1075
+#: ../calendar.c:130 ../calendar_view.c:346 ../calendar_view.c:1004
+#: ../calendar_view.c:1088
 msgid "Starting date/time:"
 msgstr "Start dato/tid:"
 
-#: ../calendar.c:141 ../calendar_view.c:348 ../calendar_view.c:993
-#: ../calendar_view.c:1077
+#: ../calendar.c:141 ../calendar_view.c:349 ../calendar_view.c:1006
+#: ../calendar_view.c:1090
 msgid "Ending date/time:"
 msgstr "Slut dato/tid:"
 
-#: ../calendar.c:150 ../calendar.c:745 ../static/t/files.html:38
+#: ../calendar.c:150 ../tasks.c:338 ../static/t/files.html:38
 msgid "Description:"
 msgstr "Beskrivelse:"
 
-#: ../calendar.c:159 ../event.c:42
+#: ../calendar.c:159 ../event.c:79
 msgid "Recurrence"
 msgstr "Gentagelse"
 
-#: ../calendar.c:160 ../event.c:457
+#: ../calendar.c:160 ../event.c:494
 msgid "This is a recurring event"
 msgstr "Dette er en gentagende aftale"
 
@@ -347,374 +350,315 @@ msgstr ""
 "Du har valgt at ignorere denne S.U. Din kalender er <b>ikke</b> blevet "
 "opdateret."
 
-#: ../calendar.c:635
-msgid "Edit task"
-msgstr "Editér opgave"
-
-#: ../calendar.c:665
-msgid "Start date:"
-msgstr "Start dato:"
-
-#: ../calendar.c:673 ../calendar.c:703
-#, fuzzy
-msgid "No date"
-msgstr "Ingen dato"
-
-#: ../calendar.c:677 ../calendar.c:706
-msgid "or"
-msgstr "eller"
-
-#: ../calendar.c:691 ../calendar.c:720
-#, fuzzy
-msgid "Time associated"
-msgstr "Time format"
-
-#: ../calendar.c:695
-msgid "Due date:"
-msgstr "Forfald dato:"
-
-#: ../calendar.c:724
-#, fuzzy
-msgid "Completed:"
-msgstr "Færdig:"
-
-#: ../calendar.c:735
-msgid "Category:"
-msgstr "Kategori:"
-
-#: ../calendar.c:763 ../event.c:738
-msgid "Save"
-msgstr "Gem"
-
-#: ../calendar.c:764 ../event.c:739 ../roomops.c:734
-#: ../static/t/msg_listview.html:30
-#: ../static/t/section_aide_inetconf_entry.html:7
-#: ../static/t/view_message.html:36
-msgid "Delete"
-msgstr "Slet"
-
-#: ../calendar.c:835 ../calendar_view.c:1378
-msgid "Untitled Task"
-msgstr ""
-
-#: ../calendar.c:1304
+#: ../calendar.c:902
 msgid "Calendar day view begins at:"
 msgstr "Kalender dag visning begynder:"
 
-#: ../calendar.c:1305
+#: ../calendar.c:903
 msgid "Calendar day view ends at:"
 msgstr "Kalender dag visning slutter:"
 
-#: ../calendar.c:1306
+#: ../calendar.c:904
 msgid "Week starts on:"
 msgstr "Ugen starter:"
 
-#: ../calendar_tools.c:86
+#: ../calendar_tools.c:87
 msgid "Hour: "
 msgstr "Time:"
 
-#: ../calendar_tools.c:106
+#: ../calendar_tools.c:107
 msgid "Minute: "
 msgstr "Minut:"
 
-#: ../calendar_tools.c:177
+#: ../calendar_tools.c:178
 msgid "(status unknown)"
 msgstr "(status ukendt)"
 
-#: ../calendar_tools.c:193
+#: ../calendar_tools.c:194
 msgid "(needs action)"
 msgstr "(behøver aktion)"
 
-#: ../calendar_tools.c:196
+#: ../calendar_tools.c:197
 msgid "(accepted)"
 msgstr "(accepteret)"
 
-#: ../calendar_tools.c:199
+#: ../calendar_tools.c:200
 msgid "(declined)"
 msgstr "(afvist)"
 
-#: ../calendar_tools.c:202
+#: ../calendar_tools.c:203
 msgid "(tenative)"
 msgstr "(foreløbig)"
 
-#: ../calendar_tools.c:205
+#: ../calendar_tools.c:206
 msgid "(delegated)"
 msgstr "(delegeret)"
 
-#: ../calendar_tools.c:208
+#: ../calendar_tools.c:209
 msgid "(completed)"
 msgstr "(færdig)"
 
-#: ../calendar_tools.c:211
+#: ../calendar_tools.c:212
 msgid "(in process)"
 msgstr "(igang)"
 
-#: ../calendar_tools.c:214
+#: ../calendar_tools.c:215
 msgid "(none)"
 msgstr "(ingen)"
 
-#: ../calendar_view.c:249 ../calendar_view.c:446 ../calendar_view.c:920
-#: ../event.c:828
+#: ../calendar_view.c:250 ../calendar_view.c:447 ../calendar_view.c:933
+#: ../event.c:848
 msgid "Untitled Event"
 msgstr ""
 
-#: ../calendar_view.c:269 ../calendar_view.c:938 ../calendar_view.c:980
-#: ../calendar_view.c:1059 ../rss.c:233 ../sieve.c:994
+#: ../calendar_view.c:270 ../calendar_view.c:951 ../calendar_view.c:993
+#: ../calendar_view.c:1072 ../sieve.c:996
 #, fuzzy
 msgid "From"
 msgstr "fra"
 
-#: ../calendar_view.c:327 ../calendar_view.c:954
+#: ../calendar_view.c:328 ../calendar_view.c:967
 #, fuzzy
 msgid "Starting date:"
 msgstr "Start dato:"
 
-#: ../calendar_view.c:333 ../calendar_view.c:956
+#: ../calendar_view.c:334 ../calendar_view.c:969
 #, fuzzy
 msgid "Ending date:"
 msgstr "Slut dato/tid:"
 
-#: ../calendar_view.c:341 ../calendar_view.c:1071
+#: ../calendar_view.c:342 ../calendar_view.c:1084
 #, fuzzy
 msgid "Date/time:"
 msgstr "Dato:"
 
-#: ../calendar_view.c:358 ../calendar_view.c:960 ../calendar_view.c:996
-#: ../calendar_view.c:1081 ../roomops.c:1695
+#: ../calendar_view.c:359 ../calendar_view.c:973 ../calendar_view.c:1009
+#: ../calendar_view.c:1094 ../roomops.c:1525
 msgid "Notes:"
 msgstr "Noter:"
 
-#: ../calendar_view.c:739
+#: ../calendar_view.c:752
 msgid "Week"
 msgstr "Uge"
 
-#: ../calendar_view.c:741
+#: ../calendar_view.c:754
 msgid "Hours"
 msgstr "Timer"
 
-#: ../calendar_view.c:742 ../sieve.c:996 ../static/t/msg_listview.html:10
+#: ../calendar_view.c:755 ../sieve.c:998 ../static/t/msg_listview.html:10
 #: ../static/t/summary_header.html:9
 msgid "Subject"
 msgstr "Emne"
 
-#: ../calendar_view.c:743 ../event.c:180
+#: ../calendar_view.c:756 ../event.c:217
 msgid "Start"
 msgstr "Start"
 
-#: ../calendar_view.c:744 ../event.c:229
+#: ../calendar_view.c:757 ../event.c:266
 msgid "End"
 msgstr "Slut"
 
-#: ../calendar_view.c:937 ../calendar_view.c:967 ../event.c:223
+#: ../calendar_view.c:950 ../calendar_view.c:980 ../event.c:260
 msgid "All day event"
 msgstr "Hele dagen aftale"
 
-#: ../calendar_view.c:979 ../calendar_view.c:1003
+#: ../calendar_view.c:992 ../calendar_view.c:1016
 msgid "Ongoing event"
 msgstr "Igangværende aftale"
 
-#: ../calendar_view.c:1608
-#, fuzzy
-msgid "Completed?"
-msgstr "Færdig?"
+#: ../calendar_view.c:1392 ../tasks.c:428
+msgid "Untitled Task"
+msgstr ""
 
-#: ../calendar_view.c:1610
-msgid "Name of task"
-msgstr "Navn på opgave"
-
-#: ../calendar_view.c:1612
-msgid "Date due"
-msgstr "Forfaldsdato"
-
-#: ../calendar_view.c:1614
-msgid "Category"
-msgstr "Kategori"
-
-#: ../calendar_view.c:1616
-msgid "Show All"
-msgstr "Vis Alle"
-
-#: ../downloads.c:270
+#: ../downloads.c:271
 #, fuzzy, c-format
 msgid "An error occurred while retrieving this file: %s\n"
 msgstr "En fejl opstod under hentning af denne fil: %s\n"
 
-#: ../event.c:40
-msgid "Event"
-msgstr "Aftale"
-
-#: ../event.c:41 ../event.c:389 ../event.c:401
-msgid "Attendees"
-msgstr "Deltagere"
-
-#: ../event.c:117
-msgid "Add or edit an event"
-msgstr "Tilføj eller editér en aftale"
-
-#: ../event.c:158 ../iconbar.c:192 ../static/t/iconbar.html:12
-msgid "Summary"
-msgstr "Summering"
-
-#: ../event.c:169
-msgid "Location"
-msgstr "Lokation"
-
-#: ../event.c:279 ../iconbar.c:246 ../static/t/iconbar.html:32
-msgid "Notes"
-msgstr "Noter"
-
-#: ../event.c:321
-msgid "Organizer"
-msgstr "Organisator"
-
-#: ../event.c:326
-msgid "(you are the organizer)"
-msgstr "(du er organisator)"
-
-#: ../event.c:344
-msgid "Show time as:"
-msgstr "Vis tid som:"
-
-#: ../event.c:367
-msgid "Free"
-msgstr "Fri"
-
-#: ../event.c:375
-msgid "Busy"
-msgstr "Optaget"
-
-#: ../event.c:392
-msgid "(One per line)"
-msgstr "(Én per linie)"
-
-#: ../event.c:402 ../iconbar.c:228 ../static/t/edit_message.html:54
-#: ../static/t/iconbar.html:27
-msgid "Contacts"
-msgstr "Kontaktpersoner"
-
-#: ../event.c:465
+#: ../event.c:59
 msgid "seconds"
 msgstr "sekunder"
 
-#: ../event.c:466
+#: ../event.c:60
 #, fuzzy
 msgid "minutes"
 msgstr "Minutter"
 
-#: ../event.c:467
+#: ../event.c:61
 #, fuzzy
 msgid "hours"
 msgstr "Timer"
 
-#: ../event.c:468
+#: ../event.c:62
 msgid "days"
 msgstr "dage"
 
-#: ../event.c:469
+#: ../event.c:63
 #, fuzzy
 msgid "weeks"
 msgstr "Uger"
 
-#: ../event.c:470
+#: ../event.c:64
 #, fuzzy
 msgid "months"
 msgstr "måneder"
 
-#: ../event.c:471
+#: ../event.c:65
 #, fuzzy
 msgid "years"
 msgstr "år"
 
-#: ../event.c:472
+#: ../event.c:66
 msgid "never"
 msgstr "aldrig"
 
-#: ../event.c:477
+#: ../event.c:70
 #, fuzzy
 msgid "first"
 msgstr "første"
 
-#: ../event.c:478
+#: ../event.c:71
 #, fuzzy
 msgid "second"
 msgstr "anden"
 
-#: ../event.c:479
+#: ../event.c:72
 msgid "third"
 msgstr "tredie"
 
-#: ../event.c:480
+#: ../event.c:73
 msgid "fourth"
 msgstr "fjerde"
 
-#: ../event.c:481
+#: ../event.c:74
 msgid "fifth"
 msgstr "femte"
 
-#: ../event.c:485
+#: ../event.c:77
+msgid "Event"
+msgstr "Aftale"
+
+#: ../event.c:78 ../event.c:426 ../event.c:438
+msgid "Attendees"
+msgstr "Deltagere"
+
+#: ../event.c:154
+msgid "Add or edit an event"
+msgstr "Tilføj eller editér en aftale"
+
+#: ../event.c:195 ../static/t/iconbar.html:12
+msgid "Summary"
+msgstr "Summering"
+
+#: ../event.c:206
+msgid "Location"
+msgstr "Lokation"
+
+#: ../event.c:316 ../static/t/iconbar.html:32
+msgid "Notes"
+msgstr "Noter"
+
+#: ../event.c:358
+msgid "Organizer"
+msgstr "Organisator"
+
+#: ../event.c:363
+msgid "(you are the organizer)"
+msgstr "(du er organisator)"
+
+#: ../event.c:381
+msgid "Show time as:"
+msgstr "Vis tid som:"
+
+#: ../event.c:404
+msgid "Free"
+msgstr "Fri"
+
+#: ../event.c:412
+msgid "Busy"
+msgstr "Optaget"
+
+#: ../event.c:429
+msgid "(One per line)"
+msgstr "(Én per linie)"
+
+#: ../event.c:439 ../static/t/edit_message.html:59 ../static/t/iconbar.html:27
+msgid "Contacts"
+msgstr "Kontaktpersoner"
+
+#: ../event.c:502
 #, fuzzy
 msgid "Recurrence rule"
 msgstr "Gentagelsesregel"
 
-#: ../event.c:489
+#: ../event.c:506
 msgid "Repeats every"
 msgstr "Gentages hver"
 
-#: ../event.c:507
+#: ../event.c:524
 msgid "on these weekdays:"
 msgstr "på disse ugedage"
 
-#: ../event.c:567
+#: ../event.c:582
 #, c-format
 msgid "on day %s%d%s of the month"
 msgstr "på den %s%d%s dag i måneden"
 
-#: ../event.c:576 ../event.c:638
+#: ../event.c:591 ../event.c:653
 #, fuzzy
 msgid "on the "
 msgstr "på den"
 
-#: ../event.c:600
+#: ../event.c:615
 msgid "of the month"
 msgstr "i måneden"
 
-#: ../event.c:629
+#: ../event.c:644
 msgid "every "
 msgstr "hver"
 
-#: ../event.c:630
+#: ../event.c:645
 msgid "year on this date"
 msgstr "år på denne dato"
 
-#: ../event.c:662 ../static/t/msg_listselector_bottom.html:7
+#: ../event.c:677 ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7
 msgid "of"
 msgstr "af"
 
-#: ../event.c:686
+#: ../event.c:701
 msgid "Recurrence range"
 msgstr "Gentagelsesområde"
 
-#: ../event.c:694
+#: ../event.c:709
 #, fuzzy
 msgid "No ending date"
 msgstr "Ingen slutdato"
 
-#: ../event.c:701
+#: ../event.c:716
 #, fuzzy
 msgid "Repeat this event"
 msgstr "Gentag denne aftale"
 
-#: ../event.c:704
+#: ../event.c:719
 #, fuzzy
 msgid "times"
 msgstr "gange"
 
-#: ../event.c:712
+#: ../event.c:727
 msgid "Repeat this event until "
 msgstr "Gentag denne aftale indtil"
 
-#: ../event.c:740
+#: ../event.c:753 ../tasks.c:356
+msgid "Save"
+msgstr "Gem"
+
+#: ../event.c:754 ../roomops.c:708 ../tasks.c:357
+#: ../static/t/msg_listview.html:30 ../static/t/view_message.html:40
+msgid "Delete"
+msgstr "Slet"
+
+#: ../event.c:755
 msgid "Check attendee availability"
 msgstr "Check deltager tilgænglighed"
 
@@ -722,7 +666,7 @@ msgstr "Check deltager tilgænglighed"
 msgid "Add/change/delete floors"
 msgstr "Tilføj/ændre/slette etager"
 
-#: ../floors.c:50 ../vcard_edit.c:768 ../wiki.c:58 ../wiki.c:68
+#: ../floors.c:50 ../vcard_edit.c:771
 msgid "Error"
 msgstr "Fejl"
 
@@ -795,31 +739,31 @@ msgstr "Upload"
 msgid "Reset form"
 msgstr "Slet form"
 
-#: ../graphics.c:78
+#: ../graphics.c:79
 msgid "Graphics upload has been cancelled."
 msgstr "Upload er blevet afbrudt."
 
-#: ../graphics.c:85
+#: ../graphics.c:86
 msgid "You didn't upload a file."
 msgstr "Du uploadede ikke en fil."
 
-#: ../graphics.c:132
+#: ../graphics.c:133
 msgid "your photo"
 msgstr "dit billede"
 
-#: ../graphics.c:138
+#: ../graphics.c:139
 msgid "the icon for this room"
 msgstr "ikonet for dette rum"
 
-#: ../graphics.c:145
+#: ../graphics.c:146
 msgid "the Greetingpicture for the login prompt"
 msgstr "Velkomstbillede ved login"
 
-#: ../graphics.c:152
+#: ../graphics.c:153
 msgid "the Logoff banner picture"
 msgstr "Logaf banner billede"
 
-#: ../graphics.c:161
+#: ../graphics.c:162
 msgid "the icon for this floor"
 msgstr "ikonet for denne etage"
 
@@ -828,173 +772,25 @@ msgstr "ikonet for denne etage"
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr "realloc() fejl! kunne ikke modtage %d bytes: %s"
 
-#: ../iconbar.c:129 ../iconbar.c:452
-msgid "Customize the icon bar"
-msgstr "Personliggør denne ikonbjælke"
-
-#: ../iconbar.c:141
-msgid "Display icons as:"
-msgstr "Vis ikoner som:"
-
-#: ../iconbar.c:148
-msgid "pictures and text"
-msgstr "billeder og tekst"
-
-#: ../iconbar.c:149
-msgid "pictures only"
-msgstr "kun billeder"
-
-#: ../iconbar.c:150
-msgid "text only"
-msgstr "kun tekst"
-
-#: ../iconbar.c:155
-msgid ""
-"Select the icons you would like to see displayed in the 'icon bar' menu on "
-"the left side of the screen."
+#: ../iconbar.c:250
+msgid "Iconbar Setting"
 msgstr ""
-"Vælg de ikoner som vil have vist i 'ikonbjælke' menuen i den venstre side af "
-"skærmen."
 
-#: ../iconbar.c:172 ../iconbar.c:190 ../iconbar.c:208 ../iconbar.c:226
-#: ../iconbar.c:244 ../iconbar.c:262 ../iconbar.c:280 ../iconbar.c:298
-#: ../iconbar.c:318 ../iconbar.c:338 ../iconbar.c:358 ../iconbar.c:378
-#: ../roomops.c:1982 ../static/t/box_preferences.html:198
-#: ../static/t/display_ignet_confirmdelete.html:14
-msgid "Yes"
-msgstr "Ja"
-
-#: ../iconbar.c:173 ../iconbar.c:191 ../iconbar.c:209 ../iconbar.c:227
-#: ../iconbar.c:245 ../iconbar.c:263 ../iconbar.c:281 ../iconbar.c:299
-#: ../iconbar.c:319 ../iconbar.c:339 ../iconbar.c:359 ../iconbar.c:379
-#: ../roomops.c:1982 ../static/t/box_preferences.html:200
-#: ../static/t/display_ignet_confirmdelete.html:16
-msgid "No"
-msgstr "Nej"
-
-#: ../iconbar.c:174
-msgid "Site logo"
-msgstr "Site logo"
-
-#: ../iconbar.c:175
-msgid "An icon describing this site"
-msgstr "Et ikon der beskriver denne site"
-
-#: ../iconbar.c:193
-msgid "Your summary page"
-msgstr "Din summeringsside"
-
-#: ../iconbar.c:210
-msgid "Mail (inbox)"
-msgstr "Post (indbakke)"
-
-#: ../iconbar.c:211
-msgid "A shortcut to your email Inbox"
-msgstr "En genvej til din indbakke"
-
-#: ../iconbar.c:229
-msgid "Your personal address book"
-msgstr "Din personlige adressebog"
-
-#: ../iconbar.c:247
-msgid "Your personal notes"
-msgstr "Dine personlige noter"
-
-#: ../iconbar.c:264 ../roomops.c:38 ../static/t/iconbar.html:22
-msgid "Calendar"
-msgstr "Kalender"
-
-#: ../iconbar.c:265
-msgid "A shortcut to your personal calendar"
-msgstr "En genvej til din personlige kalender"
-
-#: ../iconbar.c:282 ../summary.c:203 ../static/t/iconbar.html:37
-msgid "Tasks"
-msgstr "Opgaver"
-
-#: ../iconbar.c:283
-msgid "A shortcut to your personal task list"
-msgstr "En genvej til din personlige opgave liste"
-
-#: ../iconbar.c:300 ../static/t/iconbar.html:42
-msgid "Rooms"
-msgstr "Rum"
-
-#: ../iconbar.c:301
-msgid ""
-"Clicking this icon displays a list of all accessible rooms (or folders) "
-"available."
-msgstr ""
-"Klik på dette ikon for at vise en liste med alle tilgængelige rum. (eller "
-"foldere)"
-
-#: ../iconbar.c:320
-#, fuzzy
-msgid "Yes with users list"
-msgstr "Ja med brugerlisten"
-
-#: ../iconbar.c:321
-msgid "Who is online?"
-msgstr "Hvem er online?"
-
-#: ../iconbar.c:322
-msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr ""
-"KLik på dette ikon for at vise en liste med alle brugere der er logget ind."
-
-#: ../iconbar.c:340 ../static/t/iconbar.html:56
-msgid "Chat"
-msgstr "Chat"
-
-#: ../iconbar.c:341
-msgid ""
-"Clicking this icon enters real-time chat mode with other users in the same "
-"room."
-msgstr ""
-"Klik på dette ikon for at starte chat med andre brugere i det samme rum. "
-
-#: ../iconbar.c:360
-msgid "Advanced options"
-msgstr "Avancerede indstillinger"
-
-#: ../iconbar.c:361
-msgid "Access to the complete menu of Citadel functions."
-msgstr "Adgang til den komplette menu med Citadel funktioner."
-
-#: ../iconbar.c:380
-msgid "Citadel logo"
-msgstr "Citadel logo"
-
-#: ../iconbar.c:381
-msgid "Displays the 'Powered by Citadel' icon"
-msgstr "Viser 'Powered by Citadel' ikon"
-
-#: ../iconbar.c:390 ../roomops.c:1548 ../roomops.c:1823 ../roomops.c:1915
-#: ../sieve.c:207 ../sysmsgs.c:50 ../vcard_edit.c:1060
-msgid "Save changes"
-msgstr "Gem ændringer"
-
-#: ../iconbar.c:460
-msgid ""
-"Your icon bar has been updated.  Please select any of its choices to "
-"continue.<br/><span style=\"font-weight: bold;\">You may need to force "
-"refresh (SHIFT-F5) in order for changes to take effect</span>"
-msgstr ""
-"Din ikonbjælke er blevet opdateret.  Vælg en af mulighederne for at "
-"fortsætte.<br/><span style=\"font-weight: bold;\">Du skal måske bruge "
-"opdatér (SHIFT-F5) for at ændringerne træder i kraft</span>"
-
-#: ../inetconf.c:111 ../inetconf.c:120 ../inetconf.c:132 ../inetconf.c:155
+#: ../inetconf.c:114 ../inetconf.c:123 ../inetconf.c:136 ../inetconf.c:163
 #: ../netconf.c:166 ../netconf.c:193 ../netconf.c:201 ../netconf.c:250
 #: ../netconf.c:258
 #, c-format
 msgid "Invalid Parameter"
 msgstr "Invalid Parameter"
 
-#: ../inetconf.c:126
+#: ../inetconf.c:129
 #, c-format
 msgid "%s has been deleted."
 msgstr "%s er blevet slettet."
+
+#: ../inetconf.c:147
+msgid "added."
+msgstr ""
 
 #: ../listsub.c:39
 msgid "List subscription"
@@ -1029,11 +825,11 @@ msgstr ""
 msgid "Go back..."
 msgstr "Tilbage..."
 
-#: ../mainmenu.c:221
+#: ../mainmenu.c:40
 msgid "Enter a server command"
 msgstr "Skriv en server kommando"
 
-#: ../mainmenu.c:231
+#: ../mainmenu.c:50
 msgid ""
 "This screen allows you to enter Citadel server commands which are not "
 "supported by WebCit.  If you do not know what that means, then this screen "
@@ -1043,139 +839,134 @@ msgstr ""
 "muligt med WebCit.  Hvis du ikke ved hvad det betyder, så er dette ikke "
 "stedt for dig."
 
-#: ../mainmenu.c:239
+#: ../mainmenu.c:58
 msgid "Enter command:"
 msgstr "Skriv kommando:"
 
-#: ../mainmenu.c:242
+#: ../mainmenu.c:61
 msgid "Command input (if requesting SEND_LISTING transfer mode):"
 msgstr "Kommando input (if requesting SEND_LISTING transfer mode):"
 
-#: ../mainmenu.c:246
+#: ../mainmenu.c:65
 #, c-format
 msgid "Detected host header is %s://%s"
 msgstr "Detekteret vært header er %s://%s"
 
-#: ../mainmenu.c:248
+#: ../mainmenu.c:67
 msgid "Send command"
 msgstr "Send kommando"
 
-#: ../mainmenu.c:278
+#: ../mainmenu.c:97
 msgid "Server command results"
 msgstr "Server kommando resultater"
 
-#: ../messages.c:62
+#: ../messages.c:58
 msgid "ERROR:"
 msgstr "FEJL:"
 
-#: ../messages.c:76 ../messages.c:81
+#: ../messages.c:72 ../messages.c:77
 msgid "unexpected end of message"
 msgstr "uventet slut på meddelelse"
 
-#: ../messages.c:492
+#: ../messages.c:662
 msgid "(no subject)"
 msgstr "(intet emne)"
 
-#: ../messages.c:788
-msgid "No new messages."
-msgstr "Ingen nye meddelelser."
-
-#: ../messages.c:791
-msgid "No old messages."
-msgstr "Ingen gamle meddelelser."
-
-#: ../messages.c:794
-msgid "No messages here."
-msgstr "Ingen meddelelser her."
-
-#: ../messages.c:1168
+#: ../messages.c:1090
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Afbrudt.  Meddelelse ikke opsat."
 
-#: ../messages.c:1174
+#: ../messages.c:1096
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automatisk afbrudt fordi du har allerede gemt denne meddelelse."
 
-#: ../messages.c:1245
-#, c-format
+#: ../messages.c:1120
+msgid "Saved to Drafts failed: "
+msgstr ""
+
+#: ../messages.c:1197
+#, fuzzy
+msgid "Message has been saved to Drafts.\n"
+msgstr "Meddelelse blev sendt til "
+
+#: ../messages.c:1206
 msgid "Message has been sent.\n"
 msgstr "Meddelelse er blevet sendt.\n"
 
-#: ../messages.c:1248
-#, c-format
+#: ../messages.c:1209
 msgid "Message has been posted.\n"
 msgstr "Meddelelse er blevet opsat.\n"
 
-#: ../messages.c:1458
+#: ../messages.c:1423
 #, c-format
 msgid "The message was not moved."
 msgstr "Meddelelsen blev ikke flyttet."
 
-#: ../messages.c:1483
+#: ../messages.c:1445
 msgid "Confirm move of message"
 msgstr "Godkend flytning af meddelelse"
 
-#: ../messages.c:1491
+#: ../messages.c:1453
 msgid "Move this message to:"
 msgstr "Flyt denne meddelelse til:"
 
-#: ../messages.c:1512 ../static/t/msg_listview.html:28
-#: ../static/t/view_message.html:35
+#: ../messages.c:1474 ../static/t/msg_listview.html:28
+#: ../static/t/view_message.html:39
 msgid "Move"
 msgstr "Flyt"
 
-#: ../messages.c:1551
+#: ../messages.c:1514
 #, fuzzy, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "En fejl opstod under hentning af denne del: %s\n"
 
-#: ../messages.c:1604
+#: ../messages.c:1574
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "En fejl opstod under hentning af denne del: %s\n"
 
-#: ../messages.c:1723
+#: ../messages.c:1728
 msgid "Attach signature to email messages?"
 msgstr "Tilføj signatur til meddelelser?"
 
-#: ../messages.c:1726
+#: ../messages.c:1731
 msgid "Use this signature:"
 msgstr "Brug denne signatur"
 
-#: ../messages.c:1728
+#: ../messages.c:1733
 msgid "Default character set for email headers:"
 msgstr "Standard karaktérsæt for email headers:"
 
-#: ../messages.c:1731
+#: ../messages.c:1736
 #, fuzzy
 msgid "Preferred email address"
 msgstr "Pimær Internet Email adresse"
 
-#: ../messages.c:1733
+#: ../messages.c:1738
 #, fuzzy
 msgid "Preferred display name for email messages"
 msgstr "Vist navn på email meddelelser"
 
-#: ../messages.c:1737
+#: ../messages.c:1742
 msgid "Preferred display name for bulletin board posts"
 msgstr "Vist navn på opslagstavle posteringer"
 
-#: ../messages.c:1740
+#: ../messages.c:1745
 msgid "Mailbox view mode"
 msgstr "Postkasse visning"
 
-#: ../msg_renderers.c:494 ../vcard_edit.c:71 ../static/t/whosection.html:6
+#: ../msg_renderers.c:503 ../vcard_edit.c:62
 msgid "edit"
 msgstr "editér"
 
-#: ../msg_renderers.c:943
+#: ../msg_renderers.c:989
 #, fuzzy
 msgid "I don't know how to display "
 msgstr "Jeg ved ikke hvordan jeg viser"
 
-#: ../notes.c:324
+#: ../notes.c:349
 msgid "Click on any note to edit it."
 msgstr "Klik på en note for at ændre den."
 
@@ -1231,382 +1022,402 @@ msgstr "Meddelelse blev ikke sendt."
 msgid "Message has been sent to "
 msgstr "Meddelelse blev sendt til "
 
-#: ../paging.c:153
-msgid ""
-"You have one or more instant messages waiting, but the Citadel Instant "
-"Messenger window failed to open.  This is probably because you have a popup "
-"blocker installed.  Please configure your popup blocker to allow popups from "
-"this site if you wish to receive instant messages."
-msgstr ""
-"Du har en eller flere popup meddelelser ventende, men Citadel Instant "
-"Messenger vinduet kunne ikke åbnes.  Det er måske fordi du har en popup "
-"blocker installeret.  Konfigurér din popup blocker til at tillade popups fra "
-"denne site hvis du vil have popup meddelelser."
-
-#: ../paging.c:291 ../paging.c:453
+#: ../paging.c:256 ../paging.c:419
 msgid "An error occurred while setting up the chat socket."
 msgstr "En fejl opstod mens chat forbindelse blev opsat."
 
-#: ../paging.c:318
+#: ../paging.c:283
 msgid "Now exiting chat mode."
 msgstr "Afslutter nu Chat."
 
-#: ../paging.c:490
+#: ../paging.c:456
 msgid "Send"
 msgstr "Send"
 
-#: ../paging.c:491
+#: ../paging.c:457
 msgid "Help"
 msgstr "Hjælp"
 
-#: ../paging.c:492
+#: ../paging.c:458
 msgid "List users"
 msgstr "Vis brugere"
 
-#: ../preferences.c:685
+#: ../preferences.c:748
 msgid "Cancelled.  No settings were changed."
 msgstr "Afbrudt. Ingen indstillinger blev ændret."
 
-#: ../preferences.c:883
+#: ../preferences.c:950
 msgid "Make this my start page"
 msgstr "Gør dette til min startside"
 
-#: ../preferences.c:908
+#: ../preferences.c:968
 msgid "You no longer have a start page selected."
 msgstr "Du har ikke længere en startside."
 
-#: ../roomops.c:35
+#: ../preferences.c:1009
+#, fuzzy
+msgid "Prefered startpage"
+msgstr "Foretrukken Bruger"
+
+#: ../roomlist.c:55
+#, fuzzy
+msgid "My Folders"
+msgstr "Mine foldere"
+
+#: ../roomops.c:24
 msgid "Bulletin Board"
 msgstr "Opslagstavle"
 
-#: ../roomops.c:36
+#: ../roomops.c:25
 msgid "Mail Folder"
 msgstr "Post Mappe"
 
-#: ../roomops.c:37
+#: ../roomops.c:26
 msgid "Address Book"
 msgstr "Adressebog"
 
-#: ../roomops.c:39
+#: ../roomops.c:27 ../static/t/iconbar.html:22
+msgid "Calendar"
+msgstr "Kalender"
+
+#: ../roomops.c:28
 msgid "Task List"
 msgstr "Opgave Liste"
 
-#: ../roomops.c:40
+#: ../roomops.c:29
 msgid "Notes List"
 msgstr "Note Liste"
 
-#: ../roomops.c:41
+#: ../roomops.c:30
 msgid "Wiki"
 msgstr "Wiki"
 
-#: ../roomops.c:42
+#: ../roomops.c:31
 msgid "Calendar List"
 msgstr "Kalender Liste"
 
-#: ../roomops.c:43
+#: ../roomops.c:32
 msgid "Journal"
 msgstr "Journal"
 
-#: ../roomops.c:280
+#: ../roomops.c:218
 msgid "Zapped (forgotten) rooms"
 msgstr "Zapped (glemte) rum"
 
-#: ../roomops.c:290
+#: ../roomops.c:228
 msgid "Click on any room to un-zap it and goto that room.\n"
 msgstr "Klik på et rum for at af-zappe det og gå til rummet.\n"
 
-#: ../roomops.c:412
+#: ../roomops.c:267
+msgid "Close window"
+msgstr "Luk vinduet"
+
+#: ../roomops.c:349
 msgid "View as:"
 msgstr "Vis som:"
 
-#: ../roomops.c:452
+#: ../roomops.c:389
 #, fuzzy
 msgid "Search: "
 msgstr "Søg:"
 
-#: ../roomops.c:519
+#: ../roomops.c:459
 msgid "files"
 msgstr "filer"
 
-#: ../roomops.c:519
+#: ../roomops.c:459
 #, fuzzy
 msgid "file"
 msgstr "fil"
 
-#: ../roomops.c:525
+#: ../roomops.c:465
 #, fuzzy, c-format
 msgid "%d new of %d messages%s"
 msgstr "%d nye af %d meddelser%s"
 
-#: ../roomops.c:547 ../static/t/menu_basic_commands.html:6
+#: ../roomops.c:487
 msgid "Ungoto"
 msgstr "Gå tilbage"
 
-#: ../roomops.c:556 ../static/t/menu_basic_commands.html:10
+#: ../roomops.c:496
 msgid "Read new messages"
 msgstr "Læs nye meddelelser"
 
-#: ../roomops.c:570
+#: ../roomops.c:510
 msgid "View contacts"
 msgstr "Vis Kontaktpersoner"
 
-#: ../roomops.c:581
+#: ../roomops.c:521
 msgid "Day view"
 msgstr "Dag visning"
 
-#: ../roomops.c:590
+#: ../roomops.c:530
 msgid "Month view"
 msgstr "Måned visning"
 
-#: ../roomops.c:601
+#: ../roomops.c:541
 msgid "Calendar list"
 msgstr "Kalender liste"
 
-#: ../roomops.c:612
+#: ../roomops.c:552
 msgid "View tasks"
 msgstr "Vis opgaver"
 
-#: ../roomops.c:623
+#: ../roomops.c:563
 msgid "View notes"
 msgstr "Vis noter"
 
-#: ../roomops.c:634
+#: ../roomops.c:574
 #, fuzzy
 msgid "Refresh message list"
 msgstr "Vis meddelelsesliste"
 
-#: ../roomops.c:645
+#: ../roomops.c:585
 msgid "Wiki home"
 msgstr "Wiki hjem"
 
-#: ../roomops.c:656 ../static/t/menu_basic_commands.html:11
+#: ../roomops.c:596
 msgid "Read all messages"
 msgstr "Læs alle meddelelser"
 
-#: ../roomops.c:671
+#: ../roomops.c:612
 msgid "Add new contact"
 msgstr "Tilføj ny kontaktperson"
 
-#: ../roomops.c:684
+#: ../roomops.c:626
 msgid "Add new event"
 msgstr "Tilføj ny aftale"
 
-#: ../roomops.c:694
+#: ../roomops.c:637
 msgid "Add new task"
 msgstr "Tilføj ny opgave"
 
-#: ../roomops.c:704
+#: ../roomops.c:648
 msgid "Add new note"
 msgstr "Tilføj ny note"
 
-#: ../roomops.c:716
+#: ../roomops.c:664
 msgid "Edit this page"
 msgstr "Editér denne side"
 
-#: ../roomops.c:726
+#: ../roomops.c:676 ../wiki.c:199
+msgid "Current version"
+msgstr ""
+
+#: ../roomops.c:688
+#, fuzzy
+msgid "History"
+msgstr "Bibliotek"
+
+#: ../roomops.c:700
 msgid "Write mail"
 msgstr "Opret en meddelelse"
 
-#: ../roomops.c:744 ../static/t/menu_basic_commands.html:12
+#: ../roomops.c:719
 msgid "Enter a message"
 msgstr "Skriv en meddelelse"
 
-#: ../roomops.c:757
+#: ../roomops.c:733
 msgid ""
 "Leave all messages marked as unread, go to next room with unread messages"
 msgstr ""
 "Efterlad alle meddelelser som ulæste, gå til næste rum med ulæste meddelelser"
 
-#: ../roomops.c:758
+#: ../roomops.c:734
 msgid "Skip this room"
 msgstr "Skip dette rum"
 
-#: ../roomops.c:768
+#: ../roomops.c:745
 msgid "Mark all messages as read, go to next room with unread messages"
 msgstr ""
 "Markér alle meddelelser som læst, gå til næste rum med ulæste meddelelser"
 
-#: ../roomops.c:769 ../static/t/menu_basic_commands.html:4
+#: ../roomops.c:746
 msgid "Goto next room"
 msgstr "Gå til næste rum"
 
-#: ../roomops.c:1198 ../roomops.c:1202 ../static/t/iconbar.html:68
+#: ../roomops.c:1026 ../roomops.c:1030 ../static/t/iconbar.html:68
 msgid "Administration"
 msgstr "Administration"
 
-#: ../roomops.c:1213 ../roomops.c:1217
+#: ../roomops.c:1041 ../roomops.c:1045
 msgid "Configuration"
 msgstr "Konfiguration"
 
-#: ../roomops.c:1226 ../roomops.c:1230
+#: ../roomops.c:1054 ../roomops.c:1058
 msgid "Message expire policy"
 msgstr "Meddelelse udløbspolitik"
 
-#: ../roomops.c:1239 ../roomops.c:1243
+#: ../roomops.c:1067 ../roomops.c:1071
 msgid "Access controls"
 msgstr "Adgangskontrol"
 
-#: ../roomops.c:1252 ../roomops.c:1256
+#: ../roomops.c:1080 ../roomops.c:1084
 msgid "Sharing"
 msgstr "Deling"
 
-#: ../roomops.c:1265 ../roomops.c:1269
+#: ../roomops.c:1093 ../roomops.c:1097
 msgid "Mailing list service"
 msgstr "Mailing liste service"
 
-#: ../roomops.c:1280 ../roomops.c:1284
+#: ../roomops.c:1108 ../roomops.c:1112
 msgid "Remote retrieval"
 msgstr "Fjernhentning"
 
-#: ../roomops.c:1306
+#: ../roomops.c:1134
 msgid "Are you sure you want to delete this room?"
 msgstr "Er du sikker på du vil slette dette rum?"
 
-#: ../roomops.c:1308
+#: ../roomops.c:1136
 msgid "Delete this room"
 msgstr "Slet dette rum"
 
-#: ../roomops.c:1311
+#: ../roomops.c:1141
 msgid "Set or change the icon for this room's banner"
 msgstr "Sæt eller skift ikonet for dette rums banner"
 
-#: ../roomops.c:1314
+#: ../roomops.c:1144
 msgid "Edit this room's Info file"
 msgstr "Editér dette rums Info fil"
 
-#: ../roomops.c:1327 ../roomops.c:1840
+#: ../roomops.c:1157 ../roomops.c:1670
 msgid "Higher access is required to access this function."
 msgstr "Højere tilladelse er krævet for at bruge denne funktion."
 
-#: ../roomops.c:1345 ../roomops.c:2498
+#: ../roomops.c:1175 ../roomops.c:2331
 msgid "Name of room: "
 msgstr "Navn på rum"
 
-#: ../roomops.c:1352 ../roomops.c:2504
+#: ../roomops.c:1182 ../roomops.c:2337
 msgid "Resides on floor: "
 msgstr "Ligger på etage: "
 
-#: ../roomops.c:1368 ../roomops.c:2550
+#: ../roomops.c:1198 ../roomops.c:2383
 msgid "Type of room:"
 msgstr "Type på rum"
 
-#: ../roomops.c:1379 ../roomops.c:2560
+#: ../roomops.c:1209 ../roomops.c:2393
 msgid "Public (automatically appears to everyone)"
 msgstr "Offentlig (automatisk vist til alle)"
 
-#: ../roomops.c:1391 ../roomops.c:2568
+#: ../roomops.c:1221 ../roomops.c:2401
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr "Privat - skjult (adgang for dem der kender navnet)"
 
-#: ../roomops.c:1402 ../roomops.c:2576
+#: ../roomops.c:1232 ../roomops.c:2409
 msgid "Private - require password: "
 msgstr "Privat - med adgangskode: "
 
-#: ../roomops.c:1416 ../roomops.c:2585
+#: ../roomops.c:1246 ../roomops.c:2418
 msgid "Private - invitation only"
 msgstr "Privat - kun med invitation"
 
-#: ../roomops.c:1426 ../roomops.c:2594
+#: ../roomops.c:1256 ../roomops.c:2427
 msgid "Personal (mailbox for you only)"
 msgstr "Personlig (postkasse kun for dig)"
 
-#: ../roomops.c:1430
+#: ../roomops.c:1260
 msgid "If private, cause current users to forget room"
 msgstr "Hvis privat, tving aktuelle brugere til at glemme rummet"
 
-#: ../roomops.c:1438
+#: ../roomops.c:1268
 msgid "Preferred users only"
 msgstr "Kun foretrukne brugere"
 
-#: ../roomops.c:1444
+#: ../roomops.c:1274
 msgid "Read-only room"
 msgstr "Kun-læs rum"
 
-#: ../roomops.c:1450
+#: ../roomops.c:1280
 msgid "All users allowed to post may also delete messages"
 msgstr "Alle brugere der kan skrive må også slette meddelser"
 
-#: ../roomops.c:1457
+#: ../roomops.c:1287
 msgid "File directory room"
 msgstr "Fil bibliotek rum"
 
-#: ../roomops.c:1460
+#: ../roomops.c:1290
 msgid "Directory name: "
 msgstr "Biblioteksnavn: "
 
-#: ../roomops.c:1468
+#: ../roomops.c:1298
 msgid "Uploading allowed"
 msgstr "uploading tilladt"
 
-#: ../roomops.c:1474
+#: ../roomops.c:1304
 msgid "Downloading allowed"
 msgstr "Downloading tilladt"
 
-#: ../roomops.c:1480
+#: ../roomops.c:1310
 msgid "Visible directory"
 msgstr "Synligt bibliotek"
 
-#: ../roomops.c:1489
+#: ../roomops.c:1319
 msgid "Network shared room"
 msgstr "Netværksdelt rum"
 
-#: ../roomops.c:1495
+#: ../roomops.c:1325
 msgid "Permanent (does not auto-purge)"
 msgstr "Permanent (bliver ikke autoslettet)"
 
-#: ../roomops.c:1501
+#: ../roomops.c:1331
 msgid "Subject Required (Force users to specify a message subject)"
 msgstr "Emne er krævet (Tving brugere til at skrive et emne)"
 
-#: ../roomops.c:1506
+#: ../roomops.c:1336
 msgid "Anonymous messages"
 msgstr "Anonyme meddelelser"
 
-#: ../roomops.c:1514
+#: ../roomops.c:1344
 msgid "No anonymous messages"
 msgstr "Ingen anonyme meddelser"
 
-#: ../roomops.c:1520
+#: ../roomops.c:1350
 msgid "All messages are anonymous"
 msgstr "Alle meddelelser er anonyme"
 
-#: ../roomops.c:1526
+#: ../roomops.c:1356
 msgid "Prompt user when entering messages"
 msgstr "spørg bruger som skriver meddelelser"
 
-#: ../roomops.c:1532
+#: ../roomops.c:1362
 msgid "Room aide: "
 msgstr "Rum Systemansvarlig"
 
-#: ../roomops.c:1607
+#: ../roomops.c:1378 ../roomops.c:1653 ../roomops.c:1745 ../sieve.c:207
+#: ../sysmsgs.c:50 ../vcard_edit.c:1042
+msgid "Save changes"
+msgstr "Gem ændringer"
+
+#: ../roomops.c:1437
 msgid "Shared with"
 msgstr "Delt med"
 
-#: ../roomops.c:1610
+#: ../roomops.c:1440
 msgid "Not shared with"
 msgstr "Ikke delt med"
 
-#: ../roomops.c:1615 ../roomops.c:1658
+#: ../roomops.c:1445 ../roomops.c:1488
 msgid "Remote node name"
 msgstr "Fjernnode navn"
 
-#: ../roomops.c:1617 ../roomops.c:1660
+#: ../roomops.c:1447 ../roomops.c:1490
 msgid "Remote room name"
 msgstr "Fjernrum navn"
 
-#: ../roomops.c:1619 ../roomops.c:1662
+#: ../roomops.c:1449 ../roomops.c:1492
 msgid "Actions"
 msgstr "Aktioner"
 
-#: ../roomops.c:1650
+#: ../roomops.c:1480
 msgid "Unshare"
 msgstr "Fjern deling"
 
-#: ../roomops.c:1687
+#: ../roomops.c:1517
 msgid "Share"
 msgstr "Deling"
 
-#: ../roomops.c:1696
+#: ../roomops.c:1526
 #, fuzzy
 msgid ""
 "When sharing a room, it must be shared from both ends.  Adding a node to the "
@@ -1623,7 +1434,7 @@ msgstr ""
 "identisk på fjern noden.<LI>Hvis fjern rum navnet er forskellig, må fjern "
 "noden også konfigurere navnet på rummet her.</UL></I><br />\n"
 
-#: ../roomops.c:1720
+#: ../roomops.c:1550
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br /><br />\n"
@@ -1631,11 +1442,11 @@ msgstr ""
 "<i>Indholdet af dette rum bliver sendt <b>som individuelle meddelelser</b> "
 "til denne liste af modtagere:</i><br /><br />\n"
 
-#: ../roomops.c:1736 ../roomops.c:1767 ../roomops.c:1990 ../roomops.c:2057
+#: ../roomops.c:1566 ../roomops.c:1597 ../roomops.c:1820 ../roomops.c:1887
 msgid "(remove)"
 msgstr "(fjern)"
 
-#: ../roomops.c:1750
+#: ../roomops.c:1580
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br /><br />\n"
@@ -1643,135 +1454,134 @@ msgstr ""
 "<i>Indholdet af dette rum bliver sendt <b>i oversigtsform</b> til den "
 "følgende liste af modtagere:</i><br /><br />\n"
 
-#: ../roomops.c:1788
+#: ../roomops.c:1618
 #, fuzzy
 msgid "List"
 msgstr "Liste"
 
-#: ../roomops.c:1789
+#: ../roomops.c:1619
 msgid "Digest"
 msgstr "Oversigt"
 
-#: ../roomops.c:1790 ../roomops.c:1791
+#: ../roomops.c:1620 ../roomops.c:1621
 msgid "Add recipients from Contacts or other address books"
 msgstr "Tilføj modtagere fra Kontakter eller andre adressebøger"
 
-#: ../roomops.c:1801
+#: ../roomops.c:1631
 #, fuzzy
 msgid "Allow self-service subscribe/unsubscribe requests."
 msgstr ""
 "Dette rum er konfigureret til at tillade selvbetjent abonement/slet "
 "abonement forspørgsler."
 
-#: ../roomops.c:1805
+#: ../roomops.c:1635
 msgid "The URL for subscribe/unsubscribe is: "
 msgstr "URL'en for abonement/slet abonement er:"
 
-#: ../roomops.c:1811
+#: ../roomops.c:1641
 msgid "Allow non-subscribers to mail to this room."
 msgstr "Tillad ikkeabonenter at skrive til dette rum."
 
-#: ../roomops.c:1817
+#: ../roomops.c:1647
 msgid "Room post publication needs Aide permission."
 msgstr "Rum opslag publificering kræver tilladelse fra Systemansvarlig."
 
-#: ../roomops.c:1861
+#: ../roomops.c:1691
 msgid "Message expire policy for this room"
 msgstr "Meddelelse udløbspolitik for dette rum"
 
-#: ../roomops.c:1867
+#: ../roomops.c:1697
 msgid "Use the default policy for this floor"
 msgstr "Brug standard politik for denne etage"
 
-#: ../roomops.c:1871 ../roomops.c:1898
-#: ../static/t/tab_siteconfig_autopurger.html:69
-#: ../static/t/tab_siteconfig_autopurger.html:87
+#: ../roomops.c:1701 ../roomops.c:1728
 msgid "Never automatically expire messages"
 msgstr "Aldrig automatisk sætte meddelelse til udløbet"
 
-#: ../roomops.c:1875 ../roomops.c:1902
-#: ../static/t/tab_siteconfig_autopurger.html:72
-#: ../static/t/tab_siteconfig_autopurger.html:90
+#: ../roomops.c:1705 ../roomops.c:1732
 msgid "Expire by message count"
 msgstr "Sæt udløb efter meddelelsesantal"
 
-#: ../roomops.c:1879 ../roomops.c:1906
-#: ../static/t/tab_siteconfig_autopurger.html:74
-#: ../static/t/tab_siteconfig_autopurger.html:93
+#: ../roomops.c:1709 ../roomops.c:1736
 msgid "Expire by message age"
 msgstr "Sæt udløb efter meddelelsesalder"
 
-#: ../roomops.c:1881 ../roomops.c:1908
-#: ../static/t/tab_siteconfig_autopurger.html:76
-#: ../static/t/tab_siteconfig_autopurger.html:95
+#: ../roomops.c:1711 ../roomops.c:1738
 msgid "Number of messages or days: "
 msgstr "Antal meddelelser eller dage: "
 
-#: ../roomops.c:1888
+#: ../roomops.c:1718
 msgid "Message expire policy for this floor"
 msgstr "Meddelelse udløbspolitik for denne etage"
 
-#: ../roomops.c:1894
+#: ../roomops.c:1724
 msgid "Use the system default"
 msgstr "Brug system standard"
 
-#: ../roomops.c:1941
+#: ../roomops.c:1771
 msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
 msgstr "Modtag meddelelser fra disse POP konti og gem dem i dette rum:"
 
-#: ../roomops.c:1946
+#: ../roomops.c:1776
 #, fuzzy
 msgid "Remote host"
 msgstr "Smart værter"
 
-#: ../roomops.c:1948 ../static/t/wholiststatic.html:6
-#: ../static/t/wholistsummarysection.html:5
+#: ../roomops.c:1778
 msgid "User name"
 msgstr "Bruger navn"
 
-#: ../roomops.c:1950 ../static/t/userlist_detailview.html:17
+#: ../roomops.c:1780
 msgid "Password"
 msgstr "Adgangskode"
 
-#: ../roomops.c:1952
+#: ../roomops.c:1782
 #, fuzzy
 msgid "Keep messages on server?"
 msgstr "Gem meddelelser på server?"
 
-#: ../roomops.c:1954
+#: ../roomops.c:1784
 #, fuzzy
 msgid "Interval"
 msgstr "Interval"
 
-#: ../roomops.c:2025
+#: ../roomops.c:1812
+msgid "Yes"
+msgstr "Ja"
+
+#: ../roomops.c:1812
+msgid "No"
+msgstr "Nej"
+
+#: ../roomops.c:1855
 msgid "Fetch the following RSS feeds and store them in this room:"
 msgstr "Hent de følgende RSS feeds og gem dem i dette rum:"
 
-#: ../roomops.c:2031
+#: ../roomops.c:1861
 msgid "Feed URL"
 msgstr "Feed URL"
 
-#: ../roomops.c:2145 ../roomops.c:3707 ../sieve.c:575
+#: ../roomops.c:1975 ../roomops.c:2954 ../sieve.c:575
 msgid "Cancelled.  Changes were not saved."
 msgstr "Afbrudt.  Ændringer blev ikke gemt."
 
-#: ../roomops.c:2335 ../sieve.c:631
+#: ../roomops.c:2165 ../sieve.c:631
 msgid "Your changes have been saved."
 msgstr "Dine ændringer er blevet gemt."
 
-#: ../roomops.c:2372
+#: ../roomops.c:2202
 #, c-format
 msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
 msgstr "<B><I>Bruger %s blev sparket ud af rum %s.</I></B>\n"
 
-#: ../roomops.c:2386
+#: ../roomops.c:2216
 #, c-format
 msgid "<B><I>User %s invited to room %s.</I></B>\n"
 msgstr "<B><I>Bruger %s blev inviteret til rum %s.</I></B>\n"
 
-#: ../roomops.c:2414
+#: ../roomops.c:2244
 msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
@@ -1779,11 +1589,11 @@ msgstr ""
 "Brugerne nedenfor har adgang til dette rum.  For at fjerne en bruger fra "
 "adgangslisten, Vælg brugeren på listen og klik 'Spark'."
 
-#: ../roomops.c:2435
+#: ../roomops.c:2265
 msgid "Kick"
 msgstr "Spark"
 
-#: ../roomops.c:2439
+#: ../roomops.c:2269
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
@@ -1791,45 +1601,45 @@ msgstr ""
 "Far at give en anden bruger adgang til dette rum, skriv brugernavnet i "
 "boksen nedenfor og klik 'Invitér'."
 
-#: ../roomops.c:2446
+#: ../roomops.c:2276
 msgid "Invite:"
 msgstr "Invitér:"
 
-#: ../roomops.c:2451
+#: ../roomops.c:2281
 msgid "Invite"
 msgstr "Invitér"
 
-#: ../roomops.c:2458
+#: ../roomops.c:2288
 #, fuzzy
 msgid "User"
 msgstr "Bruger"
 
-#: ../roomops.c:2459
+#: ../roomops.c:2289
 #, fuzzy
 msgid "Users"
 msgstr "Brugere"
 
-#: ../roomops.c:2489 ../static/t/menu_advanced_roomcommands.html:6
+#: ../roomops.c:2322
 msgid "Create a new room"
 msgstr "Opret et nyt rum"
 
-#: ../roomops.c:2525
+#: ../roomops.c:2358
 msgid "Default view for room: "
 msgstr "Standard visning for rum: "
 
-#: ../roomops.c:2601
+#: ../roomops.c:2434
 msgid "Create new room"
 msgstr "Opret nyt rum"
 
-#: ../roomops.c:2671
+#: ../roomops.c:2505
 msgid "Cancelled.  No new room was created."
 msgstr "Afbrudt.  Intet nyt rum blev oprettet."
 
-#: ../roomops.c:2723
+#: ../roomops.c:2557
 msgid "Go to a hidden room"
 msgstr "Gå til et skjult rum"
 
-#: ../roomops.c:2732
+#: ../roomops.c:2566
 msgid ""
 "If you know the name of a hidden (guess-name) or passworded room, you can "
 "enter that room by typing its name below.  Once you gain access to a private "
@@ -1841,23 +1651,23 @@ msgstr ""
 "et privat rum, vil det optræde på din almindelige rum liste så du ikke "
 "behøver at komme her igen."
 
-#: ../roomops.c:2744
+#: ../roomops.c:2578
 msgid "Enter room name:"
 msgstr "Skriv rummets navn:"
 
-#: ../roomops.c:2751
+#: ../roomops.c:2585
 msgid "Enter room password:"
 msgstr "Skriv rummets adgangskode:"
 
-#: ../roomops.c:2761
+#: ../roomops.c:2595
 msgid "Go there"
 msgstr "Gå dertil"
 
-#: ../roomops.c:2813
+#: ../roomops.c:2647
 msgid "Zap (forget/unsubscribe) the current room"
 msgstr "Zap (glem/abonementfjern) det aktuelle rum"
 
-#: ../roomops.c:2819
+#: ../roomops.c:2653
 #, c-format
 msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
@@ -1866,64 +1676,48 @@ msgstr ""
 "Hvis du vælger denne funktion, <em>%s</em> vil forsvinde fra din rum liste.  "
 "Er det hvad du gerne vil?<br />\n"
 
-#: ../roomops.c:2825
+#: ../roomops.c:2659
 msgid "Zap this room"
 msgstr "Zap dette rum"
 
-#: ../roomops.c:3653 ../roomops.c:3659
-msgid "Room list"
-msgstr "Rum liste"
-
-#: ../roomops.c:3656
-msgid "Folder list"
-msgstr "Folder liste"
-
-#: ../roomops.c:4050
+#: ../roomops.c:3194
 msgid "Room list view"
 msgstr "Rum liste visning"
 
-#: ../roomops.c:4053
+#: ../roomops.c:3197
 msgid "Show empty floors"
 msgstr "Vis tomme etager"
 
-#: ../rss.c:30 ../static/t/view_message.html:19
-#: ../static/t/view_message.html:24 ../static/t/view_message.html:29
-msgid "Reply"
-msgstr "Svar"
+#: ../serv_func.c:172
+msgid ""
+"This server is already serving its maximum number of users and cannot accept "
+"any additional logins at this time.  Please try again later or contact your "
+"system administrator."
+msgstr ""
+"Denne server har allerede det maximale antal brugere logget ind og kan ikke "
+"acceptere flere lige nu. Prøv igen senere eller kontakt din System "
+"administrator."
 
-#: ../rss.c:36
-msgid "Email"
-msgstr "Email"
+#: ../serv_func.c:196
+msgid "Received unexpected answer from Citadel server; bailing out."
+msgstr ""
 
-#: ../rss.c:95
-msgid "Not logged in"
-msgstr "Ikke logget ind"
-
-#: ../rss.c:114
-msgid "Error retrieving RSS feed: couldn't find messages\n"
-msgstr "Fejl ved hentning af RSS feed: kunne ikke finde meddelelser\n"
-
-#: ../rss.c:231
-#, fuzzy, c-format
-msgid "%s from"
-msgstr "%s fra"
-
-#: ../rss.c:235
-#, fuzzy, c-format
-msgid "%s in %s"
-msgstr "%s i %s"
-
-#: ../rss.c:237
+#: ../serv_func.c:206
 #, c-format
-msgid " on %s"
-msgstr " på %s"
+msgid ""
+"You are connected to a Citadel server running Citadel %d.%02d. \n"
+"In order to run this version of WebCit you must also have Citadel %d.%02d or "
+"newer.\n"
+"\n"
+"\n"
+msgstr ""
+"Du er forbundet til en Citadel server der kører Citadel %d.%02d. \n"
+"For at køre denne version af WebCit skal du have Citadel %d.%02d eller "
+"nyere.\n"
+"\n"
+"\n"
 
-#: ../rss.c:240
-#, c-format
-msgid "%s"
-msgstr "%s"
-
-#: ../sieve.c:22 ../sieve.c:107 ../static/t/menu_your_info.html:7
+#: ../sieve.c:22 ../sieve.c:107
 msgid "View/edit server-side mail filters"
 msgstr "Vis/Editér server post filtre"
 
@@ -1966,12 +1760,12 @@ msgstr "Det aktive script er:"
 msgid "Add or delete scripts"
 msgstr "Tilføj eller slet scripts"
 
-#: ../sieve.c:658
+#: ../sieve.c:660
 #, fuzzy
 msgid "Add a new script"
 msgstr "Tilføj et ny script"
 
-#: ../sieve.c:661
+#: ../sieve.c:663
 #, fuzzy
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
@@ -1980,30 +1774,30 @@ msgstr ""
 "For at oprette et nyt script, skriv det ønskede navn i boksen nedenfor og "
 "klik 'Opret'."
 
-#: ../sieve.c:667
+#: ../sieve.c:669
 #, fuzzy
 msgid "Script name: "
 msgstr "Scriptnavn: "
 
-#: ../sieve.c:670
+#: ../sieve.c:672
 msgid "Create"
 msgstr "Opret"
 
-#: ../sieve.c:674
+#: ../sieve.c:676
 #, fuzzy
 msgid "Edit scripts"
 msgstr "Editér scripts"
 
-#: ../sieve.c:677
+#: ../sieve.c:679
 msgid "Return to the script editing screen"
 msgstr "Retunér til script editéring"
 
-#: ../sieve.c:683
+#: ../sieve.c:685
 #, fuzzy
 msgid "Delete scripts"
 msgstr "Slet scripts"
 
-#: ../sieve.c:686
+#: ../sieve.c:688
 #, fuzzy
 msgid ""
 "To delete an existing script, select the script name from the list and click "
@@ -2012,21 +1806,21 @@ msgstr ""
 "For at slette et eksisterende script, vælg et scriptnavn fra listen og klik "
 "'Slet'."
 
-#: ../sieve.c:710
+#: ../sieve.c:712
 #, fuzzy
 msgid "Delete script"
 msgstr "Slet script"
 
-#: ../sieve.c:710
+#: ../sieve.c:712
 #, fuzzy
 msgid "Delete this script?"
 msgstr "Slet dette script?"
 
-#: ../sieve.c:747
+#: ../sieve.c:749
 msgid "A script by that name already exists."
 msgstr "Et script med dette navn eksisterer allerede."
 
-#: ../sieve.c:756
+#: ../sieve.c:758
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
@@ -2034,169 +1828,169 @@ msgstr ""
 "Et nyt script er blevet oprettet.  Returnér til script editéring for at "
 "rette og aktivere det."
 
-#: ../sieve.c:973
+#: ../sieve.c:975
 msgid "Move rule up"
 msgstr "Flyt regel op"
 
-#: ../sieve.c:978
+#: ../sieve.c:980
 msgid "Move rule down"
 msgstr "Flyt regel ned"
 
-#: ../sieve.c:983
+#: ../sieve.c:985
 #, fuzzy
 msgid "Delete rule"
 msgstr "Slet regel"
 
-#: ../sieve.c:991
+#: ../sieve.c:993
 msgid "If"
 msgstr "Hvis"
 
-#: ../sieve.c:995
+#: ../sieve.c:997
 msgid "To or Cc"
 msgstr "Til eller Cc"
 
-#: ../sieve.c:997
+#: ../sieve.c:999
 #, fuzzy
 msgid "Reply-to"
 msgstr "Svar-til"
 
-#: ../sieve.c:998 ../smtpqueue.c:194 ../static/t/msg_listview.html:11
+#: ../sieve.c:1000 ../smtpqueue.c:199 ../static/t/msg_listview.html:11
 #: ../static/t/summary_header.html:10
 msgid "Sender"
 msgstr "Afsender"
 
-#: ../sieve.c:999
+#: ../sieve.c:1001
 #, fuzzy
 msgid "Resent-From"
 msgstr "Gensendt-Fra"
 
-#: ../sieve.c:1000
+#: ../sieve.c:1002
 #, fuzzy
 msgid "Resent-To"
 msgstr "Gensendt-Til"
 
-#: ../sieve.c:1001
+#: ../sieve.c:1003
 msgid "Envelope From"
 msgstr "Konvolut Fra"
 
-#: ../sieve.c:1002
+#: ../sieve.c:1004
 msgid "Envelope To"
 msgstr "Konvolut Til"
 
-#: ../sieve.c:1003
+#: ../sieve.c:1005
 #, fuzzy
 msgid "X-Mailer"
 msgstr "X-Mailer"
 
-#: ../sieve.c:1004
+#: ../sieve.c:1006
 msgid "X-Spam-Flag"
 msgstr "X-Spam-Flag"
 
-#: ../sieve.c:1005
+#: ../sieve.c:1007
 msgid "X-Spam-Status"
 msgstr "X-Spam-Status"
 
-#: ../sieve.c:1006
+#: ../sieve.c:1008
 #, fuzzy
 msgid "List-ID"
 msgstr "Liste-ID"
 
-#: ../sieve.c:1007
+#: ../sieve.c:1009
 #, fuzzy
 msgid "Message size"
 msgstr "Meddelelse størrelse"
 
-#: ../sieve.c:1008 ../static/t/select_messageindex_all.html:1
+#: ../sieve.c:1010 ../static/t/select_messageindex_all.html:1
 msgid "All"
 msgstr "Alle"
 
-#: ../sieve.c:1027
+#: ../sieve.c:1029
 #, fuzzy
 msgid "contains"
 msgstr "indeholder"
 
-#: ../sieve.c:1028
+#: ../sieve.c:1030
 msgid "does not contain"
 msgstr "indeholder ikke"
 
-#: ../sieve.c:1029
+#: ../sieve.c:1031
 msgid "is"
 msgstr "er"
 
-#: ../sieve.c:1030
+#: ../sieve.c:1032
 #, fuzzy
 msgid "is not"
 msgstr "er ikke"
 
-#: ../sieve.c:1031
+#: ../sieve.c:1033
 #, fuzzy
 msgid "matches"
 msgstr "matcher"
 
-#: ../sieve.c:1032
+#: ../sieve.c:1034
 msgid "does not match"
 msgstr "matcher ikke"
 
-#: ../sieve.c:1052
+#: ../sieve.c:1054
 #, fuzzy
 msgid "(All messages)"
 msgstr "(Alle meddelelser)"
 
-#: ../sieve.c:1056
+#: ../sieve.c:1058
 msgid "is larger than"
 msgstr "er større end"
 
-#: ../sieve.c:1057
+#: ../sieve.c:1059
 msgid "is smaller than"
 msgstr "er mindre end"
 
-#: ../sieve.c:1080
+#: ../sieve.c:1082
 msgid "Keep"
 msgstr "Behold"
 
-#: ../sieve.c:1081
+#: ../sieve.c:1083
 msgid "Discard silently"
 msgstr "Fjern"
 
-#: ../sieve.c:1082
+#: ../sieve.c:1084
 #, fuzzy
 msgid "Reject"
 msgstr "Afvis"
 
-#: ../sieve.c:1083
+#: ../sieve.c:1085
 #, fuzzy
 msgid "Move message to"
 msgstr "Flyt meddelelse til"
 
-#: ../sieve.c:1084
+#: ../sieve.c:1086
 #, fuzzy
 msgid "Forward to"
 msgstr "Videresend til"
 
-#: ../sieve.c:1085
+#: ../sieve.c:1087
 #, fuzzy
 msgid "Vacation"
 msgstr "Ferie"
 
-#: ../sieve.c:1122
+#: ../sieve.c:1124
 #, fuzzy
 msgid "Message:"
 msgstr "Meddelelse:"
 
-#: ../sieve.c:1132
+#: ../sieve.c:1134
 #, fuzzy
 msgid "continue processing"
 msgstr "fortsæt behandling"
 
-#: ../sieve.c:1133
+#: ../sieve.c:1135
 msgid "stop"
 msgstr "stop"
 
-#: ../sieve.c:1136
+#: ../sieve.c:1138
 msgid "and then"
 msgstr "og"
 
-#: ../sieve.c:1157
+#: ../sieve.c:1159
 #, fuzzy
 msgid "Add rule"
 msgstr "Tilføj regel"
@@ -2205,59 +1999,59 @@ msgstr "Tilføj regel"
 msgid "Your system configuration has been updated."
 msgstr "Din system konfiguration er blevet opdateret"
 
-#: ../smtpqueue.c:135 ../static/t/section_ignetconf.html:5
+#: ../smtpqueue.c:135
 msgid "(Delete)"
 msgstr "(Slet)"
 
-#: ../smtpqueue.c:188
+#: ../smtpqueue.c:193
 #, fuzzy
 msgid "Message ID"
 msgstr "Meddelelses ID"
 
-#: ../smtpqueue.c:190
+#: ../smtpqueue.c:195
 #, fuzzy
 msgid "Date/time submitted"
 msgstr "Dato/tid afsendt"
 
-#: ../smtpqueue.c:192
+#: ../smtpqueue.c:197
 msgid "Last attempt"
 msgstr "Sidste forsøg"
 
-#: ../smtpqueue.c:196
+#: ../smtpqueue.c:201
 msgid "Recipients"
 msgstr "Modtagere"
 
-#: ../smtpqueue.c:210
+#: ../smtpqueue.c:216
 #, fuzzy
 msgid "The queue is empty."
 msgstr "Denne kø er tom."
 
-#: ../smtpqueue.c:216
+#: ../smtpqueue.c:222
 msgid "You do not have permission to view this resource."
 msgstr "Du har ikke lov til at se denne resource."
 
-#: ../smtpqueue.c:251 ../static/t/aide_global_config.html:5
+#: ../smtpqueue.c:238
 msgid "View the outbound SMTP queue"
 msgstr "Vis udgående SMTP kø"
 
-#: ../smtpqueue.c:269
+#: ../smtpqueue.c:254
 #, fuzzy
 msgid "Refresh this page"
 msgstr "Opfrisk denne side"
 
-#: ../summary.c:33
+#: ../summary.c:34
 msgid "(nothing)"
 msgstr "(ingenting)"
 
-#: ../summary.c:108
+#: ../summary.c:116
 msgid "(None)"
 msgstr "(Ingen)"
 
-#: ../summary.c:149
+#: ../summary.c:168
 msgid "(Nothing)"
 msgstr "(Ingenting)"
 
-#: ../summary.c:162
+#: ../summary.c:182
 #, fuzzy, c-format
 msgid ""
 "You are connected to %s, running %s with %s, server build %s and located in %"
@@ -2266,23 +2060,27 @@ msgstr ""
 "Du er forbundet til %s, bruger %s med %s, server version %s og lokaliseret i "
 "%s.  Din systemadministrator er %s."
 
-#: ../summary.c:190
+#: ../summary.c:210
 msgid "Messages"
 msgstr "Meddelelser"
 
-#: ../summary.c:216
+#: ../summary.c:223 ../static/t/iconbar.html:37
+msgid "Tasks"
+msgstr "Opgaver"
+
+#: ../summary.c:236
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Idag&nbsp;i&nbsp;din&nbsp;kalender"
 
-#: ../summary.c:231
+#: ../summary.c:251
 msgid "Who's&nbsp;online&nbsp;now"
 msgstr "Hvem er&nbsp;online&nbsp;nu"
 
-#: ../summary.c:244
+#: ../summary.c:264
 msgid "About&nbsp;this&nbsp;server"
 msgstr "Om&nbsp;denne&nbsp;server"
 
-#: ../summary.c:270
+#: ../summary.c:290
 #, c-format
 msgid "Summary page for %s"
 msgstr "Summeringsside for %s"
@@ -2319,22 +2117,78 @@ msgstr "Rum info"
 msgid "Your bio"
 msgstr "Din bio"
 
-#: ../useredit.c:508
+#: ../tasks.c:95
+#, fuzzy
+msgid "Completed?"
+msgstr "Færdig?"
+
+#: ../tasks.c:97
+msgid "Name of task"
+msgstr "Navn på opgave"
+
+#: ../tasks.c:99
+msgid "Date due"
+msgstr "Forfaldsdato"
+
+#: ../tasks.c:101
+msgid "Category"
+msgstr "Kategori"
+
+#: ../tasks.c:103
+msgid "Show All"
+msgstr "Vis Alle"
+
+#: ../tasks.c:228
+msgid "Edit task"
+msgstr "Editér opgave"
+
+#: ../tasks.c:258
+msgid "Start date:"
+msgstr "Start dato:"
+
+#: ../tasks.c:266 ../tasks.c:296
+#, fuzzy
+msgid "No date"
+msgstr "Ingen dato"
+
+#: ../tasks.c:270 ../tasks.c:299
+msgid "or"
+msgstr "eller"
+
+#: ../tasks.c:284 ../tasks.c:313
+#, fuzzy
+msgid "Time associated"
+msgstr "Time format"
+
+#: ../tasks.c:288
+msgid "Due date:"
+msgstr "Forfald dato:"
+
+#: ../tasks.c:317
+#, fuzzy
+msgid "Completed:"
+msgstr "Færdig:"
+
+#: ../tasks.c:328
+msgid "Category:"
+msgstr "Kategori:"
+
+#: ../useredit.c:532
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
 msgstr ""
 "En fejl opstod ved forsøg på at oprette eller editére dette adressebogsemne."
 
-#: ../useredit.c:586
+#: ../useredit.c:609
 msgid "Changes were not saved."
 msgstr "Ændringer blev ikke gemt."
 
-#: ../useredit.c:687
+#: ../useredit.c:699
 #, c-format
 msgid "A new user has been created."
 msgstr "En ny bruger blev oprettet."
 
-#: ../useredit.c:694
+#: ../useredit.c:704
 msgid ""
 "You are attempting to create a new user from within Citadel while running in "
 "host based authentication mode.  In this mode, you must create new users on "
@@ -2382,138 +2236,146 @@ msgstr "Bruger profil"
 msgid "Click here to send an instant message to %s"
 msgstr "Klik her for at sende online meddelelse til %s"
 
-#: ../vcard_edit.c:164 ../vcard_edit.c:167
+#: ../vcard_edit.c:161 ../vcard_edit.c:164
 msgid "(no name)"
 msgstr "(intet navn)"
 
-#: ../vcard_edit.c:429
+#: ../vcard_edit.c:428
 msgid " (work)"
 msgstr "(arbejde)"
 
-#: ../vcard_edit.c:431
+#: ../vcard_edit.c:430
 msgid " (home)"
 msgstr "(hjem)"
 
-#: ../vcard_edit.c:433
+#: ../vcard_edit.c:432
 msgid " (cell)"
 msgstr "(afdeling)"
 
-#: ../vcard_edit.c:444 ../vcard_edit.c:965
+#: ../vcard_edit.c:443 ../vcard_edit.c:947
 msgid "Address:"
 msgstr "Adresse:"
 
-#: ../vcard_edit.c:512
+#: ../vcard_edit.c:511
 msgid "Telephone:"
 msgstr "Telefon:"
 
-#: ../vcard_edit.c:517
+#: ../vcard_edit.c:516
 msgid "E-mail:"
 msgstr "E-mail:"
 
-#: ../vcard_edit.c:604
+#: ../vcard_edit.c:606
 msgid "This address book is empty."
 msgstr "Denne adressebog er tom."
 
-#: ../vcard_edit.c:618
+#: ../vcard_edit.c:620
 #, fuzzy
 msgid "An internal error has occurred."
 msgstr "En intern fejl er opstået"
 
-#: ../vcard_edit.c:892
+#: ../vcard_edit.c:874
 msgid "Edit contact information"
 msgstr "Editér kontakt information"
 
-#: ../vcard_edit.c:913
+#: ../vcard_edit.c:895
 msgid "Prefix"
 msgstr "Præfix"
 
-#: ../vcard_edit.c:913
+#: ../vcard_edit.c:895
 msgid "First"
 msgstr "Fornavn"
 
-#: ../vcard_edit.c:913
+#: ../vcard_edit.c:895
 msgid "Middle"
 msgstr "Mellemnavn"
 
-#: ../vcard_edit.c:913
+#: ../vcard_edit.c:895
 msgid "Last"
 msgstr "Efternavn"
 
-#: ../vcard_edit.c:913
+#: ../vcard_edit.c:895
 msgid "Suffix"
 msgstr "Tilføjelse"
 
-#: ../vcard_edit.c:934
+#: ../vcard_edit.c:916
 msgid "Display name:"
 msgstr "Vist navn:"
 
-#: ../vcard_edit.c:941
+#: ../vcard_edit.c:923
 msgid "Title:"
 msgstr "Titel:"
 
-#: ../vcard_edit.c:948
+#: ../vcard_edit.c:930
 msgid "Organization:"
 msgstr "Organisation:"
 
-#: ../vcard_edit.c:959
+#: ../vcard_edit.c:941
 msgid "PO box:"
 msgstr "Postbox:"
 
-#: ../vcard_edit.c:975
+#: ../vcard_edit.c:957
 msgid "City:"
 msgstr "By:"
 
-#: ../vcard_edit.c:981
+#: ../vcard_edit.c:963
 msgid "State:"
 msgstr "Stat:"
 
-#: ../vcard_edit.c:987
+#: ../vcard_edit.c:969
 msgid "ZIP code:"
 msgstr "Postnummer:"
 
-#: ../vcard_edit.c:993
+#: ../vcard_edit.c:975
 msgid "Country:"
 msgstr "Land:"
 
-#: ../vcard_edit.c:1003
+#: ../vcard_edit.c:985
 msgid "Home telephone:"
 msgstr "Hjemmetelefon:"
 
-#: ../vcard_edit.c:1009
+#: ../vcard_edit.c:991
 msgid "Work telephone:"
 msgstr "Arbejdstelefon:"
 
-#: ../vcard_edit.c:1015
+#: ../vcard_edit.c:997
 #, fuzzy
 msgid "Mobile telephone:"
 msgstr "Mobiltelefon:"
 
-#: ../vcard_edit.c:1021
+#: ../vcard_edit.c:1003
 #, fuzzy
 msgid "Fax number:"
 msgstr "Fax nummer"
 
-#: ../vcard_edit.c:1032
+#: ../vcard_edit.c:1014
 msgid "Primary Internet e-mail address"
 msgstr "Pimær Internet Email adresse"
 
-#: ../vcard_edit.c:1039
+#: ../vcard_edit.c:1021
 msgid "Internet e-mail aliases"
 msgstr "Internet Email aliasser"
 
-#: ../vcard_edit.c:1120 ../vcard_edit.c:1166
+#: ../vcard_edit.c:1088
+msgid "Unable to enter the room to save your message"
+msgstr ""
+
+#: ../vcard_edit.c:1097
+msgid "Aborting."
+msgstr ""
+
+#: ../vcard_edit.c:1133 ../vcard_edit.c:1179
 msgid "An error has occurred."
 msgstr "En fejl er opstået"
 
-#: ../vcard_edit.c:1218
+#: ../vcard_edit.c:1235
 msgid "Could Not decode vcard photo\n"
 msgstr "Kunne ikke dekode vcard foto\n"
 
-#: ../webcit.c:406
+#: ../webcit.c:354
 msgid "Authorization Required"
 msgstr "Godkendelse Krævet"
 
-#: ../webcit.c:408
+#: ../webcit.c:363
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -2522,40 +2384,11 @@ msgstr ""
 "Resourcen som du forespurgte kræver et brugernavn og en adgangskode. Du "
 "kunne ikke blive logged ind: %s\n"
 
-#: ../webcit.c:836
-msgid ""
-"This server is already serving its maximum number of users and cannot accept "
-"any additional logins at this time.  Please try again later or contact your "
-"system administrator."
-msgstr ""
-"Denne server har allerede det maximale antal brugere logget ind og kan ikke "
-"acceptere flere lige nu. Prøv igen senere eller kontakt din System "
-"administrator."
-
-#: ../webcit.c:860
-msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr ""
-
-#: ../webcit.c:870
-#, c-format
-msgid ""
-"You are connected to a Citadel server running Citadel %d.%02d. \n"
-"In order to run this version of WebCit you must also have Citadel %d.%02d or "
-"newer.\n"
-"\n"
-"\n"
-msgstr ""
-"Du er forbundet til en Citadel server der kører Citadel %d.%02d. \n"
-"For at køre denne version af WebCit skal du have Citadel %d.%02d eller "
-"nyere.\n"
-"\n"
-"\n"
-
-#: ../who.c:158
+#: ../who.c:154
 msgid "Edit your session display"
 msgstr "Editér din session visning"
 
-#: ../who.c:162
+#: ../who.c:158
 msgid ""
 "This screen allows you to change the way your session appears in the 'Who is "
 "online' listing. To turn off any 'fake' name you've previously set, simply "
@@ -2566,42 +2399,42 @@ msgstr ""
 "listen. For at fjerne et 'falsk' navn du tidligere har sat, bare klik den "
 "tilhørende 'skift' knap uden at skrive noget i boksen."
 
-#: ../who.c:175
+#: ../who.c:171
 msgid "Room name:"
 msgstr "Rum navn:"
 
-#: ../who.c:180
+#: ../who.c:176
 msgid "Change room name"
 msgstr "Skift rum navn"
 
-#: ../who.c:184
+#: ../who.c:180
 msgid "Host name:"
 msgstr "Host navn:"
 
-#: ../who.c:189
+#: ../who.c:185
 msgid "Change host name"
 msgstr "Skift host navn"
 
-#: ../who.c:199
+#: ../who.c:195
 msgid "Change user name"
 msgstr "Skift brugernavn"
 
-#: ../wiki.c:56
+#: ../wiki.c:55 ../wiki.c:148 ../wiki.c:270
 #, c-format
 msgid "There is no room called '%s'."
 msgstr "Der er ikke noget rum der hedder '%s'."
 
-#: ../wiki.c:66
+#: ../wiki.c:62
 #, c-format
 msgid "'%s' is not a Wiki room."
 msgstr "'%s' er ikke et Wiki rum."
 
-#: ../wiki.c:92
+#: ../wiki.c:96
 #, c-format
 msgid "There is no page called '%s' here."
 msgstr "Der er ikke nogen side her der hedder '%s'"
 
-#: ../wiki.c:94
+#: ../wiki.c:98
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
@@ -2609,213 +2442,28 @@ msgstr ""
 "Vælg 'Editér denne side' link i rum banneret hvis du gerne vil oprette denne "
 "side."
 
-#: ../static/t/add_node.html:5 ../static/t/display_netconf.html:10
-#: ../static/t/edit_node.html:5
-msgid "Add a new node"
-msgstr "Tilføj en ny node"
+#: ../wiki.c:169 ../static/t/msg_listview.html:12
+#: ../static/t/summary_header.html:11
+msgid "Date"
+msgstr "Dato"
 
-#: ../static/t/add_node.html:15 ../static/t/edit_node.html:15
-#: ../static/t/tab_siteconfig_general.html:9
-msgid "Node name"
-msgstr "Node navn"
-
-#: ../static/t/add_node.html:17 ../static/t/edit_node.html:17
-msgid "Shared secret"
-msgstr "Delt kodeord"
-
-#: ../static/t/add_node.html:19 ../static/t/edit_node.html:19
-msgid "Host or IP address"
-msgstr "Vært eller IP adresse"
-
-#: ../static/t/add_node.html:21 ../static/t/edit_node.html:21
-msgid "Port number"
-msgstr "Port nummer"
-
-#: ../static/t/aide_floorconfig.html:2
-msgid "Add, change, or delete floors"
-msgstr "Tilføj, ret, slet etager"
-
-#: ../static/t/aide_global_config.html:2
-msgid "Edit site-wide configuration"
-msgstr "Editér site konfiguration"
-
-#: ../static/t/aide_global_config.html:3
-msgid "Domain names and Internet mail configuration"
-msgstr "Domænenavne og Internet post konfiguration"
-
-#: ../static/t/aide_global_config.html:4
-msgid "Configure replication with other Citadel servers"
-msgstr "Konfigurér replikéring med andre Citadel servere"
-
-#: ../static/t/aide_inet_aliases.html:2
-msgid "(domains for which this host receives mail)"
-msgstr "(domæner som denne vært modtager post for)"
-
-#: ../static/t/aide_inet_clamav.html:2
-#, fuzzy
-msgid "(hosts running the ClamAV clamd service)"
-msgstr "(værter som kører ClamAV clamd service"
-
-#: ../static/t/aide_inet_dirnames.html:2
-msgid "(domains mapped with the Global Address Book)"
-msgstr "(domæner mappet med Global Adressebog"
-
-#: ../static/t/aide_inet_masqdomains.html:2
-msgid "(Domains as which users are allowed to masquerade)"
-msgstr "(Domæner som brugere må benytte som maskerade)"
-
-#: ../static/t/aide_inet_rbldns.html:2
-msgid "(hosts running a Realtime Blackhole List)"
-msgstr "(værter som har en Realtime Blackhole List"
-
-#: ../static/t/aide_inet_smarthosts.html:2
-msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr "(hvis tilgænglig, videresend alt udgående post til en af disse værter)"
-
-#: ../static/t/aide_inet_spamass.html:2
-msgid "(hosts running the SpamAssassin service)"
-msgstr "(værter som kører SpamAssassin service)"
-
-#: ../static/t/aide_inetconf.html:5 ../static/t/display_aide_menu.html:5
-msgid "System Administration Menu"
-msgstr "System Administration Menu"
-
-#: ../static/t/aide_inetconf.html:6 ../static/t/display_aide_menu.html:6
-#, fuzzy
-msgid "Room Aide Menu"
-msgstr "Rum Systemansvarlig Menu"
-
-#: ../static/t/aide_inetconf.html:14 ../static/t/subject_inet_aliases.html:1
-msgid "Local host aliases"
-msgstr "Lokal vært aliaser"
-
-#: ../static/t/aide_inetconf.html:15
-msgid "Directory domains"
-msgstr "Directory domæner"
-
-#: ../static/t/aide_inetconf.html:16
-msgid "Smart hosts"
-msgstr "Smart værter"
-
-#: ../static/t/aide_inetconf.html:21
-msgid "RBL hosts"
-msgstr "RBL værter"
-
-#: ../static/t/aide_inetconf.html:22
-msgid "SpamAssassin hosts"
-msgstr "SpamAssassin værter"
-
-#: ../static/t/aide_inetconf.html:23
-msgid "ClamAV clamd hosts"
-msgstr "ClamAV clamd værter"
-
-#: ../static/t/aide_inetconf.html:24
-#, fuzzy
-msgid "Masqueradable domains"
-msgstr "Maskerade domæner"
-
-#: ../static/t/aide_restart.html:2
-msgid "Restart Now"
-msgstr "Genstart Nu"
-
-#: ../static/t/aide_restart.html:3
-msgid "Restart after paging users"
-msgstr "Genstart efter brugere har fået besked"
-
-#: ../static/t/aide_restart.html:4
-msgid "Restart when all users are idle"
-msgstr "Genstart når alle brugere er inaktive"
-
-#: ../static/t/aide_usermanagement.html:2
-msgid "Add, change, delete user accounts"
-msgstr "Tilføj, ret, slet bruger konti"
-
-#: ../static/t/box_edituser_select.html:1
-msgid ""
-"To edit an existing user account, select the user name from the list and "
-"click 'Edit'."
-msgstr ""
-"For at editére en eksisterende brugerkonto, vælg et brugernavn fra listen og "
-"klik 'Editér'."
-
-#: ../static/t/box_preferences.html:9
-msgid "Tree (folders) view"
-msgstr "Træ (bibliotek) visning"
-
-#: ../static/t/box_preferences.html:11
-msgid "Table (rooms) view"
-msgstr "Tabel (rum) visning"
-
-#: ../static/t/box_preferences.html:20
-msgid "12 hour (am/pm)"
-msgstr "12 timer (am/pm)"
-
-#: ../static/t/box_preferences.html:25
-msgid "24 hour"
-msgstr "24 timer"
-
-#: ../static/t/box_preferences.html:152
-#, fuzzy
-msgid "Sunday"
-msgstr "Søndag"
-
-#: ../static/t/box_preferences.html:153
-msgid "Monday"
-msgstr "Mandag"
-
-#: ../static/t/box_preferences.html:174
-msgid "No signature"
-msgstr "Ingen signatur"
-
-#: ../static/t/box_preferences.html:238
-msgid "Full-functionality"
-msgstr "Fuld funktionalitet"
-
-#: ../static/t/box_preferences.html:241
-msgid "Safe mode"
-msgstr "Sikker kørsel"
-
-#: ../static/t/box_preferences.html:242
-msgid ""
-"Safe mode is less intensive on your web browser, but not as fully featured."
+#: ../wiki.c:170
+msgid "Author"
 msgstr ""
 
-#: ../static/t/box_serverrestart.html:3
-msgid "Please wait while the Citadel server is restarted... "
-msgstr "Vent mens Citadel server genstarter"
+#: ../wiki.c:197 ../wiki.c:206
+#, fuzzy
+msgid "(show)"
+msgstr "(hjem)"
 
-#: ../static/t/box_serverrestartpagedo.html:3
-msgid ""
-"Please wait while your users are being paged, the citadel server will be "
-"restarted after that... "
+#: ../wiki.c:211
+#, fuzzy
+msgid "(revert)"
+msgstr "(fjern)"
+
+#: ../wiki.c:291
+msgid "Page title"
 msgstr ""
-"Vent mens dine brugere får besked, Citadel serveren derefter genstarte..."
-
-#: ../static/t/display_aide_menu.html:13
-msgid "Global Configuration"
-msgstr "Global Konfiguration"
-
-#: ../static/t/display_aide_menu.html:15
-msgid "User account management"
-msgstr "Bruger konto administration"
-
-#: ../static/t/display_aide_menu.html:17
-#: ../static/t/subject_aiderestart.html:1
-msgid "Shutdown Citadel"
-msgstr "Luk Citadel"
-
-#: ../static/t/display_aide_menu.html:19
-#: ../static/t/subject_floorconfig.html:1
-msgid "Rooms and Floors"
-msgstr "Rum og Etager"
-
-#: ../static/t/display_ignet_confirmdelete.html:5
-msgid "Confirm delete"
-msgstr "Godkend sletning"
-
-#: ../static/t/display_ignet_confirmdelete.html:11
-msgid "Are you sure you want to delete "
-msgstr "Er du sikker på du vil slette?"
 
 #: ../static/t/display_main_menu.html:8
 msgid "Basic commands"
@@ -2829,146 +2477,52 @@ msgstr "Din information"
 msgid "Advanced room commands"
 msgstr "Avancerede rum kommandoer"
 
-#: ../static/t/display_netconf.html:4
-msgid "Network configuration"
-msgstr "Netværk konfiguration"
-
-#: ../static/t/display_netconf.html:14
-msgid "Currently configured nodes"
-msgstr "Konfigurede noder"
-
-#: ../static/t/display_serverrestart.html:30
-#, fuzzy
-msgid "Restart Citadel"
-msgstr "Gør dette til min startside"
-
-#: ../static/t/display_serverrestartpage.html:4
-#, fuzzy
-msgid "Message to your Users:"
-msgstr "Meddelelse til dine brugere:"
-
-#: ../static/t/display_sitewide_config.html:3
-msgid "Site configuration"
-msgstr "Site konfiguration"
-
-#: ../static/t/display_sitewide_config.html:6
-#: ../static/t/edituser_select.html:10
-msgid "You need to be aide to view this."
-msgstr "Du skal være Sytemansvarlig for at se dette."
-
-#: ../static/t/display_sitewide_config.html:11
-msgid "General"
-msgstr "Generelt"
-
-#: ../static/t/display_sitewide_config.html:12
-msgid "Access"
-msgstr "Adgang"
-
-#: ../static/t/display_sitewide_config.html:13
-msgid "Network"
-msgstr "Netværk"
-
-#: ../static/t/display_sitewide_config.html:14
-#: ../static/t/subject_tuning.html:1
-msgid "Tuning"
-msgstr "Tuning"
-
-#: ../static/t/display_sitewide_config.html:15
-msgid "Directory"
-msgstr "Bibliotek"
-
-#: ../static/t/display_sitewide_config.html:16
-msgid "Auto-purger"
-msgstr "Auto-tømmer"
-
-#: ../static/t/display_sitewide_config.html:17
-msgid "Indexing/Journaling"
-msgstr "Index/Journal"
-
-#: ../static/t/display_sitewide_config.html:18
-#: ../static/t/subject_pushmail.html:1
-#: ../static/t/tab_siteconfig_pushmail.html:2
-#, fuzzy
-msgid "Push Email"
-msgstr "Skub Email"
-
-#: ../static/t/display_sitewide_config.html:19
-msgid "Pop3"
-msgstr "Pop3"
-
-#: ../static/t/edit_message.html:20
+#: ../static/t/edit_message.html:25
 #, fuzzy
 msgid "from"
 msgstr "fra"
 
-#: ../static/t/edit_message.html:26 ../static/t/edit_message.html:35
+#: ../static/t/edit_message.html:31 ../static/t/edit_message.html:40
 #, fuzzy
 msgid "Anonymous"
 msgstr "Anonym"
 
-#: ../static/t/edit_message.html:44
+#: ../static/t/edit_message.html:49
 #, fuzzy
 msgid "in"
 msgstr "i"
 
-#: ../static/t/edit_message.html:48
+#: ../static/t/edit_message.html:53
 msgid "To:"
 msgstr "Til:"
 
-#: ../static/t/edit_message.html:59 ../static/t/view_message.html:15
-#: ../static/t/view_message_print.html:15
+#: ../static/t/edit_message.html:64 ../static/t/view_message.html:16
 msgid "CC:"
 msgstr "CC:"
 
-#: ../static/t/edit_message.html:65
+#: ../static/t/edit_message.html:70
 msgid "BCC:"
 msgstr "BCC:"
 
-#: ../static/t/edit_message.html:73 ../static/t/view_message.html:16
-#: ../static/t/view_message_print.html:16
-#: ../static/t/view_message_replyquote.html:9
+#: ../static/t/edit_message.html:78 ../static/t/view_message.html:17
 msgid "Subject:"
 msgstr "Emne:"
 
-#: ../static/t/edit_message.html:74
+#: ../static/t/edit_message.html:79
 msgid "Subject (optional):"
 msgstr "Emne (valgfrit):"
 
-#: ../static/t/edit_message.html:89
+#: ../static/t/edit_message.html:95
 msgid "--- forwarded message ---"
 msgstr "--- videresendt meddelelse ---"
 
-#: ../static/t/edit_message.html:112
+#: ../static/t/edit_message.html:115
 msgid "Attachments:"
 msgstr "Vedhæftede filer"
 
-#: ../static/t/edit_message.html:116
+#: ../static/t/edit_message.html:119
 msgid "Attach file:"
 msgstr "Vedhæft fil:"
-
-#: ../static/t/edituser_add.html:1
-msgid ""
-"To create a new user account, enter the desired user name in the box below "
-"and click 'Create'."
-msgstr ""
-"For at oprette en ny brugerkonto, skriv det ønskede navn i boksen nedenfor "
-"og klik 'Opret'."
-
-#: ../static/t/edituser_add.html:5
-msgid "New user: "
-msgstr "Ny bruger: "
-
-#: ../static/t/edituser_select.html:5
-msgid "Edit or delete users"
-msgstr "Editér eller slet brugere"
-
-#: ../static/t/edituser_select.html:17
-msgid "Add users"
-msgstr "Tilføj brugere"
-
-#: ../static/t/edituser_select.html:19
-msgid "Edit or Delete users"
-msgstr "Editér eller slet brugere"
 
 #: ../static/t/files.html:3
 msgid "Files available for download in"
@@ -2998,71 +2552,98 @@ msgstr "Beskrivelse:"
 msgid "Upload a file:"
 msgstr "upload en fil:"
 
-#: ../static/t/files_jspicview.html:6
-#, fuzzy
-msgid "Pictures in"
-msgstr "Billeder i"
-
 #: ../static/t/iconbar.html:17
 msgid "Mail"
 msgstr "Post"
+
+#: ../static/t/iconbar.html:42
+msgid "Rooms"
+msgstr "Rum"
 
 #: ../static/t/iconbar.html:47
 #, fuzzy
 msgid "Online users"
 msgstr "Online brugere"
 
-#: ../static/t/iconbar.html:51
-#, fuzzy
-msgid "Loading"
-msgstr "Indlæser"
+#: ../static/t/iconbar.html:56
+msgid "Chat"
+msgstr "Chat"
 
 #: ../static/t/iconbar.html:62
 msgid "Advanced"
 msgstr "Avanceret"
 
-#: ../static/t/iconbar.html:80
+#: ../static/t/iconbar.html:77
 msgid "customize this menu"
 msgstr "personliggør denne menu"
 
-#: ../static/t/iconbar.html:83
+#: ../static/t/iconbar.html:80
 msgid "switch to room list"
 msgstr "skift til rum listen"
 
-#: ../static/t/iconbar.html:84
+#: ../static/t/iconbar.html:81
 msgid "switch to menu"
 msgstr "skift til menu"
 
-#: ../static/t/iconbar.html:85
+#: ../static/t/iconbar.html:82
 #, fuzzy
 msgid "My folders"
 msgstr "Mine foldere"
 
-#: ../static/t/login.html:5 ../static/t/openid_login.html:5
+#: ../static/t/knrooms.html:5
+msgid "Room list"
+msgstr "Rum liste"
+
+#: ../static/t/knrooms.html:5
+msgid "Folder list"
+msgstr "Folder liste"
+
+#: ../static/t/knrooms.html:19
+#, fuzzy
+msgid "View as room list"
+msgstr "skift til rum listen"
+
+#: ../static/t/knrooms.html:20
+#, fuzzy
+msgid "View as folder list"
+msgstr "Folder liste"
+
+#: ../static/t/knrooms.html:37
+#, fuzzy
+msgid "Room Listing"
+msgstr "Rum liste"
+
+#: ../static/t/login.html:4 ../static/t/openid_login.html:4
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
+#: ../static/t/login.html:8 ../static/t/openid_login.html:8
 msgid "powered by"
 msgstr "powered by"
 
-#: ../static/t/login.html:18
+#: ../static/t/login.html:21
 msgid "Password:"
 msgstr "Adgangskode"
 
-#: ../static/t/login.html:20 ../static/t/openid_login.html:18
+#: ../static/t/login.html:23 ../static/t/openid_login.html:21
 msgid "Language:"
 msgstr "Sprog"
 
-#: ../static/t/login.html:36
+#: ../static/t/login.html:39
 msgid "Log in using OpenID"
 msgstr "Log ind med OpenID"
 
-#: ../static/t/login.html:40
+#: ../static/t/login.html:43
 msgid "If you already have an account on"
 msgstr "Hvis du allerede har en konto på"
 
-#: ../static/t/login.html:41
+#: ../static/t/login.html:44
 msgid "enter your user name and password and click &quot;Login.&quot;"
 msgstr "indtast dit brugernavn og klik &quot;Login.&quot;"
 
-#: ../static/t/login.html:42
+#: ../static/t/login.html:45
 msgid ""
 "<b>If you are a new user</b>, enter the name and password you wish to use, "
 "and click &quot;New User.&quot; "
@@ -3070,20 +2651,20 @@ msgstr ""
 "Du er ny bruger<br>, indtast det navn og adgangskode du vil benytte. og klik "
 "&quot;Ny Bruger.&quot; "
 
-#: ../static/t/login.html:43 ../static/t/openid_login.html:34
+#: ../static/t/login.html:46 ../static/t/openid_login.html:37
 msgid "Please log off properly when finished. "
 msgstr "Log af ordentligt når du er færdig. "
 
-#: ../static/t/login.html:44 ../static/t/openid_login.html:35
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
 #, fuzzy
 msgid "See the"
 msgstr "Se"
 
-#: ../static/t/login.html:44 ../static/t/openid_login.html:35
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
 msgid "recommended browser list"
 msgstr "anbefalet browser liste"
 
-#: ../static/t/login.html:44 ../static/t/openid_login.html:35
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
 msgid ""
 "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
 "turned on. "
@@ -3091,121 +2672,13 @@ msgstr ""
 "hvis du har problemer med Webcit.</li> <li>Du skal have <i>cookies</i> slået "
 "til. "
 
-#: ../static/t/login.html:45 ../static/t/openid_login.html:36
+#: ../static/t/login.html:48 ../static/t/openid_login.html:39
 msgid ""
 "Also keep in mind that if your browser is configured to block pop-up "
 "windows, you will not be able to receive any instant messages."
 msgstr ""
 "Husk også at hvis din browser er sat til at blokere pop-ups, vil du ikke "
 "være i stand til at modtage popup medelelser."
-
-#: ../static/t/menu_advanced_roomcommands.html:3
-msgid "Edit or delete this room"
-msgstr "Editér eller slet dette rum"
-
-#: ../static/t/menu_advanced_roomcommands.html:5
-msgid "Go to a 'hidden' room"
-msgstr "Gå til et 'skjult' rum"
-
-#: ../static/t/menu_advanced_roomcommands.html:7
-#, fuzzy
-msgid "Zap (forget) this room"
-msgstr "Zap (glem) dette rum (%s)"
-
-#: ../static/t/menu_advanced_roomcommands.html:8
-msgid "List all forgotten rooms"
-msgstr "Vis alle glemte rum"
-
-#: ../static/t/menu_basic_commands.html:3
-msgid "List known rooms"
-msgstr "Vist kendte rum"
-
-#: ../static/t/menu_basic_commands.html:3
-msgid "Where can I go from here?"
-msgstr "Hvor kan jeg komme hen?"
-
-#: ../static/t/menu_basic_commands.html:4
-#, fuzzy
-msgid "...with <em>unread</em> messages"
-msgstr "...med <em>ikke læste</em> meddelelser"
-
-#: ../static/t/menu_basic_commands.html:5
-msgid "Skip to next room"
-msgstr "Fortsæt til næste rum"
-
-#: ../static/t/menu_basic_commands.html:5
-msgid "(come back here later)"
-msgstr "(kom tilbage hertil senere)"
-
-#: ../static/t/menu_basic_commands.html:6
-#, fuzzy
-msgid "oops! Back to "
-msgstr "(Hovsa! Tilbage til )"
-
-#: ../static/t/menu_basic_commands.html:10
-msgid "...in this room"
-msgstr "...i dette rum"
-
-#: ../static/t/menu_basic_commands.html:11
-msgid "...old <em>and</em> new"
-msgstr "...gamle <em>og</em> nye"
-
-#: ../static/t/menu_basic_commands.html:12
-msgid "(post in this room)"
-msgstr "(opret i dette rum)"
-
-#: ../static/t/menu_basic_commands.html:13
-msgid "File library"
-msgstr "Fil bibliotek"
-
-#: ../static/t/menu_basic_commands.html:13
-msgid "(List files available for download)"
-msgstr "(Vis filer som du kan downloade)"
-
-#: ../static/t/menu_basic_commands.html:17
-msgid "Summary page"
-msgstr "Summerings side"
-
-#: ../static/t/menu_basic_commands.html:17
-msgid "Summary of my account"
-msgstr "Summering af min konto"
-
-#: ../static/t/menu_basic_commands.html:18
-msgid "User list"
-msgstr "Bruger liste"
-
-#: ../static/t/menu_basic_commands.html:18
-msgid "(all registered users)"
-msgstr "(alle registrerede brugere)"
-
-#: ../static/t/menu_basic_commands.html:19
-msgid "Bye!"
-msgstr "Farvel!"
-
-#: ../static/t/menu_your_info.html:2
-msgid "Change your preferences and settings"
-msgstr "Ændre dine præferencer og indstillinger"
-
-#: ../static/t/menu_your_info.html:3
-msgid "Update your contact information"
-msgstr "Opdatér din kontakt information"
-
-#: ../static/t/menu_your_info.html:5
-msgid "Enter your 'bio'"
-msgstr "Indtast din 'bio'"
-
-#: ../static/t/menu_your_info.html:6
-msgid "Edit your online photo"
-msgstr "Editér dit online foto"
-
-#: ../static/t/menu_your_info.html:8
-msgid "Edit your push email settings"
-msgstr "Editér dine skub email indstillinger"
-
-#: ../static/t/menu_your_info.html:9
-#, fuzzy
-msgid "Manage your OpenIDs"
-msgstr "Tilret dine OpenID'er"
 
 #: ../static/t/msg_listselector_bottom.html:2
 #: ../static/t/msg_listselector_top.html:2
@@ -3228,10 +2701,6 @@ msgstr "ældste til nyeste"
 msgid "newest to oldest"
 msgstr "nyeste til ældste"
 
-#: ../static/t/msg_listview.html:12 ../static/t/summary_header.html:11
-msgid "Date"
-msgstr "Dato"
-
 #: ../static/t/msg_listview.html:20
 msgid "Loading messages from server, please wait"
 msgstr "Henter meddelser fra server, vent venligst"
@@ -3244,7 +2713,7 @@ msgstr "Åbn i nyt vindue"
 msgid "Copy"
 msgstr "Kopiér"
 
-#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:39
+#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:43
 msgid "Print"
 msgstr "Udskriv"
 
@@ -3264,20 +2733,20 @@ msgid ""
 "you begin on when you log on to"
 msgstr ""
 
-#: ../static/t/openid_login.html:16
+#: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
 msgstr ""
 
-#: ../static/t/openid_login.html:28
+#: ../static/t/openid_login.html:31
 msgid "Log in using a user name and password"
 msgstr ""
 
-#: ../static/t/openid_login.html:31
+#: ../static/t/openid_login.html:34
 #, fuzzy
 msgid "Enter your OpenID URL and click &quot;Login&quot;."
 msgstr "indtast dit brugernavn og klik &quot;Login.&quot;"
 
-#: ../static/t/openid_login.html:33
+#: ../static/t/openid_login.html:36
 msgid "Click here to learn what OpenID is and how Citadel is using it."
 msgstr ""
 
@@ -3285,516 +2754,818 @@ msgstr ""
 msgid "Preferences and settings"
 msgstr "Præferencer og indstillinger"
 
-#: ../static/t/pushemail.html:2
-#, fuzzy
-msgid "Configure Push Email"
-msgstr "Skub Email"
-
-#: ../static/t/pushemail.html:8
-msgid "Push email and SMS settings"
-msgstr "Skub email og SMS indstillinger"
-
-#: ../static/t/pushemail.html:16
-msgid ""
-"If your administrator has enabled the functionality, Citadel can notify a "
-"Funambol server that you haved recieved new email and automatically "
-"syncronize any devices you have with the Funambol client installed."
-msgstr ""
-
-#: ../static/t/pushemail.html:19
-msgid ""
-"Alternatively, if the administrator has configured it, Citadel can send a "
-"text message to you when new mail arrives."
-msgstr ""
-
-#: ../static/t/pushemail.html:28
-msgid ""
-"(Use international format, without any leading zeros, spaces or hypens, like "
-"+61415011501)"
-msgstr ""
-
-#: ../static/t/pushemail.html:31
-msgid "Don't send any notifications"
-msgstr ""
-
-#: ../static/t/roombanner.html:14
+#: ../static/t/roombanner.html:19
 #, fuzzy
 msgid "Select page: "
 msgstr "Vælg"
 
-#: ../static/t/section_files_onefile.html:20
-msgid "Slideshow"
-msgstr "Lysbilledshow"
-
-#: ../static/t/section_ignetconf.html:4
-msgid "(Edit)"
-msgstr "(Editér)"
-
-#: ../static/t/tab_siteconfig_access.html:1
-msgid "Access controls and site policy settings"
-msgstr "Adgangskontrol og site politik indstillinger"
-
-#: ../static/t/tab_siteconfig_access.html:4
-msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-"Giv automatisk rum-ansvarlig status til den bruger der opretter private rum"
-
-#: ../static/t/tab_siteconfig_access.html:7
-msgid "Initial access level for new users"
-msgstr "Adgangsrettighed for nye brugere"
-
-#: ../static/t/tab_siteconfig_access.html:18
-msgid "Require registration for new users"
-msgstr "Kræv registrering af nye brugere"
-
-#: ../static/t/tab_siteconfig_access.html:21
-msgid "Quarantine messages from problem users"
-msgstr "Sæt meddelelser fra problem brugere i karantæne"
-
-#: ../static/t/tab_siteconfig_access.html:24
-msgid "Name of quarantine room"
-msgstr "Navn på karantæne rum"
-
-#: ../static/t/tab_siteconfig_access.html:27
-msgid "Restrict access to Internet mail"
-msgstr "Blokér adgang til Internet Email"
-
-#: ../static/t/tab_siteconfig_access.html:30
-msgid "Name of room to log pages"
-msgstr "Navn på rum for log sider"
-
-#: ../static/t/tab_siteconfig_access.html:33
-msgid "Access level required to create rooms"
-msgstr "Adgangsrettighed krævet for at oprette rum"
-
-#: ../static/t/tab_siteconfig_access.html:44
-msgid "Allow aides to zap (forget) rooms"
-msgstr "Tillad ansvarlige at zappe (glemme) rum"
-
-#: ../static/t/tab_siteconfig_access.html:47
-msgid "Disable self-service user account creation"
-msgstr "Slå selvservice brugeroprettelse fra"
-
-#: ../static/t/tab_siteconfig_access.html:50
-msgid "Authentication mode"
-msgstr "Autosisations måde"
-
-#: ../static/t/tab_siteconfig_access.html:52
-msgid "Self contained"
-msgstr "Indeholder"
-
-#: ../static/t/tab_siteconfig_access.html:53
-msgid "Host based"
-msgstr "Host navn"
-
-#: ../static/t/tab_siteconfig_access.html:54
-msgid "LDAP (RFC2307)"
-msgstr ""
-
-#: ../static/t/tab_siteconfig_access.html:55
-msgid "LDAP (Active Directory)"
-msgstr ""
-
-#: ../static/t/tab_siteconfig_access.html:58
-#, fuzzy
-msgid "Master user name (blank to disable)"
-msgstr "Master brugernavn (blank for at slå fra)"
-
-#: ../static/t/tab_siteconfig_access.html:61
-#, fuzzy
-msgid "Master user password"
-msgstr "Master bruger adgangskode:"
-
-#: ../static/t/tab_siteconfig_autopurger.html:2
-msgid "Configure automatic expiry of old messages"
-msgstr "Konfigurér automatisk udløb af meddelser"
-
-#: ../static/t/tab_siteconfig_autopurger.html:3
-msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr "Disse indstillinger kan blive overskrevet på etage eller rum niveau."
-
-#: ../static/t/tab_siteconfig_autopurger.html:7
-msgid "Hour to run database auto-purge"
-msgstr "Tid for at køre database auto-tøm"
-
-#: ../static/t/tab_siteconfig_autopurger.html:67
-msgid "Default message expire policy for public rooms"
-msgstr "Standard meddelelse udløb for offentlige rum"
-
-#: ../static/t/tab_siteconfig_autopurger.html:82
-msgid "Default message expire policy for private mailboxes"
-msgstr "Standard meddelelse udløb for private postkasser"
-
-#: ../static/t/tab_siteconfig_autopurger.html:84
-msgid "Same policy as public rooms"
-msgstr "Samme politik som for offentlige rum"
-
-#: ../static/t/tab_siteconfig_directory.html:2
-msgid "Configure the LDAP connector for Citadel"
-msgstr "Konfigurér LDAP forbindelse for Citadel"
-
-#: ../static/t/tab_siteconfig_directory.html:4
-#: ../static/t/tab_siteconfig_network.html:3
-msgid ""
-"Changes made on this screen will not take effect until you restart the "
-"Citadel server."
-msgstr ""
-"Ændringer på denne skærm vil ikke blive effektueret før du har genstartet "
-"Citadel serveren."
-
-#: ../static/t/tab_siteconfig_directory.html:5
-msgid ""
-"NOTE: This Citadel server has been built without LDAP support.  These "
-"options will have no effect."
-msgstr ""
-"NOTE: Denne Citadel server er blevet installeret uden support af LDAP. Disse "
-"indstillinger vil ikke have nogen betydning."
-
-#: ../static/t/tab_siteconfig_directory.html:10
-msgid "Host name of LDAP server (blank to disable)"
-msgstr "Navn på LDAP server (blank for at slå fra)"
-
-#: ../static/t/tab_siteconfig_directory.html:14
-msgid "Port number of LDAP server (blank to disable)"
-msgstr "Port nummer op LDAP server (blank for at slå fra)"
-
-#: ../static/t/tab_siteconfig_directory.html:17
-msgid "Base DN"
-msgstr "Base DN"
-
-#: ../static/t/tab_siteconfig_directory.html:20
-msgid "Bind DN"
-msgstr "Forbind DN"
-
-#: ../static/t/tab_siteconfig_directory.html:23
-msgid "Password for bind DN"
-msgstr "Adgangskode for forbind DN"
-
-#: ../static/t/tab_siteconfig_general.html:2
-msgid "General site configuration items"
-msgstr "Generelle site konfigurationsemner"
-
-#: ../static/t/tab_siteconfig_general.html:6
-msgid "Change Login Logo"
-msgstr "Skift Login Logo"
-
-#: ../static/t/tab_siteconfig_general.html:7
-msgid "Change Logout Logo"
-msgstr "Skift Logout Logo"
-
-#: ../static/t/tab_siteconfig_general.html:12
-msgid "Fully qualified domain name"
-msgstr "Fuld kvalificeret domæne navn"
-
-#: ../static/t/tab_siteconfig_general.html:15
-msgid "Human-readable node name"
-msgstr "Meneskelæseligt node navn"
-
-#: ../static/t/tab_siteconfig_general.html:18
-msgid "Telephone number"
-msgstr "Telefon nummer"
-
-#: ../static/t/tab_siteconfig_general.html:21
-msgid "Paginator prompt (for text mode clients)"
-msgstr "Paginator prompt (for tekst klienter)"
-
-#: ../static/t/tab_siteconfig_general.html:24
-msgid "Geographic location of this system"
-msgstr "Geografisk lokation af dette system"
-
-#: ../static/t/tab_siteconfig_general.html:27
-msgid "Name of system administrator"
-msgstr "Navn på Systemadministror"
-
-#: ../static/t/tab_siteconfig_general.html:30
-msgid "Default timezone for unzoned calendar items"
-msgstr "Standard tidszone til Kalender aftaler ikke i zone"
-
-#: ../static/t/tab_siteconfig_indexing.html:2
-msgid "Indexing and Journaling"
-msgstr "Index og Journal"
-
-#: ../static/t/tab_siteconfig_indexing.html:3
-msgid "Warning: these facilities are resource intensive."
-msgstr "Advarsel: disse faciliteter er resourcekrævende."
-
-#: ../static/t/tab_siteconfig_indexing.html:7
-msgid "Enable full text index"
-msgstr "Slå fuld tekst index til"
-
-#: ../static/t/tab_siteconfig_indexing.html:10
-msgid "Perform journaling of email messages"
-msgstr "Brug journal på Email meddelelser"
-
-#: ../static/t/tab_siteconfig_indexing.html:14
-msgid "Perform journaling of non-email messages"
-msgstr "Brug journal på ikke-Email meddelelser"
-
-#: ../static/t/tab_siteconfig_indexing.html:17
-msgid "Email destination of journalized messages"
-msgstr "Email destination på journaliserede meddelelser"
-
-#: ../static/t/tab_siteconfig_network.html:2
-msgid "Network services"
-msgstr "Netværk service"
-
-#: ../static/t/tab_siteconfig_network.html:7
-msgid "SMTP MTA port (-1 to disable)"
-msgstr "SMTP MTA port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_network.html:10
-msgid "Correct forged From: lines during authenticated SMTP"
-msgstr "Ret falske Fra: linier under autentification SMTP"
-
-#: ../static/t/tab_siteconfig_network.html:13
-msgid "Flag message as spam, instead of rejecting it"
-msgstr "Markér meddelse som spam, istedet for at afvise den"
-
-#: ../static/t/tab_siteconfig_network.html:16
-msgid "IMAP listener port (-1 to disable)"
-msgstr "IMAP lytte port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_network.html:20
-msgid "Network run frequency (in seconds)"
-msgstr "Netværk kør frekvens (i sekunder)"
-
-#: ../static/t/tab_siteconfig_network.html:23
-msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr "Serverens IP adresse (0.0.0.0 vælger alle)"
-
-#: ../static/t/tab_siteconfig_network.html:26
-msgid "SMTP MSA port (-1 to disable)"
-msgstr "SMTP MSA port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_network.html:29
-msgid "IMAP over SSL port (-1 to disable)"
-msgstr "IMAP over SSL port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_network.html:32
-msgid "SMTP over SSL port (-1 to disable)"
-msgstr "SMTP over SSL port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_network.html:35
-msgid "Instantly expunge deleted messages in IMAP"
-msgstr "Fjern slettede meddelelser med det samme i IMAP"
-
-#: ../static/t/tab_siteconfig_network.html:39
-#, fuzzy
-msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr "Tillad uautoriserede SMTP klienter at benytte denne site's domæne"
-
-#: ../static/t/tab_siteconfig_network.html:42
-msgid "Postfix TCP Dictionary Port"
-msgstr "Postfix TCP Dictionary Port"
-
-#: ../static/t/tab_siteconfig_network.html:42
-#, fuzzy
-msgid "-1 to disable"
-msgstr "-1 for at deaktivere."
-
-#: ../static/t/tab_siteconfig_network.html:45
-#, fuzzy
-msgid "ManageSieve Port (-1 to disable)"
-msgstr "ManageSieve port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_network.html:48
-msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr "Udfør RBL check ved forbindelse i stedet for efter RCPT"
-
-#: ../static/t/tab_siteconfig_network.html:51
-msgid "Keep original from headers in IMAP"
-msgstr "Behold originale headere i IMAP"
-
-#: ../static/t/tab_siteconfig_network.html:54
-#, fuzzy
-msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr "XMPP (Jabber) klient til server port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_network.html:57
-#, fuzzy
-msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr "XMPP (Jabber) server til server port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_pop3.html:2
-msgid "POP3"
-msgstr "POP3"
-
-#: ../static/t/tab_siteconfig_pop3.html:6
-msgid "POP3 listener port (-1 to disable)"
-msgstr "POP3 lytte port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_pop3.html:9
-msgid "POP3 over SSL port (-1 to disable)"
-msgstr "POP3 over SSL port (-1 = afbrudt)"
-
-#: ../static/t/tab_siteconfig_pop3.html:12
-#, fuzzy
-msgid "POP3 fetch frequency in seconds"
-msgstr "POP3 hent frekvens i sekunder"
-
-#: ../static/t/tab_siteconfig_pop3.html:15
-#, fuzzy
-msgid "POP3 fastest fetch frequency in seconds"
-msgstr "POP3 hurtigste hent frekvens i sekunder"
-
-#: ../static/t/tab_siteconfig_pushmail.html:6
-#, fuzzy
-msgid "Funambol server host (blank to disable)"
-msgstr "Funambol server vært (blank for at slå fra)"
-
-#: ../static/t/tab_siteconfig_pushmail.html:9
-msgid "Funambol server port "
-msgstr "Funambol server port"
-
-#: ../static/t/tab_siteconfig_pushmail.html:12
-msgid "Funambol sync source"
-msgstr "Funambol synkronisering kilde"
-
-#: ../static/t/tab_siteconfig_pushmail.html:15
-msgid "Funambol auth details (user:pass)"
-msgstr "Funambol autorisation detaljer (bruger:adgangskode)"
-
-#: ../static/t/tab_siteconfig_pushmail.html:18
-#, fuzzy
-msgid "External pager tool (blank to disable)"
-msgstr "Extern pager værktøj (blank for at slå fra)"
-
-#: ../static/t/tab_siteconfig_tuning.html:1
-msgid "Advanced server fine-tuning controls"
-msgstr "Avanceret server finindstilling kontroller"
-
-#: ../static/t/tab_siteconfig_tuning.html:4
-msgid "Server connection idle timeout (in seconds)"
-msgstr "Server forbindelse inaktivitetstimeout (i sekunder)"
-
-#: ../static/t/tab_siteconfig_tuning.html:7
-msgid "Maximum concurrent sessions (0 = no limit)"
-msgstr "Maximum antal samtidige sessioner (0 = ingen max)"
-
-#: ../static/t/tab_siteconfig_tuning.html:10
-msgid "Default user purge time (days)"
-msgstr "Standard bruger tøm tid (dage)"
-
-#: ../static/t/tab_siteconfig_tuning.html:13
-msgid "Default room purge time (days)"
-msgstr "Standard rum tøm tid (dage)"
-
-#: ../static/t/tab_siteconfig_tuning.html:16
-msgid "Maximum message length"
-msgstr "Maximum meddelelse længde"
-
-#: ../static/t/tab_siteconfig_tuning.html:19
-msgid "Minimum number of worker threads"
-msgstr "Minimum antal arbejdstråde"
-
-#: ../static/t/tab_siteconfig_tuning.html:22
-msgid "Maximum number of worker threads"
-msgstr "Maximum antal arbejdstråde"
-
-#: ../static/t/tab_siteconfig_tuning.html:25
-msgid "Automatically delete committed database logs"
-msgstr "Automatisk slet commited database logs"
-
-#: ../static/t/userlist_detailview.html:4
-msgid "Edit user account: "
-msgstr "Editér bruger konto"
-
-#: ../static/t/userlist_detailview.html:18
-msgid "Permission to send Internet mail"
-msgstr "Tilladelse til at sende Internet Mail"
-
-#: ../static/t/userlist_detailview.html:19
-msgid "Number of logins"
-msgstr "Antal gange logget på"
-
-#: ../static/t/userlist_detailview.html:20
-msgid "Messages submitted"
-msgstr "Meddelelser sendt"
-
-#: ../static/t/userlist_detailview.html:21
-msgid "Access level"
-msgstr "Bruger type"
-
-#: ../static/t/userlist_detailview.html:30
-msgid "User ID number"
-msgstr "Bruger ID nummer"
-
-#: ../static/t/userlist_detailview.html:31
-msgid "Date and time of last login"
-msgstr "Dato og tid for sidste login"
-
-#: ../static/t/userlist_detailview.html:36
-msgid "Auto-purge after this many days"
-msgstr "Auto-slet efter så mange dage"
-
-#: ../static/t/view_message.html:7 ../static/t/view_message_print.html:8
-#: ../static/t/view_message_replyquote.html:4
-#: ../static/t/view_message_replyquote.html:8
-#: ../static/t/view_submessage.html:4
+#: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
 msgstr "fra"
 
-#: ../static/t/view_message.html:14 ../static/t/view_message_print.html:14
+#: ../static/t/view_message.html:15
 #, fuzzy
 msgid "to"
 msgstr "til"
 
 #: ../static/t/view_message.html:20
+#, fuzzy
+msgid "Edit"
+msgstr "(Editér)"
+
+#: ../static/t/view_message.html:23 ../static/t/view_message.html:28
+#: ../static/t/view_message.html:33
+msgid "Reply"
+msgstr "Svar"
+
+#: ../static/t/view_message.html:24
 msgid "ReplyQuoted"
 msgstr "SvarCitér"
 
-#: ../static/t/view_message.html:25 ../static/t/view_message.html:30
+#: ../static/t/view_message.html:29 ../static/t/view_message.html:34
 msgid "ReplyAll"
 msgstr "SvarAlle"
 
-#: ../static/t/view_message.html:26 ../static/t/view_message.html:31
+#: ../static/t/view_message.html:30 ../static/t/view_message.html:35
 msgid "Forward"
 msgstr "Videresend"
 
-#: ../static/t/view_message.html:38
+#: ../static/t/view_message.html:42
 msgid "Headers"
 msgstr "Headers"
-
-#: ../static/t/view_message_inline_attach.html:4
-#: ../static/t/view_message_list_attach.html:4
-msgid "Download"
-msgstr "Download"
-
-#: ../static/t/view_message_list_attach.html:3
-msgid "View"
-msgstr "Vis"
 
 #: ../static/t/who.html:14
 #, fuzzy
 msgid "Users currently on "
 msgstr "Brugere i øjeblikket på "
 
-#: ../static/t/wholiststatic.html:7 ../static/t/wholistsummarysection.html:6
-msgid "Room"
-msgstr "Rum"
+#~ msgid "Customize the icon bar"
+#~ msgstr "Personliggør denne ikonbjælke"
 
-#: ../static/t/wholiststatic.html:8
-msgid "From host"
-msgstr "Fra host"
+#~ msgid "Display icons as:"
+#~ msgstr "Vis ikoner som:"
 
-#: ../static/t/wholiststatic.html:14
+#~ msgid "pictures and text"
+#~ msgstr "billeder og tekst"
+
+#~ msgid "pictures only"
+#~ msgstr "kun billeder"
+
+#~ msgid "text only"
+#~ msgstr "kun tekst"
+
+#~ msgid ""
+#~ "Select the icons you would like to see displayed in the 'icon bar' menu "
+#~ "on the left side of the screen."
+#~ msgstr ""
+#~ "Vælg de ikoner som vil have vist i 'ikonbjælke' menuen i den venstre side "
+#~ "af skærmen."
+
+#~ msgid "Site logo"
+#~ msgstr "Site logo"
+
+#~ msgid "An icon describing this site"
+#~ msgstr "Et ikon der beskriver denne site"
+
+#~ msgid "Your summary page"
+#~ msgstr "Din summeringsside"
+
+#~ msgid "Mail (inbox)"
+#~ msgstr "Post (indbakke)"
+
+#~ msgid "A shortcut to your email Inbox"
+#~ msgstr "En genvej til din indbakke"
+
+#~ msgid "Your personal address book"
+#~ msgstr "Din personlige adressebog"
+
+#~ msgid "Your personal notes"
+#~ msgstr "Dine personlige noter"
+
+#~ msgid "A shortcut to your personal calendar"
+#~ msgstr "En genvej til din personlige kalender"
+
+#~ msgid "A shortcut to your personal task list"
+#~ msgstr "En genvej til din personlige opgave liste"
+
+#~ msgid ""
+#~ "Clicking this icon displays a list of all accessible rooms (or folders) "
+#~ "available."
+#~ msgstr ""
+#~ "Klik på dette ikon for at vise en liste med alle tilgængelige rum. (eller "
+#~ "foldere)"
+
 #, fuzzy
-msgid "Click on a name to read user info.  Click on"
-msgstr "Klik på et navn for at læse bruger info.  Klik på "
+#~ msgid "Yes with users list"
+#~ msgstr "Ja med brugerlisten"
 
-#: ../static/t/wholiststatic.html:16
+#~ msgid "Who is online?"
+#~ msgstr "Hvem er online?"
+
+#~ msgid "Clicking this icon displays a list of all users currently logged in."
+#~ msgstr ""
+#~ "KLik på dette ikon for at vise en liste med alle brugere der er logget "
+#~ "ind."
+
+#~ msgid ""
+#~ "Clicking this icon enters real-time chat mode with other users in the "
+#~ "same room."
+#~ msgstr ""
+#~ "Klik på dette ikon for at starte chat med andre brugere i det samme rum. "
+
+#~ msgid "Advanced options"
+#~ msgstr "Avancerede indstillinger"
+
+#~ msgid "Access to the complete menu of Citadel functions."
+#~ msgstr "Adgang til den komplette menu med Citadel funktioner."
+
+#~ msgid "Citadel logo"
+#~ msgstr "Citadel logo"
+
+#~ msgid "Displays the 'Powered by Citadel' icon"
+#~ msgstr "Viser 'Powered by Citadel' ikon"
+
+#~ msgid ""
+#~ "Your icon bar has been updated.  Please select any of its choices to "
+#~ "continue.<br/><span style=\"font-weight: bold;\">You may need to force "
+#~ "refresh (SHIFT-F5) in order for changes to take effect</span>"
+#~ msgstr ""
+#~ "Din ikonbjælke er blevet opdateret.  Vælg en af mulighederne for at "
+#~ "fortsætte.<br/><span style=\"font-weight: bold;\">Du skal måske bruge "
+#~ "opdatér (SHIFT-F5) for at ændringerne træder i kraft</span>"
+
+#~ msgid ""
+#~ "You have one or more instant messages waiting, but the Citadel Instant "
+#~ "Messenger window failed to open.  This is probably because you have a "
+#~ "popup blocker installed.  Please configure your popup blocker to allow "
+#~ "popups from this site if you wish to receive instant messages."
+#~ msgstr ""
+#~ "Du har en eller flere popup meddelelser ventende, men Citadel Instant "
+#~ "Messenger vinduet kunne ikke åbnes.  Det er måske fordi du har en popup "
+#~ "blocker installeret.  Konfigurér din popup blocker til at tillade popups "
+#~ "fra denne site hvis du vil have popup meddelelser."
+
+#~ msgid "Email"
+#~ msgstr "Email"
+
+#~ msgid "Not logged in"
+#~ msgstr "Ikke logget ind"
+
+#~ msgid "Error retrieving RSS feed: couldn't find messages\n"
+#~ msgstr "Fejl ved hentning af RSS feed: kunne ikke finde meddelelser\n"
+
 #, fuzzy
-msgid "to send an instant message to that user."
-msgstr "for at sende popup meddelelse til den bruger"
+#~ msgid "%s from"
+#~ msgstr "%s fra"
 
-#: ../static/t/wholiststatic_header.html:1
 #, fuzzy
-msgid "Users currently on"
-msgstr "Brugere i øjeblikket på"
+#~ msgid "%s in %s"
+#~ msgstr "%s i %s"
 
-#: ../static/t/whosection.html:4
-msgid "(kill)"
-msgstr "(dræb)"
+#~ msgid " on %s"
+#~ msgstr " på %s"
+
+#~ msgid "%s"
+#~ msgstr "%s"
+
+#~ msgid "Add a new node"
+#~ msgstr "Tilføj en ny node"
+
+#~ msgid "Node name"
+#~ msgstr "Node navn"
+
+#~ msgid "Shared secret"
+#~ msgstr "Delt kodeord"
+
+#~ msgid "Host or IP address"
+#~ msgstr "Vært eller IP adresse"
+
+#~ msgid "Port number"
+#~ msgstr "Port nummer"
+
+#~ msgid "Add, change, or delete floors"
+#~ msgstr "Tilføj, ret, slet etager"
+
+#~ msgid "Edit site-wide configuration"
+#~ msgstr "Editér site konfiguration"
+
+#~ msgid "Domain names and Internet mail configuration"
+#~ msgstr "Domænenavne og Internet post konfiguration"
+
+#~ msgid "Configure replication with other Citadel servers"
+#~ msgstr "Konfigurér replikéring med andre Citadel servere"
+
+#~ msgid "(domains for which this host receives mail)"
+#~ msgstr "(domæner som denne vært modtager post for)"
+
+#, fuzzy
+#~ msgid "(hosts running the ClamAV clamd service)"
+#~ msgstr "(værter som kører ClamAV clamd service"
+
+#~ msgid "(domains mapped with the Global Address Book)"
+#~ msgstr "(domæner mappet med Global Adressebog"
+
+#~ msgid "(Domains as which users are allowed to masquerade)"
+#~ msgstr "(Domæner som brugere må benytte som maskerade)"
+
+#~ msgid "(hosts running a Realtime Blackhole List)"
+#~ msgstr "(værter som har en Realtime Blackhole List"
+
+#~ msgid "(if present, forward all outbound mail to one of these hosts)"
+#~ msgstr ""
+#~ "(hvis tilgænglig, videresend alt udgående post til en af disse værter)"
+
+#~ msgid "(hosts running the SpamAssassin service)"
+#~ msgstr "(værter som kører SpamAssassin service)"
+
+#~ msgid "System Administration Menu"
+#~ msgstr "System Administration Menu"
+
+#, fuzzy
+#~ msgid "Room Aide Menu"
+#~ msgstr "Rum Systemansvarlig Menu"
+
+#~ msgid "Local host aliases"
+#~ msgstr "Lokal vært aliaser"
+
+#~ msgid "Directory domains"
+#~ msgstr "Directory domæner"
+
+#~ msgid "Smart hosts"
+#~ msgstr "Smart værter"
+
+#~ msgid "RBL hosts"
+#~ msgstr "RBL værter"
+
+#~ msgid "SpamAssassin hosts"
+#~ msgstr "SpamAssassin værter"
+
+#~ msgid "ClamAV clamd hosts"
+#~ msgstr "ClamAV clamd værter"
+
+#, fuzzy
+#~ msgid "Masqueradable domains"
+#~ msgstr "Maskerade domæner"
+
+#~ msgid "Restart Now"
+#~ msgstr "Genstart Nu"
+
+#~ msgid "Restart after paging users"
+#~ msgstr "Genstart efter brugere har fået besked"
+
+#~ msgid "Restart when all users are idle"
+#~ msgstr "Genstart når alle brugere er inaktive"
+
+#~ msgid "Add, change, delete user accounts"
+#~ msgstr "Tilføj, ret, slet bruger konti"
+
+#~ msgid ""
+#~ "To edit an existing user account, select the user name from the list and "
+#~ "click 'Edit'."
+#~ msgstr ""
+#~ "For at editére en eksisterende brugerkonto, vælg et brugernavn fra listen "
+#~ "og klik 'Editér'."
+
+#~ msgid "Tree (folders) view"
+#~ msgstr "Træ (bibliotek) visning"
+
+#~ msgid "Table (rooms) view"
+#~ msgstr "Tabel (rum) visning"
+
+#~ msgid "12 hour (am/pm)"
+#~ msgstr "12 timer (am/pm)"
+
+#~ msgid "24 hour"
+#~ msgstr "24 timer"
+
+#, fuzzy
+#~ msgid "Sunday"
+#~ msgstr "Søndag"
+
+#~ msgid "Monday"
+#~ msgstr "Mandag"
+
+#~ msgid "No signature"
+#~ msgstr "Ingen signatur"
+
+#~ msgid "Full-functionality"
+#~ msgstr "Fuld funktionalitet"
+
+#~ msgid "Safe mode"
+#~ msgstr "Sikker kørsel"
+
+#~ msgid "Please wait while the Citadel server is restarted... "
+#~ msgstr "Vent mens Citadel server genstarter"
+
+#~ msgid ""
+#~ "Please wait while your users are being paged, the citadel server will be "
+#~ "restarted after that... "
+#~ msgstr ""
+#~ "Vent mens dine brugere får besked, Citadel serveren derefter genstarte..."
+
+#~ msgid "Global Configuration"
+#~ msgstr "Global Konfiguration"
+
+#~ msgid "User account management"
+#~ msgstr "Bruger konto administration"
+
+#~ msgid "Shutdown Citadel"
+#~ msgstr "Luk Citadel"
+
+#~ msgid "Rooms and Floors"
+#~ msgstr "Rum og Etager"
+
+#~ msgid "Confirm delete"
+#~ msgstr "Godkend sletning"
+
+#~ msgid "Are you sure you want to delete "
+#~ msgstr "Er du sikker på du vil slette?"
+
+#~ msgid "Network configuration"
+#~ msgstr "Netværk konfiguration"
+
+#~ msgid "Currently configured nodes"
+#~ msgstr "Konfigurede noder"
+
+#, fuzzy
+#~ msgid "Restart Citadel"
+#~ msgstr "Gør dette til min startside"
+
+#, fuzzy
+#~ msgid "Message to your Users:"
+#~ msgstr "Meddelelse til dine brugere:"
+
+#~ msgid "Site configuration"
+#~ msgstr "Site konfiguration"
+
+#~ msgid "You need to be aide to view this."
+#~ msgstr "Du skal være Sytemansvarlig for at se dette."
+
+#~ msgid "General"
+#~ msgstr "Generelt"
+
+#~ msgid "Access"
+#~ msgstr "Adgang"
+
+#~ msgid "Network"
+#~ msgstr "Netværk"
+
+#~ msgid "Tuning"
+#~ msgstr "Tuning"
+
+#~ msgid "Auto-purger"
+#~ msgstr "Auto-tømmer"
+
+#~ msgid "Indexing/Journaling"
+#~ msgstr "Index/Journal"
+
+#, fuzzy
+#~ msgid "Push Email"
+#~ msgstr "Skub Email"
+
+#~ msgid "Pop3"
+#~ msgstr "Pop3"
+
+#~ msgid ""
+#~ "To create a new user account, enter the desired user name in the box "
+#~ "below and click 'Create'."
+#~ msgstr ""
+#~ "For at oprette en ny brugerkonto, skriv det ønskede navn i boksen "
+#~ "nedenfor og klik 'Opret'."
+
+#~ msgid "New user: "
+#~ msgstr "Ny bruger: "
+
+#~ msgid "Edit or delete users"
+#~ msgstr "Editér eller slet brugere"
+
+#~ msgid "Add users"
+#~ msgstr "Tilføj brugere"
+
+#~ msgid "Edit or Delete users"
+#~ msgstr "Editér eller slet brugere"
+
+#, fuzzy
+#~ msgid "Pictures in"
+#~ msgstr "Billeder i"
+
+#~ msgid "Edit or delete this room"
+#~ msgstr "Editér eller slet dette rum"
+
+#~ msgid "Go to a 'hidden' room"
+#~ msgstr "Gå til et 'skjult' rum"
+
+#, fuzzy
+#~ msgid "Zap (forget) this room"
+#~ msgstr "Zap (glem) dette rum (%s)"
+
+#~ msgid "List all forgotten rooms"
+#~ msgstr "Vis alle glemte rum"
+
+#~ msgid "List known rooms"
+#~ msgstr "Vist kendte rum"
+
+#~ msgid "Where can I go from here?"
+#~ msgstr "Hvor kan jeg komme hen?"
+
+#, fuzzy
+#~ msgid "...with <em>unread</em> messages"
+#~ msgstr "...med <em>ikke læste</em> meddelelser"
+
+#~ msgid "Skip to next room"
+#~ msgstr "Fortsæt til næste rum"
+
+#~ msgid "(come back here later)"
+#~ msgstr "(kom tilbage hertil senere)"
+
+#, fuzzy
+#~ msgid "oops! Back to "
+#~ msgstr "(Hovsa! Tilbage til )"
+
+#~ msgid "...in this room"
+#~ msgstr "...i dette rum"
+
+#~ msgid "...old <em>and</em> new"
+#~ msgstr "...gamle <em>og</em> nye"
+
+#~ msgid "(post in this room)"
+#~ msgstr "(opret i dette rum)"
+
+#~ msgid "File library"
+#~ msgstr "Fil bibliotek"
+
+#~ msgid "(List files available for download)"
+#~ msgstr "(Vis filer som du kan downloade)"
+
+#~ msgid "Summary page"
+#~ msgstr "Summerings side"
+
+#~ msgid "Summary of my account"
+#~ msgstr "Summering af min konto"
+
+#~ msgid "User list"
+#~ msgstr "Bruger liste"
+
+#~ msgid "(all registered users)"
+#~ msgstr "(alle registrerede brugere)"
+
+#~ msgid "Bye!"
+#~ msgstr "Farvel!"
+
+#~ msgid "Change your preferences and settings"
+#~ msgstr "Ændre dine præferencer og indstillinger"
+
+#~ msgid "Update your contact information"
+#~ msgstr "Opdatér din kontakt information"
+
+#~ msgid "Enter your 'bio'"
+#~ msgstr "Indtast din 'bio'"
+
+#~ msgid "Edit your online photo"
+#~ msgstr "Editér dit online foto"
+
+#~ msgid "Edit your push email settings"
+#~ msgstr "Editér dine skub email indstillinger"
+
+#, fuzzy
+#~ msgid "Manage your OpenIDs"
+#~ msgstr "Tilret dine OpenID'er"
+
+#, fuzzy
+#~ msgid "Configure Push Email"
+#~ msgstr "Skub Email"
+
+#~ msgid "Push email and SMS settings"
+#~ msgstr "Skub email og SMS indstillinger"
+
+#~ msgid "Slideshow"
+#~ msgstr "Lysbilledshow"
+
+#~ msgid "Access controls and site policy settings"
+#~ msgstr "Adgangskontrol og site politik indstillinger"
+
+#~ msgid ""
+#~ "Automatically grant room-aide status to users who create private rooms"
+#~ msgstr ""
+#~ "Giv automatisk rum-ansvarlig status til den bruger der opretter private "
+#~ "rum"
+
+#~ msgid "Initial access level for new users"
+#~ msgstr "Adgangsrettighed for nye brugere"
+
+#~ msgid "Require registration for new users"
+#~ msgstr "Kræv registrering af nye brugere"
+
+#~ msgid "Quarantine messages from problem users"
+#~ msgstr "Sæt meddelelser fra problem brugere i karantæne"
+
+#~ msgid "Name of quarantine room"
+#~ msgstr "Navn på karantæne rum"
+
+#~ msgid "Restrict access to Internet mail"
+#~ msgstr "Blokér adgang til Internet Email"
+
+#~ msgid "Name of room to log pages"
+#~ msgstr "Navn på rum for log sider"
+
+#~ msgid "Access level required to create rooms"
+#~ msgstr "Adgangsrettighed krævet for at oprette rum"
+
+#~ msgid "Allow aides to zap (forget) rooms"
+#~ msgstr "Tillad ansvarlige at zappe (glemme) rum"
+
+#~ msgid "Disable self-service user account creation"
+#~ msgstr "Slå selvservice brugeroprettelse fra"
+
+#~ msgid "Authentication mode"
+#~ msgstr "Autosisations måde"
+
+#~ msgid "Self contained"
+#~ msgstr "Indeholder"
+
+#~ msgid "Host based"
+#~ msgstr "Host navn"
+
+#, fuzzy
+#~ msgid "Master user name (blank to disable)"
+#~ msgstr "Master brugernavn (blank for at slå fra)"
+
+#, fuzzy
+#~ msgid "Master user password"
+#~ msgstr "Master bruger adgangskode:"
+
+#~ msgid "Configure automatic expiry of old messages"
+#~ msgstr "Konfigurér automatisk udløb af meddelser"
+
+#~ msgid "These settings may be overridden on a per-floor or per-room basis."
+#~ msgstr ""
+#~ "Disse indstillinger kan blive overskrevet på etage eller rum niveau."
+
+#~ msgid "Hour to run database auto-purge"
+#~ msgstr "Tid for at køre database auto-tøm"
+
+#~ msgid "Default message expire policy for public rooms"
+#~ msgstr "Standard meddelelse udløb for offentlige rum"
+
+#~ msgid "Default message expire policy for private mailboxes"
+#~ msgstr "Standard meddelelse udløb for private postkasser"
+
+#~ msgid "Same policy as public rooms"
+#~ msgstr "Samme politik som for offentlige rum"
+
+#~ msgid "Configure the LDAP connector for Citadel"
+#~ msgstr "Konfigurér LDAP forbindelse for Citadel"
+
+#~ msgid ""
+#~ "Changes made on this screen will not take effect until you restart the "
+#~ "Citadel server."
+#~ msgstr ""
+#~ "Ændringer på denne skærm vil ikke blive effektueret før du har genstartet "
+#~ "Citadel serveren."
+
+#~ msgid ""
+#~ "NOTE: This Citadel server has been built without LDAP support.  These "
+#~ "options will have no effect."
+#~ msgstr ""
+#~ "NOTE: Denne Citadel server er blevet installeret uden support af LDAP. "
+#~ "Disse indstillinger vil ikke have nogen betydning."
+
+#~ msgid "Host name of LDAP server (blank to disable)"
+#~ msgstr "Navn på LDAP server (blank for at slå fra)"
+
+#~ msgid "Port number of LDAP server (blank to disable)"
+#~ msgstr "Port nummer op LDAP server (blank for at slå fra)"
+
+#~ msgid "Base DN"
+#~ msgstr "Base DN"
+
+#~ msgid "Bind DN"
+#~ msgstr "Forbind DN"
+
+#~ msgid "Password for bind DN"
+#~ msgstr "Adgangskode for forbind DN"
+
+#~ msgid "General site configuration items"
+#~ msgstr "Generelle site konfigurationsemner"
+
+#~ msgid "Change Login Logo"
+#~ msgstr "Skift Login Logo"
+
+#~ msgid "Change Logout Logo"
+#~ msgstr "Skift Logout Logo"
+
+#~ msgid "Fully qualified domain name"
+#~ msgstr "Fuld kvalificeret domæne navn"
+
+#~ msgid "Human-readable node name"
+#~ msgstr "Meneskelæseligt node navn"
+
+#~ msgid "Telephone number"
+#~ msgstr "Telefon nummer"
+
+#~ msgid "Paginator prompt (for text mode clients)"
+#~ msgstr "Paginator prompt (for tekst klienter)"
+
+#~ msgid "Geographic location of this system"
+#~ msgstr "Geografisk lokation af dette system"
+
+#~ msgid "Name of system administrator"
+#~ msgstr "Navn på Systemadministror"
+
+#~ msgid "Default timezone for unzoned calendar items"
+#~ msgstr "Standard tidszone til Kalender aftaler ikke i zone"
+
+#~ msgid "Indexing and Journaling"
+#~ msgstr "Index og Journal"
+
+#~ msgid "Warning: these facilities are resource intensive."
+#~ msgstr "Advarsel: disse faciliteter er resourcekrævende."
+
+#~ msgid "Enable full text index"
+#~ msgstr "Slå fuld tekst index til"
+
+#~ msgid "Perform journaling of email messages"
+#~ msgstr "Brug journal på Email meddelelser"
+
+#~ msgid "Perform journaling of non-email messages"
+#~ msgstr "Brug journal på ikke-Email meddelelser"
+
+#~ msgid "Email destination of journalized messages"
+#~ msgstr "Email destination på journaliserede meddelelser"
+
+#~ msgid "Network services"
+#~ msgstr "Netværk service"
+
+#~ msgid "SMTP MTA port (-1 to disable)"
+#~ msgstr "SMTP MTA port (-1 = afbrudt)"
+
+#~ msgid "Correct forged From: lines during authenticated SMTP"
+#~ msgstr "Ret falske Fra: linier under autentification SMTP"
+
+#~ msgid "Flag message as spam, instead of rejecting it"
+#~ msgstr "Markér meddelse som spam, istedet for at afvise den"
+
+#~ msgid "IMAP listener port (-1 to disable)"
+#~ msgstr "IMAP lytte port (-1 = afbrudt)"
+
+#~ msgid "Network run frequency (in seconds)"
+#~ msgstr "Netværk kør frekvens (i sekunder)"
+
+#~ msgid "Server IP address (0.0.0.0 for 'any')"
+#~ msgstr "Serverens IP adresse (0.0.0.0 vælger alle)"
+
+#~ msgid "SMTP MSA port (-1 to disable)"
+#~ msgstr "SMTP MSA port (-1 = afbrudt)"
+
+#~ msgid "IMAP over SSL port (-1 to disable)"
+#~ msgstr "IMAP over SSL port (-1 = afbrudt)"
+
+#~ msgid "SMTP over SSL port (-1 to disable)"
+#~ msgstr "SMTP over SSL port (-1 = afbrudt)"
+
+#~ msgid "Instantly expunge deleted messages in IMAP"
+#~ msgstr "Fjern slettede meddelelser med det samme i IMAP"
+
+#, fuzzy
+#~ msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
+#~ msgstr "Tillad uautoriserede SMTP klienter at benytte denne site's domæne"
+
+#~ msgid "Postfix TCP Dictionary Port"
+#~ msgstr "Postfix TCP Dictionary Port"
+
+#, fuzzy
+#~ msgid "-1 to disable"
+#~ msgstr "-1 for at deaktivere."
+
+#, fuzzy
+#~ msgid "ManageSieve Port (-1 to disable)"
+#~ msgstr "ManageSieve port (-1 = afbrudt)"
+
+#~ msgid "Perform RBL checks upon connect instead of after RCPT"
+#~ msgstr "Udfør RBL check ved forbindelse i stedet for efter RCPT"
+
+#~ msgid "Keep original from headers in IMAP"
+#~ msgstr "Behold originale headere i IMAP"
+
+#, fuzzy
+#~ msgid "XMPP (Jabber) client to server port (-1 to disable)"
+#~ msgstr "XMPP (Jabber) klient til server port (-1 = afbrudt)"
+
+#, fuzzy
+#~ msgid "XMPP (Jabber) server to server port (-1 to disable)"
+#~ msgstr "XMPP (Jabber) server til server port (-1 = afbrudt)"
+
+#~ msgid "POP3"
+#~ msgstr "POP3"
+
+#~ msgid "POP3 listener port (-1 to disable)"
+#~ msgstr "POP3 lytte port (-1 = afbrudt)"
+
+#~ msgid "POP3 over SSL port (-1 to disable)"
+#~ msgstr "POP3 over SSL port (-1 = afbrudt)"
+
+#, fuzzy
+#~ msgid "POP3 fetch frequency in seconds"
+#~ msgstr "POP3 hent frekvens i sekunder"
+
+#, fuzzy
+#~ msgid "POP3 fastest fetch frequency in seconds"
+#~ msgstr "POP3 hurtigste hent frekvens i sekunder"
+
+#, fuzzy
+#~ msgid "Funambol server host (blank to disable)"
+#~ msgstr "Funambol server vært (blank for at slå fra)"
+
+#~ msgid "Funambol server port "
+#~ msgstr "Funambol server port"
+
+#~ msgid "Funambol sync source"
+#~ msgstr "Funambol synkronisering kilde"
+
+#~ msgid "Funambol auth details (user:pass)"
+#~ msgstr "Funambol autorisation detaljer (bruger:adgangskode)"
+
+#, fuzzy
+#~ msgid "External pager tool (blank to disable)"
+#~ msgstr "Extern pager værktøj (blank for at slå fra)"
+
+#~ msgid "Advanced server fine-tuning controls"
+#~ msgstr "Avanceret server finindstilling kontroller"
+
+#~ msgid "Server connection idle timeout (in seconds)"
+#~ msgstr "Server forbindelse inaktivitetstimeout (i sekunder)"
+
+#~ msgid "Maximum concurrent sessions (0 = no limit)"
+#~ msgstr "Maximum antal samtidige sessioner (0 = ingen max)"
+
+#~ msgid "Default user purge time (days)"
+#~ msgstr "Standard bruger tøm tid (dage)"
+
+#~ msgid "Default room purge time (days)"
+#~ msgstr "Standard rum tøm tid (dage)"
+
+#~ msgid "Maximum message length"
+#~ msgstr "Maximum meddelelse længde"
+
+#~ msgid "Minimum number of worker threads"
+#~ msgstr "Minimum antal arbejdstråde"
+
+#~ msgid "Maximum number of worker threads"
+#~ msgstr "Maximum antal arbejdstråde"
+
+#~ msgid "Automatically delete committed database logs"
+#~ msgstr "Automatisk slet commited database logs"
+
+#~ msgid "Edit user account: "
+#~ msgstr "Editér bruger konto"
+
+#~ msgid "Permission to send Internet mail"
+#~ msgstr "Tilladelse til at sende Internet Mail"
+
+#~ msgid "Number of logins"
+#~ msgstr "Antal gange logget på"
+
+#~ msgid "Messages submitted"
+#~ msgstr "Meddelelser sendt"
+
+#~ msgid "Access level"
+#~ msgstr "Bruger type"
+
+#~ msgid "User ID number"
+#~ msgstr "Bruger ID nummer"
+
+#~ msgid "Date and time of last login"
+#~ msgstr "Dato og tid for sidste login"
+
+#~ msgid "Auto-purge after this many days"
+#~ msgstr "Auto-slet efter så mange dage"
+
+#~ msgid "Download"
+#~ msgstr "Download"
+
+#~ msgid "View"
+#~ msgstr "Vis"
+
+#~ msgid "Room"
+#~ msgstr "Rum"
+
+#~ msgid "From host"
+#~ msgstr "Fra host"
+
+#, fuzzy
+#~ msgid "Click on a name to read user info.  Click on"
+#~ msgstr "Klik på et navn for at læse bruger info.  Klik på "
+
+#, fuzzy
+#~ msgid "to send an instant message to that user."
+#~ msgstr "for at sende popup meddelelse til den bruger"
+
+#, fuzzy
+#~ msgid "Users currently on"
+#~ msgstr "Brugere i øjeblikket på"
+
+#~ msgid "(kill)"
+#~ msgstr "(dræb)"
 
 #, fuzzy
 #~ msgid "Minutes"
