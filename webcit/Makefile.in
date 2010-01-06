@@ -111,6 +111,10 @@ install-setupbin: install-bin
 install-wwwdata:
 	test -d $(DESTDIR)$(WWWDIR)/static.local/t || mkdir -p $(DESTDIR)$(WWWDIR)/static.local/t
 	test -d $(DESTDIR)$(WWWDIR)/static/t || mkdir -p $(DESTDIR)$(WWWDIR)/static/t
+	for i in `find static -type d | grep -v .svn` \
+		; do \
+		test -d $(DESTDIR)$(WWWDIR)/$$i || mkdir -p $(DESTDIR)$(WWWDIR)/$$i; \
+	done
 	for i in `find static -type f | grep -v .svn`; do \
 		$(INSTALL) $$i $(DESTDIR)$(WWWDIR)/$$i; \
 	done
