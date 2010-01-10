@@ -4,29 +4,49 @@
 
 #include "webcit.h"
 
+/*
+ * String to unset the cookie.
+ * Any date "in the past" will work, so I chose my birthday, right down to
+ * the exact minute.  :)
+ */
+static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 typedef unsigned char byte;	      /* Byte type used by cookie_to_stuff() */
 
 /*
  * Pack all session info into one easy-to-digest cookie. Healthy and delicious!
  */
-void stuff_to_cookie(char *cookie, size_t clen, int session,
-		StrBuf *user, StrBuf *pass, StrBuf *room, const char *language)
+void stuff_to_cookie(int unset_cookies)
 {
+	wcsession *WCC = WC;
 	char buf[SIZ];
-	int i;
-	int len;
 
-	len = snprintf(buf, SIZ, "%d|%s|%s|%s|%s|", 
-		session, 
-		ChrPtr(user), 
-		ChrPtr(pass), 
-		ChrPtr(room),
-		language
-	);
+	if (unset_cookies) {
+		hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
+	}
+	else
+	{
+		StrBufAppendPrintf(WCC->HBuf, "Set-cookie: webcit=");
+		snprintf(buf, sizeof(buf), "%d", WCC->wc_session);
+		StrBufHexescAppend(WCC->HBuf, NULL, buf);
+		StrBufHexescAppend(WCC->HBuf, NULL, "|");
+		StrBufHexescAppend(WCC->HBuf, WCC->wc_username, NULL);
+		StrBufHexescAppend(WCC->HBuf, NULL, "|");
+		StrBufHexescAppend(WCC->HBuf, WCC->wc_password, NULL);
+		StrBufHexescAppend(WCC->HBuf, NULL, "|");
+		StrBufHexescAppend(WCC->HBuf, WCC->wc_roomname, NULL);
+		StrBufHexescAppend(WCC->HBuf, NULL, "|");
+		StrBufHexescAppend(WCC->HBuf, NULL, get_selected_language());
+		StrBufHexescAppend(WCC->HBuf, NULL, "|");
 
-	strcpy(cookie, "");
-	for (i=0; (i < len) && (i * 2 < clen); ++i) {
-		snprintf(&cookie[i*2], clen - i * 2, "%02X", buf[i]);
+		if (server_cookie != NULL) {
+			StrBufAppendPrintf(WCC->HBuf, 
+					   "; path=/ %s\r\n", 
+					   server_cookie);
+		}
+		else {
+			StrBufAppendBufPlain(WCC->HBuf,
+					     HKEY("; path=/\r\n"), 0);
+		}
 	}
 }
 

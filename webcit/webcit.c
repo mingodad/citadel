@@ -13,12 +13,6 @@
 #include "webserver.h"
 
 
-/*
- * String to unset the cookie.
- * Any date "in the past" will work, so I chose my birthday, right down to
- * the exact minute.  :)
- */
-static char *unset = "; expires=28-May-1971 18:10:00 GMT";
 StrBuf *csslocal = NULL;
 HashList *HandlerHash = NULL;
 
@@ -118,7 +112,6 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 			int cache		/* 1 = allow browser to cache this page             */
 ) {
 	wcsession *WCC = WC;
-	char cookie[1024];
 	char httpnow[128];
 
 	hprintf("HTTP/1.1 200 OK\n");
@@ -159,28 +152,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 		);
 	}
 
-	if (cache < 2) {
-
-		stuff_to_cookie(cookie, 1024, 
-				WCC->wc_session,
-				WCC->wc_username,
-				WCC->wc_password,
-				WCC->wc_roomname,
-				get_selected_language()
-			);
-		
-		if (unset_cookies) {
-			hprintf("Set-cookie: webcit=%s; path=/\r\n", unset);
-		} else {
-			if (server_cookie != NULL) {
-				hprintf("Set-cookie: webcit=%s; path=/ %s\r\n", 
-					cookie, server_cookie);
-			}
-			else {
-				hprintf("Set-cookie: webcit=%s; path=/\r\n", cookie);
-			}
-		}
-	}
+	if (cache < 2) stuff_to_cookie(unset_cookies);
 
 	if (do_htmlhead) {
 		begin_burst();

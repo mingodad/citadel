@@ -583,13 +583,8 @@ void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);
 void end_critical_section(int which_one);
 
-void stuff_to_cookie(char *cookie, size_t clen,
-		int session,
-		StrBuf *user,
-		StrBuf *pass,
-		StrBuf *room,
-		const char *language
-);
+void stuff_to_cookie(int unset_cookie);
+
 void cookie_to_stuff(StrBuf *cookie,
 		int *session,
 		StrBuf *user,
