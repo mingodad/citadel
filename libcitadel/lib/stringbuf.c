@@ -1563,6 +1563,53 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 	*pt = '\0';
 }
 
+/** 
+ * @ingroup StrBuf_DeEnCoder
+ * @brief append a string in hex encoding to the buffer
+ * @param OutBuf the output buffer
+ * @param In Buffer to encode
+ * @param PlainIn way in from plain old c strings
+ */
+void StrBufHexescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
+{
+	const char *pch, *pche;
+	char *pt, *pte;
+	int len;
+	
+	if (((In == NULL) && (PlainIn == NULL)) || (OutBuf == NULL) )
+		return;
+	if (PlainIn != NULL) {
+		len = strlen(PlainIn);
+		pch = PlainIn;
+		pche = pch + len;
+	}
+	else {
+		pch = In->buf;
+		pche = pch + In->BufUsed;
+		len = In->BufUsed;
+	}
+
+	if (len == 0) 
+		return;
+
+	pt = OutBuf->buf + OutBuf->BufUsed;
+	pte = OutBuf->buf + OutBuf->BufSize - 3; /**< we max append 3 chars at once plus the \0 */
+
+	while (pch < pche) {
+		if (pt >= pte) {
+			IncreaseBuf(OutBuf, 1, -1);
+			pte = OutBuf->buf + OutBuf->BufSize - 3; /**< we max append 3 chars at once plus the \0 */
+			pt = OutBuf->buf + OutBuf->BufUsed;
+		}
+
+		*pt = HexList[(unsigned char)*pch][0];
+		pt ++;
+		*pt = HexList[(unsigned char)*pch][1];
+		pt ++; pch ++; OutBuf->BufUsed += 2;
+	}
+	*pt = '\0';
+}
+
 /**
  * @ingroup StrBuf_DeEnCoder
  * @brief Append a string, escaping characters which have meaning in HTML.  
