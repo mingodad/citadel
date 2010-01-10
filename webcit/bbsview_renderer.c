@@ -313,6 +313,10 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 int bbsview_Cleanup(void **ViewSpecific)
 {
 	struct bbsview *BBS = (struct bbsview *) *ViewSpecific;
+
+	if (BBS->alloc_msgs != 0) {
+		free(BBS->msgs);
+	}
 	free(BBS);
 
 	if (WC->is_ajax) {
