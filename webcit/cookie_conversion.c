@@ -51,29 +51,6 @@ void stuff_to_cookie(int unset_cookies)
 }
 
 /*
- * Convert unpacked hex string to an integer
- */
-int xtoi(const char *in, size_t len)
-{
-	int val = 0;
-	char c = 0;
-	while (!IsEmptyStr(in) && isxdigit((byte) *in) && (len-- > 0))
-	{
-		c = *in++;
-		val <<= 4;
-		if (!isdigit((unsigned char)c)) {
-			c = tolower((unsigned char) c);
-			if ((c < 'a') || (c > 'f'))
-				return 0;
-			val += c  - 'a' + 10 ;
-		}
-		else
-			val += c - '0';
-	}
-	return val;
-}
-
-/*
  * Extract all that fun stuff out of the cookie.
  */
 void cookie_to_stuff(StrBuf *cookie,

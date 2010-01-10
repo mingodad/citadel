@@ -786,7 +786,6 @@ void end_tab(int tabnum, int num_tabs);
 void str_wiki_index(char *s);
 long guess_calhourformat(void);
 int get_time_format_cached (void);
-int xtoi(const char *in, size_t len);
 const char *get_selected_language(void);
 void display_wiki_pagelist(void);
 
