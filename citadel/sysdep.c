@@ -935,8 +935,9 @@ do_select:	force_purge = 0;
 				ptr->state = CON_EXECUTING;
 				break;
 			}
-			if ((bind_me == NULL) && (ptr->state == CON_STARTING)) {
+			if ((bind_me == NULL) && (ptr->state == CON_GREETING)) {
 				bind_me = ptr;
+				ptr->state = CON_STARTING;
 				break;
 			}
 		}
@@ -1153,7 +1154,7 @@ void *select_on_master (void *arg)
 						SO_REUSEADDR,
 						&i, sizeof(i));
 
-					con->state = CON_STARTING;
+					con->state = CON_GREETING;
 
 					retval--;
 					if (retval == 0)

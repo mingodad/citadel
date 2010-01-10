@@ -126,7 +126,8 @@ typedef struct CitContext CitContext;
  */
 enum {
 	CON_IDLE,		/* This context is doing nothing */
-	CON_STARTING,		/* This context needs the greeting outputting */
+	CON_GREETING,		/* This context needs to output its greeting */
+	CON_STARTING,		/* This context is outputting its greeting */
 	CON_READY,		/* This context needs attention */
 	CON_EXECUTING		/* This context is bound to a thread */
 };
