@@ -1626,7 +1626,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 	Toplevel = StrLength(BaseKey) == 0;
 	SubDirectory = NewStrBuf();
 	SubKey = NewStrBuf();
-	FileName = NewStrBuf();
+	FileName = NewStrBufPlain(NULL, PATH_MAX);
 	Key = NewStrBuf();
 	while ((readdir_r(filedir, d, &filedir_entry) == 0) &&
 	       (filedir_entry != NULL))
