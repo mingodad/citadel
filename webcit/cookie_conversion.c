@@ -40,7 +40,7 @@ void stuff_to_cookie(int unset_cookies)
 
 		if (server_cookie != NULL) {
 			StrBufAppendPrintf(WCC->HBuf, 
-					   "; path=/ %s\r\n", 
+					   ";path=/ \r\n%s\r\n", 
 					   server_cookie);
 		}
 		else {
