@@ -14,7 +14,7 @@
 void select_user_to_edit(const char *preselect)
 {
 	output_headers(1, 0, 0, 0, 1, 0);
-	do_template("edituser_select", NULL);
+	do_template("aide_edituser_select", NULL);
         end_burst();
 }
 
@@ -584,7 +584,7 @@ void display_edituser(const char *supplied_username, int is_new) {
 			SubTP.Filter.ContextType = CTX_USERLIST;
 			SubTP.Context = UL;
 			output_headers(1, 0, 0, 0, 1, 0);
-			DoTemplate(HKEY("userlist_detailview"), NULL, &SubTP);
+			DoTemplate(HKEY("aide_edituser_detailview"), NULL, &SubTP);
 			end_burst();
 		}
 		DeleteUserListEntry(UL);
