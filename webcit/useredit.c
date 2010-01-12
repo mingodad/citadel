@@ -255,7 +255,7 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 {
 	int Done = 0;
 	CompareFunc SortIt;
-	HashList *Hash;
+	HashList *Hash = NULL;
 	StrBuf *Buf;
 	UserListEntry* ul;
 	char nnn[64];
@@ -290,10 +290,9 @@ HashList *iterate_load_userlist(StrBuf *Target, WCTemplputParams *TP)
 			SortByPayload(Hash, SortIt);
 		else 
 			SortByPayload(Hash, CompareUID);
-		return Hash;
         }
 	FreeStrBuf(&Buf);
-	return NULL;
+	return Hash;
 }
 
 
