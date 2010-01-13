@@ -47,7 +47,6 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	memset(BBS, 0, sizeof(struct bbsview));
 	*ViewSpecific = BBS;
 
-	Stat->defaultsortorder = 1;
 	Stat->startmsg = -1;
 	Stat->sortit = 1;
 	
@@ -57,17 +56,10 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 		Stat->maxmsgs = ibstr("maxmsgs");
 	}
 	if (Stat->maxmsgs == 0) Stat->maxmsgs = DEFAULT_MAXMSGS;
+	Stat->num_displayed = DEFAULT_MAXMSGS;
 	
 	if (havebstr("startmsg")) {
 		Stat->startmsg = lbstr("startmsg");
-	}
-	if (lbstr("SortOrder") == 2) {
-		Stat->reverse = 1;
-		Stat->num_displayed = -DEFAULT_MAXMSGS;
-	}
-	else {
-		Stat->reverse = 0;
-		Stat->num_displayed = DEFAULT_MAXMSGS;
 	}
 
 	return 200;
@@ -114,20 +106,7 @@ int bbsview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	return 200;
 }
 
-int bbsview_sortfunc_reverse(const void *s1, const void *s2) {
-	long l1;
-	long l2;
-
-	l1 = *(long *)(s1);
-	l2 = *(long *)(s2);
-
-	if (l1 > l2) return(-1);
-	if (l1 < l2) return(+1);
-	return(0);
-}
-
-
-int bbsview_sortfunc_forward(const void *s1, const void *s2) {
+int bbsview_sortfunc(const void *s1, const void *s2) {
 	long l1;
 	long l2;
 
@@ -158,10 +137,10 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	/* If this is the initial page load (and not an update), supply the required JavaScript code */
 	if (!WC->is_ajax) {
 	   StrBufAppendPrintf(WC->trailing_javascript,
-		"	function moremsgs(target_div, gt_or_lt, gt_or_lt_value, maxmsgs, sortorder) {	\n"
+		"	function moremsgs(target_div, gt_or_lt, gt_or_lt_value, maxmsgs) {		\n"
 		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"></div>';	\n"
 		"		p = gt_or_lt + '=' + gt_or_lt_value + '&maxmsgs=' + maxmsgs		\n"
-		"			+ '&is_summary=0&SortOrder=' + sortorder + '&is_ajax=1'		\n"
+		"			+ '&is_summary=0&is_ajax=1'					\n"
 		"			+ '&gt_or_lt=' + gt_or_lt					\n"
 		"			+ '&r=' + CtdlRandomString();			                \n"
 		"		new Ajax.Updater(target_div, 'read' + gt_or_lt,	 				\n"
@@ -193,7 +172,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	/* Cut the message list down to the requested size */
 	if (Stat->nummsgs > 0) {
 		lprintf(9, "sorting %d messages\n", BBS->num_msgs);
-		qsort(BBS->msgs, (size_t)(BBS->num_msgs), sizeof(long), (Stat->reverse ? bbsview_sortfunc_reverse : bbsview_sortfunc_forward));
+		qsort(BBS->msgs, (size_t)(BBS->num_msgs), sizeof(long), bbsview_sortfunc);
 
 		/* Cut it down to 20 messages (or whatever value Stat->maxmsgs is set to) */
 
@@ -220,11 +199,10 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		wc_printf("<div id=\"%s\">", olderdiv);
 		/* if (Stat->nummsgs > 0) { */
 		if (Stat->nummsgs > 0) {
-			wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %ld, %d );\">",
+			wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %ld);\">",
 				olderdiv,
 				BBS->msgs[0],
-				Stat->maxmsgs,
-				(Stat->reverse ? 2 : 1)
+				Stat->maxmsgs
 			);
 		
 			wc_printf("<div class=\"moreprompt\">"
@@ -264,11 +242,10 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		wc_printf("<div id=\"%s\">", newerdiv);
 		/* if (Stat->nummsgs > 0) { */
 		if (Stat->nummsgs >= Stat->maxmsgs) {
-			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
+			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld);\">",
 				newerdiv,
 				BBS->msgs[BBS->num_msgs-1],
-				Stat->maxmsgs,
-				(Stat->reverse ? 2 : 1)
+				Stat->maxmsgs
 			);
 		
 			wc_printf("<div class=\"moreprompt\">"
@@ -285,11 +262,10 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			else {
 				gt = atol(bstr("gt"));
 			}
-			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld, %d );\">",
+			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld);\">",
 				newerdiv,
 				gt,
-				Stat->maxmsgs,
-				(Stat->reverse ? 2 : 1)
+				Stat->maxmsgs
 			);
 			wc_printf("<div class=\"moreprompt\">");
 			wc_printf("%s", _("no more messages"));
