@@ -1646,6 +1646,8 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 	char *buffer;
 	size_t siz;
 
+	CtdlLogPrintf(CTDL_DEBUG, "network_process_message() processing bytes %ld through %ld\n", msgstart, msgend);
+
 	hold_pos = ftell(fp);
 	size = msgend - msgstart + 1;
 	buffer = malloc(size);
