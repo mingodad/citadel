@@ -837,8 +837,9 @@ void readloop(long oper)
 		if (SortIt != NULL)
 			SortByPayload(WCC->summ, SortIt);
 	}
-	if (Stat.startmsg < 0) 
-		Stat.startmsg = (Stat.reverse) ? Stat.nummsgs - 1 : 0;
+	if (Stat.startmsg < 0) {
+		Stat.startmsg =  0;
+	}
 
 	if (Stat.load_seen) load_seen_flags();
 	

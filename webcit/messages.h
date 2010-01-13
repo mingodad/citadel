@@ -98,23 +98,22 @@ int load_message(message_summary *Msg,
 
 
 
-typedef struct _SharedMessageStatus{
-	long load_seen;        /** should read information be loaded */
-	long sortit;           /** should we sort it using the standard sort API? */
-	long defaultsortorder; /** if we should sort it, which direction should be the default? */
+typedef struct _SharedMessageStatus {
+	long load_seen;        /* should read information be loaded */
+	long sortit;           /* should we sort it using the standard sort API? */
+	long defaultsortorder; /* if we should sort it, which direction should be the default? */
 
-	long maxload;          /** how many headers should we accept from the server? defaults to 10k */
-	long maxmsgs;          /** how many message bodies do you want to load at most?*/
-	long reverse;          /** should the load-range be reversed? */
+	long maxload;          /* how many headers should we accept from the server? defaults to 10k */
+	long maxmsgs;          /* how many message bodies do you want to load at most?*/
 
-	long startmsg;         /** which is the start message ????? */
-	long nummsgs;          /** How many messages are available to your view? */
-	long num_displayed;    /** counted up for LoadMsgFromServer */ /* TODO: unclear who should access this and why */
+	long startmsg;         /* which is the start message? */
+	long nummsgs;          /* How many messages are available to your view? */
+	long num_displayed;    /* counted up for LoadMsgFromServer */ /* TODO: unclear who should access this and why */
 
-	long lowest_found;     /** smallest Message ID found;  */
-	long highest_found;    /** highest Message ID found;  */
+	long lowest_found;     /* smallest Message ID found;  */
+	long highest_found;    /* highest Message ID found;  */
 
-}SharedMessageStatus;
+} SharedMessageStatus;
 
 int load_msg_ptrs(const char *servcmd, SharedMessageStatus *Stat);
 
