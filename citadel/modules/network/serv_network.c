@@ -1644,7 +1644,6 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 	long hold_pos;
 	long size;
 	char *buffer;
-	size_t siz;
 
 	CtdlLogPrintf(CTDL_DEBUG, "network_process_message() processing bytes %ld through %ld\n", msgstart, msgend);
 
@@ -1653,8 +1652,9 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 	buffer = malloc(size);
 	if (buffer != NULL) {
 		fseek(fp, msgstart, SEEK_SET);
-		siz = fread(buffer, size, 1, fp);
-		network_process_buffer(buffer, siz);
+		if (fread(buffer, size, 1, fp) > 0) {
+			network_process_buffer(buffer, size);
+		}
 		free(buffer);
 	}
 
