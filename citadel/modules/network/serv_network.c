@@ -4,7 +4,7 @@
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
- * Copyright (c) 2000-2009 by the citadel.org team
+ * Copyright (c) 2000-2010 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1644,8 +1644,6 @@ void network_process_message(FILE *fp, long msgstart, long msgend) {
 	long hold_pos;
 	long size;
 	char *buffer;
-
-	CtdlLogPrintf(CTDL_DEBUG, "network_process_message() processing bytes %ld through %ld\n", msgstart, msgend);
 
 	hold_pos = ftell(fp);
 	size = msgend - msgstart + 1;
