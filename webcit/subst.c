@@ -1710,6 +1710,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 			    (strcmp(&filedir_entry->d_name[d_without_ext], ".swp") == 0))
 				continue; /* Ignore backup files... */
 			/* .m.xxx is for mobile useragents! */
+			IsMobile = 0;
 			if (d_without_ext > 2)
 				IsMobile = (filedir_entry->d_name[d_without_ext - 1] == 'm') &&
 					(filedir_entry->d_name[d_without_ext - 2] == '.');
