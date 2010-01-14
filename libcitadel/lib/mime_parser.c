@@ -26,7 +26,7 @@
 
 void extract_key(char *target, char *source, long sourcelen, char *key, long keylen, char KeyEnd)
 {
-	char *sptr, *ptr;
+	char *sptr, *ptr = NULL;
 	int double_quotes = 0;
 	long RealKeyLen = keylen;
 
