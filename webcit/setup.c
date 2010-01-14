@@ -671,8 +671,9 @@ int main(int argc, char *argv[])
 	int a;
 	char aaa[256];
 	int info_only = 0;
-	strcpy(suggested_url, "http://<your_host_name>:<port>/");
 	int rv;
+
+	strcpy(suggested_url, "http://<your_host_name>:<port>/");
 
 	/* set an invalid setup type */
 	setup_type = (-1);
