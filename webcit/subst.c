@@ -1678,7 +1678,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 		case DT_DIR:
 			/* Skip directories we are not interested in... */
 			if (strcmp(filedir_entry->d_name, ".svn") == 0)
-				break;
+				continue;
 
 			FlushStrBuf(SubKey);
 			if (!Toplevel) {
@@ -1705,7 +1705,9 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 				d_without_ext --;
 			if ((d_without_ext == 0) || (d_namelen < 3))
 				continue;
-			if ((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~')
+			if (((d_namelen > 1) && filedir_entry->d_name[d_namelen - 1] == '~') ||
+			    (strcmp(&filedir_entry->d_name[d_without_ext], ".orig") == 0) ||
+			    (strcmp(&filedir_entry->d_name[d_without_ext], ".swp") == 0))
 				continue; /* Ignore backup files... */
 			/* .m.xxx is for mobile useragents! */
 			if (d_without_ext > 2)
