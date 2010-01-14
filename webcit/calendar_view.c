@@ -1392,17 +1392,16 @@ int calendar_summary_view(void) {
 					p = icalproperty_new_summary(_("Untitled Task"));
 					icalcomponent_add_property(Cal->cal, p);
 				}
-				if (p != NULL) {
-
-
-					if (WCC->wc_view == VIEW_TASKS) {
+				if (p != NULL)
+				{
+					if (WCC->CurRoom.view == VIEW_TASKS) {
 						wc_printf("<a href=\"display_edit_task"
 							"?msgnum=%ld"
 							"?return_to_summary=1"
 							"?gotofirst=",
 							Cal->cal_msgnum
 						);
-						escputs(ChrPtr(WCC->wc_roomname));
+						escputs(ChrPtr(WCC->CurRoom.name));
 						wc_printf("\">");
 					}
 					else {
@@ -1418,7 +1417,7 @@ int calendar_summary_view(void) {
 							today_tm.tm_mon + 1,
 							today_tm.tm_mday
 						);
-						escputs(ChrPtr(WCC->wc_roomname));
+						escputs(ChrPtr(WCC->CurRoom.name));
 						wc_printf("\">");
 					}
 					escputs((char *) icalproperty_get_comment(p));
@@ -1445,6 +1444,7 @@ int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				    char *cmd, 
 				    long len)
 {
+	wcsession *WCC = WC;
 	calview *c;
 	time_t now;
 	struct tm tm;
@@ -1491,7 +1491,7 @@ int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat,
 		c->view = calview_day;
 	}
 	else {
-		if (WC->wc_view == VIEW_CALBRIEF) {
+		if (WCC->CurRoom.view == VIEW_CALBRIEF) {
 			c->view = calview_brief;
 		}
 		else {
@@ -1528,6 +1528,7 @@ int calendar_RenderView_or_Tail(SharedMessageStatus *Stat,
 				void **ViewSpecific, 
 				long oper)
 {
+	wcsession *WCC = WC;
 	calview *c = (calview*) *ViewSpecific;
 
 	if (c->view == calview_day) {
@@ -1537,7 +1538,7 @@ int calendar_RenderView_or_Tail(SharedMessageStatus *Stat,
 		calendar_week_view(c->year, c->month, c->day);
 	}
 	else {
-		if (WC->wc_view == VIEW_CALBRIEF) {
+		if (WCC->CurRoom.view == VIEW_CALBRIEF) {
 			calendar_brief_month_view(c->year, c->month, c->day);
 		}
 		else {

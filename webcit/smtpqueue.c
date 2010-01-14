@@ -178,7 +178,7 @@ void display_smtpqueue_inner_div(void) {
 	Buf = NewStrBufPlain(HKEY("__CitadelSMTPspoolout__"));
 	gotoroom(Buf);
 	FreeStrBuf(&Buf);
-	if (!strcasecmp(ChrPtr(WCC->wc_roomname), "__CitadelSMTPspoolout__")) {
+	if (!strcasecmp(ChrPtr(WCC->CurRoom.name), "__CitadelSMTPspoolout__")) {
 
 		Stat.maxload = 10000;
 		Stat.lowest_found = (-1);

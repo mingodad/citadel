@@ -133,7 +133,7 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 		p = icalcomponent_get_first_property(Cal->cal,
 			ICAL_SUMMARY_PROPERTY);
 		wc_printf("<a href=\"display_edit_task?msgnum=%ld?taskrm=", Cal->cal_msgnum);
-		urlescputs(ChrPtr(WC->wc_roomname));
+		urlescputs(ChrPtr(WC->CurRoom.name));
 		wc_printf("\">");
 		/* wc_printf("<img align=middle "
 		"src=\"static/taskmanag_16x.gif\" border=0>&nbsp;"); */

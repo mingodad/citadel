@@ -653,11 +653,11 @@ void session_loop(void)
 	 * If we aren't in any room yet, but we have cookie data telling us where we're
 	 * supposed to be, and 'gotofirst' was not specified, then go there.
 	 */
-	else if ( (StrLength(WCC->wc_roomname) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
+	else if ( (StrLength(WCC->CurRoom.name) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
 		int ret;
 
 		lprintf(9, "We are in '%s' but cookie indicates '%s', going there...\n",
-			ChrPtr(WCC->wc_roomname),
+			ChrPtr(WCC->CurRoom.name),
 			ChrPtr(WCC->Hdr->c_roomname)
 		);
 		ret = gotoroom(WCC->Hdr->c_roomname);	/* do quietly to avoid session output! */

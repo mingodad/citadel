@@ -33,7 +33,7 @@ void stuff_to_cookie(int unset_cookies)
 		StrBufHexescAppend(WCC->HBuf, NULL, "|");
 		StrBufHexescAppend(WCC->HBuf, WCC->wc_password, NULL);
 		StrBufHexescAppend(WCC->HBuf, NULL, "|");
-		StrBufHexescAppend(WCC->HBuf, WCC->wc_roomname, NULL);
+		StrBufHexescAppend(WCC->HBuf, WCC->CurRoom.name, NULL);
 		StrBufHexescAppend(WCC->HBuf, NULL, "|");
 		StrBufHexescAppend(WCC->HBuf, NULL, get_selected_language());
 		StrBufHexescAppend(WCC->HBuf, NULL, "|");

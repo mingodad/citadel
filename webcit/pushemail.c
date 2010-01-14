@@ -6,6 +6,7 @@
 
 void display_pushemail(void) 
 {
+	folder Room;
 	int Done = 0;
 	StrBuf *Buf;
 	long vector[8] = {8, 0, 0, 1, 2, 3, 4, 5};
@@ -19,7 +20,7 @@ void display_pushemail(void)
 
 	/* Find any existing settings*/
 	Buf = NewStrBuf();
-	if (goto_config_room(Buf) == 0) {
+	if (goto_config_room(Buf, &Room) == 0) {
 		int msgnum = 0;
 		serv_puts("MSGS ALL|0|1");
 		StrBuf_ServGetln(Buf);
@@ -80,10 +81,11 @@ void display_pushemail(void)
 		}
 		}
 		svput("SMSNUM", WCS_STRING, " ");
-		serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
+		serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
 		StrBuf_ServGetln(Buf);
 		GetServerStatus(Buf, NULL);
 	}
+	FlushFolder(&Room);
 	output_headers(1, 1, 2, 0, 0, 0);
 	DoTemplate(HKEY("prefs_pushemail"), NULL, &SubTP);
 	wDumpContent(1);
@@ -92,6 +94,7 @@ void display_pushemail(void)
 
 void save_pushemail(void) 
 {
+	folder Room;
 	int Done = 0;
 	StrBuf *Buf;
 	char buf[SIZ];
@@ -103,10 +106,13 @@ void save_pushemail(void)
 		sms = bstr("user_sms_number");
 	}
 	Buf = NewStrBuf();
-	if (goto_config_room(Buf) != 0) {
+	if (goto_config_room(Buf, &Room) != 0) {
 		FreeStrBuf(&Buf);
+		FlushFolder(&Room);
 		return;	/* oh well. */
 	}
+	FlushFolder(&Room);
+
 	serv_puts("MSGS ALL|0|1");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 8) {
@@ -146,7 +152,7 @@ void save_pushemail(void)
 	}
 
 	/** Go back to the room we're supposed to be in */
-	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
+	serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
 	StrBuf_ServGetln(Buf);
 	GetServerStatus(Buf, NULL);
 	http_redirect("display_pushemail");

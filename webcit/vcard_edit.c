@@ -52,9 +52,9 @@ void display_addressbook(long msgnum, char alpha) {
 			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL, msgnum);
 
 			/* If it's my vCard I can edit it */
-			if (	(!strcasecmp(ChrPtr(WC->wc_roomname), USERCONFIGROOM))
-				|| (!strcasecmp(&(ChrPtr(WC->wc_roomname)[11]), USERCONFIGROOM))
-				|| (WC->wc_view == VIEW_ADDRESSBOOK)
+			if (	(!strcasecmp(ChrPtr(WC->CurRoom.name), USERCONFIGROOM))
+				|| (!strcasecmp(&(ChrPtr(WC->CurRoom.name)[11]), USERCONFIGROOM))
+				|| (WC->CurRoom.view == VIEW_ADDRESSBOOK)
 			) {
 				wc_printf("<a href=\"edit_vcard?"
 					"msgnum=%ld&partnum=%s\">",

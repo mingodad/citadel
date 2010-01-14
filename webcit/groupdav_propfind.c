@@ -262,10 +262,10 @@ void groupdav_propfind(void)
 	}
 
 	/* Go to the correct room. */
-	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WCC->CurRoom.name), ChrPtr(dav_roomname))) {
 		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WCC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
@@ -321,7 +321,7 @@ void groupdav_propfind(void)
 		wc_printf("<href>");
 		groupdav_identify_host();
 		wc_printf("/groupdav/");
-		urlescputs(ChrPtr(WCC->wc_roomname));
+		urlescputs(ChrPtr(WCC->CurRoom.name));
 		euid_escapize(encoded_uid, ChrPtr(dav_uid));
 		wc_printf("/%s", encoded_uid);
 		wc_printf("</href>");
@@ -373,18 +373,18 @@ void groupdav_propfind(void)
 	wc_printf("<href>");
 	groupdav_identify_host();
 	wc_printf("/groupdav/");
-	urlescputs(ChrPtr(WCC->wc_roomname));
+	urlescputs(ChrPtr(WCC->CurRoom.name));
 	wc_printf("</href>");
 
 	wc_printf("<propstat>");
 	wc_printf("<status>HTTP/1.1 200 OK</status>");
 	wc_printf("<prop>");
 	wc_printf("<displayname>");
-	escputs(ChrPtr(WCC->wc_roomname));
+	escputs(ChrPtr(WCC->CurRoom.name));
 	wc_printf("</displayname>");
 	wc_printf("<resourcetype><collection/>");
 
-	switch(WCC->wc_default_view) {
+	switch(WCC->CurRoom.defview) {
 		case VIEW_CALENDAR:
 			wc_printf("<G:vevent-collection />");
 			break;
@@ -440,11 +440,11 @@ void groupdav_propfind(void)
 				wc_printf("<href>");
 					groupdav_identify_host();
 					wc_printf("/groupdav/");
-					urlescputs(ChrPtr(WCC->wc_roomname));
+					urlescputs(ChrPtr(WCC->CurRoom.name));
 					euid_escapize(encoded_uid, uid);
 					wc_printf("/%s", encoded_uid);
 				wc_printf("</href>");
-				switch(WCC->wc_default_view) {
+				switch(WCC->CurRoom.defview) {
 				case VIEW_CALENDAR:
 					wc_printf("<getcontenttype>text/x-ical</getcontenttype>");
 					break;

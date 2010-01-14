@@ -95,7 +95,8 @@ void tasks_section(void) {
 	Buf = NewStrBufPlain(HKEY("_TASKS_"));
 	gotoroom(Buf);
 	FreeStrBuf(&Buf);
-	if (WCC->wc_view != VIEW_TASKS) {
+
+	if (WCC->CurRoom.view != VIEW_TASKS) {
 		num_msgs = 0;
 	}
 	else {
@@ -143,7 +144,7 @@ void calendar_section(void) {
 	Buf = NewStrBufPlain(HKEY("_CALENDAR_"));
 	gotoroom(Buf);
 	FreeStrBuf(&Buf);
-	if ( (WC->wc_view != VIEW_CALENDAR) && (WC->wc_view != VIEW_CALBRIEF) ) {
+	if ( (WC->CurRoom.view != VIEW_CALENDAR) && (WC->CurRoom.view != VIEW_CALBRIEF) ) {
 		num_msgs = 0;
 	}
 	else {

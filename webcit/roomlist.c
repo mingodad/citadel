@@ -125,20 +125,26 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP)
 	return GetRoomListHash(Target, TP);
 }
 
-void DeleteFolder(void *vFolder)
+void FlushFolder(folder *room)
 {
 	int i;
-	folder *room;
-	room = (folder*) vFolder;
 
 	FreeStrBuf(&room->name);
-
 	if (room->RoomNameParts != NULL)
 	{
 		for (i=0; i < room->nRoomNameParts; i++)
 			FreeStrBuf(&room->RoomNameParts[i]);
 		free(room->RoomNameParts);
 	}
+}
+
+void vDeleteFolder(void *vFolder)
+{
+	folder *room;
+
+	room = (folder*) vFolder;
+	FlushFolder(room);
+
 	free(room);
 }
 
@@ -232,7 +238,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 
 
 				/* now we know everything, remember it... */
-				Put(rooms, SKEY(room->name), room, DeleteFolder);
+				Put(rooms, SKEY(room->name), room, vDeleteFolder);
 			}
 	}
 

@@ -197,14 +197,18 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
  */
 void load_preferences(void) 
 {
+	folder Room;
 	wcsession *WCC = WC;
 	int Done = 0;
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
+	memset(&Room, 0, sizeof(folder));
 	ReadBuf = NewStrBufPlain(NULL, SIZ * 4);
-	if (goto_config_room(ReadBuf) != 0) {
+	if (goto_config_room(ReadBuf, &Room) != 0) {
 		FreeStrBuf(&ReadBuf);
+		FlushFolder(&Room);
+
 		return;	/* oh well. */
 	}
 
@@ -239,19 +243,20 @@ void load_preferences(void)
 	}
 
 	/* Go back to the room we're supposed to be in */
-	if (StrLength(WCC->wc_roomname) > 0) {
-		serv_printf("GOTO %s", ChrPtr(WCC->wc_roomname));
+	if (StrLength(WCC->CurRoom.name) > 0) {
+		serv_printf("GOTO %s", ChrPtr(WCC->CurRoom.name));
 		StrBuf_ServGetln(ReadBuf);
 		GetServerStatus(ReadBuf, NULL);
 	}
 	FreeStrBuf(&ReadBuf);
+	FlushFolder(&Room);
 }
 
 /*
  * Goto the user's configuration room, creating it if necessary.
  * returns 0 on success or nonzero upon failure.
  */
-int goto_config_room(StrBuf *Buf) 
+int goto_config_room(StrBuf *Buf, folder *Room) 
 {
 	serv_printf("GOTO %s", USERCONFIGROOM);
 	StrBuf_ServGetln(Buf);
@@ -266,6 +271,7 @@ int goto_config_room(StrBuf *Buf)
 			return(1);
 		}
 	}
+	ParseGoto(Room, Buf);
 	return(0);
 }
 
@@ -330,16 +336,23 @@ void WritePrefsToServer(HashList *Hash)
  */
 void save_preferences(void) 
 {
+	folder Room;
 	wcsession *WCC = WC;
 	int Done = 0;
 	StrBuf *ReadBuf;
 	long msgnum = 0L;
 	
 	ReadBuf = NewStrBuf();
-	if (goto_config_room(ReadBuf) != 0) {
+	memset(&Room, 0, sizeof(folder));
+	if (goto_config_room(ReadBuf, &Room) != 0) {
 		FreeStrBuf(&ReadBuf);
+		FlushFolder(&Room);
+
 		return;	/* oh well. */
 	}
+//void do_change_view(int newview) {
+
+
 	serv_puts("MSGS ALL|0|1");
 	StrBuf_ServGetln(ReadBuf);
 	if (GetServerStatus(ReadBuf, NULL) == 8) {
@@ -372,12 +385,13 @@ void save_preferences(void)
 	}
 
 	/** Go back to the room we're supposed to be in */
-	if (StrLength(WCC->wc_roomname) > 0) {
-		serv_printf("GOTO %s", ChrPtr(WCC->wc_roomname));
+	if (StrLength(WCC->CurRoom.name) > 0) {
+		serv_printf("GOTO %s", ChrPtr(WCC->CurRoom.name));
 		StrBuf_ServGetln(ReadBuf);
 		GetServerStatus(ReadBuf, NULL);
 	}
 	FreeStrBuf(&ReadBuf);
+	FlushFolder(&Room);
 }
 
 /**
@@ -581,7 +595,7 @@ int get_room_prefs_backend(const char *key, size_t keylen,
 	int Ret;
 
 	pref_name = NewStrBufPlain (HKEY("ROOM:"));
-	StrBufAppendBuf(pref_name, WC->wc_roomname, 0);
+	StrBufAppendBuf(pref_name, WC->CurRoom.name, 0);
 	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
 	StrBufAppendBufPlain(pref_name, key, keylen, 0);
 	Ret = get_pref_backend(SKEY(pref_name), Pref);
@@ -665,7 +679,7 @@ void set_ROOM_PREFS(const char *key, size_t keylen, StrBuf *value, int save_to_s
 	StrBuf *pref_name;
 	
 	pref_name = NewStrBufPlain (HKEY("ROOM:"));
-	StrBufAppendBuf(pref_name, WC->wc_roomname, 0);
+	StrBufAppendBuf(pref_name, WC->CurRoom.name, 0);
 	StrBufAppendBufPlain(pref_name, HKEY(":"), 0);
 	StrBufAppendBufPlain(pref_name, key, keylen, 0);
 	set_preference_backend(SKEY(pref_name), 0, value, PRF_STRING, save_to_server, NULL);

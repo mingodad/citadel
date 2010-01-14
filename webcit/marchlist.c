@@ -131,7 +131,7 @@ void gotonext(void)
 					continue;					
 				}
 				extract_token(room_name, buf, 0, '|', sizeof room_name);
-				if (strcasecmp(room_name, ChrPtr(WC->wc_roomname))) {
+				if (strcasecmp(room_name, ChrPtr(WC->CurRoom.name))) {
 					mptr = (struct march *) malloc(sizeof(struct march));
 					mptr->next = NULL;
 					safestrncpy(mptr->march_name, room_name, sizeof mptr->march_name);
@@ -166,7 +166,7 @@ void gotonext(void)
 		 * ...and remove the room we're currently in, so a <G>oto doesn't make us
 		 * walk around in circles
 		 */
-		remove_march(WC->wc_roomname);
+		remove_march(WC->CurRoom.name);
 	}
 	if (WC->march != NULL) {
 		next_room = NewStrBufPlain(pop_march(-1), -1);/*TODO: migrate march to strbuf */
@@ -192,14 +192,14 @@ void ungoto(void)
 	}
 
 	if (!strcmp(WC->ugname, "")) {
-		smart_goto(WC->wc_roomname);
+		smart_goto(WC->CurRoom.name);
 		return;
 	}
 	serv_printf("GOTO %s", WC->ugname);
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		smart_goto(WC->wc_roomname);
+		smart_goto(WC->CurRoom.name);
 		FreeStrBuf(&Buf);
 		return;
 	}

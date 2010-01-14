@@ -89,8 +89,8 @@
 #include "subst.h"
 #include "messages.h"
 #include "paramhandling.h"
-#include "preferences.h"
 #include "roomops.h"
+#include "preferences.h"
 
 #ifdef HAVE_OPENSSL
 /* Work around RedHat's b0rken OpenSSL includes */
@@ -116,7 +116,7 @@ extern char *ssl_cipher_list;
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		780		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	780		/* min required Citadel ver */
+#define MINIMUM_CIT_VERSION	770		/* min required Citadel ver */
 #define	LIBCITADEL_MIN		766		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
@@ -178,6 +178,7 @@ extern char *ssl_cipher_list;
 #define UA_POSTALLOWED          32
 #define UA_ADMINALLOWED         64
 #define UA_DELETEALLOWED        128
+#define UA_ISTRASH              256 /* Only available in room view... */
 
 
 /*
@@ -479,14 +480,16 @@ struct wcsession {
 	int time_format_cache;                  /* which timeformat does our user like? */
 
 /* current room related */
-	StrBuf *wc_roomname;			/* Room we are currently in */
-	unsigned room_flags;			/* flags associated with the current room */
-	unsigned room_flags2;			/* flags associated with the current room */
-	int wc_view;				/* view for the current room */
-	int wc_default_view;			/* default view for the current room */
-	int wc_is_trash;			/* nonzero == current room is a Trash folder */
-	int wc_floor;				/* floor number of current room */
-	int is_mailbox;				/* the current room is a private mailbox */
+/*	StrBuf *wc_roomname;			/ * Room we are currently in */
+/*	unsigned room_flags;			/ * flags associated with the current room */
+/*	unsigned room_flags2;			/ * flags associated with the current room */
+/*	int wc_view;				/ * view for the current room */
+/*	int wc_default_view;			/ * default view for the current room */
+/*	int wc_is_trash;			/ * nonzero == current room is a Trash folder */
+/*	int wc_floor;				/ * floor number of current room */
+/*	int is_mailbox;				/ * the current room is a private mailbox */
+
+	folder CurRoom;                         /* information about our current room */
 
 /* next/previous room thingabob */
 	struct march *march;			/* march mode room list */
@@ -769,7 +772,6 @@ int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);
-int goto_config_room(StrBuf *Buf);
 long locate_user_vcard_in_this_room(message_summary **VCMsg,
 				    wc_mime_attachment **VCAtt);
 void sleeeeeeeeeep(int);

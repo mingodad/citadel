@@ -148,7 +148,7 @@ void display_address_book_inner_div() {
 
 	else {
 		set_room_pref("defaddrbook",NewStrBufDup(sbstr("which_addr_book")), 0);
-		saved_roomname = NewStrBufDup(WC->wc_roomname);
+		saved_roomname = NewStrBufDup(WC->CurRoom.name);
 		gotoroom(sbstr("which_addr_book"));
 		serv_puts("DVCA");
 		serv_getln(buf, sizeof buf);

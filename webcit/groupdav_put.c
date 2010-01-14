@@ -87,10 +87,10 @@ void groupdav_put(void)
 	}
 
 	/* Go to the correct room. */
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WC->CurRoom.name), ChrPtr(dav_roomname))) {
 		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(ChrPtr(WC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");

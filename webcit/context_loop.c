@@ -615,11 +615,6 @@ void tmplput_current_user(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, WC->wc_fullname, 0);
 }
 
-void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
-{
-	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0); 
-}
-
 void Header_HandleContentLength(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
 	hdr->HR.ContentLength = StrToi(Line);
@@ -775,7 +770,6 @@ InitModule_CONTEXT
 	RegisterHeaderHandler(HKEY("IF-MODIFIED-SINCE"), Header_HandleIfModSince);
 
 	RegisterNamespace("CURRENT_USER", 0, 1, tmplput_current_user, NULL, CTX_NONE);
-	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, NULL, CTX_NONE);
 	RegisterNamespace("NONCE", 0, 0, tmplput_nonce, NULL, 0);
 
 	WebcitAddUrlHandler(HKEY("404"), "", 0, do_404, ANONYMOUS|COOKIEUNNEEDED);

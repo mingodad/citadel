@@ -540,7 +540,7 @@ void do_logout(void)
 
 	FlushStrBuf(WCC->wc_username);
 	FlushStrBuf(WCC->wc_password);
-	FlushStrBuf(WCC->wc_roomname);
+	FlushStrBuf(WCC->CurRoom.name);
 	FlushStrBuf(WCC->wc_fullname);
 
 	/* FIXME: this is to suppress the iconbar displaying, because we aren't
@@ -740,13 +740,14 @@ void validate(void)
  */
 void display_reg(int during_login)
 {
+	folder Room;
 	StrBuf *Buf;
 	message_summary *VCMsg = NULL;
 	wc_mime_attachment *VCAtt = NULL;
 	long vcard_msgnum;
 
 	Buf = NewStrBuf();
-	if (goto_config_room(Buf) != 0) {
+	if (goto_config_room(Buf, &Room) != 0) {
 		lprintf(9, "display_reg() exiting because goto_config_room() failed\n");
 		if (during_login) {
 			do_welcome();
@@ -755,8 +756,10 @@ void display_reg(int during_login)
 			display_main_menu();
 		}
 		FreeStrBuf(&Buf);
+		FlushFolder(&Room);		
 		return;
 	}
+	FlushFolder(&Room);
 
 	FreeStrBuf(&Buf);
 	vcard_msgnum = locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
@@ -777,7 +780,7 @@ void display_reg(int during_login)
 	else {
 		StrBuf *ReturnTo;
 		ReturnTo = NewStrBufPlain(HKEY("display_main_menu?gotofirst="));
-		StrBufAppendBuf(ReturnTo, WC->wc_roomname, 0);
+		StrBufAppendBuf(ReturnTo, WC->CurRoom.name, 0);
 		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, ChrPtr(ReturnTo), USERCONFIGROOM);
 		FreeStrBuf(&ReturnTo);
 	}
@@ -901,24 +904,10 @@ int ConditionalAide(StrBuf *Target, WCTemplputParams *TP)
 	return (WCC != NULL)? (WC->is_aide == 0) : 0;
 }
 
-int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	return (WCC != NULL)? (WCC->is_room_aide == 0) : 0;
-}
-
-
 int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
 	return (WCC != NULL)? (WCC->logged_in == 0) : 0;
-}
-
-
-int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	return (WCC != NULL)? ( (WCC->is_room_aide) || (WCC->is_mailbox) || (WCC->room_flags2 & QR2_COLLABDEL) ) : 0;
 }
 
 
@@ -1051,8 +1040,6 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("termquit"), "", 0, do_logout, 0);
 
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
-	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
 
 	return ;
@@ -1066,7 +1053,6 @@ SessionDestroyModule_AUTH
 	FreeStrBuf(&sess->wc_username);
 	FreeStrBuf(&sess->wc_fullname);
 	FreeStrBuf(&sess->wc_password);
-	FreeStrBuf(&sess->wc_roomname);
 	FreeStrBuf(&sess->httpauth_pass);
 	FreeStrBuf(&sess->cs_inet_email);
 }

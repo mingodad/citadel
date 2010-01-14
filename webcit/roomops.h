@@ -74,14 +74,28 @@ typedef struct _folder {
 	StrBuf **RoomNameParts;
 
 	const floor *Floor;   /* pint to the floor we're on.. */
-	StrBuf *room;	/* which roomname ??? */
-
 
 	int hasnewmsgs;	/* are there unread messages inside */
 	int is_inbox;	/* is it a mailbox?  */
+
+
+
 	int selectable;	/* can we select it ??? */
 	long num_rooms;	/* If this is a floor, how many rooms does it have */
+
+
+/* Only available from the GOTO context... */
+	long nNewMessages;
+	long nTotalMessages;
+	long LastMessageRead;
+	long HighestRead;
+	int ShowInfo;
+	int UsersNewMAilboxMessages; /* should we notify the user about new messages? */
+	int IsTrash;
 
 }folder;
 
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
+void vDeleteFolder(void *vFolder);
+void FlushFolder(folder *room);
+void ParseGoto(folder *proom, StrBuf *Line);

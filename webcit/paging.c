@@ -103,7 +103,7 @@ void do_chat(void)
 	char buf[SIZ];
 
 	/** First, check to make sure we're still allowed in this room. */
-	serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
+	serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
 		StrBuf *Buf;
@@ -198,7 +198,7 @@ int setup_chat_socket(void) {
 				serv_printf("PASS %s", ChrPtr(WC->wc_password));
 				serv_getln(buf, sizeof buf);
 				if (buf[0] == '2') {
-					serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
+					serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
 					serv_getln(buf, sizeof buf);
 					if (buf[0] == '2') {
 						serv_puts("CHAT");

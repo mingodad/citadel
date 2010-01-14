@@ -51,3 +51,5 @@ const StrBuf *get_X_PREFS(const char *key, size_t keylen,
 
 #define set_x_pref(a, b, c) set_ROOM_PREFS(a, sizeof(a) - 1, b, sizeof(b) - 1, c, d)
 void set_X_PREFS(const char *key, size_t keylen, const char *xkey, size_t xkeylen, StrBuf *value, int save_to_server);
+
+int goto_config_room(StrBuf *Buf, folder *room);

@@ -127,10 +127,10 @@ void groupdav_get(void)
 	}
 
 	/* Go to the correct room. */
-	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WCC->CurRoom.name), ChrPtr(dav_roomname))) {
 		gotoroom(dav_roomname);
 	}
-	if (strcasecmp(ChrPtr(WCC->wc_roomname), ChrPtr(dav_roomname))) {
+	if (strcasecmp(ChrPtr(WCC->CurRoom.name), ChrPtr(dav_roomname))) {
 		hprintf("HTTP/1.1 404 not found\r\n");
 		groupdav_common_headers();
 		hprintf("Content-Type: text/plain\r\n");
@@ -230,11 +230,11 @@ void groupdav_get(void)
 	 */
 	if (!strncasecmp(content_type, "multipart/", 10)) {
 
-		if ( (WCC->wc_default_view == VIEW_CALENDAR) || (WCC->wc_default_view == VIEW_TASKS) ) {
+		if ( (WCC->CurRoom.defview == VIEW_CALENDAR) || (WCC->CurRoom.defview == VIEW_TASKS) ) {
 			strcpy(epdata.desired_content_type_1, "text/calendar");
 		}
 
-		else if (WCC->wc_default_view == VIEW_ADDRESSBOOK) {
+		else if (WCC->CurRoom.defview == VIEW_ADDRESSBOOK) {
 			strcpy(epdata.desired_content_type_1, "text/vcard");
 			strcpy(epdata.desired_content_type_2, "text/x-vcard");
 		}

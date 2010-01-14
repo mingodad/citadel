@@ -382,7 +382,7 @@ void handle_one_message(void)
 		break;
 	case eDELETE:
 		CmdBuf = NewStrBuf ();
-		if (WCC->wc_is_trash) {	/* Delete from Trash is a real delete */
+		if ((WCC->CurRoom.RAFlags & UA_ISTRASH) != 0) {	/* Delete from Trash is a real delete */
 			serv_printf("DELE %ld", msgnum);	
 		}
 		else {			/* Otherwise move it to Trash */
@@ -442,7 +442,7 @@ void embed_message(void) {
 		break;
 	case eDELETE:
 		CmdBuf = NewStrBuf ();
-		if (WCC->wc_is_trash) {	/* Delete from Trash is a real delete */
+		if ((WCC->CurRoom.RAFlags & UA_ISTRASH) != 0) {	/* Delete from Trash is a real delete */
 			serv_printf("DELE %ld", msgnum);	
 		}
 		else {			/* Otherwise move it to Trash */
@@ -644,7 +644,7 @@ int load_msg_ptrs(const char *servcmd, SharedMessageStatus *Stat)
 				/* node name */
 				StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
 				if ((StrLength(Buf2) !=0 ) &&
-				    ( ((WCC->room_flags & QR_NETWORK)
+				    ( ((WCC->CurRoom.QRFlags & QR_NETWORK)
 				       || ((strcasecmp(ChrPtr(Buf2), ChrPtr(WCC->serv_info->serv_nodename))
 					    && (strcasecmp(ChrPtr(Buf2), ChrPtr(WCC->serv_info->serv_fqdn))))))))
 				{
@@ -770,14 +770,14 @@ void readloop(long oper)
 	void *ViewSpecific;
 
 	if (havebstr("is_summary") && (1 == (ibstr("is_summary")))) {
-		WCC->wc_view = VIEW_MAILBOX;
+		WCC->CurRoom.view = VIEW_MAILBOX;
 	}
 
 	if (havebstr("is_ajax") && (1 == (ibstr("is_ajax")))) {
 		WCC->is_ajax = 1;
 	}
 
-	if ((oper == do_search) && (WCC->wc_view == VIEW_WIKI)) {
+	if ((oper == do_search) && (WCC->CurRoom.view == VIEW_WIKI)) {
 		display_wiki_pagelist();
 		return;
 	}
@@ -786,10 +786,10 @@ void readloop(long oper)
 	Stat.maxload = 10000;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	GetHash(ReadLoopHandler, IKEY(WCC->wc_view), &vViewMsg);
+	GetHash(ReadLoopHandler, IKEY(WCC->CurRoom.view), &vViewMsg);
 	if (vViewMsg == NULL) {
-		WCC->wc_view = VIEW_BBS;
-		GetHash(ReadLoopHandler, IKEY(WCC->wc_view), &vViewMsg);
+		WCC->CurRoom.view = VIEW_BBS;
+		GetHash(ReadLoopHandler, IKEY(WCC->CurRoom.view), &vViewMsg);
 	}
 	if (vViewMsg == NULL) {
 		return;			// TODO: print message
@@ -798,7 +798,7 @@ void readloop(long oper)
 	ViewMsg = (RoomRenderer*) vViewMsg;
 	if (!WCC->is_ajax) {
 		output_headers(1, 1, 1, 0, 0, 0);
-	} else if (WCC->wc_view == VIEW_MAILBOX) {
+	} else if (WCC->CurRoom.view == VIEW_MAILBOX) {
 		jsonMessageListHdr();
 	}
 
@@ -856,7 +856,7 @@ void readloop(long oper)
 	/* Put some helpful data in vars for mailsummary_json */
 	svputlong("READLOOP:TOTALMSGS", Stat.nummsgs);
 	svputlong("READLOOP:STARTMSG", Stat.startmsg);
-	svputlong("WCVIEW", WCC->wc_view);
+	svputlong("WCVIEW", WCC->CurRoom.view);
 
 	/*
 	 * iterate over each message. if we need to load an attachment, do it here. 
@@ -932,7 +932,7 @@ void post_mime_to_server(void) {
 	}
 
 	/* Only do multipart/alternative for mailboxes.  BBS and Wiki rooms don't need it. */
-	if (WC->wc_view == VIEW_MAILBOX) {
+	if (WC->CurRoom.view == VIEW_MAILBOX) {
 		include_text_alt = 1;
 	}
 
@@ -1190,13 +1190,13 @@ void post_message(void)
 					serv_printf("Cc: %s", ChrPtr(Cc));
 					serv_printf("Bcc: %s", ChrPtr(Bcc));
 				} else {
-					serv_printf("X-Citadel-Room: %s", ChrPtr(WC->wc_roomname));
+					serv_printf("X-Citadel-Room: %s", ChrPtr(WC->CurRoom.name));
 				}
 			}
 			post_mime_to_server();
 			if (save_to_drafts) {
 				StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been saved to Drafts.\n"), -1, 0);
-				gotoroom(WCC->wc_roomname);
+				gotoroom(WCC->CurRoom.name);
 				display_enter();
 				FreeStrBuf(&Buf);
 				return;
@@ -1215,7 +1215,7 @@ void post_message(void)
 
 			lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
 			StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
-			if (save_to_drafts) gotoroom(WCC->wc_roomname);
+			if (save_to_drafts) gotoroom(WCC->CurRoom.name);
 			display_enter();
 			FreeStrBuf(&Buf);
 			return;
@@ -1298,8 +1298,8 @@ void display_enter(void)
 	 * Are we perhaps in an address book view?  If so, then an "enter
 	 * message" command really means "add new entry."
 	 */
-	if (WCC->wc_default_view == VIEW_ADDRESSBOOK) {
-		do_edit_vcard(-1, "", NULL, NULL, "",  ChrPtr(WCC->wc_roomname));
+	if (WCC->CurRoom.defview == VIEW_ADDRESSBOOK) {
+		do_edit_vcard(-1, "", NULL, NULL, "",  ChrPtr(WCC->CurRoom.name));
 		return;
 	}
 
@@ -1307,7 +1307,7 @@ void display_enter(void)
 	 * Are we perhaps in a calendar room?  If so, then an "enter
 	 * message" command really means "add new calendar item."
 	 */
-	if (WCC->wc_default_view == VIEW_CALENDAR) {
+	if (WCC->CurRoom.defview == VIEW_CALENDAR) {
 		display_edit_event();
 		return;
 	}
@@ -1316,7 +1316,7 @@ void display_enter(void)
 	 * Are we perhaps in a tasks view?  If so, then an "enter
 	 * message" command really means "add new task."
 	 */
-	if (WCC->wc_default_view == VIEW_TASKS) {
+	if (WCC->CurRoom.defview == VIEW_TASKS) {
 		display_edit_task();
 		return;
 	}
@@ -1392,7 +1392,7 @@ void delete_msg(void)
 
 	msgid = lbstr("msgid");
 
-	if (WC->wc_is_trash) {	/* Delete from Trash is a real delete */
+	if ((WC->CurRoom.RAFlags & UA_ISTRASH) != 0) {	/* Delete from Trash is a real delete */
 		serv_printf("DELE %ld", msgid);	
 	}
 	else {			/* Otherwise move it to Trash */

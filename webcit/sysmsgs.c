@@ -85,7 +85,7 @@ void save_edit(char *description, char *enter_cmd, int regoto)
 	serv_puts("000");
 
 	if (regoto) {
-		smart_goto(WC->wc_roomname);
+		smart_goto(WC->CurRoom.name);
 	} else {
 		sprintf(WC->ImportantMessage,
 			_("%s has been saved."),

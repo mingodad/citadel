@@ -335,7 +335,7 @@ void tmplput_MAIL_SUMM_CCCC(StrBuf *Target, WCTemplputParams *TP)
 void examine_room(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	if ((StrLength(HdrLine) > 0) &&
-	    (strcasecmp(ChrPtr(HdrLine), ChrPtr(WC->wc_roomname)))) {
+	    (strcasecmp(ChrPtr(HdrLine), ChrPtr(WC->CurRoom.name)))) {
 		FreeStrBuf(&Msg->Room);
 		Msg->Room = NewStrBufDup(HdrLine);		
 	}
@@ -373,7 +373,7 @@ void examine_node(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	wcsession *WCC = WC;
 
 	if ( (StrLength(HdrLine) > 0) &&
-	     ((WC->room_flags & QR_NETWORK)
+	     ((WC->CurRoom.QRFlags & QR_NETWORK)
 	      || ((strcasecmp(ChrPtr(HdrLine), ChrPtr(WCC->serv_info->serv_nodename))
 		   && (strcasecmp(ChrPtr(HdrLine), ChrPtr(WCC->serv_info->serv_fqdn))))))) {
 		FreeStrBuf(&Msg->OtherNode);
@@ -494,9 +494,9 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 		StrBuf *Buf;
 		Buf = NewStrBuf();
 		/** If it's my vCard I can edit it */
-		if (	(!strcasecmp(ChrPtr(WCC->wc_roomname), USERCONFIGROOM))
-			|| (!strcasecmp(&(ChrPtr(WCC->wc_roomname)[11]), USERCONFIGROOM))
-			|| (WC->wc_view == VIEW_ADDRESSBOOK)
+		if (	(!strcasecmp(ChrPtr(WCC->CurRoom.name), USERCONFIGROOM))
+			|| (!strcasecmp(&(ChrPtr(WCC->CurRoom.name)[11]), USERCONFIGROOM))
+			|| (WC->CurRoom.view == VIEW_ADDRESSBOOK)
 			) {
 			StrBufAppendPrintf(Buf, "<a href=\"edit_vcard?msgnum=%ld?partnum=%s\">",
 				Mime->msgnum, ChrPtr(Mime->PartNum));
@@ -975,7 +975,7 @@ void render_MAIL_html(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCh
 
 	/* HTML is fun, but we've got to strip it first */
 	output_html(ChrPtr(Mime->Charset), 
-		    (WC->wc_view == VIEW_WIKI ? 1 : 0), 
+		    (WC->CurRoom.view == VIEW_WIKI ? 1 : 0), 
 		    Mime->msgnum,
 		    Mime->Data, Buf);
 	FreeStrBuf(&Mime->Data);

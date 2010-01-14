@@ -26,7 +26,7 @@ void do_listsub(void)
 	FlushStrBuf(WC->wc_fullname);
 	FlushStrBuf(WC->wc_username);
 	FlushStrBuf(WC->wc_password);
-	FlushStrBuf(WC->wc_roomname);
+	FlushStrBuf(WC->CurRoom.name);
 
 	output_headers(1, 0, 0, 1, 1, 0);
 	begin_burst();

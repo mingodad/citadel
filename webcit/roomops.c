@@ -290,36 +290,36 @@ void embed_room_graphic(StrBuf *Target, WCTemplputParams *TP)
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '2') {
 		wc_printf("<img height=\"64px\" src=\"image?name=_roompic_&room=");
-		urlescputs(ChrPtr(WC->wc_roomname));
+		urlescputs(ChrPtr(WC->CurRoom.name));
 		wc_printf("\">");
 		serv_puts("CLOS");
 		serv_getln(buf, sizeof buf);
 	}
-	else if (WC->wc_view == VIEW_ADDRESSBOOK) {
+	else if (WC->CurRoom.view == VIEW_ADDRESSBOOK) {
 		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/viewcontacts_48x.gif"
 			"\" >"
 			);
 	}
-	else if ( (WC->wc_view == VIEW_CALENDAR) || (WC->wc_view == VIEW_CALBRIEF) ) {
+	else if ( (WC->CurRoom.view == VIEW_CALENDAR) || (WC->CurRoom.view == VIEW_CALBRIEF) ) {
 		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/calarea_48x.gif"
 			"\" width=\"48\" height=\"48\">"
 			);
 	}
-	else if (WC->wc_view == VIEW_TASKS) {
+	else if (WC->CurRoom.view == VIEW_TASKS) {
 		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/taskmanag_48x.gif"
 			"\" width=\"48\" height=\"48\">"
 			);
 	}
-	else if (WC->wc_view == VIEW_NOTES) {
+	else if (WC->CurRoom.view == VIEW_NOTES) {
 		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/storenotes_48x.gif"
 			"\" width=\"48\" height=\"48\">"
 			);
 	}
-	else if (WC->wc_view == VIEW_MAILBOX) {
+	else if (WC->CurRoom.view == VIEW_MAILBOX) {
 		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
 			"static/privatemess_48x.gif"
 			"\" width=\"48\" height=\"48\">"
@@ -360,15 +360,15 @@ void embed_view_o_matic(StrBuf *Target, WCTemplputParams *TP)
 		 * view in a non-Calendar room.
 		 */
 		if (
-			(i == WC->wc_view)
-			||	(i == WC->wc_default_view)			/* default */
-			||	( (i == 0) && (WC->wc_default_view == 1) )	/* mail or bulletin */
-			||	( (i == 1) && (WC->wc_default_view == 0) )	/* mail or bulletin */
-			/* ||	( (i == 7) && (WC->wc_default_view == 3) )	(calendar list temporarily disabled) */
+			(i == WC->CurRoom.view)
+			||	(i == WC->CurRoom.defview)			/* default */
+			||	( (i == 0) && (WC->CurRoom.defview == 1) )	/* mail or bulletin */
+			||	( (i == 1) && (WC->CurRoom.defview == 0) )	/* mail or bulletin */
+			/* ||	( (i == 7) && (WC->CurRoom.defview == 3) )	(calendar list temporarily disabled) */
 			) {
 
 			wc_printf("<option %s value=\"changeview?view=%d\">",
-				((i == WC->wc_view) ? "selected" : ""),
+				((i == WC->CurRoom.view) ? "selected" : ""),
 				i );
 			escputs(viewdefs[i]);
 			wc_printf("</option>\n");
@@ -417,16 +417,16 @@ void embed_room_banner(char *got, int navbar_style) {
 	if (got == NULL) {
 		memset(buf, '0', 20);
 		buf[20] = '\0';
-		serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
+		serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
 		serv_getln(buf, sizeof buf);
 		got = buf;
 	}
 
 	/* The browser needs some information for its own use */
 	wc_printf("<script type=\"text/javascript\">	\n"
-		"	room_is_trash = %d;		\n"
-		"</script>\n",
-		WC->wc_is_trash
+		  "	room_is_trash = %d;		\n"
+		  "</script>\n",
+		  ((WC->CurRoom.RAFlags & UA_ISTRASH) != 0)
 	);
 
 	/*
@@ -439,15 +439,15 @@ void embed_room_banner(char *got, int navbar_style) {
 	}
 	StrBufPrintf(WCC->Hdr->this_page, 
 		     "dotskip?room=%s",
-		     ChrPtr(WC->wc_roomname)
+		     ChrPtr(WC->CurRoom.name)
 	);
 
 	/* Check for new mail. */
 	WC->new_mail = extract_int(&got[4], 9);
-	WC->wc_view = extract_int(&got[4], 11);
+	WC->CurRoom.view = extract_int(&got[4], 11);
 
 	/* Is this a directory room and does it contain files and how many? */
-	if ((WC->room_flags & QR_DIRECTORY) && (WC->room_flags & QR_VISDIR))
+	if ((WC->CurRoom.QRFlags & QR_DIRECTORY) && (WC->CurRoom.QRFlags & QR_VISDIR))
 	{
 		serv_puts("RDIR");
 		serv_getln(buf2, sizeof buf2);
@@ -487,7 +487,7 @@ void embed_room_banner(char *got, int navbar_style) {
 			"</li>\n", _("Ungoto")
 			);
 
-		if ( (navbar_style == navbar_default) && (WC->wc_view == VIEW_BBS) ) {
+		if ( (navbar_style == navbar_default) && (WC->CurRoom.view == VIEW_BBS) ) {
 			wc_printf(
 				"<li class=\"newmess\">"
 				"<a href=\"readnew\">"
@@ -498,7 +498,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		}
 
 		if (navbar_style == navbar_default) {
-			switch(WC->wc_view) {
+			switch(WC->CurRoom.view) {
 			case VIEW_ADDRESSBOOK:
 				wc_printf(
 					"<li class=\"viewcontacts\">"
@@ -600,7 +600,7 @@ void embed_room_banner(char *got, int navbar_style) {
 		}
 
 		if (navbar_style == navbar_default) {
-			switch(WC->wc_view) {
+			switch(WC->CurRoom.view) {
 			case VIEW_ADDRESSBOOK:
 				wc_printf(
 					"<li class=\"addnewcontact\">"
@@ -757,13 +757,14 @@ void embed_room_banner(char *got, int navbar_style) {
  */
 long gotoroom(const StrBuf *gname)
 {
+	wcsession *WCC = WC;
 	StrBuf *Buf;
 	static long ls = (-1L);
 	long err = 0;
 
 	/* store ungoto information */
-	strcpy(WC->ugname, ChrPtr(WC->wc_roomname));
-	WC->uglsn = ls;
+	strcpy(WCC->ugname, ChrPtr(WCC->CurRoom.name));
+	WCC->uglsn = ls;
 	Buf = NewStrBuf();
 
 	/* move to the new room */
@@ -782,37 +783,117 @@ long gotoroom(const StrBuf *gname)
 			return err;
 		}
 	}
+	ParseGoto(&WCC->CurRoom, Buf);
 
-	if (WC->wc_roomname == NULL)
-		WC->wc_roomname = NewStrBuf();
-	else
-		FlushStrBuf(WC->wc_roomname);
-
-	StrBufExtract_token(WC->wc_roomname, Buf, 0, '|');
-	StrBufCutLeft(WC->wc_roomname, 4);
-	WC->room_flags = StrBufExtract_int(Buf, 4, '|');
-	/* highest_msg_read = extract_int(&buf[4],6);
-	   maxmsgnum = extract_int(&buf[4],5);
-	*/
-	WC->is_mailbox = StrBufExtract_int(Buf, 7, '|');   
-	ls = StrBufExtract_long(Buf, 6, '|');
-	WC->wc_floor = StrBufExtract_int(Buf, 10, '|');
-	WC->wc_view = StrBufExtract_int(Buf, 11, '|');
-	WC->wc_default_view = StrBufExtract_int(Buf, 12, '|');
-	WC->wc_is_trash = StrBufExtract_int(Buf, 13, '|');
-	WC->room_flags2 = StrBufExtract_int(Buf, 14, '|');
-
-	if (WC->is_aide)
-		WC->is_room_aide = WC->is_aide;
-	else
-		WC->is_room_aide = (char) StrBufExtract_int(Buf, 8, '|');
-
-	remove_march(WC->wc_roomname);
+	remove_march(WCC->CurRoom.name);
 	if (!strcasecmp(ChrPtr(gname), "_BASEROOM_"))
 		remove_march(gname);
 	FreeStrBuf(&Buf);
 
 	return err;
+}
+
+
+void ParseGoto(folder *room, StrBuf *Line)
+{
+	wcsession *WCC = WC;
+	const char *Pos;
+	int flag;
+	void *vFloor = NULL;
+	StrBuf *pBuf;
+
+	if (StrLength(Line) < 4) {
+		return;
+	}
+	
+	/* ignore the commandstate... */
+	Pos = ChrPtr(Line) + 4;
+
+	if (room->RoomNameParts != NULL)
+	{
+		int i;
+		for (i=0; i < room->nRoomNameParts; i++)
+			FreeStrBuf(&room->RoomNameParts[i]);
+		free(room->RoomNameParts);
+		room->RoomNameParts = NULL;
+	}
+
+	pBuf = room->name;  
+	if (pBuf == NULL)
+		pBuf = NewStrBufPlain(NULL, StrLength(Line));
+	else
+		FlushStrBuf(pBuf);
+	memset(room, 0, sizeof(folder));
+	room->name = pBuf;
+
+	StrBufExtract_NextToken(room->name, Line, &Pos, '|'); // WC->CurRoom->name
+
+	room->nNewMessages = StrBufExtractNext_long(Line, &Pos, '|'); 
+	if (room->nNewMessages > 0)
+		room->RAFlags |= UA_HASNEWMSGS;
+
+	room->nTotalMessages = StrBufExtractNext_long(Line, &Pos, '|');
+
+	room->ShowInfo =  StrBufExtractNext_long(Line, &Pos, '|');
+	
+	room->QRFlags = StrBufExtractNext_long(Line, &Pos, '|'); //CurRoom->QRFlags
+
+	room->HighestRead = StrBufExtractNext_long(Line, &Pos, '|');
+	room->LastMessageRead = StrBufExtractNext_long(Line, &Pos, '|');
+
+	room->is_inbox = StrBufExtractNext_long(Line, &Pos, '|'); // is_mailbox
+
+	flag = StrBufExtractNext_long(Line, &Pos, '|');
+	if (WCC->is_aide || flag)
+		room->RAFlags |= UA_ADMINALLOWED;
+
+	room->UsersNewMAilboxMessages = StrBufExtractNext_long(Line, &Pos, '|');
+
+	room->floorid = StrBufExtractNext_int(Line, &Pos, '|'); // wc_floor
+
+	room->view = StrBufExtractNext_long(Line, &Pos, '|'); // CurRoom->view
+
+	room->defview = StrBufExtractNext_long(Line, &Pos, '|'); // CurRoom->defview
+
+	flag = StrBufExtractNext_long(Line, &Pos, '|');
+	if (flag)
+		room->RAFlags |= UA_ISTRASH; //	wc_is_trash
+
+	room->QRFlags2 = StrBufExtractNext_long(Line, &Pos, '|'); // CurRoom->QRFlags2
+
+	/* find out, whether we are in a sub-room */
+	room->nRoomNameParts = StrBufNum_tokens(room->name, '\\');
+	if (room->nRoomNameParts > 1)
+	{
+		int i;
+		
+		Pos = NULL;
+		room->RoomNameParts = malloc(sizeof(StrBuf*) * (room->nRoomNameParts + 1));
+		memset(room->RoomNameParts, 0, sizeof(StrBuf*) * (room->nRoomNameParts + 1));
+		for (i=0; i < room->nRoomNameParts; i++)
+		{
+			room->RoomNameParts[i] = NewStrBuf();
+			StrBufExtract_NextToken(room->RoomNameParts[i],
+						room->name, &Pos, '\\');
+		}
+	}
+
+	/* Private mailboxes on the main floor get remapped to the personal folder */
+	if ((room->QRFlags & QR_MAILBOX) && 
+	    (room->floorid == 0))
+	{
+		room->floorid = VIRTUAL_MY_FLOOR;
+		if ((room->nRoomNameParts == 1) && 
+		    (StrLength(room->name) == 4) && 
+		    (strcmp(ChrPtr(room->name), "Mail") == 0))
+		{
+			room->is_inbox = 1;
+		}
+		
+	}
+	/* get a pointer to the floor we're on: */
+	GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
+	room->Floor = (const floor*) vFloor;
 }
 
 
@@ -1136,7 +1217,7 @@ void display_editroom(void)
 		wc_printf(_("Delete this room"));
 		wc_printf("</a>\n"
 			"<li><a href=\"display_editroompic?which_room=");
-		urlescputs(ChrPtr(WC->wc_roomname));
+		urlescputs(ChrPtr(WC->CurRoom.name));
 		wc_printf("\">\n");
 		wc_printf(_("Set or change the icon for this room's banner"));
 		wc_printf("</a>\n"
@@ -1690,7 +1771,7 @@ void display_editroom(void)
 			wc_printf("<tr><td>");
 			wc_printf(_("Message expire policy for this room"));
 			wc_printf("<br />(");
-			escputs(ChrPtr(WC->wc_roomname));
+			escputs(ChrPtr(WC->CurRoom.name));
 			wc_printf(")</td><td>");
 			wc_printf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
 				((roompolicy == 0) ? "CHECKED" : "") );
@@ -1717,7 +1798,7 @@ void display_editroom(void)
 				wc_printf("<tr><td>");
 				wc_printf(_("Message expire policy for this floor"));
 				wc_printf("<br />(");
-				escputs(floorlist[WC->wc_floor]);
+				escputs(floorlist[WC->CurRoom.floorid]);
 				wc_printf(")</td><td>");
 				wc_printf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
 					((floorpolicy == 0) ? "CHECKED" : "") );
@@ -2614,7 +2695,7 @@ void goto_private(void)
 		display_main_menu();
 		return;
 	}
-	strcpy(hold_rm, ChrPtr(WC->wc_roomname));
+	strcpy(hold_rm, ChrPtr(WC->CurRoom.name));
 	serv_printf("GOTO %s|%s",
 		    bstr("gr_name"),
 		    bstr("gr_pass"));
@@ -2652,7 +2733,7 @@ void display_zap(void)
 
 	wc_printf(_("If you select this option, <em>%s</em> will "
 		  "disappear from your room list.  Is this what you wish "
-		  "to do?<br />\n"), ChrPtr(WC->wc_roomname));
+		  "to do?<br />\n"), ChrPtr(WC->CurRoom.name));
 
 	wc_printf("<form method=\"POST\" action=\"zap\">\n");
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
@@ -2676,10 +2757,10 @@ void zap(void)
 	 * If the forget-room routine fails for any reason, we fall back
 	 * to the current room; otherwise, we go to the Lobby
 	 */
-	final_destination = NewStrBufDup(WC->wc_roomname);
+	final_destination = NewStrBufDup(WC->CurRoom.name);
 
 	if (havebstr("ok_button")) {
-		serv_printf("GOTO %s", ChrPtr(WC->wc_roomname));
+		serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
 			serv_puts("FORG");
@@ -2877,8 +2958,8 @@ void do_change_view(int newview) {
 
 	serv_printf("VIEW %d", newview);
 	serv_getln(buf, sizeof buf);
-	WC->wc_view = newview;
-	smart_goto(WC->wc_roomname);
+	WC->CurRoom.view = newview;
+	smart_goto(WC->CurRoom.name);
 }
 
 
@@ -2972,7 +3053,7 @@ void set_room_policy(void) {
 
 void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
 {
-	StrBufAppendTemplate(Target, TP, WC->wc_roomname, 0);
+	StrBufAppendTemplate(Target, TP, WC->CurRoom.name, 0);
 }
 
 
@@ -2985,10 +3066,22 @@ void dotgoto(void) {
 		readloop(readnew);
 		return;
 	}
-	if (WC->wc_view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
+	if (WC->CurRoom.view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */
 		slrp_highest();
 	}
 	smart_goto(sbstr("room"));
+}
+
+
+
+void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	if (WCC != NULL)
+		StrBufAppendTemplate(Target, TP, 
+				     WCC->CurRoom.name, 
+				     0); 
 }
 
 void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
@@ -3008,6 +3101,20 @@ void tmplput_ungoto(StrBuf *Target, WCTemplputParams *TP)
 		StrBufAppendBufPlain(Target, WCC->ugname, -1, 0);
 }
 
+int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	return (WCC != NULL)? (WCC->is_room_aide == 0) : 0;
+}
+
+int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	return (WCC == NULL)? 0 : 
+		( (WCC->is_room_aide) || /////TODO!
+		   (WCC->CurRoom.is_inbox) || 
+		   (WCC->CurRoom.QRFlags2 & QR2_COLLABDEL) );
+}
 
 int ConditionalHaveUngoto(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -3015,7 +3122,7 @@ int ConditionalHaveUngoto(StrBuf *Target, WCTemplputParams *TP)
 	
 	return ((WCC!=NULL) && 
 		(!IsEmptyStr(WCC->ugname)) && 
-		(strcasecmp(WCC->ugname, ChrPtr(WCC->wc_roomname)) == 0));
+		(strcasecmp(WCC->ugname, ChrPtr(WCC->CurRoom.name)) == 0));
 }
 
 int ConditionalRoomHas_QR_PERMANENT(StrBuf *Target, WCTemplputParams *TP)
@@ -3023,7 +3130,7 @@ int ConditionalRoomHas_QR_PERMANENT(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_PERMANENT) != 0));
+		((WCC->CurRoom.QRFlags & QR_PERMANENT) != 0));
 }
 
 int ConditionalRoomHas_QR_INUSE(StrBuf *Target, WCTemplputParams *TP)
@@ -3031,7 +3138,7 @@ int ConditionalRoomHas_QR_INUSE(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_INUSE) != 0));
+		((WCC->CurRoom.QRFlags & QR_INUSE) != 0));
 }
 
 int ConditionalRoomHas_QR_PRIVATE(StrBuf *Target, WCTemplputParams *TP)
@@ -3039,7 +3146,7 @@ int ConditionalRoomHas_QR_PRIVATE(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_PRIVATE) != 0));
+		((WCC->CurRoom.QRFlags & QR_PRIVATE) != 0));
 }
 
 int ConditionalRoomHas_QR_PASSWORDED(StrBuf *Target, WCTemplputParams *TP)
@@ -3047,7 +3154,7 @@ int ConditionalRoomHas_QR_PASSWORDED(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_PASSWORDED) != 0));
+		((WCC->CurRoom.QRFlags & QR_PASSWORDED) != 0));
 }
 
 int ConditionalRoomHas_QR_GUESSNAME(StrBuf *Target, WCTemplputParams *TP)
@@ -3055,7 +3162,7 @@ int ConditionalRoomHas_QR_GUESSNAME(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_GUESSNAME) != 0));
+		((WCC->CurRoom.QRFlags & QR_GUESSNAME) != 0));
 }
 
 int ConditionalRoomHas_QR_DIRECTORY(StrBuf *Target, WCTemplputParams *TP)
@@ -3063,7 +3170,7 @@ int ConditionalRoomHas_QR_DIRECTORY(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_DIRECTORY) != 0));
+		((WCC->CurRoom.QRFlags & QR_DIRECTORY) != 0));
 }
 
 int ConditionalRoomHas_QR_UPLOAD(StrBuf *Target, WCTemplputParams *TP)
@@ -3071,7 +3178,7 @@ int ConditionalRoomHas_QR_UPLOAD(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_UPLOAD) != 0));
+		((WCC->CurRoom.QRFlags & QR_UPLOAD) != 0));
 }
 
 int ConditionalRoomHas_QR_DOWNLOAD(StrBuf *Target, WCTemplputParams *TP)
@@ -3079,7 +3186,7 @@ int ConditionalRoomHas_QR_DOWNLOAD(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_DOWNLOAD) != 0));
+		((WCC->CurRoom.QRFlags & QR_DOWNLOAD) != 0));
 }
 
 int ConditionalRoomHas_QR_VISDIR(StrBuf *Target, WCTemplputParams *TP)
@@ -3087,7 +3194,7 @@ int ConditionalRoomHas_QR_VISDIR(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_VISDIR) != 0));
+		((WCC->CurRoom.QRFlags & QR_VISDIR) != 0));
 }
 
 int ConditionalRoomHas_QR_ANONONLY(StrBuf *Target, WCTemplputParams *TP)
@@ -3095,7 +3202,7 @@ int ConditionalRoomHas_QR_ANONONLY(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_ANONONLY) != 0));
+		((WCC->CurRoom.QRFlags & QR_ANONONLY) != 0));
 }
 
 int ConditionalRoomHas_QR_ANONOPT(StrBuf *Target, WCTemplputParams *TP)
@@ -3103,7 +3210,7 @@ int ConditionalRoomHas_QR_ANONOPT(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_ANONOPT) != 0));
+		((WCC->CurRoom.QRFlags & QR_ANONOPT) != 0));
 }
 
 int ConditionalRoomHas_QR_NETWORK(StrBuf *Target, WCTemplputParams *TP)
@@ -3111,7 +3218,7 @@ int ConditionalRoomHas_QR_NETWORK(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_NETWORK) != 0));
+		((WCC->CurRoom.QRFlags & QR_NETWORK) != 0));
 }
 
 int ConditionalRoomHas_QR_PREFONLY(StrBuf *Target, WCTemplputParams *TP)
@@ -3119,7 +3226,7 @@ int ConditionalRoomHas_QR_PREFONLY(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_PREFONLY) != 0));
+		((WCC->CurRoom.QRFlags & QR_PREFONLY) != 0));
 }
 
 int ConditionalRoomHas_QR_READONLY(StrBuf *Target, WCTemplputParams *TP)
@@ -3127,7 +3234,7 @@ int ConditionalRoomHas_QR_READONLY(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_READONLY) != 0));
+		((WCC->CurRoom.QRFlags & QR_READONLY) != 0));
 }
 
 int ConditionalRoomHas_QR_MAILBOX(StrBuf *Target, WCTemplputParams *TP)
@@ -3135,7 +3242,7 @@ int ConditionalRoomHas_QR_MAILBOX(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	return ((WCC!=NULL) &&
-		((WCC->room_flags & QR_MAILBOX) != 0));
+		((WCC->CurRoom.QRFlags & QR_MAILBOX) != 0));
 }
 
 
@@ -3149,7 +3256,7 @@ int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 	return ( (WCC!= NULL) && 
 		 ((WCC->axlevel >= 6) || 
 		  (WCC->is_room_aide) || 
-		  (WCC->is_mailbox) ));
+		  (WCC->CurRoom.is_inbox) ));
 }
 
 int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
@@ -3162,7 +3269,7 @@ int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
 	    (TP->Tokens->Params[2]->len < 7))
 		return 0;
 
-	switch(WCC->wc_view) {
+	switch(WCC->CurRoom.view) {
 	case VIEW_BBS:
 		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_BBS"));
 	case VIEW_MAILBOX:
@@ -3235,10 +3342,13 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PREFONLY"), 0, ConditionalRoomHas_QR_PREFONLY, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_READONLY"), 0, ConditionalRoomHas_QR_READONLY, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_MAILBOX"), 0, ConditionalRoomHas_QR_MAILBOX, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
+	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:EDITACCESS"), 0, ConditionalHaveRoomeditRights, CTX_NONE);
 
+	RegisterNamespace("CURRENT_ROOM", 0, 1, tmplput_current_room, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, NULL, CTX_NONE);
 	RegisterIterator("FLOORS", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_NOFLAG);
 
@@ -3250,6 +3360,7 @@ void
 SessionDestroyModule_ROOMOPS
 (wcsession *sess)
 {
+	FlushFolder(&sess->CurRoom);
 	if (sess->cache_fold != NULL) {
 		free(sess->cache_fold);
 	}

@@ -46,19 +46,19 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
 	if (StrLength(roomname) > 0) {
 
 		/* If we're not in the correct room, try going there. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
 			gotoroom(roomname);
 		}
 	
 		/* If we're still not in the correct room, it doesn't exist. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
 			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
 			return;
 		}
 
 	}
 
-	if (WC->wc_view != VIEW_WIKI) {
+	if (WC->CurRoom.view != VIEW_WIKI) {
 		wc_printf(_("'%s' is not a Wiki room."), ChrPtr(roomname));
 		return;
 	}
@@ -139,12 +139,12 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 	if (StrLength(roomname) > 0) {
 
 		/* If we're not in the correct room, try going there. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
 			gotoroom(roomname);
 		}
 	
 		/* If we're still not in the correct room, it doesn't exist. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
 			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
 			return;
 		}
@@ -261,12 +261,12 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 	roomname = sbstr("room");
 	if (StrLength(roomname) > 0) {
 		/* If we're not in the correct room, try going there. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
 			gotoroom(roomname);
 		}
 	
 		/* If we're still not in the correct room, it doesn't exist. */
-		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->wc_roomname))) {
+		if (strcasecmp(ChrPtr(roomname), ChrPtr(WC->CurRoom.name))) {
 			wc_printf(_("There is no room called '%s'."), ChrPtr(roomname));
 			return;
 		}
@@ -327,7 +327,7 @@ int wiki_Cleanup(void **ViewSpecific)
 {
 	char pagename[5];
 	safestrncpy(pagename, "home", sizeof pagename);
-	display_wiki_page_backend(WC->wc_roomname, pagename, "", 0);
+	display_wiki_page_backend(WC->CurRoom.name, pagename, "", 0);
 	wDumpContent(1);
 	return 0;
 }
