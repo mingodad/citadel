@@ -228,6 +228,5 @@ int getmx(char *mxbuf, char *dest) {
 	/* Append any fallback smart hosts we have configured.
 	 */
 	num_mxrecs += get_hosts(&mxbuf[strlen(mxbuf)], "fallbackhost");
-	CtdlLogPrintf(CTDL_DEBUG, "\033[33m%d: %s\033[0m\n", num_mxrecs, mxbuf);
 	return(num_mxrecs);
 }

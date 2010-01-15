@@ -575,7 +575,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			fseek(fp, 0L, SEEK_SET);
 			msg->cm_fields['M'] = malloc(len + 1);
 			rv = fread(msg->cm_fields['M'], len, 1, fp);
-			CtdlLogPrintf(CTDL_DEBUG, "\033[32mdid %d blocks of %d bytes\033[0m\n", rv, len);
+			CtdlLogPrintf(CTDL_DEBUG, "did %d blocks of %d bytes\n", rv, len);
 			msg->cm_fields['M'][len] = 0;
 			fclose(fp);
 		}
