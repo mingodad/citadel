@@ -1249,6 +1249,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		CtdlLogPrintf(CTDL_WARNING, "Possible problem: message did not "
 			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
 				buf[msg_size-1]);
+		sock_write(sock, "\r\n", 2);
 	}
 
 	sock_write(sock, ".\r\n", 3);
