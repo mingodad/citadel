@@ -954,3 +954,17 @@ function DeleteSMTPqueueMsg(msgnum1, msgnum2) {
 		}
 	);
 }
+
+/*
+ * Update function for BBS view
+ */
+function moremsgs(target_div, gt_or_lt, gt_or_lt_value, maxmsgs)
+{
+	$(target_div).innerHTML = '<div class="moreprompt"><img src="static/throbber.gif"></div>';
+	p = gt_or_lt + '=' + gt_or_lt_value + '&maxmsgs=' + maxmsgs
+		+ '&is_summary=0&is_ajax=1'
+		+ '&gt_or_lt=' + gt_or_lt
+		+ '&r=' + CtdlRandomString();
+	new Ajax.Updater(target_div, 'read' + gt_or_lt,
+		{ method: 'get', parameters: p, evalScripts: true } );
+}

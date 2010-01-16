@@ -134,24 +134,6 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	snprintf(olderdiv, sizeof olderdiv, "olderdiv%08lx%08x", time(NULL), rand());
 	snprintf(newerdiv, sizeof newerdiv, "newerdiv%08lx%08x", time(NULL), rand());
 
-	/* If this is the initial page load (and not an update), supply the required JavaScript code */
-	if (!WC->is_ajax) {
-	   StrBufAppendPrintf(WC->trailing_javascript,
-		"	function moremsgs(target_div, gt_or_lt, gt_or_lt_value, maxmsgs) {		\n"
-		"		$(target_div).innerHTML = '<div class=\"moreprompt\">%s ... <img src=\"static/throbber.gif\"></div>';	\n"
-		"		p = gt_or_lt + '=' + gt_or_lt_value + '&maxmsgs=' + maxmsgs		\n"
-		"			+ '&is_summary=0&is_ajax=1'					\n"
-		"			+ '&gt_or_lt=' + gt_or_lt					\n"
-		"			+ '&r=' + CtdlRandomString();			                \n"
-		"		new Ajax.Updater(target_div, 'read' + gt_or_lt,	 				\n"
-		"			{ method: 'get', parameters: p, evalScripts: true } );		\n"
-		"	}										\n"
-		"",
-		_("Loading")
-	   );
-	}
-
-
 	/* Determine whether we are in the middle of a 'click for older messages' or 'click for
 	 * newer messages' operation.  If neither, then we are in the initial page load.
 	 */
