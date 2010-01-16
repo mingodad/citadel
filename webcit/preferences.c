@@ -350,8 +350,21 @@ void save_preferences(void)
 
 		return;	/* oh well. */
 	}
-//void do_change_view(int newview) {
 
+	/* make shure the config room has the right type, else it might reject our config */
+	if (Room.view != VIEW_BBS) {
+		serv_printf("VIEW %d", VIEW_BBS);
+		StrBuf_ServGetln(ReadBuf);
+		if (GetServerStatus(ReadBuf, NULL) != 2) {
+			/* UPS? */
+		}
+		else if (goto_config_room(ReadBuf, &Room) != 0) {
+			FreeStrBuf(&ReadBuf);
+			FlushFolder(&Room);
+			
+			return;	/* oh well. */
+		}
+	}
 
 	serv_puts("MSGS ALL|0|1");
 	StrBuf_ServGetln(ReadBuf);
