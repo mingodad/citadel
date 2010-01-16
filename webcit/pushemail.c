@@ -20,6 +20,7 @@ void display_pushemail(void)
 
 	/* Find any existing settings*/
 	Buf = NewStrBuf();
+	memset(&Room, 0, sizeof(folder));
 	if (goto_config_room(Buf, &Room) == 0) {
 		int msgnum = 0;
 		serv_puts("MSGS ALL|0|1");

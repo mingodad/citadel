@@ -747,6 +747,7 @@ void display_reg(int during_login)
 	long vcard_msgnum;
 
 	Buf = NewStrBuf();
+	memset(&Room, 0, sizeof(folder));
 	if (goto_config_room(Buf, &Room) != 0) {
 		lprintf(9, "display_reg() exiting because goto_config_room() failed\n");
 		if (during_login) {
