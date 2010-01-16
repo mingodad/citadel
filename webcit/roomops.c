@@ -3125,128 +3125,31 @@ int ConditionalHaveUngoto(StrBuf *Target, WCTemplputParams *TP)
 		(strcasecmp(WCC->ugname, ChrPtr(WCC->CurRoom.name)) == 0));
 }
 
-int ConditionalRoomHas_QR_PERMANENT(StrBuf *Target, WCTemplputParams *TP)
+int ConditionalCurrentRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 {
+	long QR_CheckFlag;
 	wcsession *WCC = WC;
 	
+	QR_CheckFlag = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if (QR_CheckFlag == 0)
+		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
+				 "requires one of the #\"QR*\"- defines or an integer flag 0 is invalid!");
+
 	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_PERMANENT) != 0));
+		((WCC->CurRoom.QRFlags & QR_CheckFlag) != 0));
 }
 
-int ConditionalRoomHas_QR_INUSE(StrBuf *Target, WCTemplputParams *TP)
+int ConditionalRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 {
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_INUSE) != 0));
+	long QR_CheckFlag;
+	folder *Folder = (folder *)(TP->Context);
+
+	QR_CheckFlag = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if (QR_CheckFlag == 0)
+		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
+				 "requires one of the #\"QR*\"- defines or an integer flag 0 is invalid!");
+	return ((Folder->QRFlags & QR_CheckFlag) != 0);
 }
-
-int ConditionalRoomHas_QR_PRIVATE(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_PRIVATE) != 0));
-}
-
-int ConditionalRoomHas_QR_PASSWORDED(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_PASSWORDED) != 0));
-}
-
-int ConditionalRoomHas_QR_GUESSNAME(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_GUESSNAME) != 0));
-}
-
-int ConditionalRoomHas_QR_DIRECTORY(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_DIRECTORY) != 0));
-}
-
-int ConditionalRoomHas_QR_UPLOAD(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_UPLOAD) != 0));
-}
-
-int ConditionalRoomHas_QR_DOWNLOAD(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_DOWNLOAD) != 0));
-}
-
-int ConditionalRoomHas_QR_VISDIR(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_VISDIR) != 0));
-}
-
-int ConditionalRoomHas_QR_ANONONLY(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_ANONONLY) != 0));
-}
-
-int ConditionalRoomHas_QR_ANONOPT(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_ANONOPT) != 0));
-}
-
-int ConditionalRoomHas_QR_NETWORK(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_NETWORK) != 0));
-}
-
-int ConditionalRoomHas_QR_PREFONLY(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_PREFONLY) != 0));
-}
-
-int ConditionalRoomHas_QR_READONLY(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_READONLY) != 0));
-}
-
-int ConditionalRoomHas_QR_MAILBOX(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession *WCC = WC;
-	
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_MAILBOX) != 0));
-}
-
-
-
 
 
 int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
@@ -3327,21 +3230,56 @@ InitModule_ROOMOPS
 	RegisterNamespace("ROOMBANNER", 0, 1, tmplput_roombanner, NULL, CTX_NONE);
 
 	RegisterConditional(HKEY("COND:ROOM:TYPE_IS"), 0, ConditionalIsRoomtype, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PERMANENT"), 0, ConditionalRoomHas_QR_PERMANENT, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_INUSE"), 0, ConditionalRoomHas_QR_INUSE, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PRIVATE"), 0, ConditionalRoomHas_QR_PRIVATE, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PASSWORDED"), 0, ConditionalRoomHas_QR_PASSWORDED, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_GUESSNAME"), 0, ConditionalRoomHas_QR_GUESSNAME, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_DIRECTORY"), 0, ConditionalRoomHas_QR_DIRECTORY, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_UPLOAD"), 0, ConditionalRoomHas_QR_UPLOAD, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_DOWNLOAD"), 0, ConditionalRoomHas_QR_DOWNLOAD, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_VISIDIR"), 0, ConditionalRoomHas_QR_VISDIR, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_ANONONLY"), 0, ConditionalRoomHas_QR_ANONONLY, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_ANONOPT"), 0, ConditionalRoomHas_QR_ANONOPT, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_NETWORK"), 0, ConditionalRoomHas_QR_NETWORK, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_PREFONLY"), 0, ConditionalRoomHas_QR_PREFONLY, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_READONLY"), 0, ConditionalRoomHas_QR_READONLY, CTX_NONE);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:QR_MAILBOX"), 0, ConditionalRoomHas_QR_MAILBOX, CTX_NONE);
+	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR"), 0, ConditionalCurrentRoomHas_QRFlag, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAG:QR"), 0, ConditionalRoomHas_QRFlag, CTX_ROOMS);
+
+	REGISTERTokenParamDefine(QR_PERMANENT);
+	REGISTERTokenParamDefine(QR_INUSE);
+	REGISTERTokenParamDefine(QR_PRIVATE);
+	REGISTERTokenParamDefine(QR_PASSWORDED);
+	REGISTERTokenParamDefine(QR_GUESSNAME);
+	REGISTERTokenParamDefine(QR_DIRECTORY);
+	REGISTERTokenParamDefine(QR_UPLOAD);
+	REGISTERTokenParamDefine(QR_DOWNLOAD);
+	REGISTERTokenParamDefine(QR_VISDIR);
+	REGISTERTokenParamDefine(QR_ANONONLY);
+	REGISTERTokenParamDefine(QR_ANONOPT);
+	REGISTERTokenParamDefine(QR_NETWORK);
+	REGISTERTokenParamDefine(QR_PREFONLY);
+	REGISTERTokenParamDefine(QR_READONLY);
+	REGISTERTokenParamDefine(QR_MAILBOX);
+	REGISTERTokenParamDefine(QR2_SYSTEM);
+	REGISTERTokenParamDefine(QR2_SELFLIST);
+	REGISTERTokenParamDefine(QR2_COLLABDEL);
+	REGISTERTokenParamDefine(QR2_SUBJECTREQ);
+	REGISTERTokenParamDefine(QR2_SMTP_PUBLIC);
+	REGISTERTokenParamDefine(QR2_MODERATED);
+
+	REGISTERTokenParamDefine(UA_KNOWN);
+	REGISTERTokenParamDefine(UA_GOTOALLOWED);
+	REGISTERTokenParamDefine(UA_HASNEWMSGS);
+	REGISTERTokenParamDefine(UA_ZAPPED);
+	REGISTERTokenParamDefine(UA_POSTALLOWED);
+	REGISTERTokenParamDefine(UA_ADMINALLOWED);
+	REGISTERTokenParamDefine(UA_DELETEALLOWED);
+	REGISTERTokenParamDefine(UA_ISTRASH);
+
+	REGISTERTokenParamDefine(US_NEEDVALID);
+	REGISTERTokenParamDefine(US_PERM);
+	REGISTERTokenParamDefine(US_LASTOLD);
+	REGISTERTokenParamDefine(US_EXPERT);
+	REGISTERTokenParamDefine(US_UNLISTED);
+	REGISTERTokenParamDefine(US_NOPROMPT);
+	REGISTERTokenParamDefine(US_PROMPTCTL);
+	REGISTERTokenParamDefine(US_DISAPPEAR);
+	REGISTERTokenParamDefine(US_REGIS);
+	REGISTERTokenParamDefine(US_PAGINATOR);
+	REGISTERTokenParamDefine(US_INTERNET);
+	REGISTERTokenParamDefine(US_FLOORS);
+	REGISTERTokenParamDefine(US_COLOR);
+	REGISTERTokenParamDefine(US_USER_SET);
+
+
 	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);
 

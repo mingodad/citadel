@@ -294,6 +294,10 @@ void RegisterConditional(const char *Name, long len,
  */
 void RegisterTokenParamDefine(const char *Name, long len, 
 			      long Value);
+/**
+ * teh r0x0r! forward your favourite define from C to the templates with one easy call!
+ */
+#define REGISTERTokenParamDefine(a) RegisterTokenParamDefine(#a, sizeof(#a) - 1, a);
 
 #define IT_NOFLAG 0
 #define IT_FLAG_DETECT_GROUPCHANGE (1<<0)
