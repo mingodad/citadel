@@ -177,9 +177,26 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	/* Supply the link to prepend the previous 20 messages */
 
-	if (doing_newer_messages == 0) {
+	if ((!WC->is_ajax) && (Stat->nummsgs == 0)) {
 		wc_printf("<div id=\"%s\">", olderdiv);
-		/* if (Stat->nummsgs > 0) { */
+		wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %ld);\">",
+			olderdiv,
+			LONG_MAX,
+			Stat->maxmsgs
+		);
+	
+		wc_printf("<div class=\"moreprompt\">"
+			"&uarr; &uarr; &uarr; %s &uarr; &uarr; &uarr;"
+			"</div>", _("older messages")
+		);
+		wc_printf("</a>");
+		wc_printf("<div class=\"nomsgs\"><br><em>");
+		wc_printf(_("No messages here."));
+		wc_printf("</em><br></div>\n");
+		wc_printf("</div>");
+	}
+	else if (doing_newer_messages == 0) {
+		wc_printf("<div id=\"%s\">", olderdiv);
 		if (Stat->nummsgs > 0) {
 			wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %ld);\">",
 				olderdiv,
@@ -196,19 +213,8 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		wc_printf("</div>");
 	}
 
-
-
-	/* Handle the empty message set gracefully... */
-	if (Stat->nummsgs == 0) {
-		if (!WC->is_ajax) {
-			wc_printf("<div class=\"nomsgs\"><br><em>");
-			wc_printf(_("No messages here."));
-			wc_printf("</em><br></div>\n");
-		}
-	}
-
 	/* Non-empty message set... */
-	else {
+	if (Stat->nummsgs > 0) {
 		/* Render the messages */
 	
 		for (i=0; i<BBS->num_msgs; ++i) {
