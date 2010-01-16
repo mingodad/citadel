@@ -511,7 +511,7 @@ void network_deliver_digest(SpoolControl *sc) {
 	msg->cm_fields['M'] = malloc(msglen + 1);
 	fseek(sc->digestfp, 0L, SEEK_SET);
 	siz = fread(msg->cm_fields['M'], (size_t)msglen, 1, sc->digestfp);
-	msg->cm_fields['M'][siz] = '\0';
+	msg->cm_fields['M'][msglen] = '\0';
 
 	fclose(sc->digestfp);
 	sc->digestfp = NULL;
@@ -1897,7 +1897,7 @@ void receive_spool(int sock, char *remote_nodename) {
 					plen = sizeof buf;
 				}
 				siz = fread(buf, plen, 1, fp);
-				fwrite(buf, siz, 1, newfp);
+				fwrite(buf, plen, 1, newfp);
 				bytes_copied += plen;
 			}
 			fclose(newfp);
