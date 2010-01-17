@@ -15,5 +15,5 @@
 </prop>
 </propstat>
 </response>
-<?ITERATE("LKRA", "dav_propfind_groupdav_roomlist_oneroom")>
+<?ITERATE("LKRA", ="dav_propfind_groupdav_roomlist_oneroom")>
 </multistatus>

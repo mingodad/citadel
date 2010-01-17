@@ -10,7 +10,7 @@
 <div class="fix_scrollbar_bug">
 <table class="downloads_background"><tr><td>
 <script type="text/javascript" language="JavaScript" > nvar fadeimages=new Array()
-<?ITERATE("ROOM:FILES", "seciton_files_onefile_picview")>
+<?ITERATE("ROOM:FILES", ="files_section_onefile_picview")>
 </script>
 <tr><td><script type="text/javascript" src="static/fadeshow.js">
 </script>

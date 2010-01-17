@@ -26,7 +26,7 @@
 
 <??("COND:SUBST", 4, "RCPTREQUIRED")>
 <select name="display_name" size=1 id="from_id">
-<?ITERATE("PREF:VALID:EMAIL:NAME", "prefs_section_msg_handle_select")>
+<?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_handle_select")>
 <?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
 <option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
 <?!("X", 3)>
@@ -35,14 +35,14 @@
 
 <?!("COND:SUBST", 5, "RCPTREQUIRED")>
 <select name="display_name" size=1 id="from_id">
-<?ITERATE("PREF:VALID:EMAIL:NAME", "prefs_section_msg_sender_name_select")>
+<?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_sender_name_select")>
 <?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
 <option <?%("COND:BSTR", 1, "__ANONYMOUS__", "selected", "")> value="__ANONYMOUS__"><?_("Anonymous")></option>
 <?!("X", 3)>
 </select>
 
 <select name="my_email_addr" size=1>
-<?ITERATE("PREF:VALID:EMAIL:ADDR", "prefs_section_msg_sender_from_select")>
+<?ITERATE("PREF:VALID:EMAIL:ADDR", ="prefs_section_msg_sender_from_select")>
 </select>
 <?!("X", 4)>
 

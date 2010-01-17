@@ -13,6 +13,6 @@
 	"subject" : "<?MAIL:SUMM:SUBJECT("J")>"
   },
 	"body" : "<?MAIL:BODY("J")>",
-	"attachments" : [<?ITERATE("MAIL:MIME:ATTACH:LINKS", "view_json_message_list_attach")>],
-	"submessages" : [<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", "view_json_message_inline_attach")>]
+	"attachments" : [<?ITERATE("MAIL:MIME:ATTACH:LINKS", ="view_json_message_list_attach")>],
+	"submessages" : [<?ITERATE("MAIL:MIME:ATTACH:SUBMESSAGES", ="view_json_message_inline_attach")>]
 }
