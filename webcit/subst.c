@@ -766,6 +766,31 @@ void pvo_do_cmd(StrBuf *Target, StrBuf *servcmd) {
 	}
 }
 
+int HaveTemplateTokenString(StrBuf *Target, 
+			    WCTemplputParams *TP,
+			    int N,
+			    const char **Value, 
+			    long *len)
+{
+	if (N >= TP->Tokens->nParameters) {
+		return 0;
+	}
+
+	switch (TP->Tokens->Params[N]->Type) {
+	case TYPE_INTDEFINE:
+	case TYPE_STR:
+	case TYPE_BSTR:
+	case TYPE_PREFSTR:
+	case TYPE_GETTEXT:
+	case TYPE_SUBTEMPLATE:
+		return 1;
+	case TYPE_LONG:
+	case TYPE_PREFINT:
+	default:
+		return 0;
+	}
+}
+
 void GetTemplateTokenString(StrBuf *Target, 
 			    WCTemplputParams *TP,
 			    int N,
@@ -2474,6 +2499,68 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 /*-----------------------------------------------------------------------------
  *                      Tabbed-API
  */
+int preeval_do_tabbed(WCTemplateToken *Token)
+{
+	WCTemplputParams TPP;
+	WCTemplputParams *TP;
+	const char *Ch;
+	long len;
+	int i, nTabs;
+
+
+	memset(&TPP, 0, sizeof(WCTemplputParams));
+	TP = &TPP;
+	TP->Tokens = Token;
+	nTabs = TP->Tokens->nParameters / 2 - 1;
+	if (TP->Tokens->nParameters % 2 != 0)
+	{
+		LogTemplateError(NULL, "TabbedApi", ERR_PARM1, TP,
+				 "need even number of arguments");
+		return 0;
+
+	}
+	else for (i = 0; i < nTabs; i++) {
+		if (!HaveTemplateTokenString(NULL, 
+					     TP, 
+					     i * 2,
+					     &Ch,
+					     &len) || 
+		    (TP->Tokens->Params[i * 2]->len == 0))
+		{
+			LogTemplateError(NULL, "TabbedApi", ERR_PARM1, TP,
+					 "Tab-Subject %d needs to be able to produce a string, have %s", 
+					 i, TP->Tokens->Params[i * 2]->Start);
+			return 0;
+		}
+		if (!HaveTemplateTokenString(NULL, 
+					     TP, 
+					     i * 2 + 1,
+					     &Ch,
+					     &len) || 
+		    (TP->Tokens->Params[i * 2 + 1]->len == 0))
+		{
+			LogTemplateError(NULL, "TabbedApi", ERR_PARM1, TP,
+					 "Tab-Content %d needs to be able to produce a string, have %s", 
+					 i, TP->Tokens->Params[i * 2 + 1]->Start);
+			return 0;
+		}
+	}
+
+	if (!HaveTemplateTokenString(NULL, 
+				     TP, 
+				     i * 2 + 1,
+				     &Ch,
+				     &len) || 
+	    (TP->Tokens->Params[i * 2 + 1]->len == 0))
+	{
+		LogTemplateError(NULL, "TabbedApi", ERR_PARM1, TP,
+				 "Tab-Content %d needs to be able to produce a string, have %s", 
+				 i, TP->Tokens->Params[i * 2 + 1]->Start);
+		return 0;
+	}
+	return 1;
+}
+
 
 void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -2890,7 +2977,7 @@ InitModule_SUBST
 	RegisterNamespace("CONTEXTSTR", 0, 1, tmplput_ContextString, NULL, CTX_STRBUF);
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, preeval_iterate, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, NULL, CTX_NONE);
-	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, NULL, CTX_NONE);
+	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, preeval_do_tabbed, CTX_NONE);
 	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, NULL, CTX_LONGVECTOR);
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
 	RegisterConditional(HKEY("COND:CONTEXTSTR"), 3, ConditionalContextStr, CTX_STRBUF);

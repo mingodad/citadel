@@ -211,6 +211,14 @@ void GetTemplateTokenString(StrBuf *Target,
 			    int N,
 			    const char **Value, 
 			    long *len);
+/**
+ * @return whether @ref GetTemplateTokenString would be able to give you a string
+ */
+int HaveTemplateTokenString(StrBuf *Target, 
+			    WCTemplputParams *TP,
+			    int N,
+			    const char **Value, 
+			    long *len);
 
 
 
