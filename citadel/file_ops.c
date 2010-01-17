@@ -621,7 +621,6 @@ void cmd_read(char *cmdbuf)
 {
 	long start_pos;
 	size_t bytes;
-	size_t actual_bytes;
 	char *buf = NULL;
 
 	start_pos = extract_long(cmdbuf, 0);
@@ -637,9 +636,13 @@ void cmd_read(char *cmdbuf)
 	buf = malloc(bytes + 1);
 
 	fseek(CC->download_fp, start_pos, 0);
-	actual_bytes = fread(buf, 1, bytes, CC->download_fp);
-	cprintf("%d %d\n", BINARY_FOLLOWS, (int)actual_bytes);
-	client_write(buf, actual_bytes);
+	if (fread(buf, 1, bytes, CC->download_fp) == 1) {
+		cprintf("%d %d\n", BINARY_FOLLOWS, (int)bytes);
+		client_write(buf, bytes);
+	}
+	else {
+		cprintf("%d %s\n", ERROR, strerror(errno));
+	}
 	free(buf);
 }
 

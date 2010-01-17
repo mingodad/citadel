@@ -69,7 +69,7 @@ void get_config(void) {
 	}
 	memset(&config, 0, sizeof(struct config));
 	rv = fread((char *) &config, sizeof(struct config), 1, cfp);
-	if (rv != sizeof(struct config))
+	if (rv != 1)
 	{
 		fprintf(stderr, 
 			"Warning: The config file %s has unexpected size. \n",
