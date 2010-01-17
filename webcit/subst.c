@@ -76,7 +76,7 @@ typedef struct _HashHandler {
 	WCHandlerFunc HandlerFunc;
 }HashHandler;
 
-void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere);
+void *load_template(WCTemplate *NewTemplate);
 int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP);
 
 
@@ -1101,16 +1101,22 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 		if (Template->TokenSpace <= 0) {
 			Template->Tokens = (WCTemplateToken**)malloc(
 				sizeof(WCTemplateToken*) * 10);
-			memset(Template->Tokens, 0, sizeof(WCTemplateToken*));
+			memset(Template->Tokens, 0, sizeof(WCTemplateToken*) * 10);
 			Template->TokenSpace = 10;
 		}
 		else {
 			WCTemplateToken **NewTokens;
-			NewTokens= (WCTemplateToken**)malloc(
-				sizeof(WCTemplateToken*) * 
-				Template->TokenSpace * 2);
-			memcpy(NewTokens, Template->Tokens, 
+
+			NewTokens= (WCTemplateToken**) malloc(
+				sizeof(WCTemplateToken*) * Template->TokenSpace * 2);
+
+			memset(NewTokens, 
+			       0, sizeof(WCTemplateToken*) * Template->TokenSpace * 2);
+
+			memcpy(NewTokens, 
+			       Template->Tokens, 
 			       sizeof(WCTemplateToken*) * Template->nTokensUsed);
+
 			free(Template->Tokens);
 			Template->TokenSpace *= 2;
 			Template->Tokens = NewTokens;
@@ -1263,13 +1269,16 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 	       (*pch == ',' )||
 	       (*pch == '\n')) pch ++;
 
-	if (DumpTemplateI18NStrings && (Parm->Type == TYPE_GETTEXT)) {
-		StrBufAppendPrintf(I18nDump, "_(\"%s\");\n", Parm->Start);
-	}
-	if (Parm->Type == TYPE_INTDEFINE)
+	switch (Parm->Type)
 	{
+	case TYPE_GETTEXT:
+		if (DumpTemplateI18NStrings) {
+			StrBufAppendPrintf(I18nDump, "_(\"%s\");\n", Parm->Start);
+		}
+		break;
+	case TYPE_INTDEFINE: {
 		void *vPVal;
-
+		
 		if (GetHash(Defines, Parm->Start, Parm->len, &vPVal) &&
 		    (vPVal != NULL))
 		{
@@ -1283,7 +1292,18 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 			LogTemplateError(NULL, "Define", ERR_PARM1, TP,
 					 "%s isn't known!!",
 					 Parm->Start);
-		}
+		}}
+		break;
+	case TYPE_SUBTEMPLATE:{
+		void *vTmpl;
+		/* well, we don't check the mobile stuff here... */
+		if (!GetHash(LocalTemplateCache, Parm->Start, Parm->len, &vTmpl) &&
+		    !GetHash(TemplateCache, Parm->Start, Parm->len, &vTmpl)) {
+			LogTemplateError(
+				NULL, "SubTemplate", ERR_PARM1, TP,
+				"referenced here doesn't exist");
+		}}
+		break;
 	}
 	*pCh = pch;
 	return Parm;
@@ -1291,8 +1311,8 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 
 WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf, 
 				       const char *pStart, 
-				       const char *pTmplStart, 
-				       const char *pTmplEnd, 
+				       const char *pTokenStart, 
+				       const char *pTokenEnd, 
 				       long Line,
 				       WCTemplate *pTmpl)
 {
@@ -1308,34 +1328,34 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 	NewToken->FileName = pTmpl->FileName; /* to print meaningfull log messages... */
 	NewToken->Flags = 0;
 	NewToken->Line = Line + 1;
-	NewToken->pTokenStart = pTmplStart;
-	NewToken->TokenStart = pTmplStart - pStart;
-	NewToken->TokenEnd =  (pTmplEnd - pStart) - NewToken->TokenStart;
-	NewToken->pTokenEnd = pTmplEnd;
+	NewToken->pTokenStart = pTokenStart;
+	NewToken->TokenStart = pTokenStart - pStart;
+	NewToken->TokenEnd =  (pTokenEnd - pStart) - NewToken->TokenStart;
+	NewToken->pTokenEnd = pTokenEnd;
 	NewToken->NameEnd = NewToken->TokenEnd - 2;
 	NewToken->PreEval = NULL;
-	NewToken->FlatToken = NewStrBufPlain(pTmplStart + 2, pTmplEnd - pTmplStart - 2);
+	NewToken->FlatToken = NewStrBufPlain(pTokenStart + 2, pTokenEnd - pTokenStart - 2);
 	StrBufShrinkToFit(NewToken->FlatToken, 1);
 
-	StrBufPeek(Buf, pTmplStart, + 1, '\0');
-	StrBufPeek(Buf, pTmplEnd, -1, '\0');
-	pch = NewToken->pName = pTmplStart + 2;
+	StrBufPeek(Buf, pTokenStart, + 1, '\0');
+	StrBufPeek(Buf, pTokenEnd, -1, '\0');
+	pch = NewToken->pName = pTokenStart + 2;
 
 	NewToken->HaveParameters = 0;;
 	NewToken->nParameters = 0;
 
-	while (pch < pTmplEnd - 1) {
+	while (pch < pTokenEnd - 1) {
 		if (*pch == '(') {
 			StrBufPeek(Buf, pch, -1, '\0');
 			NewToken->NameEnd = pch - NewToken->pName;
 			pch ++;
-			if (*(pTmplEnd - 1) != ')') {
+			if (*(pTokenEnd - 1) != ')') {
 				LogTemplateError(
 					NULL, "Parseerror", ERR_NAME, &TP, 
 					"Warning, Non welformed Token; missing right parenthesis");
 			}
-			while (pch < pTmplEnd - 1) {
-				Param = GetNextParameter(Buf, &pch, pTmplEnd - 1, NewToken, pTmpl, &TP);
+			while (pch < pTokenEnd - 1) {
+				Param = GetNextParameter(Buf, &pch, pTokenEnd - 1, NewToken, pTmpl, &TP);
 				if (Param != NULL) {
 					NewToken->HaveParameters = 1;
 					if (NewToken->nParameters > MAXPARAM) {
@@ -1414,6 +1434,22 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 				NewToken->nParameters);
 			break;
 		}
+		else {
+			void *vTmpl;
+			/* well, we don't check the mobile stuff here... */
+			if (!GetHash(LocalTemplateCache, 
+				     NewToken->Params[0]->Start, 
+				     NewToken->Params[0]->len, 
+				     &vTmpl) &&
+			    !GetHash(TemplateCache, 
+				     NewToken->Params[0]->Start, 
+				     NewToken->Params[0]->len, 
+				     &vTmpl)) {
+				LogTemplateError(
+					NULL, "SubTemplate", ERR_PARM1, &TP,
+					"doesn't exist");
+			}
+		}
 		break;
 	case SV_CUST_STR_CONDITIONAL:
 	case SV_CONDITIONAL:
@@ -1488,6 +1524,10 @@ void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 		StrBufAppendBufPlain(NewTemplate->MimeType, HKEY("; charset=utf-8"), 0);
 	}
 
+	if (strstr(ChrPtr(NewTemplate->MimeType), "text") != NULL) {
+		StrBufAppendBufPlain(NewTemplate->MimeType, HKEY("; charset=utf-8"), 0);
+	}
+
 	Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
 	return NewTemplate;
 }
@@ -1496,45 +1536,53 @@ void *prepare_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
  * \brief Display a variable-substituted template
  * \param templatename template file to load
  */
-void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
+void *duplicate_template(WCTemplate *OldTemplate)
+{
+	WCTemplate *NewTemplate;
+
+	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
+	memset(NewTemplate, 0, sizeof(WCTemplate));
+	NewTemplate->Data = NULL;
+	NewTemplate->FileName = NewStrBufDup(OldTemplate->FileName);
+	StrBufShrinkToFit(NewTemplate->FileName, 1);
+	NewTemplate->nTokensUsed = 0;
+	NewTemplate->TokenSpace = 0;
+	NewTemplate->Tokens = NULL;
+	NewTemplate->MimeType = NewStrBufDup(OldTemplate->MimeType);
+	return NewTemplate;
+}
+
+/**
+ * \brief Display a variable-substituted template
+ * \param templatename template file to load
+ */
+void *load_template(WCTemplate *NewTemplate)
 {
 	int fd;
 	struct stat statbuf;
 	const char *pS, *pE, *pch, *Err;
 	long Line;
 	int pos;
-	WCTemplate *NewTemplate;
 
-	fd = open(ChrPtr(filename), O_RDONLY);
+	fd = open(ChrPtr(NewTemplate->FileName), O_RDONLY);
 	if (fd <= 0) {
 		lprintf(1, "ERROR: could not open template '%s' - %s\n",
-			ChrPtr(filename), strerror(errno));
+			ChrPtr(NewTemplate->FileName), strerror(errno));
 		return NULL;
 	}
 
 	if (fstat(fd, &statbuf) == -1) {
 		lprintf(1, "ERROR: could not stat template '%s' - %s\n",
-			ChrPtr(filename), strerror(errno));
+			ChrPtr(NewTemplate->FileName), strerror(errno));
 		return NULL;
 	}
 
-	NewTemplate = (WCTemplate *) malloc(sizeof(WCTemplate));
-	memset(NewTemplate, 0, sizeof(WCTemplate));
-	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size);
-	NewTemplate->FileName = NewStrBufDup(filename);
-	NewTemplate->nTokensUsed = 0;
-	NewTemplate->TokenSpace = 0;
-	NewTemplate->Tokens = NULL;
-	NewTemplate->MimeType = NewStrBufPlain(GuessMimeByFilename (SKEY(NewTemplate->FileName)), -1);
-	if (strstr(ChrPtr(NewTemplate->MimeType), "text") != NULL) {
-		StrBufAppendBufPlain(NewTemplate->MimeType, HKEY("; charset=utf-8"), 0);
-	}
-
+	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size + 1);
 	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
-		FreeWCTemplate(NewTemplate);
 		lprintf(1, "ERROR: reading template '%s' - %s<br />\n",
-			ChrPtr(filename), strerror(errno));
+			ChrPtr(NewTemplate->FileName), strerror(errno));
+		//FreeWCTemplate(NewTemplate);/////tODO
 		return NULL;
 	}
 	close(fd);
@@ -1583,8 +1631,6 @@ void *load_template(StrBuf *filename, StrBuf *Key, HashList *PutThere)
 			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte, Line, NewTemplate));
 		pch ++;
 	}
-	if (LoadTemplates == 0)
-		Put(PutThere, ChrPtr(Key), StrLength(Key), NewTemplate, FreeWCTemplate);
 	return NewTemplate;
 }
 
@@ -1729,10 +1775,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 
 			if (LoadTemplates >= 1)
 				lprintf(1, "%s %d %s\n", ChrPtr(FileName), IsMobile, ChrPtr(Key));
-			if (LoadTemplates == 0)
-				load_template(FileName, Key, (IsMobile)?wireless:big);
-			else
-				prepare_template(FileName, Key, (IsMobile)?wireless:big);
+			prepare_template(FileName, Key, (IsMobile)?wireless:big);
 		default:
 			break;
 		}
@@ -1748,8 +1791,10 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 
 void InitTemplateCache(void)
 {
+	int i;
 	StrBuf *Key;
 	StrBuf *Dir;
+	HashList *Templates[4];
 
 	Dir = NewStrBuf();
 	Key = NewStrBuf();
@@ -1775,6 +1820,31 @@ void InitTemplateCache(void)
 			WirelessTemplateCache,
 			TemplateCache, 
 			Key);
+	Templates[0] = WirelessTemplateCache;
+	Templates[1] = TemplateCache;
+	Templates[2] = WirelessLocalTemplateCache;
+	Templates[3] = LocalTemplateCache;
+
+
+	if (LoadTemplates == 0) 
+		for (i=0; i < 4; i++) {
+			const char *Key;
+			long KLen;
+			HashPos *At;
+			void *vTemplate;
+
+			At = GetNewHashPos(Templates[i], 0);
+			while (GetNextHashPos(Templates[i], 
+					      At, 
+					      &KLen,
+					      &Key, 
+					      &vTemplate) && 
+			       (vTemplate != NULL))
+			{
+				load_template((WCTemplate *)vTemplate);
+			}
+			DeleteHashPos(&At);
+		}
 
 
 	FreeStrBuf(&Dir);
@@ -1887,13 +1957,13 @@ const StrBuf *ProcessTemplate(WCTemplate *Tmpl, StrBuf *Target, WCTemplputParams
 		if (LoadTemplates > 1)
 			lprintf(1, "DBG: ----- loading:  [%s] ------ \n", 
 				ChrPtr(Tmpl->FileName));
-
-		pTmpl = load_template(Tmpl->FileName, NULL, NULL);
-		if(pTmpl == NULL) {
+		pTmpl = duplicate_template(Tmpl);
+		if(load_template(pTmpl) == NULL) {
 			StrBufAppendPrintf(
 				Target, 
 				"<pre>\nError loading Template [%s]\n See Logfile for details\n</pre>\n", 
 				ChrPtr(Tmpl->FileName));
+			FreeWCTemplate(pTmpl);
 			return NULL;
 		}
 
@@ -2050,6 +2120,7 @@ int preeval_iterate(WCTemplateToken *Token)
 {
 	WCTemplputParams TPP;
 	WCTemplputParams *TP;
+	void *vTmpl;
 	void *vIt;
 
 	memset(&TPP, 0, sizeof(WCTemplputParams));
@@ -2060,6 +2131,18 @@ int preeval_iterate(WCTemplateToken *Token)
 			NULL, "Iterator", ERR_PARM1, TP,
 			"not found");
 		return 0;
+	}
+	if (TP->Tokens->Params[1]->Type != TYPE_SUBTEMPLATE) {
+		LogTemplateError(NULL, "Iterator", ERR_PARM1, TP,
+				 "Need token with type Subtemplate as param 1, have %s", 
+				 TP->Tokens->Params[1]->Start);
+	}
+	
+	/* well, we don't check the mobile stuff here... */
+	if (!GetHash(LocalTemplateCache, TKEY(1), &vTmpl) &&
+	    !GetHash(TemplateCache, TKEY(1), &vTmpl)) {
+		LogTemplateError(NULL, "SubTemplate", ERR_PARM1, TP,
+				 "referenced here doesn't exist");
 	}
 	Token->Preeval2 = vIt;
 	return 1;
