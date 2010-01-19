@@ -568,7 +568,11 @@ body, #global {
 	color: #dddddd;
 }
 
-.moreprompt:hover {
+.moreprompt_link {
+	color: #dddddd;
+}
+
+.moreprompt_link:hover {
 	background-color: #AD1C00;
 	color: #FFF;
 }

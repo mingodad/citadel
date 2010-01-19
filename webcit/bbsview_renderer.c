@@ -131,6 +131,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	int doing_older_messages = 0;
 	int doing_newer_messages = 0;
 
+	int increments[] = { 20, 50, 100 } ;
+#define NUM_INCREMENTS	(sizeof(increments) / sizeof(int))
+
 	snprintf(olderdiv, sizeof olderdiv, "olderdiv%08lx%08x", time(NULL), rand());
 	snprintf(newerdiv, sizeof newerdiv, "newerdiv%08lx%08x", time(NULL), rand());
 
@@ -179,17 +182,19 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	if ((!WC->is_ajax) && (Stat->nummsgs == 0)) {
 		wc_printf("<div id=\"%s\">", olderdiv);
-		wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %ld);\">",
-			olderdiv,
-			LONG_MAX,
-			Stat->maxmsgs
-		);
-	
-		wc_printf("<div class=\"moreprompt\">"
-			"&uarr; &uarr; &uarr; %s &uarr; &uarr; &uarr;"
-			"</div>", _("older messages")
-		);
-		wc_printf("</a>");
+		wc_printf("<div class=\"moreprompt\">");
+		for (i=0; i<NUM_INCREMENTS; ++i) {
+			wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %d);\">",
+				olderdiv,
+				LONG_MAX,
+				increments[i]
+			);
+			wc_printf("<span class=\"moreprompt_link\">&uarr; ");
+			wc_printf(_("Previous %d"), increments[i]);
+			wc_printf(" &uarr;</span>");
+			wc_printf("</a>");
+		}
+		wc_printf("</div>");
 		wc_printf("<div class=\"nomsgs\"><br><em>");
 		wc_printf(_("No messages here."));
 		wc_printf("</em><br></div>\n");
@@ -197,18 +202,20 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	}
 	else if (doing_newer_messages == 0) {
 		wc_printf("<div id=\"%s\">", olderdiv);
+		wc_printf("<div class=\"moreprompt\">");
 		if (Stat->nummsgs > 0) {
-			wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %ld);\">",
-				olderdiv,
-				BBS->msgs[0],
-				Stat->maxmsgs
-			);
-		
-			wc_printf("<div class=\"moreprompt\">"
-				"&uarr; &uarr; &uarr; %s &uarr; &uarr; &uarr;"
-				"</div>", _("older messages")
-			);
-			wc_printf("</a>");
+			for (i=0; i<NUM_INCREMENTS; ++i) {
+				wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %d);\">",
+					olderdiv,
+					BBS->msgs[0],
+					increments[i]
+				);
+				wc_printf("<span class=\"moreprompt_link\">&uarr; ");
+				wc_printf(_("Previous %d"), increments[i]);
+				wc_printf(" &uarr;</span>");
+				wc_printf("</a>");
+			}
+			wc_printf("</div>");
 		}
 		wc_printf("</div>");
 	}
@@ -228,19 +235,20 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	if (doing_older_messages == 0) {
 		wc_printf("<div id=\"%s\">", newerdiv);
-		/* if (Stat->nummsgs > 0) { */
 		if (Stat->nummsgs >= Stat->maxmsgs) {
-			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld);\">",
-				newerdiv,
-				BBS->msgs[BBS->num_msgs-1],
-				Stat->maxmsgs
-			);
-		
-			wc_printf("<div class=\"moreprompt\">"
-				"&darr; &darr; &darr; %s &darr; &darr; &darr;"
-				"</div>", _("newer messages")
-			);
-			wc_printf("</a>");
+			wc_printf("<div class=\"moreprompt\">");
+			for (i=0; i<NUM_INCREMENTS; ++i) {
+				wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %d);\">",
+					newerdiv,
+					BBS->msgs[BBS->num_msgs-1],
+					increments[i]
+				);
+				wc_printf("<span class=\"moreprompt_link\">&darr; ");
+				wc_printf(_("Next %d"), increments[i]);
+				wc_printf(" &darr;</span>");
+				wc_printf("</a>");
+			}
+			wc_printf("</div>");
 		}
 		else {
 			long gt = 0;	/* if new messages appear later, where will they begin? */
@@ -256,7 +264,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 				Stat->maxmsgs
 			);
 			wc_printf("<div class=\"moreprompt\">");
+			wc_printf("<span class=\"moreprompt_link\">&darr; ");
 			wc_printf("%s", _("no more messages"));
+			wc_printf(" &darr;</span>");
 			wc_printf("</div>");
 			wc_printf("</a>");
 		}
