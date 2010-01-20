@@ -854,6 +854,10 @@ void smtp_command_loop(void) {
 	char cmdbuf[SIZ];
 	citsmtp *sSMTP = SMTP;
 
+	if (sSMTP == NULL) {
+		CtdlLogPrintf(CTDL_EMERG, "Session SMTP data is null.  WTF?  We will crash now.\n");
+	}
+
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
