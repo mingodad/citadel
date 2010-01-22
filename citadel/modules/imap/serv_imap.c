@@ -541,21 +541,35 @@ void imaps_greeting(void) {
  */
 void imap_login(int num_parms, char *parms[])
 {
-	if (num_parms != 4) {
+
+	switch (num_parms) {
+	case 3:
+		if (parms[2][0] == '{') {
+			cprintf("+ go ahead\r\n");
+			IMAP->authstate = imap_as_expecting_multilineusername;
+			strcpy(IMAP->authseq, parms[0]);
+			return;
+		}
+		else {
+			cprintf("%s BAD incorrect number of parameters\r\n", parms[0]);
+			return;
+		}
+	case 4:
+		if (CtdlLoginExistingUser(NULL, parms[2]) == login_ok) {
+			if (CtdlTryPassword(parms[3]) == pass_ok) {
+				cprintf("%s OK [", parms[0]);
+				imap_output_capability_string();
+				cprintf("] Hello, %s\r\n", CC->user.fullname);
+				return;
+			}
+		}
+
+		cprintf("%s BAD Login incorrect\r\n", parms[0]);
+	default:
 		cprintf("%s BAD incorrect number of parameters\r\n", parms[0]);
 		return;
 	}
 
-	if (CtdlLoginExistingUser(NULL, parms[2]) == login_ok) {
-		if (CtdlTryPassword(parms[3]) == pass_ok) {
-			cprintf("%s OK [", parms[0]);
-			imap_output_capability_string();
-			cprintf("] Hello, %s\r\n", CC->user.fullname);
-			return;
-		}
-	}
-
-	cprintf("%s BAD Login incorrect\r\n", parms[0]);
 }
 
 
@@ -634,26 +648,46 @@ void imap_auth_plain(char *cmd)
 }
 
 
-void imap_auth_login_user(char *cmd)
+void imap_auth_login_user(char *cmd, long state)
 {
 	char buf[SIZ];
 
-	CtdlDecodeBase64(buf, cmd, SIZ);
-	CtdlLoginExistingUser(NULL, buf);
-	CtdlEncodeBase64(buf, "Password:", 9, 0);
-	cprintf("+ %s\r\n", buf);
-	IMAP->authstate = imap_as_expecting_password;
-	return;
+	switch (state){
+	case imap_as_expecting_username:
+		CtdlDecodeBase64(buf, cmd, SIZ);
+		CtdlLoginExistingUser(NULL, buf);
+		CtdlEncodeBase64(buf, "Password:", 9, 0);
+		cprintf("+ %s\r\n", buf);
+		
+		IMAP->authstate = imap_as_expecting_password;
+		return;
+	case imap_as_expecting_multilineusername:
+		extract_token(buf, cmd, 1, ' ', sizeof(buf));
+		CtdlLoginExistingUser(NULL, cmd);
+		cprintf("+ go ahead\r\n");
+		IMAP->authstate = imap_as_expecting_multilinepassword;
+		return;
+	}
 }
 
 
-void imap_auth_login_pass(char *cmd)
+void imap_auth_login_pass(char *cmd, long state)
 {
+	char *pass = NULL;
 	char buf[SIZ];
 
-	memset(buf, 0, sizeof(buf));
-	CtdlDecodeBase64(buf, cmd, SIZ);
-	if (CtdlTryPassword(buf) == pass_ok) {
+	switch (state) {
+	default:
+	case imap_as_expecting_password:
+		memset(buf, 0, sizeof(buf));
+		CtdlDecodeBase64(buf, cmd, SIZ);
+		pass = buf;
+		break;
+	case imap_as_expecting_multilinepassword:
+		pass = cmd;
+		break;
+	}
+	if (CtdlTryPassword(pass) == pass_ok) {
 		cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
 	} else {
 		cprintf("%s NO authentication failed\r\n", IMAP->authseq);
@@ -1381,7 +1415,8 @@ void imap_command_loop(void)
 	else if (IMAP->authstate == imap_as_expecting_plainauth) {
 		CtdlLogPrintf(CTDL_INFO, "IMAP: <plain_auth>\n");
 	}
-	else if (bmstrcasestr(cmdbuf, " LOGIN ")) {
+	else if ((IMAP->authstate == imap_as_expecting_multilineusername) || 
+		 bmstrcasestr(cmdbuf, " LOGIN ")) {
 		CtdlLogPrintf(CTDL_INFO, "IMAP: LOGIN...\n");
 	}
 	else {
@@ -1400,7 +1435,11 @@ void imap_command_loop(void)
 
 	/* If we're in the middle of a multi-line command, handle that */
 	if (IMAP->authstate == imap_as_expecting_username) {
-		imap_auth_login_user(cmdbuf);
+		imap_auth_login_user(cmdbuf, imap_as_expecting_username);
+		return;
+	}
+	if (IMAP->authstate == imap_as_expecting_multilineusername) {
+		imap_auth_login_user(cmdbuf, imap_as_expecting_multilineusername);
 		return;
 	}
 	if (IMAP->authstate == imap_as_expecting_plainauth) {
@@ -1408,9 +1447,14 @@ void imap_command_loop(void)
 		return;
 	}
 	if (IMAP->authstate == imap_as_expecting_password) {
-		imap_auth_login_pass(cmdbuf);
+		imap_auth_login_pass(cmdbuf, imap_as_expecting_password);
 		return;
 	}
+	if (IMAP->authstate == imap_as_expecting_multilinepassword) {
+		imap_auth_login_pass(cmdbuf, imap_as_expecting_multilinepassword);
+		return;
+	}
+
 
 	/* Ok, at this point we're in normal command mode.
 	 * If the command just submitted does not contain a literal, we
