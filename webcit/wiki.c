@@ -342,6 +342,7 @@ InitModule_WIKI
 		NULL,
 		NULL,
 		NULL,
+		NULL,
 		wiki_Cleanup
 	);
 

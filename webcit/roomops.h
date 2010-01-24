@@ -99,3 +99,11 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
 void vDeleteFolder(void *vFolder);
 void FlushFolder(folder *room);
 void ParseGoto(folder *proom, StrBuf *Line);
+
+#define REST_TOPLEVEL 0
+#define REST_IN_NAMESPACE (1<<0)
+#define REST_IN_FLOOR (1<<1)
+#define REST_IN_ROOM (1<<2)
+#define REST_GOT_EUID (1<<3)
+#define REST_GOT_ID (1<<4)
+#define REST_GOT_FILENAME (1<<5)

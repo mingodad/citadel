@@ -1196,7 +1196,7 @@ STARTOVER:	for (attendee = icalcomponent_get_first_property(vevent, ICAL_ATTENDE
 			summary();
 		}
 		else {
-			readloop(readfwd);
+			readloop(readfwd, eUseDefault);
 		}
 	}
 }

@@ -311,6 +311,7 @@ InitModule_BBSVIEWRENDERERS
 		VIEW_BBS,
 		bbsview_GetParamsGetServerCall,
 		bbsview_PrintViewHeader,
+		NULL, 
 		bbsview_LoadMsgFromServer,
 		bbsview_RenderView_or_Tail,
 		bbsview_Cleanup);

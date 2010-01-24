@@ -42,6 +42,160 @@ long locate_message_by_uid(const char *uid) {
 	return(retval);
 }
 
+const folder *GetRESTFolder(int IgnoreFloor)
+{
+	wcsession  *WCC = WC;
+	void *vFolder;
+	const folder *ThisFolder = NULL;
+	HashPos    *itd, *itfl;
+	StrBuf     * Dir;
+	void       *vDir;
+	long        len;
+        const char *Key;
+	int i, j, urlp;
+	int delta;
+
+
+
+	itfl = GetNewHashPos(WCC->Floors, 0);
+
+	while (GetNextHashPos(WCC->Floors, itfl, &len, &Key, &vFolder) && 
+	       (ThisFolder == NULL))
+	{
+		ThisFolder = vFolder;
+		if (!IgnoreFloor && /* so we can handle legacy URLS... */
+		    (ThisFolder->Floor != WCC->CurrentFloor))
+			continue;
+
+
+		if (ThisFolder->nRoomNameParts > 1) 
+		{
+			/*TODO: is that number all right? */
+			if (GetCount(WCC->Directory) - ThisFolder->nRoomNameParts != 2)
+				continue;
+
+			itd  = GetNewHashPos(WCC->Directory, 0);
+			GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir); //TODO: how many to fast forward?
+	/* Fast forward the floorname we checked above... */
+			for (i = 0, j = 1; 
+			     (i > ThisFolder->nRoomNameParts) && (j > urlp); 
+			     i++, j++, GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir))
+			{
+				Dir = (StrBuf*)vDir;
+				if (strcmp(ChrPtr(ThisFolder->RoomNameParts[i]), 
+					   ChrPtr(Dir)) != 0)
+				{
+					DeleteHashPos(&itd);
+					continue;
+				}
+			}
+			DeleteHashPos(&itd);
+			DeleteHashPos(&itfl);
+			return ThisFolder;
+		}
+		else {
+			
+			if (GetCount(WCC->Directory) - ThisFolder->nRoomNameParts != 2)
+				continue;
+			itd  = GetNewHashPos(WCC->Directory, 0);
+			
+			
+			if (!GetNextHashPos(WCC->Directory, 
+					    itd, &len, &Key, &vDir) ||
+			    (vDir == NULL))
+			{
+				DeleteHashPos(&itd);
+				
+				lprintf(0, "5\n");
+				continue;
+			}
+			DeleteHashPos(&itd);
+			Dir = (StrBuf*) vDir;
+			if (strcmp(ChrPtr(ThisFolder->name), 
+					       ChrPtr(Dir))
+			    != 0)
+			{
+				DeleteHashPos(&itd);
+				
+				lprintf(0, "5\n");
+				continue;
+			}
+			
+			DeleteHashPos(&itfl);
+			DeleteHashPos(&itd);
+			
+			return ThisFolder;;
+		}
+	}
+	DeleteHashPos(&itfl);
+	return NULL;
+}
+
+
+
+
+long GotoRestRoom()
+{
+	wcsession *WCC = WC;
+	long Count;
+	long State;
+	const folder *ThisFolder;
+
+	State = REST_TOPLEVEL;
+
+	if (WCC->Hdr->HR.Handler != NULL) 
+		State |= REST_IN_NAMESPACE;
+
+	Count = GetCount(WCC->Directory);
+	
+	if (Count == 0) return State;
+
+	if (Count >= 1) State |=REST_IN_FLOOR;
+	if (Count == 1) return State;
+	
+	if (Count >= 3) {
+		State |= REST_IN_FLOOR;
+		ThisFolder = GetRESTFolder(0);
+		WCC->ThisRoom = ThisFolder;
+		if (ThisFolder != NULL)
+		{
+			gotoroom(ThisFolder->name);
+			State |= REST_IN_ROOM;
+			return State;
+		}
+		
+	}
+
+
+	/* 
+	 * More than 3 params and no floor found? 
+	 * -> fall back to old non-floored notation
+	 */
+
+	if ((Count >= 3) && (WCC->CurrentFloor == NULL))
+	{
+		ThisFolder = GetRESTFolder(1);
+		WCC->ThisRoom = ThisFolder;
+		if (ThisFolder != NULL)
+		{
+			gotoroom(ThisFolder->name);
+			State |= REST_IN_ROOM;
+			return State;
+		}
+
+
+	}
+
+
+	if (Count == 3) return State;
+
+	/// TODO: ID detection
+	/// TODO: File detection
+
+
+	return State;
+}
+
 
 
 /*
@@ -241,6 +395,7 @@ void groupdav_propfind(void)
 	int i;
 	char datestring[256];
 	time_t now;
+	long State;
 
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
@@ -249,6 +404,48 @@ void groupdav_propfind(void)
 	dav_uid = NewStrBuf();
 	StrBufExtract_token(dav_roomname, WCC->Hdr->HR.ReqLine, 0, '/');
 	StrBufExtract_token(dav_uid, WCC->Hdr->HR.ReqLine, 1, '/');
+#ifdef DEV_RESTDAV
+	/*
+	 * If the room name is blank, the client is requesting a
+	 * folder list.
+	 */
+	State = GotoRestRoom();
+	if (((State & REST_IN_ROOM) == 0) ||
+	    (((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME)) == 0) &&
+	     (WCC->Hdr->HR.dav_depth == 0)))
+	{
+		now = time(NULL);
+		http_datestring(datestring, sizeof datestring, now);
+
+		/*
+		 * Be rude.  Completely ignore the XML request and simply send them
+		 * everything we know about.  Let the client sort it out.
+		 */
+		hprintf("HTTP/1.0 207 Multi-Status\r\n");
+		groupdav_common_headers();
+		hprintf("Date: %s\r\n", datestring);
+		hprintf("Content-type: text/xml\r\n");
+		hprintf("Content-encoding: identity\r\n");
+
+		begin_burst();
+
+
+		/*
+		 * If the client is requesting the root, show a root node.
+		 */
+		do_template("dav_propfind_top", NULL);
+		end_burst();
+		FreeStrBuf(&dav_roomname);
+		FreeStrBuf(&dav_uid);
+		return;
+	}
+
+	if ((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME)) == 0) {
+		readloop(headers, eReadEUIDS);
+		return;
+
+	}
+#endif
 
 	/*
 	 * If the room name is blank, the client is requesting a
@@ -478,4 +675,68 @@ void groupdav_propfind(void)
 	if (msgs != NULL) {
 		free(msgs);
 	}
+}
+
+
+
+int ParseMessageListHeaders_EUID(StrBuf *Line, 
+				 const char **pos, 
+				 message_summary *Msg, 
+				 StrBuf *ConversionBuffer)
+{
+	Msg->euid = NewStrBuf();
+	StrBufExtract_NextToken(Msg->euid,  Line, pos, '|');
+	return StrLength(Msg->euid) > 0;
+}
+
+int DavUIDL_GetParamsGetServerCall(SharedMessageStatus *Stat, 
+				    void **ViewSpecific, 
+				    long oper, 
+				    char *cmd, 
+				    long len)
+{
+	Stat->defaultsortorder = 0;
+	Stat->sortit = 0;
+	Stat->load_seen = 0;
+	Stat->maxmsgs  = 9999999;
+
+	snprintf(cmd, len, "MSGS ALL|||2");
+	return 200;
+}
+
+int DavUIDL_RenderView_or_Tail(SharedMessageStatus *Stat, 
+				void **ViewSpecific, 
+				long oper)
+{
+	
+	DoTemplate(HKEY("msg_listview"),NULL,&NoCtx);
+	
+	return 0;
+}
+
+int DavUIDL_Cleanup(void **ViewSpecific)
+{
+	/* Note: wDumpContent() will output one additional </div> tag. */
+	/* We ought to move this out into template */
+	wDumpContent(1);
+
+	return 0;
+}
+
+
+
+
+void 
+InitModule_PROPFIND
+(void)
+{
+	RegisterReadLoopHandlerset(
+		eReadEUIDS,
+		DavUIDL_GetParamsGetServerCall,
+		NULL, /// TODO: is this right?
+		ParseMessageListHeaders_EUID,
+		NULL, //// ""
+		DavUIDL_RenderView_or_Tail,
+		DavUIDL_Cleanup);
+
 }

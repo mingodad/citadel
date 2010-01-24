@@ -572,9 +572,10 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
  *
  * servcmd:		the citadel command to send to the citserver
  */
-int load_msg_ptrs(const char *servcmd, SharedMessageStatus *Stat)
+int load_msg_ptrs(const char *servcmd, 
+		  SharedMessageStatus *Stat, 
+		  load_msg_ptrs_detailheaders LH)
 {
-	StrBuf* FoundCharset = NULL;
         wcsession *WCC = WC;
 	message_summary *Msg;
 	StrBuf *Buf, *Buf2;
@@ -633,47 +634,11 @@ int load_msg_ptrs(const char *servcmd, SharedMessageStatus *Stat)
 				if (StrLength(Buf) < 32) 
 					skipit = 1;
 			}
-			if (!skipit) {
-				Msg->from = NewStrBufPlain(NULL, StrLength(Buf));
-				StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
-				if (StrLength(Buf2) != 0) {
-					/* Handle senders with RFC2047 encoding */
-					StrBuf_RFC822_to_Utf8(Msg->from, Buf2, WCC->DefaultCharset, FoundCharset);
-				}
-			
-				/* node name */
-				StrBufExtract_NextToken(Buf2, Buf, &Ptr, '|');
-				if ((StrLength(Buf2) !=0 ) &&
-				    ( ((WCC->CurRoom.QRFlags & QR_NETWORK)
-				       || ((strcasecmp(ChrPtr(Buf2), ChrPtr(WCC->serv_info->serv_nodename))
-					    && (strcasecmp(ChrPtr(Buf2), ChrPtr(WCC->serv_info->serv_fqdn))))))))
-				{
-					StrBufAppendBufPlain(Msg->from, HKEY(" @ "), 0);
-					StrBufAppendBuf(Msg->from, Buf2, 0);
-				}
-
-				/* Internet address (not used)
-				 *	StrBufExtract_token(Msg->inetaddr, Buf, 4, '|');
-				 */
-				StrBufSkip_NTokenS(Buf, &Ptr, '|', 1);
-				Msg->subj = NewStrBufPlain(NULL, StrLength(Buf));
-				StrBufExtract_NextToken(Buf2,  Buf, &Ptr, '|');
-				if (StrLength(Buf2) == 0)
-					StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
-				else {
-					StrBuf_RFC822_to_Utf8(Msg->subj, Buf2, WCC->DefaultCharset, FoundCharset);
-					if ((StrLength(Msg->subj) > 75) && 
-					    (StrBuf_Utf8StrLen(Msg->subj) > 75)) {
-						StrBuf_Utf8StrCut(Msg->subj, 72);
-						StrBufAppendBufPlain(Msg->subj, HKEY("..."), 0);
-					}
-				}
-
-				if ((StrLength(Msg->from) > 25) && 
-				    (StrBuf_Utf8StrLen(Msg->from) > 25)) {
-					StrBuf_Utf8StrCut(Msg->from, 23);
-					StrBufAppendBufPlain(Msg->from, HKEY("..."), 0);
-				}
+			if ((!skipit) && (LH != NULL)) {
+				if (!LH(Buf, &Ptr, Msg, Buf2)){
+					free(Msg);
+					continue;
+				}					
 			}
 			n = Msg->msgnum;
 			Put(WCC->summ, (const char *)&n, sizeof(n), Msg, DestroyMessageSummary);
@@ -745,6 +710,7 @@ typedef struct _RoomRenderer{
 	LoadMsgFromServer_func LoadMsgFromServer;
 	RenderView_or_Tail_func RenderView_or_Tail;
 	View_Cleanup_func ViewCleanup;
+	load_msg_ptrs_detailheaders LHParse;
 } RoomRenderer;
 
 
@@ -753,7 +719,7 @@ typedef struct _RoomRenderer{
  *
  * Set oper to "readnew" or "readold" or "readfwd" or "headers" or "readgt" or "readlt" or "do_search"
  */
-void readloop(long oper)
+void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 {
 	RoomRenderer *ViewMsg;
 	void *vViewMsg;
@@ -786,7 +752,10 @@ void readloop(long oper)
 	Stat.maxload = 10000;
 	Stat.lowest_found = (-1);
 	Stat.highest_found = (-1);
-	GetHash(ReadLoopHandler, IKEY(WCC->CurRoom.view), &vViewMsg);
+	if (ForceRenderer == eUseDefault)
+		GetHash(ReadLoopHandler, IKEY(WCC->CurRoom.view), &vViewMsg);
+	else 
+		GetHash(ReadLoopHandler, IKEY(ForceRenderer), &vViewMsg);
 	if (vViewMsg == NULL) {
 		WCC->CurRoom.view = VIEW_BBS;
 		GetHash(ReadLoopHandler, IKEY(WCC->CurRoom.view), &vViewMsg);
@@ -825,7 +794,7 @@ void readloop(long oper)
 		break;
 	}
 	if (!IsEmptyStr(cmd))
-		Stat.nummsgs = load_msg_ptrs(cmd, &Stat);
+		Stat.nummsgs = load_msg_ptrs(cmd, &Stat, ViewMsg->LHParse);
 
 	if (Stat.sortit) {
 		CompareFunc SortIt;
@@ -1243,7 +1212,7 @@ void post_message(void)
 	 *  Otherwise, just go to the "read messages" loop.
 	 */
 	else {
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 	}
 }
 
@@ -1285,7 +1254,7 @@ void display_enter(void)
 	}
 	else if (buf[0] != '2') {		/* Any other error means that we cannot continue */
 		sprintf(WCC->ImportantMessage, "%s", &buf[4]);
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 		return;
 	}
 
@@ -1401,7 +1370,7 @@ void delete_msg(void)
 
 	serv_getln(buf, sizeof buf);
 	sprintf(WC->ImportantMessage, "%s", &buf[4]);
-	readloop(readnew);
+	readloop(readnew, eUseDefault);
 }
 
 
@@ -1424,7 +1393,7 @@ void move_msg(void)
 		sprintf(WC->ImportantMessage, (_("The message was not moved.")));
 	}
 
-	readloop(readnew);
+	readloop(readnew, eUseDefault);
 }
 
 
@@ -1668,13 +1637,13 @@ void download_postpart(void) {
 	FreeStrBuf(&partnum);
 }
 
-void h_readnew(void) { readloop(readnew);}
-void h_readold(void) { readloop(readold);}
-void h_readfwd(void) { readloop(readfwd);}
-void h_headers(void) { readloop(headers);}
-void h_do_search(void) { readloop(do_search);}
-void h_readgt(void) { readloop(readgt);}
-void h_readlt(void) { readloop(readlt);}
+void h_readnew(void) { readloop(readnew, eUseDefault);}
+void h_readold(void) { readloop(readold, eUseDefault);}
+void h_readfwd(void) { readloop(readfwd, eUseDefault);}
+void h_headers(void) { readloop(headers, eUseDefault);}
+void h_do_search(void) { readloop(do_search, eUseDefault);}
+void h_readgt(void) { readloop(readgt, eUseDefault);}
+void h_readlt(void) { readloop(readlt, eUseDefault);}
 
 void jsonMessageListHdr(void) 
 {
@@ -1694,7 +1663,7 @@ void jsonMessageList(void) {
 	long oper = (havebstr("query")) ? do_search : readnew;
 	WC->is_ajax = 1; 
 	gotoroom(room);
-	readloop(oper);
+	readloop(oper, eUseDefault);
 	WC->is_ajax = 0;
 }
 
@@ -1702,6 +1671,7 @@ void RegisterReadLoopHandlerset(
 	int RoomType,
 	GetParamsGetServerCall_func GetParamsGetServerCall,
 	PrintViewHeader_func PrintViewHeader,
+	load_msg_ptrs_detailheaders LH,
 	LoadMsgFromServer_func LoadMsgFromServer,
 	RenderView_or_Tail_func RenderView_or_Tail,
 	View_Cleanup_func ViewCleanup
@@ -1717,6 +1687,7 @@ void RegisterReadLoopHandlerset(
 	Handler->LoadMsgFromServer = LoadMsgFromServer;
 	Handler->RenderView_or_Tail = RenderView_or_Tail;
 	Handler->ViewCleanup = ViewCleanup;
+	Handler->LHParse = LH;
 
 	Put(ReadLoopHandler, IKEY(RoomType), Handler, NULL);
 }

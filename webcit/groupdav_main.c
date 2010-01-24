@@ -9,6 +9,9 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+extern HashList *HandlerHash;
+
+HashList *DavNamespaces = NULL;
 
 /*
  * Output HTTP headers which are common to all requests.
@@ -183,6 +186,19 @@ void groupdav_identify_host(void) {
 	}
 }
 
+
+void tmplput_GROUPDAV_HOSTNAME(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	if (StrLength(WCC->Hdr->HR.http_host)!=0) {
+		StrBufAppendPrintf(Target, 
+				   "%s://%s",
+				   (is_https ? "https" : "http"),
+				   ChrPtr(WCC->Hdr->HR.http_host));
+	}
+}
+
 /*
  * Output our host prefix for globally absolute URL's.
  */  
@@ -214,13 +230,99 @@ void Header_HandleDepth(StrBuf *Line, ParsedHttpHdrs *hdr)
 		hdr->HR.dav_depth = 1;
 	}
 }
+int Conditional_DAV_DEPTH(StrBuf *Target, WCTemplputParams *TP)
+{
+	return WC->Hdr->HR.dav_depth == GetTemplateTokenNumber(Target, TP, 2, 0);
+}
+
+
+void RegisterDAVNamespace(const char * UrlString, long UrlSLen, const char *DisplayName, long dslen, WebcitHandlerFunc F, long Flags)
+{
+	void *vHandler;
+
+	/* first put it in... */
+	WebcitAddUrlHandler(UrlString, UrlSLen, DisplayName, dslen, F, Flags|PARSE_REST_URL);
+	/* get it out again... */
+	GetHash(HandlerHash, UrlString, UrlSLen, &vHandler);
+	/* and keep a copy of it, so we can compare it later */
+	Put(DavNamespaces, UrlString, UrlSLen, vHandler, reference_free_handler);
+}
+
+int Conditional_DAV_NS(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	void *vHandler;
+	const char *NS;
+	long NSLen;
+
+	GetTemplateTokenString(NULL, TP, 2, &NS, &NSLen);
+	GetHash(HandlerHash, NS, NSLen, &vHandler);
+	return WCC->Hdr->HR.Handler == vHandler;
+}
+
+
+int Conditional_DAV_NSCURRENT(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	void *vHandler;
+
+	vHandler = CTX;
+	return WCC->Hdr->HR.Handler == vHandler;
+}
+
+void tmplput_DAV_NAMESPACE(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	if (TP->Filter.ContextType == CTX_DAVNS) {
+		WebcitHandler *H;
+		H = (WebcitHandler*) CTX;
+		StrBufAppendTemplate(Target, TP, H->Name, 0);
+	}
+	else if (WCC->Hdr->HR.Handler != NULL) {
+		StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.Handler->Name, 0);
+	}
+}
+
+void
+ServerStartModule_DAV
+(void)
+{
+
+	DavNamespaces = NewHash(1, NULL);
+
+}
+
+void 
+ServerShutdownModule_DAV
+(void)
+{
+	DeleteHash(&DavNamespaces);
+}
+
+
+
 
 void 
 InitModule_GROUPDAV
 (void)
 {
-	WebcitAddUrlHandler(HKEY("groupdav"), "", 0, groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+//	WebcitAddUrlHandler(HKEY("groupdav"), "", 0, groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	RegisterDAVNamespace(HKEY("groupdav"), HKEY("GroupDAV"), groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+
+	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_GROUPDAV_HOSTNAME, NULL, CTX_NONE);
+
+	RegisterConditional(HKEY("COND:DAV:NS"), 0, Conditional_DAV_NS,  CTX_NONE);
+
+	RegisterIterator("DAV:NS", 0, DavNamespaces, NULL, 
+			 NULL, NULL, CTX_DAVNS, CTX_NONE, IT_NOFLAG);
+
+
+	RegisterConditional(HKEY("COND:DAV:NSCURRENT"), 0, Conditional_DAV_NSCURRENT,  CTX_DAVNS);
+	RegisterNamespace("DAV:NAMESPACE", 0, 1, tmplput_DAV_NAMESPACE, NULL, CTX_NONE);
+
 	RegisterHeaderHandler(HKEY("IF-MATCH"), Header_HandleIfMatch);
 	RegisterHeaderHandler(HKEY("DEPTH"), Header_HandleDepth);
+	RegisterConditional(HKEY("COND:DAV:DEPTH"), 1, Conditional_DAV_DEPTH,  CTX_NONE);
 
 }

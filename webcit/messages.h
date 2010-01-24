@@ -31,6 +31,7 @@ typedef struct _message_summary {
 	long msgnum;		/* the message number on the citadel server */
 	int nhdr;
 	int format_type;
+	StrBuf *euid;
 	StrBuf *from;		/* the author */
 	StrBuf *to;		/* the recipient */
 	StrBuf *subj;		/* the title / subject */
@@ -65,6 +66,12 @@ typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrB
 
 void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime);
 
+
+typedef enum _eCustomRoomRenderer {
+	eUseDefault = VIEW_JOURNAL + 100, 
+	eReadEUIDS
+}eCustomRoomRenderer;
+
 enum {
 	do_search,
 	headers,
@@ -75,6 +82,18 @@ enum {
 	readlt
 };
 
+/**
+ * @brief function to parse the | separated message headers list
+ * @param Line the raw line with your message data
+ * @param Msg put your parser results here...
+ * @param ConversionBuffer if you need some workbuffer, don't free me!
+ * @returns 0: failure, trash this message. 1: all right, store it
+ */
+typedef int (*load_msg_ptrs_detailheaders) (StrBuf *Line, 
+					    const char **pos, 
+					    message_summary *Msg, 
+					    StrBuf *ConversionBuffer);
+
 typedef void (*readloop_servcmd)(char *buf, long bufsize);
 
 typedef struct _readloopstruct {
@@ -84,8 +103,7 @@ typedef struct _readloopstruct {
 
 extern readloop_struct rlid[];
 
-
-void readloop(long oper);
+void readloop(long oper, eCustomRoomRenderer ForceRenderer);
 int read_message(StrBuf *Target, 
 		 const char *tmpl, long tmpllen, 
 		 long msgnum, 
@@ -115,7 +133,9 @@ typedef struct _SharedMessageStatus {
 
 } SharedMessageStatus;
 
-int load_msg_ptrs(const char *servcmd, SharedMessageStatus *Stat);
+int load_msg_ptrs(const char *servcmd, 
+		  SharedMessageStatus *Stat, 
+		  load_msg_ptrs_detailheaders LH);
 
 typedef int (*GetParamsGetServerCall_func)(SharedMessageStatus *Stat, 
 					   void **ViewSpecific, 
@@ -162,6 +182,12 @@ void RegisterReadLoopHandlerset(
 	PrintViewHeader_func PrintViewHeader,
 
 	/**
+	 * LH is the function, you specify if you want to load more than just message
+	 * numbers from the server during the listing fetch operation.
+	 */
+	load_msg_ptrs_detailheaders LH,
+
+	/**
 	 * LoadMsgFromServer is called for every message in the message list:
 	 *  * which is 
 	 *    * after 'startmsg'  
@@ -196,3 +222,9 @@ LoadMsgFromServer
 
 RenderView_or_Tail
 */
+
+
+int ParseMessageListHeaders_Detail(StrBuf *Line, 
+				   const char **pos, 
+				   message_summary *Msg, 
+				   StrBuf *ConversionBuffer);

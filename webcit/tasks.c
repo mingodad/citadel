@@ -578,7 +578,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		summary();
 	}
 	else {
-		readloop(readfwd);
+		readloop(readfwd, eUseDefault);
 	}
 }
 
@@ -668,6 +668,7 @@ InitModule_TASKS
 	RegisterReadLoopHandlerset(
 		VIEW_TASKS,
 		tasks_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		tasks_LoadMsgFromServer,
 		tasks_RenderView_or_Tail,

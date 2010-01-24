@@ -351,7 +351,7 @@ void add_new_note(void) {
 		vnote_free(v);
 	}
 	
-	readloop(readfwd);
+	readloop(readfwd, eUseDefault);
 }
 
 
@@ -445,6 +445,7 @@ InitModule_NOTES
 	RegisterReadLoopHandlerset(
 		VIEW_NOTES,
 		notes_GetParamsGetServerCall,
+		NULL,
 		NULL,
 		notes_LoadMsgFromServer,
 		NULL,

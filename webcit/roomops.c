@@ -902,7 +902,7 @@ void ParseGoto(folder *room, StrBuf *Line)
  */
 void smart_goto(const StrBuf *next_room) {
 	gotoroom(next_room);
-	readloop(readnew);
+	readloop(readnew, eUseDefault);
 }
 
 
@@ -3063,7 +3063,7 @@ void _display_private(void) {
 
 void dotgoto(void) {
 	if (!havebstr("room")) {
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 		return;
 	}
 	if (WC->CurRoom.view != VIEW_MAILBOX) {	/* dotgoto acts like dotskip when we're in a mailbox view */

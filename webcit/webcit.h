@@ -317,7 +317,7 @@ typedef struct _addrbookent {
 #define COOKIEUNNEEDED (1<<6)
 #define ISSTATIC (1<<7)
 #define FORCE_SESSIONCLOSE (1<<8)
-#define PARSE_REST_URL (1<<0)
+#define PARSE_REST_URL (1<<9)
 
 typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{
@@ -490,7 +490,7 @@ struct wcsession {
 /*	int is_mailbox;				/ * the current room is a private mailbox */
 
 	folder CurRoom;                         /* information about our current room */
-
+	const folder *ThisRoom;                 /* if REST found a room, remember it here. */
 /* next/previous room thingabob */
 	struct march *march;			/* march mode room list */
 	char ugname[128];			/* where does 'ungoto' take us */
@@ -507,7 +507,9 @@ struct wcsession {
 	int remember_new_mail;			/* last count of new mail messages */
 
 /* Roomiew control */
-	HashList *Floors;                       /* floors our citserver has... */
+	HashList *Floors;                       /* floors our citserver has hashed numeric for quicker access*/
+	HashList *FloorsByName;                 /* same but hashed by its name */
+	HashList *Rooms;                        /* our directory structure as loaded by LKRA */
 	HashList *summ;                         /* list of messages for mailbox summary view */
   /** Perhaps these should be within a struct instead */
 	long startmsg;                          /* message number to start at */

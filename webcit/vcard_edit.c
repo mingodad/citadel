@@ -1078,7 +1078,7 @@ void submit_vcard(void) {
 	int i;
 
 	if (!havebstr("ok_button")) { 
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 		return;
 	}
 
@@ -1107,7 +1107,7 @@ void submit_vcard(void) {
 				http_redirect(bstr("return_to"));
 			}
 			else {
-				readloop(readnew);
+				readloop(readnew, eUseDefault);
 			}
 			return;
 		}
@@ -1199,7 +1199,7 @@ void submit_vcard(void) {
 		http_redirect(bstr("return_to"));
 	}
 	else {
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 	}
 }
 
@@ -1335,6 +1335,7 @@ InitModule_VCARD
 		VIEW_ADDRESSBOOK,
 		vcard_GetParamsGetServerCall,
 		NULL,
+		NULL, 
 		vcard_LoadMsgFromServer,
 		vcard_RenderView_or_Tail,
 		vcard_Cleanup);

@@ -113,8 +113,8 @@ void gotonext(void)
 	 * If it is, pop the first room off the list and go there.
 	 */
 	if (havebstr("startmsg")) {
-		 readloop(readnew);
-		 return;
+		readloop(readnew, eUseDefault);
+		return;
 	}
 
 	if (WC->march == NULL) {
@@ -187,7 +187,7 @@ void ungoto(void)
 	StrBuf *Buf;
 
 	if (havebstr("startmsg")) {
-		readloop(readnew);
+		readloop(readnew, eUseDefault);
 		return;
 	}
 
