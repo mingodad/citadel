@@ -3,7 +3,7 @@
  *
  * BBS View renderer module for WebCit
  *
- * Copyright (c) 1996-2009 by the citadel.org team
+ * Copyright (c) 1996-2010 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
