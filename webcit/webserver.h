@@ -1,7 +1,6 @@
 /* $Id$ */
 
 extern char *static_dirs[PATH_MAX];          /**< Web representation */
-extern char *static_content_dirs[PATH_MAX];  /**< Disk representation */
 extern int ndirs;
 extern char socket_dir[PATH_MAX];
 

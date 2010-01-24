@@ -893,7 +893,7 @@ void ParseGoto(folder *room, StrBuf *Line)
 	}
 	/* get a pointer to the floor we're on: */
 	GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
-	room->Floor = (const floor*) vFloor;
+	room->Floor = (const Floor*) vFloor;
 }
 
 

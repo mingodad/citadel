@@ -33,7 +33,7 @@ typedef struct _floor {
 	StrBuf *Name;
 	long NRooms;
 	long AlphaN;
-} floor;
+} Floor;
 
 /**
  * \brief  Data structure for roomlist-to-folderlist conversion 
@@ -73,7 +73,7 @@ typedef struct _folder {
 	long nRoomNameParts;
 	StrBuf **RoomNameParts;
 
-	const floor *Floor;   /* pint to the floor we're on.. */
+	const Floor *Floor;   /* pint to the floor we're on.. */
 
 	int hasnewmsgs;	/* are there unread messages inside */
 	int is_inbox;	/* is it a mailbox?  */

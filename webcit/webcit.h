@@ -454,7 +454,7 @@ struct wcsession {
 	char ImportantMessage[SIZ];
 	StrBuf *ImportantMsg;
 	HashList *Directory;			/* Parts of the directory URL in snippets */
-	const floor *CurrentFloor;              /**< when Parsing REST, which floor are we on? */
+	const Floor *CurrentFloor;              /**< when Parsing REST, which floor are we on? */
 
 /* accounting */
 	StrBuf *wc_username;			/* login name of current user */

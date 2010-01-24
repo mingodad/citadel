@@ -9,16 +9,16 @@
 
 void DeleteFloor(void *vFloor)
 {
-	floor *Floor;
-	Floor = (floor*) vFloor;
-	FreeStrBuf(&Floor->Name);
-	free(Floor);
+	Floor *pFloor;
+	pFloor = (Floor*) vFloor;
+	FreeStrBuf(&pFloor->Name);
+	free(pFloor);
 }
 
 int SortFloorsByNameOrder(const void *vfloor1, const void *vfloor2) 
 {
-	floor *f1 = (floor*) GetSearchPayload(vfloor1);
-	floor *f2 = (floor*) GetSearchPayload(vfloor2);
+	Floor *f1 = (Floor*) GetSearchPayload(vfloor1);
+	Floor *f2 = (Floor*) GetSearchPayload(vfloor2);
 	
 	/* prefer My floor over alpabetical sort */
 	if (f1->ID == VIRTUAL_MY_FLOOR)
@@ -36,7 +36,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	StrBuf *Buf;
 	HashList *floors;
 	HashPos *it;
-	floor *Floor;
+	Floor *pFloor;
 	void *vFloor;
 	const char *Pos;
 	int i;
@@ -50,12 +50,12 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	WCC->Floors = floors = NewHash(1, Flathash);
 	Buf = NewStrBuf();
 
-	Floor = malloc(sizeof(floor));
-	Floor->ID = VIRTUAL_MY_FLOOR;
-	Floor->Name = NewStrBufPlain(_("My Folders"), -1);
-	Floor->NRooms = 0;
+	pFloor = (Floor*) malloc(sizeof(Floor));
+	pFloor->ID = VIRTUAL_MY_FLOOR;
+	pFloor->Name = NewStrBufPlain(_("My Folders"), -1);
+	pFloor->NRooms = 0;
 	
-	Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
+	Put(floors, IKEY(pFloor->ID), pFloor, DeleteFloor);
 
 	serv_puts("LFLR"); /* get floors */
 	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err); /* '100', we hope */
@@ -72,13 +72,13 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 			
 				Pos = NULL;
 
-				Floor = malloc(sizeof(floor));
-				Floor->ID = StrBufExtractNext_int(Buf, &Pos, '|');
-				Floor->Name = NewStrBufPlain(NULL, StrLength(Buf));
-				StrBufExtract_NextToken(Floor->Name, Buf, &Pos, '|');
-				Floor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
+				pFloor = (Floor*) malloc(sizeof(Floor));
+				pFloor->ID = StrBufExtractNext_int(Buf, &Pos, '|');
+				pFloor->Name = NewStrBufPlain(NULL, StrLength(Buf));
+				StrBufExtract_NextToken(pFloor->Name, Buf, &Pos, '|');
+				pFloor->NRooms = StrBufExtractNext_long(Buf, &Pos, '|');
 
-				Put(floors, IKEY(Floor->ID), Floor, DeleteFloor);
+				Put(floors, IKEY(pFloor->ID), pFloor, DeleteFloor);
 			}
 	}
 	FreeStrBuf(&Buf);
@@ -88,7 +88,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	SortByPayload(floors, SortFloorsByNameOrder);
 	it = GetNewHashPos(floors, 0);
 	while (	GetNextHashPos(floors, it, &HKLen, &HashKey, &vFloor)) 
-		((floor*) vFloor)->AlphaN = i++;
+		((Floor*) vFloor)->AlphaN = i++;
 	DeleteHashPos(&it);
 	SortByHashKeyStr(floors);
 
@@ -97,23 +97,23 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 
 void tmplput_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)(TP->Context);
+	Floor *pFloor = (Floor *)(TP->Context);
 
-	StrBufAppendPrintf(Target, "%d", Floor->ID);
+	StrBufAppendPrintf(Target, "%d", pFloor->ID);
 }
 
 void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)(TP->Context);
+	Floor *pFloor = (Floor *)(TP->Context);
 
-	StrBufAppendTemplate(Target, TP, Floor->Name, 0);
+	StrBufAppendTemplate(Target, TP, pFloor->Name, 0);
 }
 
 void tmplput_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
-	floor *Floor = (floor *)(TP->Context);
+	Floor *pFloor = (Floor *)(TP->Context);
 
-	StrBufAppendPrintf(Target, "%d", Floor->NRooms);
+	StrBufAppendPrintf(Target, "%d", pFloor->NRooms);
 }
 HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP) 
 {
@@ -233,7 +233,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 				}
 				/* get a pointer to the floor we're on: */
 				GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
-				room->Floor = (const floor*) vFloor;
+				room->Floor = (const Floor*) vFloor;
 
 
 
@@ -524,33 +524,33 @@ void tmplput_ROOM_LASTCHANGE(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)(TP->Context);
-	const floor *Floor = Folder->Floor;
+	const Floor *pFloor = Folder->Floor;
 
-	if (Floor == NULL)
+	if (pFloor == NULL)
 		return;
 
-	StrBufAppendPrintf(Target, "%d", Floor->ID);
+	StrBufAppendPrintf(Target, "%d", pFloor->ID);
 }
 
 void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)(TP->Context);
-	const floor *Floor = Folder->Floor;
+	const Floor *pFloor = Folder->Floor;
 
-	if (Floor == NULL)
+	if (pFloor == NULL)
 		return;
 
-	StrBufAppendTemplate(Target, TP, Floor->Name, 0);
+	StrBufAppendTemplate(Target, TP, pFloor->Name, 0);
 }
 
 void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)(TP->Context);
-	const floor *Floor = Folder->Floor;
+	const Floor *pFloor = Folder->Floor;
 
-	if (Floor == NULL)
+	if (pFloor == NULL)
 		return;
-	StrBufAppendPrintf(Target, "%d", Floor->NRooms);
+	StrBufAppendPrintf(Target, "%d", pFloor->NRooms);
 }
 
 
