@@ -1,5 +1,5 @@
 /*
- * $Id: utils.c 6808 2008-12-11 00:00:36Z dothebart $
+ * $Id$
  *
  * de/encoding stuff. hopefully mostly to be depricated in favour of subst.c + strbuf
  */

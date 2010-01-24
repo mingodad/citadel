@@ -1,5 +1,5 @@
 /*
- * $Id: paramhandling.c 6808 2008-12-11 00:00:36Z dothebart $
+ * $Id$
  *
  * parse urlparts and post data
  */

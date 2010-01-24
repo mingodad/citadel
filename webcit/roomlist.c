@@ -1,5 +1,5 @@
 /*
- * $Id: roomlist.c 7751 2009-08-28 21:13:28Z dothebart $
+ * $Id$
  * room listings and filters.
  */
 

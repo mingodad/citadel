@@ -1,5 +1,5 @@
 /* 
- * $Id: $
+ * $Id$
  *
  * BBS View renderer module for WebCit
  *

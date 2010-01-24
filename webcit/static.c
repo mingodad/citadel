@@ -1,5 +1,5 @@
 /*
- * $Id: webcit.c 7459 2009-05-17 08:34:33Z dothebart $
+ * $Id$
  *
  * This is the main transaction loop of the web service.  It maintains a
  * persistent session to the Citadel server, handling HTTP WebCit requests as
