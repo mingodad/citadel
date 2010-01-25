@@ -2,8 +2,21 @@
  * $Id: html.c 6014 2008-02-04 18:38:35Z ajc $
  *
  * Functions which handle translation between HTML and plain text
- * Copyright (c) 2000-2005 by Art Cancro and others.   This program is
- * released under the terms of the GNU General Public License.
+ * Copyright (c) 2000-2010 by the citadel.org team
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include <stdlib.h>
@@ -184,6 +197,34 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 					for (j=0; j<screenwidth-2; ++j)
 						strcat(outbuf, "-");
 					strcat(outbuf, nl);
+				}
+
+				else if (
+					(!strcasecmp(tag, "B"))
+					|| (!strcasecmp(tag, "/B"))
+					|| (!strcasecmp(tag, "STRONG"))
+					|| (!strcasecmp(tag, "/STRONG"))
+				) {
+					strcat(outbuf, "*");
+					
+				}
+
+				else if (
+					(!strcasecmp(tag, "I"))
+					|| (!strcasecmp(tag, "/I"))
+					|| (!strcasecmp(tag, "EM"))
+					|| (!strcasecmp(tag, "/EM"))
+				) {
+					strcat(outbuf, "/");
+					
+				}
+
+				else if (
+					(!strcasecmp(tag, "U"))
+					|| (!strcasecmp(tag, "/U"))
+				) {
+					strcat(outbuf, "_");
+					
 				}
 
 				else if (!strcasecmp(tag, "BR")) {
