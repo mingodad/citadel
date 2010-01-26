@@ -31,7 +31,36 @@ struct bbsview {
 	long *msgs;		/* Array of msgnums for messages we are displaying */
 	int num_msgs;		/* Number of msgnums stored in 'msgs' */
 	int alloc_msgs;		/* Currently allocated size of array */
+	long lastseen;		/* msgnum of the last seen message in this room */
 };
+
+
+/*
+ * Attempt to determine the closest thing to the "last seen message number" using the
+ * results of the GTSN command
+ */
+long bbsview_get_last_seen(void)
+{
+	char buf[SIZ] = "0";
+
+	serv_puts("GTSN");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+
+		char *comma_pos = strchr(buf, ',');	/* kill first comma and everything to its right */
+		if (comma_pos) {
+			*comma_pos = 0;
+		}
+
+		char *colon_pos = strchr(buf, ':');	/* kill first colon and everything to its left */
+		if (colon_pos) {
+			strcpy(buf, ++colon_pos);
+		}
+	}
+
+	return(atol(buf));
+}
+
 
 
 /*
@@ -49,6 +78,7 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 
 	Stat->startmsg = -1;
 	Stat->sortit = 1;
+	BBS->lastseen = bbsview_get_last_seen();	/* FIXME do something with this */
 	
 	rlid[oper].cmd(cmd, len);		/* this performs the server call to fetch the msg list */
 	
