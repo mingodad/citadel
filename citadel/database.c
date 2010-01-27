@@ -491,12 +491,11 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 {
 	static int magic = COMPRESS_MAGIC;
 
-	if (cdb == NULL)
-		return;
-	if (cdb->ptr == NULL)
-		return;
-	if (memcmp(cdb->ptr, &magic, sizeof(magic)))
-		return;
+	if ((cdb == NULL) || 
+	    (cdb->ptr == NULL) || 
+	    (cdb->len == 0) ||
+	    (memcmp(cdb->ptr, &magic, sizeof(magic))))
+	    return;
 
 #ifdef HAVE_ZLIB
 	/* At this point we know we're looking at a compressed item. */
