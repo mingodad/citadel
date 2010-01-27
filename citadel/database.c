@@ -493,7 +493,7 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 
 	if ((cdb == NULL) || 
 	    (cdb->ptr == NULL) || 
-	    (cdb->len == 0) ||
+	    (cdb->len < sizeof(magic)) ||
 	    (memcmp(cdb->ptr, &magic, sizeof(magic))))
 	    return;
 
