@@ -65,7 +65,7 @@ typedef struct _folder {
 
 	long RAFlags;
 
-	long view;       /* whats its default view? inbox/calendar.... */
+	int view;       /* whats its default view? inbox/calendar.... */
 	long defview;
 	long lastchange; /* todo... */
 
