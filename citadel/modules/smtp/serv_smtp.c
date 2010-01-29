@@ -203,7 +203,10 @@ void smtp_msa_greeting(void) {
  * LMTP is like SMTP but with some extra bonus footage added.
  */
 void lmtp_greeting(void) {
+	citsmtp *sSMTP;
+
 	smtp_greeting(0);
+	sSMTP = SMTP;
 	SMTP->is_lmtp = 1;
 }
 
@@ -220,8 +223,10 @@ void smtp_mta_greeting(void) {
  * We also have an unfiltered LMTP socket that bypasses spam filters.
  */
 void lmtp_unfiltered_greeting(void) {
-	citsmtp *sSMTP = SMTP;
+	citsmtp *sSMTP;
+
 	smtp_greeting(0);
+	sSMTP = SMTP;
 	sSMTP->is_lmtp = 1;
 	sSMTP->is_unfiltered = 1;
 }
