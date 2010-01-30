@@ -925,7 +925,7 @@ do_select:	force_purge = 0;
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			/* Dont select on dead sessions only truly idle ones */
-			if ((ptr->state == CON_IDLE)) {
+			if ((ptr->state == CON_IDLE) && (CC->kill_me == 0)) {
 				FD_SET(ptr->client_socket, &readfds);
 				if (ptr->client_socket > highest)
 					highest = ptr->client_socket;
