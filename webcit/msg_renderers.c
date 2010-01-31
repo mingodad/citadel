@@ -495,7 +495,8 @@ void render_MAIL(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset
 void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
 	wcsession *WCC = WC;
-	MimeLoadData(Mime);
+	if (StrLength(Mime->Data) == 0)
+		MimeLoadData(Mime);
 	if (StrLength(Mime->Data) > 0) {
 		StrBuf *Buf;
 		Buf = NewStrBuf();
@@ -519,7 +520,8 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 
 void render_MIME_VNote(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCharset)
 {
-	MimeLoadData(Mime);
+	if (StrLength(Mime->Data) == 0)
+		MimeLoadData(Mime);
 	if (StrLength(Mime->Data) > 0) {
 		struct vnote *v;
 		StrBuf *Buf;
