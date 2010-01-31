@@ -30,47 +30,6 @@ void nametab(char *tabbuf, long len, char *name) {
 
 
 /*
- * display the adressbook overview
- */
-void display_addressbook(long msgnum, char alpha) {
-	//char buf[SIZ];
-	/* char mime_partnum[SIZ]; */
-	///char mime_disposition[SIZ];
-	//int mime_length;
-	char vcard_partnum[SIZ];
-	StrBuf *vcard_source = NULL;
-	message_summary summ;////TODO: this will leak
-
-	memset(&summ, 0, sizeof(summ));
-	// safestrncpy(summ.subj, _("(no subject)"), sizeof summ.subj);
-	// Load Message headers
-	if (!IsEmptyStr(vcard_partnum)) {
-		vcard_source = load_mimepart(msgnum, vcard_partnum);
-		if (vcard_source != NULL) {
-
-			/* Display the summary line */
-			display_vcard(WC->WBuf, vcard_source, alpha, 0, NULL, msgnum);
-
-			/* If it's my vCard I can edit it */
-			if (	(!strcasecmp(ChrPtr(WC->CurRoom.name), USERCONFIGROOM))
-				|| (!strcasecmp(&(ChrPtr(WC->CurRoom.name)[11]), USERCONFIGROOM))
-				|| (WC->CurRoom.view == VIEW_ADDRESSBOOK)
-			) {
-				wc_printf("<a href=\"edit_vcard?"
-					"msgnum=%ld&partnum=%s\">",
-					msgnum, vcard_partnum);
-				wc_printf("[%s]</a>", _("edit"));
-			}
-
-			FreeStrBuf(&vcard_source);
-		}
-	}
-
-}
-
-
-
-/*
  * If it's an old "Firstname Lastname" style record, try to convert it.
  */
 void lastfirst_firstlast(char *namebuf) {
@@ -148,7 +107,7 @@ void fetch_ab_name(message_summary *Msg, char **namebuf) {
 		return;
 
 	/* Grab the name off the card */
-	display_vcard(WC->WBuf, VCMime->Data, 0, 0, namebuf, Msg->msgnum);
+	display_vcard(WC->WBuf, VCMime, 0, 0, namebuf, Msg->msgnum);
 
 	if (*namebuf != NULL) {
 		lastfirst_firstlast(*namebuf);
@@ -284,7 +243,8 @@ void fetchname_parsed_vcard(struct vCard *v, char **storename) {
  * full		display all items of the vcard?
  * msgnum	Citadel message pointer
  */
-void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum) {
+void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_attachment *Mime)
+{
 	int i, j;
 	char buf[SIZ];
 	char *name;
@@ -539,7 +499,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, long msgnum
  * msgnum	Citadel message pointer
  */
 void display_vcard(StrBuf *Target, 
-		   StrBuf *vcard_source, 
+		   wc_mime_attachment *Mime, 
 		   char alpha, 
 		   int full, 
 		   char **storename, 
@@ -551,7 +511,7 @@ void display_vcard(StrBuf *Target,
 	StrBuf *Buf2;
 	char this_alpha = 0;
 
-	v = VCardLoad(vcard_source);
+	v = VCardLoad(Mime->Data);
 
 	if (v == NULL) return;
 
@@ -568,12 +528,12 @@ void display_vcard(StrBuf *Target,
 	if (storename != NULL) {
 		fetchname_parsed_vcard(v, storename);
 	}
-	else if (
-		(alpha == 0)
-		|| ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha)))
-		|| ((!isalpha(alpha)) && (!isalpha(this_alpha)))
-	) {
-		display_parsed_vcard(Target, v, full,msgnum);
+	else if ((alpha == 0) || 
+		 ((isalpha(alpha)) && (tolower(alpha) == tolower(this_alpha))) || 
+		 ((!isalpha(alpha)) && (!isalpha(this_alpha)))
+		) 
+	{
+		display_parsed_vcard(Target, v, full, Mime);
 	}
 
 	vcard_free(v);

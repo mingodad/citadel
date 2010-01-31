@@ -511,7 +511,7 @@ void render_MIME_VCard(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundC
 		}
 
 		/* In all cases, display the full card */
-		display_vcard(Buf, Mime->Data, 0, 1, NULL, Mime->msgnum);
+		display_vcard(Buf, Mime, 0, 1, NULL, -1);
 		FreeStrBuf(&Mime->Data);
 		Mime->Data = Buf;
 	}
@@ -566,6 +566,7 @@ void render_MIME_ICS(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *FoundCha
 
 void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	const char *Ptr = NULL;
 	wc_mime_attachment *Mime;
 	StrBuf *Buf;
 	
@@ -575,17 +576,17 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 	Buf = NewStrBuf();
 
 	Mime->Name = NewStrBuf();
-	StrBufExtract_token(Buf, HdrLine, 0, '|');
+	StrBufExtract_NextToken(Buf, HdrLine, &Ptr, '|');
 	StrBuf_RFC822_to_Utf8(Mime->Name, Buf, WC->DefaultCharset, FoundCharset);
 	StrBufTrim(Mime->Name);
 
-	StrBufExtract_token(Buf, HdrLine, 1, '|');
+	StrBufExtract_NextToken(Buf, HdrLine, &Ptr, '|');
 	Mime->FileName = NewStrBuf();
 	StrBuf_RFC822_to_Utf8(Mime->FileName, Buf, WC->DefaultCharset, FoundCharset);
 	StrBufTrim(Mime->FileName);
 
 	Mime->PartNum = NewStrBuf();
-	StrBufExtract_token(Mime->PartNum, HdrLine, 2, '|');
+	StrBufExtract_NextToken(Mime->PartNum, HdrLine, &Ptr, '|');
 	StrBufTrim(Mime->PartNum);
 	if (strchr(ChrPtr(Mime->PartNum), '.') != NULL) 
 		Mime->level = 2;
@@ -593,18 +594,24 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 		Mime->level = 1;
 
 	Mime->Disposition = NewStrBuf();
-	StrBufExtract_token(Mime->Disposition, HdrLine, 3, '|');
+	StrBufExtract_NextToken(Mime->Disposition, HdrLine, &Ptr, '|');
 
 	Mime->ContentType = NewStrBuf();
-	StrBufExtract_token(Mime->ContentType, HdrLine, 4, '|');
+	StrBufExtract_NextToken(Mime->ContentType, HdrLine, &Ptr, '|');
 	StrBufTrim(Mime->ContentType);
 	StrBufLowerCase(Mime->ContentType);
-
 	if (!strcmp(ChrPtr(Mime->ContentType), "application/octet-stream")) {
 		StrBufPlain(Mime->ContentType, 
 			    GuessMimeByFilename(SKEY(Mime->FileName)), -1);
 	}
-	Mime->length = StrBufExtract_int(HdrLine, 5, '|');
+
+	Mime->length = StrBufExtractNext_int(HdrLine, &Ptr, '|');
+
+	StrBufSkip_NTokenS(HdrLine, &Ptr, '|', 1);  /* cbid?? */
+
+	Mime->Charset = NewStrBuf();
+	StrBufExtract_NextToken(Mime->Charset, HdrLine, &Ptr, '|');
+
 
 	if ( (StrLength(Mime->FileName) == 0) && (StrLength(Mime->Name) > 0) ) {
 		StrBufAppendBuf(Mime->FileName, Mime->Name, 0);

@@ -1581,14 +1581,20 @@ StrBuf *load_mimepart(long msgnum, char *partnum)
 void MimeLoadData(wc_mime_attachment *Mime)
 {
 	StrBuf *Buf;
+	const char *Ptr;
 	off_t bytes;
 	/* TODO: is there a chance the content type is different from the one we know? */
+
 	serv_printf("DLAT %ld|%s", Mime->msgnum, ChrPtr(Mime->PartNum));
 	Buf = NewStrBuf();
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 6) {
-		bytes = extract_long(&(ChrPtr(Buf)[4]), 0);
-				     
+		Ptr = &(ChrPtr(Buf)[4]);
+		bytes = StrBufExtractNext_long(Buf, &Ptr, '|');
+		StrBufSkip_NTokenS(Buf, &Ptr, '|', 3);  /* filename, cbtype, mimetype */
+		if (Mime->Charset == NULL) Mime->Charset = NewStrBuf();
+		StrBufExtract_NextToken(Mime->Charset, Buf, &Ptr, '|');
+		
 		if (Mime->Data == NULL)
 			Mime->Data = NewStrBufPlain(NULL, bytes);
 		StrBuf_ServGetBLOBBuffered(Mime->Data, bytes);

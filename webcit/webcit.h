@@ -662,7 +662,7 @@ void embed_main_menu(void);
 
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void fetch_ab_name(message_summary *Msg, char **namebuf);
-void display_vcard(StrBuf *Target, StrBuf *vcard_source, char alpha, int full, char **storename, long msgnum);
+void display_vcard(StrBuf *Target, wc_mime_attachment *Mime, char alpha, int full, char **storename, long msgnum);
 void jsonMessageList(void);
 void new_summary_view(void);
 void getseen(void);
@@ -726,7 +726,6 @@ void folders(void);
 
 
 
-void display_addressbook(long msgnum, char alpha);
 void offer_start_page(StrBuf *Target, WCTemplputParams *TP);
 void convenience_page(const char *titlebarcolor, const char *titlebarmsg, const char *messagetext);
 void output_html(const char *, int, int, StrBuf *, StrBuf *);
