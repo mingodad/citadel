@@ -1022,8 +1022,15 @@ void list_this_part(char *name, char *filename, char *partnum, char *disp,
 	
 	ma = (struct ma_info *)cbuserdata;
 	if (ma->is_ma == 0) {
-		cprintf("part=%s|%s|%s|%s|%s|%ld|%s\n",
-			name, filename, partnum, disp, cbtype, (long)length, cbid);
+		cprintf("part=%s|%s|%s|%s|%s|%ld|%s|%s\n",
+			name, 
+			filename, 
+			partnum, 
+			disp, 
+			cbtype, 
+			(long)length, 
+			cbid, 
+			cbcharset);
 	}
 }
 
@@ -1111,11 +1118,12 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 	||	(!IsEmptyStr(cbid) && (!strcasecmp(CC->download_desired_section, cbid)))
 	) {
 		*found_it = 1;
-		cprintf("%d %d|-1|%s|%s\n",
+		cprintf("%d %d|-1|%s|%s|%s\n",
 			BINARY_FOLLOWS,
 			(int)length,
 			filename,
-			cbtype
+			cbtype,
+			cbcharset
 		);
 		client_write(content, length);
 	}
