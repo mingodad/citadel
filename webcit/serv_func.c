@@ -540,20 +540,20 @@ void server_to_text()
  */
 int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf) 
 {
-	char buf[SIZ];
+	wcsession *WCC = WC;
 	size_t bytes = 0;
 	size_t thisblock = 0;
 	
 	if (Ret == NULL)
 	    return -1;
 
-	while (bytes < total_len) {
+	while ((WCC->serv_sock!=-1) &&
+	       (bytes < total_len)) {
 		thisblock = 4095;
 		if ((total_len - bytes) < thisblock) {
 			thisblock = total_len - bytes;
 			if (thisblock == 0) {
 				FlushStrBuf(Ret); 
-				FreeStrBuf(&Buf);
 				return -1; 
 			}
 		}
@@ -564,17 +564,15 @@ int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 			{
 			    StrBufCutLeft(Buf, 4);
 			    thisblock = StrTol(Buf);
-			    if (!WC->connected) {
+			    if (WCC->serv_sock==-1) {
 				    FlushStrBuf(Ret); 
-				    FreeStrBuf(&Buf); 
 				    return -1; 
 			    }
 			    StrBuf_ServGetBLOBBuffered(Ret, thisblock);
 			    bytes += thisblock;
 		    }
 		    else {
-			    FreeStrBuf(&Buf);
-			    lprintf(3, "Error: %s\n", &buf[4]);
+			    lprintf(3, "Error: %s\n", ChrPtr(Buf) + 4);
 			    return -1;
 		    }
 		}
