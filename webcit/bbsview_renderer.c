@@ -3,6 +3,10 @@
  *
  * BBS View renderer module for WebCit
  *
+ * Note: we briefly had a dynamic UI for this.  I thought it was cool, but
+ * it was not received well by the user community.  If you want to play
+ * with it, go get r8256 of bbsview_renderer.c and have fun.
+ *
  * Copyright (c) 1996-2010 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,18 +24,25 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#define RANGE 5
+
 #include "webcit.h"
 #include "webserver.h"
 #include "groupdav.h"
 
 /*
  * Data which gets passed around between the various functions in this module
+ *
+ * We do this weird "pivot point" thing instead of starting the page numbers at 0 or 1 so that
+ * the border between old and new messages always falls on a page boundary.  We'll renumber them
+ * to page numbers starting at 1 when presenting them to the user.
  */
 struct bbsview {
 	long *msgs;		/* Array of msgnums for messages we are displaying */
 	int num_msgs;		/* Number of msgnums stored in 'msgs' */
 	int alloc_msgs;		/* Currently allocated size of array */
-	long lastseen;		/* msgnum of the last seen message in this room */
+	long pivot_msgnum;	/* Page numbers are relative to this message number */
+	int requested_page;	/* Which page number did the user request? */
 };
 
 
@@ -76,35 +87,33 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	memset(BBS, 0, sizeof(struct bbsview));
 	*ViewSpecific = BBS;
 
-	Stat->startmsg = -1;
-	Stat->sortit = 1;
-	BBS->lastseen = bbsview_get_last_seen();	/* FIXME do something with this */
+	Stat->startmsg = -1;					/* not used here */
+	Stat->sortit = 1;					/* not used here */
+	Stat->num_displayed = DEFAULT_MAXMSGS;			/* not used here */
+	BBS->requested_page = 0;
+
+	if (havebstr("page")) {
+		BBS->requested_page = ibstr("page");
+	}
 	
-	rlid[oper].cmd(cmd, len);		/* this performs the server call to fetch the msg list */
-	
+	if (havebstr("pivot")) {
+		BBS->pivot_msgnum = ibstr("pivot");
+	}
+	else if (oper == 2) {	/* 2 == "read all" (otherwise we pivot at the beginning of new msgs) */
+		BBS->pivot_msgnum = 0;				/* start from the top */
+	}
+	else {
+		BBS->pivot_msgnum = bbsview_get_last_seen();
+	}
+
 	if (havebstr("maxmsgs")) {
 		Stat->maxmsgs = ibstr("maxmsgs");
 	}
 	if (Stat->maxmsgs == 0) Stat->maxmsgs = DEFAULT_MAXMSGS;
-	Stat->num_displayed = DEFAULT_MAXMSGS;
 	
-	if (havebstr("startmsg")) {
-		Stat->startmsg = lbstr("startmsg");
-	}
-
-	return 200;
-}
-
-
-/*
- * begin_ajax_response() was moved from bbsview_LoadMsgFromServer() to here ...
- */
-int bbsview_PrintViewHeader(SharedMessageStatus *Stat, void **ViewSpecific)
-{
-	if (WC->is_ajax) {
-		begin_ajax_response();		/* for non-ajax, headers are output in messages.c */
-	}
-
+	/* perform a "read all" call to fetch the message list -- we'll cut it down later */
+	rlid[2].cmd(cmd, len);
+	
 	return 200;
 }
 
@@ -121,11 +130,11 @@ int bbsview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	struct bbsview *BBS = (struct bbsview *) *ViewSpecific;
 
 	if (BBS->alloc_msgs == 0) {
-		BBS->alloc_msgs = Stat->maxmsgs;
+		BBS->alloc_msgs = 1000;
 		BBS->msgs = malloc(BBS->alloc_msgs * sizeof(long));
 	}
 
-	/* Theoretically this never happens because the initial allocation == maxmsgs */
+	/* Check our buffer size */
 	if (BBS->num_msgs >= BBS->alloc_msgs) {
 		BBS->alloc_msgs *= 2;
 		BBS->msgs = realloc(BBS->msgs, (BBS->alloc_msgs * sizeof(long)));
@@ -135,6 +144,7 @@ int bbsview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 	return 200;
 }
+
 
 int bbsview_sortfunc(const void *s1, const void *s2) {
 	long l1;
@@ -155,34 +165,12 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 {
 	struct bbsview *BBS = (struct bbsview *) *ViewSpecific;
 	int i;
+	int seq;
 	const StrBuf *Mime;
-	char olderdiv[64];
-	char newerdiv[64];
-	int doing_older_messages = 0;
-	int doing_newer_messages = 0;
-
-	int increments[] = { 20, 50, 100 } ;
-#define NUM_INCREMENTS	(sizeof(increments) / sizeof(int))
-
-	snprintf(olderdiv, sizeof olderdiv, "olderdiv%08lx%08x", time(NULL), rand());
-	snprintf(newerdiv, sizeof newerdiv, "newerdiv%08lx%08x", time(NULL), rand());
-
-	/* Determine whether we are in the middle of a 'click for older messages' or 'click for
-	 * newer messages' operation.  If neither, then we are in the initial page load.
-	 */
-	if (!strcasecmp(bstr("gt_or_lt"), "lt")) {
-		doing_older_messages = 1;
-		doing_newer_messages = 0;
-	}
-	else if (!strcasecmp(bstr("gt_or_lt"), "gt")) {
-		doing_older_messages = 0;
-		doing_newer_messages = 1;
-	}
-	else {
-		doing_older_messages = 0;
-		doing_newer_messages = 0;
-	}
-
+	int pivot_index = 0;
+	int page_offset = 0;
+	int start_index = 0;
+	int end_index = 0;
 
 	/* Cut the message list down to the requested size */
 	if (Stat->nummsgs > 0) {
@@ -193,121 +181,109 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 		if (BBS->num_msgs > Stat->maxmsgs) {
 
-			if (doing_older_messages) {
-				/* LT ... cut it down to the LAST 20 messages received */
-				memcpy(&BBS->msgs[0], &BBS->msgs[BBS->num_msgs - Stat->maxmsgs],
-					(Stat->maxmsgs * sizeof(long))
-				);
-				BBS->num_msgs = Stat->maxmsgs;
+			/* Locate the pivot point in our message index */
+			for (i=0; i<(BBS->num_msgs); ++i) {
+				if (BBS->msgs[i] <= BBS->pivot_msgnum) {
+					pivot_index = i;
+				}
 			}
-			else {
-				/* GT ... cut it down to the FIRST 20 messages received */
-				BBS->num_msgs = Stat->maxmsgs;
-			}
+
+			page_offset = (pivot_index / Stat->maxmsgs) + 2;
+
 		}
 	}
 
+	start_index = pivot_index + (BBS->requested_page * Stat->maxmsgs) ;
+	if (start_index < 0) start_index = 0;
+	end_index = start_index + Stat->maxmsgs - 1;
 
-	/* Supply the link to prepend the previous 20 messages */
+	for (seq = 0; seq < 3; ++seq) {		/* cheap and sleazy way of rendering the funbar twice */
 
-	if ((!WC->is_ajax) && (Stat->nummsgs == 0)) {
-		wc_printf("<div id=\"%s\">", olderdiv);
-		wc_printf("<div class=\"moreprompt\">");
-		for (i=0; i<NUM_INCREMENTS; ++i) {
-			wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %d);\">",
-				olderdiv,
-				LONG_MAX,
-				increments[i]
-			);
-			wc_printf("<span class=\"moreprompt_link\">&uarr; ");
-			wc_printf(_("Previous %d"), increments[i]);
-			wc_printf(" &uarr;</span>");
-			wc_printf("</a>");
-		}
-		wc_printf("</div>");
-		wc_printf("<div class=\"nomsgs\"><br><em>");
-		wc_printf(_("No messages here."));
-		wc_printf("</em><br></div>\n");
-		wc_printf("</div>");
-	}
-	else if (doing_newer_messages == 0) {
-		wc_printf("<div id=\"%s\">", olderdiv);
-		wc_printf("<div class=\"moreprompt\">");
-		if (Stat->nummsgs > 0) {
-			for (i=0; i<NUM_INCREMENTS; ++i) {
-				wc_printf("<a href=\"javascript:moremsgs('%s', 'lt', %ld, %d);\">",
-					olderdiv,
-					BBS->msgs[0],
-					increments[i]
-				);
-				wc_printf("<span class=\"moreprompt_link\">&uarr; ");
-				wc_printf(_("Previous %d"), increments[i]);
-				wc_printf(" &uarr;</span>");
-				wc_printf("</a>");
+		if (seq == 1) {
+			/* display the selected range of messages */
+
+			if (Stat->nummsgs > 0) {
+				wc_printf("<font size=\"-1\">\n");
+				for (i=start_index; (i<=end_index && i<=BBS->num_msgs); ++i) {
+					if (BBS->msgs[i] > 0L) {
+						read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
+					}
+				}
+				wc_printf("</font><br>\n");
 			}
-			wc_printf("</div>");
-		}
-		wc_printf("</div>");
-	}
-
-	/* Non-empty message set... */
-	if (Stat->nummsgs > 0) {
-		/* Render the messages */
-	
-		for (i=0; i<BBS->num_msgs; ++i) {
-			read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
-		}
-
-	}
-
-
-	/* Supply the link to append the next 20 messages */
-
-	if (doing_older_messages == 0) {
-		wc_printf("<div id=\"%s\">", newerdiv);
-		if (Stat->nummsgs >= Stat->maxmsgs) {
-			wc_printf("<div class=\"moreprompt\">");
-			for (i=0; i<NUM_INCREMENTS; ++i) {
-				wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %d);\">",
-					newerdiv,
-					BBS->msgs[BBS->num_msgs-1],
-					increments[i]
-				);
-				wc_printf("<span class=\"moreprompt_link\">&darr; ");
-				wc_printf(_("Next %d"), increments[i]);
-				wc_printf(" &darr;</span>");
-				wc_printf("</a>");
-			}
-			wc_printf("</div>");
 		}
 		else {
-			long gt = 0;	/* if new messages appear later, where will they begin? */
-			if (Stat->nummsgs > 0) {
-				gt = BBS->msgs[BBS->num_msgs-1];
-			}
-			else {
-				gt = atol(bstr("gt"));
-			}
-			wc_printf("<a href=\"javascript:moremsgs('%s', 'gt', %ld, %ld);\">",
-				newerdiv,
-				gt,
-				Stat->maxmsgs
-			);
-			wc_printf("<div class=\"moreprompt\">");
-			wc_printf("<span class=\"moreprompt_link\">&darr; ");
-			wc_printf("%s", _("no more messages"));
-			wc_printf(" &darr;</span>");
-			wc_printf("</div>");
-			wc_printf("</a>");
-		}
-		wc_printf("</div>");
-	}
+			/* Display the range selecto-bar */
 
-	/* Leave a little padding at the bottom, but only for the initial page load -- don't keep
-	 * adding it every time we extend the visible message set.
-	 */
-	if (!WC->is_ajax) {
-		wc_printf("<br><br><br><br>");
+			wc_printf("<div class=\"moreprompt\">");
+			wc_printf(_("Go to page: "));
+
+			int first = 1;
+			int last = (BBS->num_msgs / Stat->maxmsgs) + 2 ;
+
+			for (i=1; i<=last; ++i) {
+
+				if (
+					(i == first)
+					|| (i == last)
+					|| ((i - page_offset) == BBS->requested_page)
+					|| (
+						((BBS->requested_page - (i - page_offset)) < RANGE)
+						&& ((BBS->requested_page - (i - page_offset)) > (0 - RANGE))
+					)
+				) {
+
+					if (
+						(i == last) 
+						&& (last - (BBS->requested_page + page_offset) > RANGE)
+					) {
+						wc_printf("...&nbsp;");
+					}
+					if ((i - page_offset) == BBS->requested_page) {
+						wc_printf("[");
+					}
+					else {
+						wc_printf("<a href=\"readfwd?pivot=%ld?page=%d\">",
+							BBS->pivot_msgnum,
+							i - page_offset
+						);
+						wc_printf("<span class=\"moreprompt_link\">");
+					}
+					if (
+						(i == first)
+						&& ((BBS->requested_page + page_offset) > (RANGE + 1))
+					) {
+						wc_printf(_("First"));
+					}
+					else if (
+						(i == last)
+						&& (last - (BBS->requested_page + page_offset) > RANGE)
+					) {
+						wc_printf(_("Last"));
+					}
+					else {
+						wc_printf("%d", i);
+					}
+					if ((i - page_offset) == BBS->requested_page) {
+						wc_printf("]");
+					}
+					else {
+						wc_printf("</span>");
+						wc_printf("</a>");
+					}
+					if (
+						(i == first)
+						&& ((BBS->requested_page + page_offset) > (RANGE + 1))
+					) {
+						wc_printf("&nbsp;...");
+					}
+					if (i != last) {
+						wc_printf("&nbsp;");
+					}
+				}
+			}
+			wc_printf("</div>\n");
+		}
 	}
 
 	return(0);
@@ -323,15 +299,10 @@ int bbsview_Cleanup(void **ViewSpecific)
 	}
 	free(BBS);
 
-	if (WC->is_ajax) {
-		end_ajax_response();
-		WC->is_ajax = 0;
-	}
-	else {
-		wDumpContent(1);
-	}
+	wDumpContent(1);
 	return 0;
 }
+
 
 void 
 InitModule_BBSVIEWRENDERERS
@@ -340,9 +311,10 @@ InitModule_BBSVIEWRENDERERS
 	RegisterReadLoopHandlerset(
 		VIEW_BBS,
 		bbsview_GetParamsGetServerCall,
-		bbsview_PrintViewHeader,
+		NULL,
 		NULL, 
 		bbsview_LoadMsgFromServer,
 		bbsview_RenderView_or_Tail,
-		bbsview_Cleanup);
+		bbsview_Cleanup
+	);
 }

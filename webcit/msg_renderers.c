@@ -1160,6 +1160,7 @@ void servcmd_readold(char *buf, long bufsize)
 }
 
 
+/* DO NOT REORDER OR REMOVE ANY OF THESE */
 readloop_struct rlid[] = {
 	{ {HKEY("do_search")},	servcmd_do_search	},
 	{ {HKEY("headers")},	servcmd_headers		},
