@@ -348,6 +348,10 @@ void rss_save_item(rsscollection *rssc) {
 		msg->cm_anon_type = MES_NORMAL;
 		msg->cm_format_type = FMT_RFC822;
 
+		if (ri->guid != NULL) {
+			msg->cm_fields['E'] = strdup(ri->guid);
+		}
+
 		if (ri->author_or_creator != NULL) {
 			msg->cm_fields['A'] = html_to_ascii(ri->author_or_creator,
 				strlen(ri->author_or_creator), 512, 0);
