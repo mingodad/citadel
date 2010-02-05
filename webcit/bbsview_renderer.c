@@ -33,15 +33,12 @@
 /*
  * Data which gets passed around between the various functions in this module
  *
- * We do this weird "pivot point" thing instead of starting the page numbers at 0 or 1 so that
- * the border between old and new messages always falls on a page boundary.  We'll renumber them
- * to page numbers starting at 1 when presenting them to the user.
  */
 struct bbsview {
 	long *msgs;		/* Array of msgnums for messages we are displaying */
 	int num_msgs;		/* Number of msgnums stored in 'msgs' */
+	long lastseen;		/* The number of the last seen message in this room */
 	int alloc_msgs;		/* Currently allocated size of array */
-	long pivot_msgnum;	/* Page numbers are relative to this message number */
 	int requested_page;	/* Which page number did the user request? */
 };
 
@@ -96,15 +93,7 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 		BBS->requested_page = ibstr("page");
 	}
 	
-	if (havebstr("pivot")) {
-		BBS->pivot_msgnum = ibstr("pivot");
-	}
-	else if (oper == 2) {	/* 2 == "read all" (otherwise we pivot at the beginning of new msgs) */
-		BBS->pivot_msgnum = 0;				/* start from the top */
-	}
-	else {
-		BBS->pivot_msgnum = bbsview_get_last_seen();
-	}
+	// FIXME do something with bbsview_get_last_seen();
 
 	if (havebstr("maxmsgs")) {
 		Stat->maxmsgs = ibstr("maxmsgs");
@@ -132,12 +121,14 @@ int bbsview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	if (BBS->alloc_msgs == 0) {
 		BBS->alloc_msgs = 1000;
 		BBS->msgs = malloc(BBS->alloc_msgs * sizeof(long));
+		memset(BBS->msgs, 0, (BBS->alloc_msgs * sizeof(long)) );
 	}
 
 	/* Check our buffer size */
 	if (BBS->num_msgs >= BBS->alloc_msgs) {
 		BBS->alloc_msgs *= 2;
 		BBS->msgs = realloc(BBS->msgs, (BBS->alloc_msgs * sizeof(long)));
+		memset(&BBS->msgs[BBS->num_msgs], 0, ((BBS->alloc_msgs - BBS->num_msgs) * sizeof(long)) );
 	}
 
 	BBS->msgs[BBS->num_msgs++] = Msg->msgnum;
@@ -167,33 +158,15 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	int i;
 	int seq;
 	const StrBuf *Mime;
-	int pivot_index = 0;
-	int page_offset = 0;
 	int start_index = 0;
 	int end_index = 0;
 
-	/* Cut the message list down to the requested size */
 	if (Stat->nummsgs > 0) {
 		lprintf(9, "sorting %d messages\n", BBS->num_msgs);
 		qsort(BBS->msgs, (size_t)(BBS->num_msgs), sizeof(long), bbsview_sortfunc);
-
-		/* Cut it down to 20 messages (or whatever value Stat->maxmsgs is set to) */
-
-		if (BBS->num_msgs > Stat->maxmsgs) {
-
-			/* Locate the pivot point in our message index */
-			for (i=0; i<(BBS->num_msgs); ++i) {
-				if (BBS->msgs[i] <= BBS->pivot_msgnum) {
-					pivot_index = i;
-				}
-			}
-
-			page_offset = (pivot_index / Stat->maxmsgs) + 2;
-
-		}
 	}
 
-	start_index = pivot_index + (BBS->requested_page * Stat->maxmsgs) ;
+	start_index = BBS->requested_page * Stat->maxmsgs;
 	if (start_index < 0) start_index = 0;
 	end_index = start_index + Stat->maxmsgs - 1;
 
@@ -203,13 +176,11 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			/* display the selected range of messages */
 
 			if (Stat->nummsgs > 0) {
-				wc_printf("<font size=\"-1\">\n");
 				for (i=start_index; (i<=end_index && i<=BBS->num_msgs); ++i) {
 					if (BBS->msgs[i] > 0L) {
 						read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
 					}
 				}
-				wc_printf("</font><br>\n");
 			}
 		}
 		else {
@@ -218,53 +189,50 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			wc_printf("<div class=\"moreprompt\">");
 			wc_printf(_("Go to page: "));
 
-			int first = 1;
-			int last = (BBS->num_msgs / Stat->maxmsgs) + 2 ;
+			int first = 0;
+			int last = ( (Stat->maxmsgs > 0) ? (BBS->num_msgs / Stat->maxmsgs) : 0 );
 
-			for (i=1; i<=last; ++i) {
+			for (i=0; i<=last; ++i) {
 
 				if (
 					(i == first)
 					|| (i == last)
-					|| ((i - page_offset) == BBS->requested_page)
+					|| (i == BBS->requested_page)
 					|| (
-						((BBS->requested_page - (i - page_offset)) < RANGE)
-						&& ((BBS->requested_page - (i - page_offset)) > (0 - RANGE))
+						((BBS->requested_page - i) < RANGE)
+						&& ((BBS->requested_page - i) > (0 - RANGE))
 					)
 				) {
 
 					if (
 						(i == last) 
-						&& (last - (BBS->requested_page + page_offset) > RANGE)
+						&& (last - BBS->requested_page > RANGE)
 					) {
 						wc_printf("...&nbsp;");
 					}
-					if ((i - page_offset) == BBS->requested_page) {
+					if (i == BBS->requested_page) {
 						wc_printf("[");
 					}
 					else {
-						wc_printf("<a href=\"readfwd?pivot=%ld?page=%d\">",
-							BBS->pivot_msgnum,
-							i - page_offset
-						);
+						wc_printf("<a href=\"readfwd?page=%d\">", i);
 						wc_printf("<span class=\"moreprompt_link\">");
 					}
 					if (
 						(i == first)
-						&& ((BBS->requested_page + page_offset) > (RANGE + 1))
+						&& (BBS->requested_page > (RANGE + 1))
 					) {
 						wc_printf(_("First"));
 					}
 					else if (
 						(i == last)
-						&& (last - (BBS->requested_page + page_offset) > RANGE)
+						&& (last - BBS->requested_page > RANGE)
 					) {
 						wc_printf(_("Last"));
 					}
 					else {
-						wc_printf("%d", i);
+						wc_printf("%d", i + 1);	// change to one-based for display
 					}
-					if ((i - page_offset) == BBS->requested_page) {
+					if (i == BBS->requested_page) {
 						wc_printf("]");
 					}
 					else {
@@ -273,7 +241,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 					}
 					if (
 						(i == first)
-						&& ((BBS->requested_page + page_offset) > (RANGE + 1))
+						&& (BBS->requested_page > (RANGE + 1))
 					) {
 						wc_printf("&nbsp;...");
 					}
