@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-18 23:42-0500\n"
+"POT-Creation-Date: 2010-02-06 15:06-0500\n"
 "PO-Revision-Date: 2006-12-20 14:18+0100\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -155,9 +155,9 @@ msgid "Change password"
 msgstr "Cambia la password"
 
 #: ../auth.c:841 ../event.c:756 ../graphics.c:58 ../mainmenu.c:69
-#: ../messages.c:1477 ../paging.c:51 ../roomops.c:1460 ../roomops.c:1828
+#: ../messages.c:1446 ../paging.c:51 ../roomops.c:1460 ../roomops.c:1828
 #: ../roomops.c:2517 ../roomops.c:2677 ../roomops.c:2742 ../sieve.c:209
-#: ../sysmsgs.c:52 ../tasks.c:358 ../vcard_edit.c:1043 ../who.c:200
+#: ../sysmsgs.c:52 ../tasks.c:358 ../vcard_edit.c:1003 ../who.c:200
 msgid "Cancel"
 msgstr "Cancella"
 
@@ -181,24 +181,18 @@ msgstr "libero"
 msgid "BUSY"
 msgstr "OCCUPATO"
 
-#: ../bbsview_renderer.c:193 ../bbsview_renderer.c:214
-#, c-format
-msgid "Previous %d"
-msgstr ""
-
-#: ../bbsview_renderer.c:199
-msgid "No messages here."
-msgstr "Nessun messaggio."
-
-#: ../bbsview_renderer.c:247
-#, c-format
-msgid "Next %d"
-msgstr ""
-
-#: ../bbsview_renderer.c:268
+#: ../bbsview_renderer.c:223
 #, fuzzy
-msgid "no more messages"
-msgstr "Messaggio anonimo"
+msgid "Go to page: "
+msgstr "Cancella"
+
+#: ../bbsview_renderer.c:257 ../vcard_edit.c:855
+msgid "First"
+msgstr "Nome"
+
+#: ../bbsview_renderer.c:263 ../vcard_edit.c:855
+msgid "Last"
+msgstr "Cognome"
 
 #: ../calendar.c:67
 msgid "Meeting invitation"
@@ -351,15 +345,15 @@ msgstr ""
 "Hai scelto di ignorare questo RSVP. il tuo calendario <b>non</b> "
 "verr&agrave; aggiornato."
 
-#: ../calendar.c:902
+#: ../calendar.c:904
 msgid "Calendar day view begins at:"
 msgstr "La vista giornaliera del calendario inizia il:"
 
-#: ../calendar.c:903
+#: ../calendar.c:905
 msgid "Calendar day view ends at:"
 msgstr "La vista giornaliera del calendario finisce il:"
 
-#: ../calendar.c:904
+#: ../calendar.c:906
 msgid "Week starts on:"
 msgstr ""
 
@@ -666,7 +660,7 @@ msgstr "Controlla la disponibilit&agrave; del membro."
 msgid "Add/change/delete floors"
 msgstr "Agiungi, cambia o cancella i piani"
 
-#: ../floors.c:50 ../vcard_edit.c:771
+#: ../floors.c:50 ../vcard_edit.c:731
 msgid "Error"
 msgstr "Errore"
 
@@ -871,103 +865,103 @@ msgstr "ERRORE:"
 msgid "unexpected end of message"
 msgstr "Fine del messaggio inaspettata"
 
-#: ../messages.c:662
-msgid "(no subject)"
-msgstr "(nessun oggetto)"
-
-#: ../messages.c:1091
+#: ../messages.c:1060
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Cancellato. Il messaggio non &egrave; stato inviato."
 
-#: ../messages.c:1097
+#: ../messages.c:1066
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Cancellato automaticamente, hai gi&agrave; salvato questo messaggio."
 
-#: ../messages.c:1121
+#: ../messages.c:1090
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../messages.c:1198
+#: ../messages.c:1167
 #, fuzzy
 msgid "Message has been saved to Drafts.\n"
 msgstr "Il Messaggio è stato spedito a"
 
-#: ../messages.c:1207
+#: ../messages.c:1176
 msgid "Message has been sent.\n"
 msgstr "Il messaggio &egrave; stato inviato.\n"
 
-#: ../messages.c:1210
+#: ../messages.c:1179
 msgid "Message has been posted.\n"
 msgstr "Il messaggio &egrave; stato postato.\n"
 
-#: ../messages.c:1424
+#: ../messages.c:1393
 #, c-format
 msgid "The message was not moved."
 msgstr "Il messaggio non è stato spostato"
 
-#: ../messages.c:1446
+#: ../messages.c:1415
 msgid "Confirm move of message"
 msgstr "Conferma lo spostamento del messaggio"
 
-#: ../messages.c:1454
+#: ../messages.c:1423
 msgid "Move this message to:"
 msgstr "Sposta questo messaggio in:"
 
-#: ../messages.c:1475 ../static/t/msg_listview.html:28
+#: ../messages.c:1444 ../static/t/msg_listview.html:28
 #: ../static/t/view_message.html:39
 msgid "Move"
 msgstr "Sposta"
 
-#: ../messages.c:1515
+#: ../messages.c:1484
 #, fuzzy, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
 
-#: ../messages.c:1575
+#: ../messages.c:1544
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
 
-#: ../messages.c:1729
+#: ../messages.c:1706
 msgid "Attach signature to email messages?"
 msgstr "Allega la firma ai messaggi email?"
 
-#: ../messages.c:1732
+#: ../messages.c:1709
 msgid "Use this signature:"
 msgstr "Usa questa firma:"
 
-#: ../messages.c:1734
+#: ../messages.c:1711
 msgid "Default character set for email headers:"
 msgstr "Set di caratteri di default per le intestazioni delle email:"
 
-#: ../messages.c:1737
+#: ../messages.c:1714
 #, fuzzy
 msgid "Preferred email address"
 msgstr "Indirizzo email principale"
 
-#: ../messages.c:1739
+#: ../messages.c:1716
 #, fuzzy
 msgid "Preferred display name for email messages"
 msgstr "Esegui l'indicizzazione delle email"
 
-#: ../messages.c:1743
+#: ../messages.c:1720
 msgid "Preferred display name for bulletin board posts"
 msgstr ""
 
-#: ../messages.c:1746
+#: ../messages.c:1723
 msgid "Mailbox view mode"
 msgstr ""
 
-#: ../msg_renderers.c:503 ../vcard_edit.c:62
+#: ../msg_renderers.c:510
 msgid "edit"
 msgstr "Modifica"
 
-#: ../msg_renderers.c:989
+#: ../msg_renderers.c:1004
 #, fuzzy
 msgid "I don't know how to display "
 msgstr "Non so come mostrare %s"
+
+#: ../msg_renderers.c:1207
+msgid "(no subject)"
+msgstr "(nessun oggetto)"
 
 #: ../notes.c:349
 msgid "Click on any note to edit it."
@@ -1063,7 +1057,7 @@ msgstr "Non hai più una pagina principale selezionata."
 msgid "Prefered startpage"
 msgstr "Utente Preferito"
 
-#: ../roomlist.c:55
+#: ../roomlist.c:57
 #, fuzzy
 msgid "My Folders"
 msgstr "Cartella di Posta"
@@ -1390,7 +1384,7 @@ msgid "Room aide: "
 msgstr "Amministratore della stanza: "
 
 #: ../roomops.c:1459 ../roomops.c:1734 ../roomops.c:1826 ../sieve.c:207
-#: ../sysmsgs.c:50 ../vcard_edit.c:1042
+#: ../sysmsgs.c:50 ../vcard_edit.c:1002
 msgid "Save changes"
 msgstr "Cambia i cambiamenti"
 
@@ -2206,146 +2200,138 @@ msgstr "Profilo utente"
 msgid "Click here to send an instant message to %s"
 msgstr "Clicca qui per inviare un messaggio istantaneo a %s"
 
-#: ../vcard_edit.c:161 ../vcard_edit.c:164
+#: ../vcard_edit.c:120 ../vcard_edit.c:123
 msgid "(no name)"
 msgstr "(nessun nome)"
 
-#: ../vcard_edit.c:428
+#: ../vcard_edit.c:388
 msgid " (work)"
 msgstr "(lavoro)"
 
-#: ../vcard_edit.c:430
+#: ../vcard_edit.c:390
 msgid " (home)"
 msgstr "(casa)"
 
-#: ../vcard_edit.c:432
+#: ../vcard_edit.c:392
 msgid " (cell)"
 msgstr "(cellulare)"
 
-#: ../vcard_edit.c:443 ../vcard_edit.c:947
+#: ../vcard_edit.c:403 ../vcard_edit.c:907
 msgid "Address:"
 msgstr "Indirizzo:"
 
-#: ../vcard_edit.c:511
+#: ../vcard_edit.c:471
 msgid "Telephone:"
 msgstr "Telefono:"
 
-#: ../vcard_edit.c:516
+#: ../vcard_edit.c:476
 msgid "E-mail:"
 msgstr "E-mail:"
 
-#: ../vcard_edit.c:606
+#: ../vcard_edit.c:566
 msgid "This address book is empty."
 msgstr "Questa lista contatti &egrave; vuota"
 
-#: ../vcard_edit.c:620
+#: ../vcard_edit.c:580
 #, fuzzy
 msgid "An internal error has occurred."
 msgstr "E' avvenuto un errore."
 
-#: ../vcard_edit.c:874
+#: ../vcard_edit.c:834
 msgid "Edit contact information"
 msgstr "Modifica le informazioni del contatto"
 
-#: ../vcard_edit.c:895
+#: ../vcard_edit.c:855
 msgid "Prefix"
 msgstr "Prefisso"
 
-#: ../vcard_edit.c:895
-msgid "First"
-msgstr "Nome"
-
-#: ../vcard_edit.c:895
+#: ../vcard_edit.c:855
 msgid "Middle"
 msgstr "Secondo nome"
 
-#: ../vcard_edit.c:895
-msgid "Last"
-msgstr "Cognome"
-
-#: ../vcard_edit.c:895
+#: ../vcard_edit.c:855
 msgid "Suffix"
 msgstr "Suffisso"
 
-#: ../vcard_edit.c:916
+#: ../vcard_edit.c:876
 msgid "Display name:"
 msgstr "Nome da mostrare:"
 
-#: ../vcard_edit.c:923
+#: ../vcard_edit.c:883
 msgid "Title:"
 msgstr "Titolo:"
 
-#: ../vcard_edit.c:930
+#: ../vcard_edit.c:890
 msgid "Organization:"
 msgstr "Organizzazione:"
 
-#: ../vcard_edit.c:941
+#: ../vcard_edit.c:901
 msgid "PO box:"
 msgstr "Presso:"
 
-#: ../vcard_edit.c:957
+#: ../vcard_edit.c:917
 msgid "City:"
 msgstr "Città:"
 
-#: ../vcard_edit.c:963
+#: ../vcard_edit.c:923
 msgid "State:"
 msgstr "Provincia:"
 
-#: ../vcard_edit.c:969
+#: ../vcard_edit.c:929
 msgid "ZIP code:"
 msgstr "C.A.P.:"
 
-#: ../vcard_edit.c:975
+#: ../vcard_edit.c:935
 msgid "Country:"
 msgstr "Nazione:"
 
-#: ../vcard_edit.c:985
+#: ../vcard_edit.c:945
 msgid "Home telephone:"
 msgstr "Telefono di casa:"
 
-#: ../vcard_edit.c:991
+#: ../vcard_edit.c:951
 msgid "Work telephone:"
 msgstr "Telefono di lavoro:"
 
-#: ../vcard_edit.c:997
+#: ../vcard_edit.c:957
 #, fuzzy
 msgid "Mobile telephone:"
 msgstr "Telefono di casa:"
 
-#: ../vcard_edit.c:1003
+#: ../vcard_edit.c:963
 #, fuzzy
 msgid "Fax number:"
 msgstr "Numero del piano"
 
-#: ../vcard_edit.c:1014
+#: ../vcard_edit.c:974
 msgid "Primary Internet e-mail address"
 msgstr "Indirizzo email principale"
 
-#: ../vcard_edit.c:1021
+#: ../vcard_edit.c:981
 msgid "Internet e-mail aliases"
 msgstr "Alias degli indirizzi email esterni"
 
-#: ../vcard_edit.c:1088
+#: ../vcard_edit.c:1048
 msgid "Unable to enter the room to save your message"
 msgstr ""
 
-#: ../vcard_edit.c:1097
+#: ../vcard_edit.c:1057
 msgid "Aborting."
 msgstr ""
 
-#: ../vcard_edit.c:1133 ../vcard_edit.c:1179
+#: ../vcard_edit.c:1093 ../vcard_edit.c:1139
 msgid "An error has occurred."
 msgstr "E' avvenuto un errore."
 
-#: ../vcard_edit.c:1235
+#: ../vcard_edit.c:1195
 msgid "Could Not decode vcard photo\n"
 msgstr ""
 
-#: ../webcit.c:326
+#: ../webcit.c:331
 msgid "Authorization Required"
 msgstr "Autorizzazione richiesta"
 
-#: ../webcit.c:335
+#: ../webcit.c:340
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -2766,6 +2752,13 @@ msgstr "Intestazione"
 #, fuzzy
 msgid "Users currently on "
 msgstr "Utenti attualmente su %s"
+
+#~ msgid "No messages here."
+#~ msgstr "Nessun messaggio."
+
+#, fuzzy
+#~ msgid "no more messages"
+#~ msgstr "Messaggio anonimo"
 
 #, fuzzy
 #~ msgid "older messages"

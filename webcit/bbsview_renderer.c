@@ -206,8 +206,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 					(BBS->msgs[i] > BBS->lastseen)
 					&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
 				) {
+					/* new messages start here */
 					wc_printf("<a name=\"newmsgs\">");
-					wc_printf("** FIXME new msgs start here **<br>\n");
+					StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#newmsgs\";\n");
 				}
 				if (BBS->msgs[i] > 0L) {
 					read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
