@@ -88,12 +88,19 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	Stat->sortit = 1;					/* not used here */
 	Stat->num_displayed = DEFAULT_MAXMSGS;			/* not used here */
 	BBS->requested_page = 0;
+	BBS->lastseen = bbsview_get_last_seen();
 
+	/* If a specific page was requested, make sure we go there */
 	if (havebstr("page")) {
 		BBS->requested_page = ibstr("page");
 	}
-	
-	// FIXME do something with bbsview_get_last_seen();
+
+	/* Otherwise, if this is a "read new" operation, make sure we start on the page
+	 * containing the first new message
+	 */
+	else if (oper == 3) {
+		BBS->requested_page = (-3);
+	}
 
 	if (havebstr("maxmsgs")) {
 		Stat->maxmsgs = ibstr("maxmsgs");
@@ -166,25 +173,50 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		qsort(BBS->msgs, (size_t)(BBS->num_msgs), sizeof(long), bbsview_sortfunc);
 	}
 
+	/* If the requested page number is "whichever page on which new messages start"
+	 * then change that to an actual page number now.
+	 */
+	if (BBS->requested_page == (-3)) {
+		if (BBS->num_msgs == 0) {
+			BBS->requested_page = 0;
+		}
+		else {
+			for (i=0; i<BBS->num_msgs; ++i) {
+				if (
+					(BBS->msgs[i] > BBS->lastseen)
+					&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
+				) {
+					BBS->requested_page = (i / Stat->maxmsgs) ;
+				}
+			}
+		}
+	}
+
 	start_index = BBS->requested_page * Stat->maxmsgs;
 	if (start_index < 0) start_index = 0;
 	end_index = start_index + Stat->maxmsgs - 1;
 
-	for (seq = 0; seq < 3; ++seq) {		/* cheap and sleazy way of rendering the funbar twice */
+	for (seq = 0; seq < 3; ++seq) {		/* cheap & sleazy way of rendering the page numbers twice */
 
-		if (seq == 1) {
+		if ( (seq == 1) && (Stat->nummsgs > 0)) {
 			/* display the selected range of messages */
 
-			if (Stat->nummsgs > 0) {
-				for (i=start_index; (i<=end_index && i<=BBS->num_msgs); ++i) {
-					if (BBS->msgs[i] > 0L) {
-						read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
-					}
+			for (i=start_index; (i<=end_index && i<BBS->num_msgs); ++i) {
+				if (
+					(BBS->msgs[i] > BBS->lastseen)
+					&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
+				) {
+					wc_printf("<a name=\"newmsgs\">");
+					wc_printf("** FIXME new msgs start here **<br>\n");
+				}
+				if (BBS->msgs[i] > 0L) {
+					read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
 				}
 			}
 		}
-		else {
-			/* Display the range selecto-bar */
+
+		else if ( (seq == 0) || (seq == 2) ) {
+			/* Display the selecto-bar with the page numbers */
 
 			wc_printf("<div class=\"moreprompt\">");
 			wc_printf(_("Go to page: "));
