@@ -89,7 +89,7 @@ void CopyNewUserGreetings(void) {
 	 * or if it's not private.
 	 */
 	if (CtdlGetRoom(&CC->room, NEWUSERGREETINGS) != 0) return;
-	if (! CC->room.QRflags & QR_PRIVATE ) return;
+	if ((CC->room.QRflags & QR_PRIVATE) == 0) return;
 
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
 
