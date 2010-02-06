@@ -192,6 +192,18 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		}
 	}
 
+	/* Still set to -3 ?  If so, that probably means that there are no new messages,
+	 * so we'll go to the *end* of the final page.
+	 */
+	if (BBS->requested_page == (-3)) {
+		if (BBS->num_msgs == 0) {
+			BBS->requested_page = 0;
+		}
+		else {
+			BBS->requested_page = (BBS->num_msgs / Stat->maxmsgs);
+		}
+	}
+
 	start_index = BBS->requested_page * Stat->maxmsgs;
 	if (start_index < 0) start_index = 0;
 	end_index = start_index + Stat->maxmsgs - 1;
@@ -203,8 +215,14 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 			for (i=start_index; (i<=end_index && i<BBS->num_msgs); ++i) {
 				if (
-					(BBS->msgs[i] > BBS->lastseen)
-					&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
+					(
+						(BBS->msgs[i] > BBS->lastseen)
+						&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
+					)
+					|| (
+						(i == (BBS->num_msgs - 1))
+						&& (BBS->msgs[i] <= BBS->lastseen)
+					)
 				) {
 					/* new messages start here */
 					wc_printf("<a name=\"newmsgs\">");
