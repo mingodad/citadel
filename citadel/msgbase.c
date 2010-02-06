@@ -947,42 +947,47 @@ void memfmout(
 	NLFound = NLFoundLastTime = 0;
 	do {
 		size_t i;
+
 		LineStart = LastBlank = mptr;
 		Found = 'x';
-
-		for (i = 0; Found == 'x'; i++)
+		i = 0;
+		while (Found == 'x')
 		{
 			if (LineStart[i] == '\n')
 				Found = '\n';
 			else if (LineStart[i] == '\r')
 				Found = '\r';
-			else if (LineStart[i] == ' ')
+			else if (LineStart[i] == ' ') 
+			{
 				LastBlank = &LineStart[i];
+				i++;
+			}
 			else if ((i > 80) && (LineStart != LastBlank))
 				Found = ' ';
 			else if (LineStart[i] == '\0')
 				Found = '\0';
+			else i++;
 		}
 		switch (Found)
 		{
 		case '\n':
 			if (LineStart[i + 1] == '\r')
-				mptr = &LineStart[i + 1];
+				mptr = &LineStart[i + 2];
 			else 
-				mptr = &LineStart[i];
+				mptr = &LineStart[i + 1];
 			i--;
 			NLFound = 1;
 			break;
 		case '\r':
 			if (LineStart[i + 1] == '\n')
-				mptr = &LineStart[i + 1];
+				mptr = &LineStart[i + 2];
 			else 
-				mptr = &LineStart[i];
+				mptr = &LineStart[i + 1];
 			i--;
 			NLFound = 1;
 			break;
 		case '\0':
-			mptr = &LineStart[i];
+			mptr = &LineStart[i + 1];
 			i--;
 			NLFound = 0;
 			break;
@@ -993,6 +998,7 @@ void memfmout(
 			break;
 		case 'x':
 			/* WHUT? */
+			while (*mptr != '\0') mptr++;
 			break;
 		}
 		if (NLFoundLastTime)
