@@ -547,7 +547,7 @@ void cprintf(const char *format, ...) {
  *	-1	The socket is broken.
  * If the socket breaks, the session will be terminated.
  */
-int client_read_to(char *buf, int bytes, int timeout)
+INLINE int client_read_backend(char *buf, int bytes, int timeout, CitContext *CCC)
 {
 	int len,rlen;
 	fd_set rfds;
@@ -556,12 +556,12 @@ int client_read_to(char *buf, int bytes, int timeout)
 	int retval;
 
 #ifdef HAVE_OPENSSL
-	if (CC->redirect_ssl) {
+	if (CCC->redirect_ssl) {
 		return (client_read_ssl(buf, bytes, timeout));
 	}
 #endif
 	len = 0;
-	fd = CC->client_socket;
+	fd = CCC->client_socket;
 	while(len<bytes) {
 		FD_ZERO(&rfds);
 		FD_SET(fd, &rfds);
@@ -585,7 +585,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 			}
 			else {
 				CtdlLogPrintf(CTDL_DEBUG, "Failed select() in client_read_to().\n");
-				CC->kill_me = 1;
+				CCC->kill_me = 1;
 				return (-1);
 			}
 		}
@@ -597,12 +597,18 @@ int client_read_to(char *buf, int bytes, int timeout)
 		rlen = read(fd, &buf[len], bytes-len);
 		if (rlen<1) {
 			/* The socket has been disconnected! */
-			CC->kill_me = 1;
+			CCC->kill_me = 1;
 			return(-1);
 		}
 		len = len + rlen;
 	}
 	return(1);
+}
+
+
+int client_read_to(char *buf, int bytes, int timeout)
+{
+	return client_read_backend(buf, bytes, timeout, CC);
 }
 
 /*
@@ -624,11 +630,12 @@ INLINE int client_read(char *buf, int bytes)
 int client_getln(char *buf, int bufsize)
 {
 	int i, retval;
+	CitContext *CCC=CC;
 
 	/* Read one character at a time.
 	 */
 	for (i = 0;;i++) {
-		retval = client_read(&buf[i], 1);
+		retval = client_read_backend(&buf[i], 1, config.c_sleeping, CCC);
 		if (retval != 1 || buf[i] == '\n' || i == (bufsize-1))
 			break;
 	}
@@ -713,7 +720,7 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroyServiceHook();
 	CtdlDestroyRoomHooks();
 	#ifdef HAVE_BACKTRACE
-	eCrash_Uninit();
+///	eCrash_Uninit();
 	#endif
 }
 
