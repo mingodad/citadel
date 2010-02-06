@@ -64,6 +64,7 @@ struct CitContext {
 	char cs_inet_fn[128];			/* Friendly-name of outbound Internet mail */
 
 	FILE *download_fp;	/* Fields relating to file transfer */
+	size_t download_fp_total;
 	char download_desired_section[128];
 	FILE *upload_fp;
 	char upl_file[256];
