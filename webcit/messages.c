@@ -1520,7 +1520,7 @@ void mimepart(int force_download)
 			StrBufExtract_token(ContentType, Buf, 3, '|');
 		}
 
-		read_server_binary(WCC->WBuf, bytes, Buf);
+		serv_read_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
 		StrBuf_ServGetln(Buf);
 		CT = ChrPtr(ContentType);

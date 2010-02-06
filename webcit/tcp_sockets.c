@@ -12,6 +12,7 @@
 #include "webserver.h"
 
 extern int DisableGzip;
+long MaxRead = -1; /* should we do READ scattered or all at once? */
 
 /*
  * register the timeout
@@ -323,6 +324,116 @@ void serv_printf(const char *format,...)
 }
 
 
+
+/**
+ * Read binary data from server into memory using a series of
+ * server READ commands.
+ * \return the read content as StrBuf
+ */
+int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf) 
+{
+	wcsession *WCC = WC;
+	size_t bytes = 0;
+	size_t thisblock = 0;
+	
+	if (Ret == NULL)
+	    return -1;
+
+	if (MaxRead == -1)
+	{
+		serv_printf("READ %d|%d", 0, total_len);
+		if (StrBuf_ServGetln(Buf) > 0)
+		{
+			long YetRead;
+			const char *ErrStr;
+			const char *pch;
+			int rc;
+
+			if (GetServerStatus(Buf, NULL) == 6)
+			{
+			    StrBufCutLeft(Buf, 4);
+			    thisblock = StrTol(Buf);
+			    if (WCC->serv_sock==-1) {
+				    FlushStrBuf(Ret); 
+				    return -1; 
+			    }
+
+			    pch = ChrPtr(WCC->ReadBuf);
+			    YetRead = WCC->ReadPos - pch;
+			    if (YetRead > 0)
+			    {
+				    long StillThere;
+				    
+				    StillThere = StrLength(WCC->ReadBuf) - 
+					    YetRead;
+
+				    StrBufPlain(Ret, 
+						WCC->ReadPos,
+						StillThere);
+				    total_len -= StillThere;
+			    }
+			    FlushStrBuf(WCC->ReadBuf);
+			    WCC->ReadPos = NULL;
+			    
+			    if (total_len > 0)
+			    {
+				    rc = StrBufReadBLOB(Ret, 
+							&WCC->serv_sock, 
+							1, 
+							total_len,
+							&ErrStr);
+				    if (rc < 0)
+				    {
+					    lprintf(1, "Server connection broken: %s\n",
+						    (ErrStr)?ErrStr:"");
+					    wc_backtrace();
+					    WCC->serv_sock = (-1);
+					    WCC->connected = 0;
+					    WCC->logged_in = 0;
+					    return rc;
+				    }
+				    else
+					    return StrLength(Ret);
+			    }
+			    else 
+				    return StrLength(Ret);
+			}
+		}
+		else
+			return -1;
+	}
+	else while ((WCC->serv_sock!=-1) &&
+	       (bytes < total_len)) {
+		thisblock = MaxRead;
+		if ((total_len - bytes) < thisblock) {
+			thisblock = total_len - bytes;
+			if (thisblock == 0) {
+				FlushStrBuf(Ret); 
+				return -1; 
+			}
+		}
+		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
+		if (StrBuf_ServGetln(Buf) > 0)
+		{
+			if (GetServerStatus(Buf, NULL) == 6)
+			{
+			    StrBufCutLeft(Buf, 4);
+			    thisblock = StrTol(Buf);
+			    if (WCC->serv_sock==-1) {
+				    FlushStrBuf(Ret); 
+				    return -1; 
+			    }
+			    StrBuf_ServGetBLOBBuffered(Ret, thisblock);
+			    bytes += thisblock;
+		    }
+		    else {
+			    lprintf(3, "Error: %s\n", ChrPtr(Buf) + 4);
+			    return -1;
+		    }
+		}
+	}
+	return StrLength(Ret);
+}
 
 
 int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)

@@ -769,7 +769,7 @@ int ical_ctdl_is_overlap(
 
 extern char *months[];
 extern char *days[];
-int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
+int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf);
 int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize);
 int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize);
 int read_server_text(StrBuf *Buf, long *nLines);

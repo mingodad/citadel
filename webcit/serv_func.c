@@ -533,53 +533,6 @@ void server_to_text()
 
 
 
-/**
- * Read binary data from server into memory using a series of
- * server READ commands.
- * \return the read content as StrBuf
- */
-int read_server_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf) 
-{
-	wcsession *WCC = WC;
-	size_t bytes = 0;
-	size_t thisblock = 0;
-	
-	if (Ret == NULL)
-	    return -1;
-
-	while ((WCC->serv_sock!=-1) &&
-	       (bytes < total_len)) {
-		thisblock = 4095;
-		if ((total_len - bytes) < thisblock) {
-			thisblock = total_len - bytes;
-			if (thisblock == 0) {
-				FlushStrBuf(Ret); 
-				return -1; 
-			}
-		}
-		serv_printf("READ %d|%d", (int)bytes, (int)thisblock);
-		if (StrBuf_ServGetln(Buf) > 0)
-		{
-			if (GetServerStatus(Buf, NULL) == 6)
-			{
-			    StrBufCutLeft(Buf, 4);
-			    thisblock = StrTol(Buf);
-			    if (WCC->serv_sock==-1) {
-				    FlushStrBuf(Ret); 
-				    return -1; 
-			    }
-			    StrBuf_ServGetBLOBBuffered(Ret, thisblock);
-			    bytes += thisblock;
-		    }
-		    else {
-			    lprintf(3, "Error: %s\n", ChrPtr(Buf) + 4);
-			    return -1;
-		    }
-		}
-	}
-	return StrLength(Ret);
-}
-
 
 /**
  *  Read text from server, appending to a string buffer until the

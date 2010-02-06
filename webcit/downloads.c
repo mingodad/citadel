@@ -259,7 +259,7 @@ void download_file(void)
 		if (!force_download) {
 			StrBufExtract_token(ContentType, Buf, 3, '|');
 		}
-		read_server_binary(WCC->WBuf, bytes, Buf);
+		serv_read_binary(WCC->WBuf, bytes, Buf);
 		serv_puts("CLOS");
 		StrBuf_ServGetln(Buf);
 		http_transmit_thing(ChrPtr(ContentType), 0);
@@ -360,15 +360,17 @@ void output_image(void)
 	serv_printf("OIMG %s|%s", bstr("name"), bstr("parm"));
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 2) {
+		int rc;
 		StrBufCutLeft(Buf, 4);
 		bytes = StrBufExtract_long(Buf, 0, '|');
 
 		/** Read it from the server */
 		
-		if (read_server_binary(WCC->WBuf, bytes, Buf) > 0) {
-			serv_puts("CLOS");
-			StrBuf_ServGetln(Buf);
+		rc = serv_read_binary(WCC->WBuf, bytes, Buf);
+		serv_puts("CLOS");
+		StrBuf_ServGetln(Buf);
 		
+		if (rc > 0) {
 			MimeType = GuessMimeType (ChrPtr(WCC->WBuf), StrLength(WCC->WBuf));
 			/** Write it to the browser */
 			if (!IsEmptyStr(MimeType))
