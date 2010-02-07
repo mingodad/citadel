@@ -4225,7 +4225,10 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 		cdb_store(CDB_MSGLISTS, &qrbuf.QRnumber, (int)sizeof(long),
 			  msglist, (int)(num_msgs * sizeof(long)));
 
-		qrbuf.QRhighest = msglist[num_msgs - 1];
+		if (num_msgs > 0)
+			qrbuf.QRhighest = msglist[num_msgs - 1];
+		else
+			qrbuf.QRhighest = 0;
 	}
 	CtdlPutRoomLock(&qrbuf);
 
