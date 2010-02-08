@@ -844,7 +844,6 @@ void checkcrash(void)
 			" For more information, please see:\n \n"
 			" http://citadel.org/doku.php/faq:mastering_your_os:gdb#how.do.i.make.my.system.produce.core-files"
 			"\n \n"
-"http://www.4players.de/4players.php/walkthrough/Wii/9298/24733/Die_Chroniken_von_Narnia_Prinz_Kaspian_von_Narnia.html"
 
 			" If you have already done this, the core dump is likely to be found at %score.%d\n"
 			,
