@@ -55,9 +55,14 @@ body {
 	color: #000;
 }
 
-#login_form, #message_list_hdr table, #resize_msglist, .message, .message_header, .vcard_edit_background_alt,.roomops_background_alt 
- {
+#login_form, #message_list_hdr table, #resize_msglist, .message, .message_header_unread, .vcard_edit_background_alt,.roomops_background_alt 
+{
 	background-color: #CCC;
+}
+
+.message_header
+{
+	background-color: #777;
 }
 
 .box, #online_users li.inactiveuser a {
