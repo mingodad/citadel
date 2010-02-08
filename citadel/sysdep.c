@@ -436,7 +436,14 @@ void flush_output(void) {
 #endif
 }
 
+static void flush_client_inbuf(void)
+{
+	CitContext *CCC=CC;
 
+	FlushStrBuf(CCC->ReadBuf);
+	CCC->Pos = NULL;
+
+}
 
 /*
  * client_write()   ...    Send binary data to the client.
@@ -452,6 +459,7 @@ int client_write(const char *buf, int nbytes)
 	CitContext *Ctx;
 	int fdflags;
 
+	flush_client_inbuf();
 	Ctx = CC;
 	if (Ctx->redirect_buffer != NULL) {
 		if ((Ctx->redirect_len + nbytes + 2) >= Ctx->redirect_alloc) {
@@ -541,75 +549,68 @@ void cprintf(const char *format, ...) {
 
 /*
  * Read data from the client socket.
- * Return values are:
- *	1	Requested number of bytes has been read.
- *	0	Request timed out.
- *	-1	The socket is broken.
- * If the socket breaks, the session will be terminated.
+ *
+ * sock		socket fd to read from
+ * buf		buffer to read into 
+ * bytes	number of bytes to read
+ * timeout	Number of seconds to wait before timing out
+ *
+ * Possible return values:
+ *      1       Requested number of bytes has been read.
+ *      0       Request timed out.
+ *	-1   	Connection is broken, or other error.
  */
-INLINE int client_read_backend(char *buf, int bytes, int timeout, CitContext *CCC)
+int client_read_blob(StrBuf *Target, int bytes, int timeout)
 {
-	int len,rlen;
-	fd_set rfds;
-	int fd;
-	struct timeval tv;
-	int retval;
+	CitContext *CCC=CC;
+	const char *Error;
+	int retval = 0;
 
 #ifdef HAVE_OPENSSL
 	if (CCC->redirect_ssl) {
-		return (client_read_ssl(buf, bytes, timeout));
+		retval = client_read_sslblob(Target, bytes, timeout);
 	}
+	else 
 #endif
-	len = 0;
-	fd = CCC->client_socket;
-	while(len<bytes) {
-		FD_ZERO(&rfds);
-		FD_SET(fd, &rfds);
-		tv.tv_sec = timeout;
-		tv.tv_usec = 0;
 
-		retval = select( (fd)+1, 
-				 &rfds, NULL, NULL, &tv);
-		if (retval < 0)
-		{
-			if (errno == EINTR)
-			{
-				CtdlLogPrintf(CTDL_DEBUG, "Interrupted select() in client_read_to().\n");
-				if (CtdlThreadCheckStop()) {
-					CC->kill_me = 1;
-					return (-1);
-				} else {
-					/* can't trust fd's and stuff so we need to re-create them */
-					continue;
-				}
-			}
-			else {
-				CtdlLogPrintf(CTDL_DEBUG, "Failed select() in client_read_to().\n");
-				CCC->kill_me = 1;
-				return (-1);
-			}
-		}
-
-		if (FD_ISSET(fd, &rfds) == 0) {
-			return(0);
-		}
-
-		rlen = read(fd, &buf[len], bytes-len);
-		if (rlen<1) {
-			/* The socket has been disconnected! */
-			CCC->kill_me = 1;
-			return(-1);
-		}
-		len = len + rlen;
+		retval = StrBufReadBLOBBuffered(Target, 
+						CCC->ReadBuf,
+						&CCC->Pos,
+						&CCC->client_socket,
+						1, 
+						bytes,
+						O_TERM,
+						&Error);
+	if (retval < 0) {
+		CtdlLogPrintf(CTDL_CRIT, 
+			      "%s failed: %s\n",
+			      __FUNCTION__,
+			      Error);
 	}
-	return(1);
+	return retval;
 }
-
 
 int client_read_to(char *buf, int bytes, int timeout)
 {
-	return client_read_backend(buf, bytes, timeout, CC);
+	CitContext *CCC=CC;
+	int rc;
+
+	rc = client_read_blob(CCC->MigrateBuf, bytes, timeout);
+	if (rc < 0)
+	{
+		*buf = '\0';
+		return rc;
+	}
+	else
+	{
+		memcpy(buf, 
+		       ChrPtr(CCC->MigrateBuf),
+		       StrLength(CCC->MigrateBuf) + 1);
+		FlushStrBuf(CCC->MigrateBuf);
+		return rc;
+	}
 }
+
 
 /*
  * Read data from the client socket with default timeout.
@@ -619,6 +620,37 @@ int client_read_to(char *buf, int bytes, int timeout)
 INLINE int client_read(char *buf, int bytes)
 {
 	return(client_read_to(buf, bytes, config.c_sleeping));
+}
+
+int CtdlClientGetLine(StrBuf *Target)
+{
+	CitContext *CCC=CC;
+	const char *Error;
+	int rc;
+
+#ifdef HAVE_OPENSSL
+	if (CCC->redirect_ssl) {
+		return client_readline_sslbuffer(Target,
+						 CCC->ReadBuf,
+						 1);
+	}
+	else 
+#endif
+	{
+		rc = StrBufTCP_read_buffered_line_fast(Target, 
+						       CCC->ReadBuf,
+						       &CCC->Pos,
+						       &CCC->client_socket,
+						       5,
+						       1,
+						       &Error);
+		if ((rc < 0) && (Error != NULL))
+			CtdlLogPrintf(CTDL_CRIT, 
+				      "%s failed: %s\n",
+				      __FUNCTION__,
+				      Error);
+		return rc;
+	}
 }
 
 
@@ -631,32 +663,29 @@ int client_getln(char *buf, int bufsize)
 {
 	int i, retval;
 	CitContext *CCC=CC;
+	const char *pCh;
 
-	/* Read one character at a time.
-	 */
-	for (i = 0;;i++) {
-		retval = client_read_backend(&buf[i], 1, config.c_sleeping, CCC);
-		if (retval != 1 || buf[i] == '\n' || i == (bufsize-1))
-			break;
-	}
+	retval = CtdlClientGetLine(CCC->MigrateBuf);
 
-	/* If we got a long line, discard characters until the newline.
-	 */
-	if (i == (bufsize-1))
-		while (buf[i] != '\n' && retval == 1)
-			retval = client_read(&buf[i], 1);
-
+	i = StrLength(CCC->MigrateBuf);
+	pCh = ChrPtr(CCC->MigrateBuf);
 	/* Strip the trailing LF, and the trailing CR if present.
 	 */
-	buf[i] = 0;
+	if (bufsize <= i)
+		i = bufsize - 1;
 	while ( (i > 0)
-		&& ( (buf[i - 1]==13)
-		     || ( buf[i - 1]==10)) ) {
+		&& ( (pCh[i - 1]==13)
+		     || ( pCh[i - 1]==10)) ) {
 		i--;
-		buf[i] = 0;
 	}
-	if (retval < 0) safestrncpy(&buf[i], "000", bufsize - i);
-	return(retval);
+	memcpy(buf, pCh, i);
+	buf[i] = 0;
+
+	FlushStrBuf(CCC->MigrateBuf);
+	if (retval < 0) {
+		safestrncpy(&buf[i], "000", bufsize - i);
+	}
+	return(retval >= 0);
 }
 
 

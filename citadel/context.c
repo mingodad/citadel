@@ -327,6 +327,8 @@ void RemoveContext (CitContext *con)
 		con->ldap_dn = NULL;
 	}
 
+	FreeStrBuf(&con->MigrateBuf);
+	FreeStrBuf(&con->ReadBuf);
 	CtdlLogPrintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }
 
@@ -362,6 +364,8 @@ CitContext *CreateNewContext(void) {
 	 * Generate a unique session number and insert this context into
 	 * the list.
 	 */
+	me->MigrateBuf = NewStrBuf();
+	me->ReadBuf = NewStrBuf();
 	begin_critical_section(S_SESSION_TABLE);
 	me->cs_pid = ++next_pid;
 	me->prev = NULL;

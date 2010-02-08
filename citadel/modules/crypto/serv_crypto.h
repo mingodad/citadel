@@ -15,7 +15,9 @@
 void destruct_ssl(void);
 void init_ssl(void);
 void client_write_ssl (const char *buf, int nbytes);
-int client_read_ssl (char *buf, int bytes, int timeout);
+int client_read_sslbuffer(StrBuf *buf, int timeout);
+int client_readline_sslbuffer(StrBuf *Target, StrBuf *Buffer, int timeout);
+int client_read_sslblob(StrBuf *Target, long want_len, int timeout);
 void cmd_stls(char *params);
 void cmd_gtls(char *params);
 void endtls(void);

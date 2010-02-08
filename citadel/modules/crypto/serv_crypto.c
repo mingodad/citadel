@@ -431,62 +431,130 @@ void client_write_ssl(const char *buf, int nbytes)
 
 
 /*
- * client_read_ssl() - read data from the encrypted layer.
+ * read data from the encrypted layer.
  */
-int client_read_ssl(char *buf, int bytes, int timeout)
+int client_read_sslbuffer(StrBuf *buf, int timeout)
 {
-#if 0
-	fd_set rfds;
-	struct timeval tv;
-	int retval;
-	int s;
-#endif
-	int len, rlen;
+	char sbuf[16384]; /* OpenSSL communicates in 16k blocks, so let's speak its native tongue. */
+	int rlen;
 	char junk[1];
+	SSL *pssl = CC->ssl;
 
-	len = 0;
-	while (len < bytes) {
-#if 0
-		/*
-		 * This code is disabled because we don't need it when
-		 * using blocking reads (which we are). -IO
-		 */
-		FD_ZERO(&rfds);
-		s = BIO_get_fd(CC->ssl->rbio, NULL);
-		FD_SET(s, &rfds);
-		tv.tv_sec = timeout;
-		tv.tv_usec = 0;
+	if (pssl == NULL) return(-1);
 
-		retval = select(s + 1, &rfds, NULL, NULL, &tv);
-
-		if (FD_ISSET(s, &rfds) == 0) {
-			return (0);
-		}
-
-#endif
-		if (SSL_want_read(CC->ssl)) {
-			if ((SSL_write(CC->ssl, junk, 0)) < 1) {
-				CtdlLogPrintf(CTDL_DEBUG, "SSL_write in client_read: %s\n", ERR_reason_error_string(ERR_get_error()));
+	while (1) {
+		if (SSL_want_read(pssl)) {
+			if ((SSL_write(pssl, junk, 0)) < 1) {
+				CtdlLogPrintf(CTDL_DEBUG, "SSL_write in client_read\n");
 			}
 		}
-		rlen = SSL_read(CC->ssl, &buf[len], bytes - len);
+		rlen = SSL_read(pssl, sbuf, sizeof(sbuf));
 		if (rlen < 1) {
 			long errval;
 
-			errval = SSL_get_error(CC->ssl, rlen);
-			if (errval == SSL_ERROR_WANT_READ ||
-			    errval == SSL_ERROR_WANT_WRITE) {
+			errval = SSL_get_error(pssl, rlen);
+			if (errval == SSL_ERROR_WANT_READ || errval == SSL_ERROR_WANT_WRITE) {
 				sleep(1);
 				continue;
 			}
 			CtdlLogPrintf(CTDL_DEBUG, "SSL_read got error %ld\n", errval);
 			endtls();
-			return (client_read_to
-				(&buf[len], bytes - len, timeout));
+			return (-1);
 		}
-		len += rlen;
+		StrBufAppendBufPlain(buf, sbuf, rlen, 0);
+		return rlen;
 	}
-	return (1);
+	return (0);
+}
+
+int client_readline_sslbuffer(StrBuf *Target, StrBuf *Buffer, int timeout)
+{
+	int ntries = 0;
+	const char *pch, *pchs;
+	int rlen, len, retval = 0;
+	CitContext *CCC = CC;
+
+	if (StrLength(Target) > 0) {
+		pchs = ChrPtr(Buffer);
+		pch = strchr(pchs, '\n');
+		if (pch != NULL) {
+			rlen = 0;
+			len = pch - pchs;
+			if (len > 0 && (*(pch - 1) == '\r') )
+				rlen ++;
+			StrBufSub(Target, Buffer, 0, len - rlen);
+			StrBufCutLeft(Buffer, len + 1);
+			return len - rlen;
+		}
+	}
+	
+	while ((retval == 0) && (CCC->ssl != NULL)) { 
+		pch = NULL;
+		pchs = ChrPtr(Buffer);
+		if (*pchs != '\0')
+			pch = strchr(pchs, '\n');
+		if (pch == NULL) {
+			retval = client_read_sslbuffer(Buffer, timeout);
+			pchs = ChrPtr(Buffer);
+			pch = strchr(pchs, '\n');
+		}
+		if (retval == 0) {
+			sleep(1);
+			ntries ++;
+		}
+		if (ntries > 10)
+			return 0;
+	}
+	if ((retval > 0) && (pch != NULL)) {
+		rlen = 0;
+		len = pch - pchs;
+		if (len > 0 && (*(pch - 1) == '\r') )
+			rlen ++;
+		StrBufSub(Target, Buffer, 0, len - rlen);
+		StrBufCutLeft(Buffer, len + 1);
+		return len - rlen;
+		
+	}
+	else 
+		return -1;
+}
+
+
+
+int client_read_sslblob(StrBuf *Target, long bytes, int timeout)
+{
+	long bufremain;
+	long baselen;
+	int retval;
+	CitContext *CCC = CC;
+
+	baselen = StrLength(Target);
+
+	if (CCC->Pos == NULL)
+		CCC->Pos = ChrPtr(CCC->ReadBuf);
+	bufremain = StrLength(CCC->ReadBuf) - 
+		(CCC->Pos - ChrPtr(CCC->ReadBuf));
+
+	if (bytes < bufremain)
+		bufremain = bytes;
+	StrBufAppendBufPlain(Target, CCC->Pos, bufremain, 0);
+	StrBufCutLeft(CCC->ReadBuf, bufremain);
+
+	if (bytes > bufremain) 
+	{
+		while ((StrLength(CCC->ReadBuf) + StrLength(Target) < bytes + baselen) &&
+		       (retval >= 0))
+			retval = client_read_sslbuffer(CCC->ReadBuf, timeout);
+		if (retval >= 0) {
+			StrBufAppendBuf(Target, CCC->ReadBuf, 0); /* todo: Buf > bytes? */
+			return 1;
+		}
+		else {
+			return -1;
+		}
+	}
+	else 
+		return 1;
 }
 
 

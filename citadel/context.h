@@ -21,19 +21,31 @@ struct CitContext {
 	struct CitContext *prev;	/* Link to previous session in list */
 	struct CitContext *next;	/* Link to next session in the list */
 
-	int state;		/* thread state (see CON_ values below) */
-	int kill_me;		/* Set to nonzero to flag for termination */
-	int client_socket;
 	int cs_pid;		/* session ID */
 	int dont_term;          /* for special activities like artv so we don't get killed */
 	time_t lastcmd;		/* time of last command executed */
 	time_t lastidle;	/* For computing idle time */
+	int state;		/* thread state (see CON_ values below) */
+	int kill_me;		/* Set to nonzero to flag for termination */
+
+	const char *Pos;        /* Our read position inside of the ReadBuf */
+	StrBuf *ReadBuf;        /* Our block buffered read buffer */
+	StrBuf *MigrateBuf;        /* Our block buffered read buffer */
+	int client_socket;
+	int is_local_socket;	/* set to 1 if client is on unix domain sock */
+	/* Redirect this session's output to a memory buffer? */
+	char *redirect_buffer;		/* the buffer */
+	size_t redirect_len;		/* length of data in buffer */
+	size_t redirect_alloc;		/* length of allocated buffer */
+#ifdef HAVE_OPENSSL
+	SSL *ssl;
+	int redirect_ssl;
+#endif
 
 	char curr_user[USERNAME_SIZE];	/* name of current user */
 	int logged_in;		/* logged in */
 	int internal_pgm;	/* authenticated as internal program */
 	int nologin;		/* not allowed to log in */
-	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 	int curr_view;		/* The view type for the current user/room */
 	int is_master;		/* Is this session logged in using the master user? */
 
@@ -41,9 +53,6 @@ struct CitContext {
 	time_t previous_login;	/* Date/time of previous login */
 	char lastcmdname[5];	/* name of last command executed */
 	unsigned cs_flags;	/* miscellaneous flags */
-	void (*h_command_function) (void) ;	/* service command function */
-	void (*h_async_function) (void) ;	/* do async msgs function */
-	void (*h_greeting_function) (void) ;	/* greeting function for session startup */
 	int is_async;		/* Nonzero if client accepts async msgs */
 	int async_waiting;	/* Nonzero if there are async msgs waiting */
 	int input_waiting;	/* Nonzero if there is client input waiting */
@@ -81,14 +90,6 @@ struct CitContext {
 	/* Beginning of cryptography - session nonce */
 	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */
 
-	/* Redirect this session's output to a memory buffer? */
-	char *redirect_buffer;		/* the buffer */
-	size_t redirect_len;		/* length of data in buffer */
-	size_t redirect_alloc;		/* length of allocated buffer */
-#ifdef HAVE_OPENSSL
-	SSL *ssl;
-	int redirect_ssl;
-#endif
 
 	/* A linked list of all instant messages sent to us. */
 	struct ExpressMessage *FirstExpressMessage;
@@ -111,6 +112,11 @@ struct CitContext {
 	const char *ServiceName;		/* readable purpose of this session */
 	void *openid_data;			/* Data stored by the OpenID module */
 	char *ldap_dn;				/* DN of user when using AUTHMODE_LDAP */
+
+
+	void (*h_command_function) (void) ;	/* service command function */
+	void (*h_async_function) (void) ;	/* do async msgs function */
+	void (*h_greeting_function) (void) ;	/* greeting function for session startup */
 };
 
 typedef struct CitContext CitContext;
