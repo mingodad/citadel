@@ -2043,7 +2043,7 @@ int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret)
 	}
 	/* Pointless flag waving */
 #if SSLEAY_VERSION_NUMBER >= 0x0922
-	SSL_set_session_id_context(temp_ssl, "Citadel SID", 14);
+	SSL_set_session_id_context(temp_ssl, (const unsigned char*) "Citadel SID", 14);
 #endif
 
 	if (!access(EGD_POOL, F_OK))
