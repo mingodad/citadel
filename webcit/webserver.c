@@ -36,6 +36,7 @@ extern pthread_key_t MyConKey;
 extern int ig_tcp_server(char *ip_addr, int port_number, int queue_len);
 extern int ig_uds_server(char *sockpath, int queue_len);
 
+extern void drop_root(uid_t UID);
 
 char ctdl_key_dir[PATH_MAX]=SSL_DIR;
 char file_crpt_file_key[PATH_MAX]="";
@@ -315,6 +316,7 @@ webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdi
  */
 int main(int argc, char **argv)
 {
+	uid_t UID = -1;
 	size_t basesize = 2;            /* how big should strbufs be on creation? */
 	pthread_t SessThread;		/* Thread descriptor */
 	pthread_attr_t attr;		/* Thread attributes */
@@ -355,11 +357,14 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
 #endif
 		switch (a) {
+		case 'u':
+			UID = atol(optarg);
+			break;
 		case 'h':
 			hdir = strdup(optarg);
 			relh=hdir[0]!='/';
@@ -580,6 +585,7 @@ int main(int argc, char **argv)
 		init_ssl();
 	}
 #endif
+	drop_root(UID);
 
 	/* Start a few initial worker threads */
 	for (i = 0; i < (MIN_WORKER_THREADS); ++i) {

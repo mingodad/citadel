@@ -63,6 +63,8 @@
 #include "snprintf.h"
 #endif
 
+#include "webserver.h"
+
 pthread_mutex_t Critters[MAX_SEMAPHORES];	/* Things needing locking */
 pthread_key_t MyConKey;				/* TSD key for MyContext() */
 pthread_key_t MyReq;				/* TSD key for MyReq() */
@@ -94,3 +96,42 @@ void end_critical_section(int which_one)
 	pthread_mutex_unlock(&Critters[which_one]);
 }
 
+void drop_root(uid_t UID)
+{
+	struct passwd pw, *pwp = NULL;
+
+	/*
+	 * Now that we've bound the sockets, change to the Citadel user id and its
+	 * corresponding group ids
+	 */
+	if (UID != -1) {
+		
+#ifdef HAVE_GETPWUID_R
+#ifdef SOLARIS_GETPWUID
+		pwp = getpwuid_r(UID, &pw, pwbuf, sizeof(pwbuf));
+#else // SOLARIS_GETPWUID
+		getpwuid_r(UID, &pw, pwbuf, sizeof(pwbuf), &pwp);
+#endif // SOLARIS_GETPWUID
+#else // HAVE_GETPWUID_R
+		pwp = NULL;
+#endif // HAVE_GETPWUID_R
+
+		if (pwp == NULL)
+			lprintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
+				"Group IDs will be incorrect.\n", UID,
+				strerror(errno));
+		else {
+			initgroups(pw.pw_name, pw.pw_gid);
+			if (setgid(pw.pw_gid))
+				lprintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
+					strerror(errno));
+		}
+		lprintf(CTDL_INFO, "Changing uid to %ld\n", (long)UID);
+		if (setuid(UID) != 0) {
+			lprintf(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
+		}
+#if defined (HAVE_SYS_PRCTL_H) && defined (PR_SET_DUMPABLE)
+		prctl(PR_SET_DUMPABLE, 1);
+#endif
+	}
+}
