@@ -444,7 +444,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 					fprintf(fp, "%s\n", buf);
 				}
 			}
-		} while ((*ptr != 0) && ((int)ptr < ((int)content + length)));
+		} while ((*ptr != 0) && (ptr < ((char*)content + length)));
 		if (pclose(fp) != 0) {
 			CtdlLogPrintf(CTDL_ERR, "pclose() returned an error - patch failed\n");
 		}

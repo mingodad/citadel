@@ -786,7 +786,7 @@ int CtdlIPCReadDirectory(CtdlIPC *ipc, char **listing, char *cret)
 int CtdlIPCSetLastRead(CtdlIPC *ipc, long msgnum, char *cret)
 {
 	register int ret;
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -2;
 
@@ -964,7 +964,7 @@ int CtdlIPCRoomInfo(CtdlIPC *ipc, char **iret, char *cret)
 /* DELE */
 int CtdlIPCDeleteMessage(CtdlIPC *ipc, long msgnum, char *cret)
 {
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -2;
 	if (!msgnum) return -2;
@@ -997,7 +997,7 @@ int CtdlIPCMoveMessage(CtdlIPC *ipc, int copy, long msgnum, const char *destroom
 /* KILL */
 int CtdlIPCDeleteRoom(CtdlIPC *ipc, int for_real, char *cret)
 {
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -2;
 
@@ -1123,7 +1123,7 @@ int CtdlIPCValidateUser(CtdlIPC *ipc, const char *username, int axlevel, char *c
 /* EINF */
 int CtdlIPCSetRoomInfo(CtdlIPC *ipc, int for_real, const char *info, char *cret)
 {
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -1;
 	if (!info) return -1;
@@ -1610,7 +1610,7 @@ int CtdlIPCGetInstantMessage(CtdlIPC *ipc, char **listing, char *cret)
 /* mode is 0 = enable, 1 = disable, 2 = status */
 int CtdlIPCEnableInstantMessageReceipt(CtdlIPC *ipc, int mode, char *cret)
 {
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -2;
 
@@ -1668,7 +1668,7 @@ int CtdlIPCListUsersWithBios(CtdlIPC *ipc, char **listing, char *cret)
 /* STEL */
 int CtdlIPCStealthMode(CtdlIPC *ipc, int mode, char *cret)
 {
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -1;
 
@@ -1680,7 +1680,7 @@ int CtdlIPCStealthMode(CtdlIPC *ipc, int mode, char *cret)
 /* TERM */
 int CtdlIPCTerminateSession(CtdlIPC *ipc, int sid, char *cret)
 {
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -1;
 
@@ -2001,7 +2001,7 @@ int CtdlIPCSetRoomNetworkConfig(CtdlIPC *ipc, const char *listing, char *cret)
 /* REQT */
 int CtdlIPCRequestClientLogout(CtdlIPC *ipc, int session, char *cret)
 {
-	char aaa[16];
+	char aaa[64];
 
 	if (!cret) return -2;
 	if (session < 0) return -2;
