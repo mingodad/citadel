@@ -612,6 +612,15 @@ int client_read_to(char *buf, int bytes, int timeout)
 }
 
 
+int HaveMoreLinesWaiting(CitContext *CCC)
+{
+	if ((CCC->Pos == NULL) && (StrLength(CCC->ReadBuf) == 0))
+		return 0;
+	else
+		return 1;
+}
+
+
 /*
  * Read data from the client socket with default timeout.
  * (This is implemented in terms of client_read_to() and could be
@@ -1053,6 +1062,10 @@ SKIP_SELECT:
 			/* If the client has sent a command, execute it. */
 			if (CC->input_waiting) {
 				CC->h_command_function();
+
+				while (HaveMoreLinesWaiting(CC))
+				       CC->h_command_function();
+
 				CC->input_waiting = 0;
 			}
 
