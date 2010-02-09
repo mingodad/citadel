@@ -206,7 +206,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 				goto bail;
 
 			/* If we get to this point, the message is on its way.  Read it. */
-			body = CtdlReadMessageBody(".", config.c_maxmsglen, NULL, 1, sock);
+			body = CtdlReadMessageBody(HKEY("."), config.c_maxmsglen, NULL, 1, sock);
 			if (body == NULL) goto bail;
 	
 			CtdlLogPrintf(CTDL_DEBUG, "Converting message...\n");

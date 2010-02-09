@@ -3224,46 +3224,33 @@ void quickie_message(const char *from, const char *fromaddr, char *to, char *roo
  * Back end function used by CtdlMakeMessage() and similar functions
  */
 char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
+			  long tlen,
 			size_t maxlen,		/* maximum message length */
 			char *exist,		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
 			int crlf,		/* CRLF newlines instead of LF */
 			int sock		/* socket handle or 0 for this session's client socket */
-			) {
+			) 
+{
+	StrBuf *Message;
+	StrBuf *LineBuf;
 	char buf[1024];
-	int linelen;
-	size_t message_len = 0;
-	size_t buffer_len = 0;
-	char *ptr;
-	char *m;
 	int flushing = 0;
 	int finished = 0;
 	int dotdot = 0;
 
+	LineBuf = NewStrBufPlain(NULL, SIZ);
 	if (exist == NULL) {
-		m = malloc(4096);
-		m[0] = 0;
-		buffer_len = 4096;
-		message_len = 0;
+		Message = NewStrBufPlain(NULL, 4 * SIZ);
 	}
 	else {
-		message_len = strlen(exist);
-		buffer_len = message_len + 4096;
-		m = realloc(exist, buffer_len);
-		if (m == NULL) {
-			free(exist);
-			return m;
-		}
+		Message = NewStrBufPlain(exist, -1);
+		free(exist);
 	}
 
 	/* Do we need to change leading ".." to "." for SMTP escaping? */
-	if (!strcmp(terminator, ".")) {
+	if ((tlen == 1) && (*terminator == '.')) {
 		dotdot = 1;
-	}
-
-	/* flush the input if we have nowhere to store it */
-	if (m == NULL) {
-		flushing = 1;
 	}
 
 	/* read in the lines of message text one by one */
@@ -3272,53 +3259,36 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			if (sock_getln(sock, buf, (sizeof buf - 3)) < 0) finished = 1;
 		}
 		else {
-			if (client_getln(buf, (sizeof buf - 3)) < 1) finished = 1;
+			if (CtdlClientGetLine(LineBuf) < 0) finished = 1;
 		}
-		if (!strcmp(buf, terminator)) finished = 1;
-		if (crlf) {
-			strcat(buf, "\r\n");
-		}
-		else {
-			strcat(buf, "\n");
-		}
-
-		/* Unescape SMTP-style input of two dots at the beginning of the line */
-		if (dotdot) {
-			if (!strncmp(buf, "..", 2)) {
-				strcpy(buf, &buf[1]);
-			}
-		}
+		if ((StrLength(LineBuf) == tlen) && 
+		    (!strcmp(ChrPtr(LineBuf), terminator)))
+			finished = 1;
 
 		if ( (!flushing) && (!finished) ) {
-			/* Measure the line */
-			linelen = strlen(buf);
-	
-			/* augment the buffer if we have to */
-			if ((message_len + linelen) >= buffer_len) {
-				ptr = realloc(m, (buffer_len * 2) );
-				if (ptr == NULL) {	/* flush if can't allocate */
-					flushing = 1;
-				} else {
-					buffer_len = (buffer_len * 2);
-					m = ptr;
-					CtdlLogPrintf(CTDL_DEBUG, "buffer_len is now %ld\n", (long)buffer_len);
-				}
+			if (crlf) {
+				StrBufAppendBufPlain(LineBuf, HKEY("\r\n"), 0);
 			}
-	
-			/* Add the new line to the buffer.  NOTE: this loop must avoid
-		 	* using functions like strcat() and strlen() because they
-		 	* traverse the entire buffer upon every call, and doing that
-		 	* for a multi-megabyte message slows it down beyond usability.
-		 	*/
-			strcpy(&m[message_len], buf);
-			message_len += linelen;
+			else {
+				StrBufAppendBufPlain(LineBuf, HKEY("\n"), 0);
+			}
+			
+			/* Unescape SMTP-style input of two dots at the beginning of the line */
+			if ((dotdot) &&
+			    (StrLength(LineBuf) == 2) && 
+			    (!strcmp(ChrPtr(LineBuf), "..")))
+			{
+				StrBufCutLeft(LineBuf, 1);
+			}
+			
+			StrBufAppendBuf(Message, LineBuf, 0);
 		}
 
 		/* if we've hit the max msg length, flush the rest */
-		if (message_len >= maxlen) flushing = 1;
+		if (StrLength(Message) >= maxlen) flushing = 1;
 
 	} while (!finished);
-	return(m);
+	return SmashStrBuf(&Message);
 }
 
 
@@ -3447,7 +3417,7 @@ struct CtdlMessage *CtdlMakeMessage(
 		msg->cm_fields['M'] = preformatted_text;
 	}
 	else {
-		msg->cm_fields['M'] = CtdlReadMessageBody("000", config.c_maxmsglen, NULL, 0, 0);
+		msg->cm_fields['M'] = CtdlReadMessageBody(HKEY("000"), config.c_maxmsglen, NULL, 0, 0);
 	}
 
 	return(msg);

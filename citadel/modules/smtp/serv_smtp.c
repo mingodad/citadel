@@ -713,7 +713,7 @@ void smtp_data(void) {
 				 nowstamp);
 		}
 	}
-	body = CtdlReadMessageBody(".", config.c_maxmsglen, body, 1, 0);
+	body = CtdlReadMessageBody(HKEY("."), config.c_maxmsglen, body, 1, 0);
 	if (body == NULL) {
 		cprintf("550 Unable to save message: internal error.\r\n");
 		return;
