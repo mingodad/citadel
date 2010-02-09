@@ -3,7 +3,7 @@
  *
  * Transparently handle the upgrading of server data formats.
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2010 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -263,17 +263,6 @@ void update_config(void) {
 	if (CitControl.version < 725) {
 		config.c_xmpp_c2s_port = 5222;
 		config.c_xmpp_s2s_port = 5269;
-	}
-
-	/* Erase LDAP config that might be left over from the old connector
-	 * which served a different purpose.
-	 */
-	if (CitControl.version < 760) {
-		strcpy(config.c_ldap_host, "");
-		config.c_ldap_port = 389;
-		strcpy(config.c_ldap_base_dn, "");
-		strcpy(config.c_ldap_bind_dn, "");
-		strcpy(config.c_ldap_bind_pw, "");
 	}
 
 	if (IsEmptyStr(config.c_default_cal_zone)) {
