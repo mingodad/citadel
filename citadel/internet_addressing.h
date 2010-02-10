@@ -23,6 +23,8 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr);
 void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr);
 int CtdlDirectoryLookup(char *target, char *internet_addr, size_t targbuflen);
 struct CtdlMessage *convert_internet_message(char *rfc822);
+struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822);
+
 int CtdlHostAlias(char *fqdn);
 char *harvest_collected_addresses(struct CtdlMessage *msg);
 

@@ -667,7 +667,7 @@ void smtp_rcpt(char *argbuf) {
  * Implements the DATA command
  */
 void smtp_data(void) {
-	char *body;
+	StrBuf *body;
 	struct CtdlMessage *msg = NULL;
 	long msgnum = (-1L);
 	char nowstamp[SIZ];
@@ -713,14 +713,14 @@ void smtp_data(void) {
 				 nowstamp);
 		}
 	}
-	body = CtdlReadMessageBody(HKEY("."), config.c_maxmsglen, body, 1, 0);
+	body = CtdlReadMessageBodyBuf(HKEY("."), config.c_maxmsglen, body, 1, 0);
 	if (body == NULL) {
 		cprintf("550 Unable to save message: internal error.\r\n");
 		return;
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "Converting message...\n");
-	msg = convert_internet_message(body);
+	msg = convert_internet_message_buf(&body);
 
 	/* If the user is locally authenticated, FORCE the From: header to
 	 * show up as the real sender.  Yes, this violates the RFC standard,

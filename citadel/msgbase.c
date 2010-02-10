@@ -3223,13 +3223,13 @@ void quickie_message(const char *from, const char *fromaddr, char *to, char *roo
 /*
  * Back end function used by CtdlMakeMessage() and similar functions
  */
-char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
-			  long tlen,
-			size_t maxlen,		/* maximum message length */
-			char *exist,		/* if non-null, append to it;
-						   exist is ALWAYS freed  */
-			int crlf,		/* CRLF newlines instead of LF */
-			int sock		/* socket handle or 0 for this session's client socket */
+StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
+			       long tlen,
+			       size_t maxlen,		/* maximum message length */
+			       char *exist,		/* if non-null, append to it;
+							   exist is ALWAYS freed  */
+			       int crlf,		/* CRLF newlines instead of LF */
+			       int sock		/* socket handle or 0 for this session's client socket */
 			) 
 {
 	StrBuf *Message;
@@ -3288,10 +3288,36 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 		if (StrLength(Message) >= maxlen) flushing = 1;
 
 	} while (!finished);
-	return SmashStrBuf(&Message);
+	FreeStrBuf(&LineBuf);
+	return Message;
 }
 
 
+/*
+ * Back end function used by CtdlMakeMessage() and similar functions
+ */
+char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
+			  long tlen,
+			  size_t maxlen,		/* maximum message length */
+			  char *exist,		/* if non-null, append to it;
+						   exist is ALWAYS freed  */
+			  int crlf,		/* CRLF newlines instead of LF */
+			  int sock		/* socket handle or 0 for this session's client socket */
+	) 
+{
+	StrBuf *Message;
+
+	Message = CtdlReadMessageBodyBuf(terminator,
+					 tlen,
+					 maxlen,
+					 exist,
+					 crlf,
+					 sock);
+	if (Message == NULL)
+		return NULL;
+	else
+		return SmashStrBuf(&Message);
+}
 
 
 /*

@@ -367,22 +367,44 @@ int fuzzy_match(struct ctdluser *us, char *matchstring) {
 /*
  * Unfold a multi-line field into a single line, removing multi-whitespaces
  */
-void unfold_rfc822_field(char *field) {
-	int i;
+void unfold_rfc822_field(char **field, char **FieldEnd) 
+{
 	int quote = 0;
+	char *pField = *field;
+	char *sField;
+	char *pFieldEnd = *FieldEnd;
 
-	striplt(field);		/* remove leading/trailing whitespace */
+	while (isspace(*pField))
+		pField++;
+	/* remove leading/trailing whitespace */
+	;
 
+	while (isspace(*pFieldEnd))
+		pFieldEnd --;
+
+	*FieldEnd = pFieldEnd;
 	/* convert non-space whitespace to spaces, and remove double blanks */
-	for (i=0; i<strlen(field); ++i) {
-		if (field[i]=='\"') quote = 1 - quote;
+	for (sField = *field = pField; 
+	     sField < pFieldEnd; 
+	     pField++, sField++)
+	{
+		if (*pField=='\"') quote = 1 - quote;
 		if (!quote) {
-			if (isspace(field[i])) field[i] = ' ';
-			while (isspace(field[i]) && isspace(field[i+1])) {
-				strcpy(&field[i+1], &field[i+2]);
+			if (isspace(*sField))
+			{
+				*pField = ' ';
+				pField++;
+				sField++;
+			
+				while ((sField < pFieldEnd) && 
+				       isspace(*sField))
+					sField++;
 			}
 		}
+		else *pField = *sField;
 	}
+	*pField = '\0';
+	*FieldEnd = pField - 1;
 }
 
 
@@ -523,11 +545,12 @@ void process_rfc822_addr(const char *rfc822, char *user, char *node, char *name)
  * structure, implying that the source field should be removed from the
  * message text.
  */
-int convert_field(struct CtdlMessage *msg, int beg, int end) {
-	char *rfc822;
-	char *key, *value;
+int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
+	char *key, *value, *valueend;
+	long len;
+	const char *pos;
 	int i;
-	int colonpos = (-1);
+	const char *colonpos = NULL;
 	int processed = 0;
 	char buf[SIZ];
 	char user[1024];
@@ -535,19 +558,23 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 	char name[1024];
 	char addr[1024];
 	time_t parsed_date;
+	long valuelen;
 
-	rfc822 = msg->cm_fields['M'];	/* M field contains rfc822 text */
-	for (i = end; i >= beg; --i) {
-		if (rfc822[i] == ':') colonpos = i;
+	for (pos = end; pos >= beg; pos--) {
+		if (*pos == ':') colonpos = pos;
 	}
 
 	if (colonpos < 0) return(0);	/* no colon? not a valid header line */
 
-	key = malloc((end - beg) + 2);
-	safestrncpy(key, &rfc822[beg], (end-beg)+1);
-	key[colonpos - beg] = 0;
+	len = end - beg;
+	key = malloc(len + 2);
+	memcpy(key, beg, len + 1);
+	key[len] = '\0';
+	valueend = key + len;
+	* ( key + (colonpos - beg) ) = '\0';
 	value = &key[(colonpos - beg) + 1];
-	unfold_rfc822_field(value);
+	unfold_rfc822_field(&value, &valueend);
+	valuelen = valueend - value;
 
 	/*
 	 * Here's the big rfc822-to-citadel loop.
@@ -579,25 +606,25 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	else if (!strcasecmp(key, "Subject")) {
 		if (msg->cm_fields['U'] == NULL)
-			msg->cm_fields['U'] = strdup(value);
+			msg->cm_fields['U'] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "List-ID")) {
 		if (msg->cm_fields['L'] == NULL)
-			msg->cm_fields['L'] = strdup(value);
+			msg->cm_fields['L'] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "To")) {
 		if (msg->cm_fields['R'] == NULL)
-			msg->cm_fields['R'] = strdup(value);
+			msg->cm_fields['R'] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "CC")) {
 		if (msg->cm_fields['Y'] == NULL)
-			msg->cm_fields['Y'] = strdup(value);
+			msg->cm_fields['Y'] = strndup(value, valuelen);
 		processed = 1;
 	}
 
@@ -607,7 +634,7 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		}
 
 		if (msg->cm_fields['I'] == NULL) {
-			msg->cm_fields['I'] = strdup(value);
+			msg->cm_fields['I'] = strndup(value, valuelen);
 
 			/* Strip angle brackets */
 			while (haschar(msg->cm_fields['I'], '<') > 0) {
@@ -624,13 +651,13 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 
 	else if (!strcasecmp(key, "Return-Path")) {
 		if (msg->cm_fields['P'] == NULL)
-			msg->cm_fields['P'] = strdup(value);
+			msg->cm_fields['P'] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "Envelope-To")) {
 		if (msg->cm_fields['V'] == NULL)
-			msg->cm_fields['V'] = strdup(value);
+			msg->cm_fields['V'] = strndup(value, valuelen);
 		processed = 1;
 	}
 
@@ -638,13 +665,13 @@ int convert_field(struct CtdlMessage *msg, int beg, int end) {
 		if (msg->cm_fields['W'] != NULL) {
 			free(msg->cm_fields['W']);
 		}
-		msg->cm_fields['W'] = strdup(value);
+		msg->cm_fields['W'] = strndup(value, valuelen);
 		processed = 1;
 	}
 
 	else if (!strcasecmp(key, "In-reply-to")) {
 		if (msg->cm_fields['W'] == NULL) {		/* References: supersedes In-reply-to: */
-			msg->cm_fields['W'] = strdup(value);
+			msg->cm_fields['W'] = strndup(value, valuelen);
 		}
 		processed = 1;
 	}
@@ -700,12 +727,21 @@ void convert_references_to_wefewences(char *str) {
  * again.
  */
 struct CtdlMessage *convert_internet_message(char *rfc822) {
+	StrBuf *RFCBuf = NewStrBufPlain(rfc822, -1);
+	free (rfc822);
+	return convert_internet_message_buf(&RFCBuf);
+}
 
+
+
+struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
+{
 	struct CtdlMessage *msg;
-	int pos, beg, end, msglen;
-	int done;
+	const char *pos, *beg, *end, *totalend;
+	int done, alldone = 0;
 	char buf[SIZ];
 	int converted;
+	StrBuf *OtherHeaders;
 
 	msg = malloc(sizeof(struct CtdlMessage));
 	if (msg == NULL) return msg;
@@ -714,36 +750,40 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 	msg->cm_magic = CTDLMESSAGE_MAGIC;	/* self check */
 	msg->cm_anon_type = 0;			/* never anonymous */
 	msg->cm_format_type = FMT_RFC822;	/* internet message */
-	msg->cm_fields['M'] = rfc822;
 
-	pos = 0;
+	pos = ChrPtr(*rfc822);
+	totalend = pos + StrLength(*rfc822);
 	done = 0;
+	OtherHeaders = NewStrBufPlain(NULL, StrLength(*rfc822));
 
-	while (!done) {
+	while (!alldone) {
 
 		/* Locate beginning and end of field, keeping in mind that
 		 * some fields might be multiline
 		 */
-		beg = pos;
-		end = (-1);
+		end = beg = pos;
 
-		msglen = strlen(rfc822);	
-		while ( (end < 0) && (done == 0) ) {
+		while ((end < totalend) && 
+		       (end == beg) && 
+		       (done == 0) ) 
+		{
 
-			if ((rfc822[pos]=='\n')
-			   && (!isspace(rfc822[pos+1]))) {
+			if ((*pos=='\n') &&
+			    (!isspace(*(pos+1)))) 
+			{
 				end = pos;
 			}
 
 			/* done with headers? */
-			if (   (rfc822[pos]=='\n')
-			   && ( (rfc822[pos+1]=='\n')
-			      ||(rfc822[pos+1]=='\r')) ) {
-				end = pos;
-				done = 1;
+			if ((*pos=='\n') &&
+			    ( (*(pos+1)=='\n') ||
+			      (*(pos+1)=='\r')) ) 
+			{
+				alldone = 1;
 			}
 
-			if (pos >= (msglen-1) ) {
+			if (pos >= (totalend - 1) )
+			{
 				end = pos;
 				done = 1;
 			}
@@ -756,14 +796,18 @@ struct CtdlMessage *convert_internet_message(char *rfc822) {
 		converted = convert_field(msg, beg, end);
 
 		/* Strip the field out of the RFC822 header if we used it */
-		if (converted) {
-			strcpy(&rfc822[beg], &rfc822[pos]);
-			pos = beg;
+		if (!converted) {
+			StrBufAppendBufPlain(OtherHeaders, beg, end - beg, 0);
 		}
 
 		/* If we've hit the end of the message, bail out */
-		if (pos > strlen(rfc822)) done = 1;
+		if (pos >= totalend)
+			alldone = 1;
 	}
+	if (pos < totalend)
+		StrBufAppendBufPlain(OtherHeaders, pos, totalend - pos, 0);
+	FreeStrBuf(rfc822);
+	msg->cm_fields['M'] = SmashStrBuf(&OtherHeaders);
 
 	/* Follow-up sanity checks... */
 
