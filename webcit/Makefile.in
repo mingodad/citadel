@@ -128,7 +128,7 @@ install-tinymce:
 	done
 
 install-locale:
-	cd po; make
+	cd po; $(MAKE)
 	for i in `find locale -type d | grep -v .svn` \
 		; do \
 		test -d $(DESTDIR)$(LOCALEDIR)/$$i || mkdir -p $(DESTDIR)$(LOCALEDIR)/$$i; \
