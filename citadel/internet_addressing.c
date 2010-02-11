@@ -564,7 +564,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 		if (*pos == ':') colonpos = pos;
 	}
 
-	if (colonpos < 0) return(0);	/* no colon? not a valid header line */
+	if (colonpos == NULL) return(0);	/* no colon? not a valid header line */
 
 	len = end - beg;
 	key = malloc(len + 2);
