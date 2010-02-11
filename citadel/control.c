@@ -77,12 +77,7 @@ long control_highest_user = 0;
  */
 void lock_control(void)
 {
-#ifdef HAVE_FLOCK
-/*
- * TODO: solaris manpages describe this function, but the headers
- * don't show it! 
- */
-
+#if defined(LOCK_EX) && defined(LOCK_NB)
 	if (flock(fileno(control_fp), (LOCK_EX | LOCK_NB))) {
 		CtdlLogPrintf(CTDL_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
 		CtdlLogPrintf(CTDL_EMERG, "Is another citserver already running?\n");
@@ -720,7 +715,7 @@ void cmd_conf(char *argbuf)
 CTDL_MODULE_INIT(control)
 {
 	if (!threading) {
-		CtdlRegisterProtoHook(cmd_conf, "CONF", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_conf, "CONF", "get/set system configuration");
 	}
 	/* return our Subversion id for the Log */
 	return "$Id$";
