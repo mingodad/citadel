@@ -3,7 +3,7 @@
  *
  * This module handles states which are global to the entire server.
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2010 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -233,13 +233,14 @@ void check_control(void)
 }
 
 
-/**
+/*
  * release_control - close our fd on exit
  */
 void release_control(void)
 {
-	if (control_fp != NULL)
+	if (control_fp != NULL) {
 		fclose(control_fp);
+	}
 	control_fp = NULL;
 }
 
