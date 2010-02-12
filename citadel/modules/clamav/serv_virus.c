@@ -124,7 +124,7 @@ int clamd(struct CtdlMessage *msg) {
 	sock_write(sock, buf, strlen(buf));
 
 	CtdlLogPrintf(CTDL_DEBUG, "Waiting for PORT number\n");
-        if (sock_getln(sock, buf, sizeof buf) < 0) {
+        if (sock_getln(&sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
 
@@ -172,7 +172,7 @@ int clamd(struct CtdlMessage *msg) {
 	
 	/* Response */
 	CtdlLogPrintf(CTDL_DEBUG, "Awaiting response\n");
-        if (sock_getln(sock, buf, sizeof buf) < 0) {
+        if (sock_getln(&sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
         CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);

@@ -479,10 +479,11 @@ int client_write(const char *buf, int nbytes)
 		return 0;
 	}
 #endif
+	if (Ctx->client_socket == -1) return -1;
 
 	fdflags = fcntl(Ctx->client_socket, F_GETFL);
 
-	while (bytes_written < nbytes) {
+	while ((bytes_written < nbytes) && (Ctx->client_socket != -1)){
 		if ((fdflags & O_NONBLOCK) == O_NONBLOCK) {
 			FD_ZERO(&wset);
 			FD_SET(Ctx->client_socket, &wset);

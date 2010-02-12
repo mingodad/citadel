@@ -101,7 +101,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
 
 	/* Read the server greeting */
-	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
@@ -116,7 +116,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	snprintf(buf, sizeof buf, "USER %s\r", pop3user);
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
@@ -127,7 +127,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	snprintf(buf, sizeof buf, "PASS %s\r", pop3pass);
 	CtdlLogPrintf(CTDL_DEBUG, "<PASS <password>\n");
 	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
@@ -138,7 +138,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	snprintf(buf, sizeof buf, "LIST\r");
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
@@ -149,7 +149,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		if (CtdlThreadCheckStop())
 			goto bail;
 
-		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 		msg_to_fetch = atoi(buf);
 		if (msg_to_fetch > 0) {
@@ -172,7 +172,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		snprintf(buf, sizeof buf, "UIDL %d\r", msglist[i]);
 		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 		if (sock_puts(sock, buf) <0) goto bail;
-		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 		if (strncasecmp(buf, "+OK", 3)) goto bail;
 		extract_token(this_uidl, buf, 2, ' ', sizeof this_uidl);
@@ -198,7 +198,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
 			CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 			if (sock_puts(sock, buf) <0) goto bail;
-			if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+			if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 			CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 			if (strncasecmp(buf, "+OK", 3)) goto bail;
 	
@@ -206,7 +206,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 				goto bail;
 
 			/* If we get to this point, the message is on its way.  Read it. */
-			body = CtdlReadMessageBody(HKEY("."), config.c_maxmsglen, NULL, 1, sock);
+			body = CtdlReadMessageBody(HKEY("."), config.c_maxmsglen, NULL, 1, &sock);
 			if (body == NULL) goto bail;
 	
 			CtdlLogPrintf(CTDL_DEBUG, "Converting message...\n");
@@ -222,7 +222,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 					snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
 					CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 					if (sock_puts(sock, buf) <0) goto bail;
-					if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+					if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 					CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf); /* errors here are non-fatal */
 				}
 
@@ -240,7 +240,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	snprintf(buf, sizeof buf, "QUIT\r");
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (sock_puts(sock, buf) <0) goto bail;
-	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 bail:	sock_close(sock);
 	if (msglist) free(msglist);

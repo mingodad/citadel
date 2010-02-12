@@ -135,41 +135,128 @@ int sock_connect(char *host, char *service, char *protocol)
 
 
 /*
- * sock_read_to() - input binary data from socket, with a settable timeout.
- * Returns the number of bytes read, or -1 for error.
- * If keep_reading_until_full is nonzero, we keep reading until we get the number of requested bytes
+ * Read data from the client socket.
+ *
+ * sock		socket fd to read from
+ * buf		buffer to read into 
+ * bytes	number of bytes to read
+ * timeout	Number of seconds to wait before timing out
+ *
+ * Possible return values:
+ *      1       Requested number of bytes has been read.
+ *      0       Request timed out.
+ *	-1   	Connection is broken, or other error.
  */
-int sock_read_to(int sock, char *buf, int bytes, int timeout, int keep_reading_until_full)
+int socket_read_blob(int *Socket, 
+		     StrBuf *Target, 
+		     int bytes, 
+		     int timeout)
 {
-	int len,rlen;
-	fd_set rfds;
-	struct timeval tv;
-	int retval;
+	CitContext *CCC=CC;
+	const char *Error;
+	int retval = 0;
 
-	len = 0;
-	while (len<bytes) {
-		FD_ZERO(&rfds);
-		FD_SET(sock, &rfds);
-		tv.tv_sec = timeout;
-		tv.tv_usec = 0;
 
-		retval = select(sock+1, &rfds, NULL, NULL, &tv);
-
-		if (FD_ISSET(sock, &rfds) == 0) {	/* timed out */
-			CtdlLogPrintf(CTDL_ERR, "sock_read() timed out.\n");
-			return(-1);
-		}
-
-		rlen = read(sock, &buf[len], bytes-len);
-		if (rlen<1) {
-			CtdlLogPrintf(CTDL_ERR, "sock_read() failed: %s\n",
-				strerror(errno));
-			return(-1);
-		}
-		len = len + rlen;
-		if (!keep_reading_until_full) return(len);
+	retval = StrBufReadBLOBBuffered(Target, 
+					CCC->sReadBuf,
+					&CCC->sPos,
+					Socket,
+					1, 
+					bytes,
+					O_TERM,
+					&Error);
+	if (retval < 0) {
+		CtdlLogPrintf(CTDL_CRIT, 
+			      "%s failed: %s\n",
+			      __FUNCTION__,
+			      Error);
 	}
-	return(bytes);
+	return retval;
+}
+
+
+int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_until_full)
+{
+	CitContext *CCC=CC;
+	int rc;
+
+	rc = socket_read_blob(sock, 
+			      CCC->sMigrateBuf, 
+			      bytes, 
+			      timeout);
+	if (rc < 0)
+	{
+		*buf = '\0';
+		return rc;
+	}
+	else
+	{
+		if (StrLength(CCC->MigrateBuf) < bytes)
+			bytes = StrLength(CCC->MigrateBuf);
+		memcpy(buf, 
+		       ChrPtr(CCC->MigrateBuf),
+		       bytes);
+
+		FlushStrBuf(CCC->MigrateBuf);
+		return rc;
+	}
+}
+
+
+int CtdlSockGetLine(int *sock, StrBuf *Target)
+{
+	CitContext *CCC=CC;
+	const char *Error;
+	int rc;
+
+	rc = StrBufTCP_read_buffered_line_fast(Target, 
+					       CCC->sReadBuf,
+					       &CCC->sPos,
+					       sock,
+					       5,
+					       1,
+					       &Error);
+	if ((rc < 0) && (Error != NULL))
+		CtdlLogPrintf(CTDL_CRIT, 
+			      "%s failed: %s\n",
+			      __FUNCTION__,
+			      Error);
+	return rc;
+}
+
+
+/*
+ * client_getln()   ...   Get a LF-terminated line of text from the client.
+ * (This is implemented in terms of client_read() and could be
+ * justifiably moved out of sysdep.c)
+ */
+int sock_getln(int *sock, char *buf, int bufsize)
+{
+	int i, retval;
+	CitContext *CCC=CC;
+	const char *pCh;
+
+	retval = CtdlSockGetLine(sock, CCC->sMigrateBuf);
+
+	i = StrLength(CCC->sMigrateBuf);
+	pCh = ChrPtr(CCC->sMigrateBuf);
+	/* Strip the trailing LF, and the trailing CR if present.
+	 */
+	if (bufsize <= i)
+		i = bufsize - 1;
+	while ( (i > 0)
+		&& ( (pCh[i - 1]==13)
+		     || ( pCh[i - 1]==10)) ) {
+		i--;
+	}
+	memcpy(buf, pCh, i);
+	buf[i] = 0;
+
+	FlushStrBuf(CCC->sMigrateBuf);
+	if (retval < 0) {
+		safestrncpy(&buf[i], "000", bufsize - i);
+	}
+	return(retval >= 0);
 }
 
 
@@ -177,7 +264,7 @@ int sock_read_to(int sock, char *buf, int bytes, int timeout, int keep_reading_u
  * sock_read() - input binary data from socket.
  * Returns the number of bytes read, or -1 for error.
  */
-INLINE int sock_read(int sock, char *buf, int bytes, int keep_reading_until_full)
+INLINE int sock_read(int *sock, char *buf, int bytes, int keep_reading_until_full)
 {
 	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT, keep_reading_until_full);
 }
@@ -203,47 +290,12 @@ int sock_write(int sock, char *buf, int nbytes)
 }
 
 
-
-/*
- * Input string from socket - implemented in terms of sock_read()
- * 
- */
-int sock_getln(int sock, char *buf, int bufsize)
-{
-	int i;
-
-	/* Read one character at a time.
-	 */
-	for (i = 0;; i++) {
-		if (sock_read(sock, &buf[i], 1, 1) < 0) return(-1);
-		if (buf[i] == '\n' || i == (bufsize-1))
-			break;
-	}
-
-	/* If we got a long line, discard characters until the newline.
-	 */
-	if (i == (bufsize-1))
-		while (buf[i] != '\n')
-			if (sock_read(sock, &buf[i], 1, 1) < 0) return(-1);
-
-	/* Strip any trailing CR and LF characters.
-	 */
-	buf[i] = 0;
-	while ( (i > 0)
-		&& ( (buf[i - 1]==13)
-		     || ( buf[i - 1]==10)) ) {
-		i--;
-		buf[i] = 0;
-	}
-	return(i);
-}
-
 /*
  * Multiline version of sock_gets() ... this is a convenience function for
  * client side protocol implementations.  It only returns the first line of
  * a multiline response, discarding the rest.
  */
-int ml_sock_gets(int sock, char *buf) {
+int ml_sock_gets(int *sock, char *buf) {
 	char bigbuf[1024];
 	int g;
 

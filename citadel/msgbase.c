@@ -3229,7 +3229,7 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 			       char *exist,		/* if non-null, append to it;
 							   exist is ALWAYS freed  */
 			       int crlf,		/* CRLF newlines instead of LF */
-			       int sock		/* socket handle or 0 for this session's client socket */
+			       int *sock		/* socket handle or 0 for this session's client socket */
 			) 
 {
 	StrBuf *Message;
@@ -3255,8 +3255,10 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 
 	/* read in the lines of message text one by one */
 	do {
-		if (sock > 0) {
-			if (sock_getln(sock, buf, (sizeof buf - 3)) < 0) finished = 1;
+		if (sock != NULL) {
+			if ((CtdlSockGetLine(sock, LineBuf) < 0) ||
+			    (*sock == -1))
+				finished = 1;
 		}
 		else {
 			if (CtdlClientGetLine(LineBuf) < 0) finished = 1;
@@ -3302,7 +3304,7 @@ char *CtdlReadMessageBody(char *terminator,	/* token signalling EOT */
 			  char *exist,		/* if non-null, append to it;
 						   exist is ALWAYS freed  */
 			  int crlf,		/* CRLF newlines instead of LF */
-			  int sock		/* socket handle or 0 for this session's client socket */
+			  int *sock		/* socket handle or 0 for this session's client socket */
 	) 
 {
 	StrBuf *Message;

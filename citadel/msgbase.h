@@ -146,14 +146,14 @@ void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
 				int do_repl_check, struct CtdlMessage *supplied_msg);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
-char *CtdlReadMessageBody(char *terminator, long tlen, size_t maxlen, char *exist, int crlf, int sock);
+char *CtdlReadMessageBody(char *terminator, long tlen, size_t maxlen, char *exist, int crlf, int *sock);
 StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 			       long tlen,
 			       size_t maxlen,		/* maximum message length */
 			       char *exist,		/* if non-null, append to it;
 							   exist is ALWAYS freed  */
 			       int crlf,		/* CRLF newlines instead of LF */
-			       int sock		/* socket handle or 0 for this session's client socket */
+			       int *sock		/* socket handle or 0 for this session's client socket */
 	);
 
 int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */

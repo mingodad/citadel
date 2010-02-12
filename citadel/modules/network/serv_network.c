@@ -1786,7 +1786,7 @@ void network_purge_spoolout(void) {
 /*
  * receive network spool from the remote system
  */
-void receive_spool(int sock, char *remote_nodename) {
+void receive_spool(int *sock, char *remote_nodename) {
 	size_t siz;
 	long download_len = 0L;
 	long bytes_received = 0L;
@@ -1799,7 +1799,7 @@ void receive_spool(int sock, char *remote_nodename) {
 	FILE *fp, *newfp;
 
 	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
-	if (sock_puts(sock, "NDOP") < 0) return;
+	if (sock_puts(*sock, "NDOP") < 0) return;
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
@@ -1830,7 +1830,7 @@ void receive_spool(int sock, char *remote_nodename) {
 			bytes_received,
 		     ((download_len - bytes_received > IGNET_PACKET_SIZE)
 		 ? IGNET_PACKET_SIZE : (download_len - bytes_received)));
-		if (sock_puts(sock, buf) < 0) {
+		if (sock_puts(*sock, buf) < 0) {
 			fclose(fp);
 			unlink(tempfilename);
 			return;
@@ -1859,7 +1859,7 @@ void receive_spool(int sock, char *remote_nodename) {
 		unlink(tempfilename);
 		return;
 	}
-	if (sock_puts(sock, "CLOS") < 0) {
+	if (sock_puts(*sock, "CLOS") < 0) {
 		unlink(tempfilename);
 		return;
 	}
@@ -1913,7 +1913,7 @@ void receive_spool(int sock, char *remote_nodename) {
 /*
  * transmit network spool to the remote system
  */
-void transmit_spool(int sock, char *remote_nodename)
+void transmit_spool(int *sock, char *remote_nodename)
 {
 	char buf[SIZ];
 	char pbuf[4096];
@@ -1922,7 +1922,7 @@ void transmit_spool(int sock, char *remote_nodename)
 	int fd;
 	char sfname[128];
 
-	if (sock_puts(sock, "NUOP") < 0) return;
+	if (sock_puts(*sock, "NUOP") < 0) return;
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
@@ -1953,7 +1953,7 @@ void transmit_spool(int sock, char *remote_nodename)
 			}
 			
 			snprintf(buf, sizeof buf, "WRIT %ld", bytes_to_write);
-			if (sock_puts(sock, buf) < 0) {
+			if (sock_puts(*sock, buf) < 0) {
 				close(fd);
 				return;
 			}
@@ -1963,7 +1963,7 @@ void transmit_spool(int sock, char *remote_nodename)
 			}
 			thisblock = atol(&buf[4]);
 			if (buf[0] == '7') {
-				if (sock_write(sock, pbuf,
+				if (sock_write(*sock, pbuf,
 				   (int) thisblock) < 0) {
 					close(fd);
 					return;
@@ -1982,7 +1982,7 @@ ABORTUPL:
 	if(CtdlThreadCheckStop())
 		return;
 		
-	if (sock_puts(sock, "UCLS 1") < 0) return;
+	if (sock_puts(*sock, "UCLS 1") < 0) return;
 	/**
 	 * From here on we must complete or messages will get lost
 	 */
@@ -2021,7 +2021,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
 
 	/* Read the server greeting */
-	if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 
 	/* Check that the remote is who we think it is and warn the Aide if not */
@@ -2037,15 +2037,15 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 		snprintf(buf, sizeof buf, "NETP %s|%s", config.c_nodename, secret);
 		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 		if (sock_puts(sock, buf) <0) goto bail;
-		if (sock_getln(sock, buf, sizeof buf) < 0) goto bail;
+		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 		if (buf[0] != '2') goto bail;
 	
 		/* At this point we are authenticated. */
 		if (!CtdlThreadCheckStop())
-			receive_spool(sock, node);
+			receive_spool(&sock, node);
 		if (!CtdlThreadCheckStop())
-			transmit_spool(sock, node);
+			transmit_spool(&sock, node);
 	}
 
 	sock_puts(sock, "QUIT");
