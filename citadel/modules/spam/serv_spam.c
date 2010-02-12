@@ -110,7 +110,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	/* Command */
 	CtdlLogPrintf(CTDL_DEBUG, "Transmitting command\n");
 	sprintf(buf, "CHECK SPAMC/1.2\r\n\r\n");
-	sock_write(sock, buf, strlen(buf));
+	sock_write(&sock, buf, strlen(buf));
 
 	/* Message */
 	CC->redirect_buffer = malloc(SIZ);
@@ -123,13 +123,14 @@ int spam_assassin(struct CtdlMessage *msg) {
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
 
-	sock_write(sock, msgtext, msglen);
+	sock_write(&sock, msgtext, msglen);
 	free(msgtext);
 
 	/* Close one end of the socket connection; this tells SpamAssassin
 	 * that we're done.
 	 */
-	sock_shutdown(sock, SHUT_WR);
+	if (sock != -1)
+		sock_shutdown(sock, SHUT_WR);
 	
 	/* Response */
 	CtdlLogPrintf(CTDL_DEBUG, "Awaiting response\n");

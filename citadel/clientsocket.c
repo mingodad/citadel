@@ -274,14 +274,19 @@ INLINE int sock_read(int *sock, char *buf, int bytes, int keep_reading_until_ful
  * sock_write() - send binary to server.
  * Returns the number of bytes written, or -1 for error.
  */
-int sock_write(int sock, char *buf, int nbytes)
+int sock_write(int *sock, char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;
-	while (bytes_written < nbytes) {
-		retval = write(sock, &buf[bytes_written],
+
+	while ((*sock != -1)  && 
+	       (bytes_written < nbytes))
+	{
+		retval = write(*sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
+			sock_close(*sock);
+			*sock = -1;
 			return (-1);
 		}
 		bytes_written = bytes_written + retval;
@@ -316,7 +321,7 @@ int ml_sock_gets(int *sock, char *buf) {
  * sock_puts() - send line to server - implemented in terms of serv_write()
  * Returns the number of bytes written, or -1 for error.
  */
-int sock_puts(int sock, char *buf)
+int sock_puts(int *sock, char *buf)
 {
 	int i, j;
 

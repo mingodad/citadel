@@ -1127,7 +1127,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	/* Do a EHLO command.  If it fails, try the HELO command. */
 	snprintf(buf, sizeof buf, "EHLO %s\r\n", config.c_fqdn);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-	sock_write(sock, buf, strlen(buf));
+	sock_write(&sock, buf, strlen(buf));
 	if (ml_sock_gets(&sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP HELO");
@@ -1137,7 +1137,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	if (buf[0] != '2') {
 		snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
 		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-		sock_write(sock, buf, strlen(buf));
+		sock_write(&sock, buf, strlen(buf));
 		if (ml_sock_gets(&sock, buf) < 0) {
 			*status = 4;
 			strcpy(dsn, "Connection broken during SMTP HELO");
@@ -1164,7 +1164,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		CtdlEncodeBase64(encoded, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 2, 0);
 		snprintf(buf, sizeof buf, "AUTH PLAIN %s\r\n", encoded);
 		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-		sock_write(sock, buf, strlen(buf));
+		sock_write(&sock, buf, strlen(buf));
 		if (ml_sock_gets(&sock, buf) < 0) {
 			*status = 4;
 			strcpy(dsn, "Connection broken during SMTP AUTH");
@@ -1188,7 +1188,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	/* previous command succeeded, now try the MAIL FROM: command */
 	snprintf(buf, sizeof buf, "MAIL FROM:<%s>\r\n", envelope_from);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-	sock_write(sock, buf, strlen(buf));
+	sock_write(&sock, buf, strlen(buf));
 	if (ml_sock_gets(&sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP MAIL");
@@ -1211,7 +1211,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	/* MAIL succeeded, now try the RCPT To: command */
 	snprintf(buf, sizeof buf, "RCPT TO:<%s@%s>\r\n", user, node);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-	sock_write(sock, buf, strlen(buf));
+	sock_write(&sock, buf, strlen(buf));
 	if (ml_sock_gets(&sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP RCPT");
@@ -1233,7 +1233,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* RCPT succeeded, now try the DATA command */
 	CtdlLogPrintf(CTDL_DEBUG, ">DATA\n");
-	sock_write(sock, "DATA\r\n", 6);
+	sock_write(&sock, "DATA\r\n", 6);
 	if (ml_sock_gets(&sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP DATA");
@@ -1254,15 +1254,15 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* If we reach this point, the server is expecting data.*/
-	sock_write(sock, msgtext, msg_size);
+	sock_write(&sock, msgtext, msg_size);
 	if (msgtext[msg_size-1] != 10) {
 		CtdlLogPrintf(CTDL_WARNING, "Possible problem: message did not "
 			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
 				buf[msg_size-1]);
-		sock_write(sock, "\r\n", 2);
+		sock_write(&sock, "\r\n", 2);
 	}
 
-	sock_write(sock, ".\r\n", 3);
+	sock_write(&sock, ".\r\n", 3);
 	if (ml_sock_gets(&sock, buf) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP message transmit");
@@ -1287,14 +1287,15 @@ void smtp_try(const char *key, const char *addr, int *status,
 	*status = 2;
 
 	CtdlLogPrintf(CTDL_DEBUG, ">QUIT\n");
-	sock_write(sock, "QUIT\r\n", 6);
+	sock_write(&sock, "QUIT\r\n", 6);
 	ml_sock_gets(&sock, buf);
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded\n",
 		user, node, name);
 
 bail:	free(msgtext);
-	sock_close(sock);
+	if (sock != -1)
+		sock_close(sock);
 
 	/* Write something to the syslog (which may or may not be where the
 	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).

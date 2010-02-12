@@ -3234,7 +3234,6 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 {
 	StrBuf *Message;
 	StrBuf *LineBuf;
-	char buf[1024];
 	int flushing = 0;
 	int finished = 0;
 	int dotdot = 0;

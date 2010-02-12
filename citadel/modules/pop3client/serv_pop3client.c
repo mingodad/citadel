@@ -115,7 +115,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	 */
 	snprintf(buf, sizeof buf, "USER %s\r", pop3user);
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
@@ -126,7 +126,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	/* Password */
 	snprintf(buf, sizeof buf, "PASS %s\r", pop3pass);
 	CtdlLogPrintf(CTDL_DEBUG, "<PASS <password>\n");
-	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
@@ -137,7 +137,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	/* Get the list of messages */
 	snprintf(buf, sizeof buf, "LIST\r");
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
@@ -171,7 +171,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		/* Find out the UIDL of the message, to determine whether we've already downloaded it */
 		snprintf(buf, sizeof buf, "UIDL %d\r", msglist[i]);
 		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-		if (sock_puts(sock, buf) <0) goto bail;
+		if (sock_puts(&sock, buf) <0) goto bail;
 		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 		if (strncasecmp(buf, "+OK", 3)) goto bail;
@@ -197,7 +197,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			/* Message has not been seen. Tell the server to fetch the message... */
 			snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
 			CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-			if (sock_puts(sock, buf) <0) goto bail;
+			if (sock_puts(&sock, buf) <0) goto bail;
 			if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 			CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 			if (strncasecmp(buf, "+OK", 3)) goto bail;
@@ -221,7 +221,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 				if (!keep) {
 					snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
 					CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-					if (sock_puts(sock, buf) <0) goto bail;
+					if (sock_puts(&sock, buf) <0) goto bail;
 					if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 					CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf); /* errors here are non-fatal */
 				}
@@ -239,10 +239,12 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	/* Log out */
 	snprintf(buf, sizeof buf, "QUIT\r");
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (sock_puts(sock, buf) <0) goto bail;
+	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
-bail:	sock_close(sock);
+bail:	
+	if (sock != -1)
+		sock_close(sock);
 	if (msglist) free(msglist);
 }
 

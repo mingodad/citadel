@@ -121,7 +121,7 @@ int clamd(struct CtdlMessage *msg) {
 	/* Command */
 	CtdlLogPrintf(CTDL_DEBUG, "Transmitting STREAM command\n");
 	sprintf(buf, "STREAM\r\n");
-	sock_write(sock, buf, strlen(buf));
+	sock_write(&sock, buf, strlen(buf));
 
 	CtdlLogPrintf(CTDL_DEBUG, "Waiting for PORT number\n");
         if (sock_getln(&sock, buf, sizeof buf) < 0) {
@@ -162,13 +162,14 @@ int clamd(struct CtdlMessage *msg) {
 	CC->redirect_len = 0;
 	CC->redirect_alloc = 0;
 
-	sock_write(streamsock, msgtext, msglen);
+	sock_write(&streamsock, msgtext, msglen);
 	free(msgtext);
 
 	/* Close the streamsocket connection; this tells clamd
 	 * that we're done.
 	 */
-	close(streamsock);
+	if (streamsock != -1)
+		close(streamsock);
 	
 	/* Response */
 	CtdlLogPrintf(CTDL_DEBUG, "Awaiting response\n");
