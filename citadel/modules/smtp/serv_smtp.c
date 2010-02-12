@@ -693,7 +693,7 @@ void smtp_data(void) {
 	datestring(nowstamp, sizeof nowstamp, time(NULL), DATESTRING_RFC822);
 	defbody = malloc(4096);
 
-	if (body != NULL) {
+	if (defbody != NULL) {
 		if (sSMTP->is_lmtp && (CC->cs_UDSclientUID != -1)) {
 			snprintf(defbody, 4096,
 			       "Received: from %s (Citadel from userid %ld)\n"
