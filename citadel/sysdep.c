@@ -459,7 +459,7 @@ int client_write(const char *buf, int nbytes)
 	CitContext *Ctx;
 	int fdflags;
 
-	flush_client_inbuf();
+//	flush_client_inbuf();
 	Ctx = CC;
 	if (Ctx->redirect_buffer != NULL) {
 		if ((Ctx->redirect_len + nbytes + 2) >= Ctx->redirect_alloc) {
@@ -638,6 +638,7 @@ int CtdlClientGetLine(StrBuf *Target)
 	const char *Error;
 	int rc;
 
+	FlushStrBuf(Target);
 #ifdef HAVE_OPENSSL
 	if (CCC->redirect_ssl) {
 		return client_readline_sslbuffer(Target,
@@ -647,6 +648,23 @@ int CtdlClientGetLine(StrBuf *Target)
 	else 
 #endif
 	{
+		char fn [SIZ];
+		FILE *fd;
+		int len, rlen, nlen, nrlen;
+		const char *pch;
+
+		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+
+		fd = fopen(fn, "a+");
+		pch = ChrPtr(CCC->ReadBuf);
+		len = StrLength(CCC->ReadBuf);
+		if (CCC->Pos != NULL)
+			rlen = CC->Pos - pch;
+		else
+			rlen = 0;
+
+		fprintf(fd, "\n\n\nBufSize: %d BufPos: %d \nBufContent: [\n%s\n]\n\n_____________________\n",
+			len, rlen, pch);
 		rc = StrBufTCP_read_buffered_line_fast(Target, 
 						       CCC->ReadBuf,
 						       &CCC->Pos,
@@ -654,6 +672,21 @@ int CtdlClientGetLine(StrBuf *Target)
 						       5,
 						       1,
 						       &Error);
+
+
+		pch = ChrPtr(CCC->ReadBuf);
+		nlen = StrLength(CCC->ReadBuf);
+		if (CCC->Pos != NULL)
+			nrlen = CC->Pos - pch;
+		else
+			nrlen = 0;
+		fprintf(fd, "\n\n\nBufSize: was: %d is: %d BufPos: was: %d is: %d \nBufContent: [\n%s\n]\n\n_____________________\n",
+			len, nlen, rlen, nrlen, pch);
+
+		fprintf(fd, "Read: BufSize: %d BufContent: [%s]\n\n*************\n",
+			StrLength(Target), ChrPtr(Target));
+		fclose(fd);
+
 		if ((rc < 0) && (Error != NULL))
 			CtdlLogPrintf(CTDL_CRIT, 
 				      "%s failed: %s\n",
