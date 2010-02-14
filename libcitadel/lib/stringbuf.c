@@ -3265,14 +3265,15 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			{
 				long apos;
 
-				apos = pLF - IOBuf->buf;
+				if (pLF != NULL) apos = pLF - IOBuf->buf;
 				IncreaseBuf(IOBuf, 1, -1);	
-				pLF = IOBuf->buf + apos;
+				if (pLF != NULL) pLF = IOBuf->buf + apos;
 			}
 
 			continue;
 		}
 	}
+	*Pos = NULL;
 	if (pLF != NULL) {
 		pos = IOBuf->buf;
 		rlen = 0;
@@ -3283,7 +3284,6 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 		if (pLF + 1 >= IOBuf->buf + IOBuf->BufUsed)
 		{
 			FlushStrBuf(IOBuf);
-			*Pos = NULL;
 		}
 		else 
 			*Pos = pLF + 1;
