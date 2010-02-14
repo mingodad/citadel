@@ -153,7 +153,7 @@ int serv_getln(char *strbuf, int bufsize)
 	FlushStrBuf(WCC->MigrateReadLineBuf);
 	strbuf[len] = '\0';
 #ifdef SERV_TRACE
-	lprintf(9, "%3d>%s\n", WC->serv_sock, strbuf);
+	lprintf(9, "%3d<<<%s\n", WC->serv_sock, strbuf);
 #endif
 	return len;
 }
@@ -164,7 +164,8 @@ int StrBuf_ServGetln(StrBuf *buf)
 	wcsession *WCC = WC;
 	const char *ErrStr = NULL;
 	int rc;
-
+	
+	FlushStrBuf(buf);
 	rc = StrBufTCP_read_buffered_line_fast(buf, 
 					       WCC->ReadBuf, 
 					       &WCC->ReadPos, 
@@ -180,6 +181,15 @@ int StrBuf_ServGetln(StrBuf *buf)
 		WCC->connected = 0;
 		WCC->logged_in = 0;
 	}
+#ifdef SERV_TRACE
+	else 
+	{
+		long pos=0;
+		if (WCC->ReadPos != NULL)
+			pos = WCC->ReadPos - ChrPtr(buf);
+		lprintf(9, "%3d<<<[%ld]%s\n", WC->serv_sock, pos, ChrPtr(buf));
+	}
+#endif
 	return rc;
 }
 
@@ -206,6 +216,11 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 		WCC->connected = 0;
 		WCC->logged_in = 0;
 	}
+#ifdef SERV_TRACE
+        else
+                lprintf(9, "%3d<<<BLOB: %ld bytes\n", WC->serv_sock, StrLength(buf));
+#endif
+
 	return rc;
 }
 
@@ -226,6 +241,11 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 		WCC->connected = 0;
 		WCC->logged_in = 0;
 	}
+#ifdef SERV_TRACE
+        else
+                lprintf(9, "%3d<<<BLOB: %ld bytes\n", WC->serv_sock, StrLength(buf));
+#endif
+
 	return rc;
 }
 
@@ -268,7 +288,7 @@ void serv_puts(const char *string)
 {
 	wcsession *WCC = WC;
 #ifdef SERV_TRACE
-	lprintf(9, "%3d<%s\n", WC->serv_sock, string);
+	lprintf(9, "%3d>>>%s\n", WC->serv_sock, string);
 #endif
 	FlushStrBuf(WCC->ReadBuf);
 	WCC->ReadPos = NULL;
@@ -285,7 +305,7 @@ void serv_putbuf(const StrBuf *string)
 {
 	wcsession *WCC = WC;
 #ifdef SERV_TRACE
-	lprintf(9, "%3d<%s\n", WC->serv_sock, ChrPtr(string));
+	lprintf(9, "%3d>>>%s\n", WC->serv_sock, ChrPtr(string));
 #endif
 	FlushStrBuf(WCC->ReadBuf);
 	WCC->ReadPos = NULL;
@@ -319,7 +339,7 @@ void serv_printf(const char *format,...)
 	buf[len] = '\0';
 	serv_write(buf, len);
 #ifdef SERV_TRACE
-	lprintf(9, "<%s", buf);
+	lprintf(9, ">>>%s", buf);
 #endif
 }
 
