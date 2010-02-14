@@ -3129,6 +3129,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 {
 	const char *pche = NULL;
 	const char *pos = NULL;
+	const char *pLF;
 	int len, rlen;
 	int nSuccessLess = 0;
 	fd_set rfds;
@@ -3153,44 +3154,70 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	    (pos != NULL) && 
 	    (pos < IOBuf->buf + IOBuf->BufUsed)) 
 	{
+		char *pcht;
+
 		pche = IOBuf->buf + IOBuf->BufUsed;
 		pch = pos;
+		pcht = Line->buf;
+
 		while ((pch < pche) && (*pch != '\n'))
-			pch ++;
+		{
+			if (Line->BufUsed + 10 > Line->BufSize)
+			{
+				long apos;
+				apos = pcht - Line->buf;
+				*pcht = '\0';
+				IncreaseBuf(Line, 1, -1);
+				pcht = Line->buf + apos;
+			}
+			*pcht++ = *pch++;
+			Line->BufUsed++;
+		}
+
+		len = pch - pos;
+		if (len > 0 && (*(pch - 1) == '\r') )
+		{
+			len --;
+			pcht --;
+			Line->BufUsed --;
+		}
+		*pcht = '\0';
+
 		if ((pch >= pche) || (*pch == '\0'))
+		{
+			FlushStrBuf(IOBuf);
+			*Pos = NULL;
 			pch = NULL;
+			pos = 0;
+		}
+
 		if ((pch != NULL) && 
 		    (pch <= pche)) 
 		{
-			rlen = 0;
-			len = pch - pos;
-			if (len > 0 && (*(pch - 1) == '\r') )
-				rlen ++;
-			StrBufSub(Line, IOBuf, (pos - IOBuf->buf), len - rlen);
-			*Pos = pch + 1;
-			return len - rlen;
+			if (pch + 1 >= pche) {
+				*Pos = NULL;
+				FlushStrBuf(IOBuf);
+			}
+			else
+				*Pos = pch + 1;
+			
+			return StrLength(Line);
 		}
-	}
-	
-	if (pos != NULL) {
-		if (pos > pche)
-			FlushStrBuf(IOBuf);
 		else 
-			StrBufCutLeft(IOBuf, (pos - IOBuf->buf));
-		*Pos = NULL;
+			FlushStrBuf(IOBuf);
 	}
+
+	/* If we come here, Pos is Unset since we read everything into Line, and now go for more. */
 	
-	if (IOBuf->BufSize - IOBuf->BufUsed < 10) {
+	if (IOBuf->BufSize - IOBuf->BufUsed < 10)
 		IncreaseBuf(IOBuf, 1, -1);
-		*Pos = NULL;
-	}
 
 	fdflags = fcntl(*fd, F_GETFL);
 	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
 
-	pch = NULL;
+	pLF = NULL;
 	while ((nSuccessLess < timeout) && 
-	       (pch == NULL) &&
+	       (pLF == NULL) &&
 	       (*fd != -1)) {
 		if (IsNonBlock)
 		{
@@ -3223,31 +3250,44 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 		}
 		else if (rlen > 0) {
 			nSuccessLess = 0;
+			pLF = IOBuf->buf + IOBuf->BufUsed;
 			IOBuf->BufUsed += rlen;
 			IOBuf->buf[IOBuf->BufUsed] = '\0';
-			if (IOBuf->BufUsed + 10 > IOBuf->BufSize) {
-				IncreaseBuf(IOBuf, 1, -1);
-				*Pos = NULL;
-			}
 			
 			pche = IOBuf->buf + IOBuf->BufUsed;
-			pch = IOBuf->buf;
-			while ((pch < pche) && (*pch != '\n'))
-				pch ++;
-			if ((pch >= pche) || (*pch == '\0'))
-				pch = NULL;
+			
+			while ((pLF < pche) && (*pLF != '\n'))
+				pLF ++;
+			if ((pLF >= pche) || (*pLF == '\0'))
+				pLF = NULL;
+
+			if (IOBuf->BufUsed + 10 > IOBuf->BufSize)
+			{
+				long apos;
+
+				apos = pLF - IOBuf->buf;
+				IncreaseBuf(IOBuf, 1, -1);	
+				pLF = IOBuf->buf + apos;
+			}
+
 			continue;
 		}
 	}
-	if (pch != NULL) {
+	if (pLF != NULL) {
 		pos = IOBuf->buf;
 		rlen = 0;
-		len = pch - pos;
-		if (len > 0 && (*(pch - 1) == '\r') )
+		len = pLF - pos;
+		if (len > 0 && (*(pLF - 1) == '\r') )
 			rlen ++;
-		StrBufSub(Line, IOBuf, 0, len - rlen);
-		*Pos = pos + len + 1;
-		return len - rlen;
+		StrBufAppendBufPlain(Line, ChrPtr(IOBuf), len - rlen, 0);
+		if (pLF + 1 >= IOBuf->buf + IOBuf->BufUsed)
+		{
+			FlushStrBuf(IOBuf);
+			*Pos = NULL;
+		}
+		else 
+			*Pos = pLF + 1;
+		return StrLength(Line);
 	}
 	*Error = ErrRBLF_NotEnoughSentFromServer;
 	return -1;
