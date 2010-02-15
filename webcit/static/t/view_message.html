@@ -3,7 +3,7 @@ onMouseOver=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="visib
 onMouseOut=document.getElementById("msg<?MAIL:SUMM:N>").style.visibility="hidden" >
 
 <??("COND:ROOM:TYPE_IS", 12, "VIEW_WIKI")><!-- skip headers for wiki rooms -->
-<div class="message_header<?%("COND:MAIL:SUMM:UNREAD", 1, 1, "_unread", "")>">
+<div class="message_header">
  <span><?MAIL:SUMM:DATEFULL></span>
  <?_("from ")>
  <??("COND:MAIL:ANON",1)>
