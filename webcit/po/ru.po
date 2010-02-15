@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-06 15:06-0500\n"
+"POT-Creation-Date: 2010-02-15 17:47-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Andrey N. Oktyabrski <ano@bestmx.ru>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -185,15 +185,15 @@ msgstr ""
 msgid "BUSY"
 msgstr ""
 
-#: ../bbsview_renderer.c:223
+#: ../bbsview_renderer.c:243
 msgid "Go to page: "
 msgstr ""
 
-#: ../bbsview_renderer.c:257 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:277 ../vcard_edit.c:855
 msgid "First"
 msgstr ""
 
-#: ../bbsview_renderer.c:263 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:283 ../vcard_edit.c:855
 msgid "Last"
 msgstr ""
 
@@ -2550,6 +2550,10 @@ msgid ""
 "you begin on when you log on to"
 msgstr ""
 
+#: ../static/t/no_new_msgs.html:3
+msgid "No new messages."
+msgstr ""
+
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
 msgstr ""
@@ -2573,6 +2577,15 @@ msgstr ""
 #: ../static/t/roombanner.html:19
 msgid "Select page: "
 msgstr ""
+
+#: ../static/t/start_of_new_msgs.html:4
+msgid "Old messages"
+msgstr ""
+
+#: ../static/t/start_of_new_msgs.html:8
+#, fuzzy
+msgid "New messages"
+msgstr "Новый пользователь"
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "

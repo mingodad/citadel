@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-06 15:06-0500\n"
+"POT-Creation-Date: 2010-02-15 17:47-0500\n"
 "PO-Revision-Date: 2009-06-12 16:41+0200\n"
 "Last-Translator: Czakó Krisztián <slapic@prolin.hu>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -180,16 +180,16 @@ msgstr "Szabad"
 msgid "BUSY"
 msgstr "ELFOGLALT"
 
-#: ../bbsview_renderer.c:223
+#: ../bbsview_renderer.c:243
 #, fuzzy
 msgid "Go to page: "
 msgstr "Oldal kiválasztása:"
 
-#: ../bbsview_renderer.c:257 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:277 ../vcard_edit.c:855
 msgid "First"
 msgstr "Keresztnév"
 
-#: ../bbsview_renderer.c:263 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:283 ../vcard_edit.c:855
 msgid "Last"
 msgstr "Vezetéknév"
 
@@ -2596,6 +2596,11 @@ msgid ""
 "you begin on when you log on to"
 msgstr ""
 
+#: ../static/t/no_new_msgs.html:3
+#, fuzzy
+msgid "No new messages."
+msgstr "Nincsenek új üzenetek."
+
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
 msgstr "OpenID URL:"
@@ -2621,6 +2626,16 @@ msgstr "Jellemzők és beállítások"
 #: ../static/t/roombanner.html:19
 msgid "Select page: "
 msgstr "Oldal kiválasztása:"
+
+#: ../static/t/start_of_new_msgs.html:4
+#, fuzzy
+msgid "Old messages"
+msgstr "Nincsenek régi üzenetek."
+
+#: ../static/t/start_of_new_msgs.html:8
+#, fuzzy
+msgid "New messages"
+msgstr "Nincsenek új üzenetek."
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
@@ -2666,14 +2681,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "no more messages"
 #~ msgstr "Anonym üzenetek"
-
-#, fuzzy
-#~ msgid "older messages"
-#~ msgstr "Nincsenek régi üzenetek."
-
-#, fuzzy
-#~ msgid "newer messages"
-#~ msgstr "Nincsenek új üzenetek."
 
 #~ msgid "Customize the icon bar"
 #~ msgstr "eszköztár testre szabása"

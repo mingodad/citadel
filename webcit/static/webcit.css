@@ -570,6 +570,7 @@ body, #global {
 
 .moreprompt_link {
 	color: #dddddd;
+	font-weight: bold;
 }
 
 .moreprompt_link:hover {

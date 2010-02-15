@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-06 15:06-0500\n"
+"POT-Creation-Date: 2010-02-15 17:47-0500\n"
 "PO-Revision-Date: 2006-12-20 14:18+0100\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -181,16 +181,16 @@ msgstr "libero"
 msgid "BUSY"
 msgstr "OCCUPATO"
 
-#: ../bbsview_renderer.c:223
+#: ../bbsview_renderer.c:243
 #, fuzzy
 msgid "Go to page: "
 msgstr "Cancella"
 
-#: ../bbsview_renderer.c:257 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:277 ../vcard_edit.c:855
 msgid "First"
 msgstr "Nome"
 
-#: ../bbsview_renderer.c:263 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:283 ../vcard_edit.c:855
 msgid "Last"
 msgstr "Cognome"
 
@@ -2688,6 +2688,11 @@ msgid ""
 "you begin on when you log on to"
 msgstr ""
 
+#: ../static/t/no_new_msgs.html:3
+#, fuzzy
+msgid "No new messages."
+msgstr "Nessun nuovo messaggio"
+
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
 msgstr ""
@@ -2712,6 +2717,16 @@ msgstr "Preferenze e impostazioni"
 #, fuzzy
 msgid "Select page: "
 msgstr "Cancella"
+
+#: ../static/t/start_of_new_msgs.html:4
+#, fuzzy
+msgid "Old messages"
+msgstr "Nessun vecchio messaggio."
+
+#: ../static/t/start_of_new_msgs.html:8
+#, fuzzy
+msgid "New messages"
+msgstr "Nessun nuovo messaggio"
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
@@ -2759,14 +2774,6 @@ msgstr "Utenti attualmente su %s"
 #, fuzzy
 #~ msgid "no more messages"
 #~ msgstr "Messaggio anonimo"
-
-#, fuzzy
-#~ msgid "older messages"
-#~ msgstr "Nessun vecchio messaggio."
-
-#, fuzzy
-#~ msgid "newer messages"
-#~ msgstr "Nessun nuovo messaggio"
 
 #~ msgid "Customize the icon bar"
 #~ msgstr "Personalizza la barra delle icone"

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-06 15:06-0500\n"
+"POT-Creation-Date: 2010-02-15 17:47-0500\n"
 "PO-Revision-Date: 2009-05-10 21:49+0100\n"
 "Last-Translator: iltl <iltl@free.fr>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -187,16 +187,16 @@ msgstr "libre"
 msgid "BUSY"
 msgstr "OCCUPÉ(E)"
 
-#: ../bbsview_renderer.c:223
+#: ../bbsview_renderer.c:243
 #, fuzzy
 msgid "Go to page: "
 msgstr "Sélectionner la page :"
 
-#: ../bbsview_renderer.c:257 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:277 ../vcard_edit.c:855
 msgid "First"
 msgstr "Prénom"
 
-#: ../bbsview_renderer.c:263 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:283 ../vcard_edit.c:855
 msgid "Last"
 msgstr "Nom"
 
@@ -2660,6 +2660,11 @@ msgstr ""
 "(Note: ceci ne changera pas la page d'accueil de votre navigateur, mais "
 "seulement celle que vous obtiendrez dès votre connexion."
 
+#: ../static/t/no_new_msgs.html:3
+#, fuzzy
+msgid "No new messages."
+msgstr "Pas de nouveau message."
+
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
 msgstr "adresse OpenID :"
@@ -2684,6 +2689,16 @@ msgstr "Préférences et options"
 #: ../static/t/roombanner.html:19
 msgid "Select page: "
 msgstr "Sélectionner la page :"
+
+#: ../static/t/start_of_new_msgs.html:4
+#, fuzzy
+msgid "Old messages"
+msgstr "Pas d'ancien message."
+
+#: ../static/t/start_of_new_msgs.html:8
+#, fuzzy
+msgid "New messages"
+msgstr "Pas de nouveau message."
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
@@ -2729,14 +2744,6 @@ msgstr "Usagers actuellement dans "
 #, fuzzy
 #~ msgid "no more messages"
 #~ msgstr "Messages anonymes"
-
-#, fuzzy
-#~ msgid "older messages"
-#~ msgstr "Pas d'ancien message."
-
-#, fuzzy
-#~ msgid "newer messages"
-#~ msgstr "Pas de nouveau message."
 
 #~ msgid "Customize the icon bar"
 #~ msgstr "Personnalisation du menu"

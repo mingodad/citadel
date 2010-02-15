@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-06 15:06-0500\n"
+"POT-Creation-Date: 2010-02-15 17:47-0500\n"
 "PO-Revision-Date: 2009-02-10 22:14+0100\n"
 "Last-Translator: Wim Kuilman\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
@@ -182,16 +182,16 @@ msgstr "vrij"
 msgid "BUSY"
 msgstr "BEZET"
 
-#: ../bbsview_renderer.c:223
+#: ../bbsview_renderer.c:243
 #, fuzzy
 msgid "Go to page: "
 msgstr "Selecteren"
 
-#: ../bbsview_renderer.c:257 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:277 ../vcard_edit.c:855
 msgid "First"
 msgstr "Voornaam"
 
-#: ../bbsview_renderer.c:263 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:283 ../vcard_edit.c:855
 msgid "Last"
 msgstr "Achternaam"
 
@@ -2653,6 +2653,11 @@ msgid ""
 "you begin on when you log on to"
 msgstr ""
 
+#: ../static/t/no_new_msgs.html:3
+#, fuzzy
+msgid "No new messages."
+msgstr "Geen nieuwe berichten."
+
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
 msgstr "OpenID URL:"
@@ -2677,6 +2682,16 @@ msgstr "Voorkeuren en instellingen"
 #, fuzzy
 msgid "Select page: "
 msgstr "Selecteren"
+
+#: ../static/t/start_of_new_msgs.html:4
+#, fuzzy
+msgid "Old messages"
+msgstr "Geen oude berichten."
+
+#: ../static/t/start_of_new_msgs.html:8
+#, fuzzy
+msgid "New messages"
+msgstr "Geen nieuwe berichten."
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
@@ -2722,14 +2737,6 @@ msgstr "Gebruikers op dit moment op "
 #, fuzzy
 #~ msgid "no more messages"
 #~ msgstr "Anonieme berichten"
-
-#, fuzzy
-#~ msgid "older messages"
-#~ msgstr "Geen oude berichten."
-
-#, fuzzy
-#~ msgid "newer messages"
-#~ msgstr "Geen nieuwe berichten."
 
 #~ msgid "Customize the icon bar"
 #~ msgstr "Lijst menuitems aanpassen."

@@ -215,21 +215,23 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 			for (i=start_index; (i<=end_index && i<BBS->num_msgs); ++i) {
 				if (
-					(
-						(BBS->msgs[i] > BBS->lastseen)
-						&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
-					)
-					|| (
-						(i == (BBS->num_msgs - 1))
-						&& (BBS->msgs[i] <= BBS->lastseen)
-					)
+					(BBS->msgs[i] > BBS->lastseen)
+					&& ( (i == 0) || (BBS->msgs[i-1] <= BBS->lastseen) )
 				) {
 					/* new messages start here */
-					wc_printf("<a name=\"newmsgs\">");
+					do_template("start_of_new_msgs", NULL);
 					StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#newmsgs\";\n");
 				}
 				if (BBS->msgs[i] > 0L) {
 					read_message(WC->WBuf, HKEY("view_message"), BBS->msgs[i], NULL, &Mime);
+				}
+				if (
+					(i == (BBS->num_msgs - 1))
+					&& (BBS->msgs[i] <= BBS->lastseen)
+				) {
+					/* no new messages */
+					do_template("no_new_msgs", NULL);
+					StrBufAppendPrintf(WC->trailing_javascript, "location.href=\"#nonewmsgs\";\n");
 				}
 			}
 		}
