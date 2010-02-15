@@ -3110,14 +3110,14 @@ static const char *ErrRBLF_NotEnoughSentFromServer="StrBufTCP_read_buffered_line
  * @ingroup StrBuf_BufferedIO
  * @brief Read a line from socket
  * flushes and closes the FD on error
- * @param Line Line to read from the fd / I/O Buffer
- * @param IOBuf the buffer to get the input to
- * @param Pos pointer to the current read position, should be NULL initialized!
+ * @param Line where to append our Line read from the fd / I/O Buffer; 
+ * @param IOBuf the buffer to get the input to; lifetime pair to FD
+ * @param Pos pointer to the current read position, should be NULL initialized on opening the FD it belongs to.!
  * @param fd pointer to the filedescriptor to read
  * @param timeout number of successless selects until we bail out
  * @param selectresolution how long to wait on each select
  * @param Error strerror() on error 
- * @returns numbers of chars read
+ * @returns numbers of chars read or -1 in case of error. "\n" will become 0
  */
 int StrBufTCP_read_buffered_line_fast(StrBuf *Line, 
 				      StrBuf *IOBuf, 
@@ -3130,7 +3130,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	const char *pche = NULL;
 	const char *pos = NULL;
 	const char *pLF;
-	int len, rlen;
+	int len, rlen, retlen;
 	int nSuccessLess = 0;
 	fd_set rfds;
 	const char *pch = NULL;
@@ -3138,6 +3138,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	int IsNonBlock;
 	struct timeval tv;
 	
+	retlen = 0;
 	if ((Line == NULL) ||
 	    (Pos == NULL) ||
 	    (IOBuf == NULL) ||
@@ -3172,11 +3173,13 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			}
 			*pcht++ = *pch++;
 			Line->BufUsed++;
+			retlen++;
 		}
 
 		len = pch - pos;
 		if (len > 0 && (*(pch - 1) == '\r') )
 		{
+			retlen--;
 			len --;
 			pcht --;
 			Line->BufUsed --;
@@ -3201,7 +3204,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 			else
 				*Pos = pch + 1;
 			
-			return StrLength(Line);
+			return retlen;
 		}
 		else 
 			FlushStrBuf(IOBuf);
@@ -3276,18 +3279,17 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 	*Pos = NULL;
 	if (pLF != NULL) {
 		pos = IOBuf->buf;
-		rlen = 0;
 		len = pLF - pos;
 		if (len > 0 && (*(pLF - 1) == '\r') )
-			rlen ++;
-		StrBufAppendBufPlain(Line, ChrPtr(IOBuf), len - rlen, 0);
+			len --;
+		StrBufAppendBufPlain(Line, ChrPtr(IOBuf), len, 0);
 		if (pLF + 1 >= IOBuf->buf + IOBuf->BufUsed)
 		{
 			FlushStrBuf(IOBuf);
 		}
 		else 
 			*Pos = pLF + 1;
-		return StrLength(Line);
+		return retlen + len;
 	}
 	*Error = ErrRBLF_NotEnoughSentFromServer;
 	return -1;
