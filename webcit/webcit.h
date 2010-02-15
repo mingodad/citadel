@@ -600,7 +600,7 @@ void cookie_to_stuff(StrBuf *cookie,
 void locate_host(StrBuf *TBuf, int);
 void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_response);
 void openid_manual_create(void);
-void display_login();
+void display_login(void);
 void display_openids(void);
 void do_welcome(void);
 void do_logout(void);
