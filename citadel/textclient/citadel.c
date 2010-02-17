@@ -1691,12 +1691,19 @@ int main(int argc, char **argv)
 	} else {
 		newprompt("\rPlease enter your password: ", password, -19);
 	}
-	strproc(password);
 
 	if (*nonce) {
 		r = CtdlIPCTryApopPassword(ipc, make_apop_string(password, nonce, hexstring, sizeof hexstring), aaa);
+		if (r / 100 != 2) {
+			strproc(password);
+			r = CtdlIPCTryApopPassword(ipc, make_apop_string(password, nonce, hexstring, sizeof hexstring), aaa);
+		}
 	} else {
 		r = CtdlIPCTryPassword(ipc, password, aaa);
+		if (r / 100 != 2) {
+			strproc(password);
+			r = CtdlIPCTryPassword(ipc, password, aaa);
+		}
 	}
 	
 	if (r / 100 == 2) {
