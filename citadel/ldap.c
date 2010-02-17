@@ -4,13 +4,24 @@
  * These functions implement the portions of AUTHMODE_LDAP and AUTHMODE_LDAP_AD which
  * actually speak to the LDAP server.
  *
- * Copyright (c) 2009 by Art Cancro and the citadel.org development team.
- * This program is released under the terms of the GNU General Public License v3
+ * Copyright (c) 2010 by Art Cancro and the citadel.org development team.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 int ctdl_require_ldap_version = 3;
-
 
 #include "sysdep.h"
 #include <errno.h>
@@ -58,14 +69,10 @@ int ctdl_require_ldap_version = 3;
 #include "genstamp.h"
 #include "threads.h"
 #include "citadel_ldap.h"
-
 #include "ctdl_module.h"
 
-
 #ifdef HAVE_LDAP
-
-#define LDAP_DEPRECATED 1	/* Needed to suppress misleading warnings */
-
+#define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
 #include <ldap.h>
 
 int CtdlTryUserLDAP(char *username,
@@ -88,7 +95,8 @@ int CtdlTryUserLDAP(char *username,
 	if (ldserver == NULL) {
 		CtdlLogPrintf(CTDL_ALERT, "LDAP: Could not connect to %s:%d : %s\n",
 			config.c_ldap_host, config.c_ldap_port,
-			strerror(errno));
+			strerror(errno)
+		);
 		return(errno);
 	}
 
@@ -96,6 +104,7 @@ int CtdlTryUserLDAP(char *username,
 
 	striplt(config.c_ldap_bind_dn);
 	striplt(config.c_ldap_bind_pw);
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP bind DN: %s\n", config.c_ldap_bind_dn);
 	i = ldap_simple_bind_s(ldserver,
 		(!IsEmptyStr(config.c_ldap_bind_dn) ? config.c_ldap_bind_dn : NULL),
 		(!IsEmptyStr(config.c_ldap_bind_pw) ? config.c_ldap_bind_pw : NULL)
@@ -115,24 +124,36 @@ int CtdlTryUserLDAP(char *username,
 		sprintf(searchstring, "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
 
-	i = ldap_search_st(ldserver,
-		config.c_ldap_base_dn,
-		LDAP_SCOPE_SUBTREE,
-		searchstring,
-		NULL,	// return all attributes
-		0,	// attributes + values
-		&tv,	// timeout
-		&search_result
+	/* Documentation of ldap_search_ext_s() is at http://tinyurl.com/y9c8a8l */
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP search: %s\n", searchstring);
+	i = ldap_search_ext_s(ldserver,				/* ld				*/
+		config.c_ldap_base_dn,				/* base				*/
+		LDAP_SCOPE_SUBTREE,				/* scope			*/
+		searchstring,					/* filter			*/
+		NULL,						/* attrs (all attributes)	*/
+		0,						/* attrsonly (attrs + values)	*/
+		NULL,						/* serverctrls (none)		*/
+		NULL,						/* clientctrls (none)		*/
+		&tv,						/* timeout			*/
+		1,						/* sizelimit (1 result max)	*/
+		&search_result					/* res				*/
 	);
+
+#if 0
+	/* It appears that this is unnecessary, and returns an error even when the search succeeds? */
 	if (i != LDAP_SUCCESS) {
-		CtdlLogPrintf(CTDL_DEBUG,
-			"Couldn't find what I was looking for: %s (%d)\n", ldap_err2string(i), i);
+		CtdlLogPrintf(CTDL_DEBUG, "LDAP search failed: %s (%d)\n", ldap_err2string(i), i);
 		ldap_unbind(ldserver);
+		if (search_result != NULL) {
+			/* this should never happen - warning memory leak! */
+			CtdlLogPrintf(CTDL_DEBUG, "search returned error but search_result is not null!\n");
+		}
 		return(i);
 	}
+#endif
 
 	if (search_result == NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "No results were returned\n");
+		CtdlLogPrintf(CTDL_DEBUG, "LDAP search: zero results were returned\n");
 		ldap_unbind(ldserver);
 		return(2);
 	}

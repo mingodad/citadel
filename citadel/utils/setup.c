@@ -925,6 +925,9 @@ void edit_value(int curr)
 		}
 		else
 		{
+			if (config.c_ldap_port == 0) {
+				config.c_ldap_port = 389;
+			}
 			set_int_val(curr, &config.c_ldap_port);
 		}
 		break;
