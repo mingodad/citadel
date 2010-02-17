@@ -72,7 +72,7 @@ int ctdl_require_ldap_version = 3;
 #include "ctdl_module.h"
 
 #ifdef HAVE_LDAP
-#define LDAP_DEPRECATED 1	/* Suppress libldap's warning that we are using deprecated API calls */
+#define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */
 #include <ldap.h>
 
 int CtdlTryUserLDAP(char *username,
@@ -124,22 +124,33 @@ int CtdlTryUserLDAP(char *username,
 		sprintf(searchstring, "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
 
-	/* FIXME migrate to ldap_search_ext_s() which is not deprecated.  http://tinyurl.com/y9c8a8l */
+	/* Documentation of ldap_search_ext_s() is at http://tinyurl.com/y9c8a8l */
 	CtdlLogPrintf(CTDL_DEBUG, "LDAP search: %s\n", searchstring);
-	i = ldap_search_st(ldserver,				// ld
-		config.c_ldap_base_dn,				// base
-		LDAP_SCOPE_SUBTREE,				// scope
-		searchstring,					// filter
-		NULL,	// return all attributes		// attrs
-		0,	// attributes + values			// attrsonly
-		&tv,	// timeout				// timeout
-		&search_result					// res
+	i = ldap_search_ext_s(ldserver,				/* ld				*/
+		config.c_ldap_base_dn,				/* base				*/
+		LDAP_SCOPE_SUBTREE,				/* scope			*/
+		searchstring,					/* filter			*/
+		NULL,						/* attrs (all attributes)	*/
+		0,						/* attrsonly (attrs + values)	*/
+		NULL,						/* serverctrls (none)		*/
+		NULL,						/* clientctrls (none)		*/
+		&tv,						/* timeout			*/
+		1,						/* sizelimit (1 result max)	*/
+		&search_result					/* res				*/
 	);
+
+#if 0
+	/* It appears that this is unnecessary, and returns an error even when the search succeeds? */
 	if (i != LDAP_SUCCESS) {
 		CtdlLogPrintf(CTDL_DEBUG, "LDAP search failed: %s (%d)\n", ldap_err2string(i), i);
 		ldap_unbind(ldserver);
+		if (search_result != NULL) {
+			/* this should never happen - warning memory leak! */
+			CtdlLogPrintf(CTDL_DEBUG, "search returned error but search_result is not null!\n");
+		}
 		return(i);
 	}
+#endif
 
 	if (search_result == NULL) {
 		CtdlLogPrintf(CTDL_DEBUG, "LDAP search: zero results were returned\n");
