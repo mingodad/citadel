@@ -1043,12 +1043,11 @@ void do_command_loop(void) {
 	}
 
 	/* Log the server command, but don't show passwords... */
-	if ( (strncasecmp(cmdbuf, "PASS", 4))
-	   && (strncasecmp(cmdbuf, "SETP", 4)) ) {
+	if ( (strncasecmp(cmdbuf, "PASS", 4)) && (strncasecmp(cmdbuf, "SETP", 4)) ) {
 		CtdlLogPrintf(CTDL_INFO, "%s\n", cmdbuf);
 	}
 	else {
-		CtdlLogPrintf(CTDL_INFO, "<password command sent>\n");
+		CtdlLogPrintf(CTDL_INFO, "<password command hidden from log>\n");
 	}
 
 	buffer_output();
