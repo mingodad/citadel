@@ -1,3 +1,9 @@
+libcitadel (7.72-90) stable; urgency=low
+
+  * new maintenance release
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 17 Feb 2010 22:00:00 +0001
+
 libcitadel (7.71-89) unstable; urgency=low
 
   * new release
