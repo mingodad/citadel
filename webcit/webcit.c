@@ -699,7 +699,7 @@ void session_loop(void)
 
 	if (WCC->Hdr->HR.Handler != NULL) {
 		if (!WCC->logged_in && ((WCC->Hdr->HR.Handler->Flags & ANONYMOUS) == 0)) {
-			display_login(NULL);
+			display_login();
 		}
 		else {
 /*
@@ -723,7 +723,7 @@ void session_loop(void)
 			if (xhttp)
 				authorization_required();
 			else 
-				display_login(NULL);
+				display_login();
 		}
 		/*
 		 * Toplevel dav requests? or just a flat browser request? 
