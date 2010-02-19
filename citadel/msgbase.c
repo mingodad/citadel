@@ -2153,19 +2153,49 @@ START_TEXT:
 	 */
 	if (TheMessage->cm_format_type == FMT_FIXED) {
 		int buflen;
+		int xlline = 0;
+		int nllen = strlen (nl);
 		if (mode == MT_MIME) {
 			cprintf("Content-type: text/plain\n\n");
 		}
 		*buf = '\0';
 		buflen = 0;
 		while (ch = *mptr++, ch > 0) {
-			if (ch == 13)
-				ch = 10;
-			if ((ch == 10) || (buflen > 250)) {
+			if (ch == '\n')
+				ch = '\r';
+
+			if ((buflen > 250) && (!xlline)){
+				int tbuflen;
+				tbuflen = buflen;
+
+				while ((buflen > 0) && 
+				       (!isspace(buf[buflen])))
+					buflen --;
+				if (buflen == 0) {
+					xlline = 1;
+				}
+				else {
+					mptr -= tbuflen - buflen;
+					buf[buflen] = '\0';
+					ch = '\r';
+				}
+			}
+			/* if we reach the outer bounds of our buffer, 
+			   abort without respect what whe purge. */
+			if (xlline && 
+			    ((isspace(ch)) || 
+			     (buflen > SIZ - nllen - 2)))
+				ch = '\r';
+
+			if (ch == '\r') {
+				memcpy (&buf[buflen], nl, nllen);
+				buflen += nllen;
 				buf[buflen] = '\0';
-				cprintf("%s%s", buf, nl);
+
+				client_write(buf, buflen);
 				*buf = '\0';
 				buflen = 0;
+				xlline = 0;
 			} else {
 				buf[buflen] = ch;
 				buflen++;
