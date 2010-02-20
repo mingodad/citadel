@@ -588,6 +588,23 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 			      __FUNCTION__,
 			      Error);
 	}
+	else
+	{
+		char fn [SIZ];
+		FILE *fd;
+
+		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+
+		fd = fopen(fn, "a+");
+                fprintf(fd, "Read: BufSize: %d BufContent: [",
+                        StrLength(Target));
+		fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+                fprintf(fd, "]\n");
+		
+			
+                fclose(fd);
+
+	}
 	return retval == bytes;
 }
 
