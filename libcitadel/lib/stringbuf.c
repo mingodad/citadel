@@ -2390,9 +2390,9 @@ void  ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic)
  * @param bptr where to start searching
  * @returns found position, NULL if none.
  */
-static inline char *FindNextEnd (const StrBuf *Buf, char *bptr)
+static inline const char *FindNextEnd (const StrBuf *Buf, const char *bptr)
 {
-	char * end;
+	const char * end;
 	/* Find the next ?Q? */
 	if (Buf->BufUsed - (bptr - Buf->buf)  < 6)
 		return NULL;
@@ -2506,8 +2506,8 @@ TRYAGAIN:
  */
 inline static void DecodeSegment(StrBuf *Target, 
 				 const StrBuf *DecodeMe, 
-				 char *SegmentStart, 
-				 char *SegmentEnd, 
+				 const char *SegmentStart, 
+				 const char *SegmentEnd, 
 				 StrBuf *ConvertBuf,
 				 StrBuf *ConvertBuf2, 
 				 StrBuf *FoundCharset)
@@ -2523,7 +2523,7 @@ inline static void DecodeSegment(StrBuf *Target,
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
 	 */
-	StaticBuf.buf = SegmentStart;
+	StaticBuf.buf = (char*) SegmentStart; /*< it will just be read there... */
 	StaticBuf.BufUsed = SegmentEnd - SegmentStart;
 	StaticBuf.BufSize = DecodeMe->BufSize - (SegmentStart - DecodeMe->buf);
 	extract_token(charset, SegmentStart, 1, '?', sizeof charset);
@@ -2589,7 +2589,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 	StrBuf *DecodedInvalidBuf = NULL;
 	StrBuf *ConvertBuf, *ConvertBuf2;
 	const StrBuf *DecodeMee = DecodeMe;
-	char *start, *end, *next, *nextend, *ptr = NULL;
+	const char *start, *end, *next, *nextend, *ptr = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 #endif
