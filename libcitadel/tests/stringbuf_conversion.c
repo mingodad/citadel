@@ -88,6 +88,21 @@ static void TestRFC822Decode(void)
 	FreeStrBuf(&Target);
 	FreeStrBuf(&FoundCharset);
 	FreeStrBuf(&DefaultCharset);
+
+
+	DefaultCharset = NewStrBufPlain(HKEY("iso-8859-1"));
+	FoundCharset = NewStrBuf();
+	Source = NewStrBufPlain(HKEY("\"w.goesgens\" <w.goesgens@aoeuaoeuaoeu.org>, =?ISO-8859-15?Q?Walter_?= =?ISO-8859-15?Q?G=F6aoeus?= <aoeuaoeu@aoe.de>, =?ISO-8859-15?Q?aoeuaoeuh?= =?ISO-8859-15?Q?_G=F6aoeus?= <aoeuoeuaoeu@oeu.de>, aoeuao aoeuaoeu <aoeuaoeuaoeaoe@aoe.de"));
+	Target = NewStrBufPlain(NULL, 256);
+
+	StrBuf_RFC822_to_Utf8(Target, Source, DefaultCharset, FoundCharset);
+	TestRevalidateStrBuf(Target);
+	printf("the ugly multi:>%s<\n", ChrPtr(Target));
+	FreeStrBuf(&Source);
+	FreeStrBuf(&Target);
+	FreeStrBuf(&FoundCharset);
+	FreeStrBuf(&DefaultCharset);
+
 }
 
 

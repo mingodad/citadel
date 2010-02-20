@@ -3070,9 +3070,9 @@ void  ctdl_iconv_open(const char *tocode, const char *fromcode, void *pic)
  * @param bptr where to start searching
  * @returns found position, NULL if none.
  */
-static inline char *FindNextEnd (const StrBuf *Buf, char *bptr)
+static inline const char *FindNextEnd (const StrBuf *Buf, const char *bptr)
 {
-	char * end;
+	const char * end;
 	/* Find the next ?Q? */
 	if (Buf->BufUsed - (bptr - Buf->buf)  < 6)
 		return NULL;
@@ -3186,8 +3186,8 @@ TRYAGAIN:
  */
 inline static void DecodeSegment(StrBuf *Target, 
 				 const StrBuf *DecodeMe, 
-				 char *SegmentStart, 
-				 char *SegmentEnd, 
+				 const char *SegmentStart, 
+				 const char *SegmentEnd, 
 				 StrBuf *ConvertBuf,
 				 StrBuf *ConvertBuf2, 
 				 StrBuf *FoundCharset)
@@ -3203,7 +3203,7 @@ inline static void DecodeSegment(StrBuf *Target,
 	/* Now we handle foreign character sets properly encoded
 	 * in RFC2047 format.
 	 */
-	StaticBuf.buf = SegmentStart;
+	StaticBuf.buf = (char*) SegmentStart; /*< it will just be read there... */
 	StaticBuf.BufUsed = SegmentEnd - SegmentStart;
 	StaticBuf.BufSize = DecodeMe->BufSize - (SegmentStart - DecodeMe->buf);
 	extract_token(charset, SegmentStart, 1, '?', sizeof charset);
@@ -3269,13 +3269,13 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 	StrBuf *DecodedInvalidBuf = NULL;
 	StrBuf *ConvertBuf, *ConvertBuf2;
 	const StrBuf *DecodeMee = DecodeMe;
-	char *start, *end, *next, *nextend, *ptr = NULL;
+	const char *start, *end, *next, *nextend, *ptr = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
 #endif
 	const char *eptr;
 	int passes = 0;
-	int i, len, delta;
+	int i, len;
 	int illegal_non_rfc2047_encoding = 0;
 
 	/* Sometimes, badly formed messages contain strings which were simply
@@ -3372,22 +3372,16 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 				(*ptr == '\n') || 
 				(*ptr == '\t')))
 				ptr ++;
-			/* did we find a gab just filled with blanks? */
-			if (ptr == next)
+			/* 
+			 * did we find a gab just filled with blanks?
+			 * if not, copy its stuff over.
+			 */
+			if (ptr != next)
 			{
-				long gap = next - start;
-				memmove (end + 2,
-					 next,
-					 len - (gap));
-				len -= gap;
-				/* now terminate the gab at the end */
-				delta = (next - end) - 2; ////TODO: const! 
-				((StrBuf*)DecodeMee)->BufUsed -= delta;
-				((StrBuf*)DecodeMee)->buf[DecodeMee->BufUsed] = '\0';
-
-				/* move next to its new location. */
-				next -= delta;
-				nextend -= delta;
+				StrBufAppendBufPlain(Target, 
+						     end + 2, 
+						     next - end - 2,
+						     0);
 			}
 		}
 		/* our next-pair is our new first pair now. */
