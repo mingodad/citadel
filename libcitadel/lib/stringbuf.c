@@ -2595,7 +2595,7 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 #endif
 	const char *eptr;
 	int passes = 0;
-	int i, len, delta;
+	int i, len;
 	int illegal_non_rfc2047_encoding = 0;
 
 	/* Sometimes, badly formed messages contain strings which were simply
@@ -2692,22 +2692,16 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 				(*ptr == '\n') || 
 				(*ptr == '\t')))
 				ptr ++;
-			/* did we find a gab just filled with blanks? */
-			if (ptr == next)
+			/* 
+			 * did we find a gab just filled with blanks?
+			 * if not, copy its stuff over.
+			 */
+			if (ptr != next)
 			{
-				long gap = next - start;
-				memmove (end + 2,
-					 next,
-					 len - (gap));
-				len -= gap;
-				/* now terminate the gab at the end */
-				delta = (next - end) - 2; ////TODO: const! 
-				((StrBuf*)DecodeMee)->BufUsed -= delta;
-				((StrBuf*)DecodeMee)->buf[DecodeMee->BufUsed] = '\0';
-
-				/* move next to its new location. */
-				next -= delta;
-				nextend -= delta;
+				StrBufAppendBufPlain(Target, 
+						     end + 2, 
+						     next - end - 2,
+						     0);
 			}
 		}
 		/* our next-pair is our new first pair now. */
