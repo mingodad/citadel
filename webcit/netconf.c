@@ -138,6 +138,7 @@ void save_net_conf(HashList *Nodelist)
 				}
 			}
 			FreeStrBuf(&Buf);
+			DeleteHashPos(&where);
 		}
 		serv_puts("000");
 	}
