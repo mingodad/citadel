@@ -3456,7 +3456,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	
 	pos = *Pos;
 
-	if (pos > 0)
+	if (pos != NULL)
 		len = pos - IOBuf->buf;
 	rlen = IOBuf->BufUsed - len;
 
