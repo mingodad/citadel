@@ -289,7 +289,6 @@ void rss_save_item(rsscollection *rssc) {
 	int msglen = 0;
 	rss_item *ri = rssc->Item;
 
-	CtdlLogPrintf(0, "RSS: saving item...\n");
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
 	memset(recp, 0, sizeof(struct recptypes));
@@ -334,7 +333,7 @@ void rss_save_item(rsscollection *rssc) {
 	}
 	else {
 		/* Item has not been seen, so save it. */
-
+		CtdlLogPrintf(CTDL_DEBUG, "RSS: saving item...\n");
 		if (ri->description == NULL) ri->description = strdup("");
 		for (i=strlen(ri->description); i>=0; --i) {
 			if (isspace(ri->description[i])) {
