@@ -44,6 +44,7 @@ struct citxmpp {			/* Information about the current session */
 	int html_tag_level;		/* <html> tag nesting level */
 
 	int bind_requested;		/* In this stanza, client is asking server to bind a resource. */
+	int ping_requested;		/* In this stanza, client is pinging the server. */
 };
 
 #define XMPP ((struct citxmpp *)CC->session_specific_data)

@@ -2,21 +2,21 @@
  * $Id$ 
  *
  * XMPP (Jabber) service for the Citadel system
- * Copyright (c) 2007-2009 by Art Cancro
+ * Copyright (c) 2007-2010 by Art Cancro
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -239,10 +239,29 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			}
 
 			/*
+			 * ping ( http://xmpp.org/extensions/xep-0199.html )
+			 */
+			else if (XMPP->ping_requested) {
+				cprintf("<iq type=\"result\" ");
+				if (!IsEmptyStr(XMPP->iq_from)) {
+					cprintf("to=\"%s\" ", XMPP->iq_from);
+				}
+				if (!IsEmptyStr(XMPP->iq_to)) {
+					cprintf("from=\"%s\" ", XMPP->iq_to);
+				}
+				cprintf("id=\"%s\"/>", XMPP->iq_id);
+			}
+
+			/*
 			 * Unknown queries ... return the XML equivalent of a blank stare
 			 */
 			else {
-				cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_id);
+				CtdlLogPrintf(CTDL_DEBUG, "Unknown query; <service-unavailable/>\n");
+				cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_id);
+				cprintf("<error code=\"503\" type=\"cancel\">"
+					"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+					"</error>"
+				);
 				cprintf("</iq>");
 			}
 		}
@@ -310,6 +329,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		XMPP->iq_session = 0;
 		XMPP->iq_query_xmlns[0] = 0;
 		XMPP->bind_requested = 0;
+		XMPP->ping_requested = 0;
 	}
 
 	else if (!strcasecmp(el, "auth")) {
@@ -361,6 +381,10 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 	CC->kill_me = 1;
 #endif
+	}
+
+	else if (!strcasecmp(el, "ping")) {
+		XMPP->ping_requested = 1;
 	}
 
 	XMPP->chardata_len = 0;
