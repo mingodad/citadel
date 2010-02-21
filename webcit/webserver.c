@@ -232,6 +232,7 @@ int main(int argc, char **argv)
 		start_daemon(pidfile);
 	}
 	else {
+		signal(SIGINT, graceful_shutdown);
 		signal(SIGHUP, graceful_shutdown);
 	}
 
