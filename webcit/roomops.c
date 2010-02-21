@@ -1619,6 +1619,7 @@ void display_editroom(void)
 		wc_printf("</div>");
 	}
 
+	free (not_shared_with);
 	/* Mailing list management */
 	if (!strcmp(tab, "listserv")) {
 		room_states RoomFlags;
