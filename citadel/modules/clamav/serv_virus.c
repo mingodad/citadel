@@ -85,6 +85,7 @@ int clamd(struct CtdlMessage *msg) {
 	int clamhost;
 	char *msgtext;
 	size_t msglen;
+	CitContext *CCC;
 
 	/* Don't care if you're logged in.  You can still spread viruses.
 	 */
@@ -117,6 +118,10 @@ int clamd(struct CtdlMessage *msg) {
 		 */
 		return(0);
 	}
+	CCC=CC;
+	CCC->sReadBuf = NewStrBuf();
+	CCC->sMigrateBuf = NewStrBuf();
+	CCC->sPos = NULL;
 
 	/* Command */
 	CtdlLogPrintf(CTDL_DEBUG, "Transmitting STREAM command\n");
@@ -143,6 +148,8 @@ int clamd(struct CtdlMessage *msg) {
 		/* If the service isn't running, just pass the mail
 		 * through.  Potentially throwing away mails isn't good.
 		 */
+		FreeStrBuf(&CCC->sReadBuf);
+		FreeStrBuf(&CCC->sMigrateBuf);
 		return(0);
         }
 	else {
@@ -189,6 +196,8 @@ int clamd(struct CtdlMessage *msg) {
 	}
 
 bail:	close(sock);
+	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->sMigrateBuf);
 	return(is_virus);
 }
 

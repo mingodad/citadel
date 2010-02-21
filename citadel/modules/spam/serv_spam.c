@@ -82,6 +82,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	int sa;
 	char *msgtext;
 	size_t msglen;
+	CitContext *CCC=CC;
 
 	/* For users who have authenticated to this server we never want to
 	 * apply spam filtering, because presumably they're trustworthy.
@@ -107,21 +108,25 @@ int spam_assassin(struct CtdlMessage *msg) {
 		return(0);
 	}
 
+	CCC->sReadBuf = NewStrBuf();
+	CCC->sMigrateBuf = NewStrBuf();
+	CCC->sPos = NULL;
+
 	/* Command */
 	CtdlLogPrintf(CTDL_DEBUG, "Transmitting command\n");
 	sprintf(buf, "CHECK SPAMC/1.2\r\n\r\n");
 	sock_write(&sock, buf, strlen(buf));
 
 	/* Message */
-	CC->redirect_buffer = malloc(SIZ);
-	CC->redirect_len = 0;
-	CC->redirect_alloc = SIZ;
+	CCC->redirect_buffer = malloc(SIZ);
+	CCC->redirect_len = 0;
+	CCC->redirect_alloc = SIZ;
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, 0);
 	msgtext = CC->redirect_buffer;
 	msglen = CC->redirect_len;
-	CC->redirect_buffer = NULL;
-	CC->redirect_len = 0;
-	CC->redirect_alloc = 0;
+	CCC->redirect_buffer = NULL;
+	CCC->redirect_len = 0;
+	CCC->redirect_alloc = 0;
 
 	sock_write(&sock, msgtext, msglen);
 	free(msgtext);
@@ -192,6 +197,8 @@ int spam_assassin(struct CtdlMessage *msg) {
 	}
 
 bail:	close(sock);
+	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->sMigrateBuf);
 	return(is_spam);
 }
 

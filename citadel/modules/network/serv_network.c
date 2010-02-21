@@ -2006,6 +2006,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	char buf[SIZ];
 	char err_buf[SIZ];
 	char connected_to[SIZ];
+	CitContext *CCC=CC;
 
 	if (network_talking_to(node, NTT_CHECK)) return;
 	network_talking_to(node, NTT_ADD);
@@ -2019,7 +2020,9 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	}
 	
 	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
-
+	CCC->sReadBuf = NewStrBuf();
+	CCC->sMigrateBuf = NewStrBuf();
+	CCC->sPos = NULL;
 	/* Read the server greeting */
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
@@ -2050,6 +2053,8 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	sock_puts(&sock, "QUIT");
 bail:	
+	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->sMigrateBuf);
 	if (sock != -1)
 		sock_close(sock);
 	network_talking_to(node, NTT_REMOVE);

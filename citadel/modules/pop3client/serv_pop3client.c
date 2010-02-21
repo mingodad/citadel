@@ -82,6 +82,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	char utmsgid[SIZ];
 	struct cdbdata *cdbut;
 	struct UseTable ut;
+	CitContext *CCC=CC;
 
 	CtdlLogPrintf(CTDL_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
 	CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
@@ -99,6 +100,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		goto bail;
 
 	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
+	CCC->sReadBuf = NewStrBuf();
+	CCC->sMigrateBuf = NewStrBuf();
+	CCC->sPos = NULL;
 
 	/* Read the server greeting */
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
@@ -243,6 +247,9 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 bail:	
+	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->sMigrateBuf);
+
 	if (sock != -1)
 		sock_close(sock);
 	if (msglist) free(msglist);

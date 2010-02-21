@@ -978,6 +978,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	char *ptr;
 	size_t msg_size;
 	int scan_done;
+	CitContext *CCC=CC;
 	
 	
 	/* Parse out the host portion of the recipient address */
@@ -987,15 +988,15 @@ void smtp_try(const char *key, const char *addr, int *status,
 		user, node, name);
 
 	/* Load the message out of the database */
-	CC->redirect_buffer = malloc(SIZ);
-	CC->redirect_len = 0;
-	CC->redirect_alloc = SIZ;
+	CCC->redirect_buffer = malloc(SIZ);
+	CCC->redirect_len = 0;
+	CCC->redirect_alloc = SIZ;
 	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, ESC_DOT);
 	msgtext = CC->redirect_buffer;
 	msg_size = CC->redirect_len;
-	CC->redirect_buffer = NULL;
-	CC->redirect_len = 0;
-	CC->redirect_alloc = 0;
+	CCC->redirect_buffer = NULL;
+	CCC->redirect_len = 0;
+	CCC->redirect_alloc = 0;
 
 	/* If no envelope_from is supplied, extract one from the message */
 	if ( (envelope_from == NULL) || (IsEmptyStr(envelope_from)) ) {
@@ -1101,6 +1102,10 @@ void smtp_try(const char *key, const char *addr, int *status,
 		*status = 4;	/* dsn is already filled in */
 		return;
 	}
+
+	CCC->sReadBuf = NewStrBuf();
+	CCC->sMigrateBuf = NewStrBuf();
+	CCC->sPos = NULL;
 
 	/* Process the SMTP greeting from the server */
 	if (ml_sock_gets(&sock, buf) < 0) {
@@ -1294,6 +1299,8 @@ void smtp_try(const char *key, const char *addr, int *status,
 		user, node, name);
 
 bail:	free(msgtext);
+	FreeStrBuf(&CCC->sReadBuf);
+	FreeStrBuf(&CCC->sMigrateBuf);
 	if (sock != -1)
 		sock_close(sock);
 
