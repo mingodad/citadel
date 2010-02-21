@@ -59,7 +59,7 @@ void extract_key(char *target, char *source, long sourcelen, char *key, long key
 	}
 	strcpy(target, (ptr + RealKeyLen));
 
-	for (ptr=target; (*ptr != 0); ++ptr) {
+	for (ptr=target; (*ptr != 0); ptr++) {
 
 		/* A semicolon means we've hit the end of the key, unless we're inside double quotes */
 		if ( (double_quotes != 1) && (*ptr == ';')) {
