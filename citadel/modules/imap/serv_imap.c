@@ -113,11 +113,7 @@ void imap_free_msgids(void)
  */
 void imap_free_transmitted_message(void)
 {
-	if (IMAP->transmitted_message != NULL) {
-		free(IMAP->transmitted_message);
-		IMAP->transmitted_message = NULL;
-		IMAP->transmitted_length = 0;
-	}
+	FreeStrBuf(&IMAP->TransmittedMessage);
 }
 
 

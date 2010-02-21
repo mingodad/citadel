@@ -24,8 +24,7 @@ struct citimap {
 	time_t last_mtime;		/* For checking whether the room was modified... */
 	long *msgids;
 	unsigned int *flags;
-	char *transmitted_message;	/* for APPEND command... */
-	size_t transmitted_length;
+	StrBuf *TransmittedMessage;	/* for APPEND command... */
 
 	/* Cache most recent RFC822 FETCH because client might load in pieces */
 	char *cached_rfc822_data;

@@ -285,7 +285,6 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
 void imap_append(int num_parms, char *parms[]) {
 	long literal_length;
 	long bytes_transferred;
-	long stripped_length = 0;
 	struct CtdlMessage *msg = NULL;
 	long new_msgnum = (-1L);
 	int ret = 0;
@@ -332,21 +331,20 @@ void imap_append(int num_parms, char *parms[]) {
 
 	Imap = IMAP;
 	imap_free_transmitted_message();	/* just in case. */
-	Imap->transmitted_message = malloc(literal_length + 1);
-	if (Imap->transmitted_message == NULL) {
+
+	Imap->TransmittedMessage = NewStrBufPlain(NULL, literal_length);
+
+	if (Imap->TransmittedMessage == NULL) {
 		cprintf("%s NO Cannot allocate memory.\r\n", parms[0]);
 		return;
 	}
-	Imap->transmitted_length = literal_length;
-
+	
 	cprintf("+ Transmit message now.\r\n");
 
 	bytes_transferred = 0;
+	client_read_blob(Imap->TransmittedMessage, literal_length, config.c_sleeping);
 
-	ret = client_read(Imap->transmitted_message, literal_length);
-	Imap->transmitted_message[literal_length] = 0;
-
-	if (ret != 1) {
+	if ((ret < 0) || (StrLength(Imap->TransmittedMessage) < literal_length)) {
 		cprintf("%s NO Read failed.\r\n", parms[0]);
 		return;
 	}
@@ -359,20 +357,10 @@ void imap_append(int num_parms, char *parms[]) {
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
 	CtdlLogPrintf(CTDL_DEBUG, "Converting CRLF to LF\n");
-	stripped_length = 0;
-	for (i=0; i<literal_length; ++i) {
-		if (strncmp(&Imap->transmitted_message[i], "\r\n", 2)) {
-			Imap->transmitted_message[stripped_length++] =
-				Imap->transmitted_message[i];
-		}
-	}
-	literal_length = stripped_length;
-	Imap->transmitted_message[literal_length] = 0;	/* reterminate it */
+	StrBufToUnixLF(Imap->TransmittedMessage);
 
 	CtdlLogPrintf(CTDL_DEBUG, "Converting message format\n");
-	msg = convert_internet_message(Imap->transmitted_message);
-	Imap->transmitted_message = NULL;
-	Imap->transmitted_length = 0;
+	msg = convert_internet_message_buf(&Imap->TransmittedMessage);
 
 	ret = imap_grabroom(roomname, parms[2], 1);
 	if (ret != 0) {
