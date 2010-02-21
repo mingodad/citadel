@@ -300,7 +300,7 @@ InitModule_NETCONF
 {
 	WebcitAddUrlHandler(HKEY("display_edit_node"), "", 0, display_edit_node, 0);
 
-	WebcitAddUrlHandler(HKEY("edit_node"), "", 0, edit_node, 0);
+	WebcitAddUrlHandler(HKEY("aide_ignetconf_edit_node"), "", 0, edit_node, 0);
 	WebcitAddUrlHandler(HKEY("display_netconf"), "", 0, display_netconf, 0);
 	WebcitAddUrlHandler(HKEY("display_confirm_delete_node"), "", 0, display_confirm_delete_node, 0);
 	WebcitAddUrlHandler(HKEY("delete_node"), "", 0, delete_node, 0);
