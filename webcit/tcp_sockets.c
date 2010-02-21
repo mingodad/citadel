@@ -458,10 +458,11 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 
 int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 {
-	const char *Error, *pch, *pchs;
+	const char *Error;
+#ifdef HAVE_OPENSSL
+	const char *pch, *pchs;
 	int rlen, len, retval = 0;
 
-#ifdef HAVE_OPENSSL
 	if (is_https) {
 		int ntries = 0;
 		if (StrLength(Hdr->ReadBuf) > 0) {
