@@ -804,6 +804,7 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
 		if (pos >= totalend)
 			alldone = 1;
 	}
+	StrBufAppendBufPlain(OtherHeaders, HKEY("\n"), 0);
 	if (pos < totalend)
 		StrBufAppendBufPlain(OtherHeaders, pos, totalend - pos, 0);
 	FreeStrBuf(rfc822);
