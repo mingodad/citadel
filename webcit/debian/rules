@@ -50,10 +50,8 @@ endif
 		--with-localedir=/usr/share/ \
 		--with-editordir=/usr/share/tinymce/www/ \
 		--with-rundir=/var/run/citadel \
-		--with-ical --with-db --with-ldap \
                 --with-ssldir=/etc/ssl/webcit/ \
-		--with-ssl --with-libiconf \
-		--with-newt --with-included-gettext \
+		--with-ssl \
 		--with-datadir=/var/run/citadel \
 		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS)
 
