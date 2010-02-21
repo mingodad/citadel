@@ -2599,6 +2599,8 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 		DoTemplate(TKEY(i * 2 + 1), Target, TP);
 		StrEndTab(Target, i, nTabs);
 	}
+	for (i = 0; i < ntabs; i++) 
+		FreeStrBuf(&TabNames[i]);
 }
 
 
