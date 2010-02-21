@@ -204,6 +204,7 @@ static void TestBufNumbers(void)
 	CU_ASSERT(strlen(ch) == i);
 	free(ch);
 	FreeStrBuf(&Buf2);
+	FreeStrBuf(&Buf3);
 }
 
 static void TestStrBufPeek(void)
@@ -233,6 +234,7 @@ static void TestStrBufPeek(void)
 
 	CU_ASSERT(StrBufPeek(Buf, NULL, 5, 'A') == 5);
 	CU_ASSERT_STRING_EQUAL(ChrPtr(Buf), "0123AA6");
+	FreeStrBuf(&Buf);
 }
 
 static void TestBufStringManipulation(void)
@@ -624,6 +626,7 @@ static void AddStrBufSimpleTests(void)
 
 int main(int argc, char* argv[])
 {
+	int i;
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	StartLibCitadel(8);
@@ -631,7 +634,7 @@ int main(int argc, char* argv[])
 
 	if (argc > 0)
 		Quiet = 1; // todo: -q ;-)
-	
+	for (i=0; i< 100000; i++) {
 	CU_set_output_filename("TestAutomated");
 	if (CU_initialize_registry()) {
 		printf("\nInitialize of test Registry failed.");
@@ -648,6 +651,6 @@ int main(int argc, char* argv[])
 	}
 	
 	CU_cleanup_registry();
-
+	}
 	return 0;
 }

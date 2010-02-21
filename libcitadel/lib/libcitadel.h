@@ -308,6 +308,7 @@ void StrBufStripSlashes(StrBuf *Dir, int RemoveTrailingSlash);
 void StrBufEUid_unescapize(StrBuf *target, const StrBuf *source);
 void StrBufEUid_escapize(StrBuf *target, const StrBuf *source);
 
+void StrBufToUnixLF(StrBuf *buf);
 void StrBufReplaceChars(StrBuf *buf, char search, char replace);
 
 int CompressBuffer(StrBuf *Buf);

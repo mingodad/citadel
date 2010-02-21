@@ -619,7 +619,7 @@ int StrBufIsNumber(const StrBuf *Buf) {
 	return 0;
 } 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief modifies a Single char of the Buf
  * You can point to it via char* or a zero-based integer
  * @param Buf The buffer to manipulate
@@ -640,7 +640,7 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief Append a StringBuffer to the buffer
  * @param Buf Buffer to modify
  * @param AppendBuf Buffer to copy at the end of our buffer
@@ -665,7 +665,7 @@ void StrBufAppendBuf(StrBuf *Buf, const StrBuf *AppendBuf, unsigned long Offset)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief Append a C-String to the buffer
  * @param Buf Buffer to modify
  * @param AppendBuf Buffer to copy at the end of our buffer
@@ -697,7 +697,7 @@ void StrBufAppendBufPlain(StrBuf *Buf, const char *AppendBuf, long AppendSize, u
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief sprintf like function appending the formated string to the buffer
  * vsnprintf version to wrap into own calls
  * @param Buf Buffer to extend by format and Params
@@ -740,7 +740,7 @@ void StrBufVAppendPrintf(StrBuf *Buf, const char *format, va_list ap)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief sprintf like function appending the formated string to the buffer
  * @param Buf Buffer to extend by format and Params
  * @param format printf alike format to add
@@ -781,7 +781,7 @@ void StrBufAppendPrintf(StrBuf *Buf, const char *format, ...)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief sprintf like function putting the formated string into the buffer
  * @param Buf Buffer to extend by format and Parameters
  * @param format printf alike format to add
@@ -809,7 +809,7 @@ void StrBufPrintf(StrBuf *Buf, const char *format, ...)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief Callback for cURL to append the webserver reply to a buffer
  * @param ptr pre-defined by the cURL API; see man 3 curl for mre info
  * @param size pre-defined by the cURL API; see man 3 curl for mre info
@@ -944,7 +944,7 @@ void StrBufTrim(StrBuf *Buf)
 }
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief uppercase the contents of a buffer
  * @param Buf the buffer to translate
  */
@@ -964,7 +964,7 @@ void StrBufUpCase(StrBuf *Buf)
 
 
 /**
- * @ingroup StrBuf
+ * @ingroup StrBuf_Filler
  * @brief lowercase the contents of a buffer
  * @param Buf the buffer to translate
  */
@@ -2347,6 +2347,36 @@ void StrBufReplaceChars(StrBuf *buf, char search, char replace)
 		if (buf->buf[i] == search)
 			buf->buf[i] = replace;
 
+}
+
+/**
+ * @ingroup StrBuf
+ * @brief removes all \r s from the string, or replaces them with \n if its not a combination of both.
+ * @param buf Buffer to modify
+ */
+void StrBufToUnixLF(StrBuf *buf)
+{
+	char *pche, *pchS, *pchT;
+	if (buf == NULL)
+		return;
+
+	pche = buf->buf + buf->BufUsed;
+	pchS = pchT = buf->buf;
+	while (pchS < pche)
+	{
+		if (*pchS == '\r')
+		{
+			pchS ++;
+			if (*pchS != '\n') {
+				*pchT = '\n';
+				pchT++;
+			}
+		}
+		*pchT = *pchS;
+		pchT++; pchS++;
+	}
+	*pchT = '\0';
+	buf->BufUsed = pchT - buf->buf;
 }
 
 
