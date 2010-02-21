@@ -1074,7 +1074,7 @@ void display_editroom(void)
 	int i, j;
 	char *tab;
 	char *shared_with;
-	char *not_shared_with;
+	char *not_shared_with = NULL;
 	int roompolicy = 0;
 	int roomvalue = 0;
 	int floorpolicy = 0;
@@ -1619,7 +1619,9 @@ void display_editroom(void)
 		wc_printf("</div>");
 	}
 
-	free (not_shared_with);
+	if (not_shared_with != NULL)
+		free (not_shared_with);
+
 	/* Mailing list management */
 	if (!strcmp(tab, "listserv")) {
 		room_states RoomFlags;
