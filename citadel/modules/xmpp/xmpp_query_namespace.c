@@ -158,17 +158,21 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 		);
 	}
 
+	/*
+	 * If we didn't hit any known query namespaces then we should deliver a
+	 * "service unavailable" error (see RFC3921 section 2.4 and 11.1.5.4)
+	 */
+
 	else {
-		CtdlLogPrintf(CTDL_DEBUG, "Unknown namespace; returning <service-unavailable/>\n");
+		CtdlLogPrintf(CTDL_DEBUG,
+			"Unknown query namespace '%s' - returning <service-unavailable/>\n",
+			query_xmlns
+		);
 		cprintf("<error code=\"503\" type=\"cancel\">"
 			"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
 			"</error>"
 		);
 	}
 
-	/*
-	 * End of query result.  If we didn't hit any known namespaces then we should
-	 * deliver a "service unavailable" error (see RFC3921 section 2.4 and 11.1.5.4)
-	 */
 	cprintf("</iq>");
 }

@@ -207,7 +207,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		}
 	}
 
-	if (!strcasecmp(el, "username")) {		/* NON SASL ONLY */
+	else if (!strcasecmp(el, "username")) {		/* NON SASL ONLY */
 		if (XMPP->chardata_len > 0) {
 			safestrncpy(XMPP->iq_client_username, XMPP->chardata,
 				sizeof XMPP->iq_client_username);
@@ -215,7 +215,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		}
 	}
 
-	if (!strcasecmp(el, "password")) {		/* NON SASL ONLY */
+	else if (!strcasecmp(el, "password")) {		/* NON SASL ONLY */
 		if (XMPP->chardata_len > 0) {
 			safestrncpy(XMPP->iq_client_password, XMPP->chardata,
 				sizeof XMPP->iq_client_password);
@@ -253,10 +253,13 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			}
 
 			/*
-			 * Unknown queries ... return the XML equivalent of a blank stare
+			 * Unknown query ... return the XML equivalent of a blank stare
 			 */
 			else {
-				CtdlLogPrintf(CTDL_DEBUG, "Unknown query; <service-unavailable/>\n");
+				CtdlLogPrintf(CTDL_DEBUG,
+					"Unknown query <%s> - returning <service-unavailable/>\n",
+					el
+				);
 				cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_id);
 				cprintf("<error code=\"503\" type=\"cancel\">"
 					"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
@@ -374,17 +377,21 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "starttls")) {
 #ifdef HAVE_OPENSSL
-	cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
-	if (!CC->redirect_ssl) CC->kill_me = 1;
+		cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+		CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+		if (!CC->redirect_ssl) CC->kill_me = 1;
 #else
-	cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-	CC->kill_me = 1;
+		cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+		CC->kill_me = 1;
 #endif
 	}
 
 	else if (!strcasecmp(el, "ping")) {
 		XMPP->ping_requested = 1;
+	}
+
+	else {
+		CtdlLogPrintf(CTDL_DEBUG, "Ignoring unknown tag <%s>\n", el);
 	}
 
 	XMPP->chardata_len = 0;
