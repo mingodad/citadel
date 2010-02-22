@@ -805,7 +805,7 @@ void generate_uuid(char *buf) {
  * The code is roughly based on the strstr() replacement from 'tin' written
  * by Urs Jannsen.
  */
-inline char *_bmstrcasestr_len(char *text, size_t textlen, char *pattern, size_t patlen) {
+inline static const char *_bmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen) {
 
 	register unsigned char *p, *t;
 	register int i, j, *delta;
@@ -863,7 +863,7 @@ inline char *_bmstrcasestr_len(char *text, size_t textlen, char *pattern, size_t
  * The code is roughly based on the strstr() replacement from 'tin' written
  * by Urs Jannsen.
  */
-char *bmstrcasestr(char *text, char *pattern) {
+const char *bmstrcasestr(const char *text, const char *pattern) {
 	size_t textlen;
 	size_t patlen;
 
@@ -876,7 +876,7 @@ char *bmstrcasestr(char *text, char *pattern) {
 	return _bmstrcasestr_len(text, textlen, pattern, patlen);
 }
 
-char *bmstrcasestr_len(char *text, size_t textlen, char *pattern, size_t patlen) {
+const char *bmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen) {
 	return _bmstrcasestr_len(text, textlen, pattern, patlen);
 }
 
