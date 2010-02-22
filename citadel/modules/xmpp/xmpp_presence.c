@@ -62,7 +62,7 @@
 /* 
  * Initial dump of the entire wholist
  */
-void jabber_wholist_presence_dump(void)
+void xmpp_wholist_presence_dump(void)
 {
 	struct CitContext *cptr = NULL;
 	int nContexts, i;
@@ -71,7 +71,7 @@ void jabber_wholist_presence_dump(void)
 
 	cptr = CtdlGetContextArray(&nContexts);
 	if (!cptr)
-		return ; /** FIXME: Does jabber need to send something to maintain the protocol?  */
+		return ; /** FIXME: Does xmpp need to send something to maintain the protocol?  */
 		
 	for (i=0; i<nContexts; i++) {
 		if (cptr[i].logged_in) {
@@ -91,8 +91,7 @@ void jabber_wholist_presence_dump(void)
 
 
 /*
- * When a user logs in or out of the local Citadel system, notify all Jabber sessions
- * about it.
+ * When a user logs in or out of the local Citadel system, notify all XMPP sessions about it.
  */
 void xmpp_presence_notify(char *presence_jid, int event_type) {
 	struct CitContext *cptr;
@@ -105,7 +104,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 	cptr = CtdlGetContextArray(&nContexts);
 	if (!cptr)
-		return ; /** FIXME: Does jabber need to send something to maintain the protocol?  */
+		return ; /** FIXME: Does XMPP need to send something to maintain the protocol?  */
 		
 	/* Count the visible sessions for this user */
 	for (i=0; i<nContexts; i++) {
@@ -134,7 +133,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 					cprintf("<iq id=\"unsolicited_%x\" type=\"result\">",
 						++unsolicited_id);
 					cprintf("<query xmlns=\"jabber:iq:roster\">");
-					jabber_roster_item(&cptr[i]);
+					xmpp_roster_item(&cptr[i]);
 					cprintf("</query>"
 						"</iq>");
 				}

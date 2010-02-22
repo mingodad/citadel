@@ -154,7 +154,7 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
 /*
  * Non-SASL authentication
  */
-void jabber_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
+void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
 	int result;
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */

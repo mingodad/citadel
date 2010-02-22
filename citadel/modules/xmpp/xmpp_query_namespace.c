@@ -61,7 +61,7 @@
 /*
  * Output a single roster item, for roster queries or pushes
  */
-void jabber_roster_item(struct CitContext *cptr) {
+void xmpp_roster_item(struct CitContext *cptr) {
 	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
 		cptr->cs_inet_email,
 		cptr->user.fullname
@@ -77,7 +77,7 @@ void jabber_roster_item(struct CitContext *cptr) {
  * (minus any entries for this user -- don't tell me about myself)
  *
  */
-void jabber_iq_roster_query(void)
+void xmpp_iq_roster_query(void)
 {
 	struct CitContext *cptr;
 	int nContexts, i;
@@ -93,7 +93,7 @@ void jabber_iq_roster_query(void)
 			   		(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
 			   		&& (cptr[i].user.usernum != CC->user.usernum)
 			   	) {
-					jabber_roster_item(&cptr[i]);
+					xmpp_roster_item(&cptr[i]);
 				}
 			}
 		}
@@ -148,7 +148,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 */
 
 	if (!strcasecmp(query_xmlns, "jabber:iq:roster:query")) {
-		jabber_iq_roster_query();
+		xmpp_iq_roster_query();
 	}
 
 	else if (!strcasecmp(query_xmlns, "jabber:iq:auth:query")) {

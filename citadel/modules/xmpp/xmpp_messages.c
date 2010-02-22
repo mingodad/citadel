@@ -64,7 +64,7 @@
  * If the client session has instant messages waiting, it outputs
  * unsolicited XML stanzas containing them.
  */
-void jabber_output_incoming_messages(void) {
+void xmpp_output_incoming_messages(void) {
 
 	struct ExpressMessage *ptr;
 
@@ -91,7 +91,7 @@ void jabber_output_incoming_messages(void) {
 /*
  * Client is sending a message.
  */
-void jabber_send_message(char *message_to, char *message_body) {
+void xmpp_send_message(char *message_to, char *message_body) {
 	char *recp = NULL;
 	int message_sent = 0;
 	struct CitContext *cptr;

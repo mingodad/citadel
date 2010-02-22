@@ -274,7 +274,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			&& (!strcasecmp(XMPP->iq_query_xmlns, "jabber:iq:auth:query"))
 			) {
 
-			jabber_non_sasl_authenticate(
+			xmpp_non_sasl_authenticate(
 				XMPP->iq_id,
 				XMPP->iq_client_username,
 				XMPP->iq_client_password,
@@ -350,7 +350,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		/* Respond to a <presence> update by firing back with presence information
 		 * on the entire wholist.  Check this assumption, it's probably wrong.
 		 */
-		jabber_wholist_presence_dump();
+		xmpp_wholist_presence_dump();
 	}
 
 	else if ( (!strcasecmp(el, "body")) && (XMPP->html_tag_level == 0) ) {
@@ -364,7 +364,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	}
 
 	else if (!strcasecmp(el, "message")) {
-		jabber_send_message(XMPP->message_to, XMPP->message_body);
+		xmpp_send_message(XMPP->message_to, XMPP->message_body);
 		XMPP->html_tag_level = 0;
 	}
 
@@ -439,7 +439,7 @@ void xmpp_cleanup_function(void) {
  * Here's where our XMPP session begins its happy day.
  */
 void xmpp_greeting(void) {
-	strcpy(CC->cs_clientname, "Jabber session");
+	strcpy(CC->cs_clientname, "XMPP session");
 	CC->session_specific_data = malloc(sizeof(struct citxmpp));
 	memset(XMPP, 0, sizeof(struct citxmpp));
 	XMPP->last_event_processed = queue_event_seq;
@@ -488,7 +488,7 @@ void xmpp_command_loop(void) {
  */
 void xmpp_async_loop(void) {
 	xmpp_process_events();
-	jabber_output_incoming_messages();
+	xmpp_output_incoming_messages();
 }
 
 
@@ -510,7 +510,7 @@ void xmpp_logout_hook(void) {
 
 const char *CitadelServiceXMPP="XMPP";
 
-CTDL_MODULE_INIT(jabber)
+CTDL_MODULE_INIT(xmpp)
 {
 	if (!threading) {
 		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,
