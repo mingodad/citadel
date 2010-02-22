@@ -63,7 +63,7 @@ int chkpwd_read_pipe[2];
  * makeuserkey() - convert a username into the format used as a database key
  *		 (it's just the username converted into lower case)
  */
-INLINE void makeuserkey(char *key, char *username) {
+INLINE void makeuserkey(char *key, const char *username) {
 	int i, len;
 
 	len = strlen(username);
@@ -72,7 +72,8 @@ INLINE void makeuserkey(char *key, char *username) {
 		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
 		cit_backtrace ();
 		len = USERNAME_SIZE - 1; 
-		username[USERNAME_SIZE - 1]='\0';
+		/* WHOOPSI! whats that??? todo. */
+		((char*)username)[USERNAME_SIZE - 1]='\0';
 	}
 	for (i=0; i<=len; ++i) {
 		key[i] = tolower(username[i]);
@@ -94,7 +95,7 @@ int getuser(struct ctdluser *usbuf, char name[])
  * CtdlGetUser()  -  retrieve named user into supplied buffer.
  *	       returns 0 on success
  */
-int CtdlGetUser(struct ctdluser *usbuf, char name[])
+int CtdlGetUser(struct ctdluser *usbuf, const char *name)
 {
 
 	char usernamekey[USERNAME_SIZE];
@@ -523,7 +524,7 @@ int getuserbyuid(struct ctdluser *usbuf, uid_t number)
  *
  * NOTE: "authname" should only be used if we are attempting to use the "master user" feature
  */
-int CtdlLoginExistingUser(char *authname, char *trythisname)
+int CtdlLoginExistingUser(char *authname, const char *trythisname)
 {
 	char username[SIZ];
 	int found_user;
@@ -1092,7 +1093,7 @@ int purge_user(char pname[])
 }
 
 
-int internal_create_user (char *username, struct ctdluser *usbuf, uid_t uid)
+int internal_create_user (const char *username, struct ctdluser *usbuf, uid_t uid)
 {
 	if (!CtdlGetUser(usbuf, username)) {
 		return (ERROR + ALREADY_EXISTS);
@@ -1133,7 +1134,7 @@ int internal_create_user (char *username, struct ctdluser *usbuf, uid_t uid)
  * Set 'become_user' to nonzero if this is self-service account creation and we want
  * to actually log in as the user we just created, otherwise set it to 0.
  */
-int create_user(char *newusername, int become_user)
+int create_user(const char *newusername, int become_user)
 {
 	struct ctdluser usbuf;
 	struct ctdlroom qrbuf;

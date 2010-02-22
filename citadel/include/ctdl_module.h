@@ -302,7 +302,7 @@ extern struct config config;
 /*
  * Expose API calls from user_ops.c
  */
-int CtdlGetUser(struct ctdluser *usbuf, char name[]);
+int CtdlGetUser(struct ctdluser *usbuf, const char *name);
 int CtdlGetUserLock(struct ctdluser *usbuf, char *name);
 void CtdlPutUser(struct ctdluser *usbuf);
 void CtdlPutUserLock(struct ctdluser *usbuf);
@@ -315,7 +315,7 @@ void CtdlSetRelationship(struct visit *newvisit,
                         struct ctdlroom *rel_room);
 void CtdlMailboxName(char *buf, size_t n, const struct ctdluser *who, const char *prefix);
 
-int CtdlLoginExistingUser(char *authname, char *username);
+int CtdlLoginExistingUser(char *authname, const char *username);
 
 /*
  * Values which may be returned by CtdlLoginExistingUser()
