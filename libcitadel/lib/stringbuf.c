@@ -931,16 +931,20 @@ void StrBufTrim(StrBuf *Buf)
 	int delta = 0;
 	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
 
+	while ((Buf->BufUsed > 0) &&
+	       isspace(Buf->buf[Buf->BufUsed - 1]))
+	{
+		Buf->BufUsed --;
+	}
+	Buf->buf[Buf->BufUsed] = '\0';
+
+	if (Buf->BufUsed == 0) return;
+
 	while ((Buf->BufUsed > delta) && (isspace(Buf->buf[delta]))){
 		delta ++;
 	}
 	if (delta > 0) StrBufCutLeft(Buf, delta);
 
-	if (Buf->BufUsed == 0) return;
-	while (isspace(Buf->buf[Buf->BufUsed - 1])){
-		Buf->BufUsed --;
-	}
-	Buf->buf[Buf->BufUsed] = '\0';
 }
 
 /**
