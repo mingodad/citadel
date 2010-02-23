@@ -2,10 +2,23 @@
  * $Id: sysdep.c 7989 2009-10-31 15:29:37Z davew $
  *
  * Citadel context management stuff.
- * See COPYING for copyright information.
- *
  * Here's where we (hopefully) have all the code that manipulates contexts.
  *
+ * Copyright (c) 1987-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -380,6 +393,11 @@ CitContext *CreateNewContext(void) {
 }
 
 
+/*
+ * Return an array containing a copy of the context list.
+ * This allows worker threads to perform "for each context" operations without
+ * having to lock and traverse the live list.
+ */
 CitContext *CtdlGetContextArray(int *count)
 {
 	int nContexts, i;
@@ -387,11 +405,14 @@ CitContext *CtdlGetContextArray(int *count)
 	
 	nContexts = num_sessions;
 	nptr = malloc(sizeof(CitContext) * nContexts);
-	if (!nptr)
+	if (!nptr) {
+		*count = 0;
 		return NULL;
+	}
 	begin_critical_section(S_SESSION_TABLE);
-	for (cptr = ContextList, i=0; cptr != NULL && i < nContexts; cptr = cptr->next, i++)
+	for (cptr = ContextList, i=0; cptr != NULL && i < nContexts; cptr = cptr->next, i++) {
 		memcpy(&nptr[i], cptr, sizeof (CitContext));
+	}
 	end_critical_section (S_SESSION_TABLE);
 	
 	*count = i;
@@ -400,7 +421,7 @@ CitContext *CtdlGetContextArray(int *count)
 
 
 
-/**
+/*
  * This function fills in a context and its user field correctly
  * Then creates/loads that user
  */
