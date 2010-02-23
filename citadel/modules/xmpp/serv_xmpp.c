@@ -390,6 +390,12 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		XMPP->ping_requested = 1;
 	}
 
+	else if (!strcasecmp(el, "stream")) {
+		CtdlLogPrintf(CTDL_DEBUG, "XMPP client shut down their stream\n");
+		cprintf("<stream>\n");
+		CC->kill_me = 1;
+	}
+
 	else {
 		CtdlLogPrintf(CTDL_DEBUG, "Ignoring unknown tag <%s>\n", el);
 	}
