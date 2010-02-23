@@ -392,7 +392,8 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "stream")) {
 		CtdlLogPrintf(CTDL_DEBUG, "XMPP client shut down their stream\n");
-		cprintf("<stream>\n");
+		xmpp_massacre_roster();
+		cprintf("</stream>\n");
 		CC->kill_me = 1;
 	}
 

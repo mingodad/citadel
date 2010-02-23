@@ -3,7 +3,7 @@
  *
  * Handle XMPP presence exchanges
  *
- * Copyright (c) 2007-2009 by Art Cancro
+ * Copyright (c) 2007-2010 by Art Cancro
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -70,16 +70,17 @@ void xmpp_wholist_presence_dump(void)
 	int aide = (CC->user.axlevel >= 6);
 
 	cptr = CtdlGetContextArray(&nContexts);
-	if (!cptr)
-		return ; /** FIXME: Does xmpp need to send something to maintain the protocol?  */
-		
+	if (!cptr) {
+		return;
+	}
+
 	for (i=0; i<nContexts; i++) {
 		if (cptr[i].logged_in) {
 			if (
 				(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))	/* aides see everyone */
 				&& (cptr[i].user.usernum != CC->user.usernum)	/* don't show myself */
 				&& (cptr[i].can_receive_im)			/* IM-capable session */
-			   ) {
+			) {
 				cprintf("<presence type=\"available\" from=\"%s\"></presence>",
 					cptr[i].cs_inet_email);
 			}
@@ -88,6 +89,28 @@ void xmpp_wholist_presence_dump(void)
 	free(cptr);
 }
 
+
+/*
+ * Function to remove a buddy subscription and delete from the roster
+ * (used in several places)
+ */
+void xmpp_destroy_buddy(char *presence_jid) {
+	static int unsolicited_id = 1;
+
+	/* Transmit non-presence information */
+	cprintf("<presence type=\"unavailable\" from=\"%s\"></presence>", presence_jid);
+	cprintf("<presence type=\"unsubscribed\" from=\"%s\"></presence>", presence_jid);
+
+	/* Do an unsolicited roster update that deletes the contact. */
+	cprintf("<iq id=\"unbuddy_%x\" type=\"result\">", ++unsolicited_id);
+	cprintf("<query xmlns=\"jabber:iq:roster\">");
+	cprintf("<item jid=\"%s\" subscription=\"remove\">", presence_jid);
+	cprintf("<group>%s</group>", config.c_humannode);
+	cprintf("</item>");
+	cprintf("</query>"
+		"</iq>"
+	);
+}
 
 
 /*
@@ -101,10 +124,12 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	int aide = (CC->user.axlevel >= 6);
 
 	if (IsEmptyStr(presence_jid)) return;
+	if (CC->kill_me) return;
 
 	cptr = CtdlGetContextArray(&nContexts);
-	if (!cptr)
-		return ; /** FIXME: Does XMPP need to send something to maintain the protocol?  */
+	if (!cptr) {
+		return;
+	}
 		
 	/* Count the visible sessions for this user */
 	for (i=0; i<nContexts; i++) {
@@ -147,18 +172,38 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	if (visible_sessions == 0) {
 		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n", CC->cs_pid, presence_jid);
 
-		/* Transmit non-presence information */
-		cprintf("<presence type=\"unavailable\" from=\"%s\"></presence>", presence_jid);
-		cprintf("<presence type=\"unsubscribed\" from=\"%s\"></presence>", presence_jid);
-
-		/* Do an unsolicited roster update that deletes the contact. */
-		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
-		cprintf("<query xmlns=\"jabber:iq:roster\">");
-		cprintf("<item jid=\"%s\" subscription=\"remove\">", presence_jid);
-		cprintf("<group>%s</group>", config.c_humannode);
-		cprintf("</item>");
-		cprintf("</query>"
-			"</iq>");
+		xmpp_destroy_buddy(presence_jid);
 	}
 	free(cptr);
 }
+
+
+
+/*
+ * Upon logout we make an attempt to delete the whole roster, in order to
+ * try to keep "ghost" buddies from remaining in the client-side roster.
+ */
+void xmpp_massacre_roster(void)
+{
+	struct CitContext *cptr;
+	int nContexts, i;
+	int aide = (CC->user.axlevel >= 6);
+
+	cptr = CtdlGetContextArray(&nContexts);
+	if (cptr) {
+		for (i=0; i<nContexts; i++) {
+			if (cptr[i].logged_in) {
+				if (
+			   		(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
+			   		&& (cptr[i].user.usernum != CC->user.usernum)
+			   	) {
+					xmpp_destroy_buddy(cptr[i].cs_inet_email);
+				}
+			}
+		}
+		free (cptr);
+	}
+}
+
+
+

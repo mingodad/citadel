@@ -81,3 +81,4 @@ void xmpp_presence_notify(char *, int);
 void xmpp_roster_item(struct CitContext *);
 void xmpp_send_message(char *, char *);
 void xmpp_non_sasl_authenticate(char *, char *, char *, char *);
+void xmpp_massacre_roster(void);

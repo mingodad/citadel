@@ -122,7 +122,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 */
 	if (
 		(!strcasecmp(query_xmlns, "jabber:iq:roster:query"))
-		&& (!strcasecmp(query_xmlns, "jabber:iq:auth:query"))
+		|| (!strcasecmp(query_xmlns, "jabber:iq:auth:query"))
 	) {
 		supported_namespace = 1;
 	}
