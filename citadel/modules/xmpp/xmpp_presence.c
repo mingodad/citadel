@@ -59,6 +59,20 @@
 #include "serv_xmpp.h"
 
 
+
+/* 
+ * Indicate the presence of another user to the client
+ * (used in several places)
+ */
+void xmpp_indicate_presence(char *presence_jid)
+{
+	cprintf("<presence from=\"%s\" to=\"%s\"></presence>",
+		presence_jid,
+		XMPP->client_jid
+	);
+}
+
+
 /* 
  * Initial dump of the entire wholist
  */
@@ -81,8 +95,7 @@ void xmpp_wholist_presence_dump(void)
 				&& (cptr[i].user.usernum != CC->user.usernum)	/* don't show myself */
 				&& (cptr[i].can_receive_im)			/* IM-capable session */
 			) {
-				cprintf("<presence type=\"available\" from=\"%s\"></presence>",
-					cptr[i].cs_inet_email);
+				xmpp_indicate_presence(cptr[i].cs_inet_email);
 			}
 		}
 	}
@@ -98,11 +111,20 @@ void xmpp_destroy_buddy(char *presence_jid) {
 	static int unsolicited_id = 1;
 
 	/* Transmit non-presence information */
-	cprintf("<presence type=\"unavailable\" from=\"%s\"></presence>", presence_jid);
-	cprintf("<presence type=\"unsubscribed\" from=\"%s\"></presence>", presence_jid);
+	cprintf("<presence type=\"unavailable\" from=\"%s\" to=\"%s\"></presence>",
+		presence_jid, XMPP->client_jid
+	);
+	cprintf("<presence type=\"unsubscribed\" from=\"%s\" to=\"%s\"></presence>",
+		presence_jid, XMPP->client_jid
+	);
+	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
 	/* Do an unsolicited roster update that deletes the contact. */
-	cprintf("<iq id=\"unbuddy_%x\" type=\"result\">", ++unsolicited_id);
+	cprintf("<iq from=\"%s\" to=\"%s\" id=\"unbuddy_%x\" type=\"result\">",
+		CC->cs_inet_email,
+		XMPP->client_jid,
+		++unsolicited_id
+	);
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cprintf("<item jid=\"%s\" subscription=\"remove\">", presence_jid);
 	cprintf("<group>%s</group>", config.c_humannode);
@@ -166,7 +188,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		}
 
 		/* Transmit presence information */
-		cprintf("<presence type=\"available\" from=\"%s\"></presence>", presence_jid);
+		xmpp_indicate_presence(presence_jid);
 	}
 
 	if (visible_sessions == 0) {
