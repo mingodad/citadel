@@ -1104,17 +1104,24 @@ do_select:	force_purge = 0;
 		begin_critical_section(S_SESSION_TABLE);
 		for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
 			int checkfd = ptr->client_socket;
-			if ((checkfd != -1) && 
-			    (FD_ISSET(checkfd, &readfds)) &&
-			    (ptr->state == CON_IDLE) ) 
-			{
-				ptr->input_waiting = 1;
-				if (!bind_me) {
-					bind_me = ptr;	/* I choose you! */
-					bind_me->state = CON_EXECUTING;
-				}
-				else {
-					ptr->state = CON_READY;
+			if ((checkfd != -1) && (ptr->state == CON_IDLE) ){
+				if (FD_ISSET(checkfd, &readfds)) {
+					ptr->input_waiting = 1;
+					if (!bind_me) {
+						bind_me = ptr;	/* I choose you! */
+						bind_me->state = CON_EXECUTING;
+					}
+					else {
+						ptr->state = CON_READY;
+					}
+				} else if ((ptr->is_async) && (ptr->async_waiting) && (ptr->h_async_function)) {
+					if (!bind_me) {
+						bind_me = ptr;	/* I choose you! */
+						bind_me->state = CON_EXECUTING;
+					}
+					else {
+						ptr->state = CON_READY;
+					}
 				}
 			}
 		}
