@@ -436,6 +436,7 @@ void flush_output(void) {
 #endif
 }
 
+/*
 static void flush_client_inbuf(void)
 {
 	CitContext *CCC=CC;
@@ -444,6 +445,7 @@ static void flush_client_inbuf(void)
 	CCC->Pos = NULL;
 
 }
+*/
 
 /*
  * client_write()   ...    Send binary data to the client.
@@ -566,6 +568,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 	CitContext *CCC=CC;
 	const char *Error;
 	int retval = 0;
+	int rv = 0;
 
 #ifdef HAVE_OPENSSL
 	if (CCC->redirect_ssl) {
@@ -598,7 +601,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 		fd = fopen(fn, "a+");
                 fprintf(fd, "Read: BufSize: %d BufContent: [",
                         StrLength(Target));
-		fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
                 fprintf(fd, "]\n");
 		
 			
