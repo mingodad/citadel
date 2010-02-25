@@ -50,17 +50,27 @@ void tmplput_HANDLER_DISPLAYNAME(StrBuf *Target, WCTemplputParams *TP)
 /*
  * web-printing funcion. uses our vsnprintf wrapper
  */
+#ifdef UBER_VERBOSE_DEBUGGING
+void wcc_printf(const char *FILE, const char *FUNCTION, long LINE, const char *format,...)
+#else
 void wc_printf(const char *format,...)
+#endif
 {
 	wcsession *WCC = WC;
 	va_list arg_ptr;
 
 	if (WCC->WBuf == NULL)
 		WCC->WBuf = NewStrBuf();
+#ifdef UBER_VERBOSE_DEBUGGING
+	StrBufAppendPrintf(WCC->WBuf, "\n%s:%s:%d[", FILE, FUNCTION, LINE);
+#endif
 
 	va_start(arg_ptr, format);
 	StrBufVAppendPrintf(WCC->WBuf, format, arg_ptr);
 	va_end(arg_ptr);
+#ifdef UBER_VERBOSE_DEBUGGING
+	StrBufAppendPrintf(WCC->WBuf, "]\n");
+#endif
 }
 
 /*

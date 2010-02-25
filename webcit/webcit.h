@@ -645,7 +645,14 @@ void output_headers(    int do_httpheaders,
 			int suppress_check,
 			int cache);
 void output_custom_content_header(const char *ctype);
+
+#ifdef UBER_VERBOSE_DEBUGGING
+#define wc_printf(...) wcc_printf(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+void wcc_printf(const char *FILE, const char *FUNCTION, long LINE, const char *format, ...);
+#else 
 void wc_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
+#endif
+
 void hprintf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
 void output_static(const char* What);
 
@@ -706,8 +713,6 @@ void clear_local_substs(void);
 
 
 int lingering_close(int fd);
-char *memreadline(char *start, char *buf, int maxlen);
-char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
 long extract_token(char *dest, const char *source, int parmnum, char separator, int maxlen);
 void remove_token(char *source, int parmnum, char separator);
 StrBuf *load_mimepart(long msgnum, char *partnum);
