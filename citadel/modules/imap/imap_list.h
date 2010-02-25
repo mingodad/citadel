@@ -8,4 +8,4 @@
  */
 #define MAX_PATTERNS 20
 
-void imap_list(int num_parms, char *parms[]);
+void imap_list(int num_parms, ConstStr *Params);

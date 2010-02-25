@@ -19,9 +19,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-void imap_setacl(int num_parms, char *parms[]);
-void imap_deleteacl(int num_parms, char *parms[]);
-void imap_getacl(int num_parms, char *parms[]);
-void imap_listrights(int num_parms, char *parms[]);
-void imap_myrights(int num_parms, char *parms[]);
+void imap_setacl(int num_parms, ConstStr *Params);
+void imap_deleteacl(int num_parms, ConstStr *Params);
+void imap_getacl(int num_parms, ConstStr *Params);
+void imap_listrights(int num_parms, ConstStr *Params);
+void imap_myrights(int num_parms, ConstStr *Params);
 

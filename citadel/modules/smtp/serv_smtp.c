@@ -975,7 +975,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	char mx_port[256];
 	int lp, rp;
 	char *msgtext;
-	char *ptr;
+	const char *ptr;
 	size_t msg_size;
 	int scan_done;
 	CitContext *CCC=CC;

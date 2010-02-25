@@ -191,15 +191,15 @@ int intcmp(const void *rec1, const void *rec2) {
 }
 
 
-void wordbreaker(char *text, int *num_tokens, int **tokens) {
+void wordbreaker(const char *text, int *num_tokens, int **tokens) {
 
 	int wb_num_tokens = 0;
 	int wb_num_alloc = 0;
 	int *wb_tokens = NULL;
 
-	char *ptr;
-	char *word_start;
-	char *word_end;
+	const char *ptr;
+	const char *word_start;
+	const char *word_end;
 	char ch;
 	int word_len;
 	char word[256];

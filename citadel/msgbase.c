@@ -2778,7 +2778,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	char content_type[SIZ];			/* We have to learn this */
 	char recipient[SIZ];
 	long newmsgid;
-	char *mptr = NULL;
+	const char *mptr = NULL;
 	struct ctdluser userbuf;
 	int a, i;
 	struct MetaData smi;
@@ -3596,7 +3596,7 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
  *
  * Caller needs to free the result using free_recipients()
  */
-struct recptypes *validate_recipients(char *supplied_recipients, 
+struct recptypes *validate_recipients(const char *supplied_recipients, 
 				      const char *RemoteIdentifier, 
 				      int Flags) {
 	struct recptypes *ret;

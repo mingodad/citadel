@@ -836,7 +836,7 @@ void CtdlDestroyServiceHook(void)
 	ServiceHookTable = NULL;
 }
 
-void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name)
+void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name)
 {
 	struct SearchFunctionHook *newfcn;
 
@@ -854,7 +854,7 @@ void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *n
 	CtdlLogPrintf(CTDL_INFO, "Registered a new search function (%s)\n", name);
 }
 
-void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name)
+void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name)
 {
 	struct SearchFunctionHook *cur, *p;
 	
@@ -871,7 +871,7 @@ void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char 
 	}
 }
 
-void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, char *search_string, char *func_name)
+void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_string, const char *func_name)
 {
 	struct SearchFunctionHook *fcn = NULL;
 

@@ -523,7 +523,7 @@ void managesieve_command_loop(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	length = client_getln(cmdbuf, sizeof cmdbuf);
 	if (length >= 1) {
-		num_parms = imap_parameterize(parms, cmdbuf);
+		num_parms = old_imap_parameterize(parms, cmdbuf);
 		if (num_parms == 0) return;
 		length = strlen(parms[0]);
 	}

@@ -594,10 +594,20 @@ static void ctdl_internal_thread_cleanup(void *arg)
 	 * In here we were called by the current thread because it is exiting
 	 * NB. WE ARE THE CURRENT THREAD
 	 */
-	CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (0x%08lx) exited.\n", CT->name, CT->tid);
+	if (CT)
+	{
+		const char *name = CT->name;
+		const pid_t tid = CT->tid;
+
+		CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (0x%08lx) exited.\n", name, tid);
+	}
+	else 
+	{
+		CtdlLogPrintf(CTDL_NOTICE, "some ((unknown ? ? ?) Thread exited.\n");
+	}
 	
 	#ifdef HAVE_BACKTRACE
-	eCrash_UnregisterThread();
+///	eCrash_UnregisterThread();
 	#endif
 	
 	citthread_mutex_lock(&CT->ThreadMutex);
@@ -825,7 +835,7 @@ static void *ctdl_internal_thread_func (void *arg)
 	
 	// Register for tracing
 	#ifdef HAVE_BACKTRACE
-	eCrash_RegisterThread(this_thread->name, 0);
+///	eCrash_RegisterThread(this_thread->name, 0);
 	#endif
 	
 	// Tell the world we are here

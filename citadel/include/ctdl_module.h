@@ -134,7 +134,7 @@ void CtdlUnRegisterFixedOutputHook(char *content_type);
 
 void CtdlRegisterMaintenanceThread(char *name, void *(*thread_proc) (void *arg));
 
-void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, char *), char *name);
+void CtdlRegisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *), char *name);
 
 
 /*
@@ -285,7 +285,7 @@ enum {
 /*
  * API declarations from serv_extensions.h
  */
-void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, char *search_string, char *func_name);
+void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_string, const char *func_name);
 /* 
  * Global system configuration.  Don't change anything here.  It's all in dtds/config-defs.h now.
  */

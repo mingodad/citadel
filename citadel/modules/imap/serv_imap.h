@@ -8,13 +8,14 @@
 void imap_cleanup_function(void);
 void imap_greeting(void);
 void imap_command_loop(void);
-int imap_grabroom(char *returned_roomname, char *foldername, int zapped_ok);
+int imap_grabroom(char *returned_roomname, const char *foldername, int zapped_ok);
 void imap_free_transmitted_message(void);
 int imap_do_expunge(void);
 void imap_rescan_msgids(void);
 
 
-struct citimap {
+
+typedef struct __citimap {
 	int authstate;
 	char authseq[SIZ];
 	int selected;			/* set to 1 if in the SELECTED state */
@@ -25,6 +26,8 @@ struct citimap {
 	long *msgids;
 	unsigned int *flags;
 	StrBuf *TransmittedMessage;	/* for APPEND command... */
+
+	citimap_command Cmd;            /* our current commandline */
 
 	/* Cache most recent RFC822 FETCH because client might load in pieces */
 	char *cached_rfc822_data;
@@ -38,7 +41,7 @@ struct citimap {
 	char cached_bodypart[SIZ];
 	long cached_bodymsgnum;
 	char cached_body_withbody;	/* 1 = body cached; 0 = only headers cached */
-};
+} citimap;
 
 /*
  * values of 'authstate'
@@ -68,7 +71,7 @@ enum {
 #define IMAP_RECENT		64	/* reportable but not setable */
 
 
-#define IMAP ((struct citimap *)CC->session_specific_data)
+#define IMAP ((citimap *)CC->session_specific_data)
 
 /*
  * When loading arrays of message ID's into memory, increase the buffer to

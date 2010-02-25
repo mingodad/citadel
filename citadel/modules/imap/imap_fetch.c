@@ -59,8 +59,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "serv_imap.h"
 #include "imap_tools.h"
+#include "serv_imap.h"
 #include "imap_fetch.h"
 #include "genstamp.h"
 #include "ctdl_module.h"
@@ -130,7 +130,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  */
 void imap_fetch_rfc822(long msgnum, char *whichfmt) {
 	char buf[SIZ];
-	char *ptr = NULL;
+	const char *ptr = NULL;
 	size_t headers_size, text_size, total_size;
 	size_t bytes_to_send = 0;
 	struct MetaData smi;
@@ -336,25 +336,25 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 
 	/* For everything else, we do stuff. */
 	cprintf("((");				/* open double-parens */
-	imap_strout(msg->cm_fields['A']);	/* personal name */
+	plain_imap_strout(msg->cm_fields['A']);	/* personal name */
 	cprintf(" NIL ");			/* source route (not used) */
 
 
 	if (msg->cm_fields['F'] != NULL) {
 		process_rfc822_addr(msg->cm_fields['F'], user, node, name);
-		imap_strout(user);		/* mailbox name (user id) */
+		plain_imap_strout(user);		/* mailbox name (user id) */
 		cprintf(" ");
 		if (!strcasecmp(node, config.c_nodename)) {
-			imap_strout(config.c_fqdn);
+			plain_imap_strout(config.c_fqdn);
 		}
 		else {
-			imap_strout(node);		/* host name */
+			plain_imap_strout(node);		/* host name */
 		}
 	}
 	else {
-		imap_strout(msg->cm_fields['A']); /* mailbox name (user id) */
+		plain_imap_strout(msg->cm_fields['A']); /* mailbox name (user id) */
 		cprintf(" ");
-		imap_strout(msg->cm_fields['N']);	/* host name */
+		plain_imap_strout(msg->cm_fields['N']);	/* host name */
 	}
 	
 	cprintf(")) ");				/* close double-parens */
@@ -397,11 +397,11 @@ void imap_output_envelope_addr(char *addr) {
 		striplt(individual_addr);
 		process_rfc822_addr(individual_addr, user, node, name);
 		cprintf("(");
-		imap_strout(name);
+		plain_imap_strout(name);
 		cprintf(" NIL ");
-		imap_strout(user);
+		plain_imap_strout(user);
 		cprintf(" ");
-		imap_strout(node);
+		plain_imap_strout(node);
 		cprintf(")");
 		if (i < (num_addrs-1)) cprintf(" ");
 	}
@@ -441,11 +441,11 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	cprintf("ENVELOPE (");
 
 	/* Date */
-	imap_strout(datestringbuf);
+	plain_imap_strout(datestringbuf);
 	cprintf(" ");
 
 	/* Subject */
-	imap_strout(msg->cm_fields['U']);
+	plain_imap_strout(msg->cm_fields['U']);
 	cprintf(" ");
 
 	/* From */
@@ -492,12 +492,12 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 
 	/* In-reply-to */
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "In-reply-to");
-	imap_strout(fieldptr);
+	plain_imap_strout(fieldptr);
 	cprintf(" ");
 	if (fieldptr != NULL) free(fieldptr);
 
 	/* message ID */
-	imap_strout(msg->cm_fields['I']);
+	plain_imap_strout(msg->cm_fields['I']);
 
 	cprintf(")");
 }
@@ -518,7 +518,7 @@ void imap_strip_headers(char *section) {
 	char *boiled_headers = NULL;
 	int ok = 0;
 	int done_headers = 0;
-	char *ptr = NULL;
+	const char *ptr = NULL;
 
 	if (CC->redirect_buffer == NULL) return;
 
@@ -539,7 +539,7 @@ void imap_strip_headers(char *section) {
 			break;
 		}
 	}
-	num_parms = imap_parameterize(parms, which_fields);
+	num_parms = old_imap_parameterize(parms, which_fields);
 
 	boiled_headers = malloc(CC->redirect_alloc);
 	strcpy(boiled_headers, "");
@@ -761,7 +761,7 @@ void imap_fetch_bodystructure_post(
 
 	/* disposition */
 	extract_token(subtype, cbtype, 1, '/', sizeof subtype);
-	imap_strout(subtype);
+	plain_imap_strout(subtype);
 
 	/* body language */
 	/* cprintf(" NIL"); We thought we needed this at one point, but maybe we don't... */
@@ -799,9 +799,9 @@ void imap_fetch_bodystructure_part(
 	}
 
 	cprintf("(");
-	imap_strout(cbmaintype);					/* body type */
+	plain_imap_strout(cbmaintype);					/* body type */
 	cprintf(" ");
-	imap_strout(cbsubtype);						/* body subtype */
+	plain_imap_strout(cbsubtype);						/* body subtype */
 	cprintf(" ");
 
 	cprintf("(");							/* begin body parameter list */
@@ -812,19 +812,19 @@ void imap_fetch_bodystructure_part(
 	 */
 	if (name != NULL) if (!IsEmptyStr(name)) {
 		cprintf("\"NAME\" ");
-		imap_strout(name);
+		plain_imap_strout(name);
 		cprintf(" ");
 	}
 
 	cprintf("\"CHARSET\" ");
 	if (cbcharset == NULL) {
-		imap_strout("US-ASCII");
+		plain_imap_strout("US-ASCII");
 	}
 	else if (cbcharset[0] == 0) {
-		imap_strout("US-ASCII");
+		plain_imap_strout("US-ASCII");
 	}
 	else {
-		imap_strout(cbcharset);
+		plain_imap_strout(cbcharset);
 	}
 	cprintf(") ");							/* end body parameter list */
 
@@ -833,10 +833,10 @@ void imap_fetch_bodystructure_part(
 
 	if (encoding != NULL) if (encoding[0] != 0)  have_encoding = 1;
 	if (have_encoding) {
-		imap_strout(encoding);
+		plain_imap_strout(encoding);
 	}
 	else {
-		imap_strout("7BIT");
+		plain_imap_strout("7BIT");
 	}
 	cprintf(" ");
 
@@ -875,10 +875,10 @@ void imap_fetch_bodystructure_part(
 	}
 	else {
 		cprintf("(");
-		imap_strout(disp);
+		plain_imap_strout(disp);
 		if (filename != NULL) if (!IsEmptyStr(filename)) {
 			cprintf(" (\"FILENAME\" ");
-			imap_strout(filename);
+			plain_imap_strout(filename);
 			cprintf(")");
 		}
 		cprintf(")");
@@ -896,12 +896,13 @@ void imap_fetch_bodystructure_part(
  */
 void imap_fetch_bodystructure (long msgnum, char *item,
 		struct CtdlMessage *msg) {
-	char *rfc822 = NULL;
-	char *rfc822_body = NULL;
+	const char *rfc822 = NULL;
+	const char *rfc822_body = NULL;
 	size_t rfc822_len;
 	size_t rfc822_headers_len;
 	size_t rfc822_body_len;
-	char *ptr = NULL;
+	const char *ptr = NULL;
+	char *pch;
 	char buf[SIZ];
 	int lines = 0;
 
@@ -926,7 +927,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 		CC->redirect_len = 0;
 		CC->redirect_alloc = SIZ;
 		CtdlOutputPreLoadedMsg(msg, MT_RFC822, 0, 0, 1, SUPPRESS_ENV_TO);
-		rfc822 = CC->redirect_buffer;
+		rfc822 = pch = CC->redirect_buffer;
 		rfc822_len = CC->redirect_len;
 		CC->redirect_buffer = NULL;
 		CC->redirect_len = 0;
@@ -943,7 +944,7 @@ void imap_fetch_bodystructure (long msgnum, char *item,
 
 		rfc822_headers_len = rfc822_body - rfc822;
 		rfc822_body_len = rfc822_len - rfc822_headers_len;
-		free(rfc822);
+		free(pch);
 
 		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
 			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
@@ -1225,14 +1226,14 @@ int imap_extract_data_items(char **argv, char *items) {
  *
  * Set is_uid to 1 to fetch by UID instead of sequence number.
  */
-void imap_pick_range(char *supplied_range, int is_uid) {
+void imap_pick_range(const char *supplied_range, int is_uid) {
 	int i;
 	int num_sets;
 	int s;
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 	long lo, hi;
 	char actual_range[SIZ];
-	struct citimap *Imap;
+	citimap *Imap;
 
 	/* 
 	 * Handle the "ALL" macro
@@ -1292,39 +1293,39 @@ void imap_pick_range(char *supplied_range, int is_uid) {
 /*
  * This function is called by the main command loop.
  */
-void imap_fetch(int num_parms, char *parms[]) {
+void imap_fetch(int num_parms, ConstStr *Params) {
 	char items[SIZ];
 	char *itemlist[512];
 	int num_items;
 	int i;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	imap_pick_range(parms[2], 0);
+	imap_pick_range(Params[2].Key, 0);
 
 	strcpy(items, "");
 	for (i=3; i<num_parms; ++i) {
-		strcat(items, parms[i]);
+		strcat(items, Params[i].Key);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
 
 	num_items = imap_extract_data_items(itemlist, items);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", parms[0]);
+		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
 		return;
 	}
 
 	imap_do_fetch(num_items, itemlist);
-	cprintf("%s OK FETCH completed\r\n", parms[0]);
+	cprintf("%s OK FETCH completed\r\n", Params[0].Key);
 }
 
 /*
  * This function is called by the main command loop.
  */
-void imap_uidfetch(int num_parms, char *parms[]) {
+void imap_uidfetch(int num_parms, ConstStr *Params) {
 	char items[SIZ];
 	char *itemlist[512];
 	int num_items;
@@ -1332,21 +1333,21 @@ void imap_uidfetch(int num_parms, char *parms[]) {
 	int have_uid_item = 0;
 
 	if (num_parms < 5) {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	imap_pick_range(parms[3], 1);
+	imap_pick_range(Params[3].Key, 1);
 
 	strcpy(items, "");
 	for (i=4; i<num_parms; ++i) {
-		strcat(items, parms[i]);
+		strcat(items, Params[i].Key);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
 
 	num_items = imap_extract_data_items(itemlist, items);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", parms[0]);
+		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
 		return;
 	}
 
@@ -1363,7 +1364,7 @@ void imap_uidfetch(int num_parms, char *parms[]) {
 	}
 
 	imap_do_fetch(num_items, itemlist);
-	cprintf("%s OK UID FETCH completed\r\n", parms[0]);
+	cprintf("%s OK UID FETCH completed\r\n", Params[0].Key);
 }
 
 

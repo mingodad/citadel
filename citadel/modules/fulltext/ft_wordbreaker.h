@@ -33,7 +33,7 @@
 #define WB_MIN			4	// nothing with 3 or less chars
 #define WB_MAX			40
 
-void wordbreaker(char *text, int *num_tokens, int **tokens);
+void wordbreaker(const char *text, int *num_tokens, int **tokens);
 
 void initialize_noise_words(void);
 void noise_word_cleanup(void);

@@ -58,8 +58,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "serv_imap.h"
 #include "imap_tools.h"
+#include "serv_imap.h"
 #include "imap_fetch.h"
 #include "imap_store.h"
 #include "genstamp.h"
@@ -212,77 +212,77 @@ void imap_do_store(int num_items, char **itemlist) {
 /*
  * This function is called by the main command loop.
  */
-void imap_store(int num_parms, char *parms[]) {
+void imap_store(int num_parms, ConstStr *Params) {
 	char items[1024];
 	char *itemlist[256];
 	int num_items;
 	int i;
 
 	if (num_parms < 3) {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	if (imap_is_message_set(parms[2])) {
-		imap_pick_range(parms[2], 0);
+	if (imap_is_message_set(Params[2].Key)) {
+		imap_pick_range(Params[2].Key, 0);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
 	strcpy(items, "");
 	for (i=3; i<num_parms; ++i) {
-		strcat(items, parms[i]);
+		strcat(items, Params[i].Key);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
 
 	num_items = imap_extract_data_items(itemlist, items);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", parms[0]);
+		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
 		return;
 	}
 
 	imap_do_store(num_items, itemlist);
-	cprintf("%s OK STORE completed\r\n", parms[0]);
+	cprintf("%s OK STORE completed\r\n", Params[0].Key);
 }
 
 /*
  * This function is called by the main command loop.
  */
-void imap_uidstore(int num_parms, char *parms[]) {
+void imap_uidstore(int num_parms, ConstStr *Params) {
 	char items[1024];
 	char *itemlist[256];
 	int num_items;
 	int i;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	if (imap_is_message_set(parms[3])) {
-		imap_pick_range(parms[3], 1);
+	if (imap_is_message_set(Params[3].Key)) {
+		imap_pick_range(Params[3].Key, 1);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
 	strcpy(items, "");
 	for (i=4; i<num_parms; ++i) {
-		strcat(items, parms[i]);
+		strcat(items, Params[i].Key);
 		if (i < (num_parms-1)) strcat(items, " ");
 	}
 
 	num_items = imap_extract_data_items(itemlist, items);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", parms[0]);
+		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
 		return;
 	}
 
 	imap_do_store(num_items, itemlist);
-	cprintf("%s OK UID STORE completed\r\n", parms[0]);
+	cprintf("%s OK UID STORE completed\r\n", Params[0].Key);
 }
 
 

@@ -58,8 +58,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "serv_imap.h"
 #include "imap_tools.h"
+#include "serv_imap.h"
 #include "imap_fetch.h"
 #include "imap_misc.h"
 #include "genstamp.h"
@@ -73,7 +73,7 @@
  * imap_copy() calls imap_do_copy() to do its actual work, once it's
  * validated and boiled down the request a bit.  (returns 0 on success)
  */
-int imap_do_copy(char *destination_folder) {
+int imap_do_copy(const char *destination_folder) {
 	int i;
 	char roomname[ROOMNAMELEN];
 	struct ctdlroom qrbuf;
@@ -192,58 +192,58 @@ void imap_output_copyuid_response(void) {
 /*
  * This function is called by the main command loop.
  */
-void imap_copy(int num_parms, char *parms[]) {
+void imap_copy(int num_parms, ConstStr *Params) {
 	int ret;
 
 	if (num_parms != 4) {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	if (imap_is_message_set(parms[2])) {
-		imap_pick_range(parms[2], 0);
+	if (imap_is_message_set(Params[2].Key)) {
+		imap_pick_range(Params[2].Key, 0);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	ret = imap_do_copy(parms[3]);
+	ret = imap_do_copy(Params[3].Key);
 	if (!ret) {
-		cprintf("%s OK ", parms[0]);
+		cprintf("%s OK ", Params[0].Key);
 		imap_output_copyuid_response();
 		cprintf("COPY completed\r\n");
 	}
 	else {
-		cprintf("%s NO COPY failed (error %d)\r\n", parms[0], ret);
+		cprintf("%s NO COPY failed (error %d)\r\n", Params[0].Key, ret);
 	}
 }
 
 /*
  * This function is called by the main command loop.
  */
-void imap_uidcopy(int num_parms, char *parms[]) {
+void imap_uidcopy(int num_parms, ConstStr *Params) {
 
 	if (num_parms != 5) {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	if (imap_is_message_set(parms[3])) {
-		imap_pick_range(parms[3], 1);
+	if (imap_is_message_set(Params[3].Key)) {
+		imap_pick_range(Params[3].Key, 1);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", parms[0]);
+		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
 	}
 
-	if (imap_do_copy(parms[4]) == 0) {
-		cprintf("%s OK ", parms[0]);
+	if (imap_do_copy(Params[4].Key) == 0) {
+		cprintf("%s OK ", Params[0].Key);
 		imap_output_copyuid_response();
 		cprintf("UID COPY completed\r\n");
 	}
 	else {
-		cprintf("%s NO UID COPY failed\r\n", parms[0]);
+		cprintf("%s NO UID COPY failed\r\n", Params[0].Key);
 	}
 }
 
@@ -282,7 +282,7 @@ void imap_do_append_flags(long new_msgnum, char *new_message_flags) {
 /*
  * This function is called by the main command loop.
  */
-void imap_append(int num_parms, char *parms[]) {
+void imap_append(int num_parms, ConstStr *Params) {
 	long literal_length;
 	long bytes_transferred;
 	struct CtdlMessage *msg = NULL;
@@ -294,23 +294,23 @@ void imap_append(int num_parms, char *parms[]) {
 	int msgs, new;
 	int i;
 	char new_message_flags[SIZ];
-	struct citimap *Imap;
+	citimap *Imap;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD usage error\r\n", parms[0]);
+		cprintf("%s BAD usage error\r\n", Params[0].Key);
 		return;
 	}
 
-	if ( (parms[num_parms-1][0] != '{')
-	   || (parms[num_parms-1][strlen(parms[num_parms-1])-1] != '}') )  {
-		cprintf("%s BAD no message literal supplied\r\n", parms[0]);
+	if ( (Params[num_parms-1].Key[0] != '{')
+	   || (Params[num_parms-1].Key[Params[num_parms-1].len-1] != '}') )  {
+		cprintf("%s BAD no message literal supplied\r\n", Params[0].Key);
 		return;
 	}
 
 	strcpy(new_message_flags, "");
 	if (num_parms >= 5) {
 		for (i=3; i<num_parms; ++i) {
-			strcat(new_message_flags, parms[i]);
+			strcat(new_message_flags, Params[i].Key);
 			strcat(new_message_flags, " ");
 		}
 		stripallbut(new_message_flags, '(', ')');
@@ -322,10 +322,10 @@ void imap_append(int num_parms, char *parms[]) {
 	 * }
 	 */
 
-	literal_length = atol(&parms[num_parms-1][1]);
+	literal_length = atol(&Params[num_parms-1].Key[1]);
 	if (literal_length < 1) {
 		cprintf("%s BAD Message length must be at least 1.\r\n",
-			parms[0]);
+			Params[0].Key);
 		return;
 	}
 
@@ -335,7 +335,7 @@ void imap_append(int num_parms, char *parms[]) {
 	Imap->TransmittedMessage = NewStrBufPlain(NULL, literal_length);
 
 	if (Imap->TransmittedMessage == NULL) {
-		cprintf("%s NO Cannot allocate memory.\r\n", parms[0]);
+		cprintf("%s NO Cannot allocate memory.\r\n", Params[0].Key);
 		return;
 	}
 	
@@ -345,7 +345,7 @@ void imap_append(int num_parms, char *parms[]) {
 	client_read_blob(Imap->TransmittedMessage, literal_length, config.c_sleeping);
 
 	if ((ret < 0) || (StrLength(Imap->TransmittedMessage) < literal_length)) {
-		cprintf("%s NO Read failed.\r\n", parms[0]);
+		cprintf("%s NO Read failed.\r\n", Params[0].Key);
 		return;
 	}
 
@@ -362,10 +362,10 @@ void imap_append(int num_parms, char *parms[]) {
 	CtdlLogPrintf(CTDL_DEBUG, "Converting message format\n");
 	msg = convert_internet_message_buf(&Imap->TransmittedMessage);
 
-	ret = imap_grabroom(roomname, parms[2], 1);
+	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			parms[0]);
+			Params[0].Key);
 		return;
 	}
 
@@ -403,7 +403,7 @@ void imap_append(int num_parms, char *parms[]) {
 
 	if (ret) {
 		/* Nope ... print an error message */
-		cprintf("%s NO %s\r\n", parms[0], buf);
+		cprintf("%s NO %s\r\n", Params[0].Key, buf);
 	}
 
 	else {
@@ -413,11 +413,11 @@ void imap_append(int num_parms, char *parms[]) {
 		}
 		if (new_msgnum >= 0L) {
 			cprintf("%s OK [APPENDUID %ld %ld] APPEND completed\r\n",
-				parms[0], GLOBAL_UIDVALIDITY_VALUE, new_msgnum);
+				Params[0].Key, GLOBAL_UIDVALIDITY_VALUE, new_msgnum);
 		}
 		else {
 			cprintf("%s BAD Error %ld saving message to disk.\r\n",
-				parms[0], new_msgnum);
+				Params[0].Key, new_msgnum);
 		}
 	}
 

@@ -397,7 +397,7 @@ void *indexer_thread(void *arg) {
  * (This one does the "all of these words" search.)
  * Caller is responsible for freeing the message list.
  */
-void ft_search(int *fts_num_msgs, long **fts_msgs, char *search_string) {
+void ft_search(int *fts_num_msgs, long **fts_msgs, const char *search_string) {
 	int num_tokens = 0;
 	int *tokens = NULL;
 	int i, j;

@@ -19,8 +19,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-void imap_pick_range(char *range, int is_uid);
-void imap_fetch(int num_parms, char *parms[]);
-void imap_uidfetch(int num_parms, char *parms[]);
+void imap_pick_range(const char *range, int is_uid);
+void imap_fetch(int num_parms, ConstStr *Params);
+void imap_uidfetch(int num_parms, ConstStr *Params);
 void imap_fetch_flags(int seq);
 int imap_extract_data_items(char **argv, char *items);

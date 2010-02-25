@@ -57,8 +57,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "serv_imap.h"
 #include "imap_tools.h"
+#include "serv_imap.h"
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "imap_store.h"
@@ -89,7 +89,7 @@ void imap_list_floors(char *verb, int num_patterns, char **patterns)
 			}
 			if (match) {
 				cprintf("* %s (\\NoSelect \\HasChildren) \"/\" ", verb);
-				imap_strout(fl->f_name);
+				plain_imap_strout(fl->f_name);
 				cprintf("\r\n");
 			}
 		}
@@ -176,7 +176,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 		}
 		if (match) {
 			cprintf("* %s (%s) \"/\" ", verb, return_options);
-			imap_strout(buf);
+			plain_imap_strout(buf);
 			cprintf("\r\n");
 		}
 	}
@@ -186,7 +186,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 /*
  * Implements the LIST and LSUB commands
  */
-void imap_list(int num_parms, char *parms[])
+void imap_list(int num_parms, ConstStr *Params)
 {
 	int subscribed_rooms_only = 0;
 	char verb[16];
@@ -206,15 +206,15 @@ void imap_list(int num_parms, char *parms[])
 	int return_children = 0;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD arguments invalid\r\n", parms[0]);
+		cprintf("%s BAD arguments invalid\r\n", Params[0].Key);
 		return;
 	}
 
 	/* parms[1] is the IMAP verb being used (e.g. LIST or LSUB)
 	 * This tells us how to behave, and what verb to return back to the caller
 	 */
-	safestrncpy(verb, parms[1], sizeof verb);
-	j = strlen(verb);
+	safestrncpy(verb, Params[1].Key, sizeof verb);
+	j = Params[1].len;
 	for (i=0; i<j; ++i) {
 		verb[i] = toupper(verb[i]);
 	}
@@ -244,14 +244,14 @@ void imap_list(int num_parms, char *parms[])
 	 * selection options.  Extract their exact position, and then modify our
 	 * expectation of where the root folder will be specified.
 	 */
-	if (parms[2][0] == '(') {
+	if (Params[2].Key[0] == '(') {
 		extended_list_in_use = 1;
 		selection_left = 2;
 		paren_nest = 0;
 		for (i=2; i<num_parms; ++i) {
-			for (j=0; parms[i][j]; ++j) {
-				if (parms[i][j] == '(') ++paren_nest;
-				if (parms[i][j] == ')') --paren_nest;
+			for (j=0; Params[i].Key[j]; ++j) {
+				if (Params[i].Key[j] == '(') ++paren_nest;
+				if (Params[i].Key[j] == ')') --paren_nest;
 			}
 			if (paren_nest == 0) {
 				selection_right = i;	/* found end of selection options */
@@ -266,20 +266,24 @@ void imap_list(int num_parms, char *parms[])
 	if ((selection_left > 0) && (selection_right >= selection_left)) {
 
 		/* Strip off the outer parentheses */
-		if (parms[selection_left][0] == '(') {
-			strcpy(parms[selection_left], &parms[selection_left][1]);
+		if (Params[selection_left].Key[0] == '(') {
+			TokenCutLeft(&IMAP->Cmd, 
+				     &Params[selection_left], 
+				     1);
 		}
-		if (parms[selection_right][strlen(parms[selection_right])-1] == ')') {
-			parms[selection_right][strlen(parms[selection_right])-1] = 0;
+		if (Params[selection_right].Key[Params[selection_right].len-1] == ')') {
+			TokenCutRight(&IMAP->Cmd, 
+				      &Params[selection_right], 
+				      1);
 		}
 
 		for (i=selection_left; i<=selection_right; ++i) {
 
-			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
+			if (!strcasecmp(Params[i].Key, "SUBSCRIBED")) {
 				subscribed_rooms_only = 1;
 			}
 
-			else if (!strcasecmp(parms[i], "RECURSIVEMATCH")) {
+			else if (!strcasecmp(Params[i].Key, "RECURSIVEMATCH")) {
 				/* FIXME - do this! */
 			}
 
@@ -293,13 +297,13 @@ void imap_list(int num_parms, char *parms[])
 	patterns_left = root_pos + 1;
 	patterns_right = root_pos + 1;
 
-	if (parms[patterns_left][0] == '(') {
+	if (Params[patterns_left].Key[0] == '(') {
 		extended_list_in_use = 1;
 		paren_nest = 0;
 		for (i=patterns_left; i<num_parms; ++i) {
-			for (j=0; &parms[i][j]; ++j) {
-				if (parms[i][j] == '(') ++paren_nest;
-				if (parms[i][j] == ')') --paren_nest;
+			for (j=0; &Params[i].Key[j]; ++j) {
+				if (Params[i].Key[j] == '(') ++paren_nest;
+				if (Params[i].Key[j] == ')') --paren_nest;
 			}
 			if (paren_nest == 0) {
 				patterns_right = i;	/* found end of patterns */
@@ -310,7 +314,7 @@ void imap_list(int num_parms, char *parms[])
 		for (i=0; i<num_patterns; ++i) {
 			if (i < MAX_PATTERNS) {
 				patterns[i] = malloc(512);
-				snprintf(patterns[i], 512, "%s%s", parms[root_pos], parms[patterns_left+i]);
+				snprintf(patterns[i], 512, "%s%s", Params[root_pos].Key, Params[patterns_left+i].Key);
 				if (i == 0) {
 					strcpy(patterns[i], &patterns[i][1]);
 				}
@@ -323,32 +327,41 @@ void imap_list(int num_parms, char *parms[])
 	else {
 		num_patterns = 1;
 		patterns[0] = malloc(512);
-		snprintf(patterns[0], 512, "%s%s", parms[root_pos], parms[patterns_left]);
+		snprintf(patterns[0], 512, "%s%s", 
+			 Params[root_pos].Key, 
+			 Params[patterns_left].Key);
 	}
 
 	/* If the word "RETURN" appears after the folder pattern list, then the client
 	 * is specifying return options.
 	 */
-	if (num_parms - patterns_right > 2) if (!strcasecmp(parms[patterns_right+1], "RETURN")) {
+	if (num_parms - patterns_right > 2) if (!strcasecmp(Params[patterns_right+1].Key, "RETURN")) {
 		return_left = patterns_right + 2;
 		extended_list_in_use = 1;
 		paren_nest = 0;
 		for (i=return_left; i<num_parms; ++i) {
-			for (j=0; parms[i][j]; ++j) {
-				if (parms[i][j] == '(') ++paren_nest;
-				if (parms[i][j] == ')') --paren_nest;
+			for (j=0;   Params[i].Key[j]; ++j) {
+				if (Params[i].Key[j] == '(') ++paren_nest;
+				if (Params[i].Key[j] == ')') --paren_nest;
 			}
 
 			/* Might as well look for these while we're in here... */
-			if (parms[i][0] == '(') strcpy(parms[i], &parms[i][1]);
-			if (parms[i][strlen(parms[i])-1] == ')') parms[i][strlen(parms[i])-1] = 0;
-			CtdlLogPrintf(9, "evaluating <%s>\n", parms[i]);
+			if (Params[i].Key[0] == '(') 
+				TokenCutLeft(&IMAP->Cmd, 
+					     &Params[i], 
+					     1);
+			if (Params[i].Key[Params[i].len-1] == ')')
+			    TokenCutRight(&IMAP->Cmd, 
+					  &Params[i], 
+					  1);
 
-			if (!strcasecmp(parms[i], "SUBSCRIBED")) {
+			CtdlLogPrintf(9, "evaluating <%s>\n", Params[i].Key);
+
+			if (!strcasecmp(Params[i].Key, "SUBSCRIBED")) {
 				return_subscribed = 1;
 			}
 
-			else if (!strcasecmp(parms[i], "CHILDREN")) {
+			else if (!strcasecmp(Params[i].Key, "CHILDREN")) {
 				return_children = 1;
 			}
 
@@ -392,5 +405,5 @@ void imap_list(int num_parms, char *parms[])
 		free(patterns[i]);
 	}
 
-	cprintf("%s OK %s completed\r\n", parms[0], verb);
+	cprintf("%s OK %s completed\r\n", Params[0].Key, verb);
 }

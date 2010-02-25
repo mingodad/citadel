@@ -152,7 +152,7 @@ extern struct RoomFunctionHook *RoomHookTable;
 
 struct SearchFunctionHook {
 	struct SearchFunctionHook *next;
-	void (*fcn_ptr) (int *, long **, char *);
+	void (*fcn_ptr) (int *, long **, const char *);
 	char *name;
 };
 extern struct SearchFunctionHook *SearchFunctionHookTable;

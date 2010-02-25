@@ -60,8 +60,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "serv_imap.h"
 #include "imap_tools.h"
+#include "serv_imap.h"
 #include "imap_fetch.h"
 #include "imap_misc.h"
 #include "genstamp.h"
@@ -76,7 +76,7 @@
  * Attempting to set anything else calls a stub which fools the client into
  * thinking that there is no remaining space available to store annotations.
  */
-void imap_setmetadata(int num_parms, char *parms[]) {
+void imap_setmetadata(int num_parms, ConstStr *Params) {
 	char roomname[ROOMNAMELEN];
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
@@ -87,26 +87,26 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	struct visit vbuf;
 
 	if (num_parms != 6) {
-		cprintf("%s BAD usage error\r\n", parms[0]);
+		cprintf("%s BAD usage error\r\n", Params[0].Key);
 		return;
 	}
 
 	/*
 	 * Don't allow other types of metadata to be set
 	 */
-	if (strcasecmp(parms[3], "/vendor/kolab/folder-type")) {
-		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+	if (strcasecmp(Params[3].Key, "/vendor/kolab/folder-type")) {
+		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", Params[0].Key);
 		return;
 	}
 
-	if (!strcasecmp(parms[4], "(value.shared")) {
+	if (!strcasecmp(Params[4].Key, "(value.shared")) {
 		setting_user_value = 0;				/* global view */
 	}
-	else if (!strcasecmp(parms[4], "(value.priv")) {
+	else if (!strcasecmp(Params[4].Key, "(value.priv")) {
 		setting_user_value = 1;				/* per-user view */
 	}
 	else {
-		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", Params[0].Key);
 		return;
 	}
 
@@ -114,7 +114,7 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 	 * Extract the folder type without any parentheses.  Then learn
 	 * the Citadel view type based on the supplied folder type.
 	 */
-	extract_token(set_value, parms[5], 0, ')', sizeof set_value);
+	extract_token(set_value, Params[5].Key, 0, ')', sizeof set_value);
 	if (!strncasecmp(set_value, "mail", 4)) {
 		set_view = VIEW_MAILBOX;
 	}
@@ -137,10 +137,10 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 		set_view = VIEW_MAILBOX;
 	}
 
-	ret = imap_grabroom(roomname, parms[2], 1);
+	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			parms[0]);
+			Params[0].Key);
 		return;
 	}
 
@@ -164,7 +164,7 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 
 	if (setting_user_value)
 	{
-		cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
+		cprintf("%s OK SETANNOTATION complete\r\n", Params[0].Key);
 	}
 
 	/* If this is a "value.shared" set operation, we are allowed to perform it
@@ -179,12 +179,12 @@ void imap_setmetadata(int num_parms, char *parms[]) {
 		CtdlGetRoomLock(&CC->room, CC->room.QRname);
 		CC->room.QRdefaultview = set_view;
 		CtdlPutRoomLock(&CC->room);
-		cprintf("%s OK SETANNOTATION complete\r\n", parms[0]);
+		cprintf("%s OK SETANNOTATION complete\r\n", Params[0].Key);
 	}
 
 	/* If we got to this point, we don't have permission to set the default view. */
 	else {
-		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", parms[0]);
+		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", Params[0].Key);
 	}
 
 	/*
@@ -203,21 +203,21 @@ void imap_setmetadata(int num_parms, char *parms[]) {
  * Regardless of what the client asked for, we are going to supply them with
  * the folder type.  It's the only metadata we have anyway.
  */
-void imap_getmetadata(int num_parms, char *parms[]) {
+void imap_getmetadata(int num_parms, ConstStr *Params) {
 	char roomname[ROOMNAMELEN];
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 	int ret;
 
 	if (num_parms > 5) {
-		cprintf("%s BAD usage error\r\n", parms[0]);
+		cprintf("%s BAD usage error\r\n", Params[0].Key);
 		return;
 	}
 
-	ret = imap_grabroom(roomname, parms[2], 1);
+	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
 		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			parms[0]);
+			Params[0].Key);
 		return;
 	}
 
@@ -231,7 +231,7 @@ void imap_getmetadata(int num_parms, char *parms[]) {
 	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	cprintf("* METADATA ");
-	imap_strout(parms[2]);
+	imap_strout(&Params[2]);
 	cprintf(" \"/vendor/kolab/folder-type\" (\"value.shared\" \"");
 
 	/* If it's one of our hard-coded default rooms, we know what to do... */
@@ -297,7 +297,7 @@ void imap_getmetadata(int num_parms, char *parms[]) {
 		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
-	cprintf("%s OK GETMETADATA complete\r\n", parms[0]);
+	cprintf("%s OK GETMETADATA complete\r\n", Params[0].Key);
 	return;
 }
 

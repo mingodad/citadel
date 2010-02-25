@@ -465,7 +465,7 @@ int login_via_openid(char *claimed_id)
  */
 void extract_link(char *target_buf, int target_size, char *rel, char *source_buf)
 {
-	char *ptr = source_buf;
+	const char *ptr = source_buf;
 
 	if (!target_buf) return;
 	if (!rel) return;
@@ -493,7 +493,7 @@ void extract_link(char *target_buf, int target_size, char *rel, char *source_buf
 			if (len > sizeof work_buffer) len = sizeof work_buffer;
 			memcpy(work_buffer, link_tag_start, len);
 		
-			char *rel_start = NULL;
+			const char *rel_start = NULL;
 			char *rel_end = NULL;
 			rel_start = bmstrcasestr(work_buffer, "rel=");
 			if (rel_start) {

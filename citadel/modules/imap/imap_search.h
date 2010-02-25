@@ -19,5 +19,5 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-void imap_search(int num_parms, char *parms[]);
-void imap_uidsearch(int num_parms, char *parms[]);
+void imap_search(int num_parms, ConstStr *Params);
+void imap_uidsearch(int num_parms, ConstStr *Params);

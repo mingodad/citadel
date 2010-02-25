@@ -403,7 +403,7 @@ void pop3_top(char *argbuf) {
 	int lines_dumped = 0;
 	char buf[1024];
 	char *msgtext;
-	char *ptr;
+	const char *ptr;
 	int in_body = 0;
 	int done = 0;
 

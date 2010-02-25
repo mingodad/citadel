@@ -31,6 +31,7 @@
 #include "sysdep_decls.h"
 #include "internet_addressing.h"
 #include "imap_tools.h"
+#include "serv_imap.h"
 #include "ctdl_module.h"
 
 #ifndef HAVE_SNPRINTF
@@ -297,10 +298,10 @@ static char* toimap(char* destp, char* destend, char* src)
 /* Convert from an IMAP-safe name back into a Citadel name. Returns the end of the destination. */
 
 static int cfrommap(int c);
-static char* fromimap(char* destp, char* destend, char* src)
+static char* fromimap(char* destp, char* destend, const char* src)
 {
 	struct string dest;
-	unsigned char *p = (unsigned char*) src;
+	unsigned const char *p = (unsigned const char*) src;
 	int v = 0;
 	int i = 0;
 	int state = 0;
@@ -385,7 +386,7 @@ static int cfrommap(int c)
 /* Output a string to the IMAP client, either as a literal or quoted.
  * (We do a literal if it has any double-quotes or backslashes.) */
 
-void imap_strout(char *buf)
+void plain_imap_strout(char *buf)
 {
 	int i;
 	int is_literal = 0;
@@ -409,9 +410,186 @@ void imap_strout(char *buf)
 	}
 }
 
+/* Output a string to the IMAP client, either as a literal or quoted.
+ * (We do a literal if it has any double-quotes or backslashes.) */
+
+void imap_strout(ConstStr *args)
+{
+	int i;
+	int is_literal = 0;
+	
+	if ((args == NULL) || (args->len == 0))
+	{	/* yeah, we handle this */
+		cprintf("NIL");
+		return;
+	}
+
+	for (i = 0; i < args->len; ++i) {
+		if ((args->Key[i] == '\"') || (args->Key[i] == '\\'))
+			is_literal = 1;
+	}
+
+	if (is_literal) {
+		cprintf("{%ld}\r\n%s", args->len, args->Key);
+	} else {
+		cprintf("\"%s\"", args->Key);
+	}
+}
+
 /* Break a command down into tokens, unquoting any escaped characters. */
 
-int imap_parameterize(char** args, char* in)
+
+void TokenCutRight(citimap_command *Cmd, 
+		   ConstStr *CutMe,
+		   int n)
+{
+	const char *CutAt;
+
+	if (CutMe->len < n) {
+		CutAt = CutMe->Key;
+		CutMe->len = 0;
+	}
+	else {
+		CutAt = CutMe->Key + CutMe->len - n;
+		CutMe->len -= n;
+	}
+	StrBufPeek(Cmd->CmdBuf, CutAt, -1, '\0');
+}
+
+void TokenCutLeft(citimap_command *Cmd, 
+		  ConstStr *CutMe,
+		  int n)
+{
+	if (CutMe->len < n) {
+		CutMe->Key += CutMe->len;
+		CutMe->len = 0;
+	}
+	else {
+		CutMe->Key += n;
+		CutMe->len -= n;
+	}
+}
+
+
+
+int CmdAdjust(citimap_command *Cmd, 
+	      int nArgs,
+	      int Realloc)
+{
+	ConstStr *Params;
+	if (nArgs > Cmd->avail_parms) {
+		Params = (ConstStr*) malloc(sizeof(ConstStr) * nArgs);
+		if (Realloc) {
+			memcpy(Params, 
+			       Cmd->Params, 
+			       sizeof(ConstStr) * Cmd->avail_parms);
+
+			memset(Cmd->Params + 
+			       sizeof(ConstStr) * Cmd->avail_parms,
+			       0, 
+			       sizeof(ConstStr) * nArgs - 
+			       sizeof(ConstStr) * Cmd->avail_parms 
+				);
+		}
+		else 
+			Cmd->num_parms = 0;
+		Cmd->avail_parms = nArgs;
+		if (Cmd->Params != NULL)
+			free (Cmd->Params);
+		Cmd->Params = Params;
+	}
+	else {
+		if (!Realloc) {
+			memset(Cmd->Params, 
+			       0,
+			       sizeof(ConstStr) * Cmd->avail_parms);
+			Cmd->num_parms = 0;
+		}
+	}
+	return Cmd->num_parms;
+}
+
+int imap_parameterize(citimap_command *Cmd)
+{
+	int nArgs;
+	const char *In, *End;
+
+	In = ChrPtr(Cmd->CmdBuf);
+	End = In + StrLength(Cmd->CmdBuf);
+
+	/* we start with 10 chars per arg, maybe we need to realloc later. */
+	nArgs = StrLength(Cmd->CmdBuf) / 10 + 10;
+	nArgs = CmdAdjust(Cmd, nArgs, 0);
+	while (In < End)
+	{
+		/* Skip whitespace. */
+		while (isspace(*In))
+			In++;
+		if (*In == '\0')
+			break;
+
+		/* Found the start of a token. */
+		
+		Cmd->Params[Cmd->num_parms].Key = In;
+
+		/* Read in the token. */
+
+		for (;;)
+		{
+			if (isspace(*In))
+				break;
+			
+			if (*In == '\"')
+			{
+				/* Found a quoted section. */
+
+				Cmd->Params[Cmd->num_parms].Key++; 
+				//In++;
+				for (;;)
+				{
+					In++;
+					if (*In == '\"') {
+						StrBufPeek(Cmd->CmdBuf, In, -1, '\0');
+						break;
+					}
+					else if (*In == '\\')
+						In++;
+
+					if (*In == '\0') {
+						Cmd->Params[Cmd->num_parms].len = 
+							In - Cmd->Params[Cmd->num_parms].Key;
+						Cmd->num_parms++;
+						return Cmd->num_parms;
+					}
+				}
+				break;
+			}
+			else if (*In == '\\')
+			{
+				In++;
+			}
+
+			if (*In == '\0') {
+				Cmd->Params[Cmd->num_parms].len = 
+					In - Cmd->Params[Cmd->num_parms].Key;
+				Cmd->num_parms++;
+				return Cmd->num_parms;
+			}
+			In++;
+		}
+		StrBufPeek(Cmd->CmdBuf, In, -1, '\0');
+		Cmd->Params[Cmd->num_parms].len = 
+			In - Cmd->Params[Cmd->num_parms].Key;
+		Cmd->num_parms ++;
+		if (Cmd->num_parms >= Cmd->avail_parms) {
+			nArgs = CmdAdjust(Cmd, nArgs * 2, 1);
+		}
+		In++;
+	}
+	return Cmd->num_parms;
+}
+
+int old_imap_parameterize(char** args, char *in)
 {
 	char* out = in;
 	int num = 0;
@@ -519,7 +697,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
  *
  */
 
-int imap_roomname(char *rbuf, int bufsize, char *foldername)
+int imap_roomname(char *rbuf, int bufsize, const char *foldername)
 {
 	int levels;
 	char floorname[256];
@@ -614,11 +792,11 @@ void imap_ial_out(struct internet_address_list *ialist)
 
 	for (iptr = ialist; iptr != NULL; iptr = iptr->next) {
 		cprintf("(");
-		imap_strout(iptr->ial_name);
+		plain_imap_strout(iptr->ial_name);
 		cprintf(" NIL ");
-		imap_strout(iptr->ial_user);
+		plain_imap_strout(iptr->ial_user);
 		cprintf(" ");
-		imap_strout(iptr->ial_node);
+		plain_imap_strout(iptr->ial_node);
 		cprintf(")");
 	}
 
@@ -633,7 +811,7 @@ void imap_ial_out(struct internet_address_list *ialist)
  * return 1 for a valid message set.  If any other character is found, 
  * return 0.
  */
-int imap_is_message_set(char *buf)
+int imap_is_message_set(const char *buf)
 {
 	int i;
 
@@ -679,13 +857,16 @@ static int do_imap_match(const char *supplied_text, const char *supplied_p)
 	char lcase_text[SIZ], lcase_p[SIZ];
 	char *text = lcase_text;
 	char *p = lcase_p;
+	long len;
 
 	/* Copy both strings and lowercase them, in order to
 	 * make this entire operation case-insensitive.
 	 */
-	for (i=0; i<=strlen(supplied_text); ++i)
+	len = strlen(supplied_text);
+	for (i=0; i<=len; ++i)
 		lcase_text[i] = tolower(supplied_text[i]);
-	for (i=0; i<=strlen(supplied_p); ++i)
+	len = strlen(supplied_p);
+	for (i=0; i<=len; ++i)
 		p[i] = tolower(supplied_p[i]);
 
 	/* Start matching */
@@ -776,7 +957,7 @@ int imap_mailbox_matches_pattern(char *pattern, char *mailboxname)
  * Compare an IMAP date string (date only, no time) to the date found in
  * a Unix timestamp.
  */
-int imap_datecmp(char *datestr, time_t msgtime) {
+int imap_datecmp(const char *datestr, time_t msgtime) {
 	char daystr[256];
 	char monthstr[256];
 	char yearstr[256];
