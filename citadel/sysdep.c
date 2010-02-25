@@ -635,10 +635,10 @@ int client_read_to(char *buf, int bytes, int timeout)
 
 int HaveMoreLinesWaiting(CitContext *CCC)
 {
-	if ((CCC->kill_me == 1) &&
+	if ((CCC->kill_me == 1) || (
 	    (CCC->Pos == NULL) && 
 	    (StrLength(CCC->ReadBuf) == 0) && 
-	    (CCC->client_socket != -1))
+	    (CCC->client_socket != -1)) )
 		return 0;
 	else
 		return 1;
