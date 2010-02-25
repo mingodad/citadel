@@ -159,6 +159,7 @@ void kill_session (int session_to_kill);
 INLINE void become_session(struct CitContext *which_con);
 void InitializeMasterCC(void);
 void dead_session_purge(int force);
+void set_async_waiting(struct CitContext *ccptr);
 
 /* Deprecated, user CtdlBumpNewMailCounter() instead */
 void BumpNewMailCounter(long) __attribute__ ((deprecated));

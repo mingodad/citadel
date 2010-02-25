@@ -586,4 +586,16 @@ INLINE void become_session(CitContext *which_con) {
 }
 
 
-
+/*
+ * Set the "async waiting" flag for a session, if applicable
+ */
+void set_async_waiting(struct CitContext *ccptr)
+{
+	CtdlLogPrintf(CTDL_DEBUG, "Setting async_waiting flag for session %d\n", ccptr->cs_pid);
+	if (ccptr->is_async) {
+		ccptr->async_waiting = 1;
+		if (ccptr->state == CON_IDLE) {
+			ccptr->state = CON_READY;
+		}
+	}
+}

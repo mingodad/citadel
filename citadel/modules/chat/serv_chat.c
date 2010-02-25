@@ -650,12 +650,7 @@ void add_xmsg_to_context(struct CitContext *ccptr, struct ExpressMessage *newmsg
 	/* If the target context is a session which can handle asynchronous
 	 * messages, go ahead and set the flag for that.
 	 */
-	if (ccptr->is_async) {
-		ccptr->async_waiting = 1;
-		if (ccptr->state == CON_IDLE) {
-			ccptr->state = CON_READY;
-		}
-	}
+	set_async_waiting(ccptr);
 }
 
 
