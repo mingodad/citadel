@@ -3155,6 +3155,33 @@ int ConditionalRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+int ConditionalCurrentRoomHas_QRFlag2(StrBuf *Target, WCTemplputParams *TP)
+{
+	long QR2_CheckFlag;
+	wcsession *WCC = WC;
+	
+	QR2_CheckFlag = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if (QR2_CheckFlag == 0)
+		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
+				 "requires one of the #\"QR2*\"- defines or an integer flag 0 is invalid!");
+
+	return ((WCC!=NULL) &&
+		((WCC->CurRoom.QRFlags2 & QR2_CheckFlag) != 0));
+}
+
+int ConditionalRoomHas_QRFlag2(StrBuf *Target, WCTemplputParams *TP)
+{
+	long QR2_CheckFlag;
+	folder *Folder = (folder *)(TP->Context);
+
+	QR2_CheckFlag = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if (QR2_CheckFlag == 0)
+		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
+				 "requires one of the #\"QR2*\"- defines or an integer flag 0 is invalid!");
+	return ((Folder->QRFlags2 & QR2_CheckFlag) != 0);
+}
+
+
 int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -3235,6 +3262,9 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:TYPE_IS"), 0, ConditionalIsRoomtype, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR"), 0, ConditionalCurrentRoomHas_QRFlag, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAG:QR"), 0, ConditionalRoomHas_QRFlag, CTX_ROOMS);
+
+	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR2"), 0, ConditionalCurrentRoomHas_QRFlag2, CTX_NONE);
+	RegisterConditional(HKEY("COND:ROOM:FLAG:QR2"), 0, ConditionalRoomHas_QRFlag2, CTX_ROOMS);
 
 	REGISTERTokenParamDefine(QR_PERMANENT);
 	REGISTERTokenParamDefine(QR_INUSE);
