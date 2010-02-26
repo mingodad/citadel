@@ -45,6 +45,15 @@ enum LogLevel {
 	 CTDL_DEBUG	/* debug-level messages */
 };
 
+typedef enum AXLevel {
+	AxDeleted = 0,
+	AxNewU = 1,
+	AxProbU = 2,
+	AxLocU = 3,
+	AxNetU = 4,
+	AxPrefU = 5,
+	AxAideU = 6
+}eUsrAxlvl;
 
 /*
  * View definitions.
@@ -367,7 +376,7 @@ int haschar(const char *st, int ch);
 void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
 int is_msg_in_sequence_set(const char *mset, long msgnum);
-char *memreadline(char *start, char *buf, int maxlen);
+const char *memreadline(const char *start, char *buf, int maxlen);
 char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
 #define IsEmptyStr(a) ((a)[0] == '\0')
 #define num_parms(source)		num_tokens(source,(char)'|')
