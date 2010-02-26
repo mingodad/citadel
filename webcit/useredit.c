@@ -795,4 +795,12 @@ InitModule_USEREDIT
 			 GroupchangenPosts,
 			 CTX_USERLIST);
 
+	REGISTERTokenParamDefine(AxDeleted);
+	REGISTERTokenParamDefine(AxNewU);
+	REGISTERTokenParamDefine(AxProbU);
+	REGISTERTokenParamDefine(AxLocU);
+	REGISTERTokenParamDefine(AxNetU);
+	REGISTERTokenParamDefine(AxPrefU);
+	REGISTERTokenParamDefine(AxAideU);
 }
+
