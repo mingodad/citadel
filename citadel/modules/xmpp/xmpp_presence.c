@@ -81,7 +81,7 @@ void xmpp_wholist_presence_dump(void)
 	struct CitContext *cptr = NULL;
 	int nContexts, i;
 	
-	int aide = (CC->user.axlevel >= 6);
+	int aide = (CC->user.axlevel >= AxAideU);
 
 	cptr = CtdlGetContextArray(&nContexts);
 	if (!cptr) {
@@ -143,7 +143,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	static int unsolicited_id;
 	int visible_sessions = 0;
 	int nContexts, i;
-	int aide = (CC->user.axlevel >= 6);
+	int aide = (CC->user.axlevel >= AxAideU);
 
 	if (IsEmptyStr(presence_jid)) return;
 	if (CC->kill_me) return;
@@ -209,7 +209,7 @@ void xmpp_massacre_roster(void)
 {
 	struct CitContext *cptr;
 	int nContexts, i;
-	int aide = (CC->user.axlevel >= 6);
+	int aide = (CC->user.axlevel >= AxAideU);
 
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {

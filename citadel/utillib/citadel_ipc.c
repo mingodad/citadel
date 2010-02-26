@@ -1108,7 +1108,7 @@ int CtdlIPCValidateUser(CtdlIPC *ipc, const char *username, int axlevel, char *c
 
 	if (!cret) return -2;
 	if (!username) return -2;
-	if (axlevel < 0 || axlevel > 7) return -2;
+	if (axlevel < AxDeleted || axlevel > AxAideU) return -2;
 
 	aaa = (char *)malloc(strlen(username) + 17);
 	if (!aaa) return -1;

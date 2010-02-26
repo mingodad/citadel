@@ -680,7 +680,7 @@ int CtdlAccessCheck(int required_level) {
 		return(-1);
 	}
 
-	if (CC->user.axlevel >= 6) return(0);
+	if (CC->user.axlevel >= AxAideU) return(0);
  	if (required_level >= ac_aide) {
 		cprintf("%d This command requires Aide access.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);

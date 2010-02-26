@@ -67,7 +67,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 
 	/* Force the properties of the Aide room */
 	if (!strcasecmp(roombuf->QRname, config.c_aideroom)) {
-		if (userbuf->axlevel >= 6) {
+		if (userbuf->axlevel >= AxAideU) {
 			retval = UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED;
 		} else {
 			retval = 0;
@@ -83,7 +83,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 
 	/* If this is a preferred users only room, check access level */
 	if (roombuf->QRflags & QR_PREFONLY) {
-		if (userbuf->axlevel < 5) {
+		if (userbuf->axlevel < AxPrefU) {
 			retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED;
 		}
 	}
@@ -127,8 +127,8 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		 * - It is a read-only room
 		 */
 		int post_allowed = 1;
-		if (CC->user.axlevel < 2) post_allowed = 0;
-		if ((CC->user.axlevel < 4) && (CC->room.QRflags & QR_NETWORK)) post_allowed = 0;
+		if (CC->user.axlevel < AxProbU) post_allowed = 0;
+		if ((CC->user.axlevel < AxNetU) && (CC->room.QRflags & QR_NETWORK)) post_allowed = 0;
 		if (roombuf->QRflags & QR_READONLY) post_allowed = 0;
 		if (post_allowed) {
 			retval = retval | UA_POSTALLOWED;
@@ -161,7 +161,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 
 	/* Aides get access to all private rooms */
-	if ( (userbuf->axlevel >= 6)
+	if ( (userbuf->axlevel >= AxAideU)
 	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
 		if (vbuf.v_flags & V_FORGET) {
 			retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED;
@@ -174,13 +174,13 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	/* Aides can gain access to mailboxes as well, but they don't show
 	 * by default.
 	 */
-	if ( (userbuf->axlevel >= 6)
+	if ( (userbuf->axlevel >= AxAideU)
 	   && (roombuf->QRflags & QR_MAILBOX) ) {
 		retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED;
 	}
 
 	/* Aides and Room Aides have admin privileges */
-	if ( (userbuf->axlevel >= 6)
+	if ( (userbuf->axlevel >= AxAideU)
 	   || (userbuf->usernum == roombuf->QRroomaide)
 	   ) {
 		retval = retval | UA_ADMINALLOWED | UA_DELETEALLOWED | UA_POSTALLOWED;
@@ -984,7 +984,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 		rmailflag = 0;
 
 	if ((CC->room.QRroomaide == CC->user.usernum)
-	    || (CC->user.axlevel >= 6))
+	    || (CC->user.axlevel >= AxAideU))
 		raideflag = 1;
 	else
 		raideflag = 0;
@@ -1133,7 +1133,7 @@ void cmd_goto(char *gargs)
 			} else if ((QRscratch.QRflags & QR_PASSWORDED) &&
 			    ((ra & UA_KNOWN) == 0) &&
 			    (strcasecmp(QRscratch.QRpasswd, password)) &&
-			    (CC->user.axlevel < 6)
+			    (CC->user.axlevel < AxAideU)
 			    ) {
 				cprintf("%d wrong or missing passwd\n",
 					ERROR + PASSWORD_REQUIRED);
@@ -1142,7 +1142,7 @@ void cmd_goto(char *gargs)
 				   ((QRscratch.QRflags & QR_PASSWORDED) == 0) &&
 				   ((QRscratch.QRflags & QR_GUESSNAME) == 0) &&
 				   ((ra & UA_KNOWN) == 0) &&
-			           (CC->user.axlevel < 6)
+			           (CC->user.axlevel < AxAideU)
                                   ) {
 				CtdlLogPrintf(CTDL_DEBUG, "Failed to acquire private room\n");
 			} else {
@@ -1207,7 +1207,7 @@ void cmd_rdir(char *cmdbuf)
 		return;
 	}
 	if (((CC->room.QRflags & QR_VISDIR) == 0)
-	    && (CC->user.axlevel < 6)
+	    && (CC->user.axlevel < AxAideU)
 	    && (CC->user.usernum != CC->room.QRroomaide)) {
 		cprintf("%d not here.\n", ERROR + HIGHER_ACCESS_REQUIRED);
 		return;
@@ -1344,7 +1344,7 @@ int CtdlRenameRoom(char *old_name, char *new_name, int new_floor) {
 		ret = crr_room_not_found;
 	}
 
-	else if ( (CC->user.axlevel < 6) && (!CC->internal_pgm)
+	else if ( (CC->user.axlevel < AxAideU) && (!CC->internal_pgm)
 		  && (CC->user.usernum != qrbuf.QRroomaide)
 		  && ( (((qrbuf.QRflags & QR_MAILBOX) == 0) || (atol(qrbuf.QRname) != CC->user.usernum))) )  {
 		ret = crr_access_denied;
@@ -1985,7 +1985,7 @@ void cmd_cre8(char *args)
 	}
 
 	if (new_room_type == 5) {
-		if (CC->user.axlevel < 6) {
+		if (CC->user.axlevel < AxAideU) {
 			cprintf("%d Higher access required\n", 
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			return;

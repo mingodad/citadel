@@ -164,7 +164,7 @@ int CtdlTerminateOtherSession (int session_num)
 		if (session_num == ccptr->cs_pid) {
 			ret |= TERM_FOUND;
 			if ((ccptr->user.usernum == CC->user.usernum)
-			   || (CC->user.axlevel >= 6)) {
+			   || (CC->user.axlevel >= AxAideU)) {
 				ret |= TERM_ALLOWED;
 				ccptr->kill_me = 1;
 			}

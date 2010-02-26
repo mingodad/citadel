@@ -73,8 +73,8 @@
 
 #define IFEXPERT if (userflags&US_EXPERT)
 #define IFNEXPERT if ((userflags&US_EXPERT)==0)
-#define IFAIDE if (axlevel>=6)
-#define IFNAIDE if (axlevel<6)
+#define IFAIDE if (axlevel>=AxAideU)
+#define IFNAIDE if (axlevel<AxAideU)
 
 int rordercmp(struct ctdlroomlisting *r1, struct ctdlroomlisting *r2);
 
@@ -98,7 +98,7 @@ char *uglist[UGLISTLEN]; /* size of the ungoto list */
 long uglistlsn[UGLISTLEN]; /* current read position for all the ungoto's. Not going to make any friends with this one. */
 int uglistsize = 0;
 char is_mail = 0;		/* nonzero when we're in a mail room */
-char axlevel = 0;		/* access level */
+char axlevel = AxDeleted;		/* access level */
 char is_room_aide = 0;		/* boolean flag, 1 if room aide */
 int timescalled;
 int posted;
@@ -1776,7 +1776,7 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 				rv = system(rc_gotmail_cmd);
 			}
 		}
-		if ((axlevel >= 6) && (chek.needvalid > 0)) {
+		if ((axlevel >= AxAideU) && (chek.needvalid > 0)) {
 			scr_printf("*** Users need validation\n");
 		}
 		if (chek.needregis > 0) {

@@ -294,7 +294,7 @@ void do_chat_listing(int allflag)
 		}
 
 		GenerateRoomDisplay(roomname, ccptr, CC);
-		if ((CC->user.axlevel < 6) && (!IsEmptyStr(ccptr->fake_roomname))) {
+		if ((CC->user.axlevel < AxAideU) && (!IsEmptyStr(ccptr->fake_roomname))) {
 			strcpy(roomname, ccptr->fake_roomname);
 		}
 
@@ -312,7 +312,7 @@ void do_chat_listing(int allflag)
 		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
 
 			GenerateRoomDisplay(roomname, ccptr, CC);
-			if ((CC->user.axlevel < 6)
+			if ((CC->user.axlevel < AxAideU)
 		   	&& (!IsEmptyStr(ccptr->fake_roomname))) {
 				strcpy(roomname, ccptr->fake_roomname);
 			}
@@ -692,7 +692,7 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 		    || (!strcasecmp(x_user, "broadcast")))
 		    && (ccptr->can_receive_im)
 		    && ((ccptr->disable_exp == 0)
-		    || (CC->user.axlevel >= 6)) ) {
+		    || (CC->user.axlevel >= AxAideU)) ) {
 			if (do_send) {
 				newmsg = (struct ExpressMessage *) malloc(sizeof (struct ExpressMessage));
 				memset(newmsg, 0, sizeof (struct ExpressMessage));
@@ -748,7 +748,7 @@ void cmd_sexp(char *argbuf)
 		cprintf("%d You were not previously paged.\n", ERROR + NO_SUCH_USER);
 		return;
 	}
-	if ((!strcasecmp(x_user, "broadcast")) && (CC->user.axlevel < 6)) {
+	if ((!strcasecmp(x_user, "broadcast")) && (CC->user.axlevel < AxAideU)) {
 		cprintf("%d Higher access required to send a broadcast.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;

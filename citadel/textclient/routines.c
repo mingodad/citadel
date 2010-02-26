@@ -57,8 +57,8 @@ struct utmp *getutline(struct utmp *ut);
 #include "citadel_decls.h"
 #include "routines2.h"
 
-#define IFAIDE if(axlevel>=6)
-#define IFNAIDE if (axlevel<6)
+#define IFAIDE if(axlevel>=AxAideU)
+#define IFNAIDE if (axlevel<AxAideU)
 
 extern unsigned userflags;
 //extern char *axdefs[8];
@@ -186,7 +186,7 @@ void edituser(CtdlIPC *ipc, int cmd)
 			free(user);
 			return;
 		}
-		user->axlevel = 0;
+		user->axlevel = AxDeleted;
 	}
 
 	r = CtdlIPCAideSetUserParameters(ipc, user, buf);

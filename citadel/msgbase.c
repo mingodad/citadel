@@ -2875,7 +2875,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* If the user is a twit, move to the twit room for posting */
 	if (TWITDETECT) {
-		if (CCC->user.axlevel == 2) {
+		if (CCC->user.axlevel == AxProbU) {
 			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, config.c_twitroom);
 			CtdlLogPrintf(CTDL_DEBUG, "Diverting to twit room\n");
@@ -3546,7 +3546,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 
 	}
 
-	if ((CC->user.axlevel < 2)
+	if ((CC->user.axlevel < AxProbU)
 	    && ((CC->room.QRflags & QR_MAILBOX) == 0)) {
 		snprintf(errmsgbuf, n, "Need to be validated to enter "
 				"(except in %s> to sysop)", MAILROOM);
@@ -3571,7 +3571,7 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 
 	/* Do not allow twits to send Internet mail */
-	if (who->axlevel <= 2) return(0);
+	if (who->axlevel <= AxProbU) return(0);
 
 	/* Globally enabled? */
 	if (config.c_restrict == 0) return(1);
@@ -3580,7 +3580,7 @@ int CtdlCheckInternetMailPermission(struct ctdluser *who) {
 	if (who->flags & US_INTERNET) return(2);
 
 	/* Aide level access? */
-	if (who->axlevel >= 6) return(3);
+	if (who->axlevel >= AxAideU) return(3);
 
 	/* No mail for you! */
 	return(0);
@@ -3932,7 +3932,7 @@ void cmd_ent0(char *entargs)
 	if (IsEmptyStr(newusername)) {
 		strcpy(newusername, CC->user.fullname);
 	}
-	if (  (CC->user.axlevel < 6)
+	if (  (CC->user.axlevel < AxAideU)
 	   && (strcasecmp(newusername, CC->user.fullname))
 	   && (strcasecmp(newusername, CC->cs_inet_fn))
 	) {	
@@ -3982,7 +3982,7 @@ void cmd_ent0(char *entargs)
 	if (  ( (CC->room.QRflags & QR_MAILBOX) && (!strcasecmp(&CC->room.QRname[11], MAILROOM)) )
 	   || ( (CC->room.QRflags & QR_MAILBOX) && (CC->curr_view == VIEW_MAILBOX) )
 	) {
-		if (CC->user.axlevel < 2) {
+		if (CC->user.axlevel < AxProbU) {
 			strcpy(recp, "sysop");
 			strcpy(cc, "");
 			strcpy(bcc, "");
@@ -4034,7 +4034,7 @@ void cmd_ent0(char *entargs)
 		}
 
 		if ( ( (valid_to->num_internet + valid_to->num_ignet + valid_cc->num_internet + valid_cc->num_ignet + valid_bcc->num_internet + valid_bcc->num_ignet) > 0)
-		   && (CC->user.axlevel < 4) ) {
+		   && (CC->user.axlevel < AxNetU) ) {
 			cprintf("%d Higher access required for network mail.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
 			free_recipients(valid_to);
@@ -4393,7 +4393,7 @@ void cmd_move(char *args)
 	permit = 0;
 
 	/* Aides can move/copy */
-	if (CC->user.axlevel >= 6) permit = 1;
+	if (CC->user.axlevel >= AxAideU) permit = 1;
 
 	/* Room aides can move/copy */
 	if (CC->user.usernum == CC->room.QRroomaide) permit = 1;

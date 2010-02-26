@@ -138,7 +138,7 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	if (CC->user.axlevel < 6) {
+	if (CC->user.axlevel < AxAideU) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;

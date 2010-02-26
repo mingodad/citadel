@@ -324,7 +324,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 
 #ifdef VCARD_SAVES_BY_AIDES_ONLY
 		/* Prevent non-aides from performing registration changes */
-		if (CC->user.axlevel < 6) {
+		if (CC->user.axlevel < AxAideU) {
 			return(1);
 		}
 #endif
@@ -360,7 +360,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	if (v == NULL) return(0);	/* no vCards were found in this message */
 
 	/* If users cannot create their own accounts, they cannot re-register either. */
-	if ( (yes_my_citadel_config) && (config.c_disable_newu) && (CC->user.axlevel < 6) ) {
+	if ( (yes_my_citadel_config) && (config.c_disable_newu) && (CC->user.axlevel < AxAideU) ) {
 		return(1);
 	}
 
@@ -552,7 +552,7 @@ int vcard_upload_aftersave(struct CtdlMessage *msg) {
 			 * But if the user was an Aide or was edited by an Aide then we can
 			 * Assume they don't need validating.
 			 */
-			if (CC->user.axlevel >= 6) {
+			if (CC->user.axlevel >= AxAideU) {
 				CtdlGetUserLock(&CC->user, CC->curr_user);
 				CC->user.flags |= US_REGIS;
 				CtdlPutUserLock(&CC->user);
@@ -685,7 +685,7 @@ void cmd_regi(char *argbuf) {
 	}
 
 	/* If users cannot create their own accounts, they cannot re-register either. */
-	if ( (config.c_disable_newu) && (CC->user.axlevel < 6) ) {
+	if ( (config.c_disable_newu) && (CC->user.axlevel < AxAideU) ) {
 		cprintf("%d Self-service registration is not allowed here.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 	}
@@ -748,7 +748,7 @@ void cmd_greg(char *argbuf)
 
 	if (!strcasecmp(who,"_SELF_")) strcpy(who,CC->curr_user);
 
-	if ((CC->user.axlevel < 6) && (strcasecmp(who,CC->curr_user))) {
+	if ((CC->user.axlevel < AxAideU) && (strcasecmp(who,CC->curr_user))) {
 		cprintf("%d Higher access required.\n",
 			ERROR + HIGHER_ACCESS_REQUIRED);
 		return;

@@ -470,7 +470,7 @@ void cmd_uimg(char *cmdbuf)
 		}
 	}
 
-	if (CC->user.axlevel >= 6) {
+	if (CC->user.axlevel >= AxAideU) {
 		snprintf(CC->upl_path, sizeof CC->upl_path, 
 				 "%s/%s",
 				 ctdl_image_dir,
@@ -485,7 +485,7 @@ void cmd_uimg(char *cmdbuf)
 	}
 
 	if ((!strcasecmp(basenm, "_floorpic_"))
-	    && (CC->user.axlevel >= 6)) {
+	    && (CC->user.axlevel >= AxAideU)) {
 		which_floor = extract_int(cmdbuf, 2);
 		snprintf(CC->upl_path, sizeof CC->upl_path,
 				 "%s/floor.%d.gif",

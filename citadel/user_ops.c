@@ -378,7 +378,7 @@ void MailboxName(char *buf, size_t n, const struct ctdluser *who, const char *pr
  */
 int is_aide(void)
 {
-	if (CC->user.axlevel >= 6)
+	if (CC->user.axlevel >= AxAideU)
 		return (1);
 	else
 		return (0);
@@ -395,7 +395,7 @@ int is_room_aide(void)
 		return (0);
 	}
 
-	if ((CC->user.axlevel >= 6)
+	if ((CC->user.axlevel >= AxAideU)
 	    || (CC->room.QRroomaide == CC->user.usernum)) {
 		return (1);
 	} else {
@@ -650,7 +650,7 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 
 	/* Did we find something? */
 	if (found_user == 0) {
-		if (((CC->nologin)) && (CC->user.axlevel < 6)) {
+		if (((CC->nologin)) && (CC->user.axlevel < AxAideU)) {
 			return login_too_many_users;
 		} else {
 			safestrncpy(CC->curr_user, CC->user.fullname,
@@ -720,7 +720,7 @@ void do_login(void)
 	 * (as specified in setup), automatically assign access level 6.
 	 */
 	if (!strcasecmp(CC->user.fullname, config.c_sysadm)) {
-		CC->user.axlevel = 6;
+		CC->user.axlevel = AxAideU;
 	}
 
 	/* If we're authenticating off the host system, automatically give
@@ -728,7 +728,7 @@ void do_login(void)
 	 */
 	if (config.c_auth_mode == AUTHMODE_HOST) {
 		if (CC->user.uid == 0) {
-			CC->user.axlevel = 6;
+			CC->user.axlevel = AxAideU;
 		}
 	}
 
@@ -819,7 +819,7 @@ void CtdlUserLogout(void)
 	CCC->logged_in = 0;
 
 	/* Check to see if the user was deleted whilst logged in and purge them if necessary */
-	if ((CCC->user.axlevel == 0) && (CCC->user.usernum))
+	if ((CCC->user.axlevel == AxDeleted) && (CCC->user.usernum))
 		purge_user(CCC->user.fullname);
 
 	/* Free any output buffers */
@@ -1045,7 +1045,7 @@ int purge_user(char pname[])
 	 */
 	if (CtdlIsUserLoggedInByNum(usbuf.usernum)) {
 		CtdlLogPrintf(CTDL_WARNING, "User <%s> is logged in; not deleting.\n", pname);
-		usbuf.axlevel = 0;
+		usbuf.axlevel = AxDeleted;
 		CtdlPutUser(&usbuf);
 		return (1);
 	}
@@ -1669,7 +1669,7 @@ void cmd_gnur(char *argbuf)
 			sizeof(struct ctdluser) : cdbus->len));
 		cdb_free(cdbus);
 		if ((usbuf.flags & US_NEEDVALID)
-		    && (usbuf.axlevel > 0)) {
+		    && (usbuf.axlevel > AxDeleted)) {
 			cprintf("%d %s\n", MORE_DATA, usbuf.fullname);
 			cdb_close_cursor(CDB_USERS);
 			return;
@@ -1703,7 +1703,9 @@ void cmd_vali(char *v_args)
 	extract_token(user, v_args, 0, '|', sizeof user);
 	newax = extract_int(v_args, 1);
 
-	if (CtdlAccessCheck(ac_aide)) {
+	if (CtdlAccessCheck(ac_aide) || 
+	    (newax > AxAideU) ||
+	    (newax < AxDeleted)) {
 		return;
 	}
 
@@ -1763,8 +1765,8 @@ void ListThisUser(struct ctdluser *usbuf, void *data)
 		return;
 	}
 
-	if (usbuf->axlevel > 0) {
-		if ((CC->user.axlevel >= 6)
+	if (usbuf->axlevel > AxDeleted) {
+		if ((CC->user.axlevel >= AxAideU)
 		    || ((usbuf->flags & US_UNLISTED) == 0)
 		    || ((CC->internal_pgm))) {
 			cprintf("%s|%d|%ld|%ld|%ld|%ld||\n",
@@ -1811,7 +1813,7 @@ void cmd_chek(char *argbuf)
 	if ((REGISCALL != 0) && ((CC->user.flags & US_REGIS) == 0))
 		regis = 1;
 
-	if (CC->user.axlevel >= 6) {
+	if (CC->user.axlevel >= AxAideU) {
 		get_control();
 		if (CitControl.MMflags & MM_VALID)
 			vali = 1;
@@ -1902,8 +1904,8 @@ void cmd_asup(char *cmdbuf)
 		usbuf.posted = extract_int(cmdbuf, 4);
 	if (np > 5) {
 		newax = extract_int(cmdbuf, 5);
-		if ((newax >= 0) && (newax <= 6)) {
-			usbuf.axlevel = extract_int(cmdbuf, 5);
+		if ((newax >= AxDeleted) && (newax <= AxAideU)) {
+			usbuf.axlevel = newax;
 		}
 	}
 	if (np > 7) {
@@ -1913,7 +1915,7 @@ void cmd_asup(char *cmdbuf)
 		usbuf.USuserpurge = extract_int(cmdbuf, 8);
 	}
 	CtdlPutUserLock(&usbuf);
-	if (usbuf.axlevel == 0) {
+	if (usbuf.axlevel == AxDeleted) {
 		if (purge_user(requested_user) == 0) {
 			deleted = 1;
 		}

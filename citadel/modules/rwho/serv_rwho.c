@@ -90,7 +90,7 @@ void cmd_rwho(char *argbuf) {
 		return;
 	}
 	
-	aide = CC->user.axlevel >= 6;
+	aide = CC->user.axlevel >= AxAideU;
 	cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
 	
 	for (i=0; i<nContexts; i++) 

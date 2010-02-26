@@ -1147,7 +1147,7 @@ int entmsg(CtdlIPC *ipc,
 	/* Handle the selection of a recipient, if necessary. */
 	strcpy(buf, "");
 	if (need_recp == 1) {
-		if (axlevel >= 2) {
+		if (axlevel >= AxProbU) {
 			if (is_reply) {
 				strcpy(buf, reply_to);
 			} else {
