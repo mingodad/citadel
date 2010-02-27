@@ -3195,32 +3195,31 @@ int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
+        int whichtype;
 
 	if ((WCC == NULL) ||
-	    (TP->Tokens->nParameters < 3) ||
-	    (TP->Tokens->Params[2]->Type != TYPE_STR)||
-	    (TP->Tokens->Params[2]->len < 7))
+	    (TP->Tokens->nParameters < 3))
 		return 0;
-
+	whichtype = GetTemplateTokenNumber(Target, TP, 2, VIEW_BBS);
 	switch(WCC->CurRoom.view) {
 	case VIEW_BBS:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_BBS"));
+		return whichtype == VIEW_BBS;
 	case VIEW_MAILBOX:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_MAILBOX"));
+		return  whichtype == VIEW_MAILBOX;
 	case VIEW_ADDRESSBOOK:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_ADDRESSBOOK"));
+		return  whichtype == VIEW_ADDRESSBOOK;
 	case VIEW_TASKS:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_TASKS"));
+		return whichtype == VIEW_TASKS;
 	case VIEW_NOTES:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_NOTES"));
+		return whichtype == VIEW_NOTES;
 	case VIEW_WIKI:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_WIKI"));
+		return whichtype == VIEW_WIKI;
 	case VIEW_JOURNAL:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_JOURNAL"));
+		return whichtype == VIEW_JOURNAL;
 	case VIEW_CALENDAR:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_CALENDAR"));
+		return whichtype == VIEW_CALENDAR;
 	case VIEW_CALBRIEF:
-		return (!strcasecmp(TP->Tokens->Params[2]->Start, "VIEW_CALBRIEF"));
+		return whichtype == VIEW_CALBRIEF;
 	default:
 		return 0;
 	}
@@ -3312,6 +3311,17 @@ InitModule_ROOMOPS
 	REGISTERTokenParamDefine(US_COLOR);
 	REGISTERTokenParamDefine(US_USER_SET);
 
+
+	REGISTERTokenParamDefine(VIEW_BBS);
+	REGISTERTokenParamDefine(VIEW_MAILBOX);	
+	REGISTERTokenParamDefine(VIEW_ADDRESSBOOK);
+	REGISTERTokenParamDefine(VIEW_CALENDAR);	
+	REGISTERTokenParamDefine(VIEW_TASKS);	
+	REGISTERTokenParamDefine(VIEW_NOTES);		
+	REGISTERTokenParamDefine(VIEW_WIKI);		
+	REGISTERTokenParamDefine(VIEW_CALBRIEF);
+	REGISTERTokenParamDefine(VIEW_JOURNAL);
+	REGISTERTokenParamDefine(VIEW_BLOG);
 
 	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);
