@@ -2442,6 +2442,22 @@ void RegisterTokenParamDefine(const char *Name, long len,
 	Put(Defines, Name, len, PVal, NULL);
 }
 
+long GetTokenDefine(const char *Name, long len, 
+		    long DefValue)
+{
+	void *vPVal;
+
+	if (GetHash(Defines, Name, len, &vPVal) &&
+	     (vPVal != NULL))
+	 {
+		 return *(long*) vPVal;
+	 }
+	 else
+	 {
+		 return DefValue;
+	 }
+ }
+
 HashList *Defines;
 
 /*-----------------------------------------------------------------------------

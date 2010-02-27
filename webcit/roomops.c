@@ -3288,7 +3288,6 @@ InitModule_ROOMOPS
 	REGISTERTokenParamDefine(US_COLOR);
 	REGISTERTokenParamDefine(US_USER_SET);
 
-
 	REGISTERTokenParamDefine(VIEW_BBS);
 	REGISTERTokenParamDefine(VIEW_MAILBOX);	
 	REGISTERTokenParamDefine(VIEW_ADDRESSBOOK);
@@ -3299,6 +3298,14 @@ InitModule_ROOMOPS
 	REGISTERTokenParamDefine(VIEW_CALBRIEF);
 	REGISTERTokenParamDefine(VIEW_JOURNAL);
 	REGISTERTokenParamDefine(VIEW_BLOG);
+
+
+	REGISTERTokenParamDefine(ignet_push_share);
+	REGISTERTokenParamDefine(listrecp);
+	REGISTERTokenParamDefine(digestrecp);
+	REGISTERTokenParamDefine(pop3client);
+	REGISTERTokenParamDefine(rssclient);
+	REGISTERTokenParamDefine(participate);
 
 	RegisterConditional(HKEY("COND:ROOMAIDE"), 2, ConditionalRoomAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:ACCESS:DELETE"), 2, ConditionalRoomAcessDelete, CTX_NONE);

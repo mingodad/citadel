@@ -307,6 +307,17 @@ void RegisterTokenParamDefine(const char *Name, long len,
  */
 #define REGISTERTokenParamDefine(a) RegisterTokenParamDefine(#a, sizeof(#a) - 1, a);
 
+/**
+ * @brief retrieve the long value of a registered string define
+ * @param Name The name of the define
+ * @param len length of Name
+ * @param Value the value to return if not found
+ */
+long GetTokenDefine(const char *Name, 
+		    long len, 
+		    long DefValue);
+
+
 #define IT_NOFLAG 0
 #define IT_FLAG_DETECT_GROUPCHANGE (1<<0)
 #define RegisterIterator(a, b, c, d, e, f, g, h, i) RegisterITERATOR(a, sizeof(a)-1, b, c, d, e, f, g, h, i)

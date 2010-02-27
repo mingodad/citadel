@@ -93,6 +93,8 @@ typedef struct _folder {
 	int UsersNewMAilboxMessages; /* should we notify the user about new messages? */
 	int IsTrash;
 
+	HashList *IgnetCfgs[maxRoomNetCfg];
+
 }folder;
 
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);

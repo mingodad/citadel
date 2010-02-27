@@ -136,6 +136,12 @@ void FlushFolder(folder *room)
 	int i;
 
 	FreeStrBuf(&room->name);
+	if (room->IgnetCfgs[0] == (HashList*) StrBufNOTNULL)
+	{
+		room->IgnetCfgs[0] = NULL;
+		for (i = ignet_push_share; i < maxRoomNetCfg; i++)
+			DeleteHash(&room->IgnetCfgs[i]);
+	}
 	if (room->RoomNameParts != NULL)
 	{
 		for (i=0; i < room->nRoomNameParts; i++)
@@ -162,7 +168,6 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	folder *room;
 	StrBuf *Buf;
 	const char *Pos;
-	const char *Err;
 	void *vFloor;
 	wcsession *WCC = WC;
 	CompareFunc SortIt;
@@ -170,7 +175,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 
 	Buf = NewStrBuf();
 	rooms = NewHash(1, NULL);
-	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
+	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) 
 	{
 		while(!Done && StrBuf_ServGetln(Buf))
@@ -256,6 +261,51 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 		SortByPayload(rooms, SortRoomsByListOrder);
 	FreeStrBuf(&Buf);
 	return rooms;
+}
+
+HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	StrBuf *Line;
+	StrBuf *Token;
+	StrBuf *Content;
+	long WantThisOne;
+	long PutTo;
+	
+	WantThisOne = GetTemplateTokenNumber(Target, TP, 6, 0);
+	if (WantThisOne == 0)
+		return NULL;
+	if (WCC->CurRoom.IgnetCfgs[0] == (HashList*) StrBufNOTNULL)
+		return WCC->CurRoom.IgnetCfgs[WantThisOne];
+
+	WCC->CurRoom.IgnetCfgs[0] = (HashList*) StrBufNOTNULL;
+	serv_puts("GNET");
+	Line = NewStrBuf();
+	Token = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, NULL) == 1) 
+	{
+		const char *Pos = NULL;
+		StrBuf_ServGetln(Line);
+		StrBufExtract_NextToken(Token, Line, &Pos, '|');
+		PutTo = GetTokenDefine(SKEY(Token), -1);
+		if ((PutTo > 0) && (PutTo < maxRoomNetCfg))
+		{
+			int n;
+
+			if (WCC->CurRoom.IgnetCfgs[PutTo] == NULL)
+				WCC->CurRoom.IgnetCfgs[PutTo] = NewHash(1, NULL);
+			Content = NewStrBuf();
+			StrBufExtract_NextToken(Content, Line, &Pos, '|');
+			n = GetCount(WCC->CurRoom.IgnetCfgs[PutTo]) + 1;
+			Put(WCC->CurRoom.IgnetCfgs[PutTo], 
+			    IKEY(n),
+			    Content, 
+			    HFreeStrBuf);
+		}
+	}
+
+	return WCC->CurRoom.IgnetCfgs[WantThisOne];
 }
 
 /** Unused function that orders rooms by the listorder flag */
@@ -782,6 +832,8 @@ InitModule_ROOMLIST
 	RegisterNamespace("FLOOR:NAME", 0, 1, tmplput_FLOOR_NAME, NULL, CTX_FLOORS);
 	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, NULL, CTX_FLOORS);
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
+
+	RegisterIterator("ITERATE:THISROOM:GNET", 0, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
