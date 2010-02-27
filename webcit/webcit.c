@@ -764,6 +764,10 @@ void sleeeeeeeeeep(int seconds)
 	select(0, NULL, NULL, NULL, &tv);
 }
 
+int Conditional_IS_HTTPS(StrBuf *Target, WCTemplputParams *TP)
+{
+	return is_https != 0;
+}
 
 int ConditionalImportantMesage(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -822,6 +826,7 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("401"), "", 0, authorization_required, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
 	RegisterConditional(HKEY("COND:REST:DEPTH"), 0, Conditional_REST_DEPTH, CTX_NONE);
+	RegisterConditional(HKEY("COND:IS_HTTPS"), 0, Conditional_IS_HTTPS, CTX_NONE);
 
 	RegisterNamespace("CSSLOCAL", 0, 0, tmplput_csslocal, NULL, CTX_NONE);
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);
