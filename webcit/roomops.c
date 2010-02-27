@@ -3195,34 +3195,11 @@ int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
-        int whichtype;
 
 	if ((WCC == NULL) ||
 	    (TP->Tokens->nParameters < 3))
 		return 0;
-	whichtype = GetTemplateTokenNumber(Target, TP, 2, VIEW_BBS);
-	switch(WCC->CurRoom.view) {
-	case VIEW_BBS:
-		return whichtype == VIEW_BBS;
-	case VIEW_MAILBOX:
-		return  whichtype == VIEW_MAILBOX;
-	case VIEW_ADDRESSBOOK:
-		return  whichtype == VIEW_ADDRESSBOOK;
-	case VIEW_TASKS:
-		return whichtype == VIEW_TASKS;
-	case VIEW_NOTES:
-		return whichtype == VIEW_NOTES;
-	case VIEW_WIKI:
-		return whichtype == VIEW_WIKI;
-	case VIEW_JOURNAL:
-		return whichtype == VIEW_JOURNAL;
-	case VIEW_CALENDAR:
-		return whichtype == VIEW_CALENDAR;
-	case VIEW_CALBRIEF:
-		return whichtype == VIEW_CALBRIEF;
-	default:
-		return 0;
-	}
+	return WCC->CurRoom.view == GetTemplateTokenNumber(Target, TP, 2, VIEW_BBS);
 }
 
 void 
