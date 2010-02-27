@@ -24,6 +24,7 @@
 #define SIZ	4096
 #endif
 
+#define strof(a) #a
 
 /* Logging levels - correspond to syslog(3) */
 enum LogLevel {
@@ -54,6 +55,19 @@ typedef enum AXLevel {
 	AxPrefU = 5,
 	AxAideU = 6
 }eUsrAxlvl;
+
+enum RoomNetCfg {
+	subpending,
+	unsubpending,
+	lastsent, /* Server internal use only */
+	ignet_push_share,
+	listrecp,
+	digestrecp,
+	pop3client,
+	rssclient,
+	participate,
+	maxRoomNetCfg
+};
 
 /*
  * View definitions.
