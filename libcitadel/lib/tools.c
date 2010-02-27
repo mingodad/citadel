@@ -629,10 +629,10 @@ int is_msg_in_sequence_set(const char *mset, long msgnum) {
  * \param maxlen Size of string buffer
  * \return Pointer to the source memory right after we stopped reading.
  */
-char *memreadline(char *start, char *buf, int maxlen)
+const char *memreadline(const char *start, char *buf, int maxlen)
 {
 	char ch;
-	char *ptr;
+	const char *ptr;
 	int len = 0;		/**< tally our own length to avoid strlen() delays */
 
 	ptr = start;
