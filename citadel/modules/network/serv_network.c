@@ -939,31 +939,31 @@ int read_spoolcontrol_file(SpoolControl **scc, char *filename)
 		buf[strlen(buf)-1] = 0;
 
 		extract_token(instr, buf, 0, '|', sizeof instr);
-		if (!strcasecmp(instr, "lastsent")) {
+		if (!strcasecmp(instr, strof(lastsent))) {
 			sc->lastsent = extract_long(buf, 1);
 		}
-		else if (!strcasecmp(instr, "listrecp")) {
+		else if (!strcasecmp(instr, strof(listrecp))) {
 			nptr = (namelist *)
 				malloc(sizeof(namelist));
 			nptr->next = sc->listrecps;
 			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
 			sc->listrecps = nptr;
 		}
-		else if (!strcasecmp(instr, "participate")) {
+		else if (!strcasecmp(instr, strof(participate))) {
 			nptr = (namelist *)
 				malloc(sizeof(namelist));
 			nptr->next = sc->participates;
 			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
 			sc->participates = nptr;
 		}
-		else if (!strcasecmp(instr, "digestrecp")) {
+		else if (!strcasecmp(instr, strof(digestrecp))) {
 			nptr = (namelist *)
 				malloc(sizeof(namelist));
 			nptr->next = sc->digestrecps;
 			extract_token(nptr->name, buf, 1, '|', sizeof nptr->name);
 			sc->digestrecps = nptr;
 		}
-		else if (!strcasecmp(instr, "ignet_push_share")) {
+		else if (!strcasecmp(instr, strof(ignet_push_share))) {
 			extract_token(nodename, buf, 1, '|', sizeof nodename);
 			extract_token(roomname, buf, 2, '|', sizeof roomname);
 			mptr = (maplist *) malloc(sizeof(maplist));
@@ -978,12 +978,12 @@ int read_spoolcontrol_file(SpoolControl **scc, char *filename)
 			 * timestamps.
 			 */
 			skipthisline = 0;
-			if (!strncasecmp(buf, "subpending|", 11)) {
+			if (!strncasecmp(buf, strof(subpending)"|", 11)) {
 				if (time(NULL) - extract_long(buf, 4) > EXP) {
 					skipthisline = 1;
 				}
 			}
-			if (!strncasecmp(buf, "unsubpending|", 13)) {
+			if (!strncasecmp(buf, strof(unsubpending)"|", 13)) {
 				if (time(NULL) - extract_long(buf, 3) > EXP) {
 					skipthisline = 1;
 				}
