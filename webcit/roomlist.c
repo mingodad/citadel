@@ -272,7 +272,7 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 	long WantThisOne;
 	long PutTo;
 	
-	WantThisOne = GetTemplateTokenNumber(Target, TP, 6, 0);
+	WantThisOne = GetTemplateTokenNumber(Target, TP, 5, 0);
 	if (WantThisOne == 0)
 		return NULL;
 	if (WCC->CurRoom.IgnetCfgs[0] == (HashList*) StrBufNOTNULL)
@@ -833,7 +833,7 @@ InitModule_ROOMLIST
 	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, NULL, CTX_FLOORS);
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
 
-	RegisterIterator("ITERATE:THISROOM:GNET", 0, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
