@@ -271,6 +271,7 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 	StrBuf *Content;
 	long WantThisOne;
 	long PutTo;
+	long State;
 	
 	WantThisOne = GetTemplateTokenNumber(Target, TP, 5, 0);
 	if (WantThisOne == 0)
@@ -283,7 +284,7 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 	Line = NewStrBuf();
 	Token = NewStrBuf();
 	StrBuf_ServGetln(Line);
-	if (GetServerStatus(Line, NULL) == 1) 
+	if (GetServerStatus(Line, &State) == 1) 
 	{
 		const char *Pos = NULL;
 		StrBuf_ServGetln(Line);
@@ -304,6 +305,10 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 			    HFreeStrBuf);
 		}
 	}
+	else if (State == 550)
+		StrBufAppendBufPlain(WCC->ImportantMsg,
+				     _("Higher access is required to access this function."), -1, 0);
+
 
 	return WCC->CurRoom.IgnetCfgs[WantThisOne];
 }
