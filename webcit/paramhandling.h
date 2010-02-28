@@ -20,6 +20,7 @@ long LBstr(const char *key, size_t keylen);
 long LBSTR(const char *key);
 
 #define ibstr(a) IBstr(a, sizeof(a) - 1)
+#define ibcstr(a) IBstr(a.Key, a.len)
 int IBstr(const char *key, size_t keylen);
 int IBSTR(const char *key);
 
