@@ -1860,10 +1860,15 @@ int CtdlIPCAideSetUserParameters(CtdlIPC *ipc, const struct ctdluser *uret, char
 /* GPEX */
 /* which is 0 = room, 1 = floor, 2 = site, 3 = default for mailboxes */
 /* caller must free the struct ExpirePolicy */
-int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, int which,
+int CtdlIPCGetMessageExpirationPolicy(CtdlIPC *ipc, GPEXWhichPolicy which,
 		struct ExpirePolicy **policy, char *cret)
 {
-	static char *proto[] = {"room", "floor", "site", "mailboxes" };
+	static char *proto[] = {
+		strof(roompolicy),
+		strof(floorpolicy),
+		strof(sitepolicy),
+		strof(mailboxespolicy)
+	};
 	char cmd[256];
 	register int ret;
 

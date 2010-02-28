@@ -85,17 +85,17 @@ void cmd_gpex(char *argbuf) {
 	char which[128];
 
 	extract_token(which, argbuf, 0, '|', sizeof which);
-	if (!strcasecmp(which, "room")) {
+	if (!strcasecmp(which, strof(room))) {
 		memcpy(&exp, &CC->room.QRep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, "floor")) {
+	else if (!strcasecmp(which, strof(floorpolicy))) {
 		fl = CtdlGetCachedFloor(CC->room.QRfloor);
 		memcpy(&exp, &fl->f_ep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, "mailboxes")) {
+	else if (!strcasecmp(which, strof(mailboxespolicy))) {
 		memcpy(&exp, &config.c_mbxep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, "site")) {
+	else if (!strcasecmp(which, strof(sitepolicy))) {
 		memcpy(&exp, &config.c_ep, sizeof(struct ExpirePolicy));
 	}
 	else {
@@ -144,7 +144,7 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	if (!strcasecmp(which, "floor")) {
+	if (!strcasecmp(which, strof(floorpolicy))) {
 		lgetfloor(&flbuf, CC->room.QRfloor);
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
 		lputfloor(&flbuf, CC->room.QRfloor);
@@ -152,7 +152,7 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	else if (!strcasecmp(which, "mailboxes")) {
+	else if (!strcasecmp(which, strof(mailboxespolicy))) {
 		memcpy(&config.c_mbxep, &exp, sizeof(struct ExpirePolicy));
 		put_config();
 		cprintf("%d Default expire policy for mailboxes set.\n",
@@ -160,7 +160,7 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	else if (!strcasecmp(which, "site")) {
+	else if (!strcasecmp(which, strof(sitepolicy))) {
 		if (exp.expire_mode == EXPIRE_NEXTLEVEL) {
 			cprintf("%d Invalid policy (no higher level)\n",
 				ERROR + ILLEGAL_VALUE);
