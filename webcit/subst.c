@@ -3041,7 +3041,7 @@ InitModule_SUBST
 	RegisterNamespace("SORT:ORDER", 1, 2, tmplput_SORT_ORDER, NULL, CTX_NONE);
 	RegisterNamespace("SORT:NEXT", 1, 2, tmplput_SORT_NEXT, NULL, CTX_NONE);
 	RegisterNamespace("CONTEXTSTR", 0, 1, tmplput_ContextString, NULL, CTX_STRBUF);
-	RegisterNamespace("CONTEXTSTRARR", 0, 1, tmplput_ContextStringArray, NULL, CTX_STRBUF);
+	RegisterNamespace("CONTEXTSTRARR", 1, 2, tmplput_ContextStringArray, NULL, CTX_STRBUF);
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, preeval_iterate, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, NULL, CTX_NONE);
 	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, preeval_do_tabbed, CTX_NONE);
@@ -3050,7 +3050,7 @@ InitModule_SUBST
 
 	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
 	RegisterConditional(HKEY("COND:CONTEXTSTR"), 3, ConditionalContextStr, CTX_STRBUF);
-	RegisterConditional(HKEY("COND:CONTEXTSTR"), 4, ConditionalContextStrinArray, CTX_STRBUFARR);
+	RegisterConditional(HKEY("COND:CONTEXTSTRARR"), 4, ConditionalContextStrinArray, CTX_STRBUFARR);
 	RegisterConditional(HKEY("COND:LONGVECTOR"), 4, ConditionalLongVector, CTX_LONGVECTOR);
 
 	RegisterControlConditional(HKEY("COND:ITERATE:ISGROUPCHANGE"), 2, 
