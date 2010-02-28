@@ -24,7 +24,6 @@
 #define SIZ	4096
 #endif
 
-#define strof(a) #a
 
 /* Logging levels - correspond to syslog(3) */
 enum LogLevel {
@@ -74,7 +73,8 @@ typedef enum __GPEXWhichPolicy {
 	roompolicy,
 	floorpolicy,
 	sitepolicy,
-	mailboxespolicy
+	mailboxespolicy,
+	maxpolicy
 }GPEXWhichPolicy;
 
 /*
@@ -96,6 +96,7 @@ typedef enum __GPEXWhichPolicy {
 #ifndef IsEmptyStr
 #define IsEmptyStr(a) ((a)[0] == '\0')
 #endif
+
 
 /*
  * another word to indicate n/a for a pointer if NULL already has a "meaning"
@@ -250,6 +251,8 @@ void the_mime_parser(char *partnum,
 
 typedef struct StrBuf StrBuf;
 
+#define strof(a) #a
+#define CStrOf(a) #a, sizeof(#a) - 1
 typedef struct _ConstStr {
 	const char *Key;
 	long len;
