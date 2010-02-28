@@ -69,6 +69,14 @@ enum RoomNetCfg {
 	maxRoomNetCfg
 };
 
+
+typedef enum __GPEXWhichPolicy {
+	roompolicy,
+	floorpolicy,
+	sitepolicy,
+	mailboxespolicy
+}GPEXWhichPolicy;
+
 /*
  * View definitions.
  * Note that not all views are implemented in all clients.
