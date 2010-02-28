@@ -845,10 +845,25 @@ SessionDetachModule_ROOMLIST
 	DeleteHash(&sess->FloorsByName);
 }
 
+
+#define POP3_HOST 0
+#define POP3_USERNAME 1
+#define POP3_PASSWORD 2
+#define POP3_KEEP 3
+#define POP3_INTERVAL 4
+
 void 
 InitModule_ROOMLIST
 (void)
 {
+
+	REGISTERTokenParamDefine(POP3_HOST);
+	REGISTERTokenParamDefine(POP3_USERNAME);
+	REGISTERTokenParamDefine(POP3_PASSWORD);
+	REGISTERTokenParamDefine(POP3_KEEP);
+	REGISTERTokenParamDefine(POP3_INTERVAL);
+
+
 	WebcitAddUrlHandler(HKEY("json_roomflr"), "", 0, jsonRoomFlr, 0);
 
 
