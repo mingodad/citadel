@@ -202,6 +202,8 @@ extern char *ssl_cipher_list;
 			US_FLOORS | US_COLOR | US_PROMPTCTL )
 
 
+
+
 #define MAJORCODE(a) (((int)(a / 100) ) * 100)
 
 #define LISTING_FOLLOWS	100
@@ -243,6 +245,20 @@ extern char *ssl_cipher_list;
  */
 #define NLI	"(not logged in)"
 
+/*
+ * Expiry policy for the autopurger
+ */
+#define EXPIRE_NEXTLEVEL        0       /* Inherit expiration policy    */
+#define EXPIRE_MANUAL           1       /* Don't expire messages at all */
+#define EXPIRE_NUMMSGS          2       /* Keep only latest n messages  */
+#define EXPIRE_AGE              3       /* Expire messages after n days */
+typedef struct __ExpirePolicy {
+	int loaded; /* has this been loaded from the server? */
+        int expire_mode;
+        int expire_value;
+}ExpirePolicy;
+void LoadExpirePolicy(GPEXWhichPolicy which);
+void SaveExpirePolicyFromHTTP(GPEXWhichPolicy which);
 
 /*
  * Linked list of session variables encoded in an x-www-urlencoded content type
@@ -533,7 +549,7 @@ struct wcsession {
 /* cache stuff for templates. TODO: find a smartrer way */
 	HashList *ServCfg;                      /* cache our server config for editing */
 	HashList *InetCfg;                      /* Our inet server config for editing */
-
+	ExpirePolicy Policy[maxpolicy];
 };
 
 

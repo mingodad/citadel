@@ -11,6 +11,91 @@
 
 HashList *ZoneHash = NULL;
 
+ConstStr ExpirePolicyString = {CStrOf(roompolicy)     };
+
+ConstStr ExpirePolicyStrings[][2] = {
+	{ { CStrOf(roompolicy)     } , { strof(roompolicy)     "_value", sizeof(strof(roompolicy)     "_value") - 1 } },
+	{ { CStrOf(floorpolicy)    } , { strof(floorpolicy)    "_value", sizeof(strof(floorpolicy)    "_value") - 1 } },
+	{ { CStrOf(sitepolicy)     } , { strof(sitepolicy)     "_value", sizeof(strof(sitepolicy)     "_value") - 1 } },
+	{ { CStrOf(mailboxespolicy)} , { strof(mailboxespolicy)"_value", sizeof(strof(mailboxespolicy)"_value") - 1 } }
+};
+
+void LoadExpirePolicy(GPEXWhichPolicy which)
+{
+	StrBuf *Buf;
+	wcsession *WCC = WC;
+	long State;
+	const char *Pos = NULL;
+
+	serv_printf("GPEX %s", ExpirePolicyStrings[which][0].Key);
+	Buf = NewStrBuf();
+	StrBuf_ServGetln(Buf);
+	WCC->Policy[which].loaded = 1;
+	if (GetServerStatus(Buf, &State) == 2) {
+		Pos = ChrPtr(Buf) + 4;
+		WCC->Policy[which].expire_mode = StrBufExtractNext_long(Buf, &Pos, '|');
+		WCC->Policy[which].expire_value = StrBufExtractNext_long(Buf, &Pos, '|');
+	}
+	else if (State == 550)
+		StrBufAppendBufPlain(WCC->ImportantMsg,
+				     _("Higher access is required to access this function."), -1, 0);
+	FreeStrBuf(&Buf);
+}
+
+void SaveExpirePolicyFromHTTP(GPEXWhichPolicy which)
+{
+	StrBuf *Buf;
+	long State;
+
+	serv_printf("SPEX %s|%d|%d", 
+		            ExpirePolicyStrings[which][0].Key,
+		    ibcstr( ExpirePolicyStrings[which][1] ),
+		    ibcstr( ExpirePolicyStrings[which][1] )  );
+
+	Buf = NewStrBuf();
+	StrBuf_ServGetln(Buf);
+	GetServerStatus(Buf, &State);
+	if (State == 550)
+		StrBufAppendBufPlain(WC->ImportantMsg,
+				     _("Higher access is required to access this function."), -1, 0);
+	FreeStrBuf(&Buf);
+}
+
+int ConditionalExpire(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	GPEXWhichPolicy which;
+	int CompareWith;
+
+	which = GetTemplateTokenNumber(Target, TP, 2, 0);
+	CompareWith = GetTemplateTokenNumber(Target, TP, 3, 0);
+
+	if (WCC->Policy[which].loaded == 0) LoadExpirePolicy(which);
+	
+	return WCC->Policy[which].expire_mode == CompareWith;
+}
+
+void tmplput_ExpireValue(StrBuf *Target, WCTemplputParams *TP)
+{
+	GPEXWhichPolicy which;
+	wcsession *WCC = WC;
+		
+	which = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if (WCC->Policy[which].loaded == 0) LoadExpirePolicy(which);
+	StrBufAppendPrintf(Target, "%d", WCC->Policy[which].expire_value);
+}
+
+
+void tmplput_ExpireMode(StrBuf *Target, WCTemplputParams *TP)
+{
+	GPEXWhichPolicy which;
+	wcsession *WCC = WC;
+		
+	which = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if (WCC->Policy[which].loaded == 0) LoadExpirePolicy(which);
+	StrBufAppendPrintf(Target, "%d", WCC->Policy[which].expire_mode);
+}
+
 
 
 void LoadZoneFiles(void)
@@ -126,7 +211,7 @@ CfgMapping ServerConfig[] = {
 void load_siteconfig(void)
 {
 	wcsession *WCC = WC;
-	StrBuf *Buf, *CfgToken;
+	StrBuf *Buf;
 	HashList *Cfg;
 	char buf[SIZ];
 	long len;
@@ -158,37 +243,10 @@ void load_siteconfig(void)
 	}
 	FreeStrBuf(&Buf);
 
-	serv_puts("GPEX site");
-	Buf = NewStrBuf();
-	CfgToken = NULL;
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 2) {
-		StrBufCutLeft(Buf, 4);
-
-		CfgToken = NewStrBuf();
-		StrBufExtract_token(CfgToken, Buf, 0, '|');
-		Put(Cfg, HKEY("sitepolicy"), CfgToken, HFreeStrBuf);
-
-		CfgToken = NewStrBuf();
-		StrBufExtract_token(CfgToken, Buf, 1, '|');
-		Put(Cfg, HKEY("sitevalue"), CfgToken, HFreeStrBuf);
-	}
-
-	serv_puts("GPEX mailboxes");
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 2) {
-		StrBufCutLeft(Buf, 4);
-
-		CfgToken = NewStrBuf();
-		StrBufExtract_token(CfgToken, Buf, 0, '|');
-		Put(Cfg, HKEY("mboxpolicy"), CfgToken, HFreeStrBuf);
-
-		CfgToken = NewStrBuf();
-		StrBufExtract_token(CfgToken, Buf, 1, '|');
-		Put(Cfg, HKEY("mboxvalue"), CfgToken, HFreeStrBuf);
-	}
-	FreeStrBuf(&Buf);
+	LoadExpirePolicy(sitepolicy);
+	LoadExpirePolicy(mailboxespolicy);
 }
+
 
 
 /**
@@ -233,10 +291,9 @@ void siteconfig(void)
 	}
         serv_puts("000");
 
-	serv_printf("SPEX site|%d|%d", ibstr("sitepolicy"), ibstr("sitevalue"));
-	serv_getln(buf, sizeof buf);
-	serv_printf("SPEX mailboxes|%d|%d", ibstr("mboxpolicy"), ibstr("mboxvalue"));
-	serv_getln(buf, sizeof buf);
+	SaveExpirePolicyFromHTTP(sitepolicy);
+	SaveExpirePolicyFromHTTP(mailboxespolicy);
+
 	FreeStrBuf(&WCC->serv_info->serv_default_cal_zone);
 	WCC->serv_info->serv_default_cal_zone = NewStrBufDup(sbstr("c_default_cal_zone"));
 
@@ -318,6 +375,20 @@ InitModule_SITECONFIG
 	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst, CTX_NONE);
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE, IT_NOFLAG);
+
+	REGISTERTokenParamDefine(roompolicy);
+	REGISTERTokenParamDefine(floorpolicy);
+	REGISTERTokenParamDefine(sitepolicy);
+	REGISTERTokenParamDefine(mailboxespolicy);
+
+	REGISTERTokenParamDefine(EXPIRE_NEXTLEVEL);
+	REGISTERTokenParamDefine(EXPIRE_MANUAL);
+	REGISTERTokenParamDefine(EXPIRE_NUMMSGS);
+	REGISTERTokenParamDefine(EXPIRE_AGE);
+
+	RegisterConditional(HKEY("COND:EXPIRE:MODE"), 2, ConditionalExpire, CTX_NONE);
+	RegisterNamespace("EXPIRE:VALUE", 1, 2, tmplput_ExpireValue, NULL, CTX_NONE);
+	RegisterNamespace("EXPIRE:MODE", 1, 2, tmplput_ExpireMode, NULL, CTX_NONE);
 }
 
 void 

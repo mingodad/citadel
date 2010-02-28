@@ -64,35 +64,35 @@
 </td></tr>
 
 <tr><td><?_("Default message expire policy for public rooms")></td><td>
-<input type="radio" NAME="sitepolicy" VALUE="1" <?%("COND:SERVCFG", 1, "sitepolicy", 1, "CHECKED", "")>>
+<input type="radio" NAME="sitepolicy" VALUE="<?DEF:VAL(#"EXPIRE_MANUAL")>" <?%("COND:EXPIRE:MODE", 1, #"sitepolicy", #"EXPIRE_MANUAL", "CHECKED", "")>>
 <?_("Never automatically expire messages")>
 <br />
-<input type="radio" NAME="sitepolicy" VALUE="2" <?%("COND:SERVCFG", 1, "sitepolicy", 2, "CHECKED", "")>>
+<input type="radio" NAME="sitepolicy" VALUE="<?DEF:VAL(#"EXPIRE_NUMMSGS")>" <?%("COND:EXPIRE:MODE", 1, #"sitepolicy", #"EXPIRE_NUMMSGS", "CHECKED", "")>>
 <?_("Expire by message count")><br />
-<input type="radio" NAME="sitepolicy" VALUE="3" <?%("COND:SERVCFG", 1, "sitepolicy", 3, "CHECKED", "")>>
+<input type="radio" NAME="sitepolicy" VALUE="<?DEF:VAL( #"EXPIRE_AGE")>" <?%("COND:EXPIRE:MODE", 1, #"sitepolicy", #"EXPIRE_AGE", "CHECKED", "")>>
 <?_("Expire by message age")>
 <br />
 <?_("Number of messages or days: ")>
-<input type="text" NAME="sitevalue" MAXLENGTH="5" VALUE='<?SERV:CFG("sitevalue")>'>
+<input type="text" NAME="sitepolicy_value" MAXLENGTH="5" VALUE='<?SERV:CFG("sitevalue")>'>
 </td></tr>
 
 <tr><td COLSPAN=2><hr /></td></tr>
 
 <tr><td><?_("Default message expire policy for private mailboxes")></td><td>
-<input type="radio" NAME="mboxpolicy" VALUE="0" <?%("COND:SERVCFG", 1, "mboxpolicy", 0, "CHECKED", "")>>
+<input type="radio" NAME="mailboxespolicy" VALUE="<?DEF:VAL(#"EXPIRE_NEXTLEVEL")>" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_NEXTLEVEL", "CHECKED", "")>>
 <?_("Same policy as public rooms")>
 <br />
-<input type="radio" NAME="mboxpolicy" VALUE="1" <?%("COND:SERVCFG", 1, "mboxpolicy", 1, "CHECKED", "")>>
+<input type="radio" NAME="mailboxespolicy" VALUE="<?DEF:VAL(#"EXPIRE_MANUAL")>" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_MANUAL", "CHECKED", "")>>
 <?_("Never automatically expire messages")>
 <br />
-<input type="radio" NAME="mboxpolicy" VALUE="2" <?%("COND:SERVCFG", 1, "mboxpolicy", 2, "CHECKED", "")>>
+<input type="radio" NAME="mailboxespolicy" VALUE="<?DEF:VAL(#"EXPIRE_NUMMSGS")>" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_NUMMSGS", "CHECKED", "")>>
 <?_("Expire by message count")>
 <br />
-<input type="radio" NAME="mboxpolicy" VALUE="3" <?%("COND:SERVCFG", 1, "mboxpolicy", 3, "CHECKED", "")>>
+<input type="radio" NAME="mailboxespolicy" VALUE="<?DEF:VAL( #"EXPIRE_AGE")>" <?%("COND:SERVCFG", 1, #"mailboxespolicy", #"EXPIRE_AGE", "CHECKED", "")>>
 <?_("Expire by message age")>
 <br />
 <?_("Number of messages or days: ")>
-<input type="text" NAME="mboxvalue" MAXLENGTH="5" VALUE='<?SERV:CFG("mboxvalue")>'>
+<input type="text" NAME="mailboxespolicy_expire_value" MAXLENGTH="5" VALUE='<?EXPIRE:VALUE(#"mailboxespolicy")>'>
 </td></tr>
 
 <tr><td COLSPAN=2><hr /></td></tr>
