@@ -2456,7 +2456,24 @@ long GetTokenDefine(const char *Name, long len,
 	 {
 		 return DefValue;
 	 }
- }
+}
+
+void tmplput_DefStr(StrBuf *Target, WCTemplputParams *TP)
+{
+	const char *Str;
+	long len;
+	GetTemplateTokenString(Target, TP, 2, &Str, &len);
+	
+	StrBufAppendBufPlain(Target, Str, len, 0);
+}
+
+void tmplput_DefVal(StrBuf *Target, WCTemplputParams *TP)
+{
+	int val;
+
+	val = GetTemplateTokenNumber(Target, TP, 0, 0);
+	StrBufAppendPrintf(Target, "%d", val);
+}
 
 HashList *Defines;
 
@@ -3015,6 +3032,10 @@ InitModule_SUBST
 	RegisterControlNS(HKEY("ITERATE:KEY"), 0, 0, tmplput_ITERATE_KEY, CTX_ITERATE);
 	RegisterControlNS(HKEY("ITERATE:N"), 0, 0, tmplput_ITERATE_LASTN, CTX_ITERATE);
 	RegisterNamespace("CURRENTFILE", 0, 1, tmplput_CURRENT_FILE, NULL, CTX_NONE);
+	RegisterNamespace("DEF:STR", 0, 0, tmplput_DefStr, NULL, CTX_NONE);
+	RegisterNamespace("DEF:VAL", 0, 0, tmplput_DefVal, NULL, CTX_NONE);
+
+
 
 
 }
