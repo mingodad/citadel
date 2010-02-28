@@ -290,19 +290,29 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 		StrBuf_ServGetln(Line);
 		StrBufExtract_NextToken(Token, Line, &Pos, '|');
 		PutTo = GetTokenDefine(SKEY(Token), -1);
-		if ((PutTo > 0) && (PutTo < maxRoomNetCfg))
+		if ((PutTo > 0) && 
+		    (PutTo < maxRoomNetCfg) &&
+		    (Pos != StrBufNOTNULL))
 		{
 			int n;
+			HashList *SubH;
 
 			if (WCC->CurRoom.IgnetCfgs[PutTo] == NULL)
 				WCC->CurRoom.IgnetCfgs[PutTo] = NewHash(1, NULL);
-			Content = NewStrBuf();
-			StrBufExtract_NextToken(Content, Line, &Pos, '|');
+			SubH = NewHash(1, NULL);
 			n = GetCount(WCC->CurRoom.IgnetCfgs[PutTo]) + 1;
 			Put(WCC->CurRoom.IgnetCfgs[PutTo], 
 			    IKEY(n),
-			    Content, 
-			    HFreeStrBuf);
+			    SubH, 
+			    HDeleteHash);
+			while (Pos != StrBufNOTNULL) {
+				Content = NewStrBuf();
+				StrBufExtract_NextToken(Content, Line, &Pos, '|');
+				Put(SubH, 
+				    IKEY(n),
+				    Content, 
+				    HFreeStrBuf);
+			}
 		}
 	}
 	else if (State == 550)
@@ -848,7 +858,7 @@ InitModule_ROOMLIST
 	RegisterConditional(HKEY("COND:FLOOR:ISSUBROOM"), 0, ConditionalFloorIsSUBROOM, CTX_FLOORS);
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
 
-	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUFARR, CTX_NONE, IT_NOFLAG);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
