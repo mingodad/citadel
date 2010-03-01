@@ -47,14 +47,15 @@ enum {
 #define CTX_MIME_ATACH 10
 #define CTX_FILELIST 11
 #define CTX_STRBUF 12
-#define CTX_LONGVECTOR 13
-#define CTX_ROOMS 14
-#define CTX_FLOORS 15
-#define CTX_ITERATE 16
-#define CTX_ICAL 17
-#define CTX_DAVNS 18
+#define CTX_STRBUFARR 13
+#define CTX_LONGVECTOR 14
+#define CTX_ROOMS 15
+#define CTX_FLOORS 16
+#define CTX_ITERATE 17
+#define CTX_ICAL 18
+#define CTX_DAVNS 19
 
-#define CTX_UNKNOWN 19
+#define CTX_UNKNOWN 20
 
 
 /**
