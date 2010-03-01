@@ -88,6 +88,33 @@ dnl Checks for header files.
 AC_HEADER_STDC
 dnl AC_HEADER_SYS_WAIT
 
+AC_CACHE_CHECK(
+	[for call semantics from getpwuid_r], 
+	ac_cv_call_getpwuid_r,
+	[AC_TRY_COMPILE([#include <sys/types.h>
+#include <pwd.h>], 
+                         [
+				struct passwd pw, *pwp;
+				char pwbuf[64];
+				uid_t uid;
+
+				getpwuid_r(uid, &pw, pwbuf, sizeof(pwbuf), &pwp);
+			],
+			ac_cv_call_getpwuid_r=yes, 
+			ac_cv_call_getpwuid_r=no)
+	])
+
+if test $ac_cv_call_getpwuid_r = no; then
+	AC_DEFINE(SOLARIS_GETPWUID,[],[do we need to use solaris call syntax?])
+	AC_DEFINE(SOLARIS_LOCALTIME_R,[], [do we need to use soralis call syntax?])
+	AC_DEFINE(F_UID_T, "%ld", [whats the matching format string for uid_t?])
+	AC_DEFINE(F_PID_T, "%ld",  [whats the matching format string for pid_t?])
+	AC_DEFINE(F_XPID_T, "%lx",  [whats the matching format string for xpid_t?])
+else
+	AC_DEFINE(F_UID_T, "%d",  [whats the matching format string for uid_t?])
+	AC_DEFINE(F_PID_T, "%d",  [whats the matching format string for pid_t?])
+	AC_DEFINE(F_XPID_T, "%x",  [whats the matching format string for xpid_t?])
+fi
 
 
 

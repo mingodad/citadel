@@ -71,7 +71,11 @@ void tmplput_nowstr(StrBuf *Target, WCTemplputParams *TP)
 	time_t now;
 	
 	now = time(NULL);
+#ifdef HAVE_SOLARIS_LOCALTIME_R
+	asctime_r(localtime(&now), buf, sizeof(buf));
+#else
 	asctime_r(localtime(&now), buf);
+#endif
 	bufused = strlen(buf);
 	if ((bufused > 0) && (buf[bufused - 1] == '\n')) {
 		buf[bufused - 1] = '\0';
