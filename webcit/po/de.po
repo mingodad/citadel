@@ -186,15 +186,22 @@ msgid "BUSY"
 msgstr "BESCHÄFTIGT"
 
 #: ../bbsview_renderer.c:243
-#, fuzzy
 msgid "Go to page: "
-msgstr "Seite wählen"
+msgstr "Zur Seite gehen:"
 
-#: ../bbsview_renderer.c:277 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:277
+msgid "First"
+msgstr "Anfang"
+
+#: ../bbsview_renderer.c:283
+msgid "Last"
+msgstr "Ende"
+
+#: ../vcard_edit.c:855
 msgid "First"
 msgstr "Vorname"
 
-#: ../bbsview_renderer.c:283 ../vcard_edit.c:855
+#: ../vcard_edit.c:855
 msgid "Last"
 msgstr "Nachname"
 
@@ -248,7 +255,7 @@ msgstr "Serie"
 
 #: ../calendar.c:160 ../event.c:494
 msgid "This is a recurring event"
-msgstr "Thermin Serie hinzufügen"
+msgstr "Terminserie hinzufügen"
 
 #: ../calendar.c:169
 msgid "Attendee:"
@@ -387,7 +394,7 @@ msgstr "(Vorläufig)"
 
 #: ../calendar_tools.c:206
 msgid "(delegated)"
-msgstr "(abgesendet)"
+msgstr "(delegiert)"
 
 #: ../calendar_tools.c:209
 msgid "(completed)"
@@ -412,19 +419,16 @@ msgid "From"
 msgstr "Von"
 
 #: ../calendar_view.c:328 ../calendar_view.c:967
-#, fuzzy
 msgid "Starting date:"
 msgstr "Anfangsdatum:"
 
 #: ../calendar_view.c:334 ../calendar_view.c:969
-#, fuzzy
 msgid "Ending date:"
 msgstr "Endzeit/-Datum:"
 
 #: ../calendar_view.c:342 ../calendar_view.c:1084
-#, fuzzy
 msgid "Date/time:"
-msgstr "Datum:"
+msgstr "Datum/Zeit:"
 
 #: ../calendar_view.c:359 ../calendar_view.c:973 ../calendar_view.c:1009
 #: ../calendar_view.c:1094 ../roomops.c:1606
@@ -467,7 +471,7 @@ msgstr "Task ohne Titel"
 #: ../downloads.c:271
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr "Ein Fehler trat in beim herunterladen dieser Datei auf: %s\n"
+msgstr "Ein Fehler trat beim herunterladen dieser Datei auf: %s\n"
 
 #: ../event.c:59
 msgid "seconds"
@@ -503,7 +507,7 @@ msgstr "nie"
 
 #: ../event.c:70
 msgid "first"
-msgstr "Erster"
+msgstr "erster"
 
 #: ../event.c:71
 msgid "second"
@@ -575,7 +579,7 @@ msgstr "Adressen"
 
 #: ../event.c:502
 msgid "Recurrence rule"
-msgstr "Serien Thermin"
+msgstr "Serientermin"
 
 #: ../event.c:506
 msgid "Repeats every"
@@ -583,7 +587,7 @@ msgstr "Wiederholt sich alle"
 
 #: ../event.c:524
 msgid "on these weekdays:"
-msgstr "an diesem Werktag"
+msgstr "an diesem Werktag:"
 
 #: ../event.c:582
 #, c-format
@@ -796,9 +800,9 @@ msgid ""
 "mailed to you and your subscription will be confirmed.<br />\n"
 msgstr ""
 "Sie abonnieren für <TT>%s</TT> die <b>%s</b> Liste. Der Listenserver hat "
-"Ihnen eine URL zum Bestätigen der Anmeldung zugeschickt. Dieser zusätzliche "
-"Schritt ist zu Ihrem eigenen Schutz, Damit niemand Sie auf einer Liste ohne "
-"Ihre Zustimmung anmelden kann.<br />\n"
+"Ihnen eine URL zur Bestätigung der Anmeldung zugeschickt. Dieser zusätzliche "
+"Schritt ist zu Ihrem eigenen Schutz, damit Sie niemand ohne Ihre Zustimmung "
+"auf einer Liste anmelden kann.<br />\n"
 
 #: ../listsub.c:87
 msgid "Go back..."
@@ -816,7 +820,7 @@ msgid ""
 msgstr ""
 "Dieses Fenster erlaubt Ihnen, Citadel-Server Befehle, die nicht in WebCit "
 "verwendet werden, direkt einzugeben. Wenn Ihnen dies nichts sagt, wird "
-"dieses Fenster für Sie nicht ohne Studium der Dokumentation von Nutzen sein"
+"dieses Fenster für Sie nicht ohne Studium der Dokumentation von Nutzen sein."
 
 #: ../mainmenu.c:58
 msgid "Enter command:"
@@ -841,7 +845,7 @@ msgstr "Server-Kommando-Ergebnisse"
 
 #: ../messages.c:58
 msgid "ERROR:"
-msgstr "FEHLER"
+msgstr "FEHLER:"
 
 #: ../messages.c:72 ../messages.c:77
 msgid "unexpected end of message"
@@ -860,12 +864,11 @@ msgstr ""
 
 #: ../messages.c:1090
 msgid "Saved to Drafts failed: "
-msgstr ""
+msgstr "Speichern des Entwurfs fehlgeschlagen: "
 
 #: ../messages.c:1167
-#, fuzzy
 msgid "Message has been saved to Drafts.\n"
-msgstr "Kurznachricht gesendet an "
+msgstr "Nachricht in Entwürfen gespeichert.\n"
 
 #: ../messages.c:1176
 msgid "Message has been sent.\n"
@@ -909,11 +912,11 @@ msgstr "EMail-Signatur anhängen?"
 
 #: ../messages.c:1709
 msgid "Use this signature:"
-msgstr "Diese Signatur benutzen"
+msgstr "Diese Signatur benutzen:"
 
 #: ../messages.c:1711
 msgid "Default character set for email headers:"
-msgstr "Vorgabezeichensatz für EMail Kopfzeilen"
+msgstr "Vorgabezeichensatz für EMail Kopfzeilen:"
 
 #: ../messages.c:1714
 msgid "Preferred email address"
@@ -949,11 +952,11 @@ msgstr "Auf eine Notiz klicken zum editieren"
 
 #: ../openid.c:21
 msgid "Manage Account/OpenID Associations"
-msgstr "Konten/OpenID assozierungen verwalten"
+msgstr "Konten/OpenID Assoziierungen verwalten"
 
 #: ../openid.c:39
 msgid "Do you really want to delete this OpenID?"
-msgstr "Wollen Sie diese OpenID wirklich Löschen?"
+msgstr "Wollen Sie diese OpenID wirklich löschen?"
 
 #: ../openid.c:40
 msgid "(delete)"
@@ -961,7 +964,7 @@ msgstr "(Löschen)"
 
 #: ../openid.c:48
 msgid "Add an OpenID: "
-msgstr "Eine OpenID hinzufügen"
+msgstr "Eine OpenID hinzufügen: "
 
 #: ../openid.c:51
 msgid "Attach"
@@ -1029,12 +1032,10 @@ msgid "You no longer have a start page selected."
 msgstr "Startseite gelöscht"
 
 #: ../preferences.c:1036
-#, fuzzy
 msgid "Prefered startpage"
-msgstr "nur Privilegierte Benutzer"
+msgstr "Bevorzugte Startseite"
 
 #: ../roomlist.c:57
-#, fuzzy
 msgid "My Folders"
 msgstr "Meine Ordner"
 
@@ -1173,12 +1174,11 @@ msgstr "Diese Seite bearbeiten"
 
 #: ../roomops.c:676 ../wiki.c:199
 msgid "Current version"
-msgstr ""
+msgstr "Aktuelle Version"
 
 #: ../roomops.c:688
-#, fuzzy
 msgid "History"
-msgstr "Verzeichnisdienste"
+msgstr "Ältere Versionen"
 
 #: ../roomops.c:700
 msgid "Write mail"
@@ -1255,7 +1255,7 @@ msgstr "Die Infodatei dieses Raums ändern"
 
 #: ../roomops.c:1238 ../roomops.c:1751
 msgid "Higher access is required to access this function."
-msgstr "Diese Funktion benötigt Höhere Zugriffsechte "
+msgstr "Diese Funktion benötigt höhere Zugriffsechte "
 
 #: ../roomops.c:1256 ../roomops.c:2412
 msgid "Name of room: "
@@ -1299,7 +1299,7 @@ msgstr "nur privilegierte Benutzer"
 
 #: ../roomops.c:1355
 msgid "Read-only room"
-msgstr "Nicht schreibbarer Raum"
+msgstr "Schreibgeschützter Raum"
 
 #: ../roomops.c:1361
 msgid "All users allowed to post may also delete messages"
@@ -1450,11 +1450,11 @@ msgstr "Die URL zum Ab-/Bestellen lautet: "
 
 #: ../roomops.c:1722
 msgid "Allow non-subscribers to mail to this room."
-msgstr "Nicht Abbonenten dürfen in diesen Raum senden"
+msgstr "Nicht-Abbonenten dürfen in diesen Raum senden"
 
 #: ../roomops.c:1728
 msgid "Room post publication needs Aide permission."
-msgstr "Beitrag einreichen erforderd Moderatoren Privilegien."
+msgstr "Beitrag einreichen erforderd Moderator Privilegien."
 
 #: ../roomops.c:1772
 msgid "Message expire policy for this room"
@@ -1536,12 +1536,12 @@ msgstr "Abgebrochen. Änderungen wurden nicht übernommen."
 
 #: ../roomops.c:2246 ../sieve.c:631
 msgid "Your changes have been saved."
-msgstr "Ihre Änderungen wurden gespeichert"
+msgstr "Ihre Änderungen wurden gespeichert."
 
 #: ../roomops.c:2283
 #, c-format
 msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
-msgstr "<B><I>Benutzer %s aus dem Raum %s verbannt</I></B>\n"
+msgstr "<B><I>Benutzer %s aus dem Raum %s verbannt.</I></B>\n"
 
 #: ../roomops.c:2297
 #, c-format
@@ -1629,7 +1629,7 @@ msgstr "Betreten"
 
 #: ../roomops.c:2728
 msgid "Zap (forget/unsubscribe) the current room"
-msgstr "den aktuellen Raum vergessen (vergessen/abmelden)"
+msgstr "den aktuellen Raum vergessen (vergessen/abbestellen)"
 
 #: ../roomops.c:2734
 #, c-format
@@ -1650,18 +1650,20 @@ msgstr "Raumlisten Anzeige"
 
 #: ../roomops.c:3207
 msgid "Show empty floors"
-msgstr "Leere Verzeichnisse Anzeigen"
+msgstr "Leere Verzeichnisse anzeigen"
 
 #: ../serv_func.c:172
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
-msgstr ""
+msgstr "Dieser Server bedient bereits die maximale Anzahl von Benutzern. "
+"Neue Anmeldungen können daher nicht akzeptiert werden. Bitte versuchen Sie es "
+"später noch einmal oder kontaktieren Sie ihren Systemverwalter."
 
 #: ../serv_func.c:196
 msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr ""
+msgstr "Unerwartete Meldung vom Citadel Server erhalten: Exit."
 
 #: ../serv_func.c:206
 #, c-format
@@ -1708,7 +1710,7 @@ msgstr "Mit manuell bearbeitetem Script filtern (nur für erfahrene Benutzer)"
 
 #: ../sieve.c:145
 msgid "Your incoming mail will not be filtered through any scripts."
-msgstr "Ihre ankommenden Mails werden nicht gefiltert"
+msgstr "Ihre ankommenden Mails werden nicht gefiltert."
 
 #: ../sieve.c:160
 msgid "The currently active script is: "
@@ -1744,7 +1746,7 @@ msgstr "Script bearbeiten"
 
 #: ../sieve.c:679
 msgid "Return to the script editing screen"
-msgstr "Zurück zum Bearbeitungsormular"
+msgstr "Zurück zum Bearbeitungsformular"
 
 #: ../sieve.c:685
 msgid "Delete scripts"
@@ -1905,7 +1907,7 @@ msgstr "Weiterleiten an"
 
 #: ../sieve.c:1087
 msgid "Vacation"
-msgstr "Abwesenheits Benachrichtigung"
+msgstr "Abwesenheits-Benachrichtigung"
 
 #: ../sieve.c:1124
 msgid "Message:"
@@ -2083,9 +2085,8 @@ msgid "or"
 msgstr "oder"
 
 #: ../tasks.c:284 ../tasks.c:313
-#, fuzzy
 msgid "Time associated"
-msgstr "Uhrzeitformat"
+msgstr "assoziierte Uhrzeit "
 
 #: ../tasks.c:288
 msgid "Due date:"
@@ -2102,7 +2103,7 @@ msgstr "Kategorie:"
 #: ../useredit.c:531
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
-msgstr "Fehler beim Erzeugen / Bearbeiten dieses Adressbuch-Eintrags"
+msgstr "Fehler beim Erzeugen / Bearbeiten dieses Adressbuch-Eintrags."
 
 #: ../useredit.c:608
 msgid "Changes were not saved."
@@ -2120,7 +2121,7 @@ msgid ""
 "the host system, not within Citadel."
 msgstr ""
 "Sie versuchen einen Benutzer anzulegen. Dieses System verwendet jedoch die "
-"Konten des Host-Systems, dort müssen neue Benutzer angelegt werden."
+"Konten des Host-Systems, deshalb müssen dort neue Benutzer angelegt werden."
 
 #: ../userlist.c:42
 #, c-format
@@ -2270,11 +2271,11 @@ msgstr "Internet EMail-Aliase"
 
 #: ../vcard_edit.c:1048
 msgid "Unable to enter the room to save your message"
-msgstr ""
+msgstr "Kann nicht in den Raum wechseln um die Nachricht zu speichern"
 
 #: ../vcard_edit.c:1057
 msgid "Aborting."
-msgstr ""
+msgstr "Abgebrochen."
 
 #: ../vcard_edit.c:1093 ../vcard_edit.c:1139
 msgid "An error has occurred."
@@ -2282,7 +2283,7 @@ msgstr "Ein Fehler ist aufgetreten."
 
 #: ../vcard_edit.c:1195
 msgid "Could Not decode vcard photo\n"
-msgstr "Konnte VCard photo nicht dekodieren\n"
+msgstr "Konnte VCard-Foto nicht dekodieren\n"
 
 #: ../webcit.c:331
 msgid "Authorization Required"
@@ -2345,7 +2346,7 @@ msgstr "'%s' ist kein Wiki-Raum."
 #: ../wiki.c:96
 #, c-format
 msgid "There is no page called '%s' here."
-msgstr "Es gibt keine Seite mit Namen '%s' hier."
+msgstr "Es gibt hier keine Seite mit Namen '%s'."
 
 #: ../wiki.c:98
 msgid ""
@@ -2362,21 +2363,19 @@ msgstr "Datum"
 
 #: ../wiki.c:170
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: ../wiki.c:197 ../wiki.c:206
-#, fuzzy
 msgid "(show)"
-msgstr " (Privat)"
+msgstr "(anzeigen)"
 
 #: ../wiki.c:211
-#, fuzzy
 msgid "(revert)"
-msgstr "(Löschen)"
+msgstr "(zuruecknehmen)"///////
 
 #: ../wiki.c:291
 msgid "Page title"
-msgstr ""
+msgstr "Seitentitel"
 
 #: ../static/t/display_main_menu.html:8
 msgid "Basic commands"
@@ -2507,17 +2506,14 @@ msgid "Folder list"
 msgstr "Ordner Liste"
 
 #: ../static/t/knrooms.html:19
-#, fuzzy
 msgid "View as room list"
-msgstr "Auf Raumliste wechseln"
+msgstr "Auf Raumlistenansicht wechseln"
 
 #: ../static/t/knrooms.html:20
-#, fuzzy
 msgid "View as folder list"
-msgstr "Ordner Liste"
+msgstr "Auf Ordnerlistenansicht wechseln"
 
 #: ../static/t/knrooms.html:37
-#, fuzzy
 msgid "Room Listing"
 msgstr "Raumlisten Anzeige"
 
@@ -2557,7 +2553,7 @@ msgid ""
 "and click &quot;New User.&quot; "
 msgstr ""
 "<b>Wenn Sie noch keinen Benutzer haben</b> einen Loginnamen und Passwort "
-"eingeben das verwendet werden soll; dann &quot;Neuer Benutzer&quot; Klicken"
+"eingeben die verwendet werden sollen; dann &quot;Neuer Benutzer&quot; Klicken"
 
 #: ../static/t/login.html:46 ../static/t/openid_login.html:37
 msgid "Please log off properly when finished. "
@@ -2569,7 +2565,7 @@ msgstr "Die"
 
 #: ../static/t/login.html:47 ../static/t/openid_login.html:38
 msgid "recommended browser list"
-msgstr "Empfohlene Browserliste einsehen"
+msgstr "Liste empfohlener Browser einsehen"
 
 #: ../static/t/login.html:47 ../static/t/openid_login.html:38
 msgid ""
@@ -2583,7 +2579,7 @@ msgstr ""
 msgid ""
 "Also keep in mind that if your browser is configured to block pop-up "
 "windows, you will not be able to receive any instant messages."
-msgstr "Bitte auch Popup Fenster zulassen um Chat-Fenster zu benutzen"
+msgstr "Bitte auch Popup Fenster zulassen wenn Chat-Fenster benutzt werden sollen."
 
 #: ../static/t/msg_listselector_bottom.html:2
 #: ../static/t/msg_listselector_top.html:2
@@ -2638,9 +2634,8 @@ msgstr ""
 "Seite beim anmelden an"
 
 #: ../static/t/no_new_msgs.html:3
-#, fuzzy
 msgid "No new messages."
-msgstr "Keine neue Nachricht."
+msgstr "Keine neuen Nachrichten."
 
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
@@ -2667,14 +2662,12 @@ msgid "Select page: "
 msgstr "Seite wählen"
 
 #: ../static/t/start_of_new_msgs.html:4
-#, fuzzy
 msgid "Old messages"
-msgstr "Keine alte Nachricht"
+msgstr ""Alte Nachrichten"
 
 #: ../static/t/start_of_new_msgs.html:8
-#, fuzzy
 msgid "New messages"
-msgstr "Keine neue Nachricht."
+msgstr "Neue Nachrichten"
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
@@ -2682,12 +2675,11 @@ msgstr "von "
 
 #: ../static/t/view_message.html:15
 msgid "to"
-msgstr "an "
+msgstr "an"
 
 #: ../static/t/view_message.html:20
-#, fuzzy
 msgid "Edit"
-msgstr "(Bearbeiten)"
+msgstr "Bearbeiten"
 
 #: ../static/t/view_message.html:23 ../static/t/view_message.html:28
 #: ../static/t/view_message.html:33
