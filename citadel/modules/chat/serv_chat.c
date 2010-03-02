@@ -2,23 +2,23 @@
  * $Id$
  * 
  * This module handles all "real time" communication between users.  The
- * modes of communication currently supported are Chat and Paging.
+ * modes of communication currently supported are Chat and Instant Messages.
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2010 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
 #include "sysdep.h"
@@ -539,48 +539,8 @@ void delete_instant_messages(void) {
 
 
 
-
 /*
- * Poll for instant messages (OLD METHOD -- ***DEPRECATED ***)
- */
-void cmd_pexp(char *argbuf)
-{
-	struct ExpressMessage *ptr, *holdptr;
-
-	if (CC->FirstExpressMessage == NULL) {
-		cprintf("%d No instant messages waiting.\n", ERROR + MESSAGE_NOT_FOUND);
-		return;
-	}
-	begin_critical_section(S_SESSION_TABLE);
-	ptr = CC->FirstExpressMessage;
-	CC->FirstExpressMessage = NULL;
-	end_critical_section(S_SESSION_TABLE);
-
-	cprintf("%d Express msgs:\n", LISTING_FOLLOWS);
-	while (ptr != NULL) {
-		if (ptr->flags && EM_BROADCAST)
-			cprintf("Broadcast message ");
-		else if (ptr->flags && EM_CHAT)
-			cprintf("Chat request ");
-		else if (ptr->flags && EM_GO_AWAY)
-			cprintf("Please logoff now, as requested ");
-		else
-			cprintf("Message ");
-		cprintf("from %s:\n", ptr->sender);
-		if (ptr->text != NULL)
-			memfmout(ptr->text, "\n");
-
-		holdptr = ptr->next;
-		if (ptr->text != NULL) free(ptr->text);
-		free(ptr);
-		ptr = holdptr;
-	}
-	cprintf("000\n");
-}
-
-
-/*
- * Get instant messages (new method)
+ * Retrieve instant messages
  */
 void cmd_gexp(char *argbuf) {
 	struct ExpressMessage *ptr;
@@ -982,7 +942,6 @@ CTDL_MODULE_INIT(chat)
 	if (!threading)
 	{
 		CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
-		CtdlRegisterProtoHook(cmd_pexp, "PEXP", "Poll for instant messages");
 		CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get instant messages");
 		CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an instant message");
 		CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable instant messages");
