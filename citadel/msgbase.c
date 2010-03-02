@@ -931,12 +931,18 @@ void memfmout(
 ) {
 	int column = 0;
 	char ch = 0;
-	if (!mptr) return;
+	char outbuf[1024];
+	int len = 0;
+	int nllen = 0;
 
+	if (!mptr) return;
+	nllen = strlen(nl);
 	while (ch=*(mptr++), ch > 0) {
 
 		if (ch == '\n') {
-			cprintf("%s", nl);
+			client_write(outbuf, len);
+			len = 0;
+			client_write(nl, nllen);
 			column = 0;
 		}
 		else if (ch == '\r') {
@@ -944,20 +950,25 @@ void memfmout(
 		}
 		else if (isspace(ch)) {
 			if (column > 72) {		/* Beyond 72 columns, break on the next space */
-				cprintf("%s", nl);
+				client_write(outbuf, len);
+				len = 0;
+				client_write(nl, nllen);
 				column = 0;
 			}
 			else {
-				cprintf("%c", ch);
+				outbuf[len++] = ch;
+				++column;
 			}
 		}
 		else {
+			outbuf[len++] = ch;
+			++column;
 			if (column > 1000) {		/* Beyond 1000 columns, break anywhere */
-				cprintf("%s", nl);
+				client_write(outbuf, len);
+				len = 0;
+				client_write(nl, nllen);
 				column = 0;
 			}
-			cprintf("%c", ch);
-			++column;
 		}
 	}
 }

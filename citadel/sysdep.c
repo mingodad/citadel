@@ -461,6 +461,8 @@ int client_write(const char *buf, int nbytes)
 	CitContext *Ctx;
 	int fdflags;
 
+	if (nbytes < 1) return(0);
+
 //	flush_client_inbuf();
 	Ctx = CC;
 	if (Ctx->redirect_buffer != NULL) {
