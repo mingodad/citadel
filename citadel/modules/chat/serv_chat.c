@@ -667,12 +667,10 @@ int send_instant_message(char *lun, char *lem, char *x_user, char *x_msg)
 	struct CitContext *ccptr;
 	struct ExpressMessage *newmsg = NULL;
 	char *un;
-	size_t msglen = 0;
 	int do_send = 0;		/* 1 = send message; 0 = only check for valid recipient */
 	static int serial_number = 0;	/* this keeps messages from getting logged twice */
 
 	if (strlen(x_msg) > 0) {
-		msglen = strlen(x_msg) + 4;
 		do_send = 1;
 	}
 
