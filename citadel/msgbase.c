@@ -927,92 +927,39 @@ void do_help_subst(char *buffer)
  */
 void memfmout(
 	char *mptr,		/* where are we going to get our text from? */
-	const char *nl)		/* string to terminate lines with */
-{
-	StrBuf *OutBuf;
-	char *LineStart;
-	char *LastBlank;
-	size_t len;
-	size_t NLLen;
-	char *eptr;
-	int NLFound, NLFoundLastTime;
-	int Found;
+	const char *nl		/* string to terminate lines with */
+) {
+	int column = 0;
+	char ch = 0;
+	if (!mptr) return;
 
-	len = strlen (mptr);
-	NLLen = strlen (nl);
-	eptr = mptr + len;
+	while (ch=*(mptr++), ch > 0) {
 
-	OutBuf = NewStrBufPlain(NULL, 200);
-	
-	NLFound = NLFoundLastTime = 0;
-	do {
-		size_t i;
-
-		LineStart = LastBlank = mptr;
-		Found = 'x';
-		i = 0;
-		while (Found == 'x')
-		{
-			if (LineStart[i] == '\n')
-				Found = '\n';
-			else if (LineStart[i] == '\r')
-				Found = '\r';
-			else if (LineStart[i] == ' ') 
-			{
-				LastBlank = &LineStart[i];
-				i++;
+		if (ch == '\n') {
+			cprintf("%s", nl);
+			column = 0;
+		}
+		else if (ch == '\r') {
+			/* Ignore carriage returns.  Newlines are always LF or CRLF but never CR. */
+		}
+		else if (isspace(ch)) {
+			if (column > 72) {		/* Beyond 72 columns, break on the next space */
+				cprintf("%s", nl);
+				column = 0;
 			}
-			else if ((i > 80) && (LineStart != LastBlank))
-				Found = ' ';
-			else if (LineStart[i] == '\0')
-				Found = '\0';
-			else i++;
+			else {
+				cprintf("%c", ch);
+			}
 		}
-		switch (Found)
-		{
-		case '\n':
-			if (LineStart[i + 1] == '\r')
-				mptr = &LineStart[i + 2];
-			else 
-				mptr = &LineStart[i + 1];
-			i--;
-			NLFound = 1;
-			break;
-		case '\r':
-			if (LineStart[i + 1] == '\n')
-				mptr = &LineStart[i + 2];
-			else 
-				mptr = &LineStart[i + 1];
-			i--;
-			NLFound = 1;
-			break;
-		case '\0':
-			mptr = &LineStart[i + 1];
-			i--;
-			NLFound = 0;
-			break;
-		case ' ':
-			mptr = LastBlank + 1;
-			i = LastBlank - LineStart;
-			NLFound = 0;
-			break;
-		case 'x':
-			/* WHUT? */
-			while (*mptr != '\0') mptr++;
-			break;
+		else {
+			if (column > 1000) {		/* Beyond 1000 columns, break anywhere */
+				cprintf("%s", nl);
+				column = 0;
+			}
+			cprintf("%c", ch);
+			++column;
 		}
-		if (NLFoundLastTime)
-			StrBufPlain(OutBuf, HKEY(" "));
-		else
-			FlushStrBuf(OutBuf);
-		StrBufAppendBufPlain(OutBuf, LineStart, i, 0);
-		StrBufAppendBufPlain(OutBuf, nl, NLLen, 0);
-
-		cputbuf(OutBuf);
-		NLFoundLastTime = NLFound;
-	} while (*mptr != '\0');
-
-	FreeStrBuf(&OutBuf);
+	}
 }
 
 
