@@ -2042,45 +2042,51 @@ START_TEXT:
 				(void *)&ma, 0);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
-			char *start_of_text = NULL;
-			start_of_text = strstr(mptr, "\n\r\n");
-			if (start_of_text == NULL) start_of_text = strstr(mptr, "\n\n");
-			if (start_of_text == NULL) start_of_text = mptr;
-			++start_of_text;
-			start_of_text = strstr(start_of_text, "\n");
-			++start_of_text;
+			int eoh = 0;
 
 			char outbuf[1024];
 			int outlen = 0;
 			int nllen = strlen(nl);
 			prev_ch = 0;
-			while (ch=*mptr, ch!=0) {
-				if (ch==13) {
+			while (*mptr != '\0') {
+				if (*mptr == '\r') {
 					/* do nothing */
 				}
 				else {
-					if (
-						((headers_only == HEADERS_NONE) && (mptr >= start_of_text))
-					   ||	((headers_only == HEADERS_ONLY) && (mptr < start_of_text))
-					   ||	((headers_only != HEADERS_NONE) && (headers_only != HEADERS_ONLY))
-					) {
-						if (ch == 10) {
-							sprintf(&outbuf[outlen], "%s", nl);
-							outlen += nllen;
+					if ((!eoh) &&
+					    (*mptr == '\n'))
+					{
+						if (crlf) {
+							eoh = (*(mptr+1) == '\r') && (*(mptr+2) == '\n');
 						}
 						else {
-							outbuf[outlen++] = ch;
+							eoh = *(mptr+1) == '\n';
+						}
+					}
+
+					if (
+						((headers_only == HEADERS_NONE) && (eoh))
+					   ||	((headers_only == HEADERS_ONLY) && (!eoh))
+					   ||	((headers_only != HEADERS_NONE) && (headers_only != HEADERS_ONLY))
+					) {
+						if (*mptr == '\n') {
+							memcpy(&outbuf[outlen], nl, nllen);
+							outlen += nllen;
+							outbuf[outlen] = '\0';
+						}
+						else {
+							outbuf[outlen++] = *mptr;
 						}
 					}
 				}
 				if (flags & ESC_DOT)
 				{
-					if ((prev_ch == 10) && (ch == '.') && ((*(mptr+1) == 13) || (*(mptr+1) == 10)))
+					if ((prev_ch == '\n') && (*mptr == '.') && ((*(mptr+1) == '\r') || (*(mptr+1) == '\n')))
 					{
 						outbuf[outlen++] = '.';
 					}
 				}
-				prev_ch = ch;
+				prev_ch = *mptr;
 				++mptr;
 				if (outlen > 1000) {
 					client_write(outbuf, outlen);
