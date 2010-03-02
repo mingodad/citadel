@@ -570,7 +570,6 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 	CitContext *CCC=CC;
 	const char *Error;
 	int retval = 0;
-	int rv = 0;
 
 #ifdef HAVE_OPENSSL
 	if (CCC->redirect_ssl) {
@@ -595,6 +594,8 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 	}
 	else
 	{
+#ifdef BIGBAD_IODBG
+		int rv = 0;
 		char fn [SIZ];
 		FILE *fd;
 
@@ -608,6 +609,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 		
 			
                 fclose(fd);
+#endif
 
 	}
 	return retval == bytes;
@@ -673,6 +675,7 @@ int CtdlClientGetLine(StrBuf *Target)
 	else 
 #endif
 	{
+#ifdef BIGBAD_IODBG
 		char fn [SIZ];
 		FILE *fd;
 		int len, rlen, nlen, nrlen;
@@ -693,6 +696,7 @@ int CtdlClientGetLine(StrBuf *Target)
 */
 		fprintf(fd, "\n\n\nBufSize: %d BufPos: %d \n_____________________\n",
 			len, rlen);
+#endif
 		rc = StrBufTCP_read_buffered_line_fast(Target, 
 						       CCC->ReadBuf,
 						       &CCC->Pos,
@@ -701,6 +705,7 @@ int CtdlClientGetLine(StrBuf *Target)
 						       1,
 						       &Error);
 
+#ifdef BIGBAD_IODBG
                 pch = ChrPtr(CCC->ReadBuf);
                 nlen = StrLength(CCC->ReadBuf);
                 if (CCC->Pos != NULL)
@@ -723,6 +728,7 @@ int CtdlClientGetLine(StrBuf *Target)
 				      "%s failed: %s\n",
 				      __FUNCTION__,
 				      Error);
+#endif
 		return rc;
 	}
 }
