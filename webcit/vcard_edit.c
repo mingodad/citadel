@@ -852,7 +852,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 		"<td>%s</td>"
 		"<td>%s</td>"
 		"<td>%s</td></tr>\n",
-		_("Prefix"), _("First"), _("Middle"), _("Last"), _("Suffix")
+		_("Prefix"), _("First Name"), _("Middle Name"), _("Last Name"), _("Suffix")
 	);
 	wc_printf("<tr><td><input type=\"text\" name=\"prefix\" "
 		"value=\"%s\" maxlength=\"5\" size=\"5\"></td>",

@@ -198,11 +198,11 @@ msgid "Last"
 msgstr "Ende"
 
 #: ../vcard_edit.c:855
-msgid "First"
+msgid "First Name"
 msgstr "Vorname"
 
 #: ../vcard_edit.c:855
-msgid "Last"
+msgid "Last Name"
 msgstr "Nachname"
 
 #: ../calendar.c:67
@@ -2206,7 +2206,7 @@ msgid "Prefix"
 msgstr "Anrede"
 
 #: ../vcard_edit.c:855
-msgid "Middle"
+msgid "Middle Name"
 msgstr "Mittelinitial"
 
 #: ../vcard_edit.c:855

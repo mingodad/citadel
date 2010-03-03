@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-15 17:47-0500\n"
+"POT-Creation-Date: 2010-03-03 00:16-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Rait Lotamõis <rait@kuma.ee>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../addressbook_popup.c:178 ../roomops.c:1656 ../roomops.c:1687
-#: ../roomops.c:1929 ../roomops.c:1985
+#: ../addressbook_popup.c:178 ../roomops.c:1659 ../roomops.c:1690
+#: ../roomops.c:1932 ../roomops.c:1988
 msgid "Add"
 msgstr "Lisa"
 
@@ -154,8 +154,8 @@ msgid "Change password"
 msgstr "Muuda salasõna"
 
 #: ../auth.c:841 ../event.c:756 ../graphics.c:58 ../mainmenu.c:69
-#: ../messages.c:1446 ../paging.c:51 ../roomops.c:1460 ../roomops.c:1828
-#: ../roomops.c:2517 ../roomops.c:2677 ../roomops.c:2742 ../sieve.c:209
+#: ../messages.c:1446 ../paging.c:51 ../roomops.c:1460 ../roomops.c:1831
+#: ../roomops.c:2520 ../roomops.c:2680 ../roomops.c:2745 ../sieve.c:209
 #: ../sysmsgs.c:52 ../tasks.c:358 ../vcard_edit.c:1003 ../who.c:200
 msgid "Cancel"
 msgstr "Katkesta"
@@ -185,11 +185,13 @@ msgstr "HÕIVATUD"
 msgid "Go to page: "
 msgstr "Vali lehekülg:"
 
-#: ../bbsview_renderer.c:277 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:277
+#, fuzzy
 msgid "First"
-msgstr "Eesnimi"
+msgstr "esimene"
 
-#: ../bbsview_renderer.c:283 ../vcard_edit.c:855
+#: ../bbsview_renderer.c:283
+#, fuzzy
 msgid "Last"
 msgstr "Perekonnanimi"
 
@@ -742,8 +744,8 @@ msgid "Iconbar Setting"
 msgstr "Ikooniriba seaded"
 
 #: ../inetconf.c:114 ../inetconf.c:123 ../inetconf.c:136 ../inetconf.c:163
-#: ../netconf.c:166 ../netconf.c:193 ../netconf.c:201 ../netconf.c:250
-#: ../netconf.c:258
+#: ../netconf.c:167 ../netconf.c:194 ../netconf.c:202 ../netconf.c:251
+#: ../netconf.c:259
 #, c-format
 msgid "Invalid Parameter"
 msgstr "Vigane Parameeter"
@@ -1014,6 +1016,11 @@ msgstr "Privilegeeritud Kasutaja"
 msgid "My Folders"
 msgstr "Minu kaustad"
 
+#: ../roomlist.c:320 ../roomops.c:1238 ../roomops.c:1754 ../siteconfig.c:41
+#: ../siteconfig.c:60
+msgid "Higher access is required to access this function."
+msgstr "Kõrgem juurdepääsuluba on vajalik selle funktsiooni kasutamiseks."
+
 #: ../roomops.c:24
 msgid "Bulletin Board"
 msgstr "Teadetetahvel"
@@ -1228,40 +1235,36 @@ msgstr "Määra või muuda selle toa banneri ikooni"
 msgid "Edit this room's Info file"
 msgstr "Muuda selle toa Info faili"
 
-#: ../roomops.c:1238 ../roomops.c:1751
-msgid "Higher access is required to access this function."
-msgstr "Kõrgem juurdepääsuluba on vajalik selle funktsiooni kasutamiseks."
-
-#: ../roomops.c:1256 ../roomops.c:2412
+#: ../roomops.c:1256 ../roomops.c:2415
 msgid "Name of room: "
 msgstr "Toa nimi: "
 
-#: ../roomops.c:1263 ../roomops.c:2418
+#: ../roomops.c:1263 ../roomops.c:2421
 msgid "Resides on floor: "
 msgstr "Asub korrusel: "
 
-#: ../roomops.c:1279 ../roomops.c:2464
+#: ../roomops.c:1279 ../roomops.c:2467
 msgid "Type of room:"
 msgstr "Toa liik:"
 
-#: ../roomops.c:1290 ../roomops.c:2474
+#: ../roomops.c:1290 ../roomops.c:2477
 msgid "Public (automatically appears to everyone)"
 msgstr "Avalik (ilmub automaatselt kõigile)"
 
-#: ../roomops.c:1302 ../roomops.c:2482
+#: ../roomops.c:1302 ../roomops.c:2485
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr ""
 "Privaatne - peidetud (juurdepääsetav ainult nendele, kes teavad toa nime)"
 
-#: ../roomops.c:1313 ../roomops.c:2490
+#: ../roomops.c:1313 ../roomops.c:2493
 msgid "Private - require password: "
 msgstr "Privaatne - nõua salasõna: "
 
-#: ../roomops.c:1327 ../roomops.c:2499
+#: ../roomops.c:1327 ../roomops.c:2502
 msgid "Private - invitation only"
 msgstr "Privaatne - ainult kutse alusel"
 
-#: ../roomops.c:1337 ../roomops.c:2508
+#: ../roomops.c:1337 ../roomops.c:2511
 msgid "Personal (mailbox for you only)"
 msgstr "Personaalne (kirjakast ainult sinule)"
 
@@ -1333,7 +1336,7 @@ msgstr "Teavita kasutajat sõnumi sisestamisel"
 msgid "Room aide: "
 msgstr "Toa Korrapidaja: "
 
-#: ../roomops.c:1459 ../roomops.c:1734 ../roomops.c:1826 ../sieve.c:207
+#: ../roomops.c:1459 ../roomops.c:1737 ../roomops.c:1829 ../sieve.c:207
 #: ../sysmsgs.c:50 ../vcard_edit.c:1002
 msgid "Save changes"
 msgstr "Salvesta muudatused"
@@ -1376,143 +1379,143 @@ msgid ""
 "remote node must also configure the name of the room here.</ul></I><br />\n"
 msgstr ""
 
-#: ../roomops.c:1631
+#: ../roomops.c:1634
 msgid ""
 "<i>The contents of this room are being mailed <b>as individual messages</b> "
 "to the following list recipients:</i><br /><br />\n"
 msgstr ""
 
-#: ../roomops.c:1647 ../roomops.c:1678 ../roomops.c:1901 ../roomops.c:1968
+#: ../roomops.c:1650 ../roomops.c:1681 ../roomops.c:1904 ../roomops.c:1971
 msgid "(remove)"
 msgstr "(eemalda)"
 
-#: ../roomops.c:1661
+#: ../roomops.c:1664
 msgid ""
 "<i>The contents of this room are being mailed <b>in digest form</b> to the "
 "following list recipients:</i><br /><br />\n"
 msgstr ""
 
-#: ../roomops.c:1699
+#: ../roomops.c:1702
 msgid "List"
 msgstr ""
 
-#: ../roomops.c:1700
+#: ../roomops.c:1703
 msgid "Digest"
 msgstr ""
 
-#: ../roomops.c:1701 ../roomops.c:1702
+#: ../roomops.c:1704 ../roomops.c:1705
 msgid "Add recipients from Contacts or other address books"
 msgstr "Lisa saajad Kontaktidest või teistest aadressiraamatutest"
 
-#: ../roomops.c:1712
+#: ../roomops.c:1715
 msgid "Allow self-service subscribe/unsubscribe requests."
 msgstr ""
 
-#: ../roomops.c:1716
+#: ../roomops.c:1719
 msgid "The URL for subscribe/unsubscribe is: "
 msgstr ""
 
-#: ../roomops.c:1722
+#: ../roomops.c:1725
 msgid "Allow non-subscribers to mail to this room."
 msgstr ""
 
-#: ../roomops.c:1728
+#: ../roomops.c:1731
 msgid "Room post publication needs Aide permission."
 msgstr ""
 
-#: ../roomops.c:1772
+#: ../roomops.c:1775
 msgid "Message expire policy for this room"
 msgstr "Sõnumite aegumise reeglid siin toas"
 
-#: ../roomops.c:1778
+#: ../roomops.c:1781
 msgid "Use the default policy for this floor"
 msgstr "Kasuta vaikimisi reegleid sõnumite aegumiseks"
 
-#: ../roomops.c:1782 ../roomops.c:1809
+#: ../roomops.c:1785 ../roomops.c:1812
 msgid "Never automatically expire messages"
 msgstr "Sõnumid ei aegu"
 
-#: ../roomops.c:1786 ../roomops.c:1813
+#: ../roomops.c:1789 ../roomops.c:1816
 msgid "Expire by message count"
 msgstr "Aeguvad sõnumite üldarvu alusel"
 
-#: ../roomops.c:1790 ../roomops.c:1817
+#: ../roomops.c:1793 ../roomops.c:1820
 msgid "Expire by message age"
 msgstr "Aeguvad sõnumi vanuse alusel"
 
-#: ../roomops.c:1792 ../roomops.c:1819
+#: ../roomops.c:1795 ../roomops.c:1822
 msgid "Number of messages or days: "
 msgstr "Sõnumite või päevade arv:"
 
-#: ../roomops.c:1799
+#: ../roomops.c:1802
 msgid "Message expire policy for this floor"
 msgstr "Sõnumite aegumise reeglid siin korrusel"
 
-#: ../roomops.c:1805
+#: ../roomops.c:1808
 msgid "Use the system default"
 msgstr "Kasuta süsteemi vaikimisi seadeid"
 
-#: ../roomops.c:1852
+#: ../roomops.c:1855
 msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
 msgstr "Kogu kirju nendelt POP3 kontodelt ja salvesta siia tuppa"
 
-#: ../roomops.c:1857
+#: ../roomops.c:1860
 msgid "Remote host"
 msgstr "Serveri aadress"
 
-#: ../roomops.c:1859
+#: ../roomops.c:1862
 msgid "User name"
 msgstr "Kasutajanimi"
 
-#: ../roomops.c:1861
+#: ../roomops.c:1864
 msgid "Password"
 msgstr "Salasõna"
 
-#: ../roomops.c:1863
+#: ../roomops.c:1866
 msgid "Keep messages on server?"
 msgstr "Säilita koopia serveris?"
 
-#: ../roomops.c:1865
+#: ../roomops.c:1868
 msgid "Interval"
 msgstr "Intervall"
 
-#: ../roomops.c:1893
+#: ../roomops.c:1896
 msgid "Yes"
 msgstr "Jah"
 
-#: ../roomops.c:1893
+#: ../roomops.c:1896
 msgid "No"
 msgstr "Ei"
 
-#: ../roomops.c:1936
+#: ../roomops.c:1939
 msgid "Fetch the following RSS feeds and store them in this room:"
 msgstr "Kogu järgmiseid RSS feed'e ja salvesta nad siia tuppa:"
 
-#: ../roomops.c:1942
+#: ../roomops.c:1945
 msgid "Feed URL"
 msgstr "Feed'i URL"
 
-#: ../roomops.c:2056 ../roomops.c:3035 ../sieve.c:575
+#: ../roomops.c:2059 ../roomops.c:3038 ../sieve.c:575
 msgid "Cancelled.  Changes were not saved."
 msgstr "Katkestatud. Muudatusi ei salvestatud."
 
-#: ../roomops.c:2246 ../sieve.c:631
+#: ../roomops.c:2249 ../sieve.c:631
 msgid "Your changes have been saved."
 msgstr "Sinu muudatused on salvestatud."
 
-#: ../roomops.c:2283
+#: ../roomops.c:2286
 #, c-format
 msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
 msgstr "<B><I>Kasutaja %s löödi toast %s välja.</I></B>\n"
 
-#: ../roomops.c:2297
+#: ../roomops.c:2300
 #, c-format
 msgid "<B><I>User %s invited to room %s.</I></B>\n"
 msgstr "<B><I>Kasutaja %s kutsutud tuppa %s.</I></B>\n"
 
-#: ../roomops.c:2325
+#: ../roomops.c:2328
 msgid ""
 "The users listed below have access to this room.  To remove a user from the "
 "access list, select the user name from the list and click 'Kick'."
@@ -1520,11 +1523,11 @@ msgstr ""
 "Allolevas nimekirjas olevatel kasutajatel on juurdepääs sellele toale. Et "
 "kasutajatnimekirjast eemaldada, vali kasutajanimi ning klõpsa 'Löö minema'"
 
-#: ../roomops.c:2346
+#: ../roomops.c:2349
 msgid "Kick"
 msgstr "Löö minema"
 
-#: ../roomops.c:2350
+#: ../roomops.c:2353
 msgid ""
 "To grant another user access to this room, enter the user name in the box "
 "below and click 'Invite'."
@@ -1532,43 +1535,43 @@ msgstr ""
 "Et anda kasutajale juurdepääsu sellele toale, sisesta kasutajanimi kasti "
 "ning klõpsa 'Kutsu'"
 
-#: ../roomops.c:2357
+#: ../roomops.c:2360
 msgid "Invite:"
 msgstr "Kutsu:"
 
-#: ../roomops.c:2362
+#: ../roomops.c:2365
 msgid "Invite"
 msgstr "Kutsu"
 
-#: ../roomops.c:2369
+#: ../roomops.c:2372
 msgid "User"
 msgstr "Kasutaja"
 
-#: ../roomops.c:2370
+#: ../roomops.c:2373
 msgid "Users"
 msgstr "Kasutajad"
 
-#: ../roomops.c:2403
+#: ../roomops.c:2406
 msgid "Create a new room"
 msgstr "Loo uus tuba"
 
-#: ../roomops.c:2439
+#: ../roomops.c:2442
 msgid "Default view for room: "
 msgstr "Vaikimisi vaade sellele toale: "
 
-#: ../roomops.c:2515
+#: ../roomops.c:2518
 msgid "Create new room"
 msgstr "Loo uus tuba"
 
-#: ../roomops.c:2586
+#: ../roomops.c:2589
 msgid "Cancelled.  No new room was created."
 msgstr "Katkestatud. Uut tuba ei loodud."
 
-#: ../roomops.c:2638
+#: ../roomops.c:2641
 msgid "Go to a hidden room"
 msgstr "Mine peidetud tuppa"
 
-#: ../roomops.c:2647
+#: ../roomops.c:2650
 msgid ""
 "If you know the name of a hidden (guess-name) or passworded room, you can "
 "enter that room by typing its name below.  Once you gain access to a private "
@@ -1576,38 +1579,38 @@ msgid ""
 "returning here."
 msgstr ""
 
-#: ../roomops.c:2659
+#: ../roomops.c:2662
 msgid "Enter room name:"
 msgstr "Sisesta toa nimi:"
 
-#: ../roomops.c:2666
+#: ../roomops.c:2669
 msgid "Enter room password:"
 msgstr "Sisesta toa salasõna:"
 
-#: ../roomops.c:2676
+#: ../roomops.c:2679
 msgid "Go there"
 msgstr "Mine sinna"
 
-#: ../roomops.c:2728
+#: ../roomops.c:2731
 msgid "Zap (forget/unsubscribe) the current room"
 msgstr "Unusta praegune tuba"
 
-#: ../roomops.c:2734
+#: ../roomops.c:2737
 #, c-format
 msgid ""
 "If you select this option, <em>%s</em> will disappear from your room list.  "
 "Is this what you wish to do?<br />\n"
 msgstr ""
 
-#: ../roomops.c:2740
+#: ../roomops.c:2743
 msgid "Zap this room"
 msgstr "Unusta tuba"
 
-#: ../roomops.c:3204
+#: ../roomops.c:3210
 msgid "Room list view"
 msgstr "Tubade nimekirja vaade"
 
-#: ../roomops.c:3207
+#: ../roomops.c:3213
 msgid "Show empty floors"
 msgstr "Näita tühje korruseid"
 
@@ -1875,7 +1878,7 @@ msgstr "ja siis"
 msgid "Add rule"
 msgstr "Lisa reegel"
 
-#: ../siteconfig.c:243
+#: ../siteconfig.c:300
 msgid "Your system configuration has been updated."
 msgstr "Sinu süsteemiseaded on uuendatud"
 
@@ -2147,8 +2150,16 @@ msgid "Prefix"
 msgstr "Tiitel"
 
 #: ../vcard_edit.c:855
-msgid "Middle"
+msgid "First Name"
+msgstr "Eesnimi"
+
+#: ../vcard_edit.c:855
+msgid "Middle Name"
 msgstr "Lisanimi"
+
+#: ../vcard_edit.c:855
+msgid "Last Name"
+msgstr "Perekonnanimi"
 
 #: ../vcard_edit.c:855
 msgid "Suffix"
@@ -2226,11 +2237,11 @@ msgstr "Tekkis viga."
 msgid "Could Not decode vcard photo\n"
 msgstr "Ei suutnud dekodeerida visiitkaardi fotot\n"
 
-#: ../webcit.c:331
+#: ../webcit.c:341
 msgid "Authorization Required"
 msgstr "Nõutav Autoriseering"
 
-#: ../webcit.c:340
+#: ../webcit.c:350
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
