@@ -567,7 +567,6 @@ void cmd_gexp(char *argbuf) {
 
 	if (ptr->text != NULL) {
 		memfmout(ptr->text, "\n");
-		if (ptr->text[strlen(ptr->text)-1] != '\n') cprintf("\n");
 		free(ptr->text);
 	}
 

@@ -971,6 +971,12 @@ void memfmout(
 			}
 		}
 	}
+	if (len) {
+		client_write(outbuf, len);
+		len = 0;
+		client_write(nl, nllen);
+		column = 0;
+	}
 }
 
 
