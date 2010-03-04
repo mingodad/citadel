@@ -574,7 +574,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 	* ( key + (colonpos - beg) ) = '\0';
 	value = &key[(colonpos - beg) + 1];
 	unfold_rfc822_field(&value, &valueend);
-	valuelen = valueend - value;
+	valuelen = valueend - value + 1;
 
 	/*
 	 * Here's the big rfc822-to-citadel loop.

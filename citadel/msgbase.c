@@ -2062,12 +2062,9 @@ START_TEXT:
 					if ((!eoh) &&
 					    (*mptr == '\n'))
 					{
-						if (crlf) {
-							eoh = (*(mptr+1) == '\r') && (*(mptr+2) == '\n');
-						}
-						else {
+						eoh = (*(mptr+1) == '\r') && (*(mptr+2) == '\n');
+						if (!eoh)
 							eoh = *(mptr+1) == '\n';
-						}
 					}
 
 					if (
