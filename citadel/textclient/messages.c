@@ -213,7 +213,7 @@ void add_word(struct cittext *textlist, char *wordbuf)
 /*
  * begin editing of an opened file pointed to by fp
  */
-void citedit(CtdlIPC *ipc, FILE * fp)
+void citedit(FILE *fp)
 {
 	int a, prev, finished, b, last_space;
 	int appending = 0;
@@ -919,7 +919,7 @@ ME1:	switch (mode) {
 				filename, strerror(errno));
 			return(1);
 		}
-		citedit(ipc, fp);
+		citedit(fp);
 		fclose(fp);
 		goto MECR;
 

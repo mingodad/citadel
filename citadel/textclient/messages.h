@@ -19,6 +19,6 @@ int client_make_message(CtdlIPC *ipc,
 						int mode,
 						char *subject,
 						int subject_required);
-void citedit(CtdlIPC *ipc, FILE *);
+void citedit(FILE *);
 char *load_message_from_file(FILE *src);
 int file_checksum(char *filename);
