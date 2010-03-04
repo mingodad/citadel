@@ -1,8 +1,23 @@
 /*
  * $Id$
  *
- * Citadel message support routines
- * see COPYING for copyright information
+ * Text client functions for reading and writing of messages
+ *
+ * Copyright (c) 1987-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -828,14 +843,14 @@ void replace_string(char *filename, long int startpos)
  * Function to begin composing a new message
  */
 int client_make_message(CtdlIPC *ipc,
-						char *filename,		/* temporary file name */
-						char *recipient,	/* NULL if it's not mail */
-						int is_anonymous,
-						int format_type,
-						int mode,
-						char *subject, 		/* buffer to store subject line */
-						int subject_required)
-{
+			char *filename,		/* temporary file name */
+			char *recipient,	/* NULL if it's not mail */
+			int is_anonymous,
+			int format_type,
+			int mode,
+			char *subject, 		/* buffer to store subject line */
+			int subject_required
+) {
 	FILE *fp;
 	int a, b, e_ex_code;
 	long beg;
@@ -846,13 +861,14 @@ int client_make_message(CtdlIPC *ipc,
 
 	if (mode >= 2)
 	{
-		if((mode-2) < MAX_EDITORS && !IsEmptyStr(editor_paths[mode-2])) {
+		if ((mode-2) < MAX_EDITORS && !IsEmptyStr(editor_paths[mode-2]))
+		{
 			editor_path = editor_paths[mode-2];
-		} else if (!IsEmptyStr(editor_paths[0])) {
+		} else if (!IsEmptyStr(editor_paths[0]))
+		{
 			editor_path = editor_paths[0];
 		} else {
-			err_printf("*** No editor available, "
-				"using built-in editor\n");
+			err_printf("*** No editor available; using built-in editor.\n");
 			mode = 0;
 		}
 	}
@@ -900,9 +916,9 @@ int client_make_message(CtdlIPC *ipc,
 		} else {
 			fp = fopen(filename, "w");
 			if (fp == NULL) {
-				err_printf("*** Error opening temp file!\n"
-					"    %s: %s\n",
-					filename, strerror(errno));
+				err_printf("*** Error opening temp file!\n    %s: %s\n",
+					filename, strerror(errno)
+				);
 			return(1);
 			}
 			fclose(fp);
@@ -914,9 +930,9 @@ ME1:	switch (mode) {
 	case 0:
 		fp = fopen(filename, "r+");
 		if (fp == NULL) {
-			err_printf("*** Error opening temp file!\n"
-				"    %s: %s\n",
-				filename, strerror(errno));
+			err_printf("*** Error opening temp file!\n    %s: %s\n",
+				filename, strerror(errno)
+			);
 			return(1);
 		}
 		citedit(fp);
@@ -986,9 +1002,14 @@ MECR:	if (mode >= 2) {
 	}
 
 	b = keymenu("Entry command (? for options)",
-		    "<A>bort|<C>ontinue|<S>ave message|<P>rint formatted|"
-		    "add s<U>bject|"
-		    "<R>eplace string|<H>old message");
+		"<A>bort|"
+		"<C>ontinue|"
+		"<S>ave message|"
+		"<P>rint formatted|"
+		"add s<U>bject|"
+		"<R>eplace string|"
+		"<H>old message"
+	);
 
 	if (b == 'a') goto MEABT;
 	if (b == 'c') goto ME1;
