@@ -144,7 +144,7 @@ void dump_message(struct CtdlMessage *msg, long Siz);
 int is_valid_message(struct CtdlMessage *);
 void ReplicationChecks(struct CtdlMessage *);
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
-				int do_repl_check, struct CtdlMessage *supplied_msg);
+			int do_repl_check, struct CtdlMessage *supplied_msg, int suppress_refcount_adj);
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid, int do_repl_check, struct CtdlMessage *msg);
 char *CtdlReadMessageBody(char *terminator, long tlen, size_t maxlen, char *exist, int crlf, int *sock);
 StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */

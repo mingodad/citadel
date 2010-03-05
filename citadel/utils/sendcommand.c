@@ -3,6 +3,21 @@
  *
  * Command-line utility to transmit a server command.
  *
+ * Copyright (c) 1987-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "ctdl_module.h"
@@ -166,9 +181,6 @@ void sendcommand_die(void) {
 
 
 
-/*
- * main
- */
 int main(int argc, char **argv)
 {
 	int a;
@@ -182,7 +194,7 @@ int main(int argc, char **argv)
 	char ctdldir[PATH_MAX]=CTDLDIR;
 	fd_set read_fd;
 	struct timeval tv;
-	int ret, err;
+	int ret;
 	int server_shutting_down = 0;
 	
 	strcpy(ctdl_home_directory, DEFAULT_PORT);
@@ -265,14 +277,10 @@ int main(int argc, char **argv)
 			FD_ZERO(&read_fd);
 			FD_SET(ipc->sock, &read_fd);
 			ret = select(ipc->sock+1, &read_fd, NULL, NULL,  &tv);
-			err = errno;
-			if (err!=0)
-				printf("select failed: %d", err);
-
 			if (ret == -1) {
 				if (!(errno == EINTR || errno == EAGAIN))
-					printf("select failed: %d", err);
-				return 1;
+					fprintf(stderr, "select() failed: %s", strerror(errno));
+				return(1);
 			}
 
 			if (ret != 0) {
@@ -283,7 +291,7 @@ int main(int argc, char **argv)
 				n = read(ipc->sock, rbuf, SIZ);
 				if (n>0) {
 					rbuf[n]='\0';
-					fprintf (stderr, rbuf);
+					fprintf(stderr, rbuf);
 					fflush (stdout);
 				}
 			}

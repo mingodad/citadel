@@ -2,22 +2,22 @@
  * $Id$
  *
  * Implements the message store.
- * 
+ *
  * Copyright (c) 1987-2010 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -2367,8 +2367,8 @@ void cmd_dlat(char *cmdbuf)
  * this mode of operation only works if we're saving a single message.)
  */
 int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newmsgs,
-				int do_repl_check, struct CtdlMessage *supplied_msg)
-{
+			int do_repl_check, struct CtdlMessage *supplied_msg, int suppress_refcount_adj
+) {
 	int i, j, unique;
 	char hold_rm[ROOMNAMELEN];
 	struct cdbdata *cdbfr;
@@ -2383,8 +2383,9 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	int num_msgs_to_be_merged = 0;
 
 	CtdlLogPrintf(CTDL_DEBUG,
-		"CtdlSaveMsgPointersInRoom(room=%s, num_msgs=%d, repl=%d)\n",
-		roomname, num_newmsgs, do_repl_check);
+		"CtdlSaveMsgPointersInRoom(room=%s, num_msgs=%d, repl=%d, suppress_rca=%d)\n",
+		roomname, num_newmsgs, do_repl_check, suppress_refcount_adj
+	);
 
 	strcpy(hold_rm, CC->room.QRname);
 
@@ -2505,8 +2506,10 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	CtdlGetRoom(&CC->room, hold_rm);
 
 	/* Bump the reference count for all messages which were merged */
-	for (i=0; i<num_msgs_to_be_merged; ++i) {
-		AdjRefCount(msgs_to_be_merged[i], +1);
+	if (!suppress_refcount_adj) {
+		for (i=0; i<num_msgs_to_be_merged; ++i) {
+			AdjRefCount(msgs_to_be_merged[i], +1);
+		}
 	}
 
 	/* Free up memory... */
@@ -2526,7 +2529,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 int CtdlSaveMsgPointerInRoom(char *roomname, long msgid,
 			int do_repl_check, struct CtdlMessage *supplied_msg)
 {
-	return CtdlSaveMsgPointersInRoom(roomname, &msgid, 1, do_repl_check, supplied_msg);
+	return CtdlSaveMsgPointersInRoom(roomname, &msgid, 1, do_repl_check, supplied_msg, 0);
 }
 
 
@@ -4402,7 +4405,7 @@ void cmd_move(char *args)
 	/*
 	 * Do the copy
 	 */
-	err = CtdlSaveMsgPointersInRoom(targ, msgs, num_msgs, 1, NULL);
+	err = CtdlSaveMsgPointersInRoom(targ, msgs, num_msgs, 1, NULL, 0);
 	if (err != 0) {
 		cprintf("%d Cannot store message(s) in %s: error %d\n",
 			err, targ, err);
@@ -4475,6 +4478,10 @@ void AdjRefCount(long msgnum, int incr)
 {
 	struct arcq new_arcq;
 	int rv = 0;
+
+	CtdlLogPrintf(CTDL_DEBUG, "AdjRefCount() msg %ld ref count delta %+d\n",
+		msgnum, incr
+	);
 
 	begin_critical_section(S_SUPPMSGMAIN);
 	if (arcfp == NULL) {
@@ -4589,8 +4596,9 @@ void TDAP_AdjRefCount(long msgnum, int incr)
 	smi.meta_refcount += incr;
 	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
-	CtdlLogPrintf(CTDL_DEBUG, "msg %ld ref count delta %+d, is now %d\n",
-		msgnum, incr, smi.meta_refcount);
+	CtdlLogPrintf(CTDL_DEBUG, "TDAP_AdjRefCount() msg %ld ref count delta %+d, is now %d\n",
+		msgnum, incr, smi.meta_refcount
+	);
 
 	/* If the reference count is now zero, delete the message
 	 * (and its supplementary record as well).
