@@ -798,6 +798,7 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
 		/* Strip the field out of the RFC822 header if we used it */
 		if (!converted) {
 			StrBufAppendBufPlain(OtherHeaders, beg, end - beg, 0);
+			StrBufAppendBufPlain(OtherHeaders, HKEY("\n"), 0);
 		}
 
 		/* If we've hit the end of the message, bail out */

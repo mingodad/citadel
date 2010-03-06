@@ -2049,11 +2049,12 @@ START_TEXT:
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
 			int eoh = 0;
+			const char *StartOfText = StrBufNOTNULL;
 
 			char outbuf[1024];
 			int outlen = 0;
 			int nllen = strlen(nl);
-			prev_ch = 0;
+			prev_ch = '\0';
 			while (*mptr != '\0') {
 				if (*mptr == '\r') {
 					/* do nothing */
@@ -2065,12 +2066,17 @@ START_TEXT:
 						eoh = (*(mptr+1) == '\r') && (*(mptr+2) == '\n');
 						if (!eoh)
 							eoh = *(mptr+1) == '\n';
+						if (eoh)
+						{
+							StartOfText = mptr;
+							StartOfText = strchr(StartOfText, '\n');
+							StartOfText = strchr(StartOfText, '\n');
+						}
 					}
-
-					if (
-						((headers_only == HEADERS_NONE) && (eoh))
-					   ||	((headers_only == HEADERS_ONLY) && (!eoh))
-					   ||	((headers_only != HEADERS_NONE) && (headers_only != HEADERS_ONLY))
+					if (((headers_only == HEADERS_NONE) && (mptr >= StartOfText)) ||
+					    ((headers_only == HEADERS_ONLY) && (mptr < StartOfText)) ||
+					    ((headers_only != HEADERS_NONE) && 
+					     (headers_only != HEADERS_ONLY))
 					) {
 						if (*mptr == '\n') {
 							memcpy(&outbuf[outlen], nl, nllen);
@@ -2084,12 +2090,14 @@ START_TEXT:
 				}
 				if (flags & ESC_DOT)
 				{
-					if ((prev_ch == '\n') && (*mptr == '.') && ((*(mptr+1) == '\r') || (*(mptr+1) == '\n')))
+					if ((prev_ch == '\n') && 
+					    (*mptr == '.') && 
+					    ((*(mptr+1) == '\r') || (*(mptr+1) == '\n')))
 					{
 						outbuf[outlen++] = '.';
 					}
+					prev_ch = *mptr;
 				}
-				prev_ch = *mptr;
 				++mptr;
 				if (outlen > 1000) {
 					client_write(outbuf, outlen);
