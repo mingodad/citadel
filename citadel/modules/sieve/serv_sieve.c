@@ -761,33 +761,28 @@ void get_sieve_config_backend(long msgnum, void *userdata) {
  * otherwise it just frees the data structures.)
  */
 void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
-	char *text;
+	StrBuf *text;
 	struct sdm_script *sptr;
 	struct sdm_vacation *vptr;
-	size_t tsize;
-
-	text = malloc(1024);
-	tsize = 1024;
-	snprintf(text, 1024,
-		"Content-type: application/x-citadel-sieve-config\n"
-		"\n"
-		CTDLSIEVECONFIGSEPARATOR
-		"lastproc|%ld"
-		CTDLSIEVECONFIGSEPARATOR
-	,
-		u->lastproc
-	);
+	
+	text = NewStrBufPlain(NULL, SIZ);
+	StrBufPrintf(text,
+		     "Content-type: application/x-citadel-sieve-config\n"
+		     "\n"
+		     CTDLSIEVECONFIGSEPARATOR
+		     "lastproc|%ld"
+		     CTDLSIEVECONFIGSEPARATOR
+		     ,
+		     u->lastproc
+		);
 
 	while (u->first_script != NULL) {
-		size_t tlen;
-		tlen = strlen(text);
-		tsize = tlen + strlen(u->first_script->script_content) +256;
-		text = realloc(text, tsize);
-		sprintf(&text[strlen(text)], "script|%s|%d|%s" CTDLSIEVECONFIGSEPARATOR,
-			u->first_script->script_name,
-			u->first_script->script_active,
-			u->first_script->script_content
-		);
+		StrBufAppendPrintf(text,
+				   "script|%s|%d|%s" CTDLSIEVECONFIGSEPARATOR,
+				   u->first_script->script_name,
+				   u->first_script->script_active,
+				   u->first_script->script_content
+			);
 		sptr = u->first_script;
 		u->first_script = u->first_script->next;
 		free(sptr->script_content);
@@ -796,32 +791,26 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 
 	if (u->first_vacation != NULL) {
 
-		tsize = strlen(text) + 256;
-		for (vptr = u->first_vacation; vptr != NULL; vptr = vptr->next) {
-			tsize += strlen(vptr->fromaddr + 32);
-		}
-		text = realloc(text, tsize);
-
-		sprintf(&text[strlen(text)], "vacation|\n");
+		StrBufAppendPrintf(text, "vacation|\n");
 		while (u->first_vacation != NULL) {
 			if ( (time(NULL) - u->first_vacation->timestamp) < (MAX_VACATION * 86400)) {
-				sprintf(&text[strlen(text)], "%s|%ld\n",
-					u->first_vacation->fromaddr,
-					u->first_vacation->timestamp
-				);
+				StrBufAppendPrintf(text, "%s|%ld\n",
+						   u->first_vacation->fromaddr,
+						   u->first_vacation->timestamp
+					);
 			}
 			vptr = u->first_vacation;
 			u->first_vacation = u->first_vacation->next;
 			free(vptr);
 		}
-		sprintf(&text[strlen(text)], CTDLSIEVECONFIGSEPARATOR);
+		StrBufAppendPrintf(text, CTDLSIEVECONFIGSEPARATOR);
 	}
 
 	if (yes_write_to_disk)
 	{
 		/* Save the config */
 		quickie_message("Citadel", NULL, NULL, u->config_roomname,
-				text,
+				ChrPtr(text),
 				4,
 				"Sieve configuration"
 		);
@@ -832,7 +821,7 @@ void rewrite_ctdl_sieve_config(struct sdm_userdata *u, int yes_write_to_disk) {
 		}
 	}
 
-	free (text);
+	FreeStrBuf (&text);
 
 }
 
