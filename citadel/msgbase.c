@@ -1711,6 +1711,8 @@ void sanitize_truncated_recipient(char *str)
 
 
 
+#ifdef NEW_COPLM
+
 /*
  * Get a message off disk.  (returns om_* values found in msgbase.h)
  */
@@ -2227,6 +2229,516 @@ DONE:	/* now we're done */
 	return(om_ok);
 }
 
+
+#else	/* NEW_COPLM */
+
+/*
+ * Get a message off disk.  (returns om_* values found in msgbase.h)
+ * THIS IS FROM r8422 AND WILL BE ELIMINATED ONCE THE NEW VERSION IS DEBUGGED
+ */
+int CtdlOutputPreLoadedMsg(
+		struct CtdlMessage *TheMessage,
+		int mode,		/* how would you like that message? */
+		int headers_only,	/* eschew the message body? */
+		int do_proto,		/* do Citadel protocol responses? */
+		int crlf,		/* Use CRLF newlines instead of LF? */
+		int flags		/* should the bessage be exported clean? */
+) {
+	int i, j, k;
+	char buf[SIZ];
+	cit_uint8_t ch, prev_ch;
+	char allkeys[30];
+	char display_name[256];
+	char *mptr, *mpptr;
+	const char *nl;	/* newline string */
+	int suppress_f = 0;
+	int subject_found = 0;
+	struct ma_info ma;
+
+	/* Buffers needed for RFC822 translation.  These are all filled
+	 * using functions that are bounds-checked, and therefore we can
+	 * make them substantially smaller than SIZ.
+	 */
+	char suser[100];
+	char luser[100];
+	char fuser[100];
+	char snode[100];
+	char mid[100];
+	char datestamp[100];
+
+	CtdlLogPrintf(CTDL_DEBUG, "CtdlOutputPreLoadedMsg(TheMessage=%s, %d, %d, %d, %d\n",
+		((TheMessage == NULL) ? "NULL" : "not null"),
+		mode, headers_only, do_proto, crlf);
+
+	strcpy(mid, "unknown");
+	nl = (crlf ? "\r\n" : "\n");
+
+	if (!is_valid_message(TheMessage)) {
+		CtdlLogPrintf(CTDL_ERR,
+			"ERROR: invalid preloaded message for output\n");
+		cit_backtrace ();
+	 	return(om_no_such_msg);
+	}
+
+	/* Suppress envelope recipients if required to avoid disclosing BCC addresses.
+	 * Pad it with spaces in order to avoid changing the RFC822 length of the message.
+	 */
+	if ( (flags & SUPPRESS_ENV_TO) && (TheMessage->cm_fields['V'] != NULL) ) {
+		memset(TheMessage->cm_fields['V'], ' ', strlen(TheMessage->cm_fields['V']));
+	}
+		
+	/* Are we downloading a MIME component? */
+	if (mode == MT_DOWNLOAD) {
+		if (TheMessage->cm_format_type != FMT_RFC822) {
+			if (do_proto)
+				cprintf("%d This is not a MIME message.\n",
+				ERROR + ILLEGAL_VALUE);
+		} else if (CC->download_fp != NULL) {
+			if (do_proto) cprintf(
+				"%d You already have a download open.\n",
+				ERROR + RESOURCE_BUSY);
+		} else {
+			/* Parse the message text component */
+			mptr = TheMessage->cm_fields['M'];
+			mime_parser(mptr, NULL, *mime_download, NULL, NULL, NULL, 0);
+			/* If there's no file open by this time, the requested
+			 * section wasn't found, so print an error
+			 */
+			if (CC->download_fp == NULL) {
+				if (do_proto) cprintf(
+					"%d Section %s not found.\n",
+					ERROR + FILE_NOT_FOUND,
+					CC->download_desired_section);
+			}
+		}
+		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
+	}
+
+	/* MT_SPEW_SECTION is like MT_DOWNLOAD except it outputs the whole MIME part
+	 * in a single server operation instead of opening a download file.
+	 */
+	if (mode == MT_SPEW_SECTION) {
+		if (TheMessage->cm_format_type != FMT_RFC822) {
+			if (do_proto)
+				cprintf("%d This is not a MIME message.\n",
+				ERROR + ILLEGAL_VALUE);
+		} else {
+			/* Parse the message text component */
+			int found_it = 0;
+
+			mptr = TheMessage->cm_fields['M'];
+			mime_parser(mptr, NULL, *mime_spew_section, NULL, NULL, (void *)&found_it, 0);
+			/* If section wasn't found, print an error
+			 */
+			if (!found_it) {
+				if (do_proto) cprintf(
+					"%d Section %s not found.\n",
+					ERROR + FILE_NOT_FOUND,
+					CC->download_desired_section);
+			}
+		}
+		return((CC->download_fp != NULL) ? om_ok : om_mime_error);
+	}
+
+	/* now for the user-mode message reading loops */
+	if (do_proto) cprintf("%d msg:\n", LISTING_FOLLOWS);
+
+	/* Does the caller want to skip the headers? */
+	if (headers_only == HEADERS_NONE) goto START_TEXT;
+
+	/* Tell the client which format type we're using. */
+	if ( (mode == MT_CITADEL) && (do_proto) ) {
+		cprintf("type=%d\n", TheMessage->cm_format_type);
+	}
+
+	/* nhdr=yes means that we're only displaying headers, no body */
+	if ( (TheMessage->cm_anon_type == MES_ANONONLY)
+	   && ((mode == MT_CITADEL) || (mode == MT_MIME))
+	   && (do_proto)
+	   ) {
+		cprintf("nhdr=yes\n");
+	}
+
+	/* begin header processing loop for Citadel message format */
+
+	if ((mode == MT_CITADEL) || (mode == MT_MIME)) {
+
+		safestrncpy(display_name, "<unknown>", sizeof display_name);
+		if (TheMessage->cm_fields['A']) {
+			strcpy(buf, TheMessage->cm_fields['A']);
+			if (TheMessage->cm_anon_type == MES_ANONONLY) {
+				safestrncpy(display_name, "****", sizeof display_name);
+			}
+			else if (TheMessage->cm_anon_type == MES_ANONOPT) {
+				safestrncpy(display_name, "anonymous", sizeof display_name);
+			}
+			else {
+				safestrncpy(display_name, buf, sizeof display_name);
+			}
+			if ((is_room_aide())
+			    && ((TheMessage->cm_anon_type == MES_ANONONLY)
+			     || (TheMessage->cm_anon_type == MES_ANONOPT))) {
+				size_t tmp = strlen(display_name);
+				snprintf(&display_name[tmp],
+					 sizeof display_name - tmp,
+					 " [%s]", buf);
+			}
+		}
+
+		/* Don't show Internet address for users on the
+		 * local Citadel network.
+		 */
+		suppress_f = 0;
+		if (TheMessage->cm_fields['N'] != NULL)
+		   if (!IsEmptyStr(TheMessage->cm_fields['N']))
+		      if (haschar(TheMessage->cm_fields['N'], '.') == 0) {
+			suppress_f = 1;
+		}
+
+		/* Now spew the header fields in the order we like them. */
+		safestrncpy(allkeys, FORDER, sizeof allkeys);
+		for (i=0; i<strlen(allkeys); ++i) {
+			k = (int) allkeys[i];
+			if (k != 'M') {
+				if ( (TheMessage->cm_fields[k] != NULL)
+				   && (msgkeys[k] != NULL) ) {
+					if ((k == 'V') || (k == 'R') || (k == 'Y')) {
+						sanitize_truncated_recipient(TheMessage->cm_fields[k]);
+					}
+					if (k == 'A') {
+						if (do_proto) cprintf("%s=%s\n",
+							msgkeys[k],
+							display_name);
+					}
+					else if ((k == 'F') && (suppress_f)) {
+						/* do nothing */
+					}
+					/* Masquerade display name if needed */
+					else {
+						if (do_proto) cprintf("%s=%s\n",
+							msgkeys[k],
+							TheMessage->cm_fields[k]
+					);
+					}
+				}
+			}
+		}
+
+	}
+
+	/* begin header processing loop for RFC822 transfer format */
+
+	strcpy(suser, "");
+	strcpy(luser, "");
+	strcpy(fuser, "");
+	strcpy(snode, NODENAME);
+	if (mode == MT_RFC822) {
+		for (i = 0; i < 256; ++i) {
+			if (TheMessage->cm_fields[i]) {
+				mptr = mpptr = TheMessage->cm_fields[i];
+				
+				if (i == 'A') {
+					safestrncpy(luser, mptr, sizeof luser);
+					safestrncpy(suser, mptr, sizeof suser);
+				}
+				else if (i == 'Y') {
+					if ((flags & QP_EADDR) != 0) {
+						mptr = qp_encode_email_addrs(mptr);
+					}
+					sanitize_truncated_recipient(mptr);
+					cprintf("CC: %s%s", mptr, nl);
+				}
+				else if (i == 'P') {
+					cprintf("Return-Path: %s%s", mptr, nl);
+				}
+				else if (i == 'L') {
+					cprintf("List-ID: %s%s", mptr, nl);
+				}
+				else if (i == 'V') {
+					if ((flags & QP_EADDR) != 0) 
+						mptr = qp_encode_email_addrs(mptr);
+					cprintf("Envelope-To: %s%s", mptr, nl);
+				}
+				else if (i == 'U') {
+					cprintf("Subject: %s%s", mptr, nl);
+					subject_found = 1;
+				}
+				else if (i == 'I')
+					safestrncpy(mid, mptr, sizeof mid);
+				else if (i == 'F')
+					safestrncpy(fuser, mptr, sizeof fuser);
+				/* else if (i == 'O')
+					cprintf("X-Citadel-Room: %s%s",
+						mptr, nl); */
+				else if (i == 'N')
+					safestrncpy(snode, mptr, sizeof snode);
+				else if (i == 'R')
+				{
+					if (haschar(mptr, '@') == 0)
+					{
+						sanitize_truncated_recipient(mptr);
+						cprintf("To: %s@%s", mptr, config.c_fqdn);
+						cprintf("%s", nl);
+					}
+					else
+					{
+						if ((flags & QP_EADDR) != 0) {
+							mptr = qp_encode_email_addrs(mptr);
+						}
+						sanitize_truncated_recipient(mptr);
+						cprintf("To: %s", mptr);
+						cprintf("%s", nl);
+					}
+				}
+				else if (i == 'T') {
+					datestring(datestamp, sizeof datestamp,
+						atol(mptr), DATESTRING_RFC822);
+					cprintf("Date: %s%s", datestamp, nl);
+				}
+				else if (i == 'W') {
+					cprintf("References: ");
+					k = num_tokens(mptr, '|');
+					for (j=0; j<k; ++j) {
+						extract_token(buf, mptr, j, '|', sizeof buf);
+						cprintf("<%s>", buf);
+						if (j == (k-1)) {
+							cprintf("%s", nl);
+						}
+						else {
+							cprintf(" ");
+						}
+					}
+				}
+				if (mptr != mpptr)
+					free (mptr);
+			}
+		}
+		if (subject_found == 0) {
+			cprintf("Subject: (no subject)%s", nl);
+		}
+	}
+
+	for (i=0; !IsEmptyStr(&suser[i]); ++i) {
+		suser[i] = tolower(suser[i]);
+		if (!isalnum(suser[i])) suser[i]='_';
+	}
+
+	if (mode == MT_RFC822) {
+		if (!strcasecmp(snode, NODENAME)) {
+			safestrncpy(snode, FQDN, sizeof snode);
+		}
+
+		/* Construct a fun message id */
+		cprintf("Message-ID: <%s", mid);/// todo: this possibly breaks threadding mails.
+		if (strchr(mid, '@')==NULL) {
+			cprintf("@%s", snode);
+		}
+		cprintf(">%s", nl);
+
+		if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONONLY)) {
+			cprintf("From: \"----\" <x@x.org>%s", nl);
+		}
+		else if (!is_room_aide() && (TheMessage->cm_anon_type == MES_ANONOPT)) {
+			cprintf("From: \"anonymous\" <x@x.org>%s", nl);
+		}
+		else if (!IsEmptyStr(fuser)) {
+			cprintf("From: \"%s\" <%s>%s", luser, fuser, nl);
+		}
+		else {
+			cprintf("From: \"%s\" <%s@%s>%s", luser, suser, snode, nl);
+		}
+
+		/* Blank line signifying RFC822 end-of-headers */
+		if (TheMessage->cm_format_type != FMT_RFC822) {
+			cprintf("%s", nl);
+		}
+	}
+
+	/* end header processing loop ... at this point, we're in the text */
+START_TEXT:
+	if (headers_only == HEADERS_FAST) goto DONE;
+	mptr = TheMessage->cm_fields['M'];
+
+	/* Tell the client about the MIME parts in this message */
+	if (TheMessage->cm_format_type == FMT_RFC822) {
+		if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
+			memset(&ma, 0, sizeof(struct ma_info));
+			mime_parser(mptr, NULL,
+				(do_proto ? *list_this_part : NULL),
+				(do_proto ? *list_this_pref : NULL),
+				(do_proto ? *list_this_suff : NULL),
+				(void *)&ma, 0);
+		}
+		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
+			char *start_of_text = NULL;
+			start_of_text = strstr(mptr, "\n\r\n");
+			if (start_of_text == NULL) start_of_text = strstr(mptr, "\n\n");
+			if (start_of_text == NULL) start_of_text = mptr;
+			++start_of_text;
+			start_of_text = strstr(start_of_text, "\n");
+			++start_of_text;
+
+			char outbuf[1024];
+			int outlen = 0;
+			int nllen = strlen(nl);
+			prev_ch = 0;
+			while (ch=*mptr, ch!=0) {
+				if (ch==13) {
+					/* do nothing */
+				}
+				else {
+					if (
+						((headers_only == HEADERS_NONE) && (mptr >= start_of_text))
+					   ||	((headers_only == HEADERS_ONLY) && (mptr < start_of_text))
+					   ||	((headers_only != HEADERS_NONE) && (headers_only != HEADERS_ONLY))
+					) {
+						if (ch == 10) {
+							sprintf(&outbuf[outlen], "%s", nl);
+							outlen += nllen;
+						}
+						else {
+							outbuf[outlen++] = ch;
+						}
+					}
+				}
+				if (flags & ESC_DOT)
+				{
+					if ((prev_ch == 10) && (ch == '.') && ((*(mptr+1) == 13) || (*(mptr+1) == 10)))
+					{
+						outbuf[outlen++] = '.';
+					}
+				}
+				prev_ch = ch;
+				++mptr;
+				if (outlen > 1000) {
+					client_write(outbuf, outlen);
+					outlen = 0;
+				}
+			}
+			if (outlen > 0) {
+				client_write(outbuf, outlen);
+				outlen = 0;
+			}
+
+			goto DONE;
+		}
+	}
+
+	if (headers_only == HEADERS_ONLY) {
+		goto DONE;
+	}
+
+	/* signify start of msg text */
+	if ( (mode == MT_CITADEL) || (mode == MT_MIME) ) {
+		if (do_proto) cprintf("text\n");
+	}
+
+	/* If the format type on disk is 1 (fixed-format), then we want
+	 * everything to be output completely literally ... regardless of
+	 * what message transfer format is in use.
+	 */
+	if (TheMessage->cm_format_type == FMT_FIXED) {
+		int buflen;
+		int xlline = 0;
+		int nllen = strlen (nl);
+		if (mode == MT_MIME) {
+			cprintf("Content-type: text/plain\n\n");
+		}
+		*buf = '\0';
+		buflen = 0;
+		while (ch = *mptr++, ch > 0) {
+			if (ch == '\n')
+				ch = '\r';
+
+			if ((buflen > 250) && (!xlline)){
+				int tbuflen;
+				tbuflen = buflen;
+
+				while ((buflen > 0) && 
+				       (!isspace(buf[buflen])))
+					buflen --;
+				if (buflen == 0) {
+					xlline = 1;
+				}
+				else {
+					mptr -= tbuflen - buflen;
+					buf[buflen] = '\0';
+					ch = '\r';
+				}
+			}
+			/* if we reach the outer bounds of our buffer, 
+			   abort without respect what whe purge. */
+			if (xlline && 
+			    ((isspace(ch)) || 
+			     (buflen > SIZ - nllen - 2)))
+				ch = '\r';
+
+			if (ch == '\r') {
+				memcpy (&buf[buflen], nl, nllen);
+				buflen += nllen;
+				buf[buflen] = '\0';
+
+				client_write(buf, buflen);
+				*buf = '\0';
+				buflen = 0;
+				xlline = 0;
+			} else {
+				buf[buflen] = ch;
+				buflen++;
+			}
+		}
+		buf[buflen] = '\0';
+		if (!IsEmptyStr(buf))
+			cprintf("%s%s", buf, nl);
+	}
+
+	/* If the message on disk is format 0 (Citadel vari-format), we
+	 * output using the formatter at 80 columns.  This is the final output
+	 * form if the transfer format is RFC822, but if the transfer format
+	 * is Citadel proprietary, it'll still work, because the indentation
+	 * for new paragraphs is correct and the client will reformat the
+	 * message to the reader's screen width.
+	 */
+	if (TheMessage->cm_format_type == FMT_CITADEL) {
+		if (mode == MT_MIME) {
+			cprintf("Content-type: text/x-citadel-variformat\n\n");
+		}
+		memfmout(mptr, nl);
+	}
+
+	/* If the message on disk is format 4 (MIME), we've gotta hand it
+	 * off to the MIME parser.  The client has already been told that
+	 * this message is format 1 (fixed format), so the callback function
+	 * we use will display those parts as-is.
+	 */
+	if (TheMessage->cm_format_type == FMT_RFC822) {
+		memset(&ma, 0, sizeof(struct ma_info));
+
+		if (mode == MT_MIME) {
+			ma.use_fo_hooks = 0;
+			strcpy(ma.chosen_part, "1");
+			ma.chosen_pref = 9999;
+			mime_parser(mptr, NULL,
+				*choose_preferred, *fixed_output_pre,
+				*fixed_output_post, (void *)&ma, 0);
+			mime_parser(mptr, NULL,
+				*output_preferred, NULL, NULL, (void *)&ma, CC->msg4_dont_decode);
+		}
+		else {
+			ma.use_fo_hooks = 1;
+			mime_parser(mptr, NULL,
+				*fixed_output, *fixed_output_pre,
+				*fixed_output_post, (void *)&ma, 0);
+		}
+
+	}
+
+DONE:	/* now we're done */
+	if (do_proto) cprintf("000\n");
+	return(om_ok);
+}
+
+#endif	/* NEW_COPLM */
 
 
 /*
