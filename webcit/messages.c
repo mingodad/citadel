@@ -69,13 +69,12 @@ int load_message(message_summary *Msg,
 		{
 			Done = 1;
 			if (state < 2) {
-				lprintf(1, _("unexpected end of message"));
 				if (Msg->MsgBody->Data == NULL)
 					Msg->MsgBody->Data = NewStrBuf();
 				Msg->MsgBody->ContentType = NewStrBufPlain(HKEY("text/html"));
 				StrBufAppendPrintf(Msg->MsgBody->Data, "<div><i>");
-				StrBufAppendPrintf(Msg->MsgBody->Data, _("unexpected end of message"));
-				StrBufAppendPrintf(Msg->MsgBody->Data, " (1)</i><br /><br />\n");
+				StrBufAppendPrintf(Msg->MsgBody->Data, _("Empty message"));
+				StrBufAppendPrintf(Msg->MsgBody->Data, "</i><br /><br />\n");
 				StrBufAppendPrintf(Msg->MsgBody->Data, "</div>\n");
 			}
 			break;
