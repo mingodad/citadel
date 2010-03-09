@@ -993,6 +993,41 @@ void StrBufLowerCase(StrBuf *Buf)
 
 /**
  * @ingroup StrBuf_Tokenizer
+ * @brief Replace a token at a given place with a given length by another token with given length
+ * @param Buf String where to work on
+ * @param where where inside of the Buf is the search-token
+ * @param HowLong How long is the token to be replaced
+ * @param Repl Token to insert at 'where'
+ * @param ReplLen Length of repl
+ * @returns -1 if fail else length of resulting Buf
+ */
+int StrBufReplaceToken(StrBuf *Buf, long where, long HowLong, 
+		       const char *Repl, long ReplLen)
+{
+
+	if ((Buf == NULL) || 
+	    (where > Buf->BufUsed) ||
+	    (where + HowLong > Buf->BufUsed))
+		return -1;
+
+	if (where + ReplLen - HowLong > Buf->BufSize)
+		if (IncreaseBuf(Buf, 1, Buf->BufUsed + ReplLen) < 0)
+			return -1;
+
+	memmove(Buf->buf + where + HowLong, 
+		Buf->buf + where + ReplLen,
+		Buf->BufUsed - where - HowLong);
+						
+	memcpy(Buf->buf + where, 
+	       Repl, ReplLen);
+
+	Buf->BufUsed += ReplLen - HowLong;
+
+	return Buf->BufUsed;
+}
+
+/**
+ * @ingroup StrBuf_Tokenizer
  * @brief Counts the numbmer of tokens in a buffer
  * @param source String to count tokens in
  * @param tok    Tokenizer char to count
@@ -1549,8 +1584,7 @@ void StrBufUrlescAppend(StrBuf *OutBuf, const StrBuf *In, const char *PlainIn)
 		   (*pch >= '@' && *pch <= 'Z') || /* @ A-Z */
 		   (*pch >= '0' && *pch <= ':') || /* 0-9 : */
 		   (*pch == '!') || (*pch == '_') || 
-		   (*pch == ',') || (*pch == '.') || 
-		   (*pch == ','))
+		   (*pch == ',') || (*pch == '.'))
 		{
 			*(pt++) = *(pch++);
 			OutBuf->BufUsed++;
