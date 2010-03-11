@@ -35,6 +35,11 @@ void TokenCutRight(citimap_command *Cmd,
 void TokenCutLeft(citimap_command *Cmd, 
 		  ConstStr *CutMe,
 		  int n);
+void MakeStringOf(StrBuf *Buf, int skip);
+
+int CmdAdjust(citimap_command *Cmd, 
+	      int nArgs,
+	      int Realloc);
 
 
 void imap_strout(ConstStr *args);

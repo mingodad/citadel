@@ -23,4 +23,4 @@ void imap_pick_range(const char *range, int is_uid);
 void imap_fetch(int num_parms, ConstStr *Params);
 void imap_uidfetch(int num_parms, ConstStr *Params);
 void imap_fetch_flags(int seq);
-int imap_extract_data_items(char **argv, char *items);
+int imap_extract_data_items(citimap_command *Cmd);

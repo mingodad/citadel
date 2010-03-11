@@ -71,7 +71,7 @@
  *
  * We also implement the ".SILENT" protocol option here.  :(
  */
-void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
+void imap_do_store_msg(int seq, const char *oper, unsigned int bits_to_twiddle) {
 
 
 	if (!strncasecmp(oper, "FLAGS", 5)) {
@@ -91,10 +91,10 @@ void imap_do_store_msg(int seq, char *oper, unsigned int bits_to_twiddle) {
  * imap_store() calls imap_do_store() to perform the actual bit twiddling
  * on the flags.
  */
-void imap_do_store(int num_items, char **itemlist) {
+void imap_do_store(citimap_command *Cmd) {
 	int i, j;
 	unsigned int bits_to_twiddle = 0;
-	char *oper;
+	const char *oper;
 	char flag[32];
 	char whichflags[256];
 	char num_flags;
@@ -102,9 +102,10 @@ void imap_do_store(int num_items, char **itemlist) {
 	long *ss_msglist;
 	int num_ss = 0;
 	int last_item_twiddled = (-1);
+	citimap *Imap = IMAP;
 
-	if (num_items < 2) return;
-	oper = itemlist[0];
+	if (Cmd->num_parms < 2) return;
+	oper = Cmd->Params[0].Key;
 	if (bmstrcasestr(oper, ".SILENT")) {
 		silent = 1;
 	}
@@ -113,14 +114,14 @@ void imap_do_store(int num_items, char **itemlist) {
 	 * ss_msglist is an array of message numbers to manipulate.  We
 	 * are going to supply this array to CtdlSetSeen() later.
 	 */
-	ss_msglist = malloc(IMAP->num_msgs * sizeof(long));
+	ss_msglist = malloc(Imap->num_msgs * sizeof(long));
 	if (ss_msglist == NULL) return;
 
 	/*
 	 * Ok, go ahead and parse the flags.
 	 */
-	for (i=1; i<num_items; ++i) {
-		strcpy(whichflags, itemlist[i]);
+	for (i=1; i<Cmd->num_parms; ++i) {///TODO: why strcpy? 
+		strcpy(whichflags, Cmd->Params[i].Key);
 		if (whichflags[0]=='(') {
 			safestrncpy(whichflags, &whichflags[1], 
 				sizeof whichflags);
@@ -155,12 +156,12 @@ void imap_do_store(int num_items, char **itemlist) {
 		}
 	}
 
-	if (IMAP->num_msgs > 0) {
-		for (i = 0; i < IMAP->num_msgs; ++i) {
-			if (IMAP->flags[i] & IMAP_SELECTED) {
+	if (Imap->num_msgs > 0) {
+		for (i = 0; i < Imap->num_msgs; ++i) {
+			if (Imap->flags[i] & IMAP_SELECTED) {
 				last_item_twiddled = i;
 
-				ss_msglist[num_ss++] = IMAP->msgids[i];
+				ss_msglist[num_ss++] = Imap->msgids[i];
 				imap_do_store_msg(i, oper, bits_to_twiddle);
 
 				if (!silent) {
@@ -180,7 +181,7 @@ void imap_do_store(int num_items, char **itemlist) {
 
 		if (bits_to_twiddle & IMAP_SEEN) {
 			CtdlSetSeen(ss_msglist, num_ss,
-				((IMAP->flags[last_item_twiddled] & IMAP_SEEN) ? 1 : 0),
+				((Imap->flags[last_item_twiddled] & IMAP_SEEN) ? 1 : 0),
 				ctdlsetseen_seen,
 				NULL, NULL
 			);
@@ -188,7 +189,7 @@ void imap_do_store(int num_items, char **itemlist) {
 
 		if (bits_to_twiddle & IMAP_ANSWERED) {
 			CtdlSetSeen(ss_msglist, num_ss,
-				((IMAP->flags[last_item_twiddled] & IMAP_ANSWERED) ? 1 : 0),
+				((Imap->flags[last_item_twiddled] & IMAP_ANSWERED) ? 1 : 0),
 				ctdlsetseen_answered,
 				NULL, NULL
 			);
@@ -213,10 +214,8 @@ void imap_do_store(int num_items, char **itemlist) {
  * This function is called by the main command loop.
  */
 void imap_store(int num_parms, ConstStr *Params) {
-	char items[1024];
-	char *itemlist[256];
+	citimap_command Cmd;
 	int num_items;
-	int i;
 
 	if (num_parms < 3) {
 		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
@@ -231,30 +230,30 @@ void imap_store(int num_parms, ConstStr *Params) {
 		return;
 	}
 
-	strcpy(items, "");
-	for (i=3; i<num_parms; ++i) {
-		strcat(items, Params[i].Key);
-		if (i < (num_parms-1)) strcat(items, " ");
-	}
+	memset(&Cmd, 0, sizeof(citimap_command));
+	Cmd.CmdBuf = NewStrBufPlain(NULL, StrLength(IMAP->Cmd.CmdBuf));
+	MakeStringOf(Cmd.CmdBuf, 3);
 
-	num_items = imap_extract_data_items(itemlist, items);
+	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
 		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		FreeStrBuf(&Cmd.CmdBuf);
+		free(Cmd.Params);
 		return;
 	}
 
-	imap_do_store(num_items, itemlist);
+	imap_do_store(&Cmd);
 	cprintf("%s OK STORE completed\r\n", Params[0].Key);
+	FreeStrBuf(&Cmd.CmdBuf);
+	free(Cmd.Params);
 }
 
 /*
  * This function is called by the main command loop.
  */
 void imap_uidstore(int num_parms, ConstStr *Params) {
-	char items[1024];
-	char *itemlist[256];
+	citimap_command Cmd;
 	int num_items;
-	int i;
 
 	if (num_parms < 4) {
 		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
@@ -269,20 +268,22 @@ void imap_uidstore(int num_parms, ConstStr *Params) {
 		return;
 	}
 
-	strcpy(items, "");
-	for (i=4; i<num_parms; ++i) {
-		strcat(items, Params[i].Key);
-		if (i < (num_parms-1)) strcat(items, " ");
-	}
+	memset(&Cmd, 0, sizeof(citimap_command));
+	Cmd.CmdBuf = NewStrBufPlain(NULL, StrLength(IMAP->Cmd.CmdBuf));
+	MakeStringOf(Cmd.CmdBuf, 4);
 
-	num_items = imap_extract_data_items(itemlist, items);
+	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
 		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		FreeStrBuf(&Cmd.CmdBuf);
+		free(Cmd.Params);
 		return;
 	}
 
-	imap_do_store(num_items, itemlist);
+	imap_do_store(&Cmd);
 	cprintf("%s OK UID STORE completed\r\n", Params[0].Key);
+	FreeStrBuf(&Cmd.CmdBuf);
+	free(Cmd.Params);
 }
 
 

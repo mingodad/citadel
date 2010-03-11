@@ -436,7 +436,21 @@ void imap_strout(ConstStr *args)
 	}
 }
 
+
+
+
 /* Break a command down into tokens, unquoting any escaped characters. */
+
+void MakeStringOf(StrBuf *Buf, int skip)
+{
+	int i;
+	citimap_command *Cmd = &IMAP->Cmd;
+
+	for (i=skip; i<Cmd->num_parms; ++i) {
+		StrBufAppendBufPlain(Buf, Cmd->Params[i].Key, Cmd->Params[i].len, 0);
+		if (i < (Cmd->num_parms-1)) StrBufAppendBufPlain(Buf, HKEY(" "), 0);
+	}
+}
 
 
 void TokenCutRight(citimap_command *Cmd, 
@@ -491,8 +505,11 @@ int CmdAdjust(citimap_command *Cmd,
 			       sizeof(ConstStr) * Cmd->avail_parms 
 				);
 		}
-		else 
+		else {
 			Cmd->num_parms = 0;
+			memset(Params, 0, 
+			       sizeof(ConstStr) * nArgs);
+		}
 		Cmd->avail_parms = nArgs;
 		if (Cmd->Params != NULL)
 			free (Cmd->Params);
@@ -506,7 +523,7 @@ int CmdAdjust(citimap_command *Cmd,
 			Cmd->num_parms = 0;
 		}
 	}
-	return Cmd->num_parms;
+	return Cmd->avail_parms;
 }
 
 int imap_parameterize(citimap_command *Cmd)
@@ -580,10 +597,10 @@ int imap_parameterize(citimap_command *Cmd)
 		StrBufPeek(Cmd->CmdBuf, In, -1, '\0');
 		Cmd->Params[Cmd->num_parms].len = 
 			In - Cmd->Params[Cmd->num_parms].Key;
-		Cmd->num_parms ++;
-		if (Cmd->num_parms >= Cmd->avail_parms) {
+		if (Cmd->num_parms + 1 >= Cmd->avail_parms) {
 			nArgs = CmdAdjust(Cmd, nArgs * 2, 1);
 		}
+		Cmd->num_parms ++;
 		In++;
 	}
 	return Cmd->num_parms;

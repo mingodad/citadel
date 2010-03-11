@@ -426,7 +426,8 @@ void imap_cleanup_function(void)
 		IMAP->cached_body_len = 0;
 		IMAP->cached_bodymsgnum = (-1);
 	}
-
+	FreeStrBuf(&IMAP->Cmd.CmdBuf);
+	if (IMAP->Cmd.Params != NULL) free(IMAP->Cmd.Params);
 	free(IMAP);
 	CtdlLogPrintf(CTDL_DEBUG, "Finished IMAP cleanup hook\n");
 }

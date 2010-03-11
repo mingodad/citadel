@@ -128,7 +128,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.SIZE"	size of translated message
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
-void imap_fetch_rfc822(long msgnum, char *whichfmt) {
+void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 	char buf[SIZ];
 	const char *ptr = NULL;
 	size_t headers_size, text_size, total_size;
@@ -590,7 +590,7 @@ void imap_strip_headers(char *section) {
 /*
  * Implements the BODY and BODY.PEEK fetch items
  */
-void imap_fetch_body(long msgnum, char *item, int is_peek) {
+void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 	struct CtdlMessage *msg = NULL;
 	char section[SIZ];
 	char partial[SIZ];
@@ -894,7 +894,7 @@ void imap_fetch_bodystructure_part(
  * Spew the BODYSTRUCTURE data for a message.
  *
  */
-void imap_fetch_bodystructure (long msgnum, char *item,
+void imap_fetch_bodystructure (long msgnum, const char *item,
 		struct CtdlMessage *msg) {
 	const char *rfc822 = NULL;
 	const char *rfc822_body = NULL;
@@ -969,82 +969,83 @@ void imap_fetch_bodystructure (long msgnum, char *item,
  * imap_do_fetch() calls imap_do_fetch_msg() to output the data of an
  * individual message, once it has been selected for output.
  */
-void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
+void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 	int i;
+	citimap *Imap = IMAP;
 	struct CtdlMessage *msg = NULL;
 	int body_loaded = 0;
 
 	/* Don't attempt to fetch bogus messages or UID's */
 	if (seq < 1) return;
-	if (IMAP->msgids[seq-1] < 1L) return;
+	if (Imap->msgids[seq-1] < 1L) return;
 
 	buffer_output();
 	cprintf("* %d FETCH (", seq);
 
-	for (i=0; i<num_items; ++i) {
+	for (i=0; i<Cmd->num_parms; ++i) {
 
 		/* Fetchable without going to the message store at all */
-		if (!strcasecmp(itemlist[i], "UID")) {
+		if (!strcasecmp(Cmd->Params[i].Key, "UID")) {
 			imap_fetch_uid(seq);
 		}
-		else if (!strcasecmp(itemlist[i], "FLAGS")) {
+		else if (!strcasecmp(Cmd->Params[i].Key, "FLAGS")) {
 			imap_fetch_flags(seq-1);
 		}
 
 		/* Potentially fetchable from cache, if the client requests
 		 * stuff from the same message several times in a row.
 		 */
-		else if (!strcasecmp(itemlist[i], "RFC822")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		else if (!strcasecmp(Cmd->Params[i].Key, "RFC822")) {
+			imap_fetch_rfc822(Imap->msgids[seq-1], Cmd->Params[i].Key);
 		}
-		else if (!strcasecmp(itemlist[i], "RFC822.HEADER")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		else if (!strcasecmp(Cmd->Params[i].Key, "RFC822.HEADER")) {
+			imap_fetch_rfc822(Imap->msgids[seq-1], Cmd->Params[i].Key);
 		}
-		else if (!strcasecmp(itemlist[i], "RFC822.SIZE")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		else if (!strcasecmp(Cmd->Params[i].Key, "RFC822.SIZE")) {
+			imap_fetch_rfc822(Imap->msgids[seq-1], Cmd->Params[i].Key);
 		}
-		else if (!strcasecmp(itemlist[i], "RFC822.TEXT")) {
-			imap_fetch_rfc822(IMAP->msgids[seq-1], itemlist[i]);
+		else if (!strcasecmp(Cmd->Params[i].Key, "RFC822.TEXT")) {
+			imap_fetch_rfc822(Imap->msgids[seq-1], Cmd->Params[i].Key);
 		}
 
 		/* BODY fetches do their own fetching and caching too. */
-		else if (!strncasecmp(itemlist[i], "BODY[", 5)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 0);
+		else if (!strncasecmp(Cmd->Params[i].Key, "BODY[", 5)) {
+			imap_fetch_body(Imap->msgids[seq-1], Cmd->Params[i].Key, 0);
 		}
-		else if (!strncasecmp(itemlist[i], "BODY.PEEK[", 10)) {
-			imap_fetch_body(IMAP->msgids[seq-1], itemlist[i], 1);
+		else if (!strncasecmp(Cmd->Params[i].Key, "BODY.PEEK[", 10)) {
+			imap_fetch_body(Imap->msgids[seq-1], Cmd->Params[i].Key, 1);
 		}
 
 		/* Otherwise, load the message into memory.
 		 */
-		else if (!strcasecmp(itemlist[i], "BODYSTRUCTURE")) {
+		else if (!strcasecmp(Cmd->Params[i].Key, "BODYSTRUCTURE")) {
 			if ((msg != NULL) && (!body_loaded)) {
 				CtdlFreeMessage(msg);	/* need the whole thing */
 				msg = NULL;
 			}
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 				body_loaded = 1;
 			}
-			imap_fetch_bodystructure(IMAP->msgids[seq-1],
-					itemlist[i], msg);
+			imap_fetch_bodystructure(Imap->msgids[seq-1],
+					Cmd->Params[i].Key, msg);
 		}
-		else if (!strcasecmp(itemlist[i], "ENVELOPE")) {
+		else if (!strcasecmp(Cmd->Params[i].Key, "ENVELOPE")) {
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 0);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0);
 				body_loaded = 0;
 			}
 			imap_fetch_envelope(msg);
 		}
-		else if (!strcasecmp(itemlist[i], "INTERNALDATE")) {
+		else if (!strcasecmp(Cmd->Params[i].Key, "INTERNALDATE")) {
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 0);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 0);
 				body_loaded = 0;
 			}
 			imap_fetch_internaldate(msg);
 		}
 
-		if (i != num_items-1) cprintf(" ");
+		if (i != Cmd->num_parms-1) cprintf(" ");
 	}
 
 	cprintf(")\r\n");
@@ -1060,8 +1061,28 @@ void imap_do_fetch_msg(int seq, int num_items, char **itemlist) {
  * imap_fetch() calls imap_do_fetch() to do its actual work, once it's
  * validated and boiled down the request a bit.
  */
-void imap_do_fetch(int num_items, char **itemlist) {
+void imap_do_fetch(citimap_command *Cmd) {
 	int i;
+#if 0
+/* debug output the parsed vector */
+	{
+		int i;
+		CtdlLogPrintf(CTDL_DEBUG, "----- %ld params \n",
+			      Cmd->num_parms);
+
+	for (i=0; i < Cmd->num_parms; i++) {
+		if (Cmd->Params[i].len != strlen(Cmd->Params[i].Key))
+			CtdlLogPrintf(CTDL_DEBUG, "*********** %ld != %ld : %s\n",
+				      Cmd->Params[i].len, 
+				      strlen(Cmd->Params[i].Key),
+				      Cmd->Params[i].Key);
+		else
+			CtdlLogPrintf(CTDL_DEBUG, "%ld : %s\n",
+				      Cmd->Params[i].len, 
+				      Cmd->Params[i].Key);
+	}}
+
+#endif
 
 	if (IMAP->num_msgs > 0) {
 		for (i = 0; i < IMAP->num_msgs; ++i) {
@@ -1075,7 +1096,7 @@ void imap_do_fetch(int num_items, char **itemlist) {
 
 			/* Get any message marked for fetch. */
 			if (IMAP->flags[i] & IMAP_SELECTED) {
-				imap_do_fetch_msg(i+1, num_items, itemlist);
+				imap_do_fetch_msg(i+1, Cmd);
 			}
 		}
 	}
@@ -1088,22 +1109,25 @@ void imap_do_fetch(int num_items, char **itemlist) {
  * Note that this function *only* looks at the beginning of the string.  It
  * is not a generic search-and-replace function.
  */
-void imap_macro_replace(char *str, char *find, char *replace) {
-	char holdbuf[SIZ];
-	int findlen;
+void imap_macro_replace(StrBuf *Buf, long where, 
+			StrBuf *TmpBuf,
+			char *find, long findlen, 
+			char *replace, long replacelen) 
+{
 
-	findlen = strlen(find);
+	if (StrLength(Buf) - where > findlen)
+		return;
 
-	if (!strncasecmp(str, find, findlen)) {
-		if (str[findlen]==' ') {
-			strcpy(holdbuf, &str[findlen+1]);
-			strcpy(str, replace);
-			strcat(str, " ");
-			strcat(str, holdbuf);
+	if (!strncasecmp(ChrPtr(Buf) + where, find, findlen)) {
+		if (ChrPtr(Buf)[where + findlen] == ' ') {
+			StrBufPlain(TmpBuf, replace, replacelen);
+			StrBufAppendBufPlain(TmpBuf, HKEY(" "), 0);
+			StrBufReplaceToken(Buf, where, findlen, 
+					   SKEY(TmpBuf));
 		}
-		if (str[findlen]==0) {
-			strcpy(holdbuf, &str[findlen+1]);
-			strcpy(str, replace);
+		if (where + findlen == StrLength(Buf)) {
+			StrBufReplaceToken(Buf, where, findlen, 
+					   replace, replacelen);
 		}
 	}
 }
@@ -1115,39 +1139,46 @@ void imap_macro_replace(char *str, char *find, char *replace) {
  * (What the heck are macros doing in a wire protocol?  Are we trying to save
  * the computer at the other end the trouble of typing a lot of characters?)
  */
-void imap_handle_macros(char *str) {
-	int i;
+void imap_handle_macros(citimap_command *Cmd) {
+	long i;
 	int nest = 0;
+	StrBuf *Tmp = NewStrBuf();
 
-	for (i=0; str[i]; ++i) {
-		if (str[i]=='(') ++nest;
-		if (str[i]=='[') ++nest;
-		if (str[i]=='<') ++nest;
-		if (str[i]=='{') ++nest;
-		if (str[i]==')') --nest;
-		if (str[i]==']') --nest;
-		if (str[i]=='>') --nest;
-		if (str[i]=='}') --nest;
+	for (i=0; i < StrLength(Cmd->CmdBuf); ++i) {
+		char ch = ChrPtr(Cmd->CmdBuf)[i];
+		if ((ch=='(') ||
+		    (ch=='[') ||
+		    (ch=='<') ||
+		    (ch=='{')) ++nest;
+		else if ((ch==')') ||
+			 (ch==']') ||
+			 (ch=='>') ||
+			 (ch=='}')) --nest;
 
 		if (nest <= 0) {
-			imap_macro_replace(&str[i],
-				"ALL",
-				"FLAGS INTERNALDATE RFC822.SIZE ENVELOPE"
+			imap_macro_replace(Cmd->CmdBuf, i,
+					   Tmp, 
+					   HKEY("ALL"),
+					   HKEY("FLAGS INTERNALDATE RFC822.SIZE ENVELOPE")
 			);
-			imap_macro_replace(&str[i],
-				"BODY",
-				"BODYSTRUCTURE"
+			imap_macro_replace(Cmd->CmdBuf, i,
+					   Tmp, 
+					   HKEY("BODY"),
+					   HKEY("BODYSTRUCTURE")
 			);
-			imap_macro_replace(&str[i],
-				"FAST",
-				"FLAGS INTERNALDATE RFC822.SIZE"
+			imap_macro_replace(Cmd->CmdBuf, i,
+					   Tmp, 
+					   HKEY("FAST"),
+					   HKEY("FLAGS INTERNALDATE RFC822.SIZE")
 			);
-			imap_macro_replace(&str[i],
-				"FULL",
-				"FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY"
+			imap_macro_replace(Cmd->CmdBuf, i,
+					   Tmp, 
+					   HKEY("FULL"),
+					   HKEY("FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY")
 			);
 		}
 	}
+	FreeStrBuf(&Tmp);
 }
 
 
@@ -1157,56 +1188,85 @@ void imap_handle_macros(char *str) {
  * NOTE: this function alters the string it is fed, and uses it as a buffer
  * to hold the data for the pointers it returns.
  */
-int imap_extract_data_items(char **argv, char *items) {
-	int num_items = 0;
+int imap_extract_data_items(citimap_command *Cmd) 
+{
+	int nArgs;
 	int nest = 0;
-	int i;
-	char *start;
+	const char *pch, *end;
 	long initial_len;
 
 	/* Convert all whitespace to ordinary space characters. */
-	for (i=0; items[i]; ++i) {
-		if (isspace(items[i])) items[i]=' ';
+	pch = ChrPtr(Cmd->CmdBuf);
+	end = pch + StrLength(Cmd->CmdBuf);
+
+	while (pch < end)
+	{
+		if (isspace(*pch)) 
+			StrBufPeek(Cmd->CmdBuf, pch, 0, ' ');
+		pch++;
 	}
 
 	/* Strip leading and trailing whitespace, then strip leading and
 	 * trailing parentheses if it's a list
 	 */
-	striplt(items);
-	if ( (items[0]=='(') && (items[strlen(items)-1]==')') ) {
-		items[strlen(items)-1] = 0;
-		strcpy(items, &items[1]);
-		striplt(items);
+	StrBufTrim(Cmd->CmdBuf);
+	pch = ChrPtr(Cmd->CmdBuf);
+	if ( (pch[0]=='(') && 
+	     (pch[StrLength(Cmd->CmdBuf)-1]==')') ) 
+	{
+		StrBufCutRight(Cmd->CmdBuf, 1);
+		StrBufCutLeft(Cmd->CmdBuf, 1);
+		StrBufTrim(Cmd->CmdBuf);
 	}
 
 	/* Parse any macro data items */
-	imap_handle_macros(items);
+	imap_handle_macros(Cmd);
 
 	/*
 	 * Now break out the data items.  We throw in one trailing space in
 	 * order to avoid having to break out the last one manually.
 	 */
-	strcat(items, " ");
-	start = items;
-	initial_len = strlen(items);
-	for (i=0; i<initial_len; ++i) {
-		if (items[i]=='(') ++nest;
-		if (items[i]=='[') ++nest;
-		if (items[i]=='<') ++nest;
-		if (items[i]=='{') ++nest;
-		if (items[i]==')') --nest;
-		if (items[i]==']') --nest;
-		if (items[i]=='>') --nest;
-		if (items[i]=='}') --nest;
+	nArgs = StrLength(Cmd->CmdBuf) / 10 + 10;
+	nArgs = CmdAdjust(Cmd, nArgs, 0);
+	initial_len = StrLength(Cmd->CmdBuf);
+	Cmd->num_parms = 0;
+	Cmd->Params[Cmd->num_parms].Key = pch = ChrPtr(Cmd->CmdBuf);
+	end = Cmd->Params[Cmd->num_parms].Key + StrLength(Cmd->CmdBuf);
 
-		if (nest <= 0) if (items[i]==' ') {
-			items[i] = 0;
-			argv[num_items++] = start;
-			start = &items[i+1];
+	while (pch < end) 
+	{
+		if ((*pch=='(') ||
+		    (*pch=='[') ||
+		    (*pch=='<') ||
+		    (*pch=='{'))
+			++nest;
+
+		else if ((*pch==')') ||
+			 (*pch==']') ||
+			 (*pch=='>') ||
+			 (*pch=='}'))
+			--nest;
+
+		if ((nest <= 0) && (*pch==' '))	{
+			StrBufPeek(Cmd->CmdBuf, pch, 0, '\0');
+			Cmd->Params[Cmd->num_parms].len = 
+				pch - Cmd->Params[Cmd->num_parms].Key;
+
+			if (Cmd->num_parms + 1 >= Cmd->avail_parms) {
+				nArgs = CmdAdjust(Cmd, nArgs * 2, 1);
+			}
+			Cmd->num_parms++;			
+			Cmd->Params[Cmd->num_parms].Key = ++pch;
 		}
-	}
+		else if (pch + 1 == end) {
+			Cmd->Params[Cmd->num_parms].len = 
+				pch - Cmd->Params[Cmd->num_parms].Key + 1;
 
-	return(num_items);
+			Cmd->num_parms++;			
+		}
+		pch ++;
+	}
+	return Cmd->num_parms;
 
 }
 
@@ -1294,11 +1354,9 @@ void imap_pick_range(const char *supplied_range, int is_uid) {
  * This function is called by the main command loop.
  */
 void imap_fetch(int num_parms, ConstStr *Params) {
-	char items[SIZ];
-	char *itemlist[512];
+	citimap_command Cmd;
 	int num_items;
-	int i;
-
+	
 	if (num_parms < 4) {
 		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
 		return;
@@ -1306,28 +1364,29 @@ void imap_fetch(int num_parms, ConstStr *Params) {
 
 	imap_pick_range(Params[2].Key, 0);
 
-	strcpy(items, "");
-	for (i=3; i<num_parms; ++i) {
-		strcat(items, Params[i].Key);
-		if (i < (num_parms-1)) strcat(items, " ");
-	}
+	memset(&Cmd, 0, sizeof(citimap_command));
+	Cmd.CmdBuf = NewStrBufPlain(NULL, StrLength(IMAP->Cmd.CmdBuf));
+	MakeStringOf(Cmd.CmdBuf, 3);
 
-	num_items = imap_extract_data_items(itemlist, items);
+	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
 		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		FreeStrBuf(&Cmd.CmdBuf);
+		free(Cmd.Params);
 		return;
 	}
 
-	imap_do_fetch(num_items, itemlist);
+	imap_do_fetch(&Cmd);
 	cprintf("%s OK FETCH completed\r\n", Params[0].Key);
+	FreeStrBuf(&Cmd.CmdBuf);
+	free(Cmd.Params);
 }
 
 /*
  * This function is called by the main command loop.
  */
 void imap_uidfetch(int num_parms, ConstStr *Params) {
-	char items[SIZ];
-	char *itemlist[512];
+	citimap_command Cmd;
 	int num_items;
 	int i;
 	int have_uid_item = 0;
@@ -1339,15 +1398,18 @@ void imap_uidfetch(int num_parms, ConstStr *Params) {
 
 	imap_pick_range(Params[3].Key, 1);
 
-	strcpy(items, "");
-	for (i=4; i<num_parms; ++i) {
-		strcat(items, Params[i].Key);
-		if (i < (num_parms-1)) strcat(items, " ");
-	}
+	memset(&Cmd, 0, sizeof(citimap_command));
+	Cmd.CmdBuf = NewStrBufPlain(NULL, StrLength(IMAP->Cmd.CmdBuf));
 
-	num_items = imap_extract_data_items(itemlist, items);
+	MakeStringOf(Cmd.CmdBuf, 4);
+#if 0
+	CtdlLogPrintf(CTDL_DEBUG, "-------%s--------\n", ChrPtr(Cmd.CmdBuf));
+#endif
+	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
 		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		FreeStrBuf(&Cmd.CmdBuf);
+		free(Cmd.Params);
 		return;
 	}
 
@@ -1355,16 +1417,23 @@ void imap_uidfetch(int num_parms, ConstStr *Params) {
 	 * (at the beginning) because this is a UID FETCH command
 	 */
 	for (i=0; i<num_items; ++i) {
-		if (!strcasecmp(itemlist[i], "UID")) ++have_uid_item;
+		if (!strcasecmp(Cmd.Params[i].Key, "UID")) ++have_uid_item;
 	}
 	if (have_uid_item == 0) {
-		memmove(&itemlist[1], &itemlist[0], (sizeof(itemlist[0]) * num_items));
-		++num_items;
-		itemlist[0] = "UID";
+		if (Cmd.num_parms + 1 >= Cmd.avail_parms)
+			CmdAdjust(&Cmd, Cmd.avail_parms + 1, 1);
+		memmove(&Cmd.Params[1], 
+			&Cmd.Params[0], 
+			sizeof(ConstStr) * Cmd.num_parms);
+
+		Cmd.num_parms++;
+		Cmd.Params[0] = (ConstStr){HKEY("UID")};
 	}
 
-	imap_do_fetch(num_items, itemlist);
+	imap_do_fetch(&Cmd);
 	cprintf("%s OK UID FETCH completed\r\n", Params[0].Key);
+	FreeStrBuf(&Cmd.CmdBuf);
+	free(Cmd.Params);
 }
 
 
