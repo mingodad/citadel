@@ -959,7 +959,7 @@ star:
  * Support function for mailbox pattern name matching in LIST and LSUB
  * Returns nonzero if the supplied mailbox name matches the supplied pattern.
  */
-int imap_mailbox_matches_pattern(char *pattern, char *mailboxname)
+int imap_mailbox_matches_pattern(const char *pattern, char *mailboxname)
 {
 	/* handle just-star case quickly */
 	if ((pattern[0] == '*') && (pattern[1] == '\0')) {

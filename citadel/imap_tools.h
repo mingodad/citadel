@@ -50,7 +50,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf);
 void imap_ial_out(struct internet_address_list *ialist);
 int imap_roomname(char *buf, int bufsize, const char *foldername);
 int imap_is_message_set(const char *);
-int imap_mailbox_matches_pattern(char *pattern, char *mailboxname);
+int imap_mailbox_matches_pattern(const char *pattern, char *mailboxname);
 int imap_datecmp(const char *datestr, time_t msgtime);
 
 /*
