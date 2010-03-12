@@ -833,12 +833,18 @@ void tmplput_EDIT_WIKI_BODY(StrBuf *Target, WCTemplputParams *TP)
         long msgnum;
 	StrBuf *Buf;
 
-	msgnum = locate_message_by_uid(BSTR("page"));
-	if (msgnum >= 0L) {
-		Buf = NewStrBuf();
-		read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime);
-		StrBufAppendTemplate(Target, TP, Buf, 1);
-		FreeStrBuf(&Buf);
+	/* Insert the existing content of the wiki page into the editor.  But we only want
+	 * to do this the first time -- if the user is uploading an attachment we don't want
+	 * to do it again.
+	 */
+	if (!havebstr("attach_button")) {
+		msgnum = locate_message_by_uid(BSTR("page"));
+		if (msgnum >= 0L) {
+			Buf = NewStrBuf();
+			read_message(Buf, HKEY("view_message_wikiedit"), msgnum, NULL, &Mime);
+			StrBufAppendTemplate(Target, TP, Buf, 1);
+			FreeStrBuf(&Buf);
+		}
 	}
 }
 
