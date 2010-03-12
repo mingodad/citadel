@@ -186,7 +186,6 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
  */
 void imap_list(int num_parms, ConstStr *Params)
 {
-	int subscribed_rooms_only = 0;
 	int i, j, paren_nest;
 	ImapRoomListFilter ImapFilter;
 	int selection_left = (-1);
@@ -206,6 +205,7 @@ void imap_list(int num_parms, ConstStr *Params)
 	ImapFilter.num_patterns = 1;
 	ImapFilter.return_subscribed = 0;
 	ImapFilter.return_children = 0;
+	ImapFilter.subscribed_rooms_only = 0;
 	
 
 	/* parms[1] is the IMAP verb being used (e.g. LIST or LSUB)
@@ -218,7 +218,7 @@ void imap_list(int num_parms, ConstStr *Params)
 	}
 
 	if (!strcasecmp(ImapFilter.verb, "LSUB")) {
-		subscribed_rooms_only = 1;
+		ImapFilter.subscribed_rooms_only = 1;
 	}
 
 	/*
@@ -278,7 +278,7 @@ void imap_list(int num_parms, ConstStr *Params)
 		for (i=selection_left; i<=selection_right; ++i) {
 
 			if (!strcasecmp(Params[i].Key, "SUBSCRIBED")) {
-				subscribed_rooms_only = 1;
+				ImapFilter.subscribed_rooms_only = 1;
 			}
 
 			else if (!strcasecmp(Params[i].Key, "RECURSIVEMATCH")) {
