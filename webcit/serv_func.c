@@ -45,7 +45,7 @@ void DeleteServInfo(ServInfo **FreeMe)
 /*
  * get info about the server we've connected to
  *
- * browser_host		the citadell we want to connect to
+ * browser_host		the citadel we want to connect to
  * user_agent		which browser uses our client?
  */
 ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)

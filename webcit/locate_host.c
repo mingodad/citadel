@@ -29,15 +29,17 @@ void locate_host(StrBuf *tbuf, int client_socket)
 {
 	struct sockaddr_in6 clientaddr;
 	unsigned int addrlen = sizeof(clientaddr);
-	char str[256];
+	char clienthost[NI_MAXHOST];
+	char clientservice[NI_MAXSERV];
 
 	getpeername(client_socket, (struct sockaddr *)&clientaddr, &addrlen);
-	if(inet_ntop(AF_INET6, &clientaddr.sin6_addr, str, sizeof(str))) {
-		StrBufAppendBufPlain(tbuf, str, -1, 0);
-	}
-	else {
-		StrBufAppendBufPlain(tbuf, HKEY("<unknown>"), 0);
-	}
+	getnameinfo((struct sockaddr *)&clientaddr, addrlen,
+		clienthost, sizeof(clienthost),
+		clientservice, sizeof(clientservice),
+		NI_NUMERICHOST
+	);
+
+        StrBufAppendBufPlain(tbuf, clienthost, -1, 0);
 }
 
 #else /* CTDL_IPV6 */
