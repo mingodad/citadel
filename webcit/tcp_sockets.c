@@ -567,7 +567,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 		}
 		if (inet_pton(AF_INET6, bind_to, &sin.sin6_addr) <= 0) {
 			lprintf(1, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
-			abort();
+			return (-WC_EXIT_BIND);
 		}
 	}
 

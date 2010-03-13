@@ -1,20 +1,47 @@
 /*
  * $Id$
+ *
+ * Given a socket, supply the name of the host at the other end.
+ *
+ * Copyright (c) 1996-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-/**
- * \defgroup Hostlookup Examine a socket and determine the name/address of the originating host.
- * \ingroup WebcitHttpServer
- */
-/*@{*/
 
 #include "webcit.h"
 
-/**
- * \brief get a hostname 
- * \todo buffersize?
- * \param tbuf the returnbuffer
- * \param client_socket the sock fd where the client is connected
- */
+
+#ifdef CTDL_IPV6
+
+void locate_host(StrBuf *tbuf, int client_socket)
+{
+	struct sockaddr_in6 clientaddr;
+	unsigned int addrlen = sizeof(clientaddr);
+	char str[256];
+
+	getpeername(client_socket, (struct sockaddr *)&clientaddr, &addrlen);
+	if(inet_ntop(AF_INET6, &clientaddr.sin6_addr, str, sizeof(str))) {
+		StrBufAppendBufPlain(tbuf, str, -1, 0);
+	}
+	else {
+		StrBufAppendBufPlain(tbuf, HKEY("<unknown>"), 0);
+	}
+}
+
+#else /* CTDL_IPV6 */
+
 void locate_host(StrBuf *tbuf, int client_socket)
 {
 	struct sockaddr_in cs;
@@ -41,4 +68,4 @@ void locate_host(StrBuf *tbuf, int client_socket)
 	StrBufAppendBufPlain(tbuf, ch->h_name, -1, 0);
 }
 
-/*@}*/
+#endif /* CTDL_IPV6 */
