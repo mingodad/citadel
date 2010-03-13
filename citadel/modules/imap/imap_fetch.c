@@ -185,21 +185,16 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 		/*
 		 * Load the message into memory for translation & measurement
 		 */
-		CC->redirect_buffer = malloc(SIZ);
-		CC->redirect_len = 0;
-		CC->redirect_alloc = SIZ;
+		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		CtdlOutputMsg(msgnum, MT_RFC822,
 			(need_body ? HEADERS_ALL : HEADERS_FAST),
 			0, 1, NULL, SUPPRESS_ENV_TO
 		);
 		if (!need_body) cprintf("\r\n");	/* extra trailing newline */
-		IMAP->cached_rfc822_data = CC->redirect_buffer;
-		IMAP->cached_rfc822_len = CC->redirect_len;
+		IMAP->cached_rfc822_len = StrLength(CC->redirect_buffer);
+		IMAP->cached_rfc822_data = SmashStrBuf(&CC->redirect_buffer);
 		IMAP->cached_rfc822_msgnum = msgnum;
 		IMAP->cached_rfc822_withbody = need_body;
-		CC->redirect_buffer = NULL;
-		CC->redirect_len = 0;
-		CC->redirect_alloc = 0;
 		if ( (need_to_rewrite_metadata) && (IMAP->cached_rfc822_len > 0) ) {
 			smi.meta_rfc822_length = (long)IMAP->cached_rfc822_len;
 			PutMetaData(&smi);
@@ -507,57 +502,60 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
  * RFC822 headers with no body attached.  Its job is to strip that set of
  * headers down to *only* the ones we're interested in.
  */
-void imap_strip_headers(char *section) {
+void imap_strip_headers(StrBuf *section) {
+	citimap_command Cmd;
 	char buf[SIZ];
-	char *which_fields = NULL;
+	StrBuf *which_fields = NULL;
 	int doing_headers = 0;
 	int headers_not = 0;
-	char *parms[SIZ];
-        int num_parms = 0;
+	int num_parms = 0;
 	int i;
-	char *boiled_headers = NULL;
+	StrBuf *boiled_headers = NULL;
+	StrBuf *Line;
 	int ok = 0;
 	int done_headers = 0;
-	const char *ptr = NULL;
+	const char *Ptr = NULL;
 
 	if (CC->redirect_buffer == NULL) return;
 
-	which_fields = strdup(section);
+	which_fields = NewStrBufDup(section);
 
-	if (!strncasecmp(which_fields, "HEADER.FIELDS", 13))
+	if (!strncasecmp(ChrPtr(which_fields), "HEADER.FIELDS", 13))
 		doing_headers = 1;
-	if (!strncasecmp(which_fields, "HEADER.FIELDS.NOT", 17))
+	if (!strncasecmp(ChrPtr(which_fields), "HEADER.FIELDS.NOT", 17))
 		headers_not = 1;
 
-	for (i=0; which_fields[i]; ++i) {
-		if (which_fields[i]=='(')
-			strcpy(which_fields, &which_fields[i+1]);
+	for (i=0; i < StrLength(which_fields); ++i) {
+		if (ChrPtr(which_fields)[i]=='(')
+			StrBufReplaceToken(which_fields, i, 1, HKEY(""));
 	}
-	for (i=0; which_fields[i]; ++i) {
-		if (which_fields[i]==')') {
-			which_fields[i] = 0;
+	for (i=0; i < StrLength(which_fields); ++i) {
+		if (ChrPtr(which_fields)[i]==')') {
+			StrBufCutAt(which_fields, i, NULL);
 			break;
 		}
 	}
-	num_parms = old_imap_parameterize(parms, which_fields);
+	memset(&Cmd, 0, sizeof(citimap_command));
+	Cmd.CmdBuf = which_fields;
+	num_parms = imap_parameterize(&Cmd);
 
-	boiled_headers = malloc(CC->redirect_alloc);
-	strcpy(boiled_headers, "");
-
-	ptr = CC->redirect_buffer;
+	boiled_headers = NewStrBufPlain(NULL, StrLength(CC->redirect_buffer));
+	Ptr = NULL;
 	ok = 0;
 	do {
-		ptr = memreadline(ptr, buf, sizeof buf);
-		if (!isspace(buf[0])) {
+		StrBufSipLine(CC->redirect_buffer, Line, &Ptr);
+
+		if (!isspace(ChrPtr(Line)[0])) {
 			ok = 0;
 			if (doing_headers == 0) ok = 1;
 			else {
 				if (headers_not) ok = 1;
 				else ok = 0;
 				for (i=0; i<num_parms; ++i) {
-					if ( (!strncasecmp(buf, parms[i],
-					   strlen(parms[i]))) &&
-					   (buf[strlen(parms[i])]==':') ) {
+					if ( (!strncasecmp(buf, 
+							   Cmd.Params[i].Key,
+							   Cmd.Params[i].len)) &&
+					     (ChrPtr(Line)[Cmd.Params[i].len]==':') ) {
 						if (headers_not) ok = 0;
 						else ok = 1;
 					}
@@ -566,33 +564,33 @@ void imap_strip_headers(char *section) {
 		}
 
 		if (ok) {
-			strcat(boiled_headers, buf);
-			strcat(boiled_headers, "\r\n");
+			StrBufAppendBuf(boiled_headers, Line, 0);
+			StrBufAppendBufPlain(boiled_headers, HKEY("\r\n"), 0);
 		}
 
-		if (IsEmptyStr(buf)) done_headers = 1;
-		if (buf[0]=='\r') done_headers = 1;
-		if (buf[0]=='\n') done_headers = 1;
-		if (*ptr == 0) done_headers = 1;
+		if ((Ptr != StrBufNOTNULL)  ||
+		    (StrLength(Line) == 0)  ||
+		    (ChrPtr(Line)[0]=='\r') ||
+		    (ChrPtr(Line)[0]=='\n')   ) done_headers = 1;
 	} while (!done_headers);
 
-	strcat(boiled_headers, "\r\n");
+	StrBufAppendBufPlain(boiled_headers, HKEY("\r\n"), 0);
 
 	/* Now save it back (it'll always be smaller) */
-	strcpy(CC->redirect_buffer, boiled_headers);
-	CC->redirect_len = strlen(boiled_headers);
+	FreeStrBuf(&CC->redirect_buffer);
+	CC->redirect_buffer = boiled_headers;
 
-	free(which_fields);
-	free(boiled_headers);
+	FreeStrBuf(&which_fields);
+	FreeStrBuf(&Line);
 }
 
 
 /*
  * Implements the BODY and BODY.PEEK fetch items
  */
-void imap_fetch_body(long msgnum, const char *item, int is_peek) {
+void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	struct CtdlMessage *msg = NULL;
-	char section[SIZ];
+	StrBuf *section;
 	char partial[SIZ];
 	int is_partial = 0;
 	size_t pstart, pbytes;
@@ -601,13 +599,14 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 	int burn_the_cache = 0;
 
 	/* extract section */
-	safestrncpy(section, item, sizeof section);
-	if (strchr(section, '[') != NULL) {
-		stripallbut(section, '[', ']');
+	section = NewStrBufPlain(CKEY(item));
+	
+	if (strchr(ChrPtr(section), '[') != NULL) {
+		StrBufStripAllBut(section, '[', ']');
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "Section is: %s%s\n", 
-		section, 
-		IsEmptyStr(section) ? "(empty)" : ""
+		      ChrPtr(section), 
+		      (StrLength(section) == 0) ? "(empty)" : ""
 	);
 
 	/* Burn the cache if we don't have the same section of the 
@@ -620,7 +619,7 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 		else if ( (!IMAP->cached_body_withbody) && (need_body) ) {
 			burn_the_cache = 1;
 		}
-		else if (strcasecmp(IMAP->cached_bodypart, section)) {
+		else if (strcasecmp(IMAP->cached_bodypart, ChrPtr(section))) {
 			burn_the_cache = 1;
 		}
 		if (burn_the_cache) {
@@ -634,7 +633,7 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 	}
 
 	/* extract partial */
-	safestrncpy(partial, item, sizeof partial);
+	safestrncpy(partial, item.Key, sizeof partial);
 	if (strchr(partial, '<') != NULL) {
 		stripallbut(partial, '<', '>');
 		is_partial = 1;
@@ -643,9 +642,7 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 	/* if (!IsEmptyStr(partial)) CtdlLogPrintf(CTDL_DEBUG, "Partial is %s\n", partial); */
 
 	if (IMAP->cached_body == NULL) {
-		CC->redirect_buffer = malloc(SIZ);
-		CC->redirect_len = 0;
-		CC->redirect_alloc = SIZ;
+		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		loading_body_now = 1;
 		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0));
 	}
@@ -656,11 +653,11 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 		/* What we want is already in memory */
 	}
 
-	else if ( (!strcmp(section, "1")) && (msg->cm_format_type != 4) ) {
+	else if ( (!strcmp(ChrPtr(section), "1")) && (msg->cm_format_type != 4) ) {
 		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, SUPPRESS_ENV_TO);
 	}
 
-	else if (!strcmp(section, "")) {
+	else if (StrLength(section) == 0) {
 		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, SUPPRESS_ENV_TO);
 	}
 
@@ -668,7 +665,7 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 	 * If the client asked for just headers, or just particular header
 	 * fields, strip it down.
 	 */
-	else if (!strncasecmp(section, "HEADER", 6)) {
+	else if (!strncasecmp(ChrPtr(section), "HEADER", 6)) {
 		/* This used to work with HEADERS_FAST, but then Apple got stupid with their
 		 * IMAP library and this broke Mail.App and iPhone Mail, so we had to change it
 		 * to HEADERS_ONLY so the trendy hipsters with their iPhones can read mail.
@@ -680,7 +677,7 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 	/*
 	 * Strip it down if the client asked for everything _except_ headers.
 	 */
-	else if (!strncasecmp(section, "TEXT", 4)) {
+	else if (!strncasecmp(ChrPtr(section), "TEXT", 4)) {
 		CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_NONE, 0, 1, SUPPRESS_ENV_TO);
 	}
 
@@ -696,18 +693,15 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 	}
 
 	if (loading_body_now) {
-		IMAP->cached_body = CC->redirect_buffer;
-		IMAP->cached_body_len = CC->redirect_len;
+		IMAP->cached_body_len = StrLength(CC->redirect_buffer);
+		IMAP->cached_body = SmashStrBuf(&CC->redirect_buffer);
 		IMAP->cached_bodymsgnum = msgnum;
 		IMAP->cached_body_withbody = need_body;
-		strcpy(IMAP->cached_bodypart, section);
-		CC->redirect_buffer = NULL;
-		CC->redirect_len = 0;
-		CC->redirect_alloc = 0;
+		strcpy(IMAP->cached_bodypart, ChrPtr(section));
 	}
 
 	if (is_partial == 0) {
-		cprintf("BODY[%s] {" SIZE_T_FMT "}\r\n", section, IMAP->cached_body_len);
+		cprintf("BODY[%s] {" SIZE_T_FMT "}\r\n", ChrPtr(section), IMAP->cached_body_len);
 		pstart = 0;
 		pbytes = IMAP->cached_body_len;
 	}
@@ -716,7 +710,7 @@ void imap_fetch_body(long msgnum, const char *item, int is_peek) {
 		if (pbytes > (IMAP->cached_body_len - pstart)) {
 			pbytes = IMAP->cached_body_len - pstart;
 		}
-		cprintf("BODY[%s]<" SIZE_T_FMT "> {" SIZE_T_FMT "}\r\n", section, pstart, pbytes);
+		cprintf("BODY[%s]<" SIZE_T_FMT "> {" SIZE_T_FMT "}\r\n", ChrPtr(section), pstart, pbytes);
 	}
 
 	/* Here we go -- output it */
@@ -923,15 +917,10 @@ void imap_fetch_bodystructure (long msgnum, const char *item,
 		 * to measure it.  FIXME use smi cached fields if possible
 		 */
 
-		CC->redirect_buffer = malloc(SIZ);
-		CC->redirect_len = 0;
-		CC->redirect_alloc = SIZ;
+		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		CtdlOutputPreLoadedMsg(msg, MT_RFC822, 0, 0, 1, SUPPRESS_ENV_TO);
-		rfc822 = pch = CC->redirect_buffer;
-		rfc822_len = CC->redirect_len;
-		CC->redirect_buffer = NULL;
-		CC->redirect_len = 0;
-		CC->redirect_alloc = 0;
+		rfc822_len = StrLength(CC->redirect_buffer);
+		rfc822 = pch = SmashStrBuf(&CC->redirect_buffer);
 
 		ptr = rfc822;
 		do {
@@ -1010,10 +999,10 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 
 		/* BODY fetches do their own fetching and caching too. */
 		else if (!strncasecmp(Cmd->Params[i].Key, "BODY[", 5)) {
-			imap_fetch_body(Imap->msgids[seq-1], Cmd->Params[i].Key, 0);
+			imap_fetch_body(Imap->msgids[seq-1], Cmd->Params[i], 0);
 		}
 		else if (!strncasecmp(Cmd->Params[i].Key, "BODY.PEEK[", 10)) {
-			imap_fetch_body(Imap->msgids[seq-1], Cmd->Params[i].Key, 1);
+			imap_fetch_body(Imap->msgids[seq-1], Cmd->Params[i], 1);
 		}
 
 		/* Otherwise, load the message into memory.

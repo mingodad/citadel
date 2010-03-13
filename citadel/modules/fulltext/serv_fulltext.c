@@ -123,7 +123,8 @@ void ft_index_message(long msgnum, int op) {
 	int *tokens = NULL;
 	int i, j;
 	struct cdbdata *cdb_bucket;
-	char *msgtext;
+	StrBuf *msgtext;
+	char *txt;
 	int tok;
 	struct CtdlMessage *msg = NULL;
 
@@ -146,18 +147,15 @@ void ft_index_message(long msgnum, int op) {
 	/* Output the message as text before indexing it, so we don't end up
 	 * indexing a bunch of encoded base64, etc.
 	 */
-	CC->redirect_buffer = malloc(SIZ);
-	CC->redirect_len = 0;
-	CC->redirect_alloc = SIZ;
+	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_ALL, 0, 1, 0);
 	CtdlFreeMessage(msg);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
-	CC->redirect_len = 0;
-	CC->redirect_alloc = 0;
 	CtdlLogPrintf(CTDL_DEBUG, "Wordbreaking message %ld...\n", msgnum);
-	wordbreaker(msgtext, &num_tokens, &tokens);
-	free(msgtext);
+	txt = SmashStrBuf(&msgtext);
+	wordbreaker(txt, &num_tokens, &tokens);
+	free(txt);
 
 	CtdlLogPrintf(CTDL_DEBUG, "Indexing message %ld [%d tokens]\n", msgnum, num_tokens);
 	if (num_tokens > 0) {

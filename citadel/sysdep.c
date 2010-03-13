@@ -466,14 +466,8 @@ int client_write(const char *buf, int nbytes)
 //	flush_client_inbuf();
 	Ctx = CC;
 	if (Ctx->redirect_buffer != NULL) {
-		if ((Ctx->redirect_len + nbytes + 2) >= Ctx->redirect_alloc) {
-			Ctx->redirect_alloc = (Ctx->redirect_alloc * 2) + nbytes;
-			Ctx->redirect_buffer = realloc(Ctx->redirect_buffer,
-						Ctx->redirect_alloc);
-		}
-		memcpy(&Ctx->redirect_buffer[Ctx->redirect_len], buf, nbytes);
-		Ctx->redirect_len += nbytes;
-		Ctx->redirect_buffer[Ctx->redirect_len] = 0;
+		StrBufAppendBufPlain(Ctx->redirect_buffer,
+				     buf, nbytes, 0);
 		return 0;
 	}
 

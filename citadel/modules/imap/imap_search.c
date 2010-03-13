@@ -256,12 +256,10 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 		if (msg != NULL) {
 	
-			CC->redirect_buffer = malloc(SIZ);
-			CC->redirect_len = 0;
-			CC->redirect_alloc = SIZ;
+			CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 			CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_FAST, 0, 1, 0);
 	
-			fieldptr = rfc822_fetch_field(CC->redirect_buffer, itemlist[pos+1].Key);
+			fieldptr = rfc822_fetch_field(ChrPtr(CC->redirect_buffer), itemlist[pos+1].Key);
 			if (fieldptr != NULL) {
 				if (bmstrcasestr(fieldptr, itemlist[pos+2].Key)) {
 					match = 1;
@@ -269,10 +267,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 				free(fieldptr);
 			}
 	
-			free(CC->redirect_buffer);
-			CC->redirect_buffer = NULL;
-			CC->redirect_len = 0;
-			CC->redirect_alloc = 0;
+			FreeStrBuf(&CC->redirect_buffer);
 		}
 
 		pos += 3;	/* Yes, three */

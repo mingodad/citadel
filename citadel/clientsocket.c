@@ -274,7 +274,7 @@ INLINE int sock_read(int *sock, char *buf, int bytes, int keep_reading_until_ful
  * sock_write() - send binary to server.
  * Returns the number of bytes written, or -1 for error.
  */
-int sock_write(int *sock, char *buf, int nbytes)
+int sock_write(int *sock, const char *buf, int nbytes)
 {
 	int bytes_written = 0;
 	int retval;

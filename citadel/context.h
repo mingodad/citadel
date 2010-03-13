@@ -38,9 +38,7 @@ struct CitContext {
 	int client_socket;
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 	/* Redirect this session's output to a memory buffer? */
-	char *redirect_buffer;		/* the buffer */
-	size_t redirect_len;		/* length of data in buffer */
-	size_t redirect_alloc;		/* length of allocated buffer */
+	StrBuf *redirect_buffer;		/* the buffer */
 #ifdef HAVE_OPENSSL
 	SSL *ssl;
 	int redirect_ssl;

@@ -80,8 +80,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	char buf[SIZ];
 	int is_spam = 0;
 	int sa;
-	char *msgtext;
-	size_t msglen;
+	StrBuf *msgtext;
 	CitContext *CCC=CC;
 
 	/* For users who have authenticated to this server we never want to
@@ -118,18 +117,13 @@ int spam_assassin(struct CtdlMessage *msg) {
 	sock_write(&sock, buf, strlen(buf));
 
 	/* Message */
-	CCC->redirect_buffer = malloc(SIZ);
-	CCC->redirect_len = 0;
-	CCC->redirect_alloc = SIZ;
+	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, 0);
 	msgtext = CC->redirect_buffer;
-	msglen = CC->redirect_len;
-	CCC->redirect_buffer = NULL;
-	CCC->redirect_len = 0;
-	CCC->redirect_alloc = 0;
+	CC->redirect_buffer = NULL;
 
-	sock_write(&sock, msgtext, msglen);
-	free(msgtext);
+	sock_write(&sock, SKEY(msgtext));
+	FreeStrBuf(&msgtext);
 
 	/* Close one end of the socket connection; this tells SpamAssassin
 	 * that we're done.

@@ -716,20 +716,17 @@ void network_spool_msg(long msgnum, void *userdata) {
 				fprintf(sc->digestfp, "Subject: %s\n", msg->cm_fields['U']);
 			}
 
-			CC->redirect_buffer = malloc(SIZ);
-			CC->redirect_len = 0;
-			CC->redirect_alloc = SIZ;
-
+			CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+			
 			safestrncpy(CC->preferred_formats, "text/plain", sizeof CC->preferred_formats);
 			CtdlOutputPreLoadedMsg(msg, MT_CITADEL, HEADERS_NONE, 0, 0, 0);
 
-			striplt(CC->redirect_buffer);
-			fprintf(sc->digestfp, "\n%s\n", CC->redirect_buffer);
+			StrBufTrim(CC->redirect_buffer);
+			fwrite(HKEY("\n"), 1, sc->digestfp);
+			fwrite(SKEY(CC->redirect_buffer), 1, sc->digestfp);
+			fwrite(HKEY("\n"), 1, sc->digestfp);
 
-			free(CC->redirect_buffer);
-			CC->redirect_buffer = NULL;
-			CC->redirect_len = 0;
-			CC->redirect_alloc = 0;
+			FreeStrBuf(&CC->redirect_buffer);
 
 			sc->num_msgs_spooled += 1;
 			free(msg);

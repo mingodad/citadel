@@ -169,15 +169,10 @@ void pop3_add_message(long msgnum, void *userdata) {
 	 */
 	GetMetaData(&smi, msgnum);
 	if (smi.meta_rfc822_length <= 0L) {
-		CC->redirect_buffer = malloc(SIZ);
-		CC->redirect_len = 0;
-		CC->redirect_alloc = SIZ;
+		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, SUPPRESS_ENV_TO);
-		smi.meta_rfc822_length = CC->redirect_len;
-		free(CC->redirect_buffer);
-		CC->redirect_buffer = NULL;
-		CC->redirect_len = 0;
-		CC->redirect_alloc = 0;
+		smi.meta_rfc822_length = StrLength(CC->redirect_buffer);
+		FreeStrBuf(&CC->redirect_buffer); /* TODO: WHEW, all this for just knowing the length???? */
 		PutMetaData(&smi);
 	}
 	POP3->msgs[POP3->num_msgs-1].rfc822_length = smi.meta_rfc822_length;
@@ -402,7 +397,7 @@ void pop3_top(char *argbuf) {
 	int lines_requested = 0;
 	int lines_dumped = 0;
 	char buf[1024];
-	char *msgtext;
+	StrBuf *msgtext;
 	const char *ptr;
 	int in_body = 0;
 	int done = 0;
@@ -418,19 +413,15 @@ void pop3_top(char *argbuf) {
 		return;
 	}
 
-	CC->redirect_buffer = malloc(SIZ);
-	CC->redirect_len = 0;
-	CC->redirect_alloc = SIZ;
+	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputMsg(POP3->msgs[which_one - 1].msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, SUPPRESS_ENV_TO);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
-	CC->redirect_len = 0;
-	CC->redirect_alloc = 0;
 
 	cprintf("+OK Message %d:\r\n", which_one);
-
-	ptr = msgtext;
-
+	
+	ptr = ChrPtr(msgtext);
+	// TODO: use buffer stuff here
 	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)),
 	      ( (*ptr != 0) && (done == 0))) {
 		strcat(buf, "\r\n");
@@ -449,7 +440,7 @@ void pop3_top(char *argbuf) {
 	}
 
 	if (buf[strlen(buf)-1] != 10) cprintf("\n");
-	free(msgtext);
+	FreeStrBuf(&msgtext);
 
 	cprintf(".\r\n");
 }

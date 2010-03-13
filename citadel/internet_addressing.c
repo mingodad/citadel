@@ -838,7 +838,7 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
  * The caller is responsible for freeing the returned buffer.  If the requested
  * field is not present, or anything else goes wrong, it returns NULL.
  */
-char *rfc822_fetch_field(char *rfc822, const char *fieldname) {
+char *rfc822_fetch_field(const char *rfc822, const char *fieldname) {
 	char *fieldbuf = NULL;
 	const char *end_of_headers;
 	const char *field_start;

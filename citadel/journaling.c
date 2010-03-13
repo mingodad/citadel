@@ -56,20 +56,20 @@ struct jnlq *jnlq = NULL;	/* journal queue */
  * Hand off a copy of a message to be journalized.
  */
 void JournalBackgroundSubmit(struct CtdlMessage *msg,
-			char *saved_rfc822_version,
+			StrBuf *saved_rfc822_version,
 			struct recptypes *recps) {
 
 	struct jnlq *jptr = NULL;
 
 	/* Avoid double journaling! */
 	if (msg->cm_fields['J'] != NULL) {
-		free(saved_rfc822_version);
+		FreeStrBuf(&saved_rfc822_version);
 		return;
 	}
 
 	jptr = (struct jnlq *)malloc(sizeof(struct jnlq));
 	if (jptr == NULL) {
-		free(saved_rfc822_version);
+		FreeStrBuf(&saved_rfc822_version);
 		return;
 	}
 	memset(jptr, 0, sizeof(struct jnlq));
@@ -79,7 +79,7 @@ void JournalBackgroundSubmit(struct CtdlMessage *msg,
 	if (msg->cm_fields['F'] != NULL) jptr->rfca = strdup(msg->cm_fields['F']);
 	if (msg->cm_fields['U'] != NULL) jptr->subj = strdup(msg->cm_fields['U']);
 	if (msg->cm_fields['I'] != NULL) jptr->msgn = strdup(msg->cm_fields['I']);
-	jptr->rfc822 = saved_rfc822_version;
+	jptr->rfc822 = SmashStrBuf(&saved_rfc822_version);
 
 	/* Add to the queue */
 	begin_critical_section(S_JOURNAL_QUEUE);

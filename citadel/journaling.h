@@ -1,4 +1,4 @@
-/* $Id: $ */
+/* $Id$ */
 
 struct jnlq {
 	struct jnlq *next;
@@ -12,7 +12,7 @@ struct jnlq {
 };
 
 void JournalBackgroundSubmit(struct CtdlMessage *msg,
-                        char *saved_rfc822_version,
+                        StrBuf *saved_rfc822_version,
                         struct recptypes *recps);
 void JournalRunQueueMsg(struct jnlq *jmsg);
 void JournalRunQueue(void);

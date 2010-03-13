@@ -542,15 +542,10 @@ void sieve_do_msg(long msgnum, void *userdata) {
 	 * Grab the message headers so we can feed them to libSieve.
 	 * Use HEADERS_ONLY rather than HEADERS_FAST in order to include second-level headers.
 	 */
-	CC->redirect_buffer = malloc(SIZ);
-	CC->redirect_len = 0;
-	CC->redirect_alloc = SIZ;
+	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ONLY, 0, 1, 0);
-	my.rfc822headers = CC->redirect_buffer;
-	headers_len = CC->redirect_len;
-	CC->redirect_buffer = NULL;
-	CC->redirect_len = 0;
-	CC->redirect_alloc = 0;
+	headers_len = StrLength(CC->redirect_buffer);
+	my.rfc822headers = SmashStrBuf(&CC->redirect_buffer);
 
 	/*
 	 * libSieve clobbers the stack if it encounters badly formed

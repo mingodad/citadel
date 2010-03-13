@@ -988,15 +988,10 @@ void smtp_try(const char *key, const char *addr, int *status,
 		user, node, name);
 
 	/* Load the message out of the database */
-	CCC->redirect_buffer = malloc(SIZ);
-	CCC->redirect_len = 0;
-	CCC->redirect_alloc = SIZ;
+	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, ESC_DOT);
-	msgtext = CC->redirect_buffer;
-	msg_size = CC->redirect_len;
-	CCC->redirect_buffer = NULL;
-	CCC->redirect_len = 0;
-	CCC->redirect_alloc = 0;
+	msg_size = StrLength(CC->redirect_buffer);
+	msgtext = SmashStrBuf(&CC->redirect_buffer);
 
 	/* If no envelope_from is supplied, extract one from the message */
 	if ( (envelope_from == NULL) || (IsEmptyStr(envelope_from)) ) {
@@ -1336,7 +1331,7 @@ void smtp_do_bounce(char *instr) {
 	char addr[1024];
 	char dsn[1024];
 	char bounceto[1024];
-	char boundary[64];
+	StrBuf *boundary;
 	int num_bounces = 0;
 	int bounce_this = 0;
 	long bounce_msgid = (-1);
@@ -1346,13 +1341,13 @@ void smtp_do_bounce(char *instr) {
 	struct recptypes *valid;
 	int successful_bounce = 0;
 	static int seq = 0;
-	char *omsgtext;
-	size_t omsgsize;
+	StrBuf *BounceMB;
 	long omsgid = (-1);
 
 	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
-	sprintf(boundary, "=_Citadel_Multipart_%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
+	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
+	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
 	lines = num_tokens(instr, '\n');
 
 	/* See if it's time to give up on delivery of this message */
@@ -1374,6 +1369,7 @@ void smtp_do_bounce(char *instr) {
 	bmsg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
 	if (bmsg == NULL) return;
 	memset(bmsg, 0, sizeof(struct CtdlMessage));
+	BounceMB = NewStrBufPlain(NULL, 1024);
 
         bmsg->cm_magic = CTDLMESSAGE_MAGIC;
         bmsg->cm_anon_type = MES_NORMAL;
@@ -1382,39 +1378,39 @@ void smtp_do_bounce(char *instr) {
         bmsg->cm_fields['O'] = strdup(MAILROOM);
         bmsg->cm_fields['N'] = strdup(config.c_nodename);
         bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
-	bmsg->cm_fields['M'] = malloc(1024);
+	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: multipart/mixed; boundary=\""), 0);
+	StrBufAppendBuf(BounceMB, boundary, 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("\"\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("MIME-Version: 1.0\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("X-Mailer: " CITADEL "\r\n"), 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("\r\nThis is a multipart message in MIME format.\r\n\r\n"), 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+        StrBufAppendBuf(BounceMB, boundary, 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("Content-type: text/plain\r\n\r\n"), 0);
 
-        strcpy(bmsg->cm_fields['M'], "Content-type: multipart/mixed; boundary=\"");
-        strcat(bmsg->cm_fields['M'], boundary);
-        strcat(bmsg->cm_fields['M'], "\"\r\n");
-        strcat(bmsg->cm_fields['M'], "MIME-Version: 1.0\r\n");
-        strcat(bmsg->cm_fields['M'], "X-Mailer: " CITADEL "\r\n");
-        strcat(bmsg->cm_fields['M'], "\r\nThis is a multipart message in MIME format.\r\n\r\n");
-        strcat(bmsg->cm_fields['M'], "--");
-        strcat(bmsg->cm_fields['M'], boundary);
-        strcat(bmsg->cm_fields['M'], "\r\n");
-        strcat(bmsg->cm_fields['M'], "Content-type: text/plain\r\n\r\n");
-
-	if (give_up) strcat(bmsg->cm_fields['M'],
+	if (give_up) StrBufAppendBufPlain(BounceMB, HKEY(
 "A message you sent could not be delivered to some or all of its recipients\n"
 "due to prolonged unavailability of its destination(s).\n"
 "Giving up on the following addresses:\n\n"
-);
+						  ), 0);
 
-        else strcat(bmsg->cm_fields['M'],
+        else StrBufAppendBufPlain(BounceMB, HKEY(
 "A message you sent could not be delivered to some or all of its recipients.\n"
 "The following addresses were undeliverable:\n\n"
-);
+					  ), 0);
 
 	/*
 	 * Now go through the instructions checking for stuff.
 	 */
 	for (i=0; i<lines; ++i) {
+		long addrlen;
+		long dsnlen;
 		extract_token(buf, instr, i, '\n', sizeof buf);
 		extract_token(key, buf, 0, '|', sizeof key);
-		extract_token(addr, buf, 1, '|', sizeof addr);
+		addrlen = extract_token(addr, buf, 1, '|', sizeof addr);
 		status = extract_int(buf, 2);
-		extract_token(dsn, buf, 3, '|', sizeof dsn);
+		dsnlen = extract_token(dsn, buf, 3, '|', sizeof dsn);
 		bounce_this = 0;
 
 		CtdlLogPrintf(CTDL_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
@@ -1436,17 +1432,10 @@ void smtp_do_bounce(char *instr) {
 		if (bounce_this) {
 			++num_bounces;
 
-			if (bmsg->cm_fields['M'] == NULL) {
-				CtdlLogPrintf(CTDL_ERR, "ERROR ... M field is null "
-					"(%s:%d)\n", __FILE__, __LINE__);
-			}
-
-			bmsg->cm_fields['M'] = realloc(bmsg->cm_fields['M'],
-				strlen(bmsg->cm_fields['M']) + 1024 );
-			strcat(bmsg->cm_fields['M'], addr);
-			strcat(bmsg->cm_fields['M'], ": ");
-			strcat(bmsg->cm_fields['M'], dsn);
-			strcat(bmsg->cm_fields['M'], "\r\n");
+			StrBufAppendBufPlain(BounceMB, addr, addrlen, 0);
+			StrBufAppendBufPlain(BounceMB, HKEY(": "), 0);
+			StrBufAppendBufPlain(BounceMB, dsn, dsnlen, 0);
+			StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
 
 			remove_token(instr, i, '\n');
 			--i;
@@ -1456,34 +1445,25 @@ void smtp_do_bounce(char *instr) {
 
 	/* Attach the original message */
 	if (omsgid >= 0) {
-        	strcat(bmsg->cm_fields['M'], "--");
-        	strcat(bmsg->cm_fields['M'], boundary);
-        	strcat(bmsg->cm_fields['M'], "\r\n");
-        	strcat(bmsg->cm_fields['M'], "Content-type: message/rfc822\r\n");
-        	strcat(bmsg->cm_fields['M'], "Content-Transfer-Encoding: 7bit\r\n");
-        	strcat(bmsg->cm_fields['M'], "Content-Disposition: inline\r\n");
-        	strcat(bmsg->cm_fields['M'], "\r\n");
+        	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+		StrBufAppendBuf(BounceMB, boundary, 0);
+        	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
+		StrBufAppendBufPlain(BounceMB, HKEY("Content-type: message/rfc822\r\n"), 0);
+        	StrBufAppendBufPlain(BounceMB, HKEY("Content-Transfer-Encoding: 7bit\r\n"), 0);
+        	StrBufAppendBufPlain(BounceMB, HKEY("Content-Disposition: inline\r\n"), 0);
+        	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
 	
-		CC->redirect_buffer = malloc(SIZ);
-		CC->redirect_len = 0;
-		CC->redirect_alloc = SIZ;
+		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
-		omsgtext = CC->redirect_buffer;
-		omsgsize = CC->redirect_len;
-		CC->redirect_buffer = NULL;
-		CC->redirect_len = 0;
-		CC->redirect_alloc = 0;
-		bmsg->cm_fields['M'] = realloc(bmsg->cm_fields['M'],
-				(strlen(bmsg->cm_fields['M']) + omsgsize + 1024) );
-		strcat(bmsg->cm_fields['M'], omsgtext);
-		free(omsgtext);
+		StrBufAppendBuf(BounceMB, CC->redirect_buffer, 0);
+		FreeStrBuf(&CC->redirect_buffer);
 	}
 
 	/* Close the multipart MIME scope */
-        strcat(bmsg->cm_fields['M'], "--");
-        strcat(bmsg->cm_fields['M'], boundary);
-        strcat(bmsg->cm_fields['M'], "--\r\n");
-
+        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBuf(BounceMB, boundary, 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
+	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
 	/* Deliver the bounce if there's anything worth mentioning */
 	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {
@@ -1514,7 +1494,7 @@ void smtp_do_bounce(char *instr) {
 			free_recipients(valid);
 		}
 	}
-
+	FreeStrBuf(&boundary);
 	CtdlFreeMessage(bmsg);
 	CtdlLogPrintf(CTDL_DEBUG, "Done processing bounces\n");
 }

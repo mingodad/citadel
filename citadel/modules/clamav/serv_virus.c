@@ -83,8 +83,7 @@ int clamd(struct CtdlMessage *msg) {
         char portbuf[SIZ];
 	int is_virus = 0;
 	int clamhost;
-	char *msgtext;
-	size_t msglen;
+	StrBuf *msgtext;
 	CitContext *CCC;
 
 	/* Don't care if you're logged in.  You can still spread viruses.
@@ -159,18 +158,13 @@ int clamd(struct CtdlMessage *msg) {
 
 
 	/* Message */
-	CC->redirect_buffer = malloc(SIZ);
-	CC->redirect_len = 0;
-	CC->redirect_alloc = SIZ;
+	CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputPreLoadedMsg(msg, MT_RFC822, HEADERS_ALL, 0, 1, 0);
 	msgtext = CC->redirect_buffer;
-	msglen = CC->redirect_len;
 	CC->redirect_buffer = NULL;
-	CC->redirect_len = 0;
-	CC->redirect_alloc = 0;
 
-	sock_write(&streamsock, msgtext, msglen);
-	free(msgtext);
+	sock_write(&streamsock, SKEY(msgtext));
+	FreeStrBuf(&msgtext);
 
 	/* Close the streamsocket connection; this tells clamd
 	 * that we're done.
