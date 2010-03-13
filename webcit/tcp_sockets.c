@@ -1,5 +1,21 @@
 /*
  * $Id$
+ *
+ * Copyright (c) 1987-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 /*
@@ -520,6 +536,78 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 							 &Error);
 }
 
+#ifdef CTDL_IPV6
+
+/* 
+ * This is a generic function to set up a master socket for listening on
+ * a TCP port.  The server shuts down if the bind fails.  (IPv4/IPv6 version)
+ *
+ * ip_addr 	IP address to bind
+ * port_number	port number to bind
+ * queue_len	number of incoming connections to allow in the queue
+ */
+int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
+{
+	struct protoent *p;
+	struct sockaddr_in6 sin;
+	int s, i;
+
+	memset(&sin, 0, sizeof(sin));
+	sin.sin6_family = AF_INET6;
+
+	if ((ip_addr == NULL) || (IsEmptyStr(ip_addr)) || (!strcmp(ip_addr, "0.0.0.0"))) {
+		sin.sin6_addr = in6addr_any;
+	} else {
+		char bind_to[256];
+		if ((strchr(ip_addr, '.')) && (!strchr(ip_addr, ':'))) {
+			snprintf(bind_to, sizeof bind_to, "::ffff:%s", ip_addr);
+		}
+		else {
+			safestrncpy(bind_to, ip_addr, sizeof bind_to);
+		}
+		if (inet_pton(AF_INET6, bind_to, &sin.sin6_addr) <= 0) {
+			lprintf(1, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
+			abort();
+		}
+	}
+
+	if (port_number == 0) {
+		lprintf(1, "Cannot start: no port number specified.\n");
+		return (-WC_EXIT_BIND);
+	}
+	sin.sin6_port = htons((u_short) port_number);
+
+	p = getprotobyname("tcp");
+
+	s = socket(PF_INET6, SOCK_STREAM, (p->p_proto));
+	if (s < 0) {
+		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
+		return (-WC_EXIT_BIND);
+	}
+	/* Set some socket options that make sense. */
+	i = 1;
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+
+	#ifndef __APPLE__
+	fcntl(s, F_SETFL, O_NONBLOCK); /* maide: this statement is incorrect
+					  there should be a preceding F_GETFL
+					  and a bitwise OR with the previous
+					  fd flags */
+	#endif
+	
+	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		lprintf(1, "Can't bind: %s\n", strerror(errno));
+		return (-WC_EXIT_BIND);
+	}
+	if (listen(s, queue_len) < 0) {
+		lprintf(1, "Can't listen: %s\n", strerror(errno));
+		return (-WC_EXIT_BIND);
+	}
+	return (s);
+}
+
+#else /* CTDL_IPV6 */
+
 /* 
  * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.
@@ -581,6 +669,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	return (s);
 }
 
+#endif /* CTDL_IPV6 */
 
 
 /*
