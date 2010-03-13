@@ -278,6 +278,7 @@ const char *ChrPtr(const StrBuf *Str);
 int StrLength(const StrBuf *Str);
 #define SKEY(a) ChrPtr(a), StrLength(a)
 long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue);
+long StrBufPook(StrBuf *Buf, const char* ptr, long nThChar, long nChars, char PookValue);
 
 int StrBufTCP_read_line(StrBuf *buf, int *fd, int append, const char **Error);
 int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **Error);
@@ -337,6 +338,7 @@ void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
 void StrBufCutAt(StrBuf *Buf, int AfternChars, const char *At);
 void StrBufTrim(StrBuf *Buf);
+void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary);
 void StrBufUpCase(StrBuf *Buf);
 void StrBufLowerCase(StrBuf *Buf);
 void StrBufStripSlashes(StrBuf *Dir, int RemoveTrailingSlash);

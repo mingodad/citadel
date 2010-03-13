@@ -618,6 +618,7 @@ int StrBufIsNumber(const StrBuf *Buf) {
 		return 0;
 	return 0;
 } 
+
 /**
  * @ingroup StrBuf_Filler
  * @brief modifies a Single char of the Buf
@@ -637,6 +638,33 @@ long StrBufPeek(StrBuf *Buf, const char* ptr, long nThChar, char PeekValue)
 		return -1;
 	Buf->buf[nThChar] = PeekValue;
 	return nThChar;
+}
+
+/**
+ * @ingroup StrBuf_Filler
+ * @brief modifies a range of chars of the Buf
+ * You can point to it via char* or a zero-based integer
+ * @param Buf The buffer to manipulate
+ * @param ptr char* to zero; use NULL if unused
+ * @param nThChar zero based pointer into the string; use -1 if unused
+ * @param nChars how many chars are to be flushed?
+ * @param PookValue The Character to place into that area
+ */
+long StrBufPook(StrBuf *Buf, const char* ptr, long nThChar, long nChars, char PookValue)
+{
+	if (Buf == NULL)
+		return -1;
+	if (ptr != NULL)
+		nThChar = ptr - Buf->buf;
+	if ((nThChar < 0) || (nThChar > Buf->BufUsed))
+		return -1;
+	if (nThChar + nChars > Buf->BufUsed)
+		nChars =  Buf->BufUsed - nThChar;
+
+	memset(Buf->buf + nThChar, PookValue, nChars);
+	/* just to be shure... */
+	Buf->buf[Buf->BufUsed] = 0;
+	return nChars;
 }
 
 /**
@@ -844,7 +872,8 @@ int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t n
 	size_t NCharsRemain;
 	if (Offset > Source->BufUsed)
 	{
-		FlushStrBuf(dest);
+		if (dest != NULL)
+			FlushStrBuf(dest);
 		return 0;
 	}
 	if (Offset + nChars < Source->BufUsed)
@@ -944,8 +973,33 @@ void StrBufTrim(StrBuf *Buf)
 		delta ++;
 	}
 	if (delta > 0) StrBufCutLeft(Buf, delta);
-
 }
+
+void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
+{
+	const char *pBuff;
+	const char *pLeft;
+	const char *pRight;
+
+	if (Buf == NULL)
+		return;
+	pLeft = pBuff = Buf->buf;
+	while (pBuff != NULL) {
+		pLeft = pBuff;
+		pBuff = strchr(pBuff, leftboundary);
+	}
+		
+	if (pLeft != NULL)
+		pBuff = pLeft;
+	else
+		pBuff = Buf->buf;
+	pRight = strchr(pBuff, rightboundary);
+	if (pRight != NULL)
+		StrBufCutAt(Buf, 0, pRight - 1);
+	if (pLeft != NULL)
+		StrBufCutLeft(Buf, pLeft - Buf->buf + 1);
+}
+
 
 /**
  * @ingroup StrBuf_Filler
