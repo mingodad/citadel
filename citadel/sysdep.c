@@ -169,6 +169,10 @@ static RETSIGTYPE signal_cleanup(int signum) {
 	}
 }
 
+static RETSIGTYPE signal_exit(int signum) {
+	exit(1);
+}
+
 
 
 /*
@@ -222,6 +226,7 @@ void init_sysdep(void) {
 	signal(SIGQUIT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
+	signal(SIGUSR1, signal_exit);
 	// signal(SIGSEGV, signal_cleanup);	commented out because
 	// signal(SIGILL, signal_cleanup);	we want core dumps
 	// signal(SIGBUS, signal_cleanup);
