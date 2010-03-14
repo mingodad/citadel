@@ -987,6 +987,8 @@ void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
 	while (pBuff != NULL) {
 		pLeft = pBuff;
 		pBuff = strchr(pBuff, leftboundary);
+		if (pBuff != NULL)
+			pBuff++;
 	}
 		
 	if (pLeft != NULL)
