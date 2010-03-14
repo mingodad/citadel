@@ -36,7 +36,7 @@ void locate_host(StrBuf *tbuf, int client_socket)
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen,
 		clienthost, sizeof(clienthost),
 		clientservice, sizeof(clientservice),
-		NI_NUMERICHOST
+		0
 	);
 
         StrBufAppendBufPlain(tbuf, clienthost, -1, 0);
