@@ -999,7 +999,7 @@ void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
 	if (pRight != NULL)
 		StrBufCutAt(Buf, 0, pRight - 1);
 	if (pLeft != NULL)
-		StrBufCutLeft(Buf, pLeft - Buf->buf + 1);
+		StrBufCutLeft(Buf, pLeft - Buf->buf);
 }
 
 
