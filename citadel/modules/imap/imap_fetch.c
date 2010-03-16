@@ -504,7 +504,6 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
  */
 void imap_strip_headers(StrBuf *section) {
 	citimap_command Cmd;
-	char buf[SIZ];
 	StrBuf *which_fields = NULL;
 	int doing_headers = 0;
 	int headers_not = 0;
@@ -515,14 +514,16 @@ void imap_strip_headers(StrBuf *section) {
 	int ok = 0;
 	int done_headers = 0;
 	const char *Ptr = NULL;
+	CitContext *CCC = CC;
 
-	if (CC->redirect_buffer == NULL) return;
+	if (CCC->redirect_buffer == NULL) return;
 
 	which_fields = NewStrBufDup(section);
 
 	if (!strncasecmp(ChrPtr(which_fields), "HEADER.FIELDS", 13))
 		doing_headers = 1;
-	if (!strncasecmp(ChrPtr(which_fields), "HEADER.FIELDS.NOT", 17))
+	if (doing_headers && 
+	    !strncasecmp(ChrPtr(which_fields), "HEADER.FIELDS.NOT", 17))
 		headers_not = 1;
 
 	for (i=0; i < StrLength(which_fields); ++i) {
@@ -539,25 +540,33 @@ void imap_strip_headers(StrBuf *section) {
 	Cmd.CmdBuf = which_fields;
 	num_parms = imap_parameterize(&Cmd);
 
-	boiled_headers = NewStrBufPlain(NULL, StrLength(CC->redirect_buffer));
+	boiled_headers = NewStrBufPlain(NULL, StrLength(CCC->redirect_buffer));
+	Line = NewStrBufPlain(NULL, SIZ);
 	Ptr = NULL;
 	ok = 0;
 	do {
-		StrBufSipLine(CC->redirect_buffer, Line, &Ptr);
+		StrBufSipLine(Line, CCC->redirect_buffer, &Ptr);
 
 		if (!isspace(ChrPtr(Line)[0])) {
 			ok = 0;
 			if (doing_headers == 0) ok = 1;
 			else {
-				if (headers_not) ok = 1;
-				else ok = 0;
-				for (i=0; i<num_parms; ++i) {
-					if ( (!strncasecmp(buf, 
-							   Cmd.Params[i].Key,
-							   Cmd.Params[i].len)) &&
-					     (ChrPtr(Line)[Cmd.Params[i].len]==':') ) {
-						if (headers_not) ok = 0;
-						else ok = 1;
+				/* we're supposed to print all headers that are not matching the filter list */
+				if (headers_not) for (i=0, ok = 1; (i < num_parms) && (ok == 1); ++i) {
+						if ( (!strncasecmp(ChrPtr(Line), 
+								   Cmd.Params[i].Key,
+								   Cmd.Params[i].len)) &&
+						     (ChrPtr(Line)[Cmd.Params[i].len]==':') ) {
+							ok = 0;
+						}
+				}
+				/* we're supposed to print all headers matching the filterlist */
+				else for (i=0, ok = 0; ((i < num_parms) && (ok == 0)); ++i) {
+						if ( (!strncasecmp(ChrPtr(Line), 
+								   Cmd.Params[i].Key,
+								   Cmd.Params[i].len)) &&
+						     (ChrPtr(Line)[Cmd.Params[i].len]==':') ) {
+							ok = 1;
 					}
 				}
 			}
@@ -568,7 +577,7 @@ void imap_strip_headers(StrBuf *section) {
 			StrBufAppendBufPlain(boiled_headers, HKEY("\r\n"), 0);
 		}
 
-		if ((Ptr != StrBufNOTNULL)  ||
+		if ((Ptr == StrBufNOTNULL)  ||
 		    (StrLength(Line) == 0)  ||
 		    (ChrPtr(Line)[0]=='\r') ||
 		    (ChrPtr(Line)[0]=='\n')   ) done_headers = 1;
@@ -577,8 +586,8 @@ void imap_strip_headers(StrBuf *section) {
 	StrBufAppendBufPlain(boiled_headers, HKEY("\r\n"), 0);
 
 	/* Now save it back (it'll always be smaller) */
-	FreeStrBuf(&CC->redirect_buffer);
-	CC->redirect_buffer = boiled_headers;
+	FreeStrBuf(&CCC->redirect_buffer);
+	CCC->redirect_buffer = boiled_headers;
 
 	FreeStrBuf(&which_fields);
 	FreeStrBuf(&Line);
@@ -591,12 +600,13 @@ void imap_strip_headers(StrBuf *section) {
 void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	struct CtdlMessage *msg = NULL;
 	StrBuf *section;
-	char partial[SIZ];
+	StrBuf *partial;
 	int is_partial = 0;
 	size_t pstart, pbytes;
 	int loading_body_now = 0;
 	int need_body = 1;
 	int burn_the_cache = 0;
+	CitContext *CCC = CC;
 
 	/* extract section */
 	section = NewStrBufPlain(CKEY(item));
@@ -633,16 +643,19 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	}
 
 	/* extract partial */
-	safestrncpy(partial, item.Key, sizeof partial);
-	if (strchr(partial, '<') != NULL) {
-		stripallbut(partial, '<', '>');
+	partial = NewStrBufPlain(CKEY(item));
+	if (strchr(ChrPtr(partial), '<') != NULL) {
+		StrBufStripAllBut(partial, '<', '>');
 		is_partial = 1;
 	}
-	if (is_partial == 0) strcpy(partial, "");
-	/* if (!IsEmptyStr(partial)) CtdlLogPrintf(CTDL_DEBUG, "Partial is %s\n", partial); */
+	if (is_partial == 0) 
+		if (StrLength(partial) > 0) 
+			CtdlLogPrintf(CTDL_DEBUG, 
+				      "Partial is %s\n", 
+				      ChrPtr(partial));
 
 	if (IMAP->cached_body == NULL) {
-		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		loading_body_now = 1;
 		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0));
 	}
@@ -693,8 +706,8 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	}
 
 	if (loading_body_now) {
-		IMAP->cached_body_len = StrLength(CC->redirect_buffer);
-		IMAP->cached_body = SmashStrBuf(&CC->redirect_buffer);
+		IMAP->cached_body_len = StrLength(CCC->redirect_buffer);
+		IMAP->cached_body = SmashStrBuf(&CCC->redirect_buffer);
 		IMAP->cached_bodymsgnum = msgnum;
 		IMAP->cached_body_withbody = need_body;
 		strcpy(IMAP->cached_bodypart, ChrPtr(section));
@@ -706,12 +719,14 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 		pbytes = IMAP->cached_body_len;
 	}
 	else {
-		sscanf(partial, SIZE_T_FMT "." SIZE_T_FMT, &pstart, &pbytes);
+		sscanf(ChrPtr(partial), SIZE_T_FMT "." SIZE_T_FMT, &pstart, &pbytes);
 		if (pbytes > (IMAP->cached_body_len - pstart)) {
 			pbytes = IMAP->cached_body_len - pstart;
 		}
 		cprintf("BODY[%s]<" SIZE_T_FMT "> {" SIZE_T_FMT "}\r\n", ChrPtr(section), pstart, pbytes);
 	}
+
+	FreeStrBuf(&partial);
 
 	/* Here we go -- output it */
 	client_write(&IMAP->cached_body[pstart], pbytes);
