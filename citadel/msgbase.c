@@ -1170,7 +1170,8 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	if ( (ret->cm_fields['M'] == NULL) && (with_body) ) {
 		dmsgtext = cdb_fetch(CDB_BIGMSGS, &msgnum, sizeof(long));
 		if (dmsgtext != NULL) {
-			ret->cm_fields['M'] = strdup(dmsgtext->ptr);
+			ret->cm_fields['M'] = dmsgtext->ptr;
+			dmsgtext->ptr = NULL;
 			cdb_free(dmsgtext);
 		}
 	}
