@@ -226,7 +226,7 @@ void init_sysdep(void) {
 	signal(SIGQUIT, signal_cleanup);
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
-	signal(SIGUSR1, signal_exit);
+	signal(SIGUSR2, signal_exit);
 	// signal(SIGSEGV, signal_cleanup);	commented out because
 	// signal(SIGILL, signal_cleanup);	we want core dumps
 	// signal(SIGBUS, signal_cleanup);
@@ -667,9 +667,56 @@ int CtdlClientGetLine(StrBuf *Target)
 	FlushStrBuf(Target);
 #ifdef HAVE_OPENSSL
 	if (CCC->redirect_ssl) {
-		return client_readline_sslbuffer(Target,
-						 CCC->ReadBuf,
-						 1);
+#ifdef BIGBAD_IODBG
+		char fn [SIZ];
+		FILE *fd;
+		int len, rlen, nlen, nrlen;
+		const char *pch;
+
+		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+
+		fd = fopen(fn, "a+");
+		pch = ChrPtr(CCC->ReadBuf);
+		len = StrLength(CCC->ReadBuf);
+		if (CCC->Pos != NULL)
+			rlen = CC->Pos - pch;
+		else
+			rlen = 0;
+
+/*		fprintf(fd, "\n\n\nBufSize: %d BufPos: %d \nBufContent: [%s]\n\n_____________________\n",
+			len, rlen, pch);
+*/
+		fprintf(fd, "\n\n\nBufSize: %d BufPos: %d \n_____________________\n",
+			len, rlen);
+#endif
+		rc = client_readline_sslbuffer(Target,
+					       CCC->ReadBuf,
+					       1);
+#ifdef BIGBAD_IODBG
+                pch = ChrPtr(CCC->ReadBuf);
+                nlen = StrLength(CCC->ReadBuf);
+                if (CCC->Pos != NULL)
+                        nrlen = CC->Pos - pch;
+                else
+                        nrlen = 0;
+/*
+                fprintf(fd, "\n\n\nBufSize: was: %d is: %d BufPos: was: %d is: %d \nBufContent: [%s]\n\n_____________________\n",
+                        len, nlen, rlen, nrlen, pch);
+*/
+                fprintf(fd, "\n\n\nBufSize: was: %d is: %d BufPos: was: %d is: %d \n",
+                        len, nlen, rlen, nrlen);
+
+                fprintf(fd, "Read: BufSize: %d BufContent: [%s]\n\n*************\n",
+                        StrLength(Target), ChrPtr(Target));
+                fclose(fd);
+
+		if ((rc < 0) && (Error != NULL))
+			CtdlLogPrintf(CTDL_CRIT, 
+				      "%s failed: %s\n",
+				      __FUNCTION__,
+				      Error);
+#endif
+		return rc;
 	}
 	else 
 #endif
