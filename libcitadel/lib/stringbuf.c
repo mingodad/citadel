@@ -1070,8 +1070,8 @@ int StrBufReplaceToken(StrBuf *Buf, long where, long HowLong,
 		if (IncreaseBuf(Buf, 1, Buf->BufUsed + ReplLen) < 0)
 			return -1;
 
-	memmove(Buf->buf + where + HowLong, 
-		Buf->buf + where + ReplLen,
+	memmove(Buf->buf + where + ReplLen, 
+		Buf->buf + where + HowLong,
 		Buf->BufUsed - where - HowLong);
 						
 	memcpy(Buf->buf + where, 
