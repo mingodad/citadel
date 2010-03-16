@@ -1722,7 +1722,7 @@ int CtdlOutputPreLoadedMsg(
 		int crlf,		/* Use CRLF newlines instead of LF? */
 		int flags		/* should the bessage be exported clean? */
 ) {
-	int i, j, k;
+	int i, j, k, n;
 	char buf[SIZ];
 	cit_uint8_t ch, prev_ch;
 	char allkeys[30];
@@ -1874,8 +1874,8 @@ int CtdlOutputPreLoadedMsg(
 		}
 
 		/* Now spew the header fields in the order we like them. */
-		safestrncpy(allkeys, FORDER, sizeof allkeys);
-		for (i=0; i<strlen(allkeys); ++i) {
+		n = safestrncpy(allkeys, FORDER, sizeof allkeys);
+		for (i=0; i<n; ++i) {
 			k = (int) allkeys[i];
 			if (k != 'M') {
 				if ( (TheMessage->cm_fields[k] != NULL)
