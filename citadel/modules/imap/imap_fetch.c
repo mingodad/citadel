@@ -589,6 +589,7 @@ void imap_strip_headers(StrBuf *section) {
 	FreeStrBuf(&CCC->redirect_buffer);
 	CCC->redirect_buffer = boiled_headers;
 
+	free(Cmd.Params);
 	FreeStrBuf(&which_fields);
 	FreeStrBuf(&Line);
 }
@@ -739,6 +740,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	if (is_peek == 0) {
 		CtdlSetSeen(&msgnum, 1, 1, ctdlsetseen_seen, NULL, NULL);
 	}
+	FreeStrBuf(&section);
 }
 
 /*

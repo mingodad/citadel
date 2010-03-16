@@ -3160,7 +3160,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			JournalBackgroundSubmit(msg, saved_rfc822_version, recps);
 		}
 		else {
-			free(saved_rfc822_version);
+			FreeStrBuf(&saved_rfc822_version);
 		}
 	}
 
