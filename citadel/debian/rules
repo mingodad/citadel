@@ -35,6 +35,11 @@ else
 	THREAD_ARGS=
 endif
 
+
+ifneq (,$(findstring iodbg,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -D BIGBAD_IODBG
+endif
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
