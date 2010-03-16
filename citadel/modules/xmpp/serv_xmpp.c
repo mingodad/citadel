@@ -2,21 +2,21 @@
  * $Id$ 
  *
  * XMPP (Jabber) service for the Citadel system
- * Copyright (c) 2007-2009 by Art Cancro
+ * Copyright (c) 2007-2010 by Art Cancro
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -207,7 +207,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		}
 	}
 
-	if (!strcasecmp(el, "username")) {		/* NON SASL ONLY */
+	else if (!strcasecmp(el, "username")) {		/* NON SASL ONLY */
 		if (XMPP->chardata_len > 0) {
 			safestrncpy(XMPP->iq_client_username, XMPP->chardata,
 				sizeof XMPP->iq_client_username);
@@ -215,7 +215,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		}
 	}
 
-	if (!strcasecmp(el, "password")) {		/* NON SASL ONLY */
+	else if (!strcasecmp(el, "password")) {		/* NON SASL ONLY */
 		if (XMPP->chardata_len > 0) {
 			safestrncpy(XMPP->iq_client_password, XMPP->chardata,
 				sizeof XMPP->iq_client_password);
@@ -239,10 +239,32 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			}
 
 			/*
-			 * Unknown queries ... return the XML equivalent of a blank stare
+			 * ping ( http://xmpp.org/extensions/xep-0199.html )
+			 */
+			else if (XMPP->ping_requested) {
+				cprintf("<iq type=\"result\" ");
+				if (!IsEmptyStr(XMPP->iq_from)) {
+					cprintf("to=\"%s\" ", XMPP->iq_from);
+				}
+				if (!IsEmptyStr(XMPP->iq_to)) {
+					cprintf("from=\"%s\" ", XMPP->iq_to);
+				}
+				cprintf("id=\"%s\"/>", XMPP->iq_id);
+			}
+
+			/*
+			 * Unknown query ... return the XML equivalent of a blank stare
 			 */
 			else {
-				cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_id);
+				CtdlLogPrintf(CTDL_DEBUG,
+					"Unknown query <%s> - returning <service-unavailable/>\n",
+					el
+				);
+				cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_id);
+				cprintf("<error code=\"503\" type=\"cancel\">"
+					"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+					"</error>"
+				);
 				cprintf("</iq>");
 			}
 		}
@@ -255,7 +277,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			&& (!strcasecmp(XMPP->iq_query_xmlns, "jabber:iq:auth:query"))
 			) {
 
-			jabber_non_sasl_authenticate(
+			xmpp_non_sasl_authenticate(
 				XMPP->iq_id,
 				XMPP->iq_client_username,
 				XMPP->iq_client_password,
@@ -310,6 +332,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		XMPP->iq_session = 0;
 		XMPP->iq_query_xmlns[0] = 0;
 		XMPP->bind_requested = 0;
+		XMPP->ping_requested = 0;
 	}
 
 	else if (!strcasecmp(el, "auth")) {
@@ -330,7 +353,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		/* Respond to a <presence> update by firing back with presence information
 		 * on the entire wholist.  Check this assumption, it's probably wrong.
 		 */
-		jabber_wholist_presence_dump();
+		xmpp_wholist_presence_dump();
 	}
 
 	else if ( (!strcasecmp(el, "body")) && (XMPP->html_tag_level == 0) ) {
@@ -344,7 +367,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	}
 
 	else if (!strcasecmp(el, "message")) {
-		jabber_send_message(XMPP->message_to, XMPP->message_body);
+		xmpp_send_message(XMPP->message_to, XMPP->message_body);
 		XMPP->html_tag_level = 0;
 	}
 
@@ -354,13 +377,28 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 	else if (!strcasecmp(el, "starttls")) {
 #ifdef HAVE_OPENSSL
-	cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
-	if (!CC->redirect_ssl) CC->kill_me = 1;
+		cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+		CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
+		if (!CC->redirect_ssl) CC->kill_me = 1;
 #else
-	cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-	CC->kill_me = 1;
+		cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
+		CC->kill_me = 1;
 #endif
+	}
+
+	else if (!strcasecmp(el, "ping")) {
+		XMPP->ping_requested = 1;
+	}
+
+	else if (!strcasecmp(el, "stream")) {
+		CtdlLogPrintf(CTDL_DEBUG, "XMPP client shut down their stream\n");
+		xmpp_massacre_roster();
+		cprintf("</stream>\n");
+		CC->kill_me = 1;
+	}
+
+	else {
+		CtdlLogPrintf(CTDL_DEBUG, "Ignoring unknown tag <%s>\n", el);
 	}
 
 	XMPP->chardata_len = 0;
@@ -415,7 +453,7 @@ void xmpp_cleanup_function(void) {
  * Here's where our XMPP session begins its happy day.
  */
 void xmpp_greeting(void) {
-	strcpy(CC->cs_clientname, "Jabber session");
+	strcpy(CC->cs_clientname, "XMPP session");
 	CC->session_specific_data = malloc(sizeof(struct citxmpp));
 	memset(XMPP, 0, sizeof(struct citxmpp));
 	XMPP->last_event_processed = queue_event_seq;
@@ -464,7 +502,7 @@ void xmpp_command_loop(void) {
  */
 void xmpp_async_loop(void) {
 	xmpp_process_events();
-	jabber_output_incoming_messages();
+	xmpp_output_incoming_messages();
 }
 
 
@@ -486,7 +524,7 @@ void xmpp_logout_hook(void) {
 
 const char *CitadelServiceXMPP="XMPP";
 
-CTDL_MODULE_INIT(jabber)
+CTDL_MODULE_INIT(xmpp)
 {
 	if (!threading) {
 		CtdlRegisterServiceHook(config.c_xmpp_c2s_port,

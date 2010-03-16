@@ -61,7 +61,7 @@
 /*
  * Output a single roster item, for roster queries or pushes
  */
-void jabber_roster_item(struct CitContext *cptr) {
+void xmpp_roster_item(struct CitContext *cptr) {
 	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
 		cptr->cs_inet_email,
 		cptr->user.fullname
@@ -77,7 +77,7 @@ void jabber_roster_item(struct CitContext *cptr) {
  * (minus any entries for this user -- don't tell me about myself)
  *
  */
-void jabber_iq_roster_query(void)
+void xmpp_iq_roster_query(void)
 {
 	struct CitContext *cptr;
 	int nContexts, i;
@@ -86,20 +86,19 @@ void jabber_iq_roster_query(void)
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 
 	cptr = CtdlGetContextArray(&nContexts);
-	if (!cptr)
-		return ; /** FIXME: Does jabber need to send something to maintain the protocol?  */
-		
-	for (i=0; i<nContexts; i++) {
-		if (cptr[i].logged_in) {
-			if (
-			   (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
-			   && (cptr[i].user.usernum != CC->user.usernum)
-			   ) {
-				jabber_roster_item(&cptr[i]);
+	if (cptr) {
+		for (i=0; i<nContexts; i++) {
+			if (cptr[i].logged_in) {
+				if (
+			   		(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
+			   		&& (cptr[i].user.usernum != CC->user.usernum)
+			   	) {
+					xmpp_roster_item(&cptr[i]);
+				}
 			}
 		}
+		free (cptr);
 	}
-	free (cptr);
 	cprintf("</query>");
 }
 
@@ -113,14 +112,32 @@ xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
  *
  */
 
-void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns) {
+void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns)
+{
+	int supported_namespace = 0;
+
+	/* We need to know before we begin the response whether this is a supported namespace, so
+	 * unfortunately all supported namespaces need to be defined here *and* down below where
+	 * they are handled.
+	 */
+	if (
+		(!strcasecmp(query_xmlns, "jabber:iq:roster:query"))
+		|| (!strcasecmp(query_xmlns, "jabber:iq:auth:query"))
+	) {
+		supported_namespace = 1;
+	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
 
 	/*
 	 * Beginning of query result.
 	 */
-	cprintf("<iq type=\"result\" ");
+	if (supported_namespace) {
+		cprintf("<iq type=\"result\" ");
+	}
+	else {
+		cprintf("<iq type=\"error\" ");
+	}
 	if (!IsEmptyStr(iq_from)) {
 		cprintf("to=\"%s\" ", iq_from);
 	}
@@ -131,7 +148,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 */
 
 	if (!strcasecmp(query_xmlns, "jabber:iq:roster:query")) {
-		jabber_iq_roster_query();
+		xmpp_iq_roster_query();
 	}
 
 	else if (!strcasecmp(query_xmlns, "jabber:iq:auth:query")) {
@@ -142,9 +159,20 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	}
 
 	/*
-	 * End of query result.  If we didn't hit any known namespaces then we will
-	 * have simply delivered an empty result stanza, which should be ok.
+	 * If we didn't hit any known query namespaces then we should deliver a
+	 * "service unavailable" error (see RFC3921 section 2.4 and 11.1.5.4)
 	 */
-	cprintf("</iq>");
 
+	else {
+		CtdlLogPrintf(CTDL_DEBUG,
+			"Unknown query namespace '%s' - returning <service-unavailable/>\n",
+			query_xmlns
+		);
+		cprintf("<error code=\"503\" type=\"cancel\">"
+			"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
+			"</error>"
+		);
+	}
+
+	cprintf("</iq>");
 }

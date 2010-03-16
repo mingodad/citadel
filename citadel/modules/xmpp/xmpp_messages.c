@@ -3,21 +3,21 @@
  *
  * Handle messages sent and received using XMPP (Jabber) protocol
  *
- * Copyright (c) 2007-2009 by Art Cancro
+ * Copyright (c) 2007-2010 by Art Cancro
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
 
@@ -64,7 +64,7 @@
  * If the client session has instant messages waiting, it outputs
  * unsolicited XML stanzas containing them.
  */
-void jabber_output_incoming_messages(void) {
+void xmpp_output_incoming_messages(void) {
 
 	struct ExpressMessage *ptr;
 
@@ -91,7 +91,7 @@ void jabber_output_incoming_messages(void) {
 /*
  * Client is sending a message.
  */
-void jabber_send_message(char *message_to, char *message_body) {
+void xmpp_send_message(char *message_to, char *message_body) {
 	char *recp = NULL;
 	int message_sent = 0;
 	struct CitContext *cptr;
