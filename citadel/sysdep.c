@@ -694,6 +694,7 @@ int CtdlClientGetLine(StrBuf *Target)
 #endif
 		rc = client_readline_sslbuffer(Target,
 					       CCC->ReadBuf,
+					       &CCC->Pos,
 					       1);
 #ifdef BIGBAD_IODBG
                 pch = ChrPtr(CCC->ReadBuf);
@@ -713,11 +714,10 @@ int CtdlClientGetLine(StrBuf *Target)
                         StrLength(Target), ChrPtr(Target));
                 fclose(fd);
 
-		if ((rc < 0) && (Error != NULL))
+		if (rc < 0)
 			CtdlLogPrintf(CTDL_CRIT, 
-				      "%s failed: %s\n",
-				      __FUNCTION__,
-				      Error);
+				      "%s failed\n",
+				      __FUNCTION__);
 #endif
 		return rc;
 	}

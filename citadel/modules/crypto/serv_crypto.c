@@ -467,56 +467,92 @@ int client_read_sslbuffer(StrBuf *buf, int timeout)
 	return (0);
 }
 
-int client_readline_sslbuffer(StrBuf *Target, StrBuf *Buffer, int timeout)
+int client_readline_sslbuffer(StrBuf *Line, StrBuf *IOBuf, const char **Pos, int timeout)
 {
-	int ntries = 0;
-	const char *pch, *pchs;
-	int rlen, len, retval = 0;
 	CitContext *CCC = CC;
-
-	if (StrLength(Target) > 0) {
-		pchs = ChrPtr(Buffer);
-		pch = strchr(pchs, '\n');
-		if (pch != NULL) {
-			rlen = 0;
-			len = pch - pchs;
-			if (len > 0 && (*(pch - 1) == '\r') )
-				rlen ++;
-			StrBufSub(Target, Buffer, 0, len - rlen);
-			StrBufCutLeft(Buffer, len + 1);
-			return len - rlen;
-		}
-	}
+	const char *pos = NULL;
+	const char *pLF;
+	int len, rlen, retlen;
+	int nSuccessLess = 0;
+	const char *pch = NULL;
 	
-	while ((retval == 0) && (CCC->ssl != NULL)) { 
-		pch = NULL;
-		pchs = ChrPtr(Buffer);
-		if (*pchs != '\0')
-			pch = strchr(pchs, '\n');
-		if (pch == NULL) {
-			retval = client_read_sslbuffer(Buffer, timeout);
-			pchs = ChrPtr(Buffer);
-			pch = strchr(pchs, '\n');
-		}
-		if (retval == 0) {
-			sleep(1);
-			ntries ++;
-		}
-		if (ntries > 10)
-			return 0;
-	}
-	if ((retval > 0) && (pch != NULL)) {
-		rlen = 0;
-		len = pch - pchs;
-		if (len > 0 && (*(pch - 1) == '\r') )
-			rlen ++;
-		StrBufSub(Target, Buffer, 0, len - rlen);
-		StrBufCutLeft(Buffer, len + 1);
-		return len - rlen;
-		
-	}
-	else 
+	retlen = 0;
+	if ((Line == NULL) ||
+	    (Pos == NULL) ||
+	    (IOBuf == NULL))
+	{
+		if (Pos != NULL)
+			*Pos = NULL;
+//		*Error = ErrRBLF_PreConditionFailed;
 		return -1;
+	}
+
+	pos = *Pos;
+	if ((StrLength(IOBuf) > 0) && 
+	    (pos != NULL) && 
+	    (pos < ChrPtr(IOBuf) + StrLength(IOBuf))) 
+	{
+		pch = pos;
+		pch = strchr(pch, '\n');
+		
+		if (pch == NULL) {
+			StrBufAppendBufPlain(Line, pos, 
+					     StrLength(IOBuf) - (pos - ChrPtr(IOBuf)), 0);
+			FlushStrBuf(IOBuf);
+			pos = *Pos = NULL;
+		}
+		else {
+			int n = 0;
+			if ((pch > ChrPtr(IOBuf)) && 
+			    (*(pch - 1) == '\r')) {
+				n = 1;
+			}
+			StrBufAppendBufPlain(Line, pos, 
+					     (pch - pos - n), 0);
+
+			if (StrLength(IOBuf) <= (pch - ChrPtr(IOBuf) + 1)) {
+				FlushStrBuf(IOBuf);
+				pos = *Pos = NULL;
+			}
+			else 
+				*Pos = pch + 1;
+			return StrLength(Line);
+		}
+	}
+
+	pLF = NULL;
+	while ((nSuccessLess < timeout) && 
+	       (pLF == NULL) &&
+	       (CCC->ssl != NULL)) {
+
+		rlen = client_read_sslbuffer(IOBuf, timeout);
+		if (rlen < 1) {
+//			*Error = strerror(errno);
+//			close(*fd);
+//			*fd = -1;
+			return -1;
+		}
+		else if (rlen > 0) {
+			pLF = strchr(ChrPtr(IOBuf), '\n');
+		}
+	}
+	*Pos = NULL;
+	if (pLF != NULL) {
+		pos = ChrPtr(IOBuf);
+		len = pLF - pos;
+		if (len > 0 && (*(pLF - 1) == '\r') )
+			len --;
+		StrBufAppendBufPlain(Line, pos, len, 0);
+		if (pLF + 1 >= ChrPtr(IOBuf) + StrLength(IOBuf))
+		{
+			FlushStrBuf(IOBuf);
+		}
+		else 
+			*Pos = pLF + 1;
+		return StrLength(Line);
+	}
+//	*Error = ErrRBLF_NotEnoughSentFromServer;
+	return -1;
 }
 
 
