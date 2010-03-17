@@ -539,6 +539,7 @@ int client_read_sslblob(StrBuf *Target, long bytes, int timeout)
 		bufremain = bytes;
 	StrBufAppendBufPlain(Target, CCC->Pos, bufremain, 0);
 	StrBufCutLeft(CCC->ReadBuf, bufremain);
+	CCC->Pos = NULL;
 
 	if (bytes > bufremain) 
 	{
