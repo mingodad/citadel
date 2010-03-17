@@ -670,7 +670,10 @@ int CtdlClientGetLine(StrBuf *Target)
 #ifdef BIGBAD_IODBG
 		char fn [SIZ];
 		FILE *fd;
-		int len, rlen, nlen, nrlen;
+		int len = 0;
+		int rlen = 0;
+		int  nlen = 0;
+		int nrlen = 0;
 		const char *pch;
 
 		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
@@ -686,7 +689,7 @@ int CtdlClientGetLine(StrBuf *Target)
 /*		fprintf(fd, "\n\n\nBufSize: %d BufPos: %d \nBufContent: [%s]\n\n_____________________\n",
 			len, rlen, pch);
 */
-		fprintf(fd, "\n\n\nBufSize: %d BufPos: %d \n_____________________\n",
+		fprintf(fd, "\n\n\nSSL1: BufSize: %d BufPos: %d \n_____________________\n",
 			len, rlen);
 #endif
 		rc = client_readline_sslbuffer(Target,
@@ -703,10 +706,10 @@ int CtdlClientGetLine(StrBuf *Target)
                 fprintf(fd, "\n\n\nBufSize: was: %d is: %d BufPos: was: %d is: %d \nBufContent: [%s]\n\n_____________________\n",
                         len, nlen, rlen, nrlen, pch);
 */
-                fprintf(fd, "\n\n\nBufSize: was: %d is: %d BufPos: was: %d is: %d \n",
+                fprintf(fd, "\n\n\nSSL2: BufSize: was: %d is: %d BufPos: was: %d is: %d \n",
                         len, nlen, rlen, nrlen);
 
-                fprintf(fd, "Read: BufSize: %d BufContent: [%s]\n\n*************\n",
+                fprintf(fd, "SSL3: Read: BufSize: %d BufContent: [%s]\n\n*************\n",
                         StrLength(Target), ChrPtr(Target));
                 fclose(fd);
 
