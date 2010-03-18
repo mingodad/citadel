@@ -455,6 +455,8 @@ void flush_rss_ite(rss_item *ri)
 	ri->link = NULL;
 	if (ri->author_or_creator != NULL) free(ri->author_or_creator);
 	ri->author_or_creator = NULL;
+	if (ri->author_url != NULL) free(ri->author_url);
+	ri->author_url = NULL;
 	if (ri->description != NULL) free(ri->description);
 	ri->description = NULL;
 	/* Throw away any existing character data */
