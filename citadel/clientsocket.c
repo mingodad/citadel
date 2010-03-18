@@ -255,8 +255,9 @@ int sock_getln(int *sock, char *buf, int bufsize)
 	FlushStrBuf(CCC->sMigrateBuf);
 	if (retval < 0) {
 		safestrncpy(&buf[i], "000", bufsize - i);
+		i += 3;
 	}
-	return(retval >= 0);
+	return i;
 }
 
 
