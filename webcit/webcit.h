@@ -1,11 +1,24 @@
-
-/* $Id$ */
+/* $Id$
+ *
+ * Copyright (c) 1987-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "sysdep.h"
-
-
 #include <sys/select.h>
-
 #include <ctype.h>
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -38,7 +51,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include <sys/utsname.h>
-
 #include <libcitadel.h>
 
 #ifndef INADDR_NONE
@@ -116,8 +128,8 @@ extern char *ssl_cipher_list;
 #define DEVELOPER_ID		0
 #define CLIENT_ID		4
 #define CLIENT_VERSION		780		/* This version of WebCit */
-#define MINIMUM_CIT_VERSION	770		/* min required Citadel ver */
-#define	LIBCITADEL_MIN		766		/* min required libcitadel ver */
+#define MINIMUM_CIT_VERSION	780		/* min required Citadel ver */
+#define	LIBCITADEL_MIN		780		/* min required libcitadel ver */
 #define DEFAULT_HOST		"localhost"	/* Default Citadel server */
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Target for inline URL's */
