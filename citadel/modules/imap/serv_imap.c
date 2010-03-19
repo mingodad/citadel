@@ -575,7 +575,7 @@ void imap_login(int num_parms, ConstStr *Params)
  */
 void imap_authenticate(int num_parms, ConstStr *Params)
 {
-	char buf[SIZ];
+	char UsrBuf[SIZ];
 
 	if (num_parms != 3) {
 		cprintf("%s BAD incorrect number of parameters\r\n",
@@ -589,16 +589,16 @@ void imap_authenticate(int num_parms, ConstStr *Params)
 	}
 
 	if (!strcasecmp(Params[2].Key, "LOGIN")) {
-		CtdlEncodeBase64(buf, "Username:", 9, 0);
-		cprintf("+ %s\r\n", buf);
+		CtdlEncodeBase64(UsrBuf, "Username:", 9, 0);
+		cprintf("+ %s\r\n", UsrBuf);
 		IMAP->authstate = imap_as_expecting_username;
 		strcpy(IMAP->authseq, Params[0].Key);
 		return;
 	}
 
 	if (!strcasecmp(Params[2].Key, "PLAIN")) {
-		// CtdlEncodeBase64(buf, "Username:", 9, 0);
-		// cprintf("+ %s\r\n", buf);
+		// CtdlEncodeBase64(UsrBuf, "Username:", 9, 0);
+		// cprintf("+ %s\r\n", UsrBuf);
 		cprintf("+ \r\n");
 		IMAP->authstate = imap_as_expecting_plainauth;
 		strcpy(IMAP->authseq, Params[0].Key);
@@ -649,20 +649,20 @@ void imap_auth_plain(void)
 
 void imap_auth_login_user(long state)
 {
-	char buf[SIZ];
+	char PWBuf[SIZ];
 	citimap *Imap = IMAP;
 
 	switch (state){
 	case imap_as_expecting_username:
 		StrBufDecodeBase64(Imap->Cmd.CmdBuf);
 		CtdlLoginExistingUser(NULL, ChrPtr(Imap->Cmd.CmdBuf));
-		CtdlEncodeBase64(buf, "Password:", 9, 0);
-		cprintf("+ %s\r\n", buf);
+		CtdlEncodeBase64(PWBuf, "Password:", 9, 0);
+		cprintf("+ %s\r\n", PWBuf);
 		
 		Imap->authstate = imap_as_expecting_password;
 		return;
 	case imap_as_expecting_multilineusername:
-		extract_token(buf, ChrPtr(Imap->Cmd.CmdBuf), 1, ' ', sizeof(buf));
+		extract_token(PWBuf, ChrPtr(Imap->Cmd.CmdBuf), 1, ' ', sizeof(PWBuf));
 		CtdlLoginExistingUser(NULL, ChrPtr(Imap->Cmd.CmdBuf));
 		cprintf("+ go ahead\r\n");
 		IMAP->authstate = imap_as_expecting_multilinepassword;
@@ -675,13 +675,12 @@ void imap_auth_login_pass(long state)
 {
 	citimap *Imap = IMAP;
 	const char *pass = NULL;
-	char buf[SIZ];
 
 	switch (state) {
 	default:
 	case imap_as_expecting_password:
 		StrBufDecodeBase64(Imap->Cmd.CmdBuf);
-		pass = buf;
+		pass = ChrPtr(Imap->Cmd.CmdBuf);
 		break;
 	case imap_as_expecting_multilinepassword:
 		pass = ChrPtr(Imap->Cmd.CmdBuf);
@@ -706,9 +705,9 @@ void imap_starttls(int num_parms, ConstStr *Params)
 	char nosup_response[SIZ];
 	char error_response[SIZ];
 
-	sprintf(ok_response,	"%s OK begin TLS negotiation now\r\n",	Params[0].Key);
-	sprintf(nosup_response,	"%s NO TLS not supported here\r\n",	Params[0].Key);
-	sprintf(error_response,	"%s BAD Internal error\r\n",		Params[0].Key);
+	snprintf(ok_response, SIZ,	"%s OK begin TLS negotiation now\r\n",	Params[0].Key);
+	snprintf(nosup_response, SIZ,	"%s NO TLS not supported here\r\n",	Params[0].Key);
+	snprintf(error_response, SIZ,	"%s BAD Internal error\r\n",		Params[0].Key);
 	CtdlModuleStartCryptoMsgs(ok_response, nosup_response, error_response);
 }
 
@@ -718,7 +717,7 @@ void imap_starttls(int num_parms, ConstStr *Params)
  */
 void imap_select(int num_parms, ConstStr *Params)
 {
-	char towhere[SIZ];
+	char towhere[ROOMNAMELEN];
 	char augmented_roomname[ROOMNAMELEN];
 	int c = 0;
 	int ok = 0;
@@ -747,7 +746,7 @@ void imap_select(int num_parms, ConstStr *Params)
 		CtdlMailboxName(augmented_roomname, sizeof augmented_roomname, &CC->user, towhere);
 		c = CtdlGetRoom(&QRscratch, augmented_roomname);
 		if (c == 0) {
-			strcpy(towhere, augmented_roomname);
+			safestrncpy(towhere, augmented_roomname, sizeof(towhere));
 		}
 	}
 
@@ -906,7 +905,7 @@ void imap_namespace(int num_parms, ConstStr *Params)
 		if (fl->f_flags & F_INUSE) {
 			if (floors > 0) cprintf(" ");
 			cprintf("(");
-			sprintf(buf, "%s/", fl->f_name);
+			snprintf(buf, sizeof(buf), "%s/", fl->f_name);
 			plain_imap_strout(buf);
 			cprintf(" \"/\")");
 			++floors;
@@ -1025,7 +1024,7 @@ int imap_grabroom(char *returned_roomname, const char *foldername, int zapped_ok
 			    &CC->user, roomname);
 		c = CtdlGetRoom(&QRscratch, augmented_roomname);
 		if (c == 0)
-			strcpy(roomname, augmented_roomname);
+			safestrncpy(roomname, augmented_roomname, sizeof(roomname));
 	}
 
 	/* If the room exists, check security/access */
@@ -1047,7 +1046,7 @@ int imap_grabroom(char *returned_roomname, const char *foldername, int zapped_ok
 		strcpy(returned_roomname, "");
 		return (2);
 	} else {
-		strcpy(returned_roomname, QRscratch.QRname);
+		safestrncpy(returned_roomname, QRscratch.QRname, ROOMNAMELEN);
 		return (0);
 	}
 }
@@ -1061,7 +1060,7 @@ void imap_status(int num_parms, ConstStr *Params)
 {
 	int ret;
 	char roomname[ROOMNAMELEN];
-	char buf[SIZ];
+	char imaproomname[SIZ];
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 
@@ -1089,9 +1088,9 @@ void imap_status(int num_parms, ConstStr *Params)
 	 * names and simply spew all possible data items.  It's far easier to
 	 * code and probably saves us some processing time too.
 	 */
-	imap_mailboxname(buf, sizeof buf, &CC->room);
+	imap_mailboxname(imaproomname, sizeof imaproomname, &CC->room);
 	cprintf("* STATUS ");
-	plain_imap_strout(buf);
+	plain_imap_strout(imaproomname);
 	cprintf(" (MESSAGES %d ", msgs);
 	cprintf("RECENT %d ", new);	/* Initially, new==recent */
 	cprintf("UIDNEXT %ld ", CitControl.MMhighest + 1);
@@ -1304,7 +1303,7 @@ void imap_rename(int num_parms, ConstStr *Params)
 	struct irl *irl = NULL;	/* the list */
 	struct irl *irlp = NULL;	/* scratch pointer */
 	struct irlparms irlparms;
-	char buf[1024];
+	char aidemsg[1024];
 
 	if (strchr(Params[3].Key, '\\') != NULL) {
 		cprintf("%s NO Invalid character in folder name\r\n",
@@ -1376,12 +1375,12 @@ void imap_rename(int num_parms, ConstStr *Params)
 		}
 	}
 
-	snprintf(buf, sizeof buf, "IMAP folder \"%s\" renamed to \"%s\" by %s\n",
+	snprintf(aidemsg, sizeof aidemsg, "IMAP folder \"%s\" renamed to \"%s\" by %s\n",
 		Params[2].Key,
 		Params[3].Key,
 		CC->curr_user
 	);
-	CtdlAideMessage(buf, "IMAP folder rename");
+	CtdlAideMessage(aidemsg, "IMAP folder rename");
 
 	cprintf("%s OK RENAME completed\r\n", Params[0].Key);
 }
