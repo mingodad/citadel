@@ -84,7 +84,7 @@ static void string_append_sn(struct string* s, char* p, int len)
 
 static void string_append_c(struct string* s, int c)
 {
-	char buf[5];
+	char UmlChar[5];
 	int len = 0;
 
 	/* Don't do anything if there's no room. */
@@ -102,27 +102,27 @@ static void string_append_c(struct string* s, int c)
 	}
 	else if (c <= 0x7FF)
 	{
-		buf[0] = 0xC0 | (c >> 6);
-		buf[1] = 0x80 | (c & 0x3F);
+		UmlChar[0] = 0xC0 | (c >> 6);
+		UmlChar[1] = 0x80 | (c & 0x3F);
 		len = 2;
 	}
 	else if (c <= 0xFFFF)
 	{
-		buf[0] = 0xE0 | (c >> 12);
-		buf[1] = 0x80 | ((c >> 6) & 0x3f);
-		buf[2] = 0x80 | (c & 0x3f);
+		UmlChar[0] = 0xE0 | (c >> 12);
+		UmlChar[1] = 0x80 | ((c >> 6) & 0x3f);
+		UmlChar[2] = 0x80 | (c & 0x3f);
 		len = 3;
 	}
 	else
 	{
-		buf[0] = 0xf0 | c >> 18;
-		buf[1] = 0x80 | ((c >> 12) & 0x3f);
-		buf[2] = 0x80 | ((c >> 6) & 0x3f);
-		buf[3] = 0x80 | (c & 0x3f);
+		UmlChar[0] = 0xf0 | c >> 18;
+		UmlChar[1] = 0x80 | ((c >> 12) & 0x3f);
+		UmlChar[2] = 0x80 | ((c >> 6) & 0x3f);
+		UmlChar[3] = 0x80 | (c & 0x3f);
 		len = 4;
 	}
 
-	string_append_sn(s, buf, len);
+	string_append_sn(s, UmlChar, len);
 }	
 
 /* Reads a UTF8 character from a char*, advancing the pointer. */
@@ -717,7 +717,7 @@ void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf)
 int imap_roomname(char *rbuf, int bufsize, const char *foldername)
 {
 	int levels;
-	char floorname[256];
+	char floorname[ROOMNAMELEN*2];
 	char roomname[ROOMNAMELEN];
 	int i;
 	struct floor *fl;
@@ -760,10 +760,12 @@ int imap_roomname(char *rbuf, int bufsize, const char *foldername)
 	levels = num_tokens(rbuf, FDELIM);
 	if (levels > 1)
 	{
+		long len;
 		/* Extract the main room name. */
 		
-		extract_token(floorname, rbuf, 0, FDELIM, sizeof floorname);
-		strcpy(roomname, &rbuf[strlen(floorname)+1]);
+		len = extract_token(floorname, rbuf, 0, FDELIM, sizeof floorname);
+		if (len < 0) len = 0;
+		safestrncpy(roomname, &rbuf[len  + 1], sizeof(roomname));
 
 		/* Try and find it on any floor. */
 		
@@ -872,22 +874,30 @@ static int do_imap_match(const char *supplied_text, const char *supplied_p)
 {
 	int matched, i;
 	char lcase_text[SIZ], lcase_p[SIZ];
-	char *text = lcase_text;
-	char *p = lcase_p;
-	long len;
-
+	char *text;
+	char *p;
+	
 	/* Copy both strings and lowercase them, in order to
 	 * make this entire operation case-insensitive.
 	 */
-	len = strlen(supplied_text);
-	for (i=0; i<=len; ++i)
+	for (i=0; 
+	     ((supplied_text[i] != '\0') && 
+	      (i < sizeof(lcase_text)));
+	     ++i)
 		lcase_text[i] = tolower(supplied_text[i]);
-	len = strlen(supplied_p);
-	for (i=0; i<=len; ++i)
-		p[i] = tolower(supplied_p[i]);
+	lcase_text[i] = '\0';
+
+	for (i=0; 
+	     ((supplied_p[i] != '\0') && 
+	      (i < sizeof(lcase_p))); 
+	     ++i)
+		lcase_p[i] = tolower(supplied_p[i]);
+	lcase_p[i] = '\0';
 
 	/* Start matching */
-	for (; *p; text++, p++) {
+	for (p = lcase_p, text = lcase_text; 
+	     !IsEmptyStr(p) && !IsEmptyStr(text); 
+	     text++, p++) {
 		if ((*text == '\0') && (*p != '*') && (*p != '%')) {
 			return WILDMAT_ABORT;
 		}
@@ -917,7 +927,8 @@ star:
 			}
 			return WILDMAT_ABORT;
 		case '%':
-			while (++p, ((*p == '*') || (*p == '%'))) {
+			while (++p, (!IsEmptyStr(p) && ((*p == '*') || (*p == '%'))))
+			{
 				/* Consecutive %'s act just like one, but even
 				 * a single star makes the sequence act like
 				 * one star, instead.
@@ -932,7 +943,7 @@ star:
 				 * Trailing % matches everything
 				 * without a delimiter.
 				 */
-				while (*text) {
+				while (!IsEmptyStr(text)) {
 					if (*text == WILDMAT_DELIM) {
 						return WILDMAT_FALSE;
 					}
@@ -940,7 +951,7 @@ star:
 				}
 				return WILDMAT_TRUE;
 			}
-			while (*text && (*(text - 1) != WILDMAT_DELIM)) {
+			while (!IsEmptyStr(text) && (*(text - 1) != WILDMAT_DELIM)) {
 				if ((matched = do_imap_match(text++, p))
 				   != WILDMAT_FALSE) {
 					return matched;
