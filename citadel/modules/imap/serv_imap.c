@@ -888,7 +888,7 @@ void imap_namespace(int num_parms, ConstStr *Params)
 	int i;
 	struct floor *fl;
 	int floors = 0;
-	char buf[SIZ];
+	char Namespace[SIZ];
 
 	cprintf("* NAMESPACE ");
 
@@ -905,8 +905,8 @@ void imap_namespace(int num_parms, ConstStr *Params)
 		if (fl->f_flags & F_INUSE) {
 			if (floors > 0) cprintf(" ");
 			cprintf("(");
-			snprintf(buf, sizeof(buf), "%s/", fl->f_name);
-			plain_imap_strout(buf);
+			snprintf(Namespace, sizeof(Namespace), "%s/", fl->f_name);
+			plain_imap_strout(Namespace);
 			cprintf(" \"/\")");
 			++floors;
 		}
