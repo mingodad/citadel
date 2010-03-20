@@ -118,25 +118,30 @@ void imap_list_floors(char *verb, int num_patterns, StrBuf **patterns)
  */
 void imap_listroom(struct ctdlroom *qrbuf, void *data)
 {
-	char buf[SIZ];
+#define SUBSCRIBED_STR "\\Subscribed"
+#define HASCHILD_STR "\\HasChildren"
+	char MailboxName[SIZ];
 	char return_options[256];
 	int ra;
 	int yes_output_this_room;
 	ImapRoomListFilter *ImapFilter;
 	int i = 0;
 	int match = 0;
+	int ROLen;
 
 	/* Here's how we break down the array of pointers passed to us */
 	ImapFilter = (ImapRoomListFilter*)data;
 
 	/* Only list rooms to which the user has access!! */
 	yes_output_this_room = 0;
-	strcpy(return_options, "");
+	*return_options = '\0';
+	ROLen = 0;
 	CtdlRoomAccess(qrbuf, &CC->user, &ra, NULL);
 
 	if (ImapFilter->return_subscribed) {
 		if (ra & UA_KNOWN) {
-			strcat(return_options, "\\Subscribed");
+			memcpy(return_options, HKEY(SUBSCRIBED_STR) + 1);
+			ROLen += sizeof(SUBSCRIBED_STR) - 1;
 		}
 	}
 
@@ -148,9 +153,10 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	 */
 	if (ImapFilter->return_children) {
 		if (!IsEmptyStr(return_options)) {
-			strcat(return_options, " ");
+			memcpy(return_options + ROLen, HKEY(" "));
+			ROLen ++;
 		}
-		strcat(return_options, "\\HasChildren");
+		memcpy(return_options + ROLen, HKEY(SUBSCRIBED_STR) + 1);
 	}
 
 	if (ImapFilter->subscribed_rooms_only) {
@@ -165,16 +171,16 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 	}
 
 	if (yes_output_this_room) {
-		imap_mailboxname(buf, sizeof buf, qrbuf);
+		imap_mailboxname(MailboxName, sizeof MailboxName, qrbuf);
 		match = 0;
 		for (i=0; i<ImapFilter->num_patterns; ++i) {
-			if (imap_mailbox_matches_pattern(ChrPtr(ImapFilter->patterns[i]), buf)) {
+			if (imap_mailbox_matches_pattern(ChrPtr(ImapFilter->patterns[i]), MailboxName)) {
 				match = 1;
 			}
 		}
 		if (match) {
 			cprintf("* %s (%s) \"/\" ", ImapFilter->verb, return_options);
-			plain_imap_strout(buf);
+			plain_imap_strout(MailboxName);
 			cprintf("\r\n");
 		}
 	}
