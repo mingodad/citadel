@@ -287,7 +287,8 @@ void imap_append(int num_parms, ConstStr *Params) {
 	long new_msgnum = (-1L);
 	int ret = 0;
 	char roomname[ROOMNAMELEN];
-	char buf[SIZ];
+	char errbuf[SIZ];
+	char dummy[SIZ];
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 	int i;
@@ -351,7 +352,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	 * text) is received.  This call to client_getln() absorbs it.
 	 */
 	flush_output();
-	client_getln(buf, sizeof buf);
+	client_getln(dummy, sizeof dummy);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
 	CtdlLogPrintf(CTDL_DEBUG, "Converting CRLF to LF\n");
@@ -397,11 +398,11 @@ void imap_append(int num_parms, ConstStr *Params) {
 	/* 
 	 * Can we post here?
 	 */
-	ret = CtdlDoIHavePermissionToPostInThisRoom(buf, sizeof buf, NULL, POST_LOGGED_IN);
+	ret = CtdlDoIHavePermissionToPostInThisRoom(errbuf, sizeof errbuf, NULL, POST_LOGGED_IN);
 
 	if (ret) {
 		/* Nope ... print an error message */
-		cprintf("%s NO %s\r\n", Params[0].Key, buf);
+		cprintf("%s NO %s\r\n", Params[0].Key, errbuf);
 	}
 
 	else {
