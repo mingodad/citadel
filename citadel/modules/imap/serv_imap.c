@@ -413,9 +413,8 @@ void imap_cleanup_function(void)
 	imap_free_msgids();
 	imap_free_transmitted_message();
 
-	if (IMAP->cached_rfc822_data != NULL) {
-		free(IMAP->cached_rfc822_data);
-		IMAP->cached_rfc822_data = NULL;
+	if (IMAP->cached_rfc822 != NULL) {
+		FreeStrBuf(&IMAP->cached_rfc822);
 		IMAP->cached_rfc822_msgnum = (-1);
 		IMAP->cached_rfc822_withbody = 0;
 	}
@@ -505,7 +504,6 @@ void imap_greeting(void)
 	CC->session_specific_data = malloc(sizeof(citimap));
 	memset(IMAP, 0, sizeof(citimap));
 	IMAP->authstate = imap_as_normal;
-	IMAP->cached_rfc822_data = NULL;
 	IMAP->cached_rfc822_msgnum = (-1);
 	IMAP->cached_rfc822_withbody = 0;
 

@@ -103,7 +103,7 @@ void imap_fetch_flags(int seq) {
 
 
 void imap_fetch_internaldate(struct CtdlMessage *msg) {
-	char buf[SIZ];
+	char datebuf[64];
 	time_t msgdate;
 
 	if (!msg) return;
@@ -114,8 +114,8 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 		msgdate = time(NULL);
 	}
 
-	datestring(buf, sizeof buf, msgdate, DATESTRING_IMAP);
-	cprintf("INTERNALDATE \"%s\"", buf);
+	datestring(datebuf, sizeof datebuf, msgdate, DATESTRING_IMAP);
+	cprintf("INTERNALDATE \"%s\"", datebuf);
 }
 
 
@@ -129,13 +129,13 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
 void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
-	char buf[SIZ];
 	const char *ptr = NULL;
 	size_t headers_size, text_size, total_size;
 	size_t bytes_to_send = 0;
 	struct MetaData smi;
 	int need_to_rewrite_metadata = 0;
 	int need_body = 0;
+	CitContext *CCC = CC;
 
 	/* Determine whether this particular fetch operation requires
 	 * us to fetch the message body from disk.  If not, we can save
@@ -165,38 +165,37 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 	 * client requests something that involves reading the message
 	 * body, but we haven't fetched the body yet.
 	 */
-	if ((IMAP->cached_rfc822_data != NULL)
+	if ((IMAP->cached_rfc822 != NULL)
 	   && (IMAP->cached_rfc822_msgnum == msgnum)
 	   && (IMAP->cached_rfc822_withbody || (!need_body)) ) {
 		/* Good to go! */
 	}
-	else if (IMAP->cached_rfc822_data != NULL) {
+	else if (IMAP->cached_rfc822 != NULL) {
 		/* Some other message is cached -- free it */
-		free(IMAP->cached_rfc822_data);
-		IMAP->cached_rfc822_data = NULL;
+		FreeStrBuf(&IMAP->cached_rfc822);
 		IMAP->cached_rfc822_msgnum = (-1);
-		IMAP->cached_rfc822_len = 0;
 	}
 
 	/* At this point, we now can fetch and convert the message iff it's not
 	 * the one we had cached.
 	 */
-	if (IMAP->cached_rfc822_data == NULL) {
+	if (IMAP->cached_rfc822 == NULL) {
 		/*
 		 * Load the message into memory for translation & measurement
 		 */
-		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		CtdlOutputMsg(msgnum, MT_RFC822,
 			(need_body ? HEADERS_ALL : HEADERS_FAST),
 			0, 1, NULL, SUPPRESS_ENV_TO
 		);
 		if (!need_body) cprintf("\r\n");	/* extra trailing newline */
-		IMAP->cached_rfc822_len = StrLength(CC->redirect_buffer);
-		IMAP->cached_rfc822_data = SmashStrBuf(&CC->redirect_buffer);
+		IMAP->cached_rfc822 = CCC->redirect_buffer;
+		CCC->redirect_buffer = NULL;
 		IMAP->cached_rfc822_msgnum = msgnum;
 		IMAP->cached_rfc822_withbody = need_body;
-		if ( (need_to_rewrite_metadata) && (IMAP->cached_rfc822_len > 0) ) {
-			smi.meta_rfc822_length = (long)IMAP->cached_rfc822_len;
+		if ( (need_to_rewrite_metadata) && 
+		     (StrLength(IMAP->cached_rfc822) > 0) ) {
+			smi.meta_rfc822_length = StrLength(IMAP->cached_rfc822);
 			PutMetaData(&smi);
 		}
 	}
@@ -210,23 +209,30 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 	total_size = 0;
 
 	if (need_body) {
-		ptr = IMAP->cached_rfc822_data;
+		StrBuf *Line = NewStrBuf();
+		ptr = NULL;
 		do {
-			ptr = memreadline(ptr, buf, sizeof buf);
-			if (*ptr != 0) {
-				striplt(buf);
-				if (IsEmptyStr(buf)) {
-					headers_size = ptr - IMAP->cached_rfc822_data;
+			StrBufSipLine(Line, IMAP->cached_rfc822, &ptr);
+
+			if ((StrLength(Line) != 0)  && (ptr != StrBufNOTNULL))
+			{
+				StrBufTrim(Line);
+				if ((StrLength(Line) != 0) && 
+				    (ptr != StrBufNOTNULL)    )
+				{
+					headers_size = ptr - ChrPtr(IMAP->cached_rfc822);
 				}
 			}
-		} while ( (headers_size == 0) && (*ptr != 0) );
+		} while ( (headers_size == 0)    && 
+			  (ptr != StrBufNOTNULL) );
 
-		total_size = IMAP->cached_rfc822_len;
+		total_size = StrLength(IMAP->cached_rfc822);
 		text_size = total_size - headers_size;
+		FreeStrBuf(&Line);
 	}
 	else {
-		headers_size = IMAP->cached_rfc822_len;
-		total_size = IMAP->cached_rfc822_len;
+		headers_size = 
+			total_size = StrLength(IMAP->cached_rfc822);
 		text_size = 0;
 	}
 
@@ -242,17 +248,17 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822")) {
-		ptr = IMAP->cached_rfc822_data;
+		ptr = ChrPtr(IMAP->cached_rfc822);
 		bytes_to_send = total_size;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822.HEADER")) {
-		ptr = IMAP->cached_rfc822_data;
+		ptr = ChrPtr(IMAP->cached_rfc822);
 		bytes_to_send = headers_size;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822.TEXT")) {
-		ptr = &IMAP->cached_rfc822_data[headers_size];
+		ptr = &ChrPtr(IMAP->cached_rfc822)[headers_size];
 		bytes_to_send = text_size;
 	}
 
@@ -274,7 +280,7 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		    void *content, char *cbtype, char *cbcharset, size_t length, char *encoding,
 		    char *cbid, void *cbuserdata)
 {
-	char mbuf2[SIZ];
+	char mimebuf2[SIZ];
 	char *desired_section;
 
 	desired_section = (char *)cbuserdata;
@@ -283,9 +289,9 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 		client_write(content, length);
 	}
 
-	snprintf(mbuf2, sizeof mbuf2, "%s.MIME", partnum);
+	snprintf(mimebuf2, sizeof mimebuf2, "%s.MIME", partnum);
 
-	if (!strcasecmp(desired_section, mbuf2)) {
+	if (!strcasecmp(desired_section, mimebuf2)) {
 		cprintf("Content-type: %s", cbtype);
 		if (!IsEmptyStr(cbcharset))
 			cprintf("; charset=\"%s\"", cbcharset);

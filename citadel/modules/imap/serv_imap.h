@@ -30,9 +30,8 @@ typedef struct __citimap {
 	citimap_command Cmd;            /* our current commandline */
 
 	/* Cache most recent RFC822 FETCH because client might load in pieces */
-	char *cached_rfc822_data;
+	StrBuf *cached_rfc822;
 	long cached_rfc822_msgnum;
-	size_t cached_rfc822_len;
 	char cached_rfc822_withbody;	/* 1 = body cached; 0 = only headers cached */
 
 	/* Cache most recent BODY FETCH because client might load in pieces */
