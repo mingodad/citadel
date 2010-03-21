@@ -281,6 +281,7 @@ enum {
 #define IGNETMAP	"application/x-citadel-ignet-map"
 #define FILTERLIST	"application/x-citadel-filter-list"
 #define SIEVECONFIG	"application/x-citadel-sieve-config"
+#define XMPPMORTUARY	"application/x-citadel-xmpp-mortuary"
 
 #define TRACE	CtdlLogPrintf(CTDL_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 

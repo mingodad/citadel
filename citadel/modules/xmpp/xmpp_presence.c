@@ -200,16 +200,56 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 }
 
 
+/*
+ * Fetch the "mortuary" - a list of dead buddies which we keep around forever
+ * so we can remove them from any client's roster that still has them listed
+ */
+HashList *xmpp_fetch_mortuary(void) {
+	HashList *mortuary = NewHash(1, NULL);
+	if (!mortuary) {
+		CtdlLogPrintf(CTDL_ALERT, "NewHash() failed!\n");
+		return(NULL);
+	}
+
+	return(mortuary);
+}
+
+
+
+/*
+ * Fetch the "mortuary" - a list of dead buddies which we keep around forever
+ * so we can remove them from any client's roster that still has them listed
+ */
+void xmpp_store_mortuary(HashList *mortuary) {
+	HashPos *HashPos;
+	long len;
+	void *Value;
+	const char *Key;
+
+	HashPos = GetNewHashPos(mortuary, 0);
+	while (GetNextHashPos(mortuary, HashPos, &len, &Key, &Value) != 0)
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "FIXME WRITE \033[31m%s\033[0m\n", (char *)Value);
+		/* note: don't free(Value) -- deleting the hash list will handle this for us */
+	}
+	DeleteHashPos(&HashPos);
+}
+
+
 
 /*
  * Upon logout we make an attempt to delete the whole roster, in order to
  * try to keep "ghost" buddies from remaining in the client-side roster.
+ *
+ * Since the client is probably not still alive, also remember the current
+ * roster for next time so we can delete dead buddies then.
  */
 void xmpp_massacre_roster(void)
 {
 	struct CitContext *cptr;
 	int nContexts, i;
 	int aide = (CC->user.axlevel >= AxAideU);
+	HashList *mortuary = xmpp_fetch_mortuary();
 
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
@@ -220,10 +260,20 @@ void xmpp_massacre_roster(void)
 			   		&& (cptr[i].user.usernum != CC->user.usernum)
 			   	) {
 					xmpp_destroy_buddy(cptr[i].cs_inet_email);
+					if (mortuary) {
+						char *buddy = strdup(cptr[i].cs_inet_email);
+						Put(mortuary, buddy, strlen(buddy),
+							buddy, generic_free_handler);
+					}
 				}
 			}
 		}
 		free (cptr);
+	}
+
+	if (mortuary) {
+		xmpp_store_mortuary(mortuary);
+		DeleteHash(&mortuary);
 	}
 }
 
