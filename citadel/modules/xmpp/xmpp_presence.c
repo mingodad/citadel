@@ -211,6 +211,8 @@ HashList *xmpp_fetch_mortuary(void) {
 		return(NULL);
 	}
 
+	/* FIXME finish this */
+
 	return(mortuary);
 }
 
@@ -225,14 +227,29 @@ void xmpp_store_mortuary(HashList *mortuary) {
 	long len;
 	void *Value;
 	const char *Key;
+	StrBuf *themsg;
+
+	themsg = NewStrBuf();
+	StrBufPrintf(themsg,	"Content-type: " XMPPMORTUARY "\n"
+				"Content-transfer-encoding: 7bit\n"
+				"\n"
+	);
 
 	HashPos = GetNewHashPos(mortuary, 0);
 	while (GetNextHashPos(mortuary, HashPos, &len, &Key, &Value) != 0)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "FIXME WRITE \033[31m%s\033[0m\n", (char *)Value);
+		StrBufAppendPrintf(themsg, "%s\n", (char *)Value);
 		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 	}
 	DeleteHashPos(&HashPos);
+
+	/* Save it to disk */
+	quickie_message("Citadel", NULL, NULL, USERCONFIGROOM, ChrPtr(themsg), 4, "XMPP Mortuary");
+
+	/* Delete the old one */
+	CtdlDeleteMessages(USERCONFIGROOM, NULL, 0, XMPPMORTUARY);
+
+	FreeStrBuf(&themsg);
 }
 
 
