@@ -421,7 +421,6 @@ void pop3_top(char *argbuf) {
 	cprintf("+OK Message %d:\r\n", which_one);
 	
 	ptr = ChrPtr(msgtext);
-	// TODO: use buffer stuff here
 	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)),
 	      ( (*ptr != 0) && (done == 0))) {
 		strcat(buf, "\r\n");

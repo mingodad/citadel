@@ -5,19 +5,19 @@
  *
  * Copyright (c) 2007-2010 by Art Cancro
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
 
@@ -200,6 +200,38 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 }
 
 
+
+void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
+	HashList *mortuary = (HashList *) userdata;
+	struct CtdlMessage *msg;
+	const char *ptr = NULL;
+	const char *endptr = NULL;
+	int in_body = 0;
+	char buf[256];
+
+	CtdlLogPrintf(CTDL_DEBUG, "\033[32m%d\033[0m\n", msgnum);
+	msg = CtdlFetchMessage(msgnum, 1);
+	if (msg == NULL) {
+		return;
+	}
+
+	/* now add anyone we find into the hashlist */
+
+	ptr = msg->cm_fields['M'];
+	endptr = ptr + strlen(ptr);	// only do strlen once :)
+	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)), ((ptr < endptr) && (*ptr != 0)) ) {
+		CtdlLogPrintf(CTDL_DEBUG, "%3d \033[31m%s\033[0m\n", in_body, buf);
+		if (in_body) {
+			Put(mortuary, buf, strlen(buf), buf, generic_free_handler);
+		}
+		if (IsEmptyStr(buf)) in_body = 1;
+	}
+
+	CtdlFreeMessage(msg);
+}
+
+
+
 /*
  * Fetch the "mortuary" - a list of dead buddies which we keep around forever
  * so we can remove them from any client's roster that still has them listed
@@ -211,7 +243,12 @@ HashList *xmpp_fetch_mortuary(void) {
 		return(NULL);
 	}
 
-	/* FIXME finish this */
+        if (CtdlGetRoom(&CC->room, USERCONFIGROOM) != 0) {
+		/* no config room exists - no further processing is required. */
+                return(mortuary);
+        }
+        CtdlForEachMessage(MSGS_LAST, 1, NULL, XMPPMORTUARY, NULL,
+                xmpp_fetch_mortuary_backend, (void *)mortuary );
 
 	return(mortuary);
 }
@@ -243,12 +280,12 @@ void xmpp_store_mortuary(HashList *mortuary) {
 	}
 	DeleteHashPos(&HashPos);
 
-	/* Save it to disk */
-	quickie_message("Citadel", NULL, NULL, USERCONFIGROOM, ChrPtr(themsg), 4, "XMPP Mortuary");
-
-	/* Delete the old one */
+	/* Delete the old mortuary */
 	CtdlDeleteMessages(USERCONFIGROOM, NULL, 0, XMPPMORTUARY);
 
+	/* And save the new one to disk */
+	CtdlLogPrintf(CTDL_DEBUG, "Save this:\n\033[34m%s\033[0m\n", ChrPtr(themsg));
+	quickie_message("Citadel", NULL, NULL, USERCONFIGROOM, ChrPtr(themsg), 4, "XMPP Mortuary");
 	FreeStrBuf(&themsg);
 }
 
@@ -279,6 +316,7 @@ void xmpp_massacre_roster(void)
 					xmpp_destroy_buddy(cptr[i].cs_inet_email);
 					if (mortuary) {
 						char *buddy = strdup(cptr[i].cs_inet_email);
+						CtdlLogPrintf(CTDL_DEBUG, "Put \033[33m%s\033[0m\n", buddy);
 						Put(mortuary, buddy, strlen(buddy),
 							buddy, generic_free_handler);
 					}
