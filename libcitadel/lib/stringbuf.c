@@ -425,6 +425,12 @@ int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars)
 	size_t Siz = Buf->BufSize;
 	size_t CopySize;
 
+	if (Buf == NULL)
+		return -1;
+	if (ptr == NULL) {
+		FlushStrBuf(Buf);
+		return -1;
+	}
 	if (nChars < 0)
 		CopySize = strlen(ptr);
 	else
