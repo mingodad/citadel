@@ -394,23 +394,25 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 				    return -1; 
 			    }
 
-			    pch = ChrPtr(WCC->ReadBuf);
-			    YetRead = WCC->ReadPos - pch;
-			    if (YetRead > 0)
-			    {
-				    long StillThere;
-				    
-				    StillThere = StrLength(WCC->ReadBuf) - 
-					    YetRead;
+			    if (WCC->ReadPos != NULL) {
+				    pch = ChrPtr(WCC->ReadBuf);
 
-				    StrBufPlain(Ret, 
-						WCC->ReadPos,
-						StillThere);
-				    total_len -= StillThere;
-			    }
-			    FlushStrBuf(WCC->ReadBuf);
-			    WCC->ReadPos = NULL;
-			    
+				    YetRead = WCC->ReadPos - pch;
+				    if (YetRead > 0)
+				    {
+					    long StillThere;
+					    
+					    StillThere = StrLength(WCC->ReadBuf) - 
+						    YetRead;
+					    
+					    StrBufPlain(Ret, 
+							WCC->ReadPos,
+							StillThere);
+					    total_len -= StillThere;
+				    }
+				    FlushStrBuf(WCC->ReadBuf);
+				    WCC->ReadPos = NULL;
+			    } 
 			    if (total_len > 0)
 			    {
 				    rc = StrBufReadBLOB(Ret, 
