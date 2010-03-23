@@ -1573,7 +1573,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 char *qp_encode_email_addrs(char *source)
 {
-	char user[256], node[256], name[256];
+	char *user, *node, *name;
 	const char headerStr[] = "=?UTF-8?Q?";
 	char *Encoded;
 	char *EncodedName;
@@ -1638,6 +1638,10 @@ char *qp_encode_email_addrs(char *source)
 
 	for (i = 0; i < nColons; i++)
 		source[AddrPtr[i]++] = '\0';
+	/* TODO: if libidn, this might get larger*/
+	user = malloc(SourceLen + 1);
+	node = malloc(SourceLen + 1);
+	name = malloc(SourceLen + 1);
 
 	nPtr = Encoded;
 	*nPtr = '\0';
@@ -1681,6 +1685,10 @@ char *qp_encode_email_addrs(char *source)
 	}
 	for (i = 0; i < nColons; i++)
 		source[--AddrPtr[i]] = ',';
+
+	free(user);
+	free(node);
+	free(name);
 	free(AddrUtf8);
 	free(AddrPtr);
 	return Encoded;
