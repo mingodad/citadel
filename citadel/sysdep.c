@@ -587,9 +587,9 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 						&Error);
 	if (retval < 0) {
 		CtdlLogPrintf(CTDL_CRIT, 
-			      "%s failed: %s\n",
-			      __FUNCTION__,
-			      Error);
+			      "%s failed\n",
+			      __FUNCTION__);
+		return -1;
 	}
 	else
 	{
