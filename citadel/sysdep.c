@@ -573,10 +573,15 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 #ifdef HAVE_OPENSSL
 	if (CCC->redirect_ssl) {
 		retval = client_read_sslblob(Target, bytes, timeout);
+		if (retval < 0) {
+			CtdlLogPrintf(CTDL_CRIT, 
+				      "%s failed\n",
+				      __FUNCTION__);
+		}
 	}
 	else 
 #endif
-
+	{
 		retval = StrBufReadBLOBBuffered(Target, 
 						CCC->ReadBuf,
 						&CCC->Pos,
@@ -585,33 +590,35 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 						bytes,
 						O_TERM,
 						&Error);
-	if (retval < 0) {
-		CtdlLogPrintf(CTDL_CRIT, 
-			      "%s failed\n",
-			      __FUNCTION__);
-		return -1;
-	}
-	else
-	{
+		if (retval < 0) {
+			CtdlLogPrintf(CTDL_CRIT, 
+				      "%s failed: %s\n",
+				      __FUNCTION__, 
+				      Error);
+			return retval;
+		}
+		else
+		{
 #ifdef BIGBAD_IODBG
-		int rv = 0;
-		char fn [SIZ];
-		FILE *fd;
-
-		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
-
-		fd = fopen(fn, "a+");
-                fprintf(fd, "Read: BufSize: %d BufContent: [",
-                        StrLength(Target));
-		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
-                fprintf(fd, "]\n");
-		
+			int rv = 0;
+			char fn [SIZ];
+			FILE *fd;
 			
-                fclose(fd);
+			snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+			
+			fd = fopen(fn, "a+");
+			fprintf(fd, "Read: BufSize: %d BufContent: [",
+				StrLength(Target));
+			rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+			fprintf(fd, "]\n");
+			
+			
+			fclose(fd);
 #endif
 
+		}
 	}
-	return retval == bytes;
+	return retval;
 }
 
 int client_read_to(char *buf, int bytes, int timeout)
