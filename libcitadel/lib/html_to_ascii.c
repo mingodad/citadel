@@ -570,7 +570,7 @@ char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaform
 		--output_len;
 	}
 
-	if (outptr[output_len-1] != '\n') {
+	if ((output_len > 0) && (outptr[output_len-1] != '\n')) {
 		strcat(outptr, "\n");
 		++output_len;
 	}
