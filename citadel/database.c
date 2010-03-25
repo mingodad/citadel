@@ -504,8 +504,13 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
 	char *uncompressed_data;
 	char *compressed_data;
 	uLongf destLen, sourceLen;
+	size_t cplen;
 
-	memcpy(&zheader, cdb->ptr, sizeof(struct CtdlCompressHeader));
+	memset(&zheader, 0, sizeof(struct CtdlCompressHeader));
+	cplen = sizeof(struct CtdlCompressHeader);
+	if (sizeof(struct CtdlCompressHeader) > cdb->len)
+		cplen = cdb->len;
+	memcpy(&zheader, cdb->ptr, cplen);
 
 	compressed_data = cdb->ptr;
 	compressed_data += sizeof(struct CtdlCompressHeader);
