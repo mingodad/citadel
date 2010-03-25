@@ -388,20 +388,29 @@ void unfold_rfc822_field(char **field, char **FieldEnd)
 	     sField < pFieldEnd; 
 	     pField++, sField++)
 	{
-		if (*pField=='\"') quote = 1 - quote;
-		if (!quote) {
-			if (isspace(*sField))
-			{
-				*pField = ' ';
-				pField++;
+		if ((*sField=='\r') || (*sField=='\n')) {
+			while (isspace(*sField))
 				sField++;
-			
-				while ((sField < pFieldEnd) && 
-				       isspace(*sField))
-					sField++;
-			}
+			*pField = *sField;
 		}
-		else *pField = *sField;
+		else {
+			if (*sField=='\"') quote = 1 - quote;
+			if (!quote) {
+				if (isspace(*sField))
+				{
+					*pField = ' ';
+					pField++;
+					sField++;
+					
+					while ((sField < pFieldEnd) && 
+					       isspace(*sField))
+						sField++;
+					*pField = *sField;
+				}
+				else *pField = *sField;
+			}
+			else *pField = *sField;
+		}
 	}
 	*pField = '\0';
 	*FieldEnd = pField - 1;
@@ -573,8 +582,10 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 	valueend = key + len;
 	* ( key + (colonpos - beg) ) = '\0';
 	value = &key[(colonpos - beg) + 1];
+/*	printf("Header: [%s]\nValue: [%s]\n", key, value); */
 	unfold_rfc822_field(&value, &valueend);
 	valuelen = valueend - value + 1;
+/*	printf("UnfoldedValue: [%s]\n", value); */
 
 	/*
 	 * Here's the big rfc822-to-citadel loop.
