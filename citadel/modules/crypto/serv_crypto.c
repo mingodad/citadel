@@ -561,7 +561,7 @@ int client_read_sslblob(StrBuf *Target, long bytes, int timeout)
 {
 	long bufremain;
 	long baselen;
-	int retval;
+	int retval = 0;
 	CitContext *CCC = CC;
 
 	baselen = StrLength(Target);
