@@ -352,20 +352,21 @@ void cmd_chat(char *argbuf)
 	struct ChatLine *clptr;
 	struct CitContext *t_context;
 	int retval;
+	CitContext *CCC = CC;
 
-	if (!(CC->logged_in)) {
+	if (!(CCC->logged_in)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return;
 	}
 
-	CC->cs_flags = CC->cs_flags | CS_CHAT;
+	CCC->cs_flags = CCC->cs_flags | CS_CHAT;
 	cprintf("%d Entering chat mode (type '/help' for available commands)\n",
 		START_CHAT_MODE);
 	unbuffer_output();
 
 	MyLastMsg = ChatLastMsg;
 
-	if ((CC->cs_flags & CS_STEALTH) == 0) {
+	if ((CCC->cs_flags & CS_STEALTH) == 0) {
 		allwrite("<entering chat>", 0, NULL);
 	}
 	strcpy(cmdbuf, "");
@@ -383,8 +384,8 @@ void cmd_chat(char *argbuf)
 
 		retval = client_read_to(&cmdbuf[linelen], 1, 2);
 
-		if (retval < 0 || CC->kill_me) {	/* socket broken? */
-			if ((CC->cs_flags & CS_STEALTH) == 0) {
+		if (retval < 0 || CCC->kill_me) {	/* socket broken? */
+			if ((CCC->cs_flags & CS_STEALTH) == 0) {
 				allwrite("<disconnected>", 0, NULL);
 			}
 			return;
@@ -394,8 +395,8 @@ void cmd_chat(char *argbuf)
 		if (!IsEmptyStr(cmdbuf))
 			if (cmdbuf[strlen(cmdbuf) - 1] == 10) {
 				cmdbuf[strlen(cmdbuf) - 1] = 0;
-				time(&CC->lastcmd);
-				time(&CC->lastidle);
+				time(&CCC->lastcmd);
+				time(&CCC->lastidle);
 
 				if ((!strcasecmp(cmdbuf, "exit"))
 				    || (!strcasecmp(cmdbuf, "/exit"))
@@ -409,12 +410,12 @@ void cmd_chat(char *argbuf)
 					strcpy(cmdbuf, "000");
 
 				if (!strcmp(cmdbuf, "000")) {
-					if ((CC->cs_flags & CS_STEALTH) == 0) {
+					if ((CCC->cs_flags & CS_STEALTH) == 0) {
 						allwrite("<exiting chat>", 0, NULL);
 					}
 					sleep(1);
 					cprintf("000\n");
-					CC->cs_flags = CC->cs_flags - CS_CHAT;
+					CCC->cs_flags = CCC->cs_flags - CS_CHAT;
 					return;
 				}
 				if ((!strcasecmp(cmdbuf, "/help"))
@@ -451,8 +452,8 @@ void cmd_chat(char *argbuf)
 					ok_cmd = 1;
 					strptr1 = &cmdbuf[5];
 					if ((t_context = find_context(&strptr1))) {
-						allwrite(strptr1, 2, CC->curr_user);
-						if (strcasecmp(CC->curr_user, t_context->curr_user))
+						allwrite(strptr1, 2, CCC->curr_user);
+						if (strcasecmp(CCC->curr_user, t_context->curr_user))
 							allwrite(strptr1, 2, t_context->curr_user);
 					} else
 						cprintf(":|User not found.\n");
@@ -467,7 +468,7 @@ void cmd_chat(char *argbuf)
 					strptr1 = &cmdbuf[6];
 					strcat(strptr1, " ");
 					if ((t_context = find_context(&strptr1))) {
-						if (strcasecmp(CC->curr_user, t_context->curr_user))
+						if (strcasecmp(CCC->curr_user, t_context->curr_user))
 							allwrite(strptr1, 3, t_context->curr_user);
 					} else
 						cprintf(":|User not found.\n");
@@ -485,15 +486,15 @@ void cmd_chat(char *argbuf)
 			}
 		/* now check the queue for new incoming stuff */
 
-		if (CC->fake_username[0])
-			un = CC->fake_username;
+		if (CCC->fake_username[0])
+			un = CCC->fake_username;
 		else
-			un = CC->curr_user;
+			un = CCC->curr_user;
 		if (ChatLastMsg > MyLastMsg) {
 			ThisLastMsg = ChatLastMsg;
 			for (clptr = ChatQueue; clptr != NULL; clptr = clptr->next) {
 				if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!strncasecmp(un, clptr->chat_username, 32)))) {
-					if ((!clptr->chat_room[0]) || (!strncasecmp(CC->room.QRname, clptr->chat_room, ROOMNAMELEN))) {
+					if ((!clptr->chat_room[0]) || (!strncasecmp(CCC->room.QRname, clptr->chat_room, ROOMNAMELEN))) {
 						/* Output new chat data */
 						cprintf("%s\n", clptr->chat_text);
 
@@ -501,10 +502,10 @@ void cmd_chat(char *argbuf)
 						if (!strcmp(&clptr->chat_text[2], KICKEDMSG)) {
 							allwrite("<kicked out of this room>", 0, NULL);
 							cprintf("000\n");
-							CC->cs_flags = CC->cs_flags - CS_CHAT;
+							CCC->cs_flags = CCC->cs_flags - CS_CHAT;
 
 							/* Kick user out of room */
-							CtdlInvtKick(CC->user.fullname, 0);
+							CtdlInvtKick(CCC->user.fullname, 0);
 
 							/* And return to the Lobby */
 							CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
