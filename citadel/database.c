@@ -317,7 +317,7 @@ void open_databases(void)
 			      ctdl_data_dir, strerror(errno));
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "bdb(): Setting up DB environment\n");
-	db_env_set_func_yield(sched_yield);
+	db_env_set_func_yield((int (*)(u_long,  u_long))sched_yield);
 	ret = db_env_create(&dbenv, 0);
 	if (ret) {
 		CtdlLogPrintf(CTDL_EMERG, "bdb(): db_env_create: %s\n", db_strerror(ret));
