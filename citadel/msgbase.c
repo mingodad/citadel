@@ -1591,6 +1591,8 @@ char *qp_encode_email_addrs(char *source)
 
 	if (source == NULL) return source;
 	if (IsEmptyStr(source)) return source;
+	cit_backtrace();
+	CtdlLogPrintf(CTDL_DEBUG, "qp_encode_email_addrs: [%s]\n", source);
 
 	AddrPtr = malloc (sizeof (long) * nAddrPtrMax);
 	AddrUtf8 = malloc (sizeof (long) * nAddrPtrMax);
