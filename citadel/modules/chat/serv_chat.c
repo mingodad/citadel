@@ -345,6 +345,11 @@ void do_chat_listing(int allflag)
 
 void cmd_chat(char *argbuf)
 {
+	/* FIXME chat has been broken by the underlying buffered I/O layer */
+	cprintf("%d Chat is currently disabled at this site.\n", ERROR);
+	return;
+
+#if 0
 	char cmdbuf[SIZ];
 	char *un;
 	char *strptr1;
@@ -517,6 +522,7 @@ void cmd_chat(char *argbuf)
 			MyLastMsg = ThisLastMsg;
 		}
 	}
+#endif
 }
 
 
