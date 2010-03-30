@@ -322,7 +322,7 @@ int ctdl_vacation(sieve2_context_t *s, void *my)
 	}
 
 	sprintf(vacamsg_text, 
-		"Content-type: text/plain\n"
+		"Content-type: text/plain charset=utf-8\n"
 		"\n"
 		"%s\n"
 		"\n"
