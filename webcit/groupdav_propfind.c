@@ -42,22 +42,28 @@ long locate_message_by_uid(const char *uid) {
 	return(retval);
 }
 
-const folder *GetRESTFolder(int IgnoreFloor)
+const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 {
 	wcsession  *WCC = WC;
 	void *vFolder;
 	const folder *ThisFolder = NULL;
+	const folder *FoundFolder = NULL;
+	const folder *BestGuess = NULL;
+	int nBestGuess = 0;
 	HashPos    *itd, *itfl;
 	StrBuf     * Dir;
 	void       *vDir;
 	long        len;
         const char *Key;
-	int i, j, urlp;
+	int iRoom, jURL, urlp;
 	int delta;
 
-
-
+/*
+ * Guess room: if the full URL matches a room, list thats it. We also need to remember direct sub rooms.
+ * if the URL is longer, we need to find the "best guess" so we can find the room we're in, and the rest of the URL will be uids and so on.
+ */
 	itfl = GetNewHashPos(WCC->Floors, 0);
+	urlp = GetCount(WCC->Directory);
 
 	while (GetNextHashPos(WCC->Floors, itfl, &len, &Key, &vFolder) && 
 	       (ThisFolder == NULL))
@@ -71,18 +77,24 @@ const folder *GetRESTFolder(int IgnoreFloor)
 		if (ThisFolder->nRoomNameParts > 1) 
 		{
 			/*TODO: is that number all right? */
-			if (GetCount(WCC->Directory) - ThisFolder->nRoomNameParts != 2)
-				continue;
-
+			if (urlp - ThisFolder->nRoomNameParts != 2) {
+//				if (BestGuess != NULL)
+					continue;
+//ThisFolder->name
+//				itd  = GetNewHashPos(WCC->Directory, 0);
+//				GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir); //TODO: how many to fast forward?
+			}
 			itd  = GetNewHashPos(WCC->Directory, 0);
 			GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir); //TODO: how many to fast forward?
-	/* Fast forward the floorname we checked above... */
-			for (i = 0, j = 1; 
-			     (i > ThisFolder->nRoomNameParts) && (j > urlp); 
-			     i++, j++, GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir))
+	
+			for (iRoom = 0, /* Fast forward the floorname as we checked it above: */ jURL = IgnoreFloor; 
+
+			     (iRoom <= ThisFolder->nRoomNameParts) && (jURL <= urlp); 
+
+			     iRoom++, jURL++, GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir))
 			{
 				Dir = (StrBuf*)vDir;
-				if (strcmp(ChrPtr(ThisFolder->RoomNameParts[i]), 
+				if (strcmp(ChrPtr(ThisFolder->RoomNameParts[iRoom]), 
 					   ChrPtr(Dir)) != 0)
 				{
 					DeleteHashPos(&itd);
@@ -90,16 +102,31 @@ const folder *GetRESTFolder(int IgnoreFloor)
 				}
 			}
 			DeleteHashPos(&itd);
-			DeleteHashPos(&itfl);
-			return ThisFolder;
+			/* Gotcha? */
+			if ((iRoom == ThisFolder->nRoomNameParts) && (jURL == urlp))
+			{
+				FoundFolder = ThisFolder;
+			}
+			/* URL got more parts then this room, so we remember it for the best guess*/
+			else if ((jURL <= urlp) &&
+				 (ThisFolder->nRoomNameParts <= nBestGuess))
+			{
+				BestGuess = ThisFolder;
+				nBestGuess = jURL - 1;
+			}
+			/* Room has more parts than the URL, it might be a sub-room? */
+			else if (iRoom <ThisFolder->nRoomNameParts) 
+			{//// TODO: ThisFolder->nRoomNameParts == urlp - IgnoreFloor???
+				Put(Subfolders, SKEY(ThisFolder->name), ThisFolder, reference_free_handler);
+			}
 		}
 		else {
+			delta = GetCount(WCC->Directory) - ThisFolder->nRoomNameParts;
+			if ((delta != 2) && (nBestGuess > 1))
+			    continue;
 			
-			if (GetCount(WCC->Directory) - ThisFolder->nRoomNameParts != 2)
-				continue;
 			itd  = GetNewHashPos(WCC->Directory, 0);
-			
-			
+						
 			if (!GetNextHashPos(WCC->Directory, 
 					    itd, &len, &Key, &vDir) ||
 			    (vDir == NULL))
@@ -120,15 +147,21 @@ const folder *GetRESTFolder(int IgnoreFloor)
 				lprintf(0, "5\n");
 				continue;
 			}
-			
 			DeleteHashPos(&itfl);
 			DeleteHashPos(&itd);
-			
-			return ThisFolder;;
+			if (delta != 2) {
+				nBestGuess = 1;
+				BestGuess = ThisFolder;
+			}
+			else 
+				FoundFolder = ThisFolder;;
 		}
 	}
 	DeleteHashPos(&itfl);
-	return NULL;
+	if (FoundFolder != NULL)
+		return FoundFolder;
+	else
+		return BestGuess;
 }
 
 
@@ -140,6 +173,7 @@ long GotoRestRoom()
 	long Count;
 	long State;
 	const folder *ThisFolder;
+	HashList *SubRooms = NULL;
 
 	State = REST_TOPLEVEL;
 
@@ -155,7 +189,8 @@ long GotoRestRoom()
 	
 	if (Count >= 3) {
 		State |= REST_IN_FLOOR;
-		ThisFolder = GetRESTFolder(0);
+		SubRooms = NewHash(1, Flathash);
+		ThisFolder = GetRESTFolder(0, SubRooms);
 		WCC->ThisRoom = ThisFolder;
 		if (ThisFolder != NULL)
 		{
@@ -174,7 +209,8 @@ long GotoRestRoom()
 
 	if ((Count >= 3) && (WCC->CurrentFloor == NULL))
 	{
-		ThisFolder = GetRESTFolder(1);
+		SubRooms = NewHash(1, Flathash);
+		ThisFolder = GetRESTFolder(1, SubRooms);
 		WCC->ThisRoom = ThisFolder;
 		if (ThisFolder != NULL)
 		{
