@@ -124,7 +124,6 @@ int CtdlTryUserLDAP(char *username,
 		sprintf(searchstring, "(&(objectclass=posixAccount)(uid=%s))", username);
 	}
 
-	/* Documentation of ldap_search_ext_s() is at http://tinyurl.com/y9c8a8l */
 	CtdlLogPrintf(CTDL_DEBUG, "LDAP search: %s\n", searchstring);
 	i = ldap_search_ext_s(ldserver,				/* ld				*/
 		config.c_ldap_base_dn,				/* base				*/
@@ -139,19 +138,9 @@ int CtdlTryUserLDAP(char *username,
 		&search_result					/* res				*/
 	);
 
-#if 0
-	/* It appears that this is unnecessary, and returns an error even when the search succeeds? */
-	if (i != LDAP_SUCCESS) {
-		CtdlLogPrintf(CTDL_DEBUG, "LDAP search failed: %s (%d)\n", ldap_err2string(i), i);
-		ldap_unbind(ldserver);
-		if (search_result != NULL) {
-			/* this should never happen - warning memory leak! */
-			CtdlLogPrintf(CTDL_DEBUG, "search returned error but search_result is not null!\n");
-		}
-		return(i);
-	}
-#endif
-
+	/* Ignore the return value of ldap_search_ext_s().  Sometimes it returns an error even when
+	 * the search succeeds.  Instead, we check to see whether search_result is still NULL.
+	 */
 	if (search_result == NULL) {
 		CtdlLogPrintf(CTDL_DEBUG, "LDAP search: zero results were returned\n");
 		ldap_unbind(ldserver);
@@ -239,6 +228,7 @@ int CtdlTryPasswordLDAP(char *user_dn, char *password)
 	LDAP *ldserver = NULL;
 	int i = (-1);
 
+	CtdlLogPrintf(CTDL_DEBUG, "LDAP: trying to bind as %s\n", user_dn);
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver) {
 		ldap_set_option(ldserver, LDAP_OPT_PROTOCOL_VERSION, &ctdl_require_ldap_version);
@@ -266,21 +256,25 @@ int CtdlTryPasswordLDAP(char *user_dn, char *password)
  */
 int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 {
+	changed_something = 0;
+
 	if (!ldap_dn) return(0);
 	if (!v) return(0);
 
 	/*
-	 * FIXME LDAPSTUB this is a stub function
+	 * FIXME this is a stub function
 	 *
 	 * ldap_dn will contain the DN of the user, and v will contain a pointer to
 	 * the vCard that needs to be (re-)populated.  Put the requisite LDAP code here.
 	 *
 	vcard_set_prop(v, "email;internet", xxx, 0);
-	return(1);	* return nonzero to tell the caller that we made changes that need to be saved *
+	 *
+	 * return nonzero to tell the caller that we made changes that need to be saved
+	changed_something = 1;
 	 *
 	 */
 
-	return(0);	/* return zero to tell the caller that we didn't make any changes */
+	return(changed_something);	/* tell the caller whether we made any changes */
 }
 
 #endif /* HAVE_LDAP */
