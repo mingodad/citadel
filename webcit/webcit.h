@@ -346,6 +346,7 @@ typedef struct _addrbookent {
 #define ISSTATIC (1<<7)
 #define FORCE_SESSIONCLOSE (1<<8)
 #define PARSE_REST_URL (1<<9)
+#define PROHIBIT_STARTPAGE (1<<10)
 
 typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{

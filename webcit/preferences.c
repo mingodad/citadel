@@ -10,6 +10,7 @@
 #include "groupdav.h"
 
 HashList *PreferenceHooks;
+extern HashList *HandlerHash;
 
 typedef struct _PrefDef {
 	long Type;
@@ -984,23 +985,50 @@ void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
  */
 void change_start_page(void) 
 {
-	if (!havebstr("startpage")) {
+	wcsession *WCC = WC;
+	const char *pch;
+	void *vHandler;
+	int ProhibitSave = 0;
+	const StrBuf *pStartPage = sbstr("startpage");
+
+	if (pStartPage != NULL) {
+		pch = strchr(ChrPtr(pStartPage), '?');
+
+		if ((pch != NULL) && (
+			    GetHash(HandlerHash, ChrPtr(pStartPage), pch - ChrPtr(pStartPage), &vHandler), 
+			    (vHandler != NULL) &&
+			    ((((WebcitHandler*)vHandler)->Flags & PROHIBIT_STARTPAGE) != 0)))
+		{ /* OK, This handler doesn't want to be set as start page, prune it. */
+			ProhibitSave = 1;
+		}
+	}
+
+	if ((pStartPage == NULL) || 
+	    (ProhibitSave == 1))
+	{
 		set_preference_backend(HKEY("startpage"), 
 				       0, 
 				       NewStrBufPlain(HKEY("")),
 				       PRF_STRING,
 				       1, 
 				       NULL);
-		safestrncpy(WC->ImportantMessage,
-			    _("You no longer have a start page selected."),
-			    sizeof( WC->ImportantMessage));
+		if (ProhibitSave == 1)
+			StrBufAppendBufPlain(WCC->ImportantMsg,
+					     _("This isn't allowed to become the start page."),
+					     -1, 0);
+		else
+			StrBufAppendBufPlain(WCC->ImportantMsg,
+					     _("You no longer have a start page selected."),
+					     -1, 0);
 		display_main_menu();
 		return;
 	}
 
+
+
 	set_preference_backend(HKEY("startpage"), 
 			       0, 
-			       NewStrBufDup(sbstr("startpage")),
+			       NewStrBufDup(pStartPage),
 			       PRF_STRING,
 			       1, 
 			       NULL);
@@ -1014,6 +1042,7 @@ void change_start_page(void)
 void LoadStartpage(StrBuf *URL, long lvalue)
 {
 	const char *pch;
+	void *vHandler;
 	pch = strchr(ChrPtr(URL), '?');
 	if (pch == NULL) {
 		/* purge the sins of the past... */
@@ -1022,6 +1051,13 @@ void LoadStartpage(StrBuf *URL, long lvalue)
 			StrBufPeek(URL, pch, -1, '?');
 			WC->SavePrefsToServer = 1;
 		}
+	}
+	else if (GetHash(HandlerHash, ChrPtr(URL), pch - ChrPtr(URL), &vHandler), 
+		 (vHandler != NULL) &&
+		 ((((WebcitHandler*)vHandler)->Flags & PROHIBIT_STARTPAGE) != 0))
+	{ /* OK, This handler doesn't want to be set as start page, prune it. */
+		FlushStrBuf(URL);
+		WC->SavePrefsToServer = 1;
 	}
 }
 

@@ -1729,10 +1729,10 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("readlt"), "", 0, h_readlt, NEED_URL);
 	WebcitAddUrlHandler(HKEY("do_search"), "", 0, h_do_search, 0);
 	WebcitAddUrlHandler(HKEY("display_enter"), "", 0, display_enter, 0);
-	WebcitAddUrlHandler(HKEY("post"), "", 0, post_message, 0);
-	WebcitAddUrlHandler(HKEY("move_msg"), "", 0, move_msg, 0);
-	WebcitAddUrlHandler(HKEY("delete_msg"), "", 0, delete_msg, 0);
-	WebcitAddUrlHandler(HKEY("confirm_move_msg"), "", 0, confirm_move_msg, 0);
+	WebcitAddUrlHandler(HKEY("post"), "", 0, post_message, PROHIBIT_STARTPAGE);
+	WebcitAddUrlHandler(HKEY("move_msg"), "", 0, move_msg, PROHIBIT_STARTPAGE);
+	WebcitAddUrlHandler(HKEY("delete_msg"), "", 0, delete_msg, PROHIBIT_STARTPAGE);
+	WebcitAddUrlHandler(HKEY("confirm_move_msg"), "", 0, confirm_move_msg, PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("msg"), "", 0, embed_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("message"), "", 0, handle_one_message, NEED_URL|XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("printmsg"), "", 0, print_message, NEED_URL);
@@ -1741,8 +1741,8 @@ InitModule_MSG
 
 	WebcitAddUrlHandler(HKEY("mimepart"), "", 0, view_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("mimepart_download"), "", 0, download_mimepart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart"), "", 0, view_postpart, NEED_URL);
-	WebcitAddUrlHandler(HKEY("postpart_download"), "", 0, download_postpart, NEED_URL);
+	WebcitAddUrlHandler(HKEY("postpart"), "", 0, view_postpart, NEED_URL|PROHIBIT_STARTPAGE);
+	WebcitAddUrlHandler(HKEY("postpart_download"), "", 0, download_postpart, NEED_URL|PROHIBIT_STARTPAGE);
 
 	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
