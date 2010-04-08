@@ -84,15 +84,6 @@ struct ExpressMessage {
 #define EM_GO_AWAY	2	/* Server requests client log off */
 #define EM_CHAT		4	/* Server requests client enter chat */
 
-struct ChatLine {
-	struct ChatLine *next;
-	int chat_seq;
-	time_t chat_time;
-	char chat_text[SIZ];
-	char chat_username[USERNAME_SIZE];
-	char chat_room[ROOMNAMELEN];
-};
-
 /*
  * Various things we need to lock and unlock
  */

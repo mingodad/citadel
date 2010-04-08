@@ -4,21 +4,21 @@
  * front end for chat mode
  * (the "single process" version - no more fork() anymore)
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2010 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -66,36 +66,33 @@
 extern char temp[];
 void ctdl_getline(char *, int);
 
+
 char last_paged[SIZ] = "";
 
 void chatmode(CtdlIPC *ipc)
 {
 	char wbuf[SIZ];
 	char buf[SIZ];
+	char response[SIZ];
 	char c_user[SIZ];
 	char c_text[SIZ];
-	char c_room[SIZ];
 	char last_user[SIZ];
 	int send_complete_line;
-	int recv_complete_line;
 	char ch;
 	int a, pos;
-	time_t last_transmit;
+	int seq = 0;
 
 	fd_set rfds;
 	struct timeval tv;
 	int retval;
 
-	CtdlIPC_chat_send(ipc, "CHAT");
+	CtdlIPC_chat_send(ipc, "RCHT enter");
 	CtdlIPC_chat_recv(ipc, buf);
-	if (buf[0] != '8') {
+	if (buf[0] != '2') {
 		scr_printf("%s\n", &buf[4]);
 		return;
 	}
-	scr_printf("Entering chat mode "
-		"(type /quit to exit, /help for other cmds)\n");
-	set_keepalives(KA_NO);
-	last_transmit = time(NULL);
+	scr_printf("Entering chat mode (type /quit to exit)\n");
 
 	strcpy(buf, "");
 	strcpy(wbuf, "");
@@ -104,24 +101,14 @@ void chatmode(CtdlIPC *ipc)
 	sln_printf_if("\n");
 	sln_printf("> ");
 	send_complete_line = 0;
-	recv_complete_line = 0;
 
 	while (1) {
 		sln_flush();
 		FD_ZERO(&rfds);
 		FD_SET(0, &rfds);
-		FD_SET(CtdlIPC_getsockfd(ipc), &rfds);
-		tv.tv_sec = S_KEEPALIVE;
+		tv.tv_sec = 1;
 		tv.tv_usec = 0;
-		retval = select(CtdlIPC_getsockfd(ipc) + 1, &rfds,
-			NULL, NULL, &tv);
-
-		/* If there's data from the server... */
-		if (FD_ISSET(CtdlIPC_getsockfd(ipc), &rfds)) {
-			CtdlIPC_chat_recv(ipc, buf);
-			recv_complete_line = 1;
-			goto RCL;	/* ugly, but we've gotta get out! */
-		}
+		retval = select(1, &rfds, NULL, NULL, &tv);
 
 		/* If there's data from the keyboard... */
 		if (FD_ISSET(0, &rfds)) {
@@ -141,9 +128,23 @@ void chatmode(CtdlIPC *ipc)
 		}
 
 		/* if the user hit return, send the line */
-RCL:		if (send_complete_line) {
-			CtdlIPC_chat_send(ipc, wbuf);
-			last_transmit = time(NULL);
+		if (send_complete_line) {
+
+			if (!strcasecmp(wbuf, "/quit")) {
+				CtdlIPC_chat_send(ipc, "RCHT exit");
+				CtdlIPC_chat_recv(ipc, response);	/* don't care about the result */
+				color(BRIGHT_WHITE);
+				sln_printf("\rExiting chat mode\n");
+				sln_flush();
+				return;
+			}
+
+			CtdlIPC_chat_send(ipc, "RCHT send");
+			CtdlIPC_chat_recv(ipc, response);
+			if (response[0] == '4') {
+				CtdlIPC_chat_send(ipc, wbuf);
+				CtdlIPC_chat_send(ipc, "000");
+			}
 			strcpy(wbuf, "");
 			send_complete_line = 0;
 		}
@@ -156,89 +157,68 @@ RCL:		if (send_complete_line) {
 					pos = a;
 			}
 			if (pos == 0) {
-				CtdlIPC_chat_send(ipc, wbuf);
-				last_transmit = time(NULL);
+				CtdlIPC_chat_send(ipc, "RCHT send");
+				CtdlIPC_chat_recv(ipc, response);
+				if (response[0] == '4') {
+					CtdlIPC_chat_send(ipc, wbuf);
+					CtdlIPC_chat_send(ipc, "000");
+				}
 				strcpy(wbuf, "");
 				send_complete_line = 0;
 			} else {
 				wbuf[pos] = 0;
-				CtdlIPC_chat_send(ipc, wbuf);
-				last_transmit = time(NULL);
+				CtdlIPC_chat_send(ipc, "RCHT send");
+				CtdlIPC_chat_recv(ipc, response);
+				if (response[0] == '4') {
+					CtdlIPC_chat_send(ipc, wbuf);
+					CtdlIPC_chat_send(ipc, "000");
+				}
 				strcpy(wbuf, &wbuf[pos + 1]);
 			}
 		}
 
-		if (recv_complete_line) {
-			sln_printf("\r%79s\r", "");
-			if (!strcmp(buf, "000")) {
-				color(BRIGHT_WHITE);
-				sln_printf("\rExiting chat mode\n");
-				sln_flush();
-				set_keepalives(KA_YES);
-
-				/* Some users complained about the client and
-				 * server losing protocol synchronization when
-				 * exiting chat.  This little dialog forces
-				 * everything to be hunky-dory.
-				 */
-				CtdlIPC_chat_send(ipc, "ECHO __ExitingChat__");
-				do {
-					CtdlIPC_chat_recv(ipc, buf);
-				} while (strcmp(buf, "200 __ExitingChat__"));
-				return;
-			}
-			if (num_parms(buf) >= 2) {
-				extract_token(c_user, buf, 0, '|', sizeof c_user);
-				extract_token(c_text, buf, 1, '|', sizeof c_text);
-				if (num_parms(buf) > 2) {
-					extract_token(c_room, buf, 2, '|', sizeof c_room);
-					scr_printf("Got room %s\n", c_room);
+		/* poll for incoming chat messages */
+		snprintf(buf, sizeof buf, "RCHT poll|%d", seq);
+		CtdlIPC_chat_send(ipc, buf);
+		CtdlIPC_chat_recv(ipc, response);
+	
+		if (response[0] == '1') {
+			seq = extract_int(&response[4], 0);
+			extract_token(c_user, &response[4], 2, '|', sizeof c_user);
+			while (CtdlIPC_chat_recv(ipc, c_text), strcmp(c_text, "000")) {
+				sln_printf("\r%79s\r", "");
+				if (!strcmp(c_user, fullname)) {
+					color(BRIGHT_YELLOW);
+				} else if (!strcmp(c_user, ":")) {
+					color(BRIGHT_RED);
+				} else {
+					color(BRIGHT_GREEN);
 				}
-				if (strcasecmp(c_text, "NOOP")) {
-					if (!strcmp(c_user, fullname)) {
-						color(BRIGHT_YELLOW);
-					} else if (!strcmp(c_user, ":")) {
-						color(BRIGHT_RED);
-					} else {
-						color(BRIGHT_GREEN);
-					}
-					if (strcmp(c_user, last_user)) {
-						snprintf(buf, sizeof buf, "%s: %s", c_user, c_text);
-					} else {
-						size_t i = MIN(sizeof buf - 1,
-						     strlen(c_user) + 2);
-
-						memset(buf, ' ', i);
-						safestrncpy(&buf[i], c_text,
-							 sizeof buf - i);
-					}
-					while (strlen(buf) < 79)
-						strcat(buf, " ");
-					if (strcmp(c_user, last_user)) {
-						sln_printf("\r%79s\n", "");
-						strcpy(last_user, c_user);
-					}
-					scr_printf("\r%s\n", buf);
-					scr_flush();
+				if (strcmp(c_user, last_user)) {
+					snprintf(buf, sizeof buf, "%s: %s", c_user, c_text);
+				} else {
+					size_t i = MIN(sizeof buf - 1, strlen(c_user) + 2);
+					memset(buf, ' ', i);
+					safestrncpy(&buf[i], c_text, sizeof buf - i);
 				}
+				while (strlen(buf) < 79) {
+					strcat(buf, " ");
+				}
+				if (strcmp(c_user, last_user)) {
+					sln_printf("\r%79s\n", "");
+					strcpy(last_user, c_user);
+				}
+				scr_printf("\r%s\n", buf);
+				scr_flush();
 			}
-			color(BRIGHT_YELLOW);
-			sln_printf("\r> %s", wbuf);
-			sln_flush();
-			recv_complete_line = 0;
-			strcpy(buf, "");
 		}
-
-		/* If the user is sitting idle, send a half-keepalive to the
-		 * server to prevent session timeout.
-		 */
-		if ((time(NULL) - last_transmit) >= S_KEEPALIVE) {
-			CtdlIPC_chat_send(ipc, "NOOP");
-			last_transmit = time(NULL);
-		}
-
+		color(BRIGHT_YELLOW);
+		sln_printf("\r> %s", wbuf);
+		sln_flush();
+		strcpy(buf, "");
 	}
 }
+
 
 /*
  * send an instant message

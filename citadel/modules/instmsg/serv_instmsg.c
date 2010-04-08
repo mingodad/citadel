@@ -1,9 +1,8 @@
 /*
  * $Id$
- * 
- * This module handles all "real time" communication between users.  The
- * modes of communication currently supported are Chat and Instant Messages.
  *
+ * This module handles instant messaging between users.
+ * 
  * Copyright (c) 1987-2010 by the citadel.org team
  *
  * This program is free software; you can redistribute it and/or modify
@@ -48,7 +47,7 @@
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
-#include "serv_chat.h"
+#include "serv_instmsg.h"
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
@@ -61,9 +60,6 @@
 
 #include "ctdl_module.h"
 
-struct ChatLine *ChatQueue = NULL;
-int ChatLastMsg = 0;
-
 struct imlog {
 	struct imlog *next;
 	long usernums[2];
@@ -74,16 +70,6 @@ struct imlog {
 };
 
 struct imlog *imlist = NULL;
-
-
-
-
-/*
- * FIXME: OMG this module is realy horrible to the rest of the system when accessing contexts.
- * It pays no regard at all to how long it may have the context list locked for. 
- * It carries out IO whilst the context list is locked.
- * I'd recomend disabling this module altogether for the moment.
- */
 
 /*
  * This function handles the logging of instant messages to disk.
@@ -162,369 +148,6 @@ void log_instant_message(struct CitContext *me, struct CitContext *them, char *m
 	}
 	end_critical_section(S_IM_LOGS);
 }
-
-/*
- * This message can be set to anything you want, but it is
- * checked for consistency so don't move it away from here.
- */
-#define KICKEDMSG "You have been kicked out of this room."
-
-void allwrite(char *cmdbuf, int flag, char *username)
-{
-	FILE *fp;
-	char bcast[SIZ];
-	char *un;
-	struct ChatLine *clptr, *clnew;
-	time_t now;
-
-	if (CC->fake_username[0])
-		un = CC->fake_username;
-	else
-		un = CC->user.fullname;
-	if (flag == 1) {
-		snprintf(bcast, sizeof bcast, ":|<%s %s>", un, cmdbuf);
-	} else if (flag == 0) {
-		snprintf(bcast, sizeof bcast, "%s|%s", un, cmdbuf);
-	} else if (flag == 2) {
-		snprintf(bcast, sizeof bcast, ":|<%s whispers %s>", un, cmdbuf);
-	} else if (flag == 3) {
-		snprintf(bcast, sizeof bcast, ":|%s", KICKEDMSG);
-	}
-	if ((strcasecmp(cmdbuf, "NOOP")) && (flag != 2)) {
-		fp = fopen(CHATLOG, "a");
-		if (fp != NULL)
-			fprintf(fp, "%s\n", bcast);
-		fclose(fp);
-	}
-	clnew = (struct ChatLine *) malloc(sizeof(struct ChatLine));
-	memset(clnew, 0, sizeof(struct ChatLine));
-	if (clnew == NULL) {
-		fprintf(stderr, "citserver: cannot alloc chat line: %s\n",
-			strerror(errno));
-		return;
-	}
-	time(&now);
-	clnew->next = NULL;
-	clnew->chat_time = now;
-	safestrncpy(clnew->chat_room, CC->room.QRname,
-			sizeof clnew->chat_room);
-	clnew->chat_room[sizeof clnew->chat_room - 1] = 0;
-	if (username) {
-		safestrncpy(clnew->chat_username, username,
-			sizeof clnew->chat_username);
-		clnew->chat_username[sizeof clnew->chat_username - 1] = 0;
-	} else
-		clnew->chat_username[0] = '\0';
-	safestrncpy(clnew->chat_text, bcast, sizeof clnew->chat_text);
-
-	/* Here's the critical section.
-	 * First, add the new message to the queue...
-	 */
-	begin_critical_section(S_CHATQUEUE);
-	++ChatLastMsg;
-	clnew->chat_seq = ChatLastMsg;
-	if (ChatQueue == NULL) {
-		ChatQueue = clnew;
-	} else {
-		for (clptr = ChatQueue; clptr->next != NULL; clptr = clptr->next);;
-		clptr->next = clnew;
-	}
-
-	/* Then, before releasing the lock, free the expired messages */
-	while ((ChatQueue != NULL) && (now - ChatQueue->chat_time >= 120L)) {
-		clptr = ChatQueue;
-		ChatQueue = ChatQueue->next;
-		free(clptr);
-	}
-	end_critical_section(S_CHATQUEUE);
-}
-
-
-CitContext *find_context(char **unstr)
-{
-	CitContext *t_cc, *found_cc = NULL;
-	char *name, *tptr;
-
-	if ((!*unstr) || (!unstr))
-		return (NULL);
-
-	begin_critical_section(S_SESSION_TABLE);
-	for (t_cc = ContextList; ((t_cc) && (!found_cc)); t_cc = t_cc->next) {
-		if (t_cc->fake_username[0])
-			name = t_cc->fake_username;
-		else
-			name = t_cc->curr_user;
-		tptr = *unstr;
-		if ((!strncasecmp(name, tptr, strlen(name))) && (tptr[strlen(name)] == ' ')) {
-			found_cc = t_cc;
-			*unstr = &(tptr[strlen(name) + 1]);
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-
-	return (found_cc);
-}
-
-/*
- * List users in chat.
- * allflag ==	0 = list users in chat
- *		1 = list users in chat, followed by users not in chat
- *		2 = display count only
- */
-
-void do_chat_listing(int allflag)
-{
-	struct CitContext *ccptr;
-	int count = 0;
-	int count_elsewhere = 0;
-	char roomname[ROOMNAMELEN];
-
-	if ((allflag == 0) || (allflag == 1))
-		cprintf(":|\n:| Users currently in chat:\n");
-	begin_critical_section(S_SESSION_TABLE);
-	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-		if (ccptr->cs_flags & CS_CHAT) {
-			if (!strcasecmp(ccptr->room.QRname,
-			   CC->room.QRname)) {
-				++count;
-			}
-			else {
-				++count_elsewhere;
-			}
-		}
-
-		GenerateRoomDisplay(roomname, ccptr, CC);
-		if ((CC->user.axlevel < AxAideU) && (!IsEmptyStr(ccptr->fake_roomname))) {
-			strcpy(roomname, ccptr->fake_roomname);
-		}
-
-		if ((ccptr->cs_flags & CS_CHAT) && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
-			if ((allflag == 0) || (allflag == 1)) {
-				cprintf(":| %-25s <%s>:\n",
-					(ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user,
-					roomname);
-			}
-		}
-	}
-
-	if (allflag == 1) {
-		cprintf(":|\n:| Users not in chat:\n");
-		for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
-
-			GenerateRoomDisplay(roomname, ccptr, CC);
-			if ((CC->user.axlevel < AxAideU)
-		   	&& (!IsEmptyStr(ccptr->fake_roomname))) {
-				strcpy(roomname, ccptr->fake_roomname);
-			}
-
-			if (((ccptr->cs_flags & CS_CHAT) == 0)
-			    && ((ccptr->cs_flags & CS_STEALTH) == 0)) {
-				cprintf(":| %-25s <%s>:\n",
-					(ccptr->fake_username[0]) ? ccptr->fake_username : ccptr->curr_user,
-					roomname);
-			}
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-
-	if (allflag == 2) {
-		if (count > 1) {
-			cprintf(":|There are %d users here.\n", count);
-		}
-		else {
-			cprintf(":|Note: you are the only one here.\n");
-		}
-		if (count_elsewhere > 0) {
-			cprintf(":|There are %d users chatting in other rooms.\n", count_elsewhere);
-		}
-	}
-
-	cprintf(":|\n");
-}
-
-
-void cmd_chat(char *argbuf)
-{
-	/* FIXME chat has been broken by the underlying buffered I/O layer */
-	cprintf("%d Chat is currently disabled at this site.\n", ERROR);
-	return;
-
-#if 0
-	char cmdbuf[SIZ];
-	char *un;
-	char *strptr1;
-	int MyLastMsg, ThisLastMsg;
-	struct ChatLine *clptr;
-	struct CitContext *t_context;
-	int retval;
-	CitContext *CCC = CC;
-
-	if (!(CCC->logged_in)) {
-		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
-
-	CCC->cs_flags = CCC->cs_flags | CS_CHAT;
-	cprintf("%d Entering chat mode (type '/help' for available commands)\n",
-		START_CHAT_MODE);
-	unbuffer_output();
-
-	MyLastMsg = ChatLastMsg;
-
-	if ((CCC->cs_flags & CS_STEALTH) == 0) {
-		allwrite("<entering chat>", 0, NULL);
-	}
-	strcpy(cmdbuf, "");
-
-	do_chat_listing(2);
-
-	while (1) {
-		int ok_cmd;
-		int linelen;
-
-		ok_cmd = 0;
-		linelen = strlen(cmdbuf);
-		if (linelen > 100) --linelen;	/* truncate too-long lines */
-		cmdbuf[linelen + 1] = 0;
-
-		retval = client_read_to(&cmdbuf[linelen], 1, 2);
-
-		if (retval < 0 || CCC->kill_me) {	/* socket broken? */
-			if ((CCC->cs_flags & CS_STEALTH) == 0) {
-				allwrite("<disconnected>", 0, NULL);
-			}
-			return;
-		}
-
-		/* if we have a complete line, do send processing */
-		if (!IsEmptyStr(cmdbuf))
-			if (cmdbuf[strlen(cmdbuf) - 1] == 10) {
-				cmdbuf[strlen(cmdbuf) - 1] = 0;
-				time(&CCC->lastcmd);
-				time(&CCC->lastidle);
-
-				if ((!strcasecmp(cmdbuf, "exit"))
-				    || (!strcasecmp(cmdbuf, "/exit"))
-				    || (!strcasecmp(cmdbuf, "quit"))
-				    || (!strcasecmp(cmdbuf, "logout"))
-				    || (!strcasecmp(cmdbuf, "logoff"))
-				    || (!strcasecmp(cmdbuf, "/q"))
-				    || (!strcasecmp(cmdbuf, ".q"))
-				    || (!strcasecmp(cmdbuf, "/quit"))
-				    )
-					strcpy(cmdbuf, "000");
-
-				if (!strcmp(cmdbuf, "000")) {
-					if ((CCC->cs_flags & CS_STEALTH) == 0) {
-						allwrite("<exiting chat>", 0, NULL);
-					}
-					sleep(1);
-					cprintf("000\n");
-					CCC->cs_flags = CCC->cs_flags - CS_CHAT;
-					return;
-				}
-				if ((!strcasecmp(cmdbuf, "/help"))
-				    || (!strcasecmp(cmdbuf, "help"))
-				    || (!strcasecmp(cmdbuf, "/?"))
-				    || (!strcasecmp(cmdbuf, "?"))) {
-					cprintf(":|\n");
-					cprintf(":|Available commands: \n");
-					cprintf(":|/help   (prints this message) \n");
-					cprintf(":|/who    (list users currently in chat) \n");
-					cprintf(":|/whobbs (list users in chat -and- elsewhere) \n");
-					cprintf(":|/me     ('action' line, ala irc) \n");
-					cprintf(":|/msg    (send private message, ala irc) \n");
-					if (is_room_aide()) {
-						cprintf(":|/kick   (kick another user out of this room) \n");
-					}
-					cprintf(":|/quit   (exit from this chat) \n");
-					cprintf(":|\n");
-					ok_cmd = 1;
-				}
-				if (!strcasecmp(cmdbuf, "/who")) {
-					do_chat_listing(0);
-					ok_cmd = 1;
-				}
-				if (!strcasecmp(cmdbuf, "/whobbs")) {
-					do_chat_listing(1);
-					ok_cmd = 1;
-				}
-				if (!strncasecmp(cmdbuf, "/me ", 4)) {
-					allwrite(&cmdbuf[4], 1, NULL);
-					ok_cmd = 1;
-				}
-				if (!strncasecmp(cmdbuf, "/msg ", 5)) {
-					ok_cmd = 1;
-					strptr1 = &cmdbuf[5];
-					if ((t_context = find_context(&strptr1))) {
-						allwrite(strptr1, 2, CCC->curr_user);
-						if (strcasecmp(CCC->curr_user, t_context->curr_user))
-							allwrite(strptr1, 2, t_context->curr_user);
-					} else
-						cprintf(":|User not found.\n");
-					cprintf("\n");
-				}
-				/* The /kick function is implemented by sending a specific
-				 * message to the kicked-out user's context.  When that message
-				 * is processed by the read loop, that context will exit.
-				 */
-				if ( (!strncasecmp(cmdbuf, "/kick ", 6)) && (is_room_aide()) ) {
-					ok_cmd = 1;
-					strptr1 = &cmdbuf[6];
-					strcat(strptr1, " ");
-					if ((t_context = find_context(&strptr1))) {
-						if (strcasecmp(CCC->curr_user, t_context->curr_user))
-							allwrite(strptr1, 3, t_context->curr_user);
-					} else
-						cprintf(":|User not found.\n");
-					cprintf("\n");
-				}
-				if ((cmdbuf[0] != '/') && (strlen(cmdbuf) > 0)) {
-					ok_cmd = 1;
-					allwrite(cmdbuf, 0, NULL);
-				}
-				if ((!ok_cmd) && (cmdbuf[0]) && (cmdbuf[0] != '\n'))
-					cprintf(":|Command %s is not understood.\n", cmdbuf);
-
-				strcpy(cmdbuf, "");
-
-			}
-		/* now check the queue for new incoming stuff */
-
-		if (CCC->fake_username[0])
-			un = CCC->fake_username;
-		else
-			un = CCC->curr_user;
-		if (ChatLastMsg > MyLastMsg) {
-			ThisLastMsg = ChatLastMsg;
-			for (clptr = ChatQueue; clptr != NULL; clptr = clptr->next) {
-				if ((clptr->chat_seq > MyLastMsg) && ((!clptr->chat_username[0]) || (!strncasecmp(un, clptr->chat_username, 32)))) {
-					if ((!clptr->chat_room[0]) || (!strncasecmp(CCC->room.QRname, clptr->chat_room, ROOMNAMELEN))) {
-						/* Output new chat data */
-						cprintf("%s\n", clptr->chat_text);
-
-						/* See if we've been force-quitted (kicked etc.) */
-						if (!strcmp(&clptr->chat_text[2], KICKEDMSG)) {
-							allwrite("<kicked out of this room>", 0, NULL);
-							cprintf("000\n");
-							CCC->cs_flags = CCC->cs_flags - CS_CHAT;
-
-							/* Kick user out of room */
-							CtdlInvtKick(CCC->user.fullname, 0);
-
-							/* And return to the Lobby */
-							CtdlUserGoto(config.c_baseroom, 0, 0, NULL, NULL);
-							return;
-						}
-					}
-				}
-			}
-			MyLastMsg = ThisLastMsg;
-		}
-	}
-#endif
-}
-
 
 
 /*
@@ -935,19 +558,18 @@ void flush_conversations_to_disk(time_t if_older_than) {
 
 
 
-void chat_timer(void) {
+void instmsg_timer(void) {
 	flush_conversations_to_disk(300);	/* Anything that hasn't peeped in more than 5 minutes */
 }
 
-void chat_shutdown(void) {
+void instmsg_shutdown(void) {
 	flush_conversations_to_disk(0);		/* Get it ALL onto disk NOW. */
 }
 
-CTDL_MODULE_INIT(chat)
+CTDL_MODULE_INIT(instmsg)
 {
 	if (!threading)
 	{
-		CtdlRegisterProtoHook(cmd_chat, "CHAT", "Begin real-time chat");
 		CtdlRegisterProtoHook(cmd_gexp, "GEXP", "Get instant messages");
 		CtdlRegisterProtoHook(cmd_sexp, "SEXP", "Send an instant message");
 		CtdlRegisterProtoHook(cmd_dexp, "DEXP", "Disable instant messages");
@@ -955,8 +577,8 @@ CTDL_MODULE_INIT(chat)
 		CtdlRegisterSessionHook(cmd_gexp_async, EVT_ASYNC);
 		CtdlRegisterSessionHook(delete_instant_messages, EVT_STOP);
 		CtdlRegisterXmsgHook(send_instant_message, XMSG_PRI_LOCAL);
-		CtdlRegisterSessionHook(chat_timer, EVT_TIMER);
-		CtdlRegisterSessionHook(chat_shutdown, EVT_SHUTDOWN);
+		CtdlRegisterSessionHook(instmsg_timer, EVT_TIMER);
+		CtdlRegisterSessionHook(instmsg_shutdown, EVT_SHUTDOWN);
 	}
 	
 	/* return our Subversion id for the Log */
