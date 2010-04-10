@@ -473,8 +473,9 @@ void seconds_since_last_gexp(void)
 
 
 
-void ReadPostData(void)
+int ReadPostData(void)
 {
+	int rc;
 	int body_start = 0;
 	wcsession *WCC = WC;
 	StrBuf *content = NULL;
@@ -494,9 +495,12 @@ void ReadPostData(void)
 	body_start = StrLength(content);
 
 	/** Read the entire input data at once. */
-	client_read_to(WCC->Hdr, content, 
-		       WCC->Hdr->HR.ContentLength,
-		       SLEEPING);
+	rc = client_read_to(WCC->Hdr, content, 
+			    WCC->Hdr->HR.ContentLength,
+			    SLEEPING);
+	if (rc < 0)
+		return rc;
+		
 	
 	if (!strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "application/x-www-form-urlencoded", 33)) {
 		StrBufCutLeft(content, body_start);
@@ -517,6 +521,7 @@ void ReadPostData(void)
 		content = NULL;
 	}
 	FreeStrBuf(&content);
+	return 1;
 }
 
 
@@ -598,23 +603,23 @@ void session_loop(void)
 	 * so we can use them to reconnect a timed out session if we have to.
 	 */
 	wcsession *WCC;
-
-	
-	Buf = NewStrBuf();
-
+      
 	WCC= WC;
-
 	WCC->upload_length = 0;
 	WCC->upload = NULL;
 	WCC->is_mobile = 0;
-	WCC->trailing_javascript = NewStrBuf();
 	WCC->Hdr->nWildfireHeaders = 0;
 	if (WCC->Hdr->HR.Handler != NULL)
 		Flags = WCC->Hdr->HR.Handler->Flags; /* so we can temporarily add our own... */
 
 	if (WCC->Hdr->HR.ContentLength > 0) {
-		ReadPostData();
+		if (ReadPostData() < 0) {
+			return;
+		}
 	}
+
+	Buf = NewStrBuf();
+	WCC->trailing_javascript = NewStrBuf();
 
 	/* If there are variables in the URL, we must grab them now */
 	if (WCC->Hdr->PlainArgs != NULL)
