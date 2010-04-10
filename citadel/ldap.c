@@ -256,7 +256,7 @@ int CtdlTryPasswordLDAP(char *user_dn, char *password)
  */
 int Ctdl_LDAP_to_vCard(char *ldap_dn, struct vCard *v)
 {
-	changed_something = 0;
+	int changed_something = 0;
 
 	if (!ldap_dn) return(0);
 	if (!v) return(0);
