@@ -174,45 +174,11 @@ void mime_decode(char *partnum,
 		 char *disposition,
 		 char *id,
 		 char *name, char *filename,
-		 void (*CallBack)
-		  (char *cbname,
-		   char *cbfilename,
-		   char *cbpartnum,
-		   char *cbdisp,
-		   void *cbcontent,
-		   char *cbtype,
-		   char *cbcharset,
-		   size_t cblength,
-		   char *cbencoding,
-		   char *cbid,
-		   void *cbuserdata),
-		 void (*PreMultiPartCallBack)
-		  (char *cbname,
-		   char *cbfilename,
-		   char *cbpartnum,
-		   char *cbdisp,
-		   void *cbcontent,
-		   char *cbtype,
-		   char *cbcharset,
-		   size_t cblength,
-		   char *cbencoding,
-		   char *cbid,
-		   void *cbuserdata),
-		 void (*PostMultiPartCallBack)
-		  (char *cbname,
-		   char *cbfilename,
-		   char *cbpartnum,
-		   char *cbdisp,
-		   void *cbcontent,
-		   char *cbtype,
-		   char *cbcharset,
-		   size_t cblength,
-		   char *cbencoding,
-		   char *cbid,
-		   void *cbuserdata),
-		  void *userdata,
-		  int dont_decode
-)
+		 MimeParserCallBackType CallBack,
+		 MimeParserCallBackType PreMultiPartCallBack,
+		 MimeParserCallBackType PostMultiPartCallBack,
+		 void *userdata,
+		 int dont_decode)
 {
 
 	char *decoded;
@@ -277,45 +243,11 @@ void mime_decode(char *partnum,
  */
 void the_mime_parser(char *partnum,
 		     char *content_start, char *content_end,
-		     void (*CallBack)
-		      (char *cbname,
-		       char *cbfilename,
-		       char *cbpartnum,
-		       char *cbdisp,
-		       void *cbcontent,
-		       char *cbtype,
-		       char *cbcharset,
-		       size_t cblength,
-		       char *cbencoding,
-		       char *cbid,
-		       void *cbuserdata),
-		     void (*PreMultiPartCallBack)
-		      (char *cbname,
-		       char *cbfilename,
-		       char *cbpartnum,
-		       char *cbdisp,
-		       void *cbcontent,
-		       char *cbtype,
-		       char *cbcharset,
-		       size_t cblength,
-		       char *cbencoding,
-		       char *cbid,
-		       void *cbuserdata),
-		     void (*PostMultiPartCallBack)
-		      (char *cbname,
-		       char *cbfilename,
-		       char *cbpartnum,
-		       char *cbdisp,
-		       void *cbcontent,
-		       char *cbtype,
-		       char *cbcharset,
-		       size_t cblength,
-		       char *cbencoding,
-		       char *cbid,
-		       void *cbuserdata),
-		      void *userdata,
-		      int dont_decode
-)
+		     MimeParserCallBackType CallBack,
+		     MimeParserCallBackType PreMultiPartCallBack,
+		     MimeParserCallBackType PostMultiPartCallBack,
+		     void *userdata,
+		     int dont_decode)
 {
 
 	char *ptr;
@@ -653,50 +585,12 @@ end_parser:	/* free the buffers!  end the oppression!! */
  * considered to have ended when the parser encounters a 0x00 byte.
  */
 void mime_parser(char *content_start,
-		char *content_end,
-
-		 void (*CallBack)
-		  (char *cbname,
-		   char *cbfilename,
-		   char *cbpartnum,
-		   char *cbdisp,
-		   void *cbcontent,
-		   char *cbtype,
-		   char *cbcharset,
-		   size_t cblength,
-		   char *cbencoding,
-		   char *cbid,
-		   void *cbuserdata),
-
-		 void (*PreMultiPartCallBack)
-		  (char *cbname,
-		   char *cbfilename,
-		   char *cbpartnum,
-		   char *cbdisp,
-		   void *cbcontent,
-		   char *cbtype,
-		   char *cbcharset,
-		   size_t cblength,
-		   char *cbencoding,
-		   char *cbid,
-		   void *cbuserdata),
-
-		 void (*PostMultiPartCallBack)
-		  (char *cbname,
-		   char *cbfilename,
-		   char *cbpartnum,
-		   char *cbdisp,
-		   void *cbcontent,
-		   char *cbtype,
-		   char *cbcharset,
-		   size_t cblength,
-		   char *cbencoding,
-		   char *cbid,
-		   void *cbuserdata),
-
-		  void *userdata,
-		  int dont_decode
-)
+		 char *content_end,
+		 MimeParserCallBackType CallBack,
+		 MimeParserCallBackType PreMultiPartCallBack,
+		 MimeParserCallBackType PostMultiPartCallBack,
+		 void *userdata,
+		 int dont_decode)
 {
 
 	the_mime_parser("", content_start, content_end,
