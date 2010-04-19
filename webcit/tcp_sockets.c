@@ -795,6 +795,7 @@ int client_read_to(ParsedHttpHdrs *Hdr, StrBuf *Target, int bytes, int timeout)
 	if (retval < 0) {
 		lprintf(2, "client_read() failed: %s\n",
 			Error);
+		wc_backtrace();
 		return retval;
 	}
 
