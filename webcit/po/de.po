@@ -2371,7 +2371,7 @@ msgstr "(anzeigen)"
 
 #: ../wiki.c:211
 msgid "(revert)"
-msgstr "(zuruecknehmen)"
+msgstr "(zurücknehmen)"
 
 #: ../wiki.c:291
 msgid "Page title"
