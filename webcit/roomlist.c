@@ -509,7 +509,12 @@ int GroupchangeRoomListByFloorRoomPrivFirst(const void *room1, const void *room2
 }
 
 
-
+int CompareRooms(const folder *room1, const folder *room2) 
+{
+	if ((room1 == NULL) || (room2 == NULL))
+		return -1;
+	return CompareRoomListByFloorRoomPrivFirst(room1, room2);
+}
 
 
 

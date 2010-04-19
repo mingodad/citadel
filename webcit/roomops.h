@@ -102,6 +102,12 @@ void vDeleteFolder(void *vFolder);
 void FlushFolder(folder *room);
 void ParseGoto(folder *proom, StrBuf *Line);
 
+/*
+ * wrapper around usual sort-comparator; private rooms will allways be prefered, -1 if one of them NULL
+ */
+int CompareRooms(const folder *room1, const folder *room2);
+
+
 #define REST_TOPLEVEL 0
 #define REST_IN_NAMESPACE (1<<0)
 #define REST_IN_FLOOR (1<<1)
