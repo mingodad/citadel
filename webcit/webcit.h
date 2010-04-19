@@ -348,9 +348,17 @@ typedef struct _addrbookent {
 #define PARSE_REST_URL (1<<9)
 #define PROHIBIT_STARTPAGE (1<<10)
 
+typedef enum _RESTDispatchID {
+	ExistsID,
+	PutID,
+	DeleteID
+} RESTDispatchID;
+
+typedef int (*WebcitRESTDispatchID)(RESTDispatchID WhichAction, int IgnoreFloor);
 typedef void (*WebcitHandlerFunc)(void);
 typedef struct  _WebcitHandler{
 	WebcitHandlerFunc F;
+	WebcitRESTDispatchID RID;
 	long Flags;
 	StrBuf *Name;
 	StrBuf *DisplayName;

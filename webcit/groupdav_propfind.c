@@ -42,6 +42,11 @@ long locate_message_by_uid(const char *uid) {
 	return(retval);
 }
 
+
+/*
+ * IgnoreFloor: set to 0 or 1 _nothing else_
+ * Subfolders: direct child floors will be put here.
+ */
 const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 {
 	wcsession  *WCC = WC;
@@ -77,13 +82,13 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 		if (ThisFolder->nRoomNameParts > 1) 
 		{
 			/*TODO: is that number all right? */
-			if (urlp - ThisFolder->nRoomNameParts != 2) {
+//			if (urlp - ThisFolder->nRoomNameParts != 2) {
 //				if (BestGuess != NULL)
-					continue;
+//					continue;
 //ThisFolder->name
 //				itd  = GetNewHashPos(WCC->Directory, 0);
 //				GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir); //TODO: how many to fast forward?
-			}
+//			}
 			itd  = GetNewHashPos(WCC->Directory, 0);
 			GetNextHashPos(WCC->Directory, itd, &len, &Key, &vDir); //TODO: how many to fast forward?
 	
@@ -154,9 +159,11 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 				BestGuess = ThisFolder;
 			}
 			else 
-				FoundFolder = ThisFolder;;
+				FoundFolder = ThisFolder;
 		}
 	}
+
+/* TODO: Subfolders: remove patterns not matching the best guess or thisfolder */
 	DeleteHashPos(&itfl);
 	if (FoundFolder != NULL)
 		return FoundFolder;
@@ -169,6 +176,7 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 
 long GotoRestRoom()
 {
+	int IgnoreFloor = 0; /* deprecated... */
 	wcsession *WCC = WC;
 	long Count;
 	long State;
@@ -187,44 +195,39 @@ long GotoRestRoom()
 	if (Count >= 1) State |=REST_IN_FLOOR;
 	if (Count == 1) return State;
 	
-	if (Count >= 3) {
-		State |= REST_IN_FLOOR;
-		SubRooms = NewHash(1, Flathash);
-		ThisFolder = GetRESTFolder(0, SubRooms);
-		WCC->ThisRoom = ThisFolder;
-		if (ThisFolder != NULL)
-		{
-			gotoroom(ThisFolder->name);
-			State |= REST_IN_ROOM;
-			return State;
-		}
-		
-	}
-
-
 	/* 
 	 * More than 3 params and no floor found? 
 	 * -> fall back to old non-floored notation
 	 */
-
 	if ((Count >= 3) && (WCC->CurrentFloor == NULL))
+		IgnoreFloor = 1;
+	if (Count >= 3)
 	{
+		IgnoreFloor = 0;
+		State |= REST_IN_FLOOR;
 		SubRooms = NewHash(1, Flathash);
-		ThisFolder = GetRESTFolder(1, SubRooms);
-		WCC->ThisRoom = ThisFolder;
+		ThisFolder = GetRESTFolder(IgnoreFloor, SubRooms);
 		if (ThisFolder != NULL)
 		{
-			gotoroom(ThisFolder->name);
+			if (WCC->ThisRoom != NULL)
+				if (CompareRooms(WCC->ThisRoom, ThisFolder))
+					gotoroom(ThisFolder->name);
 			State |= REST_IN_ROOM;
-			return State;
+		}
+	}
+	if ((WCC->ThisRoom != NULL) && 
+	    (Count + IgnoreFloor > 3))
+	{
+		if (WCC->Hdr->HR.Handler.RID(ExistsID, IgnoreFloor))
+		{
+			State |= REST_GOT_EUID;
+		}/////TODO
+		else {
+			/// WHOOPS, not there???
 		}
 
 
 	}
-
-
-	if (Count == 3) return State;
-
 	/// TODO: ID detection
 	/// TODO: File detection
 

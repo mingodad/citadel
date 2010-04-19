@@ -236,7 +236,13 @@ int Conditional_DAV_DEPTH(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-void RegisterDAVNamespace(const char * UrlString, long UrlSLen, const char *DisplayName, long dslen, WebcitHandlerFunc F, long Flags)
+void RegisterDAVNamespace(const char * UrlString, 
+			  long UrlSLen, 
+			  const char *DisplayName, 
+			  long dslen, 
+			  WebcitHandlerFunc F, 
+			  WebcitRESTDispatchID RID,
+			  long Flags)
 {
 	void *vHandler;
 
@@ -244,6 +250,7 @@ void RegisterDAVNamespace(const char * UrlString, long UrlSLen, const char *Disp
 	WebcitAddUrlHandler(UrlString, UrlSLen, DisplayName, dslen, F, Flags|PARSE_REST_URL);
 	/* get it out again... */
 	GetHash(HandlerHash, UrlString, UrlSLen, &vHandler);
+	((WebcitHandler*)vHandler)->RID = RID;
 	/* and keep a copy of it, so we can compare it later */
 	Put(DavNamespaces, UrlString, UrlSLen, vHandler, reference_free_handler);
 }
@@ -284,6 +291,25 @@ void tmplput_DAV_NAMESPACE(StrBuf *Target, WCTemplputParams *TP)
 	}
 }
 
+int GroupdavDispatchREST(RESTDispatchID WhichAction, int IgnoreFloor)
+{
+
+	switch(WhichAction){
+	case ExistsID:
+		//WCC->Directory
+//nRoomNameParts
+//		return locate_message_by_uid() != -1;
+		/* TODO: remember euid */
+	case PutID:
+	case DeleteID:
+		break;
+
+
+	}
+	return 0;
+}
+
+
 void
 ServerStartModule_DAV
 (void)
@@ -308,7 +334,9 @@ InitModule_GROUPDAV
 (void)
 {
 //	WebcitAddUrlHandler(HKEY("groupdav"), "", 0, groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
-	RegisterDAVNamespace(HKEY("groupdav"), HKEY("GroupDAV"), groupdav_main, XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	RegisterDAVNamespace(HKEY("groupdav"), HKEY("GroupDAV"), 
+			     groupdav_main, GroupdavDispatchREST, 
+			     XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 
 	RegisterNamespace("DAV:HOSTNAME", 0, 0, tmplput_GROUPDAV_HOSTNAME, NULL, CTX_NONE);
 
