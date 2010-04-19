@@ -474,7 +474,7 @@ struct wcsession {
 	StrBuf *ReadBuf;                        /* here we keep our stuff while reading linebuffered from the server. */
 	StrBuf *MigrateReadLineBuf;             /* here we buffer legacy server read stuff */
 	const char *ReadPos;                    /* whats our read position in ReadBuf? */
-	int chat_sock;				/* Client socket to Citadel server - for chat */
+	int last_chat_seq;			/* When in chat - last message seq# we saw */
 	time_t lastreq;				/* Timestamp of most recent HTTP */
 	time_t last_pager_check;		/* last time we polled for instant msgs */
 	ServInfo *serv_info;			/* Information about the citserver we're connected to */

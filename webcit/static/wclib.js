@@ -36,7 +36,6 @@ Event.observe(window, 'load', resizeViewport);
 Event.observe(window, 'resize', resizeViewport);
 //document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
-document.observe('dom:loaded', function() { if (!!document.getElementById("ib_chat_launch")) { $('ib_chat_launch').observe('click', launchChat); } });
 function CtdlRandomString()  {
 	return((Math.random()+'').substr(3));
 }

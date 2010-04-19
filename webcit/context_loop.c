@@ -187,7 +187,6 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	TheSession->Hdr = Hdr;
 	TheSession->SessionKey = Hdr->HR.SessionKey;
 	TheSession->serv_sock = (-1);
-	TheSession->chat_sock = (-1);
 	TheSession->is_mobile = -1;
 
 	pthread_setspecific(MyConKey, (void *)TheSession);
