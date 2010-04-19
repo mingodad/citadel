@@ -583,7 +583,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	s = socket(PF_INET6, SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
-		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
+		lprintf(1, "Can't create an IPv6 socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
 	/* Set some socket options that make sense. */
@@ -646,7 +646,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 
 	s = socket(PF_INET, SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
-		lprintf(1, "Can't create a socket: %s\n", strerror(errno));
+		lprintf(1, "Can't create an IPv4 socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
 	/* Set some socket options that make sense. */
@@ -702,8 +702,7 @@ int ig_uds_server(char *sockpath, int queue_len)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		lprintf(1, "webcit: Can't create a socket: %s\n",
-			strerror(errno));
+		lprintf(1, "webcit: Can't create a unix domain socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
 
