@@ -309,7 +309,10 @@ void headers_euid(long msgnum, void *userdata)
 		return;
 	}
 
-	cprintf("%ld|%s|\n", msgnum, (msg->cm_fields['E'] ? msg->cm_fields['E'] : ""));
+	cprintf("%ld|%s|%ld\n", 
+		msgnum, 
+		(msg->cm_fields['E'] ? msg->cm_fields['E'] : ""),
+		msg->cm_fields['T']);
 	CtdlFreeMessage(msg);
 }
 
@@ -2055,7 +2058,7 @@ int CtdlOutputPreLoadedMsg(
 		int flags		/* should the bessage be exported clean? */
 ) {
 	int i;
-	char *mptr;
+	char *mptr = NULL;
 	const char *nl;	/* newline string */
 	struct ma_info ma;
 
