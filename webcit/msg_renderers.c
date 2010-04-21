@@ -1208,7 +1208,23 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 	 */
 	StrBufSkip_NTokenS(Line, pos, '|', 1);
 	Msg->subj = NewStrBufPlain(NULL, StrLength(Line));
+
+	FlushStrBuf(ConversionBuffer);
+	/* we assume the subject is the last parameter inside of the list; 
+	 * thus we don't use the tokenizer to fetch it, since it will hick up 
+	 * on tokenizer chars inside of the subjects
 	StrBufExtract_NextToken(ConversionBuffer,  Line, pos, '|');
+	*/
+	if (*pos != StrBufNOTNULL) {
+		StrBufPlain(ConversionBuffer, *pos, 
+			    StrLength(Line) - (*pos - ChrPtr(Line)));
+		*pos = StrBufNOTNULL;
+		if ((StrLength(ConversionBuffer) > 0) &&
+		    (*(ChrPtr(ConversionBuffer) + 
+		       StrLength(ConversionBuffer) - 1) == '|'))
+			StrBufCutRight(ConversionBuffer, 1);
+	}
+
 	if (StrLength(ConversionBuffer) == 0)
 		StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
 	else {
