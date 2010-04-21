@@ -723,6 +723,10 @@ void cmd_oidf(char *argbuf) {
 		cprintf("%d NewHash() failed\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
+	if (IsEmptyStr(oiddata->server)){
+		cprintf("%d need a remote server to authenticate against\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
 	
 	cprintf("%d Transmit OpenID data now\n", START_CHAT_MODE);
 
