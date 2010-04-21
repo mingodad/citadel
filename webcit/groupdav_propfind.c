@@ -122,7 +122,9 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 			/* Room has more parts than the URL, it might be a sub-room? */
 			else if (iRoom <ThisFolder->nRoomNameParts) 
 			{//// TODO: ThisFolder->nRoomNameParts == urlp - IgnoreFloor???
-				Put(Subfolders, SKEY(ThisFolder->name), ThisFolder, reference_free_handler);
+				Put(Subfolders, SKEY(ThisFolder->name), 
+				    /* Cast away const, its a reference. */
+				    (void*)ThisFolder, reference_free_handler);
 			}
 		}
 		else {
@@ -174,14 +176,13 @@ const folder *GetRESTFolder(int IgnoreFloor, HashList *Subfolders)
 
 
 
-long GotoRestRoom()
+long GotoRestRoom(HashList *SubRooms)
 {
 	int IgnoreFloor = 0; /* deprecated... */
 	wcsession *WCC = WC;
 	long Count;
 	long State;
 	const folder *ThisFolder;
-	HashList *SubRooms = NULL;
 
 	State = REST_TOPLEVEL;
 
@@ -205,33 +206,33 @@ long GotoRestRoom()
 	{
 		IgnoreFloor = 0;
 		State |= REST_IN_FLOOR;
-		SubRooms = NewHash(1, Flathash);
+
 		ThisFolder = GetRESTFolder(IgnoreFloor, SubRooms);
 		if (ThisFolder != NULL)
 		{
 			if (WCC->ThisRoom != NULL)
-				if (CompareRooms(WCC->ThisRoom, ThisFolder))
+				if (CompareRooms(WCC->ThisRoom, ThisFolder) != 0)
 					gotoroom(ThisFolder->name);
 			State |= REST_IN_ROOM;
+			
 		}
+		if (GetCount(SubRooms) > 0)
+			State |= REST_HAVE_SUB_ROOMS;
 	}
 	if ((WCC->ThisRoom != NULL) && 
 	    (Count + IgnoreFloor > 3))
 	{
-		if (WCC->Hdr->HR.Handler.RID(ExistsID, IgnoreFloor))
+		if (WCC->Hdr->HR.Handler->RID(ExistsID, IgnoreFloor))
 		{
-			State |= REST_GOT_EUID;
-		}/////TODO
+			State |= REST_GOT_LOCAL_PART;
+		}
 		else {
 			/// WHOOPS, not there???
+			State |= REST_NONEXIST;
 		}
 
 
 	}
-	/// TODO: ID detection
-	/// TODO: File detection
-
-
 	return State;
 }
 
@@ -421,6 +422,7 @@ void groupdav_collection_list(void)
  */
 void groupdav_propfind(void) 
 {
+	HashList *SubRooms = NULL;
 	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
@@ -448,9 +450,10 @@ void groupdav_propfind(void)
 	 * If the room name is blank, the client is requesting a
 	 * folder list.
 	 */
-	State = GotoRestRoom();
+	SubRooms = NewHash(1, Flathash);
+	State = GotoRestRoom(SubRooms);
 	if (((State & REST_IN_ROOM) == 0) ||
-	    (((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME)) == 0) &&
+	    (((State & (REST_GOT_LOCAL_PART)) == 0) &&
 	     (WCC->Hdr->HR.dav_depth == 0)))
 	{
 		now = time(NULL);
@@ -476,14 +479,21 @@ void groupdav_propfind(void)
 		end_burst();
 		FreeStrBuf(&dav_roomname);
 		FreeStrBuf(&dav_uid);
+		FreeHashList(&SubRooms);
 		return;
 	}
 
-	if ((State & (REST_GOT_EUID|REST_GOT_ID|REST_GOT_FILENAME)) == 0) {
+	if ((State & (REST_GOT_LOCAL_PART)) == 0) {
 		readloop(headers, eReadEUIDS);
+		FreeHashList(&SubRooms);
 		return;
 
 	}
+
+
+	
+	FreeHashList(&SubRooms);
+
 #endif
 
 	/*
@@ -725,6 +735,8 @@ int ParseMessageListHeaders_EUID(StrBuf *Line,
 {
 	Msg->euid = NewStrBuf();
 	StrBufExtract_NextToken(Msg->euid,  Line, pos, '|');
+	Msg->date = StrBufExtractNext_long(Line, pos, '|');
+	
 	return StrLength(Msg->euid) > 0;
 }
 

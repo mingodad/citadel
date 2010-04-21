@@ -293,12 +293,13 @@ void tmplput_DAV_NAMESPACE(StrBuf *Target, WCTemplputParams *TP)
 
 int GroupdavDispatchREST(RESTDispatchID WhichAction, int IgnoreFloor)
 {
-
+	wcsession *WCC = WC;
+	void *vDir;
+	
 	switch(WhichAction){
 	case ExistsID:
-		//WCC->Directory
-//nRoomNameParts
-//		return locate_message_by_uid() != -1;
+		GetHash(WCC->Directory, IKEY(WCC->ThisRoom->nRoomNameParts + 1), &vDir);
+		return locate_message_by_uid(ChrPtr((StrBuf*)vDir)) != -1;
 		/* TODO: remember euid */
 	case PutID:
 	case DeleteID:
