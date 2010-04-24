@@ -1011,7 +1011,9 @@ void post_message(void)
 	if (WCC->upload_length > 0) {
 		const char *pch;
 		int n;
-		char N[64];
+		const char *newn;
+		long newnlen;
+		void *v;
 
 		/* There's an attachment.  Save it to this struct... */
 		lprintf(9, "Client is uploading %d bytes\n", WCC->upload_length);
@@ -1022,12 +1024,17 @@ void post_message(void)
 		att->FileName = NewStrBufPlain(WCC->upload_filename, -1);
 		
 		if (WCC->attachments == NULL) {
-			WCC->attachments = NewHash(1, NULL);
+			WCC->attachments = NewHash(1, Flathash);
 		}
 
 		/* And add it to the list. */
-		n = snprintf(N, sizeof N, "%d", GetCount(WCC->attachments) + 1);
-		Put(WCC->attachments, N, n, att, DestroyMime);
+		n = 0;
+		if ((GetCount(WCC->attachments) > 0) && 
+		    GetHashAt(WCC->attachments, 
+			      GetCount(WCC->attachments) -1, 
+			      &newnlen, &newn, &v))
+		    n = *((int*) newn) + 1;
+		Put(WCC->attachments, IKEY(n), att, DestroyMime);
 
 		/*
 		 * Mozilla sends a simple filename, which is what we want,
@@ -1063,7 +1070,34 @@ void post_message(void)
 	} else if (lbstr("postseq") == dont_post) {
 		sprintf(WCC->ImportantMessage, 
 			_("Automatically cancelled because you have already "
-			"saved this message."));
+			  "saved this message."));
+	} else if (havebstr("remove_attach_button")) {
+		/* now thats st00pit. need to find it by name. */
+		void *vAtt;
+		StrBuf *WhichAttachment;
+		HashPos *at;
+		long len;
+		const char *key;
+
+		WhichAttachment = NewStrBufDup(sbstr("which_attachment"));
+		StrBufUnescape(WhichAttachment, 0);
+		at = GetNewHashPos(WCC->attachments, 0);
+		do {
+			GetHashPos(WCC->attachments, at, &len, &key, &vAtt);
+		
+			att = (wc_mime_attachment*) vAtt;
+			if ((att != NULL) && 
+			    (strcmp(ChrPtr(WhichAttachment), 
+				    ChrPtr(att->FileName)   ) == 0))
+			{
+				DeleteEntryFromHash(WCC->attachments, at);
+				break;
+			}
+		}
+		while (NextHashPos(WCC->attachments, at));
+		FreeStrBuf(&WhichAttachment);
+		display_enter();
+		return;
 	} else {
 		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s|%s";
 		const StrBuf *Recp = NULL; 
@@ -1471,8 +1505,10 @@ void postpart(StrBuf *partnum, StrBuf *filename, int force_download)
 	void *vPart;
 	StrBuf *content_type;
 	wc_mime_attachment *part;
-	
-	if (GetHash(WC->attachments, SKEY(partnum), &vPart) &&
+	int i;
+
+	i = StrToi(partnum);
+	if (GetHash(WC->attachments, IKEY(i), &vPart) &&
 	    (vPart != NULL)) {
 		part = (wc_mime_attachment*) vPart;
 		if (force_download) {
