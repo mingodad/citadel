@@ -715,6 +715,7 @@ void DeleteHashPos(HashPos **DelMe)
 /**
  * @brief Get the data located where HashPos Iterator points at, and Move HashPos one forward
  * @param Hash your Hashlist to follow
+ * @param At the position to retrieve the Item from and move forward afterwards
  * @param HKLen returns Length of Hashkey Returned
  * @param HashKey returns the Hashkey corrosponding to HashPos
  * @param Data returns the Data found at HashPos
@@ -741,6 +742,57 @@ int GetNextHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKe
 		At->Position += ((At->Position) % abs(At->StepWidth)) * 
 			(At->StepWidth / abs(At->StepWidth));
 	return 1;
+}
+
+/**
+ * @brief Get the data located where HashPos Iterator points at
+ * @param Hash your Hashlist to follow
+ * @param At the position retrieve the data from
+ * @param HKLen returns Length of Hashkey Returned
+ * @param HashKey returns the Hashkey corrosponding to HashPos
+ * @param Data returns the Data found at HashPos
+ * \returns whether the item was found or not.
+ */
+int GetHashPos(HashList *Hash, HashPos *At, long *HKLen, const char **HashKey, void **Data)
+{
+	long PayloadPos;
+
+	if ((Hash == NULL) || 
+	    (At->Position >= Hash->nLookupTableItems) || 
+	    (At->Position < 0) ||
+	    (At->Position > Hash->nLookupTableItems))
+		return 0;
+	*HKLen = Hash->LookupTable[At->Position]->HKLen;
+	*HashKey = Hash->LookupTable[At->Position]->HashKey;
+	PayloadPos = Hash->LookupTable[At->Position]->Position;
+	*Data = Hash->Members[PayloadPos]->Data;
+
+	return 1;
+}
+
+/**
+ * @brief Move HashPos one forward
+ * @param Hash your Hashlist to follow
+ * @param At the position to move forward
+ * \returns whether there is a next item or not.
+ */
+int NextHashPos(HashList *Hash, HashPos *At)
+{
+	if ((Hash == NULL) || 
+	    (At->Position >= Hash->nLookupTableItems) || 
+	    (At->Position < 0) ||
+	    (At->Position > Hash->nLookupTableItems))
+		return 0;
+
+	/* Position is NULL-Based, while Stepwidth is not... */
+	if ((At->Position % abs(At->StepWidth)) == 0)
+		At->Position += At->StepWidth;
+	else 
+		At->Position += ((At->Position) % abs(At->StepWidth)) * 
+			(At->StepWidth / abs(At->StepWidth));
+	return !((At->Position >= Hash->nLookupTableItems) || 
+		 (At->Position < 0) ||
+		 (At->Position > Hash->nLookupTableItems));
 }
 
 /**
