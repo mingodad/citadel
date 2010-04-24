@@ -21,7 +21,7 @@
  */
 
 #include "webcit.h"
-
+#include "webserver.h"
 
 /*
  * Display the screen containing multiuser chat for a room.
@@ -51,43 +51,14 @@ void do_chat(void)
 void chat_recv(void) {
 	char buf[SIZ];
 	char cl_user[SIZ];
-	char cl_text[SIZ];
-	int cl_text_len = 0;
-
-	begin_ajax_response();
 
 	serv_printf("RCHT poll|%d", WC->last_chat_seq);
 	serv_getln(buf, sizeof buf);
 	if (buf[0] == '1') {
 		WC->last_chat_seq = extract_int(&buf[4], 0);
 		extract_token(cl_user, &buf[4], 2, '|', sizeof cl_user);
-		cl_text[0] = 0;
-		cl_text_len = 0;
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			safestrncpy(&cl_text[cl_text_len], buf, (sizeof(cl_text) - cl_text_len));
-			cl_text_len += strlen(buf);
-		}
 
-		wc_printf("<div id=\"chat_seq_%d\">", WC->last_chat_seq);
-
-		if (strcasecmp(cl_user, WC->last_chat_user)) {
-			wc_printf("<table border=0 width=100%% "
-				"cellspacing=1 cellpadding=0 "
-				"bgcolor=&quot;#ffffff&quot;>"
-				"<tr><td></tr></td></table>"
-			);
-
-		}
-
-		wc_printf("<table border=0 width=100%% cellspacing=0 cellpadding=0 "
-			"bgcolor=&quot;#eeeeee&quot;>");
-
-		wc_printf("<tr><td>");
-
-		if (!strcasecmp(cl_user, ":")) {
-			wc_printf("<I>");
-		}
-
+		/* who is speaking ... */
 		if (strcasecmp(cl_user, WC->last_chat_user)) {
 			wc_printf("<B>");
 
@@ -97,27 +68,22 @@ void chat_recv(void) {
 			else {
 				wc_printf("<FONT COLOR=&quot;#0000FF&quot;>");
 			}
-			jsescputs(cl_user);
+			escputs(cl_user);
+			strcpy(WC->last_chat_user, cl_user);
 
 			wc_printf("</FONT>: </B>");
 		}
 		else {
 			wc_printf("&nbsp;&nbsp;&nbsp;");
 		}
-		jsescputs(cl_text);
-		if (!strcasecmp(cl_user, ":")) {
-			wc_printf("</I>");
+
+		/* what did they say ... */
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			escputs(buf);
 		}
 
-		wc_printf("</TD></TR></TABLE>\n");
-		wc_printf("</div>\n");
-
-		strcpy(WC->last_chat_user, cl_user);
-		/* FIXME make this work wc_printf("parent.chat_transcript.scrollTo(999999,999999);\">\n"); */
+		wc_printf("<br>\n");
 	}
-
-	end_ajax_response();
-
 }
 
 
@@ -166,7 +132,7 @@ InitModule_ROOMCHAT
 (void)
 {
 	WebcitAddUrlHandler(HKEY("chat"), "", 0, do_chat, 0);
-	WebcitAddUrlHandler(HKEY("chat_recv"), "", 0, chat_recv, 0);
+	WebcitAddUrlHandler(HKEY("chat_recv"), "", 0, chat_recv, AJAX);
 	WebcitAddUrlHandler(HKEY("chat_send"), "", 0, chat_send, 0);
 }
 

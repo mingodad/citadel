@@ -1,15 +1,12 @@
-<div id="chatrecv">
-This is the receiving side of the chat window, fee fie foe foo
+<div id="chatrecv_history" class="chatrecv_history">
 </div>
-<div id="chatsend">
+<div id="chatrecv" class="chatrecv">
+</div>
+<div id="chatsend" class="chatsend">
 <form method="POST" onsubmit="return chatsendfunc()" action="chat_send" id="chatsendid" name="chatsendform">
 <input type="hidden" name="nonce" value="<?NONCE>">
+<img src="static/citadelchat_16x.gif">
 <input type="text" size="80" maxlength="1024" id="send_this_id" name="send_this">
-<br />
-<input type="submit" name="send_button" value="<?_("Send")>">
-<input type="submit" name="help_button" value="<?_("Help")>">
-<input type="submit" name="list_button" value="<?_("List users")>">
-<input type="submit" name="exit_button" value="<?_("Exit")>">
 </div>
 
 <script type="text/javascript">
@@ -22,7 +19,13 @@ function chatsendfunc() {
 }
 
 new Ajax.PeriodicalUpdater('chatrecv', 'chat_recv', {
-	method: 'get', frequency: 2, insertion: 'bottom'
+	method: 'get', frequency: 2,
+		onSuccess: function(){ 
+			$('chatrecv_history').innerHTML =
+				$('chatrecv_history').innerHTML + $('chatrecv').innerHTML;
+			$('chatrecv').innerHTML = '';
+			$('chatrecv_history').scrollTop = 9999999;
+		}
 });
 
 </script>

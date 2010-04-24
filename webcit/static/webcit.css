@@ -1613,3 +1613,23 @@ li.event_unread span, a.event_read_title {
 	background-color: #FF0000;
 	color: #FFFFFF;
 }
+
+.chatrecv_history {
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	height: 70%;
+	background-color: #FFFFFF;
+	overflow: auto;
+}
+
+.chatrecv {
+	display: none;
+}
+
+.chatsend {
+	width: 90%;
+	margin-left: auto;
+	margin-right: auto;
+}
