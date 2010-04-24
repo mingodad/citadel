@@ -68,7 +68,6 @@
 #include "support.h"
 #include "config.h"
 #include "user_ops.h"
-#include "policy.h"
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"

@@ -127,7 +127,6 @@ void initialise_modules (int threading)
         CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(euidindex));
         CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(file_ops));
         CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(msgbase));
-        CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(policy));
         CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(room_ops));
         CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_INIT_CALL(user_ops));
 /* dynamic modules: */
@@ -155,7 +154,6 @@ void upgrade_modules(void);
 	CTDL_MODULE_INIT(euidindex);
 	CTDL_MODULE_INIT(file_ops);
 	CTDL_MODULE_INIT(msgbase);
-	CTDL_MODULE_INIT(policy);
 	CTDL_MODULE_INIT(room_ops);
 	CTDL_MODULE_INIT(user_ops);
 EOF

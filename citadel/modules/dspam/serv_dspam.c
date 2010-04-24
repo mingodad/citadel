@@ -51,7 +51,6 @@
 #include "citserver.h"
 #include "support.h"
 #include "config.h"
-#include "policy.h"
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"

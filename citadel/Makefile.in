@@ -84,7 +84,7 @@ SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
 	citserver.c clientsocket.c config.c control.c $(DATABASE) \
 	domain.c serv_extensions.c file_ops.c genstamp.c getutline.c \
 	housekeeping.c ical_dezonify.c internet_addressing.c ecrash.c \
-	locate_host.c md5.c auth.c msgbase.c parsedate.c policy.c \
+	locate_host.c md5.c auth.c msgbase.c parsedate.c \
 	room_ops.c euidindex.c server_main.c snprintf.c ldap.c \
 	support.c sysdep.c user_ops.c journaling.c threads.c \
 	context.c
@@ -150,7 +150,7 @@ modules_upgrade.c: modules_init.c
 SERV_OBJS = server_main.o utillib/citadel_dirs.o\
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
 	$(DATABASE:.c=.o) domain.o \
-	control.o policy.o config.o support.o room_ops.o \
+	control.o config.o support.o room_ops.o \
 	file_ops.o msgbase.o euidindex.o \
 	locate_host.o housekeeping.o \
 	internet_addressing.o journaling.o \

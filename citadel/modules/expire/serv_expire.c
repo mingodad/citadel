@@ -1052,6 +1052,9 @@ CTDL_MODULE_INIT(expire)
 	{
 		/* CtdlRegisterProtoHook(cmd_fsck, "FSCK", "Check message ref counts"); */
 		CtdlRegisterProtoHook(cmd_tdap, "TDAP", "Manually initiate auto-purger");
+
+		CtdlRegisterProtoHook(cmd_gpex, "GPEX", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_spex, "SPEX", "Autoconverted. TODO: document me.");
 	}
 	else
 		CtdlThreadCreate("Auto Purger", CTDLTHREAD_BIGSTACK, purge_databases, NULL);

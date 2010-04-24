@@ -52,7 +52,6 @@
 #include "config.h"
 #include "control.h"
 #include "user_ops.h"
-#include "policy.h"
 #include "database.h"
 #include "msgbase.h"
 #include "serv_network.h"	/* Needed for defenition of FilterList */

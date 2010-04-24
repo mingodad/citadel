@@ -69,7 +69,6 @@
 #include "locate_host.h"
 #include "room_ops.h"
 #include "file_ops.h"
-#include "policy.h"
 #include "control.h"
 #include "euidindex.h"
 #include "context.h"
