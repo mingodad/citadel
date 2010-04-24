@@ -651,8 +651,8 @@ int DeleteEntryFromHash(HashList *Hash, HashPos *At)
 		return 0;
 	}
 
-	FreeMe = Hash->Members[At->Position];
-	Hash->Members[At->Position] = NULL;
+	FreeMe = Hash->Members[Hash->LookupTable[At->Position]->Position];
+	Hash->Members[Hash->LookupTable[At->Position]->Position] = NULL;
 
 
 	/** delete our hashing data */
@@ -667,6 +667,7 @@ int DeleteEntryFromHash(HashList *Hash, HashPos *At)
 				(Hash->nLookupTableItems - At->Position - 1) * 
 				sizeof(HashKey*));
 
+			Hash->LookupTable[Hash->nLookupTableItems - 1] = NULL;
 		}
 		else 
 			Hash->LookupTable[At->Position] = NULL;

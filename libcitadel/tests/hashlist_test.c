@@ -66,12 +66,8 @@ static void test_iterate_hash(HashList *testh, int forward, int stepwidth)
 	DeleteHashPos(&it);
 }
 
-static void TestHashlistIteratorForward (void)
+static void ValidateBackAndForth(HashList *H)
 {
-	HashList *H;
-
-	H = GetFilledHash (10, 1);
-
 	test_iterate_hash(H, 1, 1);
 	printf("\n");
 
@@ -89,9 +85,64 @@ static void TestHashlistIteratorForward (void)
 
 	test_iterate_hash(H, 0, 3);
 	printf("\n");
+}
+
+static void TestHashlistIteratorForward (void)
+{
+	HashList *H;
+
+	H = GetFilledHash (10, 1);
+
+	ValidateBackAndForth(H);
 
 	DeleteHash(&H);
 }
+
+
+static void TestHashlistAddDelete (void)
+{
+	HashList *H;
+	HashPos *at;
+	int *val, i;
+
+	H = GetFilledHash (10, 1);
+
+	at = GetNewHashPos(H, 0);
+
+	printf("Remove first\n");
+	DeleteEntryFromHash(H, at);
+
+	ValidateBackAndForth(H);
+
+	printf("Insert 15\n");
+	i = 15;
+	val = (int*) malloc(sizeof(int));
+	*val = i;
+	Put(H, IKEY(i), val, NULL);
+
+	ValidateBackAndForth(H);
+
+	printf("Remove third\n");
+	at = GetNewHashPos(H, 0);
+	NextHashPos(H, at);
+	NextHashPos(H, at);
+	NextHashPos(H, at);
+	DeleteEntryFromHash(H, at);
+
+	ValidateBackAndForth(H);
+	printf("Insert -15\n");
+
+	i = -15;
+	val = (int*) malloc(sizeof(int));
+	*val = i;
+	Put(H, IKEY(i), val, NULL);
+
+	ValidateBackAndForth(H);
+
+
+	DeleteHash(&H);
+}
+
 /*
 Some samples from the original...
 	CU_ASSERT_EQUAL(10, 10);
@@ -133,6 +184,8 @@ static void AddHashlistTests(void)
 
 	pGroup = CU_add_suite("TestStringBufSimpleAppenders", NULL, NULL);
 	pTest = CU_add_test(pGroup, "TestHashListIteratorForward", TestHashlistIteratorForward);
+	pTest = CU_add_test(pGroup, "TestHashlistAddDelete", TestHashlistAddDelete);
+
 
 }
 
