@@ -1074,6 +1074,7 @@ void post_message(void)
 		StrBuf *CmdBuf = NULL;
 		StrBuf *references = NULL;
 		int save_to_drafts;
+		long HeaderLen;
 
 		save_to_drafts = havebstr("save_button");
 		Buf = NewStrBuf();
@@ -1119,16 +1120,14 @@ void post_message(void)
 		Wikipage = sbstr("page");
 		my_email_addr = sbstr("my_email_addr");
 		
-		CmdBuf = NewStrBufPlain(NULL, 
-					sizeof (CMD) + 
-					StrLength(Recp) + 
-					StrLength(encoded_subject) +
-					StrLength(Cc) +
-					StrLength(Bcc) + 
-					StrLength(Wikipage) +
-					StrLength(my_email_addr) + 
-					StrLength(references));
-
+		HeaderLen = StrLength(Recp) + 
+			StrLength(encoded_subject) +
+			StrLength(Cc) +
+			StrLength(Bcc) + 
+			StrLength(Wikipage) +
+			StrLength(my_email_addr) + 
+			StrLength(references);
+		CmdBuf = NewStrBufPlain(NULL, sizeof (CMD) + HeaderLen);
 		StrBufPrintf(CmdBuf, 
 			     CMD,
 			     save_to_drafts?"":ChrPtr(Recp),
@@ -1143,50 +1142,59 @@ void post_message(void)
 		FreeStrBuf(&references);
 		FreeStrBuf(&encoded_subject);
 
-		lprintf(9, "%s\n", ChrPtr(CmdBuf));
-		serv_puts(ChrPtr(CmdBuf));
-		FreeStrBuf(&CmdBuf);
+		if ((HeaderLen + StrLength(sbstr("msgtext")) < 10) && 
+		    (GetCount(WCC->attachments) == 0)){
+			StrBufAppendBufPlain(WCC->ImportantMsg, _("Refusing to post empty message.\n"), -1, 0);
+			FreeStrBuf(&CmdBuf);
+				
+		}
+		else 
+		{
+			lprintf(9, "%s\n", ChrPtr(CmdBuf));
+			serv_puts(ChrPtr(CmdBuf));
+			FreeStrBuf(&CmdBuf);
 
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 4) {
-			if (save_to_drafts) {
-				if (  (havebstr("recp"))
-				    || (havebstr("cc"  ))
-				    || (havebstr("bcc" )) ) {
-					/* save recipient headers or room to post to */
-					serv_printf("To: %s", ChrPtr(Recp));
-					serv_printf("Cc: %s", ChrPtr(Cc));
-					serv_printf("Bcc: %s", ChrPtr(Bcc));
-				} else {
-					serv_printf("X-Citadel-Room: %s", ChrPtr(WC->CurRoom.name));
+			StrBuf_ServGetln(Buf);
+			if (GetServerStatus(Buf, NULL) == 4) {
+				if (save_to_drafts) {
+					if (  (havebstr("recp"))
+					      || (havebstr("cc"  ))
+					      || (havebstr("bcc" )) ) {
+						/* save recipient headers or room to post to */
+						serv_printf("To: %s", ChrPtr(Recp));
+						serv_printf("Cc: %s", ChrPtr(Cc));
+						serv_printf("Bcc: %s", ChrPtr(Bcc));
+					} else {
+						serv_printf("X-Citadel-Room: %s", ChrPtr(WC->CurRoom.name));
+					}
 				}
-			}
-			post_mime_to_server();
-			if (save_to_drafts) {
-				StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been saved to Drafts.\n"), -1, 0);
-				gotoroom(WCC->CurRoom.name);
+				post_mime_to_server();
+				if (save_to_drafts) {
+					StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been saved to Drafts.\n"), -1, 0);
+					gotoroom(WCC->CurRoom.name);
+					display_enter();
+					FreeStrBuf(&Buf);
+					return;
+				} else if (  (havebstr("recp"))
+					     || (havebstr("cc"  ))
+					     || (havebstr("bcc" ))
+					) {
+					StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been sent.\n"), -1, 0);
+				}
+				else {
+					StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been posted.\n"), -1, 0);
+				}
+				dont_post = lbstr("postseq");
+			} else {
+				StrBufCutLeft(Buf, 4);
+
+				lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
+				StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
+				if (save_to_drafts) gotoroom(WCC->CurRoom.name);
 				display_enter();
 				FreeStrBuf(&Buf);
 				return;
-			} else if (  (havebstr("recp"))
-			   || (havebstr("cc"  ))
-			   || (havebstr("bcc" ))
-			) {
-				StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been sent.\n"), -1, 0);
 			}
-			else {
-				StrBufAppendBufPlain(WCC->ImportantMsg, _("Message has been posted.\n"), -1, 0);
-			}
-			dont_post = lbstr("postseq");
-		} else {
-			StrBufCutLeft(Buf, 4);
-
-			lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
-			StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
-			if (save_to_drafts) gotoroom(WCC->CurRoom.name);
-			display_enter();
-			FreeStrBuf(&Buf);
-			return;
 		}
 		FreeStrBuf(&Buf);
 	}
