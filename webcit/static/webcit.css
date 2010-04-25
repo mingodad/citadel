@@ -1633,3 +1633,16 @@ li.event_unread span, a.event_read_title {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+.chat_username_me {
+	font-weight: bold;
+	color: #f00;
+};
+
+.chat_username_notme {
+	font-weight: bold;
+	color: #00f;
+};
+
+.chat_text {
+};

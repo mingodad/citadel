@@ -5,8 +5,10 @@
 <div id="chatsend" class="chatsend">
 <form method="POST" onsubmit="return chatsendfunc()" action="chat_send" id="chatsendid" name="chatsendform">
 <input type="hidden" name="nonce" value="<?NONCE>">
-<img src="static/citadelchat_16x.gif">
-<input type="text" size="80" maxlength="1024" id="send_this_id" name="send_this">
+<img src="static/citadelchat_32x.gif">
+<textarea maxlength="1024" id="send_this_id" name="send_this" wrap="soft" rows="5" cols="80"
+ onKeyPress="chat_enter(event);"></textarea>
+<input type="submit" value="<?_("Send")>">
 </div>
 
 <script type="text/javascript">
@@ -16,6 +18,13 @@ function chatsendfunc() {
 		onComplete: function(){ $('send_this_id').value = '' }
 	})
 	return false;
+}
+
+function chat_enter(evt) {
+	var charCode = (evt.which) ? evt.which : window.event.keyCode; 
+	if (charCode == 13) {
+		chatsendfunc();
+	}
 }
 
 new Ajax.PeriodicalUpdater('chatrecv', 'chat_recv', {

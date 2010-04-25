@@ -60,29 +60,28 @@ void chat_recv(void) {
 
 		/* who is speaking ... */
 		if (strcasecmp(cl_user, WC->last_chat_user)) {
-			wc_printf("<B>");
-
+			wc_printf("<br>\n");
 			if (!strcasecmp(cl_user, ChrPtr(WC->wc_fullname))) {
-				wc_printf("<FONT COLOR=&quot;#FF0000&quot;>");
+				wc_printf("<span class=\"chat_username_me\">");
 			}
 			else {
-				wc_printf("<FONT COLOR=&quot;#0000FF&quot;>");
+				wc_printf("<span class=\"chat_username_notme\">");
 			}
 			escputs(cl_user);
 			strcpy(WC->last_chat_user, cl_user);
 
-			wc_printf("</FONT>: </B>");
+			wc_printf(": </span>");
 		}
 		else {
 			wc_printf("&nbsp;&nbsp;&nbsp;");
 		}
 
 		/* what did they say ... */
+		wc_printf("<span class=\"chat_text\">");
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			escputs(buf);
 		}
-
-		wc_printf("<br>\n");
+		wc_printf("<br></span>\n");
 	}
 }
 
