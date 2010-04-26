@@ -3390,7 +3390,7 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 
 			if (IOBuf->BufUsed + 10 > IOBuf->BufSize)
 			{
-				long apos;
+				long apos = 0;
 
 				if (pLF != NULL) apos = pLF - IOBuf->buf;
 				IncreaseBuf(IOBuf, 1, -1);	
