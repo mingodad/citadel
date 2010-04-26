@@ -409,10 +409,11 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 				lprintf(9, "Theoretical bytes remaining: %d\n", msgend - ptr);
 			}
 
-			src=strstr(ptr, " src=\"cid:");
+			src=strstr(ptr, "src=\"cid:");
 			++brak;
 
 			if (src
+			    && isspace(*(src-1))
 				&& tag_end
 				&& (cid_start=strchr(src,':'))
 				&& (cid_end=strchr(cid_start,'"'))
