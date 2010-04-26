@@ -2,6 +2,8 @@
 </div>
 <div id="chatrecv" class="chatrecv">
 </div>
+<div id="chat_userlist" class="chat_userlist">
+</div>
 <div id="chatsend" class="chatsend">
 <form method="POST" onsubmit="return chatsendfunc()" action="chat_send" id="chatsendid" name="chatsendform">
 <input type="hidden" name="nonce" value="<?NONCE>">
@@ -35,6 +37,10 @@ new Ajax.PeriodicalUpdater('chatrecv', 'chat_recv', {
 			$('chatrecv').innerHTML = '';
 			$('chatrecv_history').scrollTop = 9999999;
 		}
+});
+
+new Ajax.PeriodicalUpdater('chat_userlist', 'chat_rwho', {
+	method: 'get', frequency: 15
 });
 
 </script>

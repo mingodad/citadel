@@ -198,6 +198,38 @@ void roomchat_poll(char *argbuf) {
 }
 
 
+
+/*
+ * list users in chat in this room
+ */
+void roomchat_rwho(char *argbuf) {
+	struct CitContext *nptr;
+	int nContexts, i;
+
+	if (!CC->cs_flags & CS_CHAT) {
+		cprintf("%d Session is not in chat mode.\n", ERROR);
+		return;
+	}
+
+	cprintf("%d%c \n", LISTING_FOLLOWS, CtdlCheckExpress() );
+	
+	nptr = CtdlGetContextArray(&nContexts) ;		// grab a copy of the wholist
+	if (nptr) {
+		for (i=0; i<nContexts; i++)  {			// list the users
+		        if ( (nptr[i].room.QRnumber == CC->room.QRnumber) 
+			   && (nptr[i].cs_flags & CS_CHAT)
+			) {
+				cprintf("%s\n", nptr[i].user.fullname);
+			}
+		}
+		free(nptr);					// free our copy
+	}
+
+	cprintf("000\n");
+}
+
+
+
 /*
  * Participate in real time chat in a room
  */
@@ -222,6 +254,9 @@ void cmd_rcht(char *argbuf)
 	}
 	else if (!strcasecmp(subcmd, "poll")) {
 		roomchat_poll(argbuf);
+	}
+	else if (!strcasecmp(subcmd, "rwho")) {
+		roomchat_rwho(argbuf);
 	}
 	else {
 		cprintf("%d Invalid subcommand\n", ERROR + CMD_NOT_SUPPORTED);

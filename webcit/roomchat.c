@@ -62,10 +62,10 @@ void chat_recv(void) {
 		if (strcasecmp(cl_user, WC->last_chat_user)) {
 			wc_printf("<br>\n");
 			if (!strcasecmp(cl_user, ChrPtr(WC->wc_fullname))) {
-				wc_printf("<span class=\"chat_username_me\">");
+				wc_printf("<span class=\"chat_myname\">");
 			}
 			else {
-				wc_printf("<span class=\"chat_username_notme\">");
+				wc_printf("<span class=\"chat_notmyname\">");
 			}
 			escputs(cl_user);
 			strcpy(WC->last_chat_user, cl_user);
@@ -102,14 +102,6 @@ void chat_send(void) {
 		strcpy(send_this, "");
 	}
 
-	if (havebstr("help_button")) {
-		strcpy(send_this, "/help");
-	}
-
-	if (havebstr("list_button")) {
-		strcpy(send_this, "/who");
-	}
-
 	if (havebstr("exit_button")) {
 		strcpy(send_this, "/quit");
 	}
@@ -126,12 +118,37 @@ void chat_send(void) {
 }
 
 
+/*
+ * wholist for chat
+ */
+void chat_rwho(void) {
+	char buf[1024];
+
+	serv_puts("RCHT rwho");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			if (!strcasecmp(buf, ChrPtr(WC->wc_fullname))) {
+				wc_printf("<span class=\"chat_myname\">");
+			}
+			else {
+				wc_printf("<span class=\"chat_notmyname\">");
+			}
+			wc_printf("<img src=\"static/citadelchat_16x.gif\">");
+			escputs(buf);
+			wc_printf("</span><br>\n");
+		}
+	}
+}
+
+
 void 
 InitModule_ROOMCHAT
 (void)
 {
 	WebcitAddUrlHandler(HKEY("chat"), "", 0, do_chat, 0);
 	WebcitAddUrlHandler(HKEY("chat_recv"), "", 0, chat_recv, AJAX);
+	WebcitAddUrlHandler(HKEY("chat_rwho"), "", 0, chat_rwho, AJAX);
 	WebcitAddUrlHandler(HKEY("chat_send"), "", 0, chat_send, 0);
 }
 

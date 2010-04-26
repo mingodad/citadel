@@ -1615,13 +1615,37 @@ li.event_unread span, a.event_read_title {
 }
 
 .chatrecv_history {
-	margin-left: 5px;
-	margin-right: 5px;
+	position: absolute;
+	top: 0;
+	left: 1%;
+	width: 74%;
 	margin-top: 5px;
 	margin-bottom: 5px;
 	height: 70%;
 	background-color: #FFFFFF;
 	overflow: auto;
+	border-style: solid;
+	border-color: #022750;
+	border-width: 1px;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+.chat_userlist {
+	position: absolute;
+	top: 0;
+	right: 1%;
+	width: 23%;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	height: 70%;
+	background-color: #FFFFFF;
+	overflow: auto;
+	border-style: solid;
+	border-color: #022750;
+	border-width: 1px;
+	padding-left: 3px;
+	padding-right: 3px;
 }
 
 .chatrecv {
@@ -1629,20 +1653,28 @@ li.event_unread span, a.event_read_title {
 }
 
 .chatsend {
-	width: 90%;
+	position: absolute;
+	left: 1%;
+	right: 1%;
+	top: 71%;
 	margin-left: auto;
 	margin-right: auto;
+	border-style: solid;
+	border-color: #022750;
+	border-width: 1px;
+	padding-left: 3px;
+	padding-right: 3px;
 }
 
-.chat_username_me {
+.chat_myname {
 	font-weight: bold;
-	color: #f00;
-};
+	color: #ff0000;
+}
 
-.chat_username_notme {
+.chat_notmyname {
 	font-weight: bold;
-	color: #00f;
-};
+	color: #0000ff;
+}
 
 .chat_text {
-};
+}
