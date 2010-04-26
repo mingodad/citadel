@@ -213,22 +213,22 @@ void init_sysdep(void) {
 	 * call signal_cleanup() to gracefully shut down the server.
 	 */
 	sigemptyset(&set);
-	sigaddset(&set, SIGINT);
-	sigaddset(&set, SIGQUIT);
+	sigaddset(&set, SIGINT);		// intr = shutdown
+	// sigaddset(&set, SIGQUIT);		// quit = force quit
 	sigaddset(&set, SIGHUP);
 	sigaddset(&set, SIGTERM);
-	// sigaddset(&set, SIGSEGV);	commented out because
-	// sigaddset(&set, SIGILL);	we want core dumps
+	// sigaddset(&set, SIGSEGV);		// we want core dumps
+	// sigaddset(&set, SIGILL);		// we want core dumps
 	// sigaddset(&set, SIGBUS);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 
-	signal(SIGINT, signal_cleanup);
-	signal(SIGQUIT, signal_cleanup);
+	signal(SIGINT, signal_cleanup);		// intr = shutdown
+	// signal(SIGQUIT, signal_cleanup);	// quit = force quit
 	signal(SIGHUP, signal_cleanup);
 	signal(SIGTERM, signal_cleanup);
 	signal(SIGUSR2, signal_exit);
-	// signal(SIGSEGV, signal_cleanup);	commented out because
-	// signal(SIGILL, signal_cleanup);	we want core dumps
+	// signal(SIGSEGV, signal_cleanup);	// we want coredumps
+	// signal(SIGILL, signal_cleanup);	// we want core dumps
 	// signal(SIGBUS, signal_cleanup);
 
 	/*
