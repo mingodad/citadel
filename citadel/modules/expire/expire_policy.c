@@ -88,14 +88,17 @@ void cmd_gpex(char *argbuf) {
 	if (!strcasecmp(which, strof(room))) {
 		memcpy(&exp, &CC->room.QRep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, strof(floorpolicy))) {
+	else if (!strcasecmp(which, strof(floorpolicy))||
+		 !strcasecmp(which, "floor")) { /* Deprecated version */
 		fl = CtdlGetCachedFloor(CC->room.QRfloor);
 		memcpy(&exp, &fl->f_ep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, strof(mailboxespolicy))) {
+	else if (!strcasecmp(which, strof(mailboxespolicy))||
+		 !strcasecmp(which, "mailboxes")) {/* Deprecated version */
 		memcpy(&exp, &config.c_mbxep, sizeof(struct ExpirePolicy));
 	}
-	else if (!strcasecmp(which, strof(sitepolicy))) {
+	else if (!strcasecmp(which, strof(sitepolicy))||
+		 !strcasecmp(which, "site")) {/* Deprecated version */
 		memcpy(&exp, &config.c_ep, sizeof(struct ExpirePolicy));
 	}
 	else {
@@ -144,7 +147,8 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	if (!strcasecmp(which, strof(floorpolicy))) {
+	if (!strcasecmp(which, strof(floorpolicy))||
+	    !strcasecmp(which, "floor")) { /* deprecated version */
 		lgetfloor(&flbuf, CC->room.QRfloor);
 		memcpy(&flbuf.f_ep, &exp, sizeof(struct ExpirePolicy));
 		lputfloor(&flbuf, CC->room.QRfloor);
@@ -152,7 +156,8 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	else if (!strcasecmp(which, strof(mailboxespolicy))) {
+	else if (!strcasecmp(which, strof(mailboxespolicy))||
+		 !strcasecmp(which, "mailboxes")) {
 		memcpy(&config.c_mbxep, &exp, sizeof(struct ExpirePolicy));
 		put_config();
 		cprintf("%d Default expire policy for mailboxes set.\n",
@@ -160,7 +165,8 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	else if (!strcasecmp(which, strof(sitepolicy))) {
+	else if (!strcasecmp(which, strof(sitepolicy))||
+		 !strcasecmp(which, "site")) {/* deprecated version */
 		if (exp.expire_mode == EXPIRE_NEXTLEVEL) {
 			cprintf("%d Invalid policy (no higher level)\n",
 				ERROR + ILLEGAL_VALUE);
