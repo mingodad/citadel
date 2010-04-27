@@ -1,0 +1,17 @@
+<html>
+<head>
+<script type="text/javascript" src="prototype.js"></script>
+<script type="text/javascript">
+function do_roomchat_unload() {
+        new Ajax.Request(
+                '../chat_exit', {
+                        method: 'get'
+                }
+        );
+}
+</script>
+</head>
+<body onUnload="do_roomchat_unload();">
+ugly hack to enable an onUnload event
+</body>
+</html>

@@ -142,6 +142,18 @@ void chat_rwho(void) {
 }
 
 
+/*
+ * advise the Citadel server that the user is navigating away from the chat window
+ */
+void chat_exit(void) {
+	char buf[1024];
+
+	serv_puts("RCHT exit");
+	serv_getln(buf, sizeof buf);		/* Throw away the server reply */
+}
+
+
+
 void 
 InitModule_ROOMCHAT
 (void)
@@ -149,6 +161,7 @@ InitModule_ROOMCHAT
 	WebcitAddUrlHandler(HKEY("chat"), "", 0, do_chat, 0);
 	WebcitAddUrlHandler(HKEY("chat_recv"), "", 0, chat_recv, AJAX);
 	WebcitAddUrlHandler(HKEY("chat_rwho"), "", 0, chat_rwho, AJAX);
+	WebcitAddUrlHandler(HKEY("chat_exit"), "", 0, chat_exit, AJAX);
 	WebcitAddUrlHandler(HKEY("chat_send"), "", 0, chat_send, 0);
 }
 
