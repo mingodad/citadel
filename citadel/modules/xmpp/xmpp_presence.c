@@ -209,7 +209,6 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 	int in_body = 0;
 	char buf[256];
 
-	CtdlLogPrintf(CTDL_DEBUG, "\033[32m%d\033[0m\n", msgnum);
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
 		return;
@@ -220,7 +219,6 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 	ptr = msg->cm_fields['M'];
 	endptr = ptr + strlen(ptr);	// only do strlen once :)
 	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)), ((ptr < endptr) && (*ptr != 0)) ) {
-		CtdlLogPrintf(CTDL_DEBUG, "%3d \033[31m%s\033[0m\n", in_body, buf);
 		if (in_body) {
 			Put(mortuary, buf, strlen(buf), buf, generic_free_handler);
 		}
@@ -276,7 +274,6 @@ void xmpp_store_mortuary(HashList *mortuary) {
 	while (GetNextHashPos(mortuary, HashPos, &len, &Key, &Value) != 0)
 	{
 		StrBufAppendPrintf(themsg, "%s\n", (char *)Value);
-		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 	}
 	DeleteHashPos(&HashPos);
 
@@ -284,7 +281,6 @@ void xmpp_store_mortuary(HashList *mortuary) {
 	CtdlDeleteMessages(USERCONFIGROOM, NULL, 0, XMPPMORTUARY);
 
 	/* And save the new one to disk */
-	CtdlLogPrintf(CTDL_DEBUG, "Save this:\n\033[34m%s\033[0m\n", ChrPtr(themsg));
 	quickie_message("Citadel", NULL, NULL, USERCONFIGROOM, ChrPtr(themsg), 4, "XMPP Mortuary");
 	FreeStrBuf(&themsg);
 }
@@ -316,7 +312,6 @@ void xmpp_massacre_roster(void)
 					xmpp_destroy_buddy(cptr[i].cs_inet_email);
 					if (mortuary) {
 						char *buddy = strdup(cptr[i].cs_inet_email);
-						CtdlLogPrintf(CTDL_DEBUG, "Put \033[33m%s\033[0m\n", buddy);
 						Put(mortuary, buddy, strlen(buddy),
 							buddy, generic_free_handler);
 					}
