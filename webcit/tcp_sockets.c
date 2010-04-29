@@ -842,7 +842,7 @@ long end_burst(void)
 
 	if (WCC->WFBuf != NULL) {
 		WildFireSerializePayload(WCC->WFBuf, WCC->HBuf, &WCC->Hdr->nWildfireHeaders, NULL);
-		FreeStrBuf(WCC->WFBuf);
+		FreeStrBuf(&WCC->WFBuf);
 	}
 
 	if (WCC->Hdr->HR.prohibit_caching)
