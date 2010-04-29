@@ -207,6 +207,7 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 	const char *ptr = NULL;
 	const char *endptr = NULL;
 	int in_body = 0;
+	int len;
 	char buf[256];
 
 	msg = CtdlFetchMessage(msgnum, 1);
@@ -218,9 +219,12 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 
 	ptr = msg->cm_fields['M'];
 	endptr = ptr + strlen(ptr);	// only do strlen once :)
-	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)), ((ptr < endptr) && (*ptr != 0)) ) {
+	while (ptr = memreadlinelen(ptr, buf, (sizeof buf - 2), &len), ((ptr < endptr) && (*ptr != 0)) ) {
 		if (in_body) {
-			Put(mortuary, buf, strlen(buf), buf, generic_free_handler);
+			char *pch; 
+			pch = malloc(len + 1);
+			memcpy(pch, buf, len + 1);
+			Put(mortuary, pch, len, pch, NULL);
 		}
 		if (IsEmptyStr(buf)) in_body = 1;
 	}
