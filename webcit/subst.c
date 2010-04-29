@@ -3127,6 +3127,7 @@ SessionDetachModule_SUBST
 (wcsession *sess)
 {
 	DeleteHash(&sess->vars);
+	FreeStrBuf(&sess->WFBuf);
 }
 
 void 
