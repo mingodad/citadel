@@ -840,6 +840,11 @@ long end_burst(void)
 		}
 	}
 
+	if (WCC->WFBuf != NULL) {
+		WildFireSerializePayload(WCC->WFBuf, WCC->HBuf, &WCC->Hdr->nWildfireHeaders, NULL);
+		FreeStrBuf(WCC->WFBuf);
+	}
+
 	if (WCC->Hdr->HR.prohibit_caching)
 		hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
 	hprintf("Content-length: %d\r\n\r\n", StrLength(WCC->WBuf));

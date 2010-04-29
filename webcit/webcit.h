@@ -485,6 +485,7 @@ struct wcsession {
 	ParsedHttpHdrs *Hdr;
 	StrBuf *WBuf;                           /* Our output buffer */
 	StrBuf *HBuf;                           /* Our HeaderBuffer */
+	StrBuf *WFBuf;                          /* Wildfire error logging buffer */
 
 	HashList *vars; 			/* HTTP variable substitutions for this page */
 	StrBuf *trailing_javascript;		/* extra javascript to be appended to page */

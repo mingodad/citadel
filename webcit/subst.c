@@ -136,7 +136,6 @@ const char *ContextName(int ContextType)
 void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplputParams *TP, const char *Format, ...)
 {
 	wcsession *WCC;
-	StrBuf *Header;
 	StrBuf *Error;
 	StrBuf *Info;
         va_list arg_ptr;
@@ -192,7 +191,7 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 		return; 
 	}
 
-	Header = NewStrBuf();
+	if (WCC->WFBuf == NULL) WCC->WFBuf = NewStrBuf();
 	if (TP->Tokens != NULL) 
 	{
 		/* deprecated: 
@@ -213,7 +212,7 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			     ChrPtr(TP->Tokens->FlatToken));
 
 
-		SerializeJson(Header, WildFireException(SKEY(TP->Tokens->FileName),
+		SerializeJson(WCC->WFBuf, WildFireException(SKEY(TP->Tokens->FileName),
 							TP->Tokens->Line,
 							Info,
 							1), 1);
@@ -223,7 +222,7 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 						      Error,
 						      eERROR), 1);
 */
-		WildFireSerializePayload(Header, WCC->HBuf, &WCC->Hdr->nWildfireHeaders, NULL);
+		
 	}
 	else
 	{
@@ -239,10 +238,8 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 			     Err, 
 			     ChrPtr(Error), 
 			     ChrPtr(TP->Tokens->FlatToken));
-		SerializeJson(Header, WildFireException(HKEY(__FILE__), __LINE__, Info, 1), 1);
-		WildFireSerializePayload(Header, WCC->HBuf, &WCC->Hdr->nWildfireHeaders, NULL);
+		SerializeJson(WCC->WFBuf, WildFireException(HKEY(__FILE__), __LINE__, Info, 1), 1);
 	}
-	FreeStrBuf(&Header);
 	FreeStrBuf(&Info);
 	FreeStrBuf(&Error);
 /*
@@ -257,7 +254,6 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
 {
 	wcsession *WCC;
-	StrBuf *Header;
 	StrBuf *Error;
 	StrBuf *Info;
         va_list arg_ptr;
@@ -272,16 +268,13 @@ void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
 	lprintf(1, ChrPtr(Error));
 
 	WCC = WC;
-	Header = NewStrBuf();
+	if (WCC->WFBuf == NULL) WCC->WFBuf = NewStrBuf();
 
+	SerializeJson(WCC->WFBuf, WildFireException(Type, strlen(Type),
+						    0,
+						    Info,
+						    1), 1);
 
-	SerializeJson(Header, WildFireException(Type, strlen(Type),
-						0,
-						Info,
-						1), 1);
-	WildFireSerializePayload(Header, WCC->HBuf, &WCC->Hdr->nWildfireHeaders, NULL);
-	
-	FreeStrBuf(&Header);
 	FreeStrBuf(&Info);
 	FreeStrBuf(&Error);
 /*
