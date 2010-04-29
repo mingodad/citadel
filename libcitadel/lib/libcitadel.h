@@ -316,7 +316,7 @@ void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
 int is_msg_in_sequence_set(const char *mset, long msgnum);
 const char *memreadline(const char *start, char *buf, int maxlen);
-char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
+const char *memreadlinelen(const char *start, char *buf, int maxlen, int *retlen);
 #define IsEmptyStr(a) ((a)[0] == '\0')
 #define num_parms(source)		num_tokens(source,(char)'|')
 int stripout(char *str, char leftboundary, char rightboundary);

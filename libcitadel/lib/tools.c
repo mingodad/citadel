@@ -658,10 +658,10 @@ const char *memreadline(const char *start, char *buf, int maxlen)
  * \param retlen the length of the returned string
  * \return Pointer to the source memory right after we stopped reading.
  */
-char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen)
+const char *memreadlinelen(const char *start, char *buf, int maxlen, int *retlen)
 {
 	char ch;
-	char *ptr;
+	const char *ptr;
 	int len = 0;		/**< tally our own length to avoid strlen() delays */
 
 	ptr = start;
