@@ -318,7 +318,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 		else {
 			cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_id);
-			cprintf("<error></error>");
+			cprintf("<error>Don't know howto do '%s'!</error>", XMPP->iq_type);
 			cprintf("</iq>");
 		}
 
