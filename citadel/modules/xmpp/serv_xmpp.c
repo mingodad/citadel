@@ -476,21 +476,21 @@ void xmpp_greeting(void) {
 
 /* 
  * Main command loop for XMPP sessions.
+ * Right now we're reading one byte at a time and sending it to the XML parser.
+ * There's got to be a better way to do this.
  */
 void xmpp_command_loop(void) {
-	char cmdbuf[16];
+	char cmdbuf[2];
 	int retval;
 
 	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
+	memset(cmdbuf, 0, sizeof cmdbuf);
 	retval = client_read(cmdbuf, 1);
 	if (retval != 1) {
-		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\r\n");
+		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-
-	/* FIXME ... this is woefully inefficient. */
 
 	XML_Parse(XMPP->xp, cmdbuf, 1, 0);
 }
@@ -532,7 +532,8 @@ CTDL_MODULE_INIT(xmpp)
 					xmpp_greeting,
 					xmpp_command_loop,
 					xmpp_async_loop,
-					CitadelServiceXMPP);
+					CitadelServiceXMPP
+		);
 		CtdlRegisterSessionHook(xmpp_cleanup_function, EVT_STOP);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_LOGIN);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);
