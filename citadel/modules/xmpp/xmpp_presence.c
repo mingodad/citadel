@@ -219,6 +219,7 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 
 	ptr = msg->cm_fields['M'];
 	endptr = ptr + strlen(ptr);	// only do strlen once :)
+	CtdlLogPrintf(CTDL_DEBUG, "\033[33m%s\033[0m\n", ptr);
 	while (ptr = memreadlinelen(ptr, buf, (sizeof buf - 2), &len), ((ptr < endptr) && (*ptr != 0)) ) {
 		if (in_body) {
 			char *pch; 
@@ -333,3 +334,25 @@ void xmpp_massacre_roster(void)
 
 
 
+/*
+ * Stupidly, XMPP does not specify a way to tell the client to flush its client-side roster
+ * and prepare to receive a new one.  So instead we remember every buddy we've ever told the
+ * client about, and push delete operations out at the beginning of a session.
+ */
+void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void)
+{
+	long len;
+	void *Value;
+	const char *Key;
+	HashList *mortuary = xmpp_fetch_mortuary();
+	HashPos *HashPos = GetNewHashPos(mortuary, 0);
+
+	CtdlLogPrintf(CTDL_DEBUG, "\033[32mHAHA\033[0m\n");
+	while (GetNextHashPos(mortuary, HashPos, &len, &Key, &Value) != 0)
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "\033[31mDELETE: %s\033[0m\n", (char *)Value);
+	}
+	CtdlLogPrintf(CTDL_DEBUG, "\033[32mHOHO\033[0m\n");
+	DeleteHashPos(&HashPos);
+	DeleteHash(&mortuary);
+}
