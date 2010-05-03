@@ -409,7 +409,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 void xmpp_xml_chardata(void *data, const XML_Char *s, int len)
 {
-	struct citxmpp *X = XMPP;
+	citxmpp *X = XMPP;
 
 	if (X->chardata_alloc == 0) {
 		X->chardata_alloc = SIZ;
@@ -453,8 +453,8 @@ void xmpp_cleanup_function(void) {
  */
 void xmpp_greeting(void) {
 	strcpy(CC->cs_clientname, "XMPP session");
-	CC->session_specific_data = malloc(sizeof(struct citxmpp));
-	memset(XMPP, 0, sizeof(struct citxmpp));
+	CC->session_specific_data = malloc(sizeof(citxmpp));
+	memset(XMPP, 0, sizeof(citxmpp));
 	XMPP->last_event_processed = queue_event_seq;
 
 	/* XMPP does not use a greeting, but we still have to initialize some things. */

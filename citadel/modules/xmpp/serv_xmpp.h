@@ -18,7 +18,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-struct citxmpp {			/* Information about the current session */
+typedef struct _citxmpp {			/* Information about the current session */
 	XML_Parser xp;			/* XML parser instance for incoming client stream */
 	char server_name[256];		/* who they think we are */
 	char *chardata;
@@ -45,9 +45,9 @@ struct citxmpp {			/* Information about the current session */
 
 	int bind_requested;		/* In this stanza, client is asking server to bind a resource. */
 	int ping_requested;		/* In this stanza, client is pinging the server. */
-};
+} citxmpp;
 
-#define XMPP ((struct citxmpp *)CC->session_specific_data)
+#define XMPP ((citxmpp *)CC->session_specific_data)
 
 struct xmpp_event {
 	struct xmpp_event *next;
