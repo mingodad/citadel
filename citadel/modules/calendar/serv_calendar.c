@@ -1706,7 +1706,7 @@ void ical_putics_grabtzids(icalparameter *param, void *data)
 	HashList *keys = (HashList *) data;
 	
 	if ( (keys) && (tzid) && (!IsEmptyStr(tzid)) ) {
-		Put(keys, tzid, strlen(tzid), strdup(tzid), generic_free_handler);
+		Put(keys, tzid, strlen(tzid), strdup(tzid), NULL);
 	}
 }
 

@@ -159,7 +159,7 @@ void openid_purge(struct ctdluser *usbuf) {
 			memcpy(&usernum, cdboi->ptr, sizeof(long));
 			if (usernum == usbuf->usernum) {
 				deleteme = strdup(cdboi->ptr + sizeof(long)),
-				Put(keys, deleteme, strlen(deleteme), deleteme, generic_free_handler);
+				Put(keys, deleteme, strlen(deleteme), deleteme, NULL);
 			}
 		}
 		cdb_free(cdboi);
@@ -734,7 +734,7 @@ void cmd_oidf(char *argbuf) {
 		extract_token(thiskey, buf, 0, '|', sizeof thiskey);
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
 		CtdlLogPrintf(CTDL_DEBUG, "%s: [%d] %s\n", thiskey, strlen(thisdata), thisdata);
-		Put(keys, thiskey, strlen(thiskey), strdup(thisdata), generic_free_handler);
+		Put(keys, thiskey, strlen(thiskey), strdup(thisdata), NULL);
 	}
 
 

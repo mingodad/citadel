@@ -411,7 +411,6 @@ void SortByHashKeyStr(HashList *Hash);
 int GetCount(HashList *Hash);
 const void *GetSearchPayload(const void *HashVoid);
 void SortByPayload(HashList *Hash, CompareFunc SortBy);
-void generic_free_handler(void *ptr);
 void reference_free_handler(void *ptr);
 int HashLittle(const void *key, size_t length);
 

@@ -956,15 +956,6 @@ void SortByPayload(HashList *Hash, CompareFunc SortBy)
 
 
 /*
- * Generic function to free a pointer.  This can be used as a callback with the
- * hash table, even on systems where free() is defined as a macro or has had other
- * horrible things done to it.
- */
-void generic_free_handler(void *ptr) {
-	free(ptr);
-}
-
-/*
  * Generic function to free a reference.  
  * since a reference actualy isn't needed to be freed, do nothing.
  */

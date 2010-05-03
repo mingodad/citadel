@@ -317,8 +317,7 @@ void xmpp_massacre_roster(void)
 					xmpp_destroy_buddy(cptr[i].cs_inet_email);
 					if (mortuary) {
 						char *buddy = strdup(cptr[i].cs_inet_email);
-						Put(mortuary, buddy, strlen(buddy),
-							buddy, generic_free_handler);
+						Put(mortuary, buddy, strlen(buddy), buddy, NULL);
 					}
 				}
 			}
