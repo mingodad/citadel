@@ -83,3 +83,4 @@ void xmpp_send_message(char *, char *);
 void xmpp_non_sasl_authenticate(char *, char *, char *, char *);
 void xmpp_massacre_roster(void);
 void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void);
+int xmpp_is_visible(struct CitContext *cptr);
