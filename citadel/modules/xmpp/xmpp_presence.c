@@ -204,11 +204,8 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 	HashList *mortuary = (HashList *) userdata;
 	struct CtdlMessage *msg;
-	const char *ptr = NULL;
-	const char *endptr = NULL;
-	int in_body = 0;
-	int len;
-	char buf[256];
+	char *ptr = NULL;
+	char *lasts = NULL;
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
@@ -217,20 +214,31 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 
 	/* now add anyone we find into the hashlist */
 
-	ptr = msg->cm_fields['M'];
-	endptr = ptr + strlen(ptr);	// only do strlen once :)
-	CtdlLogPrintf(CTDL_DEBUG, "\033[33m%s\033[0m\n", ptr);
-	while (ptr = memreadlinelen(ptr, buf, (sizeof buf - 2), &len), ((ptr < endptr) && (*ptr != 0)) ) {
-		if (in_body) {
-			char *pch; 
-			pch = malloc(len + 1);
-			memcpy(pch, buf, len + 1);
-			Put(mortuary, pch, len, pch, NULL);
+	/* skip past the headers */
+	ptr = strstr(msg->cm_fields['M'], "\n\n");
+	if (ptr != NULL) {
+		ptr += 2;
+	}
+	else {
+		ptr = strstr(msg->cm_fields['M'], "\n\r\n");
+		if (ptr != NULL) {
+			ptr += 3;
 		}
-		if (IsEmptyStr(buf)) in_body = 1;
 	}
 
+	/* the remaining lines are addresses */
+	if (ptr != NULL) {
+		ptr = strtok_r(ptr, "\n", &lasts);
+		while (ptr != NULL) {
+			char *pch = strdup(ptr);
+			Put(mortuary, pch, strlen(pch), pch, NULL);
+			ptr = strtok_r(NULL, "\n", &lasts);
+		}
+	}
+
+	TRACE;
 	CtdlFreeMessage(msg);
+	TRACE;
 }
 
 
@@ -314,7 +322,6 @@ void xmpp_massacre_roster(void)
 			   		(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
 			   		&& (cptr[i].user.usernum != CC->user.usernum)
 			   	) {
-					xmpp_destroy_buddy(cptr[i].cs_inet_email);
 					if (mortuary) {
 						char *buddy = strdup(cptr[i].cs_inet_email);
 						Put(mortuary, buddy, strlen(buddy), buddy, NULL);
@@ -346,12 +353,13 @@ void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void)
 	HashList *mortuary = xmpp_fetch_mortuary();
 	HashPos *HashPos = GetNewHashPos(mortuary, 0);
 
-	CtdlLogPrintf(CTDL_DEBUG, "\033[32mHAHA\033[0m\n");
+	/* FIXME delete from the list anyone who is currently online */
+
 	while (GetNextHashPos(mortuary, HashPos, &len, &Key, &Value) != 0)
 	{
 		CtdlLogPrintf(CTDL_DEBUG, "\033[31mDELETE: %s\033[0m\n", (char *)Value);
+		// FIXME xmpp_destroy_buddy((char *)Value);
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "\033[32mHOHO\033[0m\n");
 	DeleteHashPos(&HashPos);
 	DeleteHash(&mortuary);
 }
