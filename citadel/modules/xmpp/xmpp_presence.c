@@ -73,6 +73,26 @@ void xmpp_indicate_presence(char *presence_jid)
 }
 
 
+
+/*
+ * Convenience function to determine whether a particular session is visible to this user
+ */
+int xmpp_is_visible(struct CitContext *cptr) {
+	int aide = (CC->user.axlevel >= AxAideU);
+
+	if (	(cptr->logged_in)
+		&& 	(((cptr->cs_flags&CS_STEALTH)==0) || (aide))	/* aides see everyone */
+		&&	(cptr->user.usernum != CC->user.usernum)	/* don't show myself */
+		&&	(cptr->can_receive_im)				/* IM-capable session */
+	) {
+		return(1);
+	}
+	else {
+		return(0);
+	}
+}
+
+
 /* 
  * Initial dump of the entire wholist
  */
@@ -81,22 +101,14 @@ void xmpp_wholist_presence_dump(void)
 	struct CitContext *cptr = NULL;
 	int nContexts, i;
 	
-	int aide = (CC->user.axlevel >= AxAideU);
-
 	cptr = CtdlGetContextArray(&nContexts);
 	if (!cptr) {
 		return;
 	}
 
 	for (i=0; i<nContexts; i++) {
-		if (cptr[i].logged_in) {
-			if (
-				(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))	/* aides see everyone */
-				&& (cptr[i].user.usernum != CC->user.usernum)	/* don't show myself */
-				&& (cptr[i].can_receive_im)			/* IM-capable session */
-			) {
-				xmpp_indicate_presence(cptr[i].cs_inet_email);
-			}
+		if (xmpp_is_visible(&cptr[i])) {
+			xmpp_indicate_presence(cptr[i].cs_inet_email);
 		}
 	}
 	free(cptr);
@@ -143,7 +155,6 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	static int unsolicited_id;
 	int visible_sessions = 0;
 	int nContexts, i;
-	int aide = (CC->user.axlevel >= AxAideU);
 
 	if (IsEmptyStr(presence_jid)) return;
 	if (CC->kill_me) return;
@@ -155,14 +166,8 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		
 	/* Count the visible sessions for this user */
 	for (i=0; i<nContexts; i++) {
-		if (cptr[i].logged_in) {
-			if (
-				(!strcasecmp(cptr[i].cs_inet_email, presence_jid)) 
-				&& (((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
-				&& (cptr[i].can_receive_im)
-			) {
-				++visible_sessions;
-			}
+		if (xmpp_is_visible(&cptr[i])) {
+			++visible_sessions;
 		}
 	}
 
@@ -175,7 +180,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 		/* Do an unsolicited roster update that adds a new contact. */
 		for (i=0; i<nContexts; i++) {
-			if (cptr[i].logged_in) {
+			if (xmpp_is_visible(&cptr[i])) {
 				if (!strcasecmp(cptr[i].cs_inet_email, presence_jid)) {
 					cprintf("<iq id=\"unsolicited_%x\" type=\"result\">",
 						++unsolicited_id);
@@ -236,9 +241,7 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 		}
 	}
 
-	TRACE;
 	CtdlFreeMessage(msg);
-	TRACE;
 }
 
 
@@ -311,21 +314,15 @@ void xmpp_massacre_roster(void)
 {
 	struct CitContext *cptr;
 	int nContexts, i;
-	int aide = (CC->user.axlevel >= AxAideU);
 	HashList *mortuary = xmpp_fetch_mortuary();
 
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
-			if (cptr[i].logged_in) {
-				if (
-			   		(((cptr[i].cs_flags&CS_STEALTH)==0) || (aide))
-			   		&& (cptr[i].user.usernum != CC->user.usernum)
-			   	) {
-					if (mortuary) {
-						char *buddy = strdup(cptr[i].cs_inet_email);
-						Put(mortuary, buddy, strlen(buddy), buddy, NULL);
-					}
+			if (xmpp_is_visible(&cptr[i])) {
+				if (mortuary) {
+					char *buddy = strdup(cptr[i].cs_inet_email);
+					Put(mortuary, buddy, strlen(buddy), buddy, NULL);
 				}
 			}
 		}
@@ -344,22 +341,46 @@ void xmpp_massacre_roster(void)
  * Stupidly, XMPP does not specify a way to tell the client to flush its client-side roster
  * and prepare to receive a new one.  So instead we remember every buddy we've ever told the
  * client about, and push delete operations out at the beginning of a session.
+ * 
+ * We omit any users who happen to be online right now, but we still keep them in the mortuary,
+ * which needs to be maintained as a list of every buddy the user has ever seen.  We don't know
+ * when they're connecting from the same client and when they're connecting from a different client,
+ * so we have no guarantee of what is in the client side roster at connect time.
  */
 void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void)
 {
 	long len;
 	void *Value;
 	const char *Key;
+	struct CitContext *cptr;
+	int nContexts, i;
+	int online_now = 0;
 	HashList *mortuary = xmpp_fetch_mortuary();
 	HashPos *HashPos = GetNewHashPos(mortuary, 0);
 
-	/* FIXME delete from the list anyone who is currently online */
+	/* we need to omit anyone who is currently online */
+	cptr = CtdlGetContextArray(&nContexts);
 
+	/* go through the list of users in the mortuary... */
 	while (GetNextHashPos(mortuary, HashPos, &len, &Key, &Value) != 0)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "\033[31mDELETE: %s\033[0m\n", (char *)Value);
-		// FIXME xmpp_destroy_buddy((char *)Value);
+
+		online_now = 0;
+		if (cptr) for (i=0; i<nContexts; i++) {
+			if (xmpp_is_visible(&cptr[i])) {
+				if (!strcasecmp(cptr[i].cs_inet_email, (char *)Value)) {
+					online_now = 1;
+				}
+			}
+		}
+
+		if (!online_now) {
+			xmpp_destroy_buddy((char *)Value);
+		}
+
 	}
 	DeleteHashPos(&HashPos);
 	DeleteHash(&mortuary);
+	free(cptr);
 }
+
