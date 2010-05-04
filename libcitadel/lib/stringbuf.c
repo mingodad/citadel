@@ -3501,7 +3501,7 @@ int StrBufReadBLOB(StrBuf *Buf, int *fd, int append, long nBytes, const char **E
 }
 
 const char *ErrRBB_BLOBFPreConditionFailed = "StrBufReadBLOBBuffered: to many selects; aborting.";
-const char *ErrRBB_too_many_selects = "StrBufReadBLOBBuffered: to many selects; aborting.";
+const char *ErrRBB_too_many_selects        = "StrBufReadBLOBBuffered: to many selects; aborting.";
 /**
  * @ingroup StrBuf_BufferedIO
  * @brief Input binary data from socket
@@ -3527,8 +3527,6 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 {
 	const char *pche;
 	const char *pos;
-	int nSelects = 0;
-	int SelRes;
 	int fdflags;
 	int len = 0;
 	int rlen, slen;
@@ -3539,7 +3537,8 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 	fd_set rfds;
 	const char *pch;
 	struct timeval tv;
-	int nSuccessLess;
+	int nSuccessLess = 0;
+	int MaxTries;
 
 	if ((Blob == NULL) || (*fd == -1) || (IOBuf == NULL) || (Pos == NULL))
 	{
@@ -3599,11 +3598,15 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 
 	fdflags = fcntl(*fd, F_GETFL);
 	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
+	if (IsNonBlock)
+		MaxTries =   1000;
+	else
+		MaxTries = 100000;
 
-	SelRes = 1;
 	nBytes -= nRead;
 	nRead = 0;
-	while ((nRead < nBytes) &&
+	while ((nSuccessLess < MaxTries) && 
+	       (nRead < nBytes) &&
 	       (*fd != -1)) {
 		if (IsNonBlock)
 		{
@@ -3625,7 +3628,6 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 				continue;
 			}
 		}
-		nSuccessLess = 0;
 		rlen = read(*fd, 
 			    ptr,
 			    nBytes - nRead);
@@ -3636,7 +3638,6 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 			return rlen;
 		}
 		else if (rlen == 0){
-			nSuccessLess ++;
 			if ((check == NNN_TERM) && 
 			    (nRead > 5) &&
 			    (strncmp(IOBuf->buf + IOBuf->BufUsed - 5, "\n000\n", 5) == 0)) 
@@ -3645,18 +3646,27 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 				StrBufCutRight(Blob, 5);
 				return Blob->BufUsed;
 			}
-			if (nSelects > 10) {
+			else if (!IsNonBlock) 
+				nSuccessLess ++;
+			else if (nSuccessLess > MaxTries) {
 				FlushStrBuf(IOBuf);
 				*Error = ErrRBB_too_many_selects;
 				return -1;
 			}
 		}
 		else if (rlen > 0) {
+			nSuccessLess = 0;
 			nRead += rlen;
 			ptr += rlen;
 			IOBuf->BufUsed += rlen;
 		}
 	}
+	if (nSuccessLess >= MaxTries) {
+		FlushStrBuf(IOBuf);
+		*Error = ErrRBB_too_many_selects;
+		return -1;
+	}
+
 	if (nRead > nBytes) {
 		*Pos = IOBuf->buf + nBytes;
 	}
