@@ -510,7 +510,11 @@ void xmpp_async_loop(void) {
  */
 void xmpp_login_hook(void) {
 	xmpp_queue_event(XMPP_EVT_LOGIN, CC->cs_inet_email);
-	xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster();
+
+	/* only do the protocol stuff if this is an XMPP session */
+	if (CC->h_command_function == xmpp_command_loop) {
+		xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster();
+	}
 }
 
 
