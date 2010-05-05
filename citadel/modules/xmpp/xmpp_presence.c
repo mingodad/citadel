@@ -122,6 +122,10 @@ void xmpp_wholist_presence_dump(void)
 void xmpp_destroy_buddy(char *presence_jid) {
 	static int unsolicited_id = 1;
 
+	if (!presence_jid) return;
+	if (!XMPP) return;
+	if (!XMPP->client_jid) return;
+
 	/* Transmit non-presence information */
 	cprintf("<presence type=\"unavailable\" from=\"%s\" to=\"%s\"></presence>",
 		presence_jid, XMPP->client_jid
