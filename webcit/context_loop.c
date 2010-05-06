@@ -444,8 +444,13 @@ void OverrideRequest(ParsedHttpHdrs *Hdr, const char *Line, long len)
 {
 	StrBuf *Buf = NewStrBuf();
 
-	FlushStrBuf(Hdr->HR.ReqLine);
-	StrBufPlain(Hdr->HR.ReqLine, Line, len);
+	if (Hdr->HR.ReqLine != NULL) {
+		FlushStrBuf(Hdr->HR.ReqLine);
+		StrBufPlain(Hdr->HR.ReqLine, Line, len);
+	}
+	else {
+		Hdr->HR.ReqLine = NewStrBufPlain(Line, len);
+	}
 	ReadHttpSubject(Hdr, Hdr->HR.ReqLine, Buf);
 
 	FreeStrBuf(&Buf);
