@@ -1,4 +1,4 @@
-  /*
+/*
  * $Id$
  */
 
@@ -167,6 +167,7 @@ int GetConnected (void)
 		StrBuf_ServGetln(Buf);	/* get the server greeting */
 		GetServerStatus(Buf, &Status);
 		FreeStrBuf(&Buf);
+
 		/* Are there too many users already logged in? */
 		if (Status == 571) {
 			wc_printf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));
@@ -224,7 +225,7 @@ int GetConnected (void)
 	return 0;
 }
 
-/**
+/*
  *  Read Citadel variformat text and spit it out as HTML.
  *  align html align string
  */
@@ -247,7 +248,7 @@ void _fmout(StrBuf *Target, char *align)
 		}
 		intext = 1;
 
-		/**
+		/*
 		 * Quoted text should be displayed in italics and in a
 		 * different colour.  This code understands Citadel-style
 		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
@@ -262,7 +263,7 @@ void _fmout(StrBuf *Target, char *align)
 		if ((bq == 1) && (!strncmp(buf, " >", 2))) {
 			strcpy(buf, &buf[2]);
 		}
-		/** Activate embedded URL's */
+		/* Activate embedded URL's */
 		url(buf, sizeof(buf));
 
 		escputs(buf);
@@ -339,8 +340,9 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 		while ((BufPtr != StrBufNOTNULL) &&
 		       (BufPtr != NULL));
 
-	for (i = 0; i < bn; i++)				
+	for (i = 0; i < bn; i++) {
 		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
+	}
 	StrBufAppendBufPlain(Target, HKEY("</div><br>\n"), 0);
 	FreeStrBuf(&Line);
 	FreeStrBuf(&Line1);
@@ -348,10 +350,8 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 }
 
 
-
-
-/**
- *  Read Citadel variformat text and spit it out as HTML in a form
+/*
+ * Read Citadel variformat text and spit it out as HTML in a form
  * suitable for embedding in another message (forward/quote).
  * (NO LINEBREAKS ALLOWED HERE!)
  */
@@ -393,10 +393,8 @@ void pullquote_fmout(void) {
 
 
 
-/**
+/*
  *  Transmit message text (in memory) to the server.
- *
- *  ptr Pointer to the message being transmitted
  */
 void text_to_server(char *ptr)
 {
@@ -436,11 +434,8 @@ void text_to_server(char *ptr)
 }
 
 
-/**
- *  Transmit message text (in memory) to the server,
- *        converting to Quoted-Printable encoding as we go.
- *
- *  ptr Pointer to the message being transmitted
+/*
+ * Transmit message text (in memory) to the server, converting to Quoted-Printable encoding as we go.
  */
 void text_to_server_qp(char *ptr)
 {
@@ -512,9 +507,8 @@ void text_to_server_qp(char *ptr)
 
 
 
-/**
- *  translate server message output to text
- * (used for editing room info files and such)
+/*
+ * translate server message output to text (used for editing room info files and such)
  */
 void server_to_text()
 {
@@ -534,8 +528,8 @@ void server_to_text()
 
 
 
-/**
- *  Read text from server, appending to a string buffer until the
+/*
+ * Read text from server, appending to a string buffer until the
  * usual 000 terminator is found.  Caller is responsible for freeing
  * the returned pointer.
  */
@@ -561,10 +555,6 @@ int read_server_text(StrBuf *Buf, long *nLines)
 	*nLines = nlines;
 	return nTotal;
 }
-
-
-
-
 
 
 int GetServerStatus(StrBuf *Line, long* FullState)
@@ -628,6 +618,7 @@ int conditional_serv_newuser_disabled(StrBuf *Target, WCTemplputParams *TP)
 		return 0;
 	return WCC->serv_info->serv_newuser_disabled != 0;
 }
+
 int conditional_serv_supports_openid(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -635,6 +626,7 @@ int conditional_serv_supports_openid(StrBuf *Target, WCTemplputParams *TP)
 		return 0;
 	return WCC->serv_info->serv_supports_openid != 0;
 }
+
 int conditional_serv_fulltext_enabled(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -643,8 +635,6 @@ int conditional_serv_fulltext_enabled(StrBuf *Target, WCTemplputParams *TP)
 	return WCC->serv_info->serv_fulltext_enabled != 0;
 }
 
-
-
 void tmplput_serv_bbs_city(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -652,7 +642,6 @@ void tmplput_serv_bbs_city(StrBuf *Target, WCTemplputParams *TP)
 		return;
 	StrBufAppendTemplate(Target, TP, WC->serv_info->serv_bbs_city, 0);
 }
-
 
 void tmplput_mesg(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -762,4 +751,3 @@ SessionDestroyModule_SERVFUNC
 {
 	DeleteServInfo(&sess->serv_info);
 }
-/*@}*/
