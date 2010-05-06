@@ -621,6 +621,38 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 	return retval;
 }
 
+
+int client_read_random_blob(StrBuf *Target, int timeout)
+{
+	CitContext *CCC=CC;
+	int rc;
+
+	rc =  client_read_blob(Target, 1, timeout);
+	if (rc > 0)
+	{
+		long len;
+		const char *pch;
+		
+		len = StrLength(CCC->ReadBuf);
+		pch = ChrPtr(CCC->ReadBuf);
+
+		if (len > 0)
+		{
+			if (CCC->Pos != NULL) {
+				len -= CCC->Pos - pch;
+				pch = CCC->Pos;
+			}
+			StrBufAppendBufPlain(Target, pch, len, 0);
+			FlushStrBuf(CCC->ReadBuf);
+			CCC->Pos = NULL;
+			return StrLength(Target);
+		}
+		return rc;
+	}
+	else 
+		return rc;
+}
+
 int client_read_to(char *buf, int bytes, int timeout)
 {
 	CitContext *CCC=CC;
