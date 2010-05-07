@@ -476,23 +476,21 @@ void xmpp_greeting(void) {
 
 /* 
  * Main command loop for XMPP sessions.
- * Right now we're reading one byte at a time and sending it to the XML parser.
- * There's got to be a better way to do this.
  */
 void xmpp_command_loop(void) {
-	char cmdbuf[2];
-	int retval;
+	int rc;
+	StrBuf *stream_input = NewStrBuf();
 
 	time(&CC->lastcmd);
-	memset(cmdbuf, 0, sizeof cmdbuf);
-	retval = client_read(cmdbuf, 1);
-	if (retval != 1) {
+	rc = client_read_random_blob(stream_input, 30);
+	if (rc > 0) {
+		XML_Parse(XMPP->xp, ChrPtr(stream_input), rc, 0);
+	}
+	else {
 		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
-		return;
 	}
-
-	XML_Parse(XMPP->xp, cmdbuf, 1, 0);
+	FreeStrBuf(&stream_input);
 }
 
 
