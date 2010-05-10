@@ -62,7 +62,6 @@
  * Output a single roster item, for roster queries or pushes
  */
 void xmpp_roster_item(struct CitContext *cptr) {
-	CtdlLogPrintf(CTDL_DEBUG, "\033[32mxmpp_roster_item(%s)\033[0m\n", cptr->cs_inet_email);
 	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
 		cptr->cs_inet_email,
 		cptr->user.fullname
@@ -82,8 +81,6 @@ void xmpp_iq_roster_query(void)
 {
 	struct CitContext *cptr;
 	int nContexts, i;
-
-	CtdlLogPrintf(CTDL_DEBUG, "\033[36m ROSTER QUERY !! \033[0m\n");
 
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);

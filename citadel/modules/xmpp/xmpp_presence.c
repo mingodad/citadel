@@ -30,6 +30,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <assert.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -127,7 +128,6 @@ void xmpp_destroy_buddy(char *presence_jid) {
 	if (!XMPP) return;
 	if (!XMPP->client_jid) return;
 
-	CtdlLogPrintf(CTDL_DEBUG, "\033[31mdestroy_buddy(%s)\033[0m\n", presence_jid);
 	/* Transmit non-presence information */
 	cprintf("<presence type=\"unavailable\" from=\"%s\" to=\"%s\"></presence>",
 		presence_jid, XMPP->client_jid
@@ -162,6 +162,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	static int unsolicited_id;
 	int visible_sessions = 0;
 	int nContexts, i;
+	int which_cptr_is_relevant = (-1);
 
 	if (IsEmptyStr(presence_jid)) return;
 	if (CC->kill_me) return;
@@ -173,8 +174,11 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 	/* Count the visible sessions for this user */
 	for (i=0; i<nContexts; i++) {
-		if (xmpp_is_visible(CC, &cptr[i])) {
+		if ( (!strcasecmp(cptr[i].cs_inet_email, presence_jid))
+		   && (xmpp_is_visible(&cptr[i], CC))
+		)  {
 			++visible_sessions;
+			which_cptr_is_relevant = i;
 		}
 	}
 
@@ -183,31 +187,26 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 	if ( (event_type == XMPP_EVT_LOGIN) && (visible_sessions == 1) ) {
 
-		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n", CC->cs_pid, presence_jid);
+		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n",
+			CC->cs_pid, presence_jid);
 
 		/* Do an unsolicited roster update that adds a new contact. */
-		for (i=0; i<nContexts; i++) {
-			if (xmpp_is_visible(CC, &cptr[i])) {
-				if (!strcasecmp(cptr[i].cs_inet_email, presence_jid)) {
-					cprintf("<iq id=\"unsolicited_%x\" type=\"result\">",
-						++unsolicited_id);
-					cprintf("<query xmlns=\"jabber:iq:roster\">");
-					xmpp_roster_item(&cptr[i]);
-					cprintf("</query>"
-						"</iq>");
-				}
-			}
-		}
+		assert(which_cptr_is_relevant >= 0);
+		cprintf("<iq id=\"unsolicited_%x\" type=\"result\">", ++unsolicited_id);
+		cprintf("<query xmlns=\"jabber:iq:roster\">");
+		xmpp_roster_item(&cptr[which_cptr_is_relevant]);
+		cprintf("</query></iq>");
 
 		/* Transmit presence information */
 		xmpp_indicate_presence(presence_jid);
 	}
 
 	if (visible_sessions == 0) {
-		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n", CC->cs_pid, presence_jid);
-
+		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n",
+			CC->cs_pid, presence_jid);
 		xmpp_destroy_buddy(presence_jid);
 	}
+
 	free(cptr);
 }
 
