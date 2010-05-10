@@ -498,6 +498,7 @@ void xmpp_command_loop(void) {
  * Async loop for XMPP sessions (handles the transmission of unsolicited stanzas)
  */
 void xmpp_async_loop(void) {
+	CtdlLogPrintf(CTDL_DEBUG, "\033[35m xmpp_async_loop() IS BEING CALLED!! \033[0m\n");
 	xmpp_process_events();
 	xmpp_output_incoming_messages();
 }

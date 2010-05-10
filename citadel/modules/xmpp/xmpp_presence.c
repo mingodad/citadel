@@ -75,14 +75,15 @@ void xmpp_indicate_presence(char *presence_jid)
 
 
 /*
- * Convenience function to determine whether a particular session is visible to this user
+ * Convenience function to determine whether any given session is 'visible' to any other given session,
+ * and is capable of receiving instant messages from that session.
  */
-int xmpp_is_visible(struct CitContext *cptr) {
-	int aide = (CC->user.axlevel >= AxAideU);
+int xmpp_is_visible(struct CitContext *cptr, struct CitContext *to_whom) {
+	int aide = (to_whom->user.axlevel >= AxAideU);
 
 	if (	(cptr->logged_in)
 		&& 	(((cptr->cs_flags&CS_STEALTH)==0) || (aide))	/* aides see everyone */
-		&&	(cptr->user.usernum != CC->user.usernum)	/* don't show myself */
+		&&	(cptr->user.usernum != to_whom->user.usernum)	/* don't show myself */
 		&&	(cptr->can_receive_im)				/* IM-capable session */
 	) {
 		return(1);
@@ -107,7 +108,7 @@ void xmpp_wholist_presence_dump(void)
 	}
 
 	for (i=0; i<nContexts; i++) {
-		if (xmpp_is_visible(&cptr[i])) {
+		if (xmpp_is_visible(&cptr[i], CC)) {
 			xmpp_indicate_presence(cptr[i].cs_inet_email);
 		}
 	}
@@ -154,6 +155,7 @@ void xmpp_destroy_buddy(char *presence_jid) {
 
 /*
  * When a user logs in or out of the local Citadel system, notify all XMPP sessions about it.
+ * THIS FUNCTION HAS A BUG IN IT THAT ENUMERATES THE SESSIONS WRONG.
  */
 void xmpp_presence_notify(char *presence_jid, int event_type) {
 	struct CitContext *cptr;
@@ -168,10 +170,10 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	if (!cptr) {
 		return;
 	}
-		
+
 	/* Count the visible sessions for this user */
 	for (i=0; i<nContexts; i++) {
-		if (xmpp_is_visible(&cptr[i])) {
+		if (xmpp_is_visible(CC, &cptr[i])) {
 			++visible_sessions;
 		}
 	}
@@ -185,7 +187,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 
 		/* Do an unsolicited roster update that adds a new contact. */
 		for (i=0; i<nContexts; i++) {
-			if (xmpp_is_visible(&cptr[i])) {
+			if (xmpp_is_visible(CC, &cptr[i])) {
 				if (!strcasecmp(cptr[i].cs_inet_email, presence_jid)) {
 					cprintf("<iq id=\"unsolicited_%x\" type=\"result\">",
 						++unsolicited_id);
@@ -324,7 +326,7 @@ void xmpp_massacre_roster(void)
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
-			if (xmpp_is_visible(&cptr[i])) {
+			if (xmpp_is_visible(&cptr[i], CC)) {
 				if (mortuary) {
 					char *buddy = strdup(cptr[i].cs_inet_email);
 					Put(mortuary, buddy, strlen(buddy), buddy, NULL);
@@ -372,7 +374,7 @@ void xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster(void)
 
 		online_now = 0;
 		if (cptr) for (i=0; i<nContexts; i++) {
-			if (xmpp_is_visible(&cptr[i])) {
+			if (xmpp_is_visible(&cptr[i], CC)) {
 				if (!strcasecmp(cptr[i].cs_inet_email, (char *)Value)) {
 					online_now = 1;
 				}

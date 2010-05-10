@@ -89,7 +89,7 @@ void xmpp_iq_roster_query(void)
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
-			if (xmpp_is_visible(&cptr[i])) {
+			if (xmpp_is_visible(&cptr[i], CC)) {
 				CtdlLogPrintf(CTDL_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
 				xmpp_roster_item(&cptr[i]);
 			}
