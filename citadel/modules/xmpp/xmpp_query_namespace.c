@@ -62,6 +62,7 @@
  * Output a single roster item, for roster queries or pushes
  */
 void xmpp_roster_item(struct CitContext *cptr) {
+	CtdlLogPrintf(CTDL_DEBUG, "\033[32mxmpp_roster_item(%s)\033[0m\n", cptr->cs_inet_email);
 	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
 		cptr->cs_inet_email,
 		cptr->user.fullname
@@ -82,12 +83,14 @@ void xmpp_iq_roster_query(void)
 	struct CitContext *cptr;
 	int nContexts, i;
 
-	cprintf("<query xmlns=\"jabber:iq:roster\">");
+	CtdlLogPrintf(CTDL_DEBUG, "\033[36m ROSTER QUERY !! \033[0m\n");
 
+	cprintf("<query xmlns=\"jabber:iq:roster\">");
 	cptr = CtdlGetContextArray(&nContexts);
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
 			if (xmpp_is_visible(&cptr[i])) {
+				CtdlLogPrintf(CTDL_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
 				xmpp_roster_item(&cptr[i]);
 			}
 		}
@@ -109,6 +112,7 @@ xmpp_query_namespace(purple5b5c1e5a, , vcard-temp:query)
 void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_xmlns)
 {
 	int supported_namespace = 0;
+	int roster_query = 0;
 
 	/* We need to know before we begin the response whether this is a supported namespace, so
 	 * unfortunately all supported namespaces need to be defined here *and* down below where
@@ -142,6 +146,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 */
 
 	if (!strcasecmp(query_xmlns, "jabber:iq:roster:query")) {
+		roster_query = 1;
 		xmpp_iq_roster_query();
 	}
 
@@ -169,4 +174,12 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	}
 
 	cprintf("</iq>");
+
+	/* If we told the client who is on the roster, we also need to tell the client
+	 * who is *not* on the roster.  (It's down here because we can't do it in the same
+	 * stanza; this will be an unsolicited push.)
+	 */
+	if (roster_query) {
+		xmpp_delete_old_buddies_who_no_longer_exist_from_the_client_roster();
+	}
 }

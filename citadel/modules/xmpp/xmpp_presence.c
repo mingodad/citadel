@@ -126,6 +126,7 @@ void xmpp_destroy_buddy(char *presence_jid) {
 	if (!XMPP) return;
 	if (!XMPP->client_jid) return;
 
+	CtdlLogPrintf(CTDL_DEBUG, "\033[31mdestroy_buddy(%s)\033[0m\n", presence_jid);
 	/* Transmit non-presence information */
 	cprintf("<presence type=\"unavailable\" from=\"%s\" to=\"%s\"></presence>",
 		presence_jid, XMPP->client_jid
