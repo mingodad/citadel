@@ -50,15 +50,36 @@
 #include "citserver.h"
 #include "user_ops.h"
 
-struct ctdl_openid {
-	char claimed_id[1024];
-	char server[1024];
+typedef struct _ctdl_openid {
+	StrBuf *claimed_id;
+	StrBuf *server;
 	int verified;
 	HashList *sreg_keys;
-};
+} ctdl_openid;
+
+void Free_ctdl_openid(ctdl_openid **FreeMe)
+{
+	if (*FreeMe == NULL)
+		return;
+	FreeStrBuf(&(*FreeMe)->claimed_id);
+	FreeStrBuf(&(*FreeMe)->server);
+	DeleteHash(&(*FreeMe)->sreg_keys);
+	free(*FreeMe);
+	*FreeMe = NULL;
+}
 
 
+/*
+ * This cleanup function blows away the temporary memory used by this module.
+ */
+void openid_cleanup_function(void) {
+	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 
+	if (CCC->openid_data != NULL) {
+		CtdlLogPrintf(CTDL_DEBUG, "Clearing OpenID session state\n");
+		Free_ctdl_openid((ctdl_openid **) &CCC->openid_data);
+	}
+}
 
 
 /**************************************************************************/
@@ -87,7 +108,7 @@ struct ctdl_openid {
 /*
  * Attach an OpenID to a Citadel account
  */
-int attach_openid(struct ctdluser *who, char *claimed_id)
+int attach_openid(struct ctdluser *who, StrBuf *claimed_id)
 {
 	struct cdbdata *cdboi;
 	long fetched_usernum;
@@ -96,12 +117,11 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
 	char buf[2048];
 
 	if (!who) return(1);
-	if (!claimed_id) return(1);
-	if (IsEmptyStr(claimed_id)) return(1);
+	if (StrLength(claimed_id)==0) return(1);
 
 	/* Check to see if this OpenID is already in the database */
 
-	cdboi = cdb_fetch(CDB_OPENID, claimed_id, strlen(claimed_id));
+	cdboi = cdb_fetch(CDB_OPENID, ChrPtr(claimed_id), StrLength(claimed_id));
 	if (cdboi != NULL) {
 		memcpy(&fetched_usernum, cdboi->ptr, sizeof(long));
 		cdb_free(cdboi);
@@ -118,17 +138,17 @@ int attach_openid(struct ctdluser *who, char *claimed_id)
 
 	/* Not already in the database, so attach it now */
 
-	data_len = sizeof(long) + strlen(claimed_id) + 1;
+	data_len = sizeof(long) + StrLength(claimed_id) + 1;
 	data = malloc(data_len);
 
 	memcpy(data, &who->usernum, sizeof(long));
-	memcpy(&data[sizeof(long)], claimed_id, strlen(claimed_id) + 1);
+	memcpy(&data[sizeof(long)], ChrPtr(claimed_id), StrLength(claimed_id) + 1);
 
-	cdb_store(CDB_OPENID, claimed_id, strlen(claimed_id), data, data_len);
+	cdb_store(CDB_OPENID, ChrPtr(claimed_id), StrLength(claimed_id), data, data_len);
 	free(data);
 
 	snprintf(buf, sizeof buf, "User <%s> (#%ld) has claimed the OpenID URL %s\n",
-		who->fullname, who->usernum, claimed_id);
+		 who->fullname, who->usernum, ChrPtr(claimed_id));
 	CtdlAideMessage(buf, "OpenID claim");
 	CtdlLogPrintf(CTDL_INFO, "%s", buf);
 	return(0);
@@ -321,7 +341,7 @@ void populate_vcard_from_sreg(HashList *sreg_keys) {
  * verifying an OpenID (which will of course be attached to the account)
  */
 void cmd_oidc(char *argbuf) {
-	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
+	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
 	if (!oiddata) {
 		cprintf("%d You have not verified an OpenID yet.\n", ERROR);
@@ -392,7 +412,7 @@ void cmd_oidd(char *argbuf) {
 /*
  * Attempt to auto-create a new Citadel account using the nickname from Simple Registration Extension
  */
-int openid_create_user_via_sreg(char *claimed_id, HashList *sreg_keys)
+int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 {
 	char *desired_name = NULL;
 	char new_password[32];
@@ -425,12 +445,12 @@ int openid_create_user_via_sreg(char *claimed_id, HashList *sreg_keys)
  * If a user account exists which is associated with the Claimed ID, log it in and return zero.
  * Otherwise it returns nonzero.
  */
-int login_via_openid(char *claimed_id)
+int login_via_openid(StrBuf *claimed_id)
 {
 	struct cdbdata *cdboi;
 	long usernum = 0;
 
-	cdboi = cdb_fetch(CDB_OPENID, claimed_id, strlen(claimed_id));
+	cdboi = cdb_fetch(CDB_OPENID, ChrPtr(claimed_id), StrLength(claimed_id));
 	if (cdboi == NULL) {
 		return(-1);
 	}
@@ -463,102 +483,70 @@ int login_via_openid(char *claimed_id)
 /* 
  * Locate a <link> tag and, given its 'rel=' parameter, return its 'href' parameter
  */
-void extract_link(char *target_buf, int target_size, char *rel, char *source_buf)
+void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *source_buf)
 {
-	const char *ptr = source_buf;
+	int len, i;
+	const char *ptr;
+	const char *href_start = NULL;
+	const char *href_end = NULL;
+	const char *link_tag_start = NULL;
+	const char *link_tag_end = NULL;
+	const char *rel_start = NULL;
+	const char *rel_end = NULL;
 
 	if (!target_buf) return;
 	if (!rel) return;
 	if (!source_buf) return;
 
-	target_buf[0] = 0;
+	ptr = ChrPtr(source_buf);
 
+	FlushStrBuf(target_buf);
 	while (ptr = bmstrcasestr(ptr, "<link"), ptr != NULL) {
-
-		char work_buffer[2048];
-		char *link_tag_start = NULL;
-		char *link_tag_end = NULL;
-
-		char rel_tag[2048];
-		char href_tag[2048];
 
 		link_tag_start = ptr;
 		link_tag_end = strchr(ptr, '>');
-		rel_tag[0] = 0;
-		href_tag[0] = 0;
-
-		if ((link_tag_end) && (link_tag_end > link_tag_start)) {
-			int len;
+		if (link_tag_end == NULL)
+			break;
+		for (i=0; i < 1; i++ ){
 			len = link_tag_end - link_tag_start;
-			if (len > sizeof work_buffer) len = sizeof work_buffer;
-			memcpy(work_buffer, link_tag_start, len);
-		
-			const char *rel_start = NULL;
-			char *rel_end = NULL;
-			rel_start = bmstrcasestr(work_buffer, "rel=");
-			if (rel_start) {
-				rel_start = strchr(rel_start, '\"');
-				if (rel_start) {
-					++rel_start;
-					rel_end = strchr(rel_start, '\"');
-					if ((rel_end) && (rel_end > rel_start)) {
-						safestrncpy(rel_tag, rel_start, rel_end - rel_start + 1);
-					}
-				}
-			}
 
-			char *href_start = NULL;
-			char *href_end = NULL;
-			href_start = bmstrcasestr(work_buffer, "href=");
-			if (href_start) {
-				href_start = strchr(href_start, '\"');
-				if (href_start) {
-					++href_start;
-					href_end = strchr(href_start, '\"');
-					if ((href_end) && (href_end > href_start)) {
-						safestrncpy(href_tag, href_start, href_end - href_start + 1);
-					}
-				}
-			}
+			rel_start = bmstrcasestr(link_tag_start, "rel=");
+			if ((rel_start == NULL) ||
+			    (rel_start > link_tag_end)) 
+				continue;
 
-			if (!strcasecmp(rel, rel_tag)) {
-				safestrncpy(target_buf, href_tag, target_size);
-				return;
-			}
-
+			rel_start = strchr(rel_start, '\"');
+			if ((rel_start == NULL) ||
+			    (rel_start > link_tag_end)) 
+				continue;
+			++rel_start;
+			rel_end = strchr(rel_start, '\"');
+			if ((rel_end == NULL) ||
+			    (rel_end == rel_start) ||
+			    (rel_end >= link_tag_end) ) 
+				continue;
+			if (strncasecmp(rel, rel_start, repllen)!= 0)
+				continue; /* didn't match? never mind... */
+			
+			href_start = bmstrcasestr(link_tag_start, "href=");
+			if ((href_start == NULL) || 
+			    (href_start >= link_tag_end)) 
+				continue;
+			href_start = strchr(href_start, '\"');
+			if ((href_start == NULL) |
+			    (href_start >= link_tag_end)) 
+				continue;
+			++href_start;
+			href_end = strchr(href_start, '\"');
+			if ((href_end == NULL) || 
+			    (href_end == href_start) ||
+			    (href_start >= link_tag_end)) 
+				continue;
+			StrBufPlain(target_buf, href_start, href_end - href_start);
 		}
-
-	++ptr;
+		ptr = link_tag_end;	
 	}
-
-
 }
-
-
-
-struct fh_data {
-	char *buf;
-	int total_bytes_received;
-	int maxbytes;
-};
-
-
-size_t fh_callback(void *ptr, size_t size, size_t nmemb, void *stream)
-{
-	struct fh_data *fh = (struct fh_data *) stream;
-	int got_bytes = (size * nmemb);
-
-	if (fh->total_bytes_received + got_bytes > fh->maxbytes) {
-		got_bytes = fh->maxbytes - fh->total_bytes_received;
-	}
-	if (got_bytes > 0) {
-		memcpy(&fh->buf[fh->total_bytes_received], ptr, got_bytes);
-		fh->total_bytes_received += got_bytes;
-	}
-
-	return (size * nmemb);	/* always succeed; libcurl doesn't need to know if we truncated it */
-}
-
 
 
 /*
@@ -567,21 +555,17 @@ size_t fh_callback(void *ptr, size_t size, size_t nmemb, void *stream)
  * If 'normalize_len' is nonzero, the caller is specifying the buffer size of 'url', and is
  * requesting that the effective (normalized) URL be copied back to it.
  */
-int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
+int fetch_http(StrBuf *url, StrBuf **target_buf)
 {
+	StrBuf *ReplyBuf;
 	CURL *curl;
 	CURLcode res;
 	char errmsg[1024] = "";
-	struct fh_data fh = {
-		target_buf,
-		0,
-		maxbytes
-	};
 	char *effective_url = NULL;
 
-	if (!url) return(-1);
-	if (!target_buf) return(-1);
-	memset(target_buf, 0, maxbytes);
+	if (StrLength(url) <=0 ) return(-1);
+	ReplyBuf = *target_buf = NewStrBuf ();
+	if (ReplyBuf == 0) return(-1);
 
 	curl = curl_easy_init();
 	if (!curl) {
@@ -589,11 +573,13 @@ int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
 		return(-1);
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(url));
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
+
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
+
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 #ifdef CURLOPT_HTTP_CONTENT_DECODING
@@ -609,12 +595,11 @@ int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
 	if (res) {
 		CtdlLogPrintf(CTDL_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
 	}
-	if (normalize_len > 0) {
-		curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
-		safestrncpy(url, effective_url, normalize_len);
-	}
+	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
+	StrBufPlain(url, effective_url, -1);
+	
 	curl_easy_cleanup(curl);
-	return fh.total_bytes_received;
+	return StrLength(ReplyBuf);
 }
 
 
@@ -622,84 +607,99 @@ int fetch_http(char *url, char *target_buf, int maxbytes, int normalize_len)
  * Setup an OpenID authentication
  */
 void cmd_oids(char *argbuf) {
-	char return_to[1024];
-	char trust_root[1024];
+	const char *Pos = NULL;
+	StrBuf *ArgBuf = NULL;
+	StrBuf *ReplyBuf = NULL;
+	StrBuf *return_to = NULL;
+	StrBuf *trust_root = NULL;
+	StrBuf *openid_delegate = NULL;
+	StrBuf *RedirectUrl = NULL;
 	int i;
-	char buf[SIZ];
 	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
-	struct ctdl_openid *oiddata;
+	ctdl_openid *oiddata;
 
-	oiddata = (struct ctdl_openid *) CCC->openid_data;
+	Free_ctdl_openid ((ctdl_openid**)&CCC->openid_data);
 
-	if (oiddata != NULL) {
-		if (oiddata->sreg_keys != NULL) {
-			DeleteHash(&oiddata->sreg_keys);
-			oiddata->sreg_keys = NULL;
-		}
-		free(CCC->openid_data);
-	}
-	oiddata = malloc(sizeof(struct ctdl_openid));
+	CCC->openid_data = oiddata = malloc(sizeof(ctdl_openid));
 	if (oiddata == NULL) {
 		cprintf("%d malloc failed\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
-	memset(oiddata, 0, sizeof(struct ctdl_openid));
+	memset(oiddata, 0, sizeof(ctdl_openid));
 	CCC->openid_data = (void *) oiddata;
 
-	extract_token(oiddata->claimed_id, argbuf, 0, '|', sizeof oiddata->claimed_id);
-	extract_token(return_to, argbuf, 1, '|', sizeof return_to);
-	extract_token(trust_root, argbuf, 2, '|', sizeof trust_root);
+	ArgBuf = NewStrBufPlain(argbuf, -1);
+
+	oiddata->claimed_id = NewStrBufPlain(NULL, StrLength(ArgBuf));
+	trust_root = NewStrBufPlain(NULL, StrLength(ArgBuf));
+	return_to = NewStrBufPlain(NULL, StrLength(ArgBuf));
+
+	StrBufExtract_NextToken(oiddata->claimed_id, ArgBuf, &Pos, '|');
+	StrBufExtract_NextToken(return_to, ArgBuf, &Pos, '|');
+	StrBufExtract_NextToken(trust_root, ArgBuf, &Pos, '|');
+	
 	oiddata->verified = 0;
 
-	i = fetch_http(oiddata->claimed_id, buf, sizeof buf - 1, sizeof oiddata->claimed_id);
-	CtdlLogPrintf(CTDL_DEBUG, "Normalized URL and Claimed ID is: %s\n", oiddata->claimed_id);
-	buf[sizeof buf - 1] = 0;
-	if (i > 0) {
-		char openid_delegate[1024];
+	i = fetch_http(oiddata->claimed_id, &ReplyBuf);
+	CtdlLogPrintf(CTDL_DEBUG, "Normalized URL and Claimed ID is: %s\n", 
+		      ChrPtr(oiddata->claimed_id));
+	if ((StrLength(ReplyBuf) > 0) && (i > 0)) {
 
-		extract_link(oiddata->server, sizeof oiddata->server, "openid.server", buf);
-		extract_link(openid_delegate, sizeof openid_delegate, "openid.delegate", buf);
+		openid_delegate = NewStrBuf();
+		oiddata->server = NewStrBuf();
+		extract_link(oiddata->server, HKEY("openid.server"), ReplyBuf);
+		extract_link(openid_delegate, HKEY("openid.delegate"), ReplyBuf);
 
-		if (IsEmptyStr(oiddata->server)) {
+		if (StrLength(oiddata->server) == 0) {
 			cprintf("%d There is no OpenID identity provider at this URL.\n", ERROR);
+			FreeStrBuf(&ArgBuf);
+			FreeStrBuf(&ReplyBuf);
+			FreeStrBuf(&return_to);
+			FreeStrBuf(&trust_root);
+			FreeStrBuf(&openid_delegate);
+			FreeStrBuf(&RedirectUrl);
 			return;
 		}
 
 		/* Empty delegate is legal; we just use the openid_url instead */
-		if (IsEmptyStr(openid_delegate)) {
-			safestrncpy(openid_delegate, oiddata->claimed_id, sizeof openid_delegate);
+		if (StrLength(openid_delegate) == 0) {
+			StrBufPlain(openid_delegate, SKEY(oiddata->claimed_id));
 		}
 
 		/* Assemble a URL to which the user-agent will be redirected. */
-		char redirect_string[4096];
-		char escaped_identity[512];
-		char escaped_return_to[2048];
-		char escaped_trust_root[1024];
-		char escaped_sreg_optional[256];
 
-		urlesc(escaped_identity, sizeof escaped_identity, openid_delegate);
-		urlesc(escaped_return_to, sizeof escaped_return_to, return_to);
-		urlesc(escaped_trust_root, sizeof escaped_trust_root, trust_root);
-		urlesc(escaped_sreg_optional, sizeof escaped_sreg_optional,
-			"nickname,email,fullname,postcode,country,dob,gender");
+		RedirectUrl = NewStrBufDup(oiddata->server);
 
-		snprintf(redirect_string, sizeof redirect_string,
-			"%s"
-			"?openid.mode=checkid_setup"
-			"&openid.identity=%s"
-			"&openid.return_to=%s"
-			"&openid.trust_root=%s"
-			"&openid.sreg.optional=%s"
-			,
-			oiddata->server,
-			escaped_identity,
-			escaped_return_to,
-			escaped_trust_root,
-			escaped_sreg_optional
-		);
-		cprintf("%d %s\n", CIT_OK, redirect_string);
+		StrBufAppendBufPlain(RedirectUrl, HKEY("?openid.mode=checkid_setup"
+						       "&openid.identity="), 0);
+		StrBufUrlescAppend(RedirectUrl, openid_delegate, NULL);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.return_to="), 0);
+		StrBufUrlescAppend(RedirectUrl, return_to, NULL);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.trust_root="), 0);
+		StrBufUrlescAppend(RedirectUrl, trust_root, NULL);
+
+		StrBufAppendBufPlain(RedirectUrl, HKEY("&openid.sreg.optional="), 0);
+		StrBufUrlescAppend(RedirectUrl, NULL, "nickname,email,fullname,postcode,country,dob,gender");
+
+		cprintf("%d %s\n", CIT_OK, ChrPtr(RedirectUrl));
+		
+		FreeStrBuf(&ArgBuf);
+		FreeStrBuf(&ReplyBuf);
+		FreeStrBuf(&return_to);
+		FreeStrBuf(&trust_root);
+		FreeStrBuf(&openid_delegate);
+		FreeStrBuf(&RedirectUrl);
+
 		return;
 	}
+	FreeStrBuf(&ArgBuf);
+	FreeStrBuf(&ReplyBuf);
+	FreeStrBuf(&return_to);
+	FreeStrBuf(&trust_root);
+	FreeStrBuf(&openid_delegate);
+	FreeStrBuf(&RedirectUrl);
 
 	cprintf("%d Unable to fetch OpenID URL\n", ERROR);
 }
@@ -716,18 +716,21 @@ void cmd_oidf(char *argbuf) {
 	char thiskey[1024];
 	char thisdata[1024];
 	HashList *keys = NULL;
-	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
+	ctdl_openid *oiddata = (ctdl_openid *) CC->openid_data;
 
+	if (oiddata == NULL) {
+		cprintf("%d run OIDS first.\n", ERROR + INTERNAL_ERROR);
+		return;
+	}
+	if (StrLength(oiddata->server) == 0){
+		cprintf("%d need a remote server to authenticate against\n", ERROR + ILLEGAL_VALUE);
+		return;
+	}
 	keys = NewHash(1, NULL);
 	if (!keys) {
 		cprintf("%d NewHash() failed\n", ERROR + INTERNAL_ERROR);
 		return;
 	}
-	if (IsEmptyStr(oiddata->server)){
-		cprintf("%d need a remote server to authenticate against\n", ERROR + ILLEGAL_VALUE);
-		return;
-	}
-	
 	cprintf("%d Transmit OpenID data now\n", START_CHAT_MODE);
 
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
@@ -754,13 +757,7 @@ void cmd_oidf(char *argbuf) {
 	char k_keyname[128];
 	char k_o_keyname[128];
 	char *k_value = NULL;
-	char valbuf[1024];
-
-	struct fh_data fh = {
-		valbuf,
-		0,
-		sizeof valbuf
-	};
+	StrBuf *ReplyBuf;
 
 	curl_formadd(&formpost, &lastptr,
 		CURLFORM_COPYNAME,	"openid.mode",
@@ -810,13 +807,16 @@ void cmd_oidf(char *argbuf) {
 			}
 		}
 	}
+	
+	ReplyBuf = NewStrBuf();
 
 	curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_URL, oiddata->server);
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(oiddata->server));
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fh);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fh_callback);
+
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, ReplyBuf);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -837,11 +837,10 @@ void cmd_oidf(char *argbuf) {
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
 
-	valbuf[fh.total_bytes_received] = 0;
-
-	if (bmstrcasestr(valbuf, "is_valid:true")) {
+	if (bmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true")) {
 		oiddata->verified = 1;
 	}
+	FreeStrBuf(&ReplyBuf);
 
 	CtdlLogPrintf(CTDL_DEBUG, "Authentication %s.\n", (oiddata->verified ? "succeeded" : "failed") );
 
@@ -902,7 +901,7 @@ void cmd_oidf(char *argbuf) {
 			else {
 				char *desired_name = NULL;
 				cprintf("verify_only\n");
-				cprintf("%s\n", oiddata->claimed_id);
+				cprintf("%s\n", ChrPtr(oiddata->claimed_id));
 				if (GetHash(keys, "sreg.nickname", 13, (void *) &desired_name)) {
 					cprintf("%s\n", desired_name);
 				}
@@ -934,21 +933,6 @@ void cmd_oidf(char *argbuf) {
 /**************************************************************************/
 
 
-/*
- * This cleanup function blows away the temporary memory used by this module.
- */
-void openid_cleanup_function(void) {
-	struct ctdl_openid *oiddata = (struct ctdl_openid *) CC->openid_data;
-
-	if (oiddata != NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "Clearing OpenID session state\n");
-		if (oiddata->sreg_keys != NULL) {
-			DeleteHash(&oiddata->sreg_keys);
-			oiddata->sreg_keys = NULL;
-		}
-		free(oiddata);
-	}
-}
 
 
 CTDL_MODULE_INIT(openid_rp)
