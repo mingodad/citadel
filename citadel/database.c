@@ -542,7 +542,7 @@ void cdb_decompress_if_necessary(struct cdbdata *cdb)
  * Store a piece of data.  Returns 0 if the operation was successful.  If a
  * key already exists it should be overwritten.
  */
-int cdb_store(int cdb, void *ckey, int ckeylen, void *cdata, int cdatalen)
+int cdb_store(int cdb, const void *ckey, int ckeylen, void *cdata, int cdatalen)
 {
 
 	DBT dkey, ddata;
@@ -706,7 +706,7 @@ static DBC *localcursor(int cdb)
  * a struct cdbdata which it is the caller's responsibility to free later on
  * using the cdb_free() routine.
  */
-struct cdbdata *cdb_fetch(int cdb, void *key, int keylen)
+struct cdbdata *cdb_fetch(int cdb, const void *key, int keylen)
 {
 
 	struct cdbdata *tempcdb;
