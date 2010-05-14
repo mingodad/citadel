@@ -1125,7 +1125,7 @@ void check_get(void) {
 	CtdlLogPrintf(CTDL_INFO, ": %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 3) strcat(cmdbuf, " ");
 
-	if (strcasecmp(cmdbuf, "GET "));
+	if (strcasecmp(cmdbuf, "GET ")==0)
 	{
 		struct recptypes *rcpt;
 		char *argbuf = &cmdbuf[4];
