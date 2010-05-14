@@ -61,10 +61,65 @@
 
 struct xmpp_event *xmpp_queue = NULL;
 
-/* We have just received a <stream> tag from the client, so send them ours */
+/*
+ * Given a source string and a target buffer, returns the string
+ * properly escaped for insertion into an XML stream.  Returns a
+ * pointer to the target buffer for convenience.
+ *
+ * BUG: this does not properly handle UTF-8
+ */
+char *xmlesc(char *buf, char *str, int bufsiz)
+{
+	char *ptr;
+	unsigned char ch;
+	int len = 0;
 
+	if (!buf) return(NULL);
+	buf[0] = 0;
+	len = 0;
+	if (!str) {
+		return(buf);
+	}
+
+	for (ptr=str; *ptr; ptr++) {
+		ch = *ptr;
+		if (ch == '<') {
+			strcpy(&buf[len], "&lt;");
+			len += 4;
+		}
+		else if (ch == '>') {
+			strcpy(&buf[len], "&gt;");
+			len += 4;
+		}
+		else if (ch == '&') {
+			strcpy(&buf[len], "&amp;");
+			len += 5;
+		}
+		else if (ch <= 0x7F) {
+			buf[len++] = ch;
+			buf[len] = 0;
+		}
+		else if (ch > 0x7F) {
+			char oct[10];
+			sprintf(oct, "&#%o;", ch);
+			strcpy(&buf[len], oct);
+			len += strlen(oct);
+		}
+		if ((len + 6) > bufsiz) {
+			return(buf);
+		}
+	}
+	return(buf);
+}
+
+
+/*
+ * We have just received a <stream> tag from the client, so send them ours
+ */
 void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 {
+	char xmlbuf[256];
+
 	while (*attr) {
 		if (!strcasecmp(attr[0], "to")) {
 			safestrncpy(XMPP->server_name, attr[1], sizeof XMPP->server_name);
@@ -75,7 +130,7 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	cprintf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 
    	cprintf("<stream:stream ");
-	cprintf("from=\"%s\" ", XMPP->server_name);
+	cprintf("from=\"%s\" ", xmlesc(xmlbuf, XMPP->server_name, sizeof xmlbuf));
 	cprintf("id=\"%08x\" ", CC->cs_pid);
 	cprintf("version=\"1.0\" ");
 	cprintf("xmlns:stream=\"http://etherx.jabber.org/streams\" ");
@@ -184,6 +239,7 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 void xmpp_xml_end(void *data, const char *supplied_el) {
 	char el[256];
 	char *sep = NULL;
+	char xmlbuf[256];
 
 	/* Axe the namespace, we don't care about it */
 	safestrncpy(el, supplied_el, sizeof el);
@@ -243,12 +299,12 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			else if (XMPP->ping_requested) {
 				cprintf("<iq type=\"result\" ");
 				if (!IsEmptyStr(XMPP->iq_from)) {
-					cprintf("to=\"%s\" ", XMPP->iq_from);
+					cprintf("to=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_from, sizeof xmlbuf));
 				}
 				if (!IsEmptyStr(XMPP->iq_to)) {
-					cprintf("from=\"%s\" ", XMPP->iq_to);
+					cprintf("from=\"%s\" ", xmlesc(xmlbuf, XMPP->iq_to, sizeof xmlbuf));
 				}
-				cprintf("id=\"%s\"/>", XMPP->iq_id);
+				cprintf("id=\"%s\"/>", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
 			}
 
 			/*
@@ -259,7 +315,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 					"Unknown query <%s> - returning <service-unavailable/>\n",
 					el
 				);
-				cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_id);
+				cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
 				cprintf("<error code=\"503\" type=\"cancel\">"
 					"<service-unavailable xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
 					"</error>"
@@ -304,21 +360,21 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 
 			/* Tell the client what its JID is */
 
-			cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_id);
+			cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
 			cprintf("<bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\">");
-			cprintf("<jid>%s</jid>", XMPP->client_jid);
+			cprintf("<jid>%s</jid>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
 			cprintf("</bind>");
 			cprintf("</iq>");
 		}
 
 		else if (XMPP->iq_session) {
-			cprintf("<iq type=\"result\" id=\"%s\">", XMPP->iq_id);
+			cprintf("<iq type=\"result\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
 			cprintf("</iq>");
 		}
 
 		else {
-			cprintf("<iq type=\"error\" id=\"%s\">", XMPP->iq_id);
-			cprintf("<error>Don't know howto do '%s'!</error>", XMPP->iq_type);
+			cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, XMPP->iq_id, sizeof xmlbuf));
+			cprintf("<error>Don't know howto do '%s'!</error>", xmlesc(xmlbuf, XMPP->iq_type, sizeof xmlbuf));
 			cprintf("</iq>");
 		}
 

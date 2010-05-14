@@ -67,6 +67,8 @@
 void xmpp_output_incoming_messages(void) {
 
 	struct ExpressMessage *ptr;
+	char xmlbuf1[4096];
+	char xmlbuf2[4096];
 
 	while (CC->FirstExpressMessage != NULL) {
 
@@ -76,11 +78,12 @@ void xmpp_output_incoming_messages(void) {
 		end_critical_section(S_SESSION_TABLE);
 
 		cprintf("<message to=\"%s\" from=\"%s\" type=\"chat\">",
-			XMPP->client_jid,
-			ptr->sender_email);
+			xmlesc(xmlbuf1, XMPP->client_jid, sizeof xmlbuf1),
+			xmlesc(xmlbuf2, ptr->sender_email, sizeof xmlbuf2)
+		);
 		if (ptr->text != NULL) {
 			striplt(ptr->text);
-			cprintf("<body>%s</body>", ptr->text);
+			cprintf("<body>%s</body>", xmlesc(xmlbuf1, ptr->text, sizeof xmlbuf1));
 			free(ptr->text);
 		}
 		cprintf("</message>");

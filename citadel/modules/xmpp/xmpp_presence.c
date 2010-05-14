@@ -67,10 +67,10 @@
  */
 void xmpp_indicate_presence(char *presence_jid)
 {
-	cprintf("<presence from=\"%s\" to=\"%s\"></presence>",
-		presence_jid,
-		XMPP->client_jid
-	);
+	char xmlbuf[256];
+
+	cprintf("<presence from=\"%s\" ", xmlesc(xmlbuf, presence_jid, sizeof xmlbuf));
+	cprintf("to=\"%s\"></presence>", xmlesc(xmlbuf, XMPP->client_jid, sizeof xmlbuf));
 }
 
 
@@ -123,6 +123,8 @@ void xmpp_wholist_presence_dump(void)
  */
 void xmpp_destroy_buddy(char *presence_jid) {
 	static int unsolicited_id = 1;
+	char xmlbuf1[256];
+	char xmlbuf2[256];
 
 	if (!presence_jid) return;
 	if (!XMPP) return;
@@ -130,22 +132,24 @@ void xmpp_destroy_buddy(char *presence_jid) {
 
 	/* Transmit non-presence information */
 	cprintf("<presence type=\"unavailable\" from=\"%s\" to=\"%s\"></presence>",
-		presence_jid, XMPP->client_jid
+		xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
 	);
 	cprintf("<presence type=\"unsubscribed\" from=\"%s\" to=\"%s\"></presence>",
-		presence_jid, XMPP->client_jid
+		xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2)
 	);
 	// FIXME ... we should implement xmpp_indicate_nonpresence so we can use it elsewhere
 
 	/* Do an unsolicited roster update that deletes the contact. */
 	cprintf("<iq from=\"%s\" to=\"%s\" id=\"unbuddy_%x\" type=\"result\">",
-		CC->cs_inet_email,
-		XMPP->client_jid,
+		xmlesc(xmlbuf1, CC->cs_inet_email, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, XMPP->client_jid, sizeof xmlbuf2),
 		++unsolicited_id
 	);
 	cprintf("<query xmlns=\"jabber:iq:roster\">");
-	cprintf("<item jid=\"%s\" subscription=\"remove\">", presence_jid);
-	cprintf("<group>%s</group>", config.c_humannode);
+	cprintf("<item jid=\"%s\" subscription=\"remove\">", xmlesc(xmlbuf1, presence_jid, sizeof xmlbuf1));
+	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
 	cprintf("</item>");
 	cprintf("</query>"
 		"</iq>"

@@ -62,11 +62,14 @@
  * Output a single roster item, for roster queries or pushes
  */
 void xmpp_roster_item(struct CitContext *cptr) {
+	char xmlbuf1[256];
+	char xmlbuf2[256];
+
 	cprintf("<item jid=\"%s\" name=\"%s\" subscription=\"both\">",
-		cptr->cs_inet_email,
-		cptr->user.fullname
+		xmlesc(xmlbuf1, cptr->cs_inet_email, sizeof xmlbuf1),
+		xmlesc(xmlbuf2, cptr->user.fullname, sizeof xmlbuf2)
 	);
-	cprintf("<group>%s</group>", config.c_humannode);
+	cprintf("<group>%s</group>", xmlesc(xmlbuf1, config.c_humannode, sizeof xmlbuf1));
 	cprintf("</item>");
 }
 
@@ -110,6 +113,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 {
 	int supported_namespace = 0;
 	int roster_query = 0;
+	char xmlbuf[256];
 
 	/* We need to know before we begin the response whether this is a supported namespace, so
 	 * unfortunately all supported namespaces need to be defined here *and* down below where
@@ -134,9 +138,9 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 		cprintf("<iq type=\"error\" ");
 	}
 	if (!IsEmptyStr(iq_from)) {
-		cprintf("to=\"%s\" ", iq_from);
+		cprintf("to=\"%s\" ", xmlesc(xmlbuf, iq_from, sizeof xmlbuf));
 	}
-	cprintf("id=\"%s\">", iq_id);
+	cprintf("id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
 
 	/*
 	 * Is this a query we know how to handle?

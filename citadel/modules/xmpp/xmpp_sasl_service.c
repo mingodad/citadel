@@ -156,6 +156,7 @@ void xmpp_sasl_auth(char *sasl_auth_mech, char *authstring) {
  */
 void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, char *resource) {
 	int result;
+	char xmlbuf[256];
 
         if (CC->logged_in) CtdlUserLogout();  /* Client may try to log in twice.  Handle this. */
 
@@ -163,13 +164,13 @@ void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, cha
 	if (result == login_ok) {
 		result = CtdlTryPassword(password);
 		if (result == pass_ok) {
-			cprintf("<iq type=\"result\" id=\"%s\"></iq>", iq_id);	/* success */
+			cprintf("<iq type=\"result\" id=\"%s\"></iq>", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));	/* success */
 			return;
 		}
 	}
 
 	/* failure */
-	cprintf("<iq type=\"error\" id=\"%s\">", iq_id);
+	cprintf("<iq type=\"error\" id=\"%s\">", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));
 	cprintf("<error code=\"401\" type=\"auth\">"
 		"<not-authorized xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>"
 		"</error>"
