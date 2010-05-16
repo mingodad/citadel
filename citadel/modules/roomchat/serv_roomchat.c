@@ -174,7 +174,7 @@ void roomchat_poll(char *argbuf) {
 
 	newer_than = extract_int(argbuf, 1);
 
-	if (!CC->cs_flags & CS_CHAT) {
+	if ((CC->cs_flags & CS_CHAT) == 0) {
 		cprintf("%d Session is not in chat mode.\n", ERROR);
 		return;
 	}
@@ -206,7 +206,7 @@ void roomchat_rwho(char *argbuf) {
 	struct CitContext *nptr;
 	int nContexts, i;
 
-	if (!CC->cs_flags & CS_CHAT) {
+	if ((CC->cs_flags & CS_CHAT) == 0) {
 		cprintf("%d Session is not in chat mode.\n", ERROR);
 		return;
 	}
