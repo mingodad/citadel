@@ -2006,6 +2006,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 
 	if (network_talking_to(node, NTT_CHECK)) return;
 	network_talking_to(node, NTT_ADD);
+	CtdlLogPrintf(CTDL_DEBUG, "network: polling <%s>\n", node);
 	CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s> at %s:%s\n", node, host, port);
 
 	sock = sock_connect(host, port, "tcp");
@@ -2019,6 +2020,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	CCC->sReadBuf = NewStrBuf();
 	CCC->sMigrateBuf = NewStrBuf();
 	CCC->sPos = NULL;
+
 	/* Read the server greeting */
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
@@ -2027,7 +2029,10 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	extract_token (connected_to, buf, 1, ' ', sizeof connected_to);
 	if (strcmp(connected_to, node))
 	{
-		snprintf (err_buf, sizeof(err_buf), "Connected to node \"%s\" but I was expecting to connect to node \"%s\".", connected_to, node);
+		snprintf(err_buf, sizeof(err_buf),
+			"Connected to node \"%s\" but I was expecting to connect to node \"%s\".",
+			connected_to, node
+		);
 		CtdlLogPrintf(CTDL_ERR, "%s\n", err_buf);
 		CtdlAideMessage(err_buf, "Network error");
 	}
@@ -2038,7 +2043,9 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 		if (sock_puts(&sock, buf) <0) goto bail;
 		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
 		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
-		if (buf[0] != '2') goto bail;
+		if (buf[0] != '2') {
+			goto bail;
+		}
 	
 		/* At this point we are authenticated. */
 		if (!CtdlThreadCheckStop())
@@ -2074,7 +2081,7 @@ void network_poll_other_citadel_nodes(int full_poll) {
 	char spoolfile[256];
 
 	if (working_ignetcfg == NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "No nodes defined - not polling\n");
+		CtdlLogPrintf(CTDL_DEBUG, "network: no neighbor nodes are configured - not polling.\n");
 		return;
 	}
 
@@ -2092,10 +2099,11 @@ void network_poll_other_citadel_nodes(int full_poll) {
 			poll = full_poll;
 			if (poll == 0) {
 				snprintf(spoolfile, 
-						 sizeof spoolfile,
-						 "%s/%s",
-						 ctdl_netout_dir, 
-						 node);
+					 sizeof spoolfile,
+					 "%s/%s",
+					 ctdl_netout_dir, 
+					 node
+				);
 				if (access(spoolfile, R_OK) == 0) {
 					poll = 1;
 				}
@@ -2154,7 +2162,9 @@ void *network_do_queue(void *args) {
 	 */
 	if ( (time(NULL) - last_run) < config.c_net_freq ) {
 		full_processing = 0;
-		CtdlLogPrintf(CTDL_DEBUG, "Network full processing in %ld seconds.\n", config.c_net_freq - (time(NULL)- last_run));
+		CtdlLogPrintf(CTDL_DEBUG, "Network full processing in %ld seconds.\n",
+			config.c_net_freq - (time(NULL)- last_run)
+		);
 	}
 
 	/*
@@ -2163,7 +2173,9 @@ void *network_do_queue(void *args) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_queue) return NULL;
+	if (doing_queue) {
+		return NULL;
+	}
 	doing_queue = 1;
 
 	/* Load the IGnet Configuration into memory */
@@ -2217,8 +2229,9 @@ void *network_do_queue(void *args) {
 	}
 
 	/* If there is anything in the inbound queue, process it */
-	if (!CtdlThreadCheckStop())
+	if (!CtdlThreadCheckStop()) {
 		network_do_spoolin();
+	}
 
 	/* Save the network map back to disk */
 	write_network_map();
@@ -2236,10 +2249,18 @@ void *network_do_queue(void *args) {
 	}
 
 	doing_queue = 0;
-	if (!CtdlThreadCheckStop()) // Only reschedule if system is not stopping
-		CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK, network_do_queue, NULL, time(NULL) + 60);
-	else
+
+	/* Reschedule this task to happen again periodically, unless the thread system indicates
+	 * that the server is shutting down.
+	 */
+	if (!CtdlThreadCheckStop()) {
+		CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK,
+			network_do_queue, NULL, time(NULL) + 60
+		);
+	}
+	else {
 		CtdlLogPrintf(CTDL_DEBUG, "network: Task STOPPED.\n");
+	}
 	return NULL;
 }
 
