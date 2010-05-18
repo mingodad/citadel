@@ -64,6 +64,7 @@ char ctdl_run_dir[PATH_MAX]="";
 char ctdl_spool_dir[PATH_MAX]="network";
 char ctdl_netout_dir[PATH_MAX]="network/spoolout";
 char ctdl_netin_dir[PATH_MAX]="network/spoolin";
+char ctdl_nettmp_dir[PATH_MAX]="network/spooltmp";
 char ctdl_netcfg_dir[PATH_MAX]="netconfigs";
 char ctdl_utilbin_dir[PATH_MAX]="";
 char ctdl_sbin_dir[PATH_MAX]="";
@@ -212,10 +213,12 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	COMPUTE_DIRECTORY(ctdl_spool_dir);
 	COMPUTE_DIRECTORY(ctdl_netout_dir);
 	COMPUTE_DIRECTORY(ctdl_netin_dir);
+	COMPUTE_DIRECTORY(ctdl_nettmp_dir);
 
 	StripSlashes(ctdl_spool_dir, 1);
 	StripSlashes(ctdl_netout_dir, 1);
 	StripSlashes(ctdl_netin_dir, 1);
+	StripSlashes(ctdl_nettmp_dir, 1);
 
 	/* ok, now we know the dirs, calc some commonly used files */
 
@@ -341,6 +344,7 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 	DBG_PRINT(ctdl_spool_dir);
 	DBG_PRINT(ctdl_netout_dir);
 	DBG_PRINT(ctdl_netin_dir);
+	DBG_PRINT(ctdl_nettmp_dir);
 	DBG_PRINT(ctdl_netcfg_dir);
 	DBG_PRINT(ctdl_bbsbase_dir);
 	DBG_PRINT(ctdl_sbin_dir);

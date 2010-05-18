@@ -761,7 +761,7 @@ void cmd_nuop(char *cmdbuf)
 
 	snprintf(CC->upl_path, sizeof CC->upl_path,
 			 "%s/%s.%04lx.%04x",
-			 ctdl_netin_dir,
+			 ctdl_nettmp_dir,
 			 CC->net_node, 
 			 (long)getpid(), 
 			 ++seq);
@@ -794,18 +794,18 @@ void cmd_nuop(char *cmdbuf)
 CTDL_MODULE_INIT(file_ops)
 {
 	if (!threading) {
-		CtdlRegisterProtoHook(cmd_delf, "DELF", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_movf, "MOVF", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_open, "OPEN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_clos, "CLOS", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_uopn, "UOPN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_ucls, "UCLS", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_read, "READ", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_writ, "WRIT", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_oimg, "OIMG", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_ndop, "NDOP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_nuop, "NUOP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_delf, "DELF", "Delete a file");
+		CtdlRegisterProtoHook(cmd_movf, "MOVF", "Move a file");
+		CtdlRegisterProtoHook(cmd_open, "OPEN", "Open a download file transfer");
+		CtdlRegisterProtoHook(cmd_clos, "CLOS", "Close a download file transfer");
+		CtdlRegisterProtoHook(cmd_uopn, "UOPN", "Open an upload file transfer");
+		CtdlRegisterProtoHook(cmd_ucls, "UCLS", "Close an upload file transfer");
+		CtdlRegisterProtoHook(cmd_read, "READ", "File transfer read operation");
+		CtdlRegisterProtoHook(cmd_writ, "WRIT", "File transfer write operation");
+		CtdlRegisterProtoHook(cmd_ndop, "NDOP", "Open a network spool file for download");
+		CtdlRegisterProtoHook(cmd_nuop, "NUOP", "Open a network spool file for upload");
+		CtdlRegisterProtoHook(cmd_oimg, "OIMG", "Open an image file for download");
+		CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Upload an image file");
 	}
         /* return our Subversion id for the Log */
 	return "$Id$";
