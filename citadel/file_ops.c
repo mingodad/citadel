@@ -569,6 +569,7 @@ void cmd_ucls(char *cmd)
 {
 	FILE *fp;
 	char upload_notice[512];
+	static int seq = 0;
 
 	if (CC->upload_fp == NULL) {
 		cprintf("%d You don't have an upload file open.\n", ERROR + RESOURCE_NOT_OPEN);
@@ -582,7 +583,27 @@ void cmd_ucls(char *cmd)
 		CC->upload_type = UPL_FILE;
 		cprintf("%d Upload completed.\n", CIT_OK);
 
-		/* FIXME ... here we need to trigger a network run */
+		if (CC->upload_type == UPL_NET) {
+			char final_filename[PATH_MAX];
+		        snprintf(final_filename, sizeof final_filename,
+				"%s/%s.%04lx.%04x",
+				ctdl_netin_dir,
+				CC->net_node,
+				(long)getpid(),
+				++seq
+			);
+
+			if (link(CC->upl_path, final_filename) == 0) {
+				unlink(CC->upl_path);
+			}
+			else {
+				CtdlLogPrintf(CTDL_ALERT, "Cannot link %d to %d: %s\n",
+					CC->upl_path, final_filename, strerror(errno)
+				);
+			}
+
+			/* FIXME ... here we need to trigger a network run */
+		}
 
 		return;
 	}

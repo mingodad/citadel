@@ -1974,17 +1974,18 @@ void transmit_spool(int *sock, char *remote_nodename)
 
 ABORTUPL:
 	close(fd);
-	/** Last chance for shutdown exit */
+
+	/* Last chance for shutdown exit */
 	if(CtdlThreadCheckStop())
 		return;
 		
 	if (sock_puts(sock, "UCLS 1") < 0) return;
-	/**
+
+	/*
 	 * From here on we must complete or messages will get lost
 	 */
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
-	CtdlLogPrintf(CTDL_NOTICE, "Sent %ld octets to <%s>\n",
-			bytes_written, remote_nodename);
+	CtdlLogPrintf(CTDL_NOTICE, "Sent %ld octets to <%s>\n", bytes_written, remote_nodename);
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	if (buf[0] == '2') {
 		CtdlLogPrintf(CTDL_DEBUG, "Removing <%s>\n", sfname);
