@@ -35,7 +35,6 @@
 #include "room_ops.h"
 #include "sysdep_decls.h"
 #include "support.h"
-#include "user_ops.h"
 #include "msgbase.h"
 #include "citserver.h"
 #include "control.h"
@@ -43,6 +42,7 @@
 #include "threads.h"
 
 #include "ctdl_module.h"
+#include "user_ops.h"
 
 struct floor *floorcache[MAXFLOORS];
 

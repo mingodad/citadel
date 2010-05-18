@@ -1,3 +1,7 @@
+#ifndef __USER_OPS_H__
+#define __USER_OPS_H__
+
+#include <ctype.h>
 /* $Id$ */
 int hash (char *str);
 /* getuser is deprecated, use CtdlGetUser instead */
@@ -54,7 +58,45 @@ void start_chkpwd_daemon(void);
 #define RENAMEUSER_ALREADY_EXISTS	3	/* An account with the desired new name already exists */
 
 int rename_user(char *oldname, char *newname);
-INLINE void makeuserkey(char *key, const char *username, long len);
-INLINE long cutuserkey(char *username);
+
+///#ifndef CTDL_INLINE_USR
+////#define CTDL_INLINE_USR static INLINE
+///#endif
+
+///CTDL_INLINE_USR 
+static INLINE long cutuserkey(char *username) { 
+	long len;
+	len = strlen(username);
+	if (len >= USERNAME_SIZE)
+	{
+		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
+		cit_backtrace ();
+		len = USERNAME_SIZE - 1; 
+		((char*)username)[USERNAME_SIZE - 1]='\0';
+	}
+	return len;
+}
+
+/*
+ * makeuserkey() - convert a username into the format used as a database key
+ *		 (it's just the username converted into lower case)
+ */
+///CTDL_INLINE_USR 
+static INLINE void makeuserkey(char *key, const char *username, long len) {
+	int i;
+
+	if (len >= USERNAME_SIZE)
+	{
+		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
+		cit_backtrace ();
+		len = USERNAME_SIZE - 1; 
+	}
+	for (i=0; i<=len; ++i) {
+		key[i] = tolower(username[i]);
+	}
+}
+
 
 int internal_create_user (const char *username, long len, struct ctdluser *usbuf, uid_t uid);
+
+#endif

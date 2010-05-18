@@ -31,11 +31,11 @@
 #include "room_ops.h"
 #include "sysdep_decls.h"
 #include "support.h"
-#include "user_ops.h"
 #include "msgbase.h"
 #include "citserver.h"
 
 #include "ctdl_module.h"
+#include "user_ops.h"
 
 /*
  * Retrieve the applicable expire policy for a specific room

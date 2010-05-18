@@ -154,7 +154,6 @@ void RemoveContext (struct CitContext *);
 CitContext *CreateNewContext (void);
 void context_cleanup(void);
 void kill_session (int session_to_kill);
-INLINE void become_session(struct CitContext *which_con);
 void InitializeMasterCC(void);
 void dead_session_purge(int force);
 void set_async_waiting(struct CitContext *ccptr);
@@ -169,4 +168,22 @@ int CtdlTerminateOtherSession (int session_num);
 #define TERM_ALLOWED	0x02
 #define TERM_KILLED	0x03
 #define TERM_NOTALLOWED -1
+
+/*
+ * Bind a thread to a context.  (It's inline merely to speed things up.)
+ */
+static INLINE void become_session(CitContext *which_con) {
+/*
+	pid_t tid = syscall(SYS_gettid);
+*/
+	citthread_setspecific(MyConKey, (void *)which_con );
+/*
+	CtdlLogPrintf(CTDL_DEBUG, "[%d]: Now doing %s\n", 
+		      (int) tid, 
+		      ((which_con != NULL) && (which_con->ServiceName != NULL)) ? 
+		      which_con->ServiceName:"");
+*/
+}
+
+
 #endif /* CONTEXT_H */

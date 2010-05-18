@@ -56,7 +56,6 @@ int ctdl_require_ldap_version = 3;
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
-#include "user_ops.h"
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"
@@ -70,6 +69,7 @@ int ctdl_require_ldap_version = 3;
 #include "threads.h"
 #include "citadel_ldap.h"
 #include "ctdl_module.h"
+#include "user_ops.h"
 
 #ifdef HAVE_LDAP
 #define LDAP_DEPRECATED 1 	/* Suppress libldap's warning that we are using deprecated API calls */

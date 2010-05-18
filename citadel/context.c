@@ -583,22 +583,6 @@ void InitializeMasterCC(void) {
 
 
 
-/*
- * Bind a thread to a context.  (It's inline merely to speed things up.)
- */
-INLINE void become_session(CitContext *which_con) {
-/*
-	pid_t tid = syscall(SYS_gettid);
-*/
-	citthread_setspecific(MyConKey, (void *)which_con );
-/*
-	CtdlLogPrintf(CTDL_DEBUG, "[%d]: Now doing %s\n", 
-		      (int) tid, 
-		      ((which_con != NULL) && (which_con->ServiceName != NULL)) ? 
-		      which_con->ServiceName:"");
-*/
-}
-
 
 /*
  * Set the "async waiting" flag for a session, if applicable

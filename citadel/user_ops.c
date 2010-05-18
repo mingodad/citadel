@@ -38,7 +38,6 @@
 #include "citadel.h"
 #include "server.h"
 #include "database.h"
-#include "user_ops.h"
 #include "sysdep_decls.h"
 #include "support.h"
 #include "room_ops.h"
@@ -55,41 +54,13 @@
 
 #include "ctdl_module.h"
 
+////#define CTDL_INLINE_USR INLINE
+#include "user_ops.h"
+
 /* These pipes are used to talk to the chkpwd daemon, which is forked during startup */
 int chkpwd_write_pipe[2];
 int chkpwd_read_pipe[2];
 
-
-INLINE long cutuserkey(char *username) {
-	long len;
-	len = strlen(username);
-	if (len >= USERNAME_SIZE)
-	{
-		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
-		cit_backtrace ();
-		len = USERNAME_SIZE - 1; 
-		((char*)username)[USERNAME_SIZE - 1]='\0';
-	}
-	return len;
-}
-
-/*
- * makeuserkey() - convert a username into the format used as a database key
- *		 (it's just the username converted into lower case)
- */
-INLINE void makeuserkey(char *key, const char *username, long len) {
-	int i;
-
-	if (len >= USERNAME_SIZE)
-	{
-		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
-		cit_backtrace ();
-		len = USERNAME_SIZE - 1; 
-	}
-	for (i=0; i<=len; ++i) {
-		key[i] = tolower(username[i]);
-	}
-}
 
 
 /*

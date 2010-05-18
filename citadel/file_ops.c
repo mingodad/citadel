@@ -35,7 +35,6 @@
 #include "config.h"
 #include "file_ops.h"
 #include "sysdep_decls.h"
-#include "user_ops.h"
 #include "support.h"
 #include "room_ops.h"
 #include "msgbase.h"
@@ -47,6 +46,7 @@
 #endif
 
 #include "ctdl_module.h"
+#include "user_ops.h"
 
 /*
  * network_talking_to()  --  concurrency checker
