@@ -34,6 +34,9 @@
 #include <sys/socket.h>
 #include <syslog.h>
 #include <sys/syslog.h>
+/*
+#include <sys/syscall.h>
+*/
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -427,17 +430,19 @@ CitContext *CtdlGetContextArray(int *count)
  */
 void CtdlFillSystemContext(CitContext *context, char *name)
 {
-	char sysname[USERNAME_SIZE];
+	char sysname[SIZ];
+	long len;
 
 	memset(context, 0, sizeof(CitContext));
 	context->internal_pgm = 1;
 	context->cs_pid = 0;
 	strcpy (sysname, "SYS_");
 	strcat (sysname, name);
+	len = cutuserkey(sysname);
 	/* internal_create_user has the side effect of loading the user regardless of wether they
 	 * already existed or needed to be created
 	 */
-	internal_create_user (sysname, &(context->user), -1) ;
+	internal_create_user (sysname, len, &(context->user), -1) ;
 	
 	/* Check to see if the system user needs upgrading */
 	if (context->user.usernum == 0)
@@ -582,7 +587,16 @@ void InitializeMasterCC(void) {
  * Bind a thread to a context.  (It's inline merely to speed things up.)
  */
 INLINE void become_session(CitContext *which_con) {
+/*
+	pid_t tid = syscall(SYS_gettid);
+*/
 	citthread_setspecific(MyConKey, (void *)which_con );
+/*
+	CtdlLogPrintf(CTDL_DEBUG, "[%d]: Now doing %s\n", 
+		      (int) tid, 
+		      ((which_con != NULL) && (which_con->ServiceName != NULL)) ? 
+		      which_con->ServiceName:"");
+*/
 }
 
 

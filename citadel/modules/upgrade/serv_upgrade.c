@@ -93,7 +93,9 @@ void fix_sys_user_name(void)
 	{
 		if (strncmp(usbuf.fullname, "SYS_", 4))
 		{	/** Delete any user 0 that doesn't start with SYS_ */
-			makeuserkey(usernamekey, usbuf.fullname);
+			makeuserkey(usernamekey, 
+				    usbuf.fullname, 
+				    cutuserkey(usbuf.fullname));
 			cdb_delete(CDB_USERS, usernamekey, strlen(usernamekey));
 		}
 		else

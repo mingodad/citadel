@@ -550,7 +550,7 @@ void imap_login(int num_parms, ConstStr *Params)
 		}
 	case 4:
 		if (CtdlLoginExistingUser(NULL, Params[2].Key) == login_ok) {
-			if (CtdlTryPassword(Params[3].Key) == pass_ok) {
+			if (CtdlTryPassword(Params[3].Key, Params[3].len) == pass_ok) {
 				cprintf("%s OK [", Params[0].Key);
 				imap_output_capability_string();
 				cprintf("] Hello, %s\r\n", CC->user.fullname);
@@ -616,6 +616,7 @@ void imap_auth_plain(void)
 	char user[256];
 	char pass[256];
 	int result;
+	long len;
 
 	memset(pass, 0, sizeof(pass));
 	StrBufDecodeBase64(IMAP->Cmd.CmdBuf);
@@ -623,7 +624,9 @@ void imap_auth_plain(void)
 	decoded_authstring = ChrPtr(IMAP->Cmd.CmdBuf);
 	safestrncpy(ident, decoded_authstring, sizeof ident);
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
-	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+	if (len < 0)
+		len = sizeof(pass) - 1;
 
 	IMAP->authstate = imap_as_normal;
 
@@ -635,7 +638,7 @@ void imap_auth_plain(void)
 	}
 
 	if (result == login_ok) {
-		if (CtdlTryPassword(pass) == pass_ok) {
+		if (CtdlTryPassword(pass, len) == pass_ok) {
 			cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
 			return;
 		}
@@ -672,18 +675,24 @@ void imap_auth_login_pass(long state)
 {
 	citimap *Imap = IMAP;
 	const char *pass = NULL;
+	long len = 0;
 
 	switch (state) {
 	default:
 	case imap_as_expecting_password:
 		StrBufDecodeBase64(Imap->Cmd.CmdBuf);
 		pass = ChrPtr(Imap->Cmd.CmdBuf);
+		len = StrLength(Imap->Cmd.CmdBuf);
 		break;
 	case imap_as_expecting_multilinepassword:
 		pass = ChrPtr(Imap->Cmd.CmdBuf);
+		len = StrLength(Imap->Cmd.CmdBuf);
 		break;
 	}
-	if (CtdlTryPassword(pass) == pass_ok) {
+	if (len > USERNAME_SIZE)
+		StrBufCutAt(Imap->Cmd.CmdBuf, USERNAME_SIZE, NULL);
+
+	if (CtdlTryPassword(pass, len) == pass_ok) {
 		cprintf("%s OK authentication succeeded\r\n", IMAP->authseq);
 	} else {
 		cprintf("%s NO authentication failed\r\n", IMAP->authseq);

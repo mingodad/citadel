@@ -19,7 +19,7 @@ void logged_in_response(void);
 /* logout() is deprecated use CtdlUserLogout() instead */
 void logout (void) __attribute__ ((deprecated));
 int purge_user (char *pname);
-int create_user (const char *newusername, int become_user);
+int create_user (const char *newusername, long len, int become_user);
 void do_login(void);
 int CtdlInvtKick(char *iuser, int op);
 void ForEachUser(void (*CallBack)(struct ctdluser *EachUser, void *out_data),
@@ -54,5 +54,7 @@ void start_chkpwd_daemon(void);
 #define RENAMEUSER_ALREADY_EXISTS	3	/* An account with the desired new name already exists */
 
 int rename_user(char *oldname, char *newname);
-INLINE void makeuserkey(char *key, const char *username);
-int internal_create_user (const char *username, struct ctdluser *usbuf, uid_t uid);
+INLINE void makeuserkey(char *key, const char *username, long len);
+INLINE long cutuserkey(char *username);
+
+int internal_create_user (const char *username, long len, struct ctdluser *usbuf, uid_t uid);

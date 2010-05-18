@@ -302,7 +302,8 @@ extern struct config config;
 /*
  * Expose API calls from user_ops.c
  */
-int CtdlGetUser(struct ctdluser *usbuf, const char *name);
+int CtdlGetUser(struct ctdluser *usbuf, char *name);
+int CtdlGetUserLen(struct ctdluser *usbuf, const char *name, long len);
 int CtdlGetUserLock(struct ctdluser *usbuf, char *name);
 void CtdlPutUser(struct ctdluser *usbuf);
 void CtdlPutUserLock(struct ctdluser *usbuf);
@@ -328,7 +329,7 @@ enum {
 	pass_wrong_password
 };
 
-int CtdlTryPassword(char *password);
+int CtdlTryPassword(const char *password, long len);
 /*
  * Values which may be returned by CtdlTryPassword()
  */

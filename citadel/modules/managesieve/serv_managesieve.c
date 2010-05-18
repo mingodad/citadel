@@ -243,11 +243,12 @@ void cmd_mgsve_auth(int num_parms, char **parms, struct sdm_userdata *u)
 		if (login_ok == CtdlLoginExistingUser(NULL, username))
 		{
 			char *pass;
+
 			pass = &(auth[strlen(auth)+1]);
 			/* for some reason the php script sends us the username twice. y? */
 			pass = &(pass[strlen(pass)+1]);
 			
-			if (pass_ok == CtdlTryPassword(pass))
+			if (pass_ok == CtdlTryPassword(pass, strlen(pass)))
 			{
 				MGSVE->command_state = mgsve_password;
 				cprintf("OK\r\n");

@@ -72,6 +72,7 @@ int xmpp_auth_plain(char *authstring)
 	char user[256];
 	char pass[256];
 	int result;
+	long len;
 
 
 	/* Take apart the authentication string */
@@ -80,8 +81,9 @@ int xmpp_auth_plain(char *authstring)
 	CtdlDecodeBase64(decoded_authstring, authstring, strlen(authstring));
 	safestrncpy(ident, decoded_authstring, sizeof ident);
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
-	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
-
+	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+	if (len < 0)
+		len = -len;
 
 	/* If there are underscores in either string, change them to spaces.  Some clients
 	 * do not allow spaces so we can tell the user to substitute underscores if their
@@ -100,7 +102,7 @@ int xmpp_auth_plain(char *authstring)
 	}
 
 	if (result == login_ok) {
-		if (CtdlTryPassword(pass) == pass_ok) {
+		if (CtdlTryPassword(pass, len) == pass_ok) {
 			return(0);				/* success */
 		}
 	}
@@ -162,7 +164,7 @@ void xmpp_non_sasl_authenticate(char *iq_id, char *username, char *password, cha
 
 	result = CtdlLoginExistingUser(NULL, username);
 	if (result == login_ok) {
-		result = CtdlTryPassword(password);
+		result = CtdlTryPassword(password, strlen(password));
 		if (result == pass_ok) {
 			cprintf("<iq type=\"result\" id=\"%s\"></iq>", xmlesc(xmlbuf, iq_id, sizeof xmlbuf));	/* success */
 			return;

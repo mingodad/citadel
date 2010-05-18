@@ -339,11 +339,12 @@ void smtp_get_user(char *argbuf) {
  */
 void smtp_get_pass(char *argbuf) {
 	char password[SIZ];
+	long len;
 
 	memset(password, 0, sizeof(password));	
-	CtdlDecodeBase64(password, argbuf, SIZ);
+	len = CtdlDecodeBase64(password, argbuf, SIZ);
 	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", password); */
-	if (CtdlTryPassword(password) == pass_ok) {
+	if (CtdlTryPassword(password, len) == pass_ok) {
 		smtp_auth_greeting();
 	}
 	else {
@@ -362,11 +363,14 @@ void smtp_try_plain(char *encoded_authstring) {
 	char user[256];
 	char pass[256];
 	int result;
+	long len;
 
 	CtdlDecodeBase64(decoded_authstring, encoded_authstring, strlen(encoded_authstring) );
 	safestrncpy(ident, decoded_authstring, sizeof ident);
 	safestrncpy(user, &decoded_authstring[strlen(ident) + 1], sizeof user);
-	safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+	len = safestrncpy(pass, &decoded_authstring[strlen(ident) + strlen(user) + 2], sizeof pass);
+	if (len == -1)
+		len = sizeof(pass) - 1;
 
 	SMTP->command_state = smtp_command;
 
@@ -378,7 +382,7 @@ void smtp_try_plain(char *encoded_authstring) {
 	}
 
 	if (result == login_ok) {
-		if (CtdlTryPassword(pass) == pass_ok) {
+		if (CtdlTryPassword(pass, len) == pass_ok) {
 			smtp_auth_greeting();
 			return;
 		}

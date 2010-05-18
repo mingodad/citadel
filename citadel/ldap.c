@@ -223,7 +223,7 @@ int CtdlTryUserLDAP(char *username,
 }
 
 
-int CtdlTryPasswordLDAP(char *user_dn, char *password)
+int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 {
 	LDAP *ldserver = NULL;
 	int i = (-1);

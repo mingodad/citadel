@@ -416,6 +416,7 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 {
 	char *desired_name = NULL;
 	char new_password[32];
+	long len;
 
 	if (config.c_auth_mode != AUTHMODE_NATIVE) return(1);
 	if (config.c_disable_newu) return(2);
@@ -424,6 +425,7 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 
 	CtdlLogPrintf(CTDL_DEBUG, "The desired account name is <%s>\n", desired_name);
 
+	len = cutuserkey(desired_name);
 	if (!CtdlGetUser(&CC->user, desired_name)) {
 		CtdlLogPrintf(CTDL_DEBUG, "<%s> is already taken by another user.\n", desired_name);
 		memset(&CC->user, 0, sizeof(struct ctdluser));
@@ -431,7 +433,7 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 	}
 
 	/* The desired account name is available.  Create the account and log it in! */
-	if (create_user(desired_name, 1)) return(6);
+	if (create_user(desired_name, len, 1)) return(6);
 
 	snprintf(new_password, sizeof new_password, "%08lx%08lx", random(), random());
 	CtdlSetPassword(new_password);
@@ -712,6 +714,7 @@ void cmd_oids(char *argbuf) {
  * Finalize an OpenID authentication
  */
 void cmd_oidf(char *argbuf) {
+	long len;
 	char buf[2048];
 	char thiskey[1024];
 	char thisdata[1024];
@@ -734,10 +737,12 @@ void cmd_oidf(char *argbuf) {
 	cprintf("%d Transmit OpenID data now\n", START_CHAT_MODE);
 
 	while (client_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		extract_token(thiskey, buf, 0, '|', sizeof thiskey);
+		len = extract_token(thiskey, buf, 0, '|', sizeof thiskey);
+		if (len < 0)
+			len = sizeof(thiskey) - 1;
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
 		CtdlLogPrintf(CTDL_DEBUG, "%s: [%d] %s\n", thiskey, strlen(thisdata), thisdata);
-		Put(keys, thiskey, strlen(thiskey), strdup(thisdata), NULL);
+		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
 

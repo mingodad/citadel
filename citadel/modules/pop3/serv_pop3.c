@@ -284,11 +284,11 @@ void pop3_apop(char *argbuf)
 void pop3_pass(char *argbuf) {
 	char password[SIZ];
 
-	strcpy(password, argbuf);
+	safestrncpy(password, argbuf, sizeof password);
 	striplt(password);
 
 	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", password); */
-	if (CtdlTryPassword(password) == pass_ok) {
+	if (CtdlTryPassword(password, strlen(password)) == pass_ok) {
 		pop3_login();
 	}
 	else {

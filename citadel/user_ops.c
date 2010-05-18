@@ -59,21 +59,32 @@
 int chkpwd_write_pipe[2];
 int chkpwd_read_pipe[2];
 
-/*
- * makeuserkey() - convert a username into the format used as a database key
- *		 (it's just the username converted into lower case)
- */
-INLINE void makeuserkey(char *key, const char *username) {
-	int i, len;
 
+INLINE long cutuserkey(char *username) {
+	long len;
 	len = strlen(username);
 	if (len >= USERNAME_SIZE)
 	{
 		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
 		cit_backtrace ();
 		len = USERNAME_SIZE - 1; 
-		/* WHOOPSI! whats that??? todo. */
 		((char*)username)[USERNAME_SIZE - 1]='\0';
+	}
+	return len;
+}
+
+/*
+ * makeuserkey() - convert a username into the format used as a database key
+ *		 (it's just the username converted into lower case)
+ */
+INLINE void makeuserkey(char *key, const char *username, long len) {
+	int i;
+
+	if (len >= USERNAME_SIZE)
+	{
+		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
+		cit_backtrace ();
+		len = USERNAME_SIZE - 1; 
 	}
 	for (i=0; i<=len; ++i) {
 		key[i] = tolower(username[i]);
@@ -95,7 +106,7 @@ int getuser(struct ctdluser *usbuf, char name[])
  * CtdlGetUser()  -  retrieve named user into supplied buffer.
  *	       returns 0 on success
  */
-int CtdlGetUser(struct ctdluser *usbuf, const char *name)
+int CtdlGetUserLen(struct ctdluser *usbuf, const char *name, long len)
 {
 
 	char usernamekey[USERNAME_SIZE];
@@ -105,7 +116,7 @@ int CtdlGetUser(struct ctdluser *usbuf, const char *name)
 		memset(usbuf, 0, sizeof(struct ctdluser));
 	}
 
-	makeuserkey(usernamekey, name);
+	makeuserkey(usernamekey, name, len);
 	cdbus = cdb_fetch(CDB_USERS, usernamekey, strlen(usernamekey));
 
 	if (cdbus == NULL) {	/* user not found */
@@ -119,6 +130,12 @@ int CtdlGetUser(struct ctdluser *usbuf, const char *name)
 	cdb_free(cdbus);
 
 	return (0);
+}
+
+
+int CtdlGetUser(struct ctdluser *usbuf, char *name)
+{
+	return CtdlGetUserLen(usbuf, name, cutuserkey(name));
 }
 
 
@@ -153,7 +170,9 @@ void CtdlPutUser(struct ctdluser *usbuf)
 {
 	char usernamekey[USERNAME_SIZE];
 
-	makeuserkey(usernamekey, usbuf->fullname);
+	makeuserkey(usernamekey, 
+		    usbuf->fullname, 
+		    cutuserkey(usbuf->fullname));
 
 	usbuf->version = REV_LEVEL;
 	cdb_store(CDB_USERS,
@@ -205,8 +224,8 @@ int rename_user(char *oldname, char *newname) {
 	char newnamekey[USERNAME_SIZE];
 
 	/* Create the database keys... */
-	makeuserkey(oldnamekey, oldname);
-	makeuserkey(newnamekey, newname);
+	makeuserkey(oldnamekey, oldname, cutuserkey(oldname));
+	makeuserkey(newnamekey, newname, cutuserkey(newname));
 
 	/* Lock up and get going */
 	begin_critical_section(S_USERS);
@@ -528,6 +547,7 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 {
 	char username[SIZ];
 	int found_user;
+	long len;
 
 	CtdlLogPrintf(9, "CtdlLoginExistingUser(%s, %s)\n", authname, trythisname);
 
@@ -552,8 +572,9 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 	}
 
 	/* Continue attempting user validation... */
-	safestrncpy(username, trythisname, USERNAME_SIZE);
+	safestrncpy(username, trythisname, sizeof (username));
 	striplt(username);
+	len = cutuserkey(username);
 
 	if (IsEmptyStr(username)) {
 		return login_not_found;
@@ -592,7 +613,8 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 		CtdlLogPrintf(CTDL_DEBUG, "found it: uid=%ld, gecos=%s here: %d\n",
 			(long)pd.pw_uid, pd.pw_gecos, found_user);
 		if (found_user != 0) {
-			create_user(username, 0);
+			len = cutuserkey(username);
+			create_user(username, len, 0);
 			found_user = getuserbyuid(&CC->user, pd.pw_uid);
 		}
 
@@ -614,7 +636,7 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 
 		found_user = getuserbyuid(&CC->user, ldap_uid);
 		if (found_user != 0) {
-			create_user(trythisname, 0);
+			create_user(username, len, 0);
 			found_user = getuserbyuid(&CC->user, ldap_uid);
 		}
 
@@ -901,7 +923,7 @@ void start_chkpwd_daemon(void) {
 }
 
 
-int CtdlTryPassword(char *password)
+int CtdlTryPassword(const char *password, long len)
 {
 	int code;
 
@@ -973,13 +995,16 @@ int CtdlTryPassword(char *password)
 	else {
 
 		/* native auth mode */
+		char *pw;
 
-		strproc(password);
+		pw = (char*) malloc(len + 1);
+		memcpy(pw, password, len + 1);
+		strproc(pw);
 		strproc(CC->user.password);
-		code = strcasecmp(CC->user.password, password);
-		strproc(password);
+		code = strcasecmp(CC->user.password, pw);
+		strproc(pw);
 		strproc(CC->user.password);
-		code = strcasecmp(CC->user.password, password);
+		code = strcasecmp(CC->user.password, pw);
 	}
 
 	if (!code) {
@@ -994,12 +1019,13 @@ int CtdlTryPassword(char *password)
 
 void cmd_pass(char *buf)
 {
-	char password[256];
+	char password[SIZ];
 	int a;
+	long len;
 
 	memset(password, 0, sizeof(password));
-	extract_token(password, buf, 0, '|', sizeof password);
-	a = CtdlTryPassword(password);
+	len = extract_token(password, buf, 0, '|', sizeof password);
+	a = CtdlTryPassword(password, len);
 
 	switch (a) {
 	case pass_already_logged_in:
@@ -1029,7 +1055,7 @@ int purge_user(char pname[])
 	struct ctdluser usbuf;
 	char usernamekey[USERNAME_SIZE];
 
-	makeuserkey(usernamekey, pname);
+	makeuserkey(usernamekey, pname, cutuserkey(pname));
 
 	/* If the name is empty we can't find them in the DB any way so just return */
 	if (IsEmptyStr(pname))
@@ -1093,9 +1119,9 @@ int purge_user(char pname[])
 }
 
 
-int internal_create_user (const char *username, struct ctdluser *usbuf, uid_t uid)
+int internal_create_user (const char *username, long len, struct ctdluser *usbuf, uid_t uid)
 {
-	if (!CtdlGetUser(usbuf, username)) {
+	if (!CtdlGetUserLen(usbuf, username, len)) {
 		return (ERROR + ALREADY_EXISTS);
 	}
 
@@ -1134,7 +1160,7 @@ int internal_create_user (const char *username, struct ctdluser *usbuf, uid_t ui
  * Set 'become_user' to nonzero if this is self-service account creation and we want
  * to actually log in as the user we just created, otherwise set it to 0.
  */
-int create_user(const char *newusername, int become_user)
+int create_user(const char *newusername, long len, int become_user)
 {
 	struct ctdluser usbuf;
 	struct ctdlroom qrbuf;
@@ -1155,7 +1181,7 @@ int create_user(const char *newusername, int become_user)
 
 		struct passwd pd;
 		struct passwd *tempPwdPtr;
-		char pwdbuffer[256];
+		char pwdbuffer[SIZ];
 	
 #ifdef HAVE_GETPWNAM_R
 #ifdef SOLARIS_GETPWUID
@@ -1172,6 +1198,7 @@ int create_user(const char *newusername, int become_user)
 			if (IsEmptyStr (username))
 			{
 				safestrncpy(username, pd.pw_name, sizeof username);
+				len = cutuserkey(username);
 			}
 		}
 		else {
@@ -1187,7 +1214,7 @@ int create_user(const char *newusername, int become_user)
 	}
 #endif /* HAVE_LDAP */
 	
-	if ((retval = internal_create_user(username, &usbuf, uid)) != 0)
+	if ((retval = internal_create_user(username, len, &usbuf, uid)) != 0)
 		return retval;
 	
 	/*
@@ -1242,6 +1269,7 @@ int create_user(const char *newusername, int become_user)
 void cmd_newu(char *cmdbuf)
 {
 	int a;
+	long len;
 	char username[26];
 
 	if (config.c_auth_mode != AUTHMODE_NATIVE) {
@@ -1266,8 +1294,8 @@ void cmd_newu(char *cmdbuf)
 			config.c_nodename, config.c_maxsessions);
 	}
 	extract_token(username, cmdbuf, 0, '|', sizeof username);
-	username[25] = 0;
 	strproc(username);
+	len = cutuserkey(username);
 
 	if (IsEmptyStr(username)) {
 		cprintf("%d You must supply a user name.\n", ERROR + USERNAME_REQUIRED);
@@ -1281,7 +1309,7 @@ void cmd_newu(char *cmdbuf)
 		return;
 	}
 
-	a = create_user(username, 1);
+	a = create_user(username, len, 1);
 
 	if (a == 0) {
 		logged_in_response();
@@ -1357,8 +1385,9 @@ void cmd_setp(char *new_pw)
 void cmd_creu(char *cmdbuf)
 {
 	int a;
-	char username[26];
-	char password[32];
+	long len;
+	char username[SIZ];
+	char password[SIZ];
 	struct ctdluser tmp;
 
 	if (CtdlAccessCheck(ac_aide)) {
@@ -1367,17 +1396,18 @@ void cmd_creu(char *cmdbuf)
 
 	extract_token(username, cmdbuf, 0, '|', sizeof username);
 	extract_token(password, cmdbuf, 1, '|', sizeof password);
-	username[25] = 0;
-	password[31] = 0;
+	////username[25] = 0;
+	//password[31] = 0;
 	strproc(username);
 	strproc(password);
+	len = cutuserkey(username);
 
 	if (IsEmptyStr(username)) {
 		cprintf("%d You must supply a user name.\n", ERROR + USERNAME_REQUIRED);
 		return;
 	}
 
-	a = create_user(username, 0);
+	a = create_user(username, len, 0);
 
 	if (a == 0) {
 		if (!IsEmptyStr(password)) {
