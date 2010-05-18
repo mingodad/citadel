@@ -2188,24 +2188,6 @@ int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret)
 /* ************************************************************************** */
 
 
-INLINE void CtdlIPC_lock(CtdlIPC *ipc)
-{
-	if (ipc->network_status_cb) ipc->network_status_cb(1);
-#ifdef THREADED_CLIENT
-	pthread_mutex_lock(&(ipc->mutex));
-#endif
-}
-
-
-INLINE void CtdlIPC_unlock(CtdlIPC *ipc)
-{
-#ifdef THREADED_CLIENT
-	pthread_mutex_unlock(&(ipc->mutex));
-#endif
-	if (ipc->network_status_cb) ipc->network_status_cb(0);
-}
-
-
 /* Read a listing from the server up to 000.  Append to dest if it exists */
 char *CtdlIPCReadListing(CtdlIPC *ipc, char *dest)
 {

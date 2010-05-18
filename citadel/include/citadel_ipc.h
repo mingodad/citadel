@@ -334,8 +334,6 @@ int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret);
 /*             Stuff below this line is not for public consumption            */
 /* ************************************************************************** */
 
-INLINE void CtdlIPC_lock(CtdlIPC *ipc);
-INLINE void CtdlIPC_unlock(CtdlIPC *ipc);
 char *CtdlIPCReadListing(CtdlIPC *ipc, char *dest);
 int CtdlIPCSendListing(CtdlIPC *ipc, const char *listing);
 size_t CtdlIPCPartialRead(CtdlIPC *ipc, void **buf, size_t offset,
@@ -367,6 +365,25 @@ void setIPCErrorPrintf(int (*func)(char *s, ...));
 void connection_died(CtdlIPC* ipc, int using_ssl);
 int CtdlIPC_getsockfd(CtdlIPC* ipc);
 char CtdlIPC_get(CtdlIPC* ipc);
+
+
+
+static INLINE void CtdlIPC_lock(CtdlIPC *ipc)
+{
+	if (ipc->network_status_cb) ipc->network_status_cb(1);
+#ifdef THREADED_CLIENT
+	pthread_mutex_lock(&(ipc->mutex));
+#endif
+}
+
+
+static INLINE void CtdlIPC_unlock(CtdlIPC *ipc)
+{
+#ifdef THREADED_CLIENT
+	pthread_mutex_unlock(&(ipc->mutex));
+#endif
+	if (ipc->network_status_cb) ipc->network_status_cb(0);
+}
 
 #ifdef __cplusplus
 }
