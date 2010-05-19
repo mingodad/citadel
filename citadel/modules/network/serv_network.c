@@ -2335,12 +2335,6 @@ void cmd_netp(char *cmdbuf)
 	extract_token(node, cmdbuf, 0, '|', sizeof node);
 	extract_token(pass, cmdbuf, 1, '|', sizeof pass);
 
-	if (doing_queue) {
-		CtdlLogPrintf(CTDL_WARNING, "Network node <%s> refused - spooling\n", node);
-		cprintf("%d spooling - try again in a few minutes\n", ERROR + RESOURCE_BUSY);
-		return;
-	}
-
 	/* load the IGnet Configuration to check node validity */
 	load_working_ignetcfg();
 	v = is_valid_node(nexthop, secret, node);
