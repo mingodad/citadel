@@ -1783,18 +1783,22 @@ void network_purge_spoolout(void) {
  * receive network spool from the remote system
  */
 void receive_spool(int *sock, char *remote_nodename) {
-	size_t siz;
 	long download_len = 0L;
 	long bytes_received = 0L;
-	long bytes_copied = 0L;
 	char buf[SIZ];
 	static char pbuf[IGNET_PACKET_SIZE];
 	char tempfilename[PATH_MAX];
 	char filename[PATH_MAX];
 	long plen;
-	FILE *fp, *newfp;
+	FILE *fp;
 
-	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
+	snprintf(tempfilename, 
+		 sizeof tempfilename, 
+		 "%s/%s.%ld",
+		 ctdl_nettmp_dir,
+		 remote_nodename, 
+		 (long) getpid()
+	);
 	if (sock_puts(sock, "NDOP") < 0) return;
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
@@ -1812,7 +1816,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 	}
 
 	while (bytes_received < download_len) {
-		/**
+		/*
 		 * If shutting down we can exit here and unlink the temp file.
 		 * this shouldn't loose us any messages.
 		 */
@@ -1849,17 +1853,20 @@ void receive_spool(int *sock, char *remote_nodename) {
 	}
 
 	fclose(fp);
-	/** Last chance for shutdown exit */
+
+	/* Last chance for shutdown exit */
 	if (CtdlThreadCheckStop())
 	{
 		unlink(tempfilename);
 		return;
 	}
+
 	if (sock_puts(sock, "CLOS") < 0) {
 		unlink(tempfilename);
 		return;
 	}
-	/**
+
+	/*
 	 * From here on we must complete or messages will get lost
 	 */
 	if (sock_getln(sock, buf, sizeof buf) < 0) {
@@ -1871,36 +1878,21 @@ void receive_spool(int *sock, char *remote_nodename) {
 	}
 	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
 	
-	/* Now copy the temp file to its permanent location.
-	 * (We copy instead of link because they may be on different filesystems)
+	/* Now move the temp file to its permanent location.
 	 */
-	begin_critical_section(S_NETSPOOL);
 	snprintf(filename, 
-			 sizeof filename, 
-			 "%s/%s.%ld",
-			 ctdl_netin_dir,
-			 remote_nodename, 
-			 (long) getpid()
+		 sizeof filename, 
+		 "%s/%s.%ld",
+		 ctdl_netin_dir,
+		 remote_nodename, 
+		 (long) getpid()
 	);
-	fp = fopen(tempfilename, "r");
-	if (fp != NULL) {
-		newfp = fopen(filename, "w");
-		if (newfp != NULL) {
-			bytes_copied = 0L;
-			while (bytes_copied < download_len) {
-				plen = download_len - bytes_copied;
-				if (plen > sizeof buf) {
-					plen = sizeof buf;
-				}
-				siz = fread(buf, plen, 1, fp);
-				fwrite(buf, plen, 1, newfp);
-				bytes_copied += plen;
-			}
-			fclose(newfp);
-		}
-		fclose(fp);
+
+	if (link(tempfilename, filename) != 0) {
+		CtdlLogPrintf(CTDL_ALERT, "Could not link %s to %s: %s\n",
+			tempfilename, filename, strerror(errno)
+		);
 	}
-	end_critical_section(S_NETSPOOL);
 	unlink(tempfilename);
 }
 
