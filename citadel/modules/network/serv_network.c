@@ -874,10 +874,13 @@ void network_spool_msg(long msgnum, void *userdata) {
 				serialize_message(&sermsg, msg);
 				if (sermsg.len > 0) {
 
-					/* write it to the spool file */
-					snprintf(filename, sizeof filename,"%s/%s",
-						 	ctdl_netout_dir,
-						 	mptr->remote_nodename);
+					/* write it to a spool file */
+					snprintf(filename, sizeof filename,"%s/%s@%lx%x",
+					 	ctdl_netout_dir,
+					 	mptr->remote_nodename,
+						time(NULL),
+						rand()
+					);
 					CtdlLogPrintf(CTDL_DEBUG, "Appending to %s\n", filename);
 					fp = fopen(filename, "ab");
 					if (fp != NULL) {
@@ -1537,15 +1540,17 @@ void network_process_buffer(char *buffer, long size) {
 					strcpy(nexthop, msg->cm_fields['D']);
 				}
 				snprintf(filename, 
-						 sizeof filename,
-						 "%s/%s",
-						 ctdl_netout_dir,
-						 nexthop);
+					sizeof filename,
+					"%s/%s@%lx%x",
+					ctdl_netout_dir,
+					nexthop,
+					time(NULL),
+					rand()
+				);
 				CtdlLogPrintf(CTDL_DEBUG, "Appending to %s\n", filename);
 				fp = fopen(filename, "ab");
 				if (fp != NULL) {
-					fwrite(sermsg.ser,
-						sermsg.len, 1, fp);
+					fwrite(sermsg.ser, sermsg.len, 1, fp);
 					fclose(fp);
 				}
 				else {
@@ -1732,10 +1737,11 @@ void network_do_spoolin(void) {
 	while (d = readdir(dp), d != NULL) {
 		if ((strcmp(d->d_name, ".")) && (strcmp(d->d_name, ".."))) {
 			snprintf(filename, 
-					 sizeof filename,
-					 "%s/%s",
-					 ctdl_netin_dir,
-					 d->d_name);
+				sizeof filename,
+				"%s/%s",
+				ctdl_netin_dir,
+				d->d_name
+			);
 			network_process_file(filename);
 		}
 	}
@@ -1744,15 +1750,61 @@ void network_do_spoolin(void) {
 }
 
 /*
- * Delete any files in the outbound queue that were intended
- * to be sent to nodes which no longer exist.
+ * Step 1: consolidate files in the outbound queue into one file per neighbor node
+ * Step 2: delete any files in the outbound queue that were for neighbors who no longer exist.
  */
-void network_purge_spoolout(void) {
+void network_consolidate_spoolout(void) {
 	DIR *dp;
 	struct dirent *d;
 	char filename[PATH_MAX];
+	char cmd[PATH_MAX];
 	char nexthop[256];
 	int i;
+	char *ptr;
+
+	/* Step 1: consolidate files in the outbound queue into one file per neighbor node */
+	dp = opendir(ctdl_netout_dir);
+	if (dp == NULL) return;
+	while (d = readdir(dp), d != NULL) {
+		if (
+			(strcmp(d->d_name, "."))
+			&& (strcmp(d->d_name, ".."))
+			&& (strchr(d->d_name, '@') != NULL)
+		) {
+			safestrncpy(nexthop, d->d_name, sizeof nexthop);
+			ptr = strchr(nexthop, '@');
+			if (ptr) *ptr = 0;
+	
+			snprintf(filename, 
+				sizeof filename,
+				"%s/%s",
+				ctdl_netout_dir,
+				d->d_name
+			);
+	
+			CtdlLogPrintf(CTDL_DEBUG, "Consolidate %s to %s\n", filename, nexthop);
+			if (network_talking_to(nexthop, NTT_CHECK)) {
+				CtdlLogPrintf(CTDL_DEBUG,
+					"Currently online with %s - skipping for now\n",
+					nexthop
+				);
+			}
+			else {
+				network_talking_to(nexthop, NTT_ADD);
+				snprintf(cmd, sizeof cmd, "/bin/cat %s >>%s/%s && /bin/rm -f %s",
+					filename,
+					ctdl_netout_dir, nexthop,
+					filename
+				);
+				CtdlLogPrintf(CTDL_DEBUG, "\033[31m%s\033[0m\n", cmd);
+				system(cmd);
+				network_talking_to(nexthop, NTT_REMOVE);
+			}
+		}
+	}
+	closedir(dp);
+
+	/* Step 2: delete any files in the outbound queue that were for neighbors who no longer exist */
 
 	dp = opendir(ctdl_netout_dir);
 	if (dp == NULL) return;
@@ -1760,11 +1812,15 @@ void network_purge_spoolout(void) {
 	while (d = readdir(dp), d != NULL) {
 		if (!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
 			continue;
+		ptr = strchr(d->d_name, '@');
+		if (d != NULL)
+			continue;
 		snprintf(filename, 
-				 sizeof filename,
-				 "%s/%s",
-				 ctdl_netout_dir,
-				 d->d_name);
+			sizeof filename,
+			"%s/%s",
+			ctdl_netout_dir,
+			d->d_name
+		);
 
 		strcpy(nexthop, "");
 		i = is_valid_node(nexthop, NULL, d->d_name);
@@ -1918,14 +1974,14 @@ void transmit_spool(int *sock, char *remote_nodename)
 	}
 
 	snprintf(sfname, sizeof sfname, 
-			 "%s/%s",
-			 ctdl_netout_dir,
-			 remote_nodename);
+		"%s/%s",
+		ctdl_netout_dir,
+		remote_nodename
+	);
 	fd = open(sfname, O_RDONLY);
 	if (fd < 0) {
 		if (errno != ENOENT) {
-			CtdlLogPrintf(CTDL_CRIT, "cannot open upload file locally: %s\n",
-				strerror(errno));
+			CtdlLogPrintf(CTDL_CRIT, "cannot open %s: %s\n", sfname, strerror(errno));
 		}
 		return;
 	}
@@ -1933,7 +1989,7 @@ void transmit_spool(int *sock, char *remote_nodename)
 	while (plen = (long) read(fd, pbuf, IGNET_PACKET_SIZE), plen > 0L) {
 		bytes_to_write = plen;
 		while (bytes_to_write > 0L) {
-			/** Exit if shutting down */
+			/* Exit if shutting down */
 			if (CtdlThreadCheckStop())
 			{
 				close(fd);
@@ -1951,8 +2007,7 @@ void transmit_spool(int *sock, char *remote_nodename)
 			}
 			thisblock = atol(&buf[4]);
 			if (buf[0] == '7') {
-				if (sock_write(sock, pbuf,
-				   (int) thisblock) < 0) {
+				if (sock_write(sock, pbuf, (int) thisblock) < 0) {
 					close(fd);
 					return;
 				}
@@ -2237,7 +2292,7 @@ void *network_do_queue(void *args) {
 	free_filter_list(filterlist);
 	filterlist = NULL;
 
-	network_purge_spoolout();
+	network_consolidate_spoolout();
 
 	CtdlLogPrintf(CTDL_DEBUG, "network: queue run completed\n");
 
