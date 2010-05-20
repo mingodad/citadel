@@ -1796,7 +1796,6 @@ void network_consolidate_spoolout(void) {
 					ctdl_netout_dir, nexthop,
 					filename
 				);
-				CtdlLogPrintf(CTDL_DEBUG, "\033[31m%s\033[0m\n", cmd);
 				system(cmd);
 				network_talking_to(nexthop, NTT_REMOVE);
 			}
