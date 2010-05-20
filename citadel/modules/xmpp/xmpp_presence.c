@@ -303,6 +303,14 @@ void xmpp_store_mortuary(HashList *mortuary) {
 	}
 	DeleteHashPos(&HashPos);
 
+	/* FIXME temp crap 
+	StrBufAppendPrintf(themsg, "foo@bar.com\n");
+	StrBufAppendPrintf(themsg, "baz@quux.com\n");
+	StrBufAppendPrintf(themsg, "haha%c\n", 1);
+	StrBufAppendPrintf(themsg, "baaaz@quux.com\n");
+	StrBufAppendPrintf(themsg, "baaaz@quuuuuux.com\n");
+	*/
+
 	/* Delete the old mortuary */
 	CtdlDeleteMessages(USERCONFIGROOM, NULL, 0, XMPPMORTUARY);
 

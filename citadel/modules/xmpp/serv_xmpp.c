@@ -95,11 +95,16 @@ char *xmlesc(char *buf, char *str, int bufsiz)
 			strcpy(&buf[len], "&amp;");
 			len += 5;
 		}
-		else if (ch <= 0x7F) {
+		else if ((ch >= 0x20) && (ch <= 0x7F)) {
 			buf[len++] = ch;
 			buf[len] = 0;
 		}
-		else if (ch > 0x7F) {
+		else if (ch < 0x20) {
+			/* we probably shouldn't be doing this */
+			buf[len++] = '_';
+			buf[len] = 0;
+		}
+		else {
 			char oct[10];
 			sprintf(oct, "&#%o;", ch);
 			strcpy(&buf[len], oct);
