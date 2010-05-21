@@ -180,6 +180,7 @@ int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_
 	CitContext *CCC=CC;
 	int rc;
 
+	FlushStrBuf(CCC->MigrateBuf);
 	rc = socket_read_blob(sock, 
 			      CCC->sMigrateBuf, 
 			      bytes, 
@@ -236,6 +237,7 @@ int sock_getln(int *sock, char *buf, int bufsize)
 	CitContext *CCC=CC;
 	const char *pCh;
 
+	FlushStrBuf(CCC->sMigrateBuf);
 	retval = CtdlSockGetLine(sock, CCC->sMigrateBuf);
 
 	i = StrLength(CCC->sMigrateBuf);
