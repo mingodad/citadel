@@ -580,7 +580,6 @@ void cmd_ucls(char *cmd)
 	CC->upload_fp = NULL;
 
 	if ((!strcasecmp(cmd, "1")) && (CC->upload_type != UPL_FILE)) {
-		CC->upload_type = UPL_FILE;
 		cprintf("%d Upload completed.\n", CIT_OK);
 
 		if (CC->upload_type == UPL_NET) {
@@ -605,6 +604,7 @@ void cmd_ucls(char *cmd)
 			/* FIXME ... here we need to trigger a network run */
 		}
 
+		CC->upload_type = UPL_FILE;
 		return;
 	}
 
