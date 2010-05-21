@@ -513,6 +513,7 @@ void xmpp_cleanup_function(void) {
  * Here's where our XMPP session begins its happy day.
  */
 void xmpp_greeting(void) {
+	client_set_inbound_buf(4);
 	strcpy(CC->cs_clientname, "XMPP session");
 	CC->session_specific_data = malloc(sizeof(citxmpp));
 	memset(XMPP, 0, sizeof(citxmpp));

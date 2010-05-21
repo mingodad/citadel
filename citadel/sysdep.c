@@ -622,6 +622,16 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 }
 
 
+/*
+ * to make client_read_random_blob() more efficient, increase buffer size.
+ * just use in greeting function, else your buffer may be flushed
+ */
+void client_set_inbound_buf(long N)
+{
+	FlushStrBuf(CC->ReadBuf);
+	ReAdjustEmptyBuf(CC->ReadBuf, N * SIZ, N * SIZ);
+}
+
 int client_read_random_blob(StrBuf *Target, int timeout)
 {
 	CitContext *CCC=CC;
@@ -645,11 +655,30 @@ int client_read_random_blob(StrBuf *Target, int timeout)
 			StrBufAppendBufPlain(Target, pch, len, 0);
 			FlushStrBuf(CCC->ReadBuf);
 			CCC->Pos = NULL;
+#ifdef BIGBAD_IODBG
+			{
+				int rv = 0;
+				char fn [SIZ];
+				FILE *fd;
+			
+				snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+			
+				fd = fopen(fn, "a+");
+				fprintf(fd, "Read: BufSize: %d BufContent: [",
+					StrLength(Target));
+				rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+				fprintf(fd, "]\n");
+			
+			
+				fclose(fd);
+			}
+#endif
+	
 			return StrLength(Target);
 		}
 		return rc;
 	}
-	else 
+	else
 		return rc;
 }
 
