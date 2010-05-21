@@ -156,7 +156,7 @@ void worker_entry(void)
 		errno = EAGAIN;
 		do {
 			ssock = accept(msock, NULL, 0);
-			lprintf(9, "\033[3%dmthread %u woke up, accept() returned %d %s\033[0m\n",
+			lprintf(9, "Thread %u woke up, accept() returned %d %s\n",
 				((pthread_self() % 6) + 1),
 				pthread_self(),
 				ssock,
