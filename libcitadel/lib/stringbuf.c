@@ -3633,7 +3633,7 @@ int StrBufReadBLOBBuffered(StrBuf *Blob,
 		}
 		rlen = read(*fd, 
 			    ptr,
-			    nBytes - nRead);
+			    IOBuf->BufSize - (ptr - IOBuf->buf));
 		if (rlen == -1) {
 			close(*fd);
 			*fd = -1;
