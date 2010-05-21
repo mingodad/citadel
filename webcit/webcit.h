@@ -587,7 +587,6 @@ void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F);
 
 
 enum {
-	S_SELECT,
 	S_SHUTDOWN,
 	MAX_SEMAPHORES
 };

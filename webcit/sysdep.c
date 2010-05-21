@@ -143,18 +143,11 @@ void worker_entry(void)
 	int ssock;
 	int i = 0;
 	int fail_this_transaction = 0;
-	int ret;
-	struct timeval tv;
-	fd_set readset, tempset;
 	ParsedHttpHdrs Hdr;
 
 	memset(&Hdr, 0, sizeof(ParsedHttpHdrs));
 	Hdr.HR.eReqType = eGET;
 	http_new_modules(&Hdr);	
-	tv.tv_sec = 0;
-	tv.tv_usec = 10000;
-	FD_ZERO(&readset);
-	FD_SET(msock, &readset);
 
 	do {
 		/* Only one thread can accept at a time */
@@ -162,25 +155,13 @@ void worker_entry(void)
 		ssock = -1; 
 		errno = EAGAIN;
 		do {
-			ret = -1; /* just one at once should select... */
-			begin_critical_section(S_SELECT);
-
-			FD_ZERO(&tempset);
-			if (msock > 0) FD_SET(msock, &tempset);
-			tv.tv_sec = 0;
-			tv.tv_usec = 10000;
-			if (msock > 0)	ret = select(msock+1, &tempset, NULL, NULL,  &tv);
-			end_critical_section(S_SELECT);
-			if ((ret < 0) && (errno != EINTR) && (errno != EAGAIN))
-			{/* EINTR and EAGAIN are thrown but not of interest. */
-				lprintf(2, "accept() failed:%d %s\n",
-					errno, strerror(errno));
-			}
-			else if ((ret > 0) && (msock > 0) && FD_ISSET(msock, &tempset))
-			{/* Successfully selected, and still not shutting down? Accept! */
-				ssock = accept(msock, NULL, 0);
-			}
-			
+			ssock = accept(msock, NULL, 0);
+			lprintf(9, "\033[3%dmthread %u woke up, accept() returned %d %s\033[0m\n",
+				((pthread_self() % 6) + 1),
+				pthread_self(),
+				ssock,
+				((ssock >= 0) ? "" : strerror(errno))
+			);
 		} while ((msock > 0) && (ssock < 0)  && (time_to_die == 0));
 
 		if ((msock == -1)||(time_to_die))
