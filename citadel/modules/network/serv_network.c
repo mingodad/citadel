@@ -1881,6 +1881,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 		return;
 	}
 
+	CtdlLogPrintf(CTDL_DEBUG, "For this download we are expecting %d bytes\n", download_len);
 	while (bytes_received < download_len) {
 		/*
 		 * If shutting down we can exit here and unlink the temp file.
@@ -1896,6 +1897,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 			bytes_received,
 		     ((download_len - bytes_received > IGNET_PACKET_SIZE)
 		 ? IGNET_PACKET_SIZE : (download_len - bytes_received)));
+		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 		if (sock_puts(sock, buf) < 0) {
 			fclose(fp);
 			unlink(tempfilename);
@@ -1906,6 +1908,7 @@ void receive_spool(int *sock, char *remote_nodename) {
 			unlink(tempfilename);
 			return;
 		}
+		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
 		if (buf[0] == '6') {
 			plen = extract_long(&buf[4], 0);
 			if (sock_read(sock, pbuf, plen, 1) < 0) {
