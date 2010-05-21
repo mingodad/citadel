@@ -1843,17 +1843,28 @@ void receive_spool(int *sock, char *remote_nodename) {
 	char buf[SIZ];
 	static char pbuf[IGNET_PACKET_SIZE];
 	char tempfilename[PATH_MAX];
-	char filename[PATH_MAX];
+	char permfilename[PATH_MAX];
 	long plen;
 	FILE *fp;
 
 	snprintf(tempfilename, 
-		 sizeof tempfilename, 
-		 "%s/%s.%ld",
-		 ctdl_nettmp_dir,
-		 remote_nodename, 
-		 (long) getpid()
+		sizeof tempfilename, 
+		"%s/%s.%lx%x",
+		ctdl_nettmp_dir,
+		remote_nodename, 
+		time(NULL),
+		rand()
 	);
+
+	snprintf(permfilename, 
+		sizeof permfilename, 
+		"%s/%s.%lx%x",
+		ctdl_netin_dir,
+		remote_nodename, 
+		time(NULL),
+		rand()
+	);
+
 	if (sock_puts(sock, "NDOP") < 0) return;
 	if (sock_getln(sock, buf, sizeof buf) < 0) return;
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
@@ -1935,17 +1946,9 @@ void receive_spool(int *sock, char *remote_nodename) {
 	
 	/* Now move the temp file to its permanent location.
 	 */
-	snprintf(filename, 
-		 sizeof filename, 
-		 "%s/%s.%ld",
-		 ctdl_netin_dir,
-		 remote_nodename, 
-		 (long) getpid()
-	);
-
-	if (link(tempfilename, filename) != 0) {
+	if (link(tempfilename, permfilename) != 0) {
 		CtdlLogPrintf(CTDL_ALERT, "Could not link %s to %s: %s\n",
-			tempfilename, filename, strerror(errno)
+			tempfilename, permfilename, strerror(errno)
 		);
 	}
 	unlink(tempfilename);
