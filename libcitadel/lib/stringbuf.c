@@ -286,14 +286,16 @@ static int IncreaseBuf(StrBuf *Buf, int KeepOriginal, int DestSize)
 
 /**
  * @ingroup StrBuf_DeConstructors
- * @brief shrink an _EMPTY_ buffer if its Buffer superseeds threshhold to NewSize. Buffercontent is thoroughly ignored and flushed.
+ * @brief shrink / increase an _EMPTY_ buffer to NewSize. Buffercontent is thoroughly ignored and flushed.
  * @param Buf Buffer to shrink (has to be empty)
  * @param ThreshHold if the buffer is bigger then this, its readjusted
  * @param NewSize if we Shrink it, how big are we going to be afterwards?
  */
 void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize)
 {
-	if ((Buf != NULL) && (Buf->BufUsed > ThreshHold)) {
+	if ((Buf != NULL) && 
+	    (Buf->BufUsed == 0) &&
+	    (Buf->BufSize < ThreshHold)) {
 		free(Buf->buf);
 		Buf->buf = (char*) malloc(NewSize);
 		Buf->BufUsed = 0;
