@@ -976,6 +976,7 @@ int CtdlTryPassword(const char *password, long len)
 		strproc(pw);
 		strproc(CC->user.password);
 		code = strcasecmp(CC->user.password, pw);
+		free (pw);
 	}
 
 	if (!code) {
