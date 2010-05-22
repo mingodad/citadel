@@ -27,7 +27,7 @@ iconv_t ctdl_iconv_open(const char *tocode, const char *fromcode)
 */
 
 
-inline char *FindNextEnd (char *bptr)
+static inline char *FindNextEnd (char *bptr)
 {
 	char * end;
 	/* Find the next ?Q? */

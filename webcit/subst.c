@@ -448,7 +448,7 @@ void clear_local_substs(void) {
 	clear_substs (WC);
 }
 
-int NeedNewBuf(type)
+int NeedNewBuf(int type)
 {
 	switch(type) {
 	case WCS_STRING:

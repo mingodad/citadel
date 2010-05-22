@@ -60,7 +60,20 @@ typedef struct _message_summary {
 	wc_mime_attachment *MsgBody;
 } message_summary;
 void DestroyMessageSummary(void *vMsg);
-inline message_summary* GetMessagePtrAt(int n, HashList *Summ);
+
+
+
+static inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
+{
+	const char *Key;
+	long HKLen;
+	void *vMsg;
+
+	if (Summ == NULL)
+		return NULL;
+	GetHashAt(Summ, n, &HKLen, &Key, &vMsg);
+	return (message_summary*) vMsg;
+}
 
 typedef void (*ExamineMsgHeaderFunc)(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset);
 

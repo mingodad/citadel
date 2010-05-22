@@ -650,17 +650,6 @@ int load_msg_ptrs(const char *servcmd,
 }
 
 
-inline message_summary* GetMessagePtrAt(int n, HashList *Summ)
-{
-	const char *Key;
-	long HKLen;
-	void *vMsg;
-
-	if (Summ == NULL)
-		return NULL;
-	GetHashAt(Summ, n, &HKLen, &Key, &vMsg);
-	return (message_summary*) vMsg;
-}
 
 
 
