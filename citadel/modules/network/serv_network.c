@@ -1873,56 +1873,57 @@ void receive_spool(int *sock, char *remote_nodename) {
 	}
 	download_len = extract_long(&buf[4], 0);
 
-	bytes_received = 0L;
-	fp = fopen(tempfilename, "w");
-	if (fp == NULL) {
-		CtdlLogPrintf(CTDL_CRIT, "cannot open download file locally: %s\n",
-			strerror(errno));
-		return;
-	}
+	if (download_len>0) {
+		bytes_received = 0L;
+		fp = fopen(tempfilename, "w");
+		if (fp == NULL) {
+			CtdlLogPrintf(CTDL_CRIT, "cannot open download file locally: %s\n",
+				      strerror(errno));
+			return;
+		}
 
-	CtdlLogPrintf(CTDL_DEBUG, "For this download we are expecting %d bytes\n", download_len);
-	while (bytes_received < download_len) {
-		/*
-		 * If shutting down we can exit here and unlink the temp file.
-		 * this shouldn't loose us any messages.
-		 */
-		if (CtdlThreadCheckStop())
-		{
-			fclose(fp);
-			unlink(tempfilename);
-			return;
-		}
-		snprintf(buf, sizeof buf, "READ %ld|%ld",
-			bytes_received,
-		     ((download_len - bytes_received > IGNET_PACKET_SIZE)
-		 ? IGNET_PACKET_SIZE : (download_len - bytes_received)));
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-		if (sock_puts(sock, buf) < 0) {
-			fclose(fp);
-			unlink(tempfilename);
-			return;
-		}
-		if (sock_getln(sock, buf, sizeof buf) < 0) {
-			fclose(fp);
-			unlink(tempfilename);
-			return;
-		}
-		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
-		if (buf[0] == '6') {
-			plen = extract_long(&buf[4], 0);
-			if (sock_read(sock, pbuf, plen, 1) < 0) {
+		CtdlLogPrintf(CTDL_DEBUG, "For this download we are expecting %d bytes\n", download_len);
+		while (bytes_received < download_len) {
+			/*
+			 * If shutting down we can exit here and unlink the temp file.
+			 * this shouldn't loose us any messages.
+			 */
+			if (CtdlThreadCheckStop())
+			{
 				fclose(fp);
 				unlink(tempfilename);
 				return;
 			}
-			fwrite((char *) pbuf, plen, 1, fp);
-			bytes_received = bytes_received + plen;
+			snprintf(buf, sizeof buf, "READ %ld|%ld",
+				 bytes_received,
+				 ((download_len - bytes_received > IGNET_PACKET_SIZE)
+				  ? IGNET_PACKET_SIZE : (download_len - bytes_received)));
+			
+			if (sock_puts(sock, buf) < 0) {
+				fclose(fp);
+				unlink(tempfilename);
+				return;
+			}
+			if (sock_getln(sock, buf, sizeof buf) < 0) {
+				fclose(fp);
+				unlink(tempfilename);
+				return;
+			}
+			
+			if (buf[0] == '6') {
+				plen = extract_long(&buf[4], 0);
+				if (sock_read(sock, pbuf, plen, 1) < 0) {
+					fclose(fp);
+					unlink(tempfilename);
+					return;
+				}
+				fwrite((char *) pbuf, plen, 1, fp);
+				bytes_received = bytes_received + plen;
+			}
 		}
+
+		fclose(fp);
 	}
-
-	fclose(fp);
-
 	/* Last chance for shutdown exit */
 	if (CtdlThreadCheckStop())
 	{
