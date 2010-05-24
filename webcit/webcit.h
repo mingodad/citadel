@@ -134,7 +134,6 @@ extern char *ssl_cipher_list;
 #define DEFAULT_PORT		"504"
 #define TARGET			"webcit01"	/* Target for inline URL's */
 #define HOUSEKEEPING		15		/* Housekeeping frequency */
-#define MIN_WORKER_THREADS	5
 #define MAX_WORKER_THREADS	250
 #define LISTEN_QUEUE_LENGTH	100		/* listen() backlog queue */
 
@@ -588,6 +587,7 @@ void RegisterHeaderHandler(const char *Name, long Len, Header_Evaluator F);
 
 enum {
 	S_SHUTDOWN,
+	S_SPAWNER,
 	MAX_SEMAPHORES
 };
 
@@ -619,7 +619,8 @@ extern int is_https;
 extern int setup_wizard;
 extern char wizard_filename[];
 extern int follow_xff;
-extern int num_threads;
+extern int num_threads_existing;
+extern int num_threads_executing;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);

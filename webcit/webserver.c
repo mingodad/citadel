@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 	size_t basesize = 2;            /* how big should strbufs be on creation? */
 	pthread_t SessThread;		/* Thread descriptor */
 	pthread_attr_t attr;		/* Thread attributes */
-	int a, i;	        	/* General-purpose variables */
+	int a;		        	/* General-purpose variable */
 	char tracefile[PATH_MAX];
 	char ip_addr[256]="0.0.0.0";
 	int relh=0;
@@ -348,12 +348,7 @@ int main(int argc, char **argv)
 #endif
 	drop_root(UID);
 
-	/* Start a few initial worker threads */
-	for (i = 0; i < (MIN_WORKER_THREADS); ++i) {
-		spawn_another_worker_thread();
-	}
-
-	/* now the original thread becomes another worker */
+	/* Become a worker thread.  More worker threads will be spawned as they are needed. */
 	worker_entry();
 	ShutDownLibCitadel ();
 	return 0;

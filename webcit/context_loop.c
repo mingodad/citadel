@@ -21,7 +21,10 @@ pthread_key_t MyConKey;         /* TSD key for MySession() */
 HashList *HttpReqTypes = NULL;
 HashList *HttpHeaderHandler = NULL;
 extern HashList *HandlerHash;
-int num_threads = 1;		/* Number of worker threads.  Start at 1 because the parent counts. */
+
+/* the following two values start at 1 because the initial parent thread counts as one. */
+int num_threads_existing = 1;		/* Number of worker threads which exist. */
+int num_threads_executing = 1;		/* Number of worker threads currently executing. */
 
 void DestroyHttpHeaderHandler(void *V)
 {
@@ -44,16 +47,13 @@ void do_housekeeping(void)
 {
 	wcsession *sptr, *ss;
 	wcsession *sessions_to_kill = NULL;
-	int num_sessions = 0;
 
 	/*
 	 * Lock the session list, moving any candidates for euthanasia into
 	 * a separate list.
 	 */
 	pthread_mutex_lock(&SessionListMutex);
-	num_sessions = 0;
 	for (sptr = SessionList; sptr != NULL; sptr = sptr->next) {
-		++num_sessions;
 
 		/* Kill idle sessions */
 		if ((time(NULL) - (sptr->lastreq)) > (time_t) WEBCIT_TIMEOUT) {
@@ -90,18 +90,19 @@ void do_housekeeping(void)
 
 		session_destroy_modules(&sessions_to_kill);
 		sessions_to_kill = sptr;
-		--num_sessions;
 	}
 
 	/*
-	 * If there are more sessions than threads, then we should spawn
-	 * more threads ... up to a predefined maximum.
+	 * Check the size of our thread pool.  If all threads are executing, spawn another.
 	 */
-	while ( (num_sessions > num_threads) && (num_threads <= MAX_WORKER_THREADS) ) {
+	begin_critical_section(S_SPAWNER);
+	while (
+		(num_threads_executing >= num_threads_existing)
+		&& (num_threads_existing <= MAX_WORKER_THREADS)
+	) {
 		spawn_another_worker_thread();
-		lprintf(3, "There are %d sessions and %d threads active.\n",
-			num_sessions, num_threads);
 	}
+	end_critical_section(S_SPAWNER);
 }
 
 

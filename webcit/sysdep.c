@@ -155,9 +155,10 @@ void worker_entry(void)
 		ssock = -1; 
 		errno = EAGAIN;
 		do {
+			--num_threads_executing;
 			ssock = accept(msock, NULL, 0);
+			++num_threads_executing;
 			lprintf(9, "Thread %u woke up, accept() returned %d %s\n",
-				((pthread_self() % 6) + 1),
 				pthread_self(),
 				ssock,
 				((ssock >= 0) ? "" : strerror(errno))
@@ -168,8 +169,8 @@ void worker_entry(void)
 		{/* ok, we're going down. */
 			int shutdown = 0;
 
-			/* the first to come here will have to do the cleanup.
-			 * make shure its realy just one.
+			/* The first thread to get here will have to do the cleanup.
+			 * Make sure it's really just one.
 			 */
 			begin_critical_section(S_SHUTDOWN);
 			if (msock == -1)
@@ -198,15 +199,16 @@ void worker_entry(void)
 		}
 		if (ssock < 0 ) continue;
 
+		/* Now do something. */
 		if (msock < 0) {
 			if (ssock > 0) close (ssock);
-			lprintf(2, "inbetween.");
+			lprintf(2, "in between.");
 			pthread_exit(NULL);
-		} else { /* Got it? do some real work! */
+		} else {
+			/* Got it? do some real work! */
 			/* Set the SO_REUSEADDR socket option */
 			i = 1;
-			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR,
-				   &i, sizeof(i));
+			setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
 			/* If we are an HTTPS server, go crypto now. */
 #ifdef HAVE_OPENSSL
@@ -244,8 +246,9 @@ void worker_entry(void)
 #endif
 
 				/* ...and close the socket. */
-				if (Hdr.http_sock > 0)
+				if (Hdr.http_sock > 0) {
 					lingering_close(ssock);
+				}
 				http_detach_modules(&Hdr);
 
 			}
@@ -422,7 +425,10 @@ void spawn_another_worker_thread()
 	pthread_attr_t attr;	/* Thread attributes */
 	int ret;
 
-	lprintf(3, "Creating a new thread.  Pool size is now %d\n", ++num_threads);
+	lprintf(3, "Creating a new thread.\n");
+
+	++num_threads_existing;
+	++num_threads_executing;
 
 	/* set attributes for the new thread */
 	pthread_attr_init(&attr);
