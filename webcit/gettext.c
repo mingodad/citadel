@@ -1,5 +1,21 @@
 /*
  * $Id$
+ *
+ * Copyright (c) 1996-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "webcit.h"
@@ -32,7 +48,7 @@ long nLocalesLoaded = 0;
 locale_t *wc_locales; /**< here we keep the parsed stuff */
 #endif
 
-/** Keep information about one locale */
+/* Keep information about one locale */
 typedef struct _lang_pref{
 	char lang[16];          /**< the language locale string */
 	char region[16];        /**< the region locale string */
@@ -41,15 +57,15 @@ typedef struct _lang_pref{
 	int selectedlang;       /**< is this the selected language? */
 } LangStruct;
 
-/* \brief parse browser locale header 
- * seems as most browsers just do a one after coma value even if more than 10 locales are available. Sample strings:
+/* parse browser locale header 
+ *
+ * seems as most browsers just do a one after comma value even if more than 10 locales are available. Sample strings:
  * opera: 
  * Accept-Language: sq;q=1.0,de;q=0.9,as;q=0.8,ar;q=0.7,bn;q=0.6,zh-cn;q=0.5,kn;q=0.4,ch;q=0.3,fo;q=0.2,gn;q=0.1,ce;q=0.1,ie;q=0.1 
  * Firefox 
  * Accept-Language: 'de-de,en-us;q=0.7,en;q=0.3' 
  * Accept-Language: de,en-ph;q=0.8,en-us;q=0.5,de-at;q=0.3 
  * Accept-Language: de,en-us;q=0.9,it;q=0.9,de-de;q=0.8,en-ph;q=0.7,de-at;q=0.7,zh-cn;q=0.6,cy;q=0.5,ar-om;q=0.5,en-tt;q=0.4,xh;q=0.3,nl-be;q=0.3,cs;q=0.2,sv;q=0.1,tk;q=0.1 
- * \param LocaleString the string from the browser http headers
  */
 
 void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
@@ -121,7 +137,7 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 			ls->region[blen] = '\0';
 		}
 
-		/** area codes are uppercase */
+		/* area codes are uppercase */
 		blen = strlen(&ls->region[0]);
 		for (j = 0; j < blen; j++)
 		{
@@ -179,8 +195,8 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 	FreeStrBuf(&SBuf);
 }
 
-/**
- * \brief show the language chooser on the login dialog
+/*
+ * show the language chooser on the login dialog
  * depending on the browser locale change the sequence of the 
  * language chooser.
  */
@@ -216,9 +232,8 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 	wc_printf("</select>\n");
 }
 
-/**
- * \brief Set the selected language for this session.
- * \param lang the locale to set.
+/*
+ * Set the selected language for this session.
  */
 void set_selected_language(const char *lang) {
 #ifdef HAVE_USELOCALE
@@ -231,8 +246,8 @@ void set_selected_language(const char *lang) {
 #endif
 }
 
-/**
- * \brief Activate the selected language for this session.
+/*
+ * Activate the selected language for this session.
  */
 void go_selected_language(void) {
 #ifdef HAVE_USELOCALE
@@ -248,8 +263,8 @@ void go_selected_language(void) {
 #endif
 }
 
-/**
- * \brief Deactivate the selected language for this session.
+/*
+ * Deactivate the selected language for this session.
  */
 void stop_selected_language(void) {
 #ifdef HAVE_USELOCALE
@@ -262,8 +277,8 @@ void stop_selected_language(void) {
 	locale_t Empty_Locale;
 #endif
 
-/**
- * \brief Create a locale_t for each available language
+/*
+ * Create a locale_t for each available language
  */
 void initialize_locales(void) {
 	int nLocales;
@@ -384,21 +399,21 @@ ServerShutdownModule_GETTEXT
 const char *AvailLang[] = {
 	"C", ""};
 
-/** \brief dummy for non NLS enabled systems */
+/* dummy for non NLS enabled systems */
 void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 {
 	wc_printf("English (US)");
 }
 
-/** \brief dummy for non NLS enabled systems */
+/* dummy for non NLS enabled systems */
 void set_selected_language(char *lang) {
 }
 
-/** \brief dummy for non NLS enabled systems */
+/* dummy for non NLS enabled systems */
 void go_selected_language(void) {
 }
 
-/** \brief dummy for non NLS enabled systems */
+/* dummy for non NLS enabled systems */
 void stop_selected_language(void) {
 }
 

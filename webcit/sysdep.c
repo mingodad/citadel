@@ -1,16 +1,25 @@
 /*
  * $Id$
  *
- * Citadel "system dependent" stuff.
- * See copyright.txt for copyright information.
+ * WebCit "system dependent" code.
  *
- * Here's where we (hopefully) have most parts of the Citadel server that
- * would need to be altered to run the server in a non-POSIX environment.
- * 
- * If we ever port to a different platform and either have multiple
- * variants of this file or simply load it up with #ifdefs.
+ * Copyright (c) 1996-2010 by the citadel.org team
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include "sysdep.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -296,8 +305,6 @@ void graceful_shutdown_watcher(int signum) {
 }
 
 
-
-
 /*
  * Shut us down the regular way.
  * signum is the signal we want to forward
@@ -416,6 +423,7 @@ void start_daemon(char *pid_file)
 	exit(WEXITSTATUS(status));
 }
 
+
 /*
  * Spawn an additional worker thread into the pool.
  */
@@ -439,15 +447,12 @@ void spawn_another_worker_thread()
 	 * otherwise the MIME parser crashes on FreeBSD.
 	 */
 	if ((ret = pthread_attr_setstacksize(&attr, 1024 * 1024))) {
-		lprintf(1, "pthread_attr_setstacksize: %s\n",
-			strerror(ret));
+		lprintf(1, "pthread_attr_setstacksize: %s\n", strerror(ret));
 		pthread_attr_destroy(&attr);
 	}
 
 	/* now create the thread */
-	if (pthread_create(&SessThread, &attr,
-			   (void *(*)(void *)) worker_entry, NULL)
-	    != 0) {
+	if (pthread_create(&SessThread, &attr, (void *(*)(void *)) worker_entry, NULL) != 0) {
 		lprintf(1, "Can't create thread: %s\n", strerror(errno));
 	}
 
@@ -503,6 +508,7 @@ webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdi
 		perror("chdir");
 	}
 }
+
 void drop_root(uid_t UID)
 {
 	struct passwd pw, *pwp = NULL;

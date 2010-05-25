@@ -6,6 +6,21 @@
  * keep track of things.  If the HTTP request doesn't belong to any currently
  * active session, a new session is started.
  *
+ * Copyright (c) 1996-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "webcit.h"
@@ -98,7 +113,7 @@ void do_housekeeping(void)
 	begin_critical_section(S_SPAWNER);
 	while (
 		(num_threads_executing >= num_threads_existing)
-		&& (num_threads_existing <= MAX_WORKER_THREADS)
+		&& (num_threads_existing < MAX_WORKER_THREADS)
 	) {
 		spawn_another_worker_thread();
 	}

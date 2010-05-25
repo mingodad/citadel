@@ -1,11 +1,22 @@
 /*
  * $Id$
+ *
+ * Copyright (c) 1996-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-/**
- * \defgroup AdminFloor Administrative screens for floor maintenance
- * \ingroup CitadelConfig
- */
-/*@{*/
 
 #include "webcit.h"
 #include "webserver.h"
@@ -13,11 +24,9 @@
 
 
 
-/**
- * \brief Display floor config
+/*
  * Display floor configuration.  If prepend_html is not NULL, its contents
  * will be displayed at the top of the screen.
- * \param prepend_html pagetitle to prepend
  */
 void display_floorconfig(StrBuf *prepend_html)
 {
@@ -131,8 +140,8 @@ void display_floorconfig(StrBuf *prepend_html)
 }
 
 
-/**
- * \brief delete the actual floor
+/*
+ * delete the actual floor
  */
 void delete_floor(void) {
 	int floornum;
@@ -156,8 +165,8 @@ void delete_floor(void) {
 	FreeStrBuf(&Buf);
 }
 
-/**
- * \brief tart creating a new floor
+/*
+ * start creating a new floor
  */
 void create_floor(void) {
 	StrBuf *Buf;
@@ -179,17 +188,15 @@ void create_floor(void) {
 }
 
 
-/**
- * \brief rename this floor
+/*
+ * rename this floor
  */
 void rename_floor(void) {
 	StrBuf *Buf;
 
 	Buf = NewStrBuf();
 
-	serv_printf("EFLR %d|%s", 
-		    ibstr("floornum"), 
-		    bstr("floorname"));
+	serv_printf("EFLR %d|%s", ibstr("floornum"), bstr("floorname"));
 	StrBuf_ServGetln(Buf);
 
 	StrBufCutLeft(Buf, 4);
@@ -209,4 +216,3 @@ InitModule_FLOORS
 	WebcitAddUrlHandler(HKEY("create_floor"), "", 0, create_floor, 0);
 	WebcitAddUrlHandler(HKEY("display_floorconfig"), "", 0, _display_floorconfig, 0);
 }
-/*@}*/

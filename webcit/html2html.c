@@ -1,20 +1,31 @@
 /*
  * $Id$
- */
-/**
- * \defgroup HTML2HTML Output an HTML message, modifying it slightly to make sure it plays nice
+ *
+ * Output an HTML message, modifying it slightly to make sure it plays nice
  * with the rest of our web framework.
- * \ingroup WebcitHttpServer
+ *
+ * Copyright (c) 2005-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  */
-/*@{*/
+
 #include "webcit.h"
 #include "webserver.h"
 
 
-/**
- * \brief	Strip surrounding single or double quotes from a string.
- *
- * \param s	String to be stripped.
+/*
+ * Strip surrounding single or double quotes from a string.
  */
 void stripquotes(char *s)
 {
@@ -32,12 +43,12 @@ void stripquotes(char *s)
 }
 
 
-/**
- * \brief Check to see if a META tag has overridden the declared MIME character set.
+/*
+ * Check to see if a META tag has overridden the declared MIME character set.
  *
- * \param charset		Character set name (left unchanged if we don't do anything)
- * \param meta_http_equiv	Content of the "http-equiv" portion of the META tag
- * \param meta_content		Content of the "content" portion of the META tag
+ * charset		Character set name (left unchanged if we don't do anything)
+ * meta_http_equiv	Content of the "http-equiv" portion of the META tag
+ * meta_content		Content of the "content" portion of the META tag
  */
 void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_content)
 {
@@ -78,12 +89,11 @@ void extract_charset_from_meta(char *charset, char *meta_http_equiv, char *meta_
 
 
 
-/**
- * \brief Sanitize and enhance an HTML message for display.
- *        Also convert weird character sets to UTF-8 if necessary.
- *        Also fixup img src="cid:..." type inline images to fetch the image
+/*
+ * Sanitize and enhance an HTML message for display.
+ * Also convert weird character sets to UTF-8 if necessary.
+ * Also fixup img src="cid:..." type inline images to fetch the image
  *
- * \param supplied_charset the input charset as declared in the MIME headers
  */
 void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, StrBuf *Source, StrBuf *Target) {
 	char buf[SIZ];
@@ -106,11 +116,11 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	StrBuf *BodyArea = NULL;
 #ifdef HAVE_ICONV
 	iconv_t ic = (iconv_t)(-1) ;
-	char *ibuf;                   /**< Buffer of characters to be converted */
-	char *obuf;                   /**< Buffer for converted characters      */
-	size_t ibuflen;               /**< Length of input buffer               */
-	size_t obuflen;               /**< Length of output buffer              */
-	char *osav;                   /**< Saved pointer to output buffer       */
+	char *ibuf;                   /* Buffer of characters to be converted */
+	char *obuf;                   /* Buffer for converted characters      */
+	size_t ibuflen;               /* Length of input buffer               */
+	size_t obuflen;               /* Length of output buffer              */
+	char *osav;                   /* Saved pointer to output buffer       */
 #endif
 	if (Target == NULL)
 		Target = WC->WBuf;
@@ -161,7 +171,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		++ptr;
 		if ((ptr == NULL) || (ptr >= msgend)) break;
 
-		/**
+		/*
 		 *  Look for META tags.  Some messages (particularly in
 		 *  Asian locales) illegally declare a message's character
 		 *  set in the HTML instead of in the MIME headers.  This
@@ -206,7 +216,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			}
 		}
 
-		/**
+		/*
 		 * Any of these tags cause everything up to and including
 		 * the tag to be removed.
 		 */	
@@ -265,7 +275,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			msgstart = ptr;
 		}
 
-		/**
+		/*
 		 * Any of these tags cause everything including and following
 		 * the tag to be removed.
 		 */
@@ -283,7 +293,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 		strcpy(msg, msgstart);
 	}
 
-	/** Now go through the message, parsing tags as necessary. */
+	/* Now go through the message, parsing tags as necessary. */
 	converted_msg = NewStrBufPlain(NULL, content_length + 8192);
 
 
@@ -327,7 +337,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 
 #endif
 
-	/**
+	/*
 	 *	At this point, the message has been stripped down to
 	 *	only the content inside the <BODY></BODY> tags, and has
 	 *	been converted to UTF-8 if it was originally in a foreign
@@ -619,6 +629,8 @@ void UrlizeText(StrBuf* Target, StrBuf *Source, StrBuf *WrkBuf)
 	if (TrailerLen > 0)
 		StrBufAppendBufPlain(Target, end, TrailerLen, 0);
 }
+
+
 void url(char *buf, size_t bufsize)
 {
 	int len, UrlLen, Offset, TrailerLen, outpos;
@@ -693,7 +705,3 @@ void url(char *buf, size_t bufsize)
 	*(buf + Offset + outpos + TrailerLen) = '\0';
 }
 
-
-
-
-/*@}*/
