@@ -26,18 +26,22 @@ OnChange="location.href=roomlistomatic.newview.options[selectedIndex].value">
 
 <??("COND:PREF", 2, "roomlistview", "folders")>
 <div id="content" class="service">
+<div class="fix_scrollbar_bug">
 <table BORDER=0 WIDTH=96%% CELLPADDING=5>
 <?ITERATE("LKRA", ="knrooms_rooms")>
 </table>
+</div>
 <??("X", 2)>
 
 <?!("COND:PREF", 3, "roomlistview", "folders")>
 <div id="content" class="service">
+<div class="fix_scrollbar_bug">
 <div class="box">
  <div class="boxlabel"><?_("Room Listing")></div>
   <div class="boxcontent">
    <div id="roomlist_knrooms"></div>
   </div>
+</div>
 </div>
 <?!("X", 3)>
 <script type="text/javascript">

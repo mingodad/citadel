@@ -690,7 +690,6 @@ body, #global {
 
 .fix_scrollbar_bug {
 	margin-right: 1px;		/* Gecko and other non-broken browsers */
-	width: expression('96%');	/* Only IE6 understands 'expression' - fixes weird scrollbarbug */
 }
 
 /* Boxes */
@@ -1169,10 +1168,7 @@ dt { clear: both; }
 .imsg {
 	text-align: center;
 }
-#summary_view > table { /* hide from IE6 */
-	width: 100%;
-	table-layout: fixed;
-}
+
 colgroup.entity {
 	text-align: center;
 }
