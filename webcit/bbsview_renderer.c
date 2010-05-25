@@ -40,6 +40,7 @@ struct bbsview {
 	long lastseen;		/* The number of the last seen message in this room */
 	int alloc_msgs;		/* Currently allocated size of array */
 	int requested_page;	/* Which page number did the user request? */
+	int num_pages;		/* Total number of pages in this room */
 };
 
 
@@ -173,6 +174,13 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		qsort(BBS->msgs, (size_t)(BBS->num_msgs), sizeof(long), bbsview_sortfunc);
 	}
 
+	if ((BBS->num_msgs % Stat->maxmsgs) == 0) {
+		BBS->num_pages = BBS->num_msgs / Stat->maxmsgs;
+	}
+	else {
+		BBS->num_pages = (BBS->num_msgs / Stat->maxmsgs) + 1;
+	}
+
 	/* If the requested page number is "whichever page on which new messages start"
 	 * then change that to an actual page number now.
 	 */
@@ -200,9 +208,13 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			BBS->requested_page = 0;
 		}
 		else {
-			BBS->requested_page = (BBS->num_msgs / Stat->maxmsgs);
+			BBS->requested_page = BBS->num_pages - 1;
 		}
 	}
+
+	/* keep the requested page within bounds */
+	if (BBS->requested_page < 0) BBS->requested_page = 0;
+	if (BBS->requested_page >= BBS->num_pages) BBS->requested_page = BBS->num_pages - 1;
 
 	start_index = BBS->requested_page * Stat->maxmsgs;
 	if (start_index < 0) start_index = 0;
@@ -243,7 +255,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 			wc_printf(_("Go to page: "));
 
 			int first = 0;
-			int last = ( (Stat->maxmsgs > 0) ? (BBS->num_msgs / Stat->maxmsgs) : 0 );
+			int last = BBS->num_pages - 1;
 
 			for (i=0; i<=last; ++i) {
 
