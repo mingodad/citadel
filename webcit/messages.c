@@ -976,6 +976,9 @@ void post_mime_to_server(void) {
  */
 void post_message(void)
 {
+	StrBuf *UserName;
+	StrBuf *EmailAddress;
+	StrBuf *EncBuf;
 	char buf[1024];
 	StrBuf *encoded_subject = NULL;
 	static long dont_post = (-1L);
@@ -1089,9 +1092,9 @@ void post_message(void)
 		return;
 	} else {
 		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s|%s";
-		const StrBuf *Recp = NULL; 
-		const StrBuf *Cc = NULL;
-		const StrBuf *Bcc = NULL;
+		StrBuf *Recp = NULL; 
+		StrBuf *Cc = NULL;
+		StrBuf *Bcc = NULL;
 		const StrBuf *Wikipage = NULL;
 		const StrBuf *my_email_addr = NULL;
 		StrBuf *CmdBuf = NULL;
@@ -1137,9 +1140,18 @@ void post_message(void)
 			
 			StrBufRFC2047encode(&encoded_subject, Subj);
 		}
-		Recp = sbstr("recp");
-		Cc = sbstr("cc");
-		Bcc = sbstr("bcc");
+		UserName = NewStrBuf();
+		EmailAddress = NewStrBuf();
+		EncBuf = NewStrBuf();
+
+		Recp = StrBufSanitizeEmailRecipientVector(sbstr("recp"), UserName, EmailAddress, EncBuf);
+		Cc = StrBufSanitizeEmailRecipientVector(sbstr("cc"), UserName, EmailAddress, EncBuf);
+		Bcc = StrBufSanitizeEmailRecipientVector(sbstr("bcc"), UserName, EmailAddress, EncBuf);
+
+		FreeStrBuf(&UserName);
+		FreeStrBuf(&EmailAddress);
+		FreeStrBuf(&EncBuf);
+
 		Wikipage = sbstr("page");
 		my_email_addr = sbstr("my_email_addr");
 		
@@ -1216,10 +1228,14 @@ void post_message(void)
 				if (save_to_drafts) gotoroom(WCC->CurRoom.name);
 				display_enter();
 				FreeStrBuf(&Buf);
+				FreeStrBuf(&Cc);
+				FreeStrBuf(&Bcc);
 				return;
 			}
 		}
 		FreeStrBuf(&Buf);
+		FreeStrBuf(&Cc);
+		FreeStrBuf(&Bcc);
 	}
 
 	DeleteHash(&WCC->attachments);
