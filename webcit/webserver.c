@@ -259,7 +259,7 @@ int main(int argc, char **argv)
 		StrBufAppendBufPlain(I18nDump, HKEY("}\n"), 0);
 	        if (StrLength(I18nDump) < 50) {
 			lprintf(1, "********************************************************************************\n");
-			lprintf(1, "*        No strings found in templates! are you shure they're there?           *\n");
+			lprintf(1, "*        No strings found in templates!  Are you sure they're there?           *\n");
 			lprintf(1, "********************************************************************************\n");
 			return -1;
 		}
