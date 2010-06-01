@@ -64,6 +64,12 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 		    ChrPtr(browser_host)
 	);
 	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		lprintf(0, "get_serv_info(IDEN): unexpected answer [%s]\n",
+			ChrPtr(Buf));
+		FreeStrBuf(&Buf);
+		return NULL;
+	}
 
 	/*
 	 * Tell the server that when we save a calendar event, we
@@ -72,11 +78,19 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	 */
 	serv_puts("ICAL sgi|1");
 	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		lprintf(0, "get_serv_info(ICAL sgi|1): unexpected answer [%s]\n",
+			ChrPtr(Buf));
+		FreeStrBuf(&Buf);
+		return NULL;
+	}
 
 	/** Now ask the server to tell us a little bit about itself... */
 	serv_puts("INFO");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
+		lprintf(0, "get_serv_info(INFO sgi|1): unexpected answer [%s]\n",
+			ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 		return NULL;
 	}
