@@ -266,6 +266,10 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 int StrBufDecodeBase64(StrBuf *Buf);
 int StrBufDecodeHex(StrBuf *Buf);
 int StrBufRFC2047encode(StrBuf **target, const StrBuf *source);
+StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp, 
+					   StrBuf *UserName, 
+					   StrBuf *EmailAddress,
+					   StrBuf *EncBuf);
 int StrBufSanitizeAscii(StrBuf *Buf, const char Mute);
 #define LB			(1)		/* Internal escape chars */
 #define RB			(2)
@@ -416,6 +420,7 @@ int HashLittle(const void *key, size_t length);
 
 
 void convert_spaces_to_underscores(char *str);
+int CheckEncode(const char *pch, long len, const char *pche);
 
 /*
  * Convert 4 bytes char into an Integer.

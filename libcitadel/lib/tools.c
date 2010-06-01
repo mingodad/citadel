@@ -996,3 +996,20 @@ void convert_spaces_to_underscores(char *str)
 }
 
 
+/*
+ * check whether the provided string needs to be qp encoded or not
+ */
+int CheckEncode(const char *pch, long len, const char *pche)
+{
+	if (pche == NULL)
+		pche = pch + len;
+	while (pch < pche) {
+		if (((unsigned char) *pch < 32) || 
+		    ((unsigned char) *pch > 126)) {
+			return 1;
+		}
+		pch++;
+	}
+	return 0;
+}
+

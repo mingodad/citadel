@@ -2436,6 +2436,174 @@ int StrBufRFC2047encode(StrBuf **target, const StrBuf *source)
 	return (*target)->BufUsed;;
 }
 
+
+
+static void AddRecipient(StrBuf *Target, 
+			 StrBuf *UserName, 
+			 StrBuf *EmailAddress, 
+			 StrBuf *EncBuf)
+{
+	int QuoteMe = 0;
+
+	if (StrLength(Target) > 0) StrBufAppendBufPlain(Target, HKEY(", "), 0);
+	if (strchr(ChrPtr(UserName), ',') != NULL) QuoteMe = 1;
+
+	if (QuoteMe)  StrBufAppendBufPlain(Target, HKEY("\""), 0);
+	StrBufRFC2047encode(&EncBuf, UserName);
+	StrBufAppendBuf(Target, EncBuf, 0);
+	if (QuoteMe)  StrBufAppendBufPlain(Target, HKEY("\" "), 0);
+	else          StrBufAppendBufPlain(Target, HKEY(" "), 0);
+
+	if (StrLength(EmailAddress) > 0){
+		StrBufAppendBufPlain(Target, HKEY("<"), 0);
+		StrBufAppendBuf(Target, EmailAddress, 0); /* TODO: what about IDN???? */
+		StrBufAppendBufPlain(Target, HKEY(">"), 0);
+	}
+}
+
+
+/**
+ * \brief QP encode parts of an email TO/CC/BCC vector, and strip/filter invalid parts
+ * \param Recp Source list of email recipients
+ * \param UserName Temporary buffer for internal use; Please provide valid buffer.
+ * \param EmailAddress Temporary buffer for internal use; Please provide valid buffer.
+ * \param EncBuf Temporary buffer for internal use; Please provide valid buffer.
+ * \returns encoded & sanitized buffer with the contents of Recp; Caller owns this memory.
+ */
+StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp, 
+					   StrBuf *UserName, 
+					   StrBuf *EmailAddress,
+					   StrBuf *EncBuf)
+{
+	StrBuf *Target;
+	int need_to_encode;
+
+	const char *pch, *pche;
+	const char *UserStart, *UserEnd, *EmailStart, *EmailEnd, *At;
+
+	if ((Recp == NULL) || (StrLength(Recp) == 0))
+		return NULL;
+
+	need_to_encode = 0;
+	pch = ChrPtr(Recp);
+	pche = pch + StrLength(Recp);
+
+	if (!CheckEncode(pch, -1, pche))
+		return NewStrBufDup(Recp);
+
+	Target = NewStrBufPlain(NULL, StrLength(Recp));
+
+	while ((pch != NULL) && (pch < pche))
+	{
+		int ColonOk = 0;
+
+		while (isspace(*pch)) pch++;
+		UserStart = UserEnd = EmailStart = EmailEnd = NULL;
+		
+		if ((*pch == '"') || (*pch == '\'')) {
+			UserStart = pch + 1;
+			
+			UserEnd = strchr(UserStart, *pch);
+			if (UserEnd == NULL) 
+				break; ///TODO: Userfeedback??
+			EmailStart = UserEnd + 1;
+			while (isspace(*EmailStart))
+				EmailStart++;
+			if (UserEnd == UserStart) {
+				UserStart = UserEnd = NULL;
+			}
+			
+			if (*EmailStart == '<') {
+				EmailStart++;
+				EmailEnd = strchr(EmailStart, '>');
+				if (EmailEnd == NULL)
+					EmailEnd = strchr(EmailStart, ',');
+				
+			}
+			else {
+				EmailEnd = strchr(EmailStart, ',');
+			}
+			if (EmailEnd == NULL)
+				EmailEnd = pche;
+			pch = EmailEnd + 1;
+			ColonOk = 1;
+		}
+		else {
+			int gt = 0;
+			UserStart = pch;
+			EmailEnd = strchr(UserStart, ',');
+			if (EmailEnd == NULL) {
+				EmailEnd = strchr(pch, '>');
+				pch = NULL;
+				if (EmailEnd != NULL) {
+					gt = 1;
+					EmailEnd --;
+				}
+				else {
+					EmailEnd = pche;
+				}
+			}
+			else {
+
+				pch = EmailEnd + 1;
+				while ((EmailEnd > UserStart) && 
+				       ((*EmailEnd == ',') ||
+					(*EmailEnd == '>') ||
+					(isspace(*EmailEnd))))
+				{
+					if (*EmailEnd == '>')
+						gt = 1;
+					EmailEnd--;
+				}
+				if (EmailEnd == UserStart)
+					break;
+			}
+			if (gt) {
+				EmailStart = strchr(UserStart, '<');
+				if ((EmailStart == NULL) || (EmailStart > EmailEnd))
+					break;
+				UserEnd = EmailStart - 1;
+				EmailStart ++;
+				if (UserStart >= UserEnd)
+					UserStart = UserEnd = NULL;
+				At = strchr(EmailStart, '@');
+			}
+			else { /* this is a local recipient... no domain, just a realname */
+				At = strchr(EmailStart, '@');
+				if (At == NULL) {
+					UserEnd = EmailEnd;
+					EmailEnd = NULL;
+				}
+				else {
+					EmailStart = UserStart;
+					UserStart = NULL;
+				}
+			}
+		}
+
+
+		if (UserStart != NULL)
+			StrBufPlain(UserName, UserStart, UserEnd - UserStart);
+		else
+			FlushStrBuf(UserName);
+		if (EmailStart != NULL)
+			StrBufPlain(EmailAddress, EmailStart, EmailEnd - EmailStart);
+		else 
+			FlushStrBuf(EmailAddress);
+
+		AddRecipient(Target, UserName, EmailAddress, EncBuf);
+
+
+		
+		if (*pch == ',')
+			pch ++;
+		while (isspace(*pch))
+			pch ++;
+	}
+	return Target;
+}
+
+
 /**
  * @ingroup StrBuf
  * @brief replaces all occurances of 'search' by 'replace'
