@@ -17,7 +17,8 @@ void SetInlinMimeRenderers(void)
 	StrBuf *Buf;
 
 	Buf = NewStrBuf();
-	/** Tell the server what kind of richtext we prefer */
+
+	/* Tell the server what kind of richtext we prefer */
 	serv_putbuf(EmbeddableMimeStrs);
 	StrBuf_ServGetln(Buf);
 
@@ -55,7 +56,8 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	int a;
 
 	Buf = NewStrBuf();
-	/** Tell the server what kind of client is connecting */
+
+	/* Tell the server what kind of client is connecting */
 	serv_printf("IDEN %d|%d|%d|%s|%s",
 		    DEVELOPER_ID,
 		    CLIENT_ID,
@@ -85,7 +87,7 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 		return NULL;
 	}
 
-	/** Now ask the server to tell us a little bit about itself... */
+	/* Now ask the server to tell us a little bit about itself... */
 	serv_puts("INFO");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 1) {
@@ -99,7 +101,6 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 	memset(info, 0, sizeof(ServInfo));
 	a = 0;
 	while (StrBuf_ServGetln(Buf), (strcmp(ChrPtr(Buf), "000")!= 0)) {
-/*		lprintf (1, "a: %d [%s]", a, ChrPtr(Buf));*/
 		switch (a) {
 		case 0:
 			info->serv_pid = StrToi(Buf);
@@ -176,15 +177,24 @@ int GetConnected (void)
 	}
 	else {
 		long Status;
+		int short_status;
 		Buf = NewStrBuf();
 		WCC->connected = 1;
 		StrBuf_ServGetln(Buf);	/* get the server greeting */
-		GetServerStatus(Buf, &Status);
+		short_status = GetServerStatus(Buf, &Status);
 		FreeStrBuf(&Buf);
 
-		/* Are there too many users already logged in? */
-		if (Status == 571) {
-			wc_printf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));
+		/* Server isn't ready for us? */
+		if (short_status != 2) {
+			if (Status == 571) {
+				wc_printf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));
+			}
+			else {
+				wc_printf("%ld %s\n",
+					Status,
+					_("Received unexpected answer from Citadel server; bailing out.")
+				);
+			}
 			end_burst();
 			end_webcit_session();
 			return 1;
@@ -208,8 +218,7 @@ int GetConnected (void)
 			WCC->serv_info = get_serv_info(WCC->Hdr->HR.browser_host, WCC->Hdr->HR.user_agent);
 		if (WCC->serv_info == NULL){
 			begin_burst();
-			wc_printf(_("Received unexpected answer from Citadel "
-				  "server; bailing out."));
+			wc_printf(_("Received unexpected answer from Citadel server; bailing out."));
 			hprintf("HTTP/1.1 200 OK\r\n");
 			hprintf("Content-type: text/plain; charset=utf-8\r\n");
 			end_burst();
@@ -328,7 +337,7 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 						   i++;
 					   }
 
-			/**
+			/*
 			 * Quoted text should be displayed in italics and in a
 			 * different colour.  This code understands Citadel-style
 			 * " >" quotes and will convert to <BLOCKQUOTE> tags.
@@ -344,7 +353,8 @@ void FmOut(StrBuf *Target, char *align, StrBuf *Source)
 
 			if (StrLength(Line) == 0)
 				continue;
-			/** Activate embedded URL's */
+
+			/* Activate embedded URL's */
 			UrlizeText(Line1, Line, Line2);
 
 			StrEscAppend(Target, Line1, NULL, 0, 0);
@@ -381,7 +391,7 @@ void pullquote_fmout(void) {
 		}
 		intext = 1;
 
-		/**
+		/*
 		 * Quoted text should be displayed in italics and in a
 		 * different colour.  This code understands Citadel-style
 		 * " >" quotes and will convert to <BLOCKQUOTE> tags.
@@ -754,7 +764,6 @@ InitModule_SERVFUNC
 	RegisterNamespace("SERV:REV_LEVEL", 0, 0, tmplput_serv_rev_level, NULL, CTX_NONE);
 	RegisterNamespace("SERV:BBS_CITY", 0, 1, tmplput_serv_bbs_city, NULL, CTX_NONE);
 	RegisterNamespace("SERV:MESG", 1, 2, tmplput_mesg, NULL, CTX_NONE);
-/*TODO //	RegisterNamespace("SERV:LDAP_SUPP", 0, 0, tmplput_serv_ldap_enabled, 0); */
 }
 
 
