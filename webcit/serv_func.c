@@ -182,6 +182,7 @@ int GetConnected (void)
 		WCC->connected = 1;
 		StrBuf_ServGetln(Buf);	/* get the server greeting */
 		short_status = GetServerStatus(Buf, &Status);
+		lprintf(9, "\033[32mGREETING: %s\033[0m\n", ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 
 		/* Server isn't ready for us? */
@@ -214,8 +215,9 @@ int GetConnected (void)
 			}
 			locate_host(WCC->Hdr->HR.browser_host, WCC->Hdr->http_sock);
 		}
-		if (WCC->serv_info == NULL)
+		if (WCC->serv_info == NULL) {
 			WCC->serv_info = get_serv_info(WCC->Hdr->HR.browser_host, WCC->Hdr->HR.user_agent);
+		}
 		if (WCC->serv_info == NULL){
 			begin_burst();
 			wc_printf(_("Received unexpected answer from Citadel server; bailing out."));
