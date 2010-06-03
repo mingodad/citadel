@@ -968,10 +968,10 @@ void begin_session(CitContext *con)
 	}
 
 	if (!CC->is_local_socket) {
-		CtdlLogPrintf(CTDL_NOTICE, "Session started from %s [%s].\n", con->cs_host, con->cs_addr);
+		CtdlLogPrintf(CTDL_NOTICE, "Session (%s) started from %s (%s).\n", con->ServiceName, con->cs_host, con->cs_addr);
 	}
 	else {
-		CtdlLogPrintf(CTDL_NOTICE, "Session started via local socket.\n");
+		CtdlLogPrintf(CTDL_NOTICE, "Session (%s) started via local socket UID:%d.\n", con->ServiceName, con->cs_UDSclientUID);
 	}
 
 	/* Run any session startup routines registered by loadable modules */
