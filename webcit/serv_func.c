@@ -182,7 +182,6 @@ int GetConnected (void)
 		WCC->connected = 1;
 		StrBuf_ServGetln(Buf);	/* get the server greeting */
 		short_status = GetServerStatus(Buf, &Status);
-		lprintf(9, "\033[32mGREETING: %s\033[0m\n", ChrPtr(Buf));
 		FreeStrBuf(&Buf);
 
 		/* Server isn't ready for us? */
@@ -200,6 +199,8 @@ int GetConnected (void)
 			end_webcit_session();
 			return 1;
 		}
+
+		/* 2010jun03: every now and then the connection to Citadel dies before this point.  why? */
 
 		/*
 		 * From what host is our user connecting?  Go with
