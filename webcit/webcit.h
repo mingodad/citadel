@@ -652,7 +652,7 @@ void CreateMimeStr(void);
 int GetConnected(void);
 void DeleteServInfo(ServInfo **FreeMe);
 int uds_connectsock(char *);
-int tcp_connectsock(char *, char *);
+int tcp_connectsock(char *, int);
 int serv_getln(char *strbuf, int bufsize);
 int StrBuf_ServGetln(StrBuf *buf);
 int GetServerStatus(StrBuf *Line, long* FullState);

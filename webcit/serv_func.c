@@ -168,7 +168,7 @@ int GetConnected (void)
 	if (is_uds) /* unix domain socket */
 		WCC->serv_sock = uds_connectsock(serv_sock_name);
 	else        /* tcp socket */
-		WCC->serv_sock = tcp_connectsock(ctdlhost, ctdlport);
+		WCC->serv_sock = tcp_connectsock(ctdlhost, atoi(ctdlport));
 	
 	if (WCC->serv_sock < 0) {
 		do_logout();

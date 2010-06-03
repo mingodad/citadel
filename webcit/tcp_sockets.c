@@ -41,8 +41,7 @@ RETSIGTYPE timeout(int signum)
 
 
 /*
- *  Connect a unix domain socket
- *  sockpath where to open a unix domain socket
+ * Client side - connect to a unix domain socket
  */
 int uds_connectsock(char *sockpath)
 {
@@ -55,16 +54,12 @@ int uds_connectsock(char *sockpath)
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		lprintf(1, "Can't create socket[%s]: %s\n",
-			sockpath,
-			strerror(errno));
+		lprintf(1, "Can't create socket[%s]: %s\n", sockpath, strerror(errno));
 		return(-1);
 	}
 
 	if (connect(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-		lprintf(1, "Can't connect [%s]: %s\n",
-			sockpath,
-			strerror(errno));
+		lprintf(1, "Can't connect [%s]: %s\n", sockpath, strerror(errno));
 		close(s);
 		return(-1);
 	}
@@ -74,80 +69,37 @@ int uds_connectsock(char *sockpath)
 
 
 /*
- *  Connect a TCP/IP socket
- *  host the host to connect to
- *  service the service on the host to call
+ * TCP client - connect to a host/port
  */
-int tcp_connectsock(char *host, char *service)
+int tcp_connectsock(char *host, int port)
 {
-        int fdflags;
-	struct hostent *phe;
-	struct servent *pse;
-	struct protoent *ppe;
-	struct sockaddr_in sin;
-	int s;
+	struct sockaddr_in stSockAddr;
+	int rv;
+	int sock;
 
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-
-	pse = getservbyname(service, "tcp");
-	if (pse) {
-		sin.sin_port = pse->s_port;
-	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		lprintf(1, "Can't get %s service entry\n", service);
-		return (-1);
-	}
-	phe = gethostbyname(host);
-	if (phe) {
-		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		lprintf(1, "Can't get %s host entry: %s\n",
-			host, strerror(errno));
-		return (-1);
-	}
-	if ((ppe = getprotobyname("tcp")) == 0) {
-		lprintf(1, "Can't get TCP protocol entry: %s\n",
-			strerror(errno));
-		return (-1);
-	}
-
-	s = socket(PF_INET, SOCK_STREAM, ppe->p_proto);
-	if (s < 0) {
+	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (sock < 0) {
 		lprintf(1, "Can't create socket: %s\n", strerror(errno));
 		return (-1);
 	}
 
-	fdflags = fcntl(s, F_GETFL);
-	if (fdflags < 0)
-		lprintf(1, "unable to get socket flags!  %s.%s: %s \n",
-			host, service, strerror(errno));
-	fdflags = fdflags | O_NONBLOCK;
-	if (fcntl(s, F_SETFD, fdflags) < 0)
-		lprintf(1, "unable to set socket nonblocking flags!  %s.%s: %s \n",
-			host, service, strerror(errno));
+	memset(&stSockAddr, 0, sizeof(struct sockaddr_in));
+	stSockAddr.sin_family = AF_INET;
+	stSockAddr.sin_port = htons(port);
+	rv = inet_pton(AF_INET, host, &stSockAddr.sin_addr);
 
-	signal(SIGALRM, timeout);
-	alarm(30);
-
-	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		lprintf(1, "Can't connect to %s.%s: %s\n",
-			host, service, strerror(errno));
-		close(s);
+	if (rv <= 0) {
+		lprintf(1, "Can't grok %s: %s\n", host, strerror(errno));
 		return (-1);
 	}
-	alarm(0);
-	signal(SIGALRM, SIG_IGN);
-	if (!is_https) {
-		fdflags = fcntl(s, F_GETFL);
-		if (fdflags < 0)
-			lprintf(1, "unable to get socket flags!  %s.%s: %s \n",
-				host, service, strerror(errno));
-		fdflags = fdflags | O_NONBLOCK;
-		if (fcntl(s, F_SETFD, fdflags) < 0)
-			lprintf(1, "unable to set socket nonblocking flags!  %s.%s: %s \n",
-				host, service, strerror(errno));
+
+	if (connect(sock, (const struct sockaddr *)&stSockAddr, sizeof(struct sockaddr_in)) != 0) {
+		lprintf(1, "Can't connect to %s.%d: %s\n", host, port, strerror(errno));
+		close(sock);
+		return (-1);
 	}
-	return (s);
+
+	return (sock);
 }
 
 
