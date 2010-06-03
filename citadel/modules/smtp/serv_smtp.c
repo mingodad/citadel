@@ -1742,9 +1742,9 @@ void *smtp_do_queue(void *arg) {
 	int num_processed = 0;
 	struct CitContext smtp_queue_CC;
 
+	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
 
-	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
 	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC );
 
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
@@ -1756,6 +1756,8 @@ void *smtp_do_queue(void *arg) {
 
 	citthread_mutex_unlock (&smtp_send_lock);
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
+
+	CtdlClearSystemContext();
 	return(NULL);
 }
 
