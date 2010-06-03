@@ -28,6 +28,8 @@ struct CitContext {
 	int state;		/* thread state (see CON_ values below) */
 	int kill_me;		/* Set to nonzero to flag for termination */
 
+	StrBuf *lBuf;
+
 	const char *Pos;        /* Our read position inside of the ReadBuf */
 	StrBuf *ReadBuf;        /* Our block buffered read buffer */
 	StrBuf *MigrateBuf;        /* Our block buffered read buffer */

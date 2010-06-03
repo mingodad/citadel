@@ -49,6 +49,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <grp.h>
+#define SHOW_ME_VAPPEND_PRINTF
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -106,7 +107,6 @@ void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...) {
 
 void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 {
-	char buf[SIZ], buf2[SIZ];
 
 	if (enable_syslog) {
 		vsyslog((syslog_facility | loglevel), format, arg_ptr);
@@ -120,30 +120,62 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		struct timeval tv;
 		struct tm tim;
 		time_t unixtime;
+		StrBuf *lBuf;
 		CitContext *CCC = CC;
-
+		
 		gettimeofday(&tv, NULL);
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
-		if ((CCC != NULL) && (CCC->cs_pid != 0)) {
-			sprintf(buf,
-				"%04d/%02d/%02d %2d:%02d:%02d.%06ld [%3d] ",
-				tim.tm_year + 1900, tim.tm_mon + 1,
-				tim.tm_mday, tim.tm_hour, tim.tm_min,
-				tim.tm_sec, (long)tv.tv_usec,
-				CCC->cs_pid);
-		} else {
-			sprintf(buf,
-				"%04d/%02d/%02d %2d:%02d:%02d.%06ld ",
-				tim.tm_year + 1900, tim.tm_mon + 1,
-				tim.tm_mday, tim.tm_hour, tim.tm_min,
-				tim.tm_sec, (long)tv.tv_usec);
-		}
-		vsnprintf(buf2, SIZ, format, arg_ptr);   
 
-		fprintf(stderr, "%s%s", buf, buf2);
+		if (CCC != NULL)
+			lBuf = CCC->lBuf;
+		else 
+			lBuf = NewStrBuf();
+		if (lBuf == NULL) {
+			char buf[SIZ], buf2[SIZ];
+			
+			if ((CCC != NULL) && (CCC->cs_pid != 0)) {
+				sprintf(buf,
+					"%04d/%02d/%02d %2d:%02d:%02d.%06ld xx [%3d] ",
+					tim.tm_year + 1900, tim.tm_mon + 1,
+					tim.tm_mday, tim.tm_hour, tim.tm_min,
+					tim.tm_sec, (long)tv.tv_usec,
+					CCC->cs_pid);
+			} else {
+				sprintf(buf,
+					"%04d/%02d/%02d %2d:%02d:%02d.%06ld xx ",
+					tim.tm_year + 1900, tim.tm_mon + 1,
+					tim.tm_mday, tim.tm_hour, tim.tm_min,
+					tim.tm_sec, (long)tv.tv_usec);
+			}
+			vsnprintf(buf2, SIZ, format, arg_ptr);   
+
+			fprintf(stderr, "%s%s", buf, buf2);
+		}
+		else {
+			StrBufPrintf(lBuf,
+				     "%04d/%02d/%02d %2d:%02d:%02d.%06ld ",
+				     tim.tm_year + 1900, tim.tm_mon + 1,
+				     tim.tm_mday, tim.tm_hour, tim.tm_min,
+				     tim.tm_sec, (long)tv.tv_usec);
+				
+			if (CCC != NULL) {
+				if (CCC->cs_pid != 0)
+					StrBufAppendPrintf(lBuf,
+							   "[%3d] ",
+							   CCC->cs_pid);
+				else if (CCC->user.usernum != 0)
+					StrBufAppendPrintf(lBuf,
+							   "[:%d] ",
+							   CCC->user.usernum);
+			}
+			StrBufVAppendPrintf(lBuf, format, arg_ptr);   
+			fwrite(ChrPtr(lBuf), 1, StrLength(lBuf), stderr);
+		}
 		fflush(stderr);
+		if (CCC == NULL) FreeStrBuf(&lBuf);
+
 	}
 }   
 
