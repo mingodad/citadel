@@ -2232,6 +2232,7 @@ void *network_do_queue(void *args) {
 	 * with a static variable instead.
 	 */
 	if (doing_queue) {
+		CtdlClearSystemContext();
 		return NULL;
 	}
 	doing_queue = 1;
@@ -2319,6 +2320,7 @@ void *network_do_queue(void *args) {
 	else {
 		CtdlLogPrintf(CTDL_DEBUG, "network: Task STOPPED.\n");
 	}
+	CtdlClearSystemContext();
 	return NULL;
 }
 

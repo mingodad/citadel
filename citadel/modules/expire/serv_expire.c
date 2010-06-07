@@ -864,10 +864,9 @@ void *purge_databases(void *args)
         struct tm tm;
 	struct CitContext purgerCC;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
-
 	CtdlFillSystemContext(&purgerCC, "purger");
 	citthread_setspecific(MyConKey, (void *)&purgerCC );
+	CtdlLogPrintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
 
         while (!CtdlThreadCheckStop()) {
                 /* Do the auto-purge if the current hour equals the purge hour,
@@ -945,6 +944,7 @@ void *purge_databases(void *args)
                 	CtdlLogPrintf(CTDL_INFO, "Auto-purger: STOPPED.\n");
 
         }
+	CtdlClearSystemContext();
         return NULL;
 }
 /*****************************************************************************/

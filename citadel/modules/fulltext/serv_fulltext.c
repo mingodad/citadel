@@ -374,10 +374,10 @@ void do_fulltext_indexing(void) {
 void *indexer_thread(void *arg) {
 	struct CitContext indexerCC;
 
-	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() initializing\n");
 
 	CtdlFillSystemContext(&indexerCC, "indexer");
 	citthread_setspecific(MyConKey, (void *)&indexerCC );
+	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() initializing\n");
 
 	while (!CtdlThreadCheckStop()) {
 		do_fulltext_indexing();
@@ -385,6 +385,7 @@ void *indexer_thread(void *arg) {
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() exiting\n");
+	CtdlClearSystemContext();
 	return NULL;
 }
 

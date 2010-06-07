@@ -902,6 +902,7 @@ void *rssclient_scan(void *args) {
 		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, last_run + config.c_net_freq);
 	else
 		CtdlLogPrintf(CTDL_DEBUG, "rssclient: Task STOPPED.\n");
+	CtdlClearSystemContext();
 	return NULL;
 }
 
