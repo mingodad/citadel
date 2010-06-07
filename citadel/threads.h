@@ -87,6 +87,7 @@ typedef struct CtdlThreadNode CtdlThreadNode;
 struct CtdlThreadNode{
 	citthread_t tid;				/* id as returned by citthread_create() */
 	pid_t pid;				/* pid, as best the OS will let us determine */
+	long reltid;                            /* counting from start... */
 	time_t when;				/* When to start a scheduled thread */
 	struct CitContext *Context;		/* The session context that this thread mught be working on or NULL if none */
 	long number;				/* A unigue number for this thread (not implimented yet) */

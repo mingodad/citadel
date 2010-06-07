@@ -122,7 +122,17 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		time_t unixtime;
 		StrBuf *lBuf;
 		CitContext *CCC = CC;
-		
+		ThreadTSD *cTSD = CTP;
+		CtdlThreadNode *node = NULL;
+		long lwpid = 0;
+
+		if (cTSD != NULL) 
+			node = cTSD->self;
+		if ((node != NULL) && (node->reltid != 0))
+		{
+			lwpid = node->pid + node->reltid;
+		}
+
 		gettimeofday(&tv, NULL);
 		/* Promote to time_t; types differ on some OSes (like darwin) */
 		unixtime = tv.tv_sec;
@@ -159,6 +169,12 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 				     tim.tm_year + 1900, tim.tm_mon + 1,
 				     tim.tm_mday, tim.tm_hour, tim.tm_min,
 				     tim.tm_sec, (long)tv.tv_usec);
+
+			
+			if (lwpid != 0)
+				StrBufAppendPrintf(lBuf,
+						   "[LWP:%d] ",
+						   lwpid);
 				
 			if (CCC != NULL) {
 				if (CCC->cs_pid != 0)

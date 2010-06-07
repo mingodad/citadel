@@ -185,6 +185,7 @@ void CtdlThreadAllocTSD(void);
 #define MYCURSORS	(((ThreadTSD*)pthread_getspecific(ThreadKey))->cursors)
 #define MYTID		(((ThreadTSD*)pthread_getspecific(ThreadKey))->tid)
 #define CT		(((ThreadTSD*)pthread_getspecific(ThreadKey))->self)
+#define CTP		((ThreadTSD*)pthread_getspecific(ThreadKey))
 
 /** return the current context list as an array and do it in a safe manner
  * The returned data is a copy so only reading is useful
