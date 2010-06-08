@@ -62,10 +62,10 @@ void chat_recv(void) {
 		if (strcasecmp(cl_user, WC->last_chat_user)) {
 			wc_printf("<br>\n");
 			if (!strcasecmp(cl_user, ChrPtr(WC->wc_fullname))) {
-				wc_printf("<span class=\"chat_myname\">");
+				wc_printf("<span class=\"chat_myname_class\">");
 			}
 			else {
-				wc_printf("<span class=\"chat_notmyname\">");
+				wc_printf("<span class=\"chat_notmyname_class\">");
 			}
 			escputs(cl_user);
 			strcpy(WC->last_chat_user, cl_user);
@@ -77,7 +77,7 @@ void chat_recv(void) {
 		}
 
 		/* what did they say ... */
-		wc_printf("<span class=\"chat_text\">");
+		wc_printf("<span class=\"chat_text_class\">");
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			escputs(buf);
 		}
@@ -129,10 +129,10 @@ void chat_rwho(void) {
 	if (buf[0] == '1') {
 		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 			if (!strcasecmp(buf, ChrPtr(WC->wc_fullname))) {
-				wc_printf("<span class=\"chat_myname\">");
+				wc_printf("<span class=\"chat_myname_class\">");
 			}
 			else {
-				wc_printf("<span class=\"chat_notmyname\">");
+				wc_printf("<span class=\"chat_notmyname_class\">");
 			}
 			wc_printf("<img src=\"static/citadelchat_16x.gif\">");
 			escputs(buf);

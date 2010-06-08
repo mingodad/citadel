@@ -1631,7 +1631,7 @@ li.event_unread span, a.event_read_title {
 	color: #FFFFFF;
 }
 
-.chatrecv_history {
+.chatrecv_history_class {
 	position: absolute;
 	top: 0;
 	left: 1%;
@@ -1665,11 +1665,11 @@ li.event_unread span, a.event_read_title {
 	padding-right: 3px;
 }
 
-.chatrecv {
+.chatrecv_class {
 	display: none;
 }
 
-.chatsend {
+.chatsend_class {
 	position: absolute;
 	left: 1%;
 	right: 1%;
@@ -1687,15 +1687,15 @@ li.event_unread span, a.event_read_title {
 	background-color: #004E79;
 }
 
-.chat_myname {
+.chat_myname_class {
 	font-weight: bold;
 	color: #ff0000;
 }
 
-.chat_notmyname {
+.chat_notmyname_class {
 	font-weight: bold;
 	color: #0000ff;
 }
 
-.chat_text {
+.chat_text_class {
 }
