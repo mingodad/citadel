@@ -28,7 +28,11 @@
 #  include <time.h>
 # endif
 #endif
-
+#ifdef HAVE_SYSCALL_H
+#include <syscall.h> 
+#else if HAVE_SYS_SYSCALL_H
+#include <sys/syscall.h>
+#endif
 #include <libcitadel.h>
 
 #include "threads.h"
@@ -58,7 +62,6 @@
  * remove the need for the calls to eCrashRegisterThread and friends
  */
 
-static int next_tid = 3;                        /* offset LWPID to PID */
 static int num_threads = 0;			/* Current number of threads */
 static int num_workers = 0;			/* Current number of worker threads */
 long statcount = 0;		/* are we doing a stats check? */
@@ -840,6 +843,9 @@ static void *ctdl_internal_thread_func (void *arg)
 	#endif
 	
 	// Tell the world we are here
+#ifdef HAVE_SYSCALL_H
+	this_thread->reltid = syscall(SYS_gettid);
+#endif
 	CtdlLogPrintf(CTDL_NOTICE, "Created a new thread \"%s\" (0x%08lx).\n",
 		this_thread->name, this_thread->tid);
 	
@@ -990,8 +996,6 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 		free(this_thread);
 		return NULL;
 	}
-	this_thread->reltid = next_tid;
-	next_tid++;
 	num_threads++;	// Increase the count of threads in the system.
 	if(this_thread->flags & CTDLTHREAD_WORKER)
 		num_workers++;

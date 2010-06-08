@@ -1743,9 +1743,8 @@ void *smtp_do_queue(void *arg) {
 	struct CitContext smtp_queue_CC;
 
 	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
-	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
-
 	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC );
+	CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
 
 	if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);

@@ -292,6 +292,7 @@ void rss_save_item(rsscollection *rssc) {
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
 	memset(recp, 0, sizeof(struct recptypes));
+	memset(&ut, 0, sizeof(struct UseTable));
 	recp->recp_room = strdup(ri->roomlist);
 	recp->num_room = num_tokens(ri->roomlist, '|');
 	recp->recptypes_magic = RECPTYPES_MAGIC;
@@ -872,8 +873,6 @@ void *rssclient_scan(void *args) {
 	/* Give this thread its own private CitContext */
 	CtdlFillSystemContext(&rssclientCC, "rssclient");
 	citthread_setspecific(MyConKey, (void *)&rssclientCC );
-
-	CtdlThreadAllocTSD();
 
 	/*
 	 * This is a simple concurrency check to make sure only one rssclient run

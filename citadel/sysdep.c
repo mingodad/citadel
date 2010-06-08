@@ -130,7 +130,7 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 			node = cTSD->self;
 		if ((node != NULL) && (node->reltid != 0))
 		{
-			lwpid = node->pid + node->reltid;
+			lwpid = node->reltid;
 		}
 
 		gettimeofday(&tv, NULL);
@@ -138,7 +138,7 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
 
-		if (CCC != NULL)
+		if ((CCC != NULL) && (CCC != &masterCC))
 			lBuf = CCC->lBuf;
 		else 
 			lBuf = NewStrBuf();
@@ -161,7 +161,7 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 			}
 			vsnprintf(buf2, SIZ, format, arg_ptr);   
 
-			fprintf(stderr, "%s%s", buf, buf2);
+			fprintf(stderr, ":%s%s", buf, buf2);
 		}
 		else {
 			StrBufPrintf(lBuf,
@@ -1362,6 +1362,10 @@ void *select_on_master (void *arg)
 	int m;
 	int i;
 	int retval;
+	struct CitContext select_on_master_CC;
+
+	CtdlFillSystemContext(&select_on_master_CC, "select_on_master");
+	citthread_setspecific(MyConKey, (void *)&select_on_master_CC);
 
 	while (!CtdlThreadCheckStop()) {
 		/* Initialize the fdset. */
@@ -1465,6 +1469,8 @@ void *select_on_master (void *arg)
 			}
 		}
 	}
+	CtdlClearSystemContext();
+
 	return NULL;
 }
 
