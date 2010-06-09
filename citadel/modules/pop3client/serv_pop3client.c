@@ -308,7 +308,12 @@ void pop3client_scan(void) {
 	static int doing_pop3client = 0;
 	struct pop3aggr *pptr;
 	time_t fastest_scan;
-	
+	CitContext popclientCC;
+
+	/* Give this thread its own private CitContext */
+	CtdlFillSystemContext(&popclientCC, "popclient");
+	citthread_setspecific(MyConKey, (void *)&popclientCC );
+
 	if (config.c_pop3_fastest < config.c_pop3_fetch)
 		fastest_scan = config.c_pop3_fastest;
 	else
@@ -346,6 +351,7 @@ void pop3client_scan(void) {
 	CtdlLogPrintf(CTDL_DEBUG, "pop3client ended\n");
 	last_run = time(NULL);
 	doing_pop3client = 0;
+	CtdlClearSystemContext();
 }
 
 

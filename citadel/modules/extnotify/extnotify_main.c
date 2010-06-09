@@ -161,9 +161,11 @@ void create_extnotify_queue(void) {
  */
 void do_extnotify_queue(void) 
 {
+
 	NotifyContext Ctx;
 	static int doing_queue = 0;
 	int i = 0;
+	CitContext extnotifyCC;
     
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -173,6 +175,10 @@ void do_extnotify_queue(void)
 	 */
 	if (doing_queue) return;
 	doing_queue = 1;
+
+	/* Give this thread its own private CitContext */
+	CtdlFillSystemContext(&extnotifyCC, "extnotify");
+	citthread_setspecific(MyConKey, (void *)&extnotifyCC );
     
 	/*
 	 * Go ahead and run the queue
@@ -183,6 +189,7 @@ void do_extnotify_queue(void)
 	Ctx.NotifyHostList = GetNotifyHosts();
 	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
 		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
+		CtdlClearSystemContext();
 		return;
 	}
 	CtdlForEachMessage(MSGS_ALL, 0L, NULL,
@@ -213,6 +220,7 @@ void do_extnotify_queue(void)
 
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
 	doing_queue = 0;
+	CtdlClearSystemContext();
 }
 /*!
  * \brief Process messages in the external notification queue
