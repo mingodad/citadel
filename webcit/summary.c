@@ -285,7 +285,7 @@ void summary(void) {
 
 	output_headers(1, 1, 2, 0, 0, 0);
 	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<div class=\"room_banner\">");
+	wc_printf("<div class=\"banner\">");
         wc_printf("<img src=\"static/summscreen_48x.gif\">");
         wc_printf("<h1>");
         snprintf(title, sizeof title, _("Summary page for %s"), ChrPtr(WC->wc_fullname));
