@@ -71,8 +71,9 @@ WARNING #2:
   citserver must NOT be running while you do this.
 
 WARNING #3:
-  Please try "cd $DATA_DIR; $RECOVER -c" first.  Use this tool
-  only if that one fails to fix your problem.
+  Please try "cd $DATA_DIR; $RECOVER -c" first. Run citserver afterwards to 
+  revalidate whether its fixed or not, No news might be good news. Use this
+  tool only if that one fails to fix your problem.
 
 WARNING #4:
   You must have an amount of free space on your disk that is at least twice
