@@ -23,7 +23,6 @@ var supportsAddEventListener = (!!document.addEventListener);
 var today = new Date();
 
 var wc_log = "";
-var is_ie6 = false;
 if (document.all) {browserType = "ie"}
 if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 	browserType= "gecko";
@@ -31,7 +30,6 @@ if (window.navigator.userAgent.toLowerCase().match("gecko")) {
 var ns6=document.getElementById&&!document.all;
 Event.observe(window, 'load', ToggleTaskDateOrNoDateActivate);
 Event.observe(window, 'load', taskViewActivate);
-Event.observe(window, 'load', fixbanner);
 //document.observe("dom:loaded", setupPrefEngine);
 document.observe("dom:loaded", setupIconBar);
 function CtdlRandomString()  {
@@ -871,35 +869,8 @@ function fixMissingCSSTable(elems) {
     }
   }
 }
-function fixbanner() {
-  // Use prototype api methods here
-  var elems = [$('room_banner'),$('actiondiv')];
-  fixMissingCSSTable(elems);
-  if (!is_ie6) {
-    Event.observe(window, 'resize', makeContentScrollable);
-    makeContentScrollable();
-  }
-}
-function makeContentScrollable() {
-if (document.getElementById("banner")
-      && document.getElementById("content") 
-      && !document.getElementById("summary_view")) {
-  WCLog("makeContentScrollable");
-    document.body.style.overflowY="hidden";
-    var global = $("global");
-    global.className += "scrollable";
-    var content = document.getElementById("content");
-    var banner = document.getElementById("banner");
-    var bannerHeight = banner.offsetHeight;
-    banner.style.width="100%";
-    var bannerPercent = (bannerHeight/document.viewport.getHeight())*100;
-    //banner.style.height=bannerPercent+"%";
-    content.style.overflowY="scroll";
-    //content.style.top=bannerPercent+"%";
-    content.style.height=(100-bannerPercent)+"%";
-    content.style.right="0px";
-  }
-}
+
+
 function fixOffsetBanner() {
   var banner = document.getElementById("banner");
   if (banner.offsetLeft > 0) {
