@@ -142,6 +142,11 @@ body {
 	color: #FFF;
 	margin: 0;
 	padding: 0;
+	height: 120px;		/* when changing this, also change #content */
+	position: fixed;
+	width: 84%;		/* when changing this, also change #iconbar and #content */
+	left: 16%;		/* when changing this, also change #iconbar and #content */
+	z-index: 3;
 }
 
 #banner a {
@@ -153,8 +158,15 @@ body {
 }
 
 #content {
+	position: fixed;
+	top: 120px;		/* when changing this, also change #banner and #iconbar */
+	left: 16%;		/* when changing this, also change #banner and #iconbar */
+	bottom: 0;
+	width: 84%;		/* when changing this, also change #banner and #iconbar */
 	background-color: #6C91A6;
 	color: #000;
+	z-index: 2;
+	overflow-y: auto;
 }
 
 #message_list_hdr form input {
@@ -552,11 +564,7 @@ body, #global {
 	top: 0;
 	right: 0;
 	left: 0;
-	overflow-y: auto;
-}
-
-#global.scrollable {
-	position: fixed;
+	overflow-y: hidden;
 }
 
 #important_message {
@@ -610,15 +618,10 @@ body, #global {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 16%;
+	width: 16%;		/* when changing this, also change #banner width */
 	z-index: 0;
 	overflow: auto;
 	overflow-x: hidden !important;
-}
-
-#content {
-	position: relative;
-	bottom: 0;
 }
 
 /* Please avoid setting heights for any of the mailbox view elements (except summary_view
