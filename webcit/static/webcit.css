@@ -20,8 +20,12 @@ body { font-size: 100%;}
 	font-size: 130%;
 }
 
-#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,.banner .nummsgs,li.search,li.view, .room_actions form select option, .selectbox, .message_header, ul.adminitems li span, #message_list tr > td {
+#button, #content .msgbuttons a, .button_link a, input#delbutton,.attachfile,.logbuttons input,.buttons input, .buttons a, .customize, .menubar_link, .roomlist_floor, .ib_roomlist_floor, .roomlist_new, .ib_roomlist_new, .roomlist_old, .ib_roomlist_old, #banner ul.room_actions li, .selector_top, .selector_bottom, .banner .infos,li.search,li.view, .room_actions form select option, .selectbox, .message_header, ul.adminitems li span, #message_list tr > td {
 	font-size: 100%;
+}
+
+#nummsgs {
+	font-size: 75%;
 }
 
 #message_list_hdr table {
@@ -30,6 +34,9 @@ body { font-size: 100%;}
 
 #navbar {
 	font-size: 75%;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
 }
 
 .mailbox_summary {
@@ -127,7 +134,7 @@ body {
 	border-top: 1px solid #AAA;
 }
 
-#banner h1,#banner h2,.banner .nummsgs,.mimepart div,.required {
+#banner h1,#banner h2,.mimepart div,.required {
 	font-weight: 700;
 }
 
@@ -148,6 +155,7 @@ body {
 	width: 84%;		/* when changing this, also change #iconbar and #content */
 	left: 16%;		/* when changing this, also change #iconbar and #content */
 	z-index: 3;
+	overflow: hidden;
 }
 
 #banner a {
@@ -889,9 +897,13 @@ body, #global {
 #room_infos img.close_infos {
 	float: right;
 }
+
 #actiondiv {
-	display: table-cell;
+	position: absolute;
+	right: 0;
+	top: 0;
 }
+
 #banner ul.room_actions {
  	list-style: none;
 	text-align: left;
