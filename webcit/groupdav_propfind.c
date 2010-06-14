@@ -437,7 +437,10 @@ void groupdav_collection_list(void)
  */
 void groupdav_propfind(void) 
 {
+#ifdef DEV_RESTDAV
 	HashList *SubRooms = NULL;
+	long State;
+#endif
 	wcsession *WCC = WC;
 	StrBuf *dav_roomname;
 	StrBuf *dav_uid;
@@ -451,7 +454,6 @@ void groupdav_propfind(void)
 	int i;
 	char datestring[256];
 	time_t now;
-	long State;
 
 	now = time(NULL);
 	http_datestring(datestring, sizeof datestring, now);
