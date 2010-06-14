@@ -2,6 +2,7 @@
  * Copyright 2005 - 2010 The Citadel Team
  * Licensed under the GPL V3
  */
+
 @import url("datepicker.css");
 @media print {
 	input#toggler, .toolbar { display: none }
@@ -931,57 +932,72 @@ body, #global {
 #navbar ul li a {
 	padding: 2px 8px 8px 8px;
  	white-space: nowrap;
- }
+}
 
 #navbar ul li img {
 	float: none;
 	margin: 0 2px 0 2px;
 }
+
 .floor {
 	margin-left: 0px;
 }
+
 .floor > ul {
 	display: none;
 }
+
 .floor-expanded > ul{
 	display: block !important;
 }
+
 #roomlist > ul {
 	margin: 0;
 	padding: 0;
 }
+
 #roomlist > div > ul > li {
 	margin: 0;
 	padding: 0;
 }
-/** Override to disable list-style-image" */
+
+/* Override to disable list-style-image" */
 .room a, .room a, .room a:visited, .room a:link {
 	color: #333333;
 }
+
 .room-private {
 	list-style-image: url("/static/privatemess_16x.gif");
 }
+
 .room-addr {
 	list-style-image: url("/static/viewcontacts_16x.gif");
 }
+
 .room-cal {
 	list-style-image: url("/static/calarea_16x.gif");
 }
+
 .room-tasks {
 	list-style-image: url("/static/taskmanag_16x.gif");
 }
+
 .room-notes {
 	list-style-image: url("/static/storenotes_16x.gif");
 }
+
 .room-chat {
 	list-style-image: url("/static/chatrooms_16x.gif");
 }
+
 .room-newmsgs {
 	font-weight: bold;
 }
+
 .room-emphasized {
 	text-decoration: underline;
 }
+
 /* Content */
 
 .boxcontent table {
@@ -1078,10 +1094,6 @@ body, #global {
 	margin: 0 0 0 0;
 	padding: .5em;
 }
-
-/* hack ie5 mac \*/
-dt { clear: both; }
-/* end hack */
 
 .mimepart dl dd {
 	float: left;
@@ -1239,32 +1251,41 @@ div.auto_complete ul strong.highlight {
 #citlogo {
 	display: none; /* Overriden later */
 }
+
 .sort_ascending, .sort_descending {
 	background-repeat: no-repeat;
 	background-position: center right;
 }
+
 .sort_ascending {
 	background-image: url("/static/down_pointer.gif");
 }
+
 .sort_descending {
 	background-image: url("/static/up_pointer.gif");
 }
+
 #message_list_hdr > table {
 	border-collapse: collapse;
 }
+
 #message_list_hdr > table > tbody > tr > th {
 	border-left: 2px solid white;
 	border-right: 2px solid white;
 }
+
 #summary_view > table { 
 	border-collapse: collapse;
 }
+
 th.col1 {
 	border-left: none !important;
 }
+
 th.col3 {
 	border-right: none !important;
 }
+
 /* System Administration Menu */
 
 ul.adminitems {
@@ -1288,7 +1309,6 @@ ul.adminitems li span {
 	padding: 2px;
 	cursor: default;
 }
-
 
 table.altern {
 	margin: 0 auto 0 auto;
