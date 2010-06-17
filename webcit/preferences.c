@@ -868,11 +868,20 @@ int ConditionalPreference(StrBuf *Target, WCTemplputParams *TP)
 	if (!HAVE_PARAM(3)) {
 		return 1;
 	}
-	else if (TP->Tokens->Params[3]->Type == TYPE_STR)
-		return ((TP->Tokens->Params[3]->len == StrLength(Pref)) &&
-			(strcmp(TP->Tokens->Params[3]->Start, ChrPtr(Pref)) == 0));
+	else if (IS_NUMBER(TP->Tokens->Params[3]->Type))
+	{
+		return StrTol(Pref) == GetTemplateTokenNumber (Target, TP, 3, 0);
+	}
 	else 
-		return (StrTol(Pref) == TP->Tokens->Params[3]->lvalue);
+	{
+		const char *pch;
+		long len;
+		
+		GetTemplateTokenString(Target, TP, 3, &pch, &len);
+		
+		return ((len == StrLength(Pref)) &&
+			(strcmp(pch, ChrPtr(Pref)) == 0));
+	}
 }
 
 int ConditionalHasPreference(StrBuf *Target, WCTemplputParams *TP)

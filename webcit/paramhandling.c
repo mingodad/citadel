@@ -352,11 +352,21 @@ int ConditionalBstr(StrBuf *Target, WCTemplputParams *TP)
 	if(TP->Tokens->nParameters == 3)
 		return HaveBstr(TKEY(2));
 	else {
-		if (TP->Tokens->Params[3]->Type == TYPE_LONG)
-			return LBstr(TKEY(2)) == TP->Tokens->Params[3]->lvalue;
-		else 
-			return strcmp(Bstr(TKEY(2)),
-				      TP->Tokens->Params[3]->Start) == 0;
+		if (IS_NUMBER(TP->Tokens->Params[3]->Type))
+		{
+			return LBstr(TKEY(2)) == 
+				GetTemplateTokenNumber(Target, 
+						       TP, 
+						       3, 
+						       0);
+		}
+		else {
+			const char *pch;
+			long len;
+
+			GetTemplateTokenString (Target, TP, 3, &pch, &len);
+			return strcmp(Bstr(TKEY(2)), pch) == 0;
+		}
 	}
 }
 
@@ -394,11 +404,14 @@ void tmplput_url_part(StrBuf *Target, WCTemplputParams *TP)
 	wcsession *WCC = WC;
 	
 	if (WCC != NULL) {
-		if (TP->Tokens->Params[0]->lvalue == 0) {
+		long n;
+
+		n = GetTemplateTokenNumber(Target, TP, 0, 0);
+		if (n == 0) {
 			if (WCC->Hdr->HR.Handler != NULL)
 				UrlBuf = Name = WCC->Hdr->HR.Handler->Name;
 		}
-		else if (TP->Tokens->Params[0]->lvalue == 1) {
+		else if (n == 1) {
 			UrlBuf = NewStrBuf();
 			StrBufExtract_token(UrlBuf, WCC->Hdr->HR.ReqLine, 0, '/');
 		}

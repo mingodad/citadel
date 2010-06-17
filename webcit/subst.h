@@ -18,6 +18,7 @@ extern HashList *LocalTemplateCache;
 #define TYPE_INTDEFINE 8
 #define MAXPARAM  20
 
+#define IS_NUMBER(a) ((a == TYPE_LONG) || (a == TYPE_PREFINT) || (a == TYPE_INTDEFINE))
 
 /*
  * \brief Values for wcs_type

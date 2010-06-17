@@ -333,9 +333,19 @@ int ConditionalServCfg(StrBuf *Target, WCTemplputParams *TP)
 		if (TP->Tokens->nParameters == 3) {
 			return 1;
 		}
-		else if (TP->Tokens->Params[3]->Type == TYPE_STR)
-			return (strcmp(TP->Tokens->Params[3]->Start, ChrPtr(Buf)) == 0);
-		else return (StrTol(Buf) == TP->Tokens->Params[3]->lvalue);
+		else if (IS_NUMBER(TP->Tokens->Params[3]->Type))
+			return (StrTol(Buf) == GetTemplateTokenNumber (Target, TP, 3, 0));
+		else
+		{
+			const char *pch;
+			long len;
+			
+			GetTemplateTokenString(Target, TP, 3, &pch, &len);
+		
+			return ((len == StrLength(Buf)) &&
+				(strcmp(pch, ChrPtr(Buf)) == 0));
+		}
+
 	}
 	else return 0;
 }
