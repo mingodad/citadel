@@ -1013,7 +1013,7 @@ void post_message(void)
 		memset(att, 0, sizeof(wc_mime_attachment ));
 		att->length = WCC->upload_length;
 		att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
-		att->FileName = NewStrBufPlain(WCC->upload_filename, -1);
+		att->FileName = NewStrBufDup(WCC->upload_filename);
 		
 		if (WCC->attachments == NULL) {
 			WCC->attachments = NewHash(1, Flathash);
