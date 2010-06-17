@@ -391,11 +391,16 @@ int ConditionalFlagINetEmail(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalUserAccess(StrBuf *Target, WCTemplputParams *TP)
 {
 	UserListEntry *ul = (UserListEntry*) CTX;
-
-	if (TP->Tokens->Params[3]->Type == TYPE_LONG)
-		return (TP->Tokens->Params[3]->lvalue == ul->AccessLevel);
-	else
+	
+	if (ul == NULL)
 		return 0;
+
+	return GetTemplateTokenNumber(Target, 
+				      TP, 
+				      3, 
+				      AxNewU)
+		==
+		ul->AccessLevel;
 }
 
 /*
