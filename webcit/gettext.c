@@ -406,7 +406,7 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 }
 
 /* dummy for non NLS enabled systems */
-void set_selected_language(char *lang) {
+void set_selected_language(const char *lang) {
 }
 
 /* dummy for non NLS enabled systems */
@@ -415,6 +415,9 @@ void go_selected_language(void) {
 
 /* dummy for non NLS enabled systems */
 void stop_selected_language(void) {
+}
+
+void initialize_locales(void) {
 }
 
 #endif	/* ENABLE_NLS */
