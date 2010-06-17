@@ -1683,7 +1683,7 @@ li.event_unread span, a.event_read_title {
 	padding-right: 3px;
 }
 
-.chat_userlist {
+.chat_userlist_class {
 	position: absolute;
 	top: 0;
 	right: 1%;
