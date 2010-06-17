@@ -322,10 +322,18 @@ void upload_file(void)
 	char buf[1024];
 	long bytes_transmitted = 0;
 	long blocksize;
+	const StrBuf *Desc;
 	wcsession *WCC = WC;     /* stack this for faster access (WC is a function) */
 
 	MimeType = GuessMimeType(ChrPtr(WCC->upload), WCC->upload_length); 
-	serv_printf("UOPN %s|%s|%s", WCC->upload_filename, MimeType, bstr("description"));
+
+		Desc = sbstr("description");
+
+	serv_printf("UOPN %s|%s|%s", 
+		    ChrPtr(WCC->upload_filename), 
+		    MimeType, 
+		    ChrPtr(Desc));
+
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2')
 	{

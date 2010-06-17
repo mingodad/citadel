@@ -320,8 +320,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	if ( (length > 0) && (!IsEmptyStr(cbtype)) ) {
 		WCC->upload = NewStrBufPlain(content, length);
 		WCC->upload_length = length;
-		safestrncpy(WCC->upload_filename, filename,
-			    sizeof(WC->upload_filename));
+		WCC->upload_filename = NewStrBufPlain(filename, -1);
 		safestrncpy(WCC->upload_content_type, cbtype,
 			    sizeof(WC->upload_content_type));
 		
@@ -441,4 +440,5 @@ SessionDetachModule_PARAMHANDLING
 (wcsession *sess)
 {
 	DeleteHash(&sess->Hdr->urlstrings);
+	FreeStrBuf(&sess->upload_filename);
 }

@@ -396,7 +396,7 @@ enum {
 	eCOPY,
 	eNONE
 };
-const char *ReqStrs[eNONE];
+extern const char *ReqStrs[eNONE];
 
 #define NO_AUTH 0
 #define AUTH_COOKIE 1
@@ -508,23 +508,12 @@ struct wcsession {
 
 /* Preferences */
 	StrBuf *cs_inet_email;  		/* User's preferred Internet addr. */
-	char reply_to[512];			/* reply-to address */
 	HashList *hash_prefs;			/* WebCit preferences for this user */
 	StrBuf *DefaultCharset;                 /* Charset the user preferes */
 	int downloaded_prefs;                   /* Has the client download its prefs yet? */
 	int SavePrefsToServer;                  /* Should we save our preferences to the server at the end of the request? */
 	int selected_language;			/* Language selected by user */
 	int time_format_cache;                  /* which timeformat does our user like? */
-
-/* current room related */
-/*	StrBuf *wc_roomname;			/ * Room we are currently in */
-/*	unsigned room_flags;			/ * flags associated with the current room */
-/*	unsigned room_flags2;			/ * flags associated with the current room */
-/*	int wc_view;				/ * view for the current room */
-/*	int wc_default_view;			/ * default view for the current room */
-/*	int wc_is_trash;			/ * nonzero == current room is a Trash folder */
-/*	int wc_floor;				/ * floor number of current room */
-/*	int is_mailbox;				/ * the current room is a private mailbox */
 
 	folder CurRoom;                         /* information about our current room */
 	const folder *ThisRoom;                 /* if REST found a room, remember it here. */
@@ -537,7 +526,7 @@ struct wcsession {
 	HashList *attachments;             	/* list of attachments for 'enter message' */
 	int upload_length;			/* content length of http-uploaded data */
 	StrBuf *upload;				/* pointer to http-uploaded data */
-	char upload_filename[PATH_MAX];		/* filename of http-uploaded data */
+	StrBuf *upload_filename;		/* filename of http-uploaded data */
 	char upload_content_type[256];		/* content type of http-uploaded data */
 
 	int new_mail;				/* user has new mail waiting */
