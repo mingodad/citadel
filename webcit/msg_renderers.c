@@ -261,8 +261,6 @@ void tmplput_MAIL_SUMM_FROM(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, Msg->from, 0);
 }
 
-
-
 void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
 	FreeStrBuf(&Msg->subj);
@@ -270,14 +268,29 @@ void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset, FoundCharset);
 }
 void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
-{/*////TODO: Fwd: and RE: filter!!*/
-
+{
 	message_summary *Msg = (message_summary*) CTX;
+
+	if (TP->Tokens->nParameters == 4)
+	{
+		const char *pch;
+		long len;
+		
+		GetTemplateTokenString(Target, TP, 3, &pch, &len);
+		if ((len > 0)&&
+		    (strstr(ChrPtr(Msg->subj), pch) == NULL))
+		{
+			GetTemplateTokenString(Target, TP, 2, &pch, &len);
+			StrBufAppendBufPlain(Target, pch, len, 0);
+		}
+	}
 	StrBufAppendTemplate(Target, TP, Msg->subj, 0);
 }
 int Conditional_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
+
+
 	return StrLength(Msg->subj) > 0;
 }
 
