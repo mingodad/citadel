@@ -52,6 +52,7 @@ void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
 void vCtdlLogPrintf (enum LogLevel loglevel, const char *format, va_list arg_ptr);
 
 extern int enable_syslog;
+extern int print_to_logfile;
 
 void init_sysdep (void);
 int ig_tcp_server (char *ip_addr, int port_number, int queue_len,char **errormessage);

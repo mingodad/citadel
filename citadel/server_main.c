@@ -106,6 +106,7 @@ int main(int argc, char **argv)
 	int relh=0;
 	int home=0;
 	int dbg=0;
+	int have_minus_x=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
 #ifdef HAVE_RUN_DIR
@@ -142,6 +143,8 @@ int main(int argc, char **argv)
 		/* run in the background if -d was specified */
 		else if (!strcmp(argv[a], "-d")) {
 			running_as_daemon = 1;
+			if (!have_minus_x)
+				print_to_logfile = 0;
 		}
 
 		/* run a few stats if -s was specified */
@@ -152,6 +155,8 @@ int main(int argc, char **argv)
 		/* -x specifies the desired logging level */
 		else if (!strncmp(argv[a], "-x", 2)) {
 			verbosity = atoi(&argv[a][2]);
+			have_minus_x = 1;
+			print_to_logfile = 1;
 		}
 
 		else if (!strncmp(argv[a], "-h", 2)) {

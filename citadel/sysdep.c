@@ -93,7 +93,7 @@ int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
 
 int syslog_facility = LOG_DAEMON;
 int enable_syslog = 0;
-
+int print_to_logfile = 1;
 
 /*
  * CtdlLogPrintf()  ...   Write logging information
@@ -113,7 +113,7 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 	}
 
 	/* stderr output code */
-	if (enable_syslog || running_as_daemon) return;
+	if (enable_syslog || !print_to_logfile) return;
 
 	/* if we run in forground and syslog is disabled, log to terminal */
 	if (loglevel <= verbosity) { 
