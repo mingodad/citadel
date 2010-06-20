@@ -106,6 +106,7 @@ int main(int argc, char **argv)
 	int relh=0;
 	int home=0;
 	int dbg=0;
+	int have_log=0;
 	int have_minus_x=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
@@ -143,8 +144,6 @@ int main(int argc, char **argv)
 		/* run in the background if -d was specified */
 		else if (!strcmp(argv[a], "-d")) {
 			running_as_daemon = 1;
-			if (!have_minus_x)
-				print_to_logfile = 0;
 		}
 
 		/* run a few stats if -s was specified */
@@ -156,7 +155,6 @@ int main(int argc, char **argv)
 		else if (!strncmp(argv[a], "-x", 2)) {
 			verbosity = atoi(&argv[a][2]);
 			have_minus_x = 1;
-			print_to_logfile = 1;
 		}
 
 		else if (!strncmp(argv[a], "-h", 2)) {
@@ -178,6 +176,7 @@ int main(int argc, char **argv)
 					      strerror(errno));
 				exit(1);
 			}
+			have_log = 1;
 		}
 
 		else if (!strncmp(argv[a], "-D", 2)) {
@@ -202,6 +201,9 @@ int main(int argc, char **argv)
 		}
 
 	}
+
+	if (have_minus_x && running_as_daemon && have_log)
+		print_to_logfile = 1;
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir, dbg);
 	/* daemonize, if we were asked to */
