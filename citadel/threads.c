@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <signal.h>
 
+#include "sysdep.h"
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
 # include <time.h>
@@ -28,11 +29,15 @@
 #  include <time.h>
 # endif
 #endif
+
 #ifdef HAVE_SYSCALL_H
-#include <syscall.h> 
-#else if HAVE_SYS_SYSCALL_H
-#include <sys/syscall.h>
+# include <syscall.h>
+#else 
+# if HAVE_SYS_SYSCALL_H
+#  include <sys/syscall.h>
+# endif
 #endif
+
 #include <libcitadel.h>
 
 #include "threads.h"
