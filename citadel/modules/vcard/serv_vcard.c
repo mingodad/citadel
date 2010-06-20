@@ -1124,8 +1124,9 @@ void check_get(void) {
 	}
 	CtdlLogPrintf(CTDL_INFO, ": %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 3) strcat(cmdbuf, " ");
-
-	if (strcasecmp(cmdbuf, "GET ")==0)
+	CtdlLogPrintf(CTDL_INFO, "[ %s]\n", cmdbuf);
+	
+	if (strncasecmp(cmdbuf, "GET ", 4)==0)
 	{
 		struct recptypes *rcpt;
 		char *argbuf = &cmdbuf[4];
@@ -1148,7 +1149,14 @@ void check_get(void) {
 			
 			CtdlLogPrintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
 		}
-		if (rcpt != NULL) free_recipients(rcpt);
+		if (rcpt != NULL) 
+			free_recipients(rcpt);
+	}
+	else 
+	{
+		cprintf("500 REJECT invalid Query.\n");
+		
+		CtdlLogPrintf(CTDL_INFO, "sending 500 REJECT invalid Query: %s\n", internet_addr);
 	}
 }
 
