@@ -2095,7 +2095,7 @@ int CtdlIPCStartEncryption(CtdlIPC *ipc, char *cret)
 	}
 	ipc->ssl = temp_ssl;
 
-	BIO_set_close(ipc->ssl->rbio, BIO_NOCLOSE);
+	if (BIO_set_close(ipc->ssl->rbio, BIO_NOCLOSE))
 	{
 		int bits, alg_bits;
 
