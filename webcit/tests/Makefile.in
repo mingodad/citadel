@@ -81,6 +81,7 @@ TEST_OBJECTS= \
 	../wiki.o \
 	\
 	../paging.o \
+	../roomchat.o \
 	\
 	../vcard_edit.o \
 	../addressbook_popup.o \
