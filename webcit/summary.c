@@ -198,9 +198,9 @@ void server_info_section(void) {
  * not people I consider worthwhile, I still want them to use WebCit.
  */
 void summary_inner_div(void) {
-	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table width=\"100%%\" cellspacing=\"10\" cellpadding=\"0\">"
-		"<tr valign=top>");
+
+	wc_printf("<table width=\"98%%\" cellspacing=\"3\" cellpadding=\"0\">");
+	wc_printf("<tr valign=top>");
 
 	/*
 	 * Column One
@@ -284,22 +284,22 @@ void summary(void) {
 	char title[256];
 
 	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<div class=\"banner\">");
-        wc_printf("<img src=\"static/summscreen_48x.gif\">");
-        wc_printf("<h1>");
+	wc_printf("<div id=\"banner\" class=\"banner\">\n");
+	wc_printf("<table border=0><tr>");
+        wc_printf("<td><img src=\"static/summscreen_48x.gif\"></td>");
+        wc_printf("<td><h1>");
         snprintf(title, sizeof title, _("Summary page for %s"), ChrPtr(WC->wc_fullname));
         escputs(title);
         wc_printf("</h1><h2>");
         output_date();
-        wc_printf("</h2></div>");
+        wc_printf("</h2></td></tr></table>");
 	wc_printf("<div id=\"actiondiv\">");
 	wc_printf("<ul class=\"room_actions\">\n");
 	wc_printf("<li class=\"start_page\">");
 	offer_start_page(NULL, &NoCtx);
         wc_printf("</li></ul>");
-        wc_printf("</div>");
-        wc_printf("</div>");
+        wc_printf("</div>");	/* actiondiv */
+        wc_printf("</div>");	/* banner */
 
 	/*
 	 * You guessed it ... we're going to refresh using ajax.
