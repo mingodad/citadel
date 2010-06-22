@@ -228,6 +228,11 @@ int CtdlTryPasswordLDAP(char *user_dn, const char *password)
 	LDAP *ldserver = NULL;
 	int i = (-1);
 
+	if (IsEmptyStr(password)) {
+		CtdlLogPrintf(CTDL_DEBUG, "LDAP: empty passwords are not permitted\n");
+		return(1);
+	}
+
 	CtdlLogPrintf(CTDL_DEBUG, "LDAP: trying to bind as %s\n", user_dn);
 	ldserver = ldap_init(config.c_ldap_host, config.c_ldap_port);
 	if (ldserver) {
