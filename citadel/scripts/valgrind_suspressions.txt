@@ -1,0 +1,273 @@
+{
+   blargtest ion_name_here
+   Memcheck:Cond
+   obj:/lib/libc-2.11.2.so
+   fun:ERR_load_ERR_strings
+   fun:ERR_load_crypto_strings
+   fun:SSL_load_error_strings
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   obj:/lib/libc-2.11.2.so
+   fun:ERR_load_ERR_strings
+   fun:ERR_load_crypto_strings
+   fun:SSL_load_error_strings
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:__GI_strlen
+   obj:/usr/lib/libcrypto.so.0.9.8
+   fun:BIO_gets
+   fun:PEM_read_bio
+   fun:PEM_bytes_read_bio
+   fun:PEM_ASN1_read_bio
+   fun:SSL_CTX_use_certificate_chain_file
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:PEM_read_bio
+   fun:PEM_bytes_read_bio
+   fun:PEM_ASN1_read_bio
+   fun:SSL_CTX_use_certificate_chain_file
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+
+
+
+
+
+
+
+
+
+{
+   some openssl initializationshit
+   Memcheck:Cond
+   ...
+   fun:SSL_load_error_strings
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+{
+   some openssl shit
+   Memcheck:Value8
+   ...
+   fun:SSL_load_error_strings
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+#   obj:/lib/libc-*
+
+{
+   more openssl library shit
+   Memcheck:Leak
+   ...
+   fun:SSL_library_init
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+
+{
+   more openssl library shit
+   Memcheck:Cond
+   ...
+   fun:SSL_CTX_use_certificate_chain_file
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+{
+   more openssl library shit
+   Memcheck:Cond
+   ...
+   fun:SSL_CTX_use_PrivateKey_file
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+{
+   more openssl library shit
+   Memcheck:Value8
+   ...
+   fun:SSL_CTX_use_PrivateKey_file
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   ...
+   fun:SSL_CTX_use_certificate_chain_file
+   fun:init_ssl
+   fun:init_sysdep
+   fun:main
+}
+
+
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   fun:_dl_start
+   obj:/lib/ld-2.11.2.so
+   obj:*
+   obj:*
+   obj:*
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   fun:dl_main
+   fun:_dl_sysdep_start
+   fun:_dl_start
+   obj:/lib/ld-2.11.2.so
+   obj:*
+   obj:*
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   ...
+   fun:__env_open
+   fun:open_databases
+   fun:master_startup
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   fun:__env_open
+   fun:open_databases
+   fun:master_startup
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   ...
+   fun:__env_open
+   fun:open_databases
+   fun:master_startup
+   fun:main
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   ...
+   fun:__env_open
+   fun:open_databases
+   fun:master_startup
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   fun:__db_open_pp
+   fun:open_databases
+   fun:master_startup
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   fun:__env_open
+   fun:open_databases
+   fun:master_startup
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   ...
+   fun:__db_open_pp
+   fun:open_databases
+   fun:master_startup
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   ...
+   fun:__db_open_pp
+   fun:open_databases
+   fun:master_startup
+   fun:main
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   fun:__db_open_pp
+   fun:open_databases
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   ...
+   fun:__db_open_pp
+   fun:open_databases
+   fun:master_startup
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   ...
+   fun:__db_open_pp
+   fun:open_databases
+}
+
+
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:CtdlRegisterServiceHook
+   ...
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:__GI_strlen
+   fun:CtdlRegisterServiceHook
+   ...
+}
+
+
+
+
+
+# close
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   ...
+   fun:close_databases
+   fun:master_cleanup
+   fun:main
+}
