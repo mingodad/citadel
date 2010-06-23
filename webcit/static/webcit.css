@@ -701,7 +701,7 @@ body, #global {
 
 .fix_scrollbar_bug {
 	margin-right: 1px;		/* Gecko and other non-broken browsers */
-	font-size: 90%;	/* FOOFOO */
+	font-size: 90%;			/* Most stuff needs to be a little smaller than normal. */
 }
 
 /* Boxes */
@@ -1124,6 +1124,7 @@ body, #global {
  	float: right;
  	visibility: hidden;
 	padding: 2px;
+	font-size: 80%;
 }
 
 .buttons a {
