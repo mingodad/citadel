@@ -701,6 +701,7 @@ body, #global {
 
 .fix_scrollbar_bug {
 	margin-right: 1px;		/* Gecko and other non-broken browsers */
+	font-size: 90%;	/* FOOFOO */
 }
 
 /* Boxes */
