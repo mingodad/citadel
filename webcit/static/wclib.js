@@ -848,29 +848,6 @@ function WCLog(msg) {
   }
 }
 
-function fixMissingCSSTable(elems) {
- if (elems[0] == null || elems[1] == null) {
-    return;
-  }
-  if (elems[0].getStyle("display") != "table-cell") {
-    var parentNode = elems[0].parentNode;
-    var table = document.createElement("table");
-    table.style.width = "100%";
-    var tbody = document.createElement("tbody");
-    table.appendChild(tbody);
-    var tr = document.createElement("tr");
-    tbody.appendChild(tr);
-    parentNode.appendChild(table);
-    for(var i=0; i<elems.length; i++) {
-      parentNode.removeChild(elems[i]);
-      var td = document.createElement("td");
-      td.appendChild(elems[i]);
-      tr.appendChild(td);
-    }
-  }
-}
-
-
 function RefreshSMTPqueueDisplay() {
 	new Ajax.Updater('smtpqueue_inner_div',
 	'display_smtpqueue_inner_div', { method: 'get',
