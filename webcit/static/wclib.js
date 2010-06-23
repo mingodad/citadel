@@ -871,17 +871,6 @@ function fixMissingCSSTable(elems) {
 }
 
 
-function fixOffsetBanner() {
-  var banner = document.getElementById("banner");
-  if (banner.offsetLeft > 0) {
-    var viewportWidth = document.viewport.getWidth();
-    var iconbarWidth = document.getElementById("iconbar").offsetWidth;
-    var contentDiv = document.getElementById("content");
-    var newContentWidth = viewportWidth-iconbarWidth;
-    contentDiv.style.width = newContentWidth+"px";
-  }
-}
-
 function RefreshSMTPqueueDisplay() {
 	new Ajax.Updater('smtpqueue_inner_div',
 	'display_smtpqueue_inner_div', { method: 'get',
