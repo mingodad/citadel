@@ -329,7 +329,7 @@ int serv_read_binary(StrBuf *Ret, size_t total_len, StrBuf *Buf)
 
 	if (MaxRead == -1)
 	{
-		serv_printf("READ %d|%d", 0, total_len);
+		serv_printf("READ %d|"SIZE_T_FMT, 0, total_len);
 		if (StrBuf_ServGetln(Buf) > 0)
 		{
 			long YetRead;

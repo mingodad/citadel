@@ -58,7 +58,7 @@ void SortPregetMatter(HashList *Cals)
 		while ((SortMap[i] != NULL) && 
 		       (Cal->SortBy != NULL)) 
 		{
-			Cal->SortBy = icalcomponent_get_first_property(Cal->SortBy, SortMap[i++]->map);
+			/****Cal->SortBy = icalcomponent_get_first_property(Cal->SortBy, SortMap[i++]->map); */
 		}
 	}
 	

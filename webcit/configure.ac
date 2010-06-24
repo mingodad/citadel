@@ -122,6 +122,13 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
+dnl Check the size of various builtin types; see typesize.h (error)
+AC_CHECK_SIZEOF(char, 0)
+AC_CHECK_SIZEOF(short, 0)
+AC_CHECK_SIZEOF(int, 0)
+AC_CHECK_SIZEOF(long, 0)
+AC_CHECK_SIZEOF(long unsigned int, 0)
+AC_CHECK_SIZEOF(size_t, 0)
 dnl AC_HEADER_TIME
 
 dnl Checks for library functions.

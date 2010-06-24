@@ -114,6 +114,17 @@ extern char *ssl_cipher_list;
 #define	DEFAULT_SSL_CIPHER_LIST	"DEFAULT"	/* See http://openssl.org/docs/apps/ciphers.html */
 #endif
 
+#if SIZEOF_SIZE_T == SIZEOF_INT 
+#define SIZE_T_FMT "%d"
+#else
+#define SIZE_T_FMT "%ld"
+#endif
+
+#if SIZEOF_LONG_UNSIGNED_INT == SIZEOF_INT
+#define ULONG_FMT "%d"
+#else
+#define ULONG_FMT "%ld"
+#endif
 
 #define CALENDAR_ROOM_NAME	"Calendar"
 #define PRODID "-//Citadel//NONSGML Citadel Calendar//EN"
