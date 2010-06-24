@@ -2,3 +2,4 @@
 *.dsc
 *.changes
 *.deb
+*.tar.gz
