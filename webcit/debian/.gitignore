@@ -1,1 +1,7 @@
 citadel-webcit
+citadel-webcit.debhelper.log
+citadel-webcit.postinst.debhelper
+citadel-webcit.postrm.debhelper
+citadel-webcit.prerm.debhelper
+citadel-webcit.substvars
+files

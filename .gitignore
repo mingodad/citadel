@@ -1,1 +1,4 @@
-citadel_7.79-87.dsc webcit_7.70-88.dsc
+*.dsc
+*.dsc
+*.changes
+*.deb
