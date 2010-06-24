@@ -1,3 +1,4 @@
+#include "webcit_test.h"
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 #include <CUnit/TestDB.h>
@@ -21,6 +22,7 @@ extern StrBuf *Passvoid;
 
 extern int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf);
 extern wcsession *CreateSession(int Lockable, wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t *ListMutex);
+extern void groupdav_main(void);
 
 
 
