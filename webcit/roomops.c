@@ -1254,7 +1254,7 @@ void display_editroom(void)
 		
 			wc_printf("<ul><li>");
 			wc_printf(_("Name of room: "));
-			wc_printf("<input type=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\"%d\">\n",
+			wc_printf("<input type=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\""ULONG_FMT"\">\n",
 				er_name,
 				(sizeof(er_name)-1)
 				);
