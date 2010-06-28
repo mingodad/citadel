@@ -15,6 +15,7 @@ div.datepicker {
  background: #FFFFFF;
  font-size: 10px;
  padding: 0px;
+ z-index: 4;
 }
 div.datepicker table {
  font-size: 10px;

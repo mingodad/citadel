@@ -321,7 +321,7 @@ DatePicker.prototype	= {
   this._div = new Element('div', { 
    id : this._id_datepicker,
    className : 'datepicker',
-   style : 'display: none; z-index:'+this._zindex });
+   style : 'display: none;' });
   this._div.innerHTML = '<table><thead><tr>'+((this._enableYearBrowse) ? '<th width="10px" id="'+this._id_datepicker_prev_year+'" style="cursor: pointer;">&nbsp;&lt;&nbsp;</th>' : '')+'<th width="10px" id="'+this._id_datepicker_prev+'" style="cursor: pointer;">&nbsp;&lt;&lt;&nbsp;</th><th id="'+this._id_datepicker_hdr+'" colspan="'+((this._enableYearBrowse) ? 3 : 5 )+'"></th><th width="10px" id="'+this._id_datepicker_next+'" style="cursor: pointer;">&nbsp;&gt;&gt;&nbsp;</th>'+((this._enableYearBrowse) ? '<th width="10px" id="'+this._id_datepicker_next_year+'" style="cursor: pointer;">&nbsp;&gt;&nbsp;</th>' : '')+'</tr></thead><tbody id="'+this._id_datepicker+'-tbody"></tbody><tfoot><tr><td colspan="7" id="'+this._id_datepicker_ftr+'"></td></tr><tr><td colspan="7" id="'+this._id_datepicker_rst+'"></td></tr></tfoot></table>';
   /* finally declare the event listener on input field */
   Event.observe(this._relative, 
