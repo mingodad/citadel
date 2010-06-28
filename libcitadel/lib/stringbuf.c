@@ -2569,6 +2569,7 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 				At = strchr(EmailStart, '@');
 			}
 			else { /* this is a local recipient... no domain, just a realname */
+				EmailStart = UserStart;
 				At = strchr(EmailStart, '@');
 				if (At == NULL) {
 					UserEnd = EmailEnd;
@@ -2595,9 +2596,9 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 
 
 		
-		if (*pch == ',')
+		if ((pch != NULL) && (*pch == ','))
 			pch ++;
-		while (isspace(*pch))
+		if (pch != NULL) while (isspace(*pch))
 			pch ++;
 	}
 	return Target;
