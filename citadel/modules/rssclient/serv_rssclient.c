@@ -321,6 +321,7 @@ void rss_save_item(rsscollection *rssc) {
 	}
 
 	/* Find out if we've already seen this item */
+
 	cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
 	if (cdbut != NULL) {
 		/* Item has already been seen */
@@ -369,6 +370,7 @@ void rss_save_item(rsscollection *rssc) {
 
 			Encoded = NewStrBufPlain(From, -1);
 			free(From);
+			StrBufTrim(Encoded);
 			QPEncoded = StrBufSanitizeEmailRecipientVector(Encoded, UserName, EmailAddress, EncBuf);
 			msg->cm_fields['A'] = SmashStrBuf(&QPEncoded);
 
