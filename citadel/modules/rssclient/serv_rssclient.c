@@ -353,9 +353,30 @@ void rss_save_item(rsscollection *rssc) {
 		}
 
 		if (ri->author_or_creator != NULL) {
-			msg->cm_fields['A'] = html_to_ascii(ri->author_or_creator,
-				strlen(ri->author_or_creator), 512, 0);
-			striplt(msg->cm_fields['A']);
+			char *From;
+			StrBuf *Encoded, *QPEncoded;
+			StrBuf *UserName;
+			StrBuf *EmailAddress;
+			StrBuf *EncBuf;
+			
+			UserName = NewStrBuf();
+			EmailAddress = NewStrBuf();
+			EncBuf = NewStrBuf();
+
+			From = html_to_ascii(ri->author_or_creator,
+					     strlen(ri->author_or_creator), 
+					     512, 0);
+
+			Encoded = NewStrBufPlain(From, -1);
+			free(From);
+			QPEncoded = StrBufSanitizeEmailRecipientVector(Encoded, UserName, EmailAddress, EncBuf);
+			msg->cm_fields['A'] = SmashStrBuf(&QPEncoded);
+
+			FreeStrBuf(&Encoded);
+			FreeStrBuf(&UserName);
+			FreeStrBuf(&EmailAddress);
+			FreeStrBuf(&EncBuf);
+
 		}
 		else {
 			msg->cm_fields['A'] = strdup("rss");
@@ -363,8 +384,21 @@ void rss_save_item(rsscollection *rssc) {
 
 		msg->cm_fields['N'] = strdup(NODENAME);
 		if (ri->title != NULL) {
-			msg->cm_fields['U'] = html_to_ascii(ri->title, strlen(ri->title), 512, 0);
-			striplt(msg->cm_fields['U']);
+			long len;
+			char *Sbj;
+			StrBuf *Encoded, *QPEncoded;
+
+			QPEncoded = NULL;
+			len = strlen(ri->title);
+			Sbj = html_to_ascii(ri->title, len, 512, 0);
+			Encoded = NewStrBufPlain(Sbj, -1);
+			free(Sbj);
+
+			StrBufTrim(Encoded);
+			StrBufRFC2047encode(&QPEncoded, Encoded);
+
+			msg->cm_fields['U'] = SmashStrBuf(&QPEncoded);
+			FreeStrBuf(&Encoded);
 		}
 		msg->cm_fields['T'] = malloc(64);
 		snprintf(msg->cm_fields['T'], 64, "%ld", ri->pubdate);
