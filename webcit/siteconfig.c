@@ -80,7 +80,7 @@ void tmplput_ExpireValue(StrBuf *Target, WCTemplputParams *TP)
 	GPEXWhichPolicy which;
 	wcsession *WCC = WC;
 		
-	which = GetTemplateTokenNumber(Target, TP, 2, 0);
+	which = GetTemplateTokenNumber(Target, TP, 0, 0);
 	if (WCC->Policy[which].loaded == 0) LoadExpirePolicy(which);
 	StrBufAppendPrintf(Target, "%d", WCC->Policy[which].expire_value);
 }
