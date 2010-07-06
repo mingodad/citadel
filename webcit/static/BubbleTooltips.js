@@ -16,7 +16,6 @@ function btt_enableTooltips(id)
 	if (!document.getElementById || !document.getElementsByTagName) {
 		return;
 	}
-	btt_AddCss();
 	h = document.createElement("span");
 	h.id = "btc";
 	h.setAttribute("id", "btc");
@@ -84,16 +83,6 @@ function btt_CreateEl(t, c)
 	x.className = c;
 	x.style.display = "block";
 	return (x);
-}
-
-function btt_AddCss()
-{
-	var l = btt_CreateEl("link");
-	l.setAttribute("type", "text/css");
-	l.setAttribute("rel", "stylesheet");
-	l.setAttribute("href", "static/bt.css");
-	l.setAttribute("media", "screen");
-	document.getElementsByTagName("head")[0].appendChild(l);
 }
 
 function btt_Locate(e)
