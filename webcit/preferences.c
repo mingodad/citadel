@@ -13,7 +13,7 @@ HashList *PreferenceHooks;
 extern HashList *HandlerHash;
 
 typedef struct _PrefDef {
-	long Type;
+	ePrefType eType;
 	StrBuf *Setting;
 	const char *PrefStr;
 	PrefEvalFunc OnLoad;
@@ -21,9 +21,11 @@ typedef struct _PrefDef {
 } PrefDef;
 
 typedef struct _Preference {
+	PrefDef *Type;
+	ePrefType eFlatPrefType;
+
 	StrBuf *Key;
 	StrBuf *Val;
-	PrefDef *Type;
 
 	long lval;
 	long decoded;
@@ -49,14 +51,14 @@ void DestroyPreference(void *vPref)
 }
 void _RegisterPreference(const char *Setting, long SettingLen, 
 			 const char *PrefStr, 
-			 long Type, 
+			 ePrefType Type, 
 			 PrefEvalFunc OnLoad, 
 			 const char *OnLoadName)
 {
 	PrefDef *Newpref = (PrefDef*) malloc(sizeof(PrefDef));
 	Newpref->Setting = NewStrBufPlain(Setting, SettingLen);
 	Newpref->PrefStr = PrefStr;
-	Newpref->Type = Type;
+	Newpref->eType = Type;
 	Newpref->OnLoad = OnLoad;
 	if (Newpref->OnLoad != NULL) {
 		Newpref->OnLoadName = NewStrBufPlain(OnLoadName, -1);
@@ -107,15 +109,17 @@ void GetPrefTypes(HashList *List)
 		{
 			PrefType = (PrefDef*) vPrefDef;
 			Pref->Type = PrefType;
+			Pref->eFlatPrefType = Pref->Type->eType;
 
 			lprintf(1, "Loading [%s]with type [%ld] [\"%s\"]\n",
 				ChrPtr(Pref->Key),
-				Pref->Type->Type,
+				Pref->Type->eType,
 				ChrPtr(Pref->Val));
 
-			switch (Pref->Type->Type)
+			switch (Pref->Type->eType)
 			{
-
+			case PRF_UNSET: /* WHUT? */
+				break;
 			case PRF_STRING:
 				break;
 			case PRF_INT:
@@ -452,6 +456,63 @@ int get_PREFERENCE(const char *key, size_t keylen, StrBuf **value)
  * \param	value		value to set
  * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
  */
+long compare_preference(const Preference *PrefA, 
+			const Preference *PrefB)
+{
+	ePrefType TypeA, TypeB;
+
+	if (PrefA->Type != NULL)
+		TypeA = PrefA->Type->eType;
+	else 
+		TypeA = PrefA->eFlatPrefType;
+
+	if (PrefB->Type != NULL)
+		TypeB = PrefB->Type->eType;
+	else 
+		TypeB = PrefB->eFlatPrefType;
+
+	if ((TypeA != PRF_UNSET) && 
+	    (TypeB != PRF_UNSET) && 
+	    (TypeA != TypeB))
+	{
+		if (TypeA > TypeB)
+			return 1;
+		else /* (PrefA->Type < PrefB->Type) */
+			return -1;
+	}
+
+	if (TypeB == PRF_UNSET)
+		TypeA = PRF_UNSET;
+		    
+	switch (TypeA)
+	{
+	default:
+	case PRF_UNSET:
+	case PRF_STRING:
+		return strcmp(ChrPtr(PrefA->Val), 
+			      ChrPtr(PrefB->Val));
+	case PRF_YESNO:
+	case PRF_INT:
+		if (PrefA->lval == PrefB->lval)
+			return 0;
+		else if (PrefA->lval > PrefB->lval)
+			return 1;
+		else
+			return -1;
+	case PRF_QP_STRING:
+		return strcmp(ChrPtr(PrefA->DeQPed), 
+			      ChrPtr(PrefB->DeQPed));
+	}
+}
+
+/**
+ * \brief	Write a key into the webcit preferences database for this user
+ *
+ * \params	key		key whichs value is to be modified
+ * \param keylen length of the key string
+ * \param	value		value to set
+ * \param	save_to_server	1 = flush all data to the server, 0 = cache it for now
+ */
 void set_preference_backend(const char *key, size_t keylen, 
 			    long lvalue, 
 			    StrBuf *value, 
@@ -461,6 +522,7 @@ void set_preference_backend(const char *key, size_t keylen,
 {
 	wcsession *WCC = WC;
 	void *vPrefDef;
+	void *vPrefB;
 	Preference *Pref;
 
 	Pref = (Preference*) malloc(sizeof(Preference));
@@ -475,11 +537,13 @@ void set_preference_backend(const char *key, size_t keylen,
 	if (PrefType != NULL)
 	{
 		Pref->Type = PrefType;
-		if (Pref->Type->Type != lPrefType)
+		Pref->eFlatPrefType = PrefType->eType;
+		if (Pref->Type->eType != lPrefType)
 			lprintf(1, "warning: saving preference with wrong type [%s] %ld != %ld \n",
-				key, Pref->Type->Type, lPrefType);
-		switch (Pref->Type->Type)
+				key, Pref->Type->eType, lPrefType);
+		switch (Pref->Type->eType)
 		{
+		case PRF_UNSET: /* default to string... */
 		case PRF_STRING:
 			Pref->Val = value;
 			Pref->decoded = 1;
@@ -511,6 +575,7 @@ void set_preference_backend(const char *key, size_t keylen,
 			Pref->Type->OnLoad(Pref->Val, Pref->lval);
 	}
 	else {
+		Pref->eFlatPrefType = lPrefType;
 		switch (lPrefType)
 		{
 		case PRF_STRING:
@@ -541,6 +606,13 @@ void set_preference_backend(const char *key, size_t keylen,
 			break;
 		}
 	}
+
+	if ((save_to_server != 0) && 
+	    GetHash(WCC->hash_prefs, key, keylen, &vPrefB) && 
+	    (vPrefB != NULL) && 
+	    (compare_preference (Pref, vPrefB) == 0))
+		save_to_server = 0;
+
 	Put(WCC->hash_prefs, key, keylen, Pref, DestroyPreference);
 	
 	if (save_to_server) WCC->SavePrefsToServer = 1;
@@ -722,7 +794,8 @@ void GetPreferences(HashList *Setting)
 
 		if (!HaveBstr(SKEY(PrefType->Setting)))
 			continue;
-		switch (PrefType->Type) {
+		switch (PrefType->eType) {
+		case PRF_UNSET:
 		case PRF_STRING:
 			Buf = NewStrBufDup(SBstr(SKEY(PrefType->Setting)));
 			set_preference_backend(SKEY(PrefType->Setting),
@@ -791,8 +864,9 @@ void tmplput_CFG_Value(StrBuf *Target, WCTemplputParams *TP)
 		if (Pref->Type == NULL) {
 			StrBufAppendTemplate(Target, TP, Pref->Val, 1);
 		}
-		switch (Pref->Type->Type)
+		switch (Pref->Type->eType)
 		{
+		case PRF_UNSET: /* default to string... */
 		case PRF_STRING:
 			StrBufAppendTemplate(Target, TP, Pref->Val, 1);
 			break;

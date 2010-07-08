@@ -1,17 +1,18 @@
 
-
-#define PRF_STRING 1
-#define PRF_INT 2
-#define PRF_QP_STRING 3
-#define PRF_YESNO 4
-
+typedef enum _ePrefType{
+	PRF_UNSET = 0,
+	PRF_STRING = 1,
+	PRF_INT = 2,
+	PRF_QP_STRING = 3,
+	PRF_YESNO = 4
+} ePrefType;
 
 
 typedef void (*PrefEvalFunc)(StrBuf *Preference, long lvalue); 
 
 void _RegisterPreference(const char *Setting, long SettingLen, 
 			 const char *PrefStr, 
-			 long Type, 
+			 ePrefType Type, 
 			 PrefEvalFunc OnLoad, 
 			 const char *OnLoadName);
 
