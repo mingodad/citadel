@@ -206,9 +206,7 @@ further customization.
  ----------------
  
  WebCit contains support for calendaring and scheduling.  In order to use it
-you must have libical v0.26 (or newer) on your system.  You must also be
-running a Citadel server with calendaring support.  The calendar service will
-be automatically configured and installed if your host system supports it.
+you must have libical v0.26 (or newer) on your system.
  
  WebCit also provides iCalendar format free/busy data for calendar clients.
 Unlike with some other servers, there is no need for each user to "publish"

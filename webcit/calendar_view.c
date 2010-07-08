@@ -274,14 +274,19 @@ void calendar_month_view_display_events(int year, int month, int day)
 						);
 				}
 
+
 				wc_printf("<font size=\"-1\">"
 					"<a class=\"event%s\" href=\"display_edit_event?"
-					"msgnum=%ld?calview=month?year=%d?month=%d?day=%d\""
-					" btt_tooltext=\"",
+					"msgnum=%ld?calview=month?year=%d?month=%d?day=%d\">"
+					,
 					(Cal->unread)?"_unread":"_read",
 					Cal->cal_msgnum,
 					year, month, day
-					);
+				);
+
+				escputs((char *) icalproperty_get_comment(p));
+
+				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
 
 				wc_printf("<i>%s: %s</i><br />", _("From"), Cal->from);
 				wc_printf("<i>%s</i> ",          _("Summary:"));
@@ -377,9 +382,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 					wc_printf("<br />");
 				}
 				
-				wc_printf("\">");
-				escputs((char *)
-					icalproperty_get_comment(p));
+				wc_printf("</span><span class=\"bttbottom\"></span></span>");
 				wc_printf("</a></font><br />\n");
 				
 				if (all_day_event) {
@@ -663,21 +666,6 @@ void calendar_month_view(int year, int month, int day) {
 	wc_printf("</table>"			/* end of inner table */
 		"</td></tr></table>"		/* end of outer table */
 		"</div>\n");
-
-	/*
-	 * Initialize the bubble tooltips.
-	 *
-	 * Yes, this is as stupid as it looks.  Instead of just making the call
-	 * to btt_enableTooltips() straight away, we have to create a timer event
-	 * and let it initialize as an event after 1 millisecond.  This is to
-	 * work around a bug in Internet Explorer that causes it to crash if we
-	 * manipulate the innerHTML of various DOM nodes while the page is still
-	 * being rendered.  See http://www.shaftek.org/blog/archives/000212.html
-	 * for more information.
-	 */ 
-	StrBufAppendPrintf(WC->trailing_javascript,
-		" setTimeout(\"btt_enableTooltips('inner_month')\", 1);	\n"
-	);
 }
 
 /*
@@ -959,10 +947,13 @@ void calendar_day_view_display_events(time_t thetime,
 				wc_printf("<li class=\"event_framed%s\"> "
 					"<a href=\"display_edit_event?"
 					"msgnum=%ld?calview=day?year=%d?month=%d?day=%d\" "
-					" class=\"event_title\" "
-					" btt_tooltext=\"",
+					" class=\"event_title\">"
+					,
 					(Cal->unread)?"_unread":"_read",
-                                        Cal->cal_msgnum, year, month, day);
+                                        Cal->cal_msgnum, year, month, day
+				);
+                                escputs((char *) icalproperty_get_comment(p));
+				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
                                 wc_printf("<i>%s</i><br />",      _("All day event"));
 				wc_printf("<i>%s: %s</i><br />",  _("From"), Cal->from);
                                 wc_printf("<i>%s</i> ",           _("Summary:"));
@@ -990,8 +981,7 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br />");
                                 }
-                                wc_printf("\">");
-                                escputs((char *) icalproperty_get_comment(p));
+				wc_printf("</span><span class=\"bttbottom\"></span></span>");
                                 wc_printf("</a> <span>(");
                                 wc_printf(_("All day event"));
                                 wc_printf(")</span></li>\n");
@@ -1001,10 +991,13 @@ void calendar_day_view_display_events(time_t thetime,
 				wc_printf("<li class=\"event_framed%s\"> "
 					"<a href=\"display_edit_event?"
 					"msgnum=%ld&calview=day?year=%d?month=%d?day=%d\" "
-					" class=\"event_title\" " 
-					"btt_tooltext=\"",
+					" class=\"event_title\">" 
+					,
 					(Cal->unread)?"_unread":"_read",
-					Cal->cal_msgnum, year, month, day);
+					Cal->cal_msgnum, year, month, day
+				);
+				escputs((char *) icalproperty_get_comment(p));
+				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
                                 wc_printf("<i>%s</i><br />",     _("Ongoing event"));
 				wc_printf("<i>%s: %s</i><br />", _("From"), Cal->from);
                                 wc_printf("<i>%s</i> ",          _("Summary:"));
@@ -1026,8 +1019,7 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br />");
                                 }
-                                wc_printf("\">");
-				escputs((char *) icalproperty_get_comment(p));
+                                wc_printf("</span><span class=\"bttbottom\"></span></span>");
 				wc_printf("</a> <span>(");
 				wc_printf(_("Ongoing event"));
 				wc_printf(")</span></li>\n");
@@ -1082,9 +1074,12 @@ void calendar_day_view_display_events(time_t thetime,
 					);
 				wc_printf("<a href=\"display_edit_event?"
 					"msgnum=%ld?calview=day?year=%d?month=%d?day=%d?hour=%d\" "
-					"class=\"event_title\" "
-                               		"btt_tooltext=\"",
-					Cal->cal_msgnum, year, month, day, t.hour);
+					"class=\"event_title\">"
+					,
+					Cal->cal_msgnum, year, month, day, t.hour
+				);
+				escputs((char *) icalproperty_get_comment(p));
+				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
 				wc_printf("<i>%s: %s</i><br />", _("From"), Cal->from);
                                 wc_printf("<i>%s</i> ",          _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
@@ -1111,9 +1106,7 @@ void calendar_day_view_display_events(time_t thetime,
                                         escputs((char *)icalproperty_get_comment(q));
                                         wc_printf("<br />");
                                 }
-                                wc_printf("\">");
-
-				escputs((char *) icalproperty_get_comment(p));
+				wc_printf("</span><span class=\"bttbottom\"></span></span>");
 				wc_printf("</a></dd>\n");
 			}
 		}
@@ -1342,10 +1335,6 @@ void calendar_day_view(int year, int month, int day) {
 
 	wc_printf("</table>"			/* end of inner table */
 		"</div>");
-
-	StrBufAppendPrintf(WC->trailing_javascript,
-                " setTimeout(\"btt_enableTooltips('inner_day')\", 1);	\n"
-        );
 }
 
 

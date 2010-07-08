@@ -1735,3 +1735,57 @@ li.event_unread span, a.event_read_title {
 
 .chat_text_class {
 }
+
+/*---------- bubble tooltips start -----------*/
+
+a.event_title, a.event_unread, a.event_read {
+	position:relative;
+	z-index:24;
+}
+
+a.event_title span, a.event_unread span, a.event_read span {
+	display: none;
+}
+
+/* background:; ie hack, something must be changed in a for ie to execute it */
+
+a.event_title:hover, a.event_unread:hover, a.event_read:hover {
+	z-index:25;
+	background:;
+}
+
+a.event_title:hover span.tooltip, a.event_unread:hover span.tooltip, a.event_read:hover span.tooltip {
+	display:block;
+	position:absolute;
+	top:0px; left:0;
+	padding: 15px 0 0 0;
+	width:200px;
+	text-align: center;
+	filter: alpha(opacity:90);
+	KHTMLOpacity: 0.90;
+	MozOpacity: 0.90;
+	opacity: 0.90;
+}
+
+a.event_title:hover span.btttop, a.event_unread:hover span.btttop, a.event_read:hover span.btttop {
+	display: block;
+	padding: 30px 8px 0;
+	background: url(/static/bubble.gif) no-repeat top;
+}
+
+/* different middle bg for stretch */
+a.event_title:hover span.bttmiddle, a.event_unread:hover span.bttmiddle, a.event_read:hover span.bttmiddle {
+	display: block;
+	padding: 0 8px; 
+	background: url(/static/bubble_filler.gif) repeat bottom; 
+	color: #022750;
+	font-size: 10px;
+}
+
+a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event_read:hover span.bttbottom {
+	display: block;
+	padding:3px 8px 10px;
+	background: url(/static/bubble.gif) no-repeat bottom;
+}
+
+/*---------- bubble tooltips end -----------*/
