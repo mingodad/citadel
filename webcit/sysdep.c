@@ -159,7 +159,7 @@ void worker_entry(void)
 	http_new_modules(&Hdr);	
 
 	do {
-		/* Only one thread can accept at a time */
+		/* Each worker thread blocks on accept() while waiting for something to do. */
 		fail_this_transaction = 0;
 		ssock = -1; 
 		errno = EAGAIN;
@@ -167,11 +167,7 @@ void worker_entry(void)
 			--num_threads_executing;
 			ssock = accept(msock, NULL, 0);
 			++num_threads_executing;
-			lprintf(9, "Thread %u woke up, accept() returned %d %s\n",
-				pthread_self(),
-				ssock,
-				((ssock >= 0) ? "" : strerror(errno))
-			);
+			if (ssock < 0) fail_this_transaction = 1;
 		} while ((msock > 0) && (ssock < 0)  && (time_to_die == 0));
 
 		if ((msock == -1)||(time_to_die))
@@ -201,7 +197,7 @@ void worker_entry(void)
 
 				ShutDownWebcit();
 
-				lprintf(2, "master shutdown exiting!.\n");				
+				lprintf(2, "master shutdown exiting.\n");				
 				exit(0);
 			}
 			break;
@@ -267,7 +263,7 @@ void worker_entry(void)
 	} while (!time_to_die);
 
 	http_destroy_modules(&Hdr);
-	lprintf (1, "bye\n");
+	lprintf (1, "Thread exiting.\n");
 	pthread_exit(NULL);
 }
 
@@ -298,7 +294,7 @@ int lprintf(int loglevel, const char *format, ...)
  */
 pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
-	lprintf (1, "bye; shutting down watcher.");
+	lprintf (1, "Watcher thread exiting.\n");
 	kill(current_child, signum);
 	if (signum != SIGHUP)
 		exit(0);
