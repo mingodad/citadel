@@ -83,7 +83,6 @@ function createMessageView() {
 	$('resize_msglist').observe('mousedown', CtdlResizeMouseDown);
 	$('m_refresh').observe('click', getMessages);
 	document.getElementById('m_refresh').setAttribute("href","#");
-	Event.observe(document.onresize ? document : window, "resize", normalizeHeaderTable);
 	Event.observe(document.onresize ? document : window, "resize", sizePreviewPane);
 	$('summpage').observe('change', getPage);
 	takeOverSearchOMatic();
@@ -188,7 +187,7 @@ function resortAndDisplay(sortMode) {
 	var start = new Date();
 	var length = msgs.length;
 	var compiled = new Array(length+2);
-	compiled[0] = "<tbody xmlns:citadel=\"http://citadel.org\" id=\"message_list_body\" class=\"mailbox_summary\">";
+	compiled[0] = "<table class=\"mailbox_summary\" id=\"summary_headers\" \"cellspacing=0\" style=\"width:100%;-moz-user-select:none;\">";
 	for(var x=0; x<length; ++x) {
 		try {
 			var currentRow = msgs[x];
@@ -214,7 +213,7 @@ function resortAndDisplay(sortMode) {
 			WCLog("Exception on row " +  x + ":" + e);
 		}
 	}
-	compiled[length+2] = "</tbody>";
+	compiled[length+2] = "</table>";
 	var end = new Date();
 	WCLog("iterate: " + (end-start));
 	var compile = compiled.join("");
@@ -226,7 +225,6 @@ function resortAndDisplay(sortMode) {
 	var delta = end.getTime() - start.getTime();
 	WCLog("append: " + delta);
 	ApplySorterToggle();
-	normalizeHeaderTable();
 }
 function sortRowsByDateAscending(a, b) {
 	var dateOne = a[3];
@@ -519,17 +517,6 @@ function ApplySorterToggle() {
 	}
 	currentSorterToggle.className = className;
 }
-/** Hack to make the header table line up with the data */
-function normalizeHeaderTable() {
-	var message_list_hdr = document.getElementById("message_list_hdr");
-	var summary_view = document.getElementById("summary_view");
-	var resize_msglist = document.getElementById("resize_msglist");
-	var headerTable = message_list_hdr.getElementsByTagName("table")[0];
-	var dataTable = summary_view.getElementsByTagName("table")[0];
-	var dataTableWidth = dataTable.offsetWidth;
-	headerTable.style.width = dataTableWidth+"px";
-}
-
 function setupPageSelector() {
 	var summpage = document.getElementById("summpage");
 	var select_page = document.getElementById("selectpage");
