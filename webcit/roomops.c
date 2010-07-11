@@ -2623,9 +2623,14 @@ void entroom(void)
 	/** TODO: Room created, now udate the left hand icon bar for this user */
 	burn_folder_cache(0);	/* burn the old folder cache */
 	
-	
+	/////////////
 	gotoroom(er_name);
-	do_change_view(er_view);		/* Now go there */
+
+	serv_printf("VIEW %d", er_view);
+	serv_getln(buf, sizeof buf);
+	WC->CurRoom.view = er_view;
+
+	display_editroom ();
 }
 
 
