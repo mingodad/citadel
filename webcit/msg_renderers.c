@@ -1242,18 +1242,8 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 		StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
 	else {
 		StrBuf_RFC822_to_Utf8(Msg->subj, ConversionBuffer, WCC->DefaultCharset, NULL);
-		if ((StrLength(Msg->subj) > 75) && 
-		    (StrBuf_Utf8StrLen(Msg->subj) > 75)) {
-			StrBuf_Utf8StrCut(Msg->subj, 72);
-			StrBufAppendBufPlain(Msg->subj, HKEY("..."), 0);
-		}
 	}
 
-	if ((StrLength(Msg->from) > 25) && 
-	    (StrBuf_Utf8StrLen(Msg->from) > 25)) {
-		StrBuf_Utf8StrCut(Msg->from, 23);
-		StrBufAppendBufPlain(Msg->from, HKEY("..."), 0);
-	}
 	return 1;
 }
 
