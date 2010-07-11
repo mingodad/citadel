@@ -647,7 +647,19 @@ void network_spool_msg(long msgnum, void *userdata) {
 		 */
 		msg = CtdlFetchMessage(msgnum, 1);
 		if (msg != NULL) {
-
+			if (msg->cm_fields['V'] == NULL){
+				/* local message, no enVelope */
+				StrBuf *Buf;
+				Buf = NewStrBuf();
+				StrBufAppendBufPlain(Buf, msg->cm_fields['O'], -1, 0);
+				StrBufAppendBufPlain(Buf, HKEY("@"), 0);
+				StrBufAppendBufPlain(Buf, config.c_fqdn, -1, 0);
+				
+				msg->cm_fields['K'] = SmashStrBuf(&Buf);
+			}
+			else {
+				msg->cm_fields['K'] = strdup (msg->cm_fields['V']);
+			}
 			/* Set the 'List-ID' header */
 			if (msg->cm_fields['L'] != NULL) {
 				free(msg->cm_fields['L']);

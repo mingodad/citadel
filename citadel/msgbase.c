@@ -1891,6 +1891,9 @@ void OutputRFC822MsgHeaders(
 					}
 				}
 			}
+			else if (i == 'K') {
+				cprintf("Reply-To: <%s>%s", mptr, nl);
+			}
 			if (mptr != mpptr)
 				free (mptr);
 		}
