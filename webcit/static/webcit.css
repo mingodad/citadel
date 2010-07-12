@@ -1480,10 +1480,7 @@ td.events_of_the_day {
 }
 
 .event_framed_unread {
-	filter:alpha(opacity=50);   /* Internet Explorer 6     */
-	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
-	opacity: 0.5;               /* CSS3 draft and Mozilla  */
-	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	-moz-border-radius: 8px;
 	border: solid 1px red;
 	background-color: yellow;
 	z-index: 10;
@@ -1491,17 +1488,11 @@ td.events_of_the_day {
 }
 
 li.event_framed_unread span, a.event_title {
-	filter:alpha(opacity=100); 
-   	-moz-opacity:1.0;         
-   	opacity: 1.0;
 	font-size: 100%;     
 }
 
 .event_framed_read {
-	filter:alpha(opacity=50);   /* Internet Explorer 6     */
-	-moz-opacity:0.5;           /* Mozilla 1.6 and prec.   */
-	opacity: 0.5;               /* CSS3 draft and Mozilla  */
-	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	-moz-border-radius: 8px;
 	border: solid 1px red;
 	background-color: yellow;
 	z-index: 10;
@@ -1509,9 +1500,6 @@ li.event_framed_unread span, a.event_title {
 }
 
 li.event_framed_read span, a.event_title {
-	filter:alpha(opacity=100); 
-   	-moz-opacity:1.0;         
-   	opacity: 1.0;
 	font-size: 100%;  
 }
 
@@ -1519,9 +1507,6 @@ li.event_framed_read span, a.event_title {
 }
 
 li.event_read span, a.event_read_title {
-	filter:alpha(opacity=100); 
-   	-moz-opacity:1.0;         
-   	opacity: 1.0;
 	font-size: 100%;     
 }
 
@@ -1529,9 +1514,6 @@ li.event_read span, a.event_read_title {
 }
 
 li.event_unread span, a.event_read_title {
-	filter:alpha(opacity=100); 
-   	-moz-opacity:1.0;         
-   	opacity: 1.0;
 	font-size: 100%;     
 }
 
@@ -1763,10 +1745,6 @@ a.event_title:hover span.tooltip, a.event_unread:hover span.tooltip, a.event_rea
 	padding: 15px 0 0 0;
 	width:200px;
 	text-align: center;
-	filter: alpha(opacity:90);
-	KHTMLOpacity: 0.90;
-	MozOpacity: 0.90;
-	opacity: 0.90;
 }
 
 a.event_title:hover span.btttop, a.event_unread:hover span.btttop, a.event_read:hover span.btttop {
