@@ -204,6 +204,8 @@ void worker_entry(void)
 		}
 		if (ssock < 0 ) continue;
 
+		check_thread_pool_size();
+
 		/* Now do something. */
 		if (msock < 0) {
 			if (ssock > 0) close (ssock);
@@ -428,8 +430,6 @@ void spawn_another_worker_thread()
 	pthread_t SessThread;	/* Thread descriptor */
 	pthread_attr_t attr;	/* Thread attributes */
 	int ret;
-
-	lprintf(3, "Creating a new thread.\n");
 
 	++num_threads_existing;
 	++num_threads_executing;

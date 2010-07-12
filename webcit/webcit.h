@@ -822,6 +822,7 @@ void sleeeeeeeeeep(int);
 void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
 void do_selected_iconbar(void);
+void check_thread_pool_size(void);
 void spawn_another_worker_thread(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
 void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
@@ -899,3 +900,4 @@ void http_datestring(char *buf, size_t n, time_t xtime);
 #define WC_TIMEFORMAT_AMPM 1
 #define WC_TIMEFORMAT_24 2
 
+extern int time_to_die;			/* Nonzero if server is shutting down */
