@@ -2583,6 +2583,7 @@ void entroom(void)
 	int er_floor;
 	int er_num_type;
 	int er_view;
+	wcsession *WCC = WC;
 
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
@@ -2616,21 +2617,24 @@ void entroom(void)
 
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '2') {
-		strcpy(WC->ImportantMessage, &buf[4]);
+		strcpy(WCC->ImportantMessage, &buf[4]);
 		display_main_menu();
 		return;
 	}
-	/** TODO: Room created, now udate the left hand icon bar for this user */
+	/** TODO: Room created, now update the left hand icon bar for this user */
 	burn_folder_cache(0);	/* burn the old folder cache */
 	
-	/////////////
 	gotoroom(er_name);
 
 	serv_printf("VIEW %d", er_view);
 	serv_getln(buf, sizeof buf);
-	WC->CurRoom.view = er_view;
+	WCC->CurRoom.view = er_view;
 
-	display_editroom ();
+	if (WCC->is_aide || WCC->is_room_aide)
+		display_editroom ();
+	else 
+        	do_change_view(er_view);                /* Now go there */
+
 }
 
 
