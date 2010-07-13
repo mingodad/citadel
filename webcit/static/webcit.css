@@ -99,7 +99,7 @@ body {
 
 #room_infos, #address_book_popup, .mimepart, .room_actions form select {
 	border: 1px solid #333;
-	overflow: hidden;
+	overflow: scroll;
 }
 
 
@@ -609,8 +609,14 @@ body, #global {
 }
 
 #login_screen, #logout_screen {
-	margin: 0;
+	position: fixed;
+	margin: 0px;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
 	padding: 3% 6% 3% 6%;
+	overflow: auto;
 }
 
 #convlogin, #validate {
