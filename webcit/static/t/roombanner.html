@@ -1,23 +1,29 @@
 <!-- start roombanner.html -->
-<div>
-<div class="banner" id="room_banner" >
+<div class="banner" id="room_banner">
+<table border=0><tr>
+<td>
 <?ROOMPIC>
+</td>
+<td>
 <h1 id="rmname"><?ROOMNAME></h1>
 <?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")>
 <h2><?BSTR("page")></h2>
 <?!("X", 7)>
-<?ROOMINFO>
 <??("COND:ROOM:TYPE_IS", 8, #"VIEW_WIKI")>
 <p id="nummsgs"><?NUMMSGS></p>
 <?!("X", 8)>
-</div>
-<div id="actiondiv">
+</td>
+<td>
+<?ROOMINFO>
+</td>
+<td id="actiondiv">
 <ul class="room_actions">
 <li class="start_page"><?START></li>
 <li class="search" id="searchomatic"><?SEARCHOMATIC></li>
 <li class="view"><?VIEWOMATIC></li>
 <??("COND:SUBST", 1, "WCVIEW", "1")><li class="hidden" id="selectpage"><?_("Select page: ")> <select id="summpage"><option> </option></select></li><??("X",1)>
 </ul>
-</div>
+</td>
+</tr></table>
 </div>
 <!-- end roombanner.html -->
