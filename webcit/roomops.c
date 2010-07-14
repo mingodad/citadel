@@ -16,6 +16,7 @@ char *viewdefs[9];			/* the different kinds of available views */
  */
 
 void display_whok(void);
+int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP);
 
 /*
  * Initialize the viewdefs with localized strings
@@ -1114,7 +1115,7 @@ void display_editroom(void)
 	wc_printf("</td>\n");
 	wc_printf("<td>&nbsp;</td>\n");
 
-	if ( (WC->axlevel >= 6) || (WC->is_room_aide) ) {
+	if ( ConditionalHaveRoomeditRights(NULL, NULL)) {
 
 		wc_printf("<td class=\"");
 		if (!strcmp(tab, "config")) {
@@ -3119,14 +3120,15 @@ void tmplput_ungoto(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
-	return (WCC != NULL)? (WCC->is_room_aide == 0) : 0;
+	return (WCC != NULL)? 
+		((WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) : 0;
 }
 
 int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	return (WCC == NULL)? 0 : 
-		( (WCC->is_room_aide) || /////TODO!
+		( ((WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) ||
 		   (WCC->CurRoom.is_inbox) || 
 		   (WCC->CurRoom.QRFlags2 & QR2_COLLABDEL) );
 }
@@ -3200,7 +3202,7 @@ int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 
 	return ( (WCC!= NULL) && 
 		 ((WCC->axlevel >= 6) || 
-		  (WCC->is_room_aide) || 
+		  ((WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) ||
 		  (WCC->CurRoom.is_inbox) ));
 }
 
