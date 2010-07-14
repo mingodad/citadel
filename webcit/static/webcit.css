@@ -153,6 +153,7 @@ body {
 	color: #FFF;
 	margin: 0;
 	padding: 0;
+	top: 0;
 	height: 120px;		/* when changing this, also change #content */
 	position: fixed;
 	width: 84%;		/* when changing this, also change #iconbar and #content */
