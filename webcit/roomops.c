@@ -845,8 +845,9 @@ void ParseGoto(folder *room, StrBuf *Line)
 	room->is_inbox = StrBufExtractNext_long(Line, &Pos, '|'); // is_mailbox
 
 	flag = StrBufExtractNext_long(Line, &Pos, '|');
-	if (WCC->is_aide || flag)
+	if (WCC->is_aide || flag) {
 		room->RAFlags |= UA_ADMINALLOWED;
+	}
 
 	room->UsersNewMAilboxMessages = StrBufExtractNext_long(Line, &Pos, '|');
 
@@ -2631,10 +2632,11 @@ void entroom(void)
 	serv_getln(buf, sizeof buf);
 	WCC->CurRoom.view = er_view;
 
-	if (WCC->is_aide || WCC->is_room_aide)
+	if ( (WCC != NULL) && ( (WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) )  {
 		display_editroom ();
-	else 
+	} else {
         	do_change_view(er_view);                /* Now go there */
+	}
 
 }
 
