@@ -1406,7 +1406,7 @@ InitModule_MSGRENDERERS
 			 NULL, NULL, CTX_MIME_ATACH, CTX_NONE, IT_NOFLAG);
 
 	/* mime renderers translate an attachment into webcit viewable html text */
-	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 1, 150);
+	RegisterMimeRenderer(HKEY("message/rfc822"), render_MAIL, 0, 150);
 	RegisterMimeRenderer(HKEY("text/vnote"), render_MIME_VNote, 1, 300);
 	RegisterMimeRenderer(HKEY("text/x-vcard"), render_MIME_VCard, 1, 201);
 	RegisterMimeRenderer(HKEY("text/vcard"), render_MIME_VCard, 1, 200);
