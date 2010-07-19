@@ -1,8 +1,20 @@
-citadel (7.79-87) stable; urgency=low
+citadel (7.80-91) stable; urgency=low
 
-  * beta
+  * new upstream version
 
- -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Mon, 22 Dec 2009 22:00:00 +0001
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 19 Jul 2010 22:00:00 +0001
+
+citadel (7.72-90) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Wed, 17 Feb 2010 22:00:00 +0001
+
+citadel (7.71-89) stable; urgency=low
+
+  * new upstream version
+
+ -- Wilfried Goesgens <w.goesgens@outgesourced.org>  Tue, 5 Jan 2010 22:00:00 +0001
 
 citadel (7.70-87) stable; urgency=low
 
