@@ -95,7 +95,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	int nbytes = 0;
 	char *diffbuf = NULL;
 	size_t diffbuf_len = 0;
-	const char *ptr = NULL;
+	char *ptr = NULL;
 
 	if (!CCC->logged_in) return(0);	/* Only do this if logged in. */
 

@@ -1426,7 +1426,7 @@ void imap_command_loop(void)
 		CtdlLogPrintf(CTDL_INFO, "IMAP: <plain_auth>\n");
 	}
 	else if ((Imap->authstate == imap_as_expecting_multilineusername) || 
-		 bmstrcasestr(ChrPtr(Imap->Cmd.CmdBuf), " LOGIN ")) {
+		 cbmstrcasestr(ChrPtr(Imap->Cmd.CmdBuf), " LOGIN ")) {
 		CtdlLogPrintf(CTDL_INFO, "IMAP: LOGIN...\n");
 	}
 	else {

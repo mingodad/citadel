@@ -629,7 +629,65 @@ int is_msg_in_sequence_set(const char *mset, long msgnum) {
  * \param maxlen Size of string buffer
  * \return Pointer to the source memory right after we stopped reading.
  */
-const char *memreadline(const char *start, char *buf, int maxlen)
+char *memreadline(char *start, char *buf, int maxlen)
+{
+	char ch;
+	char *ptr;
+	int len = 0;		/**< tally our own length to avoid strlen() delays */
+
+	ptr = start;
+
+	while (1) {
+		ch = *ptr++;
+		if ((len + 1 < (maxlen)) && (ch != 13) && (ch != 10)) {
+			buf[len++] = ch;
+		}
+		if ((ch == 10) || (ch == 0)) {
+			buf[len] = 0;
+			return ptr;
+		}
+	}
+}
+
+
+/** 
+ * \brief Utility function to "readline" from memory
+ * \param start Location in memory from which we are reading.
+ * \param buf the buffer to place the string in.
+ * \param maxlen Size of string buffer
+ * \param retlen the length of the returned string
+ * \return Pointer to the source memory right after we stopped reading.
+ */
+char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen)
+{
+	char ch;
+	char *ptr;
+	int len = 0;		/**< tally our own length to avoid strlen() delays */
+
+	ptr = start;
+
+	while (1) {
+		ch = *ptr++;
+		if ((len + 1 < (maxlen)) && (ch != 13) && (ch != 10)) {
+			buf[len++] = ch;
+		}
+		if ((ch == 10) || (ch == 0)) {
+			buf[len] = 0;
+			*retlen = len;
+			return ptr;
+		}
+	}
+}
+
+
+/** 
+ * \brief Utility function to "readline" from memory
+ * \param start Location in memory from which we are reading.
+ * \param buf the buffer to place the string in.
+ * \param maxlen Size of string buffer
+ * \return Pointer to the source memory right after we stopped reading.
+ */
+const char *cmemreadline(const char *start, char *buf, int maxlen)
 {
 	char ch;
 	const char *ptr;
@@ -658,7 +716,7 @@ const char *memreadline(const char *start, char *buf, int maxlen)
  * \param retlen the length of the returned string
  * \return Pointer to the source memory right after we stopped reading.
  */
-const char *memreadlinelen(const char *start, char *buf, int maxlen, int *retlen)
+const char *cmemreadlinelen(const char *start, char *buf, int maxlen, int *retlen)
 {
 	char ch;
 	const char *ptr;
@@ -805,7 +863,7 @@ void generate_uuid(char *buf) {
  * The code is roughly based on the strstr() replacement from 'tin' written
  * by Urs Jannsen.
  */
-inline static const char *_bmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen) {
+inline static char *_bmstrcasestr_len(char *text, size_t textlen, const char *pattern, size_t patlen) {
 
 	register unsigned char *p, *t;
 	register int i, j, *delta;
@@ -863,7 +921,7 @@ inline static const char *_bmstrcasestr_len(const char *text, size_t textlen, co
  * The code is roughly based on the strstr() replacement from 'tin' written
  * by Urs Jannsen.
  */
-const char *bmstrcasestr(const char *text, const char *pattern) {
+char *bmstrcasestr(char *text, const char *pattern) {
 	size_t textlen;
 	size_t patlen;
 
@@ -876,8 +934,93 @@ const char *bmstrcasestr(const char *text, const char *pattern) {
 	return _bmstrcasestr_len(text, textlen, pattern, patlen);
 }
 
-const char *bmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen) {
+char *bmstrcasestr_len(char *text, size_t textlen, const char *pattern, size_t patlen) {
 	return _bmstrcasestr_len(text, textlen, pattern, patlen);
+}
+
+
+
+
+/*
+ * bmstrcasestr() -- case-insensitive substring search
+ *
+ * This uses the Boyer-Moore search algorithm and is therefore quite fast.
+ * The code is roughly based on the strstr() replacement from 'tin' written
+ * by Urs Jannsen.
+ */
+inline static const char *_cbmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen) {
+
+	register unsigned char *p, *t;
+	register int i, j, *delta;
+	register size_t p1;
+	int deltaspace[256];
+
+	if (!text) return(NULL);
+	if (!pattern) return(NULL);
+
+	/* algorithm fails if pattern is empty */
+	if ((p1 = patlen) == 0)
+		return (text);
+
+	/* code below fails (whenever i is unsigned) if pattern too long */
+	if (p1 > textlen)
+		return (NULL);
+
+	/* set up deltas */
+	delta = deltaspace;
+	for (i = 0; i <= 255; i++)
+		delta[i] = p1;
+	for (p = (unsigned char *) pattern, i = p1; --i > 0;)
+		delta[tolower(*p++)] = i;
+
+	/*
+	 * From now on, we want patlen - 1.
+	 * In the loop below, p points to the end of the pattern,
+	 * t points to the end of the text to be tested against the
+	 * pattern, and i counts the amount of text remaining, not
+	 * including the part to be tested.
+	 */
+	p1--;
+	p = (unsigned char *) pattern + p1;
+	t = (unsigned char *) text + p1;
+	i = textlen - patlen;
+	while(1) {
+		if (tolower(p[0]) == tolower(t[0])) {
+			if (strncasecmp ((const char *)(p - p1), (const char *)(t - p1), p1) == 0) {
+				return ((char *)t - p1);
+			}
+		}
+		j = delta[tolower(t[0])];
+		if (i < j)
+			break;
+		i -= j;
+		t += j;
+	}
+	return (NULL);
+}
+
+/*
+ * bmstrcasestr() -- case-insensitive substring search
+ *
+ * This uses the Boyer-Moore search algorithm and is therefore quite fast.
+ * The code is roughly based on the strstr() replacement from 'tin' written
+ * by Urs Jannsen.
+ */
+const char *cbmstrcasestr(const char *text, const char *pattern) {
+	size_t textlen;
+	size_t patlen;
+
+	if (!text) return(NULL);
+	if (!pattern) return(NULL);
+
+	textlen = strlen (text);
+	patlen = strlen (pattern);
+
+	return _cbmstrcasestr_len(text, textlen, pattern, patlen);
+}
+
+const char *cbmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen) {
+	return _cbmstrcasestr_len(text, textlen, pattern, patlen);
 }
 
 /*

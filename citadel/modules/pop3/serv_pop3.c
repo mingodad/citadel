@@ -420,7 +420,7 @@ void pop3_top(char *argbuf) {
 	cprintf("+OK Message %d:\r\n", which_one);
 	
 	ptr = ChrPtr(msgtext);
-	while (ptr = memreadline(ptr, buf, (sizeof buf - 2)),
+	while (ptr = cmemreadline(ptr, buf, (sizeof buf - 2)),
 	      ( (*ptr != 0) && (done == 0))) {
 		strcat(buf, "\r\n");
 		if (in_body == 1) {

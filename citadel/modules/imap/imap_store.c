@@ -105,7 +105,7 @@ void imap_do_store(citimap_command *Cmd) {
 
 	if (Cmd->num_parms < 2) return;
 	oper = Cmd->Params[0].Key;
-	if (bmstrcasestr(oper, ".SILENT")) {
+	if (cbmstrcasestr(oper, ".SILENT")) {
 		silent = 1;
 	}
 

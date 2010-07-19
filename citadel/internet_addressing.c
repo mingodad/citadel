@@ -864,13 +864,13 @@ char *rfc822_fetch_field(const char *rfc822, const char *fieldname) {
 	snprintf(fieldhdr, sizeof fieldhdr, "%s:", fieldname);
 
 	/* Locate the end of the headers, so we don't run past that point */
-	end_of_headers = bmstrcasestr(rfc822, "\n\r\n");
+	end_of_headers = cbmstrcasestr(rfc822, "\n\r\n");
 	if (end_of_headers == NULL) {
-		end_of_headers = bmstrcasestr(rfc822, "\n\n");
+		end_of_headers = cbmstrcasestr(rfc822, "\n\n");
 	}
 	if (end_of_headers == NULL) return (NULL);
 
-	field_start = bmstrcasestr(rfc822, fieldhdr);
+	field_start = cbmstrcasestr(rfc822, fieldhdr);
 	if (field_start == NULL) return(NULL);
 	if (field_start > end_of_headers) return(NULL);
 
@@ -878,11 +878,11 @@ char *rfc822_fetch_field(const char *rfc822, const char *fieldname) {
 	strcpy(fieldbuf, "");
 
 	ptr = field_start;
-	ptr = memreadline(ptr, fieldbuf, SIZ-strlen(fieldbuf) );
+	ptr = cmemreadline(ptr, fieldbuf, SIZ-strlen(fieldbuf) );
 	while ( (isspace(ptr[0])) && (ptr < end_of_headers) ) {
 		strcat(fieldbuf, " ");
 		cont = &fieldbuf[strlen(fieldbuf)];
-		ptr = memreadline(ptr, cont, SIZ-strlen(fieldbuf) );
+		ptr = cmemreadline(ptr, cont, SIZ-strlen(fieldbuf) );
 		striplt(cont);
 	}
 

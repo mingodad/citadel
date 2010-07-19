@@ -503,7 +503,7 @@ void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *sou
 	ptr = ChrPtr(source_buf);
 
 	FlushStrBuf(target_buf);
-	while (ptr = bmstrcasestr(ptr, "<link"), ptr != NULL) {
+	while (ptr = cbmstrcasestr(ptr, "<link"), ptr != NULL) {
 
 		link_tag_start = ptr;
 		link_tag_end = strchr(ptr, '>');
@@ -512,7 +512,7 @@ void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *sou
 		for (i=0; i < 1; i++ ){
 			len = link_tag_end - link_tag_start;
 
-			rel_start = bmstrcasestr(link_tag_start, "rel=");
+			rel_start = cbmstrcasestr(link_tag_start, "rel=");
 			if ((rel_start == NULL) ||
 			    (rel_start > link_tag_end)) 
 				continue;
@@ -530,7 +530,7 @@ void extract_link(StrBuf *target_buf, const char *rel, long repllen, StrBuf *sou
 			if (strncasecmp(rel, rel_start, repllen)!= 0)
 				continue; /* didn't match? never mind... */
 			
-			href_start = bmstrcasestr(link_tag_start, "href=");
+			href_start = cbmstrcasestr(link_tag_start, "href=");
 			if ((href_start == NULL) || 
 			    (href_start >= link_tag_end)) 
 				continue;
@@ -842,7 +842,7 @@ void cmd_oidf(char *argbuf) {
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
 
-	if (bmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true")) {
+	if (cbmstrcasestr(ChrPtr(ReplyBuf), "is_valid:true")) {
 		oiddata->verified = 1;
 	}
 	FreeStrBuf(&ReplyBuf);

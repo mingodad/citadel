@@ -946,7 +946,7 @@ void imap_fetch_bodystructure (long msgnum, const char *item,
 
 		ptr = rfc822;
 		do {
-			ptr = memreadline(ptr, buf, sizeof buf);
+			ptr = cmemreadline(ptr, buf, sizeof buf);
 			++lines;
 			if ((IsEmptyStr(buf)) && (rfc822_body == NULL)) {
 				rfc822_body = ptr;

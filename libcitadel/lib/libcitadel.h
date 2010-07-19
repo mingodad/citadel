@@ -319,8 +319,10 @@ int haschar(const char *st, int ch);
 void remove_token(char *source, int parmnum, char separator);
 void fmt_date(char *buf, size_t n, time_t thetime, int seconds);
 int is_msg_in_sequence_set(const char *mset, long msgnum);
-const char *memreadline(const char *start, char *buf, int maxlen);
-const char *memreadlinelen(const char *start, char *buf, int maxlen, int *retlen);
+char *memreadline(char *start, char *buf, int maxlen);
+char *memreadlinelen(char *start, char *buf, int maxlen, int *retlen);
+const char *cmemreadline(const char *start, char *buf, int maxlen);
+const char *cmemreadlinelen(const char *start, char *buf, int maxlen, int *retlen);
 #define IsEmptyStr(a) ((a)[0] == '\0')
 #define num_parms(source)		num_tokens(source,(char)'|')
 int stripout(char *str, char leftboundary, char rightboundary);
@@ -330,8 +332,10 @@ void urlesc(char *outbuf, size_t oblen, char *strbuf);
 char *CtdlTempFileName(char *prefix1, int prefix2);
 FILE *CtdlTempFile(void);
 void generate_uuid(char *buf);
-const char *bmstrcasestr(const char *text, const char *pattern);
-const char *bmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen);
+char *bmstrcasestr(char *text, const char *pattern);
+char *bmstrcasestr_len(char *text, size_t textlen, const char *pattern, size_t patlen);
+const char *cbmstrcasestr(const char *text, const char *pattern);
+const char *cbmstrcasestr_len(const char *text, size_t textlen, const char *pattern, size_t patlen);
 void CtdlMakeTempFileName(char *name, int len);
 char *rfc2047encode(char *line, long length);
 int is_msg_in_mset(const char *mset, long msgnum);

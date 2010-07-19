@@ -1002,7 +1002,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		scan_done = 0;
 		ptr = msgtext;
 		do {
-			if (ptr = memreadline(ptr, buf, sizeof buf), *ptr == 0) {
+			if (ptr = cmemreadline(ptr, buf, sizeof buf), *ptr == 0) {
 				scan_done = 1;
 			}
 			if (!strncasecmp(buf, "From:", 5)) {
