@@ -31,6 +31,10 @@ else
 	BUILD="GIT: $BRANCH : $TAG"
 	echo "This code base git-revision: $BUILD"
 	CAN_BUILD_SVN_REVISION="yes"
+    else
+	if test -f $C_FILE; then
+	    exit
+	fi
     fi
 fi
 
