@@ -650,7 +650,7 @@ void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
 	void *vMimeRenderer;
 
 	/* just print the root-node */
-	if ((Mime->level == 1) &&
+	if ((Mime->level >= 1) &&
 	    GetHash(MimeRenderHandler, SKEY(Mime->ContentType), &vMimeRenderer) &&
 	    vMimeRenderer != NULL)
 	{
@@ -659,14 +659,14 @@ void evaluate_mime_part(message_summary *Msg, wc_mime_attachment *Mime)
 			Msg->Submessages = NewHash(1,NULL);
 		Put(Msg->Submessages, SKEY(Mime->PartNum), Mime, reference_free_handler);
 	}
-	else if ((Mime->level == 1) &&
+	else if ((Mime->level >= 1) &&
 		 (!strcasecmp(ChrPtr(Mime->Disposition), "inline"))
 		 && (!strncasecmp(ChrPtr(Mime->ContentType), "image/", 6)) ){
 		if (Msg->AttachLinks == NULL)
 			Msg->AttachLinks = NewHash(1,NULL);
 		Put(Msg->AttachLinks, SKEY(Mime->PartNum), Mime, reference_free_handler);
 	}
-	else if ((Mime->level == 1) &&
+	else if ((Mime->level >= 1) &&
 		 (StrLength(Mime->ContentType) > 0) &&
 		  ( (!strcasecmp(ChrPtr(Mime->Disposition), "attachment")) 
 		    || (!strcasecmp(ChrPtr(Mime->Disposition), "inline"))
