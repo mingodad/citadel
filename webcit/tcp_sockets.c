@@ -490,8 +490,6 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 							 &Error);
 }
 
-#ifdef CTDL_IPV6
-
 /* 
  * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.  (IPv4/IPv6 version)
@@ -560,11 +558,10 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	return (s);
 }
 
-#else /* CTDL_IPV6 */
-
+#if 0
 /* 
  * This is a generic function to set up a master socket for listening on
- * a TCP port.  The server shuts down if the bind fails.
+ * a TCP port.  The server shuts down if the bind fails.  (Old IPv4-only version)
  *
  * ip_addr 	IP address to bind
  * port_number	port number to bind
@@ -615,8 +612,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	}
 	return (s);
 }
-
-#endif /* CTDL_IPV6 */
+#endif
 
 
 /*

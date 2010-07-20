@@ -23,8 +23,9 @@
 #include "webcit.h"
 
 
-#ifdef CTDL_IPV6
-
+/*
+ * IPv6 enabled locate_host()
+ */
 void locate_host(StrBuf *tbuf, int client_socket)
 {
 	struct sockaddr_in6 clientaddr;
@@ -42,8 +43,11 @@ void locate_host(StrBuf *tbuf, int client_socket)
         StrBufAppendBufPlain(tbuf, clienthost, -1, 0);
 }
 
-#else /* CTDL_IPV6 */
 
+#if 0
+/*
+ * IPv4-only locate_host()
+ */
 void locate_host(StrBuf *tbuf, int client_socket)
 {
 	struct sockaddr_in cs;
@@ -69,5 +73,4 @@ void locate_host(StrBuf *tbuf, int client_socket)
 	}
 	StrBufAppendBufPlain(tbuf, ch->h_name, -1, 0);
 }
-
-#endif /* CTDL_IPV6 */
+#endif
