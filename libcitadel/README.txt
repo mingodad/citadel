@@ -15,4 +15,3 @@ make
 make install
 
 For more information, please consult http://www.citadel.org
-
