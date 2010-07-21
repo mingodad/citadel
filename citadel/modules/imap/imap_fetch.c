@@ -620,9 +620,8 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	if (strchr(ChrPtr(section), '[') != NULL) {
 		StrBufStripAllBut(section, '[', ']');
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "Section is: %s%s\n", 
-		      ChrPtr(section), 
-		      (StrLength(section) == 0) ? "(empty)" : ""
+	CtdlLogPrintf(CTDL_DEBUG, "Section is: [%s]\n", 
+	      (StrLength(section) == 0) ? "(empty)" : ChrPtr(section)
 	);
 
 	/* Burn the cache if we don't have the same section of the 
