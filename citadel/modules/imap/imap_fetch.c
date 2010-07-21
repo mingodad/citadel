@@ -653,11 +653,9 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 		StrBufStripAllBut(partial, '<', '>');
 		is_partial = 1;
 	}
-	if (is_partial == 0) 
-		if (StrLength(partial) > 0) 
-			CtdlLogPrintf(CTDL_DEBUG, 
-				      "Partial is %s\n", 
-				      ChrPtr(partial));
+	if ( (is_partial == 1) && (StrLength(partial) > 0) ) {
+		CtdlLogPrintf(CTDL_DEBUG, "Partial is <%s>\n", ChrPtr(partial));
+	}
 
 	if (IMAP->cached_body == NULL) {
 		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
