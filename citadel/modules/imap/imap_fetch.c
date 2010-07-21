@@ -283,6 +283,10 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 	char *desired_section;
 
 	desired_section = (char *)cbuserdata;
+	CtdlLogPrintf(CTDL_DEBUG, "imap_load_part() looking for %s, found %s\n",
+		desired_section,
+		partnum
+	);
 
 	if (!strcasecmp(partnum, desired_section)) {
 		client_write(content, length);
@@ -704,7 +708,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	else {
 		mime_parser(msg->cm_fields['M'], NULL,
 				*imap_load_part, NULL, NULL,
-				section,
+				ChrPtr(section),
 				1
 		);
 	}
