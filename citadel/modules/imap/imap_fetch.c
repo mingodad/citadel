@@ -705,7 +705,8 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 		mime_parser(msg->cm_fields['M'], NULL,
 				*imap_load_part, NULL, NULL,
 				section,
-				1);
+				1
+		);
 	}
 
 	if (loading_body_now) {
