@@ -992,7 +992,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Load the message out of the database */
 	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, ESC_DOT);
+	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, (ESC_DOT|SUPPRESS_ENV_TO) );
 	msg_size = StrLength(CC->redirect_buffer);
 	msgtext = SmashStrBuf(&CC->redirect_buffer);
 
