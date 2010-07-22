@@ -210,6 +210,7 @@ int CtdlSockGetLine(int *sock, StrBuf *Target)
 	const char *Error;
 	int rc;
 
+	FlushStrBuf(Target);
 	rc = StrBufTCP_read_buffered_line_fast(Target, 
 					       CCC->sReadBuf,
 					       &CCC->sPos,
