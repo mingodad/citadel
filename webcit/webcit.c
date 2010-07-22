@@ -47,6 +47,13 @@ void tmplput_HANDLER_DISPLAYNAME(StrBuf *Target, WCTemplputParams *TP)
 	if (WCC->Hdr->HR.Handler != NULL)
 		StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.Handler->DisplayName, 0);
 }
+
+void tmplput_HOST_DISPLAYNAME(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.http_host, 0);
+}
+
 /*
  * web-printing funcion. uses our vsnprintf wrapper
  */
@@ -658,10 +665,12 @@ void session_loop(void)
 	    && (StrLength(WCC->Hdr->c_username) > 0)
 	    && (StrLength(WCC->Hdr->c_password) > 0))
 	{
+		long Status;
+
 		FlushStrBuf(Buf);
 		serv_printf("USER %s", ChrPtr(WCC->Hdr->c_username));
 		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 3) {
+		if (GetServerStatus(Buf, &Status) == 3) {
 			serv_printf("PASS %s", ChrPtr(WCC->Hdr->c_password));
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 2) {
@@ -674,6 +683,9 @@ void session_loop(void)
 				FreeStrBuf(&Buf);
 				goto SKIP_ALL_THIS_CRAP;
 			}
+		}
+		else if (Status == 541) {
+			WCC->logged_in = 1;
 		}
 	}
 
@@ -837,7 +849,9 @@ InitModule_WEBCIT
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, NULL, CTX_NONE);
 	RegisterNamespace("URL:DISPLAYNAME", 0, 1, tmplput_HANDLER_DISPLAYNAME, NULL, CTX_NONE);
+	RegisterNamespace("URL:HOSTNAME", 0, 1, tmplput_HOST_DISPLAYNAME, NULL, CTX_NONE);
 
+	
 	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
 	if (!access(dir, R_OK)) {
 		lprintf(9, "Using local Stylesheet [%s]\n", dir);
