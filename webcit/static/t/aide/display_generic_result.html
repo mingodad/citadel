@@ -1,0 +1,23 @@
+<?=("head")>
+<?=("beginbox_1")><?_("Server command results")><?=("beginbox_2")>
+
+</td><td valign=top> 
+
+
+<table border=0><tr><td>Command:</td><td><tt>
+
+<?BSTR("g_cmd")>
+
+</tt></td></tr><tr><td>Result:</td><td><tt>
+
+<?CONTEXTSTR("H")>
+	
+<br>
+</tt></td></tr></table><br />
+<hr />
+<a href="do_template?template=aide_display_generic_cmd"><?_("Enter another command")></a><br />
+<a href="display_advanced"><?_("Return to menu")></a>
+
+<?=("endbox")><br>
+
+<?=("trailing")>
