@@ -69,7 +69,7 @@ int uds_connectsock(char *sockpath)
 
 
 /*
- * TCP client - connect to a host/port
+ * TCP client - connect to a host/port (FIXME this needs to be IPv6 enabled)
  */
 int tcp_connectsock(char *host, int port)
 {
@@ -490,6 +490,7 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 							 &Error);
 }
 
+
 /* 
  * This is a generic function to set up a master socket for listening on
  * a TCP port.  The server shuts down if the bind fails.  (IPv4/IPv6 version)
@@ -507,15 +508,19 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	memset(&sin, 0, sizeof(sin));
 	sin.sin6_family = AF_INET6;
 
-	if ((ip_addr == NULL) || (IsEmptyStr(ip_addr)) || (!strcmp(ip_addr, "0.0.0.0"))) {
+	if (	(ip_addr == NULL)							/* any address */
+		|| (IsEmptyStr(ip_addr))
+		|| (!strcmp(ip_addr, "0.0.0.0"))
+		|| (!strcmp(ip_addr, "*"))
+	) {
 		sin.sin6_addr = in6addr_any;
 	} else {
 		char bind_to[256];
-		if ((strchr(ip_addr, '.')) && (!strchr(ip_addr, ':'))) {
+		if ((strchr(ip_addr, '.')) && (!strchr(ip_addr, ':'))) {		/* specific IPv4 */
 			snprintf(bind_to, sizeof bind_to, "::ffff:%s", ip_addr);
 		}
 		else {
-			safestrncpy(bind_to, ip_addr, sizeof bind_to);
+			safestrncpy(bind_to, ip_addr, sizeof bind_to);			/* specific IPv6 */
 		}
 		if (inet_pton(AF_INET6, bind_to, &sin.sin6_addr) <= 0) {
 			lprintf(1, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
@@ -550,62 +555,6 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
 	}
 	return (s);
 }
-
-#if 0
-/* 
- * This is a generic function to set up a master socket for listening on
- * a TCP port.  The server shuts down if the bind fails.  (Old IPv4-only version)
- *
- * ip_addr 	IP address to bind
- * port_number	port number to bind
- * queue_len	number of incoming connections to allow in the queue
- */
-int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
-{
-	struct protoent *p;
-	struct sockaddr_in sin;
-	int s, i;
-
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-	if (ip_addr == NULL) {
-		sin.sin_addr.s_addr = INADDR_ANY;
-	} else {
-		sin.sin_addr.s_addr = inet_addr(ip_addr);
-	}
-
-	if (sin.sin_addr.s_addr == INADDR_NONE) {
-		sin.sin_addr.s_addr = INADDR_ANY;
-	}
-
-	if (port_number == 0) {
-		lprintf(1, "Cannot start: no port number specified.\n");
-		return (-WC_EXIT_BIND);
-	}
-	sin.sin_port = htons((u_short) port_number);
-
-	p = getprotobyname("tcp");
-
-	s = socket(PF_INET, SOCK_STREAM, (p->p_proto));
-	if (s < 0) {
-		lprintf(1, "Can't create an IPv4 socket: %s\n", strerror(errno));
-		return (-WC_EXIT_BIND);
-	}
-	/* Set some socket options that make sense. */
-	i = 1;
-	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
-
-	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		lprintf(1, "Can't bind: %s\n", strerror(errno));
-		return (-WC_EXIT_BIND);
-	}
-	if (listen(s, queue_len) < 0) {
-		lprintf(1, "Can't listen: %s\n", strerror(errno));
-		return (-WC_EXIT_BIND);
-	}
-	return (s);
-}
-#endif
 
 
 /*

@@ -22,9 +22,8 @@
 
 #include "webcit.h"
 
-
 /*
- * IPv6 enabled locate_host()
+ * IPv4/IPv6 locate_host()
  */
 void locate_host(StrBuf *tbuf, int client_socket)
 {
@@ -42,35 +41,3 @@ void locate_host(StrBuf *tbuf, int client_socket)
 
         StrBufAppendBufPlain(tbuf, clienthost, -1, 0);
 }
-
-
-#if 0
-/*
- * IPv4-only locate_host()
- */
-void locate_host(StrBuf *tbuf, int client_socket)
-{
-	struct sockaddr_in cs;
-	struct hostent *ch;
-	socklen_t len;
-	char *i;
-	int a1, a2, a3, a4;
-
-	len = sizeof(cs);
-	if (getpeername(client_socket, (struct sockaddr *) &cs, &len) < 0) {
-		StrBufAppendBufPlain(tbuf, HKEY("<unknown>"), 0);
-		return;
-	}
-	if ((ch = gethostbyaddr((char *) &cs.sin_addr, sizeof(cs.sin_addr),
-				AF_INET)) == NULL) {
-		i = (char *) &cs.sin_addr;
-		a1 = ((*i++) & 0xff);
-		a2 = ((*i++) & 0xff);
-		a3 = ((*i++) & 0xff);
-		a4 = ((*i++) & 0xff);
-		StrBufPrintf(tbuf, "%d.%d.%d.%d", a1, a2, a3, a4);
-		return;
-	}
-	StrBufAppendBufPlain(tbuf, ch->h_name, -1, 0);
-}
-#endif
