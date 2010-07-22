@@ -1,0 +1,13 @@
+<tr class="<?ITERATE:ODDEVEN>">
+	<td><?CONTEXTSTRARR(#"POP3_HOST", "X")></td>
+	<td><?CONTEXTSTRARR(#"POP3_USER", "X")></td>
+	<td>*****</td> <!-- Don't show the password -->
+	<td><?CONTEXTSTRARR(#"POP3_KEEP")></td> <!-- Keep on server. didnt come up with a better name... -->
+	<td><?CONTEXTSTRARR(#"POP3_INTERVAL")></td>
+	<td class="button_link">
+		<a href="netedit?cmd=remove?tab=feeds?line=pop3client|<?CONTEXTARR(#"POP3_HOST", "U")>">
+			<?_("(remove)")>
+		</a>
+	</td>
+</tr>
+

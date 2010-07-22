@@ -1,0 +1,14 @@
+<form method="post" action="netedit">
+	<input type="hidden" name="nonce" value="<?NONCE>" />
+	<tr>
+		<td><?CONTEXTARR(#"CFG:IGNET:NODE")></td>
+		<td><?CONTEXTARR(#"REMOTE_ROOM")></td>
+		<td>
+			<input type="hidden" name="line" value="ignet_push_share|<?CONTEXTARR(#"NODE", "U")>|<?CONTEXTARR(#"REMOTE_ROOM", "U")> />
+			<input type="hidden" name="tab" value="sharing" />
+			<input type="hidden" name="cmd" value="remove" />
+			<input type="submit" name="unshare_button" value="<?_("Unshare")>" />
+		</td>
+	</tr>
+</form>
+

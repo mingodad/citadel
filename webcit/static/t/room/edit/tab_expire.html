@@ -1,0 +1,75 @@
+<div class="tabcontent">
+	<br />
+	<form method="post" action="set_room_policy">
+		<input type="hidden" name="nonce" value="<?NONCE>" />
+		<table border="0" cellspacing="5">
+			<tr>
+				<td>
+					<?_("Message expire policy for this room")>
+					<br />
+					<?ROOMNAME("X")>
+				</td>
+				<td>
+					<input type="radio" name="roompolicy" value="0" %s />&nbsp;
+						((roompolicy == 0) ? "CHECKED" : "") );
+					<?_("Use the default policy for this floor")>&nbsp;
+					<br />
+					<input type="radio" name="roompolicy" value="1" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_MANUAL", 'checked="checked"',"" />&nbsp;
+					<?_("Never automatically expire messages")>
+					<br />
+					<input type="radio" name="roompolicy" value="2" <?%("COND:EXPIRE:MODE", 2, #"mailboxespolicy", #"EXPIRE_NUMMSG", 'checked="checked"', "" />&nbsp;
+					<?_("Expire by message count")>
+					<br />
+					<input type="radio" name="roompolicy" value="3" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_AGE", 'checked="checked"', "" /> />&nbsp;
+					<?_("Expire by message age")>
+					<br />
+					<?_("Number of messages or days: ")>
+					<input type="text" name="roomvalue" maxlength="5" value="<?SERV:CFG("sitevalue")>" />
+				</td>
+			</tr>
+	
+			<??("COND:AIDE", 2 ...)>	if (WC->axlevel >= 6) {
+			<tr>
+				<td colspan="2"><hr /></td>
+			</tr>
+			<tr>
+				<td>
+					<?_("Message expire policy for this floor")>
+					<br />(
+						escputs(floorlist[WC->CurRoom.floorid]);
+				</td>
+				<td>
+					<input type="radio" name="floorpolicy" value="0" %s>",
+						((floorpolicy == 0) ? "CHECKED" : "") );
+					<?_("Use the system default")>
+					<br />
+					<input type="radio" name="floorpolicy" value="1" %s>",
+						((floorpolicy == 1) ? "CHECKED" : "") );
+					<?_("Never automatically expire messages")>
+					<br />
+					<input type="radio" name="floorpolicy" value="2" %s>",
+						((floorpolicy == 2) ? "CHECKED" : "") );
+					<?_("Expire by message count")>
+					<br />
+					<input type="radio" name="floorpolicy" value="3" %s>",
+						((floorpolicy == 3) ? "CHECKED" : "") );
+					<?_("Expire by message age")>
+					<br />
+					<?_("Number of messages or days: ")>
+					<input type="text" name="floorvalue" MAXLENGTH="5" value="%d">",
+						floorvalue);
+			<("X", 2)>	
+			<tr>
+				<td colspan="2">
+					<hr />
+					<center>
+						<input type="submit" name="ok_button" value="<?_("Save changes")>" />
+						&nbsp;
+						<input type="submit" name="cancel_button" value="<?_("Cancel")>" />
+					</center>
+				</td>
+			<tr>
+		</table>
+		<input type="hidden" name="tab" value="expire" />
+	</form>
+</div>

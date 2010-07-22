@@ -1,0 +1,51 @@
+<div class="tabcontent">
+	<i><?_("Retrieve messages from these remote POP3 accounts and store them in this room:")></i>
+	<br />
+	<table class="altern" border="0" cellpadding="5">
+		<tr class="even">
+			<th><?_("Remote host")></th>
+			<th><?_("User name")></th>
+			<th><?_("Password")></th>
+			<th><?_("Keep messages on server?")></th>
+			<th><?_("Interval")></th>
+			<th>&nbsp;</th>
+		</tr>
+		<?ITERATE("ITERATE:THISROOM:GNET", ="pop3client_removal", 0, 0, -1, #"pop3client")>
+		<form method="post" action="netedit">
+			<tr>
+				<input type="hidden" name="tab" value="feeds" />
+				<input type="hidden" name="prefix" value="pop3client|" />
+				<input type="hidden" name="nonce" value="<?NONCE>">
+				<td><input type="text" id="add_as_pop3host" name="line_pop3host" /></td>
+				<td><input type="text" id="add_as_pop3user" name="line_pop3user" /></td>
+				<td><input type="password" id="add_as_pop3pass" name="line_pop3pass" /></td>
+				<td><input type="checkbox" id="add_as_pop3keep" name="line_pop3keep" value="1" /></td>
+				<td><input type="text" id="add_as_pop3int" name="line_pop3int" maxlength="5" /></td>
+				<td><input type="submit" name="add_button" value="<?_("Add")>" /></td>
+			</tr>
+		</form>
+	</table>
+	<hr>
+	<i><?_("Fetch the following RSS feeds and store them in this room:")></i>
+	<br />
+	<table class="altern" border="0" cellpadding="5">
+		<tr class="even">
+			<th>
+				<img src="static/rss_16x.png" width="16" height="16" alt=" " /> 
+				<?_("Feed URL")>
+			</th>
+			<th></th>
+		</tr>
+		<?ITERATE("ITERATE:THISROOM:GNET", ="rssclient_removal", 0, 0, -1, #"rssclient")>
+		<form method="post" action="netedit">
+			<tr>
+				<input type="hidden" name="tab" value="feeds" />
+				<input type="hidden" name="prefix" value="rssclient|" />
+				<input type="hidden" name="nonce" value="<?NONCE>" />
+				<td><input type="text" id="add_as_pop3host" size="72" "maxlength="256" name="line_pop3host" /></td>
+				<td><input type="submit" name="add_button" value="<?_("Add")>" /></td>
+			</tr>
+		</form>
+	</table>
+</div>
+
