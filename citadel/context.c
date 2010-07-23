@@ -345,7 +345,6 @@ void RemoveContext (CitContext *con)
 
 	FreeStrBuf(&con->MigrateBuf);
 	FreeStrBuf(&con->ReadBuf);
-	FreeStrBuf(&con->lBuf);
 	CtdlLogPrintf(CTDL_DEBUG, "Done with RemoveContext()\n");
 }
 
@@ -368,7 +367,6 @@ CitContext *CreateNewContext(void) {
 		return NULL;
 	}
 	memset(me, 0, sizeof(CitContext));
-	me->lBuf = NewStrBufPlain(NULL, SIZ);
 	/* Give the contaxt a name. Hopefully makes it easier to track */
 	strcpy (me->user.fullname, "SYS_notauth");
 	
@@ -435,7 +433,6 @@ void CtdlFillSystemContext(CitContext *context, char *name)
 	long len;
 
 	memset(context, 0, sizeof(CitContext));
-	context->lBuf = NewStrBuf();
 	context->internal_pgm = 1;
 	context->cs_pid = 0;
 	strcpy (sysname, "SYS_");
@@ -466,7 +463,6 @@ void CtdlClearSystemContext(void)
 {
 	CitContext *CCC = CC;
 
-	FreeStrBuf(&CCC->lBuf);
 	memset(CCC, 0, sizeof(CitContext));
 	citthread_setspecific(MyConKey, NULL);
 }
@@ -594,7 +590,6 @@ void InitializeMasterCC(void) {
 	memset(&masterCC, 0, sizeof( CitContext));
 	masterCC.internal_pgm = 1;
 	masterCC.cs_pid = 0;
-	masterCC.lBuf = NewStrBuf ();
 }
 
 
