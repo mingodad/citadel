@@ -118,7 +118,7 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		struct timeval tv;
 		struct tm tim;
 		time_t unixtime;
-		CitContext *CCC = MyContext();
+		CitContext *CCC = CC;
 		ThreadTSD *cTSD = CTP;
 		CtdlThreadNode *node = NULL;
 		long lwpid = 0;
@@ -140,30 +140,27 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		unixtime = tv.tv_sec;
 		localtime_r(&unixtime, &tim);
 
-		*LWP = '\0';
-		if (lwpid != 0) {
-			snprintf(LWP, 64, "[LWP:%ld] ", lwpid);
-		}
-			
-		*SESS = '\0';
-		if (CCC != NULL) {
-			if (CCC->cs_pid != 0) {
-				snprintf(SESS, 64, " [%3d] ", CCC->cs_pid);
-			}
-			else if (CCC->user.usernum != 0) {
-				snprintf(SESS, 64, " [:%ld] ", CCC->user.usernum);
-			}
-		}
-
-		snprintf(formatbuf, SIZ, 
-			 "%04d/%02d/%02d %2d:%02d:%02d.%06ld %s%s%s",
-			 tim.tm_year + 1900, tim.tm_mon + 1,
-			 tim.tm_mday, tim.tm_hour, tim.tm_min,
-			 tim.tm_sec, (long)tv.tv_usec, 
-			 LWP, SESS, format
+		fprintf(stderr,
+			"%04d/%02d/%02d %2d:%02d:%02d.%06ld ",
+			tim.tm_year + 1900, tim.tm_mon + 1,
+			tim.tm_mday, tim.tm_hour, tim.tm_min,
+			tim.tm_sec, (long)tv.tv_usec
 		);
 
-		vfprintf(stderr, formatbuf, arg_ptr);   
+		if (lwpid != 0) {
+			fprintf(stderr, "[LWP:%ld] ", lwpid);
+		}
+			
+		if (CCC != NULL) {
+			if (CCC->cs_pid != 0) {
+				fprintf(stderr, "[%3d] ", CCC->cs_pid);
+			}
+			else if (CCC->user.usernum != 0) {
+				fprintf(stderr, "[:%ld] ", CCC->user.usernum);
+			}
+		}
+
+		vfprintf(stderr, format, arg_ptr);   
 		fflush(stderr);
 	}
 }   
