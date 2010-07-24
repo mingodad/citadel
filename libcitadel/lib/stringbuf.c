@@ -2582,19 +2582,24 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 			}
 		}
 
-
-		if (UserStart != NULL)
+		if ((UserStart != NULL) && (UserEnd != NULL))
+			StrBufPlain(UserName, UserStart, UserEnd - UserStart);
+		else if ((UserStart != NULL) && (UserEnd == NULL))
 			StrBufPlain(UserName, UserStart, UserEnd - UserStart);
 		else
 			FlushStrBuf(UserName);
-		if (EmailStart != NULL)
+
+		if ((EmailStart != NULL) && (EmailEnd != NULL))
 			StrBufPlain(EmailAddress, EmailStart, EmailEnd - EmailStart);
+		else if ((EmailStart != NULL) && (EmailEnd == NULL))
+			StrBufPlain(EmailAddress, EmailStart, EmailEnd - pche);
 		else 
 			FlushStrBuf(EmailAddress);
 
 		AddRecipient(Target, UserName, EmailAddress, EncBuf);
 
-
+		if (pch == NULL)
+			break;
 		
 		if ((pch != NULL) && (*pch == ','))
 			pch ++;
