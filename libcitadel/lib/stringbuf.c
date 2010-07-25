@@ -2259,6 +2259,7 @@ int StrBufDecodeBase64(StrBuf *Buf)
 	if (Buf == NULL) return -1;
 
 	xferbuf = (char*) malloc(Buf->BufSize);
+	*xferbuf = '\0';
 	siz = CtdlDecodeBase64(xferbuf,
 			       Buf->buf,
 			       Buf->BufUsed);
