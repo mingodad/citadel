@@ -961,7 +961,8 @@ star:
 		}
 	}
 
-	return (*text == '\0');
+	if ((*text == '\0') && (*p == '\0')) return WILDMAT_TRUE;
+	else return WILDMAT_FALSE;
 }
 
 
