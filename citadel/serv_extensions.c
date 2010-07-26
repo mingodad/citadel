@@ -891,6 +891,9 @@ void PerformSessionHooks(int EventType)
 
 	for (fcn = SessionHookTable; fcn != NULL; fcn = fcn->next) {
 		if (fcn->eventtype == EventType) {
+			if (EventType == EVT_TIMER) {
+				citthread_setspecific(MyConKey, NULL);	/* for every hook */
+			}
 			(*fcn->h_function_pointer) ();
 		}
 	}

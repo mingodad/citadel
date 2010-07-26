@@ -523,12 +523,38 @@ void flush_conversations_to_disk(time_t if_older_than) {
 	struct imlog *flush_these = NULL;
 	struct imlog *dont_flush_these = NULL;
 	struct imlog *imptr = NULL;
+	struct CitContext *nptr;
+	int nContexts, i;
+
+	nptr = CtdlGetContextArray(&nContexts) ;	/* Make a copy of the current wholist */
 
 	begin_critical_section(S_IM_LOGS);
 	while (imlist)
 	{
 		imptr = imlist;
 		imlist = imlist->next;
+
+		/* For a two party conversation, if one party has logged out, force flush. */
+		if (nptr) {
+			int user0_is_still_online = 0;
+			int user1_is_still_online = 0;
+			for (i=0; i<nContexts; i++)  {
+				if (nptr[i].user.usernum == imptr->usernums[0]) ++user0_is_still_online;
+				if (nptr[i].user.usernum == imptr->usernums[1]) ++user1_is_still_online;
+			}
+			if (imptr->usernums[0] != imptr->usernums[1]) {		/* two party conversation */
+				if ((!user0_is_still_online) || (!user1_is_still_online)) {
+					imptr->lastmsg = 0L;	/* force flush */
+				}
+			}
+			else {		/* one party conversation (yes, people do IM themselves) */
+				if (!user0_is_still_online) {
+					imptr->lastmsg = 0L;	/* force flush */
+				}
+			}
+		}
+
+		/* Now test this conversation to see if it qualifies for flushing. */
 		if ((time(NULL) - imptr->lastmsg) > if_older_than)
 		{
 			/* This conversation qualifies.  Move it to the list of ones to flush. */
@@ -543,6 +569,7 @@ void flush_conversations_to_disk(time_t if_older_than) {
 	}
 	imlist = dont_flush_these;
 	end_critical_section(S_IM_LOGS);
+	free(nptr);
 
 	/* We are now outside of the critical section, and we are the only thread holding a
 	 * pointer to a linked list of conversations to be flushed to disk.
