@@ -3,7 +3,7 @@
 		<table border="0" width="100%" cellpadding="5">
 			<tr><td valign="top">
 			<?_("<i>The contents of this room are being mailed <b>as individual messages</b> to the following list recipients:</i><br /><br />")>
-			<?ITERATE("ITERATE:THISROOM:GNET", ="listrecp_removal", 0, 0, -1, #"listrecp")>
+			<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_listrecp_removal", 0, 0, -1, #"listrecp")>
 			<br />
 			<form method="post" action="netedit">
 				<input type="hidden" name="tab" value="listserv" />
@@ -15,7 +15,7 @@
 			</td>
 			<td valign="top">
 			<?_("<i>The contents of this room are being mailed <b>in digest form</b> to the following list recipients:</i><br /><br />")>
-			<?ITERATE("ITERATE:THISROOM:GNET", ="digestrecp_removal", 0, 0, -1, #"digestrecp")>
+			<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_digestrecp_removal", 0, 0, -1, #"digestrecp")>
 			<br />
 			<form method="post" action="netedit">
 				<input type="hidden" name="tab" value="listserv" />
@@ -47,13 +47,13 @@
 				<tr>
 					<td colspan="2">
 						<?_("The URL for subscribe/unsubscribe is: ")>
-						<tt><?%("COND:ISHTTPS", 3, 1, #"ISHTTPS", "https", "http">://<?SERV:FQDN>/listsub</tt>
+						<tt><?%("COND:IS_HTTPS", 3, 1, 0, "https", "http")>://<?SERV:FQDN>/listsub</tt>
 					</td>
 				</tr>
 				<!-- Public posting? -->
 				<tr>
-					<td><?_("Allow non-subscribers to mail to this room.")></td>
-					<td><input type="checkbox" name="QR2_SubsOnly" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_SUBSONLY", 1, 'checked="checked" ', "")> /></td>
+					<td><?_("Allow non-subscribers to mail to this room.")></td> //// TODO: subonly / SMTP_PUBLIC??
+					<td><input type="checkbox" name="QR2_SubsOnly" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_SMTP_PUBLIC", 1, 'checked="checked" ', "")> /></td>
 				</tr>
 		
 				<!-- Moderated List? -->

@@ -2,31 +2,28 @@
 	<table border="0" cellspacing="10">
 		<tr valign="top">
 			<td>
-        			<?_("The users listed below have access to this room.  "
-                  		"To remove a user from the access list, select the user "
-                  		"name from the list and click 'Kick'.")>
+        			<?_("The users listed below have access to this room. To remove a user from the access list, select the user name from the list and click 'Kick'.")>
         			<br /><br />
         			<center>
 					<form method="post" action="do_invt_kick">
         					<input type="hidden" name="nonce" value="<?NONCE>" />
 						<input type="hidden" name="tab" value="access" />
         					<select name="username" size="10" style="width:100%">
-							<?ITERATE("ITERATE:THISROOM:WHOK", ="username_list", 0, 0, -1, #"username")>
+							<?ITERATE("ITERATE:THISROOM:WHOK", ="room_edit_username_list", 0, 0, -1, #"username")>
 						</select>
 						<br />
-						<input type="submit" name="kick_button" value="<?_("Kick")" />
+						<input type="submit" name="kick_button" value="<?_("Kick")>" />
 					</form>
 				</center>
 			</td>
 			<td>
-				<?_("To grant another user access to this room, enter the "
-				"user name in the box below and click 'Invite'.")>
+				<?_("To grant another user access to this room, enter the user name in the box below and click 'Invite'.")>
 				<br /><br />
 				<center>
 					<form method="post" action="do_invt_kick">
 						<input type="hidden" name="tab" value="access" />
 						<input type="hidden" name="nonce" value="<?NONCE>">
-        					<?_("Invite:"));
+        					<?_("Invite:")>
 						<input type="text" name="username" id="username_id" style="width:100R"><br />"
 						<input type="hidden" name="invite_button" value="Invite" />
 						<input type="submit" value="<?_("Invite")>" />

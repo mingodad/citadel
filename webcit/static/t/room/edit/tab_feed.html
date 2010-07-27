@@ -10,7 +10,7 @@
 			<th><?_("Interval")></th>
 			<th>&nbsp;</th>
 		</tr>
-		<?ITERATE("ITERATE:THISROOM:GNET", ="pop3client_removal", 0, 0, -1, #"pop3client")>
+		<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_pop3client_removal", 0, 0, -1, #"pop3client")>
 		<form method="post" action="netedit">
 			<tr>
 				<input type="hidden" name="tab" value="feeds" />
@@ -36,7 +36,7 @@
 			</th>
 			<th></th>
 		</tr>
-		<?ITERATE("ITERATE:THISROOM:GNET", ="rssclient_removal", 0, 0, -1, #"rssclient")>
+		<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_rssclient_removal", 0, 0, -1, #"rssclient")>
 		<form method="post" action="netedit">
 			<tr>
 				<input type="hidden" name="tab" value="feeds" />
