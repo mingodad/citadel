@@ -149,19 +149,13 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	va_end(arg_ptr);
 
 	switch (ErrorPos) {
-	default:
 	case ERR_NAME: /* the main token name... */ 
 		Err = (TP->Tokens!= NULL)? TP->Tokens->pName:"";
 		break;
-	case ERR_PARM1:
+	default:
 		Err = ((TP->Tokens!= NULL) && 
-		       (TP->Tokens->nParameters > 0))? 
-			TP->Tokens->Params[0]->Start : "";
-		break;
-	case ERR_PARM2:
-		Err = ((TP->Tokens!= NULL) && 
-		       (TP->Tokens->nParameters > 1))? 
-			TP->Tokens->Params[1]->Start : "";
+		       (TP->Tokens->nParameters > ErrorPos - 1))? 
+			TP->Tokens->Params[ErrorPos - 1]->Start : "";
 		break;
 	}
 	if (TP->Tokens != NULL) 
@@ -1144,12 +1138,13 @@ void PutNewToken(WCTemplate *Template, WCTemplateToken *NewToken)
 	Template->Tokens[(Template->nTokensUsed)++] = NewToken;
 }
 
-TemplateParam *GetNextParameter(StrBuf *Buf, 
-				const char **pCh, 
-				const char *pe, 
-				WCTemplateToken *Tokens, 
-				WCTemplate *pTmpl, 
-				WCTemplputParams *TP)
+int GetNextParameter(StrBuf *Buf, 
+		     const char **pCh, 
+		     const char *pe, 
+		     WCTemplateToken *Tokens, 
+		     WCTemplate *pTmpl, 
+		     WCTemplputParams *TP, 
+		     TemplateParam **pParm)
 {
 	const char *pch = *pCh;
 	const char *pchs, *pche;
@@ -1157,7 +1152,7 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 	char quote = '\0';
 	int ParamBrace = 0;
 
-	Parm = (TemplateParam *) malloc(sizeof(TemplateParam));
+	*pParm = Parm = (TemplateParam *) malloc(sizeof(TemplateParam));
 	memset(Parm, 0, sizeof(TemplateParam));
 	Parm->Type = TYPE_STR;
 
@@ -1236,7 +1231,8 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 				*pCh);
 			pch ++;
 			free(Parm);
-			return NULL;
+			*pParm = NULL;
+			return 0;
 		}
 		else {
 			StrBufPeek(Buf, pch, -1, '\0');		
@@ -1279,7 +1275,8 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 				*pCh);
 				*/
 			free(Parm);
-			return NULL;
+			*pParm = NULL;
+			return 0;
 		}
 	}
 	while ((*pch == ' ' )||
@@ -1308,7 +1305,9 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 		}
 		else 
 		{
-			LogTemplateError(NULL, "Define", ERR_PARM1, TP,
+			LogTemplateError(NULL, "Define", 
+					 Tokens->nParameters,
+					 TP,
 					 "%s isn't known!!",
 					 Parm->Start);
 		}}
@@ -1318,14 +1317,16 @@ TemplateParam *GetNextParameter(StrBuf *Buf,
 		/* well, we don't check the mobile stuff here... */
 		if (!GetHash(LocalTemplateCache, Parm->Start, Parm->len, &vTmpl) &&
 		    !GetHash(TemplateCache, Parm->Start, Parm->len, &vTmpl)) {
-			LogTemplateError(
-				NULL, "SubTemplate", ERR_PARM1, TP,
-				"referenced here doesn't exist");
+			LogTemplateError(NULL, 
+					 "SubTemplate", 
+					 Tokens->nParameters,
+					 TP,
+					 "referenced here doesn't exist");
 		}}
 		break;
 	}
 	*pCh = pch;
-	return Parm;
+	return 1;
 }
 
 WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf, 
@@ -1337,7 +1338,6 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 {
 	void *vVar;
 	const char *pch;
-	TemplateParam *Param;
 	WCTemplateToken *NewToken;
 	WCTemplputParams TP;
 
@@ -1374,8 +1374,15 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 					"Warning, Non welformed Token; missing right parenthesis");
 			}
 			while (pch < pTokenEnd - 1) {
-				Param = GetNextParameter(Buf, &pch, pTokenEnd - 1, NewToken, pTmpl, &TP);
-				if (Param != NULL) {
+				NewToken->nParameters++;
+				if (GetNextParameter(Buf, 
+						     &pch, 
+						     pTokenEnd - 1, 
+						     NewToken, 
+						     pTmpl, 
+						     &TP, 
+						     &NewToken->Params[NewToken->nParameters - 1]))
+				{
 					NewToken->HaveParameters = 1;
 					if (NewToken->nParameters > MAXPARAM) {
 						LogTemplateError(
@@ -1383,11 +1390,9 @@ WCTemplateToken *NewTemplateSubstitute(StrBuf *Buf,
 							"only [%d] Params allowed in Tokens",
 							MAXPARAM);
 
-						free(Param);
 						FreeToken(&NewToken);
 						return NULL;
 					}
-					NewToken->Params[NewToken->nParameters++] = Param;
 				}
 				else break;
 			}
