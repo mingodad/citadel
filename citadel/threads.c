@@ -848,7 +848,7 @@ static void *ctdl_internal_thread_func (void *arg)
 	#endif
 	
 	// Tell the world we are here
-#ifdef HAVE_SYSCALL_H
+#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
 	this_thread->reltid = syscall(SYS_gettid);
 #endif
 	CtdlLogPrintf(CTDL_NOTICE, "Created a new thread \"%s\" (0x%08lx).\n",
