@@ -774,7 +774,7 @@ void logout(void)
 
 void CtdlUserLogout(void)
 {
-	CitContext *CCC = CC;	/* CachedCitContext - performance boost */
+	CitContext *CCC = MyContext();
 	/*
 	 * If there is a download in progress, abort it.
 	 */

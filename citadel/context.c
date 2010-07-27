@@ -461,7 +461,7 @@ void CtdlFillSystemContext(CitContext *context, char *name)
  */
 void CtdlClearSystemContext(void)
 {
-	CitContext *CCC = CC;
+	CitContext *CCC = MyContext();
 
 	memset(CCC, 0, sizeof(CitContext));
 	citthread_setspecific(MyConKey, NULL);

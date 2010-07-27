@@ -120,7 +120,7 @@ void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
 		struct timeval tv;
 		struct tm tim;
 		time_t unixtime;
-		CitContext *CCC = CC;
+		CitContext *CCC = MyContext();
 		ThreadTSD *cTSD = CTP;
 		CtdlThreadNode *node = NULL;
 		long lwpid = 0;

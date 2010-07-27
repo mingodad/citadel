@@ -152,7 +152,7 @@ int socket_read_blob(int *Socket,
 		     int bytes, 
 		     int timeout)
 {
-	CitContext *CCC=CC;
+	CitContext *CCC = MyContext();
 	const char *Error;
 	int retval = 0;
 
@@ -177,7 +177,7 @@ int socket_read_blob(int *Socket,
 
 int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_until_full)
 {
-	CitContext *CCC=CC;
+	CitContext *CCC = MyContext();
 	int rc;
 
 	FlushStrBuf(CCC->MigrateBuf);
@@ -206,7 +206,7 @@ int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_
 
 int CtdlSockGetLine(int *sock, StrBuf *Target)
 {
-	CitContext *CCC=CC;
+	CitContext *CCC = MyContext();
 	const char *Error;
 	int rc;
 
@@ -235,7 +235,7 @@ int CtdlSockGetLine(int *sock, StrBuf *Target)
 int sock_getln(int *sock, char *buf, int bufsize)
 {
 	int i, retval;
-	CitContext *CCC=CC;
+	CitContext *CCC = MyContext();
 	const char *pCh;
 
 	FlushStrBuf(CCC->sMigrateBuf);

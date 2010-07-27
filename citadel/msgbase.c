@@ -2857,7 +2857,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	struct addresses_to_be_filed *aptr = NULL;
 	StrBuf *saved_rfc822_version = NULL;
 	int qualified_for_journaling = 0;
-	CitContext *CCC = CC;		/* CachedCitContext - performance boost */
+	CitContext *CCC = MyContext();
 	char bounce_to[1024] = "";
 	size_t tmp = 0;
 	int rv = 0;
