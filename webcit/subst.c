@@ -2201,11 +2201,11 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 		return;
 	}
 
-	if (TP->Tokens->nParameters < It->AdditionalParams + 2) {
+	if (TP->Tokens->nParameters <= It->AdditionalParams + 2) {
 		LogTemplateError(                               
 			Target, "Iterator", ERR_PARM1, TP,
 			"doesn't work with %d params", 
-			TP->Tokens->nParameters);
+			TP->Tokens->nParameters - 1);
 		return;
 	}
 
