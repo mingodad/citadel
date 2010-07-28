@@ -2547,14 +2547,15 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 			else {
 
 				pch = EmailEnd + 1;
-				while ((EmailEnd > UserStart) && 
+				while ((EmailEnd > UserStart) && !gt &&
 				       ((*EmailEnd == ',') ||
 					(*EmailEnd == '>') ||
 					(isspace(*EmailEnd))))
 				{
 					if (*EmailEnd == '>')
 						gt = 1;
-					EmailEnd--;
+					else 
+						EmailEnd--;
 				}
 				if (EmailEnd == UserStart)
 					break;
