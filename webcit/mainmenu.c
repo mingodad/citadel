@@ -125,7 +125,7 @@ void display_shutdown(void)
 		}
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
-		DoTemplate(HKEY("display_serverrestart"), NULL, &NoCtx);
+		DoTemplate(HKEY("aide_display_serverrestart"), NULL, &NoCtx);
 		end_burst();
 		lingering_close(WC->Hdr->http_sock);
 		sleeeeeeeeeep(10);
