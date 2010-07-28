@@ -933,14 +933,14 @@ void memfmout(
 	const char *nl		/* string to terminate lines with */
 ) {
 	int column = 0;
-	char ch = 0;
+	unsigned char ch = 0;
 	char outbuf[1024];
 	int len = 0;
 	int nllen = 0;
 
 	if (!mptr) return;
 	nllen = strlen(nl);
-	while (ch=*(mptr++), ch > 0) {
+	while (ch=*(mptr++), ch != 0) {
 
 		if (ch == '\n') {
 			client_write(outbuf, len);
