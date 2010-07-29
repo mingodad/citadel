@@ -5,6 +5,8 @@
  *
  */
 
+#define SHOW_ME_VAPPEND_PRINTF
+
 #include "ctdl_module.h"
 
 
@@ -1083,156 +1085,14 @@ void fixnss(void) {
 
 
 
-
-
-
-
-
-int main(int argc, char *argv[])
+void set_default_values(void)
 {
-	int a;
-	int curr; 
-	char aaa[128];
-	FILE *fp;
-	int old_setup_level = 0;
-	int info_only = 0;
-	struct utsname my_utsname;
 	struct passwd *pw;
+	struct utsname my_utsname;
 	struct hostent *he;
-	gid_t gid;
-	int relh=0;
-	int home=0;
-	char relhome[PATH_MAX]="";
-	char ctdldir[PATH_MAX]=CTDLDIR;
-	char DefValue[PATH_MAX];
-	int rv;
-	
-	/* set an invalid setup type */
-	setup_type = (-1);
-
-	/* Check to see if we're running the web installer */
-	if (getenv("CITADEL_INSTALLER") != NULL) {
-		using_web_installer = 1;
-	}
-
-	/* parse command line args */
-	for (a = 0; a < argc; ++a) {
-		if (!strncmp(argv[a], "-u", 2)) {
-			strcpy(aaa, argv[a]);
-			strcpy(aaa, &aaa[2]);
-			setup_type = atoi(aaa);
-		}
-		else if (!strcmp(argv[a], "-i")) {
-			info_only = 1;
-		}
-		else if (!strcmp(argv[a], "-q")) {
-			setup_type = UI_SILENT;
-		}
-		else if (!strncmp(argv[a], "-h", 2)) {
-			relh=argv[a][2]!='/';
-			if (!relh) {
-				safestrncpy(ctdl_home_directory, &argv[a][2], sizeof ctdl_home_directory);
-			} else {
-				safestrncpy(relhome, &argv[a][2], sizeof relhome);
-			}
-			home = 1;
-		}
-
-	}
-
-	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
-
-	/* If a setup type was not specified, try to determine automatically
-	 * the best one to use out of all available types.
-	 */
-	if (setup_type < 0) {
-		setup_type = discover_ui();
-	}
-	if (info_only == 1) {
-		important_message("Citadel Setup", CITADEL);
-		cleanup(0);
-	}
-
-	/* Get started in a valid setup directory. */
-	strcpy(setup_directory, ctdl_run_dir);
-	strcpy(DefValue, ctdl_run_dir);
-	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
-		strcpy(setup_directory, getenv("CITADEL"));
-	}
-	else {
-		set_str_val(0, setup_directory, DefValue);
-	}
-
-	enable_home = ( relh | home );
-
-	if (chdir(setup_directory) != 0) {
-		char errmsg[SIZ];
-		sprintf(errmsg, "The directory you specified does not exist: [%s]\n", setup_directory);
-		
-		important_message("Citadel Setup", errmsg);
-		cleanup(errno);
-	}
 
 	/* Determine our host name, in case we need to use it as a default */
 	uname(&my_utsname);
-
-	/* Try to stop Citadel if we can */
-	if (!access("/etc/init.d/citadel", X_OK)) {
-		rv = system("/etc/init.d/citadel stop");
-	}
-
-	/* Make sure Citadel is not running. */
-	if (test_server(setup_directory, relhome, enable_home) == 0) {
-		important_message("Citadel Setup",
-			"The Citadel service is still running.\n"
-			"Please stop the service manually and run "
-			"setup again.");
-		cleanup(1);
-	}
-
-	/* Now begin. */
-	switch (setup_type) {
-
-	case UI_TEXT:
-		printf("\n\n\n"
-			"	       *** Citadel setup program ***\n\n");
-		break;
-
-	}
-
-	/*
-	 * What we're going to try to do here is append a whole bunch of
-	 * nulls to the citadel.config file, so we can keep the old config
-	 * values if they exist, but if the file is missing or from an
-	 * earlier version with a shorter config structure, when setup tries
-	 * to read the old config parameters, they'll all come up zero.
-	 * The length of the config file will be set to what it's supposed
-	 * to be when we rewrite it, because we replace the old file with a
-	 * completely new copy.
-	 */
-	if ((a = open(file_citadel_config, O_WRONLY | O_CREAT | O_APPEND,
-		      S_IRUSR | S_IWUSR)) == -1) {
-		display_error("setup: cannot append citadel.config");
-		cleanup(errno);
-	}
-	fp = fdopen(a, "ab");
-	if (fp == NULL) {
-		display_error("setup: cannot append citadel.config");
-		cleanup(errno);
-	}
-	for (a = 0; a < sizeof(struct config); ++a) {
-		putc(0, fp);
-	}
-	fclose(fp);
-
-	/* now we re-open it, and read the old or blank configuration */
-	fp = fopen(file_citadel_config, "rb");
-	if (fp == NULL) {
-		display_error("setup: cannot open citadel.config");
-		cleanup(errno);
-	}
-	rv = fread((char *) &config, sizeof(struct config), 1, fp);
-	fclose(fp);
 
 	/* set some sample/default values in place of blanks... */
 	if (IsEmptyStr(config.c_nodename))
@@ -1315,6 +1175,154 @@ int main(int argc, char *argv[])
 	if (config.c_managesieve_port == 0) config.c_managesieve_port = 2020;
 	if (config.c_xmpp_c2s_port == 0) config.c_xmpp_c2s_port = 5222;
 	if (config.c_xmpp_s2s_port == 0) config.c_xmpp_s2s_port = 5269;
+}
+
+
+
+
+int main(int argc, char *argv[])
+{
+	int a;
+	int curr; 
+	char aaa[128];
+	FILE *fp;
+	int old_setup_level = 0;
+	int info_only = 0;
+	int relh=0;
+	int home=0;
+	char relhome[PATH_MAX]="";
+	char ctdldir[PATH_MAX]=CTDLDIR;
+	char DefValue[PATH_MAX];
+	int rv;
+	struct passwd *pw;
+	gid_t gid;
+	
+	/* set an invalid setup type */
+	setup_type = (-1);
+
+	/* Check to see if we're running the web installer */
+	if (getenv("CITADEL_INSTALLER") != NULL) {
+		using_web_installer = 1;
+	}
+
+	/* parse command line args */
+	for (a = 0; a < argc; ++a) {
+		if (!strncmp(argv[a], "-u", 2)) {
+			strcpy(aaa, argv[a]);
+			strcpy(aaa, &aaa[2]);
+			setup_type = atoi(aaa);
+		}
+		else if (!strcmp(argv[a], "-i")) {
+			info_only = 1;
+		}
+		else if (!strcmp(argv[a], "-q")) {
+			setup_type = UI_SILENT;
+		}
+		else if (!strncmp(argv[a], "-h", 2)) {
+			relh=argv[a][2]!='/';
+			if (!relh) {
+				safestrncpy(ctdl_home_directory, &argv[a][2], sizeof ctdl_home_directory);
+			} else {
+				safestrncpy(relhome, &argv[a][2], sizeof relhome);
+			}
+			home = 1;
+		}
+
+	}
+
+	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
+
+	/* If a setup type was not specified, try to determine automatically
+	 * the best one to use out of all available types.
+	 */
+	if (setup_type < 0) {
+		setup_type = discover_ui();
+	}
+	if (info_only == 1) {
+		important_message("Citadel Setup", CITADEL);
+		cleanup(0);
+	}
+
+	/* Get started in a valid setup directory. */
+	strcpy(setup_directory, ctdl_run_dir);
+	strcpy(DefValue, ctdl_run_dir);
+	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
+		strcpy(setup_directory, getenv("CITADEL"));
+	}
+	else {
+		set_str_val(0, setup_directory, DefValue);
+	}
+
+	enable_home = ( relh | home );
+
+	if (chdir(setup_directory) != 0) {
+		char errmsg[SIZ];
+		sprintf(errmsg, "The directory you specified does not exist: [%s]\n", setup_directory);
+		
+		important_message("Citadel Setup", errmsg);
+		cleanup(errno);
+	}
+
+
+	/* Try to stop Citadel if we can */
+	if (!access("/etc/init.d/citadel", X_OK)) {
+		rv = system("/etc/init.d/citadel stop");
+	}
+
+	/* Make sure Citadel is not running. */
+	if (test_server(setup_directory, relhome, enable_home) == 0) {
+		important_message("Citadel Setup",
+			"The Citadel service is still running.\n"
+			"Please stop the service manually and run "
+			"setup again.");
+		cleanup(1);
+	}
+
+	/* Now begin. */
+	switch (setup_type) {
+
+	case UI_TEXT:
+		printf("\n\n\n"
+			"	       *** Citadel setup program ***\n\n");
+		break;
+
+	}
+
+	/*
+	 * What we're going to try to do here is append a whole bunch of
+	 * nulls to the citadel.config file, so we can keep the old config
+	 * values if they exist, but if the file is missing or from an
+	 * earlier version with a shorter config structure, when setup tries
+	 * to read the old config parameters, they'll all come up zero.
+	 * The length of the config file will be set to what it's supposed
+	 * to be when we rewrite it, because we replace the old file with a
+	 * completely new copy.
+	 */
+	if ((a = open(file_citadel_config, O_WRONLY | O_CREAT | O_APPEND,
+		      S_IRUSR | S_IWUSR)) == -1) {
+		display_error("setup: cannot append citadel.config");
+		cleanup(errno);
+	}
+	fp = fdopen(a, "ab");
+	if (fp == NULL) {
+		display_error("setup: cannot append citadel.config");
+		cleanup(errno);
+	}
+	for (a = 0; a < sizeof(struct config); ++a) {
+		putc(0, fp);
+	}
+	fclose(fp);
+
+	/* now we re-open it, and read the old or blank configuration */
+	fp = fopen(file_citadel_config, "rb");
+	if (fp == NULL) {
+		display_error("setup: cannot open citadel.config");
+		cleanup(errno);
+	}
+	rv = fread((char *) &config, sizeof(struct config), 1, fp);
+	fclose(fp);
+
+	set_default_values();
 
 	/* Go through a series of dialogs prompting for config info */
 	for (curr = 1; curr <= MAXSETUP; ++curr) {
