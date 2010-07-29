@@ -379,3 +379,30 @@ void assoc_file_name(char *buf, size_t n,
 	snprintf(buf, n, "%s%ld", prefix, qrbuf->QRnumber);
 }
 
+
+int create_dir(char *which, long ACCESS, long UID, long GID)
+{
+	int rv;
+	rv = mkdir(which, ACCESS);
+	rv = chmod(which, ACCESS);
+	rv = chown(which, UID, GID);
+	return rv;
+}
+
+void create_run_directories(long UID, long GID)
+{
+	int rv;
+
+	rv = create_dir(ctdl_info_dir    , 0700, UID, -1);
+	rv = create_dir(ctdl_bio_dir     , 0700, UID, -1);
+	rv = create_dir(ctdl_usrpic_dir  , 0700, UID, -1);
+	rv = create_dir(ctdl_message_dir , 0700, UID, -1);
+	rv = create_dir(ctdl_hlp_dir     , 0700, UID, -1);
+	rv = create_dir(ctdl_image_dir   , 0700, UID, -1);
+	rv = create_dir(ctdl_bb_dir      , 0700, UID, -1);
+	rv = create_dir(ctdl_file_dir    , 0700, UID, -1);
+	rv = create_dir(ctdl_netcfg_dir  , 0700, UID, -1);
+	rv = create_dir(ctdl_key_dir     , 0700, UID, -1);
+	rv = create_dir(ctdl_run_dir     , 0700, UID, GID);
+
+}
