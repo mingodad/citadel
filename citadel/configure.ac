@@ -408,6 +408,30 @@ dnl respective libraries, because some systems (like Irix) have both, and the
 dnl non-libc versions may be broken.
 AC_CHECK_FUNCS(crypt gethostbyname connect flock getpwnam_r getpwuid_r getloadavg)
 
+AC_CHECK_FUNCS(strftime_l uselocale gettext)
+
+if test "$ok_nls" != "no"; then
+	AC_CHECK_PROG(ok_xgettext, xgettext, yes, no)
+	ok_nls=$ok_xgettext
+fi
+
+if test "$ok_nls" != "no"; then
+	AC_CHECK_PROG(ok_msgmerge, msgmerge, yes, no)
+	ok_nls=$ok_msgmerge
+fi
+
+if test "$ok_nls" != "no"; then
+	AC_CHECK_PROG(ok_msgfmt, msgfmt, yes, no)
+	ok_nls=$ok_msgfmt
+fi
+
+if test "$ok_nls" != "no"; then
+	AC_MSG_RESULT(WebCit will be built with national language support.)
+	AC_DEFINE(ENABLE_NLS, [], [whether we have NLS support])
+	PROG_SUBDIRS="$PROG_SUBDIRS po"
+else
+	AC_MSG_RESULT(WebCit will be built without national language support.)
+fi
 
 dnl disable backtrace if we don't want it.
 AC_ARG_WITH(backtrace, 
