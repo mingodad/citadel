@@ -789,13 +789,12 @@ int Conditional_IS_HTTPS(StrBuf *Target, WCTemplputParams *TP)
 void AppendImportantMessage(const char *pch, long len)
 {
 	wcsession *WCC = WC;
-	int IsNew = 0;
 
 	if (StrLength(WCC->ImportantMsg) > 0) {
-		StrBufAppendBufPlain(WCC->ImportantMsg, HKEY("\n"));
+		StrBufAppendBufPlain(WCC->ImportantMsg, HKEY("\n"), 0);
 	}
 		
-	StrBufAppendBufPlain(WCC->ImportantMsg, pch, len);
+	StrBufAppendBufPlain(WCC->ImportantMsg, pch, len, 0);
 }
 
 int ConditionalImportantMesage(StrBuf *Target, WCTemplputParams *TP)
