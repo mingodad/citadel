@@ -663,7 +663,7 @@ void check_xinetd_entry(void) {
 /*
  * Offer to disable other MTA's
  */
-void disable_other_mta(char *mta) {
+void disable_other_mta(const char *mta) {
 	char buf[SIZ];
 	FILE *fp;
 	int lines = 0;
@@ -705,8 +705,44 @@ void disable_other_mta(char *mta) {
 	rv = system(buf);
 }
 
+const char *other_mtas[] = {
+	"courier-authdaemon",
+	"courier-imap",
+	"courier-imap-ssl",
+	"courier-pop",
+	"courier-pop3",
+	"courier-pop3d",
+	"cyrmaster",
+	"cyrus",
+	"dovecot",
+	"exim",
+	"exim4",
+	"imapd",
+	"mta",
+	"pop3d",
+	"popd",
+	"postfix",
+	"qmail",
+	"saslauthd",
+	"sendmail",
+	"vmailmgrd",
+	""
+};
 
-
+void disable_other_mtas(void)
+{
+	int i = 0;
+	if ((getenv("ACT_AS_MTA") == NULL) || 
+	    (getenv("ACT_AS_MTA") &&
+	     strcasecmp(getenv("ACT_AS_MTA"), "yes") == 0)) {
+		/* Offer to disable other MTA's on the system. */
+		while (!IsEmptyStr(other_mtas[i]))
+		{
+			disable_other_mta(other_mtas[i]);
+			i++;
+		}
+	}
+}
 
 /* 
  * Check to see if our server really works.  Returns 0 on success.
@@ -996,6 +1032,13 @@ int discover_ui(void)
 
 
 
+void migrate_old_installs(void)
+{
+	int rv;
+	rv = system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
+	unlink("citadel.log");
+	unlink("weekly");
+}
 
 
 /*
@@ -1367,11 +1410,7 @@ NEW_INST:
 
 	write_config_to_disk();
 
-
-	/* Delete files and directories used by older Citadel versions */
-	rv = system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
-	unlink("citadel.log");
-	unlink("weekly");
+        migrate_old_installs();	/* Delete files and directories used by older Citadel versions */
 
 	if (((setup_type == UI_SILENT) && (getenv("ALTER_ETC_SERVICES")!=NULL)) || 
 	    (setup_type != UI_SILENT))
@@ -1379,32 +1418,8 @@ NEW_INST:
 #ifndef __CYGWIN__
 	delete_inittab_entry();	/* Remove obsolete /etc/inittab entry */
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
+	disable_other_mtas();   /* Offer to disable other MTAs */
 
-	if ((getenv("ACT_AS_MTA") == NULL) || 
-	    (getenv("ACT_AS_MTA") &&
-	     strcasecmp(getenv("ACT_AS_MTA"), "yes") == 0)) {
-		/* Offer to disable other MTA's on the system. */
-		disable_other_mta("courier-authdaemon");
-		disable_other_mta("courier-imap");
-		disable_other_mta("courier-imap-ssl");
-		disable_other_mta("courier-pop");
-		disable_other_mta("courier-pop3");
-		disable_other_mta("courier-pop3d");
-		disable_other_mta("cyrmaster");
-		disable_other_mta("cyrus");
-		disable_other_mta("dovecot");
-		disable_other_mta("exim");
-		disable_other_mta("exim4");
-		disable_other_mta("imapd");
-		disable_other_mta("mta");
-		disable_other_mta("pop3d");
-		disable_other_mta("popd");
-		disable_other_mta("postfix");
-		disable_other_mta("qmail");
-		disable_other_mta("saslauthd");
-		disable_other_mta("sendmail");
-		disable_other_mta("vmailmgrd");
-	}
 #endif
 
 	/* Check for the 'db' nss and offer to disable it */
