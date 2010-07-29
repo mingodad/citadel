@@ -92,7 +92,6 @@ const char *EnvNames [eMaxQuestions] = {
 };
 
 int setup_type;
-char setup_directory[PATH_MAX];
 int using_web_installer = 0;
 int enable_home = 1;
 char admin_pass[SIZ];
@@ -544,8 +543,8 @@ void install_init_scripts(void)
 		"\n"
 		"CITADEL_DIR=%s\n"
 		,
-		setup_directory,
-		setup_directory
+		ctdl_run_dir,
+		ctdl_sbin_dir
 		);
 	fprintf(fp,	"\n"
 		"test -d /var/run || exit 0\n"
@@ -553,7 +552,7 @@ void install_init_scripts(void)
 		"case \"$1\" in\n"
 		"\n"
 		"start)		echo -n \"Starting Citadel... \"\n"
-		"		if $CITADEL_DIR/citserver -lmail -d -h$CITADEL_DIR\n"
+		"		if $CITADEL_DIR/citserver -lmail -d\n"
 		"		then\n"
 		"			echo \"ok\"\n"
 		"		else\n"
@@ -568,7 +567,7 @@ void install_init_scripts(void)
 		"		fi\n"
 		"		rm -f %s/citadel.pid 2>/dev/null\n"
 		,
-		setup_directory
+		ctdl_run_dir
 		);
 	fprintf(fp,	"		;;\n"
 		"restart)	if $CITADEL_DIR/sendcommand DOWN 1 >/dev/null 2>&1 ; then\n"
@@ -615,7 +614,7 @@ void check_xinetd_entry(void) {
 	if (fp == NULL) return;		/* Not there.  Oh well... */
 
 	while (fgets(buf, sizeof buf, fp) != NULL) {
-		if (strstr(buf, setup_directory) != NULL) already_citadel = 1;
+		if (strstr(buf, "/citadel") != NULL) already_citadel = 1;
 	}
 	fclose(fp);
 	if (already_citadel) return;	/* Already set up this way. */
@@ -747,7 +746,7 @@ void disable_other_mtas(void)
 /* 
  * Check to see if our server really works.  Returns 0 on success.
  */
-int test_server(char *setup_directory, char *relhomestr, int relhome) {
+int test_server(char *relhomestr, int relhome) {
 	char cmd[256];
 	char cookie[256];
 	FILE *fp;
@@ -1145,7 +1144,7 @@ void check_init_script (char *relhome)
 			sleep(3);
 		}
 
-		if (test_server(setup_directory, relhome, enable_home) == 0) {
+		if (test_server(relhome, enable_home) == 0) {
 			char buf[SIZ];
 			int found_it = 0;
 
@@ -1335,7 +1334,6 @@ int main(int argc, char *argv[])
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
-	char DefValue[PATH_MAX];
 	int rv;
 	struct passwd *pw;
 	gid_t gid;
@@ -1386,21 +1384,11 @@ int main(int argc, char *argv[])
 		cleanup(0);
 	}
 
-	/* Get started in a valid setup directory. */
-	strcpy(setup_directory, ctdl_run_dir);
-	strcpy(DefValue, ctdl_run_dir);
-	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
-		strcpy(setup_directory, getenv("CITADEL"));
-	}
-	else {
-		set_str_val(0, setup_directory, DefValue);
-	}
-
 	enable_home = ( relh | home );
 
-	if (chdir(setup_directory) != 0) {
+	if (chdir(ctdl_run_dir) != 0) {
 		char errmsg[SIZ];
-		sprintf(errmsg, "The directory you specified does not exist: [%s]\n", setup_directory);
+		sprintf(errmsg, "The directory you specified does not exist: [%s]\n", ctdl_run_dir);
 		
 		important_message("Citadel Setup", errmsg);
 		cleanup(errno);
@@ -1413,7 +1401,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Make sure Citadel is not running. */
-	if (test_server(setup_directory, relhome, enable_home) == 0) {
+	if (test_server(relhome, enable_home) == 0) {
 		important_message("Citadel Setup",
 			"The Citadel service is still running.\n"
 			"Please stop the service manually and run "
