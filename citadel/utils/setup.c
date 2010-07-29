@@ -34,6 +34,17 @@
 #include <execinfo.h>
 #endif
 
+#ifdef ENABLE_NLS
+#ifdef HAVE_XLOCALE_H
+#include <xlocale.h>
+#endif
+#include <libintl.h>
+#include <locale.h>
+#define _(string)	gettext(string)
+#else
+#define _(string)	(string)
+#endif
+
 
 #define MAXSETUP 11	/* How many setup questions to ask */
 
@@ -44,6 +55,22 @@
 #define SERVICE_NAME	"citadel"
 #define PROTO_NAME	"tcp"
 #define NSSCONF		"/etc/nsswitch.conf"
+
+
+typedef enum _SetupStep {
+	eSysAdminName = 1,
+	eSysAdminPW = 2,
+	eUID = 3,
+	eIP_ADDR = 4,
+	eCTDL_Port = 5,
+	eAuthType = 6,
+	eLDAP_Host = 7,
+	eLDAP_Port = 8,
+	eLDAP_Base_DN = 9,
+	eLDAP_Bind_DN =10,
+	eLDAP_Bind_PW =11
+} eSteupStep;
+
 
 int setup_type;
 char setup_directory[PATH_MAX];
@@ -794,7 +821,7 @@ void edit_value(int curr)
 
 	switch (curr) {
 
-	case 1:
+	case eSysAdminName:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("SYSADMIN_NAME")) {
@@ -806,7 +833,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 2:
+	case eSysAdminPW:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("SYSADMIN_PW")) {
@@ -818,7 +845,7 @@ void edit_value(int curr)
 		}
 		break;
 	
-	case 3:
+	case eUID:
 		if (setup_type == UI_SILENT)
 		{		
 			if (getenv("CITADEL_UID")) {
@@ -851,7 +878,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 4:
+	case eIP_ADDR:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("IP_ADDR")) {
@@ -863,7 +890,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 5:
+	case eCTDL_Port:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("CITADEL_PORT")) {
@@ -876,7 +903,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 6:
+	case eAuthType:
 		if (setup_type == UI_SILENT)
 		{
 			const char *auth;
@@ -903,7 +930,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 7:
+	case eLDAP_Host:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("LDAP_HOST")) {
@@ -916,7 +943,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 8:
+	case eLDAP_Port:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("LDAP_PORT")) {
@@ -932,7 +959,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 9:
+	case eLDAP_Base_DN:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("LDAP_BASE_DN")) {
@@ -945,7 +972,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 10:
+	case eLDAP_Bind_DN:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("LDAP_BIND_DN")) {
@@ -958,7 +985,7 @@ void edit_value(int curr)
 		}
 		break;
 
-	case 11:
+	case eLDAP_Bind_PW:
 		if (setup_type == UI_SILENT)
 		{
 			if (getenv("LDAP_BIND_PW")) {
