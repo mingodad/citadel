@@ -1372,6 +1372,7 @@ int main(int argc, char *argv[])
 	}
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir, 0);
+	SetTitles();
 
 	/* If a setup type was not specified, try to determine automatically
 	 * the best one to use out of all available types.
