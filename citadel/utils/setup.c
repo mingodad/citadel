@@ -1282,14 +1282,53 @@ void set_default_values(void)
 }
 
 
+void get_config (void)
+{
+	int a;
+	int rv;
+	FILE *fp;
 
+	/*
+	 * What we're going to try to do here is append a whole bunch of
+	 * nulls to the citadel.config file, so we can keep the old config
+	 * values if they exist, but if the file is missing or from an
+	 * earlier version with a shorter config structure, when setup tries
+	 * to read the old config parameters, they'll all come up zero.
+	 * The length of the config file will be set to what it's supposed
+	 * to be when we rewrite it, because we replace the old file with a
+	 * completely new copy.
+	 */
+	if ((a = open(file_citadel_config, O_WRONLY | O_CREAT | O_APPEND,
+		      S_IRUSR | S_IWUSR)) == -1) {
+		display_error("setup: cannot append citadel.config");
+		cleanup(errno);
+	}
+	fp = fdopen(a, "ab");
+	if (fp == NULL) {
+		display_error("setup: cannot append citadel.config");
+		cleanup(errno);
+	}
+	for (a = 0; a < sizeof(struct config); ++a) {
+		putc(0, fp);
+	}
+	fclose(fp);
+
+	/* now we re-open it, and read the old or blank configuration */
+	fp = fopen(file_citadel_config, "rb");
+	if (fp == NULL) {
+		display_error("setup: cannot open citadel.config");
+		cleanup(errno);
+	}
+	rv = fread((char *) &config, sizeof(struct config), 1, fp);
+	fclose(fp);
+
+}
 
 int main(int argc, char *argv[])
 {
 	int a;
 	int curr; 
 	char aaa[128];
-	FILE *fp;
 	int old_setup_level = 0;
 	int info_only = 0;
 	int relh=0;
@@ -1392,39 +1431,7 @@ int main(int argc, char *argv[])
 
 	}
 
-	/*
-	 * What we're going to try to do here is append a whole bunch of
-	 * nulls to the citadel.config file, so we can keep the old config
-	 * values if they exist, but if the file is missing or from an
-	 * earlier version with a shorter config structure, when setup tries
-	 * to read the old config parameters, they'll all come up zero.
-	 * The length of the config file will be set to what it's supposed
-	 * to be when we rewrite it, because we replace the old file with a
-	 * completely new copy.
-	 */
-	if ((a = open(file_citadel_config, O_WRONLY | O_CREAT | O_APPEND,
-		      S_IRUSR | S_IWUSR)) == -1) {
-		display_error("setup: cannot append citadel.config");
-		cleanup(errno);
-	}
-	fp = fdopen(a, "ab");
-	if (fp == NULL) {
-		display_error("setup: cannot append citadel.config");
-		cleanup(errno);
-	}
-	for (a = 0; a < sizeof(struct config); ++a) {
-		putc(0, fp);
-	}
-	fclose(fp);
-
-	/* now we re-open it, and read the old or blank configuration */
-	fp = fopen(file_citadel_config, "rb");
-	if (fp == NULL) {
-		display_error("setup: cannot open citadel.config");
-		cleanup(errno);
-	}
-	rv = fread((char *) &config, sizeof(struct config), 1, fp);
-	fclose(fp);
+	get_config ();
 
 	set_default_values();
 
