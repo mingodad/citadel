@@ -631,48 +631,6 @@ void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP)
 
 
 
-int ConditionalRoomHas_UA_KNOWN(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return (Folder->RAFlags & UA_KNOWN) != 0;
-}
-
-int ConditionalRoomHas_UA_GOTOALLOWED(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return (Folder->RAFlags & UA_GOTOALLOWED) != 0;
-}
-
-int ConditionalRoomHas_UA_HASNEWMSGS(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return (Folder->RAFlags & UA_HASNEWMSGS) != 0;
-}
-
-int ConditionalRoomHas_UA_ZAPPED(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return (Folder->RAFlags & UA_ZAPPED) != 0;
-}
-
-int ConditionalRoomHas_UA_POSTALLOWED(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return (Folder->RAFlags & UA_POSTALLOWED) != 0;
-}
-
-int ConditionalRoomHas_UA_ADMINALLOWED(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return (Folder->RAFlags & UA_ADMINALLOWED) != 0;
-}
-
-int ConditionalRoomHas_UA_DELETEALLOWED(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return (Folder->RAFlags & UA_DELETEALLOWED) != 0;
-}
-
 
 int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -905,13 +863,6 @@ InitModule_ROOMLIST
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBROOM"), 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
 
 	RegisterConditional(HKEY("COND:ROOM:INFO:IS_INBOX"), 0, ConditionalRoomIsInbox, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_KNOWN"), 0, ConditionalRoomHas_UA_KNOWN, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_GOTOALLOWED"), 0, ConditionalRoomHas_UA_GOTOALLOWED, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_HASNEWMSGS"), 0, ConditionalRoomHas_UA_HASNEWMSGS, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_ZAPPED"), 0, ConditionalRoomHas_UA_ZAPPED, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_POSTALLOWED"), 0, ConditionalRoomHas_UA_POSTALLOWED, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_ADMINALLOWED"), 0, ConditionalRoomHas_UA_ADMINALLOWED, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:FLAGS:UA_DELETEALLOWED"), 0, ConditionalRoomHas_UA_DELETEALLOWED, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:GROUPDAV_CONTENT"), 0, ConditionalRoomHasGroupdavContent, CTX_ROOMS);
 
 

@@ -3289,6 +3289,22 @@ int ConditionalHaveUngoto(StrBuf *Target, WCTemplputParams *TP)
 		(strcasecmp(WCC->ugname, ChrPtr(WCC->CurRoom.name)) == 0));
 }
 
+
+int ConditionalRoomHas_UAFlag(StrBuf *Target, WCTemplputParams *TP)
+{
+	folder *Folder = (folder *)(TP->Context);
+	long UA_CheckFlag;
+		
+	UA_CheckFlag = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if (UA_CheckFlag == 0)
+		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
+				 "requires one of the #\"UA_*\"- defines or an integer flag 0 is invalid!");
+
+	return ((Folder->RAFlags & UA_CheckFlag) != 0);
+}
+
+
+
 int ConditionalCurrentRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 {
 	long QR_CheckFlag;
@@ -3402,6 +3418,7 @@ InitModule_ROOMOPS
 
 	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR2"), 0, ConditionalCurrentRoomHas_QRFlag2, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAG:QR2"), 0, ConditionalRoomHas_QRFlag2, CTX_ROOMS);
+	RegisterConditional(HKEY("COND:ROOM:FLAG:UA"), 0, ConditionalRoomHas_UAFlag, CTX_ROOMS);
 
 	RegisterNamespace("THISROOM:AIDE", 0, 1, tmplput_CurrentRoomAide, NULL, CTX_NONE);
 
