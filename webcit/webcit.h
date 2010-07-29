@@ -878,6 +878,8 @@ void utf8ify_rfc822_string(char **buf);
 void begin_burst(void);
 long end_burst(void);
 
+void AppendImportantMessage(const char *pch, long len);
+
 extern char *hourname[];	/* Names of hours (12am, 1am, etc.) */
 
 void http_datestring(char *buf, size_t n, time_t xtime);

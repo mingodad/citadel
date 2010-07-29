@@ -786,6 +786,18 @@ int Conditional_IS_HTTPS(StrBuf *Target, WCTemplputParams *TP)
 	return is_https != 0;
 }
 
+void AppendImportantMessage(const char *pch, long len)
+{
+	wcsession *WCC = WC;
+	int IsNew = 0;
+
+	if (StrLength(WCC->ImportantMsg) > 0) {
+		StrBufAppendBufPlain(WCC->ImportantMsg, HKEY("\n"));
+	}
+		
+	StrBufAppendBufPlain(WCC->ImportantMsg, pch, len);
+}
+
 int ConditionalImportantMesage(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
