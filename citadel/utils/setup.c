@@ -1126,7 +1126,68 @@ void fixnss(void) {
 	unlink(new_filename);
 }
 
+void check_init_script (char *relhome)
+{
+	int rv;
+	FILE *fp;
 
+	/* 
+	 * If we're running on SysV, install init scripts.
+	 */
+	if (!access("/var/run", W_OK)) {
+
+		if (getenv("NO_INIT_SCRIPTS") == NULL) {
+			install_init_scripts();
+		}
+
+		if (!access("/etc/init.d/citadel", X_OK)) {
+			rv = system("/etc/init.d/citadel start");
+			sleep(3);
+		}
+
+		if (test_server(setup_directory, relhome, enable_home) == 0) {
+			char buf[SIZ];
+			int found_it = 0;
+
+			if (config.c_auth_mode == AUTHMODE_NATIVE) {
+				snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\" 2>&1", 
+				  	ctdl_sbin_dir, config.c_sysadm, admin_pass);
+				fp = popen(admin_cmd, "r");
+				if (fp != NULL) {
+					while (fgets(buf, sizeof buf, fp) != NULL) 
+					{
+						if ((atol(buf) == 574) || (atol(buf) == 200))
+							++found_it;
+					}
+					pclose(fp);
+				}
+			
+				if (found_it == 0) {
+					important_message("Error","Setup failed to create your admin user");
+				}
+			}
+
+			if (setup_type != UI_SILENT)
+				important_message("Setup finished",
+						  "Setup of the Citadel server is complete.\n"
+						  "If you will be using WebCit, please run its\n"
+						  "setup program now; otherwise, run './citadel'\n"
+						  "to log in.\n");
+		}
+		else {
+			important_message("Setup failed",
+				"Setup is finished, but the Citadel server failed to start.\n"
+				"Go back and check your configuration.\n"
+			);
+		}
+
+	}
+
+	else {
+		important_message("Setup finished",
+			"Setup is finished.  You may now start the server.");
+	}
+}
 
 void set_default_values(void)
 {
@@ -1421,9 +1482,7 @@ NEW_INST:
 	disable_other_mtas();   /* Offer to disable other MTAs */
 
 #endif
-
-	/* Check for the 'db' nss and offer to disable it */
-	fixnss();
+	fixnss();	/* Check for the 'db' nss and offer to disable it */
 
 	progress("Setting file permissions", 1, 3);
 	rv = chown(file_citadel_config, config.c_ctdluid, gid);
@@ -1431,63 +1490,7 @@ NEW_INST:
 	rv = chmod(file_citadel_config, S_IRUSR | S_IWUSR);
 	progress("Setting file permissions", 3, 3);
 
-	/* 
-	 * If we're running on SysV, install init scripts.
-	 */
-	if (!access("/var/run", W_OK)) {
-
-		if (getenv("NO_INIT_SCRIPTS") == NULL) {
-			install_init_scripts();
-		}
-
-		if (!access("/etc/init.d/citadel", X_OK)) {
-			rv = system("/etc/init.d/citadel start");
-			sleep(3);
-		}
-
-		if (test_server(setup_directory, relhome, enable_home) == 0) {
-			char buf[SIZ];
-			int found_it = 0;
-
-			if (config.c_auth_mode == AUTHMODE_NATIVE) {
-				snprintf (admin_cmd, sizeof(admin_cmd), "%s/sendcommand \"CREU %s|%s\" 2>&1", 
-				  	ctdl_sbin_dir, config.c_sysadm, admin_pass);
-				fp = popen(admin_cmd, "r");
-				if (fp != NULL) {
-					while (fgets(buf, sizeof buf, fp) != NULL) 
-					{
-						if ((atol(buf) == 574) || (atol(buf) == 200))
-							++found_it;
-					}
-					pclose(fp);
-				}
-			
-				if (found_it == 0) {
-					important_message("Error","Setup failed to create your admin user");
-				}
-			}
-
-			if (setup_type != UI_SILENT)
-				important_message("Setup finished",
-						  "Setup of the Citadel server is complete.\n"
-						  "If you will be using WebCit, please run its\n"
-						  "setup program now; otherwise, run './citadel'\n"
-						  "to log in.\n");
-		}
-		else {
-			important_message("Setup failed",
-				"Setup is finished, but the Citadel server failed to start.\n"
-				"Go back and check your configuration.\n"
-			);
-		}
-
-	}
-
-	else {
-		important_message("Setup finished",
-			"Setup is finished.  You may now start the server.");
-	}
-
+	check_init_script (relhome);
 	cleanup(0);
 	return 0;
 }
