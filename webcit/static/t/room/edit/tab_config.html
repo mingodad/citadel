@@ -41,7 +41,7 @@
 						onChange="this.form.er_floor.disabled = false; { (this.form.type[2].checked == true) }"
 							/>
 						<?_("Private - require password: ")>
-						<input type="text" name="er_password" value="<?PASSWORD("U")>" maxlength="9" />
+						<input type="text" name="er_password" value="<?THISROOM:PASS("U")>" maxlength="9" />
 					</li>
 					<li>
 						<input type="radio" name="type" value="invonly" 
@@ -88,7 +88,7 @@
 				<ul>
 					<li>
 						<?_("Directory name: ")>
-						<input type="text" name="er_dirname" value="<?DIRNAME>" maxlength="14" />
+						<input type="text" name="er_dirname" value="<?THISROOM:DIRECTORY("U")>" maxlength="14" />
                         		</li>
 					<li>
 						<input type="checkbox" name="ulallowed" value="yes" 
@@ -146,8 +146,7 @@
 			</ul>
 			<li>
 				<?_("Room aide: ")>
-				////// TODO: ?GETA???
-                        	 <?%("COND:THISROOM:GETA", 26, ROOMAIDE, "<em><?GETA></em>")>, '<input type="text" name="er_roomaide" value="<?ROOMAIDE>" maxlength="25" /'>
+				<input type="text" name="er_roomaide" value="<?THISROOM:AIDE("U")>" maxlength="25" /'>
 			</li>
 	</ul>
 

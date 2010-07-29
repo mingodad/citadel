@@ -898,6 +898,151 @@ void ParseGoto(folder *room, StrBuf *Line)
 	room->Floor = (const Floor*) vFloor;
 }
 
+void LoadRoomAide(void)
+{
+	wcsession *WCC = WC;
+	StrBuf *Buf;
+	
+	if (WCC->CurRoom.RoomAideLoaded)
+		return;
+
+	WCC->CurRoom.RoomAideLoaded = 1;
+	Buf = NewStrBuf();
+	serv_puts("GETA");
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		FlushStrBuf(WCC->CurRoom.RoomAide);
+		AppendImportantMessage (ChrPtr(Buf) + 4, 
+					StrLength(Buf) - 4);
+	} else {
+		const char *Pos;
+
+		Pos = ChrPtr(Buf) + 4;
+
+		FreeStrBuf(&WCC->CurRoom.RoomAide);
+		WCC->CurRoom.RoomAide = NewStrBufPlain (NULL, StrLength (Buf));
+
+		StrBufExtract_NextToken(WCC->CurRoom.RoomAide, Buf, &Pos, '|'); 
+	}
+	FreeStrBuf (&Buf);
+}
+
+void tmplput_CurrentRoomAide(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadRoomAide();
+
+	StrBufAppendTemplate(Target, TP, WCC->CurRoom.RoomAide, 0);
+}
+
+
+void LoadRoomXA (void)
+{
+	wcsession *WCC = WC;
+	StrBuf *Buf;
+	
+	if (WCC->CurRoom.XALoaded)
+		return;
+
+	WCC->CurRoom.XALoaded = 1;
+	Buf = NewStrBuf();
+	serv_puts("GETA");
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		FlushStrBuf(WCC->CurRoom.XAPass);
+		FlushStrBuf(WCC->CurRoom.Directory);
+
+		AppendImportantMessage (ChrPtr(Buf) + 4, 
+					StrLength(Buf) - 4);
+	} else {
+		const char *Pos;
+
+		Pos = ChrPtr(Buf) + 4;
+
+		FreeStrBuf(&WCC->CurRoom.XAPass);
+		FreeStrBuf(&WCC->CurRoom.Directory);
+
+		WCC->CurRoom.XAPass = NewStrBufPlain (NULL, StrLength (Buf));
+		WCC->CurRoom.Directory = NewStrBufPlain (NULL, StrLength (Buf));
+
+		StrBufSkip_NTokenS(Buf, &Pos, '|', 1); /* The Name, we already know... */
+		StrBufExtract_NextToken(WCC->CurRoom.XAPass, Buf, &Pos, '|'); 
+		StrBufExtract_NextToken(WCC->CurRoom.Directory, Buf, &Pos, '|'); 
+		StrBufSkip_NTokenS(Buf, &Pos, '|', 2); /* QRFlags, FloorNum we already know... */
+		WCC->CurRoom.Order = StrBufExtractNext_long(Buf, &Pos, '|');
+		WCC->CurRoom.DefView = StrBufExtractNext_long(Buf, &Pos, '|');
+		/* QR2Flags, we already know them... */
+
+	}
+	FreeStrBuf (&Buf);
+}
+
+void tmplput_CurrentRoomPass(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadRoomXA();
+
+	StrBufAppendTemplate(Target, TP, WCC->CurRoom.XAPass, 0);
+}
+void tmplput_CurrentRoomDirectory(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadRoomXA();
+
+	StrBufAppendTemplate(Target, TP, WCC->CurRoom.Directory, 0);
+}
+void tmplput_CurrentRoomOrder(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadRoomXA();
+
+	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.Order);
+}
+void tmplput_CurrentRoomDefView(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadRoomXA();
+
+	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.DefView);
+}
+
+
+int ConditionalThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	long CheckThis;
+
+	if (WCC == NULL)
+		return 0;
+
+	LoadRoomXA();
+
+	CheckThis = GetTemplateTokenNumber(Target, TP, 2, 0);
+	return CheckThis == WCC->CurRoom.Order;
+}
+
+int ConditionalThisRoomDefView(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	long CheckThis;
+
+	if (WCC == NULL)
+		return 0;
+
+	LoadRoomXA();
+
+	CheckThis = GetTemplateTokenNumber(Target, TP, 2, 0);
+	return CheckThis == WCC->CurRoom.DefView;
+}
+
+
+
+
 
 /*
  * goto next room
@@ -3257,6 +3402,17 @@ InitModule_ROOMOPS
 
 	RegisterConditional(HKEY("COND:THISROOM:FLAG:QR2"), 0, ConditionalCurrentRoomHas_QRFlag2, CTX_NONE);
 	RegisterConditional(HKEY("COND:ROOM:FLAG:QR2"), 0, ConditionalRoomHas_QRFlag2, CTX_ROOMS);
+
+	RegisterNamespace("THISROOM:AIDE", 0, 1, tmplput_CurrentRoomAide, NULL, CTX_NONE);
+
+
+	RegisterNamespace("THISROOM:PASS", 0, 1, tmplput_CurrentRoomPass, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_CurrentRoomDirectory, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:ORDER", 0, 0, tmplput_CurrentRoomOrder, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:DEFAULT_VIEW", 0, 0, tmplput_CurrentRoomDefView, NULL, CTX_NONE);
+	RegisterConditional(HKEY("COND:THISROOM:ORDER"), 0, ConditionalThisRoomOrder, CTX_NONE);
+	RegisterConditional(HKEY("COND:THISROOM:DEFAULT_VIEW"), 0, ConditionalThisRoomDefView, CTX_NONE);
+
 
 	REGISTERTokenParamDefine(QR_PERMANENT);
 	REGISTERTokenParamDefine(QR_INUSE);

@@ -73,12 +73,19 @@ typedef struct _folder {
 	long nRoomNameParts;
 	StrBuf **RoomNameParts;
 
-	const Floor *Floor;   /* pint to the floor we're on.. */
+	const Floor *Floor;   /* point to the floor we're on.. */
 
 	int hasnewmsgs;	/* are there unread messages inside */
 	int is_inbox;	/* is it a mailbox?  */
 
+	int RoomAideLoaded;
+	StrBuf *RoomAide;
 
+	int XALoaded;
+	StrBuf *XAPass;
+	StrBuf *Directory;
+	long Order;
+	long DefView;
 
 	int selectable;	/* can we select it ??? */
 	long num_rooms;	/* If this is a floor, how many rooms does it have */
