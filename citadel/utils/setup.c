@@ -58,6 +58,7 @@
 
 
 typedef enum _SetupStep {
+	eCitadelHomeDir = 0,
 	eSysAdminName = 1,
 	eSysAdminPW = 2,
 	eUID = 3,
@@ -67,10 +68,26 @@ typedef enum _SetupStep {
 	eLDAP_Host = 7,
 	eLDAP_Port = 8,
 	eLDAP_Base_DN = 9,
-	eLDAP_Bind_DN =10,
-	eLDAP_Bind_PW =11
+	eLDAP_Bind_DN = 10,
+	eLDAP_Bind_PW = 11,
+	eMaxQuestions = 12
 } eSteupStep;
 
+///"CREATE_XINETD_ENTRY";
+const char *EnvNames [eMaxQuestions] = {
+	"SYSADMIN_NAME",
+	"SYSADMIN_PW",
+	"CITADEL_UID",
+	"IP_ADDR",
+	"CITADEL_PORT",
+	"ENABLE_UNIX_AUTH",
+	"LDAP_HOST",
+	"LDAP_PORT",
+	"LDAP_BASE_DN",
+	"LDAP_BIND_DN",
+	"LDAP_BIND_PW"
+""
+};
 
 int setup_type;
 char setup_directory[PATH_MAX];
@@ -79,21 +96,23 @@ int enable_home = 1;
 char admin_pass[SIZ];
 char admin_cmd[SIZ];
 
-char *setup_titles[] =
+const char *setup_titles[eMaxQuestions];
+
+void SetTitles(void)
 {
-	"Citadel Home Directory",
-	"System Administrator",
- 	"Administrator Password",
-	"Citadel User ID",
-	"Server IP address",
-	"Server port number",
-	"Authentication mode",
-	"LDAP host",
-	"LDAP port number",
-	"LDAP base DN",
-	"LDAP bind DN",
-	"LDAP bind password"
-};
+	setup_titles[eCitadelHomeDir] = _("Citadel Home Directory");
+	setup_titles[eSysAdminName] = _("Citadel administrator username:");////
+	setup_titles[eSysAdminPW] = _("Administrator password:");//
+	setup_titles[eUID] = _("Citadel User ID:");
+	setup_titles[eIP_ADDR] = _("Listening address for the Citadel server:");///
+	setup_titles[eCTDL_Port] = _("Server port number:");
+	setup_titles[eAuthType] = _("Authentication method to use:");////
+	setup_titles[eLDAP_Host] = _("LDAP host:");///
+	setup_titles[eLDAP_Port] = _("LDAP port number:");////
+	setup_titles[eLDAP_Base_DN] = _("LDAP base DN:");///
+	setup_titles[eLDAP_Bind_DN] = _("LDAP bind DN:");//
+	setup_titles[eLDAP_Bind_PW] = _("LDAP bind password:");//
+}
 
 /**
  * \brief print the actual stack frame.
@@ -209,7 +228,7 @@ void cleanup(int exitcode)
 
 
 
-void title(char *text)
+void title(const char *text)
 {
 	if (setup_type == UI_TEXT) {
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<%s>\n", text);
@@ -730,7 +749,7 @@ int test_server(char *setup_directory, char *relhomestr, int relhome) {
 	return(-1);
 }
 
-void strprompt(char *prompt_title, char *prompt_text, char *str)
+void strprompt(const char *prompt_title, char *prompt_text, char *Target, char *DefValue)
 {
 	char buf[SIZ] = "";
 	char setupmsg[SIZ];
@@ -744,13 +763,13 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 	case UI_TEXT:
 		title(prompt_title);
 		printf("\n%s\n", prompt_text);
-		printf("This is currently set to:\n%s\n", str);
+		printf("This is currently set to:\n%s\n", Target);
 		printf("Enter new value or press return to leave unchanged:\n");
 		if (fgets(buf, sizeof buf, stdin)){
 			buf[strlen(buf) - 1] = 0;
 		}
 		if (!IsEmptyStr(buf))
-			strcpy(str, buf);
+			strcpy(Target, buf);
 		break;
 
 	case UI_DIALOG:
@@ -758,14 +777,14 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		sprintf(buf, "exec %s --inputbox '%s' 19 72 '%s' 2>%s",
 			getenv("CTDL_DIALOG"),
 			prompt_text,
-			str,
+			Target,
 			dialog_result);
 		rv = system(buf);
 		fp = fopen(dialog_result, "r");
 		if (fp != NULL) {
-			if (fgets(str, sizeof buf, fp)) {
-				if (str[strlen(str)-1] == 10) {
-					str[strlen(str)-1] = 0;
+			if (fgets(Target, sizeof buf, fp)) {
+				if (Target[strlen(Target)-1] == 10) {
+					Target[strlen(Target)-1] = 0;
 				}
 			}
 			fclose(fp);
@@ -773,42 +792,46 @@ void strprompt(char *prompt_title, char *prompt_text, char *str)
 		}
 		break;
 	case UI_SILENT:
+		strcpy(Target, DefValue);
 		break;
 	}
 }
 
-void set_bool_val(int msgpos, int *ip) {
+void set_bool_val(int msgpos, int *ip, char *DefValue) {
 	title(setup_titles[msgpos]);
 	*ip = yesno(setup_text[msgpos], *ip);
 }
 
-void set_str_val(int msgpos, char *str) {
-	strprompt(setup_titles[msgpos], setup_text[msgpos], str);
+void set_str_val(int msgpos, char *Target, char *DefValue) {
+	strprompt(setup_titles[msgpos], 
+		  setup_text[msgpos], 
+		  Target, 
+		  DefValue);
 }
 
-void set_int_val(int msgpos, int *ip)
+void set_int_val(int msgpos, int *ip, char *DefValue)
 {
 	char buf[16];
 	snprintf(buf, sizeof buf, "%d", (int) *ip);
-	set_str_val(msgpos, buf);
+	set_str_val(msgpos, buf, DefValue);
 	*ip = atoi(buf);
 }
 
 
-void set_char_val(int msgpos, char *ip)
+void set_char_val(int msgpos, char *ip, char *DefValue)
 {
 	char buf[16];
 	snprintf(buf, sizeof buf, "%d", (int) *ip);
-	set_str_val(msgpos, buf);
+	set_str_val(msgpos, buf, DefValue);
 	*ip = (char) atoi(buf);
 }
 
 
-void set_long_val(int msgpos, long int *ip)
+void set_long_val(int msgpos, long int *ip, char *DefValue)
 {
 	char buf[16];
 	snprintf(buf, sizeof buf, "%ld", *ip);
-	set_str_val(msgpos, buf);
+	set_str_val(msgpos, buf, DefValue);
 	*ip = atol(buf);
 }
 
@@ -818,38 +841,29 @@ void edit_value(int curr)
 	int i;
 	struct passwd *pw;
 	char ctdluidname[256];
+	char *Value = NULL;
+
+	if (setup_type == UI_SILENT)
+	{
+		Value = getenv(EnvNames[curr]);
+	}
+
 
 	switch (curr) {
 
 	case eSysAdminName:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("SYSADMIN_NAME")) {
-				strcpy(config.c_sysadm, getenv("SYSADMIN_NAME"));
-			}
-		}
-		else {
-			set_str_val(curr, config.c_sysadm);
-		}
+		set_str_val(curr, config.c_sysadm, Value);
 		break;
 
 	case eSysAdminPW:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("SYSADMIN_PW")) {
-				strcpy(admin_pass, getenv("SYSADMIN_PW"));
-			}
-		}
-		else {
-			set_str_val(curr, admin_pass);
-		}
+		set_str_val(curr, admin_pass, Value);
 		break;
 	
 	case eUID:
 		if (setup_type == UI_SILENT)
 		{		
-			if (getenv("CITADEL_UID")) {
-				config.c_ctdluid = atoi(getenv("CITADEL_UID"));
+			if (Value) {
+				config.c_ctdluid = atoi(Value);
 			}					
 		}
 		else
@@ -860,12 +874,12 @@ void edit_value(int curr)
 			i = config.c_ctdluid;
 			pw = getpwuid(i);
 			if (pw == NULL) {
-				set_int_val(curr, &i);
+				set_int_val(curr, &i, Value);
 				config.c_ctdluid = i;
 			}
 			else {
 				strcpy(ctdluidname, pw->pw_name);
-				set_str_val(curr, ctdluidname);
+				set_str_val(curr, ctdluidname, Value);
 				pw = getpwnam(ctdluidname);
 				if (pw != NULL) {
 					config.c_ctdluid = pw->pw_uid;
@@ -879,28 +893,11 @@ void edit_value(int curr)
 		break;
 
 	case eIP_ADDR:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("IP_ADDR")) {
-				strcpy(config.c_ip_addr, getenv("IP_ADDR"));
-			}
-		}
-		else {
-			set_str_val(curr, config.c_ip_addr);
-		}
+		set_str_val(curr, config.c_ip_addr, Value);
 		break;
 
 	case eCTDL_Port:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("CITADEL_PORT")) {
-				config.c_port_number = atoi(getenv("CITADEL_PORT"));
-			}
-		}
-		else
-		{
-			set_int_val(curr, &config.c_port_number);
-		}
+		set_int_val(curr, &config.c_port_number, Value);
 		break;
 
 	case eAuthType:
@@ -908,7 +905,7 @@ void edit_value(int curr)
 		{
 			const char *auth;
 			config.c_auth_mode = AUTHMODE_NATIVE;
-			auth = getenv("ENABLE_UNIX_AUTH");
+			auth = Value;
 			if (auth != NULL)
 			{
 				if ((strcasecmp(auth, "yes") == 0) ||
@@ -926,80 +923,34 @@ void edit_value(int curr)
 			}
 		}
 		else {
-			set_int_val(curr, &config.c_auth_mode);
+			set_int_val(curr, &config.c_auth_mode, Value);
 		}
 		break;
 
 	case eLDAP_Host:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("LDAP_HOST")) {
-				strcpy(config.c_ldap_host, getenv("LDAP_HOST"));
-			}
-		}
-		else
-		{
-			set_str_val(curr, config.c_ldap_host);
-		}
+		set_str_val(curr, config.c_ldap_host, Value);
 		break;
 
 	case eLDAP_Port:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("LDAP_PORT")) {
-				config.c_ldap_port = atoi(getenv("LDAP_PORT"));
-			}
+		if (config.c_ldap_port == 0) {
+			config.c_ldap_port = 389;
 		}
-		else
-		{
-			if (config.c_ldap_port == 0) {
-				config.c_ldap_port = 389;
-			}
-			set_int_val(curr, &config.c_ldap_port);
-		}
+		set_int_val(curr, &config.c_ldap_port, Value);
 		break;
 
 	case eLDAP_Base_DN:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("LDAP_BASE_DN")) {
-				strcpy(config.c_ldap_base_dn, getenv("LDAP_BASE_DN"));
-			}
-		}
-		else
-		{
-			set_str_val(curr, config.c_ldap_base_dn);
-		}
+		set_str_val(curr, config.c_ldap_base_dn, Value);
 		break;
 
 	case eLDAP_Bind_DN:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("LDAP_BIND_DN")) {
-				strcpy(config.c_ldap_bind_dn, getenv("LDAP_BIND_DN"));
-			}
-		}
-		else
-		{
-			set_str_val(curr, config.c_ldap_bind_dn);
-		}
+		set_str_val(curr, config.c_ldap_bind_dn, Value);
 		break;
 
 	case eLDAP_Bind_PW:
-		if (setup_type == UI_SILENT)
-		{
-			if (getenv("LDAP_BIND_PW")) {
-				strcpy(config.c_ldap_bind_pw, getenv("LDAP_BIND_PW"));
-			}
-		}
-		else
-		{
-			set_str_val(curr, config.c_ldap_bind_pw);
-		}
+		set_str_val(curr, config.c_ldap_bind_pw, Value);
 		break;
 
 	}
-
 }
 
 /*
@@ -1153,6 +1104,7 @@ int main(int argc, char *argv[])
 	int home=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
+	char DefValue[PATH_MAX];
 	int rv;
 	
 	/* set an invalid setup type */
@@ -1203,11 +1155,12 @@ int main(int argc, char *argv[])
 
 	/* Get started in a valid setup directory. */
 	strcpy(setup_directory, ctdl_run_dir);
+	strcpy(DefValue, ctdl_run_dir);
 	if ( (using_web_installer) && (getenv("CITADEL") != NULL) ) {
 		strcpy(setup_directory, getenv("CITADEL"));
 	}
 	else {
-		set_str_val(0, setup_directory);
+		set_str_val(0, setup_directory, DefValue);
 	}
 
 	enable_home = ( relh | home );
@@ -1396,44 +1349,16 @@ NEW_INST:
 	config.c_setup_level = REV_LEVEL;
 
 /******************************************/
+	if ((pw = getpwuid(config.c_ctdluid)) == NULL) {
+		gid = getgid();
+	} else {
+		gid = pw->pw_gid;
+	}
+
+	create_run_directories(config.c_ctdluid, gid);
 
 	write_config_to_disk();
 
-	rv = mkdir(ctdl_info_dir, 0700);
-	rv = chmod(ctdl_info_dir, 0700);
-	rv = chown(ctdl_info_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_bio_dir, 0700);
-	rv = chmod(ctdl_bio_dir, 0700);
-	rv = chown(ctdl_bio_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_usrpic_dir, 0700);
-	rv = chmod(ctdl_usrpic_dir, 0700);
-	rv = chown(ctdl_usrpic_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_message_dir, 0700);
-	rv = chmod(ctdl_message_dir, 0700);
-	rv = chown(ctdl_message_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_hlp_dir, 0700);
-	rv = chmod(ctdl_hlp_dir, 0700);
-	rv = chown(ctdl_hlp_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_image_dir, 0700);
-	rv = chmod(ctdl_image_dir, 0700);
-	rv = chown(ctdl_image_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_bb_dir, 0700);
-	rv = chmod(ctdl_bb_dir, 0700);
-	rv = chown(ctdl_bb_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_file_dir, 0700);
-	rv = chmod(ctdl_file_dir, 0700);
-	rv = chown(ctdl_file_dir, config.c_ctdluid, -1);
-
-	rv = mkdir(ctdl_netcfg_dir, 0700);
-	rv = chmod(ctdl_netcfg_dir, 0700);
-	rv = chown(ctdl_netcfg_dir, config.c_ctdluid, -1);
 
 	/* Delete files and directories used by older Citadel versions */
 	rv = system("exec /bin/rm -fr ./rooms ./chatpipes ./expressmsgs ./sessions 2>/dev/null");
@@ -1477,14 +1402,6 @@ NEW_INST:
 	/* Check for the 'db' nss and offer to disable it */
 	fixnss();
 
-	if ((pw = getpwuid(config.c_ctdluid)) == NULL) {
-		gid = getgid();
-	} else {
-		gid = pw->pw_gid;
-	}
-
-	progress("Setting file permissions", 0, 3);
-	rv = chown(ctdl_run_dir, config.c_ctdluid, gid);
 	progress("Setting file permissions", 1, 3);
 	rv = chown(file_citadel_config, config.c_ctdluid, gid);
 	progress("Setting file permissions", 2, 3);
