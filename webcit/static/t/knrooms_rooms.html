@@ -1,5 +1,5 @@
 <?!("COND:ITERATE:FIRSTN", 1)><tr><td valign=top><?=("beginbox_1")><?ROOM:INFO:FLOOR:NAME><?=("beginbox_2")><?!("X", 1)>
 <?!("COND:ITERATE:ISGROUPCHANGE", 2)><?=("endbox")><br><?!("COND:ITERATE:ISGROUPCHANGE", 3, 2)></td><td valign=top> <?!("X", 3)><?=("beginbox_1")><?ROOM:INFO:FLOOR:NAME><?=("beginbox_2")><?!("X", 2)>
-&nbsp;<a href="dotgoto?room=<?ROOM:INFO:NAME("U")>"><span class="<?%("COND:ROOM:FLAGS:UA", 4, #"UA_HASNEWMSGS", 0, "roomlist_new", "roomlist_old")>">
+&nbsp;<a href="dotgoto?room=<?ROOM:INFO:NAME("U")>"><span class="<?%("COND:ROOM:FLAG:UA", 4, #"UA_HASNEWMSGS", 0, "roomlist_new", "roomlist_old")>">
 <?ROOM:INFO:LEVELNTIMES("&nbsp;&nbsp;&nbsp;")><?ROOM:INFO:BASENAME></span></a><?%("COND:ROOM:INFO:IS_INBOX", 5, 0, 0, _"(INBOX)", "")><br />
 <?!("COND:ITERATE:LASTN", 2)><?=("endbox")></td></tr><??("X", 3)>
