@@ -3533,11 +3533,17 @@ InitModule_ROOMOPS
 	REGISTERTokenParamDefine(VIEW_JOURNAL);
 	REGISTERTokenParamDefine(VIEW_BLOG);
 
-
+	/* GNET types: */
 	REGISTERTokenParamDefine(ignet_push_share);
 	REGISTERTokenParamDefine(listrecp);
 	REGISTERTokenParamDefine(digestrecp);
 	REGISTERTokenParamDefine(pop3client);
+	{ /* These are the parts of a pop3 client line... */
+		REGISTERTokenParamDefine(GNET_POP3_HOST);
+		REGISTERTokenParamDefine(GNET_POP3_USER);
+		REGISTERTokenParamDefine(GNET_POP3_DONT_DELETE_REMOTE);
+		REGISTERTokenParamDefine(GNET_POP3_INTERVAL);
+	}
 	REGISTERTokenParamDefine(rssclient);
 	REGISTERTokenParamDefine(participate);
 

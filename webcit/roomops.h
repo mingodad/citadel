@@ -122,3 +122,4 @@ int CompareRooms(const folder *room1, const folder *room2);
 #define REST_HAVE_SUB_ROOMS (1<<3)
 #define REST_GOT_LOCAL_PART (1<<4)
 #define REST_NONEXIST (1<<5)
+

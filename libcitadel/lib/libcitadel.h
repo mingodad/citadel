@@ -68,6 +68,14 @@ enum RoomNetCfg {
 	maxRoomNetCfg
 };
 
+enum GNET_POP3_PARTS { /* pop3client split into these columns: */
+	GNET_POP3_HOST = 1,
+	GNET_POP3_USER = 2,
+	GNET_POP3_PASS = 4,
+	GNET_POP3_DONT_DELETE_REMOTE = 4,
+	GNET_POP3_INTERVAL = 5
+};
+
 
 typedef enum __GPEXWhichPolicy {
 	roompolicy,
