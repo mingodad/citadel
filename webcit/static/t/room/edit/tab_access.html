@@ -9,7 +9,7 @@
         					<input type="hidden" name="nonce" value="<?NONCE>" />
 						<input type="hidden" name="tab" value="access" />
         					<select name="username" size="10" style="width:100%">
-							<?ITERATE("ITERATE:THISROOM:WHOK", ="room_edit_username_list", 0, 0, -1, #"username")>
+							<?ITERATE("ITERATE:THISROOM:WHO_KNOWS", ="room_edit_username_list", 0, 0, -1)>
 						</select>
 						<br />
 						<input type="submit" name="kick_button" value="<?_("Kick")>" />

@@ -3466,7 +3466,7 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:FLAG:QR2"), 0, ConditionalRoomHas_QRFlag2, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAG:UA"), 0, ConditionalRoomHas_UAFlag, CTX_ROOMS);
 
-	RegisterIterator("THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("THISROOM:AIDE", 0, 1, tmplput_CurrentRoomAide, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:PASS", 0, 1, tmplput_CurrentRoomPass, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_CurrentRoomDirectory, NULL, CTX_NONE);
