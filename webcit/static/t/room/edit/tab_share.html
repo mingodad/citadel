@@ -22,7 +22,7 @@
 						<td><?_("Remote room name")></td>
 						<td><?_("Actions")></td>
 					</tr>
-					<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_shared_room_add", 0, 0, -1, #"ignet_push_share")>
+					<?ITERATE("NODECONFIG", ="room_edit_shared_room_add")>
 				</table>
 			</td>
 		</tr>

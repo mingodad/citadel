@@ -1,10 +1,10 @@
 <form method="post" action="netedit">
 	<input type="hidden" name="nonce" value="<?NONCE>" />
-	<tr>   
-		<td><?CONTEXTARR(#"NODE","X")></td>
+	<tr id="ignet_share_node_add__<?CFG:IGNET:NODE("U")>">
+		<td><?CFG:IGNET:NODE("X")></td>
 		<td><input type="input" name="suffix" maxlength="128" /></td>
 		<td>
-			<input type="hidden" name="line" value="ignet_push_share|<?CONTEXTARR(#"NODE","U")>|" /> 
+			<input type="hidden" name="line" value="ignet_push_share|<?CFG:IGNET:NODE("U")>|" /> 
 			<input type="hidden" name="tab" value="sharing" />
 			<input type="hidden" name="cmd" value="add" />
 			<input type="submit" name="add_button" value="<?_("Share")>" />

@@ -3535,6 +3535,10 @@ InitModule_ROOMOPS
 
 	/* GNET types: */
 	REGISTERTokenParamDefine(ignet_push_share);
+	{ /* these are the parts of an IGNET push config */
+		REGISTERTokenParamDefine(GNET_IGNET_NODE);
+		REGISTERTokenParamDefine(GNET_IGNET_ROOM);
+	}
 	REGISTERTokenParamDefine(listrecp);
 	REGISTERTokenParamDefine(digestrecp);
 	REGISTERTokenParamDefine(pop3client);

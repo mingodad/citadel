@@ -68,7 +68,7 @@ enum RoomNetCfg {
 	maxRoomNetCfg
 };
 
-enum GNET_POP3_PARTS { /* pop3client split into these columns: */
+enum GNET_POP3_PARTS { /* pop3client splits into these columns: */
 	GNET_POP3_HOST = 1,
 	GNET_POP3_USER = 2,
 	GNET_POP3_PASS = 4,
@@ -76,6 +76,10 @@ enum GNET_POP3_PARTS { /* pop3client split into these columns: */
 	GNET_POP3_INTERVAL = 5
 };
 
+enum GNET_PUSH_SHARE { /* ignet_push_share splits into these columns: */
+	GNET_IGNET_NODE = 1,
+	GNET_IGNET_ROOM = 2
+};
 
 typedef enum __GPEXWhichPolicy {
 	roompolicy,
