@@ -21,7 +21,7 @@
 					<li>
 						<!-- this COND checks against the value of (QR_PRIVATE + QR_MAILBOX)) == 0 -->
 						<input type="radio" name="type" value="public" 
-                                		<?%("COND:THISROOM:FLAG:QR", 3, "14688", 1, 'disabled="disabled" >', ">")>
+                                		<?%("COND:THISROOM:FLAG:QR", 3, "14688", 1, 'disabled="disabled" ', "")>
                         			onChange="if (this.form.type[0].checked == true) { this.form.er_floor.disabled = false; }" />
                         			<?_("Public (automatically appears to everyone)")>
 					</li>

@@ -42,7 +42,7 @@
 			<table>
 				<tr>
 					<td><?_("Allow self-service subscribe/unsubscribe requests.")></td>
-					<td><input type="checkbox" name="QR2_SelfList" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_SELFLIST", 1, 'checked="checked" ', "")> /></td> (is_selflist(&RoomFlags))?"checked":"
+					<td><input type="checkbox" name="QR2_SelfList" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_SELFLIST", 1, 'checked="checked" ', "")> /></td>
 				</tr>
 				<tr>
 					<td colspan="2">
@@ -52,7 +52,7 @@
 				</tr>
 				<!-- Public posting? -->
 				<tr>
-					<td><?_("Allow non-subscribers to mail to this room.")></td> //// TODO: subonly / SMTP_PUBLIC??
+					<td><?_("Allow non-subscribers to mail to this room.")></td>
 					<td><input type="checkbox" name="QR2_SubsOnly" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_SMTP_PUBLIC", 1, 'checked="checked" ', "")> /></td>
 				</tr>
 		
