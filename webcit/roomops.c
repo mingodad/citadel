@@ -3379,6 +3379,51 @@ int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
 	return WCC->CurRoom.view == GetTemplateTokenNumber(Target, TP, 2, VIEW_BBS);
 }
 
+
+HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	StrBuf *Line;
+	StrBuf *Token;
+	long State;
+	HashList *Whok = NULL;
+	int Done = 0;
+	int n;
+
+	serv_puts("WHOK");
+	Line = NewStrBuf();
+	Token = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, &State) == 1) 
+	{
+		Whok = NewHash(1, Flathash);
+		while(!Done && StrBuf_ServGetln(Line))
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000")) 
+			{
+				Done = 1;
+			}
+			else
+			{
+			
+				const char *Pos = NULL;
+				Token = NewStrBufPlain (NULL, StrLength(Line));
+				StrBufExtract_NextToken(Token, Line, &Pos, '|');
+
+				Put(Whok, 
+				    IKEY(n),
+				    Token, 
+				    HFreeStrBuf);
+			}
+	}
+	else if (State == 550)
+		StrBufAppendBufPlain(WCC->ImportantMsg,
+				     _("Higher access is required to access this function."), -1, 0);
+
+
+	return Whok;
+}
+
 void 
 InitModule_ROOMOPS
 (void)
@@ -3390,6 +3435,7 @@ InitModule_ROOMOPS
         RegisterPreference("emptyfloors", _("Show empty floors"), PRF_YESNO, NULL);
 
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, NULL, CTX_NONE);
+
 
 	WebcitAddUrlHandler(HKEY("knrooms"), "", 0, knrooms, 0);
 	WebcitAddUrlHandler(HKEY("dotgoto"), "", 0, dotgoto, NEED_URL);
@@ -3420,9 +3466,8 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:FLAG:QR2"), 0, ConditionalRoomHas_QRFlag2, CTX_ROOMS);
 	RegisterConditional(HKEY("COND:ROOM:FLAG:UA"), 0, ConditionalRoomHas_UAFlag, CTX_ROOMS);
 
+	RegisterIterator("THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("THISROOM:AIDE", 0, 1, tmplput_CurrentRoomAide, NULL, CTX_NONE);
-
-
 	RegisterNamespace("THISROOM:PASS", 0, 1, tmplput_CurrentRoomPass, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_CurrentRoomDirectory, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:ORDER", 0, 0, tmplput_CurrentRoomOrder, NULL, CTX_NONE);
