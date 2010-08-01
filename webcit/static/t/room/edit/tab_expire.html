@@ -10,8 +10,7 @@
 					<?ROOMNAME("X")>
 				</td>
 				<td>
-					<input type="radio" name="roompolicy" value="0" %s />&nbsp;
-						((roompolicy == 0) ? "CHECKED" : "") );
+					<input type="radio" name="roompolicy" value="0" <?%("COND:EXPIRE:MODE", 1, #"roompolicy", #"EXPIRE_NEXTLEVEL" , 'checked="checked"',"")>/>&nbsp;
 					<?_("Use the default policy for this floor")>&nbsp;
 					<br />
 					<input type="radio" name="roompolicy" value="1" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_MANUAL", 'checked="checked"',"")> />&nbsp;
@@ -28,37 +27,34 @@
 				</td>
 			</tr>
 	
-			<??("COND:AIDE", 2 ...)>	if (WC->axlevel >= 6) {
+			<??("COND:AIDE", 2)>
 			<tr>
 				<td colspan="2"><hr /></td>
 			</tr>
 			<tr>
 				<td>
 					<?_("Message expire policy for this floor")>
-					<br />(
-						escputs(floorlist[WC->CurRoom.floorid]);
+					<br />
+					<?ROOM:INFO:FLOOR:NAME("X")>
 				</td>
 				<td>
-					<input type="radio" name="floorpolicy" value="0" %s>",
-						((floorpolicy == 0) ? "CHECKED" : "") );
+					<input type="radio" name="floorpolicy" value="0" <?%("COND:EXPIRE:MODE", 1, #"floorpolicy", #"EXPIRE_NEXTLEVEL" , 'checked="checked"',"")>>nbsp;
 					<?_("Use the system default")>
 					<br />
-					<input type="radio" name="floorpolicy" value="1" %s>",
-						((floorpolicy == 1) ? "CHECKED" : "") );
+					<input type="radio" name="floorpolicy" value="1" <?%("COND:EXPIRE:MODE", 1, #"floorpolicy", #"EXPIRE_MANUAL", 'checked="checked"',"")> />&nbsp;
 					<?_("Never automatically expire messages")>
 					<br />
-					<input type="radio" name="floorpolicy" value="2" %s>",
-						((floorpolicy == 2) ? "CHECKED" : "") );
+					<input type="radio" name="floorpolicy" value="2" <?%("COND:EXPIRE:MODE", 2, #"floorpolicy", #"EXPIRE_NUMMSGS", 'checked="checked"', "")> />&nbsp;
 					<?_("Expire by message count")>
 					<br />
-					<input type="radio" name="floorpolicy" value="3" %s>",
-						((floorpolicy == 3) ? "CHECKED" : "") );
+					<input type="radio" name="floorpolicy" value="3" <?%("COND:EXPIRE:MODE", 1, #"floorpolicy", #"EXPIRE_AGE", 'checked="checked"', "")> />&nbsp;
 					<?_("Expire by message age")>
 					<br />
 					<?_("Number of messages or days: ")>
-					<input type="text" name="floorvalue" MAXLENGTH="5" value="%d">",
-						floorvalue);
-			<("X", 2)>	
+					<input type="text" name="floorvalue" MAXLENGTH="5" value="<?EXPIRE:VALUE(#"floorpolicy", #"EXPIRE_NUMMSGS")>">
+					</td>
+				</tr>
+			<??("X", 2)>	
 			<tr>
 				<td colspan="2">
 					<hr />

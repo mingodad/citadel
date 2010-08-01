@@ -1,10 +1,10 @@
 <div class="tabcontent">
 	<form method="post" action="editroom">
-		<input type="hidden" name="nonce" value="<?NONCE>" />"
+		<input type="hidden" name="nonce" value="<?NONCE>" />
 		<ul>   
 			<li>
 				<?_("name of room: ")>
-				<input type="text" name="er_name" value="<?ROOMNAME>" maxlength="127" />
+				<input type="text" name="er_name" value="<?ROOMNAME("U")>" maxlength="127" />
 			</li>
 			<li>
 				<?_("Resides on floor: ")>
