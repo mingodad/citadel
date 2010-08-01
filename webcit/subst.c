@@ -2172,11 +2172,11 @@ int preeval_iterate(WCTemplateToken *Token)
 	Token->Preeval2 = vIt;
 	It = (HashIterator *) vIt;
 
-	if (TP->Tokens->nParameters <= It->AdditionalParams + 2) {
+	if (TP->Tokens->nParameters < It->AdditionalParams + 2) {
 		LogTemplateError(                               
 			NULL, "Iterator", ERR_PARM1, TP,
 			"doesn't work with %d params", 
-			TP->Tokens->nParameters - 1);
+			TP->Tokens->nParameters);
 	}
 
 
@@ -2212,7 +2212,7 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 		return;
 	}
 
-	if (TP->Tokens->nParameters <= It->AdditionalParams + 2) {
+	if (TP->Tokens->nParameters < It->AdditionalParams + 2) {
 		LogTemplateError(                               
 			Target, "Iterator", ERR_PARM1, TP,
 			"doesn't work with %d params", 
