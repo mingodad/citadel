@@ -2146,6 +2146,7 @@ int preeval_iterate(WCTemplateToken *Token)
 	WCTemplputParams *TP;
 	void *vTmpl;
 	void *vIt;
+	HashIterator *It;
 
 	memset(&TPP, 0, sizeof(WCTemplputParams));
 	TP = &TPP;
@@ -2169,6 +2170,16 @@ int preeval_iterate(WCTemplateToken *Token)
 				 "referenced here doesn't exist");
 	}
 	Token->Preeval2 = vIt;
+	It = (HashIterator *) vIt;
+
+	if (TP->Tokens->nParameters <= It->AdditionalParams + 2) {
+		LogTemplateError(                               
+			NULL, "Iterator", ERR_PARM1, TP,
+			"doesn't work with %d params", 
+			TP->Tokens->nParameters - 1);
+	}
+
+
 	return 1;
 }
 
