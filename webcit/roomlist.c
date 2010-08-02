@@ -135,6 +135,10 @@ void FlushFolder(folder *room)
 {
 	int i;
 
+	FreeStrBuf(&room->XAPass);
+	FreeStrBuf(&room->Directory);
+	FreeStrBuf(&room->RoomAide);
+
 	FreeStrBuf(&room->name);
 	if (room->IgnetCfgs[0] == (HashList*) StrBufNOTNULL)
 	{
