@@ -35,10 +35,10 @@
 				<td>
 					<?_("Message expire policy for this floor")>
 					<br />
-					<?ROOM:INFO:FLOOR:NAME("X")>
+					<?THISROOM:FLOOR:NAME("X")>
 				</td>
 				<td>
-					<input type="radio" name="floorpolicy" value="0" <?%("COND:EXPIRE:MODE", 1, #"floorpolicy", #"EXPIRE_NEXTLEVEL" , 'checked="checked"',"")>>nbsp;
+					<input type="radio" name="floorpolicy" value="0" <?%("COND:EXPIRE:MODE", 1, #"floorpolicy", #"EXPIRE_NEXTLEVEL" , 'checked="checked"',"")>>&nbsp;
 					<?_("Use the system default")>
 					<br />
 					<input type="radio" name="floorpolicy" value="1" <?%("COND:EXPIRE:MODE", 1, #"floorpolicy", #"EXPIRE_MANUAL", 'checked="checked"',"")> />&nbsp;

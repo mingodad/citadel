@@ -894,6 +894,9 @@ void ParseGoto(folder *room, StrBuf *Line)
 		
 	}
 	/* get a pointer to the floor we're on: */
+	if (WCC->Floors == NULL)
+		GetFloorListHash(NULL, NULL);
+
 	GetHash(WCC->Floors, IKEY(room->floorid), &vFloor);
 	room->Floor = (const Floor*) vFloor;
 }
@@ -925,6 +928,17 @@ void LoadRoomAide(void)
 		StrBufExtract_NextToken(WCC->CurRoom.RoomAide, Buf, &Pos, '|'); 
 	}
 	FreeStrBuf (&Buf);
+}
+void tmplput_CurrentRoomFloorName(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	folder *Folder = &WCC->CurRoom;
+	const Floor *pFloor = Folder->Floor;
+
+	if (pFloor == NULL)
+		return;
+
+	StrBufAppendTemplate(Target, TP, pFloor->Name, 0);
 }
 
 void tmplput_CurrentRoomAide(StrBuf *Target, WCTemplputParams *TP) 
@@ -3467,6 +3481,7 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:FLAG:UA"), 0, ConditionalRoomHas_UAFlag, CTX_ROOMS);
 
 	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterNamespace("THISROOM:FLOOR:NAME", 0, 1, tmplput_CurrentRoomFloorName, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:AIDE", 0, 1, tmplput_CurrentRoomAide, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:PASS", 0, 1, tmplput_CurrentRoomPass, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_CurrentRoomDirectory, NULL, CTX_NONE);
@@ -3576,5 +3591,9 @@ SessionDestroyModule_ROOMOPS
 	
 	free_march_list(sess);
 	DeleteHash(&sess->Floors);
+	DeleteHash(&sess->Rooms);
+	DeleteHash(&sess->FloorsByName);
 }
+
+
 /*@}*/
