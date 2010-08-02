@@ -798,17 +798,6 @@ void jsonRoomFlr(void)
 	end_burst(); 
 }
 
-
-void 
-SessionDetachModule_ROOMLIST
-(wcsession *sess)
-{
-	DeleteHash(&sess->Floors);
-	DeleteHash(&sess->Rooms);
-	DeleteHash(&sess->FloorsByName);
-}
-
-
 #define POP3_HOST 0
 #define POP3_USERNAME 1
 #define POP3_PASSWORD 2
