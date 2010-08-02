@@ -23,7 +23,7 @@
 					<?_("Expire by message age")>
 					<br />
 					<?_("Number of messages or days: ")>
-					<input type="text" name="roomvalue" maxlength="5" value="<?SERV:CFG("sitevalue")>" />
+					<input type="text" name="roomvalue" MAXLENGTH="5" value="<?EXPIRE:VALUE(#"roompolicy", #"EXPIRE_NUMMSGS")>">
 				</td>
 			</tr>
 	
