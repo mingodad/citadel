@@ -106,6 +106,9 @@ typedef struct _folder {
 	int XHaveInfoTextLoaded;
 	StrBuf *XInfoText;
 
+	int XHaveDownloadCount;
+	int XDownloadCount;
+
 	HashList *IgnetCfgs[maxRoomNetCfg];
 
 }folder;
