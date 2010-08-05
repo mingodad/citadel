@@ -276,67 +276,6 @@ void readinfo(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-
-
-/*
- * Display room banner icon.  
- * The server doesn't actually need the room name, but we supply it in
- * order to keep the browser from using a cached icon from another room.
- */
-void embed_room_graphic(StrBuf *Target, WCTemplputParams *TP)
-{
-	char buf[SIZ];
-
-	serv_puts("OIMG _roompic_");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '2') {
-		wc_printf("<img height=\"64px\" src=\"image?name=_roompic_&room=");
-		urlescputs(ChrPtr(WC->CurRoom.name));
-		wc_printf("\">");
-		serv_puts("CLOS");
-		serv_getln(buf, sizeof buf);
-	}
-	else if (WC->CurRoom.view == VIEW_ADDRESSBOOK) {
-		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
-			"static/viewcontacts_48x.gif"
-			"\" >"
-			);
-	}
-	else if ( (WC->CurRoom.view == VIEW_CALENDAR) || (WC->CurRoom.view == VIEW_CALBRIEF) ) {
-		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
-			"static/calarea_48x.gif"
-			"\" width=\"48\" height=\"48\">"
-			);
-	}
-	else if (WC->CurRoom.view == VIEW_TASKS) {
-		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
-			"static/taskmanag_48x.gif"
-			"\" width=\"48\" height=\"48\">"
-			);
-	}
-	else if (WC->CurRoom.view == VIEW_NOTES) {
-		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
-			"static/storenotes_48x.gif"
-			"\" width=\"48\" height=\"48\">"
-			);
-	}
-	else if (WC->CurRoom.view == VIEW_MAILBOX) {
-		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
-			"static/privatemess_48x.gif"
-			"\" width=\"48\" height=\"48\">"
-			);
-	}
-	else {
-		wc_printf("<img class=\"roompic\" alt=\"\" src=\""
-			"static/chatrooms_48x.gif"
-			"\" width=\"48\" height=\"48\">"
-			);
-	}
-
-}
-
-
-
 /*
  * Display the current view and offer an option to change it
  */
@@ -468,7 +407,6 @@ void embed_room_banner(char *got, int navbar_style) {
 		 extract_int(&got[4], 2),
 		 with_files
 		);
-	svcallback("ROOMPIC", embed_room_graphic);
 	svcallback("ROOMINFO", readinfo);
 	svcallback("VIEWOMATIC", embed_view_o_matic); 
 	svcallback("SEARCHOMATIC", embed_search_o_matic);
@@ -990,6 +928,41 @@ void LoadRoomXA (void)
 
 	}
 	FreeStrBuf (&Buf);
+}
+
+
+void LoadXRoomPic(void)
+{
+	wcsession *WCC = WC;
+	StrBuf *Buf;
+	
+	if (WCC->CurRoom.XHaveRoomPicLoaded)
+		return;
+
+	WCC->CurRoom.XHaveRoomPicLoaded = 1;
+	Buf = NewStrBuf();
+	serv_puts("OIMG _roompic_");
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		WCC->CurRoom.XHaveRoomPic = 0;
+	} else {
+		WCC->CurRoom.XHaveRoomPic = 1;
+	}
+	serv_puts("CLOS");
+	StrBuf_ServGetln(Buf);
+	GetServerStatus(Buf, NULL);
+	FreeStrBuf (&Buf);
+}
+
+int ConditionalThisRoomXHavePic(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	
+	if (WCC == NULL)
+		return 0;
+
+	LoadXRoomPic();
+	return WCC->CurRoom.XHaveRoomPic == 1;
 }
 
 void tmplput_CurrentRoomPass(StrBuf *Target, WCTemplputParams *TP) 
@@ -3389,7 +3362,11 @@ int ConditionalIsRoomtype(StrBuf *Target, WCTemplputParams *TP)
 
 	if ((WCC == NULL) ||
 	    (TP->Tokens->nParameters < 3))
-		return 0;
+	{
+		return ((WCC->CurRoom.view < VIEW_BBS) || 
+			(WCC->CurRoom.view > VIEW_MAX));
+	}
+
 	return WCC->CurRoom.view == GetTemplateTokenNumber(Target, TP, 2, VIEW_BBS);
 }
 
@@ -3490,7 +3467,7 @@ InitModule_ROOMOPS
 	RegisterNamespace("THISROOM:DEFAULT_VIEW", 0, 0, tmplput_CurrentRoomDefView, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:ORDER"), 0, ConditionalThisRoomOrder, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:DEFAULT_VIEW"), 0, ConditionalThisRoomDefView, CTX_NONE);
-
+	RegisterConditional(HKEY("COND:THISROOM:HAVE_PIC"), 0, ConditionalThisRoomXHavePic, CTX_NONE);
 
 	REGISTERTokenParamDefine(QR_PERMANENT);
 	REGISTERTokenParamDefine(QR_INUSE);

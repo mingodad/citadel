@@ -100,6 +100,10 @@ typedef struct _folder {
 	int UsersNewMAilboxMessages; /* should we notify the user about new messages? */
 	int IsTrash;
 
+	int XHaveRoomPic;
+	int XHaveRoomPicLoaded;
+
+
 	HashList *IgnetCfgs[maxRoomNetCfg];
 
 }folder;
