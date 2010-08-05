@@ -347,7 +347,6 @@ void embed_room_banner(char *got, int navbar_style) {
 		 with_files
 		);
 	svcallback("VIEWOMATIC", embed_view_o_matic); 
-	svcallback("START", offer_start_page); 
  
 	do_template("roombanner", NULL);
 	/* roombanner contains this for mobile */
