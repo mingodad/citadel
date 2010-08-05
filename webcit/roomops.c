@@ -951,6 +951,55 @@ void tmplput_CurrentRoomInfoText(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, WCC->CurRoom.XAPass, 1);
 }
 
+void LoadXRoomXCountFiles(void)
+{
+	wcsession *WCC = WC;
+	StrBuf *Buf;
+	int Done = 0;
+	
+	if (WCC->CurRoom.XHaveDownloadCount)
+		return;
+
+	WCC->CurRoom.XHaveDownloadCount = 1;
+
+	Buf = NewStrBuf();
+	serv_puts("RDIR");
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		
+		while (!Done && StrBuf_ServGetln(Buf)>=0) {
+			if ( (StrLength(Buf)==3) && 
+			     !strcmp(ChrPtr(Buf), "000")) 
+				Done = 1;
+			else 
+				WCC->CurRoom.XDownloadCount++;
+		}
+	}
+
+	FreeStrBuf (&Buf);
+}
+
+void tmplput_CurrentRoomXNFiles(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadXRoomXCountFiles();
+
+	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.XDownloadCount);
+}
+
+void tmplput_CurrentRoomX_FileString(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadXRoomXCountFiles();
+
+	if (WCC->CurRoom.XDownloadCount == 1)
+		StrBufAppendBufPlain(Target, _("file"), -1, 0);
+	else
+		StrBufAppendBufPlain(Target, _("files"), -1, 0);
+}
+
 void tmplput_CurrentRoomPass(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
@@ -3456,7 +3505,8 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:THISROOM:DEFAULT_VIEW"), 0, ConditionalThisRoomDefView, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_PIC"), 0, ConditionalThisRoomXHavePic, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_INFOTEXT"), 0, ConditionalThisRoomXHaveInfoText, CTX_NONE);
-
+	RegisterNamespace("THISROOM:FILES:N", 0, 1, tmplput_CurrentRoomXNFiles, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:FILES:STR", 0, 1, tmplput_CurrentRoomX_FileString, NULL, CTX_NONE);
 
 	REGISTERTokenParamDefine(QR_PERMANENT);
 	REGISTERTokenParamDefine(QR_INUSE);
