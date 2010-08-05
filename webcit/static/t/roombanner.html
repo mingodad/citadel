@@ -1,29 +1,25 @@
 <!-- start roombanner.html -->
 <div class="banner" id="room_banner">
-<table border=0><tr>
-<td>
-<?=("room_view_picture")>
-</td>
-<td>
-<h1 id="rmname"><?ROOMNAME></h1>
-<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")>
-<h2><?BSTR("page")></h2>
-<?!("X", 7)>
-<??("COND:ROOM:TYPE_IS", 8, #"VIEW_WIKI")>
-<p id="nummsgs"><?NUMMSGS></p>
-<?!("X", 8)>
-</td>
-<td>
-<?ROOMINFO>
-</td>
-<td id="actiondiv">
-<ul class="room_actions">
-<li class="start_page"><?START></li>
-<li class="search" id="searchomatic"><?=("searchomatic")></li>
-<li class="view"><?VIEWOMATIC></li>
-<??("COND:SUBST", 1, "WCVIEW", "1")><li class="hidden" id="selectpage"><?_("Select page: ")> <select id="summpage"><option> </option></select></li><??("X",1)>
-</ul>
-</td>
-</tr></table>
+	<table border=0><tr>
+		<td><?=("room_view_picture")></td>
+		<td>
+			<h1 id="rmname"><?ROOMNAME></h1>
+			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")>
+				<h2><?BSTR("page")></h2>
+			<?!("X", 7)>
+			<??("COND:ROOM:TYPE_IS", 8, #"VIEW_WIKI")>
+				<p id="nummsgs"><?NUMMSGS></p>
+			<?!("X", 8)>
+		</td>
+		<td><?=("readinfo")></td>
+		<td id="actiondiv">
+			<ul class="room_actions">
+				<li class="start_page"><?START></li>
+				<li class="search" id="searchomatic"><?=("searchomatic")></li>
+				<li class="view"><?=("viewomatic")></li>
+				<??("COND:SUBST", 1, "WCVIEW", "1")><li class="hidden" id="selectpage"><?_("Select page: ")> <select id="summpage"><option> </option></select></li><??("X",1)>
+			</ul>
+		</td>
+	</tr></table>
 </div>
 <!-- end roombanner.html -->
