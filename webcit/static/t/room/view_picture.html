@@ -1,0 +1,25 @@
+<??("COND:THISROOM:HAVE_PIC", 1)>
+<img height="64px" src="image?name=_roompic_&room=<?ROOMNAME("U")>"
+<??("X", 1)><?!("COND:THISROOM:HAVE_PIC", 2)>
+	<??("COND:ROOM:TYPE_IS", 3, #"VIEW_ADDRESSBOOK")>
+		<img class="roompic" alt="" src="static/viewcontacts_48x.gif" />
+	<??("X", 3)>
+	<??("COND:ROOM:TYPE_IS", 4, #"VIEW_CALENDAR")>
+		<img class="roompic" alt="" src="static/calarea_48x.gif" width="48" height="48" />
+        <??("X", 4)>
+	<??("COND:ROOM:TYPE_IS", 5, #"VIEW_CALBRIEF")>
+		<img class="roompic" alt="" src="static/calarea_48x.gif" width="48" height="48" />
+	<??("X", 5)>
+	<??("COND:ROOM:TYPE_IS", 6, #"VIEW_TASKS")>
+		<img class="roompic" alt="" src="static/taskmanag_48x.gif" width="48" height="48" />
+	<??("X", 6)>
+	<??("COND:ROOM:TYPE_IS", 7, #"VIEW_NOTES")>
+		<img class="roompic" alt="" src="static/storenotes_48x.gif" width="48" height="48" />
+        <??("X", 7)>
+	<??("COND:ROOM:TYPE_IS", 8, #"VIEW_MAILBOX")>
+		<img class="roompic" alt="" src="static/privatemess_48x.gif" width="48" height="48" />
+        <??("X", 8)>
+	<??("COND:ROOM:TYPE_IS", 9)>
+                <img class="roompic" alt="" src="static/chatrooms_48x.gif" width="48" height="48" />
+        <??("X", 9)>
+<?!("X", 2)>
