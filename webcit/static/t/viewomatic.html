@@ -1,0 +1,10 @@
+<form name="viewomatic" action="changeview">
+	<div style="display: inline;">
+		<input type="hidden" name="nonce" value="<?NONCE>">
+			<label for="view_name"><?_("View as:")></label>
+                	<select name="newview" size="1" id="view_name" class="selectbox" OnChange="location.href=viewomatic.newview.options[selectedIndex].value">
+				<?ITERATE("ITERATE:THISROOM:HAS_VIEW", ="viewomatic_options", 0, 0, -1, #"something meaningful goes here")>			
+			</select>
+	</div>
+</form>
+
