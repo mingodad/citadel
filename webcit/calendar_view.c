@@ -42,7 +42,7 @@ void embeddable_mini_calendar(int year, int month)
 	long weekstart = 0;
 	char url[256];
 	char div_id[256];
-	
+
 	snprintf(div_id, sizeof div_id, "mini_calendar_%d", rand() );
 
 	/* Determine what day to start.  If an impossible value is found, start on Sunday.
@@ -96,7 +96,7 @@ void embeddable_mini_calendar(int year, int month)
 	wc_printf("<a href=\"javascript:minical_change_month(%d,%d);\">&raquo;</a>",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
 
-	wc_printf("<table border=0 cellpadding=1 cellspacing=1 class=\"mini_calendar_days\">"
+	wc_printf("<table border=\"0\" cellpadding=\"1\" cellspacing=\"1\" class=\"mini_calendar_days\">"
 		"<tr>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
@@ -121,7 +121,7 @@ void embeddable_mini_calendar(int year, int month)
 			}
 
 			if (tm.tm_mon == month-1) {
-				snprintf(url, sizeof url, "readfwd?calview=day&year=%d&month=%d&day=%d", 
+				snprintf(url, sizeof url, "readfwd?calview=day?year=%d?month=%d?day=%d",
 					tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday);
 				wc_printf("<td><a href=\"%s\">%d</a></td>", url, tm.tm_mday);
 			}
@@ -269,7 +269,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 			if (p != NULL) {
 
 				if (all_day_event) {
-					wc_printf("<table border=0 cellpadding=2><TR>"
+					wc_printf("<table border=\"0\" cellpadding=\"2\"><TR>"
 						"<td bgcolor=\"#CCCCDD\">"
 						);
 				}
@@ -292,7 +292,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 				wc_printf("<i>%s</i> ",          _("Summary:"));
 				escputs((char *)icalproperty_get_comment(p));
 				wc_printf("<br />");
-				
+
 				q = icalcomponent_get_first_property(
 					Cal->cal,
 					ICAL_LOCATION_PROPERTY);
@@ -301,13 +301,13 @@ void calendar_month_view_display_events(int year, int month, int day)
 					escputs((char *)icalproperty_get_comment(q));
 					wc_printf("<br />");
 				}
-				
+
 				/*
 				 * Only show start/end times if we're actually looking at the VEVENT
 				 * component.  Otherwise it shows bogus dates for e.g. timezones
 				 */
 				if (icalcomponent_isa(Cal->cal) == ICAL_VEVENT_COMPONENT) {
-					
+
 					q = icalcomponent_get_first_property(Cal->cal, ICAL_DTSTART_PROPERTY);
 					if (q != NULL) {
 						int no_end = 0;
@@ -369,31 +369,31 @@ void calendar_month_view_display_events(int year, int month, int day)
 								webcit_fmt_date(buf, 256, tt, DATEFMT_BRIEF);
 								wc_printf("<i>%s</i> %s<br>", _("Ending date/time:"), buf);
 							}
-							
+
 						}
 					}
-					
+
 				}
-				
+
 				q = icalcomponent_get_first_property(Cal->cal, ICAL_DESCRIPTION_PROPERTY);
 				if (q) {
 					wc_printf("<i>%s</i> ", _("Notes:"));
 					escputs((char *)icalproperty_get_comment(q));
 					wc_printf("<br />");
 				}
-				
+
 				wc_printf("</span><span class=\"bttbottom\"></span></span>");
 				wc_printf("</a></font><br />\n");
-				
+
 				if (all_day_event) {
 					wc_printf("</td></tr></table>");
 				}
-				
+
 			}
-			
+
 		}
-		
-		
+
+
 	}
 	DeleteHashPos(&Pos);
 }
@@ -422,7 +422,7 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 	int all_day_event = 0;
 	char *timeformat;
 	int time_format;
-	
+
 	time_format = get_time_format_cached ();
 
 	if (time_format == WC_TIMEFORMAT_24) timeformat="%k:%M";
@@ -454,11 +454,11 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 			if ((event_tms.tm_year == today_tm.tm_year)
 				&& (event_tms.tm_mon == today_tm.tm_mon)
 			&& (event_tms.tm_mday == today_tm.tm_mday)) {
-			
-			
+
+
 			char sbuf[255];
 			char ebuf[255];
-			
+
 			p = icalcomponent_get_first_property(
 				Cal->cal,
 				ICAL_SUMMARY_PROPERTY);
@@ -483,20 +483,20 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					"<a class=\"event%s\" href=\"display_edit_event?msgnum=%ld?calview=calbrief?year=%s?month=%s?day=%s\">",
 					daycolor,
 					hours, minutes,
-					(Cal->unread)?"_unread":"_read",						
+					(Cal->unread)?"_unread":"_read",
 					daycolor,
 					Cal->cal_msgnum,
 					bstr("year"),
 					bstr("month"),
 					bstr("day")
 					);
-				
+
 				escputs((char *)
 					icalproperty_get_comment(p));
 				/* \todo: allso ammitime format */
 				wc_strftime(&sbuf[0], sizeof(sbuf), timeformat, &event_tms);
 				wc_strftime(&ebuf[0], sizeof(sbuf), timeformat, &event_tme);
-				
+
 				wc_printf("</a></font></td>"
 					"<td bgcolor='%s'>%s</td><td bgcolor='%s'>%s</td></tr>",
 					daycolor,
@@ -504,10 +504,10 @@ void calendar_month_view_brief_events(time_t thetime, const char *daycolor) {
 					daycolor,
 					ebuf);
 				}
-			
+
 			}
-			
-			
+
+
 		}
 	}
 	DeleteHashPos(&Pos);
@@ -574,18 +574,18 @@ void calendar_month_view(int year, int month, int day) {
 	wc_printf("<div class=\"fix_scrollbar_bug\">"
 		"<table class=\"calendar\"> \n <tr><td>"); 
 
-	wc_printf("<table width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
+	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n");
 
-	wc_printf("<td align=center>");
+	wc_printf("<td align=\"center\">");
 
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
+	wc_printf("<img alt=\"\" align=\"middle\" src=\"static/prevdate_32x.gif\" border=\"0\"></a>\n");
 
 	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
 	wc_printf("&nbsp;&nbsp;"
-		"<font size=+1 color=\"#FFFFFF\">"
+		"<font size=\"+1\" color=\"#FFFFFF\">"
 		"%s %d"
 		"</font>"
 		"&nbsp;&nbsp;", colheader_label, year);
@@ -593,20 +593,20 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
+	wc_printf("<img alt=\"\" align=\"middle\" src=\"static/nextdate_32x.gif\" border=\"0\"></A>\n");
 
 	wc_printf("</td></tr></table>\n");
 
 	/* Inner table (the real one) */
-	wc_printf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
-		"bgcolor=#204B78 id=\"inner_month\"><tr>");
-	wc_printf("<th align=center width=2%%></th>");
+	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" "
+		"bgcolor='#204B78' id=\"inner_month\"><tr>");
+	wc_printf("<th align=\"center\" width=\"2%%\"></th>");
 	colheader_time = thetime;
 	for (i=0; i<7; ++i) {
 		colheader_time = thetime + (i * 86400) ;
 		localtime_r(&colheader_time, &colheader_tm);
 		wc_strftime(colheader_label, sizeof colheader_label, "%A", &colheader_tm);
-		wc_printf("<th align=center width=14%%>"
+		wc_printf("<th align=\"center\" width=\"14%%\">"
 			"<font color=\"#FFFFFF\">%s</font></th>", colheader_label);
 
 	}
@@ -708,21 +708,21 @@ void calendar_brief_month_view(int year, int month, int day) {
 
 	/* Outer table (to get the background color) */
 	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table width=100%% border=0 cellpadding=0 cellspacing=0 "
+		"<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
 		"bgcolor=#204B78><TR><TD>\n");
 
-	wc_printf("<table width=100%% border=0 cellpadding=0 cellspacing=0><tr>\n");
+	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n");
 
-	wc_printf("<td align=center>");
+	wc_printf("<td align=\"center\">");
 
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>\n");
+	wc_printf("<img alt=\"\" align=\"middle\" src=\"static/prevdate_32x.gif\" border=\"0\"></a>\n");
 
 	wc_strftime(month_label, sizeof month_label, "%B", &tm);
 	wc_printf("&nbsp;&nbsp;"
-		"<font size=+1 color=\"#FFFFFF\">"
+		"<font size=\"+1\" color=\"#FFFFFF\">"
 		"%s %d"
 		"</font>"
 		"&nbsp;&nbsp;", month_label, year);
@@ -730,12 +730,12 @@ void calendar_brief_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img align=middle src=\"static/nextdate_32x.gif\" border=0></A>\n");
+	wc_printf("<img alt=\"\" align=\"middle\" src=\"static/nextdate_32x.gif\" border=\"0\"></a>\n");
 
 	wc_printf("</td></tr></table>\n");
 
 	/* Inner table (the real one) */
-	wc_printf("<table width=100%% border=0 cellpadding=1 cellspacing=1 "
+	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" "
 		"bgcolor=#EEEECC><TR>");
 	wc_printf("</tr>\n");
 	wc_printf("<tr><td colspan=\"100%%\">\n");
@@ -752,7 +752,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 		if ((i % 7) == 0) {
 			wc_strftime(&weeknumber[0], sizeof(weeknumber), "%U", &tm);
 			wc_printf("<table border='0' bgcolor=\"#EEEECC\" width='100%%'> <tr><th colspan='4'>%s %s</th></tr>"
-				"   <tr><td>%s</td><td width=70%%>%s</td><td>%s</td><td>%s</td></tr>\n",
+				"   <tr><td>%s</td><td width='70%%'>%s</td><td>%s</td><td>%s</td></tr>\n",
 				_("Week"), 
 				weeknumber,
 				_("Hours"),
@@ -761,11 +761,11 @@ void calendar_brief_month_view(int year, int month, int day) {
 				_("End")
 				);
 		}
-		
+
 		daycolor=((tm.tm_mon != month-1) ? "DDDDDD" :
 			((tm.tm_wday==0 || tm.tm_wday==6) ? "EEEECC" :
 				"FFFFFF"));
-		
+
 		/* Day Header */
 		wc_strftime(weekday_name, sizeof weekday_name, "%A", &tm);
 		wc_printf("<tr><td bgcolor='%s' colspan='1' align='left'> %s,%i."
@@ -1141,7 +1141,7 @@ void calendar_day_view(int year, int month, int day) {
 		daystart = 9;
 		dayend = 17;
 	}
-	
+
 	/* Today's date */
 	memset(&d_tm, 0, sizeof d_tm);
 	d_tm.tm_year = year - 1900;
@@ -1289,37 +1289,37 @@ void calendar_day_view(int year, int month, int day) {
 
 	wc_printf("</td>");	/* end extra on the middle */
 
-	wc_printf("<td width=20%% align=center valign=top>");	/* begin stuff-on-the-right */
+	wc_printf("<td width='20%%' align=\"center\" valign=top>");	/* begin stuff-on-the-right */
 
 	/* Begin todays-date-with-left-and-right-arrows */
-	wc_printf("<table border=0 width=100%% "
-		"cellspacing=0 cellpadding=0 bgcolor=\"#FFFFFF\">\n");
+	wc_printf("<table border=\"0\" width=\"100%%\" "
+		"cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#FFFFFF\">\n");
 	wc_printf("<tr>");
 
-	/* Left arrow */	
-	wc_printf("<td align=center>");
+	/* Left arrow */
+	wc_printf("<td align=\"center\">");
 	wc_printf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		yesterday.year, yesterday.month, yesterday.day);
-	wc_printf("<img align=middle src=\"static/prevdate_32x.gif\" border=0></A>");
+	wc_printf("<img alt=\"\" align=\"middle\" src=\"static/prevdate_32x.gif\" border=\"0\"></a>");
 	wc_printf("</td>");
 
 	wc_strftime(d_str, sizeof d_str,
-		"<td align=center>"
-		"<font size=+2>%A</font><br />"
-		"<font size=+2>%B</font><br />"
-		"<font size=+3>%d</font><br />"
-		"<font size=+2>%Y</font><br />"
+		"<td align=\"center\">"
+		"<font size='+2'>%A</font><br />"
+		"<font size='+2'>%B</font><br />"
+		"<font size='+3'>%d</font><br />"
+		"<font size='+2'>%Y</font><br />"
 		"</td>",
 		&d_tm
 		);
 	wc_printf("%s", d_str);
 
 	/* Right arrow */
-	wc_printf("<td align=center>");
+	wc_printf("<td align=\"center\">");
 	wc_printf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
-	wc_printf("<img align=middle src=\"static/nextdate_32x.gif\""
-		" border=0></a>\n");
+	wc_printf("<img alt=\"\" align=\"middle\" src=\"static/nextdate_32x.gif\""
+		" border=\"0\"></a>\n");
 	wc_printf("</td>");
 
 	wc_printf("</tr></table>\n");
@@ -1328,8 +1328,6 @@ void calendar_day_view(int year, int month, int day) {
 	/* Embed a mini month calendar in this space */
 	wc_printf("<br />\n");
 	embeddable_mini_calendar(year, month);
-
-	wc_printf("</font></center>\n");
 
 	wc_printf("</td></tr>");			/* end stuff-on-the-right */
 
@@ -1443,10 +1441,10 @@ int calendar_summary_view(void) {
 /*
  * Parse the URL variables in order to determine the scope and display of a calendar view
  */
-int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat, 
-				    void **ViewSpecific, 
-				    long oper, 
-				    char *cmd, 
+int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat,
+				    void **ViewSpecific,
+				    long oper,
+				    char *cmd,
 				    long len)
 {
 	wcsession *WCC = WC;
@@ -1464,7 +1462,7 @@ int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	Stat->load_seen = 1;
 	strcpy(cmd, "MSGS ALL");
 	Stat->maxmsgs = 32767;
-	
+
 	/* In case no date was specified, go with today */
 	now = time(NULL);
 	localtime_r(&now, &tm);
@@ -1529,8 +1527,8 @@ int calendar_GetParamsGetServerCall(SharedMessageStatus *Stat,
 /*
  * Render a calendar view from data previously loaded into memory
  */
-int calendar_RenderView_or_Tail(SharedMessageStatus *Stat, 
-				void **ViewSpecific, 
+int calendar_RenderView_or_Tail(SharedMessageStatus *Stat,
+				void **ViewSpecific,
 				long oper)
 {
 	wcsession *WCC = WC;
@@ -1555,8 +1553,3 @@ int calendar_RenderView_or_Tail(SharedMessageStatus *Stat,
 	DeleteHash(&WC->disp_cal_items);
 	return 0;
 }
-
-
-
-
-
