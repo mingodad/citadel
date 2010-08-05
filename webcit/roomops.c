@@ -3442,6 +3442,7 @@ void
 InitModule_ROOMOPS
 (void)
 {
+	initialize_viewdefs();
 	RegisterPreference("roomlistview",
                            _("Room list view"),
                            PRF_STRING,
