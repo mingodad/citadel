@@ -1039,6 +1039,7 @@ void
 InitModule_AUTH
 (void)
 {
+	initialize_axdefs();
 	RegisterHeaderHandler(HKEY("COOKIE"), Header_HandleCookie);
 	RegisterHeaderHandler(HKEY("AUTHORIZATION"), Header_HandleAuth);
 
