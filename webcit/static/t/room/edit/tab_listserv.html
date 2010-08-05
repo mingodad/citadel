@@ -6,11 +6,13 @@
 			<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_listrecp_removal", 0, 0, -1, #"listrecp")>
 			<br />
 			<form method="post" action="netedit">
+			  <p>
 				<input type="hidden" name="tab" value="listserv" />
 				<input type="hidden" name="prefix" value="listrecp|" />
 				<input type="hidden" name="nonce" value="<?NONCE>" />
 				<input type="text" id="add_as_listrecp" name="line" />
 				<input type="submit" name="add_button" value="<?_("Add")>" />
+			  </p>
 			</form>
 			</td>
 			<td valign="top">
@@ -18,11 +20,13 @@
 			<?ITERATE("ITERATE:THISROOM:GNET", ="room_edit_digestrecp_removal", 0, 0, -1, #"digestrecp")>
 			<br />
 			<form method="post" action="netedit">
+			  <p>
 				<input type="hidden" name="tab" value="listserv" />
 				<input type="hidden" name="prefix" value="digestrecp|" />
 				<input type="hidden" name="nonce" value="<?NONCE>">
 				<input type="text" id="add_as_digestrecp" name="line">
 				<input type="submit" name="add_button" value="<?_("Add")>">
+			  </p>
 			</form>
 			</td></tr>
 		</table>
