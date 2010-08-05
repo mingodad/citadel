@@ -231,51 +231,6 @@ void zapped_list(void)
 	wDumpContent(1);
 }
 
-
-/*
- * read this room's info file (set v to 1 for verbose mode)
- */
-void readinfo(StrBuf *Target, WCTemplputParams *TP)
-{
-	char buf[256];
-	char briefinfo[128];
-	char fullinfo[8192];
-	int fullinfo_len = 0;
-
-	serv_puts("RINF");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] == '1') {
-
-		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-			if (fullinfo_len < (sizeof fullinfo - sizeof buf)) {
-				strcpy(&fullinfo[fullinfo_len], buf);
-				fullinfo_len += strlen(buf);
-			}
-		}
-
-		safestrncpy(briefinfo, fullinfo, sizeof briefinfo);
-		strcpy(&briefinfo[50], "...");
-
-                wc_printf("<div class=\"infos\" "
-			"onclick=\"javascript:Effect.Appear('room_infos', { duration: 0.5 });\" "
-			">"
-		);
-		escputs(briefinfo);
-                wc_printf("</div><div id=\"room_infos\" style=\"display:none;\">");
-		wc_printf("<img class=\"close_infos\" "
-                	"onclick=\"javascript:Effect.Fade('room_infos', { duration: 0.5 });\" "
-			"src=\"static/closewindow.gif\" alt=\"%s\"  width=\"16\" height=\"16\">",
-			_("Close window")
-		);
-		escputs(fullinfo);
-                wc_printf("</div>");
-	}
-	else {
-		wc_printf("&nbsp;");
-	}
-}
-
-
 /*
  * Display the current view and offer an option to change it
  */
@@ -391,7 +346,6 @@ void embed_room_banner(char *got, int navbar_style) {
 		 extract_int(&got[4], 2),
 		 with_files
 		);
-	svcallback("ROOMINFO", readinfo);
 	svcallback("VIEWOMATIC", embed_view_o_matic); 
 	svcallback("START", offer_start_page); 
  
@@ -946,6 +900,56 @@ int ConditionalThisRoomXHavePic(StrBuf *Target, WCTemplputParams *TP)
 
 	LoadXRoomPic();
 	return WCC->CurRoom.XHaveRoomPic == 1;
+}
+
+void LoadXRoomInfoText(void)
+{
+	wcsession *WCC = WC;
+	StrBuf *Buf;
+	int Done = 0;
+	
+	if (WCC->CurRoom.XHaveInfoTextLoaded)
+		return;
+
+	WCC->CurRoom.XHaveInfoTextLoaded = 1;
+	Buf = NewStrBuf();
+
+	serv_puts("RINF");
+
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		WCC->CurRoom.XInfoText = NewStrBuf ();
+		
+		while (!Done && StrBuf_ServGetln(Buf)>=0) {
+			if ( (StrLength(Buf)==3) && 
+			     !strcmp(ChrPtr(Buf), "000")) 
+				Done = 1;
+			else 
+				StrBufAppendBuf(WCC->CurRoom.XInfoText, Buf, 0);
+		}
+	}
+
+	FreeStrBuf (&Buf);
+}
+
+int ConditionalThisRoomXHaveInfoText(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	
+	if (WCC == NULL)
+		return 0;
+
+	LoadXRoomInfoText();
+	return (StrLength(WCC->CurRoom.XInfoText)>0);
+}
+
+void tmplput_CurrentRoomInfoText(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadXRoomInfoText();
+
+	StrBufAppendTemplate(Target, TP, WCC->CurRoom.XAPass, 1);
 }
 
 void tmplput_CurrentRoomPass(StrBuf *Target, WCTemplputParams *TP) 
@@ -3448,9 +3452,12 @@ InitModule_ROOMOPS
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_CurrentRoomDirectory, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:ORDER", 0, 0, tmplput_CurrentRoomOrder, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DEFAULT_VIEW", 0, 0, tmplput_CurrentRoomDefView, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:INFOTEXT", 1, 2, tmplput_CurrentRoomInfoText, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:ORDER"), 0, ConditionalThisRoomOrder, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:DEFAULT_VIEW"), 0, ConditionalThisRoomDefView, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_PIC"), 0, ConditionalThisRoomXHavePic, CTX_NONE);
+	RegisterConditional(HKEY("COND:THISROOM:HAVE_INFOTEXT"), 0, ConditionalThisRoomXHaveInfoText, CTX_NONE);
+
 
 	REGISTERTokenParamDefine(QR_PERMANENT);
 	REGISTERTokenParamDefine(QR_INUSE);
