@@ -8,11 +8,8 @@
 			</li>
 			<li>
 				<?_("Resides on floor: ")>
-				<select name="er_floor" size="1"
-					<?%("COND:THISROOM:FLAG:QR", 1, #"QR_MAILBOX", 1, 'disabled="disabled" >', ">")>
-					<?!("COND:THISROOM:FLAG:QR", 2, #"QR_MAILBOX")>
-						<?ITERATE("LFLR", ="room_edit_er_config_tab_room_option_list")>
-                                	<??("X", 2)>
+				<select name="er_floor" size="1" <?%("COND:THISROOM:FLAG:QR", 1, #"QR_MAILBOX", 1, 'disabled="disabled" >', ">")>
+<??("COND:THISROOM:FLAG:QR", 2, #"QR_MAILBOX")>	<?ITERATE("LFLR", ="room_edit_er_config_tab_room_option_list")><??("X", 2)>
 				</select>
                         </li>
 			<li>
@@ -84,7 +81,7 @@
 					<input type="checkbox" name="directory" value="yes" 
 					<?%("COND:THISROOM:FLAG:QR", 15, #"QR_DIRECTORY", 1, 'checked="checked" ', "")>  />
 					<?_("File directory room")>
-				</li>
+				
 				<ul>
 					<li>
 						<?_("Directory name: ")>
@@ -105,7 +102,7 @@
 						<?%("COND:THISROOM:FLAG:QR", 18, #"QR_VISDIR", 1, 'checked="checked" ', "")>  />
 						<?_("Visible directory")>
 					</li>
-			</ul>
+				  </ul></li>
                        
 			<li>
 				<input type="checkbox" name="network" value="yes" 
@@ -124,7 +121,6 @@
 			</li>
 			<li>
                         	<?_("Anonymous messages")>
-			</li>
                         <ul>
 				<li>
 					<input type="radio" name="anon" value="no" 
@@ -143,7 +139,7 @@
 					<?%("COND:THISROOM:FLAG:QR", 25, #"QR_ANONOPT", 1, 'checked="checked" ', "")> />
 					<?_("Prompt user when entering messages")>
 				</li>
-			</ul>
+			</ul></li>
 			<li>
 				<?_("Room aide: ")>
 				<input type="text" name="er_roomaide" value="<?THISROOM:AIDE("U")>" maxlength="25" /'>
