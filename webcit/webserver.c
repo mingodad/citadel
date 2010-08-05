@@ -250,7 +250,6 @@ int main(int argc, char **argv)
 	/* initialize the International Bright Young Thing */
 
 	initialise_modules();
-	initialize_viewdefs();
 	initialize_axdefs();
 
 	InitTemplateCache();
