@@ -318,22 +318,6 @@ void embed_view_o_matic(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-/*
- * Display a search box
- */
-void embed_search_o_matic(StrBuf *Target, WCTemplputParams *TP)
-{
-	wc_printf("<form name=\"searchomatic\" action=\"do_search\">\n");
-	wc_printf("<div style=\"display: inline;\"><input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wc_printf("<label for=\"srchquery\">");
-	wc_printf(_("Search: "));
-	wc_printf("</label><input ");
-	wc_printf("%s", WC->serv_info->serv_fulltext_enabled ? "" : "disabled ");
-	wc_printf("type=\"text\" name=\"query\" id=\"srchquery\" size=\"15\" maxlength=\"128\" class=\"inputbox\">\n"
-		);
-	wc_printf("</div></form>\n");
-}
-
 
 /*
  * Embed the room banner
@@ -409,7 +393,6 @@ void embed_room_banner(char *got, int navbar_style) {
 		);
 	svcallback("ROOMINFO", readinfo);
 	svcallback("VIEWOMATIC", embed_view_o_matic); 
-	svcallback("SEARCHOMATIC", embed_search_o_matic);
 	svcallback("START", offer_start_page); 
  
 	do_template("roombanner", NULL);
