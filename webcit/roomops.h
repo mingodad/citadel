@@ -103,6 +103,8 @@ typedef struct _folder {
 	int XHaveRoomPic;
 	int XHaveRoomPicLoaded;
 
+	int XHaveInfoTextLoaded;
+	StrBuf *XInfoText;
 
 	HashList *IgnetCfgs[maxRoomNetCfg];
 
