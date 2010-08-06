@@ -1033,6 +1033,23 @@ void tmplput_CurrentRoomDefView(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.DefView);
 }
 
+void tmplput_CurrentRoom_nNewMessages(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadRoomXA();
+
+	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.nNewMessages);
+}
+
+void tmplput_CurrentRoom_nTotalMessages(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	LoadRoomXA();
+
+	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.nTotalMessages);
+}
 
 int ConditionalThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -3494,6 +3511,9 @@ InitModule_ROOMOPS
 	RegisterConditional(HKEY("COND:ROOM:FLAG:UA"), 0, ConditionalRoomHas_UAFlag, CTX_ROOMS);
 
 	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
+	RegisterNamespace("THISROOM:MSGS:NEW", 0, 0, tmplput_CurrentRoom_nNewMessages, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:MSGS:TOTAL", 0, 0, tmplput_CurrentRoom_nTotalMessages, NULL, CTX_NONE);
+
 	RegisterNamespace("THISROOM:FLOOR:NAME", 0, 1, tmplput_CurrentRoomFloorName, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:AIDE", 0, 1, tmplput_CurrentRoomAide, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:PASS", 0, 1, tmplput_CurrentRoomPass, NULL, CTX_NONE);
