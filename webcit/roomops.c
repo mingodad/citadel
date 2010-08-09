@@ -9,8 +9,6 @@
 
 char floorlist[MAX_FLOORS][SIZ];	/* list of our floor names */
 
-char *viewdefs[9];			/* the different kinds of available views */
-
 /* See GetFloorListHash and GetRoomListHash for info on these.
  * Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys.
  */
@@ -18,19 +16,37 @@ char *viewdefs[9];			/* the different kinds of available views */
 void display_whok(void);
 int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP);
 
+
+char *viewdefs[VIEW_MAX];			/* the different kinds of available views */
+
+ROOM_VIEWS exchangeable_views[VIEW_MAX][VIEW_MAX] = {	/* the different kinds of available views for a view */
+{VIEW_BBS, VIEW_MAILBOX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX }, 
+{VIEW_BBS, VIEW_MAILBOX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX }, 
+{VIEW_MAX, VIEW_MAX, VIEW_ADDRESSBOOK, VIEW_CALENDAR, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX }, 
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_CALENDAR, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX /*VIEW_CALBRIEF*/, VIEW_MAX, VIEW_MAX }, 
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_TASKS, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, },
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_NOTES, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, },
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_WIKI, VIEW_MAX, VIEW_MAX, VIEW_MAX}, 
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_CALENDAR, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX/*VIEW_CALBRIEF*/, VIEW_MAX, VIEW_MAX},
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_JOURNAL, VIEW_MAX }, 
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_BLOG }, 
+	};
+/* the brief calendar view is disabled: VIEW_CALBRIEF */
+
 /*
  * Initialize the viewdefs with localized strings
  */
 void initialize_viewdefs(void) {
-	viewdefs[0] = _("Bulletin Board");
-	viewdefs[1] = _("Mail Folder");
-	viewdefs[2] = _("Address Book");
-	viewdefs[3] = _("Calendar");
-	viewdefs[4] = _("Task List");
-	viewdefs[5] = _("Notes List");
-	viewdefs[6] = _("Wiki");
-	viewdefs[7] = _("Calendar List");
-	viewdefs[8] = _("Journal");
+	viewdefs[VIEW_BBS] = _("Bulletin Board");
+	viewdefs[VIEW_MAILBOX] = _("Mail Folder");
+	viewdefs[VIEW_ADDRESSBOOK] = _("Address Book");
+	viewdefs[VIEW_CALENDAR] = _("Calendar");
+	viewdefs[VIEW_TASKS] = _("Task List");
+	viewdefs[VIEW_NOTES] = _("Notes List");
+	viewdefs[VIEW_WIKI] = _("Wiki");
+	viewdefs[VIEW_CALBRIEF] = _("Calendar List");
+	viewdefs[VIEW_JOURNAL] = _("Journal");
+	viewdefs[VIEW_BLOG] = _("Blog");
 }
 
 /*
@@ -859,7 +875,7 @@ void LoadRoomXA (void)
 		StrBufExtract_NextToken(WCC->CurRoom.Directory, Buf, &Pos, '|'); 
 		StrBufSkip_NTokenS(Buf, &Pos, '|', 2); /* QRFlags, FloorNum we already know... */
 		WCC->CurRoom.Order = StrBufExtractNext_long(Buf, &Pos, '|');
-		WCC->CurRoom.DefView = StrBufExtractNext_long(Buf, &Pos, '|');
+		/* defview, we already know you. */
 		/* QR2Flags, we already know them... */
 
 	}
@@ -1028,9 +1044,7 @@ void tmplput_CurrentRoomDefView(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 
-	LoadRoomXA();
-
-	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.DefView);
+	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.defview);
 }
 
 void tmplput_CurrentRoom_nNewMessages(StrBuf *Target, WCTemplputParams *TP) 
@@ -1073,14 +1087,50 @@ int ConditionalThisRoomDefView(StrBuf *Target, WCTemplputParams *TP)
 	if (WCC == NULL)
 		return 0;
 
-	LoadRoomXA();
-
 	CheckThis = GetTemplateTokenNumber(Target, TP, 2, 0);
-	return CheckThis == WCC->CurRoom.DefView;
+	return CheckThis == WCC->CurRoom.defview;
 }
 
+int ConditionalThisRoomHaveView(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	long CheckThis;
+	
+	if (WCC == NULL)
+		return 0;
 
+	CheckThis = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if ((CheckThis >= VIEW_MAX) || (CheckThis < VIEW_BBS))
+	{
+		LogTemplateError(Target, "Conditional", ERR_PARM2, TP,
+				 "Roomview [%ld] not valid\n", 
+				 CheckThis);
+		return 0;
+	}
 
+	return exchangeable_views [WCC->CurRoom.defview][CheckThis] != VIEW_MAX;
+}
+
+void tmplput_CurrentRoomViewString(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	StrBuf *Buf;
+
+	if ((WCC == NULL) ||
+	    (WCC->CurRoom.defview >= VIEW_MAX) || 
+	    (WCC->CurRoom.defview < VIEW_BBS))
+	{
+		LogTemplateError(Target, "Token", ERR_PARM2, TP,
+				 "Roomview [%ld] not valid\n", 
+				 (WCC != NULL)? 
+				 WCC->CurRoom.defview : -1);
+		return;
+	}
+
+	Buf = NewStrBufPlain(_(viewdefs[WCC->CurRoom.defview]), -1);
+	StrBufAppendTemplate(Target, TP, Buf, 0);
+	FreeStrBuf(&Buf);
+}
 
 
 /*
@@ -3520,6 +3570,9 @@ InitModule_ROOMOPS
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_CurrentRoomDirectory, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:ORDER", 0, 0, tmplput_CurrentRoomOrder, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DEFAULT_VIEW", 0, 0, tmplput_CurrentRoomDefView, NULL, CTX_NONE);
+	RegisterConditional(HKEY("COND:THISROOM:HAVE_VIEW"), 0, ConditionalThisRoomHaveView, CTX_NONE);
+	RegisterNamespace("THISROOM:VIEW_STRING", 0, 0, tmplput_CurrentRoomViewString, NULL, CTX_NONE);
+
 	RegisterNamespace("THISROOM:INFOTEXT", 1, 2, tmplput_CurrentRoomInfoText, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:ORDER"), 0, ConditionalThisRoomOrder, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:DEFAULT_VIEW"), 0, ConditionalThisRoomDefView, CTX_NONE);
