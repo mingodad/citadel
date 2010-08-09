@@ -85,7 +85,6 @@ typedef struct _folder {
 	StrBuf *XAPass;
 	StrBuf *Directory;
 	long Order;
-	long DefView;
 
 	int selectable;	/* can we select it ??? */
 	long num_rooms;	/* If this is a floor, how many rooms does it have */
