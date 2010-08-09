@@ -93,19 +93,19 @@ typedef enum __GPEXWhichPolicy {
  * View definitions.
  * Note that not all views are implemented in all clients.
  */
-#define	VIEW_BBS		0	/* Bulletin board view */
-#define VIEW_MAILBOX		1	/* Mailbox summary */
-#define VIEW_ADDRESSBOOK	2	/* Address book view */
-#define VIEW_CALENDAR		3	/* Calendar view */
-#define VIEW_TASKS		4	/* Tasks view */
-#define VIEW_NOTES		5	/* Notes view */
-#define	VIEW_WIKI		6	/* Wiki view */
-#define VIEW_CALBRIEF		7	/* Brief Calendar view */
-#define VIEW_JOURNAL		8	/* Journal view */
-#define VIEW_MAX                8       /* increment me... */
-
-#define VIEW_BLOG		9	/* Blog view (not yet implemented) */
-
+typedef enum _room_views {
+	VIEW_BBS		= 0,	/* Bulletin board view */
+	VIEW_MAILBOX		= 1,	/* Mailbox summary */
+	VIEW_ADDRESSBOOK	= 2,	/* Address book view */
+	VIEW_CALENDAR		= 3,	/* Calendar view */
+	VIEW_TASKS		= 4,	/* Tasks view */
+	VIEW_NOTES		= 5,	/* Notes view */
+	VIEW_WIKI		= 6,	/* Wiki view */
+	VIEW_CALBRIEF		= 7,	/* Brief Calendar view */
+	VIEW_JOURNAL		= 8,	/* Journal view */
+	VIEW_BLOG		= 9,	/* Blog view (not yet implemented) */
+	VIEW_MAX
+} ROOM_VIEWS;
 
 #ifndef IsEmptyStr
 #define IsEmptyStr(a) ((a)[0] == '\0')
