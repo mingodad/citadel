@@ -2,22 +2,27 @@
 <div class="banner" id="room_banner">
 	<table border=0><tr>
 		<td><?=("room_view_picture")></td>
+
 		<td>
-			<h1 id="rmname"><?ROOMNAME></h1>
-			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")>
-				<h2><?BSTR("page")></h2>
-			<?!("X", 7)>
-			<??("COND:ROOM:TYPE_IS", 8, #"VIEW_WIKI")>
-				<p id="nummsgs"><?NUMMSGS></p>
+			<h1 id="rmname"><?ROOM:INFO:PRINT_NAME("X")></h1>
+			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><h2><?BSTR("page")></h2><?!("X", 7)>
+			<??("COND:ROOM:TYPE_IS", 8, #"VIEW_WIKI")><p id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></p>
+				<?!("COND:THISROOM:FLAG:QR", 9, #"QR_DIRECTORY")><?!("COND:THISROOM:FLAG:QR", 10, #"QR_VISDIR")>
+						<p id="numfiles"><a href="do_template?template=files"><?THISROOM:FILES:N> <?THISROOM:FILES:STR></a></p>
+				<?!("X", 10)><?!("X", 9)>
 			<?!("X", 8)>
 		</td>
 		<td><?=("readinfo")></td>
 		<td id="actiondiv">
 			<ul class="room_actions">
-				<li class="start_page"><?START></li>
+				<li class="start_page"><?OFFERSTARTPAGE></li>
 				<li class="search" id="searchomatic"><?=("searchomatic")></li>
 				<li class="view"><?=("viewomatic")></li>
-				<??("COND:SUBST", 1, "WCVIEW", "1")><li class="hidden" id="selectpage"><?_("Select page: ")> <select id="summpage"><option> </option></select></li><??("X",1)>
+				<??("COND:SUBST", 1, "WCVIEW", "1")>
+					<li class="hidden" id="selectpage">
+						<?_("Select page: ")> <select id="summpage"><option> </option></select>
+					</li>
+				<??("X",1)>
 			</ul>
 		</td>
 	</tr></table>

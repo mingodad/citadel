@@ -527,6 +527,14 @@ void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP)
 {
 	folder *Folder = (folder *)CTX;
 
+	if (Folder == NULL)
+	{
+		wcsession *WCC = WC;
+
+		if (WCC == NULL)
+			return;
+		Folder = &WCC->CurRoom;
+	}
 	StrBufAppendTemplate(Target, TP, Folder->name, 0);
 }
 void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP) 
@@ -838,7 +846,7 @@ InitModule_ROOMLIST
 
 	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);/// TODO!
+	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, NULL, CTX_ROOMS);
 
