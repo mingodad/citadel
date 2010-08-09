@@ -247,46 +247,6 @@ void zapped_list(void)
 	wDumpContent(1);
 }
 
-/*
- * Display the current view and offer an option to change it
- */
-void embed_view_o_matic(StrBuf *Target, WCTemplputParams *TP)
-{
-	int i;
-
-	wc_printf("<form name=\"viewomatic\" action=\"changeview\">\n");
-	wc_printf("\t<div style=\"display: inline;\">\n\t<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wc_printf("<label for=\"view_name\">");
-	wc_printf(_("View as:"));
-	wc_printf("</label> "
-		"<select name=\"newview\" size=\"1\" "
-		"id=\"view_name\" class=\"selectbox\" "
-		"OnChange=\"location.href=viewomatic.newview.options"
-		"[selectedIndex].value\">\n");
-
-	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
-		/*
-		 * Only offer the views that make sense, given the default
-		 * view for the room.  For example, don't offer a Calendar
-		 * view in a non-Calendar room.
-		 */
-		if (
-			(i == WC->CurRoom.view)
-			||	(i == WC->CurRoom.defview)			/* default */
-			||	( (i == 0) && (WC->CurRoom.defview == 1) )	/* mail or bulletin */
-			||	( (i == 1) && (WC->CurRoom.defview == 0) )	/* mail or bulletin */
-			/* ||	( (i == 7) && (WC->CurRoom.defview == 3) )	(calendar list temporarily disabled) */
-			) {
-
-			wc_printf("<option %s value=\"changeview?view=%d\">",
-				((i == WC->CurRoom.view) ? "selected" : ""),
-				i );
-			escputs(viewdefs[i]);
-			wc_printf("</option>\n");
-		}
-	}
-	wc_printf("</select></div></form>\n");
-}
 
 
 
