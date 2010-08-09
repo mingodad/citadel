@@ -1132,6 +1132,25 @@ void tmplput_CurrentRoomViewString(StrBuf *Target, WCTemplputParams *TP)
 	FreeStrBuf(&Buf);
 }
 
+void tmplput_RoomViewString(StrBuf *Target, WCTemplputParams *TP) 
+{
+	long CheckThis;
+	StrBuf *Buf;
+
+	CheckThis = GetTemplateTokenNumber(Target, TP, 0, 0);
+	if ((CheckThis >= VIEW_MAX) || (CheckThis < VIEW_BBS))
+	{
+		LogTemplateError(Target, "Token", ERR_PARM2, TP,
+				 "Roomview [%ld] not valid\n", 
+				 CheckThis);
+		return;
+	}
+
+	Buf = NewStrBufPlain(_(viewdefs[CheckThis]), -1);
+	StrBufAppendTemplate(Target, TP, Buf, 0);
+	FreeStrBuf(&Buf);
+}
+
 
 /*
  * goto next room
@@ -3571,7 +3590,8 @@ InitModule_ROOMOPS
 	RegisterNamespace("THISROOM:ORDER", 0, 0, tmplput_CurrentRoomOrder, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DEFAULT_VIEW", 0, 0, tmplput_CurrentRoomDefView, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_VIEW"), 0, ConditionalThisRoomHaveView, CTX_NONE);
-	RegisterNamespace("THISROOM:VIEW_STRING", 0, 0, tmplput_CurrentRoomViewString, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:VIEW_STRING", 0, 1, tmplput_CurrentRoomViewString, NULL, CTX_NONE);
+	RegisterNamespace("ROOM:VIEW_STRING", 1, 2, tmplput_RoomViewString, NULL, CTX_NONE);
 
 	RegisterNamespace("THISROOM:INFOTEXT", 1, 2, tmplput_CurrentRoomInfoText, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:ORDER"), 0, ConditionalThisRoomOrder, CTX_NONE);
