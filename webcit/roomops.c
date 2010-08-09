@@ -341,29 +341,6 @@ void embed_room_banner(char *got, int navbar_style) {
 	WC->new_mail = extract_int(&got[4], 9);
 	WC->CurRoom.view = extract_int(&got[4], 11);
 
-	/* Is this a directory room and does it contain files and how many? */
-	if ((WC->CurRoom.QRFlags & QR_DIRECTORY) && (WC->CurRoom.QRFlags & QR_VISDIR))
-	{
-		serv_puts("RDIR");
-		serv_getln(buf2, sizeof buf2);
-		if (buf2[0] == '1') while (serv_getln(buf2, sizeof buf2), strcmp(buf2, "000"))
-					    file_count++;
-		snprintf (with_files, sizeof with_files, 
-			  "; <a href=\"do_template?template=files\"> %d %s </a>", 
-			  file_count, 
-			  ((file_count>1) || (file_count == 0)  ? _("files") : _("file")));
-	}
-	else
-		strcpy (with_files, "");
-	
-	svprintf(HKEY("NUMMSGS"), WCS_STRING,
-		 _("%d new of %d messages%s"),
-		 extract_int(&got[4], 1),
-		 extract_int(&got[4], 2),
-		 with_files
-		);
-	svcallback("VIEWOMATIC", embed_view_o_matic); 
- 
 	do_template("roombanner", NULL);
 	/* roombanner contains this for mobile */
 	if (navbar_style != navbar_none && (WC->is_mobile < 1)) { 
