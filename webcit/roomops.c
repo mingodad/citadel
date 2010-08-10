@@ -3441,7 +3441,6 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 
 	serv_puts("WHOK");
 	Line = NewStrBuf();
-	Token = NewStrBuf();
 	StrBuf_ServGetln(Line);
 	if (GetServerStatus(Line, &State) == 1) 
 	{
@@ -3470,6 +3469,7 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 				     _("Higher access is required to access this function."), -1, 0);
 
 
+	FreeStrBuf(&Line);
 	return Whok;
 }
 
