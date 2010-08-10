@@ -1016,6 +1016,18 @@ int ConditionalThisRoomDefView(StrBuf *Target, WCTemplputParams *TP)
 	return CheckThis == WCC->CurRoom.defview;
 }
 
+int ConditionalThisRoomCurrView(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	long CheckThis;
+
+	if (WCC == NULL)
+		return 0;
+
+	CheckThis = GetTemplateTokenNumber(Target, TP, 2, 0);
+	return CheckThis == WCC->CurRoom.view;
+}
+
 int ConditionalThisRoomHaveView(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -3521,6 +3533,7 @@ InitModule_ROOMOPS
 	RegisterNamespace("THISROOM:INFOTEXT", 1, 2, tmplput_CurrentRoomInfoText, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:ORDER"), 0, ConditionalThisRoomOrder, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:DEFAULT_VIEW"), 0, ConditionalThisRoomDefView, CTX_NONE);
+	RegisterConditional(HKEY("COND:THISROOM:CURR_VIEW"), 0, ConditionalThisRoomCurrView, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_PIC"), 0, ConditionalThisRoomXHavePic, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_INFOTEXT"), 0, ConditionalThisRoomXHaveInfoText, CTX_NONE);
 	RegisterNamespace("THISROOM:FILES:N", 0, 1, tmplput_CurrentRoomXNFiles, NULL, CTX_NONE);
