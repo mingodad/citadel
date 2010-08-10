@@ -258,22 +258,13 @@ void zapped_list(void)
  *
  */
 
-void embed_room_banner(char *got) 
+void embed_room_banner(void) 
 {
 	wcsession *WCC = WC;
 	char buf[256];
-				
-	/*
-	 * We need to have the information returned by a GOTO server command.
-	 * If it isn't supplied, we fake it by issuing our own GOTO.
-	 */
-	if (got == NULL) {
-		memset(buf, '0', 20);
-		buf[20] = '\0';
-		serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
-		serv_getln(buf, sizeof buf);
-		got = buf;
-	}
+
+	/* refresh current room states... */
+	gotoroom(NULL);
 
 	/* The browser needs some information for its own use */
 	wc_printf("<script type=\"text/javascript\">	\n"
@@ -295,281 +286,278 @@ void embed_room_banner(char *got)
 		     ChrPtr(WC->CurRoom.name)
 		);
 
-	/* Check for new mail. */
-	WC->new_mail = extract_int(&got[4], 9);
-	WC->CurRoom.view = extract_int(&got[4], 11);
-
 	do_template("roombanner", NULL);
 	/* roombanner contains this for mobile */
-	if (WC->is_mobile < 1) { 
+	if (WC->is_mobile)
+		return;
 
-		wc_printf("<div id=\"navbar\"><ul>");
 
+	wc_printf("<div id=\"navbar\"><ul>");
+
+	wc_printf(
+		"<li class=\"ungoto\">"
+		"<a href=\"ungoto\">"
+		"<img src=\"static/ungoto2_24x.gif\" alt=\"\" width=\"24\" height=\"24\">"
+		"<span class=\"navbar_link\">%s</span></A>"
+		"</li>\n", _("Ungoto")
+		);
+	
+	if (WC->CurRoom.view == VIEW_BBS) {
 		wc_printf(
-			"<li class=\"ungoto\">"
-			"<a href=\"ungoto\">"
-			"<img src=\"static/ungoto2_24x.gif\" alt=\"\" width=\"24\" height=\"24\">"
+			"<li class=\"newmess\">"
+			"<a href=\"readnew\">"
+			"<img src=\"static/newmess2_24x.gif\" alt=\"\" width=\"24\" height=\"24\">"
 			"<span class=\"navbar_link\">%s</span></A>"
-			"</li>\n", _("Ungoto")
+			"</li>\n", _("Read new messages")
 			);
+	}
 
-		if (WC->CurRoom.view == VIEW_BBS) {
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"readnew\">"
-				"<img src=\"static/newmess2_24x.gif\" alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">%s</span></A>"
-				"</li>\n", _("Read new messages")
-				);
-		}
-
-		switch(WC->CurRoom.view) {
-		case VIEW_ADDRESSBOOK:
-			wc_printf(
-				"<li class=\"viewcontacts\">"
-				"<a href=\"readfwd\">"
-				"<img src=\"static/viewcontacts_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("View contacts")
-				);
-			break;
-		case VIEW_CALENDAR:
-			wc_printf(
-				"<li class=\"staskday\">"
-				"<a href=\"readfwd?calview=day\">"
-				"<img src=\"static/taskday2_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Day view")
-				);
-			wc_printf(
-				"<li class=\"monthview\">"
-				"<a href=\"readfwd?calview=month\">"
-				"<img src=\"static/monthview2_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Month view")
-				);
-			break;
-		case VIEW_CALBRIEF:
-			wc_printf(
-				"<li class=\"monthview\">"
-				"<a href=\"readfwd?calview=month\">"
-				"<img src=\"static/monthview2_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Calendar list")
-				);
-			break;
-		case VIEW_TASKS:
-			wc_printf(
-				"<li class=\"taskmanag\">"
-				"<a href=\"readfwd\">"
-				"<img src=\"static/taskmanag_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("View tasks")
-				);
-			break;
-		case VIEW_NOTES:
-			wc_printf(
-				"<li class=\"viewnotes\">"
-				"<a href=\"readfwd\">"
-				"<img src=\"static/viewnotes_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("View notes")
-				);
-			break;
-		case VIEW_MAILBOX:
-			wc_printf(
-				"<li class=\"readallmess\">"
-				"<a id=\"m_refresh\" href=\"readfwd\">"
-				"<img src=\"static/readallmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Refresh message list")
-				);
-			break;
-		case VIEW_WIKI:
-			wc_printf(
-				"<li class=\"readallmess\">"
-				"<a href=\"wiki?page=home\">"
-				"<img src=\"static/readallmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Wiki home")
-				);
-			break;
-		default:
-			wc_printf(
-				"<li class=\"readallmess\">"
-				"<a href=\"readfwd\">"
-				"<img src=\"static/readallmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Read all messages")
-				);
-			break;
-		}
-
-		switch(WC->CurRoom.view) {
-		case VIEW_ADDRESSBOOK:
-			wc_printf(
-				"<li class=\"addnewcontact\">"
-				"<a href=\"display_enter\">"
-				"<img src=\"static/addnewcontact_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Add new contact")
-				);
-			break;
-		case VIEW_CALENDAR:
-		case VIEW_CALBRIEF:
-			wc_printf("<li class=\"addevent\"><a href=\"display_enter");
-			if (havebstr("year" )) wc_printf("?year=%s", bstr("year"));
-			if (havebstr("month")) wc_printf("?month=%s", bstr("month"));
-			if (havebstr("day"  )) wc_printf("?day=%s", bstr("day"));
-			wc_printf("\">"
-				  "<img  src=\"static/addevent_24x.gif\" "
-				  "alt=\"\" width=\"24\" height=\"24\">"
-				  "<span class=\"navbar_link\">"
-				  "%s"
-				  "</span></a></li>\n", _("Add new event")
-				);
-			break;
-		case VIEW_TASKS:
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"display_enter\">"
-				"<img  src=\"static/newmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Add new task")
-				);
-			break;
-		case VIEW_NOTES:
-			wc_printf(
-				"<li class=\"enternewnote\">"
-				"<a href=\"add_new_note\">"
-				"<img  src=\"static/enternewnote_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Add new note")
-				);
-			break;
-		case VIEW_WIKI:
-			safestrncpy(buf, bstr("page"), sizeof buf);
-			if (IsEmptyStr(buf)) {
-				safestrncpy(buf, "home", sizeof buf);
-			}
-			str_wiki_index(buf);
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"display_enter?page=%s\">"
-				"<img  src=\"static/newmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", buf, _("Edit this page")
-				);
-
-			if (bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), "wiki_history")) {
-				/* already viewing history; display a link to the current page */
-				wc_printf(
-					"<li class=\"newmess\">"
-					"<a href=\"wiki?page=%s\">"
-					"<img  src=\"static/newmess3_24x.gif\" "
-					"alt=\"\" width=\"24\" height=\"24\">"
-					"<span class=\"navbar_link\">"
-					"%s"
-					"</span></a></li>\n", buf, _("Current version")
-					);
-			}
-			else {
-				/* display a link to the history */
-				wc_printf(
-					"<li class=\"newmess\">"
-					"<a href=\"wiki_history?page=%s\">"
-					"<img  src=\"static/newmess3_24x.gif\" "
-					"alt=\"\" width=\"24\" height=\"24\">"
-					"<span class=\"navbar_link\">"
-					"%s"
-					"</span></a></li>\n", buf, _("History")
-					);
-			}
-			break;
-		case VIEW_MAILBOX:
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"display_enter\">"
-				"<img  src=\"static/newmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Write mail")
-				);
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"javascript:deleteAllSelectedMessages();\">"
-				"<img  src=\"static/delete.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\"><span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Delete")
-				);
-			break;
-		default:
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"display_enter\">"
-				"<img  src=\"static/newmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", _("Enter a message")
-				);
-			break;
-		}
-
+	switch(WC->CurRoom.view) {
+	case VIEW_ADDRESSBOOK:
 		wc_printf(
-			"<li class=\"skipthisroom\">"
-			"<a href=\"skip\" "
-			"title=\"%s\">"
-			"<img  src=\"static/skipthisroom_24x.gif\" alt=\"\" "
-			"width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">%s</span></a>"
-			"</li>\n",
-			_("Leave all messages marked as unread, go to next room with unread messages"),
-			_("Skip this room")
+			"<li class=\"viewcontacts\">"
+			"<a href=\"readfwd\">"
+			"<img src=\"static/viewcontacts_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("View contacts")
+			);
+		break;
+	case VIEW_CALENDAR:
+		wc_printf(
+			"<li class=\"staskday\">"
+			"<a href=\"readfwd?calview=day\">"
+			"<img src=\"static/taskday2_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Day view")
+			);
+		wc_printf(
+			"<li class=\"monthview\">"
+			"<a href=\"readfwd?calview=month\">"
+			"<img src=\"static/monthview2_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Month view")
+			);
+		break;
+	case VIEW_CALBRIEF:
+		wc_printf(
+			"<li class=\"monthview\">"
+			"<a href=\"readfwd?calview=month\">"
+			"<img src=\"static/monthview2_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Calendar list")
+			);
+		break;
+	case VIEW_TASKS:
+		wc_printf(
+			"<li class=\"taskmanag\">"
+			"<a href=\"readfwd\">"
+			"<img src=\"static/taskmanag_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("View tasks")
+			);
+		break;
+	case VIEW_NOTES:
+		wc_printf(
+			"<li class=\"viewnotes\">"
+			"<a href=\"readfwd\">"
+			"<img src=\"static/viewnotes_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("View notes")
+			);
+		break;
+	case VIEW_MAILBOX:
+		wc_printf(
+			"<li class=\"readallmess\">"
+			"<a id=\"m_refresh\" href=\"readfwd\">"
+			"<img src=\"static/readallmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Refresh message list")
+			);
+		break;
+	case VIEW_WIKI:
+		wc_printf(
+			"<li class=\"readallmess\">"
+			"<a href=\"wiki?page=home\">"
+			"<img src=\"static/readallmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Wiki home")
+			);
+		break;
+	default:
+		wc_printf(
+			"<li class=\"readallmess\">"
+			"<a href=\"readfwd\">"
+			"<img src=\"static/readallmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Read all messages")
+			);
+		break;
+	}
+	
+	switch(WC->CurRoom.view) {
+	case VIEW_ADDRESSBOOK:
+		wc_printf(
+			"<li class=\"addnewcontact\">"
+			"<a href=\"display_enter\">"
+			"<img src=\"static/addnewcontact_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Add new contact")
+			);
+		break;
+	case VIEW_CALENDAR:
+	case VIEW_CALBRIEF:
+		wc_printf("<li class=\"addevent\"><a href=\"display_enter");
+		if (havebstr("year" )) wc_printf("?year=%s", bstr("year"));
+		if (havebstr("month")) wc_printf("?month=%s", bstr("month"));
+		if (havebstr("day"  )) wc_printf("?day=%s", bstr("day"));
+		wc_printf("\">"
+			  "<img  src=\"static/addevent_24x.gif\" "
+			  "alt=\"\" width=\"24\" height=\"24\">"
+			  "<span class=\"navbar_link\">"
+			  "%s"
+			  "</span></a></li>\n", _("Add new event")
+			);
+		break;
+	case VIEW_TASKS:
+		wc_printf(
+			"<li class=\"newmess\">"
+			"<a href=\"display_enter\">"
+			"<img  src=\"static/newmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Add new task")
+			);
+		break;
+	case VIEW_NOTES:
+		wc_printf(
+			"<li class=\"enternewnote\">"
+			"<a href=\"add_new_note\">"
+			"<img  src=\"static/enternewnote_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Add new note")
+			);
+		break;
+	case VIEW_WIKI:
+		safestrncpy(buf, bstr("page"), sizeof buf);
+		if (IsEmptyStr(buf)) {
+			safestrncpy(buf, "home", sizeof buf);
+		}
+		str_wiki_index(buf);
+		wc_printf(
+			"<li class=\"newmess\">"
+			"<a href=\"display_enter?page=%s\">"
+			"<img  src=\"static/newmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", buf, _("Edit this page")
 			);
 		
+		if (bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), "wiki_history")) {
+			/* already viewing history; display a link to the current page */
+			wc_printf(
+				"<li class=\"newmess\">"
+				"<a href=\"wiki?page=%s\">"
+				"<img  src=\"static/newmess3_24x.gif\" "
+				"alt=\"\" width=\"24\" height=\"24\">"
+				"<span class=\"navbar_link\">"
+				"%s"
+				"</span></a></li>\n", buf, _("Current version")
+				);
+		}
+		else {
+			/* display a link to the history */
+			wc_printf(
+				"<li class=\"newmess\">"
+				"<a href=\"wiki_history?page=%s\">"
+				"<img  src=\"static/newmess3_24x.gif\" "
+				"alt=\"\" width=\"24\" height=\"24\">"
+				"<span class=\"navbar_link\">"
+				"%s"
+				"</span></a></li>\n", buf, _("History")
+				);
+		}
+		break;
+	case VIEW_MAILBOX:
 		wc_printf(
-			"<li class=\"markngo\">"
-			"<a href=\"gotonext\" "
-			"title=\"%s\">"
-			"<img  src=\"static/markngo_24x.gif\" alt=\"\" "
-			"width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">%s</span></a>"
-			"</li>\n",
-			_("Mark all messages as read, go to next room with unread messages"),
-			_("Goto next room")
+			"<li class=\"newmess\">"
+			"<a href=\"display_enter\">"
+			"<img  src=\"static/newmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Write mail")
 			);
-	
-		wc_printf("</ul></div>\n");
+		wc_printf(
+			"<li class=\"newmess\">"
+			"<a href=\"javascript:deleteAllSelectedMessages();\">"
+			"<img  src=\"static/delete.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\"><span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Delete")
+			);
+		break;
+	default:
+		wc_printf(
+			"<li class=\"newmess\">"
+			"<a href=\"display_enter\">"
+			"<img  src=\"static/newmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Enter a message")
+			);
+		break;
 	}
+	
+	wc_printf(
+		"<li class=\"skipthisroom\">"
+		"<a href=\"skip\" "
+		"title=\"%s\">"
+		"<img  src=\"static/skipthisroom_24x.gif\" alt=\"\" "
+		"width=\"24\" height=\"24\">"
+		"<span class=\"navbar_link\">%s</span></a>"
+		"</li>\n",
+		_("Leave all messages marked as unread, go to next room with unread messages"),
+		_("Skip this room")
+		);
+	
+	wc_printf(
+		"<li class=\"markngo\">"
+		"<a href=\"gotonext\" "
+		"title=\"%s\">"
+		"<img  src=\"static/markngo_24x.gif\" alt=\"\" "
+		"width=\"24\" height=\"24\">"
+		"<span class=\"navbar_link\">%s</span></a>"
+		"</li>\n",
+		_("Mark all messages as read, go to next room with unread messages"),
+		_("Goto next room")
+		);
+	
+	wc_printf("</ul></div>\n");
 }
 
 
@@ -584,12 +572,16 @@ long gotoroom(const StrBuf *gname)
 	long err = 0;
 
 	/* store ungoto information */
-	strcpy(WCC->ugname, ChrPtr(WCC->CurRoom.name));
+	if (StrLength(gname) > 0)
+		strcpy(WCC->ugname, ChrPtr(WCC->CurRoom.name));
 	WCC->uglsn = ls;
 	Buf = NewStrBuf();
 
 	/* move to the new room */
-	serv_printf("GOTO %s", ChrPtr(gname));
+	if (StrLength(gname) > 0)
+		serv_printf("GOTO %s", ChrPtr(gname));
+	else /* or just refresh the current state... */
+		serv_printf("GOTO");
 	StrBuf_ServGetln(Buf);
 	if  (GetServerStatus(Buf, &err) != 2) {
 		serv_puts("GOTO _BASEROOM_");
@@ -606,9 +598,12 @@ long gotoroom(const StrBuf *gname)
 	}
 	ParseGoto(&WCC->CurRoom, Buf);
 
-	remove_march(WCC->CurRoom.name);
-	if (!strcasecmp(ChrPtr(gname), "_BASEROOM_"))
-		remove_march(gname);
+	if (StrLength(gname) > 0)
+	{
+		remove_march(WCC->CurRoom.name);
+		if (!strcasecmp(ChrPtr(gname), "_BASEROOM_"))
+			remove_march(gname);
+	}
 	FreeStrBuf(&Buf);
 
 	return err;
@@ -3288,7 +3283,7 @@ void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 {
 	wc_printf("<div id=\"banner\">\n");
-	embed_room_banner(NULL);
+	embed_room_banner();
 	wc_printf("</div>\n");
 }
 

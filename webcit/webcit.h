@@ -539,7 +539,6 @@ struct wcsession {
 	StrBuf *upload_filename;		/* filename of http-uploaded data */
 	char upload_content_type[256];		/* content type of http-uploaded data */
 
-	int new_mail;				/* user has new mail waiting */
 	int remember_new_mail;			/* last count of new mail messages */
 
 /* Roomiew control */
@@ -844,7 +843,7 @@ void summary(void);
 
 int is_mobile_ua(char *user_agent);
 
-void embed_room_banner(char *);
+void embed_room_banner(void);
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
 HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP);
 int SortRoomsByListOrder(const void *room1, const void *room2);
