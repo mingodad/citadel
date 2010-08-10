@@ -581,7 +581,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"previous\" align=\"middle\" src=\"static/prevdate_32x.gif\" border=\"0\"></a>\n");
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/prevdate_32x.gif\" border=\"0\"></a>\n", _("previous"));
 
 	wc_strftime(colheader_label, sizeof colheader_label, "%B", &starting_tm);
 	wc_printf("&nbsp;&nbsp;"
@@ -593,7 +593,7 @@ void calendar_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"next\" align=\"middle\" src=\"static/nextdate_32x.gif\" border=\"0\"></A>\n");
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/nextdate_32x.gif\" border=\"0\"></A>\n", _("next"));
 
 	wc_printf("</td></tr></table>\n");
 
@@ -718,7 +718,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	localtime_r(&previous_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"previous\" align=\"middle\" src=\"static/prevdate_32x.gif\" border=\"0\"></a>\n");
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/prevdate_32x.gif\" border=\"0\"></a>\n", _("previous"));
 
 	wc_strftime(month_label, sizeof month_label, "%B", &tm);
 	wc_printf("&nbsp;&nbsp;"
@@ -730,7 +730,7 @@ void calendar_brief_month_view(int year, int month, int day) {
 	localtime_r(&next_month, &tm);
 	wc_printf("<a href=\"readfwd?calview=month?year=%d?month=%d?day=1\">",
 		(int)(tm.tm_year)+1900, tm.tm_mon + 1);
-	wc_printf("<img alt=\"next\" align=\"middle\" src=\"static/nextdate_32x.gif\" border=\"0\"></a>\n");
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/nextdate_32x.gif\" border=\"0\"></a>\n", _("next"));
 
 	wc_printf("</td></tr></table>\n");
 
@@ -1318,8 +1318,8 @@ void calendar_day_view(int year, int month, int day) {
 	wc_printf("<td align=\"center\">");
 	wc_printf("<a href=\"readfwd?calview=day?year=%d?month=%d?day=%d\">",
 		tomorrow.year, tomorrow.month, tomorrow.day);
-	wc_printf("<img alt=\"next\" align=\"middle\" src=\"static/nextdate_32x.gif\""
-		" border=\"0\"></a>\n");
+	wc_printf("<img alt=\"%s\" align=\"middle\" src=\"static/nextdate_32x.gif\""
+		" border=\"0\"></a>\n", _("next"));
 	wc_printf("</td>");
 
 	wc_printf("</tr></table>\n");
