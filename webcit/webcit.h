@@ -844,15 +844,10 @@ void summary(void);
 
 int is_mobile_ua(char *user_agent);
 
-void embed_room_banner(char *, int);
+void embed_room_banner(char *);
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
 HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP);
 int SortRoomsByListOrder(const void *room1, const void *room2);
-/* navbar types that can be passed to embed_room_banner */
-enum {
-	navbar_none,
-	navbar_default
-};
 
 /* actual supported locales */
 void TmplGettext(StrBuf *Target, WCTemplputParams *TP);
