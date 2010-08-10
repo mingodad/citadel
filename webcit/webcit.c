@@ -213,7 +213,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers             
 
 		if (do_room_banner == 1) {
 			wc_printf("<div id=\"banner\">\n");
-			embed_room_banner(NULL, navbar_default);
+			embed_room_banner(NULL);
 			wc_printf("</div>\n");
 		}
 	}
