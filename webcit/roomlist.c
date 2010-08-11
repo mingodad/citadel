@@ -125,10 +125,22 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP)
 
 	if (WCC->Floors == NULL)
 		GetFloorListHash(Target, TP);
-	serv_puts("LKRA");
 	if (WCC->Rooms == NULL) 
+	{
+		serv_puts("LKRA");
 		WCC->Rooms =  GetRoomListHash(Target, TP);
+	}
 	return WCC->Rooms;
+}
+
+HashList *GetZappedRoomListHash(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+
+	if (WCC->Floors == NULL)
+		GetFloorListHash(Target, TP);
+	serv_puts("LZRM -1");
+	return GetRoomListHash(Target, TP);
 }
 
 void FlushFolder(folder *room)
@@ -843,6 +855,8 @@ InitModule_ROOMLIST
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
+	RegisterIterator("LZRM", 0, NULL, GetZappedRoomListHash, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
+
 
 	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, NULL, CTX_ROOMS);
 	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);
