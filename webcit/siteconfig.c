@@ -213,7 +213,6 @@ void load_siteconfig(void)
 	wcsession *WCC = WC;
 	StrBuf *Buf;
 	HashList *Cfg;
-	char buf[SIZ];
 	long len;
 	int i;
 	
@@ -221,14 +220,21 @@ void load_siteconfig(void)
 		WCC->ServCfg = NewHash(1, NULL);
 	Cfg = WCC->ServCfg;
 
-	serv_printf("CONF get");
-	serv_getln(buf, sizeof buf);
-	i = 0;
 	Buf = NewStrBuf();
-	while ((sizeof(ServerConfig) / sizeof(CfgMapping)) &&
-	       (len = StrBuf_ServGetln(Buf),
-		strcmp(ChrPtr(Buf), "000")) && 
-	       (i <= sizeof(ServerConfig))) 
+
+	serv_printf("CONF get");
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 1) {
+		StrBufCutLeft(Buf, 4);
+		AppendImportantMessage(SKEY(Buf));
+		return;
+		
+	}
+	i = 0;
+	while (len = StrBuf_ServGetln(Buf),
+	       (i <= (sizeof(ServerConfig) / sizeof(CfgMapping))) &&
+	       ((len != 3) || (strcmp(ChrPtr(Buf), "000")!= 0))
+		)
 	{
 		Put(Cfg,
 		    ServerConfig[i].Key, 
@@ -240,6 +246,14 @@ void load_siteconfig(void)
 			Buf = NewStrBuf();
 		else
 			Buf = NULL;			
+	}
+	if (strcmp(ChrPtr(Buf), "000")!=0)
+	{
+		/* WHOOOOPSI??? burn the lines we don't understand */
+		while ((len = StrBuf_ServGetln(Buf),
+			strcmp(ChrPtr(Buf), "000"))) {}
+		AppendImportantMessage(_("WARNING: Failed to parse Server Config; do you run a to new citserver?"), -1);
+		return;
 	}
 	FreeStrBuf(&Buf);
 
