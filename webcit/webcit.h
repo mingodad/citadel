@@ -642,7 +642,6 @@ void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);
 void display_aide_menu(void);
-void display_advanced_menu(void);
 void slrp_highest(void);
 ServInfo *get_serv_info(StrBuf *, StrBuf *);
 void RegisterEmbeddableMimeType(const char *MimeType, long MTLen, int Priority);
@@ -656,7 +655,7 @@ int StrBuf_ServGetln(StrBuf *buf);
 int GetServerStatus(StrBuf *Line, long* FullState);
 void serv_puts(const char *string);
 void who(void);
-void who_inner_div(void);
+
 void ajax_mini_calendar(void);
 void fmout(char *align);
 void _fmout(StrBuf *Targt, char *align);
@@ -701,17 +700,14 @@ void msgesc(char *target, size_t tlen, char *strbuf);
 void msgescputs(char *strbuf);
 void msgescputs1(char *strbuf);
 void dump_vars(void);
-void embed_main_menu(void);
 
 void do_addrbook_view(addrbookent *addrbook, int num_ab);
 void fetch_ab_name(message_summary *Msg, char **namebuf);
 void display_vcard(StrBuf *Target, wc_mime_attachment *Mime, char alpha, int full, char **storename, long msgnum);
 void jsonMessageList(void);
 void new_summary_view(void);
-void getseen(void);
 void text_to_server(char *ptr);
 void text_to_server_qp(char *ptr);
-void confirm_delete_msg(void);
 void display_success(char *);
 void CheckAuthBasic(ParsedHttpHdrs *hdr);
 void GetAuthBasic(ParsedHttpHdrs *hdr);
@@ -722,11 +718,9 @@ void display_edit(char *description, char *check_cmd,
 long gotoroom(const StrBuf *gname);
 void remove_march(const StrBuf *aaa);
 void dotskip(void);
-void confirm_delete_room(void);
 void validate(void);
 void display_graphics_upload(char *, char *, char *);
 void do_graphics_upload(char *upl_cmd);
-void serv_gets(char *strbuf);
 void serv_write(const char *buf, int nbytes);
 void serv_putbuf(const StrBuf *string);
 void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
@@ -752,7 +746,6 @@ long extract_token(char *dest, const char *source, int parmnum, char separator, 
 void remove_token(char *source, int parmnum, char separator);
 StrBuf *load_mimepart(long msgnum, char *partnum);
 void MimeLoadData(wc_mime_attachment *Mime);
-int pattern2(char *search, char *patn);
 void do_edit_vcard(long msgnum, char *partnum, 
 		   message_summary *VCMsg,
 		   wc_mime_attachment *VCAtt,
@@ -772,9 +765,6 @@ void output_html(const char *, int, int, StrBuf *, StrBuf *);
 void do_listsub(void);
 ssize_t write(int fd, const void *buf, size_t count);
 void cal_process_attachment(wc_mime_attachment *Mime);
-void display_calendar(message_summary *Msg, int unread);
-void display_note(message_summary *Msg, int unread);
-void updatenote(void);
 void do_tasks_view(void);
 int calendar_summary_view(void);
 void free_march_list(wcsession *wcf);
@@ -785,8 +775,6 @@ void address_book_popup(void);
 void begin_ajax_response(void);
 void end_ajax_response(void);
 void burn_folder_cache(time_t age);
-void list_all_rooms_by_floor(const char *viewpref);
-void display_pictureview(void);
 
 void display_edit_task(void);
 void display_edit_event(void);
@@ -816,7 +804,6 @@ long locate_user_vcard_in_this_room(message_summary **VCMsg,
 void sleeeeeeeeeep(int);
 void http_transmit_thing(const char *content_type, int is_static);
 long unescape_input(char *buf);
-void do_selected_iconbar(void);
 void check_thread_pool_size(void);
 void spawn_another_worker_thread(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
@@ -836,8 +823,6 @@ void display_wiki_pagelist(void);
 #define DATEFMT_RAWDATE 2
 #define DATEFMT_LOCALEDATE 3
 void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
-int fetch_http(char *url, char *target_buf, int maxbytes);
-void free_attachments(wcsession *sess);
 void summary(void);
 
 int is_mobile_ua(char *user_agent);
