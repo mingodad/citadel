@@ -1,0 +1,34 @@
+<?=("head")><?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<div id="banner">
+<?=("roombanner")>
+</div>
+<div id="content" class="service fix_scrollbar_bug">
+
+<?=("beginbox_1")><?_("Go to a hidden room")><?=("beginbox_2")>
+<p><?_("If you know the name of a hidden (guess-name) or passworded room, you can enter that room by typing its name below.  Once you gain access to a private room, it will appear in your regular room listings so you don‘t have to keep returning here.")></p>
+<form method="post" action="goto_private">
+<input type="hidden" name="nonce" value="<?NONCE>">
+
+<table class="altern">
+<tr class="even">
+<td><?_("Enter room name:")></td>
+<td><input type="text" name="gr_name" value="<?BSTR("gr_name", "U")>" maxlength="128">
+</td></tr>
+
+<?!("COND:BSTR", 1, "gr_name")>
+<!-- todo: we may hide this if no passvoid is needed... -->
+<tr class="odd">
+<td><?_("Enter room password:")></td>
+<td><input type="password" name="gr_pass" maxlength="9"></td>
+</tr>
+<!-- xxx -->
+<?!("X", 1)>
+</table>
+<div class="buttons">
+<input type="submit" name="ok_button" value="<?_("Go there")>">
+&nbsp;<input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</div></form>
+
+<?=("endbox")>
+</div>
+<?=("trailing")>

@@ -13,7 +13,6 @@ void free_march_list(wcsession *wcf)
 		free(wcf->march);
 		wcf->march = mptr;
 	}
-
 }
 
 

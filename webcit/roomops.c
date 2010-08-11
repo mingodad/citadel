@@ -1098,7 +1098,6 @@ int set_roomflags(room_states *RoomOps)
  */
 void display_editroom(void)
 {
-	StrBuf *Buf;
 	char buf[SIZ];
 	char cmd[1024];
 	char node[256];
@@ -2680,63 +2679,6 @@ void entroom(void)
 
 
 /**
- * \brief display the screen to enter a private room
- */
-void display_private(char *rname, int req_pass)
-{
-	WCTemplputParams SubTP;
-	StrBuf *Buf;
-	output_headers(1, 1, 1, 0, 0, 0);
-
-	Buf = NewStrBufPlain(_("Go to a hidden room"), -1);
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SubTP.Filter.ContextType = CTX_STRBUF;
-	SubTP.Context = Buf;
-	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
-
-	FreeStrBuf(&Buf);
-
-	wc_printf("<p>");
-	wc_printf(_("If you know the name of a hidden (guess-name) or "
-		  "passworded room, you can enter that room by typing "
-		  "its name below.  Once you gain access to a private "
-		  "room, it will appear in your regular room listings "
-		  "so you don't have to keep returning here."));
-	wc_printf("</p>");
-
-	wc_printf("<form method=\"post\" action=\"goto_private\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-
-	wc_printf("<table class=\"altern\"> "
-		"<tr class=\"even\"><td>");
-	wc_printf(_("Enter room name:"));
-	wc_printf("</td><td>"
-		"<input type=\"text\" name=\"gr_name\" "
-		"value=\"%s\" maxlength=\"128\">\n", rname);
-
-	if (req_pass) {
-		wc_printf("</td></tr><tr class=\"odd\"><td>");
-		wc_printf(_("Enter room password:"));
-		wc_printf("</td><td>");
-		wc_printf("<input type=\"password\" name=\"gr_pass\" maxlength=\"9\">\n");
-	}
-	wc_printf("</td></tr></table>\n");
-
-	wc_printf("<div class=\"buttons\">\n");
-	wc_printf("<input type=\"submit\" name=\"ok_button\" value=\"%s\">"
-		"&nbsp;"
-		"<input type=\"submit\" name=\"cancel_button\" value=\"%s\">",
-		_("Go there"),
-		_("Cancel")
-		);
-	wc_printf("</div></form>\n");
-
-	do_template("endbox", NULL);
-
-	wDumpContent(1);
-}
-
-/**
  * \brief goto a private room
  */
 void goto_private(void)
@@ -2748,6 +2690,7 @@ void goto_private(void)
 		display_main_menu();
 		return;
 	}
+	FlushRoomlist();
 	strcpy(hold_rm, ChrPtr(WC->CurRoom.name));
 	serv_printf("GOTO %s|%s",
 		    bstr("gr_name"),
@@ -2759,7 +2702,7 @@ void goto_private(void)
 		return;
 	}
 	if (!strncmp(buf, "540", 3)) {
-		display_private(bstr("gr_name"), 1);
+		DoTemplate(HKEY("room_display_private"), NULL, &NoCtx);
 		return;
 	}
 	output_headers(1, 1, 1, 0, 0, 0);
@@ -3086,11 +3029,6 @@ void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, WC->CurRoom.name, 0);
 }
 
-
-void _display_private(void) {
-	display_private("", 0);
-}
-
 void dotgoto(void) {
 	if (!havebstr("room")) {
 		readloop(readnew, eUseDefault);
@@ -3295,14 +3233,20 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 	return Whok;
 }
 
-void FlushRoomlist(void)
+void _FlushRoomList(wcsession *WCC)
 {
-	wcsession *WCC = WC;
 	free_march_list(WCC);
 	DeleteHash(&WCC->Floors);
 	DeleteHash(&WCC->Rooms);
 	DeleteHash(&WCC->FloorsByName);
 }
+
+void FlushRoomlist(void)
+{
+	wcsession *WCC = WC;
+	_FlushRoomList(WCC);
+}
+
 
 void 
 InitModule_ROOMOPS
@@ -3321,7 +3265,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("knrooms"), "", 0, knrooms, 0);
 	WebcitAddUrlHandler(HKEY("dotgoto"), "", 0, dotgoto, NEED_URL);
 	WebcitAddUrlHandler(HKEY("dotskip"), "", 0, dotskip, NEED_URL);
-	WebcitAddUrlHandler(HKEY("display_private"), "", 0, _display_private, 0);
+
 	WebcitAddUrlHandler(HKEY("goto_private"), "", 0, goto_private, NEED_URL);
 	WebcitAddUrlHandler(HKEY("zap"), "", 0, zap, 0);
 	WebcitAddUrlHandler(HKEY("display_entroom"), "", 0, display_entroom, 0);
@@ -3466,7 +3410,7 @@ SessionDestroyModule_ROOMOPS
 		free(sess->cache_fold);
 	}
 	
-	FlushRoomlist ();
+	_FlushRoomList (sess);
 }
 
 
