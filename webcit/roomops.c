@@ -222,33 +222,6 @@ void listrms(char *variety)
 }
 
 
-/*
- * list all forgotten rooms
- */
-void zapped_list(void)
-{
-	WCTemplputParams SubTP;
-	StrBuf *Buf;
-
-	output_headers(1, 1, 1, 0, 0, 0);
-	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	Buf = NewStrBufPlain(_("Zapped (forgotten) rooms"), -1);
-	SubTP.Filter.ContextType = CTX_STRBUF;
-	SubTP.Context = Buf;
-	DoTemplate(HKEY("beginbox"), NULL, &SubTP);
-
-	FreeStrBuf(&Buf);
-
-	listrms("LZRM -1");
-
-	wc_printf("<br /><br />\n");
-	wc_printf(_("Click on any room to un-zap it and goto that room.\n"));
-	do_template("endbox", NULL);
-	wDumpContent(1);
-}
-
-
-
 
 /*
  * Embed the room banner
@@ -2815,7 +2788,7 @@ void entroom(void)
 	}
 	/** TODO: Room created, now update the left hand icon bar for this user */
 	burn_folder_cache(0);	/* burn the old folder cache */
-	
+	FlushRoomlist ();
 	gotoroom(er_name);
 
 	serv_printf("VIEW %d", er_view);
@@ -2921,34 +2894,6 @@ void goto_private(void)
 }
 
 
-/**
- * \brief display the screen to zap a room
- */
-void display_zap(void)
-{
-	output_headers(1, 1, 2, 0, 0, 0);
-
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<h1>");
-	wc_printf(_("Zap (forget/unsubscribe) the current room"));
-	wc_printf("</h1>\n");
-	wc_printf("</div>\n");
-
-	wc_printf("<div id=\"content\" class=\"service\">\n");
-
-	wc_printf(_("If you select this option, <em>%s</em> will "
-		  "disappear from your room list.  Is this what you wish "
-		  "to do?<br />\n"), ChrPtr(WC->CurRoom.name));
-
-	wc_printf("<form method=\"POST\" action=\"zap\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wc_printf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Zap this room"));
-	wc_printf("&nbsp;");
-	wc_printf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-	wc_printf("</form>\n");
-	wDumpContent(1);
-}
-
 
 /**
  * \brief zap a room
@@ -2975,6 +2920,7 @@ void zap(void)
 				StrBufAppendBufPlain(final_destination, HKEY("_BASEROOM_"), 0);
 			}
 		}
+		FlushRoomlist ();
 	}
 	smart_goto(final_destination);
 	FreeStrBuf(&final_destination);
@@ -2993,6 +2939,7 @@ void delete_room(void)
 	serv_puts("KILL 1");
 	serv_getln(buf, sizeof buf);
 	burn_folder_cache(0);	/* Burn the cahce of known rooms to update the icon bar */
+	FlushRoomlist ();
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
@@ -3473,6 +3420,15 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 	return Whok;
 }
 
+void FlushRoomlist(void)
+{
+	wcsession *WCC = WC;
+	free_march_list(WCC);
+	DeleteHash(&WCC->Floors);
+	DeleteHash(&WCC->Rooms);
+	DeleteHash(&WCC->FloorsByName);
+}
+
 void 
 InitModule_ROOMOPS
 (void)
@@ -3492,8 +3448,6 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("dotskip"), "", 0, dotskip, NEED_URL);
 	WebcitAddUrlHandler(HKEY("display_private"), "", 0, _display_private, 0);
 	WebcitAddUrlHandler(HKEY("goto_private"), "", 0, goto_private, NEED_URL);
-	WebcitAddUrlHandler(HKEY("zapped_list"), "", 0, zapped_list, 0);
-	WebcitAddUrlHandler(HKEY("display_zap"), "", 0, display_zap, 0);
 	WebcitAddUrlHandler(HKEY("zap"), "", 0, zap, 0);
 	WebcitAddUrlHandler(HKEY("display_entroom"), "", 0, display_entroom, 0);
 	WebcitAddUrlHandler(HKEY("entroom"), "", 0, entroom, 0);
@@ -3637,10 +3591,7 @@ SessionDestroyModule_ROOMOPS
 		free(sess->cache_fold);
 	}
 	
-	free_march_list(sess);
-	DeleteHash(&sess->Floors);
-	DeleteHash(&sess->Rooms);
-	DeleteHash(&sess->FloorsByName);
+	FlushRoomlist ();
 }
 
 

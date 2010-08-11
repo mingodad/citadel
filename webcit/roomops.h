@@ -116,6 +116,7 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
 void vDeleteFolder(void *vFolder);
 void FlushFolder(folder *room);
 void ParseGoto(folder *proom, StrBuf *Line);
+void FlushRoomlist(void); /* release our caches, so a deleted / zapped room disapears */
 
 /*
  * wrapper around usual sort-comparator; private rooms will allways be prefered, -1 if one of them NULL
