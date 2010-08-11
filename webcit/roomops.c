@@ -264,7 +264,7 @@ void embed_room_banner(void)
 	char buf[256];
 
 	/* refresh current room states... */
-	gotoroom(NULL);
+	/* dosen't work??? gotoroom(NULL); */
 
 	/* The browser needs some information for its own use */
 	wc_printf("<script type=\"text/javascript\">	\n"
@@ -581,7 +581,7 @@ long gotoroom(const StrBuf *gname)
 	if (StrLength(gname) > 0)
 		serv_printf("GOTO %s", ChrPtr(gname));
 	else /* or just refresh the current state... */
-		serv_printf("GOTO");
+		serv_printf("GOTO 00000000000000000000");
 	StrBuf_ServGetln(Buf);
 	if  (GetServerStatus(Buf, &err) != 2) {
 		serv_puts("GOTO _BASEROOM_");
