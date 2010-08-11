@@ -20,3 +20,4 @@ sysdep.h.in
 webcit
 i18n_templatelist.c
 autom4te.cache
+gmon.out
