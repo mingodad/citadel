@@ -32,3 +32,4 @@ sysdep.h
 sysdep.h.in
 userlist
 whobbs
+gmon.out
