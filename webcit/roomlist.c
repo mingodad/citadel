@@ -125,9 +125,12 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP)
 
 	if (WCC->Floors == NULL)
 		GetFloorListHash(Target, TP);
-	serv_puts("LKRA");
+	
 	if (WCC->Rooms == NULL) 
+	{
+		serv_puts("LKRA");
 		WCC->Rooms =  GetRoomListHash(Target, TP);
+	}
 	return WCC->Rooms;
 }
 
