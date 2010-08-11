@@ -730,7 +730,6 @@ void serv_gets(char *strbuf);
 void serv_write(const char *buf, int nbytes);
 void serv_putbuf(const StrBuf *string);
 void serv_printf(const char *format,...)__attribute__((__format__(__printf__,1,2)));
-void load_floorlist(StrBuf *Buf);
 void shutdown_sessions(void);
 void do_housekeeping(void);
 void smart_goto(const StrBuf *);

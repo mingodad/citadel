@@ -71,7 +71,7 @@ int is_view_allowed_as_default(int which_view)
 
 /*
  * load the list of floors
- */
+ * /
 void load_floorlist(StrBuf *Buf)
 {
 	int a;
@@ -95,132 +95,7 @@ void load_floorlist(StrBuf *Buf)
 		extract_token(floorlist[StrBufExtract_int(Buf, 0, '|')], ChrPtr(Buf), 1, '|', sizeof floorlist[0]);
 	}
 }
-
-
-
-
-/*
- * display rooms in tree structure
- */
-void room_tree_list(struct roomlisting *rp)
-{
-	char rmname[64];
-	int f;
-
-	if (rp == NULL) {
-		return;
-	}
-
-	room_tree_list(rp->lnext);
-
-	strcpy(rmname, rp->rlname);
-	f = rp->rlflags;
-
-	wc_printf("<a href=\"dotgoto?room=");
-	urlescputs(rmname);
-	wc_printf("\"");
-	wc_printf(">");
-	escputs1(rmname, 1, 1);
-	if ((f & QR_DIRECTORY) && (f & QR_NETWORK))
-		wc_printf("}");
-	else if (f & QR_DIRECTORY)
-		wc_printf("]");
-	else if (f & QR_NETWORK)
-		wc_printf(")");
-	else
-		wc_printf("&gt;");
-	wc_printf("</a><tt> </tt>\n");
-
-	room_tree_list(rp->rnext);
-	free(rp);
-}
-
-
-/* 
- * Room ordering stuff (compare first by floor, then by order)
- */
-int rordercmp(struct roomlisting *r1, struct roomlisting *r2)
-{
-	if ((r1 == NULL) && (r2 == NULL))
-		return (0);
-	if (r1 == NULL)
-		return (-1);
-	if (r2 == NULL)
-		return (1);
-	if (r1->rlfloor < r2->rlfloor)
-		return (-1);
-	if (r1->rlfloor > r2->rlfloor)
-		return (1);
-	if (r1->rlorder < r2->rlorder)
-		return (-1);
-	if (r1->rlorder > r2->rlorder)
-		return (1);
-	return (0);
-}
-
-
-/*
- * Common code for all room listings
- */
-void listrms(char *variety)
-{
-	char buf[SIZ];
-	int num_rooms = 0;
-
-	struct roomlisting *rl = NULL;
-	struct roomlisting *rp;
-	struct roomlisting *rs;
-
-	/* Ask the server for a room list */
-	serv_puts(variety);
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') {
-		wc_printf("&nbsp;");
-		return;
-	}
-
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		++num_rooms;
-		rp = malloc(sizeof(struct roomlisting));
-		extract_token(rp->rlname, buf, 0, '|', sizeof rp->rlname);
-		rp->rlflags = extract_int(buf, 1);
-		rp->rlfloor = extract_int(buf, 2);
-		rp->rlorder = extract_int(buf, 3);
-		rp->lnext = NULL;
-		rp->rnext = NULL;
-
-		rs = rl;
-		if (rl == NULL) {
-			rl = rp;
-		} else
-			while (rp != NULL) {
-				if (rordercmp(rp, rs) < 0) {
-					if (rs->lnext == NULL) {
-						rs->lnext = rp;
-						rp = NULL;
-					} else {
-						rs = rs->lnext;
-					}
-				} else {
-					if (rs->rnext == NULL) {
-						rs->rnext = rp;
-						rp = NULL;
-					} else {
-						rs = rs->rnext;
-					}
-				}
-			}
-	}
-
-	room_tree_list(rl);
-
-	/*
-	 * If no rooms were listed, print an nbsp to make the cell
-	 * borders show up anyway.
-	 */
-	if (num_rooms == 0) wc_printf("&nbsp;");
-}
-
+*/
 
 
 /*
@@ -1251,9 +1126,9 @@ void display_editroom(void)
 	tab = bstr("tab");
 	if (IsEmptyStr(tab)) tab = "admin";
 
-	Buf = NewStrBuf();
-	load_floorlist(Buf);
-	FreeStrBuf(&Buf);
+//	Buf = NewStrBuf();
+//	load_floorlist(Buf);
+//	FreeStrBuf(&Buf);
 	output_headers(1, 1, 1, 0, 0, 0);
 
 	wc_printf("<div class=\"fix_scrollbar_bug\">");
@@ -2585,7 +2460,7 @@ void display_entroom(void)
 	wc_printf("<tr class=\"odd\"><td>");
 	wc_printf(_("Resides on floor: "));
 	wc_printf("</td><td>");
-        load_floorlist(Buf); 
+//        load_floorlist(Buf); 
         wc_printf("<select name=\"er_floor\" size=\"1\">\n");
         for (i = 0; i < 128; ++i)
                 if (!IsEmptyStr(floorlist[i])) {
