@@ -1,0 +1,16 @@
+<?=("head")><?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<div id="banner">
+<h1><?_("Zap (forget/unsubscribe) the current room")></h1>
+</div>
+<div id="content" class="service">
+<?_("If you select this option,")>
+<em><?ROOM:INFO:PRINT_NAME("X")></em>
+<?_("will disappear from your room list.  Is this what you wish to do?")>
+<br>
+
+<form method="POST" action="zap">
+<input type="hidden" name="nonce" value="<?NONCE>">
+<input type="submit" NAME="ok_button" VALUE="<?_("Zap this room")>">&nbsp;
+<input type="submit" NAME="cancel_button" VALUE="<?_("Cancel")>">
+</form>
+<?=("trailing")>
