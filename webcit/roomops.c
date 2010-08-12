@@ -33,6 +33,20 @@ ROOM_VIEWS exchangeable_views[VIEW_MAX][VIEW_MAX] = {	/* the different kinds of 
 	};
 /* the brief calendar view is disabled: VIEW_CALBRIEF */
 
+allowed_default_views[VIEW_MAX] = {
+	1, /* VIEW_BBS		Bulletin board view */
+	1, /* VIEW_MAILBOX		Mailbox summary */
+	1, /* VIEW_ADDRESSBOOK	Address book view */
+	1, /* VIEW_CALENDAR		Calendar view */
+	1, /* VIEW_TASKS		Tasks view */
+	1, /* VIEW_NOTES		Notes view */
+	1, /* VIEW_WIKI		Wiki view */
+	0, /* VIEW_CALBRIEF		Brief Calendar view */
+	0, /* VIEW_JOURNAL		Journal view */
+	0  /* VIEW_BLOG		Blog view (not yet implemented) */
+};
+
+
 /*
  * Initialize the viewdefs with localized strings
  */
@@ -49,24 +63,6 @@ void initialize_viewdefs(void) {
 	viewdefs[VIEW_BLOG] = _("Blog");
 }
 
-/*
- * Determine which views are allowed as the default for creating a new room.
- */
-int is_view_allowed_as_default(int which_view)
-{
-	switch(which_view) {
-		case VIEW_BBS:		return(1);
-		case VIEW_MAILBOX:	return(1);
-		case VIEW_ADDRESSBOOK:	return(1);
-		case VIEW_CALENDAR:	return(1);
-		case VIEW_TASKS:	return(1);
-		case VIEW_NOTES:	return(1);
-		case VIEW_WIKI:		return(1);
-		case VIEW_CALBRIEF:	return(0);
-		case VIEW_JOURNAL:	return(0);
-		default:		return(0);	/* should never get here */
-	}
-}
 
 
 /*
@@ -936,6 +932,26 @@ void tmplput_RoomViewString(StrBuf *Target, WCTemplputParams *TP)
 	FreeStrBuf(&Buf);
 }
 
+
+int ConditionalIsAllowedDefaultView(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	long CheckThis;
+	
+	if (WCC == NULL)
+		return 0;
+
+	CheckThis = GetTemplateTokenNumber(Target, TP, 2, 0);
+	if ((CheckThis >= VIEW_MAX) || (CheckThis < VIEW_BBS))
+	{
+		LogTemplateError(Target, "Conditional", ERR_PARM2, TP,
+				 "Roomview [%ld] not valid\n", 
+				 CheckThis);
+		return 0;
+	}
+
+	return allowed_default_views[CheckThis] != 0;
+}
 
 /*
  * goto next room
@@ -2492,12 +2508,14 @@ void display_entroom(void)
 		"	}						"
 		"\">\n");
 	for (i=0; i<(sizeof viewdefs / sizeof (char *)); ++i) {
+/*
 		if (is_view_allowed_as_default(i)) {
 			wc_printf("<option %s value=\"%d\">",
 				((i == 0) ? "selected" : ""), i );
 			escputs(viewdefs[i]);
 			wc_printf("</option>\n");
 		}
+*/
 	}
 	wc_printf("</select>\n");
 	wc_printf("</td></tr>");
@@ -3300,6 +3318,8 @@ InitModule_ROOMOPS
 	RegisterNamespace("THISROOM:ORDER", 0, 0, tmplput_CurrentRoomOrder, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DEFAULT_VIEW", 0, 0, tmplput_CurrentRoomDefView, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:THISROOM:HAVE_VIEW"), 0, ConditionalThisRoomHaveView, CTX_NONE);
+	RegisterConditional(HKEY("COND:ALLOWED_DEFAULT_VIEW"), 0, ConditionalIsAllowedDefaultView, CTX_NONE);
+
 	RegisterNamespace("THISROOM:VIEW_STRING", 0, 1, tmplput_CurrentRoomViewString, NULL, CTX_NONE);
 	RegisterNamespace("ROOM:VIEW_STRING", 1, 2, tmplput_RoomViewString, NULL, CTX_NONE);
 
