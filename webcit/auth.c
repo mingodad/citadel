@@ -915,6 +915,24 @@ void changepw(void)
 	}
 }
 
+int ConditionalHaveAccessCreateRoom(StrBuf *Target, WCTemplputParams *TP)
+{
+	StrBuf *Buf;	
+
+	Buf = NewStrBuf();
+	serv_puts("CRE8 0");
+	StrBuf_ServGetln(Buf);
+
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBufCutLeft(Buf, 4);
+		AppendImportantMessage(SKEY(Buf));
+		FreeStrBuf(&Buf);
+		return 0;
+	}
+	FreeStrBuf(&Buf);
+	return 1;
+}
+
 int ConditionalAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -1059,7 +1077,7 @@ InitModule_AUTH
 
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
-
+	RegisterConditional(HKEY("COND:MAY_CREATE_ROOM"), 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
 	return ;
 }
 

@@ -1,0 +1,111 @@
+<??("COND:MAY_CREATE_ROOM", 10)>
+<?=("display_main_menu")>
+<??("X", 10)>
+<?!("COND:MAY_CREATE_ROOM", 11)>
+<?=("head")><?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
+<div id="banner">
+<?=("roombanner")>
+</div>
+<div id="content" class="service fix_scrollbar_bug">
+
+<?=("beginbox_1")><?_("Create a new room")><?=("beginbox_2")>
+
+
+<form name="create_room_form" method="POST" action="entroom">
+<input type="hidden" name="nonce" value="<?NONCE>">
+
+<table class="altern"> 
+
+<tr class="odd"><td><?_("Name of room: ")></td><td><input type="text" NAME="er_name" MAXLENGTH="127"></td></tr>
+
+<tr class="even"><td><?_("Resides on floor: ")></td><td>
+
+
+<select name="er_floor" size="1"><?ITERATE("LFLR", _"room_select_targetfloor")></select>
+</td></tr>
+
+<!--
+   * Our clever little snippet of JavaScript automatically selects
+   * a public room if the view is set to Bulletin Board or wiki, and
+   * it selects a mailbox room otherwise.  The user can override this,
+   * of course.  We also disable the floor selector for mailboxes.
+-->
+<tr class="odd"><td><?_("Default view for room: ")></td>
+<td>
+<select name="er_view" size="1" OnChange="
+if ( (this.form.er_view.value == 0)
+|| (this.form.er_view.value == 6) ) {
+	this.form.type[0].checked=true;
+	this.form.er_floor.disabled = false;
+}
+else {
+	this.form.type[4].checked=true;
+	this.form.er_floor.disabled = true;
+}">
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_BBS")><option value="changeview?view=<?DEF:VAL(#"VIEW_BBS")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_BBS", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_BBS", "X")></option><??("X", 1)>
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_MAILBOX")><option value="changeview?view=<?DEF:VAL(#"VIEW_MAILBOX")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_MAILBOX", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_MAILBOX", "X")></option><??("X", 1)>
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_ADDRESSBOOK")><option value="changeview?view=<?DEF:VAL(#"VIEW_ADDRESSBOOK")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_ADDRESSBOOK", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_ADDRESSBOOK", "X")></option><??("X", 1)>
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_CALENDAR")><option value="changeview?view=<?DEF:VAL(#"VIEW_CALENDAR")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_CALENDAR", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_CALENDAR", "X")></option><??("X", 1)>
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_TASKS")><option value="changeview?view=<?DEF:VAL(#"VIEW_TASKS")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_TASKS", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_TASKS", "X")></option><??("X", 1)>
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_NOTES")><option value="changeview?view=<?DEF:VAL(#"VIEW_NOTES")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_NOTES", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_NOTES", "X")></option><??("X", 1)>
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_WIKI")><option value="changeview?view=<?DEF:VAL(#"VIEW_WIKI")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_WIKI", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_WIKI", "X")></option><??("X", 1)>
+
+<!-- <?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_CALBRIEF")><option value="changeview?view=<?DEF:VAL(#"VIEW_CALBRIEF")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_CALBRIEF", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_CALBRIEF", "X")></option><??("X", 1)> -->
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_JOURNAL")><option value="changeview?view=<?DEF:VAL(#"VIEW_JOURNAL")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_JOURNAL", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_JOURNAL", "X")></option><??("X", 1)>
+
+<?!("COND:ALLOWED_DEFAULT_VIEW", 1, #"VIEW_BLOG")><option value="changeview?view=<?DEF:VAL(#"VIEW_BLOG")>" <?%("COND:THISROOM:CURR_VIEW", 2, #"VIEW_BLOG", 0, "selected", "")>><?ROOM:VIEW_STRING(#"VIEW_BLOG", "X")></option><??("X", 1)>
+
+</select>
+</td></tr>
+
+<tr class="even"><td><?_("Type of room:")></td>
+<td>
+<ul class="adminlist">
+
+<li><input type="radio" NAME="type" VALUE="public" CHECKED OnChange="if (this.form.type[0].checked == true) { this.form.er_floor.disabled = false;}"> 
+<?_("Public (automatically appears to everyone)")>
+</li>
+
+<li><input type="radio" NAME="type" VALUE="hidden" OnChange="if (this.form.type[1].checked == true) {this.form.er_floor.disabled = false;}"> 
+<?_("Private - hidden (accessible to anyone who knows its name)")>
+</li>
+
+<li><input type="radio" NAME="type" VALUE="passworded" OnChange="if (this.form.type[2].checked == true) {this.form.er_floor.disabled = false;}"> 
+<?_("Private - require password: ")>
+<input type="text" NAME="er_password" MAXLENGTH="9">
+</li>
+
+<li><input type="radio" NAME="type" VALUE="invonly" OnChange="if (this.form.type[3].checked == true) {this.form.er_floor.disabled = false;}"> 
+<?_("Private - invitation only")>
+</li>
+
+<li><input type="radio" NAME="type" VALUE="personal" OnChange="if (this.form.type[4].checked == true) {this.form.er_floor.disabled = true;}"> 
+<?_("Personal (mailbox for you only)")>
+</li>
+
+</ul>
+</td></tr></table>
+
+<div class="buttons">
+<input type="submit" name="ok_button" value="<?_("Create new room")>">
+&nbsp;
+<input type="submit" name="cancel_button" value="<?_("Cancel")>">
+</div>
+</form><hr />
+<?SERV:MESG("roomaccess")>
+
+<?=("endbox")>
+
+
+
+</div>
+<?=("trailing")>
+<?!("X", 11)>
