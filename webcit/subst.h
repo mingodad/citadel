@@ -358,7 +358,7 @@ void dbg_print_longvector(long *LongVector);
 
 
 
-#define do_template(a, b) DoTemplate(a, sizeof(a) -1, NULL, &NoCtx);
+#define do_template(a, b) DoTemplate(a, sizeof(a) -1, NULL, &NoCtx)
 const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputParams *TP);
 void url_do_template(void);
 
