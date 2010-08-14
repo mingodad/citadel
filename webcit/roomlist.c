@@ -719,6 +719,12 @@ int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
 	return WCC->CurrentFloor == MyFloor;
 }
 
+int ConditionalFloorIsVirtual(StrBuf *Target, WCTemplputParams *TP)
+{
+	Floor *MyFloor = (Floor *)CTX;
+
+	return MyFloor->ID == VIRTUAL_MY_FLOOR;
+}
 
 int ConditionalFloorIsSUBROOM(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -849,6 +855,7 @@ InitModule_ROOMLIST
 	RegisterNamespace("FLOOR:NAME", 0, 1, tmplput_FLOOR_NAME, NULL, CTX_FLOORS);
 	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, NULL, CTX_FLOORS);
 	RegisterConditional(HKEY("COND:FLOOR:ISSUBROOM"), 0, ConditionalFloorIsSUBROOM, CTX_FLOORS);
+	RegisterConditional(HKEY("COND:FLOOR:ISVIRTUAL"), 0, ConditionalFloorIsVirtual, CTX_FLOORS);
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
 
 	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUFARR, CTX_NONE, IT_NOFLAG);
