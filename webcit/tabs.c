@@ -220,6 +220,10 @@ void StrEndTab(StrBuf *Target, int tabnum, int num_tabs) {
 					"</script>"), 0);
 		}
 	}
+	if (HAVEBSTR("last_tabsel"))
+	{
+		StrBufAppendPrintf(Target, "<script type=\"text/javascript\">tabsel(%s);</script>", BSTR("last_tabsel"));
+	}
 }
 
 

@@ -112,6 +112,7 @@ const char *CtxNames[]  = {
 	"Context ITERATE",
 	"Context ICAL",
 	"Context DavNamespace",
+	"Context TAB",
 	"Context UNKNOWN"
 };
 
@@ -2645,6 +2646,12 @@ void tmpl_do_boxed(StrBuf *Target, WCTemplputParams *TP)
 /*-----------------------------------------------------------------------------
  *                      Tabbed-API
  */
+
+typedef struct _tab_struct {
+	long CurrentTab;
+	StrBuf *TabTitle;
+} tab_struct;
+
 int preeval_do_tabbed(WCTemplateToken *Token)
 {
 	WCTemplputParams TPP;
@@ -2712,6 +2719,11 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf **TabNames;
 	int i, ntabs, nTabs;
+	tab_struct TS;
+	WCTemplputParams SubTP;
+
+	memset(&TS, 0, sizeof(tab_struct));
+	memcpy (&SubTP, &TP, sizeof(WCTemplputParams));
 
 	nTabs = ntabs = TP->Tokens->nParameters / 2;
 	TabNames = (StrBuf **) malloc(ntabs * sizeof(StrBuf*));
@@ -2738,17 +2750,35 @@ void tmpl_do_tabbed(StrBuf *Target, WCTemplputParams *TP)
 			nTabs --;
 		}
 	}
+	memcpy (&SubTP, TP, sizeof(WCTemplputParams));
+	SubTP.Filter.ControlContextType = CTX_TAB;
+	SubTP.ControlContext = &TS;
 
 	StrTabbedDialog(Target, nTabs, TabNames);
 	for (i = 0; i < ntabs; i++) {
+		memset(&TS, 0, sizeof(tab_struct));
+		TS.CurrentTab = i;
+		TS.TabTitle = TabNames[i];
 		StrBeginTab(Target, i, nTabs, TabNames);
-		DoTemplate(TKEY(i * 2 + 1), Target, TP);
+		DoTemplate(TKEY(i * 2 + 1), Target, &SubTP);
 		StrEndTab(Target, i, nTabs);
 	}
 	for (i = 0; i < ntabs; i++) 
 		FreeStrBuf(&TabNames[i]);
 }
 
+void tmplput_TAB_N(StrBuf *Target, WCTemplputParams *TP)
+{
+	tab_struct *Ctx = CCTX;
+
+	StrBufAppendPrintf(Target, "%d", Ctx->CurrentTab);
+}
+
+void tmplput_TAB_TITLE(StrBuf *Target, WCTemplputParams *TP)
+{
+	tab_struct *Ctx = CCTX;
+	StrBufAppendTemplate(Target, TP, Ctx->TabTitle, 0);
+}
 
 /*-----------------------------------------------------------------------------
  *                      Sorting-API
@@ -3127,6 +3157,10 @@ InitModule_SUBST
 	RegisterNamespace("ITERATE", 2, 100, tmpl_iterate_subtmpl, preeval_iterate, CTX_NONE);
 	RegisterNamespace("DOBOXED", 1, 2, tmpl_do_boxed, NULL, CTX_NONE);
 	RegisterNamespace("DOTABBED", 2, 100, tmpl_do_tabbed, preeval_do_tabbed, CTX_NONE);
+	RegisterControlNS(HKEY("TAB:N"), 0, 0, tmplput_TAB_N, CTX_TAB);
+	RegisterControlNS(HKEY("TAB:SUBJECT"), 0, 1, tmplput_TAB_TITLE, CTX_TAB);
+
+
 	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, NULL, CTX_LONGVECTOR);
 
 

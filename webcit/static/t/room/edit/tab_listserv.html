@@ -7,7 +7,7 @@
 			<br />
 			<form method="post" action="netedit">
 			  <p>
-				<input type="hidden" name="tab" value="listserv" />
+			        <input type="hidden" name="last_tabsel" value="<?TAB:N>" />
 				<input type="hidden" name="prefix" value="listrecp|" />
 				<input type="hidden" name="nonce" value="<?NONCE>" />
 				<input type="text" id="add_as_listrecp" name="line" />
@@ -21,7 +21,7 @@
 			<br />
 			<form method="post" action="netedit">
 			  <p>
-				<input type="hidden" name="tab" value="listserv" />
+			        <input type="hidden" name="last_tabsel" value="<?TAB:N>" />
 				<input type="hidden" name="prefix" value="digestrecp|" />
 				<input type="hidden" name="nonce" value="<?NONCE>">
 				<input type="text" id="add_as_digestrecp" name="line">
@@ -67,6 +67,8 @@
 				</tr>
 				<tr>
 					<td colspan="2" align="center">
+					        <input type="hidden" name="last_tabsel" value="<?TAB:N>" />
+						<input type="hidden" name="nonce" value="<?NONCE>" />
 						<input type="submit" name="add_button" value="<?_("Save changes")>" />
 					</td>
 				</tr>

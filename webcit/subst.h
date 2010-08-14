@@ -55,8 +55,9 @@ enum {
 #define CTX_ITERATE 17
 #define CTX_ICAL 18
 #define CTX_DAVNS 19
+#define CTX_TAB 20
 
-#define CTX_UNKNOWN 20
+#define CTX_UNKNOWN 21
 
 
 /**
