@@ -165,6 +165,7 @@ void FlushFolder(folder *room)
 			FreeStrBuf(&room->RoomNameParts[i]);
 		free(room->RoomNameParts);
 	}
+	memset(room, 0, sizeof(folder));
 }
 
 void vDeleteFolder(void *vFolder)

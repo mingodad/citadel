@@ -33,7 +33,7 @@ ROOM_VIEWS exchangeable_views[VIEW_MAX][VIEW_MAX] = {	/* the different kinds of 
 	};
 /* the brief calendar view is disabled: VIEW_CALBRIEF */
 
-allowed_default_views[VIEW_MAX] = {
+ROOM_VIEWS allowed_default_views[VIEW_MAX] = {
 	1, /* VIEW_BBS		Bulletin board view */
 	1, /* VIEW_MAILBOX		Mailbox summary */
 	1, /* VIEW_ADDRESSBOOK	Address book view */
@@ -424,6 +424,7 @@ long gotoroom(const StrBuf *gname)
 			return err;
 		}
 	}
+	FlushFolder(&WCC->CurRoom);
 	ParseGoto(&WCC->CurRoom, Buf);
 
 	if (StrLength(gname) > 0)
@@ -436,6 +437,85 @@ long gotoroom(const StrBuf *gname)
 
 	return err;
 }
+
+void DBG_QR(long QR)
+{
+	const char *QRFlagList[15] = {
+		strof(QR_PERMANENT),
+		strof(QR_INUSE),
+		strof(QR_PRIVATE),
+		strof(QR_PASSWORDED),
+		strof(QR_GUESSNAME),
+		strof(QR_DIRECTORY),
+		strof(QR_UPLOAD),
+		strof(QR_DOWNLOAD),
+		strof(QR_VISDIR),
+		strof(QR_ANONONLY),
+		strof(QR_ANONOPT),
+		strof(QR_NETWORK),
+		strof(QR_PREFONLY),
+		strof(QR_READONLY),
+		strof(QR_MAILBOX)
+	};
+	int i = 1;
+	int j=0;
+	StrBuf *QRVec;
+
+	QRVec = NewStrBufPlain(NULL, 256);
+	while (i != 0)
+	{
+		if ((QR & i) != 0) {
+			if (StrLength(QRVec) > 0)
+				StrBufAppendBufPlain(QRVec, HKEY(" | "), 0);
+			StrBufAppendBufPlain(QRVec, QRFlagList[j], -1, 0);
+		}
+		i = i << 1;
+		j++;
+	}
+	lprintf(9, "DBG: QR-Vec [%ld] [%s]\n", QR, ChrPtr(QRVec));
+	FreeStrBuf(&QRVec);
+}
+
+
+
+void DBG_QR2(long QR2)
+{
+	const char *QR2FlagList[15] = {
+		strof(QR2_SYSTEM),
+		strof(QR2_SELFLIST),
+		strof(QR2_COLLABDEL),
+		strof(QR2_SUBJECTREQ),
+		strof(QR2_SMTP_PUBLIC),
+		strof(QR2_MODERATED),
+		"", 
+		"", 
+		"", 
+		"", 
+		"", 
+		"", 
+		"", 
+		"", 
+		""
+	};
+	int i = 1;
+	int j=0;
+	StrBuf *QR2Vec;
+
+	QR2Vec = NewStrBufPlain(NULL, 256);
+	while (i != 0)
+	{
+		if ((QR2 & i) != 0) {
+			if (StrLength(QR2Vec) > 0)
+				StrBufAppendBufPlain(QR2Vec, HKEY(" | "), 0);
+			StrBufAppendBufPlain(QR2Vec, QR2FlagList[j], -1, 0);
+		}
+		i = i << 1;
+		j++;
+	}
+	lprintf(9, "DBG: QR2-Vec [%ld] [%s]\n", QR2, ChrPtr(QR2Vec));
+	FreeStrBuf(&QR2Vec);
+}
+
 
 
 void ParseGoto(folder *room, StrBuf *Line)
@@ -482,6 +562,8 @@ void ParseGoto(folder *room, StrBuf *Line)
 	
 	room->QRFlags = StrBufExtractNext_long(Line, &Pos, '|'); //CurRoom->QRFlags
 
+	DBG_QR(room->QRFlags);
+
 	room->HighestRead = StrBufExtractNext_long(Line, &Pos, '|');
 	room->LastMessageRead = StrBufExtractNext_long(Line, &Pos, '|');
 
@@ -505,6 +587,7 @@ void ParseGoto(folder *room, StrBuf *Line)
 		room->RAFlags |= UA_ISTRASH; //	wc_is_trash
 
 	room->QRFlags2 = StrBufExtractNext_long(Line, &Pos, '|'); // CurRoom->QRFlags2
+	DBG_QR2(room->QRFlags2);
 
 	/* find out, whether we are in a sub-room */
 	room->nRoomNameParts = StrBufNum_tokens(room->name, '\\');
@@ -604,7 +687,7 @@ void LoadRoomXA (void)
 
 	WCC->CurRoom.XALoaded = 1;
 	Buf = NewStrBuf();
-	serv_puts("GETA");
+	serv_puts("GETR");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
 		FlushStrBuf(WCC->CurRoom.XAPass);
@@ -1026,6 +1109,7 @@ int self_service(int newval) {
 		serv_getln(buf, sizeof buf);
 	}
 
+	FlushRoomlist ();
 	return(newval);
 
 }
@@ -1085,6 +1169,8 @@ int set_roomflags(room_states *RoomOps)
 		    RoomOps->view, 
 		    RoomOps->flags2);
 	serv_getln(buf, sizeof buf);
+	FlushRoomlist ();
+
 	return (1);
 }
 
@@ -2110,6 +2196,8 @@ void editroom(void)
 		return;
 	}
 
+	FlushRoomlist ();
+
 	er_name = NewStrBuf();
 	er_password = NewStrBuf();
 	er_dirname = NewStrBuf();
@@ -2506,7 +2594,7 @@ void entroom(void)
 	}
 	/** TODO: Room created, now update the left hand icon bar for this user */
 	burn_folder_cache(0);	/* burn the old folder cache */
-	FlushRoomlist ();
+
 	gotoroom(er_name);
 
 	serv_printf("VIEW %d", er_view);
