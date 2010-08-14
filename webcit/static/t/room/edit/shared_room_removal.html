@@ -1,18 +1,18 @@
 <script type="text/javascript">
 /*
 TODO: hide from the other table the column with this ID:
-ignet_share_node_add__<?CONTEXTARR(#"GNET_IGNET_NODE", "U")>
+ignet_share_node_add__<?CONTEXTSTRARR(#"GNET_IGNET_NODE", "U")>
 */
 </script>
 <form method="post" action="netedit">
 	<input type="hidden" name="nonce" value="<?NONCE>" />
 	<tr>
-		<td><?CONTEXTARR(#"GNET_IGNET_NODE")></td>
-		<td><?CONTEXTARR(#"GNET_IGNET_ROOM")></td>
+		<td><?CONTEXTSTRARR(#"GNET_IGNET_NODE")></td>
+		<td><?CONTEXTSTRARR(#"GNET_IGNET_ROOM")></td>
 		<td>
 			<input type="hidden" 
 			       name="line" 
-			       value="ignet_push_share|<?CONTEXTARR(#"GNET_IGNET_ROOM", "U")>|<?CONTEXTARR(#"GNET_IGNET_ROOM", "U")>"
+			       value="ignet_push_share|<?CONTEXTSTRARR(#"GNET_IGNET_ROOM", "U")>|<?CONTEXTSTRARR(#"GNET_IGNET_ROOM", "U")>"
 			/>
 			<input type="hidden" name="tab" value="sharing" />
 			<input type="hidden" name="cmd" value="remove" />
