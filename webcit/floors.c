@@ -161,6 +161,7 @@ void delete_floor(void) {
 		StrBufCutLeft(Buf, 4);
 	}
 
+	FlushRoomlist();
 	display_floorconfig(Buf);
 	FreeStrBuf(&Buf);
 }
@@ -183,6 +184,7 @@ void create_floor(void) {
 		StrBufCutLeft(Buf, 4);
 	}
 
+	FlushRoomlist();
 	display_floorconfig(Buf);
 	FreeStrBuf(&Buf);
 }
@@ -195,6 +197,7 @@ void rename_floor(void) {
 	StrBuf *Buf;
 
 	Buf = NewStrBuf();
+	FlushRoomlist();
 
 	serv_printf("EFLR %d|%s", ibstr("floornum"), bstr("floorname"));
 	StrBuf_ServGetln(Buf);
