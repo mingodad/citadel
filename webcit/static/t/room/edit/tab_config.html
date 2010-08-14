@@ -16,7 +16,6 @@
 				<?_("Type of room:")>
 				<ul>
 					<li>
-						<!-- this COND checks against the value of (QR_PRIVATE + QR_MAILBOX)) == 0 -->
 						<input type="radio" name="type" value="public" 
                                 		       <?%("COND:THISROOM:FLAG:QR", 3, #"QR_PRIVATE | QR_MAILBOX", 1, 'disabled="disabled" ', "")>
                         			       onChange="if (this.form.type[0].checked == true) { this.form.er_floor.disabled = false; }" />
@@ -38,7 +37,9 @@
 					</li>
 					<li>
 						<input type="radio" name="type" value="invonly" 
-						       <?%("COND:THISROOM:FLAG:QR", 10, #"QR_PASSWORDED & QR_PRIVATE & QR_GUESSNAME", 1, 'checked="checked" ', "")>
+						       <??("COND:THISROOM:FLAG:QR", 9, #"QR_PASSWORDED & QR_GUESSNAME")>
+						       <?%("COND:THISROOM:FLAG:QR", 10, #"QR_PRIVATE", 1, 'checked="checked" ', "")>
+						       <??("X", 9)>
 						       onChange="if (this.form.type[3].checked == true) { this.form.er_floor.disabled = false; }" />
 						<?_("Private - invitation only")>            
 					</li>
