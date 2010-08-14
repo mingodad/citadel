@@ -158,22 +158,31 @@ void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]) {
  * num_tabs:	 total number oftabs to be printed
  *
  */
-void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs) {
+void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs, StrBuf **Names) {
 
 	if (tabnum == num_tabs) {
 		StrBufAppendBufPlain(
 			Target, 
-			HKEY(
-				"<!-- begin tab-common epilogue -->\n"
-				"<div class=\"tabcontent_submit\">"), 0);
+			HKEY("<!-- begin tab-common epilogue ["), 0);
+		StrEscAppend(Target, Names[tabnum], NULL, 0, 2);
+		StrBufAppendBufPlain(
+			Target, 
+			HKEY("] -->\n<div class=\"tabcontent_submit\">"), 0);
 	}
 
 	else {
+		StrBufAppendBufPlain(
+			Target, 
+			HKEY("<!-- begin tab"), 0);
+		StrBufAppendPrintf(
+			Target,  "%d of %d [",
+			tabnum, num_tabs);
+		
+		StrEscAppend(Target, Names[tabnum], NULL, 0, 2);
+
 		StrBufAppendPrintf(
 			Target, 
-			"<!-- begin tab %d of %d -->\n"
-			"<div id=\"tabdiv%d\" style=\"display:%s\" class=\"tabcontent\" >",
-			tabnum, num_tabs, 
+			"] -->\n<div id=\"tabdiv%d\" style=\"display:%s\" class=\"tabcontent\" >",
 			tabnum,
 			( (tabnum == 0) ? "block" : "none" )
 			);
