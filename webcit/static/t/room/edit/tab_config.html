@@ -9,7 +9,7 @@
 			<li>
 				<?_("Resides on floor: ")>
 				<select name="er_floor" size="1" <?%("COND:THISROOM:FLAG:QR", 1, #"QR_MAILBOX", 1, 'disabled="disabled" >', ">")>
-<??("COND:THISROOM:FLAG:QR", 2, #"QR_MAILBOX")>	<?ITERATE("LFLR", ="room_edit_er_config_tab_room_option_list")><??("X", 2)>
+				  <??("COND:THISROOM:FLAG:QR", 2, #"QR_MAILBOX")><?ITERATE("LFLR", ="room_edit_er_config_tab_room_option_list")><??("X", 2)>
 				</select>
                         </li>
 			<li>
@@ -37,7 +37,7 @@
 					</li>
 					<li>
 						<input type="radio" name="type" value="invonly" 
-						       <??("COND:THISROOM:FLAG:QR", 9, #"QR_PASSWORDED & QR_GUESSNAME")>
+						       <??("COND:THISROOM:FLAG:QR", 9, #"QR_PASSWORDED | QR_GUESSNAME")>
 						       <?%("COND:THISROOM:FLAG:QR", 10, #"QR_PRIVATE", 1, 'checked="checked" ', "")>
 						       <??("X", 9)>
 						       onChange="if (this.form.type[3].checked == true) { this.form.er_floor.disabled = false; }" />
@@ -78,7 +78,7 @@
 				<ul>
 					<li>
 						<?_("Directory name: ")>
-						<input type="text" name="er_dirname" value="<?THISROOM:DIRECTORY("U")>" maxlength="14" />
+						<input type="text" name="er_dirname" value="<?THISROOM:DIRECTORY("X")>" maxlength="14" />
                         		</li>
 					<li>
 						<input type="checkbox" name="ulallowed" value="yes" 

@@ -173,7 +173,7 @@ void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs, StrBuf **Names) {
 	else {
 		StrBufAppendBufPlain(
 			Target, 
-			HKEY("<!-- begin tab"), 0);
+			HKEY("<!-- begin tab "), 0);
 		StrBufAppendPrintf(
 			Target,  "%d of %d [",
 			tabnum, num_tabs);
