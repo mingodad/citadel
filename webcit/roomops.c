@@ -269,6 +269,24 @@ void embed_room_banner(void)
 			"%s"
 			"</span></a></li>\n", _("Refresh message list")
 			);
+		wc_printf(
+			"<li class=\"readallmess\">"
+			"<a href=\"readfwd\">"
+			"<img src=\"static/readallmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Read all messages")
+			);
+		wc_printf(
+			"<li class=\"newmess\">"
+			"<a href=\"display_enter\">"
+			"<img  src=\"static/newmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Write mail")
+			);
 		break;
 	case VIEW_WIKI:
 		wc_printf(
@@ -320,33 +338,6 @@ void embed_room_banner(void)
 				);
 		}
 		break;
-	case VIEW_MAILBOX:
-		wc_printf(
-			"<li class=\"readallmess\">"
-			"<a href=\"readfwd\">"
-			"<img src=\"static/readallmess3_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Read all messages")
-			);
-		wc_printf(
-			"<li class=\"newmess\">"
-			"<a href=\"display_enter\">"
-			"<img  src=\"static/newmess3_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Write mail")
-			);
-		wc_printf(
-			"<li class=\"newmess\">"
-			"<a href=\"javascript:deleteAllSelectedMessages();\">"
-			"<img  src=\"static/delete.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\"><span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Delete")
-			);
 		break;
 	default:
 		wc_printf(
