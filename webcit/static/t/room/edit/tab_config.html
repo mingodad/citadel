@@ -117,9 +117,8 @@
                         <ul>
 				<li>
 					<input type="radio" name="anon" value="no" 
-					<??("COND:THISROOM:FLAG:QR", 22, #"QR_ANONONLY")>
-						<?%("COND:THISROOM:FLAG:QR", 23, #"QR_ANONOPT", 1, 'checked="checked" ', "")>
-					<??("X", 22)> />
+					       <?%("COND:THISROOM:FLAG:QR", 23, #"QR_ANONOPT & QR_ANONONLY", 1, "", 'checked="checked" ')>
+					       >
 					<?_("No anonymous messages")>
 				</li>
                         	<li>
