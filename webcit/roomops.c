@@ -167,6 +167,15 @@ void embed_room_banner(void)
 			"%s"
 			"</span></a></li>\n", _("View contacts")
 			);
+		wc_printf(
+			"<li class=\"addnewcontact\">"
+			"<a href=\"display_enter\">"
+			"<img src=\"static/addnewcontact_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Add new contact")
+			);
 		break;
 	case VIEW_CALENDAR:
 		wc_printf(
@@ -186,6 +195,17 @@ void embed_room_banner(void)
 			"<span class=\"navbar_link\">"
 			"%s"
 			"</span></a></li>\n", _("Month view")
+			);
+		wc_printf("<li class=\"addevent\"><a href=\"display_enter");
+		if (havebstr("year" )) wc_printf("?year=%s", bstr("year"));
+		if (havebstr("month")) wc_printf("?month=%s", bstr("month"));
+		if (havebstr("day"  )) wc_printf("?day=%s", bstr("day"));
+		wc_printf("\">"
+			  "<img  src=\"static/addevent_24x.gif\" "
+			  "alt=\"\" width=\"24\" height=\"24\">"
+			  "<span class=\"navbar_link\">"
+			  "%s"
+			  "</span></a></li>\n", _("Add new event")
 			);
 		break;
 	case VIEW_CALBRIEF:
@@ -209,6 +229,15 @@ void embed_room_banner(void)
 			"%s"
 			"</span></a></li>\n", _("View tasks")
 			);
+		wc_printf(
+			"<li class=\"newmess\">"
+			"<a href=\"display_enter\">"
+			"<img  src=\"static/newmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Add new task")
+			);
 		break;
 	case VIEW_NOTES:
 		wc_printf(
@@ -219,6 +248,15 @@ void embed_room_banner(void)
 			"<span class=\"navbar_link\">"
 			"%s"
 			"</span></a></li>\n", _("View notes")
+			);
+		wc_printf(
+			"<li class=\"enternewnote\">"
+			"<a href=\"add_new_note\">"
+			"<img  src=\"static/enternewnote_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Add new note")
 			);
 		break;
 	case VIEW_MAILBOX:
@@ -242,69 +280,6 @@ void embed_room_banner(void)
 			"%s"
 			"</span></a></li>\n", _("Wiki home")
 			);
-		break;
-	default:
-		wc_printf(
-			"<li class=\"readallmess\">"
-			"<a href=\"readfwd\">"
-			"<img src=\"static/readallmess3_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Read all messages")
-			);
-		break;
-	}
-	
-	switch(WC->CurRoom.view) {
-	case VIEW_ADDRESSBOOK:
-		wc_printf(
-			"<li class=\"addnewcontact\">"
-			"<a href=\"display_enter\">"
-			"<img src=\"static/addnewcontact_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Add new contact")
-			);
-		break;
-	case VIEW_CALENDAR:
-	case VIEW_CALBRIEF:
-		wc_printf("<li class=\"addevent\"><a href=\"display_enter");
-		if (havebstr("year" )) wc_printf("?year=%s", bstr("year"));
-		if (havebstr("month")) wc_printf("?month=%s", bstr("month"));
-		if (havebstr("day"  )) wc_printf("?day=%s", bstr("day"));
-		wc_printf("\">"
-			  "<img  src=\"static/addevent_24x.gif\" "
-			  "alt=\"\" width=\"24\" height=\"24\">"
-			  "<span class=\"navbar_link\">"
-			  "%s"
-			  "</span></a></li>\n", _("Add new event")
-			);
-		break;
-	case VIEW_TASKS:
-		wc_printf(
-			"<li class=\"newmess\">"
-			"<a href=\"display_enter\">"
-			"<img  src=\"static/newmess3_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Add new task")
-			);
-		break;
-	case VIEW_NOTES:
-		wc_printf(
-			"<li class=\"enternewnote\">"
-			"<a href=\"add_new_note\">"
-			"<img  src=\"static/enternewnote_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Add new note")
-			);
-		break;
-	case VIEW_WIKI:
 		safestrncpy(buf, bstr("page"), sizeof buf);
 		if (IsEmptyStr(buf)) {
 			safestrncpy(buf, "home", sizeof buf);
@@ -347,6 +322,15 @@ void embed_room_banner(void)
 		break;
 	case VIEW_MAILBOX:
 		wc_printf(
+			"<li class=\"readallmess\">"
+			"<a href=\"readfwd\">"
+			"<img src=\"static/readallmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Read all messages")
+			);
+		wc_printf(
 			"<li class=\"newmess\">"
 			"<a href=\"display_enter\">"
 			"<img  src=\"static/newmess3_24x.gif\" "
@@ -365,6 +349,15 @@ void embed_room_banner(void)
 			);
 		break;
 	default:
+		wc_printf(
+			"<li class=\"readallmess\">"
+			"<a href=\"readfwd\">"
+			"<img src=\"static/readallmess3_24x.gif\" "
+			"alt=\"\" width=\"24\" height=\"24\">"
+			"<span class=\"navbar_link\">"
+			"%s"
+			"</span></a></li>\n", _("Read all messages")
+			);
 		wc_printf(
 			"<li class=\"newmess\">"
 			"<a href=\"display_enter\">"
