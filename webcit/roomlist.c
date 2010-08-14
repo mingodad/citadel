@@ -329,6 +329,7 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 				    IKEY(n),
 				    Content, 
 				    HFreeStrBuf);
+				n++;
 			}
 		}
 	}
