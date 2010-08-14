@@ -2085,7 +2085,7 @@ void toggle_self_service(void) {
 
 	set_roomflags (&RoomFlags);
 	
-	display_editroom();
+	do_template("room_edit", NULL);
 }
 
 
@@ -2112,7 +2112,7 @@ void editroom(void)
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
 		       _("Cancelled.  Changes were not saved."));
-		display_editroom();
+		do_template("room_edit", NULL);
 		return;
 	}
 	serv_puts("GETR");
@@ -2121,7 +2121,7 @@ void editroom(void)
 	if (GetServerStatus(Buf, NULL) != 2) {
 		StrBufCutLeft(Buf, 4);
 		strcpy(WC->ImportantMessage, ChrPtr(Buf));
-		display_editroom();
+		do_template("room_edit", NULL);
 		FreeStrBuf(&Buf);
 		return;
 	}
@@ -2276,7 +2276,7 @@ void editroom(void)
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
 		strcpy(WC->ImportantMessage, &ChrPtr(Buf)[4]);
-		display_editroom();
+		do_template("room_edit", NULL);
 		FreeStrBuf(&Buf);
 		FreeStrBuf(&er_name);
 		FreeStrBuf(&er_password);
@@ -2302,7 +2302,7 @@ void editroom(void)
 	}
 	gotoroom(er_name);
 	strcpy(WC->ImportantMessage, _("Your changes have been saved."));
-	display_editroom();
+	do_template("room_edit", NULL);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&er_name);
 	FreeStrBuf(&er_password);
@@ -2357,7 +2357,7 @@ void do_invt_kick(void) {
                 }
         }
 
-	display_editroom();
+	do_template("room_edit", NULL);
 }
 
 
@@ -2530,7 +2530,7 @@ void entroom(void)
 	WCC->CurRoom.view = er_view;
 
 	if ( (WCC != NULL) && ( (WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) )  {
-		display_editroom ();
+		do_template("room_edit", NULL);
 	} else {
         	do_change_view(er_view);                /* Now go there */
 	}
@@ -2665,14 +2665,14 @@ void netedit(void) {
 		strcat(line, bstr("suffix"));
 	}
 	else {
-		display_editroom();
+		do_template("room_edit", NULL);
 		return;
 	}
 
 
 	fp = tmpfile();
 	if (fp == NULL) {
-		display_editroom();
+		do_template("room_edit", NULL);
 		return;
 	}
 
@@ -2680,7 +2680,7 @@ void netedit(void) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
 		fclose(fp);
-		display_editroom();
+		do_template("room_edit", NULL);
 		return;
 	}
 
@@ -2701,7 +2701,7 @@ void netedit(void) {
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '4') {
 		fclose(fp);
-		display_editroom();
+		do_template("room_edit", NULL);
 		return;
 	}
 
@@ -2731,7 +2731,7 @@ void netedit(void) {
 
 	serv_puts("000");
 	fclose(fp);
-	display_editroom();
+	do_template("room_edit", NULL);
 }
 
 
@@ -2866,7 +2866,7 @@ void set_room_policy(void) {
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
 		       _("Cancelled.  Changes were not saved."));
-		display_editroom();
+		do_template("room_edit", NULL);
 		return;
 	}
 
@@ -2881,7 +2881,7 @@ void set_room_policy(void) {
 		strcat(WC->ImportantMessage, &buf[4]);
 	}
 
-	display_editroom();
+	do_template("room_edit", NULL);
 }
 
 void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
@@ -3129,7 +3129,6 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("goto_private"), "", 0, goto_private, NEED_URL);
 	WebcitAddUrlHandler(HKEY("zap"), "", 0, zap, 0);
 	WebcitAddUrlHandler(HKEY("entroom"), "", 0, entroom, 0);
-	WebcitAddUrlHandler(HKEY("display_whok"), "", 0, display_whok, 0);
 	WebcitAddUrlHandler(HKEY("do_invt_kick"), "", 0, do_invt_kick, 0);
 	WebcitAddUrlHandler(HKEY("display_editroom"), "", 0, display_editroom, 0);
 	WebcitAddUrlHandler(HKEY("netedit"), "", 0, netedit, 0);
