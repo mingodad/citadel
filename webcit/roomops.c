@@ -2979,9 +2979,15 @@ int ConditionalCurrentRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 	if (QR_CheckFlag == 0)
 		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
 				 "requires one of the #\"QR*\"- defines or an integer flag 0 is invalid!");
+	
+	if (WCC == NULL)
+		return 0;
 
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags & QR_CheckFlag) != 0));
+	if ((TP->Tokens->Params[2]->MaskBy == eOR) ||
+	    (TP->Tokens->Params[2]->MaskBy == eNO))
+		return (WCC->CurRoom.QRFlags & QR_CheckFlag) != 0;
+	else
+		return (WCC->CurRoom.QRFlags & QR_CheckFlag) == QR_CheckFlag;
 }
 
 int ConditionalRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
@@ -2993,7 +2999,12 @@ int ConditionalRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 	if (QR_CheckFlag == 0)
 		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
 				 "requires one of the #\"QR*\"- defines or an integer flag 0 is invalid!");
-	return ((Folder->QRFlags & QR_CheckFlag) != 0);
+
+	if ((TP->Tokens->Params[2]->MaskBy == eOR) ||
+	    (TP->Tokens->Params[2]->MaskBy == eNO))
+		return (Folder->QRFlags & QR_CheckFlag) != 0;
+	else
+		return (Folder->QRFlags & QR_CheckFlag) == QR_CheckFlag;
 }
 
 
@@ -3007,8 +3018,15 @@ int ConditionalCurrentRoomHas_QRFlag2(StrBuf *Target, WCTemplputParams *TP)
 		LogTemplateError(Target, "Conditional", ERR_PARM1, TP,
 				 "requires one of the #\"QR2*\"- defines or an integer flag 0 is invalid!");
 
-	return ((WCC!=NULL) &&
-		((WCC->CurRoom.QRFlags2 & QR2_CheckFlag) != 0));
+	
+	if (WCC == NULL)
+		return 0;
+
+	if ((TP->Tokens->Params[2]->MaskBy == eOR) ||
+	    (TP->Tokens->Params[2]->MaskBy == eNO))
+		return (WCC->CurRoom.QRFlags2 & QR2_CheckFlag) != 0;
+	else
+		return (WCC->CurRoom.QRFlags2 & QR2_CheckFlag) == QR2_CheckFlag;
 }
 
 int ConditionalRoomHas_QRFlag2(StrBuf *Target, WCTemplputParams *TP)

@@ -92,6 +92,11 @@ typedef int (*WCPreevalFunc)(WCTemplateToken *Token);
  */
 typedef int (*WCConditionalFunc)(StrBuf *Target, WCTemplputParams *TP);
 
+typedef enum _eBitMask {
+	eNO = 0,
+	eOR,
+	eAND
+}eBitMask;
 
 typedef struct _TemplateParam {
         /* are we a string or a number? */
@@ -101,6 +106,7 @@ typedef struct _TemplateParam {
 	long len;
 	/* if we're a number: */
 	long lvalue;
+	eBitMask MaskBy;
 } TemplateParam;
 
 

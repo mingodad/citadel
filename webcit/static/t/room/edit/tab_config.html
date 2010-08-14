@@ -4,7 +4,7 @@
 		<ul>   
 			<li>
 				<?_("name of room: ")>
-				<input type="text" name="er_name" value="<?ROOMNAME("U")>" maxlength="127" />
+				<input type="text" name="er_name" value="<?ROOMNAME("X")>" maxlength="127" />
 			</li>
 			<li>
 				<?_("Resides on floor: ")>
@@ -18,42 +18,34 @@
 					<li>
 						<!-- this COND checks against the value of (QR_PRIVATE + QR_MAILBOX)) == 0 -->
 						<input type="radio" name="type" value="public" 
-                                		<?%("COND:THISROOM:FLAG:QR", 3, "14688", 1, 'disabled="disabled" ', "")>
-                        			onChange="if (this.form.type[0].checked == true) { this.form.er_floor.disabled = false; }" />
+                                		       <?%("COND:THISROOM:FLAG:QR", 3, #"QR_PRIVATE | QR_MAILBOX", 1, 'disabled="disabled" ', "")>
+                        			       onChange="if (this.form.type[0].checked == true) { this.form.er_floor.disabled = false; }" />
                         			<?_("Public (automatically appears to everyone)")>
 					</li>
 					<li>
 						<input type="radio" name="type" value="hidden" 
-							<??("COND:THISROOM:FLAG:QR", 4, #"QR_PRIVATE")>
-								<?%("COND:THISROOM:FLAG:QR", 5, #"QR_GUESSNAME", 1, 'checked="checked" ', "")> 
-                        				<??("X", 4)>
-						onChange="if (this.form.type[1].checked == true) { this.form.er_floor.disabled = false; }" />
+						       <?%("COND:THISROOM:FLAG:QR", 5, #"QR_GUESSNAME & QR_PRIVATE", 1, 'checked="checked" ', "")> 
+						       onChange="if (this.form.type[1].checked == true) { this.form.er_floor.disabled = false; }" />
                         			<?_("Private - hidden (accessible to anyone who knows its name)")>
                         		</li>
                         		<li>
 						<input type="radio" name="type" value="passworded" 
-							<??("COND:THISROOM:FLAG:QR", 6, #"QR_PRIVATE")>
-									<?%("COND:THISROOM:FLAG:QR", 7, #"QR_PASSWORDED", 1, 'checked="checked" ', "")>
-							<??("X", 6)>
-						onChange="this.form.er_floor.disabled = false; { (this.form.type[2].checked == true) }"
+						       <?%("COND:THISROOM:FLAG:QR", 7, #"QR_PASSWORDED & QR_PRIVATE", 1, 'checked="checked" ', "")>
+						       onChange="this.form.er_floor.disabled = false; { (this.form.type[2].checked == true) }"
 							/>
 						<?_("Private - require password: ")>
 						<input type="text" name="er_password" value="<?THISROOM:PASS("U")>" maxlength="9" />
 					</li>
 					<li>
 						<input type="radio" name="type" value="invonly" 
- 							<??("COND:THISROOM:FLAG:QR", 8, #"QR_PRIVATE")>
-								 <??("COND:THISROOM:FLAG:QR", 9, #"QR_GUESSNAME")>
-							                <?%("COND:THISROOM:FLAG:QR", 10, #"QR_PASSWORDED", 1, 'checked="checked" ', "")>
-								<??("X", 9)>
-							<??("X", 8)>
-                         			onChange="if (this.form.type[3].checked == true) { this.form.er_floor.disabled = false; }" />
+						       <?%("COND:THISROOM:FLAG:QR", 10, #"QR_PASSWORDED & QR_PRIVATE & QR_GUESSNAME", 1, 'checked="checked" ', "")>
+						       onChange="if (this.form.type[3].checked == true) { this.form.er_floor.disabled = false; }" />
 						<?_("Private - invitation only")>            
 					</li>
 					<li>
 						<input type="radio" name="type" value="personal" 
-                        				<?%("COND:THISROOM:FLAG:QR", 11, #"QR_MAILBOX", 1, 'checked="checked" ', "")>
-							onChange="if (this.form.type[4].checked == true) { this.form.er_floor.disabled = true; }"
+                        			       <?%("COND:THISROOM:FLAG:QR", 11, #"QR_MAILBOX", 1, 'checked="checked" ', "")>
+						       onChange="if (this.form.type[4].checked == true) { this.form.er_floor.disabled = true; }"
 							/>
                         			<?_("Personal (mailbox for you only)")>
 					</li>

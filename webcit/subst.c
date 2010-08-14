@@ -1303,8 +1303,81 @@ int GetNextParameter(StrBuf *Buf,
 		
 			Parm->lvalue = *PVal;
 		}
-		else 
+		else if (strchr(Parm->Start, '|') != NULL)
 		{
+			const char *Pos;
+			StrBuf *pToken;
+			StrBuf *Match;
+
+			Parm->MaskBy = eOR;
+			pToken = NewStrBufPlain (Parm->Start, Parm->len);
+			Match = NewStrBufPlain (NULL, Parm->len);
+			Pos = ChrPtr(pToken);
+			
+			while ((Pos != NULL) && (Pos != StrBufNOTNULL))
+			{
+				StrBufExtract_NextToken(Match, pToken, &Pos, '|');
+				StrBufTrim(Match);
+				if (StrLength (Match) > 0)
+				{
+					if (GetHash(Defines, SKEY(Match), &vPVal) &&
+					    (vPVal != NULL))
+					{
+						long *PVal;
+						PVal = (long*) vPVal;
+						
+						Parm->lvalue |= *PVal;
+					}
+					else {
+						LogTemplateError(NULL, "Define", 
+								 Tokens->nParameters,
+								 TP,
+								 "%s isn't known!!",
+								 ChrPtr(Match));
+
+					}
+				}
+			}
+		}
+		else if (strchr(Parm->Start, '&') != NULL)
+		{
+			const char *Pos;
+			StrBuf *pToken;
+			StrBuf *Match;
+
+			Parm->MaskBy = eAND;
+			pToken = NewStrBufPlain (Parm->Start, Parm->len);
+			Match = NewStrBufPlain (NULL, Parm->len);
+			Pos = ChrPtr(pToken);
+			
+			while ((Pos != NULL) && (Pos != StrBufNOTNULL))
+			{
+				StrBufExtract_NextToken(Match, pToken, &Pos, '&');
+				StrBufTrim(Match);
+				if (StrLength (Match) > 0)
+				{
+					if (GetHash(Defines, SKEY(Match), &vPVal) &&
+					    (vPVal != NULL))
+					{
+						long *PVal;
+						PVal = (long*) vPVal;
+						
+						Parm->lvalue |= *PVal;
+					}
+					else {
+						LogTemplateError(NULL, "Define", 
+								 Tokens->nParameters,
+								 TP,
+								 "%s isn't known!!",
+								 ChrPtr(Match));
+
+					}
+				}
+			}
+		}
+		else {
+
+
 			LogTemplateError(NULL, "Define", 
 					 Tokens->nParameters,
 					 TP,
