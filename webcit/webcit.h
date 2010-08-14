@@ -807,7 +807,7 @@ long unescape_input(char *buf);
 void check_thread_pool_size(void);
 void spawn_another_worker_thread(void);
 void StrEndTab(StrBuf *Target, int tabnum, int num_tabs);
-void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs);
+void StrBeginTab(StrBuf *Target, int tabnum, int num_tabs, StrBuf **Names);
 void StrTabbedDialog(StrBuf *Target, int num_tabs, StrBuf *tabnames[]);
 void tabbed_dialog(int num_tabs, char *tabnames[]);
 void begin_tab(int tabnum, int num_tabs);
