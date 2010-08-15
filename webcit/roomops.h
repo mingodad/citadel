@@ -56,13 +56,8 @@ struct __ofolder {
  */
 typedef struct _folder {
 	/* Data citserver tells us about the room */
-	StrBuf *name;	/* the full name of the room we're talking about */
 	long QRFlags;    /* roomflags */
-	int floorid;      /* which floor is it on */
-
-	long listorder; /* todo */
 	long QRFlags2;    /* Bitbucket NO2 */
-
 	long RAFlags;
 
 	int view;       /* whats its default view? inbox/calendar.... */
@@ -70,9 +65,11 @@ typedef struct _folder {
 	long lastchange; /* todo... */
 
 	/* later evaluated data from the serverdata */
+	StrBuf *name;	/* the full name of the room we're talking about */
 	long nRoomNameParts;
 	StrBuf **RoomNameParts;
 
+	int floorid;      /* which floor is it on */
 	const Floor *Floor;   /* point to the floor we're on.. */
 
 	int hasnewmsgs;	/* are there unread messages inside */
@@ -81,14 +78,11 @@ typedef struct _folder {
 	int RoomAideLoaded;
 	StrBuf *RoomAide;
 
+/* only available if GETR was run */
 	int XALoaded;
 	StrBuf *XAPass;
 	StrBuf *Directory;
 	long Order;
-
-	int selectable;	/* can we select it ??? */
-	long num_rooms;	/* If this is a floor, how many rooms does it have */
-
 
 /* Only available from the GOTO context... */
 	long nNewMessages;
@@ -98,7 +92,7 @@ typedef struct _folder {
 	int ShowInfo;
 	int UsersNewMAilboxMessages; /* should we notify the user about new messages? */
 	int IsTrash;
-
+/* Only available if certain other commands ran */
 	int XHaveRoomPic;
 	int XHaveRoomPicLoaded;
 
@@ -107,9 +101,10 @@ typedef struct _folder {
 
 	int XHaveDownloadCount;
 	int XDownloadCount;
+	
+	int BumpUsers; /* if SETR set to 1 to make all users who knew this room to forget about it. */
 
 	HashList *IgnetCfgs[maxRoomNetCfg];
-
 }folder;
 
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
@@ -117,6 +112,7 @@ void vDeleteFolder(void *vFolder);
 void FlushFolder(folder *room);
 void ParseGoto(folder *proom, StrBuf *Line);
 void FlushRoomlist(void); /* release our caches, so a deleted / zapped room disapears */
+void ReloadCurrentRoom(void); /* Flush cache; reload current state */
 
 /*
  * wrapper around usual sort-comparator; private rooms will allways be prefered, -1 if one of them NULL

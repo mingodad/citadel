@@ -556,10 +556,8 @@ struct wcsession {
 	char last_chat_user[256];
 
 /* Iconbar controls */
-	struct __ofolder *cache_fold;		/* cache the iconbar room list */
 	int cache_max_folders;
 	int cache_num_floors;
-	time_t cache_timestamp;
 	long *IBSettingsVec;                    /* which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/* which floordiv currently expanded */
 
@@ -774,7 +772,6 @@ void CtdlMakeTempFileName(char *, int);
 void address_book_popup(void);
 void begin_ajax_response(void);
 void end_ajax_response(void);
-void burn_folder_cache(time_t age);
 
 void display_edit_task(void);
 void display_edit_event(void);

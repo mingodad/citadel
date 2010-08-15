@@ -214,7 +214,7 @@ HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 
 				room->QRFlags = StrBufExtractNext_long(Buf, &Pos, '|');
 				room->floorid = StrBufExtractNext_int(Buf, &Pos, '|');
-				room->listorder = StrBufExtractNext_long(Buf, &Pos, '|');
+				room->Order = StrBufExtractNext_long(Buf, &Pos, '|');
 				room->QRFlags2 = StrBufExtractNext_long(Buf, &Pos, '|');
 
 				room->RAFlags = StrBufExtractNext_long(Buf, &Pos, '|');
@@ -348,8 +348,8 @@ int SortRoomsByListOrder(const void *room1, const void *room2)
 	folder *r1 = (folder*) GetSearchPayload(room1);
 	folder *r2 = (folder*) GetSearchPayload(room2);
   
-	if (r1->listorder == r2->listorder) return 0;
-	if (r1->listorder > r2->listorder) return 1;
+	if (r1->Order == r2->Order) return 0;
+	if (r1->Order > r2->Order) return 1;
 	return -1;
 }
 
@@ -607,7 +607,7 @@ void tmplput_ROOM_FLOORID(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_ROOM_LISTORDER(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
-	StrBufAppendPrintf(Target, "%d", Folder->listorder);
+	StrBufAppendPrintf(Target, "%d", Folder->Order);
 }
 void tmplput_ROOM_VIEW(StrBuf *Target, WCTemplputParams *TP) 
 {

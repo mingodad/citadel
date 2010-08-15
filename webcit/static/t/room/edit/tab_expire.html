@@ -13,13 +13,13 @@
 					<input type="radio" name="roompolicy" value="0" <?%("COND:EXPIRE:MODE", 1, #"roompolicy", #"EXPIRE_NEXTLEVEL" , 'checked="checked"',"")>/>&nbsp;
 					<?_("Use the default policy for this floor")>&nbsp;
 					<br />
-					<input type="radio" name="roompolicy" value="1" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_MANUAL", 'checked="checked"',"")> />&nbsp;
+					<input type="radio" name="roompolicy" value="1" <?%("COND:EXPIRE:MODE", 1, #"roompolicy", #"EXPIRE_MANUAL", 'checked="checked"',"")> />&nbsp;
 					<?_("Never automatically expire messages")>
 					<br />
-					<input type="radio" name="roompolicy" value="2" <?%("COND:EXPIRE:MODE", 2, #"mailboxespolicy", #"EXPIRE_NUMMSGS", 'checked="checked"', "")> />&nbsp;
+					<input type="radio" name="roompolicy" value="2" <?%("COND:EXPIRE:MODE", 2, #"roompolicy", #"EXPIRE_NUMMSGS", 'checked="checked"', "")> />&nbsp;
 					<?_("Expire by message count")>
 					<br />
-					<input type="radio" name="roompolicy" value="3" <?%("COND:EXPIRE:MODE", 1, #"mailboxespolicy", #"EXPIRE_AGE", 'checked="checked"', "")> />&nbsp;
+					<input type="radio" name="roompolicy" value="3" <?%("COND:EXPIRE:MODE", 1, #"roompolicy", #"EXPIRE_AGE", 'checked="checked"', "")> />&nbsp;
 					<?_("Expire by message age")>
 					<br />
 					<?_("Number of messages or days: ")>
