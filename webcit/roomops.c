@@ -5,17 +5,6 @@
 
 #include "webcit.h"
 #include "webserver.h"
-#define MAX_FLOORS 128
-
-char floorlist[MAX_FLOORS][SIZ];	/* list of our floor names */
-
-/* See GetFloorListHash and GetRoomListHash for info on these.
- * Basically we pull LFLR/LKRA etc. and set up a room HashList with these keys.
- */
-
-void display_whok(void);
-int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP);
-
 
 char *viewdefs[VIEW_MAX];			/* the different kinds of available views */
 
@@ -63,35 +52,84 @@ void initialize_viewdefs(void) {
 	viewdefs[VIEW_BLOG] = _("Blog");
 }
 
+ConstStr QRFlagList[] = {
+	{HKEY(strof(QR_PERMANENT))},
+	{HKEY(strof(QR_INUSE))},
+	{HKEY(strof(QR_PRIVATE))},
+	{HKEY(strof(QR_PASSWORDED))},
+	{HKEY(strof(QR_GUESSNAME))},
+	{HKEY(strof(QR_DIRECTORY))},
+	{HKEY(strof(QR_UPLOAD))},
+	{HKEY(strof(QR_DOWNLOAD))},
+	{HKEY(strof(QR_VISDIR))},
+	{HKEY(strof(QR_ANONONLY))},
+	{HKEY(strof(QR_ANONOPT))},
+	{HKEY(strof(QR_NETWORK))},
+	{HKEY(strof(QR_PREFONLY))},
+	{HKEY(strof(QR_READONLY))},
+	{HKEY(strof(QR_MAILBOX))}
+};
+ConstStr QR2FlagList[] = {
+	{HKEY(strof(QR2_SYSTEM))},
+	{HKEY(strof(QR2_SELFLIST))},
+	{HKEY(strof(QR2_COLLABDEL))},
+	{HKEY(strof(QR2_SUBJECTREQ))},
+	{HKEY(strof(QR2_SMTP_PUBLIC))},
+	{HKEY(strof(QR2_MODERATED))},
+	{HKEY("")}, 
+	{HKEY("")}, 
+	{HKEY("")}, 
+	{HKEY("")}, 
+	{HKEY("")}, 
+	{HKEY("")}, 
+	{HKEY("")}, 
+	{HKEY("")}, 
+	{HKEY("")}
+};
 
-
-/*
- * load the list of floors
- * /
-void load_floorlist(StrBuf *Buf)
+void DBG_QR(long QR)
 {
-	int a;
-	int Done = 0;
+	int i = 1;
+	int j=0;
+	StrBuf *QRVec;
 
-	for (a = 0; a < MAX_FLOORS; ++a)
-		floorlist[a][0] = 0;
-
-	serv_puts("LFLR");
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 1) {
-		strcpy(floorlist[0], "Main Floor");
-		return;
-	}
-	while (!Done && (StrBuf_ServGetln(Buf)>=0)) {
-		if ( (StrLength(Buf)==3) && 
-		     !strcmp(ChrPtr(Buf), "000")) {
-			Done = 1;
-			break;
+	QRVec = NewStrBufPlain(NULL, 256);
+	while (i != 0)
+	{
+		if ((QR & i) != 0) {
+			if (StrLength(QRVec) > 0)
+				StrBufAppendBufPlain(QRVec, HKEY(" | "), 0);
+			StrBufAppendBufPlain(QRVec, CKEY(QRFlagList[j]), 0);
 		}
-		extract_token(floorlist[StrBufExtract_int(Buf, 0, '|')], ChrPtr(Buf), 1, '|', sizeof floorlist[0]);
+		i = i << 1;
+		j++;
 	}
+	lprintf(9, "DBG: QR-Vec [%ld] [%s]\n", QR, ChrPtr(QRVec));
+	FreeStrBuf(&QRVec);
 }
-*/
+
+
+
+void DBG_QR2(long QR2)
+{
+	int i = 1;
+	int j=0;
+	StrBuf *QR2Vec;
+
+	QR2Vec = NewStrBufPlain(NULL, 256);
+	while (i != 0)
+	{
+		if ((QR2 & i) != 0) {
+			if (StrLength(QR2Vec) > 0)
+				StrBufAppendBufPlain(QR2Vec, HKEY(" | "), 0);
+			StrBufAppendBufPlain(QR2Vec, CKEY(QR2FlagList[j]), 0);
+		}
+		i = i << 1;
+		j++;
+	}
+	lprintf(9, "DBG: QR2-Vec [%ld] [%s]\n", QR2, ChrPtr(QR2Vec));
+	FreeStrBuf(&QR2Vec);
+}
 
 
 /*
@@ -438,84 +476,6 @@ long gotoroom(const StrBuf *gname)
 	return err;
 }
 
-void DBG_QR(long QR)
-{
-	const char *QRFlagList[15] = {
-		strof(QR_PERMANENT),
-		strof(QR_INUSE),
-		strof(QR_PRIVATE),
-		strof(QR_PASSWORDED),
-		strof(QR_GUESSNAME),
-		strof(QR_DIRECTORY),
-		strof(QR_UPLOAD),
-		strof(QR_DOWNLOAD),
-		strof(QR_VISDIR),
-		strof(QR_ANONONLY),
-		strof(QR_ANONOPT),
-		strof(QR_NETWORK),
-		strof(QR_PREFONLY),
-		strof(QR_READONLY),
-		strof(QR_MAILBOX)
-	};
-	int i = 1;
-	int j=0;
-	StrBuf *QRVec;
-
-	QRVec = NewStrBufPlain(NULL, 256);
-	while (i != 0)
-	{
-		if ((QR & i) != 0) {
-			if (StrLength(QRVec) > 0)
-				StrBufAppendBufPlain(QRVec, HKEY(" | "), 0);
-			StrBufAppendBufPlain(QRVec, QRFlagList[j], -1, 0);
-		}
-		i = i << 1;
-		j++;
-	}
-	lprintf(9, "DBG: QR-Vec [%ld] [%s]\n", QR, ChrPtr(QRVec));
-	FreeStrBuf(&QRVec);
-}
-
-
-
-void DBG_QR2(long QR2)
-{
-	const char *QR2FlagList[15] = {
-		strof(QR2_SYSTEM),
-		strof(QR2_SELFLIST),
-		strof(QR2_COLLABDEL),
-		strof(QR2_SUBJECTREQ),
-		strof(QR2_SMTP_PUBLIC),
-		strof(QR2_MODERATED),
-		"", 
-		"", 
-		"", 
-		"", 
-		"", 
-		"", 
-		"", 
-		"", 
-		""
-	};
-	int i = 1;
-	int j=0;
-	StrBuf *QR2Vec;
-
-	QR2Vec = NewStrBufPlain(NULL, 256);
-	while (i != 0)
-	{
-		if ((QR2 & i) != 0) {
-			if (StrLength(QR2Vec) > 0)
-				StrBufAppendBufPlain(QR2Vec, HKEY(" | "), 0);
-			StrBufAppendBufPlain(QR2Vec, QR2FlagList[j], -1, 0);
-		}
-		i = i << 1;
-		j++;
-	}
-	lprintf(9, "DBG: QR2-Vec [%ld] [%s]\n", QR2, ChrPtr(QR2Vec));
-	FreeStrBuf(&QR2Vec);
-}
-
 
 
 void ParseGoto(folder *room, StrBuf *Line)
@@ -655,12 +615,33 @@ void LoadRoomAide(void)
 	}
 	FreeStrBuf (&Buf);
 }
+
+int SaveRoomAide(folder *Room)
+{
+	StrBuf *Buf;
+	Buf = NewStrBuf ();
+	serv_printf("SETA %s", ChrPtr(Room->RoomAide));
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		StrBufCutLeft(Buf, 4);
+		AppendImportantMessage (SKEY(Buf));
+		FreeStrBuf(&Buf);
+		return 0;
+	}
+	FreeStrBuf(&Buf);
+	return 1;
+}
+
 void tmplput_CurrentRoomFloorName(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
 	folder *Folder = &WCC->CurRoom;
-	const Floor *pFloor = Folder->Floor;
+	const Floor *pFloor;
 
+	if (Folder == NULL)
+		return;
+
+	pFloor = Folder->Floor;
 	if (pFloor == NULL)
 		return;
 
@@ -676,46 +657,86 @@ void tmplput_CurrentRoomAide(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, WCC->CurRoom.RoomAide, 0);
 }
 
-
-void LoadRoomXA (void)
+int GetCurrentRoomFlags(folder *Room)
 {
-	wcsession *WCC = WC;
 	StrBuf *Buf;
-	
-	if (WCC->CurRoom.XALoaded)
-		return;
 
-	WCC->CurRoom.XALoaded = 1;
 	Buf = NewStrBuf();
 	serv_puts("GETR");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) != 2) {
-		FlushStrBuf(WCC->CurRoom.XAPass);
-		FlushStrBuf(WCC->CurRoom.Directory);
-
-		AppendImportantMessage (ChrPtr(Buf) + 4, 
-					StrLength(Buf) - 4);
+		FlushStrBuf(Room->XAPass);
+		FlushStrBuf(Room->Directory);
+		StrBufCutLeft(Buf, 4);
+		AppendImportantMessage (SKEY(Buf));
+		FreeStrBuf(&Buf);
+		return 0;
 	} else {
 		const char *Pos;
 
 		Pos = ChrPtr(Buf) + 4;
 
-		FreeStrBuf(&WCC->CurRoom.XAPass);
-		FreeStrBuf(&WCC->CurRoom.Directory);
+		FreeStrBuf(&Room->XAPass);
+		FreeStrBuf(&Room->Directory);
 
-		WCC->CurRoom.XAPass = NewStrBufPlain (NULL, StrLength (Buf));
-		WCC->CurRoom.Directory = NewStrBufPlain (NULL, StrLength (Buf));
+		Room->XAPass = NewStrBufPlain (NULL, StrLength (Buf));
+		Room->Directory = NewStrBufPlain (NULL, StrLength (Buf));
 
-		StrBufSkip_NTokenS(Buf, &Pos, '|', 1); /* The Name, we already know... */
-		StrBufExtract_NextToken(WCC->CurRoom.XAPass, Buf, &Pos, '|'); 
-		StrBufExtract_NextToken(WCC->CurRoom.Directory, Buf, &Pos, '|'); 
-		StrBufSkip_NTokenS(Buf, &Pos, '|', 2); /* QRFlags, FloorNum we already know... */
-		WCC->CurRoom.Order = StrBufExtractNext_long(Buf, &Pos, '|');
-		/* defview, we already know you. */
-		/* QR2Flags, we already know them... */
-
+		FreeStrBuf(&Room->name);
+		Room->name = NewStrBufPlain(NULL, StrLength(Buf));
+		StrBufExtract_NextToken(Room->name, Buf, &Pos, '|'); 
+					
+		StrBufExtract_NextToken(Room->XAPass, Buf, &Pos, '|'); 
+		StrBufExtract_NextToken(Room->Directory, Buf, &Pos, '|'); 
+		
+		Room->QRFlags = StrBufExtractNext_long(Buf, &Pos, '|');
+		Room->floorid = StrBufExtractNext_long(Buf, &Pos, '|');
+		Room->Order = StrBufExtractNext_long(Buf, &Pos, '|');
+		Room->defview = StrBufExtractNext_long(Buf, &Pos, '|');
+		Room->QRFlags2 = StrBufExtractNext_long(Buf, &Pos, '|');
+		FreeStrBuf (&Buf);
+		Room->XALoaded = 1;
+		return 1;
 	}
-	FreeStrBuf (&Buf);
+}
+
+
+int SetCurrentRoomFlags(folder *Room)
+{
+	StrBuf *Buf;
+
+	Buf = NewStrBuf();
+	serv_printf("SETR %s|%s|%s|%ld|%d|%d|%ld|%ld|%ld",
+		    ChrPtr(Room->name),
+		    ChrPtr(Room->XAPass),
+		    ChrPtr(Room->Directory),
+		    Room->QRFlags, 
+		    Room->BumpUsers,
+		    Room->floorid, 
+		    Room->Order,
+		    Room->defview,
+		    Room->QRFlags2);
+
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) != 2) {
+		StrBufCutLeft(Buf, 4);
+		AppendImportantMessage (SKEY(Buf));
+		FreeStrBuf(&Buf);
+		return 0;
+	} else {
+		FreeStrBuf(&Buf);
+		return 1;
+	}
+}
+
+void LoadRoomXA (void)
+{
+	wcsession *WCC = WC;
+		
+	if (WCC->CurRoom.XALoaded)
+		return;
+
+	GetCurrentRoomFlags(&WCC->CurRoom);
 }
 
 
@@ -1042,19 +1063,6 @@ void slrp_highest(void)
 }
 
 
-typedef struct __room_states {
-	char password[SIZ];
-	char dirname[SIZ];
-	char name[SIZ];
-	int flags;
-	int floor;
-	int order;
-	int view;
-	int flags2;
-} room_states;
-
-
-
 
 /*
  * Set/clear/read the "self-service list subscribe" flag for a room
@@ -1065,27 +1073,14 @@ typedef struct __room_states {
 
 int self_service(int newval) {
 	int current_value = 0;
-	char buf[SIZ];
-	
-	char name[SIZ];
-	char password[SIZ];
-	char dirname[SIZ];
-        int flags, floor, order, view, flags2;
+	wcsession *WCC = WC;
 
-	serv_puts("GETR");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') return(0);
+	if (GetCurrentRoomFlags (&WCC->CurRoom) == 0)
+	{
+		return 0;
+	}
 
-	extract_token(name, &buf[4], 0, '|', sizeof name);
-	extract_token(password, &buf[4], 1, '|', sizeof password);
-	extract_token(dirname, &buf[4], 2, '|', sizeof dirname);
-	flags = extract_int(&buf[4], 3);
-	floor = extract_int(&buf[4], 4);
-	order = extract_int(&buf[4], 5);
-	view = extract_int(&buf[4], 6);
-	flags2 = extract_int(&buf[4], 7);
-
-	if (flags2 & QR2_SELFLIST) {
+	if ((WCC->CurRoom.QRFlags2 & QR2_SELFLIST) != 0) {
 		current_value = 1;
 	}
 	else {
@@ -1093,1067 +1088,54 @@ int self_service(int newval) {
 	}
 
 	if (newval == 1) {
-		flags2 = flags2 | QR2_SELFLIST;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 | QR2_SELFLIST;
 	}
 	else if (newval == 0) {
-		flags2 = flags2 & ~QR2_SELFLIST;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 & ~QR2_SELFLIST;
 	}
 	else {
 		return(current_value);
 	}
 
 	if (newval != current_value) {
-		serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
-			    name, password, dirname, flags,
-			    floor, order, view, flags2);
-		serv_getln(buf, sizeof buf);
+		SetCurrentRoomFlags(&WCC->CurRoom);
 	}
 
-	FlushRoomlist ();
 	return(newval);
 
 }
 
-int is_selflist(room_states *RoomFlags)
-{
-	return ((RoomFlags->flags2 & QR2_SELFLIST) != 0);
-}
-
-int is_publiclist(room_states *RoomFlags)
-{
-	return ((RoomFlags->flags2 & QR2_SMTP_PUBLIC) != 0);
-}
-
-int is_moderatedlist(room_states *RoomFlags)
-{
-	return ((RoomFlags->flags2 & QR2_MODERATED) != 0);
-}
-
-/*
- * Set/clear/read the "self-service list subscribe" flag for a room
- * 
- * set newval to 0 to clear, 1 to set, any other value to leave unchanged.
- * returns the new value.
- */
-
-int get_roomflags(room_states *RoomOps) 
-{
-	char buf[SIZ];
-	
-	serv_puts("GETR");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '2') return(0);
-
-	extract_token(RoomOps->name, &buf[4], 0, '|', sizeof RoomOps->name);
-	extract_token(RoomOps->password, &buf[4], 1, '|', sizeof RoomOps->password);
-	extract_token(RoomOps->dirname, &buf[4], 2, '|', sizeof RoomOps->dirname);
-	RoomOps->flags = extract_int(&buf[4], 3);
-	RoomOps->floor = extract_int(&buf[4], 4);
-	RoomOps->order = extract_int(&buf[4], 5);
-	RoomOps->view = extract_int(&buf[4], 6);
-	RoomOps->flags2 = extract_int(&buf[4], 7);
-	return (1);
-}
-
-int set_roomflags(room_states *RoomOps)
-{
-	char buf[SIZ];
-
-	serv_printf("SETR %s|%s|%s|%d|0|%d|%d|%d|%d",
-		    RoomOps->name, 
-		    RoomOps->password, 
-		    RoomOps->dirname, 
-		    RoomOps->flags,
-		    RoomOps->floor, 
-		    RoomOps->order, 
-		    RoomOps->view, 
-		    RoomOps->flags2);
-	serv_getln(buf, sizeof buf);
-	FlushRoomlist ();
-
-	return (1);
-}
-
-
-
-
-
-
-/*
- * display the form for editing a room
- */
-void display_editroom(void)
-{
-	char buf[SIZ];
-	char cmd[1024];
-	char node[256];
-	char remote_room[128];
-	char recp[1024];
-	char er_name[128];
-	char er_password[10];
-	char er_dirname[15];
-	char er_roomaide[26];
-	unsigned er_flags;
-	unsigned er_flags2;
-	int er_floor;
-	int i, j;
-	char *tab;
-	char *shared_with;
-	char *not_shared_with = NULL;
-	int roompolicy = 0;
-	int roomvalue = 0;
-	int floorpolicy = 0;
-	int floorvalue = 0;
-	char pop3_host[128];
-	char pop3_user[32];
-	int bg = 0;
-
-	tab = bstr("tab");
-	if (IsEmptyStr(tab)) tab = "admin";
-
-//	Buf = NewStrBuf();
-//	load_floorlist(Buf);
-//	FreeStrBuf(&Buf);
-	output_headers(1, 1, 1, 0, 0, 0);
-
-	wc_printf("<div class=\"fix_scrollbar_bug\">");
-
-	wc_printf("<br />\n");
-
-	/* print the tabbed dialog */
-	wc_printf("<div align=\"center\">");
-	wc_printf("<table id=\"AdminTabs\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
-		"<tr align=\"center\" style=\"cursor:pointer\"><td>&nbsp;</td>"
-		);
-
-	wc_printf("<td class=\"");
-	if (!strcmp(tab, "admin")) {
-		wc_printf(" tab_cell_label\">");
-		wc_printf(_("Administration"));
-	}
-	else {
-		wc_printf("< tab_cell_edit\"><a href=\"display_editroom?tab=admin\">");
-		wc_printf(_("Administration"));
-		wc_printf("</a>");
-	}
-	wc_printf("</td>\n");
-	wc_printf("<td>&nbsp;</td>\n");
-
-	if ( ConditionalHaveRoomeditRights(NULL, NULL)) {
-
-		wc_printf("<td class=\"");
-		if (!strcmp(tab, "config")) {
-			wc_printf(" tab_cell_label\">");
-			wc_printf(_("Configuration"));
-		}
-		else {
-			wc_printf(" tab_cell_edit\"><a href=\"display_editroom?tab=config\">");
-			wc_printf(_("Configuration"));
-			wc_printf("</a>");
-		}
-		wc_printf("</td>\n");
-		wc_printf("<td>&nbsp;</td>\n");
-
-		wc_printf("<td class=\"");
-		if (!strcmp(tab, "expire")) {
-			wc_printf(" tab_cell_label\">");
-			wc_printf(_("Message expire policy"));
-		}
-		else {
-			wc_printf(" tab_cell_edit\"><a href=\"display_editroom?tab=expire\">");
-			wc_printf(_("Message expire policy"));
-			wc_printf("</a>");
-		}
-		wc_printf("</td>\n");
-		wc_printf("<td>&nbsp;</td>\n");
-	
-		wc_printf("<td class=\"");
-		if (!strcmp(tab, "access")) {
-			wc_printf(" tab_cell_label\">");
-			wc_printf(_("Access controls"));
-		}
-		else {
-			wc_printf(" tab_cell_edit\"><a href=\"display_editroom?tab=access\">");
-			wc_printf(_("Access controls"));
-			wc_printf("</a>");
-		}
-		wc_printf("</td>\n");
-		wc_printf("<td>&nbsp;</td>\n");
-
-		wc_printf("<td class=\"");
-		if (!strcmp(tab, "sharing")) {
-			wc_printf(" tab_cell_label\">");
-			wc_printf(_("Sharing"));
-		}
-		else {
-			wc_printf(" tab_cell_edit\"><a href=\"display_editroom?tab=sharing\">");
-			wc_printf(_("Sharing"));
-			wc_printf("</a>");
-		}
-		wc_printf("</td>\n");
-		wc_printf("<td>&nbsp;</td>\n");
-
-		wc_printf("<td class=\"");
-		if (!strcmp(tab, "listserv")) {
-			wc_printf(" tab_cell_label\">");
-			wc_printf(_("Mailing list service"));
-		}
-		else {
-			wc_printf("< tab_cell_edit\"><a href=\"display_editroom?tab=listserv\">");
-			wc_printf(_("Mailing list service"));
-			wc_printf("</a>");
-		}
-		wc_printf("</td>\n");
-		wc_printf("<td>&nbsp;</td>\n");
-
-	}
-
-	wc_printf("<td class=\"");
-	if (!strcmp(tab, "feeds")) {
-		wc_printf(" tab_cell_label\">");
-		wc_printf(_("Remote retrieval"));
-	}
-	else {
-		wc_printf("< tab_cell_edit\"><a href=\"display_editroom?tab=feeds\">");
-		wc_printf(_("Remote retrieval"));
-		wc_printf("</a>");
-	}
-	wc_printf("</td>\n");
-	wc_printf("<td>&nbsp;</td>\n");
-
-	wc_printf("</tr></table>\n");
-	wc_printf("</div>\n");
-	/* end tabbed dialog */	
-
-	wc_printf("<script type=\"text/javascript\">"
-		" Nifty(\"table#AdminTabs td\", \"small transparent top\");"
-		"</script>"
-		);
-
-	/* begin content of whatever tab is open now */
-
-	if (!strcmp(tab, "admin")) {
-		wc_printf("<div class=\"tabcontent\">");
-		wc_printf("<ul>"
-			"<li><a href=\"delete_room\" "
-			"onClick=\"return confirm('");
-		wc_printf(_("Are you sure you want to delete this room?"));
-		wc_printf("');\">\n");
-		wc_printf(_("Delete this room"));
-		wc_printf("</a>\n"
-			"<li><a href=\"display_editroompic?which_room=");
-		urlescputs(ChrPtr(WC->CurRoom.name));
-		wc_printf("\">\n");
-		wc_printf(_("Set or change the icon for this room's banner"));
-		wc_printf("</a>\n"
-			"<li><a href=\"display_editinfo\">\n");
-		wc_printf(_("Edit this room's Info file"));
-		wc_printf("</a>\n"
-			"</ul>");
-		wc_printf("</div>");
-	}
-
-	if (!strcmp(tab, "config")) {
-		wc_printf("<div class=\"tabcontent\">");
-		serv_puts("GETR");
-		serv_getln(buf, sizeof buf);
-
-		if (!strncmp(buf, "550", 3)) {
-			wc_printf("<br><br><div align=center>%s</div><br><br>\n",
-				_("Higher access is required to access this function.")
-				);
-		}
-		else if (buf[0] != '2') {
-			wc_printf("<br><br><div align=center>%s</div><br><br>\n", &buf[4]);
-		}
-		else {
-			extract_token(er_name, &buf[4], 0, '|', sizeof er_name);
-			extract_token(er_password, &buf[4], 1, '|', sizeof er_password);
-			extract_token(er_dirname, &buf[4], 2, '|', sizeof er_dirname);
-			er_flags = extract_int(&buf[4], 3);
-			er_floor = extract_int(&buf[4], 4);
-			er_flags2 = extract_int(&buf[4], 7);
-	
-			wc_printf("<form method=\"POST\" action=\"editroom\">\n");
-			wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-		
-			wc_printf("<ul><li>");
-			wc_printf(_("Name of room: "));
-			wc_printf("<input type=\"text\" NAME=\"er_name\" VALUE=\"%s\" MAXLENGTH=\""ULONG_FMT"\">\n",
-				er_name,
-				(sizeof(er_name)-1)
-				);
-		
-			wc_printf("<li>");
-			wc_printf(_("Resides on floor: "));
-			wc_printf("<select NAME=\"er_floor\" SIZE=\"1\"");
-			if (er_flags & QR_MAILBOX)
-				wc_printf("disabled >\n");
-			for (i = 0; i < 128; ++i)
-				if (!IsEmptyStr(floorlist[i])) {
-					wc_printf("<OPTION ");
-					if (i == er_floor )
-						wc_printf("SELECTED ");
-					wc_printf("VALUE=\"%d\">", i);
-					escputs(floorlist[i]);
-					wc_printf("</OPTION>\n");
-				}
-			wc_printf("</select>\n");
-
-			wc_printf("<li>");
-			wc_printf(_("Type of room:"));
-			wc_printf("<ul>\n");
-	
-			wc_printf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"public\" ");
-			if ((er_flags & (QR_PRIVATE + QR_MAILBOX)) == 0)
-				wc_printf("CHECKED ");
-			wc_printf("OnChange=\""
-				"	if (this.form.type[0].checked == true) {	"
-				"		this.form.er_floor.disabled = false;	"
-				"	}						"
-				"\"> ");
-			wc_printf(_("Public (automatically appears to everyone)"));
-			wc_printf("\n");
-	
-			wc_printf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"hidden\" ");
-			if ((er_flags & QR_PRIVATE) &&
-			    (er_flags & QR_GUESSNAME))
-				wc_printf("CHECKED ");
-			wc_printf(" OnChange=\""
-				"	if (this.form.type[1].checked == true) {	"
-				"		this.form.er_floor.disabled = false;	"
-				"	}						"
-				"\"> ");
-			wc_printf(_("Private - hidden (accessible to anyone who knows its name)"));
-		
-			wc_printf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"passworded\" ");
-			if ((er_flags & QR_PRIVATE) &&
-			    (er_flags & QR_PASSWORDED))
-				wc_printf("CHECKED ");
-			wc_printf(" OnChange=\""
-				"	if (this.form.type[2].checked == true) {	"
-				"		this.form.er_floor.disabled = false;	"
-				"	}						"
-				"\"> ");
-			wc_printf(_("Private - require password: "));
-			wc_printf("\n<input type=\"text\" NAME=\"er_password\" VALUE=\"%s\" MAXLENGTH=\"9\">\n",
-				er_password);
-		
-			wc_printf("<li><input type=\"radio\" NAME=\"type\" VALUE=\"invonly\" ");
-			if ((er_flags & QR_PRIVATE)
-			    && ((er_flags & QR_GUESSNAME) == 0)
-			    && ((er_flags & QR_PASSWORDED) == 0))
-				wc_printf("CHECKED ");
-			wc_printf(" OnChange=\""
-				"	if (this.form.type[3].checked == true) {	"
-				"		this.form.er_floor.disabled = false;	"
-				"	}						"
-				"\"> ");
-			wc_printf(_("Private - invitation only"));
-		
-			wc_printf("\n<li><input type=\"radio\" NAME=\"type\" VALUE=\"personal\" ");
-			if (er_flags & QR_MAILBOX)
-				wc_printf("CHECKED ");
-			wc_printf (" OnChange=\""
-				 "	if (this.form.type[4].checked == true) {	"
-				 "		this.form.er_floor.disabled = true;	"
-				 "	}						"
-				 "\"> ");
-			wc_printf(_("Personal (mailbox for you only)"));
-			
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"bump\" VALUE=\"yes\" ");
-			wc_printf("> ");
-			wc_printf(_("If private, cause current users to forget room"));
-		
-			wc_printf("\n</ul>\n");
-		
-			wc_printf("<li><input type=\"checkbox\" NAME=\"prefonly\" VALUE=\"yes\" ");
-			if (er_flags & QR_PREFONLY)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Preferred users only"));
-		
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"readonly\" VALUE=\"yes\" ");
-			if (er_flags & QR_READONLY)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Read-only room"));
-		
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"collabdel\" VALUE=\"yes\" ");
-			if (er_flags2 & QR2_COLLABDEL)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("All users allowed to post may also delete messages"));
-		
-			/** directory stuff */
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"directory\" VALUE=\"yes\" ");
-			if (er_flags & QR_DIRECTORY)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("File directory room"));
-	
-			wc_printf("\n<ul><li>");
-			wc_printf(_("Directory name: "));
-			wc_printf("<input type=\"text\" NAME=\"er_dirname\" VALUE=\"%s\" MAXLENGTH=\"14\">\n",
-				er_dirname);
-	
-			wc_printf("<li><input type=\"checkbox\" NAME=\"ulallowed\" VALUE=\"yes\" ");
-			if (er_flags & QR_UPLOAD)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Uploading allowed"));
-		
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"dlallowed\" VALUE=\"yes\" ");
-			if (er_flags & QR_DOWNLOAD)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Downloading allowed"));
-		
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"visdir\" VALUE=\"yes\" ");
-			if (er_flags & QR_VISDIR)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Visible directory"));
-			wc_printf("</ul>\n");
-		
-			/** end of directory stuff */
-	
-			wc_printf("<li><input type=\"checkbox\" NAME=\"network\" VALUE=\"yes\" ");
-			if (er_flags & QR_NETWORK)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Network shared room"));
-	
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"permanent\" VALUE=\"yes\" ");
-			if (er_flags & QR_PERMANENT)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Permanent (does not auto-purge)"));
-	
-			wc_printf("\n<li><input type=\"checkbox\" NAME=\"subjectreq\" VALUE=\"yes\" ");
-			if (er_flags2 & QR2_SUBJECTREQ)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Subject Required (Force users to specify a message subject)"));
-	
-			/** start of anon options */
-		
-			wc_printf("\n<li>");
-			wc_printf(_("Anonymous messages"));
-			wc_printf("<ul>\n");
-		
-			wc_printf("<li><input type=\"radio\" NAME=\"anon\" VALUE=\"no\" ");
-			if (((er_flags & QR_ANONONLY) == 0)
-			    && ((er_flags & QR_ANONOPT) == 0))
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("No anonymous messages"));
-	
-			wc_printf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anononly\" ");
-			if (er_flags & QR_ANONONLY)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("All messages are anonymous"));
-		
-			wc_printf("\n<li><input type=\"radio\" NAME=\"anon\" VALUE=\"anon2\" ");
-			if (er_flags & QR_ANONOPT)
-				wc_printf("CHECKED ");
-			wc_printf("> ");
-			wc_printf(_("Prompt user when entering messages"));
-			wc_printf("</ul>\n");
-		
-			/* end of anon options */
-		
-			wc_printf("<li>");
-			wc_printf(_("Room aide: "));
-			serv_puts("GETA");
-			serv_getln(buf, sizeof buf);
-			if (buf[0] != '2') {
-				wc_printf("<em>%s</em>\n", &buf[4]);
-			} else {
-				extract_token(er_roomaide, &buf[4], 0, '|', sizeof er_roomaide);
-				wc_printf("<input type=\"text\" NAME=\"er_roomaide\" VALUE=\"%s\" MAXLENGTH=\"25\">\n", er_roomaide);
-			}
-		
-			wc_printf("</ul><CENTER>\n");
-			wc_printf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"config\">\n"
-				"<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">"
-				"&nbsp;"
-				"<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">"
-				"</CENTER>\n",
-				_("Save changes"),
-				_("Cancel")
-				);
-		}
-		wc_printf("</div>");
-	}
-
-
-	/* Sharing the room with other Citadel nodes... */
-	if (!strcmp(tab, "sharing")) {
-		wc_printf("<div class=\"tabcontent\">");
-
-		shared_with = strdup("");
-		not_shared_with = strdup("");
-
-		/** Learn the current configuration */
-		serv_puts("CONF getsys|application/x-citadel-ignet-config");
-		serv_getln(buf, sizeof buf);
-		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				extract_token(node, buf, 0, '|', sizeof node);
-				not_shared_with = realloc(not_shared_with,
-							  strlen(not_shared_with) + 32);
-				strcat(not_shared_with, node);
-				strcat(not_shared_with, "\n");
-			}
-
-		serv_puts("GNET");
-		serv_getln(buf, sizeof buf);
-		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				extract_token(cmd, buf, 0, '|', sizeof cmd);
-				extract_token(node, buf, 1, '|', sizeof node);
-				extract_token(remote_room, buf, 2, '|', sizeof remote_room);
-				if (!strcasecmp(cmd, "ignet_push_share")) {
-					shared_with = realloc(shared_with,
-							      strlen(shared_with) + 32);
-					strcat(shared_with, node);
-					if (!IsEmptyStr(remote_room)) {
-						strcat(shared_with, "|");
-						strcat(shared_with, remote_room);
-					}
-					strcat(shared_with, "\n");
-				}
-			}
-
-		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
-			extract_token(buf, shared_with, i, '\n', sizeof buf);
-			extract_token(node, buf, 0, '|', sizeof node);
-			for (j=0; j<num_tokens(not_shared_with, '\n'); ++j) {
-				extract_token(cmd, not_shared_with, j, '\n', sizeof cmd);
-				if (!strcasecmp(node, cmd)) {
-					remove_token(not_shared_with, j, '\n');
-				}
-			}
-		}
-
-		/* Display the stuff */
-		wc_printf("<CENTER><br />"
-			"<table border=1 cellpadding=5><tr>"
-			"<td><B><I>");
-		wc_printf(_("Shared with"));
-		wc_printf("</I></B></td>"
-			"<td><B><I>");
-		wc_printf(_("Not shared with"));
-		wc_printf("</I></B></td></tr>\n"
-			"<tr><td VALIGN=TOP>\n");
-
-		wc_printf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
-		wc_printf(_("Remote node name"));
-		wc_printf("</td><td>");
-		wc_printf(_("Remote room name"));
-		wc_printf("</td><td>");
-		wc_printf(_("Actions"));
-		wc_printf("</td></tr>\n");
-
-		for (i=0; i<num_tokens(shared_with, '\n'); ++i) {
-			extract_token(buf, shared_with, i, '\n', sizeof buf);
-			extract_token(node, buf, 0, '|', sizeof node);
-			extract_token(remote_room, buf, 1, '|', sizeof remote_room);
-			if (!IsEmptyStr(node)) {
-				wc_printf("<form method=\"POST\" action=\"netedit\">");
-				wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-				wc_printf("<tr><td>%s</td>\n", node);
-
-				wc_printf("<td>");
-				if (!IsEmptyStr(remote_room)) {
-					escputs(remote_room);
-				}
-				wc_printf("</td>");
-
-				wc_printf("<td>");
-		
-				wc_printf("<input type=\"hidden\" NAME=\"line\" "
-					"VALUE=\"ignet_push_share|");
-				urlescputs(node);
-				if (!IsEmptyStr(remote_room)) {
-					wc_printf("|");
-					urlescputs(remote_room);
-				}
-				wc_printf("\">");
-				wc_printf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"sharing\">\n");
-				wc_printf("<input type=\"hidden\" NAME=\"cmd\" VALUE=\"remove\">\n");
-				wc_printf("<input type=\"submit\" "
-					"NAME=\"unshare_button\" VALUE=\"%s\">", _("Unshare"));
-				wc_printf("</td></tr></form>\n");
-			}
-		}
-
-		wc_printf("</table>\n");
-		wc_printf("</td><td VALIGN=TOP>\n");
-		wc_printf("<table border=0 cellpadding=5><tr class=\"tab_cell\"><td>");
-		wc_printf(_("Remote node name"));
-		wc_printf("</td><td>");
-		wc_printf(_("Remote room name"));
-		wc_printf("</td><td>");
-		wc_printf(_("Actions"));
-		wc_printf("</td></tr>\n");
-
-		for (i=0; i<num_tokens(not_shared_with, '\n'); ++i) {
-			extract_token(node, not_shared_with, i, '\n', sizeof node);
-			if (!IsEmptyStr(node)) {
-				wc_printf("<form method=\"POST\" action=\"netedit\">");
-				wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-				wc_printf("<tr><td>");
-				escputs(node);
-				wc_printf("</td><td>"
-					"<input type=\"INPUT\" "
-					"NAME=\"suffix\" "
-					"MAXLENGTH=128>"
-					"</td><td>");
-				wc_printf("<input type=\"hidden\" "
-					"NAME=\"line\" "
-					"VALUE=\"ignet_push_share|");
-				urlescputs(node);
-				wc_printf("|\">");
-				wc_printf("<input type=\"hidden\" NAME=\"tab\" "
-					"VALUE=\"sharing\">\n");
-				wc_printf("<input type=\"hidden\" NAME=\"cmd\" "
-					"VALUE=\"add\">\n");
-				wc_printf("<input type=\"submit\" "
-					"NAME=\"add_button\" VALUE=\"%s\">", _("Share"));
-				wc_printf("</td></tr></form>\n");
-			}
-		}
-
-		wc_printf("</table>\n");
-		wc_printf("</td></tr>"
-			"</table></CENTER><br />\n"
-			"<I><B>%s</B><ul><li>", _("Notes:"));
-		wc_printf(_("When sharing a room, "
-			  "it must be shared from both ends.  Adding a node to "
-			  "the 'shared' list sends messages out, but in order to"
-			  " receive messages, the other nodes must be configured"
-			  " to send messages out to your system as well. "
-			  "<li>If the remote room name is blank, it is assumed "
-			  "that the room name is identical on the remote node."
-			  "<li>If the remote room name is different, the remote "
-			  "node must also configure the name of the room here."
-			  "</ul></I><br />\n"
-				));
-
-		wc_printf("</div>");
-	}
-
-	if (not_shared_with != NULL)
-		free (not_shared_with);
-
-	/* Mailing list management */
-	if (!strcmp(tab, "listserv")) {
-		room_states RoomFlags;
-		wc_printf("<div class=\"tabcontent\">");
-
-		wc_printf("<br /><center>"
-			"<table BORDER=0 WIDTH=100%% CELLPADDING=5>"
-			"<tr><td VALIGN=TOP>");
-
-		wc_printf(_("<i>The contents of this room are being "
-			  "mailed <b>as individual messages</b> "
-			  "to the following list recipients:"
-			  "</i><br /><br />\n"));
-
-		serv_puts("GNET");
-		serv_getln(buf, sizeof buf);
-		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				extract_token(cmd, buf, 0, '|', sizeof cmd);
-				if (!strcasecmp(cmd, "listrecp")) {
-					extract_token(recp, buf, 1, '|', sizeof recp);
-			
-					escputs(recp);
-					wc_printf(" <a href=\"netedit?cmd=remove?tab=listserv?line=listrecp|");
-					urlescputs(recp);
-					wc_printf("\">");
-					wc_printf(_("(remove)"));
-					wc_printf("</A><br />");
-				}
-			}
-		wc_printf("<br /><form method=\"POST\" action=\"netedit\">\n"
-			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
-			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"listrecp|\">\n");
-		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-		wc_printf("<input type=\"text\" id=\"add_as_listrecp\" NAME=\"line\">\n");
-		wc_printf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
-		wc_printf("</form>\n");
-
-		wc_printf("</td><td VALIGN=TOP>\n");
-		
-		wc_printf(_("<i>The contents of this room are being "
-			  "mailed <b>in digest form</b> "
-			  "to the following list recipients:"
-			  "</i><br /><br />\n"));
-
-		serv_puts("GNET");
-		serv_getln(buf, sizeof buf);
-		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				extract_token(cmd, buf, 0, '|', sizeof cmd);
-				if (!strcasecmp(cmd, "digestrecp")) {
-					extract_token(recp, buf, 1, '|', sizeof recp);
-			
-					escputs(recp);
-					wc_printf(" <a href=\"netedit?cmd=remove?tab=listserv?line="
-						"digestrecp|");
-					urlescputs(recp);
-					wc_printf("\">");
-					wc_printf(_("(remove)"));
-					wc_printf("</A><br />");
-				}
-			}
-		wc_printf("<br /><form method=\"POST\" action=\"netedit\">\n"
-			"<input type=\"hidden\" NAME=\"tab\" VALUE=\"listserv\">\n"
-			"<input type=\"hidden\" NAME=\"prefix\" VALUE=\"digestrecp|\">\n");
-		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-		wc_printf("<input type=\"text\" id=\"add_as_digestrecp\" NAME=\"line\">\n");
-		wc_printf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
-		wc_printf("</form>\n");
-		
-		wc_printf("</td></tr></table>\n");
-
-		/** Pop open an address book -- begin **/
-		wc_printf("<div align=right>"
-			"<a href=\"javascript:PopOpenAddressBook('add_as_listrecp|%s|add_as_digestrecp|%s');\" "
-			"title=\"%s\">"
-			"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
-			"&nbsp;%s</a>"
-			"</div>",
-			_("List"),
-			_("Digest"),
-			_("Add recipients from Contacts or other address books"),
-			_("Add recipients from Contacts or other address books")
-			);
-		/* Pop open an address book -- end **/
-
-		wc_printf("<br />\n<form method=\"GET\" action=\"toggle_self_service\">\n");
-
-		get_roomflags (&RoomFlags);
-		
-		/* Self Service subscription? */
-		wc_printf("<table><tr><td>\n");
-		wc_printf(_("Allow self-service subscribe/unsubscribe requests."));
-		wc_printf("</td><td><input type=\"checkbox\" name=\"QR2_SelfList\" value=\"yes\" %s></td></tr>\n"
-			" <tr><td colspan=\"2\">\n",
-			(is_selflist(&RoomFlags))?"checked":"");
-		wc_printf(_("The URL for subscribe/unsubscribe is: "));
-		wc_printf("<TT>%s://%s/listsub</TT></td></tr>\n",
-			(is_https ? "https" : "http"),
-			ChrPtr(WC->Hdr->HR.http_host));
-		/* Public posting? */
-		wc_printf("<tr><td>");
-		wc_printf(_("Allow non-subscribers to mail to this room."));
-		wc_printf("</td><td><input type=\"checkbox\" name=\"QR2_SubsOnly\" value=\"yes\" %s></td></tr>\n",
-			(is_publiclist(&RoomFlags))?"checked":"");
-		
-		/* Moderated List? */
-		wc_printf("<tr><td>");
-		wc_printf(_("Room post publication needs Aide permission."));
-		wc_printf("</td><td><input type=\"checkbox\" name=\"QR2_Moderated\" value=\"yes\" %s></td></tr>\n",
-			(is_moderatedlist(&RoomFlags))?"checked":"");
-
-
-		wc_printf("<tr><td colspan=\"2\" align=\"center\">"
-			"<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\"></td></tr>", _("Save changes"));
-		wc_printf("</table></form>");
-			
-
-		wc_printf("</CENTER>\n");
-		wc_printf("</div>");
-	}
-
-
-	/* Configuration of The Dreaded Auto-Purger */
-	if (!strcmp(tab, "expire")) {
-		wc_printf("<div class=\"tabcontent\">");
-
-		serv_puts("GPEX room");
-		serv_getln(buf, sizeof buf);
-		if (!strncmp(buf, "550", 3)) {
-			wc_printf("<br><br><div align=center>%s</div><br><br>\n",
-				_("Higher access is required to access this function.")
-				);
-		}
-		else if (buf[0] != '2') {
-			wc_printf("<br><br><div align=center>%s</div><br><br>\n", &buf[4]);
-		}
-		else {
-			roompolicy = extract_int(&buf[4], 0);
-			roomvalue = extract_int(&buf[4], 1);
-		
-			serv_puts("GPEX floor");
-			serv_getln(buf, sizeof buf);
-			if (buf[0] == '2') {
-				floorpolicy = extract_int(&buf[4], 0);
-				floorvalue = extract_int(&buf[4], 1);
-			}
-			
-			wc_printf("<br /><form method=\"POST\" action=\"set_room_policy\">\n");
-			wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-			wc_printf("<table border=0 cellspacing=5>\n");
-			wc_printf("<tr><td>");
-			wc_printf(_("Message expire policy for this room"));
-			wc_printf("<br />(");
-			escputs(ChrPtr(WC->CurRoom.name));
-			wc_printf(")</td><td>");
-			wc_printf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"0\" %s>",
-				((roompolicy == 0) ? "CHECKED" : "") );
-			wc_printf(_("Use the default policy for this floor"));
-			wc_printf("<br />\n");
-			wc_printf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"1\" %s>",
-				((roompolicy == 1) ? "CHECKED" : "") );
-			wc_printf(_("Never automatically expire messages"));
-			wc_printf("<br />\n");
-			wc_printf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"2\" %s>",
-				((roompolicy == 2) ? "CHECKED" : "") );
-			wc_printf(_("Expire by message count"));
-			wc_printf("<br />\n");
-			wc_printf("<input type=\"radio\" NAME=\"roompolicy\" VALUE=\"3\" %s>",
-				((roompolicy == 3) ? "CHECKED" : "") );
-			wc_printf(_("Expire by message age"));
-			wc_printf("<br />");
-			wc_printf(_("Number of messages or days: "));
-			wc_printf("<input type=\"text\" NAME=\"roomvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">", roomvalue);
-			wc_printf("</td></tr>\n");
-	
-			if (WC->axlevel >= 6) {
-				wc_printf("<tr><td COLSPAN=2><hr /></td></tr>\n");
-				wc_printf("<tr><td>");
-				wc_printf(_("Message expire policy for this floor"));
-				wc_printf("<br />(");
-				escputs(floorlist[WC->CurRoom.floorid]);
-				wc_printf(")</td><td>");
-				wc_printf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"0\" %s>",
-					((floorpolicy == 0) ? "CHECKED" : "") );
-				wc_printf(_("Use the system default"));
-				wc_printf("<br />\n");
-				wc_printf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"1\" %s>",
-					((floorpolicy == 1) ? "CHECKED" : "") );
-				wc_printf(_("Never automatically expire messages"));
-				wc_printf("<br />\n");
-				wc_printf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"2\" %s>",
-					((floorpolicy == 2) ? "CHECKED" : "") );
-				wc_printf(_("Expire by message count"));
-				wc_printf("<br />\n");
-				wc_printf("<input type=\"radio\" NAME=\"floorpolicy\" VALUE=\"3\" %s>",
-					((floorpolicy == 3) ? "CHECKED" : "") );
-				wc_printf(_("Expire by message age"));
-				wc_printf("<br />");
-				wc_printf(_("Number of messages or days: "));
-				wc_printf("<input type=\"text\" NAME=\"floorvalue\" MAXLENGTH=\"5\" VALUE=\"%d\">",
-					floorvalue);
-			}
-	
-			wc_printf("<CENTER>\n");
-			wc_printf("<tr><td COLSPAN=2><hr /><CENTER>\n");
-			wc_printf("<input type=\"submit\" NAME=\"ok_button\" VALUE=\"%s\">", _("Save changes"));
-			wc_printf("&nbsp;");
-			wc_printf("<input type=\"submit\" NAME=\"cancel_button\" VALUE=\"%s\">", _("Cancel"));
-			wc_printf("</CENTER></td><tr>\n");
-	
-			wc_printf("</table>\n"
-				"<input type=\"hidden\" NAME=\"tab\" VALUE=\"expire\">\n"
-				"</form>\n"
-				);
-		}
-
-		wc_printf("</div>");
-	}
-
-	/* Access controls */
-	if (!strcmp(tab, "access")) {
-		wc_printf("<div class=\"tabcontent\">");
-		display_whok();
-		wc_printf("</div>");
-	}
-
-	/* Fetch messages from remote locations */
-	if (!strcmp(tab, "feeds")) {
-		wc_printf("<div class=\"tabcontent\">");
-
-		wc_printf("<i>");
-		wc_printf(_("Retrieve messages from these remote POP3 accounts and store them in this room:"));
-		wc_printf("</i><br />\n");
-
-		wc_printf("<table class=\"altern\" border=0 cellpadding=5>"
-			"<tr class=\"even\"><th>");
-		wc_printf(_("Remote host"));
-		wc_printf("</th><th>");
-		wc_printf(_("User name"));
-		wc_printf("</th><th>");
-		wc_printf(_("Password"));
-		wc_printf("</th><th>");
-		wc_printf(_("Keep messages on server?"));
-		wc_printf("</th><th>");
-		wc_printf(_("Interval"));
-		wc_printf("</th><th> </th></tr>");
-
-		serv_puts("GNET");
-		serv_getln(buf, sizeof buf);
-		bg = 1;
-		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				extract_token(cmd, buf, 0, '|', sizeof cmd);
-				if (!strcasecmp(cmd, "pop3client")) {
-					safestrncpy(recp, &buf[11], sizeof recp);
-
-					bg = 1 - bg;
-					wc_printf("<tr class=\"%s\">",
-						(bg ? "even" : "odd")
-						);
-
-					wc_printf("<td>");
-					extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
-					escputs(pop3_host);
-					wc_printf("</td>");
-
-					wc_printf("<td>");
-					extract_token(pop3_user, buf, 2, '|', sizeof pop3_user);
-					escputs(pop3_user);
-					wc_printf("</td>");
-
-					wc_printf("<td>*****</td>");		/* Don't show the password */
-
-					wc_printf("<td>%s</td>", extract_int(buf, 4) ? _("Yes") : _("No"));
-
-					wc_printf("<td>%ld</td>", extract_long(buf, 5));	/* Fetching interval */
-			
-					wc_printf("<td class=\"button_link\">");
-					wc_printf(" <a href=\"netedit?cmd=remove?tab=feeds?line=pop3client|");
-					urlescputs(recp);
-					wc_printf("\">");
-					wc_printf(_("(remove)"));
-					wc_printf("</a></td>");
-			
-					wc_printf("</tr>");
-				}
-			}
-
-		wc_printf("<form method=\"POST\" action=\"netedit\">\n"
-			"<tr>"
-			"<input type=\"hidden\" name=\"tab\" value=\"feeds\">"
-			"<input type=\"hidden\" name=\"prefix\" value=\"pop3client|\">\n");
-		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-		wc_printf("<td>");
-		wc_printf("<input type=\"text\" id=\"add_as_pop3host\" NAME=\"line_pop3host\">\n");
-		wc_printf("</td>");
-		wc_printf("<td>");
-		wc_printf("<input type=\"text\" id=\"add_as_pop3user\" NAME=\"line_pop3user\">\n");
-		wc_printf("</td>");
-		wc_printf("<td>");
-		wc_printf("<input type=\"password\" id=\"add_as_pop3pass\" NAME=\"line_pop3pass\">\n");
-		wc_printf("</td>");
-		wc_printf("<td>");
-		wc_printf("<input type=\"checkbox\" id=\"add_as_pop3keep\" NAME=\"line_pop3keep\" VALUE=\"1\">");
-		wc_printf("</td>");
-		wc_printf("<td>");
-		wc_printf("<input type=\"text\" id=\"add_as_pop3int\" NAME=\"line_pop3int\" MAXLENGTH=\"5\">");
-		wc_printf("</td>");
-		wc_printf("<td>");
-		wc_printf("<input type=\"submit\" NAME=\"add_button\" VALUE=\"%s\">", _("Add"));
-		wc_printf("</td></tr>");
-		wc_printf("</form></table>\n");
-
-		wc_printf("<hr>\n");
-
-		wc_printf("<i>");
-		wc_printf(_("Fetch the following RSS feeds and store them in this room:"));
-		wc_printf("</i><br />\n");
-
-		wc_printf("<table class=\"altern\" border=0 cellpadding=5>"
-			"<tr class=\"even\"><th>");
-		wc_printf("<img src=\"static/rss_16x.png\" width=\"16\" height=\"16\" alt=\" \"> ");
-		wc_printf(_("Feed URL"));
-		wc_printf("</th><th>");
-		wc_printf("</th></tr>");
-
-		serv_puts("GNET");
-		serv_getln(buf, sizeof buf);
-		bg = 1;
-		if (buf[0]=='1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-				extract_token(cmd, buf, 0, '|', sizeof cmd);
-				if (!strcasecmp(cmd, "rssclient")) {
-					safestrncpy(recp, &buf[10], sizeof recp);
-
-					bg = 1 - bg;
-					wc_printf("<tr class=\"%s\">",
-						(bg ? "even" : "odd")
-						);
-
-					wc_printf("<td>");
-					extract_token(pop3_host, buf, 1, '|', sizeof pop3_host);
-					escputs(pop3_host);
-					wc_printf("</td>");
-
-					wc_printf("<td class=\"button_link\">");
-					wc_printf(" <a href=\"netedit?cmd=remove?tab=feeds?line=rssclient|");
-					urlescputs(recp);
-					wc_printf("\">");
-					wc_printf(_("(remove)"));
-					wc_printf("</a></td>");
-			
-					wc_printf("</tr>");
-				}
-			}
-
-		wc_printf("<form method=\"POST\" action=\"netedit\">\n"
-			"<tr>"
-			"<input type=\"hidden\" name=\"tab\" value=\"feeds\">"
-			"<input type=\"hidden\" name=\"prefix\" value=\"rssclient|\">\n");
-		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-		wc_printf("<td>");
-		wc_printf("<input type=\"text\" id=\"add_as_pop3host\" size=\"72\" "
-			"maxlength=\"256\" name=\"line_pop3host\">\n");
-		wc_printf("</td>");
-		wc_printf("<td>");
-		wc_printf("<input type=\"submit\" name=\"add_button\" value=\"%s\">", _("Add"));
-		wc_printf("</td></tr>");
-		wc_printf("</form></table>\n");
-
-		wc_printf("</div>");
-	}
-
-
-	/* end content of whatever tab is open now */
-	wc_printf("</div>\n");
-
-	address_book_popup();
-	wDumpContent(1);
-}
 
 
 /* 
  * Toggle self-service list subscription
  */
 void toggle_self_service(void) {
-	room_states RoomFlags;
+	wcsession *WCC = WC;
 
-	get_roomflags (&RoomFlags);
+	if (GetCurrentRoomFlags (&WCC->CurRoom) == 0)
+		return;
 
 	if (yesbstr("QR2_SelfList")) 
-		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SELFLIST;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 | QR2_SELFLIST;
 	else 
-		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SELFLIST;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 & ~QR2_SELFLIST;
 
 	if (yesbstr("QR2_SMTP_PUBLIC")) 
-		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SMTP_PUBLIC;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 | QR2_SMTP_PUBLIC;
 	else
-		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SMTP_PUBLIC;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 & ~QR2_SMTP_PUBLIC;
 
 	if (yesbstr("QR2_Moderated")) 
-		RoomFlags.flags2 = RoomFlags.flags2 | QR2_MODERATED;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 | QR2_MODERATED;
 	else
-		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_MODERATED;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 & ~QR2_MODERATED;
 	if (yesbstr("QR2_SubsOnly")) 
-		RoomFlags.flags2 = RoomFlags.flags2 | QR2_SMTP_PUBLIC;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 | QR2_SMTP_PUBLIC;
 	else
-		RoomFlags.flags2 = RoomFlags.flags2 & ~QR2_SMTP_PUBLIC;
+		WCC->CurRoom.QRFlags2 = WCC->CurRoom.QRFlags2 & ~QR2_SMTP_PUBLIC;
 
-	set_roomflags (&RoomFlags);
+	SetCurrentRoomFlags (&WCC->CurRoom);
 	
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 }
@@ -2165,19 +1147,15 @@ void toggle_self_service(void) {
  */
 void editroom(void)
 {
+	wcsession *WCC = WC;
 	const StrBuf *Ptr;
-	StrBuf *Buf;
-	StrBuf *er_name;
-	StrBuf *er_password;
-	StrBuf *er_dirname;
-	StrBuf *er_roomaide;
-	int er_floor;
+	const StrBuf *er_name;
+	const StrBuf *er_password;
+	const StrBuf *er_dirname;
+	const StrBuf *er_roomaide;
 	unsigned er_flags;
-	int er_listingorder;
-	int er_defaultview;
 	unsigned er_flags2;
-	int bump;
-
+	int succ1, succ2;
 
 	if (!havebstr("ok_button")) {
 		strcpy(WC->ImportantMessage,
@@ -2185,67 +1163,17 @@ void editroom(void)
 		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 		return;
 	}
-	serv_puts("GETR");
-	Buf = NewStrBuf();
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) {
-		StrBufCutLeft(Buf, 4);
-		strcpy(WC->ImportantMessage, ChrPtr(Buf));
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
-		FreeStrBuf(&Buf);
+	if (GetCurrentRoomFlags (&WCC->CurRoom) == 0)
 		return;
-	}
 
-	FlushRoomlist ();
+	LoadRoomAide();
 
-	er_name = NewStrBuf();
-	er_password = NewStrBuf();
-	er_dirname = NewStrBuf();
-	er_roomaide = NewStrBuf();
-
-	StrBufCutLeft(Buf, 4);
-	StrBufExtract_token(er_name, Buf, 0, '|');
-	StrBufExtract_token(er_password, Buf, 1, '|');
-	StrBufExtract_token(er_dirname, Buf, 2, '|');
-	er_flags = StrBufExtract_int(Buf, 3, '|');
-	er_listingorder = StrBufExtract_int(Buf, 5, '|');
-	er_defaultview = StrBufExtract_int(Buf, 6, '|');
-	er_flags2 = StrBufExtract_int(Buf, 7, '|');
-
-	er_roomaide = NewStrBufDup(sbstr("er_roomaide"));
-	if (StrLength(er_roomaide) == 0) {
-		serv_puts("GETA");
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) != 2) {
-			FlushStrBuf(er_roomaide);
-		} else {
-			StrBufCutLeft(Buf, 4);
-			StrBufExtract_token(er_roomaide, Buf, 0, '|');
-		}
-	}
-	Ptr = sbstr("er_name");
-	if (StrLength(Ptr) > 0) {
-		FlushStrBuf(er_name);
-		StrBufAppendBuf(er_name, Ptr, 0);
-	}
-
-	Ptr = sbstr("er_password");
-	if (StrLength(Ptr) > 0) {
-		FlushStrBuf(er_password);
-		StrBufAppendBuf(er_password, Ptr, 0);
-	}
-		
-
-	Ptr = sbstr("er_dirname");
-	if (StrLength(Ptr) > 0) { /* todo: cut 15 */
-		FlushStrBuf(er_dirname);
-		StrBufAppendBuf(er_dirname, Ptr, 0);
-	}
-
-
-	Ptr = sbstr("type");
+	er_flags = WCC->CurRoom.QRFlags;
 	er_flags &= !(QR_PRIVATE | QR_PASSWORDED | QR_GUESSNAME);
 
+	er_flags2 = WCC->CurRoom.QRFlags2;
+
+	Ptr = sbstr("type");
 	if (!strcmp(ChrPtr(Ptr), "invonly")) {
 		er_flags |= (QR_PRIVATE);
 	}
@@ -2260,6 +1188,8 @@ void editroom(void)
 	} else {
 		er_flags &= ~QR_MAILBOX;
 	}
+
+
 	
 	if (yesbstr("prefonly")) {
 		er_flags |= QR_PREFONLY;
@@ -2322,6 +1252,7 @@ void editroom(void)
 		er_flags &= ~QR_VISDIR;
 	}
 
+
 	Ptr = sbstr("anon");
 
 	er_flags &= ~(QR_ANONONLY | QR_ANONOPT);
@@ -2330,56 +1261,34 @@ void editroom(void)
 	if (!strcmp(ChrPtr(Ptr), "anon2"))
 		er_flags |= QR_ANONOPT;
 
-	bump = yesbstr("bump");
+	er_name     = sbstr("er_name");
+	er_dirname  = sbstr("er_dirname");
+	er_roomaide = sbstr("er_roomaide");
+	er_password = sbstr("er_password");
 
-	er_floor = ibstr("er_floor");
+	FlushStrBuf(WCC->CurRoom.name);
+	StrBufAppendBuf(WCC->CurRoom.name, er_name, 0);
 
-	StrBufPrintf(Buf, "SETR %s|%s|%s|%u|%d|%d|%d|%d|%u",
-		     ChrPtr(er_name), 
-		     ChrPtr(er_password), 
-		     ChrPtr(er_dirname), 
-		     er_flags, 
-		     bump, 
-		     er_floor,
-		     er_listingorder, 
-		     er_defaultview, 
-		     er_flags2);
-	serv_putbuf(Buf);
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) != 2) {
-		strcpy(WC->ImportantMessage, &ChrPtr(Buf)[4]);
-		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
-		FreeStrBuf(&Buf);
-		FreeStrBuf(&er_name);
-		FreeStrBuf(&er_password);
-		FreeStrBuf(&er_dirname);
-		FreeStrBuf(&er_roomaide);
-		return;
-	}
-	gotoroom(er_name);
+	FlushStrBuf(WCC->CurRoom.Directory);
+	StrBufAppendBuf(WCC->CurRoom.Directory, er_dirname, 0);
 
-	if (StrLength(er_roomaide) > 0) {
-		serv_printf("SETA %s", ChrPtr(er_roomaide));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) != 2) {
-			strcpy(WC->ImportantMessage, &ChrPtr(Buf)[4]);
-			display_main_menu();
-			FreeStrBuf(&Buf);
-			FreeStrBuf(&er_name);
-			FreeStrBuf(&er_password);
-			FreeStrBuf(&er_dirname);
-			FreeStrBuf(&er_roomaide);
-			return;
-		}
-	}
-	gotoroom(er_name);
-	strcpy(WC->ImportantMessage, _("Your changes have been saved."));
+	FlushStrBuf(WCC->CurRoom.RoomAide);
+	StrBufAppendBuf(WCC->CurRoom.RoomAide, er_roomaide, 0);
+
+	FlushStrBuf(WCC->CurRoom.XAPass);
+	StrBufAppendBuf(WCC->CurRoom.XAPass, er_password, 0);
+
+	WCC->CurRoom.BumpUsers = yesbstr("bump");
+
+	WCC->CurRoom.floorid = ibstr("er_floor");
+
+	succ1 = SetCurrentRoomFlags(&WCC->CurRoom);
+
+	succ2 = SaveRoomAide (&WCC->CurRoom);
+	
+	if (succ1 + succ2 == 0)
+		AppendImportantMessage (_("Your changes have been saved."), -1);
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
-	FreeStrBuf(&Buf);
-	FreeStrBuf(&er_name);
-	FreeStrBuf(&er_password);
-	FreeStrBuf(&er_dirname);
-	FreeStrBuf(&er_roomaide);
 	return;
 }
 
@@ -2430,80 +1339,6 @@ void do_invt_kick(void) {
         }
 
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
-}
-
-
-
-/*
- * Display form for Invite, Kick, and show Who Knows a room
- */
-void display_whok(void)
-{
-        char buf[SIZ], room[SIZ], username[SIZ];
-
-        serv_puts("GETR");
-        serv_getln(buf, sizeof buf);
-
-        if (buf[0] != '2') {
-		escputs(&buf[4]);
-		return;
-        }
-        extract_token(room, &buf[4], 0, '|', sizeof room);
-
-        
-	wc_printf("<table border=0 CELLSPACING=10><tr VALIGN=TOP><td>");
-	wc_printf(_("The users listed below have access to this room.  "
-		  "To remove a user from the access list, select the user "
-		  "name from the list and click 'Kick'."));
-	wc_printf("<br /><br />");
-	
-        wc_printf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-	wc_printf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
-        wc_printf("<select NAME=\"username\" SIZE=\"10\" style=\"width:100%%\">\n");
-        serv_puts("WHOK");
-        serv_getln(buf, sizeof buf);
-        if (buf[0] == '1') {
-                while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-                        extract_token(username, buf, 0, '|', sizeof username);
-                        wc_printf("<OPTION>");
-                        escputs(username);
-                        wc_printf("\n");
-                }
-        }
-        wc_printf("</select><br />\n");
-
-        wc_printf("<input type=\"submit\" name=\"kick_button\" value=\"%s\">", _("Kick"));
-        wc_printf("</form></CENTER>\n");
-
-	wc_printf("</td><td>");
-	wc_printf(_("To grant another user access to this room, enter the "
-		  "user name in the box below and click 'Invite'."));
-	wc_printf("<br /><br />");
-
-        wc_printf("<CENTER><form method=\"POST\" action=\"do_invt_kick\">\n");
-	wc_printf("<input type=\"hidden\" NAME=\"tab\" VALUE=\"access\">\n");
-	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
-        wc_printf(_("Invite:"));
-	wc_printf(" ");
-        wc_printf("<input type=\"text\" name=\"username\" id=\"username_id\" style=\"width:100%%\"><br />\n"
-        	"<input type=\"hidden\" name=\"invite_button\" value=\"Invite\">"
-        	"<input type=\"submit\" value=\"%s\">"
-		"</form></CENTER>\n", _("Invite"));
-	/* Pop open an address book -- begin **/
-	wc_printf(
-		"<a href=\"javascript:PopOpenAddressBook('username_id|%s');\" "
-		"title=\"%s\">"
-		"<img align=middle border=0 width=24 height=24 src=\"static/viewcontacts_24x.gif\">"
-		"&nbsp;%s</a>",
-		_("User"), 
-		_("Users"), _("Users")
-		);
-	/* Pop open an address book -- end **/
-
-	wc_printf("</td></tr></table>\n");
-	address_book_popup();
-        wDumpContent(1);
 }
 
 /*
@@ -2593,8 +1428,6 @@ void entroom(void)
 		return;
 	}
 	/** TODO: Room created, now update the left hand icon bar for this user */
-	burn_folder_cache(0);	/* burn the old folder cache */
-
 	gotoroom(er_name);
 
 	serv_printf("VIEW %d", er_view);
@@ -2616,30 +1449,37 @@ void entroom(void)
 void goto_private(void)
 {
 	char hold_rm[SIZ];
-	char buf[SIZ];
+	StrBuf *Buf;
+	const StrBuf *gr_name;
+	long err;
 
 	if (!havebstr("ok_button")) {
 		display_main_menu();
 		return;
 	}
-	FlushRoomlist();
+	gr_name = sbstr("gr_name");
+	Buf = NewStrBuf();
 	strcpy(hold_rm, ChrPtr(WC->CurRoom.name));
 	serv_printf("GOTO %s|%s",
-		    bstr("gr_name"),
+		    ChrPtr(gr_name),
 		    bstr("gr_pass"));
-	serv_getln(buf, sizeof buf);
-
-	if (buf[0] == '2') {
-		smart_goto(sbstr("gr_name"));
+	StrBuf_ServGetln(Buf);
+	if  (GetServerStatus(Buf, &err) == 2) {
+		FlushRoomlist();
+		smart_goto(gr_name);
+		FreeStrBuf(&Buf);
 		return;
 	}
-	if (!strncmp(buf, "540", 3)) {
+	if (err == 540) {
 		DoTemplate(HKEY("room_display_private"), NULL, &NoCtx);
+		FreeStrBuf(&Buf);
 		return;
 	}
-	output_headers(1, 1, 1, 0, 0, 0);
-	wc_printf("%s\n", &buf[4]);
-	wDumpContent(1);
+	StrBufCutLeft(Buf, 4);
+	AppendImportantMessage (SKEY(Buf));
+	Buf = NewStrBufPlain(HKEY("_BASEROOM_"));
+	smart_goto(Buf);
+	FreeStrBuf(&Buf);
 	return;
 }
 
@@ -2688,8 +1528,7 @@ void delete_room(void)
 	
 	serv_puts("KILL 1");
 	serv_getln(buf, sizeof buf);
-	burn_folder_cache(0);	/* Burn the cahce of known rooms to update the icon bar */
-	FlushRoomlist ();
+
 	if (buf[0] != '2') {
 		strcpy(WC->ImportantMessage, &buf[4]);
 		display_main_menu();
@@ -2697,6 +1536,7 @@ void delete_room(void)
 	} else {
 		StrBuf *Buf;
 		
+		FlushRoomlist ();
 		Buf = NewStrBufPlain(HKEY("_BASEROOM_"));
 		smart_goto(Buf);
 		FreeStrBuf(&Buf);
@@ -2807,50 +1647,6 @@ void netedit(void) {
 }
 
 
-
-/**
- * \brief Convert a room name to a folder-ish-looking name.
- * \param folder the folderish name
- * \param room the room name
- * \param floor the floor name
- * \param is_mailbox is it a mailbox?
- */
-void room_to_folder(char *folder, char *room, int floor, int is_mailbox)
-{
-	int i, len;
-
-	/**
-	 * For mailboxes, just do it straight...
-	 */
-	if (is_mailbox) {
-		sprintf(folder, "My folders|%s", room);
-	}
-
-	/**
-	 * Otherwise, prefix the floor name as a "public folders" moniker
-	 */
-	else {
-		if (floor > MAX_FLOORS) {
-			wc_backtrace ();
-			sprintf(folder, "%%%%%%|%s", room);
-		}
-		else {
-			sprintf(folder, "%s|%s", floorlist[floor], room);
-		}
-	}
-
-	/**
-	 * Replace "\" characters with "|" for pseudo-folder-delimiting
-	 */
-	len = strlen (folder);
-	for (i=0; i<len; ++i) {
-		if (folder[i] == '\\') folder[i] = '|';
-	}
-}
-
-
-
-
 /**
  * \brief Back end for change_view()
  * \param newview set newview???
@@ -2875,24 +1671,6 @@ void change_view(void) {
 	view = lbstr("view");
 	do_change_view(view);
 }
-
-/**
- * \brief Burn the cached folder list.  
- * \param age How old the cahce needs to be before we burn it.
- */
-
-void burn_folder_cache(time_t age)
-{
-	/** If our cached folder list is very old, burn it. */
-	if (WC->cache_fold != NULL) {
-		if ((time(NULL) - WC->cache_timestamp) > age) {
-			free(WC->cache_fold);
-			WC->cache_fold = NULL;
-		}
-	}
-}
-
-
 
 /**
  * \brief Do either a known rooms list or a folders list, depending on the
@@ -2952,7 +1730,7 @@ void set_room_policy(void) {
 		serv_getln(buf, sizeof buf);
 		strcat(WC->ImportantMessage, &buf[4]);
 	}
-	FlushRoomlist();
+	ReloadCurrentRoom();
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 }
 
@@ -3183,12 +1961,27 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 	return Whok;
 }
 
+
+
 void _FlushRoomList(wcsession *WCC)
 {
 	free_march_list(WCC);
 	DeleteHash(&WCC->Floors);
 	DeleteHash(&WCC->Rooms);
 	DeleteHash(&WCC->FloorsByName);
+	FlushFolder(&WCC->CurRoom);
+}
+
+void ReloadCurrentRoom(void)
+{
+	wcsession *WCC = WC;
+	StrBuf *CurRoom;
+
+	CurRoom = WCC->CurRoom.name;
+	WCC->CurRoom.name = NULL;
+	_FlushRoomList(WCC);
+	gotoroom(CurRoom);
+	FreeStrBuf(&CurRoom);
 }
 
 void FlushRoomlist(void)
@@ -3220,7 +2013,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("zap"), "", 0, zap, 0);
 	WebcitAddUrlHandler(HKEY("entroom"), "", 0, entroom, 0);
 	WebcitAddUrlHandler(HKEY("do_invt_kick"), "", 0, do_invt_kick, 0);
-	WebcitAddUrlHandler(HKEY("display_editroom"), "", 0, display_editroom, 0);
+	
 	WebcitAddUrlHandler(HKEY("netedit"), "", 0, netedit, 0);
 	WebcitAddUrlHandler(HKEY("editroom"), "", 0, editroom, 0);
 	WebcitAddUrlHandler(HKEY("delete_room"), "", 0, delete_room, 0);
@@ -3355,11 +2148,6 @@ void
 SessionDestroyModule_ROOMOPS
 (wcsession *sess)
 {
-	FlushFolder(&sess->CurRoom);
-	if (sess->cache_fold != NULL) {
-		free(sess->cache_fold);
-	}
-	
 	_FlushRoomList (sess);
 }
 
