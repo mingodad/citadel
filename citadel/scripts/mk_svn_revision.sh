@@ -27,7 +27,7 @@ else
     if git status> /dev/null 2>&1; then 
 	echo "have Git repository."
 	TAG=`git rev-parse HEAD`
-	BRANCH="`git show-branch |sed 's;\[\(.*\)\].*;\1;'`"
+	BRANCH="`git show-branch |head -n1 |sed 's;.*\[\(.*\)\].*;\1;'`"
 	BUILD="GIT: $BRANCH : $TAG"
 	echo "This code base git-revision: $BUILD"
 	CAN_BUILD_SVN_REVISION="yes"
