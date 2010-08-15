@@ -502,27 +502,40 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
 int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
 	struct protoent *p;
-	struct sockaddr_in6 sin;
-	int s, i;
+	struct sockaddr_in6 sin6;
+	struct sockaddr_in sin4;
+	int s, i, b;
+	int ip_version = 6;
 
-	memset(&sin, 0, sizeof(sin));
-	sin.sin6_family = AF_INET6;
+	memset(&sin6, 0, sizeof(sin6));
+	memset(&sin4, 0, sizeof(sin4));
+	sin6.sin6_family = AF_INET6;
+	sin4.sin_family = AF_INET;
 
-	if (	(ip_addr == NULL)							/* any address */
+	if (	(ip_addr == NULL)							/* any IPv6 address */
 		|| (IsEmptyStr(ip_addr))
-		|| (!strcmp(ip_addr, "0.0.0.0"))
 		|| (!strcmp(ip_addr, "*"))
 	) {
-		sin.sin6_addr = in6addr_any;
-	} else {
-		char bind_to[256];
-		if ((strchr(ip_addr, '.')) && (!strchr(ip_addr, ':'))) {		/* specific IPv4 */
-			snprintf(bind_to, sizeof bind_to, "::ffff:%s", ip_addr);
+		ip_version = 6;
+		sin6.sin6_addr = in6addr_any;
+	}
+	else if (!strcmp(ip_addr, "0.0.0.0"))						/* any IPv4 address */
+	{
+		ip_version = 4;
+		sin4.sin_addr.s_addr = INADDR_ANY;
+	}
+	else if ((strchr(ip_addr, '.')) && (!strchr(ip_addr, ':')))			/* specific IPv4 */
+	{
+		ip_version = 4;
+		if (inet_pton(AF_INET, ip_addr, &sin4.sin_addr) <= 0) {
+			lprintf(1, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
+			return (-WC_EXIT_BIND);
 		}
-		else {
-			safestrncpy(bind_to, ip_addr, sizeof bind_to);			/* specific IPv6 */
-		}
-		if (inet_pton(AF_INET6, bind_to, &sin.sin6_addr) <= 0) {
+	}
+	else										/* specific IPv6 */
+	{
+		ip_version = 6;
+		if (inet_pton(AF_INET6, ip_addr, &sin6.sin6_addr) <= 0) {
 			lprintf(1, "Error binding to [%s] : %s\n", ip_addr, strerror(errno));
 			return (-WC_EXIT_BIND);
 		}
@@ -532,23 +545,33 @@ int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
 		lprintf(1, "Cannot start: no port number specified.\n");
 		return (-WC_EXIT_BIND);
 	}
-	sin.sin6_port = htons((u_short) port_number);
+	sin6.sin6_port = htons((u_short) port_number);
+	sin4.sin_port = htons((u_short) port_number);
 
 	p = getprotobyname("tcp");
 
-	s = socket(PF_INET6, SOCK_STREAM, (p->p_proto));
+	s = socket( ((ip_version == 6) ? PF_INET6 : PF_INET), SOCK_STREAM, (p->p_proto));
 	if (s < 0) {
-		lprintf(1, "Can't create an IPv6 socket: %s\n", strerror(errno));
+		lprintf(1, "Can't create a listening socket: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
 	/* Set some socket options that make sense. */
 	i = 1;
 	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
-	if (bind(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+	if (ip_version == 6) {
+		b = bind(s, (struct sockaddr *) &sin6, sizeof(sin6));
+	}
+	else {
+		b = bind(s, (struct sockaddr *) &sin4, sizeof(sin4));
+	}
+
+	if (b < 0) {
 		lprintf(1, "Can't bind: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
+
+
 	if (listen(s, queue_len) < 0) {
 		lprintf(1, "Can't listen: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
