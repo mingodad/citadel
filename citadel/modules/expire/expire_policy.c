@@ -85,7 +85,8 @@ void cmd_gpex(char *argbuf) {
 	char which[128];
 
 	extract_token(which, argbuf, 0, '|', sizeof which);
-	if (!strcasecmp(which, strof(room))) {
+	if (!strcasecmp(which, strof(roompolicy))||
+	    !strcasecmp(which, "room")) { /* Deprecated version */
 		memcpy(&exp, &CC->room.QRep, sizeof(struct ExpirePolicy));
 	}
 	else if (!strcasecmp(which, strof(floorpolicy))||
