@@ -188,6 +188,7 @@ void do_login(void)
 {
 	wcsession *WCC = WC;
 	StrBuf *Buf;
+	long ret, rc;
 
 	if (havebstr("language")) {
 		set_selected_language(bstr("language"));
@@ -202,25 +203,31 @@ void do_login(void)
 	if (havebstr("login_action")) {
 		serv_printf("USER %s", bstr("name"));
 		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 3) {
+		rc = GetServerStatus(Buf, &ret);
+		StrBufCutLeft(Buf, 4);
+		switch (rc) {
+		case 3:
 			serv_printf("PASS %s", bstr("pass"));
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 2) {
 				become_logged_in(sbstr("name"), sbstr("pass"), Buf);
 			} else {
-				snprintf(WCC->ImportantMessage, 
-					 sizeof (WCC->ImportantMessage), 
-					 "%s", 
-					 &(ChrPtr(Buf))[4]);
+				StrBufCutLeft(Buf, 4);
+				AppendImportantMessage(SKEY(Buf));
 				display_login();
 				FreeStrBuf(&Buf);
 				return;
 			}
-		} else {
-			snprintf(WCC->ImportantMessage, 
-				 sizeof (WCC->ImportantMessage), 
-				 "%s", 
-				 &(ChrPtr(Buf))[4]);
+			break;
+		case 5:
+			if (ret == 541)
+			{
+				AppendImportantMessage(SKEY(Buf));
+				display_main_menu();
+				return;
+			}
+		default:
+			AppendImportantMessage(SKEY(Buf));
 			display_login();
 			FreeStrBuf(&Buf);
 			return;
@@ -228,10 +235,7 @@ void do_login(void)
 	}
 	if (havebstr("newuser_action")) {
 		if (!havebstr("pass")) {
-			snprintf(WCC->ImportantMessage, 
-				 sizeof (WCC->ImportantMessage), 
-				 "%s", 
-				 _("Blank passwords are not allowed."));
+			AppendImportantMessage(_("Blank passwords are not allowed."), -1);
 			display_login();
 			FreeStrBuf(&Buf);
 			return;
@@ -243,10 +247,8 @@ void do_login(void)
 			serv_printf("SETP %s", bstr("pass"));
 			StrBuf_ServGetln(Buf); /* Don't care? */
 		} else {
-			snprintf(WCC->ImportantMessage, 
-				 sizeof (WCC->ImportantMessage), 
-				 "%s", 
-				 &(ChrPtr(Buf))[4]);
+			StrBufCutLeft(Buf, 4);
+			AppendImportantMessage(SKEY(Buf));
 			display_login();
 			FreeStrBuf(&Buf);
 			return;
@@ -261,10 +263,7 @@ void do_login(void)
 			do_welcome();
 		}
 	} else {
-		snprintf(WCC->ImportantMessage, 
-			 sizeof (WCC->ImportantMessage), 
-			 "%s", 
-			 _("Your password was not accepted."));
+		AppendImportantMessage(_("Your password was not accepted."), -1);
 		display_login();
 	}
 	FreeStrBuf(&Buf);
