@@ -2942,17 +2942,17 @@ void set_room_policy(void) {
 		return;
 	}
 
-	serv_printf("SPEX room|%d|%d", ibstr("roompolicy"), ibstr("roomvalue"));
+	serv_printf("SPEX roompolicy|%d|%d", ibstr("roompolicy"), ibstr("roomvalue"));
 	serv_getln(buf, sizeof buf);
 	strcpy(WC->ImportantMessage, &buf[4]);
 
 	if (WC->axlevel >= 6) {
 		strcat(WC->ImportantMessage, "<br />\n");
-		serv_printf("SPEX floor|%d|%d", ibstr("floorpolicy"), ibstr("floorvalue"));
+		serv_printf("SPEX floorpolicy|%d|%d", ibstr("floorpolicy"), ibstr("floorvalue"));
 		serv_getln(buf, sizeof buf);
 		strcat(WC->ImportantMessage, &buf[4]);
 	}
-
+	FlushRoomlist();
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 }
 
