@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 	pthread_attr_t attr;		/* Thread attributes */
 	int a;		        	/* General-purpose variable */
 	char tracefile[PATH_MAX];
-	char ip_addr[256]="0.0.0.0";
+	char ip_addr[256]="*";
 	int relh=0;
 	int home=0;
 	int home_specified=0;
