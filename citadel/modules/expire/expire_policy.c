@@ -129,7 +129,8 @@ void cmd_spex(char *argbuf) {
 		return;
 	}
 
-	if (!strcasecmp(which, "room")) {
+	if (!strcasecmp(which, strof(roompolicy))||
+	    !strcasecmp(which, "room")) {
 		if (!is_room_aide()) {
 			cprintf("%d Higher access required.\n",
 				ERROR + HIGHER_ACCESS_REQUIRED);
