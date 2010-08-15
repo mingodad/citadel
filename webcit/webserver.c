@@ -31,8 +31,8 @@ extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
 extern void *housekeeping_loop(void);
-extern int ig_tcp_server(char *ip_addr, int port_number, int queue_len);
-extern int ig_uds_server(char *sockpath, int queue_len);
+extern int webcit_tcp_server(char *ip_addr, int port_number, int queue_len);
+extern int webcit_uds_server(char *sockpath, int queue_len);
 extern void graceful_shutdown_watcher(int signum);
 extern void graceful_shutdown(int signum);
 extern void start_daemon(char *pid_file);
@@ -304,17 +304,17 @@ int main(int argc, char **argv)
 
 	/*
 	 * Bind the server to our favorite port.
-	 * There is no need to check for errors, because ig_tcp_server()
+	 * There is no need to check for errors, because webcit_tcp_server()
 	 * exits if it doesn't succeed.
 	 */
 
 	if (!IsEmptyStr(uds_listen_path)) {
 		lprintf(2, "Attempting to create listener socket at %s...\n", uds_listen_path);
-		msock = ig_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
+		msock = webcit_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
 	}
 	else {
 		lprintf(2, "Attempting to bind to port %d...\n", http_port);
-		msock = ig_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
+		msock = webcit_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
 	}
 	if (msock < 0)
 	{

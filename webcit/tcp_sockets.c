@@ -499,7 +499,7 @@ int ClientGetLine(ParsedHttpHdrs *Hdr, StrBuf *Target)
  * port_number	port number to bind
  * queue_len	number of incoming connections to allow in the queue
  */
-int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
+int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
 {
 	struct protoent *p;
 	struct sockaddr_in6 sin;
@@ -562,7 +562,7 @@ int ig_tcp_server(char *ip_addr, int port_number, int queue_len)
  * sockpath - file name of the unix domain socket
  * queue_len - Number of incoming connections to allow in the queue
  */
-int ig_uds_server(char *sockpath, int queue_len)
+int webcit_uds_server(char *sockpath, int queue_len)
 {
 	struct sockaddr_un addr;
 	int s;
