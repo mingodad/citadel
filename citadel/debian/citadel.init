@@ -53,6 +53,7 @@ do_start()
         # for ubuntu: check our volatile dirs.
         if test ! -d $RUNDIR; then
 	    mkdir -p $RUNDIR
+	    chmod go+rx $RUNDIR
 	fi
 	# Return
 	#   0 if daemon has been started
