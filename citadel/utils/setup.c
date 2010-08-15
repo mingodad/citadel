@@ -834,16 +834,21 @@ void strprompt(const char *prompt_title, char *prompt_text, char *Target, char *
 	}
 }
 
-void set_bool_val(int msgpos, int *ip, char *DefValue) {
+void set_bool_val(int msgpos, int *ip, char *DefValue) 
+{
 	title(setup_titles[msgpos]);
 	*ip = yesno(setup_text[msgpos], *ip);
 }
 
-void set_str_val(int msgpos, char *Target, char *DefValue) {
-	strprompt(setup_titles[msgpos], 
-		  setup_text[msgpos], 
-		  Target, 
-		  DefValue);
+void set_str_val(int msgpos, char *Target, char *DefValue) 
+{
+	if (DefValue != NULL)
+	{
+		strprompt(setup_titles[msgpos], 
+			  setup_text[msgpos], 
+			  Target, 
+			  DefValue);
+	}
 }
 
 void set_int_val(int msgpos, int *ip, char *DefValue)
