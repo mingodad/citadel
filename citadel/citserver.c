@@ -443,8 +443,6 @@ void cmd_iden(char *argbuf)
 	int rev_level;
 	char desc[128];
 	char from_host[128];
-	struct in_addr addr;
-	int do_lookup = 0;
 
 	if (num_parms(argbuf)<4) {
 		cprintf("%d usage error\n", ERROR + ILLEGAL_VALUE);
@@ -466,22 +464,11 @@ void cmd_iden(char *argbuf)
 	safestrncpy(CC->cs_clientname, desc, sizeof CC->cs_clientname);
 	CC->cs_clientname[31] = 0;
 
-	if (!IsEmptyStr(from_host)) {
-		if (CC->is_local_socket) do_lookup = 1;
-		else if (is_public_client()) do_lookup = 1;
-	}
-
-	if (do_lookup) {
-		CtdlLogPrintf(CTDL_DEBUG, "Looking up hostname '%s'\n", from_host);
-		if ((addr.s_addr = inet_addr(from_host)) != -1) {
-			locate_host(CC->cs_host, sizeof CC->cs_host,
-				CC->cs_addr, sizeof CC->cs_addr,
-				&addr);
-		}
-	   	else {
-			safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
-			CC->cs_host[sizeof CC->cs_host - 1] = 0;
-		}
+	/* For local sockets and public clients, trust the hostname supplied by the client */
+	if ( (CC->is_local_socket) || (is_public_client()) ) {
+		safestrncpy(CC->cs_host, from_host, sizeof CC->cs_host);
+		CC->cs_host[sizeof CC->cs_host - 1] = 0;
+		CC->cs_addr[0] = 0;
 	}
 
 	CtdlLogPrintf(CTDL_NOTICE, "Client %d/%d/%01d.%02d (%s) from %s\n",
