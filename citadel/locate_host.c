@@ -49,6 +49,11 @@ void locate_host(char *tbuf, size_t n, char *abuf, size_t na, int client_socket)
 	getpeername(client_socket, (struct sockaddr *)&clientaddr, &addrlen);
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen, tbuf, n, NULL, 0, 0);
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen, abuf, na, NULL, 0, NI_NUMERICHOST);
+
+	/* Convert IPv6-mapped IPv4 addresses back to traditional dotted quad */
+	if ( (strlen(abuf) > 7) && (!strncasecmp(abuf, "::ffff:", 7)) ) {
+		strcpy(abuf, &abuf[7]);
+	}
 }
 
 
