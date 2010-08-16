@@ -512,14 +512,14 @@ int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
 	sin6.sin6_family = AF_INET6;
 	sin4.sin_family = AF_INET;
 
-	if (	(ip_addr == NULL)							/* any IPv6 address */
+	if (	(ip_addr == NULL)							/* any IPv6 */
 		|| (IsEmptyStr(ip_addr))
 		|| (!strcmp(ip_addr, "*"))
 	) {
 		ip_version = 6;
 		sin6.sin6_addr = in6addr_any;
 	}
-	else if (!strcmp(ip_addr, "0.0.0.0"))						/* any IPv4 address */
+	else if (!strcmp(ip_addr, "0.0.0.0"))						/* any IPv4 */
 	{
 		ip_version = 4;
 		sin4.sin_addr.s_addr = INADDR_ANY;
@@ -570,7 +570,6 @@ int webcit_tcp_server(char *ip_addr, int port_number, int queue_len)
 		lprintf(1, "Can't bind: %s\n", strerror(errno));
 		return (-WC_EXIT_BIND);
 	}
-
 
 	if (listen(s, queue_len) < 0) {
 		lprintf(1, "Can't listen: %s\n", strerror(errno));
