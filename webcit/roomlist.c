@@ -291,13 +291,13 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 	long PutTo;
 	long State;
 	
-	WantThisOne = GetTemplateTokenNumber(Target, TP, 5, 0);
-	if (WantThisOne == 0)
+	WantThisOne = GetTemplateTokenNumber(Target, TP, 5, -1);
+	if ((WantThisOne < 0) || (WantThisOne > maxRoomNetCfg))
 		return NULL;
-	if (WCC->CurRoom.IgnetCfgs[0] == (HashList*) StrBufNOTNULL)
+	if (WCC->CurRoom.IgnetCfgs[maxRoomNetCfg] == (HashList*) StrBufNOTNULL)
 		return WCC->CurRoom.IgnetCfgs[WantThisOne];
 
-	WCC->CurRoom.IgnetCfgs[0] = (HashList*) StrBufNOTNULL;
+	WCC->CurRoom.IgnetCfgs[maxRoomNetCfg] = (HashList*) StrBufNOTNULL;
 	serv_puts("GNET");
 	Line = NewStrBuf();
 	Token = NewStrBuf();
@@ -308,7 +308,7 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 		StrBuf_ServGetln(Line);
 		StrBufExtract_NextToken(Token, Line, &Pos, '|');
 		PutTo = GetTokenDefine(SKEY(Token), -1);
-		if ((PutTo > 0) && 
+		if ((PutTo >= 0) && 
 		    (PutTo < maxRoomNetCfg) &&
 		    (Pos != StrBufNOTNULL))
 		{
@@ -316,13 +316,20 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 			HashList *SubH;
 
 			if (WCC->CurRoom.IgnetCfgs[PutTo] == NULL)
+			{
+				n = 0;
 				WCC->CurRoom.IgnetCfgs[PutTo] = NewHash(1, NULL);
+			}
+			else 
+			{
+				n = GetCount(WCC->CurRoom.IgnetCfgs[PutTo]);
+			}
 			SubH = NewHash(1, NULL);
-			n = GetCount(WCC->CurRoom.IgnetCfgs[PutTo]) + 1;
 			Put(WCC->CurRoom.IgnetCfgs[PutTo], 
 			    IKEY(n),
 			    SubH, 
 			    HDeleteHash);
+			n = 0;
 			while (Pos != StrBufNOTNULL) {
 				Content = NewStrBuf();
 				StrBufExtract_NextToken(Content, Line, &Pos, '|');
