@@ -842,13 +842,10 @@ void set_bool_val(int msgpos, int *ip, char *DefValue)
 
 void set_str_val(int msgpos, char *Target, char *DefValue) 
 {
-	if (DefValue != NULL)
-	{
-		strprompt(setup_titles[msgpos], 
-			  setup_text[msgpos], 
-			  Target, 
-			  DefValue);
-	}
+	strprompt(setup_titles[msgpos], 
+		  setup_text[msgpos], 
+		  Target, 
+		  DefValue);
 }
 
 void set_int_val(int msgpos, int *ip, char *DefValue)
@@ -889,6 +886,8 @@ void edit_value(int curr)
 	{
 		Value = getenv(EnvNames[curr]);
 	}
+	if (Value == NULL)
+		Value = "";
 
 
 	switch (curr) {
