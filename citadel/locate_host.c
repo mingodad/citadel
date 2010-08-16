@@ -38,6 +38,10 @@
 #endif
 
 
+/*
+ * Given an open client socket, return the host name and IP address at the other end.
+ * (IPv4 and IPv6 compatible)
+ */
 void locate_host(char *tbuf, size_t n, char *abuf, size_t na, int client_socket)
 {
 	struct sockaddr_in6 clientaddr;
@@ -248,6 +252,8 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
  * PORTABILITY NOTE!  I've made my best effort to rewrite this in a portable fashion.
  * If anyone makes changes to this function, please shout-out so we can test it to
  * make sure it didn't break on Linux!
+ *
+ * FIXME: support IPv6 RBL as specified in http://tools.ietf.org/html/draft-irtf-asrg-dnsbl-08
  */
 int rbl_check(char *message_to_spammer) {
 	int r;
