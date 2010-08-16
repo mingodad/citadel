@@ -38,89 +38,17 @@
 #endif
 
 
-/* Hacks to work around nameser.h declarations missing on OpenBSD
- * see also: http://search.cpan.org/src/MIKER/Net-DNS-ToolKit-0.30/ToolKit.h
- */
-
-#ifndef NS_INT16SZ
-# ifdef INT16SZ
-#  define NS_INT16SZ INT16SZ
-# endif
-#endif
-
-#ifndef NS_INT32SZ
-# ifdef INT32SZ
-#  define NS_INT32SZ INT32SZ
-# endif
-#endif
-
-#ifndef NS_GET16
-# ifdef GETSHORT
-#  define NS_GET16 GETSHORT
-# endif
-#endif
-
-
-/***************************************************************************/
-
-
-void locate_host(char *tbuf, size_t n,
-		char *abuf, size_t na,
-		const struct in_addr *addr)
+void locate_host(char *tbuf, size_t n, char *abuf, size_t na, int client_socket)
 {
-	struct hostent *ch;
-	const char *i;
-	char *j;
-	int a1, a2, a3, a4;
-	char address_string[SIZ];
+	struct sockaddr_in6 clientaddr;
+	unsigned int addrlen = sizeof(clientaddr);
 
+	tbuf[0] = 0;
+	abuf[0] = 0;
 
-#ifdef HAVE_NONREENTRANT_NETDB
-	begin_critical_section(S_NETDB);
-#endif
-
-	i = (const char *) addr;
-	a1 = ((*i++) & 0xff);
-	a2 = ((*i++) & 0xff);
-	a3 = ((*i++) & 0xff);
-	a4 = ((*i++) & 0xff);
-	sprintf(address_string, "%d.%d.%d.%d", a1, a2, a3, a4);
-
-	if (abuf != NULL) {
-		safestrncpy(abuf, address_string, na);
-	}
-
-	if ((ch = gethostbyaddr((const char *) addr,
-	   sizeof(*addr), AF_INET)) == NULL) {
-bad_dns:
-		safestrncpy(tbuf, address_string, n);
-		goto end;	/* because we might need to end the critical
-				   section */
-	}
-	/* check if the forward DNS agrees; if not, they're spoofing */
-	j = strdup(ch->h_name);
-	ch = gethostbyname(j);
-	free(j);
-	if (ch == NULL)
-		goto bad_dns;
-
-	/* check address for consistency */
-	for (; *ch->h_addr_list; ch->h_addr_list++)
-		if (!memcmp(*ch->h_addr_list, addr,
-			    sizeof *addr)) {
-			safestrncpy(tbuf, ch->h_name, 63);
-			goto end;
-		}
-	goto bad_dns;		/* they were spoofing. report a numeric IP
-				   address. */
-
-      end:
-
-#ifdef HAVE_NONREENTRANT_NETDB
-	end_critical_section(S_NETDB);
-#endif
-
-	tbuf[63] = 0;
+	getpeername(client_socket, (struct sockaddr *)&clientaddr, &addrlen);
+	getnameinfo((struct sockaddr *)&clientaddr, addrlen, tbuf, n, NULL, 0, 0);
+	getnameinfo((struct sockaddr *)&clientaddr, addrlen, abuf, na, NULL, 0, NI_NUMERICHOST);
 }
 
 

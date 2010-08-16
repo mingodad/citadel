@@ -907,15 +907,14 @@ void begin_session(CitContext *con)
 	con->cs_host[sizeof con->cs_host - 1] = 0;
 	len = sizeof sin;
 	if (!CC->is_local_socket) {
-		if (!getpeername(con->client_socket, (struct sockaddr *) &sin, &len)) {
-			locate_host(con->cs_host, sizeof con->cs_host,
-				con->cs_addr, sizeof con->cs_addr,
-				&sin.sin_addr
-			);
-		}
+		locate_host(con->cs_host, sizeof con->cs_host,
+			con->cs_addr, sizeof con->cs_addr,
+			con->client_socket
+		);
 	}
 	else {
-		strcpy(con->cs_host, "");
+		con->cs_host[0] = 0;
+		con->cs_addr[0] = 0;
 #ifdef HAVE_STRUCT_UCRED
 		{
 			/* as http://www.wsinnovations.com/softeng/articles/uds.html told us... */
