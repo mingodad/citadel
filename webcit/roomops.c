@@ -1296,45 +1296,61 @@ void editroom(void)
 /*
  * Display form for Invite, Kick, and show Who Knows a room
  */
-void do_invt_kick(void) {
-        char buf[SIZ], room[SIZ], username[SIZ];
+void do_invt_kick(void) 
+{
+	StrBuf *Buf, *User;
+	const StrBuf *UserNames;
+	int Kick, Invite;
+	wcsession *WCC = WC;
 
-        serv_puts("GETR");
-        serv_getln(buf, sizeof buf);
 
-        if (buf[0] != '2') {
-		escputs(&buf[4]);
-		return;
-        }
-        extract_token(room, &buf[4], 0, '|', sizeof room);
+	if (GetCurrentRoomFlags(&WCC->CurRoom) == 1)
+	{
+		const char *Pos;
+		UserNames = sbstr("username");
+		Kick = havebstr("kick_button");
+		Invite = havebstr("invite_button");
 
-        strcpy(username, bstr("username"));
-
-        if (havebstr("kick_button")) {
-                sprintf(buf, "KICK %s", username);
-                serv_puts(buf);
-                serv_getln(buf, sizeof buf);
-
-                if (buf[0] != '2') {
-                        strcpy(WC->ImportantMessage, &buf[4]);
-                } else {
-                        sprintf(WC->ImportantMessage,
-				_("<B><I>User %s kicked out of room %s.</I></B>\n"), 
-                                username, room);
-                }
-        }
-
-	if (havebstr("invite_button")) {
-                sprintf(buf, "INVT %s", username);
-                serv_puts(buf);
-                serv_getln(buf, sizeof buf);
-
-                if (buf[0] != '2') {
-                        strcpy(WC->ImportantMessage, &buf[4]);
-                } else {
-                        sprintf(WC->ImportantMessage,
-                        	_("<B><I>User %s invited to room %s.</I></B>\n"), 
-                                username, room);
+		User = NewStrBufPlain(NULL, StrLength(UserNames));
+		Buf = NewStrBuf();
+		
+		Pos = ChrPtr(UserNames);
+		while (Pos != StrBufNOTNULL)
+		{
+			StrBufExtract_NextToken(User, UserNames, &Pos, ',');
+			StrBufTrim(User);
+			if ((StrLength(User) > 0) && (Kick))
+			{
+				serv_printf("KICK %s", ChrPtr(User));
+				StrBuf_ServGetln(Buf);
+				if (GetServerStatus(Buf, NULL) != 2) {
+					StrBufCutLeft(Buf, 4);
+					AppendImportantMessage(SKEY(Buf));
+				} else {
+					StrBufPrintf(Buf, 
+						     _("User '%s' kicked out of room '%s'."), 
+						     ChrPtr(User), 
+						     ChrPtr(WCC->CurRoom.name)
+						);
+					AppendImportantMessage(SKEY(Buf));
+				}
+			}
+			else if ((StrLength(User) > 0) && (Invite))
+			{
+				serv_printf("INVT %s", ChrPtr(User));
+				StrBuf_ServGetln(Buf);
+				if (GetServerStatus(Buf, NULL) != 2) {
+					StrBufCutLeft(Buf, 4);
+					AppendImportantMessage(SKEY(Buf));
+				} else {
+					StrBufPrintf(Buf, 
+						     _("User '%s' invited to room '%s'."), 
+						     ChrPtr(User), 
+						     ChrPtr(WCC->CurRoom.name)
+						);
+					AppendImportantMessage(SKEY(Buf));
+				}
+			}
                 }
         }
 
@@ -1950,6 +1966,7 @@ HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
 				    IKEY(n),
 				    Token, 
 				    HFreeStrBuf);
+				n++;
 			}
 	}
 	else if (State == 550)
