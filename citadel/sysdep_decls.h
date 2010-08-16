@@ -55,8 +55,8 @@ extern int enable_syslog;
 extern int print_to_logfile;
 
 void init_sysdep (void);
-int ig_tcp_server (char *ip_addr, int port_number, int queue_len,char **errormessage);
-int ig_uds_server(char *sockpath, int queue_len, char **errormessage);
+int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errormessage);
+int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage);
 void buffer_output(void);
 void unbuffer_output(void);
 void flush_output(void);

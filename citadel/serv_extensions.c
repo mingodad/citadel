@@ -727,12 +727,11 @@ void CtdlRegisterServiceHook(int tcp_port,
 {
 	struct ServiceFunctionHook *newfcn;
 	char *message;
-	char *error;
+	char error[SIZ];
 
-	error = NULL;
-	newfcn = (struct ServiceFunctionHook *)
-	    malloc(sizeof(struct ServiceFunctionHook));
-	message = (char*) malloc (SIZ);
+	strcpy(error, "");
+	newfcn = (struct ServiceFunctionHook *) malloc(sizeof(struct ServiceFunctionHook));
+	message = (char*) malloc (SIZ + SIZ);
 	
 	newfcn->next = ServiceHookTable;
 	newfcn->tcp_port = tcp_port;
@@ -743,7 +742,7 @@ void CtdlRegisterServiceHook(int tcp_port,
 	newfcn->ServiceName = ServiceName;
 
 	if (sockpath != NULL) {
-		newfcn->msock = ig_uds_server(sockpath, config.c_maxsessions, &error);
+		newfcn->msock = ctdl_uds_server(sockpath, config.c_maxsessions, error);
 		snprintf(message, SIZ, "Unix domain socket '%s': ", sockpath);
 	}
 	else if (tcp_port <= 0) {	/* port -1 to disable */
@@ -753,10 +752,10 @@ void CtdlRegisterServiceHook(int tcp_port,
 		return;
 	}
 	else {
-		newfcn->msock = ig_tcp_server(config.c_ip_addr,
+		newfcn->msock = ctdl_tcp_server(config.c_ip_addr,
 					      tcp_port,
 					      config.c_maxsessions, 
-					      &error);
+					      error);
 		snprintf(message, SIZ, "TCP port %s:%d: (%s) ", 
 			 config.c_ip_addr, tcp_port, ServiceName);
 	}
