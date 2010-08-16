@@ -104,7 +104,7 @@ typedef struct _folder {
 	
 	int BumpUsers; /* if SETR set to 1 to make all users who knew this room to forget about it. */
 
-	HashList *IgnetCfgs[maxRoomNetCfg];
+	HashList *IgnetCfgs[maxRoomNetCfg + 1];
 }folder;
 
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);

@@ -42,18 +42,7 @@
 
 		<br />
 		<form method="get" action="toggle_self_service">
-			<!-- Self Service subscription? -->
 			<table>
-				<tr>
-					<td><?_("Allow self-service subscribe/unsubscribe requests.")></td>
-					<td><input type="checkbox" name="QR2_SelfList" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_SELFLIST", 1, 'checked="checked" ', "")> /></td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<?_("The URL for subscribe/unsubscribe is: ")>
-						<tt><?%("COND:IS_HTTPS", 3, 1, 0, "https", "http")>://<?SERV:FQDN>/listsub</tt>
-					</td>
-				</tr>
 				<!-- Public posting? -->
 				<tr>
 					<td><?_("Allow non-subscribers to mail to this room.")></td>
@@ -65,6 +54,19 @@
 					<td><?_("Room post publication needs Aide permission.")></td>
 					<td><input type="checkbox" name="QR2_Moderated" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_MODERATED", 1, 'checked="checked" ', "")> /></td>
 				</tr>
+				<!-- Self Service subscription? -->
+				<tr>
+					<td><?_("Allow self-service subscribe/unsubscribe requests.")></td>
+					<td><input type="checkbox" name="QR2_SelfList" value="yes" <?%("COND:THISROOM:FLAG:QR2", 20, #"QR2_SELFLIST", 1, 'checked="checked" ', "")> /></td>
+				</tr>
+				<tr>
+				<!-- Give the admin some hint how to access the subscriber interface -->
+					<td colspan="2">
+						<?_("The URL for subscribe/unsubscribe is: ")>
+						<tt><?%("COND:IS_HTTPS", 3, 1, 0, "https", "http")>://<?SERV:FQDN>/listsub</tt>
+					</td>
+				</tr>
+
 				<tr>
 					<td colspan="2" align="center">
 					        <input type="hidden" name="last_tabsel" value="<?TAB:N>" />

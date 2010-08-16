@@ -706,6 +706,9 @@ int SetCurrentRoomFlags(folder *Room)
 	StrBuf *Buf;
 
 	Buf = NewStrBuf();
+	DBG_QR(Room->QRFlags);
+	DBG_QR2(Room->QRFlags2);
+
 	serv_printf("SETR %s|%s|%s|%ld|%d|%d|%ld|%ld|%ld",
 		    ChrPtr(Room->name),
 		    ChrPtr(Room->XAPass),
