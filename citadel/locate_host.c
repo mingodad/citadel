@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * locate the originating host
+ * Functions which handle hostname/address lookups and resolution
  *
  */
 
