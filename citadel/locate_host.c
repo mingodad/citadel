@@ -206,10 +206,12 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 
 
 /*
- * Check to see if a host is on some sort of spam list (RBL)
+ * Check to see if the client host is on some sort of spam list (RBL)
  * If spammer, returns nonzero and places reason in 'message_to_spammer'
+ *
+ * FIXME: support IPv6 RBL as specified in http://tools.ietf.org/html/draft-irtf-asrg-dnsbl-08
  */
-int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
+int rbl_check(char *message_to_spammer)
 {
 	int a1, a2, a3, a4;
 	char tbuf[256];
@@ -217,11 +219,9 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 	int num_rbl;
 	char rbl_domains[SIZ];
 	char txt_answer[1024];
-	char dotted_quad[32];
 
 	strcpy(message_to_spammer, "ok");
-	safestrncpy(dotted_quad, inet_ntoa(*addr), sizeof dotted_quad);
-	sscanf(dotted_quad, "%d.%d.%d.%d", &a1, &a2, &a3, &a4);
+	sscanf(CC->cs_addr, "%d.%d.%d.%d", &a1, &a2, &a3, &a4);
 
 	/* See if we have any RBL domains configured */
 	num_rbl = get_hosts(rbl_domains, "rbl");
@@ -229,9 +229,7 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 
 	/* Try all configured RBL's */
         for (rbl=0; rbl<num_rbl; ++rbl) {
-		snprintf(tbuf, sizeof tbuf,
-			"%d.%d.%d.%d.",
-			a4, a3, a2, a1);
+		snprintf(tbuf, sizeof tbuf, "%d.%d.%d.%d.", a4, a3, a2, a1);
                 extract_token(&tbuf[strlen(tbuf)], rbl_domains, rbl, '|', (sizeof tbuf - strlen(tbuf)));
 
 		if (rblcheck_backend(tbuf, txt_answer, sizeof txt_answer)) {
@@ -244,32 +242,6 @@ int rbl_check_addr(struct in_addr *addr, char *message_to_spammer)
 	return(0);
 }
 			
-
-/*
- * Check to see if the client host is on some sort of spam list (RBL)
- * If spammer, returns nonzero and places reason in 'message_to_spammer'
- *
- * PORTABILITY NOTE!  I've made my best effort to rewrite this in a portable fashion.
- * If anyone makes changes to this function, please shout-out so we can test it to
- * make sure it didn't break on Linux!
- *
- * FIXME: support IPv6 RBL as specified in http://tools.ietf.org/html/draft-irtf-asrg-dnsbl-08
- */
-int rbl_check(char *message_to_spammer) {
-	int r;
-	struct sockaddr_in peer;
-	socklen_t peer_len = 0;
-
-	peer_len = sizeof(peer);
-	r = getpeername(CC->client_socket, &peer, &peer_len);
-	if (r == 0) {
-		return(rbl_check_addr(&peer.sin_addr, message_to_spammer));
-	}
-	else {
-		CtdlLogPrintf(CTDL_INFO, "RBL getpeername() failed: %s\n", strerror(errno));
-	}
-	return(0);
-}
 
 /*
  * Convert a host name to a dotted quad address. 
