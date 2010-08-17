@@ -382,6 +382,7 @@ void tmplput_bstrforward(StrBuf *Target, WCTemplputParams *TP)
 {
 	const StrBuf *Buf = SBstr(TKEY(0));
 	if (Buf != NULL) {
+		StrBufAppendBufPlain(Target, HKEY("?"), 0);		
 		StrBufAppendBufPlain(Target, TKEY(0), 0);
 		StrBufAppendBufPlain(Target, HKEY("="), 0);		
 		StrBufAppendTemplate(Target, TP, Buf, 1);
