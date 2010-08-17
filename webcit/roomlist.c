@@ -143,6 +143,18 @@ HashList *GetZappedRoomListHash(StrBuf *Target, WCTemplputParams *TP)
 	return GetRoomListHash(Target, TP);
 }
 
+void FlushIgnetCfgs(folder *room)
+{
+	int i;
+	if (room->IgnetCfgs[maxRoomNetCfg] == (HashList*) StrBufNOTNULL)
+	{
+		for (i = ignet_push_share; i < maxRoomNetCfg; i++)
+			DeleteHash(&room->IgnetCfgs[i]);
+	}
+	memset(&room->IgnetCfgs, 0, sizeof(HashList *) * (maxRoomNetCfg + 1));
+
+}
+
 void FlushFolder(folder *room)
 {
 	int i;
@@ -153,12 +165,9 @@ void FlushFolder(folder *room)
 	FreeStrBuf(&room->XInfoText);
 
 	FreeStrBuf(&room->name);
-	if (room->IgnetCfgs[0] == (HashList*) StrBufNOTNULL)
-	{
-		room->IgnetCfgs[0] = NULL;
-		for (i = ignet_push_share; i < maxRoomNetCfg; i++)
-			DeleteHash(&room->IgnetCfgs[i]);
-	}
+
+	FlushIgnetCfgs(room);
+
 	if (room->RoomNameParts != NULL)
 	{
 		for (i=0; i < room->nRoomNameParts; i++)
@@ -305,41 +314,52 @@ HashList *GetNetConfigHash(StrBuf *Target, WCTemplputParams *TP)
 	if (GetServerStatus(Line, &State) == 1) 
 	{
 		const char *Pos = NULL;
-		StrBuf_ServGetln(Line);
-		StrBufExtract_NextToken(Token, Line, &Pos, '|');
-		PutTo = GetTokenDefine(SKEY(Token), -1);
-		if ((PutTo >= 0) && 
-		    (PutTo < maxRoomNetCfg) &&
-		    (Pos != StrBufNOTNULL))
-		{
-			int n;
-			HashList *SubH;
+		int Done = 0;
 
-			if (WCC->CurRoom.IgnetCfgs[PutTo] == NULL)
+		while(!Done && StrBuf_ServGetln(Line))
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000"))
 			{
-				n = 0;
-				WCC->CurRoom.IgnetCfgs[PutTo] = NewHash(1, NULL);
+				Done = 1;
 			}
-			else 
+			else
 			{
-				n = GetCount(WCC->CurRoom.IgnetCfgs[PutTo]);
+				StrBufExtract_NextToken(Token, Line, &Pos, '|');
+				PutTo = GetTokenDefine(SKEY(Token), -1);
+				if ((PutTo >= 0) && 
+				    (PutTo < maxRoomNetCfg) &&
+				    (Pos != StrBufNOTNULL))
+				{
+					int n;
+					HashList *SubH;
+					
+					if (WCC->CurRoom.IgnetCfgs[PutTo] == NULL)
+					{
+						n = 0;
+						WCC->CurRoom.IgnetCfgs[PutTo] = NewHash(1, NULL);
+					}
+					else 
+					{
+						n = GetCount(WCC->CurRoom.IgnetCfgs[PutTo]);
+					}
+					SubH = NewHash(1, NULL);
+					Put(WCC->CurRoom.IgnetCfgs[PutTo], 
+					    IKEY(n),
+					    SubH, 
+					    HDeleteHash);
+					n = 1; /* #0 is the type... */
+					while (Pos != StrBufNOTNULL) {
+						Content = NewStrBuf();
+						StrBufExtract_NextToken(Content, Line, &Pos, '|');
+						Put(SubH, 
+						    IKEY(n),
+						    Content, 
+						    HFreeStrBuf);
+						n++;
+					}
+				}
+				Pos = NULL;
 			}
-			SubH = NewHash(1, NULL);
-			Put(WCC->CurRoom.IgnetCfgs[PutTo], 
-			    IKEY(n),
-			    SubH, 
-			    HDeleteHash);
-			n = 0;
-			while (Pos != StrBufNOTNULL) {
-				Content = NewStrBuf();
-				StrBufExtract_NextToken(Content, Line, &Pos, '|');
-				Put(SubH, 
-				    IKEY(n),
-				    Content, 
-				    HFreeStrBuf);
-				n++;
-			}
-		}
 	}
 	else if (State == 550)
 		StrBufAppendBufPlain(WCC->ImportantMsg,

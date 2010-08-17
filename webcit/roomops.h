@@ -110,6 +110,7 @@ typedef struct _folder {
 HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
 void vDeleteFolder(void *vFolder);
 void FlushFolder(folder *room);
+void FlushIgnetCfgs(folder *room);
 void ParseGoto(folder *proom, StrBuf *Line);
 void FlushRoomlist(void); /* release our caches, so a deleted / zapped room disapears */
 void ReloadCurrentRoom(void); /* Flush cache; reload current state */

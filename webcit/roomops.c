@@ -1662,6 +1662,8 @@ void netedit(void) {
 
 	serv_puts("000");
 	fclose(fp);
+	FlushIgnetCfgs(&WC->CurRoom);
+
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 }
 
@@ -2133,6 +2135,11 @@ InitModule_ROOMOPS
 	REGISTERTokenParamDefine(VIEW_BLOG);
 
 	/* GNET types: */
+	/* server internal, we need to know but ignore them. */
+	REGISTERTokenParamDefine(subpending);
+	REGISTERTokenParamDefine(unsubpending);
+	REGISTERTokenParamDefine(lastsent);
+
 	REGISTERTokenParamDefine(ignet_push_share);
 	{ /* these are the parts of an IGNET push config */
 		REGISTERTokenParamDefine(GNET_IGNET_NODE);
