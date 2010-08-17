@@ -54,7 +54,11 @@ void locate_host(char *tbuf, size_t n, char *abuf, size_t na, int client_socket)
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen, tbuf, n, NULL, 0, 0);
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen, abuf, na, NULL, 0, NI_NUMERICHOST);
 
-	/* Convert IPv6-mapped IPv4 addresses back to traditional dotted quad */
+	/* Convert IPv6-mapped IPv4 addresses back to traditional dotted quad.
+	 *
+	 * Other code here, such as the RBL check, will expect IPv4 addresses to be represented
+	 * as dotted-quad, even if they come in over a hybrid IPv6/IPv4 socket.
+	 */
 	if ( (strlen(abuf) > 7) && (!strncasecmp(abuf, "::ffff:", 7)) ) {
 		strcpy(abuf, &abuf[7]);
 	}
@@ -77,20 +81,26 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	const u_char *rend;
 	int len;
 	char *p = NULL;
+	static int res_initted = 0;
+
+	if (!res_initted) {		/* only have to do this once */
+		res_init();
+		res_initted = 1;
+	}
 
 	/* Make our DNS query. */
-	//res_init();
 	answer = fixedans;
 	if (CtdlThreadCheckStop())
 	{
-		if (txtbuf != NULL)
+		if (txtbuf != NULL) {
 			snprintf(txtbuf, txtbufsize, "System shutting down");
+		}
 		return (1);
 	}
-	len = res_query( domain, C_IN, T_A, answer, PACKETSZ );
+	len = res_query(domain, C_IN, T_A, answer, PACKETSZ);
 
 	/* Was there a problem? If so, the domain doesn't exist. */
-	if( len == -1 ) {
+	if (len == -1) {
 		if (txtbuf != NULL) {
 			strcpy(txtbuf, "");
 		}
@@ -99,9 +109,9 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 
 	if( len > PACKETSZ )
 	{
-		answer = malloc( len );
+		answer = malloc(len);
 		need_to_free_answer = 1;
-		len = res_query( domain, C_IN, T_A, answer, len );
+		len = res_query(domain, C_IN, T_A, answer, len);
 		if( len == -1 ) {
 			if (txtbuf != NULL) {
 				snprintf(txtbuf, txtbufsize,
@@ -119,26 +129,27 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 		return (1);
 	}
 
-	result = ( char * )malloc( RESULT_SIZE );
+	result = (char *) malloc(RESULT_SIZE);
 	result[ 0 ] = '\0';
 
 
 	/* Make another DNS query for textual data; this shouldn't
-	   be a performance hit, since it'll now be cached at the
-	   nameserver we're using. */
-	res_init();
-	len = res_query( domain, C_IN, T_TXT, answer, PACKETSZ );
+	 * be a performance hit, since it'll now be cached at the
+	 * nameserver we're using.
+	 */
+	len = res_query(domain, C_IN, T_TXT, answer, PACKETSZ);
 	if (CtdlThreadCheckStop())
 	{
-		if (txtbuf != NULL)
+		if (txtbuf != NULL) {
 			snprintf(txtbuf, txtbufsize, "System shutting down");
+		}
 		if (need_to_free_answer) free(answer);
 		free(result);
 		return (1);
 	}
 
 	/* Just in case there's no TXT record... */
-	if( len == -1 )
+	if (len ==(-1))
 	{
 		if (txtbuf != NULL) {
 			snprintf(txtbuf, txtbufsize,
@@ -159,32 +170,32 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 	}
 
 	/* This seems to be a bit of magic data that we need to
-	   skip. I wish there were good online documentation
-	   for programming for libresolv, so I'd know what I'm
-	   skipping here. Anyone reading this, feel free to
-	   enlighten me. */
+	 * skip. I wish there were good online documentation
+	 * for programming for libresolv, so I'd know what I'm
+	 * skipping here. Anyone reading this, feel free to
+	 * enlighten me.
+	 */
 	cp += 1 + NS_INT16SZ + NS_INT32SZ;
 
 	/* Skip the type, class and ttl. */
-	cp += ( NS_INT16SZ * 2 ) + NS_INT32SZ;
+	cp += (NS_INT16SZ * 2) + NS_INT32SZ;
 
 	/* Get the length and end of the buffer. */
-	NS_GET16( c, cp );
+	NS_GET16(c, cp);
 	cend = cp + c;
 
 	/* Iterate over any multiple answers we might have. In
-	   this context, it's unlikely, but anyway. */
+	 * this context, it's unlikely, but anyway.
+	 */
 	rp = (u_char *) result;
 	rend = (u_char *) result + RESULT_SIZE - 1;
-	while( cp < cend && rp < rend )
+	while (cp < cend && rp < rend)
 	{
 		a = *cp++;
 		if( a != 0 )
-			for( b = a; b > 0 && cp < cend && rp < rend;
-			  b-- )
+			for (b = a; b > 0 && cp < cend && rp < rend; b--)
 			{
-				if( *cp == '\n' || *cp == '"' ||
-				  *cp == '\\' )
+				if (*cp == '\n' || *cp == '"' || *cp == '\\')
 				{
 					*rp++ = '\\';
 				}
