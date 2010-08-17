@@ -377,6 +377,17 @@ void tmplput_bstr(StrBuf *Target, WCTemplputParams *TP)
 		StrBufAppendTemplate(Target, TP, Buf, 1);
 }
 
+
+void tmplput_bstrforward(StrBuf *Target, WCTemplputParams *TP)
+{
+	const StrBuf *Buf = SBstr(TKEY(0));
+	if (Buf != NULL) {
+		StrBufAppendBufPlain(Target, TKEY(0), 0);
+		StrBufAppendBufPlain(Target, HKEY("="), 0);		
+		StrBufAppendTemplate(Target, TP, Buf, 1);
+	}
+}
+
 void diagnostics(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
@@ -437,6 +448,7 @@ InitModule_PARAMHANDLING
 
 	RegisterConditional(HKEY("COND:BSTR"), 1, ConditionalBstr, CTX_NONE);
 	RegisterNamespace("BSTR", 1, 2, tmplput_bstr, NULL, CTX_NONE);
+	RegisterNamespace("BSTR:FORWARD", 1, 2, tmplput_bstrforward, NULL, CTX_NONE);
 	RegisterNamespace("URLPART", 1, 2, tmplput_url_part, NULL, CTX_NONE);
 }
 
