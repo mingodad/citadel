@@ -2175,10 +2175,11 @@ void tmplput_Comment(StrBuf *Target, WCTemplputParams *TP)
 		const char *pch;
 		long len;
 
-		GetTemplateTokenString(Target, TP, 2, &pch, &len);
+		GetTemplateTokenString(Target, TP, 0, &pch, &len);
 		Comment = NewStrBufPlain(pch, len);
+		StrBufAppendBufPlain(Target, HKEY("<!--"), 0);
 		StrBufAppendTemplate(Target, TP, Comment, 1);
-
+		StrBufAppendBufPlain(Target, HKEY("-->"), 0);
 		FreeStrBuf(&Comment);
 	}
 }
