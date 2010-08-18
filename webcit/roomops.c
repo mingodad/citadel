@@ -1667,6 +1667,77 @@ void netedit(void) {
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 }
 
+/*
+ * delete the actual floor
+ */
+void delete_floor(void) {
+	int floornum;
+	StrBuf *Buf;
+	const char *Err;
+		
+	floornum = ibstr("floornum");
+	Buf = NewStrBuf();
+	serv_printf("KFLR %d|1", floornum);
+	
+	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
+
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBufPlain(Buf, _("Floor has been deleted."),-1);
+	}
+	else {
+		StrBufCutLeft(Buf, 4);
+	}
+	AppendImportantMessage (SKEY(Buf));
+
+	FlushRoomlist();
+	http_transmit_thing(ChrPtr(do_template("floors", NULL)), 0);
+	FreeStrBuf(&Buf);
+}
+
+/*
+ * start creating a new floor
+ */
+void create_floor(void) {
+	StrBuf *Buf;
+	const char *Err;
+
+	Buf = NewStrBuf();
+	serv_printf("CFLR %s|1", bstr("floorname"));
+	StrBufTCP_read_line(Buf, &WC->serv_sock, 0, &Err);
+
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBufPlain(Buf, _("New floor has been created."),-1);
+	}
+	else {
+		StrBufCutLeft(Buf, 4);
+	}
+	AppendImportantMessage (SKEY(Buf));
+	FlushRoomlist();
+	http_transmit_thing(ChrPtr(do_template("floors", NULL)), 0);
+	FreeStrBuf(&Buf);
+}
+
+
+/*
+ * rename this floor
+ */
+void rename_floor(void) {
+	StrBuf *Buf;
+
+	Buf = NewStrBuf();
+	FlushRoomlist();
+
+	serv_printf("EFLR %d|%s", ibstr("floornum"), bstr("floorname"));
+	StrBuf_ServGetln(Buf);
+
+	StrBufCutLeft(Buf, 4);
+	AppendImportantMessage (SKEY(Buf));
+
+	http_transmit_thing(ChrPtr(do_template("floors", NULL)), 0);
+	FreeStrBuf(&Buf);
+}
+
+
 
 /**
  * \brief Back end for change_view()
@@ -2026,6 +2097,10 @@ InitModule_ROOMOPS
 
 	RegisterNamespace("ROOMNAME", 0, 1, tmplput_RoomName, NULL, CTX_NONE);
 
+
+	WebcitAddUrlHandler(HKEY("delete_floor"), "", 0, delete_floor, 0);
+	WebcitAddUrlHandler(HKEY("rename_floor"), "", 0, rename_floor, 0);
+	WebcitAddUrlHandler(HKEY("create_floor"), "", 0, create_floor, 0);
 
 	WebcitAddUrlHandler(HKEY("knrooms"), "", 0, knrooms, 0);
 	WebcitAddUrlHandler(HKEY("dotgoto"), "", 0, dotgoto, NEED_URL);
