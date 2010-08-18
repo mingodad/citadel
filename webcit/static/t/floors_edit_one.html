@@ -1,0 +1,34 @@
+<!--("Subtemplate to edit a single floor, called as ITERATION by floors.html")-->
+		<tr>
+			<td>
+				<table border="0">
+					<tr>
+						<td><?FLOORNUM>
+					<?!("COND:FLOOR:RECFOUNT",20,0)>
+						</td>
+						<td>
+							<a href="delete_floor?floornum=<?FLOORNUM>" style="font-size: -1"><?_("(delete floor)")></a><br>
+					<??("X",20)>
+							<a href="display_editfloorpic?which_floor=<?FLOORNUM>" style="font-size: -1"><?_("(edit graphic)")></a>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td>
+				<form method="post" action="rename_floor">
+					<input type="hidden" name="floornum" value="<?FLOORNUM>">
+					<input type="text" name="floorname" value="<?FLOORNAME>" maxlength="250">
+					<input type="hidden" name="nonce" value="<?NONCE>">
+					<input type="submit" name="sc" value="<?_("Change name")>">
+				</form>
+			</td>
+			<td><?REFCOUNT></td>
+			<td>
+				<form method="post" action="set_floor_css">
+					<input type="hidden" name="floornum" value="<?FLOORNUM>">
+					<input type="text" name="floorcss" value="<?FLOORNAME>" maxlength="250">
+					<input type="hidden" name="nonce" value="<?NONCE>">
+					<input type="submit" name="sc" value="<?_("Change CSS")>">
+				</form>
+			</td>
+		</tr>
