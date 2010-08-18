@@ -34,7 +34,7 @@ HashList *Defines;
 
 int DumpTemplateI18NStrings = 0;
 int LoadTemplates = 0;
-int dbg_bactrace_template_errors = 0;
+int dbg_backtrace_template_errors = 0;
 WCTemplputParams NoCtx;
 StrBuf *I18nDump = NULL;
 
@@ -238,7 +238,7 @@ void LogTemplateError (StrBuf *Target, const char *Type, int ErrorPos, WCTemplpu
 	FreeStrBuf(&Info);
 	FreeStrBuf(&Error);
 /*
-	if (dbg_bactrace_template_errors)
+	if (dbg_backtrace_template_errors)
 		wc_backtrace(); 
 */
 }
@@ -273,7 +273,7 @@ void LogError (StrBuf *Target, const char *Type, const char *Format, ...)
 	FreeStrBuf(&Info);
 	FreeStrBuf(&Error);
 /*
-	if (dbg_bactrace_template_errors)
+	if (dbg_backtrace_template_errors)
 		wc_backtrace(); 
 */
 }
@@ -2166,6 +2166,23 @@ const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCT
 
 }
 
+
+void tmplput_Comment(StrBuf *Target, WCTemplputParams *TP)
+{
+	if (LoadTemplates != 0)
+	{
+		StrBuf *Comment;
+		const char *pch;
+		long len;
+
+		GetTemplateTokenString(Target, TP, 2, &pch, &len);
+		Comment = NewStrBufPlain(pch, len);
+		StrBufAppendTemplate(Target, TP, Comment, 1);
+
+		FreeStrBuf(&Comment);
+	}
+}
+
 /*-----------------------------------------------------------------------------
  *                      Iterators
  */
@@ -3149,6 +3166,7 @@ InitModule_SUBST
 (void)
 {
 	memset(&NoCtx, 0, sizeof(WCTemplputParams));
+	RegisterNamespace("--", 0, 2, tmplput_Comment, NULL, CTX_NONE);
 	RegisterNamespace("SORT:ICON", 1, 2, tmplput_SORT_ICON, NULL, CTX_NONE);
 	RegisterNamespace("SORT:ORDER", 1, 2, tmplput_SORT_ORDER, NULL, CTX_NONE);
 	RegisterNamespace("SORT:NEXT", 1, 2, tmplput_SORT_NEXT, NULL, CTX_NONE);
