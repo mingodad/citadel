@@ -1,11 +1,11 @@
-<?=("important_msg")>
+<?=("head")><?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 
 <div id="banner">
         <h1><?_("Add/change/delete floors")></h1>
 </div>
 
-<div class="fix_scrollbar_bug">
-	<table border="1" width="100%" bgcolor="#fff">
+<div id="content" class="service fix_scrollbar_bug">
+	<table border="1" width="100%" bgcolor="#ffffff">
 		<tr>
 			<th><?_("Floor number")></th>
 			<th><?_("Floor name")></th>
@@ -13,7 +13,7 @@
 			<th><?_("Floor CSS")></th>
 		</tr>
 
-		<?ITERATE("LKRA", ="floors_edit_one")>
+		<?ITERATE("LFLR", ="floors_edit_one")>
 
 		<tr>
 			<td>&nbsp;</td>
@@ -28,3 +28,4 @@
 		</tr>
 	</table>
 </div>
+<?=("trailing")>
