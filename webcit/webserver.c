@@ -59,7 +59,7 @@ const char foobuf[32];
 const char *nix(void *vptr) {snprintf(foobuf, 32, "%0x", (long) vptr); return foobuf;}
 #endif 
 extern int dbg_analyze_msg;
-extern int dbg_bactrace_template_errors;
+extern int dbg_backtrace_template_errors;
 extern int DumpTemplateI18NStrings;
 extern StrBuf *I18nDump;
 void InitTemplateCache(void);
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 		case 'T':
 			LoadTemplates = atoi(optarg);
 			dbg_analyze_msg = (LoadTemplates && (1<<1)) != 0;
-			dbg_bactrace_template_errors = (LoadTemplates && (1<<2)) != 0;
+			dbg_backtrace_template_errors = (LoadTemplates && (1<<2)) != 0;
 			break;
 		case 'Z':
 			DisableGzip = 1;
