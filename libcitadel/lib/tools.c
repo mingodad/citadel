@@ -524,9 +524,9 @@ size_t striplt(char *buf) {
  * \brief check for the presence of a character within a string (returns count)
  * \param st the string to examine
  * \param ch the char to search
- * \return the position inside of st
+ * \return the number of times ch appears in st
  */
-int haschar(const char *st,int ch)
+int haschar(const char *st, int ch)
 {
 	const char *ptr;
 	int b;
