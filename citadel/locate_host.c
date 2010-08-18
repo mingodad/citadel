@@ -219,20 +219,74 @@ int rblcheck_backend(char *domain, char *txtbuf, int txtbufsize) {
 /*
  * Check to see if the client host is on some sort of spam list (RBL)
  * If spammer, returns nonzero and places reason in 'message_to_spammer'
- *
- * FIXME: support IPv6 RBL as specified in http://tools.ietf.org/html/draft-irtf-asrg-dnsbl-08
  */
 int rbl_check(char *message_to_spammer)
 {
-	int a1, a2, a3, a4;
-	char tbuf[256];
+	char tbuf[256] = "";
+	int suffix_pos = 0;
 	int rbl;
 	int num_rbl;
 	char rbl_domains[SIZ];
 	char txt_answer[1024];
+	int ip_version = 4;
 
 	strcpy(message_to_spammer, "ok");
-	sscanf(CC->cs_addr, "%d.%d.%d.%d", &a1, &a2, &a3, &a4);
+
+	if ((strchr(CC->cs_addr, '.')) && (!strchr(CC->cs_addr, ':'))) {
+		int a1, a2, a3, a4;
+		ip_version = 4;
+
+		sscanf(CC->cs_addr, "%d.%d.%d.%d", &a1, &a2, &a3, &a4);
+		snprintf(tbuf, sizeof tbuf, "%d.%d.%d.%d.", a4, a3, a2, a1);
+		suffix_pos = strlen(tbuf);
+	}
+	else if ((!strchr(CC->cs_addr, '.')) && (strchr(CC->cs_addr, ':'))) {
+		int num_colons = 0;
+		int i = 0;
+		char workbuf[sizeof tbuf];
+		char *ptr;
+
+		ip_version = 6;
+
+		/* tedious code to expand and reverse an IPv6 address */
+		safestrncpy(tbuf, CC->cs_addr, sizeof tbuf);
+		num_colons = haschar(tbuf, ':');
+		if ((num_colons < 2) || (num_colons > 7)) return(0);	/* badly formed address */
+
+		/* expand the "::" shorthand */
+		while (num_colons < 7) {
+			ptr = strstr(tbuf, "::");
+			if (!ptr) return(0);				/* badly formed address */
+			++ptr;
+			strcpy(workbuf, ptr);
+			strcpy(ptr, ":");
+			strcat(ptr, workbuf);
+			++num_colons;
+		}
+
+		/* expand to 32 hex characters with no colons */
+		strcpy(workbuf, tbuf);
+		strcpy(tbuf, "00000000000000000000000000000000");
+		for (i=0; i<8; ++i) {
+			char tokbuf[5];
+			extract_token(tokbuf, workbuf, i, ':', sizeof tokbuf);
+
+			memcpy(&tbuf[ (i*4) + (4-strlen(tokbuf)) ], tokbuf, strlen(tokbuf) );
+		}
+		if (strlen(tbuf) != 32) return(0);
+
+		/* now reverse it and add dots */
+		strcpy(workbuf, tbuf);
+		for (i=0; i<32; ++i) {
+			tbuf[i*2] = workbuf[31-i];
+			tbuf[(i*2)+1] = '.';
+		}
+		tbuf[64] = 0;
+		suffix_pos = 64;
+	}
+	else {
+		return(0);	/* unknown address format */
+	}
 
 	/* See if we have any RBL domains configured */
 	num_rbl = get_hosts(rbl_domains, "rbl");
@@ -240,8 +294,7 @@ int rbl_check(char *message_to_spammer)
 
 	/* Try all configured RBL's */
         for (rbl=0; rbl<num_rbl; ++rbl) {
-		snprintf(tbuf, sizeof tbuf, "%d.%d.%d.%d.", a4, a3, a2, a1);
-                extract_token(&tbuf[strlen(tbuf)], rbl_domains, rbl, '|', (sizeof tbuf - strlen(tbuf)));
+                extract_token(&tbuf[suffix_pos], rbl_domains, rbl, '|', (sizeof tbuf - suffix_pos));
 
 		if (rblcheck_backend(tbuf, txt_answer, sizeof txt_answer)) {
 			strcpy(message_to_spammer, txt_answer);
@@ -257,6 +310,8 @@ int rbl_check(char *message_to_spammer)
 /*
  * Convert a host name to a dotted quad address. 
  * Returns zero on success or nonzero on failure.
+ *
+ * FIXME this is obviously not IPv6 compatible.
  */
 int hostname_to_dotted_quad(char *addr, char *host) {
 	struct hostent *ch;
