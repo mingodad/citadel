@@ -2613,51 +2613,82 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc,
 }
 
 
-static int tcp_connectsock(char *host, char *service, int defaultPort)
+/*
+ * Connect to a Citadel on a remote host using a TCP/IP socket
+ */
+static int tcp_connectsock(char *host, char *service)
 {
-	struct hostent *phe;
-	struct servent *pse;
-	struct protoent *ppe;
-	struct sockaddr_in sin;
-	int s, type;
+	struct in6_addr serveraddr;
+	struct addrinfo hints, *res = NULL;
+	int rc;
+	int sock = (-1);
 
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
-
-	pse = getservbyname(service, "tcp");
-	if (pse != NULL) {
-		sin.sin_port = pse->s_port;
+	if ((host == NULL) || IsEmptyStr(host)) {
+		service = DEFAULT_HOST ;
 	}
-	else if (atoi(service) > 0) {
-		sin.sin_port = htons(atoi(service));
-	}
-	else {
-		sin.sin_port = htons(defaultPort);
-	}
-	phe = gethostbyname(host);
-	if (phe) {
-		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		return -1;
-	}
-	if ((ppe = getprotobyname("tcp")) == 0) {
-		return -1;
-	}
-	type = SOCK_STREAM;
-
-	s = socket(PF_INET, type, ppe->p_proto);
-	if (s < 0) {
-		return -1;
+	if ((service == NULL) || IsEmptyStr(service)) {
+		service = DEFAULT_PORT ;
 	}
 
-	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		close(s);
-		return -1;
+	memset(&hints, 0x00, sizeof(hints));
+	hints.ai_flags = AI_NUMERICSERV;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	/*
+	 * Handle numeric IPv4 and IPv6 addresses
+	 */
+	rc = inet_pton(AF_INET, host, &serveraddr);
+	if (rc == 1) {						/* dotted quad */
+		hints.ai_family = AF_INET;
+		hints.ai_flags |= AI_NUMERICHOST;
+	} else {
+		rc = inet_pton(AF_INET6, host, &serveraddr);
+		if (rc == 1) {					/* IPv6 address */
+			hints.ai_family = AF_INET6;
+			hints.ai_flags |= AI_NUMERICHOST;
+		}
 	}
 
-	return (s);
+	/* Begin the connection process */
+
+	rc = getaddrinfo(host, service, &hints, &res);
+	if (rc != 0) {
+		//	CtdlLogPrintf(CTDL_ERR, "%s: %s\n", host, gai_strerror(rc));
+		return(-1);
+	}
+
+	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	if (sock < 0) {
+		//	CtdlLogPrintf(CTDL_ERR, "socket() failed: %s\n", strerror(errno));
+		return(-1);
+	}
+
+	/*
+	 * Try all available addresses until we connect to one or until we run out.
+	 */
+	struct addrinfo *ai;
+	for (ai = res; ai != NULL; ai = ai->ai_next) {
+		/* FIXME display the address to which we are trying to connect */
+		rc = connect(sock, res->ai_addr, res->ai_addrlen);
+		if (rc >= 0) {
+			return(sock);
+		}
+		else {
+			//	CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
+		}
+	}
+
+	return(-1);
 }
 
+
+
+
+
+/*
+ * Connect to a Citadel on the local host using a unix domain socket
+ */
 static int uds_connectsock(int *isLocal, char *sockpath)
 {
 	struct sockaddr_un addr;
@@ -3238,7 +3269,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		return ipc;
 	}
 
-	ipc->sock = tcp_connectsock(cithost, citport, 504);
+	ipc->sock = tcp_connectsock(cithost, citport);
 	if (ipc->sock == -1) {
 		ifree(ipc);
 		return 0;
