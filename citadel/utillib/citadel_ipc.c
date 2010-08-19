@@ -2613,7 +2613,7 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc,
 }
 
 
-static int connectsock(char *host, char *service, char *protocol, int defaultPort)
+static int tcp_connectsock(char *host, char *service, int defaultPort)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -2624,7 +2624,7 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
 
-	pse = getservbyname(service, protocol);
+	pse = getservbyname(service, "tcp");
 	if (pse != NULL) {
 		sin.sin_port = pse->s_port;
 	}
@@ -2640,14 +2640,10 @@ static int connectsock(char *host, char *service, char *protocol, int defaultPor
 	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
 		return -1;
 	}
-	if ((ppe = getprotobyname(protocol)) == 0) {
+	if ((ppe = getprotobyname("tcp")) == 0) {
 		return -1;
 	}
-	if (!strcmp(protocol, "udp")) {
-		type = SOCK_DGRAM;
-	} else {
-		type = SOCK_STREAM;
-	}
+	type = SOCK_STREAM;
 
 	s = socket(PF_INET, type, ppe->p_proto);
 	if (s < 0) {
@@ -3242,7 +3238,7 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		return ipc;
 	}
 
-	ipc->sock = connectsock(cithost, citport, "tcp", 504);
+	ipc->sock = tcp_connectsock(cithost, citport, 504);
 	if (ipc->sock == -1) {
 		ifree(ipc);
 		return 0;
