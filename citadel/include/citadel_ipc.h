@@ -6,7 +6,7 @@
 #else
 #define DEFAULT_HOST		UDS
 #endif
-#define DEFAULT_PORT		"citadel"
+#define DEFAULT_PORT		"504"
 
 #include "sysdep.h"
 #ifdef HAVE_PTHREAD_H
