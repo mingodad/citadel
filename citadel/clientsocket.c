@@ -54,7 +54,7 @@
 #define INADDR_NONE 0xffffffff
 #endif
 
-int sock_connect(char *host, char *service, char *protocol)
+int sock_connect(char *host, char *service)
 {
 	struct hostent *phe;
 	struct servent *pse;
@@ -67,13 +67,11 @@ int sock_connect(char *host, char *service, char *protocol)
 		return(-1);
 	if ((service == NULL) || IsEmptyStr(service)) 
 		return(-1);
-	if ((protocol == NULL) || IsEmptyStr(protocol)) 
-		return(-1);
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
 
-	pse = getservbyname(service, protocol);
+	pse = getservbyname(service, "tcp");
 	if (pse) {
 		sin.sin_port = pse->s_port;
 	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
@@ -89,16 +87,11 @@ int sock_connect(char *host, char *service, char *protocol)
 			host, strerror(errno));
 		return(-1);
 	}
-	if ((ppe = getprotobyname(protocol)) == 0) {
-		CtdlLogPrintf(CTDL_CRIT, "Can't get %s protocol entry: %s\n",
-			protocol, strerror(errno));
+	if ((ppe = getprotobyname("tcp")) == 0) {
+		CtdlLogPrintf(CTDL_CRIT, "Can't get tcp protocol entry: %s\n", strerror(errno));
 		return(-1);
 	}
-	if (!strcmp(protocol, "udp")) {
-		type = SOCK_DGRAM;
-	} else {
-		type = SOCK_STREAM;
-	}
+	type = SOCK_STREAM;
 
 	s = socket(PF_INET, type, ppe->p_proto);
 	if (s < 0) {

@@ -90,7 +90,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	if (CtdlThreadCheckStop())
 		return;
 		
-	sock = sock_connect(pop3host, "110", "tcp");
+	sock = sock_connect(pop3host, "110");
 	if (sock < 0) {
 		CtdlLogPrintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
 		return;

@@ -2075,7 +2075,7 @@ void network_poll_node(char *node, char *secret, char *host, char *port) {
 	CtdlLogPrintf(CTDL_DEBUG, "network: polling <%s>\n", node);
 	CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s> at %s:%s\n", node, host, port);
 
-	sock = sock_connect(host, port, "tcp");
+	sock = sock_connect(host, port);
 	if (sock < 0) {
 		CtdlLogPrintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
 		network_talking_to(node, NTT_REMOVE);

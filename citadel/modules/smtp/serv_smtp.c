@@ -1083,7 +1083,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			strcpy(mx_port, "25");
 		}
 		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connecting to %s : %s ...\n", mx_host, mx_port);
-		sock = sock_connect(mx_host, mx_port, "tcp");
+		sock = sock_connect(mx_host, mx_port);
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
 		if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connected!\n");
 		if (sock < 0) {
