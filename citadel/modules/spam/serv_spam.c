@@ -95,7 +95,7 @@ int spam_assassin(struct CtdlMessage *msg) {
         for (sa=0; sa<num_sahosts; ++sa) {
                 extract_token(buf, sahosts, sa, '|', sizeof buf);
                 CtdlLogPrintf(CTDL_INFO, "Connecting to SpamAssassin at <%s>\n", buf);
-                sock = sock_connect(buf, SPAMASSASSIN_PORT, "tcp");
+                sock = sock_connect(buf, SPAMASSASSIN_PORT);
                 if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
         }
 

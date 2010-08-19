@@ -102,10 +102,10 @@ int clamd(struct CtdlMessage *msg) {
                 extract_token(hostbuf, buf, 0, ':', sizeof hostbuf);
                 if (extract_token(portbuf, buf, 1, ':', sizeof portbuf)==-1)
                   /* Didn't specify a port so we'll try the psuedo-standard 3310 */
-                  sock = sock_connect(hostbuf, CLAMD_PORT, "tcp");
+                  sock = sock_connect(hostbuf, CLAMD_PORT);
                 else
                   /* Port specified lets try connecting to it! */
-                  sock = sock_connect(hostbuf, portbuf, "tcp");
+                  sock = sock_connect(hostbuf, portbuf);
 
                 if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
         }
@@ -140,7 +140,7 @@ int clamd(struct CtdlMessage *msg) {
 	extract_token(portbuf, buf, 1, ' ', sizeof portbuf);
 
 	/* Attempt to establish connection to STREAM socket */
-        streamsock = sock_connect(hostbuf, portbuf, "tcp");
+        streamsock = sock_connect(hostbuf, portbuf);
 
 	if (streamsock < 0) {
 		/* If the service isn't running, just pass the mail
