@@ -6,21 +6,21 @@
  * sockets for the Citadel client; for that you must look in ipc_c_tcp.c
  * (which, uncoincidentally, bears a striking similarity to this file).
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2010 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -47,82 +47,66 @@
 #include "sysdep_decls.h"
 #include "config.h"
 #include "clientsocket.h"
-
 #include "ctdl_module.h"
-
-#ifndef INADDR_NONE
-#define INADDR_NONE 0xffffffff
-#endif
 
 int sock_connect(char *host, char *service)
 {
-	struct hostent *phe;
-	struct servent *pse;
-	struct protoent *ppe;
-	struct sockaddr_in sin;
-	struct sockaddr_in egress_sin;
-	int s, type;
+	struct in6_addr serveraddr;
+	struct addrinfo hints, *res = NULL;
+	int rc;
+	int sock = (-1);
 
-	if ((host == NULL) || IsEmptyStr(host)) 
-		return(-1);
-	if ((service == NULL) || IsEmptyStr(service)) 
-		return(-1);
+	if ((host == NULL) || IsEmptyStr(host))
+		return (-1);
+	if ((service == NULL) || IsEmptyStr(service))
+		return (-1);
 
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;
+	memset(&hints, 0x00, sizeof(hints));
+	hints.ai_flags = AI_NUMERICSERV;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
 
-	pse = getservbyname(service, "tcp");
-	if (pse) {
-		sin.sin_port = pse->s_port;
-	} else if ((sin.sin_port = htons((u_short) atoi(service))) == 0) {
-		CtdlLogPrintf(CTDL_CRIT, "Can't get %s service entry: %s\n",
-			service, strerror(errno));
-		return(-1);
-	}
-	phe = gethostbyname(host);
-	if (phe) {
-		memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	} else if ((sin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE) {
-		CtdlLogPrintf(CTDL_ERR, "Can't get %s host entry: %s\n",
-			host, strerror(errno));
-		return(-1);
-	}
-	if ((ppe = getprotobyname("tcp")) == 0) {
-		CtdlLogPrintf(CTDL_CRIT, "Can't get tcp protocol entry: %s\n", strerror(errno));
-		return(-1);
-	}
-	type = SOCK_STREAM;
-
-	s = socket(PF_INET, type, ppe->p_proto);
-	if (s < 0) {
-		CtdlLogPrintf(CTDL_CRIT, "Can't create socket: %s\n", strerror(errno));
-		return(-1);
-	}
-
-	/* If citserver is bound to a specific IP address on the host, make
-	 * sure we use that address for outbound connections.
+	/*
+	 * Handle numeric IPv4 and IPv6 addresses
 	 */
-	memset(&egress_sin, 0, sizeof(egress_sin));
-	egress_sin.sin_family = AF_INET;
-	if (!IsEmptyStr(config.c_ip_addr)) {
-		egress_sin.sin_addr.s_addr = inet_addr(config.c_ip_addr);
-        	if (egress_sin.sin_addr.s_addr == !INADDR_ANY) {
-                	egress_sin.sin_addr.s_addr = INADDR_ANY;
+	rc = inet_pton(AF_INET, host, &serveraddr);
+	if (rc == 1) {						/* dotted quad */
+		hints.ai_family = AF_INET;
+		hints.ai_flags |= AI_NUMERICHOST;
+	} else {
+		rc = inet_pton(AF_INET6, host, &serveraddr);
+		if (rc == 1) {					/* IPv6 address */
+			hints.ai_family = AF_INET6;
+			hints.ai_flags |= AI_NUMERICHOST;
 		}
+	}
 
-		/* If this bind fails, no problem; we can still use INADDR_ANY */
-		bind(s, (struct sockaddr *)&egress_sin, sizeof(egress_sin));
-        }
+	/* Begin the connection process */
 
-	/* Now try to connect to the remote host. */
-	if (connect(s, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
-		CtdlLogPrintf(CTDL_ERR, "Can't connect to %s:%s: %s\n",
-			host, service, strerror(errno));
-		close(s);
+	rc = getaddrinfo(host, service, &hints, &res);
+	if (rc != 0) {
+		CtdlLogPrintf(CTDL_ERR, "%s: %s\n", host, gai_strerror(rc));
 		return(-1);
 	}
 
-	return (s);
+	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	if (sock < 0) {
+		CtdlLogPrintf(CTDL_ERR, "socket() failed: %s\n", strerror(errno));
+		return(-1);
+	}
+
+	rc = connect(sock, res->ai_addr, res->ai_addrlen);
+	if (rc < 0) {
+		/*
+		 * Note: the res is a linked list of addresses found for server.
+		 * If the connect() fails to the first one, subsequent addresses
+		 * (if any) in the list could be tried if desired.
+		 */
+		CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
+		return(-1);
+	}
+
+	return (sock);
 }
 
 
@@ -140,56 +124,40 @@ int sock_connect(char *host, char *service)
  *      0       Request timed out.
  *	-1   	Connection is broken, or other error.
  */
-int socket_read_blob(int *Socket, 
-		     StrBuf *Target, 
-		     int bytes, 
-		     int timeout)
+int socket_read_blob(int *Socket, StrBuf * Target, int bytes, int timeout)
 {
 	CitContext *CCC = MyContext();
 	const char *Error;
 	int retval = 0;
 
 
-	retval = StrBufReadBLOBBuffered(Target, 
+	retval = StrBufReadBLOBBuffered(Target,
 					CCC->sReadBuf,
 					&CCC->sPos,
-					Socket,
-					1, 
-					bytes,
-					O_TERM,
-					&Error);
+					Socket, 1, bytes, O_TERM, &Error);
 	if (retval < 0) {
-		CtdlLogPrintf(CTDL_CRIT, 
-			      "%s failed: %s\n",
-			      __FUNCTION__,
-			      Error);
+		CtdlLogPrintf(CTDL_CRIT,
+			      "%s failed: %s\n", __FUNCTION__, Error);
 	}
 	return retval;
 }
 
 
-int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_until_full)
+int sock_read_to(int *sock, char *buf, int bytes, int timeout,
+		 int keep_reading_until_full)
 {
 	CitContext *CCC = MyContext();
 	int rc;
 
 	FlushStrBuf(CCC->MigrateBuf);
-	rc = socket_read_blob(sock, 
-			      CCC->sMigrateBuf, 
-			      bytes, 
-			      timeout);
-	if (rc < 0)
-	{
+	rc = socket_read_blob(sock, CCC->sMigrateBuf, bytes, timeout);
+	if (rc < 0) {
 		*buf = '\0';
 		return rc;
-	}
-	else
-	{
+	} else {
 		if (StrLength(CCC->MigrateBuf) < bytes)
 			bytes = StrLength(CCC->MigrateBuf);
-		memcpy(buf, 
-		       ChrPtr(CCC->MigrateBuf),
-		       bytes);
+		memcpy(buf, ChrPtr(CCC->MigrateBuf), bytes);
 
 		FlushStrBuf(CCC->MigrateBuf);
 		return rc;
@@ -197,25 +165,20 @@ int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_
 }
 
 
-int CtdlSockGetLine(int *sock, StrBuf *Target)
+int CtdlSockGetLine(int *sock, StrBuf * Target)
 {
 	CitContext *CCC = MyContext();
 	const char *Error;
 	int rc;
 
 	FlushStrBuf(Target);
-	rc = StrBufTCP_read_buffered_line_fast(Target, 
+	rc = StrBufTCP_read_buffered_line_fast(Target,
 					       CCC->sReadBuf,
 					       &CCC->sPos,
-					       sock,
-					       5,
-					       1,
-					       &Error);
+					       sock, 5, 1, &Error);
 	if ((rc < 0) && (Error != NULL))
-		CtdlLogPrintf(CTDL_CRIT, 
-			      "%s failed: %s\n",
-			      __FUNCTION__,
-			      Error);
+		CtdlLogPrintf(CTDL_CRIT,
+			      "%s failed: %s\n", __FUNCTION__, Error);
 	return rc;
 }
 
@@ -240,9 +203,9 @@ int sock_getln(int *sock, char *buf, int bufsize)
 	 */
 	if (bufsize <= i)
 		i = bufsize - 1;
-	while ( (i > 0)
-		&& ( (pCh[i - 1]==13)
-		     || ( pCh[i - 1]==10)) ) {
+	while ((i > 0)
+	       && ((pCh[i - 1] == 13)
+		   || (pCh[i - 1] == 10))) {
 		i--;
 	}
 	memcpy(buf, pCh, i);
@@ -261,9 +224,11 @@ int sock_getln(int *sock, char *buf, int bufsize)
  * sock_read() - input binary data from socket.
  * Returns the number of bytes read, or -1 for error.
  */
-INLINE int sock_read(int *sock, char *buf, int bytes, int keep_reading_until_full)
+INLINE int sock_read(int *sock, char *buf, int bytes,
+		     int keep_reading_until_full)
 {
-	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT, keep_reading_until_full);
+	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT,
+			    keep_reading_until_full);
 }
 
 
@@ -276,9 +241,7 @@ int sock_write(int *sock, const char *buf, int nbytes)
 	int bytes_written = 0;
 	int retval;
 
-	while ((*sock != -1)  && 
-	       (bytes_written < nbytes))
-	{
+	while ((*sock != -1) && (bytes_written < nbytes)) {
 		retval = write(*sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
@@ -297,20 +260,24 @@ int sock_write(int *sock, const char *buf, int nbytes)
  * client side protocol implementations.  It only returns the first line of
  * a multiline response, discarding the rest.
  */
-int ml_sock_gets(int *sock, char *buf) {
+int ml_sock_gets(int *sock, char *buf)
+{
 	char bigbuf[1024];
 	int g;
 
 	g = sock_getln(sock, buf, SIZ);
-	if (g < 4) return(g);
-	if (buf[3] != '-') return(g);
+	if (g < 4)
+		return (g);
+	if (buf[3] != '-')
+		return (g);
 
 	do {
 		g = sock_getln(sock, bigbuf, SIZ);
-		if (g < 0) return(g);
-	} while ( (g >= 4) && (bigbuf[3] == '-') );
+		if (g < 0)
+			return (g);
+	} while ((g >= 4) && (bigbuf[3] == '-'));
 
-	return(strlen(buf));
+	return (strlen(buf));
 }
 
 
@@ -323,8 +290,10 @@ int sock_puts(int *sock, char *buf)
 	int i, j;
 
 	i = sock_write(sock, buf, strlen(buf));
-	if (i<0) return(i);
+	if (i < 0)
+		return (i);
 	j = sock_write(sock, "\n", 1);
-	if (j<0) return(j);
-	return(i+j);
+	if (j < 0)
+		return (j);
+	return (i + j);
 }
