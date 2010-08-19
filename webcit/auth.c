@@ -561,7 +561,7 @@ void do_logout(void)
 	/* FIXME: this is to suppress the iconbar displaying, because we aren't
 	   actually logged out yet */
 	WCC->logged_in = 0;
-	
+
 	/** Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
 
@@ -569,13 +569,13 @@ void do_logout(void)
         wc_printf("<div class=\"box\">");
         wc_printf("<div class=\"boxlabel\">");
 	wc_printf(_("Log off"));
-        wc_printf("</div><div class=\"boxcontent\">");	
+        wc_printf("</div><div class=\"boxcontent\">");
 	serv_puts("MESG goodbye");
 	serv_getln(buf, sizeof buf);
 
 	if (WCC->serv_sock >= 0) {
 		if (buf[0] == '1') {
-			fmout("CENTER");
+			fmout("'CENTER'");
 		} else {
 			wc_printf("Goodbye\n");
 		}
@@ -586,7 +586,7 @@ void do_logout(void)
 			"this problem to your system administrator.")
 		);
 		wc_printf("<a href=\"http://www.citadel.org/doku.php/"
-			"faq:mastering_your_os:net#netstat\">%s</a>", 
+			"faq:mastering_your_os:net#netstat\">%s</a>",
 			_("Read More..."));
 	}
 
@@ -604,7 +604,7 @@ void do_logout(void)
 	wc_printf("</a></span>");
 	 */
 
-	wc_printf("</div></div></div></div>\n");
+	wc_printf("</div></div></div>\n");
 	wDumpContent(2);
 	end_webcit_session();
 }
