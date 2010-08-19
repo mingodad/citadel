@@ -57,36 +57,35 @@ struct CtdlServInfo {
 	char svn_revision[256];
 };
 
-/* This class is responsible for the server connection */
+/*
+ * This class is responsible for the server connection
+ */
 typedef struct _CtdlIPC {
-	/* The server info for this connection */
-	struct CtdlServInfo ServInfo;
+	struct CtdlServInfo ServInfo;	/* The server info for this connection */
 
 #if defined(HAVE_OPENSSL)
-	/* NULL if not encrypted, non-NULL otherwise */
-	SSL *ssl;
+	SSL *ssl;			/* NULL if not encrypted, non-NULL otherwise */
 #endif
+
 #if defined(HAVE_PTHREAD_H)
-	/* Fast mutex, call CtdlIPC_lock() or CtdlIPC_unlock() to use */
-	pthread_mutex_t mutex;
+	pthread_mutex_t mutex;		/* Fast mutex, call CtdlIPC_lock() or CtdlIPC_unlock() to use */
 #endif
-	/* -1 if not connected, >= 0 otherwise */
-	int sock;
-	/* 1 if server is local, 0 otherwise or if not connected */
-	int isLocal;
-	/* 1 if a download is open on the server, 0 otherwise */
-	int downloading;
-	/* 1 if an upload is open on the server, 0 otherwise */
-	int uploading;
-	/* Time the last command was sent to the server */
-	time_t last_command_sent;
-	/* Our buffer for linebuffered read. */
-	char *Buf;
+
+	int sock;			/* Socket for connection to server, or -1 if not connected */
+	int isLocal;			/* 1 if server is local, 0 otherwise or if not connected */
+	int downloading;		/* 1 if a download is open on the server, 0 otherwise */
+	int uploading;			/* 1 if an upload is open on the server, 0 otherwise */
+	time_t last_command_sent;	/* Time the last command was sent to the server */
+
+	char *Buf;			/* Our buffer for linebuffered read. */
 	size_t BufSize;
 	size_t BufUsed;
 	char *BufPtr;
-	/* Callback for update on whether the IPC is locked */
-	void (*network_status_cb)(int state);
+
+	void (*network_status_cb)(int state);	/* Callback for update on whether the IPC is locked */
+	char ip_hostname[256];		/* host name of server to which we are connected (if network) */
+	char ip_address[64];		/* IP address of server to which we are connected (if network) */
+
 } CtdlIPC;
 
 /* C constructor */

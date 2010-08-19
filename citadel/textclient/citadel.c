@@ -1576,6 +1576,11 @@ int main(int argc, char **argv)
 		error_printf("Can't connect: %s\n", strerror(errno));
 		logoff(NULL, 3);
 	}
+
+	if (!(ipc->isLocal)) {
+		sln_printf("Connected to %s [%s].\n", ipc->ip_hostname, ipc->ip_address);
+	}
+
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
 	CtdlIPC_SetNetworkStatusCallback(ipc, wait_indicator);
 #endif
