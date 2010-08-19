@@ -2184,7 +2184,7 @@ int CtdlIPCMessageBaseCheck(CtdlIPC *ipc, char **mret, char *cret)
 
 
 /* ************************************************************************** */
-/*             Stuff below this line is not for public consumption            */
+/*	     Stuff below this line is not for public consumption	    */
 /* ************************************************************************** */
 
 
@@ -3266,6 +3266,8 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		}
 		if (hostbuf != NULL) strcpy(hostbuf, cithost);
 		if (portbuf != NULL) strcpy(portbuf, sockpath);
+		strcpy(ipc->ip_hostname, "");
+		strcpy(ipc->ip_address, "");
 		return ipc;
 	}
 
@@ -3274,6 +3276,26 @@ CtdlIPC* CtdlIPC_new(int argc, char **argv, char *hostbuf, char *portbuf)
 		ifree(ipc);
 		return 0;
 	}
+
+
+	/* Learn the actual network identity of the host to which we are connected */
+
+	struct sockaddr_in6 clientaddr;
+	unsigned int addrlen = sizeof(clientaddr);
+
+	ipc->ip_hostname[0] = 0;
+	ipc->ip_address[0] = 0;
+
+	getpeername(ipc->sock, (struct sockaddr *)&clientaddr, &addrlen);
+	getnameinfo((struct sockaddr *)&clientaddr, addrlen,
+		ipc->ip_hostname, sizeof ipc->ip_hostname, NULL, 0, 0
+	);
+	getnameinfo((struct sockaddr *)&clientaddr, addrlen,
+		ipc->ip_address, sizeof ipc->ip_address, NULL, 0, NI_NUMERICHOST
+	);
+
+	/* stuff other things elsewhere */
+
 	if (hostbuf != NULL) strcpy(hostbuf, cithost);
 	if (portbuf != NULL) strcpy(portbuf, citport);
 	return ipc;
