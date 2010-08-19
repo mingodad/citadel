@@ -95,18 +95,22 @@ int sock_connect(char *host, char *service)
 		return(-1);
 	}
 
-	rc = connect(sock, res->ai_addr, res->ai_addrlen);
-	if (rc < 0) {
-		/*
-		 * Note: the res is a linked list of addresses found for server.
-		 * If the connect() fails to the first one, subsequent addresses
-		 * (if any) in the list could be tried if desired.
-		 */
-		CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
-		return(-1);
+	/*
+	 * Try all available addresses until we connect to one or until we run out.
+	 */
+	struct addrinfo *ai;
+	for (ai = res; ai != NULL; ai = ai->ai_next) {
+		/* FIXME display the address to which we are trying to connect */
+		rc = connect(sock, res->ai_addr, res->ai_addrlen);
+		if (rc >= 0) {
+			return(sock);
+		}
+		else {
+			CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
+		}
 	}
 
-	return (sock);
+	return(-1);
 }
 
 
