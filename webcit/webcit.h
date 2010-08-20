@@ -39,10 +39,11 @@
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/un.h>
 #include <netdb.h>
+#include <sys/un.h>
 #include <sys/poll.h>
 #include <string.h>
 #include <pwd.h>
@@ -52,10 +53,6 @@
 #include <signal.h>
 #include <sys/utsname.h>
 #include <libcitadel.h>
-
-#ifndef INADDR_NONE
-#define INADDR_NONE 0xffffffff
-#endif
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
@@ -647,7 +644,7 @@ void CreateMimeStr(void);
 int GetConnected(void);
 void DeleteServInfo(ServInfo **FreeMe);
 int uds_connectsock(char *);
-int tcp_connectsock(char *, int);
+int tcp_connectsock(char *, char *);
 int serv_getln(char *strbuf, int bufsize);
 int StrBuf_ServGetln(StrBuf *buf);
 int GetServerStatus(StrBuf *Line, long* FullState);
