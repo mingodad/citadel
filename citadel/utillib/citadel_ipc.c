@@ -2619,8 +2619,10 @@ int CtdlIPCGenericCommand(CtdlIPC *ipc,
 static int tcp_connectsock(char *host, char *service)
 {
 	struct in6_addr serveraddr;
-	struct addrinfo hints, *res = NULL;
-	int rc;
+	struct addrinfo hints;
+	struct addrinfo *res = NULL;
+	struct addrinfo *ai = NULL;
+	int rc = (-1);
 	int sock = (-1);
 
 	if ((host == NULL) || IsEmptyStr(host)) {
@@ -2642,7 +2644,8 @@ static int tcp_connectsock(char *host, char *service)
 	if (rc == 1) {						/* dotted quad */
 		hints.ai_family = AF_INET;
 		hints.ai_flags |= AI_NUMERICHOST;
-	} else {
+	}
+	else {
 		rc = inet_pton(AF_INET6, host, &serveraddr);
 		if (rc == 1) {					/* IPv6 address */
 			hints.ai_family = AF_INET6;
@@ -2654,30 +2657,22 @@ static int tcp_connectsock(char *host, char *service)
 
 	rc = getaddrinfo(host, service, &hints, &res);
 	if (rc != 0) {
-		//	CtdlLogPrintf(CTDL_ERR, "%s: %s\n", host, gai_strerror(rc));
 		return(-1);
 	}
 
 	/*
 	 * Try all available addresses until we connect to one or until we run out.
 	 */
-	struct addrinfo *ai;
 	for (ai = res; ai != NULL; ai = ai->ai_next) {
-		/* FIXME display the address to which we are trying to connect */
-fprintf(stderr, "TRYING...\n");
-
 		sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (sock < 0) return(-1);
 
 		rc = connect(sock, ai->ai_addr, ai->ai_addrlen);
 		if (rc >= 0) {
-fprintf(stderr, "CONNECTED\n");
-			return(sock);
+			return(sock);		/* Connected! */
 		}
 		else {
-fprintf(stderr, "FAILED: %s\n", strerror(errno));
-			//	CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
-			close(sock);
+			close(sock);		/* Failed.  Close the socket to avoid fd leak! */
 		}
 	}
 

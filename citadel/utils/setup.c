@@ -173,9 +173,11 @@ char *setup_text[] = {
 "user ID here.  You may specify either a user name or a numeric\n"
 "UID.\n",
 
-"Specify the IP address on which your server will run.  If you\n"
-"leave this blank, or if you specify 0.0.0.0, Citadel will listen\n"
-"on all addresses.  You can usually skip this unless you are\n"
+"Specify the IP address on which your server will run.\n"
+"You can name a specific IPv4 or IPv6 address, or you can specify\n"
+"'*' for 'any address', '::' for 'any IPv6 address', or '0.0.0.0'\n"
+"for 'any IPv4 address'.  If you leave this blank, Citadel will\n"
+"listen on all addresses.  You can usually skip this unless you are\n"
 "running multiple instances of Citadel on the same computer.\n",
 
 "Specify the TCP port number on which your server will run.\n"
@@ -184,8 +186,6 @@ char *setup_text[] = {
 "to specify a different port number if you run multiple instances\n"
 "of Citadel on the same computer and there is something else\n"
 "already using port 504.\n",
-
-
 
 "Specify which authentication mode you wish to use.\n"
 "\n"

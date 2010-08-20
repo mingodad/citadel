@@ -165,7 +165,7 @@ void do_system_configuration(CtdlIPC *ipc)
 		"Automatically delete committed database logs",
 		atoi(&sc[43][0]))));
 
-	strprompt("Server IP address (0.0.0.0 for 'any')", &sc[37][0], 15);
+	strprompt("Server IP address (* for 'any')", &sc[37][0], 15);
 	strprompt("POP3 server port (-1 to disable)", &sc[23][0], 5);
 	strprompt("POP3S server port (-1 to disable)", &sc[40][0], 5);
 	strprompt("IMAP server port (-1 to disable)", &sc[27][0], 5);

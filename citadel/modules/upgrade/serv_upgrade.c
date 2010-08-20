@@ -251,7 +251,7 @@ void update_config(void) {
 	}
 
 	if (CitControl.version < 623) {
-		strcpy(config.c_ip_addr, "0.0.0.0");
+		strcpy(config.c_ip_addr, "*");
 	}
 
 	if (CitControl.version < 650) {
