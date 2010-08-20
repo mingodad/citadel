@@ -3,21 +3,21 @@
  *
  * Bring external RSS feeds into rooms.
  *
- * Copyright (c) 2007-2009 by the citadel.org team
+ * Copyright (c) 2007-2010 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include <stdlib.h>
@@ -766,7 +766,12 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 #endif
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
-	if (!IsEmptyStr(config.c_ip_addr)) {
+	if (
+		(!IsEmptyStr(config.c_ip_addr))
+		&& (strcmp(config.c_ip_addr, "*"))
+		&& (strcmp(config.c_ip_addr, "::"))
+		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
+	) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
