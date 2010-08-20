@@ -52,8 +52,10 @@
 int sock_connect(char *host, char *service)
 {
 	struct in6_addr serveraddr;
-	struct addrinfo hints, *res = NULL;
-	int rc;
+	struct addrinfo hints;
+	struct addrinfo *res = NULL;
+	struct addrinfo *ai = NULL;
+	int rc = (-1);
 	int sock = (-1);
 
 	if ((host == NULL) || IsEmptyStr(host))
@@ -92,16 +94,12 @@ int sock_connect(char *host, char *service)
 	/*
 	 * Try all available addresses until we connect to one or until we run out.
 	 */
-	struct addrinfo *ai;
 	for (ai = res; ai != NULL; ai = ai->ai_next) {
-		/* FIXME display the address to which we are trying to connect */
-
 		sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (sock < 0) {
 			CtdlLogPrintf(CTDL_ERR, "socket() failed: %s\n", strerror(errno));
 			return(-1);
 		}
-
 		rc = connect(sock, res->ai_addr, res->ai_addrlen);
 		if (rc >= 0) {
 			return(sock);
