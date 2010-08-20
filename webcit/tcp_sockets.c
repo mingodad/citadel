@@ -69,39 +69,78 @@ int uds_connectsock(char *sockpath)
 
 
 /*
- * TCP client - connect to a host/port (FIXME this needs to be IPv6 enabled)
+ * TCP client - connect to a host/port 
  */
-int tcp_connectsock(char *host, int port)
+int tcp_connectsock(char *host, char *service)
 {
-	struct sockaddr_in stSockAddr;
-	int rv;
-	int sock;
+	struct in6_addr serveraddr;
+	struct addrinfo hints;
+	struct addrinfo *res = NULL;
+	struct addrinfo *ai = NULL;
+	int rc = (-1);
+	int s = (-1);
 
-	sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (sock < 0) {
-		lprintf(1, "Can't create socket: %s\n", strerror(errno));
+	if ((host == NULL) || IsEmptyStr(host))
 		return (-1);
+	if ((service == NULL) || IsEmptyStr(service))
+		return (-1);
+
+	lprintf(9, "tcp_connectsock(%s,%s)\n", host, service);
+
+	memset(&hints, 0x00, sizeof(hints));
+	hints.ai_flags = AI_NUMERICSERV;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	/*
+	 * Handle numeric IPv4 and IPv6 addresses
+	 */
+	rc = inet_pton(AF_INET, host, &serveraddr);
+	if (rc == 1) {						/* dotted quad */
+		hints.ai_family = AF_INET;
+		hints.ai_flags |= AI_NUMERICHOST;
+	} else {
+		rc = inet_pton(AF_INET6, host, &serveraddr);
+		if (rc == 1) {					/* IPv6 address */
+			hints.ai_family = AF_INET6;
+			hints.ai_flags |= AI_NUMERICHOST;
+		}
 	}
 
-	memset(&stSockAddr, 0, sizeof(struct sockaddr_in));
-	stSockAddr.sin_family = AF_INET;
-	stSockAddr.sin_port = htons(port);
-	rv = inet_pton(AF_INET, host, &stSockAddr.sin_addr);
+	/* Begin the connection process */
 
-	if (rv <= 0) {
-		lprintf(1, "Can't grok %s: %s\n", host, strerror(errno));
-		return (-1);
+	rc = getaddrinfo(host, service, &hints, &res);
+	if (rc != 0) {
+		lprintf(1, "%s: %s\n", host, gai_strerror(rc));
+		return(-1);
 	}
 
-	if (connect(sock, (const struct sockaddr *)&stSockAddr, sizeof(struct sockaddr_in)) != 0) {
-		lprintf(1, "Can't connect to %s.%d: %s\n", host, port, strerror(errno));
-		close(sock);
-		return (-1);
+	/*
+	 * Try all available addresses until we connect to one or until we run out.
+	 */
+	for (ai = res; ai != NULL; ai = ai->ai_next) {
+
+		if (ai->ai_family == AF_INET) lprintf(9, "Trying IPv4\n");
+		else if (ai->ai_family == AF_INET6) lprintf(9, "Trying IPv6\n");
+		else lprintf(9, "This is going to fail.\n");
+
+		s = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+		if (s < 0) {
+			lprintf(1, "socket() failed: %s\n", strerror(errno));
+			return(-1);
+		}
+		rc = connect(s, res->ai_addr, res->ai_addrlen);
+		if (rc >= 0) {
+			return(s);
+		}
+		else {
+			lprintf(1, "connect() failed: %s\n", strerror(errno));
+			close(s);
+		}
 	}
 
-	return (sock);
+	return(-1);
 }
-
 
 
 /*
