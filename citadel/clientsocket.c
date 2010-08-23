@@ -100,7 +100,7 @@ int sock_connect(char *host, char *service)
 			CtdlLogPrintf(CTDL_ERR, "socket() failed: %s\n", strerror(errno));
 			return(-1);
 		}
-		rc = connect(sock, res->ai_addr, res->ai_addrlen);
+		rc = connect(sock, ai->ai_addr, ai->ai_addrlen);
 		if (rc >= 0) {
 			return(sock);
 		}
