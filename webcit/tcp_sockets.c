@@ -129,7 +129,7 @@ int tcp_connectsock(char *host, char *service)
 			lprintf(1, "socket() failed: %s\n", strerror(errno));
 			return(-1);
 		}
-		rc = connect(s, res->ai_addr, res->ai_addrlen);
+		rc = connect(s, ai->ai_addr, ai->ai_addrlen);
 		if (rc >= 0) {
 			return(s);
 		}
