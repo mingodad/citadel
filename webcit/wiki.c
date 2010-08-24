@@ -332,6 +332,25 @@ int wiki_Cleanup(void **ViewSpecific)
 	return 0;
 }
 
+
+
+
+
+
+int ConditionalHaveWikiPage(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	return 1;
+}
+int ConditionalHavewikiType(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	return 1;
+}
+
+
 void 
 InitModule_WIKI
 (void)
@@ -351,4 +370,6 @@ InitModule_WIKI
 	WebcitAddUrlHandler(HKEY("wiki_pagelist"), "", 0, display_wiki_pagelist, 0);
 	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
 	RegisterNamespace("WIKI:DISPLAYPAGELIST", 0, 0, tmplput_display_wiki_pagelist, NULL, CTX_NONE);
+	RegisterConditional(HKEY("COND:WIKI:PAGE"), 0, ConditionalHaveWikiPage, CTX_NONE);
+	RegisterConditional(HKEY("COND:WIKI:TYPE"), 0, ConditionalHavewikiType, CTX_NONE);
 }
