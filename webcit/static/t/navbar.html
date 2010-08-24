@@ -126,13 +126,14 @@
 <??("X", 70)>
 
 <?!("COND:THISROOM:CURR_VIEW", 80, #"VIEW_WIKI")>
+        <?!("COND:WIKI:PAGE", 81, "home")>
 	<li class="readallmess">
 		<a href="wiki?page=home">
 			<img src="static/readallmess3_24x.gif" alt="" width="24" height="24">
 			<span class="navbar_link"><?_("Wiki home")></span>
 		</a>
 	</li>
-	<?!("COND:WIKI:PAGE", 82, "home")>
+	<?!("X", 81)><??("COND:WIKI:PAGE", 82, "home")>
 		<li class="newmess">
 				<a href="display_enter<?BSTR:FORWARD("page", "U")>">
 					<img  src="static/newmess3_24x.gif" alt="" width="24" height="24">
@@ -141,9 +142,9 @@
 			</li>
 	<??("X", 82)>
 		<li class="newmess">
-			<a href="wiki<?%("COND:WIKI:TYPE", 84, "wiki_history", "wiki_history", "", "_history")><?BSTR:FORWARD("page", "U")>">
+			<a href="wiki<?%("COND:WIKI:TYPE", 84, "wiki_history", "", "", "_history")><?BSTR:FORWARD("page", "U")>">
 				<img  src="static/newmess3_24x.gif" alt="" width="24" height="24">
-				<span class="navbar_link"><?%("COND:WIKI:TYPE", 86, "wiki_history", "wut?", '_("Current version")', '_("History")')></span>
+				<span class="navbar_link"><?%("COND:WIKI:TYPE", 86, "wiki_history", "", _("Current version", _("History"))></span>
 			</a>
 		</li>
 <??("X", 80)>
