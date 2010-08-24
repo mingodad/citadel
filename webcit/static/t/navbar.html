@@ -13,6 +13,18 @@
 			<span class="navbar_link"><?_("Read new messages")></span>
 		</a>
 	</li>
+	<li class="readallmess">
+		<a href="readfwd">
+			<img src="static/readallmess3_24x.gif" alt="" width="24" height="24">
+			<span class="navbar_link"><?_("Read all messages")></span>
+		</a>
+	</li>
+	<li class="newmess">
+		<a href="display_enter">
+			<img  src="static/newmess3_24x.gif" alt="" width="24" height="24">
+			<span class="navbar_link"><?_("Enter a message")></span>
+		</a>
+	</li>
 <??("X", 10)>
 
 <?!("COND:THISROOM:CURR_VIEW", 20, #"VIEW_ADDRESSBOOK")>
@@ -101,7 +113,7 @@
 	</li>
 	<li class="readallmess">
 		<a href="readfwd">
-			<img src="static/readallmess3_24x.gif" "alt="" width="24" height="24">
+			<img src="static/readallmess3_24x.gif" alt="" width="24" height="24">
 			<span class="navbar_link"><?_("Read all messages")></span>
 		</a>
 	</li>
@@ -145,6 +157,6 @@
 	<li class="markngo">
 		<a href="gotonext" title="<?_("Mark all messages as read, go to next room with unread messages")>">
 			<img  src="static/markngo_24x.gif" alt="" width="24" height="24">
-			<span class="navbar_link"><_("Goto next room")></span></a>
+			<span class="navbar_link"><?_("Goto next room")></span></a>
 	</li>
 </ul></div>
