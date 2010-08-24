@@ -60,6 +60,7 @@ void locate_host(char *tbuf, size_t n, char *abuf, size_t na, int client_socket)
 	 * as dotted-quad, even if they come in over a hybrid IPv6/IPv4 socket.
 	 */
 	if ( (strlen(abuf) > 7) && (!strncasecmp(abuf, "::ffff:", 7)) ) {
+		if (!strcmp(abuf, tbuf)) strcpy(tbuf, &tbuf[7]);
 		strcpy(abuf, &abuf[7]);
 	}
 }
