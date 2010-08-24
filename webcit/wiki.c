@@ -339,9 +339,13 @@ int wiki_Cleanup(void **ViewSpecific)
 
 int ConditionalHaveWikiPage(StrBuf *Target, WCTemplputParams *TP)
 {
-	wcsession *WCC = WC;
+	const char *page;
+	const char *pch;
+	long len;
 
-	return 1;
+	page = BSTR("page");
+	GetTemplateTokenString(Target, TP, 2, &pch, &len);
+	return strcasecmp(page, pch) == 0;
 }
 int ConditionalHavewikiType(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -349,8 +353,8 @@ int ConditionalHavewikiType(StrBuf *Target, WCTemplputParams *TP)
 	const char *pch;
 	long len;
 
-	GetTemplateTokenString(TP, &pch, &len, 2);
-	return bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), pch);
+	GetTemplateTokenString(Target, TP, 1, &pch, &len);
+	return bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), pch) != NULL;
 }
 void 
 InitModule_WIKI
@@ -371,6 +375,6 @@ InitModule_WIKI
 	WebcitAddUrlHandler(HKEY("wiki_pagelist"), "", 0, display_wiki_pagelist, 0);
 	RegisterNamespace("WIKI:DISPLAYHISTORY", 0, 0, tmplput_display_wiki_history, NULL, CTX_NONE);
 	RegisterNamespace("WIKI:DISPLAYPAGELIST", 0, 0, tmplput_display_wiki_pagelist, NULL, CTX_NONE);
-	RegisterConditional(HKEY("COND:WIKI:PAGE"), 0, ConditionalHaveWikiPage, CTX_NONE);
-	RegisterConditional(HKEY("COND:WIKI:TYPE"), 0, ConditionalHavewikiType, CTX_NONE);
+	RegisterConditional(HKEY("COND:WIKI:PAGE"), 1, ConditionalHaveWikiPage, CTX_NONE);
+	RegisterConditional(HKEY("COND:WIKI:TYPE"), 1, ConditionalHavewikiType, CTX_NONE);
 }
