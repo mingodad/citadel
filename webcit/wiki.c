@@ -346,11 +346,12 @@ int ConditionalHaveWikiPage(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalHavewikiType(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
+	const char *pch;
+	long len;
 
-	return 1;
+	GetTemplateTokenString(TP, &pch, &len, 2);
+	return bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), pch);
 }
-
-
 void 
 InitModule_WIKI
 (void)
