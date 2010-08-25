@@ -5,7 +5,7 @@
  Message cmds: <N>ew msgs, <F>orward read, <R>everse read, <O>ld msgs,
                <L>ast five msgs, <E>nter a message
  General cmds: <?> help, <T>erminate, <C>hat, <W>ho is online
- Misc:         <X> toggle eXpert mode, <D>irectory, <*> doorway
+ Misc:         <X> toggle eXpert mode, <D>irectory
 
-  (Type .Help SUMMARY for extended commands, <X> to disable this menu)
+  (Type .Help SUMMARY for extended commands, <X> to hide this menu)
  -----------------------------------------------------------------------
