@@ -191,12 +191,12 @@ the static/ directory.  WebCit will properly serve it from there.
  -------------
 
  The default WebCit installation will create an empty directory called 
-"static.local".  In this directory you may place a file called "webcit.css"
-which, if present, is referenced *after* the default stylesheet.  If you
-know CSS and wish to customize your WebCit installation, any styles you
-declare in static.local/webcit.css will override the styles found in
-static/webcit.css -- and your customizations will not be overwritten when
-you upgrade WebCit later.
+"static.local". In this directory you may place a file called "webcit.css"
+into the "styles" directory which, if present, is referenced *after* the
+default stylesheet. If you know CSS and wish to customize your WebCit
+installation, any styles you declare in static.local/styles/webcit.css
+will override the styles found in static/styles/webcit.css -- and your
+customizations will not be overwritten when you upgrade WebCit later.
 
  You may also place other files, such as images, in static.local for
 further customization.
