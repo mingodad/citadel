@@ -1,0 +1,70 @@
+#login_screen, #logout_screen {
+	position: fixed;
+	margin: 0px;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+	padding: 3% 6% 3% 6%;
+	overflow: auto;
+}
+
+#login_screen .login_message, #login_screen .login_image, .login_hello, #login_screen #login_form {
+	display: block;
+	margin: 5px auto 5px auto;
+}
+
+#login_screen .login_message, .login_hello { width: 80% }
+
+#login_screen .login_image { width: 135px }
+
+#login_screen .login_image img { text-align: center }
+
+#login_screen #login_form {
+	padding: 10px;
+	width: 330px;
+}
+
+#login_form input, #login_form label, #login_form select {
+	display: block;
+	float: left;
+	margin: 6pt;
+}
+ 
+#login_form label, #pname, #uname {
+	width: 130px;
+	text-align: left;
+}
+ 
+#login_form br { clear: left }
+
+.login_infos {
+	display: block;
+	margin: 20px auto 0 auto;
+	width: 80%;
+	text-align: left;
+}
+
+
+#convlogin { text-align: center }
+
+#login_form{ background-color: #CCC}
+
+.login_message {
+	color: #AD1C00;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+#login_form #uname, #login_form #pname {
+	background-color: #fbf4ca !important; /* needed for li.activeuser */
+	border: 1px solid #999;
+	color: #333;
+}
+
+.logbuttons input {
+	cursor: pointer;
+	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	text-align: center;
+	font-weight: bold;
+}

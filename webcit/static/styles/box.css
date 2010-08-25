@@ -1,0 +1,32 @@
+.box {
+	background-color: transparent;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+#content .box { text-align: center }
+
+.boxlabel, .boxcontent { margin: 0 }
+
+#content .boxlabel, #global .boxlabel {
+	padding: 0;
+	width: 100%;
+	text-align: center;
+}
+
+.boxlabel {
+	background-color: #FF7814;
+	color: #FFF;
+	font-weight: 700;
+	text-align: center;
+	padding: 0;
+}
+
+.boxcontent {
+	text-align: left;
+	padding: 5px;
+	background-color: #FFF;
+	color: #000;
+}
+

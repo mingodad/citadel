@@ -1,0 +1,90 @@
+#banner {
+	background-color: #004E79;
+	color: #FFF;
+	margin: 0;
+	padding: 0;
+	top: 0;
+	height: 120px;          /* when changing this, also change #content */
+	position: fixed;
+	width: 84%;             /* when changing this, also change #iconbar and #content */
+	left: 16%;              /* when changing this, also change #iconbar and #content */
+	z-index: 3;                                                
+	overflow: hidden;
+}
+
+#banner a { color: #FFF }
+
+#banner h1 {
+	font-size: 160%;
+	font-weight: 700;
+}
+
+#banner h2 { font-weight: 700}
+
+#banner h2, #banner .titlebar { font-size: 130% }
+
+#banner ul.room_actions li.start_page a {
+	background-color: #022750;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	color: #FFF;
+}
+#banner .banner {
+	display: table-cell;
+	width: 90%;
+}
+
+#banner .banner img {
+	float: left;
+	margin: 0 5px 15px 0;
+}
+
+#banner h1, #banner h2, #banner .banner .infos, #banner .banner p {
+	margin: 2px;
+	padding: 0;
+}
+
+#room_infos {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 45%;
+	z-index: 10;
+	cursor: pointer;
+	text-align: left;
+	padding: 10px 2px 2px 2px;
+}
+
+#room_infos img.close_infos { float: right }
+
+#actiondiv {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+#banner ul.room_actions {
+	list-style: none;
+	text-align: left;
+}
+#banner ul.room_actions li {
+	white-space: nowrap;
+	display: inline;
+}
+#banner ul.room_actions li form {
+	margin: 0;
+	padding: 0;
+}
+
+#banner ul.room_actions li select, #banner ul.room_actions li input {
+	margin-top: 8px;
+	margin-right: 4px;
+}
+#selectpage.hidden { display: none !important }
+
+
+.banner .infos { cursor: help }
+
+.room_actions form select { cursor: pointer }
+
+.start_page { font-size: 60% }

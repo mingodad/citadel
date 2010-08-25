@@ -1,0 +1,43 @@
+#content {
+	position: fixed;
+	top: 120px;             /* when changing this, also change #banner and #iconbar */
+	left: 16%;              /* when changing this, also change #banner and #iconbar */
+	bottom: 0;
+	width: 84%;             /* when changing this, also change #banner and #iconbar */
+	background-color: #6C91A6;
+	color: #000;
+	z-index: 2;
+	overflow-y: auto;                               
+}
+
+.fix_scrollbar_bug {
+	margin-right: 1px;              /* Gecko and other non-broken browsers */
+	font-size: 90%;                 /* Most stuff needs to be a little smaller than normal. */
+}
+
+.boxcontent table {
+	margin: 0;
+	padding: 0;
+}
+
+#content table .box {
+	margin: 0;
+	width: 100%;
+	text-align: left;
+}
+
+.service, .who_is_online {
+	text-align: center;
+	width: 100%;
+}
+
+.service table {
+	margin: 0 auto 0 auto;
+	width: 100%;
+	text-align: left;
+}
+
+.instructions {
+	text-align: center;
+}
+

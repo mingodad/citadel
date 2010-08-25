@@ -1,0 +1,46 @@
+#navbar {
+	font-size: 75%;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	background-color: #022750;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	color: #FFF;
+}
+
+#navbar ul, .selector_top, .selector_bottom {
+	width: 100%;
+	margin: 0 auto 0 auto;
+	padding: 0;
+	white-space: nowrap;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#navbar ul li {
+	display: inline;
+	list-style: none;
+	vertical-align: middle;
+}
+
+#navbar ul li a {
+	padding: 2px 8px 8px 8px;
+	white-space: nowrap;
+}
+
+#navbar ul li a:hover {
+	background-color: #AD1C00;
+	color: #FFF;
+}
+
+#navbar ul li img {
+	float: none;
+	margin: 0 2px 0 2px;
+}
+
+#navbar ul li a img {
+      vertical-align: middle;
+      border: none;
+}
+

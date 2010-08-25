@@ -1,0 +1,110 @@
+#iconbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 16%;             /* when changing this, also change #banner width */
+	z-index: 0;
+	overflow: auto;
+	overflow-x: hidden !important;
+}
+
+#iconbar_container {
+	background-color: #FFF;
+	color: #000;
+}
+
+.logo_citadel a,.logo_citadel img {
+	border: none;
+}
+
+.logo,.logo_citadel, .iconbar_text {
+	border: none;
+	border-bottom: 1px solid #AAA;
+} 
+
+.ib_button, .iconbar_text{
+	background-color: #F0FFFF;
+	color: #333;
+} 
+
+.ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
+	display: block;
+	color: #000;
+	text-decoration: none;
+}
+
+#iconbar #button {
+	border: none;
+	list-style: none;
+}
+
+.ib_button {
+	margin: 4px 8px 4px 8px;
+	padding: 0;
+	display: block;
+	font-size: 80%;
+	border: none;
+	border-bottom: 2px groove #CCC;
+	border-right: 2px groove #CCC;
+ }
+
+.logo, .logo_citadel, #iconbar #button, .iconbar_text, .ib_button {
+	margin: 0;
+	padding: 0;
+}
+
+.logo, #citlogo, .iconbar_text, #online_users li {
+	text-align: center;
+}
+
+.iconbar_text > span {
+	cursor: pointer;
+}
+
+#iconbar #button { width: 100% }
+
+#online_users {
+	display: none; /* Hide by default */
+	border: 0;
+	max-height: 200px;
+	overflow: auto;
+	padding-left: 0;
+} 
+#online_users li {
+	list-style: none;
+	margin: 0;
+	padding: 2px;
+	white-space: nowrap;
+}
+
+.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old, .roomlist_floor, .roomlist_new, .roomlist_old {
+	margin: 4px;
+	padding: 0;
+}
+
+.ib_roomlist_floor, .ib_roomlist_new, .ib_roomlist_old {
+	cursor: pointer;
+}
+
+.ib_roomlist_floor, .roomlist_new, .ib_roomlist_new {
+	font-weight: 700;
+}
+
+.ib_roomlist_floor {
+	color: #000;
+}
+
+.roomlist_new, .ib_roomlist_new {
+	color: #800;
+}
+
+.roomlist_old, .ib_roomlist_old {
+	color: #008;
+}
+
+#ib_logoff:hover {
+	background-color: #AD1C00;
+	color: #FFF;
+}
+
