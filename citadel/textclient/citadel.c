@@ -1684,6 +1684,9 @@ int main(int argc, char **argv)
 		mcmd = 29;
 		goto TERMN8;
 	}
+	if (!strcasecmp(fullname, "guest")) {		// GUEST MODE
+		goto PWOK;				// THIS DOES NOT WORK YET
+	}						// EXPERIMENT FIXME FIXME FIXME
 	/* sign on to the server */
 	r = CtdlIPCTryLogin(ipc, fullname, aaa);
 	if (r / 100 != 3)
@@ -2117,21 +2120,6 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 
 			case 3:
 				chatmode(ipc);
-				break;
-
-			case 2:
-				if (ipc->isLocal) {
-					screen_reset();
-					stty_ctdl(SB_RESTORE);
-					snprintf(aaa, sizeof aaa, "USERNAME=\042%s\042; export USERNAME;"
-						 "exec ./subsystem %ld %d %d", fullname,
-						 usernum, screenwidth, axlevel);
-					ka_system(aaa);
-					stty_ctdl(SB_NO_INTR);
-					screen_set();
-				} else {
-					scr_printf("*** Can't run doors when server is not local.\n");
-				}
 				break;
 
 			case 17:
