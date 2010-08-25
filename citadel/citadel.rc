@@ -246,7 +246,6 @@ alternate_semantics=no
 #
 cmd=1,0,&? (Help)
 cmd=1,0,&Help
-# cmd=2,0,&*Doorway
 cmd=3,0,&Chat
 #
 # If you want to use an external editor by default, set <E>nter message
