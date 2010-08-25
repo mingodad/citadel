@@ -1,32 +1,32 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-        "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title><?CURRENT_USER> - <?SERV:HUMANNODE></title>
-<meta name="MSSmartTagsPreventParsing" content="TRUE" >
-<meta name="keywords" content="groupware messaging collaboration" >
-<link href="static/niftyCorners.css" rel="stylesheet" type="text/css">
-<link href="static/webcit.css" rel="stylesheet" type="text/css">
-<link href="static/datepicker.css" rel="stylesheet" type="text/css">
-<link href="static/bt.css" rel="stylesheet" type="text/css">
+	<head>
+		<title><?CURRENT_USER> - <?SERV:HUMANNODE></title>
+		<meta name="MSSmartTagsPreventParsing" content="TRUE" >
+		<meta name="keywords" content="groupware messaging collaboration" >
+		<link href="static/styles/niftyCorners.css" rel="stylesheet" type="text/css">
+		<link href="static/styles/webcit.css" rel="stylesheet" type="text/css">
+		<link href="static/styles/datepicker.css" rel="stylesheet" type="text/css">
+		<?CSSLOCAL>
 
-<?CSSLOCAL>
-<script type="text/javascript" src="static/prototype.js"></script>
-<script type="text/javascript" src="static/scriptaculous.js"></script>
-<script type="text/javascript" src="static/niftycube.js"></script>
-<script type="text/javascript" src="static/BubbleTooltips.js"></script>
-<script type="text/javascript" src="static/datepicker-dev.js"></script>
-<script type="text/javascript" src="static/table.js"></script>
-<script type="text/javascript" src="static/wclib.js"></script>
-<meta http-equiv="refresh" content="15; URL=do_template?template=aide_display_menu"/>
-</head>
+		<script type="text/javascript" src="static/prototype.js"></script>
+		<script type="text/javascript" src="static/scriptaculous.js"></script>
+		<script type="text/javascript" src="static/niftycube.js"></script>
+		<script type="text/javascript" src="static/BubbleTooltips.js"></script>
+		<script type="text/javascript" src="static/datepicker-dev.js"></script>
+		<script type="text/javascript" src="static/table.js"></script>
+		<script type="text/javascript" src="static/wclib.js"></script>
+		<meta http-equiv="refresh" content="15; URL=do_template?template=aide_display_menu"/>
+	</head>
 <body>
 <div id="global">
-<?=("important_msg")>
-<div id="content" class="service">
-<div class="fix_scrollbar_bug">
-<table>
-<td width=50% valign="top">
-<?DOBOXED(="aide_serverrestart_box", _("Restart Citadel"))>
-</td></tr></table></div>
+	<?=("important_msg")>
+	<div id="content" class="service">
+		<div class="fix_scrollbar_bug">
+			<table><td width=50% valign="top"><tr>
+				<?DOBOXED(="aide_serverrestart_box", _("Restart Citadel"))>
+			</td></tr></table>
+		</div>
+	</div>
 <?=("trailing")>
