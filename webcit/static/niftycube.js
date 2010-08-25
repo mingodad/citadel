@@ -34,7 +34,7 @@ niftyCss=true;
 var l=CreateEl("link");
 l.setAttribute("type","text/css");
 l.setAttribute("rel","stylesheet");
-l.setAttribute("href","static/niftyCorners.css");
+l.setAttribute("href","static/styles/niftyCorners.css");
 l.setAttribute("media","screen");
 document.getElementsByTagName("head")[0].appendChild(l);
 }

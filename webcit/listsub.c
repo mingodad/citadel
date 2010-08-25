@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: listsub.c 8232 2010-01-14 21:46:39Z dothebart $
  *
  * Web forms for handling mailing list subscribe/unsubscribe requests.
  */
@@ -33,7 +33,7 @@ void do_listsub(void)
 
 	wc_printf("<HTML><HEAD>\n"
 		"<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\n"
-		"<link href=\"static/webcit.css\" rel=\"stylesheet\" type=\"text/css\">\n"
+		"<link href=\"static/styles/webcit.css\" rel=\"stylesheet\" type=\"text/css\">\n"
 		"<TITLE>\n"
 	);
 	wc_printf(_("List subscription"));
