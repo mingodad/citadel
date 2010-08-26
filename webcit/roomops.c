@@ -174,58 +174,6 @@ void embed_room_banner(void)
 		return;
 
 	do_template("navbar", NULL);
-/*
-	case VIEW_WIKI:
-		wc_printf(
-			"<li class=\"readallmess\">"
-			"<a href=\"wiki?page=home\">"
-			"<img src=\"static/readallmess3_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", _("Wiki home")
-			);
-		safestrncpy(buf, bstr("page"), sizeof buf);
-		if (IsEmptyStr(buf)) {
-			safestrncpy(buf, "home", sizeof buf);
-		}
-		str_wiki_index(buf);
-		wc_printf(
-			"<li class=\"newmess\">"
-			"<a href=\"display_enter?page=%s\">"
-			"<img  src=\"static/newmess3_24x.gif\" "
-			"alt=\"\" width=\"24\" height=\"24\">"
-			"<span class=\"navbar_link\">"
-			"%s"
-			"</span></a></li>\n", buf, _("Edit this page")
-			);
-		
-		if (bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), "wiki_history")) {
-			/ * already viewing history; display a link to the current page * /
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"wiki?page=%s\">"
-				"<img  src=\"static/newmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", buf, _("Current version")
-				);
-		}
-		else {
-			/ * display a link to the history * /
-			wc_printf(
-				"<li class=\"newmess\">"
-				"<a href=\"wiki_history?page=%s\">"
-				"<img  src=\"static/newmess3_24x.gif\" "
-				"alt=\"\" width=\"24\" height=\"24\">"
-				"<span class=\"navbar_link\">"
-				"%s"
-				"</span></a></li>\n", buf, _("History")
-				);
-		}
-		break;
-*/
 }
 
 
