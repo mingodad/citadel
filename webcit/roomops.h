@@ -115,6 +115,12 @@ void ParseGoto(folder *proom, StrBuf *Line);
 void FlushRoomlist(void); /* release our caches, so a deleted / zapped room disapears */
 void ReloadCurrentRoom(void); /* Flush cache; reload current state */
 
+HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
+HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP);
+int SortRoomsByListOrder(const void *room1, const void *room2);
+void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP);
+
+
 /*
  * wrapper around usual sort-comparator; private rooms will allways be prefered, -1 if one of them NULL
  */
