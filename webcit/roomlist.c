@@ -6,6 +6,51 @@
 #include "webcit.h"
 #include "webserver.h"
 
+HashList *GetWhoKnowsHash(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	StrBuf *Line;
+	StrBuf *Token;
+	long State;
+	HashList *Whok = NULL;
+	int Done = 0;
+	int n;
+
+	serv_puts("WHOK");
+	Line = NewStrBuf();
+	StrBuf_ServGetln(Line);
+	if (GetServerStatus(Line, &State) == 1) 
+	{
+		Whok = NewHash(1, Flathash);
+		while(!Done && StrBuf_ServGetln(Line))
+			if ( (StrLength(Line)==3) && 
+			     !strcmp(ChrPtr(Line), "000")) 
+			{
+				Done = 1;
+			}
+			else
+			{
+			
+				const char *Pos = NULL;
+				Token = NewStrBufPlain (NULL, StrLength(Line));
+				StrBufExtract_NextToken(Token, Line, &Pos, '|');
+
+				Put(Whok, 
+				    IKEY(n),
+				    Token, 
+				    HFreeStrBuf);
+				n++;
+			}
+	}
+	else if (State == 550)
+		StrBufAppendBufPlain(WCC->ImportantMsg,
+				     _("Higher access is required to access this function."), -1, 0);
+
+
+	FreeStrBuf(&Line);
+	return Whok;
+}
+
 
 void DeleteFloor(void *vFloor)
 {
@@ -99,25 +144,14 @@ HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP)
 	return floors;
 }
 
-void tmplput_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
+HashList *GetZappedRoomListHash(StrBuf *Target, WCTemplputParams *TP) 
 {
-	Floor *myFloor = (Floor *)CTX;
+	wcsession *WCC = WC;
 
-	StrBufAppendPrintf(Target, "%d", myFloor->ID);
-}
-
-void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
-{
-	Floor *myFloor = (Floor *)CTX;
-
-	StrBufAppendTemplate(Target, TP, myFloor->Name, 0);
-}
-
-void tmplput_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
-{
-	Floor *myFloor = (Floor *)CTX;
-
-	StrBufAppendPrintf(Target, "%d", myFloor->NRooms);
+	if (WCC->Floors == NULL)
+		GetFloorListHash(Target, TP);
+	serv_puts("LZRM -1");
+	return GetRoomListHash(Target, TP);
 }
 HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP) 
 {
@@ -133,15 +167,6 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP)
 	return WCC->Rooms;
 }
 
-HashList *GetZappedRoomListHash(StrBuf *Target, WCTemplputParams *TP) 
-{
-	wcsession *WCC = WC;
-
-	if (WCC->Floors == NULL)
-		GetFloorListHash(Target, TP);
-	serv_puts("LZRM -1");
-	return GetRoomListHash(Target, TP);
-}
 
 void FlushIgnetCfgs(folder *room)
 {
@@ -562,217 +587,6 @@ int CompareRooms(const folder *room1, const folder *room2)
 	return CompareRoomListByFloorRoomPrivFirst(room1, room2);
 }
 
-
-
-void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-
-	if (Folder == NULL)
-	{
-		wcsession *WCC = WC;
-
-		if (WCC == NULL)
-			return;
-		Folder = &WCC->CurRoom;
-	}
-	StrBufAppendTemplate(Target, TP, Folder->name, 0);
-}
-void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *room = (folder *)CTX;
-
-	if (room->nRoomNameParts > 1)
-		StrBufAppendTemplate(Target, TP, 
-				      room->RoomNameParts[room->nRoomNameParts - 1], 0);
-	else 
-		StrBufAppendTemplate(Target, TP, room->name, 0);
-}
-void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *room = (folder *)CTX;
-	int i;
-        const char *AppendMe;
-        long AppendMeLen;
-
-
-	if (room->nRoomNameParts > 1)
-	{
-		GetTemplateTokenString(Target, TP, 0, &AppendMe, &AppendMeLen);
-		for (i = 0; i < room->nRoomNameParts; i++)
-			StrBufAppendBufPlain(Target, AppendMe, AppendMeLen, 0);
-	}
-}
-
-void tmplput_ROOM_ACL(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-
-	StrBufAppendPrintf(Target, "%ld", Folder->RAFlags, 0);
-}
-
-
-void tmplput_ROOM_QRFLAGS(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	StrBufAppendPrintf(Target, "%d", Folder->QRFlags);
-}
-
-void tmplput_ROOM_RAFLAGS(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)(TP->Context);
-	StrBufAppendPrintf(Target, "%d", Folder->RAFlags);
-}
-
-
-void tmplput_ROOM_FLOORID(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	StrBufAppendPrintf(Target, "%d", Folder->floorid);
-}
-
-void tmplput_ROOM_LISTORDER(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	StrBufAppendPrintf(Target, "%d", Folder->Order);
-}
-void tmplput_ROOM_VIEW(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	StrBufAppendPrintf(Target, "%d", Folder->view);
-}
-void tmplput_ROOM_DEFVIEW(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	StrBufAppendPrintf(Target, "%d", Folder->defview);
-}
-void tmplput_ROOM_LASTCHANGE(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	StrBufAppendPrintf(Target, "%d", Folder->lastchange);
-}
-void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	const Floor *pFloor = Folder->Floor;
-
-	if (pFloor == NULL)
-		return;
-
-	StrBufAppendPrintf(Target, "%d", pFloor->ID);
-}
-
-void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	const Floor *pFloor = Folder->Floor;
-
-	if (pFloor == NULL)
-		return;
-
-	StrBufAppendTemplate(Target, TP, pFloor->Name, 0);
-}
-
-void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	const Floor *pFloor = Folder->Floor;
-
-	if (pFloor == NULL)
-		return;
-	StrBufAppendPrintf(Target, "%d", pFloor->NRooms);
-}
-
-
-
-
-int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-	return Folder->is_inbox;
-}
-
-void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP) 
-{
-	folder *Folder = (folder *)CTX;
-	
-	switch(Folder->view) {
-	case VIEW_CALENDAR:
-		StrBufAppendBufPlain(Target, HKEY("vevent"), 0);
-		break;
-	case VIEW_TASKS:
-		StrBufAppendBufPlain(Target, HKEY("vtodo"), 0);
-		break;
-	case VIEW_ADDRESSBOOK:
-		StrBufAppendBufPlain(Target, HKEY("vcard"), 0);
-		break;
-	case VIEW_NOTES:
-		StrBufAppendBufPlain(Target, HKEY("vnotes"), 0);
-		break;
-	case VIEW_JOURNAL:
-		StrBufAppendBufPlain(Target, HKEY("vjournal"), 0);
-		break;
-	case VIEW_WIKI:
-		StrBufAppendBufPlain(Target, HKEY("wiki"), 0);
-		break;
-	}
-}
-
-
-
-
-int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
-{
-	folder *Folder = (folder *)CTX;
-
-	lprintf(0, "-> %s: %ld\n", ChrPtr(Folder->name), Folder->view);
-
-	return ((Folder->view == VIEW_CALENDAR) || 
-		(Folder->view == VIEW_TASKS) || 
-		(Folder->view == VIEW_ADDRESSBOOK) ||
-		(Folder->view == VIEW_NOTES) ||
-		(Folder->view == VIEW_JOURNAL) );
-}
-
-
-
-int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession  *WCC = WC;
-	Floor *MyFloor = (Floor *)CTX;
-	/** if we have dav_depth the client just wants the subfloors */
-	if ((WCC->Hdr->HR.dav_depth == 1) && 
-	    (GetCount(WCC->Directory) == 0))
-		return 1;
-	return WCC->CurrentFloor == MyFloor;
-}
-
-int ConditionalFloorHaveNRooms(StrBuf *Target, WCTemplputParams *TP)
-{
-	Floor *MyFloor = (Floor *)CTX;
-	int HaveN;
-
-	HaveN = GetTemplateTokenNumber(Target, TP, 0, 0);
-
-	return HaveN == MyFloor->NRooms;
-}
-
-int ConditionalFloorIsVirtual(StrBuf *Target, WCTemplputParams *TP)
-{
-	Floor *MyFloor = (Floor *)CTX;
-
-	return MyFloor->ID == VIRTUAL_MY_FLOOR;
-}
-
-int ConditionalFloorIsSUBROOM(StrBuf *Target, WCTemplputParams *TP)
-{
-	wcsession  *WCC = WC;
-	Floor *MyFloor = (Floor *)CTX;
-
-	return WCC->CurRoom.floorid == MyFloor->ID;
-}
-
-
 int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
@@ -855,80 +669,19 @@ int ConditionalRoomIsRESTSubRoom(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-void jsonRoomFlr(void) 
-{
-	/* Send as our own (application/json) content type */
-	hprintf("HTTP/1.1 200 OK\r\n");
-	hprintf("Content-type: application/json; charset=utf-8\r\n");
-	hprintf("Server: %s / %s\r\n", PACKAGE_STRING, ChrPtr(WC->serv_info->serv_software));
-	hprintf("Connection: close\r\n");
-	hprintf("Pragma: no-cache\r\nCache-Control: no-store\r\nExpires:-1\r\n");
-	begin_burst();
-	DoTemplate(HKEY("json_roomflr"),NULL,&NoCtx);
-	end_burst(); 
-}
-
-#define POP3_HOST 0
-#define POP3_USERNAME 1
-#define POP3_PASSWORD 2
-#define POP3_KEEP 3
-#define POP3_INTERVAL 4
-
 void 
 InitModule_ROOMLIST
 (void)
 {
 
-	REGISTERTokenParamDefine(POP3_HOST);
-	REGISTERTokenParamDefine(POP3_USERNAME);
-	REGISTERTokenParamDefine(POP3_PASSWORD);
-	REGISTERTokenParamDefine(POP3_KEEP);
-	REGISTERTokenParamDefine(POP3_INTERVAL);
-
-
-	WebcitAddUrlHandler(HKEY("json_roomflr"), "", 0, jsonRoomFlr, 0);
-
-
-	RegisterNamespace("FLOOR:ID", 0, 0, tmplput_FLOOR_ID, NULL, CTX_FLOORS);
-	RegisterNamespace("FLOOR:NAME", 0, 1, tmplput_FLOOR_NAME, NULL, CTX_FLOORS);
-	RegisterNamespace("FLOOR:NROOMS", 0, 0, tmplput_FLOOR_NROOMS, NULL, CTX_FLOORS);
-	RegisterConditional(HKEY("COND:FLOOR:ISSUBROOM"), 0, ConditionalFloorIsSUBROOM, CTX_FLOORS);
-	RegisterConditional(HKEY("COND:FLOOR:ISVIRTUAL"), 0, ConditionalFloorIsVirtual, CTX_FLOORS);
-	RegisterConditional(HKEY("COND:FLOOR:NROOMS"), 1, ConditionalFloorHaveNRooms, CTX_FLOORS);
-	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBFLOOR"), 0, ConditionalFloorIsRESTSubFloor, CTX_FLOORS);
-
+	RegisterIterator("ITERATE:THISROOM:WHO_KNOWS", 0, NULL, GetWhoKnowsHash, NULL, DeleteHash, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterIterator("ITERATE:THISROOM:GNET", 1, NULL, GetNetConfigHash, NULL, NULL, CTX_STRBUFARR, CTX_NONE, IT_NOFLAG);
 
 	RegisterIterator("LFLR", 0, NULL, GetFloorListHash, NULL, NULL, CTX_FLOORS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
-
 	RegisterIterator("LKRA", 0, NULL, GetRoomListHashLKRA, NULL, NULL, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 	RegisterIterator("LZRM", 0, NULL, GetZappedRoomListHash, NULL, DeleteHash, CTX_ROOMS, CTX_NONE, IT_FLAG_DETECT_GROUPCHANGE);
 
-
-	RegisterNamespace("ROOM:INFO:FLOORID", 0, 1, tmplput_ROOM_FLOORID, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:PRINT_NAME", 0, 1, tmplput_ROOM_NAME, NULL, CTX_NONE);
-	RegisterNamespace("ROOM:INFO:BASENAME", 0, 1, tmplput_ROOM_BASENAME, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:LEVELNTIMES", 1, 2, tmplput_ROOM_LEVEL_N_TIMES, NULL, CTX_ROOMS);
-
-	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:QRFLAGS", 0, 1, tmplput_ROOM_QRFLAGS, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:RAFLAGS", 0, 1, tmplput_ROOM_RAFLAGS, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:LISTORDER", 0, 1, tmplput_ROOM_LISTORDER, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:DEFVIEW", 0, 1, tmplput_ROOM_DEFVIEW, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:LASTCHANGE", 0, 1, tmplput_ROOM_LASTCHANGE, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:COLLECTIONTYPE", 0, 1, tmplput_ROOM_COLLECTIONTYPE, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:FLOOR:ID", 0, 0, tmplput_ROOM_FLOOR_ID, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:FLOOR:NAME", 0, 1, tmplput_ROOM_FLOOR_NAME, NULL, CTX_ROOMS);
-	RegisterNamespace("ROOM:INFO:FLOOR:NROOMS", 0, 0, tmplput_ROOM_FLOOR_NROOMS, NULL, CTX_ROOMS);
-
 	RegisterConditional(HKEY("COND:ROOM:REST:ISSUBROOM"), 0, ConditionalRoomIsRESTSubRoom, CTX_ROOMS);
-
-	RegisterConditional(HKEY("COND:ROOM:INFO:IS_INBOX"), 0, ConditionalRoomIsInbox, CTX_ROOMS);
-	RegisterConditional(HKEY("COND:ROOM:GROUPDAV_CONTENT"), 0, ConditionalRoomHasGroupdavContent, CTX_ROOMS);
-
-
 
 	RegisterSortFunc(HKEY("byfloorroom"),
 			 NULL, 0,

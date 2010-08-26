@@ -215,6 +215,15 @@ void ungoto(void)
 
 
 
+void tmplput_ungoto(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+
+	if ((WCC!=NULL) && 
+	    (!IsEmptyStr(WCC->ugname)))
+		StrBufAppendBufPlain(Target, WCC->ugname, -1, 0);
+}
+
 void _gotonext(void) {
 	slrp_highest();
 	gotonext();
@@ -226,12 +235,22 @@ void dotskip(void) {
 }
 
 
+int ConditionalHaveUngoto(StrBuf *Target, WCTemplputParams *TP)
+{
+	wcsession *WCC = WC;
+	
+	return ((WCC!=NULL) && 
+		(!IsEmptyStr(WCC->ugname)) && 
+		(strcasecmp(WCC->ugname, ChrPtr(WCC->CurRoom.name)) == 0));
+}
 
 
 void 
 InitModule_MARCHLIST
 (void)
 {
+	RegisterConditional(HKEY("COND:UNGOTO"), 0, ConditionalHaveUngoto, CTX_NONE);
+	RegisterNamespace("ROOM:UNGOTO", 0, 0, tmplput_ungoto, NULL, CTX_NONE);
 
 	WebcitAddUrlHandler(HKEY("gotonext"), "", 0, _gotonext, NEED_URL);
 	WebcitAddUrlHandler(HKEY("skip"), "", 0, gotonext, NEED_URL);

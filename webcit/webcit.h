@@ -821,11 +821,6 @@ void summary(void);
 
 int is_mobile_ua(char *user_agent);
 
-void embed_room_banner(void);
-HashList *GetFloorListHash(StrBuf *Target, WCTemplputParams *TP);
-HashList *GetRoomListHash(StrBuf *Target, WCTemplputParams *TP);
-int SortRoomsByListOrder(const void *room1, const void *room2);
-
 /* actual supported locales */
 void TmplGettext(StrBuf *Target, WCTemplputParams *TP);
 void offer_languages(StrBuf *Target, int nArgs, WCTemplateToken *Token, void *Context, int ContextType);
