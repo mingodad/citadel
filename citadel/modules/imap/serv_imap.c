@@ -556,6 +556,11 @@ void imap_login(int num_parms, ConstStr *Params)
 				cprintf("] Hello, %s\r\n", CC->user.fullname);
 				return;
 			}
+			else
+			{
+				cprintf("%s NO AUTHENTICATE %s failed\r\n",
+					Params[0].Key, Params[3].Key);
+			}
 		}
 
 		cprintf("%s BAD Login incorrect\r\n", Params[0].Key);
