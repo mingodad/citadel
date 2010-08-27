@@ -779,7 +779,7 @@ struct CtdlMessage *convert_internet_message_buf(StrBuf **rfc822)
 		       (done == 0) ) 
 		{
 
-			if ( (*pos=='\n') && ((*pos+1)!=0x20) && ((*pos+1)!=0x09) )
+			if ( (*pos=='\n') && ((*(pos+1))!=0x20) && ((*(pos+1))!=0x09) )
 			{
 				end = pos;
 			}
