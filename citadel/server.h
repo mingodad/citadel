@@ -212,7 +212,7 @@ enum {
 
 
 /* Defines the relationship of a user to a particular room */
-struct visit {
+typedef struct __visit {
 	long v_roomnum;
 	long v_roomgen;
 	long v_usernum;
@@ -221,7 +221,7 @@ struct visit {
 	char v_seen[SIZ];
 	char v_answered[SIZ];
 	int v_view;
-};
+} visit;
 
 #define V_FORGET	1	/* User has zapped this room        */
 #define V_LOCKOUT	2	/* User is locked out of this room  */
