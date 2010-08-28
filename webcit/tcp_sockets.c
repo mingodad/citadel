@@ -256,6 +256,42 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	return rc;
 }
 
+
+void FlushReadBuf (void)
+{
+	long len;
+	const char *pch;
+	const char *pche;
+	wcsession *WCC = WC;
+
+	len = StrLength(WCC->ReadBuf);
+	if ((len > 0) &&
+	    (WCC->ReadPos != NULL) && 
+	    (WCC->ReadPos != StrBufNOTNULL))
+		
+	{
+		pch = ChrPtr(WCC->ReadBuf);
+		pche = pch + len;
+		if (WCC->ReadPos != pche)
+		{
+			lprintf(1, "ERROR: somebody didn't eat his soup! Remaing Chars: %d [%s]\n", 
+				pche - WCC->ReadPos, pche);
+			lprintf(1, 
+				"--------------------------------------------------------------------------------\n"
+				"Whole buf: [%s]\n"
+				"--------------------------------------------------------------------------------\n", 
+				pch);
+			AppendImportantMessage(HKEY("Suppenkasper alert! watch your webcit logfile and get connected to your favourite opensource Crew."));
+		}
+	}
+
+	FlushStrBuf(WCC->ReadBuf);
+	WCC->ReadPos = NULL;
+
+
+}
+
+
 /*
  *  send binary to server
  *  buf the buffer to write to citadel server
@@ -267,8 +303,7 @@ void serv_write(const char *buf, int nbytes)
 	int bytes_written = 0;
 	int retval;
 
-	FlushStrBuf(WCC->ReadBuf);
-	WCC->ReadPos = NULL;
+	FlushReadBuf();
 	while (bytes_written < nbytes) {
 		retval = write(WCC->serv_sock, &buf[bytes_written],
 			       nbytes - bytes_written);
@@ -293,12 +328,10 @@ void serv_write(const char *buf, int nbytes)
  */
 void serv_puts(const char *string)
 {
-	wcsession *WCC = WC;
 #ifdef SERV_TRACE
 	lprintf(9, "%3d>>>%s\n", WC->serv_sock, string);
 #endif
-	FlushStrBuf(WCC->ReadBuf);
-	WCC->ReadPos = NULL;
+	FlushReadBuf();
 
 	serv_write(string, strlen(string));
 	serv_write("\n", 1);
@@ -310,12 +343,10 @@ void serv_puts(const char *string)
  */
 void serv_putbuf(const StrBuf *string)
 {
-	wcsession *WCC = WC;
 #ifdef SERV_TRACE
 	lprintf(9, "%3d>>>%s\n", WC->serv_sock, ChrPtr(string));
 #endif
-	FlushStrBuf(WCC->ReadBuf);
-	WCC->ReadPos = NULL;
+	FlushReadBuf();
 
 	serv_write(ChrPtr(string), StrLength(string));
 	serv_write("\n", 1);
@@ -329,13 +360,11 @@ void serv_putbuf(const StrBuf *string)
  */
 void serv_printf(const char *format,...)
 {
-	wcsession *WCC = WC;
 	va_list arg_ptr;
 	char buf[SIZ];
 	size_t len;
 
-	FlushStrBuf(WCC->ReadBuf);
-	WCC->ReadPos = NULL;
+	FlushReadBuf();
 
 	va_start(arg_ptr, format);
 	vsnprintf(buf, sizeof buf, format, arg_ptr);
