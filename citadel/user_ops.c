@@ -1506,14 +1506,18 @@ void cmd_seen(char *argbuf) {
 
 
 void cmd_gtsn(char *argbuf) {
-	char buf[SIZ];
+	visit vbuf;
 
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
 	}
 
-	CtdlGetSeen(buf, ctdlsetseen_seen);
-	cprintf("%d %s\n", CIT_OK, buf);
+	/* Learn about the user and room in question */
+	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+
+	cprintf("%d ", CIT_OK);
+	client_write(vbuf.v_seen, strlen(vbuf.v_seen));
+	client_write(HKEY("\n"));
 }
 
 
