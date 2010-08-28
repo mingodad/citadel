@@ -31,7 +31,7 @@ void ForEachUser(void (*CallBack)(struct ctdluser *EachUser, void *out_data),
 void ListThisUser(struct ctdluser *usbuf, void *data);
 int NewMailCount(void);
 int InitialMailCheck(void);
-void put_visit(struct visit *newvisit);
+void put_visit(visit *newvisit);
 /* MailboxName is deprecated us CtdlMailboxName instead */
 void MailboxName(char *buf, size_t n, const struct ctdluser *who,
 		 const char *prefix) __attribute__ ((deprecated));

@@ -53,7 +53,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		int *result, int *view)
 {
 	int retval = 0;
-	struct visit vbuf;
+	visit vbuf;
 
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
@@ -887,7 +887,7 @@ void CtdlUserGoto(char *where, int display_result, int transiently,
 	int rmailflag;
 	int raideflag;
 	int newmailcount = 0;
-	struct visit vbuf;
+	visit vbuf;
 	char truncated_roomname[ROOMNAMELEN];
         struct cdbdata *cdbfr;
 	long *msglist = NULL;
@@ -1834,7 +1834,7 @@ unsigned CtdlCreateRoom(char *new_room_name,
 
 	struct ctdlroom qrbuf;
 	struct floor flbuf;
-	struct visit vbuf;
+	visit vbuf;
 
 	CtdlLogPrintf(CTDL_DEBUG, "CtdlCreateRoom(name=%s, type=%d, view=%d)\n",
 		new_room_name, new_room_type, new_room_view);

@@ -83,7 +83,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 	int setting_user_value = 0;
 	char set_value[32];
 	int set_view = VIEW_BBS;
-	struct visit vbuf;
+	visit vbuf;
 
 	if (num_parms != 6) {
 		cprintf("%s BAD usage error\r\n", Params[0].Key);
