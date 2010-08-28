@@ -1171,7 +1171,7 @@ void check_get_greeting(void) {
 void vcard_CtdlCreateRoom(void)
 {
 	struct ctdlroom qr;
-	struct visit vbuf;
+	visit vbuf;
 
 	/* Create the calendar room if it doesn't already exist */
 	CtdlCreateRoom(USERCONTACTSROOM, 4, "", 0, 1, 0, VIEW_ADDRESSBOOK);

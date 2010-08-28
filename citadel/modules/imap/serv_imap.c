@@ -128,7 +128,7 @@ void imap_free_transmitted_message(void)
  */
 void imap_set_seen_flags(int first_msg)
 {
-	struct visit vbuf;
+	visit vbuf;
 	int i;
 	int num_sets;
 	int s;

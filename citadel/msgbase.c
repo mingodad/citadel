@@ -356,7 +356,7 @@ int CtdlMsgCmp(struct CtdlMessage *msg, struct CtdlMessage *template) {
  * Retrieve the "seen" message list for the current room.
  */
 void CtdlGetSeen(char *buf, int which_set) {
-	struct visit vbuf;
+	visit vbuf;
 
 	/* Learn about the user and room in question */
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
@@ -381,7 +381,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 	int was_seen = 0;
 	long lo = (-1L);
 	long hi = (-1L);
-	struct visit vbuf;
+	visit vbuf;
 	long *msglist;
 	int num_msgs = 0;
 	StrBuf *vset;
@@ -607,7 +607,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 {
 
 	int a, i, j;
-	struct visit vbuf;
+	visit vbuf;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;

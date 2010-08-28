@@ -309,10 +309,10 @@ int CtdlGetUserLock(struct ctdluser *usbuf, char *name);
 void CtdlPutUser(struct ctdluser *usbuf);
 void CtdlPutUserLock(struct ctdluser *usbuf);
 int CtdlGetUserByNumber(struct ctdluser *usbuf, long number);
-void CtdlGetRelationship(struct visit *vbuf,
+void CtdlGetRelationship(visit *vbuf,
                         struct ctdluser *rel_user,
                         struct ctdlroom *rel_room);
-void CtdlSetRelationship(struct visit *newvisit,
+void CtdlSetRelationship(visit *newvisit,
                         struct ctdluser *rel_user,
                         struct ctdlroom *rel_room);
 void CtdlMailboxName(char *buf, size_t n, const struct ctdluser *who, const char *prefix);

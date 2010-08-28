@@ -269,7 +269,7 @@ int GenerateRelationshipIndex(char *IndexBuf,
 /*
  * Back end for CtdlSetRelationship()
  */
-void put_visit(struct visit *newvisit)
+void put_visit(visit *newvisit)
 {
 	char IndexBuf[32];
 	int IndexLen = 0;
@@ -283,7 +283,7 @@ void put_visit(struct visit *newvisit)
 
 	/* Store the record */
 	cdb_store(CDB_VISIT, IndexBuf, IndexLen,
-		  newvisit, sizeof(struct visit)
+		  newvisit, sizeof(visit)
 	);
 }
 
@@ -293,7 +293,7 @@ void put_visit(struct visit *newvisit)
 /*
  * Define a relationship between a user and a room
  */
-void CtdlSetRelationship(struct visit *newvisit,
+void CtdlSetRelationship(visit *newvisit,
 			 struct ctdluser *rel_user,
 			 struct ctdlroom *rel_room)
 {
@@ -312,7 +312,7 @@ void CtdlSetRelationship(struct visit *newvisit,
 /*
  * Locate a relationship between a user and a room
  */
-void CtdlGetRelationship(struct visit *vbuf,
+void CtdlGetRelationship(visit *vbuf,
 			 struct ctdluser *rel_user,
 			 struct ctdlroom *rel_room)
 {
@@ -328,13 +328,13 @@ void CtdlGetRelationship(struct visit *vbuf,
 					     rel_user->usernum);
 
 	/* Clear out the buffer */
-	memset(vbuf, 0, sizeof(struct visit));
+	memset(vbuf, 0, sizeof(visit));
 
 	cdbvisit = cdb_fetch(CDB_VISIT, IndexBuf, IndexLen);
 	if (cdbvisit != NULL) {
 		memcpy(vbuf, cdbvisit->ptr,
-		       ((cdbvisit->len > sizeof(struct visit)) ?
-			sizeof(struct visit) : cdbvisit->len));
+		       ((cdbvisit->len > sizeof(visit)) ?
+			sizeof(visit) : cdbvisit->len));
 		cdb_free(cdbvisit);
 	}
 	else {
@@ -1452,8 +1452,8 @@ void cmd_setu(char *new_parms)
 void cmd_slrp(char *new_ptr)
 {
 	long newlr;
-	struct visit vbuf;
-	struct visit original_vbuf;
+	visit vbuf;
+	visit original_vbuf;
 
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;
@@ -1468,7 +1468,7 @@ void cmd_slrp(char *new_ptr)
 	CtdlGetUserLock(&CC->user, CC->curr_user);
 
 	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
-	memcpy(&original_vbuf, &vbuf, sizeof(struct visit));
+	memcpy(&original_vbuf, &vbuf, sizeof(visit));
 	vbuf.v_lastseen = newlr;
 	snprintf(vbuf.v_seen, sizeof vbuf.v_seen, "*:%ld", newlr);
 
@@ -1525,7 +1525,7 @@ void cmd_gtsn(char *argbuf) {
  */
 int CtdlInvtKick(char *iuser, int op) {
 	struct ctdluser USscratch;
-	struct visit vbuf;
+	visit vbuf;
 	char bbb[SIZ];
 
 	if (CtdlGetUser(&USscratch, iuser) != 0) {
@@ -1601,7 +1601,7 @@ void cmd_kick(char *iuser) {cmd_invt_kick(iuser, 0);}
  * Returns 0 on success
  */
 int CtdlForgetThisRoom(void) {
-	struct visit vbuf;
+	visit vbuf;
 
 	/* On some systems, Aides are not allowed to forget rooms */
 	if (is_aide() && (config.c_aide_zap == 0)
@@ -1961,7 +1961,7 @@ int InitialMailCheck()
 	int a;
 	char mailboxname[ROOMNAMELEN];
 	struct ctdlroom mailbox;
-	struct visit vbuf;
+	visit vbuf;
 	struct cdbdata *cdbfr;
 	long *msglist = NULL;
 	int num_msgs = 0;
@@ -2000,7 +2000,7 @@ int InitialMailCheck()
  */
 void cmd_view(char *cmdbuf) {
 	int requested_view;
-	struct visit vbuf;
+	visit vbuf;
 
 	if (CtdlAccessCheck(ac_logged_in)) {
 		return;

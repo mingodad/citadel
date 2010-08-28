@@ -614,7 +614,7 @@ int PurgeUsers(void) {
  */
 int PurgeVisits(void) {
 	struct cdbdata *cdbvisit;
-	struct visit vbuf;
+	visit vbuf;
 	struct VPurgeList *VisitPurgeList = NULL;
 	struct VPurgeList *vptr;
 	int purged = 0;
@@ -633,10 +633,10 @@ int PurgeVisits(void) {
 	/* Now traverse through the visits, purging irrelevant records... */
 	cdb_rewind(CDB_VISIT);
 	while(cdbvisit = cdb_next_item(CDB_VISIT), cdbvisit != NULL) {
-		memset(&vbuf, 0, sizeof(struct visit));
+		memset(&vbuf, 0, sizeof(visit));
 		memcpy(&vbuf, cdbvisit->ptr,
-			( (cdbvisit->len > sizeof(struct visit)) ?
-			sizeof(struct visit) : cdbvisit->len) );
+			( (cdbvisit->len > sizeof(visit)) ?
+			  sizeof(visit) : cdbvisit->len) );
 		cdb_free(cdbvisit);
 
 		RoomIsValid = 0;
