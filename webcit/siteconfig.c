@@ -364,20 +364,21 @@ int ConditionalServCfg(StrBuf *Target, WCTemplputParams *TP)
 	else return 0;
 }
 
-int ConditionalServCfgSubst(StrBuf *Target, WCTemplputParams *TP)
+int ConditionalServCfgCTXStrBuf(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	void *vBuf;
 	StrBuf *Buf;
+	StrBuf *ZoneToCheck = (StrBuf*) CTX;
 
-	if (WCC->is_aide) {
+	if ((WCC->is_aide) || (ZoneToCheck == NULL)) {
 		if (WCC->ServCfg == NULL)
 			load_siteconfig();
 		GetHash(WCC->ServCfg, TKEY(2), &vBuf);
 		if (vBuf == NULL) return 0;
 		Buf = (StrBuf*) vBuf;
 
-		return CompareSubstToStrBuf(Buf, TP->Tokens->Params[3]);
+		return strcmp(ChrPtr(Buf), ChrPtr(ZoneToCheck)) == 0;
 	}
 	else return 0;
 }
@@ -390,7 +391,7 @@ InitModule_SITECONFIG
 
 	RegisterNamespace("SERV:CFG", 1, 2, tmplput_servcfg, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
-	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst, CTX_NONE);
+	RegisterConditional(HKEY("COND:SERVCFG:CTXSTRBUF"), 4, ConditionalServCfgCTXStrBuf, CTX_STRBUF);
 	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	REGISTERTokenParamDefine(roompolicy);
