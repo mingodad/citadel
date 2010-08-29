@@ -55,20 +55,33 @@ void ParseURLParams(StrBuf *url)
 			free(u);
 			continue;
 		}
-
-		Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
-		len = bptr - aptr;
-		u->url_data = NewStrBufPlain(aptr, len);
-		StrBufUnescape(u->url_data, 1);
-	     
+		
+		if (strncmp(u->url_key, HKEY("__")) != 0)
+		{
+			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
+			len = bptr - aptr;
+			u->url_data = NewStrBufPlain(aptr, len);
+			StrBufUnescape(u->url_data, 1);
+#ifdef DEBUG_URLSTRINGS
+			lprintf(9, "%s = [%ld]  %s\n", 
+				u->url_key, 
+				StrLength(u->url_data), 
+				ChrPtr(u->url_data)); 
+#endif
+		}
+		else {
+			len = bptr - aptr;
+			u->url_data = NewStrBufPlain(aptr, len);
+			StrBufUnescape(u->url_data, 1);
+			lprintf(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
+				u->url_key, 
+				StrLength(u->url_data), 
+				ChrPtr(u->url_data)); 
+			
+			free_url(u);
+		}
 		up = bptr;
 		++up;
-#ifdef DEBUG_URLSTRINGS
-		lprintf(9, "%s = [%ld]  %s\n", 
-			u->url_key, 
-			StrLength(u->url_data), 
-			ChrPtr(u->url_data)); 
-#endif
 	}
 }
 
@@ -294,6 +307,8 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 {
 	wcsession *WCC = WC;
 	urlcontent *u;
+	long keylen;
+
 #ifdef DEBUG_URLSTRINGS
 	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
 #endif
@@ -304,10 +319,21 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	if ( (length > 0) && (IsEmptyStr(cbtype)) ) {
 		u = (urlcontent *) malloc(sizeof(urlcontent));
 		
-		safestrncpy(u->url_key, name, sizeof(u->url_key));
+		keylen = safestrncpy(u->url_key, name, sizeof(u->url_key));
 		u->url_data = NewStrBufPlain(content, length);
 		
-		Put(WCC->Hdr->urlstrings, u->url_key, strlen(u->url_key), u, free_url);
+		if (strncmp(u->url_key, HKEY("__")) != 0)
+		{
+			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
+		}
+		else {
+			lprintf(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
+				u->url_key, 
+				StrLength(u->url_data), 
+				ChrPtr(u->url_data)); 
+			
+			free_url(u);
+		}
 #ifdef DEBUG_URLSTRINGS
 		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
 			u->url_key, 
