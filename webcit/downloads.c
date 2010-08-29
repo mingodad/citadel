@@ -233,7 +233,6 @@ HashList* LoadFileList(StrBuf *Target, WCTemplputParams *TP)
 	else 
 		SortByPayload(Files, CompareFilelistBySequence);
 	FreeStrBuf(&Buf);
-	svputlong("FILE:HAVEPICS", HavePic);
 	return Files;
 }
 
