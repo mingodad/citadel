@@ -152,9 +152,9 @@ int StrBuf_ServGetln(StrBuf *buf)
 #ifdef SERV_TRACE
 	else 
 	{
-		long pos=0;
+		long pos = 0;
 		if (WCC->ReadPos != NULL)
-			pos = WCC->ReadPos - ChrPtr(buf);
+			pos = WCC->ReadPos - ChrPtr(WCC->ReadBuf);
 		lprintf(9, "%3d<<<[%ld]%s\n", WC->serv_sock, pos, ChrPtr(buf));
 	}
 #endif
