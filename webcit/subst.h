@@ -356,35 +356,12 @@ void RegisterSortFunc(const char *name, long len,
 		      CompareFunc GroupChange, 
 		      long ContextType);
 
-
-
-
 void dbg_print_longvector(long *LongVector);
-
-
-
-
 
 #define do_template(a, b) DoTemplate(a, sizeof(a) -1, NULL, &NoCtx)
 const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCTemplputParams *TP);
 void url_do_template(void);
 
 
-
-
-
 int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup);
 int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup);
-
-void SVPut(char *keyname, size_t keylen, int keytype, char *Data);
-#define svput(a, b, c) SVPut(a, sizeof(a) - 1, b, c)
-void SVPutLong(char *keyname, size_t keylen, long Data);
-#define svputlong(a, b) SVPutLong(a, sizeof(a) - 1, b)
-void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...) __attribute__((__format__(__printf__,4,5)));
-void SVPRINTF(char *keyname, int keytype, const char *format,...) __attribute__((__format__(__printf__,3,4)));
-void SVCALLBACK(char *keyname, WCHandlerFunc fcn_ptr);
-void SVCallback(char *keyname, size_t keylen,  WCHandlerFunc fcn_ptr);
-#define svcallback(a, b) SVCallback(a, sizeof(a) - 1, b)
-
-void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref);
-#define SVPutBuf(a, b, c); SVPUTBuf(a, sizeof(a) - 1, b, c)
