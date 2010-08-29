@@ -11,8 +11,8 @@
 <input type="hidden" name="page" value="<?BSTR("page")>">
 
 <p class="send_edit_msg">
-<?!("COND:SUBST", 1, "RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Send message")>"><?!("X", 1)>
-<??("COND:SUBST", 2, "RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Post message")>"><?!("X", 2)>
+<?!("COND:BSTR", 1, "__RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Send message")>"><?!("X", 1)>
+<??("COND:BSTR", 2, "__RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Post message")>"><?!("X", 2)>
 &nbsp;
 <!-- temporarily disabled for 7.60
   <input type="submit" name="save_button" value="<?_("Save to Drafts")>">
@@ -24,7 +24,7 @@
 <table width="100%" class="edit_msg_table">
 <tr><th><label for="from_id" >  <i><?_("from")></i> </label></th><td colspan="2">
 
-<??("COND:SUBST", 4, "RCPTREQUIRED")>
+<??("COND:BSTR", 4, "__RCPTREQUIRED")>
 <select name="display_name" size=1 id="from_id">
 <?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_handle_select")>
 <?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
@@ -33,7 +33,7 @@
 </select>
 <??("X", 4)>
 
-<?!("COND:SUBST", 5, "RCPTREQUIRED")>
+<?!("COND:BSTR", 5, "__RCPTREQUIRED")>
 <select name="display_name" size=1 id="from_id">
 <?ITERATE("PREF:VALID:EMAIL:NAME", ="prefs_section_msg_sender_name_select")>
 <?!("COND:THISROOM:FLAG:QR", 3, #"QR_ANONOPT")>
@@ -48,7 +48,7 @@
 
  <i><?_("in")></i> <?ROOMNAME></td></tr>
 
-<?!("COND:SUBST", 5, "RCPTREQUIRED")>
+<?!("COND:BSTR", 5, "__RCPTREQUIRED")>
 <tr>
   <th><label for="recp_id"> <?_("To:")></label></th>
   <td><input autocomplete="off" type="text" name="recp" id="recp_id" value="<?BSTR("recp", "H")>" size=45 maxlength=1000 />
@@ -75,8 +75,7 @@
 <??("X", 5)>		
 <tr>
   <th><label for="subject_id" > 
-      <?!("COND:SUBST", 6, "SUBJREQUIRED")><?_("Subject:")><?!("X", 6)>
-      <??("COND:SUBST", 7, "SUBJREQUIRED")><?_("Subject (optional):")><??("X", 7)>
+      <?%("COND:BSTR", 6, "__SUBJREQUIRED", 0, _("Subject:"), _("Subject (optional):")>
   </label></th>
   <td colspan="2">
     <input type="text" name="subject" id="subject_id" value="<?BSTR("subject", "H")>" size=45 maxlength=70>

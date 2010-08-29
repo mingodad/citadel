@@ -811,8 +811,15 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	WCC->num_displayed = 0;
 
 	/* Put some helpful data in vars for mailsummary_json */
-	svputlong("READLOOP:TOTALMSGS", Stat.nummsgs);
-	svputlong("READLOOP:STARTMSG", Stat.startmsg);
+	{
+		StrBuf *Foo;
+		
+		Foo = NewStrBuf ();
+		StrBufPrintf(Foo, "%ld", Stat.nummsgs);
+		PutBstr(HKEY("__READLOOP:TOTALMSGS"), NewStrBufDup(Foo));
+		StrBufPrintf(Foo, "%ld", Stat.startmsg);
+		PutBstr(HKEY("__READLOOP:STARTMSG"), Foo);
+	}
 
 	/*
 	 * iterate over each message. if we need to load an attachment, do it here. 
@@ -1385,8 +1392,10 @@ void display_enter(void)
 			return;
 		}
 	}
-	svputlong("RCPTREQUIRED", recipient_required);
-	svputlong("SUBJREQUIRED", recipient_required || subject_required);
+	if (recipient_required)
+		PutBstr(HKEY("__RCPTREQUIRED"), NewStrBufPlain(HKEY("1")));
+	if (recipient_required || subject_required)
+		PutBstr(HKEY("__SUBJREQUIRED"), NewStrBufPlain(HKEY("1")));
 
 	begin_burst();
 	output_headers(1, 0, 0, 0, 1, 0);
