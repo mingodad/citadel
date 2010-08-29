@@ -2316,9 +2316,9 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 	    (It->XPectContextType != TP->Filter.ContextType)) {
 		LogTemplateError(
 			Target, "Iterator", ERR_PARM1, TP,
-			"requires context of type %d, have %d", 
-			It->XPectContextType, 
-			TP->Filter.ContextType);
+			"requires context of type %s, have %s", 
+			ContextName(It->XPectContextType), 
+			ContextName(TP->Filter.ContextType));
 		return ;
 		
 	}
