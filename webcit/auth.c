@@ -74,45 +74,6 @@ void display_openid_login(char *mesg)
 }
 
 
-void display_openid_name_request(const StrBuf *claimed_id, const StrBuf *username) 
-{
-	StrBuf *Buf = NULL;
-
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"login_screen\">\n");
-
-	Buf = NewStrBufPlain(NULL, StrLength(claimed_id));
-	StrEscAppend(Buf, claimed_id, NULL, 0, 0);
-	svprintf(HKEY("VERIFIED"), WCS_STRING, _("Your OpenID <tt>%s</tt> was successfully verified."),
-		 ChrPtr(Buf));
-	SVPutBuf("CLAIMED_ID", Buf, 0);
-
-
-	if (StrLength(username) > 0) {
-			Buf = NewStrBufPlain(NULL, StrLength(username));
-			StrEscAppend(Buf, username, NULL, 0, 0);
-			svprintf(HKEY("REASON"), WCS_STRING,
-				 _("However, the user name '%s' conflicts with an existing user."), 
-				 ChrPtr(Buf));
-			FreeStrBuf(&Buf);
-	}
-	else {
-		svput("REASON", WCS_STRING, "");
-	}
-
-	svput("ACTION_REQUESTED", WCS_STRING, _("Please specify the user name you would like to use."));
-
-	svput("USERNAME_BOX", WCS_STRING, _("User name:"));
-	svput("NEWUSER_BUTTON", WCS_STRING, _("New User"));
-	svput("EXIT_BUTTON", WCS_STRING, _("Exit"));
-
-	svprintf(HKEY("BOXTITLE"), WCS_STRING, _("%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"),
-		 ChrPtr(WC->serv_info->serv_humannode));
-
-	do_template("openid_manual_create", NULL);
-	wDumpContent(2);
-}
-
 
 
 /* Initialize the session
@@ -307,7 +268,15 @@ void openid_manual_create(void)
 			do_welcome();
 		}
 	} else {
-		display_openid_name_request(sbstr("openid_url"), sbstr("name"));
+		const StrBuf *Buf;
+
+		putbstr("__claimed_id", NewStrBufDup(sbstr("openid_url")));
+		Buf = sbstr("name");
+		if (StrLength(Buf) > 0)
+			putbstr("__username", NewStrBufDup(Buf));
+		begin_burst();
+		do_template("openid_manual_create", NULL);
+		end_burst();
 	}
 
 }
@@ -447,11 +416,19 @@ void finalize_openid_login(void)
 	 */
 
 	else if (!strcasecmp(ChrPtr(result), "verify_only")) {
-		display_openid_name_request(claimed_id, username);
+		putbstr("__claimed_id", claimed_id);
+		claimed_id = NULL;
+		if (StrLength(username) > 0) {
+			putbstr("__username", username);
+			username = NULL;
+		}
+		begin_burst();
+		do_template("openid_manual_create", NULL);
+		end_burst();
 	}
 
 	/* Did we manage to log in?  If so, continue with the normal flow... */
-	if (WC->logged_in) {
+	else if (WC->logged_in) {
 		if (WC->need_regi) {
 			display_reg(1);
 		} else {
