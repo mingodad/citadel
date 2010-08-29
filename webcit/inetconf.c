@@ -183,11 +183,6 @@ void new_save_inetconf(void) {
 	url_do_template();
 }
 
-void InetCfgSubst(StrBuf *TemplBuffer, WCTemplputParams *TP)
-{
-	SVPutBuf("SERVCFG:INET:HOSTNAME", CTX, 1);
-}
-
 void DeleteInetConfHash(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -206,7 +201,7 @@ HashList *GetInetConfHash(StrBuf *Target, WCTemplputParams *TP)
 	if (WCC->InetCfg == NULL)
 		load_inetconf();
 	GetHash(WCC->InetCfg, TKEY(5), &vHash);
-	svprintf(HKEY("SERVCFG:INET:TYPE"), WCS_STRING, TP->Tokens->Params[5]->Start);
+	PutBstr(HKEY("__SERVCFG:INET:TYPE"), NewStrBufPlain(TKEY(5)));
 	return vHash;
 }
 
@@ -215,6 +210,6 @@ InitModule_INETCONF
 (void)
 {
 	WebcitAddUrlHandler(HKEY("save_inetconf"), "", 0, new_save_inetconf, 0);
-	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, InetCfgSubst, NULL, CTX_INETCFG, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("SERVCFG:INET", 1, NULL, GetInetConfHash, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 	RegisterNamespace("SERVCFG:FLUSHINETCFG",0, 0, DeleteInetConfHash, NULL, CTX_NONE);
 }
