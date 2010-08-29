@@ -22,20 +22,6 @@ void output_date(void) {
 	wc_printf("%s", buf);
 }
 
-
-
-
-/*
- * Dummy section
- */
-void dummy_section(void) {
-	svput("BOXTITLE", WCS_STRING, "(dummy&nbsp;section)");
-	do_template("beginboxx", NULL);
-	wc_printf(_("(nothing)"));
-	do_template("endbox", NULL);
-}
-
-
 /*
  * New messages section
  */
