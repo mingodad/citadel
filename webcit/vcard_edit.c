@@ -831,8 +831,9 @@ void do_edit_vcard(long msgnum, char *partnum,
 	/* Display the form */
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	svput("BOXTITLE", WCS_STRING, _("Edit contact information"));
-	do_template("beginboxx", NULL);
+	do_template("beginbox_1", NULL);
+	StrBufAppendBufPlain(WC->WBuf, _("Edit contact information"), -1, 0);
+	do_template("beginbox_2", NULL);
 
 	wc_printf("<form method=\"POST\" action=\"submit_vcard\">\n");
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
