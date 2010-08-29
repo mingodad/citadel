@@ -382,13 +382,6 @@ int ConditionalServCfgSubst(StrBuf *Target, WCTemplputParams *TP)
 	else return 0;
 }
 
-void CfgZoneTempl(StrBuf *TemplBuffer, WCTemplputParams *TP)
-{
-	StrBuf *Zone = (StrBuf*) CTX;
-
-	SVPutBuf("ZONENAME", Zone, 1);
-}
-
 void 
 InitModule_SITECONFIG
 (void)
@@ -398,7 +391,7 @@ InitModule_SITECONFIG
 	RegisterNamespace("SERV:CFG", 1, 2, tmplput_servcfg, NULL, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG"), 3, ConditionalServCfg, CTX_NONE);
 	RegisterConditional(HKEY("COND:SERVCFG:SUBST"), 4, ConditionalServCfgSubst, CTX_NONE);
-	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, CfgZoneTempl, NULL, CTX_PREF, CTX_NONE, IT_NOFLAG);
+	RegisterIterator("PREF:ZONE", 0, ZoneHash, NULL, NULL, NULL, CTX_STRBUF, CTX_NONE, IT_NOFLAG);
 
 	REGISTERTokenParamDefine(roompolicy);
 	REGISTERTokenParamDefine(floorpolicy);
