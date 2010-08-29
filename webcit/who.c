@@ -274,6 +274,11 @@ void tmplput_who_realhost(StrBuf *Target, WCTemplputParams *TP)
 	UserStateStruct *User = (UserStateStruct*) CTX;
 	StrBufAppendTemplate(Target, TP, User->RealHost, 0);
 }
+int conditional_who_realhost(StrBuf *Target, WCTemplputParams *TP)
+{
+	UserStateStruct *User = (UserStateStruct*) CTX;
+	return StrLength(User->RealHost) > 0;
+}
 
 void tmplput_who_lastactive(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -343,4 +348,5 @@ InitModule_WHO
 	RegisterConditional(HKEY("WHO:NSESSIONS"), 1, conditional_who_nsessions, CTX_WHO);
 	RegisterConditional(HKEY("WHO:ISME"),      1, conditional_who_isme, CTX_WHO);
 	RegisterConditional(HKEY("WHO:REALROOM"),  1, conditional_who_realroom, CTX_WHO);
+	RegisterConditional(HKEY("WHO:REALHOST"),  1, conditional_who_realhost, CTX_WHO);
 }
