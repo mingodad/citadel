@@ -48,8 +48,9 @@ void do_listsub(void)
 	wc_printf("<div align=center>");
 	wc_printf("<table border=0 width=75%%><tr><td>");
 
-	svput("BOXTITLE", WCS_STRING, _("List subscribe/unsubscribe"));
-	do_template("beginboxx", NULL);
+	do_template("beginbox_1", NULL);
+	StrBufAppendBufPlain(WC->WBuf, _("List subscribe/unsubscribe"), -1, 0);
+	do_template("beginbox_2", NULL);
 	wc_printf("<div align=center><br>");
 
 	/*
