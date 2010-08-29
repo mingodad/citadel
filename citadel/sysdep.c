@@ -635,16 +635,60 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 
 #ifdef HAVE_OPENSSL
 	if (CCC->redirect_ssl) {
+#ifdef BIGBAD_IODBG
+		int rv = 0;
+		char fn [SIZ];
+		FILE *fd;
+		
+		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+			
+		fd = fopen(fn, "a+");
+		fprintf(fd, "Reading BLOB: BufSize: %d ",
+			bytes);
+		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+		fprintf(fd, "]\n");
+		
+			
+		fclose(fd);
+#endif
 		retval = client_read_sslblob(Target, bytes, timeout);
 		if (retval < 0) {
 			CtdlLogPrintf(CTDL_CRIT, 
 				      "%s failed\n",
 				      __FUNCTION__);
 		}
+#ifdef BIGBAD_IODBG
+		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+		
+		fd = fopen(fn, "a+");
+		fprintf(fd, "Read: %d BufContent: [",
+			StrLength(Target));
+		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+		fprintf(fd, "]\n");
+		
+		
+		fclose(fd);
+#endif
 	}
 	else 
 #endif
 	{
+#ifdef BIGBAD_IODBG
+		int rv = 0;
+		char fn [SIZ];
+		FILE *fd;
+		
+		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+			
+		fd = fopen(fn, "a+");
+		fprintf(fd, "Reading BLOB: BufSize: %d ",
+			bytes);
+		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+		fprintf(fd, "]\n");
+		
+			
+		fclose(fd);
+#endif
 		retval = StrBufReadBLOBBuffered(Target, 
 						CCC->ReadBuf,
 						&CCC->Pos,
@@ -660,26 +704,18 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 				      Error);
 			return retval;
 		}
-		else
-		{
 #ifdef BIGBAD_IODBG
-			int rv = 0;
-			char fn [SIZ];
-			FILE *fd;
-			
-			snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
-			
-			fd = fopen(fn, "a+");
-			fprintf(fd, "Read: BufSize: %d BufContent: [",
-				StrLength(Target));
-			rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
-			fprintf(fd, "]\n");
-			
-			
-			fclose(fd);
+		snprintf(fn, SIZ, "/tmp/foolog_%s.%d", CCC->ServiceName, CCC->cs_pid);
+		
+		fd = fopen(fn, "a+");
+		fprintf(fd, "Read: %d BufContent: [",
+			StrLength(Target));
+		rv = fwrite(ChrPtr(Target), StrLength(Target), 1, fd);
+		fprintf(fd, "]\n");
+		
+		
+		fclose(fd);
 #endif
-
-		}
 	}
 	return retval;
 }
