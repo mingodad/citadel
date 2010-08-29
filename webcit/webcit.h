@@ -494,7 +494,6 @@ struct wcsession {
 	StrBuf *HBuf;                           /* Our HeaderBuffer */
 	StrBuf *WFBuf;                          /* Wildfire error logging buffer */
 
-	HashList *vars; 			/* HTTP variable substitutions for this page */
 	StrBuf *trailing_javascript;		/* extra javascript to be appended to page */
 	char ImportantMessage[SIZ];
 	StrBuf *ImportantMsg;

@@ -395,338 +395,6 @@ void FreeWCTemplate(void *vFreeMe)
 }
 
 
-/*
- * debugging function to print array to log
- */
-void VarPrintTransition(void *vVar1, void *vVar2, int odd){}
-
-/*
- * debugging function to print array to log
- */
-void VarPrintEntry(const char *Key, void *vSubst, int odd)
-{
-	wcsubst *ptr;
-	lprintf(1,"Subst[%s] : ", Key);
-	ptr = (wcsubst*) vSubst;
-
-	switch(ptr->wcs_type) {
-	case WCS_STRING:
-		lprintf(1, "  -> %s\n", ChrPtr(ptr->wcs_value));
-		break;
-	case WCS_SERVCMD:
-		lprintf(1, "  -> Server [%s]\n", ChrPtr(ptr->wcs_value));
-		break;
-	case WCS_FUNCTION:
-		lprintf(1, "  -> function at [%0xd]\n", ptr->wcs_function);
-		break;
-	default:
-		lprintf(1,"  WARNING: invalid type: [%ld]!\n", ptr->wcs_type);
-	}
-}
-
-
-
-/*
- * Clear out the list of substitution variables local to this session
- */
-void clear_substs(wcsession *wc) {
-
-	if (wc->vars != NULL) {
-		DeleteHash(&wc->vars);
-	}
-}
-
-/*
- * Clear out the list of substitution variables local to this session
- */
-void clear_local_substs(void) {
-	clear_substs (WC);
-}
-
-int NeedNewBuf(int type)
-{
-	switch(type) {
-	case WCS_STRING:
-	case WCS_SERVCMD:
-	case WCS_STRBUF:
-		return 1;
-	case WCS_FUNCTION:
-	case WCS_STRBUF_REF:
-	case WCS_LONG:
-	default:
-		return 0;
-	}
-}
-
-void FlushPayload(wcsubst *ptr, int reusestrbuf, int type)
-{
-	int NeedNew = NeedNewBuf(type);
-	switch(ptr->wcs_type) {
-	case WCS_STRING:
-	case WCS_SERVCMD:
-	case WCS_STRBUF:
-		if (reusestrbuf && NeedNew) {
-			FlushStrBuf(ptr->wcs_value);
-		}
-		else {
-			
-			FreeStrBuf(&ptr->wcs_value);
-			ptr->wcs_value = NULL;
-		}
-		break;
-	case WCS_FUNCTION:
-		ptr->wcs_function = NULL;
-		if (reusestrbuf && NeedNew)
-			ptr->wcs_value = NewStrBuf();
-		break;
-	case WCS_STRBUF_REF:
-		ptr->wcs_value = NULL;
-		if (reusestrbuf && NeedNew)
-			ptr->wcs_value = NewStrBuf();
-		break;
-	case WCS_LONG:
-		ptr->lvalue = 0;
-		if (reusestrbuf && NeedNew)
-			ptr->wcs_value = NewStrBuf();
-		break;
-	default:
-		if (reusestrbuf && NeedNew)
-			ptr->wcs_value = NewStrBuf();
-		break;
-	}
-}
-
-
-/*
- * destructor; kill one entry.
- */
-void deletevar(void *data)
-{
-	wcsubst *ptr = (wcsubst*)data;
-	FlushPayload(ptr, 0, ptr->wcs_type);
-	free(ptr);	
-}
-
-
-wcsubst *NewSubstVar(const char *keyname, int keylen, int type)
-{
-	wcsubst* ptr;
-	wcsession *WCC = WC;
-
-	ptr = (wcsubst *) malloc(sizeof(wcsubst));
-	memset(ptr, 0, sizeof(wcsubst));
-
-	ptr->wcs_type = type;
-	safestrncpy(ptr->wcs_key, keyname, sizeof ptr->wcs_key);
-	Put(WCC->vars, keyname, keylen, ptr,  deletevar);
-
-	switch(ptr->wcs_type) {
-	case WCS_STRING:
-	case WCS_SERVCMD:
-		ptr->wcs_value = NewStrBuf();
-		break;
-	case WCS_STRBUF:
-	case WCS_FUNCTION:
-	case WCS_STRBUF_REF:
-	case WCS_LONG:
-	default:
-		break;
-	}
-	return ptr;
-}
-
-
-/*
- * Add a substitution variable (local to this session) (strlen version...)
- * keyname the replacementstring to substitute
- * keytype the kind of the key
- * format the format string ala printf
- * ... the arguments to substitute in the formatstring
- */
-void SVPRINTF(char *keyname, int keytype, const char *format,...)
-{
-	va_list arg_ptr;
-	void *vPtr;
-	wcsubst *ptr = NULL;
-	size_t keylen;
-	wcsession *WCC = WC;
-	
-	keylen = strlen(keyname);
-	/*
-	 * First look if we're doing a replacement of
-	 * an existing key
-	 */
-	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
-		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, keytype, keytype);
-		ptr->wcs_type = keytype;
-	}
-	else 	/** Otherwise allocate a new one */
-	{
-		ptr = NewSubstVar(keyname, keylen, keytype);
-	}
-
-	/* Format the string */
-	va_start(arg_ptr, format);
-	StrBufVAppendPrintf(ptr->wcs_value, format, arg_ptr);
-	va_end(arg_ptr);
-}
-
-/*
- * Add a substitution variable (local to this session)
- * keyname the replacementstring to substitute
- * keytype the kind of the key
- * format the format string ala printf
- * ... the arguments to substitute in the formatstring
- */
-void svprintf(char *keyname, size_t keylen, int keytype, const char *format,...)
-{
-	va_list arg_ptr;
-	void *vPtr;
-	wcsubst *ptr = NULL;
-	wcsession *WCC = WC;
-		
-	/*
-	 * First look if we're doing a replacement of
-	 * an existing key
-	 */
-	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
-		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 1, keytype);
-		ptr->wcs_type = keytype;
-	}
-	else 	/** Otherwise allocate a new one */
-	{
-		ptr = NewSubstVar(keyname, keylen, keytype);
-	}
-
-	/** Format the string and save it */
-	va_start(arg_ptr, format);
-	StrBufVAppendPrintf(ptr->wcs_value, format, arg_ptr);
-	va_end(arg_ptr);
-}
-
-/*
- * Add a substitution variable (local to this session)
- * keyname the replacementstring to substitute
- * keytype the kind of the key
- * format the format string ala printf
- * ... the arguments to substitute in the formatstring
- */
-void SVPut(char *keyname, size_t keylen, int keytype, char *Data)
-{
-	void *vPtr;
-	wcsubst *ptr = NULL;
-	wcsession *WCC = WC;
-
-	
-	/*
-	 * First look if we're doing a replacement of
-	 * an existing key
-	 */
-	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
-		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 1, keytype);
-		ptr->wcs_type = keytype;
-	}
-	else 	/** Otherwise allocate a new one */
-	{
-		ptr = NewSubstVar(keyname, keylen, keytype);
-	}
-	StrBufAppendBufPlain(ptr->wcs_value, Data, -1, 0);
-}
-
-/**
- * \brief Add a substitution variable (local to this session)
- * \param keyname the replacementstring to substitute
- * \param keytype the kind of the key
- * \param format the format string ala printf
- * \param ... the arguments to substitute in the formatstring
- */
-void SVPutLong(char *keyname, size_t keylen, long Data)
-{
-	void *vPtr;
-	wcsubst *ptr = NULL;
-	wcsession *WCC = WC;
-
-	
-	/**
-	 * First look if we're doing a replacement of
-	 * an existing key
-	 */
-	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
-		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 1, WCS_LONG);
-		ptr->wcs_type = WCS_LONG;
-	}
-	else 	/** Otherwise allocate a new one */
-	{
-		ptr = NewSubstVar(keyname, keylen, WCS_LONG);
-	}
-	ptr->lvalue = Data;
-}
-
-/**
- * \brief Add a substitution variable (local to this session) that does a callback
- * \param keyname the keystring to substitute
- * \param fcn_ptr the function callback to give the substitution string
- */
-void SVCallback(char *keyname, size_t keylen, WCHandlerFunc fcn_ptr)
-{
-	wcsubst *ptr;
-	void *vPtr;
-	wcsession *WCC = WC;
-
-	/**
-	 * First look if we're doing a replacement of
-	 * an existing key
-	 */
-	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
-		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 1, WCS_FUNCTION);
-		ptr->wcs_type = WCS_FUNCTION;
-	}
-	else 	/** Otherwise allocate a new one */
-	{
-		ptr = NewSubstVar(keyname, keylen, WCS_FUNCTION);
-	}
-
-	ptr->wcs_function = fcn_ptr;
-}
-inline void SVCALLBACK(char *keyname, WCHandlerFunc fcn_ptr)
-{
-	SVCallback(keyname, strlen(keyname), fcn_ptr);
-}
-
-
-
-void SVPUTBuf(const char *keyname, int keylen, const StrBuf *Buf, int ref)
-{
-	wcsubst *ptr;
-	void *vPtr;
-	wcsession *WCC = WC;
-
-	/**
-	 * First look if we're doing a replacement of
-	 * an existing key
-	 */
-	/*PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	if (GetHash(WCC->vars, keyname, keylen, &vPtr)) {
-		ptr = (wcsubst*)vPtr;
-		FlushPayload(ptr, 0, (ref)?WCS_STRBUF_REF:WCS_STRBUF);
-		ptr->wcs_type = (ref)?WCS_STRBUF_REF:WCS_STRBUF;
-	}
-	else 	/** Otherwise allocate a new one */
-	{
-		ptr = NewSubstVar(keyname, keylen, (ref)?WCS_STRBUF_REF:WCS_STRBUF);
-	}
-	ptr->wcs_value = (StrBuf*)Buf;
-}
 
 /**
  * \brief back end for print_value_of() ... does a server command
@@ -863,7 +531,7 @@ void GetTemplateTokenString(StrBuf *Target,
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		/* we can't free it here, so we put it into the subst so its discarded later on. */
-		SVPUTBuf(TKEY(N), Buf, 0);
+		///SVPUTBuf(TKEY(N), Buf, 0);
 		break;
 
 	default:
@@ -942,129 +610,6 @@ long GetTemplateTokenNumber(StrBuf *Target, WCTemplputParams *TP, int N, long df
 		return 0;
 	}
 }
-
-
-
-/**
- * \brief Print the value of a variable
- * \param keyname get a key to print
- */
-void print_value_of(StrBuf *Target, WCTemplputParams *TP)
- 
-{
-	wcsession *WCC = WC;
-	wcsubst *ptr;
-	void *vVar;
-
-	/*if (WCC->vars != NULL) PrintHash(WCC->vars, VarPrintTransition, VarPrintEntry);*/
-	/* TODO: depricated! */
-	if (TP->Tokens->pName[0] == '=') {
-		DoTemplate(TP->Tokens->pName+1, TP->Tokens->NameEnd - 1, NULL, &NoCtx);
-	}
-/*/////TODO: if param[1] == "U" -> urlescape
-/// X -> escputs */
-	/** Page-local variables */
-	if ((WCC->vars!= NULL) && GetHash(WCC->vars, TP->Tokens->pName, TP->Tokens->NameEnd, &vVar)) {
-		ptr = (wcsubst*) vVar;
-		switch(ptr->wcs_type) {
-		case WCS_STRING:
-			StrBufAppendBuf(Target, ptr->wcs_value, 0);
-			break;
-		case WCS_SERVCMD:
-			pvo_do_cmd(Target, ptr->wcs_value);
-			break;
-		case WCS_FUNCTION:
-			(*ptr->wcs_function) (Target, TP);
-			break;
-		case WCS_STRBUF:
-		case WCS_STRBUF_REF:
-			StrBufAppendBuf(Target, ptr->wcs_value, 0);
-			break;
-		case WCS_LONG:
-			StrBufAppendPrintf(Target, "%ld", ptr->lvalue);
-			break;
-		default:
-			LogTemplateError(
-                                Target, "Subst", ERR_NAME, TP,
-				"WARNING: invalid value in SV-Hash at %s!", TP->Tokens->pName);
-		}
-	}
-	else {
-		LogTemplateError(
-			Target, "Token", ERR_NAME, TP,
-			"didn't find Handler \"%s\"", TP->Tokens->pName);
-		wc_backtrace();
-	}
-}
-
-int CompareSubstToToken(TemplateParam *ParamToCompare, TemplateParam *ParamToLookup)
-{
-	wcsession *WCC = WC;
-	wcsubst *ptr;
-	void *vVar;
-
-	if ((WCC->vars!= NULL) && GetHash(WCC->vars, ParamToLookup->Start, 
-					  ParamToLookup->len, &vVar)) {
-		ptr = (wcsubst*) vVar;
-		switch(ptr->wcs_type) {
-		case WCS_STRING:
-		case WCS_STRBUF:
-		case WCS_STRBUF_REF:
-			if (ParamToCompare->Type == TYPE_STR)
-				return ((ParamToCompare->len == StrLength(ptr->wcs_value)) &&
-					(strcmp(ParamToCompare->Start, ChrPtr(ptr->wcs_value)) == 0));
-			else
-				return ParamToCompare->lvalue == StrTol(ptr->wcs_value);
-			break;
-		case WCS_SERVCMD:
-			return 1; 
-			break;
-		case WCS_FUNCTION:
-			return 1;
-		case WCS_LONG:
-			if (ParamToCompare->Type == TYPE_STR)
-				return 0;
-			else 
-				return ParamToCompare->lvalue == ptr->lvalue;
-			break;
-		default:
-			lprintf(1,"WARNING: invalid value in SV-Hash at %s!\n", 
-				ParamToLookup->Start);
-		}
-	}
-	return 0;
-}
-
-int CompareSubstToStrBuf(StrBuf *Compare, TemplateParam *ParamToLookup)
-{
-	wcsession *WCC = WC;
-	wcsubst *ptr;
-	void *vVar;
-
-	if ((WCC->vars!= NULL) && GetHash(WCC->vars, ParamToLookup->Start, 
-					  ParamToLookup->len, &vVar)) {
-		ptr = (wcsubst*) vVar;
-		switch(ptr->wcs_type) {
-		case WCS_STRING:
-		case WCS_STRBUF:
-		case WCS_STRBUF_REF:
-			return ((StrLength(Compare) == StrLength(ptr->wcs_value)) &&
-				(strcmp(ChrPtr(Compare), ChrPtr(ptr->wcs_value)) == 0));
-		case WCS_SERVCMD:
-			return 1; 
-			break;
-		case WCS_FUNCTION:
-			return 1;
-		case WCS_LONG:
-			return StrTol(Compare) == ptr->lvalue;
-		default:
-			lprintf(1,"WARNING: invalid value in SV-Hash at %s!\n", 
-				ParamToLookup->Start);
-		}
-	}
-	return 0;
-}
-
 
 
 /**
@@ -2029,7 +1574,9 @@ int EvaluateToken(StrBuf *Target, int state, WCTemplputParams *TP)
 			}
 		}
 		else {
-			print_value_of(Target, TP);
+			LogTemplateError(
+				Target, "Token UNKNOWN", ERR_NAME, TP,
+				"You've specified a token that isn't known to webcit.!");
 		}
 	}
 	return 0;
@@ -2463,38 +2010,6 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP
 
 	if (Cond->CondF(Target, TP) == Neg)
 		return TP->Tokens->Params[1]->lvalue;
-	return 0;
-}
-
-int ConditionalVar(StrBuf *Target, WCTemplputParams *TP)
-{
-	void *vsubst;
-	wcsubst *subst;
-	
-	if (!GetHash(WC->vars, TKEY(2), &vsubst))
-		return 0;
-	subst = (wcsubst*) vsubst;
-	
-	switch(subst->wcs_type) {
-	case WCS_FUNCTION:
-		return (subst->wcs_function!=NULL);
-	case WCS_SERVCMD:
-		lprintf(1, "  -> Server [%s]\n", subst->wcs_value);/* TODO */
-		return 1;
-	case WCS_STRING:
-	case WCS_STRBUF:
-	case WCS_STRBUF_REF:
-		if (TP->Tokens->nParameters < 4)
-			return 1;
-		return (strcmp(TP->Tokens->Params[3]->Start, ChrPtr(subst->wcs_value)) == 0);
-	case WCS_LONG:
-		if (TP->Tokens->nParameters < 4)
-			return (subst->lvalue != 0);
-		return (subst->lvalue == TP->Tokens->Params[3]->lvalue);
-	default:
-		lprintf(1,"  WARNING: invalid type: [%ld]!\n", subst->wcs_type);
-		return -1;
-	}
 	return 0;
 }
 
@@ -3183,7 +2698,6 @@ InitModule_SUBST
 	RegisterNamespace("LONGVECTOR", 1, 1, tmplput_long_vector, NULL, CTX_LONGVECTOR);
 
 
-	RegisterConditional(HKEY("COND:SUBST"), 3, ConditionalVar, CTX_NONE);
 	RegisterConditional(HKEY("COND:CONTEXTSTR"), 3, ConditionalContextStr, CTX_STRBUF);
 	RegisterConditional(HKEY("COND:CONTEXTSTRARR"), 4, ConditionalContextStrinArray, CTX_STRBUFARR);
 	RegisterConditional(HKEY("COND:LONGVECTOR"), 4, ConditionalLongVector, CTX_LONGVECTOR);
@@ -3262,14 +2776,12 @@ void
 SessionAttachModule_SUBST
 (wcsession *sess)
 {
-	sess->vars = NewHash(1,NULL);
 }
 
 void
 SessionDetachModule_SUBST
 (wcsession *sess)
 {
-	DeleteHash(&sess->vars);
 	FreeStrBuf(&sess->WFBuf);
 }
 
