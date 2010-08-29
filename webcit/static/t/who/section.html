@@ -26,7 +26,6 @@
    <td class="host_col">
 <!-- hostname -->
 <?WHO:HOST("X")>
-<?!("COND:SUBST", 8, "WHO:REALHOST", "")> <br /><i> <?WHO:REALHOST("X")></i>
-<?!("X", 8)>
+<?!("WHO:REALHOST", 8)> <br /><i> <?WHO:REALHOST("X")></i><?!("X", 8)>
 </td>
 </tr>
