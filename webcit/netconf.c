@@ -206,7 +206,6 @@ void display_edit_node(void)
 	}
 	
 	memset(&SubTP, 0, sizeof(WCTemplputParams));
-	SVPutBuf("ITERATE:KEY", Index, 1);
 	SubTP.Filter.ContextType = CTX_NODECONF;
 	SubTP.Context = vNode;
 	begin_burst();
