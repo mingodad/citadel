@@ -81,7 +81,6 @@ void display_pushemail(void)
 			}
 		}
 		}
-		svput("SMSNUM", WCS_STRING, " ");
 		serv_printf("GOTO %s", ChrPtr(WC->CurRoom.name));
 		StrBuf_ServGetln(Buf);
 		GetServerStatus(Buf, NULL);
