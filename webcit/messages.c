@@ -813,7 +813,6 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 	/* Put some helpful data in vars for mailsummary_json */
 	svputlong("READLOOP:TOTALMSGS", Stat.nummsgs);
 	svputlong("READLOOP:STARTMSG", Stat.startmsg);
-	svputlong("WCVIEW", WCC->CurRoom.view);
 
 	/*
 	 * iterate over each message. if we need to load an attachment, do it here. 

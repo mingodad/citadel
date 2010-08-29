@@ -18,7 +18,7 @@
 				<li class="start_page"><?OFFERSTARTPAGE></li>
 				<li class="search" id="searchomatic"><?=("searchomatic")></li>
 				<li class="view"><?=("viewomatic")></li>
-				<??("COND:SUBST", 1, "WCVIEW", "1")>
+				<??("COND:THISROOM:CURR_VIEW", 1, #"VIEW_MAILBOX")>
 					<li class="hidden" id="selectpage">
 						<?_("Select page: ")> <select id="summpage"><option> </option></select>
 					</li>
