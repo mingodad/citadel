@@ -1684,9 +1684,12 @@ int main(int argc, char **argv)
 		mcmd = 29;
 		goto TERMN8;
 	}
-	if (!strcasecmp(fullname, "guest")) {		// GUEST MODE
-		goto PWOK;				// THIS DOES NOT WORK YET
-	}						// EXPERIMENT FIXME FIXME FIXME
+
+	/* FIXME this is a stupid way to do guest mode but it's a reasonable test harness FIXME */
+	if ( (ipc->ServInfo.guest_logins) && (!strcasecmp(fullname, "guest")) ) {
+		goto PWOK;
+	}
+
 	/* sign on to the server */
 	r = CtdlIPCTryLogin(ipc, fullname, aaa);
 	if (r / 100 != 3)
