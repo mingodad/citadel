@@ -297,6 +297,8 @@ void cmd_info(char *cmdbuf) {
 	else {
 		cprintf("0\n");	/* OpenID is disabled when using non-native auth */
 	}
+
+	cprintf("%d\n", config.c_guest_logins);
 	
 	cprintf("000\n");
 }
