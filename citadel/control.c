@@ -310,6 +310,10 @@ long get_new_room_number(void)
 
 /* 
  * Get or set global configuration options
+ *
+ * IF YOU ADD OR CHANGE FIELDS HERE, YOU *MUST* DOCUMENT YOUR CHANGES AT:
+ * http://www.citadel.org/doku.php/documentation:appproto:system_config
+ *
  */
 void cmd_conf(char *argbuf)
 {
@@ -399,6 +403,7 @@ void cmd_conf(char *argbuf)
 		cprintf("%ld\n", config.c_pop3_fetch);
 		cprintf("%ld\n", config.c_pop3_fastest);
 		cprintf("%d\n", config.c_spam_flag_only);
+		cprintf("%d\n", config.c_guest_logins);
 		cprintf("000\n");
 	}
 
@@ -654,6 +659,9 @@ void cmd_conf(char *argbuf)
 				break;
 			case 66:
 				config.c_spam_flag_only = atoi(buf);
+				break;
+			case 67:
+				config.c_guest_logins = atoi(buf);
 				break;
 			}
 			++a;
