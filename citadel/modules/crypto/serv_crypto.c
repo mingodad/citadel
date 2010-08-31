@@ -559,39 +559,71 @@ int client_readline_sslbuffer(StrBuf *Line, StrBuf *IOBuf, const char **Pos, int
 
 int client_read_sslblob(StrBuf *Target, long bytes, int timeout)
 {
-	long bufremain;
 	long baselen;
+	long RemainRead;
 	int retval = 0;
 	CitContext *CCC = CC;
 
 	baselen = StrLength(Target);
 
-	if (CCC->Pos == NULL)
-		CCC->Pos = ChrPtr(CCC->ReadBuf);
-	bufremain = StrLength(CCC->ReadBuf) - 
-		(CCC->Pos - ChrPtr(CCC->ReadBuf));
-
-	if (bytes < bufremain)
-		bufremain = bytes;
-	StrBufAppendBufPlain(Target, CCC->Pos, bufremain, 0);
-	StrBufCutLeft(CCC->ReadBuf, bufremain);
-	CCC->Pos = NULL;
-
-	if (bytes > bufremain) 
+	if (StrLength(CCC->ReadBuf) > 0)
 	{
-		while ((StrLength(CCC->ReadBuf) + StrLength(Target) < bytes + baselen) &&
-		       (retval >= 0))
-			retval = client_read_sslbuffer(CCC->ReadBuf, timeout);
-		if (retval >= 0) {
-			StrBufAppendBuf(Target, CCC->ReadBuf, 0); /* todo: Buf > bytes? */
-			return 1;
+		long RemainLen;
+		long TotalLen;
+		const char *pchs;
+
+		if (CCC->Pos == NULL)
+			CCC->Pos = ChrPtr(CCC->ReadBuf);
+		pchs = ChrPtr(CCC->ReadBuf);
+		TotalLen = StrLength(CCC->ReadBuf);
+		RemainLen = TotalLen - (pchs - CCC->Pos);
+		if (RemainLen > bytes)
+			RemainLen = bytes;
+		if (RemainLen > 0)
+		{
+			StrBufAppendBufPlain(Target, 
+					     CCC->Pos, 
+					     RemainLen, 0);
+			CCC->Pos += RemainLen;
 		}
-		else {
-			return -1;
+		if ((ChrPtr(CCC->ReadBuf) + StrLength(CCC->ReadBuf)) <= CCC->Pos)
+		{
+			CCC->Pos = NULL;
+			FlushStrBuf(CCC->ReadBuf);
 		}
 	}
-	else 
+
+	if (StrLength(Target) >= bytes + baselen)
 		return 1;
+
+	CCC->Pos = NULL;
+
+	while ((StrLength(Target) < bytes + baselen) &&
+	       (retval >= 0))
+	{
+		retval = client_read_sslbuffer(CCC->ReadBuf, timeout);
+		if (retval >= 0) {
+			RemainRead = bytes - (StrLength (Target) - baselen);
+			if (RemainRead > StrLength(CCC->ReadBuf))
+			{
+				StrBufAppendBufPlain(
+					Target, 
+					ChrPtr(CCC->ReadBuf), 
+					RemainRead, 0);
+				CCC->Pos = ChrPtr(CCC->ReadBuf) + RemainRead;
+				break;
+			}
+			StrBufAppendBuf(Target, CCC->ReadBuf, 0); /* todo: Buf > bytes? */
+			FlushStrBuf(CCC->ReadBuf);
+		}
+		else 
+		{
+			FlushStrBuf(CCC->ReadBuf);
+			return -1;
+	
+		}
+	}
+	return 1;
 }
 
 
