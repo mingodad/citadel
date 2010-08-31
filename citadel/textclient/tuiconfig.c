@@ -63,7 +63,7 @@ extern int screenwidth;
 void do_system_configuration(CtdlIPC *ipc)
 {
 
-#define NUM_CONFIGS 67
+#define NUM_CONFIGS 68
 
 	char buf[256];
 	char sc[NUM_CONFIGS][256];
@@ -116,6 +116,9 @@ void do_system_configuration(CtdlIPC *ipc)
 		atoi(&sc[29][0]))));
 	strprompt("Initial access level for new users", &sc[6][0], 1);
 	strprompt("Access level required to create rooms", &sc[19][0], 1);
+	snprintf(sc[67], sizeof sc[67], "%d", (boolprompt(
+		"Allow anonymous guest logins",
+		atoi(&sc[67][0]))));
 	snprintf(sc[4], sizeof sc[4], "%d", (boolprompt(
 		"Automatically give room aide privs to a user who creates a private room",
 		atoi(&sc[4][0]))));
