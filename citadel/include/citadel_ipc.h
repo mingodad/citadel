@@ -55,6 +55,7 @@ struct CtdlServInfo {
 	int has_sieve;
 	int fulltext_enabled;
 	char svn_revision[256];
+	int guest_logins;
 };
 
 /*

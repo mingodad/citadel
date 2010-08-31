@@ -756,6 +756,8 @@ int CtdlIPCServerInfo(CtdlIPC *ipc, char *cret)
 					break;
 			case 22:	strcpy(ipc->ServInfo.svn_revision, buf);
 					break;
+			case 24:	ipc->ServInfo.guest_logins = atoi(buf);
+					break;
 			}
 		}
 
