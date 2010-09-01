@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Encode or decode file as MIME base64 (RFC 1341)
  * Public domain by John Walker, August 11 1997
  * Modified slightly for the Citadel system, June 1999

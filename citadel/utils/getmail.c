@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Command-line utility to transmit a server command.
  *
  * Copyright (c) 1987-2009 by the citadel.org team

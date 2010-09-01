@@ -1,6 +1,4 @@
 /* 
- * $Id$
- *
  * Functions which manage policy for rooms (such as message expiry)
  */
 

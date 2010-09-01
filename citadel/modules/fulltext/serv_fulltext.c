@@ -1,9 +1,5 @@
 /*
- * $Id$
- *
  * This module handles fulltext indexing of the message base.
- *
- *
  * Copyright (c) 2005-2009 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -536,5 +532,5 @@ CTDL_MODULE_INIT(fulltext)
 		CtdlThreadCreate("Indexer", CTDLTHREAD_BIGSTACK, indexer_thread, NULL);
 	}
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "fulltext";
 }

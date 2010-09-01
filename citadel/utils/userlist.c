@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Command-line user list utility.
  *
  */

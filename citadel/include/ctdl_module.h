@@ -1,4 +1,3 @@
-/* $Id$ */
 
 #ifndef CTDL_MODULE_H
 #define CTDL_MODULE_H

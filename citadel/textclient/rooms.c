@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Client-side functions which perform room operations
  *
  * Copyright (c) 1987-2010 by the citadel.org team

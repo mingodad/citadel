@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /* client code may need the ERR define: */
 

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * iCalendar implementation for Citadel
  *
  *

@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 
 /*
  * In the extended form of LIST the client is allowed to specify

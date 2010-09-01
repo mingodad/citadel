@@ -1,6 +1,4 @@
 /*
- * $Id$
- * 
  * A server-side module for Citadel designed to filter idiots off the network.
  * 
  * Copyright (c) 2002-2009 by the citadel.org team
@@ -125,5 +123,5 @@ CTDL_MODULE_INIT(netfilter)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "netfilter";
 }

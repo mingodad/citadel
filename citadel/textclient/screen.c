@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /*
  * Handle full-screen curses stuff

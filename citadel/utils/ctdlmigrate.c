@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Across-the-wire migration utility for Citadel
  *
  * Yes, we used goto, and gets(), and committed all sorts of other heinous sins here.

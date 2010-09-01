@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This file contains functions which implement parts of the
  * text-mode user interface.
  *

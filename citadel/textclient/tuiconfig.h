@@ -1,4 +1,3 @@
-/* $Id$ */
 void do_internet_configuration(CtdlIPC *ipc);
 void do_ignet_configuration(CtdlIPC *ipc);
 void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment);

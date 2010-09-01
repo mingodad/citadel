@@ -1,4 +1,3 @@
-/* $Id$ */
 void updatels(CtdlIPC *ipc);
 void updatelsa(CtdlIPC *ipc);
 void movefile(CtdlIPC *ipc);

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * a setuid helper program for machines which use shadow passwords
  * by Nathan Bryant, March 1999
  *

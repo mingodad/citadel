@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * checkpointing module for the database
  *
  * Copyright (c) 1987-2009 by the citadel.org team
@@ -86,5 +84,5 @@ CTDL_MODULE_INIT(checkpoint) {
 		CtdlThreadCreate ("checkpoint", CTDLTHREAD_BIGSTACK, checkpoint_thread, NULL);
 	}
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "checkpoint";
 }

@@ -1,7 +1,4 @@
-/**
- *
- * $Id$
- *
+/*
  * this file contains the defines that convert our x-macros to datatypes
  */
 #define CFG_VALUE(a,b) a

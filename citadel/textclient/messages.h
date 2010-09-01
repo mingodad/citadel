@@ -1,4 +1,3 @@
-/* $Id$ */
 
 #define MAXURLS		50	/* Max embedded URL's per message */
 extern int num_urls;

@@ -1,4 +1,3 @@
-/* $Id$ */
 void edituser(CtdlIPC *ipc, int cmd);
 void interr(int errnum);
 int struncmp(char *lstr, char *rstr, int len);

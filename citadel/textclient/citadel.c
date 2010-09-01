@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Main source module for the client program.
  *
  * Copyright (c) 1987-2009 by the citadel.org team

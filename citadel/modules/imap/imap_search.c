@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Implements IMAP's gratuitously complex SEARCH command.
  *
  *

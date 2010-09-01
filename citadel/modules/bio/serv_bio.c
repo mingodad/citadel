@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module implementsserver commands related to the display and
  * manipulation of user "bio" files.
  *
@@ -121,7 +119,7 @@ CTDL_MODULE_INIT(bio)
 	        CtdlRegisterProtoHook(cmd_lbio, "LBIO", "List users with bios");
 	}
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "bio";
 }
 
 

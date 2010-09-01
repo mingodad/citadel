@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Consolidate mail from remote POP3 accounts.
  *
  * Copyright (c) 2007-2009 by the citadel.org team
@@ -363,5 +361,5 @@ CTDL_MODULE_INIT(pop3client)
 	}
 	
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "pop3client";
 }

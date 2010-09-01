@@ -1,8 +1,6 @@
-/* $Id$
- *
+/*
  * More client-side support functions.
  * Unlike routines.c, some of these DO use global variables.
- *
  */
 
 #include <stdlib.h>

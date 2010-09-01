@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /* This message is exactly 1024 bytes */
 char* const message =

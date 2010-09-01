@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module supplies statistics about the activity levels of your Citadel
  * system.  We didn't bother writing a reporting module, because there is
  * already an excellent tool called MRTG (Multi Router Traffic Grapher) which
@@ -184,5 +182,5 @@ CTDL_MODULE_INIT(mrtg)
 	}
 	
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "mrtg";
 }

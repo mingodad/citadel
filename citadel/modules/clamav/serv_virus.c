@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module allows Citadel to use clamd to filter incoming messages
  * arriving via SMTP.  For more information on clamd, visit
  * http://clamav.net (the ClamAV project is not in any way
@@ -204,5 +202,5 @@ CTDL_MODULE_INIT(virus)
 	}
 	
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "virus";
 }

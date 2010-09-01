@@ -1,7 +1,3 @@
-/* $Id$ 
- */
-
-
 #define GLOBAL_UIDVALIDITY_VALUE	1L
 
 

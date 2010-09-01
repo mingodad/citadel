@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /*
  * Number of days for which self-signed certs are valid.
