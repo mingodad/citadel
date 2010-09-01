@@ -1,6 +1,5 @@
 /*
- * $Id$
- *
+ * Main stuff for libcitadel
  */
 
 #include <stdlib.h>
@@ -18,7 +17,7 @@
 
 extern int BaseStrBufSize;
 char *libcitadel_version_string(void) {
-	return "$Id$";
+	return "libcitadel(unnumbered)";
 }
 
 int libcitadel_version_number(void) {
