@@ -2,7 +2,6 @@
 #define __USER_OPS_H__
 
 #include <ctype.h>
-/* $Id$ */
 int hash (char *str);
 /* getuser is deprecated, use CtdlGetUser instead */
 int getuser (struct ctdluser *, char *) __attribute__ ((deprecated));

@@ -1,4 +1,3 @@
-/* $Id: sysdep_decls.h 7265 2009-03-25 23:18:46Z dothebart $ */
 
 #ifndef CONTEXT_H
 #define CONTEXT_H

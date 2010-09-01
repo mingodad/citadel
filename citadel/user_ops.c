@@ -1,8 +1,5 @@
 /* 
- * $Id$
- *
  * Server functions which perform operations on user objects.
- *
  */
 
 #include "sysdep.h"
@@ -2090,5 +2087,5 @@ CTDL_MODULE_INIT(user_ops)
 		CtdlRegisterProtoHook(cmd_newu, "NEWU", "Autoconverted. TODO: document me.");
 	}
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "user_ops";
 }

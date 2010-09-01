@@ -1,6 +1,4 @@
 /* 
- * $Id$
- *
  * Main source module for the Citadel server
  *
  * Copyright (c) 1987-2010 by the citadel.org team
@@ -1106,6 +1104,6 @@ CTDL_MODULE_INIT(citserver)
 		CtdlRegisterProtoHook(cmd_scdn, "SCDN", "schedule or cancel a server shutdown");
 		CtdlRegisterProtoHook(cmd_time, "TIME", "fetch the date and time from the server");
 	}
-        /* return our Subversion id for the Log */
-	return "$Id$";
+        /* return our id for the Log */
+	return "citserver";
 }

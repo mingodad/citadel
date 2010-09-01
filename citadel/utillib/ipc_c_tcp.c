@@ -1,8 +1,5 @@
 /*
- * $Id: ipc_c_tcp.c -1   $
- * 
  * Client-side IPC functions
- *
  */
 
 

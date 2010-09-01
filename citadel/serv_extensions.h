@@ -1,4 +1,3 @@
-/* $Id$ */
 
 #ifndef SERV_EXTENSIONS_H
 #define SERV_EXTENSIONS_H

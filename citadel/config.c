@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Read and write the citadel.config file
  *
  * Copyright (c) 1987-2009 by the citadel.org team

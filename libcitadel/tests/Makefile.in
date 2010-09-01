@@ -1,5 +1,3 @@
-# $Id: Makefile.in 7752 2009-08-29 10:37:43Z dothebart $
-
 AUTOCONF=@AUTOCONF@
 CC=@CC@
 CFLAGS=@CFLAGS@

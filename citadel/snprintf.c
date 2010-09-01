@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Replacements for snprintf() and vsnprintf()
  *
  * modified from Sten Gunterberg's BUGTRAQ post of 22 Jul 1997

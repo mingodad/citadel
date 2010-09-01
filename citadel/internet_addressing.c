@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This file contains functions which handle the mapping of Internet addresses
  * to users on the Citadel system.
  */

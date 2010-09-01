@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 
 typedef struct namelist namelist;
 

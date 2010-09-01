@@ -1,4 +1,3 @@
-/* $Id$ */
 
 #ifndef MSGBASE_H
 #define MSGBASE_H

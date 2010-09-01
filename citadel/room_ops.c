@@ -1,6 +1,4 @@
 /* 
- * $Id$
- * 
  * Server functions which perform operations on room objects.
  *
  */
@@ -2264,5 +2262,5 @@ CTDL_MODULE_INIT(room_ops)
 		CtdlRegisterProtoHook(cmd_eflr, "EFLR", "Autoconverted. TODO: document me.");
 	}
         /* return our Subversion id for the Log */
-	return "$Id$";
+	return "room_ops";
 }

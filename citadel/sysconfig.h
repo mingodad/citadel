@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * NOTE: this file is for client software tuning, not customization.  For
  * making changes to the behavior of the client, you want to edit citadel.rc,
  * not this file.

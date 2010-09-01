@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Function to generate RFC822-compliant textual time/date stamp
- *
  */
 
 #include "sysdep.h"
@@ -91,4 +88,3 @@ void datestring(char *buf, size_t n, time_t xtime, int which_format) {
 
 	}
 }
-

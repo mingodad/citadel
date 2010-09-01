@@ -1,9 +1,4 @@
 /*
- * $Id$
- *
- */
-
-/*
  * FDELIM defines which character we want to use as a folder delimiter
  * in room names.  Originally we used a forward slash, but that caused
  * rooms with names like "Sent/Received Pages" to get delimited, so we

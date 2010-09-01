@@ -1,4 +1,3 @@
-/* $Id$ */
 #ifndef AXDEFS
 
 char *axdefs[]={

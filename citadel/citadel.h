@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Main Citadel header file
  *
  * Copyright (c) 1987-2010 by the citadel.org team

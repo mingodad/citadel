@@ -1,5 +1,4 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl $Id$
 AC_PREREQ(2.52)
 AC_INIT([Citadel], [7.83], [http://www.citadel.org/])
 AC_REVISION([$Revision: 5108 $])

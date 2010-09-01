@@ -1,7 +1,3 @@
-/*
- * $Id$
- *
- */
 
 void datestring(char *buf, size_t n, time_t xtime, int which_format);
 

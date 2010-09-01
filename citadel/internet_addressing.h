@@ -1,7 +1,3 @@
-/* 
- * $Id$
- *
- */
 
 #include "server.h"
 

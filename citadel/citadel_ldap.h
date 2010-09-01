@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Configuration for LDAP authentication.  Most of this stuff gets pulled out of our site config file.
  *
  * Copyright (c) 1987-2009 by the citadel.org team

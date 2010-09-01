@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * This file contains miscellaneous housekeeping tasks.
- *
  */
 
 #include "sysdep.h"

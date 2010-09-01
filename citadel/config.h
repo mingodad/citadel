@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (c) 1987-2009 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify

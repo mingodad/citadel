@@ -1,9 +1,6 @@
 #!/bin/sh
 #
-# run me after checking Citadel out of CVS.
-#
-# $Id$
-#
+# run me after checking Citadel out of the source code repository.
 
 # Remove any vestiges of pre-6.05 build environments
 rm -f .libs modules *.so *.lo *.la 2>/dev/null

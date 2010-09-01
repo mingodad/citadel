@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Citadel "system dependent" stuff.
  * See COPYING for copyright information.
  *
