@@ -24,11 +24,9 @@ if test -d $SRC_DIR/.svn  ; then
 		CAN_BUILD_SVN_REVISION="yes"
 	fi
 else 
-    if git status> /dev/null 2>&1; then 
+    if test -d $SRC_DIR/../.svn  ; then
 	echo "have Git repository."
-	TAG=`git rev-parse HEAD`
-	BRANCH="`git show-branch |sed 's;\[\(.*\)\].*;\1;'`"
-	BUILD="GIT: $BRANCH : $TAG"
+	BUILD=`/usr/bin/git log -1 --pretty=%H . `
 	echo "This code base git-revision: $BUILD"
 	CAN_BUILD_SVN_REVISION="yes"
     else
