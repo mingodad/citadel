@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * XMPP event queue
  *
  * Copyright (c) 2007-2009 by Art Cancro

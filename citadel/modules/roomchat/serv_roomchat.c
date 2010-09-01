@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module handles instant messaging between users.
  * 
  * Copyright (c) 2010 by the citadel.org team
@@ -274,5 +272,5 @@ CTDL_MODULE_INIT(roomchat)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "roomchat";
 }

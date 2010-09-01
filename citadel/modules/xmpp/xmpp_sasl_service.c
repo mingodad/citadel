@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * Barebones SASL authentication service for XMPP (Jabber) clients.
  *
  * Note: RFC3920 says we "must" support DIGEST-MD5 but we only support PLAIN.

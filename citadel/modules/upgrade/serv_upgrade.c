@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Transparently handle the upgrading of server data formats.
  *
  * Copyright (c) 1987-2010 by the citadel.org team
@@ -326,5 +324,5 @@ CTDL_MODULE_UPGRADE(upgrade)
 	check_server_upgrades();
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "upgrade";
 }

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module implements server commands related to the display and
  * manipulation of the "Who's online" list.
  *
@@ -293,5 +291,5 @@ CTDL_MODULE_INIT(rwho)
 	}
 	
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "rwho";
 }

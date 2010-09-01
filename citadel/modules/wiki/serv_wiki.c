@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Server-side module for Wiki rooms.  This handles things like version control. 
  * 
  * Copyright (c) 2009 by the citadel.org team
@@ -662,5 +660,5 @@ CTDL_MODULE_INIT(wiki)
 	}
 
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "wiki";
 }

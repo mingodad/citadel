@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * Handle XMPP presence exchanges
  *
  * Copyright (c) 2007-2010 by Art Cancro
