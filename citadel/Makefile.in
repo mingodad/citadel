@@ -8,8 +8,6 @@
 # 2. Send e-mail to ajc@uncensored.citadel.org and let me know what you
 #    did, so any necessary changes can be put into the next release.
 #
-# $Id$
-#
 ########################################################################
 
 prefix=@prefix@

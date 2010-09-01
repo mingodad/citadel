@@ -1,4 +1,3 @@
-/* $Id$ */
 int is_known (struct ctdlroom *roombuf, int roomnum,
 	      struct ctdluser *userbuf);
 int has_newmsgs (struct ctdlroom *roombuf, int roomnum,

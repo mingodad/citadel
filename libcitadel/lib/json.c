@@ -1,6 +1,3 @@
-/*
- * $Id: wildfire.c 6962 2009-01-18 19:33:45Z dothebart $
- */
 /**
  * \defgroup Subst Variable substitution type stuff
  * \ingroup CitadelConfig

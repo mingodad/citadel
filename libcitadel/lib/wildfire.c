@@ -1,7 +1,3 @@
-/*
- * $Id: wildfire.c 6962 2009-01-18 19:33:45Z dothebart $
- */
-
 /*@{*/
 
 #include "sysdep.h"

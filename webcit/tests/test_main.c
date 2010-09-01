@@ -1,13 +1,10 @@
 /*
- * $Id: webserver.c 7847 2009-10-03 17:57:14Z dothebart $
- *
  * This contains a simple multithreaded TCP server manager.  It sits around
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
- * Copyright (c) 1996-2009 by the citadel.org developers.
+ * Copyright (c) 1996-2010 by the citadel.org developers.
  * This program is released under the terms of the GNU General Public License v3.
- *
  */
 
 #include "../webcit.h"

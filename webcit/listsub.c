@@ -1,6 +1,4 @@
 /*
- * $Id: listsub.c 8232 2010-01-14 21:46:39Z dothebart $
- *
  * Web forms for handling mailing list subscribe/unsubscribe requests.
  */
 

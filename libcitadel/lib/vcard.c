@@ -1,6 +1,4 @@
 /*
- * $Id: vcard.c 5754 2007-11-16 05:52:26Z ajc $
- *
  * vCard implementation for Citadel
  *
  * Copyright (C) 1999-2008 by the citadel.org development team.

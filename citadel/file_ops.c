@@ -1,8 +1,5 @@
 /* 
- * $Id$
- *
  * Server functions which handle file transfers and room directories.
- *
  */
 
 #include "sysdep.h"
@@ -829,5 +826,5 @@ CTDL_MODULE_INIT(file_ops)
 		CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Upload an image file");
 	}
         /* return our Subversion id for the Log */
-	return "$Id$";
+	return "file_ops";
 }

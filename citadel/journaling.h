@@ -1,5 +1,3 @@
-/* $Id$ */
-
 struct jnlq {
 	struct jnlq *next;
 	struct recptypes recps;

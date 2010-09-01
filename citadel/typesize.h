@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /*
    This file defines typedefs for 8, 16, and 32 bit integers.  They are:

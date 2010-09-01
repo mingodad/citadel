@@ -1,6 +1,4 @@
 /*
- * $Id: sysdep.c 7989 2009-10-31 15:29:37Z davew $
- *
  * Citadel context management stuff.
  * Here's where we (hopefully) have all the code that manipulates contexts.
  *

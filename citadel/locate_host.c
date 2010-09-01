@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Functions which handle hostname/address lookups and resolution
- *
  */
 
 #include "sysdep.h"

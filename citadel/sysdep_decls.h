@@ -1,4 +1,3 @@
-/* $Id$ */
 
 #ifndef SYSDEP_DECLS_H
 #define SYSDEP_DECLS_H

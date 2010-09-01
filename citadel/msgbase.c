@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Implements the message store.
  *
  * Copyright (c) 1987-2010 by the citadel.org team
@@ -4943,5 +4941,5 @@ CTDL_MODULE_INIT(msgbase)
 	}
 
         /* return our Subversion id for the Log */
-	return "$Id$";
+	return "msgbase";
 }

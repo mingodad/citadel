@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module handles states which are global to the entire server.
  *
  * Copyright (c) 1987-2010 by the citadel.org team
@@ -726,6 +724,6 @@ CTDL_MODULE_INIT(control)
 	if (!threading) {
 		CtdlRegisterProtoHook(cmd_conf, "CONF", "get/set system configuration");
 	}
-	/* return our Subversion id for the Log */
-	return "$Id$";
+	/* return our id for the Log */
+	return "control";
 }

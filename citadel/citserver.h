@@ -1,5 +1,4 @@
-/* $Id$
- *
+/*
  * Copyright (c) 1987-2009 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -45,10 +44,4 @@ void GenerateRoomDisplay(char *real_room,
                         CitContext *viewer);
 extern int panic_fd;
 char CtdlCheckExpress(void);
-
-
-
-
-
 extern time_t server_startup_time;
-

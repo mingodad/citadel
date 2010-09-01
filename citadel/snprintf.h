@@ -1,4 +1,3 @@
-/* $Id$ */
 #ifndef __DECC
 
 #ifdef __GNUC__

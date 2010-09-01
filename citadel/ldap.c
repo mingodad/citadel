@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * These functions implement the portions of AUTHMODE_LDAP and AUTHMODE_LDAP_AD which
  * actually speak to the LDAP server.
  *

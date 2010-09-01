@@ -1,4 +1,3 @@
-/* $Id$ */
 extern char fullname[USERNAME_SIZE];
 extern unsigned room_flags;
 extern char room_name[ROOMNAMELEN];

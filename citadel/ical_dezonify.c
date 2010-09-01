@@ -1,10 +1,7 @@
 /* 
- * $Id$ 
- *
  * Function to go through an ical component set and convert all non-UTC
  * date/time properties to UTC.  It also strips out any VTIMEZONE
  * subcomponents afterwards, because they're irrelevant.
- *
  */
 
 

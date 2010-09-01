@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Message journaling functions.
- *
  */
 
 #include "sysdep.h"
