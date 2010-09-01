@@ -12,7 +12,6 @@ CUR_DIR=`pwd`
 C_FILE="$CUR_DIR/svn_revision.c"
 H_FILE="$CUR_DIR/svn_revision.h"
 
-
 # determine if this code base came from subversion.
 if test -d $SRC_DIR/.svn  ; then
 	echo "have subversion repository"
@@ -24,7 +23,7 @@ if test -d $SRC_DIR/.svn  ; then
 		CAN_BUILD_SVN_REVISION="yes"
 	fi
 else 
-    if test -d $SRC_DIR/../.svn  ; then
+    if test -d $SRC_DIR/../.git  ; then
 	echo "have Git repository."
 	BUILD=`/usr/bin/git log -1 --pretty=%H . `
 	echo "This code base git-revision: $BUILD"
@@ -71,7 +70,7 @@ cat <<EOF > $C_FILE
  
 const char *svn_revision (void)
 {
-	const char *SVN_Version = "**UNKNOWN** Built from source without svn and no $C_FILE accompanying";
+	const char *SVN_Version = "(unknown)";
 	return SVN_Version;
 }
 EOF
