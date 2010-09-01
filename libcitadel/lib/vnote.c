@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * vNote implementation for Citadel
  *
  * Copyright (C) 1999-2007 by the citadel.org development team.
