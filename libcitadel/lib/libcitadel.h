@@ -1,6 +1,5 @@
 /*
- * $Id$
- *
+ * Header file for libcitadel
  */
 
 
