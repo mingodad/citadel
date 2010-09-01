@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * XMPP (Jabber) service for the Citadel system
  * Copyright (c) 2007-2010 by Art Cancro
  *
@@ -601,5 +599,5 @@ CTDL_MODULE_INIT(xmpp)
 	}
 
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "xmpp";
 }

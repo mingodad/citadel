@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module glues libSieve to the Citadel server in order to implement
  * the Sieve mailbox filtering language (RFC 3028).
  *
@@ -1306,6 +1304,6 @@ CTDL_MODULE_INIT(sieve)
 	}
 	
         /* return our Subversion id for the Log */
-	return "$Id$";
+	return "sieve";
 }
 

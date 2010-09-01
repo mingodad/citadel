@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module is an SMTP and ESMTP implementation for the Citadel system.
  * It is compliant with all of the following:
  *
@@ -1934,5 +1932,5 @@ CTDL_MODULE_INIT(smtp)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "smtp";
 }

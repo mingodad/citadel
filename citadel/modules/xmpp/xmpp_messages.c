@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * Handle messages sent and received using XMPP (Jabber) protocol
  *
  * Copyright (c) 2007-2010 by Art Cancro

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Bring external RSS feeds into rooms.
  *
  * Copyright (c) 2007-2010 by the citadel.org team
@@ -955,5 +953,5 @@ CTDL_MODULE_INIT(rssclient)
 		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, 0);
 	}
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "rssclient";
 }

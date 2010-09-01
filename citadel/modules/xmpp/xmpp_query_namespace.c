@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * Handle <iq> <get> <query> type situations (namespace queries)
  *
  * Copyright (c) 2007-2009 by Art Cancro

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (c) 2007-2009 by Art Cancro
  *
  *  This program is free software; you can redistribute it and/or modify
