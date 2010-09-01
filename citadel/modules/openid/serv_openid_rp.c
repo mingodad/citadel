@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This is an implementation of OpenID 1.1 Relying Party support, in stateless mode.
  *
  * Copyright (c) 2007-2010 by the citadel.org team
@@ -969,5 +967,5 @@ CTDL_MODULE_INIT(openid_rp)
 	}
 
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "openid_rp";
 }

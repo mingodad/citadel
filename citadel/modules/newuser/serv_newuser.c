@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Automatically copies the contents of a "New User Greetings" room to the
  * inbox of any new user upon account creation.
  *
@@ -116,5 +114,5 @@ CTDL_MODULE_INIT(newuser)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "newuser";
 }

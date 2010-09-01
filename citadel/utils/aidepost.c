@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This is just a little hack to copy standard input to a message in Aide>
  *
  * Copyright (c) 1987-2009 by the citadel.org team

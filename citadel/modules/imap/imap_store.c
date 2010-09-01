@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Implements the STORE command in IMAP.
  *
  * Copyright (c) 2001-2009 by the citadel.org team

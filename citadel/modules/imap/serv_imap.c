@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * IMAP server for the Citadel system
  * Copyright (C) 2000-2009 by Art Cancro and others.
  * This code is released under the terms of the GNU General Public License.
@@ -1749,5 +1747,5 @@ CTDL_MODULE_INIT(imap)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "imap";
 }

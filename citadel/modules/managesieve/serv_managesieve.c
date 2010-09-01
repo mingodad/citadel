@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module is an managesieve implementation for the Citadel system.
  * It is compliant with all of the following:
  *
@@ -614,7 +612,7 @@ CTDL_MODULE_INIT(managesieve)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "managesieve";
 }
 
 

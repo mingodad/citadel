@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This program attempts to act like a local MDA if you're using sendmail or
  * some other non-Citadel MTA.  It basically just contacts the Citadel LMTP
  * listener on a unix domain socket and transmits the message.

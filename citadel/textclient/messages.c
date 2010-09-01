@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Text client functions for reading and writing of messages
  *
  * Copyright (c) 1987-2010 by the citadel.org team

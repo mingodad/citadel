@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Client-side support functions.
- *
  */
 
 #include "sysdep.h"

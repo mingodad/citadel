@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Functions which implement RFC2086 (and maybe RFC4314) (IMAP ACL extension)
  *
  *

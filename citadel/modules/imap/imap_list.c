@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Implements the LIST and LSUB commands.
  *
  * Copyright (c) 2000-2009 by Art Cancro and others.

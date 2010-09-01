@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * IMAP METADATA extension
  *
  * This is an implementation of the Bynari variant of the METADATA extension.

@@ -1,4 +1,3 @@
-/* $Id$ */
 #include "ctdl_module.h"
 
 void ChatUnloadingTest(void);

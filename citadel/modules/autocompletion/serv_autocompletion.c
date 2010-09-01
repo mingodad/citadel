@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Autocompletion of email recipients, etc.
  *
  * Copyright (c) 1987-2009 by the citadel.org team
@@ -230,5 +228,5 @@ CTDL_MODULE_INIT(autocompletion) {
 		CtdlRegisterProtoHook(cmd_auto, "AUTO", "Do recipient autocompletion");
 	}
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "autocompletion";
 }

@@ -1,6 +1,4 @@
 /*
- * $Id$
- * 
  * Command-line "who is online?" utility
  *
  */

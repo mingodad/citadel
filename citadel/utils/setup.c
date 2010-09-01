@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Citadel setup utility
- *
  */
 
 #define SHOW_ME_VAPPEND_PRINTF

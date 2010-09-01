@@ -1,5 +1,4 @@
-/* $Id$
- *
+/*
  * Configuration screens that are part of the text mode client.
  *
  */

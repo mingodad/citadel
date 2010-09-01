@@ -1,4 +1,3 @@
-/* $Id$ */
 void listzrooms(CtdlIPC *ipc);
 void readinfo(CtdlIPC *ipc);
 void forget(CtdlIPC *ipc);

@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * POP3 service for the Citadel system
  *
  * Copyright (c) 1998-2009 by the citadel.org team
@@ -745,5 +743,5 @@ CTDL_MODULE_INIT(pop3)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "pop3";
 }

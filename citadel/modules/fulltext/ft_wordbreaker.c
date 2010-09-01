@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Default wordbreaker module for full text indexing.
  *
  * Copyright (c) 2005-2009 by the citadel.org team

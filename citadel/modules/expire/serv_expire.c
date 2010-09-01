@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module handles the expiry of old messages and the purging of old users.
  *
  * You might also see this module affectionately referred to as the DAP (the Dreaded Auto-Purger).
@@ -1059,5 +1057,5 @@ CTDL_MODULE_INIT(expire)
 	else
 		CtdlThreadCreate("Auto Purger", CTDLTHREAD_BIGSTACK, purge_databases, NULL);
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "expire";
 }

@@ -414,5 +414,5 @@ CTDL_MODULE_INIT(extnotify)
 		CtdlRegisterSessionHook(do_extnotify_queue, EVT_TIMER);
 	}
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "extnotify";
 }

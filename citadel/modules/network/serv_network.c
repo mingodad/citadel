@@ -1,6 +1,4 @@
 /*
- * $Id$ 
- *
  * This module handles shared rooms, inter-Citadel mail, and outbound
  * mailing list processing.
  *
@@ -2421,5 +2419,5 @@ CTDL_MODULE_INIT(network)
 	else
 		CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK, network_do_queue, NULL, 0);
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "network";
 }

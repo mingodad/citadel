@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Handles functions related to yellow sticky notes.
  *
  * Copyright (c) 2007-2009 by the citadel.org team
@@ -185,5 +183,5 @@ CTDL_MODULE_INIT(notes)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "notes";
 }

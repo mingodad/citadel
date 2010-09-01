@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module dumps and/or loads the Citadel database in XML format.
  *
  * Copyright (c) 1987-2010 by the citadel.org team
@@ -988,5 +986,5 @@ CTDL_MODULE_INIT(migrate)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "migrate";
 }

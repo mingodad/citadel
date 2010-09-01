@@ -1,6 +1,4 @@
 /*
- * $Id$
- * 
  * This is simply a filter that converts Citadel binary message format
  * to readable, formatted output.
  * 

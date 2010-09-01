@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module handles self-service subscription/unsubscription to mail lists.
  *
  * Copyright (c) 2002-2009 by the citadel.org team
@@ -587,5 +585,5 @@ CTDL_MODULE_INIT(listsub)
 	}
 	
 	/* return our Subversion id for the Log */
-	return "$Id$";
+	return "listsub";
 }

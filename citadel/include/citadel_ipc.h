@@ -1,4 +1,3 @@
-/* $Id$ */
 
 #define	UDS			"_UDS_"
 #ifdef __CYGWIN__

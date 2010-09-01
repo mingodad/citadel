@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Implements the FETCH command in IMAP.
  * This is a good example of the protocol's gratuitous complexity.
  *

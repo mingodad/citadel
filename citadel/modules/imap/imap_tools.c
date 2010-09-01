@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Utility functions for the IMAP module.
  *
  * Copyright (c) 2001-2009 by the citadel.org team and others, except for

@@ -110,5 +110,5 @@ CTDL_MODULE_INIT(pas2)
 	}
 	
 	/* return our Subversion id for the Log */
-        return "$Id$";
+        return "pas2";
 }
