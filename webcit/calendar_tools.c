@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Miscellaneous functions which handle calendar components.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

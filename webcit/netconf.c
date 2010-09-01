@@ -1,12 +1,3 @@
-/* 
- * $Id$
- */
-/**
- * \defgroup NetShareConf Functions which handle network and sharing configuration.
- *
- * \ingroup CitadelConfig
- */
-/*@{*/
 #include "webcit.h"
 
 void display_netconf(void);
@@ -152,8 +143,8 @@ void save_net_conf(HashList *Nodelist)
 
 
 
-/**
- * \brief edit a network node
+/*
+ * edit a network node
  */
 void edit_node(void) {
 	HashList *NodeConfig;
@@ -178,8 +169,8 @@ void edit_node(void) {
 }
 
 
-/**
- * \brief modify an existing node
+/*
+ * modify an existing node
  */
 void display_edit_node(void)
 {
@@ -218,16 +209,16 @@ void display_edit_node(void)
 }
 
 
-/**
- * \brief display all configured nodes
+/*
+ * display all configured nodes
  */
 void display_netconf(void)
 {
 	wDumpContent(1);
 }
 
-/**
- * \brief display the dialog to verify the deletion
+/*
+ * display the dialog to verify the deletion
  */
 void display_confirm_delete_node(void)
 {
@@ -235,8 +226,8 @@ void display_confirm_delete_node(void)
 }
 
 
-/**
- * \brief actually delete the node
+/*
+ * actually delete the node
  */
 void delete_node(void)
 {
@@ -313,4 +304,3 @@ InitModule_NETCONF
 
 	RegisterIterator("NODECONFIG", 0, NULL, load_netconf, NULL, DeleteHash, CTX_NODECONF, CTX_NONE, IT_NOFLAG);
 }
-/*@}*/

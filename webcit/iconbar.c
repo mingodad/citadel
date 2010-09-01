@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Displays and customizes the iconbar.
  */
 

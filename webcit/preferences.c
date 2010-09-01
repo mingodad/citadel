@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Manage user preferences with a little help from the Citadel server.
- *
  */
 
 #include "webcit.h"

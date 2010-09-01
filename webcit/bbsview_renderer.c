@@ -1,6 +1,4 @@
 /* 
- * $Id$
- *
  * BBS View renderer module for WebCit
  *
  * Note: we briefly had a dynamic UI for this.  I thought it was cool, but

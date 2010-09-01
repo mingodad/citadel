@@ -1,6 +1,3 @@
-/*
- * $Id$
- */
 
 #include "webcit.h"
 #include "calendar.h"

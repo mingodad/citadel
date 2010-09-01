@@ -1,6 +1,4 @@
 /* 
- * $Id$
- *
  * Display the outbound SMTP queue
  */
 

@@ -1,7 +1,3 @@
-/*
- * $Id$
- *
- */
 #include <stdarg.h>
 #define SHOW_ME_VAPPEND_PRINTF
 #include "webcit.h"

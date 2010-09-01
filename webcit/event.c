@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Editing calendar events.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

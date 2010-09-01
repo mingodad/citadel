@@ -1,13 +1,3 @@
-/*
- * $Id$
- */
-/**
- * \defgroup HTTPDateTime Function to generate HTTP-compliant textual time/date stamp
- * (This module was lifted directly from the Citadel server source)
- *
- * \ingroup WebcitHttpServer
- */
-/*@{*/
 #include "webcit.h"
 
 /** HTTP Months - do not translate - these are not for human consumption */
@@ -97,5 +87,3 @@ InitModule_DATE
 	RegisterNamespace("DATE:NOW:STR", 0, 0, tmplput_nowstr, NULL, CTX_NONE);
 	RegisterNamespace("DATE:NOW:NO", 0, 0, tmplput_nowno, NULL, CTX_NONE);
 }
-
-/*@}*/

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * de/encoding stuff. hopefully mostly to be depricated in favour of subst.c + strbuf
  */
 

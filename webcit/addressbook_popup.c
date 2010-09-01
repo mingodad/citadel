@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * AJAX-powered auto-completion
  *
  * Copyright (c) 2005-2010 by the citadel.org team

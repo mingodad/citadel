@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Functions pertaining to rooms with a wiki view
  */
 

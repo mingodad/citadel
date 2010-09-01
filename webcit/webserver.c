@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This contains a simple multithreaded TCP server manager.  It sits around
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.

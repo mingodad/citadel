@@ -1,4 +1,3 @@
-/* $Id$ */
 
 extern char *static_dirs[PATH_MAX];          /**< Web representation */
 extern int ndirs;

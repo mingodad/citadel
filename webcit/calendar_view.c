@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Handles the HTML display of calendar items.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

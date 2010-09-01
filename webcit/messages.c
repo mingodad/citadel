@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Functions which deal with the fetching and displaying of messages.
- *
  */
 
 #include "webcit.h"

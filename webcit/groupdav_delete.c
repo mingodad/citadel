@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Handles GroupDAV DELETE requests.
  *
  * Copyright (c) 2005-2010 by the citadel.org team

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Handles GroupDAV PROPFIND requests.
  *
  * A few notes about our XML output:

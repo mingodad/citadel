@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module handles instant message related functions.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

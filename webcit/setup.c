@@ -1,10 +1,7 @@
 /*
- * $Id$
- *
  * WebCit setup utility
  * 
  * (This is basically just an install wizard.  It's not required.)
- *
  */
 
 #include "sysdep.h"

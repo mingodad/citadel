@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This is the main transaction loop of the web service.  It maintains a
  * persistent session to the Citadel server, handling HTTP WebCit requests as
  * they arrive and presenting a user interface.
