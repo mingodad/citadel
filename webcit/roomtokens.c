@@ -1,5 +1,4 @@
 /*
- * $Id$
  * Lots of different room-related operations.
  */
 

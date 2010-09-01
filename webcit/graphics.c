@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Handles HTTP upload of graphics files into the system.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

@@ -1,7 +1,3 @@
-/*
- * $Id$
- */
-
 #include "webcit.h"
 
 /*

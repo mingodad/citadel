@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module handles multiuser chat.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

@@ -1,6 +1,3 @@
-/* $Id$ */
-
-
 /*
  * Data passed back and forth between groupdav_get() and its
  * callback functions called by the MIME parser

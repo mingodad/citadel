@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Given a socket, supply the name of the host at the other end.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

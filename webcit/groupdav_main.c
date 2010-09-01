@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Entry point for GroupDAV functions
- *
  *
  * Copyright (c) 2005-2010 by the citadel.org team
  *

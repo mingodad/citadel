@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * parse urlparts and post data
  */
 

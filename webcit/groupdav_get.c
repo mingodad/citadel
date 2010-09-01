@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Handles GroupDAV GET requests.
  *
  *

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * WebCit "system dependent" code.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

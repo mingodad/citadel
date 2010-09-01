@@ -1,5 +1,4 @@
 /*
- * $Id$
  * room listings and filters.
  */
 

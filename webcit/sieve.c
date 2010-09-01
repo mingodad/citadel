@@ -1,7 +1,3 @@
-/* 
- * $Id$
- */
-
 #include "webcit.h"
 
 #define MAX_SCRIPTS	100

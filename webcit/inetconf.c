@@ -1,6 +1,4 @@
 /* 
- * $Id$
- *
  * Functions which handle Internet domain configuration etc.
  */
 

@@ -1,14 +1,9 @@
 /*
- * $Id$
- *
  * First-time setup wizard
  */
 
 #include "webcit.h"
 
-
-/*
- */
 void do_setup_wizard(void)
 {
 	char *step;

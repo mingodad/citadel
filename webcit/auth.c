@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * WebcitAuth; Handles authentication of users to a Citadel server.
  *
  * Copyright (c) 1996-2010 by the citadel.org team

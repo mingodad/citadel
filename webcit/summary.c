@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Displays the "Summary Page"
  */
 

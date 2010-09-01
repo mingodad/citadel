@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Functions which handle calendar objects and their processing/display.
  *
  * Copyright (c) 1996-2010 by the citadel.org team
