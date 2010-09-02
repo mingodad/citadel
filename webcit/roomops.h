@@ -121,6 +121,12 @@ int SortRoomsByListOrder(const void *room1, const void *room2);
 void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP);
 
 
+void LoadRoomAide(void);
+void LoadRoomXA (void);
+void LoadXRoomPic(void);
+void LoadXRoomInfoText(void);
+void LoadXRoomXCountFiles(void);
+
 /*
  * wrapper around usual sort-comparator; private rooms will allways be prefered, -1 if one of them NULL
  */
