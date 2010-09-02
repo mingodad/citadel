@@ -21,7 +21,7 @@ else
 	if test -L "$ACTUAL_DIR"; then 
 		SYMLINK_=`pwd`
 		SYMLINK=`ls -l $SYMLINK_|sed "s;.*-> ;;"`
-		if ls -l $SYMLINK_|grep -q "$LIBCITADEL_VERSION"; then
+		if ls -l $SYMLINK|grep -q "$LIBCITADEL_VERSION"; then
 			done=true
 		fi
 	else
@@ -29,8 +29,7 @@ else
 	fi
 	if test "$done" = "false"; then 
 		cd ..
-		mv -- $SYMLINK "libcitadel-$LIBCITADEL_VERSION"
-		ln -sf "libcitadel-$LIBCITADEL_VERSION" libcitadel
+		ln -sf libcitadel "libcitadel-$LIBCITADEL_VERSION" 
 		cd "libcitadel-$LIBCITADEL_VERSION"
 	else
 		cd "../libcitadel-$LIBCITADEL_VERSION"
