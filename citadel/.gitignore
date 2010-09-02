@@ -32,3 +32,5 @@ sysdep.h
 sysdep.h.in
 userlist
 whobbs
+gmon.out
+autom4te.cache

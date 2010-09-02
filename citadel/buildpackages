@@ -29,8 +29,7 @@ else
 	fi
 	if test "$done" = "false"; then 
 		cd ..
-		mv -- $SYMLINK "citadel-$CITADEL_VERSION"
-		ln -sf "citadel-$CITADEL_VERSION" citadel
+		ln -sf citadel "citadel-$CITADEL_VERSION"
 		cd "citadel-$CITADEL_VERSION"
 	else
 		cd "../citadel-$CITADEL_VERSION"
