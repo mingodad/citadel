@@ -359,7 +359,7 @@ void do_system_configuration(CtdlIPC *ipc)
 			r += 1 + strlen(sc[a]);
 		resp = (char *)calloc(1, r);
 		if (!resp) {
-			err_printf("Can't save config - out of memory!\n");
+			scr_printf("Can't save config - out of memory!\n");
 			logoff(ipc, 1);
 		}
 		for (a = 0; a < NUM_CONFIGS; a++) {
@@ -368,18 +368,18 @@ void do_system_configuration(CtdlIPC *ipc)
 		}
 		r = CtdlIPCSetSystemConfig(ipc, resp, buf);
 		if (r / 100 != 4) {
-			err_printf("%s\n", buf);
+			scr_printf("%s\n", buf);
 		}
 		free(resp);
 
 		r = CtdlIPCSetMessageExpirationPolicy(ipc, 2, site_expirepolicy, buf);
 		if (r / 100 != 2) {
-			err_printf("%s\n", buf);
+			scr_printf("%s\n", buf);
 		}
 
 		r = CtdlIPCSetMessageExpirationPolicy(ipc, 3, mbx_expirepolicy, buf);
 		if (r / 100 != 2) {
-			err_printf("%s\n", buf);
+			scr_printf("%s\n", buf);
 		}
 
 	}
@@ -506,7 +506,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 					r += 1 + strlen(recs[i]);
 				resp = (char *)calloc(1, r);
 				if (!resp) {
-					err_printf("Can't save config - out of memory!\n");
+					scr_printf("Can't save config - out of memory!\n");
 					logoff(ipc, 1);
 				}
 				if (num_recs) for (i = 0; i < num_recs; i++) {
@@ -515,7 +515,7 @@ void do_internet_configuration(CtdlIPC *ipc)
 				}
 				r = CtdlIPCSetSystemConfigByType(ipc, INTERNETCFG, resp, buf);
 				if (r / 100 != 4) {
-					err_printf("%s\n", buf);
+					scr_printf("%s\n", buf);
 				} else {
 					scr_printf("Wrote %d records.\n", num_recs);
 					modified = 0;
@@ -569,7 +569,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 
 	tempfp = fopen(filename, "w");
 	if (tempfp == NULL) {
-		err_printf("Cannot open %s: %s\n", filename, strerror(errno));
+		scr_printf("Cannot open %s: %s\n", filename, strerror(errno));
 		return;
 	}
 
@@ -625,7 +625,7 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	}
 
 	if (file_checksum(filename) == cksum) {
-		err_printf("*** No changes to save.\n");
+		scr_printf("*** No changes to save.\n");
 		e_ex_code = 1;
 	}
 
@@ -778,7 +778,7 @@ void do_ignet_configuration(CtdlIPC *ipc) {
 					r += 1 + strlen(recs[i]);
 				listing = (char*) calloc(1, r);
 				if (!listing) {
-					err_printf("Can't save config - out of memory!\n");
+					scr_printf("Can't save config - out of memory!\n");
 					logoff(ipc, 1);
 				}
 				if (num_recs) for (i = 0; i < num_recs; ++i) {
@@ -903,7 +903,7 @@ void do_filterlist_configuration(CtdlIPC *ipc)
 					r += 1 + strlen(recs[i]);
 				listing = (char*) calloc(1, r);
 				if (!listing) {
-					err_printf("Can't save config - out of memory!\n");
+					scr_printf("Can't save config - out of memory!\n");
 					logoff(ipc, 1);
 				}
 				if (num_recs) for (i = 0; i < num_recs; ++i) {
@@ -1053,7 +1053,7 @@ void do_pop3client_configuration(CtdlIPC *ipc)
 				}
 				listing = (char*) calloc(1, r);
 				if (!listing) {
-					err_printf("Can't save config - out of memory!\n");
+					scr_printf("Can't save config - out of memory!\n");
 					logoff(ipc, 1);
 				}
 				if (num_recs) for (i = 0; i < num_recs; ++i) {
@@ -1198,7 +1198,7 @@ void do_rssclient_configuration(CtdlIPC *ipc)
 				}
 				listing = (char*) calloc(1, r);
 				if (!listing) {
-					err_printf("Can't save config - out of memory!\n");
+					scr_printf("Can't save config - out of memory!\n");
 					logoff(ipc, 1);
 				}
 				if (num_recs) for (i = 0; i < num_recs; ++i) {

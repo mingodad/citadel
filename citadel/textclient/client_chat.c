@@ -96,12 +96,12 @@ void chatmode(CtdlIPC *ipc)
 	strcpy(wbuf, "");
 	strcpy(last_user, ""); 
 	color(BRIGHT_YELLOW);
-	sln_printf_if("\n");
-	sln_printf("> ");
+	scr_printf("\n");
+	scr_printf("> ");
 	send_complete_line = 0;
 
 	while (1) {
-		sln_flush();
+		scr_flush();
 		FD_ZERO(&rfds);
 		FD_SET(0, &rfds);
 		tv.tv_sec = 1;
@@ -116,10 +116,10 @@ void chatmode(CtdlIPC *ipc)
 			} else if ((ch == 8) || (ch == 127)) {
 				if (!IsEmptyStr(wbuf)) {
 					wbuf[strlen(wbuf) - 1] = 0;
-					sln_printf("%c %c", 8, 8);
+					scr_printf("%c %c", 8, 8);
 				}
 			} else {
-				sln_putc(ch);
+				scr_putc(ch);
 				wbuf[strlen(wbuf) + 1] = 0;
 				wbuf[strlen(wbuf)] = ch;
 			}
@@ -132,8 +132,8 @@ void chatmode(CtdlIPC *ipc)
 				CtdlIPC_chat_send(ipc, "RCHT exit");
 				CtdlIPC_chat_recv(ipc, response);	/* don't care about the result */
 				color(BRIGHT_WHITE);
-				sln_printf("\rExiting chat mode\n");
-				sln_flush();
+				scr_printf("\rExiting chat mode\n");
+				scr_flush();
 				return;
 			}
 
@@ -184,7 +184,7 @@ void chatmode(CtdlIPC *ipc)
 			seq = extract_int(&response[4], 0);
 			extract_token(c_user, &response[4], 2, '|', sizeof c_user);
 			while (CtdlIPC_chat_recv(ipc, c_text), strcmp(c_text, "000")) {
-				sln_printf("\r%79s\r", "");
+				scr_printf("\r%79s\r", "");
 				if (!strcmp(c_user, fullname)) {
 					color(BRIGHT_YELLOW);
 				} else if (!strcmp(c_user, ":")) {
@@ -203,7 +203,7 @@ void chatmode(CtdlIPC *ipc)
 					strcat(buf, " ");
 				}
 				if (strcmp(c_user, last_user)) {
-					sln_printf("\r%79s\n", "");
+					scr_printf("\r%79s\n", "");
 					strcpy(last_user, c_user);
 				}
 				scr_printf("\r%s\n", buf);
@@ -211,8 +211,8 @@ void chatmode(CtdlIPC *ipc)
 			}
 		}
 		color(BRIGHT_YELLOW);
-		sln_printf("\r> %s", wbuf);
-		sln_flush();
+		scr_printf("\r> %s", wbuf);
+		scr_flush();
 		strcpy(buf, "");
 	}
 }

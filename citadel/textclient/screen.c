@@ -88,7 +88,6 @@ int scr_printf(char *fmt, ...)
 {
 	va_list ap;
 	register int retval;
-
 	va_start(ap, fmt);
 	retval = vprintf(fmt, ap);
 	va_end(ap);
@@ -97,44 +96,8 @@ int scr_printf(char *fmt, ...)
 
 
 /*
- * err_printf() outputs to error status window (or stderr if not in curses)
+ * Read one character from the terminal
  */
-int err_printf(char *fmt, ...)
-{
-	va_list ap;
-	register int retval;
-
-	va_start(ap, fmt);
-	retval = vfprintf(stderr, fmt, ap);
-	va_end(ap);
-	return retval;
-}
-
-
-/*
- * sln_printf() outputs to error status window (or stderr if not in curses)
- */
-int sln_printf(char *fmt, ...)
-{
-	va_list ap;
-	register int retval;
-	va_start(ap, fmt);
-	retval = vprintf(fmt, ap);
-	va_end(ap);
-	return retval;
-}
-
-
-/*
- * sln_printf_if() outputs to status window, no output if not in curses
- */
-int sln_printf_if(char *fmt, ...)
-{
-	register int retval = 1;
-	return retval;
-}
-
-
 int scr_getc(int delay)
 {
 	unsigned char buf;
@@ -145,25 +108,13 @@ int scr_getc(int delay)
 }
 
 /*
- * scr_putc() outputs a single character
+ * Output one character to the terminal
  */
 int scr_putc(int c)
 {
 	if (putc(c, stdout) == EOF)
 		logoff(NULL, 3);
 	return c;
-}
-
-
-int sln_putc(int c)
-{
-	return putc(c, stdout);
-}
-
-
-int sln_putc_if(int c)
-{
-	return 1;
 }
 
 
@@ -181,17 +132,6 @@ void scr_flush(void)
 	fflush(stdout);
 }
 
-
-void err_flush(void)
-{
-		fflush(stderr);
-}
-
-
-void sln_flush(void)
-{
-	fflush(stdout);
-}
 
 static volatile int caught_sigwinch = 0;
 

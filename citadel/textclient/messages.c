@@ -426,7 +426,7 @@ int read_message(CtdlIPC *ipc,
 
 	r = CtdlIPCGetSingleMessage(ipc, num, (pagin == READ_HEADER ? 1 : 0), 4, &message, buf);
 	if (r / 100 != 1) {
-		err_printf("*** msg #%ld: %d %s\n", num, r, buf);
+		scr_printf("*** msg #%ld: %d %s\n", num, r, buf);
 		++lines_printed;
 		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 		stty_ctdl(0);
@@ -866,7 +866,7 @@ int client_make_message(CtdlIPC *ipc,
 		{
 			editor_path = editor_paths[0];
 		} else {
-			err_printf("*** No editor available; using built-in editor.\n");
+			scr_printf("*** No editor available; using built-in editor.\n");
 			mode = 0;
 		}
 	}
@@ -914,7 +914,7 @@ int client_make_message(CtdlIPC *ipc,
 		} else {
 			fp = fopen(filename, "w");
 			if (fp == NULL) {
-				err_printf("*** Error opening temp file!\n    %s: %s\n",
+				scr_printf("*** Error opening temp file!\n    %s: %s\n",
 					filename, strerror(errno)
 				);
 			return(1);
@@ -928,7 +928,7 @@ ME1:	switch (mode) {
 	case 0:
 		fp = fopen(filename, "r+");
 		if (fp == NULL) {
-			err_printf("*** Error opening temp file!\n    %s: %s\n",
+			scr_printf("*** Error opening temp file!\n    %s: %s\n",
 				filename, strerror(errno)
 			);
 			return(1);
@@ -940,7 +940,7 @@ ME1:	switch (mode) {
 	case 1:
 		fp = fopen(filename, "a");
 		if (fp == NULL) {
-			err_printf("*** Error opening temp file!\n"
+			scr_printf("*** Error opening temp file!\n"
 				"    %s: %s\n",
 				filename, strerror(errno));
 			return(1);
@@ -990,7 +990,7 @@ ME1:	switch (mode) {
 
 MECR:	if (mode >= 2) {
 		if (file_checksum(filename) == cksum) {
-			err_printf("*** Aborted message.\n");
+			scr_printf("*** Aborted message.\n");
 			e_ex_code = 1;
 		}
 		if (e_ex_code == 0) {
@@ -1249,7 +1249,7 @@ int entmsg(CtdlIPC *ipc,
 	fp = fopen(temp, "r");
 
 	if (!fp || !(message.text = load_message_from_file(fp))) {
-		err_printf("*** Internal error while trying to save message!\n"
+		scr_printf("*** Internal error while trying to save message!\n"
 			"%s: %s\n",
 			temp, strerror(errno));
 		unlink(temp);

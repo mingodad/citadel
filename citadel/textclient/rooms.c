@@ -788,7 +788,7 @@ int save_buffer(void *file, size_t filelen, const char *pathname)
 
 	fp = fopen(pathname, "w");
 	if (!fp) {
-		err_printf("Cannot open '%s': %s\n", pathname, strerror(errno));
+		scr_printf("Cannot open '%s': %s\n", pathname, strerror(errno));
 		return 0;
 	}
 	do {
@@ -799,7 +799,7 @@ int save_buffer(void *file, size_t filelen, const char *pathname)
 	fclose(fp);
 
 	if (bytes_written < filelen) {
-		err_printf("Trouble saving '%s': %s\n", pathname,
+		scr_printf("Trouble saving '%s': %s\n", pathname,
 				strerror(errno));
 		return 0;
 	}

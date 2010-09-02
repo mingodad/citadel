@@ -82,7 +82,6 @@ EMAIL=citadel@outgesourced.org
 	./configure \
 	    --with-db=/opt/csw/bdb44 \
 	    --with-ical=/usr/local/ \
-	    --without-curses \
 	    --with-prefix=/opt/csw/ \
 	    --with-datadir=/opt/csw/var/lib/citadel \
 	    --with-sysconfdir=/opt/csw/etc/citadel \
