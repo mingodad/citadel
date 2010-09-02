@@ -1482,9 +1482,6 @@ int main(int argc, char **argv)
 #ifdef HAVE_OPENSSL
 	arg_encrypt = RC_DEFAULT;
 #endif
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	arg_screen = RC_DEFAULT;
-#endif
 
 	/* 
 	 * Handle command line options as if we were called like /bin/login
@@ -1509,18 +1506,6 @@ int main(int argc, char **argv)
 			fprintf(stderr, "Not compiled with encryption support");
 			return 1;
 #endif
-		}
-		if (!strcmp(argv[a], "-s")) {
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-			arg_screen = RC_NO;
-#endif
-			argc = shift(argc, argv, a, 1);
-		}
-		if (!strcmp(argv[a], "-S")) {
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-			arg_screen = RC_YES;
-#endif
-			argc = shift(argc, argv, a, 1);
 		}
 		if (!strcmp(argv[a], "-p")) {
 			struct stat st;
@@ -1576,9 +1561,6 @@ int main(int argc, char **argv)
 		scr_printf("Connected to %s [%s].\n", ipc->ip_hostname, ipc->ip_address);
 	}
 
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	CtdlIPC_SetNetworkStatusCallback(ipc, wait_indicator);
-#endif
 	ipc_for_signal_handlers = ipc;	/* KLUDGE cover your eyes */
 
 	CtdlIPC_chat_recv(ipc, aaa);
