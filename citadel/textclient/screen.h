@@ -2,11 +2,7 @@
 /* client code may need the ERR define: */
 
 void screen_new(void);
-void screen_delete(void);
-int screen_set(void);
-int screen_reset(void);
 int scr_printf(char *fmt, ...);
-int scr_set_windowsize(CtdlIPC* ipc);
 
 #define SCR_NOBLOCK 0
 #define SCR_BLOCK -1

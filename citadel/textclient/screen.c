@@ -24,11 +24,13 @@ char arg_screen;
 
 extern int screenheight;
 extern int screenwidth;
+int lines_printed = 0;
+int cols_printed = 0;
+
 extern int rc_ansi_color;
 extern void check_screen_dims(void);
 
 void do_keepalive(void);
-
 
 /*
  * Initialize the screen
@@ -42,16 +44,6 @@ void screen_new(void)
 }
 
 
-/*
- * Kill the screen completely (used at exit).  It is safe to call this
- * function more than once.
- */
-void screen_delete(void)
-{
-	screen_reset();
-}
-
-
 
 /*
  * Beep.
@@ -61,24 +53,6 @@ void ctdl_beep(void) {
 }
 	
 
-
-/*
- * Set screen/IO parameters, e.g. at start of program or return from external
- * program run.
- */
-int screen_set(void)
-{
-	return 0;
-}
-
-
-/*
- * Reset screen/IO parameters, e.g. at exit or fork of external program.
- */
-int screen_reset(void)
-{
-	return 0;
-}
 
 
 /*
@@ -115,17 +89,90 @@ int scr_getc(int delay)
 	buf = '\0';
 	if (!read (0, &buf, 1))
 		logoff(NULL, 3);
+
+	lines_printed = 0;
 	return buf;
 }
+
+/*
+ * Issue the paginator prompt (more / hit any key to continue)
+ */
+void hit_any_key(void) {
+	int b;
+
+	color(COLOR_PUSH);
+	color(DIM_RED);
+	/* scr_printf("%s\r", ipc->ServInfo.moreprompt); */
+	scr_printf("<<more>>\r");	// FIXME use the prompt given by the server
+	color(COLOR_POP);
+	stty_ctdl(0);
+	b=inkey();
+	/*
+	for (a=0; !IsEmptyStr(&ipc->ServInfo.moreprompt[a]); ++a)
+		scr_putc(' ');
+	*/
+	scr_printf("        ");
+	scr_putc(13);
+	stty_ctdl(1);
+/*
+	if ( (rc_prompt_control == 1)
+	   || ((rc_prompt_control == 3) && (userflags & US_PROMPTCTL)) ) {
+		if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
+			b = STOP_KEY;
+		if (b == 'n' || b == 'N')
+			b = NEXT_KEY;
+	}
+*/
+	if (b==NEXT_KEY) sigcaught = SIGINT;
+	if (b==STOP_KEY) sigcaught = SIGQUIT;
+}
+
 
 /*
  * Output one character to the terminal
  */
 int scr_putc(int c)
 {
+	/* handle tabs normally */
+	if (c == '\t') {
+		do {
+			scr_putc(' ');
+		} while ((cols_printed % 8) != 0);
+		return(c);
+	}
+
+	/* Output the character... */
 	if (putc(c, stdout) == EOF) {
 		logoff(NULL, 3);
 	}
+
+	if (c == '\n') {
+		++lines_printed;
+		cols_printed = 0;
+	}
+	else if (c == '\r') {
+		cols_printed = 0;
+	}
+	else if (isprint(c)) {
+		++cols_printed;
+		if ((screenwidth > 0) && (cols_printed > screenwidth)) {
+			++lines_printed;
+			cols_printed = 0;
+		}
+	}
+
+	//	if we want to do a top status line, this is a reasonable way to do it
+	//	printf("\033[s\033[0;70H");
+	//	printf("\033[K   %d/%d  %d/%d", cols_printed, screenwidth, lines_printed, screenheight);
+	//	printf("\033[u");
+
+	if ((screenheight > 0) && (lines_printed > (screenheight-2))) {
+		lines_printed = 0;
+		hit_any_key();
+		lines_printed = 0;
+		cols_printed = 0;
+	}
+
 	return c;
 }
 
@@ -138,13 +185,6 @@ void scr_flush(void)
 
 static volatile int caught_sigwinch = 0;
 
-/*
- * this is not supposed to be called from a signal handler.
- */
-int scr_set_windowsize(CtdlIPC* ipc)
-{
-	return 0;
-}
 
 /*
  * scr_winch() handles window size changes from SIGWINCH

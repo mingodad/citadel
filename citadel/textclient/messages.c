@@ -427,8 +427,6 @@ int read_message(CtdlIPC *ipc,
 	r = CtdlIPCGetSingleMessage(ipc, num, (pagin == READ_HEADER ? 1 : 0), 4, &message, buf);
 	if (r / 100 != 1) {
 		scr_printf("*** msg #%ld: %d %s\n", num, r, buf);
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 		stty_ctdl(0);
 		free(message->text);
 		free_parts(message->attachments);
@@ -440,8 +438,6 @@ int read_message(CtdlIPC *ipc,
 		fprintf(dest, "\n ");
 	} else {
 		scr_printf("\n");
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, screenheight);
 		if (pagin != 2)
 			scr_printf(" ");
 	}
@@ -451,34 +447,34 @@ int read_message(CtdlIPC *ipc,
 
 	/* View headers only */
 	if (pagin == 2) {
-		pprintf("nhdr=%s\nfrom=%s\ntype=%d\nmsgn=%s\n",
+		scr_printf("nhdr=%s\nfrom=%s\ntype=%d\nmsgn=%s\n",
 				message->nhdr ? "yes" : "no",
 				message->author, message->type,
 				message->msgid);
 		if (!IsEmptyStr(message->subject)) {
-			pprintf("subj=%s\n", message->subject);
+			scr_printf("subj=%s\n", message->subject);
 		}
 		if (!IsEmptyStr(message->email)) {
-			pprintf("rfca=%s\n", message->email);
+			scr_printf("rfca=%s\n", message->email);
 		}
-		pprintf("hnod=%s\nroom=%s\nnode=%s\ntime=%s",
+		scr_printf("hnod=%s\nroom=%s\nnode=%s\ntime=%s",
 				message->hnod, message->room,
 				message->node, 
 				asctime(localtime(&message->time)));
 		if (!IsEmptyStr(message->recipient)) {
-			pprintf("rcpt=%s\n", message->recipient);
+			scr_printf("rcpt=%s\n", message->recipient);
 		}
 		if (message->attachments) {
 			struct parts *ptr;
 
 			for (ptr = message->attachments; ptr; ptr = ptr->next) {
-				pprintf("part=%s|%s|%s|%s|%s|%ld\n",
+				scr_printf("part=%s|%s|%s|%s|%s|%ld\n",
 					ptr->name, ptr->filename, ptr->number,
 					ptr->disposition, ptr->mimetype,
 					ptr->length);
 			}
 		}
-		pprintf("\n");
+		scr_printf("\n");
 		stty_ctdl(0);
 		free(message->text);
 		free_parts(message->attachments);
@@ -602,12 +598,6 @@ int read_message(CtdlIPC *ipc,
 			 message->author, message->node);
 	}
 
-	if (!dest) {
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, screenheight);
-	}
-
-
 	if (message->msgid != NULL) {
 		safestrncpy(reply_inreplyto, message->msgid, sizeof reply_inreplyto);
 	}
@@ -627,9 +617,6 @@ int read_message(CtdlIPC *ipc,
 				scr_printf("Subject: ");
 				color(BRIGHT_CYAN);
 				scr_printf("%s\n", message->subject);
-				++lines_printed;
-				lines_printed = checkpagin(lines_printed,
-						pagin, screenheight);
 			}
 		}
 	}
@@ -682,8 +669,7 @@ int read_message(CtdlIPC *ipc,
 	 * Here we go
 	 */
 	if (format_type == 0) {
-		fr = fmout(screenwidth, NULL, message->text, dest,
-			   ((pagin == 1) ? 1 : 0), screenheight, (-1), 1);
+		fr = fmout(screenwidth, NULL, message->text, dest, 1);
 	} else {
 		/* renderer for text/plain */
 
@@ -706,11 +692,6 @@ int read_message(CtdlIPC *ipc,
 					fprintf(dest, "%s\n", lineptr);
 				} else {
 					scr_printf("%s\n", lineptr);
-					lines_printed = lines_printed + 1 +
-					    (linelen / screenwidth);
-					lines_printed =
-					    checkpagin(lines_printed, pagin,
-						       screenheight);
 				}
 			}
 			if (lineptr[0] == 0) final_line_is_blank = 1;
@@ -725,8 +706,6 @@ int read_message(CtdlIPC *ipc,
 		}
 		else {
 			scr_printf("\n");
-			++lines_printed;
-			lines_printed = checkpagin(lines_printed, pagin, screenheight);
 			fr = sigcaught;		
 		}
 	}
@@ -744,15 +723,15 @@ int read_message(CtdlIPC *ipc,
 				   && (!IsEmptyStr(ptr->mimetype))
 				) {
 					color(DIM_WHITE);
-					pprintf("Part ");
+					scr_printf("Part ");
 					color(BRIGHT_MAGENTA);
-					pprintf("%s", ptr->number);
+					scr_printf("%s", ptr->number);
 					color(DIM_WHITE);
-					pprintf(": ");
+					scr_printf(": ");
 					color(BRIGHT_CYAN);
-					pprintf("%s", ptr->filename);
+					scr_printf("%s", ptr->filename);
 					color(DIM_WHITE);
-					pprintf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
+					scr_printf(" (%s, %ld bytes)\n", ptr->mimetype, ptr->length);
 					if (!strncmp(ptr->mimetype, "image/", 6)) {
 						has_images++;
 					}
@@ -907,8 +886,7 @@ int client_make_message(CtdlIPC *ipc,
 	if (mode == 0) {
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, NULL, NULL, 0,
-				screenheight, 0, 0);
+			fmout(screenwidth, fp, NULL, NULL, 0);
 			beg = ftell(fp);
 			fclose(fp);
 		} else {
@@ -964,7 +942,6 @@ ME1:	switch (mode) {
 	case 2:
 	default:	/* allow 2+ modes */
 		e_ex_code = 1;	/* start with a failed exit code */
-		screen_reset();
 		stty_ctdl(SB_RESTORE);
 		editor_pid = fork();
 		cksum = file_checksum(filename);
@@ -984,7 +961,6 @@ ME1:	switch (mode) {
 			} while ((b != editor_pid) && (b >= 0));
 		editor_pid = (-1);
 		stty_ctdl(0);
-		screen_set();
 		break;
 	}
 
@@ -1023,9 +999,7 @@ MECR:	if (mode >= 2) {
 		}
 		fp = fopen(filename, "r");
 		if (fp != NULL) {
-			fmout(screenwidth, fp, NULL, NULL,
-			      ((userflags & US_PAGINATOR) ? 1 : 0),
-			      screenheight, 0, 0);
+			fmout(screenwidth, fp, NULL, NULL, 0);
 			beg = ftell(fp);
 			fclose(fp);
 		}
@@ -1569,8 +1543,6 @@ void readmsgs(CtdlIPC *ipc,
 		return;
 	}
 
-	lines_printed = 0;
-
 	/* this loop cycles through each message... */
 	start = ((rdir == 1) ? 0 : (num_msgs - 1));
 	for (a = start; ((a < num_msgs) && (a >= 0)); a = a + rdir) {
@@ -1628,11 +1600,9 @@ RMSGREAD:	scr_flush();
 				if (freopen(prtfile, "r", stdin) == NULL) {
 					/* we probably should handle the error condition here */
 				}
-				screen_reset();
 				stty_ctdl(SB_RESTORE);
 				ka_system(printcmd);
 				stty_ctdl(SB_NO_INTR);
-				screen_set();
 				unlink(prtfile);
 				exit(0);
 			}
@@ -1669,7 +1639,6 @@ RMSGREAD:	scr_flush();
 			keyopt("<?>help -> ");
 
 			do {
-				lines_printed = 2;
 				e = (inkey() & 127);
 				e = tolower(e);
 /* return key same as <N> */ if (e == 10)
@@ -1968,10 +1937,9 @@ void check_message_base(CtdlIPC *ipc)
 	}
 
 	while (transcript && !IsEmptyStr(transcript)) {
-		lines_printed = 1;
 		extract_token(buf, transcript, 0, '\n', sizeof buf);
 		remove_token(transcript, 0, '\n');
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 	}
 	if (transcript) free(transcript);
 	return;

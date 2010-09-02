@@ -49,8 +49,7 @@ void newprompt(char *prompt, char *str, int len);
 void strprompt(char *prompt, char *str, int len);
 int boolprompt(char *prompt, int prev_val);
 int intprompt(char *prompt, int ival, int imin, int imax);
-int fmout(int width, FILE *fpin, char *text, FILE *fpout, char pagin,
-		int height, int starting_lp, int subst);
+int fmout(int width, FILE *fpin, char *text, FILE *fpout, int subst);
 int getcmd(CtdlIPC *ipc, char *argbuf);
 void display_help(CtdlIPC *ipc, char *name);
 void color(int colornum);
