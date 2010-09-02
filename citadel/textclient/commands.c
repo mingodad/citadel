@@ -527,15 +527,6 @@ int inkey(void)
 			a = 0;
 		}
  */
-
-#ifndef DISABLE_CURSES
-#if defined(HAVE_CURSES_H) || defined(HAVE_NCURSES_H)
-		if (a == ERR) {
-			logoff(NULL, 3);
-		}
-#endif
-#endif
-
 	} while (a == 0);
 	return (a);
 }
@@ -780,9 +771,6 @@ void load_command_set(void)
 #ifdef HAVE_OPENSSL
 	rc_encrypt = RC_DEFAULT;
 #endif
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-	rc_screen = RC_DEFAULT;
-#endif
 	rc_alt_semantics = 0;
 
 	/* now try to open the citadel.rc file */
@@ -827,15 +815,6 @@ void load_command_set(void)
 			}
 #endif
 		}
-
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-		if (!strncasecmp(buf, "fullscreen=", 11)) {
-			if (!strcasecmp(&buf[11], "yes"))
-				rc_screen = RC_YES;
-			else if (!strcasecmp(&buf[11], "no"))
-				rc_screen = RC_NO;
-		}
-#endif
 
 		if (!strncasecmp(buf, "editor=", 7))
 			strcpy(editor_paths[0], &buf[7]);
@@ -1521,10 +1500,6 @@ void color(int colornum)
 
 	current_color = colornum;
 	if (enable_color) {
-#if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
-		if (scr_color(colornum))
-			return;
-#endif
 		/* When switching to dim white, actually output an 'original
 		 * pair' sequence -- this looks better on black-on-white
 		 * terminals. - Changed to ORIGINAL_PAIR as this actually

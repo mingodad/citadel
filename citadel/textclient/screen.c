@@ -118,15 +118,6 @@ int scr_putc(int c)
 }
 
 
-/*
- * scr_color() sets the window color for mainwindow
- */
-int scr_color(int colornum)
-{
-	return 0;
-}
-
-
 void scr_flush(void)
 {
 	fflush(stdout);
