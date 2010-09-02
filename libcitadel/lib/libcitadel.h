@@ -1,8 +1,3 @@
-/*
- * $Id$
- *
- */
-
 
 /* protect against double includes */
 #ifndef LIBCITADEL_H
@@ -15,7 +10,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#define LIBCITADEL_VERSION_NUMBER	783
+#define LIBCITADEL_VERSION_NUMBER	784
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
