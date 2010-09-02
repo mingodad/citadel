@@ -4,3 +4,6 @@
 *.deb
 *.tar.gz
 webcit-*
+libcitadel-*
+citadel-*
+tmp
