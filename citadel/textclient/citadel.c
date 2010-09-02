@@ -75,8 +75,8 @@
 #define IFNAIDE if (axlevel<AxAideU)
 
 int rordercmp(struct ctdlroomlisting *r1, struct ctdlroomlisting *r2);
-
 march *marchptr = NULL;
+extern char *moreprompt;
 
 /* globals associated with the client program */
 char temp[PATH_MAX];		/* Name of general-purpose temp file */
@@ -1018,7 +1018,7 @@ void system_info(CtdlIPC *ipc)
 	mrtg_active_users = extract_int(resp, 0);
 	remove_token(resp, 0, '\n');
 	extract_token(mrtg_server_uptime, resp, 0, '\n', sizeof mrtg_server_uptime);
-    free(resp);
+	free(resp);
 	resp = NULL;
 
 	/* get high message# */
@@ -1150,6 +1150,7 @@ void get_serv_info(CtdlIPC *ipc, char *supplied_hostname)
 	char buf[SIZ];
 
 	CtdlIPCServerInfo(ipc, buf);
+	moreprompt = ipc->ServInfo.moreprompt;
 
 	/* be nice and identify ourself to the server */
 	CtdlIPCIdentifySoftware(ipc, SERVER_TYPE, 0, REV_LEVEL,

@@ -22,6 +22,9 @@
 
 char arg_screen;
 
+/* the default paginator prompt will be replaced by the server's prompt when we learn it */
+char *moreprompt = " -- more -- ";
+
 extern int screenheight;
 extern int screenwidth;
 int lines_printed = 0;
@@ -99,29 +102,25 @@ int scr_getc(int delay)
  * Issue the paginator prompt (more / hit any key to continue)
  */
 void hit_any_key(void) {
-	int b;
+	int a, b;
 
 	color(COLOR_PUSH);
 	color(DIM_RED);
-	/* scr_printf("%s\r", ipc->ServInfo.moreprompt); */
-	scr_printf("<<more>>\r");	// FIXME use the prompt given by the server
+	scr_printf("%s\r", moreprompt);
 	color(COLOR_POP);
-	stty_ctdl(0);
 	b=inkey();
-	/*
-	for (a=0; !IsEmptyStr(&ipc->ServInfo.moreprompt[a]); ++a)
+	for (a=0; a<screenwidth; ++a) {
 		scr_putc(' ');
-	*/
-	scr_printf("        ");
-	scr_putc(13);
-	stty_ctdl(1);
+	}
+	scr_printf("\r");
 
-	if ( (rc_prompt_control == 1)
-	   || ((rc_prompt_control == 3) && (userflags & US_PROMPTCTL)) ) {
-		if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
+	if ( (rc_prompt_control == 1) || ((rc_prompt_control == 3) && (userflags & US_PROMPTCTL)) ) {
+		if (b == 'q' || b == 'Q' || b == 's' || b == 'S') {
 			b = STOP_KEY;
-		if (b == 'n' || b == 'N')
+		}
+		if (b == 'n' || b == 'N') {
 			b = NEXT_KEY;
+		}
 	}
 
 	if (b==NEXT_KEY) sigcaught = SIGINT;
