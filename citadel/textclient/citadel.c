@@ -534,8 +534,6 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 			rv = system(rc_gotmail_cmd);
 		}
 	}
-	status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location,
-			room_name, secure, newmailcount);
 	free(room);
 }
 
@@ -1085,7 +1083,7 @@ void check_screen_dims(void)
 	if (have_xterm) {	/* dynamically size screen if on an xterm */
 		if (ioctl(0, TIOCGWINSZ, &xwinsz) == 0) {
 			if (xwinsz.height)
-				screenheight = is_curses_enabled() ? (int)xwinsz.height - 1 : (int) xwinsz.height;
+				screenheight = (int) xwinsz.height;
 			if (xwinsz.width)
 				screenwidth = (int) xwinsz.width;
 		}
@@ -1626,9 +1624,6 @@ int main(int argc, char **argv)
 	scr_printf("%-24s\n%s\n%s\n", ipc->ServInfo.software, ipc->ServInfo.humannode,
 		   ipc->ServInfo.site_location);
 	scr_flush();
-
-	status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location, NULL,
-		    secure, -1);
 
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;

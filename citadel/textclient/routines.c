@@ -440,8 +440,6 @@ void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax)
 
 	if (curr >= cmax) {
 		sln_printf("\r%79s\r","");
-		status_line(ipc->ServInfo.humannode, ipc->ServInfo.site_location,
-			room_name, secure, 0);
 	} else {
 		/* a will be range 0-50 rather than 0-100 */
 		a=(curr * 50) / cmax;
