@@ -1352,7 +1352,7 @@ int fmout(
 	/* Space for a single word, which can be at most screenwidth */
 	word = (char *)calloc(1, width);
 	if (!word) {
-		err_printf("Can't alloc memory to print message: %s!\n",
+		scr_printf("Can't alloc memory to print message: %s!\n",
 				strerror(errno));
 		logoff(NULL, 3);
 	}
@@ -1361,7 +1361,7 @@ int fmout(
 	if (fpin) {
 		buffer = load_message_from_file(fpin);
 		if (!buffer) {
-			err_printf("Can't print message: %s!\n",
+			scr_printf("Can't print message: %s!\n",
 					strerror(errno));
 			logoff(NULL, 3);
 		}

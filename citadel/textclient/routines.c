@@ -439,16 +439,16 @@ void progress(CtdlIPC* ipc, unsigned long curr, unsigned long cmax)
 	unsigned long a;
 
 	if (curr >= cmax) {
-		sln_printf("\r%79s\r","");
+		scr_printf("\r%79s\r","");
 	} else {
 		/* a will be range 0-50 rather than 0-100 */
 		a=(curr * 50) / cmax;
 		sprintf(fmt, "[%%s%%%lds] %%3ld%%%% %%10ld/%%10ld\r", 50 - a);
 		strncpy(dots_printed, dots, a);
 		dots_printed[a] = 0;
-		sln_printf(fmt, dots_printed, "",
+		scr_printf(fmt, dots_printed, "",
 				curr * 100 / cmax, curr, cmax);
-		sln_flush();
+		scr_flush();
 	}
 }
 

@@ -247,8 +247,6 @@ AC_ARG_WITH(ssl,
 		fi
 	]
 )
-AC_ARG_WITH(ncurses, [  --without-ncurses       don't use ncurses])
-
 AC_ARG_WITH(with_ldap, [  --with-ldap             use OpenLDAP client library])
 dnl AC_ARG_WITH(with_libdspam, [  --with-libdspam         use libdspam mail spam scanning library])
 AC_ARG_WITH(with_gc, [  --with-gc             use the Boehm-Demers-Weiser garbage collection library])
@@ -292,7 +290,6 @@ case "$host" in
 	dnl TCP buffering isn't ideal under OS X. This define should also be
 	dnl checked in other cases of OS X-Linux differences.
 	*-*-darwin*)
-		AC_DEFINE(DISABLE_CURSES,[],[define this to disable use of curses])
 		AC_DEFINE(HAVE_DARWIN, [], [define if using OS X/Darwin])
 		AC_MSG_RESULT([Mac OS X])
 	;;
@@ -500,14 +497,6 @@ test "$enable_chkpwd" != no && LIBS=$save_LIBS
 		fi
 	fi
 
-if test "x$with_ncurses" != "xno"; then
-	AC_SEARCH_LIBS(tgetent, [ncurses curses termcap])
-	AC_SEARCH_LIBS(scrollok, [ncurses curses])
-	AC_SEARCH_LIBS(initscr, [ncurses curses])
-else
-	AC_SEARCH_LIBS(tgetent, [curses termcap])
-	AC_SEARCH_LIBS(initscr, [curses])
-fi
 AC_CHECK_FUNCS(vw_printw wcolor_set resizeterm wresize)
 
 dnl Check for libpthread(s) if we're not using Digital UNIX or FreeBSD. (On
@@ -819,15 +808,7 @@ dnl
 dnl TODO: for the DB header checks, we should check whether the headers
 dnl define db_env_create, somehow
 dnl
-AC_CHECK_HEADERS(curses.h dl.h fcntl.h limits.h malloc.h termios.h sys/ioctl.h sys/select.h sys/stat.h sys/time.h sys/prctl.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db4/db.h pthread.h netinet/in.h arpa/nameser.h arpa/nameser_compat.h syscall.h sys/syscall.h)
-
-dnl
-dnl need to check if this is actually compilable, sometimes there are
-dnl conflicts with the system's headers (eg solaris xpg4 style headers)
-dnl
-if test "x$with_ncurses" != xno; then
-	AC_CHECK_HEADERS(ncurses.h,,,[ ])
-fi
+AC_CHECK_HEADERS(dl.h fcntl.h limits.h malloc.h termios.h sys/ioctl.h sys/select.h sys/stat.h sys/time.h sys/prctl.h syslog.h unistd.h utmp.h utmpx.h paths.h db.h db4/db.h pthread.h netinet/in.h arpa/nameser.h arpa/nameser_compat.h syscall.h sys/syscall.h)
 
 AC_CHECK_HEADER(resolv.h,AC_DEFINE(HAVE_RESOLV_H, [], [define this if you have the resolv.h header file.]),,
 [#ifdef HAVE_SYS_TYPES_H

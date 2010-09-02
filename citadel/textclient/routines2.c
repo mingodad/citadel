@@ -62,7 +62,7 @@ int eopen(char *name, int mode)
 	int ret;
 	ret = open(name, mode);
 	if (ret < 0) {
-		err_printf("Cannot open file '%s', mode=%d, errno=%d\n",
+		scr_printf("Cannot open file '%s', mode=%d, errno=%d\n",
 			name, mode, errno);
 		interr(errno);
 	}
@@ -287,15 +287,15 @@ void cli_image_upload(CtdlIPC *ipc, char *keyname)
 	/* Can we upload this image? */
 	r = CtdlIPCImageUpload(ipc, 0, NULL, keyname, NULL, buf);
 	if (r / 100 != 2) {
-		err_printf("%s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 	newprompt("Image file to be uploaded: ", flnm, 55);
 	r = CtdlIPCImageUpload(ipc, 1, flnm, keyname, progress, buf);
 	if (r / 100 == 5) {
-		err_printf("%s\n", buf);
+		scr_printf("%s\n", buf);
 	} else if (r < 0) {
-		err_printf("Cannot upload '%s': %s\n", flnm, strerror(errno));
+		scr_printf("Cannot upload '%s': %s\n", flnm, strerror(errno));
 	}
 	/* else upload succeeded */
 }
@@ -522,7 +522,7 @@ void subshell(void)
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
 		execlp(getenv("SHELL"), getenv("SHELL"), NULL);
-		err_printf("Could not open a shell: %s\n", strerror(errno));
+		scr_printf("Could not open a shell: %s\n", strerror(errno));
 		exit(errno);
 	}
 	do {
@@ -544,7 +544,7 @@ void deletefile(CtdlIPC *ipc)
 	if (IsEmptyStr(filename))
 		return;
 	CtdlIPCDeleteFile(ipc, filename, buf);
-	err_printf("%s\n", buf);
+	scr_printf("%s\n", buf);
 }
 
 
@@ -562,7 +562,7 @@ void movefile(CtdlIPC *ipc)
 		return;
 	newprompt("Enter target room: ", newroom, ROOMNAMELEN - 1);
 	CtdlIPCMoveFile(ipc, filename, newroom, buf);
-	err_printf("%s\n", buf);
+	scr_printf("%s\n", buf);
 }
 
 

@@ -1403,8 +1403,8 @@ int shift(int argc, char **argv, int start, int count) {
 }
 
 static void statusHook(char *s) {
-	sln_printf(s);
-	sln_flush();
+	scr_printf(s);
+	scr_flush();
 }
 
 /*
@@ -1456,15 +1456,15 @@ int main(int argc, char **argv)
 	eCrash_Init(&params);
 #endif	
 	setIPCDeathHook(screen_delete);
-	setIPCErrorPrintf(err_printf);
+	setIPCErrorPrintf(scr_printf);
 	setCryptoStatusHook(statusHook);
 	
 	/* Permissions sanity check - don't run citadel setuid/setgid */
 	if (getuid() != geteuid()) {
-		err_printf("Please do not run citadel setuid!\n");
+		scr_printf("Please do not run citadel setuid!\n");
 		logoff(NULL, 3);
 	} else if (getgid() != getegid()) {
-		err_printf("Please do not run citadel setgid!\n");
+		scr_printf("Please do not run citadel setgid!\n");
 		logoff(NULL, 3);
 	}
 
@@ -1564,7 +1564,7 @@ int main(int argc, char **argv)
 	newprompt("Connect to (return for local server): ", hostbuf, 64);
 #endif
 
-	sln_printf("Attaching to server...\n");
+	scr_printf("Attaching to server...\n");
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
 	if (!ipc) {
 		screen_delete();
@@ -1573,7 +1573,7 @@ int main(int argc, char **argv)
 	}
 
 	if (!(ipc->isLocal)) {
-		sln_printf("Connected to %s [%s].\n", ipc->ip_hostname, ipc->ip_address);
+		scr_printf("Connected to %s [%s].\n", ipc->ip_hostname, ipc->ip_address);
 	}
 
 #if defined(HAVE_CURSES_H) && !defined(DISABLE_CURSES)
@@ -2337,7 +2337,7 @@ TERMN8:	scr_printf("%s logged out.", fullname);
 		remove_march(marchptr->march_name, 0);
 	}
 	if (mcmd == 30) {
-		sln_printf("\n\nType 'off' to disconnect, or next user...\n");
+		scr_printf("\n\nType 'off' to disconnect, or next user...\n");
 	}
 	CtdlIPCLogout(ipc);
 	if ((mcmd == 29) || (mcmd == 15)) {
