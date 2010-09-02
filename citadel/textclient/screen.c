@@ -86,11 +86,19 @@ int screen_reset(void)
  */
 int scr_printf(char *fmt, ...)
 {
+	static char outbuf[4096];	/* static for performance -- not re-entrant -- change if needed */
 	va_list ap;
 	register int retval;
+	int i, len;
+
 	va_start(ap, fmt);
-	retval = vprintf(fmt, ap);
+	retval = vsnprintf(outbuf, sizeof outbuf, fmt, ap);
 	va_end(ap);
+
+	len = strlen(outbuf);
+	for (i=0; i<len; ++i) {
+		scr_putc(outbuf[i]);
+	}
 	return retval;
 }
 
@@ -101,6 +109,9 @@ int scr_printf(char *fmt, ...)
 int scr_getc(int delay)
 {
 	unsigned char buf;
+
+	scr_flush();
+
 	buf = '\0';
 	if (!read (0, &buf, 1))
 		logoff(NULL, 3);
@@ -112,8 +123,9 @@ int scr_getc(int delay)
  */
 int scr_putc(int c)
 {
-	if (putc(c, stdout) == EOF)
+	if (putc(c, stdout) == EOF) {
 		logoff(NULL, 3);
+	}
 	return c;
 }
 
