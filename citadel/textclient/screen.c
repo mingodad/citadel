@@ -48,9 +48,10 @@ void screen_new(void)
  */
 void screen_delete(void)
 {
-	windows_delete();
 	screen_reset();
 }
+
+
 
 /*
  * Beep.
@@ -215,20 +216,4 @@ RETSIGTYPE scr_winch(int signum)
 	caught_sigwinch = 1;
 	check_screen_dims();
 	signal(SIGWINCH, scr_winch);
-}
-
-
-/*
- * Initialize the window(s) we will be using.
- */
-void windows_new(void)
-{
-}
-
-
-/*
- * Deinitialize the window(s) we were using (at exit).
- */
-void windows_delete(void)
-{
 }
