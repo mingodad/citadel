@@ -28,6 +28,7 @@ int lines_printed = 0;
 int cols_printed = 0;
 
 extern int rc_ansi_color;
+extern int rc_prompt_control;
 extern void check_screen_dims(void);
 
 void do_keepalive(void);
@@ -114,7 +115,7 @@ void hit_any_key(void) {
 	scr_printf("        ");
 	scr_putc(13);
 	stty_ctdl(1);
-/*
+
 	if ( (rc_prompt_control == 1)
 	   || ((rc_prompt_control == 3) && (userflags & US_PROMPTCTL)) ) {
 		if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
@@ -122,7 +123,7 @@ void hit_any_key(void) {
 		if (b == 'n' || b == 'N')
 			b = NEXT_KEY;
 	}
-*/
+
 	if (b==NEXT_KEY) sigcaught = SIGINT;
 	if (b==STOP_KEY) sigcaught = SIGQUIT;
 }
