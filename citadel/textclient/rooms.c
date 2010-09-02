@@ -121,7 +121,7 @@ void room_tree_list(struct ctdlroomlisting *rp)
 		if ((c + strlen(rmname) + 4) > screenwidth) {
 
 			/* line break, check the paginator */
-			pprintf("\n");
+			scr_printf("\n");
 			c = 1;
 		}
 		if (f & QR_MAILBOX) {
@@ -131,15 +131,15 @@ void room_tree_list(struct ctdlroomlisting *rp)
 		} else {
 			color(DIM_WHITE);
 		}
-		pprintf("%s", rmname);
+		scr_printf("%s", rmname);
 		if ((f & QR_DIRECTORY) && (f & QR_NETWORK))
-			pprintf("}  ");
+			scr_printf("}  ");
 		else if (f & QR_DIRECTORY)
-			pprintf("]  ");
+			scr_printf("]  ");
 		else if (f & QR_NETWORK)
-			pprintf(")  ");
+			scr_printf(")  ");
 		else
-			pprintf(">  ");
+			scr_printf(">  ");
 		c = c + strlen(rmname) + 3;
 	}
 
@@ -254,10 +254,10 @@ void list_other_floors(void)
 	for (a = 0; a < 128; ++a) {
 		if ((strlen(floorlist[a]) > 0) && (a != curr_floor)) {
 			if ((c + strlen(floorlist[a]) + 4) > screenwidth) {
-				pprintf("\n");
+				scr_printf("\n");
 				c = 1;
 			}
-			pprintf("%s:  ", floorlist[a]);
+			scr_printf("%s:  ", floorlist[a]);
 			c = c + strlen(floorlist[a]) + 3;
 		}
 	}
@@ -288,37 +288,37 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 
 	if (kn_floor_mode == 0) {
 		color(BRIGHT_CYAN);
-		pprintf("\n   Rooms with unread messages:\n");
+		scr_printf("\n   Rooms with unread messages:\n");
 		listrms(listing, LISTRMS_NEW_ONLY, -1, 0, NULL);
 		color(BRIGHT_CYAN);
-		pprintf("\n\n   No unseen messages in:\n");
+		scr_printf("\n\n   No unseen messages in:\n");
 		listrms(listing, LISTRMS_OLD_ONLY, -1, 0, NULL);
-		pprintf("\n");
+		scr_printf("\n");
 	}
 
 	if (kn_floor_mode == 1) {
 		color(BRIGHT_CYAN);
-		pprintf("\n   Rooms with unread messages on %s:\n",
+		scr_printf("\n   Rooms with unread messages on %s:\n",
 			floorlist[(int) curr_floor]);
 		listrms(listing, LISTRMS_NEW_ONLY, curr_floor, 0, NULL);
 		color(BRIGHT_CYAN);
-		pprintf("\n\n   Rooms with no new messages on %s:\n",
+		scr_printf("\n\n   Rooms with no new messages on %s:\n",
 			floorlist[(int) curr_floor]);
 		listrms(listing, LISTRMS_OLD_ONLY, curr_floor, 0, NULL);
 		color(BRIGHT_CYAN);
-		pprintf("\n\n   Other floors:\n");
+		scr_printf("\n\n   Other floors:\n");
 		list_other_floors();
-		pprintf("\n");
+		scr_printf("\n");
 	}
 
 	if (kn_floor_mode == 2) {
 		for (a = 0; a < 128; ++a) {
 			if (floorlist[a][0] != 0) {
 				color(BRIGHT_CYAN);
-				pprintf("\n   Rooms on %s:\n",
+				scr_printf("\n   Rooms on %s:\n",
 					floorlist[a]);
 				listrms(listing, LISTRMS_ALL, a, 0, NULL);
-				pprintf("\n");
+				scr_printf("\n");
 			}
 		}
 	}
@@ -331,7 +331,6 @@ void knrooms(CtdlIPC *ipc, int kn_floor_mode)
 	};
 
 	color(DIM_WHITE);
-	IFNEXPERT hit_any_key(ipc);
 }
 
 
@@ -350,9 +349,9 @@ void listzrooms(CtdlIPC *ipc)
 	}
 
 	color(BRIGHT_CYAN);
-	pprintf("\n   Forgotten public rooms:\n");
+	scr_printf("\n   Forgotten public rooms:\n");
 	listrms(listing, LISTRMS_ALL, -1, 0, NULL);
-	pprintf("\n");
+	scr_printf("\n");
 
 	/* Free the room list */
 	while (listing) {
@@ -362,7 +361,6 @@ void listzrooms(CtdlIPC *ipc)
 	};
 
 	color(DIM_WHITE);
-	IFNEXPERT hit_any_key(ipc);
 }
 
 void dotknown(CtdlIPC *ipc, int what, char *match)
@@ -382,39 +380,39 @@ void dotknown(CtdlIPC *ipc, int what, char *match)
 
 	switch (what) {
     case 0:
-     	pprintf("\n   Anonymous rooms:\n");
+     	scr_printf("\n   Anonymous rooms:\n");
 	    listrms(listing, LISTRMS_ALL, -1, QR_ANONONLY|QR_ANONOPT, NULL);
-    	pprintf("\n");
+    	scr_printf("\n");
 		break;
     case 1:
-     	pprintf("\n   Directory rooms:\n");
+     	scr_printf("\n   Directory rooms:\n");
 	    listrms(listing, LISTRMS_ALL, -1, QR_DIRECTORY, NULL);
-    	pprintf("\n");
+    	scr_printf("\n");
 		break;
     case 2:
-     	pprintf("\n   Matching \"%s\" rooms:\n", match);
+     	scr_printf("\n   Matching \"%s\" rooms:\n", match);
 	    listrms(listing, LISTRMS_ALL, -1, 0, match);
-    	pprintf("\n");
+    	scr_printf("\n");
 		break;
     case 3:
-     	pprintf("\n   Preferred only rooms:\n");
+     	scr_printf("\n   Preferred only rooms:\n");
 	    listrms(listing, LISTRMS_ALL, -1, QR_PREFONLY, NULL);
-    	pprintf("\n");
+    	scr_printf("\n");
 		break;
     case 4:
-     	pprintf("\n   Private rooms:\n");
+     	scr_printf("\n   Private rooms:\n");
 	    listrms(listing, LISTRMS_ALL, -1, QR_PRIVATE, NULL);
-    	pprintf("\n");
+    	scr_printf("\n");
 		break;
     case 5:
-     	pprintf("\n   Read only rooms:\n");
+     	scr_printf("\n   Read only rooms:\n");
 	    listrms(listing, LISTRMS_ALL, -1, QR_READONLY, NULL);
-    	pprintf("\n");
+    	scr_printf("\n");
 		break;
     case 6:
-     	pprintf("\n   Shared rooms:\n");
+     	scr_printf("\n   Shared rooms:\n");
 	    listrms(listing, LISTRMS_ALL, -1, QR_NETWORK, NULL);
-    	pprintf("\n");
+    	scr_printf("\n");
 		break;
 	}
 
@@ -426,7 +424,6 @@ void dotknown(CtdlIPC *ipc, int what, char *match)
 	};
 
 	color(DIM_WHITE);
-	IFNEXPERT hit_any_key(ipc);
 }
 
 
@@ -916,11 +913,9 @@ void download(CtdlIPC *ipc, int proto)
 		/* FIXME: display internally instead */
 		snprintf(transmit_cmd, sizeof transmit_cmd, "exec cat %s", tempname);
 
-	screen_reset();
 	stty_ctdl(SB_RESTORE);
 	rv = system(transmit_cmd);
 	stty_ctdl(SB_NO_INTR);
-	screen_set();
 
 	/* clean up the temporary directory */
 	nukedir(tempdir);
@@ -943,14 +938,14 @@ void roomdir(CtdlIPC *ipc)
 
 	r = CtdlIPCReadDirectory(ipc, &listing, buf);
 	if (r / 100 != 1) {
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 
 	extract_token(comment, buf, 0, '|', sizeof comment);
 	extract_token(flnm, buf, 1, '|', sizeof flnm);
-	pprintf("\nDirectory of %s on %s\n", flnm, comment);
-	pprintf("-----------------------\n");
+	scr_printf("\nDirectory of %s on %s\n", flnm, comment);
+	scr_printf("-----------------------\n");
 	while (listing && *listing && !IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
@@ -960,9 +955,9 @@ void roomdir(CtdlIPC *ipc)
 		extract_token(mimetype, buf, 2, '|', sizeof mimetype);
 		extract_token(comment, buf, 3, '|', sizeof comment);
 		if (strlen(flnm) <= 14)
-			pprintf("%-14s %8s %s [%s]\n", flnm, flsz, comment, mimetype);
+			scr_printf("%-14s %8s %s [%s]\n", flnm, flsz, comment, mimetype);
 		else
-			pprintf("%s\n%14s %8s %s [%s]\n", flnm, "", flsz,
+			scr_printf("%s\n%14s %8s %s [%s]\n", flnm, "", flsz,
 				comment, mimetype);
 	}
 	if (listing) free(listing);
@@ -1162,9 +1157,7 @@ void readinfo(CtdlIPC *ipc)
 		return;
 
 	if (text) {
-		fmout(screenwidth, NULL, text, NULL,
-		      ((userflags & US_PAGINATOR) ? 1 : 0), screenheight, 
-		      (*raide) ? 2 : 0, 1);
+		fmout(screenwidth, NULL, text, NULL, 1);
 		free(text);
 	}
 }
@@ -1181,14 +1174,14 @@ void whoknows(CtdlIPC *ipc)
 
 	r = CtdlIPCWhoKnowsRoom(ipc, &listing, buf);
 	if (r / 100 != 1) {
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 	while (!IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
 		if (sigcaught == 0)
-			pprintf("%s\n", buf);
+			scr_printf("%s\n", buf);
 	}
 	free(listing);
 }
@@ -1236,7 +1229,6 @@ void do_edit(CtdlIPC *ipc,
 
 		snprintf(tmp, sizeof tmp, "WINDOW_TITLE=%s", desc);
 		putenv(tmp);
-		screen_reset();
 		stty_ctdl(SB_RESTORE);
 		editor_pid = fork();
 		if (editor_pid == 0) {
@@ -1252,7 +1244,6 @@ void do_edit(CtdlIPC *ipc,
 		editor_pid = (-1);
 		scr_printf("Executed %s\n", editor_paths[0]);
 		stty_ctdl(0);
-		screen_set();
 	} else {
 		scr_printf("Entering %s.  Press return twice when finished.\n", desc);
 		fp = fopen(temp, "r+");

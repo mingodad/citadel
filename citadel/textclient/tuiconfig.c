@@ -604,7 +604,6 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 	fclose(tempfp);
 
 	e_ex_code = 1;	/* start with a failed exit code */
-	screen_reset();
 	stty_ctdl(SB_RESTORE);
 	editor_pid = fork();
 	cksum = file_checksum(filename);
@@ -621,7 +620,6 @@ void network_config_management(CtdlIPC *ipc, char *entrytype, char *comment)
 		} while ((b != editor_pid) && (b >= 0));
 	editor_pid = (-1);
 	stty_ctdl(0);
-	screen_set();
 	}
 
 	if (file_checksum(filename) == cksum) {

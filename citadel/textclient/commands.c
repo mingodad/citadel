@@ -2,21 +2,21 @@
  * This file contains functions which implement parts of the
  * text-mode user interface.
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2010 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -100,7 +100,6 @@ char rc_gotmail_cmd[SIZ];
 char *gl_string;
 int next_lazy_cmd = 5;
 
-int lines_printed = 0;		/* line count for paginator */
 extern int screenwidth, screenheight;
 extern int termn8;
 extern CtdlIPC *ipc_for_signal_handlers;	/* KLUDGE cover your eyes */
@@ -148,69 +147,6 @@ char was_a_key_pressed(void) {
 }
 
 
-
-
-
-/*
- * Check to see if we need to pause at the end of a screen.
- * If we do, we have to switch to half keepalives during the pause because
- * we are probably in the middle of a server operation and the NOOP command
- * would confuse everything.
- */
-int checkpagin(int lp, unsigned int pagin, unsigned int height)
-{
-	int thekey;
-
-	if (sigcaught) return(lp);
-	thekey = was_a_key_pressed();
-	if (thekey == 'q' || thekey == 'Q' || thekey == 's' || thekey == 'S')
-		thekey = STOP_KEY;
-	if (thekey == 'n' || thekey == 'N')
-		thekey = NEXT_KEY;
-	if ( (thekey == NEXT_KEY) || (thekey == STOP_KEY)) sigcaught = thekey;
-	if (sigcaught) return(lp);
-
-	if (!pagin) return(0);
-	if (lp>=(height-1)) {
-		set_keepalives(KA_HALF);
-		hit_any_key(ipc_for_signal_handlers);	/* Cheating -IO */
-		set_keepalives(KA_YES);
-		return(0);
-	}
-	return(lp);
-}
-
-
-
-
-/*
- * pprintf()  ...   paginated version of printf()
- */
-void pprintf(const char *format, ...) {   
-        va_list arg_ptr;
-	static char buf[4096];	/* static for performance, change if needed */
-	int i;
-
-	/* If sigcaught is nonzero, a keypress has interrupted this and we
-	 * should just drain output.
-	 */
-	if (sigcaught) return;
- 
-	/* Otherwise, start spewing... */ 
-        va_start(arg_ptr, format);   
-        vsnprintf(buf, sizeof(buf), format, arg_ptr);   
-        va_end(arg_ptr);   
-
-	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
-		scr_putc(buf[i]);
-		if (buf[i]==10) {
-			++lines_printed;
-			lines_printed = checkpagin(lines_printed,
-				(userflags & US_PAGINATOR),
-				screenheight);
-		}
-	}
-}   
 
 
 
@@ -297,7 +233,6 @@ void print_instant(void)
 		}
 		/* fall back to built-in instant message display */
 		scr_printf("\n");
-		lines_printed++;
 
 		/* Header derived from flags */
 		if (flags & 2)
@@ -327,11 +262,9 @@ void print_instant(void)
 			scr_printf(" @%s", node);
 	
 		scr_printf(":\n");
-		lines_printed++;
-		fmout(screenwidth, NULL, listing, NULL, 1, screenheight, -1, 0);
+		fmout(screenwidth, NULL, listing, NULL, 0);
 		free(listing);
 
-		lines_printed = 0;
 	}
 	scr_printf("\n---\n");
 	color(BRIGHT_WHITE);
@@ -487,7 +420,6 @@ int inkey(void)
 	time_t start_time;
 
 	scr_flush();
-	lines_printed = 0;
 	time(&start_time);
 
 	do {
@@ -496,9 +428,7 @@ int inkey(void)
 		 * necessary and then waits again.
 		 */
 		do {
-			scr_set_windowsize(ipc_for_signal_handlers);
 			do_keepalive();
-			scr_set_windowsize(ipc_for_signal_handlers);
 
 			FD_ZERO(&rfds);
 			FD_SET(0, &rfds);
@@ -518,15 +448,6 @@ int inkey(void)
 		if (a == 13) {
 			a = 10;
 		}
-/* not so fast there dude, we have to handle UTF-8 and ISO-8859-1...
-		if (a > 126) {
-			a = 0;
-		}
-		if (((a != 23) && (a != 4) && (a != 10) && (a != 8) && (a != NEXT_KEY) && (a != STOP_KEY))
-		    && ((a < 32) || (a > 126))) {
-			a = 0;
-		}
- */
 	} while (a == 0);
 	return (a);
 }
@@ -1184,24 +1105,24 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 		}
 
 		if (ch == '?') {
-			pprintf("\rOne of ...                         \n");
+			scr_printf("\rOne of ...                         \n");
 			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 				if (cmdmatch(cmdbuf, cptr, cmdpos)) {
 					for (a = 0; a < 5; ++a) {
 					   keyopt(cmd_expand(cptr->c_keys[a], 1));
-    				   pprintf(" ");
+    				   scr_printf(" ");
 					}
-					pprintf("\n");
+					scr_printf("\n");
 				}
 			}
         	sigcaught = 0;
 
-			pprintf("\n%s%c ", room_name, room_prompt(room_flags));
+			scr_printf("\n%s%c ", room_name, room_prompt(room_flags));
 			got = 0;
 			for (cptr = cmdlist; cptr != NULL; cptr = cptr->next) {
 				if ((got == 0) && (cmdmatch(cmdbuf, cptr, cmdpos))) {
 					for (a = 0; a < cmdpos; ++a) {
-						pprintf("%s ",
+						scr_printf("%s ",
 						       cmd_expand(cptr->c_keys[a], 0));
 					}
 					got = 1;
@@ -1316,9 +1237,6 @@ int fmout(
 	FILE *fpin,	/* file to read from, or NULL to format given text */
 	char *text,	/* text to be formatted (when fpin is NULL */
 	FILE *fpout,	/* file to write to, or NULL to write to screen */
-	char pagin,	/* nonzero if we should use the paginator */
-	int height,	/* screen height to use */
-	int starting_lp,/* starting value for lines_printed, -1 for global */
 	int subst)	/* nonzero if we should use hypertext mode */
 {
 	char *buffer = NULL;	/* The current message */
@@ -1349,9 +1267,6 @@ int fmout(
 	}
 	e = buffer;
 
-	if (starting_lp >= 0)
-		lines_printed = starting_lp;
-
 	/* Run the message body */
 	while (*e) {
 		/* Catch characters that shouldn't be there at all */
@@ -1367,8 +1282,6 @@ int fmout(
 					fprintf(fpout, "\n");
 				} else {
 					scr_printf("\n");
-					++lines_printed;
-					lines_printed = checkpagin(lines_printed, pagin, height);
 				}
 				column = 0;
 			} else if (old != ' ') {/* Don't print two spaces */
@@ -1400,8 +1313,6 @@ int fmout(
 					fprintf(fpout, "\n");
 				} else {
 					scr_printf("\n");
-					++lines_printed;
-					lines_printed = checkpagin(lines_printed, pagin, height);
 				}
 				column = 0;
 			} else if (!(column == 0 && old == ' ')) {
@@ -1447,8 +1358,6 @@ int fmout(
 				fprintf(fpout, "\n");
 			} else {
 				scr_printf("\n");
-				++lines_printed;
-				lines_printed = checkpagin(lines_printed, pagin, height);
 			}
 			column = 0;
 		}
@@ -1472,8 +1381,6 @@ int fmout(
 		fprintf(fpout, "\n");
 	} else {
 		scr_printf("\n");
-		++lines_printed;
-		lines_printed = checkpagin(lines_printed, pagin, height);
 	}
 
 	return sigcaught;
@@ -1594,13 +1501,13 @@ void keyopt(char *buf) {
 	color(DIM_WHITE);
 	for (i=0; !IsEmptyStr(&buf[i]); ++i) {
 		if (buf[i]=='<') {
-			pprintf("%c", buf[i]);
+			scr_printf("%c", buf[i]);
 			color(BRIGHT_MAGENTA);
 		} else {
 			if (buf[i]=='>'&& buf[i+1] != '>') {
 				color(DIM_WHITE);
 			}
-			pprintf("%c", buf[i]);
+			scr_printf("%c", buf[i]);
 		}
 	}
 	color(DIM_WHITE);

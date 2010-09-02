@@ -360,17 +360,14 @@ void upload(CtdlIPC *ipc, int c)
 			fclose(fp);
 			exit(0);
 		case 1:
-			screen_reset();
 			stty_ctdl(3);
 			execlp("rx", "rx", flnm, NULL);
 			exit(1);
 		case 2:
-			screen_reset();
 			stty_ctdl(3);
 			execlp("rb", "rb", NULL);
 			exit(1);
 		case 3:
-			screen_reset();
 			stty_ctdl(3);
 			execlp("rz", "rz", NULL);
 			exit(1);
@@ -380,7 +377,6 @@ void upload(CtdlIPC *ipc, int c)
 			b = ka_wait(&a);
 		} while ((b != xfer_pid) && (b != (-1)));
 	stty_ctdl(0);
-	screen_set();
 
 	if (a != 0) {
 		scr_printf("\r*** Transfer unsuccessful.\n");
@@ -515,7 +511,6 @@ void subshell(void)
 {
 	int a, b;
 
-	screen_reset();
 	stty_ctdl(SB_RESTORE);
 	a = fork();
 	if (a == 0) {
@@ -529,7 +524,6 @@ void subshell(void)
 		b = ka_wait(NULL);
 	} while ((a != b) && (a != (-1)));
 	stty_ctdl(0);
-	screen_set();
 }
 
 /*
@@ -578,20 +572,20 @@ void list_bio(CtdlIPC *ipc)
 
 	r = CtdlIPCListUsersWithBios(ipc, &resp, buf);
 	if (r / 100 != 1) {
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 	while (resp && !IsEmptyStr(resp)) {
 		extract_token(buf, resp, 0, '\n', sizeof buf);
 		remove_token(resp, 0, '\n');
 		if ((pos + strlen(buf) + 5) > screenwidth) {
-			pprintf("\n");
+			scr_printf("\n");
 			pos = 1;
 		}
-		pprintf("%s, ", buf);
+		scr_printf("%s, ", buf);
 		pos = pos + strlen(buf) + 2;
 	}
-	pprintf("%c%c  \n\n", 8, 8);
+	scr_printf("%c%c  \n\n", 8, 8);
 	if (resp) free(resp);
 }
 
@@ -608,20 +602,20 @@ void read_bio(CtdlIPC *ipc)
 
 	do {
 		newprompt("Read bio for who ('?' for list) : ", who, 25);
-		pprintf("\n");
+		scr_printf("\n");
 		if (!strcmp(who, "?"))
 			list_bio(ipc);
 	} while (!strcmp(who, "?"));
 
 	r = CtdlIPCGetBio(ipc, who, &resp, buf);
 	if (r / 100 != 1) {
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 	while (!IsEmptyStr(resp)) {
 		extract_token(buf, resp, 0, '\n', sizeof buf);
 		remove_token(resp, 0, '\n');
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 	}
 	if (resp) free(resp);
 }

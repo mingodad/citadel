@@ -74,30 +74,6 @@ void back(int spaces) {
 	}
 }
 
-void hit_any_key(CtdlIPC *ipc) {	/* hit any key to continue */
-	int a,b;
-
-	color(COLOR_PUSH);
-	color(DIM_RED);
-	scr_printf("%s\r", ipc->ServInfo.moreprompt);
-	color(COLOR_POP);
-	stty_ctdl(0);
-	b=inkey();
-	for (a=0; !IsEmptyStr(&ipc->ServInfo.moreprompt[a]); ++a)
-		scr_putc(' ');
-	scr_putc(13);
-	stty_ctdl(1);
-	if ( (rc_prompt_control == 1)
-	   || ((rc_prompt_control == 3) && (userflags & US_PROMPTCTL)) ) {
-		if (b == 'q' || b == 'Q' || b == 's' || b == 'S')
-			b = STOP_KEY;
-		if (b == 'n' || b == 'N')
-			b = NEXT_KEY;
-	}
-	if (b==NEXT_KEY) sigcaught = SIGINT;
-	if (b==STOP_KEY) sigcaught = SIGQUIT;
-}
-
 /*
  * Edit or delete a user (cmd=25 to edit/create, 96 to delete)
  */

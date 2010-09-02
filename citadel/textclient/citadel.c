@@ -168,8 +168,6 @@ void ctdl_logoff(char *file, int line, CtdlIPC *ipc, int code)
 /*
  * now clean up various things
  */
-	screen_delete();
-
 	unlink(temp);
 	unlink(temp2);
 	nukedir(tempdir);
@@ -230,9 +228,7 @@ void formout(CtdlIPC *ipc, char *name)
 		return;
 	}
 	if (text) {
-		fmout(screenwidth, NULL, text, NULL,
-		      ((userflags & US_PAGINATOR) ? 1 : 0),
-		      screenheight, 1, 1);
+		fmout(screenwidth, NULL, text, NULL, 1);
 		free(text);
 	}
 }
@@ -249,12 +245,12 @@ void userlist(CtdlIPC *ipc, char *patn)
 
 	r = CtdlIPCUserListing(ipc, patn, &listing, buf);
 	if (r / 100 != 1) {
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 
-	pprintf("       User Name           Num  L Last Visit Logins Messages\n");
-	pprintf("------------------------- ----- - ---------- ------ --------\n");
+	scr_printf("       User Name           Num  L Last Visit Logins Messages\n");
+	scr_printf("------------------------- ----- - ---------- ------ --------\n");
 	if (listing != NULL) while (!IsEmptyStr(listing)) {
 		extract_token(buf, listing, 0, '\n', sizeof buf);
 		remove_token(listing, 0, '\n');
@@ -262,22 +258,22 @@ void userlist(CtdlIPC *ipc, char *patn)
 		if (sigcaught == 0) {
 		    extract_token(fl, buf, 0, '|', sizeof fl);
 		    if (pattern(fl, patn) >= 0) {
-			pprintf("%-25s ", fl);
-			pprintf("%5ld %d ", extract_long(buf, 2),
+			scr_printf("%-25s ", fl);
+			scr_printf("%5ld %d ", extract_long(buf, 2),
 			       extract_int(buf, 1));
 			lc = extract_long(buf, 3);
 			localtime_r(&lc, &tmbuf);
-			pprintf("%02d/%02d/%04d ",
+			scr_printf("%02d/%02d/%04d ",
 			       (tmbuf.tm_mon + 1),
 			       tmbuf.tm_mday,
 			       (tmbuf.tm_year + 1900));
-			pprintf("%6ld %8ld\n", extract_long(buf, 4), extract_long(buf, 5));
+			scr_printf("%6ld %8ld\n", extract_long(buf, 4), extract_long(buf, 5));
 		    }
 
 		}
 	}
 	free(listing);
-	pprintf("\n");
+	scr_printf("\n");
 }
 
 
@@ -945,7 +941,7 @@ void read_config(CtdlIPC *ipc)
 	/* get misc user info */   
 	r = CtdlIPCGetBio(ipc, fullname, &resp, buf);
 	if (r / 100 != 1) {
-		pprintf("%s\n", buf);
+		scr_printf("%s\n", buf);
 		return;
 	}
 	extract_token(_fullname, buf, 1, '|', sizeof fullname);
@@ -1268,13 +1264,13 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 
 	if (!longlist) {
 		color(BRIGHT_WHITE);
-		pprintf("           User Name               Room          ");
-		if (screenwidth >= 80) pprintf(" Idle        From host");
-		pprintf("\n");
+		scr_printf("           User Name               Room          ");
+		if (screenwidth >= 80) scr_printf(" Idle        From host");
+		scr_printf("\n");
 		color(DIM_WHITE);
-		pprintf("   ------------------------- --------------------");
-		if (screenwidth >= 80) pprintf(" ---- ------------------------");
-		pprintf("\n");
+		scr_printf("   ------------------------- --------------------");
+		if (screenwidth >= 80) scr_printf(" ---- ------------------------");
+		scr_printf("\n");
 	}
 	r = CtdlIPCOnlineUsers(ipc, &listing, &timenow, buf);
 	listing = SortOnlineUsers(listing);
@@ -1308,13 +1304,13 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 				extract_token(actual_room, buf, 9, '|', sizeof actual_room);
 				extract_token(actual_host, buf, 10, '|', sizeof actual_host);
 
-				pprintf("  Flags: %s\n", flags);
-				pprintf("Session: %d\n", extract_int(buf, 0));
-				pprintf("   Name: %s\n", username);
-				pprintf("In room: %s\n", roomname);
-				pprintf("   Host: %s\n", fromhost);
-				pprintf(" Client: %s\n", clientsoft);
-				pprintf("   Idle: %ld:%02ld:%02ld\n",
+				scr_printf("  Flags: %s\n", flags);
+				scr_printf("Session: %d\n", extract_int(buf, 0));
+				scr_printf("   Name: %s\n", username);
+				scr_printf("In room: %s\n", roomname);
+				scr_printf("   Host: %s\n", fromhost);
+				scr_printf(" Client: %s\n", clientsoft);
+				scr_printf("   Idle: %ld:%02ld:%02ld\n",
 					(long) idlehours,
 					(long) idlemins,
 					(long) idlesecs);
@@ -1322,59 +1318,59 @@ void who_is_online(CtdlIPC *ipc, int longlist)
 				if ( (!IsEmptyStr(actual_user)&&
 				      !IsEmptyStr(actual_room)&&
 				      !IsEmptyStr(actual_host))) {
-					pprintf("(really ");
-					if (!IsEmptyStr(actual_user)) pprintf("<%s> ", actual_user);
-					if (!IsEmptyStr(actual_room)) pprintf("in <%s> ", actual_room);
-					if (!IsEmptyStr(actual_host)) pprintf("from <%s> ", actual_host);
-					pprintf(")\n");
+					scr_printf("(really ");
+					if (!IsEmptyStr(actual_user)) scr_printf("<%s> ", actual_user);
+					if (!IsEmptyStr(actual_room)) scr_printf("in <%s> ", actual_room);
+					if (!IsEmptyStr(actual_host)) scr_printf("from <%s> ", actual_host);
+					scr_printf(")\n");
 				}
-				pprintf("\n");
+				scr_printf("\n");
 
 			} else {
 				if (isidle == 0) {
     					if (extract_int(buf, 0) == last_session) {
-    						pprintf("        ");
+    						scr_printf("        ");
     					}
 					else {
     						color(BRIGHT_MAGENTA);
-    						pprintf("%-3s", flags);
+    						scr_printf("%-3s", flags);
     					}
     					last_session = extract_int(buf, 0);
     					color(BRIGHT_CYAN);
-    					pprintf("%-25s ", username);
+    					scr_printf("%-25s ", username);
     					color(BRIGHT_MAGENTA);
     					roomname[20] = 0;
-    					pprintf("%-20s", roomname);
+    					scr_printf("%-20s", roomname);
 
 					if (screenwidth >= 80) {
-						pprintf(" ");
+						scr_printf(" ");
 						if (idletime > rc_idle_threshold) {
 							/* over 1000d, must be gone fishing */
 							if (idlehours > 23999) {
-								pprintf("fish");
+								scr_printf("fish");
 							/* over 10 days */
 							} else if (idlehours > 239) {
-								pprintf("%3ldd", idlehours / 24);
+								scr_printf("%3ldd", idlehours / 24);
 							/* over 10 hours */
 							} else if (idlehours > 9) {
-								pprintf("%1ldd%02ld",
+								scr_printf("%1ldd%02ld",
 									idlehours / 24,
 									idlehours % 24);
 							/* less than 10 hours */
 							}
 							else {
-								pprintf("%1ld:%02ld", idlehours, idlemins);
+								scr_printf("%1ld:%02ld", idlehours, idlemins);
 							}
 						}
 						else {
-							pprintf("    ");
+							scr_printf("    ");
 						}
-						pprintf(" ");
+						scr_printf(" ");
     						color(BRIGHT_CYAN);
     						fromhost[24] = '\0';
-    						pprintf("%-24s", fromhost);
+    						scr_printf("%-24s", fromhost);
 					}
-					pprintf("\n");
+					scr_printf("\n");
     					color(DIM_WHITE);
     	  			}
 			}
@@ -1455,7 +1451,6 @@ int main(int argc, char **argv)
 
 	eCrash_Init(&params);
 #endif	
-	setIPCDeathHook(screen_delete);
 	setIPCErrorPrintf(scr_printf);
 	setCryptoStatusHook(statusHook);
 	
@@ -1552,7 +1547,6 @@ int main(int argc, char **argv)
 	scr_printf("Attaching to server...\n");
 	ipc = CtdlIPC_new(argc, argv, hostbuf, portbuf);
 	if (!ipc) {
-		screen_delete();
 		error_printf("Can't connect: %s\n", strerror(errno));
 		logoff(NULL, 3);
 	}
@@ -2323,7 +2317,6 @@ TERMN8:	scr_printf("%s logged out.", fullname);
 	}
 	CtdlIPCLogout(ipc);
 	if ((mcmd == 29) || (mcmd == 15)) {
-		screen_delete();
 		stty_ctdl(SB_RESTORE);
 		formout(ipc, "goodbye");
 		logoff(ipc, 0);
