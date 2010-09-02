@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This is a data store backend for the Citadel server which uses Berkeley DB.
  *
  * Copyright (c) 1987-2009 by the citadel.org team

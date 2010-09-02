@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Function to generate RFC822-compliant textual time/date stamp
- *
  */
 
 #include "sysdep.h"

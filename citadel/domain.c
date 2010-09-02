@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * DNS lookup for SMTP sender
  *
  *

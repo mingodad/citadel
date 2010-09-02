@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This module handles client-side sockets opened by the Citadel server (for
  * the client side of Internet protocols, etc.)   It does _not_ handle client
  * sockets for the Citadel client; for that you must look in ipc_c_tcp.c

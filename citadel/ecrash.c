@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * author: David Frascone
  * 
  *  eCrash Implementation

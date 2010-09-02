@@ -1,6 +1,4 @@
 /* 
- * $Id$
- *
  * Main source module for the Citadel server
  *
  * Copyright (c) 1987-2010 by the citadel.org team

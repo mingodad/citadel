@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
  * Index messages by EUID per room.
- *
  */
 
 #include "sysdep.h"

@@ -1,8 +1,5 @@
 /* 
- * $Id$
- *
  * Server functions which handle file transfers and room directories.
- *
  */
 
 #include "sysdep.h"
