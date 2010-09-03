@@ -973,8 +973,6 @@ void read_config(CtdlIPC *ipc)
 	scr_printf("\n");
 
 	/* show preferences */
-	scr_printf("Your screen width: ");                                     color(BRIGHT_CYAN); scr_printf("%d",   /*user->USscreenwidth*/ screenwidth);          color(DIM_WHITE); 
-	scr_printf(", height: ");                                              color(BRIGHT_CYAN); scr_printf("%d\n", /*user->USscreenheight*/ screenheight);        color(DIM_WHITE);  
 	scr_printf("Are you an experienced Citadel user: ");                   color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_EXPERT) ? "Yes" : "No");     color(DIM_WHITE);
 	scr_printf("Print last old message on New message request: ");         color(BRIGHT_CYAN); scr_printf("%s\n", (user->flags & US_LASTOLD)? "Yes" : "No");     color(DIM_WHITE);
 	scr_printf("Prompt after each message: ");                             color(BRIGHT_CYAN); scr_printf("%s\n", (!(user->flags & US_NOPROMPT))? "Yes" : "No"); color(DIM_WHITE);
@@ -1782,17 +1780,11 @@ NEWUSR:	if (IsEmptyStr(rc_password)) {
 	screenwidth = 80;
 	screenheight = 24;
 	r = CtdlIPCGetConfig(ipc, &myself, aaa);
-	if (r == 2) {
-		screenwidth = myself->USscreenwidth;
-		screenheight = myself->USscreenheight;
-	}
 	if (getenv("TERM") != NULL)
 		if (!strcmp(getenv("TERM"), "xterm")) {
 			have_xterm = 1;
 		}
-#ifdef TIOCGWINSZ
 	check_screen_dims();
-#endif
 
 	set_floor_mode(ipc);
 

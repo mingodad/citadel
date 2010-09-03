@@ -226,17 +226,6 @@ void enter_config(CtdlIPC *ipc, int mode)
 
 	if (mode == 0 || mode == 1) {
 
-		/* Does anyone still use dialup connections with manual
-		 * screen dimensions setting anymore?  For now we'll keep
-		 * the system's ability to set these, but remove the prompts
-		 * because they're spurious for nearly everyone.
-		 * 
-		user->USscreenwidth = intprompt("Enter your screen width",
-						user->USscreenwidth, 20, 255);
-		user->USscreenheight = intprompt("Enter your screen height",
-						 user->USscreenheight, 3, 255);
-		 */
- 
 		user->flags = set_attr(ipc, user->flags,
 				       "Are you an experienced Citadel user",
 				       US_EXPERT, 0);
@@ -245,49 +234,90 @@ void enter_config(CtdlIPC *ipc, int mode)
 			return;
 		}
 
-		user->flags = set_attr(ipc, user->flags,
+		user->flags = set_attr(
+			ipc,
+			user->flags,
 			"Print last old message on New message request",
-			US_LASTOLD, 0);
+			US_LASTOLD,
+			0
+		);
 
-		user->flags = set_attr(ipc, user->flags,
-				       "Prompt after each message",
-				       US_NOPROMPT, 1);
+		user->flags = set_attr(
+			ipc,
+			user->flags,
+			"Prompt after each message",
+			US_NOPROMPT,
+			1
+		);
 
-		if ((user->flags & US_NOPROMPT) == 0)
-			user->flags = set_attr(ipc, user->flags,
-					       "Use 'disappearing' prompts",
-					       US_DISAPPEAR, 0);
+		if ((user->flags & US_NOPROMPT) == 0) {
+			user->flags = set_attr(
+				ipc,
+				user->flags,
+				"Use 'disappearing' prompts",
+				US_DISAPPEAR,
+				0
+			);
+		}
 
-		user->flags = set_attr(ipc, user->flags,
-				       "Pause after each screenful of text",
-				       US_PAGINATOR, 0);
+		user->flags = set_attr(
+			ipc,
+			user->flags,
+			"Pause after each screenful of text",
+			US_PAGINATOR,
+			0
+		);
 
-		if (rc_prompt_control == 3 && (user->flags & US_PAGINATOR))
-			user->flags = set_attr(ipc, user->flags,
+		if (rc_prompt_control == 3 && (user->flags & US_PAGINATOR)) {
+			user->flags = set_attr(
+				ipc,
+				user->flags,
 				"<N>ext and <S>top work at paginator prompt",
-				US_PROMPTCTL, 0);
+				US_PROMPTCTL,
+				0
+			);
+		}
 
-		if (rc_floor_mode == RC_DEFAULT)
-			user->flags = set_attr(ipc, user->flags,
-					       "View rooms by floor",
-					       US_FLOORS, 0);
+		if (rc_floor_mode == RC_DEFAULT) {
+			user->flags = set_attr(
+				ipc,
+				user->flags,
+				"View rooms by floor",
+				US_FLOORS,
+				0
+			);
+		}
 
-		if (rc_ansi_color == 3)
-			user->flags = set_attr(ipc, user->flags,
-					       "Enable color support",
-					       US_COLOR, 0);
+		if (rc_ansi_color == 3) {
+			user->flags = set_attr(
+				ipc,
+				user->flags,
+				"Enable color support",
+				US_COLOR,
+				0
+			);
+		}
 
-	 	if ((user->flags & US_EXPERT) == 0)
+	 	if ((user->flags & US_EXPERT) == 0) {
 			formout(ipc, "unlisted");
+		}
 
-		user->flags = set_attr(ipc, user->flags,
-				       "Be unlisted in userlog",
-				       US_UNLISTED, 0);
+		user->flags = set_attr(
+			ipc,
+			user->flags,
+			"Be unlisted in userlog",
+			US_UNLISTED,
+			0
+		);
 
 		if (!IsEmptyStr(editor_paths[0])) {
-			user->flags = set_attr(ipc, user->flags,
+			user->flags = set_attr(
+				ipc,
+				user->flags,
 				"Always enter messages with the full-screen editor",
-				US_EXTEDIT, 0);
+				US_EXTEDIT,
+				0
+			);
 		}
 
 	}

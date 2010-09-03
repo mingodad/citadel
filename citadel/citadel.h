@@ -151,8 +151,6 @@ struct ctdluser {			/* User record                      */
 	time_t lastcall;		/* Date/time of most recent login    */
 	int USuserpurge;		/* Purge time (in days) for user     */
 	char fullname[64];		/* Display name (primary identifier) */
-	cit_uint8_t USscreenwidth;	/* Screen width (for textmode users) */
-	cit_uint8_t USscreenheight;	/* Screen height(for textmode users) */
 };
 
 

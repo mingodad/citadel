@@ -1106,8 +1106,6 @@ int internal_create_user (const char *username, long len, struct ctdluser *usbuf
 	usbuf->timescalled = 0;
 	usbuf->posted = 0;
 	usbuf->axlevel = config.c_initax;
-	usbuf->USscreenwidth = 80;
-	usbuf->USscreenheight = 24;
 	usbuf->lastcall = time(NULL);
 
 	/* fetch a new user number */
@@ -1412,12 +1410,10 @@ void cmd_getu(char *cmdbuf)
 		return;
 
 	CtdlGetUser(&CC->user, CC->curr_user);
-	cprintf("%d %d|%d|%d|\n",
+	cprintf("%d 80|24|%d|\n",
 		CIT_OK,
-		CC->user.USscreenwidth,
-		CC->user.USscreenheight,
 		(CC->user.flags & US_USER_SET)
-	    );
+	);
 }
 
 /*
@@ -1433,12 +1429,8 @@ void cmd_setu(char *new_parms)
 		return;
 	}
 	CtdlGetUserLock(&CC->user, CC->curr_user);
-	CC->user.USscreenwidth = extract_int(new_parms, 0);
-	CC->user.USscreenheight = extract_int(new_parms, 1);
 	CC->user.flags = CC->user.flags & (~US_USER_SET);
-	CC->user.flags = CC->user.flags |
-	    (extract_int(new_parms, 2) & US_USER_SET);
-
+	CC->user.flags = CC->user.flags | (extract_int(new_parms, 2) & US_USER_SET);
 	CtdlPutUserLock(&CC->user);
 	cprintf("%d Ok\n", CIT_OK);
 }

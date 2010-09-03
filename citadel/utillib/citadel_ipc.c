@@ -363,8 +363,6 @@ int CtdlIPCGetConfig(CtdlIPC *ipc, struct ctdluser **uret, char *cret)
 
 	ret = CtdlIPCGenericCommand(ipc, "GETU", NULL, 0, NULL, NULL, cret);
 	if (ret / 100 == 2) {
-		uret[0]->USscreenwidth = extract_int(cret, 0);
-		uret[0]->USscreenheight = extract_int(cret, 1);
 		uret[0]->flags = extract_int(cret, 2);
 	}
 	return ret;
@@ -379,9 +377,10 @@ int CtdlIPCSetConfig(CtdlIPC *ipc, struct ctdluser *uret, char *cret)
 	if (!uret) return -2;
 	if (!cret) return -2;
 
-	sprintf(aaa, "SETU %d|%d|%d",
-			uret->USscreenwidth, uret->USscreenheight,
-			uret->flags);
+	sprintf(aaa,
+		"SETU 80|24|%d",
+		uret->flags
+	);
 	return CtdlIPCGenericCommand(ipc, aaa, NULL, 0, NULL, NULL, cret);
 }
 
