@@ -102,7 +102,7 @@ typedef enum _room_views {
 	VIEW_WIKI		= 6,	/* Wiki view */
 	VIEW_CALBRIEF		= 7,	/* Brief Calendar view */
 	VIEW_JOURNAL		= 8,	/* Journal view */
-	VIEW_BLOG		= 9,	/* Blog view (not yet implemented) */
+	VIEW_BLOG		= 9,	/* Blog view */
 	VIEW_MAX
 } ROOM_VIEWS;
 
