@@ -39,6 +39,7 @@ struct bbsview {
 	int alloc_msgs;		/* Currently allocated size of array */
 	int requested_page;	/* Which page number did the user request? */
 	int num_pages;		/* Total number of pages in this room */
+	long start_reading_at;	/* Start reading at the page containing this message */
 };
 
 
@@ -83,14 +84,25 @@ int bbsview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 	memset(BBS, 0, sizeof(struct bbsview));
 	*ViewSpecific = BBS;
 
-	Stat->startmsg = -1;					/* not used here */
+	Stat->startmsg = (-1);					/* not used here */
 	Stat->sortit = 1;					/* not used here */
 	Stat->num_displayed = DEFAULT_MAXMSGS;			/* not used here */
 	BBS->requested_page = 0;
 	BBS->lastseen = bbsview_get_last_seen();
+	BBS->start_reading_at = 0;
 
-	/* If a specific page was requested, make sure we go there */
-	if (havebstr("page")) {
+	/* By default, the requested page is the first one. */
+	if (havebstr("start_reading_at")) {
+		BBS->start_reading_at = lbstr("start_reading_at");
+		BBS->requested_page = (-4);
+	}
+
+	/* However, if we are asked to start with a specific message number, make sure
+	 * we start on the page containing that message
+	 */
+
+	/* Or, if a specific page was requested, make sure we go there */
+	else if (havebstr("page")) {
 		BBS->requested_page = ibstr("page");
 	}
 
@@ -179,6 +191,25 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	}
 	else {
 		BBS->num_pages = (BBS->num_msgs / Stat->maxmsgs) + 1;
+	}
+
+	/* If the requested page number is "whichever page on which msg#xxxxx starts"
+	 * then find the page number which contains that message.
+	 */
+	if (BBS->requested_page == (-4)) {
+		if (BBS->num_msgs == 0) {
+			BBS->requested_page = 0;
+		}
+		else {
+			for (i=0; i<BBS->num_msgs; ++i) {
+				if (
+					(BBS->msgs[i] >= BBS->start_reading_at)
+					&& (BBS->requested_page == (-4))
+				) {
+					BBS->requested_page = (i / Stat->maxmsgs) ;
+				}
+			}
+		}
 	}
 
 	/* If the requested page number is "whichever page on which new messages start"
