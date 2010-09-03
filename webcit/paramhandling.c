@@ -54,7 +54,7 @@ void ParseURLParams(StrBuf *url)
 			continue;
 		}
 		
-		if (strncmp(u->url_key, HKEY("__")) != 0)
+		if (strncmp(u->url_key, "__", 2) != 0)
 		{
 			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 			len = bptr - aptr;
@@ -320,7 +320,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		keylen = safestrncpy(u->url_key, name, sizeof(u->url_key));
 		u->url_data = NewStrBufPlain(content, length);
 		
-		if (strncmp(u->url_key, HKEY("__")) != 0)
+		if (strncmp(u->url_key, "__", 2) != 0)
 		{
 			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 		}
