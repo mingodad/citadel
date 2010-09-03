@@ -274,10 +274,11 @@ int CtdlAccessCheck(int);
  */
 enum {
 	ac_none,
+	ac_logged_in_or_guest,
 	ac_logged_in,
 	ac_room_aide,
 	ac_aide,
-	ac_internal
+	ac_internal,
 };
 
 

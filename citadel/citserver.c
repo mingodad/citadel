@@ -659,6 +659,11 @@ int CtdlAccessCheck(int required_level) {
 		return(-1);
 	}
 
+	if ((required_level >= ac_logged_in_or_guest) && (CC->logged_in == 0) && (!config.c_guest_logins)) {
+		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
+		return(-1);
+	}
+
 	if ((required_level >= ac_logged_in) && (CC->logged_in == 0)) {
 		cprintf("%d Not logged in.\n", ERROR + NOT_LOGGED_IN);
 		return(-1);
