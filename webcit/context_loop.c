@@ -306,6 +306,7 @@ int ReadHttpSubject(ParsedHttpHdrs *Hdr, StrBuf *Line, StrBuf *Buf)
 	}
 
 	StrBufAppendBuf(Hdr->this_page, Hdr->HR.ReqLine, 0);
+
 	/* chop Filename / query arguments */
 	Args = strchr(ChrPtr(Hdr->HR.ReqLine), '?');
 	if (Args == NULL) /* whe're not that picky about params... TODO: this will spoil '&' in filenames.*/

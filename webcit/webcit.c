@@ -119,17 +119,17 @@ void wDumpContent(int print_standard_html_footer)
 /*
  * Output HTTP headers and leading HTML for a page
  */
-void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers                          */
+void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 			int do_htmlhead,	/* 1 = output HTML <head> section and <body> opener */
 
-			int do_room_banner,	/* 0=no, 1=yes,                                     
+			int do_room_banner,	/* 0=no, 1=yes,				     
 						 * 2 = I'm going to embed my own, so don't open the 
-						 *     <div id="content"> either.                   
+						 *     <div id="content"> either.		   
 						 */
 
 			int unset_cookies,	/* 1 = session is terminating, so unset the cookies */
-			int suppress_check,	/* 1 = suppress check for instant messages          */
-			int cache		/* 1 = allow browser to cache this page             */
+			int suppress_check,	/* 1 = suppress check for instant messages	  */
+			int cache		/* 1 = allow browser to cache this page	     */
 ) {
 	wcsession *WCC = WC;
 	char httpnow[128];
@@ -363,21 +363,21 @@ void begin_ajax_response(void) {
 	wcsession *WCC = WC;
 
 	FlushStrBuf(WCC->HBuf);
-        output_headers(0, 0, 0, 0, 0, 0);
+	output_headers(0, 0, 0, 0, 0, 0);
 
-        hprintf("Content-type: text/html; charset=UTF-8\r\n"
-                "Server: %s\r\n"
-                "Connection: close\r\n"
+	hprintf("Content-type: text/html; charset=UTF-8\r\n"
+		"Server: %s\r\n"
+		"Connection: close\r\n"
 		,
-                PACKAGE_STRING);
-        begin_burst();
+		PACKAGE_STRING);
+	begin_burst();
 }
 
 /*
  * print ajax response footer 
  */
 void end_ajax_response(void) {
-        wDumpContent(0);
+	wDumpContent(0);
 }
 
 
@@ -623,6 +623,14 @@ void session_loop(void)
 
 	Buf = NewStrBuf();
 	WCC->trailing_javascript = NewStrBuf();
+
+	/* Convert base64-encoded URL's back to plain text */
+	if (!strncmp(ChrPtr(WCC->Hdr->this_page), "/B64", 4)) {
+		StrBufCutLeft(WCC->Hdr->this_page, 4);
+		StrBufDecodeBase64(WCC->Hdr->this_page);
+		http_redirect(ChrPtr(WCC->Hdr->this_page));
+		goto SKIP_ALL_THIS_CRAP;
+	}
 
 	/* If there are variables in the URL, we must grab them now */
 	if (WCC->Hdr->PlainArgs != NULL)
