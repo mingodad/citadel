@@ -52,6 +52,20 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 {
 	int retval = 0;
 	visit vbuf;
+	int is_me = 0;
+
+	if (userbuf == &CC->user) {
+		is_me = 1;
+	}
+
+	/*** temporary ObviousLog(tm) -- disregard this
+	if (is_me) {
+		CtdlLogPrintf(CTDL_DEBUG, "\033[32muserbuf==CC\033[0m\n");
+	}
+	else {
+		CtdlLogPrintf(CTDL_DEBUG, "\033[31muserbuf!=CC\033[0m\n");
+	}
+	***/
 
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
@@ -61,7 +75,12 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 
 	/* If guest mode is enabled, always grant access to the Lobby */
-	if ( (!CC->logged_in) && (config.c_guest_logins) && (!strcasecmp(roombuf->QRname, BASEROOM)) ) {
+	if (
+		(is_me)
+		&& (!CC->logged_in)
+		&& (config.c_guest_logins)
+		&& (!strcasecmp(roombuf->QRname, BASEROOM))
+	) {
 		retval = (UA_KNOWN | UA_GOTOALLOWED);
 		vbuf.v_view = 0;
 		goto SKIP_EVERYTHING;
@@ -132,8 +151,8 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		 * - It is a read-only room
 		 */
 		int post_allowed = 1;
-		if (CC->user.axlevel < AxProbU) post_allowed = 0;
-		if ((CC->user.axlevel < AxNetU) && (CC->room.QRflags & QR_NETWORK)) post_allowed = 0;
+		if (userbuf->axlevel < AxProbU) post_allowed = 0;
+		if ((userbuf->axlevel < AxNetU) && (roombuf->QRflags & QR_NETWORK)) post_allowed = 0;
 		if (roombuf->QRflags & QR_READONLY) post_allowed = 0;
 		if (post_allowed) {
 			retval = retval | UA_POSTALLOWED;
@@ -142,7 +161,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		/* If "collaborative deletion" is active for this room, any user who can post
 		 * is also allowed to delete
 		 */
-		if (CC->room.QRflags2 & QR2_COLLABDEL) {
+		if (roombuf->QRflags2 & QR2_COLLABDEL) {
 			if (retval & UA_POSTALLOWED) {
 				retval = retval | UA_DELETEALLOWED;
 			}
