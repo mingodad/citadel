@@ -797,6 +797,8 @@ void cmd_msgs(char *cmdbuf)
 	char search_string[1024];
 	ForEachMsgCallback CallBack;
 
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
+
 	extract_token(which, cmdbuf, 0, '|', sizeof which);
 	cm_ref = extract_int(cmdbuf, 1);
 	extract_token(search_string, cmdbuf, 1, '|', sizeof search_string);
@@ -832,11 +834,6 @@ void cmd_msgs(char *cmdbuf)
 		mode = MSGS_SEARCH;
 	else
 		mode = MSGS_ALL;
-
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
-		cprintf("%d not logged in\n", ERROR + NOT_LOGGED_IN);
-		return;
-	}
 
 	if ( (mode == MSGS_SEARCH) && (!config.c_enable_fulltext) ) {
 		cprintf("%d Full text index is not enabled on this server.\n",

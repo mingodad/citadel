@@ -695,10 +695,7 @@ void cmd_lrms(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
-	if (CtdlGetUser(&CC->user, CC->curr_user)) {
-		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
-		return;
-	}
+	CtdlGetUser(&CC->user, CC->curr_user);
 	cprintf("%d Accessible rooms:\n", LISTING_FOLLOWS);
 
 	CtdlForEachRoom(cmd_lrms_backend, &FloorBeingSearched);
@@ -733,10 +730,7 @@ void cmd_lkra(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
-	if (CtdlGetUser(&CC->user, CC->curr_user)) {
-		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
-		return;
-	}
+	CtdlGetUser(&CC->user, CC->curr_user);
 	cprintf("%d Known rooms:\n", LISTING_FOLLOWS);
 
 	CtdlForEachRoom(cmd_lkra_backend, &FloorBeingSearched);
@@ -802,10 +796,7 @@ void cmd_lkrn(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
-	if (CtdlGetUser(&CC->user, CC->curr_user)) {
-		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
-		return;
-	}
+	CtdlGetUser(&CC->user, CC->curr_user);
 	cprintf("%d Rooms w/ new msgs:\n", LISTING_FOLLOWS);
 
 	CtdlForEachRoom(cmd_lkrn_backend, &FloorBeingSearched);
@@ -841,10 +832,7 @@ void cmd_lkro(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
-	if (CtdlGetUser(&CC->user, CC->curr_user)) {
-		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
-		return;
-	}
+	CtdlGetUser(&CC->user, CC->curr_user);
 	cprintf("%d Rooms w/o new msgs:\n", LISTING_FOLLOWS);
 
 	CtdlForEachRoom(cmd_lkro_backend, &FloorBeingSearched);
@@ -880,10 +868,7 @@ void cmd_lzrm(char *argbuf)
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
-	if (CtdlGetUser(&CC->user, CC->curr_user)) {
-		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
-		return;
-	}
+	CtdlGetUser(&CC->user, CC->curr_user);
 	cprintf("%d Zapped rooms:\n", LISTING_FOLLOWS);
 
 	CtdlForEachRoom(cmd_lzrm_backend, &FloorBeingSearched);
