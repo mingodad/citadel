@@ -3,10 +3,7 @@
  */
 
 #define SHOW_ME_VAPPEND_PRINTF
-
 #include "ctdl_module.h"
-
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -112,8 +109,8 @@ void SetTitles(void)
 	setup_titles[eLDAP_Bind_PW] = _("LDAP bind password:");//
 }
 
-/**
- * \brief print the actual stack frame.
+/*
+ * print the actual stack frame.
  */
 void cit_backtrace(void)
 {
@@ -121,7 +118,6 @@ void cit_backtrace(void)
 	void *stack_frames[50];
 	size_t size, i;
 	char **strings;
-
 
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
 	strings = backtrace_symbols(stack_frames, size);
@@ -137,8 +133,8 @@ void cit_backtrace(void)
 
 struct config config;
 
-	/* calculate all our path on a central place */
-    /* where to keep our config */
+/* calculate all our path on a central place */
+/* where to keep our config */
 	
 
 char *setup_text[] = {
@@ -331,8 +327,7 @@ void progress(char *text, long int curr, long int cmax)
 	case UI_TEXT:
 		if (curr == 0) {
 			printf("%s\n", text);
-			printf("..........................");
-			printf("..........................");
+			printf("....................................................");
 			printf("..........................\r");
 			fflush(stdout);
 			dots_printed = 0;
@@ -416,7 +411,6 @@ void check_services_entry(void)
 
 /*
  * delete_inittab_entry()  -- Remove obsolete /etc/inittab entry for Citadel
- *
  */
 void delete_inittab_entry(void)
 {
@@ -486,7 +480,6 @@ void delete_inittab_entry(void)
 
 /*
  * install_init_scripts()  -- Try to configure to start Citadel at boot
- *
  */
 void install_init_scripts(void)
 {
@@ -590,9 +583,6 @@ void install_init_scripts(void)
 	rv = system(command);
 
 }
-
-
-
 
 
 
@@ -1433,8 +1423,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-/***** begin version update section ***** */
-	/* take care of any updating that is necessary */
+	/***** begin version update section *****/
 
 	old_setup_level = config.c_setup_level;
 
@@ -1443,21 +1432,21 @@ int main(int argc, char *argv[])
 	}
 
 	if (old_setup_level < 555) {
-		important_message("Citadel Setup",
-				  "This Citadel installation is too old "
-				  "to be upgraded.");
+		important_message(
+			"Citadel Setup",
+			"This Citadel installation is too old to be upgraded."
+		);
 		cleanup(1);
 	}
 	write_config_to_disk();
 
 	old_setup_level = config.c_setup_level;
 
-	/* end of version update section */
+	/***** end of version update section *****/
 
 NEW_INST:
 	config.c_setup_level = REV_LEVEL;
 
-/******************************************/
 	if ((pw = getpwuid(config.c_ctdluid)) == NULL) {
 		gid = getgid();
 	} else {
@@ -1470,16 +1459,19 @@ NEW_INST:
 
         migrate_old_installs();	/* Delete files and directories used by older Citadel versions */
 
-	if (((setup_type == UI_SILENT) && (getenv("ALTER_ETC_SERVICES")!=NULL)) || 
-	    (setup_type != UI_SILENT))
+	if (	((setup_type == UI_SILENT)
+		&& (getenv("ALTER_ETC_SERVICES")!=NULL))
+		|| (setup_type != UI_SILENT)
+	) {
 		check_services_entry();	/* Check /etc/services */
+	}
+
 #ifndef __CYGWIN__
 	delete_inittab_entry();	/* Remove obsolete /etc/inittab entry */
 	check_xinetd_entry();	/* Check /etc/xinetd.d/telnet */
 	disable_other_mtas();   /* Offer to disable other MTAs */
-
+	fixnss();		/* Check for the 'db' nss and offer to disable it */
 #endif
-	fixnss();	/* Check for the 'db' nss and offer to disable it */
 
 	progress("Setting file permissions", 1, 3);
 	rv = chown(file_citadel_config, config.c_ctdluid, gid);
@@ -1487,7 +1479,7 @@ NEW_INST:
 	rv = chmod(file_citadel_config, S_IRUSR | S_IWUSR);
 	progress("Setting file permissions", 3, 3);
 
-	check_init_script (relhome);
+	check_init_script(relhome);
 	cleanup(0);
 	return 0;
 }
