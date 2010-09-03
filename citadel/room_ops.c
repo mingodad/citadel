@@ -60,6 +60,13 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		goto SKIP_EVERYTHING;
 	}
 
+	/* If guest mode is enabled, always grant access to the Lobby */
+	if ( (!CC->logged_in) && (config.c_guest_logins) && (!strcasecmp(roombuf->QRname, BASEROOM)) ) {
+		retval = (UA_KNOWN | UA_GOTOALLOWED);
+		vbuf.v_view = 0;
+		goto SKIP_EVERYTHING;
+	}
+
 	/* Locate any applicable user/room relationships */
 	CtdlGetRelationship(&vbuf, userbuf, roombuf);
 
@@ -1077,7 +1084,7 @@ void cmd_goto(char *gargs)
 	char password[32];
 	int transiently = 0;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if ((!config.c_guest_logins) && (CtdlAccessCheck(ac_logged_in))) return;
 
 	extract_token(towhere, gargs, 0, '|', sizeof towhere);
 	extract_token(password, gargs, 1, '|', sizeof password);
