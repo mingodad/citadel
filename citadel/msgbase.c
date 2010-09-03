@@ -1457,16 +1457,18 @@ void extract_encapsulated_message(char *name, char *filename, char *partnum, cha
 		memcpy(encap->msg, content, length);
 		return;
 	}
-
 }
 
 
-
-
-
-
+/* 
+ * Determine whether the currently logged in session has permission to read
+ * messages in the current room.
+ */
 int CtdlDoIHavePermissionToReadMessagesInThisRoom(void) {
-	if ((!(CC->logged_in)) && (!(CC->internal_pgm))) {
+	if (	(!(CC->logged_in))
+		&& (!(CC->internal_pgm))
+		&& (!config.c_guest_logins)
+	) {
 		return(om_not_logged_in);
 	}
 	return(om_ok);
