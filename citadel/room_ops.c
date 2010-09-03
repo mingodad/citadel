@@ -678,7 +678,7 @@ void cmd_lrms(char *argbuf)
 	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
@@ -716,7 +716,7 @@ void cmd_lkra(char *argbuf)
 	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
 	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
@@ -785,7 +785,7 @@ void cmd_lkrn(char *argbuf)
 	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
 	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
@@ -824,7 +824,7 @@ void cmd_lkro(char *argbuf)
 	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
 	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
@@ -863,7 +863,7 @@ void cmd_lzrm(char *argbuf)
 	if (!IsEmptyStr(argbuf))
 		FloorBeingSearched = extract_int(argbuf, 0);
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 	
 	if (CtdlGetUser(&CC->user, CC->curr_user)) {
 		cprintf("%d Can't locate user!\n", ERROR + INTERNAL_ERROR);
@@ -1084,7 +1084,7 @@ void cmd_goto(char *gargs)
 	char password[32];
 	int transiently = 0;
 
-	if ((!config.c_guest_logins) && (CtdlAccessCheck(ac_logged_in))) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	extract_token(towhere, gargs, 0, '|', sizeof towhere);
 	extract_token(password, gargs, 1, '|', sizeof password);
