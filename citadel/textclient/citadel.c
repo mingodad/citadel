@@ -531,6 +531,14 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 		}
 	}
 	free(room);
+
+	if (screenwidth>5) snprintf(&status_line[1], screenwidth-1, "%s  |  %s  |  %s  |  %s  |  %d new mail  |",
+		(secure ? "Encrypted" : "Unencrypted"),
+		ipc->ServInfo.humannode,
+		ipc->ServInfo.site_location,
+		room_name,
+		newmailcount
+	);
 }
 
 /* Goto next room having unread messages.
@@ -1549,6 +1557,8 @@ int main(int argc, char **argv)
 		error_printf("Can't connect: %s\n", strerror(errno));
 		logoff(NULL, 3);
 	}
+
+	CtdlIPC_SetNetworkStatusCallback(ipc, scr_wait_indicator);
 
 	if (!(ipc->isLocal)) {
 		scr_printf("Connected to %s [%s].\n", ipc->ip_hostname, ipc->ip_address);

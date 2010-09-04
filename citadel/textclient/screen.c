@@ -20,7 +20,7 @@
 #include "commands.h"
 #include "screen.h"
 
-char arg_screen;
+char status_line[1024] = "     ";
 
 /* the default paginator prompt will be replaced by the server's prompt when we learn it */
 char *moreprompt = " -- more -- ";
@@ -161,7 +161,13 @@ int scr_putc(int c)
 		}
 	}
 
-	if ((screenheight > 0) && (lines_printed > (screenheight-2))) { /* -3 if we add status line */
+	/* How many lines output before stopping for the paginator?
+	 * Depends on whether we are displaying a status line.
+	 */
+	int height_offset = ( ((enable_color) && (screenwidth > 0)) ? (3) : (2) ) ;
+
+	/* Ok, go check it.  Stop and display the paginator prompt if necessary. */
+	if ((screenheight > 0) && (lines_printed > (screenheight-height_offset))) {
 		lines_printed = 0;
 		hit_any_key();
 		lines_printed = 0;
@@ -171,36 +177,16 @@ int scr_putc(int c)
 	return c;
 }
 
-/*
-char status_line[1024] =
-	" This is the status line, status line, status line, this is "
-	"the status line, all day long. *****************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************"
-	"************************************************************";
-*/
-
 void scr_flush(void)
 {
-	/*
 	if ((enable_color) && (screenwidth > 0)) {
+		if (strlen(status_line) < screenwidth) {
+			memset(&status_line[strlen(status_line)], 32, screenwidth - strlen(status_line));
+		}
 		printf("\033[s\033[1;1H\033[K\033[7m");
 		fwrite(status_line, screenwidth, 1, stdout);
 		printf("\033[27m\033[u");
 	}
-	*/
 	fflush(stdout);
 }
 
@@ -222,3 +208,32 @@ RETSIGTYPE scr_winch(int signum)
 	check_screen_dims();
 	signal(SIGWINCH, scr_winch);
 }
+
+
+
+/*
+ * Display a 3270-style "wait" indicator at the bottom of the screen
+ */
+void scr_wait_indicator(int state) {
+	int sp = (screenwidth - 2);
+
+	if (screenwidth > 0) {
+		switch (state) {
+			default:
+			case 0:	 /* Idle */
+				status_line[sp] = ' ';
+				break;
+			case 1:	 /* Waiting */
+				status_line[sp] = 'X';
+				break;
+			case 2:	 /* Receiving */
+				status_line[sp] = '<';
+				break;
+			case 3:	 /* Sending */
+				status_line[sp] = '>';
+				break;
+		}
+		scr_flush();
+	}
+}
+
