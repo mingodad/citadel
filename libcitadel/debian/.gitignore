@@ -1,0 +1,6 @@
+*.log
+*.substvars
+*.debhelper
+libcitadel2-dbg
+libcitadel2
+files
