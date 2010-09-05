@@ -71,6 +71,7 @@ typedef enum _SetupStep {
 
 ///"CREATE_XINETD_ENTRY";
 const char *EnvNames [eMaxQuestions] = {
+        "HOME_DIRECTORY",
 	"SYSADMIN_NAME",
 	"SYSADMIN_PW",
 	"CITADEL_UID",
@@ -82,7 +83,6 @@ const char *EnvNames [eMaxQuestions] = {
 	"LDAP_BASE_DN",
 	"LDAP_BIND_DN",
 	"LDAP_BIND_PW"
-""
 };
 
 int setup_type;
