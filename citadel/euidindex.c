@@ -69,6 +69,7 @@ int DoesThisRoomNeedEuidIndexing(struct ctdlroom *qrbuf) {
 		case VIEW_BBS:		return(0);
 		case VIEW_MAILBOX:	return(0);
 		case VIEW_ADDRESSBOOK:	return(1);
+		case VIEW_DRAFTS:       return(0);
 		case VIEW_CALENDAR:	return(1);
 		case VIEW_TASKS:	return(1);
 		case VIEW_NOTES:	return(1);
