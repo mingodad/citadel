@@ -3,23 +3,24 @@
  *
  * Note: we briefly had a dynamic UI for this.  I thought it was cool, but
  * it was not received well by the user community.  If you want to play
- * with it, go get r8256 of bbsview_renderer.c and have fun.
+ * with it, go get commit dcf99fe61379b78436c387ea3f89ebfd4ffaf635 of
+ * bbsview_renderer.c and have fun.
  *
  * Copyright (c) 1996-2010 by the citadel.org team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #define RANGE 5
@@ -193,8 +194,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		BBS->num_pages = (BBS->num_msgs / Stat->maxmsgs) + 1;
 	}
 
-	/* If the requested page number is "whichever page on which msg#xxxxx starts"
-	 * then find the page number which contains that message.
+	/* If the requested page number is -4,
+	 * it means "whichever page on which msg#xxxxx starts"
+	 * Change to the page number which contains that message.
 	 */
 	if (BBS->requested_page == (-4)) {
 		if (BBS->num_msgs == 0) {
@@ -212,8 +214,9 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 		}
 	}
 
-	/* If the requested page number is "whichever page on which new messages start"
-	 * then change that to an actual page number now.
+	/* If the requested page number is -3,
+	 * it means "whichever page on which new messages start"
+	 * Change that to an actual page number now.
 	 */
 	if (BBS->requested_page == (-3)) {
 		if (BBS->num_msgs == 0) {
