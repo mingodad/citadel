@@ -7,6 +7,6 @@ webcit-*
 libcitadel-*
 citadel-*
 tmp
-webcit_
-citadel_
-libcitadel_
+webcit_*
+citadel_*
+libcitadel_*
