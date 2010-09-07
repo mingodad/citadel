@@ -7,99 +7,61 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-05 22:34+0200\n"
+"POT-Creation-Date: 2010-09-07 10:53-0400\n"
 "PO-Revision-Date: 2006-12-20 14:18+0100\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "X-Generator: KBabel 1.11.1\n"
 
-#: ../addressbook_popup.c:194 ../i18n_templatelist.c:230 ../roomops.c:1659
-#: ../roomops.c:1690 ../roomops.c:1932 ../roomops.c:1988
+#: ../addressbook_popup.c:192
 msgid "Add"
 msgstr "Aggiungi"
 
-#: ../auth.c:38 ../i18n_templatelist.c:147 ../i18n_templatelist.c:401
-#: ../i18n_templatelist.c:409
+#: ../auth.c:36
 msgid "Deleted"
 msgstr "Cancellato"
 
-#: ../auth.c:39 ../auth.c:106 ../i18n_templatelist.c:148
-#: ../i18n_templatelist.c:402 ../i18n_templatelist.c:410
-#: ../i18n_templatelist.c:447
+#: ../auth.c:37
 msgid "New User"
 msgstr "Nuovo Utente"
 
-#: ../auth.c:40 ../i18n_templatelist.c:149 ../i18n_templatelist.c:403
-#: ../i18n_templatelist.c:411
+#: ../auth.c:38
 msgid "Problem User"
 msgstr "Utente con Problemi"
 
-#: ../auth.c:41 ../i18n_templatelist.c:150 ../i18n_templatelist.c:404
-#: ../i18n_templatelist.c:412
+#: ../auth.c:39
 msgid "Local User"
 msgstr "Utente Locale"
 
-#: ../auth.c:42 ../i18n_templatelist.c:151 ../i18n_templatelist.c:405
-#: ../i18n_templatelist.c:413
+#: ../auth.c:40
 msgid "Network User"
 msgstr "Utente di Rete"
 
-#: ../auth.c:43 ../i18n_templatelist.c:152 ../i18n_templatelist.c:406
-#: ../i18n_templatelist.c:414
+#: ../auth.c:41
 msgid "Preferred User"
 msgstr "Utente Preferito"
 
-#: ../auth.c:44 ../i18n_templatelist.c:153 ../i18n_templatelist.c:407
-#: ../i18n_templatelist.c:415
+#: ../auth.c:42
 msgid "Aide"
 msgstr "Amministratore"
 
-#: ../auth.c:86
-#, c-format
-msgid "Your OpenID <tt>%s</tt> was successfully verified."
-msgstr ""
-
-#: ../auth.c:95
-#, c-format
-msgid "However, the user name '%s' conflicts with an existing user."
-msgstr ""
-
-#: ../auth.c:103
-msgid "Please specify the user name you would like to use."
-msgstr ""
-
-#: ../auth.c:105 ../i18n_templatelist.c:141 ../i18n_templatelist.c:443
-#: ../who.c:190 ../static/t/login.html:19
-msgid "User name:"
-msgstr "Nome utente:"
-
-#: ../auth.c:107 ../i18n_templatelist.c:237 ../i18n_templatelist.c:448
-msgid "Exit"
-msgstr "Uscita"
-
-#: ../auth.c:109
-#, c-format
-msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
-msgstr ""
-
-#: ../auth.c:234 ../auth.c:895
+#: ../auth.c:197 ../auth.c:869
 msgid "Blank passwords are not allowed."
 msgstr "Le password vuote non sono ammesse."
 
-#: ../auth.c:267 ../auth.c:357 ../auth.c:462
+#: ../auth.c:225 ../auth.c:323 ../auth.c:436
 msgid "Your password was not accepted."
 msgstr "La tua password non &egrave; stata accettata."
 
-#: ../auth.c:572 ../i18n_templatelist.c:359 ../i18n_templatelist.c:360
-#: ../i18n_templatelist.c:504 ../static/t/iconbar.html:74
+#: ../auth.c:546 ../static/t/iconbar.html:74
 msgid "Log off"
 msgstr "Esci"
 
-#: ../auth.c:585
+#: ../auth.c:559
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -107,223 +69,217 @@ msgstr ""
 "Questo programma non riesce a collegarsi o a rimanere collegato al server "
 "Citadel. Per favore, segnala questo errore all'amministratore di sistema."
 
-#: ../auth.c:591
+#: ../auth.c:565
 msgid "Read More..."
 msgstr ""
 
-#: ../auth.c:596
+#: ../auth.c:570
 msgid "Log in again"
 msgstr "Esegui nuovamente il Log in"
 
-#: ../auth.c:627 ../i18n_templatelist.c:205
+#: ../auth.c:601
 msgid "Validate new users"
 msgstr "Valida il nuovo utente"
 
-#: ../auth.c:650
+#: ../auth.c:624
 msgid "No users require validation at this time."
 msgstr "Non si richiede l'autenticazione utente in questo momento"
 
-#: ../auth.c:698
+#: ../auth.c:672
 msgid "very weak"
 msgstr ""
 
-#: ../auth.c:701
+#: ../auth.c:675
 msgid "weak"
 msgstr ""
 
-#: ../auth.c:704
+#: ../auth.c:678
 msgid "ok"
 msgstr ""
 
-#: ../auth.c:708
+#: ../auth.c:682
 #, fuzzy
 msgid "strong"
 msgstr "ferma"
 
-#: ../auth.c:726
+#: ../auth.c:700
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Attuale livello di accesso: %d (%s)\n"
 
-#: ../auth.c:734
+#: ../auth.c:708
 msgid "Select access level for this user:"
 msgstr "Seleziona il livello di accesso per l'utente corrente:"
 
-#: ../auth.c:821 ../i18n_templatelist.c:89
+#: ../auth.c:795
 msgid "Change your password"
 msgstr "Cambia la tua password"
 
-#: ../auth.c:845
+#: ../auth.c:819
 msgid "Enter new password:"
 msgstr "Inserisci la nuova password:"
 
-#: ../auth.c:849
+#: ../auth.c:823
 msgid "Enter it again to confirm:"
 msgstr "Inseriscila nuovamente per conferma:"
 
-#: ../auth.c:855
+#: ../auth.c:829
 msgid "Change password"
 msgstr "Cambia la password"
 
-#: ../auth.c:857 ../event.c:772 ../graphics.c:73 ../i18n_templatelist.c:59
-#: ../i18n_templatelist.c:132 ../i18n_templatelist.c:158
-#: ../i18n_templatelist.c:185 ../i18n_templatelist.c:212
-#: ../i18n_templatelist.c:366 ../i18n_templatelist.c:426
-#: ../i18n_templatelist.c:535 ../mainmenu.c:69 ../messages.c:1492
-#: ../paging.c:69 ../roomops.c:1460 ../roomops.c:1831 ../roomops.c:2520
-#: ../roomops.c:2680 ../roomops.c:2745 ../sieve.c:209 ../sysmsgs.c:52
-#: ../tasks.c:358 ../vcard_edit.c:1003 ../who.c:200
+#: ../auth.c:831 ../event.c:770 ../graphics.c:71 ../messages.c:1497
+#: ../paging.c:67 ../sieve.c:205 ../sysmsgs.c:50 ../tasks.c:358
+#: ../vcard_edit.c:1001 ../who.c:197
 msgid "Cancel"
 msgstr "Cancella"
 
-#: ../auth.c:876
+#: ../auth.c:850
 msgid "Cancelled.  Password was not changed."
 msgstr "Aziona cancellata. La password non &egrave; stata cambiata. "
 
-#: ../auth.c:887
+#: ../auth.c:861
 msgid "They don't match.  Password was not changed."
 msgstr "Le password non coincidono. Cambiamento non effettuato."
 
-#: ../availability.c:156
+#: ../availability.c:154
 msgid "availability unknown"
 msgstr "Disponibilit&agrave; sconosciuta"
 
-#: ../availability.c:177
+#: ../availability.c:175
 msgid "free"
 msgstr "libero"
 
-#: ../availability.c:187
+#: ../availability.c:185
 msgid "BUSY"
 msgstr "OCCUPATO"
 
-#: ../bbsview_renderer.c:257
+#: ../bbsview_renderer.c:286
 #, fuzzy
 msgid "Go to page: "
 msgstr "Cancella"
 
-#: ../bbsview_renderer.c:291
+#: ../bbsview_renderer.c:320
 #, fuzzy
 msgid "First"
 msgstr "Nome"
 
-#: ../bbsview_renderer.c:297
+#: ../bbsview_renderer.c:326
 #, fuzzy
 msgid "Last"
 msgstr "Cognome"
 
-#: ../calendar.c:83
+#: ../calendar.c:81
 msgid "Meeting invitation"
 msgstr "Invito a un incontro"
 
-#: ../calendar.c:86
+#: ../calendar.c:84
 msgid "Attendee's reply to your invitation"
 msgstr "Risposta del membro al tuo invito"
 
-#: ../calendar.c:89
+#: ../calendar.c:87
 msgid "Published event"
 msgstr "Evento pubblicato"
 
-#: ../calendar.c:92
+#: ../calendar.c:90
 msgid "This is an unknown type of calendar item."
 msgstr "Questo &egrave un tipo di calendario sconosciuto."
 
-#: ../calendar.c:105 ../calendar_view.c:287 ../calendar_view.c:968
-#: ../calendar_view.c:1010 ../calendar_view.c:1089 ../tasks.c:247
+#: ../calendar.c:103 ../calendar_view.c:290 ../calendar_view.c:957
+#: ../calendar_view.c:1001 ../calendar_view.c:1082 ../tasks.c:247
 msgid "Summary:"
 msgstr "Sommario:"
 
-#: ../calendar.c:114 ../calendar_view.c:295 ../calendar_view.c:973
-#: ../calendar_view.c:1015 ../calendar_view.c:1094
+#: ../calendar.c:112 ../calendar_view.c:298 ../calendar_view.c:962
+#: ../calendar_view.c:1006 ../calendar_view.c:1087
 msgid "Location:"
 msgstr "Luogo:"
 
-#: ../calendar.c:139 ../calendar_view.c:340 ../calendar_view.c:979
+#: ../calendar.c:137 ../calendar_view.c:343 ../calendar_view.c:968
 msgid "Date:"
 msgstr "Data:"
 
-#: ../calendar.c:146 ../calendar_view.c:362 ../calendar_view.c:1020
-#: ../calendar_view.c:1104
+#: ../calendar.c:144 ../calendar_view.c:365 ../calendar_view.c:1011
+#: ../calendar_view.c:1097
 msgid "Starting date/time:"
 msgstr "Data e ora di inizio:"
 
-#: ../calendar.c:157 ../calendar_view.c:365 ../calendar_view.c:1022
-#: ../calendar_view.c:1106
+#: ../calendar.c:155 ../calendar_view.c:368 ../calendar_view.c:1013
+#: ../calendar_view.c:1099
 msgid "Ending date/time:"
 msgstr "Data e ora di fine:"
 
-#: ../calendar.c:166 ../i18n_templatelist.c:268 ../tasks.c:338
-#: ../static/t/files.html:38
+#: ../calendar.c:164 ../tasks.c:338 ../static/t/files.html:38
 msgid "Description:"
 msgstr "Descrizione:"
 
-#: ../calendar.c:175 ../event.c:95
+#: ../calendar.c:173 ../event.c:93
 msgid "Recurrence"
 msgstr ""
 
-#: ../calendar.c:176 ../event.c:510
+#: ../calendar.c:174 ../event.c:508
 msgid "This is a recurring event"
 msgstr ""
 
-#: ../calendar.c:185
+#: ../calendar.c:183
 msgid "Attendee:"
 msgstr "Membro:"
 
-#: ../calendar.c:225
+#: ../calendar.c:223
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
 msgstr ""
 "Questo &egrave; un aggiornamento di '%s' gi&egrave; nel tuo calendario."
 
-#: ../calendar.c:229
+#: ../calendar.c:227
 #, c-format
 msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Questo evento &egrave; in conflitto con l'evento '%s' gi&agrave; presente "
 "nel tuo calendario."
 
-#: ../calendar.c:234
+#: ../calendar.c:232
 msgid "Update:"
 msgstr "Aggiorna:"
 
-#: ../calendar.c:235
+#: ../calendar.c:233
 msgid "CONFLICT:"
 msgstr "CONFLITTO:"
 
-#: ../calendar.c:258
+#: ../calendar.c:256
 msgid "How would you like to respond to this invitation?"
 msgstr "Come vuoi rispondere a questo invito?"
 
-#: ../calendar.c:259
+#: ../calendar.c:257
 msgid "Accept"
 msgstr "Accetta"
 
-#: ../calendar.c:260
+#: ../calendar.c:258
 msgid "Tentative"
 msgstr "Tentativo"
 
-#: ../calendar.c:261
+#: ../calendar.c:259
 msgid "Decline"
 msgstr "Declina"
 
-#: ../calendar.c:278
+#: ../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
 "Seleziona <i>Aggiorna</i> Per accettare questa risposta e aggiornare il tuo "
 "calendario."
 
-#: ../calendar.c:279
+#: ../calendar.c:277
 msgid "Update"
 msgstr "Aggiorna"
 
-#: ../calendar.c:280
+#: ../calendar.c:278
 msgid "Ignore"
 msgstr "Ignora"
 
-#: ../calendar.c:302
+#: ../calendar.c:300
 msgid "There was an error parsing this calendar item."
 msgstr "C'&egrave; un errore in questo oggetto del calendario."
 
-#: ../calendar.c:335
+#: ../calendar.c:333
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
@@ -331,7 +287,7 @@ msgstr ""
 "Hai accettato questo invito all'incontro. &egrave; stato aggiunto al tuo "
 "calendario."
 
-#: ../calendar.c:339
+#: ../calendar.c:337
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
@@ -339,23 +295,23 @@ msgstr ""
 "Hai accettato questo messaggio in forse. &egrave; stato \"segnato a matita\" "
 "nel tuo calendario"
 
-#: ../calendar.c:343
+#: ../calendar.c:341
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
 "Hai declinato l'invito. Non &egrave; stato inserito nel tuo calendario."
 
-#: ../calendar.c:348
+#: ../calendar.c:346
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Una risposta &egrave; stata mandata all'organizzatore dell'incontro."
 
-#: ../calendar.c:380
+#: ../calendar.c:378
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr ""
 "Il tuo calendario &egrave; stato aggiornato per riflettere questo RSVP."
 
-#: ../calendar.c:382
+#: ../calendar.c:380
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
@@ -363,2204 +319,418 @@ msgstr ""
 "Hai scelto di ignorare questo RSVP. il tuo calendario <b>non</b> "
 "verr&agrave; aggiornato."
 
-#: ../calendar.c:920
+#: ../calendar.c:918
 msgid "Calendar day view begins at:"
 msgstr "La vista giornaliera del calendario inizia il:"
 
-#: ../calendar.c:921
+#: ../calendar.c:919
 msgid "Calendar day view ends at:"
 msgstr "La vista giornaliera del calendario finisce il:"
 
-#: ../calendar.c:922
+#: ../calendar.c:920
 msgid "Week starts on:"
 msgstr ""
 
-#: ../calendar_tools.c:103
+#: ../calendar_tools.c:101
 msgid "Hour: "
 msgstr "Ora:"
 
-#: ../calendar_tools.c:123
+#: ../calendar_tools.c:121
 msgid "Minute: "
 msgstr "Minuto:"
 
-#: ../calendar_tools.c:194
+#: ../calendar_tools.c:192
 msgid "(status unknown)"
 msgstr "(stato sconosciuto)"
 
-#: ../calendar_tools.c:210
+#: ../calendar_tools.c:208
 msgid "(needs action)"
 msgstr "(serve una azione)"
 
-#: ../calendar_tools.c:213
+#: ../calendar_tools.c:211
 msgid "(accepted)"
 msgstr "(accettato)"
 
-#: ../calendar_tools.c:216
+#: ../calendar_tools.c:214
 msgid "(declined)"
 msgstr "(declinato)"
 
-#: ../calendar_tools.c:219
+#: ../calendar_tools.c:217
 msgid "(tenative)"
 msgstr "(tentativo) "
 
-#: ../calendar_tools.c:222
+#: ../calendar_tools.c:220
 msgid "(delegated)"
 msgstr "(delegato)"
 
-#: ../calendar_tools.c:225
+#: ../calendar_tools.c:223
 msgid "(completed)"
 msgstr "(completato)"
 
-#: ../calendar_tools.c:228
+#: ../calendar_tools.c:226
 msgid "(in process)"
 msgstr "(in lavorazione)"
 
-#: ../calendar_tools.c:231
+#: ../calendar_tools.c:229
 msgid "(none)"
 msgstr "(nessuno)"
 
-#: ../calendar_view.c:266 ../calendar_view.c:463 ../calendar_view.c:949
-#: ../event.c:864
+#: ../calendar_view.c:264 ../calendar_view.c:464 ../calendar_view.c:935
+#: ../event.c:862
 msgid "Untitled Event"
 msgstr ""
 
-#: ../calendar_view.c:286 ../calendar_view.c:967 ../calendar_view.c:1009
-#: ../calendar_view.c:1088 ../sieve.c:996
+#: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
+#: ../calendar_view.c:1081 ../sieve.c:995
 msgid "From"
 msgstr "Mittente"
 
-#: ../calendar_view.c:344 ../calendar_view.c:983
+#: ../calendar_view.c:347 ../calendar_view.c:972
 #, fuzzy
 msgid "Starting date:"
 msgstr "Data di inizio:"
 
-#: ../calendar_view.c:350 ../calendar_view.c:985
+#: ../calendar_view.c:353 ../calendar_view.c:974
 #, fuzzy
 msgid "Ending date:"
 msgstr "Data e ora di fine:"
 
-#: ../calendar_view.c:358 ../calendar_view.c:1100
+#: ../calendar_view.c:361 ../calendar_view.c:1093
 #, fuzzy
 msgid "Date/time:"
 msgstr "Data:"
 
-#: ../calendar_view.c:375 ../calendar_view.c:989 ../calendar_view.c:1025
-#: ../calendar_view.c:1110 ../roomops.c:1606
+#: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
+#: ../calendar_view.c:1103
 msgid "Notes:"
 msgstr "note:"
 
-#: ../calendar_view.c:768
+#: ../calendar_view.c:582 ../calendar_view.c:719
+msgid "previous"
+msgstr ""
+
+#: ../calendar_view.c:594 ../calendar_view.c:731 ../calendar_view.c:1320
+msgid "next"
+msgstr ""
+
+#: ../calendar_view.c:754
 msgid "Week"
 msgstr "Settimana"
 
-#: ../calendar_view.c:770
+#: ../calendar_view.c:756
 msgid "Hours"
 msgstr "Ore"
 
-#: ../calendar_view.c:771 ../i18n_templatelist.c:76 ../i18n_templatelist.c:193
-#: ../sieve.c:998 ../static/t/msg_listview.html:10
-#: ../static/t/summary_header.html:9
+#: ../calendar_view.c:757 ../sieve.c:997 ../static/t/msg_listview.html:10
+#: ../static/t/summary_header.html:8
 msgid "Subject"
 msgstr "Oggetto"
 
-#: ../calendar_view.c:772 ../event.c:233
+#: ../calendar_view.c:758 ../event.c:231
 msgid "Start"
 msgstr "Inizio"
 
-#: ../calendar_view.c:773 ../event.c:282
+#: ../calendar_view.c:759 ../event.c:280
 msgid "End"
 msgstr "Fine"
 
-#: ../calendar_view.c:966 ../calendar_view.c:996 ../event.c:276
+#: ../calendar_view.c:955 ../calendar_view.c:984 ../event.c:274
 msgid "All day event"
 msgstr "Evento per tutto il giorno"
 
-#: ../calendar_view.c:1008 ../calendar_view.c:1032
+#: ../calendar_view.c:999 ../calendar_view.c:1022
 msgid "Ongoing event"
 msgstr ""
 
-#: ../calendar_view.c:1408 ../tasks.c:428
+#: ../calendar_view.c:1393 ../tasks.c:428
 msgid "Untitled Task"
 msgstr ""
 
-#: ../downloads.c:287
+#: ../downloads.c:284
 #, fuzzy, c-format
 msgid "An error occurred while retrieving this file: %s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
 
-#: ../event.c:75
+#: ../event.c:73
 msgid "seconds"
 msgstr ""
 
-#: ../event.c:76
+#: ../event.c:74
 #, fuzzy
 msgid "minutes"
 msgstr "Minuto:"
 
-#: ../event.c:77
+#: ../event.c:75
 #, fuzzy
 msgid "hours"
 msgstr "Ore"
 
-#: ../event.c:78
+#: ../event.c:76
 msgid "days"
 msgstr ""
 
-#: ../event.c:79
+#: ../event.c:77
 #, fuzzy
 msgid "weeks"
 msgstr "Settimana"
 
-#: ../event.c:80
+#: ../event.c:78
 #, fuzzy
 msgid "months"
 msgstr "è uguale a"
 
-#: ../event.c:81
+#: ../event.c:79
 #, fuzzy
 msgid "years"
 msgstr "Intestazione"
 
-#: ../event.c:82
+#: ../event.c:80
 msgid "never"
 msgstr ""
 
-#: ../event.c:86
+#: ../event.c:84
 #, fuzzy
 msgid "first"
 msgstr "Nome"
 
-#: ../event.c:87
+#: ../event.c:85
 #, fuzzy
 msgid "second"
 msgstr "Invia"
 
-#: ../event.c:88
+#: ../event.c:86
 msgid "third"
 msgstr ""
 
-#: ../event.c:89
+#: ../event.c:87
 msgid "fourth"
 msgstr ""
 
-#: ../event.c:90
+#: ../event.c:88
 msgid "fifth"
 msgstr ""
 
-#: ../event.c:93
+#: ../event.c:91
 msgid "Event"
 msgstr ""
 
-#: ../event.c:94 ../event.c:442 ../event.c:454
+#: ../event.c:92 ../event.c:440 ../event.c:452
 msgid "Attendees"
 msgstr "Membri"
 
-#: ../event.c:170
+#: ../event.c:168
 msgid "Add or edit an event"
 msgstr "Aggiungi o modifica un evento"
 
-#: ../event.c:211 ../i18n_templatelist.c:15 ../i18n_templatelist.c:337
-#: ../static/t/iconbar.html:12
+#: ../event.c:209 ../static/t/iconbar.html:12
 msgid "Summary"
 msgstr "Sommario"
 
-#: ../event.c:222
+#: ../event.c:220
 msgid "Location"
 msgstr "Luogo"
 
-#: ../event.c:332 ../i18n_templatelist.c:27 ../i18n_templatelist.c:345
-#: ../static/t/iconbar.html:32
+#: ../event.c:330 ../static/t/iconbar.html:32
 msgid "Notes"
 msgstr "Note"
 
-#: ../event.c:374
+#: ../event.c:372
 msgid "Organizer"
 msgstr "Organizer"
 
-#: ../event.c:379
+#: ../event.c:377
 msgid "(you are the organizer)"
 msgstr "(tu sei l'organizzatore)"
 
-#: ../event.c:397
+#: ../event.c:395
 msgid "Show time as:"
 msgstr "Mostra l'ora come:"
 
-#: ../event.c:420
+#: ../event.c:418
 msgid "Free"
 msgstr "Libero"
 
-#: ../event.c:428
+#: ../event.c:426
 msgid "Busy"
 msgstr "Occupato"
 
-#: ../event.c:445
+#: ../event.c:443
 msgid "(One per line)"
 msgstr "(Uno per linea)"
 
-#: ../event.c:455 ../i18n_templatelist.c:23 ../i18n_templatelist.c:221
-#: ../i18n_templatelist.c:222 ../i18n_templatelist.c:343
-#: ../static/t/edit_message.html:59 ../static/t/iconbar.html:27
+#: ../event.c:453 ../static/t/edit_message.html:57 ../static/t/iconbar.html:27
 msgid "Contacts"
 msgstr "Contatti"
 
-#: ../event.c:518
+#: ../event.c:516
 #, fuzzy
 msgid "Recurrence rule"
 msgstr "Cancella la regola"
 
-#: ../event.c:522
+#: ../event.c:520
 msgid "Repeats every"
 msgstr ""
 
-#: ../event.c:540
+#: ../event.c:538
 msgid "on these weekdays:"
 msgstr ""
 
-#: ../event.c:598
+#: ../event.c:596
 #, c-format
 msgid "on day %s%d%s of the month"
 msgstr ""
 
-#: ../event.c:607 ../event.c:669
+#: ../event.c:605 ../event.c:667
 #, fuzzy
 msgid "on the "
 msgstr "Mese:"
 
-#: ../event.c:631
+#: ../event.c:629
 msgid "of the month"
 msgstr ""
 
-#: ../event.c:660
+#: ../event.c:658
 msgid "every "
 msgstr ""
 
-#: ../event.c:661
+#: ../event.c:659
 msgid "year on this date"
 msgstr ""
 
-#: ../event.c:693 ../i18n_templatelist.c:308 ../i18n_templatelist.c:480
-#: ../static/t/msg_listselector_bottom.html:7
+#: ../event.c:691 ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7
 msgid "of"
 msgstr ""
 
-#: ../event.c:717
+#: ../event.c:715
 msgid "Recurrence range"
 msgstr ""
 
-#: ../event.c:725
+#: ../event.c:723
 #, fuzzy
 msgid "No ending date"
 msgstr "Note"
 
-#: ../event.c:732
+#: ../event.c:730
 #, fuzzy
 msgid "Repeat this event"
 msgstr "Cancello questa voce?"
 
-#: ../event.c:735
+#: ../event.c:733
 #, fuzzy
 msgid "times"
 msgstr "Note"
 
-#: ../event.c:743
+#: ../event.c:741
 msgid "Repeat this event until "
 msgstr ""
 
-#: ../event.c:769 ../i18n_templatelist.c:425 ../tasks.c:356
+#: ../event.c:767 ../tasks.c:356
 msgid "Save"
 msgstr "Salva"
 
-#: ../event.c:770 ../i18n_templatelist.c:83 ../i18n_templatelist.c:196
-#: ../i18n_templatelist.c:328 ../i18n_templatelist.c:368 ../roomops.c:708
-#: ../tasks.c:357 ../static/t/msg_listview.html:30
-#: ../static/t/view_message.html:40
+#: ../event.c:768 ../tasks.c:357 ../static/t/msg_listview.html:30
+#: ../static/t/view_message.html:38
 msgid "Delete"
 msgstr "Cancella"
 
-#: ../event.c:771
+#: ../event.c:769
 msgid "Check attendee availability"
 msgstr "Controlla la disponibilit&agrave; del membro."
 
-#: ../floors.c:42
-msgid "Add/change/delete floors"
-msgstr "Agiungi, cambia o cancella i piani"
-
-#: ../floors.c:59 ../vcard_edit.c:731
-msgid "Error"
-msgstr "Errore"
-
-#: ../floors.c:70
-msgid "Floor number"
-msgstr "Numero del piano"
-
-#: ../floors.c:72
-msgid "Floor name"
-msgstr "Nome del piano"
-
-#: ../floors.c:74
-msgid "Number of rooms"
-msgstr "Numero di stanze"
-
-#: ../floors.c:76
-msgid "Floor CSS"
-msgstr "Stile del Piano"
-
-#: ../floors.c:89
-msgid "(delete floor)"
-msgstr "(Cancella il piano)"
-
-#: ../floors.c:95
-msgid "(edit graphic)"
-msgstr "(Modifica la grafica)"
-
-#: ../floors.c:109
-msgid "Change name"
-msgstr "Cambia nome"
-
-#: ../floors.c:123
-msgid "Change CSS"
-msgstr "Modifica lo Stile"
-
-#: ../floors.c:136
-msgid "Create new floor"
-msgstr "Crea un nuovo piano"
-
-#: ../floors.c:158
-msgid "Floor has been deleted."
-msgstr "Il piano &egrave; stato cancellato."
-
-#: ../floors.c:180
-msgid "New floor has been created."
-msgstr "Il nuovo piano &egrave; stato creato."
-
-#: ../fmt_date.c:312
+#: ../fmt_date.c:310
 msgid "Time format"
 msgstr "Formato dell'ora"
 
-#: ../graphics.c:44
+#: ../graphics.c:42
 msgid "Image upload"
 msgstr "Carica l'immagine"
 
-#: ../graphics.c:60
+#: ../graphics.c:58
 #, fuzzy
 msgid "You can upload an image directly from your computer"
 msgstr ""
 "Puoi caricare una qualsiasi immagine direttamente dal tuo computer, sempre "
 "che sia in formato GIF (JPEG, PNG, etc. non funzioneranno)"
 
-#: ../graphics.c:63
+#: ../graphics.c:61
 msgid "Please select a file to upload:"
 msgstr "Per favore, seleziona un file da caricare:"
 
-#: ../graphics.c:69 ../i18n_templatelist.c:269
+#: ../graphics.c:67
 msgid "Upload"
 msgstr "Carica"
 
-#: ../graphics.c:71
+#: ../graphics.c:69
 msgid "Reset form"
 msgstr "Cancella"
 
-#: ../graphics.c:94
+#: ../graphics.c:92
 msgid "Graphics upload has been cancelled."
 msgstr "Il caricamento della grafica &egrave; stato cancellato."
 
-#: ../graphics.c:101
+#: ../graphics.c:99
 msgid "You didn't upload a file."
 msgstr "Non carichi un file."
 
-#: ../graphics.c:148
+#: ../graphics.c:146
 msgid "your photo"
 msgstr "La tua foto"
 
-#: ../graphics.c:154
+#: ../graphics.c:152
 msgid "the icon for this room"
 msgstr "l'icona di questa stanza"
 
-#: ../graphics.c:161
+#: ../graphics.c:159
 msgid "the Greetingpicture for the login prompt"
 msgstr ""
 
-#: ../graphics.c:168
+#: ../graphics.c:166
 msgid "the Logoff banner picture"
 msgstr ""
 
-#: ../graphics.c:177
+#: ../graphics.c:175
 msgid "the icon for this floor"
 msgstr "L'icona per questo piano"
 
-#: ../html2html.c:138
+#: ../html2html.c:136
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr "errore di realloc()! non riesco a ottenere %d bytes: %s"
 
-#: ../i18n_templatelist.c:3 ../i18n_templatelist.c:165
-msgid "Customize the icon bar"
-msgstr "Personalizza la barra delle icone"
-
-#: ../i18n_templatelist.c:4
-msgid "Display icons as:"
-msgstr "Mostra le icone come:"
-
-#: ../i18n_templatelist.c:5
-msgid "pictures and text"
-msgstr "immagini e testo"
-
-#: ../i18n_templatelist.c:6
-msgid "pictures only"
-msgstr "solo immagini"
-
-#: ../i18n_templatelist.c:7
-msgid "text only"
-msgstr "solo testo"
-
-#: ../i18n_templatelist.c:8
-msgid ""
-"Select the icons you would like to see displayed in the 'icon bar' menu on "
-"the left side of the screen."
-msgstr ""
-"Seleziona le icone che vorresti vedere nel menu alla sinistra dello schermo."
-
-#: ../i18n_templatelist.c:9 ../i18n_templatelist.c:13
-#: ../i18n_templatelist.c:17 ../i18n_templatelist.c:21
-#: ../i18n_templatelist.c:25 ../i18n_templatelist.c:29
-#: ../i18n_templatelist.c:33 ../i18n_templatelist.c:37
-#: ../i18n_templatelist.c:41 ../i18n_templatelist.c:46
-#: ../i18n_templatelist.c:50 ../i18n_templatelist.c:54
-#: ../i18n_templatelist.c:126 ../i18n_templatelist.c:202 ../roomops.c:1896
-msgid "Yes"
-msgstr "Si"
-
-#: ../i18n_templatelist.c:10 ../i18n_templatelist.c:14
-#: ../i18n_templatelist.c:18 ../i18n_templatelist.c:22
-#: ../i18n_templatelist.c:26 ../i18n_templatelist.c:30
-#: ../i18n_templatelist.c:34 ../i18n_templatelist.c:38
-#: ../i18n_templatelist.c:42 ../i18n_templatelist.c:47
-#: ../i18n_templatelist.c:51 ../i18n_templatelist.c:55
-#: ../i18n_templatelist.c:127 ../i18n_templatelist.c:203 ../roomops.c:1896
-msgid "No"
-msgstr "No"
-
-#: ../i18n_templatelist.c:11
-msgid "Site logo"
-msgstr "Logo del sito"
-
-#: ../i18n_templatelist.c:12
-msgid "An icon describing this site"
-msgstr "Una icona che descriva questo sito"
-
-#: ../i18n_templatelist.c:16 ../i18n_templatelist.c:336
-msgid "Your summary page"
-msgstr "Visualizza il sommario"
-
-#: ../i18n_templatelist.c:19
-msgid "Mail (inbox)"
-msgstr "Mail (Posta in arrivo)"
-
-#: ../i18n_templatelist.c:20
-msgid "A shortcut to your email Inbox"
-msgstr "Un collegamento alla tua Posta in Arrivo"
-
-#: ../i18n_templatelist.c:24
-msgid "Your personal address book"
-msgstr "I tuoi Contatti personali"
-
-#: ../i18n_templatelist.c:28
-msgid "Your personal notes"
-msgstr "Le tue note personali"
-
-#: ../i18n_templatelist.c:31 ../i18n_templatelist.c:341 ../roomops.c:27
-#: ../static/t/iconbar.html:22
-msgid "Calendar"
-msgstr "Calendario"
-
-#: ../i18n_templatelist.c:32
-msgid "A shortcut to your personal calendar"
-msgstr "Un collegamento al tuo calendario personale"
-
-#: ../i18n_templatelist.c:35 ../i18n_templatelist.c:347 ../summary.c:224
-#: ../static/t/iconbar.html:37
-msgid "Tasks"
-msgstr "Attività"
-
-#: ../i18n_templatelist.c:36
-msgid "A shortcut to your personal task list"
-msgstr "Un collegamento alla tua lista di operazioni da effettuare"
-
-#: ../i18n_templatelist.c:39 ../i18n_templatelist.c:349
-#: ../static/t/iconbar.html:42
-msgid "Rooms"
-msgstr "Stanze"
-
-#: ../i18n_templatelist.c:40
-msgid ""
-"Clicking this icon displays a list of all accessible rooms (or folders) "
-"available."
-msgstr ""
-"Cliccando questa icona, mostra una lista di tutte le stanze o cartelle "
-"disponibili."
-
-#: ../i18n_templatelist.c:43
-#, fuzzy
-msgid "Yes with users list"
-msgstr "Visualizza le cartelle"
-
-#: ../i18n_templatelist.c:44
-msgid "Who is online?"
-msgstr "Chi &egrave; on line?"
-
-#: ../i18n_templatelist.c:45
-msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr ""
-"Cliccando su questa icona, mostra tutti gli utenti collegati in questo "
-"momento."
-
-#: ../i18n_templatelist.c:48 ../i18n_templatelist.c:353
-#: ../static/t/iconbar.html:56
-msgid "Chat"
-msgstr "Chat"
-
-#: ../i18n_templatelist.c:49
-msgid ""
-"Clicking this icon enters real-time chat mode with other users in the same "
-"room."
-msgstr ""
-"Cliccando su questa icona vi porter&agrave; a una chat in tempo reale con "
-"gli altri utenti nella stessa stanza."
-
-#: ../i18n_templatelist.c:52
-msgid "Advanced options"
-msgstr "Opzioni avanzate"
-
-#: ../i18n_templatelist.c:53
-msgid "Access to the complete menu of Citadel functions."
-msgstr "Accesso al menu completo delle funzioni di Citadel."
-
-#: ../i18n_templatelist.c:56
-msgid "Citadel logo"
-msgstr "Logo Citadel"
-
-#: ../i18n_templatelist.c:57
-msgid "Displays the 'Powered by Citadel' icon"
-msgstr "Mostra l'icona Potenziato da Citadel"
-
-#: ../i18n_templatelist.c:58 ../i18n_templatelist.c:157
-#: ../i18n_templatelist.c:365 ../roomops.c:1459 ../roomops.c:1737
-#: ../roomops.c:1829 ../sieve.c:207 ../sysmsgs.c:50 ../vcard_edit.c:1002
-msgid "Save changes"
-msgstr "Cambia i cambiamenti"
-
-#: ../i18n_templatelist.c:60 ../i18n_templatelist.c:103
-msgid "System Administration Menu"
-msgstr "Menu di amministrazione di sistema"
-
-#: ../i18n_templatelist.c:61 ../i18n_templatelist.c:104
-#, fuzzy
-msgid "Room Aide Menu"
-msgstr "Amministratore della stanza: "
-
-#: ../i18n_templatelist.c:62
-msgid "Local host aliases"
-msgstr "Alias degli host locali"
-
-#: ../i18n_templatelist.c:63
-msgid "Directory domains"
-msgstr "Domini delle directory"
-
-#: ../i18n_templatelist.c:64
-msgid "Smart hosts"
-msgstr "Smart Host"
-
-#: ../i18n_templatelist.c:65
-#, fuzzy
-msgid "Fallback smart hosts"
-msgstr "Smart Host"
-
-#: ../i18n_templatelist.c:66
-msgid "Notification hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:67
-msgid "RBL hosts"
-msgstr "Host RBL"
-
-#: ../i18n_templatelist.c:68
-msgid "SpamAssassin hosts"
-msgstr "Host Spamassassin"
-
-#: ../i18n_templatelist.c:69
-msgid "ClamAV clamd hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:70
-#, fuzzy
-msgid "Masqueradable domains"
-msgstr "Domini del gateway"
-
-#: ../i18n_templatelist.c:71 ../i18n_templatelist.c:421 ../roomops.c:1862
-msgid "User name"
-msgstr "Nome utente"
-
-#: ../i18n_templatelist.c:72 ../i18n_templatelist.c:422
-msgid "Room"
-msgstr "Stanza"
-
-#: ../i18n_templatelist.c:73
-msgid "From host"
-msgstr "Dall'host"
-
-#: ../i18n_templatelist.c:74
-#, fuzzy
-msgid "Click on a name to read user info.  Click on"
-msgstr ""
-"Clicca su un nome per leggere le informazioni utente.Clicca su %s per "
-"inviare un messaggio istantaneo a questo utente."
-
-#: ../i18n_templatelist.c:75
-#, fuzzy
-msgid "to send an instant message to that user."
-msgstr "Invia un Messaggio istantaneo a:"
-
-#: ../i18n_templatelist.c:77 ../i18n_templatelist.c:194 ../sieve.c:1000
-#: ../smtpqueue.c:199 ../static/t/msg_listview.html:11
-#: ../static/t/summary_header.html:10
-msgid "Sender"
-msgstr "Mittente"
-
-#: ../i18n_templatelist.c:78 ../i18n_templatelist.c:195 ../wiki.c:169
-#: ../static/t/msg_listview.html:12 ../static/t/summary_header.html:11
-msgid "Date"
-msgstr "Data"
-
-#: ../i18n_templatelist.c:79 ../static/t/msg_listview.html:20
-msgid "Loading messages from server, please wait"
-msgstr ""
-
-#: ../i18n_templatelist.c:80 ../static/t/msg_listview.html:27
-msgid "Open in new window"
-msgstr ""
-
-#: ../i18n_templatelist.c:81 ../i18n_templatelist.c:326 ../messages.c:1490
-#: ../static/t/msg_listview.html:28 ../static/t/view_message.html:39
-msgid "Move"
-msgstr "Sposta"
-
-#: ../i18n_templatelist.c:82 ../static/t/msg_listview.html:29
-msgid "Copy"
-msgstr ""
-
-#: ../i18n_templatelist.c:84 ../i18n_templatelist.c:330
-#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:43
-msgid "Print"
-msgstr "Stampa"
-
-#: ../i18n_templatelist.c:85
-msgid "(send outbound mail to these hosts only when direct delivery fails)"
-msgstr ""
-
-#: ../i18n_templatelist.c:86
-msgid ""
-"You have one or more instant messages waiting, but the Citadel Instant "
-"Messenger window failed to open.  This is probably because you have a popup "
-"blocker installed.  Please configure your popup blocker to allow popups from "
-"this site if you wish to receive instant messages."
-msgstr ""
-"Hai uno o più messaggi in coda che aspettano di essere letti, ma la finestra "
-"per i Messaggi Istantanei di Citadel non può essere aperta. La causa può "
-"essere un popup blocker installato nel tuo browser. Per favore, se vuoi "
-"ricevere Messaggi Istantanei, configura il tuo popup blocker in modo da "
-"permettere i popup da questo sito."
-
-#: ../i18n_templatelist.c:87
-msgid "Change your preferences and settings"
-msgstr "Modifica le tue preferenze e impostazioni"
-
-#: ../i18n_templatelist.c:88
-msgid "Update your contact information"
-msgstr "Aggiorna i tuoi dati personali"
-
-#: ../i18n_templatelist.c:90
-msgid "Enter your 'bio'"
-msgstr "Inserisci la tua biografia"
-
-#: ../i18n_templatelist.c:91
-msgid "Edit your online photo"
-msgstr "Modifica la tua foto on line"
-
-#: ../i18n_templatelist.c:92 ../sieve.c:22 ../sieve.c:107
-msgid "View/edit server-side mail filters"
-msgstr "Visualizza/Modifica i filtri email lato server"
-
-#: ../i18n_templatelist.c:93
-msgid "Edit your push email settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:94
-#, fuzzy
-msgid "Manage your OpenIDs"
-msgstr "Cambia la tua password"
-
-#: ../i18n_templatelist.c:95 ../i18n_templatelist.c:97
-#: ../static/t/knrooms.html:5
-msgid "Room list"
-msgstr "Lista delle stanze"
-
-#: ../i18n_templatelist.c:96 ../static/t/knrooms.html:5
-msgid "Folder list"
-msgstr "Lista delle cartelle"
-
-#: ../i18n_templatelist.c:98 ../static/t/knrooms.html:19
-#, fuzzy
-msgid "View as room list"
-msgstr "Visualizza le cartelle"
-
-#: ../i18n_templatelist.c:99 ../static/t/knrooms.html:20
-#, fuzzy
-msgid "View as folder list"
-msgstr "Lista delle cartelle"
-
-#: ../i18n_templatelist.c:100 ../static/t/knrooms.html:40
-#, fuzzy
-msgid "Room Listing"
-msgstr "Lista delle stanze"
-
-#: ../i18n_templatelist.c:101
-msgid "The citadel server has to be restarted. It will be back in a minute."
-msgstr ""
-
-#: ../i18n_templatelist.c:102 ../i18n_templatelist.c:508
-msgid "Download"
-msgstr "Scarica"
-
-#: ../i18n_templatelist.c:105
-msgid "Global Configuration"
-msgstr "Configurazione globale"
-
-#: ../i18n_templatelist.c:106
-msgid "User account management"
-msgstr "Gestione account utenti"
-
-#: ../i18n_templatelist.c:107
-msgid "Shutdown Citadel"
-msgstr ""
-
-#: ../i18n_templatelist.c:108
-msgid "Rooms and Floors"
-msgstr "Stanze e piani"
-
-#: ../i18n_templatelist.c:109 ../i18n_templatelist.c:252
-#: ../i18n_templatelist.c:253 ../i18n_templatelist.c:271
-#: ../i18n_templatelist.c:313 ../static/t/view_message.html:8
-#: ../static/t/view_submessage.html:4
-msgid "from "
-msgstr "da"
-
-#: ../i18n_templatelist.c:110 ../i18n_templatelist.c:314
-#: ../static/t/view_message.html:15
-#, fuzzy
-msgid "to"
-msgstr "a"
-
-#: ../i18n_templatelist.c:111 ../i18n_templatelist.c:219
-#: ../i18n_templatelist.c:223 ../i18n_templatelist.c:315
-#: ../static/t/edit_message.html:64 ../static/t/view_message.html:16
-msgid "CC:"
-msgstr "CC:"
-
-#: ../i18n_templatelist.c:112 ../i18n_templatelist.c:225
-#: ../i18n_templatelist.c:254 ../i18n_templatelist.c:316
-#: ../static/t/edit_message.html:78 ../static/t/view_message.html:17
-msgid "Subject:"
-msgstr "Oggetto:"
-
-#: ../i18n_templatelist.c:113 ../i18n_templatelist.c:467
-#, fuzzy
-msgid "Push Email"
-msgstr "Email"
-
-#: ../i18n_templatelist.c:114
-#, fuzzy
-msgid "Funambol server host (blank to disable)"
-msgstr "Nome del server Funambol (vuoto per disabilitare)"
-
-#: ../i18n_templatelist.c:115
-#, fuzzy
-msgid "Funambol server port "
-msgstr "Nome del server Funambol (vuoto per disabilitare)"
-
-#: ../i18n_templatelist.c:116
-msgid "Funambol sync source"
-msgstr ""
-
-#: ../i18n_templatelist.c:117
-msgid "Funambol auth details (user:pass)"
-msgstr ""
-
-#: ../i18n_templatelist.c:118
-#, fuzzy
-msgid "External pager tool (blank to disable)"
-msgstr "Nome del server Funambol (vuoto per disabilitare)"
-
-#: ../i18n_templatelist.c:119
-msgid "Tree (folders) view"
-msgstr "Vista ad albero (cartelle)"
-
-#: ../i18n_templatelist.c:120
-msgid "Table (rooms) view"
-msgstr "Vista a tabella (stanze)"
-
-#: ../i18n_templatelist.c:121
-msgid "12 hour (am/pm)"
-msgstr "12 ore (am/pm)"
-
-#: ../i18n_templatelist.c:122
-msgid "24 hour"
-msgstr "24 ore"
-
-#: ../i18n_templatelist.c:123
-#, fuzzy
-msgid "Sunday"
-msgstr "Sommario"
-
-#: ../i18n_templatelist.c:124
-#, fuzzy
-msgid "Monday"
-msgstr "Sommario"
-
-#: ../i18n_templatelist.c:125
-msgid "No signature"
-msgstr "Nessuna firma"
-
-#: ../i18n_templatelist.c:128
-msgid "Full-functionality"
-msgstr ""
-
-#: ../i18n_templatelist.c:129
-msgid "Safe mode"
-msgstr ""
-
-#: ../i18n_templatelist.c:130
-msgid ""
-"Safe mode is less intensive on your web browser, but not as fully featured."
-msgstr ""
-
-#: ../i18n_templatelist.c:131
-msgid "Change"
-msgstr "Cambia"
-
-#: ../i18n_templatelist.c:133 ../i18n_templatelist.c:134
-#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
-msgid "Preferences and settings"
-msgstr "Preferenze e impostazioni"
-
-#: ../i18n_templatelist.c:135
-msgid "(URLS for notifications when users receive new mails; )"
-msgstr ""
-
-#: ../i18n_templatelist.c:136
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
-msgstr ""
-
-#: ../i18n_templatelist.c:137 ../static/t/display_main_menu.html:8
-msgid "Basic commands"
-msgstr "Comandi base"
-
-#: ../i18n_templatelist.c:138 ../static/t/display_main_menu.html:11
-msgid "Your info"
-msgstr "Le tue Informazioni"
-
-#: ../i18n_templatelist.c:139 ../static/t/display_main_menu.html:13
-msgid "Advanced room commands"
-msgstr "Comandi di stanza avanzati"
-
-#: ../i18n_templatelist.c:140
-msgid "Edit user account: "
-msgstr "Modifica l'account dell'utente:"
-
-#: ../i18n_templatelist.c:142 ../roomops.c:1864
-msgid "Password"
-msgstr "Password"
-
-#: ../i18n_templatelist.c:143
-msgid "Permission to send Internet mail"
-msgstr "Permesso di inviare email a internet"
-
-#: ../i18n_templatelist.c:144
-msgid "Number of logins"
-msgstr "Numero di login"
-
-#: ../i18n_templatelist.c:145
-msgid "Messages submitted"
-msgstr "Numero di Messaggi"
-
-#: ../i18n_templatelist.c:146
-msgid "Access level"
-msgstr "Livello di accesso"
-
-#: ../i18n_templatelist.c:154
-msgid "User ID number"
-msgstr "Numero indentificativo"
-
-#: ../i18n_templatelist.c:155
-msgid "Date and time of last login"
-msgstr "Data e giorno dell'ultimo accesso"
-
-#: ../i18n_templatelist.c:156
-msgid "Auto-purge after this many days"
-msgstr "Auto elimina dopo questo numero di giorni"
-
-#: ../i18n_templatelist.c:159
-msgid "POP3"
-msgstr ""
-
-#: ../i18n_templatelist.c:160
-msgid "POP3 listener port (-1 to disable)"
-msgstr "Porta POP3 (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:161
-msgid "POP3 over SSL port (-1 to disable)"
-msgstr "Porta POP3 SSL (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:162
-#, fuzzy
-msgid "POP3 fetch frequency in seconds"
-msgstr "Velocità della rete (in secondi)"
-
-#: ../i18n_templatelist.c:163
-#, fuzzy
-msgid "POP3 fastest fetch frequency in seconds"
-msgstr "Velocità della rete (in secondi)"
-
-#: ../i18n_templatelist.c:164
-#, fuzzy
-msgid "Message to your Users:"
-msgstr "Il Messaggio non è stato spedito."
-
-#: ../i18n_templatelist.c:166
-#, fuzzy
-msgid ""
-"Your icon bar has been updated. Please select any of its choices to continue."
-msgstr ""
-"La tua bara delle icone &egrave; stata aggiornata. Per favore, seleziona una "
-"delle sue possibilit&agrave; per continuare."
-
-#: ../i18n_templatelist.c:167
-msgid ""
-"You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
-msgstr ""
-
-#: ../i18n_templatelist.c:168
-msgid "General site configuration items"
-msgstr "Oggetti di configurazione generali del sito"
-
-#: ../i18n_templatelist.c:169
-msgid "Change Login Logo"
-msgstr ""
-
-#: ../i18n_templatelist.c:170
-msgid "Change Logout Logo"
-msgstr ""
-
-#: ../i18n_templatelist.c:171 ../i18n_templatelist.c:180
-#: ../i18n_templatelist.c:530
-msgid "Node name"
-msgstr "Nome del nodo"
-
-#: ../i18n_templatelist.c:172
-msgid "Fully qualified domain name"
-msgstr "Nome di dominio completo"
-
-#: ../i18n_templatelist.c:173
-msgid "Human-readable node name"
-msgstr "Nome del nodo leggibile da umani"
-
-#: ../i18n_templatelist.c:174
-msgid "Telephone number"
-msgstr "Numero di telefono"
-
-#: ../i18n_templatelist.c:175
-msgid "Paginator prompt (for text mode clients)"
-msgstr "Richiamo di impaginazione (per i client solo testo)"
-
-#: ../i18n_templatelist.c:176
-msgid "Geographic location of this system"
-msgstr "Località geografica di questo server"
-
-#: ../i18n_templatelist.c:177
-msgid "Name of system administrator"
-msgstr "Nome dell'amministratore di sistema"
-
-#: ../i18n_templatelist.c:178
-msgid "Default timezone for unzoned calendar items"
-msgstr "Timezone di default per i calendari non localizzati"
-
-#: ../i18n_templatelist.c:179 ../i18n_templatelist.c:371
-#: ../i18n_templatelist.c:529
-msgid "Add a new node"
-msgstr "Aggiungi un nuovo nodo"
-
-#: ../i18n_templatelist.c:181 ../i18n_templatelist.c:531
-msgid "Shared secret"
-msgstr "Segreto condiviso"
-
-#: ../i18n_templatelist.c:182 ../i18n_templatelist.c:532
-msgid "Host or IP address"
-msgstr "Nome dell'host o indirizzo IP"
-
-#: ../i18n_templatelist.c:183 ../i18n_templatelist.c:533
-msgid "Port number"
-msgstr "Numero di porta"
-
-#: ../i18n_templatelist.c:184
-#, fuzzy
-msgid "Add node?"
-msgstr "Aggiungi un nodo"
-
-#: ../i18n_templatelist.c:186
-msgid "(kill)"
-msgstr "(termina)"
-
-#: ../i18n_templatelist.c:187 ../msg_renderers.c:523
-msgid "edit"
-msgstr "Modifica"
-
-#: ../i18n_templatelist.c:188 ../i18n_templatelist.c:469
-msgid "idle since"
-msgstr ""
-
-#: ../i18n_templatelist.c:189 ../i18n_templatelist.c:470
-#, fuzzy
-msgid "Minutes"
-msgstr "Minuto:"
-
-#: ../i18n_templatelist.c:190 ../i18n_templatelist.c:471
-#, fuzzy
-msgid "active"
-msgstr "Tentativo"
-
-#: ../i18n_templatelist.c:191
-#, fuzzy
-msgid "(Edit)"
-msgstr "(modifica)"
-
-#: ../i18n_templatelist.c:192 ../smtpqueue.c:135
-msgid "(Delete)"
-msgstr "(Cancella)"
-
-#: ../i18n_templatelist.c:197 ../static/t/no_new_msgs.html:3
-#, fuzzy
-msgid "No new messages."
-msgstr "Nessun nuovo messaggio"
-
-#: ../i18n_templatelist.c:198 ../static/t/newstartpage.html:4
-#, fuzzy
-msgid "New start page"
-msgstr "Imposta questa pagina come principale"
-
-#: ../i18n_templatelist.c:199 ../static/t/newstartpage.html:9
-#, fuzzy
-msgid "Your start page has been changed."
-msgstr "Le tue modifiche sono state salvate."
-
-#: ../i18n_templatelist.c:200
-msgid "Confirm delete"
-msgstr "Conferma la cancellazione"
-
-#: ../i18n_templatelist.c:201
-msgid "Are you sure you want to delete "
-msgstr "Sei sicuro di voler cancellare?"
-
-#: ../i18n_templatelist.c:204
-msgid "Add, change, delete user accounts"
-msgstr "Aggiungi, modifica, cancella degli account di utenti"
-
-#: ../i18n_templatelist.c:206
-#, fuzzy
-msgid "(hosts running the ClamAV clamd service)"
-msgstr "(host che forniscono il servizio spamassassin)"
-
-#: ../i18n_templatelist.c:207
-msgid "Send"
-msgstr "Invia"
-
-#: ../i18n_templatelist.c:208
-#, fuzzy
-msgid "Restart Citadel"
-msgstr "Imposta questa pagina come principale"
-
-#: ../i18n_templatelist.c:209 ../paging.c:68
-msgid "Send message"
-msgstr "Invia il messaggio"
-
-#: ../i18n_templatelist.c:210
-msgid "Post message"
-msgstr "Posta il messaggio"
-
-#: ../i18n_templatelist.c:211
-msgid "Save to Drafts"
-msgstr ""
-
-#: ../i18n_templatelist.c:213 ../static/t/edit_message.html:25
-#, fuzzy
-msgid "from"
-msgstr "da"
-
-#: ../i18n_templatelist.c:214 ../i18n_templatelist.c:215
-#: ../static/t/edit_message.html:31 ../static/t/edit_message.html:40
-#, fuzzy
-msgid "Anonymous"
-msgstr "Messaggio anonimo"
-
-#: ../i18n_templatelist.c:216 ../static/t/edit_message.html:49
-#, fuzzy
-msgid "in"
-msgstr "in"
-
-#: ../i18n_templatelist.c:217 ../i18n_templatelist.c:218
-#: ../static/t/edit_message.html:53
-msgid "To:"
-msgstr "A:"
-
-#: ../i18n_templatelist.c:220 ../i18n_templatelist.c:224
-#: ../static/t/edit_message.html:70
-msgid "BCC:"
-msgstr "BCC:"
-
-#: ../i18n_templatelist.c:226 ../static/t/edit_message.html:79
-msgid "Subject (optional):"
-msgstr "Oggetto (opzionale):"
-
-#: ../i18n_templatelist.c:227 ../static/t/edit_message.html:95
-msgid "--- forwarded message ---"
-msgstr "--- messaggio inoltrato ---"
-
-#: ../i18n_templatelist.c:228 ../static/t/edit_message.html:115
-msgid "Attachments:"
-msgstr "Allegati:"
-
-#: ../i18n_templatelist.c:229 ../static/t/edit_message.html:119
-msgid "Attach file:"
-msgstr "Allega file:"
-
-#: ../i18n_templatelist.c:231
-#, fuzzy
-msgid "Remove"
-msgstr "(rimuovi)"
-
-#: ../i18n_templatelist.c:232 ../i18n_templatelist.c:441
-#: ../static/t/login.html:4 ../static/t/openid_login.html:4
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-
-#: ../i18n_templatelist.c:233 ../i18n_templatelist.c:442
-#: ../static/t/login.html:8 ../static/t/openid_login.html:8
-#, fuzzy
-msgid "powered by"
-msgstr "%s - potenziato da Citadel"
-
-#: ../i18n_templatelist.c:234 ../static/t/openid_login.html:19
-msgid "OpenID URL:"
-msgstr ""
-
-#: ../i18n_templatelist.c:235 ../i18n_templatelist.c:445
-#: ../static/t/login.html:23 ../static/t/openid_login.html:21
-msgid "Language:"
-msgstr "Lingua:"
-
-#: ../i18n_templatelist.c:236 ../i18n_templatelist.c:446
-#, fuzzy
-msgid "Login"
-msgstr "Ultimo Login"
-
-#: ../i18n_templatelist.c:238 ../static/t/openid_login.html:31
-msgid "Log in using a user name and password"
-msgstr ""
-
-#: ../i18n_templatelist.c:239 ../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Login&quot;."
-msgstr ""
-
-#: ../i18n_templatelist.c:240 ../static/t/openid_login.html:36
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr ""
-
-#: ../i18n_templatelist.c:241 ../i18n_templatelist.c:453
-#: ../static/t/login.html:46 ../static/t/openid_login.html:37
-msgid "Please log off properly when finished. "
-msgstr ""
-
-#: ../i18n_templatelist.c:242 ../i18n_templatelist.c:454
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-#, fuzzy
-msgid "See the"
-msgstr "Cancella"
-
-#: ../i18n_templatelist.c:243 ../i18n_templatelist.c:455
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid "recommended browser list"
-msgstr ""
-
-#: ../i18n_templatelist.c:244 ../i18n_templatelist.c:456
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-
-#: ../i18n_templatelist.c:245 ../i18n_templatelist.c:457
-#: ../static/t/login.html:48 ../static/t/openid_login.html:39
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
-msgstr ""
-
-#: ../i18n_templatelist.c:246
-#, fuzzy
-msgid "Users currently on"
-msgstr "Utenti attualmente su %s"
-
-#: ../i18n_templatelist.c:247
-#, fuzzy
-msgid "Pictures in"
-msgstr "solo immagini"
-
-#: ../i18n_templatelist.c:248
-msgid "Edit or delete users"
-msgstr "Modifica o cancella gli utenti"
-
-#: ../i18n_templatelist.c:249 ../i18n_templatelist.c:459
-#, fuzzy
-msgid "You need to be aide to view this."
-msgstr "Non hai il permesso di visualizzare questa risorsa."
-
-#: ../i18n_templatelist.c:250
-msgid "Add users"
-msgstr "Aggiungi utenti"
-
-#: ../i18n_templatelist.c:251
-msgid "Edit or Delete users"
-msgstr "Modifica o cancella gli utenti"
-
-#: ../i18n_templatelist.c:255
-msgid "Please wait while the Citadel server is restarted... "
-msgstr ""
-
-#: ../i18n_templatelist.c:256
-msgid "Indexing and Journaling"
-msgstr "Indicizzazione"
-
-#: ../i18n_templatelist.c:257
-msgid "Warning: these facilities are resource intensive."
-msgstr "Attenzione: queste caratteristiche richiedono molte risorse."
-
-#: ../i18n_templatelist.c:258
-msgid "Enable full text index"
-msgstr "Abilita l'indicizzazione completa dei testi"
-
-#: ../i18n_templatelist.c:259
-msgid "Perform journaling of email messages"
-msgstr "Esegui l'indicizzazione delle email"
-
-#: ../i18n_templatelist.c:260
-msgid "Perform journaling of non-email messages"
-msgstr "Esegui l'indicizzazione dei messaggi non-email"
-
-#: ../i18n_templatelist.c:261
-msgid "Email destination of journalized messages"
-msgstr "Email di destinazione  dei messaggi indicizzati"
-
-#: ../i18n_templatelist.c:262 ../static/t/files.html:3
-msgid "Files available for download in"
-msgstr ""
-
-#: ../i18n_templatelist.c:263 ../static/t/files.html:18
-#, fuzzy
-msgid "Filename"
-msgstr "Nome del piano"
-
-#: ../i18n_templatelist.c:264 ../static/t/files.html:19
-msgid "Size"
-msgstr ""
-
-#: ../i18n_templatelist.c:265 ../static/t/files.html:20
-#, fuzzy
-msgid "Content"
-msgstr "Contatti"
-
-#: ../i18n_templatelist.c:266 ../static/t/files.html:21
-#, fuzzy
-msgid "Description"
-msgstr "Descrizione:"
-
-#: ../i18n_templatelist.c:267 ../static/t/files.html:35
-#, fuzzy
-msgid "Upload a file:"
-msgstr "Upload permesso"
-
-#: ../i18n_templatelist.c:270 ../static/t/roombanner.html:19
-#, fuzzy
-msgid "Select page: "
-msgstr "Cancella"
-
-#: ../i18n_templatelist.c:272
-msgid ""
-"To create a new user account, enter the desired user name in the box below "
-"and click 'Create'."
-msgstr ""
-"Per creare un nuovo account utente, inserisci il nome utente desiderato "
-"nella casella riportata sotto e clicca 'Crea'."
-
-#: ../i18n_templatelist.c:273
-msgid "New user: "
-msgstr "Nuovo utente:"
-
-#: ../i18n_templatelist.c:274 ../sieve.c:672
-msgid "Create"
-msgstr "Crea"
-
-#: ../i18n_templatelist.c:275
-msgid "(domains mapped with the Global Address Book)"
-msgstr "(Domini mappati nei Contatti Globali)"
-
-#: ../i18n_templatelist.c:276
-msgid "List of Wiki pages"
-msgstr ""
-
-#: ../i18n_templatelist.c:277
-msgid "Advanced server fine-tuning controls"
-msgstr "Controlli avanzati per la configurazione delle rifiniture "
-
-#: ../i18n_templatelist.c:278
-msgid "Server connection idle timeout (in seconds)"
-msgstr "Timeout della connessione per il server in attesa (in secondi)"
-
-#: ../i18n_templatelist.c:279
-msgid "Maximum concurrent sessions (0 = no limit)"
-msgstr "Numero massimo di sessioni concorrenti (0 = nessun limite)"
-
-#: ../i18n_templatelist.c:280
-msgid "Default user purge time (days)"
-msgstr "Tempo di eliminazione di default degli utenti (in giorni)"
-
-#: ../i18n_templatelist.c:281
-msgid "Default room purge time (days)"
-msgstr "Tempo di eliminazioni di default delle stanze (in giorni)"
-
-#: ../i18n_templatelist.c:282
-msgid "Maximum message length"
-msgstr "Massima lunghezza dei messaggi"
-
-#: ../i18n_templatelist.c:283
-msgid "Minimum number of worker threads"
-msgstr "Numero minimo di discussioni attive"
-
-#: ../i18n_templatelist.c:284
-msgid "Maximum number of worker threads"
-msgstr "Massimo numero di discussioni attive"
-
-#: ../i18n_templatelist.c:285
-msgid "Automatically delete committed database logs"
-msgstr "Cancella automaticamente i log del database approvati"
-
-#: ../i18n_templatelist.c:286
-msgid ""
-"To edit an existing user account, select the user name from the list and "
-"click 'Edit'."
-msgstr ""
-"Per modificare un utente esistente, seleziona il suo nome dalla lista e "
-"clicca 'Modifica'."
-
-#: ../i18n_templatelist.c:287
-msgid "Edit configuration"
-msgstr "Modifica la configurazione"
-
-#: ../i18n_templatelist.c:288
-msgid "Edit address book entry"
-msgstr "Modifica il contatto"
-
-#: ../i18n_templatelist.c:289
-msgid "Delete user"
-msgstr "Cancella l'utente"
-
-#: ../i18n_templatelist.c:290
-msgid "Delete this user?"
-msgstr "Cancellare questo utente?"
-
-#: ../i18n_templatelist.c:291
-#, fuzzy
-msgid "Delete File"
-msgstr "Cancella la regola"
-
-#: ../i18n_templatelist.c:292
-msgid "Slideshow"
-msgstr ""
-
-#: ../i18n_templatelist.c:293
-msgid "(hosts running the SpamAssassin service)"
-msgstr "(host che forniscono il servizio spamassassin)"
-
-#: ../i18n_templatelist.c:294
-msgid "Configure the LDAP connector for Citadel"
-msgstr "Configura il connettore LDAP per Citadel"
-
-#: ../i18n_templatelist.c:295 ../i18n_templatelist.c:510
-msgid ""
-"Changes made on this screen will not take effect until you restart the "
-"Citadel server."
-msgstr ""
-"I cambiamenti in questa schemata non avranno effetto finchè non si riavvia "
-"il server Citadel."
-
-#: ../i18n_templatelist.c:296
-msgid ""
-"NOTE: This Citadel server has been built without LDAP support.  These "
-"options will have no effect."
-msgstr ""
-"NOTA: Questo server citadel è stato compilato senza il supporto LDAP. Queste "
-"opzioni non avranno effetto."
-
-#: ../i18n_templatelist.c:297
-msgid "Host name of LDAP server (blank to disable)"
-msgstr "Nome del server LDAP (vuoto per disabilitare)"
-
-#: ../i18n_templatelist.c:298
-msgid "Port number of LDAP server (blank to disable)"
-msgstr "Nuero di porta del server LDAP (vuoto per disabilitare)"
-
-#: ../i18n_templatelist.c:299
-msgid "Base DN"
-msgstr "DN di base"
-
-#: ../i18n_templatelist.c:300
-msgid "Bind DN"
-msgstr "DN bind"
-
-#: ../i18n_templatelist.c:301
-msgid "Password for bind DN"
-msgstr "Password per il DN bind"
-
-#: ../i18n_templatelist.c:302
-msgid "Edit or delete this room"
-msgstr "Cancella o modifica questa stanza"
-
-#: ../i18n_templatelist.c:303
-msgid "Go to a 'hidden' room"
-msgstr "Entra in una stanza \"nascosta\""
-
-#: ../i18n_templatelist.c:304 ../roomops.c:2406
-msgid "Create a new room"
-msgstr "Crea una nuova stanza"
-
-#: ../i18n_templatelist.c:305
-#, fuzzy
-msgid "Zap (forget) this room"
-msgstr "Dimentica questa stanza (%s)"
-
-#: ../i18n_templatelist.c:306
-msgid "List all forgotten rooms"
-msgstr "Mostra tutte le stanze dimenticate"
-
-#: ../i18n_templatelist.c:307 ../i18n_templatelist.c:479
-#: ../static/t/msg_listselector_bottom.html:2
-#: ../static/t/msg_listselector_top.html:2
-msgid "Reading #"
-msgstr "Numero di letture"
-
-#: ../i18n_templatelist.c:309 ../i18n_templatelist.c:481
-#: ../static/t/msg_listselector_bottom.html:7
-#: ../static/t/msg_listselector_top.html:7
-#, fuzzy
-msgid "messages"
-msgstr "Messaggi"
-
-#: ../i18n_templatelist.c:310 ../i18n_templatelist.c:482
-#: ../static/t/msg_listselector_bottom.html:12
-#: ../static/t/msg_listselector_top.html:12
-msgid "oldest to newest"
-msgstr ""
-
-#: ../i18n_templatelist.c:311 ../i18n_templatelist.c:483
-#: ../static/t/msg_listselector_bottom.html:20
-#: ../static/t/msg_listselector_top.html:20
-msgid "newest to oldest"
-msgstr ""
-
-#: ../i18n_templatelist.c:312
-msgid ""
-"Please wait while your users are being paged, the citadel server will be "
-"restarted after that... "
-msgstr ""
-
-#: ../i18n_templatelist.c:317 ../static/t/view_message.html:20
-#, fuzzy
-msgid "Edit"
-msgstr "(Modifica)"
-
-#: ../i18n_templatelist.c:318 ../i18n_templatelist.c:320
-#: ../i18n_templatelist.c:323 ../static/t/view_message.html:23
-#: ../static/t/view_message.html:28 ../static/t/view_message.html:33
-msgid "Reply"
-msgstr "Rispondi"
-
-#: ../i18n_templatelist.c:319 ../static/t/view_message.html:24
-msgid "ReplyQuoted"
-msgstr "Rispondi con cronistoria"
-
-#: ../i18n_templatelist.c:321 ../i18n_templatelist.c:324
-#: ../static/t/view_message.html:29 ../static/t/view_message.html:34
-msgid "ReplyAll"
-msgstr "Rispondi A Tutti"
-
-#: ../i18n_templatelist.c:322 ../i18n_templatelist.c:325
-#: ../static/t/view_message.html:30 ../static/t/view_message.html:35
-msgid "Forward"
-msgstr "Inoltra"
-
-#: ../i18n_templatelist.c:327
-msgid "Delete this message?"
-msgstr "Cancellare questo messaggio?"
-
-#: ../i18n_templatelist.c:329 ../static/t/view_message.html:42
-msgid "Headers"
-msgstr "Intestazione"
-
-#: ../i18n_templatelist.c:331
-msgid "Edit site-wide configuration"
-msgstr "Modifica la configurazione per tutto il sito"
-
-#: ../i18n_templatelist.c:332
-msgid "Domain names and Internet mail configuration"
-msgstr "Configurazione dei nomi di dominio e della posta internet"
-
-#: ../i18n_templatelist.c:333
-msgid "Configure replication with other Citadel servers"
-msgstr "Configura la replicazione con altri server Citadel"
-
-#: ../i18n_templatelist.c:334 ../smtpqueue.c:238
-msgid "View the outbound SMTP queue"
-msgstr "Visualizza la coda SMTP di posta in uscita"
-
-#: ../i18n_templatelist.c:335
-#, fuzzy
-msgid "Powered by Citadel"
-msgstr "Mostra l'icona Potenziato da Citadel"
-
-#: ../i18n_templatelist.c:338
-msgid "Go to your email inbox"
-msgstr "Leggi la tua Posta in Arrivo"
-
-#: ../i18n_templatelist.c:339 ../static/t/iconbar.html:17
-msgid "Mail"
-msgstr "Posta"
-
-#: ../i18n_templatelist.c:340
-msgid "Go to your personal calendar"
-msgstr "Visualizza il tuo calendario personale"
-
-#: ../i18n_templatelist.c:342
-msgid "Go to your personal address book"
-msgstr "Vai ai tuoi contatti personali"
-
-#: ../i18n_templatelist.c:344
-msgid "Go to your personal notes"
-msgstr "Visualizza le tue Note personali"
-
-#: ../i18n_templatelist.c:346
-msgid "Go to your personal task list"
-msgstr "Visualizza le Attività da portare a termine"
-
-#: ../i18n_templatelist.c:348
-#, fuzzy
-msgid "List all your accessible rooms"
-msgstr "Mostra tutte le tue stanze accessibili"
-
-#: ../i18n_templatelist.c:350
-msgid "See who is online right now"
-msgstr "Mostra gli altri utenti collegati in questo momento"
-
-#: ../i18n_templatelist.c:351 ../static/t/iconbar.html:47
-#, fuzzy
-msgid "Online users"
-msgstr "Valida il nuovo utente"
-
-#: ../i18n_templatelist.c:352 ../static/t/iconbar.html:51
-#, fuzzy
-msgid "Loading"
-msgstr "Login"
-
-#: ../i18n_templatelist.c:354
-msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr ""
-"Menu di opzioni avnzate: Comandi avanzati di stanza, Informazioni "
-"dell'utente e Chat"
-
-#: ../i18n_templatelist.c:355 ../static/t/iconbar.html:62
-msgid "Advanced"
-msgstr "Avanzato"
-
-#: ../i18n_templatelist.c:356
-msgid "Room and system administration functions"
-msgstr "Funzioni di amministrazione delle stanze e di sistema"
-
-#: ../i18n_templatelist.c:357 ../roomops.c:1107 ../roomops.c:1111
-#: ../static/t/iconbar.html:68
-msgid "Administration"
-msgstr "Amministrazione"
-
-#: ../i18n_templatelist.c:358
-msgid "Log off now?"
-msgstr "Uscire adesso?"
-
-#: ../i18n_templatelist.c:361 ../static/t/iconbar.html:77
-msgid "customize this menu"
-msgstr "modifica questo menu"
-
-#: ../i18n_templatelist.c:362 ../static/t/iconbar.html:80
-msgid "switch to room list"
-msgstr "Visualizza le cartelle"
-
-#: ../i18n_templatelist.c:363 ../static/t/iconbar.html:81
-msgid "switch to menu"
-msgstr "Visualizza il menu"
-
-#: ../i18n_templatelist.c:364 ../static/t/iconbar.html:82
-#, fuzzy
-msgid "My folders"
-msgstr "Cartella di Posta"
-
-#: ../i18n_templatelist.c:367
-#, fuzzy
-msgid "Delete this entry?"
-msgstr "Cancello questa voce?"
-
-#: ../i18n_templatelist.c:369
-msgid "(domains for which this host receives mail)"
-msgstr "(Domini per cui questo host riceve email)"
-
-#: ../i18n_templatelist.c:370
-msgid "Network configuration"
-msgstr "Configurazione di rete"
-
-#: ../i18n_templatelist.c:372
-msgid "Currently configured nodes"
-msgstr "Nodi configurati"
-
-#: ../i18n_templatelist.c:373
-msgid "Configure automatic expiry of old messages"
-msgstr "Configura la cancellazione automatica dei vecchi messaggi"
-
-#: ../i18n_templatelist.c:374
-msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr ""
-"Queste impostazioni possono essere escluse da impostazioni specifiche alla "
-"stanza o al piano."
-
-#: ../i18n_templatelist.c:375
-msgid "Hour to run database auto-purge"
-msgstr "Ora in cui lanciare la pulizia del database"
-
-#: ../i18n_templatelist.c:376
-msgid "Default message expire policy for public rooms"
-msgstr "Politica di default per la cancellazione delle stanze publiche"
-
-#: ../i18n_templatelist.c:377 ../i18n_templatelist.c:383 ../roomops.c:1785
-#: ../roomops.c:1812
-msgid "Never automatically expire messages"
-msgstr "Non permettere ai messaggi di auto cancellarsi"
-
-#: ../i18n_templatelist.c:378 ../i18n_templatelist.c:384 ../roomops.c:1789
-#: ../roomops.c:1816
-msgid "Expire by message count"
-msgstr "Cancella per numero di messaggi"
-
-#: ../i18n_templatelist.c:379 ../i18n_templatelist.c:385 ../roomops.c:1793
-#: ../roomops.c:1820
-msgid "Expire by message age"
-msgstr "Elimina per età del messaggio"
-
-#: ../i18n_templatelist.c:380 ../i18n_templatelist.c:386 ../roomops.c:1795
-#: ../roomops.c:1822
-msgid "Number of messages or days: "
-msgstr "Numero di messaggi o giorni:"
-
-#: ../i18n_templatelist.c:381
-msgid "Default message expire policy for private mailboxes"
-msgstr ""
-"Politica di default per la cancellazione delle cassette postali private"
-
-#: ../i18n_templatelist.c:382
-msgid "Same policy as public rooms"
-msgstr "Stessa politica delle stanze private"
-
-#: ../i18n_templatelist.c:387
-msgid "(hosts running a Realtime Blackhole List)"
-msgstr "(host che usano una lista Blackhole in tempo reale)"
-
-#: ../i18n_templatelist.c:388
-msgid "Access controls and site policy settings"
-msgstr "Controlli di accesso e impostazioni delle politiche del sito"
-
-#: ../i18n_templatelist.c:389
-msgid "Allow aides to zap (forget) rooms"
-msgstr "Permetti agli amministratori di dimenticare le stanze"
-
-#: ../i18n_templatelist.c:390
-msgid "Quarantine messages from problem users"
-msgstr "Poni in quarantena i messaggi da utenti con problemi"
-
-#: ../i18n_templatelist.c:391
-msgid "Name of quarantine room"
-msgstr "Nome della stanza di quarantena"
-
-#: ../i18n_templatelist.c:392
-msgid "Name of room to log pages"
-msgstr "Nome delle stanze per il log delle pagine"
-
-#: ../i18n_templatelist.c:393
-msgid "Authentication mode"
-msgstr ""
-
-#: ../i18n_templatelist.c:394
-#, fuzzy
-msgid "Self contained"
-msgstr "Contiene"
-
-#: ../i18n_templatelist.c:395
-#, fuzzy
-msgid "Host based"
-msgstr "Nome dell'host:"
-
-#: ../i18n_templatelist.c:396
-msgid "LDAP (RFC2307)"
-msgstr ""
-
-#: ../i18n_templatelist.c:397
-msgid "LDAP (Active Directory)"
-msgstr ""
-
-#: ../i18n_templatelist.c:398
-#, fuzzy
-msgid "Master user name (blank to disable)"
-msgstr "Nome del server Funambol (vuoto per disabilitare)"
-
-#: ../i18n_templatelist.c:399
-#, fuzzy
-msgid "Master user password"
-msgstr "Inserisci la nuova password:"
-
-#: ../i18n_templatelist.c:400
-msgid "Initial access level for new users"
-msgstr "Livello di accesso iniziale per i nuovi utenti"
-
-#: ../i18n_templatelist.c:408
-msgid "Access level required to create rooms"
-msgstr "Livello di accesso richiesto per creare le stanze"
-
-#: ../i18n_templatelist.c:416
-msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-"Imposta automaticamente lo stato di aide per la stanza agli utenti che "
-"creano stanze private"
-
-#: ../i18n_templatelist.c:417
-msgid "Restrict access to Internet mail"
-msgstr "Restringi l'accesso alla posta internet"
-
-#: ../i18n_templatelist.c:418
-msgid "Disable self-service user account creation"
-msgstr "Disabilita l'autocreazione degli account utente"
-
-#: ../i18n_templatelist.c:419
-msgid "Hint: do not select both!"
-msgstr ""
-
-#: ../i18n_templatelist.c:420
-msgid "Require registration for new users"
-msgstr "Richiedi la registrazione per i nuovo utenti"
-
-#: ../i18n_templatelist.c:423
-msgid "Add, change, or delete floors"
-msgstr "Aggiungi, modifica o cancella i piani"
-
-#: ../i18n_templatelist.c:424
-#, fuzzy
-msgid "Delete this note?"
-msgstr "Cancello questa voce?"
-
-#: ../i18n_templatelist.c:427 ../notes.c:349
-msgid "Click on any note to edit it."
-msgstr "Clicca su una nota per modificarla."
-
-#: ../i18n_templatelist.c:428
-#, fuzzy
-msgid "Restart Now"
-msgstr "Imposta questa pagina come principale"
-
-#: ../i18n_templatelist.c:429
-msgid "Restart after paging users"
-msgstr ""
-
-#: ../i18n_templatelist.c:430
-msgid "Restart when all users are idle"
-msgstr ""
-
-#: ../i18n_templatelist.c:431 ../sieve.c:1010
-#: ../static/t/select_messageindex_all.html:1
-msgid "All"
-msgstr "Tutti"
-
-#: ../i18n_templatelist.c:432
-#, fuzzy
-msgid "Configure Push Email"
-msgstr "Email"
-
-#: ../i18n_templatelist.c:433
-msgid "Push email and SMS settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:434
-msgid ""
-"If your administrator has enabled the functionality, Citadel can notify a "
-"Funambol server that you haved recieved new email and automatically "
-"syncronize any devices you have with the Funambol client installed."
-msgstr ""
-
-#: ../i18n_templatelist.c:435
-msgid ""
-"Alternatively, if the administrator has configured it, Citadel can send a "
-"text message to you when new mail arrives."
-msgstr ""
-
-#: ../i18n_templatelist.c:436
-msgid "Notify Funambol server"
-msgstr ""
-
-#: ../i18n_templatelist.c:437
-#, fuzzy
-msgid "Send a text message to..."
-msgstr "Invia un Messaggio istantaneo a:"
-
-#: ../i18n_templatelist.c:438
-msgid ""
-"(Use international format, without any leading zeros, spaces or hypens, like "
-"+61415011501)"
-msgstr ""
-
-#: ../i18n_templatelist.c:439
-msgid "Use custom notification scheme configured by your Admin"
-msgstr ""
-
-#: ../i18n_templatelist.c:440
-msgid "Don‘t send any notifications"
-msgstr ""
-
-#: ../i18n_templatelist.c:444 ../static/t/login.html:21
-msgid "Password:"
-msgstr "Password:"
-
-#: ../i18n_templatelist.c:449 ../static/t/login.html:39
-msgid "Log in using OpenID"
-msgstr ""
-
-#: ../i18n_templatelist.c:450 ../static/t/login.html:43
-msgid "If you already have an account on"
-msgstr ""
-
-#: ../i18n_templatelist.c:451 ../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Login.&quot;"
-msgstr ""
-
-#: ../i18n_templatelist.c:452 ../static/t/login.html:45
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-
-#: ../i18n_templatelist.c:458
-msgid "Site configuration"
-msgstr "Configurazione del sito"
-
-#: ../i18n_templatelist.c:460
-msgid "General"
-msgstr "Generale"
-
-#: ../i18n_templatelist.c:461
-msgid "Access"
-msgstr "Accesso"
-
-#: ../i18n_templatelist.c:462
-msgid "Network"
-msgstr "Rete"
-
-#: ../i18n_templatelist.c:463
-msgid "Tuning"
-msgstr "Rifiniture"
-
-#: ../i18n_templatelist.c:464
-#, fuzzy
-msgid "Directory"
-msgstr "directory"
-
-#: ../i18n_templatelist.c:465
-msgid "Auto-purger"
-msgstr "Eliminatore automatico"
-
-#: ../i18n_templatelist.c:466
-msgid "Indexing/Journaling"
-msgstr "Indicizza"
-
-#: ../i18n_templatelist.c:468
-msgid "Pop3"
-msgstr ""
-
-#: ../i18n_templatelist.c:472
-#, fuzzy
-msgid "Do you really want to kill this session?"
-msgstr "Vuoi davvero terminare questa sessione?"
-
-#: ../i18n_templatelist.c:473 ../static/t/who.html:14
-#, fuzzy
-msgid "Users currently on "
-msgstr "Utenti attualmente su %s"
-
-#: ../i18n_templatelist.c:474 ../static/t/start_of_new_msgs.html:4
-#, fuzzy
-msgid "Old messages"
-msgstr "Nessun vecchio messaggio."
-
-#: ../i18n_templatelist.c:475 ../static/t/start_of_new_msgs.html:8
-#, fuzzy
-msgid "New messages"
-msgstr "Nessun nuovo messaggio"
-
-#: ../i18n_templatelist.c:476
-msgid "(Domains as which users are allowed to masquerade)"
-msgstr ""
-
-#: ../i18n_templatelist.c:477
-msgid "(INBOX)"
-msgstr ""
-
-#: ../i18n_templatelist.c:478
-msgid "History of edits for this page"
-msgstr ""
-
-#: ../i18n_templatelist.c:484
-msgid "List known rooms"
-msgstr "Mostra le stanze conosciute"
-
-#: ../i18n_templatelist.c:485
-msgid "Where can I go from here?"
-msgstr "Dove posso andare da qui?"
-
-#: ../i18n_templatelist.c:486 ../roomops.c:746
-msgid "Goto next room"
-msgstr "Vai alla Prossima Stanza"
-
-#: ../i18n_templatelist.c:487
-#, fuzzy
-msgid "...with <em>unread</em> messages"
-msgstr "... contenente messaggi <em>non letti</em>"
-
-#: ../i18n_templatelist.c:488
-msgid "Skip to next room"
-msgstr "Salta alla prossima stanza"
-
-#: ../i18n_templatelist.c:489
-msgid "(come back here later)"
-msgstr "(torna più tardi)"
-
-#: ../i18n_templatelist.c:490 ../roomops.c:487
-msgid "Ungoto"
-msgstr "Stanza Precedente"
-
-#: ../i18n_templatelist.c:491
-#, fuzzy
-msgid "oops! Back to "
-msgstr "(oops! Torna a %s)"
-
-#: ../i18n_templatelist.c:492 ../roomops.c:496
-msgid "Read new messages"
-msgstr "Leggi i nuovi messaggi"
-
-#: ../i18n_templatelist.c:493
-msgid "...in this room"
-msgstr "... in questa stanza"
-
-#: ../i18n_templatelist.c:494 ../roomops.c:596
-msgid "Read all messages"
-msgstr "leggi tutti i messaggi"
-
-#: ../i18n_templatelist.c:495
-msgid "...old <em>and</em> new"
-msgstr "...vecchi <em>e</em> nuovo"
-
-#: ../i18n_templatelist.c:496 ../roomops.c:719
-msgid "Enter a message"
-msgstr "Componi un messaggio"
-
-#: ../i18n_templatelist.c:497
-msgid "(post in this room)"
-msgstr "(scrivi in questa stanza)"
-
-#: ../i18n_templatelist.c:498
-msgid "File library"
-msgstr ""
-
-#: ../i18n_templatelist.c:499
-msgid "(List files available for download)"
-msgstr ""
-
-#: ../i18n_templatelist.c:500
-msgid "Summary page"
-msgstr "Sommario"
-
-#: ../i18n_templatelist.c:501
-msgid "Summary of my account"
-msgstr "Sommario del mio account"
-
-#: ../i18n_templatelist.c:502
-msgid "User list"
-msgstr "Utenti"
-
-#: ../i18n_templatelist.c:503
-msgid "(all registered users)"
-msgstr "(tutti gli utenti registrati)"
-
-#: ../i18n_templatelist.c:505
-msgid "Bye!"
-msgstr "Ciao!"
-
-#: ../i18n_templatelist.c:506
-msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr "(Se presenti, invia tutta la posta non locale a uno di questi host)"
-
-#: ../i18n_templatelist.c:507
-msgid "View"
-msgstr "Vedi"
-
-#: ../i18n_templatelist.c:509
-msgid "Network services"
-msgstr "Servizi di rete"
-
-#: ../i18n_templatelist.c:511
-msgid "SMTP MTA port (-1 to disable)"
-msgstr "Porta SMTP MTA (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:512
-msgid "Correct forged From: lines during authenticated SMTP"
-msgstr "Correggi le linee From: forgiate durante una sessione SMTP autenticata"
-
-#: ../i18n_templatelist.c:513
-msgid "Flag message as spam, instead of rejecting it"
-msgstr ""
-
-#: ../i18n_templatelist.c:514
-msgid "IMAP listener port (-1 to disable)"
-msgstr "Porta IMAP (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:515
-msgid "Network run frequency (in seconds)"
-msgstr "Velocità della rete (in secondi)"
-
-#: ../i18n_templatelist.c:516
-msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr "Indirizzo ip del server (0.0.0.0 per 'qualsiasi')"
-
-#: ../i18n_templatelist.c:517
-msgid "SMTP MSA port (-1 to disable)"
-msgstr "Porta SMTP MSA (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:518
-msgid "IMAP over SSL port (-1 to disable)"
-msgstr "Porta IMAP SSL (-1 per disabiliare)"
-
-#: ../i18n_templatelist.c:519
-msgid "SMTP over SSL port (-1 to disable)"
-msgstr "Porta SMTP SSL (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:520
-msgid "Instantly expunge deleted messages in IMAP"
-msgstr "Elimina automaticamente i messaggi cancellati nelle cartelle IMAP"
-
-#: ../i18n_templatelist.c:521
-#, fuzzy
-msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr ""
-"Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
-
-#: ../i18n_templatelist.c:522
-msgid "Postfix TCP Dictionary Port"
-msgstr ""
-
-#: ../i18n_templatelist.c:523
-#, fuzzy
-msgid "-1 to disable"
-msgstr "Clicca per disabilitare."
-
-#: ../i18n_templatelist.c:524
-#, fuzzy
-msgid "ManageSieve Port (-1 to disable)"
-msgstr "Porta IMAP (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:525
-msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr ""
-
-#: ../i18n_templatelist.c:526
-msgid "Keep original from headers in IMAP"
-msgstr ""
-
-#: ../i18n_templatelist.c:527
-#, fuzzy
-msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr "Porta POP3 (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:528
-#, fuzzy
-msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr "Porta POP3 (-1 per disabilitare)"
-
-#: ../i18n_templatelist.c:534
-#, fuzzy
-msgid "Save changes?"
-msgstr "Cambia i cambiamenti"
-
-#: ../iconbar.c:250
+#: ../iconbar.c:248
 msgid "Iconbar Setting"
 msgstr ""
 
-#: ../inetconf.c:114 ../inetconf.c:123 ../inetconf.c:136 ../inetconf.c:163
-#: ../netconf.c:167 ../netconf.c:194 ../netconf.c:202 ../netconf.c:251
-#: ../netconf.c:259
+#: ../inetconf.c:112 ../inetconf.c:121 ../inetconf.c:134 ../inetconf.c:161
+#: ../netconf.c:158 ../netconf.c:185 ../netconf.c:193 ../netconf.c:241
+#: ../netconf.c:249
 #, c-format
 msgid "Invalid Parameter"
 msgstr ""
 
-#: ../inetconf.c:129
+#: ../inetconf.c:127
 #, c-format
 msgid "%s has been deleted."
 msgstr "%s &egrave; stato cancellato."
 
-#: ../inetconf.c:147
+#: ../inetconf.c:145
 msgid "added."
 msgstr ""
 
-#: ../listsub.c:39
+#: ../listsub.c:37
 msgid "List subscription"
 msgstr "Mostra le sottoscrizioni"
 
-#: ../listsub.c:51
+#: ../listsub.c:50
 msgid "List subscribe/unsubscribe"
 msgstr "Mostra le sottoscrizioni/cancella la sottoscrizione"
 
-#: ../listsub.c:72
+#: ../listsub.c:71
 msgid "Confirmation request sent"
 msgstr "Richiesta di conferma inviata"
 
-#: ../listsub.c:74
+#: ../listsub.c:73
 #, c-format
 msgid ""
 "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
@@ -2577,139 +747,112 @@ msgstr ""
 "senza il tuo consenso.<br /><br />Per favore, clicca sul collegamento "
 "presente nella email per confermare la tua sottoscrizione.<br />\n"
 
-#: ../listsub.c:87
+#: ../listsub.c:86
 msgid "Go back..."
 msgstr "Indietro..."
 
-#: ../mainmenu.c:40
-msgid "Enter a server command"
-msgstr "inserisci un comando per il server"
-
-#: ../mainmenu.c:50
-msgid ""
-"This screen allows you to enter Citadel server commands which are not "
-"supported by WebCit.  If you do not know what that means, then this screen "
-"will not be of much use to you."
-msgstr ""
-"Questa schermata ti permette di inviare comandi al server non supportati da "
-"WebCit. Se non sai cosa significhi, allora questa schermata non ti "
-"sar&agrave; di molto aiuto."
-
-#: ../mainmenu.c:58
-msgid "Enter command:"
-msgstr "Inserisci il comando:"
-
-#: ../mainmenu.c:61
-msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr ""
-"Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
-
-#: ../mainmenu.c:65
-#, c-format
-msgid "Detected host header is %s://%s"
-msgstr "L'intestazione dell'host rilevata &egrave; %s://%s"
-
-#: ../mainmenu.c:67
-msgid "Send command"
-msgstr "Invia il comando"
-
-#: ../mainmenu.c:97
-msgid "Server command results"
-msgstr "Risultato del comando impartito al Server"
-
-#: ../messages.c:58
+#: ../messages.c:55
 msgid "ERROR:"
 msgstr "ERRORE:"
 
-#: ../messages.c:76
+#: ../messages.c:73
 #, fuzzy
 msgid "Empty message"
 msgstr "Posta il messaggio"
 
-#: ../messages.c:1058
+#: ../messages.c:1061
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Cancellato. Il messaggio non &egrave; stato inviato."
 
-#: ../messages.c:1064
+#: ../messages.c:1067
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Cancellato automaticamente, hai gi&agrave; salvato questo messaggio."
 
-#: ../messages.c:1116
+#: ../messages.c:1119
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../messages.c:1182
+#: ../messages.c:1185
 #, fuzzy
 msgid "Refusing to post empty message.\n"
 msgstr "Ritorna ai messaggi."
 
-#: ../messages.c:1208
+#: ../messages.c:1211
 #, fuzzy
 msgid "Message has been saved to Drafts.\n"
 msgstr "Il Messaggio è stato spedito a"
 
-#: ../messages.c:1217
+#: ../messages.c:1220
 msgid "Message has been sent.\n"
 msgstr "Il messaggio &egrave; stato inviato.\n"
 
-#: ../messages.c:1220
+#: ../messages.c:1223
 msgid "Message has been posted.\n"
 msgstr "Il messaggio &egrave; stato postato.\n"
 
-#: ../messages.c:1439
+#: ../messages.c:1444
 #, c-format
 msgid "The message was not moved."
 msgstr "Il messaggio non è stato spostato"
 
-#: ../messages.c:1461
+#: ../messages.c:1466
 msgid "Confirm move of message"
 msgstr "Conferma lo spostamento del messaggio"
 
-#: ../messages.c:1469
+#: ../messages.c:1474
 msgid "Move this message to:"
 msgstr "Sposta questo messaggio in:"
 
-#: ../messages.c:1532
+#: ../messages.c:1495 ../static/t/msg_listview.html:28
+#: ../static/t/view_message.html:37
+msgid "Move"
+msgstr "Sposta"
+
+#: ../messages.c:1537
 #, fuzzy, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
 
-#: ../messages.c:1592
+#: ../messages.c:1597
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
 
-#: ../messages.c:1754
+#: ../messages.c:1759
 msgid "Attach signature to email messages?"
 msgstr "Allega la firma ai messaggi email?"
 
-#: ../messages.c:1757
+#: ../messages.c:1762
 msgid "Use this signature:"
 msgstr "Usa questa firma:"
 
-#: ../messages.c:1759
+#: ../messages.c:1764
 msgid "Default character set for email headers:"
 msgstr "Set di caratteri di default per le intestazioni delle email:"
 
-#: ../messages.c:1762
+#: ../messages.c:1767
 #, fuzzy
 msgid "Preferred email address"
 msgstr "Indirizzo email principale"
 
-#: ../messages.c:1764
+#: ../messages.c:1769
 #, fuzzy
 msgid "Preferred display name for email messages"
 msgstr "Esegui l'indicizzazione delle email"
 
-#: ../messages.c:1768
+#: ../messages.c:1773
 msgid "Preferred display name for bulletin board posts"
 msgstr ""
 
-#: ../messages.c:1771
+#: ../messages.c:1776
 msgid "Mailbox view mode"
 msgstr ""
+
+#: ../msg_renderers.c:523
+msgid "edit"
+msgstr "Modifica"
 
 #: ../msg_renderers.c:1023
 #, fuzzy
@@ -2720,650 +863,191 @@ msgstr "Non so come mostrare %s"
 msgid "(no subject)"
 msgstr "(nessun oggetto)"
 
-#: ../openid.c:21
+#: ../notes.c:345
+msgid "Click on any note to edit it."
+msgstr "Clicca su una nota per modificarla."
+
+#: ../openid.c:19
 msgid "Manage Account/OpenID Associations"
 msgstr ""
 
-#: ../openid.c:39
+#: ../openid.c:37
 #, fuzzy
 msgid "Do you really want to delete this OpenID?"
 msgstr "Vuoi davvero terminare questa sessione?"
 
-#: ../openid.c:40
+#: ../openid.c:38
 #, fuzzy
 msgid "(delete)"
 msgstr "(Cancella)"
 
-#: ../openid.c:48
+#: ../openid.c:46
 msgid "Add an OpenID: "
 msgstr ""
 
-#: ../openid.c:51
+#: ../openid.c:49
 #, fuzzy
 msgid "Attach"
 msgstr "Allega file:"
 
-#: ../openid.c:55
+#: ../openid.c:53
 #, c-format
 msgid "%s does not permit authentication via OpenID."
 msgstr ""
 
-#: ../paging.c:37
+#: ../paging.c:35
 msgid "Send instant message"
 msgstr "Invia un Messaggio Istantaneo"
 
-#: ../paging.c:46
+#: ../paging.c:44
 msgid "Send an instant message to: "
 msgstr "Invia un Messaggio istantaneo a:"
 
-#: ../paging.c:60
+#: ../paging.c:58
 msgid "Enter message text:"
 msgstr "Inserisci il testo del messaggio:"
 
-#: ../paging.c:88
+#: ../paging.c:66
+msgid "Send message"
+msgstr "Invia il messaggio"
+
+#: ../paging.c:86
 msgid "Message was not sent."
 msgstr "Il Messaggio non è stato spedito."
 
-#: ../paging.c:102
+#: ../paging.c:100
 msgid "Message has been sent to "
 msgstr "Il Messaggio è stato spedito a"
 
-#: ../preferences.c:776
+#: ../preferences.c:846
 msgid "Cancelled.  No settings were changed."
 msgstr "Attività cancellata. Nessuna impostazione è stata cambiata."
 
-#: ../preferences.c:987
+#: ../preferences.c:1058
 msgid "Make this my start page"
 msgstr "Imposta questa pagina come principale"
 
-#: ../preferences.c:1026
+#: ../preferences.c:1097
 msgid "This isn't allowed to become the start page."
 msgstr ""
 
-#: ../preferences.c:1030
+#: ../preferences.c:1101
 msgid "You no longer have a start page selected."
 msgstr "Non hai più una pagina principale selezionata."
 
-#: ../preferences.c:1081
+#: ../preferences.c:1152
 #, fuzzy
 msgid "Prefered startpage"
 msgstr "Utente Preferito"
 
-#: ../roomlist.c:57
+#: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
+msgid "Higher access is required to access this function."
+msgstr ""
+
+#: ../roomlist.c:101
 #, fuzzy
 msgid "My Folders"
 msgstr "Cartella di Posta"
 
-#: ../roomlist.c:320 ../roomops.c:1238 ../roomops.c:1754 ../siteconfig.c:41
-#: ../siteconfig.c:60
-msgid "Higher access is required to access this function."
+#: ../roomops.c:677 ../roomops.c:970 ../sieve.c:571
+msgid "Cancelled.  Changes were not saved."
+msgstr "Attività Cancellata.Le modifiche non sono state salvate."
+
+#: ../roomops.c:805 ../sieve.c:627
+msgid "Your changes have been saved."
+msgstr "Le tue modifiche sono state salvate."
+
+#: ../roomops.c:847
+#, fuzzy, c-format
+msgid "User '%s' kicked out of room '%s'."
+msgstr "<B><I>L'utente %s è stato espulso dalla stanza %s.</I></B>\n"
+
+#: ../roomops.c:863
+#, fuzzy, c-format
+msgid "User '%s' invited to room '%s'."
+msgstr "<B><I>L'utente %s è stato invitato nella stanza %s.</I></B>\n"
+
+#: ../roomops.c:893
+msgid "Cancelled.  No new room was created."
+msgstr "Attività Cancellata.Nessuna nuova stanza è stata creata."
+
+#: ../roomops.c:1165
+msgid "Floor has been deleted."
+msgstr "Il piano &egrave; stato cancellato."
+
+#: ../roomops.c:1189
+msgid "New floor has been created."
+msgstr "Il nuovo piano &egrave; stato creato."
+
+#: ../roomops.c:1268
+msgid "Room list view"
+msgstr "Vista della lista delle stanze"
+
+#: ../roomops.c:1271
+msgid "Show empty floors"
 msgstr ""
 
-#: ../roomops.c:24
-msgid "Bulletin Board"
-msgstr "Forum"
-
-#: ../roomops.c:25
-msgid "Mail Folder"
-msgstr "Cartella di Posta"
-
-#: ../roomops.c:26
-msgid "Address Book"
-msgstr "Contatti"
-
-#: ../roomops.c:28
-msgid "Task List"
-msgstr "Lista delle Attività"
-
-#: ../roomops.c:29
-msgid "Notes List"
-msgstr "Lista delle Note"
-
-#: ../roomops.c:30
-msgid "Wiki"
-msgstr "Wiki"
-
-#: ../roomops.c:31
-msgid "Calendar List"
-msgstr "Lista Calendario"
-
-#: ../roomops.c:32
-msgid "Journal"
-msgstr ""
-
-#: ../roomops.c:218
-msgid "Zapped (forgotten) rooms"
-msgstr "Stanze zappate (dimenticate)"
-
-#: ../roomops.c:228
-msgid "Click on any room to un-zap it and goto that room.\n"
-msgstr "Clicca su una stanza per dezapparla ed entrarci.\n"
-
-#: ../roomops.c:267
-msgid "Close window"
-msgstr "Chiudi la finestra"
-
-#: ../roomops.c:349
-msgid "View as:"
-msgstr "Vedi come:"
-
-#: ../roomops.c:389
-msgid "Search: "
-msgstr "Cerca:"
-
-#: ../roomops.c:459
-msgid "files"
-msgstr ""
-
-#: ../roomops.c:459
+#: ../roomtokens.c:512
 #, fuzzy
 msgid "file"
 msgstr "Titolo:"
 
-#: ../roomops.c:465
-#, fuzzy, c-format
-msgid "%d new of %d messages%s"
-msgstr "%d nuovi messaggi su %d totali"
-
-#: ../roomops.c:510
-msgid "View contacts"
-msgstr "Vista contatti"
-
-#: ../roomops.c:521
-msgid "Day view"
-msgstr "Vista giornaliera"
-
-#: ../roomops.c:530
-msgid "Month view"
-msgstr "Vista mensile"
-
-#: ../roomops.c:541
-msgid "Calendar list"
-msgstr "Lista dei Calendari"
-
-#: ../roomops.c:552
-msgid "View tasks"
-msgstr "Mostra le Attività"
-
-#: ../roomops.c:563
-msgid "View notes"
-msgstr "Mostra le note"
-
-#: ../roomops.c:574
-#, fuzzy
-msgid "Refresh message list"
-msgstr "Vedi la lista dei messaggi"
-
-#: ../roomops.c:585
-msgid "Wiki home"
-msgstr "Home Page del Wiki"
-
-#: ../roomops.c:612
-msgid "Add new contact"
-msgstr "Aggiungi un nuovo contatto"
-
-#: ../roomops.c:626
-msgid "Add new event"
-msgstr "Aggiungi un nuovo evento"
-
-#: ../roomops.c:637
-msgid "Add new task"
-msgstr "Aggiungi una nuova Attività"
-
-#: ../roomops.c:648
-msgid "Add new note"
-msgstr "Aggiungi una nuova nota"
-
-#: ../roomops.c:664
-msgid "Edit this page"
-msgstr "Modifica questa pagina"
-
-#: ../roomops.c:676 ../wiki.c:199
-msgid "Current version"
+#: ../roomtokens.c:514
+msgid "files"
 msgstr ""
 
-#: ../roomops.c:688
-#, fuzzy
-msgid "History"
-msgstr "Direttorio"
+#: ../roomviews.c:42
+msgid "Bulletin Board"
+msgstr "Forum"
 
-#: ../roomops.c:700
-msgid "Write mail"
-msgstr "Componi un messaggio"
+#: ../roomviews.c:43
+msgid "Mail Folder"
+msgstr "Cartella di Posta"
 
-#: ../roomops.c:733
-msgid ""
-"Leave all messages marked as unread, go to next room with unread messages"
-msgstr ""
-"Lascia tutti i messaggi marcati come non letti, passa alla stanza successiva "
-"con messaggi non letti."
+#: ../roomviews.c:44
+msgid "Address Book"
+msgstr "Contatti"
 
-#: ../roomops.c:734
-msgid "Skip this room"
-msgstr "Salta questa stanza"
+#: ../roomviews.c:45 ../static/t/iconbar.html:22
+msgid "Calendar"
+msgstr "Calendario"
 
-#: ../roomops.c:745
-msgid "Mark all messages as read, go to next room with unread messages"
-msgstr ""
-"Marca tutti i messaggi come letti, vai alla prossima stanza con messaggi non "
-"letti"
+#: ../roomviews.c:46
+msgid "Task List"
+msgstr "Lista delle Attività"
 
-#: ../roomops.c:1122 ../roomops.c:1126
-msgid "Configuration"
-msgstr "Configurazione"
+#: ../roomviews.c:47
+msgid "Notes List"
+msgstr "Lista delle Note"
 
-#: ../roomops.c:1135 ../roomops.c:1139
-msgid "Message expire policy"
-msgstr "Politica di cancellazione dei messaggi"
+#: ../roomviews.c:48
+msgid "Wiki"
+msgstr "Wiki"
 
-#: ../roomops.c:1148 ../roomops.c:1152
-msgid "Access controls"
-msgstr "Controllo Accessi"
+#: ../roomviews.c:49
+msgid "Calendar List"
+msgstr "Lista Calendario"
 
-#: ../roomops.c:1161 ../roomops.c:1165
-msgid "Sharing"
-msgstr "Condivisione"
-
-#: ../roomops.c:1174 ../roomops.c:1178
-msgid "Mailing list service"
-msgstr "Servizio Mailing List"
-
-#: ../roomops.c:1189 ../roomops.c:1193
-msgid "Remote retrieval"
+#: ../roomviews.c:50
+msgid "Journal"
 msgstr ""
 
-#: ../roomops.c:1215
-msgid "Are you sure you want to delete this room?"
-msgstr "Sicuro di voler cancellare questa stanza?"
-
-#: ../roomops.c:1217
-msgid "Delete this room"
-msgstr "Cancella questa stanza"
-
-#: ../roomops.c:1222
-msgid "Set or change the icon for this room's banner"
-msgstr "Imposta o modifica l'icona per il banner di questa stanza"
-
-#: ../roomops.c:1225
-msgid "Edit this room's Info file"
-msgstr "Modifica il file di Informazioni di questa stanza"
-
-#: ../roomops.c:1256 ../roomops.c:2415
-msgid "Name of room: "
-msgstr "Nome delle stanza:"
-
-#: ../roomops.c:1263 ../roomops.c:2421
-msgid "Resides on floor: "
-msgstr "Appartiene al piano:"
-
-#: ../roomops.c:1279 ../roomops.c:2467
-msgid "Type of room:"
-msgstr "TIpo di stanza:"
-
-#: ../roomops.c:1290 ../roomops.c:2477
-msgid "Public (automatically appears to everyone)"
-msgstr "Pubblica (Appare automaticamente a tutti gli utenti)"
-
-#: ../roomops.c:1302 ../roomops.c:2485
-msgid "Private - hidden (accessible to anyone who knows its name)"
-msgstr "Privata - nascosta (Accessibile solo a chi ne conosce il nome)"
-
-#: ../roomops.c:1313 ../roomops.c:2493
-msgid "Private - require password: "
-msgstr "Privata - richiede password"
-
-#: ../roomops.c:1327 ../roomops.c:2502
-msgid "Private - invitation only"
-msgstr "Privato - solo su invito"
-
-#: ../roomops.c:1337 ../roomops.c:2511
-msgid "Personal (mailbox for you only)"
-msgstr "Personale (cassetta della posta solo per te)"
-
-#: ../roomops.c:1341
-msgid "If private, cause current users to forget room"
-msgstr "Se impostato come privato, l'utente corrente dimenticherà la stanza"
-
-#: ../roomops.c:1349
-msgid "Preferred users only"
-msgstr "Solo utenti preferiti"
-
-#: ../roomops.c:1355
-msgid "Read-only room"
-msgstr "Stanza in sola lettura"
-
-#: ../roomops.c:1361
-msgid "All users allowed to post may also delete messages"
+#: ../roomviews.c:51
+msgid "Blog"
 msgstr ""
 
-#: ../roomops.c:1368
-msgid "File directory room"
-msgstr "Stanza direttorio di file"
-
-#: ../roomops.c:1371
-msgid "Directory name: "
-msgstr "Nome del direttorio:"
-
-#: ../roomops.c:1379
-msgid "Uploading allowed"
-msgstr "Upload permesso"
-
-#: ../roomops.c:1385
-msgid "Downloading allowed"
-msgstr "Download permesso"
-
-#: ../roomops.c:1391
-msgid "Visible directory"
-msgstr "Direttorio visibile"
-
-#: ../roomops.c:1400
-msgid "Network shared room"
-msgstr "Stanza condivisa in rete"
-
-#: ../roomops.c:1406
-msgid "Permanent (does not auto-purge)"
-msgstr "Permanente (non si auto cancella)"
-
-#: ../roomops.c:1412
-msgid "Subject Required (Force users to specify a message subject)"
-msgstr ""
-
-#: ../roomops.c:1417
-msgid "Anonymous messages"
-msgstr "Messaggio anonimo"
-
-#: ../roomops.c:1425
-msgid "No anonymous messages"
-msgstr "Nessun messaggio anonimo"
-
-#: ../roomops.c:1431
-msgid "All messages are anonymous"
-msgstr "Tutti i messaggi sono anonimi"
-
-#: ../roomops.c:1437
-msgid "Prompt user when entering messages"
-msgstr "Notifica l'utente quando si sta digitando il messaggio"
-
-#: ../roomops.c:1443
-msgid "Room aide: "
-msgstr "Amministratore della stanza: "
-
-#: ../roomops.c:1518
-msgid "Shared with"
-msgstr "Condivisa con"
-
-#: ../roomops.c:1521
-msgid "Not shared with"
-msgstr "Non condivisa con"
-
-#: ../roomops.c:1526 ../roomops.c:1569
-msgid "Remote node name"
-msgstr "nome del nodo remoto"
-
-#: ../roomops.c:1528 ../roomops.c:1571
-msgid "Remote room name"
-msgstr "Nome della stanza remota"
-
-#: ../roomops.c:1530 ../roomops.c:1573
-msgid "Actions"
-msgstr "Azioni"
-
-#: ../roomops.c:1561
-msgid "Unshare"
-msgstr "Elimina condivisione"
-
-#: ../roomops.c:1598
-msgid "Share"
-msgstr "Condividi"
-
-#: ../roomops.c:1607
-#, fuzzy
-msgid ""
-"When sharing a room, it must be shared from both ends.  Adding a node to the "
-"'shared' list sends messages out, but in order to receive messages, the "
-"other nodes must be configured to send messages out to your system as well. "
-"<li>If the remote room name is blank, it is assumed that the room name is "
-"identical on the remote node.<li>If the remote room name is different, the "
-"remote node must also configure the name of the room here.</ul></I><br />\n"
-msgstr ""
-"La condivisione di una stanza deve essere effettuata in tutti i server in "
-"cui è presente. Aggiungendo un nodo alla lista di condivisioni fa in modo "
-"che il messaggio venga inviato, ma per ricevere, anche il nuovo nodo deve "
-"essere configurato per inviare i messaggi al primo.<li>Se il nome remoto "
-"della stanza è vuoto, è implicito che il nome della stanza remota sarà lo "
-"stesso.<li>Se il nome remoto è diverso, si deve configurare anche il nodo "
-"della stanza iniziale.</ul></i><br/>\n"
-
-#: ../roomops.c:1634
-msgid ""
-"<i>The contents of this room are being mailed <b>as individual messages</b> "
-"to the following list recipients:</i><br /><br />\n"
-msgstr ""
-"<i>I contenuti di questa stanza verranno inviati <b>come messaggi "
-"individuali</b> alla seguente lista di destinatari:</i><br/><br/>\n"
-
-#: ../roomops.c:1650 ../roomops.c:1681 ../roomops.c:1904 ../roomops.c:1971
-msgid "(remove)"
-msgstr "(rimuovi)"
-
-#: ../roomops.c:1664
-msgid ""
-"<i>The contents of this room are being mailed <b>in digest form</b> to the "
-"following list recipients:</i><br /><br />\n"
-msgstr ""
-"<i>I contenuti di questa stanza saranno inviati come <b>selezione di "
-"messaggi</b> alla seguente lista di destinatari</i><br/><br/>\n"
-
-#: ../roomops.c:1702
-#, fuzzy
-msgid "List"
-msgstr "Cognome"
-
-#: ../roomops.c:1703
-msgid "Digest"
-msgstr ""
-
-#: ../roomops.c:1704 ../roomops.c:1705
-msgid "Add recipients from Contacts or other address books"
-msgstr ""
-
-#: ../roomops.c:1715
-#, fuzzy
-msgid "Allow self-service subscribe/unsubscribe requests."
-msgstr ""
-"Questa stanza è configurate per permettere la sottoscrizione/cancellazione "
-"automatica degli utenti."
-
-#: ../roomops.c:1719
-msgid "The URL for subscribe/unsubscribe is: "
-msgstr "L'indirizzo per sottoscriversi/cancellarsi dalla stanza è:"
-
-#: ../roomops.c:1725
-msgid "Allow non-subscribers to mail to this room."
-msgstr ""
-
-#: ../roomops.c:1731
-msgid "Room post publication needs Aide permission."
-msgstr ""
-
-#: ../roomops.c:1775
-msgid "Message expire policy for this room"
-msgstr "Politica di cancellazione dei messaggi per questa stanza"
-
-#: ../roomops.c:1781
-msgid "Use the default policy for this floor"
-msgstr "Usa la politica di default per questo piano"
-
-#: ../roomops.c:1802
-msgid "Message expire policy for this floor"
-msgstr "Politica di cancellazione messaggi per questo piano"
-
-#: ../roomops.c:1808
-msgid "Use the system default"
-msgstr "Usa il default di sistema"
-
-#: ../roomops.c:1855
-msgid ""
-"Retrieve messages from these remote POP3 accounts and store them in this "
-"room:"
-msgstr ""
-
-#: ../roomops.c:1860
-#, fuzzy
-msgid "Remote host"
-msgstr "Smart Host"
-
-#: ../roomops.c:1866
-#, fuzzy
-msgid "Keep messages on server?"
-msgstr "Nessun messaggio."
-
-#: ../roomops.c:1868
-#, fuzzy
-msgid "Interval"
-msgstr "Generale"
-
-#: ../roomops.c:1939
-msgid "Fetch the following RSS feeds and store them in this room:"
-msgstr ""
-
-#: ../roomops.c:1945
-msgid "Feed URL"
-msgstr ""
-
-#: ../roomops.c:2059 ../roomops.c:3038 ../sieve.c:575
-msgid "Cancelled.  Changes were not saved."
-msgstr "Attività Cancellata.Le modifiche non sono state salvate."
-
-#: ../roomops.c:2249 ../sieve.c:631
-msgid "Your changes have been saved."
-msgstr "Le tue modifiche sono state salvate."
-
-#: ../roomops.c:2286
-#, c-format
-msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
-msgstr "<B><I>L'utente %s è stato espulso dalla stanza %s.</I></B>\n"
-
-#: ../roomops.c:2300
-#, c-format
-msgid "<B><I>User %s invited to room %s.</I></B>\n"
-msgstr "<B><I>L'utente %s è stato invitato nella stanza %s.</I></B>\n"
-
-#: ../roomops.c:2328
-msgid ""
-"The users listed below have access to this room.  To remove a user from the "
-"access list, select the user name from the list and click 'Kick'."
-msgstr ""
-"Gli utenti mostrati sotto hanno accesso a questa stanza. Per rimuovere un "
-"utente dalla lista degli accessi, selezionalo e clicca 'Espelli'."
-
-#: ../roomops.c:2349
-msgid "Kick"
-msgstr "Espelli"
-
-#: ../roomops.c:2353
-msgid ""
-"To grant another user access to this room, enter the user name in the box "
-"below and click 'Invite'."
-msgstr ""
-"Per permettere a un altro utente l'accesso a questa stanza, inserisci il suo "
-"nome utente e clicca 'Invita'."
-
-#: ../roomops.c:2360
-msgid "Invite:"
-msgstr "Invita:"
-
-#: ../roomops.c:2365
-msgid "Invite"
-msgstr "Invita"
-
-#: ../roomops.c:2372
-#, fuzzy
-msgid "User"
-msgstr "Nuovo Utente"
-
-#: ../roomops.c:2373
-#, fuzzy
-msgid "Users"
-msgstr "Utenti"
-
-#: ../roomops.c:2442
-msgid "Default view for room: "
-msgstr "Vista di default della stanza:"
-
-#: ../roomops.c:2518
-msgid "Create new room"
-msgstr "Crea una nuova stanza"
-
-#: ../roomops.c:2589
-msgid "Cancelled.  No new room was created."
-msgstr "Attività Cancellata.Nessuna nuova stanza è stata creata."
-
-#: ../roomops.c:2641
-msgid "Go to a hidden room"
-msgstr "Vai a una stanza segreta"
-
-#: ../roomops.c:2650
-msgid ""
-"If you know the name of a hidden (guess-name) or passworded room, you can "
-"enter that room by typing its name below.  Once you gain access to a private "
-"room, it will appear in your regular room listings so you don't have to keep "
-"returning here."
-msgstr ""
-"Se conosci il nome di una stanza nascosta (indovina il nome) o protetta da "
-"password, puoi digitarlo qui sotto per accedervi. Una volta che hai "
-"l'accesso a una stanza privata, comparirà nella tua lista di stanze, così "
-"non dovrai ripetere questo passaggio."
-
-#: ../roomops.c:2662
-msgid "Enter room name:"
-msgstr "Inserisci il nome della stanza:"
-
-#: ../roomops.c:2669
-msgid "Enter room password:"
-msgstr "Inserisci la password della stanza:"
-
-#: ../roomops.c:2679
-msgid "Go there"
-msgstr "Entra nella stanza"
-
-#: ../roomops.c:2731
-msgid "Zap (forget/unsubscribe) the current room"
-msgstr "Zap (dimentica/cancella la tua sottoscrizione) questa stanza"
-
-#: ../roomops.c:2737
-#, c-format
-msgid ""
-"If you select this option, <em>%s</em> will disappear from your room list.  "
-"Is this what you wish to do?<br />\n"
-msgstr ""
-"Se selezioni questa opzione, <em>%s</em> scomparirà dalla tua lista delle "
-"stanze, vuoi farlo davvero?<br/><br/>\n"
-
-#: ../roomops.c:2743
-msgid "Zap this room"
-msgstr "Zap questa stanza"
-
-#: ../roomops.c:3210
-msgid "Room list view"
-msgstr "Vista della lista delle stanze"
-
-#: ../roomops.c:3213
-msgid "Show empty floors"
-msgstr ""
-
-#: ../serv_func.c:190
+#: ../serv_func.c:187
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
 
-#: ../serv_func.c:195 ../serv_func.c:224
+#: ../serv_func.c:192 ../serv_func.c:221
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr ""
 
-#: ../serv_func.c:233
+#: ../serv_func.c:230
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -3378,46 +1062,54 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../sieve.c:32
+#: ../sieve.c:18 ../sieve.c:103
+msgid "View/edit server-side mail filters"
+msgstr "Visualizza/Modifica i filtri email lato server"
+
+#: ../sieve.c:28
 msgid ""
 "This installation of Citadel was built without support for server-side mail "
 "filtering.<br>Please contact your system administrator if you require this "
 "feature.<br>"
 msgstr ""
 
-#: ../sieve.c:121
+#: ../sieve.c:117
 msgid "When new mail arrives: "
 msgstr "Quando arrivano nuove email:"
 
-#: ../sieve.c:125
+#: ../sieve.c:121
 msgid "Leave it in my inbox without filtering"
 msgstr "Lasciala nellla mia posta in entrata senza filtrarla"
 
-#: ../sieve.c:129
+#: ../sieve.c:125
 msgid "Filter it according to rules selected below"
 msgstr "Crea filtro dalle regole selezionate qui sotto"
 
-#: ../sieve.c:134
+#: ../sieve.c:130
 msgid "Filter it through a manually edited script (advanced users only)"
 msgstr "Crea filtro modificando manualmente lo script (solo utenti esperti)"
 
-#: ../sieve.c:145
+#: ../sieve.c:141
 msgid "Your incoming mail will not be filtered through any scripts."
 msgstr "La tua posta in ingresso non verrà filtrata attraverso nessuno script."
 
-#: ../sieve.c:160
+#: ../sieve.c:156
 msgid "The currently active script is: "
 msgstr "Lo script attivo è:"
 
-#: ../sieve.c:175 ../sieve.c:648
+#: ../sieve.c:171 ../sieve.c:644
 msgid "Add or delete scripts"
 msgstr "Aggiungi o cancella degli script"
 
-#: ../sieve.c:660
+#: ../sieve.c:203 ../sysmsgs.c:48 ../vcard_edit.c:1000
+msgid "Save changes"
+msgstr "Cambia i cambiamenti"
+
+#: ../sieve.c:657
 msgid "Add a new script"
 msgstr "Aggiungi un nuovo script"
 
-#: ../sieve.c:663
+#: ../sieve.c:660
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
@@ -3425,23 +1117,27 @@ msgstr ""
 "Per creare un nuovo script, inserisci il nome desiderato nella casella "
 "riportata sotto e clicca 'Crea'."
 
-#: ../sieve.c:669
+#: ../sieve.c:666
 msgid "Script name: "
 msgstr "Nome dello script:"
 
-#: ../sieve.c:676
+#: ../sieve.c:669
+msgid "Create"
+msgstr "Crea"
+
+#: ../sieve.c:674
 msgid "Edit scripts"
 msgstr "Modifica gli script"
 
-#: ../sieve.c:679
+#: ../sieve.c:677
 msgid "Return to the script editing screen"
 msgstr "Torna alla schermata di modifica dello script"
 
-#: ../sieve.c:685
+#: ../sieve.c:684
 msgid "Delete scripts"
 msgstr "Cancella gli script"
 
-#: ../sieve.c:688
+#: ../sieve.c:687
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
@@ -3449,19 +1145,19 @@ msgstr ""
 "Per cancellare uno script esistente, seleziona il suo nome dalla lista e "
 "clicca 'Cancella'."
 
-#: ../sieve.c:712
+#: ../sieve.c:711
 msgid "Delete script"
 msgstr "Cancella lo script"
 
-#: ../sieve.c:712
+#: ../sieve.c:711
 msgid "Delete this script?"
 msgstr "Cancellare questo script?"
 
-#: ../sieve.c:749
+#: ../sieve.c:748
 msgid "A script by that name already exists."
 msgstr "Esiste già uno script con quel nome."
 
-#: ../sieve.c:758
+#: ../sieve.c:757
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
@@ -3469,228 +1165,249 @@ msgstr ""
 "E' stato creato un nuovo script. Torna alla schermata di editing per "
 "modificarlo e attivarlo."
 
-#: ../sieve.c:975
+#: ../sieve.c:974
 msgid "Move rule up"
 msgstr "Sposta la regola su"
 
-#: ../sieve.c:980
+#: ../sieve.c:979
 msgid "Move rule down"
 msgstr "Sposta la regola giù."
 
-#: ../sieve.c:985
+#: ../sieve.c:984
 msgid "Delete rule"
 msgstr "Cancella la regola"
 
-#: ../sieve.c:993
+#: ../sieve.c:992
 msgid "If"
 msgstr "Se"
 
-#: ../sieve.c:997
+#: ../sieve.c:996
 msgid "To or Cc"
 msgstr "Destinatario o Cc"
 
-#: ../sieve.c:999
+#: ../sieve.c:998
 msgid "Reply-to"
 msgstr "Rispondi a"
 
-#: ../sieve.c:1001
+#: ../sieve.c:999 ../smtpqueue.c:197 ../static/t/msg_listview.html:11
+#: ../static/t/summary_header.html:9
+msgid "Sender"
+msgstr "Mittente"
+
+#: ../sieve.c:1000
 msgid "Resent-From"
 msgstr "Inoltra da"
 
-#: ../sieve.c:1002
+#: ../sieve.c:1001
 msgid "Resent-To"
 msgstr "Inoltra a"
 
-#: ../sieve.c:1003
+#: ../sieve.c:1002
 msgid "Envelope From"
 msgstr "Mittente del contenitore"
 
-#: ../sieve.c:1004
+#: ../sieve.c:1003
 msgid "Envelope To"
 msgstr "Destinatario del contenitore"
 
-#: ../sieve.c:1005
+#: ../sieve.c:1004
 msgid "X-Mailer"
 msgstr "X-Mailer"
 
-#: ../sieve.c:1006
+#: ../sieve.c:1005
 msgid "X-Spam-Flag"
 msgstr "X-Spam-flag"
 
-#: ../sieve.c:1007
+#: ../sieve.c:1006
 msgid "X-Spam-Status"
 msgstr "X-Spam-Status"
 
-#: ../sieve.c:1008
+#: ../sieve.c:1007
 #, fuzzy
 msgid "List-ID"
 msgstr "Cognome"
 
-#: ../sieve.c:1009
+#: ../sieve.c:1008
 msgid "Message size"
 msgstr "Dimensione del messaggio"
 
-#: ../sieve.c:1029
+#: ../sieve.c:1009 ../static/t/select_messageindex_all.html:1
+msgid "All"
+msgstr "Tutti"
+
+#: ../sieve.c:1028
 msgid "contains"
 msgstr "Contiene"
 
-#: ../sieve.c:1030
+#: ../sieve.c:1029
 msgid "does not contain"
 msgstr "Non contiene"
 
-#: ../sieve.c:1031
+#: ../sieve.c:1030
 msgid "is"
 msgstr "è"
 
-#: ../sieve.c:1032
+#: ../sieve.c:1031
 msgid "is not"
 msgstr "Non è"
 
-#: ../sieve.c:1033
+#: ../sieve.c:1032
 msgid "matches"
 msgstr "è uguale a"
 
-#: ../sieve.c:1034
+#: ../sieve.c:1033
 msgid "does not match"
 msgstr "Non è uguale"
 
-#: ../sieve.c:1054
+#: ../sieve.c:1053
 msgid "(All messages)"
 msgstr "(tutti i messaggi)"
 
-#: ../sieve.c:1058
+#: ../sieve.c:1057
 msgid "is larger than"
 msgstr "E' più grande"
 
-#: ../sieve.c:1059
+#: ../sieve.c:1058
 msgid "is smaller than"
 msgstr "E' più piccolo"
 
-#: ../sieve.c:1082
+#: ../sieve.c:1081
 msgid "Keep"
 msgstr "Tieni"
 
-#: ../sieve.c:1083
+#: ../sieve.c:1082
 msgid "Discard silently"
 msgstr "Scarta silenziosamente"
 
-#: ../sieve.c:1084
+#: ../sieve.c:1083
 msgid "Reject"
 msgstr "Rimanda al mittente"
 
-#: ../sieve.c:1085
+#: ../sieve.c:1084
 msgid "Move message to"
 msgstr "Sposta il messaggio in"
 
-#: ../sieve.c:1086
+#: ../sieve.c:1085
 msgid "Forward to"
 msgstr "Inoltra a"
 
-#: ../sieve.c:1087
+#: ../sieve.c:1086
 msgid "Vacation"
 msgstr "Vacanza"
 
-#: ../sieve.c:1124
+#: ../sieve.c:1123
 msgid "Message:"
 msgstr "Messaggio:"
 
-#: ../sieve.c:1134
+#: ../sieve.c:1133
 msgid "continue processing"
 msgstr "Continua a processare"
 
-#: ../sieve.c:1135
+#: ../sieve.c:1134
 msgid "stop"
 msgstr "ferma"
 
-#: ../sieve.c:1138
+#: ../sieve.c:1137
 msgid "and then"
 msgstr "e poi"
 
-#: ../sieve.c:1159
+#: ../sieve.c:1158
 #, fuzzy
 msgid "Add rule"
 msgstr "Aggiungi utenti"
 
-#: ../siteconfig.c:300
+#: ../siteconfig.c:254
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgstr ""
+
+#: ../siteconfig.c:313
 msgid "Your system configuration has been updated."
 msgstr "La configurazione del tuo sistema è stata aggiornata"
 
-#: ../smtpqueue.c:193
+#: ../smtpqueue.c:133
+msgid "(Delete)"
+msgstr "(Cancella)"
+
+#: ../smtpqueue.c:191
 msgid "Message ID"
 msgstr "ID del messaggio"
 
-#: ../smtpqueue.c:195
+#: ../smtpqueue.c:193
 msgid "Date/time submitted"
 msgstr "Ora/Data fornita"
 
-#: ../smtpqueue.c:197
+#: ../smtpqueue.c:195
 msgid "Last attempt"
 msgstr "Ultimo tentativo"
 
-#: ../smtpqueue.c:201
+#: ../smtpqueue.c:199
 msgid "Recipients"
 msgstr "Destinatari"
 
-#: ../smtpqueue.c:216
+#: ../smtpqueue.c:214
 msgid "The queue is empty."
 msgstr "La coda è vuota."
 
-#: ../smtpqueue.c:222
+#: ../smtpqueue.c:220
 msgid "You do not have permission to view this resource."
 msgstr "Non hai il permesso di visualizzare questa risorsa."
 
-#: ../smtpqueue.c:254
+#: ../smtpqueue.c:236
+msgid "View the outbound SMTP queue"
+msgstr "Visualizza la coda SMTP di posta in uscita"
+
+#: ../smtpqueue.c:252
 msgid "Refresh this page"
 msgstr "Ricarica questa pagina"
 
-#: ../summary.c:34
-msgid "(nothing)"
-msgstr "(nulla)"
-
-#: ../summary.c:117
+#: ../summary.c:101
 msgid "(None)"
 msgstr "(Nessuno)"
 
-#: ../summary.c:169
+#: ../summary.c:153
 msgid "(Nothing)"
 msgstr "(Nulla)"
 
-#: ../summary.c:183
+#: ../summary.c:167
 #, fuzzy, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 "Sei connesso a %s, %s è in esecuzione con %s e localizzato in %s. Il tuo "
 "amministratore di sistema è %s."
 
-#: ../summary.c:211
+#: ../summary.c:195
 msgid "Messages"
 msgstr "Messaggi"
 
-#: ../summary.c:237
+#: ../summary.c:208 ../static/t/iconbar.html:37
+msgid "Tasks"
+msgstr "Attività"
+
+#: ../summary.c:221
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Oggi nel tuo calendario"
 
-#: ../summary.c:252
+#: ../summary.c:236
 msgid "Who's&nbsp;online&nbsp;now"
 msgstr "Chi è online adesso?"
 
-#: ../summary.c:265
+#: ../summary.c:249
 msgid "About&nbsp;this&nbsp;server"
 msgstr "A proposito di questo server"
 
-#: ../summary.c:291
+#: ../summary.c:275
 #, c-format
 msgid "Summary page for %s"
 msgstr "Pagina riassuntiva per %s"
 
-#: ../sysmsgs.c:35
+#: ../sysmsgs.c:33
 #, c-format
 msgid "Edit %s"
 msgstr "Modifica %s"
 
-#: ../sysmsgs.c:38
+#: ../sysmsgs.c:36
 #, c-format
 msgid ""
 "Enter %s below. Text is formatted to the reader's browser. A newline is "
@@ -3700,21 +1417,21 @@ msgstr ""
 "schermo del lettore. Per non seguire la formattazione, indentare la linea di "
 "almeno uno spazio."
 
-#: ../sysmsgs.c:72
+#: ../sysmsgs.c:70
 #, c-format
 msgid "Cancelled.  %s was not saved."
 msgstr "Attività cancellata. %s non è stato salvato."
 
-#: ../sysmsgs.c:91
+#: ../sysmsgs.c:89
 #, c-format
 msgid "%s has been saved."
 msgstr "%s è stato salvato."
 
-#: ../sysmsgs.c:99 ../sysmsgs.c:100
+#: ../sysmsgs.c:97 ../sysmsgs.c:98
 msgid "Room info"
 msgstr "Informazioni di stanza"
 
-#: ../sysmsgs.c:105 ../sysmsgs.c:107
+#: ../sysmsgs.c:103 ../sysmsgs.c:105
 msgid "Your bio"
 msgstr "Le tue informazioni personali"
 
@@ -3774,207 +1491,211 @@ msgstr "(completato)"
 msgid "Category:"
 msgstr ""
 
-#: ../useredit.c:536
+#: ../useredit.c:533
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
 msgstr ""
 "E' avvenuto un errore durante la creazione o la cancellazione di questa voce "
 "della rubrica dei contatti"
 
-#: ../useredit.c:613
+#: ../useredit.c:610
 msgid "Changes were not saved."
 msgstr "I cambiamento non sono stati salvati."
 
-#: ../useredit.c:703
+#: ../useredit.c:700
 #, c-format
 msgid "A new user has been created."
 msgstr "E' stato creato un nuovo utente."
 
-#: ../useredit.c:708
+#: ../useredit.c:705
 msgid ""
 "You are attempting to create a new user from within Citadel while running in "
 "host based authentication mode.  In this mode, you must create new users on "
 "the host system, not within Citadel."
 msgstr ""
 
-#: ../userlist.c:42
+#: ../userlist.c:39
 #, c-format
 msgid "User list for %s"
 msgstr "Lista utenti per %s"
 
-#: ../userlist.c:60
+#: ../userlist.c:57
 msgid "User Name"
 msgstr "Nome Utente"
 
-#: ../userlist.c:61
+#: ../userlist.c:58
 msgid "Number"
 msgstr "Numero"
 
-#: ../userlist.c:62
+#: ../userlist.c:59
 msgid "Access Level"
 msgstr "Livello di Accesso"
 
-#: ../userlist.c:63
+#: ../userlist.c:60
 msgid "Last Login"
 msgstr "Ultimo Login"
 
-#: ../userlist.c:64
+#: ../userlist.c:61
 msgid "Total Logins"
 msgstr "Login Totali"
 
-#: ../userlist.c:65
+#: ../userlist.c:62
 msgid "Total Posts"
 msgstr "Messaggi Totali"
 
-#: ../userlist.c:122
+#: ../userlist.c:119
 msgid "User profile"
 msgstr "Profilo utente"
 
-#: ../userlist.c:160
+#: ../userlist.c:157
 #, c-format
 msgid "Click here to send an instant message to %s"
 msgstr "Clicca qui per inviare un messaggio istantaneo a %s"
 
-#: ../vcard_edit.c:120 ../vcard_edit.c:123
+#: ../vcard_edit.c:117 ../vcard_edit.c:120
 msgid "(no name)"
 msgstr "(nessun nome)"
 
-#: ../vcard_edit.c:388
+#: ../vcard_edit.c:385
 msgid " (work)"
 msgstr "(lavoro)"
 
-#: ../vcard_edit.c:390
+#: ../vcard_edit.c:387
 msgid " (home)"
 msgstr "(casa)"
 
-#: ../vcard_edit.c:392
+#: ../vcard_edit.c:389
 msgid " (cell)"
 msgstr "(cellulare)"
 
-#: ../vcard_edit.c:403 ../vcard_edit.c:907
+#: ../vcard_edit.c:400 ../vcard_edit.c:905
 msgid "Address:"
 msgstr "Indirizzo:"
 
-#: ../vcard_edit.c:471
+#: ../vcard_edit.c:468
 msgid "Telephone:"
 msgstr "Telefono:"
 
-#: ../vcard_edit.c:476
+#: ../vcard_edit.c:473
 msgid "E-mail:"
 msgstr "E-mail:"
 
-#: ../vcard_edit.c:566
+#: ../vcard_edit.c:563
 msgid "This address book is empty."
 msgstr "Questa lista contatti &egrave; vuota"
 
-#: ../vcard_edit.c:580
+#: ../vcard_edit.c:577
 #, fuzzy
 msgid "An internal error has occurred."
 msgstr "E' avvenuto un errore."
 
-#: ../vcard_edit.c:834
+#: ../vcard_edit.c:728
+msgid "Error"
+msgstr "Errore"
+
+#: ../vcard_edit.c:832
 msgid "Edit contact information"
 msgstr "Modifica le informazioni del contatto"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Prefix"
 msgstr "Prefisso"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "First Name"
 msgstr "Nome"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Middle Name"
 msgstr "Secondo nome"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Last Name"
 msgstr "Cognome"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Suffix"
 msgstr "Suffisso"
 
-#: ../vcard_edit.c:876
+#: ../vcard_edit.c:874
 msgid "Display name:"
 msgstr "Nome da mostrare:"
 
-#: ../vcard_edit.c:883
+#: ../vcard_edit.c:881
 msgid "Title:"
 msgstr "Titolo:"
 
-#: ../vcard_edit.c:890
+#: ../vcard_edit.c:888
 msgid "Organization:"
 msgstr "Organizzazione:"
 
-#: ../vcard_edit.c:901
+#: ../vcard_edit.c:899
 msgid "PO box:"
 msgstr "Presso:"
 
-#: ../vcard_edit.c:917
+#: ../vcard_edit.c:915
 msgid "City:"
 msgstr "Città:"
 
-#: ../vcard_edit.c:923
+#: ../vcard_edit.c:921
 msgid "State:"
 msgstr "Provincia:"
 
-#: ../vcard_edit.c:929
+#: ../vcard_edit.c:927
 msgid "ZIP code:"
 msgstr "C.A.P.:"
 
-#: ../vcard_edit.c:935
+#: ../vcard_edit.c:933
 msgid "Country:"
 msgstr "Nazione:"
 
-#: ../vcard_edit.c:945
+#: ../vcard_edit.c:943
 msgid "Home telephone:"
 msgstr "Telefono di casa:"
 
-#: ../vcard_edit.c:951
+#: ../vcard_edit.c:949
 msgid "Work telephone:"
 msgstr "Telefono di lavoro:"
 
-#: ../vcard_edit.c:957
+#: ../vcard_edit.c:955
 #, fuzzy
 msgid "Mobile telephone:"
 msgstr "Telefono di casa:"
 
-#: ../vcard_edit.c:963
+#: ../vcard_edit.c:961
 #, fuzzy
 msgid "Fax number:"
 msgstr "Numero del piano"
 
-#: ../vcard_edit.c:974
+#: ../vcard_edit.c:972
 msgid "Primary Internet e-mail address"
 msgstr "Indirizzo email principale"
 
-#: ../vcard_edit.c:981
+#: ../vcard_edit.c:979
 msgid "Internet e-mail aliases"
 msgstr "Alias degli indirizzi email esterni"
 
-#: ../vcard_edit.c:1048
+#: ../vcard_edit.c:1046
 msgid "Unable to enter the room to save your message"
 msgstr ""
 
-#: ../vcard_edit.c:1057
+#: ../vcard_edit.c:1055
 msgid "Aborting."
 msgstr ""
 
-#: ../vcard_edit.c:1093 ../vcard_edit.c:1139
+#: ../vcard_edit.c:1091 ../vcard_edit.c:1137
 msgid "An error has occurred."
 msgstr "E' avvenuto un errore."
 
-#: ../vcard_edit.c:1195
+#: ../vcard_edit.c:1193
 msgid "Could Not decode vcard photo\n"
 msgstr ""
 
-#: ../webcit.c:341
+#: ../webcit.c:344
 msgid "Authorization Required"
 msgstr "Autorizzazione richiesta"
 
-#: ../webcit.c:350
+#: ../webcit.c:353
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -3983,11 +1704,11 @@ msgstr ""
 "Questa risorsa richiede un nome utente e una password. Non puoi essere "
 "autenticato e accedere a: %s\n"
 
-#: ../who.c:154
+#: ../who.c:151
 msgid "Edit your session display"
 msgstr "Modifica la tua vista della sessione"
 
-#: ../who.c:158
+#: ../who.c:155
 msgid ""
 "This screen allows you to change the way your session appears in the 'Who is "
 "online' listing. To turn off any 'fake' name you've previously set, simply "
@@ -3999,70 +1720,1731 @@ msgstr ""
 "fittizio abbia usato in precedenza, clicca semplicemente sul bottone di "
 "\"modifica\" appropriaton senza digitare nulla nella casella corrispondente."
 
-#: ../who.c:171
+#: ../who.c:168
 msgid "Room name:"
 msgstr "Nome della stanza:"
 
-#: ../who.c:176
+#: ../who.c:173
 msgid "Change room name"
 msgstr "Cambia il nome della stanza"
 
-#: ../who.c:180
+#: ../who.c:177
 msgid "Host name:"
 msgstr "Nome dell'host:"
 
-#: ../who.c:185
+#: ../who.c:182
 msgid "Change host name"
 msgstr "Cambia il nome dell'host"
 
-#: ../who.c:195
+#: ../who.c:187 ../static/t/login.html:19
+#: ../static/t/openid_manual_create.html:15
+msgid "User name:"
+msgstr "Nome utente:"
+
+#: ../who.c:192
 msgid "Change user name"
 msgstr "Cambia nome utente"
 
-#: ../wiki.c:55 ../wiki.c:148 ../wiki.c:270
+#: ../wiki.c:53 ../wiki.c:146 ../wiki.c:268
 #, c-format
 msgid "There is no room called '%s'."
 msgstr "Nessuna stanza col nome '%s'."
 
-#: ../wiki.c:62
+#: ../wiki.c:60
 #, c-format
 msgid "'%s' is not a Wiki room."
 msgstr "'%s' non è una stanza di tipo Wiki."
 
-#: ../wiki.c:96
+#: ../wiki.c:94
 #, c-format
 msgid "There is no page called '%s' here."
 msgstr "Nessuna pagina chamata '%s'."
 
-#: ../wiki.c:98
+#: ../wiki.c:96
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr "Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
 
-#: ../wiki.c:170
+#: ../wiki.c:167 ../static/t/msg_listview.html:12
+#: ../static/t/summary_header.html:10
+msgid "Date"
+msgstr "Data"
+
+#: ../wiki.c:168
 msgid "Author"
 msgstr ""
 
-#: ../wiki.c:197 ../wiki.c:206
+#: ../wiki.c:195 ../wiki.c:204
 #, fuzzy
 msgid "(show)"
 msgstr "(casa)"
 
-#: ../wiki.c:211
+#: ../wiki.c:197 ../static/t/navbar.html:147
+msgid "Current version"
+msgstr ""
+
+#: ../wiki.c:209
 #, fuzzy
 msgid "(revert)"
 msgstr "(rimuovi)"
 
-#: ../wiki.c:291
+#: ../wiki.c:289
 msgid "Page title"
 msgstr ""
+
+#: ../static/t/display_main_menu.html:8
+msgid "Basic commands"
+msgstr "Comandi base"
+
+#: ../static/t/display_main_menu.html:11
+msgid "Your info"
+msgstr "Le tue Informazioni"
+
+#: ../static/t/display_main_menu.html:13
+msgid "Advanced room commands"
+msgstr "Comandi di stanza avanzati"
+
+#: ../static/t/edit_message.html:23
+#, fuzzy
+msgid "from"
+msgstr "da"
+
+#: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
+#, fuzzy
+msgid "Anonymous"
+msgstr "Messaggio anonimo"
+
+#: ../static/t/edit_message.html:47
+#, fuzzy
+msgid "in"
+msgstr "in"
+
+#: ../static/t/edit_message.html:51
+msgid "To:"
+msgstr "A:"
+
+#: ../static/t/edit_message.html:62 ../static/t/view_message.html:16
+msgid "CC:"
+msgstr "CC:"
+
+#: ../static/t/edit_message.html:68
+msgid "BCC:"
+msgstr "BCC:"
+
+#: ../static/t/edit_message.html:76 ../static/t/view_message.html:17
+msgid "Subject:"
+msgstr "Oggetto:"
+
+#: ../static/t/edit_message.html:76
+msgid "Subject (optional):"
+msgstr "Oggetto (opzionale):"
+
+#: ../static/t/edit_message.html:92
+msgid "--- forwarded message ---"
+msgstr "--- messaggio inoltrato ---"
+
+#: ../static/t/edit_message.html:112
+msgid "Attachments:"
+msgstr "Allegati:"
+
+#: ../static/t/edit_message.html:116
+msgid "Attach file:"
+msgstr "Allega file:"
+
+#: ../static/t/files.html:3
+msgid "Files available for download in"
+msgstr ""
+
+#: ../static/t/files.html:18
+#, fuzzy
+msgid "Filename"
+msgstr "Nome del piano"
+
+#: ../static/t/files.html:19
+msgid "Size"
+msgstr ""
+
+#: ../static/t/files.html:20
+#, fuzzy
+msgid "Content"
+msgstr "Contatti"
+
+#: ../static/t/files.html:21
+#, fuzzy
+msgid "Description"
+msgstr "Descrizione:"
+
+#: ../static/t/files.html:35
+#, fuzzy
+msgid "Upload a file:"
+msgstr "Upload permesso"
+
+#: ../static/t/floors_edit_one.html:11
+msgid "(delete floor)"
+msgstr "(Cancella il piano)"
+
+#: ../static/t/floors_edit_one.html:13
+msgid "(edit graphic)"
+msgstr "(Modifica la grafica)"
+
+#: ../static/t/floors.html:4
+msgid "Add/change/delete floors"
+msgstr "Agiungi, cambia o cancella i piani"
+
+#: ../static/t/floors.html:10
+msgid "Floor number"
+msgstr "Numero del piano"
+
+#: ../static/t/floors.html:11
+msgid "Floor name"
+msgstr "Nome del piano"
+
+#: ../static/t/floors.html:12
+msgid "Number of rooms"
+msgstr "Numero di stanze"
+
+#: ../static/t/floors.html:13
+msgid "Floor CSS"
+msgstr "Stile del Piano"
+
+#: ../static/t/iconbar.html:17
+msgid "Mail"
+msgstr "Posta"
+
+#: ../static/t/iconbar.html:42
+msgid "Rooms"
+msgstr "Stanze"
+
+#: ../static/t/iconbar.html:47
+#, fuzzy
+msgid "Online users"
+msgstr "Valida il nuovo utente"
+
+#: ../static/t/iconbar.html:51
+#, fuzzy
+msgid "Loading"
+msgstr "Login"
+
+#: ../static/t/iconbar.html:56
+msgid "Chat"
+msgstr "Chat"
+
+#: ../static/t/iconbar.html:62
+msgid "Advanced"
+msgstr "Avanzato"
+
+#: ../static/t/iconbar.html:68
+msgid "Administration"
+msgstr "Amministrazione"
+
+#: ../static/t/iconbar.html:77
+msgid "customize this menu"
+msgstr "modifica questo menu"
+
+#: ../static/t/iconbar.html:80
+msgid "switch to room list"
+msgstr "Visualizza le cartelle"
+
+#: ../static/t/iconbar.html:81
+msgid "switch to menu"
+msgstr "Visualizza il menu"
+
+#: ../static/t/iconbar.html:82
+#, fuzzy
+msgid "My folders"
+msgstr "Cartella di Posta"
+
+#: ../static/t/knrooms.html:5
+msgid "Room list"
+msgstr "Lista delle stanze"
+
+#: ../static/t/knrooms.html:5
+msgid "Folder list"
+msgstr "Lista delle cartelle"
+
+#: ../static/t/knrooms.html:19
+#, fuzzy
+msgid "View as room list"
+msgstr "Visualizza le cartelle"
+
+#: ../static/t/knrooms.html:20
+#, fuzzy
+msgid "View as folder list"
+msgstr "Lista delle cartelle"
+
+#: ../static/t/knrooms.html:40
+#, fuzzy
+msgid "Room Listing"
+msgstr "Lista delle stanze"
+
+#: ../static/t/login.html:4 ../static/t/openid_login.html:4
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
+#: ../static/t/login.html:8 ../static/t/openid_login.html:8
+#, fuzzy
+msgid "powered by"
+msgstr "%s - potenziato da Citadel"
+
+#: ../static/t/login.html:21
+msgid "Password:"
+msgstr "Password:"
+
+#: ../static/t/login.html:23 ../static/t/openid_login.html:21
+msgid "Language:"
+msgstr "Lingua:"
+
+#: ../static/t/login.html:39
+msgid "Log in using OpenID"
+msgstr ""
+
+#: ../static/t/login.html:43
+msgid "If you already have an account on"
+msgstr ""
+
+#: ../static/t/login.html:44
+msgid "enter your user name and password and click &quot;Login.&quot;"
+msgstr ""
+
+#: ../static/t/login.html:45
+msgid ""
+"<b>If you are a new user</b>, enter the name and password you wish to use, "
+"and click &quot;New User.&quot; "
+msgstr ""
+
+#: ../static/t/login.html:46 ../static/t/openid_login.html:37
+msgid "Please log off properly when finished. "
+msgstr ""
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+#, fuzzy
+msgid "See the"
+msgstr "Cancella"
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid "recommended browser list"
+msgstr ""
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid ""
+"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
+"turned on. "
+msgstr ""
+
+#: ../static/t/login.html:48 ../static/t/openid_login.html:39
+msgid ""
+"Also keep in mind that if your browser is configured to block pop-up "
+"windows, you will not be able to receive any instant messages."
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:2
+#: ../static/t/msg_listselector_top.html:2
+msgid "Reading #"
+msgstr "Numero di letture"
+
+#: ../static/t/msg_listselector_bottom.html:7
+#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:9
+#, fuzzy
+msgid "messages"
+msgstr "Messaggi"
+
+#: ../static/t/msg_listselector_bottom.html:12
+#: ../static/t/msg_listselector_top.html:12
+msgid "oldest to newest"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:20
+#: ../static/t/msg_listselector_top.html:20
+msgid "newest to oldest"
+msgstr ""
+
+#: ../static/t/msg_listview.html:20
+msgid "Loading messages from server, please wait"
+msgstr ""
+
+#: ../static/t/msg_listview.html:27
+msgid "Open in new window"
+msgstr ""
+
+#: ../static/t/msg_listview.html:29
+msgid "Copy"
+msgstr ""
+
+#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:41
+msgid "Print"
+msgstr "Stampa"
+
+#: ../static/t/navbar.html:5
+msgid "Ungoto"
+msgstr "Stanza Precedente"
+
+#: ../static/t/navbar.html:13
+msgid "Read new messages"
+msgstr "Leggi i nuovi messaggi"
+
+#: ../static/t/navbar.html:19 ../static/t/navbar.html:117
+msgid "Read all messages"
+msgstr "leggi tutti i messaggi"
+
+#: ../static/t/navbar.html:25
+msgid "Enter a message"
+msgstr "Componi un messaggio"
+
+#: ../static/t/navbar.html:34
+msgid "View contacts"
+msgstr "Vista contatti"
+
+#: ../static/t/navbar.html:40
+msgid "Add new contact"
+msgstr "Aggiungi un nuovo contatto"
+
+#: ../static/t/navbar.html:49
+msgid "Day view"
+msgstr "Vista giornaliera"
+
+#: ../static/t/navbar.html:55
+msgid "Month view"
+msgstr "Vista mensile"
+
+#: ../static/t/navbar.html:61
+msgid "Add new event"
+msgstr "Aggiungi un nuovo evento"
+
+#: ../static/t/navbar.html:70
+msgid "Calendar list"
+msgstr "Lista dei Calendari"
+
+#: ../static/t/navbar.html:79
+msgid "View tasks"
+msgstr "Mostra le Attività"
+
+#: ../static/t/navbar.html:85
+msgid "Add new task"
+msgstr "Aggiungi una nuova Attività"
+
+#: ../static/t/navbar.html:94
+msgid "View notes"
+msgstr "Mostra le note"
+
+#: ../static/t/navbar.html:102
+msgid "Add new note"
+msgstr "Aggiungi una nuova nota"
+
+#: ../static/t/navbar.html:111
+#, fuzzy
+msgid "Refresh message list"
+msgstr "Vedi la lista dei messaggi"
+
+#: ../static/t/navbar.html:123
+msgid "Write mail"
+msgstr "Componi un messaggio"
+
+#: ../static/t/navbar.html:133
+msgid "Wiki home"
+msgstr "Home Page del Wiki"
+
+#: ../static/t/navbar.html:140
+msgid "Edit this page"
+msgstr "Modifica questa pagina"
+
+#: ../static/t/navbar.html:147
+#, fuzzy
+msgid "History"
+msgstr "Direttorio"
+
+#: ../static/t/navbar.html:155
+msgid "Skip this room"
+msgstr "Salta questa stanza"
+
+#: ../static/t/navbar.html:161
+msgid "Goto next room"
+msgstr "Vai alla Prossima Stanza"
+
+#: ../static/t/newstartpage.html:4
+#, fuzzy
+msgid "New start page"
+msgstr "Imposta questa pagina come principale"
+
+#: ../static/t/newstartpage.html:9
+#, fuzzy
+msgid "Your start page has been changed."
+msgstr "Le tue modifiche sono state salvate."
 
 #: ../static/t/newstartpage.html:12
 msgid ""
 "(Note: this does not change your browser's home page. It changes the page "
 "you begin on when you log on to"
 msgstr ""
+
+#: ../static/t/no_new_msgs.html:3
+#, fuzzy
+msgid "No new messages."
+msgstr "Nessun nuovo messaggio"
+
+#: ../static/t/openid_login.html:19
+msgid "OpenID URL:"
+msgstr ""
+
+#: ../static/t/openid_login.html:31
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../static/t/openid_login.html:34
+msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgstr ""
+
+#: ../static/t/openid_login.html:36
+msgid "Click here to learn what OpenID is and how Citadel is using it."
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:4
+msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:8
+#, fuzzy
+msgid "Your OpenID"
+msgstr "Cambia la tua password"
+
+#: ../static/t/openid_manual_create.html:8
+msgid "was successfully verified."
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:9
+#, fuzzy
+msgid "However, the user name"
+msgstr "Cambia nome utente"
+
+#: ../static/t/openid_manual_create.html:9
+msgid "conflicts with an existing user."
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:11
+msgid "Please specify the user name you would like to use."
+msgstr ""
+
+#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
+msgid "Preferences and settings"
+msgstr "Preferenze e impostazioni"
+
+#: ../static/t/roombanner.html:9
+msgid "new of"
+msgstr ""
+
+#: ../static/t/roombanner.html:23
+#, fuzzy
+msgid "Select page: "
+msgstr "Cancella"
+
+#: ../static/t/searchomatic.html:4
+msgid "Search: "
+msgstr "Cerca:"
+
+#: ../static/t/start_of_new_msgs.html:4
+#, fuzzy
+msgid "Old messages"
+msgstr "Nessun vecchio messaggio."
+
+#: ../static/t/start_of_new_msgs.html:8
+#, fuzzy
+msgid "New messages"
+msgstr "Nessun nuovo messaggio"
+
+#: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
+msgid "from "
+msgstr "da"
+
+#: ../static/t/view_message.html:15
+#, fuzzy
+msgid "to"
+msgstr "a"
+
+#: ../static/t/view_message.html:19
+#, fuzzy
+msgid "Edit"
+msgstr "(Modifica)"
+
+#: ../static/t/view_message.html:21 ../static/t/view_message.html:26
+#: ../static/t/view_message.html:31
+msgid "Reply"
+msgstr "Rispondi"
+
+#: ../static/t/view_message.html:22
+msgid "ReplyQuoted"
+msgstr "Rispondi con cronistoria"
+
+#: ../static/t/view_message.html:27 ../static/t/view_message.html:32
+msgid "ReplyAll"
+msgstr "Rispondi A Tutti"
+
+#: ../static/t/view_message.html:28 ../static/t/view_message.html:33
+msgid "Forward"
+msgstr "Inoltra"
+
+#: ../static/t/view_message.html:40
+msgid "Headers"
+msgstr "Intestazione"
+
+#: ../static/t/viewomatic.html:4
+msgid "View as:"
+msgstr "Vedi come:"
+
+#: ../static/t/who.html:14
+#, fuzzy
+msgid "Users currently on "
+msgstr "Utenti attualmente su %s"
+
+#~ msgid "Exit"
+#~ msgstr "Uscita"
+
+#~ msgid "Change name"
+#~ msgstr "Cambia nome"
+
+#~ msgid "Change CSS"
+#~ msgstr "Modifica lo Stile"
+
+#~ msgid "Create new floor"
+#~ msgstr "Crea un nuovo piano"
+
+#~ msgid "Customize the icon bar"
+#~ msgstr "Personalizza la barra delle icone"
+
+#~ msgid "Display icons as:"
+#~ msgstr "Mostra le icone come:"
+
+#~ msgid "pictures and text"
+#~ msgstr "immagini e testo"
+
+#~ msgid "pictures only"
+#~ msgstr "solo immagini"
+
+#~ msgid "text only"
+#~ msgstr "solo testo"
+
+#~ msgid ""
+#~ "Select the icons you would like to see displayed in the 'icon bar' menu "
+#~ "on the left side of the screen."
+#~ msgstr ""
+#~ "Seleziona le icone che vorresti vedere nel menu alla sinistra dello "
+#~ "schermo."
+
+#~ msgid "Yes"
+#~ msgstr "Si"
+
+#~ msgid "No"
+#~ msgstr "No"
+
+#~ msgid "Site logo"
+#~ msgstr "Logo del sito"
+
+#~ msgid "An icon describing this site"
+#~ msgstr "Una icona che descriva questo sito"
+
+#~ msgid "Your summary page"
+#~ msgstr "Visualizza il sommario"
+
+#~ msgid "Mail (inbox)"
+#~ msgstr "Mail (Posta in arrivo)"
+
+#~ msgid "A shortcut to your email Inbox"
+#~ msgstr "Un collegamento alla tua Posta in Arrivo"
+
+#~ msgid "Your personal address book"
+#~ msgstr "I tuoi Contatti personali"
+
+#~ msgid "Your personal notes"
+#~ msgstr "Le tue note personali"
+
+#~ msgid "A shortcut to your personal calendar"
+#~ msgstr "Un collegamento al tuo calendario personale"
+
+#~ msgid "A shortcut to your personal task list"
+#~ msgstr "Un collegamento alla tua lista di operazioni da effettuare"
+
+#~ msgid ""
+#~ "Clicking this icon displays a list of all accessible rooms (or folders) "
+#~ "available."
+#~ msgstr ""
+#~ "Cliccando questa icona, mostra una lista di tutte le stanze o cartelle "
+#~ "disponibili."
+
+#, fuzzy
+#~ msgid "Yes with users list"
+#~ msgstr "Visualizza le cartelle"
+
+#~ msgid "Who is online?"
+#~ msgstr "Chi &egrave; on line?"
+
+#~ msgid "Clicking this icon displays a list of all users currently logged in."
+#~ msgstr ""
+#~ "Cliccando su questa icona, mostra tutti gli utenti collegati in questo "
+#~ "momento."
+
+#~ msgid ""
+#~ "Clicking this icon enters real-time chat mode with other users in the "
+#~ "same room."
+#~ msgstr ""
+#~ "Cliccando su questa icona vi porter&agrave; a una chat in tempo reale con "
+#~ "gli altri utenti nella stessa stanza."
+
+#~ msgid "Advanced options"
+#~ msgstr "Opzioni avanzate"
+
+#~ msgid "Access to the complete menu of Citadel functions."
+#~ msgstr "Accesso al menu completo delle funzioni di Citadel."
+
+#~ msgid "Citadel logo"
+#~ msgstr "Logo Citadel"
+
+#~ msgid "Displays the 'Powered by Citadel' icon"
+#~ msgstr "Mostra l'icona Potenziato da Citadel"
+
+#~ msgid "System Administration Menu"
+#~ msgstr "Menu di amministrazione di sistema"
+
+#, fuzzy
+#~ msgid "Room Aide Menu"
+#~ msgstr "Amministratore della stanza: "
+
+#~ msgid "Local host aliases"
+#~ msgstr "Alias degli host locali"
+
+#~ msgid "Directory domains"
+#~ msgstr "Domini delle directory"
+
+#~ msgid "Smart hosts"
+#~ msgstr "Smart Host"
+
+#, fuzzy
+#~ msgid "Fallback smart hosts"
+#~ msgstr "Smart Host"
+
+#~ msgid "RBL hosts"
+#~ msgstr "Host RBL"
+
+#~ msgid "SpamAssassin hosts"
+#~ msgstr "Host Spamassassin"
+
+#, fuzzy
+#~ msgid "Masqueradable domains"
+#~ msgstr "Domini del gateway"
+
+#~ msgid "User name"
+#~ msgstr "Nome utente"
+
+#~ msgid "Room"
+#~ msgstr "Stanza"
+
+#~ msgid "From host"
+#~ msgstr "Dall'host"
+
+#, fuzzy
+#~ msgid "Click on a name to read user info.  Click on"
+#~ msgstr ""
+#~ "Clicca su un nome per leggere le informazioni utente.Clicca su %s per "
+#~ "inviare un messaggio istantaneo a questo utente."
+
+#, fuzzy
+#~ msgid "to send an instant message to that user."
+#~ msgstr "Invia un Messaggio istantaneo a:"
+
+#~ msgid ""
+#~ "You have one or more instant messages waiting, but the Citadel Instant "
+#~ "Messenger window failed to open.  This is probably because you have a "
+#~ "popup blocker installed.  Please configure your popup blocker to allow "
+#~ "popups from this site if you wish to receive instant messages."
+#~ msgstr ""
+#~ "Hai uno o più messaggi in coda che aspettano di essere letti, ma la "
+#~ "finestra per i Messaggi Istantanei di Citadel non può essere aperta. La "
+#~ "causa può essere un popup blocker installato nel tuo browser. Per favore, "
+#~ "se vuoi ricevere Messaggi Istantanei, configura il tuo popup blocker in "
+#~ "modo da permettere i popup da questo sito."
+
+#~ msgid "Change your preferences and settings"
+#~ msgstr "Modifica le tue preferenze e impostazioni"
+
+#~ msgid "Update your contact information"
+#~ msgstr "Aggiorna i tuoi dati personali"
+
+#~ msgid "Enter your 'bio'"
+#~ msgstr "Inserisci la tua biografia"
+
+#~ msgid "Edit your online photo"
+#~ msgstr "Modifica la tua foto on line"
+
+#~ msgid "Download"
+#~ msgstr "Scarica"
+
+#~ msgid "Global Configuration"
+#~ msgstr "Configurazione globale"
+
+#~ msgid "User account management"
+#~ msgstr "Gestione account utenti"
+
+#~ msgid "Rooms and Floors"
+#~ msgstr "Stanze e piani"
+
+#, fuzzy
+#~ msgid "Push Email"
+#~ msgstr "Email"
+
+#, fuzzy
+#~ msgid "Funambol server host (blank to disable)"
+#~ msgstr "Nome del server Funambol (vuoto per disabilitare)"
+
+#, fuzzy
+#~ msgid "Funambol server port "
+#~ msgstr "Nome del server Funambol (vuoto per disabilitare)"
+
+#, fuzzy
+#~ msgid "External pager tool (blank to disable)"
+#~ msgstr "Nome del server Funambol (vuoto per disabilitare)"
+
+#~ msgid "Tree (folders) view"
+#~ msgstr "Vista ad albero (cartelle)"
+
+#~ msgid "Table (rooms) view"
+#~ msgstr "Vista a tabella (stanze)"
+
+#~ msgid "12 hour (am/pm)"
+#~ msgstr "12 ore (am/pm)"
+
+#~ msgid "24 hour"
+#~ msgstr "24 ore"
+
+#, fuzzy
+#~ msgid "Sunday"
+#~ msgstr "Sommario"
+
+#, fuzzy
+#~ msgid "Monday"
+#~ msgstr "Sommario"
+
+#~ msgid "No signature"
+#~ msgstr "Nessuna firma"
+
+#~ msgid "Change"
+#~ msgstr "Cambia"
+
+#~ msgid "Edit user account: "
+#~ msgstr "Modifica l'account dell'utente:"
+
+#~ msgid "Password"
+#~ msgstr "Password"
+
+#~ msgid "Permission to send Internet mail"
+#~ msgstr "Permesso di inviare email a internet"
+
+#~ msgid "Number of logins"
+#~ msgstr "Numero di login"
+
+#~ msgid "Messages submitted"
+#~ msgstr "Numero di Messaggi"
+
+#~ msgid "Access level"
+#~ msgstr "Livello di accesso"
+
+#~ msgid "User ID number"
+#~ msgstr "Numero indentificativo"
+
+#~ msgid "Date and time of last login"
+#~ msgstr "Data e giorno dell'ultimo accesso"
+
+#~ msgid "Auto-purge after this many days"
+#~ msgstr "Auto elimina dopo questo numero di giorni"
+
+#~ msgid "POP3 listener port (-1 to disable)"
+#~ msgstr "Porta POP3 (-1 per disabilitare)"
+
+#~ msgid "POP3 over SSL port (-1 to disable)"
+#~ msgstr "Porta POP3 SSL (-1 per disabilitare)"
+
+#, fuzzy
+#~ msgid "POP3 fetch frequency in seconds"
+#~ msgstr "Velocità della rete (in secondi)"
+
+#, fuzzy
+#~ msgid "POP3 fastest fetch frequency in seconds"
+#~ msgstr "Velocità della rete (in secondi)"
+
+#, fuzzy
+#~ msgid "Message to your Users:"
+#~ msgstr "Il Messaggio non è stato spedito."
+
+#, fuzzy
+#~ msgid ""
+#~ "Your icon bar has been updated. Please select any of its choices to "
+#~ "continue."
+#~ msgstr ""
+#~ "La tua bara delle icone &egrave; stata aggiornata. Per favore, seleziona "
+#~ "una delle sue possibilit&agrave; per continuare."
+
+#~ msgid "General site configuration items"
+#~ msgstr "Oggetti di configurazione generali del sito"
+
+#~ msgid "Node name"
+#~ msgstr "Nome del nodo"
+
+#~ msgid "Fully qualified domain name"
+#~ msgstr "Nome di dominio completo"
+
+#~ msgid "Human-readable node name"
+#~ msgstr "Nome del nodo leggibile da umani"
+
+#~ msgid "Telephone number"
+#~ msgstr "Numero di telefono"
+
+#~ msgid "Paginator prompt (for text mode clients)"
+#~ msgstr "Richiamo di impaginazione (per i client solo testo)"
+
+#~ msgid "Geographic location of this system"
+#~ msgstr "Località geografica di questo server"
+
+#~ msgid "Name of system administrator"
+#~ msgstr "Nome dell'amministratore di sistema"
+
+#~ msgid "Default timezone for unzoned calendar items"
+#~ msgstr "Timezone di default per i calendari non localizzati"
+
+#~ msgid "Add a new node"
+#~ msgstr "Aggiungi un nuovo nodo"
+
+#~ msgid "Shared secret"
+#~ msgstr "Segreto condiviso"
+
+#~ msgid "Host or IP address"
+#~ msgstr "Nome dell'host o indirizzo IP"
+
+#~ msgid "Port number"
+#~ msgstr "Numero di porta"
+
+#, fuzzy
+#~ msgid "Add node?"
+#~ msgstr "Aggiungi un nodo"
+
+#~ msgid "(kill)"
+#~ msgstr "(termina)"
+
+#, fuzzy
+#~ msgid "Minutes"
+#~ msgstr "Minuto:"
+
+#, fuzzy
+#~ msgid "active"
+#~ msgstr "Tentativo"
+
+#, fuzzy
+#~ msgid "(Edit)"
+#~ msgstr "(modifica)"
+
+#~ msgid "Confirm delete"
+#~ msgstr "Conferma la cancellazione"
+
+#~ msgid "Are you sure you want to delete "
+#~ msgstr "Sei sicuro di voler cancellare?"
+
+#~ msgid "Add, change, delete user accounts"
+#~ msgstr "Aggiungi, modifica, cancella degli account di utenti"
+
+#, fuzzy
+#~ msgid "(hosts running the ClamAV clamd service)"
+#~ msgstr "(host che forniscono il servizio spamassassin)"
+
+#~ msgid "Send"
+#~ msgstr "Invia"
+
+#, fuzzy
+#~ msgid "Restart Citadel"
+#~ msgstr "Imposta questa pagina come principale"
+
+#~ msgid "Post message"
+#~ msgstr "Posta il messaggio"
+
+#, fuzzy
+#~ msgid "Remove"
+#~ msgstr "(rimuovi)"
+
+#, fuzzy
+#~ msgid "Login"
+#~ msgstr "Ultimo Login"
+
+#, fuzzy
+#~ msgid "Users currently on"
+#~ msgstr "Utenti attualmente su %s"
+
+#, fuzzy
+#~ msgid "Pictures in"
+#~ msgstr "solo immagini"
+
+#~ msgid "Edit or delete users"
+#~ msgstr "Modifica o cancella gli utenti"
+
+#, fuzzy
+#~ msgid "You need to be aide to view this."
+#~ msgstr "Non hai il permesso di visualizzare questa risorsa."
+
+#~ msgid "Add users"
+#~ msgstr "Aggiungi utenti"
+
+#~ msgid "Edit or Delete users"
+#~ msgstr "Modifica o cancella gli utenti"
+
+#~ msgid "Indexing and Journaling"
+#~ msgstr "Indicizzazione"
+
+#~ msgid "Warning: these facilities are resource intensive."
+#~ msgstr "Attenzione: queste caratteristiche richiedono molte risorse."
+
+#~ msgid "Enable full text index"
+#~ msgstr "Abilita l'indicizzazione completa dei testi"
+
+#~ msgid "Perform journaling of email messages"
+#~ msgstr "Esegui l'indicizzazione delle email"
+
+#~ msgid "Perform journaling of non-email messages"
+#~ msgstr "Esegui l'indicizzazione dei messaggi non-email"
+
+#~ msgid "Email destination of journalized messages"
+#~ msgstr "Email di destinazione  dei messaggi indicizzati"
+
+#~ msgid ""
+#~ "To create a new user account, enter the desired user name in the box "
+#~ "below and click 'Create'."
+#~ msgstr ""
+#~ "Per creare un nuovo account utente, inserisci il nome utente desiderato "
+#~ "nella casella riportata sotto e clicca 'Crea'."
+
+#~ msgid "New user: "
+#~ msgstr "Nuovo utente:"
+
+#~ msgid "(domains mapped with the Global Address Book)"
+#~ msgstr "(Domini mappati nei Contatti Globali)"
+
+#~ msgid "Advanced server fine-tuning controls"
+#~ msgstr "Controlli avanzati per la configurazione delle rifiniture "
+
+#~ msgid "Server connection idle timeout (in seconds)"
+#~ msgstr "Timeout della connessione per il server in attesa (in secondi)"
+
+#~ msgid "Maximum concurrent sessions (0 = no limit)"
+#~ msgstr "Numero massimo di sessioni concorrenti (0 = nessun limite)"
+
+#~ msgid "Default user purge time (days)"
+#~ msgstr "Tempo di eliminazione di default degli utenti (in giorni)"
+
+#~ msgid "Default room purge time (days)"
+#~ msgstr "Tempo di eliminazioni di default delle stanze (in giorni)"
+
+#~ msgid "Maximum message length"
+#~ msgstr "Massima lunghezza dei messaggi"
+
+#~ msgid "Minimum number of worker threads"
+#~ msgstr "Numero minimo di discussioni attive"
+
+#~ msgid "Maximum number of worker threads"
+#~ msgstr "Massimo numero di discussioni attive"
+
+#~ msgid "Automatically delete committed database logs"
+#~ msgstr "Cancella automaticamente i log del database approvati"
+
+#~ msgid ""
+#~ "To edit an existing user account, select the user name from the list and "
+#~ "click 'Edit'."
+#~ msgstr ""
+#~ "Per modificare un utente esistente, seleziona il suo nome dalla lista e "
+#~ "clicca 'Modifica'."
+
+#~ msgid "Edit configuration"
+#~ msgstr "Modifica la configurazione"
+
+#~ msgid "Edit address book entry"
+#~ msgstr "Modifica il contatto"
+
+#~ msgid "Delete user"
+#~ msgstr "Cancella l'utente"
+
+#~ msgid "Delete this user?"
+#~ msgstr "Cancellare questo utente?"
+
+#, fuzzy
+#~ msgid "Delete File"
+#~ msgstr "Cancella la regola"
+
+#~ msgid "(hosts running the SpamAssassin service)"
+#~ msgstr "(host che forniscono il servizio spamassassin)"
+
+#~ msgid "Configure the LDAP connector for Citadel"
+#~ msgstr "Configura il connettore LDAP per Citadel"
+
+#~ msgid ""
+#~ "Changes made on this screen will not take effect until you restart the "
+#~ "Citadel server."
+#~ msgstr ""
+#~ "I cambiamenti in questa schemata non avranno effetto finchè non si "
+#~ "riavvia il server Citadel."
+
+#~ msgid ""
+#~ "NOTE: This Citadel server has been built without LDAP support.  These "
+#~ "options will have no effect."
+#~ msgstr ""
+#~ "NOTA: Questo server citadel è stato compilato senza il supporto LDAP. "
+#~ "Queste opzioni non avranno effetto."
+
+#~ msgid "Host name of LDAP server (blank to disable)"
+#~ msgstr "Nome del server LDAP (vuoto per disabilitare)"
+
+#~ msgid "Port number of LDAP server (blank to disable)"
+#~ msgstr "Nuero di porta del server LDAP (vuoto per disabilitare)"
+
+#~ msgid "Base DN"
+#~ msgstr "DN di base"
+
+#~ msgid "Bind DN"
+#~ msgstr "DN bind"
+
+#~ msgid "Password for bind DN"
+#~ msgstr "Password per il DN bind"
+
+#~ msgid "Edit or delete this room"
+#~ msgstr "Cancella o modifica questa stanza"
+
+#~ msgid "Go to a 'hidden' room"
+#~ msgstr "Entra in una stanza \"nascosta\""
+
+#~ msgid "Create a new room"
+#~ msgstr "Crea una nuova stanza"
+
+#, fuzzy
+#~ msgid "Zap (forget) this room"
+#~ msgstr "Dimentica questa stanza (%s)"
+
+#~ msgid "List all forgotten rooms"
+#~ msgstr "Mostra tutte le stanze dimenticate"
+
+#~ msgid "Delete this message?"
+#~ msgstr "Cancellare questo messaggio?"
+
+#~ msgid "Edit site-wide configuration"
+#~ msgstr "Modifica la configurazione per tutto il sito"
+
+#~ msgid "Domain names and Internet mail configuration"
+#~ msgstr "Configurazione dei nomi di dominio e della posta internet"
+
+#~ msgid "Configure replication with other Citadel servers"
+#~ msgstr "Configura la replicazione con altri server Citadel"
+
+#, fuzzy
+#~ msgid "Powered by Citadel"
+#~ msgstr "Mostra l'icona Potenziato da Citadel"
+
+#~ msgid "Go to your email inbox"
+#~ msgstr "Leggi la tua Posta in Arrivo"
+
+#~ msgid "Go to your personal calendar"
+#~ msgstr "Visualizza il tuo calendario personale"
+
+#~ msgid "Go to your personal address book"
+#~ msgstr "Vai ai tuoi contatti personali"
+
+#~ msgid "Go to your personal notes"
+#~ msgstr "Visualizza le tue Note personali"
+
+#~ msgid "Go to your personal task list"
+#~ msgstr "Visualizza le Attività da portare a termine"
+
+#, fuzzy
+#~ msgid "List all your accessible rooms"
+#~ msgstr "Mostra tutte le tue stanze accessibili"
+
+#~ msgid "See who is online right now"
+#~ msgstr "Mostra gli altri utenti collegati in questo momento"
+
+#~ msgid ""
+#~ "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
+#~ msgstr ""
+#~ "Menu di opzioni avnzate: Comandi avanzati di stanza, Informazioni "
+#~ "dell'utente e Chat"
+
+#~ msgid "Room and system administration functions"
+#~ msgstr "Funzioni di amministrazione delle stanze e di sistema"
+
+#~ msgid "Log off now?"
+#~ msgstr "Uscire adesso?"
+
+#, fuzzy
+#~ msgid "Delete this entry?"
+#~ msgstr "Cancello questa voce?"
+
+#~ msgid "(domains for which this host receives mail)"
+#~ msgstr "(Domini per cui questo host riceve email)"
+
+#~ msgid "Network configuration"
+#~ msgstr "Configurazione di rete"
+
+#~ msgid "Currently configured nodes"
+#~ msgstr "Nodi configurati"
+
+#~ msgid "Configure automatic expiry of old messages"
+#~ msgstr "Configura la cancellazione automatica dei vecchi messaggi"
+
+#~ msgid "These settings may be overridden on a per-floor or per-room basis."
+#~ msgstr ""
+#~ "Queste impostazioni possono essere escluse da impostazioni specifiche "
+#~ "alla stanza o al piano."
+
+#~ msgid "Hour to run database auto-purge"
+#~ msgstr "Ora in cui lanciare la pulizia del database"
+
+#~ msgid "Default message expire policy for public rooms"
+#~ msgstr "Politica di default per la cancellazione delle stanze publiche"
+
+#~ msgid "Never automatically expire messages"
+#~ msgstr "Non permettere ai messaggi di auto cancellarsi"
+
+#~ msgid "Expire by message count"
+#~ msgstr "Cancella per numero di messaggi"
+
+#~ msgid "Expire by message age"
+#~ msgstr "Elimina per età del messaggio"
+
+#~ msgid "Number of messages or days: "
+#~ msgstr "Numero di messaggi o giorni:"
+
+#~ msgid "Default message expire policy for private mailboxes"
+#~ msgstr ""
+#~ "Politica di default per la cancellazione delle cassette postali private"
+
+#~ msgid "Same policy as public rooms"
+#~ msgstr "Stessa politica delle stanze private"
+
+#~ msgid "(hosts running a Realtime Blackhole List)"
+#~ msgstr "(host che usano una lista Blackhole in tempo reale)"
+
+#~ msgid "Access controls and site policy settings"
+#~ msgstr "Controlli di accesso e impostazioni delle politiche del sito"
+
+#~ msgid "Allow aides to zap (forget) rooms"
+#~ msgstr "Permetti agli amministratori di dimenticare le stanze"
+
+#~ msgid "Quarantine messages from problem users"
+#~ msgstr "Poni in quarantena i messaggi da utenti con problemi"
+
+#~ msgid "Name of quarantine room"
+#~ msgstr "Nome della stanza di quarantena"
+
+#~ msgid "Name of room to log pages"
+#~ msgstr "Nome delle stanze per il log delle pagine"
+
+#, fuzzy
+#~ msgid "Self contained"
+#~ msgstr "Contiene"
+
+#, fuzzy
+#~ msgid "Host based"
+#~ msgstr "Nome dell'host:"
+
+#, fuzzy
+#~ msgid "Master user name (blank to disable)"
+#~ msgstr "Nome del server Funambol (vuoto per disabilitare)"
+
+#, fuzzy
+#~ msgid "Master user password"
+#~ msgstr "Inserisci la nuova password:"
+
+#~ msgid "Initial access level for new users"
+#~ msgstr "Livello di accesso iniziale per i nuovi utenti"
+
+#~ msgid "Access level required to create rooms"
+#~ msgstr "Livello di accesso richiesto per creare le stanze"
+
+#~ msgid ""
+#~ "Automatically grant room-aide status to users who create private rooms"
+#~ msgstr ""
+#~ "Imposta automaticamente lo stato di aide per la stanza agli utenti che "
+#~ "creano stanze private"
+
+#~ msgid "Restrict access to Internet mail"
+#~ msgstr "Restringi l'accesso alla posta internet"
+
+#~ msgid "Disable self-service user account creation"
+#~ msgstr "Disabilita l'autocreazione degli account utente"
+
+#~ msgid "Require registration for new users"
+#~ msgstr "Richiedi la registrazione per i nuovo utenti"
+
+#~ msgid "Add, change, or delete floors"
+#~ msgstr "Aggiungi, modifica o cancella i piani"
+
+#, fuzzy
+#~ msgid "Delete this note?"
+#~ msgstr "Cancello questa voce?"
+
+#, fuzzy
+#~ msgid "Restart Now"
+#~ msgstr "Imposta questa pagina come principale"
+
+#, fuzzy
+#~ msgid "Configure Push Email"
+#~ msgstr "Email"
+
+#, fuzzy
+#~ msgid "Send a text message to..."
+#~ msgstr "Invia un Messaggio istantaneo a:"
+
+#~ msgid "Site configuration"
+#~ msgstr "Configurazione del sito"
+
+#~ msgid "General"
+#~ msgstr "Generale"
+
+#~ msgid "Access"
+#~ msgstr "Accesso"
+
+#~ msgid "Network"
+#~ msgstr "Rete"
+
+#~ msgid "Tuning"
+#~ msgstr "Rifiniture"
+
+#, fuzzy
+#~ msgid "Directory"
+#~ msgstr "directory"
+
+#~ msgid "Auto-purger"
+#~ msgstr "Eliminatore automatico"
+
+#~ msgid "Indexing/Journaling"
+#~ msgstr "Indicizza"
+
+#, fuzzy
+#~ msgid "Do you really want to kill this session?"
+#~ msgstr "Vuoi davvero terminare questa sessione?"
+
+#~ msgid "List known rooms"
+#~ msgstr "Mostra le stanze conosciute"
+
+#~ msgid "Where can I go from here?"
+#~ msgstr "Dove posso andare da qui?"
+
+#, fuzzy
+#~ msgid "...with <em>unread</em> messages"
+#~ msgstr "... contenente messaggi <em>non letti</em>"
+
+#~ msgid "Skip to next room"
+#~ msgstr "Salta alla prossima stanza"
+
+#~ msgid "(come back here later)"
+#~ msgstr "(torna più tardi)"
+
+#, fuzzy
+#~ msgid "oops! Back to "
+#~ msgstr "(oops! Torna a %s)"
+
+#~ msgid "...in this room"
+#~ msgstr "... in questa stanza"
+
+#~ msgid "...old <em>and</em> new"
+#~ msgstr "...vecchi <em>e</em> nuovo"
+
+#~ msgid "(post in this room)"
+#~ msgstr "(scrivi in questa stanza)"
+
+#~ msgid "Summary page"
+#~ msgstr "Sommario"
+
+#~ msgid "Summary of my account"
+#~ msgstr "Sommario del mio account"
+
+#~ msgid "User list"
+#~ msgstr "Utenti"
+
+#~ msgid "(all registered users)"
+#~ msgstr "(tutti gli utenti registrati)"
+
+#~ msgid "Bye!"
+#~ msgstr "Ciao!"
+
+#~ msgid "(if present, forward all outbound mail to one of these hosts)"
+#~ msgstr "(Se presenti, invia tutta la posta non locale a uno di questi host)"
+
+#~ msgid "View"
+#~ msgstr "Vedi"
+
+#~ msgid "Network services"
+#~ msgstr "Servizi di rete"
+
+#~ msgid "SMTP MTA port (-1 to disable)"
+#~ msgstr "Porta SMTP MTA (-1 per disabilitare)"
+
+#~ msgid "Correct forged From: lines during authenticated SMTP"
+#~ msgstr ""
+#~ "Correggi le linee From: forgiate durante una sessione SMTP autenticata"
+
+#~ msgid "IMAP listener port (-1 to disable)"
+#~ msgstr "Porta IMAP (-1 per disabilitare)"
+
+#~ msgid "Network run frequency (in seconds)"
+#~ msgstr "Velocità della rete (in secondi)"
+
+#~ msgid "Server IP address (0.0.0.0 for 'any')"
+#~ msgstr "Indirizzo ip del server (0.0.0.0 per 'qualsiasi')"
+
+#~ msgid "SMTP MSA port (-1 to disable)"
+#~ msgstr "Porta SMTP MSA (-1 per disabilitare)"
+
+#~ msgid "IMAP over SSL port (-1 to disable)"
+#~ msgstr "Porta IMAP SSL (-1 per disabiliare)"
+
+#~ msgid "SMTP over SSL port (-1 to disable)"
+#~ msgstr "Porta SMTP SSL (-1 per disabilitare)"
+
+#~ msgid "Instantly expunge deleted messages in IMAP"
+#~ msgstr "Elimina automaticamente i messaggi cancellati nelle cartelle IMAP"
+
+#, fuzzy
+#~ msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
+#~ msgstr ""
+#~ "Permetti ai client SMTP non autenticati lo spoofing dei domini del server"
+
+#, fuzzy
+#~ msgid "-1 to disable"
+#~ msgstr "Clicca per disabilitare."
+
+#, fuzzy
+#~ msgid "ManageSieve Port (-1 to disable)"
+#~ msgstr "Porta IMAP (-1 per disabilitare)"
+
+#, fuzzy
+#~ msgid "XMPP (Jabber) client to server port (-1 to disable)"
+#~ msgstr "Porta POP3 (-1 per disabilitare)"
+
+#, fuzzy
+#~ msgid "XMPP (Jabber) server to server port (-1 to disable)"
+#~ msgstr "Porta POP3 (-1 per disabilitare)"
+
+#, fuzzy
+#~ msgid "Save changes?"
+#~ msgstr "Cambia i cambiamenti"
+
+#~ msgid "Enter a server command"
+#~ msgstr "inserisci un comando per il server"
+
+#~ msgid ""
+#~ "This screen allows you to enter Citadel server commands which are not "
+#~ "supported by WebCit.  If you do not know what that means, then this "
+#~ "screen will not be of much use to you."
+#~ msgstr ""
+#~ "Questa schermata ti permette di inviare comandi al server non supportati "
+#~ "da WebCit. Se non sai cosa significhi, allora questa schermata non ti "
+#~ "sar&agrave; di molto aiuto."
+
+#~ msgid "Enter command:"
+#~ msgstr "Inserisci il comando:"
+
+#~ msgid "Command input (if requesting SEND_LISTING transfer mode):"
+#~ msgstr ""
+#~ "Input del comando (se si richiede un modo di traferimento SEND_LISTING):"
+
+#~ msgid "Detected host header is %s://%s"
+#~ msgstr "L'intestazione dell'host rilevata &egrave; %s://%s"
+
+#~ msgid "Send command"
+#~ msgstr "Invia il comando"
+
+#~ msgid "Server command results"
+#~ msgstr "Risultato del comando impartito al Server"
+
+#~ msgid "Zapped (forgotten) rooms"
+#~ msgstr "Stanze zappate (dimenticate)"
+
+#~ msgid "Click on any room to un-zap it and goto that room.\n"
+#~ msgstr "Clicca su una stanza per dezapparla ed entrarci.\n"
+
+#~ msgid "Close window"
+#~ msgstr "Chiudi la finestra"
+
+#, fuzzy
+#~ msgid "%d new of %d messages%s"
+#~ msgstr "%d nuovi messaggi su %d totali"
+
+#~ msgid ""
+#~ "Leave all messages marked as unread, go to next room with unread messages"
+#~ msgstr ""
+#~ "Lascia tutti i messaggi marcati come non letti, passa alla stanza "
+#~ "successiva con messaggi non letti."
+
+#~ msgid "Mark all messages as read, go to next room with unread messages"
+#~ msgstr ""
+#~ "Marca tutti i messaggi come letti, vai alla prossima stanza con messaggi "
+#~ "non letti"
+
+#~ msgid "Configuration"
+#~ msgstr "Configurazione"
+
+#~ msgid "Message expire policy"
+#~ msgstr "Politica di cancellazione dei messaggi"
+
+#~ msgid "Access controls"
+#~ msgstr "Controllo Accessi"
+
+#~ msgid "Sharing"
+#~ msgstr "Condivisione"
+
+#~ msgid "Mailing list service"
+#~ msgstr "Servizio Mailing List"
+
+#~ msgid "Are you sure you want to delete this room?"
+#~ msgstr "Sicuro di voler cancellare questa stanza?"
+
+#~ msgid "Delete this room"
+#~ msgstr "Cancella questa stanza"
+
+#~ msgid "Set or change the icon for this room's banner"
+#~ msgstr "Imposta o modifica l'icona per il banner di questa stanza"
+
+#~ msgid "Edit this room's Info file"
+#~ msgstr "Modifica il file di Informazioni di questa stanza"
+
+#~ msgid "Name of room: "
+#~ msgstr "Nome delle stanza:"
+
+#~ msgid "Resides on floor: "
+#~ msgstr "Appartiene al piano:"
+
+#~ msgid "Type of room:"
+#~ msgstr "TIpo di stanza:"
+
+#~ msgid "Public (automatically appears to everyone)"
+#~ msgstr "Pubblica (Appare automaticamente a tutti gli utenti)"
+
+#~ msgid "Private - hidden (accessible to anyone who knows its name)"
+#~ msgstr "Privata - nascosta (Accessibile solo a chi ne conosce il nome)"
+
+#~ msgid "Private - require password: "
+#~ msgstr "Privata - richiede password"
+
+#~ msgid "Private - invitation only"
+#~ msgstr "Privato - solo su invito"
+
+#~ msgid "Personal (mailbox for you only)"
+#~ msgstr "Personale (cassetta della posta solo per te)"
+
+#~ msgid "If private, cause current users to forget room"
+#~ msgstr "Se impostato come privato, l'utente corrente dimenticherà la stanza"
+
+#~ msgid "Preferred users only"
+#~ msgstr "Solo utenti preferiti"
+
+#~ msgid "Read-only room"
+#~ msgstr "Stanza in sola lettura"
+
+#~ msgid "File directory room"
+#~ msgstr "Stanza direttorio di file"
+
+#~ msgid "Directory name: "
+#~ msgstr "Nome del direttorio:"
+
+#~ msgid "Uploading allowed"
+#~ msgstr "Upload permesso"
+
+#~ msgid "Downloading allowed"
+#~ msgstr "Download permesso"
+
+#~ msgid "Visible directory"
+#~ msgstr "Direttorio visibile"
+
+#~ msgid "Network shared room"
+#~ msgstr "Stanza condivisa in rete"
+
+#~ msgid "Permanent (does not auto-purge)"
+#~ msgstr "Permanente (non si auto cancella)"
+
+#~ msgid "Anonymous messages"
+#~ msgstr "Messaggio anonimo"
+
+#~ msgid "No anonymous messages"
+#~ msgstr "Nessun messaggio anonimo"
+
+#~ msgid "All messages are anonymous"
+#~ msgstr "Tutti i messaggi sono anonimi"
+
+#~ msgid "Prompt user when entering messages"
+#~ msgstr "Notifica l'utente quando si sta digitando il messaggio"
+
+#~ msgid "Room aide: "
+#~ msgstr "Amministratore della stanza: "
+
+#~ msgid "Shared with"
+#~ msgstr "Condivisa con"
+
+#~ msgid "Not shared with"
+#~ msgstr "Non condivisa con"
+
+#~ msgid "Remote node name"
+#~ msgstr "nome del nodo remoto"
+
+#~ msgid "Remote room name"
+#~ msgstr "Nome della stanza remota"
+
+#~ msgid "Actions"
+#~ msgstr "Azioni"
+
+#~ msgid "Unshare"
+#~ msgstr "Elimina condivisione"
+
+#~ msgid "Share"
+#~ msgstr "Condividi"
+
+#, fuzzy
+#~ msgid ""
+#~ "When sharing a room, it must be shared from both ends.  Adding a node to "
+#~ "the 'shared' list sends messages out, but in order to receive messages, "
+#~ "the other nodes must be configured to send messages out to your system as "
+#~ "well. <li>If the remote room name is blank, it is assumed that the room "
+#~ "name is identical on the remote node.<li>If the remote room name is "
+#~ "different, the remote node must also configure the name of the room here."
+#~ "</ul></I><br />\n"
+#~ msgstr ""
+#~ "La condivisione di una stanza deve essere effettuata in tutti i server in "
+#~ "cui è presente. Aggiungendo un nodo alla lista di condivisioni fa in modo "
+#~ "che il messaggio venga inviato, ma per ricevere, anche il nuovo nodo deve "
+#~ "essere configurato per inviare i messaggi al primo.<li>Se il nome remoto "
+#~ "della stanza è vuoto, è implicito che il nome della stanza remota sarà lo "
+#~ "stesso.<li>Se il nome remoto è diverso, si deve configurare anche il nodo "
+#~ "della stanza iniziale.</ul></i><br/>\n"
+
+#~ msgid ""
+#~ "<i>The contents of this room are being mailed <b>as individual messages</"
+#~ "b> to the following list recipients:</i><br /><br />\n"
+#~ msgstr ""
+#~ "<i>I contenuti di questa stanza verranno inviati <b>come messaggi "
+#~ "individuali</b> alla seguente lista di destinatari:</i><br/><br/>\n"
+
+#~ msgid "(remove)"
+#~ msgstr "(rimuovi)"
+
+#~ msgid ""
+#~ "<i>The contents of this room are being mailed <b>in digest form</b> to "
+#~ "the following list recipients:</i><br /><br />\n"
+#~ msgstr ""
+#~ "<i>I contenuti di questa stanza saranno inviati come <b>selezione di "
+#~ "messaggi</b> alla seguente lista di destinatari</i><br/><br/>\n"
+
+#, fuzzy
+#~ msgid "List"
+#~ msgstr "Cognome"
+
+#, fuzzy
+#~ msgid "Allow self-service subscribe/unsubscribe requests."
+#~ msgstr ""
+#~ "Questa stanza è configurate per permettere la sottoscrizione/"
+#~ "cancellazione automatica degli utenti."
+
+#~ msgid "The URL for subscribe/unsubscribe is: "
+#~ msgstr "L'indirizzo per sottoscriversi/cancellarsi dalla stanza è:"
+
+#~ msgid "Message expire policy for this room"
+#~ msgstr "Politica di cancellazione dei messaggi per questa stanza"
+
+#~ msgid "Use the default policy for this floor"
+#~ msgstr "Usa la politica di default per questo piano"
+
+#~ msgid "Message expire policy for this floor"
+#~ msgstr "Politica di cancellazione messaggi per questo piano"
+
+#~ msgid "Use the system default"
+#~ msgstr "Usa il default di sistema"
+
+#, fuzzy
+#~ msgid "Remote host"
+#~ msgstr "Smart Host"
+
+#, fuzzy
+#~ msgid "Keep messages on server?"
+#~ msgstr "Nessun messaggio."
+
+#, fuzzy
+#~ msgid "Interval"
+#~ msgstr "Generale"
+
+#~ msgid ""
+#~ "The users listed below have access to this room.  To remove a user from "
+#~ "the access list, select the user name from the list and click 'Kick'."
+#~ msgstr ""
+#~ "Gli utenti mostrati sotto hanno accesso a questa stanza. Per rimuovere un "
+#~ "utente dalla lista degli accessi, selezionalo e clicca 'Espelli'."
+
+#~ msgid "Kick"
+#~ msgstr "Espelli"
+
+#~ msgid ""
+#~ "To grant another user access to this room, enter the user name in the box "
+#~ "below and click 'Invite'."
+#~ msgstr ""
+#~ "Per permettere a un altro utente l'accesso a questa stanza, inserisci il "
+#~ "suo nome utente e clicca 'Invita'."
+
+#~ msgid "Invite:"
+#~ msgstr "Invita:"
+
+#~ msgid "Invite"
+#~ msgstr "Invita"
+
+#, fuzzy
+#~ msgid "User"
+#~ msgstr "Nuovo Utente"
+
+#, fuzzy
+#~ msgid "Users"
+#~ msgstr "Utenti"
+
+#~ msgid "Default view for room: "
+#~ msgstr "Vista di default della stanza:"
+
+#~ msgid "Create new room"
+#~ msgstr "Crea una nuova stanza"
+
+#~ msgid "Go to a hidden room"
+#~ msgstr "Vai a una stanza segreta"
+
+#~ msgid ""
+#~ "If you know the name of a hidden (guess-name) or passworded room, you can "
+#~ "enter that room by typing its name below.  Once you gain access to a "
+#~ "private room, it will appear in your regular room listings so you don't "
+#~ "have to keep returning here."
+#~ msgstr ""
+#~ "Se conosci il nome di una stanza nascosta (indovina il nome) o protetta "
+#~ "da password, puoi digitarlo qui sotto per accedervi. Una volta che hai "
+#~ "l'accesso a una stanza privata, comparirà nella tua lista di stanze, così "
+#~ "non dovrai ripetere questo passaggio."
+
+#~ msgid "Enter room name:"
+#~ msgstr "Inserisci il nome della stanza:"
+
+#~ msgid "Enter room password:"
+#~ msgstr "Inserisci la password della stanza:"
+
+#~ msgid "Go there"
+#~ msgstr "Entra nella stanza"
+
+#~ msgid "Zap (forget/unsubscribe) the current room"
+#~ msgstr "Zap (dimentica/cancella la tua sottoscrizione) questa stanza"
+
+#~ msgid ""
+#~ "If you select this option, <em>%s</em> will disappear from your room "
+#~ "list.  Is this what you wish to do?<br />\n"
+#~ msgstr ""
+#~ "Se selezioni questa opzione, <em>%s</em> scomparirà dalla tua lista delle "
+#~ "stanze, vuoi farlo davvero?<br/><br/>\n"
+
+#~ msgid "Zap this room"
+#~ msgstr "Zap questa stanza"
+
+#~ msgid "(nothing)"
+#~ msgstr "(nulla)"
 
 #~ msgid "unexpected end of message"
 #~ msgstr "Fine del messaggio inaspettata"

@@ -8,98 +8,60 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-05 22:34+0200\n"
+"POT-Creation-Date: 2010-09-07 10:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Rait Lotamõis <rait@kuma.ee>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
-#: ../addressbook_popup.c:194 ../i18n_templatelist.c:230 ../roomops.c:1659
-#: ../roomops.c:1690 ../roomops.c:1932 ../roomops.c:1988
+#: ../addressbook_popup.c:192
 msgid "Add"
 msgstr "Lisa"
 
-#: ../auth.c:38 ../i18n_templatelist.c:147 ../i18n_templatelist.c:401
-#: ../i18n_templatelist.c:409
+#: ../auth.c:36
 msgid "Deleted"
 msgstr "Kustutatud"
 
-#: ../auth.c:39 ../auth.c:106 ../i18n_templatelist.c:148
-#: ../i18n_templatelist.c:402 ../i18n_templatelist.c:410
-#: ../i18n_templatelist.c:447
+#: ../auth.c:37
 msgid "New User"
 msgstr "Uus Kasutaja"
 
-#: ../auth.c:40 ../i18n_templatelist.c:149 ../i18n_templatelist.c:403
-#: ../i18n_templatelist.c:411
+#: ../auth.c:38
 msgid "Problem User"
 msgstr "Probleemne Kasutaja"
 
-#: ../auth.c:41 ../i18n_templatelist.c:150 ../i18n_templatelist.c:404
-#: ../i18n_templatelist.c:412
+#: ../auth.c:39
 msgid "Local User"
 msgstr "Kohalik Kasutaja"
 
-#: ../auth.c:42 ../i18n_templatelist.c:151 ../i18n_templatelist.c:405
-#: ../i18n_templatelist.c:413
+#: ../auth.c:40
 msgid "Network User"
 msgstr "Võrgukasutaja"
 
-#: ../auth.c:43 ../i18n_templatelist.c:152 ../i18n_templatelist.c:406
-#: ../i18n_templatelist.c:414
+#: ../auth.c:41
 msgid "Preferred User"
 msgstr "Privilegeeritud Kasutaja"
 
-#: ../auth.c:44 ../i18n_templatelist.c:153 ../i18n_templatelist.c:407
-#: ../i18n_templatelist.c:415
+#: ../auth.c:42
 msgid "Aide"
 msgstr "Korrapidaja"
 
-#: ../auth.c:86
-#, c-format
-msgid "Your OpenID <tt>%s</tt> was successfully verified."
-msgstr "Sinu OpenID <tt>%s</tt> kontrollimine õnnestus."
-
-#: ../auth.c:95
-#, c-format
-msgid "However, the user name '%s' conflicts with an existing user."
-msgstr "Kuid kasutajanimi '%s' läheb konflikti olemasoleva kasutajaga."
-
-#: ../auth.c:103
-msgid "Please specify the user name you would like to use."
-msgstr "Palun sisesta kasutajanimi mida soovid kasutada."
-
-#: ../auth.c:105 ../i18n_templatelist.c:141 ../i18n_templatelist.c:443
-#: ../who.c:190 ../static/t/login.html:19
-msgid "User name:"
-msgstr "Kasutajanimi:"
-
-#: ../auth.c:107 ../i18n_templatelist.c:237 ../i18n_templatelist.c:448
-msgid "Exit"
-msgstr "Välju"
-
-#: ../auth.c:109
-#, c-format
-msgid "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
-msgstr "%s - jookseb <a href=\"http://www.citadel.org\">Citadelil</a>"
-
-#: ../auth.c:234 ../auth.c:895
+#: ../auth.c:197 ../auth.c:869
 msgid "Blank passwords are not allowed."
 msgstr "Tühjad paroolid ei ole lubatud."
 
-#: ../auth.c:267 ../auth.c:357 ../auth.c:462
+#: ../auth.c:225 ../auth.c:323 ../auth.c:436
 msgid "Your password was not accepted."
 msgstr "Sinu parooli ei aktsepteeritud."
 
-#: ../auth.c:572 ../i18n_templatelist.c:359 ../i18n_templatelist.c:360
-#: ../i18n_templatelist.c:504 ../static/t/iconbar.html:74
+#: ../auth.c:546 ../static/t/iconbar.html:74
 msgid "Log off"
 msgstr "Välju"
 
-#: ../auth.c:585
+#: ../auth.c:559
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -107,2421 +69,637 @@ msgstr ""
 "See programm ei suutnud luua või säilitada ühendust Citadeliga. Palun "
 "teavita oma süsteemiadministraatorit sellest probleemist."
 
-#: ../auth.c:591
+#: ../auth.c:565
 msgid "Read More..."
 msgstr "Loe edasi..."
 
-#: ../auth.c:596
+#: ../auth.c:570
 msgid "Log in again"
 msgstr "Sisene uuesti"
 
-#: ../auth.c:627 ../i18n_templatelist.c:205
+#: ../auth.c:601
 msgid "Validate new users"
 msgstr "Kinnita uusi kasutajaid"
 
-#: ../auth.c:650
+#: ../auth.c:624
 msgid "No users require validation at this time."
 msgstr "Ükski kasutaja ei vaja hetkel kinnitamist."
 
-#: ../auth.c:698
+#: ../auth.c:672
 msgid "very weak"
 msgstr "väga nõrk"
 
-#: ../auth.c:701
+#: ../auth.c:675
 msgid "weak"
 msgstr "nõrk"
 
-#: ../auth.c:704
+#: ../auth.c:678
 msgid "ok"
 msgstr "käib kah"
 
-#: ../auth.c:708
+#: ../auth.c:682
 msgid "strong"
 msgstr "tugev"
 
-#: ../auth.c:726
+#: ../auth.c:700
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Hetke juurdepääsutase: &d (%s)\n"
 
-#: ../auth.c:734
+#: ../auth.c:708
 msgid "Select access level for this user:"
 msgstr "Määra kasutaja juurdepääsutase:"
 
-#: ../auth.c:821 ../i18n_templatelist.c:89
+#: ../auth.c:795
 msgid "Change your password"
 msgstr "Muuda oma salasõna"
 
-#: ../auth.c:845
+#: ../auth.c:819
 msgid "Enter new password:"
 msgstr "Sisesta uus salasõna:"
 
-#: ../auth.c:849
+#: ../auth.c:823
 msgid "Enter it again to confirm:"
 msgstr "Sisesta salasõna uuesti:"
 
-#: ../auth.c:855
+#: ../auth.c:829
 msgid "Change password"
 msgstr "Muuda salasõna"
 
-#: ../auth.c:857 ../event.c:772 ../graphics.c:73 ../i18n_templatelist.c:59
-#: ../i18n_templatelist.c:132 ../i18n_templatelist.c:158
-#: ../i18n_templatelist.c:185 ../i18n_templatelist.c:212
-#: ../i18n_templatelist.c:366 ../i18n_templatelist.c:426
-#: ../i18n_templatelist.c:535 ../mainmenu.c:69 ../messages.c:1492
-#: ../paging.c:69 ../roomops.c:1460 ../roomops.c:1831 ../roomops.c:2520
-#: ../roomops.c:2680 ../roomops.c:2745 ../sieve.c:209 ../sysmsgs.c:52
-#: ../tasks.c:358 ../vcard_edit.c:1003 ../who.c:200
+#: ../auth.c:831 ../event.c:770 ../graphics.c:71 ../messages.c:1497
+#: ../paging.c:67 ../sieve.c:205 ../sysmsgs.c:50 ../tasks.c:358
+#: ../vcard_edit.c:1001 ../who.c:197
 msgid "Cancel"
 msgstr "Katkesta"
 
-#: ../auth.c:876
+#: ../auth.c:850
 msgid "Cancelled.  Password was not changed."
 msgstr "Katkestatud. Salasõna ei muudetud."
 
-#: ../auth.c:887
+#: ../auth.c:861
 msgid "They don't match.  Password was not changed."
 msgstr "Need ei ühti. Salasõna ei muudetud."
 
-#: ../availability.c:156
+#: ../availability.c:154
 msgid "availability unknown"
 msgstr "saadavus teadmata"
 
-#: ../availability.c:177
+#: ../availability.c:175
 msgid "free"
 msgstr "vaba"
 
-#: ../availability.c:187
+#: ../availability.c:185
 msgid "BUSY"
 msgstr "HÕIVATUD"
 
-#: ../bbsview_renderer.c:257
+#: ../bbsview_renderer.c:286
 #, fuzzy
 msgid "Go to page: "
 msgstr "Vali lehekülg:"
 
-#: ../bbsview_renderer.c:291
+#: ../bbsview_renderer.c:320
 #, fuzzy
 msgid "First"
 msgstr "esimene"
 
-#: ../bbsview_renderer.c:297
+#: ../bbsview_renderer.c:326
 #, fuzzy
 msgid "Last"
 msgstr "Perekonnanimi"
 
-#: ../calendar.c:83
+#: ../calendar.c:81
 msgid "Meeting invitation"
 msgstr "Koosoleku kutse"
 
-#: ../calendar.c:86
+#: ../calendar.c:84
 msgid "Attendee's reply to your invitation"
 msgstr "Osaleja vastus sinu kutsele"
 
-#: ../calendar.c:89
+#: ../calendar.c:87
 msgid "Published event"
 msgstr "Avaldatud sündmus"
 
-#: ../calendar.c:92
+#: ../calendar.c:90
 msgid "This is an unknown type of calendar item."
 msgstr "See on tundmatut tüüpi kalendrisündmus."
 
-#: ../calendar.c:105 ../calendar_view.c:287 ../calendar_view.c:968
-#: ../calendar_view.c:1010 ../calendar_view.c:1089 ../tasks.c:247
+#: ../calendar.c:103 ../calendar_view.c:290 ../calendar_view.c:957
+#: ../calendar_view.c:1001 ../calendar_view.c:1082 ../tasks.c:247
 msgid "Summary:"
 msgstr "Kokkuvõte:"
 
-#: ../calendar.c:114 ../calendar_view.c:295 ../calendar_view.c:973
-#: ../calendar_view.c:1015 ../calendar_view.c:1094
+#: ../calendar.c:112 ../calendar_view.c:298 ../calendar_view.c:962
+#: ../calendar_view.c:1006 ../calendar_view.c:1087
 msgid "Location:"
 msgstr "Asukoht:"
 
-#: ../calendar.c:139 ../calendar_view.c:340 ../calendar_view.c:979
+#: ../calendar.c:137 ../calendar_view.c:343 ../calendar_view.c:968
 msgid "Date:"
 msgstr "Kuupäev:"
 
-#: ../calendar.c:146 ../calendar_view.c:362 ../calendar_view.c:1020
-#: ../calendar_view.c:1104
+#: ../calendar.c:144 ../calendar_view.c:365 ../calendar_view.c:1011
+#: ../calendar_view.c:1097
 msgid "Starting date/time:"
 msgstr "Alguse kuu/kell:"
 
-#: ../calendar.c:157 ../calendar_view.c:365 ../calendar_view.c:1022
-#: ../calendar_view.c:1106
+#: ../calendar.c:155 ../calendar_view.c:368 ../calendar_view.c:1013
+#: ../calendar_view.c:1099
 msgid "Ending date/time:"
 msgstr "Lõpu kuu/kell:"
 
-#: ../calendar.c:166 ../i18n_templatelist.c:268 ../tasks.c:338
-#: ../static/t/files.html:38
+#: ../calendar.c:164 ../tasks.c:338 ../static/t/files.html:38
 msgid "Description:"
 msgstr "Kirjeldus:"
 
-#: ../calendar.c:175 ../event.c:95
+#: ../calendar.c:173 ../event.c:93
 msgid "Recurrence"
 msgstr "Korduvus:"
 
-#: ../calendar.c:176 ../event.c:510
+#: ../calendar.c:174 ../event.c:508
 msgid "This is a recurring event"
 msgstr "See on korduv sündmus"
 
-#: ../calendar.c:185
+#: ../calendar.c:183
 msgid "Attendee:"
 msgstr "Osaleja:"
 
-#: ../calendar.c:225
+#: ../calendar.c:223
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
 msgstr "See on uuendus sinu kalendris olevale sündmusele '%s'."
 
-#: ../calendar.c:229
+#: ../calendar.c:227
 #, c-format
 msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr "See sündmus läheks vastuollu juba kalendris oleva sündmusega '%s'."
 
-#: ../calendar.c:234
+#: ../calendar.c:232
 msgid "Update:"
 msgstr "Uuendus:"
 
-#: ../calendar.c:235
+#: ../calendar.c:233
 msgid "CONFLICT:"
 msgstr "VASTUOLU:"
 
-#: ../calendar.c:258
+#: ../calendar.c:256
 msgid "How would you like to respond to this invitation?"
 msgstr "Kuidas sa soovid sellele kutsele vastata?"
 
-#: ../calendar.c:259
+#: ../calendar.c:257
 msgid "Accept"
 msgstr "Nõustun"
 
-#: ../calendar.c:260
+#: ../calendar.c:258
 msgid "Tentative"
 msgstr "Üritan"
 
-#: ../calendar.c:261
+#: ../calendar.c:259
 msgid "Decline"
 msgstr "Keeldun"
 
-#: ../calendar.c:278
+#: ../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr "Klõpsa <i>Uuenda</i>, et kanda see vastus oma kalendrisündmusele. "
 
-#: ../calendar.c:279
+#: ../calendar.c:277
 msgid "Update"
 msgstr "Uuenda"
 
-#: ../calendar.c:280
+#: ../calendar.c:278
 msgid "Ignore"
 msgstr "Ignoreeri"
 
-#: ../calendar.c:302
+#: ../calendar.c:300
 msgid "There was an error parsing this calendar item."
 msgstr "Selle kalendrikande töötlemisel tekkis viga."
 
-#: ../calendar.c:335
+#: ../calendar.c:333
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
 msgstr "Sa oled selle kutse vastu võtnud. Sündmus märgiti sinu kalendrisse"
 
-#: ../calendar.c:339
+#: ../calendar.c:337
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
 msgstr ""
 "Sa üritad jõuda sellele kohtumisele. Sündmus kanti kalendrisse 'pliiatsiga'."
 
-#: ../calendar.c:343
+#: ../calendar.c:341
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr "Sa keeldusid sellest kutsest. Sündmust <b>ei</b> kantud kalendrisse."
 
-#: ../calendar.c:348
+#: ../calendar.c:346
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Vastus on saadetud koosoleku korraldajale."
 
-#: ../calendar.c:380
+#: ../calendar.c:378
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr ""
 
-#: ../calendar.c:382
+#: ../calendar.c:380
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr ""
 
-#: ../calendar.c:920
+#: ../calendar.c:918
 msgid "Calendar day view begins at:"
 msgstr "Kalendripäeva vaade algab kell:"
 
-#: ../calendar.c:921
+#: ../calendar.c:919
 msgid "Calendar day view ends at:"
 msgstr "Kalendripäeva vaade lõppeb kell:"
 
-#: ../calendar.c:922
+#: ../calendar.c:920
 msgid "Week starts on:"
 msgstr "Nädal algab:"
 
-#: ../calendar_tools.c:103
+#: ../calendar_tools.c:101
 msgid "Hour: "
 msgstr "Tund: "
 
-#: ../calendar_tools.c:123
+#: ../calendar_tools.c:121
 msgid "Minute: "
 msgstr "Minut: "
 
-#: ../calendar_tools.c:194
+#: ../calendar_tools.c:192
 msgid "(status unknown)"
 msgstr "(olukord teadmata)"
 
-#: ../calendar_tools.c:210
+#: ../calendar_tools.c:208
 msgid "(needs action)"
 msgstr "(nõuab tegevust)"
 
-#: ../calendar_tools.c:213
+#: ../calendar_tools.c:211
 msgid "(accepted)"
 msgstr "(vastu võetud)"
 
-#: ../calendar_tools.c:216
+#: ../calendar_tools.c:214
 msgid "(declined)"
 msgstr "(keeldutud)"
 
-#: ../calendar_tools.c:219
+#: ../calendar_tools.c:217
 msgid "(tenative)"
 msgstr "(kahtlane)"
 
-#: ../calendar_tools.c:222
+#: ../calendar_tools.c:220
 msgid "(delegated)"
 msgstr "(delegeeritud)"
 
-#: ../calendar_tools.c:225
+#: ../calendar_tools.c:223
 msgid "(completed)"
 msgstr "(lõpetatud)"
 
-#: ../calendar_tools.c:228
+#: ../calendar_tools.c:226
 msgid "(in process)"
 msgstr "(töös)"
 
-#: ../calendar_tools.c:231
+#: ../calendar_tools.c:229
 msgid "(none)"
 msgstr "(none)"
 
-#: ../calendar_view.c:266 ../calendar_view.c:463 ../calendar_view.c:949
-#: ../event.c:864
+#: ../calendar_view.c:264 ../calendar_view.c:464 ../calendar_view.c:935
+#: ../event.c:862
 msgid "Untitled Event"
 msgstr "Nimetu Sündmus"
 
-#: ../calendar_view.c:286 ../calendar_view.c:967 ../calendar_view.c:1009
-#: ../calendar_view.c:1088 ../sieve.c:996
+#: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
+#: ../calendar_view.c:1081 ../sieve.c:995
 msgid "From"
 msgstr "Alates:"
 
-#: ../calendar_view.c:344 ../calendar_view.c:983
+#: ../calendar_view.c:347 ../calendar_view.c:972
 msgid "Starting date:"
 msgstr "Alguse kuupäev:"
 
-#: ../calendar_view.c:350 ../calendar_view.c:985
+#: ../calendar_view.c:353 ../calendar_view.c:974
 msgid "Ending date:"
 msgstr "Lõpu kuupäev:"
 
-#: ../calendar_view.c:358 ../calendar_view.c:1100
+#: ../calendar_view.c:361 ../calendar_view.c:1093
 msgid "Date/time:"
 msgstr "Kuupäev/kellaaeg:"
 
-#: ../calendar_view.c:375 ../calendar_view.c:989 ../calendar_view.c:1025
-#: ../calendar_view.c:1110 ../roomops.c:1606
+#: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
+#: ../calendar_view.c:1103
 msgid "Notes:"
 msgstr "Märkmed:"
 
-#: ../calendar_view.c:768
+#: ../calendar_view.c:582 ../calendar_view.c:719
+msgid "previous"
+msgstr ""
+
+#: ../calendar_view.c:594 ../calendar_view.c:731 ../calendar_view.c:1320
+msgid "next"
+msgstr ""
+
+#: ../calendar_view.c:754
 msgid "Week"
 msgstr "Nädal"
 
-#: ../calendar_view.c:770
+#: ../calendar_view.c:756
 msgid "Hours"
 msgstr "Tunnid"
 
-#: ../calendar_view.c:771 ../i18n_templatelist.c:76 ../i18n_templatelist.c:193
-#: ../sieve.c:998 ../static/t/msg_listview.html:10
-#: ../static/t/summary_header.html:9
+#: ../calendar_view.c:757 ../sieve.c:997 ../static/t/msg_listview.html:10
+#: ../static/t/summary_header.html:8
 msgid "Subject"
 msgstr "Pealkiri"
 
-#: ../calendar_view.c:772 ../event.c:233
+#: ../calendar_view.c:758 ../event.c:231
 msgid "Start"
 msgstr "Algus"
 
-#: ../calendar_view.c:773 ../event.c:282
+#: ../calendar_view.c:759 ../event.c:280
 msgid "End"
 msgstr "Lõpp"
 
-#: ../calendar_view.c:966 ../calendar_view.c:996 ../event.c:276
+#: ../calendar_view.c:955 ../calendar_view.c:984 ../event.c:274
 msgid "All day event"
 msgstr "Kogu päeva sündmus"
 
-#: ../calendar_view.c:1008 ../calendar_view.c:1032
+#: ../calendar_view.c:999 ../calendar_view.c:1022
 msgid "Ongoing event"
 msgstr "Käimasolev sündmus"
 
-#: ../calendar_view.c:1408 ../tasks.c:428
+#: ../calendar_view.c:1393 ../tasks.c:428
 msgid "Untitled Task"
 msgstr "Nimetu Ülesanne"
 
-#: ../downloads.c:287
+#: ../downloads.c:284
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
 msgstr "Tekkis viga, kui laadisin seda faili: %s\n"
 
-#: ../event.c:75
+#: ../event.c:73
 msgid "seconds"
 msgstr "sekundit"
 
-#: ../event.c:76
+#: ../event.c:74
 msgid "minutes"
 msgstr "minutit"
 
-#: ../event.c:77
+#: ../event.c:75
 msgid "hours"
 msgstr "tundi"
 
-#: ../event.c:78
+#: ../event.c:76
 msgid "days"
 msgstr "päeva"
 
-#: ../event.c:79
+#: ../event.c:77
 msgid "weeks"
 msgstr "nädalat"
 
-#: ../event.c:80
+#: ../event.c:78
 msgid "months"
 msgstr "kuud"
 
-#: ../event.c:81
+#: ../event.c:79
 msgid "years"
 msgstr "aastat"
 
-#: ../event.c:82
+#: ../event.c:80
 msgid "never"
 msgstr "mitte kunagi"
 
-#: ../event.c:86
+#: ../event.c:84
 msgid "first"
 msgstr "esimene"
 
-#: ../event.c:87
+#: ../event.c:85
 msgid "second"
 msgstr "teine"
 
-#: ../event.c:88
+#: ../event.c:86
 msgid "third"
 msgstr "kolmas"
 
-#: ../event.c:89
+#: ../event.c:87
 msgid "fourth"
 msgstr "neljas"
 
-#: ../event.c:90
+#: ../event.c:88
 msgid "fifth"
 msgstr "viies"
 
-#: ../event.c:93
+#: ../event.c:91
 msgid "Event"
 msgstr "Sündmus"
 
-#: ../event.c:94 ../event.c:442 ../event.c:454
+#: ../event.c:92 ../event.c:440 ../event.c:452
 msgid "Attendees"
 msgstr "Osalejad"
 
-#: ../event.c:170
+#: ../event.c:168
 msgid "Add or edit an event"
 msgstr "Lisa või muuda sündmust"
 
-#: ../event.c:211 ../i18n_templatelist.c:15 ../i18n_templatelist.c:337
-#: ../static/t/iconbar.html:12
+#: ../event.c:209 ../static/t/iconbar.html:12
 msgid "Summary"
 msgstr "Kokkuvõte"
 
-#: ../event.c:222
+#: ../event.c:220
 msgid "Location"
 msgstr "Asukoht"
 
-#: ../event.c:332 ../i18n_templatelist.c:27 ../i18n_templatelist.c:345
-#: ../static/t/iconbar.html:32
+#: ../event.c:330 ../static/t/iconbar.html:32
 msgid "Notes"
 msgstr "Märkmed"
 
-#: ../event.c:374
+#: ../event.c:372
 msgid "Organizer"
 msgstr "Korraldaja"
 
-#: ../event.c:379
+#: ../event.c:377
 msgid "(you are the organizer)"
 msgstr "(sina oled korraldaja)"
 
-#: ../event.c:397
+#: ../event.c:395
 msgid "Show time as:"
 msgstr "Näita aega kui:"
 
-#: ../event.c:420
+#: ../event.c:418
 msgid "Free"
 msgstr "Vaba"
 
-#: ../event.c:428
+#: ../event.c:426
 msgid "Busy"
 msgstr "Hõivatud"
 
-#: ../event.c:445
+#: ../event.c:443
 msgid "(One per line)"
 msgstr "(iga nimi uuel real)"
 
-#: ../event.c:455 ../i18n_templatelist.c:23 ../i18n_templatelist.c:221
-#: ../i18n_templatelist.c:222 ../i18n_templatelist.c:343
-#: ../static/t/edit_message.html:59 ../static/t/iconbar.html:27
+#: ../event.c:453 ../static/t/edit_message.html:57 ../static/t/iconbar.html:27
 msgid "Contacts"
 msgstr "Kontaktid"
 
-#: ../event.c:518
+#: ../event.c:516
 msgid "Recurrence rule"
 msgstr "Korduvuse reegel"
 
-#: ../event.c:522
+#: ../event.c:520
 msgid "Repeats every"
 msgstr "Kordumise intervall"
 
-#: ../event.c:540
+#: ../event.c:538
 msgid "on these weekdays:"
 msgstr "nendel nädalapäevadel:"
 
-#: ../event.c:598
+#: ../event.c:596
 #, c-format
 msgid "on day %s%d%s of the month"
 msgstr "kuu %s%d%s päeval"
 
-#: ../event.c:607 ../event.c:669
+#: ../event.c:605 ../event.c:667
 msgid "on the "
 msgstr ""
 
-#: ../event.c:631
+#: ../event.c:629
 msgid "of the month"
 msgstr ""
 
-#: ../event.c:660
+#: ../event.c:658
 msgid "every "
 msgstr ""
 
-#: ../event.c:661
+#: ../event.c:659
 msgid "year on this date"
 msgstr ""
 
-#: ../event.c:693 ../i18n_templatelist.c:308 ../i18n_templatelist.c:480
-#: ../static/t/msg_listselector_bottom.html:7
+#: ../event.c:691 ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7
 msgid "of"
 msgstr ""
 
-#: ../event.c:717
+#: ../event.c:715
 msgid "Recurrence range"
 msgstr "Korduvuse vahemik"
 
-#: ../event.c:725
+#: ../event.c:723
 msgid "No ending date"
 msgstr "Lõpukuupäev puudub"
 
-#: ../event.c:732
+#: ../event.c:730
 msgid "Repeat this event"
 msgstr "Korda seda sündmust"
 
-#: ../event.c:735
+#: ../event.c:733
 msgid "times"
 msgstr "korda"
 
-#: ../event.c:743
+#: ../event.c:741
 msgid "Repeat this event until "
 msgstr "Korda seda sündmust kuni "
 
-#: ../event.c:769 ../i18n_templatelist.c:425 ../tasks.c:356
+#: ../event.c:767 ../tasks.c:356
 msgid "Save"
 msgstr "Salvesta"
 
-#: ../event.c:770 ../i18n_templatelist.c:83 ../i18n_templatelist.c:196
-#: ../i18n_templatelist.c:328 ../i18n_templatelist.c:368 ../roomops.c:708
-#: ../tasks.c:357 ../static/t/msg_listview.html:30
-#: ../static/t/view_message.html:40
+#: ../event.c:768 ../tasks.c:357 ../static/t/msg_listview.html:30
+#: ../static/t/view_message.html:38
 msgid "Delete"
 msgstr "Kustuta"
 
-#: ../event.c:771
+#: ../event.c:769
 msgid "Check attendee availability"
 msgstr "Kontrolli osalejate saadavust"
 
-#: ../floors.c:42
-msgid "Add/change/delete floors"
-msgstr "Lisa/muuda/kustuta korruseid"
-
-#: ../floors.c:59 ../vcard_edit.c:731
-msgid "Error"
-msgstr "Viga"
-
-#: ../floors.c:70
-msgid "Floor number"
-msgstr "Korruse number"
-
-#: ../floors.c:72
-msgid "Floor name"
-msgstr "Korruse nimi"
-
-#: ../floors.c:74
-msgid "Number of rooms"
-msgstr "Tubade arv"
-
-#: ../floors.c:76
-msgid "Floor CSS"
-msgstr "Korruse CSS"
-
-#: ../floors.c:89
-msgid "(delete floor)"
-msgstr "(kustuta korrus)"
-
-#: ../floors.c:95
-msgid "(edit graphic)"
-msgstr "(muuda kujundust)"
-
-#: ../floors.c:109
-msgid "Change name"
-msgstr "Muuda nime"
-
-#: ../floors.c:123
-msgid "Change CSS"
-msgstr "Muuda CSS"
-
-#: ../floors.c:136
-msgid "Create new floor"
-msgstr "Loo uus korrus"
-
-#: ../floors.c:158
-msgid "Floor has been deleted."
-msgstr "Korrus on kustutatud."
-
-#: ../floors.c:180
-msgid "New floor has been created."
-msgstr "Uus korrus on loodud."
-
-#: ../fmt_date.c:312
+#: ../fmt_date.c:310
 msgid "Time format"
 msgstr "Aja formaat"
 
-#: ../graphics.c:44
+#: ../graphics.c:42
 msgid "Image upload"
 msgstr "Pildi üleslaadimine"
 
-#: ../graphics.c:60
+#: ../graphics.c:58
 msgid "You can upload an image directly from your computer"
 msgstr "Sa võid laadida pildi otse oma arvutist"
 
-#: ../graphics.c:63
+#: ../graphics.c:61
 msgid "Please select a file to upload:"
 msgstr "Palun vali fail mida soovid üleslaadida:"
 
-#: ../graphics.c:69 ../i18n_templatelist.c:269
+#: ../graphics.c:67
 msgid "Upload"
 msgstr "Lae üles"
 
-#: ../graphics.c:71
+#: ../graphics.c:69
 msgid "Reset form"
 msgstr "Tühjenda vorm"
 
-#: ../graphics.c:94
+#: ../graphics.c:92
 msgid "Graphics upload has been cancelled."
 msgstr "Kujunduse üleslaadimine katkestatud"
 
-#: ../graphics.c:101
+#: ../graphics.c:99
 msgid "You didn't upload a file."
 msgstr "Sa ei laadinud faili üles."
 
-#: ../graphics.c:148
+#: ../graphics.c:146
 msgid "your photo"
 msgstr "sinu foto"
 
-#: ../graphics.c:154
+#: ../graphics.c:152
 msgid "the icon for this room"
 msgstr "selle toa pisipilt"
 
-#: ../graphics.c:161
+#: ../graphics.c:159
 msgid "the Greetingpicture for the login prompt"
 msgstr "Tervituspilt sisselogimise aknasse"
 
-#: ../graphics.c:168
+#: ../graphics.c:166
 msgid "the Logoff banner picture"
 msgstr "Väljalogimise bannerpilt"
 
-#: ../graphics.c:177
+#: ../graphics.c:175
 msgid "the icon for this floor"
 msgstr "selle korruse pisipilt"
 
-#: ../html2html.c:138
+#: ../html2html.c:136
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr ""
 
-#: ../i18n_templatelist.c:3 ../i18n_templatelist.c:165
-msgid "Customize the icon bar"
-msgstr "Personaliseeri Ikooniriba"
-
-#: ../i18n_templatelist.c:4
-msgid "Display icons as:"
-msgstr "Näita ikoone kui:"
-
-#: ../i18n_templatelist.c:5
-msgid "pictures and text"
-msgstr "pildid ja tekst"
-
-#: ../i18n_templatelist.c:6
-msgid "pictures only"
-msgstr "ainult pildid"
-
-#: ../i18n_templatelist.c:7
-msgid "text only"
-msgstr "ainult tekst"
-
-#: ../i18n_templatelist.c:8
-msgid ""
-"Select the icons you would like to see displayed in the 'icon bar' menu on "
-"the left side of the screen."
-msgstr "Vali ikoonid mida sa soovid vasakul asuval 'Ikooniribal' näha"
-
-#: ../i18n_templatelist.c:9 ../i18n_templatelist.c:13
-#: ../i18n_templatelist.c:17 ../i18n_templatelist.c:21
-#: ../i18n_templatelist.c:25 ../i18n_templatelist.c:29
-#: ../i18n_templatelist.c:33 ../i18n_templatelist.c:37
-#: ../i18n_templatelist.c:41 ../i18n_templatelist.c:46
-#: ../i18n_templatelist.c:50 ../i18n_templatelist.c:54
-#: ../i18n_templatelist.c:126 ../i18n_templatelist.c:202 ../roomops.c:1896
-msgid "Yes"
-msgstr "Jah"
-
-#: ../i18n_templatelist.c:10 ../i18n_templatelist.c:14
-#: ../i18n_templatelist.c:18 ../i18n_templatelist.c:22
-#: ../i18n_templatelist.c:26 ../i18n_templatelist.c:30
-#: ../i18n_templatelist.c:34 ../i18n_templatelist.c:38
-#: ../i18n_templatelist.c:42 ../i18n_templatelist.c:47
-#: ../i18n_templatelist.c:51 ../i18n_templatelist.c:55
-#: ../i18n_templatelist.c:127 ../i18n_templatelist.c:203 ../roomops.c:1896
-msgid "No"
-msgstr "Ei"
-
-#: ../i18n_templatelist.c:11
-msgid "Site logo"
-msgstr "Lehekülje logo"
-
-#: ../i18n_templatelist.c:12
-msgid "An icon describing this site"
-msgstr "Pisipilt kirjeldamaks seda keskkonda"
-
-#: ../i18n_templatelist.c:16 ../i18n_templatelist.c:336
-msgid "Your summary page"
-msgstr "Sinu kokkuvõttelehekülg"
-
-#: ../i18n_templatelist.c:19
-msgid "Mail (inbox)"
-msgstr "Kirjakast"
-
-#: ../i18n_templatelist.c:20
-msgid "A shortcut to your email Inbox"
-msgstr "Otsetee sinu e-maili kirjakasti"
-
-#: ../i18n_templatelist.c:24
-msgid "Your personal address book"
-msgstr "Sinu isiklik aadressiraamat"
-
-#: ../i18n_templatelist.c:28
-msgid "Your personal notes"
-msgstr "Sinu isiklikud märkmed"
-
-#: ../i18n_templatelist.c:31 ../i18n_templatelist.c:341 ../roomops.c:27
-#: ../static/t/iconbar.html:22
-msgid "Calendar"
-msgstr "Kalender"
-
-#: ../i18n_templatelist.c:32
-msgid "A shortcut to your personal calendar"
-msgstr "Otsetee sinu kalendri juurde"
-
-#: ../i18n_templatelist.c:35 ../i18n_templatelist.c:347 ../summary.c:224
-#: ../static/t/iconbar.html:37
-msgid "Tasks"
-msgstr "Ülesanded"
-
-#: ../i18n_templatelist.c:36
-msgid "A shortcut to your personal task list"
-msgstr "Otsetee sinu isikliku ülesannete nimekirja juurde"
-
-#: ../i18n_templatelist.c:39 ../i18n_templatelist.c:349
-#: ../static/t/iconbar.html:42
-msgid "Rooms"
-msgstr "Toad"
-
-#: ../i18n_templatelist.c:40
-msgid ""
-"Clicking this icon displays a list of all accessible rooms (or folders) "
-"available."
-msgstr ""
-"Sellel ikoonil klõpsamine kuvab nimekirja kõigist juurdepääsetavatest "
-"tubadest (või kataloogidest)."
-
-#: ../i18n_templatelist.c:43
-msgid "Yes with users list"
-msgstr "Jah, koos kasutajanimedega"
-
-#: ../i18n_templatelist.c:44
-msgid "Who is online?"
-msgstr "Kes on sisse logitud?"
-
-#: ../i18n_templatelist.c:45
-msgid "Clicking this icon displays a list of all users currently logged in."
-msgstr ""
-"Sellel ikoonil klõpsamine kuvab nimekirja kasutajatest kes on hetkel sisse "
-"logitud."
-
-#: ../i18n_templatelist.c:48 ../i18n_templatelist.c:353
-#: ../static/t/iconbar.html:56
-msgid "Chat"
-msgstr "Vestle"
-
-#: ../i18n_templatelist.c:49
-msgid ""
-"Clicking this icon enters real-time chat mode with other users in the same "
-"room."
-msgstr ""
-"Sellel ikoonil klõpsamine avab reaalajas vestluse teiste samas ruumis "
-"asuvate kasutajatega"
-
-#: ../i18n_templatelist.c:52
-msgid "Advanced options"
-msgstr "Veel valikuid"
-
-#: ../i18n_templatelist.c:53
-msgid "Access to the complete menu of Citadel functions."
-msgstr "Juurdepääs täieliku Citadeli funktsioonide menüüle"
-
-#: ../i18n_templatelist.c:56
-msgid "Citadel logo"
-msgstr "Citadeli logo"
-
-#: ../i18n_templatelist.c:57
-msgid "Displays the 'Powered by Citadel' icon"
-msgstr "Kuvab 'Powered by Citadel' ikooni"
-
-#: ../i18n_templatelist.c:58 ../i18n_templatelist.c:157
-#: ../i18n_templatelist.c:365 ../roomops.c:1459 ../roomops.c:1737
-#: ../roomops.c:1829 ../sieve.c:207 ../sysmsgs.c:50 ../vcard_edit.c:1002
-msgid "Save changes"
-msgstr "Salvesta muudatused"
-
-#: ../i18n_templatelist.c:60 ../i18n_templatelist.c:103
-#, fuzzy
-msgid "System Administration Menu"
-msgstr "Administratsioon"
-
-#: ../i18n_templatelist.c:61 ../i18n_templatelist.c:104
-#, fuzzy
-msgid "Room Aide Menu"
-msgstr "Toa Korrapidaja: "
-
-#: ../i18n_templatelist.c:62
-msgid "Local host aliases"
-msgstr ""
-
-#: ../i18n_templatelist.c:63
-#, fuzzy
-msgid "Directory domains"
-msgstr "Kataloogi nimi:"
-
-#: ../i18n_templatelist.c:64
-#, fuzzy
-msgid "Smart hosts"
-msgstr "Serveri aadress"
-
-#: ../i18n_templatelist.c:65
-msgid "Fallback smart hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:66
-msgid "Notification hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:67
-#, fuzzy
-msgid "RBL hosts"
-msgstr "Serveri aadress"
-
-#: ../i18n_templatelist.c:68
-msgid "SpamAssassin hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:69
-msgid "ClamAV clamd hosts"
-msgstr ""
-
-#: ../i18n_templatelist.c:70
-msgid "Masqueradable domains"
-msgstr ""
-
-#: ../i18n_templatelist.c:71 ../i18n_templatelist.c:421 ../roomops.c:1862
-msgid "User name"
-msgstr "Kasutajanimi"
-
-#: ../i18n_templatelist.c:72 ../i18n_templatelist.c:422
-msgid "Room"
-msgstr "Tuba"
-
-#: ../i18n_templatelist.c:73
-msgid "From host"
-msgstr "Aadressilt"
-
-#: ../i18n_templatelist.c:74
-msgid "Click on a name to read user info.  Click on"
-msgstr "Klõpsa nimel et saada kasutaja kohta infot. Klõpsa"
-
-#: ../i18n_templatelist.c:75
-msgid "to send an instant message to that user."
-msgstr "et saata sellele kasutajale kiirsõnum."
-
-#: ../i18n_templatelist.c:77 ../i18n_templatelist.c:194 ../sieve.c:1000
-#: ../smtpqueue.c:199 ../static/t/msg_listview.html:11
-#: ../static/t/summary_header.html:10
-msgid "Sender"
-msgstr "Saatja"
-
-#: ../i18n_templatelist.c:78 ../i18n_templatelist.c:195 ../wiki.c:169
-#: ../static/t/msg_listview.html:12 ../static/t/summary_header.html:11
-msgid "Date"
-msgstr "Kuupäev"
-
-#: ../i18n_templatelist.c:79 ../static/t/msg_listview.html:20
-msgid "Loading messages from server, please wait"
-msgstr "Laen serverist kirju, palun oota"
-
-#: ../i18n_templatelist.c:80 ../static/t/msg_listview.html:27
-msgid "Open in new window"
-msgstr "Ava uues aknas"
-
-#: ../i18n_templatelist.c:81 ../i18n_templatelist.c:326 ../messages.c:1490
-#: ../static/t/msg_listview.html:28 ../static/t/view_message.html:39
-msgid "Move"
-msgstr "Liiguta"
-
-#: ../i18n_templatelist.c:82 ../static/t/msg_listview.html:29
-msgid "Copy"
-msgstr "Kopeeri"
-
-#: ../i18n_templatelist.c:84 ../i18n_templatelist.c:330
-#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:43
-msgid "Print"
-msgstr "Prindi"
-
-#: ../i18n_templatelist.c:85
-msgid "(send outbound mail to these hosts only when direct delivery fails)"
-msgstr ""
-
-#: ../i18n_templatelist.c:86
-msgid ""
-"You have one or more instant messages waiting, but the Citadel Instant "
-"Messenger window failed to open.  This is probably because you have a popup "
-"blocker installed.  Please configure your popup blocker to allow popups from "
-"this site if you wish to receive instant messages."
-msgstr ""
-"Sul on üks või enam kiirsõnumit ootamas, kuid Citadeli Sõnumitooja aken ei "
-"suutnud avaneda. See on tingitud arvatavasti installeeritud pop-up "
-"blokeerijast,või on netilehitsejal hüpikaknad keelatud. Palun luba "
-"hüpikaknad siit lehelt."
-
-#: ../i18n_templatelist.c:87
-msgid "Change your preferences and settings"
-msgstr "Muuda oma eelistusi ja seadeid"
-
-#: ../i18n_templatelist.c:88
-msgid "Update your contact information"
-msgstr "Uuenda oma kontaktinfot"
-
-#: ../i18n_templatelist.c:90
-msgid "Enter your 'bio'"
-msgstr "Sisesta oma 'resümee'"
-
-#: ../i18n_templatelist.c:91
-msgid "Edit your online photo"
-msgstr "Muuda oma online fotot"
-
-#: ../i18n_templatelist.c:92 ../sieve.c:22 ../sieve.c:107
-msgid "View/edit server-side mail filters"
-msgstr "Vaata/muuda serveris asuvaid postifiltreid"
-
-#: ../i18n_templatelist.c:93
-msgid "Edit your push email settings"
-msgstr "Muuda oma push email (mobiili special) seadeid"
-
-#: ../i18n_templatelist.c:94
-msgid "Manage your OpenIDs"
-msgstr "Majanda oma OpenID'sid"
-
-#: ../i18n_templatelist.c:95 ../i18n_templatelist.c:97
-#: ../static/t/knrooms.html:5
-msgid "Room list"
-msgstr "Tubade nimekiri"
-
-#: ../i18n_templatelist.c:96 ../static/t/knrooms.html:5
-msgid "Folder list"
-msgstr "Kataloogide nimekiri"
-
-#: ../i18n_templatelist.c:98 ../static/t/knrooms.html:19
-#, fuzzy
-msgid "View as room list"
-msgstr "tubade vaade"
-
-#: ../i18n_templatelist.c:99 ../static/t/knrooms.html:20
-#, fuzzy
-msgid "View as folder list"
-msgstr "Kataloogide nimekiri"
-
-#: ../i18n_templatelist.c:100 ../static/t/knrooms.html:40
-#, fuzzy
-msgid "Room Listing"
-msgstr "Tubade nimekiri"
-
-#: ../i18n_templatelist.c:101
-msgid "The citadel server has to be restarted. It will be back in a minute."
-msgstr ""
-
-#: ../i18n_templatelist.c:102 ../i18n_templatelist.c:508
-msgid "Download"
-msgstr "Lae"
-
-#: ../i18n_templatelist.c:105
-#, fuzzy
-msgid "Global Configuration"
-msgstr "Konfiguratsioon"
-
-#: ../i18n_templatelist.c:106
-msgid "User account management"
-msgstr ""
-
-#: ../i18n_templatelist.c:107
-msgid "Shutdown Citadel"
-msgstr ""
-
-#: ../i18n_templatelist.c:108
-msgid "Rooms and Floors"
-msgstr "Toad ja Korrused"
-
-#: ../i18n_templatelist.c:109 ../i18n_templatelist.c:252
-#: ../i18n_templatelist.c:253 ../i18n_templatelist.c:271
-#: ../i18n_templatelist.c:313 ../static/t/view_message.html:8
-#: ../static/t/view_submessage.html:4
-msgid "from "
-msgstr "postitaja"
-
-#: ../i18n_templatelist.c:110 ../i18n_templatelist.c:314
-#: ../static/t/view_message.html:15
-msgid "to"
-msgstr ""
-
-#: ../i18n_templatelist.c:111 ../i18n_templatelist.c:219
-#: ../i18n_templatelist.c:223 ../i18n_templatelist.c:315
-#: ../static/t/edit_message.html:64 ../static/t/view_message.html:16
-msgid "CC:"
-msgstr "Koopia:"
-
-#: ../i18n_templatelist.c:112 ../i18n_templatelist.c:225
-#: ../i18n_templatelist.c:254 ../i18n_templatelist.c:316
-#: ../static/t/edit_message.html:78 ../static/t/view_message.html:17
-msgid "Subject:"
-msgstr "Pealkiri:"
-
-#: ../i18n_templatelist.c:113 ../i18n_templatelist.c:467
-#, fuzzy
-msgid "Push Email"
-msgstr "Seadista Push Email"
-
-#: ../i18n_templatelist.c:114
-msgid "Funambol server host (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:115
-msgid "Funambol server port "
-msgstr ""
-
-#: ../i18n_templatelist.c:116
-msgid "Funambol sync source"
-msgstr ""
-
-#: ../i18n_templatelist.c:117
-msgid "Funambol auth details (user:pass)"
-msgstr ""
-
-#: ../i18n_templatelist.c:118
-msgid "External pager tool (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:119
-msgid "Tree (folders) view"
-msgstr "Puu (kataloogidena) vaade"
-
-#: ../i18n_templatelist.c:120
-msgid "Table (rooms) view"
-msgstr "Tabel (tubadena) vaade"
-
-#: ../i18n_templatelist.c:121
-msgid "12 hour (am/pm)"
-msgstr "12 tundi (am/pm)"
-
-#: ../i18n_templatelist.c:122
-msgid "24 hour"
-msgstr "24 tundi"
-
-#: ../i18n_templatelist.c:123
-msgid "Sunday"
-msgstr "Pühapäevaga"
-
-#: ../i18n_templatelist.c:124
-msgid "Monday"
-msgstr "Esmaspäevaga"
-
-#: ../i18n_templatelist.c:125
-msgid "No signature"
-msgstr "Ei kasuta allkirja"
-
-#: ../i18n_templatelist.c:128
-msgid "Full-functionality"
-msgstr "Täisfunktsionaalsus"
-
-#: ../i18n_templatelist.c:129
-msgid "Safe mode"
-msgstr "Turvarežiim"
-
-#: ../i18n_templatelist.c:130
-msgid ""
-"Safe mode is less intensive on your web browser, but not as fully featured."
-msgstr ""
-"Turvarežiim ei kurna sinu veebilehitsejat niipalju, kuid ei ole ka kõigi "
-"võimalustega."
-
-#: ../i18n_templatelist.c:131
-#, fuzzy
-msgid "Change"
-msgstr "Muuda CSS"
-
-#: ../i18n_templatelist.c:133 ../i18n_templatelist.c:134
-#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
-msgid "Preferences and settings"
-msgstr "Eelistused ja seaded"
-
-#: ../i18n_templatelist.c:135
-msgid "(URLS for notifications when users receive new mails; )"
-msgstr ""
-
-#: ../i18n_templatelist.c:136
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
-msgstr ""
-
-#: ../i18n_templatelist.c:137 ../static/t/display_main_menu.html:8
-msgid "Basic commands"
-msgstr "Põhikäsud"
-
-#: ../i18n_templatelist.c:138 ../static/t/display_main_menu.html:11
-msgid "Your info"
-msgstr "Sinu info"
-
-#: ../i18n_templatelist.c:139 ../static/t/display_main_menu.html:13
-msgid "Advanced room commands"
-msgstr "Põhjalikumad tubade käsud"
-
-#: ../i18n_templatelist.c:140
-msgid "Edit user account: "
-msgstr ""
-
-#: ../i18n_templatelist.c:142 ../roomops.c:1864
-msgid "Password"
-msgstr "Salasõna"
-
-#: ../i18n_templatelist.c:143
-msgid "Permission to send Internet mail"
-msgstr ""
-
-#: ../i18n_templatelist.c:144
-#, fuzzy
-msgid "Number of logins"
-msgstr "Tubade arv"
-
-#: ../i18n_templatelist.c:145
-#, fuzzy
-msgid "Messages submitted"
-msgstr "Sõnumi suurus"
-
-#: ../i18n_templatelist.c:146
-#, fuzzy
-msgid "Access level"
-msgstr "Juurdepääsutase"
-
-#: ../i18n_templatelist.c:154
-#, fuzzy
-msgid "User ID number"
-msgstr "Kasutajanimi"
-
-#: ../i18n_templatelist.c:155
-msgid "Date and time of last login"
-msgstr ""
-
-#: ../i18n_templatelist.c:156
-msgid "Auto-purge after this many days"
-msgstr ""
-
-#: ../i18n_templatelist.c:159
-msgid "POP3"
-msgstr ""
-
-#: ../i18n_templatelist.c:160
-msgid "POP3 listener port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:161
-msgid "POP3 over SSL port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:162
-msgid "POP3 fetch frequency in seconds"
-msgstr ""
-
-#: ../i18n_templatelist.c:163
-msgid "POP3 fastest fetch frequency in seconds"
-msgstr ""
-
-#: ../i18n_templatelist.c:164
-#, fuzzy
-msgid "Message to your Users:"
-msgstr "Sõnumit ei saadetud."
-
-#: ../i18n_templatelist.c:166
-msgid ""
-"Your icon bar has been updated. Please select any of its choices to continue."
-msgstr ""
-
-#: ../i18n_templatelist.c:167
-msgid ""
-"You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
-msgstr ""
-
-#: ../i18n_templatelist.c:168
-msgid "General site configuration items"
-msgstr ""
-
-#: ../i18n_templatelist.c:169
-msgid "Change Login Logo"
-msgstr ""
-
-#: ../i18n_templatelist.c:170
-msgid "Change Logout Logo"
-msgstr ""
-
-#: ../i18n_templatelist.c:171 ../i18n_templatelist.c:180
-#: ../i18n_templatelist.c:530
-#, fuzzy
-msgid "Node name"
-msgstr "Kasutajanimi"
-
-#: ../i18n_templatelist.c:172
-msgid "Fully qualified domain name"
-msgstr ""
-
-#: ../i18n_templatelist.c:173
-msgid "Human-readable node name"
-msgstr ""
-
-#: ../i18n_templatelist.c:174
-#, fuzzy
-msgid "Telephone number"
-msgstr "Telefon:"
-
-#: ../i18n_templatelist.c:175
-msgid "Paginator prompt (for text mode clients)"
-msgstr ""
-
-#: ../i18n_templatelist.c:176
-msgid "Geographic location of this system"
-msgstr ""
-
-#: ../i18n_templatelist.c:177
-msgid "Name of system administrator"
-msgstr ""
-
-#: ../i18n_templatelist.c:178
-msgid "Default timezone for unzoned calendar items"
-msgstr ""
-
-#: ../i18n_templatelist.c:179 ../i18n_templatelist.c:371
-#: ../i18n_templatelist.c:529
-#, fuzzy
-msgid "Add a new node"
-msgstr "Lisa uus märge"
-
-#: ../i18n_templatelist.c:181 ../i18n_templatelist.c:531
-#, fuzzy
-msgid "Shared secret"
-msgstr "Jagatud "
-
-#: ../i18n_templatelist.c:182 ../i18n_templatelist.c:532
-msgid "Host or IP address"
-msgstr ""
-
-#: ../i18n_templatelist.c:183 ../i18n_templatelist.c:533
-#, fuzzy
-msgid "Port number"
-msgstr "Korruse number"
-
-#: ../i18n_templatelist.c:184
-#, fuzzy
-msgid "Add node?"
-msgstr "Lisa uus märge"
-
-#: ../i18n_templatelist.c:186
-msgid "(kill)"
-msgstr ""
-
-#: ../i18n_templatelist.c:187 ../msg_renderers.c:523
-msgid "edit"
-msgstr "muuda"
-
-#: ../i18n_templatelist.c:188 ../i18n_templatelist.c:469
-msgid "idle since"
-msgstr ""
-
-#: ../i18n_templatelist.c:189 ../i18n_templatelist.c:470
-#, fuzzy
-msgid "Minutes"
-msgstr "minutit"
-
-#: ../i18n_templatelist.c:190 ../i18n_templatelist.c:471
-#, fuzzy
-msgid "active"
-msgstr "Üritan"
-
-#: ../i18n_templatelist.c:191
-#, fuzzy
-msgid "(Edit)"
-msgstr "(Muuda)"
-
-#: ../i18n_templatelist.c:192 ../smtpqueue.c:135
-msgid "(Delete)"
-msgstr "(Kustuta)"
-
-#: ../i18n_templatelist.c:197 ../static/t/no_new_msgs.html:3
-#, fuzzy
-msgid "No new messages."
-msgstr "Ei ole uusi sõnumeid."
-
-#: ../i18n_templatelist.c:198 ../static/t/newstartpage.html:4
-msgid "New start page"
-msgstr "Uus avaleht"
-
-#: ../i18n_templatelist.c:199 ../static/t/newstartpage.html:9
-msgid "Your start page has been changed."
-msgstr "Sinu avaleht on muudetud"
-
-#: ../i18n_templatelist.c:200
-msgid "Confirm delete"
-msgstr "Kinnita kustutamine"
-
-#: ../i18n_templatelist.c:201
-msgid "Are you sure you want to delete "
-msgstr "Oled sa kindel, et soovid kustutada "
-
-#: ../i18n_templatelist.c:204
-#, fuzzy
-msgid "Add, change, delete user accounts"
-msgstr "Lisa/muuda/kustuta korruseid"
-
-#: ../i18n_templatelist.c:206
-msgid "(hosts running the ClamAV clamd service)"
-msgstr ""
-
-#: ../i18n_templatelist.c:207
-msgid "Send"
-msgstr "Saada"
-
-#: ../i18n_templatelist.c:208
-#, fuzzy
-msgid "Restart Citadel"
-msgstr "Uus avaleht"
-
-#: ../i18n_templatelist.c:209 ../paging.c:68
-msgid "Send message"
-msgstr "Saada sõnum"
-
-#: ../i18n_templatelist.c:210
-#, fuzzy
-msgid "Post message"
-msgstr "sõnumist"
-
-#: ../i18n_templatelist.c:211
-msgid "Save to Drafts"
-msgstr ""
-
-#: ../i18n_templatelist.c:213 ../static/t/edit_message.html:25
-msgid "from"
-msgstr "saatja"
-
-#: ../i18n_templatelist.c:214 ../i18n_templatelist.c:215
-#: ../static/t/edit_message.html:31 ../static/t/edit_message.html:40
-msgid "Anonymous"
-msgstr "Anonüümne"
-
-#: ../i18n_templatelist.c:216 ../static/t/edit_message.html:49
-msgid "in"
-msgstr ""
-
-#: ../i18n_templatelist.c:217 ../i18n_templatelist.c:218
-#: ../static/t/edit_message.html:53
-msgid "To:"
-msgstr "Saaja:"
-
-#: ../i18n_templatelist.c:220 ../i18n_templatelist.c:224
-#: ../static/t/edit_message.html:70
-msgid "BCC:"
-msgstr "Pimekoopia:"
-
-#: ../i18n_templatelist.c:226 ../static/t/edit_message.html:79
-msgid "Subject (optional):"
-msgstr "Pealkiri (valikuline)"
-
-#: ../i18n_templatelist.c:227 ../static/t/edit_message.html:95
-msgid "--- forwarded message ---"
-msgstr "--- edastatud sõnum ---"
-
-#: ../i18n_templatelist.c:228 ../static/t/edit_message.html:115
-msgid "Attachments:"
-msgstr "Manused:"
-
-#: ../i18n_templatelist.c:229 ../static/t/edit_message.html:119
-msgid "Attach file:"
-msgstr "Lisa manus:"
-
-#: ../i18n_templatelist.c:231
-#, fuzzy
-msgid "Remove"
-msgstr "(eemalda)"
-
-#: ../i18n_templatelist.c:232 ../i18n_templatelist.c:441
-#: ../static/t/login.html:4 ../static/t/openid_login.html:4
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-
-#: ../i18n_templatelist.c:233 ../i18n_templatelist.c:442
-#: ../static/t/login.html:8 ../static/t/openid_login.html:8
-msgid "powered by"
-msgstr "jooksutab"
-
-#: ../i18n_templatelist.c:234 ../static/t/openid_login.html:19
-msgid "OpenID URL:"
-msgstr ""
-
-#: ../i18n_templatelist.c:235 ../i18n_templatelist.c:445
-#: ../static/t/login.html:23 ../static/t/openid_login.html:21
-msgid "Language:"
-msgstr "Keel:"
-
-#: ../i18n_templatelist.c:236 ../i18n_templatelist.c:446
-#, fuzzy
-msgid "Login"
-msgstr "Viimati sees"
-
-#: ../i18n_templatelist.c:238 ../static/t/openid_login.html:31
-msgid "Log in using a user name and password"
-msgstr ""
-
-#: ../i18n_templatelist.c:239 ../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Login&quot;."
-msgstr ""
-
-#: ../i18n_templatelist.c:240 ../static/t/openid_login.html:36
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr ""
-
-#: ../i18n_templatelist.c:241 ../i18n_templatelist.c:453
-#: ../static/t/login.html:46 ../static/t/openid_login.html:37
-msgid "Please log off properly when finished. "
-msgstr "Kui lõpetad, siis palun logi korrektselt välja. "
-
-#: ../i18n_templatelist.c:242 ../i18n_templatelist.c:454
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid "See the"
-msgstr "Vaata"
-
-#: ../i18n_templatelist.c:243 ../i18n_templatelist.c:455
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid "recommended browser list"
-msgstr "soovitatud brauserite nimekirja"
-
-#: ../i18n_templatelist.c:244 ../i18n_templatelist.c:456
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-"kui sul on Webcit'iga probleeme.</li> <li>Sul peavad <i>küpsised</i>lubatud "
-"olema."
-
-#: ../i18n_templatelist.c:245 ../i18n_templatelist.c:457
-#: ../static/t/login.html:48 ../static/t/openid_login.html:39
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
-msgstr ""
-"Samuti pea meeles, et kui sinu brauser blokeerib hüpikaknaid (pop-up)siis ei "
-"ole sa suuteline kiirsõnumeid vastu võtma."
-
-#: ../i18n_templatelist.c:246
-#, fuzzy
-msgid "Users currently on"
-msgstr "Kasutajad hetkel võrgus  - "
-
-#: ../i18n_templatelist.c:247
-msgid "Pictures in"
-msgstr "Pildid kaustas"
-
-#: ../i18n_templatelist.c:248
-#, fuzzy
-msgid "Edit or delete users"
-msgstr "Muuda või kustuta see tuba"
-
-#: ../i18n_templatelist.c:249 ../i18n_templatelist.c:459
-msgid "You need to be aide to view this."
-msgstr ""
-
-#: ../i18n_templatelist.c:250
-#, fuzzy
-msgid "Add users"
-msgstr "Lisa reegel"
-
-#: ../i18n_templatelist.c:251
-#, fuzzy
-msgid "Edit or Delete users"
-msgstr "Muuda või kustuta see tuba"
-
-#: ../i18n_templatelist.c:255
-msgid "Please wait while the Citadel server is restarted... "
-msgstr "Palun oota kuni Citadeli serverile restarti tehakse..."
-
-#: ../i18n_templatelist.c:256
-msgid "Indexing and Journaling"
-msgstr ""
-
-#: ../i18n_templatelist.c:257
-msgid "Warning: these facilities are resource intensive."
-msgstr ""
-
-#: ../i18n_templatelist.c:258
-msgid "Enable full text index"
-msgstr ""
-
-#: ../i18n_templatelist.c:259
-#, fuzzy
-msgid "Perform journaling of email messages"
-msgstr "Eelistatud nimi e-kirjadele"
-
-#: ../i18n_templatelist.c:260
-msgid "Perform journaling of non-email messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:261
-msgid "Email destination of journalized messages"
-msgstr ""
-
-#: ../i18n_templatelist.c:262 ../static/t/files.html:3
-msgid "Files available for download in"
-msgstr "Failid kaustas"
-
-#: ../i18n_templatelist.c:263 ../static/t/files.html:18
-msgid "Filename"
-msgstr "Failinimi"
-
-#: ../i18n_templatelist.c:264 ../static/t/files.html:19
-msgid "Size"
-msgstr "Suurus"
-
-#: ../i18n_templatelist.c:265 ../static/t/files.html:20
-msgid "Content"
-msgstr "Sisu"
-
-#: ../i18n_templatelist.c:266 ../static/t/files.html:21
-msgid "Description"
-msgstr "Kirjeldus"
-
-#: ../i18n_templatelist.c:267 ../static/t/files.html:35
-msgid "Upload a file:"
-msgstr "Lae fail üles:"
-
-#: ../i18n_templatelist.c:270 ../static/t/roombanner.html:19
-msgid "Select page: "
-msgstr "Vali lehekülg:"
-
-#: ../i18n_templatelist.c:272
-#, fuzzy
-msgid ""
-"To create a new user account, enter the desired user name in the box below "
-"and click 'Create'."
-msgstr ""
-"Et anda kasutajale juurdepääsu sellele toale, sisesta kasutajanimi kasti "
-"ning klõpsa 'Kutsu'"
-
-#: ../i18n_templatelist.c:273
-msgid "New user: "
-msgstr "Uus kasutaja: "
-
-#: ../i18n_templatelist.c:274 ../sieve.c:672
-msgid "Create"
-msgstr "Loo"
-
-#: ../i18n_templatelist.c:275
-msgid "(domains mapped with the Global Address Book)"
-msgstr ""
-
-#: ../i18n_templatelist.c:276
-msgid "List of Wiki pages"
-msgstr ""
-
-#: ../i18n_templatelist.c:277
-msgid "Advanced server fine-tuning controls"
-msgstr ""
-
-#: ../i18n_templatelist.c:278
-msgid "Server connection idle timeout (in seconds)"
-msgstr ""
-
-#: ../i18n_templatelist.c:279
-msgid "Maximum concurrent sessions (0 = no limit)"
-msgstr ""
-
-#: ../i18n_templatelist.c:280
-msgid "Default user purge time (days)"
-msgstr ""
-
-#: ../i18n_templatelist.c:281
-msgid "Default room purge time (days)"
-msgstr ""
-
-#: ../i18n_templatelist.c:282
-msgid "Maximum message length"
-msgstr ""
-
-#: ../i18n_templatelist.c:283
-msgid "Minimum number of worker threads"
-msgstr ""
-
-#: ../i18n_templatelist.c:284
-msgid "Maximum number of worker threads"
-msgstr ""
-
-#: ../i18n_templatelist.c:285
-msgid "Automatically delete committed database logs"
-msgstr ""
-
-#: ../i18n_templatelist.c:286
-#, fuzzy
-msgid ""
-"To edit an existing user account, select the user name from the list and "
-"click 'Edit'."
-msgstr ""
-"Et anda kasutajale juurdepääsu sellele toale, sisesta kasutajanimi kasti "
-"ning klõpsa 'Kutsu'"
-
-#: ../i18n_templatelist.c:287
-#, fuzzy
-msgid "Edit configuration"
-msgstr "Konfiguratsioon"
-
-#: ../i18n_templatelist.c:288
-#, fuzzy
-msgid "Edit address book entry"
-msgstr "See aadressiraamat on tühi"
-
-#: ../i18n_templatelist.c:289
-#, fuzzy
-msgid "Delete user"
-msgstr "Kustuta reegel"
-
-#: ../i18n_templatelist.c:290
-#, fuzzy
-msgid "Delete this user?"
-msgstr "Kas kustutan selle skripti?"
-
-#: ../i18n_templatelist.c:291
-#, fuzzy
-msgid "Delete File"
-msgstr "Kustuta reegel"
-
-#: ../i18n_templatelist.c:292
-msgid "Slideshow"
-msgstr "Pildiesitlus"
-
-#: ../i18n_templatelist.c:293
-msgid "(hosts running the SpamAssassin service)"
-msgstr ""
-
-#: ../i18n_templatelist.c:294
-msgid "Configure the LDAP connector for Citadel"
-msgstr ""
-
-#: ../i18n_templatelist.c:295 ../i18n_templatelist.c:510
-msgid ""
-"Changes made on this screen will not take effect until you restart the "
-"Citadel server."
-msgstr ""
-
-#: ../i18n_templatelist.c:296
-msgid ""
-"NOTE: This Citadel server has been built without LDAP support.  These "
-"options will have no effect."
-msgstr ""
-
-#: ../i18n_templatelist.c:297
-msgid "Host name of LDAP server (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:298
-msgid "Port number of LDAP server (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:299
-msgid "Base DN"
-msgstr ""
-
-#: ../i18n_templatelist.c:300
-msgid "Bind DN"
-msgstr ""
-
-#: ../i18n_templatelist.c:301
-msgid "Password for bind DN"
-msgstr ""
-
-#: ../i18n_templatelist.c:302
-msgid "Edit or delete this room"
-msgstr "Muuda või kustuta see tuba"
-
-#: ../i18n_templatelist.c:303
-msgid "Go to a 'hidden' room"
-msgstr "Mine 'peidetud' tuppa"
-
-#: ../i18n_templatelist.c:304 ../roomops.c:2406
-msgid "Create a new room"
-msgstr "Loo uus tuba"
-
-#: ../i18n_templatelist.c:305
-msgid "Zap (forget) this room"
-msgstr "Unusta see tuba"
-
-#: ../i18n_templatelist.c:306
-msgid "List all forgotten rooms"
-msgstr "Näita kõiki unustatud tube"
-
-#: ../i18n_templatelist.c:307 ../i18n_templatelist.c:479
-#: ../static/t/msg_listselector_bottom.html:2
-#: ../static/t/msg_listselector_top.html:2
-msgid "Reading #"
-msgstr "Loed #"
-
-#: ../i18n_templatelist.c:309 ../i18n_templatelist.c:481
-#: ../static/t/msg_listselector_bottom.html:7
-#: ../static/t/msg_listselector_top.html:7
-msgid "messages"
-msgstr "sõnumist"
-
-#: ../i18n_templatelist.c:310 ../i18n_templatelist.c:482
-#: ../static/t/msg_listselector_bottom.html:12
-#: ../static/t/msg_listselector_top.html:12
-msgid "oldest to newest"
-msgstr "vanimast uuemani"
-
-#: ../i18n_templatelist.c:311 ../i18n_templatelist.c:483
-#: ../static/t/msg_listselector_bottom.html:20
-#: ../static/t/msg_listselector_top.html:20
-msgid "newest to oldest"
-msgstr "uuemast vanimani"
-
-#: ../i18n_templatelist.c:312
-#, fuzzy
-msgid ""
-"Please wait while your users are being paged, the citadel server will be "
-"restarted after that... "
-msgstr "Palun oota kuni Citadeli serverile restarti tehakse..."
-
-#: ../i18n_templatelist.c:317 ../static/t/view_message.html:20
-#, fuzzy
-msgid "Edit"
-msgstr "(Muuda)"
-
-#: ../i18n_templatelist.c:318 ../i18n_templatelist.c:320
-#: ../i18n_templatelist.c:323 ../static/t/view_message.html:23
-#: ../static/t/view_message.html:28 ../static/t/view_message.html:33
-msgid "Reply"
-msgstr "Vasta"
-
-#: ../i18n_templatelist.c:319 ../static/t/view_message.html:24
-msgid "ReplyQuoted"
-msgstr "Tsiteeri"
-
-#: ../i18n_templatelist.c:321 ../i18n_templatelist.c:324
-#: ../static/t/view_message.html:29 ../static/t/view_message.html:34
-msgid "ReplyAll"
-msgstr "VastaKõigile"
-
-#: ../i18n_templatelist.c:322 ../i18n_templatelist.c:325
-#: ../static/t/view_message.html:30 ../static/t/view_message.html:35
-msgid "Forward"
-msgstr "Edasta"
-
-#: ../i18n_templatelist.c:327
-#, fuzzy
-msgid "Delete this message?"
-msgstr "Kustuta see märge?"
-
-#: ../i18n_templatelist.c:329 ../static/t/view_message.html:42
-msgid "Headers"
-msgstr ""
-
-#: ../i18n_templatelist.c:331
-msgid "Edit site-wide configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:332
-msgid "Domain names and Internet mail configuration"
-msgstr ""
-
-#: ../i18n_templatelist.c:333
-msgid "Configure replication with other Citadel servers"
-msgstr ""
-
-#: ../i18n_templatelist.c:334 ../smtpqueue.c:238
-msgid "View the outbound SMTP queue"
-msgstr ""
-
-#: ../i18n_templatelist.c:335
-#, fuzzy
-msgid "Powered by Citadel"
-msgstr "Kuvab 'Powered by Citadel' ikooni"
-
-#: ../i18n_templatelist.c:338
-#, fuzzy
-msgid "Go to your email inbox"
-msgstr "Otsetee sinu e-maili kirjakasti"
-
-#: ../i18n_templatelist.c:339 ../static/t/iconbar.html:17
-msgid "Mail"
-msgstr "Kirjakast"
-
-#: ../i18n_templatelist.c:340
-#, fuzzy
-msgid "Go to your personal calendar"
-msgstr "Otsetee sinu kalendri juurde"
-
-#: ../i18n_templatelist.c:342
-#, fuzzy
-msgid "Go to your personal address book"
-msgstr "Sinu isiklik aadressiraamat"
-
-#: ../i18n_templatelist.c:344
-#, fuzzy
-msgid "Go to your personal notes"
-msgstr "Sinu isiklikud märkmed"
-
-#: ../i18n_templatelist.c:346
-#, fuzzy
-msgid "Go to your personal task list"
-msgstr "Otsetee sinu isikliku ülesannete nimekirja juurde"
-
-#: ../i18n_templatelist.c:348
-#, fuzzy
-msgid "List all your accessible rooms"
-msgstr "Näita kõiki unustatud tube"
-
-#: ../i18n_templatelist.c:350
-msgid "See who is online right now"
-msgstr ""
-
-#: ../i18n_templatelist.c:351 ../static/t/iconbar.html:47
-msgid "Online users"
-msgstr "Online kasutajad"
-
-#: ../i18n_templatelist.c:352 ../static/t/iconbar.html:51
-msgid "Loading"
-msgstr "Laadimine"
-
-#: ../i18n_templatelist.c:354
-msgid "Advanced Options Menu: Advanced Room commands, Account Info, and Chat"
-msgstr ""
-
-#: ../i18n_templatelist.c:355 ../static/t/iconbar.html:62
-msgid "Advanced"
-msgstr "Põhjalikum"
-
-#: ../i18n_templatelist.c:356
-msgid "Room and system administration functions"
-msgstr ""
-
-#: ../i18n_templatelist.c:357 ../roomops.c:1107 ../roomops.c:1111
-#: ../static/t/iconbar.html:68
-msgid "Administration"
-msgstr "Administratsioon"
-
-#: ../i18n_templatelist.c:358
-#, fuzzy
-msgid "Log off now?"
-msgstr "Välju"
-
-#: ../i18n_templatelist.c:361 ../static/t/iconbar.html:77
-msgid "customize this menu"
-msgstr "muuda menüüd"
-
-#: ../i18n_templatelist.c:362 ../static/t/iconbar.html:80
-msgid "switch to room list"
-msgstr "tubade vaade"
-
-#: ../i18n_templatelist.c:363 ../static/t/iconbar.html:81
-msgid "switch to menu"
-msgstr "menüü"
-
-#: ../i18n_templatelist.c:364 ../static/t/iconbar.html:82
-msgid "My folders"
-msgstr "Minu kaustad"
-
-#: ../i18n_templatelist.c:367
-#, fuzzy
-msgid "Delete this entry?"
-msgstr "Kustuta see märge?"
-
-#: ../i18n_templatelist.c:369
-msgid "(domains for which this host receives mail)"
-msgstr ""
-
-#: ../i18n_templatelist.c:370
-#, fuzzy
-msgid "Network configuration"
-msgstr "Konfiguratsioon"
-
-#: ../i18n_templatelist.c:372
-msgid "Currently configured nodes"
-msgstr ""
-
-#: ../i18n_templatelist.c:373
-#, fuzzy
-msgid "Configure automatic expiry of old messages"
-msgstr "Sõnumid ei aegu"
-
-#: ../i18n_templatelist.c:374
-msgid "These settings may be overridden on a per-floor or per-room basis."
-msgstr ""
-
-#: ../i18n_templatelist.c:375
-msgid "Hour to run database auto-purge"
-msgstr ""
-
-#: ../i18n_templatelist.c:376
-#, fuzzy
-msgid "Default message expire policy for public rooms"
-msgstr "Sõnumite aegumise reeglid siin toas"
-
-#: ../i18n_templatelist.c:377 ../i18n_templatelist.c:383 ../roomops.c:1785
-#: ../roomops.c:1812
-msgid "Never automatically expire messages"
-msgstr "Sõnumid ei aegu"
-
-#: ../i18n_templatelist.c:378 ../i18n_templatelist.c:384 ../roomops.c:1789
-#: ../roomops.c:1816
-msgid "Expire by message count"
-msgstr "Aeguvad sõnumite üldarvu alusel"
-
-#: ../i18n_templatelist.c:379 ../i18n_templatelist.c:385 ../roomops.c:1793
-#: ../roomops.c:1820
-msgid "Expire by message age"
-msgstr "Aeguvad sõnumi vanuse alusel"
-
-#: ../i18n_templatelist.c:380 ../i18n_templatelist.c:386 ../roomops.c:1795
-#: ../roomops.c:1822
-msgid "Number of messages or days: "
-msgstr "Sõnumite või päevade arv:"
-
-#: ../i18n_templatelist.c:381
-#, fuzzy
-msgid "Default message expire policy for private mailboxes"
-msgstr "Sõnumite aegumise reeglid siin korrusel"
-
-#: ../i18n_templatelist.c:382
-msgid "Same policy as public rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:387
-msgid "(hosts running a Realtime Blackhole List)"
-msgstr ""
-
-#: ../i18n_templatelist.c:388
-msgid "Access controls and site policy settings"
-msgstr ""
-
-#: ../i18n_templatelist.c:389
-msgid "Allow aides to zap (forget) rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:390
-msgid "Quarantine messages from problem users"
-msgstr ""
-
-#: ../i18n_templatelist.c:391
-#, fuzzy
-msgid "Name of quarantine room"
-msgstr "Toa nimi: "
-
-#: ../i18n_templatelist.c:392
-#, fuzzy
-msgid "Name of room to log pages"
-msgstr "Toa nimi: "
-
-#: ../i18n_templatelist.c:393
-msgid "Authentication mode"
-msgstr ""
-
-#: ../i18n_templatelist.c:394
-#, fuzzy
-msgid "Self contained"
-msgstr "sisaldab"
-
-#: ../i18n_templatelist.c:395
-msgid "Host based"
-msgstr ""
-
-#: ../i18n_templatelist.c:396
-msgid "LDAP (RFC2307)"
-msgstr ""
-
-#: ../i18n_templatelist.c:397
-msgid "LDAP (Active Directory)"
-msgstr ""
-
-#: ../i18n_templatelist.c:398
-msgid "Master user name (blank to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:399
-#, fuzzy
-msgid "Master user password"
-msgstr "Sisesta uus salasõna:"
-
-#: ../i18n_templatelist.c:400
-#, fuzzy
-msgid "Initial access level for new users"
-msgstr "Määra kasutaja juurdepääsutase:"
-
-#: ../i18n_templatelist.c:408
-msgid "Access level required to create rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:416
-msgid "Automatically grant room-aide status to users who create private rooms"
-msgstr ""
-
-#: ../i18n_templatelist.c:417
-msgid "Restrict access to Internet mail"
-msgstr ""
-
-#: ../i18n_templatelist.c:418
-msgid "Disable self-service user account creation"
-msgstr ""
-
-#: ../i18n_templatelist.c:419
-msgid "Hint: do not select both!"
-msgstr ""
-
-#: ../i18n_templatelist.c:420
-msgid "Require registration for new users"
-msgstr ""
-
-#: ../i18n_templatelist.c:423
-#, fuzzy
-msgid "Add, change, or delete floors"
-msgstr "Lisa/muuda/kustuta korruseid"
-
-#: ../i18n_templatelist.c:424
-msgid "Delete this note?"
-msgstr "Kustuta see märge?"
-
-#: ../i18n_templatelist.c:427 ../notes.c:349
-msgid "Click on any note to edit it."
-msgstr "Klõpsa märkmel, et seda muuta."
-
-#: ../i18n_templatelist.c:428
-#, fuzzy
-msgid "Restart Now"
-msgstr "Nädal algab:"
-
-#: ../i18n_templatelist.c:429
-msgid "Restart after paging users"
-msgstr ""
-
-#: ../i18n_templatelist.c:430
-msgid "Restart when all users are idle"
-msgstr ""
-
-#: ../i18n_templatelist.c:431 ../sieve.c:1010
-#: ../static/t/select_messageindex_all.html:1
-msgid "All"
-msgstr "Kõik"
-
-#: ../i18n_templatelist.c:432
-msgid "Configure Push Email"
-msgstr "Seadista Push Email"
-
-#: ../i18n_templatelist.c:433
-#, fuzzy
-msgid "Push email and SMS settings"
-msgstr "Muuda oma push email (mobiili special) seadeid"
-
-#: ../i18n_templatelist.c:434
-msgid ""
-"If your administrator has enabled the functionality, Citadel can notify a "
-"Funambol server that you haved recieved new email and automatically "
-"syncronize any devices you have with the Funambol client installed."
-msgstr ""
-
-#: ../i18n_templatelist.c:435
-msgid ""
-"Alternatively, if the administrator has configured it, Citadel can send a "
-"text message to you when new mail arrives."
-msgstr ""
-
-#: ../i18n_templatelist.c:436
-msgid "Notify Funambol server"
-msgstr ""
-
-#: ../i18n_templatelist.c:437
-#, fuzzy
-msgid "Send a text message to..."
-msgstr "Saada kiirsõnum kasutajale: "
-
-#: ../i18n_templatelist.c:438
-msgid ""
-"(Use international format, without any leading zeros, spaces or hypens, like "
-"+61415011501)"
-msgstr ""
-
-#: ../i18n_templatelist.c:439
-msgid "Use custom notification scheme configured by your Admin"
-msgstr ""
-
-#: ../i18n_templatelist.c:440
-msgid "Don‘t send any notifications"
-msgstr ""
-
-#: ../i18n_templatelist.c:444 ../static/t/login.html:21
-msgid "Password:"
-msgstr "Salasõna:"
-
-#: ../i18n_templatelist.c:449 ../static/t/login.html:39
-msgid "Log in using OpenID"
-msgstr "Logi sisse kasutades OpenID'd"
-
-#: ../i18n_templatelist.c:450 ../static/t/login.html:43
-msgid "If you already have an account on"
-msgstr "Kui sul on juba konto"
-
-#: ../i18n_templatelist.c:451 ../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Login.&quot;"
-msgstr ""
-"siis sisesta oma kasutajanimi ja salasõna ning klõpsa &quot;Logi sisse.&quot;"
-
-#: ../i18n_templatelist.c:452 ../static/t/login.html:45
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-"<b>Kui sa oled uus kasutaja</b>, võta ühendust süsteemiadministraatoriga"
-
-#: ../i18n_templatelist.c:458
-#, fuzzy
-msgid "Site configuration"
-msgstr "Konfiguratsioon"
-
-#: ../i18n_templatelist.c:460
-msgid "General"
-msgstr ""
-
-#: ../i18n_templatelist.c:461
-#, fuzzy
-msgid "Access"
-msgstr "Juurdepääsutase"
-
-#: ../i18n_templatelist.c:462
-#, fuzzy
-msgid "Network"
-msgstr "Võrgukasutaja"
-
-#: ../i18n_templatelist.c:463
-msgid "Tuning"
-msgstr ""
-
-#: ../i18n_templatelist.c:464
-#, fuzzy
-msgid "Directory"
-msgstr "Kataloogi nimi:"
-
-#: ../i18n_templatelist.c:465
-msgid "Auto-purger"
-msgstr ""
-
-#: ../i18n_templatelist.c:466
-msgid "Indexing/Journaling"
-msgstr ""
-
-#: ../i18n_templatelist.c:468
-msgid "Pop3"
-msgstr ""
-
-#: ../i18n_templatelist.c:472
-#, fuzzy
-msgid "Do you really want to kill this session?"
-msgstr "Oled sa kindel, et soovid seda tuba kustutada?"
-
-#: ../i18n_templatelist.c:473 ../static/t/who.html:14
-msgid "Users currently on "
-msgstr "Kasutajad hetkel võrgus  - "
-
-#: ../i18n_templatelist.c:474 ../static/t/start_of_new_msgs.html:4
-#, fuzzy
-msgid "Old messages"
-msgstr "Ei ole vanu sõnumeid."
-
-#: ../i18n_templatelist.c:475 ../static/t/start_of_new_msgs.html:8
-#, fuzzy
-msgid "New messages"
-msgstr "Ei ole uusi sõnumeid."
-
-#: ../i18n_templatelist.c:476
-msgid "(Domains as which users are allowed to masquerade)"
-msgstr ""
-
-#: ../i18n_templatelist.c:477
-msgid "(INBOX)"
-msgstr ""
-
-#: ../i18n_templatelist.c:478
-msgid "History of edits for this page"
-msgstr ""
-
-#: ../i18n_templatelist.c:484
-msgid "List known rooms"
-msgstr "Näita kõiki teadaolevaid tube"
-
-#: ../i18n_templatelist.c:485
-msgid "Where can I go from here?"
-msgstr "Kuhu ma saan siit edasi minna?"
-
-#: ../i18n_templatelist.c:486 ../roomops.c:746
-msgid "Goto next room"
-msgstr "Mine järgmisesse tuppa"
-
-#: ../i18n_templatelist.c:487
-msgid "...with <em>unread</em> messages"
-msgstr "...kus on <em>lugemata</em> sõnumeid"
-
-#: ../i18n_templatelist.c:488
-msgid "Skip to next room"
-msgstr "Hüppa edasi järgmisesse tuppa"
-
-#: ../i18n_templatelist.c:489
-msgid "(come back here later)"
-msgstr "(tule siia hiljem tagasi)"
-
-#: ../i18n_templatelist.c:490 ../roomops.c:487
-msgid "Ungoto"
-msgstr "Mine tagasi"
-
-#: ../i18n_templatelist.c:491
-msgid "oops! Back to "
-msgstr "uups! Tagasi"
-
-#: ../i18n_templatelist.c:492 ../roomops.c:496
-msgid "Read new messages"
-msgstr "Loe uusi sõnumeid"
-
-#: ../i18n_templatelist.c:493
-msgid "...in this room"
-msgstr "...selles toas"
-
-#: ../i18n_templatelist.c:494 ../roomops.c:596
-msgid "Read all messages"
-msgstr "Loe kõiki sõnumeid"
-
-#: ../i18n_templatelist.c:495
-msgid "...old <em>and</em> new"
-msgstr "...nii vanu kui uusi"
-
-#: ../i18n_templatelist.c:496 ../roomops.c:719
-msgid "Enter a message"
-msgstr "Sisesta sõnum"
-
-#: ../i18n_templatelist.c:497
-msgid "(post in this room)"
-msgstr "(postita siia tuppa)"
-
-#: ../i18n_templatelist.c:498
-msgid "File library"
-msgstr "Failikaust"
-
-#: ../i18n_templatelist.c:499
-msgid "(List files available for download)"
-msgstr "(Näita faile mida saab allalaadida)"
-
-#: ../i18n_templatelist.c:500
-msgid "Summary page"
-msgstr "Kokkuvõttelehekülg"
-
-#: ../i18n_templatelist.c:501
-msgid "Summary of my account"
-msgstr "Minu konto koondülevaade"
-
-#: ../i18n_templatelist.c:502
-msgid "User list"
-msgstr "Kasutajate nimekiri"
-
-#: ../i18n_templatelist.c:503
-msgid "(all registered users)"
-msgstr "(kõik registreeritud kasutajad)"
-
-#: ../i18n_templatelist.c:505
-msgid "Bye!"
-msgstr "Nägemist!"
-
-#: ../i18n_templatelist.c:506
-msgid "(if present, forward all outbound mail to one of these hosts)"
-msgstr ""
-
-#: ../i18n_templatelist.c:507
-#, fuzzy
-msgid "View"
-msgstr "Kuva kui:"
-
-#: ../i18n_templatelist.c:509
-#, fuzzy
-msgid "Network services"
-msgstr "Võrgukasutaja"
-
-#: ../i18n_templatelist.c:511
-msgid "SMTP MTA port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:512
-msgid "Correct forged From: lines during authenticated SMTP"
-msgstr ""
-
-#: ../i18n_templatelist.c:513
-msgid "Flag message as spam, instead of rejecting it"
-msgstr ""
-
-#: ../i18n_templatelist.c:514
-msgid "IMAP listener port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:515
-msgid "Network run frequency (in seconds)"
-msgstr ""
-
-#: ../i18n_templatelist.c:516
-msgid "Server IP address (0.0.0.0 for 'any')"
-msgstr ""
-
-#: ../i18n_templatelist.c:517
-msgid "SMTP MSA port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:518
-msgid "IMAP over SSL port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:519
-msgid "SMTP over SSL port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:520
-msgid "Instantly expunge deleted messages in IMAP"
-msgstr ""
-
-#: ../i18n_templatelist.c:521
-msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-msgstr ""
-
-#: ../i18n_templatelist.c:522
-msgid "Postfix TCP Dictionary Port"
-msgstr ""
-
-#: ../i18n_templatelist.c:523
-msgid "-1 to disable"
-msgstr ""
-
-#: ../i18n_templatelist.c:524
-msgid "ManageSieve Port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:525
-msgid "Perform RBL checks upon connect instead of after RCPT"
-msgstr ""
-
-#: ../i18n_templatelist.c:526
-msgid "Keep original from headers in IMAP"
-msgstr ""
-
-#: ../i18n_templatelist.c:527
-msgid "XMPP (Jabber) client to server port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:528
-msgid "XMPP (Jabber) server to server port (-1 to disable)"
-msgstr ""
-
-#: ../i18n_templatelist.c:534
-#, fuzzy
-msgid "Save changes?"
-msgstr "Salvesta muudatused"
-
-#: ../iconbar.c:250
+#: ../iconbar.c:248
 msgid "Iconbar Setting"
 msgstr "Ikooniriba seaded"
 
-#: ../inetconf.c:114 ../inetconf.c:123 ../inetconf.c:136 ../inetconf.c:163
-#: ../netconf.c:167 ../netconf.c:194 ../netconf.c:202 ../netconf.c:251
-#: ../netconf.c:259
+#: ../inetconf.c:112 ../inetconf.c:121 ../inetconf.c:134 ../inetconf.c:161
+#: ../netconf.c:158 ../netconf.c:185 ../netconf.c:193 ../netconf.c:241
+#: ../netconf.c:249
 #, c-format
 msgid "Invalid Parameter"
 msgstr "Vigane Parameeter"
 
-#: ../inetconf.c:129
+#: ../inetconf.c:127
 #, c-format
 msgid "%s has been deleted."
 msgstr "%s on kustutatud."
 
-#: ../inetconf.c:147
+#: ../inetconf.c:145
 msgid "added."
 msgstr ""
 
-#: ../listsub.c:39
+#: ../listsub.c:37
 msgid "List subscription"
 msgstr ""
 
-#: ../listsub.c:51
+#: ../listsub.c:50
 msgid "List subscribe/unsubscribe"
 msgstr ""
 
-#: ../listsub.c:72
+#: ../listsub.c:71
 msgid "Confirmation request sent"
 msgstr ""
 
-#: ../listsub.c:74
+#: ../listsub.c:73
 #, c-format
 msgid ""
 "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
@@ -2532,132 +710,109 @@ msgid ""
 "mailed to you and your subscription will be confirmed.<br />\n"
 msgstr ""
 
-#: ../listsub.c:87
+#: ../listsub.c:86
 msgid "Go back..."
 msgstr "Mine tagasi..."
 
-#: ../mainmenu.c:40
-msgid "Enter a server command"
-msgstr ""
-
-#: ../mainmenu.c:50
-msgid ""
-"This screen allows you to enter Citadel server commands which are not "
-"supported by WebCit.  If you do not know what that means, then this screen "
-"will not be of much use to you."
-msgstr ""
-
-#: ../mainmenu.c:58
-msgid "Enter command:"
-msgstr ""
-
-#: ../mainmenu.c:61
-msgid "Command input (if requesting SEND_LISTING transfer mode):"
-msgstr ""
-
-#: ../mainmenu.c:65
-#, c-format
-msgid "Detected host header is %s://%s"
-msgstr ""
-
-#: ../mainmenu.c:67
-msgid "Send command"
-msgstr ""
-
-#: ../mainmenu.c:97
-msgid "Server command results"
-msgstr ""
-
-#: ../messages.c:58
+#: ../messages.c:55
 msgid "ERROR:"
 msgstr ""
 
-#: ../messages.c:76
+#: ../messages.c:73
 #, fuzzy
 msgid "Empty message"
 msgstr "Sisesta sõnum"
 
-#: ../messages.c:1058
+#: ../messages.c:1061
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Katkestatud. Sõnumit ei postitatud."
 
-#: ../messages.c:1064
+#: ../messages.c:1067
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automaatselt katkestatud, sest sa oled selle sõnumi juba salvestanud."
 
-#: ../messages.c:1116
+#: ../messages.c:1119
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../messages.c:1182
+#: ../messages.c:1185
 msgid "Refusing to post empty message.\n"
 msgstr ""
 
-#: ../messages.c:1208
+#: ../messages.c:1211
 #, fuzzy
 msgid "Message has been saved to Drafts.\n"
 msgstr "Sõnum saadetud kasutajale "
 
-#: ../messages.c:1217
+#: ../messages.c:1220
 msgid "Message has been sent.\n"
 msgstr "Sõnum on saadetud.\n"
 
-#: ../messages.c:1220
+#: ../messages.c:1223
 msgid "Message has been posted.\n"
 msgstr "Sõnum on postitatud.\n"
 
-#: ../messages.c:1439
+#: ../messages.c:1444
 #, c-format
 msgid "The message was not moved."
 msgstr "Sõnumit ei liigutatud."
 
-#: ../messages.c:1461
+#: ../messages.c:1466
 msgid "Confirm move of message"
 msgstr "Kinnita sõnumi liigutamine"
 
-#: ../messages.c:1469
+#: ../messages.c:1474
 msgid "Move this message to:"
 msgstr "Liiguta see sõnum kausta:"
 
-#: ../messages.c:1532
+#: ../messages.c:1495 ../static/t/msg_listview.html:28
+#: ../static/t/view_message.html:37
+msgid "Move"
+msgstr "Liiguta"
+
+#: ../messages.c:1537
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr ""
 
-#: ../messages.c:1592
+#: ../messages.c:1597
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr ""
 
-#: ../messages.c:1754
+#: ../messages.c:1759
 msgid "Attach signature to email messages?"
 msgstr "Lisa allkiri e-kirjadele?"
 
-#: ../messages.c:1757
+#: ../messages.c:1762
 msgid "Use this signature:"
 msgstr "Kasuta seda allkirja:"
 
-#: ../messages.c:1759
+#: ../messages.c:1764
 msgid "Default character set for email headers:"
 msgstr ""
 
-#: ../messages.c:1762
+#: ../messages.c:1767
 msgid "Preferred email address"
 msgstr "Eelistatud e-maili aadress"
 
-#: ../messages.c:1764
+#: ../messages.c:1769
 msgid "Preferred display name for email messages"
 msgstr "Eelistatud nimi e-kirjadele"
 
-#: ../messages.c:1768
+#: ../messages.c:1773
 msgid "Preferred display name for bulletin board posts"
 msgstr "Eelistatud nimi teadetetahvlile postitades"
 
-#: ../messages.c:1771
+#: ../messages.c:1776
 msgid "Mailbox view mode"
 msgstr "Postkasti vaade"
+
+#: ../msg_renderers.c:523
+msgid "edit"
+msgstr "muuda"
 
 #: ../msg_renderers.c:1023
 msgid "I don't know how to display "
@@ -2667,618 +822,187 @@ msgstr "Ma ei tea kuidas kuvada "
 msgid "(no subject)"
 msgstr "(pealkiri puudub)"
 
-#: ../openid.c:21
+#: ../notes.c:345
+msgid "Click on any note to edit it."
+msgstr "Klõpsa märkmel, et seda muuta."
+
+#: ../openid.c:19
 msgid "Manage Account/OpenID Associations"
 msgstr ""
 
-#: ../openid.c:39
+#: ../openid.c:37
 msgid "Do you really want to delete this OpenID?"
 msgstr ""
 
-#: ../openid.c:40
+#: ../openid.c:38
 msgid "(delete)"
 msgstr ""
 
-#: ../openid.c:48
+#: ../openid.c:46
 msgid "Add an OpenID: "
 msgstr ""
 
-#: ../openid.c:51
+#: ../openid.c:49
 msgid "Attach"
 msgstr ""
 
-#: ../openid.c:55
+#: ../openid.c:53
 #, c-format
 msgid "%s does not permit authentication via OpenID."
 msgstr ""
 
-#: ../paging.c:37
+#: ../paging.c:35
 msgid "Send instant message"
 msgstr "Saada kiirsõnum"
 
-#: ../paging.c:46
+#: ../paging.c:44
 msgid "Send an instant message to: "
 msgstr "Saada kiirsõnum kasutajale: "
 
-#: ../paging.c:60
+#: ../paging.c:58
 msgid "Enter message text:"
 msgstr "Sisesta sõnumi tekst:"
 
-#: ../paging.c:88
+#: ../paging.c:66
+msgid "Send message"
+msgstr "Saada sõnum"
+
+#: ../paging.c:86
 msgid "Message was not sent."
 msgstr "Sõnumit ei saadetud."
 
-#: ../paging.c:102
+#: ../paging.c:100
 msgid "Message has been sent to "
 msgstr "Sõnum saadetud kasutajale "
 
-#: ../preferences.c:776
+#: ../preferences.c:846
 msgid "Cancelled.  No settings were changed."
 msgstr "Katkestatud. Seadeid ei muudetud."
 
-#: ../preferences.c:987
+#: ../preferences.c:1058
 msgid "Make this my start page"
 msgstr "Tee see leht minu Citadeli avaleheks."
 
-#: ../preferences.c:1026
+#: ../preferences.c:1097
 msgid "This isn't allowed to become the start page."
 msgstr ""
 
-#: ../preferences.c:1030
+#: ../preferences.c:1101
 msgid "You no longer have a start page selected."
 msgstr "Sul ei ole enam valitud Citadeli avalehte."
 
-#: ../preferences.c:1081
+#: ../preferences.c:1152
 #, fuzzy
 msgid "Prefered startpage"
 msgstr "Privilegeeritud Kasutaja"
 
-#: ../roomlist.c:57
+#: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
+msgid "Higher access is required to access this function."
+msgstr "Kõrgem juurdepääsuluba on vajalik selle funktsiooni kasutamiseks."
+
+#: ../roomlist.c:101
 #, fuzzy
 msgid "My Folders"
 msgstr "Minu kaustad"
 
-#: ../roomlist.c:320 ../roomops.c:1238 ../roomops.c:1754 ../siteconfig.c:41
-#: ../siteconfig.c:60
-msgid "Higher access is required to access this function."
-msgstr "Kõrgem juurdepääsuluba on vajalik selle funktsiooni kasutamiseks."
-
-#: ../roomops.c:24
-msgid "Bulletin Board"
-msgstr "Teadetetahvel"
-
-#: ../roomops.c:25
-msgid "Mail Folder"
-msgstr "Meilikast"
-
-#: ../roomops.c:26
-msgid "Address Book"
-msgstr "Aadressiraamat"
-
-#: ../roomops.c:28
-msgid "Task List"
-msgstr "Ülesannete nimekiri"
-
-#: ../roomops.c:29
-msgid "Notes List"
-msgstr "Märkmete nimekiri"
-
-#: ../roomops.c:30
-msgid "Wiki"
-msgstr "Wiki"
-
-#: ../roomops.c:31
-msgid "Calendar List"
-msgstr "Kalendri nimekiri"
-
-#: ../roomops.c:32
-msgid "Journal"
-msgstr ""
-
-#: ../roomops.c:218
-msgid "Zapped (forgotten) rooms"
-msgstr "Unustatud toad"
-
-#: ../roomops.c:228
-msgid "Click on any room to un-zap it and goto that room.\n"
-msgstr "Klõpsa toal, et seda taas 'meelde tuletada' ning sinna siseneda.\n"
-
-#: ../roomops.c:267
-msgid "Close window"
-msgstr "Sulge aken"
-
-#: ../roomops.c:349
-msgid "View as:"
-msgstr "Kuva kui:"
-
-#: ../roomops.c:389
-msgid "Search: "
-msgstr "Otsi:"
-
-#: ../roomops.c:459
-msgid "files"
-msgstr "faili"
-
-#: ../roomops.c:459
-msgid "file"
-msgstr "fail"
-
-#: ../roomops.c:465
-#, c-format
-msgid "%d new of %d messages%s"
-msgstr "%d uut, %d sõnumist%s"
-
-#: ../roomops.c:510
-msgid "View contacts"
-msgstr "Vaata kontakte"
-
-#: ../roomops.c:521
-msgid "Day view"
-msgstr "Päeva vaade"
-
-#: ../roomops.c:530
-msgid "Month view"
-msgstr "Kuu vaade"
-
-#: ../roomops.c:541
-msgid "Calendar list"
-msgstr "Kalendri nimekiri"
-
-#: ../roomops.c:552
-msgid "View tasks"
-msgstr "Vaata ülesandeid"
-
-#: ../roomops.c:563
-msgid "View notes"
-msgstr "Vaata märkmeid"
-
-#: ../roomops.c:574
-msgid "Refresh message list"
-msgstr "Värskenda sõnumite nimekirja"
-
-#: ../roomops.c:585
-msgid "Wiki home"
-msgstr "Wiki koduleht"
-
-#: ../roomops.c:612
-msgid "Add new contact"
-msgstr "Lisa uus kontakt"
-
-#: ../roomops.c:626
-msgid "Add new event"
-msgstr "Lisa uus sündmus"
-
-#: ../roomops.c:637
-msgid "Add new task"
-msgstr "Lisa uus ülesanne"
-
-#: ../roomops.c:648
-msgid "Add new note"
-msgstr "Lisa uus märge"
-
-#: ../roomops.c:664
-msgid "Edit this page"
-msgstr "Muuda seda lehekülge"
-
-#: ../roomops.c:676 ../wiki.c:199
-msgid "Current version"
-msgstr ""
-
-#: ../roomops.c:688
-msgid "History"
-msgstr ""
-
-#: ../roomops.c:700
-msgid "Write mail"
-msgstr "Saada kiri"
-
-#: ../roomops.c:733
-msgid ""
-"Leave all messages marked as unread, go to next room with unread messages"
-msgstr ""
-"Jäta kõik sõnumid märgituks kui lugemata ning mine järgmisesse tuppa kus on "
-"lugemata sõnumeid"
-
-#: ../roomops.c:734
-msgid "Skip this room"
-msgstr "Jäta tuba vahele"
-
-#: ../roomops.c:745
-msgid "Mark all messages as read, go to next room with unread messages"
-msgstr ""
-"Märgi siin sõnumid loetuks ja liigu järgmisesse tuppa kus on lugemata "
-"sõnumeid"
-
-#: ../roomops.c:1122 ../roomops.c:1126
-msgid "Configuration"
-msgstr "Konfiguratsioon"
-
-#: ../roomops.c:1135 ../roomops.c:1139
-msgid "Message expire policy"
-msgstr "Sõnumite aegumise reeglid"
-
-#: ../roomops.c:1148 ../roomops.c:1152
-msgid "Access controls"
-msgstr "Juurdepääsuõigused"
-
-#: ../roomops.c:1161 ../roomops.c:1165
-msgid "Sharing"
-msgstr "Jagamine"
-
-#: ../roomops.c:1174 ../roomops.c:1178
-msgid "Mailing list service"
-msgstr ""
-
-#: ../roomops.c:1189 ../roomops.c:1193
-msgid "Remote retrieval"
-msgstr "Mujalt posti kogumine"
-
-#: ../roomops.c:1215
-msgid "Are you sure you want to delete this room?"
-msgstr "Oled sa kindel, et soovid seda tuba kustutada?"
-
-#: ../roomops.c:1217
-msgid "Delete this room"
-msgstr "Kustuta see tuba"
-
-#: ../roomops.c:1222
-msgid "Set or change the icon for this room's banner"
-msgstr "Määra või muuda selle toa banneri ikooni"
-
-#: ../roomops.c:1225
-msgid "Edit this room's Info file"
-msgstr "Muuda selle toa Info faili"
-
-#: ../roomops.c:1256 ../roomops.c:2415
-msgid "Name of room: "
-msgstr "Toa nimi: "
-
-#: ../roomops.c:1263 ../roomops.c:2421
-msgid "Resides on floor: "
-msgstr "Asub korrusel: "
-
-#: ../roomops.c:1279 ../roomops.c:2467
-msgid "Type of room:"
-msgstr "Toa liik:"
-
-#: ../roomops.c:1290 ../roomops.c:2477
-msgid "Public (automatically appears to everyone)"
-msgstr "Avalik (ilmub automaatselt kõigile)"
-
-#: ../roomops.c:1302 ../roomops.c:2485
-msgid "Private - hidden (accessible to anyone who knows its name)"
-msgstr ""
-"Privaatne - peidetud (juurdepääsetav ainult nendele, kes teavad toa nime)"
-
-#: ../roomops.c:1313 ../roomops.c:2493
-msgid "Private - require password: "
-msgstr "Privaatne - nõua salasõna: "
-
-#: ../roomops.c:1327 ../roomops.c:2502
-msgid "Private - invitation only"
-msgstr "Privaatne - ainult kutse alusel"
-
-#: ../roomops.c:1337 ../roomops.c:2511
-msgid "Personal (mailbox for you only)"
-msgstr "Personaalne (kirjakast ainult sinule)"
-
-#: ../roomops.c:1341
-msgid "If private, cause current users to forget room"
-msgstr "Kui privaatne, sunni kasutajaid tuba unustama"
-
-#: ../roomops.c:1349
-msgid "Preferred users only"
-msgstr "Ainult Privilegeeritud kasutajad"
-
-#: ../roomops.c:1355
-msgid "Read-only room"
-msgstr "Loe-ainult tuba"
-
-#: ../roomops.c:1361
-msgid "All users allowed to post may also delete messages"
-msgstr "Kasutajad, kes tohivad postitada, tohivad ka sõnumeid kustutada"
-
-#: ../roomops.c:1368
-msgid "File directory room"
-msgstr "Failivahetuse tuba"
-
-#: ../roomops.c:1371
-msgid "Directory name: "
-msgstr "Kataloogi nimi:"
-
-#: ../roomops.c:1379
-msgid "Uploading allowed"
-msgstr "Üleslaadimine lubatud"
-
-#: ../roomops.c:1385
-msgid "Downloading allowed"
-msgstr "Allalaadimine lubatud"
-
-#: ../roomops.c:1391
-msgid "Visible directory"
-msgstr "Nähtav kataloog"
-
-#: ../roomops.c:1400
-msgid "Network shared room"
-msgstr "Tuba jagatud võrku"
-
-#: ../roomops.c:1406
-msgid "Permanent (does not auto-purge)"
-msgstr "Permanentne (ei toimu auto-tühjendamist)"
-
-#: ../roomops.c:1412
-msgid "Subject Required (Force users to specify a message subject)"
-msgstr "Pealkiri Nõutud (Sunni kasutajaid sõnumitele pealkirju lisama)"
-
-#: ../roomops.c:1417
-msgid "Anonymous messages"
-msgstr "Anonüümsed sõnumid"
-
-#: ../roomops.c:1425
-msgid "No anonymous messages"
-msgstr "Anonüümsed sõnumid keelatud"
-
-#: ../roomops.c:1431
-msgid "All messages are anonymous"
-msgstr "Kõik sõnumid on anonüümsed"
-
-#: ../roomops.c:1437
-msgid "Prompt user when entering messages"
-msgstr "Teavita kasutajat sõnumi sisestamisel"
-
-#: ../roomops.c:1443
-msgid "Room aide: "
-msgstr "Toa Korrapidaja: "
-
-#: ../roomops.c:1518
-msgid "Shared with"
-msgstr "Jagatud "
-
-#: ../roomops.c:1521
-msgid "Not shared with"
-msgstr "Ei ole jagatud"
-
-#: ../roomops.c:1526 ../roomops.c:1569
-msgid "Remote node name"
-msgstr ""
-
-#: ../roomops.c:1528 ../roomops.c:1571
-msgid "Remote room name"
-msgstr ""
-
-#: ../roomops.c:1530 ../roomops.c:1573
-msgid "Actions"
-msgstr "Tegevused"
-
-#: ../roomops.c:1561
-msgid "Unshare"
-msgstr "Lõpeta jagamine"
-
-#: ../roomops.c:1598
-msgid "Share"
-msgstr "Jaga"
-
-#: ../roomops.c:1607
-msgid ""
-"When sharing a room, it must be shared from both ends.  Adding a node to the "
-"'shared' list sends messages out, but in order to receive messages, the "
-"other nodes must be configured to send messages out to your system as well. "
-"<li>If the remote room name is blank, it is assumed that the room name is "
-"identical on the remote node.<li>If the remote room name is different, the "
-"remote node must also configure the name of the room here.</ul></I><br />\n"
-msgstr ""
-
-#: ../roomops.c:1634
-msgid ""
-"<i>The contents of this room are being mailed <b>as individual messages</b> "
-"to the following list recipients:</i><br /><br />\n"
-msgstr ""
-
-#: ../roomops.c:1650 ../roomops.c:1681 ../roomops.c:1904 ../roomops.c:1971
-msgid "(remove)"
-msgstr "(eemalda)"
-
-#: ../roomops.c:1664
-msgid ""
-"<i>The contents of this room are being mailed <b>in digest form</b> to the "
-"following list recipients:</i><br /><br />\n"
-msgstr ""
-
-#: ../roomops.c:1702
-msgid "List"
-msgstr ""
-
-#: ../roomops.c:1703
-msgid "Digest"
-msgstr ""
-
-#: ../roomops.c:1704 ../roomops.c:1705
-msgid "Add recipients from Contacts or other address books"
-msgstr "Lisa saajad Kontaktidest või teistest aadressiraamatutest"
-
-#: ../roomops.c:1715
-msgid "Allow self-service subscribe/unsubscribe requests."
-msgstr ""
-
-#: ../roomops.c:1719
-msgid "The URL for subscribe/unsubscribe is: "
-msgstr ""
-
-#: ../roomops.c:1725
-msgid "Allow non-subscribers to mail to this room."
-msgstr ""
-
-#: ../roomops.c:1731
-msgid "Room post publication needs Aide permission."
-msgstr ""
-
-#: ../roomops.c:1775
-msgid "Message expire policy for this room"
-msgstr "Sõnumite aegumise reeglid siin toas"
-
-#: ../roomops.c:1781
-msgid "Use the default policy for this floor"
-msgstr "Kasuta vaikimisi reegleid sõnumite aegumiseks"
-
-#: ../roomops.c:1802
-msgid "Message expire policy for this floor"
-msgstr "Sõnumite aegumise reeglid siin korrusel"
-
-#: ../roomops.c:1808
-msgid "Use the system default"
-msgstr "Kasuta süsteemi vaikimisi seadeid"
-
-#: ../roomops.c:1855
-msgid ""
-"Retrieve messages from these remote POP3 accounts and store them in this "
-"room:"
-msgstr "Kogu kirju nendelt POP3 kontodelt ja salvesta siia tuppa"
-
-#: ../roomops.c:1860
-msgid "Remote host"
-msgstr "Serveri aadress"
-
-#: ../roomops.c:1866
-msgid "Keep messages on server?"
-msgstr "Säilita koopia serveris?"
-
-#: ../roomops.c:1868
-msgid "Interval"
-msgstr "Intervall"
-
-#: ../roomops.c:1939
-msgid "Fetch the following RSS feeds and store them in this room:"
-msgstr "Kogu järgmiseid RSS feed'e ja salvesta nad siia tuppa:"
-
-#: ../roomops.c:1945
-msgid "Feed URL"
-msgstr "Feed'i URL"
-
-#: ../roomops.c:2059 ../roomops.c:3038 ../sieve.c:575
+#: ../roomops.c:677 ../roomops.c:970 ../sieve.c:571
 msgid "Cancelled.  Changes were not saved."
 msgstr "Katkestatud. Muudatusi ei salvestatud."
 
-#: ../roomops.c:2249 ../sieve.c:631
+#: ../roomops.c:805 ../sieve.c:627
 msgid "Your changes have been saved."
 msgstr "Sinu muudatused on salvestatud."
 
-#: ../roomops.c:2286
-#, c-format
-msgid "<B><I>User %s kicked out of room %s.</I></B>\n"
+#: ../roomops.c:847
+#, fuzzy, c-format
+msgid "User '%s' kicked out of room '%s'."
 msgstr "<B><I>Kasutaja %s löödi toast %s välja.</I></B>\n"
 
-#: ../roomops.c:2300
-#, c-format
-msgid "<B><I>User %s invited to room %s.</I></B>\n"
+#: ../roomops.c:863
+#, fuzzy, c-format
+msgid "User '%s' invited to room '%s'."
 msgstr "<B><I>Kasutaja %s kutsutud tuppa %s.</I></B>\n"
 
-#: ../roomops.c:2328
-msgid ""
-"The users listed below have access to this room.  To remove a user from the "
-"access list, select the user name from the list and click 'Kick'."
-msgstr ""
-"Allolevas nimekirjas olevatel kasutajatel on juurdepääs sellele toale. Et "
-"kasutajatnimekirjast eemaldada, vali kasutajanimi ning klõpsa 'Löö minema'"
-
-#: ../roomops.c:2349
-msgid "Kick"
-msgstr "Löö minema"
-
-#: ../roomops.c:2353
-msgid ""
-"To grant another user access to this room, enter the user name in the box "
-"below and click 'Invite'."
-msgstr ""
-"Et anda kasutajale juurdepääsu sellele toale, sisesta kasutajanimi kasti "
-"ning klõpsa 'Kutsu'"
-
-#: ../roomops.c:2360
-msgid "Invite:"
-msgstr "Kutsu:"
-
-#: ../roomops.c:2365
-msgid "Invite"
-msgstr "Kutsu"
-
-#: ../roomops.c:2372
-msgid "User"
-msgstr "Kasutaja"
-
-#: ../roomops.c:2373
-msgid "Users"
-msgstr "Kasutajad"
-
-#: ../roomops.c:2442
-msgid "Default view for room: "
-msgstr "Vaikimisi vaade sellele toale: "
-
-#: ../roomops.c:2518
-msgid "Create new room"
-msgstr "Loo uus tuba"
-
-#: ../roomops.c:2589
+#: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
 msgstr "Katkestatud. Uut tuba ei loodud."
 
-#: ../roomops.c:2641
-msgid "Go to a hidden room"
-msgstr "Mine peidetud tuppa"
+#: ../roomops.c:1165
+msgid "Floor has been deleted."
+msgstr "Korrus on kustutatud."
 
-#: ../roomops.c:2650
-msgid ""
-"If you know the name of a hidden (guess-name) or passworded room, you can "
-"enter that room by typing its name below.  Once you gain access to a private "
-"room, it will appear in your regular room listings so you don't have to keep "
-"returning here."
-msgstr ""
+#: ../roomops.c:1189
+msgid "New floor has been created."
+msgstr "Uus korrus on loodud."
 
-#: ../roomops.c:2662
-msgid "Enter room name:"
-msgstr "Sisesta toa nimi:"
-
-#: ../roomops.c:2669
-msgid "Enter room password:"
-msgstr "Sisesta toa salasõna:"
-
-#: ../roomops.c:2679
-msgid "Go there"
-msgstr "Mine sinna"
-
-#: ../roomops.c:2731
-msgid "Zap (forget/unsubscribe) the current room"
-msgstr "Unusta praegune tuba"
-
-#: ../roomops.c:2737
-#, c-format
-msgid ""
-"If you select this option, <em>%s</em> will disappear from your room list.  "
-"Is this what you wish to do?<br />\n"
-msgstr ""
-
-#: ../roomops.c:2743
-msgid "Zap this room"
-msgstr "Unusta tuba"
-
-#: ../roomops.c:3210
+#: ../roomops.c:1268
 msgid "Room list view"
 msgstr "Tubade nimekirja vaade"
 
-#: ../roomops.c:3213
+#: ../roomops.c:1271
 msgid "Show empty floors"
 msgstr "Näita tühje korruseid"
 
-#: ../serv_func.c:190
+#: ../roomtokens.c:512
+msgid "file"
+msgstr "fail"
+
+#: ../roomtokens.c:514
+msgid "files"
+msgstr "faili"
+
+#: ../roomviews.c:42
+msgid "Bulletin Board"
+msgstr "Teadetetahvel"
+
+#: ../roomviews.c:43
+msgid "Mail Folder"
+msgstr "Meilikast"
+
+#: ../roomviews.c:44
+msgid "Address Book"
+msgstr "Aadressiraamat"
+
+#: ../roomviews.c:45 ../static/t/iconbar.html:22
+msgid "Calendar"
+msgstr "Kalender"
+
+#: ../roomviews.c:46
+msgid "Task List"
+msgstr "Ülesannete nimekiri"
+
+#: ../roomviews.c:47
+msgid "Notes List"
+msgstr "Märkmete nimekiri"
+
+#: ../roomviews.c:48
+msgid "Wiki"
+msgstr "Wiki"
+
+#: ../roomviews.c:49
+msgid "Calendar List"
+msgstr "Kalendri nimekiri"
+
+#: ../roomviews.c:50
+msgid "Journal"
+msgstr ""
+
+#: ../roomviews.c:51
+msgid "Blog"
+msgstr ""
+
+#: ../serv_func.c:187
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
 
-#: ../serv_func.c:195 ../serv_func.c:224
+#: ../serv_func.c:192 ../serv_func.c:221
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr ""
 
-#: ../serv_func.c:233
+#: ../serv_func.c:230
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -3288,333 +1012,366 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../sieve.c:32
+#: ../sieve.c:18 ../sieve.c:103
+msgid "View/edit server-side mail filters"
+msgstr "Vaata/muuda serveris asuvaid postifiltreid"
+
+#: ../sieve.c:28
 msgid ""
 "This installation of Citadel was built without support for server-side mail "
 "filtering.<br>Please contact your system administrator if you require this "
 "feature.<br>"
 msgstr ""
 
-#: ../sieve.c:121
+#: ../sieve.c:117
 msgid "When new mail arrives: "
 msgstr "Kui uus kiri saabub:"
 
-#: ../sieve.c:125
+#: ../sieve.c:121
 msgid "Leave it in my inbox without filtering"
 msgstr "Jäta see minu Kirjakasti ilma filtreerimata"
 
-#: ../sieve.c:129
+#: ../sieve.c:125
 msgid "Filter it according to rules selected below"
 msgstr "Filtreeri vastavalt alltoodud reeglitele"
 
-#: ../sieve.c:134
+#: ../sieve.c:130
 msgid "Filter it through a manually edited script (advanced users only)"
 msgstr ""
 "Filtreeri vastavalt käsitsi sisestatud skriptile (pead teadma mida sa teed)"
 
-#: ../sieve.c:145
+#: ../sieve.c:141
 msgid "Your incoming mail will not be filtered through any scripts."
 msgstr "Sinu sissetulevaid kirju ei filtreerita."
 
-#: ../sieve.c:160
+#: ../sieve.c:156
 msgid "The currently active script is: "
 msgstr "Hetkel aktiivne skript on: "
 
-#: ../sieve.c:175 ../sieve.c:648
+#: ../sieve.c:171 ../sieve.c:644
 msgid "Add or delete scripts"
 msgstr "Lisa või kustuta skripte"
 
-#: ../sieve.c:660
+#: ../sieve.c:203 ../sysmsgs.c:48 ../vcard_edit.c:1000
+msgid "Save changes"
+msgstr "Salvesta muudatused"
+
+#: ../sieve.c:657
 msgid "Add a new script"
 msgstr "Lisa uus skript"
 
-#: ../sieve.c:663
+#: ../sieve.c:660
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
 msgstr ""
 
-#: ../sieve.c:669
+#: ../sieve.c:666
 msgid "Script name: "
 msgstr "Skripti nimi: "
 
-#: ../sieve.c:676
+#: ../sieve.c:669
+msgid "Create"
+msgstr "Loo"
+
+#: ../sieve.c:674
 msgid "Edit scripts"
 msgstr "Muuda skripte"
 
-#: ../sieve.c:679
+#: ../sieve.c:677
 msgid "Return to the script editing screen"
 msgstr "Tagasi skript editori aknasse"
 
-#: ../sieve.c:685
+#: ../sieve.c:684
 msgid "Delete scripts"
 msgstr "Kustuta skripte"
 
-#: ../sieve.c:688
+#: ../sieve.c:687
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
 msgstr ""
 
-#: ../sieve.c:712
+#: ../sieve.c:711
 msgid "Delete script"
 msgstr "Kustuta skript"
 
-#: ../sieve.c:712
+#: ../sieve.c:711
 msgid "Delete this script?"
 msgstr "Kas kustutan selle skripti?"
 
-#: ../sieve.c:749
+#: ../sieve.c:748
 msgid "A script by that name already exists."
 msgstr "Sellenimeline skript on juba olemas."
 
-#: ../sieve.c:758
+#: ../sieve.c:757
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
 msgstr ""
 
-#: ../sieve.c:975
+#: ../sieve.c:974
 msgid "Move rule up"
 msgstr "Liiguta reeglit üles"
 
-#: ../sieve.c:980
+#: ../sieve.c:979
 msgid "Move rule down"
 msgstr "Liiguta reeglit alla"
 
-#: ../sieve.c:985
+#: ../sieve.c:984
 msgid "Delete rule"
 msgstr "Kustuta reegel"
 
-#: ../sieve.c:993
+#: ../sieve.c:992
 msgid "If"
 msgstr "Kui"
 
-#: ../sieve.c:997
+#: ../sieve.c:996
 msgid "To or Cc"
 msgstr "Saaja või Koopia"
 
-#: ../sieve.c:999
+#: ../sieve.c:998
 msgid "Reply-to"
 msgstr "Vastus"
 
-#: ../sieve.c:1001
+#: ../sieve.c:999 ../smtpqueue.c:197 ../static/t/msg_listview.html:11
+#: ../static/t/summary_header.html:9
+msgid "Sender"
+msgstr "Saatja"
+
+#: ../sieve.c:1000
 msgid "Resent-From"
 msgstr ""
 
-#: ../sieve.c:1002
+#: ../sieve.c:1001
 msgid "Resent-To"
 msgstr ""
 
-#: ../sieve.c:1003
+#: ../sieve.c:1002
 msgid "Envelope From"
 msgstr ""
 
-#: ../sieve.c:1004
+#: ../sieve.c:1003
 msgid "Envelope To"
 msgstr ""
 
-#: ../sieve.c:1005
+#: ../sieve.c:1004
 msgid "X-Mailer"
 msgstr ""
 
-#: ../sieve.c:1006
+#: ../sieve.c:1005
 msgid "X-Spam-Flag"
 msgstr ""
 
-#: ../sieve.c:1007
+#: ../sieve.c:1006
 msgid "X-Spam-Status"
 msgstr ""
 
-#: ../sieve.c:1008
+#: ../sieve.c:1007
 msgid "List-ID"
 msgstr ""
 
-#: ../sieve.c:1009
+#: ../sieve.c:1008
 msgid "Message size"
 msgstr "Sõnumi suurus"
 
-#: ../sieve.c:1029
+#: ../sieve.c:1009 ../static/t/select_messageindex_all.html:1
+msgid "All"
+msgstr "Kõik"
+
+#: ../sieve.c:1028
 msgid "contains"
 msgstr "sisaldab"
 
-#: ../sieve.c:1030
+#: ../sieve.c:1029
 msgid "does not contain"
 msgstr "ei sisalda"
 
-#: ../sieve.c:1031
+#: ../sieve.c:1030
 msgid "is"
 msgstr "on"
 
-#: ../sieve.c:1032
+#: ../sieve.c:1031
 msgid "is not"
 msgstr "ei ole"
 
-#: ../sieve.c:1033
+#: ../sieve.c:1032
 msgid "matches"
 msgstr "kattub"
 
-#: ../sieve.c:1034
+#: ../sieve.c:1033
 msgid "does not match"
 msgstr "ei kattu"
 
-#: ../sieve.c:1054
+#: ../sieve.c:1053
 msgid "(All messages)"
 msgstr "(Kõik sõnumid)"
 
-#: ../sieve.c:1058
+#: ../sieve.c:1057
 msgid "is larger than"
 msgstr "on suurem kui"
 
-#: ../sieve.c:1059
+#: ../sieve.c:1058
 msgid "is smaller than"
 msgstr "on väiksem kui"
 
-#: ../sieve.c:1082
+#: ../sieve.c:1081
 msgid "Keep"
 msgstr "Säilita"
 
-#: ../sieve.c:1083
+#: ../sieve.c:1082
 msgid "Discard silently"
 msgstr "Kustuta vaikides"
 
-#: ../sieve.c:1084
+#: ../sieve.c:1083
 msgid "Reject"
 msgstr "Hülga"
 
-#: ../sieve.c:1085
+#: ../sieve.c:1084
 msgid "Move message to"
 msgstr "Liiguta kausta"
 
-#: ../sieve.c:1086
+#: ../sieve.c:1085
 msgid "Forward to"
 msgstr "Saada edasi"
 
-#: ../sieve.c:1087
+#: ../sieve.c:1086
 msgid "Vacation"
 msgstr "Puhkusel"
 
-#: ../sieve.c:1124
+#: ../sieve.c:1123
 msgid "Message:"
 msgstr "Vastus:"
 
-#: ../sieve.c:1134
+#: ../sieve.c:1133
 msgid "continue processing"
 msgstr "jätka töötlemist"
 
-#: ../sieve.c:1135
+#: ../sieve.c:1134
 msgid "stop"
 msgstr "peatu"
 
-#: ../sieve.c:1138
+#: ../sieve.c:1137
 msgid "and then"
 msgstr "ja siis"
 
-#: ../sieve.c:1159
+#: ../sieve.c:1158
 msgid "Add rule"
 msgstr "Lisa reegel"
 
-#: ../siteconfig.c:300
+#: ../siteconfig.c:254
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgstr ""
+
+#: ../siteconfig.c:313
 msgid "Your system configuration has been updated."
 msgstr "Sinu süsteemiseaded on uuendatud"
 
-#: ../smtpqueue.c:193
+#: ../smtpqueue.c:133
+msgid "(Delete)"
+msgstr "(Kustuta)"
+
+#: ../smtpqueue.c:191
 msgid "Message ID"
 msgstr ""
 
-#: ../smtpqueue.c:195
+#: ../smtpqueue.c:193
 msgid "Date/time submitted"
 msgstr ""
 
-#: ../smtpqueue.c:197
+#: ../smtpqueue.c:195
 msgid "Last attempt"
 msgstr ""
 
-#: ../smtpqueue.c:201
+#: ../smtpqueue.c:199
 msgid "Recipients"
 msgstr ""
 
-#: ../smtpqueue.c:216
+#: ../smtpqueue.c:214
 msgid "The queue is empty."
 msgstr ""
 
-#: ../smtpqueue.c:222
+#: ../smtpqueue.c:220
 msgid "You do not have permission to view this resource."
 msgstr ""
 
-#: ../smtpqueue.c:254
+#: ../smtpqueue.c:236
+msgid "View the outbound SMTP queue"
+msgstr ""
+
+#: ../smtpqueue.c:252
 msgid "Refresh this page"
 msgstr ""
 
-#: ../summary.c:34
-msgid "(nothing)"
-msgstr "(ei midagi)"
-
-#: ../summary.c:117
+#: ../summary.c:101
 msgid "(None)"
 msgstr ""
 
-#: ../summary.c:169
+#: ../summary.c:153
 msgid "(Nothing)"
 msgstr "(Ei midagi)"
 
-#: ../summary.c:183
+#: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 "Sa oled ühendunud võrku %s, mis jookseb tarkvaral %s veebiliidesega %s, "
 "serveri versioon %s ning asukohaga %s. Sinu süsteemiadministraator on %s."
 
-#: ../summary.c:211
+#: ../summary.c:195
 msgid "Messages"
 msgstr "Sõnumid"
 
-#: ../summary.c:237
+#: ../summary.c:208 ../static/t/iconbar.html:37
+msgid "Tasks"
+msgstr "Ülesanded"
+
+#: ../summary.c:221
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
 msgstr "Täna&nbsp;sinu&nbsp;Kalendris"
 
-#: ../summary.c:252
+#: ../summary.c:236
 msgid "Who's&nbsp;online&nbsp;now"
 msgstr "Kes&nbsp;on&nbsp;hetkel&nbsp;võrgus"
 
-#: ../summary.c:265
+#: ../summary.c:249
 msgid "About&nbsp;this&nbsp;server"
 msgstr "Sellest&nbsp;serverist"
 
-#: ../summary.c:291
+#: ../summary.c:275
 #, c-format
 msgid "Summary page for %s"
 msgstr "Kasutaja %s kokkuvõtteleht"
 
-#: ../sysmsgs.c:35
+#: ../sysmsgs.c:33
 #, c-format
 msgid "Edit %s"
 msgstr "Muuda %s"
 
-#: ../sysmsgs.c:38
+#: ../sysmsgs.c:36
 #, c-format
 msgid ""
 "Enter %s below. Text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
 
-#: ../sysmsgs.c:72
+#: ../sysmsgs.c:70
 #, c-format
 msgid "Cancelled.  %s was not saved."
 msgstr "Katkestatud. %s ei salvestatud."
 
-#: ../sysmsgs.c:91
+#: ../sysmsgs.c:89
 #, c-format
 msgid "%s has been saved."
 msgstr "%s salvestati."
 
-#: ../sysmsgs.c:99 ../sysmsgs.c:100
+#: ../sysmsgs.c:97 ../sysmsgs.c:98
 msgid "Room info"
 msgstr "Toa info"
 
-#: ../sysmsgs.c:105 ../sysmsgs.c:107
+#: ../sysmsgs.c:103 ../sysmsgs.c:105
 msgid "Your bio"
 msgstr "Sinu info"
 
@@ -3670,213 +1427,217 @@ msgstr "Lõpetatud:"
 msgid "Category:"
 msgstr "Kategooria:"
 
-#: ../useredit.c:536
+#: ../useredit.c:533
 msgid ""
 "An error occurred while trying to create or edit this address book entry."
 msgstr ""
 
-#: ../useredit.c:613
+#: ../useredit.c:610
 msgid "Changes were not saved."
 msgstr "Muudatusi ei salvestatud"
 
-#: ../useredit.c:703
+#: ../useredit.c:700
 #, c-format
 msgid "A new user has been created."
 msgstr "Uus kasutaja on loodud"
 
-#: ../useredit.c:708
+#: ../useredit.c:705
 msgid ""
 "You are attempting to create a new user from within Citadel while running in "
 "host based authentication mode.  In this mode, you must create new users on "
 "the host system, not within Citadel."
 msgstr ""
 
-#: ../userlist.c:42
+#: ../userlist.c:39
 #, c-format
 msgid "User list for %s"
 msgstr "%s kasutajate nimekiri"
 
-#: ../userlist.c:60
+#: ../userlist.c:57
 msgid "User Name"
 msgstr "Kasutajanimi"
 
-#: ../userlist.c:61
+#: ../userlist.c:58
 msgid "Number"
 msgstr "Number"
 
-#: ../userlist.c:62
+#: ../userlist.c:59
 msgid "Access Level"
 msgstr "Juurdepääsutase"
 
-#: ../userlist.c:63
+#: ../userlist.c:60
 msgid "Last Login"
 msgstr "Viimati sees"
 
-#: ../userlist.c:64
+#: ../userlist.c:61
 msgid "Total Logins"
 msgstr "Logimisi kokku"
 
-#: ../userlist.c:65
+#: ../userlist.c:62
 msgid "Total Posts"
 msgstr "Postitusi kokku"
 
-#: ../userlist.c:122
+#: ../userlist.c:119
 msgid "User profile"
 msgstr "Kasutajaprofiil"
 
-#: ../userlist.c:160
+#: ../userlist.c:157
 #, c-format
 msgid "Click here to send an instant message to %s"
 msgstr "Klõpsa siin, et saata kasutajale %s kiirsõnum"
 
-#: ../vcard_edit.c:120 ../vcard_edit.c:123
+#: ../vcard_edit.c:117 ../vcard_edit.c:120
 msgid "(no name)"
 msgstr "(nimetu)"
 
-#: ../vcard_edit.c:388
+#: ../vcard_edit.c:385
 msgid " (work)"
 msgstr " (töö)"
 
-#: ../vcard_edit.c:390
+#: ../vcard_edit.c:387
 msgid " (home)"
 msgstr " (kodune)"
 
-#: ../vcard_edit.c:392
+#: ../vcard_edit.c:389
 msgid " (cell)"
 msgstr " (mobiil)"
 
-#: ../vcard_edit.c:403 ../vcard_edit.c:907
+#: ../vcard_edit.c:400 ../vcard_edit.c:905
 msgid "Address:"
 msgstr "Aadress:"
 
-#: ../vcard_edit.c:471
+#: ../vcard_edit.c:468
 msgid "Telephone:"
 msgstr "Telefon:"
 
-#: ../vcard_edit.c:476
+#: ../vcard_edit.c:473
 msgid "E-mail:"
 msgstr "E-mail:"
 
-#: ../vcard_edit.c:566
+#: ../vcard_edit.c:563
 msgid "This address book is empty."
 msgstr "See aadressiraamat on tühi"
 
-#: ../vcard_edit.c:580
+#: ../vcard_edit.c:577
 msgid "An internal error has occurred."
 msgstr "Tekkis sisemine viga"
 
-#: ../vcard_edit.c:834
+#: ../vcard_edit.c:728
+msgid "Error"
+msgstr "Viga"
+
+#: ../vcard_edit.c:832
 msgid "Edit contact information"
 msgstr "Muuda kontaktinfot"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Prefix"
 msgstr "Tiitel"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "First Name"
 msgstr "Eesnimi"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Middle Name"
 msgstr "Lisanimi"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Last Name"
 msgstr "Perekonnanimi"
 
-#: ../vcard_edit.c:855
+#: ../vcard_edit.c:853
 msgid "Suffix"
 msgstr ""
 
-#: ../vcard_edit.c:876
+#: ../vcard_edit.c:874
 msgid "Display name:"
 msgstr "Kuvatav nimi:"
 
-#: ../vcard_edit.c:883
+#: ../vcard_edit.c:881
 msgid "Title:"
 msgstr "Ametinimi:"
 
-#: ../vcard_edit.c:890
+#: ../vcard_edit.c:888
 msgid "Organization:"
 msgstr "Organisatsioon:"
 
-#: ../vcard_edit.c:901
+#: ../vcard_edit.c:899
 msgid "PO box:"
 msgstr "Postkast"
 
-#: ../vcard_edit.c:917
+#: ../vcard_edit.c:915
 msgid "City:"
 msgstr "Linn:"
 
-#: ../vcard_edit.c:923
+#: ../vcard_edit.c:921
 msgid "State:"
 msgstr "Maakond:"
 
-#: ../vcard_edit.c:929
+#: ../vcard_edit.c:927
 msgid "ZIP code:"
 msgstr "Postiindeks"
 
-#: ../vcard_edit.c:935
+#: ../vcard_edit.c:933
 msgid "Country:"
 msgstr "Riik"
 
-#: ../vcard_edit.c:945
+#: ../vcard_edit.c:943
 msgid "Home telephone:"
 msgstr "Kodune telefon:"
 
-#: ../vcard_edit.c:951
+#: ../vcard_edit.c:949
 msgid "Work telephone:"
 msgstr "Töötelefon:"
 
-#: ../vcard_edit.c:957
+#: ../vcard_edit.c:955
 msgid "Mobile telephone:"
 msgstr "Mobiiltelefon:"
 
-#: ../vcard_edit.c:963
+#: ../vcard_edit.c:961
 msgid "Fax number:"
 msgstr "Faks:"
 
-#: ../vcard_edit.c:974
+#: ../vcard_edit.c:972
 msgid "Primary Internet e-mail address"
 msgstr "Peamine Interneti e-maili aadress"
 
-#: ../vcard_edit.c:981
+#: ../vcard_edit.c:979
 msgid "Internet e-mail aliases"
 msgstr "Interneti e-maili aliased"
 
-#: ../vcard_edit.c:1048
+#: ../vcard_edit.c:1046
 msgid "Unable to enter the room to save your message"
 msgstr ""
 
-#: ../vcard_edit.c:1057
+#: ../vcard_edit.c:1055
 msgid "Aborting."
 msgstr ""
 
-#: ../vcard_edit.c:1093 ../vcard_edit.c:1139
+#: ../vcard_edit.c:1091 ../vcard_edit.c:1137
 msgid "An error has occurred."
 msgstr "Tekkis viga."
 
-#: ../vcard_edit.c:1195
+#: ../vcard_edit.c:1193
 msgid "Could Not decode vcard photo\n"
 msgstr "Ei suutnud dekodeerida visiitkaardi fotot\n"
 
-#: ../webcit.c:341
+#: ../webcit.c:344
 msgid "Authorization Required"
 msgstr "Nõutav Autoriseering"
 
-#: ../webcit.c:350
+#: ../webcit.c:353
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
 
-#: ../who.c:154
+#: ../who.c:151
 msgid "Edit your session display"
 msgstr "Muuda oma sessiooni väljanägemist"
 
-#: ../who.c:158
+#: ../who.c:155
 msgid ""
 "This screen allows you to change the way your session appears in the 'Who is "
 "online' listing. To turn off any 'fake' name you've previously set, simply "
@@ -3884,64 +1645,447 @@ msgid ""
 "corresponding box. "
 msgstr ""
 
-#: ../who.c:171
+#: ../who.c:168
 msgid "Room name:"
 msgstr "Toa nimi:"
 
-#: ../who.c:176
+#: ../who.c:173
 msgid "Change room name"
 msgstr "Muuda toa nime"
 
-#: ../who.c:180
+#: ../who.c:177
 msgid "Host name:"
 msgstr ""
 
-#: ../who.c:185
+#: ../who.c:182
 msgid "Change host name"
 msgstr ""
 
-#: ../who.c:195
+#: ../who.c:187 ../static/t/login.html:19
+#: ../static/t/openid_manual_create.html:15
+msgid "User name:"
+msgstr "Kasutajanimi:"
+
+#: ../who.c:192
 msgid "Change user name"
 msgstr "Muuda kasutajanime"
 
-#: ../wiki.c:55 ../wiki.c:148 ../wiki.c:270
+#: ../wiki.c:53 ../wiki.c:146 ../wiki.c:268
 #, c-format
 msgid "There is no room called '%s'."
 msgstr "Ei leia '%s' nimelist tuba."
 
-#: ../wiki.c:62
+#: ../wiki.c:60
 #, c-format
 msgid "'%s' is not a Wiki room."
 msgstr "'%s' ei ole Wiki tuba."
 
-#: ../wiki.c:96
+#: ../wiki.c:94
 #, c-format
 msgid "There is no page called '%s' here."
 msgstr ""
 
-#: ../wiki.c:98
+#: ../wiki.c:96
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
 
-#: ../wiki.c:170
+#: ../wiki.c:167 ../static/t/msg_listview.html:12
+#: ../static/t/summary_header.html:10
+msgid "Date"
+msgstr "Kuupäev"
+
+#: ../wiki.c:168
 msgid "Author"
 msgstr ""
 
-#: ../wiki.c:197 ../wiki.c:206
+#: ../wiki.c:195 ../wiki.c:204
 #, fuzzy
 msgid "(show)"
 msgstr " (kodune)"
 
-#: ../wiki.c:211
+#: ../wiki.c:197 ../static/t/navbar.html:147
+msgid "Current version"
+msgstr ""
+
+#: ../wiki.c:209
 #, fuzzy
 msgid "(revert)"
 msgstr "(eemalda)"
 
-#: ../wiki.c:291
+#: ../wiki.c:289
 msgid "Page title"
 msgstr ""
+
+#: ../static/t/display_main_menu.html:8
+msgid "Basic commands"
+msgstr "Põhikäsud"
+
+#: ../static/t/display_main_menu.html:11
+msgid "Your info"
+msgstr "Sinu info"
+
+#: ../static/t/display_main_menu.html:13
+msgid "Advanced room commands"
+msgstr "Põhjalikumad tubade käsud"
+
+#: ../static/t/edit_message.html:23
+msgid "from"
+msgstr "saatja"
+
+#: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
+msgid "Anonymous"
+msgstr "Anonüümne"
+
+#: ../static/t/edit_message.html:47
+msgid "in"
+msgstr ""
+
+#: ../static/t/edit_message.html:51
+msgid "To:"
+msgstr "Saaja:"
+
+#: ../static/t/edit_message.html:62 ../static/t/view_message.html:16
+msgid "CC:"
+msgstr "Koopia:"
+
+#: ../static/t/edit_message.html:68
+msgid "BCC:"
+msgstr "Pimekoopia:"
+
+#: ../static/t/edit_message.html:76 ../static/t/view_message.html:17
+msgid "Subject:"
+msgstr "Pealkiri:"
+
+#: ../static/t/edit_message.html:76
+msgid "Subject (optional):"
+msgstr "Pealkiri (valikuline)"
+
+#: ../static/t/edit_message.html:92
+msgid "--- forwarded message ---"
+msgstr "--- edastatud sõnum ---"
+
+#: ../static/t/edit_message.html:112
+msgid "Attachments:"
+msgstr "Manused:"
+
+#: ../static/t/edit_message.html:116
+msgid "Attach file:"
+msgstr "Lisa manus:"
+
+#: ../static/t/files.html:3
+msgid "Files available for download in"
+msgstr "Failid kaustas"
+
+#: ../static/t/files.html:18
+msgid "Filename"
+msgstr "Failinimi"
+
+#: ../static/t/files.html:19
+msgid "Size"
+msgstr "Suurus"
+
+#: ../static/t/files.html:20
+msgid "Content"
+msgstr "Sisu"
+
+#: ../static/t/files.html:21
+msgid "Description"
+msgstr "Kirjeldus"
+
+#: ../static/t/files.html:35
+msgid "Upload a file:"
+msgstr "Lae fail üles:"
+
+#: ../static/t/floors_edit_one.html:11
+msgid "(delete floor)"
+msgstr "(kustuta korrus)"
+
+#: ../static/t/floors_edit_one.html:13
+msgid "(edit graphic)"
+msgstr "(muuda kujundust)"
+
+#: ../static/t/floors.html:4
+msgid "Add/change/delete floors"
+msgstr "Lisa/muuda/kustuta korruseid"
+
+#: ../static/t/floors.html:10
+msgid "Floor number"
+msgstr "Korruse number"
+
+#: ../static/t/floors.html:11
+msgid "Floor name"
+msgstr "Korruse nimi"
+
+#: ../static/t/floors.html:12
+msgid "Number of rooms"
+msgstr "Tubade arv"
+
+#: ../static/t/floors.html:13
+msgid "Floor CSS"
+msgstr "Korruse CSS"
+
+#: ../static/t/iconbar.html:17
+msgid "Mail"
+msgstr "Kirjakast"
+
+#: ../static/t/iconbar.html:42
+msgid "Rooms"
+msgstr "Toad"
+
+#: ../static/t/iconbar.html:47
+msgid "Online users"
+msgstr "Online kasutajad"
+
+#: ../static/t/iconbar.html:51
+msgid "Loading"
+msgstr "Laadimine"
+
+#: ../static/t/iconbar.html:56
+msgid "Chat"
+msgstr "Vestle"
+
+#: ../static/t/iconbar.html:62
+msgid "Advanced"
+msgstr "Põhjalikum"
+
+#: ../static/t/iconbar.html:68
+msgid "Administration"
+msgstr "Administratsioon"
+
+#: ../static/t/iconbar.html:77
+msgid "customize this menu"
+msgstr "muuda menüüd"
+
+#: ../static/t/iconbar.html:80
+msgid "switch to room list"
+msgstr "tubade vaade"
+
+#: ../static/t/iconbar.html:81
+msgid "switch to menu"
+msgstr "menüü"
+
+#: ../static/t/iconbar.html:82
+msgid "My folders"
+msgstr "Minu kaustad"
+
+#: ../static/t/knrooms.html:5
+msgid "Room list"
+msgstr "Tubade nimekiri"
+
+#: ../static/t/knrooms.html:5
+msgid "Folder list"
+msgstr "Kataloogide nimekiri"
+
+#: ../static/t/knrooms.html:19
+#, fuzzy
+msgid "View as room list"
+msgstr "tubade vaade"
+
+#: ../static/t/knrooms.html:20
+#, fuzzy
+msgid "View as folder list"
+msgstr "Kataloogide nimekiri"
+
+#: ../static/t/knrooms.html:40
+#, fuzzy
+msgid "Room Listing"
+msgstr "Tubade nimekiri"
+
+#: ../static/t/login.html:4 ../static/t/openid_login.html:4
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
+#: ../static/t/login.html:8 ../static/t/openid_login.html:8
+msgid "powered by"
+msgstr "jooksutab"
+
+#: ../static/t/login.html:21
+msgid "Password:"
+msgstr "Salasõna:"
+
+#: ../static/t/login.html:23 ../static/t/openid_login.html:21
+msgid "Language:"
+msgstr "Keel:"
+
+#: ../static/t/login.html:39
+msgid "Log in using OpenID"
+msgstr "Logi sisse kasutades OpenID'd"
+
+#: ../static/t/login.html:43
+msgid "If you already have an account on"
+msgstr "Kui sul on juba konto"
+
+#: ../static/t/login.html:44
+msgid "enter your user name and password and click &quot;Login.&quot;"
+msgstr ""
+"siis sisesta oma kasutajanimi ja salasõna ning klõpsa &quot;Logi sisse.&quot;"
+
+#: ../static/t/login.html:45
+msgid ""
+"<b>If you are a new user</b>, enter the name and password you wish to use, "
+"and click &quot;New User.&quot; "
+msgstr ""
+"<b>Kui sa oled uus kasutaja</b>, võta ühendust süsteemiadministraatoriga"
+
+#: ../static/t/login.html:46 ../static/t/openid_login.html:37
+msgid "Please log off properly when finished. "
+msgstr "Kui lõpetad, siis palun logi korrektselt välja. "
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid "See the"
+msgstr "Vaata"
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid "recommended browser list"
+msgstr "soovitatud brauserite nimekirja"
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid ""
+"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
+"turned on. "
+msgstr ""
+"kui sul on Webcit'iga probleeme.</li> <li>Sul peavad <i>küpsised</i>lubatud "
+"olema."
+
+#: ../static/t/login.html:48 ../static/t/openid_login.html:39
+msgid ""
+"Also keep in mind that if your browser is configured to block pop-up "
+"windows, you will not be able to receive any instant messages."
+msgstr ""
+"Samuti pea meeles, et kui sinu brauser blokeerib hüpikaknaid (pop-up)siis ei "
+"ole sa suuteline kiirsõnumeid vastu võtma."
+
+#: ../static/t/msg_listselector_bottom.html:2
+#: ../static/t/msg_listselector_top.html:2
+msgid "Reading #"
+msgstr "Loed #"
+
+#: ../static/t/msg_listselector_bottom.html:7
+#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:9
+msgid "messages"
+msgstr "sõnumist"
+
+#: ../static/t/msg_listselector_bottom.html:12
+#: ../static/t/msg_listselector_top.html:12
+msgid "oldest to newest"
+msgstr "vanimast uuemani"
+
+#: ../static/t/msg_listselector_bottom.html:20
+#: ../static/t/msg_listselector_top.html:20
+msgid "newest to oldest"
+msgstr "uuemast vanimani"
+
+#: ../static/t/msg_listview.html:20
+msgid "Loading messages from server, please wait"
+msgstr "Laen serverist kirju, palun oota"
+
+#: ../static/t/msg_listview.html:27
+msgid "Open in new window"
+msgstr "Ava uues aknas"
+
+#: ../static/t/msg_listview.html:29
+msgid "Copy"
+msgstr "Kopeeri"
+
+#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:41
+msgid "Print"
+msgstr "Prindi"
+
+#: ../static/t/navbar.html:5
+msgid "Ungoto"
+msgstr "Mine tagasi"
+
+#: ../static/t/navbar.html:13
+msgid "Read new messages"
+msgstr "Loe uusi sõnumeid"
+
+#: ../static/t/navbar.html:19 ../static/t/navbar.html:117
+msgid "Read all messages"
+msgstr "Loe kõiki sõnumeid"
+
+#: ../static/t/navbar.html:25
+msgid "Enter a message"
+msgstr "Sisesta sõnum"
+
+#: ../static/t/navbar.html:34
+msgid "View contacts"
+msgstr "Vaata kontakte"
+
+#: ../static/t/navbar.html:40
+msgid "Add new contact"
+msgstr "Lisa uus kontakt"
+
+#: ../static/t/navbar.html:49
+msgid "Day view"
+msgstr "Päeva vaade"
+
+#: ../static/t/navbar.html:55
+msgid "Month view"
+msgstr "Kuu vaade"
+
+#: ../static/t/navbar.html:61
+msgid "Add new event"
+msgstr "Lisa uus sündmus"
+
+#: ../static/t/navbar.html:70
+msgid "Calendar list"
+msgstr "Kalendri nimekiri"
+
+#: ../static/t/navbar.html:79
+msgid "View tasks"
+msgstr "Vaata ülesandeid"
+
+#: ../static/t/navbar.html:85
+msgid "Add new task"
+msgstr "Lisa uus ülesanne"
+
+#: ../static/t/navbar.html:94
+msgid "View notes"
+msgstr "Vaata märkmeid"
+
+#: ../static/t/navbar.html:102
+msgid "Add new note"
+msgstr "Lisa uus märge"
+
+#: ../static/t/navbar.html:111
+msgid "Refresh message list"
+msgstr "Värskenda sõnumite nimekirja"
+
+#: ../static/t/navbar.html:123
+msgid "Write mail"
+msgstr "Saada kiri"
+
+#: ../static/t/navbar.html:133
+msgid "Wiki home"
+msgstr "Wiki koduleht"
+
+#: ../static/t/navbar.html:140
+msgid "Edit this page"
+msgstr "Muuda seda lehekülge"
+
+#: ../static/t/navbar.html:147
+msgid "History"
+msgstr ""
+
+#: ../static/t/navbar.html:155
+msgid "Skip this room"
+msgstr "Jäta tuba vahele"
+
+#: ../static/t/navbar.html:161
+msgid "Goto next room"
+msgstr "Mine järgmisesse tuppa"
+
+#: ../static/t/newstartpage.html:4
+msgid "New start page"
+msgstr "Uus avaleht"
+
+#: ../static/t/newstartpage.html:9
+msgid "Your start page has been changed."
+msgstr "Sinu avaleht on muudetud"
 
 #: ../static/t/newstartpage.html:12
 msgid ""
@@ -3950,6 +2094,941 @@ msgid ""
 msgstr ""
 "NB: see ei muuda sinu brauseri avalehte. See määrab lehekülje, mida sa "
 "näedesimesena, kui siia sisse logid"
+
+#: ../static/t/no_new_msgs.html:3
+#, fuzzy
+msgid "No new messages."
+msgstr "Ei ole uusi sõnumeid."
+
+#: ../static/t/openid_login.html:19
+msgid "OpenID URL:"
+msgstr ""
+
+#: ../static/t/openid_login.html:31
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../static/t/openid_login.html:34
+msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgstr ""
+
+#: ../static/t/openid_login.html:36
+msgid "Click here to learn what OpenID is and how Citadel is using it."
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:4
+#, fuzzy
+msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
+msgstr "%s - jookseb <a href=\"http://www.citadel.org\">Citadelil</a>"
+
+#: ../static/t/openid_manual_create.html:8
+#, fuzzy
+msgid "Your OpenID"
+msgstr "Majanda oma OpenID'sid"
+
+#: ../static/t/openid_manual_create.html:8
+#, fuzzy
+msgid "was successfully verified."
+msgstr "Sinu OpenID <tt>%s</tt> kontrollimine õnnestus."
+
+#: ../static/t/openid_manual_create.html:9
+#, fuzzy
+msgid "However, the user name"
+msgstr "Muuda kasutajanime"
+
+#: ../static/t/openid_manual_create.html:9
+#, fuzzy
+msgid "conflicts with an existing user."
+msgstr "Kuid kasutajanimi '%s' läheb konflikti olemasoleva kasutajaga."
+
+#: ../static/t/openid_manual_create.html:11
+msgid "Please specify the user name you would like to use."
+msgstr "Palun sisesta kasutajanimi mida soovid kasutada."
+
+#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
+msgid "Preferences and settings"
+msgstr "Eelistused ja seaded"
+
+#: ../static/t/roombanner.html:9
+msgid "new of"
+msgstr ""
+
+#: ../static/t/roombanner.html:23
+msgid "Select page: "
+msgstr "Vali lehekülg:"
+
+#: ../static/t/searchomatic.html:4
+msgid "Search: "
+msgstr "Otsi:"
+
+#: ../static/t/start_of_new_msgs.html:4
+#, fuzzy
+msgid "Old messages"
+msgstr "Ei ole vanu sõnumeid."
+
+#: ../static/t/start_of_new_msgs.html:8
+#, fuzzy
+msgid "New messages"
+msgstr "Ei ole uusi sõnumeid."
+
+#: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
+msgid "from "
+msgstr "postitaja"
+
+#: ../static/t/view_message.html:15
+msgid "to"
+msgstr ""
+
+#: ../static/t/view_message.html:19
+#, fuzzy
+msgid "Edit"
+msgstr "(Muuda)"
+
+#: ../static/t/view_message.html:21 ../static/t/view_message.html:26
+#: ../static/t/view_message.html:31
+msgid "Reply"
+msgstr "Vasta"
+
+#: ../static/t/view_message.html:22
+msgid "ReplyQuoted"
+msgstr "Tsiteeri"
+
+#: ../static/t/view_message.html:27 ../static/t/view_message.html:32
+msgid "ReplyAll"
+msgstr "VastaKõigile"
+
+#: ../static/t/view_message.html:28 ../static/t/view_message.html:33
+msgid "Forward"
+msgstr "Edasta"
+
+#: ../static/t/view_message.html:40
+msgid "Headers"
+msgstr ""
+
+#: ../static/t/viewomatic.html:4
+msgid "View as:"
+msgstr "Kuva kui:"
+
+#: ../static/t/who.html:14
+msgid "Users currently on "
+msgstr "Kasutajad hetkel võrgus  - "
+
+#~ msgid "Exit"
+#~ msgstr "Välju"
+
+#~ msgid "Change name"
+#~ msgstr "Muuda nime"
+
+#~ msgid "Change CSS"
+#~ msgstr "Muuda CSS"
+
+#~ msgid "Create new floor"
+#~ msgstr "Loo uus korrus"
+
+#~ msgid "Customize the icon bar"
+#~ msgstr "Personaliseeri Ikooniriba"
+
+#~ msgid "Display icons as:"
+#~ msgstr "Näita ikoone kui:"
+
+#~ msgid "pictures and text"
+#~ msgstr "pildid ja tekst"
+
+#~ msgid "pictures only"
+#~ msgstr "ainult pildid"
+
+#~ msgid "text only"
+#~ msgstr "ainult tekst"
+
+#~ msgid ""
+#~ "Select the icons you would like to see displayed in the 'icon bar' menu "
+#~ "on the left side of the screen."
+#~ msgstr "Vali ikoonid mida sa soovid vasakul asuval 'Ikooniribal' näha"
+
+#~ msgid "Yes"
+#~ msgstr "Jah"
+
+#~ msgid "No"
+#~ msgstr "Ei"
+
+#~ msgid "Site logo"
+#~ msgstr "Lehekülje logo"
+
+#~ msgid "An icon describing this site"
+#~ msgstr "Pisipilt kirjeldamaks seda keskkonda"
+
+#~ msgid "Your summary page"
+#~ msgstr "Sinu kokkuvõttelehekülg"
+
+#~ msgid "Mail (inbox)"
+#~ msgstr "Kirjakast"
+
+#~ msgid "A shortcut to your email Inbox"
+#~ msgstr "Otsetee sinu e-maili kirjakasti"
+
+#~ msgid "Your personal address book"
+#~ msgstr "Sinu isiklik aadressiraamat"
+
+#~ msgid "Your personal notes"
+#~ msgstr "Sinu isiklikud märkmed"
+
+#~ msgid "A shortcut to your personal calendar"
+#~ msgstr "Otsetee sinu kalendri juurde"
+
+#~ msgid "A shortcut to your personal task list"
+#~ msgstr "Otsetee sinu isikliku ülesannete nimekirja juurde"
+
+#~ msgid ""
+#~ "Clicking this icon displays a list of all accessible rooms (or folders) "
+#~ "available."
+#~ msgstr ""
+#~ "Sellel ikoonil klõpsamine kuvab nimekirja kõigist juurdepääsetavatest "
+#~ "tubadest (või kataloogidest)."
+
+#~ msgid "Yes with users list"
+#~ msgstr "Jah, koos kasutajanimedega"
+
+#~ msgid "Who is online?"
+#~ msgstr "Kes on sisse logitud?"
+
+#~ msgid "Clicking this icon displays a list of all users currently logged in."
+#~ msgstr ""
+#~ "Sellel ikoonil klõpsamine kuvab nimekirja kasutajatest kes on hetkel "
+#~ "sisse logitud."
+
+#~ msgid ""
+#~ "Clicking this icon enters real-time chat mode with other users in the "
+#~ "same room."
+#~ msgstr ""
+#~ "Sellel ikoonil klõpsamine avab reaalajas vestluse teiste samas ruumis "
+#~ "asuvate kasutajatega"
+
+#~ msgid "Advanced options"
+#~ msgstr "Veel valikuid"
+
+#~ msgid "Access to the complete menu of Citadel functions."
+#~ msgstr "Juurdepääs täieliku Citadeli funktsioonide menüüle"
+
+#~ msgid "Citadel logo"
+#~ msgstr "Citadeli logo"
+
+#~ msgid "Displays the 'Powered by Citadel' icon"
+#~ msgstr "Kuvab 'Powered by Citadel' ikooni"
+
+#, fuzzy
+#~ msgid "System Administration Menu"
+#~ msgstr "Administratsioon"
+
+#, fuzzy
+#~ msgid "Room Aide Menu"
+#~ msgstr "Toa Korrapidaja: "
+
+#, fuzzy
+#~ msgid "Directory domains"
+#~ msgstr "Kataloogi nimi:"
+
+#, fuzzy
+#~ msgid "Smart hosts"
+#~ msgstr "Serveri aadress"
+
+#, fuzzy
+#~ msgid "RBL hosts"
+#~ msgstr "Serveri aadress"
+
+#~ msgid "User name"
+#~ msgstr "Kasutajanimi"
+
+#~ msgid "Room"
+#~ msgstr "Tuba"
+
+#~ msgid "From host"
+#~ msgstr "Aadressilt"
+
+#~ msgid "Click on a name to read user info.  Click on"
+#~ msgstr "Klõpsa nimel et saada kasutaja kohta infot. Klõpsa"
+
+#~ msgid "to send an instant message to that user."
+#~ msgstr "et saata sellele kasutajale kiirsõnum."
+
+#~ msgid ""
+#~ "You have one or more instant messages waiting, but the Citadel Instant "
+#~ "Messenger window failed to open.  This is probably because you have a "
+#~ "popup blocker installed.  Please configure your popup blocker to allow "
+#~ "popups from this site if you wish to receive instant messages."
+#~ msgstr ""
+#~ "Sul on üks või enam kiirsõnumit ootamas, kuid Citadeli Sõnumitooja aken "
+#~ "ei suutnud avaneda. See on tingitud arvatavasti installeeritud pop-up "
+#~ "blokeerijast,või on netilehitsejal hüpikaknad keelatud. Palun luba "
+#~ "hüpikaknad siit lehelt."
+
+#~ msgid "Change your preferences and settings"
+#~ msgstr "Muuda oma eelistusi ja seadeid"
+
+#~ msgid "Update your contact information"
+#~ msgstr "Uuenda oma kontaktinfot"
+
+#~ msgid "Enter your 'bio'"
+#~ msgstr "Sisesta oma 'resümee'"
+
+#~ msgid "Edit your online photo"
+#~ msgstr "Muuda oma online fotot"
+
+#~ msgid "Edit your push email settings"
+#~ msgstr "Muuda oma push email (mobiili special) seadeid"
+
+#~ msgid "Download"
+#~ msgstr "Lae"
+
+#, fuzzy
+#~ msgid "Global Configuration"
+#~ msgstr "Konfiguratsioon"
+
+#~ msgid "Rooms and Floors"
+#~ msgstr "Toad ja Korrused"
+
+#, fuzzy
+#~ msgid "Push Email"
+#~ msgstr "Seadista Push Email"
+
+#~ msgid "Tree (folders) view"
+#~ msgstr "Puu (kataloogidena) vaade"
+
+#~ msgid "Table (rooms) view"
+#~ msgstr "Tabel (tubadena) vaade"
+
+#~ msgid "12 hour (am/pm)"
+#~ msgstr "12 tundi (am/pm)"
+
+#~ msgid "24 hour"
+#~ msgstr "24 tundi"
+
+#~ msgid "Sunday"
+#~ msgstr "Pühapäevaga"
+
+#~ msgid "Monday"
+#~ msgstr "Esmaspäevaga"
+
+#~ msgid "No signature"
+#~ msgstr "Ei kasuta allkirja"
+
+#~ msgid "Full-functionality"
+#~ msgstr "Täisfunktsionaalsus"
+
+#~ msgid "Safe mode"
+#~ msgstr "Turvarežiim"
+
+#~ msgid ""
+#~ "Safe mode is less intensive on your web browser, but not as fully "
+#~ "featured."
+#~ msgstr ""
+#~ "Turvarežiim ei kurna sinu veebilehitsejat niipalju, kuid ei ole ka kõigi "
+#~ "võimalustega."
+
+#, fuzzy
+#~ msgid "Change"
+#~ msgstr "Muuda CSS"
+
+#~ msgid "Password"
+#~ msgstr "Salasõna"
+
+#, fuzzy
+#~ msgid "Number of logins"
+#~ msgstr "Tubade arv"
+
+#, fuzzy
+#~ msgid "Messages submitted"
+#~ msgstr "Sõnumi suurus"
+
+#, fuzzy
+#~ msgid "Access level"
+#~ msgstr "Juurdepääsutase"
+
+#, fuzzy
+#~ msgid "User ID number"
+#~ msgstr "Kasutajanimi"
+
+#, fuzzy
+#~ msgid "Message to your Users:"
+#~ msgstr "Sõnumit ei saadetud."
+
+#, fuzzy
+#~ msgid "Node name"
+#~ msgstr "Kasutajanimi"
+
+#, fuzzy
+#~ msgid "Telephone number"
+#~ msgstr "Telefon:"
+
+#, fuzzy
+#~ msgid "Add a new node"
+#~ msgstr "Lisa uus märge"
+
+#, fuzzy
+#~ msgid "Shared secret"
+#~ msgstr "Jagatud "
+
+#, fuzzy
+#~ msgid "Port number"
+#~ msgstr "Korruse number"
+
+#, fuzzy
+#~ msgid "Add node?"
+#~ msgstr "Lisa uus märge"
+
+#, fuzzy
+#~ msgid "Minutes"
+#~ msgstr "minutit"
+
+#, fuzzy
+#~ msgid "active"
+#~ msgstr "Üritan"
+
+#, fuzzy
+#~ msgid "(Edit)"
+#~ msgstr "(Muuda)"
+
+#~ msgid "Confirm delete"
+#~ msgstr "Kinnita kustutamine"
+
+#~ msgid "Are you sure you want to delete "
+#~ msgstr "Oled sa kindel, et soovid kustutada "
+
+#, fuzzy
+#~ msgid "Add, change, delete user accounts"
+#~ msgstr "Lisa/muuda/kustuta korruseid"
+
+#~ msgid "Send"
+#~ msgstr "Saada"
+
+#, fuzzy
+#~ msgid "Restart Citadel"
+#~ msgstr "Uus avaleht"
+
+#, fuzzy
+#~ msgid "Post message"
+#~ msgstr "sõnumist"
+
+#, fuzzy
+#~ msgid "Remove"
+#~ msgstr "(eemalda)"
+
+#, fuzzy
+#~ msgid "Login"
+#~ msgstr "Viimati sees"
+
+#, fuzzy
+#~ msgid "Users currently on"
+#~ msgstr "Kasutajad hetkel võrgus  - "
+
+#~ msgid "Pictures in"
+#~ msgstr "Pildid kaustas"
+
+#, fuzzy
+#~ msgid "Edit or delete users"
+#~ msgstr "Muuda või kustuta see tuba"
+
+#, fuzzy
+#~ msgid "Add users"
+#~ msgstr "Lisa reegel"
+
+#, fuzzy
+#~ msgid "Edit or Delete users"
+#~ msgstr "Muuda või kustuta see tuba"
+
+#~ msgid "Please wait while the Citadel server is restarted... "
+#~ msgstr "Palun oota kuni Citadeli serverile restarti tehakse..."
+
+#, fuzzy
+#~ msgid "Perform journaling of email messages"
+#~ msgstr "Eelistatud nimi e-kirjadele"
+
+#, fuzzy
+#~ msgid ""
+#~ "To create a new user account, enter the desired user name in the box "
+#~ "below and click 'Create'."
+#~ msgstr ""
+#~ "Et anda kasutajale juurdepääsu sellele toale, sisesta kasutajanimi kasti "
+#~ "ning klõpsa 'Kutsu'"
+
+#~ msgid "New user: "
+#~ msgstr "Uus kasutaja: "
+
+#, fuzzy
+#~ msgid ""
+#~ "To edit an existing user account, select the user name from the list and "
+#~ "click 'Edit'."
+#~ msgstr ""
+#~ "Et anda kasutajale juurdepääsu sellele toale, sisesta kasutajanimi kasti "
+#~ "ning klõpsa 'Kutsu'"
+
+#, fuzzy
+#~ msgid "Edit configuration"
+#~ msgstr "Konfiguratsioon"
+
+#, fuzzy
+#~ msgid "Edit address book entry"
+#~ msgstr "See aadressiraamat on tühi"
+
+#, fuzzy
+#~ msgid "Delete user"
+#~ msgstr "Kustuta reegel"
+
+#, fuzzy
+#~ msgid "Delete this user?"
+#~ msgstr "Kas kustutan selle skripti?"
+
+#, fuzzy
+#~ msgid "Delete File"
+#~ msgstr "Kustuta reegel"
+
+#~ msgid "Slideshow"
+#~ msgstr "Pildiesitlus"
+
+#~ msgid "Edit or delete this room"
+#~ msgstr "Muuda või kustuta see tuba"
+
+#~ msgid "Go to a 'hidden' room"
+#~ msgstr "Mine 'peidetud' tuppa"
+
+#~ msgid "Create a new room"
+#~ msgstr "Loo uus tuba"
+
+#~ msgid "Zap (forget) this room"
+#~ msgstr "Unusta see tuba"
+
+#~ msgid "List all forgotten rooms"
+#~ msgstr "Näita kõiki unustatud tube"
+
+#, fuzzy
+#~ msgid ""
+#~ "Please wait while your users are being paged, the citadel server will be "
+#~ "restarted after that... "
+#~ msgstr "Palun oota kuni Citadeli serverile restarti tehakse..."
+
+#, fuzzy
+#~ msgid "Delete this message?"
+#~ msgstr "Kustuta see märge?"
+
+#, fuzzy
+#~ msgid "Powered by Citadel"
+#~ msgstr "Kuvab 'Powered by Citadel' ikooni"
+
+#, fuzzy
+#~ msgid "Go to your email inbox"
+#~ msgstr "Otsetee sinu e-maili kirjakasti"
+
+#, fuzzy
+#~ msgid "Go to your personal calendar"
+#~ msgstr "Otsetee sinu kalendri juurde"
+
+#, fuzzy
+#~ msgid "Go to your personal address book"
+#~ msgstr "Sinu isiklik aadressiraamat"
+
+#, fuzzy
+#~ msgid "Go to your personal notes"
+#~ msgstr "Sinu isiklikud märkmed"
+
+#, fuzzy
+#~ msgid "Go to your personal task list"
+#~ msgstr "Otsetee sinu isikliku ülesannete nimekirja juurde"
+
+#, fuzzy
+#~ msgid "List all your accessible rooms"
+#~ msgstr "Näita kõiki unustatud tube"
+
+#, fuzzy
+#~ msgid "Log off now?"
+#~ msgstr "Välju"
+
+#, fuzzy
+#~ msgid "Delete this entry?"
+#~ msgstr "Kustuta see märge?"
+
+#, fuzzy
+#~ msgid "Network configuration"
+#~ msgstr "Konfiguratsioon"
+
+#, fuzzy
+#~ msgid "Configure automatic expiry of old messages"
+#~ msgstr "Sõnumid ei aegu"
+
+#, fuzzy
+#~ msgid "Default message expire policy for public rooms"
+#~ msgstr "Sõnumite aegumise reeglid siin toas"
+
+#~ msgid "Never automatically expire messages"
+#~ msgstr "Sõnumid ei aegu"
+
+#~ msgid "Expire by message count"
+#~ msgstr "Aeguvad sõnumite üldarvu alusel"
+
+#~ msgid "Expire by message age"
+#~ msgstr "Aeguvad sõnumi vanuse alusel"
+
+#~ msgid "Number of messages or days: "
+#~ msgstr "Sõnumite või päevade arv:"
+
+#, fuzzy
+#~ msgid "Default message expire policy for private mailboxes"
+#~ msgstr "Sõnumite aegumise reeglid siin korrusel"
+
+#, fuzzy
+#~ msgid "Name of quarantine room"
+#~ msgstr "Toa nimi: "
+
+#, fuzzy
+#~ msgid "Name of room to log pages"
+#~ msgstr "Toa nimi: "
+
+#, fuzzy
+#~ msgid "Self contained"
+#~ msgstr "sisaldab"
+
+#, fuzzy
+#~ msgid "Master user password"
+#~ msgstr "Sisesta uus salasõna:"
+
+#, fuzzy
+#~ msgid "Initial access level for new users"
+#~ msgstr "Määra kasutaja juurdepääsutase:"
+
+#, fuzzy
+#~ msgid "Add, change, or delete floors"
+#~ msgstr "Lisa/muuda/kustuta korruseid"
+
+#~ msgid "Delete this note?"
+#~ msgstr "Kustuta see märge?"
+
+#, fuzzy
+#~ msgid "Restart Now"
+#~ msgstr "Nädal algab:"
+
+#~ msgid "Configure Push Email"
+#~ msgstr "Seadista Push Email"
+
+#, fuzzy
+#~ msgid "Push email and SMS settings"
+#~ msgstr "Muuda oma push email (mobiili special) seadeid"
+
+#, fuzzy
+#~ msgid "Send a text message to..."
+#~ msgstr "Saada kiirsõnum kasutajale: "
+
+#, fuzzy
+#~ msgid "Site configuration"
+#~ msgstr "Konfiguratsioon"
+
+#, fuzzy
+#~ msgid "Access"
+#~ msgstr "Juurdepääsutase"
+
+#, fuzzy
+#~ msgid "Network"
+#~ msgstr "Võrgukasutaja"
+
+#, fuzzy
+#~ msgid "Directory"
+#~ msgstr "Kataloogi nimi:"
+
+#, fuzzy
+#~ msgid "Do you really want to kill this session?"
+#~ msgstr "Oled sa kindel, et soovid seda tuba kustutada?"
+
+#~ msgid "List known rooms"
+#~ msgstr "Näita kõiki teadaolevaid tube"
+
+#~ msgid "Where can I go from here?"
+#~ msgstr "Kuhu ma saan siit edasi minna?"
+
+#~ msgid "...with <em>unread</em> messages"
+#~ msgstr "...kus on <em>lugemata</em> sõnumeid"
+
+#~ msgid "Skip to next room"
+#~ msgstr "Hüppa edasi järgmisesse tuppa"
+
+#~ msgid "(come back here later)"
+#~ msgstr "(tule siia hiljem tagasi)"
+
+#~ msgid "oops! Back to "
+#~ msgstr "uups! Tagasi"
+
+#~ msgid "...in this room"
+#~ msgstr "...selles toas"
+
+#~ msgid "...old <em>and</em> new"
+#~ msgstr "...nii vanu kui uusi"
+
+#~ msgid "(post in this room)"
+#~ msgstr "(postita siia tuppa)"
+
+#~ msgid "File library"
+#~ msgstr "Failikaust"
+
+#~ msgid "(List files available for download)"
+#~ msgstr "(Näita faile mida saab allalaadida)"
+
+#~ msgid "Summary page"
+#~ msgstr "Kokkuvõttelehekülg"
+
+#~ msgid "Summary of my account"
+#~ msgstr "Minu konto koondülevaade"
+
+#~ msgid "User list"
+#~ msgstr "Kasutajate nimekiri"
+
+#~ msgid "(all registered users)"
+#~ msgstr "(kõik registreeritud kasutajad)"
+
+#~ msgid "Bye!"
+#~ msgstr "Nägemist!"
+
+#, fuzzy
+#~ msgid "View"
+#~ msgstr "Kuva kui:"
+
+#, fuzzy
+#~ msgid "Network services"
+#~ msgstr "Võrgukasutaja"
+
+#, fuzzy
+#~ msgid "Save changes?"
+#~ msgstr "Salvesta muudatused"
+
+#~ msgid "Zapped (forgotten) rooms"
+#~ msgstr "Unustatud toad"
+
+#~ msgid "Click on any room to un-zap it and goto that room.\n"
+#~ msgstr "Klõpsa toal, et seda taas 'meelde tuletada' ning sinna siseneda.\n"
+
+#~ msgid "Close window"
+#~ msgstr "Sulge aken"
+
+#~ msgid "%d new of %d messages%s"
+#~ msgstr "%d uut, %d sõnumist%s"
+
+#~ msgid ""
+#~ "Leave all messages marked as unread, go to next room with unread messages"
+#~ msgstr ""
+#~ "Jäta kõik sõnumid märgituks kui lugemata ning mine järgmisesse tuppa kus "
+#~ "on lugemata sõnumeid"
+
+#~ msgid "Mark all messages as read, go to next room with unread messages"
+#~ msgstr ""
+#~ "Märgi siin sõnumid loetuks ja liigu järgmisesse tuppa kus on lugemata "
+#~ "sõnumeid"
+
+#~ msgid "Configuration"
+#~ msgstr "Konfiguratsioon"
+
+#~ msgid "Message expire policy"
+#~ msgstr "Sõnumite aegumise reeglid"
+
+#~ msgid "Access controls"
+#~ msgstr "Juurdepääsuõigused"
+
+#~ msgid "Sharing"
+#~ msgstr "Jagamine"
+
+#~ msgid "Remote retrieval"
+#~ msgstr "Mujalt posti kogumine"
+
+#~ msgid "Are you sure you want to delete this room?"
+#~ msgstr "Oled sa kindel, et soovid seda tuba kustutada?"
+
+#~ msgid "Delete this room"
+#~ msgstr "Kustuta see tuba"
+
+#~ msgid "Set or change the icon for this room's banner"
+#~ msgstr "Määra või muuda selle toa banneri ikooni"
+
+#~ msgid "Edit this room's Info file"
+#~ msgstr "Muuda selle toa Info faili"
+
+#~ msgid "Name of room: "
+#~ msgstr "Toa nimi: "
+
+#~ msgid "Resides on floor: "
+#~ msgstr "Asub korrusel: "
+
+#~ msgid "Type of room:"
+#~ msgstr "Toa liik:"
+
+#~ msgid "Public (automatically appears to everyone)"
+#~ msgstr "Avalik (ilmub automaatselt kõigile)"
+
+#~ msgid "Private - hidden (accessible to anyone who knows its name)"
+#~ msgstr ""
+#~ "Privaatne - peidetud (juurdepääsetav ainult nendele, kes teavad toa nime)"
+
+#~ msgid "Private - require password: "
+#~ msgstr "Privaatne - nõua salasõna: "
+
+#~ msgid "Private - invitation only"
+#~ msgstr "Privaatne - ainult kutse alusel"
+
+#~ msgid "Personal (mailbox for you only)"
+#~ msgstr "Personaalne (kirjakast ainult sinule)"
+
+#~ msgid "If private, cause current users to forget room"
+#~ msgstr "Kui privaatne, sunni kasutajaid tuba unustama"
+
+#~ msgid "Preferred users only"
+#~ msgstr "Ainult Privilegeeritud kasutajad"
+
+#~ msgid "Read-only room"
+#~ msgstr "Loe-ainult tuba"
+
+#~ msgid "All users allowed to post may also delete messages"
+#~ msgstr "Kasutajad, kes tohivad postitada, tohivad ka sõnumeid kustutada"
+
+#~ msgid "File directory room"
+#~ msgstr "Failivahetuse tuba"
+
+#~ msgid "Directory name: "
+#~ msgstr "Kataloogi nimi:"
+
+#~ msgid "Uploading allowed"
+#~ msgstr "Üleslaadimine lubatud"
+
+#~ msgid "Downloading allowed"
+#~ msgstr "Allalaadimine lubatud"
+
+#~ msgid "Visible directory"
+#~ msgstr "Nähtav kataloog"
+
+#~ msgid "Network shared room"
+#~ msgstr "Tuba jagatud võrku"
+
+#~ msgid "Permanent (does not auto-purge)"
+#~ msgstr "Permanentne (ei toimu auto-tühjendamist)"
+
+#~ msgid "Subject Required (Force users to specify a message subject)"
+#~ msgstr "Pealkiri Nõutud (Sunni kasutajaid sõnumitele pealkirju lisama)"
+
+#~ msgid "Anonymous messages"
+#~ msgstr "Anonüümsed sõnumid"
+
+#~ msgid "No anonymous messages"
+#~ msgstr "Anonüümsed sõnumid keelatud"
+
+#~ msgid "All messages are anonymous"
+#~ msgstr "Kõik sõnumid on anonüümsed"
+
+#~ msgid "Prompt user when entering messages"
+#~ msgstr "Teavita kasutajat sõnumi sisestamisel"
+
+#~ msgid "Room aide: "
+#~ msgstr "Toa Korrapidaja: "
+
+#~ msgid "Shared with"
+#~ msgstr "Jagatud "
+
+#~ msgid "Not shared with"
+#~ msgstr "Ei ole jagatud"
+
+#~ msgid "Actions"
+#~ msgstr "Tegevused"
+
+#~ msgid "Unshare"
+#~ msgstr "Lõpeta jagamine"
+
+#~ msgid "Share"
+#~ msgstr "Jaga"
+
+#~ msgid "(remove)"
+#~ msgstr "(eemalda)"
+
+#~ msgid "Add recipients from Contacts or other address books"
+#~ msgstr "Lisa saajad Kontaktidest või teistest aadressiraamatutest"
+
+#~ msgid "Message expire policy for this room"
+#~ msgstr "Sõnumite aegumise reeglid siin toas"
+
+#~ msgid "Use the default policy for this floor"
+#~ msgstr "Kasuta vaikimisi reegleid sõnumite aegumiseks"
+
+#~ msgid "Message expire policy for this floor"
+#~ msgstr "Sõnumite aegumise reeglid siin korrusel"
+
+#~ msgid "Use the system default"
+#~ msgstr "Kasuta süsteemi vaikimisi seadeid"
+
+#~ msgid ""
+#~ "Retrieve messages from these remote POP3 accounts and store them in this "
+#~ "room:"
+#~ msgstr "Kogu kirju nendelt POP3 kontodelt ja salvesta siia tuppa"
+
+#~ msgid "Remote host"
+#~ msgstr "Serveri aadress"
+
+#~ msgid "Keep messages on server?"
+#~ msgstr "Säilita koopia serveris?"
+
+#~ msgid "Interval"
+#~ msgstr "Intervall"
+
+#~ msgid "Fetch the following RSS feeds and store them in this room:"
+#~ msgstr "Kogu järgmiseid RSS feed'e ja salvesta nad siia tuppa:"
+
+#~ msgid "Feed URL"
+#~ msgstr "Feed'i URL"
+
+#~ msgid ""
+#~ "The users listed below have access to this room.  To remove a user from "
+#~ "the access list, select the user name from the list and click 'Kick'."
+#~ msgstr ""
+#~ "Allolevas nimekirjas olevatel kasutajatel on juurdepääs sellele toale. Et "
+#~ "kasutajatnimekirjast eemaldada, vali kasutajanimi ning klõpsa 'Löö minema'"
+
+#~ msgid "Kick"
+#~ msgstr "Löö minema"
+
+#~ msgid ""
+#~ "To grant another user access to this room, enter the user name in the box "
+#~ "below and click 'Invite'."
+#~ msgstr ""
+#~ "Et anda kasutajale juurdepääsu sellele toale, sisesta kasutajanimi kasti "
+#~ "ning klõpsa 'Kutsu'"
+
+#~ msgid "Invite:"
+#~ msgstr "Kutsu:"
+
+#~ msgid "Invite"
+#~ msgstr "Kutsu"
+
+#~ msgid "User"
+#~ msgstr "Kasutaja"
+
+#~ msgid "Users"
+#~ msgstr "Kasutajad"
+
+#~ msgid "Default view for room: "
+#~ msgstr "Vaikimisi vaade sellele toale: "
+
+#~ msgid "Create new room"
+#~ msgstr "Loo uus tuba"
+
+#~ msgid "Go to a hidden room"
+#~ msgstr "Mine peidetud tuppa"
+
+#~ msgid "Enter room name:"
+#~ msgstr "Sisesta toa nimi:"
+
+#~ msgid "Enter room password:"
+#~ msgstr "Sisesta toa salasõna:"
+
+#~ msgid "Go there"
+#~ msgstr "Mine sinna"
+
+#~ msgid "Zap (forget/unsubscribe) the current room"
+#~ msgstr "Unusta praegune tuba"
+
+#~ msgid "Zap this room"
+#~ msgstr "Unusta tuba"
+
+#~ msgid "(nothing)"
+#~ msgstr "(ei midagi)"
 
 #~ msgid "Now exiting chat mode."
 #~ msgstr "Väljun sõnumivahetuse režiimist."

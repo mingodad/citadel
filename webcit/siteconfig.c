@@ -199,7 +199,8 @@ CfgMapping ServerConfig[] = {
 	{CFG_STR, HKEY("c_xmpp_s2s_port")},
 	{CFG_STR, HKEY("c_pop3_fetch")},
 	{CFG_STR, HKEY("c_pop3_fastest")},
-	{CFG_YES , HKEY("c_spam_flag_only")}
+	{CFG_YES , HKEY("c_spam_flag_only")},
+	{CFG_YES , HKEY("c_guest_logins")}
 };
 
 
