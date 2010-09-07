@@ -33,7 +33,6 @@ void DeleteServInfo(ServInfo **FreeMe)
 	FreeStrBuf(&(*FreeMe)->serv_software);
 	FreeStrBuf(&(*FreeMe)->serv_bbs_city);
 	FreeStrBuf(&(*FreeMe)->serv_sysadm);
-	FreeStrBuf(&(*FreeMe)->serv_moreprompt);
 	FreeStrBuf(&(*FreeMe)->serv_default_cal_zone);
 	FreeStrBuf(&(*FreeMe)->serv_svn_revision);
 	free(*FreeMe);
@@ -124,9 +123,6 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 		case 7:
 			info->serv_sysadm = NewStrBufDup(Buf);
 			break;
-		case 9:
-			info->serv_moreprompt = NewStrBufDup(Buf);
-			break;
 		case 14:
 			info->serv_supports_ldap = StrToi(Buf);
 			break;
@@ -147,6 +143,9 @@ ServInfo *get_serv_info(StrBuf *browser_host, StrBuf *user_agent)
 			break;
 		case 23:
 			info->serv_supports_openid = StrToi(Buf);
+			break;
+		case 24:
+			info->serv_supports_guest = StrToi(Buf);
 			break;
 		}
 		++a;
