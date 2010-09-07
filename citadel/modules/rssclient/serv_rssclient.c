@@ -84,6 +84,7 @@ typedef struct _rss_item {
 	int item_tag_nesting;
 	char *author_or_creator;
 	char *author_url;
+	StrBuf *CData;
 }rss_item;
 
 
@@ -500,6 +501,7 @@ void flush_rss_ite(rss_item *ri)
 		ri->chardata = 0;
 		ri->chardata_len = 0;
 	}
+	FreeStrBuf(&ri->CData);
 }
 
 void rss_xml_start(void *data, const char *supplied_el, const char **attr) {
@@ -690,6 +692,19 @@ void rss_xml_end(void *data, const char *supplied_el) {
 /*
  * This callback stores up the data which appears in between tags.
  */
+void rss_xml_cdata_start(void *data) {
+	rsscollection *rssc = (rsscollection*) data;
+	rss_item *ri = rssc->Item;
+
+	ri->CData = NewStrBuf();
+}
+
+void rss_xml_cdata_end(void *data) {
+	rsscollection *rssc = (rsscollection*) data;
+	rss_item *ri = rssc->Item;
+
+	ri->description = SmashStrBuf(&ri->CData);
+}
 void rss_xml_chardata(void *data, const XML_Char *s, int len) {
 	rsscollection *rssc = (rsscollection*) data;
 	rss_item *ri = rssc->Item;
@@ -697,18 +712,20 @@ void rss_xml_chardata(void *data, const XML_Char *s, int len) {
 	int new_len;
 	char *new_buffer;
 
-	old_len = ri->chardata_len;
-	new_len = old_len + len;
-	new_buffer = realloc(ri->chardata, new_len + 1);
-	if (new_buffer != NULL) {
-		memcpy(&new_buffer[old_len], s, len);
-		new_buffer[new_len] = 0;
-		ri->chardata = new_buffer;
-		ri->chardata_len = new_len;
+	if (ri->CData != NULL) {
+		StrBufAppendBufPlain (ri->CData, s, len, 0);
+	} else {
+		old_len = ri->chardata_len;
+		new_len = old_len + len;
+		new_buffer = realloc(ri->chardata, new_len + 1);
+		if (new_buffer != NULL) {
+			memcpy(&new_buffer[old_len], s, len);
+			new_buffer[new_len] = 0;
+			ri->chardata = new_buffer;
+			ri->chardata_len = new_len;
+		}
 	}
 }
-
-
 
 /*
  * Callback function for passing libcurl's output to expat for parsing
@@ -785,6 +802,9 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 	XML_SetElementHandler(xp, rss_xml_start, rss_xml_end);
 	XML_SetCharacterDataHandler(xp, rss_xml_chardata);
 	XML_SetUserData(xp, &rssc);
+	XML_SetCdataSectionHandler(xp,
+				   rss_xml_cdata_start,
+				   rss_xml_cdata_end);
 	if (CtdlThreadCheckStop())
 	{
 		XML_ParserFree(xp);
