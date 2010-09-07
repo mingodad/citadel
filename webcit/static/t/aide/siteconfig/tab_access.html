@@ -71,5 +71,8 @@
 <tr><td><?_("Require registration for new users")></td><td>
 <input type="checkbox" name="c_regiscall" value="yes" <?%("COND:SERVCFG", 1, "c_regiscall", 1, "CHECKED", "")>></td></tr>
 
+<tr><td><?_("Allow anonymous guest access")></td><td>
+<input type="checkbox" NAME="c_guest_logins" VALUE="yes" <?%("COND:SERVCFG", 1, "c_guest_logins", 1, "CHECKED", "")>></td></tr>
+
 
 </table>
