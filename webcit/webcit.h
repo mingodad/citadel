@@ -293,20 +293,20 @@ struct urlcontent {
 typedef struct _serv_info {
 	int serv_pid;			/* Process ID of the Citadel server */
 	StrBuf *serv_nodename;		/* Node name of the Citadel server */
-	StrBuf *serv_humannode;	        /* human readable node name of the Citadel server */
-	StrBuf *serv_fqdn;		/* fully quallified Domain Name (such as uncensored.citadel.org) */
-	StrBuf *serv_software;		/* What version does our connected citadel server use */
-	int serv_rev_level;		/* Whats the citadel server revision */
+	StrBuf *serv_humannode;	        /* Juman readable node name of the Citadel server */
+	StrBuf *serv_fqdn;		/* Fully qualified Domain Name (such as uncensored.citadel.org) */
+	StrBuf *serv_software;		/* Free form text description of the server software in use */
+	int serv_rev_level;		/* Server version number (times 100) */
 	StrBuf *serv_bbs_city;		/* Geographic location of the Citadel server */
 	StrBuf *serv_sysadm;		/* Name of system administrator */
-	StrBuf *serv_moreprompt;	/* Whats the commandline textprompt */
 	int serv_supports_ldap;		/* is the server linked against an ldap tree for adresses? */
 	int serv_newuser_disabled;	/* Has the server disabled self-service new user creation? */
 	StrBuf *serv_default_cal_zone;  /* Default timezone for unspecified calendar items */
-	int serv_supports_sieve;	/* Does the server support Sieve mail filtering? */
-	int serv_fulltext_enabled;	/* Does the server have the full text index enabled? */
-	StrBuf *serv_svn_revision;	/* SVN revision of the server */
-	int serv_supports_openid;	/* Does the server support authentication via OpenID? */
+	int serv_supports_sieve;	/* Server supports Sieve mail filtering */
+	int serv_fulltext_enabled;	/* Full text index is enabled */
+	StrBuf *serv_svn_revision;	/* svn or git revision of the server */
+	int serv_supports_openid;	/* Server supports authentication via OpenID */
+	int serv_supports_guest;	/* Server supports unauthenticated guest logins */
 } ServInfo;
 
 
