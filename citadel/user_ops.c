@@ -1557,8 +1557,9 @@ void cmd_invt_kick(char *iuser, int op) {
 	 * These commands are only allowed by aides, room aides,
 	 * and room namespace owners
 	 */
-	if (is_room_aide()
-	   || (atol(CC->room.QRname) == CC->user.usernum) ) {
+	if (is_room_aide()) {
+		/* access granted */
+	} else if ( ((atol(CC->room.QRname) == CC->user.usernum) ) && (CC->user.usernum != 0) ) {
 		/* access granted */
 	} else {
 		/* access denied */
