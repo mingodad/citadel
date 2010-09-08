@@ -46,11 +46,6 @@ void tmplput_HANDLER_DISPLAYNAME(StrBuf *Target, WCTemplputParams *TP)
 		StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.Handler->DisplayName, 0);
 }
 
-void tmplput_HOST_DISPLAYNAME(StrBuf *Target, WCTemplputParams *TP) 
-{
-	wcsession *WCC = WC;
-	StrBufAppendTemplate(Target, TP, WCC->Hdr->HR.http_host, 0);
-}
 
 /*
  * web-printing funcion. uses our vsnprintf wrapper
@@ -864,7 +859,6 @@ InitModule_WEBCIT
 	RegisterNamespace("IMPORTANTMESSAGE", 0, 0, tmplput_importantmessage, NULL, CTX_NONE);
 	RegisterNamespace("TRAILING_JAVASCRIPT", 0, 0, tmplput_trailing_javascript, NULL, CTX_NONE);
 	RegisterNamespace("URL:DISPLAYNAME", 0, 1, tmplput_HANDLER_DISPLAYNAME, NULL, CTX_NONE);
-	RegisterNamespace("URL:HOSTNAME", 0, 1, tmplput_HOST_DISPLAYNAME, NULL, CTX_NONE);
 
 	
 	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
