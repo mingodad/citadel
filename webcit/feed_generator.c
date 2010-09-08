@@ -43,6 +43,7 @@ void feed_rss_one_message(long msgnum) {
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 		if (in_body) {
 			escputs(buf);
+			wc_printf("\r\n");
 		}
 		else if (!strncasecmp(buf, "subj=", 5)) {
 			wc_printf("<title>");
@@ -115,6 +116,7 @@ void feed_rss_do_messages(void) {
  * Entry point for RSS feed generator
  */
 void feed_rss(void) {
+	char buf[1024];
 
 	output_headers(0, 0, 0, 1, 1, 0);
 	hprintf("Content-type: text/xml\r\n");
@@ -139,15 +141,26 @@ void feed_rss(void) {
 	urlescputs(ChrPtr(site_prefix));
 	wc_printf("</link>");
 
-	//	<language>en-us</language>
-	//	<description>Linux Today News Service</description>
-	//	<atom:link href="http://linuxtoday.com/biglt.rss" rel="self" type="application/rss+xml" />
+	serv_puts("RINF");
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '1') {
+		wc_printf("<description>\r\n");
+		while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+			escputs(buf);
+			wc_printf("\r\n");
+		}
+		wc_printf("</description>");
+	}
 
-	//    <image>
-	//      <title>Linux Today</title>
-	//      <url>http://linuxtoday.com/pics/ltnet.png</url>
-	//      <link>http://linuxtoday.com</link>
-	//    </image>
+	wc_printf("<image><title>");
+	escputs(ChrPtr(WC->CurRoom.name));
+	wc_printf("</title><url>");
+	urlescputs(ChrPtr(site_prefix));
+	wc_printf("/image?name=_roompic_?gotofirst=");
+	urlescputs(ChrPtr(WC->CurRoom.name));
+	wc_printf("</url><link>");
+	urlescputs(ChrPtr(site_prefix));
+	wc_printf("</link></image>\r\n");
 
 	feed_rss_do_messages();
 
