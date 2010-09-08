@@ -429,7 +429,6 @@ typedef struct _HdrRefs {
 	StrBuf *ContentType;
 	StrBuf *RawCookie;
 	StrBuf *ReqLine;
-	StrBuf *http_host;			/* HTTP Host: header */
 	StrBuf *browser_host;
 	StrBuf *browser_language;
 	StrBuf *user_agent;
