@@ -190,39 +190,20 @@ void groupdav_main(void)
  * Output our host prefix for globally absolute URL's.
  */  
 void groupdav_identify_host(void) {
-	wcsession *WCC = WC;
-
-	if (StrLength(WCC->Hdr->HR.http_host)!=0) {
-		wc_printf("%s://%s",
-			(is_https ? "https" : "http"),
-			ChrPtr(WCC->Hdr->HR.http_host));
-	}
+	wc_printf("%s", ChrPtr(site_prefix));
 }
 
 
 void tmplput_GROUPDAV_HOSTNAME(StrBuf *Target, WCTemplputParams *TP) 
 {
-	wcsession *WCC = WC;
-
-	if (StrLength(WCC->Hdr->HR.http_host)!=0) {
-		StrBufAppendPrintf(Target, 
-				   "%s://%s",
-				   (is_https ? "https" : "http"),
-				   ChrPtr(WCC->Hdr->HR.http_host));
-	}
+	StrBufAppendPrintf(Target, "%s", ChrPtr(site_prefix));
 }
 
 /*
  * Output our host prefix for globally absolute URL's.
  */  
 void groupdav_identify_hosthdr(void) {
-	wcsession *WCC = WC;
-
-	if (StrLength(WCC->Hdr->HR.http_host)!=0) {
-		hprintf("%s://%s",
-			(is_https ? "https" : "http"),
-			ChrPtr(WCC->Hdr->HR.http_host));
-	}
+	hprintf("%s", ChrPtr(site_prefix));
 }
 
 
