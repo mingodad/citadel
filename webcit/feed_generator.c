@@ -26,12 +26,52 @@
  * RSS feed generator -- do one message
  */
 void feed_rss_one_message(long msgnum) {
+	char buf[1024];
+	int in_body = 0;
+	int found_title = 0;
+	char pubdate[128];
+
+	serv_printf("MSG0 %ld", msgnum);		/* FIXME we want msg4 eventually */
+	serv_getln(buf, sizeof buf);
+	if (buf[0] != '1') return;
+
 	wc_printf("<item>");
-	wc_printf("<title>title %ld title</title>", msgnum);
-	wc_printf("<pubDate>Wed, 08 Sep 2010 20:03:21 GMT</pubDate>");
-	wc_printf("<link>http://xxxxx.xxxx.xxxxxx.xxxx.xxx</link>");
-	wc_printf("<description>&#60;b&#62;foo bar baz:&#60;/b&#62; message %ld</description>", msgnum);
-	wc_printf("<guid>xxxx-xxxx-xxxx-xxxx-xxxx-xxxx</guid>");
+	wc_printf("<link>%s/readfwd?gotofirst=", ChrPtr(site_prefix));
+	urlescputs(ChrPtr(WC->CurRoom.name));
+	wc_printf("?start_reading_at=%ld</link>", msgnum);
+
+	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+		if (in_body) {
+			escputs(buf);
+		}
+		else if (!strncasecmp(buf, "subj=", 5)) {
+			wc_printf("<title>");
+			escputs(&buf[5]);
+			wc_printf("</title>");
+			++found_title;
+		}
+		else if (!strncasecmp(buf, "exti=", 5)) {
+			wc_printf("<guid>");
+			escputs(&buf[5]);
+			wc_printf("</guid>");
+		}
+		else if (!strncasecmp(buf, "time=", 5)) {
+			http_datestring(pubdate, sizeof pubdate, atol(&buf[5]));
+			wc_printf("<pubDate>%s</pubDate>", pubdate);
+		}
+		else if (!strncasecmp(buf, "text", 4)) {
+			if (!found_title) {
+				wc_printf("<title>Message #%ld</title>", msgnum);
+			}
+			wc_printf("<description>");
+			in_body = 1;
+		}
+	}
+
+	if (in_body) {
+		wc_printf("</description>");
+	}
+
 	wc_printf("</item>");
 }
 
@@ -45,7 +85,10 @@ void feed_rss_do_messages(void) {
 	int num_msgs_alloc = 0;
 	int i;
 
-	serv_puts("MSGS ALL");
+	serv_puts("MSGP text/html|text/plain");		/* identify our preferred mime types */
+	serv_getln(buf, sizeof buf);			/* don't care about the result */
+
+	serv_puts("MSGS ALL");				/* ask for all messages in the room */
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
 
@@ -58,7 +101,7 @@ void feed_rss_do_messages(void) {
 		msgs[num_msgs++] = atol(buf);
 	}
 
-	i = num_msgs;
+	i = num_msgs;					/* convention is to feed newest-to-oldest */
 	while (i > 0) {
 		feed_rss_one_message(msgs[i-1]);
 		--i;
