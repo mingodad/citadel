@@ -675,14 +675,15 @@ void Header_HandleHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 		site_prefix = NewStrBuf();
 		StrBufAppendPrintf(site_prefix, "%s://", (is_https ? "https" : "http") );
 		StrBufAppendBuf(site_prefix, Line, 0);
-		lprintf(CTDL_DEBUG, "\033[33m [%s] \033[0m\n", ChrPtr(site_prefix));
 	}
 }
 
 void Header_HandleXFFHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	if (follow_xff) {
-		/* FIXME do something here */
+	if ( (follow_xff) && (site_prefix == NULL)) {
+		site_prefix = NewStrBuf();
+		StrBufAppendPrintf(site_prefix, "http://");	/* this is naive; do something about it */
+		StrBufAppendBuf(site_prefix, Line, 0);
 	}
 }
 
