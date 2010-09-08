@@ -286,7 +286,6 @@ void openid_manual_create(void)
  */
 void do_openid_login(void)
 {
-	wcsession *WCC = WC;
 	char buf[4096];
 
 	if (havebstr("language")) {
@@ -300,10 +299,10 @@ void do_openid_login(void)
 	}
 	if (havebstr("login_action")) {
 		snprintf(buf, sizeof buf,
-			"OIDS %s|%s://%s/finalize_openid_login|%s://%s",
+			"OIDS %s|%s/finalize_openid_login|%s",
 			bstr("openid_url"),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->HR.http_host),
-			 (is_https ? "https" : "http"), ChrPtr(WCC->Hdr->HR.http_host)
+			ChrPtr(site_prefix),
+			ChrPtr(site_prefix)
 		);
 
 		serv_puts(buf);

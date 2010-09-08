@@ -671,10 +671,18 @@ void Header_HandleUserAgent(StrBuf *Line, ParsedHttpHdrs *hdr)
 
 void Header_HandleHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	if ((follow_xff) && (hdr->HR.http_host != NULL))
+	if ((follow_xff) && (hdr->HR.http_host != NULL)) {
 		return;
-	else
+	}
+	else {
 		hdr->HR.http_host = Line;
+		if (site_prefix == NULL) {
+			site_prefix = NewStrBuf();
+			StrBufAppendPrintf(site_prefix, "%s://", (is_https ? "https" : "http") );
+			StrBufAppendBuf(site_prefix, Line, 0);
+			lprintf(CTDL_DEBUG, "\033[33m [%s] \033[0m\n", ChrPtr(site_prefix));
+		}
+	}
 }
 
 void Header_HandleXFFHost(StrBuf *Line, ParsedHttpHdrs *hdr)

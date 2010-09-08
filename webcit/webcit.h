@@ -612,6 +612,7 @@ extern char wizard_filename[];
 extern int follow_xff;
 extern int num_threads_existing;
 extern int num_threads_executing;
+extern StrBuf *site_prefix;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);

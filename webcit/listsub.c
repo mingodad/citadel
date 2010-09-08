@@ -55,12 +55,11 @@ void do_listsub(void)
 	 * Subscribe command
 	 */
 	if (!strcasecmp(cmd, "subscribe")) {
-		serv_printf("SUBS subscribe|%s|%s|%s|%s://%s/listsub",
+		serv_printf("SUBS subscribe|%s|%s|%s|%s/listsub",
 			room,
 			email,
 			subtype,
-			(is_https ? "https" : "http"),
-			    ChrPtr(WC->Hdr->HR.http_host)
+			ChrPtr(site_prefix)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
@@ -97,11 +96,10 @@ void do_listsub(void)
 	 * Unsubscribe command
 	 */
 	else if (!strcasecmp(cmd, "unsubscribe")) {
-		serv_printf("SUBS unsubscribe|%s|%s|%s://%s/listsub",
-			    room,
-			    email,
-			    (is_https ? "https" : "http"),
-			    ChrPtr(WC->Hdr->HR.http_host)
+		serv_printf("SUBS unsubscribe|%s|%s|%s/listsub",
+			room,
+			email,
+			ChrPtr(site_prefix)
 		);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {

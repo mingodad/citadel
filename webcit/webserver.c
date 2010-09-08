@@ -25,6 +25,7 @@ int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int DisableGzip = 0;
+StrBuf *site_prefix = NULL;
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
