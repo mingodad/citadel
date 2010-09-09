@@ -170,8 +170,27 @@ void feed_rss(void) {
 	);
 
 	wDumpContent(0);
-	end_webcit_session();
 }
+
+
+/*
+ * Offer the RSS feed button for this room
+ */
+void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	char feed_link[1024];
+	char encoded_link[1024];
+
+	strcpy(feed_link, "/feed_rss?gotofirst=");
+	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
+	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
+
+	StrBufAppendPrintf(Target, "<a href=\"/B64%s\">", encoded_link);
+	StrBufAppendPrintf(Target, "<img border=\"0\" src=\"static/rss_16x.png\">");
+	StrBufAppendPrintf(Target, "</a>");
+}
+
 
 
 void 
@@ -179,4 +198,5 @@ InitModule_RSS
 (void)
 {
 	WebcitAddUrlHandler(HKEY("feed_rss"), "", 0, feed_rss, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	RegisterNamespace("THISROOM:FEED:RSS", 0, 0, tmplput_rssbutton, NULL, CTX_NONE);
 }
