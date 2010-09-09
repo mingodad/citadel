@@ -5,6 +5,7 @@
 
 		<td>
 			<h1 id="rmname"><?ROOM:INFO:PRINT_NAME("X")></h1>
+			<?THISROOM:FEED:RSS>
 			<?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><h2><?BSTR("page")></h2><?!("X", 7)>
 			<??("COND:ROOM:TYPE_IS", 8, #"VIEW_WIKI")><p id="nummsgs"><?THISROOM:MSGS:NEW> <?_("new of")> <?THISROOM:MSGS:TOTAL> <?_("messages")></p>
 				<?!("COND:THISROOM:FLAG:QR", 9, #"QR_DIRECTORY")><?!("COND:THISROOM:FLAG:QR", 10, #"QR_VISDIR")>
