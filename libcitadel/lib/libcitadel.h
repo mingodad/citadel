@@ -14,7 +14,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#define LIBCITADEL_VERSION_NUMBER	783
+#define LIBCITADEL_VERSION_NUMBER	789
 
 /*
  * Here's a bunch of stupid magic to make the MIME parser portable.
