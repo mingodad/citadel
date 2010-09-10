@@ -80,37 +80,29 @@ void feed_rss_one_message(long msgnum) {
  * RSS feed generator -- go through the message list
  */
 void feed_rss_do_messages(void) {
-	char buf[1024];
-	long *msgs = NULL;
+	wcsession *WCC = WC;
 	int num_msgs = 0;
-	int num_msgs_alloc = 0;
 	int i;
+	SharedMessageStatus Stat;
+	message_summary *Msg = NULL;
 
-	serv_puts("MSGP text/html|text/plain");		/* identify our preferred mime types */
-	serv_getln(buf, sizeof buf);			/* don't care about the result */
-
-	serv_puts("MSGS ALL");				/* ask for all messages in the room */
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') return;
-
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000"))
-	{
-		if (num_msgs >= num_msgs_alloc) {
-			num_msgs_alloc += 1024;
-			msgs = realloc(msgs, num_msgs_alloc*sizeof(long) );
-		}
-		msgs[num_msgs++] = atol(buf);
-	}
+	memset(&Stat, 0, sizeof Stat);
+	Stat.maxload = INT_MAX;
+	Stat.lowest_found = (-1);
+	Stat.highest_found = (-1);
+	num_msgs = load_msg_ptrs("MSGS ALL", &Stat, NULL);
+	if (num_msgs < 1) return;
 
 	i = num_msgs;					/* convention is to feed newest-to-oldest */
 	while (i > 0) {
-		feed_rss_one_message(msgs[i-1]);
+		Msg = GetMessagePtrAt(i-1, WCC->summ);
+		if (Msg != NULL) {
+			feed_rss_one_message(Msg->msgnum);
+		}
 		--i;
 	}
-
-	free(msgs);
-
 }
+
 
 /*
  * Entry point for RSS feed generator
