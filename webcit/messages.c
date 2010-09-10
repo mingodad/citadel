@@ -1775,12 +1775,12 @@ InitModule_MSG
 			   NULL);
 	RegisterPreference("mailbox",_("Mailbox view mode"), PRF_STRING, NULL);
 
-	WebcitAddUrlHandler(HKEY("readnew"), "", 0, h_readnew, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readold"), "", 0, h_readold, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readfwd"), "", 0, h_readfwd, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readnew"), "", 0, h_readnew, ANONYMOUS|NEED_URL);
+	WebcitAddUrlHandler(HKEY("readold"), "", 0, h_readold, ANONYMOUS|NEED_URL);
+	WebcitAddUrlHandler(HKEY("readfwd"), "", 0, h_readfwd, ANONYMOUS|NEED_URL);
 	WebcitAddUrlHandler(HKEY("headers"), "", 0, h_headers, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readgt"), "", 0, h_readgt, NEED_URL);
-	WebcitAddUrlHandler(HKEY("readlt"), "", 0, h_readlt, NEED_URL);
+	WebcitAddUrlHandler(HKEY("readgt"), "", 0, h_readgt, ANONYMOUS|NEED_URL);
+	WebcitAddUrlHandler(HKEY("readlt"), "", 0, h_readlt, ANONYMOUS|NEED_URL);
 	WebcitAddUrlHandler(HKEY("do_search"), "", 0, h_do_search, 0);
 	WebcitAddUrlHandler(HKEY("display_enter"), "", 0, display_enter, 0);
 	WebcitAddUrlHandler(HKEY("post"), "", 0, post_message, PROHIBIT_STARTPAGE);
