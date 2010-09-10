@@ -1097,7 +1097,49 @@ void mime_spew_section(char *name, char *filename, char *partnum, char *disp,
 	}
 }
 
+#ifdef MESSAGE_IN_ROOM
+/*
+ * Check if a message is in the current room.
+ * This is used by CtdlFetchMessage to prevent random picking
+ * of messages from users private rooms
+ *
+ * The message list should probably be cached against the CC->room
+ */
+int CtdlMessageInRoom(long msgnum)
+{
+	visit vbuf;
+	struct cdbdata *cdbfr;
 
+	/* Learn about the user and room in question */
+	CtdlGetUser(&CC->user, CC->curr_user);
+	CtdlGetRelationship(&vbuf, &CC->user, &CC->room);
+
+	/* Load the message list */
+	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
+	if (cdbfr != NULL) {
+		long *msglist = NULL;
+		int num_msgs = 0;
+		int i;
+		int r = 0;
+		
+		msglist = (long *) cdbfr->ptr;
+		num_msgs = cdbfr->len / sizeof(long);
+
+		/* search for message msgnum */
+		for (i=0; i<num_msgs; i++) {
+			if (msglist[i] == msgnum) {
+				r = 1;
+				break;
+			}	
+		}
+
+		cdb_free(cdbfr);
+		return r;
+	} else {
+		return 0;
+	}
+}
+#endif
 
 /*
  * Load a message from disk into memory.
@@ -1116,6 +1158,13 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	cit_uint8_t field_header;
 
 	CtdlLogPrintf(CTDL_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
+
+#ifdef MESSAGE_IN_ROOM
+	if (!CtdlMessageInRoom(msgnum)) {
+		CtdlLogPrintf(CTDL_DEBUG, "Message %ld not in current room\n", msgnum);
+		return NULL;
+	}
+#endif
 
 	dmsgtext = cdb_fetch(CDB_MSGMAIN, &msgnum, sizeof(long));
 	if (dmsgtext == NULL) {
@@ -1510,7 +1559,14 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		return(r);
 	}
 
-	/* FIXME: check message id against msglist for this room */
+#ifdef MESSAGE_IN_ROOM
+	if (!CtdlMessageInRoom(msg_num)) {
+		CtdlLogPrintf(CTDL_DEBUG, "Message %ld not in current room\n", msg_num);
+		if (do_proto) cprintf("%d Can't locate msg %ld in room\n",
+			ERROR + MESSAGE_NOT_FOUND, msg_num);
+		return(om_no_such_msg);
+	}
+#endif
 
 	/*
 	 * Fetch the message from disk.  If we're in HEADERS_FAST mode,
