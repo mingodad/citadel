@@ -53,7 +53,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	calendar.o calendar_tools.o calendar_view.o tasks.o event.o smtpqueue.o \
 	availability.o iconbar.o crypto.o inetconf.o notes.o wiki.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o fmt_date.o \
-	groupdav_options.o autocompletion.o gettext.o tabs.o sieve.o \
+	groupdav_options.o autocompletion.o gettext.o tabs.o sieve.o sitemap.o \
 	groupdav_delete.o groupdav_put.o http_datestring.o setup_wizard.o \
 	downloads.o addressbook_popup.o pushemail.o sysdep.o openid.o \
 	decode.o modules_init.o paramhandling.o utils.o \
@@ -69,7 +69,7 @@ webcit: webserver.o context_loop.o ical_dezonify.o \
 	summary.o calendar.o calendar_tools.o calendar_view.o tasks.o event.o wiki.o \
 	availability.o ical_dezonify.o iconbar.o crypto.o inetconf.o notes.o \
 	groupdav_main.o groupdav_get.o groupdav_propfind.o groupdav_delete.o \
-	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o \
+	groupdav_options.o autocompletion.o tabs.o smtpqueue.o sieve.o sitemap.o \
 	groupdav_put.o http_datestring.o setup_wizard.o fmt_date.o modules_init.o \
 	gettext.o downloads.o addressbook_popup.o pushemail.o sysdep.o decode.o \
 	paramhandling.o utils.o ical_maps.o ical_subst.o static.o feed_generator.o \

@@ -809,6 +809,7 @@ long guess_calhourformat(void);
 int get_time_format_cached (void);
 const char *get_selected_language(void);
 void display_wiki_pagelist(void);
+HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP);
 
 #define DATEFMT_FULL 0
 #define DATEFMT_BRIEF 1
