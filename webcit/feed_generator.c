@@ -110,7 +110,7 @@ void feed_rss_do_messages(void) {
 void feed_rss(void) {
 	char buf[1024];
 
-	output_headers(0, 0, 0, 1, 1, 0);
+	output_headers(0, 0, 0, 0, 1, 0);
 	hprintf("Content-type: text/xml\r\n");
 	hprintf(
 		"Server: %s / %s\r\n"
@@ -189,6 +189,6 @@ void
 InitModule_RSS
 (void)
 {
-	WebcitAddUrlHandler(HKEY("feed_rss"), "", 0, feed_rss, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("feed_rss"), "", 0, feed_rss, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterNamespace("THISROOM:FEED:RSS", 0, 0, tmplput_rssbutton, NULL, CTX_NONE);
 }
