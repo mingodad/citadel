@@ -215,6 +215,23 @@ void dbg_Init(StrBuf *Buf)
 
 #endif
 
+/**
+ * @ingroup StrBuf
+ * @brief swaps the contents of two StrBufs
+ * this is to be used to have cheap switched between a work-buffer and a target buffer 
+ * @param A First one
+ * @param B second one
+ */
+static inline void SwapBuffers(StrBuf *A, StrBuf *B)
+{
+	StrBuf C;
+
+	memcpy(&C, A, sizeof(*A));
+	memcpy(A, B, sizeof(*B));
+	memcpy(B, &C, sizeof(C));
+
+}
+
 /** 
  * @ingroup StrBuf_Cast
  * @brief Cast operator to Plain String 
@@ -370,6 +387,64 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 	dbg_Init(NewBuf);
 
 	return NewBuf;
+}
+
+/** 
+ * @ingroup StrBuf_DeConstructors
+ * @brief Copy Constructor; CreateRelpaceMe will contain CopyFlushMe afterwards.
+ * @param CopyFlushMe Buffer to faxmilate if KeepOriginal, or to move into CreateRelpaceMe if !KeepOriginal.
+ * @param CreateRelpaceMe If NULL, will be created, else Flushed and filled CopyFlushMe 
+ * @param KeepOriginal should CopyFlushMe remain intact? or may we Steal its buffer?
+ * @returns the new stringbuffer
+ */
+void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, int KeepOriginal)
+{
+	StrBuf *NewBuf;
+	
+	if (CreateRelpaceMe == NULL)
+		return;
+	if (CopyFlushMe == NULL)
+	{
+		if (*CreateRelpaceMe != NULL)
+			FlushStrBuf(*CreateRelpaceMe);
+		else 
+			*CreateRelpaceMe = NewStrBuf();
+		return;
+	}
+
+	/* 
+	 * Randomly Chosen: bigger than 64 chars is cheaper to swap the buffers instead of copying.
+	 * else *CreateRelpaceMe may use more memory than needed in a longer term, CopyFlushMe might
+	 * be a big IO-Buffer...
+	 */
+	if (KeepOriginal || (StrLength(CopyFlushMe) > 64))
+	{
+		if (*CreateRelpaceMe == NULL)
+		{
+			*CreateRelpaceMe = NewBuf = NewStrBufPlain(NULL, CopyFlushMe->BufUsed + 1);
+			dbg_Init(NewBuf);
+		}
+		else 
+		{
+			NewBuf = *CreateRelpaceMe;
+			FlushStrBuf(NewBuf);
+		}
+		StrBufAppendBuf(NewBuf, CopyFlushMe, 0);
+	}
+	else
+	{
+		if (*CreateRelpaceMe == NULL)
+		{
+			*CreateRelpaceMe = NewBuf = NewStrBufPlain(NULL, CopyFlushMe->BufSize);
+			dbg_Init(NewBuf);
+		}
+		else 
+			NewBuf = *CreateRelpaceMe;
+		SwapBuffers (NewBuf, CopyFlushMe);
+	}
+	if (!KeepOriginal)
+		FlushStrBuf(CopyFlushMe);
+	return;
 }
 
 /**
@@ -2725,22 +2800,6 @@ static inline const char *FindNextEnd (const StrBuf *Buf, const char *bptr)
 	return end;
 }
 
-/**
- * @ingroup StrBuf
- * @brief swaps the contents of two StrBufs
- * this is to be used to have cheap switched between a work-buffer and a target buffer 
- * @param A First one
- * @param B second one
- */
-static inline void SwapBuffers(StrBuf *A, StrBuf *B)
-{
-	StrBuf C;
-
-	memcpy(&C, A, sizeof(*A));
-	memcpy(A, B, sizeof(*B));
-	memcpy(B, &C, sizeof(C));
-
-}
 
 
 /**
