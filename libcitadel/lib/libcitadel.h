@@ -189,6 +189,7 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe);
 StrBuf* NewStrBufPlain(const char* ptr, int nChars);
 long StrBufShrinkToFit(StrBuf *Buf, int Force);
 void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize);
+void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, int KeepOriginal);
 
 int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars);
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant);
