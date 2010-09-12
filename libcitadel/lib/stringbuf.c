@@ -392,17 +392,28 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe)
 /** 
  * @ingroup StrBuf_DeConstructors
  * @brief Copy Constructor; CreateRelpaceMe will contain CopyFlushMe afterwards.
+ * @param NoMe if non-NULL, we will use that buffer as value; KeepOriginal will abused as len.
  * @param CopyFlushMe Buffer to faxmilate if KeepOriginal, or to move into CreateRelpaceMe if !KeepOriginal.
  * @param CreateRelpaceMe If NULL, will be created, else Flushed and filled CopyFlushMe 
  * @param KeepOriginal should CopyFlushMe remain intact? or may we Steal its buffer?
  * @returns the new stringbuffer
  */
-void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, int KeepOriginal)
+void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, const char *NoMe, int KeepOriginal)
 {
 	StrBuf *NewBuf;
 	
 	if (CreateRelpaceMe == NULL)
 		return;
+
+	if (NoMe != NULL)
+	{
+		if (*CreateRelpaceMe != NULL)
+			StrBufPlain(*CreateRelpaceMe, NoMe, KeepOriginal);
+		else 
+			*CreateRelpaceMe = NewStrBufPlain(NoMe, KeepOriginal);
+		return;
+	}
+
 	if (CopyFlushMe == NULL)
 	{
 		if (*CreateRelpaceMe != NULL)
@@ -417,11 +428,11 @@ void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, int 
 	 * else *CreateRelpaceMe may use more memory than needed in a longer term, CopyFlushMe might
 	 * be a big IO-Buffer...
 	 */
-	if (KeepOriginal || (StrLength(CopyFlushMe) > 64))
+	if (KeepOriginal || (StrLength(CopyFlushMe) < 256))
 	{
 		if (*CreateRelpaceMe == NULL)
 		{
-			*CreateRelpaceMe = NewBuf = NewStrBufPlain(NULL, CopyFlushMe->BufUsed + 1);
+			*CreateRelpaceMe = NewBuf = NewStrBufPlain(NULL, CopyFlushMe->BufUsed);
 			dbg_Init(NewBuf);
 		}
 		else 
@@ -435,7 +446,7 @@ void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, int 
 	{
 		if (*CreateRelpaceMe == NULL)
 		{
-			*CreateRelpaceMe = NewBuf = NewStrBufPlain(NULL, CopyFlushMe->BufSize);
+			*CreateRelpaceMe = NewBuf = NewStrBufPlain(NULL, CopyFlushMe->BufUsed);
 			dbg_Init(NewBuf);
 		}
 		else 
@@ -472,6 +483,11 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 		Siz *= 2;
 
 	NewBuf->buf = (char*) malloc(Siz);
+	if (NewBuf->buf == NULL)
+	{
+		free(NewBuf);
+		return NULL;
+	}
 	NewBuf->BufSize = Siz;
 	if (ptr != NULL) {
 		memcpy(NewBuf->buf, ptr, CopySize);
@@ -484,9 +500,9 @@ StrBuf* NewStrBufPlain(const char* ptr, int nChars)
 	}
 	NewBuf->ConstBuf = 0;
 
-	dbg_Init(NewBuf)
+	dbg_Init(NewBuf);
 
-		return NewBuf;
+	return NewBuf;
 }
 
 /**
@@ -1059,6 +1075,26 @@ void StrBufTrim(StrBuf *Buf)
 		delta ++;
 	}
 	if (delta > 0) StrBufCutLeft(Buf, delta);
+}
+/**
+ * @ingroup StrBuf
+ * @brief changes all spaces in the string  (tab, linefeed...) to Blank (0x20)
+ * @param Buf the string to modify
+ */
+void StrBufSpaceToBlank(StrBuf *Buf)
+{
+	char *pche, *pch;
+
+	if ((Buf == NULL) || (Buf->BufUsed == 0)) return;
+
+	pch = Buf->buf;
+	pche = pch + Buf->BufUsed;
+	while (pch < pche) 
+	{
+		if (isspace(*pch))
+			*pch = ' ';
+		pch ++;
+	}
 }
 
 void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary)
