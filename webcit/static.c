@@ -223,6 +223,8 @@ void output_flat_static(void)
 	void *vFile;
 	StrBuf *File;
 
+	if (WCC->Hdr->HR.Handler == NULL)
+		return;
 	if (GetHash(StaticFilemappings[0], SKEY(WCC->Hdr->HR.Handler->Name), &vFile) &&
 	    (vFile != NULL))
 	{
