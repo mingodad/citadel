@@ -356,7 +356,7 @@ void rss_save_item(rss_item *ri)
 	/* Find out if we've already seen this item */
 
 	cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
-#if 0
+#ifndef DEBUG_RSS
 	if (cdbut != NULL) {
 		/* Item has already been seen */
 		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
@@ -550,8 +550,10 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 			     pel - supplied_el - 1,
 			     &v))
 		{
+#ifdef DEBUG_RSS
 			CtdlLogPrintf(0, "RSS: START ignoring because of wrong namespace [%s] = [%s]\n", 
 				      supplied_el);
+#endif
 			return;
 		}
 	}
@@ -577,12 +579,15 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 		{
 			h->Handler(rssc->CData, ri, Cfg, attr);			
 		}
+#ifdef DEBUG_RSS
 		else 
 			CtdlLogPrintf(0, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
+#endif
 	}
+#ifdef DEBUG_RSS
 	else 
 		CtdlLogPrintf(0, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
-
+#endif
 }
 
 void rss_xml_end(void *data, const char *supplied_el)
@@ -610,8 +615,10 @@ void rss_xml_end(void *data, const char *supplied_el)
 			     pel - supplied_el - 1,
 			     &v))
 		{
+#ifdef DEBUG_RSS
 			CtdlLogPrintf(0, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
 				      supplied_el, ChrPtr(rssc->CData));
+#endif
 			FlushStrBuf(rssc->CData);
 			return;
 		}
@@ -638,26 +645,18 @@ void rss_xml_end(void *data, const char *supplied_el)
 		{
 			h->Handler(rssc->CData, ri, Cfg, NULL);
 		}
+#ifdef DEBUG_RSS
 		else 
 			CtdlLogPrintf(0, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
-			
+#endif
 	}
+#ifdef DEBUG_RSS
 	else 
 		CtdlLogPrintf(0, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
+#endif
 	FlushStrBuf(rssc->CData);
 	rssc->Current = NULL;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -933,14 +932,6 @@ void RSSATOM_item_ignore(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char
 
 
 
-
-
-
-
-
-
-
-
 /*
  * This callback stores up the data which appears in between tags.
  */
@@ -953,13 +944,6 @@ void rss_xml_cdata_start(void *data)
 
 void rss_xml_cdata_end(void *data) 
 {
-	//rsscollection   *rssc = (rsscollection*) data;
-	//rss_item        *ri = rssc->Item;
-
-	/* Hm, it seems as if in some CDATA cases expat doesn't call the handler... * /
-	if (rssc->Current == NULL)
-		NewStrBufDupAppendFlush(&ri->description, rssc->CData, NULL, 0);
-	*/
 }
 void rss_xml_chardata(void *data, const XML_Char *s, int len) 
 {
