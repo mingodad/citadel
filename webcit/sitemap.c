@@ -87,7 +87,7 @@ void sitemap(void) {
 	}
 
 	DeleteHashPos(&it);
-	DeleteHash(&roomlist);
+	/* DeleteHash(&roomlist); This will be freed when the session closes */
 
 	wc_printf("</urlset>\r\n");
 	wDumpContent(0);
