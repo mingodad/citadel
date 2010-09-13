@@ -1105,22 +1105,16 @@ void knrooms(void)
 		set_preference("roomlistview", ListView, 1);
 	}
 	/** Sanitize the input so its safe */
-	if((get_preference("roomlistview", &ListView) != 0)||
-	   ((strcasecmp(ChrPtr(ListView), "folders") != 0) &&
-	    (strcasecmp(ChrPtr(ListView), "table") != 0))) 
+	if ((get_preference("roomlistview", &ListView) == 0)||
+	    (
+		    (strcasecmp(ChrPtr(ListView), "folders") != 0) &&
+		    (strcasecmp(ChrPtr(ListView), "rooms") != 0)
+		    )
+		)
 	{
-		if (ListView == NULL) {
-			ListView = NewStrBufPlain(HKEY("rooms"));
-			set_preference("roomlistview", ListView, 0);
-			ListView = NULL;
-		}
-		else {
-			ListView = NewStrBufPlain(HKEY("rooms"));
-			set_preference("roomlistview", ListView, 0);
-			ListView = NULL;
-		}
+		ListView = NewStrBufPlain(HKEY("rooms"));
+		set_preference("roomlistview", ListView, 0);
 	}
-	FreeStrBuf(&ListView);
 	url_do_template();
 }
 
