@@ -1177,9 +1177,10 @@ void cmd_whok(char *cmdbuf)
 		cdb_free(cdbus);
 
 		CtdlRoomAccess(&CC->room, &temp, &ra, NULL);
-		if ((CC->room.QRflags & QR_INUSE)
-		    && (ra & UA_KNOWN)
-		    )
+		if ((!IsEmptyStr(temp.fullname)) && 
+		    (CC->room.QRflags & QR_INUSE) &&
+		    (ra & UA_KNOWN)
+			)
 			cprintf("%s\n", temp.fullname);
 	}
 	cprintf("000\n");
