@@ -189,6 +189,7 @@ StrBuf* NewStrBufDup(const StrBuf *CopyMe);
 StrBuf* NewStrBufPlain(const char* ptr, int nChars);
 long StrBufShrinkToFit(StrBuf *Buf, int Force);
 void ReAdjustEmptyBuf(StrBuf *Buf, long ThreshHold, long NewSize);
+void NewStrBufDupAppendFlush(StrBuf **CreateRelpaceMe, StrBuf *CopyFlushMe, const char *NoMe, int KeepOriginal);
 
 int StrBufPlain(StrBuf *Buf, const char* ptr, int nChars);
 StrBuf* _NewConstStrBuf(const char* StringConstant, size_t SizeOfStrConstant);
@@ -263,6 +264,7 @@ void StrBufCutLeft(StrBuf *Buf, int nChars);
 void StrBufCutRight(StrBuf *Buf, int nChars);
 void StrBufCutAt(StrBuf *Buf, int AfternChars, const char *At);
 void StrBufTrim(StrBuf *Buf);
+void StrBufSpaceToBlank(StrBuf *Buf);
 void StrBufStripAllBut(StrBuf *Buf, char leftboundary, char rightboundary);
 void StrBufUpCase(StrBuf *Buf);
 void StrBufLowerCase(StrBuf *Buf);
