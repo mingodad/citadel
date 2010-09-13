@@ -99,4 +99,5 @@ InitModule_SITEMAP
 (void)
 {
 	WebcitAddUrlHandler(HKEY("sitemap"), "", 0, sitemap, ANONYMOUS|COOKIEUNNEEDED);
+	WebcitAddUrlHandler(HKEY("sitemap.xml"), "", 0, sitemap, ANONYMOUS|COOKIEUNNEEDED);
 }
