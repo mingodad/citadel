@@ -114,7 +114,7 @@ void check_thread_pool_size(void)
 	if (time_to_die) return;		/* don't expand the thread pool during shutdown */
 
 	begin_critical_section(S_SPAWNER);	/* only one of these should run at a time */
-	while (
+	if (
 		(num_threads_executing >= num_threads_existing)
 		&& (num_threads_existing < MAX_WORKER_THREADS)
 	) {
