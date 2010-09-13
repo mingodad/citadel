@@ -19,6 +19,7 @@
  */
 
 #include "webcit.h"
+#include "webserver.h"
 
 /*
  * IPv4/IPv6 locate_host()
@@ -32,4 +33,5 @@ void locate_host(StrBuf *tbuf, int client_socket)
 	getpeername(client_socket, (struct sockaddr *)&clientaddr, &addrlen);
 	getnameinfo((struct sockaddr *)&clientaddr, addrlen, clienthost, sizeof(clienthost), NULL, 0, 0);
         StrBufAppendBufPlain(tbuf, clienthost, -1, 0);
+	lprintf(9, "Client is at %s\n", clienthost);
 }
