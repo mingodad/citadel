@@ -166,6 +166,26 @@ void feed_rss(void) {
 
 
 /*
+ * Offer the RSS feed meta tag for this room
+ */
+void tmplput_rssmeta(StrBuf *Target, WCTemplputParams *TP) 
+{
+	wcsession *WCC = WC;
+	char feed_link[1024];
+	char encoded_link[1024];
+
+	strcpy(feed_link, "/feed_rss?gotofirst=");
+	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
+	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
+
+	StrBufAppendPrintf(Target,
+		"<link rel=\"alternate\" title=\"RSS\" href=\"/B64%s\" type=\"application/rss+xml\">",
+		encoded_link
+	);
+}
+
+
+/*
  * Offer the RSS feed button for this room
  */
 void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP) 
@@ -178,11 +198,10 @@ void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP)
 	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
 	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
 
-	StrBufAppendPrintf(Target, "<a href=\"/B64%s\">", encoded_link);
+	StrBufAppendPrintf(Target, "<a type-\"application/rss+xml\" href=\"/B64%s\">", encoded_link);
 	StrBufAppendPrintf(Target, "<img border=\"0\" src=\"static/rss_16x.png\">");
 	StrBufAppendPrintf(Target, "</a>");
 }
-
 
 
 void 
@@ -191,4 +210,5 @@ InitModule_RSS
 {
 	WebcitAddUrlHandler(HKEY("feed_rss"), "", 0, feed_rss, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterNamespace("THISROOM:FEED:RSS", 0, 0, tmplput_rssbutton, NULL, CTX_NONE);
+	RegisterNamespace("THISROOM:FEED:RSSMETA", 0, 0, tmplput_rssmeta, NULL, CTX_NONE);
 }

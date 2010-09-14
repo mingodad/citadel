@@ -147,11 +147,24 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		 * - It is a read-only room
 		 */
 		int post_allowed = 1;
-		if (userbuf->axlevel < AxProbU) post_allowed = 0;
-		if ((userbuf->axlevel < AxNetU) && (roombuf->QRflags & QR_NETWORK)) post_allowed = 0;
-		if (roombuf->QRflags & QR_READONLY) post_allowed = 0;
+		int reply_allowed = 1;
+		if (userbuf->axlevel < AxProbU) {
+			post_allowed = 0;
+			reply_allowed = 0;
+		}
+		if ((userbuf->axlevel < AxNetU) && (roombuf->QRflags & QR_NETWORK)) {
+			post_allowed = 0;
+			reply_allowed = 0;
+		}
+		if (roombuf->QRflags & QR_READONLY) {
+			post_allowed = 0;
+			reply_allowed = 0;
+		}
 		if (post_allowed) {
 			retval = retval | UA_POSTALLOWED | UA_REPLYALLOWED;
+		}
+		if (reply_allowed) {
+			retval = retval | UA_REPLYALLOWED;
 		}
 
 		/* If "collaborative deletion" is active for this room, any user who can post
