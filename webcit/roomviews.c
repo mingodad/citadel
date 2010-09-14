@@ -1,5 +1,21 @@
 /*
  * Lots of different room-related operations.
+ *
+ * Copyright (c) 1996-2010 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "webcit.h"
@@ -17,23 +33,24 @@ ROOM_VIEWS exchangeable_views[VIEW_MAX][VIEW_MAX] = {	/* the different kinds of 
 {VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_WIKI, VIEW_MAX, VIEW_MAX, VIEW_MAX}, 
 {VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_CALENDAR, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX/*VIEW_CALBRIEF*/, VIEW_MAX, VIEW_MAX},
 {VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_JOURNAL, VIEW_MAX }, 
+{VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_DRAFTS, VIEW_MAX }, 
 {VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_MAX, VIEW_BLOG }, 
 	};
 /* the brief calendar view is disabled: VIEW_CALBRIEF */
 
 ROOM_VIEWS allowed_default_views[VIEW_MAX] = {
-	1, /* VIEW_BBS		Bulletin board view */
-	1, /* VIEW_MAILBOX		Mailbox summary */
-	1, /* VIEW_ADDRESSBOOK	Address book view */
-	1, /* VIEW_CALENDAR		Calendar view */
-	1, /* VIEW_TASKS		Tasks view */
-	1, /* VIEW_NOTES		Notes view */
-	1, /* VIEW_WIKI		Wiki view */
-	0, /* VIEW_CALBRIEF		Brief Calendar view */
-	0, /* VIEW_JOURNAL		Journal view */
-	0  /* VIEW_BLOG		Blog view (not yet implemented) */
+	1, /* VIEW_BBS			Bulletin board			*/
+	1, /* VIEW_MAILBOX		Mailbox summary			*/
+	1, /* VIEW_ADDRESSBOOK		Address book			*/
+	1, /* VIEW_CALENDAR		Calendar by month or day	*/
+	1, /* VIEW_TASKS		Task list			*/
+	1, /* VIEW_NOTES		Sticky notes			*/
+	1, /* VIEW_WIKI			Wiki				*/
+	0, /* VIEW_CALBRIEF		Calendar list of events		*/
+	0, /* VIEW_JOURNAL		Journal				*/
+	0, /* VIEW_DRAFTS		Drafts				*/
+	1  /* VIEW_BLOG			Blog				*/
 };
-
 
 /*
  * Initialize the viewdefs with localized strings
@@ -48,6 +65,7 @@ void initialize_viewdefs(void) {
 	viewdefs[VIEW_WIKI] = _("Wiki");
 	viewdefs[VIEW_CALBRIEF] = _("Calendar List");
 	viewdefs[VIEW_JOURNAL] = _("Journal");
+	viewdefs[VIEW_DRAFTS] = _("Drafts");
 	viewdefs[VIEW_BLOG] = _("Blog");
 }
 
@@ -260,7 +278,4 @@ InitModule_ROOMVIEWS
 	RegisterNamespace("ROOM:INFO:VIEW", 0, 1, tmplput_ROOM_VIEW, NULL, CTX_ROOMS);
 
 	RegisterNamespace("ROOM:INFO:COLLECTIONTYPE", 0, 1, tmplput_ROOM_COLLECTIONTYPE, NULL, CTX_ROOMS);
-
-
-
 }
