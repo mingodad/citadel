@@ -395,7 +395,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 	/* 
 	 * Can we post here?
 	 */
-	ret = CtdlDoIHavePermissionToPostInThisRoom(errbuf, sizeof errbuf, NULL, POST_LOGGED_IN);
+	ret = CtdlDoIHavePermissionToPostInThisRoom(errbuf, sizeof errbuf, NULL, POST_LOGGED_IN, 0);
 
 	if (ret) {
 		/* Nope ... print an error message */
