@@ -186,10 +186,13 @@ enum {
 	CHECK_EXISTANCE,
 	POST_LMTP
 };
+
 int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, 
-					  size_t n, 
-					  const char* RemoteIdentifier,
-					  int PostPublic);
+	size_t n, 
+	const char* RemoteIdentifier,
+	int PostPublic,
+	int is_reply
+);
 
 
 /* values for which_set */
