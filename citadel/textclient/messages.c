@@ -1117,6 +1117,37 @@ int entmsg(CtdlIPC *ipc,
 		newprompt("Display name for this message: ", message.author, 40);
 	}
 
+	if (is_reply) {
+
+		if (!IsEmptyStr(reply_subject)) {
+			if (!strncasecmp(reply_subject,
+			   "Re: ", 3)) {
+				strcpy(message.subject, reply_subject);
+			}
+			else {
+				snprintf(message.subject,
+					sizeof message.subject,
+					"Re: %s",
+					reply_subject);
+			}
+		}
+
+		/* Trim down excessively long lists of thread references.  We eliminate the
+		 * second one in the list so that the thread root remains intact.
+		 */
+		int rrtok = num_tokens(reply_references, '|');
+		int rrlen = strlen(reply_references);
+		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
+			remove_token(reply_references, 1, '|');
+		}
+
+		snprintf(message.references, sizeof message.references, "%s%s%s",
+			reply_references,
+			(IsEmptyStr(reply_references) ? "" : "|"),
+			reply_inreplyto
+		);
+	}
+
 	r = CtdlIPCPostMessage(ipc, 0, &subject_required, &message, buf);
 
 	if (r / 100 != 2 && r / 10 != 57) {
@@ -1153,37 +1184,6 @@ int entmsg(CtdlIPC *ipc,
 			strcpy(buf, "sysop");
 	}
 	strcpy(message.recipient, buf);
-
-	if (is_reply) {
-
-		if (!IsEmptyStr(reply_subject)) {
-			if (!strncasecmp(reply_subject,
-			   "Re: ", 3)) {
-				strcpy(message.subject, reply_subject);
-			}
-			else {
-				snprintf(message.subject,
-					sizeof message.subject,
-					"Re: %s",
-					reply_subject);
-			}
-		}
-
-		/* Trim down excessively long lists of thread references.  We eliminate the
-		 * second one in the list so that the thread root remains intact.
-		 */
-		int rrtok = num_tokens(reply_references, '|');
-		int rrlen = strlen(reply_references);
-		if ( ((rrtok >= 3) && (rrlen > 900)) || (rrtok > 10) ) {
-			remove_token(reply_references, 1, '|');
-		}
-
-		snprintf(message.references, sizeof message.references, "%s%s%s",
-			reply_references,
-			(IsEmptyStr(reply_references) ? "" : "|"),
-			reply_inreplyto
-		);
-	}
 
 	if (room_flags & QR_ANONOPT) {
 		scr_printf("Anonymous (Y/N)? ");
