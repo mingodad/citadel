@@ -300,6 +300,7 @@ InitModule_STATIC
 	LoadStaticDir(static_dirs[2], StaticFilemappings[2], "");
 	LoadStaticDir(static_dirs[3], StaticFilemappings[3], "");
 
+	WebcitAddUrlHandler(HKEY("robots.txt"), "", 0, output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("favicon.ico"), "", 0, output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("static"), "", 0, output_static_0, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("static.local"), "", 0, output_static_1, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
