@@ -471,6 +471,7 @@ void dotgoto(CtdlIPC *ipc, char *towhere, int display_name, int fromungoto)
 	switch(room->RRdefaultview) {
 		case VIEW_BBS:
 		case VIEW_MAILBOX:
+		case VIEW_BLOG:
 					entmsg_ok = 1;
 					break;
 		default:
