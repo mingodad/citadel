@@ -10,14 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-07 10:53-0400\n"
+"POT-Creation-Date: 2010-09-16 13:47+0200\n"
 "PO-Revision-Date: 2009-05-10 21:49+0100\n"
 "Last-Translator: iltl <iltl@free.fr>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "X-Poedit-Language: French\n"
 "X-Poedit-Country: FRANCE\n"
 
@@ -25,47 +25,55 @@ msgstr ""
 msgid "Add"
 msgstr "Ajouter"
 
-#: ../auth.c:36
+#. an erased user
+#: ../auth.c:38
 msgid "Deleted"
 msgstr "Supprimé"
 
-#: ../auth.c:37
+#. a new user
+#: ../auth.c:41
 msgid "New User"
 msgstr "Nouvel usager"
 
-#: ../auth.c:38
+#. a trouble maker
+#: ../auth.c:44
 msgid "Problem User"
 msgstr "Usager à problème"
 
-#: ../auth.c:39
+#. user with normal privileges
+#: ../auth.c:47
 msgid "Local User"
 msgstr "Usager local"
 
-#: ../auth.c:40
+#. a user that may access network resources
+#: ../auth.c:50
 msgid "Network User"
 msgstr "Usager en réseau"
 
-#: ../auth.c:41
+#. a moderator
+#: ../auth.c:53
 msgid "Preferred User"
 msgstr "Usager privilégié"
 
-#: ../auth.c:42
+#. chief
+#: ../auth.c:56
 msgid "Aide"
 msgstr "Administrateur"
 
-#: ../auth.c:197 ../auth.c:869
+#: ../auth.c:211 ../auth.c:882
 msgid "Blank passwords are not allowed."
 msgstr "Les mots de passe vides ne sont pas autorisés."
 
-#: ../auth.c:225 ../auth.c:323 ../auth.c:436
+#. If we get to this point then something failed.
+#: ../auth.c:239 ../auth.c:336 ../auth.c:449
 msgid "Your password was not accepted."
 msgstr "Votre mot de passe a été refusé."
 
-#: ../auth.c:546 ../static/t/iconbar.html:74
+#: ../auth.c:559 ../static/t/iconbar.html:74
 msgid "Log off"
 msgstr "Déconnexion"
 
-#: ../auth.c:559
+#: ../auth.c:572
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -73,78 +81,82 @@ msgstr ""
 "Ce programme n'a pas pu se connecter ou rester connecté au serveur Citadel. "
 "SVP informez l'administrateur du système de ce problème."
 
-#: ../auth.c:565
+#: ../auth.c:578
 msgid "Read More..."
 msgstr "En lire plus..."
 
-#: ../auth.c:570
+#: ../auth.c:583
 msgid "Log in again"
 msgstr "Se connecter à nouveau"
 
-#: ../auth.c:601
+#: ../auth.c:614
 msgid "Validate new users"
 msgstr "Valider les nouveaux usagers"
 
-#: ../auth.c:624
+#: ../auth.c:637
 msgid "No users require validation at this time."
 msgstr "Aucun usager ne requière de validation actuellement."
 
-#: ../auth.c:672
+#: ../auth.c:685
 msgid "very weak"
 msgstr "très faible"
 
-#: ../auth.c:675
+#: ../auth.c:688
 msgid "weak"
 msgstr "faible"
 
-#: ../auth.c:678
+#: ../auth.c:691
 msgid "ok"
 msgstr "ok"
 
-#: ../auth.c:682
+#: ../auth.c:695
 msgid "strong"
 msgstr "strong"
 
-#: ../auth.c:700
+#: ../auth.c:713
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Niveau d'accès actuel : %d (%s)\n"
 
-#: ../auth.c:708
+#: ../auth.c:721
 msgid "Select access level for this user:"
 msgstr "Sélection du niveau d'accès de cet usager : "
 
-#: ../auth.c:795
+#: ../auth.c:808
 msgid "Change your password"
 msgstr "Changez votre mot de passe"
 
-#: ../auth.c:819
+#: ../auth.c:832
 msgid "Enter new password:"
 msgstr "Entrez un nouveau mot de passe :"
 
-#: ../auth.c:823
+#: ../auth.c:836
 msgid "Enter it again to confirm:"
 msgstr "Retapez le pour confirmer :"
 
-#: ../auth.c:829
+#: ../auth.c:842
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
-#: ../auth.c:831 ../event.c:770 ../graphics.c:71 ../messages.c:1497
+#: ../auth.c:844 ../event.c:770 ../graphics.c:71 ../messages.c:1497
 #: ../paging.c:67 ../sieve.c:205 ../sysmsgs.c:50 ../tasks.c:358
 #: ../vcard_edit.c:1001 ../who.c:197
 msgid "Cancel"
 msgstr "Abandonner"
 
-#: ../auth.c:850
+#: ../auth.c:863
 msgid "Cancelled.  Password was not changed."
 msgstr "Abandon. Le mot de passe n'a pas été changé."
 
-#: ../auth.c:861
+#: ../auth.c:874
 msgid "They don't match.  Password was not changed."
 msgstr ""
 "Les deux saisies sont différentes. Le mot de passe n'a pas été modifié."
 
+#.
+#. * Set to 'unknown' right from the beginning.  Unless we learn
+#. * something else, that's what we'll go with.
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilité inconnue"
@@ -157,17 +169,17 @@ msgstr "libre"
 msgid "BUSY"
 msgstr "OCCUPÉ(E)"
 
-#: ../bbsview_renderer.c:286
+#: ../bbsview_renderer.c:289
 #, fuzzy
 msgid "Go to page: "
 msgstr "Sélectionner la page :"
 
-#: ../bbsview_renderer.c:320
+#: ../bbsview_renderer.c:323
 #, fuzzy
 msgid "First"
 msgstr "Prénom"
 
-#: ../bbsview_renderer.c:326
+#: ../bbsview_renderer.c:329
 #, fuzzy
 msgid "Last"
 msgstr "Liste"
@@ -306,11 +318,14 @@ msgstr ""
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Une réponse a été envoyée à l'organisateur de la réunion."
 
-#: ../calendar.c:378
+#. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
+#. that the recipient of an ical-invitation should please
+#. answer this request.
+#: ../calendar.c:381
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr "Votre agenda a été mis à jour pour tenir compte de cette réponse."
 
-#: ../calendar.c:380
+#: ../calendar.c:383
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
@@ -318,15 +333,15 @@ msgstr ""
 "Vous avez choisi d'ignorer cette réponse. Votre agenda <b>n'a pas</b> été "
 "modifié. "
 
-#: ../calendar.c:918
+#: ../calendar.c:921
 msgid "Calendar day view begins at:"
 msgstr "Heure de début de journée :"
 
-#: ../calendar.c:919
+#: ../calendar.c:922
 msgid "Calendar day view ends at:"
 msgstr "Heure de fin de journée :"
 
-#: ../calendar.c:920
+#: ../calendar.c:923
 msgid "Week starts on:"
 msgstr "La semaine démarre le:"
 
@@ -562,6 +577,7 @@ msgstr "Règle de récurrence"
 msgid "Repeats every"
 msgstr "Répéter chaque"
 
+#. begin 'weekday_selector' div
 #: ../event.c:538
 msgid "on these weekdays:"
 msgstr "ces jours de la semaine:"
@@ -698,6 +714,7 @@ msgstr "Paramètre invalide"
 msgid "%s has been deleted."
 msgstr "%s a été supprimé"
 
+#. <domain> added status message
 #: ../inetconf.c:145
 msgid "added."
 msgstr ""
@@ -710,11 +727,11 @@ msgstr "Abonnement à la liste"
 msgid "List subscribe/unsubscribe"
 msgstr "Abonnement/désabonnement à la liste"
 
-#: ../listsub.c:71
+#: ../listsub.c:70
 msgid "Confirmation request sent"
 msgstr "Requête de confirmation envoyée."
 
-#: ../listsub.c:73
+#: ../listsub.c:72
 #, c-format
 msgid ""
 "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
@@ -731,7 +748,7 @@ msgstr ""
 "effectuez cette action, vous recevrez alors un courriel de confirmation de "
 "votre abonnement.<br />\n"
 
-#: ../listsub.c:86
+#: ../listsub.c:85
 msgid "Go back..."
 msgstr "Retour..."
 
@@ -949,19 +966,19 @@ msgstr "<b><i>L'usager %s a été invité à rejoindre le salon %s.</i></b>\n"
 msgid "Cancelled.  No new room was created."
 msgstr "Abandon. Aucun nouveau salon n'a été créé."
 
-#: ../roomops.c:1165
+#: ../roomops.c:1159
 msgid "Floor has been deleted."
 msgstr "Le palier a été détruit. "
 
-#: ../roomops.c:1189
+#: ../roomops.c:1183
 msgid "New floor has been created."
 msgstr "Un nouveau palier a été créé. "
 
-#: ../roomops.c:1268
+#: ../roomops.c:1262
 msgid "Room list view"
 msgstr "Visualisation des paliers et salons"
 
-#: ../roomops.c:1271
+#: ../roomops.c:1265
 msgid "Show empty floors"
 msgstr "Montrer les niveaux vides"
 
@@ -1013,7 +1030,7 @@ msgstr "Journal"
 msgid "Blog"
 msgstr ""
 
-#: ../serv_func.c:187
+#: ../serv_func.c:186
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
@@ -1023,12 +1040,12 @@ msgstr ""
 "ne peut plus accepter de connexions supplémentaires.  SVP essayez plus tard "
 "ou contactez l'administrateur du système."
 
-#: ../serv_func.c:192 ../serv_func.c:221
+#: ../serv_func.c:191 ../serv_func.c:220
 #, fuzzy
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr "Le serveur Citadel a renvoyé une réponse inattendue."
 
-#: ../serv_func.c:230
+#: ../serv_func.c:229
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -1355,8 +1372,8 @@ msgstr "(Vide)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 "Vous êtes connecté(e) à %s qui est servi par %s avec %s (révision %s) et "
 "situé à %s. Votre administrateur système est %s."
@@ -1671,11 +1688,11 @@ msgstr "Une erreur est apparue."
 msgid "Could Not decode vcard photo\n"
 msgstr "Impossible de décoder la photo de la vcard\n"
 
-#: ../webcit.c:344
+#: ../webcit.c:339
 msgid "Authorization Required"
 msgstr "Autorisation requise"
 
-#: ../webcit.c:353
+#: ../webcit.c:348
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -2026,7 +2043,7 @@ msgid "Reading #"
 msgstr "Afficher n°"
 
 #: ../static/t/msg_listselector_bottom.html:7
-#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:9
+#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:10
 msgid "messages"
 msgstr "messages"
 
@@ -2214,11 +2231,11 @@ msgstr "SVP précisez le nom d'usager que vous souhaitez utiliser."
 msgid "Preferences and settings"
 msgstr "Préférences et options"
 
-#: ../static/t/roombanner.html:9
+#: ../static/t/roombanner.html:10
 msgid "new of"
 msgstr ""
 
-#: ../static/t/roombanner.html:23
+#: ../static/t/roombanner.html:24
 msgid "Select page: "
 msgstr "Sélectionner la page :"
 
