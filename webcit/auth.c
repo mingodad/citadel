@@ -33,13 +33,27 @@ void display_reg(int during_login);
 char *axdefs[7]; 
 
 void initialize_axdefs(void) {
-	axdefs[0] = _("Deleted");       /* an erased user */
-	axdefs[1] = _("New User");      /* a new user */
-	axdefs[2] = _("Problem User");  /* a trouble maker */
-	axdefs[3] = _("Local User");    /* user with normal privileges */
-	axdefs[4] = _("Network User");  /* a user that may access network resources */
-	axdefs[5] = _("Preferred User");/* a moderator */
-	axdefs[6] = _("Aide");          /* chief */
+
+	/* an erased user */
+	axdefs[0] = _("Deleted");       
+
+	/* a new user */
+	axdefs[1] = _("New User");      
+
+	/* a trouble maker */
+	axdefs[2] = _("Problem User");  
+
+	/* user with normal privileges */
+	axdefs[3] = _("Local User");    
+
+	/* a user that may access network resources */
+	axdefs[4] = _("Network User");  
+
+	/* a moderator */
+	axdefs[5] = _("Preferred User");
+
+	/* chief */
+	axdefs[6] = _("Aide");          
 }
 
 

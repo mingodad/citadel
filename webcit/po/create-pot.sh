@@ -6,6 +6,7 @@ xgettext \
         --from-code='utf-8' \
 	-k_ \
 	-o webcit.pot \
+	--add-comments \
 	../*.c ../static/t/*.html
 
 for x in *.po
