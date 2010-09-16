@@ -130,8 +130,8 @@ void AddRSSEndHandler(rss_handler_func Handler, int Flags, const char *key, long
 	Put(EndHandlers, key, len, h, NULL);
 }
 
-#if 0
-#ifdef HAVE_ICONV
+///#if 0
+//#ifdef HAVE_ICONV
 #include <iconv.h>
 
 
@@ -301,8 +301,8 @@ handle_unknown_xml_encoding (void *encodingHandleData,
   return 0; 
 } 
 
-#endif
-#endif
+///#endif
+//#endif
 
 /*
  * Commit a fetched and parsed RSS item to disk
@@ -970,10 +970,14 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 	rsscollection rssc;
 	rss_item ri;
 	XML_Parser xp;
+	StrBuf *Answer;
 
 	CURL *curl;
 	CURLcode res;
 	char errmsg[1024] = "";
+	char *ptr;
+	const char *at;
+	long len;
 
 	memset(&ri, 0, sizeof(rss_item));
 	rssc.Item = &ri;
@@ -986,20 +990,14 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
 		return;
 	}
+	Answer = NewStrBufPlain(NULL, SIZ);
 
-	xp = XML_ParserCreateNS("UTF-8", ':');
-	if (!xp) {
-		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
-		curl_easy_cleanup(curl);
-		return;
-	}
-	rssc.CData = NewStrBufPlain(NULL, SIZ);
-	rssc.Key = NewStrBuf();
 	curl_easy_setopt(curl, CURLOPT_URL, Cfg->url);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, xp);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rss_libcurl_callback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, Answer);
+//	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rss_libcurl_callback);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 #ifdef CURLOPT_HTTP_CONTENT_DECODING
@@ -1017,24 +1015,8 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
 	}
 
-	memset(&ri, 0, sizeof(rss_item));
-	ri.roomlist = Cfg->rooms;
-#ifdef HAVE_ICONV
-#if 0
-	XML_SetUnknownEncodingHandler(xp,
-				      handle_unknown_xml_encoding,
-				      NULL);
-#endif
-#endif
-	XML_SetElementHandler(xp, rss_xml_start, rss_xml_end);
-	XML_SetCharacterDataHandler(xp, rss_xml_chardata);
-	XML_SetUserData(xp, &rssc);
-	XML_SetCdataSectionHandler(xp,
-				   rss_xml_cdata_start,
-				   rss_xml_cdata_end);
 	if (CtdlThreadCheckStop())
 	{
-		XML_ParserFree(xp);
 		curl_easy_cleanup(curl);
 		return;
 	}
@@ -1050,6 +1032,59 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 	if (CtdlThreadCheckStop())
 		goto shutdown ;
 
+
+
+
+	memset(&ri, 0, sizeof(rss_item));
+	ri.roomlist = Cfg->rooms;
+	rssc.CData = NewStrBufPlain(NULL, SIZ);
+	rssc.Key = NewStrBuf();
+	at = NULL;
+	StrBufSipLine(rssc.Key, Answer, &at);
+	ptr = NULL;
+
+#define encoding "encoding=\""
+	ptr = strstr(ChrPtr(rssc.Key), encoding);
+	if (ptr != NULL)
+	{
+		char *pche;
+
+		ptr += sizeof (encoding) - 1;
+		pche = strchr(ptr, '"');
+		if (pche != NULL)
+			StrBufCutAt(rssc.Key, -1, pche);
+		else 
+			ptr = "UTF-8";
+	}
+	else
+		ptr = "UTF-8";
+
+
+	xp = XML_ParserCreateNS(ptr, ':');
+	if (!xp) {
+		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
+		goto shutdown;
+	}
+	FlushStrBuf(rssc.Key);
+//#ifdef HAVE_ICONV
+#if 0
+	XML_SetUnknownEncodingHandler(xp,
+				      handle_unknown_xml_encoding,
+				      &rssc);
+#endif
+//#endif
+	XML_SetElementHandler(xp, rss_xml_start, rss_xml_end);
+	XML_SetCharacterDataHandler(xp, rss_xml_chardata);
+	XML_SetUserData(xp, &rssc);
+	XML_SetCdataSectionHandler(xp,
+				   rss_xml_cdata_start,
+				   rss_xml_cdata_end);
+
+
+	len = StrLength(Answer);
+	ptr = SmashStrBuf(&Answer);
+	XML_Parse(xp, ptr, len, 0);
+	free (ptr);
 	if (ri.done_parsing == 0)
 		XML_Parse(xp, "", 0, 1);
 
