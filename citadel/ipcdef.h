@@ -77,13 +77,14 @@ extern "C" {
 			US_NOPROMPT | US_DISAPPEAR | US_PAGINATOR | \
 			US_FLOORS | US_COLOR | US_PROMPTCTL | US_EXTEDIT)
 
-#define UA_KNOWN                2
-#define UA_GOTOALLOWED          4
-#define UA_HASNEWMSGS           8
-#define UA_ZAPPED               16
-#define UA_POSTALLOWED		32
-#define UA_ADMINALLOWED		64
-#define UA_DELETEALLOWED	128
+#define UA_KNOWN                2	/* Room appears in a 'known rooms' list */
+#define UA_GOTOALLOWED          4	/* User may goto this room if specified by exact name */
+#define UA_HASNEWMSGS           8	/* Unread messages exist in this room */
+#define UA_ZAPPED               16	/* User has forgotten (zapped) this room */
+#define UA_POSTALLOWED		32	/* User may post top-level messages here */
+#define UA_ADMINALLOWED		64	/* Aide or Room Aide rights exist here */
+#define UA_DELETEALLOWED	128	/* User is allowed to delete messages from this room */
+#define UA_REPLYALLOWED		256	/* User is allowed to reply to existing messages here */
 
 #ifdef __cplusplus
 }

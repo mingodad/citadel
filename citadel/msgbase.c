@@ -3599,10 +3599,13 @@ struct CtdlMessage *CtdlMakeMessage(
  * room.  Returns a *CITADEL ERROR CODE* and puts a message in errmsgbuf, or
  * returns 0 on success.
  */
-int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf, 
-					  size_t n, 
-					  const char* RemoteIdentifier,
-					  int PostPublic) {
+int CtdlDoIHavePermissionToPostInThisRoom(
+	char *errmsgbuf, 
+	size_t n, 
+	const char* RemoteIdentifier,
+	int PostPublic,
+	int is_reply
+) {
 	int ra;
 
 	if (!(CC->logged_in) && 
@@ -3667,7 +3670,18 @@ int CtdlDoIHavePermissionToPostInThisRoom(char *errmsgbuf,
 	}
 
 	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
-	if (!(ra & UA_POSTALLOWED)) {
+
+	if ( (!(ra & UA_POSTALLOWED)) && (ra & UA_REPLYALLOWED) && (!is_reply) ) {
+		/*
+		 * To be thorough, we ought to check to see if the message they are
+		 * replying to is actually a valid one in this room, but unless this
+		 * actually becomes a problem we'll go with high performance instead.
+		 */
+		snprintf(errmsgbuf, n, "You may only reply to existing messages here.");
+		return (ERROR + HIGHER_ACCESS_REQUIRED);
+	}
+
+	else if (!(ra & UA_POSTALLOWED)) {
 		snprintf(errmsgbuf, n, "Higher access is required to post in this room.");
 		return (ERROR + HIGHER_ACCESS_REQUIRED);
 	}
@@ -3827,10 +3841,12 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 					CC->room = tempQR;
 					
 					/* Check permissions to send mail to this room */
-					err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, 
-										    sizeof errmsg, 
-										    RemoteIdentifier,
-										    Flags
+					err = CtdlDoIHavePermissionToPostInThisRoom(
+						errmsg, 
+						sizeof errmsg, 
+						RemoteIdentifier,
+						Flags,
+						0			/* 0 = not a reply */
 					);
 					if (err)
 					{
@@ -4033,7 +4049,13 @@ void cmd_ent0(char *entargs)
 
 	/* first check to make sure the request is valid. */
 
-	err = CtdlDoIHavePermissionToPostInThisRoom(errmsg, sizeof errmsg, NULL, POST_LOGGED_IN);
+	err = CtdlDoIHavePermissionToPostInThisRoom(
+		errmsg,
+		sizeof errmsg,
+		NULL,
+		POST_LOGGED_IN,
+		(!IsEmptyStr(references))		/* is this a reply?  or a top-level post? */
+	);
 	if (err)
 	{
 		cprintf("%d %s\n", err, errmsg);

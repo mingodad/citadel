@@ -65,7 +65,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 
 	/* for internal programs, always do everything */
 	if (((CC->internal_pgm)) && (roombuf->QRflags & QR_INUSE)) {
-		retval = (UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED);
+		retval = (UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED | UA_REPLYALLOWED);
 		vbuf.v_view = 0;
 		goto SKIP_EVERYTHING;
 	}
@@ -88,7 +88,7 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	/* Force the properties of the Aide room */
 	if (!strcasecmp(roombuf->QRname, config.c_aideroom)) {
 		if (userbuf->axlevel >= AxAideU) {
-			retval = UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED;
+			retval = UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED | UA_REPLYALLOWED;
 		} else {
 			retval = 0;
 		}
@@ -130,11 +130,11 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	/* Also, mailbox owners can delete their messages */
 	if (roombuf->QRflags & QR_MAILBOX) {
 		if (userbuf->usernum == atol(roombuf->QRname)) {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED | UA_REPLYALLOWED;
 		}
 		/* An explicit match means the user belongs in this room */
 		if (vbuf.v_flags & V_ACCESS) {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_DELETEALLOWED | UA_REPLYALLOWED;
 		}
 	}
 
@@ -147,11 +147,24 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 		 * - It is a read-only room
 		 */
 		int post_allowed = 1;
-		if (userbuf->axlevel < AxProbU) post_allowed = 0;
-		if ((userbuf->axlevel < AxNetU) && (roombuf->QRflags & QR_NETWORK)) post_allowed = 0;
-		if (roombuf->QRflags & QR_READONLY) post_allowed = 0;
+		int reply_allowed = 1;
+		if (userbuf->axlevel < AxProbU) {
+			post_allowed = 0;
+			reply_allowed = 0;
+		}
+		if ((userbuf->axlevel < AxNetU) && (roombuf->QRflags & QR_NETWORK)) {
+			post_allowed = 0;
+			reply_allowed = 0;
+		}
+		if (roombuf->QRflags & QR_READONLY) {
+			post_allowed = 0;
+			reply_allowed = 0;
+		}
 		if (post_allowed) {
-			retval = retval | UA_POSTALLOWED;
+			retval = retval | UA_POSTALLOWED | UA_REPLYALLOWED;
+		}
+		if (reply_allowed) {
+			retval = retval | UA_REPLYALLOWED;
 		}
 
 		/* If "collaborative deletion" is active for this room, any user who can post
@@ -177,17 +190,17 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	}
 	/* If user is explicitly locked out of this room, deny everything */
 	if (vbuf.v_flags & V_LOCKOUT) {
-		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED & ~UA_POSTALLOWED;
+		retval = retval & ~UA_KNOWN & ~UA_GOTOALLOWED & ~UA_POSTALLOWED & ~UA_REPLYALLOWED;
 	}
 
 	/* Aides get access to all private rooms */
 	if ( (userbuf->axlevel >= AxAideU)
 	   && ((roombuf->QRflags & QR_MAILBOX) == 0) ) {
 		if (vbuf.v_flags & V_FORGET) {
-			retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED;
+			retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED | UA_REPLYALLOWED;
 		}
 		else {
-			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED;
+			retval = retval | UA_KNOWN | UA_GOTOALLOWED | UA_POSTALLOWED | UA_REPLYALLOWED;
 		}
 	}
 
@@ -196,14 +209,14 @@ void CtdlRoomAccess(struct ctdlroom *roombuf, struct ctdluser *userbuf,
 	 */
 	if ( (userbuf->axlevel >= AxAideU)
 	   && (roombuf->QRflags & QR_MAILBOX) ) {
-		retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED;
+		retval = retval | UA_GOTOALLOWED | UA_POSTALLOWED | UA_REPLYALLOWED;
 	}
 
 	/* Aides and Room Aides have admin privileges */
 	if ( (userbuf->axlevel >= AxAideU)
 	   || (userbuf->usernum == roombuf->QRroomaide)
 	   ) {
-		retval = retval | UA_ADMINALLOWED | UA_DELETEALLOWED | UA_POSTALLOWED;
+		retval = retval | UA_ADMINALLOWED | UA_DELETEALLOWED | UA_POSTALLOWED | UA_REPLYALLOWED;
 	}
 
 NEWMSG:	/* By the way, we also check for the presence of new messages */
