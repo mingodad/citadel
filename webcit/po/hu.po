@@ -8,60 +8,68 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-07 10:53-0400\n"
+"POT-Creation-Date: 2010-09-16 13:47+0200\n"
 "PO-Revision-Date: 2009-06-12 16:41+0200\n"
 "Last-Translator: Czakó Krisztián <slapic@prolin.hu>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
 msgstr "Hozzáadás"
 
-#: ../auth.c:36
+#. an erased user
+#: ../auth.c:38
 msgid "Deleted"
 msgstr "Törölt"
 
-#: ../auth.c:37
+#. a new user
+#: ../auth.c:41
 msgid "New User"
 msgstr "Új felhasználó"
 
-#: ../auth.c:38
+#. a trouble maker
+#: ../auth.c:44
 msgid "Problem User"
 msgstr "Problémás felhasználó"
 
-#: ../auth.c:39
+#. user with normal privileges
+#: ../auth.c:47
 msgid "Local User"
 msgstr "Helyi felhasználó"
 
-#: ../auth.c:40
+#. a user that may access network resources
+#: ../auth.c:50
 msgid "Network User"
 msgstr "Hálózati felhasználó"
 
-#: ../auth.c:41
+#. a moderator
+#: ../auth.c:53
 msgid "Preferred User"
 msgstr "Kedvelt felhasználó"
 
-#: ../auth.c:42
+#. chief
+#: ../auth.c:56
 msgid "Aide"
 msgstr ""
 
-#: ../auth.c:197 ../auth.c:869
+#: ../auth.c:211 ../auth.c:882
 msgid "Blank passwords are not allowed."
 msgstr "Az üres jelszavak nem engedélyezettek."
 
-#: ../auth.c:225 ../auth.c:323 ../auth.c:436
+#. If we get to this point then something failed.
+#: ../auth.c:239 ../auth.c:336 ../auth.c:449
 msgid "Your password was not accepted."
 msgstr "A jelszavát nem fogadtuk el."
 
-#: ../auth.c:546 ../static/t/iconbar.html:74
+#: ../auth.c:559 ../static/t/iconbar.html:74
 msgid "Log off"
 msgstr "Kilépés"
 
-#: ../auth.c:559
+#: ../auth.c:572
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -69,77 +77,81 @@ msgstr ""
 "A program képtelen volt kapcsolódni vagy a kapcsolatot fenntartani a Citadel "
 "kiszolgálóval. Kérjük jelezze a problémát a rendszergazdának."
 
-#: ../auth.c:565
+#: ../auth.c:578
 msgid "Read More..."
 msgstr "További információk"
 
-#: ../auth.c:570
+#: ../auth.c:583
 msgid "Log in again"
 msgstr "Lépjen be újra"
 
-#: ../auth.c:601
+#: ../auth.c:614
 msgid "Validate new users"
 msgstr "Új felhasználók érvényesítése"
 
-#: ../auth.c:624
+#: ../auth.c:637
 msgid "No users require validation at this time."
 msgstr "Nincs érvényesítésre váró felhasználó."
 
-#: ../auth.c:672
+#: ../auth.c:685
 msgid "very weak"
 msgstr "nagyon gyenge"
 
-#: ../auth.c:675
+#: ../auth.c:688
 msgid "weak"
 msgstr "gyenge"
 
-#: ../auth.c:678
+#: ../auth.c:691
 msgid "ok"
 msgstr "OK"
 
-#: ../auth.c:682
+#: ../auth.c:695
 msgid "strong"
 msgstr "erős"
 
-#: ../auth.c:700
+#: ../auth.c:713
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Jelenlegi elérési szint: %d (%s)\n"
 
-#: ../auth.c:708
+#: ../auth.c:721
 msgid "Select access level for this user:"
 msgstr "Válassza ki ezen felhasználó hozzáférési szintjét:"
 
-#: ../auth.c:795
+#: ../auth.c:808
 msgid "Change your password"
 msgstr "Változtassa meg a jelszavát"
 
-#: ../auth.c:819
+#: ../auth.c:832
 msgid "Enter new password:"
 msgstr "Írja be az új jelszót:"
 
-#: ../auth.c:823
+#: ../auth.c:836
 msgid "Enter it again to confirm:"
 msgstr "Ellenőrzésként írja be ismét:"
 
-#: ../auth.c:829
+#: ../auth.c:842
 msgid "Change password"
 msgstr "Jelszó megváltoztatása"
 
-#: ../auth.c:831 ../event.c:770 ../graphics.c:71 ../messages.c:1497
+#: ../auth.c:844 ../event.c:770 ../graphics.c:71 ../messages.c:1497
 #: ../paging.c:67 ../sieve.c:205 ../sysmsgs.c:50 ../tasks.c:358
 #: ../vcard_edit.c:1001 ../who.c:197
 msgid "Cancel"
 msgstr "Mégsem"
 
-#: ../auth.c:850
+#: ../auth.c:863
 msgid "Cancelled.  Password was not changed."
 msgstr "Megszakítva. A jelszó nem változott."
 
-#: ../auth.c:861
+#: ../auth.c:874
 msgid "They don't match.  Password was not changed."
 msgstr "Nem egyeznek. A jelszó nem változott."
 
+#.
+#. * Set to 'unknown' right from the beginning.  Unless we learn
+#. * something else, that's what we'll go with.
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "elérhetőség ismeretlen"
@@ -152,17 +164,17 @@ msgstr "Szabad"
 msgid "BUSY"
 msgstr "ELFOGLALT"
 
-#: ../bbsview_renderer.c:286
+#: ../bbsview_renderer.c:289
 #, fuzzy
 msgid "Go to page: "
 msgstr "Oldal kiválasztása:"
 
-#: ../bbsview_renderer.c:320
+#: ../bbsview_renderer.c:323
 #, fuzzy
 msgid "First"
 msgstr "első"
 
-#: ../bbsview_renderer.c:326
+#: ../bbsview_renderer.c:329
 #, fuzzy
 msgid "Last"
 msgstr "Lista"
@@ -303,26 +315,29 @@ msgstr ""
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Válasz ment a megbeszélés szervezőjének."
 
-#: ../calendar.c:378
+#. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
+#. that the recipient of an ical-invitation should please
+#. answer this request.
+#: ../calendar.c:381
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr "Az ön naptára frissült, hogy reagáljon az RSVP-re."
 
-#: ../calendar.c:380
+#: ../calendar.c:383
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr ""
 "Figyelmen kívül hagyta ezt az RSVP-t. Az ön naptára <b>nem</b> frissült."
 
-#: ../calendar.c:918
+#: ../calendar.c:921
 msgid "Calendar day view begins at:"
 msgstr "Naptár napi nézet kezdődik:"
 
-#: ../calendar.c:919
+#: ../calendar.c:922
 msgid "Calendar day view ends at:"
 msgstr "Naptár napi nézet végződik:"
 
-#: ../calendar.c:920
+#: ../calendar.c:923
 msgid "Week starts on:"
 msgstr "Hét első napja:"
 
@@ -555,6 +570,7 @@ msgstr "Ismétlődési szabály"
 msgid "Repeats every"
 msgstr "Ismétlődik minden"
 
+#. begin 'weekday_selector' div
 #: ../event.c:538
 msgid "on these weekdays:"
 msgstr "a következő munkanapokon:"
@@ -691,6 +707,7 @@ msgstr "Érvénytelen paraméter"
 msgid "%s has been deleted."
 msgstr "%s törölve."
 
+#. <domain> added status message
 #: ../inetconf.c:145
 msgid "added."
 msgstr ""
@@ -703,11 +720,11 @@ msgstr "Lista előfizetés"
 msgid "List subscribe/unsubscribe"
 msgstr "Lista előfizetés/lemondás"
 
-#: ../listsub.c:71
+#: ../listsub.c:70
 msgid "Confirmation request sent"
 msgstr "Jóváhagyási kérelem elküldve"
 
-#: ../listsub.c:73
+#: ../listsub.c:72
 #, c-format
 msgid ""
 "You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
@@ -724,7 +741,7 @@ msgstr ""
 "nélkül.<br /><br />Kérem kattintson rá a linkre, melyet e-mailben küldtünk "
 "önnek, hogy az előfizetését jóváhagyja.<br />\n"
 
-#: ../listsub.c:86
+#: ../listsub.c:85
 msgid "Go back..."
 msgstr "Vissza..."
 
@@ -941,19 +958,19 @@ msgstr "<B><I>%s felhasználó meghívva a(z) %s szobába.</I></B>\n"
 msgid "Cancelled.  No new room was created."
 msgstr "Megszakítva.  Nem lett új szoba létrehozva."
 
-#: ../roomops.c:1165
+#: ../roomops.c:1159
 msgid "Floor has been deleted."
 msgstr "Szint törölve."
 
-#: ../roomops.c:1189
+#: ../roomops.c:1183
 msgid "New floor has been created."
 msgstr "Új szint létrehozva."
 
-#: ../roomops.c:1268
+#: ../roomops.c:1262
 msgid "Room list view"
 msgstr "Szoba lista nézet"
 
-#: ../roomops.c:1271
+#: ../roomops.c:1265
 msgid "Show empty floors"
 msgstr "Mutasd az üres szinteket"
 
@@ -1005,18 +1022,18 @@ msgstr "Napló"
 msgid "Blog"
 msgstr ""
 
-#: ../serv_func.c:187
+#: ../serv_func.c:186
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
 
-#: ../serv_func.c:192 ../serv_func.c:221
+#: ../serv_func.c:191 ../serv_func.c:220
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr ""
 
-#: ../serv_func.c:230
+#: ../serv_func.c:229
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -1327,8 +1344,8 @@ msgstr "(Semmi)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 
 #: ../summary.c:195
@@ -1633,11 +1650,11 @@ msgstr "Egy hiba lépett fel."
 msgid "Could Not decode vcard photo\n"
 msgstr "Nem tudom értelmezni a névjegy fényképet\n"
 
-#: ../webcit.c:344
+#: ../webcit.c:339
 msgid "Authorization Required"
 msgstr "Azonosítás szükséges"
 
-#: ../webcit.c:353
+#: ../webcit.c:348
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -1970,7 +1987,7 @@ msgid "Reading #"
 msgstr "Olvasás alatt #"
 
 #: ../static/t/msg_listselector_bottom.html:7
-#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:9
+#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:10
 msgid "messages"
 msgstr "üzenetből"
 
@@ -2155,11 +2172,11 @@ msgstr "Kérem adja meg a felhasználó nevet, amit használni szeretne."
 msgid "Preferences and settings"
 msgstr "Jellemzők és beállítások"
 
-#: ../static/t/roombanner.html:9
+#: ../static/t/roombanner.html:10
 msgid "new of"
 msgstr ""
 
-#: ../static/t/roombanner.html:23
+#: ../static/t/roombanner.html:24
 msgid "Select page: "
 msgstr "Oldal kiválasztása:"
 
