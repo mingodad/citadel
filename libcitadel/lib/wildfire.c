@@ -157,9 +157,13 @@ static int addr2lineBacktrace(StrBuf *Function,
 	pche = strchr(pch, ':');
 	FlushStrBuf(FileName);
 	StrBufAppendBufPlain(FileName, pch, pche - pch, 0);
-	pche++;
-	*FunctionLine = atoi(pche);
-
+	if (pche != NULL)
+	{
+		pche++;
+		*FunctionLine = atoi(pche);
+	}
+	else 
+		*FunctionLine = 0;
 	return 1;
 }
 
