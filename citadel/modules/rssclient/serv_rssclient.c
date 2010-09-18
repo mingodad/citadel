@@ -85,6 +85,7 @@ typedef struct _rss_item {
 	int item_tag_nesting;
 	StrBuf *author_or_creator;
 	StrBuf *author_url;
+	StrBuf *author_email;
 }rss_item;
 
 
@@ -356,7 +357,7 @@ void rss_save_item(rss_item *ri)
 	/* Find out if we've already seen this item */
 
 	cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
-#ifndef DEBUG_RSS
+#ifdef DEBUG_RSS/////TODO ifndef
 	if (cdbut != NULL) {
 		/* Item has already been seen */
 		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
@@ -390,6 +391,7 @@ void rss_save_item(rss_item *ri)
 			StrBuf *UserName;
 			StrBuf *EmailAddress;
 			StrBuf *EncBuf;
+			int FromAt;
 			
 			UserName = NewStrBuf();
 			EmailAddress = NewStrBuf();
@@ -398,8 +400,37 @@ void rss_save_item(rss_item *ri)
 			From = html_to_ascii(ChrPtr(ri->author_or_creator),
 					     StrLength(ri->author_or_creator), 
 					     512, 0);
-
-			Encoded = NewStrBufPlain(From, -1);
+			FromAt = strchr(From, '@') != NULL;
+			if (!FromAt && StrLength (ri->author_email) > 0)
+			{
+				Encoded = NewStrBuf();
+				if (!IsEmptyStr(From))
+				{
+					StrBufPrintf(Encoded,
+						     "\"%s\" <%s>", 
+						     From, 
+						     ChrPtr(ri->author_email));
+				}
+				else
+				{
+					StrBufPrintf(Encoded,
+						     "<%s>", 
+						     ChrPtr(ri->author_email));
+				}
+			}
+			else
+			{
+				if (FromAt)
+					Encoded = NewStrBufPlain(From, -1);
+				else 
+				{
+					Encoded = NewStrBuf();
+					StrBufPrintf(Encoded,
+						     "\"%s\" <%s>", 
+						     From, 
+						     "rss@localhost"); /// TODO: get hostname?
+				}
+			}
 			free(From);
 			StrBufTrim(Encoded);
 			QPEncoded = StrBufSanitizeEmailRecipientVector(Encoded, UserName, EmailAddress, EncBuf);
@@ -520,6 +551,7 @@ void flush_rss_item(rss_item *ri)
 	FreeStrBuf(&ri->title);
 	FreeStrBuf(&ri->link);
 	FreeStrBuf(&ri->author_or_creator);
+	FreeStrBuf(&ri->author_email);
 	FreeStrBuf(&ri->author_url);
 	FreeStrBuf(&ri->description);
 }
@@ -878,6 +910,14 @@ void ATOM_item_name_end(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char*
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->author_or_creator, CData, NULL, 0);
 		StrBufTrim(ri->author_or_creator);
+	}
+}
+
+void ATOM_item_email_end(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
+{
+	if (StrLength(CData) > 0) {
+		NewStrBufDupAppendFlush(&ri->author_email, CData, NULL, 0);
+		StrBufTrim(ri->author_email);
 	}
 }
 
@@ -1262,9 +1302,11 @@ CTDL_MODULE_INIT(rssclient)
 	AddRSSEndHandler(RSS_item_date_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("date"));
 	AddRSSEndHandler(RSS_item_author_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("author"));
 	AddRSSEndHandler(RSS_item_creator_end,     RSS_RSS|RSS_REQUIRE_BUF, HKEY("creator"));
+/* <author> */
+	AddRSSEndHandler(ATOM_item_email_end,      RSS_ATOM|RSS_REQUIRE_BUF, HKEY("email"));
 	AddRSSEndHandler(ATOM_item_name_end,       RSS_ATOM|RSS_REQUIRE_BUF, HKEY("name"));
 	AddRSSEndHandler(ATOM_item_uri_end,        RSS_ATOM|RSS_REQUIRE_BUF, HKEY("uri"));
-
+/* </author> */
 	AddRSSEndHandler(RSS_item_item_end,        RSS_RSS, HKEY("item"));
 	AddRSSEndHandler(RSS_item_rss_end,         RSS_RSS, HKEY("rss"));
 	AddRSSEndHandler(RSS_item_rdf_end,         RSS_RSS, HKEY("rdf"));
