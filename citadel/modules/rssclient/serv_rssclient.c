@@ -374,7 +374,7 @@ void rss_save_item(rss_item *ri)
 	/* Find out if we've already seen this item */
 
 	cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
-#ifdef DEBUG_RSS/////TODO ifndef
+#ifndef DEBUG_RSS
 	if (cdbut != NULL) {
 		/* Item has already been seen */
 		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
