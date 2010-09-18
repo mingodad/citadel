@@ -305,6 +305,22 @@ handle_unknown_xml_encoding (void *encodingHandleData,
 ///#endif
 //#endif
 
+void AppendLink(StrBuf *Message, StrBuf *link, StrBuf *LinkTitle, const char *Title)
+{
+	if (StrLength(link) > 0)
+	{
+		StrBufAppendBufPlain(Message, HKEY("<a href=\""), 0);
+		StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("\">"), 0);
+		if (StrLength(LinkTitle) > 0)
+			StrBufAppendBuf(Message, LinkTitle, 0);
+		else if ((Title != NULL) && !IsEmptyStr(Title))
+			StrBufAppendBufPlain(Message, Title, -1, 0);
+		else
+			StrBufAppendBuf(Message, link, 0);
+		StrBufAppendBufPlain(Message, HKEY("</a><br>\n"), 0);
+	}
+}
 /*
  * Commit a fetched and parsed RSS item to disk
  */
@@ -320,6 +336,7 @@ void rss_save_item(rss_item *ri)
 	struct CtdlMessage *msg;
 	struct recptypes *recp = NULL;
 	int msglen = 0;
+	StrBuf *Message;
 
 	recp = (struct recptypes *) malloc(sizeof(struct recptypes));
 	if (recp == NULL) return;
@@ -475,21 +492,21 @@ void rss_save_item(rss_item *ri)
 		if (ri->link == NULL) 
 			ri->link = NewStrBufPlain(HKEY(""));
 		msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
-		msg->cm_fields['M'] = malloc(msglen);
-		snprintf(msg->cm_fields['M'], msglen,
+
+		Message = NewStrBufPlain(NULL, StrLength(ri->description));
+
+		StrBufPlain(Message, HKEY(
 			 "Content-type: text/html; charset=\"UTF-8\"\r\n\r\n"
-			 "<html><body>\n"
-			 "%s<br><br>\n"
-			 "<a href=\"%s\">%s</a><br>\n"
-			 "<a href=\"%s\">%s</a>\n"
-			 "</body></html>\n"
-			 ,
-			 ChrPtr(ri->description),
-			 ChrPtr(ri->link),
-			 (StrLength(ri->linkTitle)>0)?ChrPtr(ri->linkTitle):ChrPtr(ri->link),
-			 ChrPtr(ri->reLink),
-			 (StrLength(ri->reLinkTitle)>0)?ChrPtr(ri->reLinkTitle):"Reply to this"
-		);
+			 "<html><body>\n"));
+
+		StrBufAppendBuf(Message, ri->description, 0);
+		StrBufAppendBufPlain(Message, HKEY("<br><br>\n"), 0);
+
+		AppendLink(Message, ri->link, ri->linkTitle, NULL);
+		AppendLink(Message, ri->reLink, ri->reLinkTitle, "Reply to this");
+		StrBufAppendBufPlain(Message, HKEY("</body></html>\n"), 0);
+
+		msg->cm_fields['M'] = SmashStrBuf(&Message);
 
 		CtdlSubmitMsg(msg, recp, NULL, 0);
 		CtdlFreeMessage(msg);
