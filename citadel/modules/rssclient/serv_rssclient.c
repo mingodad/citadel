@@ -409,14 +409,21 @@ void rss_save_item(rss_item *ri)
 			StrBuf *EmailAddress;
 			StrBuf *EncBuf;
 			int FromAt;
+			int FromLen;
 			
 			UserName = NewStrBuf();
 			EmailAddress = NewStrBuf();
 			EncBuf = NewStrBuf();
 ////TODO!
+			StrBufTrim(ri->author_or_creator);
 			From = html_to_ascii(ChrPtr(ri->author_or_creator),
 					     StrLength(ri->author_or_creator), 
 					     512, 0);
+			FromLen = strlen(From);
+			if (From[FromLen - 1] == '\n')
+			{
+				From[FromLen - 1] = '\0';
+			}
 			FromAt = strchr(From, '@') != NULL;
 			if (!FromAt && StrLength (ri->author_email) > 0)
 			{
@@ -473,7 +480,13 @@ void rss_save_item(rss_item *ri)
 			StrBufSpaceToBlank(ri->title);
 			len = StrLength(ri->title);
 			Sbj = html_to_ascii(ChrPtr(ri->title), len, 512, 0);
-			Encoded = NewStrBufPlain(Sbj, -1);
+			len = strlen(Sbj);
+			if (Sbj[len - 1] == '\n')
+			{
+				len --;
+				Sbj[len] = '\0';
+			}
+			Encoded = NewStrBufPlain(Sbj, len);
 			free(Sbj);
 
 			StrBufTrim(Encoded);
