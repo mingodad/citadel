@@ -856,9 +856,19 @@ void RSSATOM_item_title_end (StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const 
 
 void ATOM_item_content_end (StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
 {
-	if (StrLength(CData) > 0) {
-		NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
-		StrBufTrim(ri->description);
+	long olen = StrLength (ri->description);
+	long clen = StrLength (CData);
+	if (clen > 0) 
+	{
+		if (olen == 0) {
+			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			StrBufTrim(ri->description);
+		}
+		else if (olen < clen) {
+			FlushStrBuf(ri->description);
+			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			StrBufTrim(ri->description);
+		}
 	}
 }
 void ATOM_item_summary_end (StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
@@ -873,8 +883,19 @@ void ATOM_item_summary_end (StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const c
 
 void RSS_item_description_end (StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
 {
-	if (StrLength(CData) > 0) {
-		NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+	long olen = StrLength (ri->description);
+	long clen = StrLength (CData);
+	if (clen > 0) 
+	{
+		if (olen == 0) {
+			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			StrBufTrim(ri->description);
+		}
+		else if (olen < clen) {
+			FlushStrBuf(ri->description);
+			NewStrBufDupAppendFlush(&ri->description, CData, NULL, 0);
+			StrBufTrim(ri->description);
+		}
 	}
 }
 
@@ -1310,7 +1331,7 @@ CTDL_MODULE_INIT(rssclient)
 	AddRSSEndHandler(RSS_item_link_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("link"));
 	AddRSSEndHandler(RSSATOM_item_title_end,   RSS_ATOM|RSS_RSS|RSS_REQUIRE_BUF, HKEY("title"));
 	AddRSSEndHandler(ATOM_item_content_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("content"));
-	AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_REQUIRE_BUF, HKEY("encoded"));
+	AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_ATOM|RSS_REQUIRE_BUF, HKEY("encoded"));
 	AddRSSEndHandler(ATOM_item_summary_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("summary"));
 	AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_REQUIRE_BUF, HKEY("description"));
 	AddRSSEndHandler(ATOM_item_published_end,  RSS_ATOM|RSS_REQUIRE_BUF, HKEY("published"));
