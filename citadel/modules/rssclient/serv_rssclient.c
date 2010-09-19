@@ -431,7 +431,7 @@ void rss_save_item(rss_item *ri)
 				if (!IsEmptyStr(From))
 				{
 					StrBufPrintf(Encoded,
-						     "\"%s\" <%s>", 
+						     "%s<%s>", 
 						     From, 
 						     ChrPtr(ri->author_email));
 				}
@@ -450,7 +450,7 @@ void rss_save_item(rss_item *ri)
 				{
 					Encoded = NewStrBuf();
 					StrBufPrintf(Encoded,
-						     "\"%s\" <%s>", 
+						     "%s<%s>", 
 						     From, 
 						     "rss@localhost"); /// TODO: get hostname?
 				}
@@ -856,6 +856,13 @@ void RSS_item_link_end (StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char*
 	if (StrLength(CData) > 0) {
 		NewStrBufDupAppendFlush(&ri->link, CData, NULL, 0);
 		StrBufTrim(ri->link);
+	}
+}
+void RSS_item_relink_end(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
+{
+	if (StrLength(CData) > 0) {
+		NewStrBufDupAppendFlush(&ri->reLink, CData, NULL, 0);
+		StrBufTrim(ri->reLink);
 	}
 }
 
@@ -1342,6 +1349,12 @@ CTDL_MODULE_INIT(rssclient)
 	AddRSSEndHandler(RSS_item_guid_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("guid"));
 	AddRSSEndHandler(ATOM_item_id_end,         RSS_ATOM|RSS_REQUIRE_BUF, HKEY("id"));
 	AddRSSEndHandler(RSS_item_link_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("link"));
+#if 0 
+// hm, rss to the comments of that blog, might be interesting in future, but... 
+	AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("commentrss"));
+// comment count...
+	AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("comments"));
+#endif
 	AddRSSEndHandler(RSSATOM_item_title_end,   RSS_ATOM|RSS_RSS|RSS_REQUIRE_BUF, HKEY("title"));
 	AddRSSEndHandler(ATOM_item_content_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("content"));
 	AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_ATOM|RSS_REQUIRE_BUF, HKEY("encoded"));
