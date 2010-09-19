@@ -16,7 +16,7 @@ CFLAGS = -Wall -g
 
 EXTRA_ARGS=
 PROFILE_ARGS=
-#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff"
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss"
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
 endif
@@ -35,6 +35,10 @@ else
 	THREAD_ARGS=
 endif
 
+
+ifneq (,$(findstring rss,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -D DEBUG_RSS
+endif
 
 ifneq (,$(findstring iodbg,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -D BIGBAD_IODBG
