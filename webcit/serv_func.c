@@ -200,7 +200,11 @@ int GetConnected (void)
 			return 1;
 		}
 
-		/* 2010jun03: every now and then the connection to Citadel dies before this point.  why? */
+		/* 2010jun03: every now and then the connection to Citadel dies before this point.  why?
+		 * 2010sep20: we now believe that this is a citserver issue; whenever it happens, it
+		 *            seems that the SMTP Send thread has just completed running.  Is serv_smtp
+		 *            somehow closing client sockets?
+		 */
 
 		/*
 		 * From what host is our user connecting?  Go with
