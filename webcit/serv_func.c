@@ -183,6 +183,8 @@ int GetConnected (void)
 		/* Server isn't ready for us? */
 		if (short_status != 2) {
 			if (Status == 571) {
+				hprintf("HTTP/1.1 503 Service Unavailable\r\n");
+				hprintf("Content-type: text/plain; charset=utf-8\r\n");
 				wc_printf(_("This server is already serving its maximum number of users and cannot accept any additional logins at this time.  Please try again later or contact your system administrator."));
 			}
 			else {
@@ -190,6 +192,8 @@ int GetConnected (void)
 					Status,
 					_("Received unexpected answer from Citadel server; bailing out.")
 				);
+				hprintf("HTTP/1.1 502 Bad Gateway\r\n");
+				hprintf("Content-type: text/plain; charset=utf-8\r\n");
 			}
 			end_burst();
 			end_webcit_session();
@@ -218,7 +222,7 @@ int GetConnected (void)
 		if (WCC->serv_info == NULL){
 			begin_burst();
 			wc_printf(_("Received unexpected answer from Citadel server; bailing out."));
-			hprintf("HTTP/1.1 200 OK\r\n");
+			hprintf("HTTP/1.1 502 Bad Gateway\r\n");
 			hprintf("Content-type: text/plain; charset=utf-8\r\n");
 			end_burst();
 			end_webcit_session();
