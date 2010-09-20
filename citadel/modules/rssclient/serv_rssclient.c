@@ -1265,7 +1265,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 /*
  * Scan for rooms that have RSS client requests configured
  */
-void *rssclient_scan(void *args) {
+void rssclient_scan(void *args) {
 	static time_t last_run = 0L;
 	static int doing_rssclient = 0;
 	rssnetcfg *rptr = NULL;
@@ -1298,10 +1298,6 @@ void *rssclient_scan(void *args) {
 	CtdlLogPrintf(CTDL_DEBUG, "rssclient ended\n");
 	last_run = time(NULL);
 	doing_rssclient = 0;
-	if (!CtdlThreadCheckStop())
-		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, last_run + config.c_net_freq);
-	else
-		CtdlLogPrintf(CTDL_DEBUG, "rssclient: Task STOPPED.\n");
 	CtdlClearSystemContext();
 	return NULL;
 }
@@ -1312,7 +1308,7 @@ CTDL_MODULE_INIT(rssclient)
 	if (threading)
 	{
 		CtdlLogPrintf(CTDL_INFO, "%s\n", curl_version());
-		CtdlThreadSchedule ("RSS Client", CTDLTHREAD_BIGSTACK, rssclient_scan, NULL, 0);
+		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
 	}
 
 	StartHandlers = NewHash(1, NULL);
