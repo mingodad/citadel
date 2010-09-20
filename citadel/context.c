@@ -385,6 +385,7 @@ CitContext *CreateNewContext(void) {
 	me->cs_pid = ++next_pid;
 	me->prev = NULL;
 	me->next = ContextList;
+	me->lastcmd = time(NULL);	/* set lastcmd to now to prevent idle timer infanticide */
 	ContextList = me;
 	if (me->next != NULL) {
 		me->next->prev = me;
