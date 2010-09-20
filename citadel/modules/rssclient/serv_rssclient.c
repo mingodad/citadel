@@ -1269,11 +1269,6 @@ void rssclient_scan(void *args) {
 	static time_t last_run = 0L;
 	static int doing_rssclient = 0;
 	rssnetcfg *rptr = NULL;
-	CitContext rssclientCC;
-
-	/* Give this thread its own private CitContext */
-	CtdlFillSystemContext(&rssclientCC, "rssclient");
-	citthread_setspecific(MyConKey, (void *)&rssclientCC );
 
 	/*
 	 * This is a simple concurrency check to make sure only one rssclient run
@@ -1298,7 +1293,6 @@ void rssclient_scan(void *args) {
 	CtdlLogPrintf(CTDL_DEBUG, "rssclient ended\n");
 	last_run = time(NULL);
 	doing_rssclient = 0;
-	CtdlClearSystemContext();
 	return NULL;
 }
 
