@@ -136,11 +136,11 @@ StrBuf** GetNotifyHosts(void)
 }
 
 
-/*! \brief Create the notify message queue. We use the exact same room
- *			as the Funambol module.
+/* Create the notify message queue. We use the exact same room
+ * as the Funambol module.
  *
- *	Run at server startup, creates FNBL_QUEUE_ROOM if it doesn't exist
- *	and sets as system room.
+ * Run at server startup, creates FNBL_QUEUE_ROOM if it doesn't exist
+ * and sets as system room.
  */
 void create_extnotify_queue(void) {
 	struct ctdlroom qrbuf;
@@ -165,7 +165,6 @@ void do_extnotify_queue(void)
 	NotifyContext Ctx;
 	static int doing_queue = 0;
 	int i = 0;
-	CitContext extnotifyCC;
     
 	/*
 	 * This is a simple concurrency check to make sure only one queue run
@@ -176,10 +175,6 @@ void do_extnotify_queue(void)
 	if (doing_queue) return;
 	doing_queue = 1;
 
-	/* Give this thread its own private CitContext */
-	CtdlFillSystemContext(&extnotifyCC, "extnotify");
-	citthread_setspecific(MyConKey, (void *)&extnotifyCC );
-    
 	/*
 	 * Go ahead and run the queue
 	 */
@@ -220,10 +215,10 @@ void do_extnotify_queue(void)
 
 	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
 	doing_queue = 0;
-	CtdlClearSystemContext();
 }
-/*!
- * \brief Process messages in the external notification queue
+
+/*
+ * Process messages in the external notification queue
  */
 void process_notify(long NotifyMsgnum, void *usrdata) 
 {
