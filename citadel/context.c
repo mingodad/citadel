@@ -437,6 +437,7 @@ void CtdlFillSystemContext(CitContext *context, char *name)
 	strcat (sysname, name);
 	len = cutuserkey(sysname);
 	memcpy(context->curr_user, sysname, len + 1);
+	context->client_socket = (-1);
 
 	/* internal_create_user has the side effect of loading the user regardless of wether they
 	 * already existed or needed to be created

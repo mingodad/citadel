@@ -2214,15 +2214,10 @@ void create_spool_dirs(void) {
  * 
  * Run through the rooms doing various types of network stuff.
  */
-void *network_do_queue(void *args) {
+void network_do_queue(void) {
 	static time_t last_run = 0L;
 	struct RoomProcList *ptr;
 	int full_processing = 1;
-	struct CitContext networkerCC;
-
-	/* Give the networker its own private CitContext */
-	CtdlFillSystemContext(&networkerCC, "network");
-	citthread_setspecific(MyConKey, (void *)&networkerCC );
 
 	/*
 	 * Run the full set of processing tasks no more frequently
@@ -2242,8 +2237,7 @@ void *network_do_queue(void *args) {
 	 * with a static variable instead.
 	 */
 	if (doing_queue) {
-		CtdlClearSystemContext();
-		return NULL;
+		return;
 	}
 	doing_queue = 1;
 
@@ -2318,20 +2312,6 @@ void *network_do_queue(void *args) {
 	}
 
 	doing_queue = 0;
-
-	/* Reschedule this task to happen again periodically, unless the thread system indicates
-	 * that the server is shutting down.
-	 */
-	if (!CtdlThreadCheckStop()) {
-		CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK,
-			network_do_queue, NULL, time(NULL) + 60
-		);
-	}
-	else {
-		CtdlLogPrintf(CTDL_DEBUG, "network: Task STOPPED.\n");
-	}
-	CtdlClearSystemContext();
-	return NULL;
 }
 
 
@@ -2400,6 +2380,24 @@ int network_room_handler (struct ctdlroom *room)
 	return 0;
 }
 
+void *ignet_thread(void *arg) {
+	struct CitContext ignet_thread_CC;
+
+	CtdlLogPrintf(CTDL_DEBUG, "ignet_thread() initializing\n");
+	CtdlFillSystemContext(&ignet_thread_CC, "IGnet Queue");
+	citthread_setspecific(MyConKey, (void *)&ignet_thread_CC);
+
+	while (!CtdlThreadCheckStop()) {
+		network_do_queue();
+		CtdlThreadSleep(60);
+	}
+
+	CtdlClearSystemContext();
+	return(NULL);
+}
+
+
+
 
 /*
  * Module entry point
@@ -2413,11 +2411,9 @@ CTDL_MODULE_INIT(network)
 		CtdlRegisterProtoHook(cmd_snet, "SNET", "Set network config");
 		CtdlRegisterProtoHook(cmd_netp, "NETP", "Identify as network poller");
 		CtdlRegisterProtoHook(cmd_nsyn, "NSYN", "Synchronize room to node");
-	        CtdlRegisterRoomHook(network_room_handler);
+		CtdlRegisterRoomHook(network_room_handler);
 		CtdlRegisterCleanupHook(destroy_network_queue_room);
+		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, ignet_thread, NULL);
 	}
-	else
-		CtdlThreadSchedule("IGnet Network", CTDLTHREAD_BIGSTACK, network_do_queue, NULL, 0);
-	/* return our Subversion id for the Log */
 	return "network";
 }
