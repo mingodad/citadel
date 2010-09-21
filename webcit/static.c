@@ -271,6 +271,31 @@ void output_static_3(void)
 	output_static_safe(StaticFilemappings[3]);
 }
 
+
+/*
+ * robots.txt
+ */
+void robots_txt(void) {
+	output_headers(0, 0, 0, 0, 0, 0);
+
+	hprintf("Content-type: text/plain\r\n"
+		"Server: %s\r\n"
+		"Connection: close\r\n",
+		PACKAGE_STRING);
+	begin_burst();
+
+	wc_printf("User-agent: *\r\n"
+		"Disallow:\r\n"
+		"Sitemap: %s/sitemap.xml\r\n"
+		"\r\n"
+		,
+		ChrPtr(site_prefix)
+	);
+
+	wDumpContent(0);
+}
+
+
 void 
 ServerStartModule_STATIC
 (void)
@@ -300,7 +325,7 @@ InitModule_STATIC
 	LoadStaticDir(static_dirs[2], StaticFilemappings[2], "");
 	LoadStaticDir(static_dirs[3], StaticFilemappings[3], "");
 
-	WebcitAddUrlHandler(HKEY("robots.txt"), "", 0, output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
+	WebcitAddUrlHandler(HKEY("robots.txt"), "", 0, robots_txt, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("favicon.ico"), "", 0, output_flat_static, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("static"), "", 0, output_static_0, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("static.local"), "", 0, output_static_1, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC|LOGCHATTY);
