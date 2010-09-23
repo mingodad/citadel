@@ -56,6 +56,19 @@
 #include "md5.h"
 #include "context.h"
 
+
+
+const char *LinkShortenerServices[] = {
+"http://bit.ly/",
+"http://krz.ch/",
+"http://flic.kr/",
+"http://sns.ly/",
+"http://wp.me/",
+"http://ow.ly/",
+"http://tinyurl.com/",
+NULL
+};
+
 typedef struct rssnetcfg rssnetcfg;
 struct rssnetcfg {
 	rssnetcfg *next;
@@ -131,7 +144,7 @@ void AddRSSEndHandler(rss_handler_func Handler, int Flags, const char *key, long
 	Put(EndHandlers, key, len, h, NULL);
 }
 
-///#if 0
+#if 0
 //#ifdef HAVE_ICONV
 #include <iconv.h>
 
@@ -169,10 +182,10 @@ fill_encoding_info (const char *charset, XML_Encoding * info)
     } 
  
   { 
-    unsigned short out; 
+    unsigned short out = 0; 
     unsigned char buf[4]; 
     unsigned int i0, i1, i2; 
-    int result; 
+    int result = 0; 
     flag = 0; 
     for (i0 = 0; i0 < 0x100; i0++) 
       { 
@@ -303,7 +316,213 @@ handle_unknown_xml_encoding (void *encodingHandleData,
 } 
 
 ///#endif
-//#endif
+#endif
+size_t GetLocationString( void *ptr, size_t size, size_t nmemb, void *userdata)
+{
+#define LOCATION "location"
+	if (strncasecmp((char*)ptr, LOCATION, sizeof(LOCATION) - 1) == 0)
+	{
+		StrBuf *pURL = (StrBuf*) userdata;
+		char *pch = (char*) ptr;
+		char *pche;
+		
+		pche = pch + (size * nmemb);
+		pch += sizeof(LOCATION);
+		
+		while (isspace(*pch) || (*pch == ':'))
+			pch ++;
+
+		while (isspace(*pche) || (*pche == '\0'))
+			pche--;
+		
+		FlushStrBuf(pURL);
+		StrBufPlain(pURL, pch, pche - pch + 1);	
+	}
+	return size * nmemb;
+}
+
+int LookupUrl(StrBuf *ShorterUrlStr)
+{
+	CURL *curl;
+	char errmsg[1024] = "";
+	StrBuf *Answer;
+	int rc;
+
+	curl = curl_easy_init();
+	if (!curl) {
+		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		return 0;
+	}
+	Answer = NewStrBufPlain(NULL, SIZ);
+
+	curl_easy_setopt(curl, CURLOPT_URL, ChrPtr(ShorterUrlStr));
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, Answer);
+//	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, rss_libcurl_callback);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlFillStrBuf_callback);
+	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errmsg);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+#ifdef CURLOPT_HTTP_CONTENT_DECODING
+	curl_easy_setopt(curl, CURLOPT_HTTP_CONTENT_DECODING, 1);
+	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
+#endif
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, CITADEL);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 180);		/* die after 180 seconds */
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 0);
+
+	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION , GetLocationString);
+	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, ShorterUrlStr);
+
+
+	if (
+		(!IsEmptyStr(config.c_ip_addr))
+		&& (strcmp(config.c_ip_addr, "*"))
+		&& (strcmp(config.c_ip_addr, "::"))
+		&& (strcmp(config.c_ip_addr, "0.0.0.0"))
+	) {
+		curl_easy_setopt(curl, CURLOPT_INTERFACE, config.c_ip_addr);
+	}
+
+	if (CtdlThreadCheckStop())
+		goto shutdown ;
+
+	rc = curl_easy_perform(curl);
+	if (rc) {
+		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", rc, errmsg);
+		rc = 0;
+	}
+	else 
+		rc = 1;
+
+shutdown:
+	curl_easy_cleanup(curl);
+
+       	return rc;
+
+}
+
+
+
+void CrawlMessageForShorterUrls(HashList *pUrls, StrBuf *Message)
+{
+	int nHits = 0;
+	const char *pShortenerService;
+	int nShorter = 0;
+	const char *pch;
+	const char *pUrl;
+	ConstStr *pCUrl;
+
+	pShortenerService = LinkShortenerServices[nShorter++];
+	while (pShortenerService != NULL)
+	{
+		pch = ChrPtr(Message);
+		pUrl = strstr(pch, pShortenerService);
+		while ((pUrl != NULL) && (nHits < 99))
+		{
+			pCUrl = malloc(sizeof(ConstStr));
+
+			pCUrl->Key = pUrl;
+			pch = pUrl + strlen(pShortenerService);
+			while (isalnum(*pch))
+				pch++;
+			pCUrl->len = pch - pCUrl->Key;
+
+			Put(pUrls, IKEY(nHits), pCUrl, NULL);
+			nHits ++;
+			pUrl = strstr(pch, pShortenerService);
+		}
+		pShortenerService = LinkShortenerServices[nShorter++];
+	}
+}
+
+int SortConstStrByPosition(const void *Item1, const void *Item2)
+{
+	const ConstStr *p1, *p2;
+	p1 = (const ConstStr*) Item1;
+	p2 = (const ConstStr*) Item2;
+	if (p1->Key == p2->Key)
+		return 0;
+	if (p1->Key > p2->Key)
+		return 1;
+	return -1;
+}
+
+void ExpandShortUrls(StrBuf *Message)
+{
+	StrBuf *Shadow;
+	HashList *pUrls;
+	ConstStr *pCUrl;
+	const char *pch;
+	const char *pche;
+
+	/* we just suspect URL shorteners to be inside of feeds from twitter
+	 * or other short content messages, so don't crawl through real blogs.
+	 */
+	if (StrLength(Message) > 500)
+		return;
+
+	pUrls = NewHash(1, Flathash);
+	CrawlMessageForShorterUrls(pUrls, Message);
+
+	if (GetCount(pUrls) > 0)
+	{
+		StrBuf *ShorterUrlStr;
+		HashPos *Pos;
+		const char *Key;
+		void *pv;
+		long len;
+
+		Shadow = NewStrBufPlain(NULL, StrLength(Message));
+		SortByPayload (pUrls, SortConstStrByPosition);
+
+		ShorterUrlStr = NewStrBufPlain(NULL, StrLength(Message));
+
+		pch = ChrPtr(Message);
+		pche = pch + StrLength(Message);
+		Pos = GetNewHashPos(pUrls, 1);
+		while (GetNextHashPos(pUrls, Pos, &len, &Key, &pv))
+		{
+			pCUrl = (ConstStr*) pv;
+
+			if (pch != pCUrl->Key)
+				StrBufAppendBufPlain(Shadow, pch, pCUrl->Key - pch, 0);
+			
+			StrBufPlain(ShorterUrlStr, CKEY(*pCUrl));
+			if (LookupUrl(ShorterUrlStr))
+			{
+				StrBufAppendBufPlain(Shadow, HKEY("<a href=\""), 0);
+				StrBufAppendBuf(Shadow, ShorterUrlStr, 0);
+				StrBufAppendBufPlain(Shadow, HKEY("\">"), 0);
+				StrBufAppendBuf(Shadow, ShorterUrlStr, 0);
+				StrBufAppendBufPlain(Shadow, HKEY("["), 0);
+				StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
+				StrBufAppendBufPlain(Shadow, HKEY("]</a>"), 0);
+			}
+			else
+			{
+				StrBufAppendBufPlain(Shadow, HKEY("<a href=\""), 0);
+				StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
+				StrBufAppendBufPlain(Shadow, HKEY("\">"), 0);
+				StrBufAppendBufPlain(Shadow, pCUrl->Key, pCUrl->len, 0);
+				StrBufAppendBufPlain(Shadow, HKEY("</a>"), 0);
+			}
+			pch = pCUrl->Key + pCUrl->len + 1;
+
+		}
+		if (pch < pche)
+			StrBufAppendBufPlain(Shadow, pch, pche - pch, 0);
+		FlushStrBuf(Message);
+		StrBufAppendBuf(Message, Shadow, 0);
+
+		FreeStrBuf(&ShorterUrlStr);
+		FreeStrBuf(&Shadow);
+		DeleteHashPos(&Pos);
+	}
+
+	DeleteHash(&pUrls);
+}
+
 
 void AppendLink(StrBuf *Message, StrBuf *link, StrBuf *LinkTitle, const char *Title)
 {
@@ -504,6 +723,7 @@ void rss_save_item(rss_item *ri)
 		}
 		if (ri->link == NULL) 
 			ri->link = NewStrBufPlain(HKEY(""));
+		ExpandShortUrls(ri->description);
 		msglen += 1024 + StrLength(ri->link) + StrLength(ri->description) ;
 
 		Message = NewStrBufPlain(NULL, StrLength(ri->description));
