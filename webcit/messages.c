@@ -40,7 +40,6 @@ int load_message(message_summary *Msg,
 	int state=0;
 	
 	Buf = NewStrBuf();
-	lprintf(9, "MSG4 %ld|%s\n", Msg->msgnum, ChrPtr(Msg->PartNum));
 	if (Msg->PartNum != NULL) {
 		serv_printf("MSG4 %ld|%s", Msg->msgnum, ChrPtr(Msg->PartNum));
 	}

@@ -1042,68 +1042,6 @@ CtdlThreadNode *CtdlThreadCreate(char *name, long flags, void *(*thread_func) (v
 
 
 
-/*
- * Internal function to schedule a thread.
- * Must be called from within a S_THREAD_LIST critical section
- */ 
-CtdlThreadNode *CtdlThreadSchedule(char *name, long flags, void *(*thread_func) (void *arg), void *args, time_t when)
-{
-	CtdlThreadNode *this_thread;
-
-	if (num_threads >= 32767)
-	{
-		CtdlLogPrintf(CTDL_EMERG, "Thread system. Thread list full.\n");
-		return NULL;
-	}
-		
-	this_thread = malloc(sizeof(CtdlThreadNode));
-	if (this_thread == NULL) {
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
-		return NULL;
-	}
-	/* Initialise the thread structure */
-	if (ctdl_internal_init_thread_struct(this_thread, flags) == NULL)
-	{
-		free(this_thread);
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't initialise CtdlThreadNode, exiting\n");
-		return NULL;
-	}
-
-	/*
-	 * If we got here we are going to create the thread so we must initilise the structure
-	 * first because most implimentations of threading can't create it in a stopped state
-	 * and it might want to do things with its structure that aren't initialised otherwise.
-	 */
-	if(name)
-	{
-		this_thread->name = name;
-	}
-	else
-	{
-		this_thread->name = "Un-named Thread";
-	}
-	
-	this_thread->flags = flags;
-	this_thread->thread_func = thread_func;
-	this_thread->user_args = args;
-	
-	/*
-	 * When to start this thread
-	 */
-	this_thread->when = when;
-
-	begin_critical_section(S_SCHEDULE_LIST);
-	this_thread->next = CtdlThreadSchedList;
-	CtdlThreadSchedList = this_thread;
-	if (this_thread->next)
-		this_thread->next->prev = this_thread;
-	end_critical_section(S_SCHEDULE_LIST);
-	
-	return this_thread;
-}
-
-
-
 CtdlThreadNode *ctdl_thread_internal_start_scheduled (CtdlThreadNode *this_thread)
 {
 	int ret = 0;
