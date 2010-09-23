@@ -88,6 +88,9 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 }
 
 
+/*
+ * People expect blogs to be sorted newest-to-oldest
+ */
 int blogview_sortfunc(const void *s1, const void *s2) {
 	long l1;
 	long l2;
@@ -95,19 +98,18 @@ int blogview_sortfunc(const void *s1, const void *s2) {
 	l1 = *(long *)(s1);
 	l2 = *(long *)(s2);
 
-	if (l1 > l2) return(+1);
-	if (l1 < l2) return(-1);
+	if (l1 > l2) return(-1);
+	if (l1 < l2) return(+1);
 	return(0);
 }
 
 
-int blogview_RenderView_or_Tail(SharedMessageStatus *Stat, 
+int blogview_render(SharedMessageStatus *Stat, 
 			       void **ViewSpecific, 
 			       long oper)
 {
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
 	int i;
-	const StrBuf *Mime;
 
 	wc_printf("<div class=\"fix_scrollbar_bug\">");
 
@@ -118,7 +120,19 @@ int blogview_RenderView_or_Tail(SharedMessageStatus *Stat,
 
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i] > 0L) {
-			read_message(WC->WBuf, HKEY("view_message"), BLOG->msgs[i], NULL, &Mime);
+			wc_printf("<p>Message %d %ld</p>\n", i, BLOG->msgs[i]);
+
+			/* maybe put some of this into its own function later */
+			StrBuf *Buf;
+			Buf = NewStrBuf();
+			serv_printf("MSG0 %ld|1", BLOG->msgs[i]);	/* top level citadel headers only */
+			StrBuf_ServGetln(Buf);
+			if (GetServerStatus(Buf, NULL) == 1) {
+				while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+					wc_printf("%s<br>\n", ChrPtr(Buf));
+				}
+			}
+			FreeStrBuf(&Buf);
 		}
 	}
 
@@ -151,7 +165,7 @@ InitModule_BLOGVIEWRENDERERS
 		NULL,
 		NULL, 
 		blogview_LoadMsgFromServer,
-		blogview_RenderView_or_Tail,
+		blogview_render,
 		blogview_Cleanup
 	);
 }
