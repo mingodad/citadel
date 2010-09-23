@@ -201,7 +201,7 @@ void display_smtpqueue_inner_div(void) {
 			wc_printf(_("Recipients"));
 			wc_printf("</i></b></td></tr>\n");
 
-			for (i=0; i<num_msgs; ++i) {
+			for (i=0; (i < num_msgs) && (i < Stat.maxload); ++i) {
 				Msg = GetMessagePtrAt(i, WCC->summ);
 				if (Msg != NULL) {
 					display_queue_msg(Msg->msgnum);
