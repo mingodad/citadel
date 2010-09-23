@@ -811,7 +811,7 @@ int GetHashAt(HashList *Hash,long At, long *HKLen, const char **HashKey, void **
 
 	if ((Hash == NULL) || 
 	    (At < 0) || 
-	    (At > Hash->nLookupTableItems))
+	    (At >= Hash->nLookupTableItems))
 		return 0;
 	*HKLen = Hash->LookupTable[At]->HKLen;
 	*HashKey = Hash->LookupTable[At]->HashKey;
