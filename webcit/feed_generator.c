@@ -1,5 +1,5 @@
 /*
- * RSS/Atom feed generator
+ * RSS feed generator (could be adapted in the future to feed both RSS and Atom)
  *
  * Copyright (c) 2010 by the citadel.org team
  *
