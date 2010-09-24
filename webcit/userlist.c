@@ -50,8 +50,7 @@ void userlist(void)
 		goto DONE;
 	}
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"userlist_background\"><tr><td>\n");
+	wc_printf("<table class=\"userlist_background\"><tr><td>\n");
 	wc_printf("<tr><th>%s</th><th>%s</th><th>%s</th>"
 			"<th>%s</th><th>%s</th><th>%s</th></tr>",
 			_("User Name"),
@@ -96,7 +95,7 @@ void userlist(void)
 			extract_long(buf, 4), extract_long(buf, 5));
 
 	}
-	wc_printf("</table></div>\n");
+	wc_printf("</table>\n");
 DONE:	wDumpContent(1);
 }
 
@@ -122,8 +121,7 @@ void showuser(void)
 
         wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"userlist_background\"><tr><td>\n");
+	wc_printf("<table class=\"userlist_background\"><tr><td>\n");
 
 	serv_printf("OIMG _userpic_|%s", who);
 	serv_getln(buf, sizeof buf);
@@ -158,7 +156,7 @@ void showuser(void)
 	escputs(buf);
 	wc_printf("</a>\n");
 
-	wc_printf("</td></tr></table></div>\n");
+	wc_printf("</td></tr></table>\n");
 	wDumpContent(1);
 }
 
