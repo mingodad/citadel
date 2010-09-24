@@ -497,11 +497,6 @@ body {
 
 #preview_pane { overflow: auto }
 
-.fix_scrollbar_bug {
-	margin-right: 1px;		/* Gecko and other non-broken browsers */
-	font-size: 90%;			/* Most stuff needs to be a little smaller than normal. */
-}
-
 .ctdlTemplate { display: none }
 
 #ctdlContextMenu {

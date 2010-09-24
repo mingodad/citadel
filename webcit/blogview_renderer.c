@@ -111,8 +111,6 @@ int blogview_render(SharedMessageStatus *Stat,
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
 	int i;
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">");
-
 	if (Stat->nummsgs > 0) {
 		lprintf(9, "sorting %d messages\n", BLOG->num_msgs);
 		qsort(BLOG->msgs, (size_t)(BLOG->num_msgs), sizeof(long), blogview_sortfunc);
@@ -136,7 +134,6 @@ int blogview_render(SharedMessageStatus *Stat,
 		}
 	}
 
-	wc_printf("</div>\n");
 	return(0);
 }
 
