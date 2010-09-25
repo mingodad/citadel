@@ -160,7 +160,9 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 		StrBuf *author = NewStrBuf();
 		StrBuf *node = NewStrBuf();
 
-		wc_printf("<table class=\"wiki_history_background\">");
+		wc_printf("<div class=\"fix_scrollbar_bug\">"
+			"<table class=\"wiki_history_background\">"
+		);
 
 		wc_printf("<th>%s</th>", _("Date"));
 		wc_printf("<th>%s</th>", _("Author"));
@@ -280,7 +282,10 @@ void tmplput_display_wiki_pagelist(StrBuf *Target, WCTemplputParams *TP)
 	if (GetServerStatus(Buf, NULL) == 1) {
 		StrBuf *pagetitle = NewStrBuf();
 
-		wc_printf("<table class=\"wiki_pagelist_background\">");
+		wc_printf("<div class=\"fix_scrollbar_bug\">"
+			"<table class=\"wiki_pagelist_background\">"
+		);
+
 		wc_printf("<th>%s</th>", _("Page title"));
 
 		while(StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {

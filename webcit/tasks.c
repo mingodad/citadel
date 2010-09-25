@@ -89,7 +89,9 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 	icalproperty *p;
 	wcsession *WCC = WC;
 
-	wc_printf("<table class=\"calendar_view_background\"><tbody id=\"taskview\">\n<tr>\n<th>");
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
+		"<table class=\"calendar_view_background\"><tbody id=\"taskview\">\n<tr>\n"
+		"<th>");
 	wc_printf(_("Completed?"));
 	wc_printf("</th><th>");
 	wc_printf(_("Name of task"));
@@ -161,7 +163,7 @@ int tasks_RenderView_or_Tail(SharedMessageStatus *Stat,
 		wc_printf("</tr>");
 	}
 
-	wc_printf("</tbody></table>\n");
+	wc_printf("</tbody></table></div>\n");
 
 	/* Free the list */
 	DeleteHash(&WC->disp_cal_items);
