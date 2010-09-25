@@ -13,8 +13,6 @@ void display_openids(void)
 
 	output_headers(1, 1, 1, 0, 0, 0);
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">");
-
 	do_template("beginbox_1", NULL);
 	StrBufAppendBufPlain(WCC->WBuf, _("Manage Account/OpenID Associations"), -1, 0);
 	do_template("beginbox_2", NULL);
@@ -54,7 +52,6 @@ void display_openids(void)
 	}
 
 	do_template("endbox", NULL);
-	wc_printf("</div>");
 	wDumpContent(2);
 }
 

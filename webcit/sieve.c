@@ -21,14 +21,13 @@ void display_no_sieve(void) {
 
 	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"sieve_background\">"
+	wc_printf("<table class=\"sieve_background\">"
 		"<tr><td valign=top>\n");
 
 	wc_printf(_("This installation of Citadel was built without support for server-side mail filtering."
 		"<br>Please contact your system administrator if you require this feature.<br>"));
 
-	wc_printf("</td></tr></table></div>\n");
+	wc_printf("</td></tr></table>\n");
 	wDumpContent(1);
 }
 
@@ -106,8 +105,7 @@ void display_sieve(void)
 
 	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"sieve_background\">"
+	wc_printf("<table class=\"sieve_background\">"
 		"<tr><td valign=top>\n");
 
 
@@ -205,7 +203,7 @@ void display_sieve(void)
 	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\">\n", _("Cancel"));
 	wc_printf("</div></form>\n");
 
-	wc_printf("</td></tr></table></div>\n");
+	wc_printf("</td></tr></table>\n");
 
 	wc_printf("<script type=\"text/javascript\">	\n"
 		"ToggleSievePanels();			\n"
