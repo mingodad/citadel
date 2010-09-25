@@ -841,8 +841,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 		wc_printf("\">\n");
 	}
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"vcard_edit_background\"><tr><td>\n");
+	wc_printf("<table class=\"vcard_edit_background\"><tr><td>\n");
 
 	wc_printf("<table border=0><tr>"
 		"<td>%s</td>"
