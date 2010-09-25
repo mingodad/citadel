@@ -239,8 +239,7 @@ void display_smtpqueue(void)
 
 	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"smtpqueue_background\">"
+	wc_printf("<table class=\"smtpqueue_background\">"
 		"<tr><td valign=top>\n");
 
 	wc_printf("<div id=\"smtpqueue_inner_div\">"
@@ -249,7 +248,7 @@ void display_smtpqueue(void)
 		"<div align=\"center\">"
 		"<a href=\"javascript:RefreshSMTPqueueDisplay();\">%s</a>"
 		"</div>"
-		"</td></tr></table></div>\n", _("Refresh this page")
+		"</td></tr></table>\n", _("Refresh this page")
 	);
 
 	StrBufAppendPrintf(WC->trailing_javascript, "RefreshSMTPqueueDisplay();\n");
