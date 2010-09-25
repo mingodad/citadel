@@ -2,6 +2,7 @@
 <div id="banner">
 <h1><?_("Site configuration")></h1>
 </div>
+<div id="content" class="service fix_scrollbar_bug">
 <?!("COND:AIDE", 1)><?_("You need to be aide to view this.")><?!("X", 1)>
 <??("COND:AIDE", 2)>
 <table border="0" cellspacing="0" cellpadding="0" ><tr><td>
@@ -20,4 +21,5 @@
 </form>
 </td></tr></table>
 <??("X", 2)>
+</div>
 <?=("trailing")>

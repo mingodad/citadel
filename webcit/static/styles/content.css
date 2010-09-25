@@ -10,6 +10,11 @@
 	overflow-y: auto;                               
 }
 
+.fix_scrollbar_bug {
+	margin-right: 1px;              /* Gecko and other non-broken browsers */
+	font-size: 90%;                 /* Most stuff needs to be a little smaller than normal. */
+}
+
 .boxcontent table {
 	margin: 0;
 	padding: 0;

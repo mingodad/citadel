@@ -569,7 +569,8 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	/* Outer table (to get the background color) */
-	wc_printf("<table class=\"calendar\"> \n <tr><td>"); 
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
+		"<table class=\"calendar\"> \n <tr><td>"); 
 
 	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n");
 
@@ -661,8 +662,8 @@ void calendar_month_view(int year, int month, int day) {
 	}
 
 	wc_printf("</table>"			/* end of inner table */
-		"</td></tr></table>\n"		/* end of outer table */
-	);
+		"</td></tr></table>"		/* end of outer table */
+		"</div>\n");
 }
 
 /*
@@ -704,7 +705,8 @@ void calendar_brief_month_view(int year, int month, int day) {
 	}
 
 	/* Outer table (to get the background color) */
-	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
+		"<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
 		"bgcolor=#204B78><tr><td>\n");
 
 	wc_printf("<table width=\"100%%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n");
@@ -783,8 +785,8 @@ void calendar_brief_month_view(int year, int month, int day) {
 	}
 
 	wc_printf("</table>"			/* end of inner table */
-		"</td></tr></table>\n"		/* end of outer table */
-	);
+		"</td></tr></table>"		/* end of outer table */
+		"</div>\n");
 }
 
 /*
@@ -1161,6 +1163,8 @@ void calendar_day_view(int year, int month, int day) {
 	++tomorrow.day;
 	tomorrow = icaltime_normalize(tomorrow);
 
+	wc_printf("<div class=\"fix_scrollbar_bug\">");
+
 	/* Inner table (the real one) */
 	wc_printf("<table class=\"calendar\" id=\"inner_day\"><tr> \n");
 
@@ -1324,7 +1328,9 @@ void calendar_day_view(int year, int month, int day) {
 	embeddable_mini_calendar(year, month);
 
 	wc_printf("</td></tr>");			/* end stuff-on-the-right */
-	wc_printf("</table>\n");			/* end of inner table */
+
+	wc_printf("</table>"			/* end of inner table */
+		"</div>");
 }
 
 

@@ -171,6 +171,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 
 	wc_printf("<div id=\"content\" class=\"service\">\n");
 
+	wc_printf("<div class=\"fix_scrollbar_bug\">");
+
 	/************************************************************
 	 * Uncomment this to see the UID in calendar events for debugging
 	wc_printf("UID == ");
@@ -769,6 +771,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	);
 	end_tab(3, 3);
 	wc_printf("</form>\n");
+
+	wc_printf("</div>\n");			/* end 'fix_scrollbar_bug' div */
 
 	StrBufAppendPrintf(WC->trailing_javascript,
 		"eventEditAllDay();		\n"

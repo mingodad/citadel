@@ -7,6 +7,7 @@
 </h1>
 </div>
 <div id="content" class="service">
+<div class="fix_scrollbar_bug">
 <table class="downloads_background"><tr><td>
 <script type="text/javascript" language="JavaScript" > nvar fadeimages=new Array()
 <?ITERATE("ROOM:FILES", ="files_section_onefile_picview")>
@@ -16,4 +17,5 @@
 <script type="text/javascript" >
 new fadeshow(fadeimages, 500, 400, 0, 3000, 1, "R");
 </script></td><th>
+</div>
 <?=("trailing")>
