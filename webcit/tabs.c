@@ -82,13 +82,6 @@ void end_tab(int tabnum, int num_tabs) {
 	else {
 		wc_printf("</div>\n");
 		wc_printf("<!-- end tab %d of %d -->\n", tabnum, num_tabs);
-	
-		if (tabnum == num_tabs-1) {
-			wc_printf("<script type=\"text/javascript\">"
-				" Nifty(\"table#TheTabs td\", \"small transparent top\");"
-				"</script>"
-			);
-		}
 	}
 }
 
@@ -205,16 +198,8 @@ void StrEndTab(StrBuf *Target, int tabnum, int num_tabs) {
 		StrBufAppendPrintf(
 			Target, 
 			"</div>\n",
-			"<!-- end tab %d of %d -->\n", tabnum, num_tabs);
-	
-		if (tabnum == num_tabs-1) {
-			StrBufAppendBufPlain(
-				Target, 
-				HKEY(
-					"<script type=\"text/javascript\">"
-					" Nifty(\"table#TheTabs td\", \"small transparent top\");"
-					"</script>"), 0);
-		}
+			"<!-- end tab %d of %d -->\n", tabnum, num_tabs
+		);
 	}
 	if (HAVEBSTR("last_tabsel"))
 	{
