@@ -645,7 +645,8 @@ void validate(void)
 		return;
 	}
 
-	wc_printf("<table class=\"auth_validate\"><tr><td>\n");
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
+		"<table class=\"auth_validate\"><tr><td>\n");
 	wc_printf("<div id=\"validate\">");
 
 	safestrncpy(user, &buf[4], sizeof user);
@@ -728,7 +729,7 @@ void validate(void)
 	wc_printf("<br />\n");
 
 	wc_printf("</div>\n");
-	wc_printf("</td></tr></table>\n");
+	wc_printf("</td></tr></table></div>\n");
 	wDumpContent(1);
 }
 

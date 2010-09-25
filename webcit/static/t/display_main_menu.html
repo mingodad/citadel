@@ -2,6 +2,7 @@
 <?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <?ROOMBANNER>
 <div id="content">
+<div class="fix_scrollbar_bug">
 <table width="100%" cellspacing="10" cellpadding="0">
 <tr><td colspan="2" class="advanced">
   <?DOBOXED("menu_basic_commands", _("Basic commands"))>
@@ -12,5 +13,6 @@
   <?DOBOXED("menu_advanced_roomcommands", _("Advanced room commands"))>
 </td></tr>
 </table>
+</div>
 </div>
 <?=("trailing")>
