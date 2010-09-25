@@ -30,7 +30,9 @@ void do_setup_wizard(void)
 
 	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-	wc_printf("<form method=\"post\" action=\"setup_wizard\">\n");
+	wc_printf("<div class=\"fix_scrollbar_bug\">"
+		"<form method=\"post\" action=\"setup_wizard\">\n"
+	);
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
 
 	wc_printf("<div align=center>"
@@ -41,7 +43,7 @@ void do_setup_wizard(void)
 	wc_printf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Next\">\n");
 	wc_printf("<INPUT TYPE=\"submit\" NAME=\"step\" VALUE=\"Finish\">\n");
 
-	wc_printf("</form></div>\n");
+	wc_printf("</form></div></div>\n");
 	wDumpContent(1);
 }
 
