@@ -38,8 +38,7 @@ void display_page(void)
 
 	wc_printf("<div id=\"content\" class=\"service\">\n");
 
-        wc_printf("<div class=\"fix_scrollbar_bug\">"
-		"<table class=\"paging_background\"><tr><td>\n");
+	wc_printf("<table class=\"paging_background\"><tr><td>\n");
 
 	wc_printf(_("Send an instant message to: "));
 	escputs(recp);
@@ -67,7 +66,7 @@ void display_page(void)
 	wc_printf("<br /><a href=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
 
 	wc_printf("</FORM></CENTER>\n");
-	wc_printf("</td></tr></table></div>\n");
+	wc_printf("</td></tr></table>\n");
 	wDumpContent(1);
 }
 
