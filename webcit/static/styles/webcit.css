@@ -206,6 +206,10 @@ body {
 	background-color: #FF7814;
 	color: #FFF;
 	font-weight: 700;
+	border-radius: 8px 8px 0 0;
+	-webkit-border-radius: 8px 8px 0 0;
+	-moz-border-radius: 8px 8px 0 0;
+	behavior: url(/static/styles/PIE.htc);
 }
 
 .selectbox { background-color: #FF8000 }
@@ -213,6 +217,10 @@ body {
 .tab_cell, .tab_cell_edit {
 	background-color: #CCC;
 	font-weight: 700;
+	border-radius: 8px 8px 0 0;
+	-webkit-border-radius: 8px 8px 0 0;
+	-moz-border-radius: 8px 8px 0 0;
+	behavior: url(/static/styles/PIE.htc);
 }
 
 .tabcontent {
