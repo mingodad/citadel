@@ -21,6 +21,10 @@
 	font-weight: 700;
 	text-align: center;
 	padding: 0;
+	border-radius: 8px 8px 0 0;
+	-webkit-border-radius: 8px 8px 0 0;
+	-moz-border-radius: 8px 8px 0 0;
+	behavior: url(/static/styles/PIE.htc);
 }
 
 .boxcontent {
@@ -28,5 +32,9 @@
 	padding: 5px;
 	background-color: #FFF;
 	color: #000;
+	border-radius: 0 0 8px 8px;
+	-webkit-border-radius: 0 0 8px 8px;
+	-moz-border-radius: 0 0 8px 8px; 
+	behavior: url(/static/styles/PIE.htc);
 }
 
