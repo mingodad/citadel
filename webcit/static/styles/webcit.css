@@ -381,7 +381,10 @@ a:visited { color: purple}
 
 .button_link a, .msgbuttons a, input#delbutton,.attachfile, .buttons input, .send_edit_msg input {
 	cursor: pointer;
-	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	behavior: url(/static/styles/PIE.htc);
 	text-align: center;
 }
 
@@ -935,7 +938,10 @@ td.events_of_the_day { width: 500px }
 }
 
 .event_framed_unread {
+	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
+	border-radius: 8px;
+	behavior: url(/static/styles/PIE.htc);
 	border: solid 1px red;
 	background-color: yellow;
 	z-index: 10;
@@ -945,7 +951,10 @@ td.events_of_the_day { width: 500px }
 li.event_framed_unread span, a.event_title { font-size: 100% }
 
 .event_framed_read {
+	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
+	border-radius: 8px;
+	behavior: url(/static/styles/PIE.htc);
 	border: solid 1px red;
 	background-color: yellow;
 	z-index: 10;
