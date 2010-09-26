@@ -35,6 +35,9 @@
    whose license explicitly allows inclusion in open source projects on the
    condition of this attribution.
 
+   WebCit bundles the CSS3PIE library [http://css3pie.com] which is offered
+   under both the Apache license and the GNU General Public License.
+
    The Citadel logo was designed by Lisa Aurigemma.
 
  
