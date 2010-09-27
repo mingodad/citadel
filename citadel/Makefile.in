@@ -66,6 +66,7 @@ SERVER_LDFLAGS=@SERVER_LDFLAGS@
 SERVER_LIBS=@SERVER_LIBS@
 SETUP_LIBS=@SETUP_LIBS@
 YACC=@YACC@
+LOCALEDIR=@LOCALEDIR@
 
 # End configuration section
 
@@ -103,6 +104,7 @@ mkdir-init:
 		(mkdir -p user_modules/$$d ) ; \
 	done
 	mkdir -p utils utillib textclient
+	mkdir locale
 
 svn_revision.c: ${SOURCES}
 	$(srcdir)/scripts/mk_svn_revision.sh
@@ -224,13 +226,23 @@ msgform$(EXEEXT): utils/msgform.o
 
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 
-install: install-exec install-data install-doc
+install-locale:
+	cd po; $(MAKE)
+	for i in `find locale -type d | grep -v .svn` \
+		; do \
+		test -d $(DESTDIR)$(LOCALEDIR)/$$i || mkdir -p $(DESTDIR)$(LOCALEDIR)/$$i; \
+	done
+	for i in `find locale -type f | grep -v .svn`; do \
+		$(INSTALL) $$i $(DESTDIR)$(LOCALEDIR)/$$i; \
+	done
+
+install: install-exec install-data install-doc install-locale
 	@echo 
 	@echo Installation is complete.
 	@echo Now go to your Citadel directory and run 'setup'.
 	@echo 
 
-install-new: install-exec-new install-data-new install-doc-new
+install-new: install-exec-new install-data-new install-doc-new install-locale
 	@echo 
 	@echo Installation is complete.
 	@echo Now go to your Citadel directory and run 'setup'.
@@ -381,6 +393,7 @@ install-exec-new: all
 	done
 
 clean:
+	rm -fr locale/*
 	rm -f *.o 
 	rm -f utils/*.o ;\
 	rm -f utillib/*.o ;\
@@ -402,6 +415,7 @@ cleaner: clean
 
 distclean: cleaner
 	find . -name '*~' -o -name '.#*' | xargs rm -f
+	rm -f po/Makefile 
 	rm -f Makefile sysdep.h config.cache config.log config.status *.d 
 	rm -f utils/*.d ;
 	rm -f utillib/*.d ;

@@ -9,9 +9,11 @@ AC_PREFIX_DEFAULT(/usr/local/citadel)
 if test "$prefix" = NONE; then
 	AC_DEFINE_UNQUOTED(CTDLDIR, "$ac_default_prefix", [define this to the Citadel home directory])
 	ssl_dir="$ac_default_prefix/keys"
+	localedir=$ac_default_prefix
 else
 	AC_DEFINE_UNQUOTED(CTDLDIR, "$prefix", [define this to the Citadel home directory])
 	ssl_dir="$prefix/keys"
+	localedir=$prefix
 fi
 
 dnl Make sure we see all GNU and Solaris extensions.
@@ -153,6 +155,19 @@ AC_ARG_WITH(docdir,
 			  fi
 			]
 )
+
+dnl where to put the locale files
+AC_ARG_WITH(localedir, 
+		    [  --with-localedir          directory to put the locale files to],
+			[ if test "x$withval" != "xno" ; then
+			    localedir=$withval
+			  fi
+			]
+)
+AC_DEFINE_UNQUOTED(LOCALEDIR, "$localedir",[where to find our pot files])
+LOCALEDIR=$localedir
+AC_SUBST(LOCALEDIR)
+
 
 
 dnl Checks for the zlib compression library.
@@ -422,11 +437,11 @@ if test "$ok_nls" != "no"; then
 fi
 
 if test "$ok_nls" != "no"; then
-	AC_MSG_RESULT(WebCit will be built with national language support.)
+	AC_MSG_RESULT(citadel will be built with national language support.)
 	AC_DEFINE(ENABLE_NLS, [], [whether we have NLS support])
 	PROG_SUBDIRS="$PROG_SUBDIRS po"
 else
-	AC_MSG_RESULT(WebCit will be built without national language support.)
+	AC_MSG_RESULT(citadel will be built without national language support.)
 fi
 
 dnl disable backtrace if we don't want it.
