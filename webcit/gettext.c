@@ -362,10 +362,6 @@ void initialize_locales(void) {
 		AvailLangLoaded[0] = AvailLang[0];
 		nLocalesLoaded = 1;
 	}
-#ifndef HAVE_USELOCALE
-
-
-#endif
 
 #ifdef ENABLE_NLS
 	locale = setlocale(LC_ALL, "");
