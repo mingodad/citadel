@@ -1,6 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR The Citadel Project - http://www.citadel.org
-# This file is distributed under the same license as the PACKAGE package.
+# Citadel Setup Strings.
+# Copyright (C) 2010 The Citadel Project - http://www.citadel.org
+# This file is distributed under the revised BSD license
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -11,10 +11,11 @@ msgstr ""
 "POT-Creation-Date: 2010-09-27 21:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../utils/setup.c:111
