@@ -102,12 +102,20 @@ const char *setup_text[eMaxQuestions];
 
 void SetTitles(void)
 {
+	char *locale;
 	int have_run_dir;
 #ifndef HAVE_RUN_DIR
 	have_run_dir = 1;
 #else
 	have_run_dir = 0;
 #endif
+
+	locale = setlocale(LC_MESSAGES, getenv("LANG"));
+
+	bindtextdomain("citadel-setup", LOCALEDIR"/locale");
+	textdomain("citadel-setup");
+	bind_textdomain_codeset("citadel-setup","UTF8");
+
 	setup_titles[eCitadelHomeDir] = _("Citadel Home Directory");
 	if (have_run_dir)
 		setup_text[eCitadelHomeDir] = _(
@@ -214,6 +222,19 @@ void SetTitles(void)
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n");
+
+#if 0
+// Debug loading of locales... Strace does a better job though.
+	printf("Message catalog directory: %s\n", bindtextdomain("citadel-setup", LOCALEDIR"/locale"));
+	printf("Text domain: %s\n", textdomain("citadel-setup"));
+	printf("Text domain Charset: %s\n", bind_textdomain_codeset("citadel-setup","UTF8"));
+	{
+		int i;
+		for (i = 0; i < eMaxQuestions; i++)
+			printf("%s - %s\n", setup_titles[i], _(setup_titles[i]));
+		exit(0);
+	}
+#endif
 }
 
 /*
