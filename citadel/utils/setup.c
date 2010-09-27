@@ -294,9 +294,10 @@ int yesno(const char *question, int default_value)
 
 	case UI_TEXT:
 		do {
-			printf("%s\nYes/No [%s] --> ",
-				question,
-				( default_value ? "Yes" : "No" )
+			printf("%s\n%s [%s] --> ",
+			       question,
+			       _("Yes/No"),
+			       ( default_value ? _("Yes") : _("No") )
 			);
 			if (fgets(buf, sizeof buf, stdin))
 			{
@@ -342,7 +343,7 @@ void important_message(const char *title, const char *msgtext)
 	case UI_TEXT:
 		printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 		printf("       %s \n\n%s\n\n", title, msgtext);
-		printf("Press return to continue...");
+		printf("%s", _("Press return to continue..."));
 		if (fgets(buf, sizeof buf, stdin));
 		break;
 
@@ -360,12 +361,23 @@ void important_message(const char *title, const char *msgtext)
 
 void important_msgnum(int msgnum)
 {
-	important_message("Important Message", setup_text[msgnum]);
+	important_message(_("Important Message"), setup_text[msgnum]);
 }
 
-void display_error(char *error_message)
+void display_error(char *error_message_format, ...)
 {
-	important_message("Error", error_message);
+	StrBuf *Msg;
+	va_list arg_ptr;
+
+	Msg = NewStrBuf();
+	va_start(arg_ptr, error_message_format);
+	StrBufVAppendPrintf(Msg, 
+			    error_message_format, 
+			    arg_ptr);
+	va_end(arg_ptr);
+
+	important_message(_("Error"), ChrPtr(Msg));
+	FreeStrBuf(&Msg);
 }
 
 void progress(char *text, long int curr, long int cmax)
@@ -444,11 +456,11 @@ void check_services_entry(void)
 
 	if (getservbyname(SERVICE_NAME, PROTO_NAME) == NULL) {
 		for (i=0; i<=2; ++i) {
-			progress("Adding service entry...", i, 2);
+			progress(_("Adding service entry..."), i, 2);
 			if (i == 0) {
 				sfp = fopen("/etc/services", "a");
 				if (sfp == NULL) {
-					sprintf(errmsg, "Cannot open /etc/services: %s", strerror(errno));
+					sprintf(errmsg, "%s /etc/services: %s", _("Cannot open"), strerror(errno));
 					display_error(errmsg);
 				} else {
 					fprintf(sfp, "%s		504/tcp\n", SERVICE_NAME);
@@ -495,7 +507,7 @@ void delete_inittab_entry(void)
 
 		/* Other errors might mean something really did go wrong.
 		 */
-		sprintf(buf, "Cannot open /etc/inittab: %s", strerror(errno));
+		sprintf(buf, "%s /etc/inittab: %s", _("Cannot open"), strerror(errno));
 		display_error(buf);
 		return;
 	}
@@ -503,7 +515,7 @@ void delete_inittab_entry(void)
 	strcpy(outfilename, "/tmp/ctdlsetup.XXXXXX");
 	outfp = fdopen(mkstemp(outfilename), "w+");
 	if (outfp == NULL) {
-		sprintf(buf, "Cannot open %s: %s", outfilename, strerror(errno));
+		sprintf(buf, "%s %s: %s", _("Cannot open"), outfilename, strerror(errno));
 		display_error(buf);
 		fclose(infp);
 		return;
@@ -554,21 +566,21 @@ void install_init_scripts(void)
 
 	fp = fopen(initfile, "r");
 	if (fp != NULL) {
-		if (yesno("Citadel already appears to be configured to start at boot.\n"
-			  "Would you like to keep your boot configuration as is?\n", 1) == 1) {
+		if (yesno(_("Citadel already appears to be configured to start at boot.\n"
+			    "Would you like to keep your boot configuration as is?\n"), 1) == 1) {
 			return;
 		}
 		fclose(fp);
 		
 	}
 
-	if (yesno("Would you like to automatically start Citadel at boot?\n", 1) == 0) {
+	if (yesno(_("Would you like to automatically start Citadel at boot?\n"), 1) == 0) {
 		return;
 	}
 
 	fp = fopen(initfile, "w");
 	if (fp == NULL) {
-		display_error("Cannot create /etc/init.d/citadel");
+		display_error("%s /etc/init.d/citadel", _("Cannot create"));
 		return;
 	}
 
@@ -667,10 +679,10 @@ void check_xinetd_entry(void) {
 	}
 	else {
 		snprintf(buf, sizeof buf,
-			 "Setup can configure the \"xinetd\" service to automatically\n"
-			 "connect incoming telnet sessions to Citadel, bypassing the\n"
-			 "host system login: prompt.  Would you like to do this?\n"
-			);
+			 _("Setup can configure the \"xinetd\" service to automatically\n"
+			   "connect incoming telnet sessions to Citadel, bypassing the\n"
+			   "host system login: prompt.  Would you like to do this?\n"
+				 ));
 		if (yesno(buf, 1) == 0) {
 			return;
 		}
@@ -724,14 +736,22 @@ void disable_other_mta(const char *mta) {
 	/* Offer to replace other MTA with the vastly superior Citadel :)  */
 
 	snprintf(buf, sizeof buf,
-		 "You appear to have the \"%s\" email program\n"
-		 "running on your system.  If you want Citadel mail\n"
-		 "connected with %s, you will have to manually integrate\n"
-		 "them.  It is preferable to disable %s, and use Citadel's\n"
-		 "SMTP, POP3, and IMAP services.\n\n"
-		 "May we disable %s so that Citadel has access to ports\n"
-		 "25, 110, and 143?\n",
-		 mta, mta, mta, mta
+		 "%s \"%s\" %s%s%s%s%s%s%s", 
+		 _("You appear to have the "), 
+		 mta, 
+		 _(" email program\n"
+		   "running on your system.  If you want Citadel mail\n"
+		   "connected with "), 
+		 mta,
+		 _(" you will have to manually integrate\n"
+		   "them.  It is preferable to disable "), 
+		 mta,
+		 _(", and use Citadel's\n"
+		   "SMTP, POP3, and IMAP services.\n\n"
+		   "May we disable "), 
+		 mta, 
+		 _("so that Citadel has access to ports\n"
+		   "25, 110, and 143?\n")
 		);
 	if (yesno(buf, 1) == 0) {
 		return;
@@ -840,8 +860,8 @@ void strprompt(const char *prompt_title, const char *prompt_text, char *Target, 
 	case UI_TEXT:
 		title(prompt_title);
 		printf("\n%s\n", prompt_text);
-		printf("This is currently set to:\n%s\n", Target);
-		printf("Enter new value or press return to leave unchanged:\n");
+		printf("%s\n%s\n", _("This is currently set to:"), Target);
+		printf("%s\n", _("Enter new value or press return to leave unchanged:"));
 		if (fgets(buf, sizeof buf, stdin)){
 			buf[strlen(buf) - 1] = 0;
 		}
@@ -1044,12 +1064,12 @@ void write_config_to_disk(void)
 	int rv;
 
 	if ((fd = creat(file_citadel_config, S_IRUSR | S_IWUSR)) == -1) {
-		display_error("setup: cannot open citadel.config");
+		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
 		cleanup(1);
 	}
 	fp = fdopen(fd, "wb");
 	if (fp == NULL) {
-		display_error("setup: cannot open citadel.config");
+		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
 		cleanup(1);
 	}
 	rv = fwrite((char *) &config, sizeof(struct config), 1, fp);
@@ -1151,14 +1171,16 @@ void fixnss(void) {
 	}
 
 	snprintf(question, sizeof question,
-		"\n"
-		"/etc/nsswitch.conf is configured to use the 'db' module for\n"
-		"one or more services.  This is not necessary on most systems,\n"
-		"and it is known to crash the Citadel server when delivering\n"
-		"mail to the Internet.\n"
-		"\n"
-		"Do you want this module to be automatically disabled?\n"
-		"\n"
+		 _(
+			 "\n"
+			 "/etc/nsswitch.conf is configured to use the 'db' module for\n"
+			 "one or more services.  This is not necessary on most systems,\n"
+			 "and it is known to crash the Citadel server when delivering\n"
+			 "mail to the Internet.\n"
+			 "\n"
+			 "Do you want this module to be automatically disabled?\n"
+			 "\n"
+			 )
 	);
 
 	if (yesno(question, 1)) {
@@ -1211,24 +1233,24 @@ void check_init_script (char *relhome)
 			}
 
 			if (setup_type != UI_SILENT)
-				important_message("Setup finished",
-						  "Setup of the Citadel server is complete.\n"
-						  "If you will be using WebCit, please run its\n"
-						  "setup program now; otherwise, run './citadel'\n"
-						  "to log in.\n");
+				important_message(_("Setup finished"),
+						  _("Setup of the Citadel server is complete.\n"
+						    "If you will be using WebCit, please run its\n"
+						    "setup program now; otherwise, run './citadel'\n"
+						    "to log in.\n"));
 		}
 		else {
-			important_message("Setup failed",
-				"Setup is finished, but the Citadel server failed to start.\n"
-				"Go back and check your configuration.\n"
-			);
+			important_message(_("Setup failed"),
+					  _("Setup is finished, but the Citadel server failed to start.\n"
+					    "Go back and check your configuration.\n")
+				);
 		}
 
 	}
 
 	else {
-		important_message("Setup finished",
-			"Setup is finished.  You may now start the server.");
+		important_message(_("Setup finished"),
+				  _("Setup is finished.  You may now start the server."));
 	}
 }
 
@@ -1254,10 +1276,10 @@ void set_default_values(void)
 		}
 	}
 	if (IsEmptyStr(config.c_humannode)) {
-		strcpy(config.c_humannode, "My System");
+		strcpy(config.c_humannode, _("My System"));
 	}
 	if (IsEmptyStr(config.c_phonenum)) {
-		strcpy(config.c_phonenum, "US 800 555 1212");
+		strcpy(config.c_phonenum, _("US 800 555 1212"));
 	}
 	if (config.c_initax == 0) {
 		config.c_initax = 4;
@@ -1343,12 +1365,12 @@ void get_config (void)
 	 */
 	if ((a = open(file_citadel_config, O_WRONLY | O_CREAT | O_APPEND,
 		      S_IRUSR | S_IWUSR)) == -1) {
-		display_error("setup: cannot append citadel.config");
+		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot append"), file_citadel_config, strerror(errno));
 		cleanup(errno);
 	}
 	fp = fdopen(a, "ab");
 	if (fp == NULL) {
-		display_error("setup: cannot append citadel.config");
+		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot append"), file_citadel_config, strerror(errno));
 		cleanup(errno);
 	}
 	for (a = 0; a < sizeof(struct config); ++a) {
@@ -1359,7 +1381,7 @@ void get_config (void)
 	/* now we re-open it, and read the old or blank configuration */
 	fp = fopen(file_citadel_config, "rb");
 	if (fp == NULL) {
-		display_error("setup: cannot open citadel.config");
+		display_error("%s citadel.config [%s][%s]\n", _("setup: cannot open"), file_citadel_config, strerror(errno));
 		cleanup(errno);
 	}
 	rv = fread((char *) &config, sizeof(struct config), 1, fp);
@@ -1425,17 +1447,17 @@ int main(int argc, char *argv[])
 		setup_type = discover_ui();
 	}
 	if (info_only == 1) {
-		important_message("Citadel Setup", CITADEL);
+		important_message(_("Citadel Setup"), CITADEL);
 		cleanup(0);
 	}
 
 	enable_home = ( relh | home );
 
 	if (chdir(ctdl_run_dir) != 0) {
-		char errmsg[SIZ];
-		sprintf(errmsg, "The directory you specified does not exist: [%s]\n", ctdl_run_dir);
-		
-		important_message("Citadel Setup", errmsg);
+		display_error(_("Citadel Setup"), 
+			      "%s: [%s]\n", 
+			      _("The directory you specified does not exist"), 
+			      ctdl_run_dir);
 		cleanup(errno);
 	}
 
@@ -1447,10 +1469,10 @@ int main(int argc, char *argv[])
 
 	/* Make sure Citadel is not running. */
 	if (test_server(relhome, enable_home) == 0) {
-		important_message("Citadel Setup",
-			"The Citadel service is still running.\n"
-			"Please stop the service manually and run "
-			"setup again.");
+		important_message(_("Citadel Setup"),
+				  _("The Citadel service is still running.\n"
+				    "Please stop the service manually and run "
+				    "setup again."));
 		cleanup(1);
 	}
 
@@ -1459,7 +1481,8 @@ int main(int argc, char *argv[])
 
 	case UI_TEXT:
 		printf("\n\n\n"
-			"	       *** Citadel setup program ***\n\n");
+		       "	       *** %s ***\n\n",
+		       _("Citadel setup program"));
 		break;
 
 	}
@@ -1486,8 +1509,8 @@ int main(int argc, char *argv[])
 
 	if (old_setup_level < 555) {
 		important_message(
-			"Citadel Setup",
-			"This Citadel installation is too old to be upgraded."
+			_("Citadel Setup"),
+			_("This Citadel installation is too old to be upgraded.")
 		);
 		cleanup(1);
 	}
@@ -1526,11 +1549,11 @@ NEW_INST:
 	fixnss();		/* Check for the 'db' nss and offer to disable it */
 #endif
 
-	progress("Setting file permissions", 1, 3);
+	progress(_("Setting file permissions"), 1, 3);
 	rv = chown(file_citadel_config, config.c_ctdluid, gid);
-	progress("Setting file permissions", 2, 3);
+	progress(_("Setting file permissions"), 2, 3);
 	rv = chmod(file_citadel_config, S_IRUSR | S_IWUSR);
-	progress("Setting file permissions", 3, 3);
+	progress(_("Setting file permissions"), 3, 3);
 
 	check_init_script(relhome);
 	cleanup(0);
