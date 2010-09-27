@@ -30,6 +30,6 @@ xgettext \
 
 for x in *.po
 do
-	echo Merging webcit.pot into $x ...
-	msgmerge $x webcit.pot -o $x
+	echo Merging citadel-setup.pot into $x ...
+	msgmerge $x citadel-setup.pot -o $x
 done
