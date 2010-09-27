@@ -1,0 +1,253 @@
+# translation of citadel_7.63-1_ru.po to Russian
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Yuri Kozlov <kozlov.y@gmail.com>, 2008.
+# Max Kosmach <max@tcen.ru>, 2009.
+# Yuri Kozlov <yuray@komyakino.ru>, 2009.
+msgid ""
+msgstr ""
+"Project-Id-Version: citadel 7.63-1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-09-27 21:28+0200\n"
+"PO-Revision-Date: 2009-09-10 20:26+0400\n"
+"Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
+"Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../utils/setup.c:111
+#, fuzzy
+msgid "Citadel Home Directory"
+msgstr "Active Directory"
+
+#: ../utils/setup.c:114
+msgid ""
+"Enter the full pathname of the directory in which the Citadel\n"
+"installation you are creating or updating resides.  If you\n"
+"specify a directory other than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n"
+msgstr ""
+
+#: ../utils/setup.c:120
+msgid ""
+"Enter the subdirectory name for an alternate installation of Citadel. To do "
+"a default installation just leave it blank.If you specify a directory other "
+"than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n"
+"note that it may not have a leading /"
+msgstr ""
+
+#: ../utils/setup.c:127
+msgid "Citadel administrator username:"
+msgstr "Имя учётной записи администратора Citadel:"
+
+#: ../utils/setup.c:129
+msgid ""
+"Please enter the name of the Citadel user account that should be granted "
+"administrative privileges once created. If using internal authentication "
+"this user account will be created if it does not exist. For external "
+"authentication this user account has to exist."
+msgstr ""
+"Введите название учётной записи пользователя Citadel, которой будут даны "
+"административные права после создания. Если используется внутренняя "
+"аутентификация, то данная учётная запись будет создана в случае её "
+"отсутствия. При внешней аутентификации пользователь должен существовать."
+
+#: ../utils/setup.c:135
+msgid "Administrator password:"
+msgstr "Пароль к учётной записи администратора:"
+
+#: ../utils/setup.c:137
+msgid ""
+"Enter a password for the system administrator. When setup\n"
+"completes it will attempt to create the administrator user\n"
+"and set the password specified here.\n"
+msgstr ""
+
+#: ../utils/setup.c:141
+msgid "Citadel User ID:"
+msgstr ""
+
+#: ../utils/setup.c:143
+msgid ""
+"Citadel needs to run under its own user ID.  This would\n"
+"typically be called \"citadel\", but if you are running Citadel\n"
+"as a public BBS, you might also call it \"bbs\" or \"guest\".\n"
+"The server will run under this user ID.  Please specify that\n"
+"user ID here.  You may specify either a user name or a numeric\n"
+"UID.\n"
+msgstr ""
+
+#: ../utils/setup.c:150
+msgid "Listening address for the Citadel server:"
+msgstr "Прослушиваемый адрес для сервера Citadel:"
+
+#: ../utils/setup.c:152
+msgid ""
+"Please specify the IP address which the server should be listening to. You "
+"can name a specific IPv4 or IPv6 address, or you can specify\n"
+"'*' for 'any address', '::' for 'any IPv6 address', or '0.0.0.0'\n"
+"for 'any IPv4 address'. If you leave this blank, Citadel will\n"
+"listen on all addresses. This can usually be left to the default unless "
+"multiple instances of Citadel are running on the same computer."
+msgstr ""
+
+#: ../utils/setup.c:160
+#, fuzzy
+msgid "Server port number:"
+msgstr "Номер порта LDAP:"
+
+#: ../utils/setup.c:162
+msgid ""
+"Specify the TCP port number on which your server will run.\n"
+"Normally, this will be port 504, which is the official port\n"
+"assigned by the IANA for Citadel servers.  You will only need\n"
+"to specify a different port number if you run multiple instances\n"
+"of Citadel on the same computer and there is something else\n"
+"already using port 504.\n"
+msgstr ""
+
+#: ../utils/setup.c:169
+msgid "Authentication method to use:"
+msgstr "Используемый метод аутентификации:"
+
+#: ../utils/setup.c:171
+#, fuzzy
+msgid ""
+"Please choose the user authentication mode. By default Citadel will use its "
+"own internal user accounts database. If you choose Host, Citadel users will "
+"have accounts on the host system, authenticated via /etc/passwd or a PAM "
+"source. LDAP chooses an RFC 2307 compliant directory server, the last option "
+"chooses the nonstandard MS Active Directory LDAP scheme.\n"
+"Do not change this option unless you are sure it is required, since changing "
+"back requires a full reinstall of Citadel.\n"
+" 0. Self contained authentication\n"
+" 1. Host system integrated authentication\n"
+" 2. External LDAP - RFC 2307 compliant directory\n"
+" 3. External LDAP - nonstandard MS Active Directory\n"
+"\n"
+"For help: http://www.citadel.org/doku.php/faq:installation:authmodes\n"
+"\n"
+"ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
+msgstr ""
+"Выберите режим аутентификации пользователей. По умолчанию Citadel использует "
+"свою собственную внутреннюю базу данных учётных записей. Если выбрать "
+"\"Машинная\", то пользовательскими учётными записями Citadel будут считаться "
+"учётные записи машины, на которой он установлен, а для аутентификации будет "
+"использоваться файл /etc/passwd или источник PAM. При выборе LDAP "
+"задействуется соответствующий RFC 2307 сервер каталогов, а при выборе "
+"последнего пункта для аутентификации используется нестандартная LDAP-схема "
+"MS Active Directory."
+
+#: ../utils/setup.c:189
+msgid "LDAP host:"
+msgstr "Сервер LDAP:"
+
+#: ../utils/setup.c:191
+#, fuzzy
+msgid "Please enter the host name or IP address of your LDAP server.\n"
+msgstr "Введите имя или IP-адрес сервера LDAP."
+
+#: ../utils/setup.c:193
+msgid "LDAP port number:"
+msgstr "Номер порта LDAP:"
+
+#: ../utils/setup.c:195
+#, fuzzy
+msgid "Please enter the port number of the LDAP service (usually 389).\n"
+msgstr "Введите номер порта службы LDAP (обычно 389)."
+
+#: ../utils/setup.c:197
+msgid "LDAP base DN:"
+msgstr "Базовое DN LDAP:"
+
+#: ../utils/setup.c:199
+#, fuzzy
+msgid ""
+"Please enter the Base DN to search for authentication\n"
+"(for example: dc=example,dc=com)\n"
+msgstr ""
+"Введите базовое DN для поиска, используемое при аутентификации (например: "
+"dc=example,dc=com)."
+
+#: ../utils/setup.c:202
+msgid "LDAP bind DN:"
+msgstr "DN для подключения к серверу LDAP:"
+
+#: ../utils/setup.c:204
+#, fuzzy
+msgid ""
+"Please enter the DN of an account to use for binding to the LDAP server for "
+"performing queries. The account does not require any other privileges. If "
+"your LDAP server allows anonymous queries, you can leave this blank.Please "
+"enter the DN of an account to use for binding to the LDAP server\n"
+"for performing queries.  The account does not require any other\n"
+"privileges.  If your LDAP server allows anonymous queries, you can\n"
+"leave this blank.\n"
+msgstr ""
+"Введите DN учётной записи, которое должно использоваться при подключении к "
+"серверу LDAP для выполнения запросов. От учётной записи не требуется других "
+"привилегий. Если сервер LDAP позволяет выполнять запросы анонимно, то вы "
+"можете оставить поле пустым."
+
+#: ../utils/setup.c:212
+msgid "LDAP bind password:"
+msgstr "Пароль для подключения к LDAP:"
+
+#: ../utils/setup.c:214
+#, fuzzy
+msgid ""
+"If you entered a Bind DN in the previous question, you must now enter\n"
+"the password associated with that account.  Otherwise, you can leave this\n"
+"blank.\n"
+msgstr ""
+"Если вы ввели DN учётной записи в предыдущем вопросе, то теперь вам нужно "
+"указать пароль для этой учётной записи. Иначе можете оставить поле пустым."
+
+#~ msgid ""
+#~ "Please specify the IP address which the server should be listening to. If "
+#~ "you specify 0.0.0.0, the server will listen on all addresses."
+#~ msgstr ""
+#~ "Введите IP-адрес, который будет использовать сервер для ожидания "
+#~ "подключений. Если указать 0.0.0.0, то Citadel будет ожидать подключения "
+#~ "на адресах всех интерфейсов."
+
+#~ msgid ""
+#~ "This can usually be left to the default unless multiple instances of "
+#~ "Citadel are running on the same computer."
+#~ msgstr ""
+#~ "Если вы не запускаете несколько экземпляров Citadel на одном компьютере, "
+#~ "то можно оставить значение по умолчанию."
+
+#~ msgid "Internal"
+#~ msgstr "Внутренняя"
+
+#~ msgid "Host"
+#~ msgstr "Машинная"
+
+#~ msgid "LDAP"
+#~ msgstr "LDAP"
+
+#~ msgid ""
+#~ "Do not change this option unless you are sure it is required, since "
+#~ "changing back requires a full reinstall of Citadel."
+#~ msgstr ""
+#~ "Не выбирайте других пунктов кроме первого, если не уверены, что это "
+#~ "действительно нужно, так как для изменения потребуется полностью "
+#~ "переустановить Citadel."
+
+#~ msgid ""
+#~ "While not mandatory, it is highly recommended that you set a password for "
+#~ "the administrator user."
+#~ msgstr ""
+#~ "Хотя это необязательно, настоятельно рекомендуется задать пароль для "
+#~ "административного пользователя."
+
+#~ msgid "Internal, Host, LDAP, Active Directory"
+#~ msgstr "Внутренняя, Машинная, LDAP, Active Directory"
