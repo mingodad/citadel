@@ -70,6 +70,7 @@ typedef enum _SetupStep {
 } eSteupStep;
 
 ///"CREATE_XINETD_ENTRY";
+/* Environment variables, don't translate! */
 const char *EnvNames [eMaxQuestions] = {
         "HOME_DIRECTORY",
 	"SYSADMIN_NAME",
@@ -92,21 +93,114 @@ char admin_pass[SIZ];
 char admin_cmd[SIZ];
 
 const char *setup_titles[eMaxQuestions];
+const char *setup_text[eMaxQuestions];
+
+/* calculate all our path on a central place */
+/* where to keep our config */
+	
+
 
 void SetTitles(void)
 {
+	int have_run_dir;
+#ifndef HAVE_RUN_DIR
+	have_run_dir = 1;
+#else
+	have_run_dir = 0;
+#endif
 	setup_titles[eCitadelHomeDir] = _("Citadel Home Directory");
+	if (have_run_dir)
+		setup_text[eCitadelHomeDir] = _(
+"Enter the full pathname of the directory in which the Citadel\n"
+"installation you are creating or updating resides.  If you\n"
+"specify a directory other than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n");
+	else
+		setup_text[eCitadelHomeDir] = _(
+"Enter the subdirectory name for an alternate installation of "
+"Citadel. To do a default installation just leave it blank."
+"If you specify a directory other than the default, you will need to\n"
+"specify the -h flag to the server when you start it up.\n"
+"note that it may not have a leading /");
+
+
 	setup_titles[eSysAdminName] = _("Citadel administrator username:");////
+	setup_text[eSysAdminName] = _(
+"Enter the name of the system administrator (which is probably\n"
+"you).  When an account is created with this name, it will\n"
+"automatically be given administrator-level access.\n");
+
 	setup_titles[eSysAdminPW] = _("Administrator password:");//
+	setup_text[eSysAdminPW] = _(
+"Enter a password for the system administrator. When setup\n"
+"completes it will attempt to create the administrator user\n"
+"and set the password specified here.\n");
+
 	setup_titles[eUID] = _("Citadel User ID:");
+	setup_text[eUID] = _(
+"Citadel needs to run under its own user ID.  This would\n"
+"typically be called \"citadel\", but if you are running Citadel\n"
+"as a public BBS, you might also call it \"bbs\" or \"guest\".\n"
+"The server will run under this user ID.  Please specify that\n"
+"user ID here.  You may specify either a user name or a numeric\n"
+"UID.\n");
+
 	setup_titles[eIP_ADDR] = _("Listening address for the Citadel server:");///
+	setup_text[eIP_ADDR] = _(
+"Specify the IP address on which your server will run.\n"
+"You can name a specific IPv4 or IPv6 address, or you can specify\n"
+"'*' for 'any address', '::' for 'any IPv6 address', or '0.0.0.0'\n"
+"for 'any IPv4 address'.  If you leave this blank, Citadel will\n"
+"listen on all addresses.  You can usually skip this unless you are\n"
+"running multiple instances of Citadel on the same computer.\n");
+
 	setup_titles[eCTDL_Port] = _("Server port number:");
+	setup_text[eCTDL_Port] = _(
+"Specify the TCP port number on which your server will run.\n"
+"Normally, this will be port 504, which is the official port\n"
+"assigned by the IANA for Citadel servers.  You will only need\n"
+"to specify a different port number if you run multiple instances\n"
+"of Citadel on the same computer and there is something else\n"
+"already using port 504.\n");
+
 	setup_titles[eAuthType] = _("Authentication method to use:");////
+	setup_text[eAuthType] = _(
+"Specify which authentication mode you wish to use.\n"
+"\n"
+" 0. Self contained authentication\n"
+" 1. Host system integrated authentication\n"
+" 2. External LDAP - RFC 2307 compliant directory\n"
+" 3. External LDAP - nonstandard MS Active Directory\n"
+"\n"
+"For help: http://www.citadel.org/doku.php/faq:installation:authmodes\n"
+"\n"
+"ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n");
+
 	setup_titles[eLDAP_Host] = _("LDAP host:");///
+	setup_text[eLDAP_Host] = _(
+"Please enter the host name or IP address of your LDAP server.\n");
+
 	setup_titles[eLDAP_Port] = _("LDAP port number:");////
+	setup_text[eLDAP_Port] = _(
+"Please enter the port number of the LDAP service (usually 389).\n");
+
 	setup_titles[eLDAP_Base_DN] = _("LDAP base DN:");///
+	setup_text[eLDAP_Base_DN] = _(
+"Please enter the Base DN to search for authentication\n"
+"(for example: dc=example,dc=com)\n");
+
 	setup_titles[eLDAP_Bind_DN] = _("LDAP bind DN:");//
+	setup_text[eLDAP_Bind_DN] = _(
+"Please enter the DN of an account to use for binding to the LDAP server\n"
+"for performing queries.  The account does not require any other\n"
+"privileges.  If your LDAP server allows anonymous queries, you can.\n"
+"leave this blank.\n");
+
 	setup_titles[eLDAP_Bind_PW] = _("LDAP bind password:");//
+	setup_text[eLDAP_Bind_PW] = _(
+"If you entered a Bind DN in the previous question, you must now enter\n"
+"the password associated with that account.  Otherwise, you can leave this\n"
+"blank.\n");
 }
 
 /*
@@ -133,81 +227,6 @@ void cit_backtrace(void)
 
 struct config config;
 
-/* calculate all our path on a central place */
-/* where to keep our config */
-	
-
-char *setup_text[] = {
-#ifndef HAVE_RUN_DIR
-"Enter the full pathname of the directory in which the Citadel\n"
-"installation you are creating or updating resides.  If you\n"
-"specify a directory other than the default, you will need to\n"
-"specify the -h flag to the server when you start it up.\n",
-#else
-"Enter the subdirectory name for an alternate installation of "
-"Citadel. To do a default installation just leave it blank."
-"If you specify a directory other than the default, you will need to\n"
-"specify the -h flag to the server when you start it up.\n"
-"note that it may not have a leading /",
-#endif
-
-"Enter the name of the system administrator (which is probably\n"
-"you).  When an account is created with this name, it will\n"
-"automatically be given administrator-level access.\n",
-
-"Enter a password for the system administrator. When setup\n"
-"completes it will attempt to create the administrator user\n"
-"and set the password specified here.\n",
-
-"Citadel needs to run under its own user ID.  This would\n"
-"typically be called \"citadel\", but if you are running Citadel\n"
-"as a public BBS, you might also call it \"bbs\" or \"guest\".\n"
-"The server will run under this user ID.  Please specify that\n"
-"user ID here.  You may specify either a user name or a numeric\n"
-"UID.\n",
-
-"Specify the IP address on which your server will run.\n"
-"You can name a specific IPv4 or IPv6 address, or you can specify\n"
-"'*' for 'any address', '::' for 'any IPv6 address', or '0.0.0.0'\n"
-"for 'any IPv4 address'.  If you leave this blank, Citadel will\n"
-"listen on all addresses.  You can usually skip this unless you are\n"
-"running multiple instances of Citadel on the same computer.\n",
-
-"Specify the TCP port number on which your server will run.\n"
-"Normally, this will be port 504, which is the official port\n"
-"assigned by the IANA for Citadel servers.  You will only need\n"
-"to specify a different port number if you run multiple instances\n"
-"of Citadel on the same computer and there is something else\n"
-"already using port 504.\n",
-
-"Specify which authentication mode you wish to use.\n"
-"\n"
-" 0. Self contained authentication\n"
-" 1. Host system integrated authentication\n"
-" 2. External LDAP - RFC 2307 compliant directory\n"
-" 3. External LDAP - nonstandard MS Active Directory\n"
-"\n"
-"For help: http://www.citadel.org/doku.php/faq:installation:authmodes\n"
-"\n"
-"ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n",
-
-"Please enter the host name or IP address of your LDAP server.\n",
-
-"Please enter the port number of the LDAP service (usually 389).\n",
-
-"Please enter the Base DN to search for authentication\n"
-"(for example: dc=example,dc=com)\n",
-
-"Please enter the DN of an account to use for binding to the LDAP server\n"
-"for performing queries.  The account does not require any other\n"
-"privileges.  If your LDAP server allows anonymous queries, you can.\n"
-"leave this blank.\n",
-
-"If you entered a Bind DN in the previous question, you must now enter\n"
-"the password associated with that account.  Otherwise, you can leave this\n"
-"blank.\n"
-
-};
 
 struct config config;
 int direction;
@@ -231,7 +250,7 @@ void title(const char *text)
 
 
 
-int yesno(char *question, int default_value)
+int yesno(const char *question, int default_value)
 {
 	int i = 0;
 	int answer = 0;
@@ -279,7 +298,7 @@ int yesno(char *question, int default_value)
 }
 
 
-void important_message(char *title, char *msgtext)
+void important_message(const char *title, const char *msgtext)
 {
 	char buf[SIZ];
 	int rv;
@@ -773,7 +792,7 @@ int test_server(char *relhomestr, int relhome) {
 	return(-1);
 }
 
-void strprompt(const char *prompt_title, char *prompt_text, char *Target, char *DefValue)
+void strprompt(const char *prompt_title, const char *prompt_text, char *Target, char *DefValue)
 {
 	char buf[SIZ] = "";
 	char setupmsg[SIZ];
