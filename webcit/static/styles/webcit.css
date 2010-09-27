@@ -205,7 +205,7 @@ body {
 .roomops_cell_label, .tab_cell_label {
 	background-color: #FF7814;
 	color: #FFF;
-	font-weight: 700;
+	font-size: 90%;
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
@@ -216,7 +216,7 @@ body {
 
 .tab_cell, .tab_cell_edit {
 	background-color: #CCC;
-	font-weight: 700;
+	font-size: 90%;
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
@@ -724,8 +724,8 @@ div.auto_complete ul strong.highlight {
 	padding: 0;
 }
 
-.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, .vcard_edit_background_alt, .roomops_background_alt, .floors_config, .roomops_zap  {
- width: 100%;
+.auth_validate, .event_background, .calendar_background, .calendar_view_background, .graphics_background, .messages_background, .paging_background, .preferences_background, .roomops_background, .sieve_background, .siteconfig_background, .smtpqueue_background, .tabs_background, .useredit_background, .userlist_background, .downloads_background, .vcard_edit_background, .vcard_edit_background_alt, .roomops_background_alt, .floors_config, .roomops_zap {
+	width: 100%;
 }
 
 #address_book_popup {
@@ -736,6 +736,10 @@ div.auto_complete ul strong.highlight {
 	height: auto;
  	z-index: 100;
 	display: none;
+	-webkit-box-shadow: #666 0px 2px 3px;
+	-moz-box-shadow: #666 0px 2px 3px;
+	box-shadow: #666 0px 2px 3px;
+	behavior: url(/static/styles/PIE.htc);
 }
 
 #address_book_popup_container_div {
