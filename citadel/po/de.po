@@ -18,7 +18,7 @@ msgstr ""
 #: ../utils/setup.c:111
 #, fuzzy
 msgid "Citadel Home Directory"
-msgstr "Active Directory"
+msgstr "Citadel Basis Directory"
 
 #: ../utils/setup.c:114
 msgid ""
@@ -66,9 +66,9 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:141
-#, fuzzy
+#
 msgid "Citadel User ID:"
-msgstr "Citadel/UX"
+msgstr "Citadel Benutzer ID:"
 
 #: ../utils/setup.c:143
 msgid ""
@@ -95,7 +95,7 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:160
-#, fuzzy
+#
 msgid "Server port number:"
 msgstr "LDAP-Portnummer:"
 
@@ -144,20 +144,20 @@ msgid "LDAP host:"
 msgstr "LDAP-Host:"
 
 #: ../utils/setup.c:191
-#, fuzzy
+#
 msgid "Please enter the host name or IP address of your LDAP server.\n"
 msgstr ""
-"Bitte geben Sie den Rechnernamen oder die IP-Adresse Ihres LDAP-Servers an."
+"Bitte geben Sie den Rechnernamen oder die IP-Adresse Ihres LDAP-Servers an.\n"
 
 #: ../utils/setup.c:193
 msgid "LDAP port number:"
 msgstr "LDAP-Portnummer:"
 
 #: ../utils/setup.c:195
-#, fuzzy
+#
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
 msgstr ""
-"Bitte geben Sie die Portnummer Ihres LDAP-Dienstes an (normalerweise 389)."
+"Bitte geben Sie die Portnummer Ihres LDAP-Dienstes an (normalerweise 389).\n"
 
 #: ../utils/setup.c:197
 msgid "LDAP base DN:"
