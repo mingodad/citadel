@@ -209,7 +209,7 @@ body {
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
-	behavior: url(/static/styles/PIE.htc);
+	/* behavior: url(/static/styles/PIE.htc); disabled for now; see http://github.com/lojjic/PIE/issues#issue/21 */
 }
 
 .selectbox { background-color: #FF8000 }
@@ -220,7 +220,7 @@ body {
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
 	-moz-border-radius: 8px 8px 0 0;
-	behavior: url(/static/styles/PIE.htc);
+	/* behavior: url(/static/styles/PIE.htc); disabled for now; see http://github.com/lojjic/PIE/issues#issue/21 */
 }
 
 .tabcontent {
