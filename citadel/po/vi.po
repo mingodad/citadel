@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: citadel 7.61-1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-27 21:28+0200\n"
+"POT-Creation-Date: 2010-09-28 00:22+0200\n"
 "PO-Revision-Date: 2009-09-23 18:07+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: LocFactoryEditor 1.8\n"
 
-#: ../utils/setup.c:111
+#: ../utils/setup.c:119
 #, fuzzy
 msgid "Citadel Home Directory"
 msgstr "Thư mục Hoạt động"
 
-#: ../utils/setup.c:114
+#: ../utils/setup.c:122
 msgid ""
 "Enter the full pathname of the directory in which the Citadel\n"
 "installation you are creating or updating resides.  If you\n"
@@ -30,7 +30,7 @@ msgid ""
 "specify the -h flag to the server when you start it up.\n"
 msgstr ""
 
-#: ../utils/setup.c:120
+#: ../utils/setup.c:128
 msgid ""
 "Enter the subdirectory name for an alternate installation of Citadel. To do "
 "a default installation just leave it blank.If you specify a directory other "
@@ -39,11 +39,11 @@ msgid ""
 "note that it may not have a leading /"
 msgstr ""
 
-#: ../utils/setup.c:127
+#: ../utils/setup.c:135
 msgid "Citadel administrator username:"
 msgstr "Tên người dùng quản trị Citadel:"
 
-#: ../utils/setup.c:129
+#: ../utils/setup.c:137
 msgid ""
 "Please enter the name of the Citadel user account that should be granted "
 "administrative privileges once created. If using internal authentication "
@@ -54,22 +54,22 @@ msgstr ""
 "dụng chức năng xác thực nội bộ thì tài khoản người dùng này không tồn tại sẽ "
 "được tạo. Đối với xác thực từ xa, tài khoản người dùng này phải tồn tại."
 
-#: ../utils/setup.c:135
+#: ../utils/setup.c:143
 msgid "Administrator password:"
 msgstr "Mật khẩu quản trị:"
 
-#: ../utils/setup.c:137
+#: ../utils/setup.c:145
 msgid ""
 "Enter a password for the system administrator. When setup\n"
 "completes it will attempt to create the administrator user\n"
 "and set the password specified here.\n"
 msgstr ""
 
-#: ../utils/setup.c:141
+#: ../utils/setup.c:149
 msgid "Citadel User ID:"
 msgstr ""
 
-#: ../utils/setup.c:143
+#: ../utils/setup.c:151
 msgid ""
 "Citadel needs to run under its own user ID.  This would\n"
 "typically be called \"citadel\", but if you are running Citadel\n"
@@ -79,11 +79,11 @@ msgid ""
 "UID.\n"
 msgstr ""
 
-#: ../utils/setup.c:150
+#: ../utils/setup.c:158
 msgid "Listening address for the Citadel server:"
 msgstr "Địa chỉ lắng nghe cho trình phục vụ Citadel:"
 
-#: ../utils/setup.c:152
+#: ../utils/setup.c:160
 msgid ""
 "Please specify the IP address which the server should be listening to. You "
 "can name a specific IPv4 or IPv6 address, or you can specify\n"
@@ -93,12 +93,12 @@ msgid ""
 "multiple instances of Citadel are running on the same computer."
 msgstr ""
 
-#: ../utils/setup.c:160
+#: ../utils/setup.c:168
 #, fuzzy
 msgid "Server port number:"
 msgstr "Số thứ tự cổng LDAP:"
 
-#: ../utils/setup.c:162
+#: ../utils/setup.c:170
 msgid ""
 "Specify the TCP port number on which your server will run.\n"
 "Normally, this will be port 504, which is the official port\n"
@@ -108,11 +108,11 @@ msgid ""
 "already using port 504.\n"
 msgstr ""
 
-#: ../utils/setup.c:169
+#: ../utils/setup.c:177
 msgid "Authentication method to use:"
 msgstr ""
 
-#: ../utils/setup.c:171
+#: ../utils/setup.c:179
 #, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
@@ -139,29 +139,29 @@ msgstr ""
 " • LDAP\t\tchọn một máy phục vụ sổ ghi tùy theo RFC 2307\n"
 " • Thư mục Hoạt động\tchọn lược đồ LDAP không tiêu chuẩn MS Active Directory"
 
-#: ../utils/setup.c:189
+#: ../utils/setup.c:197
 msgid "LDAP host:"
 msgstr "Máy chủ LDAP:"
 
-#: ../utils/setup.c:191
+#: ../utils/setup.c:199
 #, fuzzy
 msgid "Please enter the host name or IP address of your LDAP server.\n"
 msgstr "Hãy gõ tên máy hay địa chỉ IP của máy phục vụ LDAP nên dùng."
 
-#: ../utils/setup.c:193
+#: ../utils/setup.c:201
 msgid "LDAP port number:"
 msgstr "Số thứ tự cổng LDAP:"
 
-#: ../utils/setup.c:195
+#: ../utils/setup.c:203
 #, fuzzy
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
 msgstr "Hãy gõ số thứ tự cổng của dịch vụ LDAP (thường là 389)."
 
-#: ../utils/setup.c:197
+#: ../utils/setup.c:205
 msgid "LDAP base DN:"
 msgstr "DN cơ bản LDAP:"
 
-#: ../utils/setup.c:199
+#: ../utils/setup.c:207
 #, fuzzy
 msgid ""
 "Please enter the Base DN to search for authentication\n"
@@ -170,11 +170,11 @@ msgstr ""
 "Hãy gõ tên phân biệt (DN) cơ bản để tìm kiếm thông tin xác thực (v.d. « "
 "dc=tên_miền,dc=com »)."
 
-#: ../utils/setup.c:202
+#: ../utils/setup.c:210
 msgid "LDAP bind DN:"
 msgstr "DN tổ hợp LDAP:"
 
-#: ../utils/setup.c:204
+#: ../utils/setup.c:212
 #, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
@@ -190,11 +190,11 @@ msgstr ""
 "biệt. Nếu trình phục vụ LDAP cho phép yêu cầu nặc danh thì cũng có thể bỏ "
 "trống trường này."
 
-#: ../utils/setup.c:212
+#: ../utils/setup.c:220
 msgid "LDAP bind password:"
 msgstr "Mật khẩu tổ hợp LDAP:"
 
-#: ../utils/setup.c:214
+#: ../utils/setup.c:222
 #, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
@@ -204,6 +204,184 @@ msgstr ""
 "Nếu bạn đã nhập một tên phân biệt (DN) kiểu đóng kết khi đáp ứng câu hỏi "
 "đằng trước, ở đây cũng cần gõ mật khẩu tương ứng với tài khoản đó. Không thì "
 "bỏ trống trường này."
+
+#: ../utils/setup.c:299
+msgid "Yes/No"
+msgstr ""
+
+#: ../utils/setup.c:300
+msgid "Yes"
+msgstr ""
+
+#: ../utils/setup.c:300
+msgid "No"
+msgstr ""
+
+#: ../utils/setup.c:346
+msgid "Press return to continue..."
+msgstr ""
+
+#: ../utils/setup.c:364
+msgid "Important Message"
+msgstr ""
+
+#: ../utils/setup.c:379
+msgid "Error"
+msgstr ""
+
+#: ../utils/setup.c:459
+msgid "Adding service entry..."
+msgstr ""
+
+#. Other errors might mean something really did go wrong.
+#.
+#: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
+msgid "Cannot open"
+msgstr ""
+
+#: ../utils/setup.c:569
+msgid ""
+"Citadel already appears to be configured to start at boot.\n"
+"Would you like to keep your boot configuration as is?\n"
+msgstr ""
+
+#: ../utils/setup.c:577
+msgid "Would you like to automatically start Citadel at boot?\n"
+msgstr ""
+
+#: ../utils/setup.c:583
+msgid "Cannot create"
+msgstr ""
+
+#: ../utils/setup.c:682
+#, c-format
+msgid ""
+"Setup can configure the \"xinetd\" service to automatically\n"
+"connect incoming telnet sessions to Citadel, bypassing the\n"
+"host system login: prompt.  Would you like to do this?\n"
+msgstr ""
+
+#: ../utils/setup.c:740
+msgid "You appear to have the "
+msgstr ""
+
+#: ../utils/setup.c:742
+msgid ""
+" email program\n"
+"running on your system.  If you want Citadel mail\n"
+"connected with "
+msgstr ""
+
+#: ../utils/setup.c:746
+msgid ""
+" you will have to manually integrate\n"
+"them.  It is preferable to disable "
+msgstr ""
+
+#: ../utils/setup.c:749
+msgid ""
+", and use Citadel's\n"
+"SMTP, POP3, and IMAP services.\n"
+"\n"
+"May we disable "
+msgstr ""
+
+#: ../utils/setup.c:753
+msgid ""
+"so that Citadel has access to ports\n"
+"25, 110, and 143?\n"
+msgstr ""
+
+#: ../utils/setup.c:863
+msgid "This is currently set to:"
+msgstr ""
+
+#: ../utils/setup.c:864
+msgid "Enter new value or press return to leave unchanged:"
+msgstr ""
+
+#: ../utils/setup.c:1067 ../utils/setup.c:1072 ../utils/setup.c:1384
+msgid "setup: cannot open"
+msgstr ""
+
+#: ../utils/setup.c:1175
+#, c-format
+msgid ""
+"\n"
+"/etc/nsswitch.conf is configured to use the 'db' module for\n"
+"one or more services.  This is not necessary on most systems,\n"
+"and it is known to crash the Citadel server when delivering\n"
+"mail to the Internet.\n"
+"\n"
+"Do you want this module to be automatically disabled?\n"
+"\n"
+msgstr ""
+
+#: ../utils/setup.c:1236 ../utils/setup.c:1252
+msgid "Setup finished"
+msgstr ""
+
+#: ../utils/setup.c:1237
+msgid ""
+"Setup of the Citadel server is complete.\n"
+"If you will be using WebCit, please run its\n"
+"setup program now; otherwise, run './citadel'\n"
+"to log in.\n"
+msgstr ""
+
+#: ../utils/setup.c:1243
+msgid "Setup failed"
+msgstr ""
+
+#: ../utils/setup.c:1244
+msgid ""
+"Setup is finished, but the Citadel server failed to start.\n"
+"Go back and check your configuration.\n"
+msgstr ""
+
+#: ../utils/setup.c:1253
+msgid "Setup is finished.  You may now start the server."
+msgstr ""
+
+#: ../utils/setup.c:1279
+msgid "My System"
+msgstr ""
+
+#: ../utils/setup.c:1282
+msgid "US 800 555 1212"
+msgstr ""
+
+#: ../utils/setup.c:1368 ../utils/setup.c:1373
+msgid "setup: cannot append"
+msgstr ""
+
+#: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
+#: ../utils/setup.c:1512
+msgid "Citadel Setup"
+msgstr ""
+
+#: ../utils/setup.c:1459
+msgid "The directory you specified does not exist"
+msgstr ""
+
+#: ../utils/setup.c:1473
+msgid ""
+"The Citadel service is still running.\n"
+"Please stop the service manually and run setup again."
+msgstr ""
+
+#: ../utils/setup.c:1485
+#, fuzzy
+msgid "Citadel setup program"
+msgstr "Thư mục Hoạt động"
+
+#: ../utils/setup.c:1513
+msgid "This Citadel installation is too old to be upgraded."
+msgstr ""
+
+#: ../utils/setup.c:1552 ../utils/setup.c:1554 ../utils/setup.c:1556
+msgid "Setting file permissions"
+msgstr ""
 
 #~ msgid ""
 #~ "Please specify the IP address which the server should be listening to. If "
