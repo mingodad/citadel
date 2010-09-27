@@ -124,13 +124,15 @@ void SetTitles(void)
 "note that it may not have a leading /");
 
 
-	setup_titles[eSysAdminName] = _("Citadel administrator username:");////
+	setup_titles[eSysAdminName] = _("Citadel administrator username:");
 	setup_text[eSysAdminName] = _(
-"Enter the name of the system administrator (which is probably\n"
-"you).  When an account is created with this name, it will\n"
-"automatically be given administrator-level access.\n");
+"Please enter the name of the Citadel user account that should be granted "
+"administrative privileges once created. If using internal authentication "
+"this user account will be created if it does not exist. For external "
+"authentication this user account has to exist.");
 
-	setup_titles[eSysAdminPW] = _("Administrator password:");//
+
+	setup_titles[eSysAdminPW] = _("Administrator password:");
 	setup_text[eSysAdminPW] = _(
 "Enter a password for the system administrator. When setup\n"
 "completes it will attempt to create the administrator user\n"
@@ -145,14 +147,15 @@ void SetTitles(void)
 "user ID here.  You may specify either a user name or a numeric\n"
 "UID.\n");
 
-	setup_titles[eIP_ADDR] = _("Listening address for the Citadel server:");///
+	setup_titles[eIP_ADDR] = _("Listening address for the Citadel server:");
 	setup_text[eIP_ADDR] = _(
-"Specify the IP address on which your server will run.\n"
+"Please specify the IP address which the server should be listening to. "
 "You can name a specific IPv4 or IPv6 address, or you can specify\n"
 "'*' for 'any address', '::' for 'any IPv6 address', or '0.0.0.0'\n"
-"for 'any IPv4 address'.  If you leave this blank, Citadel will\n"
-"listen on all addresses.  You can usually skip this unless you are\n"
-"running multiple instances of Citadel on the same computer.\n");
+"for 'any IPv4 address'. If you leave this blank, Citadel will\n"
+"listen on all addresses. "
+"This can usually be left to the default unless multiple instances of Citadel "
+"are running on the same computer.");
 
 	setup_titles[eCTDL_Port] = _("Server port number:");
 	setup_text[eCTDL_Port] = _(
@@ -163,9 +166,16 @@ void SetTitles(void)
 "of Citadel on the same computer and there is something else\n"
 "already using port 504.\n");
 
-	setup_titles[eAuthType] = _("Authentication method to use:");////
+	setup_titles[eAuthType] = _("Authentication method to use:");
 	setup_text[eAuthType] = _(
-"Specify which authentication mode you wish to use.\n"
+"Please choose the user authentication mode. By default Citadel will use its "
+"own internal user accounts database. If you choose Host, Citadel users will "
+"have accounts on the host system, authenticated via /etc/passwd or a PAM "
+"source. LDAP chooses an RFC 2307 compliant directory server, the last option "
+"chooses the nonstandard MS Active Directory LDAP scheme."
+"\n"
+"Do not change this option unless you are sure it is required, since changing "
+"back requires a full reinstall of Citadel."
 "\n"
 " 0. Self contained authentication\n"
 " 1. Host system integrated authentication\n"
@@ -176,27 +186,30 @@ void SetTitles(void)
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n");
 
-	setup_titles[eLDAP_Host] = _("LDAP host:");///
+	setup_titles[eLDAP_Host] = _("LDAP host:");
 	setup_text[eLDAP_Host] = _(
 "Please enter the host name or IP address of your LDAP server.\n");
 
-	setup_titles[eLDAP_Port] = _("LDAP port number:");////
+	setup_titles[eLDAP_Port] = _("LDAP port number:");
 	setup_text[eLDAP_Port] = _(
 "Please enter the port number of the LDAP service (usually 389).\n");
 
-	setup_titles[eLDAP_Base_DN] = _("LDAP base DN:");///
+	setup_titles[eLDAP_Base_DN] = _("LDAP base DN:");
 	setup_text[eLDAP_Base_DN] = _(
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n");
 
-	setup_titles[eLDAP_Bind_DN] = _("LDAP bind DN:");//
+	setup_titles[eLDAP_Bind_DN] = _("LDAP bind DN:");
 	setup_text[eLDAP_Bind_DN] = _(
+"Please enter the DN of an account to use for binding to the LDAP server for "
+"performing queries. The account does not require any other privileges. If "
+"your LDAP server allows anonymous queries, you can leave this blank."
 "Please enter the DN of an account to use for binding to the LDAP server\n"
 "for performing queries.  The account does not require any other\n"
-"privileges.  If your LDAP server allows anonymous queries, you can.\n"
+"privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n");
 
-	setup_titles[eLDAP_Bind_PW] = _("LDAP bind password:");//
+	setup_titles[eLDAP_Bind_PW] = _("LDAP bind password:");
 	setup_text[eLDAP_Bind_PW] = _(
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
