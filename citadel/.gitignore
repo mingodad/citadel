@@ -3,6 +3,8 @@
 Make_modules
 Make_sources
 Makefile
+Makefile.in
+locale
 aclocal.m4
 aidepost
 base64

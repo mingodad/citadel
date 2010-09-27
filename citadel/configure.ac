@@ -1012,7 +1012,7 @@ AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
 AC_CONFIG_FILES([Makefile])
-AC_OUTPUT(database_cleanup.sh)
+AC_OUTPUT(database_cleanup.sh po/Makefile)
 
 if test -z "$DATABASE"; then
 	AC_MSG_WARN([No database driver was found. Please install Berkeley DB.])
