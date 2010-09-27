@@ -20,3 +20,4 @@ usr/sbin/sendcommand
 usr/share/doc/citadel-server/examples/database_cleanup.sh
 usr/share/doc/citadel-server/welcomemail.html
 usr/share/doc/citadel-server/welcomemail.txt
+usr/share/locale

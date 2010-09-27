@@ -108,6 +108,7 @@ install-arch: build-arch
 	dh_clean -k -s 
 	dh_installdirs -s
 
+	$(MAKE) install-locale DESTDIR=$(DEB_DESTDIR)
 	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-exec-new install-data-new
 
 	install -D -p -m0755 database_cleanup.sh \
