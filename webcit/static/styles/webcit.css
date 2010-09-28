@@ -1034,6 +1034,10 @@ li.event_unread span, a.event_read_title { font-size: 100% }
 	border: 1px solid #333;
 	background-color: #ffff00;
 	overflow: hidden;
+	-webkit-box-shadow: #666 0px 2px 3px;
+	-moz-box-shadow: #666 0px 2px 3px;
+	box-shadow: #666 0px 2px 3px;
+	behavior: url(/static/styles/PIE.htc);
 }
 
 .stickynote_titlebar {
