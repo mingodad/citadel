@@ -98,6 +98,7 @@ body {
 
 #message_list_hdr select {
 	background-color: #3E65AF;
+	color: #F1BD22;
 	border: 1px solid #6C91A6;
 }
 
@@ -203,8 +204,8 @@ body {
 .mimepart dl dt { font-weight: 700 }
 
 .roomops_cell_label, .tab_cell_label {
-	background-color: #FF7814;
-	color: #FFF;
+	background-color: #3E65AF;
+	color: #EABB3A;
 	font-size: 90%;
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
@@ -212,10 +213,13 @@ body {
 	/* behavior: url(/static/styles/PIE.htc); disabled for now; see http://github.com/lojjic/PIE/issues#issue/21 */
 }
 
-.selectbox { background-color: #FF8000 }
+.selectbox {
+	background-color: #FF8000;
+}
 
 .tab_cell, .tab_cell_edit {
-	background-color: #CCC;
+	background-color: #6F94D5;
+	color: #F9FDFB;
 	font-size: 90%;
 	border-radius: 8px 8px 0 0;
 	-webkit-border-radius: 8px 8px 0 0;
@@ -224,8 +228,8 @@ body {
 }
 
 .tabcontent {
-	background-color: #FFF;
-	border-top: 3px solid #FF7814;
+	background-color: #FEFFFC;
+	border: 2px solid #424B52;
 }
 
 .treetitleselectedblured {
@@ -363,7 +367,9 @@ var sub { font-style: normal }
 
 a { text-decoration: none }
 
-a:active { color: #3E65AF }
+a:active {
+	color: #3E65AF;
+}
 
 a:link {
 	color: #2F65DD;
@@ -377,8 +383,8 @@ a:visited { color: purple}
 
 #important_message, .buttons a:hover, .msgbuttons a:hover, #button li:hover, #online_users li a:hover {
 	background-color: #3E65AF;
-	color: #FFF;
-} /* input:hover as well?? */
+	color: #3E65AF;
+}
 
 .button_link a, input, select, li.activeuser, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
 	background-color: #fbf4ca !important; /* needed for li.activeuser */
@@ -444,7 +450,7 @@ body {
 
 .moreprompt_link:hover {
 	background-color: #3E65AF;
-	color: #FFF;
+	color: #3E65AF;
 }
 
 #validate { text-align: center }
@@ -691,7 +697,9 @@ body {
 	width: 20%;
 }
 
-.edit_msg_table td { width: 40% }
+.edit_msg_table td {
+	width: 40%;
+}
 
 .edit_msg_table #recp_id, .edit_msg_table #cc_id, .edit_msg_table #bcc_id, .edit_msg_table #subject_id  {
 	width: 98%
@@ -992,7 +1000,7 @@ li.event_unread span, a.event_read_title { font-size: 100% }
 .mini_calendar a:link,.mini_calendar a:visited { color: #fff }
 
 .mini_calendar a:hover,.mini_calendar a:active {
-   color: #fff;
+   color: #3E65AF;
    background-color: #3E65AF;
 }
 
@@ -1001,7 +1009,7 @@ li.event_unread span, a.event_read_title { font-size: 100% }
 .mini_calendar td a:link,.mini_calendar td a:visited { color: #fff }
 
 .mini_calendar td a:hover,.mini_calendar td a:active {
-   color: #fff;
+   color: #3E65AF;
    background-color: #3E65AF;
 
 }
