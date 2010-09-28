@@ -24,13 +24,14 @@
 } 
 
 .ib_button, .iconbar_text{
-	background-color: #F0FFFF;
-	color: #333;
+	background-color: #6F94D5;
+	color: #F0FEFF;
+	font-weight: bold;
 } 
 
 .ib_button_link, .ib_button_link:visited, .ib_button_link:link, #online_users a {
 	display: block;
-	color: #000;
+	color: #F0FEFF;
 	text-decoration: none;
 }
 
@@ -45,8 +46,8 @@
 	display: block;
 	font-size: 80%;
 	border: none;
-	border-bottom: 2px groove #CCC;
-	border-right: 2px groove #CCC;
+	border-bottom: 2px groove #DADCDA;
+	border-right: 2px groove #DADCDA;
  }
 
 .logo, .logo_citadel, #iconbar #button, .iconbar_text, .ib_button {
@@ -104,7 +105,7 @@
 }
 
 #ib_logoff:hover {
-	background-color: #AD1C00;
+	background-color: #3E65AF;
 	color: #FFF;
 }
 
