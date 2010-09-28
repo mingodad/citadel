@@ -4,12 +4,7 @@
 	left: 16%;              /* when changing this, also change #banner and #iconbar */
 	bottom: 0;
 	width: 84%;             /* when changing this, also change #banner and #iconbar */
-	background: #6C91A6;
-	background: -webkit-gradient(linear, 0 0, 0 bottom, from(#9999FF), to(#DDDDFF));
-	background: -moz-linear-gradient(#9999FF, #DDDDFF);
-	background: linear-gradient(#9999FF, #DDDDFF);
-	-pie-background: linear-gradient(#9999FF, #DDDDFF);
-	behavior: url(/PIE.htc);
+	background: #F3F6F2;
 	color: #000;
 	z-index: 2;
 	overflow-y: auto;                               

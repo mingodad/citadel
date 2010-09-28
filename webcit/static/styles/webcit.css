@@ -40,7 +40,7 @@ body { font-size: 100%}
 /* Color */
 
 body {
-	background-color: #6C91A6;
+	background-color: #F3F6F2;
 	font-family: sans-serif;
 }
 
@@ -365,7 +365,9 @@ a { text-decoration: none }
 
 a:active { color: #AD1C00 }
 
-a:link { color: blue }
+a:link {
+	color: #2F65DD;
+}
 
 a:visited { color: purple}
 

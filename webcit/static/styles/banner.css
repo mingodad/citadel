@@ -1,5 +1,5 @@
 #banner {
-	background-color: #004E79;
+	background-color: #4D555C;
 	color: #FFF;
 	margin: 0;
 	padding: 0;
@@ -24,10 +24,9 @@
 #banner h2, #banner .titlebar { font-size: 130% }
 
 #banner ul.room_actions li.start_page a {
-	background-color: #022750;
-	border-top: 1px solid black;
-	border-bottom: 1px solid black;
-	color: #FFF;
+	background-color: #5C646B;
+	color: #FEFFFC;
+	border: 1px solid black;
 }
 #banner .banner {
 	display: table-cell;
@@ -87,4 +86,6 @@
 
 .room_actions form select { cursor: pointer }
 
-.start_page { font-size: 60% }
+.start_page {
+	font-size: 50%
+}
