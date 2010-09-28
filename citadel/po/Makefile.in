@@ -1,0 +1,31 @@
+include ../Make_sources
+
+
+SRCS:=  $(wildcard *.po)
+OBJS:=  $(patsubst %.po, \
+	../locale/%/LC_MESSAGES/citadel-setup.mo, \
+	$(SRCS))
+#	../locale/%/LC_MESSAGES/citadel_client.mo, \
+#	../locale/%/LC_MESSAGES/citadel_server.mo, \
+
+.SUFFIXES: .po .mo
+
+.PHONY: all
+
+all: $(OBJS)
+
+clean:
+	rm -r ../locale/*
+
+../locale/%/LC_MESSAGES/citadel-setup.mo: %.po
+	mkdir -p $(patsubst %.po, ../locale/%/LC_MESSAGES, $<)
+	msgfmt -o $@ $<
+
+#../locale/%/LC_MESSAGES/citadel_client.mo: %.po
+#	mkdir -p $(patsubst %.po, ../locale/%/LC_MESSAGES, $<)
+#	msgfmt -o $@ $<
+#
+#../locale/%/LC_MESSAGES/citadel_server.mo: %.po
+#	mkdir -p $(patsubst %.po, ../locale/%/LC_MESSAGES, $<)
+#	msgfmt -o $@ $<
+#

@@ -60,6 +60,7 @@ configure-stamp:
 		--with-ssldir=/etc/ssl/citadel/ \
 		--with-utility-bindir=/usr/lib/citadel-server/ \
 		--with-autosysconfdir=/var/lib/citadel/data/ \
+                --with-localedir=/usr/share/ \
 		--with-pam \
 		--with-db \
 		--enable-debug $(EXTRA_ARGS) $(PROFILE_ARGS) $(THREAD_ARGS)
@@ -107,6 +108,7 @@ install-arch: build-arch
 	dh_clean -k -s 
 	dh_installdirs -s
 
+	$(MAKE) install-locale DESTDIR=$(DEB_DESTDIR)
 	$(MAKE) DESTDIR=$(DEB_DESTDIR) install-exec-new install-data-new
 
 	install -D -p -m0755 database_cleanup.sh \
