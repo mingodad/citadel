@@ -264,7 +264,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 	strcpy(org, "");
 
 	if (!full) {
-		StrBufAppendPrintf(Target, "<TD>");
+		StrBufAppendPrintf(Target, "<td>");
 		name = vcard_get_prop(v, "fn", 1, 0, 0);
 		if (name != NULL) {
 			StrEscAppend(Target, NULL, name, 0, 0);
@@ -277,12 +277,12 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 		else {
 			StrBufAppendPrintf(Target, "&nbsp;");
 		}
-		StrBufAppendPrintf(Target, "</TD>");
+		StrBufAppendPrintf(Target, "</td>");
 		return;
 	}
 
-	StrBufAppendPrintf(Target, "<div align=center>"
-		"<table bgcolor=#aaaaaa width=50%%>");
+	StrBufAppendPrintf(Target, "<div align=\"center\">"
+		"<table bgcolor=\"#aaaaaa\" width=\"50%%\">");
 	for (pass=1; pass<=2; ++pass) {
 
 		if (v->numprops) for (i=0; i<(v->numprops); ++i) {
@@ -396,9 +396,9 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 			}
 			else if (!strcasecmp(firsttoken, "adr")) {
 				if (pass == 2) {
-					StrBufAppendPrintf(Target, "<TR><TD>");
+					StrBufAppendPrintf(Target, "<tr><td>");
 					StrBufAppendPrintf(Target, _("Address:"));
-					StrBufAppendPrintf(Target, "</TD><TD>");
+					StrBufAppendPrintf(Target, "</td><td>");
 					for (j=0; j<num_tokens(thisvalue, ';'); ++j) {
 						extract_token(buf, thisvalue, j, ';', sizeof buf);
 						if (!IsEmptyStr(buf)) {
@@ -407,7 +407,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 							else StrBufAppendPrintf(Target, " ");
 						}
 					}
-					StrBufAppendPrintf(Target, "</TD></TR>\n");
+					StrBufAppendPrintf(Target, "</td></tr>\n");
 				}
 			}
 			/* else if (!strcasecmp(firsttoken, "photo") && full && pass == 2) { 
@@ -445,23 +445,23 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 		}
 	
 		if (pass == 1) {
-			StrBufAppendPrintf(Target, "<TR BGCOLOR=\"#AAAAAA\">"
-			"<TD COLSPAN=2 BGCOLOR=\"#FFFFFF\">"
-			"<IMG ALIGN=CENTER src=\"static/viewcontacts_48x.gif\">"
-			"<FONT SIZE=+1><B>");
+			StrBufAppendPrintf(Target, "<tr bgcolor=\"#aaaaaa\">"
+      "<td colspan=2 bgcolor=\"#ffffff\">"
+      "<img align=\"center\" src=\"static/viewcontacts_48x.gif\">"
+      "<font size=\"+1\"><b>");
 			StrEscAppend(Target, NULL, fullname, 0, 0);
-			StrBufAppendPrintf(Target, "</B></FONT>");
+			StrBufAppendPrintf(Target, "</b></font>");
 			if (!IsEmptyStr(title)) {
-				StrBufAppendPrintf(Target, "<div align=right>");
+				StrBufAppendPrintf(Target, "<div align=\"right>\"");
 				StrEscAppend(Target, NULL, title, 0, 0);
 				StrBufAppendPrintf(Target, "</div>");
 			}
 			if (!IsEmptyStr(org)) {
-				StrBufAppendPrintf(Target, "<div align=right>");
+				StrBufAppendPrintf(Target, "<div align=\"right\">");
 				StrEscAppend(Target, NULL, org, 0, 0);
 				StrBufAppendPrintf(Target, "</div>");
 			}
-			StrBufAppendPrintf(Target, "</TD></TR>\n");
+			StrBufAppendPrintf(Target, "</td></tr>\n");
 		
 			if (!IsEmptyStr(phone)) {
 				StrBufAppendPrintf(Target, "<tr><td>");
@@ -601,7 +601,7 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 				end_tab(page-1, num_pages);
 			}
 			begin_tab(page, num_pages);
-			wc_printf("<table border=0 cellspacing=0 cellpadding=3 width=100%%>\n");
+			wc_printf("<table border=\"0\" cellspacing=\"0\" cellpadding=\"3\" width=\"100%%\">\n");
 			displayed = 0;
 		}
 
@@ -611,7 +611,7 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 			}
 			bg = 1 - bg;
 			wc_printf("<tr bgcolor=\"#%s\">",
-				(bg ? "DDDDDD" : "FFFFFF")
+				(bg ? "dddddd" : "ffffff")
 			);
 		}
 	
@@ -843,7 +843,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 
 	wc_printf("<table class=\"vcard_edit_background\"><tr><td>\n");
 
-	wc_printf("<table border=0><tr>"
+	wc_printf("<table border=\"0\"><tr>"
 		"<td>%s</td>"
 		"<td>%s</td>"
 		"<td>%s</td>"
@@ -893,7 +893,7 @@ void do_edit_vcard(long msgnum, char *partnum,
 
 	wc_printf("</td><td>");
 
-	wc_printf("<table border=0>");
+	wc_printf("<table border=\"0\">");
 	wc_printf("<tr><td>");
 	wc_printf(_("PO box:"));
 	wc_printf("</td><td>"
