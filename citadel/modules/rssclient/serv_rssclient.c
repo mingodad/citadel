@@ -346,7 +346,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 	CURL *curl;
 	char errmsg[1024] = "";
 	StrBuf *Answer;
-	int rc;
+	int rc = 0;
 
 	curl = curl_easy_init();
 	if (!curl) {
@@ -424,7 +424,7 @@ void CrawlMessageForShorterUrls(HashList *pUrls, StrBuf *Message)
 
 			pCUrl->Key = pUrl;
 			pch = pUrl + strlen(pShortenerService);
-			while (isalnum(*pch))
+			while (isalnum(*pch)||(*pch == '-')||(*pch == '/'))
 				pch++;
 			pCUrl->len = pch - pCUrl->Key;
 
@@ -1287,7 +1287,7 @@ size_t rss_libcurl_callback(void *ptr, size_t size, size_t nmemb, void *stream)
 void rss_do_fetching(rssnetcfg *Cfg) {
 	rsscollection rssc;
 	rss_item ri;
-	XML_Parser xp;
+	XML_Parser xp = NULL;
 	StrBuf *Answer;
 
 	CURL *curl;
@@ -1505,7 +1505,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 /*
  * Scan for rooms that have RSS client requests configured
  */
-void rssclient_scan(void *args) {
+void rssclient_scan(void) {
 	static time_t last_run = 0L;
 	static int doing_rssclient = 0;
 	rssnetcfg *rptr = NULL;
@@ -1516,7 +1516,7 @@ void rssclient_scan(void *args) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_rssclient) return NULL;
+	if (doing_rssclient) return;
 	doing_rssclient = 1;
 
 	CtdlLogPrintf(CTDL_DEBUG, "rssclient started\n");
@@ -1533,7 +1533,7 @@ void rssclient_scan(void *args) {
 	CtdlLogPrintf(CTDL_DEBUG, "rssclient ended\n");
 	last_run = time(NULL);
 	doing_rssclient = 0;
-	return NULL;
+	return;
 }
 
 
