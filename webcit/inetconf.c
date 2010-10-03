@@ -19,14 +19,9 @@ typedef enum _e_cfg {
 	ic_max
 } ECfg;
 
-typedef struct _ConstStrBuf {
-	const char *name;
-	size_t len;
-} ConstStrBuf;
-
 
   /* These are server config keywords; do not localize! */
-ConstStrBuf CfgNames[] = {
+ConstStr CfgNames[] = {
 	{ HKEY("localhost") },
 	{ HKEY("directory") },
 	{ HKEY("smarthost") },
@@ -55,9 +50,9 @@ void load_inetconf(void)
 	
 	WCC->InetCfg = NewHash(1, NULL);
 
-	for (i = 0; i < (sizeof(CfgNames) / sizeof(ConstStrBuf)); i++) {
+	for (i = 0; i < (sizeof(CfgNames) / sizeof(ConstStr)); i++) {
 		Hash = NewHash(1, NULL);
-		Put(WCC->InetCfg, CfgNames[i].name, CfgNames[i].len, Hash, HDeleteHash);
+		Put(WCC->InetCfg, CKEY(CfgNames[i]), Hash, HDeleteHash);
 	}
 
 	serv_printf("CONF GETSYS|application/x-citadel-internet-config");
@@ -150,12 +145,12 @@ void new_save_inetconf(void) {
 	serv_printf("CONF PUTSYS|application/x-citadel-internet-config");
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 4) {
-		for (i = 0; i < (sizeof(CfgNames) / sizeof(ConstStrBuf)); i++) {
+		for (i = 0; i < (sizeof(CfgNames) / sizeof(ConstStr)); i++) {
 			HashPos *where;
 			const char *Key;
 			long KeyLen;
 
-			GetHash(WCC->InetCfg, CfgNames[i].name, CfgNames[i].len, &vHash);
+			GetHash(WCC->InetCfg, CKEY(CfgNames[i]), &vHash);
 			Hash = (HashList*) vHash;
 			if (Hash == NULL) {
 				sprintf(WC->ImportantMessage, _("Invalid Parameter"));
@@ -169,7 +164,7 @@ void new_save_inetconf(void) {
 					if ((Str!= NULL) && (StrLength(Str) > 0))
 						serv_printf("%s|%s", 
 							    ChrPtr(Str),
-							    CfgNames[i].name); 
+							    CfgNames[i].Key); 
 				}
 				DeleteHashPos(&where);
 			}			
