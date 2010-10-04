@@ -3436,6 +3436,8 @@ struct CtdlMessage *CtdlMakeMessage(
 	char dest_node[256];
 	char buf[1024];
 	struct CtdlMessage *msg;
+	StrBuf *FakeAuthor;
+	StrBuf *FakeEncAuthor = NULL;
 
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
@@ -3465,11 +3467,13 @@ struct CtdlMessage *CtdlMakeMessage(
 	msg->cm_fields['T'] = strdup(buf);
 
 	if ((fake_name != NULL) && (fake_name[0])) {		/* author */
-		msg->cm_fields['A'] = strdup(fake_name);
+		FakeAuthor = NewStrBufPlain (fake_name, -1);
 	}
 	else {
-		msg->cm_fields['A'] = strdup(author->fullname);
+		FakeAuthor = NewStrBufPlain (author->fullname, -1);
 	}
+	StrBufRFC2047encode(&FakeEncAuthor, FakeAuthor);
+	msg->cm_fields['A'] = SmashStrBuf(&FakeEncAuthor);
 
 	if (CC->room.QRflags & QR_MAILBOX) {		/* room */
 		msg->cm_fields['O'] = strdup(&CC->room.QRname[11]);
