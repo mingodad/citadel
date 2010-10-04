@@ -2538,7 +2538,6 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 				pch = NULL;
 				if (EmailEnd != NULL) {
 					gt = 1;
-					EmailEnd --;
 				}
 				else {
 					EmailEnd = pche;
@@ -2564,7 +2563,11 @@ StrBuf *StrBufSanitizeEmailRecipientVector(const StrBuf *Recp,
 				EmailStart = strchr(UserStart, '<');
 				if ((EmailStart == NULL) || (EmailStart > EmailEnd))
 					break;
-				UserEnd = EmailStart - 1;
+				UserEnd = EmailStart;
+
+				while ((UserEnd > UserStart) && 
+				       isspace (*(UserEnd - 1)))
+					UserEnd --;
 				EmailStart ++;
 				if (UserStart >= UserEnd)
 					UserStart = UserEnd = NULL;
