@@ -604,7 +604,7 @@ void rss_save_item(rss_item *ri)
 		ut.ut_timestamp = time(NULL);
 		cdb_store(CDB_USETABLE, utmsgid, strlen(utmsgid), &ut, sizeof(struct UseTable) );
 	}
-	else 
+	else
 #endif
 {
 		/* Item has not been seen, so save it. */
@@ -623,67 +623,35 @@ void rss_save_item(rss_item *ri)
 
 		if (ri->author_or_creator != NULL) {
 			char *From;
-			StrBuf *Encoded, *QPEncoded;
-			StrBuf *UserName;
-			StrBuf *EmailAddress;
-			StrBuf *EncBuf;
+			StrBuf *Encoded = NULL;
 			int FromAt;
 			int FromLen;
 			
-			UserName = NewStrBuf();
-			EmailAddress = NewStrBuf();
-			EncBuf = NewStrBuf();
-////TODO!
-			StrBufTrim(ri->author_or_creator);
 			From = html_to_ascii(ChrPtr(ri->author_or_creator),
 					     StrLength(ri->author_or_creator), 
 					     512, 0);
-			FromLen = strlen(From);
-			if (From[FromLen - 1] == '\n')
-			{
-				From[FromLen - 1] = '\0';
-			}
-			FromAt = strchr(From, '@') != NULL;
+			StrBufPlain(ri->author_or_creator, From, -1);
+			StrBufTrim(ri->author_or_creator);
+			free(From);
+
+			FromAt = strchr(ChrPtr(ri->author_or_creator), '@') != NULL;
 			if (!FromAt && StrLength (ri->author_email) > 0)
 			{
-				Encoded = NewStrBuf();
-				if (!IsEmptyStr(From))
-				{
-					StrBufPrintf(Encoded,
-						     "%s<%s>", 
-						     From, 
-						     ChrPtr(ri->author_email));
-				}
-				else
-				{
-					StrBufPrintf(Encoded,
-						     "<%s>", 
-						     ChrPtr(ri->author_email));
-				}
+				StrBufRFC2047encode(&Encoded, ri->author_or_creator);
+				msg->cm_fields['A'] = SmashStrBuf(&Encoded);
+				msg->cm_fields['P'] = SmashStrBuf(&ri->author_email);
 			}
 			else
 			{
 				if (FromAt)
-					Encoded = NewStrBufPlain(From, -1);
+					msg->cm_fields['P'] = SmashStrBuf(&ri->author_or_creator);
 				else 
 				{
-					Encoded = NewStrBuf();
-					StrBufPrintf(Encoded,
-						     "%s<%s>", 
-						     From, 
-						     "rss@localhost"); /// TODO: get hostname?
+					StrBufRFC2047encode(&Encoded, ri->author_or_creator);
+					msg->cm_fields['A'] = SmashStrBuf(&Encoded);
+					msg->cm_fields['P'] = strdup("rss@localhost");
 				}
 			}
-			free(From);
-			StrBufTrim(Encoded);
-			QPEncoded = StrBufSanitizeEmailRecipientVector(Encoded, UserName, EmailAddress, EncBuf);
-			msg->cm_fields['A'] = SmashStrBuf(&QPEncoded);
-
-			FreeStrBuf(&Encoded);
-			FreeStrBuf(&UserName);
-			FreeStrBuf(&EmailAddress);
-			FreeStrBuf(&EncBuf);
-
 		}
 		else {
 			msg->cm_fields['A'] = strdup("rss");
