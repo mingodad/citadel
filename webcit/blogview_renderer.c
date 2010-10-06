@@ -110,9 +110,36 @@ int blogview_sortfunc(const void *s1, const void *s2) {
 }
 
 
-int blogview_render(SharedMessageStatus *Stat, 
-			       void **ViewSpecific, 
-			       long oper)
+
+/*
+ * Given a 'struct blogpost' containing a msgnum, populate the id
+ * and refs fields by fetching them from the Citadel server
+ */
+void blogview_learn_thread_references(struct blogpost *bp)
+{
+	StrBuf *Buf;
+	Buf = NewStrBuf();
+	serv_printf("MSG0 %ld|1", bp->msgnum);		/* top level citadel headers only */
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
+				bp->id = NewStrBufDup(Buf);
+				StrBufCutLeft(bp->id, 5);
+			}
+			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
+				bp->refs = NewStrBufDup(Buf);
+				StrBufCutLeft(bp->refs, 5);
+			}
+		}
+	}
+	FreeStrBuf(&Buf);
+}
+
+
+
+
+int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
 	int i;
@@ -124,25 +151,7 @@ int blogview_render(SharedMessageStatus *Stat,
 
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i].msgnum > 0L) {
-
-			/* maybe put some of this into its own function later */
-			StrBuf *Buf;
-			Buf = NewStrBuf();
-			serv_printf("MSG0 %ld|1", BLOG->msgs[i].msgnum);/* top level citadel headers only */
-			StrBuf_ServGetln(Buf);
-			if (GetServerStatus(Buf, NULL) == 1) {
-				while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
-					if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
-						BLOG->msgs[i].id = NewStrBufDup(Buf);
-						StrBufCutLeft(BLOG->msgs[i].id, 5);
-					}
-					else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
-						BLOG->msgs[i].refs = NewStrBufDup(Buf);
-						StrBufCutLeft(BLOG->msgs[i].refs, 5);
-					}
-				}
-			}
-			FreeStrBuf(&Buf);
+			blogview_learn_thread_references(&BLOG->msgs[i]);
 			wc_printf("Message %d, #%ld, id '%s', refs '%s'<br>\n",
 				i,
 				BLOG->msgs[i].msgnum,
