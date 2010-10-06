@@ -31,6 +31,7 @@ struct blogpost {
 	long msgnum;
 	StrBuf *id;
 	StrBuf *refs;
+	int comment_count;
 };
 
 struct blogview {
@@ -92,13 +93,15 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	BLOG->msgs[BLOG->num_msgs++].msgnum = Msg->msgnum;
 	BLOG->msgs[BLOG->num_msgs].id = NULL;
 	BLOG->msgs[BLOG->num_msgs].refs = NULL;
+	BLOG->msgs[BLOG->num_msgs].comment_count = 0;
 
 	return 200;
 }
 
 
+
 /*
- * People expect blogs to be sorted newest-to-oldest
+ * Sort a list of 'struct blogpost' objects by newest-to-oldest msgnum.
  */
 int blogview_sortfunc(const void *s1, const void *s2) {
 	struct blogpost *l1 = (struct blogpost *)(s1);
@@ -144,20 +147,37 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
 	int i;
 
+	/* Pass #1 - sort */
 	if (Stat->nummsgs > 0) {
 		lprintf(9, "sorting %d messages\n", BLOG->num_msgs);
 		qsort(BLOG->msgs, (size_t)(BLOG->num_msgs), sizeof(struct blogpost), blogview_sortfunc);
 	}
 
+	/* Pass #2 - learn thread references */
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i].msgnum > 0L) {
 			blogview_learn_thread_references(&BLOG->msgs[i]);
-			wc_printf("Message %d, #%ld, id '%s', refs '%s'<br>\n",
+		}
+	}
+
+	/* FIXME here is where we should actually turn it into a thread tree */
+
+	/* Pass #3 - render */
+	for (i=0; (i<BLOG->num_msgs); ++i) {
+		if (BLOG->msgs[i].msgnum > 0L) {
+			if (BLOG->msgs[i].refs == NULL) {
+				wc_printf("<b>");
+			}
+			wc_printf("Message %d, #%ld, id '%s', refs '%s'",
 				i,
 				BLOG->msgs[i].msgnum,
 				ChrPtr(BLOG->msgs[i].id),
 				ChrPtr(BLOG->msgs[i].refs)
 			);
+			if (BLOG->msgs[i].refs == NULL) {
+				wc_printf("</b>");
+			}
+			wc_printf("<br>\n");
 		}
 	}
 
