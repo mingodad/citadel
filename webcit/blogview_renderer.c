@@ -26,8 +26,15 @@
  * Data which gets passed around between the various functions in this module
  *
  */
+
+struct blogpost {
+	long msgnum;
+	StrBuf *id;
+	StrBuf *refs;
+};
+
 struct blogview {
-	long *msgs;		/* Array of msgnums for messages we are displaying */
+	struct blogpost *msgs;	/* Array of msgnums for messages we are displaying */
 	int num_msgs;		/* Number of msgnums stored in 'msgs' */
 	int alloc_msgs;		/* Currently allocated size of array */
 };
@@ -71,8 +78,8 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 
 	if (BLOG->alloc_msgs == 0) {
 		BLOG->alloc_msgs = 1000;
-		BLOG->msgs = malloc(BLOG->alloc_msgs * sizeof(long));
-		memset(BLOG->msgs, 0, (BLOG->alloc_msgs * sizeof(long)) );
+		BLOG->msgs = malloc(BLOG->alloc_msgs * sizeof(struct blogpost));
+		memset(BLOG->msgs, 0, (BLOG->alloc_msgs * sizeof(struct blogpost)) );
 	}
 
 	/* Check our buffer size */
@@ -82,7 +89,9 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		memset(&BLOG->msgs[BLOG->num_msgs], 0, ((BLOG->alloc_msgs - BLOG->num_msgs) * sizeof(long)) );
 	}
 
-	BLOG->msgs[BLOG->num_msgs++] = Msg->msgnum;
+	BLOG->msgs[BLOG->num_msgs++].msgnum = Msg->msgnum;
+	BLOG->msgs[BLOG->num_msgs].id = NULL;
+	BLOG->msgs[BLOG->num_msgs].refs = NULL;
 
 	return 200;
 }
@@ -92,14 +101,11 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
  * People expect blogs to be sorted newest-to-oldest
  */
 int blogview_sortfunc(const void *s1, const void *s2) {
-	long l1;
-	long l2;
+	struct blogpost *l1 = (struct blogpost *)(s1);
+	struct blogpost *l2 = (struct blogpost *)(s2);
 
-	l1 = *(long *)(s1);
-	l2 = *(long *)(s2);
-
-	if (l1 > l2) return(-1);
-	if (l1 < l2) return(+1);
+	if (l1->msgnum > l2->msgnum) return(-1);
+	if (l1->msgnum < l2->msgnum) return(+1);
 	return(0);
 }
 
@@ -113,24 +119,36 @@ int blogview_render(SharedMessageStatus *Stat,
 
 	if (Stat->nummsgs > 0) {
 		lprintf(9, "sorting %d messages\n", BLOG->num_msgs);
-		qsort(BLOG->msgs, (size_t)(BLOG->num_msgs), sizeof(long), blogview_sortfunc);
+		qsort(BLOG->msgs, (size_t)(BLOG->num_msgs), sizeof(struct blogpost), blogview_sortfunc);
 	}
 
 	for (i=0; (i<BLOG->num_msgs); ++i) {
-		if (BLOG->msgs[i] > 0L) {
-			wc_printf("<p>Message %d %ld</p>\n", i, BLOG->msgs[i]);
+		if (BLOG->msgs[i].msgnum > 0L) {
 
 			/* maybe put some of this into its own function later */
 			StrBuf *Buf;
 			Buf = NewStrBuf();
-			serv_printf("MSG0 %ld|1", BLOG->msgs[i]);	/* top level citadel headers only */
+			serv_printf("MSG0 %ld|1", BLOG->msgs[i].msgnum);/* top level citadel headers only */
 			StrBuf_ServGetln(Buf);
 			if (GetServerStatus(Buf, NULL) == 1) {
 				while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
-					wc_printf("%s<br>\n", ChrPtr(Buf));
+					if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
+						BLOG->msgs[i].id = NewStrBufDup(Buf);
+						StrBufCutLeft(BLOG->msgs[i].id, 5);
+					}
+					else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
+						BLOG->msgs[i].refs = NewStrBufDup(Buf);
+						StrBufCutLeft(BLOG->msgs[i].refs, 5);
+					}
 				}
 			}
 			FreeStrBuf(&Buf);
+			wc_printf("Message %d, #%ld, id '%s', refs '%s'<br>\n",
+				i,
+				BLOG->msgs[i].msgnum,
+				ChrPtr(BLOG->msgs[i].id),
+				ChrPtr(BLOG->msgs[i].refs)
+			);
 		}
 	}
 
@@ -141,8 +159,13 @@ int blogview_render(SharedMessageStatus *Stat,
 int blogview_Cleanup(void **ViewSpecific)
 {
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
+	int i;
 
 	if (BLOG->alloc_msgs != 0) {
+		for (i=0; i<BLOG->num_msgs; ++i) {
+			FreeStrBuf(&BLOG->msgs[i].id);
+			FreeStrBuf(&BLOG->msgs[i].refs);
+		}
 		free(BLOG->msgs);
 	}
 	free(BLOG);
