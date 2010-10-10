@@ -57,18 +57,6 @@
 #include "context.h"
 
 
-
-const char *LinkShortenerServices[] = {
-"http://bit.ly/",
-"http://krz.ch/",
-"http://flic.kr/",
-"http://sns.ly/",
-"http://wp.me/",
-"http://ow.ly/",
-"http://tinyurl.com/",
-NULL
-};
-
 typedef struct rssnetcfg rssnetcfg;
 struct rssnetcfg {
 	rssnetcfg *next;
@@ -124,9 +112,10 @@ typedef struct _rsscollection {
 } rsscollection;
 
 struct rssnetcfg *rnclist = NULL;
-HashList *StartHandlers;
-HashList *EndHandlers;
-HashList *KnownNameSpaces;
+HashList *StartHandlers = NULL;
+HashList *EndHandlers = NULL;
+HashList *KnownNameSpaces = NULL;
+HashList *UrlShorteners = NULL;
 void AddRSSStartHandler(rss_handler_func Handler, int Flags, const char *key, long len)
 {
 	rss_xml_handler *h;
@@ -407,32 +396,31 @@ shutdown:
 void CrawlMessageForShorterUrls(HashList *pUrls, StrBuf *Message)
 {
 	int nHits = 0;
-	const char *pShortenerService;
+	void *pv;
 	int nShorter = 0;
 	const char *pch;
 	const char *pUrl;
 	ConstStr *pCUrl;
 
-	pShortenerService = LinkShortenerServices[nShorter++];
-	while (pShortenerService != NULL)
+	while (GetHash(UrlShorteners, IKEY(nShorter), &pv))
 	{
+		nShorter++;
 		pch = ChrPtr(Message);
-		pUrl = strstr(pch, pShortenerService);
+		pUrl = strstr(pch, ChrPtr((StrBuf*)pv));
 		while ((pUrl != NULL) && (nHits < 99))
 		{
 			pCUrl = malloc(sizeof(ConstStr));
 
 			pCUrl->Key = pUrl;
-			pch = pUrl + strlen(pShortenerService);
+			pch = pUrl + StrLength((StrBuf*)pv);
 			while (isalnum(*pch)||(*pch == '-')||(*pch == '/'))
 				pch++;
 			pCUrl->len = pch - pCUrl->Key;
 
 			Put(pUrls, IKEY(nHits), pCUrl, NULL);
 			nHits ++;
-			pUrl = strstr(pch, pShortenerService);
+			pUrl = strstr(pch, ChrPtr((StrBuf*)pv));
 		}
-		pShortenerService = LinkShortenerServices[nShorter++];
 	}
 }
 
@@ -625,7 +613,6 @@ void rss_save_item(rss_item *ri)
 			char *From;
 			StrBuf *Encoded = NULL;
 			int FromAt;
-			int FromLen;
 			
 			From = html_to_ascii(ChrPtr(ri->author_or_creator),
 					     StrLength(ri->author_or_creator), 
@@ -1504,6 +1491,43 @@ void rssclient_scan(void) {
 	return;
 }
 
+void LoadUrlShorteners(void)
+{
+	int i = 0;
+	int fd;
+	const char *POS = NULL;
+	const char *Err = NULL;
+	StrBuf *Content, *Line;
+
+
+	UrlShorteners = NewHash(0, Flathash);
+
+	fd = open(file_citadel_urlshorteners, 0);
+
+	if (fd != 0)
+	{
+		Content = NewStrBufPlain(NULL, SIZ);
+		Line = NewStrBuf();
+		while (POS != StrBufNOTNULL)
+		{
+			StrBufTCP_read_buffered_line_fast (Line, Content, &POS, &fd, 1, 1, &Err);
+			StrBufTrim(Line);
+			if ((*ChrPtr(Line) != '#') && (StrLength(Line) > 0))
+			{
+				Put(UrlShorteners, IKEY(i), Line, HFreeStrBuf);
+				i++;
+				Line = NewStrBuf();
+			}
+			else
+				FlushStrBuf(Line);
+			if (POS == NULL)
+				POS = StrBufNOTNULL;
+		}
+		FreeStrBuf(&Line);
+		FreeStrBuf(&Content);
+	}
+	close(fd);
+}
 
 CTDL_MODULE_INIT(rssclient)
 {
@@ -1512,88 +1536,92 @@ CTDL_MODULE_INIT(rssclient)
 		CtdlLogPrintf(CTDL_INFO, "%s\n", curl_version());
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
 	}
+	else 
+	{
+		LoadUrlShorteners ();
 
-	StartHandlers = NewHash(1, NULL);
-	EndHandlers = NewHash(1, NULL);
+		StartHandlers = NewHash(1, NULL);
+		EndHandlers = NewHash(1, NULL);
 
-	AddRSSStartHandler(RSS_item_rss_start,     RSS_UNSET, HKEY("rss"));
-	AddRSSStartHandler(RSS_item_rdf_start,     RSS_UNSET, HKEY("rdf"));
-	AddRSSStartHandler(ATOM_item_feed_start,    RSS_UNSET, HKEY("feed"));
-	AddRSSStartHandler(RSS_item_item_start,    RSS_RSS, HKEY("item"));
-	AddRSSStartHandler(ATOM_item_entry_start,  RSS_ATOM, HKEY("entry"));
-	AddRSSStartHandler(ATOM_item_link_start,   RSS_ATOM, HKEY("link"));
+		AddRSSStartHandler(RSS_item_rss_start,     RSS_UNSET, HKEY("rss"));
+		AddRSSStartHandler(RSS_item_rdf_start,     RSS_UNSET, HKEY("rdf"));
+		AddRSSStartHandler(ATOM_item_feed_start,    RSS_UNSET, HKEY("feed"));
+		AddRSSStartHandler(RSS_item_item_start,    RSS_RSS, HKEY("item"));
+		AddRSSStartHandler(ATOM_item_entry_start,  RSS_ATOM, HKEY("entry"));
+		AddRSSStartHandler(ATOM_item_link_start,   RSS_ATOM, HKEY("link"));
 
-	AddRSSEndHandler(ATOMRSS_item_title_end,   RSS_ATOM|RSS_RSS|RSS_REQUIRE_BUF, HKEY("title"));
-	AddRSSEndHandler(RSS_item_guid_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("guid"));
-	AddRSSEndHandler(ATOM_item_id_end,         RSS_ATOM|RSS_REQUIRE_BUF, HKEY("id"));
-	AddRSSEndHandler(RSS_item_link_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("link"));
+		AddRSSEndHandler(ATOMRSS_item_title_end,   RSS_ATOM|RSS_RSS|RSS_REQUIRE_BUF, HKEY("title"));
+		AddRSSEndHandler(RSS_item_guid_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("guid"));
+		AddRSSEndHandler(ATOM_item_id_end,         RSS_ATOM|RSS_REQUIRE_BUF, HKEY("id"));
+		AddRSSEndHandler(RSS_item_link_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("link"));
 #if 0 
 // hm, rss to the comments of that blog, might be interesting in future, but... 
-	AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("commentrss"));
+		AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("commentrss"));
 // comment count...
-	AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("comments"));
+		AddRSSEndHandler(RSS_item_relink_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("comments"));
 #endif
-	AddRSSEndHandler(RSSATOM_item_title_end,   RSS_ATOM|RSS_RSS|RSS_REQUIRE_BUF, HKEY("title"));
-	AddRSSEndHandler(ATOM_item_content_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("content"));
-	AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_ATOM|RSS_REQUIRE_BUF, HKEY("encoded"));
-	AddRSSEndHandler(ATOM_item_summary_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("summary"));
-	AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_REQUIRE_BUF, HKEY("description"));
-	AddRSSEndHandler(ATOM_item_published_end,  RSS_ATOM|RSS_REQUIRE_BUF, HKEY("published"));
-	AddRSSEndHandler(ATOM_item_updated_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("updated"));
-	AddRSSEndHandler(RSS_item_pubdate_end,     RSS_RSS|RSS_REQUIRE_BUF, HKEY("pubdate"));
-	AddRSSEndHandler(RSS_item_date_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("date"));
-	AddRSSEndHandler(RSS_item_author_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("author"));
-	AddRSSEndHandler(RSS_item_creator_end,     RSS_RSS|RSS_REQUIRE_BUF, HKEY("creator"));
+		AddRSSEndHandler(RSSATOM_item_title_end,   RSS_ATOM|RSS_RSS|RSS_REQUIRE_BUF, HKEY("title"));
+		AddRSSEndHandler(ATOM_item_content_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("content"));
+		AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_ATOM|RSS_REQUIRE_BUF, HKEY("encoded"));
+		AddRSSEndHandler(ATOM_item_summary_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("summary"));
+		AddRSSEndHandler(RSS_item_description_end, RSS_RSS|RSS_REQUIRE_BUF, HKEY("description"));
+		AddRSSEndHandler(ATOM_item_published_end,  RSS_ATOM|RSS_REQUIRE_BUF, HKEY("published"));
+		AddRSSEndHandler(ATOM_item_updated_end,    RSS_ATOM|RSS_REQUIRE_BUF, HKEY("updated"));
+		AddRSSEndHandler(RSS_item_pubdate_end,     RSS_RSS|RSS_REQUIRE_BUF, HKEY("pubdate"));
+		AddRSSEndHandler(RSS_item_date_end,        RSS_RSS|RSS_REQUIRE_BUF, HKEY("date"));
+		AddRSSEndHandler(RSS_item_author_end,      RSS_RSS|RSS_REQUIRE_BUF, HKEY("author"));
+		AddRSSEndHandler(RSS_item_creator_end,     RSS_RSS|RSS_REQUIRE_BUF, HKEY("creator"));
 /* <author> */
-	AddRSSEndHandler(ATOM_item_email_end,      RSS_ATOM|RSS_REQUIRE_BUF, HKEY("email"));
-	AddRSSEndHandler(ATOM_item_name_end,       RSS_ATOM|RSS_REQUIRE_BUF, HKEY("name"));
-	AddRSSEndHandler(ATOM_item_uri_end,        RSS_ATOM|RSS_REQUIRE_BUF, HKEY("uri"));
+		AddRSSEndHandler(ATOM_item_email_end,      RSS_ATOM|RSS_REQUIRE_BUF, HKEY("email"));
+		AddRSSEndHandler(ATOM_item_name_end,       RSS_ATOM|RSS_REQUIRE_BUF, HKEY("name"));
+		AddRSSEndHandler(ATOM_item_uri_end,        RSS_ATOM|RSS_REQUIRE_BUF, HKEY("uri"));
 /* </author> */
-	AddRSSEndHandler(RSS_item_item_end,        RSS_RSS, HKEY("item"));
-	AddRSSEndHandler(RSS_item_rss_end,         RSS_RSS, HKEY("rss"));
-	AddRSSEndHandler(RSS_item_rdf_end,         RSS_RSS, HKEY("rdf"));
-	AddRSSEndHandler(ATOM_item_entry_end,      RSS_ATOM, HKEY("entry"));
+		AddRSSEndHandler(RSS_item_item_end,        RSS_RSS, HKEY("item"));
+		AddRSSEndHandler(RSS_item_rss_end,         RSS_RSS, HKEY("rss"));
+		AddRSSEndHandler(RSS_item_rdf_end,         RSS_RSS, HKEY("rdf"));
+		AddRSSEndHandler(ATOM_item_entry_end,      RSS_ATOM, HKEY("entry"));
 
 
 /* at the start of atoms: <seq> <li>link to resource</li></seq> ignore them. */
-	AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("seq"));
-	AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("seq"));
-	AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("li"));
-	AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("li"));
+		AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("seq"));
+		AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("seq"));
+		AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("li"));
+		AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("li"));
 
 /* links to other feed generators... */
-	AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("feedflare"));
-	AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("feedflare"));
-	AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("browserfriendly"));
-	AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("browserfriendly"));
+		AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("feedflare"));
+		AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("feedflare"));
+		AddRSSStartHandler(RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("browserfriendly"));
+		AddRSSEndHandler  (RSSATOM_item_ignore,      RSS_RSS|RSS_ATOM, HKEY("browserfriendly"));
 
-	KnownNameSpaces = NewHash(1, NULL);
-	Put(KnownNameSpaces, HKEY("http://a9.com/-/spec/opensearch/1.1/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://a9.com/-/spec/opensearchrss/1.0/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://backend.userland.com/creativeCommonsRssModule"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/atom/ns#"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/dc/elements/1.1/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/modules/content/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/modules/slash/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/modules/syndication/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://purl.org/syndication/thread/1.0"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://rssnamespace.org/feedburner/ext/1.0"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://schemas.google.com/g/2005"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://webns.net/mvcb/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://web.resource.org/cc/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://wellformedweb.org/CommentAPI/"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://www.georss.org/georss"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://www.w3.org/1999/xhtml"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://www.w3.org/2003/01/geo/wgs84_pos#"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("http://www.w3.org/2005/Atom"), NULL, reference_free_handler);
-	Put(KnownNameSpaces, HKEY("urn:flickr:"), NULL, reference_free_handler);
+		KnownNameSpaces = NewHash(1, NULL);
+		Put(KnownNameSpaces, HKEY("http://a9.com/-/spec/opensearch/1.1/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://a9.com/-/spec/opensearchrss/1.0/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://backend.userland.com/creativeCommonsRssModule"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/atom/ns#"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/dc/elements/1.1/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/modules/content/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/modules/slash/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/modules/syndication/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/rss/1.0/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://purl.org/syndication/thread/1.0"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://rssnamespace.org/feedburner/ext/1.0"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://schemas.google.com/g/2005"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://webns.net/mvcb/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://web.resource.org/cc/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://wellformedweb.org/CommentAPI/"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://www.georss.org/georss"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://www.w3.org/1999/xhtml"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://www.w3.org/2003/01/geo/wgs84_pos#"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("http://www.w3.org/2005/Atom"), NULL, reference_free_handler);
+		Put(KnownNameSpaces, HKEY("urn:flickr:"), NULL, reference_free_handler);
 #if 0
-	/* we don't like these namespaces because of they shadow our usefull parameters. */
-	Put(KnownNameSpaces, HKEY("http://search.yahoo.com/mrss/"), NULL, reference_free_handler);
+		/* we don't like these namespaces because of they shadow our usefull parameters. */
+		Put(KnownNameSpaces, HKEY("http://search.yahoo.com/mrss/"), NULL, reference_free_handler);
 #endif
+	}
 	return "rssclient";
 }
