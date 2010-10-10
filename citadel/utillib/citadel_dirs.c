@@ -74,6 +74,7 @@ char ctdl_bin_dir[PATH_MAX]="";
 char file_citadel_control[PATH_MAX]="";
 char file_citadel_rc[PATH_MAX]="";
 char file_citadel_config[PATH_MAX]="";
+char file_citadel_urlshorteners[PATH_MAX]="";
 char file_lmtp_socket[PATH_MAX]="";
 char file_lmtp_unfiltered_socket[PATH_MAX]="";
 char file_arcq[PATH_MAX]="";
@@ -243,6 +244,11 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 			 "%scitadel.rc",
 			 ctdl_etc_dir);
 	StripSlashes(file_citadel_rc, 0);
+	snprintf(file_citadel_urlshorteners, 
+			 sizeof file_citadel_urlshorteners,
+			 "%scitadel_urlshorteners.rc",
+			 ctdl_etc_dir);
+	StripSlashes(file_citadel_urlshorteners, 0);
 	snprintf(file_lmtp_socket, 
 			 sizeof file_lmtp_socket,
 			 "%slmtp.socket",
