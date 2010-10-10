@@ -1,5 +1,6 @@
 etc/citadel/mail.aliases
 etc/citadel/public_clients
+etc/citadel/citadel_urlshorteners.rc
 usr/share/citadel-server/help
 usr/share/citadel-server/funambol_newmail_soap.xml
 etc/citadel/messages
