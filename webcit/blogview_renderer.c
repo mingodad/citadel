@@ -29,8 +29,8 @@
 
 struct blogpost {
 	long msgnum;
-	StrBuf *id;
-	StrBuf *refs;
+	int id;
+	int refs;
 	int comment_count;
 };
 
@@ -91,8 +91,8 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	}
 
 	BLOG->msgs[BLOG->num_msgs++].msgnum = Msg->msgnum;
-	BLOG->msgs[BLOG->num_msgs].id = NULL;
-	BLOG->msgs[BLOG->num_msgs].refs = NULL;
+	BLOG->msgs[BLOG->num_msgs].id = 0;
+	BLOG->msgs[BLOG->num_msgs].refs = 0;
 	BLOG->msgs[BLOG->num_msgs].comment_count = 0;
 
 	return 200;
@@ -127,12 +127,13 @@ void blogview_learn_thread_references(struct blogpost *bp)
 	if (GetServerStatus(Buf, NULL) == 1) {
 		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
-				bp->id = NewStrBufDup(Buf);
-				StrBufCutLeft(bp->id, 5);
+				StrBufCutLeft(Buf, 5);
+				bp->id = HashLittle(ChrPtr(Buf), StrLength(Buf));
 			}
 			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
-				bp->refs = NewStrBufDup(Buf);
-				StrBufCutLeft(bp->refs, 5);
+				StrBufCutLeft(Buf, 5);		/* trim the field name */
+				StrBufCutAt(Buf, 0, "|");	/* trim all but the first thread ref */
+				bp->refs = HashLittle(ChrPtr(Buf), StrLength(Buf));
 			}
 		}
 	}
@@ -154,27 +155,35 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	}
 
 	/* Pass #2 - learn thread references */
+	lprintf(9, "learning thread references\n");
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i].msgnum > 0L) {
 			blogview_learn_thread_references(&BLOG->msgs[i]);
 		}
 	}
 
-	/* FIXME here is where we should actually turn it into a thread tree */
+	/* Pass #3 - turn it into a thread tree */
+	/* FIXME implement this */
 
-	/* Pass #3 - render */
+	/* Pass #4 - render
+	 * This will require several different modes:
+	 * * Top level
+	 * * Single story permalink
+	 * * Comments
+	 * * etc
+	 */
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i].msgnum > 0L) {
-			if (BLOG->msgs[i].refs == NULL) {
+			if (BLOG->msgs[i].refs == 0) {
 				wc_printf("<b>");
 			}
-			wc_printf("Message %d, #%ld, id '%s', refs '%s'",
+			wc_printf("Message %d, #%ld, id %d, refs %d",
 				i,
 				BLOG->msgs[i].msgnum,
-				ChrPtr(BLOG->msgs[i].id),
-				ChrPtr(BLOG->msgs[i].refs)
+				BLOG->msgs[i].id,
+				BLOG->msgs[i].refs
 			);
-			if (BLOG->msgs[i].refs == NULL) {
+			if (BLOG->msgs[i].refs == 0) {
 				wc_printf("</b>");
 			}
 			wc_printf("<br>\n");
@@ -188,13 +197,8 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 int blogview_Cleanup(void **ViewSpecific)
 {
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
-	int i;
 
 	if (BLOG->alloc_msgs != 0) {
-		for (i=0; i<BLOG->num_msgs; ++i) {
-			FreeStrBuf(&BLOG->msgs[i].id);
-			FreeStrBuf(&BLOG->msgs[i].refs);
-		}
 		free(BLOG->msgs);
 	}
 	free(BLOG);
