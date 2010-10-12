@@ -146,7 +146,7 @@ void blogview_learn_thread_references(struct blogpost *bp)
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
-	int i;
+	int i, j;
 
 	/* Pass #1 - sort */
 	if (Stat->nummsgs > 0) {
@@ -172,21 +172,36 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	 * * Comments
 	 * * etc
 	 */
+
+
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i].msgnum > 0L) {
-			if (BLOG->msgs[i].refs == 0) {
-				wc_printf("<b>");
-			}
-			wc_printf("Message %d, #%ld, id %d, refs %d",
+			wc_printf("Message %d, #%ld, id %d, refs %d<br>\n",
 				i,
 				BLOG->msgs[i].msgnum,
 				BLOG->msgs[i].id,
 				BLOG->msgs[i].refs
 			);
+		}
+	}
+
+	wc_printf("<hr>\n");
+
+	for (i=0; (i<BLOG->num_msgs); ++i) {
+		if (BLOG->msgs[i].msgnum > 0L) {
 			if (BLOG->msgs[i].refs == 0) {
-				wc_printf("</b>");
+				wc_printf("<b>Message %d, #%ld, id %d, refs %d</b><br>\n",
+					i,
+					BLOG->msgs[i].msgnum,
+					BLOG->msgs[i].id,
+					BLOG->msgs[i].refs
+				);
+				for (j=0; (j<BLOG->num_msgs); ++j) {
+					if (BLOG->msgs[j].refs == BLOG->msgs[i].id) {
+						wc_printf("* comment %d<br>\n", j);
+					}
+				}
 			}
-			wc_printf("<br>\n");
 		}
 	}
 
