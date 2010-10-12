@@ -121,7 +121,9 @@ int blogview_sortfunc(const void *s1, const void *s2) {
 void blogview_learn_thread_references(struct blogpost *bp)
 {
 	StrBuf *Buf;
+	StrBuf *r;
 	Buf = NewStrBuf();
+	r = NewStrBuf();
 	serv_printf("MSG0 %ld|1", bp->msgnum);		/* top level citadel headers only */
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 1) {
@@ -134,14 +136,15 @@ void blogview_learn_thread_references(struct blogpost *bp)
 			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
 				StrBufCutLeft(Buf, 5);		/* trim the field name */
 				wc_printf("refs %s, ", ChrPtr(Buf));
-				StrBufCutAt(Buf, 0, "|");	/* trim all but the first thread ref */
-				wc_printf("topref %s, ", ChrPtr(Buf));
-				bp->refs = HashLittle(ChrPtr(Buf), StrLength(Buf));
+				StrBufExtract_token(r, Buf, 0, '|');
+				wc_printf("topref %s, ", ChrPtr(r));
+				bp->refs = HashLittle(ChrPtr(r), StrLength(r));
 			}
 		}
 		wc_printf("<br>\n");
 	}
 	FreeStrBuf(&Buf);
+	FreeStrBuf(&r);
 }
 
 
