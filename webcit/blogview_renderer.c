@@ -128,14 +128,18 @@ void blogview_learn_thread_references(struct blogpost *bp)
 		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
 				StrBufCutLeft(Buf, 5);
+				wc_printf("id %s, ", ChrPtr(Buf));
 				bp->id = HashLittle(ChrPtr(Buf), StrLength(Buf));
 			}
 			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
 				StrBufCutLeft(Buf, 5);		/* trim the field name */
+				wc_printf("refs %s, ", ChrPtr(Buf));
 				StrBufCutAt(Buf, 0, "|");	/* trim all but the first thread ref */
+				wc_printf("topref %s, ", ChrPtr(Buf));
 				bp->refs = HashLittle(ChrPtr(Buf), StrLength(Buf));
 			}
 		}
+		wc_printf("<br>\n");
 	}
 	FreeStrBuf(&Buf);
 }
@@ -173,6 +177,7 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	 * * etc
 	 */
 
+	wc_printf("<hr>\n");
 
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i].msgnum > 0L) {
