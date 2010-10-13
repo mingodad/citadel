@@ -1,0 +1,16 @@
+# these URLs will be expanded when fetching them from 
+# RSS-Feeds with short contents (like twitter feeds)
+# we expect to find a 30x location header, if we find it, 
+# we put it in front of that URL, so the full information
+# whether one wants to click that or not can be expanded.
+http://bit.ly/
+http://krz.ch/
+http://flic.kr/
+http://sns.ly/
+http://wp.me/
+http://ow.ly/
+http://tinyurl.com/
+http://goo.gl/
+http://dld.bz/
+http://tiny.cc/
+http://j.mp/
