@@ -149,7 +149,7 @@ void blogview_learn_thread_references(struct blogpost *bp)
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
 	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
-	int i, j;
+	int i, j, num_comments;
 
 	/* Pass #1 - sort */
 	if (Stat->nummsgs > 0) {
@@ -199,11 +199,13 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 				BLOG->msgs[i].refs
 			);
 			read_message(WC->WBuf, HKEY("view_message"), BLOG->msgs[i].msgnum, NULL, &Mime);
+			num_comments = 0;
 			for (j=0; (j<BLOG->num_msgs); ++j) {
 				if (BLOG->msgs[j].refs == BLOG->msgs[i].id) {
-					wc_printf("	* comment %d<br>\n", j);
+					++num_comments;
 				}
 			}
+			wc_printf("<i>%d comments</i>\n", num_comments);
 			wc_printf("<hr>\n");
 		}
 	}
