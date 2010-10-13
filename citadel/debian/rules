@@ -31,6 +31,7 @@ endif
 
 ifneq (,$(findstring threadoff,$(DEB_BUILD_OPTIONS)))
 	THREAD_ARGS=--without-threaded-client
+	CFLAGS += -D WITH_THREADLOG
 else
 	THREAD_ARGS=
 endif
