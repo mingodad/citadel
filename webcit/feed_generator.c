@@ -31,6 +31,8 @@ void feed_rss_one_message(long msgnum) {
 	int found_title = 0;
 	char pubdate[128];
 
+	/* FIXME if this is a blog room we only want to include top-level messages */
+
 	serv_printf("MSG0 %ld", msgnum);		/* FIXME we want msg4 eventually */
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') return;
