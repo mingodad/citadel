@@ -130,18 +130,14 @@ void blogview_learn_thread_references(struct blogpost *bp)
 		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
 			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
 				StrBufCutLeft(Buf, 5);
-				wc_printf("id %s, ", ChrPtr(Buf));
 				bp->id = HashLittle(ChrPtr(Buf), StrLength(Buf));
 			}
 			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
 				StrBufCutLeft(Buf, 5);		/* trim the field name */
-				wc_printf("refs %s, ", ChrPtr(Buf));
 				StrBufExtract_token(r, Buf, 0, '|');
-				wc_printf("topref %s, ", ChrPtr(r));
 				bp->refs = HashLittle(ChrPtr(r), StrLength(r));
 			}
 		}
-		wc_printf("<br>\n");
 	}
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&r);
@@ -180,8 +176,6 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	 * * etc
 	 */
 
-	wc_printf("<hr>\n");
-
 	for (i=0; (i<BLOG->num_msgs); ++i) {
 		if (BLOG->msgs[i].msgnum > 0L) {
 			wc_printf("Message %d, #%ld, id %d, refs %d<br>\n",
@@ -196,20 +190,21 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	wc_printf("<hr>\n");
 
 	for (i=0; (i<BLOG->num_msgs); ++i) {
-		if (BLOG->msgs[i].msgnum > 0L) {
-			if (BLOG->msgs[i].refs == 0) {
-				wc_printf("<b>Message %d, #%ld, id %d, refs %d</b><br>\n",
-					i,
-					BLOG->msgs[i].msgnum,
-					BLOG->msgs[i].id,
-					BLOG->msgs[i].refs
-				);
-				for (j=0; (j<BLOG->num_msgs); ++j) {
-					if (BLOG->msgs[j].refs == BLOG->msgs[i].id) {
-						wc_printf("* comment %d<br>\n", j);
-					}
+		if ((BLOG->msgs[i].msgnum > 0L) && (BLOG->msgs[i].refs == 0)) {
+			const StrBuf *Mime;
+			wc_printf("<b>Message %d, #%ld, id %d, refs %d</b><br>\n",
+				i,
+				BLOG->msgs[i].msgnum,
+				BLOG->msgs[i].id,
+				BLOG->msgs[i].refs
+			);
+			read_message(WC->WBuf, HKEY("view_message"), BLOG->msgs[i].msgnum, NULL, &Mime);
+			for (j=0; (j<BLOG->num_msgs); ++j) {
+				if (BLOG->msgs[j].refs == BLOG->msgs[i].id) {
+					wc_printf("	* comment %d<br>\n", j);
 				}
 			}
+			wc_printf("<hr>\n");
 		}
 	}
 
