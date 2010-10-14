@@ -110,6 +110,7 @@ const char *CtxNames[]  = {
 	"Context ICAL",
 	"Context DavNamespace",
 	"Context TAB",
+	"Context VCARD",
 	"Context UNKNOWN"
 };
 
@@ -881,6 +882,8 @@ int GetNextParameter(StrBuf *Buf,
 					}
 				}
 			}
+			FreeStrBuf(&pToken);
+			FreeStrBuf(&Match);
 		}
 		else if (strchr(Parm->Start, '&') != NULL)
 		{
@@ -917,6 +920,8 @@ int GetNextParameter(StrBuf *Buf,
 					}
 				}
 			}
+			FreeStrBuf(&Match);
+			FreeStrBuf(&pToken);
 		}
 		else {
 

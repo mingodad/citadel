@@ -56,8 +56,9 @@ enum {
 #define CTX_ICAL 18
 #define CTX_DAVNS 19
 #define CTX_TAB 20
+#define CTX_VCARD 21
 
-#define CTX_UNKNOWN 21
+#define CTX_UNKNOWN 22
 
 
 /**
