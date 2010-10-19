@@ -32,9 +32,12 @@ struct blogpost {
 	int alloc_msgs;		/* Currently allocated size of array */
 };
 
+
 /*
  * Destructor for 'struct blogpost' which does the rendering first.
- * By rendering from here, we eliminate the need for a separate iterator.
+ * By rendering from here, we eliminate the need for a separate iterator, although
+ * we might run into trouble when we get around to displaying newest-to-oldest...
+ * FIXME do the needful with regard to gettext
  */
 void blogpost_render_and_destroy(struct blogpost *bp) {
 	if (bp->num_msgs > 0) wc_printf("Blog post %ld<br>\n", bp->msgs[0]);
@@ -45,7 +48,6 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 	}
 	free(bp);
 }
-
 
 
 /*
@@ -81,7 +83,6 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 }
 
 
-
 /*
  * Given a 'struct blogpost' containing a msgnum, populate the id
  * and refs fields by fetching them from the Citadel server
@@ -114,7 +115,6 @@ struct bltr blogview_learn_thread_references(long msgnum)
 }
 
 
-
 /*
  * This function is called for every message in the list.
  */
@@ -129,6 +129,13 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 	struct blogpost *bp = NULL;
 
 	b = blogview_learn_thread_references(Msg->msgnum);
+
+	/* FIXME an optimization here -- one we ought to perform -- is to exit this
+	 * function immediately if the viewer is only interested in a single post and
+	 * that message ID is neither the id nor the refs.  Actually, that might *be*
+	 * the way to display only a single message (with or without comments).
+	 */
+
 	if (b.refs == 0) {
 		bp = malloc(sizeof(struct blogpost));
 		if (!bp) return(200);
@@ -164,7 +171,6 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 }
 
 
-
 /*
  * Sort a list of 'struct blogpost' objects by newest-to-oldest msgnum.
  */
@@ -176,9 +182,6 @@ int blogview_sortfunc(const void *s1, const void *s2) {
 	if (*l1 < *l2) return(+1);
 	return(0);
 }
-
-
-
 
 
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
