@@ -22,22 +22,38 @@
 #include "webserver.h"
 #include "groupdav.h"
 
-/*
- * Data which gets passed around between the various functions in this module
- *
+
+/* 
+ * Array type for a blog post.  The first message is the post; the rest are comments
  */
-
 struct blogpost {
-	long msgnum;
-	int id;
-	int refs;
-	int comment_count;
-};
-
-struct blogview {
-	struct blogpost *msgs;	/* Array of msgnums for messages we are displaying */
+	long *msgs;		/* Array of msgnums for messages we are displaying */
 	int num_msgs;		/* Number of msgnums stored in 'msgs' */
 	int alloc_msgs;		/* Currently allocated size of array */
+};
+
+/*
+ * Destructor for 'struct blogpost' which does the rendering first.
+ * By rendering from here, we eliminate the need for a separate iterator.
+ */
+void blogpost_render_and_destroy(struct blogpost *bp) {
+	if (bp->num_msgs > 0) wc_printf("Blog post %ld<br>\n", bp->msgs[0]);
+	if (bp->num_msgs > 1) wc_printf("&nbsp;<i>%d comments</i><br>\n", bp->num_msgs - 1);
+	wc_printf("<br>\n");
+	if (bp->alloc_msgs > 0) {
+		free(bp->msgs);
+	}
+	free(bp);
+}
+
+
+
+/*
+ * Data which gets returned from a call to blogview_learn_thread_references()
+ */
+struct bltr {
+	int id;
+	int refs;
 };
 
 
@@ -50,8 +66,7 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 				   char *cmd, 
 				   long len)
 {
-	struct blogview *BLOG = malloc(sizeof(struct blogview));
-	memset(BLOG, 0, sizeof(struct blogview));
+	HashList *BLOG = NewHash(1, NULL);
 	*ViewSpecific = BLOG;
 
 	Stat->startmsg = (-1);					/* not used here */
@@ -66,6 +81,40 @@ int blogview_GetParamsGetServerCall(SharedMessageStatus *Stat,
 }
 
 
+
+/*
+ * Given a 'struct blogpost' containing a msgnum, populate the id
+ * and refs fields by fetching them from the Citadel server
+ */
+struct bltr blogview_learn_thread_references(long msgnum)
+{
+	StrBuf *Buf;
+	StrBuf *r;
+	struct bltr bltr = { 0, 0 } ;
+	Buf = NewStrBuf();
+	r = NewStrBuf();
+	serv_printf("MSG0 %ld|1", msgnum);		/* top level citadel headers only */
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 1) {
+		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
+			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
+				StrBufCutLeft(Buf, 5);
+				bltr.id = HashLittle(ChrPtr(Buf), StrLength(Buf));
+			}
+			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
+				StrBufCutLeft(Buf, 5);		/* trim the field name */
+				StrBufExtract_token(r, Buf, 0, '|');
+				bltr.refs = HashLittle(ChrPtr(r), StrLength(r));
+			}
+		}
+	}
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&r);
+	return(bltr);
+}
+
+
+
 /*
  * This function is called for every message in the list.
  */
@@ -75,25 +124,41 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 			      int is_new, 
 			      int i)
 {
-	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
+	HashList *BLOG = (HashList *) *ViewSpecific;
+	struct bltr b;
+	struct blogpost *bp = NULL;
 
-	if (BLOG->alloc_msgs == 0) {
-		BLOG->alloc_msgs = 1000;
-		BLOG->msgs = malloc(BLOG->alloc_msgs * sizeof(struct blogpost));
-		memset(BLOG->msgs, 0, (BLOG->alloc_msgs * sizeof(struct blogpost)) );
+	b = blogview_learn_thread_references(Msg->msgnum);
+	if (b.refs == 0) {
+		bp = malloc(sizeof(struct blogpost));
+		if (!bp) return(200);
+		memset(bp, 0, sizeof (struct blogpost));
+		Put(BLOG, (const char *)&b.id, sizeof(b.id), bp,
+					(DeleteHashDataFunc)blogpost_render_and_destroy);
+	}
+	else {
+		GetHash(BLOG, (const char *)&b.refs , sizeof(b.refs), (void *)&bp);
 	}
 
-	/* Check our buffer size */
-	if (BLOG->num_msgs >= BLOG->alloc_msgs) {
-		BLOG->alloc_msgs *= 2;
-		BLOG->msgs = realloc(BLOG->msgs, (BLOG->alloc_msgs * sizeof(long)));
-		memset(&BLOG->msgs[BLOG->num_msgs], 0, ((BLOG->alloc_msgs - BLOG->num_msgs) * sizeof(long)) );
+	/*
+	 * Now we have a 'struct blogpost' to which we can add a message.  It's either the
+	 * blog post itself or a comment attached to it; either way, the code is the same from
+	 * this point onward.
+	 */
+	if (bp != NULL) {
+		if (bp->alloc_msgs == 0) {
+			bp->alloc_msgs = 1000;
+			bp->msgs = malloc(bp->alloc_msgs * sizeof(long));
+			memset(bp->msgs, 0, (bp->alloc_msgs * sizeof(long)) );
+		}
+		if (bp->num_msgs >= bp->alloc_msgs) {
+			bp->alloc_msgs *= 2;
+			bp->msgs = realloc(bp->msgs, (bp->alloc_msgs * sizeof(long)));
+			memset(&bp->msgs[bp->num_msgs], 0,
+				((bp->alloc_msgs - bp->num_msgs) * sizeof(long)) );
+		}
+		bp->msgs[bp->num_msgs++] = Msg->msgnum;
 	}
-
-	BLOG->msgs[BLOG->num_msgs++].msgnum = Msg->msgnum;
-	BLOG->msgs[BLOG->num_msgs].id = 0;
-	BLOG->msgs[BLOG->num_msgs].refs = 0;
-	BLOG->msgs[BLOG->num_msgs].comment_count = 0;
 
 	return 200;
 }
@@ -104,71 +169,23 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
  * Sort a list of 'struct blogpost' objects by newest-to-oldest msgnum.
  */
 int blogview_sortfunc(const void *s1, const void *s2) {
-	struct blogpost *l1 = (struct blogpost *)(s1);
-	struct blogpost *l2 = (struct blogpost *)(s2);
+	long *l1 = (long *)(s1);
+	long *l2 = (long *)(s2);
 
-	if (l1->msgnum > l2->msgnum) return(-1);
-	if (l1->msgnum < l2->msgnum) return(+1);
+	if (*l1 > *l2) return(-1);
+	if (*l1 < *l2) return(+1);
 	return(0);
 }
 
-
-
-/*
- * Given a 'struct blogpost' containing a msgnum, populate the id
- * and refs fields by fetching them from the Citadel server
- */
-void blogview_learn_thread_references(struct blogpost *bp)
-{
-	StrBuf *Buf;
-	StrBuf *r;
-	Buf = NewStrBuf();
-	r = NewStrBuf();
-	serv_printf("MSG0 %ld|1", bp->msgnum);		/* top level citadel headers only */
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 1) {
-		while (StrBuf_ServGetln(Buf), strcmp(ChrPtr(Buf), "000")) {
-			if (!strncasecmp(ChrPtr(Buf), "msgn=", 5)) {
-				StrBufCutLeft(Buf, 5);
-				bp->id = HashLittle(ChrPtr(Buf), StrLength(Buf));
-			}
-			else if (!strncasecmp(ChrPtr(Buf), "wefw=", 5)) {
-				StrBufCutLeft(Buf, 5);		/* trim the field name */
-				StrBufExtract_token(r, Buf, 0, '|');
-				bp->refs = HashLittle(ChrPtr(r), StrLength(r));
-			}
-		}
-	}
-	FreeStrBuf(&Buf);
-	FreeStrBuf(&r);
-}
 
 
 
 
 int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 {
-	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
-	int i, j, num_comments;
+	/*HashList *BLOG = (HashList *) *ViewSpecific;*/
 
-	/* Pass #1 - sort */
-	if (Stat->nummsgs > 0) {
-		lprintf(9, "sorting %d messages\n", BLOG->num_msgs);
-		qsort(BLOG->msgs, (size_t)(BLOG->num_msgs), sizeof(struct blogpost), blogview_sortfunc);
-	}
-
-	/* Pass #2 - learn thread references */
-	lprintf(9, "learning thread references\n");
-	for (i=0; (i<BLOG->num_msgs); ++i) {
-		if (BLOG->msgs[i].msgnum > 0L) {
-			blogview_learn_thread_references(&BLOG->msgs[i]);
-		}
-	}
-
-	/* Pass #3 - turn it into a thread tree */
-	/* FIXME implement this */
-
-	/* Pass #4 - render
+	/*
 	 * This will require several different modes:
 	 * * Top level
 	 * * Single story permalink
@@ -176,52 +193,15 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	 * * etc
 	 */
 
-	for (i=0; (i<BLOG->num_msgs); ++i) {
-		if (BLOG->msgs[i].msgnum > 0L) {
-			wc_printf("Message %d, #%ld, id %d, refs %d<br>\n",
-				i,
-				BLOG->msgs[i].msgnum,
-				BLOG->msgs[i].id,
-				BLOG->msgs[i].refs
-			);
-		}
-	}
-
-	wc_printf("<hr>\n");
-
-	for (i=0; (i<BLOG->num_msgs); ++i) {
-		if ((BLOG->msgs[i].msgnum > 0L) && (BLOG->msgs[i].refs == 0)) {
-			const StrBuf *Mime;
-			wc_printf("<b>Message %d, #%ld, id %d, refs %d</b><br>\n",
-				i,
-				BLOG->msgs[i].msgnum,
-				BLOG->msgs[i].id,
-				BLOG->msgs[i].refs
-			);
-			read_message(WC->WBuf, HKEY("view_message"), BLOG->msgs[i].msgnum, NULL, &Mime);
-			num_comments = 0;
-			for (j=0; (j<BLOG->num_msgs); ++j) {
-				if (BLOG->msgs[j].refs == BLOG->msgs[i].id) {
-					++num_comments;
-				}
-			}
-			wc_printf("<i>%d comments</i>\n", num_comments);
-			wc_printf("<hr>\n");
-		}
-	}
-
 	return(0);
 }
 
 
 int blogview_Cleanup(void **ViewSpecific)
 {
-	struct blogview *BLOG = (struct blogview *) *ViewSpecific;
+	HashList *BLOG = (HashList *) *ViewSpecific;
 
-	if (BLOG->alloc_msgs != 0) {
-		free(BLOG->msgs);
-	}
-	free(BLOG);
+	DeleteHash(&BLOG);
 
 	wDumpContent(1);
 	return 0;
