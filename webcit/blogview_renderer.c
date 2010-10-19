@@ -40,9 +40,15 @@ struct blogpost {
  * FIXME do the needful with regard to gettext
  */
 void blogpost_render_and_destroy(struct blogpost *bp) {
-	if (bp->num_msgs > 0) wc_printf("Blog post %ld<br>\n", bp->msgs[0]);
-	if (bp->num_msgs > 1) wc_printf("&nbsp;<i>%d comments</i><br>\n", bp->num_msgs - 1);
-	wc_printf("<br>\n");
+	const StrBuf *Mime;
+
+	if (bp->num_msgs > 0) {
+		read_message(WC->WBuf, HKEY("view_message"), bp->msgs[0], NULL, &Mime);
+		wc_printf("<div align=\"right\"><i>%d comments</i></div>\n", bp->num_msgs - 1);
+		wc_printf("<br>\n");
+	}
+
+
 	if (bp->alloc_msgs > 0) {
 		free(bp->msgs);
 	}
