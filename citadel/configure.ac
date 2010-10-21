@@ -439,7 +439,7 @@ fi
 if test "$ok_nls" != "no"; then
 	AC_MSG_RESULT(citadel will be built with national language support.)
 	AC_DEFINE(ENABLE_NLS, [], [whether we have NLS support])
-	PROG_SUBDIRS="$PROG_SUBDIRS po"
+	PROG_SUBDIRS="$PROG_SUBDIRS po/citadel-setup"
 else
 	AC_MSG_RESULT(citadel will be built without national language support.)
 fi
@@ -1027,7 +1027,7 @@ AC_SUBST(SERVER_LDFLAGS)
 AC_SUBST(SERVER_LIBS)
 AC_SUBST(SETUP_LIBS)
 AC_CONFIG_FILES([Makefile])
-AC_OUTPUT(database_cleanup.sh po/Makefile)
+AC_OUTPUT(database_cleanup.sh po/citadel-setup/Makefile)
 
 if test -z "$DATABASE"; then
 	AC_MSG_WARN([No database driver was found. Please install Berkeley DB.])
