@@ -36,7 +36,7 @@ clean:
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \
-		po/Makefile \
+		po/webcit/Makefile \
 		$(srcdir)/TAGS
 
 setup: setup.o gettext.o
@@ -132,7 +132,7 @@ install-tinymce:
 	done
 
 install-locale:
-	cd po; $(MAKE)
+	cd po/webcit/; $(MAKE)
 	for i in `find locale -type d | grep -v .svn` \
 		; do \
 		test -d $(DESTDIR)$(LOCALEDIR)/$$i || mkdir -p $(DESTDIR)$(LOCALEDIR)/$$i; \

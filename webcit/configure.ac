@@ -401,7 +401,7 @@ fi
 if test "$ok_nls" != "no"; then
 	AC_MSG_RESULT(WebCit will be built with national language support.)
 	AC_DEFINE(ENABLE_NLS, [], [whether we have NLS support])
-	PROG_SUBDIRS="$PROG_SUBDIRS po"
+	PROG_SUBDIRS="$PROG_SUBDIRS po/webcit/"
 else
 	AC_MSG_RESULT(WebCit will be built without national language support.)
 fi
@@ -507,7 +507,7 @@ if test "$abs_srcdir" != "$abs_builddir"; then
    CFLAGS="$CFLAGS -I $abs_builddir"
 fi
 AC_CONFIG_HEADER(sysdep.h)
-AC_OUTPUT(Makefile po/Makefile tests/Makefile)
+AC_OUTPUT(Makefile po/webcit/Makefile tests/Makefile)
 
 if test "$abs_srcdir" != "$abs_builddir"; then
    ln -s $abs_srcdir/static $abs_builddir
