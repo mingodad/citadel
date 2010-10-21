@@ -145,7 +145,7 @@ msgstr "Abbruch"
 
 #: ../auth.c:863
 msgid "Cancelled.  Password was not changed."
-msgstr "Abgebrochen. Passwort wurde nicht gesetzt."
+msgstr "Abgebrochen. Passwort wurde nicht geändert."
 
 #: ../auth.c:874
 msgid "They don't match.  Password was not changed."
@@ -169,7 +169,7 @@ msgstr "BESCHÄFTIGT"
 
 #: ../bbsview_renderer.c:289
 msgid "Go to page: "
-msgstr "Zur Seite gehen:"
+msgstr "Zur Seite gehen: "
 
 #: ../bbsview_renderer.c:323
 msgid "First"
@@ -181,15 +181,15 @@ msgstr "Ende"
 
 #: ../calendar.c:81
 msgid "Meeting invitation"
-msgstr "Einladung für ein Treffen"
+msgstr "Terminvorschlag"
 
 #: ../calendar.c:84
 msgid "Attendee's reply to your invitation"
-msgstr "Antwort des Teilnehmers auf Ihre Einladung"
+msgstr "Antwort eines Teilnehmers auf Ihre Einladung"
 
 #: ../calendar.c:87
 msgid "Published event"
-msgstr "Öffentliches Ereignis"
+msgstr "Veröffentlichtes Ereignis"
 
 #: ../calendar.c:90
 msgid "This is an unknown type of calendar item."
@@ -225,7 +225,7 @@ msgstr "Beschreibung:"
 
 #: ../calendar.c:173 ../event.c:93
 msgid "Recurrence"
-msgstr "Serie"
+msgstr "Wiederholung"
 
 #: ../calendar.c:174 ../event.c:508
 msgid "This is a recurring event"
@@ -238,7 +238,7 @@ msgstr "Teilnehmer:"
 #: ../calendar.c:223
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
-msgstr "Dies ist ein Update von '%s', das schon in Ihrem Kalender ist."
+msgstr "Die Änderung '%s', existiert bereits Ihrem Kalender ist."
 
 #: ../calendar.c:227
 #, c-format
@@ -309,7 +309,7 @@ msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
-"Sie haben diese Einladung abgelehnt. Sie wurde <b>NICHT</b> in Ihren "
+"Sie haben diese Einladung abgelehnt. Sie wurde <b>nicht</b> in Ihren "
 "Kalender übernommen."
 
 #: ../calendar.c:346
@@ -331,11 +331,11 @@ msgstr "u.A.w.g. abgelehnt. Sie wurde <b>nicht</b> übernommen."
 
 #: ../calendar.c:921
 msgid "Calendar day view begins at:"
-msgstr "Kalender-Tagesübersicht beginnt bei:"
+msgstr "Kalender-Tagesübersicht beginnt um:"
 
 #: ../calendar.c:922
 msgid "Calendar day view ends at:"
-msgstr "Kalender-Tagesübersicht endet bei:"
+msgstr "Kalender-Tagesübersicht endet um:"
 
 #: ../calendar.c:923
 msgid "Week starts on:"
@@ -388,7 +388,7 @@ msgstr "(keine)"
 #: ../calendar_view.c:264 ../calendar_view.c:464 ../calendar_view.c:935
 #: ../event.c:862
 msgid "Untitled Event"
-msgstr "Ereignis ohne Titel"
+msgstr "Unbenanntes Ereignis"
 
 #: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
 #: ../calendar_view.c:1081 ../sieve.c:995
@@ -401,7 +401,7 @@ msgstr "Anfangsdatum:"
 
 #: ../calendar_view.c:353 ../calendar_view.c:974
 msgid "Ending date:"
-msgstr "Endzeit/-Datum:"
+msgstr "Terminende:"
 
 #: ../calendar_view.c:361 ../calendar_view.c:1093
 msgid "Date/time:"
@@ -414,11 +414,11 @@ msgstr "Notizen:"
 
 #: ../calendar_view.c:582 ../calendar_view.c:719
 msgid "previous"
-msgstr ""
+msgstr "vorheriger"
 
 #: ../calendar_view.c:594 ../calendar_view.c:731 ../calendar_view.c:1320
 msgid "next"
-msgstr ""
+msgstr "nächster"
 
 #: ../calendar_view.c:754
 msgid "Week"
@@ -451,7 +451,7 @@ msgstr "Mehrtägiger Termin"
 
 #: ../calendar_view.c:1393 ../tasks.c:428
 msgid "Untitled Task"
-msgstr "Task ohne Titel"
+msgstr "Unbenannte Aufgabe"
 
 #: ../downloads.c:284
 #, c-format
@@ -552,7 +552,7 @@ msgstr "Frei"
 
 #: ../event.c:426
 msgid "Busy"
-msgstr "Besetzt"
+msgstr "Belegt"
 
 #: ../event.c:443
 msgid "(One per line)"
@@ -578,7 +578,7 @@ msgstr "an diesem Werktag:"
 #: ../event.c:596
 #, c-format
 msgid "on day %s%d%s of the month"
-msgstr "am tag %s%d%s des Monats"
+msgstr "am Tag %s%d%s des Monats"
 
 #: ../event.c:605 ../event.c:667
 msgid "on the "
@@ -611,7 +611,7 @@ msgstr "Kein Enddatum"
 
 #: ../event.c:730
 msgid "Repeat this event"
-msgstr "Diesen Eintrag wiederholt sich"
+msgstr "Dieser Termin wiederholt sich"
 
 #: ../event.c:733
 msgid "times"
@@ -672,7 +672,7 @@ msgstr "Ihr Photo"
 
 #: ../graphics.c:152
 msgid "the icon for this room"
-msgstr "Das Symbol für diesen Raum "
+msgstr "Das Symbol für diesen Raum"
 
 #: ../graphics.c:159
 msgid "the Greetingpicture for the login prompt"
@@ -693,7 +693,7 @@ msgstr "realloc() Fehler! Konnte %d Bytes nicht allozieren: %s"
 
 #: ../iconbar.c:248
 msgid "Iconbar Setting"
-msgstr ""
+msgstr "Iconbar einstellungen"
 
 #: ../inetconf.c:112 ../inetconf.c:121 ../inetconf.c:134 ../inetconf.c:161
 #: ../netconf.c:158 ../netconf.c:185 ../netconf.c:193 ../netconf.c:241
@@ -710,7 +710,7 @@ msgstr "%s wurde gelöscht."
 #. <domain> added status message
 #: ../inetconf.c:145
 msgid "added."
-msgstr ""
+msgstr "hinzugefügt."
 
 #: ../listsub.c:37
 msgid "List subscription"
@@ -748,9 +748,8 @@ msgid "ERROR:"
 msgstr "FEHLER:"
 
 #: ../messages.c:73
-#, fuzzy
 msgid "Empty message"
-msgstr "Beitrag senden"
+msgstr "Leere Nachricht"
 
 #: ../messages.c:1061
 #, c-format
@@ -765,12 +764,11 @@ msgstr ""
 
 #: ../messages.c:1119
 msgid "Saved to Drafts failed: "
-msgstr "Speichern des Entwurfs fehlgeschlagen: "
+msgstr "In den Entwurfsordner gespeichert "
 
 #: ../messages.c:1185
-#, fuzzy
 msgid "Refusing to post empty message.\n"
-msgstr "Zurück zur Nachricht"
+msgstr "Werde keine leere Nachricht senden.\n"
 
 #: ../messages.c:1211
 msgid "Message has been saved to Drafts.\n"
@@ -805,12 +803,12 @@ msgstr "Verschieben"
 #: ../messages.c:1537
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "Ein Fehler trat in diesem Teil auf: %s/%s\n"
+msgstr "Ein Fehler trat beim laden dieses Anhangs auf: %s/%s\n"
 
 #: ../messages.c:1597
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
-msgstr "Ein Fehler trat in diesem Teil auf: %s\n"
+msgstr "Ein Fehler trat beim laden dieses Anhangs auf: %s\n"
 
 #: ../messages.c:1759
 msgid "Attach signature to email messages?"
@@ -838,7 +836,7 @@ msgstr "Bevorzugter Name in Diskussionsforen"
 
 #: ../messages.c:1776
 msgid "Mailbox view mode"
-msgstr "Anzeigemodus des Posteingangs"
+msgstr "Anzeigen als Postfach"
 
 #: ../msg_renderers.c:523
 msgid "edit"
@@ -846,7 +844,7 @@ msgstr "bearbeiten"
 
 #: ../msg_renderers.c:1023
 msgid "I don't know how to display "
-msgstr "Kann den folgenden Header nicht darstellen:"
+msgstr "Kann den folgenden Header nicht darstellen: "
 
 #: ../msg_renderers.c:1242
 msgid "(no subject)"
@@ -854,7 +852,7 @@ msgstr "(kein Betreff)"
 
 #: ../notes.c:345
 msgid "Click on any note to edit it."
-msgstr "Auf eine Notiz klicken zum editieren"
+msgstr "Auf eine Notiz klicken zum bearbeiten"
 
 #: ../openid.c:19
 msgid "Manage Account/OpenID Associations"
@@ -915,7 +913,7 @@ msgstr "Als Startseite setzen"
 
 #: ../preferences.c:1097
 msgid "This isn't allowed to become the start page."
-msgstr ""
+msgstr "Dies kann nicht ihre Startseite werden!"
 
 #: ../preferences.c:1101
 msgid "You no longer have a start page selected."
@@ -927,7 +925,7 @@ msgstr "Bevorzugte Startseite"
 
 #: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
 msgid "Higher access is required to access this function."
-msgstr "Diese Funktion benötigt höhere Zugriffsechte "
+msgstr "Diese Funktion benötigt höhere Zugriffsechte"
 
 #: ../roomlist.c:101
 msgid "My Folders"
@@ -942,14 +940,14 @@ msgid "Your changes have been saved."
 msgstr "Ihre Änderungen wurden gespeichert."
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<B><I>Benutzer %s aus dem Raum %s verbannt.</I></B>\n"
+msgstr "Benutzer '%s' des Raumes '%s' verwiesen."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<B><I>Benutzer %s in den Raum %s eingeladen.</I></B>\n"
+msgstr "Benutzer '%s' in den Raum '%s' eingeladen."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -1017,7 +1015,7 @@ msgstr "Journal"
 
 #: ../roomviews.c:51
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: ../serv_func.c:186
 msgid ""
@@ -1042,14 +1040,14 @@ msgid ""
 "\n"
 "\n"
 msgstr ""
-"Sie sind mit einem Citadel-Server der Version %d.%02d verbunden.  \n"
-"Webcit benötigt mindestens Version %d.%02d. \n"
+"Sie sind mit einem Citadel-Server der Version %d.%02d verbunden. \n"
+"Webcit benötigt mindestens Version %d.%02d.\n"
 "\n"
 "\n"
 
 #: ../sieve.c:18 ../sieve.c:103
 msgid "View/edit server-side mail filters"
-msgstr "Bearbeiten/Anzeigen von serverweiten Mail-Filtern"
+msgstr "Bearbeiten/Anzeigen von serverseitigen Mailfiltern"
 
 #: ../sieve.c:28
 msgid ""
@@ -1082,7 +1080,7 @@ msgstr "Ihre ankommenden Mails werden nicht gefiltert."
 
 #: ../sieve.c:156
 msgid "The currently active script is: "
-msgstr "Das zur Zeit aktive Script ist:"
+msgstr "Das zur Zeit aktive Script ist: "
 
 #: ../sieve.c:171 ../sieve.c:644
 msgid "Add or delete scripts"
@@ -1106,7 +1104,7 @@ msgstr ""
 
 #: ../sieve.c:666
 msgid "Script name: "
-msgstr "Script-Name:  "
+msgstr "Script-Name: "
 
 #: ../sieve.c:669
 msgid "Create"
@@ -1304,6 +1302,8 @@ msgstr "Neue Regel"
 #: ../siteconfig.c:254
 msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
+"WARNUNG: Konnte die Serverkonfiguration nicht lesen; ist der Citserver neuer "
+"als WebCit?"
 
 #: ../siteconfig.c:313
 msgid "Your system configuration has been updated."
@@ -1360,7 +1360,7 @@ msgid ""
 "%s.  Your system administrator is %s."
 msgstr ""
 "Sie sind angemeldet auf %s, mit %s über %s, in %s.  Ihr Systemverwalter ist "
-"%."
+"%s."
 
 #: ../summary.c:195
 msgid "Messages"
@@ -1458,7 +1458,7 @@ msgstr "oder"
 
 #: ../tasks.c:284 ../tasks.c:313
 msgid "Time associated"
-msgstr "assoziierte Uhrzeit "
+msgstr "assoziierte Uhrzeit"
 
 #: ../tasks.c:288
 msgid "Due date:"
@@ -1695,7 +1695,7 @@ msgid ""
 msgstr ""
 "Auf dieser Seite können Sie die in der Benutzerübersicht angezeigten Texte "
 "ändern. Um die Defaultwerte wiederherzustellen bei leerem Feld den "
-"'Raumnamen ändern' Knopf drücken"
+"'Raumnamen ändern' Knopf drücken "
 
 #: ../who.c:168
 msgid "Room name:"
@@ -1784,7 +1784,7 @@ msgstr "Erweiterte Raum-Kommandos"
 
 #: ../static/t/edit_message.html:23
 msgid "from"
-msgstr "von "
+msgstr "von"
 
 #: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
 msgid "Anonymous"
@@ -1947,6 +1947,8 @@ msgid ""
 "WARNING: You have JavaScript disabled in your web browser.  Many functions "
 "of this system will not work properly."
 msgstr ""
+"WARNUNG: JavaScript ist im Browser abgeschaltet. Viele Funktionen des "
+"Systems stehen nicht zur verfügung."
 
 #: ../static/t/login.html:8 ../static/t/openid_login.html:8
 msgid "powered by"
@@ -2164,31 +2166,24 @@ msgid "Click here to learn what OpenID is and how Citadel is using it."
 msgstr "Hier klicken um mehr über OpenID und Citadel zu lernen"
 
 #: ../static/t/openid_manual_create.html:4
-#, fuzzy
 msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
-msgstr "%s - mit <a href=\"http://www.citadel.org\">Citadel</a> Technologie"
+msgstr " - mit <a href=\"http://www.citadel.org\">Citadel</a> Technologie"
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "Your OpenID"
-msgstr "Ihre OpenIDs verwalten"
+msgstr "Ihre OpenID"
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "was successfully verified."
-msgstr "Dein OpenID <tt>%s</tt> wurde erfolgreich verifiziert."
+msgstr "wurde erfolgreich revalidiert."
 
 #: ../static/t/openid_manual_create.html:9
-#, fuzzy
 msgid "However, the user name"
-msgstr "Benutzernamen ändern"
+msgstr "Wie auch immer, der Benutzername"
 
 #: ../static/t/openid_manual_create.html:9
-#, fuzzy
 msgid "conflicts with an existing user."
-msgstr ""
-"Wie auch immer, der Benutzername '%s' kollidiert mit einem bereits "
-"vorhandenen Benutzer"
+msgstr "wird bereits von jemand anderem verwendet."
 
 #: ../static/t/openid_manual_create.html:11
 msgid "Please specify the user name you would like to use."
@@ -2200,11 +2195,11 @@ msgstr "Einstellungen"
 
 #: ../static/t/roombanner.html:10
 msgid "new of"
-msgstr ""
+msgstr "neu von"
 
 #: ../static/t/roombanner.html:24
 msgid "Select page: "
-msgstr "Seite wählen"
+msgstr "Seite wählen: "
 
 #: ../static/t/searchomatic.html:4
 msgid "Search: "
