@@ -1,0 +1,16 @@
+SRCS:=  $(wildcard *.po)
+OBJS:=  $(patsubst %.po, ../../locale/%/LC_MESSAGES/webcit.mo, $(SRCS))
+
+.SUFFIXES: .po .mo
+
+.PHONY: all
+
+all: $(OBJS)
+
+clean:
+	rm -r ../../locale/*
+
+../../locale/%/LC_MESSAGES/webcit.mo: %.po
+	mkdir -p $(patsubst %.po, ../../locale/%/LC_MESSAGES, $<)
+	msgfmt -o $@ $<
+
