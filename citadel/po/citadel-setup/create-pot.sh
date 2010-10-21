@@ -7,7 +7,7 @@ xgettext \
 	-k_ \
 	-o citadel-setup.pot \
 	--add-comments \
-        ../utils/setup.c 
+        ../../utils/setup.c 
 
 #xgettext \
 #	--copyright-holder='The Citadel Project - http://www.citadel.org' \

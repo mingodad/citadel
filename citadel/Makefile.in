@@ -227,7 +227,7 @@ msgform$(EXEEXT): utils/msgform.o
 .PHONY: install-data install-doc install-exec clean cleaner distclean
 
 install-locale:
-	cd po; $(MAKE)
+	cd po/citadel-setup; $(MAKE)
 	for i in `find locale -type d | grep -v .svn` \
 		; do \
 		test -d $(DESTDIR)$(LOCALEDIR)/$$i || mkdir -p $(DESTDIR)$(LOCALEDIR)/$$i; \
