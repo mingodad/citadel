@@ -86,6 +86,7 @@ void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
 
 void CtdlRegisterSessionHook(void (*fcn_ptr)(void), int EventType);
 void CtdlUnregisterSessionHook(void (*fcn_ptr)(void), int EventType);
+void CtdlShutdownServiceHooks(void);
 
 void CtdlRegisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);
 void CtdlUnregisterUserHook(void (*fcn_ptr)(struct ctdluser *), int EventType);

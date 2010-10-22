@@ -781,7 +781,8 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 {
 	struct ServiceFunctionHook *cur, *p;
 
-	for (cur = ServiceHookTable; cur != NULL; cur = cur->next) {
+	cur = ServiceHookTable;
+	while (cur != NULL) {
 		/* This will also remove duplicates if any */
 		while (cur != NULL &&
 				!(sockpath && cur->sockpath &&
@@ -806,6 +807,32 @@ void CtdlUnregisterServiceHook(int tcp_port, char *sockpath,
 			free(cur);
 			cur = p;
 		}
+	}
+}
+
+
+void CtdlShutdownServiceHooks(void)
+{
+	/* sort of a duplicate of close_masters() but called earlier */
+	struct ServiceFunctionHook *cur;
+
+	cur = ServiceHookTable;
+	while (cur != NULL) 
+	{
+		if (cur->msock != -1)
+		{
+			close(cur->msock);
+			cur->msock = -1;
+			if (cur->sockpath != NULL){
+				CtdlLogPrintf(CTDL_INFO, "[%s] Closed UNIX domain socket %s\n",
+					      cur->ServiceName,
+					      cur->sockpath);
+			} else {
+				CtdlLogPrintf(CTDL_INFO, "[%s] closing service\n", 
+					      cur->ServiceName);
+			}
+		}
+		cur = cur->next;
 	}
 }
 

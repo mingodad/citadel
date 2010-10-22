@@ -306,6 +306,25 @@ void terminate_idle_sessions(void)
 		CtdlLogPrintf(CTDL_INFO, "Didn't terminate %d protected idle sessions;\n", killed);
 }
 
+void terminate_stuck_sessions(void)
+{
+	CitContext *ccptr;
+	int killed = 0;
+
+	begin_critical_section(S_SESSION_TABLE);
+	for (ccptr = ContextList; ccptr != NULL; ccptr = ccptr->next) {
+		if (ccptr->client_socket != -1)
+		{
+			close(ccptr->client_socket);
+			ccptr->client_socket = -1;
+			killed++;
+		}
+	}
+	end_critical_section(S_SESSION_TABLE);
+	if (killed > 0)
+		CtdlLogPrintf(CTDL_INFO, "Flushed %d stuck sessions\n", killed);
+}
+
 
 
 /*
