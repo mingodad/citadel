@@ -1,6 +1,47 @@
 
 #include "webcit.h"
+#include "webserver.h"
 #include "calendar.h"
+
+
+
+ConstStr VCStr [] = {
+	{HKEY("n")}, /* N is name, but only if there's no FN already there */
+	{HKEY("fn")}, /* FN (full name) is a true 'display name' field */
+	{HKEY("title")},   /* title */
+	{HKEY("org")},    /* organization */
+	{HKEY("email")},
+	{HKEY("tel")},
+	{HKEY("tel_tel")},
+	{HKEY("tel_work")},
+	{HKEY("tel_home")},
+	{HKEY("tel_cell")},
+	{HKEY("adr")},
+	{HKEY("photo")},
+	{HKEY("version")},
+	{HKEY("rev")},
+	{HKEY("label")}
+};
+
+typedef enum _eVC{
+	VC_n,
+	VC_fn,
+	VC_title,
+	VC_org,
+	VC_email,
+	VC_tel,
+	VC_tel_tel,
+	VC_tel_work,
+	VC_tel_home,
+	VC_tel_cell,
+	VC_adr,
+	VC_photo,
+	VC_version,
+	VC_rev,
+	VC_label
+} eVC;
+
+HashList *VCToEnum = NULL;
 
 /*
  * Record compare function for sorting address book indices
@@ -480,6 +521,165 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 	StrBufAppendPrintf(Target, "</table></div>\n");
 }
 
+/*
+ * html print a vcard
+ * display_vcard() calls this after parsing the textual vCard into
+ * our 'struct vCard' data object.
+ *
+ * Set 'full' to nonzero to display the full card, otherwise it will only
+ * show a summary line.
+ *
+ * This code is a bit ugly, so perhaps an explanation is due: we do this
+ * in two passes through the vCard fields.  On the first pass, we process
+ * fields we understand, and then render them in a pretty fashion at the
+ * end.  Then we make a second pass, outputting all the fields we don't
+ * understand in a simple two-column name/value format.
+ * v		the vCard to display
+ * full		display all items of the vcard?
+ * msgnum	Citadel message pointer
+ */
+void parse_vcard(StrBuf *Target, struct vCard *v, HashList *VC, int full, wc_mime_attachment *Mime)
+{
+	StrBuf *Val = NULL;
+	StrBuf *Swap = NULL;
+	int i, j;
+	char buf[SIZ];
+	char *name;
+	int is_qp = 0;
+	int is_b64 = 0;
+	StrBuf *thisname = NULL;
+	char *thisvalue = NULL;
+	char firsttoken[SIZ];
+	int pass;
+	long len;
+	void *V;
+
+	Swap = NewStrBuf ();
+	thisname = NewStrBuf();
+	for (i=0; i<(v->numprops); ++i) {
+		int len;
+		is_qp = 0;
+		is_b64 = 0;
+		StrBufPlain(thisname, v->prop[i].name, -1);
+		StrBufLowerCase(thisname);
+		
+		len = extract_token(firsttoken, thisname, 0, ';', sizeof firsttoken);
+		
+		for (j=0; j<num_tokens(thisname, ';'); ++j) {
+			extract_token(buf, thisname, j, ';', sizeof buf);
+			if (!strcasecmp(buf, "encoding=quoted-printable")) {
+				is_qp = 1;
+				remove_token(thisname, j, ';');
+			}
+			if (!strcasecmp(buf, "encoding=base64")) {
+				is_b64 = 1;
+				remove_token(thisname, j, ';');
+			}
+		}
+		
+		/* copy over the payload into a StrBuf */
+		Val = NewStrBufPlain(v->prop[i].value, -1);
+			
+		/* if we have some untagged QP, detect it here. */
+		if (is_qp || (strstr(v->prop[i].value, "=?")!=NULL)){
+			StrBuf *b;
+			StrBuf_RFC822_to_Utf8(Swap, Val, NULL, NULL); /* default charset, current charset */
+			b = Val;
+			Val = Swap; 
+			Swap = b;
+			FlushStrBuf(Swap);
+		}
+		else if (is_b64) {
+			StrBufDecodeBase64(Val);
+
+		}
+		lprintf(1, "%s [%s][%s]",
+			firsttoken,
+			ChrPtr(Val),
+			v->prop[i].value);
+		if (GetHash(VCToEnum, firsttoken, strlen(firsttoken), &V))
+		{
+			eVC evc = (eVC) V;
+			Put(VC, IKEY(evc), Val, HFreeStrBuf);
+			lprintf(1, "[%ld]\n", evc);
+			Val = NULL;
+		}
+		else
+			lprintf(1, "[]\n");
+/*
+TODO: check for layer II
+		else 
+		{
+			long max = num_tokens(thisname, ';');
+			firsttoken[len] = '_';
+
+			for (j = 0; j < max; j++) {
+//			firsttoken[len]
+
+				extract_token(buf, thisname, j, ';', sizeof (buf));
+					if (!strcasecmp(buf, "tel"))
+						strcat(phone, "");
+					else if (!strcasecmp(buf, "work"))
+						strcat(phone, _(" (work)"));
+					else if (!strcasecmp(buf, "home"))
+						strcat(phone, _(" (home)"));
+					else if (!strcasecmp(buf, "cell"))
+						strcat(phone, _(" (cell)"));
+					else {
+						strcat(phone, " (");
+						strcat(phone, buf);
+						strcat(phone, ")");
+					}
+				}
+			}
+
+		}
+*/
+	
+		FreeStrBuf(&Val);
+		free(thisname);
+		thisname = NULL;
+	}
+
+}
+
+void tmplput_VCARD_ITEM(StrBuf *Target, WCTemplputParams *TP)
+{
+	HashList *VC = CTX;
+	eVC evc;
+	void *vStr;
+
+	evc = GetTemplateTokenNumber(Target, TP, 0, -1);
+	if (evc != -1)
+	{
+		if (GetHash(VC, IKEY(evc), &vStr))
+		{
+			StrBufAppendTemplate(Target, TP,
+					     (StrBuf*) vStr,
+					     1);
+		}
+	}
+	
+}
+
+void new_vcard (StrBuf *Target, struct vCard *v, int full, wc_mime_attachment *Mime)
+{
+	HashList *VC;
+	WCTemplputParams SubTP;
+
+        memset(&SubTP, 0, sizeof(WCTemplputParams));    
+
+
+	VC = NewHash(0, Flathash);
+	parse_vcard(Target, v, VC, full, Mime);
+
+	SubTP.Filter.ContextType = CTX_VCARD;
+	SubTP.Context = VC;
+
+	DoTemplate(HKEY("test_vcard"), Target, &SubTP);
+	DeleteHash(&VC);
+}
+
 
 
 /*
@@ -530,7 +730,11 @@ void display_vcard(StrBuf *Target,
 		 ((!isalpha(alpha)) && (!isalpha(this_alpha)))
 		) 
 	{
+#ifdef TECH_PREVIEW
+		new_vcard (Target, v, full, Mime);
+#else
 		display_parsed_vcard(Target, v, full, Mime);
+#endif		
 	}
 
 	vcard_free(v);
@@ -1285,6 +1489,21 @@ int vcard_Cleanup(void **ViewSpecific)
 }
 
 void 
+ServerStartModule_VCARD
+(void)
+{
+	VCToEnum = NewHash(0, NULL);
+
+}
+
+void 
+ServerShutdownModule_VCARD
+(void)
+{
+	DeleteHash(&VCToEnum);
+}
+
+void 
 InitModule_VCARD
 (void)
 {
@@ -1299,5 +1518,41 @@ InitModule_VCARD
 	WebcitAddUrlHandler(HKEY("edit_vcard"), "", 0, edit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("submit_vcard"), "", 0, submit_vcard, 0);
 	WebcitAddUrlHandler(HKEY("vcardphoto"), "", 0, display_vcard_photo_img, NEED_URL);
+
+	Put(VCToEnum, HKEY("n"), (void*)VC_n, reference_free_handler);
+	Put(VCToEnum, HKEY("fn"), (void*)VC_fn, reference_free_handler);
+	Put(VCToEnum, HKEY("title"), (void*)VC_title, reference_free_handler);
+	Put(VCToEnum, HKEY("org"), (void*)VC_org, reference_free_handler);
+	Put(VCToEnum, HKEY("email"), (void*)VC_email, reference_free_handler);
+	Put(VCToEnum, HKEY("tel"), (void*)VC_tel, reference_free_handler);
+	Put(VCToEnum, HKEY("tel_tel"), (void*)VC_tel_tel, reference_free_handler);
+	Put(VCToEnum, HKEY("tel_work"), (void*)VC_tel_work, reference_free_handler);
+	Put(VCToEnum, HKEY("tel_home"), (void*)VC_tel_home, reference_free_handler);
+	Put(VCToEnum, HKEY("tel_cell"), (void*)VC_tel_cell, reference_free_handler);
+	Put(VCToEnum, HKEY("adr"), (void*)VC_adr, reference_free_handler);
+	Put(VCToEnum, HKEY("photo"), (void*)VC_photo, reference_free_handler);
+	Put(VCToEnum, HKEY("version"), (void*)VC_version, reference_free_handler);
+	Put(VCToEnum, HKEY("rev"), (void*)VC_rev, reference_free_handler);
+	Put(VCToEnum, HKEY("label"), (void*)VC_label, reference_free_handler);
+
+
+	RegisterNamespace("VC", 1, 2, tmplput_VCARD_ITEM, NULL, CTX_VCARD);
+
+	REGISTERTokenParamDefine(VC_n);
+	REGISTERTokenParamDefine(VC_fn);
+	REGISTERTokenParamDefine(VC_title);
+	REGISTERTokenParamDefine(VC_org);
+	REGISTERTokenParamDefine(VC_email);
+	REGISTERTokenParamDefine(VC_tel);
+	REGISTERTokenParamDefine(VC_tel_tel);
+	REGISTERTokenParamDefine(VC_tel_work);
+	REGISTERTokenParamDefine(VC_tel_home);
+	REGISTERTokenParamDefine(VC_tel_cell);
+	REGISTERTokenParamDefine(VC_adr);
+	REGISTERTokenParamDefine(VC_photo);
+	REGISTERTokenParamDefine(VC_version);
+	REGISTERTokenParamDefine(VC_rev);
+	REGISTERTokenParamDefine(VC_label);
+
 }
 
