@@ -157,6 +157,9 @@ void InitializeMasterCC(void);
 void dead_session_purge(int force);
 void set_async_waiting(struct CitContext *ccptr);
 
+/* forcibly close and flush fd's on shutdown */
+void terminate_stuck_sessions(void);
+
 /* Deprecated, user CtdlBumpNewMailCounter() instead */
 void BumpNewMailCounter(long) __attribute__ ((deprecated));
 

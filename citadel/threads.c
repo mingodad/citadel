@@ -352,7 +352,9 @@ void CtdlThreadStopAll(void)
 {
 	/* First run any registered shutdown hooks.  This probably doesn't belong here. */
 	PerformSessionHooks(EVT_SHUTDOWN);
-
+	
+	/* then close all tcp ports so nobody else can talk to us anymore. */
+	CtdlShutdownServiceHooks();
 	//FIXME: The signalling of the condition should not be in the critical_section
 	// We need to build a list of threads we are going to signal and then signal them afterwards
 	
@@ -712,7 +714,10 @@ void CtdlThreadGC (void)
 		
 		if ((that_thread->state == CTDL_THREAD_STOP_REQ || that_thread->state == CTDL_THREAD_STOPPING)
 			&& (!citthread_equal(that_thread->tid, citthread_self())))
-				CtdlLogPrintf(CTDL_DEBUG, "Waiting for thread %s (0x%08lx) to exit.\n", that_thread->name, that_thread->tid);
+		{
+			CtdlLogPrintf(CTDL_DEBUG, "Waiting for thread %s (0x%08lx) to exit.\n", that_thread->name, that_thread->tid);
+			terminate_stuck_sessions();
+		}
 		else
 		{
 			/**
