@@ -5,21 +5,23 @@
 # Jacques Lavignotte - <jacques@lavignotte.org>
 # Thierry Pasquier - <thierry.pasquier@pictascience.org>, 2006
 #
-# This file is distributed under GPL v3
+# This file is distributed under BSD License
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2009-05-10 21:49+0100\n"
+"PO-Revision-Date: 2010-10-22 14:57+0000\n"
 "Last-Translator: iltl <iltl@free.fr>\n"
-"Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: \n"
+"Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: French\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: FRANCE\n"
+"Language: fr\n"
+"X-Poedit-Language: French\n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -120,7 +122,7 @@ msgstr "Niveau d'accès actuel : %d (%s)\n"
 
 #: ../auth.c:721
 msgid "Select access level for this user:"
-msgstr "Sélection du niveau d'accès de cet usager : "
+msgstr "Sélection du niveau d'accès de cet usager :"
 
 #: ../auth.c:808
 msgid "Change your password"
@@ -153,10 +155,10 @@ msgid "They don't match.  Password was not changed."
 msgstr ""
 "Les deux saisies sont différentes. Le mot de passe n'a pas été modifié."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilité inconnue"
@@ -247,7 +249,8 @@ msgstr "Ceci est une mise à jour de '%s' déjà présent dans votre agenda."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Cet événement entre en conflit avec '%s' qui est déjà dans votre agenda."
 
@@ -331,7 +334,7 @@ msgid ""
 "updated."
 msgstr ""
 "Vous avez choisi d'ignorer cette réponse. Votre agenda <b>n'a pas</b> été "
-"modifié. "
+"modifié."
 
 #: ../calendar.c:921
 msgid "Calendar day view begins at:"
@@ -347,11 +350,11 @@ msgstr "La semaine démarre le:"
 
 #: ../calendar_tools.c:101
 msgid "Hour: "
-msgstr "Heure :"
+msgstr "Heure : "
 
 #: ../calendar_tools.c:121
 msgid "Minute: "
-msgstr "Minute :"
+msgstr "Minute : "
 
 #: ../calendar_tools.c:192
 msgid "(status unknown)"
@@ -359,7 +362,7 @@ msgstr "(pas encore de réponse)"
 
 #: ../calendar_tools.c:208
 msgid "(needs action)"
-msgstr "(action requise) "
+msgstr "(action requise)"
 
 #: ../calendar_tools.c:211
 msgid "(accepted)"
@@ -392,7 +395,7 @@ msgstr "(aucun)"
 #: ../calendar_view.c:264 ../calendar_view.c:464 ../calendar_view.c:935
 #: ../event.c:862
 msgid "Untitled Event"
-msgstr "Événement sans titre "
+msgstr "Événement sans titre"
 
 #: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
 #: ../calendar_view.c:1081 ../sieve.c:995
@@ -551,7 +554,7 @@ msgstr "(vous êtes l'organisateur)"
 
 #: ../event.c:395
 msgid "Show time as:"
-msgstr "Disponibilité "
+msgstr "Disponibilité"
 
 #: ../event.c:418
 msgid "Free"
@@ -597,7 +600,7 @@ msgstr "du mois"
 
 #: ../event.c:658
 msgid "every "
-msgstr "chaque"
+msgstr "chaque "
 
 #: ../event.c:659
 msgid "year on this date"
@@ -626,7 +629,7 @@ msgstr "heures"
 
 #: ../event.c:741
 msgid "Repeat this event until "
-msgstr "Répéter cette évènement jusqu'à"
+msgstr "Répéter cette évènement jusqu'à "
 
 #: ../event.c:767 ../tasks.c:356
 msgid "Save"
@@ -647,11 +650,12 @@ msgstr "Format horaire"
 
 #: ../graphics.c:42
 msgid "Image upload"
-msgstr "Image téléchargée "
+msgstr "Image téléchargée"
 
 #: ../graphics.c:58
 msgid "You can upload an image directly from your computer"
-msgstr "Vous pouvez télécharger une image directement depuis votre ordinateur"
+msgstr ""
+"Vous pouvez télécharger une image directement depuis votre ordinateur"
 
 #: ../graphics.c:61
 msgid "Please select a file to upload:"
@@ -659,7 +663,7 @@ msgstr "Sélectionner un fichier à transférer :"
 
 #: ../graphics.c:67
 msgid "Upload"
-msgstr "Télécharger "
+msgstr "Télécharger"
 
 #: ../graphics.c:69
 msgid "Reset form"
@@ -667,7 +671,7 @@ msgstr "Réinitialiser le formulaire"
 
 #: ../graphics.c:92
 msgid "Graphics upload has been cancelled."
-msgstr "Le téléchargement de l'image a été abandonné. "
+msgstr "Le téléchargement de l'image a été abandonné."
 
 #: ../graphics.c:99
 msgid "You didn't upload a file."
@@ -879,7 +883,7 @@ msgstr "(Supprimer)"
 
 #: ../openid.c:46
 msgid "Add an OpenID: "
-msgstr "Ajouter un compte OpenID"
+msgstr "Ajouter un compte OpenID "
 
 #: ../openid.c:49
 msgid "Attach"
@@ -953,14 +957,14 @@ msgid "Your changes have been saved."
 msgstr "Vos modifications ont été enregistrées."
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<b><i>L'usager %s a été éjecté du salon %s.</i></b>\n"
+msgstr "L'usager %s a été éjecté du salon %s."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<b><i>L'usager %s a été invité à rejoindre le salon %s.</i></b>\n"
+msgstr "L'usager %s a été invité à rejoindre le salon %s."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -968,11 +972,11 @@ msgstr "Abandon. Aucun nouveau salon n'a été créé."
 
 #: ../roomops.c:1159
 msgid "Floor has been deleted."
-msgstr "Le palier a été détruit. "
+msgstr "Le palier a été détruit."
 
 #: ../roomops.c:1183
 msgid "New floor has been created."
-msgstr "Un nouveau palier a été créé. "
+msgstr "Un nouveau palier a été créé."
 
 #: ../roomops.c:1262
 msgid "Room list view"
@@ -1076,7 +1080,7 @@ msgstr ""
 
 #: ../sieve.c:117
 msgid "When new mail arrives: "
-msgstr "Quand un nouveau mail arrive :"
+msgstr "Quand un nouveau mail arrive : "
 
 #: ../sieve.c:121
 msgid "Leave it in my inbox without filtering"
@@ -1098,7 +1102,7 @@ msgstr "Vos courriels ne seront filtrés par aucun scripts."
 
 #: ../sieve.c:156
 msgid "The currently active script is: "
-msgstr "le script actif est :"
+msgstr "le script actif est : "
 
 #: ../sieve.c:171 ../sieve.c:644
 msgid "Add or delete scripts"
@@ -1122,11 +1126,11 @@ msgstr ""
 
 #: ../sieve.c:666
 msgid "Script name: "
-msgstr "Nom du script :"
+msgstr "Nom du script : "
 
 #: ../sieve.c:669
 msgid "Create"
-msgstr "Créer "
+msgstr "Créer"
 
 #: ../sieve.c:674
 msgid "Edit scripts"
@@ -1318,7 +1322,8 @@ msgid "Add rule"
 msgstr "Ajouter une règle"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1441,7 +1446,7 @@ msgstr "Achevé ?"
 
 #: ../tasks.c:97
 msgid "Name of task"
-msgstr "Intitulé de la tâche "
+msgstr "Intitulé de la tâche"
 
 #: ../tasks.c:99
 msgid "Date due"
@@ -1618,7 +1623,7 @@ msgstr "Suffixe"
 
 #: ../vcard_edit.c:874
 msgid "Display name:"
-msgstr "Nom affiché : "
+msgstr "Nom affiché :"
 
 #: ../vcard_edit.c:881
 msgid "Title:"
@@ -1666,7 +1671,7 @@ msgstr "Numéro de fax:"
 
 #: ../vcard_edit.c:972
 msgid "Primary Internet e-mail address"
-msgstr "Adresse de courriel principale "
+msgstr "Adresse de courriel principale"
 
 #: ../vcard_edit.c:979
 msgid "Internet e-mail aliases"
@@ -1716,7 +1721,7 @@ msgstr ""
 "la liste des usagers connectés. Pour éviter qu'un 'pseudonyme' que vous "
 "auriez préalablement indiqué ne soit encore visible, cliquez simplement sur "
 "le bouton 'changer' sans rien indiquer dans la boîte de saisie "
-"correspondante."
+"correspondante. "
 
 #: ../who.c:168
 msgid "Room name:"
@@ -1807,7 +1812,7 @@ msgstr "Commandes avancées des salons"
 
 #: ../static/t/edit_message.html:23
 msgid "from"
-msgstr "de "
+msgstr "de"
 
 #: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
 msgid "Anonymous"
@@ -1815,7 +1820,7 @@ msgstr "Messages anonymes"
 
 #: ../static/t/edit_message.html:47
 msgid "in"
-msgstr "dans "
+msgstr "dans"
 
 #: ../static/t/edit_message.html:51
 msgid "To:"
@@ -1835,7 +1840,7 @@ msgstr "Objet :"
 
 #: ../static/t/edit_message.html:76
 msgid "Subject (optional):"
-msgstr "Objet (facultatif) : "
+msgstr "Objet (facultatif) :"
 
 #: ../static/t/edit_message.html:92
 msgid "--- forwarded message ---"
@@ -1997,8 +2002,8 @@ msgstr "Si vous avez déjà un compte sur"
 #: ../static/t/login.html:44
 msgid "enter your user name and password and click &quot;Login.&quot;"
 msgstr ""
-"entrez votre identifiant et votre mot de passe puis cliquez sur &quot;Login."
-"&quot;"
+"entrez votre identifiant et votre mot de passe puis cliquez sur "
+"&quot;Login.&quot;"
 
 #: ../static/t/login.html:45
 msgid ""
@@ -2010,7 +2015,7 @@ msgstr ""
 
 #: ../static/t/login.html:46 ../static/t/openid_login.html:37
 msgid "Please log off properly when finished. "
-msgstr "Fermez votre session  proprement en quittant."
+msgstr "Fermez votre session  proprement en quittant. "
 
 #: ../static/t/login.html:47 ../static/t/openid_login.html:38
 msgid "See the"
@@ -2026,7 +2031,7 @@ msgid ""
 "turned on. "
 msgstr ""
 "Si Webcit présente des dysfonctionnement.</li><li>Vous devez activer les "
-"<i>cookies</i>"
+"<i>cookies</i> "
 
 #: ../static/t/login.html:48 ../static/t/openid_login.html:39
 msgid ""
@@ -2237,7 +2242,7 @@ msgstr ""
 
 #: ../static/t/roombanner.html:24
 msgid "Select page: "
-msgstr "Sélectionner la page :"
+msgstr "Sélectionner la page : "
 
 #: ../static/t/searchomatic.html:4
 msgid "Search: "
@@ -2289,7 +2294,7 @@ msgstr "Entêtes"
 
 #: ../static/t/viewomatic.html:4
 msgid "View as:"
-msgstr "Voir comme "
+msgstr "Voir comme"
 
 #: ../static/t/who.html:14
 msgid "Users currently on "

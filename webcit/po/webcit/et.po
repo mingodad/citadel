@@ -9,13 +9,15 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2010-10-22 14:52+0000\n"
 "Last-Translator: Rait Lotamõis <rait@kuma.ee>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: ee\n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -148,10 +150,10 @@ msgstr "Katkestatud. Salasõna ei muudetud."
 msgid "They don't match.  Password was not changed."
 msgstr "Need ei ühti. Salasõna ei muudetud."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "saadavus teadmata"
@@ -242,7 +244,8 @@ msgstr "See on uuendus sinu kalendris olevale sündmusele '%s'."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr "See sündmus läheks vastuollu juba kalendris oleva sündmusega '%s'."
 
 #: ../calendar.c:232
@@ -271,7 +274,7 @@ msgstr "Keeldun"
 
 #: ../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
-msgstr "Klõpsa <i>Uuenda</i>, et kanda see vastus oma kalendrisündmusele. "
+msgstr "Klõpsa <i>Uuenda</i>, et kanda see vastus oma kalendrisündmusele."
 
 #: ../calendar.c:277
 msgid "Update"
@@ -748,7 +751,8 @@ msgstr "Katkestatud. Sõnumit ei postitatud."
 #: ../messages.c:1067
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr "Automaatselt katkestatud, sest sa oled selle sõnumi juba salvestanud."
+msgstr ""
+"Automaatselt katkestatud, sest sa oled selle sõnumi juba salvestanud."
 
 #: ../messages.c:1119
 msgid "Saved to Drafts failed: "
@@ -931,14 +935,14 @@ msgid "Your changes have been saved."
 msgstr "Sinu muudatused on salvestatud."
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<B><I>Kasutaja %s löödi toast %s välja.</I></B>\n"
+msgstr "Kasutaja %s löödi toast %s välja."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<B><I>Kasutaja %s kutsutud tuppa %s.</I></B>\n"
+msgstr "Kasutaja %s kutsutud tuppa %s."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -1042,7 +1046,7 @@ msgstr ""
 
 #: ../sieve.c:117
 msgid "When new mail arrives: "
-msgstr "Kui uus kiri saabub:"
+msgstr "Kui uus kiri saabub: "
 
 #: ../sieve.c:121
 msgid "Leave it in my inbox without filtering"
@@ -1277,7 +1281,8 @@ msgid "Add rule"
 msgstr "Lisa reegel"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1946,7 +1951,7 @@ msgid ""
 "<b>If you are a new user</b>, enter the name and password you wish to use, "
 "and click &quot;New User.&quot; "
 msgstr ""
-"<b>Kui sa oled uus kasutaja</b>, võta ühendust süsteemiadministraatoriga"
+"<b>Kui sa oled uus kasutaja</b>, võta ühendust süsteemiadministraatoriga "
 
 #: ../static/t/login.html:46 ../static/t/openid_login.html:37
 msgid "Please log off properly when finished. "
@@ -1966,7 +1971,7 @@ msgid ""
 "turned on. "
 msgstr ""
 "kui sul on Webcit'iga probleeme.</li> <li>Sul peavad <i>küpsised</i>lubatud "
-"olema."
+"olema. "
 
 #: ../static/t/login.html:48 ../static/t/openid_login.html:39
 msgid ""
@@ -2172,11 +2177,11 @@ msgstr ""
 
 #: ../static/t/roombanner.html:24
 msgid "Select page: "
-msgstr "Vali lehekülg:"
+msgstr "Vali lehekülg: "
 
 #: ../static/t/searchomatic.html:4
 msgid "Search: "
-msgstr "Otsi:"
+msgstr "Otsi: "
 
 #: ../static/t/start_of_new_msgs.html:4
 #, fuzzy
@@ -2190,7 +2195,7 @@ msgstr "Ei ole uusi sõnumeid."
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
-msgstr "postitaja"
+msgstr "postitaja "
 
 #: ../static/t/view_message.html:15
 msgid "to"

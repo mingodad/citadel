@@ -9,13 +9,15 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2009-06-12 16:41+0200\n"
+"PO-Revision-Date: 2010-10-22 14:58+0000\n"
 "Last-Translator: Czakó Krisztián <slapic@prolin.hu>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: hu\n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -148,10 +150,10 @@ msgstr "Megszakítva. A jelszó nem változott."
 msgid "They don't match.  Password was not changed."
 msgstr "Nem egyeznek. A jelszó nem változott."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "elérhetőség ismeretlen"
@@ -242,7 +244,8 @@ msgstr "Az a(z) '%s' frissítése,  mely már létezik az ön naptárában."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Ez az esemény ütközik a(z) '%s' eseménnyel, mely már létezik az ön "
 "naptárában."
@@ -274,8 +277,8 @@ msgstr "Visszautasít"
 #: ../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
-"A válasz elfogadásához és a naptár frissítéséhez kattintson a <i>Frissítés</"
-"i>re"
+"A válasz elfogadásához és a naptár frissítéséhez kattintson a "
+"<i>Frissítés</i>re"
 
 #: ../calendar.c:277
 msgid "Update"
@@ -393,7 +396,7 @@ msgstr "Névtelen esemény"
 #: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
 #: ../calendar_view.c:1081 ../sieve.c:995
 msgid "From"
-msgstr "Kezdet: "
+msgstr "Kezdet:"
 
 #: ../calendar_view.c:347 ../calendar_view.c:972
 msgid "Starting date:"
@@ -582,7 +585,7 @@ msgstr "a hónap %s%d%s napján"
 
 #: ../event.c:605 ../event.c:667
 msgid "on the "
-msgstr "a"
+msgstr "a "
 
 #: ../event.c:629
 msgid "of the month"
@@ -590,7 +593,7 @@ msgstr "a hónapnak"
 
 #: ../event.c:658
 msgid "every "
-msgstr "minden"
+msgstr "minden "
 
 #: ../event.c:659
 msgid "year on this date"
@@ -619,7 +622,7 @@ msgstr "ennyiszer"
 
 #: ../event.c:741
 msgid "Repeat this event until "
-msgstr "Ismételje ezt az esemény eddig:"
+msgstr "Ismételje ezt az esemény eddig: "
 
 #: ../event.c:767 ../tasks.c:356
 msgid "Save"
@@ -847,7 +850,7 @@ msgstr "szerkeszt"
 
 #: ../msg_renderers.c:1023
 msgid "I don't know how to display "
-msgstr "Nem tudom hogyan jelenítsem meg."
+msgstr "Nem tudom hogyan jelenítsem meg. "
 
 #: ../msg_renderers.c:1242
 msgid "(no subject)"
@@ -871,7 +874,7 @@ msgstr "(törlés)"
 
 #: ../openid.c:46
 msgid "Add an OpenID: "
-msgstr "OpenID hozzáadása:"
+msgstr "OpenID hozzáadása: "
 
 #: ../openid.c:49
 msgid "Attach"
@@ -888,7 +891,7 @@ msgstr "Azonnali üzenet küldése"
 
 #: ../paging.c:44
 msgid "Send an instant message to: "
-msgstr "Azonnali üzenet küldése ide:"
+msgstr "Azonnali üzenet küldése ide: "
 
 #: ../paging.c:58
 msgid "Enter message text:"
@@ -904,7 +907,7 @@ msgstr "Üzenet nem lett elküldve."
 
 #: ../paging.c:100
 msgid "Message has been sent to "
-msgstr "Az üzenet elküldésre került ide:"
+msgstr "Az üzenet elküldésre került ide: "
 
 #: ../preferences.c:846
 msgid "Cancelled.  No settings were changed."
@@ -945,14 +948,14 @@ msgid "Your changes have been saved."
 msgstr "A változtatásait mentettük."
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<B><I>%s felhasználó kirúgva a(z) %s szobából.</I></B>\n"
+msgstr "%s felhasználó kirúgva a(z) %s szobából."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<B><I>%s felhasználó meghívva a(z) %s szobába.</I></B>\n"
+msgstr "%s felhasználó meghívva a(z) %s szobába."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -1068,7 +1071,8 @@ msgstr "Szűrd az alábbi feltételek szerint"
 
 #: ../sieve.c:130
 msgid "Filter it through a manually edited script (advanced users only)"
-msgstr "Szűrd a kézzel szerkesztett szkriptekkel (csak haladó felhasználóknak)"
+msgstr ""
+"Szűrd a kézzel szerkesztett szkriptekkel (csak haladó felhasználóknak)"
 
 #: ../sieve.c:141
 msgid "Your incoming mail will not be filtered through any scripts."
@@ -1259,11 +1263,11 @@ msgstr "Visszautasít"
 
 #: ../sieve.c:1084
 msgid "Move message to"
-msgstr "Levél mozgatása ide: "
+msgstr "Levél mozgatása ide:"
 
 #: ../sieve.c:1085
 msgid "Forward to"
-msgstr "Továbbítás ide: "
+msgstr "Továbbítás ide:"
 
 #: ../sieve.c:1086
 msgid "Vacation"
@@ -1290,7 +1294,8 @@ msgid "Add rule"
 msgstr "Szabály hozzáadása"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1520,15 +1525,15 @@ msgstr "(nincs név)"
 
 #: ../vcard_edit.c:385
 msgid " (work)"
-msgstr "(munka)"
+msgstr " (munka)"
 
 #: ../vcard_edit.c:387
 msgid " (home)"
-msgstr "(otthon)"
+msgstr " (otthon)"
 
 #: ../vcard_edit.c:389
 msgid " (cell)"
-msgstr "(mobil)"
+msgstr " (mobil)"
 
 #: ../vcard_edit.c:400 ../vcard_edit.c:905
 msgid "Address:"
