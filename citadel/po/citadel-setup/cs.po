@@ -8,18 +8,19 @@ msgstr ""
 "Project-Id-Version: citadel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2009-08-16 15:48+0200\n"
+"PO-Revision-Date: 2010-10-22 14:32+0000\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
-"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: cs\n"
 
 #: ../utils/setup.c:119
-#, fuzzy
 msgid "Citadel Home Directory"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:122
 msgid ""
@@ -66,9 +67,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:149
-#, fuzzy
 msgid "Citadel User ID:"
-msgstr "Citadel/UX"
+msgstr ""
 
 #: ../utils/setup.c:151
 msgid ""
@@ -114,7 +114,6 @@ msgid "Authentication method to use:"
 msgstr ""
 
 #: ../utils/setup.c:179
-#, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
 "own internal user accounts database. If you choose Host, Citadel users will "
@@ -132,50 +131,38 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
-"Zvolte si způsob autentizace uživatelů. Ve výchozím nastavení používá "
-"Citadel svou vlastní databázi uživatelských účtů. Zvolíte-li možnost "
-"hostitel, budou mít uživatelé Citadel účty na hostitelském systému a budou "
-"se ověřovat oproti /etc/passwd nebo PAM. Možnost LDAP použije adresářový "
-"server odpovídající RFC 2307. Poslední možnost použije nestandardní LDAP "
-"schéma MS Active Directory."
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
 msgstr "LDAP server:"
 
 #: ../utils/setup.c:199
-#, fuzzy
 msgid "Please enter the host name or IP address of your LDAP server.\n"
-msgstr "Zadejte jméno nebo IP adresu počítače, na kterém běží LDAP server."
+msgstr ""
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
 msgstr "LDAP port:"
 
 #: ../utils/setup.c:203
-#, fuzzy
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
-msgstr "Zadejte číslo portu, na kterém běží služba LDAP (obvykle 389)."
+msgstr ""
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
 msgstr "Základní LDAP DN:"
 
 #: ../utils/setup.c:207
-#, fuzzy
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"Zadejte základní DN (Distinguished Name), ve kterém se budou hledat "
-"autentizační údaje (například: dc=priklad,dc=cz)."
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
 msgstr "DN účtu pro LDAP dotazy:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -185,23 +172,17 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"Zadejte DN účtu, který se bude používat pro dotazy do LDAP serveru. Účet "
-"nevyžaduje žádná speciální oprávnění. Pokud LDAP server umožňuje anonymní "
-"dotazy, můžete ponechat prázdné."
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
 msgstr "Heslo účtu pro LDAP dotazy:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Pokud jste v předchozí otázce zadali DN účtu pro LDAP dotazy, musíte nyní "
-"zadat heslo tohoto účtu. V opačném případě můžete ponechat prázdné."
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
@@ -232,7 +213,7 @@ msgid "Adding service entry..."
 msgstr ""
 
 #. Other errors might mean something really did go wrong.
-#.
+#. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
 msgstr ""
@@ -355,9 +336,8 @@ msgstr ""
 
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
-#, fuzzy
 msgid "Citadel Setup"
-msgstr "Citadel/UX"
+msgstr ""
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
@@ -370,9 +350,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:1485
-#, fuzzy
 msgid "Citadel setup program"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -390,8 +369,8 @@ msgstr ""
 #~ "server naslouchat na všech adresách."
 
 #~ msgid ""
-#~ "This can usually be left to the default unless multiple instances of "
-#~ "Citadel are running on the same computer."
+#~ "This can usually be left to the default unless multiple instances of Citadel "
+#~ "are running on the same computer."
 #~ msgstr ""
 #~ "Pokud na tomto počítači nemáte více instancí Citadel, můžete nejspíš "
 #~ "ponechat výchozí hodnotu."
@@ -406,8 +385,8 @@ msgstr ""
 #~ msgstr "LDAP"
 
 #~ msgid ""
-#~ "Do not change this option unless you are sure it is required, since "
-#~ "changing back requires a full reinstall of Citadel."
+#~ "Do not change this option unless you are sure it is required, since changing "
+#~ "back requires a full reinstall of Citadel."
 #~ msgstr ""
 #~ "Pokud si nejste jisti, že tuto možnost opravdu chcete, raději ji neměňte, "
 #~ "protože návrat zpět znamená kompletní reinstalaci Citadel."
@@ -435,33 +414,31 @@ msgstr ""
 
 #~ msgid ""
 #~ "Specify the way authentication is done, either host based or Citadel "
-#~ "internal. Host based accounting could be /etc/passwd or an LDAP "
-#~ "directory. WARNING: do not change this setting once your system is "
-#~ "installed. Answer \"no\" unless you completely understand this option."
+#~ "internal. Host based accounting could be /etc/passwd or an LDAP directory. "
+#~ "WARNING: do not change this setting once your system is installed. Answer "
+#~ "\"no\" unless you completely understand this option."
 #~ msgstr ""
 #~ "Zadejte způsob autentizace - buď založený na mechanismech hostitelského "
 #~ "počítače, nebo na interní správě přímo v Citadel. Ověřováním podle "
-#~ "hostitelského počítače se myslí /etc/passwd nebo LDAP adresář. VAROVÁNÍ: "
-#~ "po instalaci systému již toto nastavení neměňte. Pokud si nejste zcela "
-#~ "jisti, zda otázce rozumíte, odpovězte „ne“."
+#~ "hostitelského počítače se myslí /etc/passwd nebo LDAP adresář. VAROVÁNÍ: po "
+#~ "instalaci systému již toto nastavení neměňte. Pokud si nejste zcela jisti, "
+#~ "zda otázce rozumíte, odpovězte „ne“."
 
 #~ msgid ""
-#~ "Enter the name of the Citadel administrator (which is probably you). When "
-#~ "an account is created with this name, it will automatically be given "
+#~ "Enter the name of the Citadel administrator (which is probably you). When an "
+#~ "account is created with this name, it will automatically be given "
 #~ "administrator-level access."
 #~ msgstr ""
-#~ "Zadejte jméno správce Citadel (což budete pravděpodobně vy). Při "
-#~ "vytvoření účtu se zadaným jménem mu budou automaticky přidána správcovská "
-#~ "oprávnění."
+#~ "Zadejte jméno správce Citadel (což budete pravděpodobně vy). Při vytvoření "
+#~ "účtu se zadaným jménem mu budou automaticky přidána správcovská oprávnění."
 
 #~ msgid ""
 #~ "For post configuring your Citadel Server, use citadel-webcit with your "
-#~ "browser, log in as the user you specified as the Administrator, and "
-#~ "review the Points under the Administration menu. If you have further "
-#~ "questions review www.citadel.org, specialy the FAQ and Documentation "
-#~ "section."
+#~ "browser, log in as the user you specified as the Administrator, and review "
+#~ "the Points under the Administration menu. If you have further questions "
+#~ "review www.citadel.org, specialy the FAQ and Documentation section."
 #~ msgstr ""
 #~ "Pro poinstalační nastavení Citadel serveru si nainstalujte balík citadel-"
 #~ "webcit. Ve webovém prohlížeči se přihlaste pod uživatelem, kterého jste "
-#~ "zvolili za správce a projděte si menu Administration. Máte-li další "
-#~ "otázky, podívejte se na http://www.citadel.org do částí Dokumentace a FAQ."
+#~ "zvolili za správce a projděte si menu Administration. Máte-li další otázky, "
+#~ "podívejte se na http://www.citadel.org do částí Dokumentace a FAQ."

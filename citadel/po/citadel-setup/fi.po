@@ -4,21 +4,20 @@ msgstr ""
 "Project-Id-Version: citadel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2009-08-22 21:43+0300\n"
+"PO-Revision-Date: 2010-10-22 14:35+0000\n"
 "Last-Translator: Esko Arajärvi <edu@iki.fi>\n"
 "Language-Team: Finnish <debian-l10n-finnish@lists.debian.org>\n"
-"Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: FINLAND\n"
-"X-Generator: Lokalize 0.3\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: fi\n"
 
 #: ../utils/setup.c:119
-#, fuzzy
 msgid "Citadel Home Directory"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:122
 msgid ""
@@ -93,9 +92,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:168
-#, fuzzy
 msgid "Server port number:"
-msgstr "LDAP-portin numero:"
+msgstr ""
 
 #: ../utils/setup.c:170
 msgid ""
@@ -142,31 +140,28 @@ msgid "LDAP host:"
 msgstr "LDAP-kone:"
 
 #: ../utils/setup.c:199
-#, fuzzy
 msgid "Please enter the host name or IP address of your LDAP server.\n"
-msgstr "Anna LDAP-palvelimen verkkonimi tai IP-osoite."
+msgstr "Anna LDAP-palvelimen verkkonimi tai IP-osoite.\n"
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
 msgstr "LDAP-portin numero:"
 
 #: ../utils/setup.c:203
-#, fuzzy
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
-msgstr "Anna LDAP-palvelun porttinumero (yleensä 389)."
+msgstr "Anna LDAP-palvelun porttinumero (yleensä 389).\n"
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
 msgstr "LDAPin kanta-DN (erittelevä nimi):"
 
 #: ../utils/setup.c:207
-#, fuzzy
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
 "Anna erittelevä nimi, josta kirjautumistietoja etsitään (esimerkiksi: "
-"dc=example,dc=com)."
+"dc=example,dc=com).\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
@@ -193,7 +188,6 @@ msgid "LDAP bind password:"
 msgstr "LDAP-yhteyden salasana:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
@@ -231,7 +225,7 @@ msgid "Adding service entry..."
 msgstr ""
 
 #. Other errors might mean something really did go wrong.
-#.
+#. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
 msgstr ""
@@ -368,9 +362,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:1485
-#, fuzzy
 msgid "Citadel setup program"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -388,11 +381,11 @@ msgstr ""
 #~ "kuuntelee kaikkia osoitteita."
 
 #~ msgid ""
-#~ "This can usually be left to the default unless multiple instances of "
-#~ "Citadel are running on the same computer."
+#~ "This can usually be left to the default unless multiple instances of Citadel "
+#~ "are running on the same computer."
 #~ msgstr ""
-#~ "Oletusarvoa voidaan yleensä käyttää, ellei samalla koneella ajeta "
-#~ "useampia Citadel-instansseja."
+#~ "Oletusarvoa voidaan yleensä käyttää, ellei samalla koneella ajeta useampia "
+#~ "Citadel-instansseja."
 
 #~ msgid "Internal"
 #~ msgstr "Sisäinen"
@@ -404,8 +397,8 @@ msgstr ""
 #~ msgstr "LDAP"
 
 #~ msgid ""
-#~ "Do not change this option unless you are sure it is required, since "
-#~ "changing back requires a full reinstall of Citadel."
+#~ "Do not change this option unless you are sure it is required, since changing "
+#~ "back requires a full reinstall of Citadel."
 #~ msgstr ""
 #~ "Älä vaihda tätä valintaa, ellet ole varma, että se on tarpeen, koska "
 #~ "takaisin vaihtaminen vaatii, että Citadel asennetaan täysin uudelleen."

@@ -10,21 +10,21 @@ msgstr ""
 "Project-Id-Version: citadel 7.63-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2009-09-10 20:26+0400\n"
+"PO-Revision-Date: 2010-10-22 14:42+0000\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
-"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: ru\n"
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../utils/setup.c:119
-#, fuzzy
 msgid "Citadel Home Directory"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:122
 msgid ""
@@ -99,9 +99,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:168
-#, fuzzy
 msgid "Server port number:"
-msgstr "Номер порта LDAP:"
+msgstr ""
 
 #: ../utils/setup.c:170
 msgid ""
@@ -150,31 +149,29 @@ msgid "LDAP host:"
 msgstr "Сервер LDAP:"
 
 #: ../utils/setup.c:199
-#, fuzzy
 msgid "Please enter the host name or IP address of your LDAP server.\n"
-msgstr "Введите имя или IP-адрес сервера LDAP."
+msgstr "Введите имя или IP-адрес сервера LDAP.\n"
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
 msgstr "Номер порта LDAP:"
 
 #: ../utils/setup.c:203
-#, fuzzy
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
-msgstr "Введите номер порта службы LDAP (обычно 389)."
+msgstr "Введите номер порта службы LDAP (обычно 389).\n"
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
 msgstr "Базовое DN LDAP:"
 
 #: ../utils/setup.c:207
-#, fuzzy
+
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"Введите базовое DN для поиска, используемое при аутентификации (например: "
-"dc=example,dc=com)."
+"Введите базовое DN для поиска, используемое при аутентификации \n(например: "
+"dc=example,dc=com).\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
@@ -201,14 +198,13 @@ msgid "LDAP bind password:"
 msgstr "Пароль для подключения к LDAP:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Если вы ввели DN учётной записи в предыдущем вопросе, то теперь вам нужно "
-"указать пароль для этой учётной записи. Иначе можете оставить поле пустым."
+"Если вы ввели DN учётной записи в предыдущем вопросе, то теперь вам нужно\n"
+"указать пароль для этой учётной записи. Иначе можете оставить поле пустым.\n"
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
@@ -239,7 +235,7 @@ msgid "Adding service entry..."
 msgstr ""
 
 #. Other errors might mean something really did go wrong.
-#.
+#. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
 msgstr ""
@@ -376,9 +372,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:1485
-#, fuzzy
 msgid "Citadel setup program"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -393,15 +388,15 @@ msgstr ""
 #~ "you specify 0.0.0.0, the server will listen on all addresses."
 #~ msgstr ""
 #~ "Введите IP-адрес, который будет использовать сервер для ожидания "
-#~ "подключений. Если указать 0.0.0.0, то Citadel будет ожидать подключения "
-#~ "на адресах всех интерфейсов."
+#~ "подключений. Если указать 0.0.0.0, то Citadel будет ожидать подключения на "
+#~ "адресах всех интерфейсов."
 
 #~ msgid ""
-#~ "This can usually be left to the default unless multiple instances of "
-#~ "Citadel are running on the same computer."
+#~ "This can usually be left to the default unless multiple instances of Citadel "
+#~ "are running on the same computer."
 #~ msgstr ""
-#~ "Если вы не запускаете несколько экземпляров Citadel на одном компьютере, "
-#~ "то можно оставить значение по умолчанию."
+#~ "Если вы не запускаете несколько экземпляров Citadel на одном компьютере, то "
+#~ "можно оставить значение по умолчанию."
 
 #~ msgid "Internal"
 #~ msgstr "Внутренняя"
@@ -413,8 +408,8 @@ msgstr ""
 #~ msgstr "LDAP"
 
 #~ msgid ""
-#~ "Do not change this option unless you are sure it is required, since "
-#~ "changing back requires a full reinstall of Citadel."
+#~ "Do not change this option unless you are sure it is required, since changing "
+#~ "back requires a full reinstall of Citadel."
 #~ msgstr ""
 #~ "Не выбирайте других пунктов кроме первого, если не уверены, что это "
 #~ "действительно нужно, так как для изменения потребуется полностью "
