@@ -464,9 +464,9 @@ msgid "Untitled Task"
 msgstr ""
 
 #: ../downloads.c:284
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
+msgstr "E' avvenuto un errore durante il recupero di questa parte: %s\n"
 
 #: ../event.c:73
 msgid "seconds"
@@ -830,12 +830,12 @@ msgstr "Sposta"
 #: ../messages.c:1537
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "E' avvenuto un errore durante il recupero di questa parte: %s\n"
+msgstr "E' avvenuto un errore durante il recupero di questa parte: %s/%s\n"
 
 #: ../messages.c:1597
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
-msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
+msgstr "E' avvenuto un errore durante il recupero di questa parte: %s\n"
 
 #: ../messages.c:1759
 msgid "Attach signature to email messages?"
