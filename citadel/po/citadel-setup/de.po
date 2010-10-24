@@ -7,16 +7,17 @@ msgstr ""
 "Project-Id-Version: citadel 7.63-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2009-09-08 19:40+0200\n"
+"PO-Revision-Date: 2010-10-22 14:33+0000\n"
 "Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
 "Language-Team: de <debian-l10n-german@lists.debian.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: \n"
 
 #: ../utils/setup.c:119
-#, fuzzy
 msgid "Citadel Home Directory"
 msgstr "Citadel Basis Directory"
 
@@ -164,7 +165,6 @@ msgid "LDAP base DN:"
 msgstr "LDAP-base-DN:"
 
 #: ../utils/setup.c:207
-#, fuzzy
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
@@ -177,7 +177,6 @@ msgid "LDAP bind DN:"
 msgstr "LDAP-bind-DN:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -197,7 +196,6 @@ msgid "LDAP bind password:"
 msgstr "LDAP-bind-Passwort:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
@@ -236,7 +234,7 @@ msgid "Adding service entry..."
 msgstr ""
 
 #. Other errors might mean something really did go wrong.
-#.
+#. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
 msgstr ""
@@ -357,12 +355,10 @@ msgstr ""
 msgid "setup: cannot append"
 msgstr ""
 
-#
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
-#, fuzzy
 msgid "Citadel Setup"
-msgstr "Citadel Benutzer ID:"
+msgstr "Citadel Setup"
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
@@ -375,9 +371,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:1485
-#, fuzzy
 msgid "Citadel setup program"
-msgstr "Citadel Basis Directory"
+msgstr "Citadel Setup Programm"
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -391,13 +386,13 @@ msgstr ""
 #~ "Please specify the IP address which the server should be listening to. If "
 #~ "you specify 0.0.0.0, the server will listen on all addresses."
 #~ msgstr ""
-#~ "Bitte geben Sie die IP-Adressen an, auf der der Server auf Anfragen "
-#~ "warten soll. Falls Sie 0.0.0.0 angeben, wird der Server auf allen "
-#~ "Adressen auf Anfragen warten."
+#~ "Bitte geben Sie die IP-Adressen an, auf der der Server auf Anfragen warten "
+#~ "soll. Falls Sie 0.0.0.0 angeben, wird der Server auf allen Adressen auf "
+#~ "Anfragen warten."
 
 #~ msgid ""
-#~ "This can usually be left to the default unless multiple instances of "
-#~ "Citadel are running on the same computer."
+#~ "This can usually be left to the default unless multiple instances of Citadel "
+#~ "are running on the same computer."
 #~ msgstr ""
 #~ "Normalerweise können Sie die Vorgabe beibehalten, falls Sie nicht mehrere "
 #~ "Instanzen von Citadel auf dem gleichen Computer betreiben."
@@ -436,8 +431,8 @@ msgstr ""
 #~ "Please enter the name of the Citadel user account that should be granted "
 #~ "administrative privileges once created."
 #~ msgstr ""
-#~ "Geben Sie den Namen des Citadel-Benutzerkontos ein, dem nach der "
-#~ "Erstellung administrative Privilegien gewährt werden sollen."
+#~ "Geben Sie den Namen des Citadel-Benutzerkontos ein, dem nach der Erstellung "
+#~ "administrative Privilegien gewährt werden sollen."
 
 #~ msgid ""
 #~ "Specify the way authentication is done, either host based or Citadel "
@@ -445,22 +440,20 @@ msgstr ""
 #~ "directory. WARNING: do not change this setting once your system is "
 #~ "installed. Answer \"no\" unless you completely understand this option."
 #~ msgstr ""
-#~ "Geben Sie an, wie die Authentifizierung läuft, entweder Rechner-basiert "
-#~ "oder Citadel-intern. Rechner-basierte Authentifizierung könnte /etc/"
-#~ "passwd oder ein LDAP-Verzeichnis sein. WARNUNG: Ändern Sie diese Option "
-#~ "nicht, nachdem Ihr System installiert ist. Antworten Sie »Nein« falls Sie "
-#~ "diese Option nicht komplett verstehen."
+#~ "Geben Sie an, wie die Authentifizierung läuft, entweder Rechner-basiert oder "
+#~ "Citadel-intern. Rechner-basierte Authentifizierung könnte /etc/passwd oder "
+#~ "ein LDAP-Verzeichnis sein. WARNUNG: Ändern Sie diese Option nicht, nachdem "
+#~ "Ihr System installiert ist. Antworten Sie »Nein« falls Sie diese Option "
+#~ "nicht komplett verstehen."
 
 #~ msgid ""
 #~ "For post configuring your Citadel Server, use citadel-webcit with your "
-#~ "browser, log in as the user you specified as the Administrator, and "
-#~ "review the Points under the Administration menu. If you have further "
-#~ "questions review www.citadel.org, especially the FAQ and Documentation "
-#~ "section."
+#~ "browser, log in as the user you specified as the Administrator, and review "
+#~ "the Points under the Administration menu. If you have further questions "
+#~ "review www.citadel.org, especially the FAQ and Documentation section."
 #~ msgstr ""
 #~ "Für die weitere Konfiguration Ihres Citadel-Servers verwenden Sie bitte "
-#~ "citadel-webcit in Ihrem Browser. Melden Sie sich dort als den Benutzer "
-#~ "an, den Sie eben als Administrator angegeben haben und schauen Sie dann "
-#~ "die Punkte im Administrations-Menü durch. Falls Sie weitere Fragen haben, "
-#~ "lesen Sie www.citadel.org, insbesondere die FAQ und den Dokumentations-"
-#~ "Abschnitt."
+#~ "citadel-webcit in Ihrem Browser. Melden Sie sich dort als den Benutzer an, "
+#~ "den Sie eben als Administrator angegeben haben und schauen Sie dann die "
+#~ "Punkte im Administrations-Menü durch. Falls Sie weitere Fragen haben, lesen "
+#~ "Sie www.citadel.org, insbesondere die FAQ und den Dokumentations-Abschnitt."

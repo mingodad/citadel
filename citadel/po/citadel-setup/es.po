@@ -30,18 +30,19 @@ msgstr ""
 "Project-Id-Version: citadel-7.66-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2009-11-24 16:09+0100\n"
+"PO-Revision-Date: 2010-10-22 14:34+0000\n"
 "Last-Translator: Shuko <felix_os69@hotmail.com>\n"
 "Language-Team: Debian Spanish <debian-l10n-spanish@lists.debian.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: es\n"
 
 #: ../utils/setup.c:119
-#, fuzzy
 msgid "Citadel Home Directory"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:122
 msgid ""
@@ -116,9 +117,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:168
-#, fuzzy
 msgid "Server port number:"
-msgstr "Número del puerto de LDAP:"
+msgstr ""
 
 #: ../utils/setup.c:170
 msgid ""
@@ -166,7 +166,6 @@ msgid "LDAP host:"
 msgstr "Equipo de LDAP:"
 
 #: ../utils/setup.c:199
-#, fuzzy
 msgid "Please enter the host name or IP address of your LDAP server.\n"
 msgstr ""
 "Por favor, introduzca el nombre del equipo o la dirección IP de su servidor "
@@ -177,18 +176,16 @@ msgid "LDAP port number:"
 msgstr "Número del puerto de LDAP:"
 
 #: ../utils/setup.c:203
-#, fuzzy
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
 msgstr ""
 "Por favor, introduzca el número del puerto del servicio LDAP (generalmente "
-"389)."
+"389).\n"
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
 msgstr "DN base de LDAP:"
 
 #: ../utils/setup.c:207
-#, fuzzy
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
@@ -260,7 +257,7 @@ msgid "Adding service entry..."
 msgstr ""
 
 #. Other errors might mean something really did go wrong.
-#.
+#. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
 msgstr ""
@@ -397,9 +394,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:1485
-#, fuzzy
 msgid "Citadel setup program"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -418,8 +414,8 @@ msgstr ""
 #~ "direcciones."
 
 #~ msgid ""
-#~ "This can usually be left to the default unless multiple instances of "
-#~ "Citadel are running on the same computer."
+#~ "This can usually be left to the default unless multiple instances of Citadel "
+#~ "are running on the same computer."
 #~ msgstr ""
 #~ "Normalmente se puede dejar el valor predeterminado, a no ser que tenga "
 #~ "varias instancias de Citadel ejecutándose en el mismo equipo."
@@ -434,12 +430,12 @@ msgstr ""
 #~ msgstr "LDAP"
 
 #~ msgid ""
-#~ "Do not change this option unless you are sure it is required, since "
-#~ "changing back requires a full reinstall of Citadel."
+#~ "Do not change this option unless you are sure it is required, since changing "
+#~ "back requires a full reinstall of Citadel."
 #~ msgstr ""
-#~ "No cambie esta opción a no ser que esté seguro de que es necesario, ya "
-#~ "que si lo cambia se deberá reinstalar completamente Citadel para volver "
-#~ "al estado anterior."
+#~ "No cambie esta opción a no ser que esté seguro de que es necesario, ya que "
+#~ "si lo cambia se deberá reinstalar completamente Citadel para volver al "
+#~ "estado anterior."
 
 #~ msgid ""
 #~ "While not mandatory, it is highly recommended that you set a password for "

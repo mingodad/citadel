@@ -7,20 +7,21 @@ msgstr ""
 "Project-Id-Version: citadel 7.61-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2009-09-23 18:07+0930\n"
+"PO-Revision-Date: 2010-10-22 14:44+0000\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
-"Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: LocFactoryEditor 1.8\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: vi\n"
 
 #: ../utils/setup.c:119
-#, fuzzy
 msgid "Citadel Home Directory"
-msgstr "Thư mục Hoạt động"
+msgstr ""
 
 #: ../utils/setup.c:122
 msgid ""
@@ -94,9 +95,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:168
-#, fuzzy
 msgid "Server port number:"
-msgstr "Số thứ tự cổng LDAP:"
+msgstr ""
 
 #: ../utils/setup.c:170
 msgid ""
@@ -144,18 +144,16 @@ msgid "LDAP host:"
 msgstr "Máy chủ LDAP:"
 
 #: ../utils/setup.c:199
-#, fuzzy
 msgid "Please enter the host name or IP address of your LDAP server.\n"
-msgstr "Hãy gõ tên máy hay địa chỉ IP của máy phục vụ LDAP nên dùng."
+msgstr "Hãy gõ tên máy hay địa chỉ IP của máy phục vụ LDAP nên dùng.\n"
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
 msgstr "Số thứ tự cổng LDAP:"
 
 #: ../utils/setup.c:203
-#, fuzzy
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
-msgstr "Hãy gõ số thứ tự cổng của dịch vụ LDAP (thường là 389)."
+msgstr "Hãy gõ số thứ tự cổng của dịch vụ LDAP (thường là 389).\n"
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
@@ -167,8 +165,8 @@ msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"Hãy gõ tên phân biệt (DN) cơ bản để tìm kiếm thông tin xác thực (v.d. « "
-"dc=tên_miền,dc=com »)."
+"Hãy gõ tên phân biệt (DN) cơ bản để tìm kiếm thông tin xác thực \n(v.d. « "
+"dc=tên_miền,dc=com »).\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
@@ -195,15 +193,14 @@ msgid "LDAP bind password:"
 msgstr "Mật khẩu tổ hợp LDAP:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Nếu bạn đã nhập một tên phân biệt (DN) kiểu đóng kết khi đáp ứng câu hỏi "
-"đằng trước, ở đây cũng cần gõ mật khẩu tương ứng với tài khoản đó. Không thì "
-"bỏ trống trường này."
+"Nếu bạn đã nhập một tên phân biệt (DN) kiểu đóng kết khi đáp ứng câu hỏi \n"
+"đằng trước, ở đây cũng cần gõ mật khẩu tương ứng với tài khoản đó. Không thì\n"
+"bỏ trống trường này.\n"
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
@@ -234,7 +231,7 @@ msgid "Adding service entry..."
 msgstr ""
 
 #. Other errors might mean something really did go wrong.
-#.
+#. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
 msgstr ""
@@ -371,9 +368,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:1485
-#, fuzzy
 msgid "Citadel setup program"
-msgstr "Thư mục Hoạt động"
+msgstr ""
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -387,15 +383,15 @@ msgstr ""
 #~ "Please specify the IP address which the server should be listening to. If "
 #~ "you specify 0.0.0.0, the server will listen on all addresses."
 #~ msgstr ""
-#~ "Hãy chỉ định địa chỉ IP trên đó trình phục vụ nên lắng nghe. Đặt địa chỉ "
-#~ "« 0.0.0.0 » thì trình phục vụ lắng nghe trên mọi địa chỉ."
+#~ "Hãy chỉ định địa chỉ IP trên đó trình phục vụ nên lắng nghe. Đặt địa chỉ « "
+#~ "0.0.0.0 » thì trình phục vụ lắng nghe trên mọi địa chỉ."
 
 #~ msgid ""
-#~ "This can usually be left to the default unless multiple instances of "
-#~ "Citadel are running on the same computer."
+#~ "This can usually be left to the default unless multiple instances of Citadel "
+#~ "are running on the same computer."
 #~ msgstr ""
-#~ "Giá trị mặc định thường vẫn thích hợp nếu chỉ có một tiến trình Citadel "
-#~ "đang chạy trên máy này."
+#~ "Giá trị mặc định thường vẫn thích hợp nếu chỉ có một tiến trình Citadel đang "
+#~ "chạy trên máy này."
 
 #~ msgid "Internal"
 #~ msgstr "Nội bộ"
@@ -407,11 +403,11 @@ msgstr ""
 #~ msgstr "LDAP"
 
 #~ msgid ""
-#~ "Do not change this option unless you are sure it is required, since "
-#~ "changing back requires a full reinstall of Citadel."
+#~ "Do not change this option unless you are sure it is required, since changing "
+#~ "back requires a full reinstall of Citadel."
 #~ msgstr ""
-#~ "Chưa chắc thì không nên bật tuỳ chọn này, vì việc hoàn nguyên tuỳ chọn "
-#~ "này cần thiết cài đặt lại Citadel một cách hoàn toàn."
+#~ "Chưa chắc thì không nên bật tuỳ chọn này, vì việc hoàn nguyên tuỳ chọn này "
+#~ "cần thiết cài đặt lại Citadel một cách hoàn toàn."
 
 #~ msgid ""
 #~ "While not mandatory, it is highly recommended that you set a password for "
