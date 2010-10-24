@@ -257,7 +257,7 @@ void cmd_euid(char *cmdbuf) {
 CTDL_MODULE_INIT(euidindex)
 {
 	if (!threading) {
-		CtdlRegisterProtoHook(cmd_euid, "EUID", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_euid, "EUID", "Perform operations on Extended IDs for messages");
 	}
 	/* return our Subversion id for the Log */
 	return "euidindex";

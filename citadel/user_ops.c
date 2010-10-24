@@ -2056,19 +2056,19 @@ void cmd_renu(char *cmdbuf)
 CTDL_MODULE_INIT(user_ops)
 {
 	if (!threading) {
-		CtdlRegisterProtoHook(cmd_user, "USER", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_pass, "PASS", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_creu, "CREU", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_setp, "SETP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_getu, "GETU", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_setu, "SETU", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_slrp, "SLRP", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_invt, "INVT", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_kick, "KICK", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_forg, "FORG", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_user, "USER", "Submit username for login");
+		CtdlRegisterProtoHook(cmd_pass, "PASS", "Complete login by submitting a password");
+		CtdlRegisterProtoHook(cmd_creu, "CREU", "Create User");
+		CtdlRegisterProtoHook(cmd_setp, "SETP", "Set the password for an account");
+		CtdlRegisterProtoHook(cmd_getu, "GETU", "Get User parameters");
+		CtdlRegisterProtoHook(cmd_setu, "SETU", "Set User parameters");
+		CtdlRegisterProtoHook(cmd_slrp, "SLRP", "Set Last Read Pointer");
+		CtdlRegisterProtoHook(cmd_invt, "INVT", "Invite a user to a room");
+		CtdlRegisterProtoHook(cmd_kick, "KICK", "Kick a user out of a room");
+		CtdlRegisterProtoHook(cmd_forg, "FORG", "Forget a room");
 		CtdlRegisterProtoHook(cmd_gnur, "GNUR", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_vali, "VALI", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_list, "LIST", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_vali, "VALI", "Validate new users");
+		CtdlRegisterProtoHook(cmd_list, "LIST", "List users");
 		CtdlRegisterProtoHook(cmd_chek, "CHEK", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_qusr, "QUSR", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_agup, "AGUP", "Autoconverted. TODO: document me.");

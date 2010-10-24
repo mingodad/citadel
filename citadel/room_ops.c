@@ -2260,22 +2260,22 @@ void cmd_eflr(char *argbuf)
 CTDL_MODULE_INIT(room_ops)
 {
 	if (!threading) {
-		CtdlRegisterProtoHook(cmd_lrms, "LRMS", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_lkra, "LKRA", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_lkrn, "LKRN", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_lkro, "LKRO", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_lzrm, "LZRM", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_lrms, "LRMS", "List rooms");
+		CtdlRegisterProtoHook(cmd_lkra, "LKRA", "List all known rooms");
+		CtdlRegisterProtoHook(cmd_lkrn, "LKRN", "List known rooms with new messages");
+		CtdlRegisterProtoHook(cmd_lkro, "LKRO", "List known rooms without new messages");
+		CtdlRegisterProtoHook(cmd_lzrm, "LZRM", "List zapped rooms");
 		CtdlRegisterProtoHook(cmd_lprm, "LPRM", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_goto, "GOTO", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_whok, "WHOK", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_rdir, "RDIR", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_goto, "GOTO", "Goto a named room");
+		CtdlRegisterProtoHook(cmd_whok, "WHOK", "List users who know this room");
+		CtdlRegisterProtoHook(cmd_rdir, "RDIR", "List files in room directory");
 		CtdlRegisterProtoHook(cmd_getr, "GETR", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_setr, "SETR", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_geta, "GETA", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_seta, "SETA", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_rinf, "RINF", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_kill, "KILL", "Autoconverted. TODO: document me.");
-		CtdlRegisterProtoHook(cmd_cre8, "CRE8", "Autoconverted. TODO: document me.");
+		CtdlRegisterProtoHook(cmd_cre8, "CRE8", "Create a new room");
 		CtdlRegisterProtoHook(cmd_einf, "EINF", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_lflr, "LFLR", "Autoconverted. TODO: document me.");
 		CtdlRegisterProtoHook(cmd_cflr, "CFLR", "Autoconverted. TODO: document me.");
