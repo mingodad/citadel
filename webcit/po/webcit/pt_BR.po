@@ -12,18 +12,19 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2008-04-22 23:35-0300\n"
+"PO-Revision-Date: 2010-10-22 15:07+0000\n"
 "Last-Translator: Marco Gonçalves\n"
-"Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: \n"
+"Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: \n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
-msgstr "Adicionar "
+msgstr "Adicionar"
 
 #. an erased user
 #: ../auth.c:38
@@ -38,17 +39,17 @@ msgstr "Novo Usuário"
 #. a trouble maker
 #: ../auth.c:44
 msgid "Problem User"
-msgstr "Usuário problemático "
+msgstr "Usuário problemático"
 
 #. user with normal privileges
 #: ../auth.c:47
 msgid "Local User"
-msgstr "Usuário local "
+msgstr "Usuário local"
 
 #. a user that may access network resources
 #: ../auth.c:50
 msgid "Network User"
-msgstr "Usuário remoto "
+msgstr "Usuário remoto"
 
 #. a moderator
 #: ../auth.c:53
@@ -148,16 +149,16 @@ msgstr "Cancelar"
 
 #: ../auth.c:863
 msgid "Cancelled.  Password was not changed."
-msgstr "Cancelado.  A senha não foi modificada. "
+msgstr "Cancelado.  A senha não foi modificada."
 
 #: ../auth.c:874
 msgid "They don't match.  Password was not changed."
 msgstr "Eles não batem.  Senha não foi modificada."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilidade desconhecida"
@@ -248,7 +249,8 @@ msgstr "Essa é uma atualização de '%s' que já está no seu calendário."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Esse evento entrará em conflito com '%s' que já está no seu calendário."
 
@@ -337,11 +339,11 @@ msgstr ""
 
 #: ../calendar.c:921
 msgid "Calendar day view begins at:"
-msgstr "Dia da visualização do calendário começa em: "
+msgstr "Dia da visualização do calendário começa em:"
 
 #: ../calendar.c:922
 msgid "Calendar day view ends at:"
-msgstr "Dia da visualização do calendário termina em: "
+msgstr "Dia da visualização do calendário termina em:"
 
 #: ../calendar.c:923
 msgid "Week starts on:"
@@ -757,8 +759,8 @@ msgid ""
 msgstr ""
 "Você está se inscrevendo em <TT>%s</TT> na lista <b>%s</b>.  O servidor da "
 "lista lhe enviou um link para você confirmar sua inscrição.  Esse passo "
-"extra previne que outros lhe inscrevam em listas sem seu consentimento.<br /"
-"><br />Clique no link que foi mandado para você e sua inscrição será "
+"extra previne que outros lhe inscrevam em listas sem seu consentimento.<br "
+"/><br />Clique no link que foi mandado para você e sua inscrição será "
 "confirmada.<br />\n"
 
 #: ../listsub.c:85
@@ -824,9 +826,9 @@ msgid "Move"
 msgstr "Mover"
 
 #: ../messages.c:1537
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "Um erro ocorreu ao obter essa parte: %s\n"
+msgstr "Um erro ocorreu ao obter essa parte: %s/%s\n"
 
 #: ../messages.c:1597
 #, c-format
@@ -868,9 +870,8 @@ msgid "edit"
 msgstr "editar"
 
 #: ../msg_renderers.c:1023
-#, fuzzy
 msgid "I don't know how to display "
-msgstr "Eu não sei como exibir %s"
+msgstr "Eu não sei como exibir "
 
 #: ../msg_renderers.c:1242
 msgid "(no subject)"
@@ -930,7 +931,7 @@ msgstr "Mensagem não foi enviada."
 
 #: ../paging.c:100
 msgid "Message has been sent to "
-msgstr "Mensagem foi enviada para"
+msgstr "Mensagem foi enviada para "
 
 #: ../preferences.c:846
 msgid "Cancelled.  No settings were changed."
@@ -971,14 +972,14 @@ msgid "Your changes have been saved."
 msgstr "Suas modificações foram salvas"
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<B><I>Usuário %s foi chutado da sala %s.</I></B>\n"
+msgstr "Usuário %s foi chutado da sala %s."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<B><I>Usuário %s foi convidado para a sala %s.</I></B>\n"
+msgstr "Usuário %s foi convidado para a sala %s."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -1070,7 +1071,7 @@ msgid ""
 msgstr ""
 "Você está conectado à um servidor Citadel rodando Citadel %d.%02d. \n"
 "Para rodar essa versão do WebCit você também deve ter o Citadel %d.%02d ou "
-"mais novo. \n"
+"mais novo.\n"
 "\n"
 "\n"
 
@@ -1333,7 +1334,8 @@ msgid "Add rule"
 msgstr "Adicionar regra"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1385,12 +1387,12 @@ msgid "(Nothing)"
 msgstr "(Nada)"
 
 #: ../summary.c:167
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You are connected to %s, running %s with %s, server build %s and located in "
 "%s.  Your system administrator is %s."
 msgstr ""
-"Você está conectado à %s, rodando %s com %s, e localizado em %s.  Seu "
+"Você está conectado à %s, rodando %s com %s, server build %s,  e localizado em %s.  Seu "
 "administrador de sistema é %s."
 
 #: ../summary.c:195
@@ -1575,15 +1577,15 @@ msgstr "(sem nome)"
 
 #: ../vcard_edit.c:385
 msgid " (work)"
-msgstr "(trabalho) "
+msgstr " (trabalho)"
 
 #: ../vcard_edit.c:387
 msgid " (home)"
-msgstr "(casa)"
+msgstr " (casa)"
 
 #: ../vcard_edit.c:389
 msgid " (cell)"
-msgstr "(celular)"
+msgstr " (celular)"
 
 #: ../vcard_edit.c:400 ../vcard_edit.c:905
 msgid "Address:"
@@ -1716,7 +1718,7 @@ msgid ""
 "not be logged in: %s\n"
 msgstr ""
 "O recurso que você pediu requer um nome de usuário e senha válidos. Você "
-"pode não estar logado: %s \n"
+"pode não estar logado: %s\n"
 
 #: ../who.c:151
 msgid "Edit your session display"
@@ -1732,7 +1734,7 @@ msgstr ""
 "Essa tela permite que você modifique a maneira que sua sessão aparece na "
 "tela 'Quem está online'. Para desligar um nome 'falso' que você configurou "
 "previamente, clique no botão 'modificar' apropriado sem digitar nada na "
-"caixa correspondente."
+"caixa correspondente. "
 
 #: ../who.c:168
 msgid "Room name:"
@@ -1868,9 +1870,8 @@ msgid "Attach file:"
 msgstr "Anexar arquivo:"
 
 #: ../static/t/files.html:3
-#, fuzzy
 msgid "Files available for download in"
-msgstr "Arquivos disponíveis para download em %s"
+msgstr "Arquivos disponíveis para download em"
 
 #: ../static/t/files.html:18
 msgid "Filename"
@@ -2212,9 +2213,8 @@ msgid "Click here to learn what OpenID is and how Citadel is using it."
 msgstr ""
 
 #: ../static/t/openid_manual_create.html:4
-#, fuzzy
 msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
-msgstr "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
+msgstr " - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 
 #: ../static/t/openid_manual_create.html:8
 #, fuzzy

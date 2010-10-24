@@ -8,14 +8,15 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2006-12-20 14:18+0100\n"
+"PO-Revision-Date: 2010-10-22 15:01+0000\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
-"Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: \n"
+"Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.1\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: it\n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -143,16 +144,16 @@ msgstr "Cancella"
 
 #: ../auth.c:863
 msgid "Cancelled.  Password was not changed."
-msgstr "Aziona cancellata. La password non &egrave; stata cambiata. "
+msgstr "Aziona cancellata. La password non &egrave; stata cambiata."
 
 #: ../auth.c:874
 msgid "They don't match.  Password was not changed."
 msgstr "Le password non coincidono. Cambiamento non effettuato."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "Disponibilit&agrave; sconosciuta"
@@ -244,7 +245,8 @@ msgstr ""
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Questo evento &egrave; in conflitto con l'evento '%s' gi&agrave; presente "
 "nel tuo calendario."
@@ -348,11 +350,11 @@ msgstr ""
 
 #: ../calendar_tools.c:101
 msgid "Hour: "
-msgstr "Ora:"
+msgstr "Ora: "
 
 #: ../calendar_tools.c:121
 msgid "Minute: "
-msgstr "Minuto:"
+msgstr "Minuto: "
 
 #: ../calendar_tools.c:192
 msgid "(status unknown)"
@@ -372,7 +374,7 @@ msgstr "(declinato)"
 
 #: ../calendar_tools.c:217
 msgid "(tenative)"
-msgstr "(tentativo) "
+msgstr "(tentativo)"
 
 #: ../calendar_tools.c:220
 msgid "(delegated)"
@@ -663,11 +665,9 @@ msgid "Image upload"
 msgstr "Carica l'immagine"
 
 #: ../graphics.c:58
-#, fuzzy
 msgid "You can upload an image directly from your computer"
 msgstr ""
-"Puoi caricare una qualsiasi immagine direttamente dal tuo computer, sempre "
-"che sia in formato GIF (JPEG, PNG, etc. non funzioneranno)"
+"Puoi caricare una qualsiasi immagine direttamente dal tuo computer."
 
 #: ../graphics.c:61
 msgid "Please select a file to upload:"
@@ -828,9 +828,9 @@ msgid "Move"
 msgstr "Sposta"
 
 #: ../messages.c:1537
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "E' avvenuto un errore durante il recupero di questa parte: %s<br/>\n"
+msgstr "E' avvenuto un errore durante il recupero di questa parte: %s\n"
 
 #: ../messages.c:1597
 #, c-format
@@ -872,9 +872,8 @@ msgid "edit"
 msgstr "Modifica"
 
 #: ../msg_renderers.c:1023
-#, fuzzy
 msgid "I don't know how to display "
-msgstr "Non so come mostrare %s"
+msgstr "Non so come mostrare "
 
 #: ../msg_renderers.c:1242
 msgid "(no subject)"
@@ -918,7 +917,7 @@ msgstr "Invia un Messaggio Istantaneo"
 
 #: ../paging.c:44
 msgid "Send an instant message to: "
-msgstr "Invia un Messaggio istantaneo a:"
+msgstr "Invia un Messaggio istantaneo a: "
 
 #: ../paging.c:58
 msgid "Enter message text:"
@@ -934,7 +933,7 @@ msgstr "Il Messaggio non è stato spedito."
 
 #: ../paging.c:100
 msgid "Message has been sent to "
-msgstr "Il Messaggio è stato spedito a"
+msgstr "Il Messaggio è stato spedito a "
 
 #: ../preferences.c:846
 msgid "Cancelled.  No settings were changed."
@@ -975,14 +974,14 @@ msgid "Your changes have been saved."
 msgstr "Le tue modifiche sono state salvate."
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<B><I>L'utente %s è stato espulso dalla stanza %s.</I></B>\n"
+msgstr "L'utente %s è stato espulso dalla stanza %s."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<B><I>L'utente %s è stato invitato nella stanza %s.</I></B>\n"
+msgstr "L'utente %s è stato invitato nella stanza %s."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -1092,7 +1091,7 @@ msgstr ""
 
 #: ../sieve.c:117
 msgid "When new mail arrives: "
-msgstr "Quando arrivano nuove email:"
+msgstr "Quando arrivano nuove email: "
 
 #: ../sieve.c:121
 msgid "Leave it in my inbox without filtering"
@@ -1108,11 +1107,12 @@ msgstr "Crea filtro modificando manualmente lo script (solo utenti esperti)"
 
 #: ../sieve.c:141
 msgid "Your incoming mail will not be filtered through any scripts."
-msgstr "La tua posta in ingresso non verrà filtrata attraverso nessuno script."
+msgstr ""
+"La tua posta in ingresso non verrà filtrata attraverso nessuno script."
 
 #: ../sieve.c:156
 msgid "The currently active script is: "
-msgstr "Lo script attivo è:"
+msgstr "Lo script attivo è: "
 
 #: ../sieve.c:171 ../sieve.c:644
 msgid "Add or delete scripts"
@@ -1136,7 +1136,7 @@ msgstr ""
 
 #: ../sieve.c:666
 msgid "Script name: "
-msgstr "Nome dello script:"
+msgstr "Nome dello script: "
 
 #: ../sieve.c:669
 msgid "Create"
@@ -1334,7 +1334,8 @@ msgid "Add rule"
 msgstr "Aggiungi utenti"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1386,12 +1387,12 @@ msgid "(Nothing)"
 msgstr "(Nulla)"
 
 #: ../summary.c:167
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You are connected to %s, running %s with %s, server build %s and located in "
 "%s.  Your system administrator is %s."
 msgstr ""
-"Sei connesso a %s, %s è in esecuzione con %s e localizzato in %s. Il tuo "
+"Sei connesso a %s, %s è in esecuzione con %s server build %s e localizzato in %s. Il tuo "
 "amministratore di sistema è %s."
 
 #: ../summary.c:195
@@ -1575,15 +1576,15 @@ msgstr "(nessun nome)"
 
 #: ../vcard_edit.c:385
 msgid " (work)"
-msgstr "(lavoro)"
+msgstr " (lavoro)"
 
 #: ../vcard_edit.c:387
 msgid " (home)"
-msgstr "(casa)"
+msgstr " (casa)"
 
 #: ../vcard_edit.c:389
 msgid " (cell)"
-msgstr "(cellulare)"
+msgstr " (cellulare)"
 
 #: ../vcard_edit.c:400 ../vcard_edit.c:905
 msgid "Address:"
@@ -1735,7 +1736,7 @@ msgstr ""
 "Questa schermata ti permette di cambiare il modo in cui appare la tua "
 "sessione nella lista \"chi è on line\". Per eliminare qualsiasi nome "
 "fittizio abbia usato in precedenza, clicca semplicemente sul bottone di "
-"\"modifica\" appropriaton senza digitare nulla nella casella corrispondente."
+"\"modifica\" appropriaton senza digitare nulla nella casella corrispondente. "
 
 #: ../who.c:168
 msgid "Room name:"
@@ -1781,7 +1782,8 @@ msgstr "Nessuna pagina chamata '%s'."
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
-msgstr "Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
+msgstr ""
+"Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
 
 #: ../wiki.c:167 ../static/t/msg_listview.html:12
 #: ../static/t/summary_header.html:10
@@ -2002,9 +2004,8 @@ msgid ""
 msgstr ""
 
 #: ../static/t/login.html:8 ../static/t/openid_login.html:8
-#, fuzzy
 msgid "powered by"
-msgstr "%s - potenziato da Citadel"
+msgstr "potenziato da"
 
 #: ../static/t/login.html:21
 msgid "Password:"

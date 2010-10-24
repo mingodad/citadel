@@ -6,19 +6,20 @@
 # Copyright (C) 2005 David Given
 # This file is distributed under GPL v3
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2010-10-22 14:49+0000\n"
 "Last-Translator: David Given <dg@cowlark.com>\n"
-"Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: \n"
+"Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: \n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -149,10 +150,10 @@ msgstr ""
 msgid "They don't match.  Password was not changed."
 msgstr ""
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -240,7 +241,8 @@ msgstr ""
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../calendar.c:232
@@ -1269,7 +1271,8 @@ msgid "Add rule"
 msgstr ""
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -2197,9 +2200,3 @@ msgstr ""
 #: ../static/t/who.html:14
 msgid "Users currently on "
 msgstr ""
-
-#~ msgid "Customize the icon bar"
-#~ msgstr "Customise the icon bar"
-
-#~ msgid "Customize this menu"
-#~ msgstr "Customise this menu"

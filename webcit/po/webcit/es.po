@@ -13,13 +13,15 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2006-04-13 16:23-0500\n"
+"PO-Revision-Date: 2010-10-22 14:50+0000\n"
 "Last-Translator: Gabriel C. Huertas <gabrielhuertas@terra.es>\n"
 "Language-Team: Spanish <room_citadel_translators@uncensored.citadel.org>\n"
-"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: es\n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -153,10 +155,10 @@ msgstr "Cancelado. No se cambió la contraseña."
 msgid "They don't match.  Password was not changed."
 msgstr "No cuadran. La contraseña no se cambia."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilidad desconocida"
@@ -247,7 +249,8 @@ msgstr "Esta es una actualizaciñon de '%s' que está ya en su calendario."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Este evento entrará en conflicto con '%s' que está ya en su calendario."
 
@@ -323,13 +326,13 @@ msgstr "Se envió una respuesta al organizador de la reunión."
 #. answer this request.
 #: ../calendar.c:381
 msgid "Your calendar has been updated to reflect this RSVP."
-msgstr "Su calendario se actualizó para reflegar este RSVP. "
+msgstr "Su calendario se actualizó para reflegar este RSVP."
 
 #: ../calendar.c:383
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
-msgstr "Eligió ignorar este RSVP. Su calendario <b>no</b> se actualizó "
+msgstr "Eligió ignorar este RSVP. Su calendario <b>no</b> se actualizó"
 
 #: ../calendar.c:921
 msgid "Calendar day view begins at:"
@@ -345,11 +348,11 @@ msgstr ""
 
 #: ../calendar_tools.c:101
 msgid "Hour: "
-msgstr "Hora"
+msgstr "Hora "
 
 #: ../calendar_tools.c:121
 msgid "Minute: "
-msgstr "Minuto"
+msgstr "Minuto "
 
 #: ../calendar_tools.c:192
 msgid "(status unknown)"
@@ -758,8 +761,8 @@ msgstr ""
 "Te estás suscribiendo a <TT>%s</TT> en la <b>%s</b> lista de correo.  El "
 "servidor de la lista te ha enviado un email con un link web  y debe pulsarlo "
 "par confirmar su suscripción.  Esta medida se toma por su seguridad, de "
-"forma que se impida a otros suscribirle  sin su consentimiento.<br /><br /"
-">Por favor, pulse en el link que se le ha enviadoy su suscripción será "
+"forma que se impida a otros suscribirle  sin su consentimiento.<br /><br "
+"/>Por favor, pulse en el link que se le ha enviadoy su suscripción será "
 "activada.<br />\n"
 
 #: ../listsub.c:85
@@ -920,7 +923,7 @@ msgstr "Enviar un mensaje instantáneo a: "
 
 #: ../paging.c:58
 msgid "Enter message text:"
-msgstr "Introducir texto de mensaje: "
+msgstr "Introducir texto de mensaje:"
 
 #: ../paging.c:66
 msgid "Send message"
@@ -973,14 +976,14 @@ msgid "Your changes have been saved."
 msgstr "Los cambios han sido salvados"
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<B><I>Usuario %s expulado de la sala %s.</I></B>\n"
+msgstr "Usuario %s expulado de la sala %s."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<B><I>Usuario %s invitado a la sala %s.</I></B>\n"
+msgstr "Usuario %s invitado a la sala %s."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -1355,7 +1358,8 @@ msgid "Add rule"
 msgstr "Añadir usuarios"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1411,12 +1415,12 @@ msgid "(Nothing)"
 msgstr "(Nada)"
 
 #: ../summary.c:167
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You are connected to %s, running %s with %s, server build %s and located in "
 "%s.  Your system administrator is %s."
 msgstr ""
-"Estás conectado a %s, corriendo %s con %s, y localizado en %s.  Tu "
+"Estás conectado a %s, corriendo %s con %s, server build %s,  y localizado en %s.  Tu "
 "administrador de sistema es %s."
 
 #: ../summary.c:195

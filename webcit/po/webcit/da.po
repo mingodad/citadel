@@ -2,19 +2,20 @@
 # Copyright (C) 2006 - 2009 The Citadel Project - http://www.citadel.org
 # This file is distributed under GPL v3
 # Flemming Veggerby <fveggerby@dbmail.dk> 2008 - 2009
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2009-01-31 11:30+0100\n"
-"Last-Translator: Flemming Veggerby <fveggerby@dbmail.dk>\n"
+"PO-Revision-Date: 2010-10-22 14:46+0000\n"
+"Last-Translator: Flemming Veggerby <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
-"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"Language: da\n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -147,10 +148,10 @@ msgstr "Afbrudt.  Adgangskode blev ikke ændret."
 msgid "They don't match.  Password was not changed."
 msgstr "Adgangskoder matcher ikke.  Adgangskode blev ikke ændret."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "tilgængelighed ukendt"
@@ -241,7 +242,8 @@ msgstr "Dette er en opdatering af '%s' som allerede er i din kalender."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr "Denne aftale vil konflikte med '%s* som allerede er i din kalender."
 
 #: ../calendar.c:232
@@ -342,11 +344,11 @@ msgstr "Ugen starter:"
 
 #: ../calendar_tools.c:101
 msgid "Hour: "
-msgstr "Time:"
+msgstr "Time: "
 
 #: ../calendar_tools.c:121
 msgid "Minute: "
-msgstr "Minut:"
+msgstr "Minut: "
 
 #: ../calendar_tools.c:192
 msgid "(status unknown)"
@@ -634,7 +636,7 @@ msgstr "gange"
 
 #: ../event.c:741
 msgid "Repeat this event until "
-msgstr "Gentag denne aftale indtil"
+msgstr "Gentag denne aftale indtil "
 
 #: ../event.c:767 ../tasks.c:356
 msgid "Save"
@@ -753,9 +755,9 @@ msgstr ""
 "Du abonnérer <TT>%s</TT> på <b>%s</b> post listen.  Listeserveren har sendt "
 "dig en e-mail med et link som du skal klikke på for at godkende dit "
 "abonnement.  Denne ekstra foranstaltning er din beskyttelse, da det "
-"forhindrer andre i at abonnere på en liste i dit navn uden din billigelse."
-"<br /><br />Klik på linketsom er blevet sendt til dig for at acceptere dit "
-"abonnement.<br />\n"
+"forhindrer andre i at abonnere på en liste i dit navn uden din "
+"billigelse.<br /><br />Klik på linketsom er blevet sendt til dig for at "
+"acceptere dit abonnement.<br />\n"
 
 #: ../listsub.c:85
 msgid "Go back..."
@@ -911,7 +913,7 @@ msgstr "Send popup meddelelse"
 
 #: ../paging.c:44
 msgid "Send an instant message to: "
-msgstr "Sedn popup meddelelse til:"
+msgstr "Sedn popup meddelelse til: "
 
 #: ../paging.c:58
 msgid "Enter message text:"
@@ -968,14 +970,14 @@ msgid "Your changes have been saved."
 msgstr "Dine ændringer er blevet gemt."
 
 #: ../roomops.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' kicked out of room '%s'."
-msgstr "<B><I>Bruger %s blev sparket ud af rum %s.</I></B>\n"
+msgstr "Bruger %s blev sparket ud af rum %s."
 
 #: ../roomops.c:863
-#, fuzzy, c-format
+#, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr "<B><I>Bruger %s blev inviteret til rum %s.</I></B>\n"
+msgstr "Bruger %s blev inviteret til rum %s."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
@@ -1091,7 +1093,7 @@ msgstr ""
 
 #: ../sieve.c:117
 msgid "When new mail arrives: "
-msgstr "Når ny post ankommer:"
+msgstr "Når ny post ankommer: "
 
 #: ../sieve.c:121
 msgid "Leave it in my inbox without filtering"
@@ -1111,7 +1113,7 @@ msgstr "Din indkomne post vil ikke blive filtreret gennem scripts."
 
 #: ../sieve.c:156
 msgid "The currently active script is: "
-msgstr "Det aktive script er:"
+msgstr "Det aktive script er: "
 
 #: ../sieve.c:171 ../sieve.c:644
 #, fuzzy
@@ -1414,7 +1416,7 @@ msgid "(Nothing)"
 msgstr "(Ingenting)"
 
 #: ../summary.c:167
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You are connected to %s, running %s with %s, server build %s and located in "
 "%s.  Your system administrator is %s."
@@ -1604,15 +1606,15 @@ msgstr "(intet navn)"
 
 #: ../vcard_edit.c:385
 msgid " (work)"
-msgstr "(arbejde)"
+msgstr " (arbejde)"
 
 #: ../vcard_edit.c:387
 msgid " (home)"
-msgstr "(hjem)"
+msgstr " (hjem)"
 
 #: ../vcard_edit.c:389
 msgid " (cell)"
-msgstr "(afdeling)"
+msgstr " (afdeling)"
 
 #: ../vcard_edit.c:400 ../vcard_edit.c:905
 msgid "Address:"
@@ -1763,7 +1765,7 @@ msgid ""
 msgstr ""
 "Her kan do bestemme hvordan din session bliver vist i 'Hvem er online' "
 "listen. For at fjerne et 'falsk' navn du tidligere har sat, bare klik den "
-"tilhørende 'skift' knap uden at skrive noget i boksen."
+"tilhørende 'skift' knap uden at skrive noget i boksen. "
 
 #: ../who.c:168
 msgid "Room name:"
