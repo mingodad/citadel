@@ -1054,6 +1054,7 @@ int IsInMSetList(MSet *MSetList, long MsgNo)
 	HashList *Hash = (HashList*) MSetList;
 	long HashAt;
 	long EndAt;
+	long StartAt;
 
 	if (Hash == NULL)
 		return 0;
@@ -1077,15 +1078,16 @@ int IsInMSetList(MSet *MSetList, long MsgNo)
 		HashAt -=1;
 
 	/* Fetch the actual data */
+	StartAt = Hash->LookupTable[HashAt]->Key;
 	MemberPosition = Hash->LookupTable[HashAt]->Position;
 	EndAt = *(long*) Hash->Members[MemberPosition]->Data;
-	if (EndAt == LONG_MAX)
+	if ((MsgNo >= StartAt) && (EndAt == LONG_MAX))
 		return 1;
 	/* no range? */
 	if (EndAt == 0)
 		return 0;
 	/* inside of range? */
-	if (EndAt >= MsgNo)
+	if ((StartAt <= MsgNo) && (EndAt >= MsgNo))
 		return 1;
 	return 0;
 }

@@ -176,6 +176,7 @@ Some samples from the original...
 
 
 const char *MSetStrings[] = {
+	"11:63",
 	"65",
 	"1,65,77",
 	"1:65,77,80:*",
@@ -184,8 +185,12 @@ const char *MSetStrings[] = {
 
 #define InMSet 0
 #define NotInMSet 1
-const long MessageNumbers[4][2][10] = {
+const long MessageNumbers[5][2][10] = {
 /* First MSet */
+	{
+		{11, 59, 63, 0, 0, 0, 0, 0, 0, 0}, /* In */
+		{2, 10, 64, 65, 0, 0, 0, 0, 0, 0} /* NotIn */
+	},
 	{
 		{65, 0, 0, 0, 0, 0, 0, 0, 0, 0}, /* In */
 		{1, 64, 66, 0, 0, 0, 0, 0, 0, 0} /* NotIn */
@@ -223,7 +228,7 @@ static void TestMSetHashlist (void)
 		StrBufPlain(MSetStr, MSetStrings[nTest], -1);
 		ParseMSet(&OneMSet, MSetStr);
 
-#ifdef VERBOSE_TEST
+//#ifdef VERBOSE_TEST
 		printf("---%s---\n", ChrPtr(MSetStr));
 		{
 			const char *HashKey;
@@ -241,7 +246,7 @@ static void TestMSetHashlist (void)
 			}
 			DeleteHashPos(&at);
 		}
-#endif
+//#endif
 
 		j = 0;
 		while (MessageNumbers[nTest][InMSet][j] != 0)
@@ -252,6 +257,7 @@ static void TestMSetHashlist (void)
 					     ChrPtr(MSetStr), 
 					     MessageNumbers[nTest][InMSet][j]);
 				CU_FAIL(ChrPtr(Assert));
+				printf(ChrPtr(Assert));
 			}
 			else
 			{
@@ -271,6 +277,7 @@ static void TestMSetHashlist (void)
 					     ChrPtr(MSetStr), 
 					     MessageNumbers[nTest][NotInMSet][j]);
 				CU_FAIL(ChrPtr(Assert));
+				printf(ChrPtr(Assert));
 			}
 			else
 			{
