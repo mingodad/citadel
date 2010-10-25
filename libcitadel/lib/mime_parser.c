@@ -163,7 +163,7 @@ int CtdlDecodeQuotedPrintable(char *decoded, char *encoded, int sourcelen) {
 				if (*(encoded + pos) == '\n')
 					pos++;
 			}
-			else if (encoded[pos] == '=')
+			else
 			{
 				ch = 0;
 				ch = _decode_hex(&encoded[pos]);
