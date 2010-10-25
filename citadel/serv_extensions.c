@@ -189,7 +189,7 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 	return 0;
 }
 
-int FourHash(const char *key, long length) 
+long FourHash(const char *key, long length) 
 {
 	int i;
 	int ret = 0;
