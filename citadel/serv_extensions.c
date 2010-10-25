@@ -189,7 +189,7 @@ int DLoader_Exec_Cmd(char *cmdbuf)
 	return 0;
 }
 
-int FourHash(const char *key, long length) 
+long FourHash(const char *key, long length) 
 {
 	int i;
 	int ret = 0;
@@ -766,7 +766,6 @@ void CtdlRegisterServiceHook(int tcp_port,
 		AddPortError(message, error);
 		strcat(message, "FAILED.");
 		CtdlLogPrintf(CTDL_CRIT, "%s\n", message);
-		free(error);
 		free(newfcn);
 	}
 	free(message);
