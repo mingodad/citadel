@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include "sysdep.h"
 #ifndef HAVE_SNPRINTF
