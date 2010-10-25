@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 //dbg
 #include <stdio.h>
 #include "libcitadel.h"
@@ -426,16 +427,29 @@ static long FindInHash(HashList *Hash, long HashBinKey)
 
 
 /**
- * @brief another hashing algorithm; treat it as just a pointer to long.
- * @param str Our pointer to the long value
+ * @brief another hashing algorithm; treat it as just a pointer to int.
+ * @param str Our pointer to the int value
  * @param len the length of the data pointed to; needs to be sizeof int, else we won't use it!
  * \returns the calculated hash value
  */
-int Flathash(const char *str, long len)
+long Flathash(const char *str, long len)
 {
 	if (len != sizeof (int))
 		return 0;
 	else return *(int*)str;
+}
+
+/**
+ * @brief another hashing algorithm; treat it as just a pointer to long.
+ * @param str Our pointer to the long value
+ * @param len the length of the data pointed to; needs to be sizeof long, else we won't use it!
+ * \returns the calculated hash value
+ */
+long lFlathash(const char *str, long len)
+{
+	if (len != sizeof (long))
+		return 0;
+	else return *(long*)str;
 }
 
 /**
@@ -972,3 +986,116 @@ int HashLittle(const void *key, size_t length) {
 	return (int)hashlittle(key, length, 1);
 }
 
+
+/**
+ * \brief parses an MSet string into a list for later use
+ * \param MSetList List to be read from MSetStr
+ * \param MSetStr String containing the list
+ */
+int ParseMSet(MSet **MSetList, StrBuf *MSetStr)
+{
+	const char *POS = NULL, *SetPOS = NULL;
+	StrBuf *OneSet;
+	HashList *ThisMSet;
+	long StartSet, EndSet;
+	long *pEndSet;
+	
+	*MSetList = NULL;
+	if ((MSetStr == NULL) || (StrLength(MSetStr) == 0))
+	    return 0;
+	    
+	OneSet = NewStrBufPlain(NULL, StrLength(MSetStr));
+
+	ThisMSet = NewHash(0, lFlathash);
+
+	*MSetList = (MSet*) ThisMSet;
+
+	/* an MSet is a coma separated value list. */
+	StrBufExtract_NextToken(OneSet, MSetStr, &POS, ',');
+	do {
+		SetPOS = NULL;
+
+		/* One set may consist of two Numbers: Start + optional End */
+		StartSet = StrBufExtractNext_long(OneSet, &SetPOS, ':');
+		EndSet = 0; /* no range is our default. */
+		/* do we have an end (aka range?) */
+		if ((SetPOS != NULL) && (SetPOS != StrBufNOTNULL))
+		{
+			if (*(SetPOS) == '*')
+				EndSet = LONG_MAX; /* ranges with '*' go until infinity */
+			else 
+				/* in other cases, get the EndPoint */
+				EndSet = StrBufExtractNext_long(OneSet, &SetPOS, ':');
+		}
+
+		pEndSet = (long*) malloc (sizeof(long));
+		*pEndSet = EndSet;
+
+		Put(ThisMSet, LKEY(StartSet), pEndSet, NULL);
+		/* if we don't have another, we're done. */
+		if (POS == StrBufNOTNULL)
+			break;
+		StrBufExtract_NextToken(OneSet, MSetStr, &POS, ',');
+	} while (1);
+	FreeStrBuf(&OneSet);
+
+	return 1;
+}
+
+/**
+ * \brief checks whether a message is inside a mset
+ * \param MSetList List to search for MsgNo
+ * \param MsgNo number to search in mset
+ */
+int IsInMSetList(MSet *MSetList, long MsgNo)
+{
+	/* basicaly we are a ... */
+	long MemberPosition;
+	HashList *Hash = (HashList*) MSetList;
+	long HashAt;
+	long EndAt;
+
+	if (Hash == NULL)
+		return 0;
+	if (Hash->MemberSize == 0)
+		return 0;
+	/** first, find out were we could fit in... */
+	HashAt = FindInHash(Hash, MsgNo);
+	
+	/* we're below the first entry, so not found. */
+	if (HashAt < 0)
+		return 0;
+	/* upper edge? move to last item */
+	if (HashAt >= Hash->nMembersUsed)
+		HashAt = Hash->nMembersUsed - 1;
+	/* Match? then we got it. */
+	else if (Hash->LookupTable[HashAt]->Key == MsgNo)
+		return 1;
+	/* One above possible range start? we need to move to the lower one. */ 
+	else if ((HashAt > 0) && 
+		 (Hash->LookupTable[HashAt]->Key > MsgNo))
+		HashAt -=1;
+
+	/* Fetch the actual data */
+	MemberPosition = Hash->LookupTable[HashAt]->Position;
+	EndAt = *(long*) Hash->Members[MemberPosition]->Data;
+	if (EndAt == LONG_MAX)
+		return 1;
+	/* no range? */
+	if (EndAt == 0)
+		return 0;
+	/* inside of range? */
+	if (EndAt >= MsgNo)
+		return 1;
+	return 0;
+}
+
+
+/**
+ * \brief frees a mset [redirects to @ref DeleteHash
+ * \param FreeMe to be free'd
+ */
+void DeleteMSet(MSet **FreeMe)
+{
+	DeleteHash((HashList**) FreeMe);
+}
