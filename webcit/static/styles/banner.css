@@ -1,5 +1,10 @@
 #banner {
-	background-color: #4D555C;
+	background: #4D555C;
+	background: -webkit-gradient(linear, 0 0, 0 bottom, from(#4D555C), to(#7D858C));
+	background: -moz-linear-gradient(#4D555C, #7D858C);
+	background: linear-gradient(#4D555C, #7D858C);
+	-pie-background: linear-gradient(#4D555C, #7D858C);
+	behavior: url(/static/styles/PIE.htc);
 	color: #FFF;
 	margin: 0;
 	padding: 0;
