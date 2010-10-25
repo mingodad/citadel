@@ -54,7 +54,7 @@ body {
 	color: #000;
 }
 
-#message_list_hdr table, #resize_msglist, .message, .message_header, .vcard_edit_background_alt,.roomops_background_alt {
+#message_list_hdr table, #resize_msglist, .message, .entmsg, .message_header, .vcard_edit_background_alt,.roomops_background_alt {
 	background-color: #CCC;
 }
 
@@ -117,9 +117,11 @@ body {
 	height: 3px;
 }
 
-.message {
+.message, .entmsg {
 	border: 1px outset #999;
 	clear: both;
+	margin: 1%;
+	padding: 0;
 }
 
 .message_header .message_subject {
@@ -586,11 +588,6 @@ body {
 	padding: 2px;
 }
 
-.message {
-	margin: 1%;
-	padding: 0;
-}
-
 .message_header p {
 	margin: 2px 0 2px 0;
 	padding: 0 0 2px 0;
@@ -671,7 +668,7 @@ body {
  	clear: both;
 }
 
-.message form div label {
+.message form div label, .entmsg form div label {
  	display: block;
  	float: left;
  	margin: 0.3em;
@@ -679,9 +676,13 @@ body {
  	text-align: right;
 }
 
-.message form div input, .message form div select { margin: 0.3em }
+.message form div input, .message form div select, .entmsg form div input, .entmsg form div select {
+	margin: 0.3em
+}
 
-.imgedit { vertical-align: middle }
+.imgedit {
+	vertical-align: middle
+}
 
 .send_edit_msg {
  	float: right;
