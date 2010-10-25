@@ -555,7 +555,9 @@ struct wcsession {
 	long *IBSettingsVec;                    /* which icons should be shown / not shown? */
 	const StrBuf *floordiv_expanded;	/* which floordiv currently expanded */
 
-
+/* Transcoding cache buffers; used to avoid to frequent realloc */
+	StrBuf *ConvertBuf1;
+	StrBuf *ConvertBuf2;
 
 /* cache stuff for templates. TODO: find a smartrer way */
 	HashList *ServCfg;                      /* cache our server config for editing */
@@ -580,7 +582,6 @@ enum {
 	S_SPAWNER,
 	MAX_SEMAPHORES
 };
-
 
 #ifndef num_parms
 #define num_parms(source)		num_tokens(source, '|') 
