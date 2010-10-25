@@ -243,3 +243,6 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 				   const char **pos, 
 				   message_summary *Msg, 
 				   StrBuf *ConversionBuffer);
+
+
+

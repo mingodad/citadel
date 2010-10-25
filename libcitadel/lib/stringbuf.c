@@ -2985,7 +2985,7 @@ inline static void DecodeSegment(StrBuf *Target,
 
 /**
  * @ingroup StrBuf_DeEnCoder
- * @brief Handle subjects with RFC2047 encoding such as:
+ * @brief Handle subjects with RFC2047 encoding such as: [deprecated old syntax!]
  * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
  * @param Target where to put the decoded string to 
  * @param DecodeMe buffer with encoded string
@@ -2995,8 +2995,41 @@ inline static void DecodeSegment(StrBuf *Target,
  */
 void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf* DefaultCharset, StrBuf *FoundCharset)
 {
+	StrBuf *ConvertBuf;
+	StrBuf *ConvertBuf2;
+	ConvertBuf = NewStrBufPlain(NULL, StrLength(DecodeMe));
+	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMe));
+	
+	StrBuf_RFC822_2_Utf8(Target, 
+			     DecodeMe, 
+			     DefaultCharset, 
+			     FoundCharset, 
+			     ConvertBuf, 
+			     ConvertBuf2);
+	FreeStrBuf(&ConvertBuf);
+	FreeStrBuf(&ConvertBuf2);
+}
+
+/**
+ * @ingroup StrBuf_DeEnCoder
+ * @brief Handle subjects with RFC2047 encoding such as:
+ * =?koi8-r?B?78bP0s3Mxc7JxSDXz9rE1dvO2c3JINvB0sHNySDP?=
+ * @param Target where to put the decoded string to 
+ * @param DecodeMe buffer with encoded string
+ * @param DefaultCharset if we don't find one, which should we use?
+ * @param FoundCharset overrides DefaultCharset if non-empty; If we find a charset inside of the string, 
+ *        put it here for later use where no string might be known.
+ * @param ConvertBuf workbuffer. feed in, you shouldn't care about its content.
+ * @param ConvertBuf2 workbuffer. feed in, you shouldn't care about its content.
+ */
+void StrBuf_RFC822_2_Utf8(StrBuf *Target, 
+			  const StrBuf *DecodeMe, 
+			  const StrBuf* DefaultCharset, 
+			  StrBuf *FoundCharset, 
+			  StrBuf *ConvertBuf, 
+			  StrBuf *ConvertBuf2)
+{
 	StrBuf *DecodedInvalidBuf = NULL;
-	StrBuf *ConvertBuf, *ConvertBuf2;
 	const StrBuf *DecodeMee = DecodeMe;
 	const char *start, *end, *next, *nextend, *ptr = NULL;
 #ifdef HAVE_ICONV
@@ -3022,7 +3055,6 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 		}
 	}
 
-	ConvertBuf = NewStrBufPlain(NULL, StrLength(DecodeMe));
 	if ((illegal_non_rfc2047_encoding) &&
 	    (strcasecmp(ChrPtr(DefaultCharset), "UTF-8")) && 
 	    (strcasecmp(ChrPtr(DefaultCharset), "us-ascii")) )
@@ -3047,12 +3079,10 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 		end = FindNextEnd (DecodeMee, start);
 	else {
 		StrBufAppendBuf(Target, DecodeMee, 0);
-		FreeStrBuf(&ConvertBuf);
 		FreeStrBuf(&DecodedInvalidBuf);
 		return;
 	}
 
-	ConvertBuf2 = NewStrBufPlain(NULL, StrLength(DecodeMee));
 
 	if (start != DecodeMee->buf) {
 		long nFront;
@@ -3131,8 +3161,6 @@ void StrBuf_RFC822_to_Utf8(StrBuf *Target, const StrBuf *DecodeMe, const StrBuf*
 		if (ptr < nextend)
 			StrBufAppendBufPlain(Target, end, nextend - end, 0);
 	}
-	FreeStrBuf(&ConvertBuf);
-	FreeStrBuf(&ConvertBuf2);
 	FreeStrBuf(&DecodedInvalidBuf);
 }
 

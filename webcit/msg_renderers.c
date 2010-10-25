@@ -2,6 +2,16 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+
+
+inline void CheckConvertBufs(struct wcsession *WCC)
+{
+	if (WCC->ConvertBuf1 == NULL)
+		WCC->ConvertBuf1 = NewStrBuf();
+	if (WCC->ConvertBuf2 == NULL)
+		WCC->ConvertBuf2 = NewStrBuf();
+}
+
 /*
  * message index functions
  */
@@ -251,9 +261,17 @@ void examine_type(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 
 void examine_from(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->from);
 	Msg->from = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->from, HdrLine, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Msg->from, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 }
 void tmplput_MAIL_SUMM_FROM(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -263,9 +281,17 @@ void tmplput_MAIL_SUMM_FROM(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_subj(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->subj);
 	Msg->subj = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->subj, HdrLine, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Msg->subj, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 }
 void tmplput_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -297,9 +323,17 @@ int Conditional_MAIL_SUMM_SUBJECT(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_msgn(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_inreplyto);
 	Msg->reply_inreplyto = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->reply_inreplyto, HdrLine, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Msg->reply_inreplyto, 
+			     HdrLine, 
+			     WCC->DefaultCharset,
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 }
 void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -315,9 +349,17 @@ int Conditional_MAIL_SUMM_UNREAD(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->reply_references);
 	Msg->reply_references = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->reply_references, HdrLine, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Msg->reply_references, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 }
 void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -328,9 +370,17 @@ void tmplput_MAIL_SUMM_REFIDS(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_cccc(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->cccc);
 	Msg->cccc = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->cccc, HdrLine, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Msg->cccc, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 	if (Msg->AllRcpt == NULL)
 		Msg->AllRcpt = NewStrBufPlain(NULL, StrLength(HdrLine));
 	if (StrLength(Msg->AllRcpt) > 0) {
@@ -407,9 +457,17 @@ int Conditional_MAIL_SUMM_OTHERNODE(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_rcpt(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->to);
 	Msg->to = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->to, HdrLine, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Msg->to, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 	if (Msg->AllRcpt == NULL)
 		Msg->AllRcpt = NewStrBufPlain(NULL, StrLength(HdrLine));
 	if (StrLength(Msg->AllRcpt) > 0) {
@@ -582,7 +640,9 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 	const char *Ptr = NULL;
 	wc_mime_attachment *Mime;
 	StrBuf *Buf;
-	
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);	
 	Mime = (wc_mime_attachment*) malloc(sizeof(wc_mime_attachment));
 	memset(Mime, 0, sizeof(wc_mime_attachment));
 	Mime->msgnum = Msg->msgnum;
@@ -590,12 +650,22 @@ void examine_mime_part(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundChars
 
 	Mime->Name = NewStrBuf();
 	StrBufExtract_NextToken(Buf, HdrLine, &Ptr, '|');
-	StrBuf_RFC822_to_Utf8(Mime->Name, Buf, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Mime->Name, 
+			     Buf, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 	StrBufTrim(Mime->Name);
 
 	StrBufExtract_NextToken(Buf, HdrLine, &Ptr, '|');
 	Mime->FileName = NewStrBuf();
-	StrBuf_RFC822_to_Utf8(Mime->FileName, Buf, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Mime->FileName, 
+			     Buf, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 	StrBufTrim(Mime->FileName);
 
 	Mime->PartNum = NewStrBuf();
@@ -694,9 +764,17 @@ void tmplput_MAIL_SUMM_NATTACH(StrBuf *Target, WCTemplputParams *TP)
 
 void examine_hnod(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
 {
+	wcsession *WCC = WC;
+
+	CheckConvertBufs(WCC);
 	FreeStrBuf(&Msg->hnod);
 	Msg->hnod = NewStrBufPlain(NULL, StrLength(HdrLine));
-	StrBuf_RFC822_to_Utf8(Msg->hnod, HdrLine, WC->DefaultCharset, FoundCharset);
+	StrBuf_RFC822_2_Utf8(Msg->hnod, 
+			     HdrLine, 
+			     WCC->DefaultCharset, 
+			     FoundCharset,
+			     WCC->ConvertBuf1,
+			     WCC->ConvertBuf2);
 }
 void tmplput_MAIL_SUMM_H_NODE(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -1198,11 +1276,18 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 {
 	wcsession *WCC = WC;
 
+	CheckConvertBufs(WCC);
+
 	Msg->from = NewStrBufPlain(NULL, StrLength(Line));
 	StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
 	if (StrLength(ConversionBuffer) != 0) {
 		/* Handle senders with RFC2047 encoding */
-		StrBuf_RFC822_to_Utf8(Msg->from, ConversionBuffer, WCC->DefaultCharset, NULL);
+		StrBuf_RFC822_2_Utf8(Msg->from, 
+				     ConversionBuffer, 
+				     WCC->DefaultCharset, 
+				     NULL, 
+				     WCC->ConvertBuf1,
+				     WCC->ConvertBuf2);
 	}
 			
 	/* node name */
@@ -1241,7 +1326,12 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 	if (StrLength(ConversionBuffer) == 0)
 		StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
 	else {
-		StrBuf_RFC822_to_Utf8(Msg->subj, ConversionBuffer, WCC->DefaultCharset, NULL);
+		StrBuf_RFC822_2_Utf8(Msg->subj, 
+				     ConversionBuffer, 
+				     WCC->DefaultCharset, 
+				     NULL,
+				     WCC->ConvertBuf1,
+				     WCC->ConvertBuf2);
 	}
 
 	return 1;
@@ -1474,4 +1564,6 @@ SessionDestroyModule_MSGRENDERERS
 (wcsession *sess)
 {
 	DeleteHash(&sess->attachments);
+	FreeStrBuf(&sess->ConvertBuf1);
+	FreeStrBuf(&sess->ConvertBuf2);
 }
