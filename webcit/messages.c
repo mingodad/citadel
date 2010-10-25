@@ -647,17 +647,40 @@ int load_msg_ptrs(const char *servcmd,
 
 
 
-
-
-void load_seen_flags(void)
+/**
+ * \brief sets FlagToSet for each of ScanMe that appears in MatchMSet
+ * \param ScanMe List of BasicMsgStruct to be searched it MatchSet
+ * \param MatchMSet MSet we want to flag
+ * \param FlagToSet Flag to set on each BasicMsgStruct->Flags if in MSet
+ */
+void SetFlagsFromMSet(HashList *ScanMe, MSet *MatchMSet, int FlagToSet, int Reverse)
 {
-	message_summary *Msg;
 	const char *HashKey;
 	long HKLen;
 	HashPos *at;
 	void *vMsg;
+	message_summary *Msg;
+
+	at = GetNewHashPos(ScanMe, 0);
+	while (GetNextHashPos(ScanMe, at, &HKLen, &HashKey, &vMsg)) {
+		/* Are you a new message, or an old message? */
+		Msg = (message_summary*) vMsg;
+		if (Reverse && IsInMSetList(MatchMSet, Msg->msgnum)) {
+			Msg->Flags = Msg->Flags | FlagToSet;
+		}
+		else if (!Reverse && !IsInMSetList(MatchMSet, Msg->msgnum)) {
+			Msg->Flags = Msg->Flags | FlagToSet;
+		}
+	}
+	DeleteHashPos(&at);
+}
+
+
+void load_seen_flags(void)
+{
 	StrBuf *OldMsg;
 	wcsession *WCC = WC;
+	MSet *MatchMSet;
 
 	OldMsg = NewStrBuf();
 	serv_puts("GTSN");
@@ -669,19 +692,13 @@ void load_seen_flags(void)
 		FreeStrBuf(&OldMsg);
 		return;
 	}
-	at = GetNewHashPos(WCC->summ, 0);
-	while (GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
-		/* Are you a new message, or an old message? */
-		Msg = (message_summary*) vMsg;
-		if (is_msg_in_mset(ChrPtr(OldMsg), Msg->msgnum)) {
-			Msg->is_new = 0;
-		}
-		else {
-			Msg->is_new = 1;
-		}
+
+	if (ParseMSet(&MatchMSet, OldMsg))
+	{
+		SetFlagsFromMSet(WCC->summ, MatchMSet, MSGFLAG_READ, 0);
 	}
+	DeleteMSet(&MatchMSet);
 	FreeStrBuf(&OldMsg);
-	DeleteHashPos(&at);
 }
 
 extern readloop_struct rlid[];
@@ -829,7 +846,11 @@ void readloop(long oper, eCustomRoomRenderer ForceRenderer)
 		while (	GetNextHashPos(WCC->summ, at, &HKLen, &HashKey, &vMsg)) {
 			Msg = (message_summary*) vMsg;		
 			if ((Msg->msgnum >= Stat.startmsg) && (Stat.num_displayed <= Stat.maxmsgs)) {
-				ViewMsg->LoadMsgFromServer(&Stat, &ViewSpecific, Msg, Msg->is_new, i);
+				ViewMsg->LoadMsgFromServer(&Stat, 
+							   &ViewSpecific, 
+							   Msg, 
+							   (Msg->Flags & MSGFLAG_READ) != 0, 
+							   i);
 			} 
 			i++;
 		}

@@ -310,7 +310,7 @@ void tmplput_MAIL_SUMM_INREPLYTO(StrBuf *Target, WCTemplputParams *TP)
 int Conditional_MAIL_SUMM_UNREAD(StrBuf *Target, WCTemplputParams *TP)
 {
 	message_summary *Msg = (message_summary*) CTX;
-	return Msg->is_new != 0;
+	return (Msg->Flags & MSGFLAG_READ) != 0;
 }
 
 void examine_wefw(message_summary *Msg, StrBuf *HdrLine, StrBuf *FoundCharset)
