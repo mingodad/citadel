@@ -175,6 +175,122 @@ Some samples from the original...
 
 
 
+const char *MSetStrings[] = {
+	"65",
+	"1,65,77",
+	"1:65,77,80:*",
+	NULL
+};
+
+#define InMSet 0
+#define NotInMSet 1
+const long MessageNumbers[4][2][10] = {
+/* First MSet */
+	{
+		{65, 0, 0, 0, 0, 0, 0, 0, 0, 0}, /* In */
+		{1, 64, 66, 0, 0, 0, 0, 0, 0, 0} /* NotIn */
+	},
+
+	{
+		{1, 65, 77, 0, 0, 0, 0, 0, 0, 0}, /* In */
+		{2, 64, 66, 76, 78, 0, 0, 0, 0, 0} /* NotIn */
+	},
+	{
+		{1, 2, 30, 64, 65, 77, 80, 81, 222222, 0}, /* In */
+		{66, 76, 78, 79, 0, 0, 0, 0, 0, 0} /* NotIn */
+	},
+	{
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, /* In */
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0} /* NotIn */
+	}
+};
+
+
+
+static void TestMSetHashlist (void)
+{
+	int nTest = 0;
+	int j;
+	StrBuf *MSetStr;
+	StrBuf *Assert;
+	MSet *OneMSet;
+	
+
+	MSetStr = NewStrBuf();
+	Assert = NewStrBuf();
+	while (MSetStrings[nTest] != NULL)
+	{
+		StrBufPlain(MSetStr, MSetStrings[nTest], -1);
+		ParseMSet(&OneMSet, MSetStr);
+
+#ifdef VERBOSE_TEST
+		printf("---%s---\n", ChrPtr(MSetStr));
+		{
+			const char *HashKey;
+			long HKLen;
+			HashList *ScanMe = (HashList*) OneMSet;
+			HashPos *at;
+			void *vMsg;
+			long *end;
+
+			at = GetNewHashPos(ScanMe, 0);
+			while (GetNextHashPos(ScanMe, at, &HKLen, &HashKey, &vMsg)) {
+				/* Are you a new message, or an old message? */
+				end = (long*) vMsg;
+				printf("[%ld][%ld]\n", *(long*)HashKey, *end);
+			}
+			DeleteHashPos(&at);
+		}
+#endif
+
+		j = 0;
+		while (MessageNumbers[nTest][InMSet][j] != 0)
+		{
+			if (!IsInMSetList(OneMSet, MessageNumbers[nTest][InMSet][j]))
+			{
+				StrBufPrintf(Assert, "InFail: %s <-> %ld\n", 
+					     ChrPtr(MSetStr), 
+					     MessageNumbers[nTest][InMSet][j]);
+				CU_FAIL(ChrPtr(Assert));
+			}
+			else
+			{
+				StrBufPrintf(Assert, "InPass: %s <-> %ld\n", 
+					     ChrPtr(MSetStr), 
+					     MessageNumbers[nTest][InMSet][j]);
+				CU_PASS(ChrPtr(Assert));
+			}
+			j++;	
+		}
+		j = 0;
+		while (MessageNumbers[nTest][NotInMSet][j] != 0)
+		{
+			if (IsInMSetList(OneMSet, MessageNumbers[nTest][NotInMSet][j]))
+			{
+				StrBufPrintf(Assert, "NOT-InFail: %s <-> %ld\n", 
+					     ChrPtr(MSetStr), 
+					     MessageNumbers[nTest][NotInMSet][j]);
+				CU_FAIL(ChrPtr(Assert));
+			}
+			else
+			{
+				StrBufPrintf(Assert, "NOT-InPass: %s <-> %ld\n", 
+					     ChrPtr(MSetStr), 
+					     MessageNumbers[nTest][InMSet][j]);
+				CU_PASS(ChrPtr(Assert));
+			}
+			j++;
+		}
+		
+
+		DeleteMSet(&OneMSet);
+		nTest++;
+		
+	}
+	FreeStrBuf(&MSetStr);
+	FreeStrBuf(&Assert);
+}
+
 
 
 static void AddHashlistTests(void)
@@ -185,8 +301,7 @@ static void AddHashlistTests(void)
 	pGroup = CU_add_suite("TestStringBufSimpleAppenders", NULL, NULL);
 	pTest = CU_add_test(pGroup, "TestHashListIteratorForward", TestHashlistIteratorForward);
 	pTest = CU_add_test(pGroup, "TestHashlistAddDelete", TestHashlistAddDelete);
-
-
+	pTest = CU_add_test(pGroup, "TestMSetHashlist", TestMSetHashlist);
 }
 
 

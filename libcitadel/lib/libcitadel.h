@@ -107,6 +107,7 @@ typedef enum _room_views {
 	VIEW_MAX
 } ROOM_VIEWS;
 
+
 #ifndef IsEmptyStr
 #define IsEmptyStr(a) ((a)[0] == '\0')
 #endif
@@ -405,12 +406,14 @@ typedef struct HashPos HashPos;
 typedef void (*DeleteHashDataFunc)(void * Data);
 typedef const char *(*PrintHashContent)(void * Data);
 typedef int (*CompareFunc)(const void* Item1, const void*Item2);
-typedef int (*HashFunc)(const char *Str, long Len);
+typedef long (*HashFunc)(const char *Str, long Len);
 typedef void (*TransitionFunc) (void *Item1, void *Item2, int Odd);
 typedef void (*PrintHashDataFunc) (const char *Key, void *Item, int Odd);
 
-int Flathash(const char *str, long len);
+long Flathash(const char *str, long len);
+long lFlathash(const char *str, long len);
 #define IKEY(a) (const char*) &a, sizeof(a)
+#define LKEY(a) (const char*) &a, sizeof(a)
 
 HashList *NewHash(int Uniq, HashFunc F);
 void DeleteHash(HashList **Hash);
@@ -438,6 +441,10 @@ void SortByPayload(HashList *Hash, CompareFunc SortBy);
 void reference_free_handler(void *ptr);
 int HashLittle(const void *key, size_t length);
 
+typedef struct MSet MSet;
+int ParseMSet(MSet **MsetList, StrBuf *MSetStr);
+int IsInMSetList(MSet *MSetList, long MsgNo);
+void DeleteMSet(MSet **FreeMe);
 
 void convert_spaces_to_underscores(char *str);
 int CheckEncode(const char *pch, long len, const char *pche);
