@@ -1275,12 +1275,15 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 				   StrBuf *ConversionBuffer)
 {
 	wcsession *WCC = WC;
+	long len;
+	long totallen;
 
 	CheckConvertBufs(WCC);
 
-	Msg->from = NewStrBufPlain(NULL, StrLength(Line));
-	StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
-	if (StrLength(ConversionBuffer) != 0) {
+	totallen = StrLength(Line);
+	Msg->from = NewStrBufPlain(NULL, totallen);
+	len = StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
+	if (len > 0) {
 		/* Handle senders with RFC2047 encoding */
 		StrBuf_RFC822_2_Utf8(Msg->from, 
 				     ConversionBuffer, 
@@ -1291,9 +1294,9 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 	}
 			
 	/* node name */
-	StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
-	if ((StrLength(ConversionBuffer) !=0 ) &&
-		    ( ((WCC->CurRoom.QRFlags & QR_NETWORK)
+	len = StrBufExtract_NextToken(ConversionBuffer, Line, pos, '|');
+	if ((len > 0 ) &&
+	    ( ((WCC->CurRoom.QRFlags & QR_NETWORK)
 	       || ((strcasecmp(ChrPtr(ConversionBuffer), ChrPtr(WCC->serv_info->serv_nodename))
 		    && (strcasecmp(ChrPtr(ConversionBuffer), ChrPtr(WCC->serv_info->serv_fqdn))))))))
 	{
@@ -1305,7 +1308,7 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 	 *	StrBufExtract_token(Msg->inetaddr, Line, 4, '|');
 	 */
 	StrBufSkip_NTokenS(Line, pos, '|', 1);
-	Msg->subj = NewStrBufPlain(NULL, StrLength(Line));
+	Msg->subj = NewStrBufPlain(NULL, totallen);
 
 	FlushStrBuf(ConversionBuffer);
 	/* we assume the subject is the last parameter inside of the list; 
@@ -1313,17 +1316,17 @@ int ParseMessageListHeaders_Detail(StrBuf *Line,
 	 * on tokenizer chars inside of the subjects
 	StrBufExtract_NextToken(ConversionBuffer,  Line, pos, '|');
 	*/
+	len = 0;
 	if (*pos != StrBufNOTNULL) {
-		StrBufPlain(ConversionBuffer, *pos, 
-			    StrLength(Line) - (*pos - ChrPtr(Line)));
+		len = totallen - (*pos - ChrPtr(Line));
+		StrBufPlain(ConversionBuffer, *pos, len);
 		*pos = StrBufNOTNULL;
-		if ((StrLength(ConversionBuffer) > 0) &&
-		    (*(ChrPtr(ConversionBuffer) + 
-		       StrLength(ConversionBuffer) - 1) == '|'))
+		if ((len > 0) &&
+		    (*(ChrPtr(ConversionBuffer) + len - 1) == '|'))
 			StrBufCutRight(ConversionBuffer, 1);
 	}
 
-	if (StrLength(ConversionBuffer) == 0)
+	if (len == 0)
 		StrBufAppendBufPlain(Msg->subj, _("(no subject)"), -1,0);
 	else {
 		StrBuf_RFC822_2_Utf8(Msg->subj, 
