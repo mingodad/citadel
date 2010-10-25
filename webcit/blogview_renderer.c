@@ -27,6 +27,7 @@
  * Array type for a blog post.  The first message is the post; the rest are comments
  */
 struct blogpost {
+	int top_level_id;
 	long *msgs;		/* Array of msgnums for messages we are displaying */
 	int num_msgs;		/* Number of msgnums stored in 'msgs' */
 	int alloc_msgs;		/* Currently allocated size of array */
@@ -37,15 +38,35 @@ struct blogpost {
  * Destructor for 'struct blogpost' which does the rendering first.
  * By rendering from here, we eliminate the need for a separate iterator, although
  * we might run into trouble when we get around to displaying newest-to-oldest...
- * FIXME do the needful with regard to gettext
  */
 void blogpost_render_and_destroy(struct blogpost *bp) {
 	const StrBuf *Mime;
+	int p = 0;
+	int i;
 
-	if (bp->num_msgs > 0) {
+	p = atoi(BSTR("p"));	/* are we looking for a specific post? */
+
+	if ( ((p == 0) || (p == bp->top_level_id)) && (bp->num_msgs > 0) ) {
+		/* Show the top level post */
 		read_message(WC->WBuf, HKEY("view_message"), bp->msgs[0], NULL, &Mime);
-		wc_printf("<div align=\"right\"><i>%d comments</i></div>\n", bp->num_msgs - 1);
-		wc_printf("<br>\n");
+
+		if (p == 0) {
+			/* Show the number of comments */
+			wc_printf("<a href=\"readfwd?p=%d?gotofirst=", bp->top_level_id);
+			urlescputs(ChrPtr(WC->CurRoom.name));
+			wc_printf("\">%d comments</a>", bp->num_msgs - 1);
+		}
+		else if (bp->num_msgs < 2) {
+			wc_printf("dere r no comments here!<br>\n");
+		}
+		else {
+			wc_printf("%d comments<br>\n", bp->num_msgs - 1);
+			wc_printf("<blockquote>");
+			for (i=1; i<bp->num_msgs; ++i) {
+				read_message(WC->WBuf, HKEY("view_message"), bp->msgs[i], NULL, &Mime);
+			}
+			wc_printf("</blockquote>");
+		}
 	}
 
 
@@ -146,6 +167,7 @@ int blogview_LoadMsgFromServer(SharedMessageStatus *Stat,
 		bp = malloc(sizeof(struct blogpost));
 		if (!bp) return(200);
 		memset(bp, 0, sizeof (struct blogpost));
+		bp->top_level_id = b.id;
 		Put(BLOG, (const char *)&b.id, sizeof(b.id), bp,
 					(DeleteHashDataFunc)blogpost_render_and_destroy);
 	}
@@ -195,11 +217,8 @@ int blogview_render(SharedMessageStatus *Stat, void **ViewSpecific, long oper)
 	/*HashList *BLOG = (HashList *) *ViewSpecific;*/
 
 	/*
-	 * This will require several different modes:
-	 * * Top level
-	 * * Single story permalink
-	 * * Comments
-	 * * etc
+	 * No code needed here -- we render during disposition.
+	 * Maybe this is the location where we want to handle pretty permalinks.
 	 */
 
 	return(0);
