@@ -25,10 +25,13 @@ struct wc_mime_attachment {
 };
 void DestroyMime(void *vMime);
 
+#define MSGFLAG_READ (1<<0)
 
 typedef struct _message_summary {
-	time_t date;     	/* its creation date */
 	long msgnum;		/* the message number on the citadel server */
+	int Flags;
+
+	time_t date;     	/* its creation date */
 	int nhdr;
 	int format_type;
 	StrBuf *euid;
@@ -52,7 +55,6 @@ typedef struct _message_summary {
 
 	HashList *AllAttach;
 
-	int is_new;
 	int hasattachments;
 
 
