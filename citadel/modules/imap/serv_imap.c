@@ -912,7 +912,7 @@ void imap_namespace(int num_parms, ConstStr *Params)
 	for (i = 0; i < MAXFLOORS; ++i) {
 		fl = CtdlGetCachedFloor(i);
 		if (fl->f_flags & F_INUSE) {
-			if (floors > 0) cprintf(" ");
+			/* if (floors > 0) cprintf(" "); samjam says this confuses javamail */
 			cprintf("(");
 			snprintf(Namespace, sizeof(Namespace), "%s/", fl->f_name);
 			plain_imap_strout(Namespace);
