@@ -49,13 +49,13 @@
  * screenwidth   = desired output screenwidth
  * do_citaformat = set to 1 to indent newlines with spaces
  */
-char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat) {
+char *html_to_ascii(const char *inputmsg, int msglen, int screenwidth, int do_citaformat) {
 	char inbuf[SIZ];
 	int inbuf_len = 0;
 	char outbuf[SIZ];
 	char tag[1024];
 	int done_reading = 0;
-	char *inptr;
+	const char *inptr;
 	char *outptr;
 	size_t outptr_buffer_size;
 	size_t output_len = 0;

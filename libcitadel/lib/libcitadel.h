@@ -366,7 +366,7 @@ char *rfc2047encode(char *line, long length);
 int is_msg_in_mset(const char *mset, long msgnum);
 int pattern2(char *search, char *patn);
 void stripltlen(char *, int *);
-char *html_to_ascii(char *inputmsg, int msglen, int screenwidth, int do_citaformat);
+char *html_to_ascii(const char *inputmsg, int msglen, int screenwidth, int do_citaformat);
 void LoadEntityList(char *FileName);
 
 
