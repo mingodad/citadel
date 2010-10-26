@@ -1081,7 +1081,21 @@ void smtp_try(const char *key, const char *addr, int *status,
 		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connecting to %s : %s ...\n", mx_host, mx_port);
 		sock = sock_connect(mx_host, mx_port);
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
-		if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connected!\n");
+		if (sock >= 0) 
+		{
+			CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connected!\n");
+				int fdflags; 
+				fdflags = fcntl(sock, F_GETFL);
+				if (fdflags < 0)
+					CtdlLogPrintf(CTDL_DEBUG,
+						      "unable to get SMTP-Client socket flags! %s \n",
+						      strerror(errno));
+				fdflags = fdflags | O_NONBLOCK;
+				if (fcntl(sock, F_SETFL, fdflags) < 0)
+					CtdlLogPrintf(CTDL_DEBUG,
+						      "unable to set SMTP-Client socket nonblocking flags! %s \n",
+						      strerror(errno));
+		}
 		if (sock < 0) {
 			if (errno > 0) {
 				snprintf(dsn, SIZ, "%s", strerror(errno));
