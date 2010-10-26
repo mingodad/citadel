@@ -124,6 +124,12 @@ body {
 	padding: 0;
 }
 
+.entmsg {
+	position: absolute;
+	height: 95%;
+	width: 98%;
+}
+
 .message_header .message_subject {
 	font-style: italic;
 	float: left;	
@@ -388,16 +394,16 @@ a:visited { color: purple}
 	color: #3E65AF;
 }
 
-.button_link a, input, select, li.activeuser, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+.button_link a, input, select, li.activeuser, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input {
 	background-color: #fbf4ca !important; /* needed for li.activeuser */
 }
 
-.button_link a, input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input, .send_edit_msg input {
+.button_link a, input, select, .room_actions form select, .room_actions li.search input, .address_book_popup_title, .msgbuttons a, input#delbutton,.attachfile, .logbuttons input,.buttons input {
 	border: 1px solid #999;
 	color: #333;
 }
 
-.button_link a, .msgbuttons a, input#delbutton,.attachfile, .buttons input, .send_edit_msg input {
+.button_link a, .msgbuttons a, input#delbutton,.attachfile, .buttons input {
 	cursor: pointer;
 	-webkit-border-radius: 8px;
 	-moz-border-radius: 8px;
@@ -406,7 +412,7 @@ a:visited { color: purple}
 	text-align: center;
 }
 
-.button_link a, .attachfile,.buttons input, .send_edit_msg input {
+.button_link a, .attachfile,.buttons input {
 	font-weight: bold;
 }
 
@@ -593,7 +599,7 @@ body {
 	padding: 0 0 2px 0;
 }
 
-.button_link a, .attachfile, .logbuttons input,.buttons input, .send_edit_msg input, .logbutton {
+.button_link a, .attachfile, .logbuttons input,.buttons input .logbutton {
 	margin: 3px;
 	padding: 2px 4px 2px 4px;
 }
@@ -684,26 +690,20 @@ body {
 	vertical-align: middle
 }
 
-.send_edit_msg {
- 	float: right;
- 	margin-top: 0 ;
- 	margin-right: 0;
- 	padding: 2px 50px 2px 50px;
-}
-
 .edit_msg_table th {
 	text-align: right;
+	padding: 0px;
 	padding-right: 5px;
 	color: #333;
 	width: 20%;
 }
 
 .edit_msg_table td {
-	width: 40%;
+	padding: 0px;
 }
 
 .edit_msg_table #recp_id, .edit_msg_table #cc_id, .edit_msg_table #bcc_id, .edit_msg_table #subject_id  {
-	width: 98%
+	width: 98%;
 }
 
 .note {

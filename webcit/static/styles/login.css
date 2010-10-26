@@ -64,7 +64,6 @@
 
 .logbuttons input {
 	cursor: pointer;
-	-moz-border-radius: 8px;    /* CSS3 draft and Mozilla  */
 	text-align: center;
 	font-weight: bold;
 }

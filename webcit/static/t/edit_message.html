@@ -9,18 +9,10 @@
 <input type="hidden" name="force_room" value="<?ROOMNAME("X")>">
 <input type="hidden" name="references" value="<?BSTR("references")>">
 <input type="hidden" name="page" value="<?BSTR("page")>">
+<input type="hidden" name="submit_action" value="">
 
-<p class="send_edit_msg">
-<?!("COND:BSTR", 1, "__RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Send message")>"><?!("X", 1)>
-<??("COND:BSTR", 2, "__RCPTREQUIRED")><input type="submit" name="send_button" value="<?_("Post message")>"><?!("X", 2)>
-&nbsp;
-  <input type="submit" name="save_button" value="<?_("Save to Drafts")>">
-&nbsp;
-  <input type="submit" name="cancel_button" value="<?_("Cancel")>">
-</p>
-<img src="static/newmess3_24x.gif" class="imgedit">  <?DATE:NOW:STR>
 <table width="100%" class="edit_msg_table">
-<tr><th><label for="from_id" >  <i><?_("from")></i> </label></th><td colspan="2">
+<tr><th><label for="from_id"><i><?_("from")></i></label></th><td>
 
 <??("COND:BSTR", 4, "__RCPTREQUIRED")>
 <select name="display_name" size=1 id="from_id">
@@ -52,11 +44,6 @@
   <td><input autocomplete="off" type="text" name="recp" id="recp_id" value="<?BSTR("recp", "H")>" size=45 maxlength=1000 />
      <div class="auto_complete" id="recp_name_choices"></div>
   </td>
-  <td rowspan="3" align="left" valign="top">
-    <a href="javascript:PopOpenAddressBook('recp_id|<?_("To:")>|cc_id|<?_("CC:")>|bcc_id|<?_("BCC:")>');" title="<?_("Contacts")>">
-       <img align=middle border=0 width=24 height=24 src="static/viewcontacts_24x.gif">&nbsp;<?_("Contacts")>
-    </a>
-  </td>
 </tr>
 <tr>
   <th><label for="cc_id"><?_("CC:")></label></th>
@@ -75,15 +62,26 @@
   <th><label for="subject_id" > 
       <?%("COND:BSTR", 6, "__SUBJREQUIRED", 0, _("Subject (optional):"), _("Subject:")>
   </label></th>
-  <td colspan="2">
+  <td>
     <input type="text" name="subject" id="subject_id" value="<?BSTR("subject", "H")>" size=45 maxlength=70>
   </td>
 </tr>
-<tr><td colspan="3">
+<tr><td colspan="2">
+
+<div class="attachment buttons">
+<img src="static/diskette_24x.gif" class="imgedit" ><?_("Attachments:")>
+<select name="which_attachment" size=1>
+<?ITERATE("MSG:ATTACHNAMES", ="edit_message_section_attach_select")>
+</select>
+&nbsp;&nbsp;&nbsp;<?_("Attach file:")>
+<input name="attachfile" class="attachfile" size=16 type="file">
+&nbsp;&nbsp;<input type="submit" name="attach_button" value="<?_("Add")>">
+&nbsp;&nbsp;<input type="submit" name="remove_attach_button" value="<?_("Remove")>">
+</div>
+</td></tr>
+<tr><td colspan="2">
+
 <input type="hidden" name="sig_inserted" value="yes">
-
-
-
 
 <textarea name="msgtext" cols="80" rows="15">
 <?BSTR("msgtext", "X")><?!("COND:BSTR", 1, "fwdquote")>&lt;br /&gt;
@@ -103,27 +101,58 @@
 <?!("X", 6)><??("X", 5)><?!("X", 4)><?!("COND:ROOM:TYPE_IS", 7, #"VIEW_WIKI")><?MAIL:EDITWIKI("X")><?!("X", 7)>
 </textarea>
 
-
-
-
 <?=("richedit")>
 
-<div class="attachment buttons">
-<img src="static/diskette_24x.gif" class="imgedit" ><?_("Attachments:")>
-<select name="which_attachment" size=1>
-<?ITERATE("MSG:ATTACHNAMES", ="edit_message_section_attach_select")>
-</select>
-&nbsp;&nbsp;&nbsp;<?_("Attach file:")>
-<input name="attachfile" class="attachfile" size=16 type="file">
-&nbsp;&nbsp;<input type="submit" name="attach_button" value="<?_("Add")>">
-&nbsp;&nbsp;<input type="submit" name="remove_attach_button" value="<?_("Remove")>">
+</td></tr></table></form>
 
-</div></td></tr></table></form>
+<div style="display:none" id="submit-o-matic"><ul>
+<li>
+	<a href="javascript:submit_post('post');">
+		<img src="static/newmess3_24x.gif" alt="" width="24" height="24">
+		<span class="navbar_link">
+		<?!("COND:BSTR", 1, "__RCPTREQUIRED")><?_("Send message")><?!("X", 1)>
+		<??("COND:BSTR", 2, "__RCPTREQUIRED")><?_("Post message")><?!("X", 2)>
+		</span>
+	</a>
+</li>
+<li>
+	<a href="javascript:submit_post('draft');">
+		<img src="static/folder_closed.gif" alt="" width="24" height="24">
+		<span class="navbar_link">
+		<?_("Save to Drafts")>
+		</span>
+	</a>
+</li>
+<li>
+	<a href="javascript:submit_post('cancel');">
+		<img src="static/closewindow.gif" alt="">
+		<span class="navbar_link">
+		<?_("Cancel")>
+		</span>
+	</a>
+</li>
+<?!("COND:BSTR", 1, "__RCPTREQUIRED")><li>
+	<a href="javascript:PopOpenAddressBook('recp_id|<?_("To:")>|cc_id|<?_("CC:")>|bcc_id|<?_("BCC:")>');">
+		<img src="static/viewcontacts_24x.gif" alt="" width="24" height="24">
+		<span class="navbar_link">
+		<?_("Contacts")>
+		</span>
+	</a>
+</li><?!("X", 1)>
+</div>
 
 <script type="text/javascript">	
- activate_entmsg_autocompleters();	
+	$("navbar").innerHTML = $("submit-o-matic").innerHTML;
+	<?!("COND:BSTR", 1, "__RCPTREQUIRED")>
+		activate_entmsg_autocompleters();
+	<?!("X", 1)>
 
+	function submit_post(which_action) {
+		document.enterform.submit_action.value = which_action;
+		document.enterform.submit();
+	}
 </script>
+
 </div>
 </div>
 </div>
