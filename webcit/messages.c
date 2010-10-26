@@ -1076,7 +1076,7 @@ void post_message(void)
 		return;
 	}
 
-	if (havebstr("cancel_button")) {
+	if (!strcasecmp(bstr("submit_action"), "cancel")) {
 		sprintf(WCC->ImportantMessage, 
 			_("Cancelled.  Message was not posted."));
 	} else if (havebstr("attach_button")) {
@@ -1125,7 +1125,7 @@ void post_message(void)
 		int save_to_drafts;
 		long HeaderLen;
 
-		save_to_drafts = havebstr("save_button");
+		save_to_drafts = !strcasecmp(bstr("submit_action"), "drafts");
 		Buf = NewStrBuf();
 
 		if (save_to_drafts) {
