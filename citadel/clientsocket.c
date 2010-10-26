@@ -241,17 +241,8 @@ int sock_getln(int *sock, char *buf, int bufsize)
 
 	i = StrLength(CCC->sMigrateBuf);
 	pCh = ChrPtr(CCC->sMigrateBuf);
-	/* Strip the trailing LF, and the trailing CR if present.
-	 */
-	if (bufsize <= i)
-		i = bufsize - 1;
-	while ( (i > 0)
-		&& ( (pCh[i - 1]==13)
-		     || ( pCh[i - 1]==10)) ) {
-		i--;
-	}
-	memcpy(buf, pCh, i);
-	buf[i] = 0;
+
+	memcpy(buf, pCh, i + 1);
 
 	FlushStrBuf(CCC->sMigrateBuf);
 	if (retval < 0) {
@@ -297,23 +288,61 @@ int sock_write(int *sock, const char *buf, int nbytes)
 }
 
 
+
+/*
+ * client_getln()   ...   Get a LF-terminated line of text from the client.
+ * (This is implemented in terms of client_read() and could be
+ * justifiably moved out of sysdep.c)
+ */
+int sock_getln_err(int *sock, char *buf, int bufsize, int *rc)
+{
+	int i, retval;
+	CitContext *CCC = MyContext();
+	const char *pCh;
+
+	FlushStrBuf(CCC->sMigrateBuf);
+	*rc = retval = CtdlSockGetLine(sock, CCC->sMigrateBuf);
+
+	i = StrLength(CCC->sMigrateBuf);
+	pCh = ChrPtr(CCC->sMigrateBuf);
+
+	memcpy(buf, pCh, i + 1);
+
+	FlushStrBuf(CCC->sMigrateBuf);
+	if (retval < 0) {
+		safestrncpy(&buf[i], "000", bufsize - i);
+		i += 3;
+	}
+	return i;
+}
+
 /*
  * Multiline version of sock_gets() ... this is a convenience function for
  * client side protocol implementations.  It only returns the first line of
  * a multiline response, discarding the rest.
  */
-int ml_sock_gets(int *sock, char *buf) {
+
+int ml_sock_gets(int *sock, char *buf)
+{
+	int rc = 0;
 	char bigbuf[1024];
 	int g;
 
-	g = sock_getln(sock, buf, SIZ);
-	if (g < 4) return(g);
-	if (buf[3] != '-') return(g);
+	g = sock_getln_err(sock, buf, SIZ, &rc);
+	if (rc < 0)
+		return rc;
+	if (g < 4)
+		return (g);
+	if (buf[3] != '-')
+		return (g);
 
 	do {
-		g = sock_getln(sock, bigbuf, SIZ);
-		if (g < 0) return(g);
-	} while ( (g >= 4) && (bigbuf[3] == '-') );
+		g = sock_getln_err(sock, bigbuf, SIZ, &rc);
+		if (rc < 0)
+			return rc;
+		if (g < 0)
+			return (g);
+	} while ((g >= 4) && (bigbuf[3] == '-'));
 
 	return(strlen(buf));
 }
