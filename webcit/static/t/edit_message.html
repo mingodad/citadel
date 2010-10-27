@@ -2,7 +2,7 @@
 <?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <?ROOMBANNER>
 <div id="content">
-<div class="entmsg"><form name="enterform" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="post">
+<div class="entmsg" id="entmsg"><form name="enterform" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="post">
 <input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
 <input type="hidden" name="return_to" value="<?BSTR("return_to")>">
 <input type="hidden" name="nonce" value="<?NONCE>">
@@ -66,7 +66,8 @@
     <input type="text" name="subject" id="subject_id" value="<?BSTR("subject", "H")>" size=45 maxlength=70>
   </td>
 </tr>
-<tr><td colspan="2">
+
+</td></tr></table>
 
 <div class="attachment buttons">
 <img src="static/diskette_24x.gif" class="imgedit" ><?_("Attachments:")>
@@ -78,12 +79,10 @@
 &nbsp;&nbsp;<input type="submit" name="attach_button" value="<?_("Add")>">
 &nbsp;&nbsp;<input type="submit" name="remove_attach_button" value="<?_("Remove")>">
 </div>
-</td></tr>
-<tr><td colspan="2">
 
 <input type="hidden" name="sig_inserted" value="yes">
 
-<textarea name="msgtext" cols="80" rows="15">
+<textarea name="msgtext" id="msgtext" cols="80" rows="15">
 <?BSTR("msgtext", "X")><?!("COND:BSTR", 1, "fwdquote")>&lt;br /&gt;
   &lt;div align=center&gt;
     &lt;i&gt;
@@ -103,7 +102,7 @@
 
 <?=("richedit")>
 
-</td></tr></table></form>
+</form>
 
 <div style="display:none" id="submit-o-matic"><ul>
 <li>
