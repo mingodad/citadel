@@ -1,8 +1,10 @@
 <script type="text/javascript" src="tiny_mce/tiny_mce.js"></script>
 <script type="text/javascript">
+idealHeight = $('entmsg').offsetHeight - $('msgtext').offsetTop - 10;
 tinyMCE.init({
 	mode : "textareas",
-	width : "99%",
+	width : "100%",
+	height : idealHeight,
 	browsers : "msie,gecko,safari,opera",
 	theme : "advanced",
 	plugins : "iespell",
