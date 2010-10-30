@@ -373,9 +373,9 @@ void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, 
 /*
  * Generate an associated file name for a room
  */
-void assoc_file_name(char *buf, size_t n,
+size_t assoc_file_name(char *buf, size_t n,
 		     struct ctdlroom *qrbuf, const char *prefix)
 {
-	snprintf(buf, n, "%s%ld", prefix, qrbuf->QRnumber);
+	return snprintf(buf, n, "%s%ld", prefix, qrbuf->QRnumber);
 }
 

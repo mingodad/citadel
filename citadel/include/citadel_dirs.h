@@ -60,7 +60,9 @@ extern char file_funambol_msg[PATH_MAX];
 extern void calc_dirs_n_files(int relh, int home, const char *relhome, char  *ctdldir, int dbg);
 
 
-void assoc_file_name(char *buf, size_t n,
-		     struct ctdlroom *qrbuf, const char *prefix);
+extern size_t assoc_file_name(char *buf, 
+			    size_t n,
+			    struct ctdlroom *qrbuf, 
+			    const char *prefix);
 
 #endif /* __CITADEL_DIRS_H */
