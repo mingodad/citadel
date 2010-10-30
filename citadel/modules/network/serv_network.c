@@ -403,8 +403,11 @@ void cmd_gnet(char *argbuf) {
 void cmd_snet(char *argbuf) {
 	char tempfilename[PATH_MAX];
 	char filename[PATH_MAX];
-	char buf[SIZ];
-	FILE *fp, *newfp;
+	int TmpFD;
+	StrBuf *Line;
+	struct stat StatBuf;
+	long len;
+	int rc;
 
 	unbuffer_output();
 
@@ -413,40 +416,66 @@ void cmd_snet(char *argbuf) {
 	}
 	else if (CtdlAccessCheck(ac_room_aide)) return;
 
-	CtdlMakeTempFileName(tempfilename, sizeof tempfilename);
-	assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+	len = assoc_file_name(filename, sizeof filename, &CC->room, ctdl_netcfg_dir);
+	memcpy(tempfilename, filename, len + 1);
 
-	fp = fopen(tempfilename, "w");
-	if (fp == NULL) {
-		cprintf("%d Cannot open %s: %s\n",
+	memset(&StatBuf, 0, sizeof(struct stat));
+	if (stat(filename, &StatBuf)  == -1)
+		StatBuf.st_size = 80; /* Not there? guess 80 chars line. */
+
+	sprintf(tempfilename + len, ".%d", CC->cs_pid);
+
+	TmpFD = open(tempfilename, O_CREAT|O_EXCL);
+
+	if (TmpFD > 0)
+	{
+		char *tmp = malloc(StatBuf.st_size * 2);
+		memset(tmp, 0, StatBuf.st_size * 2);
+		rc = write(TmpFD, tmp, StatBuf.st_size * 2);
+		free(tmp);
+		if (rc <= 0)
+		{
+			close(TmpFD);
+			cprintf("%d Unable to allocate the space required for %s: %s\n",
+				ERROR + INTERNAL_ERROR,
+				tempfilename,
+				strerror(errno));
+			return;
+		}	
+		lseek(TmpFD, SEEK_SET, 0);
+	}
+	else {
+		cprintf("%d Unable to allocate the space required for %s: %s\n",
 			ERROR + INTERNAL_ERROR,
 			tempfilename,
 			strerror(errno));
+
+
 	}
+	Line = NewStrBuf();
 
 	cprintf("%d %s\n", SEND_LISTING, tempfilename);
-	while (client_getln(buf, sizeof buf) >= 0 && strcmp(buf, "000")) {
-		fprintf(fp, "%s\n", buf);
+
+	len = 0;
+	while (rc = CtdlClientGetLine(Line), 
+	       (rc >= 0))
+	{
+		if ((rc == 3) && (strcmp(ChrPtr(Line), "000") == 0))
+			break;
+		StrBufAppendBufPlain(Line, HKEY("\n"), 0);
+		write(TmpFD, ChrPtr(Line), StrLength(Line));
+		len += StrLength(Line);
 	}
-	fclose(fp);
+	FreeStrBuf(&Line);
+	ftruncate(TmpFD, len + 1);
+	close(TmpFD);
 
 	/* Now copy the temp file to its permanent location.
 	 * (We copy instead of link because they may be on different filesystems)
 	 */
 	begin_critical_section(S_NETCONFIGS);
-	fp = fopen(tempfilename, "r");
-	if (fp != NULL) {
-		newfp = fopen(filename, "w");
-		if (newfp != NULL) {
-			while (fgets(buf, sizeof buf, fp) != NULL) {
-				fprintf(newfp, "%s", buf);
-			}
-			fclose(newfp);
-		}
-		fclose(fp);
-	}
+	rename(filename, tempfilename);
 	end_critical_section(S_NETCONFIGS);
-	unlink(tempfilename);
 }
 
 
