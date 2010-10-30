@@ -15,6 +15,22 @@
 #include "xdgmime/xdgmime.h"
 #include "libcitadellocal.h"
 
+ConstStr RoomNetCfgStrs[maxRoomNetCfg] = {
+	{HKEY(strof(subpending))},
+	{HKEY(strof(unsubpending))},
+	{HKEY(strof(lastsent))}, /* Server internal use only */
+	{HKEY(strof(ignet_push_share))},
+	{HKEY(strof(listrecp))},
+	{HKEY(strof(digestrecp))},
+	{HKEY(strof(pop3client))},
+	{HKEY(strof(rssclient))},
+	{HKEY(strof(participate))}
+// No, not one of..	{HKEY(strof(maxRoomNetCfg))}
+};
+
+
+
+
 extern int BaseStrBufSize;
 char *libcitadel_version_string(void) {
 	return "libcitadel(unnumbered)";
