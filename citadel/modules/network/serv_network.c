@@ -57,6 +57,13 @@
 #  include <time.h>
 # endif
 #endif
+#ifdef HAVE_SYSCALL_H
+# include <syscall.h>
+#else 
+# if HAVE_SYS_SYSCALL_H
+#  include <sys/syscall.h>
+# endif
+#endif
 
 #include <sys/wait.h>
 #include <string.h>
@@ -1080,13 +1087,33 @@ void free_spoolcontrol_struct(SpoolControl **scc)
 
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 {
+	char tempfilename[PATH_MAX];
 	FILE *fp;
 	SpoolControl *sc;
 	namelist *nptr = NULL;
 	maplist *mptr = NULL;
+	long len;
+	time_t unixtime;
+	struct timeval tv;
+	long reltid; /* if we don't have SYS_gettid, use "random" value */
+	StrBuf *Cfg;
+	int rc;
 
+	len = strlen(filename);
+	memcpy(tempfilename, filename, len + 1);
+
+
+#if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
+	reltid = syscall(SYS_gettid);
+#endif
+	gettimeofday(&tv, NULL);
+	/* Promote to time_t; types differ on some OSes (like darwin) */
+	unixtime = tv.tv_sec;
+
+	sprintf(tempfilename + len, ".%ld-%ld", reltid, unixtime);
 	sc = *scc;
-	fp = fopen(filename, "w");
+	fp = fopen(tempfilename, "w");
+	Cfg = NewStrBuf();
 	if (fp == NULL) {
 		CtdlLogPrintf(CTDL_CRIT, "ERROR: cannot open %s: %s\n",
 			filename, strerror(errno));
@@ -1099,41 +1126,53 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 		 * same time.  Am I clever or what?  :)
 		 */
 		while (sc->listrecps != NULL) {
-			fprintf(fp, "listrecp|%s\n", sc->listrecps->name);
+			StrBufAppendPrintf(Cfg, "listrecp|%s\n", sc->listrecps->name);
 			nptr = sc->listrecps->next;
 			free(sc->listrecps);
 			sc->listrecps = nptr;
 		}
 		/* Do the same for digestrecps */
 		while (sc->digestrecps != NULL) {
-			fprintf(fp, "digestrecp|%s\n", sc->digestrecps->name);
+			StrBufAppendPrintf(Cfg, "digestrecp|%s\n", sc->digestrecps->name);
 			nptr = sc->digestrecps->next;
 			free(sc->digestrecps);
 			sc->digestrecps = nptr;
 		}
 		/* Do the same for participates */
 		while (sc->participates != NULL) {
-			fprintf(fp, "participate|%s\n", sc->participates->name);
+			StrBufAppendPrintf(Cfg, "participate|%s\n", sc->participates->name);
 			nptr = sc->participates->next;
 			free(sc->participates);
 			sc->participates = nptr;
 		}
 		while (sc->ignet_push_shares != NULL) {
-			fprintf(fp, "ignet_push_share|%s", sc->ignet_push_shares->remote_nodename);
+			StrBufAppendPrintf(Cfg, "ignet_push_share|%s", sc->ignet_push_shares->remote_nodename);
 			if (!IsEmptyStr(sc->ignet_push_shares->remote_roomname)) {
-				fprintf(fp, "|%s", sc->ignet_push_shares->remote_roomname);
+				StrBufAppendPrintf(Cfg, "|%s", sc->ignet_push_shares->remote_roomname);
 			}
-			fprintf(fp, "\n");
+			StrBufAppendPrintf(Cfg, "\n");
 			mptr = sc->ignet_push_shares->next;
 			free(sc->ignet_push_shares);
 			sc->ignet_push_shares = mptr;
 		}
 		if (sc->misc != NULL) {
-			fwrite(sc->misc, strlen(sc->misc), 1, fp);
+			StrBufAppendBufPlain(Cfg, sc->misc, -1, 0);
 		}
 		free(sc->misc);
 
-		fclose(fp);
+		rc = fwrite(ChrPtr(Cfg), StrLength(Cfg), 1, fp);
+		if (rc >=0)
+		{
+			fclose(fp);
+			rename(filename, tempfilename);
+		}
+		else {
+			CtdlLogPrintf(CTDL_EMERG, 
+				      "unable to write %s; not enough space on the disk?\n", 
+				      tempfilename);
+			fclose(fp);
+		}
+		FreeStrBuf(&Cfg);
 		free(sc);
 		*scc=NULL;
 	}
