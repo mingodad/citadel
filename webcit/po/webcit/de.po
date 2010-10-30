@@ -17,9 +17,18 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-25 04:36+0000\n"
+"X-Launchpad-Export-Date: 2010-10-26 04:33+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: de\n"
+
+#: ../summary.c:167
+#, c-format
+msgid ""
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
+msgstr ""
+"Sie sind angemeldet auf %s, mit %s über %s, Server-Release %s in %s.  Ihr "
+"Systemverwalter ist %s."
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -1355,15 +1364,6 @@ msgstr "(Keine)"
 #: ../summary.c:153
 msgid "(Nothing)"
 msgstr "(Nichts)"
-
-#: ../summary.c:167
-#, c-format
-msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
-msgstr ""
-"Sie sind angemeldet auf %s, mit %s über %s, Server-Release %s in %s.  Ihr "
-"Systemverwalter ist %s."
 
 #: ../summary.c:195
 msgid "Messages"

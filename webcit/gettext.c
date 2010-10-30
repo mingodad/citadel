@@ -25,16 +25,17 @@
 const char *AvailLang[] = {
 	"C",
 	"en_US",
-	"de_DE",
-	"it_IT",
-	"es_ES",
-	"en_GB",
 	"da_DK",
+	"de_DE",
+	"el_EL",
+	"en_GB",
+	"es_ES",
+	"et_EE",
 	"fr_FR",
+	"hu_HU",
+	"it_IT",
 	"nl_NL",
 	"pt_BR",
-	"hu_HU",
-	"et_EE",
 	"ru_RU",
 	""
 };
