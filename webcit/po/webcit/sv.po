@@ -1,0 +1,2198 @@
+# Swedish translation for citadel
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# This file is distributed under the same license as the citadel package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: citadel\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2010-09-16 13:47+0200\n"
+"PO-Revision-Date: 2010-10-26 21:07+0000\n"
+"Last-Translator: Henric <Unknown>\n"
+"Language-Team: Swedish <sv@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2010-10-27 04:54+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: ../addressbook_popup.c:192
+msgid "Add"
+msgstr "äLägg till"
+
+#. an erased user
+#: ../auth.c:38
+msgid "Deleted"
+msgstr "Raderad"
+
+#. a new user
+#: ../auth.c:41
+msgid "New User"
+msgstr "Ny Användare"
+
+#. a trouble maker
+#: ../auth.c:44
+msgid "Problem User"
+msgstr ""
+
+#. user with normal privileges
+#: ../auth.c:47
+msgid "Local User"
+msgstr "Lokal Användare"
+
+#. a user that may access network resources
+#: ../auth.c:50
+msgid "Network User"
+msgstr "Nätverks Användare"
+
+#. a moderator
+#: ../auth.c:53
+msgid "Preferred User"
+msgstr ""
+
+#. chief
+#: ../auth.c:56
+msgid "Aide"
+msgstr "Chef"
+
+#: ../auth.c:211 ../auth.c:882
+msgid "Blank passwords are not allowed."
+msgstr "Tomt lösenord är inte tillåtet."
+
+#. If we get to this point then something failed.
+#: ../auth.c:239 ../auth.c:336 ../auth.c:449
+msgid "Your password was not accepted."
+msgstr "Ditt lösenord accepterades inte."
+
+#: ../auth.c:559 ../static/t/iconbar.html:74
+msgid "Log off"
+msgstr ""
+
+#: ../auth.c:572
+msgid ""
+"This program was unable to connect or stay connected to the Citadel server.  "
+"Please report this problem to your system administrator."
+msgstr ""
+
+#: ../auth.c:578
+msgid "Read More..."
+msgstr ""
+
+#: ../auth.c:583
+msgid "Log in again"
+msgstr ""
+
+#: ../auth.c:614
+msgid "Validate new users"
+msgstr ""
+
+#: ../auth.c:637
+msgid "No users require validation at this time."
+msgstr ""
+
+#: ../auth.c:685
+msgid "very weak"
+msgstr ""
+
+#: ../auth.c:688
+msgid "weak"
+msgstr ""
+
+#: ../auth.c:691
+msgid "ok"
+msgstr ""
+
+#: ../auth.c:695
+msgid "strong"
+msgstr ""
+
+#: ../auth.c:713
+#, c-format
+msgid "Current access level: %d (%s)\n"
+msgstr ""
+
+#: ../auth.c:721
+msgid "Select access level for this user:"
+msgstr ""
+
+#: ../auth.c:808
+msgid "Change your password"
+msgstr ""
+
+#: ../auth.c:832
+msgid "Enter new password:"
+msgstr ""
+
+#: ../auth.c:836
+msgid "Enter it again to confirm:"
+msgstr ""
+
+#: ../auth.c:842
+msgid "Change password"
+msgstr ""
+
+#: ../auth.c:844 ../event.c:770 ../graphics.c:71 ../messages.c:1497
+#: ../paging.c:67 ../sieve.c:205 ../sysmsgs.c:50 ../tasks.c:358
+#: ../vcard_edit.c:1001 ../who.c:197
+msgid "Cancel"
+msgstr ""
+
+#: ../auth.c:863
+msgid "Cancelled.  Password was not changed."
+msgstr ""
+
+#: ../auth.c:874
+msgid "They don't match.  Password was not changed."
+msgstr ""
+
+#. 
+#. * Set to 'unknown' right from the beginning.  Unless we learn
+#. * something else, that's what we'll go with.
+#. 
+#: ../availability.c:154
+msgid "availability unknown"
+msgstr ""
+
+#: ../availability.c:175
+msgid "free"
+msgstr ""
+
+#: ../availability.c:185
+msgid "BUSY"
+msgstr ""
+
+#: ../bbsview_renderer.c:289
+msgid "Go to page: "
+msgstr ""
+
+#: ../bbsview_renderer.c:323
+msgid "First"
+msgstr ""
+
+#: ../bbsview_renderer.c:329
+msgid "Last"
+msgstr ""
+
+#: ../calendar.c:81
+msgid "Meeting invitation"
+msgstr ""
+
+#: ../calendar.c:84
+msgid "Attendee's reply to your invitation"
+msgstr ""
+
+#: ../calendar.c:87
+msgid "Published event"
+msgstr ""
+
+#: ../calendar.c:90
+msgid "This is an unknown type of calendar item."
+msgstr ""
+
+#: ../calendar.c:103 ../calendar_view.c:290 ../calendar_view.c:957
+#: ../calendar_view.c:1001 ../calendar_view.c:1082 ../tasks.c:247
+msgid "Summary:"
+msgstr ""
+
+#: ../calendar.c:112 ../calendar_view.c:298 ../calendar_view.c:962
+#: ../calendar_view.c:1006 ../calendar_view.c:1087
+msgid "Location:"
+msgstr ""
+
+#: ../calendar.c:137 ../calendar_view.c:343 ../calendar_view.c:968
+msgid "Date:"
+msgstr ""
+
+#: ../calendar.c:144 ../calendar_view.c:365 ../calendar_view.c:1011
+#: ../calendar_view.c:1097
+msgid "Starting date/time:"
+msgstr ""
+
+#: ../calendar.c:155 ../calendar_view.c:368 ../calendar_view.c:1013
+#: ../calendar_view.c:1099
+msgid "Ending date/time:"
+msgstr ""
+
+#: ../calendar.c:164 ../tasks.c:338 ../static/t/files.html:38
+msgid "Description:"
+msgstr ""
+
+#: ../calendar.c:173 ../event.c:93
+msgid "Recurrence"
+msgstr ""
+
+#: ../calendar.c:174 ../event.c:508
+msgid "This is a recurring event"
+msgstr ""
+
+#: ../calendar.c:183
+msgid "Attendee:"
+msgstr ""
+
+#: ../calendar.c:223
+#, c-format
+msgid "This is an update of '%s' which is already in your calendar."
+msgstr ""
+
+#: ../calendar.c:227
+#, c-format
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
+msgstr ""
+
+#: ../calendar.c:232
+msgid "Update:"
+msgstr ""
+
+#: ../calendar.c:233
+msgid "CONFLICT:"
+msgstr ""
+
+#: ../calendar.c:256
+msgid "How would you like to respond to this invitation?"
+msgstr ""
+
+#: ../calendar.c:257
+msgid "Accept"
+msgstr ""
+
+#: ../calendar.c:258
+msgid "Tentative"
+msgstr ""
+
+#: ../calendar.c:259
+msgid "Decline"
+msgstr ""
+
+#: ../calendar.c:276
+msgid "Click <i>Update</i> to accept this reply and update your calendar."
+msgstr ""
+
+#: ../calendar.c:277
+msgid "Update"
+msgstr ""
+
+#: ../calendar.c:278
+msgid "Ignore"
+msgstr ""
+
+#: ../calendar.c:300
+msgid "There was an error parsing this calendar item."
+msgstr ""
+
+#: ../calendar.c:333
+msgid ""
+"You have accepted this meeting invitation.  It has been entered into your "
+"calendar."
+msgstr ""
+
+#: ../calendar.c:337
+msgid ""
+"You have tentatively accepted this meeting invitation.  It has been "
+"'pencilled in' to your calendar."
+msgstr ""
+
+#: ../calendar.c:341
+msgid ""
+"You have declined this meeting invitation.  It has <b>not</b> been entered "
+"into your calendar."
+msgstr ""
+
+#: ../calendar.c:346
+msgid "A reply has been sent to the meeting organizer."
+msgstr ""
+
+#. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
+#. that the recipient of an ical-invitation should please
+#. answer this request.
+#: ../calendar.c:381
+msgid "Your calendar has been updated to reflect this RSVP."
+msgstr ""
+
+#: ../calendar.c:383
+msgid ""
+"You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
+"updated."
+msgstr ""
+
+#: ../calendar.c:921
+msgid "Calendar day view begins at:"
+msgstr ""
+
+#: ../calendar.c:922
+msgid "Calendar day view ends at:"
+msgstr ""
+
+#: ../calendar.c:923
+msgid "Week starts on:"
+msgstr ""
+
+#: ../calendar_tools.c:101
+msgid "Hour: "
+msgstr ""
+
+#: ../calendar_tools.c:121
+msgid "Minute: "
+msgstr ""
+
+#: ../calendar_tools.c:192
+msgid "(status unknown)"
+msgstr ""
+
+#: ../calendar_tools.c:208
+msgid "(needs action)"
+msgstr ""
+
+#: ../calendar_tools.c:211
+msgid "(accepted)"
+msgstr ""
+
+#: ../calendar_tools.c:214
+msgid "(declined)"
+msgstr ""
+
+#: ../calendar_tools.c:217
+msgid "(tenative)"
+msgstr ""
+
+#: ../calendar_tools.c:220
+msgid "(delegated)"
+msgstr ""
+
+#: ../calendar_tools.c:223
+msgid "(completed)"
+msgstr ""
+
+#: ../calendar_tools.c:226
+msgid "(in process)"
+msgstr ""
+
+#: ../calendar_tools.c:229
+msgid "(none)"
+msgstr ""
+
+#: ../calendar_view.c:264 ../calendar_view.c:464 ../calendar_view.c:935
+#: ../event.c:862
+msgid "Untitled Event"
+msgstr ""
+
+#: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
+#: ../calendar_view.c:1081 ../sieve.c:995
+msgid "From"
+msgstr ""
+
+#: ../calendar_view.c:347 ../calendar_view.c:972
+msgid "Starting date:"
+msgstr ""
+
+#: ../calendar_view.c:353 ../calendar_view.c:974
+msgid "Ending date:"
+msgstr ""
+
+#: ../calendar_view.c:361 ../calendar_view.c:1093
+msgid "Date/time:"
+msgstr ""
+
+#: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
+#: ../calendar_view.c:1103
+msgid "Notes:"
+msgstr ""
+
+#: ../calendar_view.c:582 ../calendar_view.c:719
+msgid "previous"
+msgstr ""
+
+#: ../calendar_view.c:594 ../calendar_view.c:731 ../calendar_view.c:1320
+msgid "next"
+msgstr ""
+
+#: ../calendar_view.c:754
+msgid "Week"
+msgstr ""
+
+#: ../calendar_view.c:756
+msgid "Hours"
+msgstr ""
+
+#: ../calendar_view.c:757 ../sieve.c:997 ../static/t/msg_listview.html:10
+#: ../static/t/summary_header.html:8
+msgid "Subject"
+msgstr ""
+
+#: ../calendar_view.c:758 ../event.c:231
+msgid "Start"
+msgstr ""
+
+#: ../calendar_view.c:759 ../event.c:280
+msgid "End"
+msgstr ""
+
+#: ../calendar_view.c:955 ../calendar_view.c:984 ../event.c:274
+msgid "All day event"
+msgstr ""
+
+#: ../calendar_view.c:999 ../calendar_view.c:1022
+msgid "Ongoing event"
+msgstr ""
+
+#: ../calendar_view.c:1393 ../tasks.c:428
+msgid "Untitled Task"
+msgstr ""
+
+#: ../downloads.c:284
+#, c-format
+msgid "An error occurred while retrieving this file: %s\n"
+msgstr ""
+
+#: ../event.c:73
+msgid "seconds"
+msgstr ""
+
+#: ../event.c:74
+msgid "minutes"
+msgstr ""
+
+#: ../event.c:75
+msgid "hours"
+msgstr ""
+
+#: ../event.c:76
+msgid "days"
+msgstr ""
+
+#: ../event.c:77
+msgid "weeks"
+msgstr ""
+
+#: ../event.c:78
+msgid "months"
+msgstr ""
+
+#: ../event.c:79
+msgid "years"
+msgstr ""
+
+#: ../event.c:80
+msgid "never"
+msgstr ""
+
+#: ../event.c:84
+msgid "first"
+msgstr ""
+
+#: ../event.c:85
+msgid "second"
+msgstr ""
+
+#: ../event.c:86
+msgid "third"
+msgstr ""
+
+#: ../event.c:87
+msgid "fourth"
+msgstr ""
+
+#: ../event.c:88
+msgid "fifth"
+msgstr ""
+
+#: ../event.c:91
+msgid "Event"
+msgstr ""
+
+#: ../event.c:92 ../event.c:440 ../event.c:452
+msgid "Attendees"
+msgstr ""
+
+#: ../event.c:168
+msgid "Add or edit an event"
+msgstr ""
+
+#: ../event.c:209 ../static/t/iconbar.html:12
+msgid "Summary"
+msgstr ""
+
+#: ../event.c:220
+msgid "Location"
+msgstr ""
+
+#: ../event.c:330 ../static/t/iconbar.html:32
+msgid "Notes"
+msgstr ""
+
+#: ../event.c:372
+msgid "Organizer"
+msgstr ""
+
+#: ../event.c:377
+msgid "(you are the organizer)"
+msgstr ""
+
+#: ../event.c:395
+msgid "Show time as:"
+msgstr ""
+
+#: ../event.c:418
+msgid "Free"
+msgstr ""
+
+#: ../event.c:426
+msgid "Busy"
+msgstr ""
+
+#: ../event.c:443
+msgid "(One per line)"
+msgstr ""
+
+#: ../event.c:453 ../static/t/edit_message.html:57 ../static/t/iconbar.html:27
+msgid "Contacts"
+msgstr ""
+
+#: ../event.c:516
+msgid "Recurrence rule"
+msgstr ""
+
+#: ../event.c:520
+msgid "Repeats every"
+msgstr ""
+
+#. begin 'weekday_selector' div
+#: ../event.c:538
+msgid "on these weekdays:"
+msgstr ""
+
+#: ../event.c:596
+#, c-format
+msgid "on day %s%d%s of the month"
+msgstr ""
+
+#: ../event.c:605 ../event.c:667
+msgid "on the "
+msgstr ""
+
+#: ../event.c:629
+msgid "of the month"
+msgstr ""
+
+#: ../event.c:658
+msgid "every "
+msgstr ""
+
+#: ../event.c:659
+msgid "year on this date"
+msgstr ""
+
+#: ../event.c:691 ../static/t/msg_listselector_bottom.html:7
+#: ../static/t/msg_listselector_top.html:7
+msgid "of"
+msgstr ""
+
+#: ../event.c:715
+msgid "Recurrence range"
+msgstr ""
+
+#: ../event.c:723
+msgid "No ending date"
+msgstr ""
+
+#: ../event.c:730
+msgid "Repeat this event"
+msgstr ""
+
+#: ../event.c:733
+msgid "times"
+msgstr ""
+
+#: ../event.c:741
+msgid "Repeat this event until "
+msgstr ""
+
+#: ../event.c:767 ../tasks.c:356
+msgid "Save"
+msgstr ""
+
+#: ../event.c:768 ../tasks.c:357 ../static/t/msg_listview.html:30
+#: ../static/t/view_message.html:38
+msgid "Delete"
+msgstr ""
+
+#: ../event.c:769
+msgid "Check attendee availability"
+msgstr ""
+
+#: ../fmt_date.c:310
+msgid "Time format"
+msgstr ""
+
+#: ../graphics.c:42
+msgid "Image upload"
+msgstr ""
+
+#: ../graphics.c:58
+msgid "You can upload an image directly from your computer"
+msgstr ""
+
+#: ../graphics.c:61
+msgid "Please select a file to upload:"
+msgstr ""
+
+#: ../graphics.c:67
+msgid "Upload"
+msgstr ""
+
+#: ../graphics.c:69
+msgid "Reset form"
+msgstr ""
+
+#: ../graphics.c:92
+msgid "Graphics upload has been cancelled."
+msgstr ""
+
+#: ../graphics.c:99
+msgid "You didn't upload a file."
+msgstr ""
+
+#: ../graphics.c:146
+msgid "your photo"
+msgstr ""
+
+#: ../graphics.c:152
+msgid "the icon for this room"
+msgstr ""
+
+#: ../graphics.c:159
+msgid "the Greetingpicture for the login prompt"
+msgstr ""
+
+#: ../graphics.c:166
+msgid "the Logoff banner picture"
+msgstr ""
+
+#: ../graphics.c:175
+msgid "the icon for this floor"
+msgstr ""
+
+#: ../html2html.c:136
+#, c-format
+msgid "realloc() error! couldn't get %d bytes: %s"
+msgstr ""
+
+#: ../iconbar.c:248
+msgid "Iconbar Setting"
+msgstr ""
+
+#: ../inetconf.c:112 ../inetconf.c:121 ../inetconf.c:134 ../inetconf.c:161
+#: ../netconf.c:158 ../netconf.c:185 ../netconf.c:193 ../netconf.c:241
+#: ../netconf.c:249
+#, c-format
+msgid "Invalid Parameter"
+msgstr ""
+
+#: ../inetconf.c:127
+#, c-format
+msgid "%s has been deleted."
+msgstr ""
+
+#. <domain> added status message
+#: ../inetconf.c:145
+msgid "added."
+msgstr ""
+
+#: ../listsub.c:37
+msgid "List subscription"
+msgstr ""
+
+#: ../listsub.c:50
+msgid "List subscribe/unsubscribe"
+msgstr ""
+
+#: ../listsub.c:70
+msgid "Confirmation request sent"
+msgstr ""
+
+#: ../listsub.c:72
+#, c-format
+msgid ""
+"You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
+"listserver has sent you an e-mail with one additional Web link for you to "
+"click on to confirm your subscription.  This extra step is for your "
+"protection, as it prevents others from being able to subscribe you to lists "
+"without your consent.<br /><br />Please click on the link which is being e-"
+"mailed to you and your subscription will be confirmed.<br />\n"
+msgstr ""
+
+#: ../listsub.c:85
+msgid "Go back..."
+msgstr ""
+
+#: ../messages.c:55
+msgid "ERROR:"
+msgstr ""
+
+#: ../messages.c:73
+msgid "Empty message"
+msgstr ""
+
+#: ../messages.c:1061
+#, c-format
+msgid "Cancelled.  Message was not posted."
+msgstr ""
+
+#: ../messages.c:1067
+#, c-format
+msgid "Automatically cancelled because you have already saved this message."
+msgstr ""
+
+#: ../messages.c:1119
+msgid "Saved to Drafts failed: "
+msgstr ""
+
+#: ../messages.c:1185
+msgid "Refusing to post empty message.\n"
+msgstr ""
+
+#: ../messages.c:1211
+msgid "Message has been saved to Drafts.\n"
+msgstr ""
+
+#: ../messages.c:1220
+msgid "Message has been sent.\n"
+msgstr ""
+
+#: ../messages.c:1223
+msgid "Message has been posted.\n"
+msgstr ""
+
+#: ../messages.c:1444
+#, c-format
+msgid "The message was not moved."
+msgstr ""
+
+#: ../messages.c:1466
+msgid "Confirm move of message"
+msgstr ""
+
+#: ../messages.c:1474
+msgid "Move this message to:"
+msgstr ""
+
+#: ../messages.c:1495 ../static/t/msg_listview.html:28
+#: ../static/t/view_message.html:37
+msgid "Move"
+msgstr ""
+
+#: ../messages.c:1537
+#, c-format
+msgid "An error occurred while retrieving this part: %s/%s\n"
+msgstr ""
+
+#: ../messages.c:1597
+#, c-format
+msgid "An error occurred while retrieving this part: %s\n"
+msgstr ""
+
+#: ../messages.c:1759
+msgid "Attach signature to email messages?"
+msgstr ""
+
+#: ../messages.c:1762
+msgid "Use this signature:"
+msgstr ""
+
+#: ../messages.c:1764
+msgid "Default character set for email headers:"
+msgstr ""
+
+#: ../messages.c:1767
+msgid "Preferred email address"
+msgstr ""
+
+#: ../messages.c:1769
+msgid "Preferred display name for email messages"
+msgstr ""
+
+#: ../messages.c:1773
+msgid "Preferred display name for bulletin board posts"
+msgstr ""
+
+#: ../messages.c:1776
+msgid "Mailbox view mode"
+msgstr ""
+
+#: ../msg_renderers.c:523
+msgid "edit"
+msgstr ""
+
+#: ../msg_renderers.c:1023
+msgid "I don't know how to display "
+msgstr ""
+
+#: ../msg_renderers.c:1242
+msgid "(no subject)"
+msgstr ""
+
+#: ../notes.c:345
+msgid "Click on any note to edit it."
+msgstr ""
+
+#: ../openid.c:19
+msgid "Manage Account/OpenID Associations"
+msgstr ""
+
+#: ../openid.c:37
+msgid "Do you really want to delete this OpenID?"
+msgstr ""
+
+#: ../openid.c:38
+msgid "(delete)"
+msgstr ""
+
+#: ../openid.c:46
+msgid "Add an OpenID: "
+msgstr ""
+
+#: ../openid.c:49
+msgid "Attach"
+msgstr ""
+
+#: ../openid.c:53
+#, c-format
+msgid "%s does not permit authentication via OpenID."
+msgstr ""
+
+#: ../paging.c:35
+msgid "Send instant message"
+msgstr ""
+
+#: ../paging.c:44
+msgid "Send an instant message to: "
+msgstr ""
+
+#: ../paging.c:58
+msgid "Enter message text:"
+msgstr ""
+
+#: ../paging.c:66
+msgid "Send message"
+msgstr ""
+
+#: ../paging.c:86
+msgid "Message was not sent."
+msgstr ""
+
+#: ../paging.c:100
+msgid "Message has been sent to "
+msgstr ""
+
+#: ../preferences.c:846
+msgid "Cancelled.  No settings were changed."
+msgstr ""
+
+#: ../preferences.c:1058
+msgid "Make this my start page"
+msgstr ""
+
+#: ../preferences.c:1097
+msgid "This isn't allowed to become the start page."
+msgstr ""
+
+#: ../preferences.c:1101
+msgid "You no longer have a start page selected."
+msgstr ""
+
+#: ../preferences.c:1152
+msgid "Prefered startpage"
+msgstr ""
+
+#: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
+msgid "Higher access is required to access this function."
+msgstr ""
+
+#: ../roomlist.c:101
+msgid "My Folders"
+msgstr ""
+
+#: ../roomops.c:677 ../roomops.c:970 ../sieve.c:571
+msgid "Cancelled.  Changes were not saved."
+msgstr ""
+
+#: ../roomops.c:805 ../sieve.c:627
+msgid "Your changes have been saved."
+msgstr ""
+
+#: ../roomops.c:847
+#, c-format
+msgid "User '%s' kicked out of room '%s'."
+msgstr ""
+
+#: ../roomops.c:863
+#, c-format
+msgid "User '%s' invited to room '%s'."
+msgstr ""
+
+#: ../roomops.c:893
+msgid "Cancelled.  No new room was created."
+msgstr ""
+
+#: ../roomops.c:1159
+msgid "Floor has been deleted."
+msgstr ""
+
+#: ../roomops.c:1183
+msgid "New floor has been created."
+msgstr ""
+
+#: ../roomops.c:1262
+msgid "Room list view"
+msgstr ""
+
+#: ../roomops.c:1265
+msgid "Show empty floors"
+msgstr ""
+
+#: ../roomtokens.c:512
+msgid "file"
+msgstr ""
+
+#: ../roomtokens.c:514
+msgid "files"
+msgstr ""
+
+#: ../roomviews.c:42
+msgid "Bulletin Board"
+msgstr ""
+
+#: ../roomviews.c:43
+msgid "Mail Folder"
+msgstr ""
+
+#: ../roomviews.c:44
+msgid "Address Book"
+msgstr ""
+
+#: ../roomviews.c:45 ../static/t/iconbar.html:22
+msgid "Calendar"
+msgstr ""
+
+#: ../roomviews.c:46
+msgid "Task List"
+msgstr ""
+
+#: ../roomviews.c:47
+msgid "Notes List"
+msgstr ""
+
+#: ../roomviews.c:48
+msgid "Wiki"
+msgstr ""
+
+#: ../roomviews.c:49
+msgid "Calendar List"
+msgstr ""
+
+#: ../roomviews.c:50
+msgid "Journal"
+msgstr ""
+
+#: ../roomviews.c:51
+msgid "Blog"
+msgstr ""
+
+#: ../serv_func.c:186
+msgid ""
+"This server is already serving its maximum number of users and cannot accept "
+"any additional logins at this time.  Please try again later or contact your "
+"system administrator."
+msgstr ""
+
+#: ../serv_func.c:191 ../serv_func.c:220
+msgid "Received unexpected answer from Citadel server; bailing out."
+msgstr ""
+
+#: ../serv_func.c:229
+#, c-format
+msgid ""
+"You are connected to a Citadel server running Citadel %d.%02d. \n"
+"In order to run this version of WebCit you must also have Citadel %d.%02d or "
+"newer.\n"
+"\n"
+"\n"
+msgstr ""
+
+#: ../sieve.c:18 ../sieve.c:103
+msgid "View/edit server-side mail filters"
+msgstr ""
+
+#: ../sieve.c:28
+msgid ""
+"This installation of Citadel was built without support for server-side mail "
+"filtering.<br>Please contact your system administrator if you require this "
+"feature.<br>"
+msgstr ""
+
+#: ../sieve.c:117
+msgid "When new mail arrives: "
+msgstr ""
+
+#: ../sieve.c:121
+msgid "Leave it in my inbox without filtering"
+msgstr ""
+
+#: ../sieve.c:125
+msgid "Filter it according to rules selected below"
+msgstr ""
+
+#: ../sieve.c:130
+msgid "Filter it through a manually edited script (advanced users only)"
+msgstr ""
+
+#: ../sieve.c:141
+msgid "Your incoming mail will not be filtered through any scripts."
+msgstr ""
+
+#: ../sieve.c:156
+msgid "The currently active script is: "
+msgstr ""
+
+#: ../sieve.c:171 ../sieve.c:644
+msgid "Add or delete scripts"
+msgstr ""
+
+#: ../sieve.c:203 ../sysmsgs.c:48 ../vcard_edit.c:1000
+msgid "Save changes"
+msgstr ""
+
+#: ../sieve.c:657
+msgid "Add a new script"
+msgstr ""
+
+#: ../sieve.c:660
+msgid ""
+"To create a new script, enter the desired script name in the box below and "
+"click 'Create'."
+msgstr ""
+
+#: ../sieve.c:666
+msgid "Script name: "
+msgstr ""
+
+#: ../sieve.c:669
+msgid "Create"
+msgstr ""
+
+#: ../sieve.c:674
+msgid "Edit scripts"
+msgstr ""
+
+#: ../sieve.c:677
+msgid "Return to the script editing screen"
+msgstr ""
+
+#: ../sieve.c:684
+msgid "Delete scripts"
+msgstr ""
+
+#: ../sieve.c:687
+msgid ""
+"To delete an existing script, select the script name from the list and click "
+"'Delete'."
+msgstr ""
+
+#: ../sieve.c:711
+msgid "Delete script"
+msgstr ""
+
+#: ../sieve.c:711
+msgid "Delete this script?"
+msgstr ""
+
+#: ../sieve.c:748
+msgid "A script by that name already exists."
+msgstr ""
+
+#: ../sieve.c:757
+msgid ""
+"A new script has been created.  Return to the script editing screen to edit "
+"and activate it."
+msgstr ""
+
+#: ../sieve.c:974
+msgid "Move rule up"
+msgstr ""
+
+#: ../sieve.c:979
+msgid "Move rule down"
+msgstr ""
+
+#: ../sieve.c:984
+msgid "Delete rule"
+msgstr ""
+
+#: ../sieve.c:992
+msgid "If"
+msgstr ""
+
+#: ../sieve.c:996
+msgid "To or Cc"
+msgstr ""
+
+#: ../sieve.c:998
+msgid "Reply-to"
+msgstr ""
+
+#: ../sieve.c:999 ../smtpqueue.c:197 ../static/t/msg_listview.html:11
+#: ../static/t/summary_header.html:9
+msgid "Sender"
+msgstr ""
+
+#: ../sieve.c:1000
+msgid "Resent-From"
+msgstr ""
+
+#: ../sieve.c:1001
+msgid "Resent-To"
+msgstr ""
+
+#: ../sieve.c:1002
+msgid "Envelope From"
+msgstr ""
+
+#: ../sieve.c:1003
+msgid "Envelope To"
+msgstr ""
+
+#: ../sieve.c:1004
+msgid "X-Mailer"
+msgstr ""
+
+#: ../sieve.c:1005
+msgid "X-Spam-Flag"
+msgstr ""
+
+#: ../sieve.c:1006
+msgid "X-Spam-Status"
+msgstr ""
+
+#: ../sieve.c:1007
+msgid "List-ID"
+msgstr ""
+
+#: ../sieve.c:1008
+msgid "Message size"
+msgstr ""
+
+#: ../sieve.c:1009 ../static/t/select_messageindex_all.html:1
+msgid "All"
+msgstr ""
+
+#: ../sieve.c:1028
+msgid "contains"
+msgstr ""
+
+#: ../sieve.c:1029
+msgid "does not contain"
+msgstr ""
+
+#: ../sieve.c:1030
+msgid "is"
+msgstr ""
+
+#: ../sieve.c:1031
+msgid "is not"
+msgstr ""
+
+#: ../sieve.c:1032
+msgid "matches"
+msgstr ""
+
+#: ../sieve.c:1033
+msgid "does not match"
+msgstr ""
+
+#: ../sieve.c:1053
+msgid "(All messages)"
+msgstr ""
+
+#: ../sieve.c:1057
+msgid "is larger than"
+msgstr ""
+
+#: ../sieve.c:1058
+msgid "is smaller than"
+msgstr ""
+
+#: ../sieve.c:1081
+msgid "Keep"
+msgstr ""
+
+#: ../sieve.c:1082
+msgid "Discard silently"
+msgstr ""
+
+#: ../sieve.c:1083
+msgid "Reject"
+msgstr ""
+
+#: ../sieve.c:1084
+msgid "Move message to"
+msgstr ""
+
+#: ../sieve.c:1085
+msgid "Forward to"
+msgstr ""
+
+#: ../sieve.c:1086
+msgid "Vacation"
+msgstr ""
+
+#: ../sieve.c:1123
+msgid "Message:"
+msgstr ""
+
+#: ../sieve.c:1133
+msgid "continue processing"
+msgstr ""
+
+#: ../sieve.c:1134
+msgid "stop"
+msgstr ""
+
+#: ../sieve.c:1137
+msgid "and then"
+msgstr ""
+
+#: ../sieve.c:1158
+msgid "Add rule"
+msgstr ""
+
+#: ../siteconfig.c:254
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgstr ""
+
+#: ../siteconfig.c:313
+msgid "Your system configuration has been updated."
+msgstr ""
+
+#: ../smtpqueue.c:133
+msgid "(Delete)"
+msgstr ""
+
+#: ../smtpqueue.c:191
+msgid "Message ID"
+msgstr ""
+
+#: ../smtpqueue.c:193
+msgid "Date/time submitted"
+msgstr ""
+
+#: ../smtpqueue.c:195
+msgid "Last attempt"
+msgstr ""
+
+#: ../smtpqueue.c:199
+msgid "Recipients"
+msgstr ""
+
+#: ../smtpqueue.c:214
+msgid "The queue is empty."
+msgstr ""
+
+#: ../smtpqueue.c:220
+msgid "You do not have permission to view this resource."
+msgstr ""
+
+#: ../smtpqueue.c:236
+msgid "View the outbound SMTP queue"
+msgstr ""
+
+#: ../smtpqueue.c:252
+msgid "Refresh this page"
+msgstr ""
+
+#: ../summary.c:101
+msgid "(None)"
+msgstr ""
+
+#: ../summary.c:153
+msgid "(Nothing)"
+msgstr ""
+
+#: ../summary.c:167
+#, c-format
+msgid ""
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
+msgstr ""
+
+#: ../summary.c:195
+msgid "Messages"
+msgstr ""
+
+#: ../summary.c:208 ../static/t/iconbar.html:37
+msgid "Tasks"
+msgstr ""
+
+#: ../summary.c:221
+msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
+msgstr ""
+
+#: ../summary.c:236
+msgid "Who's&nbsp;online&nbsp;now"
+msgstr ""
+
+#: ../summary.c:249
+msgid "About&nbsp;this&nbsp;server"
+msgstr ""
+
+#: ../summary.c:275
+#, c-format
+msgid "Summary page for %s"
+msgstr ""
+
+#: ../sysmsgs.c:33
+#, c-format
+msgid "Edit %s"
+msgstr ""
+
+#: ../sysmsgs.c:36
+#, c-format
+msgid ""
+"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"forced by preceding the next line by a blank."
+msgstr ""
+
+#: ../sysmsgs.c:70
+#, c-format
+msgid "Cancelled.  %s was not saved."
+msgstr ""
+
+#: ../sysmsgs.c:89
+#, c-format
+msgid "%s has been saved."
+msgstr ""
+
+#: ../sysmsgs.c:97 ../sysmsgs.c:98
+msgid "Room info"
+msgstr ""
+
+#: ../sysmsgs.c:103 ../sysmsgs.c:105
+msgid "Your bio"
+msgstr ""
+
+#: ../tasks.c:95
+msgid "Completed?"
+msgstr ""
+
+#: ../tasks.c:97
+msgid "Name of task"
+msgstr ""
+
+#: ../tasks.c:99
+msgid "Date due"
+msgstr ""
+
+#: ../tasks.c:101
+msgid "Category"
+msgstr ""
+
+#: ../tasks.c:103
+msgid "Show All"
+msgstr ""
+
+#: ../tasks.c:228
+msgid "Edit task"
+msgstr ""
+
+#: ../tasks.c:258
+msgid "Start date:"
+msgstr ""
+
+#: ../tasks.c:266 ../tasks.c:296
+msgid "No date"
+msgstr ""
+
+#: ../tasks.c:270 ../tasks.c:299
+msgid "or"
+msgstr ""
+
+#: ../tasks.c:284 ../tasks.c:313
+msgid "Time associated"
+msgstr ""
+
+#: ../tasks.c:288
+msgid "Due date:"
+msgstr ""
+
+#: ../tasks.c:317
+msgid "Completed:"
+msgstr ""
+
+#: ../tasks.c:328
+msgid "Category:"
+msgstr ""
+
+#: ../useredit.c:533
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
+msgstr ""
+
+#: ../useredit.c:610
+msgid "Changes were not saved."
+msgstr ""
+
+#: ../useredit.c:700
+#, c-format
+msgid "A new user has been created."
+msgstr ""
+
+#: ../useredit.c:705
+msgid ""
+"You are attempting to create a new user from within Citadel while running in "
+"host based authentication mode.  In this mode, you must create new users on "
+"the host system, not within Citadel."
+msgstr ""
+
+#: ../userlist.c:39
+#, c-format
+msgid "User list for %s"
+msgstr ""
+
+#: ../userlist.c:57
+msgid "User Name"
+msgstr ""
+
+#: ../userlist.c:58
+msgid "Number"
+msgstr ""
+
+#: ../userlist.c:59
+msgid "Access Level"
+msgstr ""
+
+#: ../userlist.c:60
+msgid "Last Login"
+msgstr ""
+
+#: ../userlist.c:61
+msgid "Total Logins"
+msgstr ""
+
+#: ../userlist.c:62
+msgid "Total Posts"
+msgstr ""
+
+#: ../userlist.c:119
+msgid "User profile"
+msgstr ""
+
+#: ../userlist.c:157
+#, c-format
+msgid "Click here to send an instant message to %s"
+msgstr ""
+
+#: ../vcard_edit.c:117 ../vcard_edit.c:120
+msgid "(no name)"
+msgstr ""
+
+#: ../vcard_edit.c:385
+msgid " (work)"
+msgstr ""
+
+#: ../vcard_edit.c:387
+msgid " (home)"
+msgstr ""
+
+#: ../vcard_edit.c:389
+msgid " (cell)"
+msgstr ""
+
+#: ../vcard_edit.c:400 ../vcard_edit.c:905
+msgid "Address:"
+msgstr ""
+
+#: ../vcard_edit.c:468
+msgid "Telephone:"
+msgstr ""
+
+#: ../vcard_edit.c:473
+msgid "E-mail:"
+msgstr ""
+
+#: ../vcard_edit.c:563
+msgid "This address book is empty."
+msgstr ""
+
+#: ../vcard_edit.c:577
+msgid "An internal error has occurred."
+msgstr ""
+
+#: ../vcard_edit.c:728
+msgid "Error"
+msgstr ""
+
+#: ../vcard_edit.c:832
+msgid "Edit contact information"
+msgstr ""
+
+#: ../vcard_edit.c:853
+msgid "Prefix"
+msgstr ""
+
+#: ../vcard_edit.c:853
+msgid "First Name"
+msgstr ""
+
+#: ../vcard_edit.c:853
+msgid "Middle Name"
+msgstr ""
+
+#: ../vcard_edit.c:853
+msgid "Last Name"
+msgstr ""
+
+#: ../vcard_edit.c:853
+msgid "Suffix"
+msgstr ""
+
+#: ../vcard_edit.c:874
+msgid "Display name:"
+msgstr ""
+
+#: ../vcard_edit.c:881
+msgid "Title:"
+msgstr ""
+
+#: ../vcard_edit.c:888
+msgid "Organization:"
+msgstr ""
+
+#: ../vcard_edit.c:899
+msgid "PO box:"
+msgstr ""
+
+#: ../vcard_edit.c:915
+msgid "City:"
+msgstr ""
+
+#: ../vcard_edit.c:921
+msgid "State:"
+msgstr ""
+
+#: ../vcard_edit.c:927
+msgid "ZIP code:"
+msgstr ""
+
+#: ../vcard_edit.c:933
+msgid "Country:"
+msgstr ""
+
+#: ../vcard_edit.c:943
+msgid "Home telephone:"
+msgstr ""
+
+#: ../vcard_edit.c:949
+msgid "Work telephone:"
+msgstr ""
+
+#: ../vcard_edit.c:955
+msgid "Mobile telephone:"
+msgstr ""
+
+#: ../vcard_edit.c:961
+msgid "Fax number:"
+msgstr ""
+
+#: ../vcard_edit.c:972
+msgid "Primary Internet e-mail address"
+msgstr ""
+
+#: ../vcard_edit.c:979
+msgid "Internet e-mail aliases"
+msgstr ""
+
+#: ../vcard_edit.c:1046
+msgid "Unable to enter the room to save your message"
+msgstr ""
+
+#: ../vcard_edit.c:1055
+msgid "Aborting."
+msgstr ""
+
+#: ../vcard_edit.c:1091 ../vcard_edit.c:1137
+msgid "An error has occurred."
+msgstr ""
+
+#: ../vcard_edit.c:1193
+msgid "Could Not decode vcard photo\n"
+msgstr ""
+
+#: ../webcit.c:339
+msgid "Authorization Required"
+msgstr ""
+
+#: ../webcit.c:348
+#, c-format
+msgid ""
+"The resource you requested requires a valid username and password. You could "
+"not be logged in: %s\n"
+msgstr ""
+
+#: ../who.c:151
+msgid "Edit your session display"
+msgstr ""
+
+#: ../who.c:155
+msgid ""
+"This screen allows you to change the way your session appears in the 'Who is "
+"online' listing. To turn off any 'fake' name you've previously set, simply "
+"click the appropriate 'change' button without typing anything in the "
+"corresponding box. "
+msgstr ""
+
+#: ../who.c:168
+msgid "Room name:"
+msgstr ""
+
+#: ../who.c:173
+msgid "Change room name"
+msgstr ""
+
+#: ../who.c:177
+msgid "Host name:"
+msgstr ""
+
+#: ../who.c:182
+msgid "Change host name"
+msgstr ""
+
+#: ../who.c:187 ../static/t/login.html:19
+#: ../static/t/openid_manual_create.html:15
+msgid "User name:"
+msgstr ""
+
+#: ../who.c:192
+msgid "Change user name"
+msgstr ""
+
+#: ../wiki.c:53 ../wiki.c:146 ../wiki.c:268
+#, c-format
+msgid "There is no room called '%s'."
+msgstr ""
+
+#: ../wiki.c:60
+#, c-format
+msgid "'%s' is not a Wiki room."
+msgstr ""
+
+#: ../wiki.c:94
+#, c-format
+msgid "There is no page called '%s' here."
+msgstr ""
+
+#: ../wiki.c:96
+msgid ""
+"Select the 'Edit this page' link in the room banner if you would like to "
+"create this page."
+msgstr ""
+
+#: ../wiki.c:167 ../static/t/msg_listview.html:12
+#: ../static/t/summary_header.html:10
+msgid "Date"
+msgstr ""
+
+#: ../wiki.c:168
+msgid "Author"
+msgstr ""
+
+#: ../wiki.c:195 ../wiki.c:204
+msgid "(show)"
+msgstr ""
+
+#: ../wiki.c:197 ../static/t/navbar.html:147
+msgid "Current version"
+msgstr ""
+
+#: ../wiki.c:209
+msgid "(revert)"
+msgstr ""
+
+#: ../wiki.c:289
+msgid "Page title"
+msgstr ""
+
+#: ../static/t/display_main_menu.html:8
+msgid "Basic commands"
+msgstr ""
+
+#: ../static/t/display_main_menu.html:11
+msgid "Your info"
+msgstr ""
+
+#: ../static/t/display_main_menu.html:13
+msgid "Advanced room commands"
+msgstr ""
+
+#: ../static/t/edit_message.html:23
+msgid "from"
+msgstr ""
+
+#: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
+msgid "Anonymous"
+msgstr ""
+
+#: ../static/t/edit_message.html:47
+msgid "in"
+msgstr ""
+
+#: ../static/t/edit_message.html:51
+msgid "To:"
+msgstr ""
+
+#: ../static/t/edit_message.html:62 ../static/t/view_message.html:16
+msgid "CC:"
+msgstr ""
+
+#: ../static/t/edit_message.html:68
+msgid "BCC:"
+msgstr ""
+
+#: ../static/t/edit_message.html:76 ../static/t/view_message.html:17
+msgid "Subject:"
+msgstr ""
+
+#: ../static/t/edit_message.html:76
+msgid "Subject (optional):"
+msgstr ""
+
+#: ../static/t/edit_message.html:92
+msgid "--- forwarded message ---"
+msgstr ""
+
+#: ../static/t/edit_message.html:112
+msgid "Attachments:"
+msgstr ""
+
+#: ../static/t/edit_message.html:116
+msgid "Attach file:"
+msgstr ""
+
+#: ../static/t/files.html:3
+msgid "Files available for download in"
+msgstr ""
+
+#: ../static/t/files.html:18
+msgid "Filename"
+msgstr ""
+
+#: ../static/t/files.html:19
+msgid "Size"
+msgstr ""
+
+#: ../static/t/files.html:20
+msgid "Content"
+msgstr ""
+
+#: ../static/t/files.html:21
+msgid "Description"
+msgstr ""
+
+#: ../static/t/files.html:35
+msgid "Upload a file:"
+msgstr ""
+
+#: ../static/t/floors_edit_one.html:11
+msgid "(delete floor)"
+msgstr ""
+
+#: ../static/t/floors_edit_one.html:13
+msgid "(edit graphic)"
+msgstr ""
+
+#: ../static/t/floors.html:4
+msgid "Add/change/delete floors"
+msgstr ""
+
+#: ../static/t/floors.html:10
+msgid "Floor number"
+msgstr ""
+
+#: ../static/t/floors.html:11
+msgid "Floor name"
+msgstr ""
+
+#: ../static/t/floors.html:12
+msgid "Number of rooms"
+msgstr ""
+
+#: ../static/t/floors.html:13
+msgid "Floor CSS"
+msgstr ""
+
+#: ../static/t/iconbar.html:17
+msgid "Mail"
+msgstr ""
+
+#: ../static/t/iconbar.html:42
+msgid "Rooms"
+msgstr ""
+
+#: ../static/t/iconbar.html:47
+msgid "Online users"
+msgstr ""
+
+#: ../static/t/iconbar.html:51
+msgid "Loading"
+msgstr ""
+
+#: ../static/t/iconbar.html:56
+msgid "Chat"
+msgstr ""
+
+#: ../static/t/iconbar.html:62
+msgid "Advanced"
+msgstr ""
+
+#: ../static/t/iconbar.html:68
+msgid "Administration"
+msgstr ""
+
+#: ../static/t/iconbar.html:77
+msgid "customize this menu"
+msgstr ""
+
+#: ../static/t/iconbar.html:80
+msgid "switch to room list"
+msgstr ""
+
+#: ../static/t/iconbar.html:81
+msgid "switch to menu"
+msgstr ""
+
+#: ../static/t/iconbar.html:82
+msgid "My folders"
+msgstr ""
+
+#: ../static/t/knrooms.html:5
+msgid "Room list"
+msgstr ""
+
+#: ../static/t/knrooms.html:5
+msgid "Folder list"
+msgstr ""
+
+#: ../static/t/knrooms.html:19
+msgid "View as room list"
+msgstr ""
+
+#: ../static/t/knrooms.html:20
+msgid "View as folder list"
+msgstr ""
+
+#: ../static/t/knrooms.html:40
+msgid "Room Listing"
+msgstr ""
+
+#: ../static/t/login.html:4 ../static/t/openid_login.html:4
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
+#: ../static/t/login.html:8 ../static/t/openid_login.html:8
+msgid "powered by"
+msgstr ""
+
+#: ../static/t/login.html:21
+msgid "Password:"
+msgstr ""
+
+#: ../static/t/login.html:23 ../static/t/openid_login.html:21
+msgid "Language:"
+msgstr ""
+
+#: ../static/t/login.html:39
+msgid "Log in using OpenID"
+msgstr ""
+
+#: ../static/t/login.html:43
+msgid "If you already have an account on"
+msgstr ""
+
+#: ../static/t/login.html:44
+msgid "enter your user name and password and click &quot;Login.&quot;"
+msgstr ""
+
+#: ../static/t/login.html:45
+msgid ""
+"<b>If you are a new user</b>, enter the name and password you wish to use, "
+"and click &quot;New User.&quot; "
+msgstr ""
+
+#: ../static/t/login.html:46 ../static/t/openid_login.html:37
+msgid "Please log off properly when finished. "
+msgstr ""
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid "See the"
+msgstr ""
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid "recommended browser list"
+msgstr ""
+
+#: ../static/t/login.html:47 ../static/t/openid_login.html:38
+msgid ""
+"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
+"turned on. "
+msgstr ""
+
+#: ../static/t/login.html:48 ../static/t/openid_login.html:39
+msgid ""
+"Also keep in mind that if your browser is configured to block pop-up "
+"windows, you will not be able to receive any instant messages."
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:2
+#: ../static/t/msg_listselector_top.html:2
+msgid "Reading #"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:7
+#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:10
+msgid "messages"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:12
+#: ../static/t/msg_listselector_top.html:12
+msgid "oldest to newest"
+msgstr ""
+
+#: ../static/t/msg_listselector_bottom.html:20
+#: ../static/t/msg_listselector_top.html:20
+msgid "newest to oldest"
+msgstr ""
+
+#: ../static/t/msg_listview.html:20
+msgid "Loading messages from server, please wait"
+msgstr ""
+
+#: ../static/t/msg_listview.html:27
+msgid "Open in new window"
+msgstr ""
+
+#: ../static/t/msg_listview.html:29
+msgid "Copy"
+msgstr ""
+
+#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:41
+msgid "Print"
+msgstr ""
+
+#: ../static/t/navbar.html:5
+msgid "Ungoto"
+msgstr ""
+
+#: ../static/t/navbar.html:13
+msgid "Read new messages"
+msgstr ""
+
+#: ../static/t/navbar.html:19 ../static/t/navbar.html:117
+msgid "Read all messages"
+msgstr ""
+
+#: ../static/t/navbar.html:25
+msgid "Enter a message"
+msgstr ""
+
+#: ../static/t/navbar.html:34
+msgid "View contacts"
+msgstr ""
+
+#: ../static/t/navbar.html:40
+msgid "Add new contact"
+msgstr ""
+
+#: ../static/t/navbar.html:49
+msgid "Day view"
+msgstr ""
+
+#: ../static/t/navbar.html:55
+msgid "Month view"
+msgstr ""
+
+#: ../static/t/navbar.html:61
+msgid "Add new event"
+msgstr ""
+
+#: ../static/t/navbar.html:70
+msgid "Calendar list"
+msgstr ""
+
+#: ../static/t/navbar.html:79
+msgid "View tasks"
+msgstr ""
+
+#: ../static/t/navbar.html:85
+msgid "Add new task"
+msgstr ""
+
+#: ../static/t/navbar.html:94
+msgid "View notes"
+msgstr ""
+
+#: ../static/t/navbar.html:102
+msgid "Add new note"
+msgstr ""
+
+#: ../static/t/navbar.html:111
+msgid "Refresh message list"
+msgstr ""
+
+#: ../static/t/navbar.html:123
+msgid "Write mail"
+msgstr ""
+
+#: ../static/t/navbar.html:133
+msgid "Wiki home"
+msgstr ""
+
+#: ../static/t/navbar.html:140
+msgid "Edit this page"
+msgstr ""
+
+#: ../static/t/navbar.html:147
+msgid "History"
+msgstr ""
+
+#: ../static/t/navbar.html:155
+msgid "Skip this room"
+msgstr ""
+
+#: ../static/t/navbar.html:161
+msgid "Goto next room"
+msgstr ""
+
+#: ../static/t/newstartpage.html:4
+msgid "New start page"
+msgstr ""
+
+#: ../static/t/newstartpage.html:9
+msgid "Your start page has been changed."
+msgstr ""
+
+#: ../static/t/newstartpage.html:12
+msgid ""
+"(Note: this does not change your browser's home page. It changes the page "
+"you begin on when you log on to"
+msgstr ""
+
+#: ../static/t/no_new_msgs.html:3
+msgid "No new messages."
+msgstr ""
+
+#: ../static/t/openid_login.html:19
+msgid "OpenID URL:"
+msgstr ""
+
+#: ../static/t/openid_login.html:31
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../static/t/openid_login.html:34
+msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgstr ""
+
+#: ../static/t/openid_login.html:36
+msgid "Click here to learn what OpenID is and how Citadel is using it."
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:4
+msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:8
+msgid "Your OpenID"
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:8
+msgid "was successfully verified."
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:9
+msgid "However, the user name"
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:9
+msgid "conflicts with an existing user."
+msgstr ""
+
+#: ../static/t/openid_manual_create.html:11
+msgid "Please specify the user name you would like to use."
+msgstr ""
+
+#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
+msgid "Preferences and settings"
+msgstr ""
+
+#: ../static/t/roombanner.html:10
+msgid "new of"
+msgstr ""
+
+#: ../static/t/roombanner.html:24
+msgid "Select page: "
+msgstr ""
+
+#: ../static/t/searchomatic.html:4
+msgid "Search: "
+msgstr ""
+
+#: ../static/t/start_of_new_msgs.html:4
+msgid "Old messages"
+msgstr ""
+
+#: ../static/t/start_of_new_msgs.html:8
+msgid "New messages"
+msgstr ""
+
+#: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
+msgid "from "
+msgstr ""
+
+#: ../static/t/view_message.html:15
+msgid "to"
+msgstr ""
+
+#: ../static/t/view_message.html:19
+msgid "Edit"
+msgstr ""
+
+#: ../static/t/view_message.html:21 ../static/t/view_message.html:26
+#: ../static/t/view_message.html:31
+msgid "Reply"
+msgstr ""
+
+#: ../static/t/view_message.html:22
+msgid "ReplyQuoted"
+msgstr ""
+
+#: ../static/t/view_message.html:27 ../static/t/view_message.html:32
+msgid "ReplyAll"
+msgstr ""
+
+#: ../static/t/view_message.html:28 ../static/t/view_message.html:33
+msgid "Forward"
+msgstr ""
+
+#: ../static/t/view_message.html:40
+msgid "Headers"
+msgstr ""
+
+#: ../static/t/viewomatic.html:4
+msgid "View as:"
+msgstr ""
+
+#: ../static/t/who.html:14
+msgid "Users currently on "
+msgstr ""
