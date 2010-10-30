@@ -567,5 +567,6 @@ void WildFireSerializePayload(StrBuf *JsonBuffer, StrBuf *OutBuf, int *MsgCount,
 #define WF_STRUCTINDEX "1"
 #define WF_SUB "1"
 
+extern ConstStr RoomNetCfgStrs[maxRoomNetCfg];
 
 #endif	// LIBCITADEL_H
