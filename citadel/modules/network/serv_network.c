@@ -429,26 +429,27 @@ void cmd_snet(char *argbuf) {
 	memcpy(tempfilename, filename, len + 1);
 
 	memset(&StatBuf, 0, sizeof(struct stat));
-	if (stat(filename, &StatBuf)  == -1)
-		StatBuf.st_size = 80; /* Not there? guess 80 chars line. */
+	if ((stat(filename, &StatBuf)  == -1) || (StatBuf.st_size == 0))
+		StatBuf.st_size = 80; /* Not there or empty? guess 80 chars line. */
 
 	sprintf(tempfilename + len, ".%d", CC->cs_pid);
+	errno = 0;
+	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
 
-	TmpFD = open(tempfilename, O_CREAT|O_EXCL);
-
-	if (TmpFD > 0)
+	if ((TmpFD > 0) && (errno == 0))
 	{
 		char *tmp = malloc(StatBuf.st_size * 2);
-		memset(tmp, 0, StatBuf.st_size * 2);
+		memset(tmp, ' ', StatBuf.st_size * 2);
 		rc = write(TmpFD, tmp, StatBuf.st_size * 2);
 		free(tmp);
-		if (rc <= 0)
+		if ((rc <= 0) || (rc != StatBuf.st_size * 2))
 		{
 			close(TmpFD);
 			cprintf("%d Unable to allocate the space required for %s: %s\n",
 				ERROR + INTERNAL_ERROR,
 				tempfilename,
 				strerror(errno));
+			unlink(tempfilename);
 			return;
 		}	
 		lseek(TmpFD, SEEK_SET, 0);
@@ -458,8 +459,7 @@ void cmd_snet(char *argbuf) {
 			ERROR + INTERNAL_ERROR,
 			tempfilename,
 			strerror(errno));
-
-
+		unlink(tempfilename);
 	}
 	Line = NewStrBuf();
 
@@ -476,14 +476,14 @@ void cmd_snet(char *argbuf) {
 		len += StrLength(Line);
 	}
 	FreeStrBuf(&Line);
-	ftruncate(TmpFD, len + 1);
+	ftruncate(TmpFD, len);
 	close(TmpFD);
 
 	/* Now copy the temp file to its permanent location.
 	 * (We copy instead of link because they may be on different filesystems)
 	 */
 	begin_critical_section(S_NETCONFIGS);
-	rename(filename, tempfilename);
+	rename(tempfilename, filename);
 	end_critical_section(S_NETCONFIGS);
 }
 
@@ -1088,7 +1088,7 @@ void free_spoolcontrol_struct(SpoolControl **scc)
 int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 {
 	char tempfilename[PATH_MAX];
-	FILE *fp;
+	int TmpFD;
 	SpoolControl *sc;
 	namelist *nptr = NULL;
 	maplist *mptr = NULL;
@@ -1112,15 +1112,17 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 
 	sprintf(tempfilename + len, ".%ld-%ld", reltid, unixtime);
 	sc = *scc;
-	fp = fopen(tempfilename, "w");
+	errno = 0;
+	TmpFD = open(tempfilename, O_CREAT|O_EXCL|O_RDWR, S_IRUSR|S_IWUSR);
 	Cfg = NewStrBuf();
-	if (fp == NULL) {
+	if ((TmpFD < 0) || (errno != 0)) {
 		CtdlLogPrintf(CTDL_CRIT, "ERROR: cannot open %s: %s\n",
 			filename, strerror(errno));
 		free_spoolcontrol_struct(scc);
+		unlink(tempfilename);
 	}
 	else {
-		fprintf(fp, "lastsent|%ld\n", sc->lastsent);
+		StrBufAppendPrintf(Cfg, "lastsent|%ld\n", sc->lastsent);
 
 		/* Write out the listrecps while freeing from memory at the
 		 * same time.  Am I clever or what?  :)
@@ -1160,17 +1162,19 @@ int writenfree_spoolcontrol_file(SpoolControl **scc, char *filename)
 		}
 		free(sc->misc);
 
-		rc = fwrite(ChrPtr(Cfg), StrLength(Cfg), 1, fp);
-		if (rc >=0)
+		rc = write(TmpFD, ChrPtr(Cfg), StrLength(Cfg));
+		if ((rc >=0 ) && (rc == StrLength(Cfg))) 
 		{
-			fclose(fp);
-			rename(filename, tempfilename);
+			close(TmpFD);
+			rename(tempfilename, filename);
 		}
 		else {
 			CtdlLogPrintf(CTDL_EMERG, 
-				      "unable to write %s; not enough space on the disk?\n", 
-				      tempfilename);
-			fclose(fp);
+				      "unable to write %s; [%s]; not enough space on the disk?\n", 
+				      tempfilename, 
+				      strerror(errno));
+			close(TmpFD);
+			unlink(tempfilename);
 		}
 		FreeStrBuf(&Cfg);
 		free(sc);
