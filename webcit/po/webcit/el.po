@@ -100,7 +100,7 @@ msgstr "πολύ αδύναμο"
 
 #: ../auth.c:688
 msgid "weak"
-msgstr ""
+msgstr "ασθενές"
 
 #: ../auth.c:691
 msgid "ok"
@@ -201,11 +201,11 @@ msgstr "Περίληψη:"
 #: ../calendar.c:112 ../calendar_view.c:298 ../calendar_view.c:962
 #: ../calendar_view.c:1006 ../calendar_view.c:1087
 msgid "Location:"
-msgstr ""
+msgstr "Τοποθεσία"
 
 #: ../calendar.c:137 ../calendar_view.c:343 ../calendar_view.c:968
 msgid "Date:"
-msgstr ""
+msgstr "Ημερομηνία"
 
 #: ../calendar.c:144 ../calendar_view.c:365 ../calendar_view.c:1011
 #: ../calendar_view.c:1097
@@ -219,7 +219,7 @@ msgstr ""
 
 #: ../calendar.c:164 ../tasks.c:338 ../static/t/files.html:38
 msgid "Description:"
-msgstr ""
+msgstr "Περιγραφή"
 
 #: ../calendar.c:173 ../event.c:93
 msgid "Recurrence"
@@ -243,38 +243,42 @@ msgstr ""
 msgid ""
 "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
+"Αυτό το γεγονός έρχεται σε αντίθεση με το '%s' το οποίο υπάρχει ήδη στο "
+"ημερολόγιό σας."
 
 #: ../calendar.c:232
 msgid "Update:"
-msgstr ""
+msgstr "Ενημέρωση:"
 
 #: ../calendar.c:233
 msgid "CONFLICT:"
-msgstr ""
+msgstr "ΑΝΤΙΘΕΣΗ"
 
 #: ../calendar.c:256
 msgid "How would you like to respond to this invitation?"
-msgstr ""
+msgstr "Πώς θα θέλατε να απαντήσετε σε αυτή την πρόσκληση;"
 
 #: ../calendar.c:257
 msgid "Accept"
-msgstr ""
+msgstr "Αποδοχή"
 
 #: ../calendar.c:258
 msgid "Tentative"
-msgstr ""
+msgstr "Αβέβαιος"
 
 #: ../calendar.c:259
 msgid "Decline"
-msgstr ""
+msgstr "Άρνηση"
 
 #: ../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
+"Πατήστε <i>Ενημέρωση<i> για να αποδεχτείτε αυτή την απάντηση και να "
+"ενημερώσετε το ημερολόγιό σας."
 
 #: ../calendar.c:277
 msgid "Update"
-msgstr ""
+msgstr "Ενημέρωση"
 
 #: ../calendar.c:278
 msgid "Ignore"
@@ -283,12 +287,14 @@ msgstr ""
 #: ../calendar.c:300
 msgid "There was an error parsing this calendar item."
 msgstr ""
+"Υπήρξε ένα σφάλμα κατά την εισαγωγή αυτού του στοιχείου στο ημερολόγιο."
 
 #: ../calendar.c:333
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
 msgstr ""
+"Αποδεχτείκατε την πρόσκληση σε συνάντηση και προσθέθηκε στο ημερολόγιό σας."
 
 #: ../calendar.c:337
 msgid ""
@@ -301,10 +307,11 @@ msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
+"Απορρίψατε την πρόσκληση σε συνάντηση. Δεν εισήχθη στο ημερολόγιό σας."
 
 #: ../calendar.c:346
 msgid "A reply has been sent to the meeting organizer."
-msgstr ""
+msgstr "Μια απάντηση στάλθηκε στον διαχειριστή της συνάντησης."
 
 #. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
 #. that the recipient of an ical-invitation should please
