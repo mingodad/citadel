@@ -27,7 +27,7 @@ const char *AvailLang[] = {
 	"en_US",
 	"da_DK",
 	"de_DE",
-	"el_EL",
+	"el_GR",
 	"en_GB",
 	"es_ES",
 	"et_EE",
