@@ -8,29 +8,31 @@
 char *viewdefs[VIEW_MAX];			/* the different kinds of available views */
 
 ROOM_VIEWS exchangeable_views[VIEW_MAX][VIEW_MAX] = {
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 },	/* bulletin board */
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 },	/* mailbox summary */
-	{ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },	/* address book */
-	{ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },	/* calendar */
-	{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },	/* tasks */
-	{ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },	/* notes */
-	{ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },	/* wiki */
-	{ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0 },	/* brief calendar */
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },	/* journal */
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 }	/* blog */
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },	/* bulletin board */
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },	/* mailbox summary */
+	{ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },	/* address book */
+	{ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },	/* calendar */
+	{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },	/* tasks */
+	{ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },	/* notes */
+	{ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },	/* wiki */
+	{ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 },	/* brief calendar */
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },	/* journal */
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 },	/* drafts */
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 }	/* blog */
 };
 
 ROOM_VIEWS allowed_default_views[VIEW_MAX] = {
-	1, /* VIEW_BBS		Bulletin board view */
+	1, /* VIEW_BBS		Bulletin board */
 	1, /* VIEW_MAILBOX	Mailbox summary */
-	1, /* VIEW_ADDRESSBOOK	Address book view */
-	1, /* VIEW_CALENDAR	Calendar view */
-	1, /* VIEW_TASKS	Tasks view */
-	1, /* VIEW_NOTES	Notes view */
-	1, /* VIEW_WIKI		Wiki view */
-	0, /* VIEW_CALBRIEF	Brief Calendar view */
-	0, /* VIEW_JOURNAL	Journal view */
-	0  /* VIEW_BLOG		Blog view (not yet implemented) */
+	1, /* VIEW_ADDRESSBOOK	Address book */
+	1, /* VIEW_CALENDAR	Calendar */
+	1, /* VIEW_TASKS	Tasks */
+	1, /* VIEW_NOTES	Notes */
+	1, /* VIEW_WIKI		Wiki */
+	0, /* VIEW_CALBRIEF	Brief Calendar */
+	0, /* VIEW_JOURNAL	Journal */
+	0, /* VIEW_DRAFTS	Drafts */
+	0  /* VIEW_BLOG		Blog */
 };
 
 /*
@@ -213,6 +215,11 @@ int ConditionalThisRoomHaveView(StrBuf *Target, WCTemplputParams *TP)
 		return 0;
 	}
 
+	lprintf(9, "ConditionalThisRoomHaveView(%d,%d) = %d\n",
+		WCC->CurRoom.defview,
+		CheckThis,
+		exchangeable_views[WCC->CurRoom.defview][CheckThis]
+	);
 	return exchangeable_views [WCC->CurRoom.defview][CheckThis] ;
 }
 
