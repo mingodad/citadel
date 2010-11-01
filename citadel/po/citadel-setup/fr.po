@@ -43,7 +43,7 @@ msgstr ""
 
 #: ../utils/setup.c:135
 msgid "Citadel administrator username:"
-msgstr "Identifiant de l'administrateur de Citadel :"
+msgstr "Identifiant de l'administrateur de Citadel:"
 
 #: ../utils/setup.c:137
 msgid ""
@@ -59,7 +59,7 @@ msgstr ""
 
 #: ../utils/setup.c:143
 msgid "Administrator password:"
-msgstr "Mot de passe de l'administrateur :"
+msgstr "Mot de passe de l'administrateur:"
 
 #: ../utils/setup.c:145
 msgid ""
@@ -150,17 +150,17 @@ msgstr "Veuillez indiquer le nom d'hôte ou l'adresse IP du serveur LDAP.\n"
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
-msgstr "Port du serveur LDAP :"
+msgstr "Port du serveur LDAP:"
 
 #: ../utils/setup.c:203
 msgid "Please enter the port number of the LDAP service (usually 389).\n"
 msgstr ""
 "Veuillez indiquer le numéro du port d'écoute pour le serveur LDAP (en "
-"général 389)\n."
+"général 389).\n"
 
 #: ../utils/setup.c:205
 msgid "LDAP base DN:"
-msgstr "DN de base du serveur LDAP :"
+msgstr "DN de base du serveur LDAP:"
 
 #: ../utils/setup.c:207
 msgid ""
@@ -172,7 +172,7 @@ msgstr ""
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
-msgstr "Compte de connexion LDAP :"
+msgstr "Compte de connexion LDAP:"
 
 #: ../utils/setup.c:212
 #, fuzzy
@@ -185,14 +185,14 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"Veuillez indiquer le compte à utiliser pour la connexion au serveur LDAP, "
-"pour les requêtes qui y seront effectuées. Ce compte a uniquement besoin de "
-"privilèges de lecture et peut ne pas être renseigné si le serveur LDAP "
-"permet les connexions anonymes."
+"Veuillez indiquer le compte à utiliser pour la connexion au serveur LDAP,\n"
+"pour les requêtes qui y seront effectuées. Ce compte a uniquement besoin de\n"
+"privilèges de lecture et peut ne pas être renseigné si le serveur LDAP\n"
+"permet les connexions anonymes.\n"
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
-msgstr "Mot de passe de connexion LDAP :"
+msgstr "Mot de passe de connexion LDAP:"
 
 #: ../utils/setup.c:222
 #, fuzzy

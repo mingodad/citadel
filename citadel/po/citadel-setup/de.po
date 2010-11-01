@@ -138,7 +138,7 @@ msgstr ""
 "»Host« wählen, werden die Benutzer von Citadel Konten auf dem Gastsystem "
 "haben und via /etc/passwd oder einer PAM-Quelle authentifiziert werden. "
 "»LDAP« wählt einen RFC2307-konformen Verzeichnisdienst, die letzte Option "
-"wählt das nicht-standard »MS Active Directory« LDAP-Schema."
+"wählt das nicht-standard »MS Active Directory« LDAP-Schema.\n"
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -170,7 +170,7 @@ msgid ""
 "(for example: dc=example,dc=com)\n"
 msgstr ""
 "Bitte geben Sie die »Base DN«, die zur Authentifizierung durchsucht werden "
-"soll (beispielsweise dc=example,dc=com), an."
+"soll (beispielsweise dc=example,dc=com), an.\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
@@ -189,7 +189,7 @@ msgstr ""
 "Bitte geben Sie die DN eines Kontos an, das zum Binden an den LDAP-Server "
 "zur Durchführung von Abfragen verwandt wird. Das Konto benötigt keine "
 "weiteren Privilegien. Falls Ihr LDAP-Server anonyme Abfragen erlaubt, können "
-"Sie dies leer lassen."
+"Sie dies leer lassen.\n"
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
@@ -201,9 +201,9 @@ msgid ""
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Falls Sie in der vorherigen Frage eine Bind-DN eingegeben haben, müssen Sie "
-"jetzt das zum Konto zugehörige Passwort eingeben. Lassen Sie dies "
-"andernfalls leer."
+"Falls Sie in der vorherigen Frage eine Bind-DN eingegeben haben, müssen Sie \n"
+"jetzt das zum Konto zugehörige Passwort eingeben. Lassen Sie dies \n"
+"andernfalls leer.\n"
 
 #: ../utils/setup.c:299
 msgid "Yes/No"

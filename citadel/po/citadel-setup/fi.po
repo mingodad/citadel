@@ -193,8 +193,8 @@ msgid ""
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Jos määrittelit yhteys-DN:n aiemmassa kysymyksessä, syötä tähän tunnuksen "
-"salasana. Voi muussa tapauksessa jättää kentän tyhjäksi."
+"Jos määrittelit yhteys-DN:n aiemmassa kysymyksessä, syötä tähän tunnuksen\n"
+"salasana. Voi muussa tapauksessa jättää kentän tyhjäksi.\n"
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
