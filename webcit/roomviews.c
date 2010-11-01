@@ -5,22 +5,12 @@
 #include "webcit.h"
 #include "webserver.h"
 
-char *viewdefs[VIEW_MAX];			/* the different kinds of available views */
+char *viewdefs[VIEW_MAX];
 
-ROOM_VIEWS exchangeable_views[VIEW_MAX][VIEW_MAX] = {
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },	/* bulletin board */
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },	/* mailbox summary */
-	{ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },	/* address book */
-	{ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },	/* calendar */
-	{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },	/* tasks */
-	{ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },	/* notes */
-	{ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },	/* wiki */
-	{ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 },	/* brief calendar */
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },	/* journal */
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 },	/* drafts */
-	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 }	/* blog */
-};
-
+/*
+ * This table defines which views may be selected as the
+ * default view for a room at the time of its creation.
+ */
 ROOM_VIEWS allowed_default_views[VIEW_MAX] = {
 	1, /* VIEW_BBS		Bulletin board */
 	1, /* VIEW_MAILBOX	Mailbox summary */
@@ -36,21 +26,39 @@ ROOM_VIEWS allowed_default_views[VIEW_MAX] = {
 };
 
 /*
+ * Given the default view for a room, this table defines
+ * which alternate views may be selected by the user.
+ */
+ROOM_VIEWS exchangeable_views[VIEW_MAX][VIEW_MAX] = {
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },	/* bulletin board */
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },	/* mailbox summary */
+	{ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },	/* address book */
+	{ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },	/* calendar */
+	{ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },	/* tasks */
+	{ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },	/* notes */
+	{ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 },	/* wiki */
+	{ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 },	/* brief calendar */
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },	/* journal */
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 },	/* drafts */
+	{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 }	/* blog */
+};
+
+/*
  * Initialize the viewdefs with localized strings
  */
 void initialize_viewdefs(void) {
-	viewdefs[VIEW_BBS] = _("Bulletin Board");
-	viewdefs[VIEW_MAILBOX] = _("Mail Folder");
-	viewdefs[VIEW_ADDRESSBOOK] = _("Address Book");
-	viewdefs[VIEW_CALENDAR] = _("Calendar");
-	viewdefs[VIEW_TASKS] = _("Task List");
-	viewdefs[VIEW_NOTES] = _("Notes List");
-	viewdefs[VIEW_WIKI] = _("Wiki");
-	viewdefs[VIEW_CALBRIEF] = _("Calendar List");
-	viewdefs[VIEW_JOURNAL] = _("Journal");
-	viewdefs[VIEW_BLOG] = _("Blog");
+	viewdefs[VIEW_BBS]		= _("Bulletin Board");
+	viewdefs[VIEW_MAILBOX]		= _("Mail Folder");
+	viewdefs[VIEW_ADDRESSBOOK]	= _("Address Book");
+	viewdefs[VIEW_CALENDAR]		= _("Calendar");
+	viewdefs[VIEW_TASKS]		= _("Task List");
+	viewdefs[VIEW_NOTES]		= _("Notes List");
+	viewdefs[VIEW_WIKI]		= _("Wiki");
+	viewdefs[VIEW_CALBRIEF]		= _("Calendar List");
+	viewdefs[VIEW_JOURNAL]		= _("Journal");
+	viewdefs[VIEW_DRAFTS]		= _("Drafts");
+	viewdefs[VIEW_BLOG]		= _("Blog");
 }
-
 
 
 void tmplput_ROOM_COLLECTIONTYPE(StrBuf *Target, WCTemplputParams *TP) 
@@ -215,11 +223,6 @@ int ConditionalThisRoomHaveView(StrBuf *Target, WCTemplputParams *TP)
 		return 0;
 	}
 
-	lprintf(9, "ConditionalThisRoomHaveView(%d,%d) = %d\n",
-		WCC->CurRoom.defview,
-		CheckThis,
-		exchangeable_views[WCC->CurRoom.defview][CheckThis]
-	);
 	return exchangeable_views [WCC->CurRoom.defview][CheckThis] ;
 }
 
