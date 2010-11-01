@@ -1,4 +1,4 @@
-include ../Make_sources
+include ../../Make_sources
 
 
 SRCS:=  $(wildcard *.po)

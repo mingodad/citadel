@@ -169,7 +169,7 @@ msgstr "Equipo de LDAP:"
 msgid "Please enter the host name or IP address of your LDAP server.\n"
 msgstr ""
 "Por favor, introduzca el nombre del equipo o la dirección IP de su servidor "
-"LDAP."
+"LDAP.\n"
 
 #: ../utils/setup.c:201
 msgid "LDAP port number:"
@@ -190,8 +190,8 @@ msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"Por favor, introduzca el DN base para buscar la autenticación (por ejemplo: "
-"dc=ejemplo, dc=com)."
+"Por favor, introduzca el DN base para buscar la autenticación (por ejemplo:\n"
+"dc=ejemplo, dc=com).\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
