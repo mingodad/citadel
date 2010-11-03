@@ -40,7 +40,6 @@ int CmdAdjust(citimap_command *Cmd,
 void imap_strout(ConstStr *args);
 void plain_imap_strout(char *buf);
 int imap_parameterize(citimap_command *Cmd);
-int old_imap_parameterize(char** args, char *n);
 void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf);
 void imap_ial_out(struct internet_address_list *ialist);
 int imap_roomname(char *buf, int bufsize, const char *foldername);
