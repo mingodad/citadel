@@ -63,7 +63,6 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"	/* Needed for imap_parameterize */
 #include "genstamp.h"
 #include "domain.h"
 #include "clientsocket.h"
@@ -103,6 +102,66 @@ enum { 	/** Command states for login authentication */
 };
 
 #define MGSVE          ((struct citmgsve *)CC->session_specific_data)
+
+int old_imap_parameterize(char** args, char *in)
+{
+	char* out = in;
+	int num = 0;
+
+	for (;;)
+	{
+		/* Skip whitespace. */
+
+		while (isspace(*in))
+			in++;
+		if (*in == 0)
+			break;
+
+		/* Found the start of a token. */
+		
+		args[num++] = out;
+
+		/* Read in the token. */
+
+		for (;;)
+		{
+			int c = *in++;
+			if (isspace(c))
+				break;
+			
+			if (c == '\"')
+			{
+				/* Found a quoted section. */
+
+				for (;;)
+				{
+					c = *in++;
+					if (c == '\"')
+						break;
+					else if (c == '\\')
+						c = *in++;
+
+					*out++ = c;
+					if (c == 0)
+						return num;
+				}
+			}
+			else if (c == '\\')
+			{
+				c = *in++;
+				*out++ = c;
+			}
+			else
+				*out++ = c;
+
+			if (c == 0)
+				return num;
+		}
+		*out++ = '\0';
+	}
+
+	return num;
+}
 
 /*****************************************************************************/
 /*                      MANAGESIEVE Server                                   */

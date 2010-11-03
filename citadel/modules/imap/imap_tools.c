@@ -604,65 +604,6 @@ int imap_parameterize(citimap_command *Cmd)
 	return Cmd->num_parms;
 }
 
-int old_imap_parameterize(char** args, char *in)
-{
-	char* out = in;
-	int num = 0;
-
-	for (;;)
-	{
-		/* Skip whitespace. */
-
-		while (isspace(*in))
-			in++;
-		if (*in == 0)
-			break;
-
-		/* Found the start of a token. */
-		
-		args[num++] = out;
-
-		/* Read in the token. */
-
-		for (;;)
-		{
-			int c = *in++;
-			if (isspace(c))
-				break;
-			
-			if (c == '\"')
-			{
-				/* Found a quoted section. */
-
-				for (;;)
-				{
-					c = *in++;
-					if (c == '\"')
-						break;
-					else if (c == '\\')
-						c = *in++;
-
-					*out++ = c;
-					if (c == 0)
-						return num;
-				}
-			}
-			else if (c == '\\')
-			{
-				c = *in++;
-				*out++ = c;
-			}
-			else
-				*out++ = c;
-
-			if (c == 0)
-				return num;
-		}
-		*out++ = '\0';
-	}
-
-	return num;
-}
 
 /* Convert a struct ctdlroom to an IMAP-compatible mailbox name. */
 
