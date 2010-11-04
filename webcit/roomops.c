@@ -1000,6 +1000,9 @@ void netedit(void) {
 	char cmpb0[SIZ];
 	char cmpb1[SIZ];
 	int i, num_addrs;
+	StrBuf *Line;
+	int Done;
+
 	/*/ TODO: do line dynamic! */
 	if (havebstr("line_pop3host")) {
 		strcpy(line, bstr("prefix"));
@@ -1031,32 +1034,47 @@ void netedit(void) {
 		return;
 	}
 
+	Line = NewStrBuf();
 	serv_puts("GNET");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '1') {
+	StrBuf_ServGetln(Line);
+	if  (GetServerStatus(Line, NULL) != 1) {
 		fclose(fp);
+		AppendImportantMessage(SRV_STATUS_MSG(Line));	
+		FreeStrBuf(&Line);
 		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 		return;
 	}
 
 	/** This loop works for add *or* remove.  Spiffy, eh? */
-	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
-		extract_token(cmpa0, buf, 0, '|', sizeof cmpa0);
-		extract_token(cmpa1, buf, 1, '|', sizeof cmpa1);
-		extract_token(cmpb0, line, 0, '|', sizeof cmpb0);
-		extract_token(cmpb1, line, 1, '|', sizeof cmpb1);
-		if ( (strcasecmp(cmpa0, cmpb0)) 
-		     || (strcasecmp(cmpa1, cmpb1)) ) {
-			fprintf(fp, "%s\n", buf);
+	Done = 0;
+	extract_token(cmpb0, line, 0, '|', sizeof cmpb0);
+	extract_token(cmpb1, line, 1, '|', sizeof cmpb1);
+	while (!Done && StrBuf_ServGetln(Line)>=0) {
+		if ( (StrLength(Line)==3) && 
+		     !strcmp(ChrPtr(Line), "000")) 
+		{
+			Done = 1;
+		}
+		else
+		{
+			extract_token(cmpa0, ChrPtr(Line), 0, '|', sizeof cmpa0);
+			extract_token(cmpa1, ChrPtr(Line), 1, '|', sizeof cmpa1);
+			if ( (strcasecmp(cmpa0, cmpb0)) 
+			     || (strcasecmp(cmpa1, cmpb1)) ) {
+				StrBufAppendBufPlain(Line, HKEY("\n"), 0);
+				fwrite(SKEY(Line), 1, fp);
+			}
 		}
 	}
 
 	rewind(fp);
 	serv_puts("SNET");
-	serv_getln(buf, sizeof buf);
-	if (buf[0] != '4') {
+	StrBuf_ServGetln(Line);
+	if  (GetServerStatus(Line, NULL) != 4) {
 		fclose(fp);
+		AppendImportantMessage(SRV_STATUS_MSG(Line));	
 		http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
+		FreeStrBuf(&Line);
 		return;
 	}
 
@@ -1087,6 +1105,7 @@ void netedit(void) {
 	serv_puts("000");
 	fclose(fp);
 	FlushIgnetCfgs(&WC->CurRoom);
+	FreeStrBuf(&Line);
 
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 }
