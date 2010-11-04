@@ -460,6 +460,7 @@ void cmd_snet(char *argbuf) {
 			tempfilename,
 			strerror(errno));
 		unlink(tempfilename);
+		return;
 	}
 	Line = NewStrBuf();
 
