@@ -603,7 +603,7 @@ int client_read_sslblob(StrBuf *Target, long bytes, int timeout)
 		retval = client_read_sslbuffer(CCC->ReadBuf, timeout);
 		if (retval >= 0) {
 			RemainRead = bytes - (StrLength (Target) - baselen);
-			if (RemainRead > StrLength(CCC->ReadBuf))
+			if (RemainRead < StrLength(CCC->ReadBuf))
 			{
 				StrBufAppendBufPlain(
 					Target, 
