@@ -64,6 +64,7 @@ struct rssnetcfg {
 	char *rooms;
 	time_t last_error_when;
 	int ItemType;
+	time_t next_poll;
 };
 
 #define RSS_UNSET       (1<<0)
@@ -1252,6 +1253,12 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 	const char *at;
 	long len;
 
+	time_t now;
+
+        now = time(NULL);
+
+	if ((Cfg->next_poll != 0) && (now < Cfg->next_poll))
+		return;
 	memset(&ri, 0, sizeof(rss_item));
 	rssc.Item = &ri;
 	rssc.Cfg = Cfg;
@@ -1373,6 +1380,8 @@ shutdown:
 	flush_rss_item(&ri);
 	FreeStrBuf(&rssc.CData);
 	FreeStrBuf(&rssc.Key);
+
+        Cfg->next_poll = time(NULL) + config.c_net_freq; 
 }
 
 
@@ -1424,6 +1433,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 			/* Otherwise create a new client request */
 			if (use_this_rncptr == NULL) {
 				rncptr = (rssnetcfg *) malloc(sizeof(rssnetcfg));
+				memset(rncptr, 0, sizeof(rssnetcfg));
 				rncptr->ItemType = RSS_UNSET;
 				if (rncptr != NULL) {
 					rncptr->next = rnclist;
