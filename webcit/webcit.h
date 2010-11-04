@@ -221,7 +221,7 @@ extern char *ssl_cipher_list;
 
 
 
-
+#define SRV_STATUS_MSG(ServerLineBuf) (ChrPtr(ServerLineBuf) + 4), (StrLength(ServerLineBuf) - 4)
 #define MAJORCODE(a) (((int)(a / 100) ) * 100)
 
 #define LISTING_FOLLOWS	100
