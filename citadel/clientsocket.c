@@ -266,12 +266,40 @@ INLINE int sock_read(int *sock, char *buf, int bytes, int keep_reading_until_ful
  */
 int sock_write(int *sock, const char *buf, int nbytes)
 {
+	int nSuccessLess = 0;
 	int bytes_written = 0;
 	int retval;
+	fd_set rfds;
+        int fdflags;
+	int IsNonBlock;
+	int timeout = 50;
+	struct timeval tv;
+	int selectresolution = 100;
 
-	while ((*sock != -1)  && 
-	       (bytes_written < nbytes))
+	fdflags = fcntl(*sock, F_GETFL);
+	IsNonBlock = (fdflags & O_NONBLOCK) == O_NONBLOCK;
+
+	while ((nSuccessLess < timeout) && 
+	       (*sock != -1) && 
+	       (bytes_written < nbytes)) 
 	{
+		if (IsNonBlock){
+			tv.tv_sec = selectresolution;
+			tv.tv_usec = 0;
+			
+			FD_ZERO(&rfds);
+			FD_SET(*sock, &rfds);
+			if (select(*sock + 1, NULL, &rfds, NULL, &tv) == -1) {
+///				*Error = strerror(errno);
+				close (*sock);
+				*sock = -1;
+				return -1;
+			}
+		}
+		if (IsNonBlock && !  FD_ISSET(*sock, &rfds)) {
+			nSuccessLess ++;
+			continue;
+		}
 		retval = write(*sock, &buf[bytes_written],
 			       nbytes - bytes_written);
 		if (retval < 1) {
