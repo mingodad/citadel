@@ -3398,7 +3398,7 @@ StrBuf *CtdlReadMessageBodyBuf(char *terminator,	/* token signalling EOT */
 	/* read in the lines of message text one by one */
 	do {
 		if (sock != NULL) {
-			if ((CtdlSockGetLine(sock, LineBuf) < 0) ||
+			if ((CtdlSockGetLine(sock, LineBuf, 5) < 0) ||
 			    (*sock == -1))
 				finished = 1;
 		}
