@@ -202,7 +202,7 @@ int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_
 }
 
 
-int CtdlSockGetLine(int *sock, StrBuf *Target)
+int CtdlSockGetLine(int *sock, StrBuf * Target, int nSec)
 {
 	CitContext *CCC=CC;
 	const char *Error;
@@ -212,10 +212,7 @@ int CtdlSockGetLine(int *sock, StrBuf *Target)
 	rc = StrBufTCP_read_buffered_line_fast(Target, 
 					       CCC->sReadBuf,
 					       &CCC->sPos,
-					       sock,
-					       5,
-					       1,
-					       &Error);
+					       sock, nSec, 1, &Error);
 	if ((rc < 0) && (Error != NULL))
 		CtdlLogPrintf(CTDL_CRIT, 
 			      "%s failed: %s\n",
@@ -237,7 +234,7 @@ int sock_getln(int *sock, char *buf, int bufsize)
 	const char *pCh;
 
 	FlushStrBuf(CCC->sMigrateBuf);
-	retval = CtdlSockGetLine(sock, CCC->sMigrateBuf);
+	retval = CtdlSockGetLine(sock, CCC->sMigrateBuf, 5);
 
 	i = StrLength(CCC->sMigrateBuf);
 	pCh = ChrPtr(CCC->sMigrateBuf);
@@ -283,6 +280,19 @@ int sock_write(int *sock, const char *buf, int nbytes)
 			return (-1);
 		}
 		bytes_written = bytes_written + retval;
+		if (IsNonBlock && (bytes_written == nbytes)){
+			tv.tv_sec = selectresolution;
+			tv.tv_usec = 0;
+			
+			FD_ZERO(&rfds);
+			FD_SET(*sock, &rfds);
+			if (select(*sock + 1, NULL, &rfds, NULL, &tv) == -1) {
+///				*Error = strerror(errno);
+				close (*sock);
+				*sock = -1;
+				return -1;
+			}
+		}
 	}
 	return (bytes_written);
 }
@@ -294,14 +304,14 @@ int sock_write(int *sock, const char *buf, int nbytes)
  * (This is implemented in terms of client_read() and could be
  * justifiably moved out of sysdep.c)
  */
-int sock_getln_err(int *sock, char *buf, int bufsize, int *rc)
+int sock_getln_err(int *sock, char *buf, int bufsize, int *rc, int nSec)
 {
 	int i, retval;
 	CitContext *CCC = MyContext();
 	const char *pCh;
 
 	FlushStrBuf(CCC->sMigrateBuf);
-	*rc = retval = CtdlSockGetLine(sock, CCC->sMigrateBuf);
+	*rc = retval = CtdlSockGetLine(sock, CCC->sMigrateBuf, nSec);
 
 	i = StrLength(CCC->sMigrateBuf);
 	pCh = ChrPtr(CCC->sMigrateBuf);
@@ -322,13 +332,13 @@ int sock_getln_err(int *sock, char *buf, int bufsize, int *rc)
  * a multiline response, discarding the rest.
  */
 
-int ml_sock_gets(int *sock, char *buf)
+int ml_sock_gets(int *sock, char *buf, int nSec)
 {
 	int rc = 0;
 	char bigbuf[1024];
 	int g;
 
-	g = sock_getln_err(sock, buf, SIZ, &rc);
+	g = sock_getln_err(sock, buf, SIZ, &rc, nSec);
 	if (rc < 0)
 		return rc;
 	if (g < 4)
@@ -337,7 +347,7 @@ int ml_sock_gets(int *sock, char *buf)
 		return (g);
 
 	do {
-		g = sock_getln_err(sock, bigbuf, SIZ, &rc);
+		g = sock_getln_err(sock, bigbuf, SIZ, &rc, nSec);
 		if (rc < 0)
 			return rc;
 		if (g < 0)
