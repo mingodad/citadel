@@ -57,8 +57,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "imap_fetch.h"
 #include "imap_misc.h"
 #include "genstamp.h"
@@ -84,7 +84,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 	visit vbuf;
 
 	if (num_parms != 6) {
-		cprintf("%s BAD usage error\r\n", Params[0].Key);
+		IReply("BAD usage error");
 		return;
 	}
 
@@ -92,7 +92,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 	 * Don't allow other types of metadata to be set
 	 */
 	if (strcasecmp(Params[3].Key, "/vendor/kolab/folder-type")) {
-		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", Params[0].Key);
+		IReply("NO [METADATA TOOMANY] SETMETADATA failed");
 		return;
 	}
 
@@ -103,7 +103,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 		setting_user_value = 1;				/* per-user view */
 	}
 	else {
-		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", Params[0].Key);
+		IReply("NO [METADATA TOOMANY] SETMETADATA failed");
 		return;
 	}
 
@@ -136,8 +136,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			Params[0].Key);
+		IReply("NO Invalid mailbox name or access denied");
 		return;
 	}
 
@@ -161,7 +160,7 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 
 	if (setting_user_value)
 	{
-		cprintf("%s OK SETANNOTATION complete\r\n", Params[0].Key);
+		IReply("OK SETANNOTATION complete");
 	}
 
 	/* If this is a "value.shared" set operation, we are allowed to perform it
@@ -176,12 +175,12 @@ void imap_setmetadata(int num_parms, ConstStr *Params) {
 		CtdlGetRoomLock(&CC->room, CC->room.QRname);
 		CC->room.QRdefaultview = set_view;
 		CtdlPutRoomLock(&CC->room);
-		cprintf("%s OK SETANNOTATION complete\r\n", Params[0].Key);
+		IReply("OK SETANNOTATION complete");
 	}
 
 	/* If we got to this point, we don't have permission to set the default view. */
 	else {
-		cprintf("%s NO [METADATA TOOMANY] SETMETADATA failed\r\n", Params[0].Key);
+		IReply("NO [METADATA TOOMANY] SETMETADATA failed");
 	}
 
 	/*
@@ -205,16 +204,16 @@ void imap_getmetadata(int num_parms, ConstStr *Params) {
 	char savedroom[ROOMNAMELEN];
 	int msgs, new;
 	int ret;
+	int found = 0;
 
 	if (num_parms > 5) {
-		cprintf("%s BAD usage error\r\n", Params[0].Key);
+		IReply("BAD usage error");
 		return;
 	}
 
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			Params[0].Key);
+		IReply("NO Invalid mailbox name or access denied");
 		return;
 	}
 
@@ -227,32 +226,42 @@ void imap_getmetadata(int num_parms, ConstStr *Params) {
 	}
 	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
-	cprintf("* METADATA ");
-	imap_strout(&Params[2]);
-	cprintf(" \"/vendor/kolab/folder-type\" (\"value.shared\" \"");
+	IAPuts("* METADATA ");
+	IPutCParamStr(2);
+	IAPuts(" \"/vendor/kolab/folder-type\" (\"value.shared\" \"");
 
 	/* If it's one of our hard-coded default rooms, we know what to do... */
 
-	if (!strcasecmp(&CC->room.QRname[11], MAILROOM)) {
-		cprintf("mail.inbox");
-	}
-	else if (!strcasecmp(&CC->room.QRname[11], SENTITEMS)) {
-		cprintf("mail.sentitems");
-	}
-	else if (!strcasecmp(&CC->room.QRname[11], USERDRAFTROOM)) {
-		cprintf("mail.drafts");
-	}
-	else if (!strcasecmp(&CC->room.QRname[11], USERCALENDARROOM)) {
-		cprintf("event.default");
-	}
-	else if (!strcasecmp(&CC->room.QRname[11], USERCONTACTSROOM)) {
-		cprintf("contact.default");
-	}
-	else if (!strcasecmp(&CC->room.QRname[11], USERNOTESROOM)) {
-		cprintf("note.default");
-	}
-	else if (!strcasecmp(&CC->room.QRname[11], USERTASKSROOM)) {
-		cprintf("task.default");
+	if (CC->room.QRname[10] == '.')
+	{
+		if (!strcasecmp(&CC->room.QRname[11], MAILROOM)) {
+			found = 1;
+			IAPuts("mail.inbox");
+		}
+		else if (!strcasecmp(&CC->room.QRname[11], SENTITEMS)) {
+			found = 1;
+			IAPuts("mail.sentitems");
+		}
+		else if (!strcasecmp(&CC->room.QRname[11], USERDRAFTROOM)) {
+			found = 1;
+			IAPuts("mail.drafts");
+		}
+		else if (!strcasecmp(&CC->room.QRname[11], USERCALENDARROOM)) {
+			found = 1;
+			IAPuts("event.default");
+		}
+		else if (!strcasecmp(&CC->room.QRname[11], USERCONTACTSROOM)) {
+			found = 1;
+			IAPuts("contact.default");
+		}
+		else if (!strcasecmp(&CC->room.QRname[11], USERNOTESROOM)) {
+			found = 1;
+			IAPuts("note.default");
+		}
+		else if (!strcasecmp(&CC->room.QRname[11], USERTASKSROOM)) {
+			found = 1;
+			IAPuts("task.default");
+		}
 	}
 
 	/* Otherwise, use the view for this room to determine the type of data.
@@ -261,31 +270,33 @@ void imap_getmetadata(int num_parms, ConstStr *Params) {
 	 * user's view might only make changes to presentation.  It also saves us
 	 * an extra database access because we don't need to load the visit record.
 	 */
-
-	else if (CC->room.QRdefaultview == VIEW_CALENDAR) {
-		cprintf("event");
+	if (!found)
+	{
+		if (CC->room.QRdefaultview == VIEW_CALENDAR) {
+			IAPuts("event");
+		}
+		else if (CC->room.QRdefaultview == VIEW_ADDRESSBOOK) {
+			IAPuts("contact");
+		}
+		else if (CC->room.QRdefaultview == VIEW_TASKS) {
+			IAPuts("task");
+		}
+		else if (CC->room.QRdefaultview == VIEW_NOTES) {
+			IAPuts("note");
+		}
+		else if (CC->room.QRdefaultview == VIEW_JOURNAL) {
+			IAPuts("journal");
+		}
 	}
-	else if (CC->room.QRdefaultview == VIEW_ADDRESSBOOK) {
-		cprintf("contact");
-	}
-	else if (CC->room.QRdefaultview == VIEW_TASKS) {
-		cprintf("task");
-	}
-	else if (CC->room.QRdefaultview == VIEW_NOTES) {
-		cprintf("note");
-	}
-	else if (CC->room.QRdefaultview == VIEW_JOURNAL) {
-		cprintf("journal");
-	}
-
 	/* If none of the above conditions were met, consider it an ordinary mailbox. */
-	else {
-		cprintf("mail");
+
+	if (!found) {
+		IAPuts("mail");
 	}
 
 	/* "mail.outbox" and "junkemail" are not implemented. */
 
-	cprintf("\")\r\n");
+	IAPuts("\")\r\n");
 
 	/*
 	 * If a different folder was previously selected, return there now.
@@ -294,7 +305,7 @@ void imap_getmetadata(int num_parms, ConstStr *Params) {
 		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
-	cprintf("%s OK GETMETADATA complete\r\n", Params[0].Key);
+	IReply("OK GETMETADATA complete");
 	return;
 }
 

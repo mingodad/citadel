@@ -1,19 +1,3 @@
-/*
- * FDELIM defines which character we want to use as a folder delimiter
- * in room names.  Originally we used a forward slash, but that caused
- * rooms with names like "Sent/Received Pages" to get delimited, so we
- * changed it to a backslash.  This is completely irrelevant to how Citadel
- * speaks to IMAP clients -- the delimiter used in the IMAP protocol is
- * a vertical bar, which is illegal in Citadel room names anyway.
- */
-#define FDELIM '\\'
-
-typedef struct __citimap_command {
-	StrBuf *CmdBuf;			/* our current commandline; gets chopped into: */
-	ConstStr *Params;		/* Commandline tokens */
-	int num_parms;			/* Number of Commandline tokens available */
-	int avail_parms;		/* Number of ConstStr args is big */
-} citimap_command;
 
 /* 
  * since we work with shifted pointers to ConstStrs in some places, 
@@ -38,6 +22,8 @@ int CmdAdjust(citimap_command *Cmd,
 
 
 void imap_strout(ConstStr *args);
+void imap_strbuffer(StrBuf *Reply, ConstStr *args);
+void plain_imap_strbuffer(StrBuf *Reply, char *buf);
 void plain_imap_strout(char *buf);
 int imap_parameterize(citimap_command *Cmd);
 void imap_mailboxname(char *buf, int bufsize, struct ctdlroom *qrbuf);
@@ -47,10 +33,33 @@ int imap_is_message_set(const char *);
 int imap_mailbox_matches_pattern(const char *pattern, char *mailboxname);
 int imap_datecmp(const char *datestr, time_t msgtime);
 
+
+
+
+
+/* Imap Append Printf, send to the outbuffer */
+void IAPrintf(const char *Format, ...);
+
+void iaputs(const char *Str, long Len);
+#define IAPuts(Msg) iaputs(HKEY(Msg))
+/* give it a naughty name since its ugly. */
+#define _iaputs(Msg) iaputs(Msg, strlen(Msg))
+
+/* outputs a static message prepended by the sequence no */
+void ireply(const char *Msg, long len);
+#define IReply(msg) ireply(HKEY(msg))
+/* outputs a dynamic message prepended by the sequence no */
+void IReplyPrintf(const char *Format, ...);
+
+
+/* output a string like that {%ld}%s */
+void IPutStr(const char *Msg, long Len);
+#define IPutCStr(_ConstStr) IPutStr(CKEY(_ConstStr))
+#define IPutCParamStr(n) IPutStr(CKEY(Params[n]))
+
 /*
- * Flags that may be returned by imap_roomname()
- * (the lower eight bits will be the floor number)
- */
-#define IR_MAILBOX	0x0100		/* Mailbox                       */
-#define IR_EXISTS	0x0200		/* Room exists (not implemented) */
-#define IR_BABOON	0x0000		/* Just had to put this here :)  */
+void plain_imap_strout(char *buf)
+void imap_strout(ConstStr *args)
+*/
+
+

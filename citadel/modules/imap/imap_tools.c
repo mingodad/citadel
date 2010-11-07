@@ -19,17 +19,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#define SHOW_ME_VAPPEND_PRINTF
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdarg.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "sysdep_decls.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "ctdl_module.h"
 
 #ifndef HAVE_SNPRINTF
@@ -381,59 +383,6 @@ static int cfrommap(int c)
 	return c;		
 }
 
-/* Output a string to the IMAP client, either as a literal or quoted.
- * (We do a literal if it has any double-quotes or backslashes.) */
-
-void plain_imap_strout(char *buf)
-{
-	int i;
-	int is_literal = 0;
-	long len;
-
-	if (buf == NULL) {	/* yeah, we handle this */
-		cprintf("NIL");
-		return;
-	}
-
-	len = strlen(buf);
-	for (i = 0; i < len; ++i) {
-		if ((buf[i] == '\"') || (buf[i] == '\\'))
-			is_literal = 1;
-	}
-
-	if (is_literal) {
-		cprintf("{%ld}\r\n%s", len, buf);
-	} else {
-		cprintf("\"%s\"", buf);
-	}
-}
-
-/* Output a string to the IMAP client, either as a literal or quoted.
- * (We do a literal if it has any double-quotes or backslashes.) */
-
-void imap_strout(ConstStr *args)
-{
-	int i;
-	int is_literal = 0;
-	
-	if ((args == NULL) || (args->len == 0))
-	{	/* yeah, we handle this */
-		cprintf("NIL");
-		return;
-	}
-
-	for (i = 0; i < args->len; ++i) {
-		if ((args->Key[i] == '\"') || (args->Key[i] == '\\'))
-			is_literal = 1;
-	}
-
-	if (is_literal) {
-		cprintf("{%ld}\r\n%s", args->len, args->Key);
-	} else {
-		cprintf("\"%s\"", args->Key);
-	}
-}
-
 
 
 
@@ -743,22 +692,22 @@ void imap_ial_out(struct internet_address_list *ialist)
 	struct internet_address_list *iptr;
 
 	if (ialist == NULL) {
-		cprintf("NIL");
+		IAPuts("NIL");
 		return;
 	}
-	cprintf("(");
+	IAPuts("(");
 
 	for (iptr = ialist; iptr != NULL; iptr = iptr->next) {
-		cprintf("(");
+		IAPuts("(");
 		plain_imap_strout(iptr->ial_name);
-		cprintf(" NIL ");
+		IAPuts(" NIL ");
 		plain_imap_strout(iptr->ial_user);
-		cprintf(" ");
+		IAPuts(" ");
 		plain_imap_strout(iptr->ial_node);
-		cprintf(")");
+		IAPuts(")");
 	}
 
-	cprintf(")");
+	IAPuts(")");
 }
 
 
@@ -974,3 +923,137 @@ int imap_datecmp(const char *datestr, time_t msgtime) {
 	return(0);
 }
 
+
+
+
+
+void IAPrintf(const char *Format, ...)
+{
+	va_list arg_ptr;
+	
+	va_start(arg_ptr, Format);
+	StrBufVAppendPrintf(IMAP->Reply, Format, arg_ptr);
+	va_end(arg_ptr);
+}
+
+void iaputs(const char *Str, long Len)
+{
+	StrBufAppendBufPlain(IMAP->Reply, Str, Len, 0);
+}
+
+void ireply(const char *Msg, long len)
+{
+	citimap *Imap = IMAP;
+
+	StrBufAppendBufPlain(Imap->Reply, 
+			     CKEY(Imap->Cmd.Params[0]), 0);
+	StrBufAppendBufPlain(Imap->Reply, 
+			     HKEY(" "), 0);
+	StrBufAppendBufPlain(Imap->Reply, 
+			     Msg, len, 0);
+	
+	StrBufAppendBufPlain(Imap->Reply, 
+			     HKEY("\r\n"), 0);
+	
+}
+
+void IReplyPrintf(const char *Format, ...)
+{
+	citimap *Imap = IMAP;
+	va_list arg_ptr;
+	
+
+	StrBufAppendBufPlain(Imap->Reply, 
+			     CKEY(Imap->Cmd.Params[0]), 0);
+
+	StrBufAppendBufPlain(Imap->Reply, 
+			     HKEY(" "), 0);
+
+	va_start(arg_ptr, Format);
+	StrBufVAppendPrintf(IMAP->Reply, Format, arg_ptr);
+	va_end(arg_ptr);
+	
+	StrBufAppendBufPlain(Imap->Reply, 
+			     HKEY("\r\n"), 0);
+	
+}
+
+
+
+/* Output a string to the IMAP client, either as a literal or quoted.
+ * (We do a literal if it has any double-quotes or backslashes.) */
+
+void plain_imap_strout(char *buf)
+{
+	int i;
+	int is_literal = 0;
+	long Len;
+	citimap *Imap = IMAP;
+
+	if (buf == NULL) {	/* yeah, we handle this */
+		IAPuts("NIL");
+		return;
+	}
+
+	Len = strlen(buf);
+	for (i = 0; i < Len; ++i) {
+		if ((buf[i] == '\"') || (buf[i] == '\\'))
+			is_literal = 1;
+	}
+
+	if (is_literal) {
+		StrBufAppendPrintf(Imap->Reply, "{%ld}\r\n", Len);
+		StrBufAppendBufPlain(Imap->Reply, buf, Len, 0);
+	} else {
+		StrBufAppendBufPlain(Imap->Reply, 
+				     HKEY("\""), 0);
+		StrBufAppendBufPlain(Imap->Reply, 
+				     buf, Len, 0);
+		StrBufAppendBufPlain(Imap->Reply, 
+				     HKEY("\""), 0);
+	}
+}
+
+
+/* Output a string to the IMAP client, either as a literal or quoted.
+ * (We do a literal if it has any double-quotes or backslashes.) */
+
+
+void IPutStr(const char *Msg, long Len)
+{
+	int i;
+	int is_literal = 0;
+	citimap *Imap = IMAP;
+
+	
+	if ((Msg == NULL) || (Len == 0))
+	{	/* yeah, we handle this */
+		StrBufAppendBufPlain(Imap->Reply, HKEY("NIL"), 0);
+		return;
+	}
+
+	for (i = 0; i < Len; ++i) {
+		if ((Msg[i] == '\"') || (Msg[i] == '\\'))
+			is_literal = 1;
+	}
+
+	if (is_literal) {
+		StrBufAppendPrintf(Imap->Reply, "{%ld}\r\n", Len);
+		StrBufAppendBufPlain(Imap->Reply, Msg, Len, 0);
+	} else {
+		StrBufAppendBufPlain(Imap->Reply, 
+				     HKEY("\""), 0);
+		StrBufAppendBufPlain(Imap->Reply, 
+				     Msg, Len, 0);
+		StrBufAppendBufPlain(Imap->Reply, 
+				     HKEY("\""), 0);
+	}
+}
+
+void IUnbuffer (void)
+{
+	citimap *Imap = IMAP;
+
+	cputbuf(Imap->Reply);
+	FlushStrBuf(Imap->Reply);
+}
