@@ -55,8 +55,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "imap_fetch.h"
 #include "imap_store.h"
 #include "genstamp.h"
@@ -69,17 +69,17 @@
  * We also implement the ".SILENT" protocol option here.  :(
  */
 void imap_do_store_msg(int seq, const char *oper, unsigned int bits_to_twiddle) {
-
+	citimap *Imap = IMAP;
 
 	if (!strncasecmp(oper, "FLAGS", 5)) {
-		IMAP->flags[seq] &= IMAP_MASK_SYSTEM;
-		IMAP->flags[seq] |= bits_to_twiddle;
+		Imap->flags[seq] &= IMAP_MASK_SYSTEM;
+		Imap->flags[seq] |= bits_to_twiddle;
 	}
 	else if (!strncasecmp(oper, "+FLAGS", 6)) {
-		IMAP->flags[seq] |= bits_to_twiddle;
+		Imap->flags[seq] |= bits_to_twiddle;
 	}
 	else if (!strncasecmp(oper, "-FLAGS", 6)) {
-		IMAP->flags[seq] &= (~bits_to_twiddle);
+		Imap->flags[seq] &= (~bits_to_twiddle);
 	}
 }
 
@@ -162,9 +162,9 @@ void imap_do_store(citimap_command *Cmd) {
 				imap_do_store_msg(i, oper, bits_to_twiddle);
 
 				if (!silent) {
-					cprintf("* %d FETCH (", i+1);
+					IAPrintf("* %d FETCH (", i+1);
 					imap_fetch_flags(i);
-					cprintf(")\r\n");
+					IAPuts(")\r\n");
 				}
 
 			}
@@ -203,7 +203,6 @@ void imap_do_store(citimap_command *Cmd) {
 		imap_do_expunge();
 		imap_rescan_msgids();
 	}
-
 }
 
 
@@ -215,7 +214,7 @@ void imap_store(int num_parms, ConstStr *Params) {
 	int num_items;
 
 	if (num_parms < 3) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -223,7 +222,7 @@ void imap_store(int num_parms, ConstStr *Params) {
 		imap_pick_range(Params[2].Key, 0);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -233,14 +232,14 @@ void imap_store(int num_parms, ConstStr *Params) {
 
 	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		IReply("BAD invalid data item list");
 		FreeStrBuf(&Cmd.CmdBuf);
 		free(Cmd.Params);
 		return;
 	}
 
 	imap_do_store(&Cmd);
-	cprintf("%s OK STORE completed\r\n", Params[0].Key);
+	IReply("OK STORE completed");
 	FreeStrBuf(&Cmd.CmdBuf);
 	free(Cmd.Params);
 }
@@ -253,7 +252,7 @@ void imap_uidstore(int num_parms, ConstStr *Params) {
 	int num_items;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -261,7 +260,7 @@ void imap_uidstore(int num_parms, ConstStr *Params) {
 		imap_pick_range(Params[3].Key, 1);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -271,14 +270,14 @@ void imap_uidstore(int num_parms, ConstStr *Params) {
 
 	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		IReply("BAD invalid data item list");
 		FreeStrBuf(&Cmd.CmdBuf);
 		free(Cmd.Params);
 		return;
 	}
 
 	imap_do_store(&Cmd);
-	cprintf("%s OK UID STORE completed\r\n", Params[0].Key);
+	IReply("OK UID STORE completed");
 	FreeStrBuf(&Cmd.CmdBuf);
 	free(Cmd.Params);
 }

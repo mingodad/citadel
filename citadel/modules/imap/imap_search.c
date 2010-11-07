@@ -58,8 +58,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "genstamp.h"
@@ -77,6 +77,7 @@
 int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 			int num_items, ConstStr *itemlist, int is_uid) {
 
+	citimap *Imap = IMAP;
 	int match = 0;
 	int is_not = 0;
 	int is_or = 0;
@@ -113,7 +114,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 	
 	else if (!strcasecmp(itemlist[pos].Key, "ANSWERED")) {
-		if (IMAP->flags[seq-1] & IMAP_ANSWERED) {
+		if (Imap->flags[seq-1] & IMAP_ANSWERED) {
 			match = 1;
 		}
 		++pos;
@@ -121,7 +122,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "BCC")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -138,7 +139,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "BEFORE")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -164,7 +165,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 		/* Otherwise, we have to do a slow search. */
 		else {
 			if (msg == NULL) {
-				msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+				msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 				need_to_free_msg = 1;
 			}
 			if (msg != NULL) {
@@ -179,7 +180,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "CC")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -203,21 +204,21 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "DELETED")) {
-		if (IMAP->flags[seq-1] & IMAP_DELETED) {
+		if (Imap->flags[seq-1] & IMAP_DELETED) {
 			match = 1;
 		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "DRAFT")) {
-		if (IMAP->flags[seq-1] & IMAP_DRAFT) {
+		if (Imap->flags[seq-1] & IMAP_DRAFT) {
 			match = 1;
 		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "FLAGGED")) {
-		if (IMAP->flags[seq-1] & IMAP_FLAGGED) {
+		if (Imap->flags[seq-1] & IMAP_FLAGGED) {
 			match = 1;
 		}
 		++pos;
@@ -225,7 +226,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "FROM")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -247,7 +248,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 		 * examining the message body.
 		 */
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 
@@ -277,7 +278,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "LARGER")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -289,14 +290,14 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "NEW")) {
-		if ( (IMAP->flags[seq-1] & IMAP_RECENT) && (!(IMAP->flags[seq-1] & IMAP_SEEN))) {
+		if ( (Imap->flags[seq-1] & IMAP_RECENT) && (!(Imap->flags[seq-1] & IMAP_SEEN))) {
 			match = 1;
 		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "OLD")) {
-		if (!(IMAP->flags[seq-1] & IMAP_RECENT)) {
+		if (!(Imap->flags[seq-1] & IMAP_RECENT)) {
 			match = 1;
 		}
 		++pos;
@@ -304,7 +305,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "ON")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -319,14 +320,14 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "RECENT")) {
-		if (IMAP->flags[seq-1] & IMAP_RECENT) {
+		if (Imap->flags[seq-1] & IMAP_RECENT) {
 			match = 1;
 		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "SEEN")) {
-		if (IMAP->flags[seq-1] & IMAP_SEEN) {
+		if (Imap->flags[seq-1] & IMAP_SEEN) {
 			match = 1;
 		}
 		++pos;
@@ -334,7 +335,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "SENTBEFORE")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -350,7 +351,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "SENTON")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -366,7 +367,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "SENTSINCE")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -382,7 +383,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "SINCE")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -398,7 +399,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "SMALLER")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -411,7 +412,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "SUBJECT")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -424,7 +425,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "TEXT")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -439,7 +440,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	else if (!strcasecmp(itemlist[pos].Key, "TO")) {
 		if (msg == NULL) {
-			msg = CtdlFetchMessage(IMAP->msgids[seq-1], 1);
+			msg = CtdlFetchMessage(Imap->msgids[seq-1], 1);
 			need_to_free_msg = 1;
 		}
 		if (msg != NULL) {
@@ -460,7 +461,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 
 	/* FIXME this is b0rken.  fix it. */
 	else if (!strcasecmp(itemlist[pos].Key, "UID")) {
-		if (is_msg_in_sequence_set(itemlist[pos+1].Key, IMAP->msgids[seq-1])) {
+		if (is_msg_in_sequence_set(itemlist[pos+1].Key, Imap->msgids[seq-1])) {
 			match = 1;
 		}
 		pos += 2;
@@ -472,28 +473,28 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	 */
 
 	else if (!strcasecmp(itemlist[pos].Key, "UNANSWERED")) {
-		if ((IMAP->flags[seq-1] & IMAP_ANSWERED) == 0) {
+		if ((Imap->flags[seq-1] & IMAP_ANSWERED) == 0) {
 			match = 1;
 		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "UNDELETED")) {
-		if ((IMAP->flags[seq-1] & IMAP_DELETED) == 0) {
+		if ((Imap->flags[seq-1] & IMAP_DELETED) == 0) {
 			match = 1;
 		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "UNDRAFT")) {
-		if ((IMAP->flags[seq-1] & IMAP_DRAFT) == 0) {
+		if ((Imap->flags[seq-1] & IMAP_DRAFT) == 0) {
 			match = 1;
 		}
 		++pos;
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "UNFLAGGED")) {
-		if ((IMAP->flags[seq-1] & IMAP_FLAGGED) == 0) {
+		if ((Imap->flags[seq-1] & IMAP_FLAGGED) == 0) {
 			match = 1;
 		}
 		++pos;
@@ -505,7 +506,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
 	}
 
 	else if (!strcasecmp(itemlist[pos].Key, "UNSEEN")) {
-		if ((IMAP->flags[seq-1] & IMAP_SEEN) == 0) {
+		if ((Imap->flags[seq-1] & IMAP_SEEN) == 0) {
 			match = 1;
 		}
 		++pos;
@@ -542,6 +543,7 @@ int imap_do_search_msg(int seq, struct CtdlMessage *supplied_msg,
  * validated and boiled down the request a bit.
  */
 void imap_do_search(int num_items, ConstStr *itemlist, int is_uid) {
+	citimap *Imap = IMAP;
 	int i, j, k;
 	int fts_num_msgs = 0;
 	long *fts_msgs = NULL;
@@ -555,12 +557,12 @@ void imap_do_search(int num_items, ConstStr *itemlist, int is_uid) {
 	for (i=0; i<num_items; ++i) {
 		if (itemlist[i].Key[0] == '(') {
 			
-			TokenCutLeft(&IMAP->Cmd, 
+			TokenCutLeft(&Imap->Cmd, 
 				     &itemlist[i], 
 				     1);
 		}
 		if (itemlist[i].Key[itemlist[i].len-1] == ')') {
-			TokenCutRight(&IMAP->Cmd, 
+			TokenCutRight(&Imap->Cmd, 
 				      &itemlist[i], 
 				      1);
 		}
@@ -574,23 +576,23 @@ void imap_do_search(int num_items, ConstStr *itemlist, int is_uid) {
 		if (!strcasecmp(itemlist[i].Key, "BODY")) {
 			CtdlModuleDoSearch(&fts_num_msgs, &fts_msgs, itemlist[i+1].Key, "fulltext");
 			if (fts_num_msgs > 0) {
-				for (j=0; j < IMAP->num_msgs; ++j) {
-					if (IMAP->flags[j] & IMAP_SELECTED) {
+				for (j=0; j < Imap->num_msgs; ++j) {
+					if (Imap->flags[j] & IMAP_SELECTED) {
 						is_in_list = 0;
 						for (k=0; k<fts_num_msgs; ++k) {
-							if (IMAP->msgids[j] == fts_msgs[k]) {
+							if (Imap->msgids[j] == fts_msgs[k]) {
 								++is_in_list;
 							}
 						}
 					}
 					if (!is_in_list) {
-						IMAP->flags[j] = IMAP->flags[j] & ~IMAP_SELECTED;
+						Imap->flags[j] = Imap->flags[j] & ~IMAP_SELECTED;
 					}
 				}
 			}
 			else {		/* no hits on the index; disqualify every message */
-				for (j=0; j < IMAP->num_msgs; ++j) {
-					IMAP->flags[j] = IMAP->flags[j] & ~IMAP_SELECTED;
+				for (j=0; j < Imap->num_msgs; ++j) {
+					Imap->flags[j] = Imap->flags[j] & ~IMAP_SELECTED;
 				}
 			}
 			if (fts_msgs) {
@@ -601,24 +603,24 @@ void imap_do_search(int num_items, ConstStr *itemlist, int is_uid) {
 
 	/* Now go through the messages and apply all search criteria. */
 	buffer_output();
-	cprintf("* SEARCH ");
-	if (IMAP->num_msgs > 0)
-	 for (i = 0; i < IMAP->num_msgs; ++i)
-	  if (IMAP->flags[i] & IMAP_SELECTED) {
+	IAPuts("* SEARCH ");
+	if (Imap->num_msgs > 0)
+	 for (i = 0; i < Imap->num_msgs; ++i)
+	  if (Imap->flags[i] & IMAP_SELECTED) {
 		if (imap_do_search_msg(i+1, NULL, num_items, itemlist, is_uid)) {
 			if (num_results != 0) {
-				cprintf(" ");
+				IAPuts(" ");
 			}
 			if (is_uid) {
-				cprintf("%ld", IMAP->msgids[i]);
+				IAPrintf("%ld", Imap->msgids[i]);
 			}
 			else {
-				cprintf("%d", i+1);
+				IAPrintf("%d", i+1);
 			}
 			++num_results;
 		}
 	}
-	cprintf("\r\n");
+	IAPuts("\r\n");
 	unbuffer_output();
 }
 
@@ -630,7 +632,7 @@ void imap_search(int num_parms, ConstStr *Params) {
 	int i;
 
 	if (num_parms < 3) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -639,7 +641,7 @@ void imap_search(int num_parms, ConstStr *Params) {
 	}
 
 	imap_do_search(num_parms-2, &Params[2], 0);
-	cprintf("%s OK SEARCH completed\r\n", Params[0].Key);
+	IReply("OK SEARCH completed");
 }
 
 /*
@@ -649,7 +651,7 @@ void imap_uidsearch(int num_parms, ConstStr *Params) {
 	int i;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -658,7 +660,7 @@ void imap_uidsearch(int num_parms, ConstStr *Params) {
 	}
 
 	imap_do_search(num_parms-3, &Params[3], 1);
-	cprintf("%s OK UID SEARCH completed\r\n", Params[0].Key);
+	IReply("OK UID SEARCH completed");
 }
 
 

@@ -56,8 +56,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "imap_fetch.h"
 #include "genstamp.h"
 #include "ctdl_module.h"
@@ -69,33 +69,39 @@
  */
 
 void imap_fetch_uid(int seq) {
-	cprintf("UID %ld", IMAP->msgids[seq-1]);
+	IAPrintf("UID %ld", IMAP->msgids[seq-1]);
 }
 
-void imap_fetch_flags(int seq) {
+void imap_fetch_flags(int seq) 
+{
+	citimap *Imap = IMAP;
 	int num_flags_printed = 0;
-	cprintf("FLAGS (");
-	if (IMAP->flags[seq] & IMAP_DELETED) {
-		if (num_flags_printed > 0) cprintf(" ");
-		cprintf("\\Deleted");
+	IAPuts("FLAGS (");
+	if (Imap->flags[seq] & IMAP_DELETED) {
+		if (num_flags_printed > 0) 
+			IAPuts(" ");
+		IAPuts("\\Deleted");
 		++num_flags_printed;
 	}
-	if (IMAP->flags[seq] & IMAP_SEEN) {
-		if (num_flags_printed > 0) cprintf(" ");
-		cprintf("\\Seen");
+	if (Imap->flags[seq] & IMAP_SEEN) {
+		if (num_flags_printed > 0) 
+			IAPuts(" ");
+		IAPuts("\\Seen");
 		++num_flags_printed;
 	}
-	if (IMAP->flags[seq] & IMAP_ANSWERED) {
-		if (num_flags_printed > 0) cprintf(" ");
-		cprintf("\\Answered");
+	if (Imap->flags[seq] & IMAP_ANSWERED) {
+		if (num_flags_printed > 0) 
+			IAPuts(" ");
+		IAPuts("\\Answered");
 		++num_flags_printed;
 	}
-	if (IMAP->flags[seq] & IMAP_RECENT) {
-		if (num_flags_printed > 0) cprintf(" ");
-		cprintf("\\Recent");
+	if (Imap->flags[seq] & IMAP_RECENT) {
+		if (num_flags_printed > 0) 
+			IAPuts(" ");
+		IAPuts("\\Recent");
 		++num_flags_printed;
 	}
-	cprintf(")");
+	IAPuts(")");
 }
 
 
@@ -112,7 +118,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
 	}
 
 	datestring(datebuf, sizeof datebuf, msgdate, DATESTRING_IMAP);
-	cprintf("INTERNALDATE \"%s\"", datebuf);
+	IAPrintf( "INTERNALDATE \"%s\"", datebuf);
 }
 
 
@@ -126,6 +132,7 @@ void imap_fetch_internaldate(struct CtdlMessage *msg) {
  *	"RFC822.TEXT"	body only (without leading blank line)
  */
 void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
+	citimap *Imap = IMAP;
 	const char *ptr = NULL;
 	size_t headers_size, text_size, total_size;
 	size_t bytes_to_send = 0;
@@ -149,7 +156,7 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
 		GetMetaData(&smi, msgnum);
 		if (smi.meta_rfc822_length > 0L) {
-			cprintf("RFC822.SIZE %ld", smi.meta_rfc822_length);
+			IAPrintf("RFC822.SIZE %ld", smi.meta_rfc822_length);
 			return;
 		}
 		need_to_rewrite_metadata = 1;
@@ -162,21 +169,21 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 	 * client requests something that involves reading the message
 	 * body, but we haven't fetched the body yet.
 	 */
-	if ((IMAP->cached_rfc822 != NULL)
-	   && (IMAP->cached_rfc822_msgnum == msgnum)
-	   && (IMAP->cached_rfc822_withbody || (!need_body)) ) {
+	if ((Imap->cached_rfc822 != NULL)
+	   && (Imap->cached_rfc822_msgnum == msgnum)
+	   && (Imap->cached_rfc822_withbody || (!need_body)) ) {
 		/* Good to go! */
 	}
-	else if (IMAP->cached_rfc822 != NULL) {
+	else if (Imap->cached_rfc822 != NULL) {
 		/* Some other message is cached -- free it */
-		FreeStrBuf(&IMAP->cached_rfc822);
-		IMAP->cached_rfc822_msgnum = (-1);
+		FreeStrBuf(&Imap->cached_rfc822);
+		Imap->cached_rfc822_msgnum = (-1);
 	}
 
 	/* At this point, we now can fetch and convert the message iff it's not
 	 * the one we had cached.
 	 */
-	if (IMAP->cached_rfc822 == NULL) {
+	if (Imap->cached_rfc822 == NULL) {
 		/*
 		 * Load the message into memory for translation & measurement
 		 */
@@ -185,14 +192,14 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 			(need_body ? HEADERS_ALL : HEADERS_FAST),
 			0, 1, NULL, SUPPRESS_ENV_TO
 		);
-		if (!need_body) cprintf("\r\n");	/* extra trailing newline */
-		IMAP->cached_rfc822 = CCC->redirect_buffer;
+		if (!need_body) IAPuts("\r\n");	/* extra trailing newline */
+		Imap->cached_rfc822 = CCC->redirect_buffer;
 		CCC->redirect_buffer = NULL;
-		IMAP->cached_rfc822_msgnum = msgnum;
-		IMAP->cached_rfc822_withbody = need_body;
+		Imap->cached_rfc822_msgnum = msgnum;
+		Imap->cached_rfc822_withbody = need_body;
 		if ( (need_to_rewrite_metadata) && 
-		     (StrLength(IMAP->cached_rfc822) > 0) ) {
-			smi.meta_rfc822_length = StrLength(IMAP->cached_rfc822);
+		     (StrLength(Imap->cached_rfc822) > 0) ) {
+			smi.meta_rfc822_length = StrLength(Imap->cached_rfc822);
 			PutMetaData(&smi);
 		}
 	}
@@ -209,7 +216,7 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 		StrBuf *Line = NewStrBuf();
 		ptr = NULL;
 		do {
-			StrBufSipLine(Line, IMAP->cached_rfc822, &ptr);
+			StrBufSipLine(Line, Imap->cached_rfc822, &ptr);
 
 			if ((StrLength(Line) != 0)  && (ptr != StrBufNOTNULL))
 			{
@@ -217,19 +224,19 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 				if ((StrLength(Line) != 0) && 
 				    (ptr != StrBufNOTNULL)    )
 				{
-					headers_size = ptr - ChrPtr(IMAP->cached_rfc822);
+					headers_size = ptr - ChrPtr(Imap->cached_rfc822);
 				}
 			}
 		} while ( (headers_size == 0)    && 
 			  (ptr != StrBufNOTNULL) );
 
-		total_size = StrLength(IMAP->cached_rfc822);
+		total_size = StrLength(Imap->cached_rfc822);
 		text_size = total_size - headers_size;
 		FreeStrBuf(&Line);
 	}
 	else {
 		headers_size = 
-			total_size = StrLength(IMAP->cached_rfc822);
+			total_size = StrLength(Imap->cached_rfc822);
 		text_size = 0;
 	}
 
@@ -240,27 +247,27 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 		headers_size, text_size, total_size);
 
 	if (!strcasecmp(whichfmt, "RFC822.SIZE")) {
-		cprintf("RFC822.SIZE " SIZE_T_FMT, total_size);
+		IAPrintf("RFC822.SIZE " SIZE_T_FMT, total_size);
 		return;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822")) {
-		ptr = ChrPtr(IMAP->cached_rfc822);
+		ptr = ChrPtr(Imap->cached_rfc822);
 		bytes_to_send = total_size;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822.HEADER")) {
-		ptr = ChrPtr(IMAP->cached_rfc822);
+		ptr = ChrPtr(Imap->cached_rfc822);
 		bytes_to_send = headers_size;
 	}
 
 	else if (!strcasecmp(whichfmt, "RFC822.TEXT")) {
-		ptr = &ChrPtr(IMAP->cached_rfc822)[headers_size];
+		ptr = &ChrPtr(Imap->cached_rfc822)[headers_size];
 		bytes_to_send = text_size;
 	}
 
-	cprintf("%s {" SIZE_T_FMT "}\r\n", whichfmt, bytes_to_send);
-	client_write(ptr, bytes_to_send);
+	IAPrintf("%s {" SIZE_T_FMT "}\r\n", whichfmt, bytes_to_send);
+	iaputs(ptr, bytes_to_send);
 }
 
 
@@ -293,26 +300,37 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 	snprintf(mimebuf2, sizeof mimebuf2, "%s.MIME", partnum);
 
 	if (!strcasecmp(desired_section, mimebuf2)) {
-		cprintf("Content-type: %s", cbtype);
-		if (!IsEmptyStr(cbcharset))
-			cprintf("; charset=\"%s\"", cbcharset);
-		if (!IsEmptyStr(name))
-			cprintf("; name=\"%s\"", name);
-		cprintf("\r\n");
-		if (!IsEmptyStr(encoding))
-			cprintf("Content-Transfer-Encoding: %s\r\n", encoding);
-		if (!IsEmptyStr(encoding)) {
-			cprintf("Content-Disposition: %s", disp);
-			if (!IsEmptyStr(filename)) {
-				cprintf("; filename=\"%s\"", filename);
-			}
-			cprintf("\r\n");
+		IAPuts("Content-type: ");
+	 	_iaputs(cbtype);
+		if (!IsEmptyStr(cbcharset)) {
+			IAPuts("; charset=\"");
+			_iaputs(cbcharset);
+			IAPuts("\"");
 		}
-		cprintf("Content-Length: %ld\r\n", (long)length);
-		cprintf("\r\n");
+		if (!IsEmptyStr(name)) {
+			IAPuts("; name=\"");
+			_iaputs(name);
+			IAPuts("\"");
+		}
+		IAPuts("\r\n");
+		if (!IsEmptyStr(encoding)) {
+			IAPuts("Content-Transfer-Encoding: ");
+			_iaputs(encoding);
+			IAPuts("\r\n");
+		}
+		if (!IsEmptyStr(encoding)) {
+			IAPuts("Content-Disposition: ");
+			_iaputs(disp);
+		
+			if (!IsEmptyStr(filename)) {
+				IAPuts("; filename=\"");
+				_iaputs(filename);
+				IAPuts("\"");
+			}
+			IAPuts("\r\n");
+		}
+		IAPrintf("Content-Length: %ld\r\n\r\n", (long)length);
 	}
-			
-
 }
 
 
@@ -328,24 +346,24 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 
 	/* For anonymous messages, it's so easy! */
 	if (!is_room_aide() && (msg->cm_anon_type == MES_ANONONLY)) {
-		cprintf("((\"----\" NIL \"x\" \"x.org\")) ");
+		IAPuts("((\"----\" NIL \"x\" \"x.org\")) ");
 		return;
 	}
 	if (!is_room_aide() && (msg->cm_anon_type == MES_ANONOPT)) {
-		cprintf("((\"anonymous\" NIL \"x\" \"x.org\")) ");
+		IAPuts("((\"anonymous\" NIL \"x\" \"x.org\")) ");
 		return;
 	}
 
 	/* For everything else, we do stuff. */
-	cprintf("((");				/* open double-parens */
+	IAPuts("(("); /* open double-parens */
 	plain_imap_strout(msg->cm_fields['A']);	/* personal name */
-	cprintf(" NIL ");			/* source route (not used) */
+	IAPuts(" NIL ");	/* source route (not used) */
 
 
 	if (msg->cm_fields['F'] != NULL) {
 		process_rfc822_addr(msg->cm_fields['F'], user, node, name);
 		plain_imap_strout(user);		/* mailbox name (user id) */
-		cprintf(" ");
+		IAPuts(" ");
 		if (!strcasecmp(node, config.c_nodename)) {
 			plain_imap_strout(config.c_fqdn);
 		}
@@ -355,11 +373,11 @@ void imap_output_envelope_from(struct CtdlMessage *msg) {
 	}
 	else {
 		plain_imap_strout(msg->cm_fields['A']); /* mailbox name (user id) */
-		cprintf(" ");
+		IAPuts(" ");
 		plain_imap_strout(msg->cm_fields['N']);	/* host name */
 	}
 	
-	cprintf(")) ");				/* close double-parens */
+	IAPuts(")) "); /* close double-parens */
 }
 
 
@@ -379,16 +397,16 @@ void imap_output_envelope_addr(char *addr) {
 	char name[256];
 
 	if (addr == NULL) {
-		cprintf("NIL ");
+		IAPuts("NIL ");
 		return;
 	}
 
 	if (IsEmptyStr(addr)) {
-		cprintf("NIL ");
+		IAPuts("NIL ");
 		return;
 	}
 
-	cprintf("(");
+	IAPuts("(");
 
 	/* How many addresses are listed here? */
 	num_addrs = num_tokens(addr, ',');
@@ -398,17 +416,18 @@ void imap_output_envelope_addr(char *addr) {
 		extract_token(individual_addr, addr, i, ',', sizeof individual_addr);
 		striplt(individual_addr);
 		process_rfc822_addr(individual_addr, user, node, name);
-		cprintf("(");
+		IAPuts("(");
 		plain_imap_strout(name);
-		cprintf(" NIL ");
+		IAPuts(" NIL ");
 		plain_imap_strout(user);
-		cprintf(" ");
+		IAPuts(" ");
 		plain_imap_strout(node);
-		cprintf(")");
-		if (i < (num_addrs-1)) cprintf(" ");
+		IAPuts(")");
+		if (i < (num_addrs-1)) 
+			IAPuts(" ");
 	}
 
-	cprintf(") ");
+	IAPuts(") ");
 }
 
 
@@ -422,6 +441,7 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	char datestringbuf[SIZ];
 	time_t msgdate;
 	char *fieldptr = NULL;
+	long len;
 
 	if (!msg) return;
 
@@ -440,15 +460,15 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	 * be output as NIL, existent fields must be quoted or literalled.
 	 * The imap_strout() function conveniently does all this for us.
 	 */
-	cprintf("ENVELOPE (");
+	IAPuts("ENVELOPE (");
 
 	/* Date */
 	plain_imap_strout(datestringbuf);
-	cprintf(" ");
+	IAPuts(" ");
 
 	/* Subject */
 	plain_imap_strout(msg->cm_fields['U']);
-	cprintf(" ");
+	IAPuts(" ");
 
 	/* From */
 	imap_output_envelope_from(msg);
@@ -495,13 +515,41 @@ void imap_fetch_envelope(struct CtdlMessage *msg) {
 	/* In-reply-to */
 	fieldptr = rfc822_fetch_field(msg->cm_fields['M'], "In-reply-to");
 	plain_imap_strout(fieldptr);
-	cprintf(" ");
+	IAPuts(" ");
 	if (fieldptr != NULL) free(fieldptr);
 
 	/* message ID */
-	plain_imap_strout(msg->cm_fields['I']);
-
-	cprintf(")");
+	len = strlen(msg->cm_fields['I']);
+	
+	if ((len == 0) || (
+		    (msg->cm_fields['I'][0] == '<') && 
+		    (msg->cm_fields['I'][len - 1] == '>'))
+		)
+	{
+		plain_imap_strout(msg->cm_fields['I']);
+	}
+	else 
+	{
+		char *Buf = malloc(len + 3);
+		long pos = 0;
+		
+		if (msg->cm_fields['I'][0] != '<')
+		{
+			Buf[pos] = '<';
+			pos ++;
+		}
+		memcpy(&Buf[pos], msg->cm_fields['I'], len);
+		pos += len;
+		if (msg->cm_fields['I'][len] != '>')
+		{
+			Buf[pos] = '>';
+			pos++;
+		}
+		Buf[pos] = '\0';
+		IPutStr(Buf, pos);
+		free(Buf);
+	}
+	IAPuts(")");
 }
 
 /*
@@ -615,6 +663,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	int need_body = 1;
 	int burn_the_cache = 0;
 	CitContext *CCC = CC;
+	citimap *Imap = IMAP;
 
 	/* extract section */
 	section = NewStrBufPlain(CKEY(item));
@@ -629,23 +678,23 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	/* Burn the cache if we don't have the same section of the 
 	 * same message again.
 	 */
-	if (IMAP->cached_body != NULL) {
-		if (IMAP->cached_bodymsgnum != msgnum) {
+	if (Imap->cached_body != NULL) {
+		if (Imap->cached_bodymsgnum != msgnum) {
 			burn_the_cache = 1;
 		}
-		else if ( (!IMAP->cached_body_withbody) && (need_body) ) {
+		else if ( (!Imap->cached_body_withbody) && (need_body) ) {
 			burn_the_cache = 1;
 		}
-		else if (strcasecmp(IMAP->cached_bodypart, ChrPtr(section))) {
+		else if (strcasecmp(Imap->cached_bodypart, ChrPtr(section))) {
 			burn_the_cache = 1;
 		}
 		if (burn_the_cache) {
 			/* Yup, go ahead and burn the cache. */
-			free(IMAP->cached_body);
-			IMAP->cached_body_len = 0;
-			IMAP->cached_body = NULL;
-			IMAP->cached_bodymsgnum = (-1);
-			strcpy(IMAP->cached_bodypart, "");
+			free(Imap->cached_body);
+			Imap->cached_body_len = 0;
+			Imap->cached_body = NULL;
+			Imap->cached_bodymsgnum = (-1);
+			strcpy(Imap->cached_bodypart, "");
 		}
 	}
 
@@ -659,7 +708,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 		CtdlLogPrintf(CTDL_DEBUG, "Partial is <%s>\n", ChrPtr(partial));
 	}
 
-	if (IMAP->cached_body == NULL) {
+	if (Imap->cached_body == NULL) {
 		CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 		loading_body_now = 1;
 		msg = CtdlFetchMessage(msgnum, (need_body ? 1 : 0));
@@ -712,30 +761,34 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	}
 
 	if (loading_body_now) {
-		IMAP->cached_body_len = StrLength(CCC->redirect_buffer);
-		IMAP->cached_body = SmashStrBuf(&CCC->redirect_buffer);
-		IMAP->cached_bodymsgnum = msgnum;
-		IMAP->cached_body_withbody = need_body;
-		strcpy(IMAP->cached_bodypart, ChrPtr(section));
+		Imap->cached_body_len = StrLength(CCC->redirect_buffer);
+		Imap->cached_body = SmashStrBuf(&CCC->redirect_buffer);
+		Imap->cached_bodymsgnum = msgnum;
+		Imap->cached_body_withbody = need_body;
+		strcpy(Imap->cached_bodypart, ChrPtr(section));
 	}
 
 	if (is_partial == 0) {
-		cprintf("BODY[%s] {" SIZE_T_FMT "}\r\n", ChrPtr(section), IMAP->cached_body_len);
+		IAPuts("BODY[");
+		iaputs(SKEY(section));
+		IAPrintf("] {" SIZE_T_FMT "}\r\n", Imap->cached_body_len);
 		pstart = 0;
-		pbytes = IMAP->cached_body_len;
+		pbytes = Imap->cached_body_len;
 	}
 	else {
 		sscanf(ChrPtr(partial), SIZE_T_FMT "." SIZE_T_FMT, &pstart, &pbytes);
-		if (pbytes > (IMAP->cached_body_len - pstart)) {
-			pbytes = IMAP->cached_body_len - pstart;
+		if (pbytes > (Imap->cached_body_len - pstart)) {
+			pbytes = Imap->cached_body_len - pstart;
 		}
-		cprintf("BODY[%s]<" SIZE_T_FMT "> {" SIZE_T_FMT "}\r\n", ChrPtr(section), pstart, pbytes);
+		IAPuts("BODY[");
+		iaputs(SKEY(section));
+		IAPrintf("]<" SIZE_T_FMT "> {" SIZE_T_FMT "}\r\n", pstart, pbytes);
 	}
 
 	FreeStrBuf(&partial);
 
 	/* Here we go -- output it */
-	client_write(&IMAP->cached_body[pstart], pbytes);
+	iaputs(&Imap->cached_body[pstart], pbytes);
 
 	if (msg != NULL) {
 		CtdlFreeMessage(msg);
@@ -757,7 +810,7 @@ void imap_fetch_bodystructure_pre(
 		char *cbid, void *cbuserdata
 		) {
 
-	cprintf("(");
+	IAPuts("(");
 }
 
 
@@ -773,16 +826,16 @@ void imap_fetch_bodystructure_post(
 
 	char subtype[128];
 
-	cprintf(" ");
+	IAPuts(" ");
 
 	/* disposition */
 	extract_token(subtype, cbtype, 1, '/', sizeof subtype);
 	plain_imap_strout(subtype);
 
 	/* body language */
-	/* cprintf(" NIL"); We thought we needed this at one point, but maybe we don't... */
+	/* IAPuts(" NIL"); We thought we needed this at one point, but maybe we don't... */
 
-	cprintf(")");
+	IAPuts(")");
 }
 
 
@@ -814,25 +867,25 @@ void imap_fetch_bodystructure_part(
 		strcpy(cbsubtype, "PLAIN");
 	}
 
-	cprintf("(");
+	IAPuts("(");
 	plain_imap_strout(cbmaintype);					/* body type */
-	cprintf(" ");
+	IAPuts(" ");
 	plain_imap_strout(cbsubtype);						/* body subtype */
-	cprintf(" ");
+	IAPuts(" ");
 
-	cprintf("(");							/* begin body parameter list */
+	IAPuts("(");							/* begin body parameter list */
 
 	/* "NAME" must appear as the first parameter.  This is not required by IMAP,
 	 * but the Asterisk voicemail application blindly assumes that NAME will be in
 	 * the first position.  If it isn't, it rejects the message.
 	 */
 	if (name != NULL) if (!IsEmptyStr(name)) {
-		cprintf("\"NAME\" ");
+		IAPuts("\"NAME\" ");
 		plain_imap_strout(name);
-		cprintf(" ");
+		IAPuts(" ");
 	}
 
-	cprintf("\"CHARSET\" ");
+	IAPuts("\"CHARSET\" ");
 	if (cbcharset == NULL) {
 		plain_imap_strout("US-ASCII");
 	}
@@ -842,10 +895,10 @@ void imap_fetch_bodystructure_part(
 	else {
 		plain_imap_strout(cbcharset);
 	}
-	cprintf(") ");							/* end body parameter list */
+	IAPuts(") ");							/* end body parameter list */
 
-	cprintf("NIL ");						/* Body ID */
-	cprintf("NIL ");						/* Body description */
+	IAPuts("NIL ");						/* Body ID */
+	IAPuts("NIL ");						/* Body description */
 
 	if (encoding != NULL) if (encoding[0] != 0)  have_encoding = 1;
 	if (have_encoding) {
@@ -854,10 +907,10 @@ void imap_fetch_bodystructure_part(
 	else {
 		plain_imap_strout("7BIT");
 	}
-	cprintf(" ");
+	IAPuts(" ");
 
 	/* The next field is the size of the part in bytes. */
-	cprintf("%ld ", (long)length);	/* bytes */
+	IAPrintf("%ld ", (long)length);	/* bytes */
 
 	/* The next field is the number of lines in the part, if and only
 	 * if the part is TEXT.  More gratuitous complexity.
@@ -866,7 +919,7 @@ void imap_fetch_bodystructure_part(
 		if (length) for (i=0; i<length; ++i) {
 			if (((char *)content)[i] == '\n') ++lines;
 		}
-		cprintf("%d ", lines);
+		IAPrintf("%d ", lines);
 	}
 
 	/* More gratuitous complexity */
@@ -880,28 +933,28 @@ void imap_fetch_bodystructure_part(
 	}
 
 	/* MD5 value of body part; we can get away with NIL'ing this */
-	cprintf("NIL ");
+	IAPuts("NIL ");
 
 	/* Disposition */
 	if (disp == NULL) {
-		cprintf("NIL");
+		IAPuts("NIL");
 	}
 	else if (IsEmptyStr(disp)) {
-		cprintf("NIL");
+		IAPuts("NIL");
 	}
 	else {
-		cprintf("(");
+		IAPuts("(");
 		plain_imap_strout(disp);
 		if (filename != NULL) if (!IsEmptyStr(filename)) {
-			cprintf(" (\"FILENAME\" ");
+			IAPuts(" (\"FILENAME\" ");
 			plain_imap_strout(filename);
-			cprintf(")");
+			IAPuts(")");
 		}
-		cprintf(")");
+		IAPuts(")");
 	}
 
 	/* Body language (not defined yet) */
-	cprintf(" NIL)");
+	IAPuts(" NIL)");
 }
 
 
@@ -924,7 +977,7 @@ void imap_fetch_bodystructure (long msgnum, const char *item,
 
 	/* Handle NULL message gracefully */
 	if (msg == NULL) {
-		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
+		IAPuts("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
 			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
 			"\"7BIT\" 0 0)");
 		return;
@@ -957,15 +1010,16 @@ void imap_fetch_bodystructure (long msgnum, const char *item,
 		rfc822_body_len = rfc822_len - rfc822_headers_len;
 		free(pch);
 
-		cprintf("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
-			"(\"CHARSET\" \"US-ASCII\") NIL NIL "
-			"\"7BIT\" " SIZE_T_FMT " %d)", rfc822_body_len, lines);
+		IAPuts("BODYSTRUCTURE (\"TEXT\" \"PLAIN\" "
+		       "(\"CHARSET\" \"US-ASCII\") NIL NIL "
+		       "\"7BIT\" ");
+		IAPrintf(SIZE_T_FMT " %d)", rfc822_body_len, lines);
 
 		return;
 	}
 
 	/* For messages already stored in RFC822 format, we have to parse. */
-	cprintf("BODYSTRUCTURE ");
+	IAPuts("BODYSTRUCTURE ");
 	mime_parser(msg->cm_fields['M'],
 			NULL,
 			*imap_fetch_bodystructure_part,	/* part */
@@ -991,7 +1045,7 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 	if (Imap->msgids[seq-1] < 1L) return;
 
 	buffer_output();
-	cprintf("* %d FETCH (", seq);
+	IAPrintf("* %d FETCH (", seq);
 
 	for (i=0; i<Cmd->num_parms; ++i) {
 
@@ -1056,10 +1110,10 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
 			imap_fetch_internaldate(msg);
 		}
 
-		if (i != Cmd->num_parms-1) cprintf(" ");
+		if (i != Cmd->num_parms-1) IAPuts(" ");
 	}
 
-	cprintf(")\r\n");
+	IAPuts(")\r\n");
 	unbuffer_output();
 	if (msg != NULL) {
 		CtdlFreeMessage(msg);
@@ -1073,6 +1127,7 @@ void imap_do_fetch_msg(int seq, citimap_command *Cmd) {
  * validated and boiled down the request a bit.
  */
 void imap_do_fetch(citimap_command *Cmd) {
+	citimap *Imap = IMAP;
 	int i;
 #if 0
 /* debug output the parsed vector */
@@ -1095,8 +1150,8 @@ void imap_do_fetch(citimap_command *Cmd) {
 
 #endif
 
-	if (IMAP->num_msgs > 0) {
-		for (i = 0; i < IMAP->num_msgs; ++i) {
+	if (Imap->num_msgs > 0) {
+		for (i = 0; i < Imap->num_msgs; ++i) {
 
 			/* Abort the fetch loop if the session breaks.
 			 * This is important for users who keep mailboxes
@@ -1106,7 +1161,7 @@ void imap_do_fetch(citimap_command *Cmd) {
 			if (CC->kill_me) return;
 
 			/* Get any message marked for fetch. */
-			if (IMAP->flags[i] & IMAP_SELECTED) {
+			if (Imap->flags[i] & IMAP_SELECTED) {
 				imap_do_fetch_msg(i+1, Cmd);
 			}
 		}
@@ -1298,13 +1353,13 @@ int imap_extract_data_items(citimap_command *Cmd)
  * Set is_uid to 1 to fetch by UID instead of sequence number.
  */
 void imap_pick_range(const char *supplied_range, int is_uid) {
+	citimap *Imap = IMAP;
 	int i;
 	int num_sets;
 	int s;
 	char setstr[SIZ], lostr[SIZ], histr[SIZ];
 	long lo, hi;
 	char actual_range[SIZ];
-	citimap *Imap;
 
 	/* 
 	 * Handle the "ALL" macro
@@ -1316,7 +1371,6 @@ void imap_pick_range(const char *supplied_range, int is_uid) {
 		safestrncpy(actual_range, supplied_range, sizeof actual_range);
 	}
 
-	Imap = IMAP;
 	/*
 	 * Clear out the IMAP_SELECTED flags for all messages.
 	 */
@@ -1369,7 +1423,7 @@ void imap_fetch(int num_parms, ConstStr *Params) {
 	int num_items;
 	
 	if (num_parms < 4) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -1381,14 +1435,14 @@ void imap_fetch(int num_parms, ConstStr *Params) {
 
 	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		IReply("BAD invalid data item list");
 		FreeStrBuf(&Cmd.CmdBuf);
 		free(Cmd.Params);
 		return;
 	}
 
 	imap_do_fetch(&Cmd);
-	cprintf("%s OK FETCH completed\r\n", Params[0].Key);
+	IReply("OK FETCH completed");
 	FreeStrBuf(&Cmd.CmdBuf);
 	free(Cmd.Params);
 }
@@ -1403,7 +1457,7 @@ void imap_uidfetch(int num_parms, ConstStr *Params) {
 	int have_uid_item = 0;
 
 	if (num_parms < 5) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -1418,7 +1472,7 @@ void imap_uidfetch(int num_parms, ConstStr *Params) {
 #endif
 	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {
-		cprintf("%s BAD invalid data item list\r\n", Params[0].Key);
+		IReply("BAD invalid data item list");
 		FreeStrBuf(&Cmd.CmdBuf);
 		free(Cmd.Params);
 		return;
@@ -1442,7 +1496,7 @@ void imap_uidfetch(int num_parms, ConstStr *Params) {
 	}
 
 	imap_do_fetch(&Cmd);
-	cprintf("%s OK UID FETCH completed\r\n", Params[0].Key);
+	IReply("OK UID FETCH completed");
 	FreeStrBuf(&Cmd.CmdBuf);
 	free(Cmd.Params);
 }

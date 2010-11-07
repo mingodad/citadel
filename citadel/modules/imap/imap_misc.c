@@ -53,8 +53,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "imap_fetch.h"
 #include "imap_misc.h"
 #include "genstamp.h"
@@ -69,13 +69,14 @@
  * validated and boiled down the request a bit.  (returns 0 on success)
  */
 int imap_do_copy(const char *destination_folder) {
+	citimap *Imap = IMAP;
 	int i;
 	char roomname[ROOMNAMELEN];
 	struct ctdlroom qrbuf;
 	long *selected_msgs = NULL;
 	int num_selected = 0;
 
-	if (IMAP->num_msgs < 1) {
+	if (Imap->num_msgs < 1) {
 		return(0);
 	}
 
@@ -85,12 +86,12 @@ int imap_do_copy(const char *destination_folder) {
 	/*
 	 * Copy all the message pointers in one shot.
 	 */
-	selected_msgs = malloc(sizeof(long) * IMAP->num_msgs);
+	selected_msgs = malloc(sizeof(long) * Imap->num_msgs);
 	if (selected_msgs == NULL) return(-1);
 
-	for (i = 0; i < IMAP->num_msgs; ++i) {
-		if (IMAP->flags[i] & IMAP_SELECTED) {
-			selected_msgs[num_selected++] = IMAP->msgids[i];
+	for (i = 0; i < Imap->num_msgs; ++i) {
+		if (Imap->flags[i] & IMAP_SELECTED) {
+			selected_msgs[num_selected++] = Imap->msgids[i];
 		}
 	}
 
@@ -119,19 +120,19 @@ int imap_do_copy(const char *destination_folder) {
 	answ_yes = malloc(num_selected * sizeof(long));
 	answ_no = malloc(num_selected * sizeof(long));
 
-	for (i = 0; i < IMAP->num_msgs; ++i) {
-		if (IMAP->flags[i] & IMAP_SELECTED) {
-			if (IMAP->flags[i] & IMAP_SEEN) {
-				seen_yes[num_seen_yes++] = IMAP->msgids[i];
+	for (i = 0; i < Imap->num_msgs; ++i) {
+		if (Imap->flags[i] & IMAP_SELECTED) {
+			if (Imap->flags[i] & IMAP_SEEN) {
+				seen_yes[num_seen_yes++] = Imap->msgids[i];
 			}
-			if ((IMAP->flags[i] & IMAP_SEEN) == 0) {
-				seen_no[num_seen_no++] = IMAP->msgids[i];
+			if ((Imap->flags[i] & IMAP_SEEN) == 0) {
+				seen_no[num_seen_no++] = Imap->msgids[i];
 			}
-			if (IMAP->flags[i] & IMAP_ANSWERED) {
-				answ_yes[num_answ_yes++] = IMAP->msgids[i];
+			if (Imap->flags[i] & IMAP_ANSWERED) {
+				answ_yes[num_answ_yes++] = Imap->msgids[i];
 			}
-			if ((IMAP->flags[i] & IMAP_ANSWERED) == 0) {
-				answ_no[num_answ_no++] = IMAP->msgids[i];
+			if ((Imap->flags[i] & IMAP_ANSWERED) == 0) {
+				answ_no[num_answ_no++] = Imap->msgids[i];
 			}
 		}
 	}
@@ -163,23 +164,24 @@ int imap_do_copy(const char *destination_folder) {
  * can get this done quite easily.
  */
 void imap_output_copyuid_response(void) {
+	citimap *Imap = IMAP;
 	int i;
 	int num_output = 0;
   
-	for (i = 0; i < IMAP->num_msgs; ++i) {
-		if (IMAP->flags[i] & IMAP_SELECTED) {
+	for (i = 0; i < Imap->num_msgs; ++i) {
+		if (Imap->flags[i] & IMAP_SELECTED) {
 			++num_output;
 			if (num_output == 1) {
-				cprintf("[COPYUID ");
+				IAPuts("[COPYUID ");
 			}
 			else if (num_output > 1) {
-				cprintf(",");
+				IAPuts(",");
 			}
-			cprintf("%ld", IMAP->msgids[i]);
+			IAPrintf("%ld", Imap->msgids[i]);
 		}
 	}
 	if (num_output > 0) {
-		cprintf("] ");
+		IAPuts("] ");
 	}
 }
 
@@ -191,7 +193,7 @@ void imap_copy(int num_parms, ConstStr *Params) {
 	int ret;
 
 	if (num_parms != 4) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -199,18 +201,18 @@ void imap_copy(int num_parms, ConstStr *Params) {
 		imap_pick_range(Params[2].Key, 0);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
 	ret = imap_do_copy(Params[3].Key);
 	if (!ret) {
-		cprintf("%s OK ", Params[0].Key);
+		IAPrintf("%s OK ", Params[0].Key);
 		imap_output_copyuid_response();
-		cprintf("COPY completed\r\n");
+		IAPuts("COPY completed\r\n");
 	}
 	else {
-		cprintf("%s NO COPY failed (error %d)\r\n", Params[0].Key, ret);
+		IReplyPrintf("NO COPY failed (error %d)\r\n", ret);
 	}
 }
 
@@ -220,7 +222,7 @@ void imap_copy(int num_parms, ConstStr *Params) {
 void imap_uidcopy(int num_parms, ConstStr *Params) {
 
 	if (num_parms != 5) {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
@@ -228,17 +230,17 @@ void imap_uidcopy(int num_parms, ConstStr *Params) {
 		imap_pick_range(Params[3].Key, 1);
 	}
 	else {
-		cprintf("%s BAD invalid parameters\r\n", Params[0].Key);
+		IReply("BAD invalid parameters");
 		return;
 	}
 
 	if (imap_do_copy(Params[4].Key) == 0) {
-		cprintf("%s OK ", Params[0].Key);
+		IAPrintf("%s OK ", Params[0].Key);
 		imap_output_copyuid_response();
-		cprintf("UID COPY completed\r\n");
+		IAPuts("UID COPY completed\r\n");
 	}
 	else {
-		cprintf("%s NO UID COPY failed\r\n", Params[0].Key);
+		IReply("NO UID COPY failed");
 	}
 }
 
@@ -293,13 +295,13 @@ void imap_append(int num_parms, ConstStr *Params) {
 	citimap *Imap;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD usage error\r\n", Params[0].Key);
+		IReply("BAD usage error");
 		return;
 	}
 
 	if ( (Params[num_parms-1].Key[0] != '{')
 	   || (Params[num_parms-1].Key[Params[num_parms-1].len-1] != '}') )  {
-		cprintf("%s BAD no message literal supplied\r\n", Params[0].Key);
+		IReply("BAD no message literal supplied");
 		return;
 	}
 
@@ -320,8 +322,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 
 	literal_length = atol(&Params[num_parms-1].Key[1]);
 	if (literal_length < 1) {
-		cprintf("%s BAD Message length must be at least 1.\r\n",
-			Params[0].Key);
+		IReply("BAD Message length must be at least 1.");
 		return;
 	}
 
@@ -331,17 +332,19 @@ void imap_append(int num_parms, ConstStr *Params) {
 	Imap->TransmittedMessage = NewStrBufPlain(NULL, literal_length);
 
 	if (Imap->TransmittedMessage == NULL) {
-		cprintf("%s NO Cannot allocate memory.\r\n", Params[0].Key);
+		IReply("NO Cannot allocate memory.");
 		return;
 	}
 	
-	cprintf("+ Transmit message now.\r\n");
+	IAPrintf("+ Transmit message now.\r\n");
+	
+	IUnbuffer ();
 
 	bytes_transferred = 0;
 	client_read_blob(Imap->TransmittedMessage, literal_length, config.c_sleeping);
 
 	if ((ret < 0) || (StrLength(Imap->TransmittedMessage) < literal_length)) {
-		cprintf("%s NO Read failed.\r\n", Params[0].Key);
+		IReply("NO Read failed.");
 		return;
 	}
 
@@ -360,8 +363,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n",
-			Params[0].Key);
+		IReply("NO Invalid mailbox name or access denied");
 		return;
 	}
 
@@ -399,7 +401,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 
 	if (ret) {
 		/* Nope ... print an error message */
-		cprintf("%s NO %s\r\n", Params[0].Key, errbuf);
+		IReplyPrintf("NO %s", errbuf);
 	}
 
 	else {
@@ -408,12 +410,12 @@ void imap_append(int num_parms, ConstStr *Params) {
 			new_msgnum = CtdlSubmitMsg(msg, NULL, "", 0);
 		}
 		if (new_msgnum >= 0L) {
-			cprintf("%s OK [APPENDUID %ld %ld] APPEND completed\r\n",
-				Params[0].Key, GLOBAL_UIDVALIDITY_VALUE, new_msgnum);
+			IReplyPrintf("OK [APPENDUID %ld %ld] APPEND completed",
+				     GLOBAL_UIDVALIDITY_VALUE, new_msgnum);
 		}
 		else {
-			cprintf("%s BAD Error %ld saving message to disk.\r\n",
-				Params[0].Key, new_msgnum);
+			IReplyPrintf("BAD Error %ld saving message to disk.\r\n",
+				     new_msgnum);
 		}
 	}
 

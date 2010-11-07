@@ -54,8 +54,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "imap_fetch.h"
 #include "imap_search.h"
 #include "imap_store.h"
@@ -96,9 +96,9 @@ void imap_list_floors(char *verb, int num_patterns, StrBuf **patterns)
 				}
 			}
 			if (match) {
-				cprintf("* %s (\\NoSelect \\HasChildren) \"/\" ", verb);
+				IAPrintf("* %s (\\NoSelect \\HasChildren) \"/\" ", verb);
 				plain_imap_strout(fl->f_name);
-				cprintf("\r\n");
+				IAPuts("\r\n");
 			}
 		}
 	}
@@ -176,9 +176,9 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
 			}
 		}
 		if (match) {
-			cprintf("* %s (%s) \"/\" ", ImapFilter->verb, return_options);
+			IAPrintf("* %s (%s) \"/\" ", ImapFilter->verb, return_options);
 			plain_imap_strout(MailboxName);
-			cprintf("\r\n");
+			IAPuts("\r\n");
 		}
 	}
 }
@@ -189,6 +189,7 @@ void imap_listroom(struct ctdlroom *qrbuf, void *data)
  */
 void imap_list(int num_parms, ConstStr *Params)
 {
+	citimap *Imap = IMAP;
 	int i, j, paren_nest;
 	ImapRoomListFilter ImapFilter;
 	int selection_left = (-1);
@@ -201,7 +202,7 @@ void imap_list(int num_parms, ConstStr *Params)
 	int extended_list_in_use = 0;
 
 	if (num_parms < 4) {
-		cprintf("%s BAD arguments invalid\r\n", Params[0].Key);
+		IReply("BAD arguments invalid");
 		return;
 	}
 
@@ -268,12 +269,12 @@ void imap_list(int num_parms, ConstStr *Params)
 
 		/* Strip off the outer parentheses */
 		if (Params[selection_left].Key[0] == '(') {
-			TokenCutLeft(&IMAP->Cmd, 
+			TokenCutLeft(&Imap->Cmd, 
 				     &Params[selection_left], 
 				     1);
 		}
 		if (Params[selection_right].Key[Params[selection_right].len-1] == ')') {
-			TokenCutRight(&IMAP->Cmd, 
+			TokenCutRight(&Imap->Cmd, 
 				      &Params[selection_right], 
 				      1);
 		}
@@ -368,11 +369,11 @@ void imap_list(int num_parms, ConstStr *Params)
 
 			/* Might as well look for these while we're in here... */
 			if (Params[i].Key[0] == '(') 
-				TokenCutLeft(&IMAP->Cmd, 
+				TokenCutLeft(&Imap->Cmd, 
 					     &Params[i], 
 					     1);
 			if (Params[i].Key[Params[i].len-1] == ')')
-			    TokenCutRight(&IMAP->Cmd, 
+			    TokenCutRight(&Imap->Cmd, 
 					  &Params[i], 
 					  1);
 
@@ -402,7 +403,7 @@ void imap_list(int num_parms, ConstStr *Params)
 	 * reference parameter.
 	 */
 	if ( (StrLength(ImapFilter.patterns[0]) == 0) && (extended_list_in_use == 0) ) {
-		cprintf("* %s (\\Noselect) \"/\" \"\"\r\n", ImapFilter.verb);
+		IAPrintf("* %s (\\Noselect) \"/\" \"\"\r\n", ImapFilter.verb);
 	}
 
 	/* Non-empty mailbox names, and any form of the extended LIST command,
@@ -424,5 +425,5 @@ void imap_list(int num_parms, ConstStr *Params)
 
 	}
 
-	cprintf("%s OK %s completed\r\n", Params[0].Key, ImapFilter.verb);
+	IReplyPrintf("OK %s completed", ImapFilter.verb);
 }

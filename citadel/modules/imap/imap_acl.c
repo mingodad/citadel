@@ -55,8 +55,8 @@
 #include "database.h"
 #include "msgbase.h"
 #include "internet_addressing.h"
-#include "imap_tools.h"
 #include "serv_imap.h"
+#include "imap_tools.h"
 #include "imap_fetch.h"
 #include "imap_misc.h"
 #include "genstamp.h"
@@ -68,7 +68,7 @@
  */
 void imap_setacl(int num_parms, ConstStr *Params) {
 
-	cprintf("%s BAD not yet implemented FIXME\r\n", Params[0].Key);
+	IReply("BAD not yet implemented FIXME");
 	return;
 }
 
@@ -78,7 +78,7 @@ void imap_setacl(int num_parms, ConstStr *Params) {
  */
 void imap_deleteacl(int num_parms, ConstStr *Params) {
 
-	cprintf("%s BAD not yet implemented FIXME\r\n", Params[0].Key);
+	IReply("BAD not yet implemented FIXME");
 	return;
 }
 
@@ -87,9 +87,9 @@ void imap_deleteacl(int num_parms, ConstStr *Params) {
  * Given the bits returned by CtdlRoomAccess(), populate a string buffer
  * with IMAP ACL format flags.   This code is common to GETACL and MYRIGHTS.
  */
-void imap_acl_flags(char *rights, int ra)
+void imap_acl_flags(StrBuf *rights, int ra)
 {
-	strcpy(rights, "");
+	FlushStrBuf(rights);
 
 	/* l - lookup (mailbox is visible to LIST/LSUB commands)
 	 * r - read (SELECT the mailbox, perform STATUS et al)
@@ -98,9 +98,9 @@ void imap_acl_flags(char *rights, int ra)
 	if (	(ra & UA_KNOWN)					/* known rooms */
 	   ||	((ra & UA_GOTOALLOWED) && (ra & UA_ZAPPED))	/* zapped rooms */
 	) {
-		strcat(rights, "l");
-		strcat(rights, "r");
-		strcat(rights, "s");
+		StrBufAppendBufPlain(rights, HKEY("l"), 0);
+		StrBufAppendBufPlain(rights, HKEY("r"), 0);
+		StrBufAppendBufPlain(rights, HKEY("s"), 0);
 
 		/* Only output the remaining flags if the room is known */
 
@@ -110,14 +110,14 @@ void imap_acl_flags(char *rights, int ra)
 		/* p - post (send mail to submission address for mailbox - not enforced) */
 		/* c - create (CREATE new sub-mailboxes) */
 		if (ra & UA_POSTALLOWED) {
-			strcat(rights, "i");
-			strcat(rights, "p");
-			strcat(rights, "c");
+			StrBufAppendBufPlain(rights, HKEY("i"), 0);
+			StrBufAppendBufPlain(rights, HKEY("p"), 0);
+			StrBufAppendBufPlain(rights, HKEY("c"), 0);
 		}
 
 		/* d - delete messages (STORE DELETED flag, perform EXPUNGE) */
 		if (ra & UA_DELETEALLOWED) {
-			strcat(rights, "d");
+			StrBufAppendBufPlain(rights, HKEY("d"), 0);
 		}
 
 		/* a - administer (perform SETACL/DELETEACL/GETACL/LISTRIGHTS) */
@@ -130,7 +130,7 @@ void imap_acl_flags(char *rights, int ra)
 			 * theoretically prevent compliant clients from attempting to
 			 * perform them.
 			 *
-			 * strcat(rights, "a");
+			 * StrBufAppendBufPlain(rights, HKEY("a"), 0);
 			 */
 		}
 	}
@@ -148,10 +148,10 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 	struct ctdluser temp;
 	struct cdbdata *cdbus;
 	int ra;
-	char rights[32];
+	StrBuf *rights;
 
 	if (num_parms != 3) {
-		cprintf("%s BAD usage error\r\n", Params[0].Key);
+		IReply("BAD usage error");
 		return;
 	}
 
@@ -160,7 +160,7 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 	 */
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n", Params[0].Key);
+		IReply("NO Invalid mailbox name or access denied");
 		return;
 	}
 
@@ -173,15 +173,16 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 	}
 	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
-	cprintf("* ACL");
-	cprintf(" ");
-	imap_strout(&Params[2]);
+	IAPuts("* ACL ");
+	IPutCParamStr(2);
 
 	/*
 	 * Traverse the userlist
 	 */
+	rights = NewStrBuf();
 	cdb_rewind(CDB_USERS);
-	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) {
+	while (cdbus = cdb_next_item(CDB_USERS), cdbus != NULL) 
+	{
 		memset(&temp, 0, sizeof temp);
 		memcpy(&temp, cdbus->ptr, sizeof temp);
 		cdb_free(cdbus);
@@ -189,15 +190,16 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 		CtdlRoomAccess(&CC->room, &temp, &ra, NULL);
 		if (!IsEmptyStr(temp.fullname)) {
 			imap_acl_flags(rights, ra);
-			if (!IsEmptyStr(rights)) {
-				cprintf(" ");
+			if (StrLength(rights) > 0) {
+				IAPuts(" ");
 				plain_imap_strout(temp.fullname);
-				cprintf(" %s", rights);
+				IAPuts(" ");
+				iaputs(SKEY( rights));
 			}
 		}
 	}
-
-	cprintf("\r\n");
+	FreeStrBuf(&rights);
+	IAPuts("\r\n");
 
 	/*
 	 * If another folder is selected, go back to that room so we can resume
@@ -207,7 +209,7 @@ void imap_getacl(int num_parms, ConstStr *Params) {
 		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
-	cprintf("%s OK GETACL completed\r\n", Params[0].Key);
+	IReply("OK GETACL completed");
 }
 
 
@@ -223,7 +225,7 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 	struct ctdluser temp;
 
 	if (num_parms != 4) {
-		cprintf("%s BAD usage error\r\n", Params[0].Key);
+		IReply("BAD usage error");
 		return;
 	}
 
@@ -232,7 +234,7 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 	 */
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n", Params[0].Key);
+		IReply("NO Invalid mailbox name or access denied");
 		return;
 	}
 
@@ -248,7 +250,7 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 		free_recipients(valid);
 	}
 	if (ret != 0) {
-		cprintf("%s NO Invalid user name or access denied\r\n", Params[0].Key);
+		IReply("NO Invalid user name or access denied");
 		return;
 	}
 
@@ -264,13 +266,13 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 	/*
 	 * Now output the list of rights
 	 */
-	cprintf("* LISTRIGHTS ");
-	imap_strout(&Params[2]);
-	cprintf(" ");
-	imap_strout(&Params[3]);
-	cprintf(" ");
-	plain_imap_strout("");		/* FIXME ... do something here */
-	cprintf("\r\n");
+	IAPuts("* LISTRIGHTS ");
+	IPutCParamStr(2);
+	IAPuts(" ");
+	IPutCParamStr(3);
+	IAPuts(" ");
+	IPutStr(HKEY(""));		/* FIXME ... do something here */
+	IAPuts("\r\n");
 
 	/*
 	 * If another folder is selected, go back to that room so we can resume
@@ -280,7 +282,7 @@ void imap_listrights(int num_parms, ConstStr *Params) {
 		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
-	cprintf("%s OK LISTRIGHTS completed\r\n", Params[0].Key);
+	IReply("OK LISTRIGHTS completed");
 	return;
 }
 
@@ -294,16 +296,16 @@ void imap_myrights(int num_parms, ConstStr *Params) {
 	int msgs, new;
 	int ret;
 	int ra;
-	char rights[32];
+	StrBuf *rights;
 
 	if (num_parms != 3) {
-		cprintf("%s BAD usage error\r\n", Params[0].Key);
+		IReply("BAD usage error");
 		return;
 	}
 
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
 	if (ret != 0) {
-		cprintf("%s NO Invalid mailbox name or access denied\r\n", Params[0].Key);
+		IReply("NO Invalid mailbox name or access denied");
 		return;
 	}
 
@@ -317,11 +319,16 @@ void imap_myrights(int num_parms, ConstStr *Params) {
 	CtdlUserGoto(roomname, 0, 0, &msgs, &new);
 
 	CtdlRoomAccess(&CC->room, &CC->user, &ra, NULL);
+	rights = NewStrBuf();
 	imap_acl_flags(rights, ra);
 
-	cprintf("* MYRIGHTS ");
-	imap_strout(&Params[2]);
-	cprintf(" %s\r\n", rights);
+	IAPuts("* MYRIGHTS ");
+	IPutCParamStr(2);
+	IAPuts(" ");
+	IPutStr(SKEY(rights));
+	IAPuts("\r\n");
+
+	FreeStrBuf(&rights);
 
 	/*
 	 * If a different folder was previously selected, return there now.
@@ -330,6 +337,6 @@ void imap_myrights(int num_parms, ConstStr *Params) {
 		CtdlUserGoto(savedroom, 0, 0, &msgs, &new);
 	}
 
-	cprintf("%s OK MYRIGHTS completed\r\n", Params[0].Key);
+	IReply("OK MYRIGHTS completed");
 	return;
 }
