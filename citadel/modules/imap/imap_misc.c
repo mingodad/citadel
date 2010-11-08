@@ -212,7 +212,7 @@ void imap_copy(int num_parms, ConstStr *Params) {
 		IAPuts("COPY completed\r\n");
 	}
 	else {
-		IReplyPrintf("NO COPY failed (error %d)\r\n", ret);
+		IReplyPrintf("NO COPY failed (error %d)", ret);
 	}
 }
 
@@ -414,7 +414,7 @@ void imap_append(int num_parms, ConstStr *Params) {
 				     GLOBAL_UIDVALIDITY_VALUE, new_msgnum);
 		}
 		else {
-			IReplyPrintf("BAD Error %ld saving message to disk.\r\n",
+			IReplyPrintf("BAD Error %ld saving message to disk.",
 				     new_msgnum);
 		}
 	}

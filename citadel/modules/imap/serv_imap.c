@@ -637,7 +637,7 @@ void imap_login(int num_parms, ConstStr *Params)
 			}
 			else
 			{
-				IReplyPrintf("NO AUTHENTICATE %s failed\r\n",
+				IReplyPrintf("NO AUTHENTICATE %s failed",
 					     Params[3].Key);
 			}
 		}
@@ -1046,7 +1046,7 @@ void imap_create(int num_parms, ConstStr *Params)
 
 	if (flags & IR_MAILBOX) {
 		if (strncasecmp(Params[2].Key, "INBOX/", 6)) {
-			IReply("%s NO Personal folders must be created under INBOX");
+			IReply("NO Personal folders must be created under INBOX");
 			CtdlLogPrintf(CTDL_DEBUG, "not subordinate to inbox\n");
 			return;
 		}
@@ -1068,7 +1068,7 @@ void imap_create(int num_parms, ConstStr *Params)
 		/*** DO NOT CHANGE THIS ERROR MESSAGE IN ANY WAY!  BYNARI CONNECTOR DEPENDS ON IT! ***/
 		IReply("NO Mailbox already exists, or create failed");
 	} else {
-		IReply("%s OK CREATE completed");
+		IReply("OK CREATE completed");
 		/* post a message in Aide> describing the new room */
 		notification_message = malloc(1024);
 		snprintf(notification_message, 1024,
