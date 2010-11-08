@@ -34,9 +34,6 @@ int imap_mailbox_matches_pattern(const char *pattern, char *mailboxname);
 int imap_datecmp(const char *datestr, time_t msgtime);
 
 
-
-
-
 /* Imap Append Printf, send to the outbuffer */
 void IAPrintf(const char *Format, ...);
 
@@ -57,9 +54,4 @@ void IPutStr(const char *Msg, long Len);
 #define IPutCStr(_ConstStr) IPutStr(CKEY(_ConstStr))
 #define IPutCParamStr(n) IPutStr(CKEY(Params[n]))
 
-/*
-void plain_imap_strout(char *buf)
-void imap_strout(ConstStr *args)
-*/
-
-
+void IUnbuffer (void);
