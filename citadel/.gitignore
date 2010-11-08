@@ -1,5 +1,6 @@
 *.o
 *.d
+*.gcno
 Make_modules
 Make_sources
 Makefile
