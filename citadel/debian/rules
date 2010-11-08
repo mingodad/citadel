@@ -16,7 +16,7 @@ CFLAGS = -Wall -g
 
 EXTRA_ARGS=
 PROFILE_ARGS=
-#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss"
+#to enable debugging: export DEB_BUILD_OPTIONS="debug profiling threadoff rss gcov"
 ifneq (,$(findstring profiling,$(DEB_BUILD_OPTIONS)))
 	PROFILE_ARGS= --with-gprof
 endif
@@ -43,6 +43,11 @@ endif
 
 ifneq (,$(findstring iodbg,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -D BIGBAD_IODBG
+endif
+
+ifneq (,$(findstring gcov,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -fprofile-arcs -ftest-coverage
+	LDFLAGS += -fprofile-arcs -ftest-coverage
 endif
 
 configure: configure-stamp
