@@ -12,17 +12,18 @@ msgstr ""
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
 "PO-Revision-Date: 2010-10-22 14:37+0000\n"
 "Last-Translator: Christian Perrier <bubulle@debian.org>\n"
+"Last-Translator: Nicolas Delvaux <Unknown>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-11-09 04:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: fr\n"
 
 #: ../utils/setup.c:119
 msgid "Citadel Home Directory"
-msgstr ""
+msgstr "Répertoire principal Citadel"
 
 #: ../utils/setup.c:122
 msgid ""
@@ -31,6 +32,10 @@ msgid ""
 "specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n"
 msgstr ""
+"Entrez le chemin complet du répertoire dans lequel se trouve\n"
+"l'installation de Citadel que vous créez ou mettez à jour. Si vous\n"
+"spécifiez un répertoire autre que celui par défaut, vous devrez\n"
+"indiquer le paramètre -f au serveur lorsque vous le démarrerez.\n"
 
 #: ../utils/setup.c:128
 msgid ""
@@ -70,7 +75,7 @@ msgstr ""
 
 #: ../utils/setup.c:149
 msgid "Citadel User ID:"
-msgstr ""
+msgstr "ID utilisateur Citadel :"
 
 #: ../utils/setup.c:151
 msgid ""
@@ -98,7 +103,7 @@ msgstr ""
 
 #: ../utils/setup.c:168
 msgid "Server port number:"
-msgstr ""
+msgstr "Numéro de port du Serveur :"
 
 #: ../utils/setup.c:170
 msgid ""
@@ -206,51 +211,53 @@ msgstr ""
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
-msgstr ""
+msgstr "Oui/Non"
 
 #: ../utils/setup.c:300
 msgid "Yes"
-msgstr ""
+msgstr "Oui"
 
 #: ../utils/setup.c:300
 msgid "No"
-msgstr ""
+msgstr "Non"
 
 #: ../utils/setup.c:346
 msgid "Press return to continue..."
-msgstr ""
+msgstr "Appuyer sur entrée pour continuer..."
 
 #: ../utils/setup.c:364
 msgid "Important Message"
-msgstr ""
+msgstr "Message important"
 
 #: ../utils/setup.c:379
 msgid "Error"
-msgstr ""
+msgstr "Erreur"
 
 #: ../utils/setup.c:459
 msgid "Adding service entry..."
-msgstr ""
+msgstr "Ajouter un service"
 
 #. Other errors might mean something really did go wrong.
 #. 
 #: ../utils/setup.c:463 ../utils/setup.c:510 ../utils/setup.c:518
 msgid "Cannot open"
-msgstr ""
+msgstr "Ne peut être ouvert"
 
 #: ../utils/setup.c:569
 msgid ""
 "Citadel already appears to be configured to start at boot.\n"
 "Would you like to keep your boot configuration as is?\n"
 msgstr ""
+"Citadel est déjà configuré pour se lancer au démarage.\n"
+"Voulez-vous garder cette configuration de démarage ?\n"
 
 #: ../utils/setup.c:577
 msgid "Would you like to automatically start Citadel at boot?\n"
-msgstr ""
+msgstr "Voulez-vous lancer Citadel au démarage ?\n"
 
 #: ../utils/setup.c:583
 msgid "Cannot create"
-msgstr ""
+msgstr "Ne peut être créé"
 
 #: ../utils/setup.c:682
 #, c-format
@@ -298,10 +305,12 @@ msgstr ""
 #: ../utils/setup.c:864
 msgid "Enter new value or press return to leave unchanged:"
 msgstr ""
+"Entrez une nouvelle valeur ou appuyer dur entrée pour laisser la valeur "
+"actuel :"
 
 #: ../utils/setup.c:1067 ../utils/setup.c:1072 ../utils/setup.c:1384
 msgid "setup: cannot open"
-msgstr ""
+msgstr "setup: ne peut être ouvert"
 
 #: ../utils/setup.c:1175
 #, c-format
@@ -318,7 +327,7 @@ msgstr ""
 
 #: ../utils/setup.c:1236 ../utils/setup.c:1252
 msgid "Setup finished"
-msgstr ""
+msgstr "Installation terminé"
 
 #: ../utils/setup.c:1237
 msgid ""
@@ -327,28 +336,35 @@ msgid ""
 "setup program now; otherwise, run './citadel'\n"
 "to log in.\n"
 msgstr ""
+"L'installation du serveur Citadel est terminé.\n"
+"Si vous voulez utiliser WebCit, lancez s'il\n"
+"vous plait le programme d'installation maintenant;\n"
+"sinon lancer './citadel' pour vous identifier.\n"
 
 #: ../utils/setup.c:1243
 msgid "Setup failed"
-msgstr ""
+msgstr "Installation échoué"
 
 #: ../utils/setup.c:1244
 msgid ""
 "Setup is finished, but the Citadel server failed to start.\n"
 "Go back and check your configuration.\n"
 msgstr ""
+"L'installation est terminé mais le serveur Citadel n'a pu être lancé.\n"
+"Retournez en arrière pour vérifier votre configuration.\n"
 
 #: ../utils/setup.c:1253
 msgid "Setup is finished.  You may now start the server."
 msgstr ""
+"L'installation est terminé. Vous pouvez maintenant lancer le serveur."
 
 #: ../utils/setup.c:1279
 msgid "My System"
-msgstr ""
+msgstr "Mon Systeme"
 
 #: ../utils/setup.c:1282
 msgid "US 800 555 1212"
-msgstr ""
+msgstr "US 800 555 1212"
 
 #: ../utils/setup.c:1368 ../utils/setup.c:1373
 msgid "setup: cannot append"
@@ -357,11 +373,11 @@ msgstr ""
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
 msgid "Citadel Setup"
-msgstr ""
+msgstr "Installation de Citadel"
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
-msgstr ""
+msgstr "Le répertoire spécifié n'existe pas."
 
 #: ../utils/setup.c:1473
 msgid ""
