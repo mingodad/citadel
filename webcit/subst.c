@@ -2229,8 +2229,10 @@ void tmpl_iterate_subtmpl(StrBuf *Target, WCTemplputParams *TP)
 			if (GetHash(SortHash, SKEY(BSort), &vSortBy) &&
 			    (vSortBy != NULL)) {
 				SortBy = (SortStruct*)vSortBy;
+				/* first check whether its intended for us... */
+				if ((SortBy->ContextType == It->ContextType)&&
 				/** Ok, its us, lets see in which direction we should sort... */
-				if (havebstr("SortOrder")) {
+				    (havebstr("SortOrder"))) {
 					int SortOrder;
 					SortOrder = LBSTR("SortOrder");
 					if (SortOrder != 0)
