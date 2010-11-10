@@ -2850,6 +2850,8 @@ inline static void DecodeSegment(StrBuf *Target,
 	
 	*encoding = toupper(*encoding);
 	if (*encoding == 'B') {	/**< base64 */
+		if (ConvertBuf2->BufSize < ConvertBuf->BufUsed)
+			IncreaseBuf(ConvertBuf2, 0, ConvertBuf->BufUsed);
 		ConvertBuf2->BufUsed = CtdlDecodeBase64(ConvertBuf2->buf, 
 							ConvertBuf->buf, 
 							ConvertBuf->BufUsed);
@@ -2865,6 +2867,9 @@ inline static void DecodeSegment(StrBuf *Target,
 			pos++;
 		}
 		
+		if (ConvertBuf2->BufSize < ConvertBuf->BufUsed)
+			IncreaseBuf(ConvertBuf2, 0, ConvertBuf->BufUsed);
+
 		ConvertBuf2->BufUsed = CtdlDecodeQuotedPrintable(
 			ConvertBuf2->buf, 
 			ConvertBuf->buf,
