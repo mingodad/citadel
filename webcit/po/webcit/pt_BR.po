@@ -155,10 +155,10 @@ msgstr "Cancelado.  A senha não foi modificada."
 msgid "They don't match.  Password was not changed."
 msgstr "Eles não batem.  Senha não foi modificada."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilidade desconhecida"
@@ -249,8 +249,7 @@ msgstr "Essa é uma atualização de '%s' que já está no seu calendário."
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Esse evento entrará em conflito com '%s' que já está no seu calendário."
 
@@ -759,8 +758,8 @@ msgid ""
 msgstr ""
 "Você está se inscrevendo em <TT>%s</TT> na lista <b>%s</b>.  O servidor da "
 "lista lhe enviou um link para você confirmar sua inscrição.  Esse passo "
-"extra previne que outros lhe inscrevam em listas sem seu consentimento.<br "
-"/><br />Clique no link que foi mandado para você e sua inscrição será "
+"extra previne que outros lhe inscrevam em listas sem seu consentimento.<br /"
+"><br />Clique no link que foi mandado para você e sua inscrição será "
 "confirmada.<br />\n"
 
 #: ../listsub.c:85
@@ -1334,8 +1333,7 @@ msgid "Add rule"
 msgstr "Adicionar regra"
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1389,11 +1387,11 @@ msgstr "(Nada)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
-"Você está conectado à %s, rodando %s com %s, server build %s,  e localizado em %s.  Seu "
-"administrador de sistema é %s."
+"Você está conectado à %s, rodando %s com %s, server build %s,  e localizado "
+"em %s.  Seu administrador de sistema é %s."
 
 #: ../summary.c:195
 msgid "Messages"

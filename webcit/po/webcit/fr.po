@@ -155,10 +155,10 @@ msgid "They don't match.  Password was not changed."
 msgstr ""
 "Les deux saisies sont différentes. Le mot de passe n'a pas été modifié."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilité inconnue"
@@ -249,8 +249,7 @@ msgstr "Ceci est une mise à jour de '%s' déjà présent dans votre agenda."
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Cet événement entre en conflit avec '%s' qui est déjà dans votre agenda."
 
@@ -654,8 +653,7 @@ msgstr "Image téléchargée"
 
 #: ../graphics.c:58
 msgid "You can upload an image directly from your computer"
-msgstr ""
-"Vous pouvez télécharger une image directement depuis votre ordinateur"
+msgstr "Vous pouvez télécharger une image directement depuis votre ordinateur"
 
 #: ../graphics.c:61
 msgid "Please select a file to upload:"
@@ -1322,8 +1320,7 @@ msgid "Add rule"
 msgstr "Ajouter une règle"
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1377,8 +1374,8 @@ msgstr "(Vide)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 "Vous êtes connecté(e) à %s qui est servi par %s avec %s (révision %s) et "
 "situé à %s. Votre administrateur système est %s."
@@ -2002,8 +1999,8 @@ msgstr "Si vous avez déjà un compte sur"
 #: ../static/t/login.html:44
 msgid "enter your user name and password and click &quot;Login.&quot;"
 msgstr ""
-"entrez votre identifiant et votre mot de passe puis cliquez sur "
-"&quot;Login.&quot;"
+"entrez votre identifiant et votre mot de passe puis cliquez sur &quot;Login."
+"&quot;"
 
 #: ../static/t/login.html:45
 msgid ""
