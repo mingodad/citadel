@@ -54,14 +54,17 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 			/* Show the number of comments */
 			wc_printf("<a href=\"readfwd?p=%d?gotofirst=", bp->top_level_id);
 			urlescputs(ChrPtr(WC->CurRoom.name));
-			wc_printf("#comments\">%d comments</a>", bp->num_msgs - 1);
+			wc_printf("#comments\">");
+			wc_printf(_("%d comments"), bp->num_msgs - 1);
+			wc_printf("</a>");
 		}
 		else if (bp->num_msgs < 2) {
-			wc_printf("dere r no comments here!<br>\n");
+			wc_printf(_("%d comments"), 0);
 		}
 		else {
 			wc_printf("<a name=\"comments\"></a>\n");
-			wc_printf("%d comments<br>\n", bp->num_msgs - 1);
+			wc_printf(_("%d comments"), bp->num_msgs - 1);
+			wc_printf("<br>\n");
 			wc_printf("<blockquote>");
 			for (i=1; i<bp->num_msgs; ++i) {
 				read_message(WC->WBuf, HKEY("view_message"), bp->msgs[i], NULL, &Mime);
