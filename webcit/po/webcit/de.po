@@ -21,15 +21,6 @@ msgstr ""
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: de\n"
 
-#: ../summary.c:167
-#, c-format
-msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
-msgstr ""
-"Sie sind angemeldet auf %s, mit %s über %s, Server-Release %s in %s.  Ihr "
-"Systemverwalter ist %s."
-
 #: ../addressbook_popup.c:192
 msgid "Add"
 msgstr "Hinzufügen"
@@ -161,10 +152,10 @@ msgstr "Abgebrochen. Passwort wurde nicht geändert."
 msgid "They don't match.  Password was not changed."
 msgstr "Die Passwörter stimmen nicht überein. Passwort nicht geändert."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "Verfügbarkeit unbekannt"
@@ -252,8 +243,7 @@ msgstr "Die Änderung '%s', existiert bereits Ihrem Kalender ist."
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Dieser Termin würde mit '%s' kollidieren, der bereits in Ihrem Kalender "
 "vorgemerkt ist."
@@ -1311,8 +1301,7 @@ msgid "Add rule"
 msgstr "Neue Regel"
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 "WARNUNG: Konnte die Serverkonfiguration nicht lesen; ist der Citserver neuer "
 "als WebCit?"
@@ -1365,6 +1354,15 @@ msgstr "(Keine)"
 msgid "(Nothing)"
 msgstr "(Nichts)"
 
+#: ../summary.c:167
+#, c-format
+msgid ""
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
+msgstr ""
+"Sie sind angemeldet auf %s, mit %s über %s, Server-Release %s in %s.  Ihr "
+"Systemverwalter ist %s."
+
 #: ../summary.c:195
 msgid "Messages"
 msgstr "Nachrichten"
@@ -1401,9 +1399,9 @@ msgid ""
 "Enter %s below. Text is formatted to the reader's browser. A newline is "
 "forced by preceding the next line by a blank."
 msgstr ""
-"Geben sie hier %s ein. Der Text wird auf dem Browser des Lesers "
-"formatiert.Eine neue Zeile erzwingt man, indem man die nächste Zeile mit "
-"einem Leerschritt beginnt."
+"Geben sie hier %s ein. Der Text wird auf dem Browser des Lesers formatiert."
+"Eine neue Zeile erzwingt man, indem man die nächste Zeile mit einem "
+"Leerschritt beginnt."
 
 #: ../sysmsgs.c:70
 #, c-format
@@ -1682,8 +1680,8 @@ msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
-"Die angeforderte Sektion benötigt einen gültigen Benutzernamen und "
-"Passwort.Sie konnten nicht Angemeldet werden: %s\n"
+"Die angeforderte Sektion benötigt einen gültigen Benutzernamen und Passwort."
+"Sie konnten nicht Angemeldet werden: %s\n"
 
 #: ../who.c:151
 msgid "Edit your session display"

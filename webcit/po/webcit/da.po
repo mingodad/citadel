@@ -148,10 +148,10 @@ msgstr "Afbrudt.  Adgangskode blev ikke ændret."
 msgid "They don't match.  Password was not changed."
 msgstr "Adgangskoder matcher ikke.  Adgangskode blev ikke ændret."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "tilgængelighed ukendt"
@@ -242,8 +242,7 @@ msgstr "Dette er en opdatering af '%s' som allerede er i din kalender."
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr "Denne aftale vil konflikte med '%s* som allerede er i din kalender."
 
 #: ../calendar.c:232
@@ -755,9 +754,9 @@ msgstr ""
 "Du abonnérer <TT>%s</TT> på <b>%s</b> post listen.  Listeserveren har sendt "
 "dig en e-mail med et link som du skal klikke på for at godkende dit "
 "abonnement.  Denne ekstra foranstaltning er din beskyttelse, da det "
-"forhindrer andre i at abonnere på en liste i dit navn uden din "
-"billigelse.<br /><br />Klik på linketsom er blevet sendt til dig for at "
-"acceptere dit abonnement.<br />\n"
+"forhindrer andre i at abonnere på en liste i dit navn uden din billigelse."
+"<br /><br />Klik på linketsom er blevet sendt til dig for at acceptere dit "
+"abonnement.<br />\n"
 
 #: ../listsub.c:85
 msgid "Go back..."
@@ -1418,8 +1417,8 @@ msgstr "(Ingenting)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 "Du er forbundet til %s, bruger %s med %s, server version %s og lokaliseret i "
 "%s.  Din systemadministrator er %s."

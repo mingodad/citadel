@@ -150,10 +150,10 @@ msgstr "Katkestatud. Salasõna ei muudetud."
 msgid "They don't match.  Password was not changed."
 msgstr "Need ei ühti. Salasõna ei muudetud."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "saadavus teadmata"
@@ -244,8 +244,7 @@ msgstr "See on uuendus sinu kalendris olevale sündmusele '%s'."
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr "See sündmus läheks vastuollu juba kalendris oleva sündmusega '%s'."
 
 #: ../calendar.c:232
@@ -751,8 +750,7 @@ msgstr "Katkestatud. Sõnumit ei postitatud."
 #: ../messages.c:1067
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
-"Automaatselt katkestatud, sest sa oled selle sõnumi juba salvestanud."
+msgstr "Automaatselt katkestatud, sest sa oled selle sõnumi juba salvestanud."
 
 #: ../messages.c:1119
 msgid "Saved to Drafts failed: "
@@ -1281,8 +1279,7 @@ msgid "Add rule"
 msgstr "Lisa reegel"
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1336,8 +1333,8 @@ msgstr "(Ei midagi)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 "Sa oled ühendunud võrku %s, mis jookseb tarkvaral %s veebiliidesega %s, "
 "serveri versioon %s ning asukohaga %s. Sinu süsteemiadministraator on %s."

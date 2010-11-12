@@ -48,7 +48,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 
 	if ( ((p == 0) || (p == bp->top_level_id)) && (bp->num_msgs > 0) ) {
 		/* Show the top level post */
-		read_message(WC->WBuf, HKEY("view_message"), bp->msgs[0], NULL, &Mime);
+		read_message(WC->WBuf, HKEY("view_blog_post"), bp->msgs[0], NULL, &Mime);
 
 		if (p == 0) {
 			/* Show the number of comments */
@@ -67,7 +67,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 			wc_printf("<br>\n");
 			wc_printf("<blockquote>");
 			for (i=1; i<bp->num_msgs; ++i) {
-				read_message(WC->WBuf, HKEY("view_message"), bp->msgs[i], NULL, &Mime);
+				read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
 			}
 			wc_printf("</blockquote>");
 		}

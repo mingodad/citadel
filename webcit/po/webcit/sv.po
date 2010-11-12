@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: citadel\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
 "PO-Revision-Date: 2010-10-26 21:07+0000\n"
 "Last-Translator: Henric <Unknown>\n"
@@ -146,10 +146,10 @@ msgstr ""
 msgid "They don't match.  Password was not changed."
 msgstr ""
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -237,8 +237,7 @@ msgstr ""
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../calendar.c:232
@@ -1267,8 +1266,7 @@ msgid "Add rule"
 msgstr ""
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1322,8 +1320,8 @@ msgstr ""
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 
 #: ../summary.c:195
