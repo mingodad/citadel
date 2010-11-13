@@ -294,7 +294,7 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 	);
 
 	if (!strcasecmp(partnum, desired_section)) {
-		client_write(content, length);
+		iaputs(content, length);
 	}
 
 	snprintf(mimebuf2, sizeof mimebuf2, "%s.MIME", partnum);
