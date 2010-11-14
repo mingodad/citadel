@@ -893,6 +893,19 @@ void CtdlUnregisterSearchFuncHook(void (*fcn_ptr)(int *, long **, const char *),
 	}
 }
 
+void CtdlDestroySearchHooks(void)
+{
+        struct SearchFunctionHook *cur, *p;
+
+	cur = SearchFunctionHookTable;
+	SearchFunctionHookTable = NULL;
+        while (cur != NULL) {
+		p = cur->next;
+		free(cur);
+		cur = p;
+	}
+}
+
 void CtdlModuleDoSearch(int *num_msgs, long **search_msgs, const char *search_string, const char *func_name)
 {
 	struct SearchFunctionHook *fcn = NULL;

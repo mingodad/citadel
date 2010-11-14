@@ -1051,6 +1051,7 @@ void sysdep_master_cleanup(void) {
 	CtdlDestroySessionHooks();
 	CtdlDestroyServiceHook();
 	CtdlDestroyRoomHooks();
+	CtdlDestroySearchHooks();
 	#ifdef HAVE_BACKTRACE
 ///	eCrash_Uninit();
 	#endif

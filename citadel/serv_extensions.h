@@ -194,6 +194,8 @@ void CtdlDestroyProtoHooks(void);
 
 void CtdlDestroyServiceHook(void);
 
+void CtdlDestroySearchHooks(void);
+
 void CtdlDestroyFixedOutputHooks(void);
 int PerformFixedOutputHooks(char *, char *, int);
 
