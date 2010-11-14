@@ -1286,6 +1286,25 @@ BAIL:	res = sieve2_free(&sieve2_context);
 
 }
 
+void cleanup_sieve(void)
+{
+        struct RoomProcList *ptr, *ptr2;
+
+	if (msiv_extensions != NULL)
+		free(msiv_extensions);
+	msiv_extensions = NULL;
+
+        begin_critical_section(S_SIEVELIST);
+	ptr=sieve_list;
+	while (ptr != NULL) {
+		ptr2 = ptr->next;
+		free(ptr);
+		ptr = ptr2;
+	}
+        sieve_list = NULL;
+        end_critical_section(S_SIEVELIST);
+}
+
 int serv_sieve_room(struct ctdlroom *room)
 {
 	if (!strcasecmp(&room->QRname[11], MAILROOM)) {
@@ -1303,6 +1322,7 @@ CTDL_MODULE_INIT(sieve)
 		CtdlRegisterProtoHook(cmd_msiv, "MSIV", "Manage Sieve scripts");
 	        CtdlRegisterRoomHook(serv_sieve_room);
         	CtdlRegisterSessionHook(perform_sieve_processing, EVT_HOUSE);
+		CtdlRegisterCleanupHook(cleanup_sieve);
 	}
 	
         /* return our Subversion id for the Log */
