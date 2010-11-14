@@ -96,10 +96,12 @@ int sock_connect(char *host, char *service)
 		sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (sock < 0) {
 			CtdlLogPrintf(CTDL_ERR, "socket() failed: %s\n", strerror(errno));
+			freeaddrinfo(res);
 			return(-1);
 		}
 		rc = connect(sock, ai->ai_addr, ai->ai_addrlen);
 		if (rc >= 0) {
+                        freeaddrinfo(res);
 			return(sock);
 		}
 		else {
@@ -107,7 +109,7 @@ int sock_connect(char *host, char *service)
 			close(sock);
 		}
 	}
-
+	freeaddrinfo(res);
 	return(-1);
 }
 
