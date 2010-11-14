@@ -185,7 +185,15 @@ void inetcfg_init(void) {
 /*****************************************************************************/
 /*                      MODULE INITIALIZATION STUFF                          */
 /*****************************************************************************/
+void clenaup_inetcfg(void)
+{
+	char *buf;
 
+	buf = inetcfg;
+	inetcfg = NULL;
+	if (buf != NULL)
+		free(buf);
+}
 
 CTDL_MODULE_INIT(inetcfg)
 {
@@ -193,6 +201,7 @@ CTDL_MODULE_INIT(inetcfg)
 	{
 		CtdlRegisterMessageHook(inetcfg_aftersave, EVT_AFTERSAVE);
 		inetcfg_init();
+		CtdlRegisterCleanupHook(clenaup_inetcfg);
 	}
 	
 	/* return our Subversion id for the Log */
