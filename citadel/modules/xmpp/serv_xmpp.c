@@ -580,7 +580,7 @@ void xmpp_logout_hook(void) {
 
 
 const char *CitadelServiceXMPP="XMPP";
-
+extern void xmpp_cleanup_events(void);
 CTDL_MODULE_INIT(xmpp)
 {
 	if (!threading) {
@@ -596,6 +596,8 @@ CTDL_MODULE_INIT(xmpp)
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_LOGOUT);
                 CtdlRegisterSessionHook(xmpp_login_hook, EVT_UNSTEALTH);
                 CtdlRegisterSessionHook(xmpp_logout_hook, EVT_STEALTH);
+		CtdlRegisterCleanupHook(xmpp_cleanup_events);
+
 	}
 
 	/* return our Subversion id for the Log */
