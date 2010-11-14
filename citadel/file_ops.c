@@ -48,9 +48,9 @@
 /*
  * network_talking_to()  --  concurrency checker
  */
+static char *nttlist = NULL;
 int network_talking_to(char *nodename, int operation) {
 
-	static char *nttlist = NULL;
 	char *ptr = NULL;
 	int i;
 	char buf[SIZ];
@@ -102,6 +102,14 @@ int network_talking_to(char *nodename, int operation) {
 	return(retval);
 }
 
+void cleanup_nttlist(void)
+{
+        begin_critical_section(S_NTTLIST);
+	if (nttlist != NULL)
+		free(nttlist);
+	nttlist = NULL;
+        end_critical_section(S_NTTLIST);
+}
 
 
 
@@ -824,6 +832,7 @@ CTDL_MODULE_INIT(file_ops)
 		CtdlRegisterProtoHook(cmd_nuop, "NUOP", "Open a network spool file for upload");
 		CtdlRegisterProtoHook(cmd_oimg, "OIMG", "Open an image file for download");
 		CtdlRegisterProtoHook(cmd_uimg, "UIMG", "Upload an image file");
+		CtdlRegisterCleanupHook(cleanup_nttlist);
 	}
         /* return our Subversion id for the Log */
 	return "file_ops";
