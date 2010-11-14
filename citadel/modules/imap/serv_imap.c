@@ -94,6 +94,11 @@ void registerImapCMD(const char *First, long FLen,
 	}
 }
 
+void imap_cleanup(void)
+{
+	DeleteHash(&ImapCmds);
+}
+
 const imap_handler_hook *imap_lookup(int num_parms, ConstStr *Params)
 {
 	void *v;
@@ -1710,6 +1715,7 @@ CTDL_MODULE_INIT(imap)
 					NULL, imaps_greeting, imap_command_loop, NULL, CitadelServiceIMAPS);
 #endif
 		CtdlRegisterSessionHook(imap_cleanup_function, EVT_STOP);
+		CtdlRegisterCleanupHook(imap_cleanup);
 	}
 	
 	/* return our Subversion id for the Log */
