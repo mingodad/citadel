@@ -1539,6 +1539,14 @@ void LoadUrlShorteners(void)
 	close(fd);
 }
 
+void rss_cleanup(void)
+{
+        DeleteHash(&StartHandlers);
+        DeleteHash(&EndHandlers);
+	DeleteHash(&UrlShorteners);
+	DeleteHash(&KnownNameSpaces);
+}
+
 CTDL_MODULE_INIT(rssclient)
 {
 	if (threading)
@@ -1632,6 +1640,7 @@ CTDL_MODULE_INIT(rssclient)
 		/* we don't like these namespaces because of they shadow our usefull parameters. */
 		Put(KnownNameSpaces, HKEY("http://search.yahoo.com/mrss/"), NULL, reference_free_handler);
 #endif
+                CtdlRegisterCleanupHook(rss_cleanup);
 	}
 	return "rssclient";
 }
