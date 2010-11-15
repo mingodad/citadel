@@ -604,7 +604,6 @@ void forget_all_rooms_on(CtdlIPC *ipc, int ffloor)
 	int r;				/* IPC response code */
 
 	scr_printf("Forgetting all rooms on %s...\n", &floorlist[ffloor][0]);
-	scr_flush();
 	remove_march("_FLOOR_", ffloor);
 	r = CtdlIPCKnownRooms(ipc, AllAccessibleRooms, ffloor, &flist, buf);
 	if (r / 100 != 1) {
@@ -1408,7 +1407,6 @@ int shift(int argc, char **argv, int start, int count) {
 
 static void statusHook(char *s) {
 	scr_printf(s);
-	scr_flush();
 }
 
 /*
@@ -1609,7 +1607,6 @@ int main(int argc, char **argv)
 	get_serv_info(ipc, telnet_client_host);
 	scr_printf("%-24s\n%s\n%s\n", ipc->ServInfo.software, ipc->ServInfo.humannode,
 		   ipc->ServInfo.site_location);
-	scr_flush();
 
 	screenwidth = 80;	/* default screen dimensions */
 	screenheight = 24;
