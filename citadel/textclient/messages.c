@@ -1579,7 +1579,7 @@ RAGAIN:		pagin = ((arcflag == 0)
 		if ((quotflag) || (arcflag)) {
 			screenwidth = hold_sw;
 		}
-RMSGREAD:	scr_flush();
+RMSGREAD:
 		highest_msg_read = msg_arr[a];
 		if (quotflag) {
 			fclose(dest);
@@ -1729,7 +1729,6 @@ RMSGREAD:	scr_flush();
 				scr_printf("\r%79s\r", "");
 			else
 				scr_printf("\n");
-			scr_flush();
 		}
 DONE_QUOTING:	switch (e) {
 		case '?':

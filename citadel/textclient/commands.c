@@ -1021,7 +1021,6 @@ int getcmd(CtdlIPC *ipc, char *argbuf)
 	scr_printf("\n%s", room_name);
 	color(DIM_WHITE);
 	scr_printf("%c ", room_prompt(room_flags));
-	scr_flush();
 
 	while (1) {
 		ch = inkey();
@@ -1421,7 +1420,6 @@ void color(int colornum)
 					(colornum & 7),
 					rc_color_use_bg);
 
-		scr_flush();
 	}
 }
 
@@ -1430,7 +1428,6 @@ void cls(int colornum)
 	if (enable_color) {
 		printf("\033[4%dm\033[2J\033[H\033[0m",
 				colornum ? colornum : rc_color_use_bg);
-		scr_flush();
 	}
 }
 
