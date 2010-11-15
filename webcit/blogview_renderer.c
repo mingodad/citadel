@@ -65,11 +65,9 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 			wc_printf("<a name=\"comments\"></a>\n");
 			wc_printf(_("%d comments"), bp->num_msgs - 1);
 			wc_printf("<br>\n");
-			wc_printf("<blockquote>");
 			for (i=1; i<bp->num_msgs; ++i) {
 				read_message(WC->WBuf, HKEY("view_blog_comment"), bp->msgs[i], NULL, &Mime);
 			}
-			wc_printf("</blockquote>");
 		}
 	}
 
