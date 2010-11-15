@@ -3527,6 +3527,7 @@ struct CtdlMessage *CtdlMakeMessage(
 	}
 	StrBufRFC2047encode(&FakeEncAuthor, FakeAuthor);
 	msg->cm_fields['A'] = SmashStrBuf(&FakeEncAuthor);
+	FreeStrBuf(&FakeAuthor);
 
 	if (CC->room.QRflags & QR_MAILBOX) {		/* room */
 		msg->cm_fields['O'] = strdup(&CC->room.QRname[11]);
