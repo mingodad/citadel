@@ -14,6 +14,14 @@
 StrBuf *csslocal = NULL;
 HashList *HandlerHash = NULL;
 
+void PutRequestLocalMem(void *Data, DeleteHashDataFunc DeleteIt)
+{
+        wcsession *WCC = WC;
+	int n;
+	
+	n = GetCount(WCC->Hdr->HTTPHeaders);
+	Put(WCC->Hdr->HTTPHeaders, IKEY(n), Data, DeleteIt);
+}
 
 void DeleteWebcitHandler(void *vHandler)
 {

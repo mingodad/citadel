@@ -658,6 +658,7 @@ void pullquote_fmout(void);
 void wDumpContent(int);
 
 
+void PutRequestLocalMem(void *Data, DeleteHashDataFunc DeleteIt);
 
 void UrlescPutStrBuf(const StrBuf *strbuf);
 void StrEscPuts(const StrBuf *strbuf);
