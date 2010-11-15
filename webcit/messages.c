@@ -1233,6 +1233,7 @@ void post_message(void)
 				return;
 			}
 		}
+		FreeStrBuf(&Recp);
 		FreeStrBuf(&Buf);
 		FreeStrBuf(&Cc);
 		FreeStrBuf(&Bcc);
