@@ -1480,6 +1480,8 @@ void smtp_do_bounce(char *instr) {
         StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
 	StrBufAppendBuf(BounceMB, boundary, 0);
 	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
+	if (bmsg->cm_fields['A'] != NULL)
+		free(bmsg->cm_fields['A']);
 	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
 	/* Deliver the bounce if there's anything worth mentioning */
 	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
