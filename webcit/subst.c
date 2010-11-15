@@ -529,7 +529,7 @@ void GetTemplateTokenString(StrBuf *Target,
 		*Value = ChrPtr(Buf);
 		*len = StrLength(Buf);
 		/* we can't free it here, so we put it into the subst so its discarded later on. */
-		///SVPUTBuf(TKEY(N), Buf, 0);
+		PutRequestLocalMem(Buf, HFreeStrBuf);
 		break;
 
 	default:
