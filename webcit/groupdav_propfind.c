@@ -33,6 +33,8 @@
 #include "webserver.h"
 #include "groupdav.h"
 
+extern int DisableGzip;
+
 /*
  * Given an encoded UID, translate that to an unencoded Citadel EUID and
  * then search for it in the current room.  Return a message number or -1
@@ -290,7 +292,8 @@ void groupdav_collection_list(void)
 	groupdav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("Content-type: text/xml\r\n");
-	hprintf("Content-encoding: identity\r\n");
+	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
+		hprintf("Content-encoding: identity\r\n");
 
 	begin_burst();
 
@@ -484,7 +487,8 @@ void groupdav_propfind(void)
 		groupdav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-type: text/xml\r\n");
-		hprintf("Content-encoding: identity\r\n");
+		if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
+			hprintf("Content-encoding: identity\r\n");
 
 		begin_burst();
 
@@ -571,7 +575,8 @@ void groupdav_propfind(void)
 		groupdav_common_headers();
 		hprintf("Date: %s\r\n", datestring);
 		hprintf("Content-type: text/xml\r\n");
-		hprintf("Content-encoding: identity\r\n");
+		if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
+			hprintf("Content-encoding: identity\r\n");
 	
 		begin_burst();
 	
@@ -621,7 +626,8 @@ void groupdav_propfind(void)
 	groupdav_common_headers();
 	hprintf("Date: %s\r\n", datestring);
 	hprintf("Content-type: text/xml\r\n");
-	hprintf("Content-encoding: identity\r\n");
+	if (DisableGzip || (!WCC->Hdr->HR.gzip_ok))	
+		hprintf("Content-encoding: identity\r\n");
 
 	begin_burst();
 
