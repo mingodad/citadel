@@ -155,11 +155,6 @@ void xmpp_cleanup_events(void)
 	ptr = xmpp_queue;
 	xmpp_queue = NULL;
 	while (ptr != NULL) {
-#if 0
-// TODO: why do we have an invalid pointer here?
-		if (ptr->event_jid != NULL)
-			free(ptr->event_jid);
-#endif
 		ptr2 = ptr->next;
 		free(ptr);
 		ptr = ptr2;
