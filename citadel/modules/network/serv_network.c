@@ -2026,18 +2026,20 @@ void receive_spool(int *sock, char *remote_nodename) {
 		unlink(tempfilename);
 		return;
 	}
+
+	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
 	if (download_len > 0) {
 		CtdlLogPrintf(CTDL_NOTICE, "Received %ld octets from <%s>\n", download_len, remote_nodename);
+		/*
+		 * Now move the temp file to its permanent location.
+		 */
+		if (link(tempfilename, permfilename) != 0) {
+			CtdlLogPrintf(CTDL_ALERT, "Could not link %s to %s: %s\n",
+				tempfilename, permfilename, strerror(errno)
+			);
+		}
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
 	
-	/* Now move the temp file to its permanent location.
-	 */
-	if (link(tempfilename, permfilename) != 0) {
-		CtdlLogPrintf(CTDL_ALERT, "Could not link %s to %s: %s\n",
-			tempfilename, permfilename, strerror(errno)
-		);
-	}
 	unlink(tempfilename);
 }
 
