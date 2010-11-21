@@ -1117,7 +1117,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	CCC->sPos = NULL;
 
 	/* Process the SMTP greeting from the server */
-	if (ml_sock_gets(&sock, buf, 5) < 0) {
+	if (ml_sock_gets(&sock, buf, 90) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
@@ -1142,7 +1142,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	snprintf(buf, sizeof buf, "EHLO %s\r\n", config.c_fqdn);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(&sock, buf, strlen(buf));
-	if (ml_sock_gets(&sock, buf, 5) < 0) {
+	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP HELO");
 		goto bail;
@@ -1152,7 +1152,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
 		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 		sock_write(&sock, buf, strlen(buf));
-		if (ml_sock_gets(&sock, buf, 5) < 0) {
+		if (ml_sock_gets(&sock, buf, 30) < 0) {
 			*status = 4;
 			strcpy(dsn, "Connection broken during SMTP HELO");
 			goto bail;
@@ -1179,7 +1179,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		snprintf(buf, sizeof buf, "AUTH PLAIN %s\r\n", encoded);
 		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 		sock_write(&sock, buf, strlen(buf));
-		if (ml_sock_gets(&sock, buf, 5) < 0) {
+		if (ml_sock_gets(&sock, buf, 30) < 0) {
 			*status = 4;
 			strcpy(dsn, "Connection broken during SMTP AUTH");
 			goto bail;
@@ -1203,7 +1203,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	snprintf(buf, sizeof buf, "MAIL FROM:<%s>\r\n", envelope_from);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(&sock, buf, strlen(buf));
-	if (ml_sock_gets(&sock, buf, 5) < 0) {
+	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP MAIL");
 		goto bail;
@@ -1226,7 +1226,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	snprintf(buf, sizeof buf, "RCPT TO:<%s@%s>\r\n", user, node);
 	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
 	sock_write(&sock, buf, strlen(buf));
-	if (ml_sock_gets(&sock, buf, 5) < 0) {
+	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP RCPT");
 		goto bail;
@@ -1248,7 +1248,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	/* RCPT succeeded, now try the DATA command */
 	CtdlLogPrintf(CTDL_DEBUG, ">DATA\n");
 	sock_write(&sock, "DATA\r\n", 6);
-	if (ml_sock_gets(&sock, buf, 5) < 0) {
+	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP DATA");
 		goto bail;
@@ -1303,7 +1303,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	CtdlLogPrintf(CTDL_DEBUG, ">QUIT\n");
 	sock_write(&sock, "QUIT\r\n", 6);
-	ml_sock_gets(&sock, buf, 1);
+	ml_sock_gets(&sock, buf, 30);
 	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
 	CtdlLogPrintf(CTDL_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded\n",
 		user, node, name);
