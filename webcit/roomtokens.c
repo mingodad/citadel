@@ -384,16 +384,12 @@ void tmplput_ThisRoom_nNewMessages(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 
-	LoadRoomXA();
-
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.nNewMessages);
 }
 
 void tmplput_ThisRoom_nTotalMessages(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
-
-	LoadRoomXA();
 
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.nTotalMessages);
 }
