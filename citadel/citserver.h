@@ -29,7 +29,7 @@ struct UserProcList {
 	char user[64];
 };
 
-#define CTDLUSERIP      (IsEmptyStr(CC->cs_addr) ? "localsocket" : CC->cs_addr)
+#define CTDLUSERIP      (IsEmptyStr(CC->cs_addr) ?  CC->cs_clientinfo: CC->cs_addr)
 
 void cit_backtrace(void);
 void cit_panic_backtrace(int SigNum);
