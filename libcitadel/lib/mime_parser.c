@@ -213,9 +213,17 @@ void mime_decode(char *partnum,
 	/* If this part is not encoded, send as-is */
 	if ( (strlen(encoding) == 0) || (dont_decode)) {
 		if (CallBack != NULL) {
-			CallBack(name, filename, fixed_partnum(partnum),
-				disposition, part_start,
-				content_type, charset, length, encoding, id, userdata);
+			CallBack(name, 
+				 filename, 
+				 fixed_partnum(partnum),
+				 disposition, 
+				 part_start,
+				 content_type, 
+				 charset, 
+				 length, 
+				 encoding, 
+				 id,
+				 userdata);
 			}
 		return;
 	}
@@ -254,6 +262,65 @@ void mime_decode(char *partnum,
 }
 
 /*
+ * this is the extract of mime_decode which can be called if 'dont_decode' was set; 
+ * to save the cpu intense process of decoding to the time when it realy wants the content. 
+ * returns: 
+ *   - > 0 we decoded something, its on *decoded, you need to free it.
+ *   - = 0 no need to decode stuff. *decoded will be NULL.
+ *   - < 0 an error occured, either an unknown encoding, or alloc failed. no need to free.
+ */
+int mime_decode_now (char *part_start, 
+		     size_t length,
+		     char *encoding,
+		     char **decoded,
+		     size_t *bytes_decoded)
+{
+	*bytes_decoded = 0;
+	*decoded = NULL;
+	/* Some encodings aren't really encodings */
+	if (!strcasecmp(encoding, "7bit"))
+		strcpy(encoding, "");
+	if (!strcasecmp(encoding, "8bit"))
+		strcpy(encoding, "");
+	if (!strcasecmp(encoding, "binary"))
+		strcpy(encoding, "");
+
+	/* If this part is not encoded, send as-is */
+	if (strlen(encoding) == 0) {
+		return 0;
+	}
+	
+
+	/* Fail if we hit an unknown encoding. */
+	if ((strcasecmp(encoding, "base64"))
+	    && (strcasecmp(encoding, "quoted-printable"))) {
+		return -1;
+	}
+
+	/*
+	 * Allocate a buffer for the decoded data.  The output buffer is slightly
+	 * larger than the input buffer; this assumes that the decoded data
+	 * will never be significantly larger than the encoded data.  This is a
+	 * safe assumption with base64, uuencode, and quoted-printable.
+	 */
+	*decoded = malloc(length + 32768);
+	if (decoded == NULL) {
+		return -1;
+	}
+
+	if (!strcasecmp(encoding, "base64")) {
+		*bytes_decoded = CtdlDecodeBase64(*decoded, part_start, length);
+		return 1;
+	}
+	else if (!strcasecmp(encoding, "quoted-printable")) {
+		*bytes_decoded = CtdlDecodeQuotedPrintable(*decoded, part_start, length);
+		return 1;
+	}
+	return -1;
+}
+
+
+/*
  * Break out the components of a multipart message
  * (This function expects to be fed HEADERS + CONTENT)
  * Note: NULL can be supplied as content_end; in this case, the message is
@@ -269,7 +336,6 @@ void the_mime_parser(char *partnum,
 {
 
 	char *ptr;
-	char *srch = NULL;
 	char *part_start, *part_end = NULL;
 	char buf[SIZ];
 	char *header;
@@ -435,13 +501,13 @@ void the_mime_parser(char *partnum,
 
 		part_start = NULL;
 		do {
-			next_boundary = NULL;
-			for (srch=ptr; srch<content_end; ++srch) {
-				if (!memcmp(srch, startary, startary_len)) {
-					next_boundary = srch;
-					srch = content_end;
-				}
-			}
+			char tmp;
+
+			tmp = *content_end;
+			*content_end = '\0';
+			
+			next_boundary = strstr(ptr, startary);
+			*content_end = tmp;
 
 			if ( (part_start != NULL) && (next_boundary != NULL) ) {
 				part_end = next_boundary;
@@ -483,7 +549,9 @@ void the_mime_parser(char *partnum,
 					/* Determine whether newlines are LF or CRLF */
 					evaluate_crlf_ptr = part_start;
 					--evaluate_crlf_ptr;
-					if (!memcmp(evaluate_crlf_ptr, "\r\n", 2)) {
+					if ((*evaluate_crlf_ptr == '\r') && 
+					    (*(evaluate_crlf_ptr + 1) == '\n'))
+					{
 						crlf_in_use = 1;
 					}
 					else {

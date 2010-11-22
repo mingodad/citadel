@@ -167,6 +167,11 @@ void mime_decode(char *partnum,
 		 MimeParserCallBackType PostMultiPartCallBack,
 		 void *userdata,
 		 int dont_decode);
+int mime_decode_now (char *part_start, 
+		     size_t length,
+		     char *encoding,
+		     char **decoded,
+		     size_t *bytes_decoded);
 void the_mime_parser(char *partnum,
 		     char *content_start, char *content_end,
 		     MimeParserCallBackType CallBack,
