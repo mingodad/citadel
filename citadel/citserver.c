@@ -905,6 +905,7 @@ void begin_session(CitContext *con)
 	*con->fake_username = '\0';
 	*con->fake_hostname = '\0';
 	*con->fake_roomname = '\0';
+	*con->cs_clientinfo = '\0';
 	generate_nonce(con);
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
@@ -945,6 +946,11 @@ void begin_session(CitContext *con)
 				   database, after a reverse lookup on the UID to get the account name.
 				   We can take this opportunity to check to see if this is a legit account.
 				*/
+				snprintf(con->cs_clientinfo, sizeof(con->cs_clientinfo),
+					 "PID: "F_PID_T"; UID: "F_UID_T"; GID: "F_XPID_T" ", 
+					 credentials.pid,
+					 credentials.uid,
+					 credentials.gid);
 			}
 		}
 #endif
