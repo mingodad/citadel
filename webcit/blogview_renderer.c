@@ -45,6 +45,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 	int i;
 
 	p = atoi(BSTR("p"));	/* are we looking for a specific post? */
+	WC->bptlid = bp->top_level_id;
 
 	if ( ((p == 0) || (p == bp->top_level_id)) && (bp->num_msgs > 0) ) {
 		/* Show the top level post */
@@ -244,16 +245,12 @@ int blogview_Cleanup(void **ViewSpecific)
  *
  */
 void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
-	int p = atoi(BSTR("p"));	/* are we looking for a specific post? */
 	char perma[SIZ];
 	char encoded_perma[SIZ];
 	
 	strcpy(perma, "/readfwd?gotofirst=");
 	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), ChrPtr(WC->CurRoom.name));
-
-	if (p != 0) {
-		snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", p);
-	}
+	snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", WC->bptlid);
 
 	CtdlEncodeBase64(encoded_perma, perma, strlen(perma), 0);
 	StrBufAppendPrintf(Target, "/B64%s", encoded_perma);
