@@ -48,6 +48,7 @@ struct ma_info {
 	char chosen_part[128];	/* Which part of a m/a did we choose? */
 	int chosen_pref;	/* Chosen part preference level (lower is better) */
 	int use_fo_hooks;	/* Use fixed output hooks */
+	int dont_decode;        /* should we call the decoder or not? */
 };
 
 

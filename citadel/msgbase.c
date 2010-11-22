@@ -1427,16 +1427,27 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 /*
  * Now that we've chosen our preferred part, output it.
  */
-void output_preferred(char *name, char *filename, char *partnum, char *disp,
-	  	void *content, char *cbtype, char *cbcharset, size_t length,
-		char *encoding, char *cbid, void *cbuserdata)
+void output_preferred(char *name, 
+		      char *filename, 
+		      char *partnum, 
+		      char *disp,
+		      void *content, 
+		      char *cbtype, 
+		      char *cbcharset, 
+		      size_t length,
+		      char *encoding, 
+		      char *cbid, 
+		      void *cbuserdata)
 {
 	int i;
 	char buf[128];
 	int add_newline = 0;
 	char *text_content;
 	struct ma_info *ma;
-	
+	char *decoded = NULL;
+	size_t bytes_decoded;
+	int rc = 0;
+
 	ma = (struct ma_info *)cbuserdata;
 
 	/* This is not the MIME part you're looking for... */
@@ -1449,8 +1460,21 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 		extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 		if (!strcasecmp(buf, cbtype)) {
 			/* Yeah!  Go!  W00t!! */
+			if (ma->dont_decode == 0)
+				rc = mime_decode_now (content, 
+						      length,
+						      encoding,
+						      &decoded,
+						      &bytes_decoded);
+			if (rc < 0)
+				break; /* Give us the chance, maybe theres another one. */
 
-			text_content = (char *)content;
+			if (rc == 0) text_content = (char *)content;
+			else {
+				text_content = decoded;
+				length = bytes_decoded;
+			}
+
 			if (text_content[length-1] != '\n') {
 				++add_newline;
 			}
@@ -1470,14 +1494,32 @@ void output_preferred(char *name, char *filename, char *partnum, char *disp,
 			cprintf("\n");
 			client_write(content, length);
 			if (add_newline) cprintf("\n");
+			if (decoded != NULL) free(decoded);
 			return;
 		}
 	}
 
 	/* No translations required or possible: output as text/plain */
 	cprintf("Content-type: text/plain\n\n");
-	fixed_output(name, filename, partnum, disp, content, cbtype, cbcharset,
+	rc = 0;
+	if (ma->dont_decode == 0)
+		rc = mime_decode_now (content, 
+				      length,
+				      encoding,
+				      &decoded,
+				      &bytes_decoded);
+	if (rc < 0)
+		return; /* Give us the chance, maybe theres another one. */
+	
+	if (rc == 0) text_content = (char *)content;
+	else {
+		text_content = decoded;
+		length = bytes_decoded;
+	}
+
+	fixed_output(name, filename, partnum, disp, text_content, cbtype, cbcharset,
 			length, encoding, cbid, cbuserdata);
+	if (decoded != NULL) free(decoded);
 }
 
 
@@ -2292,7 +2334,7 @@ START_TEXT:
 				(do_proto ? *list_this_part : NULL),
 				(do_proto ? *list_this_pref : NULL),
 				(do_proto ? *list_this_suff : NULL),
-				(void *)&ma, 0);
+				(void *)&ma, 1);
 		}
 		else if (mode == MT_RFC822) {	/* unparsed RFC822 dump */
 			Dump_RFC822HeadersBody(
@@ -2347,11 +2389,12 @@ START_TEXT:
 			ma.use_fo_hooks = 0;
 			strcpy(ma.chosen_part, "1");
 			ma.chosen_pref = 9999;
+			ma.dont_decode = CC->msg4_dont_decode;
 			mime_parser(mptr, NULL,
 				*choose_preferred, *fixed_output_pre,
-				*fixed_output_post, (void *)&ma, 0);
+				*fixed_output_post, (void *)&ma, 1);
 			mime_parser(mptr, NULL,
-				*output_preferred, NULL, NULL, (void *)&ma, CC->msg4_dont_decode);
+				*output_preferred, NULL, NULL, (void *)&ma, 1);
 		}
 		else {
 			ma.use_fo_hooks = 1;
