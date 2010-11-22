@@ -237,6 +237,28 @@ int blogview_Cleanup(void **ViewSpecific)
 	return 0;
 }
 
+/*
+ * Generate a permalink for a post
+ *
+ * FIXME THIS IS WRONG, FIND THE FOO
+ *
+ */
+void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
+	int p = atoi(BSTR("p"));	/* are we looking for a specific post? */
+	char perma[SIZ];
+	char encoded_perma[SIZ];
+	
+	strcpy(perma, "/readfwd?gotofirst=");
+	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), ChrPtr(WC->CurRoom.name));
+
+	if (p != 0) {
+		snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", p);
+	}
+
+	CtdlEncodeBase64(encoded_perma, perma, strlen(perma), 0);
+	StrBufAppendPrintf(Target, "/B64%s", encoded_perma);
+}
+
 
 void 
 InitModule_BLOGVIEWRENDERERS
@@ -251,4 +273,5 @@ InitModule_BLOGVIEWRENDERERS
 		blogview_render,
 		blogview_Cleanup
 	);
+	RegisterNamespace("BLOG:PERMALINK", 0, 0, tmplput_blog_permalink, NULL, CTX_NONE);
 }
