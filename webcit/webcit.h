@@ -563,6 +563,9 @@ struct wcsession {
 	HashList *ServCfg;                      /* cache our server config for editing */
 	HashList *InetCfg;                      /* Our inet server config for editing */
 	ExpirePolicy Policy[maxpolicy];
+
+/* used by the blog viewer */
+	int bptlid;				/* hash of thread currently being rendered */
 };
 
 
