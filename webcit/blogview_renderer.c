@@ -240,9 +240,6 @@ int blogview_Cleanup(void **ViewSpecific)
 
 /*
  * Generate a permalink for a post
- *
- * FIXME THIS IS WRONG, FIND THE FOO
- *
  */
 void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
 	char perma[SIZ];
