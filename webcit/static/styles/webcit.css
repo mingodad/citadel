@@ -19,9 +19,15 @@
 
 /* Typography */
 
-html {font-size: 100%}
+html {
+	font-size: 100;
+	overflow: hidden;
+}
 
-body { font-size: 100%}
+body {
+	font-size: 100%;
+	overflow: hidden;
+}
 
 .address_book_popup_title { font-size: 130% }
 
