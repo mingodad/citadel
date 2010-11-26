@@ -771,17 +771,39 @@ int stripout(char *str, char leftboundary, char rightboundary) {
  * Reduce a string down to a boundarized substring (for example, remove
  * parentheses and anything outside them).
  */
-void stripallbut(char *str, char leftboundary, char rightboundary) {
+long stripallbut(char *str, char leftboundary, char rightboundary) {
 	int a;
-
-	for (a = 0; a < strlen(str); ++ a) {
-		if (str[a] == leftboundary) strcpy(str, &str[a+1]);
+	long orglen, len;
+	char *pchs;
+	long min;
+	
+	orglen = len = strlen(str);
+	pchs = NULL;
+	for (a = 0; a < len; ++ a) {
+		if (str[a] == leftboundary) 
+			pchs = &str[a+1];
 	}
 
-	for (a = 0; a < strlen(str); ++ a) {
-		if (str[a] == rightboundary) str[a] = 0;
+	if (pchs == NULL)
+		min = 0;
+	else
+		min = pchs - str;
+
+	for (a = min; a < len; ++ a) {
+		if (str[a] == rightboundary) 
+			len = a - 1;
 	}
 
+	if (len != orglen)
+		str[len] = '\0';
+	if (pchs != NULL)
+	{
+		orglen = len - min;
+		memmove(str, pchs, orglen);
+		return orglen;
+	}
+	else
+		return len;
 }
 
 char *myfgets(char *s, int size, FILE *stream) {

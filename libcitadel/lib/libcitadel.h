@@ -356,7 +356,7 @@ const char *cmemreadlinelen(const char *start, char *buf, int maxlen, int *retle
 #define IsEmptyStr(a) ((a)[0] == '\0')
 #define num_parms(source)		num_tokens(source,(char)'|')
 int stripout(char *str, char leftboundary, char rightboundary);
-void stripallbut(char *str, char leftboundary, char rightboundary);
+long stripallbut(char *str, char leftboundary, char rightboundary);
 char *myfgets(char *s, int size, FILE *stream);
 void urlesc(char *outbuf, size_t oblen, char *strbuf);
 char *CtdlTempFileName(char *prefix1, int prefix2);
