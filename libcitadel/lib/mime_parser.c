@@ -52,7 +52,7 @@ const unsigned char FromHexTable [256] = {
 };
 
 
-void extract_key(char *target, char *source, long sourcelen, char *key, long keylen, char KeyEnd)
+long extract_key(char *target, char *source, long sourcelen, char *key, long keylen, char KeyEnd)
 {
 	char *sptr, *ptr = NULL;
 	int double_quotes = 0;
@@ -83,7 +83,7 @@ void extract_key(char *target, char *source, long sourcelen, char *key, long key
 	}
 	if (ptr == NULL) {
 		*target = '\0';
-		return;
+		return 0;
 	}
 	strcpy(target, (ptr + RealKeyLen));
 
@@ -106,6 +106,7 @@ void extract_key(char *target, char *source, long sourcelen, char *key, long key
 		}
 	}
 	*ptr = '\0';
+	return ptr - target;
 }
 
 
@@ -319,6 +320,133 @@ int mime_decode_now (char *part_start,
 	return -1;
 }
 
+typedef enum _eIntMimeHdrs {
+	boundary,
+	startary,
+	endary,
+	content_type,
+	charset,
+	encoding,
+	content_type_name,
+	content_disposition_name,
+	filename,
+	disposition,
+	id,
+	eMax /* don't move ! */
+} eIntMimeHdrs;
+
+typedef struct _CBufStr {
+	char Key[SIZ];
+	long len;
+}CBufStr;
+
+typedef struct _interesting_mime_headers {
+	CBufStr b[eMax];
+	long content_length;
+	long is_multipart;
+} interesting_mime_headers;
+
+interesting_mime_headers *InitInterestingMimes(void)
+{
+	int i;
+	interesting_mime_headers *m;
+	m = (interesting_mime_headers*) malloc( sizeof(interesting_mime_headers));
+	
+	for (i = 0; i < eMax; i++) {
+	     m->b[i].Key[0] = '\0';
+	     m->b[i].len = 0;
+	}
+	m->content_length = -1;
+	return m;
+}
+
+
+
+long parse_MimeHeaders(interesting_mime_headers *m, char* content_start, char *content_end)
+{
+	char buf[SIZ];
+	char header[SIZ];
+	long headerlen;
+	char *ptr;
+	int buflen;
+	int i;
+
+	/* Learn interesting things from the headers */
+	ptr = content_start;
+	*header = '\0';
+	headerlen = 0;
+	do {
+		ptr = memreadlinelen(ptr, buf, SIZ, &buflen);
+		if (ptr >= content_end) {
+			return -1;
+		}
+
+		for (i = 0; i < buflen; ++i) {
+			if (isspace(buf[i])) {
+				buf[i] = ' ';
+			}
+		}
+
+		if (!isspace(buf[0])) {
+			if (!strncasecmp(header, "Content-type:", 13)) {
+				memcpy (m->b[content_type].Key, &header[13], headerlen - 12);
+				m->b[content_type].len = striplt (m->b[content_type].Key);
+
+				m->b[content_type_name].len = extract_key(m->b[content_type_name].Key, CKEY(m->b[content_type]), HKEY("name"), '=');
+				m->b[charset].len           = extract_key(m->b[charset].Key,           CKEY(m->b[content_type]), HKEY("charset"), '=');
+				m->b[boundary].len          = extract_key(m->b[boundary].Key,          header,       headerlen,  HKEY("boundary"), '=');
+
+				/* Deal with weird headers */
+				if (strchr(m->b[content_type].Key, ' '))
+					*(strchr(m->b[content_type].Key, ' ')) = '\0';
+				if (strchr(m->b[content_type].Key, ';'))
+					*(strchr(m->b[content_type].Key, ';')) = '\0';
+			}
+			else if (!strncasecmp(header, "Content-Disposition:", 20)) {
+				memcpy (m->b[disposition].Key, &header[20], headerlen - 19);
+				m->b[disposition].len = striplt(m->b[disposition].Key);
+
+				m->b[content_disposition_name].len = extract_key(m->b[content_disposition_name].Key, CKEY(m->b[disposition]), HKEY("name"), '=');
+				m->b[filename].len                 = extract_key(m->b[filename].Key,                 CKEY(m->b[disposition]), HKEY("filename"), '=');
+			}
+			else if (!strncasecmp(header, "Content-ID:", 11)) {
+				memcpy(m->b[id].Key, &header[11], headerlen);
+				striplt(m->b[id].Key);
+				m->b[id].len = stripallbut(m->b[id].Key, '<', '>');
+			}
+			else if (!strncasecmp(header, "Content-length: ", 15)) {
+				char *clbuf;
+				clbuf = &header[15];
+				while (isspace(clbuf))
+					clbuf ++;
+				m->content_length = (size_t) atol(clbuf);
+			}
+			else if (!strncasecmp(header, "Content-transfer-encoding: ", 26)) {
+				memcpy(m->b[encoding].Key, &header[26], headerlen - 26);
+				m->b[encoding].len = striplt(m->b[encoding].Key);
+			}
+			*header = '\0';
+			headerlen = 0;
+		}
+		if ((headerlen + buflen + 2) < SIZ) {
+			memcpy(&header[headerlen], buf, buflen);
+			headerlen += buflen;
+			header[headerlen] = '\0';
+		}
+	} while ((!IsEmptyStr(buf)) && (*ptr != 0));
+
+	ptr = strchr(m->b[disposition].Key, ';');
+	if (ptr != NULL) *ptr = '\0';
+	m->b[disposition].len = striplt(m->b[disposition].Key);
+
+	ptr = strchr(m->b[content_type].Key, ';');
+	if (ptr != NULL) *ptr = '\0';
+	m->b[content_type].len = striplt(m->b[content_type].Key);
+
+	m->is_multipart = m->b[boundary].len != 0;
+
+	return 0;
+}
 
 /*
  * Break out the components of a multipart message
@@ -337,167 +465,54 @@ void the_mime_parser(char *partnum,
 
 	char *ptr;
 	char *part_start, *part_end = NULL;
-	char buf[SIZ];
-	char *header;
-	char *boundary;
-	char *startary;
-	size_t startary_len = 0;
-	char *endary;
 	char *next_boundary;
-	char *content_type;
-	char *charset;
-	size_t content_type_len;
+	
 	size_t content_length;
-	char *encoding;
-	char *disposition;
-	size_t disposition_len;
-	char *id;
-	char *name = NULL;
-	char *content_type_name;
-	char *content_disposition_name;
-	char *filename;
-	int is_multipart;
 	int part_seq = 0;
-	int i;
 	size_t length;
 	char nested_partnum[256];
 	int crlf_in_use = 0;
 	char *evaluate_crlf_ptr = NULL;
-	int buflen = 0;
-	int headerlen = 0;
+	
+	interesting_mime_headers *m;
+	CBufStr *chosen_name;
 
 	ptr = content_start;
 	content_length = 0;
 
-	boundary = malloc(SIZ * 12);
-	*boundary = '\0';
+	m = InitInterestingMimes();
 
-	startary = boundary + SIZ * 1;
-	*startary = '\0';
-
-	endary = boundary + SIZ * 2;
-	*endary = '\0';
-
-	header = boundary + SIZ * 3;
-	*header = '\0';
-
-	content_type = boundary + SIZ * 4;
-	*content_type = '\0';
-
-	charset = boundary + SIZ * 5;
-	*charset = '\0';
-
-	encoding = boundary + SIZ * 6;
-	*encoding = '\0';
-
-	content_type_name = boundary + SIZ * 7;
-	*content_type_name = '\0';
-
-	content_disposition_name = boundary + SIZ * 8;
-	*content_disposition_name = '\0';
-
-	filename = boundary + SIZ * 9;
-	*filename = '\0';
-
-	disposition = boundary + SIZ * 10;
-	*disposition = '\0';
-
-	id = boundary + SIZ * 11;
-	*id = '\0';
 
 	/* If the caller didn't supply an endpointer, generate one by measure */
 	if (content_end == NULL) {
 		content_end = &content_start[strlen(content_start)];
 	}
 
-	/* Learn interesting things from the headers */
-	strcpy(header, "");
-	headerlen = 0;
-	do {
-		ptr = memreadlinelen(ptr, buf, SIZ, &buflen);
-		if (ptr >= content_end) {
-			goto end_parser;
-		}
 
-		for (i = 0; i < buflen; ++i) {
-			if (isspace(buf[i])) {
-				buf[i] = ' ';
-			}
-		}
-
-		if (!isspace(buf[0])) {
-			if (!strncasecmp(header, "Content-type:", 13)) {
-				memcpy (content_type, &header[13], headerlen - 12);
-				content_type_len = striplt (content_type);
-
-				extract_key(content_type_name, content_type, content_type_len, HKEY("name"), '=');
-				extract_key(charset,           content_type, content_type_len, HKEY("charset"), '=');
-				extract_key(boundary,          header,       headerlen,        HKEY("boundary"), '=');
-
-				/* Deal with weird headers */
-				if (strchr(content_type, ' '))
-					*(strchr(content_type, ' ')) = '\0';
-				if (strchr(content_type, ';'))
-					*(strchr(content_type, ';')) = '\0';
-			}
-			else if (!strncasecmp(header, "Content-Disposition:", 20)) {
-				memcpy (disposition, &header[20], headerlen - 19);
-				disposition_len = striplt(disposition);
-				extract_key(content_disposition_name, disposition, disposition_len,  HKEY("name"), '=');
-				extract_key(filename,                 disposition, disposition_len, HKEY("filename"), '=');
-			}
-			else if (!strncasecmp(header, "Content-ID:", 11)) {
-				strcpy(id, &header[11]);
-				striplt(id);
-				stripallbut(id, '<', '>');
-			}
-			else if (!strncasecmp(header, "Content-length: ", 15)) {
-				char clbuf[10];
-				safestrncpy(clbuf, &header[15], sizeof clbuf);
-				striplt(clbuf);
-				content_length = (size_t) atol(clbuf);
-			}
-			else if (!strncasecmp(header, "Content-transfer-encoding: ", 26)) {
-				strcpy(encoding, &header[26]);
-				striplt(encoding);
-			}
-			strcpy(header, "");
-			headerlen = 0;
-		}
-		if ((headerlen + buflen + 2) < SIZ) {
-			memcpy(&header[headerlen], buf, buflen);
-			headerlen += buflen;
-			header[headerlen] = '\0';
-		}
-	} while ((!IsEmptyStr(buf)) && (*ptr != 0));
-
-	if (strchr(disposition, ';'))
-		*(strchr(disposition, ';')) = '\0';
-	striplt(disposition);
-	if (strchr(content_type, ';'))
-		*(strchr(content_type, ';')) = '\0';
-	striplt(content_type);
-
-	if (!IsEmptyStr(boundary)) {
-		is_multipart = 1;
-	} else {
-		is_multipart = 0;
-	}
-
+	if (parse_MimeHeaders(m, content_start, content_end) != 0)
+		goto end_parser;
+	
 	/* If this is a multipart message, then recursively process it */
 	part_start = NULL;
-	if (is_multipart) {
+	if (m->is_multipart) {
 
 		/* Tell the client about this message's multipartedness */
 		if (PreMultiPartCallBack != NULL) {
-			PreMultiPartCallBack("", "", partnum, "",
-				NULL, content_type, charset,
-				0, encoding, id, userdata);
+			PreMultiPartCallBack("", 
+					     "", 
+					     partnum, 
+					     "",
+					     NULL, 
+					     m->b[content_type].Key, 
+					     m->b[charset].Key,
+					     0, 
+					     m->b[encoding].Key, 
+					     m->b[id].Key, 
+					     userdata);
 		}
 
 		/* Figure out where the boundaries are */
-		startary_len = snprintf(startary, SIZ, "--%s", boundary);
-		snprintf(endary, SIZ, "--%s--", boundary);
+		m->b[startary].len = snprintf(m->b[startary].Key, SIZ, "--%s", m->b[boundary].Key);
 
 		part_start = NULL;
 		do {
@@ -506,7 +521,7 @@ void the_mime_parser(char *partnum,
 			tmp = *content_end;
 			*content_end = '\0';
 			
-			next_boundary = strstr(ptr, startary);
+			next_boundary = strstr(ptr, m->b[startary].Key);
 			*content_end = tmp;
 
 			if ( (part_start != NULL) && (next_boundary != NULL) ) {
@@ -528,7 +543,8 @@ void the_mime_parser(char *partnum,
 						 "%d", ++part_seq);
 				}
 				the_mime_parser(nested_partnum,
-					    part_start, part_end,
+						part_start, 
+						part_end,
 						CallBack,
 						PreMultiPartCallBack,
 						PostMultiPartCallBack,
@@ -539,7 +555,8 @@ void the_mime_parser(char *partnum,
 			if (next_boundary != NULL) {
 				/* If we pass out of scope, don't attempt to
 				 * read past the end boundary. */
-				if (!strcmp(next_boundary, endary)) {
+				if ((*(next_boundary + m->b[startary].len + 1) == '-') && 
+				    (*(next_boundary + m->b[startary].len + 2) == '-') ){
 					ptr = content_end;
 				}
 				else {
@@ -570,14 +587,23 @@ void the_mime_parser(char *partnum,
 		} while ( (ptr < content_end) && (next_boundary != NULL) );
 
 		if (PostMultiPartCallBack != NULL) {
-			PostMultiPartCallBack("", "", partnum, "", NULL,
-				content_type, charset, 0, encoding, id, userdata);
+			PostMultiPartCallBack("", 
+					      "", 
+					      partnum, 
+					      "", 
+					      NULL,
+					      m->b[content_type].Key, 
+					      m->b[charset].Key,
+					      0, 
+					      m->b[encoding].Key, 
+					      m->b[id].Key, 
+					      userdata);
 		}
 		goto end_parser;
 	}
 
 	/* If it's not a multipart message, then do something with it */
-	if (!is_multipart) {
+	if (!m->is_multipart) {
 		part_start = ptr;
 		length = 0;
 		while (ptr < content_end) {
@@ -600,32 +626,48 @@ void the_mime_parser(char *partnum,
 		 * and sometimes it's tacked on to Content-disposition.  Use
 		 * whichever one we have.
 		 */
-		if (strlen(content_disposition_name) > strlen(content_type_name)) {
-			name = content_disposition_name;
+		if (m->b[content_disposition_name].len > m->b[content_type_name].len) {
+			chosen_name = &m->b[content_disposition_name];
 		}
 		else {
-			name = content_type_name;
+			chosen_name = &m->b[content_type_name];
 		}
 	
 		/* Ok, we've got a non-multipart part here, so do something with it.
 		 */
 		mime_decode(partnum,
-			part_start, length,
-			content_type, charset, encoding, disposition, id,
-			name, filename,
-			CallBack, NULL, NULL,
-			userdata, dont_decode
-		);
+			    part_start, 
+			    length,
+			    m->b[content_type].Key, 
+			    m->b[charset].Key,
+			    m->b[encoding].Key, 
+			    m->b[disposition].Key, 
+			    m->b[id].Key, 
+			    chosen_name->Key, 
+			    m->b[filename].Key,
+			    CallBack, 
+			    NULL, NULL,
+			    userdata, 
+			    dont_decode
+			);
 
 		/*
 		 * Now if it's an encapsulated message/rfc822 then we have to recurse into it
 		 */
-		if (!strcasecmp(content_type, "message/rfc822")) {
+		if (!strcasecmp(&m->b[content_type].Key[0], "message/rfc822")) {
 
 			if (PreMultiPartCallBack != NULL) {
-				PreMultiPartCallBack("", "", partnum, "",
-					NULL, content_type, charset,
-					0, encoding, id, userdata);
+				PreMultiPartCallBack("", 
+						     "", 
+						     partnum, 
+						     "",
+						     NULL, 
+						     m->b[content_type].Key, 
+						     m->b[charset].Key,
+						     0, 
+						     m->b[encoding].Key, 
+						     m->b[id].Key, 
+						     userdata);
 			}
 			if (CallBack != NULL) {
 				if (strlen(partnum) > 0) {
@@ -640,17 +682,27 @@ void the_mime_parser(char *partnum,
 						 "%d", ++part_seq);
 				}
 				the_mime_parser(nested_partnum,
-					part_start, part_end,
-					CallBack,
-					PreMultiPartCallBack,
-					PostMultiPartCallBack,
-					userdata,
-					dont_decode
-				);
+						part_start, 
+						part_end,
+						CallBack,
+						PreMultiPartCallBack,
+						PostMultiPartCallBack,
+						userdata,
+						dont_decode
+					);
 			}
 			if (PostMultiPartCallBack != NULL) {
-				PostMultiPartCallBack("", "", partnum, "", NULL,
-					content_type, charset, 0, encoding, id, userdata);
+				PostMultiPartCallBack("", 
+						      "", 
+						      partnum, 
+						      "", 
+						      NULL,
+						      m->b[content_type].Key, 
+						      m->b[charset].Key,
+						      0, 
+						      m->b[encoding].Key, 
+						      m->b[id].Key, 
+						      userdata);
 			}
 
 
@@ -659,7 +711,7 @@ void the_mime_parser(char *partnum,
 	}
 
 end_parser:	/* free the buffers!  end the oppression!! */
-	free(boundary);
+	free(m);
 }
 
 

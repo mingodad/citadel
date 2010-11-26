@@ -131,7 +131,7 @@ void ShutDownLibCitadel(void);
  * MIME parser declarations
  */
 
-void extract_key(char *target, char *source, long sourcelen, char *key, long keylen, char KeyEnd);
+long extract_key(char *target, char *source, long sourcelen, char *key, long keylen, char KeyEnd);
 
 
 typedef void (*MimeParserCallBackType)(char *cbname,
