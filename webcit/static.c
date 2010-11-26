@@ -60,6 +60,7 @@ void output_static(const char *what)
 			begin_burst();
 			wc_printf("Cannot fstat %s: %s\n", what, strerror(errno));
 			end_burst();
+			if (fd > 0) close(fd);
 			return;
 		}
 
