@@ -109,6 +109,7 @@ EMAIL=citadel@outgesourced.org
 	    --exclude "*.d" \
 	    --exclude "debian/*" \
 	    --exclude "sysdep.h" \
+	    --exclude tests/testdata \
 	    \
 	    -chvzf libcitadel-$LIBCITADEL_VERSION.tar.gz libcitadel-$LIBCITADEL_VERSION/
 	;;
