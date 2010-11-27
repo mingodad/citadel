@@ -362,24 +362,21 @@ interesting_mime_headers *InitInterestingMimes(void)
 
 
 
-long parse_MimeHeaders(interesting_mime_headers *m, char* content_start, char *content_end)
+long parse_MimeHeaders(interesting_mime_headers *m, char** pcontent_start, char *content_end)
 {
 	char buf[SIZ];
 	char header[SIZ];
 	long headerlen;
-	char *ptr;
-	int buflen;
+	char *ptr, *pch;
+	int buflen = 0;
 	int i;
 
 	/* Learn interesting things from the headers */
-	ptr = content_start;
+	ptr = *pcontent_start;
 	*header = '\0';
 	headerlen = 0;
 	do {
 		ptr = memreadlinelen(ptr, buf, SIZ, &buflen);
-		if (ptr >= content_end) {
-			return -1;
-		}
 
 		for (i = 0; i < buflen; ++i) {
 			if (isspace(buf[i])) {
@@ -387,7 +384,7 @@ long parse_MimeHeaders(interesting_mime_headers *m, char* content_start, char *c
 			}
 		}
 
-		if (!isspace(buf[0])) {
+		if (!isspace(buf[0]) && (headerlen > 0)) {
 			if (!strncasecmp(header, "Content-type:", 13)) {
 				memcpy (m->b[content_type].Key, &header[13], headerlen - 12);
 				m->b[content_type].len = striplt (m->b[content_type].Key);
@@ -397,10 +394,16 @@ long parse_MimeHeaders(interesting_mime_headers *m, char* content_start, char *c
 				m->b[boundary].len          = extract_key(m->b[boundary].Key,          header,       headerlen,  HKEY("boundary"), '=');
 
 				/* Deal with weird headers */
-				if (strchr(m->b[content_type].Key, ' '))
-					*(strchr(m->b[content_type].Key, ' ')) = '\0';
-				if (strchr(m->b[content_type].Key, ';'))
-					*(strchr(m->b[content_type].Key, ';')) = '\0';
+				pch = strchr(m->b[content_type].Key, ' ');
+				if (pch != NULL) {
+					*pch = '\0';
+					m->b[content_type].len = m->b[content_type].Key - pch;
+				}
+				pch = strchr(m->b[content_type].Key, ';');
+				if (pch != NULL) {
+					*pch = '\0';
+					m->b[content_type].len = m->b[content_type].Key - pch;
+				}
 			}
 			else if (!strncasecmp(header, "Content-Disposition:", 20)) {
 				memcpy (m->b[disposition].Key, &header[20], headerlen - 19);
@@ -408,6 +411,9 @@ long parse_MimeHeaders(interesting_mime_headers *m, char* content_start, char *c
 
 				m->b[content_disposition_name].len = extract_key(m->b[content_disposition_name].Key, CKEY(m->b[disposition]), HKEY("name"), '=');
 				m->b[filename].len                 = extract_key(m->b[filename].Key,                 CKEY(m->b[disposition]), HKEY("filename"), '=');
+				pch = strchr(m->b[disposition].Key, ';');
+				if (pch != NULL) *ptr = '\0';
+				m->b[disposition].len = striplt(m->b[disposition].Key);
 			}
 			else if (!strncasecmp(header, "Content-ID:", 11)) {
 				memcpy(m->b[id].Key, &header[11], headerlen);
@@ -433,17 +439,13 @@ long parse_MimeHeaders(interesting_mime_headers *m, char* content_start, char *c
 			headerlen += buflen;
 			header[headerlen] = '\0';
 		}
+		if (ptr >= content_end) {
+			return -1;
+		}
 	} while ((!IsEmptyStr(buf)) && (*ptr != 0));
 
-	ptr = strchr(m->b[disposition].Key, ';');
-	if (ptr != NULL) *ptr = '\0';
-	m->b[disposition].len = striplt(m->b[disposition].Key);
-
-	ptr = strchr(m->b[content_type].Key, ';');
-	if (ptr != NULL) *ptr = '\0';
-	m->b[content_type].len = striplt(m->b[content_type].Key);
-
 	m->is_multipart = m->b[boundary].len != 0;
+	*pcontent_start = ptr;
 
 	return 0;
 }
@@ -477,7 +479,6 @@ void the_mime_parser(char *partnum,
 	interesting_mime_headers *m;
 	CBufStr *chosen_name;
 
-	ptr = content_start;
 	content_length = 0;
 
 	m = InitInterestingMimes();
@@ -489,10 +490,11 @@ void the_mime_parser(char *partnum,
 	}
 
 
-	if (parse_MimeHeaders(m, content_start, content_end) != 0)
+	if (parse_MimeHeaders(m, &content_start, content_end) != 0)
 		goto end_parser;
 	
 	/* If this is a multipart message, then recursively process it */
+	ptr = content_start;
 	part_start = NULL;
 	if (m->is_multipart) {
 
@@ -599,18 +601,11 @@ void the_mime_parser(char *partnum,
 					      m->b[id].Key, 
 					      userdata);
 		}
-		goto end_parser;
-	}
-
-	/* If it's not a multipart message, then do something with it */
-	if (!m->is_multipart) {
+	} /* If it's not a multipart message, then do something with it */
+	else {
 		part_start = ptr;
-		length = 0;
-		while (ptr < content_end) {
-			++ptr;
-			++length;
-		}
-		part_end = content_end;
+		length = content_end - part_start;
+		ptr = part_end = content_end;
 
 
 		/* The following code will truncate the MIME part to the size
