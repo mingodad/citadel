@@ -3,3 +3,4 @@ hashlist_test
 stringbuf_IO_test
 stringbuf_conversion_test
 stringbuf_test
+mimeparser_test
