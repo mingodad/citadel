@@ -1,0 +1,228 @@
+Host: ip6-loopback:2000
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.15) Gecko/20101028 Iceweasel/3.5.15 (like Firefox/3.5.15)
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: de-de,en-us;q=0.5
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive: 300
+Connection: keep-alive
+Referer: http://ip6-loopback:2000/display_enter
+Cookie: WC_iconbar_view=menu; WC_rooms_expanded=Main Floor; webcit=313239303835313738357C77696C6C697C746573747C4D61696C7C64615F444B7C
+Content-Type: multipart/form-data; boundary=---------------------------13435248194466967191555364617
+Content-Length: 6776
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="postseq"
+
+1290854102
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="return_to"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="nonce"
+
+846930886
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="force_room"
+
+Mail
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="references"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="page"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="submit_action"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="display_name"
+
+willi
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="my_email_addr"
+
+willi@poza.home.net
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="recp"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="cc"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="bcc"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="subject"
+
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="attachfile"; filename="badmsg.eml"
+Content-Type: message/rfc822
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:03:50 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000020@in.fostral.net>
+From: "Citadel" <citadel@fostral.net>
+Content-type: multipart/mixed; boundary="=_Citadel_Multipart_in.fostral.net_27260005"
+MIME-Version: 1.0
+X-Mailer: Citadel 7.37
+
+This is a multipart message in MIME format.
+
+--=_Citadel_Multipart_in.fostral.net_27260005
+Content-type: text/plain
+
+A message you sent could not be delivered to some or all of its recipients.
+The following addresses were undeliverable:
+
+message-archive@fostral.net: 5.1.1 <message-archive@fostral.net>: Recipient address rejected: User unknown in virtual mailbox table
+--=_Citadel_Multipart_in.fostral.net_27260005
+Content-type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:02:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000017@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="--Citadel-Journal-4b660c19-0004--"
+Content-Identifer: ExJournalReport
+MIME-Version: 1.0
+
+----Citadel-Journal-4b660c19-0004--
+Content-type: text/plain
+
+Sender: Citadel @ in
+Message-ID: <0000000013@in.fostral.net>
+Recipients:
+
+----Citadel-Journal-4b660c19-0004--
+Content-type: message/rfc822
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:02:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000013@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="=_Citadel_Multipart_in.fostral.net_27260002"
+MIME-Version: 1.0
+X-Mailer: Citadel 7.37
+
+This is a multipart message in MIME format.
+
+--=_Citadel_Multipart_in.fostral.net_27260002
+Content-type: text/plain
+
+A message you sent could not be delivered to some or all of its recipients.
+The following addresses were undeliverable:
+
+message-archive@fostral.net: 5.1.1 <message-archive@fostral.net>: Recipient address rejected: User unknown in virtual mailbox table
+--=_Citadel_Multipart_in.fostral.net_27260002
+Content-type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:01:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000008@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="--Citadel-Journal-4b660bdd-0001--"
+Content-Identifer: ExJournalReport
+MIME-Version: 1.0
+
+----Citadel-Journal-4b660bdd-0001--
+Content-type: text/plain
+
+Sender: Citadel @ in
+Message-ID: <0000000007@in.fostral.net>
+Recipients:
+
+----Citadel-Journal-4b660bdd-0001--
+Content-type: message/rfc822
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 23:01:49 -0000
+Subject: Delivery Status Notification (Failure)
+Message-ID: <0000000007@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="=_Citadel_Multipart_in.fostral.net_27260001"
+MIME-Version: 1.0
+X-Mailer: Citadel 7.37
+
+This is a multipart message in MIME format.
+
+--=_Citadel_Multipart_in.fostral.net_27260001
+Content-type: text/plain
+
+A message you sent could not be delivered to some or all of its recipients.
+The following addresses were undeliverable:
+
+message-archive@fostral.net: 5.1.1 <message-archive@fostral.net>: Recipient address rejected: User unknown in virtual mailbox table
+--=_Citadel_Multipart_in.fostral.net_27260001
+Content-type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 22:59:47 -0000
+Subject: Citadel Configuration Manager Message
+Message-ID: <0000000005@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+Content-type: multipart/mixed; boundary="--Citadel-Journal-4b660b63-0001--"
+Content-Identifer: ExJournalReport
+MIME-Version: 1.0
+
+----Citadel-Journal-4b660b63-0001--
+Content-type: text/plain
+
+Sender: Citadel @ in
+Message-ID: <0000000004@in.fostral.net>
+Recipients:
+
+----Citadel-Journal-4b660b63-0001--
+Content-type: message/rfc822
+
+Return-Path: Citadel
+Date: Sun, 31 Jan 2010 22:59:47 -0000
+Subject: Citadel Configuration Manager Message
+Message-ID: <0000000004@in.fostral.net>
+From: "Citadel" <citadel@in.fostral.net>
+Organization: FostraNET
+
+The global system configuration has been edited by earthian. 
+----Citadel-Journal-4b660b63-0001----
+--=_Citadel_Multipart_in.fostral.net_27260001--
+----Citadel-Journal-4b660bdd-0001----
+--=_Citadel_Multipart_in.fostral.net_27260002--
+----Citadel-Journal-4b660c19-0004----
+--=_Citadel_Multipart_in.fostral.net_27260005--
+
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="attach_button"
+
+Hinzufügen
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="sig_inserted"
+
+yes
+-----------------------------13435248194466967191555364617
+Content-Disposition: form-data; name="msgtext"
+
+
+-----------------------------13435248194466967191555364617--
