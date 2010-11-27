@@ -417,7 +417,7 @@ long parse_MimeHeaders(interesting_mime_headers *m, char* content_start, char *c
 			else if (!strncasecmp(header, "Content-length: ", 15)) {
 				char *clbuf;
 				clbuf = &header[15];
-				while (isspace(clbuf))
+				while (isspace(*clbuf))
 					clbuf ++;
 				m->content_length = (size_t) atol(clbuf);
 			}
