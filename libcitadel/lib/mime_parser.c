@@ -346,23 +346,31 @@ typedef struct _interesting_mime_headers {
 	long is_multipart;
 } interesting_mime_headers;
 
-interesting_mime_headers *InitInterestingMimes(void)
+
+static void FlushInterestingMimes(interesting_mime_headers *m)
 {
 	int i;
-	interesting_mime_headers *m;
-	m = (interesting_mime_headers*) malloc( sizeof(interesting_mime_headers));
 	
 	for (i = 0; i < eMax; i++) {
 	     m->b[i].Key[0] = '\0';
 	     m->b[i].len = 0;
 	}
 	m->content_length = -1;
+}
+static interesting_mime_headers *InitInterestingMimes(void)
+{
+	interesting_mime_headers *m;
+	m = (interesting_mime_headers*) malloc( sizeof(interesting_mime_headers));
+
+	FlushInterestingMimes(m);
+
 	return m;
 }
 
 
-
-long parse_MimeHeaders(interesting_mime_headers *m, char** pcontent_start, char *content_end)
+static long parse_MimeHeaders(interesting_mime_headers *m, 
+			      char** pcontent_start, 
+			      char *content_end)
 {
 	char buf[SIZ];
 	char header[SIZ];
@@ -412,7 +420,7 @@ long parse_MimeHeaders(interesting_mime_headers *m, char** pcontent_start, char 
 				m->b[content_disposition_name].len = extract_key(m->b[content_disposition_name].Key, CKEY(m->b[disposition]), HKEY("name"), '=');
 				m->b[filename].len                 = extract_key(m->b[filename].Key,                 CKEY(m->b[disposition]), HKEY("filename"), '=');
 				pch = strchr(m->b[disposition].Key, ';');
-				if (pch != NULL) *ptr = '\0';
+				if (pch != NULL) *pch = '\0';
 				m->b[disposition].len = striplt(m->b[disposition].Key);
 			}
 			else if (!strncasecmp(header, "Content-ID:", 11)) {
@@ -450,49 +458,111 @@ long parse_MimeHeaders(interesting_mime_headers *m, char** pcontent_start, char 
 	return 0;
 }
 
+
+static int IsAsciiEncoding(interesting_mime_headers *m)
+{
+	if ((m->b[encoding].len != 0) &&
+	    (strcmp(m->b[encoding].Key, "binary") == 0))
+		return 0;
+	else 
+		return 1;
+}
+
+static char *FindNextContent(char *ptr,
+			     char *content_end,
+			     interesting_mime_headers *SubMimeHeaders,
+			     interesting_mime_headers *m)
+{
+	char *next_boundary;
+	char  tmp;
+
+	if (IsAsciiEncoding(SubMimeHeaders)) {
+		tmp = *content_end;
+		*content_end = '\0';
+
+		/** 
+		 * ok, if we have a content length of the mime part, 
+		 * try skipping the content on the search for the next
+		 * boundary. since we don't trust the content_length
+		 * to be all accurate, and suspect it to lose one digit 
+		 * per line with a line length of 80 chars, we need 
+		 * to start searching a little before..
+		 */
+				   
+		if ((SubMimeHeaders->content_length != -1) &&
+		    (SubMimeHeaders->content_length > 10))
+		{
+			char *pptr;
+			long lines;
+					
+			lines = SubMimeHeaders->content_length / 80;
+			pptr = ptr + SubMimeHeaders->content_length - lines - 10;
+			if (pptr < content_end)
+				ptr = pptr;
+		}
+			
+		next_boundary = strstr(ptr, m->b[startary].Key);
+		*content_end = tmp;
+	}
+	else {
+		char *srch;
+		/** 
+		 * ok, if we have a content length of the mime part, 
+		 * try skipping the content on the search for the next
+		 * boundary. since we don't trust the content_length
+		 * to be all accurate, start searching a little before..
+		 */
+				   
+		if ((SubMimeHeaders->content_length != -1) &&
+		    (SubMimeHeaders->content_length > 10))
+		{
+			char *pptr;
+			pptr = ptr + SubMimeHeaders->content_length - 10;
+			if (pptr < content_end)
+				ptr = pptr;
+		}
+		next_boundary = NULL;
+		for (srch=ptr; srch<content_end; ++srch) {
+			if (!memcmp(srch, 
+				    m->b[startary].Key, 
+				    m->b[startary].len)) 
+			{
+				next_boundary = srch;
+				srch = content_end;
+			}
+		}
+
+	}
+	return next_boundary;
+}
+
 /*
  * Break out the components of a multipart message
  * (This function expects to be fed HEADERS + CONTENT)
  * Note: NULL can be supplied as content_end; in this case, the message is
  * considered to have ended when the parser encounters a 0x00 byte.
  */
-void the_mime_parser(char *partnum,
-		     char *content_start, char *content_end,
-		     MimeParserCallBackType CallBack,
-		     MimeParserCallBackType PreMultiPartCallBack,
-		     MimeParserCallBackType PostMultiPartCallBack,
-		     void *userdata,
-		     int dont_decode)
+static void recurseable_mime_parser(char *partnum,
+				    char *content_start, char *content_end,
+				    MimeParserCallBackType CallBack,
+				    MimeParserCallBackType PreMultiPartCallBack,
+				    MimeParserCallBackType PostMultiPartCallBack,
+				    void *userdata,
+				    int dont_decode, 
+				    interesting_mime_headers *m)
 {
-
-	char *ptr;
-	char *part_start, *part_end = NULL;
-	char *next_boundary;
-	
-	size_t content_length;
-	int part_seq = 0;
-	size_t length;
-	char nested_partnum[256];
-	int crlf_in_use = 0;
-	char *evaluate_crlf_ptr = NULL;
-	
-	interesting_mime_headers *m;
-	CBufStr *chosen_name;
-
-	content_length = 0;
-
-	m = InitInterestingMimes();
+	interesting_mime_headers *SubMimeHeaders;
+	char     *ptr;
+	char     *part_start;
+	char     *part_end = NULL;
+	char     *evaluate_crlf_ptr = NULL;
+	char     *next_boundary;
+	char      nested_partnum[256];
+	int       crlf_in_use = 0;
+	int       part_seq = 0;
+	CBufStr  *chosen_name;
 
 
-	/* If the caller didn't supply an endpointer, generate one by measure */
-	if (content_end == NULL) {
-		content_end = &content_start[strlen(content_start)];
-	}
-
-
-	if (parse_MimeHeaders(m, &content_start, content_end) != 0)
-		goto end_parser;
-	
 	/* If this is a multipart message, then recursively process it */
 	ptr = content_start;
 	part_start = NULL;
@@ -515,16 +585,31 @@ void the_mime_parser(char *partnum,
 
 		/* Figure out where the boundaries are */
 		m->b[startary].len = snprintf(m->b[startary].Key, SIZ, "--%s", m->b[boundary].Key);
-
+		SubMimeHeaders = InitInterestingMimes ();
+		if (*ptr == '\r')
+			ptr ++;
+		if (*ptr == '\n')
+			ptr ++;
+		if (strncmp(ptr, m->b[startary].Key, m->b[startary].len) == 0)
+			ptr += m->b[startary].len;
+		if (*ptr == '\r')
+			ptr ++;
+		if (*ptr == '\n')
+			ptr ++;
 		part_start = NULL;
 		do {
-			char tmp;
 
-			tmp = *content_end;
-			*content_end = '\0';
+			if (parse_MimeHeaders(SubMimeHeaders, &ptr, content_end) != 0)
+				break;
+			part_start = ptr;
 			
-			next_boundary = strstr(ptr, m->b[startary].Key);
-			*content_end = tmp;
+			next_boundary = FindNextContent(ptr,
+							content_end,
+							SubMimeHeaders,
+							m);
+			if ((next_boundary != NULL) && 
+			    (next_boundary - part_start < 3))
+				continue;
 
 			if ( (part_start != NULL) && (next_boundary != NULL) ) {
 				part_end = next_boundary;
@@ -544,14 +629,15 @@ void the_mime_parser(char *partnum,
 						 sizeof nested_partnum,
 						 "%d", ++part_seq);
 				}
-				the_mime_parser(nested_partnum,
-						part_start, 
-						part_end,
-						CallBack,
-						PreMultiPartCallBack,
-						PostMultiPartCallBack,
-						userdata,
-						dont_decode);
+				recurseable_mime_parser(nested_partnum,
+							part_start, 
+							part_end,
+							CallBack,
+							PreMultiPartCallBack,
+							PostMultiPartCallBack,
+							userdata,
+							dont_decode, 
+							SubMimeHeaders);
 			}
 
 			if (next_boundary != NULL) {
@@ -586,7 +672,10 @@ void the_mime_parser(char *partnum,
 				/* Invalid end of multipart.  Bail out! */
 				ptr = content_end;
 			}
+			FlushInterestingMimes(SubMimeHeaders);
 		} while ( (ptr < content_end) && (next_boundary != NULL) );
+
+		free(SubMimeHeaders);
 
 		if (PostMultiPartCallBack != NULL) {
 			PostMultiPartCallBack("", 
@@ -603,6 +692,7 @@ void the_mime_parser(char *partnum,
 		}
 	} /* If it's not a multipart message, then do something with it */
 	else {
+		size_t length;
 		part_start = ptr;
 		length = content_end - part_start;
 		ptr = part_end = content_end;
@@ -705,11 +795,45 @@ void the_mime_parser(char *partnum,
 
 	}
 
-end_parser:	/* free the buffers!  end the oppression!! */
-	free(m);
 }
 
+/*
+ * Break out the components of a multipart message
+ * (This function expects to be fed HEADERS + CONTENT)
+ * Note: NULL can be supplied as content_end; in this case, the message is
+ * considered to have ended when the parser encounters a 0x00 byte.
+ */
+void the_mime_parser(char *partnum,
+		     char *content_start, char *content_end,
+		     MimeParserCallBackType CallBack,
+		     MimeParserCallBackType PreMultiPartCallBack,
+		     MimeParserCallBackType PostMultiPartCallBack,
+		     void *userdata,
+		     int dont_decode)
+{
+	interesting_mime_headers *m;
 
+	/* If the caller didn't supply an endpointer, generate one by measure */
+	if (content_end == NULL) {
+		content_end = &content_start[strlen(content_start)];
+	}
+
+	m = InitInterestingMimes();
+
+	if (!parse_MimeHeaders(m, &content_start, content_end))
+	{
+
+		recurseable_mime_parser(partnum,
+					content_start, content_end,
+					CallBack,
+					PreMultiPartCallBack,
+					PostMultiPartCallBack,
+					userdata,
+					dont_decode,
+					m);
+	}
+	free(m);
+}
 
 /*
  * Entry point for the MIME parser.
