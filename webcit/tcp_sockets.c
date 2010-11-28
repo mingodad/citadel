@@ -110,6 +110,7 @@ int tcp_connectsock(char *host, char *service)
 	rc = getaddrinfo(host, service, &hints, &res);
 	if (rc != 0) {
 		lprintf(1, "%s: %s\n", host, gai_strerror(rc));
+		freeaddrinfo(res);
 		return(-1);
 	}
 
@@ -125,10 +126,12 @@ int tcp_connectsock(char *host, char *service)
 		s = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (s < 0) {
 			lprintf(1, "socket() failed: %s\n", strerror(errno));
+			freeaddrinfo(res);
 			return(-1);
 		}
 		rc = connect(s, ai->ai_addr, ai->ai_addrlen);
 		if (rc >= 0) {
+			freeaddrinfo(res);
 			return(s);
 		}
 		else {
@@ -136,7 +139,7 @@ int tcp_connectsock(char *host, char *service)
 			close(s);
 		}
 	}
-
+        freeaddrinfo(res);
 	return(-1);
 }
 
