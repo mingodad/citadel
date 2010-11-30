@@ -12,21 +12,19 @@
 @import url("navbar.css");
 @import url("content.css");
 @import url("box.css");
+@import url("modal.css");
 
 @media print {
 	input#toggler, .toolbar { display: none }
 }
 
-/* Typography */
-
-html {
+html, body {
 	font-size: 100;
-	overflow: hidden;
-}
-
-body {
-	font-size: 100%;
-	overflow: hidden;
+	height:100%;
+	width:100%;
+	margin:0;
+	padding:0;
+	overflow:hidden;
 }
 
 .address_book_popup_title { font-size: 130% }
@@ -1264,4 +1262,3 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	font-size: 100%;
 	font-style: italic;
 }
-

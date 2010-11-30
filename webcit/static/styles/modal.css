@@ -1,0 +1,74 @@
+.md-overlay-decorator {
+	background: #222;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top:0;
+	left:0;
+	opacity:0.8;
+	z-index:2000;
+	*display:none;
+}
+
+.md-overlay-wrap {
+	height:100%;
+	width:100%;
+	display:block;
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:2001;
+	overflow:auto;
+	*overflow-x:hidden;
+	*zoom:1;
+	/* (0.8 * 255).toString(16) = cc */
+	*filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#cc222222,endColorstr=#cc222222);
+	*background:transparent url(../pixel.gif);
+}
+
+.md-overlay {
+	z-index:2001;
+	position:relative;
+	margin:0 auto;
+	display:table;
+	height:100%;
+	vertical-align:middle;
+	width:300px;
+	z-index:9999;
+	*width:100%;
+	*text-align:center;
+	*position:static;
+	*display:block;
+}
+
+.md-dialog-wrap {
+	display:table-cell;
+	vertical-align:middle;
+	*width:300px;
+	*text-align:left;
+	*zoom:1;
+	*display:inline;
+}
+
+.md-dialog-decorator {
+	display:none;
+	*vertical-align:middle;
+	*zoom:1;
+	*display:inline;
+	*height:100%;
+	*width:0;
+	*background:red;
+}
+
+#modal {
+	display:none;
+}
+
+.modal #modal {
+	display:block;
+}
+
+.md-dialog {
+	background:white;
+	border:2px solid #080;
+}

@@ -24,10 +24,34 @@
 		<script type="text/javascript" src="static/wclib.js"></script>
 		<script type="text/javascript" src="static/roomops.js"></script>
 		<script type="text/javascript" src="static/ctdldragdrop.js"></script>
+		<script type="text/javascript" src="static/modal.js"></script>
 	</head>
 <body>
 <??("COND:LOGGEDIN",1)>
 	<?ICONBAR>
 <??("X",1)>
+<!--("begin modal container")-->
+<div id="modal">
+	<div class="md-overlay-decorator"></div>
+	<div class="md-overlay-wrap">
+		<div class="md-overlay">
+			<div class="md-dialog-decorator"></div>
+			<div class="md-dialog-wrap">
+				<div class="md-dialog" id="dialog">
+					<div class="md-content">
+
+This is the modal dialog box.  If you are seeing this message, the
+modal dialog was invoked without first populating its contents, which
+is a mistake.
+<br>
+<h2><a href="javascript:toggleModal();">Dismiss</a></h2>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--("end modal container")-->
 <div id="global">
 <!--("end head.html")-->
