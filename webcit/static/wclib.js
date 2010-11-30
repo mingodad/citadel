@@ -870,7 +870,7 @@ function ConfirmLogoff() {
                 {
                         method: 'get',
 			onSuccess: function(cl_success) {
-				toggleModal(true);
+				toggleModal(1);
 			}
                 }
         );

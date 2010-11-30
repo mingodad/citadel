@@ -70,10 +70,13 @@ if ( isSafari ) {
 
 
 var toggleModal = function (b) {
+
+	if (modalShowing && b) return;
+	if (!modalShowing && !b) return;
 	
 	html.className=modalShowing?'':'modal';
 
-	modalShowing = b;
+	modalShowing = !modalShowing;
 
 	if (modalShowing) {
 		dialog.focus();
