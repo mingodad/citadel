@@ -69,10 +69,12 @@ if ( isSafari ) {
 // need to do some special stuff to handle MSIE.
 
 
-var toggleModal = function () {
+var toggleModal = function (b) {
 	
 	html.className=modalShowing?'':'modal';
-	modalShowing = !modalShowing;
+
+	modalShowing = b;
+
 	if (modalShowing) {
 		dialog.focus();
 	} else if (focusedElement) {
