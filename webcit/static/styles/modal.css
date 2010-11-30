@@ -69,6 +69,7 @@
 }
 
 .md-dialog {
-	background:white;
-	border:2px solid #800;
+	background: white;
+	border: 2px solid #800;
+	padding: 10px;
 }
