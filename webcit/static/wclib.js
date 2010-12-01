@@ -861,3 +861,17 @@ function DeleteSMTPqueueMsg(msgnum1, msgnum2) {
 		}
 	);
 }
+
+
+function ConfirmLogoff() {
+	new Ajax.Updater(
+		'md-content',
+		'do_template?template=confirmlogoff',
+                {
+                        method: 'get',
+			onSuccess: function(cl_success) {
+				toggleModal(1);
+			}
+                }
+        );
+}
