@@ -1,6 +1,7 @@
 *.o
 *.d
 *.lo
+*.gcno
 .gitignore~
 .libs/
 Makefile
