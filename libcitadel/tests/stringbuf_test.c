@@ -634,11 +634,11 @@ int main(int argc, char* argv[])
 
 	if (argc > 0)
 		Quiet = 1; // todo: -q ;-)
-	for (i=0; i< 100000; i++) {
+//	for (i=0; i< 100000; i++) {
 	CU_set_output_filename("TestAutomated");
 	if (CU_initialize_registry()) {
 		printf("\nInitialize of test Registry failed.");
-	}
+//	}
 	
 	Run = CU_TRUE ;
 	AddStrBufSimpleTests();
