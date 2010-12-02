@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: citadel 7.66-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2010-10-22 14:41+0000\n"
+"PO-Revision-Date: 2010-10-24 16:01+0000\n"
 "Last-Translator: Hideki Yamane (Debian-JP) <henrich@debian.or.jp>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-10-25 04:35+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: ja\n"
 
@@ -111,7 +111,6 @@ msgid "Authentication method to use:"
 msgstr "利用する認証方式:"
 
 #: ../utils/setup.c:179
-#, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
 "own internal user accounts database. If you choose Host, Citadel users will "
@@ -129,11 +128,6 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
-"ユーザ認証モードを選んでください。デフォルトでは、Citadel は自身の内部ユーザ"
-"アカウントデータベースを利用します。「ホスト上」を選んだ場合、Citadel のユー"
-"ザはホストシステム上のアカウントを使い、/etc/passwd か PAM 経由で認証されま"
-"す。「LDAP」の場合は RFC 2307 準拠のディレクトリサーバを、最後の選択肢では非"
-"標準であるマイクロソフトの Active Directory LDAP スキームを使います。"
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -160,14 +154,14 @@ msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"認証の際、検索に使うベース DN を入力してください\n (例:dc=example,dc=com)。\n"
+"認証の際、検索に使うベース DN を入力してください\n"
+" (例:dc=example,dc=com)。\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
 msgstr "LDAP へのバインドに使う DN:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -177,23 +171,17 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"クエリの実行の際、LDAP サーバへのバインドに使うアカウントの DN を入力してくだ"
-"さい。アカウントには何も権限を与える必要はありません。LDAP サーバが誰からでも"
-"クエリを許可している場合、この欄は空白のままで構いません。"
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
 msgstr "LDAP へのバインドに使うパスワード:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"前の質問で Bind DN を入力していた場合、このアカウントに対するパスワードをここ"
-"で入力する必要があります。そうでなければ、この欄は空白のままで構いません。"
 
 #: ../utils/setup.c:299
 msgid "Yes/No"

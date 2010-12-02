@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: citadel 7.63-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2010-10-22 14:42+0000\n"
+"PO-Revision-Date: 2010-10-24 21:06+0000\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-10-25 04:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: ru\n"
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
@@ -117,7 +117,6 @@ msgid "Authentication method to use:"
 msgstr "Используемый метод аутентификации:"
 
 #: ../utils/setup.c:179
-#, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
 "own internal user accounts database. If you choose Host, Citadel users will "
@@ -135,14 +134,6 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
-"Выберите режим аутентификации пользователей. По умолчанию Citadel использует "
-"свою собственную внутреннюю базу данных учётных записей. Если выбрать "
-"\"Машинная\", то пользовательскими учётными записями Citadel будут считаться "
-"учётные записи машины, на которой он установлен, а для аутентификации будет "
-"использоваться файл /etc/passwd или источник PAM. При выборе LDAP "
-"задействуется соответствующий RFC 2307 сервер каталогов, а при выборе "
-"последнего пункта для аутентификации используется нестандартная LDAP-схема "
-"MS Active Directory."
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -165,20 +156,18 @@ msgid "LDAP base DN:"
 msgstr "Базовое DN LDAP:"
 
 #: ../utils/setup.c:207
-
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"Введите базовое DN для поиска, используемое при аутентификации \n(например: "
-"dc=example,dc=com).\n"
+"Введите базовое DN для поиска, используемое при аутентификации \n"
+"(например: dc=example,dc=com).\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
 msgstr "DN для подключения к серверу LDAP:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -188,10 +177,6 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"Введите DN учётной записи, которое должно использоваться при подключении к "
-"серверу LDAP для выполнения запросов. От учётной записи не требуется других "
-"привилегий. Если сервер LDAP позволяет выполнять запросы анонимно, то вы "
-"можете оставить поле пустым."
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"

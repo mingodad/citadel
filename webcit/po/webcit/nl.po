@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2010-11-05 15:48+0000\n"
+"PO-Revision-Date: 2010-11-13 00:18+0000\n"
 "Last-Translator: Wim Kuilman <Unknown>\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-06 04:46+0000\n"
+"X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: nl\n"
 
@@ -150,10 +150,10 @@ msgstr "Geannuleerd: Wachtwoord niet gewijzigd."
 msgid "They don't match.  Password was not changed."
 msgstr "Ze komen niet overeen. Wachtwoord is niet gewijzigd."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "beschikbaarheid niet bekend"
@@ -241,7 +241,8 @@ msgstr "Dit is een update van '%s' die al in uw agenda staat."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr "Deze afspraak zou botsen met '%s' , die al in uw agenda staat."
 
 #: ../calendar.c:232
@@ -326,8 +327,8 @@ msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
 msgstr ""
-"U heeft gekozen dit verzoek om antwoord te negeren.  Uw agenda is <b>niet</"
-"b> bijgewerkt."
+"U heeft gekozen dit verzoek om antwoord te negeren.  Uw agenda is "
+"<b>niet</b> bijgewerkt."
 
 #: ../calendar.c:921
 msgid "Calendar day view begins at:"
@@ -737,8 +738,8 @@ msgstr ""
 "U abonneert <TT>%s</TT> op de <b>%s</b> mailinglijst.  De listserver heeft u "
 "een e-mail gestuurd met een extra link waarop u moet klikken om het "
 "abonnement te bevestigen.  Deze extra stap is voor uw bescherming, want het "
-"voorkomt dat anderen zonder uw toestemming u abonneren op mailinglijsten."
-"<br /><br /> Klik alstublieft op de gemailde link om uw abonnement te "
+"voorkomt dat anderen zonder uw toestemming u abonneren op mailinglijsten.<br "
+"/><br /> Klik alstublieft op de gemailde link om uw abonnement te "
 "bevestigen<br />\n"
 
 #: ../listsub.c:85
@@ -1042,8 +1043,8 @@ msgid ""
 "\n"
 msgstr ""
 "U bent verbonden met een Citadel server draaiend op Citadel %d.%02d. \n"
-"Om deze versie van Webcit de kunnen gebruiken moet u ook Citadel versie  %d.%"
-"02d of nieuwer hebben.\n"
+"Om deze versie van Webcit de kunnen gebruiken moet u ook Citadel versie  "
+"%d.%02d of nieuwer hebben.\n"
 "\n"
 "\n"
 
@@ -1305,7 +1306,8 @@ msgid "Add rule"
 msgstr "Voeg regel toe"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 "LET OP: mislukt Server Config te sturen; loopt er een te nieuwe citserver?"
 
@@ -1360,8 +1362,8 @@ msgstr "(Niets)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 "U bent verbonden met %s, waar %s op draait met %s, server build %s en "
 "gevestigd in %s. Uw systeembeheerder is %s."

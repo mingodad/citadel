@@ -14,7 +14,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-27 04:54+0000\n"
+"X-Launchpad-Export-Date: 2010-10-31 04:53+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: ../addressbook_popup.c:192
@@ -146,10 +146,10 @@ msgstr ""
 msgid "They don't match.  Password was not changed."
 msgstr ""
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -237,7 +237,8 @@ msgstr ""
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../calendar.c:232
@@ -1266,7 +1267,8 @@ msgid "Add rule"
 msgstr ""
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1320,8 +1322,8 @@ msgstr ""
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 
 #: ../summary.c:195

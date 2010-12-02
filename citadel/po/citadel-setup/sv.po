@@ -8,15 +8,13 @@ msgstr ""
 "Project-Id-Version: citadel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2010-10-22 14:43+0000\n"
-"Last-Translator: Martin Bagge <brother@bsnet.se>\n"
+"PO-Revision-Date: 2010-10-24 15:58+0000\n"
+"Last-Translator: brother <martin@bagge.nu>\n"
 "Language-Team: swedish <debian-l10n-swedish@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
-"X-Poedit-Language: Swedish\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-10-25 04:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: Sweden\n"
 "Language: sv\n"
@@ -117,7 +115,6 @@ msgid "Authentication method to use:"
 msgstr "Identifieringsmetod som ska användas:"
 
 #: ../utils/setup.c:179
-#, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
 "own internal user accounts database. If you choose Host, Citadel users will "
@@ -135,12 +132,6 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
-"Ange vilken identifieringsmetod som ska användas. Standardvalet är att "
-"Citadel använder sin interna kontodatabas. Genom att välja alternativet värd "
-"kommer Citadelanvändarna ha konton på värdsystemet och identifieras via /etc/"
-"passwd eller en PAM-källa. LDAP väljer en katalogserver som följer RFC 2307. "
-"Sista alternativet är den ickestandardiserade lösningen MS Active Directory "
-"LDAP."
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -168,14 +159,14 @@ msgid ""
 "(for example: dc=example,dc=com)\n"
 msgstr ""
 "Ange det Bas-DN som ska användas vid sökning för identifiering av användare "
-"\n(ex. dc=example,dc=com).\n"
+"\n"
+"(ex. dc=example,dc=com).\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
 msgstr "DN för förfrågningar till LDAP:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -185,24 +176,17 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"Ange DN för ett konto som ska användas för att upprätta anslutningen till "
-"LDAP-servern för att genomföra förfrågningar. Kontot behöver inga andra "
-"rättigheter. Om din LDAP-server tillåter anonyma förfrågningar kan du lämna "
-"fältet tomt."
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
 msgstr "Lösenord för förfrågnings-DN:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Om du angav ett DN för förfrågningar i förra frågan måste du nu ange "
-"lösenordet för kontot. Lämna fältet blankt om du inte angav något DN."
 
 #: ../utils/setup.c:299
 msgid "Yes/No"

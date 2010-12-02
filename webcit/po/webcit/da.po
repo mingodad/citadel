@@ -165,19 +165,16 @@ msgid "BUSY"
 msgstr "OPTAGET"
 
 #: ../bbsview_renderer.c:289
-#, fuzzy
 msgid "Go to page: "
-msgstr "Vælg"
+msgstr ""
 
 #: ../bbsview_renderer.c:323
-#, fuzzy
 msgid "First"
-msgstr "første"
+msgstr ""
 
 #: ../bbsview_renderer.c:329
-#, fuzzy
 msgid "Last"
-msgstr "Liste"
+msgstr ""
 
 #: ../calendar.c:81
 msgid "Meeting invitation"
@@ -242,7 +239,8 @@ msgstr "Dette er en opdatering af '%s' som allerede er i din kalender."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr "Denne aftale vil konflikte med '%s* som allerede er i din kalender."
 
 #: ../calendar.c:232
@@ -392,24 +390,20 @@ msgstr ""
 
 #: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
 #: ../calendar_view.c:1081 ../sieve.c:995
-#, fuzzy
 msgid "From"
-msgstr "fra"
+msgstr ""
 
 #: ../calendar_view.c:347 ../calendar_view.c:972
-#, fuzzy
 msgid "Starting date:"
-msgstr "Start dato:"
+msgstr ""
 
 #: ../calendar_view.c:353 ../calendar_view.c:974
-#, fuzzy
 msgid "Ending date:"
-msgstr "Slut dato/tid:"
+msgstr ""
 
 #: ../calendar_view.c:361 ../calendar_view.c:1093
-#, fuzzy
 msgid "Date/time:"
-msgstr "Dato:"
+msgstr ""
 
 #: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
 #: ../calendar_view.c:1103
@@ -458,56 +452,49 @@ msgid "Untitled Task"
 msgstr ""
 
 #: ../downloads.c:284
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr "En fejl opstod under hentning af denne fil: %s\n"
+msgstr ""
 
 #: ../event.c:73
 msgid "seconds"
 msgstr "sekunder"
 
 #: ../event.c:74
-#, fuzzy
 msgid "minutes"
-msgstr "Minutter"
+msgstr ""
 
 #: ../event.c:75
-#, fuzzy
 msgid "hours"
-msgstr "Timer"
+msgstr ""
 
 #: ../event.c:76
 msgid "days"
 msgstr "dage"
 
 #: ../event.c:77
-#, fuzzy
 msgid "weeks"
-msgstr "Uger"
+msgstr ""
 
 #: ../event.c:78
-#, fuzzy
 msgid "months"
-msgstr "måneder"
+msgstr ""
 
 #: ../event.c:79
-#, fuzzy
 msgid "years"
-msgstr "år"
+msgstr ""
 
 #: ../event.c:80
 msgid "never"
 msgstr "aldrig"
 
 #: ../event.c:84
-#, fuzzy
 msgid "first"
-msgstr "første"
+msgstr ""
 
 #: ../event.c:85
-#, fuzzy
 msgid "second"
-msgstr "anden"
+msgstr ""
 
 #: ../event.c:86
 msgid "third"
@@ -574,9 +561,8 @@ msgid "Contacts"
 msgstr "Kontaktpersoner"
 
 #: ../event.c:516
-#, fuzzy
 msgid "Recurrence rule"
-msgstr "Gentagelsesregel"
+msgstr ""
 
 #: ../event.c:520
 msgid "Repeats every"
@@ -593,9 +579,8 @@ msgid "on day %s%d%s of the month"
 msgstr "på den %s%d%s dag i måneden"
 
 #: ../event.c:605 ../event.c:667
-#, fuzzy
 msgid "on the "
-msgstr "på den"
+msgstr ""
 
 #: ../event.c:629
 msgid "of the month"
@@ -603,7 +588,7 @@ msgstr "i måneden"
 
 #: ../event.c:658
 msgid "every "
-msgstr "hver"
+msgstr "hver "
 
 #: ../event.c:659
 msgid "year on this date"
@@ -619,19 +604,16 @@ msgid "Recurrence range"
 msgstr "Gentagelsesområde"
 
 #: ../event.c:723
-#, fuzzy
 msgid "No ending date"
-msgstr "Ingen slutdato"
+msgstr ""
 
 #: ../event.c:730
-#, fuzzy
 msgid "Repeat this event"
-msgstr "Gentag denne aftale"
+msgstr ""
 
 #: ../event.c:733
-#, fuzzy
 msgid "times"
-msgstr "gange"
+msgstr ""
 
 #: ../event.c:741
 msgid "Repeat this event until "
@@ -659,9 +641,8 @@ msgid "Image upload"
 msgstr "Upload billede"
 
 #: ../graphics.c:58
-#, fuzzy
 msgid "You can upload an image directly from your computer"
-msgstr "Du kan uploade et billede direkte fra din computer"
+msgstr ""
 
 #: ../graphics.c:61
 msgid "Please select a file to upload:"
@@ -754,9 +735,9 @@ msgstr ""
 "Du abonnérer <TT>%s</TT> på <b>%s</b> post listen.  Listeserveren har sendt "
 "dig en e-mail med et link som du skal klikke på for at godkende dit "
 "abonnement.  Denne ekstra foranstaltning er din beskyttelse, da det "
-"forhindrer andre i at abonnere på en liste i dit navn uden din billigelse."
-"<br /><br />Klik på linketsom er blevet sendt til dig for at acceptere dit "
-"abonnement.<br />\n"
+"forhindrer andre i at abonnere på en liste i dit navn uden din "
+"billigelse.<br /><br />Klik på linketsom er blevet sendt til dig for at "
+"acceptere dit abonnement.<br />\n"
 
 #: ../listsub.c:85
 msgid "Go back..."
@@ -767,9 +748,8 @@ msgid "ERROR:"
 msgstr "FEJL:"
 
 #: ../messages.c:73
-#, fuzzy
 msgid "Empty message"
-msgstr "Opslå meddelelse"
+msgstr ""
 
 #: ../messages.c:1061
 #, c-format
@@ -786,14 +766,12 @@ msgid "Saved to Drafts failed: "
 msgstr ""
 
 #: ../messages.c:1185
-#, fuzzy
 msgid "Refusing to post empty message.\n"
-msgstr "Tilbage til meddelelser"
+msgstr ""
 
 #: ../messages.c:1211
-#, fuzzy
 msgid "Message has been saved to Drafts.\n"
-msgstr "Meddelelse blev sendt til "
+msgstr ""
 
 #: ../messages.c:1220
 msgid "Message has been sent.\n"
@@ -822,9 +800,9 @@ msgid "Move"
 msgstr "Flyt"
 
 #: ../messages.c:1537
-#, fuzzy, c-format
+#, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "En fejl opstod under hentning af denne del: %s\n"
+msgstr ""
 
 #: ../messages.c:1597
 #, c-format
@@ -844,14 +822,12 @@ msgid "Default character set for email headers:"
 msgstr "Standard karaktérsæt for email headers:"
 
 #: ../messages.c:1767
-#, fuzzy
 msgid "Preferred email address"
-msgstr "Pimær Internet Email adresse"
+msgstr ""
 
 #: ../messages.c:1769
-#, fuzzy
 msgid "Preferred display name for email messages"
-msgstr "Vist navn på email meddelelser"
+msgstr ""
 
 #: ../messages.c:1773
 msgid "Preferred display name for bulletin board posts"
@@ -866,9 +842,8 @@ msgid "edit"
 msgstr "editér"
 
 #: ../msg_renderers.c:1023
-#, fuzzy
 msgid "I don't know how to display "
-msgstr "Jeg ved ikke hvordan jeg viser"
+msgstr ""
 
 #: ../msg_renderers.c:1242
 msgid "(no subject)"
@@ -883,23 +858,20 @@ msgid "Manage Account/OpenID Associations"
 msgstr "Tilret konto/OpenID associationer"
 
 #: ../openid.c:37
-#, fuzzy
 msgid "Do you really want to delete this OpenID?"
-msgstr "Vil du virkelig dræbe denne session?"
+msgstr ""
 
 #: ../openid.c:38
-#, fuzzy
 msgid "(delete)"
-msgstr "(slet)"
+msgstr ""
 
 #: ../openid.c:46
 msgid "Add an OpenID: "
-msgstr "Tilføj et OpenID:"
+msgstr "Tilføj et OpenID: "
 
 #: ../openid.c:49
-#, fuzzy
 msgid "Attach"
-msgstr "Vedhæft fil:"
+msgstr ""
 
 #: ../openid.c:53
 #, c-format
@@ -947,18 +919,16 @@ msgid "You no longer have a start page selected."
 msgstr "Du har ikke længere en startside."
 
 #: ../preferences.c:1152
-#, fuzzy
 msgid "Prefered startpage"
-msgstr "Foretrukken Bruger"
+msgstr ""
 
 #: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
 msgid "Higher access is required to access this function."
 msgstr "Højere tilladelse er krævet for at bruge denne funktion."
 
 #: ../roomlist.c:101
-#, fuzzy
 msgid "My Folders"
-msgstr "Mine foldere"
+msgstr ""
 
 #: ../roomops.c:677 ../roomops.c:970 ../sieve.c:571
 msgid "Cancelled.  Changes were not saved."
@@ -999,9 +969,8 @@ msgid "Show empty floors"
 msgstr "Vis tomme etager"
 
 #: ../roomtokens.c:512
-#, fuzzy
 msgid "file"
-msgstr "fil"
+msgstr ""
 
 #: ../roomtokens.c:514
 msgid "files"
@@ -1115,69 +1084,56 @@ msgid "The currently active script is: "
 msgstr "Det aktive script er: "
 
 #: ../sieve.c:171 ../sieve.c:644
-#, fuzzy
 msgid "Add or delete scripts"
-msgstr "Tilføj eller slet scripts"
+msgstr ""
 
 #: ../sieve.c:203 ../sysmsgs.c:48 ../vcard_edit.c:1000
 msgid "Save changes"
 msgstr "Gem ændringer"
 
 #: ../sieve.c:657
-#, fuzzy
 msgid "Add a new script"
-msgstr "Tilføj et ny script"
+msgstr ""
 
 #: ../sieve.c:660
-#, fuzzy
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
 msgstr ""
-"For at oprette et nyt script, skriv det ønskede navn i boksen nedenfor og "
-"klik 'Opret'."
 
 #: ../sieve.c:666
-#, fuzzy
 msgid "Script name: "
-msgstr "Scriptnavn: "
+msgstr ""
 
 #: ../sieve.c:669
 msgid "Create"
 msgstr "Opret"
 
 #: ../sieve.c:674
-#, fuzzy
 msgid "Edit scripts"
-msgstr "Editér scripts"
+msgstr ""
 
 #: ../sieve.c:677
 msgid "Return to the script editing screen"
 msgstr "Retunér til script editéring"
 
 #: ../sieve.c:684
-#, fuzzy
 msgid "Delete scripts"
-msgstr "Slet scripts"
+msgstr ""
 
 #: ../sieve.c:687
-#, fuzzy
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
 msgstr ""
-"For at slette et eksisterende script, vælg et scriptnavn fra listen og klik "
-"'Slet'."
 
 #: ../sieve.c:711
-#, fuzzy
 msgid "Delete script"
-msgstr "Slet script"
+msgstr ""
 
 #: ../sieve.c:711
-#, fuzzy
 msgid "Delete this script?"
-msgstr "Slet dette script?"
+msgstr ""
 
 #: ../sieve.c:748
 msgid "A script by that name already exists."
@@ -1200,9 +1156,8 @@ msgid "Move rule down"
 msgstr "Flyt regel ned"
 
 #: ../sieve.c:984
-#, fuzzy
 msgid "Delete rule"
-msgstr "Slet regel"
+msgstr ""
 
 #: ../sieve.c:992
 msgid "If"
@@ -1213,9 +1168,8 @@ msgid "To or Cc"
 msgstr "Til eller Cc"
 
 #: ../sieve.c:998
-#, fuzzy
 msgid "Reply-to"
-msgstr "Svar-til"
+msgstr ""
 
 #: ../sieve.c:999 ../smtpqueue.c:197 ../static/t/msg_listview.html:11
 #: ../static/t/summary_header.html:9
@@ -1223,14 +1177,12 @@ msgid "Sender"
 msgstr "Afsender"
 
 #: ../sieve.c:1000
-#, fuzzy
 msgid "Resent-From"
-msgstr "Gensendt-Fra"
+msgstr ""
 
 #: ../sieve.c:1001
-#, fuzzy
 msgid "Resent-To"
-msgstr "Gensendt-Til"
+msgstr ""
 
 #: ../sieve.c:1002
 msgid "Envelope From"
@@ -1241,9 +1193,8 @@ msgid "Envelope To"
 msgstr "Konvolut Til"
 
 #: ../sieve.c:1004
-#, fuzzy
 msgid "X-Mailer"
-msgstr "X-Mailer"
+msgstr ""
 
 #: ../sieve.c:1005
 msgid "X-Spam-Flag"
@@ -1254,23 +1205,20 @@ msgid "X-Spam-Status"
 msgstr "X-Spam-Status"
 
 #: ../sieve.c:1007
-#, fuzzy
 msgid "List-ID"
-msgstr "Liste-ID"
+msgstr ""
 
 #: ../sieve.c:1008
-#, fuzzy
 msgid "Message size"
-msgstr "Meddelelse størrelse"
+msgstr ""
 
 #: ../sieve.c:1009 ../static/t/select_messageindex_all.html:1
 msgid "All"
 msgstr "Alle"
 
 #: ../sieve.c:1028
-#, fuzzy
 msgid "contains"
-msgstr "indeholder"
+msgstr ""
 
 #: ../sieve.c:1029
 msgid "does not contain"
@@ -1281,23 +1229,20 @@ msgid "is"
 msgstr "er"
 
 #: ../sieve.c:1031
-#, fuzzy
 msgid "is not"
-msgstr "er ikke"
+msgstr ""
 
 #: ../sieve.c:1032
-#, fuzzy
 msgid "matches"
-msgstr "matcher"
+msgstr ""
 
 #: ../sieve.c:1033
 msgid "does not match"
 msgstr "matcher ikke"
 
 #: ../sieve.c:1053
-#, fuzzy
 msgid "(All messages)"
-msgstr "(Alle meddelelser)"
+msgstr ""
 
 #: ../sieve.c:1057
 msgid "is larger than"
@@ -1316,34 +1261,28 @@ msgid "Discard silently"
 msgstr "Fjern"
 
 #: ../sieve.c:1083
-#, fuzzy
 msgid "Reject"
-msgstr "Afvis"
+msgstr ""
 
 #: ../sieve.c:1084
-#, fuzzy
 msgid "Move message to"
-msgstr "Flyt meddelelse til"
+msgstr ""
 
 #: ../sieve.c:1085
-#, fuzzy
 msgid "Forward to"
-msgstr "Videresend til"
+msgstr ""
 
 #: ../sieve.c:1086
-#, fuzzy
 msgid "Vacation"
-msgstr "Ferie"
+msgstr ""
 
 #: ../sieve.c:1123
-#, fuzzy
 msgid "Message:"
-msgstr "Meddelelse:"
+msgstr ""
 
 #: ../sieve.c:1133
-#, fuzzy
 msgid "continue processing"
-msgstr "fortsæt behandling"
+msgstr ""
 
 #: ../sieve.c:1134
 msgid "stop"
@@ -1354,12 +1293,12 @@ msgid "and then"
 msgstr "og"
 
 #: ../sieve.c:1158
-#, fuzzy
 msgid "Add rule"
-msgstr "Tilføj regel"
+msgstr ""
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1371,14 +1310,12 @@ msgid "(Delete)"
 msgstr "(Slet)"
 
 #: ../smtpqueue.c:191
-#, fuzzy
 msgid "Message ID"
-msgstr "Meddelelses ID"
+msgstr ""
 
 #: ../smtpqueue.c:193
-#, fuzzy
 msgid "Date/time submitted"
-msgstr "Dato/tid afsendt"
+msgstr ""
 
 #: ../smtpqueue.c:195
 msgid "Last attempt"
@@ -1389,9 +1326,8 @@ msgid "Recipients"
 msgstr "Modtagere"
 
 #: ../smtpqueue.c:214
-#, fuzzy
 msgid "The queue is empty."
-msgstr "Denne kø er tom."
+msgstr ""
 
 #: ../smtpqueue.c:220
 msgid "You do not have permission to view this resource."
@@ -1402,9 +1338,8 @@ msgid "View the outbound SMTP queue"
 msgstr "Vis udgående SMTP kø"
 
 #: ../smtpqueue.c:252
-#, fuzzy
 msgid "Refresh this page"
-msgstr "Opfrisk denne side"
+msgstr ""
 
 #: ../summary.c:101
 msgid "(None)"
@@ -1417,8 +1352,8 @@ msgstr "(Ingenting)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 "Du er forbundet til %s, bruger %s med %s, server version %s og lokaliseret i "
 "%s.  Din systemadministrator er %s."
@@ -1481,9 +1416,8 @@ msgid "Your bio"
 msgstr "Din bio"
 
 #: ../tasks.c:95
-#, fuzzy
 msgid "Completed?"
-msgstr "Færdig?"
+msgstr ""
 
 #: ../tasks.c:97
 msgid "Name of task"
@@ -1510,27 +1444,24 @@ msgid "Start date:"
 msgstr "Start dato:"
 
 #: ../tasks.c:266 ../tasks.c:296
-#, fuzzy
 msgid "No date"
-msgstr "Ingen dato"
+msgstr ""
 
 #: ../tasks.c:270 ../tasks.c:299
 msgid "or"
 msgstr "eller"
 
 #: ../tasks.c:284 ../tasks.c:313
-#, fuzzy
 msgid "Time associated"
-msgstr "Time format"
+msgstr ""
 
 #: ../tasks.c:288
 msgid "Due date:"
 msgstr "Forfald dato:"
 
 #: ../tasks.c:317
-#, fuzzy
 msgid "Completed:"
-msgstr "Færdig:"
+msgstr ""
 
 #: ../tasks.c:328
 msgid "Category:"
@@ -1632,9 +1563,8 @@ msgid "This address book is empty."
 msgstr "Denne adressebog er tom."
 
 #: ../vcard_edit.c:577
-#, fuzzy
 msgid "An internal error has occurred."
-msgstr "En intern fejl er opstået"
+msgstr ""
 
 #: ../vcard_edit.c:728
 msgid "Error"
@@ -1705,14 +1635,12 @@ msgid "Work telephone:"
 msgstr "Arbejdstelefon:"
 
 #: ../vcard_edit.c:955
-#, fuzzy
 msgid "Mobile telephone:"
-msgstr "Mobiltelefon:"
+msgstr ""
 
 #: ../vcard_edit.c:961
-#, fuzzy
 msgid "Fax number:"
-msgstr "Fax nummer"
+msgstr ""
 
 #: ../vcard_edit.c:972
 msgid "Primary Internet e-mail address"
@@ -1824,18 +1752,16 @@ msgid "Author"
 msgstr ""
 
 #: ../wiki.c:195 ../wiki.c:204
-#, fuzzy
 msgid "(show)"
-msgstr "(hjem)"
+msgstr ""
 
 #: ../wiki.c:197 ../static/t/navbar.html:147
 msgid "Current version"
 msgstr ""
 
 #: ../wiki.c:209
-#, fuzzy
 msgid "(revert)"
-msgstr "(fjern)"
+msgstr ""
 
 #: ../wiki.c:289
 msgid "Page title"
@@ -1854,19 +1780,16 @@ msgid "Advanced room commands"
 msgstr "Avancerede rum kommandoer"
 
 #: ../static/t/edit_message.html:23
-#, fuzzy
 msgid "from"
-msgstr "fra"
+msgstr ""
 
 #: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
-#, fuzzy
 msgid "Anonymous"
-msgstr "Anonym"
+msgstr ""
 
 #: ../static/t/edit_message.html:47
-#, fuzzy
 msgid "in"
-msgstr "i"
+msgstr ""
 
 #: ../static/t/edit_message.html:51
 msgid "To:"
@@ -1905,28 +1828,24 @@ msgid "Files available for download in"
 msgstr "Filer til download i"
 
 #: ../static/t/files.html:18
-#, fuzzy
 msgid "Filename"
-msgstr "Filnavn"
+msgstr ""
 
 #: ../static/t/files.html:19
 msgid "Size"
 msgstr "Størrelse"
 
 #: ../static/t/files.html:20
-#, fuzzy
 msgid "Content"
-msgstr "Indhold"
+msgstr ""
 
 #: ../static/t/files.html:21
-#, fuzzy
 msgid "Description"
-msgstr "Beskrivelse:"
+msgstr ""
 
 #: ../static/t/files.html:35
-#, fuzzy
 msgid "Upload a file:"
-msgstr "upload en fil:"
+msgstr ""
 
 #: ../static/t/floors_edit_one.html:11
 msgid "(delete floor)"
@@ -1965,14 +1884,12 @@ msgid "Rooms"
 msgstr "Rum"
 
 #: ../static/t/iconbar.html:47
-#, fuzzy
 msgid "Online users"
-msgstr "Online brugere"
+msgstr ""
 
 #: ../static/t/iconbar.html:51
-#, fuzzy
 msgid "Loading"
-msgstr "Indlæser"
+msgstr ""
 
 #: ../static/t/iconbar.html:56
 msgid "Chat"
@@ -1999,9 +1916,8 @@ msgid "switch to menu"
 msgstr "skift til menu"
 
 #: ../static/t/iconbar.html:82
-#, fuzzy
 msgid "My folders"
-msgstr "Mine foldere"
+msgstr ""
 
 #: ../static/t/knrooms.html:5
 msgid "Room list"
@@ -2012,19 +1928,16 @@ msgid "Folder list"
 msgstr "Folder liste"
 
 #: ../static/t/knrooms.html:19
-#, fuzzy
 msgid "View as room list"
-msgstr "skift til rum listen"
+msgstr ""
 
 #: ../static/t/knrooms.html:20
-#, fuzzy
 msgid "View as folder list"
-msgstr "Folder liste"
+msgstr ""
 
 #: ../static/t/knrooms.html:40
-#, fuzzy
 msgid "Room Listing"
-msgstr "Rum liste"
+msgstr ""
 
 #: ../static/t/login.html:4 ../static/t/openid_login.html:4
 msgid ""
@@ -2069,9 +1982,8 @@ msgid "Please log off properly when finished. "
 msgstr "Log af ordentligt når du er færdig. "
 
 #: ../static/t/login.html:47 ../static/t/openid_login.html:38
-#, fuzzy
 msgid "See the"
-msgstr "Se"
+msgstr ""
 
 #: ../static/t/login.html:47 ../static/t/openid_login.html:38
 msgid "recommended browser list"
@@ -2100,9 +2012,8 @@ msgstr "Læser #"
 
 #: ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:10
-#, fuzzy
 msgid "messages"
-msgstr "Meddelelser"
+msgstr ""
 
 #: ../static/t/msg_listselector_bottom.html:12
 #: ../static/t/msg_listselector_top.html:12
@@ -2187,9 +2098,8 @@ msgid "Add new note"
 msgstr "Tilføj ny note"
 
 #: ../static/t/navbar.html:111
-#, fuzzy
 msgid "Refresh message list"
-msgstr "Vis meddelelsesliste"
+msgstr ""
 
 #: ../static/t/navbar.html:123
 msgid "Write mail"
@@ -2204,9 +2114,8 @@ msgid "Edit this page"
 msgstr "Editér denne side"
 
 #: ../static/t/navbar.html:147
-#, fuzzy
 msgid "History"
-msgstr "Bibliotek"
+msgstr ""
 
 #: ../static/t/navbar.html:155
 msgid "Skip this room"
@@ -2217,14 +2126,12 @@ msgid "Goto next room"
 msgstr "Gå til næste rum"
 
 #: ../static/t/newstartpage.html:4
-#, fuzzy
 msgid "New start page"
-msgstr "Gør dette til min startside"
+msgstr ""
 
 #: ../static/t/newstartpage.html:9
-#, fuzzy
 msgid "Your start page has been changed."
-msgstr "Dine ændringer er blevet gemt."
+msgstr ""
 
 #: ../static/t/newstartpage.html:12
 msgid ""
@@ -2233,9 +2140,8 @@ msgid ""
 msgstr ""
 
 #: ../static/t/no_new_msgs.html:3
-#, fuzzy
 msgid "No new messages."
-msgstr "Ingen nye meddelelser."
+msgstr ""
 
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
@@ -2246,38 +2152,32 @@ msgid "Log in using a user name and password"
 msgstr ""
 
 #: ../static/t/openid_login.html:34
-#, fuzzy
 msgid "Enter your OpenID URL and click &quot;Login&quot;."
-msgstr "indtast dit brugernavn og klik &quot;Login.&quot;"
+msgstr ""
 
 #: ../static/t/openid_login.html:36
 msgid "Click here to learn what OpenID is and how Citadel is using it."
 msgstr ""
 
 #: ../static/t/openid_manual_create.html:4
-#, fuzzy
 msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
-msgstr "%s - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "Your OpenID"
-msgstr "Tilret dine OpenID'er"
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "was successfully verified."
-msgstr "Dit OpenID <tt>%s</tt> blev godkendt."
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:9
-#, fuzzy
 msgid "However, the user name"
-msgstr "Skift brugernavn"
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:9
-#, fuzzy
 msgid "conflicts with an existing user."
-msgstr "Men Brugernavnet '%s* konflikter med en eksisterende bruger."
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:11
 msgid "Please specify the user name you would like to use."
@@ -2292,38 +2192,32 @@ msgid "new of"
 msgstr ""
 
 #: ../static/t/roombanner.html:24
-#, fuzzy
 msgid "Select page: "
-msgstr "Vælg"
+msgstr ""
 
 #: ../static/t/searchomatic.html:4
-#, fuzzy
 msgid "Search: "
-msgstr "Søg:"
+msgstr ""
 
 #: ../static/t/start_of_new_msgs.html:4
-#, fuzzy
 msgid "Old messages"
-msgstr "Ingen gamle meddelelser."
+msgstr ""
 
 #: ../static/t/start_of_new_msgs.html:8
-#, fuzzy
 msgid "New messages"
-msgstr "Ingen nye meddelelser."
+msgstr ""
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
-msgstr "fra"
+msgstr "fra "
 
 #: ../static/t/view_message.html:15
-#, fuzzy
 msgid "to"
-msgstr "til"
+msgstr ""
 
 #: ../static/t/view_message.html:19
-#, fuzzy
 msgid "Edit"
-msgstr "(Editér)"
+msgstr ""
 
 #: ../static/t/view_message.html:21 ../static/t/view_message.html:26
 #: ../static/t/view_message.html:31
@@ -2351,9 +2245,8 @@ msgid "View as:"
 msgstr "Vis som:"
 
 #: ../static/t/who.html:14
-#, fuzzy
 msgid "Users currently on "
-msgstr "Brugere i øjeblikket på "
+msgstr ""
 
 #~ msgid "Exit"
 #~ msgstr "Afslut"

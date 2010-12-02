@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2010-10-22 14:57+0000\n"
+"PO-Revision-Date: 2010-11-12 23:47+0000\n"
 "Last-Translator: iltl <iltl@free.fr>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: FRANCE\n"
 "Language: fr\n"
@@ -155,10 +155,10 @@ msgid "They don't match.  Password was not changed."
 msgstr ""
 "Les deux saisies sont différentes. Le mot de passe n'a pas été modifié."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilité inconnue"
@@ -172,19 +172,16 @@ msgid "BUSY"
 msgstr "OCCUPÉ(E)"
 
 #: ../bbsview_renderer.c:289
-#, fuzzy
 msgid "Go to page: "
-msgstr "Sélectionner la page :"
+msgstr ""
 
 #: ../bbsview_renderer.c:323
-#, fuzzy
 msgid "First"
-msgstr "Prénom"
+msgstr ""
 
 #: ../bbsview_renderer.c:329
-#, fuzzy
 msgid "Last"
-msgstr "Liste"
+msgstr ""
 
 #: ../calendar.c:81
 msgid "Meeting invitation"
@@ -249,7 +246,8 @@ msgstr "Ceci est une mise à jour de '%s' déjà présent dans votre agenda."
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Cet événement entre en conflit avec '%s' qui est déjà dans votre agenda."
 
@@ -402,24 +400,21 @@ msgid "From"
 msgstr "De"
 
 #: ../calendar_view.c:347 ../calendar_view.c:972
-#, fuzzy
 msgid "Starting date:"
-msgstr "Date de début :"
+msgstr ""
 
 #: ../calendar_view.c:353 ../calendar_view.c:974
-#, fuzzy
 msgid "Ending date:"
-msgstr "Date et horaire de fin :"
+msgstr ""
 
 #: ../calendar_view.c:361 ../calendar_view.c:1093
-#, fuzzy
 msgid "Date/time:"
-msgstr "Date :"
+msgstr ""
 
 #: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
 #: ../calendar_view.c:1103
 msgid "Notes:"
-msgstr "Notes : "
+msgstr "Notes :"
 
 #: ../calendar_view.c:582 ../calendar_view.c:719
 msgid "previous"
@@ -653,7 +648,8 @@ msgstr "Image téléchargée"
 
 #: ../graphics.c:58
 msgid "You can upload an image directly from your computer"
-msgstr "Vous pouvez télécharger une image directement depuis votre ordinateur"
+msgstr ""
+"Vous pouvez télécharger une image directement depuis votre ordinateur"
 
 #: ../graphics.c:61
 msgid "Please select a file to upload:"
@@ -759,9 +755,8 @@ msgid "ERROR:"
 msgstr "ERREUR :"
 
 #: ../messages.c:73
-#, fuzzy
 msgid "Empty message"
-msgstr "Poster le message"
+msgstr ""
 
 #: ../messages.c:1061
 #, c-format
@@ -778,14 +773,12 @@ msgid "Saved to Drafts failed: "
 msgstr ""
 
 #: ../messages.c:1185
-#, fuzzy
 msgid "Refusing to post empty message.\n"
-msgstr "Retourner aux messages"
+msgstr ""
 
 #: ../messages.c:1211
-#, fuzzy
 msgid "Message has been saved to Drafts.\n"
-msgstr "Le message a été envoyé à "
+msgstr ""
 
 #: ../messages.c:1220
 msgid "Message has been sent.\n"
@@ -933,18 +926,16 @@ msgid "You no longer have a start page selected."
 msgstr "Vous n'avez pas encore choisi de page d'accueil."
 
 #: ../preferences.c:1152
-#, fuzzy
 msgid "Prefered startpage"
-msgstr "Usager privilégié"
+msgstr ""
 
 #: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
 msgid "Higher access is required to access this function."
 msgstr "Un niveau d'accès supérieur est requis pour utiliser cette fonction"
 
 #: ../roomlist.c:101
-#, fuzzy
 msgid "My Folders"
-msgstr "Mes répertoires"
+msgstr ""
 
 #: ../roomops.c:677 ../roomops.c:970 ../sieve.c:571
 msgid "Cancelled.  Changes were not saved."
@@ -1043,9 +1034,8 @@ msgstr ""
 "ou contactez l'administrateur du système."
 
 #: ../serv_func.c:191 ../serv_func.c:220
-#, fuzzy
 msgid "Received unexpected answer from Citadel server; bailing out."
-msgstr "Le serveur Citadel a renvoyé une réponse inattendue."
+msgstr ""
 
 #: ../serv_func.c:229
 #, c-format
@@ -1320,7 +1310,8 @@ msgid "Add rule"
 msgstr "Ajouter une règle"
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1374,8 +1365,8 @@ msgstr "(Vide)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 "Vous êtes connecté(e) à %s qui est servi par %s avec %s (révision %s) et "
 "situé à %s. Votre administrateur système est %s."
@@ -1474,9 +1465,8 @@ msgid "or"
 msgstr "ou"
 
 #: ../tasks.c:284 ../tasks.c:313
-#, fuzzy
 msgid "Time associated"
-msgstr "Format horaire"
+msgstr ""
 
 #: ../tasks.c:288
 msgid "Due date:"
@@ -1778,18 +1768,16 @@ msgid "Author"
 msgstr ""
 
 #: ../wiki.c:195 ../wiki.c:204
-#, fuzzy
 msgid "(show)"
-msgstr " (accueil)"
+msgstr ""
 
 #: ../wiki.c:197 ../static/t/navbar.html:147
 msgid "Current version"
 msgstr ""
 
 #: ../wiki.c:209
-#, fuzzy
 msgid "(revert)"
-msgstr "(enlever)"
+msgstr ""
 
 #: ../wiki.c:289
 msgid "Page title"
@@ -1956,19 +1944,16 @@ msgid "Folder list"
 msgstr "Répertoires des paliers et des salons"
 
 #: ../static/t/knrooms.html:19
-#, fuzzy
 msgid "View as room list"
-msgstr "passer aux salons"
+msgstr ""
 
 #: ../static/t/knrooms.html:20
-#, fuzzy
 msgid "View as folder list"
-msgstr "Répertoires des paliers et des salons"
+msgstr ""
 
 #: ../static/t/knrooms.html:40
-#, fuzzy
 msgid "Room Listing"
-msgstr "Liste des salons"
+msgstr ""
 
 #: ../static/t/login.html:4 ../static/t/openid_login.html:4
 msgid ""
@@ -1999,8 +1984,8 @@ msgstr "Si vous avez déjà un compte sur"
 #: ../static/t/login.html:44
 msgid "enter your user name and password and click &quot;Login.&quot;"
 msgstr ""
-"entrez votre identifiant et votre mot de passe puis cliquez sur &quot;Login."
-"&quot;"
+"entrez votre identifiant et votre mot de passe puis cliquez sur "
+"&quot;Login.&quot;"
 
 #: ../static/t/login.html:45
 msgid ""
@@ -2040,9 +2025,8 @@ msgstr ""
 
 #: ../static/t/msg_listselector_bottom.html:2
 #: ../static/t/msg_listselector_top.html:2
-#, fuzzy
 msgid "Reading #"
-msgstr "Afficher n°"
+msgstr ""
 
 #: ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:10
@@ -2148,9 +2132,8 @@ msgid "Edit this page"
 msgstr "Modifier cette page"
 
 #: ../static/t/navbar.html:147
-#, fuzzy
 msgid "History"
-msgstr "Annuaire"
+msgstr ""
 
 #: ../static/t/navbar.html:155
 msgid "Skip this room"
@@ -2177,9 +2160,8 @@ msgstr ""
 "seulement celle que vous obtiendrez dès votre connexion."
 
 #: ../static/t/no_new_msgs.html:3
-#, fuzzy
 msgid "No new messages."
-msgstr "Pas de nouveau message."
+msgstr ""
 
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
@@ -2196,34 +2178,27 @@ msgstr "Entrez votre adresse OpenID et cliquez sur &quot;Connecter&quot;."
 #: ../static/t/openid_login.html:36
 msgid "Click here to learn what OpenID is and how Citadel is using it."
 msgstr ""
-"Cliquez ici pour savoir ce qu'est OpenID et comment Citadel l'utilise. "
+"Cliquez ici pour savoir ce qu'est OpenID et comment Citadel l'utilise."
 
 #: ../static/t/openid_manual_create.html:4
-#, fuzzy
 msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
-msgstr "%s - propulsé par <a href=\"http://www.citadel.org\">Citadel</a>"
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "Your OpenID"
-msgstr "Gérer vos comptes OpenIDs"
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "was successfully verified."
-msgstr "Votre compte OpenID <tt>%s</tt> a été vérifié avec succès."
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:9
-#, fuzzy
 msgid "However, the user name"
-msgstr "Changer le nom de l'usager"
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:9
-#, fuzzy
 msgid "conflicts with an existing user."
 msgstr ""
-"Cependant, le nom d'usager '%s' est en conflit avec celui d'un usager "
-"existant."
 
 #: ../static/t/openid_manual_create.html:11
 msgid "Please specify the user name you would like to use."
@@ -2246,14 +2221,12 @@ msgid "Search: "
 msgstr "Recherche "
 
 #: ../static/t/start_of_new_msgs.html:4
-#, fuzzy
 msgid "Old messages"
-msgstr "Pas d'ancien message."
+msgstr ""
 
 #: ../static/t/start_of_new_msgs.html:8
-#, fuzzy
 msgid "New messages"
-msgstr "Pas de nouveau message."
+msgstr ""
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
@@ -2261,12 +2234,11 @@ msgstr "de "
 
 #: ../static/t/view_message.html:15
 msgid "to"
-msgstr "à "
+msgstr "à"
 
 #: ../static/t/view_message.html:19
-#, fuzzy
 msgid "Edit"
-msgstr "(Éditer)"
+msgstr ""
 
 #: ../static/t/view_message.html:21 ../static/t/view_message.html:26
 #: ../static/t/view_message.html:31
