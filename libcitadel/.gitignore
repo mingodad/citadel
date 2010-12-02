@@ -2,6 +2,7 @@
 *.d
 *.lo
 *.gcno
+*.gcda
 .gitignore~
 .libs/
 Makefile
