@@ -13,7 +13,6 @@
 #include <stddef.h>
 
 
-#include "stringbuf_test.h"
 #include "../lib/libcitadel.h"
 
 /* shamelesly copied from msgbase.h */
@@ -203,11 +202,12 @@ int main(int argc, char* argv[])
 	char *MimeStr;
 	struct ma_info ma;
 	int do_proto = 0;
+	int dont_decode = 1;
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 
-	while ((a = getopt(argc, argv, "F:f:p")) != EOF)
+	while ((a = getopt(argc, argv, "dpf:")) != EOF)
 	{
 		switch (a) {
 		case 'f':
@@ -215,6 +215,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'p':
 			do_proto = 1;
+			break;
+		case 'd':
+			dont_decode = 0;
 			break;
 		}
 	}
@@ -248,7 +251,7 @@ int main(int argc, char* argv[])
 		    (do_proto ? *list_this_part : NULL),
 		    (do_proto ? *list_this_pref : NULL),
 		    (do_proto ? *list_this_suff : NULL),
-		    (void *)&ma, 1);
+		    (void *)&ma, dont_decode);
 
 
 	free(MimeStr);
