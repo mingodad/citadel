@@ -5,19 +5,18 @@
 # Copyright (C) 2009 Andrey N. Oktyabrski
 # This file is distributed under the revised BSD license
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2010-10-22 15:02+0000\n"
+"PO-Revision-Date: 2010-11-12 23:49+0000\n"
 "Last-Translator: Andrey N. Oktyabrski <ano@bestmx.ru>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: \n"
 
@@ -154,10 +153,10 @@ msgstr "Смена пароля отменяется, он остался пре
 msgid "They don't match.  Password was not changed."
 msgstr "Вы ввели разные пароли, оставляем прежний."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -245,7 +244,8 @@ msgstr ""
 
 #: ../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../calendar.c:232
@@ -738,9 +738,8 @@ msgid "ERROR:"
 msgstr ""
 
 #: ../messages.c:73
-#, fuzzy
 msgid "Empty message"
-msgstr "Новый пользователь"
+msgstr ""
 
 #: ../messages.c:1061
 #, c-format
@@ -910,9 +909,8 @@ msgid "You no longer have a start page selected."
 msgstr ""
 
 #: ../preferences.c:1152
-#, fuzzy
 msgid "Prefered startpage"
-msgstr "Привилегированный пользователь"
+msgstr ""
 
 #: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
 msgid "Higher access is required to access this function."
@@ -1276,7 +1274,8 @@ msgid "Add rule"
 msgstr ""
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1330,8 +1329,8 @@ msgstr ""
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 
 #: ../summary.c:195
@@ -2121,23 +2120,20 @@ msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
 msgstr " - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "Your OpenID"
-msgstr "Смените пароль"
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:8
-#, fuzzy
 msgid "was successfully verified."
-msgstr "Ваш OpenID <tt>%s</tt> проверен."
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:9
 msgid "However, the user name"
 msgstr ""
 
 #: ../static/t/openid_manual_create.html:9
-#, fuzzy
 msgid "conflicts with an existing user."
-msgstr "Однако, имя '%s' уже занято."
+msgstr ""
 
 #: ../static/t/openid_manual_create.html:11
 msgid "Please specify the user name you would like to use."
@@ -2164,9 +2160,8 @@ msgid "Old messages"
 msgstr ""
 
 #: ../static/t/start_of_new_msgs.html:8
-#, fuzzy
 msgid "New messages"
-msgstr "Новый пользователь"
+msgstr ""
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
@@ -2177,9 +2172,8 @@ msgid "to"
 msgstr ""
 
 #: ../static/t/view_message.html:19
-#, fuzzy
 msgid "Edit"
-msgstr "Выход"
+msgstr ""
 
 #: ../static/t/view_message.html:21 ../static/t/view_message.html:26
 #: ../static/t/view_message.html:31

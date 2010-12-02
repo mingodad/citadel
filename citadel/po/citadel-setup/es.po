@@ -30,19 +30,19 @@ msgstr ""
 "Project-Id-Version: citadel-7.66-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2010-10-22 14:34+0000\n"
-"Last-Translator: Shuko <felix_os69@hotmail.com>\n"
+"PO-Revision-Date: 2010-11-28 03:46+0000\n"
+"Last-Translator: Fitoschido <Unknown>\n"
 "Language-Team: Debian Spanish <debian-l10n-spanish@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-23 04:47+0000\n"
+"X-Launchpad-Export-Date: 2010-11-29 04:46+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: es\n"
 
 #: ../utils/setup.c:119
 msgid "Citadel Home Directory"
-msgstr ""
+msgstr "Carpeta personal Citadel"
 
 #: ../utils/setup.c:122
 msgid ""
@@ -51,6 +51,10 @@ msgid ""
 "specify a directory other than the default, you will need to\n"
 "specify the -h flag to the server when you start it up.\n"
 msgstr ""
+"Introduzca la ruta completa del directorio en el que \n"
+"se encuentra la instalación de Citadel. Si especifica\n"
+"un directorio diferente al por defecto, deberá\n"
+"especificar la opción -h en el servidor cuando lo inicie.\n"
 
 #: ../utils/setup.c:128
 msgid ""
@@ -118,7 +122,7 @@ msgstr ""
 
 #: ../utils/setup.c:168
 msgid "Server port number:"
-msgstr ""
+msgstr "Número de puerto del servidor:"
 
 #: ../utils/setup.c:170
 msgid ""
@@ -135,7 +139,6 @@ msgid "Authentication method to use:"
 msgstr "Método de autenticación a utilizar:"
 
 #: ../utils/setup.c:179
-#, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
 "own internal user accounts database. If you choose Host, Citadel users will "
@@ -153,13 +156,6 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
-"Por favor, elija el método de autenticación del usuario. De forma "
-"predeterminada, Citadel usará su propia base de datos de cuentas de usuario. "
-"Si elije «Host», los usuarios de Citadel tendrán cuentas en el equipo "
-"anfitrión «host» del sistema, autenticado a través de «/etc/psswd» o una "
-"fuente de PAM. LDAP selecciona un servidor de directorios compatible con RFC "
-"2307 y la última opción selecciona el esquema no estándar LDAP de MS Active "
-"Directory."
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -198,7 +194,6 @@ msgid "LDAP bind DN:"
 msgstr "DN de enlace de LDAP:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -208,25 +203,17 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"Por favor, introduzca el DN de una cuenta para usarlo como enlace al "
-"servidor LDAP para las consultas realizadas. La cuenta no requiere ningún "
-"otro privilegio. Si el servidor LDAP permite las consultas anónimas, puede "
-"dejar esta opción en blanco."
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
 msgstr "Contraseña para el enlace de LDAP:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Si ha introducido un DN de enlace en la anterior pregunta, ahora debe "
-"introducir la contraseña asociada con esa cuenta. Si no, puede dejar esta "
-"opción en blanco."
 
 #: ../utils/setup.c:299
 msgid "Yes/No"

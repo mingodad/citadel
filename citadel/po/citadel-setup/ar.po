@@ -345,9 +345,8 @@ msgstr ""
 
 #: ../utils/setup.c:1450 ../utils/setup.c:1457 ../utils/setup.c:1472
 #: ../utils/setup.c:1512
-#, fuzzy
 msgid "Citadel Setup"
-msgstr "Citadel/UX"
+msgstr ""
 
 #: ../utils/setup.c:1459
 msgid "The directory you specified does not exist"
@@ -360,9 +359,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:1485
-#, fuzzy
 msgid "Citadel setup program"
-msgstr "Active Directory"
+msgstr ""
 
 #: ../utils/setup.c:1513
 msgid "This Citadel installation is too old to be upgraded."
@@ -380,11 +378,11 @@ msgstr ""
 #~ "0.0.0.0، فسيصغي الخادم لجميع العناوين."
 
 #~ msgid ""
-#~ "This can usually be left to the default unless multiple instances of "
-#~ "Citadel are running on the same computer."
+#~ "This can usually be left to the default unless multiple instances of Citadel "
+#~ "are running on the same computer."
 #~ msgstr ""
-#~ "يمكن ترك هذه القيمة الافتراضية إلا إن كان هناك أكثر من نسخة Citadel تعمل "
-#~ "على نفس الجهاز."
+#~ "يمكن ترك هذه القيمة الافتراضية إلا إن كان هناك أكثر من نسخة Citadel تعمل على "
+#~ "نفس الجهاز."
 
 #~ msgid "Internal"
 #~ msgstr "داخلي"

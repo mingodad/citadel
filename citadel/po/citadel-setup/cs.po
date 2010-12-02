@@ -95,9 +95,8 @@ msgid ""
 msgstr ""
 
 #: ../utils/setup.c:168
-#, fuzzy
 msgid "Server port number:"
-msgstr "LDAP port:"
+msgstr ""
 
 #: ../utils/setup.c:170
 msgid ""

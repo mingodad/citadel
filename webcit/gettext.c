@@ -24,6 +24,7 @@
 /* actual supported locales */
 const char *AvailLang[] = {
 	"C",
+	"bg_BG",
 	"en_US",
 	"da_DK",
 	"de_DE",

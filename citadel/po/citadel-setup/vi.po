@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: citadel 7.61-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2010-10-22 14:44+0000\n"
+"PO-Revision-Date: 2010-10-24 15:58+0000\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -113,7 +113,6 @@ msgid "Authentication method to use:"
 msgstr ""
 
 #: ../utils/setup.c:179
-#, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
 "own internal user accounts database. If you choose Host, Citadel users will "
@@ -131,13 +130,6 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
-"Hãy chọn chế độ xác thực người dùng:\n"
-" • Nội bộ\t\tCitadel sử dụng cơ sở dữ liệu tài khoản người dùng nội bộ\n"
-"\t\t\tcủa chính nó (mặc định)\n"
-" • Máy chủ\tCác người dùng Citadel có tài khoản trên hệ thống chủ,\n"
-"\t\t\tđược xác thực thông qua « /etc/passwd » hay một nguồn PAM\n"
-" • LDAP\t\tchọn một máy phục vụ sổ ghi tùy theo RFC 2307\n"
-" • Thư mục Hoạt động\tchọn lược đồ LDAP không tiêu chuẩn MS Active Directory"
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -160,20 +152,16 @@ msgid "LDAP base DN:"
 msgstr "DN cơ bản LDAP:"
 
 #: ../utils/setup.c:207
-#, fuzzy
 msgid ""
 "Please enter the Base DN to search for authentication\n"
 "(for example: dc=example,dc=com)\n"
 msgstr ""
-"Hãy gõ tên phân biệt (DN) cơ bản để tìm kiếm thông tin xác thực \n(v.d. « "
-"dc=tên_miền,dc=com »).\n"
 
 #: ../utils/setup.c:210
 msgid "LDAP bind DN:"
 msgstr "DN tổ hợp LDAP:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -183,10 +171,6 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"Hãy gõ tên phân biệt (DN) của tài khoản cần sử dụng để đóng kết tới trình "
-"phục vụ LDAP, để yêu cầu thông tin. Tài khoản này không cần có quyền đặc "
-"biệt. Nếu trình phục vụ LDAP cho phép yêu cầu nặc danh thì cũng có thể bỏ "
-"trống trường này."
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
@@ -199,7 +183,8 @@ msgid ""
 "blank.\n"
 msgstr ""
 "Nếu bạn đã nhập một tên phân biệt (DN) kiểu đóng kết khi đáp ứng câu hỏi \n"
-"đằng trước, ở đây cũng cần gõ mật khẩu tương ứng với tài khoản đó. Không thì\n"
+"đằng trước, ở đây cũng cần gõ mật khẩu tương ứng với tài khoản đó. Không "
+"thì\n"
 "bỏ trống trường này.\n"
 
 #: ../utils/setup.c:299

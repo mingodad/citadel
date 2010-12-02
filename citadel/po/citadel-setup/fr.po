@@ -17,7 +17,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-09 04:44+0000\n"
+"X-Launchpad-Export-Date: 2010-11-11 04:37+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: fr\n"
 
@@ -45,6 +45,10 @@ msgid ""
 "specify the -h flag to the server when you start it up.\n"
 "note that it may not have a leading /"
 msgstr ""
+"Entrez le chemin complet du répertoire dans lequel se trouve\n"
+"l'installation de Citadel que vous créez ou mettez à jour. Si vous\n"
+"spécifiez un répertoire autre que celui par défaut, vous devrez\n"
+"indiquer le paramètre -f au serveur lorsque vous le démarrerez.\n"
 
 #: ../utils/setup.c:135
 msgid "Citadel administrator username:"
@@ -120,7 +124,6 @@ msgid "Authentication method to use:"
 msgstr "Méthode d'authentification à utiliser :"
 
 #: ../utils/setup.c:179
-#, fuzzy
 msgid ""
 "Please choose the user authentication mode. By default Citadel will use its "
 "own internal user accounts database. If you choose Host, Citadel users will "
@@ -138,12 +141,6 @@ msgid ""
 "\n"
 "ANSWER \"0\" UNLESS YOU COMPLETELY UNDERSTAND THIS OPTION.\n"
 msgstr ""
-"Veuillez choisir le mode d'authentification des utilisateurs. Par défaut, "
-"Citadel utilise son système interne de comptes. Si vous choisissez « Hôte », "
-"les utilisateurs de Citadel doivent avoir des comptes locaux, authentifiés "
-"avec /etc/passwd ou PAM. Le choix « LDAP » utilise un répertoire conforme au "
-"RFC 2307 et l'option « Active Directory » utilise le schéma LDAP non "
-"standard d'Active Directory."
 
 #: ../utils/setup.c:197
 msgid "LDAP host:"
@@ -180,7 +177,6 @@ msgid "LDAP bind DN:"
 msgstr "Compte de connexion LDAP:"
 
 #: ../utils/setup.c:212
-#, fuzzy
 msgid ""
 "Please enter the DN of an account to use for binding to the LDAP server for "
 "performing queries. The account does not require any other privileges. If "
@@ -190,24 +186,17 @@ msgid ""
 "privileges.  If your LDAP server allows anonymous queries, you can\n"
 "leave this blank.\n"
 msgstr ""
-"Veuillez indiquer le compte à utiliser pour la connexion au serveur LDAP,\n"
-"pour les requêtes qui y seront effectuées. Ce compte a uniquement besoin de\n"
-"privilèges de lecture et peut ne pas être renseigné si le serveur LDAP\n"
-"permet les connexions anonymes.\n"
 
 #: ../utils/setup.c:220
 msgid "LDAP bind password:"
 msgstr "Mot de passe de connexion LDAP:"
 
 #: ../utils/setup.c:222
-#, fuzzy
 msgid ""
 "If you entered a Bind DN in the previous question, you must now enter\n"
 "the password associated with that account.  Otherwise, you can leave this\n"
 "blank.\n"
 msgstr ""
-"Si vous avez indiqué un compte de connexion en lecture au serveur LDAP, "
-"veuillez indiquer le mot de passe à utiliser pour ce compte."
 
 #: ../utils/setup.c:299
 msgid "Yes/No"

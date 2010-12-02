@@ -149,10 +149,10 @@ msgstr "Ακυρώθηκε. Ο κωδικός πρόσβασης δεν άλλα
 msgid "They don't match.  Password was not changed."
 msgstr "Δεν ταιριάζουν. Ο κωδικός πρόσβασης δεν άλλαξε."
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "άγνωστη διαθεσιμότητα"
@@ -1275,7 +1275,8 @@ msgid "Add rule"
 msgstr ""
 
 #: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1329,8 +1330,8 @@ msgstr ""
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 
 #: ../summary.c:195
