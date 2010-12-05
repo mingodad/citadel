@@ -254,9 +254,20 @@ void mime_decode(char *partnum,
 	}
 
 	if (bytes_decoded > 0) if (CallBack != NULL) {
-		CallBack(name, filename, fixed_partnum(partnum),
-			disposition, decoded,
-			content_type, charset, bytes_decoded, "binary", id, userdata);
+			char encoding_buf[SIZ];
+
+			strcpy(encoding_buf, "binary");
+			CallBack(name, 
+				 filename, 
+				 fixed_partnum(partnum),
+				 disposition, 
+				 decoded,
+				 content_type, 
+				 charset, 
+				 bytes_decoded, 
+				 encoding_buf, 
+				 id, 
+				 userdata);
 	}
 
 	free(decoded);
