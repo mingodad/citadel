@@ -22,6 +22,7 @@ struct ma_info {
 				 * digging through a subsection */
 	int did_print;		/* One alternative has been displayed */
 	char chosen_part[128];	/* Which part of a m/a did we choose? */
+	const char *printme;
 	int chosen_pref;	/* Chosen part preference level (lower is better) */
 	int use_fo_hooks;	/* Use fixed output hooks */
 	int dont_decode;        /* should we call the decoder or not? */
@@ -31,17 +32,17 @@ struct ma_info {
 /*
  * Callback function for mime parser that simply lists the part
  */
-void list_this_part(char *name, 
-		    char *filename, 
-		    char *partnum, 
-		    char *disp,
-		    void *content, 
-		    char *cbtype, 
-		    char *cbcharset, 
-		    size_t length, 
-		    char *encoding,
-		    char *cbid, 
-		    void *cbuserdata)
+static void list_this_part(char *name, 
+			   char *filename, 
+			   char *partnum, 
+			   char *disp,
+			   void *content, 
+			   char *cbtype, 
+			   char *cbcharset, 
+			   size_t length, 
+			   char *encoding,
+			   char *cbid, 
+			   void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -62,17 +63,17 @@ void list_this_part(char *name,
 /* 
  * Callback function for multipart prefix
  */
-void list_this_pref(char *name, 
-		    char *filename, 
-		    char *partnum, 
-		    char *disp,
-		    void *content, 
-		    char *cbtype, 
-		    char *cbcharset, 
-		    size_t length, 
-		    char *encoding,
-		    char *cbid, 
-		    void *cbuserdata)
+static void list_this_pref(char *name, 
+			   char *filename, 
+			   char *partnum, 
+			   char *disp,
+			   void *content, 
+			   char *cbtype, 
+			   char *cbcharset, 
+			   size_t length, 
+			   char *encoding,
+			   char *cbid, 
+			   void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -89,17 +90,17 @@ void list_this_pref(char *name,
 /* 
  * Callback function for multipart sufffix
  */
-void list_this_suff(char *name, 
-		    char *filename, 
-		    char *partnum, 
-		    char *disp,
-		    void *content, 
-		    char *cbtype, 
-		    char *cbcharset, 
-		    size_t length, 
-		    char *encoding,
-		    char *cbid, 
-		    void *cbuserdata)
+static void list_this_suff(char *name, 
+			   char *filename, 
+			   char *partnum, 
+			   char *disp,
+			   void *content, 
+			   char *cbtype, 
+			   char *cbcharset, 
+			   size_t length, 
+			   char *encoding,
+			   char *cbid, 
+			   void *cbuserdata)
 {
 	struct ma_info *ma;
 	
@@ -115,39 +116,44 @@ void list_this_suff(char *name,
 
 /*
  * Callback function for mime parser that opens a section for downloading
- * /
-void mime_download(char *name, 
-		   char *filename, 
-		   char *partnum, 
-		   char *disp,
-		   void *content, 
-		   char *cbtype, 
-		   char *cbcharset, 
-		   size_t length,
-		   char *encoding, 
-		   char *cbid, 
-		   void *cbuserdata)
+ */
+static void mime_download(char *name, 
+			  char *filename, 
+			  char *partnum, 
+			  char *disp,
+			  void *content, 
+			  char *cbtype, 
+			  char *cbcharset, 
+			  size_t length,
+			  char *encoding, 
+			  char *cbid, 
+			  void *cbuserdata)
 {
-	int rv = 0;
-	FILE *download_fp;
+	int rc = 0;
 
-	/* Silently go away if there's already a download open. * /
+	/* Silently go away if there's already a download open. */
 
-	if (
-		(!IsEmptyStr(partnum) && (!strcasecmp(CC->download_desired_section, partnum)))
-	||	(!IsEmptyStr(cbid) && (!strcasecmp(CC->download_desired_section, cbid)))
-	) {
-		download_fp = STDOUT;
-
+	struct ma_info *ma;
 	
-		rv = fwrite(content, length, 1, download_fp);
-		fflush(CC->download_fp);
-		rewind(CC->download_fp);
-	
-		OpenCmdResult(filename, cbtype);
+	ma = (struct ma_info *)cbuserdata;
+
+	if ((!IsEmptyStr(partnum) && (!strcasecmp(ma->printme, partnum)))) {
+		char *decoded = NULL;
+		size_t bytes_decoded;
+		rc = mime_decode_now (content, 
+				      length,
+				      encoding,
+				      &decoded,
+				      &bytes_decoded);
+		if ((rc < 0) || (decoded == NULL)) {
+			printf("failed to decode content\n");
+			return;
+		}
+		rc = write(STDOUT_FILENO, content, length);
+		free(decoded);
 	}
 }
-*/
+
 
 
 /*
@@ -205,9 +211,9 @@ int main(int argc, char* argv[])
 	int dont_decode = 1;
 
 	setvbuf(stdout, NULL, _IONBF, 0);
+	memset(&ma, 0, sizeof(struct ma_info));
 
-
-	while ((a = getopt(argc, argv, "dpf:")) != EOF)
+	while ((a = getopt(argc, argv, "dpf:P:")) != EOF)
 	{
 		switch (a) {
 		case 'f':
@@ -219,6 +225,8 @@ int main(int argc, char* argv[])
 		case 'd':
 			dont_decode = 0;
 			break;
+		case 'P':
+			ma.printme = optarg;
 		}
 	}
 	StartLibCitadel(8);
@@ -245,14 +253,15 @@ int main(int argc, char* argv[])
 	MimeLen = StrLength(MimeBuf);
 	MimeStr = SmashStrBuf(&MimeBuf);
 
-	memset(&ma, 0, sizeof(struct ma_info));
-
-	mime_parser(MimeStr, MimeStr + MimeLen,
-		    (do_proto ? *list_this_part : NULL),
-		    (do_proto ? *list_this_pref : NULL),
-		    (do_proto ? *list_this_suff : NULL),
-		    (void *)&ma, dont_decode);
-
+	if (ma.printme == NULL)
+		mime_parser(MimeStr, MimeStr + MimeLen,
+			    (do_proto ? *list_this_part : NULL),
+			    (do_proto ? *list_this_pref : NULL),
+			    (do_proto ? *list_this_suff : NULL),
+			    (void *)&ma, dont_decode);
+	else 
+		mime_parser(MimeStr, MimeStr + MimeLen,
+			    *mime_download, NULL, NULL, (void *)&ma, dont_decode);
 
 	free(MimeStr);
 	return 0;
