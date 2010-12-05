@@ -170,6 +170,7 @@ and these came close:
  hashlittle() has to dance around fitting the key bytes into registers.
 --------------------------------------------------------------------
 */
+#if 0 // libcitadel doesn't use this.
 uint32_t hashword(
 const uint32_t *k,                   /* the key, an array of uint32_t values */
 size_t          length,               /* the length of the key, in uint32_ts */
@@ -204,7 +205,7 @@ uint32_t        initval)         /* the previous hash, or an arbitrary value */
   /*------------------------------------------------------ report the result */
   return c;
 }
-
+#endif 
 
 /*
 --------------------------------------------------------------------
@@ -214,6 +215,7 @@ both be initialized with seeds.  If you pass in (*pb)==0, the output
 (*pc) will be the same as the return value from hashword().
 --------------------------------------------------------------------
 */
+#if 0 // libcitadel doesn't use this.
 void hashword2 (
 const uint32_t *k,                   /* the key, an array of uint32_t values */
 size_t          length,               /* the length of the key, in uint32_ts */
@@ -250,7 +252,7 @@ uint32_t       *pb)               /* IN: more seed OUT: secondary hash value */
   /*------------------------------------------------------ report the result */
   *pc=c; *pb=b;
 }
-
+#endif
 
 /*
 -------------------------------------------------------------------------------
@@ -460,6 +462,7 @@ uint32_t hashlittle( const void *key, size_t length, uint32_t initval)
  * the key.  *pc is better mixed than *pb, so use *pc first.  If you want
  * a 64-bit value do something like "*pc + (((uint64_t)*pb)<<32)".
  */
+#if 0 // libcitadel doesn't use this.
 void hashlittle2( 
   const void *key,       /* the key to hash */
   size_t      length,    /* length of the key */
@@ -635,7 +638,7 @@ void hashlittle2(
   final(a,b,c);
   *pc=c; *pb=b;
 }
-
+#endif
 
 
 /*
@@ -644,6 +647,7 @@ void hashlittle2(
  * from hashlittle() on all machines.  hashbig() takes advantage of
  * big-endian byte ordering. 
  */
+#if 0 // libcitadel doesn't use this.
 uint32_t hashbig( const void *key, size_t length, uint32_t initval)
 {
   uint32_t a,b,c;
@@ -766,7 +770,7 @@ uint32_t hashbig( const void *key, size_t length, uint32_t initval)
   final(a,b,c);
   return c;
 }
-
+#endif
 
 #ifdef SELF_TEST
 
