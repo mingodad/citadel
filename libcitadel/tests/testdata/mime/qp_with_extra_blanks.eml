@@ -1,0 +1,75 @@
+Return-Path: mantis@o3sis.com
+To: wilfried.goesgens@o3sis.com
+Date: Fri, 25 Apr 2008 12:02:10 +0200
+Subject: =?windows-1252?Q?[O3SIS_-_Sirius_-_Bugs_0001610]:_Handy_Nr._=E4ndern?=
+Envelope-To:                        
+Message-ID: <b8e1728a4d076ca05344e6ed919ff168@qaservices>
+From: "mantis" <mantis@o3sis.com>
+Organization: My System
+Organization: Outgesourced
+Organization: Da workstation
+Received: from wxwilli.o3sis.com ( [])
+	by wxwilli.o3sis.com; Fri, 25 Apr 2008 12:02:46 +0200
+Received: from mail.o3sis.com [62.153.93.242]
+	by wxwilli.o3sis.com with POP3 (fetchmail-6.3.6)
+	for <willi@wxwilli.o3sis.com> (single-drop); Fri, 25 Apr 2008 12:02:46 +0200 (CEST)
+Received: from qaservices ([172.16.31.226])
+	by Mail.O3SIS.com (8.13.1/8.13.1) with ESMTP id m3PA27OY014742
+	for <wilfried.goesgens@o3sis.com>; Fri, 25 Apr 2008 12:02:10 +0200
+X-Priority: 3
+X-Mailer: PHPMailer [version 1.72]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"
+X-Spam-Status: No, score=-1.6 required=4.0 tests=ALL_TRUSTED,AWL
+	autolearn=unavailable version=3.2.4
+X-Spam-Checker-Version: SpamAssassin 3.2.4 (2008-01-01) on
+	avas-ueb-01.o3sis.com
+X-Virus-Scanned: ClamAV version 0.92.1, clamav-milter version 0.92.1 on avas-ueb-01.o3sis.com
+X-Virus-Status: Clean
+X-IMAPbase: 1170863174 5509
+Status: O
+X-UID: 5509
+Content-Length: 2013
+X-Keywords:                                                                                                    
+
+
+The following issue has been SUBMITTED. 
+====================================================================== 
+http://qaservices/mantis/view.php?id=1610 
+====================================================================== 
+Reported By:                Anna Gräfling
+Assigned To:                Dirk Reichardt
+====================================================================== 
+Project:                    O3SIS - Sirius - Bugs
+Issue ID:                   1610
+Category:                   Web Settings
+Reproducibility:            always
+Severity:                   minor
+Priority:                   normal
+Status:                     assigned
+Department:                  UI  
+====================================================================== 
+Date Submitted:             04-25-2008 12:02 CEST
+Last Modified:              04-25-2008 12:02 CEST
+====================================================================== 
+Summary:                    Handy Nr. ändern
+Description: 
+Einstellungen, über mich, Handy-Nummer ändern, HandyNr. angeben und weiter
+anklicken, "Ja, ALTE HANDY-NUMMER LÖSCHEN" anklicken, geschickte Passwort
+an Handy angeben, "BESTÄTIGEN"
+In dem Popup: script language="JavaScript" type="text/javascript">
+controls.displayButton('', 'OK & Fenster schliessen', 'cancelPressed()' ,
+false); 
+====================================================================== 
+
+Issue History 
+Date Modified   Username       Field                    Change               
+====================================================================== 
+04-25-08 12:02  Anna Gräfling  New Issue                                    
+04-25-08 12:02  Anna Gräfling  Status                   new => assigned     
+04-25-08 12:02  Anna Gräfling  Assigned To               => Dirk Reichardt  
+04-25-08 12:02  Anna Gräfling  File Added: HandyNr.doc                      
+04-25-08 12:02  Anna Gräfling  Department                =>  UI             
+======================================================================
+
