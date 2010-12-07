@@ -772,39 +772,28 @@ int stripout(char *str, char leftboundary, char rightboundary) {
  * parentheses and anything outside them).
  */
 long stripallbut(char *str, char leftboundary, char rightboundary) {
-	int a;
-	long orglen, len;
-	char *pchs;
-	long min;
-	
-	orglen = len = strlen(str);
-	pchs = NULL;
-	for (a = 0; a < len; ++ a) {
-		if (str[a] == leftboundary) 
-			pchs = &str[a+1];
+	long len = 0;
+
+	char *lb = NULL;
+	char *rb = NULL;
+
+	lb = strrchr(str, leftboundary);
+	if (lb != NULL) {
+		++lb;
+		rb = strchr(str, rightboundary);
+		if ((rb != NULL) && (rb >= lb))  {
+			*rb = 0;
+			fflush(stderr);
+			len = (long)rb - (long)lb;
+			memmove(str, lb, len);
+			str[len] = 0;
+			return(len);
+		}
 	}
 
-	if (pchs == NULL)
-		min = 0;
-	else
-		min = pchs - str;
-
-	for (a = min; a < len; ++ a) {
-		if (str[a] == rightboundary) 
-			len = a - 1;
-	}
-
-	if (len != orglen)
-		str[len] = '\0';
-	if (pchs != NULL)
-	{
-		orglen = len - min;
-		memmove(str, pchs, orglen);
-		return orglen;
-	}
-	else
-		return len;
+	return (long)strlen(str);
 }
+
 
 char *myfgets(char *s, int size, FILE *stream) {
 	char *ret = fgets(s, size, stream);
