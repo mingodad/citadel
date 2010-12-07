@@ -472,11 +472,15 @@ static long parse_MimeHeaders(interesting_mime_headers *m,
 
 static int IsAsciiEncoding(interesting_mime_headers *m)
 {
+
 	if ((m->b[encoding].len != 0) &&
-	    (strcmp(m->b[encoding].Key, "binary") == 0))
-		return 0;
-	else 
+	    (strcasecmp(m->b[encoding].Key, "base64") == 0))
 		return 1;
+	if ((m->b[encoding].len != 0) &&
+	    (strcmp(m->b[encoding].Key, "quoted-printable") == 0))
+		return 1;
+
+	return 0;
 }
 
 static char *FindNextContent(char *ptr,
