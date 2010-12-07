@@ -145,12 +145,17 @@ static void mime_download(char *name,
 				      encoding,
 				      &decoded,
 				      &bytes_decoded);
-		if ((rc < 0) || (decoded == NULL)) {
+		if (rc < 0) {
 			printf("failed to decode content\n");
 			return;
 		}
-		rc = write(STDOUT_FILENO, content, length);
-		free(decoded);
+		if (rc == 0){
+			rc = write(STDOUT_FILENO, content, length);
+		}
+		else {
+			rc = write(STDOUT_FILENO, decoded, bytes_decoded);
+			free(decoded);
+		}
 	}
 }
 
