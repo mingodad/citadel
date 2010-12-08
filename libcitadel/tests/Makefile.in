@@ -14,7 +14,7 @@ top_builddir=`pwd`
 
 # End of configuration section
 
-TARGETS=stringbuf_test stringbuf_IO_test stringbuf_conversion_test hashlist_test mimeparser_test mime_xdg_lookup_test wildfire_test
+TARGETS=stringbuf_test stringbuf_IO_test stringbuf_conversion_test hashlist_test mimeparser_test mime_xdg_lookup_test wildfire_test stripallbut_test
 all: $(TARGETS)
 
 
@@ -71,6 +71,13 @@ wildfire_test:	$(LIBOBJS) wildfire_test.o
 	wildfire_test.o \
 	../.libs/libcitadel.a \
 	-o wildfire_test 
+
+
+stripallbut_test:	$(LIBOBJS) stripallbut_test.o 
+	$(CC) $(LDFLAGS) $(LIBOBJS) $(LIBS) \
+	stripallbut_test.o \
+	../.libs/libcitadel.a \
+	-o stripallbut_test 
 
 
 .c.o:
