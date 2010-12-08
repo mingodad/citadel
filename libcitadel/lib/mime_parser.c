@@ -536,8 +536,13 @@ static char *FindNextContent(char *ptr,
 			if (pptr < content_end)
 				ptr = pptr;
 		}
+		
+
 		next_boundary = NULL;
-		for (srch=ptr; srch<content_end; ++srch) {
+		for (srch=ptr; 
+		     (srch != NULL) && (srch < content_end); 
+		     srch = memchr(srch, '-',  content_end - srch)) 
+		{
 			if (!memcmp(srch, 
 				    m->b[startary].Key, 
 				    m->b[startary].len)) 
@@ -545,6 +550,8 @@ static char *FindNextContent(char *ptr,
 				next_boundary = srch;
 				srch = content_end;
 			}
+			else srch ++;
+
 		}
 
 	}
