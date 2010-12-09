@@ -538,8 +538,8 @@ static char *FindNextContent(char *ptr,
 		}
 		
 
-		next_boundary = NULL;
-		for (srch=ptr; 
+		srch = next_boundary = NULL;
+		for (srch = memchr(ptr, '-',  content_end - srch);
 		     (srch != NULL) && (srch < content_end); 
 		     srch = memchr(srch, '-',  content_end - srch)) 
 		{
@@ -620,9 +620,15 @@ static void recurseable_mime_parser(char *partnum,
 			ptr ++;
 		part_start = NULL;
 		do {
+			char *optr;
 
+			optr = ptr;
 			if (parse_MimeHeaders(SubMimeHeaders, &ptr, content_end) != 0)
 				break;
+			if ((ptr - optr > 2) && 
+			    (*(ptr - 2) == '\r'))
+				crlf_in_use = 1;
+			
 			part_start = ptr;
 			
 			next_boundary = FindNextContent(ptr,
