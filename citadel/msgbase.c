@@ -1460,7 +1460,7 @@ void output_preferred(char *name,
 		extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 		if (!strcasecmp(buf, cbtype)) {
 			/* Yeah!  Go!  W00t!! */
-			if (ma->dont_decode == 0)
+			if (ma->dont_decode == 0) 
 				rc = mime_decode_now (content, 
 						      length,
 						      encoding,
@@ -1492,7 +1492,7 @@ void output_preferred(char *name,
 			}
 			cprintf("X-Citadel-MSG4-Partnum: %s\n", partnum);
 			cprintf("\n");
-			client_write(content, length);
+			client_write(text_content, length);
 			if (add_newline) cprintf("\n");
 			if (decoded != NULL) free(decoded);
 			return;
