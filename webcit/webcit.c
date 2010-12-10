@@ -482,23 +482,22 @@ void seconds_since_last_gexp(void)
 int ReadPostData(void)
 {
 	int rc;
-	int body_start = 0;
+	int urlencoded_post = 0;
 	wcsession *WCC = WC;
 	StrBuf *content = NULL;
 	
+	urlencoded_post = (strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "application/x-www-form-urlencoded", 33) == 0) ;
+
 	content = NewStrBufPlain(NULL, WCC->Hdr->HR.ContentLength + 256);
 
-	StrBufPrintf(content, 
+	if (!urlencoded_post)
+	{
+		StrBufPrintf(content, 
 		     "Content-type: %s\n"
-		     "Content-length: %ld\n\n",
-		     ChrPtr(WCC->Hdr->HR.ContentType), 
+			     "Content-length: %ld\n\n",
+			     ChrPtr(WCC->Hdr->HR.ContentType), 
 			     WCC->Hdr->HR.ContentLength);
-/*
-  hprintf("Content-type: %s\n"
-  "Content-length: %d\n\n",
-  ContentType, ContentLength);
-*/
-	body_start = StrLength(content);
+	}
 
 	/** Read the entire input data at once. */
 	rc = client_read_to(WCC->Hdr, content, 
@@ -508,8 +507,7 @@ int ReadPostData(void)
 		return rc;
 		
 	
-	if (!strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "application/x-www-form-urlencoded", 33)) {
-		StrBufCutLeft(content, body_start);
+	if (urlencoded_post) {
 		ParseURLParams(content);
 	} else if (!strncasecmp(ChrPtr(WCC->Hdr->HR.ContentType), "multipart", 9)) {
 		char *Buf;
