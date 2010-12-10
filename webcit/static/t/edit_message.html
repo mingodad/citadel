@@ -163,7 +163,7 @@
 	function show_attachments_form() {
 		$('attachments_form').style.display = 'block';
 
-		p = 'template=attachments_pane&r=' + CtdlRandomString();
+		p = 'template=edit_message_attachments_pane&r=' + CtdlRandomString();
 		new Ajax.Updater(
 			'attachments_form',
 			'do_template',

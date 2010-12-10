@@ -1,0 +1,23 @@
+<div align="right">
+<a href="javascript:hide_attachments_form();">
+<?_("Close window")>&nbsp;<img src="static/closewindow.gif"></div>
+</a>
+<h2><img src="static/diskette_24x.gif">&nbsp;<?_("Attachments:")></h2>
+
+<ul>
+<li>FIXME this is teh not done
+<?ITERATE("MSG:ATTACHNAMES", ="edit_message_section_attach_select")>
+<li>FIXME <?_("Add")> <?_("Remove")>
+</ul>
+
+<iframe id="upload_target" name="upload_target" src="" style="width:100;height:100;border:4px solid #fff;">
+Missing iframe support?  Teh b0rwser will not work!!!1
+</iframe>
+
+<form name="upload_attachment_form" id="upload_attachment_form" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="upload_attachment" target="upload_target">
+<input type="hidden" name="nonce" value="<?NONCE>">
+
+<input type="hidden" name="submit_action" value="">
+<?_("Attach file:")>
+<input name="attachfile" id="attachfile" class="attachfile" size=40 type="file" onChange="document.upload_attachment_form.submit(); $('attachfile').value='';">
+</form>
