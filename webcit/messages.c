@@ -1072,47 +1072,17 @@ void post_message(void)
 		att->Data = WCC->upload;
 		WCC->upload = NULL;
 		WCC->upload_length = 0;
-		display_enter();
-		return;
+
+		/* and keep going, because we don't do attachments in two posts anymore */
 	}
 
 	if (!strcasecmp(bstr("submit_action"), "cancel")) {
 		sprintf(WCC->ImportantMessage, 
 			_("Cancelled.  Message was not posted."));
-	} else if (havebstr("attach_button")) {
-		display_enter();
-		return;
 	} else if (lbstr("postseq") == dont_post) {
 		sprintf(WCC->ImportantMessage, 
 			_("Automatically cancelled because you have already "
 			  "saved this message."));
-	} else if (havebstr("remove_attach_button")) {
-		/* now thats st00pit. need to find it by name. */
-		void *vAtt;
-		StrBuf *WhichAttachment;
-		HashPos *at;
-		long len;
-		const char *key;
-
-		WhichAttachment = NewStrBufDup(sbstr("which_attachment"));
-		StrBufUnescape(WhichAttachment, 0);
-		at = GetNewHashPos(WCC->attachments, 0);
-		do {
-			GetHashPos(WCC->attachments, at, &len, &key, &vAtt);
-		
-			att = (wc_mime_attachment*) vAtt;
-			if ((att != NULL) && 
-			    (strcmp(ChrPtr(WhichAttachment), 
-				    ChrPtr(att->FileName)   ) == 0))
-			{
-				DeleteEntryFromHash(WCC->attachments, at);
-				break;
-			}
-		}
-		while (NextHashPos(WCC->attachments, at));
-		FreeStrBuf(&WhichAttachment);
-		display_enter();
-		return;
 	} else {
 		const char CMD[] = "ENT0 1|%s|%d|4|%s|%s||%s|%s|%s|%s|%s";
 		StrBuf *Recp = NULL; 
@@ -1681,8 +1651,6 @@ void MimeLoadData(wc_mime_attachment *Mime)
 }
 
 
-
-
 void view_mimepart(void) {
 	mimepart(0);
 }
@@ -1716,6 +1684,7 @@ void download_postpart(void) {
 	FreeStrBuf(&filename);
 	FreeStrBuf(&partnum);
 }
+
 
 void h_readnew(void) { readloop(readnew, eUseDefault);}
 void h_readold(void) { readloop(readold, eUseDefault);}

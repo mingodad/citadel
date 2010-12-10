@@ -2,6 +2,14 @@
 <?=("important_msg")><?%("COND:LOGGEDIN", 1, 1, 1, "", ="paging")>
 <?ROOMBANNER>
 <div id="content">
+
+<div id="attachments_form">
+    <div id="loading">
+      <p><img src="static/throbber.gif" alt=""></p>
+      <p><?_("Loading")></p>
+    </div>
+</div>
+
 <div class="entmsg" id="entmsg"><form name="enterform" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="post">
 <input type="hidden" name="postseq" value="<?DATE:NOW:NO>">
 <input type="hidden" name="return_to" value="<?BSTR("return_to")>">
@@ -66,19 +74,8 @@
     <input type="text" name="subject" id="subject_id" value="<?BSTR("subject", "H")>" size=45 maxlength=70>
   </td>
 </tr>
-
-</td></tr></table>
-
-<div class="attachment buttons">
-<img src="static/diskette_24x.gif" class="imgedit" ><?_("Attachments:")>
-<select name="which_attachment" size=1>
-<?ITERATE("MSG:ATTACHNAMES", ="edit_message_section_attach_select")>
-</select>
-&nbsp;&nbsp;&nbsp;<?_("Attach file:")>
-<input name="attachfile" class="attachfile" size=16 type="file">
-&nbsp;&nbsp;<input type="submit" name="attach_button" value="<?_("Add")>">
-&nbsp;&nbsp;<input type="submit" name="remove_attach_button" value="<?_("Remove")>">
-</div>
+</td></tr>
+</table>
 
 <input type="hidden" name="sig_inserted" value="yes">
 
@@ -123,6 +120,14 @@
 	</a>
 </li>
 <li>
+	<a href="javascript:show_attachments_form();">
+		<img src="static/diskette_24x.gif" alt="" width="24" height="24">
+		<span class="navbar_link">
+		<?_("Attach")>
+		</span>
+	</a>
+</li>
+<li>
 	<a href="javascript:submit_post('cancel');">
 		<img src="static/closewindow.gif" alt="">
 		<span class="navbar_link">
@@ -139,8 +144,8 @@
 	</a>
 </li><?!("X", 1)>
 </div>
-
 <script type="text/javascript">	
+
 	$("navbar").innerHTML = $("submit-o-matic").innerHTML;
 	<?!("COND:BSTR", 1, "__RCPTREQUIRED")>
 		activate_entmsg_autocompleters();
@@ -150,8 +155,27 @@
 		document.enterform.submit_action.value = which_action;
 		document.enterform.submit();
 	}
-</script>
 
+	function hide_attachments_form() {
+		$('attachments_form').style.display = 'none';
+	}
+
+	function show_attachments_form() {
+		$('attachments_form').style.display = 'block';
+
+		p = 'template=attachments_pane&r=' + CtdlRandomString();
+		new Ajax.Updater(
+			'attachments_form',
+			'do_template',
+			{
+				method: 'get',
+				parameters: p,
+				evalScripts: true
+			}
+		);
+	}
+
+</script>
 </div>
 </div>
 </div>

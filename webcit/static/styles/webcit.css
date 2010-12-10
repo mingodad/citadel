@@ -1262,3 +1262,29 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	font-size: 100%;
 	font-style: italic;
 }
+
+#attachments_form {
+	display:none;
+	position:absolute;
+	top:5%;
+	bottom:5%;
+	right:5%;
+	left:5%;
+	z-index: 10;
+	padding: 5px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #022750;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	background: #FFFFFF;
+	background: -webkit-gradient(linear, 0 0, 0 bottom, from(#FFFFFF), to(#DDDDEE));
+	background: -moz-linear-gradient(#FFFFFF, #DDDDEE);
+	background: linear-gradient(#FFFFFF, #DDDDEE);
+	-pie-background: linear-gradient(#FFFFFF, #DDDDEE);
+	-webkit-box-shadow: #666 0px 2px 3px;
+	-moz-box-shadow: #666 0px 2px 3px;
+	box-shadow: #666 0px 2px 3px;
+	behavior: url(/static/styles/PIE.htc);
+}
