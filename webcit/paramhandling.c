@@ -308,7 +308,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	long keylen;
 
 #ifdef DEBUG_URLSTRINGS
-	lprintf(9, "upload_handler() name=%s, type=%s, len=%d\n", name, cbtype, length);
+	lprintf(9, "\033[31mupload_handler() name=%s, type=%s, len=%d\033[0m\n", name, cbtype, length);
 #endif
 	if (WCC->Hdr->urlstrings == NULL)
 		WCC->Hdr->urlstrings = NewHash(1, NULL);
@@ -340,13 +340,15 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 #endif
 	}
 
-	/** Uploaded files */
+	/* Uploaded files */
 	if ( (length > 0) && (!IsEmptyStr(cbtype)) ) {
 		WCC->upload = NewStrBufPlain(content, length);
 		WCC->upload_length = length;
 		WCC->upload_filename = NewStrBufPlain(filename, -1);
-		safestrncpy(WCC->upload_content_type, cbtype,
-			    sizeof(WC->upload_content_type));
+		safestrncpy(WCC->upload_content_type, cbtype, sizeof(WC->upload_content_type));
+#ifdef DEBUG_URLSTRINGS
+		lprintf(9, "File: <%s> len: [%ld]\n", filename, length);
+#endif
 		
 	}
 
