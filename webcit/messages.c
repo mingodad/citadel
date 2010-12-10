@@ -1005,7 +1005,6 @@ void post_message(void)
 	char buf[1024];
 	StrBuf *encoded_subject = NULL;
 	static long dont_post = (-1L);
-	wc_mime_attachment  *att;
 	int is_anonymous = 0;
 	const StrBuf *display_name = NULL;
 	wcsession *WCC = WC;
@@ -1021,59 +1020,6 @@ void post_message(void)
 			display_name = NULL;
 			is_anonymous = 1;
 		}
-	}
-
-	if (WCC->upload_length > 0) {
-		const char *pch;
-		int n;
-		const char *newn;
-		long newnlen;
-		void *v;
-
-		/* There's an attachment.  Save it to this struct... */
-		lprintf(9, "Client is uploading %d bytes\n", WCC->upload_length);
-		att = malloc(sizeof(wc_mime_attachment));
-		memset(att, 0, sizeof(wc_mime_attachment ));
-		att->length = WCC->upload_length;
-		att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
-		att->FileName = NewStrBufDup(WCC->upload_filename);
-		
-		if (WCC->attachments == NULL) {
-			WCC->attachments = NewHash(1, Flathash);
-		}
-
-		/* And add it to the list. */
-		n = 0;
-		if ((GetCount(WCC->attachments) > 0) && 
-		    GetHashAt(WCC->attachments, 
-			      GetCount(WCC->attachments) -1, 
-			      &newnlen, &newn, &v))
-		    n = *((int*) newn) + 1;
-		Put(WCC->attachments, IKEY(n), att, DestroyMime);
-
-		/*
-		 * Mozilla sends a simple filename, which is what we want,
-		 * but Satan's Browser sends an entire pathname.  Reduce
-		 * the path to just a filename if we need to.
-		 */
-		pch = strrchr(ChrPtr(att->FileName), '/');
-		if (pch != NULL) {
-			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName) + 1);
-		}
-		pch = strrchr(ChrPtr(att->FileName), '\\');
-		if (pch != NULL) {
-			StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName) + 1);
-		}
-
-		/*
-		 * Transfer control of this memory from the upload struct
-		 * to the attachment struct.
-		 */
-		att->Data = WCC->upload;
-		WCC->upload = NULL;
-		WCC->upload_length = 0;
-
-		/* and keep going, because we don't do attachments in two posts anymore */
 	}
 
 	if (!strcasecmp(bstr("submit_action"), "cancel")) {
@@ -1256,6 +1202,71 @@ void post_message(void)
 	}
 }
 
+
+/*
+ * Client is uploading an attachment
+ */
+void upload_attachment(void) {
+	wcsession *WCC = WC;
+	const char *pch;
+	int n;
+	const char *newn;
+	long newnlen;
+	void *v;
+	wc_mime_attachment *att;
+
+	lprintf(9, "upload_attachment()\n");
+	wc_printf("upload_attachment()<br>\n");
+
+	if (WCC->upload_length <= 0) {
+		lprintf(9, "ERROR no attachment was uploaded\n");
+		wc_printf("ERROR no attachment was uploaded<br>\n");
+		return;
+	}
+
+	lprintf(9, "Client is uploading %d bytes\n", WCC->upload_length);
+	wc_printf("Client is uploading %d bytes<br>\n", WCC->upload_length);
+	att = malloc(sizeof(wc_mime_attachment));
+	memset(att, 0, sizeof(wc_mime_attachment ));
+	att->length = WCC->upload_length;
+	att->ContentType = NewStrBufPlain(WCC->upload_content_type, -1);
+	att->FileName = NewStrBufDup(WCC->upload_filename);
+	
+	if (WCC->attachments == NULL) {
+		WCC->attachments = NewHash(1, Flathash);
+	}
+
+	/* And add it to the list. */
+	n = 0;
+	if ((GetCount(WCC->attachments) > 0) && 
+	    GetHashAt(WCC->attachments, 
+		      GetCount(WCC->attachments) -1, 
+		      &newnlen, &newn, &v))
+	    n = *((int*) newn) + 1;
+	Put(WCC->attachments, IKEY(n), att, DestroyMime);
+
+	/*
+	 * Mozilla sends a simple filename, which is what we want,
+	 * but Satan's Browser sends an entire pathname.  Reduce
+	 * the path to just a filename if we need to.
+	 */
+	pch = strrchr(ChrPtr(att->FileName), '/');
+	if (pch != NULL) {
+		StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName) + 1);
+	}
+	pch = strrchr(ChrPtr(att->FileName), '\\');
+	if (pch != NULL) {
+		StrBufCutLeft(att->FileName, pch - ChrPtr(att->FileName) + 1);
+	}
+
+	/*
+	 * Transfer control of this memory from the upload struct
+	 * to the attachment struct.
+	 */
+	att->Data = WCC->upload;
+	WCC->upload = NULL;
+	WCC->upload_length = 0;
+}
 
 
 
@@ -1787,6 +1798,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("mimepart_download"), "", 0, download_mimepart, NEED_URL);
 	WebcitAddUrlHandler(HKEY("postpart"), "", 0, view_postpart, NEED_URL|PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("postpart_download"), "", 0, download_postpart, NEED_URL|PROHIBIT_STARTPAGE);
+	WebcitAddUrlHandler(HKEY("upload_attachment"), "", 0, upload_attachment, AJAX);
 
 	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
