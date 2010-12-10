@@ -636,8 +636,11 @@ static void recurseable_mime_parser(char *partnum,
 							SubMimeHeaders,
 							m);
 			if ((next_boundary != NULL) && 
-			    (next_boundary - part_start < 3))
+			    (next_boundary - part_start < 3)) {
+				FlushInterestingMimes(SubMimeHeaders);
+
 				continue;
+			}
 
 			if ( (part_start != NULL) && (next_boundary != NULL) ) {
 				part_end = next_boundary;
