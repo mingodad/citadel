@@ -1,6 +1,5 @@
 <li>
-	<?MAIL:MIME:FILENAME("U")>&nbsp;
-	<?MAIL:MIME:FILENAME("X")> (%<?MAIL:MIME:CONTENTTYPE>, <?MAIL:MIME:LENGTH>Bytes)
-	&nbsp;&nbsp;<input type="submit" name="remove_attach_button" value="<?_("Remove")>">
+	<?MAIL:MIME:FILENAME("X")> (<?MAIL:MIME:CONTENTTYPE>, <?MAIL:MIME:LENGTH> bytes)
+	&nbsp;
+	<a href="delete_attachment?which_del=<?MAIL:MIME:FILENAME("U")>"><?_("Remove")></a>
 </li>
-
