@@ -15,7 +15,9 @@
 <form name="upload_attachment_form" id="upload_attachment_form" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="upload_attachment" target="upload_target">
 <input type="hidden" name="nonce" value="<?NONCE>">
 
+<div id="gonna_upload_this">
 <input type="hidden" name="submit_action" value="">
 <?_("Attach file:")>
-<input name="attachfile" id="attachfile" class="attachfile" size=40 type="file" onChange="document.upload_attachment_form.submit(); $('attachfile').value=''; show_attachments_form();">
+<input name="attachfile" id="attachfile" class="attachfile" size=40 type="file" onChange="$('gonna_upload_this').style.display='none'; document.upload_attachment_form.submit(); $('attachfile').value=''; show_attachments_form();">
+</div>
 </form>
