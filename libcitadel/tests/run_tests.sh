@@ -48,6 +48,8 @@ cat testdata/emailaddresses/email_recipientstrings.txt |$RUN_TEST ./stringbuf_co
 echo running general stringbuffer tests
 $RUN_TEST ./stringbuf_test
 
+echo running string tools tests
+$RUN_TEST ./stripallbut_test
 
 echo running mimeparser tests
 

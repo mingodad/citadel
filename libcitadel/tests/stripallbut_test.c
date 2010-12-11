@@ -1,3 +1,44 @@
+
+/*
+ *  CUnit - A Unit testing framework library for C.
+ *  Copyright (C) 2001  Anil Kumar
+ *  
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Library General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Library General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Library General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+    
+#ifndef CUNIT_AUTOMATED_H_SEEN
+#define CUNIT_AUTOMATED_H_SEEN
+
+#include <CUnit/CUnit.h>
+#include <CUnit/Basic.h>
+#include <CUnit/TestDB.h>
+
+
+CU_EXPORT void         CU_automated_run_tests(void);
+CU_EXPORT CU_ErrorCode CU_list_tests_to_file(void);
+CU_EXPORT void         CU_set_output_filename(const char* szFilenameRoot);
+
+
+#endif  /*  CUNIT_AUTOMATED_H_SEEN  */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -7,7 +48,7 @@
 
 #include "../lib/libcitadel.h"
 
-main() {
+static void TestStripAllBut(void) {
 	int i;
 	long l;
 
@@ -59,13 +100,42 @@ main() {
 	char foo[128];
 
 	for (i=0; i<(sizeof(teststrings) / sizeof (char *)); ++i) {
-		printf("Testing stripallbut()\n");
 		strcpy(foo, teststrings[i]);
 		l = stripallbut(foo, '<', '>');
 
-		assert(!strcmp(foo, strippedstrings[i]));
-		assert(strlen(foo) == strippedlens[i]);
+		CU_ASSERT_STRING_EQUAL(foo, strippedstrings[i]);
+		CU_ASSERT_EQUAL(strlen(foo), strippedlens[i]);
 	}
+}
 
-	exit(0);
+
+
+static void AddStringToolsTests(void)
+{
+	CU_pSuite pGroup = NULL;
+	CU_pTest pTest = NULL;
+
+	pGroup = CU_add_suite("TestStringTools", NULL, NULL);
+	pTest = CU_add_test(pGroup, "testStripAllBut", TestStripAllBut);
+}
+
+int main(int argc, char* argv[])
+{
+	setvbuf(stdout, NULL, _IONBF, 0);
+
+	StartLibCitadel(8);
+
+	CU_set_output_filename("TestAutomated");
+	if (CU_initialize_registry()) {
+		printf("\nInitialize of test Registry failed.");
+		return 1;
+	}
+	AddStringToolsTests();
+	
+	printf("\nTests completed with return value %d.\n", CU_basic_run_tests());
+    
+		
+	CU_cleanup_registry();
+	
+	return 0;
 }
