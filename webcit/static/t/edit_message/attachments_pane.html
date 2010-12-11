@@ -5,13 +5,11 @@
 <h2><img src="static/diskette_24x.gif">&nbsp;<?_("Attachments:")></h2>
 
 <ul>
-<li>FIXME this is teh not done
 <?ITERATE("MSG:ATTACHNAMES", ="edit_message_section_attach_select")>
-<li>FIXME <?_("Add")> <?_("Remove")>
 </ul>
 
-<iframe id="upload_target" name="upload_target" src="" style="width:100;height:100;border:4px solid #fff;">
-Missing iframe support?  Teh b0rwser will not work!!!1
+<iframe id="upload_target" name="upload_target" src="" style="width:0;height:0;border:0">
+(Hidden iFrame for uploads because ajax cannot handle files)
 </iframe>
 
 <form name="upload_attachment_form" id="upload_attachment_form" accept-charset="UTF-8" enctype="multipart/form-data" method="POST" action="upload_attachment" target="upload_target">
