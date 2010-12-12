@@ -543,7 +543,7 @@ static char *FindNextContent(char *ptr,
 		
 
 		srch = next_boundary = NULL;
-		for (srch = memchr(ptr, '-',  content_end - srch);
+		for (srch = memchr(ptr, '-',  content_end - ptr);
 		     (srch != NULL) && (srch < content_end); 
 		     srch = memchr(srch, '-',  content_end - srch)) 
 		{
