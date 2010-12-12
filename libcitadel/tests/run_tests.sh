@@ -1,7 +1,13 @@
 #!/bin/bash
 
-RUN_TEST=
-
+case $1 in
+    valgrind)
+	RUN_TEST='valgrind --log-file=/tmp/run_tests_valgrind.%p --show-reachable=yes --leak-check=full'
+	;;
+    default)
+	RUN_TEST=
+	;;
+esac
 #./stringbuf_IO_test -p 6666 -i 0.0.0.0 -s 2 -l 50
 
 
