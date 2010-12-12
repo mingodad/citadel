@@ -159,6 +159,7 @@
 
 	function hide_attachments_form() {
 		$('attachments_form').style.display = 'none';
+		update_attachment_count();
 	}
 
 	function show_attachments_form() {
@@ -172,6 +173,18 @@
 				method: 'get',
 				parameters: p,
 				evalScripts: true
+			}
+		);
+	}
+
+	function update_attachment_count() {
+		p = 'r=' + CtdlRandomString();
+		new Ajax.Updater(
+			'num_attachments',
+			'show_num_attachments',
+			{
+				method: 'get',
+				parameters: p
 			}
 		);
 	}

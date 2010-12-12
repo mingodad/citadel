@@ -1697,6 +1697,12 @@ void download_postpart(void) {
 }
 
 
+
+void show_num_attachments(void) {
+	wc_printf("%d", GetCount(WC->attachments));
+}
+
+
 void h_readnew(void) { readloop(readnew, eUseDefault);}
 void h_readold(void) { readloop(readold, eUseDefault);}
 void h_readfwd(void) { readloop(readfwd, eUseDefault);}
@@ -1799,6 +1805,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("postpart"), "", 0, view_postpart, NEED_URL|PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("postpart_download"), "", 0, download_postpart, NEED_URL|PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("upload_attachment"), "", 0, upload_attachment, AJAX);
+	WebcitAddUrlHandler(HKEY("show_num_attachments"), "", 0, show_num_attachments, AJAX);
 
 	/* json */
 	WebcitAddUrlHandler(HKEY("roommsgs"), "", 0, jsonMessageList,0);
