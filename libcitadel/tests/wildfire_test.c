@@ -69,8 +69,9 @@ static void CreateWildfireSampleMessage(StrBuf *OutBuf)
 	WildFireSerializePayload(Json, Header, &n, NULL);
 	StrBufAppendBuf(OutBuf, Header, 0);
 
-	FlushStrBuf(Json);
-	FlushStrBuf(Header);
+	FreeStrBuf(&Buf);
+	FreeStrBuf(&Json);
+	FreeStrBuf(&Header);
 
 }
 
@@ -79,7 +80,7 @@ int main(int argc, char* argv[])
 	StrBuf *WFBuf;
 	StrBuf *OutBuf;
 	StrBuf *Info;
-	int nWildfireHeaders;
+	int nWildfireHeaders = 0;
 
 	StartLibCitadel(8);
 	printf("%s == %d?\n", libcitadel_version_string(), libcitadel_version_number());
