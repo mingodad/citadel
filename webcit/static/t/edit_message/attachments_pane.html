@@ -18,6 +18,11 @@
 <div id="gonna_upload_this">
 <input type="hidden" name="submit_action" value="">
 <?_("Attach file:")>
-<input name="attachfile" id="attachfile" class="attachfile" size=40 type="file" onChange="$('gonna_upload_this').style.display='none'; document.upload_attachment_form.submit(); $('attachfile').value=''; show_attachments_form();">
+<input name="attachfile" id="attachfile" class="attachfile" size=40 type="file" onChange="$('gonna_upload_this').style.display='none'; $('upload_throbber').style.display='block'; document.upload_attachment_form.submit(); $('attachfile').value=''; show_attachments_form();">
 </div>
+
+<div id="upload_throbber" style="display:none">
+<?_("Upload")>&nbsp;<img src="static/throbber.gif" border="0">
+</div>
+
 </form>
