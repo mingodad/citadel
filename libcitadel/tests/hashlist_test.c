@@ -111,6 +111,7 @@ static void TestHashlistAddDelete (void)
 
 	printf("Remove first\n");
 	DeleteEntryFromHash(H, at);
+	DeleteHashPos(&at);
 
 	ValidateBackAndForth(H);
 
@@ -139,7 +140,7 @@ static void TestHashlistAddDelete (void)
 
 	ValidateBackAndForth(H);
 
-
+	DeleteHashPos(&at);
 	DeleteHash(&H);
 }
 
