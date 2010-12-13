@@ -1269,6 +1269,41 @@ void upload_attachment(void) {
 }
 
 
+/*
+ * Remove an attachment from the message currently being composed.
+ *
+ * Currently we identify the attachment to be removed by its filename.
+ * There is probably a better way to do this.
+ */
+void remove_attachment(void) {
+	wcsession *WCC = WC;
+	wc_mime_attachment *att;
+	void *vAtt;
+	StrBuf *WhichAttachment;
+	HashPos *at;
+	long len;
+	const char *key;
+
+	WhichAttachment = NewStrBufDup(sbstr("which_attachment"));
+	StrBufUnescape(WhichAttachment, 0);
+	at = GetNewHashPos(WCC->attachments, 0);
+	do {
+		GetHashPos(WCC->attachments, at, &len, &key, &vAtt);
+	
+		att = (wc_mime_attachment*) vAtt;
+		if ((att != NULL) && 
+		    (strcmp(ChrPtr(WhichAttachment), 
+			    ChrPtr(att->FileName)   ) == 0))
+		{
+			DeleteEntryFromHash(WCC->attachments, at);
+			break;
+		}
+	}
+	while (NextHashPos(WCC->attachments, at));
+	FreeStrBuf(&WhichAttachment);
+	wc_printf("remove_attachment() completed\n");
+}
+
 
 /*
  * display the message entry screen
@@ -1805,6 +1840,7 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("postpart"), "", 0, view_postpart, NEED_URL|PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("postpart_download"), "", 0, download_postpart, NEED_URL|PROHIBIT_STARTPAGE);
 	WebcitAddUrlHandler(HKEY("upload_attachment"), "", 0, upload_attachment, AJAX);
+	WebcitAddUrlHandler(HKEY("remove_attachment"), "", 0, remove_attachment, AJAX);
 	WebcitAddUrlHandler(HKEY("show_num_attachments"), "", 0, show_num_attachments, AJAX);
 
 	/* json */
