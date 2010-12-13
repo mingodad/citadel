@@ -1268,7 +1268,10 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* If we reach this point, the server is expecting data.*/
-	sock_write(&sock, msgtext, msg_size);
+	sock_write_timeout(&sock, 
+			   msgtext, 
+			   msg_size, 
+			   (msg_size / 128) + 50);
 	if (msgtext[msg_size-1] != 10) {
 		CtdlLogPrintf(CTDL_WARNING, "Possible problem: message did not "
 			"correctly terminate. (expecting 0x10, got 0x%02x)\n",

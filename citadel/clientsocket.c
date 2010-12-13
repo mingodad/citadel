@@ -231,7 +231,9 @@ INLINE int sock_read(int *sock, char *buf, int bytes,
  * sock_write() - send binary to server.
  * Returns the number of bytes written, or -1 for error.
  */
-int sock_write(int *sock, const char *buf, int nbytes)
+int sock_write(int *sock, const char *buf, int nbytes) 
+{ return sock_write_timeout(sock, buf, nbytes, 50); }
+int sock_write_timeout(int *sock, const char *buf, int nbytes, int timeout)
 {
 	int nSuccessLess = 0;
 	int bytes_written = 0;
@@ -239,7 +241,6 @@ int sock_write(int *sock, const char *buf, int nbytes)
 	fd_set rfds;
         int fdflags;
 	int IsNonBlock;
-	int timeout = 50;
 	struct timeval tv;
 	int selectresolution = 100;
 
