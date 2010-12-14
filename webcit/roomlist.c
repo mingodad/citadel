@@ -187,6 +187,7 @@ void FlushFolder(folder *room)
 	FreeStrBuf(&room->Directory);
 	FreeStrBuf(&room->RoomAide);
 	FreeStrBuf(&room->XInfoText);
+	room->XHaveInfoTextLoaded = 0;
 
 	FreeStrBuf(&room->name);
 

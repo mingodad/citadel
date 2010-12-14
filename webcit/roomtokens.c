@@ -407,6 +407,7 @@ void tmplput_ThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.Order);
 }
+
 int ConditionalThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -420,6 +421,7 @@ int ConditionalThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 	CheckThis = GetTemplateTokenNumber(Target, TP, 2, 0);
 	return CheckThis == WCC->CurRoom.Order;
 }
+
 void tmplput_ROOM_LISTORDER(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
@@ -455,13 +457,24 @@ int ConditionalThisRoomXHaveInfoText(StrBuf *Target, WCTemplputParams *TP)
 void tmplput_ThisRoomInfoText(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
+	long nchars = 0;
 
 	LoadXRoomInfoText();
 
-	StrBufAppendTemplate(Target, TP, WCC->CurRoom.XAPass, 1);
+	nchars = GetTemplateTokenNumber(Target, TP, 0, 0);
+	if (!nchars) {
+		/* the whole thing */
+		StrBufAppendTemplate(Target, TP, WCC->CurRoom.XInfoText, 1);
+	}
+	else {
+		/* only a certain number of characters */
+		StrBuf *SubBuf = NewStrBuf();
+		StrBufSub(SubBuf, WCC->CurRoom.XInfoText, 0, nchars);
+		StrBufAppendBufPlain(SubBuf, HKEY("..."), 0);
+		StrBufAppendTemplate(Target, TP, SubBuf, 1);
+		FreeStrBuf(&SubBuf);
+	}
 }
-
-
 
 
 

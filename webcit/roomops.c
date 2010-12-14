@@ -568,8 +568,9 @@ void LoadXRoomInfoText(void)
 	StrBuf *Buf;
 	int Done = 0;
 	
-	if (WCC->CurRoom.XHaveInfoTextLoaded)
+	if (WCC->CurRoom.XHaveInfoTextLoaded) {
 		return;
+	}
 
 	WCC->CurRoom.XHaveInfoTextLoaded = 1;
 	Buf = NewStrBuf();
@@ -589,7 +590,7 @@ void LoadXRoomInfoText(void)
 		}
 	}
 
-	FreeStrBuf (&Buf);
+	FreeStrBuf(&Buf);
 }
 
 
