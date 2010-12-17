@@ -210,6 +210,8 @@ void mime_decode(char *partnum,
 		strcpy(encoding, "");
 	if (!strcasecmp(encoding, "binary"))
 		strcpy(encoding, "");
+	if (!strcasecmp(encoding, "ISO-8859-1"))
+		strcpy(encoding, "");
 
 	/* If this part is not encoded, send as-is */
 	if ( (strlen(encoding) == 0) || (dont_decode)) {
