@@ -12,7 +12,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -234,7 +233,6 @@ void OpenCmdResult(char *filename, const char *mime_type)
 	long filesize;
 
 	fstat(fileno(CC->download_fp), &statbuf);
-	CC->download_fp_total = statbuf.st_size;
 	filesize = (long) statbuf.st_size;
 	modtime = (time_t) statbuf.st_mtime;
 
@@ -653,22 +651,20 @@ void cmd_read(char *cmdbuf)
 		return;
 	}
 
-	buf = mmap(NULL, 
-		   CC->download_fp_total, 
-		   PROT_READ, 
-		   MAP_PRIVATE,
-		   fileno(CC->download_fp), 
-		   0);
-	
-	actual_bytes = CC->download_fp_total - start_pos;
-	if ((actual_bytes > 0) && (buf != NULL)) {
+	if (bytes > 100000) bytes = 100000;
+	buf = malloc(bytes + 1);
+
+	fseek(CC->download_fp, start_pos, 0);
+
+	actual_bytes = fread(buf, 1, bytes, CC->download_fp);
+	if (actual_bytes > 0) {
 		cprintf("%d %d\n", BINARY_FOLLOWS, (int)actual_bytes);
-		client_write(buf + start_pos, actual_bytes);
+		client_write(buf, bytes);
 	}
 	else {
 		cprintf("%d %s\n", ERROR, strerror(errno));
 	}
-	munmap(buf, CC->download_fp_total);
+	free(buf);
 }
 
 
@@ -754,7 +750,6 @@ void cmd_ndop(char *cmdbuf)
 	CC->dl_is_net = 1;
 
 	stat(pathname, &statbuf);
-	CC->download_fp_total = statbuf.st_size;
 	cprintf("%d %ld\n", CIT_OK, (long)statbuf.st_size);
 }
 
