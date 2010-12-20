@@ -1923,13 +1923,12 @@ void network_consolidate_spoolout(void) {
  * receive network spool from the remote system
  */
 void receive_spool(int *sock, char *remote_nodename) {
-	long download_len = 0L;
-	long bytes_received = 0L;
+	int download_len = 0L;
+	int bytes_received = 0L;
 	char buf[SIZ];
-	static char pbuf[IGNET_PACKET_SIZE];
 	char tempfilename[PATH_MAX];
 	char permfilename[PATH_MAX];
-	long plen;
+	int plen;
 	FILE *fp;
 
 	snprintf(tempfilename, 
@@ -1956,59 +1955,66 @@ void receive_spool(int *sock, char *remote_nodename) {
 	if (buf[0] != '2') {
 		return;
 	}
-	download_len = extract_long(&buf[4], 0);
 
-	if (download_len>0) {
-		bytes_received = 0L;
-		fp = fopen(tempfilename, "w");
-		if (fp == NULL) {
-			CtdlLogPrintf(CTDL_CRIT, "cannot open download file locally: %s\n",
-				      strerror(errno));
+	download_len = extract_long(&buf[4], 0);
+	if (download_len <= 0) {
+		return;
+	}
+
+	bytes_received = 0L;
+	fp = fopen(tempfilename, "w");
+	if (fp == NULL) {
+		CtdlLogPrintf(CTDL_CRIT, "Cannot create %s: %s\n", tempfilename, strerror(errno));
+		return;
+	}
+
+	CtdlLogPrintf(CTDL_DEBUG, "Expecting to transfer %d bytes\n", download_len);
+	while (bytes_received < download_len) {
+		/*
+		 * If shutting down we can exit here and unlink the temp file.
+		 * this shouldn't loose us any messages.
+		 */
+		if (CtdlThreadCheckStop())
+		{
+			fclose(fp);
+			unlink(tempfilename);
 			return;
 		}
-
-		CtdlLogPrintf(CTDL_DEBUG, "For this download we are expecting %d bytes\n", download_len);
-		while (bytes_received < download_len) {
-			/*
-			 * If shutting down we can exit here and unlink the temp file.
-			 * this shouldn't loose us any messages.
-			 */
-			if (CtdlThreadCheckStop())
-			{
-				fclose(fp);
-				unlink(tempfilename);
-				return;
-			}
-			snprintf(buf, sizeof buf, "READ %ld|%ld",
-				 bytes_received,
-				 ((download_len - bytes_received > IGNET_PACKET_SIZE)
-				  ? IGNET_PACKET_SIZE : (download_len - bytes_received)));
-			
-			if (sock_puts(sock, buf) < 0) {
-				fclose(fp);
-				unlink(tempfilename);
-				return;
-			}
-			if (sock_getln(sock, buf, sizeof buf) < 0) {
-				fclose(fp);
-				unlink(tempfilename);
-				return;
-			}
-			
-			if (buf[0] == '6') {
-				plen = extract_long(&buf[4], 0);
-				if (sock_read(sock, pbuf, plen, 1) < 0) {
-					fclose(fp);
-					unlink(tempfilename);
-					return;
-				}
-				fwrite((char *) pbuf, plen, 1, fp);
-				bytes_received = bytes_received + plen;
-			}
+		snprintf(buf, sizeof buf, "READ %d|%d",
+			 bytes_received,
+			 ((download_len - bytes_received > IGNET_PACKET_SIZE)
+			  ? IGNET_PACKET_SIZE : (download_len - bytes_received))
+		);
+		
+		if (sock_puts(sock, buf) < 0) {
+			fclose(fp);
+			unlink(tempfilename);
+			return;
 		}
-
-		fclose(fp);
+		if (sock_getln(sock, buf, sizeof buf) < 0) {
+			fclose(fp);
+			unlink(tempfilename);
+			return;
+		}
+		
+		if (buf[0] == '6') {
+			plen = extract_int(&buf[4], 0);
+			StrBuf *pbuf = NewStrBuf();
+			if (socket_read_blob(sock, pbuf, plen, CLIENT_TIMEOUT) != plen) {
+				CtdlLogPrintf(CTDL_INFO, "Short read from peer; aborting.\n");
+				fclose(fp);
+				unlink(tempfilename);
+				FreeStrBuf(&pbuf);
+				return;
+			}
+			fwrite(ChrPtr(pbuf), plen, 1, fp);
+			bytes_received += plen;
+			FreeStrBuf(&pbuf);
+		}
 	}
+
+	fclose(fp);
+
 	/* Last chance for shutdown exit */
 	if (CtdlThreadCheckStop())
 	{
@@ -2028,18 +2034,18 @@ void receive_spool(int *sock, char *remote_nodename) {
 		unlink(tempfilename);
 		return;
 	}
-	if (download_len > 0) {
-		CtdlLogPrintf(CTDL_NOTICE, "Received %ld octets from <%s>\n", download_len, remote_nodename);
-	}
+
 	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
-	
-	/* Now move the temp file to its permanent location.
+
+	/*
+	 * Now move the temp file to its permanent location.
 	 */
 	if (link(tempfilename, permfilename) != 0) {
 		CtdlLogPrintf(CTDL_ALERT, "Could not link %s to %s: %s\n",
 			tempfilename, permfilename, strerror(errno)
 		);
 	}
+	
 	unlink(tempfilename);
 }
 
