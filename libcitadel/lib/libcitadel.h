@@ -238,7 +238,31 @@ int StrBufTCP_read_buffered_line_fast(StrBuf *Line,
 				      int selectresolution, 
 				      const char **Error);
 
+
 int StrBufSipLine(StrBuf *LineBuf, StrBuf *Buf, const char **Ptr);
+
+typedef enum _eReadState {
+	eReadFail,
+	eReadSuccess,
+	eMustReadMore, 
+	eBufferNotEmpty
+} eReadState;
+
+typedef struct _file_buffer {
+	StrBuf *Buf;
+	const char *ReadWritePointer;
+	int fd;
+	int LineCompleted;
+	int nBlobBytesWanted;
+} IOBuffer;
+
+long StrBuf_read_one_chunk_callback (int fd, short event, IOBuffer *FB);
+int StrBuf_write_one_chunk_callback(int fd, short event, IOBuffer *FB);
+
+eReadState StrBufChunkSipLine(StrBuf *LineBuf, IOBuffer *FB);
+eReadState StrBufCheckBuffer(IOBuffer *FB);
+
+
 int StrBufReplaceToken(StrBuf *Buf, long where, long HowLong, const char *Repl, long ReplLen);
 int StrBufExtract_token(StrBuf *dest, const StrBuf *Source, int parmnum, char separator);
 int StrBufSub(StrBuf *dest, const StrBuf *Source, unsigned long Offset, size_t nChars);
