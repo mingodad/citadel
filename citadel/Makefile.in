@@ -86,7 +86,7 @@ SOURCES=utils/aidepost.c utils/stress.c utils/whobbs.c utils/citmail.c \
 	locate_host.c md5.c auth.c msgbase.c parsedate.c \
 	room_ops.c euidindex.c server_main.c snprintf.c ldap.c \
 	support.c sysdep.c user_ops.c journaling.c threads.c \
-	context.c
+	context.c event_client.c
 
 
 include Make_sources
@@ -147,7 +147,7 @@ Make_modules: modules_init.c
 
 modules_upgrade.c: modules_init.c
 
-SERV_OBJS = server_main.o utillib/citadel_dirs.o\
+SERV_OBJS = server_main.o utillib/citadel_dirs.o event_client.o \
 	user_ops.o citserver.o sysdep.o serv_extensions.o \
 	$(DATABASE:.c=.o) domain.o \
 	control.o config.o support.o room_ops.o \

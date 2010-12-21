@@ -59,7 +59,6 @@
 #  include <time.h>
 # endif
 #endif
-
 #include <sys/wait.h>
 #include <ctype.h>
 #include <string.h>
@@ -87,72 +86,192 @@
 #include "ctdl_module.h"
 
 #include "smtp_util.h"
-#ifndef EXPERIMENTAL_SMTP_EVENT_CLIENT
+#include "event_client.h"
+
+#ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
-
+int MsgCount = 0;
 /*****************************************************************************/
 /*               SMTP CLIENT (OUTBOUND PROCESSING) STUFF                     */
 /*****************************************************************************/
 
 
+typedef enum _eSMTP_C_States {
+	eConnect, 
+	eEHLO,
+	eHELO,
+	eSMTPAuth,
+	eFROM,
+	eRCPT,
+	eDATA,
+	eDATABody,
+	eDATATerminateBody,
+	eQUIT,
+	eMaxSMTPC
+} eSMTP_C_States;
 
+const long SMTP_C_ReadTimeouts[eMaxSMTPC] = {
+	90, /* Greeting... */
+	30, /* EHLO */
+	30, /* HELO */
+	30, /* Auth */
+	30, /* From */
+	30, /* RCPT */
+	30, /* DATA */
+	90, /* DATABody */
+	900, /* end of body... */
+	30  /* QUIT */
+};
 /*
- * smtp_try()
- *
- * Called by smtp_do_procmsg() to attempt delivery to one SMTP host
- *
- */
-void smtp_try(const char *key, const char *addr, int *status,
-	      char *dsn, size_t n, long msgnum, char *envelope_from)
-{
-	int sock = (-1);
-	char mxhosts[1024];
+const long SMTP_C_SendTimeouts[eMaxSMTPC] = {
+
+}; */
+const char *ReadErrors[eMaxSMTPC] = {
+	"Connection broken during SMTP conversation",
+	"Connection broken during SMTP EHLO",
+	"Connection broken during SMTP HELO",
+	"Connection broken during SMTP AUTH",
+	"Connection broken during SMTP MAIL FROM",
+	"Connection broken during SMTP RCPT",
+	"Connection broken during SMTP DATA",
+	"Connection broken during SMTP message transmit",
+	""/* quit reply, don't care. */
+};
+
+
+typedef struct _stmp_out_msg {
+	long n;
+	AsyncIO IO;
+
+	eSMTP_C_States State;
+
+	int SMTPstatus;
+
+	int i_mx;
+	int n_mx;
 	int num_mxhosts;
-	int mx;
-	int i;
-	char user[1024], node[1024], name[1024];
-	char buf[1024];
+	char mx_user[1024];
+	char mx_pass[1024];
+	char mx_host[1024];
+	char mx_port[1024];
+	char mxhosts[SIZ];
+
+	StrBuf *msgtext;
+	char *envelope_from;
+	char user[1024];
+	char node[1024];
+	char name[1024];
+	char addr[SIZ];
+	char dsn[1024];
+	char envelope_from_buf[1024];
 	char mailfrom[1024];
-	char mx_user[256];
-	char mx_pass[256];
-	char mx_host[256];
-	char mx_port[256];
-	int lp, rp;
-	char *msgtext;
-	const char *ptr;
-	size_t msg_size;
-	int scan_done;
+} SmtpOutMsg;
+
+eNextState SMTP_C_DispatchReadDone(void *Data);
+eNextState SMTP_C_DispatchWriteDone(void *Data);
+
+
+typedef eNextState (*SMTPReadHandler)(SmtpOutMsg *Msg);
+typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
+
+
+eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
+{
+	eReadState Finished = eBufferNotEmpty; 
+
+	while (Finished == eBufferNotEmpty) {
+		Finished = StrBufChunkSipLine(IO->IOBuf, &IO->RecvBuf);
+		
+		switch (Finished) {
+		case eMustReadMore: /// read new from socket... 
+			return Finished;
+			break;
+		case eBufferNotEmpty: /* shouldn't happen... */
+		case eReadSuccess: /// done for now...
+			if (StrLength(IO->IOBuf) < 4)
+				continue;
+			if (ChrPtr(IO->IOBuf)[3] == '-')
+				Finished = eBufferNotEmpty;
+			else 
+				return Finished;
+			break;
+		case eReadFail: /// WHUT?
+			///todo: shut down! 
+			break;
+		}
+	}
+	return Finished;
+}
+
+
+
+
+/**
+ * this one has to have the context for loading the message via the redirect buffer...
+ */
+SmtpOutMsg *smtp_load_msg(long msgnum, const char *addr, char *envelope_from)
+{
 	CitContext *CCC=CC;
+	SmtpOutMsg *SendMsg;
 	
+	SendMsg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
+
+	memset(SendMsg, 0, sizeof(SmtpOutMsg));
+	SendMsg->IO.sock = (-1);
 	
-	/* Parse out the host portion of the recipient address */
-	process_rfc822_addr(addr, user, node, name);
-
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Attempting delivery to <%s> @ <%s> (%s)\n",
-		user, node, name);
-
+	SendMsg->n = MsgCount++;
 	/* Load the message out of the database */
 	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
 	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, (ESC_DOT|SUPPRESS_ENV_TO) );
-	msg_size = StrLength(CC->redirect_buffer);
-	msgtext = SmashStrBuf(&CC->redirect_buffer);
+	SendMsg->msgtext = CCC->redirect_buffer;
+	CCC->redirect_buffer = NULL;
+	if ((StrLength(SendMsg->msgtext) > 0) && 
+	    ChrPtr(SendMsg->msgtext)[StrLength(SendMsg->msgtext) - 1] != '\n') {
+		CtdlLogPrintf(CTDL_WARNING, 
+			      "SMTP client[%ld]: Possible problem: message did not "
+			      "correctly terminate. (expecting 0x10, got 0x%02x)\n",
+			      SendMsg->n,
+			      ChrPtr(SendMsg->msgtext)[StrLength(SendMsg->msgtext) - 1] );
+		StrBufAppendBufPlain(SendMsg->msgtext, HKEY("\r\n"), 0);
+	}
 
+	safestrncpy(SendMsg->addr, addr, SIZ);
+	safestrncpy(SendMsg->envelope_from_buf, envelope_from, 1024);
+
+	return SendMsg;
+}
+
+
+int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
+{
+	const char *ptr;
+	char buf[1024];
+	int scan_done;
+	int lp, rp;
+	int i;
+
+	/* Parse out the host portion of the recipient address */
+	process_rfc822_addr(SendMsg->addr, SendMsg->user, SendMsg->node, SendMsg->name);
+
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
+		      SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	/* If no envelope_from is supplied, extract one from the message */
-	if ( (envelope_from == NULL) || (IsEmptyStr(envelope_from)) ) {
-		strcpy(mailfrom, "");
+	if ( (SendMsg->envelope_from == NULL) || 
+	     (IsEmptyStr(SendMsg->envelope_from)) ) {
+		SendMsg->mailfrom[0] = '\0';
 		scan_done = 0;
-		ptr = msgtext;
+		ptr = ChrPtr(SendMsg->msgtext);
 		do {
 			if (ptr = cmemreadline(ptr, buf, sizeof buf), *ptr == 0) {
 				scan_done = 1;
 			}
 			if (!strncasecmp(buf, "From:", 5)) {
-				safestrncpy(mailfrom, &buf[5], sizeof mailfrom);
-				striplt(mailfrom);
-				for (i=0; mailfrom[i]; ++i) {
-					if (!isprint(mailfrom[i])) {
-						strcpy(&mailfrom[i], &mailfrom[i+1]);
+				safestrncpy(SendMsg->mailfrom, &buf[5], sizeof SendMsg->mailfrom);
+				striplt(SendMsg->mailfrom);
+				for (i=0; SendMsg->mailfrom[i]; ++i) {
+					if (!isprint(SendMsg->mailfrom[i])) {
+						strcpy(&SendMsg->mailfrom[i], &SendMsg->mailfrom[i+1]);
 						i=0;
 					}
 				}
@@ -160,325 +279,390 @@ void smtp_try(const char *key, const char *addr, int *status,
 				/* Strip out parenthesized names */
 				lp = (-1);
 				rp = (-1);
-				for (i=0; mailfrom[i]; ++i) {
-					if (mailfrom[i] == '(') lp = i;
-					if (mailfrom[i] == ')') rp = i;
+				for (i=0; !IsEmptyStr(SendMsg->mailfrom + i); ++i) {
+					if (SendMsg->mailfrom[i] == '(') lp = i;
+					if (SendMsg->mailfrom[i] == ')') rp = i;
 				}
 				if ((lp>0)&&(rp>lp)) {
-					strcpy(&mailfrom[lp-1], &mailfrom[rp+1]);
+					strcpy(&SendMsg->mailfrom[lp-1], &SendMsg->mailfrom[rp+1]);
 				}
 	
 				/* Prefer brokketized names */
 				lp = (-1);
 				rp = (-1);
-				for (i=0; mailfrom[i]; ++i) {
-					if (mailfrom[i] == '<') lp = i;
-					if (mailfrom[i] == '>') rp = i;
+				for (i=0; !IsEmptyStr(SendMsg->mailfrom + i); ++i) {
+					if (SendMsg->mailfrom[i] == '<') lp = i;
+					if (SendMsg->mailfrom[i] == '>') rp = i;
 				}
 				if ( (lp>=0) && (rp>lp) ) {
-					mailfrom[rp] = 0;
-					strcpy(mailfrom, &mailfrom[lp]);
+					SendMsg->mailfrom[rp] = 0;
+					memmove(SendMsg->mailfrom, 
+						&SendMsg->mailfrom[lp + 1], 
+						rp - lp);
 				}
 	
 				scan_done = 1;
 			}
 		} while (scan_done == 0);
-		if (IsEmptyStr(mailfrom)) strcpy(mailfrom, "someone@somewhere.org");
-		stripallbut(mailfrom, '<', '>');
-		envelope_from = mailfrom;
+		if (IsEmptyStr(SendMsg->mailfrom)) strcpy(SendMsg->mailfrom, "someone@somewhere.org");
+		stripallbut(SendMsg->mailfrom, '<', '>');
+		SendMsg->envelope_from = SendMsg->mailfrom;
 	}
 
+	return 0;
+}
+
+void resolve_mx_hosts(SmtpOutMsg *SendMsg)
+{
+	/// well this is blocking and sux, but libevent jsut supports async dns since v2
 	/* Figure out what mail exchanger host we have to connect to */
-	num_mxhosts = getmx(mxhosts, node);
-	CtdlLogPrintf(CTDL_DEBUG, "Number of MX hosts for <%s> is %d [%s]\n", node, num_mxhosts, mxhosts);
-	if (num_mxhosts < 1) {
-		*status = 5;
-		snprintf(dsn, SIZ, "No MX hosts found for <%s>", node);
-		return;
+	SendMsg->num_mxhosts = getmx(SendMsg->mxhosts, SendMsg->node);
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: Number of MX hosts for <%s> is %d [%s]\n", 
+		      SendMsg->n, SendMsg->node, SendMsg->num_mxhosts, SendMsg->mxhosts);
+	if (SendMsg->num_mxhosts < 1) {
+		SendMsg->SMTPstatus = 5;
+		snprintf(SendMsg->dsn, SIZ, "No MX hosts found for <%s>", SendMsg->node);
+		return; ///////TODO: abort!
 	}
 
-	sock = (-1);
-	for (mx=0; (mx<num_mxhosts && sock < 0); ++mx) {
-		char *endpart;
-		extract_token(buf, mxhosts, mx, '|', sizeof buf);
-		strcpy(mx_user, "");
-		strcpy(mx_pass, "");
-		if (num_tokens(buf, '@') > 1) {
-			strcpy (mx_user, buf);
-			endpart = strrchr(mx_user, '@');
+}
+/* TODO: abort... */
+#define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->SMTPstatus = WHICH_ERR; memcpy(SendMsg->dsn, HKEY(ERRSTR) + 1); return eAbort; }
+#define SMTP_VERROR(WHICH_ERR) { SendMsg->SMTPstatus = WHICH_ERR; safestrncpy(SendMsg->dsn, &ChrPtr(SendMsg->IO.IOBuf)[4], sizeof(SendMsg->dsn)); return eAbort; }
+#define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
+
+#define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
+#define SMTP_DBG_READ() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
+
+void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
+{
+	char *endpart;
+	char buf[SIZ];
+
+	extract_token(buf, SendMsg->mxhosts, SendMsg->n_mx, '|', sizeof(buf));
+	strcpy(SendMsg->mx_user, "");
+	strcpy(SendMsg->mx_pass, "");
+	if (num_tokens(buf, '@') > 1) {
+		strcpy (SendMsg->mx_user, buf);
+		endpart = strrchr(SendMsg->mx_user, '@');
+		*endpart = '\0';
+		strcpy (SendMsg->mx_host, endpart + 1);
+		endpart = strrchr(SendMsg->mx_user, ':');
+		if (endpart != NULL) {
+			strcpy(SendMsg->mx_pass, endpart+1);
 			*endpart = '\0';
-			strcpy (mx_host, endpart + 1);
-			endpart = strrchr(mx_user, ':');
-			if (endpart != NULL) {
-				strcpy(mx_pass, endpart+1);
-				*endpart = '\0';
-			}
-		}
-		else
-			strcpy (mx_host, buf);
-		endpart = strrchr(mx_host, ':');
-		if (endpart != 0){
-			*endpart = '\0';
-			strcpy(mx_port, endpart + 1);
-		}		
-		else {
-			strcpy(mx_port, "25");
-		}
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connecting to %s : %s ...\n", mx_host, mx_port);
-		sock = sock_connect(mx_host, mx_port);
-		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
-		if (sock >= 0) 
-		{
-			CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connected!\n");
-				int fdflags; 
-				fdflags = fcntl(sock, F_GETFL);
-				if (fdflags < 0)
-					CtdlLogPrintf(CTDL_DEBUG,
-						      "unable to get SMTP-Client socket flags! %s \n",
-						      strerror(errno));
-				fdflags = fdflags | O_NONBLOCK;
-				if (fcntl(sock, F_SETFL, fdflags) < 0)
-					CtdlLogPrintf(CTDL_DEBUG,
-						      "unable to set SMTP-Client socket nonblocking flags! %s \n",
-						      strerror(errno));
-		}
-		if (sock < 0) {
-			if (errno > 0) {
-				snprintf(dsn, SIZ, "%s", strerror(errno));
-			}
-			else {
-				snprintf(dsn, SIZ, "Unable to connect to %s : %s\n", mx_host, mx_port);
-			}
 		}
 	}
+	else
+		strcpy (SendMsg->mx_host, buf);
+	endpart = strrchr(SendMsg->mx_host, ':');
+	if (endpart != 0){
+		*endpart = '\0';
+		strcpy(SendMsg->mx_port, endpart + 1);
+	}		
+	else {
+		strcpy(SendMsg->mx_port, "25");
+	}
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connecting to %s : %s ...\n", 
+		      SendMsg->n, SendMsg->mx_host, SendMsg->mx_port);
 
-	if (sock < 0) {
-		*status = 4;	/* dsn is already filled in */
-		return;
-	}
-
-	CCC->sReadBuf = NewStrBuf();
-	CCC->sMigrateBuf = NewStrBuf();
-	CCC->sPos = NULL;
-
-	/* Process the SMTP greeting from the server */
-	if (ml_sock_gets(&sock, buf, 90) < 0) {
-		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP conversation");
-		goto bail;
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (buf[0] != '2') {
-		if (buf[0] == '4') {
-			*status = 4;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-		else {
-			*status = 5;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-	}
-
-	/* At this point we know we are talking to a real SMTP server */
-
-	/* Do a EHLO command.  If it fails, try the HELO command. */
-	snprintf(buf, sizeof buf, "EHLO %s\r\n", config.c_fqdn);
-	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-	sock_write(&sock, buf, strlen(buf));
-	if (ml_sock_gets(&sock, buf, 30) < 0) {
-		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP HELO");
-		goto bail;
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (buf[0] != '2') {
-		snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
-		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-		sock_write(&sock, buf, strlen(buf));
-		if (ml_sock_gets(&sock, buf, 30) < 0) {
-			*status = 4;
-			strcpy(dsn, "Connection broken during SMTP HELO");
-			goto bail;
-		}
-	}
-	if (buf[0] != '2') {
-		if (buf[0] == '4') {
-			*status = 4;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-		else {
-			*status = 5;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-	}
-
-	/* Do an AUTH command if necessary */
-	if (!IsEmptyStr(mx_user)) {
-		char encoded[1024];
-		sprintf(buf, "%s%c%s%c%s", mx_user, '\0', mx_user, '\0', mx_pass);
-		CtdlEncodeBase64(encoded, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 2, 0);
-		snprintf(buf, sizeof buf, "AUTH PLAIN %s\r\n", encoded);
-		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-		sock_write(&sock, buf, strlen(buf));
-		if (ml_sock_gets(&sock, buf, 30) < 0) {
-			*status = 4;
-			strcpy(dsn, "Connection broken during SMTP AUTH");
-			goto bail;
-		}
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-		if (buf[0] != '2') {
-			if (buf[0] == '4') {
-				*status = 4;
-				safestrncpy(dsn, &buf[4], 1023);
-				goto bail;
-			}
-			else {
-				*status = 5;
-				safestrncpy(dsn, &buf[4], 1023);
-				goto bail;
-			}
-		}
-	}
-
-	/* previous command succeeded, now try the MAIL FROM: command */
-	snprintf(buf, sizeof buf, "MAIL FROM:<%s>\r\n", envelope_from);
-	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-	sock_write(&sock, buf, strlen(buf));
-	if (ml_sock_gets(&sock, buf, 30) < 0) {
-		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP MAIL");
-		goto bail;
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (buf[0] != '2') {
-		if (buf[0] == '4') {
-			*status = 4;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-		else {
-			*status = 5;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-	}
-
-	/* MAIL succeeded, now try the RCPT To: command */
-	snprintf(buf, sizeof buf, "RCPT TO:<%s@%s>\r\n", user, node);
-	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
-	sock_write(&sock, buf, strlen(buf));
-	if (ml_sock_gets(&sock, buf, 30) < 0) {
-		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP RCPT");
-		goto bail;
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (buf[0] != '2') {
-		if (buf[0] == '4') {
-			*status = 4;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-		else {
-			*status = 5;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-	}
-
-	/* RCPT succeeded, now try the DATA command */
-	CtdlLogPrintf(CTDL_DEBUG, ">DATA\n");
-	sock_write(&sock, "DATA\r\n", 6);
-	if (ml_sock_gets(&sock, buf, 30) < 0) {
-		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP DATA");
-		goto bail;
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	if (buf[0] != '3') {
-		if (buf[0] == '4') {
-			*status = 3;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-		else {
-			*status = 5;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-	}
-
-	/* If we reach this point, the server is expecting data.*/
-	sock_write_timeout(&sock, 
-			   msgtext, 
-			   msg_size, 
-			   (msg_size / 128) + 50);
-	if (msgtext[msg_size-1] != 10) {
-		CtdlLogPrintf(CTDL_WARNING, "Possible problem: message did not "
-			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
-				buf[msg_size-1]);
-		sock_write(&sock, "\r\n", 2);
-	}
-
-	sock_write(&sock, ".\r\n", 3);
-	tcdrain(sock);
-	if (ml_sock_gets(&sock, buf, 90) < 0) {
-		*status = 4;
-		strcpy(dsn, "Connection broken during SMTP message transmit");
-		goto bail;
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
-	if (buf[0] != '2') {
-		if (buf[0] == '4') {
-			*status = 4;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-		else {
-			*status = 5;
-			safestrncpy(dsn, &buf[4], 1023);
-			goto bail;
-		}
-	}
-
-	/* We did it! */
-	safestrncpy(dsn, &buf[4], 1023);
-	*status = 2;
-
-	CtdlLogPrintf(CTDL_DEBUG, ">QUIT\n");
-	sock_write(&sock, "QUIT\r\n", 6);
-	ml_sock_gets(&sock, buf, 30);
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	CtdlLogPrintf(CTDL_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded\n",
-		user, node, name);
-
-bail:	free(msgtext);
-	FreeStrBuf(&CCC->sReadBuf);
-	FreeStrBuf(&CCC->sMigrateBuf);
-	if (sock != -1)
-		sock_close(sock);
-
-	/* Write something to the syslog (which may or may not be where the
-	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).
-	 */
-	if (enable_syslog) {
-		syslog((LOG_MAIL | LOG_INFO),
-			"%ld: to=<%s>, relay=%s, stat=%s",
-			msgnum,
-			addr,
-			mx_host,
-			dsn
-		);
-	}
-
-	return;
 }
 
 
+int connect_one_smtpsrv_xamine_result(void *Ctx)
+{
+	SmtpOutMsg *SendMsg = Ctx;
+	SendMsg->IO.SendBuf.fd = 
+	SendMsg->IO.RecvBuf.fd = 
+	SendMsg->IO.sock = sock_connect(SendMsg->mx_host, SendMsg->mx_port);
+
+	snprintf(SendMsg->dsn, SIZ, "Could not connect: %s", strerror(errno));
+	if (SendMsg->IO.sock >= 0) 
+	{
+		CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connected!\n", SendMsg->n);
+		int fdflags; 
+		fdflags = fcntl(SendMsg->IO.sock, F_GETFL);
+		if (fdflags < 0)
+			CtdlLogPrintf(CTDL_DEBUG,
+				      "SMTP client[%ld]: unable to get socket flags! %s \n",
+				      SendMsg->n, strerror(errno));
+		fdflags = fdflags | O_NONBLOCK;
+		if (fcntl(SendMsg->IO.sock, F_SETFL, fdflags) < 0)
+			CtdlLogPrintf(CTDL_DEBUG,
+				      "SMTP client[%ld]: unable to set socket nonblocking flags! %s \n",
+				      SendMsg->n, strerror(errno));
+	}
+	if (SendMsg->IO.sock < 0) {
+		if (errno > 0) {
+			snprintf(SendMsg->dsn, SIZ, "%s", strerror(errno));
+		}
+		else {
+			snprintf(SendMsg->dsn, SIZ, "Unable to connect to %s : %s\n", 
+				 SendMsg->mx_host, SendMsg->mx_port);
+		}
+	}
+	/// hier: naechsten mx ausprobieren.
+	if (SendMsg->IO.sock < 0) {
+		SendMsg->SMTPstatus = 4;	/* dsn is already filled in */
+		//// hier: abbrechen & bounce.
+		return -1;
+	}
+	SendMsg->IO.SendBuf.Buf = NewStrBuf();
+	SendMsg->IO.RecvBuf.Buf = NewStrBuf();
+	SendMsg->IO.IOBuf = NewStrBuf();
+	InitEventIO(&SendMsg->IO, SendMsg, 
+		    SMTP_C_DispatchReadDone, 
+		    SMTP_C_DispatchWriteDone, 
+		    SMTP_C_ReadServerStatus,
+		    1);
+	return 0;
+}
+
+eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
+{
+	/* Process the SMTP greeting from the server */
+	SMTP_DBG_READ();
+
+	if (!SMTP_IS_STATE('2')) {
+		if (SMTP_IS_STATE('4')) 
+			SMTP_VERROR(4)
+		else 
+			SMTP_VERROR(5)
+	}
+	return eSendReply;
+}
+
+eNextState SMTPC_send_EHLO(SmtpOutMsg *SendMsg)
+{
+	/* At this point we know we are talking to a real SMTP server */
+
+	/* Do a EHLO command.  If it fails, try the HELO command. */
+	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+		     "EHLO %s\r\n", config.c_fqdn);
+
+	SMTP_DBG_SEND();
+	return eReadMessage;
+}
+
+eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *SendMsg)
+{
+	SMTP_DBG_READ();
+
+	if (SMTP_IS_STATE('2')) {
+		SendMsg->State ++;
+		if (IsEmptyStr(SendMsg->mx_user))
+			SendMsg->State ++; /* Skip auth... */
+	}
+	/* else we fall back to 'helo' */
+	return eSendReply;
+}
+
+eNextState STMPC_send_HELO(SmtpOutMsg *SendMsg)
+{
+	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+		     "HELO %s\r\n", config.c_fqdn);
+
+	SMTP_DBG_SEND();
+	return eReadMessage;
+}
+
+eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
+{
+	SMTP_DBG_READ();
+
+	if (!SMTP_IS_STATE('2')) {
+		if (SMTP_IS_STATE('4'))
+			SMTP_VERROR(4)
+		else 
+			SMTP_VERROR(5)
+	}
+	if (!IsEmptyStr(SendMsg->mx_user))
+		SendMsg->State ++; /* Skip auth... */
+	return eSendReply;
+}
+
+eNextState SMTPC_send_auth(SmtpOutMsg *SendMsg)
+{
+	char buf[SIZ];
+	char encoded[1024];
+
+	/* Do an AUTH command if necessary */
+	sprintf(buf, "%s%c%s%c%s", 
+		SendMsg->mx_user, '\0', 
+		SendMsg->mx_user, '\0', 
+		SendMsg->mx_pass);
+	CtdlEncodeBase64(encoded, buf, 
+			 strlen(SendMsg->mx_user) + 
+			 strlen(SendMsg->mx_user) + 
+			 strlen(SendMsg->mx_pass) + 2, 0);
+	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+		     "AUTH PLAIN %s\r\n", encoded);
+	
+	SMTP_DBG_SEND();
+	return eReadMessage;
+}
+
+eNextState SMTPC_read_auth_reply(SmtpOutMsg *SendMsg)
+{
+	/* Do an AUTH command if necessary */
+	
+	SMTP_DBG_READ();
+	
+	if (!SMTP_IS_STATE('2')) {
+		if (SMTP_IS_STATE('4'))
+			SMTP_VERROR(4)
+		else 
+			SMTP_VERROR(5)
+	}
+	return eSendReply;
+}
+
+eNextState SMTPC_send_FROM(SmtpOutMsg *SendMsg)
+{
+	/* previous command succeeded, now try the MAIL FROM: command */
+	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+		     "MAIL FROM:<%s>\r\n", 
+		     SendMsg->envelope_from);
+
+	SMTP_DBG_SEND();
+	return eReadMessage;
+}
+
+eNextState SMTPC_read_FROM_reply(SmtpOutMsg *SendMsg)
+{
+	SMTP_DBG_READ();
+
+	if (!SMTP_IS_STATE('2')) {
+		if (SMTP_IS_STATE('4'))
+			SMTP_VERROR(4)
+		else 
+			SMTP_VERROR(5)
+	}
+	return eSendReply;
+}
+
+
+eNextState SMTPC_send_RCPT(SmtpOutMsg *SendMsg)
+{
+	/* MAIL succeeded, now try the RCPT To: command */
+	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
+		     "RCPT TO:<%s@%s>\r\n", 
+		     SendMsg->user, 
+		     SendMsg->node);
+
+	SMTP_DBG_SEND();
+	return eReadMessage;
+}
+
+eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *SendMsg)
+{
+	SMTP_DBG_READ();
+
+	if (!SMTP_IS_STATE('2')) {
+		if (SMTP_IS_STATE('4')) 
+			SMTP_VERROR(4)
+		else 
+			SMTP_VERROR(5)
+	}
+	return eSendReply;
+}
+
+eNextState SMTPC_send_DATAcmd(SmtpOutMsg *SendMsg)
+{
+	/* RCPT succeeded, now try the DATA command */
+	StrBufPlain(SendMsg->IO.SendBuf.Buf,
+		    HKEY("DATA\r\n"));
+
+	SMTP_DBG_SEND();
+	return eReadMessage;
+}
+
+eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *SendMsg)
+{
+	SMTP_DBG_READ();
+
+	if (!SMTP_IS_STATE('3')) {
+		if (SMTP_IS_STATE('4')) 
+			SMTP_VERROR(3)
+		else 
+			SMTP_VERROR(5)
+	}
+	return eSendReply;
+}
+
+eNextState SMTPC_send_data_body(SmtpOutMsg *SendMsg)
+{
+	StrBuf *Buf;
+	/* If we reach this point, the server is expecting data.*/
+
+	Buf = SendMsg->IO.SendBuf.Buf;
+	SendMsg->IO.SendBuf.Buf = SendMsg->msgtext;
+	SendMsg->msgtext = Buf;
+	//// TODO timeout like that: (SendMsg->msg_size / 128) + 50);
+	SendMsg->State ++;
+
+	return eSendMore;
+}
+
+eNextState SMTPC_send_terminate_data_body(SmtpOutMsg *SendMsg)
+{
+	StrBuf *Buf;
+
+	Buf = SendMsg->IO.SendBuf.Buf;
+	SendMsg->IO.SendBuf.Buf = SendMsg->msgtext;
+	SendMsg->msgtext = Buf;
+
+	StrBufPlain(SendMsg->IO.SendBuf.Buf,
+		    HKEY(".\r\n"));
+
+	return eReadMessage;
+
+}
+
+eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
+{
+	SMTP_DBG_READ();
+
+	if (!SMTP_IS_STATE('2')) {
+		if (SMTP_IS_STATE('4'))
+			SMTP_VERROR(4)
+		else 
+			SMTP_VERROR(5)
+	}
+
+	/* We did it! */
+	safestrncpy(SendMsg->dsn, &ChrPtr(SendMsg->IO.RecvBuf.Buf)[4], 1023);
+	SendMsg->SMTPstatus = 2;
+	return eSendReply;
+}
+
+eNextState SMTPC_send_QUIT(SmtpOutMsg *SendMsg)
+{
+	StrBufPlain(SendMsg->IO.SendBuf.Buf,
+		    HKEY("QUIT\r\n"));
+
+	SMTP_DBG_SEND();
+	return eReadMessage;
+}
+
+eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *SendMsg)
+{
+	SMTP_DBG_READ();
+
+	CtdlLogPrintf(CTDL_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
+		      SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
+	return eSendReply;
+}
+
+eNextState SMTPC_read_dummy(SmtpOutMsg *SendMsg)
+{
+	return eSendReply;
+}
+
+eNextState SMTPC_send_dummy(SmtpOutMsg *SendMsg)
+{
+	return eReadMessage;
+}
 
 /*
  * smtp_do_bounce() is caled by smtp_do_procmsg() to scan a set of delivery
@@ -707,6 +891,15 @@ int smtp_purge_completed_deliveries(char *instr) {
 	return(incomplete);
 }
 
+void smtp_try(const char *key, const char *addr, int *status,
+              char *dsn, size_t n, long msgnum, char *envelope_from)
+{
+	SmtpOutMsg * SmtpC = smtp_load_msg(msgnum, addr, envelope_from);
+	smtp_resolve_recipients(SmtpC);
+	resolve_mx_hosts(SmtpC);
+	connect_one_smtpsrv(SmtpC);
+	QueueEventContext(SmtpC, connect_one_smtpsrv_xamine_result);
+}
 
 /*
  * smtp_do_procmsg()
@@ -782,13 +975,13 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 	/*
 	 * Postpone delivery if we've already tried recently.
-	 */
+	 * /
 	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
 		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Retry time not yet reached.\n");
 		free(instr);
 		return;
 	}
-
+TMP TODO	*/
 
 	/*
 	 * Bail out if there's no actual message associated with this
@@ -989,20 +1182,61 @@ void smtp_init_spoolout(void) {
 }
 
 
-#endif
+SMTPReadHandler ReadHandlers[eMaxSMTPC] = {
+	SMTPC_read_greeting,
+	SMTPC_read_EHLO_reply,
+	SMTPC_read_HELO_reply,
+	SMTPC_read_auth_reply,
+	SMTPC_read_FROM_reply,
+	SMTPC_read_RCPT_reply,
+	SMTPC_read_DATAcmd_reply,
+	SMTPC_read_dummy,
+	SMTPC_read_data_body_reply,
+	SMTPC_read_QUIT_reply
+};
 
-CTDL_MODULE_INIT(smtp_client)
+SMTPSendHandler SendHandlers[eMaxSMTPC] = {
+	SMTPC_send_dummy, /* we don't send a greeting, the server does... */
+	SMTPC_send_EHLO,
+	STMPC_send_HELO,
+	SMTPC_send_auth,
+	SMTPC_send_FROM,
+	SMTPC_send_RCPT,
+	SMTPC_send_DATAcmd,
+	SMTPC_send_data_body,
+	SMTPC_send_terminate_data_body,
+	SMTPC_send_QUIT
+};
+
+eNextState SMTP_C_DispatchReadDone(void *Data)
 {
-#ifndef EXPERIMENTAL_SMTP_EVENT_CLIENT
+	SmtpOutMsg *pMsg = Data;
+	eNextState rc = ReadHandlers[pMsg->State](pMsg);
+	pMsg->State++;
+	return rc;
+}
+
+eNextState SMTP_C_DispatchWriteDone(void *Data)
+{
+	SmtpOutMsg *pMsg = Data;
+	return SendHandlers[pMsg->State](pMsg);
+	
+}
+
+
+#endif
+CTDL_MODULE_INIT(smtp_eventclient)
+{
+#ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
 	if (!threading)
 	{
 		smtp_init_spoolout();
-		CtdlThreadCreate("SMTP Send", CTDLTHREAD_BIGSTACK, smtp_queue_thread, NULL);
+		CtdlThreadCreate("SMTPEvent Send", CTDLTHREAD_BIGSTACK, smtp_queue_thread, NULL);
+
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	}
-	
 #endif
+	
 	/* return our Subversion id for the Log */
-	return "smtpclient";
+	return "smtpeventclient";
 }
-
