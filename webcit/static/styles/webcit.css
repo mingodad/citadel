@@ -64,7 +64,7 @@ body {
 
 #online_users li.inactiveuser a { background-color: transparent }
 
-#room_infos, #address_book_popup,.roomops_cell, .roomops_cell_edit, .mimepart {
+#room_infos, #address_book_popup, .roomops_cell, .roomops_cell_edit, .mimepart {
 	background-color: #F0FFFF;
 	color: #333;
 } 
