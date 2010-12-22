@@ -147,6 +147,28 @@ int socket_read_blob(int *Socket, StrBuf * Target, int bytes, int timeout)
 }
 
 
+int sock_read_to(int *sock, char *buf, int bytes, int timeout,
+		 int keep_reading_until_full)
+{
+	CitContext *CCC = MyContext();
+	int rc;
+
+	FlushStrBuf(CCC->MigrateBuf);
+	rc = socket_read_blob(sock, CCC->sMigrateBuf, bytes, timeout);
+	if (rc < 0) {
+		*buf = '\0';
+		return rc;
+	} else {
+		if (StrLength(CCC->MigrateBuf) < bytes)
+			bytes = StrLength(CCC->MigrateBuf);
+		memcpy(buf, ChrPtr(CCC->MigrateBuf), bytes);
+
+		FlushStrBuf(CCC->MigrateBuf);
+		return rc;
+	}
+}
+
+
 int CtdlSockGetLine(int *sock, StrBuf * Target, int nSec)
 {
 	CitContext *CCC = MyContext();
@@ -190,6 +212,18 @@ int sock_getln(int *sock, char *buf, int bufsize)
 		i += 3;
 	}
 	return i;
+}
+
+
+/*
+ * sock_read() - input binary data from socket.
+ * Returns the number of bytes read, or -1 for error.
+ */
+INLINE int sock_read(int *sock, char *buf, int bytes,
+		     int keep_reading_until_full)
+{
+	return sock_read_to(sock, buf, bytes, CLIENT_TIMEOUT,
+			    keep_reading_until_full);
 }
 
 
