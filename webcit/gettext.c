@@ -25,6 +25,7 @@
 const char *AvailLang[] = {
 	"C",
 	"bg_BG",
+	"cs_CZ",
 	"en_US",
 	"da_DK",
 	"de_DE",

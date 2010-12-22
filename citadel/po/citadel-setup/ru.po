@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: citadel 7.63-1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-28 00:22+0200\n"
-"PO-Revision-Date: 2010-10-24 21:06+0000\n"
-"Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
+"PO-Revision-Date: 2010-12-14 08:13+0000\n"
+"Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-25 04:36+0000\n"
+"X-Launchpad-Export-Date: 2010-12-15 04:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: ru\n"
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #: ../utils/setup.c:119
 msgid "Citadel Home Directory"
-msgstr ""
+msgstr "Домашняя директория Citadel"
 
 #: ../utils/setup.c:122
 msgid ""
@@ -72,7 +72,7 @@ msgstr ""
 
 #: ../utils/setup.c:149
 msgid "Citadel User ID:"
-msgstr ""
+msgstr "ID пользователя Citadel:"
 
 #: ../utils/setup.c:151
 msgid ""
@@ -100,7 +100,7 @@ msgstr ""
 
 #: ../utils/setup.c:168
 msgid "Server port number:"
-msgstr ""
+msgstr "Номер порта сервера:"
 
 #: ../utils/setup.c:170
 msgid ""
@@ -193,27 +193,27 @@ msgstr ""
 
 #: ../utils/setup.c:299
 msgid "Yes/No"
-msgstr ""
+msgstr "Да/Нет"
 
 #: ../utils/setup.c:300
 msgid "Yes"
-msgstr ""
+msgstr "Да"
 
 #: ../utils/setup.c:300
 msgid "No"
-msgstr ""
+msgstr "Нет"
 
 #: ../utils/setup.c:346
 msgid "Press return to continue..."
-msgstr ""
+msgstr "Нажмите return для продолжения..."
 
 #: ../utils/setup.c:364
 msgid "Important Message"
-msgstr ""
+msgstr "Важное сообщение"
 
 #: ../utils/setup.c:379
 msgid "Error"
-msgstr ""
+msgstr "Ошибка"
 
 #: ../utils/setup.c:459
 msgid "Adding service entry..."
@@ -237,7 +237,7 @@ msgstr ""
 
 #: ../utils/setup.c:583
 msgid "Cannot create"
-msgstr ""
+msgstr "Ошибка создания"
 
 #: ../utils/setup.c:682
 #, c-format
@@ -285,6 +285,7 @@ msgstr ""
 #: ../utils/setup.c:864
 msgid "Enter new value or press return to leave unchanged:"
 msgstr ""
+"Введите новое значение или нажмите назад чтобы оставить без изменений:"
 
 #: ../utils/setup.c:1067 ../utils/setup.c:1072 ../utils/setup.c:1384
 msgid "setup: cannot open"
@@ -305,7 +306,7 @@ msgstr ""
 
 #: ../utils/setup.c:1236 ../utils/setup.c:1252
 msgid "Setup finished"
-msgstr ""
+msgstr "Установка закончена"
 
 #: ../utils/setup.c:1237
 msgid ""
@@ -317,7 +318,7 @@ msgstr ""
 
 #: ../utils/setup.c:1243
 msgid "Setup failed"
-msgstr ""
+msgstr "Ошибка установки"
 
 #: ../utils/setup.c:1244
 msgid ""
@@ -327,7 +328,7 @@ msgstr ""
 
 #: ../utils/setup.c:1253
 msgid "Setup is finished.  You may now start the server."
-msgstr ""
+msgstr "Установка закончена. Можете перезагрузить сервер."
 
 #: ../utils/setup.c:1279
 msgid "My System"
