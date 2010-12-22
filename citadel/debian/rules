@@ -24,9 +24,6 @@ ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0 -ggdb -rdynamic -D_GNU_SOURCE -MD -MP -D TECH_PREVIEW
 	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
 	EXTRA_ARGS = --with-backtrace
-	ifneq (,$(findstring event,$(DEB_BUILD_OPTIONS)))
-		EXTRA_ARGS = --with-backtrace --with-experimental_eventsmtp
-	endif
 else
 	LDFLAGS+=-Wl,--no-undefined -Wl,--as-needed
 	CFLAGS += -O2
