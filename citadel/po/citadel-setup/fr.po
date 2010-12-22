@@ -48,7 +48,7 @@ msgstr ""
 "Entrez le chemin complet du répertoire dans lequel se trouve\n"
 "l'installation de Citadel que vous créez ou mettez à jour. Si vous\n"
 "spécifiez un répertoire autre que celui par défaut, vous devrez\n"
-"indiquer le paramètre -f au serveur lorsque vous le démarrerez.\n"
+"indiquer le paramètre -f au serveur lorsque vous le démarrerez."
 
 #: ../utils/setup.c:135
 msgid "Citadel administrator username:"
