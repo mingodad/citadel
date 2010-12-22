@@ -1,7 +1,9 @@
-<div class="infos" onclick="javascript:Effect.Appear('room_infos', { duration: 0.5 });">
+<div class="infos" 
+	onMouseOver="javascript:Effect.Appear('room_infos', { duration: 0.5 });"
+	onMouseOut="javascript:Effect.Fade('room_infos', { duration: 0.5 });"
+>
 	<?THISROOM:INFOTEXT(40, "X")>
 </div>
 <div id="room_infos" style="display:none;">
-	<img class="close_infos" onclick="javascript:Effect.Fade('room_infos', { duration: 0.5 });" src="static/closewindow.gif" alt="<?_("Close window")>"  width="16" height="16" />
 	<?THISROOM:INFOTEXT(0, "X")>
 </div>
