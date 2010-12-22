@@ -177,7 +177,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 				}
 				if ( (lp>=0) && (rp>lp) ) {
 					mailfrom[rp] = 0;
-					strcpy(mailfrom, &mailfrom[lp]);
+					strcpy(mailfrom, &mailfrom[lp + 1]);
 				}
 	
 				scan_done = 1;
