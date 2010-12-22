@@ -470,8 +470,10 @@ void tmplput_ThisRoomInfoText(StrBuf *Target, WCTemplputParams *TP)
 		/* only a certain number of characters */
 		StrBuf *SubBuf;
 		SubBuf = NewStrBufDup(WCC->CurRoom.XInfoText);
-		StrBuf_Utf8StrCut(SubBuf, nchars);
-		StrBufAppendBufPlain(SubBuf, HKEY("..."), 0);
+		if (StrLength(SubBuf) > nchars) {
+			StrBuf_Utf8StrCut(SubBuf, nchars);
+			StrBufAppendBufPlain(SubBuf, HKEY("..."), 0);
+		}
 		StrBufAppendTemplate(Target, TP, SubBuf, 1);
 		FreeStrBuf(&SubBuf);
 	}
