@@ -85,7 +85,7 @@ msgstr ""
 
 #: ../auth.c:578
 msgid "Read More..."
-msgstr ""
+msgstr "Leer más..."
 
 #: ../auth.c:583
 msgid "Log in again"
@@ -101,19 +101,19 @@ msgstr "Ningún usuario requiere validación por el momento"
 
 #: ../auth.c:685
 msgid "very weak"
-msgstr ""
+msgstr "muy débil"
 
 #: ../auth.c:688
 msgid "weak"
-msgstr ""
+msgstr "débil"
 
 #: ../auth.c:691
 msgid "ok"
-msgstr ""
+msgstr "correcto"
 
 #: ../auth.c:695
 msgid "strong"
-msgstr ""
+msgstr "fuerte"
 
 #: ../auth.c:713
 #, c-format
@@ -228,11 +228,11 @@ msgstr "Descripción:"
 
 #: ../calendar.c:173 ../event.c:93
 msgid "Recurrence"
-msgstr ""
+msgstr "Recurrencia"
 
 #: ../calendar.c:174 ../event.c:508
 msgid "This is a recurring event"
-msgstr ""
+msgstr "Este es un evento recurrente"
 
 #: ../calendar.c:183
 msgid "Attendee:"
@@ -340,7 +340,7 @@ msgstr "Los dias mostrados del calendario finalizan en:"
 
 #: ../calendar.c:923
 msgid "Week starts on:"
-msgstr ""
+msgstr "La semana comienza el día:"
 
 #: ../calendar_tools.c:101
 msgid "Hour: "
@@ -389,24 +389,24 @@ msgstr "(ninguno)"
 #: ../calendar_view.c:264 ../calendar_view.c:464 ../calendar_view.c:935
 #: ../event.c:862
 msgid "Untitled Event"
-msgstr ""
+msgstr "Evento sin título"
 
 #: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
 #: ../calendar_view.c:1081 ../sieve.c:995
 msgid "From"
-msgstr ""
+msgstr "De"
 
 #: ../calendar_view.c:347 ../calendar_view.c:972
 msgid "Starting date:"
-msgstr ""
+msgstr "Fecha de inicio:"
 
 #: ../calendar_view.c:353 ../calendar_view.c:974
 msgid "Ending date:"
-msgstr ""
+msgstr "Fecha de fin:"
 
 #: ../calendar_view.c:361 ../calendar_view.c:1093
 msgid "Date/time:"
-msgstr ""
+msgstr "Fecha/hora:"
 
 #: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
 #: ../calendar_view.c:1103
@@ -415,11 +415,11 @@ msgstr "Notas:"
 
 #: ../calendar_view.c:582 ../calendar_view.c:719
 msgid "previous"
-msgstr ""
+msgstr "anterior"
 
 #: ../calendar_view.c:594 ../calendar_view.c:731 ../calendar_view.c:1320
 msgid "next"
-msgstr ""
+msgstr "siguiente"
 
 #: ../calendar_view.c:754
 msgid "Week"
@@ -448,11 +448,11 @@ msgstr "Todos los eventos del día"
 
 #: ../calendar_view.c:999 ../calendar_view.c:1022
 msgid "Ongoing event"
-msgstr ""
+msgstr "Evento en curso"
 
 #: ../calendar_view.c:1393 ../tasks.c:428
 msgid "Untitled Task"
-msgstr ""
+msgstr "Tarea sin título"
 
 #: ../downloads.c:284
 #, c-format
@@ -461,59 +461,59 @@ msgstr ""
 
 #: ../event.c:73
 msgid "seconds"
-msgstr ""
+msgstr "segundos"
 
 #: ../event.c:74
 msgid "minutes"
-msgstr ""
+msgstr "minutos"
 
 #: ../event.c:75
 msgid "hours"
-msgstr ""
+msgstr "horas"
 
 #: ../event.c:76
 msgid "days"
-msgstr ""
+msgstr "días"
 
 #: ../event.c:77
 msgid "weeks"
-msgstr ""
+msgstr "semanas"
 
 #: ../event.c:78
 msgid "months"
-msgstr ""
+msgstr "meses"
 
 #: ../event.c:79
 msgid "years"
-msgstr ""
+msgstr "años"
 
 #: ../event.c:80
 msgid "never"
-msgstr ""
+msgstr "nunca"
 
 #: ../event.c:84
 msgid "first"
-msgstr ""
+msgstr "primero"
 
 #: ../event.c:85
 msgid "second"
-msgstr ""
+msgstr "segundo"
 
 #: ../event.c:86
 msgid "third"
-msgstr ""
+msgstr "tercero"
 
 #: ../event.c:87
 msgid "fourth"
-msgstr ""
+msgstr "cuarto"
 
 #: ../event.c:88
 msgid "fifth"
-msgstr ""
+msgstr "quinto"
 
 #: ../event.c:91
 msgid "Event"
-msgstr ""
+msgstr "Evento"
 
 #: ../event.c:92 ../event.c:440 ../event.c:452
 msgid "Attendees"
@@ -569,7 +569,7 @@ msgstr ""
 
 #: ../event.c:520
 msgid "Repeats every"
-msgstr ""
+msgstr "Se repite cada"
 
 #. begin 'weekday_selector' div
 #: ../event.c:538
@@ -587,11 +587,11 @@ msgstr ""
 
 #: ../event.c:629
 msgid "of the month"
-msgstr ""
+msgstr "del mes"
 
 #: ../event.c:658
 msgid "every "
-msgstr ""
+msgstr "cada "
 
 #: ../event.c:659
 msgid "year on this date"
@@ -600,27 +600,27 @@ msgstr ""
 #: ../event.c:691 ../static/t/msg_listselector_bottom.html:7
 #: ../static/t/msg_listselector_top.html:7
 msgid "of"
-msgstr ""
+msgstr "de"
 
 #: ../event.c:715
 msgid "Recurrence range"
-msgstr ""
+msgstr "Rango recurrente"
 
 #: ../event.c:723
 msgid "No ending date"
-msgstr ""
+msgstr "Sin fecha de finalización"
 
 #: ../event.c:730
 msgid "Repeat this event"
-msgstr ""
+msgstr "Repetir este evento"
 
 #: ../event.c:733
 msgid "times"
-msgstr ""
+msgstr "veces"
 
 #: ../event.c:741
 msgid "Repeat this event until "
-msgstr ""
+msgstr "Repetir este evento hasta "
 
 #: ../event.c:767 ../tasks.c:356
 msgid "Save"
@@ -645,7 +645,7 @@ msgstr "Cargar imagen"
 
 #: ../graphics.c:58
 msgid "You can upload an image directly from your computer"
-msgstr ""
+msgstr "Puede sugir una imagen directamente desde su equipo"
 
 #: ../graphics.c:61
 msgid "Please select a file to upload:"
@@ -711,7 +711,7 @@ msgstr "%s ha sido borrado"
 #. <domain> added status message
 #: ../inetconf.c:145
 msgid "added."
-msgstr ""
+msgstr "añadido."
 
 #: ../listsub.c:37
 msgid "List subscription"
@@ -752,7 +752,7 @@ msgstr "ERROR"
 
 #: ../messages.c:73
 msgid "Empty message"
-msgstr ""
+msgstr "Mensaje vacío"
 
 #: ../messages.c:1061
 #, c-format
@@ -1543,11 +1543,11 @@ msgstr "Dirección:"
 
 #: ../vcard_edit.c:468
 msgid "Telephone:"
-msgstr "Teléfono"
+msgstr "Teléfono:"
 
 #: ../vcard_edit.c:473
 msgid "E-mail:"
-msgstr "E-mail"
+msgstr "Correo-e:"
 
 #: ../vcard_edit.c:563
 msgid "This address book is empty."

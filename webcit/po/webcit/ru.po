@@ -10,15 +10,16 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-16 13:47+0200\n"
-"PO-Revision-Date: 2010-11-12 23:49+0000\n"
-"Last-Translator: Andrey N. Oktyabrski <ano@bestmx.ru>\n"
+"PO-Revision-Date: 2010-12-21 12:16+0000\n"
+"Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-14 05:02+0000\n"
+"X-Launchpad-Export-Date: 2010-12-22 04:43+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: \n"
+"X-Language: ru_RU\n"
 
 #: ../addressbook_popup.c:192
 msgid "Add"
@@ -163,23 +164,23 @@ msgstr ""
 
 #: ../availability.c:175
 msgid "free"
-msgstr ""
+msgstr "свободно"
 
 #: ../availability.c:185
 msgid "BUSY"
-msgstr ""
+msgstr "Занят"
 
 #: ../bbsview_renderer.c:289
 msgid "Go to page: "
-msgstr ""
+msgstr "Перейти на страницу: "
 
 #: ../bbsview_renderer.c:323
 msgid "First"
-msgstr ""
+msgstr "Первый"
 
 #: ../bbsview_renderer.c:329
 msgid "Last"
-msgstr ""
+msgstr "Последний"
 
 #: ../calendar.c:81
 msgid "Meeting invitation"
@@ -200,30 +201,30 @@ msgstr ""
 #: ../calendar.c:103 ../calendar_view.c:290 ../calendar_view.c:957
 #: ../calendar_view.c:1001 ../calendar_view.c:1082 ../tasks.c:247
 msgid "Summary:"
-msgstr ""
+msgstr "Итого:"
 
 #: ../calendar.c:112 ../calendar_view.c:298 ../calendar_view.c:962
 #: ../calendar_view.c:1006 ../calendar_view.c:1087
 msgid "Location:"
-msgstr ""
+msgstr "Расположение:"
 
 #: ../calendar.c:137 ../calendar_view.c:343 ../calendar_view.c:968
 msgid "Date:"
-msgstr ""
+msgstr "Дата:"
 
 #: ../calendar.c:144 ../calendar_view.c:365 ../calendar_view.c:1011
 #: ../calendar_view.c:1097
 msgid "Starting date/time:"
-msgstr ""
+msgstr "Дата/время начала:"
 
 #: ../calendar.c:155 ../calendar_view.c:368 ../calendar_view.c:1013
 #: ../calendar_view.c:1099
 msgid "Ending date/time:"
-msgstr ""
+msgstr "Дата/время завершения:"
 
 #: ../calendar.c:164 ../tasks.c:338 ../static/t/files.html:38
 msgid "Description:"
-msgstr ""
+msgstr "Описание:"
 
 #: ../calendar.c:173 ../event.c:93
 msgid "Recurrence"
@@ -246,23 +247,23 @@ msgstr ""
 #, c-format
 msgid ""
 "This event would conflict with '%s' which is already in your calendar."
-msgstr ""
+msgstr "Данное событие может конфликтовать с  '%s' в вашем календаре."
 
 #: ../calendar.c:232
 msgid "Update:"
-msgstr ""
+msgstr "Обновление:"
 
 #: ../calendar.c:233
 msgid "CONFLICT:"
-msgstr ""
+msgstr "Конфликт:"
 
 #: ../calendar.c:256
 msgid "How would you like to respond to this invitation?"
-msgstr ""
+msgstr "Как желаете ответить на данное приглашение?"
 
 #: ../calendar.c:257
 msgid "Accept"
-msgstr ""
+msgstr "Принять"
 
 #: ../calendar.c:258
 msgid "Tentative"
@@ -270,19 +271,19 @@ msgstr ""
 
 #: ../calendar.c:259
 msgid "Decline"
-msgstr ""
+msgstr "Отклонить"
 
 #: ../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
-msgstr ""
+msgstr "Нажмите <i>Update</i> для принятия ответа и обновления календаря."
 
 #: ../calendar.c:277
 msgid "Update"
-msgstr ""
+msgstr "Обновить"
 
 #: ../calendar.c:278
 msgid "Ignore"
-msgstr ""
+msgstr "Игнорировать"
 
 #: ../calendar.c:300
 msgid "There was an error parsing this calendar item."
@@ -293,6 +294,7 @@ msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
 msgstr ""
+"Вы приняли приглашение на встречу. Она была добавлена в ваш календарь."
 
 #: ../calendar.c:337
 msgid ""
@@ -305,6 +307,8 @@ msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
 msgstr ""
+"Вы отклонили приглашение на встречу. Она <b>не</b> была добавлена в ваш "
+"календарь."
 
 #: ../calendar.c:346
 msgid "A reply has been sent to the meeting organizer."
@@ -333,7 +337,7 @@ msgstr ""
 
 #: ../calendar.c:923
 msgid "Week starts on:"
-msgstr ""
+msgstr "Неделя начинается с:"
 
 #: ../calendar_tools.c:101
 msgid "Hour: "
@@ -345,19 +349,19 @@ msgstr ""
 
 #: ../calendar_tools.c:192
 msgid "(status unknown)"
-msgstr ""
+msgstr "(статус неизвестен)"
 
 #: ../calendar_tools.c:208
 msgid "(needs action)"
-msgstr ""
+msgstr "(требуется действие)"
 
 #: ../calendar_tools.c:211
 msgid "(accepted)"
-msgstr ""
+msgstr "(принято)"
 
 #: ../calendar_tools.c:214
 msgid "(declined)"
-msgstr ""
+msgstr "(отклонено)"
 
 #: ../calendar_tools.c:217
 msgid "(tenative)"
@@ -369,11 +373,11 @@ msgstr ""
 
 #: ../calendar_tools.c:223
 msgid "(completed)"
-msgstr ""
+msgstr "(завершено)"
 
 #: ../calendar_tools.c:226
 msgid "(in process)"
-msgstr ""
+msgstr "(в процессе)"
 
 #: ../calendar_tools.c:229
 msgid "(none)"
@@ -387,36 +391,36 @@ msgstr ""
 #: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
 #: ../calendar_view.c:1081 ../sieve.c:995
 msgid "From"
-msgstr ""
+msgstr "От"
 
 #: ../calendar_view.c:347 ../calendar_view.c:972
 msgid "Starting date:"
-msgstr ""
+msgstr "Дата начала:"
 
 #: ../calendar_view.c:353 ../calendar_view.c:974
 msgid "Ending date:"
-msgstr ""
+msgstr "Дата завершения:"
 
 #: ../calendar_view.c:361 ../calendar_view.c:1093
 msgid "Date/time:"
-msgstr ""
+msgstr "Дата/время:"
 
 #: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
 #: ../calendar_view.c:1103
 msgid "Notes:"
-msgstr ""
+msgstr "Заметки:"
 
 #: ../calendar_view.c:582 ../calendar_view.c:719
 msgid "previous"
-msgstr ""
+msgstr "пред."
 
 #: ../calendar_view.c:594 ../calendar_view.c:731 ../calendar_view.c:1320
 msgid "next"
-msgstr ""
+msgstr "след."
 
 #: ../calendar_view.c:754
 msgid "Week"
-msgstr ""
+msgstr "Неделя"
 
 #: ../calendar_view.c:756
 msgid "Hours"
@@ -425,19 +429,19 @@ msgstr ""
 #: ../calendar_view.c:757 ../sieve.c:997 ../static/t/msg_listview.html:10
 #: ../static/t/summary_header.html:8
 msgid "Subject"
-msgstr ""
+msgstr "Тема"
 
 #: ../calendar_view.c:758 ../event.c:231
 msgid "Start"
-msgstr ""
+msgstr "Начало"
 
 #: ../calendar_view.c:759 ../event.c:280
 msgid "End"
-msgstr ""
+msgstr "Завершение"
 
 #: ../calendar_view.c:955 ../calendar_view.c:984 ../event.c:274
 msgid "All day event"
-msgstr ""
+msgstr "Событие на весь день"
 
 #: ../calendar_view.c:999 ../calendar_view.c:1022
 msgid "Ongoing event"
@@ -445,7 +449,7 @@ msgstr ""
 
 #: ../calendar_view.c:1393 ../tasks.c:428
 msgid "Untitled Task"
-msgstr ""
+msgstr "Задание без заголовка"
 
 #: ../downloads.c:284
 #, c-format
@@ -454,59 +458,59 @@ msgstr ""
 
 #: ../event.c:73
 msgid "seconds"
-msgstr ""
+msgstr "секунд(ы)"
 
 #: ../event.c:74
 msgid "minutes"
-msgstr ""
+msgstr "минут(ы)"
 
 #: ../event.c:75
 msgid "hours"
-msgstr ""
+msgstr "часа(ов)"
 
 #: ../event.c:76
 msgid "days"
-msgstr ""
+msgstr "дня(ей)"
 
 #: ../event.c:77
 msgid "weeks"
-msgstr ""
+msgstr "недели(ль)"
 
 #: ../event.c:78
 msgid "months"
-msgstr ""
+msgstr "месяца(ев)"
 
 #: ../event.c:79
 msgid "years"
-msgstr ""
+msgstr "года(лет)"
 
 #: ../event.c:80
 msgid "never"
-msgstr ""
+msgstr "никогда"
 
 #: ../event.c:84
 msgid "first"
-msgstr ""
+msgstr "первый"
 
 #: ../event.c:85
 msgid "second"
-msgstr ""
+msgstr "второй"
 
 #: ../event.c:86
 msgid "third"
-msgstr ""
+msgstr "третий"
 
 #: ../event.c:87
 msgid "fourth"
-msgstr ""
+msgstr "четвёртый"
 
 #: ../event.c:88
 msgid "fifth"
-msgstr ""
+msgstr "пятый"
 
 #: ../event.c:91
 msgid "Event"
-msgstr ""
+msgstr "Событие"
 
 #: ../event.c:92 ../event.c:440 ../event.c:452
 msgid "Attendees"
@@ -514,7 +518,7 @@ msgstr ""
 
 #: ../event.c:168
 msgid "Add or edit an event"
-msgstr ""
+msgstr "Добавить или редактировать событие"
 
 #: ../event.c:209 ../static/t/iconbar.html:12
 msgid "Summary"
@@ -522,11 +526,11 @@ msgstr ""
 
 #: ../event.c:220
 msgid "Location"
-msgstr ""
+msgstr "Расположение"
 
 #: ../event.c:330 ../static/t/iconbar.html:32
 msgid "Notes"
-msgstr ""
+msgstr "Заметки"
 
 #: ../event.c:372
 msgid "Organizer"
@@ -538,15 +542,15 @@ msgstr "(you are the organiser)"
 
 #: ../event.c:395
 msgid "Show time as:"
-msgstr ""
+msgstr "Отображать время как:"
 
 #: ../event.c:418
 msgid "Free"
-msgstr ""
+msgstr "Свободно"
 
 #: ../event.c:426
 msgid "Busy"
-msgstr ""
+msgstr "Занято"
 
 #: ../event.c:443
 msgid "(One per line)"
@@ -554,7 +558,7 @@ msgstr ""
 
 #: ../event.c:453 ../static/t/edit_message.html:57 ../static/t/iconbar.html:27
 msgid "Contacts"
-msgstr ""
+msgstr "Контакты"
 
 #: ../event.c:516
 msgid "Recurrence rule"
@@ -562,7 +566,7 @@ msgstr ""
 
 #: ../event.c:520
 msgid "Repeats every"
-msgstr ""
+msgstr "Повторять каждый(ые)"
 
 #. begin 'weekday_selector' div
 #: ../event.c:538
@@ -584,7 +588,7 @@ msgstr ""
 
 #: ../event.c:658
 msgid "every "
-msgstr ""
+msgstr "каждый(ые) "
 
 #: ../event.c:659
 msgid "year on this date"
@@ -601,28 +605,28 @@ msgstr ""
 
 #: ../event.c:723
 msgid "No ending date"
-msgstr ""
+msgstr "Нет даты окончания"
 
 #: ../event.c:730
 msgid "Repeat this event"
-msgstr ""
+msgstr "повторять это событие"
 
 #: ../event.c:733
 msgid "times"
-msgstr ""
+msgstr "раз(а)"
 
 #: ../event.c:741
 msgid "Repeat this event until "
-msgstr ""
+msgstr "Повторять это событие до "
 
 #: ../event.c:767 ../tasks.c:356
 msgid "Save"
-msgstr ""
+msgstr "Сохранить"
 
 #: ../event.c:768 ../tasks.c:357 ../static/t/msg_listview.html:30
 #: ../static/t/view_message.html:38
 msgid "Delete"
-msgstr ""
+msgstr "Удалить"
 
 #: ../event.c:769
 msgid "Check attendee availability"
@@ -630,27 +634,27 @@ msgstr ""
 
 #: ../fmt_date.c:310
 msgid "Time format"
-msgstr ""
+msgstr "Формат времени"
 
 #: ../graphics.c:42
 msgid "Image upload"
-msgstr ""
+msgstr "Загрузить изображение"
 
 #: ../graphics.c:58
 msgid "You can upload an image directly from your computer"
-msgstr ""
+msgstr "Можете загрузить изображение с вашего компьютера"
 
 #: ../graphics.c:61
 msgid "Please select a file to upload:"
-msgstr ""
+msgstr "Выберите файл для загрузки:"
 
 #: ../graphics.c:67
 msgid "Upload"
-msgstr ""
+msgstr "Загрузить"
 
 #: ../graphics.c:69
 msgid "Reset form"
-msgstr ""
+msgstr "Очистить форму"
 
 #: ../graphics.c:92
 msgid "Graphics upload has been cancelled."
@@ -658,11 +662,11 @@ msgstr ""
 
 #: ../graphics.c:99
 msgid "You didn't upload a file."
-msgstr ""
+msgstr "Вы не загрузили файл"
 
 #: ../graphics.c:146
 msgid "your photo"
-msgstr ""
+msgstr "ваше фото"
 
 #: ../graphics.c:152
 msgid "the icon for this room"
@@ -704,7 +708,7 @@ msgstr ""
 #. <domain> added status message
 #: ../inetconf.c:145
 msgid "added."
-msgstr ""
+msgstr "добавлено."
 
 #: ../listsub.c:37
 msgid "List subscription"
@@ -716,7 +720,7 @@ msgstr ""
 
 #: ../listsub.c:70
 msgid "Confirmation request sent"
-msgstr ""
+msgstr "Запрос на подтверждение послан"
 
 #: ../listsub.c:72
 #, c-format
@@ -731,25 +735,25 @@ msgstr ""
 
 #: ../listsub.c:85
 msgid "Go back..."
-msgstr ""
+msgstr "Назад..."
 
 #: ../messages.c:55
 msgid "ERROR:"
-msgstr ""
+msgstr "ОШИБКА:"
 
 #: ../messages.c:73
 msgid "Empty message"
-msgstr ""
+msgstr "Пустое сообщение"
 
 #: ../messages.c:1061
 #, c-format
 msgid "Cancelled.  Message was not posted."
-msgstr ""
+msgstr "Отменено. Сообщение не было опубликовано"
 
 #: ../messages.c:1067
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
-msgstr ""
+msgstr "Автоматически отменено по скольку сообщение уже сохранено."
 
 #: ../messages.c:1119
 msgid "Saved to Drafts failed: "
@@ -765,29 +769,29 @@ msgstr ""
 
 #: ../messages.c:1220
 msgid "Message has been sent.\n"
-msgstr ""
+msgstr "Сообщение отправлено.\n"
 
 #: ../messages.c:1223
 msgid "Message has been posted.\n"
-msgstr ""
+msgstr "Сообщение опубликовано.\n"
 
 #: ../messages.c:1444
 #, c-format
 msgid "The message was not moved."
-msgstr ""
+msgstr "Сообщение небыло перемещено."
 
 #: ../messages.c:1466
 msgid "Confirm move of message"
-msgstr ""
+msgstr "Подтвердить перемещение сообщения"
 
 #: ../messages.c:1474
 msgid "Move this message to:"
-msgstr ""
+msgstr "Переместить сообщение в:"
 
 #: ../messages.c:1495 ../static/t/msg_listview.html:28
 #: ../static/t/view_message.html:37
 msgid "Move"
-msgstr ""
+msgstr "Переместить"
 
 #: ../messages.c:1537
 #, c-format
@@ -801,11 +805,11 @@ msgstr ""
 
 #: ../messages.c:1759
 msgid "Attach signature to email messages?"
-msgstr ""
+msgstr "Прикрепить подпись к сообщению?"
 
 #: ../messages.c:1762
 msgid "Use this signature:"
-msgstr ""
+msgstr "Использовать подпись:"
 
 #: ../messages.c:1764
 msgid "Default character set for email headers:"
@@ -829,7 +833,7 @@ msgstr ""
 
 #: ../msg_renderers.c:523
 msgid "edit"
-msgstr ""
+msgstr "изменить"
 
 #: ../msg_renderers.c:1023
 msgid "I don't know how to display "
@@ -837,7 +841,7 @@ msgstr ""
 
 #: ../msg_renderers.c:1242
 msgid "(no subject)"
-msgstr ""
+msgstr "(без темы)"
 
 #: ../notes.c:345
 msgid "Click on any note to edit it."
@@ -849,19 +853,19 @@ msgstr ""
 
 #: ../openid.c:37
 msgid "Do you really want to delete this OpenID?"
-msgstr ""
+msgstr "Вы действительно хотите удалить OpenID?"
 
 #: ../openid.c:38
 msgid "(delete)"
-msgstr ""
+msgstr "(удалить)"
 
 #: ../openid.c:46
 msgid "Add an OpenID: "
-msgstr ""
+msgstr "Добавить OpenID: "
 
 #: ../openid.c:49
 msgid "Attach"
-msgstr ""
+msgstr "Прикрепить"
 
 #: ../openid.c:53
 #, c-format
@@ -878,15 +882,15 @@ msgstr ""
 
 #: ../paging.c:58
 msgid "Enter message text:"
-msgstr ""
+msgstr "Введите текст сообщения:"
 
 #: ../paging.c:66
 msgid "Send message"
-msgstr ""
+msgstr "Отправить сообщение"
 
 #: ../paging.c:86
 msgid "Message was not sent."
-msgstr ""
+msgstr "Сообщение не было отправлено."
 
 #: ../paging.c:100
 msgid "Message has been sent to "
@@ -894,11 +898,11 @@ msgstr ""
 
 #: ../preferences.c:846
 msgid "Cancelled.  No settings were changed."
-msgstr ""
+msgstr "Отменено. Настройки не были изменены."
 
 #: ../preferences.c:1058
 msgid "Make this my start page"
-msgstr ""
+msgstr "Сделать стартовой страницей"
 
 #: ../preferences.c:1097
 msgid "This isn't allowed to become the start page."
@@ -910,7 +914,7 @@ msgstr ""
 
 #: ../preferences.c:1152
 msgid "Prefered startpage"
-msgstr ""
+msgstr "Предпочитаемая стартовая странице"
 
 #: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
 msgid "Higher access is required to access this function."
@@ -918,15 +922,15 @@ msgstr ""
 
 #: ../roomlist.c:101
 msgid "My Folders"
-msgstr ""
+msgstr "Мои папки"
 
 #: ../roomops.c:677 ../roomops.c:970 ../sieve.c:571
 msgid "Cancelled.  Changes were not saved."
-msgstr ""
+msgstr "Отменено. Изменения не сохранены."
 
 #: ../roomops.c:805 ../sieve.c:627
 msgid "Your changes have been saved."
-msgstr ""
+msgstr "Ваши изменения сохранены."
 
 #: ../roomops.c:847
 #, c-format
@@ -936,19 +940,19 @@ msgstr ""
 #: ../roomops.c:863
 #, c-format
 msgid "User '%s' invited to room '%s'."
-msgstr ""
+msgstr "Пользователь '%s' приглашен в комнату '%s'."
 
 #: ../roomops.c:893
 msgid "Cancelled.  No new room was created."
-msgstr ""
+msgstr "Отменено. Новая комната не была создана."
 
 #: ../roomops.c:1159
 msgid "Floor has been deleted."
-msgstr ""
+msgstr "Этаж был удален"
 
 #: ../roomops.c:1183
 msgid "New floor has been created."
-msgstr ""
+msgstr "Создан новый этаж"
 
 #: ../roomops.c:1262
 msgid "Room list view"
@@ -956,15 +960,15 @@ msgstr ""
 
 #: ../roomops.c:1265
 msgid "Show empty floors"
-msgstr ""
+msgstr "Показать пустые этажи"
 
 #: ../roomtokens.c:512
 msgid "file"
-msgstr ""
+msgstr "файл"
 
 #: ../roomtokens.c:514
 msgid "files"
-msgstr ""
+msgstr "файлы"
 
 #: ../roomviews.c:42
 msgid "Bulletin Board"
@@ -976,23 +980,23 @@ msgstr ""
 
 #: ../roomviews.c:44
 msgid "Address Book"
-msgstr ""
+msgstr "Адресная книга"
 
 #: ../roomviews.c:45 ../static/t/iconbar.html:22
 msgid "Calendar"
-msgstr ""
+msgstr "Календарь"
 
 #: ../roomviews.c:46
 msgid "Task List"
-msgstr ""
+msgstr "Список задач"
 
 #: ../roomviews.c:47
 msgid "Notes List"
-msgstr ""
+msgstr "Список Заметок"
 
 #: ../roomviews.c:48
 msgid "Wiki"
-msgstr ""
+msgstr "Вики"
 
 #: ../roomviews.c:49
 msgid "Calendar List"
@@ -1004,7 +1008,7 @@ msgstr ""
 
 #: ../roomviews.c:51
 msgid "Blog"
-msgstr ""
+msgstr "Блог"
 
 #: ../serv_func.c:186
 msgid ""
@@ -1040,7 +1044,7 @@ msgstr ""
 
 #: ../sieve.c:117
 msgid "When new mail arrives: "
-msgstr ""
+msgstr "При получении нового письма: "
 
 #: ../sieve.c:121
 msgid "Leave it in my inbox without filtering"
@@ -1064,15 +1068,15 @@ msgstr ""
 
 #: ../sieve.c:171 ../sieve.c:644
 msgid "Add or delete scripts"
-msgstr ""
+msgstr "Добавить или удалить скрипты"
 
 #: ../sieve.c:203 ../sysmsgs.c:48 ../vcard_edit.c:1000
 msgid "Save changes"
-msgstr ""
+msgstr "Сохранить изменения"
 
 #: ../sieve.c:657
 msgid "Add a new script"
-msgstr ""
+msgstr "Добавить новый скрипт"
 
 #: ../sieve.c:660
 msgid ""
@@ -1082,15 +1086,15 @@ msgstr ""
 
 #: ../sieve.c:666
 msgid "Script name: "
-msgstr ""
+msgstr "Имя скрипта: "
 
 #: ../sieve.c:669
 msgid "Create"
-msgstr ""
+msgstr "Создать"
 
 #: ../sieve.c:674
 msgid "Edit scripts"
-msgstr ""
+msgstr "Изменить скрипты"
 
 #: ../sieve.c:677
 msgid "Return to the script editing screen"
@@ -1098,25 +1102,26 @@ msgstr ""
 
 #: ../sieve.c:684
 msgid "Delete scripts"
-msgstr ""
+msgstr "Удалить скрипты"
 
 #: ../sieve.c:687
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
 msgstr ""
+"Для удаления скрипта, выберите скрипт из списка и нажмите \"Удалить\"."
 
 #: ../sieve.c:711
 msgid "Delete script"
-msgstr ""
+msgstr "Удалить скрипт"
 
 #: ../sieve.c:711
 msgid "Delete this script?"
-msgstr ""
+msgstr "Удалить скрипт:"
 
 #: ../sieve.c:748
 msgid "A script by that name already exists."
-msgstr ""
+msgstr "Скрипт с таким именем уже существует"
 
 #: ../sieve.c:757
 msgid ""
@@ -1134,11 +1139,11 @@ msgstr ""
 
 #: ../sieve.c:984
 msgid "Delete rule"
-msgstr ""
+msgstr "Удалить правило"
 
 #: ../sieve.c:992
 msgid "If"
-msgstr ""
+msgstr "Если"
 
 #: ../sieve.c:996
 msgid "To or Cc"
@@ -1151,7 +1156,7 @@ msgstr ""
 #: ../sieve.c:999 ../smtpqueue.c:197 ../static/t/msg_listview.html:11
 #: ../static/t/summary_header.html:9
 msgid "Sender"
-msgstr ""
+msgstr "Отправитель"
 
 #: ../sieve.c:1000
 msgid "Resent-From"
@@ -1171,7 +1176,7 @@ msgstr ""
 
 #: ../sieve.c:1004
 msgid "X-Mailer"
-msgstr ""
+msgstr "X-Mailer"
 
 #: ../sieve.c:1005
 msgid "X-Spam-Flag"
@@ -1187,19 +1192,19 @@ msgstr ""
 
 #: ../sieve.c:1008
 msgid "Message size"
-msgstr ""
+msgstr "Размер сообщения"
 
 #: ../sieve.c:1009 ../static/t/select_messageindex_all.html:1
 msgid "All"
-msgstr ""
+msgstr "Все"
 
 #: ../sieve.c:1028
 msgid "contains"
-msgstr ""
+msgstr "содержит"
 
 #: ../sieve.c:1029
 msgid "does not contain"
-msgstr ""
+msgstr "не содержит"
 
 #: ../sieve.c:1030
 msgid "is"
@@ -1207,27 +1212,27 @@ msgstr ""
 
 #: ../sieve.c:1031
 msgid "is not"
-msgstr ""
+msgstr "не"
 
 #: ../sieve.c:1032
 msgid "matches"
-msgstr ""
+msgstr "совпадает"
 
 #: ../sieve.c:1033
 msgid "does not match"
-msgstr ""
+msgstr "не совпадает"
 
 #: ../sieve.c:1053
 msgid "(All messages)"
-msgstr ""
+msgstr "(Все сообщения)"
 
 #: ../sieve.c:1057
 msgid "is larger than"
-msgstr ""
+msgstr "больше чем"
 
 #: ../sieve.c:1058
 msgid "is smaller than"
-msgstr ""
+msgstr "меньше чем"
 
 #: ../sieve.c:1081
 msgid "Keep"
@@ -1239,11 +1244,11 @@ msgstr ""
 
 #: ../sieve.c:1083
 msgid "Reject"
-msgstr ""
+msgstr "Отклонить"
 
 #: ../sieve.c:1084
 msgid "Move message to"
-msgstr ""
+msgstr "Переместить сообщение в"
 
 #: ../sieve.c:1085
 msgid "Forward to"
@@ -1255,7 +1260,7 @@ msgstr ""
 
 #: ../sieve.c:1123
 msgid "Message:"
-msgstr ""
+msgstr "Сообщение:"
 
 #: ../sieve.c:1133
 msgid "continue processing"
@@ -1271,7 +1276,7 @@ msgstr ""
 
 #: ../sieve.c:1158
 msgid "Add rule"
-msgstr ""
+msgstr "Добавить правило"
 
 #: ../siteconfig.c:254
 msgid ""
@@ -1280,7 +1285,7 @@ msgstr ""
 
 #: ../siteconfig.c:313
 msgid "Your system configuration has been updated."
-msgstr ""
+msgstr "Настройки системы обновлены."
 
 #: ../smtpqueue.c:133
 msgid "(Delete)"
@@ -1288,7 +1293,7 @@ msgstr ""
 
 #: ../smtpqueue.c:191
 msgid "Message ID"
-msgstr ""
+msgstr "ID сообщения"
 
 #: ../smtpqueue.c:193
 msgid "Date/time submitted"
@@ -1300,7 +1305,7 @@ msgstr ""
 
 #: ../smtpqueue.c:199
 msgid "Recipients"
-msgstr ""
+msgstr "Получатели"
 
 #: ../smtpqueue.c:214
 msgid "The queue is empty."
@@ -1308,7 +1313,7 @@ msgstr ""
 
 #: ../smtpqueue.c:220
 msgid "You do not have permission to view this resource."
-msgstr ""
+msgstr "У вас нет разрешений для просмотра ресурса."
 
 #: ../smtpqueue.c:236
 msgid "View the outbound SMTP queue"
@@ -1316,7 +1321,7 @@ msgstr ""
 
 #: ../smtpqueue.c:252
 msgid "Refresh this page"
-msgstr ""
+msgstr "Обновить страницу"
 
 #: ../summary.c:101
 msgid "(None)"
@@ -1324,7 +1329,7 @@ msgstr ""
 
 #: ../summary.c:153
 msgid "(Nothing)"
-msgstr ""
+msgstr "(Ничего)"
 
 #: ../summary.c:167
 #, c-format
@@ -1335,11 +1340,11 @@ msgstr ""
 
 #: ../summary.c:195
 msgid "Messages"
-msgstr ""
+msgstr "Сообщения"
 
 #: ../summary.c:208 ../static/t/iconbar.html:37
 msgid "Tasks"
-msgstr ""
+msgstr "Задачи"
 
 #: ../summary.c:221
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
@@ -1361,7 +1366,7 @@ msgstr ""
 #: ../sysmsgs.c:33
 #, c-format
 msgid "Edit %s"
-msgstr ""
+msgstr "Изменить %s"
 
 #: ../sysmsgs.c:36
 #, c-format
@@ -1373,16 +1378,16 @@ msgstr ""
 #: ../sysmsgs.c:70
 #, c-format
 msgid "Cancelled.  %s was not saved."
-msgstr ""
+msgstr "Отменено. %s не было сохранено."
 
 #: ../sysmsgs.c:89
 #, c-format
 msgid "%s has been saved."
-msgstr ""
+msgstr "%s было сохранено."
 
 #: ../sysmsgs.c:97 ../sysmsgs.c:98
 msgid "Room info"
-msgstr ""
+msgstr "Информация о комнате"
 
 #: ../sysmsgs.c:103 ../sysmsgs.c:105
 msgid "Your bio"
@@ -1394,7 +1399,7 @@ msgstr ""
 
 #: ../tasks.c:97
 msgid "Name of task"
-msgstr ""
+msgstr "Название задачи"
 
 #: ../tasks.c:99
 msgid "Date due"
@@ -1402,27 +1407,27 @@ msgstr ""
 
 #: ../tasks.c:101
 msgid "Category"
-msgstr ""
+msgstr "Категория"
 
 #: ../tasks.c:103
 msgid "Show All"
-msgstr ""
+msgstr "Показать все"
 
 #: ../tasks.c:228
 msgid "Edit task"
-msgstr ""
+msgstr "Редактировать задачу"
 
 #: ../tasks.c:258
 msgid "Start date:"
-msgstr ""
+msgstr "Дата начала:"
 
 #: ../tasks.c:266 ../tasks.c:296
 msgid "No date"
-msgstr ""
+msgstr "Без даты"
 
 #: ../tasks.c:270 ../tasks.c:299
 msgid "or"
-msgstr ""
+msgstr "или"
 
 #: ../tasks.c:284 ../tasks.c:313
 msgid "Time associated"
@@ -1434,11 +1439,11 @@ msgstr ""
 
 #: ../tasks.c:317
 msgid "Completed:"
-msgstr ""
+msgstr "Выполнено:"
 
 #: ../tasks.c:328
 msgid "Category:"
-msgstr ""
+msgstr "Категория:"
 
 #: ../useredit.c:533
 msgid ""
@@ -1447,12 +1452,12 @@ msgstr ""
 
 #: ../useredit.c:610
 msgid "Changes were not saved."
-msgstr ""
+msgstr "Изменения не были сохранены."
 
 #: ../useredit.c:700
 #, c-format
 msgid "A new user has been created."
-msgstr ""
+msgstr "Создан новый пользователь."
 
 #: ../useredit.c:705
 msgid ""
@@ -1468,31 +1473,31 @@ msgstr ""
 
 #: ../userlist.c:57
 msgid "User Name"
-msgstr ""
+msgstr "Имя пользователя"
 
 #: ../userlist.c:58
 msgid "Number"
-msgstr ""
+msgstr "Номер"
 
 #: ../userlist.c:59
 msgid "Access Level"
-msgstr ""
+msgstr "Уровень доступа"
 
 #: ../userlist.c:60
 msgid "Last Login"
-msgstr ""
+msgstr "Последний вход"
 
 #: ../userlist.c:61
 msgid "Total Logins"
-msgstr ""
+msgstr "Всего входов"
 
 #: ../userlist.c:62
 msgid "Total Posts"
-msgstr ""
+msgstr "Всего сообщений"
 
 #: ../userlist.c:119
 msgid "User profile"
-msgstr ""
+msgstr "Профиль пользователя"
 
 #: ../userlist.c:157
 #, c-format
@@ -1501,7 +1506,7 @@ msgstr ""
 
 #: ../vcard_edit.c:117 ../vcard_edit.c:120
 msgid "(no name)"
-msgstr ""
+msgstr "(без названия)"
 
 #: ../vcard_edit.c:385
 msgid " (work)"
@@ -1517,19 +1522,19 @@ msgstr " (mobile)"
 
 #: ../vcard_edit.c:400 ../vcard_edit.c:905
 msgid "Address:"
-msgstr ""
+msgstr "Адрес:"
 
 #: ../vcard_edit.c:468
 msgid "Telephone:"
-msgstr ""
+msgstr "Телефон:"
 
 #: ../vcard_edit.c:473
 msgid "E-mail:"
-msgstr ""
+msgstr "Эл. почта:"
 
 #: ../vcard_edit.c:563
 msgid "This address book is empty."
-msgstr ""
+msgstr "Адресная книга пуста."
 
 #: ../vcard_edit.c:577
 msgid "An internal error has occurred."
@@ -1537,7 +1542,7 @@ msgstr ""
 
 #: ../vcard_edit.c:728
 msgid "Error"
-msgstr ""
+msgstr "Ошибка"
 
 #: ../vcard_edit.c:832
 msgid "Edit contact information"
@@ -1545,27 +1550,27 @@ msgstr ""
 
 #: ../vcard_edit.c:853
 msgid "Prefix"
-msgstr ""
+msgstr "Префикс"
 
 #: ../vcard_edit.c:853
 msgid "First Name"
-msgstr ""
+msgstr "Имя"
 
 #: ../vcard_edit.c:853
 msgid "Middle Name"
-msgstr ""
+msgstr "Отчество"
 
 #: ../vcard_edit.c:853
 msgid "Last Name"
-msgstr ""
+msgstr "Фамилия"
 
 #: ../vcard_edit.c:853
 msgid "Suffix"
-msgstr ""
+msgstr "Суффикс"
 
 #: ../vcard_edit.c:874
 msgid "Display name:"
-msgstr ""
+msgstr "Отображаемое имя:"
 
 #: ../vcard_edit.c:881
 msgid "Title:"
@@ -1573,7 +1578,7 @@ msgstr ""
 
 #: ../vcard_edit.c:888
 msgid "Organization:"
-msgstr ""
+msgstr "Организация:"
 
 #: ../vcard_edit.c:899
 msgid "PO box:"
@@ -1581,39 +1586,39 @@ msgstr ""
 
 #: ../vcard_edit.c:915
 msgid "City:"
-msgstr ""
+msgstr "Город:"
 
 #: ../vcard_edit.c:921
 msgid "State:"
-msgstr ""
+msgstr "Штат:"
 
 #: ../vcard_edit.c:927
 msgid "ZIP code:"
-msgstr ""
+msgstr "Почтовый индекс:"
 
 #: ../vcard_edit.c:933
 msgid "Country:"
-msgstr ""
+msgstr "Страна:"
 
 #: ../vcard_edit.c:943
 msgid "Home telephone:"
-msgstr ""
+msgstr "Домашний телефон:"
 
 #: ../vcard_edit.c:949
 msgid "Work telephone:"
-msgstr ""
+msgstr "Рабочий телефон:"
 
 #: ../vcard_edit.c:955
 msgid "Mobile telephone:"
-msgstr ""
+msgstr "Мобильный телефон:"
 
 #: ../vcard_edit.c:961
 msgid "Fax number:"
-msgstr ""
+msgstr "Номер факса:"
 
 #: ../vcard_edit.c:972
 msgid "Primary Internet e-mail address"
-msgstr ""
+msgstr "Основной ящик электронной почты"
 
 #: ../vcard_edit.c:979
 msgid "Internet e-mail aliases"
@@ -1625,11 +1630,11 @@ msgstr ""
 
 #: ../vcard_edit.c:1055
 msgid "Aborting."
-msgstr ""
+msgstr "Отмена."
 
 #: ../vcard_edit.c:1091 ../vcard_edit.c:1137
 msgid "An error has occurred."
-msgstr ""
+msgstr "Произошла ошибка."
 
 #: ../vcard_edit.c:1193
 msgid "Could Not decode vcard photo\n"
@@ -1637,7 +1642,7 @@ msgstr ""
 
 #: ../webcit.c:339
 msgid "Authorization Required"
-msgstr ""
+msgstr "Требуется авторизация"
 
 #: ../webcit.c:348
 #, c-format
@@ -1660,11 +1665,11 @@ msgstr ""
 
 #: ../who.c:168
 msgid "Room name:"
-msgstr ""
+msgstr "Название комнаты:"
 
 #: ../who.c:173
 msgid "Change room name"
-msgstr ""
+msgstr "Изменить название комнаты"
 
 #: ../who.c:177
 msgid "Host name:"
@@ -1686,17 +1691,17 @@ msgstr ""
 #: ../wiki.c:53 ../wiki.c:146 ../wiki.c:268
 #, c-format
 msgid "There is no room called '%s'."
-msgstr ""
+msgstr "Не комнаты под названием '%s'."
 
 #: ../wiki.c:60
 #, c-format
 msgid "'%s' is not a Wiki room."
-msgstr ""
+msgstr "'%s' не комната Вики."
 
 #: ../wiki.c:94
 #, c-format
 msgid "There is no page called '%s' here."
-msgstr ""
+msgstr "Нет страницы с названием '%s'."
 
 #: ../wiki.c:96
 msgid ""
@@ -1707,7 +1712,7 @@ msgstr ""
 #: ../wiki.c:167 ../static/t/msg_listview.html:12
 #: ../static/t/summary_header.html:10
 msgid "Date"
-msgstr ""
+msgstr "Дата"
 
 #: ../wiki.c:168
 msgid "Author"
@@ -1715,11 +1720,11 @@ msgstr ""
 
 #: ../wiki.c:195 ../wiki.c:204
 msgid "(show)"
-msgstr ""
+msgstr "(показать)"
 
 #: ../wiki.c:197 ../static/t/navbar.html:147
 msgid "Current version"
-msgstr ""
+msgstr "Текущая версия"
 
 #: ../wiki.c:209
 msgid "(revert)"
@@ -1727,7 +1732,7 @@ msgstr ""
 
 #: ../wiki.c:289
 msgid "Page title"
-msgstr ""
+msgstr "Заголовок страницы"
 
 #: ../static/t/display_main_menu.html:8
 msgid "Basic commands"
@@ -1743,7 +1748,7 @@ msgstr ""
 
 #: ../static/t/edit_message.html:23
 msgid "from"
-msgstr ""
+msgstr "от"
 
 #: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
 msgid "Anonymous"
@@ -1751,11 +1756,11 @@ msgstr ""
 
 #: ../static/t/edit_message.html:47
 msgid "in"
-msgstr ""
+msgstr "в"
 
 #: ../static/t/edit_message.html:51
 msgid "To:"
-msgstr ""
+msgstr "Кому:"
 
 #: ../static/t/edit_message.html:62 ../static/t/view_message.html:16
 msgid "CC:"
@@ -1767,11 +1772,11 @@ msgstr ""
 
 #: ../static/t/edit_message.html:76 ../static/t/view_message.html:17
 msgid "Subject:"
-msgstr ""
+msgstr "Тема:"
 
 #: ../static/t/edit_message.html:76
 msgid "Subject (optional):"
-msgstr ""
+msgstr "Тема(опционально):"
 
 #: ../static/t/edit_message.html:92
 msgid "--- forwarded message ---"
@@ -1779,11 +1784,11 @@ msgstr ""
 
 #: ../static/t/edit_message.html:112
 msgid "Attachments:"
-msgstr ""
+msgstr "Вложения:"
 
 #: ../static/t/edit_message.html:116
 msgid "Attach file:"
-msgstr ""
+msgstr "Вложить файл:"
 
 #: ../static/t/files.html:3
 msgid "Files available for download in"
@@ -1791,19 +1796,19 @@ msgstr ""
 
 #: ../static/t/files.html:18
 msgid "Filename"
-msgstr ""
+msgstr "Имя файла"
 
 #: ../static/t/files.html:19
 msgid "Size"
-msgstr ""
+msgstr "Размер"
 
 #: ../static/t/files.html:20
 msgid "Content"
-msgstr ""
+msgstr "Содержимое"
 
 #: ../static/t/files.html:21
 msgid "Description"
-msgstr ""
+msgstr "Описание"
 
 #: ../static/t/files.html:35
 msgid "Upload a file:"
@@ -1811,7 +1816,7 @@ msgstr ""
 
 #: ../static/t/floors_edit_one.html:11
 msgid "(delete floor)"
-msgstr ""
+msgstr "(удалить этаж)"
 
 #: ../static/t/floors_edit_one.html:13
 msgid "(edit graphic)"
@@ -1819,19 +1824,19 @@ msgstr ""
 
 #: ../static/t/floors.html:4
 msgid "Add/change/delete floors"
-msgstr ""
+msgstr "Добавить/изменить/удалить этажи"
 
 #: ../static/t/floors.html:10
 msgid "Floor number"
-msgstr ""
+msgstr "Номер этажа"
 
 #: ../static/t/floors.html:11
 msgid "Floor name"
-msgstr ""
+msgstr "Название этажа"
 
 #: ../static/t/floors.html:12
 msgid "Number of rooms"
-msgstr ""
+msgstr "Количество комнат"
 
 #: ../static/t/floors.html:13
 msgid "Floor CSS"
@@ -1839,11 +1844,11 @@ msgstr ""
 
 #: ../static/t/iconbar.html:17
 msgid "Mail"
-msgstr ""
+msgstr "Почта"
 
 #: ../static/t/iconbar.html:42
 msgid "Rooms"
-msgstr ""
+msgstr "Комнаты"
 
 #: ../static/t/iconbar.html:47
 msgid "Online users"
@@ -1851,11 +1856,11 @@ msgstr ""
 
 #: ../static/t/iconbar.html:51
 msgid "Loading"
-msgstr ""
+msgstr "Загрузка"
 
 #: ../static/t/iconbar.html:56
 msgid "Chat"
-msgstr ""
+msgstr "Чат"
 
 #: ../static/t/iconbar.html:62
 msgid "Advanced"
@@ -1863,7 +1868,7 @@ msgstr ""
 
 #: ../static/t/iconbar.html:68
 msgid "Administration"
-msgstr ""
+msgstr "Администрация"
 
 #: ../static/t/iconbar.html:77
 msgid "customize this menu"
@@ -1879,15 +1884,15 @@ msgstr ""
 
 #: ../static/t/iconbar.html:82
 msgid "My folders"
-msgstr ""
+msgstr "Мои папки"
 
 #: ../static/t/knrooms.html:5
 msgid "Room list"
-msgstr ""
+msgstr "Список комнат"
 
 #: ../static/t/knrooms.html:5
 msgid "Folder list"
-msgstr ""
+msgstr "Список папок"
 
 #: ../static/t/knrooms.html:19
 msgid "View as room list"
@@ -1913,15 +1918,15 @@ msgstr ""
 
 #: ../static/t/login.html:21
 msgid "Password:"
-msgstr ""
+msgstr "Пароль:"
 
 #: ../static/t/login.html:23 ../static/t/openid_login.html:21
 msgid "Language:"
-msgstr ""
+msgstr "Язык:"
 
 #: ../static/t/login.html:39
 msgid "Log in using OpenID"
-msgstr ""
+msgstr "Войдите используя OpenID"
 
 #: ../static/t/login.html:43
 msgid "If you already have an account on"
@@ -1974,28 +1979,28 @@ msgstr ""
 #: ../static/t/msg_listselector_bottom.html:12
 #: ../static/t/msg_listselector_top.html:12
 msgid "oldest to newest"
-msgstr ""
+msgstr "от старых к новым"
 
 #: ../static/t/msg_listselector_bottom.html:20
 #: ../static/t/msg_listselector_top.html:20
 msgid "newest to oldest"
-msgstr ""
+msgstr "от новых к станым"
 
 #: ../static/t/msg_listview.html:20
 msgid "Loading messages from server, please wait"
-msgstr ""
+msgstr "Загрузка сообщений с сервера, подождите"
 
 #: ../static/t/msg_listview.html:27
 msgid "Open in new window"
-msgstr ""
+msgstr "Открыть в новом окне"
 
 #: ../static/t/msg_listview.html:29
 msgid "Copy"
-msgstr ""
+msgstr "Копировать"
 
 #: ../static/t/msg_listview.html:31 ../static/t/view_message.html:41
 msgid "Print"
-msgstr ""
+msgstr "Печать"
 
 #: ../static/t/navbar.html:5
 msgid "Ungoto"
@@ -2011,7 +2016,7 @@ msgstr ""
 
 #: ../static/t/navbar.html:25
 msgid "Enter a message"
-msgstr ""
+msgstr "Введите сообщение"
 
 #: ../static/t/navbar.html:34
 msgid "View contacts"
@@ -2031,7 +2036,7 @@ msgstr ""
 
 #: ../static/t/navbar.html:61
 msgid "Add new event"
-msgstr ""
+msgstr "Добавить новое событие"
 
 #: ../static/t/navbar.html:70
 msgid "Calendar list"
@@ -2051,15 +2056,15 @@ msgstr ""
 
 #: ../static/t/navbar.html:102
 msgid "Add new note"
-msgstr ""
+msgstr "Добавить новую заметку"
 
 #: ../static/t/navbar.html:111
 msgid "Refresh message list"
-msgstr ""
+msgstr "Обновить список сообщений"
 
 #: ../static/t/navbar.html:123
 msgid "Write mail"
-msgstr ""
+msgstr "Написать письмо"
 
 #: ../static/t/navbar.html:133
 msgid "Wiki home"
@@ -2067,15 +2072,15 @@ msgstr ""
 
 #: ../static/t/navbar.html:140
 msgid "Edit this page"
-msgstr ""
+msgstr "Редактировать страницу"
 
 #: ../static/t/navbar.html:147
 msgid "History"
-msgstr ""
+msgstr "История"
 
 #: ../static/t/navbar.html:155
 msgid "Skip this room"
-msgstr ""
+msgstr "Пропустить комнату"
 
 #: ../static/t/navbar.html:161
 msgid "Goto next room"
@@ -2083,11 +2088,11 @@ msgstr ""
 
 #: ../static/t/newstartpage.html:4
 msgid "New start page"
-msgstr ""
+msgstr "Новая стартовая страница"
 
 #: ../static/t/newstartpage.html:9
 msgid "Your start page has been changed."
-msgstr ""
+msgstr "Стартовая страница изменена."
 
 #: ../static/t/newstartpage.html:12
 msgid ""
@@ -2097,7 +2102,7 @@ msgstr ""
 
 #: ../static/t/no_new_msgs.html:3
 msgid "No new messages."
-msgstr ""
+msgstr "Нет новых сообщений."
 
 #: ../static/t/openid_login.html:19
 msgid "OpenID URL:"
@@ -2105,7 +2110,7 @@ msgstr ""
 
 #: ../static/t/openid_login.html:31
 msgid "Log in using a user name and password"
-msgstr ""
+msgstr "Войдите используя имя пользователя и пароль"
 
 #: ../static/t/openid_login.html:34
 msgid "Enter your OpenID URL and click &quot;Login&quot;."
@@ -2121,7 +2126,7 @@ msgstr " - powered by <a href=\"http://www.citadel.org\">Citadel</a>"
 
 #: ../static/t/openid_manual_create.html:8
 msgid "Your OpenID"
-msgstr ""
+msgstr "Ваш OpenID"
 
 #: ../static/t/openid_manual_create.html:8
 msgid "was successfully verified."
@@ -2153,32 +2158,32 @@ msgstr ""
 
 #: ../static/t/searchomatic.html:4
 msgid "Search: "
-msgstr ""
+msgstr "Поиск: "
 
 #: ../static/t/start_of_new_msgs.html:4
 msgid "Old messages"
-msgstr ""
+msgstr "Старые сообщения"
 
 #: ../static/t/start_of_new_msgs.html:8
 msgid "New messages"
-msgstr ""
+msgstr "Новые сообщения"
 
 #: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
 msgid "from "
-msgstr ""
+msgstr "от "
 
 #: ../static/t/view_message.html:15
 msgid "to"
-msgstr ""
+msgstr "Кому"
 
 #: ../static/t/view_message.html:19
 msgid "Edit"
-msgstr ""
+msgstr "Изменить"
 
 #: ../static/t/view_message.html:21 ../static/t/view_message.html:26
 #: ../static/t/view_message.html:31
 msgid "Reply"
-msgstr ""
+msgstr "Ответить"
 
 #: ../static/t/view_message.html:22
 msgid "ReplyQuoted"
