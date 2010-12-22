@@ -19,13 +19,14 @@
  */
 
 int sock_connect(char *host, char *service);
+int sock_read_to(int *sock, char *buf, int bytes, int timeout, int keep_reading_until_full);
+int sock_read(int *sock, char *buf, int bytes, int keep_reading_until_full);
 int sock_write(int *sock, const char *buf, int nbytes);
 int sock_write_timeout(int *sock, const char *buf, int nbytes, int timeout);
 int ml_sock_gets(int *sock, char *buf, int nSec);
 int sock_getln(int *sock, char *buf, int bufsize);
 int CtdlSockGetLine(int *sock, StrBuf *Target, int nSec);
 int sock_puts(int *sock, char *buf);
-int socket_read_blob(int *Socket, StrBuf * Target, int bytes, int timeout);
 
 
 /* 
