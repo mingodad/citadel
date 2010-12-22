@@ -87,7 +87,6 @@
 #include "ctdl_module.h"
 
 #include "smtp_util.h"
-#ifndef EXPERIMENTAL_SMTP_EVENT_CLIENT
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 
@@ -989,11 +988,10 @@ void smtp_init_spoolout(void) {
 }
 
 
-#endif
+
 
 CTDL_MODULE_INIT(smtp_client)
 {
-#ifndef EXPERIMENTAL_SMTP_EVENT_CLIENT
 	if (!threading)
 	{
 		smtp_init_spoolout();
@@ -1001,8 +999,6 @@ CTDL_MODULE_INIT(smtp_client)
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");
 	}
 	
-#endif
 	/* return our Subversion id for the Log */
-	return "smtpclient";
+	return "smtp";
 }
-
