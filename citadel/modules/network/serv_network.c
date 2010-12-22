@@ -1924,7 +1924,6 @@ void receive_spool(int *sock, char *remote_nodename) {
 	int download_len = 0L;
 	int bytes_received = 0L;
 	char buf[SIZ];
-	static char pbuf[IGNET_PACKET_SIZE];
 	char tempfilename[PATH_MAX];
 	char permfilename[PATH_MAX];
 	int plen;
@@ -1998,13 +1997,17 @@ void receive_spool(int *sock, char *remote_nodename) {
 		
 		if (buf[0] == '6') {
 			plen = extract_int(&buf[4], 0);
-			if (sock_read(sock, pbuf, plen, 1) < 0) {
+			StrBuf *pbuf = NewStrBuf();
+			if (socket_read_blob(sock, pbuf, plen, CLIENT_TIMEOUT) != plen) {
+				CtdlLogPrintf(CTDL_INFO, "Short read from peer; aborting.\n");
 				fclose(fp);
 				unlink(tempfilename);
+				FreeStrBuf(&pbuf);
 				return;
 			}
-			fwrite((char *) pbuf, plen, 1, fp);
+			fwrite(ChrPtr(pbuf), plen, 1, fp);
 			bytes_received += plen;
+			FreeStrBuf(&pbuf);
 		}
 	}
 
@@ -2031,7 +2034,6 @@ void receive_spool(int *sock, char *remote_nodename) {
 	}
 
 	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
-	CtdlLogPrintf(CTDL_NOTICE, "Received %ld octets from <%s>\n", download_len, remote_nodename);
 
 	/*
 	 * Now move the temp file to its permanent location.
