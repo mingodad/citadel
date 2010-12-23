@@ -6,6 +6,7 @@ typedef enum _eNextState {
 	eSendReply, 
 	eSendMore,
 	eReadMessage, 
+	eTerminateConnection,
 	eAbort
 }eNextState;
 
@@ -21,11 +22,13 @@ struct AsyncIO {
 	IO_CallBack ReadDone, SendDone;
 	StrBuf *IOBuf;
 	void *Data;
-	eNextState NextState;
+	DeleteHashDataFunc DeleteData; /* data is expected to contain AsyncIO... */
+       	eNextState NextState;
 };
 
+void FreeAsyncIOContents(AsyncIO *IO);
 
-int QueueEventContext(void *Ctx, EventContextAttach CB);
+int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB);
 
 void InitEventIO(AsyncIO *IO, 
 		 void *pData, 

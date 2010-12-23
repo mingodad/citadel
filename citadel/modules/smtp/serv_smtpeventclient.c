@@ -89,13 +89,56 @@
 #include "event_client.h"
 
 #ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
+HashList *QItemHandlers = NULL;
+
+citthread_mutex_t ActiveQItemsLock;
+HashList *ActiveQItems = NULL;
 
 int run_queue_now = 0;	/* Set to 1 to ignore SMTP send retry times */
 int MsgCount = 0;
 /*****************************************************************************/
-/*               SMTP CLIENT (OUTBOUND PROCESSING) STUFF                     */
+/*               SMTP CLIENT (Queue Management) STUFF                        */
 /*****************************************************************************/
 
+#define MaxAttempts 15
+typedef struct _delivery_attempt {
+	time_t when;
+	time_t retry;
+}DeliveryAttempt;
+
+typedef struct _mailq_entry {
+	DeliveryAttempt Attempts[MaxAttempts];
+	int nAttempts;
+	StrBuf *Recipient;
+	StrBuf *StatusMessage;
+	int Status;
+	int n;
+	int Active;
+}MailQEntry;
+void FreeMailQEntry(void *qv)
+{
+	MailQEntry *Q = qv;
+	FreeStrBuf(&Q->Recipient);
+	FreeStrBuf(&Q->StatusMessage);
+	free(Q);
+}
+
+typedef struct queueitem {
+	long MessageID;
+	long QueMsgID;
+	int FailNow;
+	HashList *MailQEntries;
+	MailQEntry *Current; /* copy of the currently parsed item in the MailQEntries list; if null add a new one. */
+	DeliveryAttempt LastAttempt;
+	long ActiveDeliveries;
+	StrBuf *EnvelopeFrom;
+	StrBuf *BounceTo;
+} OneQueItem;
+typedef void (*QItemHandler)(OneQueItem *Item, StrBuf *Line, const char **Pos);
+
+/*****************************************************************************/
+/*               SMTP CLIENT (OUTBOUND PROCESSING) STUFF                     */
+/*****************************************************************************/
 
 typedef enum _eSMTP_C_States {
 	eConnect, 
@@ -141,6 +184,8 @@ const char *ReadErrors[eMaxSMTPC] = {
 
 
 typedef struct _stmp_out_msg {
+	MailQEntry *MyQEntry;
+	OneQueItem *MyQItem;
 	long n;
 	AsyncIO IO;
 
@@ -162,11 +207,18 @@ typedef struct _stmp_out_msg {
 	char user[1024];
 	char node[1024];
 	char name[1024];
-	char addr[SIZ];
-	char dsn[1024];
-	char envelope_from_buf[1024];
+/// 	char addr[SIZ]; -> MyQEntry->Recipient
+///	char dsn[1024]; -> MyQEntry->StatusMessage
+///	char envelope_from_buf[1024]; MyQItem->EnvelopeFrom
 	char mailfrom[1024];
 } SmtpOutMsg;
+void DeleteSmtpOutMsg(void *v)
+{
+	SmtpOutMsg *Msg = v;
+	FreeStrBuf(&Msg->msgtext);
+	FreeAsyncIOContents(&Msg->IO);
+	free(Msg);
+}
 
 eNextState SMTP_C_DispatchReadDone(void *Data);
 eNextState SMTP_C_DispatchWriteDone(void *Data);
@@ -175,6 +227,213 @@ eNextState SMTP_C_DispatchWriteDone(void *Data);
 typedef eNextState (*SMTPReadHandler)(SmtpOutMsg *Msg);
 typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
 
+
+
+
+void FreeQueItem(OneQueItem **Item)
+{
+	DeleteHash(&(*Item)->MailQEntries);
+	FreeStrBuf(&(*Item)->EnvelopeFrom);
+	FreeStrBuf(&(*Item)->BounceTo);
+	free(*Item);
+	Item = NULL;
+}
+void HFreeQueItem(void *Item)
+{
+	FreeQueItem((OneQueItem**)&Item);
+}
+
+
+/* inspect recipients with a status of: 
+ * - 0 (no delivery yet attempted) 
+ * - 3/4 (transient errors
+ *        were experienced and it's time to try again)
+ */
+int CountActiveQueueEntries(OneQueItem *MyQItem)
+{
+	HashPos  *It;
+	long len;
+	const char *Key;
+	void *vQE;
+
+	MyQItem->ActiveDeliveries = 0;
+	It = GetNewHashPos(MyQItem->MailQEntries, 0);
+	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
+	{
+		MailQEntry *ThisItem = vQE;
+		if ((ThisItem->Status == 0) || 
+		    (ThisItem->Status == 3) ||
+		    (ThisItem->Status == 4))
+		{
+			MyQItem->ActiveDeliveries++;
+			ThisItem->Active = 1;
+		}
+		else 
+			ThisItem->Active = 0;
+	}
+	DeleteHashPos(&It);
+	return MyQItem->ActiveDeliveries;
+}
+
+OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
+{
+	OneQueItem *Item;
+	const char *pLine = NULL;
+	StrBuf *Line;
+	StrBuf *Token;
+	void *v;
+
+	Item = (OneQueItem*)malloc(sizeof(OneQueItem));
+	memset(Item, 0, sizeof(OneQueItem));
+	Item->LastAttempt.retry = SMTP_RETRY_INTERVAL;
+	Item->MessageID = -1;
+	Item->QueMsgID = QueMsgID;
+
+	citthread_mutex_lock(&ActiveQItemsLock);
+	if (GetHash(ActiveQItems, 
+		    IKEY(Item->QueMsgID), 
+		    &v))
+	{
+		/* WHOOPS. somebody else is already working on this. */
+		citthread_mutex_unlock(&ActiveQItemsLock);
+		FreeQueItem(&Item);
+		return NULL;
+	}
+	else {
+		/* mark our claim on this. */
+		Put(ActiveQItems, 
+		    IKEY(Item->QueMsgID),
+		    Item,
+		    HFreeQueItem);
+		citthread_mutex_unlock(&ActiveQItemsLock);
+	}
+
+	Token = NewStrBuf();
+	Line = NewStrBufPlain(NULL, 128);
+	while (pLine != StrBufNOTNULL) {
+		const char *pItemPart = NULL;
+		void *vHandler;
+
+		StrBufExtract_NextToken(Line, RawQItem, &pLine, '\n');
+		StrBufExtract_NextToken(Token, Line, &pItemPart, '|');
+		if (GetHash(QItemHandlers, SKEY(Token), &vHandler))
+		{
+			QItemHandler H;
+			H = (QItemHandler) vHandler;
+			H(Item, Line, &pItemPart);
+		}
+	}
+	FreeStrBuf(&Line);
+	FreeStrBuf(&Token);
+	return Item;
+}
+
+StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
+{
+	StrBuf *QMessage;
+	HashPos  *It;
+	const char *Key;
+	long len;
+	void *vQE;
+
+	QMessage = NewStrBufPlain(NULL, SIZ);
+	StrBufPrintf(QMessage, "Content-type: %s\n", SPOOLMIME);
+
+//		   "attempted|%ld\n"  "retry|%ld\n",, (long)time(NULL), (long)retry );
+	StrBufAppendBufPlain(QMessage, HKEY("\nmsgid|"), 0);
+	StrBufAppendPrintf(QMessage, "%ld", MyQItem->MessageID);
+
+	if (StrLength(MyQItem->BounceTo) > 0) {
+		StrBufAppendBufPlain(QMessage, HKEY("\nbounceto|"), 0);
+		StrBufAppendBuf(QMessage, MyQItem->BounceTo, 0);
+	}
+
+	if (StrLength(MyQItem->EnvelopeFrom) > 0) {
+		StrBufAppendBufPlain(QMessage, HKEY("\nenvelope_from|"), 0);
+		StrBufAppendBuf(QMessage, MyQItem->EnvelopeFrom, 0);
+	}
+
+	It = GetNewHashPos(MyQItem->MailQEntries, 0);
+	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
+	{
+		MailQEntry *ThisItem = vQE;
+		int i;
+
+		if (!ThisItem->Active)
+			continue; /* skip already sent ones from the spoolfile. */
+
+		for (i=0; i < ThisItem->nAttempts; i++) {
+			StrBufAppendBufPlain(QMessage, HKEY("\nretry|"), 0);
+			StrBufAppendPrintf(QMessage, "%ld", 
+					   ThisItem->Attempts[i].retry);
+
+			StrBufAppendBufPlain(QMessage, HKEY("\nattempted|"), 0);
+			StrBufAppendPrintf(QMessage, "%ld", 
+					   ThisItem->Attempts[i].when);
+		}
+		StrBufAppendBufPlain(QMessage, HKEY("\nremote|"), 0);
+		StrBufAppendBuf(QMessage, ThisItem->Recipient, 0);
+		StrBufAppendBufPlain(QMessage, HKEY("|"), 0);
+		StrBufAppendPrintf(QMessage, "%d", ThisItem->Status);
+		StrBufAppendBufPlain(QMessage, HKEY("|"), 0);
+		StrBufAppendBuf(QMessage, ThisItem->StatusMessage, 0);
+	}
+	DeleteHashPos(&It);
+	StrBufAppendBufPlain(QMessage, HKEY("\n"), 0);	
+	return QMessage;
+}
+
+void FinalizeMessageSend(SmtpOutMsg *Msg)
+{
+	int IDestructQueItem;
+	HashPos  *It;
+
+	citthread_mutex_lock(&ActiveQItemsLock);
+	Msg->MyQItem->ActiveDeliveries--;
+	IDestructQueItem = Msg->MyQItem->ActiveDeliveries == 0;
+	citthread_mutex_unlock(&ActiveQItemsLock);
+
+	if (IDestructQueItem) {
+		int nRemain;
+		StrBuf *MsgData;
+
+		nRemain = CountActiveQueueEntries(Msg->MyQItem);
+
+		if (nRemain > 0) 
+			MsgData = SerializeQueueItem(Msg->MyQItem);
+		/*
+		 * Uncompleted delivery instructions remain, so delete the old
+		 * instructions and replace with the updated ones.
+		 */
+		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &Msg->MyQItem->QueMsgID, 1, "");
+
+	/* Generate 'bounce' messages * /
+	   smtp_do_bounce(instr); */
+		if (nRemain > 0) {
+			struct CtdlMessage *msg;
+			msg = malloc(sizeof(struct CtdlMessage));
+			memset(msg, 0, sizeof(struct CtdlMessage));
+			msg->cm_magic = CTDLMESSAGE_MAGIC;
+			msg->cm_anon_type = MES_NORMAL;
+			msg->cm_format_type = FMT_RFC822;
+			msg->cm_fields['M'] = SmashStrBuf(&MsgData);
+
+			CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
+			CtdlFreeMessage(msg);
+		}
+		It = GetNewHashPos(Msg->MyQItem->MailQEntries, 0);
+		citthread_mutex_lock(&ActiveQItemsLock);
+		{
+			GetHashPosFromKey(ActiveQItems, IKEY(Msg->MyQItem->MessageID), It);
+			DeleteEntryFromHash(ActiveQItems, It);
+		}
+		citthread_mutex_unlock(&ActiveQItemsLock);
+		DeleteHashPos(&It);
+	}
+	
+/// TODO : else free message...
+	DeleteSmtpOutMsg(Msg);
+}
 
 eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 {
@@ -204,41 +463,27 @@ eReadState SMTP_C_ReadServerStatus(AsyncIO *IO)
 	return Finished;
 }
 
-
-
-
 /**
  * this one has to have the context for loading the message via the redirect buffer...
  */
-SmtpOutMsg *smtp_load_msg(long msgnum, const char *addr, char *envelope_from)
+StrBuf *smtp_load_msg(OneQueItem *MyQItem)
 {
 	CitContext *CCC=CC;
-	SmtpOutMsg *SendMsg;
+	StrBuf *SendMsg;
 	
-	SendMsg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
-
-	memset(SendMsg, 0, sizeof(SmtpOutMsg));
-	SendMsg->IO.sock = (-1);
-	
-	SendMsg->n = MsgCount++;
-	/* Load the message out of the database */
 	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-	CtdlOutputMsg(msgnum, MT_RFC822, HEADERS_ALL, 0, 1, NULL, (ESC_DOT|SUPPRESS_ENV_TO) );
-	SendMsg->msgtext = CCC->redirect_buffer;
+	CtdlOutputMsg(MyQItem->MessageID, MT_RFC822, HEADERS_ALL, 0, 1, NULL, (ESC_DOT|SUPPRESS_ENV_TO) );
+	SendMsg = CCC->redirect_buffer;
 	CCC->redirect_buffer = NULL;
-	if ((StrLength(SendMsg->msgtext) > 0) && 
-	    ChrPtr(SendMsg->msgtext)[StrLength(SendMsg->msgtext) - 1] != '\n') {
+	if ((StrLength(SendMsg) > 0) && 
+	    ChrPtr(SendMsg)[StrLength(SendMsg) - 1] != '\n') {
 		CtdlLogPrintf(CTDL_WARNING, 
 			      "SMTP client[%ld]: Possible problem: message did not "
 			      "correctly terminate. (expecting 0x10, got 0x%02x)\n",
-			      SendMsg->n,
-			      ChrPtr(SendMsg->msgtext)[StrLength(SendMsg->msgtext) - 1] );
-		StrBufAppendBufPlain(SendMsg->msgtext, HKEY("\r\n"), 0);
+			      MsgCount, //yes uncool, but best choice here... 
+			      ChrPtr(SendMsg)[StrLength(SendMsg) - 1] );
+		StrBufAppendBufPlain(SendMsg, HKEY("\r\n"), 0);
 	}
-
-	safestrncpy(SendMsg->addr, addr, SIZ);
-	safestrncpy(SendMsg->envelope_from_buf, envelope_from, 1024);
-
 	return SendMsg;
 }
 
@@ -252,7 +497,10 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 	int i;
 
 	/* Parse out the host portion of the recipient address */
-	process_rfc822_addr(SendMsg->addr, SendMsg->user, SendMsg->node, SendMsg->name);
+	process_rfc822_addr(ChrPtr(SendMsg->MyQEntry->Recipient), 
+			    SendMsg->user, 
+			    SendMsg->node, 
+			    SendMsg->name);
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
 		      SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
@@ -321,14 +569,15 @@ void resolve_mx_hosts(SmtpOutMsg *SendMsg)
 		      SendMsg->n, SendMsg->node, SendMsg->num_mxhosts, SendMsg->mxhosts);
 	if (SendMsg->num_mxhosts < 1) {
 		SendMsg->SMTPstatus = 5;
-		snprintf(SendMsg->dsn, SIZ, "No MX hosts found for <%s>", SendMsg->node);
+		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+			     "No MX hosts found for <%s>", SendMsg->node);
 		return; ///////TODO: abort!
 	}
 
 }
 /* TODO: abort... */
-#define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->SMTPstatus = WHICH_ERR; memcpy(SendMsg->dsn, HKEY(ERRSTR) + 1); return eAbort; }
-#define SMTP_VERROR(WHICH_ERR) { SendMsg->SMTPstatus = WHICH_ERR; safestrncpy(SendMsg->dsn, &ChrPtr(SendMsg->IO.IOBuf)[4], sizeof(SendMsg->dsn)); return eAbort; }
+#define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->SMTPstatus = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); return eAbort; }
+#define SMTP_VERROR(WHICH_ERR) { SendMsg->SMTPstatus = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); return eAbort; }
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
 #define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
@@ -376,7 +625,8 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 	SendMsg->IO.RecvBuf.fd = 
 	SendMsg->IO.sock = sock_connect(SendMsg->mx_host, SendMsg->mx_port);
 
-	snprintf(SendMsg->dsn, SIZ, "Could not connect: %s", strerror(errno));
+	StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+		     "Could not connect: %s", strerror(errno));
 	if (SendMsg->IO.sock >= 0) 
 	{
 		CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connected!\n", SendMsg->n);
@@ -394,11 +644,13 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 	}
 	if (SendMsg->IO.sock < 0) {
 		if (errno > 0) {
-			snprintf(SendMsg->dsn, SIZ, "%s", strerror(errno));
+			StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
+				    strerror(errno), -1);
 		}
 		else {
-			snprintf(SendMsg->dsn, SIZ, "Unable to connect to %s : %s\n", 
-				 SendMsg->mx_host, SendMsg->mx_port);
+			StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+				     "Unable to connect to %s : %s\n", 
+				     SendMsg->mx_host, SendMsg->mx_port);
 		}
 	}
 	/// hier: naechsten mx ausprobieren.
@@ -407,6 +659,8 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 		//// hier: abbrechen & bounce.
 		return -1;
 	}
+
+
 	SendMsg->IO.SendBuf.Buf = NewStrBuf();
 	SendMsg->IO.RecvBuf.Buf = NewStrBuf();
 	SendMsg->IO.IOBuf = NewStrBuf();
@@ -631,7 +885,9 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
 	}
 
 	/* We did it! */
-	safestrncpy(SendMsg->dsn, &ChrPtr(SendMsg->IO.RecvBuf.Buf)[4], 1023);
+	StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
+		    &ChrPtr(SendMsg->IO.RecvBuf.Buf)[4],
+		    StrLength(SendMsg->IO.RecvBuf.Buf) - 4);
 	SendMsg->SMTPstatus = 2;
 	return eSendReply;
 }
@@ -664,242 +920,109 @@ eNextState SMTPC_send_dummy(SmtpOutMsg *SendMsg)
 	return eReadMessage;
 }
 
-/*
- * smtp_do_bounce() is caled by smtp_do_procmsg() to scan a set of delivery
- * instructions for "5" codes (permanent fatal errors) and produce/deliver
- * a "bounce" message (delivery status notification).
- */
-void smtp_do_bounce(char *instr) {
-	int i;
-	int lines;
-	int status;
-	char buf[1024];
-	char key[1024];
-	char addr[1024];
-	char dsn[1024];
-	char bounceto[1024];
-	StrBuf *boundary;
-	int num_bounces = 0;
-	int bounce_this = 0;
-	long bounce_msgid = (-1);
-	time_t submitted = 0L;
-	struct CtdlMessage *bmsg = NULL;
-	int give_up = 0;
-	struct recptypes *valid;
-	int successful_bounce = 0;
-	static int seq = 0;
-	StrBuf *BounceMB;
-	long omsgid = (-1);
-
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
-	strcpy(bounceto, "");
-	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
-	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
-	lines = num_tokens(instr, '\n');
-
-	/* See if it's time to give up on delivery of this message */
-	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n', sizeof buf);
-		extract_token(key, buf, 0, '|', sizeof key);
-		extract_token(addr, buf, 1, '|', sizeof addr);
-		if (!strcasecmp(key, "submitted")) {
-			submitted = atol(addr);
-		}
-	}
-
-	if ( (time(NULL) - submitted) > SMTP_GIVE_UP ) {
-		give_up = 1;
-	}
-
-	/* Start building our bounce message */
-
-	bmsg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
-	if (bmsg == NULL) return;
-	memset(bmsg, 0, sizeof(struct CtdlMessage));
-	BounceMB = NewStrBufPlain(NULL, 1024);
-
-        bmsg->cm_magic = CTDLMESSAGE_MAGIC;
-        bmsg->cm_anon_type = MES_NORMAL;
-        bmsg->cm_format_type = FMT_RFC822;
-        bmsg->cm_fields['A'] = strdup("Citadel");
-        bmsg->cm_fields['O'] = strdup(MAILROOM);
-        bmsg->cm_fields['N'] = strdup(config.c_nodename);
-        bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
-	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: multipart/mixed; boundary=\""), 0);
-	StrBufAppendBuf(BounceMB, boundary, 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("\"\r\n"), 0);
-	StrBufAppendBufPlain(BounceMB, HKEY("MIME-Version: 1.0\r\n"), 0);
-	StrBufAppendBufPlain(BounceMB, HKEY("X-Mailer: " CITADEL "\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("\r\nThis is a multipart message in MIME format.\r\n\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
-        StrBufAppendBuf(BounceMB, boundary, 0);
-	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-        StrBufAppendBufPlain(BounceMB, HKEY("Content-type: text/plain\r\n\r\n"), 0);
-
-	if (give_up) StrBufAppendBufPlain(BounceMB, HKEY(
-"A message you sent could not be delivered to some or all of its recipients\n"
-"due to prolonged unavailability of its destination(s).\n"
-"Giving up on the following addresses:\n\n"
-						  ), 0);
-
-        else StrBufAppendBufPlain(BounceMB, HKEY(
-"A message you sent could not be delivered to some or all of its recipients.\n"
-"The following addresses were undeliverable:\n\n"
-					  ), 0);
-
-	/*
-	 * Now go through the instructions checking for stuff.
-	 */
-	for (i=0; i<lines; ++i) {
-		long addrlen;
-		long dsnlen;
-		extract_token(buf, instr, i, '\n', sizeof buf);
-		extract_token(key, buf, 0, '|', sizeof key);
-		addrlen = extract_token(addr, buf, 1, '|', sizeof addr);
-		status = extract_int(buf, 2);
-		dsnlen = extract_token(dsn, buf, 3, '|', sizeof dsn);
-		bounce_this = 0;
-
-		CtdlLogPrintf(CTDL_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
-			key, addr, status, dsn);
-
-		if (!strcasecmp(key, "bounceto")) {
-			strcpy(bounceto, addr);
-		}
-
-		if (!strcasecmp(key, "msgid")) {
-			omsgid = atol(addr);
-		}
-
-		if (!strcasecmp(key, "remote")) {
-			if (status == 5) bounce_this = 1;
-			if (give_up) bounce_this = 1;
-		}
-
-		if (bounce_this) {
-			++num_bounces;
-
-			StrBufAppendBufPlain(BounceMB, addr, addrlen, 0);
-			StrBufAppendBufPlain(BounceMB, HKEY(": "), 0);
-			StrBufAppendBufPlain(BounceMB, dsn, dsnlen, 0);
-			StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-
-			remove_token(instr, i, '\n');
-			--i;
-			--lines;
-		}
-	}
-
-	/* Attach the original message */
-	if (omsgid >= 0) {
-        	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
-		StrBufAppendBuf(BounceMB, boundary, 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-		StrBufAppendBufPlain(BounceMB, HKEY("Content-type: message/rfc822\r\n"), 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("Content-Transfer-Encoding: 7bit\r\n"), 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("Content-Disposition: inline\r\n"), 0);
-        	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
-	
-		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-		CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
-		StrBufAppendBuf(BounceMB, CC->redirect_buffer, 0);
-		FreeStrBuf(&CC->redirect_buffer);
-	}
-
-	/* Close the multipart MIME scope */
-        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
-	StrBufAppendBuf(BounceMB, boundary, 0);
-	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
-	if (bmsg->cm_fields['A'] != NULL)
-		free(bmsg->cm_fields['A']);
-	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
-	/* Deliver the bounce if there's anything worth mentioning */
-	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
-	if (num_bounces > 0) {
-
-		/* First try the user who sent the message */
-		CtdlLogPrintf(CTDL_DEBUG, "bounce to user? <%s>\n", bounceto);
-		if (IsEmptyStr(bounceto)) {
-			CtdlLogPrintf(CTDL_ERR, "No bounce address specified\n");
-			bounce_msgid = (-1L);
-		}
-
-		/* Can we deliver the bounce to the original sender? */
-		valid = validate_recipients(bounceto, smtp_get_Recipients (), 0);
-		if (valid != NULL) {
-			if (valid->num_error == 0) {
-				CtdlSubmitMsg(bmsg, valid, "", QP_EADDR);
-				successful_bounce = 1;
-			}
-		}
-
-		/* If not, post it in the Aide> room */
-		if (successful_bounce == 0) {
-			CtdlSubmitMsg(bmsg, NULL, config.c_aideroom, QP_EADDR);
-		}
-
-		/* Free up the memory we used */
-		if (valid != NULL) {
-			free_recipients(valid);
-		}
-	}
-	FreeStrBuf(&boundary);
-	CtdlFreeMessage(bmsg);
-	CtdlLogPrintf(CTDL_DEBUG, "Done processing bounces\n");
-}
-
-
-/*
- * smtp_purge_completed_deliveries() is caled by smtp_do_procmsg() to scan a
- * set of delivery instructions for completed deliveries and remove them.
- *
- * It returns the number of incomplete deliveries remaining.
- */
-int smtp_purge_completed_deliveries(char *instr) {
-	int i;
-	int lines;
-	int status;
-	char buf[1024];
-	char key[1024];
-	char addr[1024];
-	char dsn[1024];
-	int completed;
-	int incomplete = 0;
-
-	lines = num_tokens(instr, '\n');
-	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n', sizeof buf);
-		extract_token(key, buf, 0, '|', sizeof key);
-		extract_token(addr, buf, 1, '|', sizeof addr);
-		status = extract_int(buf, 2);
-		extract_token(dsn, buf, 3, '|', sizeof dsn);
-
-		completed = 0;
-
-		if (!strcasecmp(key, "remote")) {
-			if (status == 2) completed = 1;
-			else ++incomplete;
-		}
-
-		if (completed) {
-			remove_token(instr, i, '\n');
-			--i;
-			--lines;
-		}
-	}
-
-	return(incomplete);
-}
-
-void smtp_try(const char *key, const char *addr, int *status,
-              char *dsn, size_t n, long msgnum, char *envelope_from)
+void smtp_try(OneQueItem *MyQItem, 
+	      MailQEntry *MyQEntry, 
+	      StrBuf *MsgText, 
+	      int KeepMsgText) /* KeepMsgText allows us to use MsgText as ours. */
 {
-	SmtpOutMsg * SmtpC = smtp_load_msg(msgnum, addr, envelope_from);
-	smtp_resolve_recipients(SmtpC);
-	resolve_mx_hosts(SmtpC);
-	connect_one_smtpsrv(SmtpC);
-	QueueEventContext(SmtpC, connect_one_smtpsrv_xamine_result);
+	SmtpOutMsg * SendMsg;
+
+	SendMsg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
+	memset(SendMsg, 0, sizeof(SmtpOutMsg));
+	SendMsg->IO.sock = (-1);
+	SendMsg->n = MsgCount++;
+	SendMsg->MyQEntry = MyQEntry;
+	SendMsg->MyQItem = MyQItem;
+	SendMsg->msgtext = MsgText;
+
+	smtp_resolve_recipients(SendMsg);
+	resolve_mx_hosts(SendMsg);
+	connect_one_smtpsrv(SendMsg);
+	QueueEventContext(SendMsg, 
+			  &SendMsg->IO,
+			  connect_one_smtpsrv_xamine_result);
 }
+
+
+
+void NewMailQEntry(OneQueItem *Item)
+{
+	Item->Current = (MailQEntry*) malloc(sizeof(MailQEntry));
+	memset(Item->Current, 0, sizeof(MailQEntry));
+
+	if (Item->MailQEntries == NULL)
+		Item->MailQEntries = NewHash(1, Flathash);
+	Item->Current->n = GetCount(Item->MailQEntries);
+	Put(Item->MailQEntries, IKEY(Item->Current->n), Item->Current, FreeMailQEntry);
+}
+
+void QItem_Handle_MsgID(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	Item->MessageID = StrBufExtractNext_int(Line, Pos, '|');
+}
+
+void QItem_Handle_EnvelopeFrom(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	if (Item->EnvelopeFrom == NULL)
+		Item->EnvelopeFrom = NewStrBufPlain(NULL, StrLength(Line));
+	StrBufExtract_NextToken(Item->EnvelopeFrom, Line, Pos, '|');
+}
+
+void QItem_Handle_BounceTo(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	if (Item->BounceTo == NULL)
+		Item->BounceTo = NewStrBufPlain(NULL, StrLength(Line));
+	StrBufExtract_NextToken(Item->BounceTo, Line, Pos, '|');
+}
+
+void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	if (Item->Current == NULL)
+		NewMailQEntry(Item);
+	if (Item->Current->Recipient == NULL)
+		Item->Current->Recipient =  NewStrBufPlain(NULL, StrLength(Line));
+	StrBufExtract_NextToken(Item->Current->Recipient, Line, Pos, '|');
+	Item->Current->Status = StrBufExtractNext_int(Line, Pos, '|');
+	StrBufExtract_NextToken(Item->Current->StatusMessage, Line, Pos, '|');
+}
+
+
+void QItem_Handle_retry(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	if (Item->Current == NULL)
+		NewMailQEntry(Item);
+	if (Item->Current->Attempts[Item->Current->nAttempts].retry != 0)
+		Item->Current->nAttempts++;
+	if (Item->Current->nAttempts > MaxAttempts) {
+		Item->FailNow = 1;
+		return;
+	}
+	Item->Current->Attempts[Item->Current->nAttempts].retry = StrBufExtractNext_int(Line, Pos, '|');
+}
+
+void QItem_Handle_Attempted(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	if (Item->Current == NULL)
+		NewMailQEntry(Item);
+	if (Item->Current->Attempts[Item->Current->nAttempts].when != 0)
+		Item->Current->nAttempts++;
+	if (Item->Current->nAttempts > MaxAttempts) {
+		Item->FailNow = 1;
+		return;
+	}
+		
+	Item->Current->Attempts[Item->Current->nAttempts].when = StrBufExtractNext_int(Line, Pos, '|');
+	if (Item->Current->Attempts[Item->Current->nAttempts].when > Item->LastAttempt.when)
+	{
+		Item->LastAttempt.when = Item->Current->Attempts[Item->Current->nAttempts].when;
+		Item->LastAttempt.retry = Item->Current->Attempts[Item->Current->nAttempts].retry * 2;
+		if (Item->LastAttempt.retry > SMTP_RETRY_MAX)
+			Item->LastAttempt.retry = SMTP_RETRY_MAX;
+	}
+}
+
+
+
 
 /*
  * smtp_do_procmsg()
@@ -908,24 +1031,17 @@ void smtp_try(const char *key, const char *addr, int *status,
  */
 void smtp_do_procmsg(long msgnum, void *userdata) {
 	struct CtdlMessage *msg = NULL;
-	char *instr = NULL;
-	char *results = NULL;
-	int i;
-	int lines;
-	int status;
-	char buf[1024];
-	char key[1024];
-	char addr[1024];
-	char dsn[1024];
-	char envelope_from[1024];
-	long text_msgid = (-1);
-	int incomplete_deliveries_remaining;
-	time_t attempted = 0L;
-	time_t last_attempted = 0L;
-	time_t retry = SMTP_RETRY_INTERVAL;
+	char *instr = NULL;	
+	StrBuf *PlainQItem;
+	OneQueItem *MyQItem;
+	char *pch;
+	HashPos  *It;
+	void *vQE;
+	long len;
+	const char *Key;
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: smtp_do_procmsg(%ld)\n", msgnum);
-	strcpy(envelope_from, "");
+	///strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
@@ -933,156 +1049,93 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		return;
 	}
 
-	instr = strdup(msg->cm_fields['M']);
+	pch = instr = msg->cm_fields['M'];
+
+	/* Strip out the headers (no not amd any other non-instruction) line */
+	while (pch != NULL) {
+		pch = strchr(pch, '\n');
+		if ((pch != NULL) && (*(pch + 1) == '\n')) {
+			instr = pch + 2;
+			pch = NULL;
+		}
+	}
+	PlainQItem = NewStrBufPlain(instr, -1);
 	CtdlFreeMessage(msg);
+	MyQItem = DeserializeQueueItem(PlainQItem, msgnum);
+	FreeStrBuf(&PlainQItem);
 
-	/* Strip out the headers amd any other non-instruction line */
-	lines = num_tokens(instr, '\n');
-	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n', sizeof buf);
-		if (num_tokens(buf, '|') < 2) {
-			remove_token(instr, i, '\n');
-			--lines;
-			--i;
-		}
-	}
+	if (MyQItem == NULL)
+		return; /* s.b. else is already processing... */
 
-	/* Learn the message ID and find out about recent delivery attempts */
-	lines = num_tokens(instr, '\n');
-	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n', sizeof buf);
-		extract_token(key, buf, 0, '|', sizeof key);
-		if (!strcasecmp(key, "msgid")) {
-			text_msgid = extract_long(buf, 1);
-		}
-		if (!strcasecmp(key, "envelope_from")) {
-			extract_token(envelope_from, buf, 1, '|', sizeof envelope_from);
-		}
-		if (!strcasecmp(key, "retry")) {
-			/* double the retry interval after each attempt */
-			retry = extract_long(buf, 1) * 2L;
-			if (retry > SMTP_RETRY_MAX) {
-				retry = SMTP_RETRY_MAX;
-			}
-			remove_token(instr, i, '\n');
-		}
-		if (!strcasecmp(key, "attempted")) {
-			attempted = extract_long(buf, 1);
-			if (attempted > last_attempted)
-				last_attempted = attempted;
-		}
-	}
 
 	/*
 	 * Postpone delivery if we've already tried recently.
 	 * /
-	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
+	if (((time(NULL) - MyQItem->LastAttempt.when) < MyQItem->LastAttempt.retry) && (run_queue_now == 0)) {
 		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Retry time not yet reached.\n");
-		free(instr);
+
+		It = GetNewHashPos(MyQItem->MailQEntries, 0);
+		citthread_mutex_lock(&ActiveQItemsLock);
+		{
+			GetHashPosFromKey(ActiveQItems, IKEY(MyQItem->MessageID), It);
+			DeleteEntryFromHash(ActiveQItems, It);
+		}
+		citthread_mutex_unlock(&ActiveQItemsLock);
+		////FreeQueItem(&MyQItem); TODO: DeleteEntryFromHash frees this?
+		DeleteHashPos(&It);
 		return;
-	}
-TMP TODO	*/
+	}// TODO: reenable me.*/
 
 	/*
 	 * Bail out if there's no actual message associated with this
 	 */
-	if (text_msgid < 0L) {
+	if (MyQItem->MessageID < 0L) {
 		CtdlLogPrintf(CTDL_ERR, "SMTP client: no 'msgid' directive found!\n");
-		free(instr);
+		It = GetNewHashPos(MyQItem->MailQEntries, 0);
+		citthread_mutex_lock(&ActiveQItemsLock);
+		{
+			GetHashPosFromKey(ActiveQItems, IKEY(MyQItem->MessageID), It);
+			DeleteEntryFromHash(ActiveQItems, It);
+		}
+		citthread_mutex_unlock(&ActiveQItemsLock);
+		DeleteHashPos(&It);
+		////FreeQueItem(&MyQItem); TODO: DeleteEntryFromHash frees this?
 		return;
 	}
 
-	/* Plow through the instructions looking for 'remote' directives and
-	 * a status of 0 (no delivery yet attempted) or 3/4 (transient errors
-	 * were experienced and it's time to try again)
-	 */
-	lines = num_tokens(instr, '\n');
-	for (i=0; i<lines; ++i) {
-		extract_token(buf, instr, i, '\n', sizeof buf);
-		extract_token(key, buf, 0, '|', sizeof key);
-		extract_token(addr, buf, 1, '|', sizeof addr);
-		status = extract_int(buf, 2);
-		extract_token(dsn, buf, 3, '|', sizeof dsn);
-		if ( (!strcasecmp(key, "remote"))
-		   && ((status==0)||(status==3)||(status==4)) ) {
-
-			/* Remove this "remote" instruction from the set,
-			 * but replace the set's final newline if
-			 * remove_token() stripped it.  It has to be there.
-			 */
-			remove_token(instr, i, '\n');
-			if (instr[strlen(instr)-1] != '\n') {
-				strcat(instr, "\n");
-			}
-
-			--i;
-			--lines;
-			CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Trying <%s>\n", addr);
-			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid, envelope_from);
-			if (status != 2) {
-				if (results == NULL) {
-					results = malloc(1024);
-					memset(results, 0, 1024);
-				}
-				else {
-					results = realloc(results, strlen(results) + 1024);
-				}
-				snprintf(&results[strlen(results)], 1024,
-					"%s|%s|%d|%s\n",
-					key, addr, status, dsn);
+	CountActiveQueueEntries(MyQItem);
+	if (MyQItem->ActiveDeliveries > 0)
+	{
+		int i = 1;
+		StrBuf *Msg = smtp_load_msg(MyQItem);
+		It = GetNewHashPos(MyQItem->MailQEntries, 0);
+		while ((i <= MyQItem->ActiveDeliveries) && 
+		       (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE)))
+		{
+			MailQEntry *ThisItem = vQE;
+			if (ThisItem->Active == 1) {
+				CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Trying <%s>\n", ChrPtr(ThisItem->Recipient));
+				smtp_try(MyQItem, ThisItem, Msg, (i == MyQItem->ActiveDeliveries));
+				i++;
 			}
 		}
+		DeleteHashPos(&It);
 	}
+	else 
+	{
+		It = GetNewHashPos(MyQItem->MailQEntries, 0);
+		citthread_mutex_lock(&ActiveQItemsLock);
+		{
+			GetHashPosFromKey(ActiveQItems, IKEY(MyQItem->MessageID), It);
+			DeleteEntryFromHash(ActiveQItems, It);
+		}
+		citthread_mutex_unlock(&ActiveQItemsLock);
+		DeleteHashPos(&It);
+		////FreeQueItem(&MyQItem); TODO: DeleteEntryFromHash frees this?
 
-	if (results != NULL) {
-		instr = realloc(instr, strlen(instr) + strlen(results) + 2);
-		strcat(instr, results);
-		free(results);
+// TODO: bounce & delete?
+
 	}
-
-
-	/* Generate 'bounce' messages */
-	smtp_do_bounce(instr);
-
-	/* Go through the delivery list, deleting completed deliveries */
-	incomplete_deliveries_remaining = 
-		smtp_purge_completed_deliveries(instr);
-
-
-	/*
-	 * No delivery instructions remain, so delete both the instructions
-	 * message and the message message.
-	 */
-	if (incomplete_deliveries_remaining <= 0) {
-		long delmsgs[2];
-		delmsgs[0] = msgnum;
-		delmsgs[1] = text_msgid;
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, delmsgs, 2, "");
-	}
-
-	/*
-	 * Uncompleted delivery instructions remain, so delete the old
-	 * instructions and replace with the updated ones.
-	 */
-	if (incomplete_deliveries_remaining > 0) {
-		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &msgnum, 1, "");
-        	msg = malloc(sizeof(struct CtdlMessage));
-		memset(msg, 0, sizeof(struct CtdlMessage));
-		msg->cm_magic = CTDLMESSAGE_MAGIC;
-		msg->cm_anon_type = MES_NORMAL;
-		msg->cm_format_type = FMT_RFC822;
-		msg->cm_fields['M'] = malloc(strlen(instr)+SIZ);
-		snprintf(msg->cm_fields['M'],
-			strlen(instr)+SIZ,
-			"Content-type: %s\n\n%s\n"
-			"attempted|%ld\n"
-			"retry|%ld\n",
-			SPOOLMIME, instr, (long)time(NULL), (long)retry );
-		CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
-		CtdlFreeMessage(msg);
-	}
-
-	free(instr);
 }
 
 
@@ -1230,6 +1283,20 @@ CTDL_MODULE_INIT(smtp_eventclient)
 #ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
 	if (!threading)
 	{
+		ActiveQItems = NewHash(1, Flathash);
+		citthread_mutex_init(&ActiveQItemsLock, NULL);
+
+		QItemHandlers = NewHash(0, NULL);
+
+		Put(QItemHandlers, HKEY("msgid"), QItem_Handle_MsgID, reference_free_handler);
+		Put(QItemHandlers, HKEY("envelope_from"), QItem_Handle_EnvelopeFrom, reference_free_handler);
+		Put(QItemHandlers, HKEY("retry"), QItem_Handle_retry, reference_free_handler);
+		Put(QItemHandlers, HKEY("attempted"), QItem_Handle_Attempted, reference_free_handler);
+		Put(QItemHandlers, HKEY("remote"), QItem_Handle_Recipient, reference_free_handler);
+		Put(QItemHandlers, HKEY("bounceto"), QItem_Handle_BounceTo, reference_free_handler);
+///submitted /TODO: flush qitemhandlers on exit
+
+
 		smtp_init_spoolout();
 		CtdlThreadCreate("SMTPEvent Send", CTDLTHREAD_BIGSTACK, smtp_queue_thread, NULL);
 

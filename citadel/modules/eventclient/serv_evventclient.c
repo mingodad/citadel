@@ -104,6 +104,7 @@ static void QueueEventAddCallback(int fd, short event, void *ctx)
 		event_del(&queue_add_event);
 		close(event_add_pipe[0]);
 /// TODO; flush QueueEvents fd's and delete it.
+		event_base_loopexit(event_base, NULL);
 	}
 	/* Unblock the other side */
 	read(fd, buf, 1);
@@ -156,7 +157,7 @@ CTDL_MODULE_INIT(event_client)
 	if (!threading)
 	{
 		CtdlThreadCreate("Client event", CTDLTHREAD_BIGSTACK, client_event_thread, NULL);
-		QueueEvents = NewHashList(1, Flathash);
+		QueueEvents = NewHash(1, Flathash);
 /// todo register shutdown callback.
 	}
 #endif

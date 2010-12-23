@@ -95,7 +95,13 @@ int ShutDownEventQueue(void)
 	return 0;
 }
 
+void FreeAsyncIOContents(AsyncIO *IO)
+{
+	FreeStrBuf(&IO->IOBuf);
+	FreeStrBuf(&IO->SendBuf.Buf);
+	FreeStrBuf(&IO->RecvBuf.Buf);
 
+}
 
 /*
 static void
@@ -160,6 +166,12 @@ eReadState HandleInbound(AsyncIO *IO)
 		IO->NextState = IO->SendDone(IO->Data);
 		event_add(&IO->send_event, NULL);
 			
+	}
+	else if ((IO->NextState == eTerminateConnection) ||
+		 (IO->NextState == eAbort) )
+{
+
+
 	}
 	return Finished;
 }
