@@ -18,11 +18,6 @@ msgstr ""
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: it\n"
 
-#: ../messages.c:1537
-#, c-format
-msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "E' avvenuto un errore durante il recupero di questa parte: %s/%s\n"
-
 #: ../addressbook_popup.c:192
 msgid "Add"
 msgstr "Aggiungi"
@@ -154,10 +149,10 @@ msgstr "Aziona cancellata. La password non &egrave; stata cambiata."
 msgid "They don't match.  Password was not changed."
 msgstr "Le password non coincidono. Cambiamento non effettuato."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "Disponibilit&agrave; sconosciuta"
@@ -808,6 +803,11 @@ msgstr "Sposta questo messaggio in:"
 msgid "Move"
 msgstr "Sposta"
 
+#: ../messages.c:1537
+#, c-format
+msgid "An error occurred while retrieving this part: %s/%s\n"
+msgstr "E' avvenuto un errore durante il recupero di questa parte: %s/%s\n"
+
 #: ../messages.c:1597
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
@@ -1075,8 +1075,7 @@ msgstr "Crea filtro modificando manualmente lo script (solo utenti esperti)"
 
 #: ../sieve.c:141
 msgid "Your incoming mail will not be filtered through any scripts."
-msgstr ""
-"La tua posta in ingresso non verrà filtrata attraverso nessuno script."
+msgstr "La tua posta in ingresso non verrà filtrata attraverso nessuno script."
 
 #: ../sieve.c:156
 msgid "The currently active script is: "
@@ -1300,8 +1299,7 @@ msgid "Add rule"
 msgstr "Aggiungi regola"
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1355,8 +1353,8 @@ msgstr "(Nulla)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 "Sei connesso a %s, %s è in esecuzione con %s server build %s e localizzato "
 "in %s. Il tuo amministratore di sistema è %s."
@@ -1741,8 +1739,7 @@ msgstr "Nessuna pagina chamata '%s'."
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
-msgstr ""
-"Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
+msgstr "Seleziona il collegamento 'Modifica questa pagina' se la vuoi creare."
 
 #: ../wiki.c:167 ../static/t/msg_listview.html:12
 #: ../static/t/summary_header.html:10
