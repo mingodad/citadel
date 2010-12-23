@@ -154,10 +154,10 @@ msgstr "Смена пароля отменяется, он остался пре
 msgid "They don't match.  Password was not changed."
 msgstr "Вы ввели разные пароли, оставляем прежний."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -245,8 +245,7 @@ msgstr ""
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr "Данное событие может конфликтовать с  '%s' в вашем календаре."
 
 #: ../calendar.c:232
@@ -293,8 +292,7 @@ msgstr ""
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr ""
-"Вы приняли приглашение на встречу. Она была добавлена в ваш календарь."
+msgstr "Вы приняли приглашение на встречу. Она была добавлена в ваш календарь."
 
 #: ../calendar.c:337
 msgid ""
@@ -1108,8 +1106,7 @@ msgstr "Удалить скрипты"
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
-msgstr ""
-"Для удаления скрипта, выберите скрипт из списка и нажмите \"Удалить\"."
+msgstr "Для удаления скрипта, выберите скрипт из списка и нажмите \"Удалить\"."
 
 #: ../sieve.c:711
 msgid "Delete script"
@@ -1279,8 +1276,7 @@ msgid "Add rule"
 msgstr "Добавить правило"
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1334,8 +1330,8 @@ msgstr "(Ничего)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 
 #: ../summary.c:195

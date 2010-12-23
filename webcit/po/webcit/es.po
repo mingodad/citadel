@@ -154,10 +154,10 @@ msgstr "Cancelado. No se cambió la contraseña."
 msgid "They don't match.  Password was not changed."
 msgstr "No cuadran. La contraseña no se cambia."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "disponibilidad desconocida"
@@ -245,8 +245,7 @@ msgstr "Esta es una actualizaciñon de '%s' que está ya en su calendario."
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Este evento entrará en conflicto con '%s' que está ya en su calendario."
 
@@ -738,8 +737,8 @@ msgstr ""
 "Te estás suscribiendo a <TT>%s</TT> en la <b>%s</b> lista de correo.  El "
 "servidor de la lista te ha enviado un email con un link web  y debe pulsarlo "
 "par confirmar su suscripción.  Esta medida se toma por su seguridad, de "
-"forma que se impida a otros suscribirle  sin su consentimiento.<br /><br "
-"/>Por favor, pulse en el link que se le ha enviadoy su suscripción será "
+"forma que se impida a otros suscribirle  sin su consentimiento.<br /><br /"
+">Por favor, pulse en el link que se le ha enviadoy su suscripción será "
 "activada.<br />\n"
 
 #: ../listsub.c:85
@@ -1292,8 +1291,7 @@ msgid "Add rule"
 msgstr ""
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1347,8 +1345,8 @@ msgstr "(Nada)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 "Estás conectado a %s, corriendo %s con %s, server build %s,  y localizado en "
 "%s.  Tu administrador de sistema es %s."
