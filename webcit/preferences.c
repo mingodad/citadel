@@ -1048,15 +1048,17 @@ void DeleteGVSNHash(HashList **KillMe)
 
 
 /*
- * Offer to make any page the user's "start page."
+ * Offer to make any page the user's "start page" (only if logged in)
  */
 void offer_start_page(StrBuf *Target, WCTemplputParams *TP)
 {
-	wc_printf("<a href=\"change_start_page?startpage=");
-	urlescputs(ChrPtr(WC->Hdr->this_page));
-	wc_printf("\">");
-	wc_printf(_("Make this my start page"));
-	wc_printf("</a>");
+	if (WC->logged_in) {
+		wc_printf("<a href=\"change_start_page?startpage=");
+		urlescputs(ChrPtr(WC->Hdr->this_page));
+		wc_printf("\">");
+		wc_printf(_("Make this my start page"));
+		wc_printf("</a>");
+	};
 }
 
 

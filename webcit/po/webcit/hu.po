@@ -150,10 +150,10 @@ msgstr "Megszakítva. A jelszó nem változott."
 msgid "They don't match.  Password was not changed."
 msgstr "Nem egyeznek. A jelszó nem változott."
 
-#. 
+#.
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#. 
+#.
 #: ../availability.c:154
 msgid "availability unknown"
 msgstr "elérhetőség ismeretlen"
@@ -241,8 +241,7 @@ msgstr "Az a(z) '%s' frissítése,  mely már létezik az ön naptárában."
 
 #: ../calendar.c:227
 #, c-format
-msgid ""
-"This event would conflict with '%s' which is already in your calendar."
+msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 "Ez az esemény ütközik a(z) '%s' eseménnyel, mely már létezik az ön "
 "naptárában."
@@ -274,8 +273,8 @@ msgstr "Visszautasít"
 #: ../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
-"A válasz elfogadásához és a naptár frissítéséhez kattintson a "
-"<i>Frissítés</i>re"
+"A válasz elfogadásához és a naptár frissítéséhez kattintson a <i>Frissítés</"
+"i>re"
 
 #: ../calendar.c:277
 msgid "Update"
@@ -1064,8 +1063,7 @@ msgstr "Szűrd az alábbi feltételek szerint"
 
 #: ../sieve.c:130
 msgid "Filter it through a manually edited script (advanced users only)"
-msgstr ""
-"Szűrd a kézzel szerkesztett szkriptekkel (csak haladó felhasználóknak)"
+msgstr "Szűrd a kézzel szerkesztett szkriptekkel (csak haladó felhasználóknak)"
 
 #: ../sieve.c:141
 msgid "Your incoming mail will not be filtered through any scripts."
@@ -1287,8 +1285,7 @@ msgid "Add rule"
 msgstr "Szabály hozzáadása"
 
 #: ../siteconfig.c:254
-msgid ""
-"WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../siteconfig.c:313
@@ -1342,8 +1339,8 @@ msgstr "(Semmi)"
 #: ../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in "
-"%s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
 msgstr ""
 
 #: ../summary.c:195
