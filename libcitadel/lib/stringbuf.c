@@ -1502,6 +1502,8 @@ int StrBufExtract_NextToken(StrBuf *dest, const StrBuf *Source, const char **pSt
 	    (Source->BufUsed == 0)      ) 
 	{
 		*pStart = StrBufNOTNULL;
+		if (dest != NULL)
+			FlushStrBuf(dest);
 		return -1;
 	}
 	 
