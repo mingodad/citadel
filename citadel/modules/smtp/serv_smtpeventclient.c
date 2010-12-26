@@ -191,7 +191,7 @@ typedef struct _stmp_out_msg {
 
 	eSMTP_C_States State;
 
-	int SMTPstatus;
+///	int SMTPstatus; ->MyQEntry->Status
 
 	int i_mx;
 	int n_mx;
@@ -315,6 +315,7 @@ OneQueItem *DeserializeQueueItem(StrBuf *RawQItem, long QueMsgID)
 		void *vHandler;
 
 		StrBufExtract_NextToken(Line, RawQItem, &pLine, '\n');
+		if (StrLength(Line) == 0) continue;
 		StrBufExtract_NextToken(Token, Line, &pItemPart, '|');
 		if (GetHash(QItemHandlers, SKEY(Token), &vHandler))
 		{
@@ -432,6 +433,7 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 	}
 	
 /// TODO : else free message...
+	close(Msg->IO.sock);
 	DeleteSmtpOutMsg(Msg);
 }
 
@@ -568,7 +570,7 @@ void resolve_mx_hosts(SmtpOutMsg *SendMsg)
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: Number of MX hosts for <%s> is %d [%s]\n", 
 		      SendMsg->n, SendMsg->node, SendMsg->num_mxhosts, SendMsg->mxhosts);
 	if (SendMsg->num_mxhosts < 1) {
-		SendMsg->SMTPstatus = 5;
+		SendMsg->MyQEntry->Status = 5;
 		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
 			     "No MX hosts found for <%s>", SendMsg->node);
 		return; ///////TODO: abort!
@@ -576,8 +578,8 @@ void resolve_mx_hosts(SmtpOutMsg *SendMsg)
 
 }
 /* TODO: abort... */
-#define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->SMTPstatus = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); return eAbort; }
-#define SMTP_VERROR(WHICH_ERR) { SendMsg->SMTPstatus = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); return eAbort; }
+#define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); return eAbort; }
+#define SMTP_VERROR(WHICH_ERR) { SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); return eAbort; }
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
 #define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
@@ -655,7 +657,7 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 	}
 	/// hier: naechsten mx ausprobieren.
 	if (SendMsg->IO.sock < 0) {
-		SendMsg->SMTPstatus = 4;	/* dsn is already filled in */
+		SendMsg->MyQEntry->Status = 4;	/* dsn is already filled in */
 		//// hier: abbrechen & bounce.
 		return -1;
 	}
@@ -889,7 +891,7 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
 	StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
 		    &ChrPtr(SendMsg->IO.RecvBuf.Buf)[4],
 		    StrLength(SendMsg->IO.RecvBuf.Buf) - 4);
-	SendMsg->SMTPstatus = 2;
+	SendMsg->MyQEntry->Status = 2;
 	return eSendReply;
 }
 
@@ -934,7 +936,10 @@ void smtp_try(OneQueItem *MyQItem,
 	SendMsg->n = MsgCount++;
 	SendMsg->MyQEntry = MyQEntry;
 	SendMsg->MyQItem = MyQItem;
-	SendMsg->msgtext = MsgText;
+	if (KeepMsgText)
+		SendMsg->msgtext = MsgText;
+	else 
+		SendMsg->msgtext = NewStrBufDup(MsgText);
 
 	smtp_resolve_recipients(SendMsg);
 	resolve_mx_hosts(SendMsg);
@@ -985,6 +990,7 @@ void QItem_Handle_Recipient(OneQueItem *Item, StrBuf *Line, const char **Pos)
 	StrBufExtract_NextToken(Item->Current->Recipient, Line, Pos, '|');
 	Item->Current->Status = StrBufExtractNext_int(Line, Pos, '|');
 	StrBufExtract_NextToken(Item->Current->StatusMessage, Line, Pos, '|');
+	Item->Current = NULL; // TODO: is this always right?
 }
 
 
@@ -1065,9 +1071,10 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	MyQItem = DeserializeQueueItem(PlainQItem, msgnum);
 	FreeStrBuf(&PlainQItem);
 
-	if (MyQItem == NULL)
+	if (MyQItem == NULL) {
+		CtdlLogPrintf(CTDL_ERR, "SMTP client: Msg No %ld: already in progress!\n", msgnum);		
 		return; /* s.b. else is already processing... */
-
+	}
 
 	/*
 	 * Postpone delivery if we've already tried recently.
