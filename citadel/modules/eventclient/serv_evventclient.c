@@ -1,25 +1,4 @@
 /*
- * This module is an SMTP and ESMTP implementation for the Citadel system.
- * It is compliant with all of the following:
- *
- * RFC  821 - Simple Mail Transfer Protocol
- * RFC  876 - Survey of SMTP Implementations
- * RFC 1047 - Duplicate messages and SMTP
- * RFC 1652 - 8 bit MIME
- * RFC 1869 - Extended Simple Mail Transfer Protocol
- * RFC 1870 - SMTP Service Extension for Message Size Declaration
- * RFC 2033 - Local Mail Transfer Protocol
- * RFC 2197 - SMTP Service Extension for Command Pipelining
- * RFC 2476 - Message Submission
- * RFC 2487 - SMTP Service Extension for Secure SMTP over TLS
- * RFC 2554 - SMTP Service Extension for Authentication
- * RFC 2821 - Simple Mail Transfer Protocol
- * RFC 2822 - Internet Message Format
- * RFC 2920 - SMTP Service Extension for Command Pipelining
- *  
- * The VRFY and EXPN commands have been removed from this implementation
- * because nobody uses these commands anymore, except for spammers.
- *
  * Copyright (c) 1998-2009 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify

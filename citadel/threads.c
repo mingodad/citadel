@@ -58,6 +58,7 @@
 #include "citserver.h"
 #include "sysdep_decls.h"
 #include "context.h"
+#include "event_client.h"
 
 /*
  * define this to use the new worker_thread method of handling connections
@@ -358,6 +359,8 @@ void CtdlThreadStopAll(void)
 	//FIXME: The signalling of the condition should not be in the critical_section
 	// We need to build a list of threads we are going to signal and then signal them afterwards
 	
+	ShutDownEventQueue();
+
 	CtdlThreadNode *this_thread;
 	
 	begin_critical_section(S_THREAD_LIST);

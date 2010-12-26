@@ -29,6 +29,7 @@ struct AsyncIO {
 void FreeAsyncIOContents(AsyncIO *IO);
 
 int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB);
+int ShutDownEventQueue(void);
 
 void InitEventIO(AsyncIO *IO, 
 		 void *pData, 

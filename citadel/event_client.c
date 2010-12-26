@@ -77,6 +77,11 @@ extern EventContextAttach EventContextAttachPtr;
 int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB)
 {
 	citthread_mutex_lock(&EventQueueMutex);
+	if (event_add_pipe[1] == -1) {
+		citthread_mutex_unlock(&EventQueueMutex);
+
+		return -1;
+	}
 
 	QueueEventAddPtr = Ctx;
 	EventContextAttachPtr = CB;
@@ -90,8 +95,16 @@ int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB)
 
 int ShutDownEventQueue(void)
 {
+	citthread_mutex_lock(&EventQueueMutex);
+	if (event_add_pipe[1] == -1) {
+		citthread_mutex_unlock(&EventQueueMutex);
+
+		return -1;
+	}
 	write(event_add_pipe[1], "x_", 1);
 	close(event_add_pipe[1]);
+	event_add_pipe[1] = -1;
+	citthread_mutex_unlock(&EventQueueMutex);
 	return 0;
 }
 
