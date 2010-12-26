@@ -123,6 +123,19 @@ setup_signal_handlers(struct instance *instance)
 }
 */
 
+void ShutDownCLient(AsyncIO *IO)
+{
+	event_del(&IO->send_event);
+	event_del(&IO->recv_event);
+	IO->Terminate(IO->Data);
+
+//	citthread_mutex_lock(&EventQueueMutex);
+
+///QueueEvents /// todo remove from hash.
+
+//	citthread_mutex_unlock(&EventQueueMutex);
+}
+
 eReadState HandleInbound(AsyncIO *IO)
 {
 	eReadState Finished = eBufferNotEmpty;
@@ -169,10 +182,7 @@ eReadState HandleInbound(AsyncIO *IO)
 	}
 	else if ((IO->NextState == eTerminateConnection) ||
 		 (IO->NextState == eAbort) )
-{
-
-
-	}
+		ShutDownCLient(IO);
 	return Finished;
 }
 
@@ -198,7 +208,12 @@ IO_send_callback(int fd, short event, void *ctx)
 		    break;
 	    case eSendMore:
 		    IO->NextState = IO->SendDone(IO->Data);
-		    event_add(&IO->send_event, NULL);
+
+		    if ((IO->NextState == eTerminateConnection) ||
+			     (IO->NextState == eAbort) )
+			    ShutDownCLient(IO);
+		    else
+			    event_add(&IO->send_event, NULL);
 		    break;
 	    case eReadMessage:
 		    if (StrBufCheckBuffer(&IO->RecvBuf) == eBufferNotEmpty) {
@@ -255,12 +270,14 @@ void InitEventIO(AsyncIO *IO,
 		 void *pData, 
 		 IO_CallBack ReadDone, 
 		 IO_CallBack SendDone, 
+		 IO_CallBack Terminate, 
 		 IO_LineReaderCallback LineReader,
 		 int ReadFirst)
 {
 	IO->Data = pData;
 	IO->SendDone = SendDone;
 	IO->ReadDone = ReadDone;
+	IO->Terminate = Terminate;
 	IO->LineReader = LineReader;
 
 	event_set(&IO->recv_event, 

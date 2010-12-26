@@ -222,7 +222,7 @@ void DeleteSmtpOutMsg(void *v)
 
 eNextState SMTP_C_DispatchReadDone(void *Data);
 eNextState SMTP_C_DispatchWriteDone(void *Data);
-
+eNextState SMTP_C_Terminate(void *Data);
 
 typedef eNextState (*SMTPReadHandler)(SmtpOutMsg *Msg);
 typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
@@ -667,6 +667,7 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 	InitEventIO(&SendMsg->IO, SendMsg, 
 		    SMTP_C_DispatchReadDone, 
 		    SMTP_C_DispatchWriteDone, 
+		    SMTP_C_Terminate,
 		    SMTP_C_ReadServerStatus,
 		    1);
 	return 0;
@@ -907,7 +908,7 @@ eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *SendMsg)
 
 	CtdlLogPrintf(CTDL_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
 		      SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
-	return eSendReply;
+	return eTerminateConnection;
 }
 
 eNextState SMTPC_read_dummy(SmtpOutMsg *SendMsg)
@@ -1261,6 +1262,12 @@ SMTPSendHandler SendHandlers[eMaxSMTPC] = {
 	SMTPC_send_QUIT
 };
 
+eNextState SMTP_C_Terminate(void *Data)
+{
+	SmtpOutMsg *pMsg = Data;
+	FinalizeMessageSend(pMsg);
+
+}
 eNextState SMTP_C_DispatchReadDone(void *Data)
 {
 	SmtpOutMsg *pMsg = Data;

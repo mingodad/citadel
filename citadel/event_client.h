@@ -19,7 +19,7 @@ struct AsyncIO {
 	struct event recv_event, send_event;
 	IOBuffer SendBuf, RecvBuf;
 	IO_LineReaderCallback LineReader;
-	IO_CallBack ReadDone, SendDone;
+	IO_CallBack ReadDone, SendDone, Terminate;
 	StrBuf *IOBuf;
 	void *Data;
 	DeleteHashDataFunc DeleteData; /* data is expected to contain AsyncIO... */
@@ -34,5 +34,6 @@ void InitEventIO(AsyncIO *IO,
 		 void *pData, 
 		 IO_CallBack ReadDone, 
 		 IO_CallBack SendDone, 
+		 IO_CallBack Terminate, 
 		 IO_LineReaderCallback LineReader,
 		 int ReadFirst);
