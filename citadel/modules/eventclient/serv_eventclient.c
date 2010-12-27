@@ -57,13 +57,13 @@
 
 #include "event_client.h"
 
-int event_add_pipe[2];
+int event_add_pipe[2] = {-1, -1};
 
 citthread_mutex_t EventQueueMutex; /* locks the access to the following vars: */
-void *QueueEventAddPtr = NULL;
-EventContextAttach EventContextAttachPtr;
-AsyncIO *QueueThisIO;
 HashList *QueueEvents = NULL;
+
+HashList *InboundEventQueue = NULL;
+HashList *InboundEventQueues[2] = { NULL, NULL };
 
 static struct event_base *event_base;
 struct event queue_add_event;
@@ -71,12 +71,36 @@ struct event queue_add_event;
 static void QueueEventAddCallback(int fd, short event, void *ctx)
 {
 	char buf[10];
+	HashList *q;
+	void *v;
+	HashPos  *It;
+	long len;
+	const char *Key;
 
 	/* get the control command... */
 	read(fd, buf, 1);
 	switch (buf[0]) {
 	case '+':
-		EventContextAttachPtr(QueueEventAddPtr);
+		citthread_mutex_lock(&EventQueueMutex);
+
+		if (InboundEventQueues[0] == InboundEventQueue) {
+			InboundEventQueue = InboundEventQueues[1];
+			q = InboundEventQueues[0];
+		}
+		else {
+			InboundEventQueue = InboundEventQueues[0];
+			q = InboundEventQueues[1];
+		}
+		citthread_mutex_unlock(&EventQueueMutex);
+
+		It = GetNewHashPos(q, 0);
+		while (GetNextHashPos(q, It, &len, &Key, &v))
+		{
+			IOAddHandler *h = v;
+			h->EvAttch(h->Ctx);
+		}
+		DeleteHashPos(&It);
+		DeleteHashContent(&q);
 /// TODO: add it to QueueEvents
 		break;
 	case 'x':
@@ -86,32 +110,48 @@ static void QueueEventAddCallback(int fd, short event, void *ctx)
 		event_base_loopexit(event_base, NULL);
 	}
 	/* Unblock the other side */
-	read(fd, buf, 1);
+//	read(fd, buf, 1);
+	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q Read done.\n");
 }
 
+
+void InitEventQueue(void)
+{
+	struct rlimit LimitSet;
+
+	event_base = event_init();
+/*
+	base = event_base_new();
+	if (!base)
+		return NULL; / *XXXerr*/
+
+	citthread_mutex_init(&EventQueueMutex, NULL);
+
+	if (pipe(event_add_pipe) != 0) {
+		CtdlLogPrintf(CTDL_EMERG, "Unable to create pipe for libevent queueing: %s\n", strerror(errno));
+		abort();
+	}
+	LimitSet.rlim_cur = 1;
+	LimitSet.rlim_max = 1;
+	setrlimit(event_add_pipe[1], &LimitSet);
+
+	QueueEvents = NewHash(1, Flathash);
+	InboundEventQueues[0] = NewHash(1, Flathash);
+	InboundEventQueues[1] = NewHash(1, Flathash);
+	InboundEventQueue = InboundEventQueues[0];
+}
 /*
  * this thread operates the select() etc. via libevent.
  * 
  * 
  */
-void *client_event_thread(void *arg) {
+void *client_event_thread(void *arg) 
+{
 	struct CitContext libevent_client_CC;
-	event_base = event_init();
-/*
-	base = event_base_new();
-	if (!base)
-		return NULL; /*XXXerr*/
-
-	citthread_mutex_init(&EventQueueMutex, NULL);
 	CtdlFillSystemContext(&libevent_client_CC, "LibEvent Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
 	CtdlLogPrintf(CTDL_DEBUG, "client_event_thread() initializing\n");
 	
-	if (pipe(event_add_pipe) != 0) {
-		CtdlLogPrintf(CTDL_EMERG, "Unable to create pipe for libevent queueing: %s\n", strerror(errno));
-		abort();
-	}
-
 	event_set(&queue_add_event, 
 		  event_add_pipe[0], 
 		  EV_READ|EV_PERSIST,
@@ -135,8 +175,8 @@ CTDL_MODULE_INIT(event_client)
 #ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
 	if (!threading)
 	{
+		InitEventQueue();
 		CtdlThreadCreate("Client event", CTDLTHREAD_BIGSTACK, client_event_thread, NULL);
-		QueueEvents = NewHash(1, Flathash);
 /// todo register shutdown callback.
 	}
 #endif

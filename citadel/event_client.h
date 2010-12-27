@@ -16,6 +16,7 @@ typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
 
 struct AsyncIO {
 	int sock;
+	int active_event;
 	struct event recv_event, send_event;
 	IOBuffer SendBuf, RecvBuf;
 	IO_LineReaderCallback LineReader;
@@ -25,6 +26,11 @@ struct AsyncIO {
 	DeleteHashDataFunc DeleteData; /* data is expected to contain AsyncIO... */
        	eNextState NextState;
 };
+
+typedef struct _IOAddHandler {
+	void *Ctx;
+	EventContextAttach EvAttch;
+}IOAddHandler; 
 
 void FreeAsyncIOContents(AsyncIO *IO);
 

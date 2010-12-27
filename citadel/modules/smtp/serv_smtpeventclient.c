@@ -577,7 +577,7 @@ void resolve_mx_hosts(SmtpOutMsg *SendMsg)
 	}
 
 }
-/* TODO: abort... */
+
 #define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); return eAbort; }
 #define SMTP_VERROR(WHICH_ERR) { SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); return eAbort; }
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
@@ -623,6 +623,10 @@ void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
 int connect_one_smtpsrv_xamine_result(void *Ctx)
 {
 	SmtpOutMsg *SendMsg = Ctx;
+
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connecting [%s:%s]!\n", 
+		      SendMsg->n, SendMsg->mx_host, SendMsg->mx_port);
+
 	SendMsg->IO.SendBuf.fd = 
 	SendMsg->IO.RecvBuf.fd = 
 	SendMsg->IO.sock = sock_connect(SendMsg->mx_host, SendMsg->mx_port);
@@ -631,7 +635,7 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 		     "Could not connect: %s", strerror(errno));
 	if (SendMsg->IO.sock >= 0) 
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connected!\n", SendMsg->n);
+		CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld:%ld]: connected!\n", SendMsg->n, SendMsg->IO.sock);
 		int fdflags; 
 		fdflags = fcntl(SendMsg->IO.sock, F_GETFL);
 		if (fdflags < 0)
@@ -663,8 +667,8 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 	}
 
 
-	SendMsg->IO.SendBuf.Buf = NewStrBuf();
-	SendMsg->IO.RecvBuf.Buf = NewStrBuf();
+	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
 	SendMsg->IO.IOBuf = NewStrBuf();
 	InitEventIO(&SendMsg->IO, SendMsg, 
 		    SMTP_C_DispatchReadDone, 
@@ -1047,12 +1051,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	long len;
 	const char *Key;
 
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: smtp_do_procmsg(%ld)\n", msgnum);
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: smtp_do_procmsg(%ld)\n", msgnum);
 	///strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP client: tried %ld but no such message!\n", msgnum);
+		CtdlLogPrintf(CTDL_ERR, "SMTP Queue: tried %ld but no such message!\n", msgnum);
 		return;
 	}
 
@@ -1072,7 +1076,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	FreeStrBuf(&PlainQItem);
 
 	if (MyQItem == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP client: Msg No %ld: already in progress!\n", msgnum);		
+		CtdlLogPrintf(CTDL_ERR, "SMTP Queue: Msg No %ld: already in progress!\n", msgnum);		
 		return; /* s.b. else is already processing... */
 	}
 
@@ -1098,7 +1102,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Bail out if there's no actual message associated with this
 	 */
 	if (MyQItem->MessageID < 0L) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP client: no 'msgid' directive found!\n");
+		CtdlLogPrintf(CTDL_ERR, "SMTP Queue: no 'msgid' directive found!\n");
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		citthread_mutex_lock(&ActiveQItemsLock);
 		{
@@ -1111,6 +1115,14 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		return;
 	}
 
+	It = GetNewHashPos(MyQItem->MailQEntries, 0);
+	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
+	{
+		MailQEntry *ThisItem = vQE;
+		CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: Task: <%s> %d\n", ChrPtr(ThisItem->Recipient), ThisItem->Active);
+	}
+	DeleteHashPos(&It);
+
 	CountActiveQueueEntries(MyQItem);
 	if (MyQItem->ActiveDeliveries > 0)
 	{
@@ -1122,7 +1134,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		{
 			MailQEntry *ThisItem = vQE;
 			if (ThisItem->Active == 1) {
-				CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Trying <%s>\n", ChrPtr(ThisItem->Recipient));
+				CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: Trying <%s>\n", ChrPtr(ThisItem->Recipient));
 				smtp_try(MyQItem, ThisItem, Msg, (i == MyQItem->ActiveDeliveries));
 				i++;
 			}
@@ -1196,6 +1208,8 @@ void cmd_smtp(char *argbuf) {
 void *smtp_queue_thread(void *arg) {
 	int num_processed = 0;
 	struct CitContext smtp_queue_CC;
+
+	CtdlThreadSleep(10);
 
 	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
 	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
