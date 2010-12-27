@@ -209,11 +209,11 @@ void HDeleteHash(void *vHash)
 }
 
 /**
- * @brief destroy a hashlist and all of its members
+ * @brief flush the members of a hashlist 
  * Crashing? do 'print *FreeMe->LookupTable[i]'
  * @param Hash Hash to destroy. Is NULL'ed so you are shure its done.
  */
-void DeleteHash(HashList **Hash)
+void DeleteHashContent(HashList **Hash)
 {
 	int i;
 	HashList *FreeMe;
@@ -237,12 +237,34 @@ void DeleteHash(HashList **Hash)
 			free(FreeMe->LookupTable[i]);
 		}
 	}
-	/** now, free our arrays... */
-	free(FreeMe->LookupTable);
-	free(FreeMe->Members);
+	FreeMe->nMembersUsed = 0;
+	FreeMe->tainted = 0;
+	FreeMe->nLookupTableItems = 0;
+	memset(FreeMe->Members, 0, sizeof(Payload*) * FreeMe->MemberSize);
+	memset(FreeMe->LookupTable, 0, sizeof(HashKey*) * FreeMe->MemberSize);
+
 	/** did s.b. want an array of our keys? free them. */
 	if (FreeMe->MyKeys != NULL)
 		free(FreeMe->MyKeys);
+}
+
+/**
+ * @brief destroy a hashlist and all of its members
+ * Crashing? do 'print *FreeMe->LookupTable[i]'
+ * @param Hash Hash to destroy. Is NULL'ed so you are shure its done.
+ */
+void DeleteHash(HashList **Hash)
+{
+	HashList *FreeMe;
+
+	FreeMe = *Hash;
+	if (FreeMe == NULL)
+		return;
+	DeleteHashContent(Hash);
+	/** now, free our arrays... */
+	free(FreeMe->LookupTable);
+	free(FreeMe->Members);
+
 	/** buye bye cruel world. */	
 	free (FreeMe);
 	*Hash = NULL;

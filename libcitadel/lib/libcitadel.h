@@ -454,6 +454,7 @@ long lFlathash(const char *str, long len);
 
 HashList *NewHash(int Uniq, HashFunc F);
 void DeleteHash(HashList **Hash);
+void DeleteHashContent(HashList **Hash);
 void HDeleteHash(void *vHash);
 int GetHash(HashList *Hash, const char *HKey, long HKLen, void **Data);
 void Put(HashList *Hash, const char *HKey, long HKLen, void *Data, DeleteHashDataFunc DeleteIt);
