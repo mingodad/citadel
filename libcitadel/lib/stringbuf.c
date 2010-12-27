@@ -3402,18 +3402,27 @@ long StrBuf_read_one_chunk_callback (int fd, short event, IOBuffer *FB)
 {
 	long bufremain = 0;
 	int n;
+	
+	if ((FB == NULL) || (FB->Buf == NULL))
+		return -1;
 
 	/*
 	 * check whether the read pointer is somewhere in a range 
 	 * where a cut left is inexpensive
 	 */
+
 	if (FB->ReadWritePointer != NULL)
 	{
-		long already_read = FB->ReadWritePointer - FB->Buf->buf;
-		bufremain = FB->Buf->BufSize - FB->Buf->BufUsed;
+		long already_read;
+		
+		already_read = FB->ReadWritePointer - FB->Buf->buf;
+		bufremain = FB->Buf->BufSize - FB->Buf->BufUsed - 1;
 
 		if (already_read != 0) {
-			long unread = FB->Buf->BufUsed - already_read;
+			long unread;
+			
+			unread = FB->Buf->BufUsed - already_read;
+
 			/* else nothing to compact... */
 			if (unread == 0) {
 				FB->ReadWritePointer = FB->Buf->buf;
@@ -3432,22 +3441,35 @@ long StrBuf_read_one_chunk_callback (int fd, short event, IOBuffer *FB)
 				else
 					memmove(FB->Buf->buf, FB->ReadWritePointer, unread);
 				FB->ReadWritePointer = FB->Buf->buf;
-				bufremain = FB->Buf->BufSize - unread;
+				bufremain = FB->Buf->BufSize - unread - 1;
 			}
-			else if (bufremain < (FB->Buf->BufSize / 10)) {
-				/* get a bigger buffer */ ///TODO: special increase function that won't copy the already read!
-				IncreaseBuf(FB->Buf, 0, -1);
+			else if (bufremain < (FB->Buf->BufSize / 10))
+			{
+				/* get a bigger buffer */ 
+
+				IncreaseBuf(FB->Buf, 0, FB->Buf->BufUsed + 1);
+
 				FB->ReadWritePointer = FB->Buf->buf + unread;
-				bufremain = FB->Buf->BufSize - unread;
+
+				bufremain = FB->Buf->BufSize - unread - 1;
+/*TODO: special increase function that won't copy the already read! */
 			}
+		}
+		else if (bufremain < 10) {
+			IncreaseBuf(FB->Buf, 1, FB->Buf->BufUsed + 10);
+			
+			FB->ReadWritePointer = FB->Buf->buf;
+			
+			bufremain = FB->Buf->BufSize - FB->Buf->BufUsed - 1;
 		}
 		
 	}
 	else {
 		FB->ReadWritePointer = FB->Buf->buf;
-		bufremain = FB->Buf->BufSize;
+		bufremain = FB->Buf->BufSize - 1;
 	}
-	n = read(fd, FB->Buf->buf + FB->Buf->BufUsed, bufremain - 1);
+
+	n = read(fd, FB->Buf->buf + FB->Buf->BufUsed, bufremain);
 
 	if (n > 0) {
 		FB->Buf->BufUsed += n;
@@ -3460,6 +3482,9 @@ int StrBuf_write_one_chunk_callback(int fd, short event, IOBuffer *FB)
 {
 	long WriteRemain;
 	int n;
+
+	if ((FB == NULL) || (FB->Buf == NULL))
+		return -1;
 
 	if (FB->ReadWritePointer != NULL)
 	{
