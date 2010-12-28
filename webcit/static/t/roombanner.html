@@ -19,11 +19,11 @@
 				<li class="start_page"><?OFFERSTARTPAGE></li>
 				<li class="search" id="searchomatic"><?=("searchomatic")></li>
 				<li class="view"><?=("viewomatic")></li>
-				<??("COND:THISROOM:CURR_VIEW", 1, #"VIEW_MAILBOX")>
+				<?!("COND:THISROOM:CURR_VIEW", 1, #"VIEW_MAILBOX")>
 					<li class="hidden" id="selectpage">
 						<?_("Select page: ")> <select id="summpage"><option> </option></select>
 					</li>
-				<??("X",1)>
+				<?!("X",1)>
 			</ul>
 		</td>
 	</tr></table>
