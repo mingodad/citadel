@@ -85,7 +85,12 @@ function createMessageView() {
 	document.getElementById('m_refresh').setAttribute("href","#");
 	Event.observe(document.onresize ? document : window, "resize", normalizeHeaderTable);
 	Event.observe(document.onresize ? document : window, "resize", sizePreviewPane);
-	$('summpage').observe('change', getPage);
+	if ( $('summpage') ) {
+		$('summpage').observe('change', getPage);
+	}
+	else {
+		alert('error: summpage does not exist');
+	}
 	takeOverSearchOMatic();
 	setupDragDrop(); // here for now
 }
@@ -553,6 +558,7 @@ function setupPageSelector() {
 		summpage.appendChild(opt);
 	}
 }
+
 function getPage(event) {
 	var target = event.target;
 	startmsg = target.options.item(target.selectedIndex).value;
@@ -560,6 +566,7 @@ function getPage(event) {
 	//query = ""; // We are getting a page from the _entire_ msg list, don't query
 	getMessages();
 }
+
 function takeOverSearchOMatic() {
 	var searchForm = document.getElementById("searchomatic").getElementsByTagName("form")[0];
 	// First disable the form post
