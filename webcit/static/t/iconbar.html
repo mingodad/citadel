@@ -12,6 +12,7 @@
         <?_("Summary")>
     </span></a>
 </li>
+<??("COND:LOGGEDIN",3)>
 <li id="ib_inbox" class="ib_button">
     <a class="ib_button_link" href="dotgoto?room=_MAIL_" title="<?_("Go to your email inbox")>"><span>
        <?_("Mail")></span>
@@ -37,6 +38,7 @@
 <?_("Tasks")></span>
 </a>
 </li>
+<??("X",3)>
 <li id="ib_rooms" class="ib_button">
 <a class="ib_button_link" href="knrooms?template=knrooms?SortBy=byfloorroom?SortOrder=1" title="<?_("List all your accessible rooms")>"><span>
 <?_("Rooms")></span>
@@ -51,6 +53,7 @@
 <li><?_("Loading")></li>
 </ul>
 </li>
+<??("COND:LOGGEDIN",5)>
 <li id="ib_chat" class="ib_button">
 <a class="ib_button_link" href="chat"><span>
 <?_("Chat")>
@@ -63,6 +66,7 @@
 </span>
 </a>
 </li>
+<??("X",5)>
 <??("COND:AIDE", 1)>
 <li id="ib_admin" class="ib_button">
 <a class="ib_button_link" href="do_template?template=aide_display_menu" title="<?_("Room and system administration functions")>"><span><?_("Administration")></span></a>
@@ -78,6 +82,11 @@
   <span><a href="do_template?template=iconbar_edit"><?_("customize this menu")></a></span>
 </div>
 <??("X",2)>
+<?!("COND:LOGGEDIN",4)>
+<div id="ib_logoff" class="ib_button">
+<a class="ib_button_link" href="login" title="<?_("Login")>"><span><?_("Login")></span></a>
+</div>
+<?!("X",4)>
 <div class="ctdlTemplate">
 <span id="rmlist_template"><?_("switch to room list")></span>
 <span id="mnlist_template"><?_("switch to menu")></span>
