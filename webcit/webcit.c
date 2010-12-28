@@ -250,15 +250,10 @@ void http_redirect(const char *whichpage) {
 /*
  * Output a piece of content to the web browser using conformant HTTP and MIME semantics
  */
-void http_transmit_thing(const char *content_type,
-			 int is_static) {
+void http_transmit_thing(const char *content_type, int is_static)
+{
 
-#ifndef TECH_PREVIEW
-	lprintf(9, "http_transmit_thing(%s)%s\n",
-		content_type,
-		((is_static > 0) ? " (static)" : "")
-	);
-#endif
+	lprintf(9, "http_transmit_thing(%s)%s\n", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
 
 	hprintf("Content-type: %s\r\n"
@@ -326,8 +321,7 @@ void display_success(char *successmessage)
 
 
 /*
- * Authorization required page 
- * This is probably temporary and should be revisited 
+ * Authorization required page (sends a 401, causing the browser to request login credentials)
  */
 void authorization_required(void)
 {
@@ -730,7 +724,10 @@ void session_loop(void)
 	}
 
 	if (WCC->Hdr->HR.Handler != NULL) {
-		if (!WCC->logged_in && ((WCC->Hdr->HR.Handler->Flags & ANONYMOUS) == 0)) {
+		if (	(!WCC->logged_in)
+			&& ((WCC->Hdr->HR.Handler->Flags & ANONYMOUS) == 0)
+			&& (WCC->serv_info->serv_supports_guest == 0)
+		) {
 			display_login();
 		}
 		else {
@@ -745,17 +742,25 @@ void session_loop(void)
 				end_ajax_response();
 		}
 	}
-	/* When all else fais, display the main menu. */
+	/* When all else fails, display the main menu. */
 	else {
 		/* 
 		 * ordinary browser users get a nice login screen, DAV etc. requsets
 		 * are given a 401 so they can handle it appropriate.
 		 */
 		if (!WCC->logged_in)  {
-			if (xhttp)
+			if (xhttp) {
 				authorization_required();
-			else 
+			}
+			else if (WCC->serv_info->serv_supports_guest) {
+				/* default action.  probably revisit this. */
+				StrBuf *teh_lobby = NewStrBufPlain(HKEY("_BASEROOM_"));
+				smart_goto(teh_lobby);
+				FreeStrBuf(&teh_lobby);
+			}
+			else {
 				display_login();
+			}
 		}
 		/*
 		 * Toplevel dav requests? or just a flat browser request? 

@@ -117,8 +117,8 @@ void smart_goto(const StrBuf *next_room) {
 	readloop(readnew, eUseDefault);
 }
 
-/**
- * \brief goto a private room
+/*
+ * goto a private room
  */
 void goto_private(void)
 {
@@ -944,8 +944,8 @@ void entroom(void)
 
 
 
-/**
- * \brief Change the view for this room
+/*
+ * Change the view for this room
  */
 void change_view(void) {
 	int newview;
