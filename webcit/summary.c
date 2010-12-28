@@ -272,7 +272,9 @@ void summary(void) {
 	wc_printf("<table border=0><tr>");
         wc_printf("<td><img src=\"static/summscreen_48x.gif\"></td>");
         wc_printf("<td><h1>");
-        snprintf(title, sizeof title, _("Summary page for %s"), ChrPtr(WC->wc_fullname));
+        snprintf(title, sizeof title, _("Summary page for %s"),
+		( (WC->logged_in) ?  ChrPtr(WC->wc_fullname) : ChrPtr(WC->serv_info->serv_humannode))
+	);
         escputs(title);
         wc_printf("</h1><h2>");
         output_date();

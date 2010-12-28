@@ -742,7 +742,7 @@ void session_loop(void)
 				end_ajax_response();
 		}
 	}
-	/* When all else fails, display the main menu. */
+	/* When all else fails, display the default landing page or a main menu. */
 	else {
 		/* 
 		 * ordinary browser users get a nice login screen, DAV etc. requsets
@@ -752,14 +752,8 @@ void session_loop(void)
 			if (xhttp) {
 				authorization_required();
 			}
-			else if (WCC->serv_info->serv_supports_guest) {
-				/* default action.  probably revisit this. */
-				StrBuf *teh_lobby = NewStrBufPlain(HKEY("_BASEROOM_"));
-				smart_goto(teh_lobby);
-				FreeStrBuf(&teh_lobby);
-			}
 			else {
-				display_login();
+				display_default_landing_page();
 			}
 		}
 		/*
@@ -776,6 +770,23 @@ void session_loop(void)
 SKIP_ALL_THIS_CRAP:
 	FreeStrBuf(&Buf);
 	fflush(stdout);
+}
+
+
+
+/*
+ * Display the appropriate landing page for this site.
+ */
+void display_default_landing_page(void) {
+	if (WC->serv_info->serv_supports_guest) {
+		/* default action.  probably revisit this. */
+		StrBuf *teh_lobby = NewStrBufPlain(HKEY("_BASEROOM_"));
+		smart_goto(teh_lobby);
+		FreeStrBuf(&teh_lobby);
+	}
+	else {
+		display_login();
+	}
 }
 
 

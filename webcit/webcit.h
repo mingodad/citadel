@@ -635,6 +635,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 void openid_manual_create(void);
 void display_login(void);
 void display_openids(void);
+void display_default_landing_page(void);
 void do_welcome(void);
 void do_logout(void);
 void display_main_menu(void);
