@@ -242,6 +242,32 @@ void do_login(void)
 	FreeStrBuf(&Buf);
 }
 
+
+
+/* 
+ * modal/ajax version of 'login' (username and password)
+ */
+void ajax_login_username_password(void) {
+	StrBuf *Buf;
+
+	serv_printf("USER %s", bstr("name"));
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 3) {
+		serv_printf("PASS %s", bstr("pass"));
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
+			wc_printf("FIXME success");
+		}
+	}
+
+	wc_printf("FIXME %s", ChrPtr(Buf));
+
+	FreeStrBuf(&Buf);
+}
+
+
+
 /* 
  * Try to create an account manually after an OpenID was verified
  */
@@ -1055,11 +1081,13 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_manual_create"), "", 0, openid_manual_create, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX);
 	WebcitAddUrlHandler(HKEY("validate"), "", 0, validate, 0);
 	WebcitAddUrlHandler(HKEY("display_reg"), "", 0, _display_reg, 0);
 	WebcitAddUrlHandler(HKEY("display_changepw"), "", 0, display_changepw, 0);
 	WebcitAddUrlHandler(HKEY("changepw"), "", 0, changepw, 0);
 	WebcitAddUrlHandler(HKEY("termquit"), "", 0, do_logout, 0);
+
 
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
