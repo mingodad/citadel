@@ -4,9 +4,10 @@
 <a href="javascript:toggleModal(0);"><img src="static/closewindow.gif" border="0"></a>
 </div>
 <div align="center">
-To complete this action, you must log in.<br>
+To complete this action, you must log in.  FIXME localize this string.<br>
+<div class="login_message" id="login_errmsg"></div>
 <hr>
-<form method="POST" id="ajax_login_username_password">
+<form id="ajax_username_password_form" method="POST" action="ajax_login_username_password">
 <table border=0 cellspacing=0 cellpadding=0><tr>
 <td><?_("User name:")></td>
 <td><input type="text" name="name" id="uname"></td>
@@ -16,7 +17,7 @@ To complete this action, you must log in.<br>
 </tr></table>
 </form>
 <hr>
-<a href="<?BSTR("destination_url")>">Proceed and fail</a><br>
+<a href="javascript:ajax_try_username_and_password('<?BSTR("destination_url")>');">Proceed and be clueless</a><br>
 <a href="javascript:toggleModal(0);"><?_("Cancel")></a>
 </div>
 </body>
