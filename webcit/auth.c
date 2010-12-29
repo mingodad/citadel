@@ -248,7 +248,7 @@ void do_login(void)
  * modal/ajax version of 'login' (username and password)
  */
 void ajax_login_username_password(void) {
-	StrBuf *Buf;
+	StrBuf *Buf = NewStrBuf();
 
 	serv_printf("USER %s", bstr("name"));
 	StrBuf_ServGetln(Buf);
@@ -257,12 +257,11 @@ void ajax_login_username_password(void) {
 		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) == 2) {
 			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
-			wc_printf("FIXME success");
 		}
 	}
 
-	wc_printf("FIXME %s", ChrPtr(Buf));
-
+	/* The client is expecting to read back a citadel protocol response */
+	wc_printf("%s", ChrPtr(Buf));
 	FreeStrBuf(&Buf);
 }
 
@@ -1092,7 +1091,7 @@ InitModule_AUTH
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
 	RegisterConditional(HKEY("COND:MAY_CREATE_ROOM"), 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
-	return ;
+	return;
 }
 
 
