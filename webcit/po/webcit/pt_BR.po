@@ -1980,8 +1980,8 @@ msgid "If you already have an account on"
 msgstr "Se você já tiver uma conta ativa"
 
 #: ../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Login.&quot;"
-msgstr "entre com seu usuário e senha e clique em &quot;Login.&quot;"
+msgid "enter your user name and password and click &quot;Log in.&quot;"
+msgstr "entre com seu usuário e senha e clique em &quot;Log in.&quot;"
 
 #: ../static/t/login.html:45
 msgid ""
@@ -2169,8 +2169,8 @@ msgid "Log in using a user name and password"
 msgstr "Log in usando um nome de usuário e senha"
 
 #: ../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Login&quot;."
-msgstr "Entre com sua URL do OpenID e clique em &quot;Login&quot;."
+msgid "Enter your OpenID URL and click &quot;Log in&quot;."
+msgstr "Entre com sua URL do OpenID e clique em &quot;Log in&quot;."
 
 #: ../static/t/openid_login.html:36
 msgid "Click here to learn what OpenID is and how Citadel is using it."
@@ -2653,9 +2653,8 @@ msgstr "Usuário atualmente on line "
 #~ msgid "Remove"
 #~ msgstr "(excluir)"
 
-#, fuzzy
-#~ msgid "Login"
-#~ msgstr "Último Login"
+msgid "Login"
+msgstr "Último Login"
 
 #, fuzzy
 #~ msgid "Users currently on"
@@ -3539,7 +3538,7 @@ msgstr "Usuário atualmente on line "
 
 #, fuzzy
 #~ msgid ""
-#~ "<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
+#~ "<ul><li>Enter your OpenID URL and click &quot;Log in&quot;.<li><a href="
 #~ "\"http://www.citadel.org/doku.php/documentation:openid\">Click here to "
 #~ "learn what OpenID is and how Citadel is using it.</a><li>Please log off "
 #~ "properly when finished. <li>You must use a browser that supports "
@@ -3548,7 +3547,7 @@ msgstr "Usuário atualmente on line "
 #~ "receive any instant messages.<br></ul>"
 #~ msgstr ""
 #~ "<ul><li><b>Se você já tem uma conta em %s</b>, digite seu nome de usuário "
-#~ "e senha e clique em &quot;Login.&quot; <li><b>Se você for um novo "
+#~ "e senha e clique em &quot;Log in.&quot; <li><b>Se você for um novo "
 #~ "usuário</b>, digite o nome de usuário e senha desejados, e clique em "
 #~ "&quot;Novo Usuário &quot; <li>Se possível, faça o &quot;log off &quot; "
 #~ "quando terminar de usar o sistema. <li> Seu navegador deverá suportar "
@@ -3558,7 +3557,7 @@ msgstr "Usuário atualmente on line "
 
 #, fuzzy
 #~ msgid ""
-#~ "enter your user name and password and click &quot;Login.&quot;<li><b>If "
+#~ "enter your user name and password and click &quot;Log in.&quot;<li><b>If "
 #~ "you are a new user</b>, enter the name and password you wish to use, and "
 #~ "click &quot;New User.&quot; <li>Please log off properly when finished. "
 #~ "<li>You must use a browser that supports <i>frames</i> and <i>cookies</"
@@ -3566,7 +3565,7 @@ msgstr "Usuário atualmente on line "
 #~ "up windows, you will not be able to receive any instant messages."
 #~ msgstr ""
 #~ "<ul><li><b>Se você já tem uma conta em %s</b>, digite seu nome de usuário "
-#~ "e senha e clique em &quot;Login.&quot; <li><b>Se você for um novo "
+#~ "e senha e clique em &quot;Log in.&quot; <li><b>Se você for um novo "
 #~ "usuário</b>, digite o nome de usuário e senha desejados, e clique em "
 #~ "&quot;Novo Usuário &quot; <li>Se possível, faça o &quot;log off &quot; "
 #~ "quando terminar de usar o sistema. <li> Seu navegador deverá suportar "

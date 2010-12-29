@@ -1938,7 +1938,7 @@ msgid "If you already have an account on"
 msgstr ""
 
 #: ../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Login.&quot;"
+msgid "enter your user name and password and click &quot;Log in.&quot;"
 msgstr ""
 
 #: ../static/t/login.html:45
@@ -2118,7 +2118,7 @@ msgid "Log in using a user name and password"
 msgstr "belépés felhasználó név és jelszó segítségével"
 
 #: ../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgid "Enter your OpenID URL and click &quot;Log in&quot;."
 msgstr ""
 
 #: ../static/t/openid_login.html:36
@@ -2573,9 +2573,8 @@ msgstr ""
 #~ msgid "Remove"
 #~ msgstr "(eltávolít)"
 
-#, fuzzy
-#~ msgid "Login"
-#~ msgstr "Utolsó bejelentkezés"
+msgid "Log in"
+msgstr "Utolsó bejelentkezés"
 
 #~ msgid "Pictures in"
 #~ msgstr "Képek itt"
