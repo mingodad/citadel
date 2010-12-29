@@ -1,10 +1,23 @@
 <html>
 <body>
-<center>
-FIXME
-You have to log in now<br>
+<div align="right">
+<a href="javascript:toggleModal(0);"><img src="static/closewindow.gif" border="0"></a>
+</div>
+<div align="center">
+To complete this action, you must log in.<br>
+<hr>
+<form method="POST" id="ajax_login_form">
+<table border=0 cellspacing=0 cellpadding=0><tr>
+<td><?_("User name:")></td>
+<td><input type="text" name="name" id="uname"></td>
+</tr><tr>
+<td><?_("Password:")></td>
+<td><input type="password" name="pass" id="pname"></td>
+</tr></table>
+</form>
+<hr>
 <a href="<?BSTR("destination_url")>">Proceed and fail</a><br>
-<a href="javascript:toggleModal(0);"><img src="static/closewindow.gif" border="0">&nbsp;<?_("Cancel")></a>
-</center>
+<a href="javascript:toggleModal(0);"><?_("Cancel")></a>
+</div>
 </body>
 </html>
