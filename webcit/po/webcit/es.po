@@ -1956,7 +1956,7 @@ msgid "If you already have an account on"
 msgstr ""
 
 #: ../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Login.&quot;"
+msgid "enter your user name and password and click &quot;Log in.&quot;"
 msgstr ""
 
 #: ../static/t/login.html:45
@@ -2136,7 +2136,7 @@ msgid "Log in using a user name and password"
 msgstr ""
 
 #: ../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Login&quot;."
+msgid "Enter your OpenID URL and click &quot;Log in&quot;."
 msgstr ""
 
 #: ../static/t/openid_login.html:36
@@ -2599,9 +2599,8 @@ msgstr ""
 #~ msgid "Remove"
 #~ msgstr "(remover)"
 
-#, fuzzy
-#~ msgid "Login"
-#~ msgstr "Última conexión"
+msgid "Log in"
+msgstr "Última conexión"
 
 #, fuzzy
 #~ msgid "Users currently on"
@@ -3409,7 +3408,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgid ""
-#~ "<ul><li>Enter your OpenID URL and click &quot;Login&quot;.<li><a href="
+#~ "<ul><li>Enter your OpenID URL and click &quot;Log in&quot;.<li><a href="
 #~ "\"http://www.citadel.org/doku.php/documentation:openid\">Click here to "
 #~ "learn what OpenID is and how Citadel is using it.</a><li>Please log off "
 #~ "properly when finished. <li>You must use a browser that supports "
@@ -3418,7 +3417,7 @@ msgstr ""
 #~ "receive any instant messages.<br></ul>"
 #~ msgstr ""
 #~ "<ul><li><b>Si ya dispone de una cuenta en %s</b>, introduzca su nombre de "
-#~ "usuario y contraseña y seleccione &quot;Login.&quot; <li><b>Si es un "
+#~ "usuario y contraseña y seleccione &quot;Log in.&quot; <li><b>Si es un "
 #~ "usuario nuevo</b>, introduzca su nombre y la contraseña que le gustaría "
 #~ "utilizar, y pulse &quot;Nuevo Usuario.&quot; <li>Por favor, cierre su "
 #~ "conexión adecuadamente al terminar. <li>Debe utilizar un explorador que "
@@ -3428,7 +3427,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgid ""
-#~ "enter your user name and password and click &quot;Login.&quot;<li><b>If "
+#~ "enter your user name and password and click &quot;Log in.&quot;<li><b>If "
 #~ "you are a new user</b>, enter the name and password you wish to use, and "
 #~ "click &quot;New User.&quot; <li>Please log off properly when finished. "
 #~ "<li>You must use a browser that supports <i>frames</i> and <i>cookies</"
@@ -3436,7 +3435,7 @@ msgstr ""
 #~ "up windows, you will not be able to receive any instant messages."
 #~ msgstr ""
 #~ "<ul><li><b>Si ya dispone de una cuenta en %s</b>, introduzca su nombre de "
-#~ "usuario y contraseña y seleccione &quot;Login.&quot; <li><b>Si es un "
+#~ "usuario y contraseña y seleccione &quot;Log in.&quot; <li><b>Si es un "
 #~ "usuario nuevo</b>, introduzca su nombre y la contraseña que le gustaría "
 #~ "utilizar, y pulse &quot;Nuevo Usuario.&quot; <li>Por favor, cierre su "
 #~ "conexión adecuadamente al terminar. <li>Debe utilizar un explorador que "
