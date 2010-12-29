@@ -1,5 +1,21 @@
 /*
  * Lots of different room-related operations.
+ *
+ * Copyright (c) 1996-2010 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
@@ -11,14 +27,13 @@
  *
  * got			The information returned from a GOTO server command
  * navbar_style 	Determines which navigation buttons to display
- *
  */
 void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	
-	/* refresh current room states... */
-	/* dosen't work??? gotoroom(NULL); */
+	/* Refresh current room states.  Doesn't work? gotoroom(NULL); */
+
 	wc_printf("<div id=\"banner\">\n");
 
 	/* The browser needs some information for its own use */
@@ -26,7 +41,7 @@ void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 		  "	room_is_trash = %d;		\n"
 		  "</script>\n",
 		  ((WC->CurRoom.RAFlags & UA_ISTRASH) != 0)
-		);
+	);
 
 	/*
 	 * If the user happens to select the "make this my start page" link,
@@ -36,12 +51,10 @@ void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 	if (WCC->Hdr->this_page == NULL) {
 		WCC->Hdr->this_page = NewStrBuf();
 	}
-	StrBufPrintf(WCC->Hdr->this_page, 
-		     "dotskip?room=%s",
-		     ChrPtr(WC->CurRoom.name)
-		);
+	StrBufPrintf(WCC->Hdr->this_page, "dotskip?room=%s", ChrPtr(WC->CurRoom.name));
 
 	do_template("roombanner", NULL);
+
 	/* roombanner contains this for mobile */
 	if (WC->is_mobile)
 		return;
@@ -53,18 +66,24 @@ void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 
 /*******************************************************************************
  ********************** FLOOR Tokens *******************************************
- ******************************************************************************/
+ *******************************************************************************/
+
+
 void tmplput_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
 	Floor *myFloor = (Floor *)CTX;
 
 	StrBufAppendPrintf(Target, "%d", myFloor->ID);
 }
+
+
 void tmplput_ROOM_FLOORID(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->floorid);
 }
+
+
 void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
@@ -76,6 +95,7 @@ void tmplput_ROOM_FLOOR_ID(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendPrintf(Target, "%d", pFloor->ID);
 }
 
+
 void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
@@ -86,6 +106,8 @@ void tmplput_ROOM_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendTemplate(Target, TP, pFloor->Name, 0);
 }
+
+
 void tmplput_ThisRoomFloorName(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
@@ -101,6 +123,8 @@ void tmplput_ThisRoomFloorName(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendTemplate(Target, TP, pFloor->Name, 0);
 }
+
+
 void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	Floor *myFloor = (Floor *)CTX;
@@ -108,12 +132,15 @@ void tmplput_FLOOR_NAME(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendTemplate(Target, TP, myFloor->Name, 0);
 }
 
+
 void tmplput_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
 	Floor *myFloor = (Floor *)CTX;
 
 	StrBufAppendPrintf(Target, "%d", myFloor->NRooms);
 }
+
+
 void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
@@ -123,6 +150,8 @@ void tmplput_ROOM_FLOOR_NROOMS(StrBuf *Target, WCTemplputParams *TP)
 		return;
 	StrBufAppendPrintf(Target, "%d", pFloor->NRooms);
 }
+
+
 int ConditionalFloorHaveNRooms(StrBuf *Target, WCTemplputParams *TP)
 {
 	Floor *MyFloor = (Floor *)CTX;
@@ -132,6 +161,7 @@ int ConditionalFloorHaveNRooms(StrBuf *Target, WCTemplputParams *TP)
 
 	return HaveN == MyFloor->NRooms;
 }
+
 
 int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -143,6 +173,8 @@ int ConditionalFloorIsRESTSubFloor(StrBuf *Target, WCTemplputParams *TP)
 		return 1;
 	return WCC->CurrentFloor == MyFloor;
 }
+
+
 int ConditionalFloorIsSUBROOM(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession  *WCC = WC;
@@ -160,24 +192,31 @@ int ConditionalFloorIsVirtual(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-
 /*******************************************************************************
  ********************** ROOM Tokens ********************************************
- ******************************************************************************/
+ *******************************************************************************/
 /**** Name ******/
+
+
 void tmplput_RoomName(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBufAppendTemplate(Target, TP, WC->CurRoom.name, 0);
 }
+
+
 void tmplput_current_room(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 
-	if (WCC != NULL)
+	if (WCC != NULL) {
 		StrBufAppendTemplate(Target, TP, 
-				     WCC->CurRoom.name, 
-				     0); 
+		     WCC->CurRoom.name, 
+		     0
+		);
+	}
 }
+
+
 void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
@@ -192,6 +231,8 @@ void tmplput_ROOM_NAME(StrBuf *Target, WCTemplputParams *TP)
 	}
 	StrBufAppendTemplate(Target, TP, Folder->name, 0);
 }
+
+
 void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *room = (folder *)CTX;
@@ -202,6 +243,8 @@ void tmplput_ROOM_BASENAME(StrBuf *Target, WCTemplputParams *TP)
 	else 
 		StrBufAppendTemplate(Target, TP, room->name, 0);
 }
+
+
 void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *room = (folder *)CTX;
@@ -217,11 +260,14 @@ void tmplput_ROOM_LEVEL_N_TIMES(StrBuf *Target, WCTemplputParams *TP)
 			StrBufAppendBufPlain(Target, AppendMe, AppendMeLen, 0);
 	}
 }
+
+
 int ConditionalRoomIsInbox(StrBuf *Target, WCTemplputParams *TP)
 {
 	folder *Folder = (folder *)CTX;
 	return Folder->is_inbox;
 }
+
 
 /****** Properties ******/
 int ConditionalThisRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
@@ -243,6 +289,8 @@ int ConditionalThisRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 	else
 		return (WCC->CurRoom.QRFlags & QR_CheckFlag) == QR_CheckFlag;
 }
+
+
 int ConditionalRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 {
 	long QR_CheckFlag;
@@ -259,6 +307,8 @@ int ConditionalRoomHas_QRFlag(StrBuf *Target, WCTemplputParams *TP)
 	else
 		return (Folder->QRFlags & QR_CheckFlag) == QR_CheckFlag;
 }
+
+
 void tmplput_ROOM_QRFLAGS(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
@@ -286,6 +336,8 @@ int ConditionalThisRoomHas_QRFlag2(StrBuf *Target, WCTemplputParams *TP)
 	else
 		return (WCC->CurRoom.QRFlags2 & QR2_CheckFlag) == QR2_CheckFlag;
 }
+
+
 int ConditionalRoomHas_QRFlag2(StrBuf *Target, WCTemplputParams *TP)
 {
 	long QR2_CheckFlag;
@@ -297,6 +349,7 @@ int ConditionalRoomHas_QRFlag2(StrBuf *Target, WCTemplputParams *TP)
 				 "requires one of the #\"QR2*\"- defines or an integer flag 0 is invalid!");
 	return ((Folder->QRFlags2 & QR2_CheckFlag) != 0);
 }
+
 
 int ConditionalRoomHas_UAFlag(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -312,16 +365,12 @@ int ConditionalRoomHas_UAFlag(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-
-
-
 void tmplput_ROOM_ACL(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
 
 	StrBufAppendPrintf(Target, "%ld", Folder->RAFlags, 0);
 }
-
 
 
 void tmplput_ROOM_RAFLAGS(StrBuf *Target, WCTemplputParams *TP) 
@@ -339,12 +388,15 @@ void tmplput_ThisRoomAide(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendTemplate(Target, TP, WCC->CurRoom.RoomAide, 0);
 }
+
+
 int ConditionalRoomAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	return (WCC != NULL)? 
 		((WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) : 0;
 }
+
 
 int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -356,7 +408,6 @@ int ConditionalRoomAcessDelete(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-
 int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
@@ -366,18 +417,15 @@ int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 		  ((WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) ||
 		  (WCC->CurRoom.is_inbox) ));
 }
+
+
 void tmplput_ThisRoomPass(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
 
 	LoadRoomXA();
-
 	StrBufAppendTemplate(Target, TP, WCC->CurRoom.XAPass, 0);
 }
-
-
-
-
 
 
 void tmplput_ThisRoom_nNewMessages(StrBuf *Target, WCTemplputParams *TP) 
@@ -387,16 +435,13 @@ void tmplput_ThisRoom_nNewMessages(StrBuf *Target, WCTemplputParams *TP)
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.nNewMessages);
 }
 
+
 void tmplput_ThisRoom_nTotalMessages(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
 
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.nTotalMessages);
 }
-
-
-
-
 
 
 void tmplput_ThisRoomOrder(StrBuf *Target, WCTemplputParams *TP) 
@@ -407,6 +452,7 @@ void tmplput_ThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.Order);
 }
+
 
 int ConditionalThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 {
@@ -422,14 +468,12 @@ int ConditionalThisRoomOrder(StrBuf *Target, WCTemplputParams *TP)
 	return CheckThis == WCC->CurRoom.Order;
 }
 
+
 void tmplput_ROOM_LISTORDER(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->Order);
 }
-
-
-
 
 
 int ConditionalThisRoomXHavePic(StrBuf *Target, WCTemplputParams *TP)
@@ -454,6 +498,8 @@ int ConditionalThisRoomXHaveInfoText(StrBuf *Target, WCTemplputParams *TP)
 	LoadXRoomInfoText();
 	return (StrLength(WCC->CurRoom.XInfoText)>0);
 }
+
+
 void tmplput_ThisRoomInfoText(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
@@ -480,21 +526,11 @@ void tmplput_ThisRoomInfoText(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-
-
-
-
 void tmplput_ROOM_LASTCHANGE(StrBuf *Target, WCTemplputParams *TP) 
 {
 	folder *Folder = (folder *)CTX;
 	StrBufAppendPrintf(Target, "%d", Folder->lastchange);
 }
-
-
-
-
-
-
 
 
 void tmplput_ThisRoomDirectory(StrBuf *Target, WCTemplputParams *TP) 
@@ -505,6 +541,8 @@ void tmplput_ThisRoomDirectory(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendTemplate(Target, TP, WCC->CurRoom.Directory, 0);
 }
+
+
 void tmplput_ThisRoomXNFiles(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
@@ -513,6 +551,7 @@ void tmplput_ThisRoomXNFiles(StrBuf *Target, WCTemplputParams *TP)
 
 	StrBufAppendPrintf(Target, "%d", WCC->CurRoom.XDownloadCount);
 }
+
 
 void tmplput_ThisRoomX_FileString(StrBuf *Target, WCTemplputParams *TP) 
 {
@@ -594,11 +633,6 @@ InitModule_ROOMTOKENS
 	RegisterNamespace("THISROOM:FILES:N", 0, 1, tmplput_ThisRoomXNFiles, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:FILES:STR", 0, 1, tmplput_ThisRoomX_FileString, NULL, CTX_NONE);
 	RegisterNamespace("THISROOM:DIRECTORY", 0, 1, tmplput_ThisRoomDirectory, NULL, CTX_NONE);
-
-
-
-
-
 
 	RegisterNamespace("ROOM:INFO:ACL", 0, 1, tmplput_ROOM_ACL, NULL, CTX_ROOMS);
 }
