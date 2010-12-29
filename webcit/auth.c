@@ -1078,6 +1078,7 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX);
 	WebcitAddUrlHandler(HKEY("validate"), "", 0, validate, 0);
+	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, 0);
 	WebcitAddUrlHandler(HKEY("display_reg"), "", 0, _display_reg, 0);
 	WebcitAddUrlHandler(HKEY("display_changepw"), "", 0, display_changepw, 0);
 	WebcitAddUrlHandler(HKEY("changepw"), "", 0, changepw, 0);
