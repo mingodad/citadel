@@ -568,14 +568,20 @@ void do_logout(void)
 
 	FlushStrBuf(WCC->wc_username);
 	FlushStrBuf(WCC->wc_password);
-	FlushStrBuf(WCC->CurRoom.name);
 	FlushStrBuf(WCC->wc_fullname);
 
-	/* FIXME: this is to suppress the iconbar displaying, because we aren't
-	   actually logged out yet */
+	serv_puts("LOUT");
+	serv_getln(buf, sizeof buf);
 	WCC->logged_in = 0;
 
-	/** Calling output_headers() this way causes the cookies to be un-set */
+	if (WC->serv_info->serv_supports_guest) {
+		display_default_landing_page();
+		return;
+	}
+
+	FlushStrBuf(WCC->CurRoom.name);
+
+	/* Calling output_headers() this way causes the cookies to be un-set */
 	output_headers(1, 1, 0, 1, 0, 0);
 
 	wc_printf("<div id=\"logout_screen\">");
@@ -607,16 +613,6 @@ void do_logout(void)
 		"<span class=\"button_link\"><a href=\".\">");
 	wc_printf(_("Log in again"));
 	wc_printf("</a></span>");
-
-	/* The "close window" link is commented out because some browsers don't
-	 * allow it to work.
-	 *
-	wc_printf("&nbsp;&nbsp;&nbsp;<span class=\"button_link\">"
-		"<a href=\"javascript:window.close();\">");
-	wc_printf(_("Close window"));
-	wc_printf("</a></span>");
-	 */
-
 	wc_printf("</div></div></div>\n");
 	wDumpContent(2);
 	end_webcit_session();
