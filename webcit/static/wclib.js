@@ -875,3 +875,26 @@ function ConfirmLogoff() {
                 }
         );
 }
+
+
+/*
+ * Wrapper script to require logging in before completing an action
+ */
+function GetLoggedInFirst(destination_url) {
+
+	/* If logged in already, go directly to the destination. */
+	/* FIXME implement this */
+
+	/* If not logged in, go modal and ask the user to log in first. */
+	p = 'do_template?template=get_logged_in?destination_url=' + destination_url;
+	new Ajax.Updater(
+		'md-content',
+		p,
+                {
+                        method: 'get',
+			onSuccess: function(cl_success) {
+				toggleModal(1);
+			}
+                }
+        );
+}
