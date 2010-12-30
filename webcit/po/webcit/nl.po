@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-16 13:47+0200\n"
+"POT-Creation-Date: 2010-12-30 16:48-0500\n"
 "PO-Revision-Date: 2010-11-13 00:18+0000\n"
 "Last-Translator: Wim Kuilman <Unknown>\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
@@ -19,59 +19,872 @@ msgstr ""
 "X-Generator: Launchpad (build Unknown)\n"
 "Language: nl\n"
 
-#: ../addressbook_popup.c:192
-msgid "Add"
-msgstr "Toevoegen"
+#: ../../roomlist.c:46 ../../roomlist.c:391 ../../siteconfig.c:39
+#: ../../siteconfig.c:58
+msgid "Higher access is required to access this function."
+msgstr "Hogere toegangrechten nodig voor deze functie."
+
+#: ../../roomlist.c:101
+msgid "My Folders"
+msgstr "Mijn mappen"
+
+#: ../../calendar_tools.c:101
+msgid "Hour: "
+msgstr "Uur: "
+
+#: ../../calendar_tools.c:121
+msgid "Minute: "
+msgstr "Minuut: "
+
+#: ../../calendar_tools.c:192
+msgid "(status unknown)"
+msgstr "(status onbekend)"
+
+#: ../../calendar_tools.c:208
+msgid "(needs action)"
+msgstr "(actie gevraagd)"
+
+#: ../../calendar_tools.c:211
+msgid "(accepted)"
+msgstr "(geaccepteerd)"
+
+#: ../../calendar_tools.c:214
+msgid "(declined)"
+msgstr "(afgewezen)"
+
+#: ../../calendar_tools.c:217
+msgid "(tenative)"
+msgstr "(voorwaardelijk)"
+
+#: ../../calendar_tools.c:220
+msgid "(delegated)"
+msgstr "(gedelegeerd)"
+
+#: ../../calendar_tools.c:223
+msgid "(completed)"
+msgstr "(afgehandeld)"
+
+#: ../../calendar_tools.c:226
+msgid "(in process)"
+msgstr "(in bewerking)"
+
+#: ../../calendar_tools.c:229
+msgid "(none)"
+msgstr "(geen)"
+
+#: ../../html2html.c:136
+#, c-format
+msgid "realloc() error! couldn't get %d bytes: %s"
+msgstr "realloc() fout! kon niet %d bytes krijgen: %s"
+
+#.
+#. * Set to 'unknown' right from the beginning.  Unless we learn
+#. * something else, that's what we'll go with.
+#.
+#: ../../availability.c:154
+msgid "availability unknown"
+msgstr "beschikbaarheid niet bekend"
+
+#: ../../availability.c:175
+msgid "free"
+msgstr "vrij"
+
+#: ../../availability.c:185
+msgid "BUSY"
+msgstr "BEZET"
+
+#: ../../calendar_view.c:264 ../../calendar_view.c:464
+#: ../../calendar_view.c:933 ../../event.c:858
+msgid "Untitled Event"
+msgstr "Naamloze gebeurtenis"
+
+#: ../../calendar_view.c:289 ../../calendar_view.c:954
+#: ../../calendar_view.c:998 ../../calendar_view.c:1079 ../../sieve.c:993
+msgid "From"
+msgstr "van"
+
+#: ../../calendar_view.c:290 ../../calendar_view.c:955
+#: ../../calendar_view.c:999 ../../calendar_view.c:1080 ../../tasks.c:245
+#: ../../calendar.c:103
+msgid "Summary:"
+msgstr "Omschrijving:"
+
+#: ../../calendar_view.c:298 ../../calendar_view.c:960
+#: ../../calendar_view.c:1004 ../../calendar_view.c:1085 ../../calendar.c:112
+msgid "Location:"
+msgstr "Locatie:"
+
+#: ../../calendar_view.c:343 ../../calendar_view.c:966 ../../calendar.c:137
+msgid "Date:"
+msgstr "Datum:"
+
+#: ../../calendar_view.c:347 ../../calendar_view.c:970
+msgid "Starting date:"
+msgstr "Begindatum"
+
+#: ../../calendar_view.c:353 ../../calendar_view.c:972
+msgid "Ending date:"
+msgstr "Einddatum"
+
+#: ../../calendar_view.c:361 ../../calendar_view.c:1091
+msgid "Date/time:"
+msgstr "Datum/tijd"
+
+#: ../../calendar_view.c:365 ../../calendar_view.c:1009
+#: ../../calendar_view.c:1095 ../../calendar.c:144
+msgid "Starting date/time:"
+msgstr "Startdatum/-tijd:"
+
+#: ../../calendar_view.c:368 ../../calendar_view.c:1011
+#: ../../calendar_view.c:1097 ../../calendar.c:155
+msgid "Ending date/time:"
+msgstr "Einddatum/-tijd:"
+
+#: ../../calendar_view.c:378 ../../calendar_view.c:976
+#: ../../calendar_view.c:1014 ../../calendar_view.c:1101
+#: ../../static/t/room/edit/tab_share.html:32
+msgid "Notes:"
+msgstr "Notities:"
+
+#: ../../calendar_view.c:581 ../../calendar_view.c:717
+msgid "previous"
+msgstr "vorige"
+
+#: ../../calendar_view.c:593 ../../calendar_view.c:729
+#: ../../calendar_view.c:1316
+msgid "next"
+msgstr "volgende"
+
+#: ../../calendar_view.c:752
+msgid "Week"
+msgstr "Week"
+
+#: ../../calendar_view.c:754
+msgid "Hours"
+msgstr "Uren"
+
+#: ../../calendar_view.c:755 ../../sieve.c:995
+#: ../../static/t/summary_header.html:8 ../../static/t/msg_listview.html:10
+msgid "Subject"
+msgstr "Onderwerp"
+
+#: ../../calendar_view.c:756 ../../event.c:229
+msgid "Start"
+msgstr "Start"
+
+#: ../../calendar_view.c:757 ../../event.c:278
+msgid "End"
+msgstr "Eind"
+
+#: ../../calendar_view.c:953 ../../calendar_view.c:982 ../../event.c:272
+msgid "All day event"
+msgstr "Gebeurtenis hele dag"
+
+#: ../../calendar_view.c:997 ../../calendar_view.c:1020
+msgid "Ongoing event"
+msgstr "Doorlopende afspraak"
+
+#: ../../calendar_view.c:1387 ../../tasks.c:426
+msgid "Untitled Task"
+msgstr "Naamloze taak"
+
+#: ../../vcard_edit.c:158 ../../vcard_edit.c:161
+msgid "(no name)"
+msgstr "(geen naam)"
+
+#: ../../vcard_edit.c:426
+msgid " (work)"
+msgstr " (werk)"
+
+#: ../../vcard_edit.c:428
+msgid " (home)"
+msgstr " (thuis)"
+
+#: ../../vcard_edit.c:430
+msgid " (cell)"
+msgstr " (mobiel)"
+
+#: ../../vcard_edit.c:441 ../../vcard_edit.c:1108
+msgid "Address:"
+msgstr "Adres:"
+
+#: ../../vcard_edit.c:509
+msgid "Telephone:"
+msgstr "Telefoon:"
+
+#: ../../vcard_edit.c:514
+msgid "E-mail:"
+msgstr "E-mail:"
+
+#: ../../vcard_edit.c:767
+msgid "This address book is empty."
+msgstr "Dit adresboek is leeg."
+
+#: ../../vcard_edit.c:781
+msgid "An internal error has occurred."
+msgstr "Er is een interne fout opgetreden."
+
+#: ../../vcard_edit.c:932
+msgid "Error"
+msgstr "Fout"
+
+#: ../../vcard_edit.c:1036
+msgid "Edit contact information"
+msgstr "Bewerk contactinformatie"
+
+#: ../../vcard_edit.c:1056
+msgid "Prefix"
+msgstr "Aanhef"
+
+#: ../../vcard_edit.c:1056
+msgid "First Name"
+msgstr "Voornaam"
+
+#: ../../vcard_edit.c:1056
+msgid "Middle Name"
+msgstr "Voorvoegsel"
+
+#: ../../vcard_edit.c:1056
+msgid "Last Name"
+msgstr "Achternaam"
+
+#: ../../vcard_edit.c:1056
+msgid "Suffix"
+msgstr "Suffix"
+
+#: ../../vcard_edit.c:1077
+msgid "Display name:"
+msgstr "Naamweergave:"
+
+#: ../../vcard_edit.c:1084
+msgid "Title:"
+msgstr "Titel:"
+
+#: ../../vcard_edit.c:1091
+msgid "Organization:"
+msgstr "Organisatie:"
+
+#: ../../vcard_edit.c:1102
+msgid "PO box:"
+msgstr "Postbus:"
+
+#: ../../vcard_edit.c:1118
+msgid "City:"
+msgstr "Plaats:"
+
+#: ../../vcard_edit.c:1124
+msgid "State:"
+msgstr "Prov.:"
+
+#: ../../vcard_edit.c:1130
+msgid "ZIP code:"
+msgstr "Postcode:"
+
+#: ../../vcard_edit.c:1136
+msgid "Country:"
+msgstr "Land:"
+
+#: ../../vcard_edit.c:1146
+msgid "Home telephone:"
+msgstr "Telefoon thuis:"
+
+#: ../../vcard_edit.c:1152
+msgid "Work telephone:"
+msgstr "Telefoon werk:"
+
+#: ../../vcard_edit.c:1158
+msgid "Mobile telephone:"
+msgstr "Mobiele telefoon:"
+
+#: ../../vcard_edit.c:1164
+msgid "Fax number:"
+msgstr "Faxnummer:"
+
+#: ../../vcard_edit.c:1175
+msgid "Primary Internet e-mail address"
+msgstr "Primair e-mailadres:"
+
+#: ../../vcard_edit.c:1182
+msgid "Internet e-mail aliases"
+msgstr "Internet e-mail aliases"
+
+#: ../../vcard_edit.c:1203 ../../sieve.c:201 ../../sysmsgs.c:48
+msgid "Save changes"
+msgstr "Wijzigingen bewaren"
+
+#: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
+#: ../../sysmsgs.c:50 ../../auth.c:864 ../../event.c:768 ../../graphics.c:71
+#: ../../messages.c:1534 ../../paging.c:66
+#: ../../static/t/edit_message.html:135 ../../static/t/get_logged_in.html:21
+#: ../../static/t/confirmlogoff.html:5
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: ../../vcard_edit.c:1249
+msgid "Unable to enter the room to save your message"
+msgstr "Ruimte niet toegankelijk om bericht te bewaren"
+
+#: ../../vcard_edit.c:1258
+msgid "Aborting."
+msgstr "Afgebroken"
+
+#: ../../vcard_edit.c:1294 ../../vcard_edit.c:1340
+msgid "An error has occurred."
+msgstr "Er is een fout opgetreden."
+
+#: ../../vcard_edit.c:1396
+msgid "Could Not decode vcard photo\n"
+msgstr "Kon de vcard foto niet decoderen\n"
+
+#: ../../tasks.c:93
+msgid "Completed?"
+msgstr "Afgehandeld?"
+
+#: ../../tasks.c:95
+msgid "Name of task"
+msgstr "Naam van taak"
+
+#: ../../tasks.c:97
+msgid "Date due"
+msgstr "Streefdatum"
+
+#: ../../tasks.c:99
+msgid "Category"
+msgstr "Categorie"
+
+#: ../../tasks.c:101
+msgid "Show All"
+msgstr "Toon alles"
+
+#: ../../tasks.c:226
+msgid "Edit task"
+msgstr "Taak bewerken"
+
+#: ../../tasks.c:256
+msgid "Start date:"
+msgstr "Startdatum:"
+
+#: ../../tasks.c:264 ../../tasks.c:294
+msgid "No date"
+msgstr "Geen datum"
+
+#: ../../tasks.c:268 ../../tasks.c:297
+msgid "or"
+msgstr "of"
+
+#: ../../tasks.c:282 ../../tasks.c:311
+msgid "Time associated"
+msgstr "Tijd gekoppeld"
+
+#: ../../tasks.c:286
+msgid "Due date:"
+msgstr "Streefdatum:"
+
+#: ../../tasks.c:315
+msgid "Completed:"
+msgstr "Afgehandeld:"
+
+#: ../../tasks.c:326
+msgid "Category:"
+msgstr "Categorie:"
+
+#: ../../tasks.c:336 ../../calendar.c:164 ../../static/t/files.html:36
+msgid "Description:"
+msgstr "Beschrijving:"
+
+#: ../../tasks.c:354 ../../event.c:765
+msgid "Save"
+msgstr "Bewaren"
+
+#: ../../tasks.c:355 ../../event.c:766 ../../static/t/view_message.html:35
+#: ../../static/t/msg_listview.html:30 ../../static/t/aide/inet/section.html:5
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: ../../sieve.c:18 ../../sieve.c:102 ../../static/t/menu/your_info.html:7
+msgid "View/edit server-side mail filters"
+msgstr "Mailfilters op de server bekijken/bewerken"
+
+#: ../../sieve.c:27
+msgid ""
+"This installation of Citadel was built without support for server-side mail "
+"filtering.<br>Please contact your system administrator if you require this "
+"feature.<br>"
+msgstr ""
+"Deze installatie van Citadel is gebouwd zonder ondersteuning voor "
+"mailfilters.<br>Neem contact op met de beheerder als u deze functie nodig "
+"heeft."
+
+#: ../../sieve.c:115
+msgid "When new mail arrives: "
+msgstr "Als nieuwe mail binnenkomt: "
+
+#: ../../sieve.c:119
+msgid "Leave it in my inbox without filtering"
+msgstr "Laat het in mijn Inbox zonder filtering"
+
+#: ../../sieve.c:123
+msgid "Filter it according to rules selected below"
+msgstr "Filter het volgens onderstaande regels"
+
+#: ../../sieve.c:128
+msgid "Filter it through a manually edited script (advanced users only)"
+msgstr ""
+"Filter het door een handmatig aangemaakt script (alleen gevorderde "
+"gebruikers)"
+
+#: ../../sieve.c:139
+msgid "Your incoming mail will not be filtered through any scripts."
+msgstr "Uw inkomende mail zal door geen enkel script worden gefilterd."
+
+#: ../../sieve.c:154
+msgid "The currently active script is: "
+msgstr "Het nu actieve script is: "
+
+#: ../../sieve.c:169 ../../sieve.c:642
+msgid "Add or delete scripts"
+msgstr "Toevoegen of verwijderen scripts"
+
+#: ../../sieve.c:569 ../../roomops.c:678 ../../roomops.c:971
+msgid "Cancelled.  Changes were not saved."
+msgstr "Afgebroken. Wijzigingen niet bewaard."
+
+#: ../../sieve.c:625 ../../roomops.c:806
+msgid "Your changes have been saved."
+msgstr "Uw wijzigingen zijn bewaard."
+
+#: ../../sieve.c:655
+msgid "Add a new script"
+msgstr "Voeg een nieuw script toe"
+
+#: ../../sieve.c:658
+msgid ""
+"To create a new script, enter the desired script name in the box below and "
+"click 'Create'."
+msgstr ""
+"Om een nieuw script te maken voer de gewenste scriptnaam in en klik op "
+"'Aanmaken'"
+
+#: ../../sieve.c:664
+msgid "Script name: "
+msgstr "Naam van het script: "
+
+#: ../../sieve.c:667
+msgid "Create"
+msgstr "Aanmaken"
+
+#: ../../sieve.c:672
+msgid "Edit scripts"
+msgstr "Scripts bewerken"
+
+#: ../../sieve.c:675
+msgid "Return to the script editing screen"
+msgstr "Terug naar het bewerkingsscherm voor script"
+
+#: ../../sieve.c:682
+msgid "Delete scripts"
+msgstr "Scripts verwijderen"
+
+#: ../../sieve.c:685
+msgid ""
+"To delete an existing script, select the script name from the list and click "
+"'Delete'."
+msgstr ""
+"Om een bestaand script te verwijderen, selecteer de scriptnaam en klik "
+"'Verwijderen'."
+
+#: ../../sieve.c:709
+msgid "Delete script"
+msgstr "Script verwijderen"
+
+#: ../../sieve.c:709
+msgid "Delete this script?"
+msgstr "Dit script verwijderen?"
+
+#: ../../sieve.c:746
+msgid "A script by that name already exists."
+msgstr "Een script met die naam bestaat al"
+
+#: ../../sieve.c:755
+msgid ""
+"A new script has been created.  Return to the script editing screen to edit "
+"and activate it."
+msgstr ""
+"Een nieuw script is aangemaakt. Terug naar het bewerkingsscherm voor "
+"bewerking en activering."
+
+#: ../../sieve.c:972
+msgid "Move rule up"
+msgstr "Regel naar boven"
+
+#: ../../sieve.c:977
+msgid "Move rule down"
+msgstr "Regel naar beneden"
+
+#: ../../sieve.c:982
+msgid "Delete rule"
+msgstr "Verwijder regel"
+
+#: ../../sieve.c:990
+msgid "If"
+msgstr "als"
+
+#: ../../sieve.c:994
+msgid "To or Cc"
+msgstr "Aan of Cc"
+
+#: ../../sieve.c:996
+msgid "Reply-to"
+msgstr "Antwoord aan"
+
+#: ../../sieve.c:997 ../../smtpqueue.c:197
+#: ../../static/t/summary_header.html:9 ../../static/t/msg_listview.html:11
+msgid "Sender"
+msgstr "Afzender"
+
+#: ../../sieve.c:998
+msgid "Resent-From"
+msgstr "Afwijzen-Van"
+
+#: ../../sieve.c:999
+msgid "Resent-To"
+msgstr "Afwijzen-Aan"
+
+#: ../../sieve.c:1000
+msgid "Envelope From"
+msgstr "Envelop Van"
+
+#: ../../sieve.c:1001
+msgid "Envelope To"
+msgstr "Envelop Aan"
+
+#: ../../sieve.c:1002
+msgid "X-Mailer"
+msgstr "X-Mailer"
+
+#: ../../sieve.c:1003
+msgid "X-Spam-Flag"
+msgstr "X-Spam-Flag"
+
+#: ../../sieve.c:1004
+msgid "X-Spam-Status"
+msgstr "X-Spam-Status"
+
+#: ../../sieve.c:1005
+msgid "List-ID"
+msgstr "Lijst-ID"
+
+#: ../../sieve.c:1006
+msgid "Message size"
+msgstr "Berichtgrootte"
+
+#: ../../sieve.c:1007 ../../static/t/select_messageindex_all.html:1
+msgid "All"
+msgstr "Alles"
+
+#: ../../sieve.c:1026
+msgid "contains"
+msgstr "bevat"
+
+#: ../../sieve.c:1027
+msgid "does not contain"
+msgstr "bevat niet"
+
+#: ../../sieve.c:1028
+msgid "is"
+msgstr "is"
+
+#: ../../sieve.c:1029
+msgid "is not"
+msgstr "is niet"
+
+#: ../../sieve.c:1030
+msgid "matches"
+msgstr "komt overeen met"
+
+#: ../../sieve.c:1031
+msgid "does not match"
+msgstr "komt niet overeen met"
+
+#: ../../sieve.c:1051
+msgid "(All messages)"
+msgstr "(Alle berichten)"
+
+#: ../../sieve.c:1055
+msgid "is larger than"
+msgstr "is groter dan"
+
+#: ../../sieve.c:1056
+msgid "is smaller than"
+msgstr "is kleiner dan"
+
+#: ../../sieve.c:1079
+msgid "Keep"
+msgstr "Bewaren"
+
+#: ../../sieve.c:1080
+msgid "Discard silently"
+msgstr "Stil verwijderen"
+
+#: ../../sieve.c:1081
+msgid "Reject"
+msgstr "Afwijzen"
+
+#: ../../sieve.c:1082
+msgid "Move message to"
+msgstr "Verplaats bericht naar"
+
+#: ../../sieve.c:1083
+msgid "Forward to"
+msgstr "Doorsturen naar"
+
+#: ../../sieve.c:1084
+msgid "Vacation"
+msgstr "Vakantie"
+
+#: ../../sieve.c:1121
+msgid "Message:"
+msgstr "Bericht:"
+
+#: ../../sieve.c:1131
+msgid "continue processing"
+msgstr "doorgaan met bewerking"
+
+#: ../../sieve.c:1132
+msgid "stop"
+msgstr "stop"
+
+#: ../../sieve.c:1135
+msgid "and then"
+msgstr "en dan"
+
+#: ../../sieve.c:1156
+msgid "Add rule"
+msgstr "Voeg regel toe"
+
+#: ../../preferences.c:846
+msgid "Cancelled.  No settings were changed."
+msgstr "Afgebroken. Geen instellingen gewijzigd."
+
+#: ../../preferences.c:1059
+msgid "Make this my start page"
+msgstr "Maak hiervan mijn startpagina"
+
+#: ../../preferences.c:1099
+msgid "This isn't allowed to become the start page."
+msgstr "Niet toegestaan hier de startpagina van te maken."
+
+#: ../../preferences.c:1103
+msgid "You no longer have a start page selected."
+msgstr "U heeft geen startpagina meer geselecteerd."
+
+#: ../../preferences.c:1154
+msgid "Prefered startpage"
+msgstr "Voorkeur startpagina"
+
+#: ../../who.c:151
+msgid "Edit your session display"
+msgstr "Bewerk uw sessie weergave"
+
+#: ../../who.c:155
+msgid ""
+"This screen allows you to change the way your session appears in the 'Who is "
+"online' listing. To turn off any 'fake' name you've previously set, simply "
+"click the appropriate 'change' button without typing anything in the "
+"corresponding box. "
+msgstr ""
+"Dit scherm maakt het mogelijk de wijze waarop uw sessie wordt getoond in de "
+"'Wie is online' lijst te wijzigen. Om een nepnaam uit te schakelen, die u "
+"eerst had geplaatst klik eenvoudig op de 'Wijzig' knop zonder iets in te "
+"vullen in het betreffende veld. "
+
+#: ../../who.c:168
+msgid "Room name:"
+msgstr "Naam ruimte:"
+
+#: ../../who.c:173
+msgid "Change room name"
+msgstr "Naam ruimte wijzigen"
+
+#: ../../who.c:177
+msgid "Host name:"
+msgstr "Hostnaam:"
+
+#: ../../who.c:182
+msgid "Change host name"
+msgstr "Hostnaam wijzigen"
+
+#: ../../who.c:187 ../../static/t/get_logged_in.html:12
+#: ../../static/t/aide/edituser/detailview.html:20
+#: ../../static/t/login.html:19 ../../static/t/openid_manual_create.html:15
+msgid "User name:"
+msgstr "Gebruikersnaam:"
+
+#: ../../who.c:192
+msgid "Change user name"
+msgstr "Gebruikersnaam wijzigen"
+
+#: ../../netconf.c:158 ../../netconf.c:185 ../../netconf.c:193
+#: ../../netconf.c:241 ../../netconf.c:249 ../../inetconf.c:107
+#: ../../inetconf.c:116 ../../inetconf.c:129 ../../inetconf.c:156
+#, c-format
+msgid "Invalid Parameter"
+msgstr "Ongeldige parameter"
+
+#: ../../sysmsgs.c:33
+#, c-format
+msgid "Edit %s"
+msgstr "Bewerk %s"
+
+#: ../../sysmsgs.c:36
+#, c-format
+msgid ""
+"Enter %s below. Text is formatted to the reader's browser. A newline is "
+"forced by preceding the next line by a blank."
+msgstr ""
+"Voeg hieronder %s toe.  Tekst wordt weergegeven op de breedte van het scherm "
+"van de lezer. Voor de goede weergave zorg dat een regel in elk geval een "
+"spatie bevat."
+
+#: ../../sysmsgs.c:70
+#, c-format
+msgid "Cancelled.  %s was not saved."
+msgstr "Afgebroken. %s is niet bewaard."
+
+#: ../../sysmsgs.c:89
+#, c-format
+msgid "%s has been saved."
+msgstr "%s is opgeslagen."
+
+#: ../../sysmsgs.c:97 ../../sysmsgs.c:98
+msgid "Room info"
+msgstr "Informatie over deze ruimte"
+
+#: ../../sysmsgs.c:103 ../../sysmsgs.c:105
+msgid "Your bio"
+msgstr "Uw CV"
+
+#: ../../summary.c:101
+msgid "(None)"
+msgstr "(Niemand)"
+
+#: ../../summary.c:153
+msgid "(Nothing)"
+msgstr "(Niets)"
+
+#: ../../summary.c:167
+#, c-format
+msgid ""
+"You are connected to %s, running %s with %s, server build %s and located in %"
+"s.  Your system administrator is %s."
+msgstr ""
+"U bent verbonden met %s, waar %s op draait met %s, server build %s en "
+"gevestigd in %s. Uw systeembeheerder is %s."
+
+#: ../../summary.c:195
+msgid "Messages"
+msgstr "Berichten"
+
+#: ../../summary.c:208 ../../static/t/iconbar/edit.html:60
+#: ../../static/t/iconbar.html:38
+msgid "Tasks"
+msgstr "Taken"
+
+#: ../../summary.c:221
+msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
+msgstr "Vandaag&nbsp;op&nbsp;uw&nbsp;agenda"
+
+#: ../../summary.c:236
+msgid "Who's&nbsp;online&nbsp;now"
+msgstr "Wie is nu online"
+
+#: ../../summary.c:249
+msgid "About&nbsp;this&nbsp;server"
+msgstr "Over&nbsp;deze&nbsp;server"
+
+#: ../../summary.c:275
+#, c-format
+msgid "Summary page for %s"
+msgstr "Samenvattingspagina voor %s"
+
+#: ../../siteconfig.c:254
+msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgstr ""
+"LET OP: mislukt Server Config te sturen; loopt er een te nieuwe citserver?"
+
+#: ../../siteconfig.c:313
+msgid "Your system configuration has been updated."
+msgstr "Uw systeeminstellingen zijn bijgewerkt."
+
+#: ../../downloads.c:285
+#, c-format
+msgid "An error occurred while retrieving this file: %s\n"
+msgstr "Fout opgetreden bij ophalen dit bestand: %s\n"
 
 #. an erased user
-#: ../auth.c:38
+#: ../../auth.c:38 ../../static/t/aide/siteconfig/tab_access.html:40
+#: ../../static/t/aide/siteconfig/tab_access.html:51
+#: ../../static/t/aide/edituser/detailview.html:43
 msgid "Deleted"
 msgstr "Verwijderd"
 
 #. a new user
-#: ../auth.c:41
+#: ../../auth.c:41 ../../static/t/aide/siteconfig/tab_access.html:41
+#: ../../static/t/aide/siteconfig/tab_access.html:52
+#: ../../static/t/aide/edituser/detailview.html:44
 msgid "New User"
 msgstr "Nieuwe gebruiker"
 
 #. a trouble maker
-#: ../auth.c:44
+#: ../../auth.c:44 ../../static/t/aide/siteconfig/tab_access.html:42
+#: ../../static/t/aide/siteconfig/tab_access.html:53
+#: ../../static/t/aide/edituser/detailview.html:45
 msgid "Problem User"
 msgstr "Probleemgebruiker"
 
 #. user with normal privileges
-#: ../auth.c:47
+#: ../../auth.c:47 ../../static/t/aide/siteconfig/tab_access.html:43
+#: ../../static/t/aide/siteconfig/tab_access.html:54
+#: ../../static/t/aide/edituser/detailview.html:46
 msgid "Local User"
 msgstr "Lokale gebruiker"
 
 #. a user that may access network resources
-#: ../auth.c:50
+#: ../../auth.c:50 ../../static/t/aide/siteconfig/tab_access.html:44
+#: ../../static/t/aide/siteconfig/tab_access.html:55
+#: ../../static/t/aide/edituser/detailview.html:47
 msgid "Network User"
 msgstr "Netwerkgebruiker"
 
 #. a moderator
-#: ../auth.c:53
+#: ../../auth.c:53 ../../static/t/aide/siteconfig/tab_access.html:45
+#: ../../static/t/aide/siteconfig/tab_access.html:56
+#: ../../static/t/aide/edituser/detailview.html:48
 msgid "Preferred User"
 msgstr "Voorkeursgebruiker"
 
 #. chief
-#: ../auth.c:56
+#: ../../auth.c:56 ../../static/t/aide/siteconfig/tab_access.html:46
+#: ../../static/t/aide/siteconfig/tab_access.html:57
+#: ../../static/t/aide/edituser/detailview.html:49
 msgid "Aide"
 msgstr "Beheerder"
 
-#: ../auth.c:211 ../auth.c:882
+#: ../../auth.c:211 ../../auth.c:902
 msgid "Blank passwords are not allowed."
 msgstr "Wachtwoorden mogen niet leeg zijn."
 
 #. If we get to this point then something failed.
-#: ../auth.c:239 ../auth.c:336 ../auth.c:449
+#: ../../auth.c:239 ../../auth.c:361 ../../auth.c:474
 msgid "Your password was not accepted."
 msgstr "Uw wachtwoord is niet geaccepteerd."
 
-#: ../auth.c:559 ../static/t/iconbar.html:74
+#: ../../auth.c:590 ../../static/t/menu/basic_commands.html:19
+#: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Uitloggen"
 
-#: ../auth.c:572
+#: ../../auth.c:603
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -79,214 +892,771 @@ msgstr ""
 "Dit programma was niet in staat om contact te maken - of te houden met de "
 "Citadel server. Meld dit probleem alstublieft bij uw systeembeheerder."
 
-#: ../auth.c:578
+#: ../../auth.c:609
 msgid "Read More..."
 msgstr "Lees verder..."
 
-#: ../auth.c:583
+#: ../../auth.c:614
 msgid "Log in again"
 msgstr "Opnieuw inloggen"
 
-#: ../auth.c:614
+#: ../../auth.c:635 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Nieuwe gebruikers goedkeuren"
 
-#: ../auth.c:637
+#: ../../auth.c:658
 msgid "No users require validation at this time."
 msgstr "Er zijn geen gebruikers die goedgekeurd moeten worden."
 
-#: ../auth.c:685
+#: ../../auth.c:705
 msgid "very weak"
 msgstr "erg zwak"
 
-#: ../auth.c:688
+#: ../../auth.c:708
 msgid "weak"
 msgstr "zwak"
 
-#: ../auth.c:691
+#: ../../auth.c:711
 msgid "ok"
 msgstr "ok"
 
-#: ../auth.c:695
+#: ../../auth.c:715
 msgid "strong"
 msgstr "sterk"
 
-#: ../auth.c:713
+#: ../../auth.c:733
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Huidig toegangsniveau %d (%s)\n"
 
-#: ../auth.c:721
+#: ../../auth.c:741
 msgid "Select access level for this user:"
 msgstr "Selecteer toegangsniveau voor deze gebruiker:"
 
-#: ../auth.c:808
+#: ../../auth.c:828 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Uw wachtwoord wijzigen"
 
-#: ../auth.c:832
+#: ../../auth.c:852
 msgid "Enter new password:"
 msgstr "Uw nieuwe wachtwoord:"
 
-#: ../auth.c:836
+#: ../../auth.c:856
 msgid "Enter it again to confirm:"
 msgstr "Nogmaals als bevestiging:"
 
-#: ../auth.c:842
+#: ../../auth.c:862
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: ../auth.c:844 ../event.c:770 ../graphics.c:71 ../messages.c:1497
-#: ../paging.c:67 ../sieve.c:205 ../sysmsgs.c:50 ../tasks.c:358
-#: ../vcard_edit.c:1001 ../who.c:197
-msgid "Cancel"
-msgstr "Annuleren"
-
-#: ../auth.c:863
+#: ../../auth.c:883
 msgid "Cancelled.  Password was not changed."
 msgstr "Geannuleerd: Wachtwoord niet gewijzigd."
 
-#: ../auth.c:874
+#: ../../auth.c:894
 msgid "They don't match.  Password was not changed."
 msgstr "Ze komen niet overeen. Wachtwoord is niet gewijzigd."
 
-#.
-#. * Set to 'unknown' right from the beginning.  Unless we learn
-#. * something else, that's what we'll go with.
-#.
-#: ../availability.c:154
-msgid "availability unknown"
-msgstr "beschikbaarheid niet bekend"
+#: ../../addressbook_popup.c:192
+msgid "Add"
+msgstr "Toevoegen"
 
-#: ../availability.c:175
-msgid "free"
-msgstr "vrij"
+#: ../../event.c:73
+msgid "seconds"
+msgstr "seconden"
 
-#: ../availability.c:185
-msgid "BUSY"
-msgstr "BEZET"
+#: ../../event.c:74
+msgid "minutes"
+msgstr "minuten"
 
-#: ../bbsview_renderer.c:289
-msgid "Go to page: "
-msgstr "Ga naar pagina: "
+#: ../../event.c:75
+msgid "hours"
+msgstr "uren"
 
-#: ../bbsview_renderer.c:323
-msgid "First"
-msgstr "Eerste"
+#: ../../event.c:76
+msgid "days"
+msgstr "dagen"
 
-#: ../bbsview_renderer.c:329
-msgid "Last"
-msgstr "Laatste"
+#: ../../event.c:77
+msgid "weeks"
+msgstr "weken"
 
-#: ../calendar.c:81
-msgid "Meeting invitation"
-msgstr "Uitnodiging bijeenkomst"
+#: ../../event.c:78
+msgid "months"
+msgstr "maanden"
 
-#: ../calendar.c:84
-msgid "Attendee's reply to your invitation"
-msgstr "Antwoord van de deelnemer op uw uitnodiging"
+#: ../../event.c:79
+msgid "years"
+msgstr "jaren"
 
-#: ../calendar.c:87
-msgid "Published event"
-msgstr "Gepubliceerde afspraak"
+#: ../../event.c:80
+msgid "never"
+msgstr "nooit"
 
-#: ../calendar.c:90
-msgid "This is an unknown type of calendar item."
-msgstr "Dit is een onbekend agenda item."
+#: ../../event.c:84
+msgid "first"
+msgstr "eerste"
 
-#: ../calendar.c:103 ../calendar_view.c:290 ../calendar_view.c:957
-#: ../calendar_view.c:1001 ../calendar_view.c:1082 ../tasks.c:247
-msgid "Summary:"
-msgstr "Omschrijving:"
+#: ../../event.c:85
+msgid "second"
+msgstr "tweede"
 
-#: ../calendar.c:112 ../calendar_view.c:298 ../calendar_view.c:962
-#: ../calendar_view.c:1006 ../calendar_view.c:1087
-msgid "Location:"
-msgstr "Locatie:"
+#: ../../event.c:86
+msgid "third"
+msgstr "derde"
 
-#: ../calendar.c:137 ../calendar_view.c:343 ../calendar_view.c:968
-msgid "Date:"
-msgstr "Datum:"
+#: ../../event.c:87
+msgid "fourth"
+msgstr "vierde"
 
-#: ../calendar.c:144 ../calendar_view.c:365 ../calendar_view.c:1011
-#: ../calendar_view.c:1097
-msgid "Starting date/time:"
-msgstr "Startdatum/-tijd:"
+#: ../../event.c:88
+msgid "fifth"
+msgstr "vijfde"
 
-#: ../calendar.c:155 ../calendar_view.c:368 ../calendar_view.c:1013
-#: ../calendar_view.c:1099
-msgid "Ending date/time:"
-msgstr "Einddatum/-tijd:"
+#: ../../event.c:91
+msgid "Event"
+msgstr "Gebeurtenis"
 
-#: ../calendar.c:164 ../tasks.c:338 ../static/t/files.html:38
-msgid "Description:"
-msgstr "Beschrijving:"
+#: ../../event.c:92 ../../event.c:438 ../../event.c:450
+msgid "Attendees"
+msgstr "Deelnemers"
 
-#: ../calendar.c:173 ../event.c:93
+#: ../../event.c:93 ../../calendar.c:173
 msgid "Recurrence"
 msgstr "Herhalend"
 
-#: ../calendar.c:174 ../event.c:508
+#: ../../event.c:168
+msgid "Add or edit an event"
+msgstr "Gebeurtenis toevoegen of bewerken"
+
+#: ../../event.c:207 ../../static/t/iconbar/edit.html:30
+#: ../../static/t/iconbar.html:12
+msgid "Summary"
+msgstr "Samenvatting"
+
+#: ../../event.c:218
+msgid "Location"
+msgstr "Locatie"
+
+#: ../../event.c:328 ../../static/t/iconbar/edit.html:48
+#: ../../static/t/iconbar.html:33
+msgid "Notes"
+msgstr "Notities"
+
+#: ../../event.c:370
+msgid "Organizer"
+msgstr "Organisator"
+
+#: ../../event.c:375
+msgid "(you are the organizer)"
+msgstr "(u bent de organisator)"
+
+#: ../../event.c:393
+msgid "Show time as:"
+msgstr "Toon tijd als:"
+
+#: ../../event.c:416
+msgid "Free"
+msgstr "Vrij"
+
+#: ../../event.c:424
+msgid "Busy"
+msgstr "Bezet"
+
+#: ../../event.c:441
+msgid "(One per line)"
+msgstr "(Een per regel)"
+
+#: ../../event.c:451 ../../static/t/edit_message.html:143
+#: ../../static/t/iconbar/edit.html:42 ../../static/t/iconbar.html:28
+msgid "Contacts"
+msgstr "Contacten"
+
+#: ../../event.c:506 ../../calendar.c:174
 msgid "This is a recurring event"
 msgstr "Dit is een zich herhalende gebeurtenis"
 
-#: ../calendar.c:183
+#: ../../event.c:514
+msgid "Recurrence rule"
+msgstr "Zich herhalende regel"
+
+#: ../../event.c:518
+msgid "Repeats every"
+msgstr "Herhaalt zich elke"
+
+#. begin 'weekday_selector' div
+#: ../../event.c:536
+msgid "on these weekdays:"
+msgstr "op deze weekdagen:"
+
+#: ../../event.c:594
+#, c-format
+msgid "on day %s%d%s of the month"
+msgstr "op dag %s%d%s van de maand"
+
+#: ../../event.c:603 ../../event.c:665
+msgid "on the "
+msgstr "op de "
+
+#: ../../event.c:627
+msgid "of the month"
+msgstr "van de maand"
+
+#: ../../event.c:656
+msgid "every "
+msgstr "iedere "
+
+#: ../../event.c:657
+msgid "year on this date"
+msgstr "jaar op deze datum"
+
+#: ../../event.c:689 ../../static/t/msg_listselector_bottom.html:7
+#: ../../static/t/msg_listselector_top.html:7
+msgid "of"
+msgstr "van"
+
+#: ../../event.c:713
+msgid "Recurrence range"
+msgstr "Zich herhalende periode"
+
+#: ../../event.c:721
+msgid "No ending date"
+msgstr "Geen einddatum"
+
+#: ../../event.c:728
+msgid "Repeat this event"
+msgstr "Deze gebeurtenis herhalen"
+
+#: ../../event.c:731
+msgid "times"
+msgstr "maal"
+
+#: ../../event.c:739
+msgid "Repeat this event until "
+msgstr "Herhaal deze gebeurtenis tot "
+
+#: ../../event.c:767
+msgid "Check attendee availability"
+msgstr "Controleer beschikbaarheid deelnemers"
+
+#: ../../useredit.c:533
+msgid ""
+"An error occurred while trying to create or edit this address book entry."
+msgstr ""
+"Er is een fout opgetreden tijdens het aanmaken of bewerken van dit adresboek "
+"item."
+
+#: ../../useredit.c:610
+msgid "Changes were not saved."
+msgstr "Wijzigingen niet bewaard."
+
+#: ../../useredit.c:700
+#, c-format
+msgid "A new user has been created."
+msgstr "Nieuwe gebruiker aangemaakt."
+
+#: ../../useredit.c:705
+msgid ""
+"You are attempting to create a new user from within Citadel while running in "
+"host based authentication mode.  In this mode, you must create new users on "
+"the host system, not within Citadel."
+msgstr ""
+"U probeert een nieuwe gebruiker aan te maken binnen Citadel terwijl "
+"uhostbased authenticatie gebruikt. Dan moet u een nieuwe gebruiker aanmaken "
+"op het hostsysteem en niet in Citadel."
+
+#: ../../bbsview_renderer.c:287
+msgid "Go to page: "
+msgstr "Ga naar pagina: "
+
+#: ../../bbsview_renderer.c:321
+msgid "First"
+msgstr "Eerste"
+
+#: ../../bbsview_renderer.c:327
+msgid "Last"
+msgstr "Laatste"
+
+#: ../../graphics.c:42
+msgid "Image upload"
+msgstr "Afbeelding uploaden"
+
+#: ../../graphics.c:58
+msgid "You can upload an image directly from your computer"
+msgstr "U kunt direct vanaf uw computer een plaatje uploaden."
+
+#: ../../graphics.c:61
+msgid "Please select a file to upload:"
+msgstr "Selecteer een bestand om te uploaden:"
+
+#: ../../graphics.c:67 ../../static/t/edit_message/attachments_pane.html:25
+msgid "Upload"
+msgstr "Uploaden"
+
+#: ../../graphics.c:69
+msgid "Reset form"
+msgstr "Formulier wissen"
+
+#: ../../graphics.c:92
+msgid "Graphics upload has been cancelled."
+msgstr "Uploaden van afbeelding is afgebroken."
+
+#: ../../graphics.c:99
+msgid "You didn't upload a file."
+msgstr "U heeft geen bestand geüpload."
+
+#: ../../graphics.c:146
+msgid "your photo"
+msgstr "uw foto"
+
+#: ../../graphics.c:152
+msgid "the icon for this room"
+msgstr "het icoontje voor deze ruimte"
+
+#: ../../graphics.c:159
+msgid "the Greetingpicture for the login prompt"
+msgstr "het welkomsplaatje voor de login prompt"
+
+#: ../../graphics.c:166
+msgid "the Logoff banner picture"
+msgstr "het plaatje voor de Uitlog banner"
+
+#: ../../graphics.c:175
+msgid "the icon for this floor"
+msgstr "het icoontje voor deze verdieping"
+
+#: ../../openid.c:17
+msgid "Manage Account/OpenID Associations"
+msgstr "Beheer account/OpenID verbindingen"
+
+#: ../../openid.c:35
+msgid "Do you really want to delete this OpenID?"
+msgstr "Wilt u dit OpenID echt verwijderen?"
+
+#: ../../openid.c:36
+msgid "(delete)"
+msgstr "(verwijderen)"
+
+#: ../../openid.c:44
+msgid "Add an OpenID: "
+msgstr "Voeg een OpenID toe: "
+
+#: ../../openid.c:47
+msgid "Attach"
+msgstr "Bijlage"
+
+#: ../../openid.c:51
+#, c-format
+msgid "%s does not permit authentication via OpenID."
+msgstr "%s staat authentificatie via OpenID niet toe."
+
+#: ../../roomviews.c:50
+msgid "Bulletin Board"
+msgstr "Bulletin Board"
+
+#: ../../roomviews.c:51
+msgid "Mail Folder"
+msgstr "Mailmap"
+
+#: ../../roomviews.c:52
+msgid "Address Book"
+msgstr "Adresboek"
+
+#: ../../roomviews.c:53 ../../static/t/iconbar/edit.html:54
+#: ../../static/t/iconbar.html:23
+msgid "Calendar"
+msgstr "Agenda"
+
+#: ../../roomviews.c:54
+msgid "Task List"
+msgstr "Takenlijst"
+
+#: ../../roomviews.c:55
+msgid "Notes List"
+msgstr "Lijst notities"
+
+#: ../../roomviews.c:56
+msgid "Wiki"
+msgstr "Wiki"
+
+#: ../../roomviews.c:57
+msgid "Calendar List"
+msgstr "Agendalijst"
+
+#: ../../roomviews.c:58
+msgid "Journal"
+msgstr "Verslag"
+
+#: ../../roomviews.c:59
+#, fuzzy
+msgid "Drafts"
+msgstr "Datum"
+
+#: ../../roomviews.c:60
+msgid "Blog"
+msgstr "Blog"
+
+#: ../../smtpqueue.c:133 ../../static/t/aide/ignetconf/section.html:5
+msgid "(Delete)"
+msgstr "(Verwijderen)"
+
+#: ../../smtpqueue.c:191
+msgid "Message ID"
+msgstr "Message ID"
+
+#: ../../smtpqueue.c:193
+msgid "Date/time submitted"
+msgstr "Datum/tijd ingesteld"
+
+#: ../../smtpqueue.c:195
+msgid "Last attempt"
+msgstr "Laatste poging"
+
+#: ../../smtpqueue.c:199
+msgid "Recipients"
+msgstr "Ontvangers"
+
+#: ../../smtpqueue.c:214
+msgid "The queue is empty."
+msgstr "De queue is leeg"
+
+#: ../../smtpqueue.c:220
+msgid "You do not have permission to view this resource."
+msgstr "U heeft geen toestemming deze bron te bekijken."
+
+#: ../../smtpqueue.c:236 ../../static/t/aide/global_config.html:5
+msgid "View the outbound SMTP queue"
+msgstr "Toon de SMTP-wachtrij naar buiten"
+
+#: ../../smtpqueue.c:251
+msgid "Refresh this page"
+msgstr "Ververs deze pagina"
+
+#: ../../listsub.c:37
+msgid "List subscription"
+msgstr "Abonneer op lijst"
+
+#: ../../listsub.c:50
+msgid "List subscribe/unsubscribe"
+msgstr "Abonneer op/ verwijder van lijst"
+
+#: ../../listsub.c:70
+msgid "Confirmation request sent"
+msgstr "Bevestigingsverzoek verstuurd"
+
+#: ../../listsub.c:72
+#, c-format
+msgid ""
+"You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
+"listserver has sent you an e-mail with one additional Web link for you to "
+"click on to confirm your subscription.  This extra step is for your "
+"protection, as it prevents others from being able to subscribe you to lists "
+"without your consent.<br><br>Please click on the link which is being e-"
+"mailed to you and your subscription will be confirmed.<br>\n"
+msgstr ""
+"U abonneert <TT>%s</TT> op de <b>%s</b> mailinglijst.  De listserver heeft u "
+"een e-mail gestuurd met een extra link waarop u moet klikken om het "
+"abonnement te bevestigen.  Deze extra stap is voor uw bescherming, want het "
+"voorkomt dat anderen zonder uw toestemming u abonneren op mailinglijsten."
+"<br><br> Klik alstublieft op de gemailde link om uw abonnement te "
+"bevestigen<br>\n"
+
+#: ../../listsub.c:85
+msgid "Go back..."
+msgstr "Ga terug..."
+
+#: ../../webcit.c:341
+msgid "Authorization Required"
+msgstr "Autorisatie vereist"
+
+#: ../../webcit.c:350
+#, c-format
+msgid ""
+"The resource you requested requires a valid username and password. You could "
+"not be logged in: %s\n"
+msgstr ""
+"De opgevraagde bron vereist een geldige gebruikersnaam en wachtwoord. U kon "
+"niet worden ingelogd in: %s\n"
+
+#: ../../wiki.c:53 ../../wiki.c:146 ../../wiki.c:266
+#, c-format
+msgid "There is no room called '%s'."
+msgstr "Er is geen ruimte genaamd '%s'"
+
+#: ../../wiki.c:60
+#, c-format
+msgid "'%s' is not a Wiki room."
+msgstr "'%s'is geen Wiki ruimte."
+
+#: ../../wiki.c:94
+#, c-format
+msgid "There is no page called '%s' here."
+msgstr "Er is hier geen pagina genaamd '%s'"
+
+#: ../../wiki.c:96
+msgid ""
+"Select the 'Edit this page' link in the room banner if you would like to "
+"create this page."
+msgstr ""
+"Selecteer de 'Deze pagina bewerken' link in de banner van de ruimte als u "
+"deze pagina wilt aanmaken."
+
+#: ../../wiki.c:165 ../../static/t/summary_header.html:10
+#: ../../static/t/msg_listview.html:12
+msgid "Date"
+msgstr "Datum"
+
+#: ../../wiki.c:166
+msgid "Author"
+msgstr "Auteur"
+
+#: ../../wiki.c:193 ../../wiki.c:202
+msgid "(show)"
+msgstr "(toon)"
+
+#: ../../wiki.c:195 ../../static/t/navbar.html:147
+msgid "Current version"
+msgstr "Huidige versie"
+
+#: ../../wiki.c:207
+msgid "(revert)"
+msgstr "(terugplaatsen)"
+
+#: ../../wiki.c:284
+msgid "Page title"
+msgstr "Paginatitel"
+
+#: ../../inetconf.c:122
+#, c-format
+msgid "%s has been deleted."
+msgstr "%s is verwijderd."
+
+#. <domain> added status message
+#: ../../inetconf.c:140
+msgid "added."
+msgstr "toegevoegd"
+
+#: ../../blogview_renderer.c:59 ../../blogview_renderer.c:63
+#: ../../blogview_renderer.c:67
+#, fuzzy, c-format
+msgid "%d comments"
+msgstr "Verstuur commando"
+
+#: ../../roomtokens.c:563
+msgid "file"
+msgstr "bestand"
+
+#: ../../roomtokens.c:565
+msgid "files"
+msgstr "bestanden"
+
+#: ../../messages.c:54
+msgid "ERROR:"
+msgstr "FOUT:"
+
+#: ../../messages.c:72
+msgid "Empty message"
+msgstr "Leeg bericht"
+
+#: ../../messages.c:1027
+#, c-format
+msgid "Cancelled.  Message was not posted."
+msgstr "Afgebroken.  Bericht is niet geplaatst."
+
+#: ../../messages.c:1030
+#, c-format
+msgid "Automatically cancelled because you have already saved this message."
+msgstr "Automatisch afgebroken omdat u dit bericht al heeft bewaard."
+
+#: ../../messages.c:1055
+msgid "Saved to Drafts failed: "
+msgstr "Opslaan als concept mislukt: "
+
+#: ../../messages.c:1121
+msgid "Refusing to post empty message.\n"
+msgstr "Weigering leeg bericht te versturen.\n"
+
+#: ../../messages.c:1147
+msgid "Message has been saved to Drafts.\n"
+msgstr "Bericht opgelagen als concept.\n"
+
+#: ../../messages.c:1156
+msgid "Message has been sent.\n"
+msgstr "Bericht is verstuurd.\n"
+
+#: ../../messages.c:1159
+msgid "Message has been posted.\n"
+msgstr "Bericht is geplaatst.\n"
+
+#: ../../messages.c:1481
+#, c-format
+msgid "The message was not moved."
+msgstr "Het bericht is niet verplaatst."
+
+#: ../../messages.c:1503
+msgid "Confirm move of message"
+msgstr "Bevestig verplaatsen bericht"
+
+#: ../../messages.c:1511
+msgid "Move this message to:"
+msgstr "Dit bericht verplaatsen naar:"
+
+#: ../../messages.c:1532 ../../static/t/view_message.html:34
+#: ../../static/t/msg_listview.html:28
+msgid "Move"
+msgstr "Verplaatsen"
+
+#: ../../messages.c:1574
+#, c-format
+msgid "An error occurred while retrieving this part: %s/%s\n"
+msgstr "Fout opgetreden bij ophalen dit deel: %s/%s\n"
+
+#: ../../messages.c:1634
+#, c-format
+msgid "An error occurred while retrieving this part: %s\n"
+msgstr "Fout opgetreden bij ophalen dit deel: %s\n"
+
+#: ../../messages.c:1801
+msgid "Attach signature to email messages?"
+msgstr "Ondertekening aan emailberichten toevoegen?"
+
+#: ../../messages.c:1804
+msgid "Use this signature:"
+msgstr "Gebruik deze ondertekening:"
+
+#: ../../messages.c:1806
+msgid "Default character set for email headers:"
+msgstr "Standaard tekenset voor emailheaders:"
+
+#: ../../messages.c:1809
+msgid "Preferred email address"
+msgstr "Voorkeur e-mailadres"
+
+#: ../../messages.c:1811
+msgid "Preferred display name for email messages"
+msgstr "Weergegeven naam voor emailberichten"
+
+#: ../../messages.c:1815
+msgid "Preferred display name for bulletin board posts"
+msgstr "Voorkeursnaam voor bulletinboard berichten"
+
+#: ../../messages.c:1818
+msgid "Mailbox view mode"
+msgstr "Mailboxweergave"
+
+#: ../../msg_renderers.c:581 ../../static/t/who/section.html:6
+msgid "edit"
+msgstr "bewerken"
+
+#: ../../msg_renderers.c:1101
+msgid "I don't know how to display "
+msgstr "Ik weet niet hoe ik moet tonen "
+
+#: ../../msg_renderers.c:1330
+msgid "(no subject)"
+msgstr "(geen onderwerp)"
+
+#: ../../notes.c:345
+msgid "Click on any note to edit it."
+msgstr "Klik op willekeurige notitie om te bewerken."
+
+#: ../../paging.c:35
+msgid "Send instant message"
+msgstr "Stuur direct bericht"
+
+#: ../../paging.c:43
+msgid "Send an instant message to: "
+msgstr "Stuur direct bericht naar: "
+
+#: ../../paging.c:57
+msgid "Enter message text:"
+msgstr "Tekst bericht toevoegen:"
+
+#: ../../paging.c:65 ../../static/t/edit_message.html:109
+msgid "Send message"
+msgstr "Bericht versturen"
+
+#: ../../paging.c:85
+msgid "Message was not sent."
+msgstr "Bericht is niet verstuurd!"
+
+#: ../../paging.c:99
+msgid "Message has been sent to "
+msgstr "Bericht is verstuurd naar "
+
+#: ../../calendar.c:81
+msgid "Meeting invitation"
+msgstr "Uitnodiging bijeenkomst"
+
+#: ../../calendar.c:84
+msgid "Attendee's reply to your invitation"
+msgstr "Antwoord van de deelnemer op uw uitnodiging"
+
+#: ../../calendar.c:87
+msgid "Published event"
+msgstr "Gepubliceerde afspraak"
+
+#: ../../calendar.c:90
+msgid "This is an unknown type of calendar item."
+msgstr "Dit is een onbekend agenda item."
+
+#: ../../calendar.c:183
 msgid "Attendee:"
 msgstr "Deelnemer:"
 
-#: ../calendar.c:223
+#: ../../calendar.c:223
 #, c-format
 msgid "This is an update of '%s' which is already in your calendar."
 msgstr "Dit is een update van '%s' die al in uw agenda staat."
 
-#: ../calendar.c:227
+#: ../../calendar.c:227
 #, c-format
 msgid "This event would conflict with '%s' which is already in your calendar."
 msgstr "Deze afspraak zou botsen met '%s' , die al in uw agenda staat."
 
-#: ../calendar.c:232
+#: ../../calendar.c:232
 msgid "Update:"
 msgstr "Update:"
 
-#: ../calendar.c:233
+#: ../../calendar.c:233
 msgid "CONFLICT:"
 msgstr "CONFLICT:"
 
-#: ../calendar.c:256
+#: ../../calendar.c:256
 msgid "How would you like to respond to this invitation?"
 msgstr "Hoe wilt u reageren op deze uitnodiging?"
 
-#: ../calendar.c:257
+#: ../../calendar.c:257
 msgid "Accept"
 msgstr "Accepteren"
 
-#: ../calendar.c:258
+#: ../../calendar.c:258
 msgid "Tentative"
 msgstr "Voorwaardelijk"
 
-#: ../calendar.c:259
+#: ../../calendar.c:259
 msgid "Decline"
 msgstr "Afwijzen"
 
-#: ../calendar.c:276
+#: ../../calendar.c:276
 msgid "Click <i>Update</i> to accept this reply and update your calendar."
 msgstr ""
 "Klik <i>Bijwerken</i> om deze reactie te accepteren en uw agenda bij te "
 "werken."
 
-#: ../calendar.c:277
+#: ../../calendar.c:277
 msgid "Update"
 msgstr "Bijwerken"
 
-#: ../calendar.c:278
+#: ../../calendar.c:278
 msgid "Ignore"
 msgstr "Negeren"
 
-#: ../calendar.c:300
+#: ../../calendar.c:300
 msgid "There was an error parsing this calendar item."
 msgstr "Fout opgetreden bij het plaatsen van dit agenda-item."
 
-#: ../calendar.c:333
+#: ../../calendar.c:333
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
@@ -294,7 +1664,7 @@ msgstr ""
 "U heeft de uitnodiging voor deze bijeenkomst geaccepteerd. Uw agenda is "
 "bijgewerkt."
 
-#: ../calendar.c:337
+#: ../../calendar.c:337
 msgid ""
 "You have tentatively accepted this meeting invitation.  It has been "
 "'pencilled in' to your calendar."
@@ -302,7 +1672,7 @@ msgstr ""
 "U heeft de uitnodiging voor deze bijeenkomst voorwaardelijk geaccepteerd. "
 "Het staat 'met potlood' in uw agenda."
 
-#: ../calendar.c:341
+#: ../../calendar.c:341
 msgid ""
 "You have declined this meeting invitation.  It has <b>not</b> been entered "
 "into your calendar."
@@ -310,18 +1680,18 @@ msgstr ""
 "U heeft de uitnodiging voor deze bijeenkomst afgewezen. Het is niet in uw "
 "agenda opgenomen."
 
-#: ../calendar.c:346
+#: ../../calendar.c:346
 msgid "A reply has been sent to the meeting organizer."
 msgstr "Een antwoord is gestuurd naar de organisator van deze bijeenkomst."
 
 #. Translators: RSVP aka Répondez s'il-vous-plaît Is the term
 #. that the recipient of an ical-invitation should please
 #. answer this request.
-#: ../calendar.c:381
+#: ../../calendar.c:381
 msgid "Your calendar has been updated to reflect this RSVP."
 msgstr "Uw agenda is bijgewerkt om dit 'verzoek om antwoord' weer te geven."
 
-#: ../calendar.c:383
+#: ../../calendar.c:383
 msgid ""
 "You have chosen to ignore this RSVP. Your calendar has <b>not</b> been "
 "updated."
@@ -329,696 +1699,19 @@ msgstr ""
 "U heeft gekozen dit verzoek om antwoord te negeren.  Uw agenda is <b>niet</"
 "b> bijgewerkt."
 
-#: ../calendar.c:921
+#: ../../calendar.c:921
 msgid "Calendar day view begins at:"
 msgstr "Dag in agenda begint om:"
 
-#: ../calendar.c:922
+#: ../../calendar.c:922
 msgid "Calendar day view ends at:"
 msgstr "Dag in agenda eindigt om:"
 
-#: ../calendar.c:923
+#: ../../calendar.c:923
 msgid "Week starts on:"
 msgstr "Week begint op:"
 
-#: ../calendar_tools.c:101
-msgid "Hour: "
-msgstr "Uur: "
-
-#: ../calendar_tools.c:121
-msgid "Minute: "
-msgstr "Minuut: "
-
-#: ../calendar_tools.c:192
-msgid "(status unknown)"
-msgstr "(status onbekend)"
-
-#: ../calendar_tools.c:208
-msgid "(needs action)"
-msgstr "(actie gevraagd)"
-
-#: ../calendar_tools.c:211
-msgid "(accepted)"
-msgstr "(geaccepteerd)"
-
-#: ../calendar_tools.c:214
-msgid "(declined)"
-msgstr "(afgewezen)"
-
-#: ../calendar_tools.c:217
-msgid "(tenative)"
-msgstr "(voorwaardelijk)"
-
-#: ../calendar_tools.c:220
-msgid "(delegated)"
-msgstr "(gedelegeerd)"
-
-#: ../calendar_tools.c:223
-msgid "(completed)"
-msgstr "(afgehandeld)"
-
-#: ../calendar_tools.c:226
-msgid "(in process)"
-msgstr "(in bewerking)"
-
-#: ../calendar_tools.c:229
-msgid "(none)"
-msgstr "(geen)"
-
-#: ../calendar_view.c:264 ../calendar_view.c:464 ../calendar_view.c:935
-#: ../event.c:862
-msgid "Untitled Event"
-msgstr "Naamloze gebeurtenis"
-
-#: ../calendar_view.c:289 ../calendar_view.c:956 ../calendar_view.c:1000
-#: ../calendar_view.c:1081 ../sieve.c:995
-msgid "From"
-msgstr "van"
-
-#: ../calendar_view.c:347 ../calendar_view.c:972
-msgid "Starting date:"
-msgstr "Begindatum"
-
-#: ../calendar_view.c:353 ../calendar_view.c:974
-msgid "Ending date:"
-msgstr "Einddatum"
-
-#: ../calendar_view.c:361 ../calendar_view.c:1093
-msgid "Date/time:"
-msgstr "Datum/tijd"
-
-#: ../calendar_view.c:378 ../calendar_view.c:978 ../calendar_view.c:1016
-#: ../calendar_view.c:1103
-msgid "Notes:"
-msgstr "Notities:"
-
-#: ../calendar_view.c:582 ../calendar_view.c:719
-msgid "previous"
-msgstr "vorige"
-
-#: ../calendar_view.c:594 ../calendar_view.c:731 ../calendar_view.c:1320
-msgid "next"
-msgstr "volgende"
-
-#: ../calendar_view.c:754
-msgid "Week"
-msgstr "Week"
-
-#: ../calendar_view.c:756
-msgid "Hours"
-msgstr "Uren"
-
-#: ../calendar_view.c:757 ../sieve.c:997 ../static/t/msg_listview.html:10
-#: ../static/t/summary_header.html:8
-msgid "Subject"
-msgstr "Onderwerp"
-
-#: ../calendar_view.c:758 ../event.c:231
-msgid "Start"
-msgstr "Start"
-
-#: ../calendar_view.c:759 ../event.c:280
-msgid "End"
-msgstr "Eind"
-
-#: ../calendar_view.c:955 ../calendar_view.c:984 ../event.c:274
-msgid "All day event"
-msgstr "Gebeurtenis hele dag"
-
-#: ../calendar_view.c:999 ../calendar_view.c:1022
-msgid "Ongoing event"
-msgstr "Doorlopende afspraak"
-
-#: ../calendar_view.c:1393 ../tasks.c:428
-msgid "Untitled Task"
-msgstr "Naamloze taak"
-
-#: ../downloads.c:284
-#, c-format
-msgid "An error occurred while retrieving this file: %s\n"
-msgstr "Fout opgetreden bij ophalen dit bestand: %s\n"
-
-#: ../event.c:73
-msgid "seconds"
-msgstr "seconden"
-
-#: ../event.c:74
-msgid "minutes"
-msgstr "minuten"
-
-#: ../event.c:75
-msgid "hours"
-msgstr "uren"
-
-#: ../event.c:76
-msgid "days"
-msgstr "dagen"
-
-#: ../event.c:77
-msgid "weeks"
-msgstr "weken"
-
-#: ../event.c:78
-msgid "months"
-msgstr "maanden"
-
-#: ../event.c:79
-msgid "years"
-msgstr "jaren"
-
-#: ../event.c:80
-msgid "never"
-msgstr "nooit"
-
-#: ../event.c:84
-msgid "first"
-msgstr "eerste"
-
-#: ../event.c:85
-msgid "second"
-msgstr "tweede"
-
-#: ../event.c:86
-msgid "third"
-msgstr "derde"
-
-#: ../event.c:87
-msgid "fourth"
-msgstr "vierde"
-
-#: ../event.c:88
-msgid "fifth"
-msgstr "vijfde"
-
-#: ../event.c:91
-msgid "Event"
-msgstr "Gebeurtenis"
-
-#: ../event.c:92 ../event.c:440 ../event.c:452
-msgid "Attendees"
-msgstr "Deelnemers"
-
-#: ../event.c:168
-msgid "Add or edit an event"
-msgstr "Gebeurtenis toevoegen of bewerken"
-
-#: ../event.c:209 ../static/t/iconbar.html:12
-msgid "Summary"
-msgstr "Samenvatting"
-
-#: ../event.c:220
-msgid "Location"
-msgstr "Locatie"
-
-#: ../event.c:330 ../static/t/iconbar.html:32
-msgid "Notes"
-msgstr "Notities"
-
-#: ../event.c:372
-msgid "Organizer"
-msgstr "Organisator"
-
-#: ../event.c:377
-msgid "(you are the organizer)"
-msgstr "(u bent de organisator)"
-
-#: ../event.c:395
-msgid "Show time as:"
-msgstr "Toon tijd als:"
-
-#: ../event.c:418
-msgid "Free"
-msgstr "Vrij"
-
-#: ../event.c:426
-msgid "Busy"
-msgstr "Bezet"
-
-#: ../event.c:443
-msgid "(One per line)"
-msgstr "(Een per regel)"
-
-#: ../event.c:453 ../static/t/edit_message.html:57 ../static/t/iconbar.html:27
-msgid "Contacts"
-msgstr "Contacten"
-
-#: ../event.c:516
-msgid "Recurrence rule"
-msgstr "Zich herhalende regel"
-
-#: ../event.c:520
-msgid "Repeats every"
-msgstr "Herhaalt zich elke"
-
-#. begin 'weekday_selector' div
-#: ../event.c:538
-msgid "on these weekdays:"
-msgstr "op deze weekdagen:"
-
-#: ../event.c:596
-#, c-format
-msgid "on day %s%d%s of the month"
-msgstr "op dag %s%d%s van de maand"
-
-#: ../event.c:605 ../event.c:667
-msgid "on the "
-msgstr "op de "
-
-#: ../event.c:629
-msgid "of the month"
-msgstr "van de maand"
-
-#: ../event.c:658
-msgid "every "
-msgstr "iedere "
-
-#: ../event.c:659
-msgid "year on this date"
-msgstr "jaar op deze datum"
-
-#: ../event.c:691 ../static/t/msg_listselector_bottom.html:7
-#: ../static/t/msg_listselector_top.html:7
-msgid "of"
-msgstr "van"
-
-#: ../event.c:715
-msgid "Recurrence range"
-msgstr "Zich herhalende periode"
-
-#: ../event.c:723
-msgid "No ending date"
-msgstr "Geen einddatum"
-
-#: ../event.c:730
-msgid "Repeat this event"
-msgstr "Deze gebeurtenis herhalen"
-
-#: ../event.c:733
-msgid "times"
-msgstr "maal"
-
-#: ../event.c:741
-msgid "Repeat this event until "
-msgstr "Herhaal deze gebeurtenis tot "
-
-#: ../event.c:767 ../tasks.c:356
-msgid "Save"
-msgstr "Bewaren"
-
-#: ../event.c:768 ../tasks.c:357 ../static/t/msg_listview.html:30
-#: ../static/t/view_message.html:38
-msgid "Delete"
-msgstr "Verwijderen"
-
-#: ../event.c:769
-msgid "Check attendee availability"
-msgstr "Controleer beschikbaarheid deelnemers"
-
-#: ../fmt_date.c:310
-msgid "Time format"
-msgstr "uurformaat"
-
-#: ../graphics.c:42
-msgid "Image upload"
-msgstr "Afbeelding uploaden"
-
-#: ../graphics.c:58
-msgid "You can upload an image directly from your computer"
-msgstr "U kunt direct vanaf uw computer een plaatje uploaden."
-
-#: ../graphics.c:61
-msgid "Please select a file to upload:"
-msgstr "Selecteer een bestand om te uploaden:"
-
-#: ../graphics.c:67
-msgid "Upload"
-msgstr "Uploaden"
-
-#: ../graphics.c:69
-msgid "Reset form"
-msgstr "Formulier wissen"
-
-#: ../graphics.c:92
-msgid "Graphics upload has been cancelled."
-msgstr "Uploaden van afbeelding is afgebroken."
-
-#: ../graphics.c:99
-msgid "You didn't upload a file."
-msgstr "U heeft geen bestand geüpload."
-
-#: ../graphics.c:146
-msgid "your photo"
-msgstr "uw foto"
-
-#: ../graphics.c:152
-msgid "the icon for this room"
-msgstr "het icoontje voor deze ruimte"
-
-#: ../graphics.c:159
-msgid "the Greetingpicture for the login prompt"
-msgstr "het welkomsplaatje voor de login prompt"
-
-#: ../graphics.c:166
-msgid "the Logoff banner picture"
-msgstr "het plaatje voor de Uitlog banner"
-
-#: ../graphics.c:175
-msgid "the icon for this floor"
-msgstr "het icoontje voor deze verdieping"
-
-#: ../html2html.c:136
-#, c-format
-msgid "realloc() error! couldn't get %d bytes: %s"
-msgstr "realloc() fout! kon niet %d bytes krijgen: %s"
-
-#: ../iconbar.c:248
-msgid "Iconbar Setting"
-msgstr "Instellingen iconbalk"
-
-#: ../inetconf.c:112 ../inetconf.c:121 ../inetconf.c:134 ../inetconf.c:161
-#: ../netconf.c:158 ../netconf.c:185 ../netconf.c:193 ../netconf.c:241
-#: ../netconf.c:249
-#, c-format
-msgid "Invalid Parameter"
-msgstr "Ongeldige parameter"
-
-#: ../inetconf.c:127
-#, c-format
-msgid "%s has been deleted."
-msgstr "%s is verwijderd."
-
-#. <domain> added status message
-#: ../inetconf.c:145
-msgid "added."
-msgstr "toegevoegd"
-
-#: ../listsub.c:37
-msgid "List subscription"
-msgstr "Abonneer op lijst"
-
-#: ../listsub.c:50
-msgid "List subscribe/unsubscribe"
-msgstr "Abonneer op/ verwijder van lijst"
-
-#: ../listsub.c:70
-msgid "Confirmation request sent"
-msgstr "Bevestigingsverzoek verstuurd"
-
-#: ../listsub.c:72
-#, c-format
-msgid ""
-"You are subscribing <TT>%s</TT> to the <b>%s</b> mailing list.  The "
-"listserver has sent you an e-mail with one additional Web link for you to "
-"click on to confirm your subscription.  This extra step is for your "
-"protection, as it prevents others from being able to subscribe you to lists "
-"without your consent.<br /><br />Please click on the link which is being e-"
-"mailed to you and your subscription will be confirmed.<br />\n"
-msgstr ""
-"U abonneert <TT>%s</TT> op de <b>%s</b> mailinglijst.  De listserver heeft u "
-"een e-mail gestuurd met een extra link waarop u moet klikken om het "
-"abonnement te bevestigen.  Deze extra stap is voor uw bescherming, want het "
-"voorkomt dat anderen zonder uw toestemming u abonneren op mailinglijsten."
-"<br /><br /> Klik alstublieft op de gemailde link om uw abonnement te "
-"bevestigen<br />\n"
-
-#: ../listsub.c:85
-msgid "Go back..."
-msgstr "Ga terug..."
-
-#: ../messages.c:55
-msgid "ERROR:"
-msgstr "FOUT:"
-
-#: ../messages.c:73
-msgid "Empty message"
-msgstr "Leeg bericht"
-
-#: ../messages.c:1061
-#, c-format
-msgid "Cancelled.  Message was not posted."
-msgstr "Afgebroken.  Bericht is niet geplaatst."
-
-#: ../messages.c:1067
-#, c-format
-msgid "Automatically cancelled because you have already saved this message."
-msgstr "Automatisch afgebroken omdat u dit bericht al heeft bewaard."
-
-#: ../messages.c:1119
-msgid "Saved to Drafts failed: "
-msgstr "Opslaan als concept mislukt: "
-
-#: ../messages.c:1185
-msgid "Refusing to post empty message.\n"
-msgstr "Weigering leeg bericht te versturen.\n"
-
-#: ../messages.c:1211
-msgid "Message has been saved to Drafts.\n"
-msgstr "Bericht opgelagen als concept.\n"
-
-#: ../messages.c:1220
-msgid "Message has been sent.\n"
-msgstr "Bericht is verstuurd.\n"
-
-#: ../messages.c:1223
-msgid "Message has been posted.\n"
-msgstr "Bericht is geplaatst.\n"
-
-#: ../messages.c:1444
-#, c-format
-msgid "The message was not moved."
-msgstr "Het bericht is niet verplaatst."
-
-#: ../messages.c:1466
-msgid "Confirm move of message"
-msgstr "Bevestig verplaatsen bericht"
-
-#: ../messages.c:1474
-msgid "Move this message to:"
-msgstr "Dit bericht verplaatsen naar:"
-
-#: ../messages.c:1495 ../static/t/msg_listview.html:28
-#: ../static/t/view_message.html:37
-msgid "Move"
-msgstr "Verplaatsen"
-
-#: ../messages.c:1537
-#, c-format
-msgid "An error occurred while retrieving this part: %s/%s\n"
-msgstr "Fout opgetreden bij ophalen dit deel: %s/%s\n"
-
-#: ../messages.c:1597
-#, c-format
-msgid "An error occurred while retrieving this part: %s\n"
-msgstr "Fout opgetreden bij ophalen dit deel: %s\n"
-
-#: ../messages.c:1759
-msgid "Attach signature to email messages?"
-msgstr "Ondertekening aan emailberichten toevoegen?"
-
-#: ../messages.c:1762
-msgid "Use this signature:"
-msgstr "Gebruik deze ondertekening:"
-
-#: ../messages.c:1764
-msgid "Default character set for email headers:"
-msgstr "Standaard tekenset voor emailheaders:"
-
-#: ../messages.c:1767
-msgid "Preferred email address"
-msgstr "Voorkeur e-mailadres"
-
-#: ../messages.c:1769
-msgid "Preferred display name for email messages"
-msgstr "Weergegeven naam voor emailberichten"
-
-#: ../messages.c:1773
-msgid "Preferred display name for bulletin board posts"
-msgstr "Voorkeursnaam voor bulletinboard berichten"
-
-#: ../messages.c:1776
-msgid "Mailbox view mode"
-msgstr "Mailboxweergave"
-
-#: ../msg_renderers.c:523
-msgid "edit"
-msgstr "bewerken"
-
-#: ../msg_renderers.c:1023
-msgid "I don't know how to display "
-msgstr "Ik weet niet hoe ik moet tonen "
-
-#: ../msg_renderers.c:1242
-msgid "(no subject)"
-msgstr "(geen onderwerp)"
-
-#: ../notes.c:345
-msgid "Click on any note to edit it."
-msgstr "Klik op willekeurige notitie om te bewerken."
-
-#: ../openid.c:19
-msgid "Manage Account/OpenID Associations"
-msgstr "Beheer account/OpenID verbindingen"
-
-#: ../openid.c:37
-msgid "Do you really want to delete this OpenID?"
-msgstr "Wilt u dit OpenID echt verwijderen?"
-
-#: ../openid.c:38
-msgid "(delete)"
-msgstr "(verwijderen)"
-
-#: ../openid.c:46
-msgid "Add an OpenID: "
-msgstr "Voeg een OpenID toe: "
-
-#: ../openid.c:49
-msgid "Attach"
-msgstr "Bijlage"
-
-#: ../openid.c:53
-#, c-format
-msgid "%s does not permit authentication via OpenID."
-msgstr "%s staat authentificatie via OpenID niet toe."
-
-#: ../paging.c:35
-msgid "Send instant message"
-msgstr "Stuur direct bericht"
-
-#: ../paging.c:44
-msgid "Send an instant message to: "
-msgstr "Stuur direct bericht naar: "
-
-#: ../paging.c:58
-msgid "Enter message text:"
-msgstr "Tekst bericht toevoegen:"
-
-#: ../paging.c:66
-msgid "Send message"
-msgstr "Bericht versturen"
-
-#: ../paging.c:86
-msgid "Message was not sent."
-msgstr "Bericht is niet verstuurd!"
-
-#: ../paging.c:100
-msgid "Message has been sent to "
-msgstr "Bericht is verstuurd naar "
-
-#: ../preferences.c:846
-msgid "Cancelled.  No settings were changed."
-msgstr "Afgebroken. Geen instellingen gewijzigd."
-
-#: ../preferences.c:1058
-msgid "Make this my start page"
-msgstr "Maak hiervan mijn startpagina"
-
-#: ../preferences.c:1097
-msgid "This isn't allowed to become the start page."
-msgstr "Niet toegestaan hier de startpagina van te maken."
-
-#: ../preferences.c:1101
-msgid "You no longer have a start page selected."
-msgstr "U heeft geen startpagina meer geselecteerd."
-
-#: ../preferences.c:1152
-msgid "Prefered startpage"
-msgstr "Voorkeur startpagina"
-
-#: ../roomlist.c:46 ../roomlist.c:390 ../siteconfig.c:39 ../siteconfig.c:58
-msgid "Higher access is required to access this function."
-msgstr "Hogere toegangrechten nodig voor deze functie."
-
-#: ../roomlist.c:101
-msgid "My Folders"
-msgstr "Mijn mappen"
-
-#: ../roomops.c:677 ../roomops.c:970 ../sieve.c:571
-msgid "Cancelled.  Changes were not saved."
-msgstr "Afgebroken. Wijzigingen niet bewaard."
-
-#: ../roomops.c:805 ../sieve.c:627
-msgid "Your changes have been saved."
-msgstr "Uw wijzigingen zijn bewaard."
-
-#: ../roomops.c:847
-#, c-format
-msgid "User '%s' kicked out of room '%s'."
-msgstr "Gebruiker %s uit deze ruimte verwijderd. %s."
-
-#: ../roomops.c:863
-#, c-format
-msgid "User '%s' invited to room '%s'."
-msgstr "Gebruiker %s uitgenodigd in deze ruimte %s."
-
-#: ../roomops.c:893
-msgid "Cancelled.  No new room was created."
-msgstr "Afgebroken. Geen nieuwe ruimte aangemaakt"
-
-#: ../roomops.c:1159
-msgid "Floor has been deleted."
-msgstr "Verdieping is verwijderd"
-
-#: ../roomops.c:1183
-msgid "New floor has been created."
-msgstr "Nieuwe verdieping aangemaakt"
-
-#: ../roomops.c:1262
-msgid "Room list view"
-msgstr "Bekijk als ruimte"
-
-#: ../roomops.c:1265
-msgid "Show empty floors"
-msgstr "Toon lege verdiepingen"
-
-#: ../roomtokens.c:512
-msgid "file"
-msgstr "bestand"
-
-#: ../roomtokens.c:514
-msgid "files"
-msgstr "bestanden"
-
-#: ../roomviews.c:42
-msgid "Bulletin Board"
-msgstr "Bulletin Board"
-
-#: ../roomviews.c:43
-msgid "Mail Folder"
-msgstr "Mailmap"
-
-#: ../roomviews.c:44
-msgid "Address Book"
-msgstr "Adresboek"
-
-#: ../roomviews.c:45 ../static/t/iconbar.html:22
-msgid "Calendar"
-msgstr "Agenda"
-
-#: ../roomviews.c:46
-msgid "Task List"
-msgstr "Takenlijst"
-
-#: ../roomviews.c:47
-msgid "Notes List"
-msgstr "Lijst notities"
-
-#: ../roomviews.c:48
-msgid "Wiki"
-msgstr "Wiki"
-
-#: ../roomviews.c:49
-msgid "Calendar List"
-msgstr "Agendalijst"
-
-#: ../roomviews.c:50
-msgid "Journal"
-msgstr "Verslag"
-
-#: ../roomviews.c:51
-msgid "Blog"
-msgstr "Blog"
-
-#: ../serv_func.c:186
+#: ../../serv_func.c:188
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
@@ -1028,11 +1721,11 @@ msgstr ""
 "geen nieuwe login aannemen. Probeer het later nog eens of neem contact op "
 "met uw systeembeheerder."
 
-#: ../serv_func.c:191 ../serv_func.c:220
+#: ../../serv_func.c:193 ../../serv_func.c:224
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr "Ontving onverwacht bericht van de Citadel server; afgesloten."
 
-#: ../serv_func.c:229
+#: ../../serv_func.c:233
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
@@ -1047,1107 +1740,599 @@ msgstr ""
 "\n"
 "\n"
 
-#: ../sieve.c:18 ../sieve.c:103
-msgid "View/edit server-side mail filters"
-msgstr "Mailfilters op de server bekijken/bewerken"
-
-#: ../sieve.c:28
-msgid ""
-"This installation of Citadel was built without support for server-side mail "
-"filtering.<br>Please contact your system administrator if you require this "
-"feature.<br>"
-msgstr ""
-"Deze installatie van Citadel is gebouwd zonder ondersteuning voor "
-"mailfilters.<br>Neem contact op met de beheerder als u deze functie nodig "
-"heeft."
-
-#: ../sieve.c:117
-msgid "When new mail arrives: "
-msgstr "Als nieuwe mail binnenkomt: "
-
-#: ../sieve.c:121
-msgid "Leave it in my inbox without filtering"
-msgstr "Laat het in mijn Inbox zonder filtering"
-
-#: ../sieve.c:125
-msgid "Filter it according to rules selected below"
-msgstr "Filter het volgens onderstaande regels"
-
-#: ../sieve.c:130
-msgid "Filter it through a manually edited script (advanced users only)"
-msgstr ""
-"Filter het door een handmatig aangemaakt script (alleen gevorderde "
-"gebruikers)"
-
-#: ../sieve.c:141
-msgid "Your incoming mail will not be filtered through any scripts."
-msgstr "Uw inkomende mail zal door geen enkel script worden gefilterd."
-
-#: ../sieve.c:156
-msgid "The currently active script is: "
-msgstr "Het nu actieve script is: "
-
-#: ../sieve.c:171 ../sieve.c:644
-msgid "Add or delete scripts"
-msgstr "Toevoegen of verwijderen scripts"
-
-#: ../sieve.c:203 ../sysmsgs.c:48 ../vcard_edit.c:1000
-msgid "Save changes"
-msgstr "Wijzigingen bewaren"
-
-#: ../sieve.c:657
-msgid "Add a new script"
-msgstr "Voeg een nieuw script toe"
-
-#: ../sieve.c:660
-msgid ""
-"To create a new script, enter the desired script name in the box below and "
-"click 'Create'."
-msgstr ""
-"Om een nieuw script te maken voer de gewenste scriptnaam in en klik op "
-"'Aanmaken'"
-
-#: ../sieve.c:666
-msgid "Script name: "
-msgstr "Naam van het script: "
-
-#: ../sieve.c:669
-msgid "Create"
-msgstr "Aanmaken"
-
-#: ../sieve.c:674
-msgid "Edit scripts"
-msgstr "Scripts bewerken"
-
-#: ../sieve.c:677
-msgid "Return to the script editing screen"
-msgstr "Terug naar het bewerkingsscherm voor script"
-
-#: ../sieve.c:684
-msgid "Delete scripts"
-msgstr "Scripts verwijderen"
-
-#: ../sieve.c:687
-msgid ""
-"To delete an existing script, select the script name from the list and click "
-"'Delete'."
-msgstr ""
-"Om een bestaand script te verwijderen, selecteer de scriptnaam en klik "
-"'Verwijderen'."
-
-#: ../sieve.c:711
-msgid "Delete script"
-msgstr "Script verwijderen"
-
-#: ../sieve.c:711
-msgid "Delete this script?"
-msgstr "Dit script verwijderen?"
-
-#: ../sieve.c:748
-msgid "A script by that name already exists."
-msgstr "Een script met die naam bestaat al"
-
-#: ../sieve.c:757
-msgid ""
-"A new script has been created.  Return to the script editing screen to edit "
-"and activate it."
-msgstr ""
-"Een nieuw script is aangemaakt. Terug naar het bewerkingsscherm voor "
-"bewerking en activering."
-
-#: ../sieve.c:974
-msgid "Move rule up"
-msgstr "Regel naar boven"
-
-#: ../sieve.c:979
-msgid "Move rule down"
-msgstr "Regel naar beneden"
-
-#: ../sieve.c:984
-msgid "Delete rule"
-msgstr "Verwijder regel"
-
-#: ../sieve.c:992
-msgid "If"
-msgstr "als"
-
-#: ../sieve.c:996
-msgid "To or Cc"
-msgstr "Aan of Cc"
-
-#: ../sieve.c:998
-msgid "Reply-to"
-msgstr "Antwoord aan"
-
-#: ../sieve.c:999 ../smtpqueue.c:197 ../static/t/msg_listview.html:11
-#: ../static/t/summary_header.html:9
-msgid "Sender"
-msgstr "Afzender"
-
-#: ../sieve.c:1000
-msgid "Resent-From"
-msgstr "Afwijzen-Van"
-
-#: ../sieve.c:1001
-msgid "Resent-To"
-msgstr "Afwijzen-Aan"
-
-#: ../sieve.c:1002
-msgid "Envelope From"
-msgstr "Envelop Van"
-
-#: ../sieve.c:1003
-msgid "Envelope To"
-msgstr "Envelop Aan"
-
-#: ../sieve.c:1004
-msgid "X-Mailer"
-msgstr "X-Mailer"
-
-#: ../sieve.c:1005
-msgid "X-Spam-Flag"
-msgstr "X-Spam-Flag"
-
-#: ../sieve.c:1006
-msgid "X-Spam-Status"
-msgstr "X-Spam-Status"
-
-#: ../sieve.c:1007
-msgid "List-ID"
-msgstr "Lijst-ID"
-
-#: ../sieve.c:1008
-msgid "Message size"
-msgstr "Berichtgrootte"
-
-#: ../sieve.c:1009 ../static/t/select_messageindex_all.html:1
-msgid "All"
-msgstr "Alles"
-
-#: ../sieve.c:1028
-msgid "contains"
-msgstr "bevat"
-
-#: ../sieve.c:1029
-msgid "does not contain"
-msgstr "bevat niet"
-
-#: ../sieve.c:1030
-msgid "is"
-msgstr "is"
-
-#: ../sieve.c:1031
-msgid "is not"
-msgstr "is niet"
-
-#: ../sieve.c:1032
-msgid "matches"
-msgstr "komt overeen met"
-
-#: ../sieve.c:1033
-msgid "does not match"
-msgstr "komt niet overeen met"
-
-#: ../sieve.c:1053
-msgid "(All messages)"
-msgstr "(Alle berichten)"
-
-#: ../sieve.c:1057
-msgid "is larger than"
-msgstr "is groter dan"
-
-#: ../sieve.c:1058
-msgid "is smaller than"
-msgstr "is kleiner dan"
-
-#: ../sieve.c:1081
-msgid "Keep"
-msgstr "Bewaren"
-
-#: ../sieve.c:1082
-msgid "Discard silently"
-msgstr "Stil verwijderen"
-
-#: ../sieve.c:1083
-msgid "Reject"
-msgstr "Afwijzen"
-
-#: ../sieve.c:1084
-msgid "Move message to"
-msgstr "Verplaats bericht naar"
-
-#: ../sieve.c:1085
-msgid "Forward to"
-msgstr "Doorsturen naar"
-
-#: ../sieve.c:1086
-msgid "Vacation"
-msgstr "Vakantie"
-
-#: ../sieve.c:1123
-msgid "Message:"
-msgstr "Bericht:"
-
-#: ../sieve.c:1133
-msgid "continue processing"
-msgstr "doorgaan met bewerking"
-
-#: ../sieve.c:1134
-msgid "stop"
-msgstr "stop"
-
-#: ../sieve.c:1137
-msgid "and then"
-msgstr "en dan"
-
-#: ../sieve.c:1158
-msgid "Add rule"
-msgstr "Voeg regel toe"
-
-#: ../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
-msgstr ""
-"LET OP: mislukt Server Config te sturen; loopt er een te nieuwe citserver?"
-
-#: ../siteconfig.c:313
-msgid "Your system configuration has been updated."
-msgstr "Uw systeeminstellingen zijn bijgewerkt."
-
-#: ../smtpqueue.c:133
-msgid "(Delete)"
-msgstr "(Verwijderen)"
-
-#: ../smtpqueue.c:191
-msgid "Message ID"
-msgstr "Message ID"
-
-#: ../smtpqueue.c:193
-msgid "Date/time submitted"
-msgstr "Datum/tijd ingesteld"
-
-#: ../smtpqueue.c:195
-msgid "Last attempt"
-msgstr "Laatste poging"
-
-#: ../smtpqueue.c:199
-msgid "Recipients"
-msgstr "Ontvangers"
-
-#: ../smtpqueue.c:214
-msgid "The queue is empty."
-msgstr "De queue is leeg"
-
-#: ../smtpqueue.c:220
-msgid "You do not have permission to view this resource."
-msgstr "U heeft geen toestemming deze bron te bekijken."
-
-#: ../smtpqueue.c:236
-msgid "View the outbound SMTP queue"
-msgstr "Toon de SMTP-wachtrij naar buiten"
-
-#: ../smtpqueue.c:252
-msgid "Refresh this page"
-msgstr "Ververs deze pagina"
-
-#: ../summary.c:101
-msgid "(None)"
-msgstr "(Niemand)"
-
-#: ../summary.c:153
-msgid "(Nothing)"
-msgstr "(Niets)"
-
-#: ../summary.c:167
-#, c-format
-msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
-msgstr ""
-"U bent verbonden met %s, waar %s op draait met %s, server build %s en "
-"gevestigd in %s. Uw systeembeheerder is %s."
-
-#: ../summary.c:195
-msgid "Messages"
-msgstr "Berichten"
-
-#: ../summary.c:208 ../static/t/iconbar.html:37
-msgid "Tasks"
-msgstr "Taken"
-
-#: ../summary.c:221
-msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr "Vandaag&nbsp;op&nbsp;uw&nbsp;agenda"
-
-#: ../summary.c:236
-msgid "Who's&nbsp;online&nbsp;now"
-msgstr "Wie is nu online"
-
-#: ../summary.c:249
-msgid "About&nbsp;this&nbsp;server"
-msgstr "Over&nbsp;deze&nbsp;server"
-
-#: ../summary.c:275
-#, c-format
-msgid "Summary page for %s"
-msgstr "Samenvattingspagina voor %s"
-
-#: ../sysmsgs.c:33
-#, c-format
-msgid "Edit %s"
-msgstr "Bewerk %s"
-
-#: ../sysmsgs.c:36
-#, c-format
-msgid ""
-"Enter %s below. Text is formatted to the reader's browser. A newline is "
-"forced by preceding the next line by a blank."
-msgstr ""
-"Voeg hieronder %s toe.  Tekst wordt weergegeven op de breedte van het scherm "
-"van de lezer. Voor de goede weergave zorg dat een regel in elk geval een "
-"spatie bevat."
-
-#: ../sysmsgs.c:70
-#, c-format
-msgid "Cancelled.  %s was not saved."
-msgstr "Afgebroken. %s is niet bewaard."
-
-#: ../sysmsgs.c:89
-#, c-format
-msgid "%s has been saved."
-msgstr "%s is opgeslagen."
-
-#: ../sysmsgs.c:97 ../sysmsgs.c:98
-msgid "Room info"
-msgstr "Informatie over deze ruimte"
-
-#: ../sysmsgs.c:103 ../sysmsgs.c:105
-msgid "Your bio"
-msgstr "Uw CV"
-
-#: ../tasks.c:95
-msgid "Completed?"
-msgstr "Afgehandeld?"
-
-#: ../tasks.c:97
-msgid "Name of task"
-msgstr "Naam van taak"
-
-#: ../tasks.c:99
-msgid "Date due"
-msgstr "Streefdatum"
-
-#: ../tasks.c:101
-msgid "Category"
-msgstr "Categorie"
-
-#: ../tasks.c:103
-msgid "Show All"
-msgstr "Toon alles"
-
-#: ../tasks.c:228
-msgid "Edit task"
-msgstr "Taak bewerken"
-
-#: ../tasks.c:258
-msgid "Start date:"
-msgstr "Startdatum:"
-
-#: ../tasks.c:266 ../tasks.c:296
-msgid "No date"
-msgstr "Geen datum"
-
-#: ../tasks.c:270 ../tasks.c:299
-msgid "or"
-msgstr "of"
-
-#: ../tasks.c:284 ../tasks.c:313
-msgid "Time associated"
-msgstr "Tijd gekoppeld"
-
-#: ../tasks.c:288
-msgid "Due date:"
-msgstr "Streefdatum:"
-
-#: ../tasks.c:317
-msgid "Completed:"
-msgstr "Afgehandeld:"
-
-#: ../tasks.c:328
-msgid "Category:"
-msgstr "Categorie:"
-
-#: ../useredit.c:533
-msgid ""
-"An error occurred while trying to create or edit this address book entry."
-msgstr ""
-"Er is een fout opgetreden tijdens het aanmaken of bewerken van dit adresboek "
-"item."
-
-#: ../useredit.c:610
-msgid "Changes were not saved."
-msgstr "Wijzigingen niet bewaard."
-
-#: ../useredit.c:700
-#, c-format
-msgid "A new user has been created."
-msgstr "Nieuwe gebruiker aangemaakt."
-
-#: ../useredit.c:705
-msgid ""
-"You are attempting to create a new user from within Citadel while running in "
-"host based authentication mode.  In this mode, you must create new users on "
-"the host system, not within Citadel."
-msgstr ""
-"U probeert een nieuwe gebruiker aan te maken binnen Citadel terwijl "
-"uhostbased authenticatie gebruikt. Dan moet u een nieuwe gebruiker aanmaken "
-"op het hostsysteem en niet in Citadel."
-
-#: ../userlist.c:39
+#: ../../fmt_date.c:310
+msgid "Time format"
+msgstr "uurformaat"
+
+#: ../../iconbar.c:256
+msgid "Iconbar Setting"
+msgstr "Instellingen iconbalk"
+
+#: ../../userlist.c:39
 #, c-format
 msgid "User list for %s"
 msgstr "Gebruikerslijst voor %s"
 
-#: ../userlist.c:57
+#: ../../userlist.c:56
 msgid "User Name"
 msgstr "Gebruikersnaam"
 
-#: ../userlist.c:58
+#: ../../userlist.c:57
 msgid "Number"
 msgstr "Nummer"
 
-#: ../userlist.c:59
+#: ../../userlist.c:58
 msgid "Access Level"
 msgstr "Toegangsniveau"
 
-#: ../userlist.c:60
+#: ../../userlist.c:59
 msgid "Last Login"
 msgstr "Laatste login"
 
-#: ../userlist.c:61
+#: ../../userlist.c:60
 msgid "Total Logins"
 msgstr "Totaal aantal logins"
 
-#: ../userlist.c:62
+#: ../../userlist.c:61
 msgid "Total Posts"
 msgstr "Totaal aantal berichten"
 
-#: ../userlist.c:119
+#: ../../userlist.c:118
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
-#: ../userlist.c:157
+#: ../../userlist.c:155
 #, c-format
 msgid "Click here to send an instant message to %s"
 msgstr "Klik hier om direct een bericht te sturen naar %s"
 
-#: ../vcard_edit.c:117 ../vcard_edit.c:120
-msgid "(no name)"
-msgstr "(geen naam)"
-
-#: ../vcard_edit.c:385
-msgid " (work)"
-msgstr " (werk)"
-
-#: ../vcard_edit.c:387
-msgid " (home)"
-msgstr " (thuis)"
-
-#: ../vcard_edit.c:389
-msgid " (cell)"
-msgstr " (mobiel)"
-
-#: ../vcard_edit.c:400 ../vcard_edit.c:905
-msgid "Address:"
-msgstr "Adres:"
-
-#: ../vcard_edit.c:468
-msgid "Telephone:"
-msgstr "Telefoon:"
-
-#: ../vcard_edit.c:473
-msgid "E-mail:"
-msgstr "E-mail:"
-
-#: ../vcard_edit.c:563
-msgid "This address book is empty."
-msgstr "Dit adresboek is leeg."
-
-#: ../vcard_edit.c:577
-msgid "An internal error has occurred."
-msgstr "Er is een interne fout opgetreden."
-
-#: ../vcard_edit.c:728
-msgid "Error"
-msgstr "Fout"
-
-#: ../vcard_edit.c:832
-msgid "Edit contact information"
-msgstr "Bewerk contactinformatie"
-
-#: ../vcard_edit.c:853
-msgid "Prefix"
-msgstr "Aanhef"
-
-#: ../vcard_edit.c:853
-msgid "First Name"
-msgstr "Voornaam"
-
-#: ../vcard_edit.c:853
-msgid "Middle Name"
-msgstr "Voorvoegsel"
-
-#: ../vcard_edit.c:853
-msgid "Last Name"
-msgstr "Achternaam"
-
-#: ../vcard_edit.c:853
-msgid "Suffix"
-msgstr "Suffix"
-
-#: ../vcard_edit.c:874
-msgid "Display name:"
-msgstr "Naamweergave:"
-
-#: ../vcard_edit.c:881
-msgid "Title:"
-msgstr "Titel:"
-
-#: ../vcard_edit.c:888
-msgid "Organization:"
-msgstr "Organisatie:"
-
-#: ../vcard_edit.c:899
-msgid "PO box:"
-msgstr "Postbus:"
-
-#: ../vcard_edit.c:915
-msgid "City:"
-msgstr "Plaats:"
-
-#: ../vcard_edit.c:921
-msgid "State:"
-msgstr "Prov.:"
-
-#: ../vcard_edit.c:927
-msgid "ZIP code:"
-msgstr "Postcode:"
-
-#: ../vcard_edit.c:933
-msgid "Country:"
-msgstr "Land:"
-
-#: ../vcard_edit.c:943
-msgid "Home telephone:"
-msgstr "Telefoon thuis:"
-
-#: ../vcard_edit.c:949
-msgid "Work telephone:"
-msgstr "Telefoon werk:"
-
-#: ../vcard_edit.c:955
-msgid "Mobile telephone:"
-msgstr "Mobiele telefoon:"
-
-#: ../vcard_edit.c:961
-msgid "Fax number:"
-msgstr "Faxnummer:"
-
-#: ../vcard_edit.c:972
-msgid "Primary Internet e-mail address"
-msgstr "Primair e-mailadres:"
-
-#: ../vcard_edit.c:979
-msgid "Internet e-mail aliases"
-msgstr "Internet e-mail aliases"
-
-#: ../vcard_edit.c:1046
-msgid "Unable to enter the room to save your message"
-msgstr "Ruimte niet toegankelijk om bericht te bewaren"
-
-#: ../vcard_edit.c:1055
-msgid "Aborting."
-msgstr "Afgebroken"
-
-#: ../vcard_edit.c:1091 ../vcard_edit.c:1137
-msgid "An error has occurred."
-msgstr "Er is een fout opgetreden."
-
-#: ../vcard_edit.c:1193
-msgid "Could Not decode vcard photo\n"
-msgstr "Kon de vcard foto niet decoderen\n"
-
-#: ../webcit.c:339
-msgid "Authorization Required"
-msgstr "Autorisatie vereist"
-
-#: ../webcit.c:348
+#: ../../roomops.c:848
 #, c-format
-msgid ""
-"The resource you requested requires a valid username and password. You could "
-"not be logged in: %s\n"
-msgstr ""
-"De opgevraagde bron vereist een geldige gebruikersnaam en wachtwoord. U kon "
-"niet worden ingelogd in: %s\n"
+msgid "User '%s' kicked out of room '%s'."
+msgstr "Gebruiker %s uit deze ruimte verwijderd. %s."
 
-#: ../who.c:151
-msgid "Edit your session display"
-msgstr "Bewerk uw sessie weergave"
-
-#: ../who.c:155
-msgid ""
-"This screen allows you to change the way your session appears in the 'Who is "
-"online' listing. To turn off any 'fake' name you've previously set, simply "
-"click the appropriate 'change' button without typing anything in the "
-"corresponding box. "
-msgstr ""
-"Dit scherm maakt het mogelijk de wijze waarop uw sessie wordt getoond in de "
-"'Wie is online' lijst te wijzigen. Om een nepnaam uit te schakelen, die u "
-"eerst had geplaatst klik eenvoudig op de 'Wijzig' knop zonder iets in te "
-"vullen in het betreffende veld. "
-
-#: ../who.c:168
-msgid "Room name:"
-msgstr "Naam ruimte:"
-
-#: ../who.c:173
-msgid "Change room name"
-msgstr "Naam ruimte wijzigen"
-
-#: ../who.c:177
-msgid "Host name:"
-msgstr "Hostnaam:"
-
-#: ../who.c:182
-msgid "Change host name"
-msgstr "Hostnaam wijzigen"
-
-#: ../who.c:187 ../static/t/login.html:19
-#: ../static/t/openid_manual_create.html:15
-msgid "User name:"
-msgstr "Gebruikersnaam:"
-
-#: ../who.c:192
-msgid "Change user name"
-msgstr "Gebruikersnaam wijzigen"
-
-#: ../wiki.c:53 ../wiki.c:146 ../wiki.c:268
+#: ../../roomops.c:864
 #, c-format
-msgid "There is no room called '%s'."
-msgstr "Er is geen ruimte genaamd '%s'"
-
-#: ../wiki.c:60
-#, c-format
-msgid "'%s' is not a Wiki room."
-msgstr "'%s'is geen Wiki ruimte."
-
-#: ../wiki.c:94
-#, c-format
-msgid "There is no page called '%s' here."
-msgstr "Er is hier geen pagina genaamd '%s'"
-
-#: ../wiki.c:96
-msgid ""
-"Select the 'Edit this page' link in the room banner if you would like to "
-"create this page."
-msgstr ""
-"Selecteer de 'Deze pagina bewerken' link in de banner van de ruimte als u "
-"deze pagina wilt aanmaken."
-
-#: ../wiki.c:167 ../static/t/msg_listview.html:12
-#: ../static/t/summary_header.html:10
-msgid "Date"
-msgstr "Datum"
-
-#: ../wiki.c:168
-msgid "Author"
-msgstr "Auteur"
-
-#: ../wiki.c:195 ../wiki.c:204
-msgid "(show)"
-msgstr "(toon)"
-
-#: ../wiki.c:197 ../static/t/navbar.html:147
-msgid "Current version"
-msgstr "Huidige versie"
-
-#: ../wiki.c:209
-msgid "(revert)"
-msgstr "(terugplaatsen)"
-
-#: ../wiki.c:289
-msgid "Page title"
-msgstr "Paginatitel"
-
-#: ../static/t/display_main_menu.html:8
-msgid "Basic commands"
-msgstr "Basiscommando's"
-
-#: ../static/t/display_main_menu.html:11
-msgid "Your info"
-msgstr "Uw informatie"
-
-#: ../static/t/display_main_menu.html:13
-msgid "Advanced room commands"
-msgstr "Uitgebreide opdrachten ruimtes"
-
-#: ../static/t/edit_message.html:23
-msgid "from"
-msgstr "van"
-
-#: ../static/t/edit_message.html:29 ../static/t/edit_message.html:38
-msgid "Anonymous"
-msgstr "Anoniem"
-
-#: ../static/t/edit_message.html:47
-msgid "in"
-msgstr "in"
-
-#: ../static/t/edit_message.html:51
-msgid "To:"
-msgstr "Aan:"
-
-#: ../static/t/edit_message.html:62 ../static/t/view_message.html:16
-msgid "CC:"
-msgstr "CC:"
-
-#: ../static/t/edit_message.html:68
-msgid "BCC:"
-msgstr "BCC:"
-
-#: ../static/t/edit_message.html:76 ../static/t/view_message.html:17
-msgid "Subject:"
-msgstr "Onderwerp:"
-
-#: ../static/t/edit_message.html:76
-msgid "Subject (optional):"
-msgstr "Onderwerp (optioneel):"
-
-#: ../static/t/edit_message.html:92
-msgid "--- forwarded message ---"
-msgstr "--- doorgestuurd bericht ---"
-
-#: ../static/t/edit_message.html:112
-msgid "Attachments:"
-msgstr "Bijlagen:"
-
-#: ../static/t/edit_message.html:116
-msgid "Attach file:"
-msgstr "Bijlage toevoegen:"
-
-#: ../static/t/files.html:3
-msgid "Files available for download in"
-msgstr "Bestanden beschikbaar voor downloaden in"
-
-#: ../static/t/files.html:18
-msgid "Filename"
-msgstr "Bestandsnaam"
-
-#: ../static/t/files.html:19
-msgid "Size"
-msgstr "Grootte"
-
-#: ../static/t/files.html:20
-msgid "Content"
-msgstr "Inhoud"
-
-#: ../static/t/files.html:21
-msgid "Description"
-msgstr "Beschrijving"
-
-#: ../static/t/files.html:35
-msgid "Upload a file:"
-msgstr "Upload een bestand:"
-
-#: ../static/t/floors_edit_one.html:11
-msgid "(delete floor)"
-msgstr "(verwijder verdieping)"
-
-#: ../static/t/floors_edit_one.html:13
-msgid "(edit graphic)"
-msgstr "(bewerk afbeelding)"
-
-#: ../static/t/floors.html:4
-msgid "Add/change/delete floors"
-msgstr "Toevoegen, wijzigen of verwijderen verdiepingen"
-
-#: ../static/t/floors.html:10
-msgid "Floor number"
-msgstr "Nummer verdieping"
-
-#: ../static/t/floors.html:11
-msgid "Floor name"
-msgstr "Naam verdieping"
-
-#: ../static/t/floors.html:12
-msgid "Number of rooms"
-msgstr "Aantal ruimtes"
-
-#: ../static/t/floors.html:13
-msgid "Floor CSS"
-msgstr "CSS ruimte"
-
-#: ../static/t/iconbar.html:17
-msgid "Mail"
-msgstr "Mail"
-
-#: ../static/t/iconbar.html:42
-msgid "Rooms"
-msgstr "Ruimtes"
-
-#: ../static/t/iconbar.html:47
-msgid "Online users"
-msgstr "Online gebruikers"
-
-#: ../static/t/iconbar.html:51
-msgid "Loading"
-msgstr "Laden"
-
-#: ../static/t/iconbar.html:56
-msgid "Chat"
-msgstr "Chat"
-
-#: ../static/t/iconbar.html:62
-msgid "Advanced"
-msgstr "Uitgebreid"
-
-#: ../static/t/iconbar.html:68
-msgid "Administration"
-msgstr "Beheer"
-
-#: ../static/t/iconbar.html:77
-msgid "customize this menu"
-msgstr "Dit menu aanpassen"
-
-#: ../static/t/iconbar.html:80
-msgid "switch to room list"
-msgstr "Switch naar lijst ruimtes"
-
-#: ../static/t/iconbar.html:81
-msgid "switch to menu"
-msgstr "Switch naar menu"
-
-#: ../static/t/iconbar.html:82
-msgid "My folders"
-msgstr "Mijn mappen"
-
-#: ../static/t/knrooms.html:5
-msgid "Room list"
-msgstr "Lijst van ruimtes"
-
-#: ../static/t/knrooms.html:5
-msgid "Folder list"
-msgstr "Lijst van mappen"
-
-#: ../static/t/knrooms.html:19
-msgid "View as room list"
-msgstr "Toon als lijst met ruimtes"
-
-#: ../static/t/knrooms.html:20
-msgid "View as folder list"
-msgstr "Toon als mappenstructuur"
-
-#: ../static/t/knrooms.html:40
-msgid "Room Listing"
-msgstr "Lijst met ruimtes"
-
-#: ../static/t/login.html:4 ../static/t/openid_login.html:4
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-"LET OP: JavaScript is uitgeschakeld op uw computer. Veel functies van dit "
-"systeem zullen niet goed werken."
-
-#: ../static/t/login.html:8 ../static/t/openid_login.html:8
-msgid "powered by"
-msgstr "op basis van"
-
-#: ../static/t/login.html:21
-msgid "Password:"
-msgstr "Wachtwoord:"
-
-#: ../static/t/login.html:23 ../static/t/openid_login.html:21
-msgid "Language:"
-msgstr "Taal:"
-
-#: ../static/t/login.html:39
-msgid "Log in using OpenID"
-msgstr "Login met OpenID"
-
-#: ../static/t/login.html:43
-msgid "If you already have an account on"
-msgstr "Als u al een account heeft op"
-
-#: ../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Log in.&quot;"
-msgstr ""
-"vul dan uw gebruikersnaam en wachtwoord in en klik op &quot;Log in.&quot;"
-
-#: ../static/t/login.html:45
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-"<b>Als u een nieuwe gebruiker bent</b>, vul uw gebruikersnaam in en het "
-"wachtwoord dat u wilt gebruiken en klik op &quot;Nieuwe gebruiker. "
-
-#: ../static/t/login.html:46 ../static/t/openid_login.html:37
-msgid "Please log off properly when finished. "
-msgstr "Log correct uit als u klaar bent. "
-
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid "See the"
-msgstr "Bekijk de"
-
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid "recommended browser list"
-msgstr "aanbevolen browser lijst"
-
-#: ../static/t/login.html:47 ../static/t/openid_login.html:38
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-"als u problemen heeft met Webcit.</li> <li><i>Cookies</i> moeten worden "
-"toegestaan. "
-
-#: ../static/t/login.html:48 ../static/t/openid_login.html:39
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
-msgstr ""
-"Als uw browser pop-up vensters blokkeert, zult u geen directe berichten "
-"kunnen ontvangen."
-
-#: ../static/t/msg_listselector_bottom.html:2
-#: ../static/t/msg_listselector_top.html:2
-msgid "Reading #"
-msgstr "Lezen #"
-
-#: ../static/t/msg_listselector_bottom.html:7
-#: ../static/t/msg_listselector_top.html:7 ../static/t/roombanner.html:10
+msgid "User '%s' invited to room '%s'."
+msgstr "Gebruiker %s uitgenodigd in deze ruimte %s."
+
+#: ../../roomops.c:894
+msgid "Cancelled.  No new room was created."
+msgstr "Afgebroken. Geen nieuwe ruimte aangemaakt"
+
+#: ../../roomops.c:1179
+msgid "Floor has been deleted."
+msgstr "Verdieping is verwijderd"
+
+#: ../../roomops.c:1203
+msgid "New floor has been created."
+msgstr "Nieuwe verdieping aangemaakt"
+
+#: ../../roomops.c:1282
+msgid "Room list view"
+msgstr "Bekijk als ruimte"
+
+#: ../../roomops.c:1285
+msgid "Show empty floors"
+msgstr "Toon lege verdiepingen"
+
+#: ../../static/t/roombanner.html:10
+msgid "new of"
+msgstr "nieuw van"
+
+#: ../../static/t/roombanner.html:10
+#: ../../static/t/msg_listselector_bottom.html:7
+#: ../../static/t/msg_listselector_top.html:7
 msgid "messages"
 msgstr "berichten"
 
-#: ../static/t/msg_listselector_bottom.html:12
-#: ../static/t/msg_listselector_top.html:12
-msgid "oldest to newest"
-msgstr "oudste naar nieuwste"
+#: ../../static/t/roombanner.html:24
+msgid "Select page: "
+msgstr "Kies pagina: "
 
-#: ../static/t/msg_listselector_bottom.html:20
-#: ../static/t/msg_listselector_top.html:20
-msgid "newest to oldest"
-msgstr "nieuwste naar oudste"
+#: ../../static/t/view_submessage.html:4
+#: ../../static/t/view_message/replyquote.html:4
+#: ../../static/t/view_message/replyquote.html:8
+#: ../../static/t/view_message/print.html:8 ../../static/t/view_message.html:5
+msgid "from "
+msgstr "van "
 
-#: ../static/t/msg_listview.html:20
-msgid "Loading messages from server, please wait"
-msgstr "Laad berichten van de server, een ogenblik"
+#: ../../static/t/view_message/inline_attach.html:4
+#: ../../static/t/view_message/list_attach.html:4
+msgid "Download"
+msgstr "Download"
 
-#: ../static/t/msg_listview.html:27
-msgid "Open in new window"
-msgstr "Open in nieuw venster"
+#: ../../static/t/view_message/replyquote.html:9
+#: ../../static/t/view_message/print.html:16
+#: ../../static/t/view_message.html:14 ../../static/t/edit_message.html:71
+msgid "Subject:"
+msgstr "Onderwerp:"
 
-#: ../static/t/msg_listview.html:29
-msgid "Copy"
-msgstr "Kopieer"
+#: ../../static/t/view_message/print.html:14
+#: ../../static/t/view_message.html:12
+msgid "to"
+msgstr "aan"
 
-#: ../static/t/msg_listview.html:31 ../static/t/view_message.html:41
+#: ../../static/t/view_message/print.html:15
+#: ../../static/t/view_message.html:13 ../../static/t/edit_message.html:57
+msgid "CC:"
+msgstr "CC:"
+
+#: ../../static/t/view_message/list_attach.html:3
+msgid "View"
+msgstr "View"
+
+#: ../../static/t/view_message.html:16
+msgid "Edit"
+msgstr "Bewerk"
+
+#: ../../static/t/view_message.html:18 ../../static/t/view_message.html:23
+#: ../../static/t/view_message.html:28
+msgid "Reply"
+msgstr "Antwoord"
+
+#: ../../static/t/view_message.html:19
+msgid "ReplyQuoted"
+msgstr "AntwoordQuoted"
+
+#: ../../static/t/view_message.html:24 ../../static/t/view_message.html:29
+msgid "ReplyAll"
+msgstr "AntwoordAllen"
+
+#: ../../static/t/view_message.html:25 ../../static/t/view_message.html:30
+msgid "Forward"
+msgstr "Doorsturen"
+
+#: ../../static/t/view_message.html:37
+msgid "Headers"
+msgstr "Headers"
+
+#: ../../static/t/view_message.html:38 ../../static/t/msg_listview.html:31
 msgid "Print"
 msgstr "Print"
 
-#: ../static/t/navbar.html:5
-msgid "Ungoto"
-msgstr "Ongedaan maken"
+#: ../../static/t/who/section.html:4
+msgid "(kill)"
+msgstr "(beëindig)"
 
-#: ../static/t/navbar.html:13
-msgid "Read new messages"
-msgstr "Lees nieuwe berichten"
+#: ../../static/t/who/box_list_static.html:6 ../../static/t/who/summary.html:5
+#: ../../static/t/room/edit/tab_feed.html:13
+msgid "User name"
+msgstr "Gebruikersnaam"
 
-#: ../static/t/navbar.html:19 ../static/t/navbar.html:117
-msgid "Read all messages"
-msgstr "Lees alle berichten"
+#: ../../static/t/who/box_list_static.html:7 ../../static/t/who/summary.html:6
+msgid "Room"
+msgstr "Ruimte"
 
-#: ../static/t/navbar.html:25
-msgid "Enter a message"
-msgstr "Bericht opstellen"
+#: ../../static/t/who/box_list_static.html:8
+msgid "From host"
+msgstr "Van host"
 
-#: ../static/t/navbar.html:34
-msgid "View contacts"
-msgstr "Toon contacten"
+#: ../../static/t/who/box_list_static.html:14
+msgid "Click on a name to read user info.  Click on"
+msgstr "Klik op een naam om de gebruikersinfo te lezen. Klik op "
 
-#: ../static/t/navbar.html:40
-msgid "Add new contact"
-msgstr "Contact toevoegen"
+#: ../../static/t/who/box_list_static.html:16
+msgid "to send an instant message to that user."
+msgstr "Stuur een direct bericht naar die gebruiker. "
 
-#: ../static/t/navbar.html:49
-msgid "Day view"
-msgstr "Toon dag"
+#: ../../static/t/who/list_static_header.html:1
+msgid "Users currently on"
+msgstr "Gebruikers op dit moment op "
 
-#: ../static/t/navbar.html:55
-msgid "Month view"
-msgstr "Toon maand"
+#: ../../static/t/floors.html:4
+msgid "Add/change/delete floors"
+msgstr "Toevoegen, wijzigen of verwijderen verdiepingen"
 
-#: ../static/t/navbar.html:61
-msgid "Add new event"
-msgstr "Afspraak toevoegen"
+#: ../../static/t/floors.html:10
+msgid "Floor number"
+msgstr "Nummer verdieping"
 
-#: ../static/t/navbar.html:70
-msgid "Calendar list"
-msgstr "Agendalijst"
+#: ../../static/t/floors.html:11
+msgid "Floor name"
+msgstr "Naam verdieping"
 
-#: ../static/t/navbar.html:79
-msgid "View tasks"
-msgstr "Toon taken"
+#: ../../static/t/floors.html:12
+msgid "Number of rooms"
+msgstr "Aantal ruimtes"
 
-#: ../static/t/navbar.html:85
-msgid "Add new task"
-msgstr "Taak toevoegen"
+#: ../../static/t/floors.html:13
+msgid "Floor CSS"
+msgstr "CSS ruimte"
 
-#: ../static/t/navbar.html:94
-msgid "View notes"
-msgstr "Toon notities"
+#: ../../static/t/floors_edit_one.html:11
+msgid "(delete floor)"
+msgstr "(verwijder verdieping)"
 
-#: ../static/t/navbar.html:102
-msgid "Add new note"
-msgstr "Notitie toevoegen"
+#: ../../static/t/floors_edit_one.html:13
+msgid "(edit graphic)"
+msgstr "(bewerk afbeelding)"
 
-#: ../static/t/navbar.html:111
-msgid "Refresh message list"
-msgstr "Verversen"
+#: ../../static/t/menu/basic_commands.html:3
+msgid "List known rooms"
+msgstr "Lijst van bekende ruimtes"
 
-#: ../static/t/navbar.html:123
-msgid "Write mail"
-msgstr "Opstellen"
+#: ../../static/t/menu/basic_commands.html:3
+msgid "Where can I go from here?"
+msgstr "Waar kan ik van hieruit naar toe?"
 
-#: ../static/t/navbar.html:133
-msgid "Wiki home"
-msgstr "Wiki home"
-
-#: ../static/t/navbar.html:140
-msgid "Edit this page"
-msgstr "Deze pagina bewerken"
-
-#: ../static/t/navbar.html:147
-msgid "History"
-msgstr "Geschiedenis"
-
-#: ../static/t/navbar.html:155
-msgid "Skip this room"
-msgstr "Ruimte overslaan"
-
-#: ../static/t/navbar.html:161
+#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:161
 msgid "Goto next room"
 msgstr "Volgende ruimte"
 
-#: ../static/t/newstartpage.html:4
+#: ../../static/t/menu/basic_commands.html:4
+msgid "...with <em>unread</em> messages"
+msgstr "...met <em>ongelezen</em> berichten"
+
+#: ../../static/t/menu/basic_commands.html:5
+msgid "Skip to next room"
+msgstr "Ga naar volgende ruimte"
+
+#: ../../static/t/menu/basic_commands.html:5
+msgid "(come back here later)"
+msgstr "(kom hier later terug)"
+
+#: ../../static/t/menu/basic_commands.html:6 ../../static/t/navbar.html:5
+msgid "Ungoto"
+msgstr "Ongedaan maken"
+
+#: ../../static/t/menu/basic_commands.html:6
+msgid "oops! Back to "
+msgstr "oeps! Terug naar "
+
+#: ../../static/t/menu/basic_commands.html:10 ../../static/t/navbar.html:13
+msgid "Read new messages"
+msgstr "Lees nieuwe berichten"
+
+#: ../../static/t/menu/basic_commands.html:10
+msgid "...in this room"
+msgstr "...in deze ruimte"
+
+#: ../../static/t/menu/basic_commands.html:11 ../../static/t/navbar.html:19
+#: ../../static/t/navbar.html:117
+msgid "Read all messages"
+msgstr "Lees alle berichten"
+
+#: ../../static/t/menu/basic_commands.html:11
+msgid "...old <em>and</em> new"
+msgstr "...oude <em>en</em> nieuwe"
+
+#: ../../static/t/menu/basic_commands.html:12 ../../static/t/navbar.html:25
+msgid "Enter a message"
+msgstr "Bericht opstellen"
+
+#: ../../static/t/menu/basic_commands.html:12
+msgid "(post in this room)"
+msgstr "(in deze ruimte plaatsen)"
+
+#: ../../static/t/menu/basic_commands.html:13
+msgid "File library"
+msgstr "Bestandsbibliotheek"
+
+#: ../../static/t/menu/basic_commands.html:13
+msgid "(List files available for download)"
+msgstr "(Toon bestanden beschikbaar voor download)"
+
+#: ../../static/t/menu/basic_commands.html:17
+msgid "Summary page"
+msgstr "Samenvattingspagina"
+
+#: ../../static/t/menu/basic_commands.html:17
+msgid "Summary of my account"
+msgstr "Samenvatting van mijn account"
+
+#: ../../static/t/menu/basic_commands.html:18
+msgid "User list"
+msgstr "Gebruikerslijst"
+
+#: ../../static/t/menu/basic_commands.html:18
+msgid "(all registered users)"
+msgstr "(alle geregistreerde gebruikers)"
+
+#: ../../static/t/menu/basic_commands.html:19
+msgid "Bye!"
+msgstr "Tot ziens!"
+
+#: ../../static/t/menu/advanced_roomcommands.html:3
+msgid "Edit or delete this room"
+msgstr "Bewerk of verwijder deze ruimte"
+
+#: ../../static/t/menu/advanced_roomcommands.html:5
+msgid "Go to a 'hidden' room"
+msgstr "Ga naar een 'verborgen' ruimte"
+
+#: ../../static/t/menu/advanced_roomcommands.html:6
+#: ../../static/t/room/create.html:9
+msgid "Create a new room"
+msgstr "Maak een nieuwe ruimte aan"
+
+#: ../../static/t/menu/advanced_roomcommands.html:7
+msgid "Zap (forget) this room"
+msgstr "Zap (vergeet) deze ruimte"
+
+#: ../../static/t/menu/advanced_roomcommands.html:8
+msgid "List all forgotten rooms"
+msgstr "Toon alle vergeten ruimtes"
+
+#: ../../static/t/menu/your_info.html:2
+msgid "Change your preferences and settings"
+msgstr "Uw voorkeuren en instellingen wijzigen"
+
+#: ../../static/t/menu/your_info.html:3
+msgid "Update your contact information"
+msgstr "Uw contactinformatie bijwerken"
+
+#: ../../static/t/menu/your_info.html:5
+msgid "Enter your 'bio'"
+msgstr "Uw 'CV' toevoegen"
+
+#: ../../static/t/menu/your_info.html:6
+msgid "Edit your online photo"
+msgstr "Uw online foto bewerken"
+
+#: ../../static/t/menu/your_info.html:8
+msgid "Edit your push email settings"
+msgstr "Bewerk uw push email instellingen"
+
+#: ../../static/t/menu/your_info.html:9
+#, fuzzy
+msgid "Manage your OpenIDs"
+msgstr "Uw OpenID"
+
+#: ../../static/t/start_of_new_msgs.html:4
+msgid "Old messages"
+msgstr "Oude berichten"
+
+#: ../../static/t/start_of_new_msgs.html:8
+msgid "New messages"
+msgstr "Nieuwe berichten"
+
+#: ../../static/t/msg_listselector_bottom.html:2
+#: ../../static/t/msg_listselector_top.html:2
+msgid "Reading #"
+msgstr "Lezen #"
+
+#: ../../static/t/msg_listselector_bottom.html:12
+#: ../../static/t/msg_listselector_top.html:12
+msgid "oldest to newest"
+msgstr "oudste naar nieuwste"
+
+#: ../../static/t/msg_listselector_bottom.html:20
+#: ../../static/t/msg_listselector_top.html:20
+msgid "newest to oldest"
+msgstr "nieuwste naar oudste"
+
+#: ../../static/t/edit_message.html:9 ../../static/t/iconbar.html:53
+msgid "Loading"
+msgstr "Laden"
+
+#: ../../static/t/edit_message.html:23
+msgid "from"
+msgstr "van"
+
+#: ../../static/t/edit_message.html:29 ../../static/t/edit_message.html:38
+msgid "Anonymous"
+msgstr "Anoniem"
+
+#: ../../static/t/edit_message.html:47
+msgid "in"
+msgstr "in"
+
+#: ../../static/t/edit_message.html:51
+msgid "To:"
+msgstr "Aan:"
+
+#: ../../static/t/edit_message.html:63
+msgid "BCC:"
+msgstr "BCC:"
+
+#: ../../static/t/edit_message.html:71
+msgid "Subject (optional):"
+msgstr "Onderwerp (optioneel):"
+
+#: ../../static/t/edit_message.html:86
+msgid "--- forwarded message ---"
+msgstr "--- doorgestuurd bericht ---"
+
+#: ../../static/t/edit_message.html:110
+msgid "Post message"
+msgstr "Bericht plaatsen"
+
+#: ../../static/t/edit_message.html:118
+#, fuzzy
+msgid "Save to Drafts"
+msgstr "Opslaan als concept mislukt: "
+
+#: ../../static/t/edit_message.html:126
+#: ../../static/t/edit_message/attachments_pane.html:5
+msgid "Attachments:"
+msgstr "Bijlagen:"
+
+#: ../../static/t/edit_message/section_attach_select.html:4
+#, fuzzy
+msgid "Remove"
+msgstr "(verwijderen)"
+
+#: ../../static/t/edit_message/attachments_pane.html:3
+msgid "Close window"
+msgstr "Venster sluiten"
+
+#: ../../static/t/edit_message/attachments_pane.html:20
+msgid "Attach file:"
+msgstr "Bijlage toevoegen:"
+
+#: ../../static/t/wiki/pagelist.html:1
+msgid "List of Wiki pages"
+msgstr ""
+
+#: ../../static/t/wiki/history.html:1
+msgid "History of edits for this page"
+msgstr ""
+
+#: ../../static/t/iconbar/save.html:5 ../../static/t/iconbar/edit.html:5
+msgid "Customize the icon bar"
+msgstr "Lijst menuitems aanpassen."
+
+#: ../../static/t/iconbar/save.html:11
+#, fuzzy
+msgid ""
+"Your icon bar has been updated. Please select any of its choices to continue."
+msgstr ""
+"Uw menubalk is bijgewerkt. U kunt nu hieruit een keuze om verder te gaan."
+
+#: ../../static/t/iconbar/save.html:11
+msgid ""
+"You may need to force refresh (SHIFT-F5)> in order for changes to take effect"
+msgstr ""
+
+#: ../../static/t/iconbar/edit.html:11
+msgid "Display icons as:"
+msgstr "Laat menuitems zien als: "
+
+#: ../../static/t/iconbar/edit.html:13
+msgid "pictures and text"
+msgstr "plaatjes en tekst"
+
+#: ../../static/t/iconbar/edit.html:14
+msgid "pictures only"
+msgstr "alleen plaatjes"
+
+#: ../../static/t/iconbar/edit.html:15
+msgid "text only"
+msgstr "alleen tekst"
+
+#: ../../static/t/iconbar/edit.html:17
+msgid ""
+"Select the icons you would like to see displayed in the 'icon bar' menu on "
+"the left side of the screen."
+msgstr ""
+"Selecteer de menuitems die u graag weergegeven wilt zien in menubalk aan de "
+"linkerzijde van het scherm"
+
+#: ../../static/t/iconbar/edit.html:21 ../../static/t/iconbar/edit.html:27
+#: ../../static/t/iconbar/edit.html:33 ../../static/t/iconbar/edit.html:39
+#: ../../static/t/iconbar/edit.html:45 ../../static/t/iconbar/edit.html:51
+#: ../../static/t/iconbar/edit.html:57 ../../static/t/iconbar/edit.html:63
+#: ../../static/t/iconbar/edit.html:69 ../../static/t/iconbar/edit.html:76
+#: ../../static/t/iconbar/edit.html:82 ../../static/t/iconbar/edit.html:88
+#: ../../static/t/prefs/box.html:198
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:14
+msgid "Yes"
+msgstr "Ja"
+
+#: ../../static/t/iconbar/edit.html:22 ../../static/t/iconbar/edit.html:28
+#: ../../static/t/iconbar/edit.html:34 ../../static/t/iconbar/edit.html:40
+#: ../../static/t/iconbar/edit.html:46 ../../static/t/iconbar/edit.html:52
+#: ../../static/t/iconbar/edit.html:58 ../../static/t/iconbar/edit.html:64
+#: ../../static/t/iconbar/edit.html:70 ../../static/t/iconbar/edit.html:77
+#: ../../static/t/iconbar/edit.html:83 ../../static/t/iconbar/edit.html:89
+#: ../../static/t/prefs/box.html:200
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:16
+msgid "No"
+msgstr "Nee"
+
+#: ../../static/t/iconbar/edit.html:24
+msgid "Site logo"
+msgstr "Logo van de site"
+
+#: ../../static/t/iconbar/edit.html:24
+msgid "An icon describing this site"
+msgstr "Logo van het bedrijf of de instelling"
+
+#: ../../static/t/iconbar/edit.html:30
+msgid "Your summary page"
+msgstr "Uw samenvattingspagina"
+
+#: ../../static/t/iconbar/edit.html:36
+msgid "Mail (inbox)"
+msgstr "Mail (inbox)"
+
+#: ../../static/t/iconbar/edit.html:36
+msgid "A shortcut to your email Inbox"
+msgstr "Een snelkoppeling naar uw email Inbox"
+
+#: ../../static/t/iconbar/edit.html:42
+msgid "Your personal address book"
+msgstr "Uw persoonlijk adresboek"
+
+#: ../../static/t/iconbar/edit.html:48
+msgid "Your personal notes"
+msgstr "Uw persoonlijke notities"
+
+#: ../../static/t/iconbar/edit.html:54
+msgid "A shortcut to your personal calendar"
+msgstr "Uw persoonlijke agenda"
+
+#: ../../static/t/iconbar/edit.html:60
+msgid "A shortcut to your personal task list"
+msgstr "Uw persoonlijke takenlijst"
+
+#: ../../static/t/iconbar/edit.html:66 ../../static/t/iconbar.html:44
+msgid "Rooms"
+msgstr "Ruimtes"
+
+#: ../../static/t/iconbar/edit.html:66
+msgid ""
+"Clicking this icon displays a list of all accessible rooms (or folders) "
+"available."
+msgstr ""
+"Hiermee wordt u een lijst van alle toegankelijke ruimtes (of mappen) getoond"
+
+#: ../../static/t/iconbar/edit.html:71
+msgid "Yes with users list"
+msgstr "Ja met gebruikerslijst"
+
+#: ../../static/t/iconbar/edit.html:73
+msgid "Who is online?"
+msgstr "Wie is online?"
+
+#: ../../static/t/iconbar/edit.html:73
+msgid "Clicking this icon displays a list of all users currently logged in."
+msgstr ""
+"Hiermee wordt een lijst getoond van alle gebruikers die op dat moment zijn "
+"ingelogd."
+
+#: ../../static/t/iconbar/edit.html:79 ../../static/t/iconbar.html:59
+msgid "Chat"
+msgstr "Chat"
+
+#: ../../static/t/iconbar/edit.html:79
+msgid ""
+"Clicking this icon enters real-time chat mode with other users in the same "
+"room."
+msgstr ""
+"Hiermee kunt u in 'real-time' chatten met andere gebruikers in dezelfde "
+"ruimte."
+
+#: ../../static/t/iconbar/edit.html:85
+msgid "Advanced options"
+msgstr "Uitgebreide opties"
+
+#: ../../static/t/iconbar/edit.html:85
+msgid "Access to the complete menu of Citadel functions."
+msgstr "Toegang tot het complete menu van Citadelfuncties."
+
+#: ../../static/t/iconbar/edit.html:91
+msgid "Citadel logo"
+msgstr "Citadel logo"
+
+#: ../../static/t/iconbar/edit.html:91
+msgid "Displays the 'Powered by Citadel' icon"
+msgstr "Toont het 'Powered by Citadel' icoontje."
+
+#: ../../static/t/files/section_onefile.html:20
+msgid "Slideshow"
+msgstr "Diashow"
+
+#: ../../static/t/newstartpage.html:4
 msgid "New start page"
 msgstr "Nieuwe startpagina"
 
-#: ../static/t/newstartpage.html:9
+#: ../../static/t/newstartpage.html:9
 msgid "Your start page has been changed."
 msgstr "De startpagina is gewijzigd"
 
-#: ../static/t/newstartpage.html:12
+#: ../../static/t/newstartpage.html:12
 msgid ""
 "(Note: this does not change your browser's home page. It changes the page "
 "you begin on when you log on to"
@@ -2155,114 +2340,1517 @@ msgstr ""
 "(Opmerking: dit verandert niet de startpagina van de browser. Het verandert "
 "de pagina waarop u begint na het inloggen"
 
-#: ../static/t/no_new_msgs.html:3
-msgid "No new messages."
-msgstr "Geen nieuwe berichten."
+#: ../../static/t/get_logged_in.html:15 ../../static/t/login.html:21
+msgid "Password:"
+msgstr "Wachtwoord:"
 
-#: ../static/t/openid_login.html:19
-msgid "OpenID URL:"
-msgstr "OpenID URL:"
+#: ../../static/t/get_logged_in.html:20 ../../static/t/iconbar.html:87
+msgid "Log in"
+msgstr "Laatste login"
 
-#: ../static/t/openid_login.html:31
-msgid "Log in using a user name and password"
-msgstr "Log in met gebruikersnaam en wachtwoord"
+#: ../../static/t/iconbar.html:18
+msgid "Mail"
+msgstr "Mail"
 
-#: ../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Log in&quot;."
-msgstr "Vul uw OpenID URL in en klik op &quot;Inloggen.&quot;"
+#: ../../static/t/iconbar.html:49
+msgid "Online users"
+msgstr "Online gebruikers"
 
-#: ../static/t/openid_login.html:36
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr "Klik hier voor meer info over OpenID en hoe Citadel het gebruikt."
+#: ../../static/t/iconbar.html:65
+msgid "Advanced"
+msgstr "Uitgebreid"
 
-#: ../static/t/openid_manual_create.html:4
-msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
-msgstr " - op basis van <a href=\"http://www.citadel.org\">Citadel</a>"
+#: ../../static/t/iconbar.html:72 ../../static/t/room/edit/editroom.html:4
+#: ../../static/t/room/edit.html:5
+msgid "Administration"
+msgstr "Beheer"
 
-#: ../static/t/openid_manual_create.html:8
-msgid "Your OpenID"
-msgstr "Uw OpenID"
+#: ../../static/t/iconbar.html:82
+msgid "customize this menu"
+msgstr "Dit menu aanpassen"
 
-#: ../static/t/openid_manual_create.html:8
-msgid "was successfully verified."
-msgstr "is goedgekeurd."
+#: ../../static/t/iconbar.html:91
+msgid "switch to room list"
+msgstr "Switch naar lijst ruimtes"
 
-#: ../static/t/openid_manual_create.html:9
-msgid "However, the user name"
-msgstr "Echter, de gebruikersnaam"
+#: ../../static/t/iconbar.html:92
+msgid "switch to menu"
+msgstr "Switch naar menu"
 
-#: ../static/t/openid_manual_create.html:9
-msgid "conflicts with an existing user."
-msgstr "botst met een bestaande gebruiker."
+#: ../../static/t/iconbar.html:93
+msgid "My folders"
+msgstr "Mijn mappen"
 
-#: ../static/t/openid_manual_create.html:11
-msgid "Please specify the user name you would like to use."
-msgstr "Geef alstublieft de gebruikersnaam die u wilt gebruiken."
-
-#: ../static/t/preferences.html:4 ../static/t/preferences.html:7
-msgid "Preferences and settings"
-msgstr "Voorkeuren en instellingen"
-
-#: ../static/t/roombanner.html:10
-msgid "new of"
-msgstr "nieuw van"
-
-#: ../static/t/roombanner.html:24
-msgid "Select page: "
-msgstr "Kies pagina: "
-
-#: ../static/t/searchomatic.html:4
+#: ../../static/t/searchomatic.html:4
 msgid "Search: "
 msgstr "Zoek: "
 
-#: ../static/t/start_of_new_msgs.html:4
-msgid "Old messages"
-msgstr "Oude berichten"
+#: ../../static/t/navbar.html:34
+msgid "View contacts"
+msgstr "Toon contacten"
 
-#: ../static/t/start_of_new_msgs.html:8
-msgid "New messages"
-msgstr "Nieuwe berichten"
+#: ../../static/t/navbar.html:40
+msgid "Add new contact"
+msgstr "Contact toevoegen"
 
-#: ../static/t/view_message.html:8 ../static/t/view_submessage.html:4
-msgid "from "
-msgstr "van "
+#: ../../static/t/navbar.html:49
+msgid "Day view"
+msgstr "Toon dag"
 
-#: ../static/t/view_message.html:15
-msgid "to"
-msgstr "aan"
+#: ../../static/t/navbar.html:55
+msgid "Month view"
+msgstr "Toon maand"
 
-#: ../static/t/view_message.html:19
-msgid "Edit"
-msgstr "Bewerk"
+#: ../../static/t/navbar.html:61
+msgid "Add new event"
+msgstr "Afspraak toevoegen"
 
-#: ../static/t/view_message.html:21 ../static/t/view_message.html:26
-#: ../static/t/view_message.html:31
-msgid "Reply"
-msgstr "Antwoord"
+#: ../../static/t/navbar.html:70
+msgid "Calendar list"
+msgstr "Agendalijst"
 
-#: ../static/t/view_message.html:22
-msgid "ReplyQuoted"
-msgstr "AntwoordQuoted"
+#: ../../static/t/navbar.html:79
+msgid "View tasks"
+msgstr "Toon taken"
 
-#: ../static/t/view_message.html:27 ../static/t/view_message.html:32
-msgid "ReplyAll"
-msgstr "AntwoordAllen"
+#: ../../static/t/navbar.html:85
+msgid "Add new task"
+msgstr "Taak toevoegen"
 
-#: ../static/t/view_message.html:28 ../static/t/view_message.html:33
-msgid "Forward"
-msgstr "Doorsturen"
+#: ../../static/t/navbar.html:94
+msgid "View notes"
+msgstr "Toon notities"
 
-#: ../static/t/view_message.html:40
-msgid "Headers"
-msgstr "Headers"
+#: ../../static/t/navbar.html:102
+msgid "Add new note"
+msgstr "Notitie toevoegen"
 
-#: ../static/t/viewomatic.html:4
+#: ../../static/t/navbar.html:111
+msgid "Refresh message list"
+msgstr "Verversen"
+
+#: ../../static/t/navbar.html:123
+msgid "Write mail"
+msgstr "Opstellen"
+
+#: ../../static/t/navbar.html:133
+msgid "Wiki home"
+msgstr "Wiki home"
+
+#: ../../static/t/navbar.html:140
+msgid "Edit this page"
+msgstr "Deze pagina bewerken"
+
+#: ../../static/t/navbar.html:147
+msgid "History"
+msgstr "Geschiedenis"
+
+#: ../../static/t/navbar.html:155
+msgid "Skip this room"
+msgstr "Ruimte overslaan"
+
+#: ../../static/t/prefs/pushemail.html:2
+#, fuzzy
+msgid "Configure Push Email"
+msgstr "Push Email"
+
+#: ../../static/t/prefs/pushemail.html:9
+msgid "Push email and SMS settings"
+msgstr "Push email en SMS instellingen"
+
+#: ../../static/t/prefs/pushemail.html:17
+msgid ""
+"If your administrator has enabled the functionality, Citadel can notify a "
+"Funambol server that you haved recieved new email and automatically "
+"syncronize any devices you have with the Funambol client installed."
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:20
+msgid ""
+"Alternatively, if the administrator has configured it, Citadel can send a "
+"text message to you when new mail arrives."
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:26
+#, fuzzy
+msgid "Notify Funambol server"
+msgstr "Funambol serverpoort "
+
+#: ../../static/t/prefs/pushemail.html:31
+#, fuzzy
+msgid "Send a text message to..."
+msgstr "Stuur direct bericht naar: "
+
+#: ../../static/t/prefs/pushemail.html:33
+msgid ""
+"(Use international format, without any leading zeros, spaces or hypens, like "
+"+61415011501)"
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:38
+msgid "Use custom notification scheme configured by your Admin"
+msgstr ""
+
+#: ../../static/t/prefs/pushemail.html:43
+msgid "Don‘t send any notifications"
+msgstr ""
+
+#: ../../static/t/prefs/box.html:9
+msgid "Tree (folders) view"
+msgstr "Bekijk als boomstructuur (mappen)"
+
+#: ../../static/t/prefs/box.html:11
+msgid "Table (rooms) view"
+msgstr "Tabel (ruimte) instelling"
+
+#: ../../static/t/prefs/box.html:20
+msgid "12 hour (am/pm)"
+msgstr "12 uurs (vm/nm)"
+
+#: ../../static/t/prefs/box.html:25
+msgid "24 hour"
+msgstr "24 uur"
+
+#: ../../static/t/prefs/box.html:152
+msgid "Sunday"
+msgstr "Zondag"
+
+#: ../../static/t/prefs/box.html:153
+msgid "Monday"
+msgstr "Maandag"
+
+#: ../../static/t/prefs/box.html:174
+msgid "No signature"
+msgstr "Geen ondertekening"
+
+#: ../../static/t/prefs/box.html:238
+msgid "Full-functionality"
+msgstr "Volledig functioneel"
+
+#: ../../static/t/prefs/box.html:241
+msgid "Safe mode"
+msgstr "Veilige modus"
+
+#: ../../static/t/prefs/box.html:242
+msgid ""
+"Safe mode is less intensive on your web browser, but not as fully featured."
+msgstr ""
+
+#: ../../static/t/files.html:3
+msgid "Files available for download in"
+msgstr "Bestanden beschikbaar voor downloaden in"
+
+#: ../../static/t/files.html:16
+msgid "Filename"
+msgstr "Bestandsnaam"
+
+#: ../../static/t/files.html:17
+msgid "Size"
+msgstr "Grootte"
+
+#: ../../static/t/files.html:18
+msgid "Content"
+msgstr "Inhoud"
+
+#: ../../static/t/files.html:19
+msgid "Description"
+msgstr "Beschrijving"
+
+#: ../../static/t/files.html:33
+msgid "Upload a file:"
+msgstr "Upload een bestand:"
+
+#: ../../static/t/msg_listview.html:20
+msgid "Loading messages from server, please wait"
+msgstr "Laad berichten van de server, een ogenblik"
+
+#: ../../static/t/msg_listview.html:27
+msgid "Open in new window"
+msgstr "Open in nieuw venster"
+
+#: ../../static/t/msg_listview.html:29
+msgid "Copy"
+msgstr "Kopieer"
+
+#: ../../static/t/who.html:14
+msgid "Users currently on "
+msgstr "Gebruikers op dit moment op "
+
+#: ../../static/t/loggedinas.html:3
+#, fuzzy
+msgid "Logged in as"
+msgstr "Laatste login"
+
+#: ../../static/t/loggedinas.html:6
+#, fuzzy
+msgid "Not logged in."
+msgstr "Niet ingelogd"
+
+#: ../../static/t/aide/display_serverrestart.html:26
+#, fuzzy
+msgid "Restart Citadel"
+msgstr "Maak hiervan mijn startpagina"
+
+#: ../../static/t/aide/display_generic_result.html:2
+msgid "Server command results"
+msgstr "Resultaten servercommando"
+
+#: ../../static/t/aide/display_generic_result.html:18
+#, fuzzy
+msgid "Enter another command"
+msgstr "Voer een servercommando in"
+
+#: ../../static/t/aide/display_generic_result.html:19
+#, fuzzy
+msgid "Return to menu"
+msgstr "Switch naar menu"
+
+#: ../../static/t/aide/global_config.html:2
+msgid "Edit site-wide configuration"
+msgstr "Bewerk 'site-brede' instellingen"
+
+#: ../../static/t/aide/global_config.html:3
+msgid "Domain names and Internet mail configuration"
+msgstr "Domeinnamen en Internet mail instellingen"
+
+#: ../../static/t/aide/global_config.html:4
+msgid "Configure replication with other Citadel servers"
+msgstr "Stel replicatie met andere Citadel servers in"
+
+#: ../../static/t/aide/display_ignetconf.html:4
+msgid "Network configuration"
+msgstr "Netwerk instellingen"
+
+#: ../../static/t/aide/display_ignetconf.html:10
+#: ../../static/t/aide/ignetconf/add.html:5
+#: ../../static/t/aide/ignetconf/edit_node.html:5
+msgid "Add a new node"
+msgstr "Een nieuw knooppunt toevoegen"
+
+#: ../../static/t/aide/display_ignetconf.html:14
+msgid "Currently configured nodes"
+msgstr "Nu ingestelde knooppunten"
+
+#: ../../static/t/aide/display_generic_cmd.html:4
+msgid "Enter a server command"
+msgstr "Voer een servercommando in"
+
+#: ../../static/t/aide/display_generic_cmd.html:12
+msgid ""
+"This screen allows you to enter Citadel server commands which are not "
+"supported by WebCit.  If you do not know what that means, then this screen "
+"will not be of much use to you."
+msgstr ""
+"Dit scherm geeft de mogelijkheid Citadel servercommando's in te voeren, die "
+"niet worden ondersteund door Webcit. Als u niet weet wat dat betekent, dan "
+"is dit scherm van weinig nut voor u."
+
+#: ../../static/t/aide/display_generic_cmd.html:15
+msgid "Enter command:"
+msgstr "Voer commando in: "
+
+#: ../../static/t/aide/display_generic_cmd.html:17
+msgid "Command input (if requesting SEND_LISTING transfer mode):"
+msgstr "Commando invoer (indien aanvraag SEND_LISTING overdrachtsmode): "
+
+#: ../../static/t/aide/display_generic_cmd.html:20
+#, fuzzy
+msgid "Detected host header is "
+msgstr "Gevonden host header is %s://%s"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:1
+msgid "Configure automatic expiry of old messages"
+msgstr "Stel het automatisch verlopen van oude berichten in."
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:2
+msgid "These settings may be overridden on a per-floor or per-room basis."
+msgstr ""
+"Deze instellingen kunnen worden overschreven op verdieping- of ruimteniveau."
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:6
+msgid "Hour to run database auto-purge"
+msgstr "Tijd waarop database opgeruimd wordt"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:66
+msgid "Default message expire policy for public rooms"
+msgstr "Standaardinstelling voor het laten verlopen van openbare ruimtes"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:68
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:86
+#: ../../static/t/room/edit/tab_expire.html:17
+#: ../../static/t/room/edit/tab_expire.html:45
+msgid "Never automatically expire messages"
+msgstr "Nooit berichten automatisch laten verlopen"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:71
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:89
+#: ../../static/t/room/edit/tab_expire.html:20
+#: ../../static/t/room/edit/tab_expire.html:48
+msgid "Expire by message count"
+msgstr "Verlopen door aantal berichten"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:73
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:92
+#: ../../static/t/room/edit/tab_expire.html:23
+#: ../../static/t/room/edit/tab_expire.html:51
+msgid "Expire by message age"
+msgstr "Verlopen door ouderdom bericht"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:75
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:94
+#: ../../static/t/room/edit/tab_expire.html:25
+#: ../../static/t/room/edit/tab_expire.html:53
+msgid "Number of messages or days: "
+msgstr "Aantal berichten of dagen: "
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:81
+msgid "Default message expire policy for private mailboxes"
+msgstr "Standaardinstelling voor het laten verlopen van privé mailboxen"
+
+#: ../../static/t/aide/siteconfig/tab_autopurger.html:83
+msgid "Same policy as public rooms"
+msgstr "Zelfde instelling als openbare ruimtes"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:1
+msgid "General site configuration items"
+msgstr "Algemene items site instellingen"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:5
+msgid "Change Login Logo"
+msgstr "Wijzig logo Inloggen"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:6
+msgid "Change Logout Logo"
+msgstr "Wijzig logo Uitloggen"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:8
+#: ../../static/t/aide/ignetconf/add.html:15
+#: ../../static/t/aide/ignetconf/edit_node.html:15
+msgid "Node name"
+msgstr "Naam knooppunt"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:11
+msgid "Fully qualified domain name"
+msgstr "Fully qualified domain name"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:14
+msgid "Human-readable node name"
+msgstr "Leesbare knooppuntnaam"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:17
+msgid "Telephone number"
+msgstr "Telefoonnummer"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:20
+msgid "Paginator prompt (for text mode clients)"
+msgstr "Prompt volgende pagina (voor textmode clients)"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:23
+msgid "Geographic location of this system"
+msgstr "Geografische locatie van dit systeem"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:26
+msgid "Name of system administrator"
+msgstr "Naam van de systeembeheerder"
+
+#: ../../static/t/aide/siteconfig/tab_general.html:29
+msgid "Default timezone for unzoned calendar items"
+msgstr "Standaard tijdzone voor agenda-items zonder zone"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:1
+msgid "Advanced server fine-tuning controls"
+msgstr "Uitgebreide server fine-tuning"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:5
+msgid "Server connection idle timeout (in seconds)"
+msgstr "Serververbinding timeout (in seconden)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:8
+msgid "Maximum concurrent sessions (0 = no limit)"
+msgstr "Maximale gelijktijdige sessies (0 = geen limiet)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:11
+msgid "Default user purge time (days)"
+msgstr "Standaard opruimen gebruiker (dagen)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:14
+msgid "Default room purge time (days)"
+msgstr "Standaard opruimen ruimte (dagen)"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:17
+msgid "Maximum message length"
+msgstr "Maximale lengte bericht"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:20
+msgid "Minimum number of worker threads"
+msgstr "Minimum aantal worker threads"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:23
+msgid "Maximum number of worker threads"
+msgstr "Maximum aantal worker threads"
+
+#: ../../static/t/aide/siteconfig/tab_tuning.html:26
+msgid "Automatically delete committed database logs"
+msgstr "Wis automatisch bewaarde database logs"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:1
+msgid "Configure the LDAP connector for Citadel"
+msgstr "Stel de LDAP connector voor Citadel in."
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:3
+#: ../../static/t/aide/siteconfig/tab_network.html:2
+msgid ""
+"Changes made on this screen will not take effect until you restart the "
+"Citadel server."
+msgstr ""
+"Wijzigingen gemaakt in dit scherm zullen pas actief worden nadat u de "
+"Citadel server opnieuw heeft gestart."
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:4
+msgid ""
+"NOTE: This Citadel server has been built without LDAP support.  These "
+"options will have no effect."
+msgstr ""
+"LET OP: Deze Citadel server is gebouwd zonder LDAP ondersteuning. Deze "
+"opties zullen geen effect hebben."
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:9
+msgid "Host name of LDAP server (blank to disable)"
+msgstr "Hostnaam van de LDAP server (blanco is uit)"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:13
+msgid "Port number of LDAP server (blank to disable)"
+msgstr "Poortnummer van de LDAP server (blanco is uit)"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:16
+msgid "Base DN"
+msgstr "Base DN"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:19
+msgid "Bind DN"
+msgstr "Bind DN"
+
+#: ../../static/t/aide/siteconfig/tab_directory.html:22
+msgid "Password for bind DN"
+msgstr "Wachtwoord voor bind DN"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:1
+msgid "Access controls and site policy settings"
+msgstr "Toegangscontrole en instellingen site policy"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:5
+msgid "Allow aides to zap (forget) rooms"
+msgstr "Sta beheerders toe ruimtes te zappen (vergeten)"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:9
+msgid "Quarantine messages from problem users"
+msgstr "Quarantaine berichten van probleemgebruikers"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:12
+msgid "Name of quarantine room"
+msgstr "Naam van de quarantaineruimte"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:17
+msgid "Name of room to log pages"
+msgstr "Naam van de ruimte voor log pagina's"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:22
+#, fuzzy
+msgid "Authentication mode"
+msgstr "Authenticatie toe"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:24
+#, fuzzy
+msgid "Self contained"
+msgstr "bevat"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:25
+#, fuzzy
+msgid "Host based"
+msgstr "Hostnaam:"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:26
+msgid "LDAP (RFC2307)"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_access.html:27
+msgid "LDAP (Active Directory)"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_access.html:30
+msgid "Master user name (blank to disable)"
+msgstr "Gebruikersnaam beheerder (blanco is uit)"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:33
+msgid "Master user password"
+msgstr "Wachtwoord beheerder: "
+
+#: ../../static/t/aide/siteconfig/tab_access.html:38
+msgid "Initial access level for new users"
+msgstr "Begin toegangsniveau voor nieuwe gebruikers"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:49
+msgid "Access level required to create rooms"
+msgstr "Benodigd toegangsniveau om ruimte aan te maken"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:60
+msgid "Automatically grant room-aide status to users who create private rooms"
+msgstr ""
+"Sta automatisch beheerdersstatus in voor gebruikers die privé ruimtes "
+"aanmaken"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:63
+msgid "Restrict access to Internet mail"
+msgstr "Toegang tot Internetmail beperken"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:68
+msgid "Disable self-service user account creation"
+msgstr "Schakel de self-service uit bij het aanmaken van een account"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:68
+msgid "Hint: do not select both!"
+msgstr ""
+
+#: ../../static/t/aide/siteconfig/tab_access.html:71
+msgid "Require registration for new users"
+msgstr "Registratie nodig voor nieuwe gebruikers"
+
+#: ../../static/t/aide/siteconfig/tab_access.html:74
+#, fuzzy
+msgid "Allow anonymous guest access"
+msgstr "Geen anonieme berichten"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:1
+msgid "Indexing and Journaling"
+msgstr "Indexering en Journaling"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:2
+msgid "Warning: these facilities are resource intensive."
+msgstr "Waarschuwing: dit vraagt veel van het systeem."
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:6
+msgid "Enable full text index"
+msgstr "Geef full-text index vrij"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:9
+msgid "Perform journaling of email messages"
+msgstr "Voer journaliseren van emailberichten uit"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:13
+msgid "Perform journaling of non-email messages"
+msgstr "Voer journaliseren van niet-emailberichten uit"
+
+#: ../../static/t/aide/siteconfig/tab_indexing.html:16
+msgid "Email destination of journalized messages"
+msgstr "Bestemming voor gejournaliseerde berichten"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:1
+#: ../../static/t/aide/display_sitewide_config.html:18
+msgid "Push Email"
+msgstr "Push Email"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:5
+msgid "Funambol server host (blank to disable)"
+msgstr "Funambol server (blanco is uit)"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:8
+msgid "Funambol server port "
+msgstr "Funambol serverpoort "
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:11
+msgid "Funambol sync source"
+msgstr "Funambol sync bron"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:14
+msgid "Funambol auth details (user:pass)"
+msgstr "Funambol auth details (user:pass)"
+
+#: ../../static/t/aide/siteconfig/tab_pushmail.html:17
+msgid "External pager tool (blank to disable)"
+msgstr "Externe pager tool (blanco is uit)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:1
+msgid "POP3"
+msgstr "POP3"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:6
+msgid "POP3 listener port (-1 to disable)"
+msgstr "POP3 listener port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:9
+msgid "POP3 over SSL port (-1 to disable)"
+msgstr "POP3 over SSL port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:12
+msgid "POP3 fetch frequency in seconds"
+msgstr "POP3 ophaalfrequentie in seconden "
+
+#: ../../static/t/aide/siteconfig/tab_pop3.html:15
+msgid "POP3 fastest fetch frequency in seconds"
+msgstr "POP3 snelste ophaalfrequentie in seconden "
+
+#: ../../static/t/aide/siteconfig/tab_network.html:1
+msgid "Network services"
+msgstr "Netwerk services"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:6
+msgid "SMTP MTA port (-1 to disable)"
+msgstr "SMTP MTA port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:9
+msgid "Correct forged From: lines during authenticated SMTP"
+msgstr "Corrigeer gedwongen Van: regels tijdens authenticated SMTP"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:12
+msgid "Flag message as spam, instead of rejecting it"
+msgstr "Markeer bericht als spam i.p.v. het af te wijzen"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:15
+msgid "IMAP listener port (-1 to disable)"
+msgstr "IMAP listener port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:19
+msgid "Network run frequency (in seconds)"
+msgstr "Network run frequency (in seconden)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:22
+msgid "Server IP address (0.0.0.0 for 'any')"
+msgstr "Server IP adres (0.0.0.0 voor 'elk')"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:25
+msgid "SMTP MSA port (-1 to disable)"
+msgstr "SMTP MSA port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:28
+msgid "IMAP over SSL port (-1 to disable)"
+msgstr "IMAP over SSL port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:31
+msgid "SMTP over SSL port (-1 to disable)"
+msgstr "SMTP over SSL port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:34
+msgid "Instantly expunge deleted messages in IMAP"
+msgstr "Verwijder direct gewiste berichten in IMAP"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:38
+msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
+msgstr ""
+"Sta unauthenticated SMTP clients toe het domein van deze site te spoofen"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:41
+msgid "Postfix TCP Dictionary Port"
+msgstr "Postfix TCP Dictionary Port"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:41
+msgid "-1 to disable"
+msgstr "-1 voor uitschakelen"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:44
+msgid "ManageSieve Port (-1 to disable)"
+msgstr "ManageSieve Port (-1 to disable)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:47
+msgid "Perform RBL checks upon connect instead of after RCPT"
+msgstr "Voer RBL controles uit bij verbinding i.p.v. na RCPT"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:50
+msgid "Keep original from headers in IMAP"
+msgstr "Bewaar origineel van headers in IMAP"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:53
+msgid "XMPP (Jabber) client to server port (-1 to disable)"
+msgstr "XMPP (Jabber) client to server port (-1 voor uitschakelen)"
+
+#: ../../static/t/aide/siteconfig/tab_network.html:56
+msgid "XMPP (Jabber) server to server port (-1 to disable)"
+msgstr "POP3 listener port (-1 voor uitschakelen)"
+
+#: ../../static/t/aide/floorconfig.html:2
+msgid "Add, change, or delete floors"
+msgstr "Verdiepingen toevoegen, wijzigen of verwijderen "
+
+#: ../../static/t/aide/serverrestart/box.html:3
+msgid "Please wait while the Citadel server is restarted... "
+msgstr "Even geduld a.u.b. tot Citadel server is opgestart..."
+
+#: ../../static/t/aide/serverrestart/box_page_do.html:3
+msgid ""
+"Please wait while your users are being paged, the citadel server will be "
+"restarted after that... "
+msgstr ""
+"Even geduld terwijl gebruikers een berichtje hebben, de citadel server zal "
+"daarna opstarten..."
+
+#: ../../static/t/aide/ignetconf/add.html:17
+#: ../../static/t/aide/ignetconf/edit_node.html:17
+msgid "Shared secret"
+msgstr "Gedeeld geheim"
+
+#: ../../static/t/aide/ignetconf/add.html:19
+#: ../../static/t/aide/ignetconf/edit_node.html:19
+msgid "Host or IP address"
+msgstr "Host of IP adres"
+
+#: ../../static/t/aide/ignetconf/add.html:21
+#: ../../static/t/aide/ignetconf/edit_node.html:21
+msgid "Port number"
+msgstr "Poortnummer"
+
+#: ../../static/t/aide/ignetconf/section.html:4
+#, fuzzy
+msgid "(Edit)"
+msgstr "(bewerk)"
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:5
+msgid "Confirm delete"
+msgstr "Verwijdering bevestigen"
+
+#: ../../static/t/aide/ignetconf/display_confirm_delete.html:11
+msgid "Are you sure you want to delete "
+msgstr "Weet u zeker dat u wilt verwijderen "
+
+#: ../../static/t/aide/display_sitewide_config.html:3
+msgid "Site configuration"
+msgstr "Site instellingen"
+
+#: ../../static/t/aide/display_sitewide_config.html:6
+#: ../../static/t/aide/edituser/select.html:9
+msgid "You need to be aide to view this."
+msgstr "U moet beheerder zijn om dit te bekijken."
+
+#: ../../static/t/aide/display_sitewide_config.html:11
+msgid "General"
+msgstr "Algemeen"
+
+#: ../../static/t/aide/display_sitewide_config.html:12
+msgid "Access"
+msgstr "Toegang"
+
+#: ../../static/t/aide/display_sitewide_config.html:13
+msgid "Network"
+msgstr "Netwerk"
+
+#: ../../static/t/aide/display_sitewide_config.html:14
+msgid "Tuning"
+msgstr "Afstemmen"
+
+#: ../../static/t/aide/display_sitewide_config.html:15
+#, fuzzy
+msgid "Directory"
+msgstr "Naam van map: "
+
+#: ../../static/t/aide/display_sitewide_config.html:16
+msgid "Auto-purger"
+msgstr "Auto-wisser"
+
+#: ../../static/t/aide/display_sitewide_config.html:17
+msgid "Indexing/Journaling"
+msgstr "Indexing/Journaling"
+
+#: ../../static/t/aide/display_sitewide_config.html:19
+msgid "Pop3"
+msgstr "Pop3"
+
+#: ../../static/t/aide/display_inetconf.html:5
+#: ../../static/t/aide/display_menu.html:5
+msgid "System Administration Menu"
+msgstr "Menu Systeembeheer"
+
+#: ../../static/t/aide/display_inetconf.html:6
+#: ../../static/t/aide/display_menu.html:6
+msgid "Room Aide Menu"
+msgstr "Menu ruimte beheerder"
+
+#: ../../static/t/aide/display_inetconf.html:13
+msgid "Local host aliases"
+msgstr "Local host aliases"
+
+#: ../../static/t/aide/display_inetconf.html:14
+msgid "Directory domains"
+msgstr "Directory domeinen"
+
+#: ../../static/t/aide/display_inetconf.html:15
+msgid "Smart hosts"
+msgstr "Smart hosts"
+
+#: ../../static/t/aide/display_inetconf.html:16
+#, fuzzy
+msgid "Fallback smart hosts"
+msgstr "Smart hosts"
+
+#: ../../static/t/aide/display_inetconf.html:17
+msgid "Notification hosts"
+msgstr ""
+
+#: ../../static/t/aide/display_inetconf.html:22
+msgid "RBL hosts"
+msgstr "RBL hosts"
+
+#: ../../static/t/aide/display_inetconf.html:23
+msgid "SpamAssassin hosts"
+msgstr "SpamAssasin hosts"
+
+#: ../../static/t/aide/display_inetconf.html:24
+msgid "ClamAV clamd hosts"
+msgstr "ClamAV clamd hosts"
+
+#: ../../static/t/aide/display_inetconf.html:25
+msgid "Masqueradable domains"
+msgstr "Masqueradable domeinen"
+
+#: ../../static/t/aide/display_menu.html:12
+msgid "Global Configuration"
+msgstr "Instellingen Totaal"
+
+#: ../../static/t/aide/display_menu.html:14
+msgid "User account management"
+msgstr "Beheer gebruikeraccounts"
+
+#: ../../static/t/aide/display_menu.html:16
+msgid "Shutdown Citadel"
+msgstr "Citadel afsluiten"
+
+#: ../../static/t/aide/display_menu.html:18
+msgid "Rooms and Floors"
+msgstr "Ruimtes en Verdiepingen"
+
+#: ../../static/t/aide/restart.html:2
+msgid "Restart Now"
+msgstr "Nu opnieuw opstarten"
+
+#: ../../static/t/aide/restart.html:3
+msgid "Restart after paging users"
+msgstr "Herstarten na bericht aan gebruikers."
+
+#: ../../static/t/aide/restart.html:4
+msgid "Restart when all users are idle"
+msgstr "Herstarten als geen gebruikers actief"
+
+#: ../../static/t/aide/usermanagement.html:2
+msgid "Add, change, delete user accounts"
+msgstr "Gebruikeraccounts toevoegen, wijzigen of verwijderen"
+
+#: ../../static/t/aide/display_serverrestart_page.html:4
+msgid "Message to your Users:"
+msgstr "Bericht aan uw gebruikers:"
+
+#: ../../static/t/aide/edituser/select.html:5
+msgid "Edit or delete users"
+msgstr "Gebruikers bewerken of verwijderen"
+
+#: ../../static/t/aide/edituser/select.html:16
+msgid "Add users"
+msgstr "Gebruikers toevoegen"
+
+#: ../../static/t/aide/edituser/select.html:18
+msgid "Edit or Delete users"
+msgstr "Gebruikers bewerken of verwijderen"
+
+#: ../../static/t/aide/edituser/add.html:1
+msgid ""
+"To create a new user account, enter the desired user name in the box below "
+"and click 'Create'."
+msgstr ""
+"Om een nieuw gebruikersaccount aan te maken vul de gewenste gebruikersnaam "
+"hieronder in en klik op 'Aanmaken'."
+
+#: ../../static/t/aide/edituser/add.html:5
+msgid "New user: "
+msgstr "Nieuwe gebruiker: "
+
+#: ../../static/t/aide/edituser/detailview.html:4
+msgid "Edit user account: "
+msgstr "Gebruikersaccount bewerken:"
+
+#: ../../static/t/aide/edituser/detailview.html:24
+#: ../../static/t/room/edit/tab_feed.html:14
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: ../../static/t/aide/edituser/detailview.html:28
+msgid "Permission to send Internet mail"
+msgstr "Toestemming om Internetmail te verzenden"
+
+#: ../../static/t/aide/edituser/detailview.html:32
+msgid "Number of logins"
+msgstr "Aantal logins"
+
+#: ../../static/t/aide/edituser/detailview.html:36
+msgid "Messages submitted"
+msgstr "Bericht geplaatst"
+
+#: ../../static/t/aide/edituser/detailview.html:40
+msgid "Access level"
+msgstr "Toegangsniveau"
+
+#: ../../static/t/aide/edituser/detailview.html:54
+msgid "User ID number"
+msgstr "Gebruiker ID nummer"
+
+#: ../../static/t/aide/edituser/detailview.html:58
+msgid "Date and time of last login"
+msgstr "Datum en tijd laatste login"
+
+#: ../../static/t/aide/edituser/detailview.html:68
+msgid "Auto-purge after this many days"
+msgstr "Opruimen na dit aantal dagen"
+
+#: ../../static/t/aide/edituser/box_select.html:1
+msgid ""
+"To edit an existing user account, select the user name from the list and "
+"click 'Edit'."
+msgstr ""
+"Om een bestaande gebruiker te bewerken, selecteer de gebruikersnaam en klik "
+"op 'Bewerken'"
+
+#: ../../static/t/aide/inet/fallbackhosts.html:2
+msgid "(send outbound mail to these hosts only when direct delivery fails)"
+msgstr ""
+
+#: ../../static/t/aide/inet/notify.html:2
+msgid "(URLS for notifications when users receive new mails; )"
+msgstr ""
+
+#: ../../static/t/aide/inet/notify.html:2
+msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgstr ""
+
+#: ../../static/t/aide/inet/aliases.html:2
+msgid "(domains for which this host receives mail)"
+msgstr "(domeinen waarvoor deze host mail ontvangt)"
+
+#: ../../static/t/aide/inet/rbldns.html:2
+msgid "(hosts running a Realtime Blackhole List)"
+msgstr "(hosts met de Realtime Blackhole Lijst)"
+
+#: ../../static/t/aide/inet/spamass.html:2
+msgid "(hosts running the SpamAssassin service)"
+msgstr "(hosts waarop SpamAssassin draait)"
+
+#: ../../static/t/aide/inet/masqdomains.html:2
+msgid "(Domains as which users are allowed to masquerade)"
+msgstr "(Domeinen die gebruikers mogen gebruiken als 'masquerade')"
+
+#: ../../static/t/aide/inet/dirnames.html:2
+msgid "(domains mapped with the Global Address Book)"
+msgstr "(domeinen in het Algemene adresboek)"
+
+#: ../../static/t/aide/inet/smarthosts.html:2
+msgid "(if present, forward all outbound mail to one of these hosts)"
+msgstr "(indien aanwezig, stuur alle mail naar buiten naar een van deze hosts)"
+
+#: ../../static/t/aide/inet/clamav.html:2
+msgid "(hosts running the ClamAV clamd service)"
+msgstr "(hosts waarop de ClamAV clamd service draait)"
+
+#: ../../static/t/room/zapped_list.html:7
+msgid "Zapped (forgotten) rooms"
+msgstr "Zapped (vergeten) ruimtes"
+
+#: ../../static/t/room/zapped_list.html:10
+#, fuzzy
+msgid "Click on any room to un-zap it and goto that room."
+msgstr "Klik op willekeurige ruimte om te unzappen en ga naar die ruimte.\n"
+
+#: ../../static/t/room/create.html:17
+msgid "Name of room: "
+msgstr "Naam van de ruimte: "
+
+#: ../../static/t/room/create.html:19
+#: ../../static/t/room/edit/tab_config.html:10
+msgid "Resides on floor: "
+msgstr "Bevindt zich op verdieping: "
+
+#: ../../static/t/room/create.html:31
+msgid "Default view for room: "
+msgstr "Standaard weergave voor ruimte: "
+
+#: ../../static/t/room/create.html:67
+#: ../../static/t/room/edit/tab_config.html:16
+msgid "Type of room:"
+msgstr "Soort ruimte: "
+
+#: ../../static/t/room/create.html:72
+#: ../../static/t/room/edit/tab_config.html:22
+msgid "Public (automatically appears to everyone)"
+msgstr "Openbaar (verschijnt automatisch voor iedereen)"
+
+#: ../../static/t/room/create.html:76
+#: ../../static/t/room/edit/tab_config.html:28
+msgid "Private - hidden (accessible to anyone who knows its name)"
+msgstr "Privé - verborgen (toegankelijk voor iedereen die z'n naam kent)"
+
+#: ../../static/t/room/create.html:80
+#: ../../static/t/room/edit/tab_config.html:35
+msgid "Private - require password: "
+msgstr "Privé - wachtwoord nodig: "
+
+#: ../../static/t/room/create.html:85
+#: ../../static/t/room/edit/tab_config.html:44
+msgid "Private - invitation only"
+msgstr "Privé - Alleen op uitnodiging"
+
+#: ../../static/t/room/create.html:89
+#: ../../static/t/room/edit/tab_config.html:51
+msgid "Personal (mailbox for you only)"
+msgstr "Persoonlijk (mailbox voor u alleen)"
+
+#: ../../static/t/room/edit/pop3client_removal.html:9
+#: ../../static/t/room/edit/digestrecp_removal.html:1
+#: ../../static/t/room/edit/rssclient_removal.html:5
+#: ../../static/t/room/edit/listrecp_removal.html:1
+msgid "(remove)"
+msgstr "(verwijderen)"
+
+#: ../../static/t/room/edit/tab_access.html:5
+#, fuzzy
+msgid ""
+"The users listed below have access to this room. To remove a user from the "
+"access list, select the user name from the list and click 'Kick'."
+msgstr ""
+"De gebruikers hieronder hebben toegang tot deze ruimte. Om een gebruiker te "
+"verwijderen uit de toegangslijst, selecteer de gebruikersnaam en klik "
+"'Verwijderen'"
+
+#: ../../static/t/room/edit/tab_access.html:20
+msgid ""
+"To grant another user access to this room, enter the user name in the box "
+"below and click 'Invite'."
+msgstr ""
+"Om een andere gebruiker toegang te geven tot deze ruimte vul hieronder de "
+"gebruikersnaam in en klik op 'Uitnodigen'."
+
+#: ../../static/t/room/edit/tab_access.html:26
+msgid "Invite:"
+msgstr "Uitnodigen: "
+
+#: ../../static/t/room/edit/tab_access.html:35
+msgid "Users"
+msgstr "Gebruikers"
+
+#: ../../static/t/room/edit/tab_expire.html:8
+msgid "Message expire policy for this room"
+msgstr "Instelling voor verlopen berichten in deze ruimte"
+
+#: ../../static/t/room/edit/tab_expire.html:14
+msgid "Use the default policy for this floor"
+msgstr "Gebruik de standaardinstelling voor deze ruimte"
+
+#: ../../static/t/room/edit/tab_expire.html:36
+msgid "Message expire policy for this floor"
+msgstr "Instelling voor het verlopen van berichten op deze verdieping"
+
+#: ../../static/t/room/edit/tab_expire.html:42
+msgid "Use the system default"
+msgstr "Gebruik systeemstandaard"
+
+#: ../../static/t/room/edit/tab_listserv.html:5
+#, fuzzy
+msgid ""
+"<i>The contents of this room are being mailed <b>as individual messages</b> "
+"to the following list recipients:</i><br /><br />"
+msgstr ""
+"<i>De berichten in deze ruimte worden als <b> losse berichten</b> gemaild "
+"naar de volgende ontvangers: </i><br><br>\n"
+
+#: ../../static/t/room/edit/tab_listserv.html:19
+#, fuzzy
+msgid ""
+"<i>The contents of this room are being mailed <b>in digest form</b> to the "
+"following list recipients:</i><br /><br />"
+msgstr ""
+"<i>De berichten in deze ruimte worden als <b>als één pakket</b> gemaild naar "
+"de volgende ontvangers: </i><br><br>\n"
+
+#: ../../static/t/room/edit/tab_listserv.html:39
+msgid "Add recipients from Contacts or other address books"
+msgstr "Voeg ontvangers toe uit 'Contacten' of andere adresboeken"
+
+#: ../../static/t/room/edit/tab_listserv.html:48
+msgid "Allow non-subscribers to mail to this room."
+msgstr "Niet geabonneerden toestaan deze ruimte te mailen."
+
+#: ../../static/t/room/edit/tab_listserv.html:54
+msgid "Room post publication needs Aide permission."
+msgstr "Beheersrechten nodig"
+
+#: ../../static/t/room/edit/tab_listserv.html:59
+msgid "Allow self-service subscribe/unsubscribe requests."
+msgstr "Deze ruimte is ingesteld voor zelf-service bij abonneren/verwijderen."
+
+#: ../../static/t/room/edit/tab_listserv.html:65
+msgid "The URL for subscribe/unsubscribe is: "
+msgstr "De URL voor abonneren/verwijderen is: "
+
+#: ../../static/t/room/edit/tab_admin.html:5
+msgid "Delete this room"
+msgstr "Deze ruimte verwijderen"
+
+#: ../../static/t/room/edit/tab_admin.html:10
+#, fuzzy
+msgid "Set or change the icon for this rooms banner"
+msgstr "Zet of wijzig het icoontje voor de banner van deze ruimte"
+
+#: ../../static/t/room/edit/tab_admin.html:14
+#, fuzzy
+msgid "Edit this rooms Info file"
+msgstr "Bewerk het Infobestand van deze ruimte"
+
+#: ../../static/t/room/edit/tab_config.html:6
+#, fuzzy
+msgid "name of room: "
+msgstr "Naam van de ruimte: "
+
+#: ../../static/t/room/edit/tab_config.html:55
+msgid "If private, cause current users to forget room"
+msgstr "Als privé, zorg dat huidige gebruikers ruimte vergeten"
+
+#: ../../static/t/room/edit/tab_config.html:61
+msgid "Preferred users only"
+msgstr "Alleen beheerders"
+
+#: ../../static/t/room/edit/tab_config.html:66
+msgid "Read-only room"
+msgstr "Alleen-lezen ruimte"
+
+#: ../../static/t/room/edit/tab_config.html:71
+msgid "All users allowed to post may also delete messages"
+msgstr "Alle gebruikers die berichten mogen plaatsen mogen ook wissen"
+
+#: ../../static/t/room/edit/tab_config.html:76
+msgid "File directory room"
+msgstr "Ruimte met Bestandsmappen"
+
+#: ../../static/t/room/edit/tab_config.html:80
+msgid "Directory name: "
+msgstr "Naam van map: "
+
+#: ../../static/t/room/edit/tab_config.html:86
+msgid "Uploading allowed"
+msgstr "Uploaden toegestaan"
+
+#: ../../static/t/room/edit/tab_config.html:91
+msgid "Downloading allowed"
+msgstr "Downloaden toegestaan"
+
+#: ../../static/t/room/edit/tab_config.html:96
+msgid "Visible directory"
+msgstr "Zichtbare map"
+
+#: ../../static/t/room/edit/tab_config.html:103
+msgid "Network shared room"
+msgstr "Netwerkgedeelde ruimte"
+
+#: ../../static/t/room/edit/tab_config.html:108
+msgid "Permanent (does not auto-purge)"
+msgstr "Permanent (wordt niet automatisch opgeruimd)"
+
+#: ../../static/t/room/edit/tab_config.html:113
+msgid "Subject Required (Force users to specify a message subject)"
+msgstr "Onderwerp vereist (Dwing gebruikers een onderwerp op te geven)"
+
+#: ../../static/t/room/edit/tab_config.html:116
+msgid "Anonymous messages"
+msgstr "Anonieme berichten"
+
+#: ../../static/t/room/edit/tab_config.html:122
+msgid "No anonymous messages"
+msgstr "Geen anonieme berichten"
+
+#: ../../static/t/room/edit/tab_config.html:127
+msgid "All messages are anonymous"
+msgstr "Alle berichten zijn anoniem"
+
+#: ../../static/t/room/edit/tab_config.html:132
+msgid "Prompt user when entering messages"
+msgstr "Gebruiker vragen bij invoer bericht"
+
+#: ../../static/t/room/edit/tab_config.html:136
+msgid "Room aide: "
+msgstr "Ruimte Beheerder: "
+
+#: ../../static/t/room/edit/editroom.html:5 ../../static/t/room/edit.html:6
+msgid "Configuration"
+msgstr "Instellingen"
+
+#: ../../static/t/room/edit/editroom.html:6 ../../static/t/room/edit.html:7
+msgid "Message expire policy"
+msgstr "Instelling bericht verlopen"
+
+#: ../../static/t/room/edit/editroom.html:7 ../../static/t/room/edit.html:8
+msgid "Access controls"
+msgstr "Toegangscontrole"
+
+#: ../../static/t/room/edit/editroom.html:8 ../../static/t/room/edit.html:9
+msgid "Sharing"
+msgstr "Delen"
+
+#: ../../static/t/room/edit/editroom.html:9 ../../static/t/room/edit.html:10
+msgid "Mailing list service"
+msgstr "Mailinglist service"
+
+#: ../../static/t/room/edit/editroom.html:10 ../../static/t/room/edit.html:11
+msgid "Remote retrieval"
+msgstr "Herstel op afstand"
+
+#: ../../static/t/room/edit/tab_feed.html:2
+msgid ""
+"Retrieve messages from these remote POP3 accounts and store them in this "
+"room:"
+msgstr "Haal berichten van deze POP3 accounts en sla ze op in deze ruimte:"
+
+#: ../../static/t/room/edit/tab_feed.html:12
+msgid "Remote host"
+msgstr "Hosts op afstand"
+
+#: ../../static/t/room/edit/tab_feed.html:15
+msgid "Keep messages on server?"
+msgstr "Bewaar berichten op de server?"
+
+#: ../../static/t/room/edit/tab_feed.html:16
+msgid "Interval"
+msgstr "interval"
+
+#: ../../static/t/room/edit/tab_feed.html:31
+msgid "Fetch the following RSS feeds and store them in this room:"
+msgstr "Haal berichten van deze RSS-feeds en sla ze op in deze ruimte:"
+
+#: ../../static/t/room/edit/tab_feed.html:43
+msgid "Feed URL"
+msgstr "Feed URL"
+
+#: ../../static/t/room/edit/tab_share.html:5
+msgid "Shared with"
+msgstr "Gedeeld met"
+
+#: ../../static/t/room/edit/tab_share.html:6
+msgid "Not shared with"
+msgstr "Niet gedeeld met"
+
+#: ../../static/t/room/edit/tab_share.html:11
+#: ../../static/t/room/edit/tab_share.html:21
+msgid "Remote node name"
+msgstr "Knooppunt op afstand"
+
+#: ../../static/t/room/edit/tab_share.html:12
+#: ../../static/t/room/edit/tab_share.html:22
+msgid "Remote room name"
+msgstr "Naam van ruimte op afstand"
+
+#: ../../static/t/room/edit/tab_share.html:13
+#: ../../static/t/room/edit/tab_share.html:23
+msgid "Actions"
+msgstr "Acties"
+
+#: ../../static/t/room/edit/tab_share.html:35
+#, fuzzy
+msgid ""
+"When sharing a room, it must be shared from both ends.  Adding a node to the "
+"'shared' list sends messages out, but in order to receive messages, the "
+"other nodes must be configured to send messages out to your system as well. "
+"<li>If the remote room name is blank, it is assumed that the room name is "
+"identical on the remote node. <li>If the remote room name is different, the "
+"remote node must also configure the name of the room here."
+msgstr ""
+"Als u een ruimte deelt, moeten beide kanten meewerken. Een knooppunt "
+"toevoegen aan de 'gedeelde' lijst stuurt berichten naar buiten, maar om "
+"berichten te ontvangen, moet het andere knooppunt ook zijn ingesteld om "
+"berichten naar uw systeem te verzenden. <LI>Als de naam van de ruimte op "
+"afstand leeg is weet u zeker dat de naam van de ruimte gelijk wordt geacht "
+"aan de ruimte op het knooppunt op afstand. <LI>Als de naam van de ruimte op "
+"afstand verschilt moet de ruimte op afstand zelf ook een naam ingesteld "
+"krijgen.</UL></I><br>\n"
+
+#: ../../static/t/room/display_private.html:7
+msgid "Go to a hidden room"
+msgstr "Ga naar een verborgen ruimte"
+
+#: ../../static/t/room/display_private.html:8
+#, fuzzy
+msgid ""
+"If you know the name of a hidden (guess-name) or passworded room, you can "
+"enter that room by typing its name below.  Once you gain access to a private "
+"room, it will appear in your regular room listings so you don‘t have to keep "
+"returning here."
+msgstr ""
+"Als u de naam kent van een verborgen (raden naam) ruimte of een ruimte met "
+"wachtwoord, kunt u de ruimte binnenkomen door de naam in te vullen.Als u "
+"eenmaal toegang heeft tot een privéruimte, zal het verschijnen in uw normale "
+"lijst met ruimtes, zodat u hier niet steeds hoeft terug te keren."
+
+#: ../../static/t/room/display_private.html:14
+msgid "Enter room name:"
+msgstr "Geef naam ruimte: "
+
+#: ../../static/t/room/display_private.html:21
+msgid "Enter room password:"
+msgstr "Geef wachtwoord ruimte: "
+
+#: ../../static/t/room/zap_this.html:3
+msgid "Zap (forget/unsubscribe) the current room"
+msgstr "Zap (vergeet/verwijder uit) de huidige ruimte"
+
+#: ../../static/t/room/zap_this.html:6
+#, fuzzy
+msgid "If you select this option,"
+msgstr "Bewerk of verwijder deze ruimte"
+
+#: ../../static/t/room/zap_this.html:8
+#, fuzzy
+msgid "will disappear from your room list.  Is this what you wish to do?"
+msgstr ""
+"Als u deze optie selecteert verdwijnt <em>%s</em> uit uw lijst met ruimtes.  "
+"Is dat wat u wilt?<br>\n"
+
+#: ../../static/t/login.html:4 ../../static/t/openid_login.html:4
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+"LET OP: JavaScript is uitgeschakeld op uw computer. Veel functies van dit "
+"systeem zullen niet goed werken."
+
+#: ../../static/t/login.html:8 ../../static/t/openid_login.html:8
+msgid "powered by"
+msgstr "op basis van"
+
+#: ../../static/t/login.html:23 ../../static/t/openid_login.html:21
+msgid "Language:"
+msgstr "Taal:"
+
+#: ../../static/t/login.html:39
+msgid "Log in using OpenID"
+msgstr "Login met OpenID"
+
+#: ../../static/t/login.html:43
+msgid "If you already have an account on"
+msgstr "Als u al een account heeft op"
+
+#: ../../static/t/login.html:44
+msgid "enter your user name and password and click &quot;Log in.&quot;"
+msgstr ""
+"vul dan uw gebruikersnaam en wachtwoord in en klik op &quot;Log in.&quot;"
+
+#: ../../static/t/login.html:45
+msgid ""
+"<b>If you are a new user</b>, enter the name and password you wish to use, "
+"and click &quot;New User.&quot; "
+msgstr ""
+"<b>Als u een nieuwe gebruiker bent</b>, vul uw gebruikersnaam in en het "
+"wachtwoord dat u wilt gebruiken en klik op &quot;Nieuwe gebruiker. "
+
+#: ../../static/t/login.html:46 ../../static/t/openid_login.html:37
+msgid "Please log off properly when finished. "
+msgstr "Log correct uit als u klaar bent. "
+
+#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
+msgid "See the"
+msgstr "Bekijk de"
+
+#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
+msgid "recommended browser list"
+msgstr "aanbevolen browser lijst"
+
+#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
+msgid ""
+"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
+"turned on. "
+msgstr ""
+"als u problemen heeft met Webcit.</li> <li><i>Cookies</i> moeten worden "
+"toegestaan. "
+
+#: ../../static/t/login.html:48 ../../static/t/openid_login.html:39
+msgid ""
+"Also keep in mind that if your browser is configured to block pop-up "
+"windows, you will not be able to receive any instant messages."
+msgstr ""
+"Als uw browser pop-up vensters blokkeert, zult u geen directe berichten "
+"kunnen ontvangen."
+
+#: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
+msgid "Preferences and settings"
+msgstr "Voorkeuren en instellingen"
+
+#: ../../static/t/openid_manual_create.html:4
+msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
+msgstr " - op basis van <a href=\"http://www.citadel.org\">Citadel</a>"
+
+#: ../../static/t/openid_manual_create.html:8
+msgid "Your OpenID"
+msgstr "Uw OpenID"
+
+#: ../../static/t/openid_manual_create.html:8
+msgid "was successfully verified."
+msgstr "is goedgekeurd."
+
+#: ../../static/t/openid_manual_create.html:9
+msgid "However, the user name"
+msgstr "Echter, de gebruikersnaam"
+
+#: ../../static/t/openid_manual_create.html:9
+msgid "conflicts with an existing user."
+msgstr "botst met een bestaande gebruiker."
+
+#: ../../static/t/openid_manual_create.html:11
+msgid "Please specify the user name you would like to use."
+msgstr "Geef alstublieft de gebruikersnaam die u wilt gebruiken."
+
+#: ../../static/t/no_new_msgs.html:3
+msgid "No new messages."
+msgstr "Geen nieuwe berichten."
+
+#: ../../static/t/knrooms.html:5
+msgid "Room list"
+msgstr "Lijst van ruimtes"
+
+#: ../../static/t/knrooms.html:5
+msgid "Folder list"
+msgstr "Lijst van mappen"
+
+#: ../../static/t/knrooms.html:19
+msgid "View as room list"
+msgstr "Toon als lijst met ruimtes"
+
+#: ../../static/t/knrooms.html:20
+msgid "View as folder list"
+msgstr "Toon als mappenstructuur"
+
+#: ../../static/t/knrooms.html:37
+msgid "Room Listing"
+msgstr "Lijst met ruimtes"
+
+#: ../../static/t/openid_login.html:19
+msgid "OpenID URL:"
+msgstr "OpenID URL:"
+
+#: ../../static/t/openid_login.html:31
+msgid "Log in using a user name and password"
+msgstr "Log in met gebruikersnaam en wachtwoord"
+
+#: ../../static/t/openid_login.html:34
+msgid "Enter your OpenID URL and click &quot;Log in&quot;."
+msgstr "Vul uw OpenID URL in en klik op &quot;Inloggen.&quot;"
+
+#: ../../static/t/openid_login.html:36
+msgid "Click here to learn what OpenID is and how Citadel is using it."
+msgstr "Klik hier voor meer info over OpenID en hoe Citadel het gebruikt."
+
+#: ../../static/t/viewomatic.html:4
 msgid "View as:"
 msgstr "Toon als:"
 
-#: ../static/t/who.html:14
-msgid "Users currently on "
-msgstr "Gebruikers op dit moment op "
+#: ../../static/t/display_main_menu.html:7
+msgid "Basic commands"
+msgstr "Basiscommando's"
+
+#: ../../static/t/display_main_menu.html:10
+msgid "Your info"
+msgstr "Uw informatie"
+
+#: ../../static/t/display_main_menu.html:12
+msgid "Advanced room commands"
+msgstr "Uitgebreide opdrachten ruimtes"
 
 #~ msgid "Exit"
 #~ msgstr "Stoppen"
@@ -2276,144 +3864,6 @@ msgstr "Gebruikers op dit moment op "
 #~ msgid "Create new floor"
 #~ msgstr "Maak nieuwe verdieping aan"
 
-#~ msgid "Customize the icon bar"
-#~ msgstr "Lijst menuitems aanpassen."
-
-#~ msgid "Display icons as:"
-#~ msgstr "Laat menuitems zien als: "
-
-#~ msgid "pictures and text"
-#~ msgstr "plaatjes en tekst"
-
-#~ msgid "pictures only"
-#~ msgstr "alleen plaatjes"
-
-#~ msgid "text only"
-#~ msgstr "alleen tekst"
-
-#~ msgid ""
-#~ "Select the icons you would like to see displayed in the 'icon bar' menu "
-#~ "on the left side of the screen."
-#~ msgstr ""
-#~ "Selecteer de menuitems die u graag weergegeven wilt zien in menubalk aan "
-#~ "de linkerzijde van het scherm"
-
-#~ msgid "Yes"
-#~ msgstr "Ja"
-
-#~ msgid "No"
-#~ msgstr "Nee"
-
-#~ msgid "Site logo"
-#~ msgstr "Logo van de site"
-
-#~ msgid "An icon describing this site"
-#~ msgstr "Logo van het bedrijf of de instelling"
-
-#~ msgid "Your summary page"
-#~ msgstr "Uw samenvattingspagina"
-
-#~ msgid "Mail (inbox)"
-#~ msgstr "Mail (inbox)"
-
-#~ msgid "A shortcut to your email Inbox"
-#~ msgstr "Een snelkoppeling naar uw email Inbox"
-
-#~ msgid "Your personal address book"
-#~ msgstr "Uw persoonlijk adresboek"
-
-#~ msgid "Your personal notes"
-#~ msgstr "Uw persoonlijke notities"
-
-#~ msgid "A shortcut to your personal calendar"
-#~ msgstr "Uw persoonlijke agenda"
-
-#~ msgid "A shortcut to your personal task list"
-#~ msgstr "Uw persoonlijke takenlijst"
-
-#~ msgid ""
-#~ "Clicking this icon displays a list of all accessible rooms (or folders) "
-#~ "available."
-#~ msgstr ""
-#~ "Hiermee wordt u een lijst van alle toegankelijke ruimtes (of mappen) "
-#~ "getoond"
-
-#~ msgid "Yes with users list"
-#~ msgstr "Ja met gebruikerslijst"
-
-#~ msgid "Who is online?"
-#~ msgstr "Wie is online?"
-
-#~ msgid "Clicking this icon displays a list of all users currently logged in."
-#~ msgstr ""
-#~ "Hiermee wordt een lijst getoond van alle gebruikers die op dat moment "
-#~ "zijn ingelogd."
-
-#~ msgid ""
-#~ "Clicking this icon enters real-time chat mode with other users in the "
-#~ "same room."
-#~ msgstr ""
-#~ "Hiermee kunt u in 'real-time' chatten met andere gebruikers in dezelfde "
-#~ "ruimte."
-
-#~ msgid "Advanced options"
-#~ msgstr "Uitgebreide opties"
-
-#~ msgid "Access to the complete menu of Citadel functions."
-#~ msgstr "Toegang tot het complete menu van Citadelfuncties."
-
-#~ msgid "Citadel logo"
-#~ msgstr "Citadel logo"
-
-#~ msgid "Displays the 'Powered by Citadel' icon"
-#~ msgstr "Toont het 'Powered by Citadel' icoontje."
-
-#~ msgid "System Administration Menu"
-#~ msgstr "Menu Systeembeheer"
-
-#~ msgid "Room Aide Menu"
-#~ msgstr "Menu ruimte beheerder"
-
-#~ msgid "Local host aliases"
-#~ msgstr "Local host aliases"
-
-#~ msgid "Directory domains"
-#~ msgstr "Directory domeinen"
-
-#~ msgid "Smart hosts"
-#~ msgstr "Smart hosts"
-
-#, fuzzy
-#~ msgid "Fallback smart hosts"
-#~ msgstr "Smart hosts"
-
-#~ msgid "RBL hosts"
-#~ msgstr "RBL hosts"
-
-#~ msgid "SpamAssassin hosts"
-#~ msgstr "SpamAssasin hosts"
-
-#~ msgid "ClamAV clamd hosts"
-#~ msgstr "ClamAV clamd hosts"
-
-#~ msgid "Masqueradable domains"
-#~ msgstr "Masqueradable domeinen"
-
-#~ msgid "User name"
-#~ msgstr "Gebruikersnaam"
-
-#~ msgid "Room"
-#~ msgstr "Ruimte"
-
-#~ msgid "From host"
-#~ msgstr "Van host"
-
-#~ msgid "Click on a name to read user info.  Click on"
-#~ msgstr "Klik op een naam om de gebruikersinfo te lezen. Klik op "
-
-#~ msgid "to send an instant message to that user."
-#~ msgstr "Stuur een direct bericht naar die gebruiker. "
-
 #~ msgid ""
 #~ "You have one or more instant messages waiting, but the Citadel Instant "
 #~ "Messenger window failed to open.  This is probably because you have a "
@@ -2426,192 +3876,17 @@ msgstr "Gebruikers op dit moment op "
 #~ "blocker popups van deze site accepteert als u directe berichten wilt "
 #~ "ontvangen."
 
-#~ msgid "Change your preferences and settings"
-#~ msgstr "Uw voorkeuren en instellingen wijzigen"
-
-#~ msgid "Update your contact information"
-#~ msgstr "Uw contactinformatie bijwerken"
-
-#~ msgid "Enter your 'bio'"
-#~ msgstr "Uw 'CV' toevoegen"
-
-#~ msgid "Edit your online photo"
-#~ msgstr "Uw online foto bewerken"
-
-#~ msgid "Edit your push email settings"
-#~ msgstr "Bewerk uw push email instellingen"
-
 #, fuzzy
 #~ msgid "The citadel server has to be restarted. It will be back in a minute."
 #~ msgstr ""
 #~ "De Citadel server moet opnieuw opstarten. Het is zo weer beschikbaar."
 
-#~ msgid "Download"
-#~ msgstr "Download"
-
-#~ msgid "Global Configuration"
-#~ msgstr "Instellingen Totaal"
-
-#~ msgid "User account management"
-#~ msgstr "Beheer gebruikeraccounts"
-
-#~ msgid "Shutdown Citadel"
-#~ msgstr "Citadel afsluiten"
-
-#~ msgid "Rooms and Floors"
-#~ msgstr "Ruimtes en Verdiepingen"
-
-#~ msgid "Push Email"
-#~ msgstr "Push Email"
-
-#~ msgid "Funambol server host (blank to disable)"
-#~ msgstr "Funambol server (blanco is uit)"
-
-#~ msgid "Funambol server port "
-#~ msgstr "Funambol serverpoort "
-
-#~ msgid "Funambol sync source"
-#~ msgstr "Funambol sync bron"
-
-#~ msgid "Funambol auth details (user:pass)"
-#~ msgstr "Funambol auth details (user:pass)"
-
-#~ msgid "External pager tool (blank to disable)"
-#~ msgstr "Externe pager tool (blanco is uit)"
-
-#~ msgid "Tree (folders) view"
-#~ msgstr "Bekijk als boomstructuur (mappen)"
-
-#~ msgid "Table (rooms) view"
-#~ msgstr "Tabel (ruimte) instelling"
-
-#~ msgid "12 hour (am/pm)"
-#~ msgstr "12 uurs (vm/nm)"
-
-#~ msgid "24 hour"
-#~ msgstr "24 uur"
-
-#~ msgid "Sunday"
-#~ msgstr "Zondag"
-
-#~ msgid "Monday"
-#~ msgstr "Maandag"
-
-#~ msgid "No signature"
-#~ msgstr "Geen ondertekening"
-
-#~ msgid "Full-functionality"
-#~ msgstr "Volledig functioneel"
-
-#~ msgid "Safe mode"
-#~ msgstr "Veilige modus"
-
 #~ msgid "Change"
 #~ msgstr "Wijzigen"
-
-#~ msgid "Edit user account: "
-#~ msgstr "Gebruikersaccount bewerken:"
-
-#~ msgid "Password"
-#~ msgstr "Wachtwoord"
-
-#~ msgid "Permission to send Internet mail"
-#~ msgstr "Toestemming om Internetmail te verzenden"
-
-#~ msgid "Number of logins"
-#~ msgstr "Aantal logins"
-
-#~ msgid "Messages submitted"
-#~ msgstr "Bericht geplaatst"
-
-#~ msgid "Access level"
-#~ msgstr "Toegangsniveau"
-
-#~ msgid "User ID number"
-#~ msgstr "Gebruiker ID nummer"
-
-#~ msgid "Date and time of last login"
-#~ msgstr "Datum en tijd laatste login"
-
-#~ msgid "Auto-purge after this many days"
-#~ msgstr "Opruimen na dit aantal dagen"
-
-#~ msgid "POP3"
-#~ msgstr "POP3"
-
-#~ msgid "POP3 listener port (-1 to disable)"
-#~ msgstr "POP3 listener port (-1 to disable)"
-
-#~ msgid "POP3 over SSL port (-1 to disable)"
-#~ msgstr "POP3 over SSL port (-1 to disable)"
-
-#~ msgid "POP3 fetch frequency in seconds"
-#~ msgstr "POP3 ophaalfrequentie in seconden "
-
-#~ msgid "POP3 fastest fetch frequency in seconds"
-#~ msgstr "POP3 snelste ophaalfrequentie in seconden "
-
-#~ msgid "Message to your Users:"
-#~ msgstr "Bericht aan uw gebruikers:"
-
-#, fuzzy
-#~ msgid ""
-#~ "Your icon bar has been updated. Please select any of its choices to "
-#~ "continue."
-#~ msgstr ""
-#~ "Uw menubalk is bijgewerkt. U kunt nu hieruit een keuze om verder te gaan."
-
-#~ msgid "General site configuration items"
-#~ msgstr "Algemene items site instellingen"
-
-#~ msgid "Change Login Logo"
-#~ msgstr "Wijzig logo Inloggen"
-
-#~ msgid "Change Logout Logo"
-#~ msgstr "Wijzig logo Uitloggen"
-
-#~ msgid "Node name"
-#~ msgstr "Naam knooppunt"
-
-#~ msgid "Fully qualified domain name"
-#~ msgstr "Fully qualified domain name"
-
-#~ msgid "Human-readable node name"
-#~ msgstr "Leesbare knooppuntnaam"
-
-#~ msgid "Telephone number"
-#~ msgstr "Telefoonnummer"
-
-#~ msgid "Paginator prompt (for text mode clients)"
-#~ msgstr "Prompt volgende pagina (voor textmode clients)"
-
-#~ msgid "Geographic location of this system"
-#~ msgstr "Geografische locatie van dit systeem"
-
-#~ msgid "Name of system administrator"
-#~ msgstr "Naam van de systeembeheerder"
-
-#~ msgid "Default timezone for unzoned calendar items"
-#~ msgstr "Standaard tijdzone voor agenda-items zonder zone"
-
-#~ msgid "Add a new node"
-#~ msgstr "Een nieuw knooppunt toevoegen"
-
-#~ msgid "Shared secret"
-#~ msgstr "Gedeeld geheim"
-
-#~ msgid "Host or IP address"
-#~ msgstr "Host of IP adres"
-
-#~ msgid "Port number"
-#~ msgstr "Poortnummer"
 
 #, fuzzy
 #~ msgid "Add node?"
 #~ msgstr "Knooppunt toevoegen"
-
-#~ msgid "(kill)"
-#~ msgstr "(beëindig)"
 
 #, fuzzy
 #~ msgid "Minutes"
@@ -2621,124 +3896,11 @@ msgstr "Gebruikers op dit moment op "
 #~ msgid "active"
 #~ msgstr "Voorwaardelijk"
 
-#, fuzzy
-#~ msgid "(Edit)"
-#~ msgstr "(bewerk)"
-
-#~ msgid "Confirm delete"
-#~ msgstr "Verwijdering bevestigen"
-
-#~ msgid "Are you sure you want to delete "
-#~ msgstr "Weet u zeker dat u wilt verwijderen "
-
-#~ msgid "Add, change, delete user accounts"
-#~ msgstr "Gebruikeraccounts toevoegen, wijzigen of verwijderen"
-
-#~ msgid "(hosts running the ClamAV clamd service)"
-#~ msgstr "(hosts waarop de ClamAV clamd service draait)"
-
 #~ msgid "Send"
 #~ msgstr "Versturen"
 
-#, fuzzy
-#~ msgid "Restart Citadel"
-#~ msgstr "Maak hiervan mijn startpagina"
-
-#~ msgid "Post message"
-#~ msgstr "Bericht plaatsen"
-
-#, fuzzy
-#~ msgid "Remove"
-#~ msgstr "(verwijderen)"
-
-msgid "Log in"
-msgstr "Laatste login"
-
-#~ msgid "Users currently on"
-#~ msgstr "Gebruikers op dit moment op "
-
 #~ msgid "Pictures in"
 #~ msgstr "Plaatjes in "
-
-#~ msgid "Edit or delete users"
-#~ msgstr "Gebruikers bewerken of verwijderen"
-
-#~ msgid "You need to be aide to view this."
-#~ msgstr "U moet beheerder zijn om dit te bekijken."
-
-#~ msgid "Add users"
-#~ msgstr "Gebruikers toevoegen"
-
-#~ msgid "Edit or Delete users"
-#~ msgstr "Gebruikers bewerken of verwijderen"
-
-#~ msgid "Please wait while the Citadel server is restarted... "
-#~ msgstr "Even geduld a.u.b. tot Citadel server is opgestart..."
-
-#~ msgid "Indexing and Journaling"
-#~ msgstr "Indexering en Journaling"
-
-#~ msgid "Warning: these facilities are resource intensive."
-#~ msgstr "Waarschuwing: dit vraagt veel van het systeem."
-
-#~ msgid "Enable full text index"
-#~ msgstr "Geef full-text index vrij"
-
-#~ msgid "Perform journaling of email messages"
-#~ msgstr "Voer journaliseren van emailberichten uit"
-
-#~ msgid "Perform journaling of non-email messages"
-#~ msgstr "Voer journaliseren van niet-emailberichten uit"
-
-#~ msgid "Email destination of journalized messages"
-#~ msgstr "Bestemming voor gejournaliseerde berichten"
-
-#~ msgid ""
-#~ "To create a new user account, enter the desired user name in the box "
-#~ "below and click 'Create'."
-#~ msgstr ""
-#~ "Om een nieuw gebruikersaccount aan te maken vul de gewenste "
-#~ "gebruikersnaam hieronder in en klik op 'Aanmaken'."
-
-#~ msgid "New user: "
-#~ msgstr "Nieuwe gebruiker: "
-
-#~ msgid "(domains mapped with the Global Address Book)"
-#~ msgstr "(domeinen in het Algemene adresboek)"
-
-#~ msgid "Advanced server fine-tuning controls"
-#~ msgstr "Uitgebreide server fine-tuning"
-
-#~ msgid "Server connection idle timeout (in seconds)"
-#~ msgstr "Serververbinding timeout (in seconden)"
-
-#~ msgid "Maximum concurrent sessions (0 = no limit)"
-#~ msgstr "Maximale gelijktijdige sessies (0 = geen limiet)"
-
-#~ msgid "Default user purge time (days)"
-#~ msgstr "Standaard opruimen gebruiker (dagen)"
-
-#~ msgid "Default room purge time (days)"
-#~ msgstr "Standaard opruimen ruimte (dagen)"
-
-#~ msgid "Maximum message length"
-#~ msgstr "Maximale lengte bericht"
-
-#~ msgid "Minimum number of worker threads"
-#~ msgstr "Minimum aantal worker threads"
-
-#~ msgid "Maximum number of worker threads"
-#~ msgstr "Maximum aantal worker threads"
-
-#~ msgid "Automatically delete committed database logs"
-#~ msgstr "Wis automatisch bewaarde database logs"
-
-#~ msgid ""
-#~ "To edit an existing user account, select the user name from the list and "
-#~ "click 'Edit'."
-#~ msgstr ""
-#~ "Om een bestaande gebruiker te bewerken, selecteer de gebruikersnaam en "
-#~ "klik op 'Bewerken'"
 
 #~ msgid "Edit configuration"
 #~ msgstr "Instellingen bewerken"
@@ -2756,77 +3918,8 @@ msgstr "Laatste login"
 #~ msgid "Delete File"
 #~ msgstr "Verwijder regel"
 
-#~ msgid "Slideshow"
-#~ msgstr "Diashow"
-
-#~ msgid "(hosts running the SpamAssassin service)"
-#~ msgstr "(hosts waarop SpamAssassin draait)"
-
-#~ msgid "Configure the LDAP connector for Citadel"
-#~ msgstr "Stel de LDAP connector voor Citadel in."
-
-#~ msgid ""
-#~ "Changes made on this screen will not take effect until you restart the "
-#~ "Citadel server."
-#~ msgstr ""
-#~ "Wijzigingen gemaakt in dit scherm zullen pas actief worden nadat u de "
-#~ "Citadel server opnieuw heeft gestart."
-
-#~ msgid ""
-#~ "NOTE: This Citadel server has been built without LDAP support.  These "
-#~ "options will have no effect."
-#~ msgstr ""
-#~ "LET OP: Deze Citadel server is gebouwd zonder LDAP ondersteuning. Deze "
-#~ "opties zullen geen effect hebben."
-
-#~ msgid "Host name of LDAP server (blank to disable)"
-#~ msgstr "Hostnaam van de LDAP server (blanco is uit)"
-
-#~ msgid "Port number of LDAP server (blank to disable)"
-#~ msgstr "Poortnummer van de LDAP server (blanco is uit)"
-
-#~ msgid "Base DN"
-#~ msgstr "Base DN"
-
-#~ msgid "Bind DN"
-#~ msgstr "Bind DN"
-
-#~ msgid "Password for bind DN"
-#~ msgstr "Wachtwoord voor bind DN"
-
-#~ msgid "Edit or delete this room"
-#~ msgstr "Bewerk of verwijder deze ruimte"
-
-#~ msgid "Go to a 'hidden' room"
-#~ msgstr "Ga naar een 'verborgen' ruimte"
-
-#~ msgid "Create a new room"
-#~ msgstr "Maak een nieuwe ruimte aan"
-
-#~ msgid "Zap (forget) this room"
-#~ msgstr "Zap (vergeet) deze ruimte"
-
-#~ msgid "List all forgotten rooms"
-#~ msgstr "Toon alle vergeten ruimtes"
-
-#~ msgid ""
-#~ "Please wait while your users are being paged, the citadel server will be "
-#~ "restarted after that... "
-#~ msgstr ""
-#~ "Even geduld terwijl gebruikers een berichtje hebben, de citadel server "
-#~ "zal daarna opstarten..."
-
 #~ msgid "Delete this message?"
 #~ msgstr "Verwijder dit bericht?"
-
-#~ msgid "Edit site-wide configuration"
-#~ msgstr "Bewerk 'site-brede' instellingen"
-
-#~ msgid "Domain names and Internet mail configuration"
-#~ msgstr "Domeinnamen en Internet mail instellingen"
-
-#~ msgid "Configure replication with other Citadel servers"
-#~ msgstr "Stel replicatie met andere Citadel servers in"
 
 #, fuzzy
 #~ msgid "Powered by Citadel"
@@ -2869,321 +3962,16 @@ msgstr "Laatste login"
 #~ msgid "Delete this entry?"
 #~ msgstr "Deze notitie verwijderen?"
 
-#~ msgid "(domains for which this host receives mail)"
-#~ msgstr "(domeinen waarvoor deze host mail ontvangt)"
-
-#~ msgid "Network configuration"
-#~ msgstr "Netwerk instellingen"
-
-#~ msgid "Currently configured nodes"
-#~ msgstr "Nu ingestelde knooppunten"
-
-#~ msgid "Configure automatic expiry of old messages"
-#~ msgstr "Stel het automatisch verlopen van oude berichten in."
-
-#~ msgid "These settings may be overridden on a per-floor or per-room basis."
-#~ msgstr ""
-#~ "Deze instellingen kunnen worden overschreven op verdieping- of "
-#~ "ruimteniveau."
-
-#~ msgid "Hour to run database auto-purge"
-#~ msgstr "Tijd waarop database opgeruimd wordt"
-
-#~ msgid "Default message expire policy for public rooms"
-#~ msgstr "Standaardinstelling voor het laten verlopen van openbare ruimtes"
-
-#~ msgid "Never automatically expire messages"
-#~ msgstr "Nooit berichten automatisch laten verlopen"
-
-#~ msgid "Expire by message count"
-#~ msgstr "Verlopen door aantal berichten"
-
-#~ msgid "Expire by message age"
-#~ msgstr "Verlopen door ouderdom bericht"
-
-#~ msgid "Number of messages or days: "
-#~ msgstr "Aantal berichten of dagen: "
-
-#~ msgid "Default message expire policy for private mailboxes"
-#~ msgstr "Standaardinstelling voor het laten verlopen van privé mailboxen"
-
-#~ msgid "Same policy as public rooms"
-#~ msgstr "Zelfde instelling als openbare ruimtes"
-
-#~ msgid "(hosts running a Realtime Blackhole List)"
-#~ msgstr "(hosts met de Realtime Blackhole Lijst)"
-
-#~ msgid "Access controls and site policy settings"
-#~ msgstr "Toegangscontrole en instellingen site policy"
-
-#~ msgid "Allow aides to zap (forget) rooms"
-#~ msgstr "Sta beheerders toe ruimtes te zappen (vergeten)"
-
-#~ msgid "Quarantine messages from problem users"
-#~ msgstr "Quarantaine berichten van probleemgebruikers"
-
-#~ msgid "Name of quarantine room"
-#~ msgstr "Naam van de quarantaineruimte"
-
-#~ msgid "Name of room to log pages"
-#~ msgstr "Naam van de ruimte voor log pagina's"
-
-#, fuzzy
-#~ msgid "Authentication mode"
-#~ msgstr "Authenticatie toe"
-
-#, fuzzy
-#~ msgid "Self contained"
-#~ msgstr "bevat"
-
-#, fuzzy
-#~ msgid "Host based"
-#~ msgstr "Hostnaam:"
-
-#~ msgid "Master user name (blank to disable)"
-#~ msgstr "Gebruikersnaam beheerder (blanco is uit)"
-
-#~ msgid "Master user password"
-#~ msgstr "Wachtwoord beheerder: "
-
-#~ msgid "Initial access level for new users"
-#~ msgstr "Begin toegangsniveau voor nieuwe gebruikers"
-
-#~ msgid "Access level required to create rooms"
-#~ msgstr "Benodigd toegangsniveau om ruimte aan te maken"
-
-#~ msgid ""
-#~ "Automatically grant room-aide status to users who create private rooms"
-#~ msgstr ""
-#~ "Sta automatisch beheerdersstatus in voor gebruikers die privé ruimtes "
-#~ "aanmaken"
-
-#~ msgid "Restrict access to Internet mail"
-#~ msgstr "Toegang tot Internetmail beperken"
-
-#~ msgid "Disable self-service user account creation"
-#~ msgstr "Schakel de self-service uit bij het aanmaken van een account"
-
-#~ msgid "Require registration for new users"
-#~ msgstr "Registratie nodig voor nieuwe gebruikers"
-
-#~ msgid "Add, change, or delete floors"
-#~ msgstr "Verdiepingen toevoegen, wijzigen of verwijderen "
-
 #~ msgid "Delete this note?"
 #~ msgstr "Deze notitie verwijderen?"
-
-#~ msgid "Restart Now"
-#~ msgstr "Nu opnieuw opstarten"
-
-#~ msgid "Restart after paging users"
-#~ msgstr "Herstarten na bericht aan gebruikers."
-
-#~ msgid "Restart when all users are idle"
-#~ msgstr "Herstarten als geen gebruikers actief"
-
-#, fuzzy
-#~ msgid "Configure Push Email"
-#~ msgstr "Push Email"
-
-#~ msgid "Push email and SMS settings"
-#~ msgstr "Push email en SMS instellingen"
-
-#, fuzzy
-#~ msgid "Notify Funambol server"
-#~ msgstr "Funambol serverpoort "
-
-#, fuzzy
-#~ msgid "Send a text message to..."
-#~ msgstr "Stuur direct bericht naar: "
-
-#~ msgid "Site configuration"
-#~ msgstr "Site instellingen"
-
-#~ msgid "General"
-#~ msgstr "Algemeen"
-
-#~ msgid "Access"
-#~ msgstr "Toegang"
-
-#~ msgid "Network"
-#~ msgstr "Netwerk"
-
-#~ msgid "Tuning"
-#~ msgstr "Afstemmen"
-
-#, fuzzy
-#~ msgid "Directory"
-#~ msgstr "Naam van map: "
-
-#~ msgid "Auto-purger"
-#~ msgstr "Auto-wisser"
-
-#~ msgid "Indexing/Journaling"
-#~ msgstr "Indexing/Journaling"
-
-#~ msgid "Pop3"
-#~ msgstr "Pop3"
 
 #, fuzzy
 #~ msgid "Do you really want to kill this session?"
 #~ msgstr "Wilt u dit OpenID echt verwijderen?"
 
-#~ msgid "(Domains as which users are allowed to masquerade)"
-#~ msgstr "(Domeinen die gebruikers mogen gebruiken als 'masquerade')"
-
-#~ msgid "List known rooms"
-#~ msgstr "Lijst van bekende ruimtes"
-
-#~ msgid "Where can I go from here?"
-#~ msgstr "Waar kan ik van hieruit naar toe?"
-
-#~ msgid "...with <em>unread</em> messages"
-#~ msgstr "...met <em>ongelezen</em> berichten"
-
-#~ msgid "Skip to next room"
-#~ msgstr "Ga naar volgende ruimte"
-
-#~ msgid "(come back here later)"
-#~ msgstr "(kom hier later terug)"
-
-#~ msgid "oops! Back to "
-#~ msgstr "oeps! Terug naar "
-
-#~ msgid "...in this room"
-#~ msgstr "...in deze ruimte"
-
-#~ msgid "...old <em>and</em> new"
-#~ msgstr "...oude <em>en</em> nieuwe"
-
-#~ msgid "(post in this room)"
-#~ msgstr "(in deze ruimte plaatsen)"
-
-#~ msgid "File library"
-#~ msgstr "Bestandsbibliotheek"
-
-#~ msgid "(List files available for download)"
-#~ msgstr "(Toon bestanden beschikbaar voor download)"
-
-#~ msgid "Summary page"
-#~ msgstr "Samenvattingspagina"
-
-#~ msgid "Summary of my account"
-#~ msgstr "Samenvatting van mijn account"
-
-#~ msgid "User list"
-#~ msgstr "Gebruikerslijst"
-
-#~ msgid "(all registered users)"
-#~ msgstr "(alle geregistreerde gebruikers)"
-
-#~ msgid "Bye!"
-#~ msgstr "Tot ziens!"
-
-#~ msgid "(if present, forward all outbound mail to one of these hosts)"
-#~ msgstr ""
-#~ "(indien aanwezig, stuur alle mail naar buiten naar een van deze hosts)"
-
-#~ msgid "View"
-#~ msgstr "View"
-
-#~ msgid "Network services"
-#~ msgstr "Netwerk services"
-
-#~ msgid "SMTP MTA port (-1 to disable)"
-#~ msgstr "SMTP MTA port (-1 to disable)"
-
-#~ msgid "Correct forged From: lines during authenticated SMTP"
-#~ msgstr "Corrigeer gedwongen Van: regels tijdens authenticated SMTP"
-
-#~ msgid "Flag message as spam, instead of rejecting it"
-#~ msgstr "Markeer bericht als spam i.p.v. het af te wijzen"
-
-#~ msgid "IMAP listener port (-1 to disable)"
-#~ msgstr "IMAP listener port (-1 to disable)"
-
-#~ msgid "Network run frequency (in seconds)"
-#~ msgstr "Network run frequency (in seconden)"
-
-#~ msgid "Server IP address (0.0.0.0 for 'any')"
-#~ msgstr "Server IP adres (0.0.0.0 voor 'elk')"
-
-#~ msgid "SMTP MSA port (-1 to disable)"
-#~ msgstr "SMTP MSA port (-1 to disable)"
-
-#~ msgid "IMAP over SSL port (-1 to disable)"
-#~ msgstr "IMAP over SSL port (-1 to disable)"
-
-#~ msgid "SMTP over SSL port (-1 to disable)"
-#~ msgstr "SMTP over SSL port (-1 to disable)"
-
-#~ msgid "Instantly expunge deleted messages in IMAP"
-#~ msgstr "Verwijder direct gewiste berichten in IMAP"
-
-#~ msgid "Allow unauthenticated SMTP clients to spoof this sites domains"
-#~ msgstr ""
-#~ "Sta unauthenticated SMTP clients toe het domein van deze site te spoofen"
-
-#~ msgid "Postfix TCP Dictionary Port"
-#~ msgstr "Postfix TCP Dictionary Port"
-
-#~ msgid "-1 to disable"
-#~ msgstr "-1 voor uitschakelen"
-
-#~ msgid "ManageSieve Port (-1 to disable)"
-#~ msgstr "ManageSieve Port (-1 to disable)"
-
-#~ msgid "Perform RBL checks upon connect instead of after RCPT"
-#~ msgstr "Voer RBL controles uit bij verbinding i.p.v. na RCPT"
-
-#~ msgid "Keep original from headers in IMAP"
-#~ msgstr "Bewaar origineel van headers in IMAP"
-
-#~ msgid "XMPP (Jabber) client to server port (-1 to disable)"
-#~ msgstr "XMPP (Jabber) client to server port (-1 voor uitschakelen)"
-
-#~ msgid "XMPP (Jabber) server to server port (-1 to disable)"
-#~ msgstr "POP3 listener port (-1 voor uitschakelen)"
-
 #, fuzzy
 #~ msgid "Save changes?"
 #~ msgstr "Wijzigingen bewaren"
-
-#~ msgid "Enter a server command"
-#~ msgstr "Voer een servercommando in"
-
-#~ msgid ""
-#~ "This screen allows you to enter Citadel server commands which are not "
-#~ "supported by WebCit.  If you do not know what that means, then this "
-#~ "screen will not be of much use to you."
-#~ msgstr ""
-#~ "Dit scherm geeft de mogelijkheid Citadel servercommando's in te voeren, "
-#~ "die niet worden ondersteund door Webcit. Als u niet weet wat dat "
-#~ "betekent, dan is dit scherm van weinig nut voor u."
-
-#~ msgid "Enter command:"
-#~ msgstr "Voer commando in: "
-
-#~ msgid "Command input (if requesting SEND_LISTING transfer mode):"
-#~ msgstr "Commando invoer (indien aanvraag SEND_LISTING overdrachtsmode): "
-
-#~ msgid "Detected host header is %s://%s"
-#~ msgstr "Gevonden host header is %s://%s"
-
-#~ msgid "Send command"
-#~ msgstr "Verstuur commando"
-
-#~ msgid "Server command results"
-#~ msgstr "Resultaten servercommando"
-
-#~ msgid "Zapped (forgotten) rooms"
-#~ msgstr "Zapped (vergeten) ruimtes"
-
-#~ msgid "Click on any room to un-zap it and goto that room.\n"
-#~ msgstr "Klik op willekeurige ruimte om te unzappen en ga naar die ruimte.\n"
-
-#~ msgid "Close window"
-#~ msgstr "Venster sluiten"
 
 #~ msgid "%d new of %d messages%s"
 #~ msgstr "%d nieuw van in totaal %d berichten%s"
@@ -3199,125 +3987,8 @@ msgstr "Laatste login"
 #~ "Markeer alle berichten als gelezen, ga naar de volgende ruimte met "
 #~ "ongelezen berichten"
 
-#~ msgid "Configuration"
-#~ msgstr "Instellingen"
-
-#~ msgid "Message expire policy"
-#~ msgstr "Instelling bericht verlopen"
-
-#~ msgid "Access controls"
-#~ msgstr "Toegangscontrole"
-
-#~ msgid "Sharing"
-#~ msgstr "Delen"
-
-#~ msgid "Mailing list service"
-#~ msgstr "Mailinglist service"
-
-#~ msgid "Remote retrieval"
-#~ msgstr "Herstel op afstand"
-
 #~ msgid "Are you sure you want to delete this room?"
 #~ msgstr "Weet u zeker dat u deze ruimte wilt verwijderen?"
-
-#~ msgid "Delete this room"
-#~ msgstr "Deze ruimte verwijderen"
-
-#~ msgid "Set or change the icon for this room's banner"
-#~ msgstr "Zet of wijzig het icoontje voor de banner van deze ruimte"
-
-#~ msgid "Edit this room's Info file"
-#~ msgstr "Bewerk het Infobestand van deze ruimte"
-
-#~ msgid "Name of room: "
-#~ msgstr "Naam van de ruimte: "
-
-#~ msgid "Resides on floor: "
-#~ msgstr "Bevindt zich op verdieping: "
-
-#~ msgid "Type of room:"
-#~ msgstr "Soort ruimte: "
-
-#~ msgid "Public (automatically appears to everyone)"
-#~ msgstr "Openbaar (verschijnt automatisch voor iedereen)"
-
-#~ msgid "Private - hidden (accessible to anyone who knows its name)"
-#~ msgstr "Privé - verborgen (toegankelijk voor iedereen die z'n naam kent)"
-
-#~ msgid "Private - require password: "
-#~ msgstr "Privé - wachtwoord nodig: "
-
-#~ msgid "Private - invitation only"
-#~ msgstr "Privé - Alleen op uitnodiging"
-
-#~ msgid "Personal (mailbox for you only)"
-#~ msgstr "Persoonlijk (mailbox voor u alleen)"
-
-#~ msgid "If private, cause current users to forget room"
-#~ msgstr "Als privé, zorg dat huidige gebruikers ruimte vergeten"
-
-#~ msgid "Preferred users only"
-#~ msgstr "Alleen beheerders"
-
-#~ msgid "Read-only room"
-#~ msgstr "Alleen-lezen ruimte"
-
-#~ msgid "All users allowed to post may also delete messages"
-#~ msgstr "Alle gebruikers die berichten mogen plaatsen mogen ook wissen"
-
-#~ msgid "File directory room"
-#~ msgstr "Ruimte met Bestandsmappen"
-
-#~ msgid "Directory name: "
-#~ msgstr "Naam van map: "
-
-#~ msgid "Uploading allowed"
-#~ msgstr "Uploaden toegestaan"
-
-#~ msgid "Downloading allowed"
-#~ msgstr "Downloaden toegestaan"
-
-#~ msgid "Visible directory"
-#~ msgstr "Zichtbare map"
-
-#~ msgid "Network shared room"
-#~ msgstr "Netwerkgedeelde ruimte"
-
-#~ msgid "Permanent (does not auto-purge)"
-#~ msgstr "Permanent (wordt niet automatisch opgeruimd)"
-
-#~ msgid "Subject Required (Force users to specify a message subject)"
-#~ msgstr "Onderwerp vereist (Dwing gebruikers een onderwerp op te geven)"
-
-#~ msgid "Anonymous messages"
-#~ msgstr "Anonieme berichten"
-
-#~ msgid "No anonymous messages"
-#~ msgstr "Geen anonieme berichten"
-
-#~ msgid "All messages are anonymous"
-#~ msgstr "Alle berichten zijn anoniem"
-
-#~ msgid "Prompt user when entering messages"
-#~ msgstr "Gebruiker vragen bij invoer bericht"
-
-#~ msgid "Room aide: "
-#~ msgstr "Ruimte Beheerder: "
-
-#~ msgid "Shared with"
-#~ msgstr "Gedeeld met"
-
-#~ msgid "Not shared with"
-#~ msgstr "Niet gedeeld met"
-
-#~ msgid "Remote node name"
-#~ msgstr "Knooppunt op afstand"
-
-#~ msgid "Remote room name"
-#~ msgstr "Naam van ruimte op afstand"
-
-#~ msgid "Actions"
-#~ msgstr "Acties"
 
 #~ msgid "Unshare"
 #~ msgstr "Niet delen"
@@ -3325,115 +3996,14 @@ msgstr "Laatste login"
 #~ msgid "Share"
 #~ msgstr "Delen"
 
-#~ msgid ""
-#~ "When sharing a room, it must be shared from both ends.  Adding a node to "
-#~ "the 'shared' list sends messages out, but in order to receive messages, "
-#~ "the other nodes must be configured to send messages out to your system as "
-#~ "well. <li>If the remote room name is blank, it is assumed that the room "
-#~ "name is identical on the remote node.<li>If the remote room name is "
-#~ "different, the remote node must also configure the name of the room here."
-#~ "</ul></I><br />\n"
-#~ msgstr ""
-#~ "Als u een ruimte deelt, moeten beide kanten meewerken. Een knooppunt "
-#~ "toevoegen aan de 'gedeelde' lijst stuurt berichten naar buiten, maar om "
-#~ "berichten te ontvangen, moet het andere knooppunt ook zijn ingesteld om "
-#~ "berichten naar uw systeem te verzenden. <LI>Als de naam van de ruimte op "
-#~ "afstand leeg is weet u zeker dat de naam van de ruimte gelijk wordt "
-#~ "geacht aan de ruimte op het knooppunt op afstand. <LI>Als de naam van de "
-#~ "ruimte op afstand verschilt moet de ruimte op afstand zelf ook een naam "
-#~ "ingesteld krijgen.</UL></I><br />\n"
-
-#~ msgid ""
-#~ "<i>The contents of this room are being mailed <b>as individual messages</"
-#~ "b> to the following list recipients:</i><br /><br />\n"
-#~ msgstr ""
-#~ "<i>De berichten in deze ruimte worden als <b> losse berichten</b> gemaild "
-#~ "naar de volgende ontvangers: </i><br /><br />\n"
-
-#~ msgid "(remove)"
-#~ msgstr "(verwijderen)"
-
-#~ msgid ""
-#~ "<i>The contents of this room are being mailed <b>in digest form</b> to "
-#~ "the following list recipients:</i><br /><br />\n"
-#~ msgstr ""
-#~ "<i>De berichten in deze ruimte worden als <b>als één pakket</b> gemaild "
-#~ "naar de volgende ontvangers: </i><br /><br />\n"
-
 #~ msgid "List"
 #~ msgstr "Los"
 
 #~ msgid "Digest"
 #~ msgstr "Pakket"
 
-#~ msgid "Add recipients from Contacts or other address books"
-#~ msgstr "Voeg ontvangers toe uit 'Contacten' of andere adresboeken"
-
-#~ msgid "Allow self-service subscribe/unsubscribe requests."
-#~ msgstr ""
-#~ "Deze ruimte is ingesteld voor zelf-service bij abonneren/verwijderen."
-
-#~ msgid "The URL for subscribe/unsubscribe is: "
-#~ msgstr "De URL voor abonneren/verwijderen is: "
-
-#~ msgid "Allow non-subscribers to mail to this room."
-#~ msgstr "Niet geabonneerden toestaan deze ruimte te mailen."
-
-#~ msgid "Room post publication needs Aide permission."
-#~ msgstr "Beheersrechten nodig"
-
-#~ msgid "Message expire policy for this room"
-#~ msgstr "Instelling voor verlopen berichten in deze ruimte"
-
-#~ msgid "Use the default policy for this floor"
-#~ msgstr "Gebruik de standaardinstelling voor deze ruimte"
-
-#~ msgid "Message expire policy for this floor"
-#~ msgstr "Instelling voor het verlopen van berichten op deze verdieping"
-
-#~ msgid "Use the system default"
-#~ msgstr "Gebruik systeemstandaard"
-
-#~ msgid ""
-#~ "Retrieve messages from these remote POP3 accounts and store them in this "
-#~ "room:"
-#~ msgstr "Haal berichten van deze POP3 accounts en sla ze op in deze ruimte:"
-
-#~ msgid "Remote host"
-#~ msgstr "Hosts op afstand"
-
-#~ msgid "Keep messages on server?"
-#~ msgstr "Bewaar berichten op de server?"
-
-#~ msgid "Interval"
-#~ msgstr "interval"
-
-#~ msgid "Fetch the following RSS feeds and store them in this room:"
-#~ msgstr "Haal berichten van deze RSS-feeds en sla ze op in deze ruimte:"
-
-#~ msgid "Feed URL"
-#~ msgstr "Feed URL"
-
-#~ msgid ""
-#~ "The users listed below have access to this room.  To remove a user from "
-#~ "the access list, select the user name from the list and click 'Kick'."
-#~ msgstr ""
-#~ "De gebruikers hieronder hebben toegang tot deze ruimte. Om een gebruiker "
-#~ "te verwijderen uit de toegangslijst, selecteer de gebruikersnaam en klik "
-#~ "'Verwijderen'"
-
 #~ msgid "Kick"
 #~ msgstr "Verwijderen"
-
-#~ msgid ""
-#~ "To grant another user access to this room, enter the user name in the box "
-#~ "below and click 'Invite'."
-#~ msgstr ""
-#~ "Om een andere gebruiker toegang te geven tot deze ruimte vul hieronder de "
-#~ "gebruikersnaam in en klik op 'Uitnodigen'."
-
-#~ msgid "Invite:"
-#~ msgstr "Uitnodigen: "
 
 #~ msgid "Invite"
 #~ msgstr "Uitnodigen"
@@ -3441,48 +4011,11 @@ msgstr "Laatste login"
 #~ msgid "User"
 #~ msgstr "Gebruiker"
 
-#~ msgid "Users"
-#~ msgstr "Gebruikers"
-
-#~ msgid "Default view for room: "
-#~ msgstr "Standaard weergave voor ruimte: "
-
 #~ msgid "Create new room"
 #~ msgstr "Maak een nieuwe ruimte aan"
 
-#~ msgid "Go to a hidden room"
-#~ msgstr "Ga naar een verborgen ruimte"
-
-#~ msgid ""
-#~ "If you know the name of a hidden (guess-name) or passworded room, you can "
-#~ "enter that room by typing its name below.  Once you gain access to a "
-#~ "private room, it will appear in your regular room listings so you don't "
-#~ "have to keep returning here."
-#~ msgstr ""
-#~ "Als u de naam kent van een verborgen (raden naam) ruimte of een ruimte "
-#~ "met wachtwoord, kunt u de ruimte binnenkomen door de naam in te vullen."
-#~ "Als u eenmaal toegang heeft tot een privéruimte, zal het verschijnen in "
-#~ "uw normale lijst met ruimtes, zodat u hier niet steeds hoeft terug te "
-#~ "keren."
-
-#~ msgid "Enter room name:"
-#~ msgstr "Geef naam ruimte: "
-
-#~ msgid "Enter room password:"
-#~ msgstr "Geef wachtwoord ruimte: "
-
 #~ msgid "Go there"
 #~ msgstr "Ga er naar toe"
-
-#~ msgid "Zap (forget/unsubscribe) the current room"
-#~ msgstr "Zap (vergeet/verwijder uit) de huidige ruimte"
-
-#~ msgid ""
-#~ "If you select this option, <em>%s</em> will disappear from your room "
-#~ "list.  Is this what you wish to do?<br />\n"
-#~ msgstr ""
-#~ "Als u deze optie selecteert verdwijnt <em>%s</em> uit uw lijst met "
-#~ "ruimtes.  Is dat wat u wilt?<br />\n"
 
 #~ msgid "Zap this room"
 #~ msgstr "Zap deze ruimte"
@@ -3524,9 +4057,6 @@ msgstr "Laatste login"
 #~ msgid "Email"
 #~ msgstr "Email"
 
-#~ msgid "Not logged in"
-#~ msgstr "Niet ingelogd"
-
 #~ msgid "Error retrieving RSS feed: couldn't find messages\n"
 #~ msgstr "Fout in binnenhalen RSS feed: kon geen berichten vinden\n"
 
@@ -3565,7 +4095,7 @@ msgstr "Laatste login"
 #~ "voor meer info over OpenID en hoe Citadel het gebruikt.</a><li>Log "
 #~ "correct uit als u klaar bent. <li>Uw browser moet <i>frames</i> en "
 #~ "<i>cookies</i> ondersteunen. <li>Als uw browser pop-up vensters "
-#~ "blokkeert, zult u geen directe berichten kunnen ontvangen.<br /></ul>"
+#~ "blokkeert, zult u geen directe berichten kunnen ontvangen.<br></ul>"
 
 #~ msgid ""
 #~ "enter your user name and password and click &quot;Log in.&quot;<li><b>If "
@@ -3621,30 +4151,30 @@ msgstr "Laatste login"
 #~ "<I>This message contains calendaring/scheduling information, but support "
 #~ "for calendars is not available on this particular system.  Please ask "
 #~ "your system administrator to install a new version of the Citadel web "
-#~ "service with calendaring enabled.</I><br />\n"
+#~ "service with calendaring enabled.</I><br>\n"
 #~ msgstr ""
 #~ "<I>Dit bericht bevat agenda/rooster informatie, maar ondersteuning voor "
 #~ "agenda's is niet beschikbaar op dit systeem. Vraag uw systeembeheerder a."
 #~ "u.b. een nieuwe versie van Citadel te installeren met ondersteuning voor "
-#~ "agenda's</I><br />\n"
+#~ "agenda's</I><br>\n"
 
 #~ msgid ""
 #~ "<i>Cannot display calendar item.  You are seeing this error because your "
 #~ "WebCit service has not been installed with calendar support.  Please "
-#~ "contact your system administrator.</i><br />\n"
+#~ "contact your system administrator.</i><br>\n"
 #~ msgstr ""
 #~ "<i>Kan agenda-item niet weergeven.  U ziet deze foutmelding omdat de "
 #~ "Webcit service niet is geinstalleerd met agenda-ondersteun. Neem "
-#~ "alstublieft contact op met uw systeembeheerder.</i><br />\n"
+#~ "alstublieft contact op met uw systeembeheerder.</i><br>\n"
 
 #~ msgid ""
 #~ "<i>Cannot display to-do item.  You are seeing this error because your "
 #~ "WebCit service has not been installed with calendar support.  Please "
-#~ "contact your system administrator.</i><br />\n"
+#~ "contact your system administrator.</i><br>\n"
 #~ msgstr ""
 #~ "<i>Kan het 'te-doen'-item niet weergeven.  U ziet deze foutmelding omdat "
 #~ "de Webcit service niet is geïnstalleerd met 'te-doen'-ondersteuning. Neem "
-#~ "alstublieft contact op met uw systeembeheerder.</i><br />\n"
+#~ "alstublieft contact op met uw systeembeheerder.</i><br>\n"
 
 #~ msgid "Day: "
 #~ msgstr "Dag: "

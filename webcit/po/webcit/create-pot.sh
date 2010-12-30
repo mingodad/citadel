@@ -1,5 +1,8 @@
 #!/bin/bash
 
+CSOURCES=`find ../.. -name \*.c`
+HSOURCES=`find ../.. -name \*.html`
+
 echo Updating webcit.pot from strings in the source code ...
 xgettext \
 	--copyright-holder='The Citadel Project - http://www.citadel.org' \
@@ -7,7 +10,7 @@ xgettext \
 	-k_ \
 	-o webcit.pot \
 	--add-comments \
-	../*.c ../static/t/*.html
+	$CSOURCES $HSOURCES
 
 for x in *.po
 do
