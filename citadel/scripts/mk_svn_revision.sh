@@ -25,7 +25,7 @@ if test -d $SRC_DIR/.svn  ; then
 else 
     if test -d $SRC_DIR/../.git  ; then
 	echo "have Git repository."
-	BUILD=`/usr/bin/git log -1 --pretty=%H . `
+	BUILD=`/usr/bin/git log -1 --pretty=%h . `
 	echo "This code base git-revision: $BUILD"
 	CAN_BUILD_SVN_REVISION="yes"
     else
