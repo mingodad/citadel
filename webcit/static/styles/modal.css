@@ -33,7 +33,7 @@
 	display:table;
 	height:100%;
 	vertical-align:middle;
-	width:300px;
+	width:80%;
 	z-index:9999;
 	*width:100%;
 	*text-align:center;
@@ -44,7 +44,7 @@
 .md-dialog-wrap {
 	display:table-cell;
 	vertical-align:middle;
-	*width:300px;
+	*width:80%;
 	*text-align:left;
 	*zoom:1;
 	*display:inline;

@@ -812,9 +812,13 @@ void CtdlUserLogout(void)
 	if ((CCC->user.axlevel == AxDeleted) && (CCC->user.usernum))
 		purge_user(CCC->user.fullname);
 
+	/* Clear out the user record in memory so we don't behave like a ghost */
+	memset(&CCC->user, 0, sizeof(struct ctdluser));
+
 	/* Free any output buffers */
 	unbuffer_output();
 }
+
 
 /*
  * Validate a password on the host unix system by talking to the chkpwd daemon
@@ -825,7 +829,7 @@ static int validpw(uid_t uid, const char *pass)
 	int rv = 0;
 
 	if (IsEmptyStr(pass)) {
-		CtdlLogPrintf(CTDL_DEBUG, "refusing to check empty password for uid=%d using chkpwd...\n", uid);
+		CtdlLogPrintf(CTDL_DEBUG, "Refusing to chkpwd for uid=%d with empty password.\n", uid);
 		return 0;
 	}
 
