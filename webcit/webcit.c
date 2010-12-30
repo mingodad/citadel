@@ -186,7 +186,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 			wc_printf("<div id=\"important_message\">\n"
 				"<span class=\"imsg\">");
 			StrEscAppend(WCC->WBuf, NULL, WCC->ImportantMessage, 0, 0);
-			wc_printf("</span><br />\n"
+			wc_printf("</span><br>\n"
 				"</div>\n"
 			);
 			StrBufAppendBufPlain(WCC->trailing_javascript,
@@ -199,7 +199,7 @@ void output_headers(	int do_httpheaders,	/* 1 = output HTTP headers			  */
 			wc_printf("<div id=\"important_message\">\n"
 				"<span class=\"imsg\">");
 			StrEscAppend(WCC->WBuf, WCC->ImportantMsg, NULL, 0, 0);
-			wc_printf("</span><br />\n"
+			wc_printf("</span><br>\n"
 				"</div>\n"
 			);
 			StrBufAppendBufPlain(WCC->trailing_javascript,

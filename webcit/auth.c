@@ -734,19 +734,19 @@ void validate(void)
 					atoi(buf), axdefs[atoi(buf)]);
 		} while (strcmp(buf, "000"));
 	} else {
-		wc_printf("<H1>%s</H1>%s<br />\n", user, &cmd[4]);
+		wc_printf("<H1>%s</H1>%s<br>\n", user, &cmd[4]);
 	}
 
 	wc_printf("<hr />");
 	wc_printf(_("Select access level for this user:"));
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 	for (a = 0; a <= 6; ++a) {
 		wc_printf("<a href=\"validate?nonce=%d?user=", WC->nonce);
 		urlescputs(user);
 		wc_printf("&axlevel=%d\">%s</A>&nbsp;&nbsp;&nbsp;\n",
 			a, axdefs[a]);
 	}
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	wc_printf("</div>\n");
 	wc_printf("</td></tr></table>\n");
@@ -835,7 +835,7 @@ void display_changepw(void)
 
 	if (!IsEmptyStr(WC->ImportantMessage)) {
 		wc_printf("<span class=\"errormsg\">"
-			"%s</span><br />\n", WC->ImportantMessage);
+			"%s</span><br>\n", WC->ImportantMessage);
 		safestrncpy(WC->ImportantMessage, "", sizeof WC->ImportantMessage);
 	}
 

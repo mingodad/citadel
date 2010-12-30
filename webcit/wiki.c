@@ -85,7 +85,7 @@ void display_wiki_page_backend(const StrBuf *roomname, char *pagename, char *rev
 		return;
 	}
 
-	wc_printf("<br /><br />"
+	wc_printf("<br><br>"
 		"<div align=\"center\">"
 		"<table border=\"0\" bgcolor=\"#ffffff\" cellpadding=\"10\">"
 		"<tr><td align=\"center\">"

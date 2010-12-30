@@ -77,16 +77,16 @@ void do_listsub(void)
 				"your subscription.  This extra step is for "
 				"your protection, as it prevents others from "
 				"being able to subscribe you to lists "
-				"without your consent.<br /><br />"
+				"without your consent.<br><br>"
 				"Please click on the link which is being "
 				"e-mailed to you and your subscription will "
-				"be confirmed.<br />\n"),
+				"be confirmed.<br>\n"),
 				escaped_email, escaped_room);
 			wc_printf("<a href=\"listsub\">%s</A></CENTER>\n", _("Go back..."));
 		}
 		else {
 			wc_printf("<FONT SIZE=+1><B>ERROR: %s</B>"
-				"</FONT><br /><br />\n",
+				"</FONT><br><br>\n",
 				&buf[4]);
 			goto FORM;
 		}
@@ -114,16 +114,16 @@ void do_listsub(void)
 				"your unsubscription.  This extra step is for "
 				"your protection, as it prevents others from "
 				"being able to unsubscribe you from "
-				"lists without your consent.<br /><br />"
+				"lists without your consent.<br><br>"
 				"Please click on the link which is being "
 				"e-mailed to you and your unsubscription will "
-				"be confirmed.<br />\n"
+				"be confirmed.<br>\n"
 				"<a href=\"listsub\">Back...</A></CENTER>\n"
 			);
 		}
 		else {
 			wc_printf("<FONT SIZE=+1><B>ERROR: %s</B>"
-				"</FONT><br /><br />\n",
+				"</FONT><br><br>\n",
 				&buf[4]);
 			goto FORM;
 		}
@@ -154,7 +154,7 @@ void do_listsub(void)
 				"The error returned by the server was: "
 			);
 		}
-		wc_printf("%s</CENTER><br />\n", &buf[4]);
+		wc_printf("%s</CENTER><br>\n", &buf[4]);
 	}
 
 	/*
@@ -208,7 +208,7 @@ FORM:		wc_printf("<form method=\"POST\" action=\"listsub\">\n");
 			" one additional web link to click on for final "
 			"confirmation.  This extra step is for your "
 			"protection, as it prevents others from being able to "
-			"subscribe or unsubscribe you to lists.<br />\n"
+			"subscribe or unsubscribe you to lists.<br>\n"
 		);
 
 	}

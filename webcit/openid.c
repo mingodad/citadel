@@ -37,7 +37,7 @@ void display_openids(void)
 			wc_printf("</td></tr>\n");
 		}
 	
-		wc_printf("</table><br />\n");
+		wc_printf("</table><br>\n");
 	
 	        wc_printf("<form method=\"POST\" action=\"openid_attach\">\n");
 		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WCC->nonce);

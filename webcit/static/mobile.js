@@ -18,7 +18,7 @@ req.open('GET', '/msg/'+msgnum, true);
 req.onreadystatechange = function (aEvt) {
   if (req.readyState == 4) {
      if(req.status == 200)
-      currentMsgDisplay.innerHTML = "<button onMouseDown=\"CtdlHideMsg()\">(Hide message)</button><br/>"+req.responseText;
+      currentMsgDisplay.innerHTML = "<button onMouseDown=\"CtdlHideMsg()\">(Hide message)</button><br>"+req.responseText;
      else
       currentMsgDisplay.innerHTML = "Error loading message";
   }

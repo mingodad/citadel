@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2005-2010 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -136,7 +136,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			StrBufAppendPrintf(Target, _("realloc() error! couldn't get %d bytes: %s"),
 					buffer_length + 1,
 					strerror(errno));
-			StrBufAppendPrintf(Target, "</b><br /><br />\n");
+			StrBufAppendPrintf(Target, "</b><br><br>\n");
 			while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 				/** flush */
 			}
@@ -344,7 +344,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	 */
 
 	if (converted_msg == NULL) {
-		StrBufAppendPrintf(Target, "Error %d: %s<br />%s:%d", errno, strerror(errno), __FILE__, __LINE__);
+		StrBufAppendPrintf(Target, "Error %d: %s<br>%s:%d", errno, strerror(errno), __FILE__, __LINE__);
 		goto BAIL;
 	}
 
@@ -554,7 +554,7 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 	StrBufAppendBuf(Target, converted_msg, 0);
 
 BAIL:	/** A little trailing vertical whitespace... */
-	StrBufAppendPrintf(Target, "<br /><br />\n");
+	StrBufAppendPrintf(Target, "<br><br>\n");
 
 	/** Now give back the memory */
 	FreeStrBuf(&converted_msg);
