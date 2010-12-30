@@ -3,7 +3,7 @@
  *
  * Copyright (c) 1996-2010 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -55,15 +55,15 @@ void display_page(void)
 	wc_printf("\">\n");
 
 	wc_printf(_("Enter message text:"));
-	wc_printf("<br />");
+	wc_printf("<br>");
 
 	wc_printf("<TEXTAREA NAME=\"msgtext\" wrap=soft ROWS=5 COLS=40 "
 		"WIDTH=40></TEXTAREA>\n");
 
-	wc_printf("</TD></TR></TABLE><br />\n");
+	wc_printf("</TD></TR></TABLE><br>\n");
 
 	wc_printf("<INPUT TYPE=\"submit\" NAME=\"send_button\" VALUE=\"%s\">", _("Send message"));
-	wc_printf("<br /><a href=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
+	wc_printf("<br><a href=\"javascript:window.close();\"%s</A>\n", _("Cancel"));
 
 	wc_printf("</FORM></CENTER>\n");
 	wc_printf("</td></tr></table>\n");

@@ -298,7 +298,7 @@ void cal_process_attachment(wc_mime_attachment *Mime)
 	FlushStrBuf(Mime->Data);
 	if (cal == NULL) {
 		StrBufAppendPrintf(Mime->Data, _("There was an error parsing this calendar item."));
-		StrBufAppendPrintf(Mime->Data, "<br />\n");
+		StrBufAppendPrintf(Mime->Data, "<br>\n");
 		return;
 	}
 

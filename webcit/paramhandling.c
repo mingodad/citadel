@@ -419,16 +419,16 @@ void diagnostics(void)
 {
 	output_headers(1, 1, 1, 0, 0, 0);
 	wc_printf("Session: %d<hr />\n", WC->wc_session);
-	wc_printf("Command: <br /><PRE>\n");
+	wc_printf("Command: <br><PRE>\n");
 /*	
 StrEscPuts(WC->UrlFragment1);
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 	StrEscPuts(WC->UrlFragment2);
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 	StrEscPuts(WC->UrlFragment3);
 */
 	wc_printf("</PRE><hr />\n");
-	wc_printf("Variables: <br /><PRE>\n");
+	wc_printf("Variables: <br><PRE>\n");
 	dump_vars();
 	wc_printf("</PRE><hr />\n");
 	wDumpContent(1);

@@ -47,7 +47,7 @@ void display_edit(char *description, char *check_cmd,
 	wc_printf("</textarea><div class=\"buttons\" >\n");
 	wc_printf("<input type=\"submit\" name=\"save_button\" value=\"%s\">", _("Save changes"));
 	wc_printf("&nbsp;");
-	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br />\n", _("Cancel"));
+	wc_printf("<input type=\"submit\" name=\"cancel_button\" value=\"%s\"><br>\n", _("Cancel"));
 	wc_printf("</div></form>\n");
 
 	do_template("endbox", NULL);

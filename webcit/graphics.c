@@ -56,7 +56,7 @@ void display_graphics_upload(char *description, char *filename, char *uplurl)
 	wc_printf("\">\n");
 
 	wc_printf(_("You can upload an image directly from your computer"));
-	wc_printf("<br /><br />\n");
+	wc_printf("<br><br>\n");
 
 	wc_printf(_("Please select a file to upload:"));
 	wc_printf("<input type=\"file\" name=\"filename\" size=\"35\">\n");

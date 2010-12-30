@@ -394,7 +394,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 	
 			else if (!strcasecmp(firsttoken, "email")) {
 				size_t len;
-				if (!IsEmptyStr(mailto)) strcat(mailto, "<br />");
+				if (!IsEmptyStr(mailto)) strcat(mailto, "<br>");
 				strcat(mailto,
 					"<a href=\"display_enter"
 					"?force_room=_MAIL_?recp=");
@@ -416,7 +416,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 				strcat(mailto, "</A>");
 			}
 			else if (!strcasecmp(firsttoken, "tel")) {
-				if (!IsEmptyStr(phone)) strcat(phone, "<br />");
+				if (!IsEmptyStr(phone)) strcat(phone, "<br>");
 				strcat(phone, thisvalue);
 				for (j=0; j<num_tokens(thisname, ';'); ++j) {
 					extract_token(buf, thisname, j, ';', sizeof buf);
@@ -444,7 +444,7 @@ void display_parsed_vcard(StrBuf *Target, struct vCard *v, int full, wc_mime_att
 						extract_token(buf, thisvalue, j, ';', sizeof buf);
 						if (!IsEmptyStr(buf)) {
 							StrEscAppend(Target, NULL, buf, 0, 0);
-							if (j<3) StrBufAppendPrintf(Target, "<br />");
+							if (j<3) StrBufAppendPrintf(Target, "<br>");
 							else StrBufAppendPrintf(Target, " ");
 						}
 					}
@@ -763,7 +763,7 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 	char **tablabels;
 
 	if (num_ab == 0) {
-		wc_printf("<br /><br /><br /><div align=\"center\"><i>");
+		wc_printf("<br><br><br><div align=\"center\"><i>");
 		wc_printf(_("This address book is empty."));
 		wc_printf("</i></div>\n");
 		return;
@@ -777,7 +777,7 @@ void do_addrbook_view(addrbookent *addrbook, int num_ab) {
 
 	tablabels = malloc(num_pages * sizeof (char *));
 	if (tablabels == NULL) {
-		wc_printf("<br /><br /><br /><div align=\"center\"><i>");
+		wc_printf("<br><br><br><div align=\"center\"><i>");
 		wc_printf(_("An internal error has occurred."));
 		wc_printf("</i></div>\n");
 		return;
@@ -1173,14 +1173,14 @@ void do_edit_vcard(long msgnum, char *partnum,
 	wc_printf("<table border=0><TR>"
 		"<td valign=top>");
 	wc_printf(_("Primary Internet e-mail address"));
-	wc_printf("<br />"
+	wc_printf("<br>"
 		"<input type=\"text\" name=\"primary_inetemail\" "
 		"size=40 maxlength=60 value=\"");
 	escputs(primary_inetemail);
-	wc_printf("\"><br />"
+	wc_printf("\"><br>"
 		"</td><td valign=top>");
 	wc_printf(_("Internet e-mail aliases"));
-	wc_printf("<br />"
+	wc_printf("<br>"
 		"<textarea name=\"other_inetemail\" rows=5 cols=40 width=40>");
 	escputs(other_inetemail);
 	wc_printf("</textarea></td></tr></table>\n");

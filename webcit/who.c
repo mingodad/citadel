@@ -157,7 +157,7 @@ void edit_me(void)
 			"To turn off any 'fake' name you've previously "
 			"set, simply click the appropriate 'change' button "
 			"without typing anything in the corresponding box. "));
-		wc_printf("<br />\n");
+		wc_printf("<br>\n");
 
 		wc_printf("<form method=\"POST\" action=\"edit_me\">\n");
 		wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);

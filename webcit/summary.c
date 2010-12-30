@@ -99,7 +99,7 @@ void tasks_section(void) {
 	if (calendar_summary_view() < 1) {
 		wc_printf("<i>");
 		wc_printf(_("(None)"));
-		wc_printf("</i><br />\n");
+		wc_printf("</i><br>\n");
 	}
 }
 
@@ -151,7 +151,7 @@ void calendar_section(void) {
 	if (calendar_summary_view() < 1) {
 		wc_printf("<i>");
 		wc_printf(_("(Nothing)"));
-		wc_printf("</i><br />\n");
+		wc_printf("</i><br>\n");
 	}
 	__calendar_Cleanup(&v);
 }
