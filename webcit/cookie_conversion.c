@@ -1,8 +1,6 @@
 /*
  * Copyright (c) 1996-2010 by the citadel.org team
  *
- * Copyright (c) 1996-2010 by the citadel.org team
- *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the

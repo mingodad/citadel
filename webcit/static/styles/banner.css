@@ -81,8 +81,8 @@
 }
 
 #banner ul.room_actions li select, #banner ul.room_actions li input {
-	margin-top: 8px;
-	margin-right: 4px;
+	margin-top: 2px;
+	margin-right: 2px;
 }
 #selectpage.hidden { display: none !important }
 
