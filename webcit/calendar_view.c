@@ -188,7 +188,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 	time_t tt;
 
 	if (GetCount(WCC->disp_cal_items) == 0) {
-		wc_printf("<br /><br /><br />\n");
+		wc_printf("<br><br><br>\n");
 		return;
 	}
 
@@ -286,10 +286,10 @@ void calendar_month_view_display_events(int year, int month, int day)
 
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
 
-				wc_printf("<i>%s: %s</i><br />", _("From"), Cal->from);
+				wc_printf("<i>%s: %s</i><br>", _("From"), Cal->from);
 				wc_printf("<i>%s</i> ",          _("Summary:"));
 				escputs((char *)icalproperty_get_comment(p));
-				wc_printf("<br />");
+				wc_printf("<br>");
 
 				q = icalcomponent_get_first_property(
 					Cal->cal,
@@ -297,7 +297,7 @@ void calendar_month_view_display_events(int year, int month, int day)
 				if (q) {
 					wc_printf("<i>%s</i> ", _("Location:"));
 					escputs((char *)icalproperty_get_comment(q));
-					wc_printf("<br />");
+					wc_printf("<br>");
 				}
 
 				/*
@@ -377,11 +377,11 @@ void calendar_month_view_display_events(int year, int month, int day)
 				if (q) {
 					wc_printf("<i>%s</i> ", _("Notes:"));
 					escputs((char *)icalproperty_get_comment(q));
-					wc_printf("<br />");
+					wc_printf("<br>");
 				}
 
 				wc_printf("</span><span class=\"bttbottom\"></span></span>");
-				wc_printf("</a></font><br />\n");
+				wc_printf("</a></font><br>\n");
 
 				if (all_day_event) {
 					wc_printf("</td></tr></table>");
@@ -791,7 +791,7 @@ void calendar_brief_month_view(int year, int month, int day) {
  * Calendar week view -- not implemented yet, this is a stub function
  */
 void calendar_week_view(int year, int month, int day) {
-	wc_printf("<center><i>week view FIXME</i></center><br />\n");
+	wc_printf("<center><i>week view FIXME</i></center><br>\n");
 }
 
 
@@ -950,16 +950,16 @@ void calendar_day_view_display_events(time_t thetime,
 				);
                                 escputs((char *) icalproperty_get_comment(p));
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
-                                wc_printf("<i>%s</i><br />",      _("All day event"));
-				wc_printf("<i>%s: %s</i><br />",  _("From"), Cal->from);
+                                wc_printf("<i>%s</i><br>",      _("All day event"));
+				wc_printf("<i>%s: %s</i><br>",  _("From"), Cal->from);
                                 wc_printf("<i>%s</i> ",           _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
-                                wc_printf("<br />");
+                                wc_printf("<br>");
 				q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
                                 if (q) {
                                         wc_printf("<i>%s</i> ", _("Location:"));
                                         escputs((char *)icalproperty_get_comment(q));
-                                        wc_printf("<br />");
+                                        wc_printf("<br>");
 				}
 				if (!icaltime_compare(t, end_t)) { /* one day only */
 					webcit_fmt_date(buf, 256, event_tt, DATEFMT_LOCALEDATE);
@@ -975,7 +975,7 @@ void calendar_day_view_display_events(time_t thetime,
                                 if (q) {
                                         wc_printf("<i>%s</i> ", _("Notes:"));
                                         escputs((char *)icalproperty_get_comment(q));
-                                        wc_printf("<br />");
+                                        wc_printf("<br>");
                                 }
 				wc_printf("</span><span class=\"bttbottom\"></span></span>");
                                 wc_printf("</a> <span>(");
@@ -994,16 +994,16 @@ void calendar_day_view_display_events(time_t thetime,
 				);
 				escputs((char *) icalproperty_get_comment(p));
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
-                                wc_printf("<i>%s</i><br />",     _("Ongoing event"));
-				wc_printf("<i>%s: %s</i><br />", _("From"), Cal->from);
+                                wc_printf("<i>%s</i><br>",     _("Ongoing event"));
+				wc_printf("<i>%s: %s</i><br>", _("From"), Cal->from);
                                 wc_printf("<i>%s</i> ",          _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
-                                wc_printf("<br />");
+                                wc_printf("<br>");
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
                                 if (q) {
                                         wc_printf("<i>%s</i> ", _("Location:"));
                                         escputs((char *)icalproperty_get_comment(q));
-                                        wc_printf("<br />");
+                                        wc_printf("<br>");
 								}
                                 webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
                                 wc_printf("<i>%s</i> %s<br>", _("Starting date/time:"), buf);
@@ -1013,7 +1013,7 @@ void calendar_day_view_display_events(time_t thetime,
                                 if (q) {
                                         wc_printf("<i>%s</i> ", _("Notes:"));
                                         escputs((char *)icalproperty_get_comment(q));
-                                        wc_printf("<br />");
+                                        wc_printf("<br>");
                                 }
                                 wc_printf("</span><span class=\"bttbottom\"></span></span>");
 				wc_printf("</a> <span>(");
@@ -1076,15 +1076,15 @@ void calendar_day_view_display_events(time_t thetime,
 				);
 				escputs((char *) icalproperty_get_comment(p));
 				wc_printf("<span class=\"tooltip\"><span class=\"btttop\"></span><span class=\"bttmiddle\">");
-				wc_printf("<i>%s: %s</i><br />", _("From"), Cal->from);
+				wc_printf("<i>%s: %s</i><br>", _("From"), Cal->from);
                                 wc_printf("<i>%s</i> ",          _("Summary:"));
                                 escputs((char *) icalproperty_get_comment(p));
-                                wc_printf("<br />");
+                                wc_printf("<br>");
                                 q = icalcomponent_get_first_property(Cal->cal,ICAL_LOCATION_PROPERTY);
                                 if (q) {
                                         wc_printf("<i>%s</i> ", _("Location:"));
                                         escputs((char *)icalproperty_get_comment(q));
-                                        wc_printf("<br />");
+                                        wc_printf("<br>");
 								}
 				if (!icaltime_compare(t, end_t)) { /* one day only */
 					webcit_fmt_date(buf, 256, event_tt, DATEFMT_BRIEF);
@@ -1100,7 +1100,7 @@ void calendar_day_view_display_events(time_t thetime,
                                 if (q) {
                                         wc_printf("<i>%s</i> ", _("Notes:"));
                                         escputs((char *)icalproperty_get_comment(q));
-                                        wc_printf("<br />");
+                                        wc_printf("<br>");
                                 }
 				wc_printf("</span><span class=\"bttbottom\"></span></span>");
 				wc_printf("</a></dd>\n");
@@ -1299,10 +1299,10 @@ void calendar_day_view(int year, int month, int day) {
 
 	wc_strftime(d_str, sizeof d_str,
 		"<td align=\"center\">"
-		"<font size='+2'>%A</font><br />"
-		"<font size='+2'>%B</font><br />"
-		"<font size='+3'>%d</font><br />"
-		"<font size='+2'>%Y</font><br />"
+		"<font size='+2'>%A</font><br>"
+		"<font size='+2'>%B</font><br>"
+		"<font size='+3'>%d</font><br>"
+		"<font size='+2'>%Y</font><br>"
 		"</td>",
 		&d_tm
 		);
@@ -1320,7 +1320,7 @@ void calendar_day_view(int year, int month, int day) {
 	/* End todays-date-with-left-and-right-arrows */
 
 	/* Embed a mini month calendar in this space */
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 	embeddable_mini_calendar(year, month);
 
 	wc_printf("</td></tr>");			/* end stuff-on-the-right */
@@ -1419,7 +1419,7 @@ int calendar_summary_view(void) {
 					if (!all_day_event) {
 						wc_printf(" (%s)", timestring);
 					}
-					wc_printf("</a><br />\n");
+					wc_printf("</a><br>\n");
 					++num_displayed;
 				}
 			}

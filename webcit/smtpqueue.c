@@ -104,7 +104,7 @@ void display_queue_msg(long msgnum)
 				if (!IsEmptyStr(thisrecp)) {
 					stresc(thismsg, sizeof thismsg, thisrecp, 1, 1);
 					if (!IsEmptyStr(thisdsn)) {
-						strcat(thismsg, "<br />&nbsp;&nbsp;<i>");
+						strcat(thismsg, "<br>&nbsp;&nbsp;<i>");
 						stresc(&thismsg[strlen(thismsg)], sizeof thismsg,
 							thisdsn, 1, 1);
 						strcat(thismsg, "</i>");
@@ -113,7 +113,7 @@ void display_queue_msg(long msgnum)
 
 					if ((recipients_len + thismsg_len + 100) < sizeof recipients) {
 						if (!IsEmptyStr(recipients)) {
-							strcpy(&recipients[recipients_len], "<br />");
+							strcpy(&recipients[recipients_len], "<br>");
 							recipients_len += 6;
 						}
 						strcpy(&recipients[recipients_len], thismsg);
@@ -128,7 +128,7 @@ void display_queue_msg(long msgnum)
 	}
 
 	wc_printf("<tr><td>");
-	wc_printf("%ld<br />", msgnum);
+	wc_printf("%ld<br>", msgnum);
 	wc_printf(" <a href=\"javascript:DeleteSMTPqueueMsg(%ld,%ld);\">%s</a>", 
 		msgnum, msgid, _("(Delete)")
 	);
@@ -210,15 +210,15 @@ void display_smtpqueue_inner_div(void) {
 
 		}
 		else {
-			wc_printf("<br /><br /><div align=\"center\">");
+			wc_printf("<br><br><div align=\"center\">");
 			wc_printf(_("The queue is empty."));
-			wc_printf("</div><br /><br />");
+			wc_printf("</div><br><br>");
 		}
 	}
 	else {
-		wc_printf("<br /><br /><div align=\"center\">");
+		wc_printf("<br><br><div align=\"center\">");
 		wc_printf(_("You do not have permission to view this resource."));
-		wc_printf("</div><br /><br />");
+		wc_printf("</div><br><br>");
 	}
 	output_headers(0, 0, 0, 0, 0, 0);
 	end_burst();

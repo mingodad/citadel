@@ -1032,7 +1032,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 			if (i > 0) StrBufCutLeft(Line, i);
 		
 			if (StrLength(Line) == 0) {
-				StrBufAppendBufPlain(Target, HKEY("<tt></tt><br />\n"), 0);
+				StrBufAppendBufPlain(Target, HKEY("<tt></tt><br>\n"), 0);
 				continue;
 			}
 
@@ -1049,7 +1049,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 			UrlizeText(Line1, Line, Line2);
 
 			StrEscAppend(Target, Line1, NULL, 0, 0);
-			StrBufAppendBufPlain(Target, HKEY("</tt><br />\n"), 0);
+			StrBufAppendBufPlain(Target, HKEY("</tt><br>\n"), 0);
 			bn = bq;
 		}
 	while ((BufPtr != StrBufNOTNULL) &&
@@ -1058,7 +1058,7 @@ void render_MAIL_text_plain(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *F
 	for (i = 0; i < bn; i++)				
 		StrBufAppendBufPlain(Target, HKEY("</blockquote>"), 0);
 
-	StrBufAppendBufPlain(Target, HKEY("</i><br />"), 0);
+	StrBufAppendBufPlain(Target, HKEY("</i><br>"), 0);
 #ifdef HAVE_ICONV
 	if (ic != (iconv_t)(-1) ) {
 		iconv_close(ic);
@@ -1100,7 +1100,7 @@ void render_MAIL_UNKNOWN(wc_mime_attachment *Mime, StrBuf *RawData, StrBuf *Foun
 	FlushStrBuf(Mime->Data);
 	StrBufAppendBufPlain(Mime->Data, _("I don't know how to display "), -1, 0);
 	StrBufAppendBuf(Mime->Data, Mime->ContentType, 0);
-	StrBufAppendBufPlain(Mime->Data, HKEY("<br />\n"), 0);
+	StrBufAppendBufPlain(Mime->Data, HKEY("<br>\n"), 0);
 }
 
 

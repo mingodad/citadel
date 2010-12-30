@@ -1225,7 +1225,7 @@ void *load_template(WCTemplate *NewTemplate)
 	NewTemplate->Data = NewStrBufPlain(NULL, statbuf.st_size + 1);
 	if (StrBufReadBLOB(NewTemplate->Data, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
-		lprintf(1, "ERROR: reading template '%s' - %s<br />\n",
+		lprintf(1, "ERROR: reading template '%s' - %s<br>\n",
 			ChrPtr(NewTemplate->FileName), strerror(errno));
 		//FreeWCTemplate(NewTemplate);/////tODO
 		return NULL;

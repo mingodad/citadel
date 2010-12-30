@@ -270,7 +270,7 @@ void _fmout(StrBuf *Target, char *align)
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		if ((intext == 1) && (isspace(buf[0]))) {
-			wc_printf("<br />");
+			wc_printf("<br>");
 		}
 		intext = 1;
 
@@ -298,7 +298,7 @@ void _fmout(StrBuf *Target, char *align)
 	if (bq == 1) {
 		wc_printf("</I>");
 	}
-	wc_printf("</div><br />\n");
+	wc_printf("</div><br>\n");
 }
 
 void FmOut(StrBuf *Target, char *align, StrBuf *Source)
@@ -390,7 +390,7 @@ void pullquote_fmout(void) {
 	while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
 
 		if ((intext == 1) && (isspace(buf[0]))) {
-			wc_printf("<br />");
+			wc_printf("<br>");
 		}
 		intext = 1;
 

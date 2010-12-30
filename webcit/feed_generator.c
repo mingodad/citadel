@@ -200,8 +200,8 @@ void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP)
 	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
 	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
 
-	StrBufAppendPrintf(Target, "<a type-\"application/rss+xml\" href=\"/B64%s\">", encoded_link);
-	StrBufAppendPrintf(Target, "<img border=\"0\" src=\"static/rss_16x.png\">");
+	StrBufAppendPrintf(Target, "<a type=\"application/rss+xml\" href=\"/B64%s\">", encoded_link);
+	StrBufAppendPrintf(Target, "<img border=\"0\" src=\"static/rss_16x.png\" alt=\"RSS\">");
 	StrBufAppendPrintf(Target, "</a>");
 }
 

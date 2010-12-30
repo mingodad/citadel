@@ -594,7 +594,7 @@ function ctdl_ts_getInnerText(el) {
 // Place a gradient loadscreen on an element, e.g to use before Ajax.updater
 function CtdlLoadScreen(elementid) {
 var elem = document.getElementById(elementid);
-elem.innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
+elem.innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br></div>";
 }
 
 
@@ -616,7 +616,7 @@ function PopOpenAddressBook(target_input) {
 }
 
 function PopulateAddressBookInnerDiv(which_addr_book, target_input) {
-	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br /></div>";
+	$('address_book_inner_div').innerHTML = "<div align=center><br><table border=0 cellpadding=10 bgcolor=\"#ffffff\"><tr><td><img src=\"static/throbber.gif\" /><font color=\"#AAAAAA\">&nbsp;&nbsp;Loading....</font></td></tr></table><br></div>";
 	p = 'which_addr_book=' + which_addr_book
 	  + '&target_input=' + target_input
 	  + '&r=' + CtdlRandomString();

@@ -9,18 +9,18 @@
     <??("COND:AIDE", 1)>
     <table class="mainmenu_background"><tr><td>
 
-	  <center><?_("This screen allows you to enter Citadel server commands which are not supported by WebCit.  If you do not know what that means, then this screen will not be of much use to you.")><br />
+	  <center><?_("This screen allows you to enter Citadel server commands which are not supported by WebCit.  If you do not know what that means, then this screen will not be of much use to you.")><br>
 	    <form method="post" action="do_generic">
 	      <input type="hidden" name="nonce" value="<?NONCE>">
-	      <?_("Enter command:")><br />
-	      <input type="text" name="g_cmd" size=80 maxlength="250"><br />
-	      <?_("Command input (if requesting SEND_LISTING transfer mode):")><br />
-	      <textarea name="g_input" rows=10 cols=80 width=80></textarea><br />
+	      <?_("Enter command:")><br>
+	      <input type="text" name="g_cmd" size=80 maxlength="250"><br>
+	      <?_("Command input (if requesting SEND_LISTING transfer mode):")><br>
+	      <textarea name="g_input" rows=10 cols=80 width=80></textarea><br>
 	      <font size=-2>
 		<?_("Detected host header is ")><?DAV:HOSTNAME>
 	      </font>
 	      <input type="submit" name="sc_button" value="<?_("Send command")>">&nbsp;
-	      <input type="submit" name="cancel_button" value="<?_("Cancel")>"><br />
+	      <input type="submit" name="cancel_button" value="<?_("Cancel")>"><br>
 	    </form>
 	  </center>
 	</td>

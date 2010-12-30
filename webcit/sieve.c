@@ -135,9 +135,9 @@ void display_sieve(void)
 	/* The "no filtering" div */
 
 	wc_printf("<div id=\"sievediv0\" style=\"display:none\">\n");
-	wc_printf("<div align=\"center\"><br /><br />");
+	wc_printf("<div align=\"center\"><br><br>");
 	wc_printf(_("Your incoming mail will not be filtered through any scripts."));
-	wc_printf("<br /><br /></div>\n");
+	wc_printf("<br><br></div>\n");
 	wc_printf("</div>\n");
 
 	/* The "webcit managed scripts" div */
@@ -168,7 +168,7 @@ void display_sieve(void)
 	wc_printf("&nbsp;&nbsp;&nbsp;");
 	wc_printf("<a href=\"display_add_remove_scripts\">%s</a>\n", _("Add or delete scripts"));
 
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	if (num_scripts > 0) {
 		for (i=0; i<num_scripts; ++i) {
@@ -657,12 +657,12 @@ void display_add_remove_scripts(char *message)
 
 	wc_printf(_("To create a new script, enter the desired "
 		"script name in the box below and click 'Create'."));
-	wc_printf("<br /><br />");
+	wc_printf("<br><br>");
 
         wc_printf("<center><form method=\"POST\" action=\"create_script\">\n");
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
         wc_printf(_("Script name: "));
-        wc_printf("<input type=\"text\" name=\"script_name\"><br />\n"
+        wc_printf("<input type=\"text\" name=\"script_name\"><br>\n"
         	"<input type=\"submit\" name=\"create_button\" value=\"%s\">"
 		"</form></center>\n", _("Create"));
 
@@ -671,7 +671,7 @@ void display_add_remove_scripts(char *message)
 	do_template("beginbox_1", NULL);
 	StrBufAppendBufPlain(WC->WBuf, _("Edit scripts"), -1, 0);
 	do_template("beginbox_2", NULL);
-	wc_printf("<br /><div align=center><a href=\"display_sieve\">%s</a><br /><br />\n",
+	wc_printf("<br><div align=center><a href=\"display_sieve\">%s</a><br><br>\n",
 		_("Return to the script editing screen")
 	);
 	do_template("endbox", NULL);
@@ -684,7 +684,7 @@ void display_add_remove_scripts(char *message)
 
 	wc_printf(_("To delete an existing script, select the script "
 		"name from the list and click 'Delete'."));
-	wc_printf("<br /><br />");
+	wc_printf("<br><br>");
 	
         wc_printf("<center>"
 		"<form method=\"POST\" action=\"delete_script\">\n");
@@ -703,7 +703,7 @@ void display_add_remove_scripts(char *message)
 			}
                 }
         }
-        wc_printf("</select><br />\n");
+        wc_printf("</select><br>\n");
 
         wc_printf("<input type=\"submit\" name=\"delete_button\" value=\"%s\" "
 		"onClick=\"return confirm('%s');\">", _("Delete script"), _("Delete this script?"));
@@ -931,7 +931,7 @@ void display_rules_editor_inner_div(void) {
 	);
 
 
-	wc_printf("<br />");
+	wc_printf("<br>");
 
 	wc_printf("<table cellpadding=2 width=100%%>");
 
@@ -1119,7 +1119,7 @@ void display_rules_editor_inner_div(void) {
 
 		wc_printf("<div id=\"div_automsg%d\">", i);
 		wc_printf(_("Message:"));
-		wc_printf("<br />");
+		wc_printf("<br>");
 		wc_printf("<textarea name=\"automsg%d\" id=\"automsg%d\" wrap=soft rows=5>\n", i, i);
 		escputs(automsg);
 		wc_printf("</textarea>");
@@ -1152,7 +1152,7 @@ void display_rules_editor_inner_div(void) {
 	}
 
 	wc_printf("</table>");
-	wc_printf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">%s</a><br /></div>\n",
+	wc_printf("<div id=\"div_addrule\"><a href=\"javascript:AddRule();\">%s</a><br></div>\n",
 		_("Add rule")
 	);
 

@@ -46,7 +46,7 @@ void userlist(void)
 	serv_puts("LIST");
 	serv_getln(buf, sizeof buf);
 	if (buf[0] != '1') {
-		wc_printf("<em>%s</em><br />\n", &buf[4]);
+		wc_printf("<em>%s</em><br>\n", &buf[4]);
 		goto DONE;
 	}
 
@@ -147,7 +147,7 @@ void showuser(void)
 	if (buf[0] == '1') {
 		fmout("JUSTIFY");
 	}
-	wc_printf("<br /><a href=\"display_page?recp=");
+	wc_printf("<br><a href=\"display_page?recp=");
 	urlescputs(who);
 	wc_printf("\">"
 		"<img src=\"static/citadelchat_24x.gif\" "

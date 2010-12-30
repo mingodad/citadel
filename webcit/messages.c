@@ -52,7 +52,7 @@ int load_message(message_summary *Msg,
 		*Error = NewStrBuf();
 		StrBufAppendPrintf(*Error, "<strong>");
 		StrBufAppendPrintf(*Error, _("ERROR:"));
-		StrBufAppendPrintf(*Error, "</strong> %s<br />\n", &buf[4]);
+		StrBufAppendPrintf(*Error, "</strong> %s<br>\n", &buf[4]);
 		FreeStrBuf(&Buf);
 		return 0;
 	}
@@ -70,7 +70,7 @@ int load_message(message_summary *Msg,
 				Msg->MsgBody->ContentType = NewStrBufPlain(HKEY("text/html"));
 				StrBufAppendPrintf(Msg->MsgBody->Data, "<div><i>");
 				StrBufAppendPrintf(Msg->MsgBody->Data, _("Empty message"));
-				StrBufAppendPrintf(Msg->MsgBody->Data, "</i><br /><br />\n");
+				StrBufAppendPrintf(Msg->MsgBody->Data, "</i><br><br>\n");
 				StrBufAppendPrintf(Msg->MsgBody->Data, "</div>\n");
 			}
 			break;
@@ -1422,7 +1422,7 @@ void display_enter(void)
 			}
 		}
 		else if (buf[0] != '2') {	/* Any other error means that we cannot continue */
-			wc_printf("<em>%s</em><br />\n", &buf[4]);	/* TODO -> important message */
+			wc_printf("<em>%s</em><br>\n", &buf[4]);	/* TODO -> important message */
 			return;
 		}
 	}
@@ -1509,7 +1509,7 @@ void confirm_move_msg(void)
 	wc_printf("<CENTER>");
 
 	wc_printf(_("Move this message to:"));
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	wc_printf("<form METHOD=\"POST\" action=\"move_msg\">\n");
 	wc_printf("<input type=\"hidden\" name=\"nonce\" value=\"%d\">\n", WC->nonce);
@@ -1527,7 +1527,7 @@ void confirm_move_msg(void)
 		}
 	}
 	wc_printf("</SELECT>\n");
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	wc_printf("<INPUT TYPE=\"submit\" NAME=\"move_button\" VALUE=\"%s\">", _("Move"));
 	wc_printf("&nbsp;");

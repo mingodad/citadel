@@ -178,8 +178,8 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	if (p != NULL) {
 		escputs((char *)icalproperty_get_comment(p));
 	}
-	wc_printf("<br />\n");
-	wc_printf("SEQUENCE == %d<br />\n", sequence);
+	wc_printf("<br>\n");
+	wc_printf("SEQUENCE == %d<br>\n", sequence);
 	*************************************************************/
 
 	wc_printf("<form name=\"EventForm\" method=\"POST\" action=\"save_event\">\n");
@@ -436,7 +436,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wc_printf("<table border='0' width='100%%'>\n");	/* same table style as the event tab */
 	wc_printf("<tr><td><b>");
 	wc_printf(_("Attendees"));
-	wc_printf("</b><br />"
+	wc_printf("</b><br>"
 		"<font size='-2'>");
 	wc_printf(_("(One per line)"));
 	wc_printf("</font>\n");
@@ -592,7 +592,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 
 	wc_printf(_("on day %s%d%s of the month"), "<span id=\"rrmday\">", rrmday, "</span>");
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	wc_printf("<input type=\"radio\" name=\"rrmonthtype\" id=\"rrmonthtype_wday\" "
 		"value=\"rrmonthtype_wday\" "
@@ -624,7 +624,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	}
 	wc_printf("</select>");
 
-	wc_printf(" %s<br />\n", _("of the month"));
+	wc_printf(" %s<br>\n", _("of the month"));
 
 	wc_printf("</div>\n");				/* end 'monthday_selector' div */
 
@@ -654,7 +654,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		((which_rryeartype_is_preselected == 0) ? "checked='checked'" : "")
 	);
 	wc_printf(_("every "));
-	wc_printf("<span id=\"ymday\">%s</span><br />", _("year on this date"));
+	wc_printf("<span id=\"ymday\">%s</span><br>", _("year on this date"));
 
 	wc_printf("<input type=\"radio\" name=\"rryeartype\" id=\"rryeartype_ywday\" "
 		"value=\"rryeartype_ywday\" "
@@ -698,7 +698,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		);
 	}
 	wc_printf("</select>");
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	wc_printf("</div>\n");				/* end 'yearday_selector' div */
 
@@ -718,7 +718,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		"%s onChange=\"RecurrenceShowHide();\">",
 		((which_rrend_is_preselected == 0) ? "checked='checked'" : "")
 	);
-	wc_printf("%s<br />\n", _("No ending date"));
+	wc_printf("%s<br>\n", _("No ending date"));
 
 	wc_printf("<input type=\"radio\" name=\"rrend\" id=\"rrend_count\" "
 		"value=\"rrend_count\" "
@@ -729,7 +729,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 	wc_printf(" <input type=\"text\" name=\"rrcount\" id=\"rrcount\" maxlength=\"3\" size=\"3\" ");
 	wc_printf("value=\"%d\"> ", recur.count);
 	wc_printf(_("times"));
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	wc_printf("<input type=\"radio\" name=\"rrend\" id=\"rrend_until\" "
 		"value=\"rrend_until\" "
@@ -742,7 +742,7 @@ void display_edit_individual_event(icalcomponent *supplied_vevent, long msgnum, 
 		recur.until = icaltime_add(t_start, icaldurationtype_from_int(604800));
 	}
 	display_icaltimetype_as_webform(&recur.until, "rruntil", 1);
-	wc_printf("<br />\n");
+	wc_printf("<br>\n");
 
 	wc_printf("</td></tr>\n");
 
