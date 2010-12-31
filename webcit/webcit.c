@@ -647,8 +647,7 @@ void session_loop(void)
 	}
 
 	/*
-	 * If we're not connected to a Citadel server, try to hook up the
-	 * connection now.
+	 * If we're not connected to a Citadel server, try to hook up the connection now.
 	 */
 	if (!WCC->connected) {
 		if (GetConnected()) {
@@ -665,7 +664,6 @@ void session_loop(void)
 			goto SKIP_ALL_THIS_CRAP;
 		}
 	}
-
 
 	/*
 	 * If we're not logged in, but we have authentication data (either from

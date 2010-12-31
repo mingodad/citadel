@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-30 16:48-0500\n"
+"POT-Creation-Date: 2010-12-31 17:29-0500\n"
 "PO-Revision-Date: 2010-10-22 14:46+0000\n"
 "Last-Translator: Flemming Veggerby <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -873,7 +873,7 @@ msgstr "Din adgangskode blev ikke accepteret."
 msgid "Log off"
 msgstr "Log af"
 
-#: ../../auth.c:603
+#: ../../auth.c:603 ../../webcit.c:657
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -1698,7 +1698,7 @@ msgstr "Kalender dag visning slutter:"
 msgid "Week starts on:"
 msgstr "Ugen starter:"
 
-#: ../../serv_func.c:188
+#: ../../serv_func.c:187
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
@@ -1708,11 +1708,11 @@ msgstr ""
 "acceptere flere lige nu. Prøv igen senere eller kontakt din System "
 "administrator."
 
-#: ../../serv_func.c:193 ../../serv_func.c:224
+#: ../../serv_func.c:192 ../../serv_func.c:223
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr ""
 
-#: ../../serv_func.c:233
+#: ../../serv_func.c:232
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
