@@ -647,21 +647,21 @@ void session_loop(void)
 	}
 
 	/*
-	 * If we're not connected to a Citadel server, try to hook up the
-	 * connection now.
+	 * If we're not connected to a Citadel server, try to hook up the connection now.
 	 */
 	if (!WCC->connected) {
 		if (GetConnected()) {
 			hprintf("HTTP/1.1 503 Service Unavailable\r\n");
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
-			wc_printf("%s", _("This program was unable to connect or stay connected to the Citadel server.  "
-				"Please report this problem to your system administrator."));
+			wc_printf(_("This program was unable to connect or stay "
+				"connected to the Citadel server.  Please report "
+				"this problem to your system administrator.")
+			);
 			end_burst();
 			goto SKIP_ALL_THIS_CRAP;
 		}
 	}
-
 
 	/*
 	 * If we're not logged in, but we have authentication data (either from

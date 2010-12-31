@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-30 16:48-0500\n"
+"POT-Creation-Date: 2010-12-31 17:29-0500\n"
 "PO-Revision-Date: 2010-11-13 00:06+0000\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -877,7 +877,7 @@ msgstr "La tua password non &egrave; stata accettata."
 msgid "Log off"
 msgstr "Esci"
 
-#: ../../auth.c:603
+#: ../../auth.c:603 ../../webcit.c:657
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -1702,18 +1702,18 @@ msgstr "La vista giornaliera del calendario finisce il:"
 msgid "Week starts on:"
 msgstr "La settimana parte da:"
 
-#: ../../serv_func.c:188
+#: ../../serv_func.c:187
 msgid ""
 "This server is already serving its maximum number of users and cannot accept "
 "any additional logins at this time.  Please try again later or contact your "
 "system administrator."
 msgstr ""
 
-#: ../../serv_func.c:193 ../../serv_func.c:224
+#: ../../serv_func.c:192 ../../serv_func.c:223
 msgid "Received unexpected answer from Citadel server; bailing out."
 msgstr ""
 
-#: ../../serv_func.c:233
+#: ../../serv_func.c:232
 #, c-format
 msgid ""
 "You are connected to a Citadel server running Citadel %d.%02d. \n"
