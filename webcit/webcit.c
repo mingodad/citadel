@@ -663,6 +663,7 @@ void session_loop(void)
 			wc_printf("</body></html>\n");
 			end_burst();
 			goto SKIP_ALL_THIS_CRAP;
+		}
 	}
 
 

@@ -167,7 +167,6 @@ int GetConnected (void)
 		WCC->serv_sock = tcp_connectsock(ctdlhost, ctdlport);
 	
 	if (WCC->serv_sock < 0) {
-		do_logout();
 		FreeStrBuf(&WCC->ReadBuf);
 		return 1;
 	}
