@@ -1,4 +1,7 @@
-#include <event.h>
+#include <ev.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 typedef struct AsyncIO AsyncIO;
 
@@ -15,16 +18,40 @@ typedef eNextState (*IO_CallBack)(void *Data);
 typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
 
 struct AsyncIO {
+	StrBuf *Host;
+	char service[32];
+
+	/* To cycle through several possible services... */
+	struct addrinfo *res;
+	struct addrinfo *curr_ai;
+
+	/* connection related */
 	int sock;
 	int active_event;
-	struct event recv_event, send_event;
-	IOBuffer SendBuf, RecvBuf;
-	IO_LineReaderCallback LineReader;
-	IO_CallBack ReadDone, SendDone, Terminate;
-	StrBuf *IOBuf;
-	void *Data;
-	DeleteHashDataFunc DeleteData; /* data is expected to contain AsyncIO... */
        	eNextState NextState;
+	ev_io recv_event, 
+		send_event, 
+		conn_event;
+	StrBuf *ErrMsg; /* if we fail to connect, or lookup, error goes here. */
+
+	/* read/send related... */
+	StrBuf *IOBuf;
+	IOBuffer SendBuf, 
+		RecvBuf;
+
+	/* Citadel application callbacks... */
+	IO_CallBack ReadDone, /* Theres new data to read... */
+		SendDone,     /* we may send more data */
+		Terminate,    /* shutting down... */
+		Timeout,      /* Timeout handler; may also be connection timeout */
+		ConnFail,     /* What to do when one connection failed? */
+		CustomDNS;    /* If the application wants to do custom dns functionality like cycle through different MX-Records */
+
+	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
+
+	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
+	DeleteHashDataFunc DeleteData; /* so if we have to destroy you, what to do... */
+	void *Data; /* application specific data */
 };
 
 typedef struct _IOAddHandler {
@@ -42,5 +69,8 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack ReadDone, 
 		 IO_CallBack SendDone, 
 		 IO_CallBack Terminate, 
+		 IO_CallBack Timeout, 
+		 IO_CallBack ConnFail, 
+		 IO_CallBack CustomDNS,
 		 IO_LineReaderCallback LineReader,
 		 int ReadFirst);

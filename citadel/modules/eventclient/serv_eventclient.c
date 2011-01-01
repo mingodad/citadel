@@ -65,10 +65,10 @@ HashList *QueueEvents = NULL;
 HashList *InboundEventQueue = NULL;
 HashList *InboundEventQueues[2] = { NULL, NULL };
 
-static struct event_base *event_base;
-struct event queue_add_event;
+struct ev_loop *event_base;
+struct ev_io queue_add_event;
 
-static void QueueEventAddCallback(int fd, short event, void *ctx)
+static void QueueEventAddCallback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	char buf[10];
 	HashList *q;
@@ -78,7 +78,7 @@ static void QueueEventAddCallback(int fd, short event, void *ctx)
 	const char *Key;
 
 	/* get the control command... */
-	read(fd, buf, 1);
+	read(watcher->fd, buf, 1);
 	switch (buf[0]) {
 	case '+':
 		citthread_mutex_lock(&EventQueueMutex);
@@ -104,10 +104,10 @@ static void QueueEventAddCallback(int fd, short event, void *ctx)
 /// TODO: add it to QueueEvents
 		break;
 	case 'x':
-		event_del(&queue_add_event);
+		/////event_del(&queue_add_event);
 		close(event_add_pipe[0]);
 /// TODO; flush QueueEvents fd's and delete it.
-		event_base_loopexit(event_base, NULL);
+		ev_io_stop(event_base, NULL);
 	}
 	/* Unblock the other side */
 //	read(fd, buf, 1);
@@ -119,7 +119,7 @@ void InitEventQueue(void)
 {
 	struct rlimit LimitSet;
 
-	event_base = event_init();
+	event_base = ev_default_loop(0);
 /*
 	base = event_base_new();
 	if (!base)
@@ -128,7 +128,7 @@ void InitEventQueue(void)
 	citthread_mutex_init(&EventQueueMutex, NULL);
 
 	if (pipe(event_add_pipe) != 0) {
-		CtdlLogPrintf(CTDL_EMERG, "Unable to create pipe for libevent queueing: %s\n", strerror(errno));
+		CtdlLogPrintf(CTDL_EMERG, "Unable to create pipe for libev queueing: %s\n", strerror(errno));
 		abort();
 	}
 	LimitSet.rlim_cur = 1;
@@ -141,17 +141,18 @@ void InitEventQueue(void)
 	InboundEventQueue = InboundEventQueues[0];
 }
 /*
- * this thread operates the select() etc. via libevent.
+ * this thread operates the select() etc. via libev.
  * 
  * 
  */
 void *client_event_thread(void *arg) 
 {
 	struct CitContext libevent_client_CC;
+
 	CtdlFillSystemContext(&libevent_client_CC, "LibEvent Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
 	CtdlLogPrintf(CTDL_DEBUG, "client_event_thread() initializing\n");
-	
+/*	
 	event_set(&queue_add_event, 
 		  event_add_pipe[0], 
 		  EV_READ|EV_PERSIST,
@@ -159,11 +160,16 @@ void *client_event_thread(void *arg)
 		  NULL);
 	
 	event_add(&queue_add_event, NULL);
+*/
+	ev_io_init(&queue_add_event, QueueEventAddCallback, event_add_pipe[0], EV_READ);
+	ev_io_start(event_base, &queue_add_event);
 
 
-	event_dispatch();
+	event_base = ev_default_loop (EVFLAG_AUTO);
+///	ev_loop(event_base, 0);
+
 	CtdlClearSystemContext();
-	event_base_free(event_base);
+	ev_default_destroy ();
 	citthread_mutex_destroy(&EventQueueMutex);
 	return(NULL);
 }

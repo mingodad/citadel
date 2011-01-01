@@ -220,9 +220,12 @@ void DeleteSmtpOutMsg(void *v)
 	free(Msg);
 }
 
+eNextState SMTP_C_Timeout(void *Data);
+eNextState SMTP_C_ConnFail(void *Data);
 eNextState SMTP_C_DispatchReadDone(void *Data);
 eNextState SMTP_C_DispatchWriteDone(void *Data);
 eNextState SMTP_C_Terminate(void *Data);
+eNextState SMTP_C_MXLookup(void *Data);
 
 typedef eNextState (*SMTPReadHandler)(SmtpOutMsg *Msg);
 typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
@@ -627,27 +630,20 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connecting [%s:%s]!\n", 
 		      SendMsg->n, SendMsg->mx_host, SendMsg->mx_port);
 
+	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.IOBuf = NewStrBuf();
+	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
+
+
 	SendMsg->IO.SendBuf.fd = 
 	SendMsg->IO.RecvBuf.fd = 
 	SendMsg->IO.sock = sock_connect(SendMsg->mx_host, SendMsg->mx_port);
 
 	StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
 		     "Could not connect: %s", strerror(errno));
-	if (SendMsg->IO.sock >= 0) 
-	{
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld:%ld]: connected!\n", SendMsg->n, SendMsg->IO.sock);
-		int fdflags; 
-		fdflags = fcntl(SendMsg->IO.sock, F_GETFL);
-		if (fdflags < 0)
-			CtdlLogPrintf(CTDL_DEBUG,
-				      "SMTP client[%ld]: unable to get socket flags! %s \n",
-				      SendMsg->n, strerror(errno));
-		fdflags = fdflags | O_NONBLOCK;
-		if (fcntl(SendMsg->IO.sock, F_SETFL, fdflags) < 0)
-			CtdlLogPrintf(CTDL_DEBUG,
-				      "SMTP client[%ld]: unable to set socket nonblocking flags! %s \n",
-				      SendMsg->n, strerror(errno));
-	}
+
+
 	if (SendMsg->IO.sock < 0) {
 		if (errno > 0) {
 			StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
@@ -667,17 +663,18 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 	}
 
 
-	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.IOBuf = NewStrBuf();
 	InitEventIO(&SendMsg->IO, SendMsg, 
 		    SMTP_C_DispatchReadDone, 
 		    SMTP_C_DispatchWriteDone, 
 		    SMTP_C_Terminate,
+		    SMTP_C_Timeout,
+		    SMTP_C_ConnFail,
+		    SMTP_C_MXLookup,
 		    SMTP_C_ReadServerStatus,
 		    1);
 	return 0;
 }
+
 
 eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
 {
@@ -1289,6 +1286,21 @@ eNextState SMTP_C_Terminate(void *Data)
 	FinalizeMessageSend(pMsg);
 
 }
+
+eNextState SMTP_C_Timeout(void *Data)
+{
+	SmtpOutMsg *pMsg = Data;
+	FinalizeMessageSend(pMsg);
+
+}
+
+eNextState SMTP_C_ConnFail(void *Data)
+{
+	SmtpOutMsg *pMsg = Data;
+	FinalizeMessageSend(pMsg);
+
+}
+
 eNextState SMTP_C_DispatchReadDone(void *Data)
 {
 	SmtpOutMsg *pMsg = Data;
@@ -1302,6 +1314,11 @@ eNextState SMTP_C_DispatchWriteDone(void *Data)
 	SmtpOutMsg *pMsg = Data;
 	return SendHandlers[pMsg->State](pMsg);
 	
+}
+
+eNextState SMTP_C_MXLookup(void *Data)
+{
+
 }
 
 
