@@ -950,6 +950,7 @@ int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	return (WCC != NULL)? (WCC->logged_in == 0) : 0;
+
 }
 
 

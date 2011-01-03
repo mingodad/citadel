@@ -7,12 +7,29 @@
 
 
 /*
+ * Are we logged in right now?
+ */
+function IsLoggedIn() {
+	if ($('is_logged_in').innerHTML == "yes") {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+
+
+/*
  * Wrapper script to require logging in before completing an action
  */
 function GetLoggedInFirst(destination_url) {
 
 	/* If logged in already, go directly to the destination. */
-	/* FIXME implement this */
+	if (IsLoggedIn()) {
+		window.location = destination_url;
+		return;
+	}
 
 	/* If not logged in, go modal and ask the user to log in first. */
 	p = 'do_template?template=get_logged_in?destination_url=' + destination_url;
