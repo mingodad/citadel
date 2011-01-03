@@ -22,7 +22,6 @@ int vsnprintf(char *buf, size_t max, const char *fmt, va_list argp);
 extern int msock;			/* master listening socket */
 extern int verbosity;		/* Logging level */
 extern char static_icon_dir[PATH_MAX];          /* where should we find our mime icons */
-extern long MaxRead; 
 int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
@@ -114,9 +113,9 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "R:u:h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "R:u:h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
 #endif
 		switch (a) {
 		case 'u':
@@ -204,9 +203,6 @@ int main(int argc, char **argv)
 			DumpTemplateI18NStrings = 1;
 			I18nDump = NewStrBufPlain(HKEY("int templatestrings(void)\n{\n"));
 			I18nDumpFile = optarg;
-			break;
-		case 'R':
-			MaxRead = atol(optarg);
 			break;
 		default:
 			fprintf(stderr, "usage: webcit "

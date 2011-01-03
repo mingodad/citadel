@@ -639,9 +639,9 @@ void cmd_read(char *cmdbuf)
 {
 	long start_pos;
 	size_t bytes;
-	size_t actual_bytes;
-	char *buf = NULL;
+	char buf[SIZ];
 
+	/* The client will transmit its requested offset and byte count */
 	start_pos = extract_long(cmdbuf, 0);
 	bytes = extract_int(cmdbuf, 1);
 
@@ -651,22 +651,22 @@ void cmd_read(char *cmdbuf)
 		return;
 	}
 
-	if (bytes > 100000) bytes = 100000;
-	buf = malloc(bytes + 1);
+	/* If necessary, reduce the byte count to the size of our buffer */
+	if (bytes > sizeof(buf)) {
+		bytes = sizeof(buf);
+	}
 
 	fseek(CC->download_fp, start_pos, 0);
-
-	actual_bytes = fread(buf, 1, bytes, CC->download_fp);
-	if (actual_bytes > 0) {
-		cprintf("%d %d\n", BINARY_FOLLOWS, (int)actual_bytes);
+	bytes = fread(buf, 1, bytes, CC->download_fp);
+	if (bytes > 0) {
+		/* Tell the client the actual byte count and transmit it */
+		cprintf("%d %d\n", BINARY_FOLLOWS, (int)bytes);
 		client_write(buf, bytes);
 	}
 	else {
 		cprintf("%d %s\n", ERROR, strerror(errno));
 	}
-	free(buf);
 }
-
 
 
 /*
