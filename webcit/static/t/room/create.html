@@ -6,8 +6,8 @@
 <div id="banner">
 <?=("roombanner")>
 </div>
+<div id="content" class="service">
 <?=("beginbox_1")><?_("Create a new room")><?=("beginbox_2")>
-
 
 <form name="create_room_form" method="POST" action="entroom">
 <input type="hidden" name="nonce" value="<?NONCE>">
@@ -101,7 +101,7 @@ else {
 <?SERV:MESG("roomaccess")>
 
 <?=("endbox")>
-
+</div>
 
 <?=("trailing")>
 <??("X", 11)>
