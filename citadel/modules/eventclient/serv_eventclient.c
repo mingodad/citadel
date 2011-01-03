@@ -119,7 +119,7 @@ void InitEventQueue(void)
 {
 	struct rlimit LimitSet;
 
-	event_base = ev_default_loop(0);
+///	event_base = ev_default_loop(0);
 /*
 	base = event_base_new();
 	if (!base)
@@ -161,13 +161,18 @@ void *client_event_thread(void *arg)
 	
 	event_add(&queue_add_event, NULL);
 */
+/*
 	ev_io_init(&queue_add_event, QueueEventAddCallback, event_add_pipe[0], EV_READ);
 	ev_io_start(event_base, &queue_add_event);
 
-
+*/
 	event_base = ev_default_loop (EVFLAG_AUTO);
 ///	ev_loop(event_base, 0);
 
+	ev_io_init(&queue_add_event, QueueEventAddCallback, event_add_pipe[0], EV_READ);
+	ev_io_start(event_base, &queue_add_event);
+
+	ev_loop (event_base, 0);
 	CtdlClearSystemContext();
 	ev_default_destroy ();
 	citthread_mutex_destroy(&EventQueueMutex);
