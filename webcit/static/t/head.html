@@ -26,7 +26,8 @@
 		<script type="text/javascript" src="static/modal.js"></script>
 	</head>
 <body>
-	<?ICONBAR>
+<div id="is_logged_in" style="display:none"><?%("COND:LOGGEDIN", 1, 1, 1, "no", "yes")></div>
+<?ICONBAR>
 <!--("begin modal container")-->
 <div id="modal">
 	<div class="md-overlay-decorator"></div>
