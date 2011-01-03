@@ -936,7 +936,7 @@ eNextState smtp_resolve_one_smtpsrv_start(void *data)
 
 int resolve_mx_records(void *Ctx)
 {
-	SmtpOutMsg * SendMsg;
+	SmtpOutMsg * SendMsg = Ctx;
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
 			&SendMsg->IO, 

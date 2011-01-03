@@ -529,10 +529,16 @@ int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
 
 static void DNS_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
+	AsyncIO *IO = watcher->data;
+	
+	ares_process_fd(IO->DNSChannel, IO->sock, 0);
 }
 
 static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
+	AsyncIO *IO = watcher->data;
+	
+	ares_process_fd(IO->DNSChannel, 0, IO->sock);
 }
 
 void SockStateCb(void *data, int sock, int read, int write) 
