@@ -465,6 +465,7 @@ int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
 	int length, family;
 	char address_b[sizeof(struct in6_addr)];
 	int optmask = 0;
+	int rfd, wfd;
 
 	optmask |= ARES_OPT_SOCK_STATE_CB;
 	IO->DNSOptions.sock_state_cb = SockStateCb;
@@ -522,6 +523,7 @@ int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
 		return 0;
 	}
 	ares_query(IO->DNSChannel, name, ns_c_in, Type, QueryCb, IO);
+	ares_fds(IO->DNSChannel, &rfd, &wfd);
 	return 1;
 }
 

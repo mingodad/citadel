@@ -2,6 +2,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <arpa/nameser.h>
+#include <ares.h>
 
 typedef struct AsyncIO AsyncIO;
 
@@ -16,6 +18,8 @@ typedef enum _eNextState {
 typedef int (*EventContextAttach)(void *Data);
 typedef eNextState (*IO_CallBack)(void *Data);
 typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
+typedef void (*ParseDNSAnswerCb)(AsyncIO*, unsigned char*, int);
+typedef void (*FreeDNSReply)(void *DNSData);
 
 struct AsyncIO {
 	StrBuf *Host;
@@ -49,6 +53,14 @@ struct AsyncIO {
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 
+	struct ares_options DNSOptions;
+	ares_channel DNSChannel;
+	ParseDNSAnswerCb DNS_CB;
+	IO_CallBack PostDNS;
+	int DNSStatus;
+	void *VParsedDNSReply;
+	FreeDNSReply DNSReplyFree;
+
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
 	DeleteHashDataFunc DeleteData; /* so if we have to destroy you, what to do... */
 	void *Data; /* application specific data */
@@ -74,3 +86,5 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack CustomDNS,
 		 IO_LineReaderCallback LineReader,
 		 int ReadFirst);
+
+int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);

@@ -924,6 +924,28 @@ eNextState SMTPC_send_dummy(SmtpOutMsg *SendMsg)
 	return eReadMessage;
 }
 
+eNextState smtp_resolve_one_smtpsrv_start(void *data)
+{
+	AsyncIO *IO = data;
+	SmtpOutMsg * SendMsg = IO->Data;
+///	resolve_mx_hosts(SendMsg);
+	//// connect_one_smtpsrv_xamine_result
+
+	connect_one_smtpsrv(SendMsg);
+}
+
+int resolve_mx_records(void *Ctx)
+{
+	SmtpOutMsg * SendMsg;
+	if (!QueueQuery(ns_t_mx, 
+			SendMsg->node, 
+			&SendMsg->IO, 
+			smtp_resolve_one_smtpsrv_start))
+	{
+		/// TODO: abort
+	}
+}
+
 void smtp_try(OneQueItem *MyQItem, 
 	      MailQEntry *MyQEntry, 
 	      StrBuf *MsgText, 
@@ -943,11 +965,12 @@ void smtp_try(OneQueItem *MyQItem,
 		SendMsg->msgtext = NewStrBufDup(MsgText);
 
 	smtp_resolve_recipients(SendMsg);
-	resolve_mx_hosts(SendMsg);
-	connect_one_smtpsrv(SendMsg);
+
 	QueueEventContext(SendMsg, 
 			  &SendMsg->IO,
-			  connect_one_smtpsrv_xamine_result);
+			  resolve_mx_records);
+
+
 }
 
 
