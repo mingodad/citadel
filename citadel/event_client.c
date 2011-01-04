@@ -375,11 +375,13 @@ int event_connect_socket(AsyncIO *IO)
 	int rc = -1;
 
 	IO->SendBuf.fd = 
-	IO->RecvBuf.fd = 
-	IO->sock = socket(IO->curr_ai->ai_family, 
+		IO->RecvBuf.fd = 
+		IO->sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+/*
+IO->curr_ai->ai_family, 
 			  IO->curr_ai->ai_socktype, 
 			  IO->curr_ai->ai_protocol);
-
+*/
 	if (IO->sock < 0) {
 		CtdlLogPrintf(CTDL_ERR, "EVENT: socket() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to create socket: %s", strerror(errno));
@@ -411,7 +413,20 @@ int event_connect_socket(AsyncIO *IO)
 	ev_io_init(&IO->send_event, IO_send_callback, IO->sock, EV_WRITE);
 	IO->send_event.data = IO;
 	
-	rc = connect(IO->sock, IO->curr_ai->ai_addr, IO->curr_ai->ai_addrlen);
+	unsigned short dport = atoi("25"); ///todo
+	struct sockaddr_in  saddr;
+	memset( (struct sockaddr_in *)&saddr, '\0', sizeof( saddr ) );
+
+	memcpy(&saddr.sin_addr, 
+	       IO->HEnt->h_addr_list[0],
+	       sizeof(struct in_addr));
+	saddr.sin_family = AF_INET;
+	saddr.sin_port = htons(dport);/// TODO
+	rc = connect(IO->sock, 
+		     (struct sockaddr *) &saddr,
+/// TODO: ipv6??		     (IO->HEnt->h_addrtype == AF_INET6)?
+		     /*     sizeof(in6_addr):*/
+		     sizeof(struct sockaddr_in));
 	if (rc >= 0) {
 ////		freeaddrinfo(res);
 		ev_io_init(&IO->conn_event, IO_send_callback, IO->sock, EV_WRITE);
@@ -440,10 +455,10 @@ int event_connect_socket(AsyncIO *IO)
 		CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to connect: %s", strerror(errno));
 		close(IO->sock);
-		IO->curr_ai = IO->curr_ai->ai_next;
+/*		IO->curr_ai = IO->curr_ai->ai_next;
 		if (IO->curr_ai != NULL)
 			return event_connect_socket(IO);
-		else
+			else*/
 			return -1;
 	}
 }
@@ -455,7 +470,6 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack Terminate, 
 		 IO_CallBack Timeout, 
 		 IO_CallBack ConnFail, 
-		 IO_CallBack CustomDNS,
 		 IO_LineReaderCallback LineReader,
 		 int ReadFirst)
 {
@@ -471,7 +485,8 @@ void InitEventIO(AsyncIO *IO,
 	else {
 		IO->NextState = eSendReply;
 	}
-
+	IO->IP6 = IO->HEnt->h_addrtype == AF_INET6;
+//	IO->res = HEnt->h_addr_list[0];
 	event_connect_socket(IO);
 }
 

@@ -30,6 +30,8 @@ struct AsyncIO {
 	struct addrinfo *curr_ai;
 
 	/* connection related */
+	int IP6;
+	struct hostent *HEnt;
 	int sock;
 	int active_event;
        	eNextState NextState;
@@ -83,7 +85,6 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack Terminate, 
 		 IO_CallBack Timeout, 
 		 IO_CallBack ConnFail, 
-		 IO_CallBack CustomDNS,
 		 IO_LineReaderCallback LineReader,
 		 int ReadFirst);
 

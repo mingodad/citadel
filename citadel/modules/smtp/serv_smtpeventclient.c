@@ -191,25 +191,21 @@ typedef struct _stmp_out_msg {
 
 	eSMTP_C_States State;
 
-///	int SMTPstatus; ->MyQEntry->Status
+	struct ares_mx_reply *AllMX;
+	struct ares_mx_reply *CurrMX;
+	const char *mx_port;
+	const char *mx_host;
 
-	int i_mx;
-	int n_mx;
-	int num_mxhosts;
+	struct hostent *OneMX;
+
+
 	char mx_user[1024];
 	char mx_pass[1024];
-	char mx_host[1024];
-	char mx_port[1024];
-	char mxhosts[SIZ];
-
 	StrBuf *msgtext;
 	char *envelope_from;
 	char user[1024];
 	char node[1024];
 	char name[1024];
-/// 	char addr[SIZ]; -> MyQEntry->Recipient
-///	char dsn[1024]; -> MyQEntry->StatusMessage
-///	char envelope_from_buf[1024]; MyQItem->EnvelopeFrom
 	char mailfrom[1024];
 } SmtpOutMsg;
 void DeleteSmtpOutMsg(void *v)
@@ -565,21 +561,6 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 	return 0;
 }
 
-void resolve_mx_hosts(SmtpOutMsg *SendMsg)
-{
-	/// well this is blocking and sux, but libevent jsut supports async dns since v2
-	/* Figure out what mail exchanger host we have to connect to */
-	SendMsg->num_mxhosts = getmx(SendMsg->mxhosts, SendMsg->node);
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: Number of MX hosts for <%s> is %d [%s]\n", 
-		      SendMsg->n, SendMsg->node, SendMsg->num_mxhosts, SendMsg->mxhosts);
-	if (SendMsg->num_mxhosts < 1) {
-		SendMsg->MyQEntry->Status = 5;
-		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-			     "No MX hosts found for <%s>", SendMsg->node);
-		return; ///////TODO: abort!
-	}
-
-}
 
 #define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); return eAbort; }
 #define SMTP_VERROR(WHICH_ERR) { SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); return eAbort; }
@@ -588,42 +569,11 @@ void resolve_mx_hosts(SmtpOutMsg *SendMsg)
 #define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 #define SMTP_DBG_READ() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 
-void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
-{
-	char *endpart;
-	char buf[SIZ];
 
-	extract_token(buf, SendMsg->mxhosts, SendMsg->n_mx, '|', sizeof(buf));
-	strcpy(SendMsg->mx_user, "");
-	strcpy(SendMsg->mx_pass, "");
-	if (num_tokens(buf, '@') > 1) {
-		strcpy (SendMsg->mx_user, buf);
-		endpart = strrchr(SendMsg->mx_user, '@');
-		*endpart = '\0';
-		strcpy (SendMsg->mx_host, endpart + 1);
-		endpart = strrchr(SendMsg->mx_user, ':');
-		if (endpart != NULL) {
-			strcpy(SendMsg->mx_pass, endpart+1);
-			*endpart = '\0';
-		}
-	}
-	else
-		strcpy (SendMsg->mx_host, buf);
-	endpart = strrchr(SendMsg->mx_host, ':');
-	if (endpart != 0){
-		*endpart = '\0';
-		strcpy(SendMsg->mx_port, endpart + 1);
-	}		
-	else {
-		strcpy(SendMsg->mx_port, "25");
-	}
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connecting to %s : %s ...\n", 
-		      SendMsg->n, SendMsg->mx_host, SendMsg->mx_port);
-
-}
-
-
-int connect_one_smtpsrv_xamine_result(void *Ctx)
+void connect_one_smtpsrv_xamine_result(void *Ctx, 
+				       int status,
+				       int timeouts,
+				       struct hostent *hostent)
 {
 	SmtpOutMsg *SendMsg = Ctx;
 
@@ -661,7 +611,7 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 		//// hier: abbrechen & bounce.
 		return -1;
 	}
-
+/*
 
 	InitEventIO(&SendMsg->IO, SendMsg, 
 		    SMTP_C_DispatchReadDone, 
@@ -672,7 +622,84 @@ int connect_one_smtpsrv_xamine_result(void *Ctx)
 		    SMTP_C_MXLookup,
 		    SMTP_C_ReadServerStatus,
 		    1);
+*/
 	return 0;
+}
+
+void get_one_mx_host_name_done(void *Ctx, 
+			       int status,
+			       int timeouts,
+			       struct hostent *hostent)
+{
+	SmtpOutMsg *SendMsg = Ctx;
+	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
+
+			SendMsg->IO.HEnt = hostent;
+			InitEventIO(&SendMsg->IO, SendMsg, 
+				    SMTP_C_DispatchReadDone, 
+				    SMTP_C_DispatchWriteDone, 
+				    SMTP_C_Terminate,
+				    SMTP_C_Timeout,
+				    SMTP_C_ConnFail,
+				    SMTP_C_ReadServerStatus,
+				    1);
+
+	}
+}
+
+const char *DefaultMXPort = "25";
+void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
+{
+	//char *endpart;
+	//char buf[SIZ];
+
+	SendMsg->mx_port = DefaultMXPort;
+
+/* TODO: Relay!
+	*SendMsg->mx_user =  '\0';
+	*SendMsg->mx_pass = '\0';
+	if (num_tokens(buf, '@') > 1) {
+		strcpy (SendMsg->mx_user, buf);
+		endpart = strrchr(SendMsg->mx_user, '@');
+		*endpart = '\0';
+		strcpy (SendMsg->mx_host, endpart + 1);
+		endpart = strrchr(SendMsg->mx_user, ':');
+		if (endpart != NULL) {
+			strcpy(SendMsg->mx_pass, endpart+1);
+			*endpart = '\0';
+		}
+
+	endpart = strrchr(SendMsg->mx_host, ':');
+	if (endpart != 0){
+		*endpart = '\0';
+		strcpy(SendMsg->mx_port, endpart + 1);
+	}		
+	}
+	else
+*/
+	SendMsg->mx_host = SendMsg->CurrMX->host;
+	SendMsg->CurrMX = SendMsg->CurrMX->next;
+
+	CtdlLogPrintf(CTDL_DEBUG, 
+		      "SMTP client[%ld]: connecting to %s : %s ...\n", 
+		      SendMsg->n, 
+		      SendMsg->mx_host, 
+		      SendMsg->mx_port);
+
+	ares_gethostbyname(SendMsg->IO.DNSChannel,
+			   SendMsg->mx_host,   
+			   AF_INET6, /* it falls back to ipv4 in doubt... */
+			   get_one_mx_host_name_done,
+			   &SendMsg->IO);
+/*
+	if (!QueueQuery(ns_t_a, 
+			SendMsg->mx_host, 
+			&SendMsg->IO, 
+			connect_one_smtpsrv_xamine_result))
+	{
+		/// TODO: abort
+	}
+*/
 }
 
 
@@ -924,15 +951,18 @@ eNextState SMTPC_send_dummy(SmtpOutMsg *SendMsg)
 	return eReadMessage;
 }
 
-eNextState smtp_resolve_one_smtpsrv_start(void *data)
-{
+eNextState smtp_resolve_mx_done(void *data)
+{/// VParsedDNSReply
 	AsyncIO *IO = data;
 	SmtpOutMsg * SendMsg = IO->Data;
-///	resolve_mx_hosts(SendMsg);
-	//// connect_one_smtpsrv_xamine_result
 
+	//// connect_one_smtpsrv_xamine_result
+	SendMsg->CurrMX = SendMsg->AllMX = IO->VParsedDNSReply;
+	//// TODO: should we remove the current ares context???
 	connect_one_smtpsrv(SendMsg);
 }
+
+
 
 int resolve_mx_records(void *Ctx)
 {
@@ -940,9 +970,12 @@ int resolve_mx_records(void *Ctx)
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
 			&SendMsg->IO, 
-			smtp_resolve_one_smtpsrv_start))
+			smtp_resolve_mx_done))
 	{
-		/// TODO: abort
+		SendMsg->MyQEntry->Status = 5;
+		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+			     "No MX hosts found for <%s>", SendMsg->node);
+		return; ///////TODO: abort!
 	}
 }
 
@@ -959,6 +992,7 @@ void smtp_try(OneQueItem *MyQItem,
 	SendMsg->n = MsgCount++;
 	SendMsg->MyQEntry = MyQEntry;
 	SendMsg->MyQItem = MyQItem;
+	SendMsg->IO.Data = SendMsg;
 	if (KeepMsgText)
 		SendMsg->msgtext = MsgText;
 	else 
