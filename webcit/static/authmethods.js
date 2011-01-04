@@ -62,3 +62,12 @@ function ajax_try_username_and_password(destination_url) {
 		}
 	});
 }
+
+/*
+ * tab handler for the login box
+ */
+function authtoggle(show_which_div) {
+	$('authbox_userpass').style.display = 'none';
+	$('authbox_openid').style.display = 'none';
+	$(show_which_div).style.display = 'block';
+}
