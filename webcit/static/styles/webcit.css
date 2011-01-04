@@ -1288,3 +1288,26 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	box-shadow: #666 0px 2px 3px;
 	behavior: url(/static/styles/PIE.htc);
 }
+
+
+#loginbox_topline_container {
+	position: relative;
+}
+
+#loginbox_title {
+	float: left;
+	width: 75%;
+	text-align: left;
+	color: white;
+	background-color: #022750;
+	border: 3px solid #022750;
+}
+
+#loginbox_closebutton {
+	float: right;
+	width: 23%;
+	text-align: right;
+	color: white;
+	background-color: #ddd;
+	border: 3px solid #ddd;
+}
