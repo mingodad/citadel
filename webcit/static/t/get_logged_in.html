@@ -11,18 +11,48 @@ To complete this action, you must log in.  FIXME localize this string.
 </div>
 <br><br>
 <div class="login_message" id="login_errmsg"></div>
+<div id="auth_container">
+<div id="authbar">
+<ul id="button">
+<li class="ib_button" style='background-image: url("/static/usermanag_32x.gif");'>
+    <a class="ib_button_link" href="javascript:authtoggle('authbox_userpass');" title="<?SERV:HUMANNODE>"><span>
+        <?SERV:HUMANNODE>
+    </span></a>
+</li>
+<li class="ib_button" style='background-image: url("/static/usermanag_32x.gif");'>
+    <a class="ib_button_link" href="javascript:authtoggle('authbox_openid');" title="OpenID"><span>
+        OpenID
+    </span></a>
+</li>
+<li class="ib_button">
+</li>
+<li class="ib_button">
+</li>
+<li class="ib_button">
+</li>
+<li class="ib_button">
+</li>
+</ul>
+</div>
+
+<div class="authbox" id="authbox_userpass" style="display: block">
+<h2><?_("Log in using a user name and password")></h2>
 <form id="ajax_username_password_form" method="POST" action="ajax_login_username_password">
-<table border=0 cellspacing=0 cellpadding=0><tr>
-<td><?_("User name:")></td>
-<td><input type="text" name="name" id="uname"></td>
-</tr><tr>
-<td><?_("Password:")></td>
-<td><input type="password" name="pass" id="pname"></td>
-</tr></table>
+<?_("User name:")>
+<input type="text" name="name" id="uname">
+<br>
+<?_("Password:")>
+<input type="password" name="pass" id="pname">
+<br>
 </form>
-<hr>
 <div class="buttons"><a href="javascript:ajax_try_username_and_password('<?BSTR("destination_url")>');"><?_("Log in")></a></div>
-<div class="buttons"><a href="javascript:toggleModal(0);"><?_("Cancel")></a></div>
+</div>
+
+<div class="authbox" id="authbox_openid" style="display: none">
+<h2><?_("Log in using OpenID")></h2>
+ju gunna put da openid login here, haina?
+</div>
+
 </div>
 </body>
 </html>
