@@ -1,12 +1,16 @@
 <html>
 <body>
-<div align="right">
-<a href="javascript:toggleModal(0);"><img src="static/closewindow.gif" border="0"></a>
+<div id="loginbox_topline_container">
+<div id="loginbox_title">
+To complete this action, you must log in.  FIXME localize this string.
 </div>
-<div align="center">
-To complete this action, you must log in.  FIXME localize this string.<br>
+<div id="loginbox_closebutton">
+<a href="javascript:toggleModal(0);">
+<?_("Close window")>&nbsp;<img src="static/closewindow.gif" border="0"></a>
+</div>
+</div>
+<br><br>
 <div class="login_message" id="login_errmsg"></div>
-<hr>
 <form id="ajax_username_password_form" method="POST" action="ajax_login_username_password">
 <table border=0 cellspacing=0 cellpadding=0><tr>
 <td><?_("User name:")></td>
