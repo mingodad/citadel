@@ -957,5 +957,6 @@ SessionDestroyModule_WEBCIT
 	FreeStrBuf(&sess->WBuf);
 	FreeStrBuf(&sess->HBuf);
 	FreeStrBuf(&sess->ImportantMsg);
+	FreeStrBuf(&sess->PushedDestination);
 }
 
