@@ -1100,10 +1100,13 @@ li.event_unread span, a.event_read_title { font-size: 100% }
 
 #noscript_warning {
 	position: fixed;
+	z-index: 999;
 	top: 0;
-	left: 0;
+	right: 0;
 	background-color: #FF0000;
 	color: #FFFFFF;
+	font-size: 120%;
+	border: 2px solid #FF0000;
 }
 
 .chatrecv_history_class {
