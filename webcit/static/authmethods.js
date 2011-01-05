@@ -27,7 +27,7 @@ function GetLoggedInFirst(destination_url) {
 
 	/* If logged in already, go directly to the destination. */
 	if (IsLoggedIn()) {
-		window.location = destination_url;
+		window.location = decodeURIComponent(destination_url);
 		return;
 	}
 
@@ -50,11 +50,12 @@ function GetLoggedInFirst(destination_url) {
  * Attempt login with username/password, called from modal dialog
  */
 function ajax_try_username_and_password(destination_url) {
+
 	$('login_errmsg').innerHTML = "";
         $('ajax_username_password_form').request({
 		onSuccess: function(ctdlresult) {
 			if (ctdlresult.responseText.substr(0,1) == '2') {
-				window.location = destination_url;
+				window.location = decodeURIComponent(destination_url);
 			}
 			else {
 				$('login_errmsg').innerHTML = ctdlresult.responseText.substr(4) ;
