@@ -3,7 +3,7 @@
  * waiting on the specified port for incoming HTTP connections.  When a
  * connection is established, it calls context_loop() from context_loop.c.
  *
- * Copyright (c) 1996-2010 by the citadel.org developers.
+ * Copyright (c) 1996-2011 by the citadel.org developers.
  * This program is released under the terms of the GNU General Public License v3.
  *
  */
@@ -236,16 +236,26 @@ int main(int argc, char **argv)
 
 	/* Tell 'em who's in da house */
 	lprintf(1, PACKAGE_STRING "\n");
-	lprintf(1, "Copyright (C) 1996-2010 by the Citadel development team.\n"
-		"This software is distributed under the terms of the "
-		"GNU General Public License.\n\n"
-	);
+	lprintf(1, "Copyright (C) 1996-2011 by the citadel.org team\n");
+	lprintf(1, "\n");
+	lprintf(1, "This program is open source  software: you can redistribute it and/or\n");
+	lprintf(1, "modify it under the terms of the GNU General Public License as published\n");
+	lprintf(1, "by the Free Software Foundation, either version 3 of the License, or\n");
+	lprintf(1, "(at your option) any later version.\n");
+	lprintf(1, "\n");
+	lprintf(1, "This program is distributed in the hope that it will be useful,\n");
+	lprintf(1, "but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
+	lprintf(1, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
+	lprintf(1, "GNU General Public License for more details.\n");
+	lprintf(1, "\n");
+	lprintf(1, "You should have received a copy of the GNU General Public License\n");
+	lprintf(1, "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
+	lprintf(1, "\n");
 
 
-	/* initialize the International Bright Young Thing */
+	/* initialize various subsystems */
 
 	initialise_modules();
-
 	InitTemplateCache();
 	if (DumpTemplateI18NStrings) {
 		FILE *fd;
