@@ -412,10 +412,14 @@ int ConditionalHaveRoomeditRights(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 
-	return ( (WCC!= NULL) && 
-		 ((WCC->axlevel >= 6) || 
-		  ((WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0) ||
-		  (WCC->CurRoom.is_inbox) ));
+	return (	(WCC != NULL)
+			&& (WCC->logged_in)
+			&& (
+				(WCC->axlevel >= 6)
+				|| ((WCC->CurRoom.RAFlags & UA_ADMINALLOWED) != 0)
+				|| (WCC->CurRoom.is_inbox)
+			)
+		);
 }
 
 
