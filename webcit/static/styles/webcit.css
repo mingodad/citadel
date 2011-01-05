@@ -1297,14 +1297,14 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 
 #loginbox_topline_container {
 	position: relative;
-	font-size: 130%;
+	font-size: 110%;
 	color: white;
 }
 
 #loginbox_title {
 	float: left;
 	width: 75%;
-	text-align: left;
+	text-align: center;
 	background-color: #022750;
 	border: 3px solid #022750;
 }

@@ -57,7 +57,7 @@
 	*display:inline;
 	*height:100%;
 	*width:0;
-	*background:red;
+	*background:#022750;
 }
 
 #modal {
@@ -70,6 +70,6 @@
 
 .md-dialog {
 	background: white;
-	border: 2px solid #800;
+	border: 2px solid #022750;
 	padding: 10px;
 }
