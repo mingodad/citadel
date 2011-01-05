@@ -476,7 +476,7 @@ struct wcsession {
 
 /* Session local Members */
 	int serv_sock;				/* Client socket to Citadel server */
-	StrBuf *ReadBuf;                        /* here we keep our stuff while reading linebuffered from the server. */
+	StrBuf *ReadBuf;                        /* linebuffered reads from the server */
 	StrBuf *MigrateReadLineBuf;             /* here we buffer legacy server read stuff */
 	const char *ReadPos;                    /* whats our read position in ReadBuf? */
 	int last_chat_seq;			/* When in chat - last message seq# we saw */
@@ -484,6 +484,7 @@ struct wcsession {
 	time_t last_pager_check;		/* last time we polled for instant msgs */
 	ServInfo *serv_info;			/* Information about the citserver we're connected to */
 	int is_ajax;                            /* are we doing an ajax request? */
+	StrBuf *PushedDestination;		/* Where to go after login, registration, etc. */
 
 /* Request local Members */
 	StrBuf *CLineBuf;                       /* linebuffering client stuff */
@@ -496,7 +497,7 @@ struct wcsession {
 	char ImportantMessage[SIZ];
 	StrBuf *ImportantMsg;
 	HashList *Directory;			/* Parts of the directory URL in snippets */
-	const Floor *CurrentFloor;              /**< when Parsing REST, which floor are we on? */
+	const Floor *CurrentFloor;              /* when Parsing REST, which floor are we on? */
 
 /* accounting */
 	StrBuf *wc_username;			/* login name of current user */
