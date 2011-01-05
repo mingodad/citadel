@@ -472,6 +472,39 @@ void seconds_since_last_gexp(void)
 }
 
 
+/*
+ * Save a URL destination so we can go to it later
+ */
+void push_destination(void) {
+	wcsession *WCC = WC;
+
+	if (!WCC) {
+		wc_printf("no session");
+		return;
+	}
+
+	FreeStrBuf(&WCC->PushedDestination);
+	WCC->PushedDestination = NewStrBufDup(SBSTR("url"));
+	lprintf(9, "Push: %s\n", ChrPtr(WCC->PushedDestination));
+	wc_printf("OK");
+}
+
+/*
+ * Go to the URL saved by push_destination()
+ */
+void pop_destination(void) {
+	wcsession *WCC = WC;
+
+	if (!WCC) {
+		do_welcome();
+		return;
+	}
+
+	lprintf(9, "Pop: %s\n", ChrPtr(WCC->PushedDestination));
+	http_redirect(ChrPtr(WCC->PushedDestination));
+}
+
+
 
 int ReadPostData(void)
 {
@@ -878,6 +911,8 @@ InitModule_WEBCIT
 	WebcitAddUrlHandler(HKEY("sslg"), "", 0, seconds_since_last_gexp, AJAX|LOGCHATTY);
 	WebcitAddUrlHandler(HKEY("ajax_servcmd"), "", 0, ajax_servcmd, 0);
 	WebcitAddUrlHandler(HKEY("webcit"), "", 0, blank_page, URLNAMESPACE);
+	WebcitAddUrlHandler(HKEY("push"), "", 0, push_destination, AJAX);
+	WebcitAddUrlHandler(HKEY("pop"), "", 0, pop_destination, 0);
 
 	WebcitAddUrlHandler(HKEY("401"), "", 0, authorization_required, ANONYMOUS|COOKIEUNNEEDED);
 	RegisterConditional(HKEY("COND:IMPMSG"), 0, ConditionalImportantMesage, CTX_NONE);
