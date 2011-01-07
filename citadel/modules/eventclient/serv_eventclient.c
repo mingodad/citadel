@@ -107,7 +107,8 @@ static void QueueEventAddCallback(struct ev_loop *loop, ev_io *watcher, int reve
 		/////event_del(&queue_add_event);
 		close(event_add_pipe[0]);
 /// TODO; flush QueueEvents fd's and delete it.
-		ev_io_stop(event_base, NULL);
+		ev_io_stop(event_base, &queue_add_event);
+		ev_unloop(event_base, EVUNLOOP_ALL);
 	}
 	/* Unblock the other side */
 //	read(fd, buf, 1);
