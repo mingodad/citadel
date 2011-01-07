@@ -28,29 +28,25 @@
 <body>
 <div id="is_logged_in" style="display:none"><?%("COND:LOGGEDIN", 1, 1, 1, "no", "yes")></div>
 <?ICONBAR>
-<!--("begin modal container")-->
+<!-- begin modal box -->
 <div id="modal">
-	<div class="md-overlay-decorator"></div>
+	<div class="md-overlay-decorator">
+	</div>
 	<div class="md-overlay-wrap">
 		<div class="md-overlay">
-			<div class="md-dialog-decorator"></div>
+			<div class="md-dialog-decorator">
+			</div>
 			<div class="md-dialog-wrap">
 				<div class="md-dialog" id="dialog">
 					<div class="md-content" id="md-content">
-
-This is the modal dialog box.  If you are seeing this message, the
-modal dialog was invoked without first populating its contents, which
-is a mistake.
-<br>
-<h2><a href="javascript:toggleModal(0);">Dismiss</a></h2>
-
+						<!-- contents of modal box go here -->
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<!--("end modal container")-->
+<!-- end modal box -->
 <noscript><div id="noscript_warning">
 <?_("WARNING: You have JavaScript disabled in your web browser.  Many functions of this system will not work properly.")>
 </div></noscript>
