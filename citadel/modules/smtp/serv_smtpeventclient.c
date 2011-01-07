@@ -569,7 +569,7 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 #define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 #define SMTP_DBG_READ() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 
-
+/*
 void connect_one_smtpsrv_xamine_result(void *Ctx, 
 				       int status,
 				       int timeouts,
@@ -607,9 +607,9 @@ void connect_one_smtpsrv_xamine_result(void *Ctx,
 	}
 	/// hier: naechsten mx ausprobieren.
 	if (SendMsg->IO.sock < 0) {
-		SendMsg->MyQEntry->Status = 4;	/* dsn is already filled in */
+		SendMsg->MyQEntry->Status = 4;	/* dsn is already filled in * /
 		//// hier: abbrechen & bounce.
-		return -1;
+		return;
 	}
 /*
 
@@ -622,9 +622,10 @@ void connect_one_smtpsrv_xamine_result(void *Ctx,
 		    SMTP_C_MXLookup,
 		    SMTP_C_ReadServerStatus,
 		    1);
-*/
-	return 0;
+* /
+	return;
 }
+*/
 
 void get_one_mx_host_name_done(void *Ctx, 
 			       int status,
@@ -960,6 +961,7 @@ eNextState smtp_resolve_mx_done(void *data)
 	SendMsg->CurrMX = SendMsg->AllMX = IO->VParsedDNSReply;
 	//// TODO: should we remove the current ares context???
 	connect_one_smtpsrv(SendMsg);
+	return 0;
 }
 
 
@@ -967,6 +969,16 @@ eNextState smtp_resolve_mx_done(void *data)
 int resolve_mx_records(void *Ctx)
 {
 	SmtpOutMsg * SendMsg = Ctx;
+
+	InitEventIO(&SendMsg->IO, SendMsg, 
+				    SMTP_C_DispatchReadDone, 
+				    SMTP_C_DispatchWriteDone, 
+				    SMTP_C_Terminate,
+				    SMTP_C_Timeout,
+				    SMTP_C_ConnFail,
+				    SMTP_C_ReadServerStatus,
+				    1);
+				    return 0;
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
 			&SendMsg->IO, 
@@ -975,8 +987,9 @@ int resolve_mx_records(void *Ctx)
 		SendMsg->MyQEntry->Status = 5;
 		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
 			     "No MX hosts found for <%s>", SendMsg->node);
-		return; ///////TODO: abort!
+		return 0; ///////TODO: abort!
 	}
+	return 0;
 }
 
 void smtp_try(OneQueItem *MyQItem, 
@@ -1341,21 +1354,21 @@ eNextState SMTP_C_Terminate(void *Data)
 {
 	SmtpOutMsg *pMsg = Data;
 	FinalizeMessageSend(pMsg);
-
+	return 0;
 }
 
 eNextState SMTP_C_Timeout(void *Data)
 {
 	SmtpOutMsg *pMsg = Data;
 	FinalizeMessageSend(pMsg);
-
+	return 0;
 }
 
 eNextState SMTP_C_ConnFail(void *Data)
 {
 	SmtpOutMsg *pMsg = Data;
 	FinalizeMessageSend(pMsg);
-
+	return 0;
 }
 
 eNextState SMTP_C_DispatchReadDone(void *Data)
@@ -1372,12 +1385,6 @@ eNextState SMTP_C_DispatchWriteDone(void *Data)
 	return SendHandlers[pMsg->State](pMsg);
 	
 }
-
-eNextState SMTP_C_MXLookup(void *Data)
-{
-
-}
-
 
 #endif
 CTDL_MODULE_INIT(smtp_eventclient)
