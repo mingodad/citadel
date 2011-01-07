@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is open source software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -261,9 +261,10 @@ extern char *ssl_cipher_list;
 #define NO_SUCH_SYSTEM 			73	
 #define ALREADY_EXISTS 			74	
 #define MESSAGE_NOT_FOUND 		75
+
 /*
  * NLI is the string that shows up in a who's online listing for sessions
- * that are active, but for which no user has yet authenticated.
+ * that are active but do not (yet) have a user logged in.
  */
 #define NLI	"(not logged in)"
 
