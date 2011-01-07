@@ -572,23 +572,13 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	if (TheSession == NULL) {
 		TheSession = CreateSession(1, 0, &SessionList, Hdr, &SessionListMutex);
 
-		if ((StrLength(Hdr->c_username) == 0) && (!Hdr->HR.DontNeedAuth)) {
-
-			if ((Hdr->HR.Handler != NULL) && 
-			    (XHTTP_COMMANDS & Hdr->HR.Handler->Flags) == XHTTP_COMMANDS) {
-				OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
-				Hdr->HR.prohibit_caching = 1;				
-			}
-
-			/*
-			 * I don't think we need this anymore now that guest mode is working
-			 * ajc 2011jan07
-			 *
-			else {
-				OverrideRequest(Hdr, HKEY("GET /static/nocookies.html?force_close_session=yes HTTP/1.0"));
-				Hdr->HR.prohibit_caching = 1;
-			}
-			 */
+		if (	(StrLength(Hdr->c_username) == 0)
+			&& (!Hdr->HR.DontNeedAuth)
+			&& (Hdr->HR.Handler != NULL)
+			&& ((XHTTP_COMMANDS & Hdr->HR.Handler->Flags) == XHTTP_COMMANDS)
+		) {
+			OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
+			Hdr->HR.prohibit_caching = 1;				
 		}
 		
 		if (StrLength(Hdr->c_language) > 0) {
