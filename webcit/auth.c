@@ -803,7 +803,7 @@ void display_reg(int during_login)
 	}
 	else {
 		StrBuf *ReturnTo;
-		ReturnTo = NewStrBufPlain(HKEY("display_main_menu?gotofirst="));
+		ReturnTo = NewStrBufPlain(HKEY("display_main_menu?go="));
 		StrBufAppendBuf(ReturnTo, WC->CurRoom.name, 0);
 		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, ChrPtr(ReturnTo), USERCONFIGROOM);
 		FreeStrBuf(&ReturnTo);

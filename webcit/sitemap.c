@@ -43,7 +43,7 @@ void sitemap_do_messages(void) {
 		Msg = GetMessagePtrAt(i, WCC->summ);
 		if (Msg != NULL) {
 			wc_printf("<url><loc>%s/readfwd", ChrPtr(site_prefix));
-			wc_printf("?gotofirst=");
+			wc_printf("?go=");
 			urlescputs(ChrPtr(WC->CurRoom.name));
 			wc_printf("?start_reading_at=%ld", Msg->msgnum);
 			wc_printf("</loc></url>\r\n");
