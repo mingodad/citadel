@@ -733,21 +733,21 @@ void session_loop(void)
 		(WCC->Hdr->HR.eReqType != eHEAD);
 
 	/*
-	 * If a 'gotofirst' parameter has been specified, attempt to goto that room
+	 * If a 'go' parameter has been specified, attempt to goto that room
 	 * prior to doing anything else.
 	 */
-	if (havebstr("gotofirst")) {
+	if (havebstr("go")) {
 		int ret;
-		ret = gotoroom(sbstr("gotofirst"));	/* do quietly to avoid session output! */
+		ret = gotoroom(sbstr("go"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
 			lprintf(1, "GOTOFIRST: Unable to change to [%s]; Reason: %d\n",
-				bstr("gotofirst"), ret);
+				bstr("go"), ret);
 		}
 	}
 
 	/*
 	 * If we aren't in any room yet, but we have cookie data telling us where we're
-	 * supposed to be, and 'gotofirst' was not specified, then go there.
+	 * supposed to be, and 'go' was not specified, then go there.
 	 */
 	else if ( (StrLength(WCC->CurRoom.name) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
 		int ret;

@@ -1393,7 +1393,7 @@ int calendar_summary_view(void) {
 						wc_printf("<a href=\"display_edit_task"
 							"?msgnum=%ld"
 							"?return_to_summary=1"
-							"?gotofirst=",
+							"?go=",
 							Cal->cal_msgnum
 						);
 						escputs(ChrPtr(WCC->CurRoom.name));
@@ -1406,7 +1406,7 @@ int calendar_summary_view(void) {
 							"?year=%d"
 							"?month=%d"
 							"?day=%d"
-							"?gotofirst=",
+							"?go=",
 							Cal->cal_msgnum,
 							today_tm.tm_year + 1900,
 							today_tm.tm_mon + 1,

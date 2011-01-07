@@ -38,7 +38,7 @@ void feed_rss_one_message(long msgnum) {
 	if (buf[0] != '1') return;
 
 	wc_printf("<item>");
-	wc_printf("<link>%s/readfwd?gotofirst=", ChrPtr(site_prefix));
+	wc_printf("<link>%s/readfwd?go=", ChrPtr(site_prefix));
 	urlescputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("?start_reading_at=%ld</link>", msgnum);
 
@@ -150,7 +150,7 @@ void feed_rss(void) {
 	escputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</title><url>");
 	urlescputs(ChrPtr(site_prefix));
-	wc_printf("/image?name=_roompic_?gotofirst=");
+	wc_printf("/image?name=_roompic_?go=");
 	urlescputs(ChrPtr(WC->CurRoom.name));
 	wc_printf("</url><link>");
 	urlescputs(ChrPtr(site_prefix));
@@ -176,7 +176,7 @@ void tmplput_rssmeta(StrBuf *Target, WCTemplputParams *TP)
 	char feed_link[1024];
 	char encoded_link[1024];
 
-	strcpy(feed_link, "/feed_rss?gotofirst=");
+	strcpy(feed_link, "/feed_rss?go=");
 	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
 	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
 
@@ -196,7 +196,7 @@ void tmplput_rssbutton(StrBuf *Target, WCTemplputParams *TP)
 	char feed_link[1024];
 	char encoded_link[1024];
 
-	strcpy(feed_link, "/feed_rss?gotofirst=");
+	strcpy(feed_link, "/feed_rss?go=");
 	urlesc(&feed_link[20], sizeof(feed_link) - 20, (char *)ChrPtr(WCC->CurRoom.name) );
 	CtdlEncodeBase64(encoded_link, feed_link, strlen(feed_link), 0);
 
