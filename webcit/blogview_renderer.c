@@ -53,7 +53,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 
 		if (p == 0) {
 			/* Show the number of comments */
-			wc_printf("<a href=\"readfwd?p=%d?gotofirst=", bp->top_level_id);
+			wc_printf("<a href=\"readfwd?p=%d?go=", bp->top_level_id);
 			urlescputs(ChrPtr(WC->CurRoom.name));
 			wc_printf("#comments\">");
 			wc_printf(_("%d comments"), bp->num_msgs - 1);
@@ -245,7 +245,7 @@ void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
 	char perma[SIZ];
 	char encoded_perma[SIZ];
 	
-	strcpy(perma, "/readfwd?gotofirst=");
+	strcpy(perma, "/readfwd?go=");
 	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), ChrPtr(WC->CurRoom.name));
 	snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", WC->bptlid);
 
