@@ -579,10 +579,16 @@ void context_loop(ParsedHttpHdrs *Hdr)
 				OverrideRequest(Hdr, HKEY("GET /401 HTTP/1.0"));
 				Hdr->HR.prohibit_caching = 1;				
 			}
+
+			/*
+			 * I don't think we need this anymore now that guest mode is working
+			 * ajc 2011jan07
+			 *
 			else {
 				OverrideRequest(Hdr, HKEY("GET /static/nocookies.html?force_close_session=yes HTTP/1.0"));
 				Hdr->HR.prohibit_caching = 1;
 			}
+			 */
 		}
 		
 		if (StrLength(Hdr->c_language) > 0) {
