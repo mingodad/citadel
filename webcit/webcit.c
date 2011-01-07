@@ -740,6 +740,7 @@ void session_loop(void)
 	 */
 	if (havebstr("go")) {
 		int ret;
+		lprintf(9, "Explicit room selection: %s\n", bstr("go"));
 		ret = gotoroom(sbstr("go"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
 			lprintf(1, "GOTOFIRST: Unable to change to [%s]; Reason: %d\n",
