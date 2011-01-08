@@ -220,7 +220,7 @@ void QueryCb(void *arg,
 	IO->DNSStatus = status;
 	if (status == ARES_SUCCESS)
 		IO->DNS_CB(arg, abuf, alen);
-	ev_io_stop(event_base, &IO->dns_io_event);
+///	ev_io_stop(event_base, &IO->dns_io_event);
 		
 	IO->PostDNS(IO);
 }
@@ -307,7 +307,9 @@ void SockStateCb(void *data, int sock, int read, int write)
 	AsyncIO *IO = data;
 /* already inside of the event queue. */	
 
-	if (IO->dns_io_event.fd != sock) {
+	if ((read == 0) && (write == 0)) {
+//		ev_io_stop(event_base, &IO->dns_io_event);
+	} else if (IO->dns_io_event.fd != sock) {
 		if (IO->dns_io_event.fd != 0) {
 			ev_io_stop(event_base, &IO->dns_io_event);
 		}
