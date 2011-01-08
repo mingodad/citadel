@@ -563,8 +563,18 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 }
 
 
-#define SMTP_ERROR(WHICH_ERR, ERRSTR) {SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); return eAbort; }
-#define SMTP_VERROR(WHICH_ERR) { SendMsg->MyQEntry->Status = WHICH_ERR; StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); return eAbort; }
+#define SMTP_ERROR(WHICH_ERR, ERRSTR) do {\
+		SendMsg->MyQEntry->Status = WHICH_ERR; \
+		StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, HKEY(ERRSTR), 0); \
+		return eAbort; } \
+	while (0)
+
+#define SMTP_VERROR(WHICH_ERR) do {\
+		SendMsg->MyQEntry->Status = WHICH_ERR; \
+		StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); \
+		return eAbort; } \
+	while (0)
+
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
 #define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
@@ -652,9 +662,9 @@ eNextState SMTPC_read_greeting(SmtpOutMsg *SendMsg)
 
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4')) 
-			SMTP_VERROR(4)
+			SMTP_VERROR(4);
 		else 
-			SMTP_VERROR(5)
+			SMTP_VERROR(5);
 	}
 	return eSendReply;
 }
@@ -699,9 +709,9 @@ eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
 
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
-			SMTP_VERROR(4)
+			SMTP_VERROR(4);
 		else 
-			SMTP_VERROR(5)
+			SMTP_VERROR(5);
 	}
 	if (!IsEmptyStr(SendMsg->mx_user))
 		SendMsg->State ++; /* Skip auth... */
@@ -737,9 +747,9 @@ eNextState SMTPC_read_auth_reply(SmtpOutMsg *SendMsg)
 	
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
-			SMTP_VERROR(4)
+			SMTP_VERROR(4);
 		else 
-			SMTP_VERROR(5)
+			SMTP_VERROR(5);
 	}
 	return eSendReply;
 }
@@ -761,9 +771,9 @@ eNextState SMTPC_read_FROM_reply(SmtpOutMsg *SendMsg)
 
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
-			SMTP_VERROR(4)
+			SMTP_VERROR(4);
 		else 
-			SMTP_VERROR(5)
+			SMTP_VERROR(5);
 	}
 	return eSendReply;
 }
@@ -787,9 +797,9 @@ eNextState SMTPC_read_RCPT_reply(SmtpOutMsg *SendMsg)
 
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4')) 
-			SMTP_VERROR(4)
+			SMTP_VERROR(4);
 		else 
-			SMTP_VERROR(5)
+			SMTP_VERROR(5);
 	}
 	return eSendReply;
 }
@@ -810,9 +820,9 @@ eNextState SMTPC_read_DATAcmd_reply(SmtpOutMsg *SendMsg)
 
 	if (!SMTP_IS_STATE('3')) {
 		if (SMTP_IS_STATE('4')) 
-			SMTP_VERROR(3)
+			SMTP_VERROR(3);
 		else 
-			SMTP_VERROR(5)
+			SMTP_VERROR(5);
 	}
 	return eSendReply;
 }
@@ -852,9 +862,9 @@ eNextState SMTPC_read_data_body_reply(SmtpOutMsg *SendMsg)
 
 	if (!SMTP_IS_STATE('2')) {
 		if (SMTP_IS_STATE('4'))
-			SMTP_VERROR(4)
+			SMTP_VERROR(4);
 		else 
-			SMTP_VERROR(5)
+			SMTP_VERROR(5);
 	}
 
 	/* We did it! */
