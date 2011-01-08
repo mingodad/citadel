@@ -103,7 +103,8 @@ const char *smtp_get_Recipients(void)
  * instructions for "5" codes (permanent fatal errors) and produce/deliver
  * a "bounce" message (delivery status notification).
  */
-void smtp_do_bounce(char *instr) {
+void smtp_do_bounce(char *instr, StrBuf *OMsgTxt) 
+{
 	int i;
 	int lines;
 	int status;
@@ -234,10 +235,15 @@ void smtp_do_bounce(char *instr) {
         	StrBufAppendBufPlain(BounceMB, HKEY("Content-Disposition: inline\r\n"), 0);
         	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
 	
-		CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
-		CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
-		StrBufAppendBuf(BounceMB, CC->redirect_buffer, 0);
-		FreeStrBuf(&CC->redirect_buffer);
+		if (OMsgTxt == NULL) {
+			CC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
+			CtdlOutputMsg(omsgid, MT_RFC822, HEADERS_ALL, 0, 1, NULL, 0);
+			StrBufAppendBuf(BounceMB, CC->redirect_buffer, 0);
+			FreeStrBuf(&CC->redirect_buffer);
+		}
+		else {
+			StrBufAppendBuf(BounceMB, OMsgTxt, 0);
+		}
 	}
 
 	/* Close the multipart MIME scope */

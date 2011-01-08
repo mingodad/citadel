@@ -54,4 +54,4 @@ typedef struct _citsmtp {		/* Information about the current session */
 
 #define SMTP		((citsmtp *)CC->session_specific_data)
 
-void smtp_do_bounce(char *instr);
+void smtp_do_bounce(char *instr, StrBuf *OMsgTxt);

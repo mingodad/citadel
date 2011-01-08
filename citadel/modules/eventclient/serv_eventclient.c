@@ -104,14 +104,11 @@ static void QueueEventAddCallback(struct ev_loop *loop, ev_io *watcher, int reve
 /// TODO: add it to QueueEvents
 		break;
 	case 'x':
-		/////event_del(&queue_add_event);
 		close(event_add_pipe[0]);
 /// TODO; flush QueueEvents fd's and delete it.
 		ev_io_stop(event_base, &queue_add_event);
 		ev_unloop(event_base, EVUNLOOP_ALL);
 	}
-	/* Unblock the other side */
-//	read(fd, buf, 1);
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q Read done.\n");
 }
 
@@ -119,12 +116,6 @@ static void QueueEventAddCallback(struct ev_loop *loop, ev_io *watcher, int reve
 void InitEventQueue(void)
 {
 	struct rlimit LimitSet;
-
-///	event_base = ev_default_loop(0);
-/*
-	base = event_base_new();
-	if (!base)
-		return NULL; / *XXXerr*/
 
 	citthread_mutex_init(&EventQueueMutex, NULL);
 
@@ -150,25 +141,11 @@ void *client_event_thread(void *arg)
 {
 	struct CitContext libevent_client_CC;
 
-	CtdlFillSystemContext(&libevent_client_CC, "LibEvent Thread");
+	CtdlFillSystemContext(&libevent_client_CC, "LibEv Thread");
 //	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	CtdlLogPrintf(CTDL_DEBUG, "client_event_thread() initializing\n");
-/*	
-	event_set(&queue_add_event, 
-		  event_add_pipe[0], 
-		  EV_READ|EV_PERSIST,
-		  QueueEventAddCallback, 
-		  NULL);
-	
-	event_add(&queue_add_event, NULL);
-*/
-/*
-	ev_io_init(&queue_add_event, QueueEventAddCallback, event_add_pipe[0], EV_READ);
-	ev_io_start(event_base, &queue_add_event);
+	CtdlLogPrintf(CTDL_DEBUG, "client_ev_thread() initializing\n");
 
-*/
 	event_base = ev_default_loop (EVFLAG_AUTO);
-///	ev_loop(event_base, 0);
 
 	ev_io_init(&queue_add_event, QueueEventAddCallback, event_add_pipe[0], EV_READ);
 	ev_io_start(event_base, &queue_add_event);
