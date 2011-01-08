@@ -578,6 +578,12 @@ void get_one_mx_host_name_done(void *Ctx,
 	AsyncIO *IO = Ctx;
 	SmtpOutMsg *SendMsg = IO->Data;
 	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
+		CtdlLogPrintf(CTDL_DEBUG, 
+			      "SMTP client[%ld]: connecting to %s : %d ...\n", 
+			      SendMsg->n, 
+			      SendMsg->mx_host, 
+			      SendMsg->IO.dport);
+
 
 		SendMsg->IO.HEnt = hostent;
 		InitEventIO(IO, SendMsg, 
@@ -627,25 +633,15 @@ void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
 	SendMsg->CurrMX = SendMsg->CurrMX->next;
 
 	CtdlLogPrintf(CTDL_DEBUG, 
-		      "SMTP client[%ld]: connecting to %s : %d ...\n", 
+		      "SMTP client[%ld]: looking up %s : %d ...\n", 
 		      SendMsg->n, 
-		      SendMsg->mx_host, 
-		      SendMsg->IO.dport);
+		      SendMsg->mx_host);
 
 	ares_gethostbyname(SendMsg->IO.DNSChannel,
 			   SendMsg->mx_host,   
 			   AF_INET6, /* it falls back to ipv4 in doubt... */
 			   get_one_mx_host_name_done,
 			   &SendMsg->IO);
-/*
-	if (!QueueQuery(ns_t_a, 
-			SendMsg->mx_host, 
-			&SendMsg->IO, 
-			connect_one_smtpsrv_xamine_result))
-	{
-		/// TODO: abort
-	}
-*/
 }
 
 
