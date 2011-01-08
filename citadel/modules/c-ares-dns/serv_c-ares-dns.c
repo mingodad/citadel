@@ -290,30 +290,48 @@ int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
 	return 1;
 }
 
-static void DNS_io_callback(struct ev_loop *loop, ev_io *watcher, int revents)
+static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 	
-	ares_process_fd(IO->DNSChannel, IO->dns_io_event.fd, 0);
+	ares_process_fd(IO->DNSChannel, ARES_SOCKET_BAD, IO->dns_send_event.fd);
+}
+static void DNS_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
+	
+	ares_process_fd(IO->DNSChannel, IO->dns_recv_event.fd, ARES_SOCKET_BAD);
 }
 
 void SockStateCb(void *data, int sock, int read, int write) 
 {
+/*
 	struct timeval tvbuf, maxtv, *ret;
 	
 	int64_t time = 10;
+*/
 	AsyncIO *IO = data;
 /* already inside of the event queue. */	
 
-	if ((read == 0) && (write == 0)) {
-//		ev_io_stop(event_base, &IO->dns_io_event);
-	} else if (IO->dns_io_event.fd != sock) {
-		if (IO->dns_io_event.fd != 0) {
-			ev_io_stop(event_base, &IO->dns_io_event);
+	if (read) {
+		if ((IO->dns_recv_event.fd != sock) &&
+		    (IO->dns_recv_event.fd != 0)) {
+			ev_io_stop(event_base, &IO->dns_recv_event);
 		}
-		IO->dns_io_event.fd = sock;
-		ev_io_init(&IO->dns_io_event, DNS_io_callback, IO->dns_io_event.fd, EV_READ|EV_WRITE);
-		IO->dns_io_event.data = IO;
+		IO->dns_recv_event.fd = sock;
+		ev_io_init(&IO->dns_recv_event, DNS_recv_callback, IO->dns_recv_event.fd, EV_READ);
+		IO->dns_recv_event.data = IO;
+
+	} else if (write) {
+		if ((IO->dns_send_event.fd != sock) &&
+		    (IO->dns_send_event.fd != 0)) {
+			ev_io_stop(event_base, &IO->dns_send_event);
+		}
+		IO->dns_send_event.fd = sock;
+		ev_io_init(&IO->dns_send_event, DNS_send_callback, IO->dns_send_event.fd, EV_WRITE);
+		IO->dns_send_event.data = IO;
+	}
+/*
 
 		ev_io_start(event_base, &IO->dns_io_event);
 	
@@ -322,6 +340,9 @@ void SockStateCb(void *data, int sock, int read, int write)
 		
 		ret = ares_timeout(IO->DNSChannel, &maxtv, &tvbuf);
 	}
+	if ((read == 0) && (write == 0)) {
+//		ev_io_stop(event_base, &IO->dns_io_event);
+*/
 }
 
 CTDL_MODULE_INIT(c_ares_client)

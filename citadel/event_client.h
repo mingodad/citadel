@@ -38,7 +38,8 @@ struct AsyncIO {
        	eNextState NextState;
 	ev_io recv_event, 
 		send_event, 
-		dns_io_event;
+		dns_recv_event, 
+		dns_send_event;
 	StrBuf *ErrMsg; /* if we fail to connect, or lookup, error goes here. */
 
 	/* read/send related... */
