@@ -656,10 +656,6 @@ void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
 
 	SendMsg->mx_port = DefaultMXPort;
 
-	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.IOBuf = NewStrBuf();
-	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
 
 /* TODO: Relay!
 	*SendMsg->mx_user =  '\0';
@@ -962,6 +958,11 @@ eNextState smtp_resolve_mx_done(void *data)
 	AsyncIO *IO = data;
 	SmtpOutMsg * SendMsg = IO->Data;
 
+	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.IOBuf = NewStrBuf();
+	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
+
 	//// connect_one_smtpsrv_xamine_result
 	SendMsg->CurrMX = SendMsg->AllMX = IO->VParsedDNSReply;
 	//// TODO: should we remove the current ares context???
@@ -974,7 +975,7 @@ eNextState smtp_resolve_mx_done(void *data)
 int resolve_mx_records(void *Ctx)
 {
 	SmtpOutMsg * SendMsg = Ctx;
-///TMP
+/*//TMP
 	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
 	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
 	SendMsg->IO.IOBuf = NewStrBuf();

@@ -400,12 +400,12 @@ IO->curr_ai->ai_family,
 	unsigned short dport = atoi("25"); ///todo
 	struct sockaddr_in  saddr;
 	memset( (struct sockaddr_in *)&saddr, '\0', sizeof( saddr ) );
-/*
+
 	memcpy(&saddr.sin_addr, 
 	       IO->HEnt->h_addr_list[0],
 	       sizeof(struct in_addr));
-*/
-	saddr.sin_addr.s_addr = inet_addr("85.88.5.80");
+
+//	saddr.sin_addr.s_addr = inet_addr("85.88.5.80");
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(dport);/// TODO
 	rc = connect(IO->sock, 

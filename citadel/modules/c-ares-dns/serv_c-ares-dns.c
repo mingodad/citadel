@@ -209,7 +209,6 @@ static void ParseAnswerTXT(AsyncIO *IO, unsigned char* abuf, int alen)
 	IO->DNSReplyFree = (FreeDNSReply) ares_free_data;
 }
 
-
 void QueryCb(void *arg,
 	     int status,
 	     int timeouts,
@@ -221,6 +220,8 @@ void QueryCb(void *arg,
 	IO->DNSStatus = status;
 	if (status == ARES_SUCCESS)
 		IO->DNS_CB(arg, abuf, alen);
+	ev_io_stop(event_base, &IO->dns_io_event);
+		
 	IO->PostDNS(IO);
 }
 
@@ -229,7 +230,6 @@ int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
 	int length, family;
 	char address_b[sizeof(struct in6_addr)];
 	int optmask = 0;
-	fd_set rfd, wfd;
 
 	if (IO->DNSChannel == NULL) {
 		optmask |= ARES_OPT_SOCK_STATE_CB;
@@ -289,22 +289,14 @@ int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
 		return 0;
 	}
 	ares_query(IO->DNSChannel, name, ns_c_in, Type, QueryCb, IO);
-	ares_fds(IO->DNSChannel, &rfd, &wfd);
 	return 1;
 }
 
-static void DNS_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
+static void DNS_io_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 	
-	ares_process_fd(IO->DNSChannel, IO->sock, 0);
-}
-
-static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
-{
-	AsyncIO *IO = watcher->data;
-	
-	ares_process_fd(IO->DNSChannel, 0, IO->sock);
+	ares_process_fd(IO->DNSChannel, IO->dns_io_event.fd, 0);
 }
 
 void SockStateCb(void *data, int sock, int read, int write) 
@@ -314,23 +306,22 @@ void SockStateCb(void *data, int sock, int read, int write)
 	int64_t time = 10;
 	AsyncIO *IO = data;
 /* already inside of the event queue. */	
-	IO->sock = sock;
-	ev_io_init(&IO->recv_event, DNS_recv_callback, IO->sock, EV_READ);
-	IO->recv_event.data = IO;
-	ev_io_init(&IO->send_event, DNS_send_callback, IO->sock, EV_WRITE);
-	IO->send_event.data = IO;
-	if (write)
-		ev_io_start(event_base, &IO->send_event);
-	else
-		ev_io_start(event_base, &IO->recv_event);
+
+	if (IO->dns_io_event.fd != sock) {
+		if (IO->dns_io_event.fd != 0) {
+			ev_io_stop(event_base, &IO->dns_io_event);
+		}
+		IO->dns_io_event.fd = sock;
+		ev_io_init(&IO->dns_io_event, DNS_io_callback, IO->dns_io_event.fd, EV_READ|EV_WRITE);
+		IO->dns_io_event.data = IO;
+
+		ev_io_start(event_base, &IO->dns_io_event);
 	
-
-	maxtv.tv_sec = time/1000;
-	maxtv.tv_usec = (time % 1000) * 1000;
-
-	ret = ares_timeout(IO->DNSChannel, &maxtv, &tvbuf);
-
-	
+		maxtv.tv_sec = time/1000;
+		maxtv.tv_usec = (time % 1000) * 1000;
+		
+		ret = ares_timeout(IO->DNSChannel, &maxtv, &tvbuf);
+	}
 }
 
 CTDL_MODULE_INIT(c_ares_client)
