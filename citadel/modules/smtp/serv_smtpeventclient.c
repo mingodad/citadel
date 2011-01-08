@@ -656,6 +656,11 @@ void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
 
 	SendMsg->mx_port = DefaultMXPort;
 
+	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.IOBuf = NewStrBuf();
+	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
+
 /* TODO: Relay!
 	*SendMsg->mx_user =  '\0';
 	*SendMsg->mx_pass = '\0';
@@ -969,6 +974,11 @@ eNextState smtp_resolve_mx_done(void *data)
 int resolve_mx_records(void *Ctx)
 {
 	SmtpOutMsg * SendMsg = Ctx;
+///TMP
+	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.IOBuf = NewStrBuf();
+	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
 
 	InitEventIO(&SendMsg->IO, SendMsg, 
 				    SMTP_C_DispatchReadDone, 
@@ -979,6 +989,7 @@ int resolve_mx_records(void *Ctx)
 				    SMTP_C_ReadServerStatus,
 				    1);
 				    return 0;
+/// END TMP */
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
 			&SendMsg->IO, 

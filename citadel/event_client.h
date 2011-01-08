@@ -36,8 +36,7 @@ struct AsyncIO {
 	int active_event;
        	eNextState NextState;
 	ev_io recv_event, 
-		send_event, 
-		conn_event;
+		send_event;
 	StrBuf *ErrMsg; /* if we fail to connect, or lookup, error goes here. */
 
 	/* read/send related... */
@@ -50,8 +49,7 @@ struct AsyncIO {
 		SendDone,     /* we may send more data */
 		Terminate,    /* shutting down... */
 		Timeout,      /* Timeout handler; may also be connection timeout */
-		ConnFail,     /* What to do when one connection failed? */
-		CustomDNS;    /* If the application wants to do custom dns functionality like cycle through different MX-Records */
+		ConnFail;     /* What to do when one connection failed? */
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 

@@ -74,7 +74,6 @@ extern struct ev_loop *event_base;
 
 #define SEND_EVENT 1
 #define RECV_EVENT 2
-#define CONN_EVENT 3
 	
 int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB)
 {
@@ -154,9 +153,6 @@ void ShutDownCLient(AsyncIO *IO)
 		break;
 	case RECV_EVENT:
 		ev_io_stop(event_base, &IO->recv_event);
-		break;
-	case CONN_EVENT:
-		ev_io_stop(event_base, &IO->conn_event);
 		break;
 	case 0:
 		// no event active here; just bail out.
@@ -339,10 +335,8 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 
 
 static void
-set_start_callback(struct ev_loop *loop, ev_io *watcher, int revents)
+set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 {
-	AsyncIO *IO = watcher->data;
-
 	switch(IO->NextState) {
 	case eReadMessage:
 		ev_io_start(event_base, &IO->recv_event);
@@ -350,23 +344,13 @@ set_start_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		break;
 	case eSendReply:
 	case eSendMore:
-		IO_send_callback(loop, watcher, revents);
+		IO_send_callback(loop, &IO->send_event, revents);
 		break;
 	case eTerminateConnection:
 	case eAbort:
 		/// TODO: WHUT?
 		break;
 	}
-}
-
-static void
-IO_connect_callback(struct ev_loop *loop, ev_io *watcher, int revents)
-{
-	AsyncIO *IO = watcher->data;
-
-	ev_io_stop(event_base, &IO->conn_event);
-	IO->active_event = 0;
-	set_start_callback(loop, watcher, revents);
 }
 
 int event_connect_socket(AsyncIO *IO)
@@ -429,29 +413,11 @@ IO->curr_ai->ai_family,
 /// TODO: ipv6??		     (IO->HEnt->h_addrtype == AF_INET6)?
 		     /*     sizeof(in6_addr):*/
 		     sizeof(struct sockaddr_in));
-	if (rc >= 0) {
+	if ((rc >= 0) || (errno == EINPROGRESS)){
 ////		freeaddrinfo(res);
-		ev_io_init(&IO->conn_event, IO_send_callback, IO->sock, EV_WRITE);
-		IO->conn_event.data = IO;
-		set_start_callback(event_base, &IO->conn_event, 0);
+		set_start_callback(event_base, IO, 0);
 		
 		return 0;
-	}
-	else if (errno == EINPROGRESS) {
-		ev_io_init(&IO->conn_event, IO_connect_callback, IO->sock, EV_WRITE);
-		IO->conn_event.data = IO;
-/* TODO
-
-		event_set(&IO->conn_event, 
-			  IO->sock,
-			  EV_READ|EV_WRITE|EV_PERSIST,
-			  IO_connect_callback, 
-			  IO);
-*/
-		ev_io_start(event_base, &IO->conn_event);
-
-		IO->active_event = CONN_EVENT;
-		return 1;
 	}
 	else {
 		CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
@@ -480,7 +446,7 @@ void InitEventIO(AsyncIO *IO,
 	IO->ReadDone = ReadDone;
 	IO->Terminate = Terminate;
 	IO->LineReader = LineReader;
-
+	
 	if (ReadFirst) {
 		IO->NextState = eReadMessage;
 	}
