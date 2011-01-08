@@ -632,11 +632,12 @@ void get_one_mx_host_name_done(void *Ctx,
 			       int timeouts,
 			       struct hostent *hostent)
 {
-	SmtpOutMsg *SendMsg = Ctx;
+	AsyncIO *IO = Ctx;
+	SmtpOutMsg *SendMsg = IO->Data;
 	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
 
 			SendMsg->IO.HEnt = hostent;
-			InitEventIO(&SendMsg->IO, SendMsg, 
+			InitEventIO(IO, SendMsg, 
 				    SMTP_C_DispatchReadDone, 
 				    SMTP_C_DispatchWriteDone, 
 				    SMTP_C_Terminate,
