@@ -176,7 +176,14 @@ void *client_event_thread(void *arg)
 	ev_loop (event_base, 0);
 	CtdlClearSystemContext();
 	ev_default_destroy ();
+	
+	DeleteHash(&QueueEvents);
+	InboundEventQueue = NULL;
+	DeleteHash(&InboundEventQueues[0]);
+	DeleteHash(&InboundEventQueues[1]);
 	citthread_mutex_destroy(&EventQueueMutex);
+
+
 	return(NULL);
 }
 

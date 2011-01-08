@@ -198,7 +198,6 @@ typedef struct _stmp_out_msg {
 
 	struct hostent *OneMX;
 
-
 	char mx_user[1024];
 	char mx_pass[1024];
 	StrBuf *msgtext;
@@ -211,6 +210,8 @@ typedef struct _stmp_out_msg {
 void DeleteSmtpOutMsg(void *v)
 {
 	SmtpOutMsg *Msg = v;
+
+	ares_free_data(Msg->AllMX);
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
 	free(Msg);
@@ -569,64 +570,6 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 #define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 #define SMTP_DBG_READ() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 
-/*
-void connect_one_smtpsrv_xamine_result(void *Ctx, 
-				       int status,
-				       int timeouts,
-				       struct hostent *hostent)
-{
-	SmtpOutMsg *SendMsg = Ctx;
-
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: connecting [%s:%s]!\n", 
-		      SendMsg->n, SendMsg->mx_host, SendMsg->mx_port);
-
-	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.IOBuf = NewStrBuf();
-	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
-
-
-	SendMsg->IO.SendBuf.fd = 
-	SendMsg->IO.RecvBuf.fd = 
-	SendMsg->IO.sock = sock_connect(SendMsg->mx_host, SendMsg->mx_port);
-
-	StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-		     "Could not connect: %s", strerror(errno));
-
-
-	if (SendMsg->IO.sock < 0) {
-		if (errno > 0) {
-			StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
-				    strerror(errno), -1);
-		}
-		else {
-			StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-				     "Unable to connect to %s : %s\n", 
-				     SendMsg->mx_host, SendMsg->mx_port);
-		}
-	}
-	/// hier: naechsten mx ausprobieren.
-	if (SendMsg->IO.sock < 0) {
-		SendMsg->MyQEntry->Status = 4;	/* dsn is already filled in * /
-		//// hier: abbrechen & bounce.
-		return;
-	}
-/*
-
-	InitEventIO(&SendMsg->IO, SendMsg, 
-		    SMTP_C_DispatchReadDone, 
-		    SMTP_C_DispatchWriteDone, 
-		    SMTP_C_Terminate,
-		    SMTP_C_Timeout,
-		    SMTP_C_ConnFail,
-		    SMTP_C_MXLookup,
-		    SMTP_C_ReadServerStatus,
-		    1);
-* /
-	return;
-}
-*/
-
 void get_one_mx_host_name_done(void *Ctx, 
 			       int status,
 			       int timeouts,
@@ -636,26 +579,26 @@ void get_one_mx_host_name_done(void *Ctx,
 	SmtpOutMsg *SendMsg = IO->Data;
 	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
 
-			SendMsg->IO.HEnt = hostent;
-			InitEventIO(IO, SendMsg, 
-				    SMTP_C_DispatchReadDone, 
-				    SMTP_C_DispatchWriteDone, 
-				    SMTP_C_Terminate,
-				    SMTP_C_Timeout,
-				    SMTP_C_ConnFail,
-				    SMTP_C_ReadServerStatus,
-				    1);
+		SendMsg->IO.HEnt = hostent;
+		InitEventIO(IO, SendMsg, 
+			    SMTP_C_DispatchReadDone, 
+			    SMTP_C_DispatchWriteDone, 
+			    SMTP_C_Terminate,
+			    SMTP_C_Timeout,
+			    SMTP_C_ConnFail,
+			    SMTP_C_ReadServerStatus,
+			    1);
 
 	}
 }
 
-const char *DefaultMXPort = "25";
+const unsigned short DefaultMXPort = 25;
 void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
 {
 	//char *endpart;
 	//char buf[SIZ];
 
-	SendMsg->mx_port = DefaultMXPort;
+	SendMsg->IO.dport = DefaultMXPort;
 
 
 /* TODO: Relay!
@@ -684,10 +627,10 @@ void connect_one_smtpsrv(SmtpOutMsg *SendMsg)
 	SendMsg->CurrMX = SendMsg->CurrMX->next;
 
 	CtdlLogPrintf(CTDL_DEBUG, 
-		      "SMTP client[%ld]: connecting to %s : %s ...\n", 
+		      "SMTP client[%ld]: connecting to %s : %d ...\n", 
 		      SendMsg->n, 
 		      SendMsg->mx_host, 
-		      SendMsg->mx_port);
+		      SendMsg->IO.dport);
 
 	ares_gethostbyname(SendMsg->IO.DNSChannel,
 			   SendMsg->mx_host,   
@@ -976,22 +919,7 @@ eNextState smtp_resolve_mx_done(void *data)
 int resolve_mx_records(void *Ctx)
 {
 	SmtpOutMsg * SendMsg = Ctx;
-/*//TMP
-	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.IOBuf = NewStrBuf();
-	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
 
-	InitEventIO(&SendMsg->IO, SendMsg, 
-				    SMTP_C_DispatchReadDone, 
-				    SMTP_C_DispatchWriteDone, 
-				    SMTP_C_Terminate,
-				    SMTP_C_Timeout,
-				    SMTP_C_ConnFail,
-				    SMTP_C_ReadServerStatus,
-				    1);
-				    return 0;
-/// END TMP */
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
 			&SendMsg->IO, 
@@ -1029,8 +957,6 @@ void smtp_try(OneQueItem *MyQItem,
 	QueueEventContext(SendMsg, 
 			  &SendMsg->IO,
 			  resolve_mx_records);
-
-
 }
 
 
@@ -1399,6 +1325,12 @@ eNextState SMTP_C_DispatchWriteDone(void *Data)
 	
 }
 
+void smtp_evc_cleanup(void)
+{
+	DeleteHash(&QItemHandlers);
+	DeleteHash(&ActiveQItems);
+}
+
 #endif
 CTDL_MODULE_INIT(smtp_eventclient)
 {
@@ -1420,6 +1352,8 @@ CTDL_MODULE_INIT(smtp_eventclient)
 
 
 		smtp_init_spoolout();
+
+		CtdlRegisterCleanupHook(smtp_evc_cleanup);
 		CtdlThreadCreate("SMTPEvent Send", CTDLTHREAD_BIGSTACK, smtp_queue_thread, NULL);
 
 		CtdlRegisterProtoHook(cmd_smtp, "SMTP", "SMTP utility commands");

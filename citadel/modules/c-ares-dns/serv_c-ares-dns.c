@@ -59,8 +59,6 @@
 
 
 extern struct ev_loop *event_base;
-struct ares_options options;
-ares_channel Channel;
 
 void SockStateCb(void *data, int sock, int read, int write);
 
@@ -330,22 +328,12 @@ CTDL_MODULE_INIT(c_ares_client)
 {
 	if (!threading)
 	{
-		int optmask = 0;
-		
-
 		int r = ares_library_init(ARES_LIB_INIT_ALL);
 		if (0 != r) {
 			// TODO
 			// ThrowException(Exception::Error(String::New(ares_strerror(r))));
 ////			assert(r == 0);
 		}
-
-		optmask |= ARES_OPT_SOCK_STATE_CB;
-		memset(&options, 0, sizeof(struct ares_options));
-		options.sock_state_cb = SockStateCb;
-		
-		ares_init_options(&Channel, &options, optmask);
-
 	}
 	return "c-ares";
 }

@@ -121,6 +121,8 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	FreeStrBuf(&IO->IOBuf);
 	FreeStrBuf(&IO->SendBuf.Buf);
 	FreeStrBuf(&IO->RecvBuf.Buf);
+	FreeStrBuf(&IO->ErrMsg);
+	ares_destroy(IO->DNSChannel);
 
 }
 
@@ -355,11 +357,11 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 
 int event_connect_socket(AsyncIO *IO)
 {
+	struct sockaddr_in  saddr;
 	int fdflags; 
 	int rc = -1;
 
-	IO->SendBuf.fd = 
-		IO->RecvBuf.fd = 
+	IO->SendBuf.fd = IO->RecvBuf.fd = 
 		IO->sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 /*
 IO->curr_ai->ai_family, 
@@ -397,8 +399,6 @@ IO->curr_ai->ai_family,
 	ev_io_init(&IO->send_event, IO_send_callback, IO->sock, EV_WRITE);
 	IO->send_event.data = IO;
 	
-	unsigned short dport = atoi("25"); ///todo
-	struct sockaddr_in  saddr;
 	memset( (struct sockaddr_in *)&saddr, '\0', sizeof( saddr ) );
 
 	memcpy(&saddr.sin_addr, 
@@ -407,7 +407,7 @@ IO->curr_ai->ai_family,
 
 //	saddr.sin_addr.s_addr = inet_addr("85.88.5.80");
 	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(dport);/// TODO
+	saddr.sin_port = htons(IO->dport);
 	rc = connect(IO->sock, 
 		     (struct sockaddr *) &saddr,
 /// TODO: ipv6??		     (IO->HEnt->h_addrtype == AF_INET6)?
@@ -453,7 +453,7 @@ void InitEventIO(AsyncIO *IO,
 	else {
 		IO->NextState = eSendReply;
 	}
-//	IO->IP6 = IO->HEnt->h_addrtype == AF_INET6;
+	IO->IP6 = IO->HEnt->h_addrtype == AF_INET6;
 //	IO->res = HEnt->h_addr_list[0];
 	event_connect_socket(IO);
 }

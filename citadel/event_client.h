@@ -33,6 +33,7 @@ struct AsyncIO {
 	int IP6;
 	struct hostent *HEnt;
 	int sock;
+	unsigned short dport;
 	int active_event;
        	eNextState NextState;
 	ev_io recv_event, 
