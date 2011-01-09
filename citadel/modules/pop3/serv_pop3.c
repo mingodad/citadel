@@ -248,7 +248,7 @@ void pop3_apop(char *argbuf)
    strncpy(username, argbuf, sizeof(username)-1);
    username[sizeof(username)-1] = '\0';
    
-   memset(userdigest, MD5_HEXSTRING_SIZE, 0);
+   memset(userdigest, 0, MD5_HEXSTRING_SIZE);
    strncpy(userdigest, sptr, MD5_HEXSTRING_SIZE-1);
    
    if (CtdlLoginExistingUser(NULL, username) != login_ok)
