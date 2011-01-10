@@ -85,7 +85,6 @@
 
 #include "ctdl_module.h"
 
-///#include "smtp_util.h"
 #include "smtpqueue.h"
 #include "event_client.h"
 
