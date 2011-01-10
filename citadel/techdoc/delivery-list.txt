@@ -23,7 +23,7 @@ a single instruction (usually a recipient).  Fields are separated by the
 vertical bar character ("|") and there will always be at least one field on
 each line.
  
- 
+ -- Once per Queue-Item --
  
  INSTRUCTION:  msgid
  SYNTAX:       msgid|0000000
@@ -67,7 +67,16 @@ fails).
     CtdlSaveMsg(), and therefore may be a local username, a user on another
     Citadel, or an Internet e-mail address.
  
- 
+
+ INSTRUCTION:	envelope_from
+ SYNTAX:	envelope_from|blurdybloop@example.com
+ DESCRIPTION:
+    Sets a value to be used as the envelope sender during the 'MAIL FROM:'
+    phase of the SMTP transaction.  If an envelope sender is not supplied,
+    one is extracted from the message body.
+
+-- Once per Remote-part per Queue-Item --
+
  INSTRUCTION:  remote
  SYNTAX:       remote|friko@mumjiboolean.com|0|delivery status message
  DESCRIPTION:
@@ -79,11 +88,3 @@ fails).
        5 = Delivery to this address failed permanently.  The error message
            should be placed in the fourth field so that a bounce message may
            be generated.
-
-
- INSTRUCTION:	envelope_from
- SYNTAX:	envelope_from|blurdybloop@example.com
- DESCRIPTION:
-    Sets a value to be used as the envelope sender during the 'MAIL FROM:'
-    phase of the SMTP transaction.  If an envelope sender is not supplied,
-    one is extracted from the message body.

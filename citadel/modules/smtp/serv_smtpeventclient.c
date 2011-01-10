@@ -108,6 +108,7 @@ typedef enum _eSMTP_C_States {
 	eMaxSMTPC
 } eSMTP_C_States;
 
+const long SMTP_C_ConnTimeout = 300; /* wail 5 minutes for connections... */
 const long SMTP_C_ReadTimeouts[eMaxSMTPC] = {
 	90, /* Greeting... */
 	30, /* EHLO */
@@ -167,6 +168,7 @@ void DeleteSmtpOutMsg(void *v)
 	SmtpOutMsg *Msg = v;
 
 	ares_free_data(Msg->AllMX);
+	
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
 	free(Msg);
@@ -191,7 +193,9 @@ typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
 
 #define SMTP_VERROR(WHICH_ERR) do {\
 		SendMsg->MyQEntry->Status = WHICH_ERR; \
-		StrBufAppendBufPlain(SendMsg->MyQEntry->StatusMessage, &ChrPtr(SendMsg->IO.IOBuf)[4], -1, 0); \
+		StrBufPlain(SendMsg->MyQEntry->StatusMessage, \
+			    ChrPtr(SendMsg->IO.IOBuf) + 4, \
+			    StrLength(SendMsg->IO.IOBuf) - 4); \
 		return eAbort; } \
 	while (0)
 
@@ -210,14 +214,14 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 
 		nRemain = CountActiveQueueEntries(Msg->MyQItem);
 
-		if (nRemain > 0) 
-			MsgData = SerializeQueueItem(Msg->MyQItem);
+		MsgData = SerializeQueueItem(Msg->MyQItem);
 		/*
 		 * Uncompleted delivery instructions remain, so delete the old
 		 * instructions and replace with the updated ones.
 		 */
 		CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &Msg->MyQItem->QueMsgID, 1, "");
-
+		smtpq_do_bounce(Msg->MyQItem,
+			       Msg->msgtext); 
 		if (nRemain > 0) {
 			struct CtdlMessage *msg;
 			msg = malloc(sizeof(struct CtdlMessage));
@@ -253,11 +257,15 @@ void get_one_mx_host_ip_done(void *Ctx,
 	SmtpOutMsg *SendMsg = IO->Data;
 	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
 		CtdlLogPrintf(CTDL_DEBUG, 
-			      "SMTP client[%ld]: connecting to %s : %d ...\n", 
+			      "SMTP client[%ld]: connecting to %s [ip]: %d ...\n", 
 			      SendMsg->n, 
 			      SendMsg->mx_host, 
 			      SendMsg->IO.dport);
 
+		SendMsg->MyQEntry->Status = 5; 
+		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+			     "Timeout while connecting %s", 
+			     SendMsg->mx_host);
 
 		SendMsg->IO.HEnt = hostent;
 		InitEventIO(IO, SendMsg, 
@@ -267,6 +275,8 @@ void get_one_mx_host_ip_done(void *Ctx,
 			    SMTP_C_Timeout,
 			    SMTP_C_ConnFail,
 			    SMTP_C_ReadServerStatus,
+			    SMTP_C_ConnTimeout, 
+			    SMTP_C_ReadTimeouts[0],
 			    1);
 
 	}

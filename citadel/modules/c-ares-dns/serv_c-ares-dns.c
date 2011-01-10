@@ -315,21 +315,27 @@ void SockStateCb(void *data, int sock, int read, int write)
 
 	if (read) {
 		if ((IO->dns_recv_event.fd != sock) &&
-		    (IO->dns_recv_event.fd != 0)) {
+		    (IO->dns_recv_event.fd != 0) && 
+		    ((IO->active_dns_event & EV_READ) != 0)) {
 			ev_io_stop(event_base, &IO->dns_recv_event);
 		}
 		IO->dns_recv_event.fd = sock;
 		ev_io_init(&IO->dns_recv_event, DNS_recv_callback, IO->dns_recv_event.fd, EV_READ);
 		IO->dns_recv_event.data = IO;
-
-	} else if (write) {
+		ev_io_start(event_base, &IO->dns_recv_event);
+		IO->active_dns_event = IO->active_dns_event | EV_READ;
+	} 
+	if (write) {
 		if ((IO->dns_send_event.fd != sock) &&
-		    (IO->dns_send_event.fd != 0)) {
+		    (IO->dns_send_event.fd != 0) && 
+		    ((IO->active_dns_event & EV_WRITE) != 0)) {
 			ev_io_stop(event_base, &IO->dns_send_event);
 		}
 		IO->dns_send_event.fd = sock;
 		ev_io_init(&IO->dns_send_event, DNS_send_callback, IO->dns_send_event.fd, EV_WRITE);
 		IO->dns_send_event.data = IO;
+		ev_io_start(event_base, &IO->dns_send_event);
+		IO->active_dns_event = IO->active_dns_event | EV_WRITE;
 	}
 /*
 
@@ -340,9 +346,14 @@ void SockStateCb(void *data, int sock, int read, int write)
 		
 		ret = ares_timeout(IO->DNSChannel, &maxtv, &tvbuf);
 	}
-	if ((read == 0) && (write == 0)) {
-//		ev_io_stop(event_base, &IO->dns_io_event);
 */
+	if ((read == 0) && (write == 0)) {
+		if ((IO->active_dns_event & EV_READ) != 0)
+			ev_io_stop(event_base, &IO->dns_recv_event);
+		if ((IO->active_dns_event & EV_WRITE) != 0)
+			ev_io_stop(event_base, &IO->dns_send_event);
+		IO->active_dns_event = 0;
+	}
 }
 
 CTDL_MODULE_INIT(c_ares_client)

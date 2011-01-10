@@ -36,10 +36,11 @@ struct AsyncIO {
 	unsigned short dport;
 	int active_event;
        	eNextState NextState;
+
+	ev_timer conn_fail, 
+		conn_timeout;
 	ev_io recv_event, 
-		send_event, 
-		dns_recv_event, 
-		dns_send_event;
+		send_event;
 	StrBuf *ErrMsg; /* if we fail to connect, or lookup, error goes here. */
 
 	/* read/send related... */
@@ -56,10 +57,16 @@ struct AsyncIO {
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 
+
+	int active_dns_event;
+	ev_io dns_recv_event, 
+		dns_send_event;
 	struct ares_options DNSOptions;
 	ares_channel DNSChannel;
+
 	ParseDNSAnswerCb DNS_CB;
 	IO_CallBack PostDNS;
+
 	int DNSStatus;
 	void *VParsedDNSReply;
 	FreeDNSReply DNSReplyFree;
@@ -87,6 +94,7 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack Timeout, 
 		 IO_CallBack ConnFail, 
 		 IO_LineReaderCallback LineReader,
+		 int conn_timeout, int first_rw_timeout,
 		 int ReadFirst);
 
 int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);

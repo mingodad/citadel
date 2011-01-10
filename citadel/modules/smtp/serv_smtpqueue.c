@@ -85,7 +85,7 @@
 
 #include "ctdl_module.h"
 
-#include "smtp_util.h"
+///#include "smtp_util.h"
 #include "smtpqueue.h"
 #include "event_client.h"
 
@@ -260,6 +260,9 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 	StrBufAppendBufPlain(QMessage, HKEY("\nmsgid|"), 0);
 	StrBufAppendPrintf(QMessage, "%ld", MyQItem->MessageID);
 
+	StrBufAppendBufPlain(QMessage, HKEY("\nsubmitted|"), 0);
+	StrBufAppendPrintf(QMessage, "%ld", MyQItem->Submitted);
+
 	if (StrLength(MyQItem->BounceTo) > 0) {
 		StrBufAppendBufPlain(QMessage, HKEY("\nbounceto|"), 0);
 		StrBufAppendBuf(QMessage, MyQItem->BounceTo, 0);
@@ -280,6 +283,7 @@ StrBuf *SerializeQueueItem(OneQueItem *MyQItem)
 			continue; /* skip already sent ones from the spoolfile. */
 
 		for (i=0; i < ThisItem->nAttempts; i++) {
+			/* TODO: most probably there is just one retry/attempted per message! */
 			StrBufAppendBufPlain(QMessage, HKEY("\nretry|"), 0);
 			StrBufAppendPrintf(QMessage, "%ld", 
 					   ThisItem->Attempts[i].retry);
@@ -311,6 +315,7 @@ void NewMailQEntry(OneQueItem *Item)
 
 	if (Item->MailQEntries == NULL)
 		Item->MailQEntries = NewHash(1, Flathash);
+	Item->Current->StatusMessage = NewStrBuf();
 	Item->Current->n = GetCount(Item->MailQEntries);
 	Put(Item->MailQEntries, IKEY(Item->Current->n), Item->Current, FreeMailQEntry);
 }
@@ -358,6 +363,13 @@ void QItem_Handle_retry(OneQueItem *Item, StrBuf *Line, const char **Pos)
 		return;
 	}
 	Item->Current->Attempts[Item->Current->nAttempts].retry = StrBufExtractNext_int(Line, Pos, '|');
+}
+
+
+void QItem_Handle_Submitted(OneQueItem *Item, StrBuf *Line, const char **Pos)
+{
+	Item->Submitted = atol(*Pos);
+
 }
 
 void QItem_Handle_Attempted(OneQueItem *Item, StrBuf *Line, const char **Pos)
@@ -408,6 +420,167 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
 }
 
 
+
+/*
+ * smtp_do_bounce() is caled by smtp_do_procmsg() to scan a set of delivery
+ * instructions for "5" codes (permanent fatal errors) and produce/deliver
+ * a "bounce" message (delivery status notification).
+ */
+void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt) 
+{
+	StrBuf *boundary, *Msg = NULL; 
+	int num_bounces = 0;
+	struct CtdlMessage *bmsg = NULL;
+	int give_up = 0;
+	struct recptypes *valid;
+	int successful_bounce = 0;
+	static int seq = 0;
+	StrBuf *BounceMB;
+	HashPos  *It;
+	void *vQE;
+	long len;
+	const char *Key;
+
+	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
+	
+	if ( (time(NULL) - MyQItem->Submitted) > SMTP_GIVE_UP ) {
+		give_up = 1;/// TODO: replace time by libevq timer get
+	}
+
+	/*
+	 * Now go through the instructions checking for stuff.
+	 */
+	It = GetNewHashPos(MyQItem->MailQEntries, 0);
+	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
+	{
+		MailQEntry *ThisItem = vQE;
+		if ((ThisItem->Status == 5) || /* failed now? */
+		    ((give_up == 1) && (ThisItem->Status != 2))) /* giving up after failed attempts... */
+		{
+			if (num_bounces == 0)
+				Msg = NewStrBufPlain(NULL, 1024);
+			++num_bounces;
+	
+			StrBufAppendBuf(Msg, ThisItem->Recipient, 0);
+			StrBufAppendBufPlain(Msg, HKEY(": "), 0);
+			StrBufAppendBuf(Msg, ThisItem->StatusMessage, 0);
+			StrBufAppendBufPlain(Msg, HKEY("\r\n"), 0);
+		}
+	}
+	DeleteHashPos(&It);
+
+	/* Deliver the bounce if there's anything worth mentioning */
+	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
+
+	if (num_bounces == 0)
+		return;
+
+	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
+	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
+
+	/* Start building our bounce message; go shopping for memory first. */
+	BounceMB = NewStrBufPlain(NULL, 
+				  1024 + /* mime stuff.... */
+				  StrLength(Msg) +  /* the bounce information... */
+				  StrLength(OMsgTxt)); /* the original message */
+	if (BounceMB == NULL) {
+		FreeStrBuf(&boundary);
+		CtdlLogPrintf(CTDL_ERR, "Failed to alloc() bounce message.\n");
+
+		return;
+	}
+
+	bmsg = (struct CtdlMessage *) malloc(sizeof(struct CtdlMessage));
+	if (bmsg == NULL) {
+		FreeStrBuf(&boundary);
+		FreeStrBuf(&BounceMB);
+		CtdlLogPrintf(CTDL_ERR, "Failed to alloc() bounce message.\n");
+
+		return;
+	}
+	memset(bmsg, 0, sizeof(struct CtdlMessage));
+
+
+	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: multipart/mixed; boundary=\""), 0);
+	StrBufAppendBuf(BounceMB, boundary, 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("\"\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("MIME-Version: 1.0\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("X-Mailer: " CITADEL "\r\n"), 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("\r\nThis is a multipart message in MIME format.\r\n\r\n"), 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+        StrBufAppendBuf(BounceMB, boundary, 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
+        StrBufAppendBufPlain(BounceMB, HKEY("Content-type: text/plain\r\n\r\n"), 0);
+
+	if (give_up) 
+		StrBufAppendBufPlain(
+			BounceMB, 
+			HKEY(
+				"A message you sent could not be delivered to some or all of its recipients\n"
+				"due to prolonged unavailability of its destination(s).\n"
+				"Giving up on the following addresses:\n\n"
+				), 0);
+	else 
+		StrBufAppendBufPlain(
+			BounceMB, 
+			HKEY(
+				"A message you sent could not be delivered to some or all of its recipients.\n"
+				"The following addresses were undeliverable:\n\n"
+				), 0);
+
+	StrBufAppendBuf(BounceMB, Msg, 0);
+	FreeStrBuf(&Msg);
+
+	/* Attach the original message */
+	StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBuf(BounceMB, boundary, 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("Content-type: message/rfc822\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("Content-Transfer-Encoding: 7bit\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("Content-Disposition: inline\r\n"), 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("\r\n"), 0);
+	StrBufAppendBuf(BounceMB, OMsgTxt, 0);
+
+	/* Close the multipart MIME scope */
+        StrBufAppendBufPlain(BounceMB, HKEY("--"), 0);
+	StrBufAppendBuf(BounceMB, boundary, 0);
+	StrBufAppendBufPlain(BounceMB, HKEY("--\r\n"), 0);
+
+
+
+        bmsg->cm_magic = CTDLMESSAGE_MAGIC;
+        bmsg->cm_anon_type = MES_NORMAL;
+        bmsg->cm_format_type = FMT_RFC822;
+
+        bmsg->cm_fields['O'] = strdup(MAILROOM);
+        bmsg->cm_fields['N'] = strdup(config.c_nodename);
+        bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
+	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
+
+	/* First try the user who sent the message */
+	if (StrLength(MyQItem->BounceTo) == 0) 
+		CtdlLogPrintf(CTDL_ERR, "No bounce address specified\n");
+	else
+		CtdlLogPrintf(CTDL_DEBUG, "bounce to user? <%s>\n", ChrPtr(MyQItem->BounceTo));
+
+	/* Can we deliver the bounce to the original sender? */
+	valid = validate_recipients(ChrPtr(MyQItem->BounceTo), NULL, 0);
+	if ((valid != NULL) && (valid->num_error == 0)) {
+		CtdlSubmitMsg(bmsg, valid, "", QP_EADDR);
+		successful_bounce = 1;
+	}
+
+	/* If not, post it in the Aide> room */
+	if (successful_bounce == 0) {
+		CtdlSubmitMsg(bmsg, NULL, config.c_aideroom, QP_EADDR);
+	}
+
+	/* Free up the memory we used */
+	free_recipients(valid);
+	FreeStrBuf(&boundary);
+	CtdlFreeMessage(bmsg);
+	CtdlLogPrintf(CTDL_DEBUG, "Done processing bounces\n");
+}
 
 /*
  * smtp_do_procmsg()
@@ -655,7 +828,8 @@ CTDL_MODULE_INIT(smtp_queu)
 		Put(QItemHandlers, HKEY("attempted"), QItem_Handle_Attempted, reference_free_handler);
 		Put(QItemHandlers, HKEY("remote"), QItem_Handle_Recipient, reference_free_handler);
 		Put(QItemHandlers, HKEY("bounceto"), QItem_Handle_BounceTo, reference_free_handler);
-///submitted /TODO: flush qitemhandlers on exit
+		Put(QItemHandlers, HKEY("submitted"), QItem_Handle_Submitted, reference_free_handler);
+////TODO: flush qitemhandlers on exit
 		smtp_init_spoolout();
 
 		CtdlRegisterCleanupHook(smtp_evq_cleanup);

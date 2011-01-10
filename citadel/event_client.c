@@ -238,8 +238,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	rc = StrBuf_write_one_chunk_callback(watcher->fd, 0/*TODO*/, &IO->SendBuf);
 
 	if (rc == 0)
-	{
-		
+	{		
 #ifdef BIGBAD_IODBG
 		{
 			int rv = 0;
@@ -298,13 +297,25 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			break;
 		}
 	}
-	else if (rc > 0)
-		ShutDownCLient(IO);
-//	else 
-		///abort!
+	else if (rc < 0)
+		IO->Timeout(IO);
+	/* else : must write more. */
 }
 
+static void
+IO_Timout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
 
+	IO->Timeout(IO);
+}
+static void
+IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
+
+	IO->ConnFail(IO);
+}
 static void
 IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
@@ -326,7 +337,7 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	if (nbytes > 0) {
 		HandleInbound(IO);
 	} else if (nbytes == 0) {
-		ShutDownCLient(IO);
+		IO->Timeout(IO);
 ///  TODO: this is a timeout???  sock_buff_invoke_free(sb, 0); seems as if socket is gone then?
 		return;
 	} else if (nbytes == -1) {
@@ -337,8 +348,13 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 
 
 static void
-set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
+set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents, int first_rw_timeout)
 {
+	ev_timer_init(&IO->conn_timeout, 
+		      IO_Timout_callback, 
+		      first_rw_timeout, 0);
+	IO->conn_timeout.data = IO;
+	
 	switch(IO->NextState) {
 	case eReadMessage:
 		ev_io_start(event_base, &IO->recv_event);
@@ -355,7 +371,7 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 	}
 }
 
-int event_connect_socket(AsyncIO *IO)
+int event_connect_socket(AsyncIO *IO, int conn_timeout, int first_rw_timeout)
 {
 	struct sockaddr_in  saddr;
 	int fdflags; 
@@ -413,9 +429,17 @@ IO->curr_ai->ai_family,
 /// TODO: ipv6??		     (IO->HEnt->h_addrtype == AF_INET6)?
 		     /*     sizeof(in6_addr):*/
 		     sizeof(struct sockaddr_in));
-	if ((rc >= 0) || (errno == EINPROGRESS)){
+	if (rc >= 0){
 ////		freeaddrinfo(res);
-		set_start_callback(event_base, IO, 0);
+		set_start_callback(event_base, IO, 0, first_rw_timeout);
+		return 0;
+	}
+	else if (errno == EINPROGRESS) {
+		set_start_callback(event_base, IO, 0, first_rw_timeout);
+		ev_timer_init(&IO->conn_fail, 
+			      IO_connfail_callback, 
+			      conn_timeout, 0);
+		IO->conn_fail.data = IO;
 		
 		return 0;
 	}
@@ -439,6 +463,8 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack Timeout, 
 		 IO_CallBack ConnFail, 
 		 IO_LineReaderCallback LineReader,
+		 int conn_timeout, 
+		 int first_rw_timeout,
 		 int ReadFirst)
 {
 	IO->Data = pData;
@@ -455,7 +481,7 @@ void InitEventIO(AsyncIO *IO,
 	}
 	IO->IP6 = IO->HEnt->h_addrtype == AF_INET6;
 //	IO->res = HEnt->h_addr_list[0];
-	event_connect_socket(IO);
+	event_connect_socket(IO, conn_timeout, first_rw_timeout);
 }
 
 
