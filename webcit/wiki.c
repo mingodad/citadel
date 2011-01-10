@@ -342,10 +342,6 @@ int wiki_Cleanup(void **ViewSpecific)
 }
 
 
-
-
-
-
 int ConditionalHaveWikiPage(StrBuf *Target, WCTemplputParams *TP)
 {
 	const char *page;
@@ -356,15 +352,19 @@ int ConditionalHaveWikiPage(StrBuf *Target, WCTemplputParams *TP)
 	GetTemplateTokenString(Target, TP, 2, &pch, &len);
 	return strcasecmp(page, pch) == 0;
 }
+
+
 int ConditionalHavewikiType(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	const char *pch;
 	long len;
 
-	GetTemplateTokenString(Target, TP, 1, &pch, &len);
+	GetTemplateTokenString(Target, TP, 2, &pch, &len);
 	return bmstrcasestr((char *)ChrPtr(WCC->Hdr->HR.ReqLine), pch) != NULL;
 }
+
+
 void 
 InitModule_WIKI
 (void)
