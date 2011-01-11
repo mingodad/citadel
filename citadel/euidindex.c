@@ -228,7 +228,7 @@ void cmd_euid(char *cmdbuf) {
         int num_msgs = 0;
 	int i;
 
-	if (CtdlAccessCheck(ac_logged_in)) return;
+	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
 	extract_token(euid, cmdbuf, 0, '|', sizeof euid);
 	msgnum = CtdlLocateMessageByEuid(euid, &CC->room);
