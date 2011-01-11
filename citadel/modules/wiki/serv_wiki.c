@@ -1,9 +1,7 @@
 /*
- * $Id$
- *
  * Server-side module for Wiki rooms.  This handles things like version control. 
  * 
- * Copyright (c) 2009 by the citadel.org team
+ * Copyright (c) 2009-2011 by the citadel.org team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -424,7 +422,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 	CtdlLogPrintf(CTDL_DEBUG, "callback found rev: %s\n", this_rev);
 
 	/* Perform the patch */
-	fp = popen("patch -f -s -p0 --global-reject-file=/dev/null >/dev/null 2>/dev/null", "w");
+	fp = popen("patch -f -s -p0 -r /dev/null >/dev/null 2>/dev/null", "w");
 	if (fp) {
 		/* Replace the filenames in the patch with the tempfilename we're actually tweaking */
 		fprintf(fp, "--- %s\n", hecbd->tempfilename);
