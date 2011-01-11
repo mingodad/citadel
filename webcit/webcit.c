@@ -701,12 +701,14 @@ void session_loop(void)
 	if (!WCC->connected) {
 		if (GetConnected()) {
 			hprintf("HTTP/1.1 503 Service Unavailable\r\n");
-			hprintf("Content-Type: text/plain\r\n");
+			hprintf("Content-Type: text/html\r\n");
 			begin_burst();
+			wc_printf("<html><head><title>503 Service Unavailable</title></head><body>\n");
 			wc_printf(_("This program was unable to connect or stay "
 				"connected to the Citadel server.  Please report "
 				"this problem to your system administrator.")
 			);
+			wc_printf("</body></html>\n");
 			end_burst();
 			goto SKIP_ALL_THIS_CRAP;
 		}
