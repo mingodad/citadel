@@ -1,7 +1,7 @@
 /*
  * These functions handle authentication of users to a Citadel server.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,20 +70,6 @@ void display_login(void)
 	end_burst();
 }
 
-
-
-
-/* 
- * Display the openid-enabled login screen
- * mesg = the error message if last attempt failed.
- */
-void display_openid_login(char *mesg)
-{
-  begin_burst();
-  output_headers(1, 0, 0, 0, 1, 0);
-  do_template("openid_login", NULL);
-  end_burst();
-}
 
 
 
@@ -352,13 +338,13 @@ void do_openid_login(void)
 			return;
 		}
 		else {
-			display_openid_login(&buf[4]);
+			display_login();
 			return;
 		}
 	}
 
 	/* If we get to this point then something failed. */
-	display_openid_login(_("Your password was not accepted."));
+	display_login();
 }
 
 /* 
@@ -471,7 +457,7 @@ void finalize_openid_login(void)
 			do_welcome();
 		}
 	} else {
-		display_openid_login(_("Your password was not accepted."));
+		display_login();
 	}
 
 	FreeStrBuf(&result);
@@ -954,10 +940,6 @@ int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
-void _display_openid_login(void) {
-	display_openid_login(NULL);
-}
-
 
 void _display_reg(void) {
 	display_reg(0);
@@ -1069,22 +1051,24 @@ InitModule_AUTH
 	RegisterHeaderHandler(HKEY("COOKIE"), Header_HandleCookie);
 	RegisterHeaderHandler(HKEY("AUTHORIZATION"), Header_HandleAuth);
 
-	WebcitAddUrlHandler(HKEY(""), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED); /* no url pattern at all? Show login. */
+	/* no url pattern at all? Show login. */
+	WebcitAddUrlHandler(HKEY(""), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
+
+	/* some of these will be removed soon */
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("login"), "", 0, do_login, ANONYMOUS|COOKIEUNNEEDED);
-	WebcitAddUrlHandler(HKEY("display_openid_login"), "", 0, _display_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_login"), "", 0, do_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_manual_create"), "", 0, openid_manual_create, ANONYMOUS);
-	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
-	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("validate"), "", 0, validate, 0);
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, 0);
 	WebcitAddUrlHandler(HKEY("display_reg"), "", 0, _display_reg, 0);
 	WebcitAddUrlHandler(HKEY("display_changepw"), "", 0, display_changepw, 0);
 	WebcitAddUrlHandler(HKEY("changepw"), "", 0, changepw, 0);
 	WebcitAddUrlHandler(HKEY("termquit"), "", 0, do_logout, 0);
-
+	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
+	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0,
+		ajax_login_username_password, AJAX|ANONYMOUS);
 
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
