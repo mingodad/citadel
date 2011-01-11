@@ -484,6 +484,14 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		return;
 	}
 
+	if (!strcasecmp(operation, "revert")) {
+		r = CtdlDoIHavePermissionToPostInThisRoom(temp, sizeof temp, NULL, POST_LOGGED_IN, 0);
+		if (r != 0) {
+			cprintf("%d %s\n", r, temp);
+			return;
+		}
+	}
+
 	/* Begin by fetching the current version of the page.  We're going to patch
 	 * backwards through the diffs until we get the one we want.
 	 */
