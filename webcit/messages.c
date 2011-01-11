@@ -491,22 +491,6 @@ void print_message(void) {
 	wDumpContent(0);
 }
 
-/* 
- * Mobile browser view of message
- */
-void mobile_message_view(void) 
-{
-	long msgnum = 0L;
-	const StrBuf *Mime;
-  
-	msgnum = StrBufExtract_long(WC->Hdr->HR.ReqLine, 0, '/');
-	output_headers(1, 0, 0, 0, 0, 1);
-	begin_burst();
-	do_template("msgcontrols", NULL);
-	read_message(WC->WBuf, HKEY("view_message"), msgnum, NULL, &Mime);
-	wDumpContent(0);
-}
-
 /*
  * Display a message's headers
  */
@@ -1853,7 +1837,6 @@ InitModule_MSG
 	WebcitAddUrlHandler(HKEY("msg"), "", 0, embed_message, NEED_URL);
 	WebcitAddUrlHandler(HKEY("message"), "", 0, handle_one_message, NEED_URL|XHTTP_COMMANDS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("printmsg"), "", 0, print_message, NEED_URL);
-	WebcitAddUrlHandler(HKEY("mobilemsg"), "", 0, mobile_message_view, NEED_URL);
 	WebcitAddUrlHandler(HKEY("msgheaders"), "", 0, display_headers, NEED_URL);
 
 	WebcitAddUrlHandler(HKEY("mimepart"), "", 0, view_mimepart, NEED_URL);

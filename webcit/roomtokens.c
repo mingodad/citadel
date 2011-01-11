@@ -55,10 +55,6 @@ void tmplput_roombanner(StrBuf *Target, WCTemplputParams *TP)
 
 	do_template("roombanner", NULL);
 
-	/* roombanner contains this for mobile */
-	if (WC->is_mobile)
-		return;
-
 	do_template("navbar", NULL);
 	wc_printf("</div>\n");
 }
