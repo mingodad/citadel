@@ -201,7 +201,7 @@ void tmplput_display_wiki_history(StrBuf *Target, WCTemplputParams *TP)
 					ChrPtr(rev_uuid),
 					_("(show)")
 				);
-				wc_printf("<td><a href=\"wiki?page=%s?rev=%s?revert=1\">%s</a></td>",
+				wc_printf("<td><a href=\"javascript:GetLoggedInFirst(encodeURIComponent('wiki?page=%s?rev=%s?revert=1'))\">%s</a></td>",
 					bstr("page"),
 					ChrPtr(rev_uuid),
 					_("(revert)")
