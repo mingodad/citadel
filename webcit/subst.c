@@ -1681,14 +1681,8 @@ const StrBuf *DoTemplate(const char *templatename, long len, StrBuf *Target, WCT
 		TP = &LocalTP;
 	}
 
-	if (WC->is_mobile > 0) {
-		Static = WirelessTemplateCache;
-		StaticLocal = WirelessLocalTemplateCache;
-	}
-	else {
-		Static = TemplateCache;
-		StaticLocal = LocalTemplateCache;
-	}
+	Static = TemplateCache;
+	StaticLocal = LocalTemplateCache;
 
 	if (len == 0)
 	{

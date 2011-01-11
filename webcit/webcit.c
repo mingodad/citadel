@@ -654,7 +654,6 @@ void session_loop(void)
 	WCC= WC;
 	WCC->upload_length = 0;
 	WCC->upload = NULL;
-	WCC->is_mobile = 0;
 	WCC->Hdr->nWildfireHeaders = 0;
 	if (WCC->Hdr->HR.Handler != NULL)
 		Flags = WCC->Hdr->HR.Handler->Flags; /* so we can temporarily add our own... */
