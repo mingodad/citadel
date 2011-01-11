@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-31 17:29-0500\n"
+"POT-Creation-Date: 2011-01-11 12:05-0500\n"
 "PO-Revision-Date: 2010-11-25 13:41+0000\n"
 "Last-Translator: Alessandro Cesar <Unknown>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -316,10 +316,9 @@ msgid "Save changes"
 msgstr "Salvar modificações"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:864 ../../event.c:768 ../../graphics.c:71
-#: ../../messages.c:1534 ../../paging.c:66
-#: ../../static/t/edit_message.html:135 ../../static/t/get_logged_in.html:21
-#: ../../static/t/confirmlogoff.html:5
+#: ../../sysmsgs.c:50 ../../auth.c:850 ../../event.c:768 ../../graphics.c:71
+#: ../../messages.c:1539 ../../paging.c:66
+#: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -717,9 +716,9 @@ msgstr "Nome do host:"
 msgid "Change host name"
 msgstr "Mudar nome do host"
 
-#: ../../who.c:187 ../../static/t/get_logged_in.html:12
+#: ../../who.c:187 ../../static/t/get_logged_in.html:41
 #: ../../static/t/aide/edituser/detailview.html:20
-#: ../../static/t/login.html:19 ../../static/t/openid_manual_create.html:15
+#: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
 msgstr "Nome do usuário:"
 
@@ -873,21 +872,20 @@ msgstr "Usuário preferencial"
 msgid "Aide"
 msgstr "Aide"
 
-#: ../../auth.c:211 ../../auth.c:902
+#: ../../auth.c:197 ../../auth.c:888
 msgid "Blank passwords are not allowed."
 msgstr "Senhas em branco não são permitidas."
 
-#. If we get to this point then something failed.
-#: ../../auth.c:239 ../../auth.c:361 ../../auth.c:474
+#: ../../auth.c:225
 msgid "Your password was not accepted."
 msgstr "Sua senha não foi aceita"
 
-#: ../../auth.c:590 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:576 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Log off"
 
-#: ../../auth.c:603 ../../webcit.c:657
+#: ../../auth.c:589 ../../webcit.c:706
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -896,68 +894,68 @@ msgstr ""
 "Citadel.  Se possível, reporte esse problema para seu administrador de "
 "sistema."
 
-#: ../../auth.c:609
+#: ../../auth.c:595
 msgid "Read More..."
 msgstr "Continuar..."
 
-#: ../../auth.c:614
+#: ../../auth.c:600
 msgid "Log in again"
 msgstr "Refazer log in"
 
-#: ../../auth.c:635 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:621 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Validar novos usuários"
 
-#: ../../auth.c:658
+#: ../../auth.c:644
 msgid "No users require validation at this time."
 msgstr "Sem usuários para validar no momento"
 
-#: ../../auth.c:705
+#: ../../auth.c:691
 msgid "very weak"
 msgstr "muito fraco"
 
-#: ../../auth.c:708
+#: ../../auth.c:694
 msgid "weak"
 msgstr "fraco"
 
-#: ../../auth.c:711
+#: ../../auth.c:697
 msgid "ok"
 msgstr "bom"
 
-#: ../../auth.c:715
+#: ../../auth.c:701
 msgid "strong"
 msgstr "forte"
 
-#: ../../auth.c:733
+#: ../../auth.c:719
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Nível de acesso atual: %d (%s)\n"
 
-#: ../../auth.c:741
+#: ../../auth.c:727
 msgid "Select access level for this user:"
 msgstr "Selecione o nível de acesso para esse usuário:"
 
-#: ../../auth.c:828 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:814 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Modificar sua senha"
 
-#: ../../auth.c:852
+#: ../../auth.c:838
 msgid "Enter new password:"
 msgstr "Digite nova senha:"
 
-#: ../../auth.c:856
+#: ../../auth.c:842
 msgid "Enter it again to confirm:"
 msgstr "Digite novamente para confirmar:"
 
-#: ../../auth.c:862
+#: ../../auth.c:848
 msgid "Change password"
 msgstr "Modificar senha"
 
-#: ../../auth.c:883
+#: ../../auth.c:869
 msgid "Cancelled.  Password was not changed."
 msgstr "Cancelado.  A senha não foi modificada."
 
-#: ../../auth.c:894
+#: ../../auth.c:880
 msgid "They don't match.  Password was not changed."
 msgstr "Eles não batem.  Senha não foi modificada."
 
@@ -1367,11 +1365,11 @@ msgstr ""
 msgid "Go back..."
 msgstr "Voltar..."
 
-#: ../../webcit.c:341
+#: ../../webcit.c:357
 msgid "Authorization Required"
 msgstr "Autorização Requerida"
 
-#: ../../webcit.c:350
+#: ../../webcit.c:366
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
@@ -1380,22 +1378,22 @@ msgstr ""
 "O recurso que você pediu requer um nome de usuário e senha válidos. Você "
 "pode não estar logado: %s\n"
 
-#: ../../wiki.c:53 ../../wiki.c:146 ../../wiki.c:266
+#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
 #, c-format
 msgid "There is no room called '%s'."
 msgstr "Não há sala de nome '%s'."
 
-#: ../../wiki.c:60
+#: ../../wiki.c:76
 #, c-format
 msgid "'%s' is not a Wiki room."
 msgstr "'%s' não é uma sala Wiki."
 
-#: ../../wiki.c:94
+#: ../../wiki.c:110
 #, c-format
 msgid "There is no page called '%s' here."
 msgstr "Não há página de nome '%s' aqui."
 
-#: ../../wiki.c:96
+#: ../../wiki.c:112
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
@@ -1403,28 +1401,28 @@ msgstr ""
 "Selecione o link 'Editar essa página' no banner da sala se você quiser criar "
 "essa página."
 
-#: ../../wiki.c:165 ../../static/t/summary_header.html:10
+#: ../../wiki.c:181 ../../static/t/summary_header.html:10
 #: ../../static/t/msg_listview.html:12
 msgid "Date"
 msgstr "Data"
 
-#: ../../wiki.c:166
+#: ../../wiki.c:182
 msgid "Author"
 msgstr "Autor"
 
-#: ../../wiki.c:193 ../../wiki.c:202
+#: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
 msgstr "(exibir)"
 
-#: ../../wiki.c:195 ../../static/t/navbar.html:147
+#: ../../wiki.c:211 ../../static/t/navbar.html:146
 msgid "Current version"
 msgstr "Versão atual"
 
-#: ../../wiki.c:207
+#: ../../wiki.c:223
 msgid "(revert)"
 msgstr "(voltar)"
 
-#: ../../wiki.c:284
+#: ../../wiki.c:300
 msgid "Page title"
 msgstr "Título da página"
 
@@ -1452,97 +1450,97 @@ msgstr "arquivo"
 msgid "files"
 msgstr "arquivos"
 
-#: ../../messages.c:54
+#: ../../messages.c:70
 msgid "ERROR:"
 msgstr "ERRO:"
 
-#: ../../messages.c:72
+#: ../../messages.c:88
 msgid "Empty message"
 msgstr "Mensagem vazia"
 
-#: ../../messages.c:1027
+#: ../../messages.c:1032
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Cancelado.  A mensagem não foi fixada."
 
-#: ../../messages.c:1030
+#: ../../messages.c:1035
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Cancelado automaticamente porque você já salvou essa mensagem."
 
-#: ../../messages.c:1055
+#: ../../messages.c:1060
 msgid "Saved to Drafts failed: "
 msgstr "Gravação para rascunhos falhou: "
 
-#: ../../messages.c:1121
+#: ../../messages.c:1126
 msgid "Refusing to post empty message.\n"
 msgstr "Recusando enviar mensagem vazia\n"
 
-#: ../../messages.c:1147
+#: ../../messages.c:1152
 msgid "Message has been saved to Drafts.\n"
 msgstr "A mensagem foi salva em rascunhos\n"
 
-#: ../../messages.c:1156
+#: ../../messages.c:1161
 msgid "Message has been sent.\n"
 msgstr "A mensagem foi enviada.\n"
 
-#: ../../messages.c:1159
+#: ../../messages.c:1164
 msgid "Message has been posted.\n"
 msgstr "Mensagem foi fixada.\n"
 
-#: ../../messages.c:1481
+#: ../../messages.c:1486
 #, c-format
 msgid "The message was not moved."
 msgstr "A mensagem não foi movida."
 
-#: ../../messages.c:1503
+#: ../../messages.c:1508
 msgid "Confirm move of message"
 msgstr "Confirmar a movimentação da mensagem"
 
-#: ../../messages.c:1511
+#: ../../messages.c:1516
 msgid "Move this message to:"
 msgstr "Mover essa mensagem para:"
 
-#: ../../messages.c:1532 ../../static/t/view_message.html:34
+#: ../../messages.c:1537 ../../static/t/view_message.html:34
 #: ../../static/t/msg_listview.html:28
 msgid "Move"
 msgstr "Mover"
 
-#: ../../messages.c:1574
+#: ../../messages.c:1579
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "Um erro ocorreu ao obter essa parte: %s/%s\n"
 
-#: ../../messages.c:1634
+#: ../../messages.c:1639
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Um erro ocorreu ao obter essa parte: %s\n"
 
-#: ../../messages.c:1801
+#: ../../messages.c:1806
 msgid "Attach signature to email messages?"
 msgstr "Anexar assinatura em mensagens de email?"
 
-#: ../../messages.c:1804
+#: ../../messages.c:1809
 msgid "Use this signature:"
 msgstr "Usar essa assinatura:"
 
-#: ../../messages.c:1806
+#: ../../messages.c:1811
 msgid "Default character set for email headers:"
 msgstr "Codificação padrão para cabeçalhos de email:"
 
-#: ../../messages.c:1809
+#: ../../messages.c:1814
 msgid "Preferred email address"
 msgstr "Endereço de e-mail preferencial"
 
-#: ../../messages.c:1811
+#: ../../messages.c:1816
 msgid "Preferred display name for email messages"
 msgstr "Nome de exibição para mensagens de e-mail preferencial"
 
-#: ../../messages.c:1815
+#: ../../messages.c:1820
 msgid "Preferred display name for bulletin board posts"
 msgstr "Nome de exibição para mensagens de bulletin board preferencial"
 
-#: ../../messages.c:1818
+#: ../../messages.c:1823
 msgid "Mailbox view mode"
 msgstr "Modo de visualização da Caixa de Mensagens"
 
@@ -1962,7 +1960,7 @@ msgstr "Listar salas conhecidas"
 msgid "Where can I go from here?"
 msgstr "Aonde posso ir daqui?"
 
-#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:161
+#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:160
 msgid "Goto next room"
 msgstr "Ir para próxima sala"
 
@@ -2049,7 +2047,7 @@ msgid "Go to a 'hidden' room"
 msgstr "Ir para uma sala 'escondida'"
 
 #: ../../static/t/menu/advanced_roomcommands.html:6
-#: ../../static/t/room/create.html:9
+#: ../../static/t/room/create.html:11
 msgid "Create a new room"
 msgstr "Criar uma nova sala"
 
@@ -2162,6 +2160,7 @@ msgid "Remove"
 msgstr "(excluir)"
 
 #: ../../static/t/edit_message/attachments_pane.html:3
+#: ../../static/t/get_logged_in.html:9
 msgid "Close window"
 msgstr "Fechar janela "
 
@@ -2347,14 +2346,26 @@ msgstr ""
 "(Nota: isto não altera a página inicial do seu navegador. Ele altera a "
 "página que você começa quando você logar no"
 
-#: ../../static/t/get_logged_in.html:15 ../../static/t/login.html:21
+#: ../../static/t/get_logged_in.html:5
+msgid "You must be logged in to access this page."
+msgstr "Você deve estar logado para acessar esta página."
+
+#: ../../static/t/get_logged_in.html:39
+msgid "Log in using a user name and password"
+msgstr "Log in usando um nome de usuário e senha"
+
+#: ../../static/t/get_logged_in.html:44
 msgid "Password:"
 msgstr "Senha:"
 
-#: ../../static/t/get_logged_in.html:20 ../../static/t/iconbar.html:87
+#: ../../static/t/get_logged_in.html:48 ../../static/t/iconbar.html:87
 #, fuzzy
 msgid "Log in"
 msgstr "Último Login"
+
+#: ../../static/t/get_logged_in.html:52
+msgid "Log in using OpenID"
+msgstr "Log in usando OpenID"
 
 #: ../../static/t/iconbar.html:18
 msgid "Mail"
@@ -2449,11 +2460,11 @@ msgstr "Página inicial do Wiki"
 msgid "Edit this page"
 msgstr "Editar essa página"
 
-#: ../../static/t/navbar.html:147
+#: ../../static/t/navbar.html:146
 msgid "History"
 msgstr "Histórico"
 
-#: ../../static/t/navbar.html:155
+#: ../../static/t/navbar.html:154
 msgid "Skip this room"
 msgstr "Pular essa sala"
 
@@ -3377,45 +3388,45 @@ msgid "Click on any room to un-zap it and goto that room."
 msgstr ""
 "Clique em qualquer sala para 'des-esquecê-la' e entrar nela em seguida.\n"
 
-#: ../../static/t/room/create.html:17
+#: ../../static/t/room/create.html:18
 msgid "Name of room: "
 msgstr "Nome da sala: "
 
-#: ../../static/t/room/create.html:19
+#: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
 msgstr "Reside no andar: "
 
-#: ../../static/t/room/create.html:31
+#: ../../static/t/room/create.html:32
 msgid "Default view for room: "
 msgstr "Visualização padrão para sala: "
 
-#: ../../static/t/room/create.html:67
+#: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
 msgid "Type of room:"
 msgstr "Tipo da sala:"
 
-#: ../../static/t/room/create.html:72
+#: ../../static/t/room/create.html:73
 #: ../../static/t/room/edit/tab_config.html:22
 msgid "Public (automatically appears to everyone)"
 msgstr "Público (aparece automaticamente para todos)"
 
-#: ../../static/t/room/create.html:76
+#: ../../static/t/room/create.html:77
 #: ../../static/t/room/edit/tab_config.html:28
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr "Privado - escondido (acessível apenas para quem sabe o nome)"
 
-#: ../../static/t/room/create.html:80
+#: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
 msgstr "Privado - requer senha: "
 
-#: ../../static/t/room/create.html:85
+#: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
 msgid "Private - invitation only"
 msgstr "Privado - apenas por convite"
 
-#: ../../static/t/room/create.html:89
+#: ../../static/t/room/create.html:90
 #: ../../static/t/room/edit/tab_config.html:51
 msgid "Personal (mailbox for you only)"
 msgstr "Pessoal (caixa de correio pessoal)"
@@ -3731,70 +3742,9 @@ msgstr ""
 "Se você selecionar essa opção, <em>%s</em> irá desaparecer da sua lista de "
 "salas.  Gostaria mesmo de fazer isso?<br>\n"
 
-#: ../../static/t/login.html:4 ../../static/t/openid_login.html:4
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-"AVISO: O JavaScript do seu navegador está desabilitado. Muitas funções deste "
-"sistema não funcionarão adequadamente."
-
-#: ../../static/t/login.html:8 ../../static/t/openid_login.html:8
+#: ../../static/t/login.html:5
 msgid "powered by"
 msgstr "desenvolvido por"
-
-#: ../../static/t/login.html:23 ../../static/t/openid_login.html:21
-msgid "Language:"
-msgstr "Idioma:"
-
-#: ../../static/t/login.html:39
-msgid "Log in using OpenID"
-msgstr "Log in usando OpenID"
-
-#: ../../static/t/login.html:43
-msgid "If you already have an account on"
-msgstr "Se você já tiver uma conta ativa"
-
-#: ../../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Log in.&quot;"
-msgstr "entre com seu usuário e senha e clique em &quot;Log in.&quot;"
-
-#: ../../static/t/login.html:45
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-"b>Se você é um novo usuário</b>, entre com seu nome e senha que você deseja "
-"usar, e clique em &quot;Novo Usuário.&quot; "
-
-#: ../../static/t/login.html:46 ../../static/t/openid_login.html:37
-msgid "Please log off properly when finished. "
-msgstr "Por favor efetue o log off quando terminar "
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "See the"
-msgstr "Veja o"
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "recommended browser list"
-msgstr "lista de navegação recomendada"
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-"se você tem problemas ao usar o Webcit.</li> <li>Você tem que ativar os "
-"<i>cookies</i>. "
-
-#: ../../static/t/login.html:48 ../../static/t/openid_login.html:39
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
-msgstr ""
-"Lembre-se também que se seu browser está configurado para bloquear janelas "
-"pop-up, você não estará habilitado para receber quaisquer mensagens "
-"instantâneas."
 
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
 msgid "Preferences and settings"
@@ -3828,6 +3778,14 @@ msgstr "Por favor especifique o nome do usuário que você gostaria de usar."
 msgid "No new messages."
 msgstr "Nenhuma nova mensagem."
 
+#: ../../static/t/head.html:51
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+"AVISO: O JavaScript do seu navegador está desabilitado. Muitas funções deste "
+"sistema não funcionarão adequadamente."
+
 #: ../../static/t/knrooms.html:5
 msgid "Room list"
 msgstr "Lista de salas"
@@ -3848,23 +3806,6 @@ msgstr "Ver como lista de pastas"
 msgid "Room Listing"
 msgstr "Lista de salas"
 
-#: ../../static/t/openid_login.html:19
-msgid "OpenID URL:"
-msgstr "URL do OpenID:"
-
-#: ../../static/t/openid_login.html:31
-msgid "Log in using a user name and password"
-msgstr "Log in usando um nome de usuário e senha"
-
-#: ../../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Log in&quot;."
-msgstr "Entre com sua URL do OpenID e clique em &quot;Log in&quot;."
-
-#: ../../static/t/openid_login.html:36
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr ""
-"Clique aqui para aprender o que é o OpenID e como a Citadel está usando ele."
-
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
 msgstr "Visualizar como:"
@@ -3880,6 +3821,57 @@ msgstr "Informações sobre você"
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
 msgstr "Comandos avançados de sala"
+
+#~ msgid "Language:"
+#~ msgstr "Idioma:"
+
+#~ msgid "If you already have an account on"
+#~ msgstr "Se você já tiver uma conta ativa"
+
+#~ msgid "enter your user name and password and click &quot;Log in.&quot;"
+#~ msgstr "entre com seu usuário e senha e clique em &quot;Log in.&quot;"
+
+#~ msgid ""
+#~ "<b>If you are a new user</b>, enter the name and password you wish to "
+#~ "use, and click &quot;New User.&quot; "
+#~ msgstr ""
+#~ "b>Se você é um novo usuário</b>, entre com seu nome e senha que você "
+#~ "deseja usar, e clique em &quot;Novo Usuário.&quot; "
+
+#~ msgid "Please log off properly when finished. "
+#~ msgstr "Por favor efetue o log off quando terminar "
+
+#~ msgid "See the"
+#~ msgstr "Veja o"
+
+#~ msgid "recommended browser list"
+#~ msgstr "lista de navegação recomendada"
+
+#~ msgid ""
+#~ "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
+#~ "turned on. "
+#~ msgstr ""
+#~ "se você tem problemas ao usar o Webcit.</li> <li>Você tem que ativar os "
+#~ "<i>cookies</i>. "
+
+#~ msgid ""
+#~ "Also keep in mind that if your browser is configured to block pop-up "
+#~ "windows, you will not be able to receive any instant messages."
+#~ msgstr ""
+#~ "Lembre-se também que se seu browser está configurado para bloquear "
+#~ "janelas pop-up, você não estará habilitado para receber quaisquer "
+#~ "mensagens instantâneas."
+
+#~ msgid "OpenID URL:"
+#~ msgstr "URL do OpenID:"
+
+#~ msgid "Enter your OpenID URL and click &quot;Log in&quot;."
+#~ msgstr "Entre com sua URL do OpenID e clique em &quot;Log in&quot;."
+
+#~ msgid "Click here to learn what OpenID is and how Citadel is using it."
+#~ msgstr ""
+#~ "Clique aqui para aprender o que é o OpenID e como a Citadel está usando "
+#~ "ele."
 
 #~ msgid "Exit"
 #~ msgstr "Sair"

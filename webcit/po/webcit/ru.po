@@ -1,4 +1,4 @@
-# translation of webcit.po to en_GB.po
+# translation of webcit.po to Russian
 # Copyright (C) 2008 - 2009 The Citadel Project - http://www.citadel.org
 #
 # WebCit messages for Russian
@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-31 17:29-0500\n"
+"POT-Creation-Date: 2011-01-11 12:05-0500\n"
 "PO-Revision-Date: 2010-12-21 12:16+0000\n"
 "Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -315,10 +315,9 @@ msgid "Save changes"
 msgstr "Сохранить изменения"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:864 ../../event.c:768 ../../graphics.c:71
-#: ../../messages.c:1534 ../../paging.c:66
-#: ../../static/t/edit_message.html:135 ../../static/t/get_logged_in.html:21
-#: ../../static/t/confirmlogoff.html:5
+#: ../../sysmsgs.c:50 ../../auth.c:850 ../../event.c:768 ../../graphics.c:71
+#: ../../messages.c:1539 ../../paging.c:66
+#: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -701,9 +700,9 @@ msgstr ""
 msgid "Change host name"
 msgstr ""
 
-#: ../../who.c:187 ../../static/t/get_logged_in.html:12
+#: ../../who.c:187 ../../static/t/get_logged_in.html:41
 #: ../../static/t/aide/edituser/detailview.html:20
-#: ../../static/t/login.html:19 ../../static/t/openid_manual_create.html:15
+#: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
 msgstr "Имя:"
 
@@ -851,21 +850,20 @@ msgstr "Привилегированный пользователь"
 msgid "Aide"
 msgstr "Администратор"
 
-#: ../../auth.c:211 ../../auth.c:902
+#: ../../auth.c:197 ../../auth.c:888
 msgid "Blank passwords are not allowed."
 msgstr "Пароль не должен быть пустым"
 
-#. If we get to this point then something failed.
-#: ../../auth.c:239 ../../auth.c:361 ../../auth.c:474
+#: ../../auth.c:225
 msgid "Your password was not accepted."
 msgstr "Неверный пароль"
 
-#: ../../auth.c:590 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:576 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Выйти"
 
-#: ../../auth.c:603 ../../webcit.c:657
+#: ../../auth.c:589 ../../webcit.c:706
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -873,70 +871,70 @@ msgstr ""
 "Эта программа не может соединиться, или уже соединена с сервером Citadel.  "
 "Пожалуйста, сообщите об этом Вашему администратору."
 
-#: ../../auth.c:609
+#: ../../auth.c:595
 msgid "Read More..."
 msgstr "Далее..."
 
-#: ../../auth.c:614
+#: ../../auth.c:600
 msgid "Log in again"
 msgstr "Войти снова"
 
-#: ../../auth.c:635 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:621 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Новые пользователи"
 
-#: ../../auth.c:658
+#: ../../auth.c:644
 msgid "No users require validation at this time."
 msgstr ""
 "На данный момент нет новых пользователей, требующих подтверждения "
 "регистрации."
 
-#: ../../auth.c:705
+#: ../../auth.c:691
 msgid "very weak"
 msgstr "слишком простой"
 
-#: ../../auth.c:708
+#: ../../auth.c:694
 msgid "weak"
 msgstr "простой"
 
-#: ../../auth.c:711
+#: ../../auth.c:697
 msgid "ok"
 msgstr "хороший"
 
-#: ../../auth.c:715
+#: ../../auth.c:701
 msgid "strong"
 msgstr "очень хороший"
 
-#: ../../auth.c:733
+#: ../../auth.c:719
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Уровень доступа %d (%s)\n"
 
-#: ../../auth.c:741
+#: ../../auth.c:727
 msgid "Select access level for this user:"
 msgstr "Уровень доступа для пользователя:"
 
-#: ../../auth.c:828 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:814 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Смените пароль"
 
-#: ../../auth.c:852
+#: ../../auth.c:838
 msgid "Enter new password:"
 msgstr "Введите новый пароль:"
 
-#: ../../auth.c:856
+#: ../../auth.c:842
 msgid "Enter it again to confirm:"
 msgstr "Введите его ещё раз, для проверки:"
 
-#: ../../auth.c:862
+#: ../../auth.c:848
 msgid "Change password"
 msgstr "Сменить пароль"
 
-#: ../../auth.c:883
+#: ../../auth.c:869
 msgid "Cancelled.  Password was not changed."
 msgstr "Смена пароля отменяется, он остался прежним."
 
-#: ../../auth.c:894
+#: ../../auth.c:880
 msgid "They don't match.  Password was not changed."
 msgstr "Вы ввели разные пароли, оставляем прежний."
 
@@ -1337,60 +1335,60 @@ msgstr ""
 msgid "Go back..."
 msgstr "Назад..."
 
-#: ../../webcit.c:341
+#: ../../webcit.c:357
 msgid "Authorization Required"
 msgstr "Требуется авторизация"
 
-#: ../../webcit.c:350
+#: ../../webcit.c:366
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
 
-#: ../../wiki.c:53 ../../wiki.c:146 ../../wiki.c:266
+#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
 #, c-format
 msgid "There is no room called '%s'."
 msgstr "Не комнаты под названием '%s'."
 
-#: ../../wiki.c:60
+#: ../../wiki.c:76
 #, c-format
 msgid "'%s' is not a Wiki room."
 msgstr "'%s' не комната Вики."
 
-#: ../../wiki.c:94
+#: ../../wiki.c:110
 #, c-format
 msgid "There is no page called '%s' here."
 msgstr "Нет страницы с названием '%s'."
 
-#: ../../wiki.c:96
+#: ../../wiki.c:112
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
 
-#: ../../wiki.c:165 ../../static/t/summary_header.html:10
+#: ../../wiki.c:181 ../../static/t/summary_header.html:10
 #: ../../static/t/msg_listview.html:12
 msgid "Date"
 msgstr "Дата"
 
-#: ../../wiki.c:166
+#: ../../wiki.c:182
 msgid "Author"
 msgstr ""
 
-#: ../../wiki.c:193 ../../wiki.c:202
+#: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
 msgstr "(показать)"
 
-#: ../../wiki.c:195 ../../static/t/navbar.html:147
+#: ../../wiki.c:211 ../../static/t/navbar.html:146
 msgid "Current version"
 msgstr "Текущая версия"
 
-#: ../../wiki.c:207
+#: ../../wiki.c:223
 msgid "(revert)"
 msgstr ""
 
-#: ../../wiki.c:284
+#: ../../wiki.c:300
 msgid "Page title"
 msgstr "Заголовок страницы"
 
@@ -1418,97 +1416,97 @@ msgstr "файл"
 msgid "files"
 msgstr "файлы"
 
-#: ../../messages.c:54
+#: ../../messages.c:70
 msgid "ERROR:"
 msgstr "ОШИБКА:"
 
-#: ../../messages.c:72
+#: ../../messages.c:88
 msgid "Empty message"
 msgstr "Пустое сообщение"
 
-#: ../../messages.c:1027
+#: ../../messages.c:1032
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Отменено. Сообщение не было опубликовано"
 
-#: ../../messages.c:1030
+#: ../../messages.c:1035
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Автоматически отменено по скольку сообщение уже сохранено."
 
-#: ../../messages.c:1055
+#: ../../messages.c:1060
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../../messages.c:1121
+#: ../../messages.c:1126
 msgid "Refusing to post empty message.\n"
 msgstr ""
 
-#: ../../messages.c:1147
+#: ../../messages.c:1152
 msgid "Message has been saved to Drafts.\n"
 msgstr ""
 
-#: ../../messages.c:1156
+#: ../../messages.c:1161
 msgid "Message has been sent.\n"
 msgstr "Сообщение отправлено.\n"
 
-#: ../../messages.c:1159
+#: ../../messages.c:1164
 msgid "Message has been posted.\n"
 msgstr "Сообщение опубликовано.\n"
 
-#: ../../messages.c:1481
+#: ../../messages.c:1486
 #, c-format
 msgid "The message was not moved."
 msgstr "Сообщение небыло перемещено."
 
-#: ../../messages.c:1503
+#: ../../messages.c:1508
 msgid "Confirm move of message"
 msgstr "Подтвердить перемещение сообщения"
 
-#: ../../messages.c:1511
+#: ../../messages.c:1516
 msgid "Move this message to:"
 msgstr "Переместить сообщение в:"
 
-#: ../../messages.c:1532 ../../static/t/view_message.html:34
+#: ../../messages.c:1537 ../../static/t/view_message.html:34
 #: ../../static/t/msg_listview.html:28
 msgid "Move"
 msgstr "Переместить"
 
-#: ../../messages.c:1574
+#: ../../messages.c:1579
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr ""
 
-#: ../../messages.c:1634
+#: ../../messages.c:1639
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr ""
 
-#: ../../messages.c:1801
+#: ../../messages.c:1806
 msgid "Attach signature to email messages?"
 msgstr "Прикрепить подпись к сообщению?"
 
-#: ../../messages.c:1804
+#: ../../messages.c:1809
 msgid "Use this signature:"
 msgstr "Использовать подпись:"
 
-#: ../../messages.c:1806
+#: ../../messages.c:1811
 msgid "Default character set for email headers:"
 msgstr ""
 
-#: ../../messages.c:1809
+#: ../../messages.c:1814
 msgid "Preferred email address"
 msgstr ""
 
-#: ../../messages.c:1811
+#: ../../messages.c:1816
 msgid "Preferred display name for email messages"
 msgstr ""
 
-#: ../../messages.c:1815
+#: ../../messages.c:1820
 msgid "Preferred display name for bulletin board posts"
 msgstr ""
 
-#: ../../messages.c:1818
+#: ../../messages.c:1823
 msgid "Mailbox view mode"
 msgstr ""
 
@@ -1912,7 +1910,7 @@ msgstr ""
 msgid "Where can I go from here?"
 msgstr ""
 
-#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:161
+#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:160
 msgid "Goto next room"
 msgstr ""
 
@@ -2005,7 +2003,7 @@ msgid "Go to a 'hidden' room"
 msgstr ""
 
 #: ../../static/t/menu/advanced_roomcommands.html:6
-#: ../../static/t/room/create.html:9
+#: ../../static/t/room/create.html:11
 msgid "Create a new room"
 msgstr ""
 
@@ -2119,6 +2117,7 @@ msgid "Remove"
 msgstr "Переместить"
 
 #: ../../static/t/edit_message/attachments_pane.html:3
+#: ../../static/t/get_logged_in.html:9
 msgid "Close window"
 msgstr "Закрыть окно"
 
@@ -2295,14 +2294,26 @@ msgid ""
 "you begin on when you log on to"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:15 ../../static/t/login.html:21
+#: ../../static/t/get_logged_in.html:5
+msgid "You must be logged in to access this page."
+msgstr "Вы должны войти в систему для доступа к этой странице."
+
+#: ../../static/t/get_logged_in.html:39
+msgid "Log in using a user name and password"
+msgstr "Войдите используя имя пользователя и пароль"
+
+#: ../../static/t/get_logged_in.html:44
 msgid "Password:"
 msgstr "Пароль:"
 
-#: ../../static/t/get_logged_in.html:20 ../../static/t/iconbar.html:87
+#: ../../static/t/get_logged_in.html:48 ../../static/t/iconbar.html:87
 #, fuzzy
 msgid "Log in"
 msgstr "Войти снова"
+
+#: ../../static/t/get_logged_in.html:52
+msgid "Log in using OpenID"
+msgstr "Войдите используя OpenID"
 
 #: ../../static/t/iconbar.html:18
 msgid "Mail"
@@ -2397,11 +2408,11 @@ msgstr ""
 msgid "Edit this page"
 msgstr "Редактировать страницу"
 
-#: ../../static/t/navbar.html:147
+#: ../../static/t/navbar.html:146
 msgid "History"
 msgstr "История"
 
-#: ../../static/t/navbar.html:155
+#: ../../static/t/navbar.html:154
 msgid "Skip this room"
 msgstr "Пропустить комнату"
 
@@ -3319,48 +3330,48 @@ msgstr ""
 msgid "Click on any room to un-zap it and goto that room."
 msgstr ""
 
-#: ../../static/t/room/create.html:17
+#: ../../static/t/room/create.html:18
 #, fuzzy
 msgid "Name of room: "
 msgstr "Количество комнат"
 
-#: ../../static/t/room/create.html:19
+#: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
 msgstr ""
 
-#: ../../static/t/room/create.html:31
+#: ../../static/t/room/create.html:32
 msgid "Default view for room: "
 msgstr ""
 
-#: ../../static/t/room/create.html:67
+#: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
 #, fuzzy
 msgid "Type of room:"
 msgstr "Количество комнат"
 
-#: ../../static/t/room/create.html:72
+#: ../../static/t/room/create.html:73
 #: ../../static/t/room/edit/tab_config.html:22
 msgid "Public (automatically appears to everyone)"
 msgstr ""
 
-#: ../../static/t/room/create.html:76
+#: ../../static/t/room/create.html:77
 #: ../../static/t/room/edit/tab_config.html:28
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr ""
 
-#: ../../static/t/room/create.html:80
+#: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 #, fuzzy
 msgid "Private - require password: "
 msgstr "Введите новый пароль:"
 
-#: ../../static/t/room/create.html:85
+#: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
 msgid "Private - invitation only"
 msgstr ""
 
-#: ../../static/t/room/create.html:89
+#: ../../static/t/room/create.html:90
 #: ../../static/t/room/edit/tab_config.html:51
 msgid "Personal (mailbox for you only)"
 msgstr ""
@@ -3656,60 +3667,8 @@ msgstr ""
 msgid "will disappear from your room list.  Is this what you wish to do?"
 msgstr ""
 
-#: ../../static/t/login.html:4 ../../static/t/openid_login.html:4
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-
-#: ../../static/t/login.html:8 ../../static/t/openid_login.html:8
+#: ../../static/t/login.html:5
 msgid "powered by"
-msgstr ""
-
-#: ../../static/t/login.html:23 ../../static/t/openid_login.html:21
-msgid "Language:"
-msgstr "Язык:"
-
-#: ../../static/t/login.html:39
-msgid "Log in using OpenID"
-msgstr "Войдите используя OpenID"
-
-#: ../../static/t/login.html:43
-msgid "If you already have an account on"
-msgstr ""
-
-#: ../../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Log in.&quot;"
-msgstr ""
-
-#: ../../static/t/login.html:45
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-
-#: ../../static/t/login.html:46 ../../static/t/openid_login.html:37
-msgid "Please log off properly when finished. "
-msgstr ""
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "See the"
-msgstr ""
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "recommended browser list"
-msgstr ""
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-
-#: ../../static/t/login.html:48 ../../static/t/openid_login.html:39
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
 msgstr ""
 
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
@@ -3744,6 +3703,12 @@ msgstr "Укажите Ваш ник (короткое имя)."
 msgid "No new messages."
 msgstr "Нет новых сообщений."
 
+#: ../../static/t/head.html:51
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
 #: ../../static/t/knrooms.html:5
 msgid "Room list"
 msgstr "Список комнат"
@@ -3764,22 +3729,6 @@ msgstr ""
 msgid "Room Listing"
 msgstr ""
 
-#: ../../static/t/openid_login.html:19
-msgid "OpenID URL:"
-msgstr ""
-
-#: ../../static/t/openid_login.html:31
-msgid "Log in using a user name and password"
-msgstr "Войдите используя имя пользователя и пароль"
-
-#: ../../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Log in&quot;."
-msgstr ""
-
-#: ../../static/t/openid_login.html:36
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr ""
-
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
 msgstr ""
@@ -3795,6 +3744,9 @@ msgstr ""
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
 msgstr ""
+
+#~ msgid "Language:"
+#~ msgstr "Язык:"
 
 #~ msgid "Exit"
 #~ msgstr "Выход"
