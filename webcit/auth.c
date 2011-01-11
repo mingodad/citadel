@@ -1077,7 +1077,7 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_manual_create"), "", 0, openid_manual_create, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
-	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX);
+	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("validate"), "", 0, validate, 0);
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, 0);
 	WebcitAddUrlHandler(HKEY("display_reg"), "", 0, _display_reg, 0);

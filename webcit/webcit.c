@@ -511,7 +511,7 @@ void push_destination(void) {
 void pop_destination(void) {
 	wcsession *WCC = WC;
 
-	if (!WCC) {
+	if ( (!WCC) || (WCC->PushedDestination == NULL) || (StrLength(WCC->PushedDestination) == 0) ) {
 		do_welcome();
 		return;
 	}

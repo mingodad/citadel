@@ -39,6 +39,7 @@
 #login_form br { clear: left }
 
 .login_infos {
+	bottom: 0;
 	display: block;
 	margin: 20px auto 0 auto;
 	width: 80%;
