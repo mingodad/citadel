@@ -18,8 +18,6 @@
 
 extern char *static_dirs[PATH_MAX];  /* Disk representation */
 
-HashList *WirelessTemplateCache;
-HashList *WirelessLocalTemplateCache;
 HashList *TemplateCache;
 HashList *LocalTemplateCache;
 
@@ -1288,7 +1286,7 @@ const char* PrintTemplate(void *vSubst)
 
 }
 
-int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, const StrBuf *BaseKey)
+int LoadTemplateDir(const StrBuf *DirName, HashList *big, const StrBuf *BaseKey)
 {
 	int Toplevel;
 	StrBuf *FileName;
@@ -1301,7 +1299,6 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 	int d_type = 0;
 	int d_namelen;
 	int d_without_ext;
-	int IsMobile;
 	
 	d = (struct dirent *)malloc(offsetof(struct dirent, d_name) + PATH_MAX + 1);
 	if (d == NULL) {
@@ -1385,7 +1382,7 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 				StrBufAppendBufPlain(SubDirectory, HKEY("/"), 0);
 			StrBufAppendBufPlain(SubDirectory, filedir_entry->d_name, d_namelen, 0);
 
-			LoadTemplateDir(SubDirectory, wireless, big, SubKey);
+			LoadTemplateDir(SubDirectory, big, SubKey);
 
 			break;
 		case DT_LNK: /* TODO: check whether its a file or a directory */
@@ -1400,11 +1397,6 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 			    (strcmp(&filedir_entry->d_name[d_without_ext], ".orig") == 0) ||
 			    (strcmp(&filedir_entry->d_name[d_without_ext], ".swp") == 0))
 				continue; /* Ignore backup files... */
-			/* .m.xxx is for mobile useragents! */
-			IsMobile = 0;
-			if (d_without_ext > 2)
-				IsMobile = (filedir_entry->d_name[d_without_ext - 1] == 'm') &&
-					(filedir_entry->d_name[d_without_ext - 2] == '.');
 			PStart = filedir_entry->d_name;
 			StrBufPrintf(FileName, "%s/%s", ChrPtr(DirName),  filedir_entry->d_name);
 			MinorPtr = strchr(filedir_entry->d_name, '.');
@@ -1419,8 +1411,8 @@ int LoadTemplateDir(const StrBuf *DirName, HashList *wireless, HashList *big, co
 			StrBufAppendBufPlain(Key, filedir_entry->d_name, MinorPtr - filedir_entry->d_name, 0);
 
 			if (LoadTemplates >= 1)
-				lprintf(1, "%s %d %s\n", ChrPtr(FileName), IsMobile, ChrPtr(Key));
-			prepare_template(FileName, Key, (IsMobile)?wireless:big);
+				lprintf(1, "%s %s\n", ChrPtr(FileName), ChrPtr(Key));
+			prepare_template(FileName, Key, big);
 		default:
 			break;
 		}
@@ -1439,7 +1431,7 @@ void InitTemplateCache(void)
 	int i;
 	StrBuf *Key;
 	StrBuf *Dir;
-	HashList *Templates[4];
+	HashList *Templates[2];
 
 	Dir = NewStrBuf();
 	Key = NewStrBuf();
@@ -1447,14 +1439,12 @@ void InitTemplateCache(void)
 	/* Primary Template set... */
 	StrBufPrintf(Dir, "%s/t", static_dirs[0]);
 	LoadTemplateDir(Dir,
-			WirelessTemplateCache,
 			TemplateCache, 
 			Key);
 
 	/* User local Template set */
 	StrBufPrintf(Dir, "%s/t", static_dirs[1]);
 	LoadTemplateDir(Dir,
-			WirelessLocalTemplateCache,
 			LocalTemplateCache, 
 			Key);
 	
@@ -1462,17 +1452,14 @@ void InitTemplateCache(void)
 	
 	StrBufPrintf(Dir, "%s/dbg", static_dirs[0]);
 	LoadTemplateDir(Dir,
-			WirelessTemplateCache,
 			TemplateCache, 
 			Key);
-	Templates[0] = WirelessTemplateCache;
-	Templates[1] = TemplateCache;
-	Templates[2] = WirelessLocalTemplateCache;
-	Templates[3] = LocalTemplateCache;
+	Templates[0] = TemplateCache;
+	Templates[1] = LocalTemplateCache;
 
 
 	if (LoadTemplates == 0) 
-		for (i=0; i < 4; i++) {
+		for (i=0; i < 2; i++) {
 			const char *Key;
 			long KLen;
 			HashPos *At;
@@ -2727,8 +2714,6 @@ void
 ServerStartModule_SUBST
 (void)
 {
-	WirelessTemplateCache = NewHash(1, NULL);
-	WirelessLocalTemplateCache = NewHash(1, NULL);
 	LocalTemplateCache = NewHash(1, NULL);
 	TemplateCache = NewHash(1, NULL);
 
@@ -2750,8 +2735,6 @@ void
 ServerShutdownModule_SUBST
 (void)
 {
-	DeleteHash(&WirelessTemplateCache);
-	DeleteHash(&WirelessLocalTemplateCache);
 	DeleteHash(&TemplateCache);
 	DeleteHash(&LocalTemplateCache);
 
