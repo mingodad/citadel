@@ -750,7 +750,7 @@ void session_loop(void)
 		(WCC->Hdr->HR.eReqType != eHEAD);
 
 	/*
-	 * If a 'go' parameter has been specified, attempt to goto that room
+	 * If a 'go' (or 'gotofirst') parameter has been specified, attempt to goto that room
 	 * prior to doing anything else.
 	 */
 	if (havebstr("go")) {
@@ -758,8 +758,15 @@ void session_loop(void)
 		lprintf(9, "Explicit room selection: %s\n", bstr("go"));
 		ret = gotoroom(sbstr("go"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			lprintf(1, "GOTOFIRST: Unable to change to [%s]; Reason: %d\n",
-				bstr("go"), ret);
+			lprintf(1, "Unable to change to [%s]; Reason: %d\n", bstr("go"), ret);
+		}
+	}
+	else if (havebstr("gotofirst")) {
+		int ret;
+		lprintf(9, "Explicit room selection: %s\n", bstr("gotofirst"));
+		ret = gotoroom(sbstr("gotofirst"));	/* do quietly to avoid session output! */
+		if ((ret/100) != 2) {
+			lprintf(1, "Unable to change to [%s]; Reason: %d\n", bstr("gotofirst"), ret);
 		}
 	}
 
