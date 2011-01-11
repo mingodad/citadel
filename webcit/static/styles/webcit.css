@@ -1352,3 +1352,8 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	background-color: #ddd;
 }
 
+.openid_urlarea {
+        background: url('../openid-small.gif') no-repeat scroll 0pt 50%;
+        padding-left: 18px;
+}
+
