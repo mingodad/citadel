@@ -210,7 +210,6 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	TheSession->Hdr = Hdr;
 	TheSession->SessionKey = Hdr->HR.SessionKey;
 	TheSession->serv_sock = (-1);
-	TheSession->is_mobile = -1;
 
 	pthread_setspecific(MyConKey, (void *)TheSession);
 	
@@ -246,25 +245,6 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 	return TheSession;
 }
 
-
-/*
- * Detects a 'mobile' user agent 
- */
-int is_mobile_ua(char *user_agent) {
-      if (strstr(user_agent,"iPhone OS") != NULL) {
-	return 1;
-      } else if (strstr(user_agent,"Windows CE") != NULL) {
-	return 1;
-      } else if (strstr(user_agent,"SymbianOS") != NULL) {
-	return 1;
-      } else if (strstr(user_agent, "Opera Mobi") != NULL) {
-	return 1;
-      } else if (strstr(user_agent, "Firefox/2.0.0 Opera 9.51 Beta") != NULL) {
-	      /*  For some reason a new install of Opera 9.51beta decided to spoof. */
-	  return 1;
-	  }
-      return 0;
-}
 
 /* If it's a "force 404" situation then display the error and bail. */
 void do_404(void)
@@ -649,21 +629,6 @@ void Header_HandleContentType(StrBuf *Line, ParsedHttpHdrs *hdr)
 	hdr->HR.ContentType = Line;
 }
 
-void Header_HandleUserAgent(StrBuf *Line, ParsedHttpHdrs *hdr)
-{
-	hdr->HR.user_agent = Line;
-#ifdef TECH_PREVIEW
-/* TODO: do this later on session creating
-	if ((WCC->is_mobile < 0) && is_mobile_ua(&buf[12])) {			
-		WCC->is_mobile = 1;
-	}
-	else {
-		WCC->is_mobile = 0;
-	}
-*/
-#endif
-}
-
 
 void Header_HandleHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
@@ -789,7 +754,6 @@ InitModule_CONTEXT
 {
 	RegisterHeaderHandler(HKEY("CONTENT-LENGTH"), Header_HandleContentLength);
 	RegisterHeaderHandler(HKEY("CONTENT-TYPE"), Header_HandleContentType);
-	RegisterHeaderHandler(HKEY("USER-AGENT"), Header_HandleUserAgent);
 	RegisterHeaderHandler(HKEY("X-FORWARDED-HOST"), Header_HandleXFFHost); /* Apache way... */
 	RegisterHeaderHandler(HKEY("X-REAL-IP"), Header_HandleXFFHost);        /* NGinX way... */
 	RegisterHeaderHandler(HKEY("HOST"), Header_HandleHost);

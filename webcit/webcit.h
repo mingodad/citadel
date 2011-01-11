@@ -474,7 +474,6 @@ struct wcsession {
 	pthread_mutex_t SessionMutex;		/* mutex for exclusive access */
 	int wc_session;				/* WebCit session ID */
 	int killthis;				/* Nonzero == purge this session */
-	int is_mobile;			        /* Client is a handheld browser */
 	int ctdl_pid;				/* Session ID on the Citadel server */
 	int nonce;				/* session nonce (to prevent session riding) */
 	int SessionKey;
@@ -829,8 +828,6 @@ HashList *GetRoomListHashLKRA(StrBuf *Target, WCTemplputParams *TP);
 #define DATEFMT_LOCALEDATE 3
 void webcit_fmt_date(char *buf, size_t siz, time_t thetime, int Format);
 void summary(void);
-
-int is_mobile_ua(char *user_agent);
 
 /* actual supported locales */
 void TmplGettext(StrBuf *Target, WCTemplputParams *TP);
