@@ -1239,6 +1239,7 @@ void *load_template(WCTemplate *NewTemplate)
 		const char *pts, *pte;
 		int InQuotes = 0;
 		int InDoubleQuotes = 0;
+		void *pv;
 
 		/** Find one <? > */
 		pos = (-1);
@@ -1270,9 +1271,11 @@ void *load_template(WCTemplate *NewTemplate)
 		if (pch + 1 > pE)
 			continue;
 		pte = pch;
-		PutNewToken(NewTemplate, 
-			    NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte, Line, NewTemplate));
-		pch ++;
+		pv = NewTemplateSubstitute(NewTemplate->Data, pS, pts, pte, Line, NewTemplate);
+		if (pv != NULL) {
+			PutNewToken(NewTemplate, pv);
+			pch ++;
+		}
 	}
 	return NewTemplate;
 }
@@ -1976,6 +1979,8 @@ int conditional_ITERATE_LASTN(StrBuf *Target, WCTemplputParams *TP)
 int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP)
 {
 	ConditionalStruct *Cond;
+	int rc = 0;
+	int res;
 
 	if ((TP->Tokens->Params[0]->len == 1) &&
 	    (TP->Tokens->Params[0]->Start[0] == 'X'))
@@ -1992,10 +1997,14 @@ int EvaluateConditional(StrBuf *Target, int Neg, int state, WCTemplputParams *TP
 	if (!CheckContext(Target, &Cond->Filter, TP, "Conditional")) {
 		return 0;
 	}
-
-	if (Cond->CondF(Target, TP) == Neg)
-		return TP->Tokens->Params[1]->lvalue;
-	return 0;
+	res = Cond->CondF(Target, TP);
+	if (res == Neg)
+		rc = TP->Tokens->Params[1]->lvalue;
+	if (LoadTemplates > 5) 
+		lprintf(1, "<%s> : %d %d==%d\n", 
+			ChrPtr(TP->Tokens->FlatToken), 
+			rc, res, Neg);
+	return rc;
 }
 
 void RegisterConditional(const char *Name, long len, 
