@@ -1,7 +1,7 @@
 /*
  * XML sitemap generator
  *
- * Copyright (c) 2010 by the citadel.org team
+ * Copyright (c) 2010-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@
 
 
 /*
- * XML sitemap generator -- go through the message list
+ * XML sitemap generator -- go through the message list for a BBS room
  */
-void sitemap_do_messages(void) {
+void sitemap_do_bbs(void) {
 	wcsession *WCC = WC;
 	int num_msgs = 0;
 	int i;
@@ -47,6 +47,47 @@ void sitemap_do_messages(void) {
 			urlescputs(ChrPtr(WC->CurRoom.name));
 			wc_printf("?start_reading_at=%ld", Msg->msgnum);
 			wc_printf("</loc></url>\r\n");
+		}
+	}
+}
+
+
+/*
+ * XML sitemap generator -- go through the message list for a wiki room
+ * (this might work for blogs too; we'll see)
+ */
+void sitemap_do_wiki(void) {
+	wcsession *WCC = WC;
+	int num_msgs = 0;
+	int i;
+	SharedMessageStatus Stat;
+	message_summary *Msg = NULL;
+	char buf[256];
+
+	memset(&Stat, 0, sizeof Stat);
+	Stat.maxload = INT_MAX;
+	Stat.lowest_found = (-1);
+	Stat.highest_found = (-1);
+	num_msgs = load_msg_ptrs("MSGS ALL", &Stat, NULL);
+	if (num_msgs < 1) return;
+
+	for (i=0; i<num_msgs; ++i) {
+		Msg = GetMessagePtrAt(i, WCC->summ);
+		if (Msg != NULL) {
+
+			serv_printf("MSG0 %ld|3", Msg->msgnum);
+			serv_getln(buf, sizeof buf);
+			if (buf[0] == '1') while (serv_getln(buf, sizeof buf), strcmp(buf, "000")) {
+				if (	(!strncasecmp(buf, "exti=", 5))
+					&& (!bmstrcasestr(buf, "_HISTORY_"))
+				) {
+					wc_printf("<url><loc>%s/wiki", ChrPtr(site_prefix));
+					wc_printf("?go=");
+					urlescputs(ChrPtr(WC->CurRoom.name));
+					wc_printf("?page=%s", &buf[5]);
+					wc_printf("</loc></url>\r\n");
+				}
+			}
 		}
 	}
 }
@@ -78,11 +119,18 @@ void sitemap(void) {
 
 	while (GetNextHashPos(roomlist, it, &HKlen, &HashKey, (void *)&room))
 	{
-		/* Output the messages in this room only if it's a message board */
-		if (room->defview == VIEW_BBS)
-		{
+		/* Output the messages in this room only if it's a room type we can make sense of */
+		switch(room->defview) {
+		case VIEW_BBS:
 			gotoroom(room->name);
-			sitemap_do_messages();
+			sitemap_do_bbs();
+			break;
+		case VIEW_WIKI:
+			gotoroom(room->name);
+			sitemap_do_wiki();
+			break;
+		default:
+			break;
 		}
 	}
 
