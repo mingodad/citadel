@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-31 17:29-0500\n"
+"POT-Creation-Date: 2011-01-11 12:05-0500\n"
 "PO-Revision-Date: 2010-10-22 14:52+0000\n"
 "Last-Translator: Rait Lotamõis <rait@kuma.ee>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -312,10 +312,9 @@ msgid "Save changes"
 msgstr "Salvesta muudatused"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:864 ../../event.c:768 ../../graphics.c:71
-#: ../../messages.c:1534 ../../paging.c:66
-#: ../../static/t/edit_message.html:135 ../../static/t/get_logged_in.html:21
-#: ../../static/t/confirmlogoff.html:5
+#: ../../sysmsgs.c:50 ../../auth.c:850 ../../event.c:768 ../../graphics.c:71
+#: ../../messages.c:1539 ../../paging.c:66
+#: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
 msgstr "Katkesta"
 
@@ -699,9 +698,9 @@ msgstr ""
 msgid "Change host name"
 msgstr ""
 
-#: ../../who.c:187 ../../static/t/get_logged_in.html:12
+#: ../../who.c:187 ../../static/t/get_logged_in.html:41
 #: ../../static/t/aide/edituser/detailview.html:20
-#: ../../static/t/login.html:19 ../../static/t/openid_manual_create.html:15
+#: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
 msgstr "Kasutajanimi:"
 
@@ -851,21 +850,20 @@ msgstr "Privilegeeritud Kasutaja"
 msgid "Aide"
 msgstr "Korrapidaja"
 
-#: ../../auth.c:211 ../../auth.c:902
+#: ../../auth.c:197 ../../auth.c:888
 msgid "Blank passwords are not allowed."
 msgstr "Tühjad paroolid ei ole lubatud."
 
-#. If we get to this point then something failed.
-#: ../../auth.c:239 ../../auth.c:361 ../../auth.c:474
+#: ../../auth.c:225
 msgid "Your password was not accepted."
 msgstr "Sinu parooli ei aktsepteeritud."
 
-#: ../../auth.c:590 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:576 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Välju"
 
-#: ../../auth.c:603 ../../webcit.c:657
+#: ../../auth.c:589 ../../webcit.c:706
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -873,68 +871,68 @@ msgstr ""
 "See programm ei suutnud luua või säilitada ühendust Citadeliga. Palun "
 "teavita oma süsteemiadministraatorit sellest probleemist."
 
-#: ../../auth.c:609
+#: ../../auth.c:595
 msgid "Read More..."
 msgstr "Loe edasi..."
 
-#: ../../auth.c:614
+#: ../../auth.c:600
 msgid "Log in again"
 msgstr "Sisene uuesti"
 
-#: ../../auth.c:635 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:621 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Kinnita uusi kasutajaid"
 
-#: ../../auth.c:658
+#: ../../auth.c:644
 msgid "No users require validation at this time."
 msgstr "Ükski kasutaja ei vaja hetkel kinnitamist."
 
-#: ../../auth.c:705
+#: ../../auth.c:691
 msgid "very weak"
 msgstr "väga nõrk"
 
-#: ../../auth.c:708
+#: ../../auth.c:694
 msgid "weak"
 msgstr "nõrk"
 
-#: ../../auth.c:711
+#: ../../auth.c:697
 msgid "ok"
 msgstr "käib kah"
 
-#: ../../auth.c:715
+#: ../../auth.c:701
 msgid "strong"
 msgstr "tugev"
 
-#: ../../auth.c:733
+#: ../../auth.c:719
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Hetke juurdepääsutase: %d (%s)\n"
 
-#: ../../auth.c:741
+#: ../../auth.c:727
 msgid "Select access level for this user:"
 msgstr "Määra kasutaja juurdepääsutase:"
 
-#: ../../auth.c:828 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:814 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Muuda oma salasõna"
 
-#: ../../auth.c:852
+#: ../../auth.c:838
 msgid "Enter new password:"
 msgstr "Sisesta uus salasõna:"
 
-#: ../../auth.c:856
+#: ../../auth.c:842
 msgid "Enter it again to confirm:"
 msgstr "Sisesta salasõna uuesti:"
 
-#: ../../auth.c:862
+#: ../../auth.c:848
 msgid "Change password"
 msgstr "Muuda salasõna"
 
-#: ../../auth.c:883
+#: ../../auth.c:869
 msgid "Cancelled.  Password was not changed."
 msgstr "Katkestatud. Salasõna ei muudetud."
 
-#: ../../auth.c:894
+#: ../../auth.c:880
 msgid "They don't match.  Password was not changed."
 msgstr "Need ei ühti. Salasõna ei muudetud."
 
@@ -1335,60 +1333,60 @@ msgstr ""
 msgid "Go back..."
 msgstr "Mine tagasi..."
 
-#: ../../webcit.c:341
+#: ../../webcit.c:357
 msgid "Authorization Required"
 msgstr "Nõutav Autoriseering"
 
-#: ../../webcit.c:350
+#: ../../webcit.c:366
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
 
-#: ../../wiki.c:53 ../../wiki.c:146 ../../wiki.c:266
+#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
 #, c-format
 msgid "There is no room called '%s'."
 msgstr "Ei leia '%s' nimelist tuba."
 
-#: ../../wiki.c:60
+#: ../../wiki.c:76
 #, c-format
 msgid "'%s' is not a Wiki room."
 msgstr "'%s' ei ole Wiki tuba."
 
-#: ../../wiki.c:94
+#: ../../wiki.c:110
 #, c-format
 msgid "There is no page called '%s' here."
 msgstr ""
 
-#: ../../wiki.c:96
+#: ../../wiki.c:112
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
 
-#: ../../wiki.c:165 ../../static/t/summary_header.html:10
+#: ../../wiki.c:181 ../../static/t/summary_header.html:10
 #: ../../static/t/msg_listview.html:12
 msgid "Date"
 msgstr "Kuupäev"
 
-#: ../../wiki.c:166
+#: ../../wiki.c:182
 msgid "Author"
 msgstr ""
 
-#: ../../wiki.c:193 ../../wiki.c:202
+#: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
 msgstr ""
 
-#: ../../wiki.c:195 ../../static/t/navbar.html:147
+#: ../../wiki.c:211 ../../static/t/navbar.html:146
 msgid "Current version"
 msgstr ""
 
-#: ../../wiki.c:207
+#: ../../wiki.c:223
 msgid "(revert)"
 msgstr ""
 
-#: ../../wiki.c:284
+#: ../../wiki.c:300
 msgid "Page title"
 msgstr ""
 
@@ -1416,97 +1414,97 @@ msgstr "fail"
 msgid "files"
 msgstr "faili"
 
-#: ../../messages.c:54
+#: ../../messages.c:70
 msgid "ERROR:"
 msgstr ""
 
-#: ../../messages.c:72
+#: ../../messages.c:88
 msgid "Empty message"
 msgstr ""
 
-#: ../../messages.c:1027
+#: ../../messages.c:1032
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Katkestatud. Sõnumit ei postitatud."
 
-#: ../../messages.c:1030
+#: ../../messages.c:1035
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automaatselt katkestatud, sest sa oled selle sõnumi juba salvestanud."
 
-#: ../../messages.c:1055
+#: ../../messages.c:1060
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../../messages.c:1121
+#: ../../messages.c:1126
 msgid "Refusing to post empty message.\n"
 msgstr ""
 
-#: ../../messages.c:1147
+#: ../../messages.c:1152
 msgid "Message has been saved to Drafts.\n"
 msgstr ""
 
-#: ../../messages.c:1156
+#: ../../messages.c:1161
 msgid "Message has been sent.\n"
 msgstr "Sõnum on saadetud.\n"
 
-#: ../../messages.c:1159
+#: ../../messages.c:1164
 msgid "Message has been posted.\n"
 msgstr "Sõnum on postitatud.\n"
 
-#: ../../messages.c:1481
+#: ../../messages.c:1486
 #, c-format
 msgid "The message was not moved."
 msgstr "Sõnumit ei liigutatud."
 
-#: ../../messages.c:1503
+#: ../../messages.c:1508
 msgid "Confirm move of message"
 msgstr "Kinnita sõnumi liigutamine"
 
-#: ../../messages.c:1511
+#: ../../messages.c:1516
 msgid "Move this message to:"
 msgstr "Liiguta see sõnum kausta:"
 
-#: ../../messages.c:1532 ../../static/t/view_message.html:34
+#: ../../messages.c:1537 ../../static/t/view_message.html:34
 #: ../../static/t/msg_listview.html:28
 msgid "Move"
 msgstr "Liiguta"
 
-#: ../../messages.c:1574
+#: ../../messages.c:1579
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr ""
 
-#: ../../messages.c:1634
+#: ../../messages.c:1639
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr ""
 
-#: ../../messages.c:1801
+#: ../../messages.c:1806
 msgid "Attach signature to email messages?"
 msgstr "Lisa allkiri e-kirjadele?"
 
-#: ../../messages.c:1804
+#: ../../messages.c:1809
 msgid "Use this signature:"
 msgstr "Kasuta seda allkirja:"
 
-#: ../../messages.c:1806
+#: ../../messages.c:1811
 msgid "Default character set for email headers:"
 msgstr ""
 
-#: ../../messages.c:1809
+#: ../../messages.c:1814
 msgid "Preferred email address"
 msgstr "Eelistatud e-maili aadress"
 
-#: ../../messages.c:1811
+#: ../../messages.c:1816
 msgid "Preferred display name for email messages"
 msgstr "Eelistatud nimi e-kirjadele"
 
-#: ../../messages.c:1815
+#: ../../messages.c:1820
 msgid "Preferred display name for bulletin board posts"
 msgstr "Eelistatud nimi teadetetahvlile postitades"
 
-#: ../../messages.c:1818
+#: ../../messages.c:1823
 msgid "Mailbox view mode"
 msgstr "Postkasti vaade"
 
@@ -1908,7 +1906,7 @@ msgstr "Näita kõiki teadaolevaid tube"
 msgid "Where can I go from here?"
 msgstr "Kuhu ma saan siit edasi minna?"
 
-#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:161
+#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:160
 msgid "Goto next room"
 msgstr "Mine järgmisesse tuppa"
 
@@ -1994,7 +1992,7 @@ msgid "Go to a 'hidden' room"
 msgstr "Mine 'peidetud' tuppa"
 
 #: ../../static/t/menu/advanced_roomcommands.html:6
-#: ../../static/t/room/create.html:9
+#: ../../static/t/room/create.html:11
 msgid "Create a new room"
 msgstr "Loo uus tuba"
 
@@ -2106,6 +2104,7 @@ msgid "Remove"
 msgstr "(eemalda)"
 
 #: ../../static/t/edit_message/attachments_pane.html:3
+#: ../../static/t/get_logged_in.html:9
 msgid "Close window"
 msgstr "Sulge aken"
 
@@ -2289,13 +2288,25 @@ msgstr ""
 "NB: see ei muuda sinu brauseri avalehte. See määrab lehekülje, mida sa "
 "näedesimesena, kui siia sisse logid"
 
-#: ../../static/t/get_logged_in.html:15 ../../static/t/login.html:21
+#: ../../static/t/get_logged_in.html:5
+msgid "You must be logged in to access this page."
+msgstr "Sa pead olema sisselogitud, et siseneda sellele lehele."
+
+#: ../../static/t/get_logged_in.html:39
+msgid "Log in using a user name and password"
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:44
 msgid "Password:"
 msgstr "Salasõna:"
 
-#: ../../static/t/get_logged_in.html:20 ../../static/t/iconbar.html:87
+#: ../../static/t/get_logged_in.html:48 ../../static/t/iconbar.html:87
 msgid "Log in"
 msgstr "Viimati sees"
+
+#: ../../static/t/get_logged_in.html:52
+msgid "Log in using OpenID"
+msgstr "Logi sisse kasutades OpenID'd"
 
 #: ../../static/t/iconbar.html:18
 msgid "Mail"
@@ -2390,11 +2401,11 @@ msgstr "Wiki koduleht"
 msgid "Edit this page"
 msgstr "Muuda seda lehekülge"
 
-#: ../../static/t/navbar.html:147
+#: ../../static/t/navbar.html:146
 msgid "History"
 msgstr ""
 
-#: ../../static/t/navbar.html:155
+#: ../../static/t/navbar.html:154
 msgid "Skip this room"
 msgstr "Jäta tuba vahele"
 
@@ -3333,46 +3344,46 @@ msgstr "Unustatud toad"
 msgid "Click on any room to un-zap it and goto that room."
 msgstr "Klõpsa toal, et seda taas 'meelde tuletada' ning sinna siseneda.\n"
 
-#: ../../static/t/room/create.html:17
+#: ../../static/t/room/create.html:18
 msgid "Name of room: "
 msgstr "Toa nimi: "
 
-#: ../../static/t/room/create.html:19
+#: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
 msgstr "Asub korrusel: "
 
-#: ../../static/t/room/create.html:31
+#: ../../static/t/room/create.html:32
 msgid "Default view for room: "
 msgstr "Vaikimisi vaade sellele toale: "
 
-#: ../../static/t/room/create.html:67
+#: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
 msgid "Type of room:"
 msgstr "Toa liik:"
 
-#: ../../static/t/room/create.html:72
+#: ../../static/t/room/create.html:73
 #: ../../static/t/room/edit/tab_config.html:22
 msgid "Public (automatically appears to everyone)"
 msgstr "Avalik (ilmub automaatselt kõigile)"
 
-#: ../../static/t/room/create.html:76
+#: ../../static/t/room/create.html:77
 #: ../../static/t/room/edit/tab_config.html:28
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr ""
 "Privaatne - peidetud (juurdepääsetav ainult nendele, kes teavad toa nime)"
 
-#: ../../static/t/room/create.html:80
+#: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
 msgstr "Privaatne - nõua salasõna: "
 
-#: ../../static/t/room/create.html:85
+#: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
 msgid "Private - invitation only"
 msgstr "Privaatne - ainult kutse alusel"
 
-#: ../../static/t/room/create.html:89
+#: ../../static/t/room/create.html:90
 #: ../../static/t/room/edit/tab_config.html:51
 msgid "Personal (mailbox for you only)"
 msgstr "Personaalne (kirjakast ainult sinule)"
@@ -3662,67 +3673,9 @@ msgstr "Muuda või kustuta see tuba"
 msgid "will disappear from your room list.  Is this what you wish to do?"
 msgstr ""
 
-#: ../../static/t/login.html:4 ../../static/t/openid_login.html:4
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-
-#: ../../static/t/login.html:8 ../../static/t/openid_login.html:8
+#: ../../static/t/login.html:5
 msgid "powered by"
 msgstr "jooksutab"
-
-#: ../../static/t/login.html:23 ../../static/t/openid_login.html:21
-msgid "Language:"
-msgstr "Keel:"
-
-#: ../../static/t/login.html:39
-msgid "Log in using OpenID"
-msgstr "Logi sisse kasutades OpenID'd"
-
-#: ../../static/t/login.html:43
-msgid "If you already have an account on"
-msgstr "Kui sul on juba konto"
-
-#: ../../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Log in.&quot;"
-msgstr ""
-"siis sisesta oma kasutajanimi ja salasõna ning klõpsa &quot;Logi sisse.&quot;"
-
-#: ../../static/t/login.html:45
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-"<b>Kui sa oled uus kasutaja</b>, võta ühendust süsteemiadministraatoriga "
-
-#: ../../static/t/login.html:46 ../../static/t/openid_login.html:37
-msgid "Please log off properly when finished. "
-msgstr "Kui lõpetad, siis palun logi korrektselt välja. "
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "See the"
-msgstr "Vaata"
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "recommended browser list"
-msgstr "soovitatud brauserite nimekirja"
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-"kui sul on Webcit'iga probleeme.</li> <li>Sul peavad <i>küpsised</i>lubatud "
-"olema. "
-
-#: ../../static/t/login.html:48 ../../static/t/openid_login.html:39
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
-msgstr ""
-"Samuti pea meeles, et kui sinu brauser blokeerib hüpikaknaid (pop-up)siis ei "
-"ole sa suuteline kiirsõnumeid vastu võtma."
 
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
 msgid "Preferences and settings"
@@ -3756,6 +3709,12 @@ msgstr "Palun sisesta kasutajanimi mida soovid kasutada."
 msgid "No new messages."
 msgstr ""
 
+#: ../../static/t/head.html:51
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
 #: ../../static/t/knrooms.html:5
 msgid "Room list"
 msgstr "Tubade nimekiri"
@@ -3776,22 +3735,6 @@ msgstr ""
 msgid "Room Listing"
 msgstr ""
 
-#: ../../static/t/openid_login.html:19
-msgid "OpenID URL:"
-msgstr ""
-
-#: ../../static/t/openid_login.html:31
-msgid "Log in using a user name and password"
-msgstr ""
-
-#: ../../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Log in&quot;."
-msgstr ""
-
-#: ../../static/t/openid_login.html:36
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr ""
-
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
 msgstr "Kuva kui:"
@@ -3807,6 +3750,46 @@ msgstr "Sinu info"
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
 msgstr "Põhjalikumad tubade käsud"
+
+#~ msgid "Language:"
+#~ msgstr "Keel:"
+
+#~ msgid "If you already have an account on"
+#~ msgstr "Kui sul on juba konto"
+
+#~ msgid "enter your user name and password and click &quot;Log in.&quot;"
+#~ msgstr ""
+#~ "siis sisesta oma kasutajanimi ja salasõna ning klõpsa &quot;Logi sisse."
+#~ "&quot;"
+
+#~ msgid ""
+#~ "<b>If you are a new user</b>, enter the name and password you wish to "
+#~ "use, and click &quot;New User.&quot; "
+#~ msgstr ""
+#~ "<b>Kui sa oled uus kasutaja</b>, võta ühendust süsteemiadministraatoriga "
+
+#~ msgid "Please log off properly when finished. "
+#~ msgstr "Kui lõpetad, siis palun logi korrektselt välja. "
+
+#~ msgid "See the"
+#~ msgstr "Vaata"
+
+#~ msgid "recommended browser list"
+#~ msgstr "soovitatud brauserite nimekirja"
+
+#~ msgid ""
+#~ "if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
+#~ "turned on. "
+#~ msgstr ""
+#~ "kui sul on Webcit'iga probleeme.</li> <li>Sul peavad <i>küpsised</"
+#~ "i>lubatud olema. "
+
+#~ msgid ""
+#~ "Also keep in mind that if your browser is configured to block pop-up "
+#~ "windows, you will not be able to receive any instant messages."
+#~ msgstr ""
+#~ "Samuti pea meeles, et kui sinu brauser blokeerib hüpikaknaid (pop-up)siis "
+#~ "ei ole sa suuteline kiirsõnumeid vastu võtma."
 
 #~ msgid "Exit"
 #~ msgstr "Välju"

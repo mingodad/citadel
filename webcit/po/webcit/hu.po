@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-31 17:29-0500\n"
+"POT-Creation-Date: 2011-01-11 12:05-0500\n"
 "PO-Revision-Date: 2010-11-12 23:46+0000\n"
 "Last-Translator: Czakó Krisztián <slapic@prolin.hu>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -313,10 +313,9 @@ msgid "Save changes"
 msgstr "Változások mentése"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:864 ../../event.c:768 ../../graphics.c:71
-#: ../../messages.c:1534 ../../paging.c:66
-#: ../../static/t/edit_message.html:135 ../../static/t/get_logged_in.html:21
-#: ../../static/t/confirmlogoff.html:5
+#: ../../sysmsgs.c:50 ../../auth.c:850 ../../event.c:768 ../../graphics.c:71
+#: ../../messages.c:1539 ../../paging.c:66
+#: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
 msgstr "Mégsem"
 
@@ -699,9 +698,9 @@ msgstr "Gépnév:"
 msgid "Change host name"
 msgstr "Gép nevének megváltoztatása"
 
-#: ../../who.c:187 ../../static/t/get_logged_in.html:12
+#: ../../who.c:187 ../../static/t/get_logged_in.html:41
 #: ../../static/t/aide/edituser/detailview.html:20
-#: ../../static/t/login.html:19 ../../static/t/openid_manual_create.html:15
+#: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
 msgstr "Felhasználónév:"
 
@@ -849,21 +848,20 @@ msgstr "Kedvelt felhasználó"
 msgid "Aide"
 msgstr ""
 
-#: ../../auth.c:211 ../../auth.c:902
+#: ../../auth.c:197 ../../auth.c:888
 msgid "Blank passwords are not allowed."
 msgstr "Az üres jelszavak nem engedélyezettek."
 
-#. If we get to this point then something failed.
-#: ../../auth.c:239 ../../auth.c:361 ../../auth.c:474
+#: ../../auth.c:225
 msgid "Your password was not accepted."
 msgstr "A jelszavát nem fogadtuk el."
 
-#: ../../auth.c:590 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:576 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Kilépés"
 
-#: ../../auth.c:603 ../../webcit.c:657
+#: ../../auth.c:589 ../../webcit.c:706
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -871,68 +869,68 @@ msgstr ""
 "A program képtelen volt kapcsolódni vagy a kapcsolatot fenntartani a Citadel "
 "kiszolgálóval. Kérjük jelezze a problémát a rendszergazdának."
 
-#: ../../auth.c:609
+#: ../../auth.c:595
 msgid "Read More..."
 msgstr "További információk"
 
-#: ../../auth.c:614
+#: ../../auth.c:600
 msgid "Log in again"
 msgstr "Lépjen be újra"
 
-#: ../../auth.c:635 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:621 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Új felhasználók érvényesítése"
 
-#: ../../auth.c:658
+#: ../../auth.c:644
 msgid "No users require validation at this time."
 msgstr "Nincs érvényesítésre váró felhasználó."
 
-#: ../../auth.c:705
+#: ../../auth.c:691
 msgid "very weak"
 msgstr "nagyon gyenge"
 
-#: ../../auth.c:708
+#: ../../auth.c:694
 msgid "weak"
 msgstr "gyenge"
 
-#: ../../auth.c:711
+#: ../../auth.c:697
 msgid "ok"
 msgstr "OK"
 
-#: ../../auth.c:715
+#: ../../auth.c:701
 msgid "strong"
 msgstr "erős"
 
-#: ../../auth.c:733
+#: ../../auth.c:719
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Jelenlegi elérési szint: %d (%s)\n"
 
-#: ../../auth.c:741
+#: ../../auth.c:727
 msgid "Select access level for this user:"
 msgstr "Válassza ki ezen felhasználó hozzáférési szintjét:"
 
-#: ../../auth.c:828 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:814 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Változtassa meg a jelszavát"
 
-#: ../../auth.c:852
+#: ../../auth.c:838
 msgid "Enter new password:"
 msgstr "Írja be az új jelszót:"
 
-#: ../../auth.c:856
+#: ../../auth.c:842
 msgid "Enter it again to confirm:"
 msgstr "Ellenőrzésként írja be ismét:"
 
-#: ../../auth.c:862
+#: ../../auth.c:848
 msgid "Change password"
 msgstr "Jelszó megváltoztatása"
 
-#: ../../auth.c:883
+#: ../../auth.c:869
 msgid "Cancelled.  Password was not changed."
 msgstr "Megszakítva. A jelszó nem változott."
 
-#: ../../auth.c:894
+#: ../../auth.c:880
 msgid "They don't match.  Password was not changed."
 msgstr "Nem egyeznek. A jelszó nem változott."
 
@@ -1339,60 +1337,60 @@ msgstr ""
 msgid "Go back..."
 msgstr "Vissza..."
 
-#: ../../webcit.c:341
+#: ../../webcit.c:357
 msgid "Authorization Required"
 msgstr "Azonosítás szükséges"
 
-#: ../../webcit.c:350
+#: ../../webcit.c:366
 #, c-format
 msgid ""
 "The resource you requested requires a valid username and password. You could "
 "not be logged in: %s\n"
 msgstr ""
 
-#: ../../wiki.c:53 ../../wiki.c:146 ../../wiki.c:266
+#: ../../wiki.c:69 ../../wiki.c:162 ../../wiki.c:282
 #, c-format
 msgid "There is no room called '%s'."
 msgstr "Nincs '%s' nevű szoba."
 
-#: ../../wiki.c:60
+#: ../../wiki.c:76
 #, c-format
 msgid "'%s' is not a Wiki room."
 msgstr "'%s' nem Wiki szoba."
 
-#: ../../wiki.c:94
+#: ../../wiki.c:110
 #, c-format
 msgid "There is no page called '%s' here."
 msgstr "Nincs '%s' nevű oldal itt."
 
-#: ../../wiki.c:96
+#: ../../wiki.c:112
 msgid ""
 "Select the 'Edit this page' link in the room banner if you would like to "
 "create this page."
 msgstr ""
 
-#: ../../wiki.c:165 ../../static/t/summary_header.html:10
+#: ../../wiki.c:181 ../../static/t/summary_header.html:10
 #: ../../static/t/msg_listview.html:12
 msgid "Date"
 msgstr "Dátum"
 
-#: ../../wiki.c:166
+#: ../../wiki.c:182
 msgid "Author"
 msgstr ""
 
-#: ../../wiki.c:193 ../../wiki.c:202
+#: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
 msgstr ""
 
-#: ../../wiki.c:195 ../../static/t/navbar.html:147
+#: ../../wiki.c:211 ../../static/t/navbar.html:146
 msgid "Current version"
 msgstr ""
 
-#: ../../wiki.c:207
+#: ../../wiki.c:223
 msgid "(revert)"
 msgstr ""
 
-#: ../../wiki.c:284
+#: ../../wiki.c:300
 msgid "Page title"
 msgstr ""
 
@@ -1420,97 +1418,97 @@ msgstr "fájl"
 msgid "files"
 msgstr "fájlok"
 
-#: ../../messages.c:54
+#: ../../messages.c:70
 msgid "ERROR:"
 msgstr "HIBA:"
 
-#: ../../messages.c:72
+#: ../../messages.c:88
 msgid "Empty message"
 msgstr ""
 
-#: ../../messages.c:1027
+#: ../../messages.c:1032
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Megszakítva. Az üzenet nem lett beküldve."
 
-#: ../../messages.c:1030
+#: ../../messages.c:1035
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automatikusan megszakítva, mert ön már elmentette ezt az üzenetet."
 
-#: ../../messages.c:1055
+#: ../../messages.c:1060
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../../messages.c:1121
+#: ../../messages.c:1126
 msgid "Refusing to post empty message.\n"
 msgstr ""
 
-#: ../../messages.c:1147
+#: ../../messages.c:1152
 msgid "Message has been saved to Drafts.\n"
 msgstr ""
 
-#: ../../messages.c:1156
+#: ../../messages.c:1161
 msgid "Message has been sent.\n"
 msgstr "Üzenet elküldve.\n"
 
-#: ../../messages.c:1159
+#: ../../messages.c:1164
 msgid "Message has been posted.\n"
 msgstr "Üzenet postázva.\n"
 
-#: ../../messages.c:1481
+#: ../../messages.c:1486
 #, c-format
 msgid "The message was not moved."
 msgstr "Az üzenetet nem mozgattuk."
 
-#: ../../messages.c:1503
+#: ../../messages.c:1508
 msgid "Confirm move of message"
 msgstr "Üzenet mozgatás jóváhagyása"
 
-#: ../../messages.c:1511
+#: ../../messages.c:1516
 msgid "Move this message to:"
 msgstr "Üzenet mozgatása ide:"
 
-#: ../../messages.c:1532 ../../static/t/view_message.html:34
+#: ../../messages.c:1537 ../../static/t/view_message.html:34
 #: ../../static/t/msg_listview.html:28
 msgid "Move"
 msgstr "Mozgat"
 
-#: ../../messages.c:1574
+#: ../../messages.c:1579
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "Hiba történt, miközben beszereztem ezt a részt: %s/%s\n"
 
-#: ../../messages.c:1634
+#: ../../messages.c:1639
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Hiba történt, miközben beszereztem ezt a részt: %s\n"
 
-#: ../../messages.c:1801
+#: ../../messages.c:1806
 msgid "Attach signature to email messages?"
 msgstr "Csatol aláírást az email üzenetekhez?"
 
-#: ../../messages.c:1804
+#: ../../messages.c:1809
 msgid "Use this signature:"
 msgstr "Használja ezt az aláírást:"
 
-#: ../../messages.c:1806
+#: ../../messages.c:1811
 msgid "Default character set for email headers:"
 msgstr "Alapértelmezett betűkészlet a levél fejléceihez:"
 
-#: ../../messages.c:1809
+#: ../../messages.c:1814
 msgid "Preferred email address"
 msgstr "Kedvelt email cím"
 
-#: ../../messages.c:1811
+#: ../../messages.c:1816
 msgid "Preferred display name for email messages"
 msgstr "Kedvelt megjelenített név az email üzenetekhez"
 
-#: ../../messages.c:1815
+#: ../../messages.c:1820
 msgid "Preferred display name for bulletin board posts"
 msgstr "Kedvelt megjelenített név a hirdetőtábla üzenetkehez"
 
-#: ../../messages.c:1818
+#: ../../messages.c:1823
 msgid "Mailbox view mode"
 msgstr "Postafiók megjelenítési mód"
 
@@ -1919,7 +1917,7 @@ msgstr "Listázza az ismert szobákat"
 msgid "Where can I go from here?"
 msgstr "Hova mehetek innen?"
 
-#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:161
+#: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:160
 msgid "Goto next room"
 msgstr "Ugrás a következő szobába"
 
@@ -2005,7 +2003,7 @@ msgid "Go to a 'hidden' room"
 msgstr "Ugrás egy 'rejtett' szobába"
 
 #: ../../static/t/menu/advanced_roomcommands.html:6
-#: ../../static/t/room/create.html:9
+#: ../../static/t/room/create.html:11
 msgid "Create a new room"
 msgstr "Új szoba létrehozása"
 
@@ -2118,6 +2116,7 @@ msgid "Remove"
 msgstr "(eltávolít)"
 
 #: ../../static/t/edit_message/attachments_pane.html:3
+#: ../../static/t/get_logged_in.html:9
 msgid "Close window"
 msgstr "Ablak bezárása"
 
@@ -2302,13 +2301,25 @@ msgid ""
 "you begin on when you log on to"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:15 ../../static/t/login.html:21
+#: ../../static/t/get_logged_in.html:5
+msgid "You must be logged in to access this page."
+msgstr "Be kell jelentkezned, hogy ezt az oldalt."
+
+#: ../../static/t/get_logged_in.html:39
+msgid "Log in using a user name and password"
+msgstr "belépés felhasználó név és jelszó segítségével"
+
+#: ../../static/t/get_logged_in.html:44
 msgid "Password:"
 msgstr "Jelszó:"
 
-#: ../../static/t/get_logged_in.html:20 ../../static/t/iconbar.html:87
+#: ../../static/t/get_logged_in.html:48 ../../static/t/iconbar.html:87
 msgid "Log in"
 msgstr "Utolsó bejelentkezés"
+
+#: ../../static/t/get_logged_in.html:52
+msgid "Log in using OpenID"
+msgstr "Belépés OpenID használatával"
 
 #: ../../static/t/iconbar.html:18
 msgid "Mail"
@@ -2403,11 +2414,11 @@ msgstr "Wiki kezdőlap"
 msgid "Edit this page"
 msgstr "Oldal szerkesztése"
 
-#: ../../static/t/navbar.html:147
+#: ../../static/t/navbar.html:146
 msgid "History"
 msgstr ""
 
-#: ../../static/t/navbar.html:155
+#: ../../static/t/navbar.html:154
 msgid "Skip this room"
 msgstr "Szoba kihagyása"
 
@@ -3334,45 +3345,45 @@ msgstr "Kilőtt (elfelejtett) szobák"
 msgid "Click on any room to un-zap it and goto that room."
 msgstr "Kattintson bármelyik szobára, hogy azt felélessze és belépjen.\n"
 
-#: ../../static/t/room/create.html:17
+#: ../../static/t/room/create.html:18
 msgid "Name of room: "
 msgstr "Szoba neve:"
 
-#: ../../static/t/room/create.html:19
+#: ../../static/t/room/create.html:20
 #: ../../static/t/room/edit/tab_config.html:10
 msgid "Resides on floor: "
 msgstr "Ezen a szinten van:"
 
-#: ../../static/t/room/create.html:31
+#: ../../static/t/room/create.html:32
 msgid "Default view for room: "
 msgstr "Szoba alapértelmezett nézete: "
 
-#: ../../static/t/room/create.html:67
+#: ../../static/t/room/create.html:68
 #: ../../static/t/room/edit/tab_config.html:16
 msgid "Type of room:"
 msgstr "Szoba típusa:"
 
-#: ../../static/t/room/create.html:72
+#: ../../static/t/room/create.html:73
 #: ../../static/t/room/edit/tab_config.html:22
 msgid "Public (automatically appears to everyone)"
 msgstr "Nyilvános (automatikusan megjelenik mindenkinek)"
 
-#: ../../static/t/room/create.html:76
+#: ../../static/t/room/create.html:77
 #: ../../static/t/room/edit/tab_config.html:28
 msgid "Private - hidden (accessible to anyone who knows its name)"
 msgstr "Privát - rejtett (elérhető mindenkinek, aki tudja a nevét)"
 
-#: ../../static/t/room/create.html:80
+#: ../../static/t/room/create.html:81
 #: ../../static/t/room/edit/tab_config.html:35
 msgid "Private - require password: "
 msgstr "Privát - jelszót igényel:"
 
-#: ../../static/t/room/create.html:85
+#: ../../static/t/room/create.html:86
 #: ../../static/t/room/edit/tab_config.html:44
 msgid "Private - invitation only"
 msgstr "Privát - csak meghívással"
 
-#: ../../static/t/room/create.html:89
+#: ../../static/t/room/create.html:90
 #: ../../static/t/room/edit/tab_config.html:51
 msgid "Personal (mailbox for you only)"
 msgstr "Személyes (postafiók csak önnek)"
@@ -3681,61 +3692,9 @@ msgstr "Szoba szerkesztése vagy törlése"
 msgid "will disappear from your room list.  Is this what you wish to do?"
 msgstr ""
 
-#: ../../static/t/login.html:4 ../../static/t/openid_login.html:4
-msgid ""
-"WARNING: You have JavaScript disabled in your web browser.  Many functions "
-"of this system will not work properly."
-msgstr ""
-
-#: ../../static/t/login.html:8 ../../static/t/openid_login.html:8
+#: ../../static/t/login.html:5
 msgid "powered by"
 msgstr "működteti a"
-
-#: ../../static/t/login.html:23 ../../static/t/openid_login.html:21
-msgid "Language:"
-msgstr "Nyelv:"
-
-#: ../../static/t/login.html:39
-msgid "Log in using OpenID"
-msgstr "Belépés OpenID használatával"
-
-#: ../../static/t/login.html:43
-msgid "If you already have an account on"
-msgstr ""
-
-#: ../../static/t/login.html:44
-msgid "enter your user name and password and click &quot;Log in.&quot;"
-msgstr ""
-
-#: ../../static/t/login.html:45
-msgid ""
-"<b>If you are a new user</b>, enter the name and password you wish to use, "
-"and click &quot;New User.&quot; "
-msgstr ""
-
-#: ../../static/t/login.html:46 ../../static/t/openid_login.html:37
-msgid "Please log off properly when finished. "
-msgstr ""
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "See the"
-msgstr "Lásd itt"
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid "recommended browser list"
-msgstr "ajánlott böngészők listája"
-
-#: ../../static/t/login.html:47 ../../static/t/openid_login.html:38
-msgid ""
-"if you have trouble using Webcit.</li> <li>You must have <i>cookies</i> "
-"turned on. "
-msgstr ""
-
-#: ../../static/t/login.html:48 ../../static/t/openid_login.html:39
-msgid ""
-"Also keep in mind that if your browser is configured to block pop-up "
-"windows, you will not be able to receive any instant messages."
-msgstr ""
 
 #: ../../static/t/preferences.html:4 ../../static/t/preferences.html:7
 msgid "Preferences and settings"
@@ -3769,6 +3728,12 @@ msgstr "Kérem adja meg a felhasználó nevet, amit használni szeretne."
 msgid "No new messages."
 msgstr ""
 
+#: ../../static/t/head.html:51
+msgid ""
+"WARNING: You have JavaScript disabled in your web browser.  Many functions "
+"of this system will not work properly."
+msgstr ""
+
 #: ../../static/t/knrooms.html:5
 msgid "Room list"
 msgstr "Szoba lista"
@@ -3789,24 +3754,6 @@ msgstr ""
 msgid "Room Listing"
 msgstr ""
 
-#: ../../static/t/openid_login.html:19
-msgid "OpenID URL:"
-msgstr "OpenID URL:"
-
-#: ../../static/t/openid_login.html:31
-msgid "Log in using a user name and password"
-msgstr "belépés felhasználó név és jelszó segítségével"
-
-#: ../../static/t/openid_login.html:34
-msgid "Enter your OpenID URL and click &quot;Log in&quot;."
-msgstr ""
-
-#: ../../static/t/openid_login.html:36
-msgid "Click here to learn what OpenID is and how Citadel is using it."
-msgstr ""
-"Kattintson ide, ha többet szeretne tudni az OpenID-ról és arról, hogyan "
-"használja azt a Citadel."
-
 #: ../../static/t/viewomatic.html:4
 msgid "View as:"
 msgstr "Mutasd mint:"
@@ -3822,6 +3769,23 @@ msgstr "Az ön adatai"
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
 msgstr "Haladó szoba parancsok"
+
+#~ msgid "Language:"
+#~ msgstr "Nyelv:"
+
+#~ msgid "See the"
+#~ msgstr "Lásd itt"
+
+#~ msgid "recommended browser list"
+#~ msgstr "ajánlott böngészők listája"
+
+#~ msgid "OpenID URL:"
+#~ msgstr "OpenID URL:"
+
+#~ msgid "Click here to learn what OpenID is and how Citadel is using it."
+#~ msgstr ""
+#~ "Kattintson ide, ha többet szeretne tudni az OpenID-ról és arról, hogyan "
+#~ "használja azt a Citadel."
 
 #~ msgid "Exit"
 #~ msgstr "Kilépés"
