@@ -422,8 +422,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 	CtdlLogPrintf(CTDL_DEBUG, "callback found rev: %s\n", this_rev);
 
 	/* Perform the patch */
-	//fp = popen("patch -f -s -p0 --global-reject-file=/dev/null >/dev/null 2>/dev/null", "w");
-	fp = popen("patch -f -s -p0 --global-reject-file=/dev/null >/dev/null 2>>/tmp/patcherr.txt", "w");
+	fp = popen("patch -f -s -p0 -r /dev/null >/dev/null 2>/dev/null", "w");
 	if (fp) {
 		/* Replace the filenames in the patch with the tempfilename we're actually tweaking */
 		fprintf(fp, "--- %s\n", hecbd->tempfilename);
