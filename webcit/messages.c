@@ -100,9 +100,6 @@ int load_message(message_summary *Msg,
 			StrBufExtract_token(HdrToken, Buf, 0, '=');
 			StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
 			
-#ifdef TECH_PREVIEW
-			if (dbg_analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
-#endif
 			/* look up one of the examine_* functions to parse the content */
 			if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 			    (vHdr != NULL)) {
@@ -131,9 +128,6 @@ int load_message(message_summary *Msg,
 				StrBufExtract_token(HdrToken, Buf, 0, ':');
 				if (StrLength(HdrToken) > 0) {
 					StrBufCutLeft(Buf, StrLength(HdrToken) + 1);
-#ifdef TECH_PREVIEW
-					if (dbg_analyze_msg) lprintf(1, ":: [%s] = [%s]\n", ChrPtr(HdrToken), ChrPtr(Buf));
-#endif
 					/* the examine*'s know how to do with mime headers too... */
 					if (GetHash(MsgHeaderHandler, SKEY(HdrToken), &vHdr) &&
 					    (vHdr != NULL)) {
