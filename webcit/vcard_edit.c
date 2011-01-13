@@ -730,7 +730,7 @@ void display_vcard(StrBuf *Target,
 		 ((!isalpha(alpha)) && (!isalpha(this_alpha)))
 		) 
 	{
-#ifdef TECH_PREVIEW
+#ifdef XXX_XXX
 		new_vcard (Target, v, full, Mime);
 #else
 		display_parsed_vcard(Target, v, full, Mime);
