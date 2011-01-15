@@ -427,22 +427,26 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
  */
 void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt) 
 {
-	StrBuf *boundary, *Msg = NULL; 
-	int num_bounces = 0;
-	struct CtdlMessage *bmsg = NULL;
-	int give_up = 0;
-	struct recptypes *valid;
-	int successful_bounce = 0;
 	static int seq = 0;
+
+	struct CtdlMessage *bmsg = NULL;
+	StrBuf *boundary;
+	StrBuf *Msg = NULL; 
 	StrBuf *BounceMB;
-	HashPos  *It;
+	struct recptypes *valid;
+	
+	HashPos *It;
 	void *vQE;
 	long len;
 	const char *Key;
 
+	int successful_bounce = 0;
+	int num_bounces = 0;
+	int give_up = 0;
+
 	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
-	
-	if ( (time(NULL) - MyQItem->Submitted) > SMTP_GIVE_UP ) {
+
+	if ( (ev_time() - MyQItem->Submitted) > SMTP_GIVE_UP ) {
 		give_up = 1;/// TODO: replace time by libevq timer get
 	}
 
