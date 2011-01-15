@@ -72,8 +72,6 @@ extern citthread_mutex_t EventQueueMutex;
 extern HashList *InboundEventQueue;
 extern struct ev_loop *event_base;
 
-#define SEND_EVENT 1
-#define RECV_EVENT 2
 	
 int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB)
 {
@@ -147,19 +145,17 @@ void FreeAsyncIOContents(AsyncIO *IO)
 void ShutDownCLient(AsyncIO *IO)
 {
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->sock);
-	switch (IO->active_event) {
-	case SEND_EVENT:
+
+	if (IO->sock != 0)
+	{
 		ev_io_stop(event_base, &IO->send_event);
-		break;
-	case RECV_EVENT:
 		ev_io_stop(event_base, &IO->recv_event);
-		break;
-	case 0:
-		// no event active here; just bail out.
-		break;
+		close(IO->sock);
+		IO->sock = 0;
+		IO->SendBuf.fd = 0;
+		IO->RecvBuf.fd = 0;
 	}
 
-	IO->active_event = 0;
 	IO->Terminate(IO->Data);
 	
 }
@@ -195,7 +191,6 @@ eReadState HandleInbound(AsyncIO *IO)
 			
 		if (Finished != eMustReadMore) {
 			ev_io_stop(event_base, &IO->recv_event);
-			IO->active_event = 0;
 			IO->NextState = IO->ReadDone(IO->Data);
 			Finished = StrBufCheckBuffer(&IO->RecvBuf);
 		}
@@ -207,9 +202,6 @@ eReadState HandleInbound(AsyncIO *IO)
 	{
 		IO->NextState = IO->SendDone(IO->Data);
 		ev_io_start(event_base, &IO->send_event);
-
-		IO->active_event = SEND_EVENT;
-			
 	}
 	else if ((IO->NextState == eTerminateConnection) ||
 		 (IO->NextState == eAbort) )
@@ -263,7 +255,6 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		}
 #endif
 		ev_io_stop(event_base, &IO->send_event);
-		IO->active_event = 0;
 		switch (IO->NextState) {
 		case eSendReply:
 			break;
@@ -275,8 +266,6 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 				ShutDownCLient(IO);
 			else {
 				ev_io_start(event_base, &IO->send_event);
-
-				IO->active_event = SEND_EVENT;
 			}
 			break;
 		case eReadMessage:
@@ -285,8 +274,6 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 			}
 			else {
 				ev_io_start(event_base, &IO->recv_event);
-
-				IO->active_event = RECV_EVENT;
 			}
 
 			break;
@@ -356,7 +343,6 @@ set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents, int first_rw_
 	switch(IO->NextState) {
 	case eReadMessage:
 		ev_io_start(event_base, &IO->recv_event);
-		IO->active_event = RECV_EVENT;
 		break;
 	case eSendReply:
 	case eSendMore:
@@ -438,6 +424,7 @@ IO->curr_ai->ai_family,
 			      IO_connfail_callback, 
 			      conn_timeout, 0);
 		IO->conn_fail.data = IO;
+		ev_timer_start(event_base, &IO->conn_fail);
 		
 		return 0;
 	}
@@ -470,6 +457,7 @@ void InitEventIO(AsyncIO *IO,
 	IO->ReadDone = ReadDone;
 	IO->Terminate = Terminate;
 	IO->LineReader = LineReader;
+	IO->ConnFail = ConnFail;
 	
 	if (ReadFirst) {
 		IO->NextState = eReadMessage;

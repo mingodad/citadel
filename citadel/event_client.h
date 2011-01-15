@@ -34,7 +34,6 @@ struct AsyncIO {
 	struct hostent *HEnt;
 	int sock;
 	unsigned short dport;
-	int active_event;
        	eNextState NextState;
 
 	ev_timer conn_fail, 
@@ -98,3 +97,5 @@ void InitEventIO(AsyncIO *IO,
 		 int ReadFirst);
 
 int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);
+
+void StopClient(AsyncIO *IO);

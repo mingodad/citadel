@@ -108,7 +108,7 @@ typedef enum _eSMTP_C_States {
 	eMaxSMTPC
 } eSMTP_C_States;
 
-const long SMTP_C_ConnTimeout = 300; /* wail 5 minutes for connections... */
+const long SMTP_C_ConnTimeout = 60; /* wail 1 minute for connections... */
 const long SMTP_C_ReadTimeouts[eMaxSMTPC] = {
 	90, /* Greeting... */
 	30, /* EHLO */
@@ -242,8 +242,6 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 
 		RemoveQItem(Msg->MyQItem);
 	}
-	
-	close(Msg->IO.sock);
 	DeleteSmtpOutMsg(Msg);
 }
 
@@ -251,9 +249,9 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 
 
 void get_one_mx_host_ip_done(void *Ctx, 
-			       int status,
-			       int timeouts,
-			       struct hostent *hostent)
+			     int status,
+			     int timeouts,
+			     struct hostent *hostent)
 {
 	AsyncIO *IO = Ctx;
 	SmtpOutMsg *SendMsg = IO->Data;
@@ -784,19 +782,22 @@ eNextState SMTP_C_DispatchWriteDone(void *Data)
 /*****************************************************************************/
 eNextState SMTP_C_Terminate(void *Data)
 {
-	SmtpOutMsg *pMsg = Data;
+	AsyncIO *IO = Data;
+	SmtpOutMsg *pMsg = IO->Data;
 	FinalizeMessageSend(pMsg);
 	return 0;
 }
 eNextState SMTP_C_Timeout(void *Data)
 {
-	SmtpOutMsg *pMsg = Data;
+	AsyncIO *IO = Data;
+	SmtpOutMsg *pMsg = IO->Data;
 	FinalizeMessageSend(pMsg);
 	return 0;
 }
 eNextState SMTP_C_ConnFail(void *Data)
 {
-	SmtpOutMsg *pMsg = Data;
+	AsyncIO *IO = Data;
+	SmtpOutMsg *pMsg = IO->Data;
 	FinalizeMessageSend(pMsg);
 	return 0;
 }
