@@ -237,6 +237,8 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 			CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 			CtdlFreeMessage(msg);
 		}
+		else 
+			CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &Msg->MyQItem->MessageID, 1, "");
 
 		RemoveQItem(Msg->MyQItem);
 	}
@@ -372,6 +374,12 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 	int lp, rp;
 	int i;
 
+	if ((SendMsg==NULL) || 
+	    (SendMsg->MyQEntry == NULL) || 
+	    (StrLength(SendMsg->MyQEntry->Recipient) == 0)) {
+		return 0;
+	}
+
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(ChrPtr(SendMsg->MyQEntry->Recipient), 
 			    SendMsg->user, 
@@ -433,7 +441,7 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 		SendMsg->envelope_from = SendMsg->mailfrom;
 	}
 
-	return 0;
+	return 1;
 }
 
 
@@ -458,11 +466,20 @@ void smtp_try(OneQueItem *MyQItem,
 	else 
 		SendMsg->msgtext = NewStrBufDup(MsgText);
 
-	smtp_resolve_recipients(SendMsg);
-
-	QueueEventContext(SendMsg, 
-			  &SendMsg->IO,
-			  resolve_mx_records);
+	if (smtp_resolve_recipients(SendMsg)) {
+		QueueEventContext(SendMsg, 
+				  &SendMsg->IO,
+				  resolve_mx_records);
+	}
+	else {
+		if ((SendMsg==NULL) || 
+		    (SendMsg->MyQEntry == NULL)) {
+			SendMsg->MyQEntry->Status = 5;
+			StrBufPlain(SendMsg->MyQEntry->StatusMessage, 
+				    HKEY("Invalid Recipient!"));
+		}
+		FinalizeMessageSend(SendMsg);
+	}
 }
 
 
