@@ -471,8 +471,10 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	/* Deliver the bounce if there's anything worth mentioning */
 	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
 
-	if (num_bounces == 0)
+	if (num_bounces == 0) {
+		FreeStrBuf(&Msg);
 		return;
+	}
 
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
 	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
@@ -552,9 +554,10 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
         bmsg->cm_format_type = FMT_RFC822;
 
         bmsg->cm_fields['O'] = strdup(MAILROOM);
+        bmsg->cm_fields['A'] = strdup("Citadel");
         bmsg->cm_fields['N'] = strdup(config.c_nodename);
         bmsg->cm_fields['U'] = strdup("Delivery Status Notification (Failure)");
-	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
+	bmsg->cm_fields['M'] = SmashStrBuf(&BounceMB);
 
 	/* First try the user who sent the message */
 	if (StrLength(MyQItem->BounceTo) == 0) 
