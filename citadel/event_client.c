@@ -121,9 +121,7 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	FreeStrBuf(&IO->IOBuf);
 	FreeStrBuf(&IO->SendBuf.Buf);
 	FreeStrBuf(&IO->RecvBuf.Buf);
-	FreeStrBuf(&IO->ErrMsg);
 	ares_destroy(IO->DNSChannel);
-
 }
 
 /*
