@@ -680,8 +680,8 @@ static void recurseable_mime_parser(char *partnum,
 			if (next_boundary != NULL) {
 				/* If we pass out of scope, don't attempt to
 				 * read past the end boundary. */
-				if ((*(next_boundary + m->b[startary].len + 1) == '-') && 
-				    (*(next_boundary + m->b[startary].len + 2) == '-') ){
+				if ((*(next_boundary + m->b[startary].len) == '-') && 
+				    (*(next_boundary + m->b[startary].len + 1) == '-') ){
 					ptr = content_end;
 				}
 				else {
