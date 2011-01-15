@@ -122,25 +122,6 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	ares_destroy(IO->DNSChannel);
 }
 
-/*
-  static void
-  setup_signal_handlers(struct instance *instance)
-  {
-  signal(SIGPIPE, SIG_IGN);
-
-  event_set(&instance->sigterm_event, SIGTERM, EV_SIGNAL|EV_PERSIST,
-  exit_event_callback, instance);
-  event_add(&instance->sigterm_event, NULL);
-
-  event_set(&instance->sigint_event, SIGINT, EV_SIGNAL|EV_PERSIST,
-  exit_event_callback, instance);
-  event_add(&instance->sigint_event, NULL);
-
-  event_set(&instance->sigquit_event, SIGQUIT, EV_SIGNAL|EV_PERSIST,
-  exit_event_callback, instance);
-  event_add(&instance->sigquit_event, NULL);
-  }
-*/
 
 void ShutDownCLient(AsyncIO *IO)
 {
@@ -150,13 +131,15 @@ void ShutDownCLient(AsyncIO *IO)
 	{
 		ev_io_stop(event_base, &IO->send_event);
 		ev_io_stop(event_base, &IO->recv_event);
+		ev_timer_stop (event_base, &IO->conn_fail);
+		ev_timer_stop (event_base, &IO->conn_timeout);
 		close(IO->sock);
 		IO->sock = 0;
 		IO->SendBuf.fd = 0;
 		IO->RecvBuf.fd = 0;
 	}
 
-	IO->Terminate(IO->Data);
+	IO->Terminate(IO);
 	
 }
 
@@ -191,7 +174,7 @@ eReadState HandleInbound(AsyncIO *IO)
 			
 		if (Finished != eMustReadMore) {
 			ev_io_stop(event_base, &IO->recv_event);
-			IO->NextState = IO->ReadDone(IO->Data);
+			IO->NextState = IO->ReadDone(IO);
 			Finished = StrBufCheckBuffer(&IO->RecvBuf);
 		}
 	}
@@ -200,7 +183,7 @@ eReadState HandleInbound(AsyncIO *IO)
 	if ((IO->NextState == eSendReply) ||
 	    (IO->NextState == eSendMore))
 	{
-		IO->NextState = IO->SendDone(IO->Data);
+		IO->NextState = IO->SendDone(IO);
 		ev_io_start(event_base, &IO->send_event);
 	}
 	else if ((IO->NextState == eTerminateConnection) ||
@@ -215,16 +198,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	int rc;
 	AsyncIO *IO = watcher->data;
-/*
-	CtdlLogPrintf(CTDL_DEBUG, "EVENT -> %d  : [%s%s%s%s]\n",
-		      watcher->fd,
-		      (event&EV_TIMEOUT) ? " timeout" : "",
-		      (event&EV_READ)    ? " read" : "",
-		      (event&EV_WRITE)   ? " write" : "",
-		      (event&EV_SIGNAL)  ? " signal" : "");
-*/
-///    assert(fd == IO->sock);
-	
+
 	rc = StrBuf_write_one_chunk_callback(watcher->fd, 0/*TODO*/, &IO->SendBuf);
 
 	if (rc == 0)
@@ -259,7 +233,7 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		case eSendReply:
 			break;
 		case eSendMore:
-			IO->NextState = IO->SendDone(IO->Data);
+			IO->NextState = IO->SendDone(IO);
 
 			if ((IO->NextState == eTerminateConnection) ||
 			    (IO->NextState == eAbort) )
@@ -321,12 +295,8 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 
 
 static void
-set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents, int first_rw_timeout)
+set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
 {
-	ev_timer_init(&IO->conn_timeout, 
-		      IO_Timout_callback, 
-		      first_rw_timeout, 0);
-	IO->conn_timeout.data = IO;
 	
 	switch(IO->NextState) {
 	case eReadMessage:
@@ -386,6 +356,8 @@ IO->curr_ai->ai_family,
 	IO->recv_event.data = IO;
 	ev_io_init(&IO->send_event, IO_send_callback, IO->sock, EV_WRITE);
 	IO->send_event.data = IO;
+	ev_timer_init(&IO->conn_fail, IO_connfail_callback, conn_timeout, 0);
+	IO->conn_fail.data = IO;
 	
 	memset( (struct sockaddr_in *)&saddr, '\0', sizeof( saddr ) );
 
@@ -402,29 +374,40 @@ IO->curr_ai->ai_family,
 		     sizeof(struct sockaddr_in));
 	if (rc >= 0){
 ////		freeaddrinfo(res);
-		set_start_callback(event_base, IO, 0, first_rw_timeout);
+		ev_timer_init(&IO->conn_timeout, IO_Timout_callback, first_rw_timeout, 0);
+		IO->conn_timeout.data = IO;
+		set_start_callback(event_base, IO, 0);
+		ev_timer_start(event_base, &IO->conn_timeout);
 		return 0;
 	}
 	else if (errno == EINPROGRESS) {
-		set_start_callback(event_base, IO, 0, first_rw_timeout);
-		ev_timer_init(&IO->conn_fail, 
-			      IO_connfail_callback, 
-			      conn_timeout, 0);
-		IO->conn_fail.data = IO;
+		set_start_callback(event_base, IO, 0);
+		ev_timer_init(&IO->conn_timeout, 
+			      IO_Timout_callback, 
+			      conn_timeout + first_rw_timeout, 0);
 		ev_timer_start(event_base, &IO->conn_fail);
+		ev_timer_start(event_base, &IO->conn_timeout);
 		
 		return 0;
 	}
 	else {
 		CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to connect: %s", strerror(errno));
-		close(IO->sock);
+///		close(IO->sock);
 /*		IO->curr_ai = IO->curr_ai->ai_next;
 		if (IO->curr_ai != NULL)
 			return event_connect_socket(IO);
 			else*/
 			return -1;
 	}
+}
+
+void SetNextTimeout(AsyncIO *IO, int timeout)
+{
+	ev_timer_init(&IO->conn_timeout, 
+		      IO_Timout_callback, 
+		      timeout, 0);
+	ev_timer_again (event_base, &IO->conn_timeout);
 }
 
 void InitEventIO(AsyncIO *IO, 

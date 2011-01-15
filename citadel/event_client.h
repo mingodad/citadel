@@ -16,7 +16,7 @@ typedef enum _eNextState {
 }eNextState;
 
 typedef int (*EventContextAttach)(void *Data);
-typedef eNextState (*IO_CallBack)(void *Data);
+typedef eNextState (*IO_CallBack)(AsyncIO *IO);
 typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
 typedef void (*ParseDNSAnswerCb)(AsyncIO*, unsigned char*, int);
 typedef void (*FreeDNSReply)(void *DNSData);
@@ -99,3 +99,5 @@ void InitEventIO(AsyncIO *IO,
 int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);
 
 void StopClient(AsyncIO *IO);
+
+void SetNextTimeout(AsyncIO *IO, int timeout);

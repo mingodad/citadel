@@ -110,6 +110,18 @@ typedef enum _eSMTP_C_States {
 
 const long SMTP_C_ConnTimeout = 60; /* wail 1 minute for connections... */
 const long SMTP_C_ReadTimeouts[eMaxSMTPC] = {
+	300, /* Greeting... */
+	30, /* EHLO */
+	30, /* HELO */
+	30, /* Auth */
+	30, /* From */
+	90, /* RCPT */
+	30, /* DATA */
+	90, /* DATABody */
+	0, /* end of body... */
+	30  /* QUIT */
+};
+const long SMTP_C_SendTimeouts[eMaxSMTPC] = {
 	90, /* Greeting... */
 	30, /* EHLO */
 	30, /* HELO */
@@ -125,16 +137,16 @@ const long SMTP_C_ReadTimeouts[eMaxSMTPC] = {
 const long SMTP_C_SendTimeouts[eMaxSMTPC] = {
 
 }; */
-const char *ReadErrors[eMaxSMTPC] = {
-	"Connection broken during SMTP conversation",
-	"Connection broken during SMTP EHLO",
-	"Connection broken during SMTP HELO",
-	"Connection broken during SMTP AUTH",
-	"Connection broken during SMTP MAIL FROM",
-	"Connection broken during SMTP RCPT",
-	"Connection broken during SMTP DATA",
-	"Connection broken during SMTP message transmit",
-	""/* quit reply, don't care. */
+static const ConstStr ReadErrors[eMaxSMTPC] = {
+	{HKEY("Connection broken during SMTP conversation")},
+	{HKEY("Connection broken during SMTP EHLO")},
+	{HKEY("Connection broken during SMTP HELO")},
+	{HKEY("Connection broken during SMTP AUTH")},
+	{HKEY("Connection broken during SMTP MAIL FROM")},
+	{HKEY("Connection broken during SMTP RCPT")},
+	{HKEY("Connection broken during SMTP DATA")},
+	{HKEY("Connection broken during SMTP message transmit")},
+	{HKEY("")}/* quit reply, don't care. */
 };
 
 
@@ -171,14 +183,14 @@ void DeleteSmtpOutMsg(void *v)
 	
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
-	free(Msg);
+///	free(Msg);
 }
 
-eNextState SMTP_C_Timeout(void *Data);
-eNextState SMTP_C_ConnFail(void *Data);
-eNextState SMTP_C_DispatchReadDone(void *Data);
-eNextState SMTP_C_DispatchWriteDone(void *Data);
-eNextState SMTP_C_Terminate(void *Data);
+eNextState SMTP_C_Timeout(AsyncIO *IO);
+eNextState SMTP_C_ConnFail(AsyncIO *IO);
+eNextState SMTP_C_DispatchReadDone(AsyncIO *IO);
+eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO);
+eNextState SMTP_C_Terminate(AsyncIO *IO);
 eReadState SMTP_C_ReadServerStatus(AsyncIO *IO);
 
 typedef eNextState (*SMTPReadHandler)(SmtpOutMsg *Msg);
@@ -207,6 +219,8 @@ typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
 
 void FinalizeMessageSend(SmtpOutMsg *Msg)
 {
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	
 	if (DecreaseQReference(Msg->MyQItem)) 
 	{
 		int nRemain;
@@ -255,6 +269,7 @@ void get_one_mx_host_ip_done(void *Ctx,
 {
 	AsyncIO *IO = Ctx;
 	SmtpOutMsg *SendMsg = IO->Data;
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
 		unsigned long psaddr;
 		// TODO: IPV6
@@ -262,7 +277,7 @@ void get_one_mx_host_ip_done(void *Ctx,
 		psaddr = ntohl(psaddr); 
 
 		CtdlLogPrintf(CTDL_DEBUG, 
-			      "SMTP client[%ld]: connecting to %s [%d.%d.%d.%d:%d] ...\n", 
+			      "SMTP client[%ld]: connecting to %s [%ld.%ld.%ld.%ld:%d] ...\n", 
 			      SendMsg->n, 
 			      SendMsg->mx_host, 
 			      (psaddr >> 24) & 0xFF,
@@ -273,8 +288,13 @@ void get_one_mx_host_ip_done(void *Ctx,
 
 		SendMsg->MyQEntry->Status = 5; 
 		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-			     "Timeout while connecting %s", 
-			     SendMsg->mx_host);
+			     "Timeout while connecting %s [%ld.%ld.%ld.%ld:%d] ", 
+			     SendMsg->mx_host,
+			     (psaddr >> 24) & 0xFF,
+			     (psaddr >> 16) & 0xFF,
+			     (psaddr >>  8) & 0xFF,
+			     (psaddr >>  0) & 0xFF,
+			     SendMsg->IO.dport);
 
 		SendMsg->IO.HEnt = hostent;
 		InitEventIO(IO, SendMsg, 
@@ -297,6 +317,7 @@ void get_one_mx_host_ip(SmtpOutMsg *SendMsg)
 	//char *endpart;
 	//char buf[SIZ];
 
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SendMsg->IO.dport = DefaultMXPort;
 
 
@@ -328,7 +349,8 @@ void get_one_mx_host_ip(SmtpOutMsg *SendMsg)
 	CtdlLogPrintf(CTDL_DEBUG, 
 		      "SMTP client[%ld]: looking up %s : %d ...\n", 
 		      SendMsg->n, 
-		      SendMsg->mx_host);
+		      SendMsg->mx_host, 
+		      SendMsg->IO.dport);
 
 	ares_gethostbyname(SendMsg->IO.DNSChannel,
 			   SendMsg->mx_host,   
@@ -338,10 +360,11 @@ void get_one_mx_host_ip(SmtpOutMsg *SendMsg)
 }
 
 
-eNextState smtp_resolve_mx_done(void *data)
+eNextState smtp_resolve_mx_done(AsyncIO *IO)
 {
-	AsyncIO *IO = data;
 	SmtpOutMsg * SendMsg = IO->Data;
+
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
 	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
@@ -358,6 +381,8 @@ eNextState smtp_resolve_mx_done(void *data)
 int resolve_mx_records(void *Ctx)
 {
 	SmtpOutMsg * SendMsg = Ctx;
+
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
@@ -380,6 +405,8 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 	int scan_done;
 	int lp, rp;
 	int i;
+
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	if ((SendMsg==NULL) || 
 	    (SendMsg->MyQEntry == NULL) || 
@@ -460,6 +487,8 @@ void smtp_try(OneQueItem *MyQItem,
 	      int MsgCount)
 {
 	SmtpOutMsg * SendMsg;
+
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	SendMsg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
 	memset(SendMsg, 0, sizeof(SmtpOutMsg));
@@ -772,40 +801,69 @@ SMTPSendHandler SendHandlers[eMaxSMTPC] = {
 	SMTPC_send_terminate_data_body,
 	SMTPC_send_QUIT
 };
-eNextState SMTP_C_DispatchReadDone(void *Data)
+
+void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 {
-	SmtpOutMsg *pMsg = Data;
-	eNextState rc = ReadHandlers[pMsg->State](pMsg);
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	long Timeout;
+	switch (NextTCPState) {
+	case eSendReply:
+	case eSendMore:
+		Timeout = SMTP_C_SendTimeouts[pMsg->State];
+		break;
+	case eReadMessage:
+		Timeout = SMTP_C_ReadTimeouts[pMsg->State];
+		break;
+	case eTerminateConnection:
+	case eAbort:
+		return;
+	}
+	SetNextTimeout(&pMsg->IO, Timeout);
+}
+eNextState SMTP_C_DispatchReadDone(AsyncIO *IO)
+{
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	SmtpOutMsg *pMsg = IO->Data;
+	eNextState rc;
+
+	rc = ReadHandlers[pMsg->State](pMsg);
 	pMsg->State++;
+	SMTPSetTimeout(rc, pMsg);
 	return rc;
 }
-eNextState SMTP_C_DispatchWriteDone(void *Data)
+eNextState SMTP_C_DispatchWriteDone(AsyncIO *IO)
 {
-	SmtpOutMsg *pMsg = Data;
-	return SendHandlers[pMsg->State](pMsg);	
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	SmtpOutMsg *pMsg = IO->Data;
+	eNextState rc;
+
+	rc = SendHandlers[pMsg->State](pMsg);
+	SMTPSetTimeout(rc, pMsg);
+	return rc;
 }
 
 
 /*****************************************************************************/
 /*                     SMTP CLIENT ERROR CATCHERS                            */
 /*****************************************************************************/
-eNextState SMTP_C_Terminate(void *Data)
+eNextState SMTP_C_Terminate(AsyncIO *IO)
 {
-	AsyncIO *IO = Data;
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
 	FinalizeMessageSend(pMsg);
 	return 0;
 }
-eNextState SMTP_C_Timeout(void *Data)
+eNextState SMTP_C_Timeout(AsyncIO *IO)
 {
-	AsyncIO *IO = Data;
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
+	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	FinalizeMessageSend(pMsg);
 	return 0;
 }
-eNextState SMTP_C_ConnFail(void *Data)
+eNextState SMTP_C_ConnFail(AsyncIO *IO)
 {
-	AsyncIO *IO = Data;
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
 	FinalizeMessageSend(pMsg);
 	return 0;
