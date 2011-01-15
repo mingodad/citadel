@@ -48,7 +48,7 @@ void cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)
 void cprintf (const char *format, ...);
 #endif
 
-void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
+void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
 void vCtdlLogPrintf (enum LogLevel loglevel, const char *format, va_list arg_ptr);
 
 extern int enable_syslog;

@@ -451,7 +451,7 @@ void CtdlFillSystemContext(CitContext *context, char *name)
 	if (context->user.usernum == 0)
 	{	/* old system user with number 0, upgrade it */
 		context->user.usernum = get_new_user_number();
-		CtdlLogPrintf(CTDL_DEBUG, "Upgrading system user \"%s\" from user number 0 to user number %d\n", context->user.fullname, context->user.usernum);
+		CtdlLogPrintf(CTDL_DEBUG, "Upgrading system user \"%s\" from user number 0 to user number %ld\n", context->user.fullname, context->user.usernum);
 		/* add user to the database */
 		CtdlPutUser(&(context->user));
 		cdb_store(CDB_USERSBYNUMBER, &(context->user.usernum), sizeof(long), context->user.fullname, strlen(context->user.fullname)+1);

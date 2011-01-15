@@ -549,7 +549,7 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 	}
 
 	if (citadel_migrate_data != 1) {
-		CtdlLogPrintf(CTDL_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n");
+		CtdlLogPrintf(CTDL_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
 		return;
 	}
 
@@ -594,7 +594,7 @@ void migr_xml_end(void *data, const char *el) {
 	}
 
 	if (citadel_migrate_data != 1) {
-		CtdlLogPrintf(CTDL_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n");
+		CtdlLogPrintf(CTDL_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
 		return;
 	}
 

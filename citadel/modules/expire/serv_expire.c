@@ -842,7 +842,7 @@ int PurgeStaleOpenIDassociations(void) {
 	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", Value);
+		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n",  (char*)Value);
 		cdb_delete(CDB_OPENID, Value, strlen(Value));
 		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 		++num_deleted;

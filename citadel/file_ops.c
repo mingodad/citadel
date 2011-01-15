@@ -591,7 +591,7 @@ void cmd_ucls(char *cmd)
 				unlink(CC->upl_path);
 			}
 			else {
-				CtdlLogPrintf(CTDL_ALERT, "Cannot link %d to %d: %s\n",
+				CtdlLogPrintf(CTDL_ALERT, "Cannot link %s to %s: %s\n",
 					CC->upl_path, final_filename, strerror(errno)
 				);
 			}

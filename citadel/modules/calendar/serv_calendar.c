@@ -1789,7 +1789,7 @@ void ical_putics(void)
 				HashPos = GetNewHashPos(tzidlist, 0);
 
 				while (GetNextHashPos(tzidlist, HashPos, &len, &Key, &Value)) {
-					CtdlLogPrintf(CTDL_DEBUG, "Attaching timezone '%s'\n", Value);
+					CtdlLogPrintf(CTDL_DEBUG, "Attaching timezone '%s'\n", (char*) Value);
 					icaltimezone *t = NULL;
 
 					/* First look for a timezone attached to the original calendar */

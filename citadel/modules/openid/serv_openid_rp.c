@@ -127,11 +127,11 @@ int attach_openid(struct ctdluser *who, StrBuf *claimed_id)
 		cdb_free(cdboi);
 
 		if (fetched_usernum == who->usernum) {
-			CtdlLogPrintf(CTDL_INFO, "%s already associated; no action is taken\n", claimed_id);
+			CtdlLogPrintf(CTDL_INFO, "%s already associated; no action is taken\n", ChrPtr(claimed_id));
 			return(0);
 		}
 		else {
-			CtdlLogPrintf(CTDL_INFO, "%s already belongs to another user\n", claimed_id);
+			CtdlLogPrintf(CTDL_INFO, "%s already belongs to another user\n", ChrPtr(claimed_id));
 			return(3);
 		}
 	}
@@ -190,7 +190,7 @@ void openid_purge(struct ctdluser *usbuf) {
 	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", Value);
+		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", (char*)Value);
 		cdb_delete(CDB_OPENID, Value, strlen(Value));
 		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 	}
