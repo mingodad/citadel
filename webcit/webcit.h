@@ -454,6 +454,7 @@ typedef struct _ParsedHttpHdrs {
 	StrBuf *c_language;
 	StrBuf *this_page;			/* URL of current page */
 	StrBuf *PlainArgs; 
+	StrBuf *HostHeader;
 
 	HashList *urlstrings;		        /* variables passed to webcit in a URL */
 	HashList *HTTPHeaders;                  /* the headers the client sent us */
@@ -595,6 +596,8 @@ enum {
 #define num_parms(source)		num_tokens(source, '|') 
 #endif
 
+#define site_prefix	(WC ? (WC->Hdr->HostHeader) : NULL)
+
 /* Per-session data */
 #define WC ((struct wcsession *)pthread_getspecific(MyConKey))
 extern pthread_key_t MyConKey;
@@ -620,7 +623,6 @@ extern char wizard_filename[];
 extern int follow_xff;
 extern int num_threads_existing;
 extern int num_threads_executing;
-extern StrBuf *site_prefix;
 
 void InitialiseSemaphores(void);
 void begin_critical_section(int which_one);

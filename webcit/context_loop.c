@@ -624,20 +624,25 @@ void Header_HandleContentType(StrBuf *Line, ParsedHttpHdrs *hdr)
 
 void Header_HandleHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	if (site_prefix == NULL) {
-		site_prefix = NewStrBuf();
-		StrBufAppendPrintf(site_prefix, "%s://", (is_https ? "https" : "http") );
-		StrBufAppendBuf(site_prefix, Line, 0);
+	if (hdr->HostHeader != NULL) {
+		FreeStrBuf(&hdr->HostHeader);
 	}
+	hdr->HostHeader = NewStrBuf();
+	StrBufAppendPrintf(hdr->HostHeader, "%s://", (is_https ? "https" : "http") );
+	StrBufAppendBuf(hdr->HostHeader, Line, 0);
 }
 
 void Header_HandleXFFHost(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
-	if ( (follow_xff) && (site_prefix == NULL)) {
-		site_prefix = NewStrBuf();
-		StrBufAppendPrintf(site_prefix, "http://");	/* this is naive; do something about it */
-		StrBufAppendBuf(site_prefix, Line, 0);
+	if (!follow_xff) return;
+
+	if (hdr->HostHeader != NULL) {
+		FreeStrBuf(&hdr->HostHeader);
 	}
+
+	hdr->HostHeader = NewStrBuf();
+	StrBufAppendPrintf(hdr->HostHeader, "http://");	/* this is naive; do something about it */
+	StrBufAppendBuf(hdr->HostHeader, Line, 0);
 }
 
 
@@ -783,6 +788,7 @@ HttpDetachModule_CONTEXT
 (ParsedHttpHdrs *httpreq)
 {
 	FlushStrBuf(httpreq->PlainArgs);
+	FlushStrBuf(httpreq->HostHeader);
 	FlushStrBuf(httpreq->this_page);
 	FlushStrBuf(httpreq->PlainArgs);
 	DeleteHash(&httpreq->HTTPHeaders);
@@ -797,6 +803,7 @@ HttpDestroyModule_CONTEXT
 	FreeStrBuf(&httpreq->PlainArgs);
 	FreeStrBuf(&httpreq->this_page);
 	FreeStrBuf(&httpreq->PlainArgs);
+	FreeStrBuf(&httpreq->HostHeader);
 	DeleteHash(&httpreq->HTTPHeaders);
 
 }
