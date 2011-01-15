@@ -307,23 +307,11 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	ssize_t nbytes;
 	AsyncIO *IO = watcher->data;
 
-//    assert(fd == IO->sock);
-	
-//    assert(fd == sb->fd);
-/*
-	CtdlLogPrintf(CTDL_DEBUG, "EVENT <- %d  : [%s%s%s%s]\n",
-            (int) fd,
-            (event&EV_TIMEOUT) ? " timeout" : "",
-            (event&EV_READ)    ? " read" : "",
-            (event&EV_WRITE)   ? " write" : "",
-            (event&EV_SIGNAL)  ? " signal" : "");
-*/
 	nbytes = StrBuf_read_one_chunk_callback(watcher->fd, 0 /*TODO */, &IO->RecvBuf);
 	if (nbytes > 0) {
 		HandleInbound(IO);
 	} else if (nbytes == 0) {
-		IO->Timeout(IO);
-///  TODO: this is a timeout???  sock_buff_invoke_free(sb, 0); seems as if socket is gone then?
+		IO->Timeout(IO); /* this is a timeout... */
 		return;
 	} else if (nbytes == -1) {
 /// TODO: FD is gone. kick it.        sock_buff_invoke_free(sb, errno);
@@ -405,7 +393,6 @@ IO->curr_ai->ai_family,
 	       IO->HEnt->h_addr_list[0],
 	       sizeof(struct in_addr));
 
-//	saddr.sin_addr.s_addr = inet_addr("85.88.5.80");
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(IO->dport);
 	rc = connect(IO->sock, 

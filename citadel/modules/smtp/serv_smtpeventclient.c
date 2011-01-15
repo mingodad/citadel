@@ -256,10 +256,19 @@ void get_one_mx_host_ip_done(void *Ctx,
 	AsyncIO *IO = Ctx;
 	SmtpOutMsg *SendMsg = IO->Data;
 	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
+		unsigned long psaddr;
+		// TODO: IPV6
+		memcpy(&psaddr, hostent->h_addr_list[0], sizeof(psaddr));
+		psaddr = ntohl(psaddr); 
+
 		CtdlLogPrintf(CTDL_DEBUG, 
-			      "SMTP client[%ld]: connecting to %s [ip]: %d ...\n", 
+			      "SMTP client[%ld]: connecting to %s [%d.%d.%d.%d:%d] ...\n", 
 			      SendMsg->n, 
 			      SendMsg->mx_host, 
+			      (psaddr >> 24) & 0xFF,
+			      (psaddr >> 16) & 0xFF,
+			      (psaddr >>  8) & 0xFF,
+			      (psaddr >>  0) & 0xFF,
 			      SendMsg->IO.dport);
 
 		SendMsg->MyQEntry->Status = 5; 
