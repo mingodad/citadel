@@ -620,7 +620,7 @@ static void ctdl_internal_thread_cleanup(void *arg)
 		const char *name = CT->name;
 		const pid_t tid = CT->tid;
 
-		CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (0x%08lx) exited.\n", name, tid);
+		CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (0x%08lx) exited.\n", name, (unsigned long) tid);
 	}
 	else 
 	{
@@ -1254,7 +1254,7 @@ void go_threading(void)
 	/*
 	 * This thread is now used for garbage collection of other threads in the thread list
 	 */
-	CtdlLogPrintf(CTDL_INFO, "Startup thread %d becoming garbage collector,\n", citthread_self());
+	CtdlLogPrintf(CTDL_INFO, "Startup thread %ld becoming garbage collector,\n", (long) citthread_self());
 
 	/*
 	 * We do a lot of locking and unlocking of the thread list in here.
