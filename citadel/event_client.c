@@ -377,7 +377,7 @@ IO->curr_ai->ai_family,
 	memcpy(&saddr.sin_addr, 
 	       IO->HEnt->h_addr_list[0],
 	       sizeof(struct in_addr));
-	saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+//	saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(IO->dport);
