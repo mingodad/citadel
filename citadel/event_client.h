@@ -37,9 +37,10 @@ struct AsyncIO {
        	eNextState NextState;
 
 	ev_timer conn_fail, 
-		conn_timeout;
+		rw_timeout;
 	ev_io recv_event, 
-		send_event;
+		send_event, 
+		conn_event;
 	StrBuf *ErrMsg; /* if we fail to connect, or lookup, error goes here. */
 
 	/* read/send related... */
@@ -93,11 +94,11 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack Timeout, 
 		 IO_CallBack ConnFail, 
 		 IO_LineReaderCallback LineReader,
-		 int conn_timeout, int first_rw_timeout,
+		 double conn_timeout, double first_rw_timeout,
 		 int ReadFirst);
 
 int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);
 
 void StopClient(AsyncIO *IO);
 
-void SetNextTimeout(AsyncIO *IO, int timeout);
+void SetNextTimeout(AsyncIO *IO, double timeout);

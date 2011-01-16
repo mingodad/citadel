@@ -63,8 +63,6 @@
 #include "locate_host.h"
 #include "citadel_dirs.h"
 
-#ifdef EXPERIMENTAL_SMTP_EVENT_CLIENT
-
 #include "event_client.h"
 
 extern int event_add_pipe[2];
@@ -131,8 +129,7 @@ void ShutDownCLient(AsyncIO *IO)
 	{
 		ev_io_stop(event_base, &IO->send_event);
 		ev_io_stop(event_base, &IO->recv_event);
-		ev_timer_stop (event_base, &IO->conn_fail);
-		ev_timer_stop (event_base, &IO->conn_timeout);
+		ev_timer_stop (event_base, &IO->rw_timeout);
 		close(IO->sock);
 		IO->sock = 0;
 		IO->SendBuf.fd = 0;
@@ -142,6 +139,7 @@ void ShutDownCLient(AsyncIO *IO)
 	IO->Terminate(IO);
 	
 }
+
 
 eReadState HandleInbound(AsyncIO *IO)
 {
@@ -260,12 +258,31 @@ IO_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 		IO->Timeout(IO);
 	/* else : must write more. */
 }
+static void
+set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
+{
+	
+	switch(IO->NextState) {
+	case eReadMessage:
+		ev_io_start(event_base, &IO->recv_event);
+		break;
+	case eSendReply:
+	case eSendMore:
+		IO_send_callback(loop, &IO->send_event, revents);
+		break;
+	case eTerminateConnection:
+	case eAbort:
+		/// TODO: WHUT?
+		break;
+	}
+}
 
 static void
 IO_Timout_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 
+	ev_timer_stop (event_base, &IO->rw_timeout);
 	IO->Timeout(IO);
 }
 static void
@@ -273,7 +290,18 @@ IO_connfail_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 
+	ev_timer_stop (event_base, &IO->conn_fail);
+	ev_io_stop(loop, &IO->conn_event);
 	IO->ConnFail(IO);
+}
+static void
+IO_connestd_callback(struct ev_loop *loop, ev_io *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
+
+	ev_io_stop(loop, &IO->conn_event);
+	ev_timer_stop (event_base, &IO->conn_fail);
+	set_start_callback(loop, IO, revents);
 }
 static void
 IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
@@ -294,26 +322,8 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 }
 
 
-static void
-set_start_callback(struct ev_loop *loop, AsyncIO *IO, int revents)
-{
-	
-	switch(IO->NextState) {
-	case eReadMessage:
-		ev_io_start(event_base, &IO->recv_event);
-		break;
-	case eSendReply:
-	case eSendMore:
-		IO_send_callback(loop, &IO->send_event, revents);
-		break;
-	case eTerminateConnection:
-	case eAbort:
-		/// TODO: WHUT?
-		break;
-	}
-}
 
-int event_connect_socket(AsyncIO *IO, int conn_timeout, int first_rw_timeout)
+int event_connect_socket(AsyncIO *IO, double conn_timeout, double first_rw_timeout)
 {
 	struct sockaddr_in  saddr;
 	int fdflags; 
@@ -356,14 +366,18 @@ IO->curr_ai->ai_family,
 	IO->recv_event.data = IO;
 	ev_io_init(&IO->send_event, IO_send_callback, IO->sock, EV_WRITE);
 	IO->send_event.data = IO;
+
 	ev_timer_init(&IO->conn_fail, IO_connfail_callback, conn_timeout, 0);
 	IO->conn_fail.data = IO;
+	ev_timer_init(&IO->rw_timeout, IO_Timout_callback, first_rw_timeout, 0);
+	IO->rw_timeout.data = IO;
 	
 	memset( (struct sockaddr_in *)&saddr, '\0', sizeof( saddr ) );
 
 	memcpy(&saddr.sin_addr, 
 	       IO->HEnt->h_addr_list[0],
 	       sizeof(struct in_addr));
+	saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	saddr.sin_family = AF_INET;
 	saddr.sin_port = htons(IO->dport);
@@ -374,40 +388,31 @@ IO->curr_ai->ai_family,
 		     sizeof(struct sockaddr_in));
 	if (rc >= 0){
 ////		freeaddrinfo(res);
-		ev_timer_init(&IO->conn_timeout, IO_Timout_callback, first_rw_timeout, 0);
-		IO->conn_timeout.data = IO;
 		set_start_callback(event_base, IO, 0);
-		ev_timer_start(event_base, &IO->conn_timeout);
+		ev_timer_start(event_base, &IO->rw_timeout);
 		return 0;
 	}
 	else if (errno == EINPROGRESS) {
-		set_start_callback(event_base, IO, 0);
-		ev_timer_init(&IO->conn_timeout, 
-			      IO_Timout_callback, 
-			      conn_timeout + first_rw_timeout, 0);
+
+		ev_io_init(&IO->conn_event, IO_connestd_callback, IO->sock, EV_READ|EV_WRITE);
+		IO->conn_event.data = IO;
+
+		ev_io_start(event_base, &IO->conn_event);
 		ev_timer_start(event_base, &IO->conn_fail);
-		ev_timer_start(event_base, &IO->conn_timeout);
-		
 		return 0;
 	}
 	else {
 		CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to connect: %s", strerror(errno));
-///		close(IO->sock);
-/*		IO->curr_ai = IO->curr_ai->ai_next;
-		if (IO->curr_ai != NULL)
-			return event_connect_socket(IO);
-			else*/
-			return -1;
+		IO->ConnFail(IO);
+		return -1;
 	}
 }
 
-void SetNextTimeout(AsyncIO *IO, int timeout)
+void SetNextTimeout(AsyncIO *IO, double timeout)
 {
-	ev_timer_init(&IO->conn_timeout, 
-		      IO_Timout_callback, 
-		      timeout, 0);
-	ev_timer_again (event_base, &IO->conn_timeout);
+	IO->rw_timeout.repeat = timeout;
+	ev_timer_again (event_base,  &IO->rw_timeout);
 }
 
 void InitEventIO(AsyncIO *IO, 
@@ -418,8 +423,8 @@ void InitEventIO(AsyncIO *IO,
 		 IO_CallBack Timeout, 
 		 IO_CallBack ConnFail, 
 		 IO_LineReaderCallback LineReader,
-		 int conn_timeout, 
-		 int first_rw_timeout,
+		 double conn_timeout, 
+		 double first_rw_timeout,
 		 int ReadFirst)
 {
 	IO->Data = pData;
@@ -428,6 +433,7 @@ void InitEventIO(AsyncIO *IO,
 	IO->Terminate = Terminate;
 	IO->LineReader = LineReader;
 	IO->ConnFail = ConnFail;
+	IO->Timeout = Timeout;
 	
 	if (ReadFirst) {
 		IO->NextState = eReadMessage;
@@ -439,6 +445,3 @@ void InitEventIO(AsyncIO *IO,
 //	IO->res = HEnt->h_addr_list[0];
 	event_connect_socket(IO, conn_timeout, first_rw_timeout);
 }
-
-
-#endif

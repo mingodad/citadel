@@ -108,30 +108,30 @@ typedef enum _eSMTP_C_States {
 	eMaxSMTPC
 } eSMTP_C_States;
 
-const long SMTP_C_ConnTimeout = 60; /* wail 1 minute for connections... */
-const long SMTP_C_ReadTimeouts[eMaxSMTPC] = {
-	300, /* Greeting... */
-	30, /* EHLO */
-	30, /* HELO */
-	30, /* Auth */
-	30, /* From */
-	90, /* RCPT */
-	30, /* DATA */
-	90, /* DATABody */
-	0, /* end of body... */
-	30  /* QUIT */
+const double SMTP_C_ConnTimeout = 60.; /* wail 1 minute for connections... */
+const double SMTP_C_ReadTimeouts[eMaxSMTPC] = {
+	300., /* Greeting... */
+	30., /* EHLO */
+	30., /* HELO */
+	30., /* Auth */
+	30., /* From */
+	90., /* RCPT */
+	30., /* DATA */
+	90., /* DATABody */
+	90., /* end of body... */
+	30.  /* QUIT */
 };
-const long SMTP_C_SendTimeouts[eMaxSMTPC] = {
-	90, /* Greeting... */
-	30, /* EHLO */
-	30, /* HELO */
-	30, /* Auth */
-	30, /* From */
-	30, /* RCPT */
-	30, /* DATA */
-	90, /* DATABody */
-	900, /* end of body... */
-	30  /* QUIT */
+const double SMTP_C_SendTimeouts[eMaxSMTPC] = {
+	90., /* Greeting... */
+	30., /* EHLO */
+	30., /* HELO */
+	30., /* Auth */
+	30., /* From */
+	30., /* RCPT */
+	30., /* DATA */
+	90., /* DATABody */
+	900., /* end of body... */
+	30.  /* QUIT */
 };
 /*
 const long SMTP_C_SendTimeouts[eMaxSMTPC] = {
@@ -183,7 +183,7 @@ void DeleteSmtpOutMsg(void *v)
 	
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
-///	free(Msg);
+	free(Msg);
 }
 
 eNextState SMTP_C_Timeout(AsyncIO *IO);
@@ -244,15 +244,13 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 			msg->cm_anon_type = MES_NORMAL;
 			msg->cm_format_type = FMT_RFC822;
 			msg->cm_fields['M'] = SmashStrBuf(&MsgData);
-			/* Generate 'bounce' messages */
-			smtp_do_bounce(msg->cm_fields['M'],
-				       Msg->msgtext); 
-
 			CtdlSubmitMsg(msg, NULL, SMTP_SPOOLOUT_ROOM, QP_EADDR);
 			CtdlFreeMessage(msg);
 		}
-		else 
+		else {
 			CtdlDeleteMessages(SMTP_SPOOLOUT_ROOM, &Msg->MyQItem->MessageID, 1, "");
+			FreeStrBuf(&MsgData);
+		}
 
 		RemoveQItem(Msg->MyQItem);
 	}
@@ -705,7 +703,6 @@ eNextState SMTPC_send_data_body(SmtpOutMsg *SendMsg)
 	Buf = SendMsg->IO.SendBuf.Buf;
 	SendMsg->IO.SendBuf.Buf = SendMsg->msgtext;
 	SendMsg->msgtext = Buf;
-	//// TODO timeout like that: (SendMsg->msg_size / 128) + 50);
 	SendMsg->State ++;
 
 	return eSendMore;
@@ -805,14 +802,25 @@ SMTPSendHandler SendHandlers[eMaxSMTPC] = {
 void SMTPSetTimeout(eNextState NextTCPState, SmtpOutMsg *pMsg)
 {
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	long Timeout;
+	double Timeout;
 	switch (NextTCPState) {
 	case eSendReply:
 	case eSendMore:
 		Timeout = SMTP_C_SendTimeouts[pMsg->State];
+		if (pMsg->State == eDATABody) {
+			/* if we're sending a huge message, we need more time. */
+			Timeout += StrLength(pMsg->msgtext) / 1024;
+		}
 		break;
 	case eReadMessage:
 		Timeout = SMTP_C_ReadTimeouts[pMsg->State];
+		if (pMsg->State == eDATATerminateBody) {
+			/* 
+			 * some mailservers take a nap before accepting the message
+			 * content inspection and such.
+			 */
+			Timeout += StrLength(pMsg->msgtext) / 1024;
+		}
 		break;
 	case eTerminateConnection:
 	case eAbort:
