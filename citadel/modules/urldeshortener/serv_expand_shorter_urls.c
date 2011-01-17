@@ -123,7 +123,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 			  LookupUrlResult, 
 			  TerminateLookupUrl))
 	{
-		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		goto shutdown;
 	}
 	chnd = IO->HttpReq.chnd;
@@ -325,7 +325,7 @@ CTDL_MODULE_INIT(urldeshortener)
 {
 	if (threading)
 	{
-		CtdlLogPrintf(CTDL_INFO, "%s\n", curl_version());
+		syslog(LOG_INFO, "%s\n", curl_version());
 	}
 	else 
 	{

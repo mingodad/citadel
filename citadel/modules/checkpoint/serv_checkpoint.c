@@ -66,13 +66,13 @@ void *checkpoint_thread(void *arg) {
 	CtdlFillSystemContext(&checkpointCC, "checkpoint");
 	citthread_setspecific(MyConKey, (void *)&checkpointCC );
 
-	CtdlLogPrintf(CTDL_DEBUG, "checkpoint_thread() initializing\n");
+	syslog(LOG_DEBUG, "checkpoint_thread() initializing\n");
 	while (!CtdlThreadCheckStop()) {
 		cdb_checkpoint();
 		CtdlThreadSleep(60);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "checkpoint_thread() exiting\n");
+	syslog(LOG_DEBUG, "checkpoint_thread() exiting\n");
 	CtdlClearSystemContext();
 	return NULL;
 }

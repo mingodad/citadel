@@ -186,7 +186,7 @@ static INLINE void become_session(CitContext *which_con) {
 */
 	citthread_setspecific(MyConKey, (void *)which_con );
 /*
-	CtdlLogPrintf(CTDL_DEBUG, "[%d]: Now doing %s\n", 
+	syslog(LOG_DEBUG, "[%d]: Now doing %s\n", 
 		      (int) tid, 
 		      ((which_con != NULL) && (which_con->ServiceName != NULL)) ? 
 		      which_con->ServiceName:"");

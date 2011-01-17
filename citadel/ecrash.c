@@ -185,14 +185,7 @@ static void outputPrintf(char *format, ...)
 
 	va_start(ap, format);
 
-	if (enable_syslog)
-	{
-		snprintf (StaticBuf, SIZ, format, ap);
-		syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
-	}
-	else
-		CtdlLogPrintf(CTDL_EMERG, format, ap);
-
+	vsyslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, format, ap);
 } // outputPrintf
 
 
@@ -208,25 +201,14 @@ static void createGlobalBacktrace( void )
 {
 
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
-	if (enable_syslog)
-		for (NThread = 0; NThread < size; NThread++) 
-		{
-			snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
-		}
-	else 
-		for (NThread = 0; NThread < size; NThread++) 
-			CtdlLogPrintf(CTDL_ALERT, "RAW: %p\n", stack_frames[NThread]);
+	for (NThread = 0; NThread < size; NThread++) 
+	{
+		syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", stack_frames[NThread]);
+	}
 	strings = backtrace_symbols(stack_frames, size);
 	for (NThread = 0; NThread < size; NThread++) {
 		if (strings != NULL) {
-			if (enable_syslog)
-			{// vsyslogs printf compliance sucks.
-				snprintf (StaticBuf, SIZ, "RAW: %p  ", strings[NThread]);
-				syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
-			}
-			else
-				CtdlLogPrintf(CTDL_ALERT, "%s\n", strings[NThread]);
+			syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", strings[NThread]);
 		}
 	}
 } /* createGlobalBacktrace */
@@ -234,15 +216,10 @@ static void outputRawtrace( void )
 {
 
 	size = backtrace(stack_frames, sizeof(stack_frames) / sizeof(void*));
-	if (enable_syslog)
-		for (NThread = 0; NThread < size; NThread++) 
-		{
-			snprintf (StaticBuf, SIZ, "RAW: %p  ", stack_frames[NThread]);
-			syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
-		}
-	else 
-		for (NThread = 0; NThread < size; NThread++) 
-			CtdlLogPrintf(CTDL_ALERT, "RAW: %p\n", stack_frames[NThread]);
+	for (NThread = 0; NThread < size; NThread++) 
+	{
+		syslog(LOG_CRIT|LOG_NDELAY|LOG_MAIL, "RAW: %p  ", stack_frames[NThread]);
+	}
 } /* createGlobalBacktrace */
 
 /*!

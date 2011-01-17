@@ -1,5 +1,21 @@
 /*
  * This file contains miscellaneous housekeeping tasks.
+ *
+ * Copyright (c) 1987-2011 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -27,6 +43,7 @@
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#include <syslog.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -45,7 +62,7 @@
 
 void check_sched_shutdown(void) {
 	if ((ScheduledShutdown == 1) && (ContextList == NULL)) {
-		CtdlLogPrintf(CTDL_NOTICE, "Scheduled shutdown initiating.\n");
+		syslog(LOG_NOTICE, "Scheduled shutdown initiating.\n");
 		CtdlThreadStopAll();
 	}
 }
@@ -71,7 +88,7 @@ void check_ref_counts(void) {
 
 	int new_refcounts[MAXFLOORS];
 
-	CtdlLogPrintf(CTDL_DEBUG, "Checking floor reference counts\n");
+	syslog(LOG_DEBUG, "Checking floor reference counts\n");
 	for (a=0; a<MAXFLOORS; ++a) {
 		new_refcounts[a] = 0;
 	}
@@ -90,7 +107,7 @@ void check_ref_counts(void) {
 			flbuf.f_flags = flbuf.f_flags & ~QR_INUSE;
 		}
 		lputfloor(&flbuf, a);
-		CtdlLogPrintf(CTDL_DEBUG, "Floor %d: %d rooms\n", a, new_refcounts[a]);
+		syslog(LOG_DEBUG, "Floor %d: %d rooms\n", a, new_refcounts[a]);
 	}
 }	
 

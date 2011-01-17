@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <syslog.h>
 #include <libical/ical.h>
 #include <libcitadel.h>
 #include "citadel.h"
@@ -40,13 +41,13 @@ icaltimezone *get_default_icaltimezone(void) {
                 zone = icaltimezone_get_builtin_timezone(default_zone_name);
         }
         if (!zone) {
-		CtdlLogPrintf(CTDL_ALERT,
+		syslog(LOG_ALERT,
 			"Unable to load '%s' time zone.  Defaulting to UTC.\n",
 			default_zone_name);
                 zone = icaltimezone_get_utc_timezone();
 	}
 	if (!zone) {
-		CtdlLogPrintf(CTDL_ALERT, "Unable to load UTC time zone!\n");
+		syslog(LOG_ALERT, "Unable to load UTC time zone!\n");
 	}
         return zone;
 }
@@ -81,16 +82,16 @@ void ical_dezonify_backend(icalcomponent *cal,
 
 		/* Convert it to an icaltimezone type. */
 		if (tzid != NULL) {
-			/* CtdlLogPrintf(CTDL_DEBUG, "                * Stringy supplied timezone is: '%s'\n", tzid); */
+			/* syslog(LOG_DEBUG, "                * Stringy supplied timezone is: '%s'\n", tzid); */
 			if ( (!strcasecmp(tzid, "UTC")) || (!strcasecmp(tzid, "GMT")) ) {
 				utc_declared_as_tzid = 1;
-				/* CtdlLogPrintf(CTDL_DEBUG, "                * ...and we handle that internally.\n"); */
+				/* syslog(LOG_DEBUG, "                * ...and we handle that internally.\n"); */
 			}
 			else {
 				/* try attached first */
 				t = icalcomponent_get_timezone(cal, tzid);
 /*
-				lprintf(CTDL_DEBUG, "                * ...and I %s have tzdata for that zone.\n",
+				syslog(LOG_DEBUG, "                * ...and I %s have tzdata for that zone.\n",
 					(t ? "DO" : "DO NOT")
 				);
 */
@@ -99,7 +100,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 					t = icaltimezone_get_builtin_timezone(tzid);
 /*
 					if (t) {
-						lprintf(CTDL_DEBUG, "                * Using system tzdata!\n");
+						syslog(LOG_DEBUG, "                * Using system tzdata!\n");
 					}
 */
 				}
@@ -126,24 +127,24 @@ void ical_dezonify_backend(icalcomponent *cal,
 		return;
 	}
 
-	/* CtdlLogPrintf(CTDL_DEBUG, "                * Was: %s\n", icaltime_as_ical_string(TheTime)); */
+	/* syslog(LOG_DEBUG, "                * Was: %s\n", icaltime_as_ical_string(TheTime)); */
 
 	if (TheTime.is_utc) {
-		/* CtdlLogPrintf(CTDL_DEBUG, "                * This property is ALREADY UTC.\n"); */
+		/* syslog(LOG_DEBUG, "                * This property is ALREADY UTC.\n"); */
 	}
 
 	else if (utc_declared_as_tzid) {
-		/* CtdlLogPrintf(CTDL_DEBUG, "                * Replacing '%s' TZID with 'Z' suffix.\n", tzid); */
+		/* syslog(LOG_DEBUG, "                * Replacing '%s' TZID with 'Z' suffix.\n", tzid); */
 		TheTime.is_utc = 1;
 	}
 
 	else {
 		/* Do the conversion. */
 		if (t != NULL) {
-			/* CtdlLogPrintf(CTDL_DEBUG, "                * Timezone prop found.  Converting to UTC.\n"); */
+			/* syslog(LOG_DEBUG, "                * Timezone prop found.  Converting to UTC.\n"); */
 		}
 		else {
-			/* CtdlLogPrintf(CTDL_DEBUG, "                * Converting default timezone to UTC.\n"); */
+			/* syslog(LOG_DEBUG, "                * Converting default timezone to UTC.\n"); */
 		}
 
 		if (t == NULL) {
@@ -158,7 +159,7 @@ void ical_dezonify_backend(icalcomponent *cal,
 	}
 
 	icalproperty_remove_parameter_by_kind(prop, ICAL_TZID_PARAMETER);
-	/* CtdlLogPrintf(CTDL_DEBUG, "                * Now: %s\n", icaltime_as_ical_string(TheTime)); */
+	/* syslog(LOG_DEBUG, "                * Now: %s\n", icaltime_as_ical_string(TheTime)); */
 
 	/* Now add the converted property back in. */
 	if (icalproperty_isa(prop) == ICAL_DTSTART_PROPERTY) {
@@ -224,7 +225,7 @@ void ical_dezonify_recurse(icalcomponent *cal, icalcomponent *rcal) {
 void ical_dezonify(icalcomponent *cal) {
 	icalcomponent *vt = NULL;
 
-	/* CtdlLogPrintf(CTDL_DEBUG, "ical_dezonify() started\n"); */
+	/* syslog(LOG_DEBUG, "ical_dezonify() started\n"); */
 
 	/* Convert all times to UTC */
 	ical_dezonify_recurse(cal, cal);
@@ -236,5 +237,5 @@ void ical_dezonify(icalcomponent *cal) {
 		icalcomponent_free(vt);
 	}
 
-	/* CtdlLogPrintf(CTDL_DEBUG, "ical_dezonify() completed\n"); */
+	/* syslog(LOG_DEBUG, "ical_dezonify() completed\n"); */
 }

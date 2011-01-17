@@ -1,9 +1,9 @@
 /*
  * Thread handling stuff for Citadel server
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <syslog.h>
 
 #include "sysdep.h"
 #if TIME_WITH_SYS_TIME
@@ -136,7 +137,7 @@ int try_critical_section(int which_one)
  */
 void begin_critical_section(int which_one)
 {
-	/* CtdlLogPrintf(CTDL_DEBUG, "begin_critical_section(%d)\n", which_one); */
+	/* syslog(LOG_DEBUG, "begin_critical_section(%d)\n", which_one); */
 
 	/* For all types of critical sections except those listed here,
 	 * ensure nobody ever tries to do a critical section within a
@@ -182,7 +183,7 @@ void ctdl_thread_internal_init_tsd(void)
 	int ret;
 	
 	if ((ret = citthread_key_create(&ThreadKey, ctdl_thread_internal_dest_tsd))) {
-		CtdlLogPrintf(CTDL_EMERG, "citthread_key_create: %s\n", strerror(ret));
+		syslog(LOG_EMERG, "citthread_key_create: %s\n", strerror(ret));
 		exit(CTDLEXIT_DB);
 	}
 }
@@ -263,7 +264,7 @@ void ctdl_thread_internal_init(void)
 	/* Get ourself a thread entry */
 	this_thread = malloc(sizeof(CtdlThreadNode));
 	if (this_thread == NULL) {
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
+		syslog(LOG_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
 		return;
 	}
 	// Ensuring this is zero'd means we make sure the thread doesn't start doing its thing until we are ready.
@@ -278,7 +279,7 @@ void ctdl_thread_internal_init(void)
 	this_thread->state = CTDL_THREAD_RUNNING;
 	
 	if ((ret = citthread_attr_init(&this_thread->attr))) {
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
+		syslog(LOG_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
 		free(this_thread);
 		return;
 	}
@@ -376,7 +377,7 @@ void CtdlThreadStopAll(void)
 		citthread_cond_signal(&this_thread->ThreadCond);
 		citthread_cond_signal(&this_thread->SleepCond);
 		this_thread->stop_ticker = time(NULL);
-		CtdlLogPrintf(CTDL_DEBUG, "Thread system stopping thread \"%s\" (0x%08lx).\n",
+		syslog(LOG_DEBUG, "Thread system stopping thread \"%s\" (0x%08lx).\n",
 			this_thread->name, this_thread->tid);
 		this_thread = this_thread->next;
 	}
@@ -391,7 +392,7 @@ void CtdlThreadWakeAll(void)
 {
 	CtdlThreadNode *this_thread;
 	
-	CtdlLogPrintf(CTDL_DEBUG, "Thread system waking all threads.\n");
+	syslog(LOG_DEBUG, "Thread system waking all threads.\n");
 	
 	begin_critical_section(S_THREAD_LIST);
 	this_thread = CtdlThreadList;
@@ -477,7 +478,7 @@ const char *CtdlThreadName(const char *name)
 	
 	if (!CT)
 	{
-		CtdlLogPrintf(CTDL_WARNING, "Thread system WARNING. Attempt to CtdlThreadRename() a non thread. %s\n", name);
+		syslog(LOG_WARNING, "Thread system WARNING. Attempt to CtdlThreadRename() a non thread. %s\n", name);
 		return NULL;
 	}
 	old_name = CT->name;
@@ -500,14 +501,14 @@ void CtdlThreadCancel(CtdlThreadNode *thread)
 		this_thread = thread;
 	if (!this_thread)
 	{
-		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC. Attempt to CtdlThreadCancel() a non thread.\n");
+		syslog(LOG_EMERG, "Thread system PANIC. Attempt to CtdlThreadCancel() a non thread.\n");
 		CtdlThreadStopAll();
 		return;
 	}
 	
 	if (!this_thread->thread_func)
 	{
-		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC. Attempt to CtdlThreadCancel() the garbage collector.\n");
+		syslog(LOG_EMERG, "Thread system PANIC. Attempt to CtdlThreadCancel() the garbage collector.\n");
 		CtdlThreadStopAll();
 		return;
 	}
@@ -526,7 +527,7 @@ int CtdlThreadCheckStop(void)
 	
 	if (!CT)
 	{
-		CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, CtdlThreadCheckStop() called by a non thread.\n");
+		syslog(LOG_EMERG, "Thread system PANIC, CtdlThreadCheckStop() called by a non thread.\n");
 		CtdlThreadStopAll();
 		return -1;
 	}
@@ -535,7 +536,7 @@ int CtdlThreadCheckStop(void)
 
 	if (CT->signal)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, CT->signal);
+		syslog(LOG_DEBUG, "Thread \"%s\" caught signal %d.\n", CT->name, CT->signal);
 		if (CT->signal == SIGHUP)
 			CT->state = CTDL_THREAD_STOP_REQ;
 		CT->signal = 0;
@@ -590,7 +591,7 @@ void CtdlThreadSleep(int secs)
 	
 	if (!CT)
 	{
-		CtdlLogPrintf(CTDL_WARNING, "CtdlThreadSleep() called by something that is not a thread. Should we die?\n");
+		syslog(LOG_WARNING, "CtdlThreadSleep() called by something that is not a thread. Should we die?\n");
 		return;
 	}
 	
@@ -623,11 +624,11 @@ static void ctdl_internal_thread_cleanup(void *arg)
 		const char *name = CT->name;
 		const pid_t tid = CT->tid;
 
-		CtdlLogPrintf(CTDL_NOTICE, "Thread \"%s\" (0x%08lx) exited.\n", name, (unsigned long) tid);
+		syslog(LOG_NOTICE, "Thread \"%s\" (0x%08lx) exited.\n", name, (unsigned long) tid);
 	}
 	else 
 	{
-		CtdlLogPrintf(CTDL_NOTICE, "some ((unknown ? ? ?) Thread exited.\n");
+		syslog(LOG_NOTICE, "some ((unknown ? ? ?) Thread exited.\n");
 	}
 	
 	#ifdef HAVE_BACKTRACE
@@ -667,7 +668,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 			workers++;
 		}
 #ifdef WITH_THREADLOG
-		CtdlLogPrintf(CTDL_DEBUG, "CtdlThread, \"%s\" (%lu) \"%s\" %.2f %.2f %.2f %.2f\n",
+		syslog(LOG_DEBUG, "CtdlThread, \"%s\" (%lu) \"%s\" %.2f %.2f %.2f %.2f\n",
 			that_thread->name,
 			that_thread->tid,
 			CtdlThreadStates[that_thread->state],
@@ -682,7 +683,7 @@ void ctdl_thread_internal_calc_loadavg(void)
 	CtdlThreadLoadAvg = load_avg/num_threads;
 	CtdlThreadWorkerAvg = worker_avg/workers;
 #ifdef WITH_THREADLOG
-	CtdlLogPrintf(CTDL_INFO, "System load average %.2f, workers averag %.2f, threads %d, workers %d, sessions %d\n", CtdlThreadGetLoadAvg(), CtdlThreadWorkerAvg, num_threads, num_workers, num_sessions);
+	syslog(LOG_INFO, "System load average %.2f, workers averag %.2f, threads %d, workers %d, sessions %d\n", CtdlThreadGetLoadAvg(), CtdlThreadWorkerAvg, num_threads, num_workers, num_sessions);
 #endif
 }
 
@@ -704,7 +705,7 @@ void CtdlThreadGC (void)
 		CtdlThreadList->state = CTDL_THREAD_EXITED;
 	
 #ifdef WITH_THREADLOG
-	CtdlLogPrintf(CTDL_DEBUG, "Thread system running garbage collection.\n");
+	syslog(LOG_DEBUG, "Thread system running garbage collection.\n");
 #endif
 	/*
 	 * Woke up to do garbage collection
@@ -718,7 +719,7 @@ void CtdlThreadGC (void)
 		if ((that_thread->state == CTDL_THREAD_STOP_REQ || that_thread->state == CTDL_THREAD_STOPPING)
 			&& (!citthread_equal(that_thread->tid, citthread_self())))
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "Waiting for thread %s (0x%08lx) to exit.\n", that_thread->name, that_thread->tid);
+			syslog(LOG_DEBUG, "Waiting for thread %s (0x%08lx) to exit.\n", that_thread->name, that_thread->tid);
 			terminate_stuck_sessions();
 		}
 		else
@@ -732,9 +733,9 @@ void CtdlThreadGC (void)
 		
 		if (that_thread->stop_ticker + 5 == time(NULL))
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "Thread System: The thread \"%s\" (0x%08lx) failed to self terminate within 5 ticks. It would be cancelled now.\n", that_thread->name, that_thread->tid);
+			syslog(LOG_DEBUG, "Thread System: The thread \"%s\" (0x%08lx) failed to self terminate within 5 ticks. It would be cancelled now.\n", that_thread->name, that_thread->tid);
 			if ((that_thread->flags & CTDLTHREAD_WORKER) == 0)
-				CtdlLogPrintf(CTDL_INFO, "Thread System: A non worker thread would have been canceled this may cause message loss.\n");
+				syslog(LOG_INFO, "Thread System: A non worker thread would have been canceled this may cause message loss.\n");
 //			that_thread->state = CTDL_THREAD_CANCELLED;
 			that_thread->stop_ticker++;
 //			citthread_cancel(that_thread->tid);
@@ -752,7 +753,7 @@ void CtdlThreadGC (void)
 		if (citthread_equal(that_thread->tid, citthread_self()) && that_thread->thread_func)
 		{	/* Sanity check */
 			end_critical_section(S_THREAD_LIST);
-			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, a thread is trying to clean up after itself.\n");
+			syslog(LOG_EMERG, "Thread system PANIC, a thread is trying to clean up after itself.\n");
 			abort();
 			return;
 		}
@@ -760,7 +761,7 @@ void CtdlThreadGC (void)
 		if (num_threads <= 0)
 		{	/* Sanity check */
 			end_critical_section(S_THREAD_LIST);
-			CtdlLogPrintf(CTDL_EMERG, "Thread system PANIC, num_threads <= 0 and trying to do Garbage Collection.\n");
+			syslog(LOG_EMERG, "Thread system PANIC, num_threads <= 0 and trying to do Garbage Collection.\n");
 			abort();
 			return;
 		}
@@ -787,17 +788,17 @@ void CtdlThreadGC (void)
 		 */
 		ret = citthread_join (that_thread->tid, NULL);
 		if (ret == EDEADLK)
-			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection on own thread.\n");
+			syslog(LOG_DEBUG, "Garbage collection on own thread.\n");
 		else if (ret == EINVAL)
-			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, that thread already joined on.\n");
+			syslog(LOG_DEBUG, "Garbage collection, that thread already joined on.\n");
 		else if (ret == ESRCH)
-			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, no thread to join on.\n");
+			syslog(LOG_DEBUG, "Garbage collection, no thread to join on.\n");
 		else if (ret != 0)
-			CtdlLogPrintf(CTDL_DEBUG, "Garbage collection, citthread_join returned an unknown error(%d).\n", ret);
+			syslog(LOG_DEBUG, "Garbage collection, citthread_join returned an unknown error(%d).\n", ret);
 		/*
 		 * Now we own that thread entry
 		 */
-		CtdlLogPrintf(CTDL_INFO, "Garbage Collection for thread \"%s\" (0x%08lx).\n",
+		syslog(LOG_INFO, "Garbage Collection for thread \"%s\" (0x%08lx).\n",
 			that_thread->name, that_thread->tid);
 		citthread_mutex_destroy(&that_thread->ThreadMutex);
 		citthread_cond_destroy(&that_thread->ThreadCond);
@@ -812,7 +813,7 @@ void CtdlThreadGC (void)
 	/* Sanity check number of worker threads */
 	if (workers != sys_workers)
 	{
-		CtdlLogPrintf(CTDL_EMERG,
+		syslog(LOG_EMERG,
 			"Thread system PANIC, discrepancy in number of worker threads. Counted %d, should be %d.\n",
 			workers, sys_workers
 			);
@@ -869,7 +870,7 @@ static void *ctdl_internal_thread_func (void *arg)
 #if defined(HAVE_SYSCALL_H) && defined (SYS_gettid)
 	this_thread->reltid = syscall(SYS_gettid);
 #endif
-	CtdlLogPrintf(CTDL_NOTICE, "Created a new thread \"%s\" (0x%08lx).\n",
+	syslog(LOG_NOTICE, "Created a new thread \"%s\" (0x%08lx).\n",
 		this_thread->name, this_thread->tid);
 	
 	/*
@@ -914,7 +915,7 @@ CtdlThreadNode *ctdl_internal_init_thread_struct(CtdlThreadNode *this_thread, lo
 		citthread_cond_destroy(&(this_thread->ThreadCond));
 		citthread_mutex_destroy(&(this_thread->SleepMutex));
 		citthread_cond_destroy(&(this_thread->SleepCond));
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
+		syslog(LOG_EMERG, "Thread system, citthread_attr_init: %s\n", strerror(ret));
 		free(this_thread);
 		return NULL;
 	}
@@ -926,7 +927,7 @@ CtdlThreadNode *ctdl_internal_init_thread_struct(CtdlThreadNode *this_thread, lo
 	if (flags & CTDLTHREAD_BIGSTACK)
 	{
 #ifdef WITH_THREADLOG
-		CtdlLogPrintf(CTDL_INFO, "Thread system. Creating BIG STACK thread.\n");
+		syslog(LOG_INFO, "Thread system. Creating BIG STACK thread.\n");
 #endif
 		if ((ret = citthread_attr_setstacksize(&this_thread->attr, THREADSTACKSIZE))) {
 			citthread_mutex_unlock(&this_thread->ThreadMutex);
@@ -935,7 +936,7 @@ CtdlThreadNode *ctdl_internal_init_thread_struct(CtdlThreadNode *this_thread, lo
 			citthread_mutex_destroy(&(this_thread->SleepMutex));
 			citthread_cond_destroy(&(this_thread->SleepCond));
 			citthread_attr_destroy(&this_thread->attr);
-			CtdlLogPrintf(CTDL_EMERG, "Thread system, citthread_attr_setstacksize: %s\n",
+			syslog(LOG_EMERG, "Thread system, citthread_attr_setstacksize: %s\n",
 				strerror(ret));
 			free(this_thread);
 			return NULL;
@@ -964,13 +965,13 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 
 	if (num_threads >= 32767)
 	{
-		CtdlLogPrintf(CTDL_EMERG, "Thread system. Thread list full.\n");
+		syslog(LOG_EMERG, "Thread system. Thread list full.\n");
 		return NULL;
 	}
 		
 	this_thread = malloc(sizeof(CtdlThreadNode));
 	if (this_thread == NULL) {
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
+		syslog(LOG_EMERG, "Thread system, can't allocate CtdlThreadNode, exiting\n");
 		return NULL;
 	}
 	
@@ -978,7 +979,7 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	if (ctdl_internal_init_thread_struct(this_thread, flags) == NULL)
 	{
 		free(this_thread);
-		CtdlLogPrintf(CTDL_EMERG, "Thread system, can't initialise CtdlThreadNode, exiting\n");
+		syslog(LOG_EMERG, "Thread system, can't initialise CtdlThreadNode, exiting\n");
 		return NULL;
 	}
 	/*
@@ -1008,7 +1009,7 @@ CtdlThreadNode *ctdl_internal_create_thread(char *name, long flags, void *(*thre
 	if ((ret = citthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
 	{
 		end_critical_section(S_THREAD_LIST);
-		CtdlLogPrintf(CTDL_ALERT, "Thread system, Can't create thread: %s\n",
+		syslog(LOG_ALERT, "Thread system, Can't create thread: %s\n",
 			strerror(ret));
 		citthread_mutex_unlock(&this_thread->ThreadMutex);
 		citthread_mutex_destroy(&(this_thread->ThreadMutex));
@@ -1063,7 +1064,7 @@ CtdlThreadNode *ctdl_thread_internal_start_scheduled (CtdlThreadNode *this_threa
 	if ((ret = citthread_create(&this_thread->tid, &this_thread->attr, ctdl_internal_thread_func, this_thread) != 0))
 	{
 		end_critical_section(S_THREAD_LIST);
-		CtdlLogPrintf(CTDL_DEBUG, "Failed to start scheduled thread \"%s\": %s\n", this_thread->name, strerror(ret));
+		syslog(LOG_DEBUG, "Failed to start scheduled thread \"%s\": %s\n", this_thread->name, strerror(ret));
 		citthread_mutex_destroy(&(this_thread->ThreadMutex));
 		citthread_cond_destroy(&(this_thread->ThreadCond));
 		citthread_mutex_destroy(&(this_thread->SleepMutex));
@@ -1107,7 +1108,7 @@ void ctdl_thread_internal_check_scheduled(void)
 	now = time(NULL);
 	
 #ifdef WITH_THREADLOG
-	CtdlLogPrintf(CTDL_DEBUG, "Checking for scheduled threads to start.\n");
+	syslog(LOG_DEBUG, "Checking for scheduled threads to start.\n");
 #endif
 
 	this_thread = CtdlThreadSchedList;
@@ -1128,14 +1129,14 @@ void ctdl_thread_internal_check_scheduled(void)
 				
 			that_thread->next = that_thread->prev = NULL;
 #ifdef WITH_THREADLOG
-			CtdlLogPrintf(CTDL_DEBUG, "About to start scheduled thread \"%s\".\n", that_thread->name);
+			syslog(LOG_DEBUG, "About to start scheduled thread \"%s\".\n", that_thread->name);
 #endif
 			if (CT->state > CTDL_THREAD_STOP_REQ)
 			{	/* Only start it if the system is not stopping */
 				if (ctdl_thread_internal_start_scheduled (that_thread))
 				{
 #ifdef WITH_THREADLOG
-					CtdlLogPrintf(CTDL_INFO, "Thread system, Started a scheduled thread \"%s\" (0x%08lx).\n",
+					syslog(LOG_INFO, "Thread system, Started a scheduled thread \"%s\" (0x%08lx).\n",
 						that_thread->name, that_thread->tid);
 #endif
 				}
@@ -1144,7 +1145,7 @@ void ctdl_thread_internal_check_scheduled(void)
 #ifdef WITH_THREADLOG
 		else
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "Thread \"%s\" will start in %ld seconds.\n",
+			syslog(LOG_DEBUG, "Thread \"%s\" will start in %ld seconds.\n",
 				that_thread->name, that_thread->when - time(NULL));
 		}
 #endif
@@ -1186,7 +1187,7 @@ int CtdlThreadSelect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 		citthread_mutex_lock(&CT->ThreadMutex); /* To prevent race condition of a sleeping thread */
 		if (GC_thread->state > CTDL_THREAD_STOP_REQ && CT->state <= CTDL_THREAD_STOP_REQ)
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "Thread %s (0x%08lx) refused stop request.\n", CT->name, CT->tid);
+			syslog(LOG_DEBUG, "Thread %s (0x%08lx) refused stop request.\n", CT->name, CT->tid);
 			CT->state = CTDL_THREAD_RUNNING;
 		}
 		citthread_mutex_unlock(&CT->ThreadMutex);
@@ -1248,7 +1249,7 @@ void go_threading(void)
 		CtdlThreadCreate("select_on_master", CTDLTHREAD_BIGSTACK, select_on_master, NULL);
 	}
 	else {
-		CtdlLogPrintf(CTDL_EMERG, "Running connection simulation stats\n");
+		syslog(LOG_EMERG, "Running connection simulation stats\n");
 		gettimeofday(&start, NULL);
 		CtdlThreadCreate("Connection simulation master", CTDLTHREAD_BIGSTACK, simulation_thread, NULL);
 	}
@@ -1257,7 +1258,7 @@ void go_threading(void)
 	/*
 	 * This thread is now used for garbage collection of other threads in the thread list
 	 */
-	CtdlLogPrintf(CTDL_INFO, "Startup thread %ld becoming garbage collector,\n", (long) citthread_self());
+	syslog(LOG_INFO, "Startup thread %ld becoming garbage collector,\n", (long) citthread_self());
 
 	/*
 	 * We do a lot of locking and unlocking of the thread list in here.
@@ -1305,7 +1306,7 @@ void go_threading(void)
 			if (last_worker)
 			{
 #ifdef WITH_THREADLOG
-				CtdlLogPrintf(CTDL_DEBUG, "Thread system, stopping excess worker thread \"%s\" (0x%08lx).\n",
+				syslog(LOG_DEBUG, "Thread system, stopping excess worker thread \"%s\" (0x%08lx).\n",
 					last_worker->name,
 					last_worker->tid
 					);
@@ -1337,7 +1338,7 @@ void go_threading(void)
 				}
 			}
 			else
-				CtdlLogPrintf (CTDL_WARNING, "Server strangled due to machine load average too high.\n");
+				syslog(LOG_WARNING, "Server strangled due to machine load average too high.\n");
 		}
 		}
 
@@ -1364,7 +1365,7 @@ void go_threading(void)
 		gettimeofday(&now, NULL);
 		timersub(&now, &start, &result);
 		last_duration = (double)result.tv_sec + ((double)result.tv_usec / (double) 1000000);
-		CtdlLogPrintf(CTDL_EMERG, "Simulated %ld connections in %f seconds\n", stats_done, last_duration);
+		syslog(LOG_EMERG, "Simulated %ld connections in %f seconds\n", stats_done, last_duration);
 	}
 }
 

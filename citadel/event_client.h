@@ -163,7 +163,7 @@ void InitC_ares_dns(AsyncIO *IO);
 	do { \
 		sta = curl_easy_setopt(chnd, (CURLOPT_##s), (v)); \
 		if (sta)  {						\
-			CtdlLogPrintf(CTDL_ERR, "error setting option " #s " on curl handle: %s", curl_easy_strerror(sta)); \
+			syslog(LOG_ERR, "error setting option " #s " on curl handle: %s", curl_easy_strerror(sta)); \
 	} } while (0)
 
 

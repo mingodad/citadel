@@ -279,7 +279,7 @@ enum {
 #define SIEVECONFIG	"application/x-citadel-sieve-config"
 #define XMPPMORTUARY	"application/x-citadel-xmpp-mortuary"
 
-#define TRACE	CtdlLogPrintf(CTDL_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
+#define TRACE	syslog(LOG_DEBUG, "Checkpoint: %s, %d\n", __FILE__, __LINE__)
 
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647L

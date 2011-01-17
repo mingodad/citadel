@@ -216,6 +216,12 @@ int main(int argc, char **argv)
 			return 1;
 		}
 
+	/* Start the logger */
+	openlog("webcit",
+		( running_as_daemon ? (LOG_PID) : (LOG_PID | LOG_PERROR) ),
+		LOG_DAEMON
+	);
+
 	if (optind < argc) {
 		ctdlhost = argv[optind];
 		if (++optind < argc)

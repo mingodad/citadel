@@ -1,9 +1,9 @@
 /*
  * DNS lookup for SMTP sender
  *
- * Copyright (c) 1987-2009 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -24,6 +24,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <syslog.h>
 
 #ifdef HAVE_RESOLV_H
 #include <arpa/nameser.h>
@@ -160,7 +161,7 @@ int getmx(char *mxbuf, char *dest) {
 	
 		for (qdcount = ntohs(answer.header.qdcount); qdcount--; ptr += ret + QFIXEDSZ) {
 			if ((ret = dn_skipname(ptr, endptr)) < 0) {
-				CtdlLogPrintf(CTDL_DEBUG, "dn_skipname error\n");
+				syslog(LOG_DEBUG, "dn_skipname error\n");
 				return(0);
 			}
 		}

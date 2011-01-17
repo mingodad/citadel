@@ -213,7 +213,7 @@ eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 #ifndef DEBUG_RSS
 	if (cdbut != NULL) {
 		/* Item has already been seen */
-		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", ChrPtr(Ctx->MsgGUID));
+		syslog(LOG_DEBUG, "%s has already been seen\n", ChrPtr(Ctx->MsgGUID));
 		cdb_free(cdbut);
 
 		/* rewrite the record anyway, to update the timestamp */
@@ -297,7 +297,7 @@ void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
 	}
 
 	/* translate Item into message. */
-	CtdlLogPrintf(CTDL_DEBUG, "RSS: translating item...\n");
+	syslog(LOG_DEBUG, "RSS: translating item...\n");
 	if (ri->description == NULL) ri->description = NewStrBufPlain(HKEY(""));
 	StrBufSpaceToBlank(ri->description);
 	msg = malloc(sizeof(struct CtdlMessage));
@@ -430,7 +430,7 @@ int rss_do_fetching(rss_aggregator *Cfg)
 	IO->Data = Cfg;
 
 
-	CtdlLogPrintf(CTDL_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(Cfg->Url));
+	syslog(LOG_DEBUG, "Fetching RSS feed <%s>\n", ChrPtr(Cfg->Url));
 	ParseURL(&IO->ConnectMe, Cfg->Url, 80);
 	CurlPrepareURL(IO->ConnectMe);
 
@@ -441,7 +441,7 @@ int rss_do_fetching(rss_aggregator *Cfg)
 			  ParseRSSReply, 
 			  RSSAggregatorTerminate))
 	{
-		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		syslog(LOG_DEBUG, "Unable to initialize libcurl.\n");
 		return 0;
 	}
 
@@ -533,7 +533,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	citthread_mutex_lock(&RSSQueueMutex);
 	if (GetHash(RSSQueueRooms, LKEY(qrbuf->QRnumber), &vptr))
 	{
-		CtdlLogPrintf(CTDL_DEBUG, 
+		syslog(LOG_DEBUG, 
 			      "rssclient: [%ld] %s already in progress.\n", 
 			      qrbuf->QRnumber, 
 			      qrbuf->QRname);
@@ -550,13 +550,13 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	/* Only do net processing for rooms that have netconfigs */
 	fd = open(filename, 0);
 	if (fd <= 0) {
-		//CtdlLogPrintf(CTDL_DEBUG, "rssclient: %s no config.\n", qrbuf->QRname);
+		//syslog(LOG_DEBUG, "rssclient: %s no config.\n", qrbuf->QRname);
 		return;
 	}
 	if (CtdlThreadCheckStop())
 		return;
 	if (fstat(fd, &statbuf) == -1) {
-		CtdlLogPrintf(CTDL_DEBUG,  "ERROR: could not stat configfile '%s' - %s\n",
+		syslog(LOG_DEBUG, "ERROR: could not stat configfile '%s' - %s\n",
 			filename, strerror(errno));
 		return;
 	}
@@ -566,7 +566,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	if (StrBufReadBLOB(CfgData, &fd, 1, statbuf.st_size, &Err) < 0) {
 		close(fd);
 		FreeStrBuf(&CfgData);
-		CtdlLogPrintf(CTDL_DEBUG,  "ERROR: reading config '%s' - %s<br>\n",
+		syslog(LOG_DEBUG, "ERROR: reading config '%s' - %s<br>\n",
 			filename, strerror(errno));
 		return;
 	}
@@ -644,7 +644,7 @@ void rssclient_scan_room(struct ctdlroom *qrbuf, void *data)
 	{
 		Count->QRnumber = qrbuf->QRnumber;
 		citthread_mutex_lock(&RSSQueueMutex);
-		CtdlLogPrintf(CTDL_DEBUG, "rssclient: [%ld] %s now starting.\n", 
+		syslog(LOG_DEBUG, "rssclient: [%ld] %s now starting.\n", 
 			      qrbuf->QRnumber, qrbuf->QRname);
 		Put(RSSQueueRooms, LKEY(qrbuf->QRnumber), Count, NULL);
 		citthread_mutex_unlock(&RSSQueueMutex);
@@ -674,7 +674,7 @@ void rssclient_scan(void) {
 	if (doing_rssclient) return;
 	doing_rssclient = 1;
 
-	CtdlLogPrintf(CTDL_DEBUG, "rssclient started\n");
+	syslog(LOG_DEBUG, "rssclient started\n");
 	CtdlForEachRoom(rssclient_scan_room, NULL);
 
 	citthread_mutex_lock(&RSSQueueMutex);
@@ -690,7 +690,7 @@ void rssclient_scan(void) {
 	DeleteHashPos(&it);
 	citthread_mutex_unlock(&RSSQueueMutex);
 
-	CtdlLogPrintf(CTDL_DEBUG, "rssclientscheduler ended\n");
+	syslog(LOG_DEBUG, "rssclient ended\n");
 	doing_rssclient = 0;
 	return;
 }
@@ -710,7 +710,7 @@ CTDL_MODULE_INIT(rssclient)
 		citthread_mutex_init(&RSSQueueMutex, NULL);
 		RSSQueueRooms = NewHash(1, lFlathash);
 		RSSFetchUrls = NewHash(1, NULL);
-		CtdlLogPrintf(CTDL_INFO, "%s\n", curl_version());
+		syslog(LOG_INFO, "%s\n", curl_version());
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
                 CtdlRegisterCleanupHook(rss_cleanup);
 	}

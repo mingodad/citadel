@@ -107,8 +107,8 @@
 
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
-#define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.SendBuf.Buf))
-#define SMTP_DBG_READ() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
+#define SMTP_DBG_SEND() syslog(LOG_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.SendBuf.Buf))
+#define SMTP_DBG_READ() syslog(LOG_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 
 
 /*****************************************************************************/
@@ -352,7 +352,7 @@ eNextState SMTPC_read_QUIT_reply(SmtpOutMsg *SendMsg)
 {
 	SMTP_DBG_READ();
 
-	CtdlLogPrintf(CTDL_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
+	syslog(LOG_INFO, "SMTP client[%ld]: delivery to <%s> @ <%s> (%s) succeeded\n",
 		      SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	return eTerminateConnection;
 }
@@ -446,7 +446,7 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 	int lp, rp;
 	int i;
 
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	syslog(LOG_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	if ((SendMsg==NULL) || 
 	    (SendMsg->MyQEntry == NULL) || 
@@ -460,8 +460,8 @@ int smtp_resolve_recipients(SmtpOutMsg *SendMsg)
 			    SendMsg->node, 
 			    SendMsg->name);
 
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
-		      SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
+	syslog(LOG_DEBUG, "SMTP client[%ld]: Attempting delivery to <%s> @ <%s> (%s)\n",
+	       SendMsg->n, SendMsg->user, SendMsg->node, SendMsg->name);
 	/* If no envelope_from is supplied, extract one from the message */
 	SendMsg->envelope_from = ChrPtr(SendMsg->MyQItem->EnvelopeFrom);
 	if ( (SendMsg->envelope_from == NULL) || 

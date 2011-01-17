@@ -116,7 +116,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 	if (	(strlen(msg->cm_fields['E']) >= 9)
 		&& (!strcasecmp(&msg->cm_fields['E'][strlen(msg->cm_fields['E'])-9], "_HISTORY_"))
 	) {
-		CtdlLogPrintf(CTDL_DEBUG, "History page not being historied\n");
+		syslog(LOG_DEBUG, "History page not being historied\n");
 		return(0);
 	}
 
@@ -182,10 +182,10 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		} while (nbytes == 1024);
 		diffbuf[diffbuf_len] = 0;
 		if (pclose(fp) != 0) {
-			CtdlLogPrintf(CTDL_ERR, "pclose() returned an error - diff failed\n");
+			syslog(LOG_ERR, "pclose() returned an error - diff failed\n");
 		}
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "diff length is %d bytes\n", diffbuf_len);
+	syslog(LOG_DEBUG, "diff length is %d bytes\n", diffbuf_len);
 
 	unlink(diff_old_filename);
 	unlink(diff_new_filename);
@@ -315,7 +315,7 @@ int wiki_upload_beforesave(struct CtdlMessage *msg) {
 		CtdlSubmitMsg(history_msg, NULL, "", 0);
 	}
 	else {
-		CtdlLogPrintf(CTDL_ALERT, "Empty boundary string in history message.  No history!\n");
+		syslog(LOG_ALERT, "Empty boundary string in history message.  No history!\n");
 	}
 
 	free(diffbuf);
@@ -419,7 +419,7 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 
 	CtdlDecodeBase64(memo, filename, strlen(filename));
 	extract_token(this_rev, memo, 0, '|', sizeof this_rev);
-	CtdlLogPrintf(CTDL_DEBUG, "callback found rev: %s\n", this_rev);
+	syslog(LOG_DEBUG, "callback found rev: %s\n", this_rev);
 
 	/* Perform the patch */
 	fp = popen("patch -f -s -p0 -r /dev/null >/dev/null 2>/dev/null", "w");
@@ -443,13 +443,13 @@ void wiki_rev_callback(char *name, char *filename, char *partnum, char *disp,
 			}
 		} while ((*ptr != 0) && (ptr < ((char*)content + length)));
 		if (pclose(fp) != 0) {
-			CtdlLogPrintf(CTDL_ERR, "pclose() returned an error - patch failed\n");
+			syslog(LOG_ERR, "pclose() returned an error - patch failed\n");
 		}
 	}
 
 	if (!strcasecmp(this_rev, hecbd->stop_when)) {
 		/* Found our target rev.  Tell any subsequent callbacks to suppress processing. */
-		CtdlLogPrintf(CTDL_DEBUG, "Target revision has been reached -- stop patching.\n");
+		syslog(LOG_DEBUG, "Target revision has been reached -- stop patching.\n");
 		hecbd->done = 1;
 	}
 }
@@ -522,7 +522,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 		fclose(fp);
 	}
 	else {
-		CtdlLogPrintf(CTDL_ALERT, "Cannot open %s: %s\n", temp, strerror(errno));
+		syslog(LOG_ALERT, "Cannot open %s: %s\n", temp, strerror(errno));
 	}
 	CtdlFreeMessage(msg);
 
@@ -580,7 +580,7 @@ void wiki_rev(char *pagename, char *rev, char *operation)
 			fseek(fp, 0L, SEEK_SET);
 			msg->cm_fields['M'] = malloc(len + 1);
 			rv = fread(msg->cm_fields['M'], len, 1, fp);
-			CtdlLogPrintf(CTDL_DEBUG, "did %d blocks of %ld bytes\n", rv, len);
+			syslog(LOG_DEBUG, "did %d blocks of %ld bytes\n", rv, len);
 			msg->cm_fields['M'][len] = 0;
 			fclose(fp);
 		}

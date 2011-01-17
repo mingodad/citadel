@@ -179,9 +179,9 @@ void xmpp_xml_start(void *data, const char *supplied_el, const char **attr) {
 	}
 
 	/*
-	CtdlLogPrintf(CTDL_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
+	syslog(LOG_DEBUG, "XMPP ELEMENT START: <%s>\n", el);
 	for (i=0; attr[i] != NULL; i+=2) {
-		CtdlLogPrintf(CTDL_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
+		syslog(LOG_DEBUG, "                    Attribute '%s' = '%s'\n", attr[i], attr[i+1]);
 	}
 	uncomment for more verbosity */
 
@@ -251,9 +251,9 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	}
 
 	/*
-	CtdlLogPrintf(CTDL_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
+	syslog(LOG_DEBUG, "XMPP ELEMENT END  : <%s>\n", el);
 	if (XMPP->chardata_len > 0) {
-		CtdlLogPrintf(CTDL_DEBUG, "          chardata: %s\n", XMPP->chardata);
+		syslog(LOG_DEBUG, "          chardata: %s\n", XMPP->chardata);
 	}
 	uncomment for more verbosity */
 
@@ -314,7 +314,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 			 * Unknown query ... return the XML equivalent of a blank stare
 			 */
 			else {
-				CtdlLogPrintf(CTDL_DEBUG,
+				syslog(LOG_DEBUG,
 					"Unknown query <%s> - returning <service-unavailable/>\n",
 					el
 				);
@@ -449,14 +449,14 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 	}
 
 	else if (!strcasecmp(el, "stream")) {
-		CtdlLogPrintf(CTDL_DEBUG, "XMPP client shut down their stream\n");
+		syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
 		xmpp_massacre_roster();
 		cprintf("</stream>\n");
 		CC->kill_me = 1;
 	}
 
 	else {
-		CtdlLogPrintf(CTDL_DEBUG, "Ignoring unknown tag <%s>\n", el);
+		syslog(LOG_DEBUG, "Ignoring unknown tag <%s>\n", el);
 	}
 
 	XMPP->chardata_len = 0;
@@ -521,7 +521,7 @@ void xmpp_greeting(void) {
 
 	XMPP->xp = XML_ParserCreateNS("UTF-8", ':');
 	if (XMPP->xp == NULL) {
-		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
+		syslog(LOG_ALERT, "Cannot create XML parser!\n");
 		CC->kill_me = 1;
 		return;
 	}
@@ -547,7 +547,7 @@ void xmpp_command_loop(void) {
 		XML_Parse(XMPP->xp, ChrPtr(stream_input), rc, 0);
 	}
 	else {
-		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\n");
+		syslog(LOG_ERR, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 	}
 	FreeStrBuf(&stream_input);

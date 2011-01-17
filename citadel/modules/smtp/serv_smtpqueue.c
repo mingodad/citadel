@@ -409,11 +409,11 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
 	CCC->redirect_buffer = NULL;
 	if ((StrLength(SendMsg) > 0) && 
 	    ChrPtr(SendMsg)[StrLength(SendMsg) - 1] != '\n') {
-		CtdlLogPrintf(CTDL_WARNING, 
-			      "SMTP client[%d]: Possible problem: message did not "
-			      "correctly terminate. (expecting 0x10, got 0x%02x)\n",
-			      MsgCount, //yes uncool, but best choice here... 
-			      ChrPtr(SendMsg)[StrLength(SendMsg) - 1] );
+		syslog(LOG_WARNING, 
+		       "SMTP client[%d]: Possible problem: message did not "
+		       "correctly terminate. (expecting 0x10, got 0x%02x)\n",
+		       MsgCount, //yes uncool, but best choice here... 
+		       ChrPtr(SendMsg)[StrLength(SendMsg) - 1] );
 		StrBufAppendBufPlain(SendMsg, HKEY("\r\n"), 0);
 	}
 	return SendMsg;
@@ -445,7 +445,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	int num_bounces = 0;
 	int give_up = 0;
 
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
+	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
 
 	if ( (ev_time() - MyQItem->Submitted) > SMTP_GIVE_UP ) {
 		give_up = 1;/// TODO: replace time by libevq timer get
@@ -474,7 +474,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	DeleteHashPos(&It);
 
 	/* Deliver the bounce if there's anything worth mentioning */
-	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
+	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
 
 	if (num_bounces == 0) {
 		FreeStrBuf(&Msg);
@@ -491,7 +491,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 				  StrLength(OMsgTxt)); /* the original message */
 	if (BounceMB == NULL) {
 		FreeStrBuf(&boundary);
-		CtdlLogPrintf(CTDL_ERR, "Failed to alloc() bounce message.\n");
+		syslog(LOG_ERR, "Failed to alloc() bounce message.\n");
 
 		return;
 	}
@@ -500,7 +500,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	if (bmsg == NULL) {
 		FreeStrBuf(&boundary);
 		FreeStrBuf(&BounceMB);
-		CtdlLogPrintf(CTDL_ERR, "Failed to alloc() bounce message.\n");
+		syslog(LOG_ERR, "Failed to alloc() bounce message.\n");
 
 		return;
 	}
@@ -566,9 +566,9 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 
 	/* First try the user who sent the message */
 	if (StrLength(MyQItem->BounceTo) == 0) 
-		CtdlLogPrintf(CTDL_ERR, "No bounce address specified\n");
+		syslog(LOG_ERR, "No bounce address specified\n");
 	else
-		CtdlLogPrintf(CTDL_DEBUG, "bounce to user? <%s>\n", ChrPtr(MyQItem->BounceTo));
+		syslog(LOG_DEBUG, "bounce to user? <%s>\n", ChrPtr(MyQItem->BounceTo));
 
 	/* Can we deliver the bounce to the original sender? */
 	valid = validate_recipients(ChrPtr(MyQItem->BounceTo), NULL, 0);
@@ -586,7 +586,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	free_recipients(valid);
 	FreeStrBuf(&boundary);
 	CtdlFreeMessage(bmsg);
-	CtdlLogPrintf(CTDL_DEBUG, "Done processing bounces\n");
+	syslog(LOG_DEBUG, "Done processing bounces\n");
 }
 
 
@@ -618,12 +618,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	int HaveBuffers = 0;
 	StrBuf *Msg =NULL;
 	
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: smtp_do_procmsg(%ld)\n", msgnum);
+	syslog(LOG_DEBUG, "SMTP Queue: smtp_do_procmsg(%ld)\n", msgnum);
 	///strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP Queue: tried %ld but no such message!\n", msgnum);
+		syslog(LOG_ERR, "SMTP Queue: tried %ld but no such message!\n", msgnum);
 		return;
 	}
 
@@ -643,7 +643,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	FreeStrBuf(&PlainQItem);
 
 	if (MyQItem == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP Queue: Msg No %ld: already in progress!\n", msgnum);		
+		syslog(LOG_ERR, "SMTP Queue: Msg No %ld: already in progress!\n", msgnum);		
 		return; /* s.b. else is already processing... */
 	}
 
@@ -651,7 +651,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Postpone delivery if we've already tried recently.
 	 * /
 	if (((time(NULL) - MyQItem->LastAttempt.when) < MyQItem->LastAttempt.retry) && (run_queue_now == 0)) {
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Retry time not yet reached.\n");
+		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
 
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		citthread_mutex_lock(&ActiveQItemsLock);
@@ -669,7 +669,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Bail out if there's no actual message associated with this
 	 */
 	if (MyQItem->MessageID < 0L) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP Queue: no 'msgid' directive found!\n");
+		syslog(LOG_ERR, "SMTP Queue: no 'msgid' directive found!\n");
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		citthread_mutex_lock(&ActiveQItemsLock);
 		{
@@ -696,7 +696,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			while ((Pos != StrBufNOTNULL) && ((Pos == NULL) || !IsEmptyStr(Pos))) {
 				StrBufExtract_NextToken(One, All, &Pos, '|');
 				if (!ParseURL(Url, One, 25))
-					CtdlLogPrintf(CTDL_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
+					syslog(LOG_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
 				else {
 					///if (!Url->IsIP)) /// todo dupe me fork ipv6
 					Url = &(*Url)->Next;
@@ -719,7 +719,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			while ((Pos != StrBufNOTNULL) && ((Pos == NULL) || !IsEmptyStr(Pos))) {
 				StrBufExtract_NextToken(One, All, &Pos, '|');
 				if (!ParseURL(Url, One, 25))
-					CtdlLogPrintf(CTDL_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
+					syslog(LOG_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
 				else 
 					Url = &(*Url)->Next;
 			}
@@ -732,7 +732,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
 		MailQEntry *ThisItem = vQE;
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: Task: <%s> %d\n", ChrPtr(ThisItem->Recipient), ThisItem->Active);
+		syslog(LOG_DEBUG, "SMTP Queue: Task: <%s> %d\n", ChrPtr(ThisItem->Recipient), ThisItem->Active);
 	}
 	DeleteHashPos(&It);
 
@@ -751,11 +751,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			if (ThisItem->Active == 1) {
 				int KeepBuffers = (i == m);
 				if (i > 1) n = MsgCount++;
-				CtdlLogPrintf(CTDL_DEBUG, 
-					      "SMTP Queue: Trying <%s> %d / %d \n", 
-					      ChrPtr(ThisItem->Recipient), 
-					      i, 
-					      m);
+				syslog(LOG_DEBUG, 
+				       "SMTP Queue: Trying <%s> %d / %d \n", 
+				       ChrPtr(ThisItem->Recipient), 
+				       i, 
+				       m);
 				smtp_try_one_queue_entry(MyQItem, 
 							 ThisItem, 
 							 Msg, 
@@ -804,19 +804,19 @@ void *smtp_queue_thread(void *arg) {
 
 	CtdlFillSystemContext(&smtp_queue_CC, "SMTP_Send");
 	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_queue_thread() initializing\n");
+	syslog(LOG_DEBUG, "smtp_queue_thread() initializing\n");
 
 	while (!CtdlThreadCheckStop()) {
 		
-		CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
+		syslog(LOG_INFO, "SMTP client: processing outbound queue\n");
 
 		if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
-			CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
+			syslog(LOG_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 		}
 		else {
 			num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 		}
-		CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
+		syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
 		CtdlThreadSleep(60);
 	}
 

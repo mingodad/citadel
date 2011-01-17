@@ -92,9 +92,9 @@ int spam_assassin(struct CtdlMessage *msg) {
 	/* Try them one by one until we get a working one */
         for (sa=0; sa<num_sahosts; ++sa) {
                 extract_token(buf, sahosts, sa, '|', sizeof buf);
-                CtdlLogPrintf(CTDL_INFO, "Connecting to SpamAssassin at <%s>\n", buf);
+                syslog(LOG_INFO, "Connecting to SpamAssassin at <%s>\n", buf);
                 sock = sock_connect(buf, SPAMASSASSIN_PORT);
-                if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
+                if (sock >= 0) syslog(LOG_DEBUG, "Connected!\n");
         }
 
 	if (sock < 0) {
@@ -109,7 +109,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 	CCC->SBuf.ReadWritePointer = NULL;
 
 	/* Command */
-	CtdlLogPrintf(CTDL_DEBUG, "Transmitting command\n");
+	syslog(LOG_DEBUG, "Transmitting command\n");
 	sprintf(buf, "CHECK SPAMC/1.2\r\n\r\n");
 	sock_write(&sock, buf, strlen(buf));
 
@@ -129,21 +129,21 @@ int spam_assassin(struct CtdlMessage *msg) {
 		sock_shutdown(sock, SHUT_WR);
 	
 	/* Response */
-	CtdlLogPrintf(CTDL_DEBUG, "Awaiting response\n");
+	syslog(LOG_DEBUG, "Awaiting response\n");
         if (sock_getln(&sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
-        CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+        syslog(LOG_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "SPAMD", 5)) {
 		goto bail;
 	}
         if (sock_getln(&sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
-        CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-        CtdlLogPrintf(CTDL_DEBUG, "c_spam_flag_only setting %d\n", config.c_spam_flag_only);
+        syslog(LOG_DEBUG, "<%s\n", buf);
+        syslog(LOG_DEBUG, "c_spam_flag_only setting %d\n", config.c_spam_flag_only);
         if (config.c_spam_flag_only) {
-                CtdlLogPrintf(CTDL_DEBUG, "flag spam code used");
+                syslog(LOG_DEBUG, "flag spam code used");
 		int headerlen;
 		int newmsgsize;
 		int oldmsgsize;
@@ -174,7 +174,7 @@ int spam_assassin(struct CtdlMessage *msg) {
 		memcpy(msg->cm_fields['M'],buf,headerlen);
 
 	} else {
-                CtdlLogPrintf(CTDL_DEBUG, "reject spam code used");
+                syslog(LOG_DEBUG, "reject spam code used");
 		if (!strncasecmp(buf, "Spam: True", 10)) {
 			is_spam = 1;
 		}

@@ -1,9 +1,9 @@
 /*
  * citserver's main() function lives here.
  * 
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -105,9 +105,9 @@ int main(int argc, char **argv)
 	int home=0;
 	int dbg=0;
 	int have_log=0;
-	int have_minus_x=0;
 	char relhome[PATH_MAX]="";
 	char ctdldir[PATH_MAX]=CTDLDIR;
+	int syslog_facility = LOG_DAEMON;
 #ifdef HAVE_RUN_DIR
 	struct stat filestats;
 #endif
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 
 
 	/* initialise semaphores here. Patch by Matt and davew
-	 * its called here as they are needed by CtdlLogPrintf for thread safety
+	 * its called here as they are needed by syslog for thread safety
 	 */
 	InitialiseSemaphores();
 	
@@ -136,7 +136,6 @@ int main(int argc, char **argv)
 		if (!strncmp(argv[a], "-l", 2)) {
 			safestrncpy(facility, &argv[a][2], sizeof(facility));
 			syslog_facility = SyslogFacility(facility);
-			enable_syslog = 1;
 		}
 
 		/* run in the background if -d was specified */
@@ -149,12 +148,6 @@ int main(int argc, char **argv)
 			statcount = atoi(&argv[a][2]);
 		}
 
-		/* -x specifies the desired logging level */
-		else if (!strncmp(argv[a], "-x", 2)) {
-			verbosity = atoi(&argv[a][2]);
-			have_minus_x = 1;
-		}
-
 		else if (!strncmp(argv[a], "-h", 2)) {
 			relh=argv[a][2]!='/';
 			if (!relh) safestrncpy(ctdl_home_directory, &argv[a][2],
@@ -165,10 +158,14 @@ int main(int argc, char **argv)
 			home=1;
 		}
 
+		else if (!strncmp(argv[a], "-x", 2)) {
+			/* deprecated */
+		}
+
 		else if (!strncmp(argv[a], "-t", 2)) {
 			if (freopen(&argv[a][2], "w", stderr) != stderr)
 			{
-				CtdlLogPrintf(CTDL_EMERG, 
+				syslog(LOG_EMERG, 
 					      "unable to open your trace log [%s]: %s", 
 					      &argv[a][2], 
 					      strerror(errno));
@@ -189,19 +186,22 @@ int main(int argc, char **argv)
 
 		/* any other parameter makes it crash and burn */
 		else {
-			CtdlLogPrintf(CTDL_EMERG,	"citserver: usage: "
+			fprintf(stderr,	"citserver: usage: "
 					"citserver "
 					"[-lLogFacility] "
-					"[-d] [-D] [-s]"
-					" [-tTraceFile]"
-					" [-xLogLevel] [-hHomeDir]\n");
+					"[-d] [-D] [-s] "
+					"[-tTraceFile] "
+					"[-hHomeDir]\n"
+			);
 			exit(1);
 		}
 
 	}
 
-	if (have_minus_x && running_as_daemon && have_log)
-		print_to_logfile = 1;
+	openlog("citserver",
+		( running_as_daemon ? (LOG_PID) : (LOG_PID | LOG_PERROR) ),
+		syslog_facility
+	);
 
 	calc_dirs_n_files(relh, home, relhome, ctdldir, dbg);
 	/* daemonize, if we were asked to */
@@ -226,36 +226,26 @@ int main(int argc, char **argv)
 	eCrash_RegisterThread("MasterThread", 0);
 #endif
 
-	/* Initialize the syslogger.  Yes, we are really using 0 as the
-	 * facility, because we are going to bitwise-OR the facility to
-	 * the severity of each message, allowing us to write to other
-	 * facilities when we need to...
-	 */
-	if (enable_syslog) {
-		openlog("citadel", LOG_NDELAY, 0);
-		setlogmask(LOG_UPTO(verbosity));
-	}
-	
 	/* Tell 'em who's in da house */
-	CtdlLogPrintf(CTDL_NOTICE, "\n");
-	CtdlLogPrintf(CTDL_NOTICE, "\n");
-	CtdlLogPrintf(CTDL_NOTICE,
+	syslog(LOG_NOTICE, "\n");
+	syslog(LOG_NOTICE, "\n");
+	syslog(LOG_NOTICE,
 		"*** Citadel server engine v%d.%02d (build %s) ***\n",
 		(REV_LEVEL/100), (REV_LEVEL%100), svn_revision());
-	CtdlLogPrintf(CTDL_NOTICE, "Copyright (C) 1987-2010 by the Citadel development team.\n");
-	CtdlLogPrintf(CTDL_NOTICE, "This program is distributed under the terms of the GNU "
+	syslog(LOG_NOTICE, "Copyright (C) 1987-2010 by the Citadel development team.\n");
+	syslog(LOG_NOTICE, "This program is distributed under the terms of the GNU "
 					"General Public License.\n");
-	CtdlLogPrintf(CTDL_NOTICE, "\n");
-	CtdlLogPrintf(CTDL_DEBUG, "Called as: %s\n", argv[0]);
-	CtdlLogPrintf(CTDL_INFO, "%s\n", libcitadel_version_string());
+	syslog(LOG_NOTICE, "\n");
+	syslog(LOG_DEBUG, "Called as: %s\n", argv[0]);
+	syslog(LOG_INFO, "%s\n", libcitadel_version_string());
 
 	/* Load site-specific parameters, and set the ipgm secret */
-	CtdlLogPrintf(CTDL_INFO, "Loading citadel.config\n");
+	syslog(LOG_INFO, "Loading citadel.config\n");
 	get_config();
 	config.c_ipgm_secret = rand();
 
 	/* get_control() MUST MUST MUST be called BEFORE the databases are opened!! */
-	CtdlLogPrintf(CTDL_INFO, "Acquiring control record\n");
+	syslog(LOG_INFO, "Acquiring control record\n");
 	get_control();
 
 	put_config();
@@ -275,12 +265,12 @@ int main(int argc, char **argv)
 #endif // HAVE_GETPWUID_R
 
 		if ((mkdir(ctdl_run_dir, 0755) != 0) && (errno != EEXIST))
-			CtdlLogPrintf(CTDL_EMERG, 
+			syslog(LOG_EMERG, 
 				      "unable to create run directory [%s]: %s", 
 				      ctdl_run_dir, strerror(errno));
 
 		if (chown(ctdl_run_dir, config.c_ctdluid, (pwp==NULL)?-1:pw.pw_gid) != 0)
-			CtdlLogPrintf(CTDL_EMERG, 
+			syslog(LOG_EMERG, 
 				      "unable to set the access rights for [%s]: %s", 
 				      ctdl_run_dir, strerror(errno));
 	}
@@ -304,7 +294,7 @@ int main(int argc, char **argv)
 	/*
 	 * Run any upgrade entry points
 	 */
-	CtdlLogPrintf(CTDL_INFO, "Upgrading modules.\n");
+	syslog(LOG_INFO, "Upgrading modules.\n");
 	upgrade_modules();
 	
 /**
@@ -344,7 +334,7 @@ int main(int argc, char **argv)
 	/*
 	 * Load any server-side extensions available here.
 	 */
-	CtdlLogPrintf(CTDL_INFO, "Initializing server extensions\n");
+	syslog(LOG_INFO, "Initializing server extensions\n");
 	size = strlen(ctdl_home_directory) + 9;
 	
 	initialise_modules(0);
@@ -384,18 +374,18 @@ int main(int argc, char **argv)
 #endif // HAVE_GETPWUID_R
 
 		if (pwp == NULL)
-			CtdlLogPrintf(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
+			syslog(LOG_CRIT, "WARNING: getpwuid(%ld): %s\n"
 				   "Group IDs will be incorrect.\n", (long)CTDLUID,
 				strerror(errno));
 		else {
 			initgroups(pw.pw_name, pw.pw_gid);
 			if (setgid(pw.pw_gid))
-				CtdlLogPrintf(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
+				syslog(LOG_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
 					strerror(errno));
 		}
-		CtdlLogPrintf(CTDL_INFO, "Changing uid to %ld\n", (long)CTDLUID);
+		syslog(LOG_INFO, "Changing uid to %ld\n", (long)CTDLUID);
 		if (setuid(CTDLUID) != 0) {
-			CtdlLogPrintf(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
+			syslog(LOG_CRIT, "setuid() failed: %s\n", strerror(errno));
 		}
 #if defined (HAVE_SYS_PRCTL_H) && defined (PR_SET_DUMPABLE)
 		prctl(PR_SET_DUMPABLE, 1);

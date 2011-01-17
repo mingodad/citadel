@@ -604,7 +604,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 
 	else if (!strcasecmp(key, "From")) {
 		process_rfc822_addr(value, user, node, name);
-		CtdlLogPrintf(CTDL_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
+		syslog(LOG_DEBUG, "Converted to <%s@%s> (%s)\n", user, node, name);
 		snprintf(addr, sizeof addr, "%s@%s", user, node);
 		if (msg->cm_fields['A'] == NULL)
 			msg->cm_fields['A'] = strdup(name);
@@ -640,7 +640,7 @@ int convert_field(struct CtdlMessage *msg, const char *beg, const char *end) {
 
 	else if (!strcasecmp(key, "Message-ID")) {
 		if (msg->cm_fields['I'] != NULL) {
-			CtdlLogPrintf(CTDL_WARNING, "duplicate message id\n");
+			syslog(LOG_WARNING, "duplicate message id\n");
 		}
 
 		if (msg->cm_fields['I'] == NULL) {
@@ -911,7 +911,7 @@ void directory_key(char *key, char *addr) {
 	}
 	key[keylen++] = 0;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Directory key is <%s>\n", key);
+	syslog(LOG_DEBUG, "Directory key is <%s>\n", key);
 }
 
 
@@ -955,7 +955,7 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
 	if (IsDirectory(internet_addr, 0) == 0) return;
-	CtdlLogPrintf(CTDL_DEBUG, "Create directory entry: %s --> %s\n", internet_addr, citadel_addr);
+	syslog(LOG_DEBUG, "Create directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
 	cdb_store(CDB_DIRECTORY, key, strlen(key), citadel_addr, strlen(citadel_addr)+1 );
 }
@@ -970,7 +970,7 @@ void CtdlDirectoryAddUser(char *internet_addr, char *citadel_addr) {
 void CtdlDirectoryDelUser(char *internet_addr, char *citadel_addr) {
 	char key[SIZ];
 
-	CtdlLogPrintf(CTDL_DEBUG, "Delete directory entry: %s --> %s\n", internet_addr, citadel_addr);
+	syslog(LOG_DEBUG, "Delete directory entry: %s --> %s\n", internet_addr, citadel_addr);
 	directory_key(key, internet_addr);
 	cdb_delete(CDB_DIRECTORY, key, strlen(key) );
 }

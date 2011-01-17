@@ -270,19 +270,19 @@ void rss_xml_end(void *data, const char *supplied_el)
 
 void RSS_item_rss_start (StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an RSS feed.\n");
+	syslog(LOG_DEBUG, "RSS: This is an RSS feed.\n");
 	Cfg->ItemType = RSS_RSS;
 }
 
 void RSS_item_rdf_start(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an RDF feed.\n");
+	syslog(LOG_DEBUG, "RSS: This is an RDF feed.\n");
 	Cfg->ItemType = RSS_RSS;
 }
 
 void ATOM_item_feed_start(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an ATOM feed.\n");
+	syslog(LOG_DEBUG, "RSS: This is an ATOM feed.\n");
 	Cfg->ItemType = RSS_ATOM;
 }
 
@@ -557,13 +557,13 @@ void ATOM_item_entry_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const
 
 void RSS_item_rss_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
 {
-//		CtdlLogPrintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
+//		syslog(LOG_DEBUG, "End of feed detected.  Closing parser.\n");
 	ri->done_parsing = 1;
 	
 }
 void RSS_item_rdf_end(StrBuf *CData, rss_item *ri, rss_aggregator *Cfg, const char** Attr)
 {
-//		CtdlLogPrintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
+//		syslog(LOG_DEBUG, "End of feed detected.  Closing parser.\n");
 	ri->done_parsing = 1;
 }
 
@@ -637,11 +637,11 @@ eNextState ParseRSSReply(AsyncIO *IO)
 	else
 		ptr = "UTF-8";
 
-	CtdlLogPrintf(CTDL_ALERT, "RSS: Now parsing [%s] \n", ChrPtr(rssc->Url));
+	syslog(LOG_DEBUG, "RSS: Now parsing [%s] \n", ChrPtr(rssc->Url));
 
 	rssc->xp = XML_ParserCreateNS(ptr, ':');
 	if (!rssc->xp) {
-		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
+		syslog(LOG_DEBUG, "Cannot create XML parser!\n");
 		goto shutdown;
 	}
 	FlushStrBuf(rssc->Key);
@@ -662,7 +662,7 @@ eNextState ParseRSSReply(AsyncIO *IO)
 		XML_Parse(rssc->xp, "", 0, 1);
 
 
-	CtdlLogPrintf(CTDL_ALERT, "RSS: XML Status [%s] \n", 
+	syslog(LOG_DEBUG, "RSS: XML Status [%s] \n", 
 		      XML_ErrorString(
 			      XML_GetErrorCode(rssc->xp)));
 

@@ -2,6 +2,7 @@
 #define __USER_OPS_H__
 
 #include <ctype.h>
+#include <syslog.h>
 int hash (char *str);
 /* getuser is deprecated, use CtdlGetUser instead */
 int getuser (struct ctdluser *, char *) __attribute__ ((deprecated));
@@ -68,7 +69,7 @@ static INLINE long cutuserkey(char *username) {
 	len = strlen(username);
 	if (len >= USERNAME_SIZE)
 	{
-		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
+		syslog(LOG_EMERG, "Username to long: %s", username);
 		cit_backtrace ();
 		len = USERNAME_SIZE - 1; 
 		((char*)username)[USERNAME_SIZE - 1]='\0';
@@ -86,7 +87,7 @@ static INLINE void makeuserkey(char *key, const char *username, long len) {
 
 	if (len >= USERNAME_SIZE)
 	{
-		CtdlLogPrintf (CTDL_EMERG, "Username to long: %s", username);
+		syslog(LOG_EMERG, "Username to long: %s", username);
 		cit_backtrace ();
 		len = USERNAME_SIZE - 1; 
 	}

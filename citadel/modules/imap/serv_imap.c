@@ -111,33 +111,33 @@ const imap_handler_hook *imap_lookup(int num_parms, ConstStr *Params)
 	StrBufPlain(Imap->Reply, CKEY(Params[1]));
 	StrBufUpCase(Imap->Reply);
 
-	CtdlLogPrintf(CTDL_DEBUG, "---- Looking up [%s] -----", 
+	syslog(LOG_DEBUG, "---- Looking up [%s] -----", 
 		      ChrPtr(Imap->Reply));
 	if (GetHash(ImapCmds, SKEY(Imap->Reply), &v))
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Found. \n"); 
+		syslog(LOG_DEBUG, "Found. \n"); 
 		FlushStrBuf(Imap->Reply);
 		return (imap_handler_hook *) v;
 	}
 
 	if (num_parms == 1)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "NOT Found. \n"); 
+		syslog(LOG_DEBUG, "NOT Found. \n"); 
 		FlushStrBuf(Imap->Reply);
 		return NULL;
 	}
 	
-	CtdlLogPrintf(CTDL_DEBUG, "---- Looking up [%s] -----", 
+	syslog(LOG_DEBUG, "---- Looking up [%s] -----", 
 		      ChrPtr(Imap->Reply));
 	StrBufAppendBufPlain(Imap->Reply, CKEY(Params[2]), 0);
 	StrBufUpCase(Imap->Reply);
 	if (GetHash(ImapCmds, SKEY(Imap->Reply), &v))
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Found. \n"); 
+		syslog(LOG_DEBUG, "Found. \n"); 
 		FlushStrBuf(Imap->Reply);
 		return (imap_handler_hook *) v;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "NOT Found. \n"); 
+	syslog(LOG_DEBUG, "NOT Found. \n"); 
 	FlushStrBuf(Imap->Reply);
        	return NULL;
 }
@@ -306,7 +306,7 @@ void imap_load_msgids(void)
 	citimap *Imap = IMAP;
 
 	if (Imap->selected == 0) {
-		CtdlLogPrintf(CTDL_ERR,
+		syslog(LOG_ERR,
 			"imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
@@ -348,7 +348,7 @@ void imap_rescan_msgids(void)
 	int num_recent = 0;
 
 	if (Imap->selected == 0) {
-		CtdlLogPrintf(CTDL_ERR, "imap_load_msgids() can't run; no room selected\n");
+		syslog(LOG_ERR, "imap_load_msgids() can't run; no room selected\n");
 		return;
 	}
 
@@ -368,7 +368,7 @@ void imap_rescan_msgids(void)
 	if (cdbfr != NULL) {
 		msglist = malloc(cdbfr->len);
 		if (msglist == NULL) {
-			CtdlLogPrintf(CTDL_CRIT, "malloc() failed\n");
+			syslog(LOG_CRIT, "malloc() failed\n");
 			abort();
 		}
 		memcpy(msglist, cdbfr->ptr, (size_t)cdbfr->len);
@@ -483,7 +483,7 @@ void imap_cleanup_function(void)
 		imap_do_expunge();
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Performing IMAP cleanup hook\n");
+	syslog(LOG_DEBUG, "Performing IMAP cleanup hook\n");
 	imap_free_msgids();
 	imap_free_transmitted_message();
 
@@ -503,7 +503,7 @@ void imap_cleanup_function(void)
 	FreeStrBuf(&Imap->Reply);
 	if (Imap->Cmd.Params != NULL) free(Imap->Cmd.Params);
 	free(Imap);
-	CtdlLogPrintf(CTDL_DEBUG, "Finished IMAP cleanup hook\n");
+	syslog(LOG_DEBUG, "Finished IMAP cleanup hook\n");
 }
 
 
@@ -918,7 +918,7 @@ int imap_do_expunge(void)
 	long *delmsgs = NULL;
 	int num_delmsgs = 0;
 
-	CtdlLogPrintf(CTDL_DEBUG, "imap_do_expunge() called\n");
+	syslog(LOG_DEBUG, "imap_do_expunge() called\n");
 	if (Imap->selected == 0) {
 		return (0);
 	}
@@ -941,7 +941,7 @@ int imap_do_expunge(void)
 		imap_rescan_msgids();
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Expunged %d messages from <%s>\n", num_expunged, CC->room.QRname);
+	syslog(LOG_DEBUG, "Expunged %d messages from <%s>\n", num_expunged, CC->room.QRname);
 	return (num_expunged);
 }
 
@@ -1036,14 +1036,14 @@ void imap_create(int num_parms, ConstStr *Params)
 
 	if (strchr(Params[2].Key, '\\') != NULL) {
 		IReply("NO Invalid character in folder name");
-		CtdlLogPrintf(CTDL_DEBUG, "invalid character in folder name\n");
+		syslog(LOG_DEBUG, "invalid character in folder name\n");
 		return;
 	}
 
 	ret = imap_roomname(roomname, sizeof roomname, Params[2].Key);
 	if (ret < 0) {
 		IReply("NO Invalid mailbox name or location");
-		CtdlLogPrintf(CTDL_DEBUG, "invalid mailbox name or location\n");
+		syslog(LOG_DEBUG, "invalid mailbox name or location\n");
 		return;
 	}
 	floornum = (ret & 0x00ff);	/* lower 8 bits = floor number */
@@ -1052,7 +1052,7 @@ void imap_create(int num_parms, ConstStr *Params)
 	if (flags & IR_MAILBOX) {
 		if (strncasecmp(Params[2].Key, "INBOX/", 6)) {
 			IReply("NO Personal folders must be created under INBOX");
-			CtdlLogPrintf(CTDL_DEBUG, "not subordinate to inbox\n");
+			syslog(LOG_DEBUG, "not subordinate to inbox\n");
 			return;
 		}
 	}
@@ -1065,7 +1065,7 @@ void imap_create(int num_parms, ConstStr *Params)
 		newroomview = VIEW_BBS;
 	}
 
-	CtdlLogPrintf(CTDL_INFO, "Create new room <%s> on floor <%d> with type <%d>\n",
+	syslog(LOG_INFO, "Create new room <%s> on floor <%d> with type <%d>\n",
 		roomname, floornum, newroomtype);
 
 	ret = CtdlCreateRoom(roomname, newroomtype, "", floornum, 1, 0, newroomview);
@@ -1087,7 +1087,7 @@ void imap_create(int num_parms, ConstStr *Params)
 		CtdlAideMessage(notification_message, "Room Creation Message");
 		free(notification_message);
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "imap_create() completed\n");
+	syslog(LOG_DEBUG, "imap_create() completed\n");
 }
 
 
@@ -1450,7 +1450,7 @@ void imap_rename(int num_parms, ConstStr *Params)
 					   irl->irl_newfloor);
 			if (r != crr_ok) {
 				/* FIXME handle error returns better */
-				CtdlLogPrintf(CTDL_ERR, "CtdlRenameRoom() error %d\n", r);
+				syslog(LOG_ERR, "CtdlRenameRoom() error %d\n", r);
 			}
 			irlp = irl;
 			irl = irl->next;
@@ -1492,23 +1492,23 @@ void imap_command_loop(void)
 		FlushStrBuf(Imap->Cmd.CmdBuf);
 
 	if (CtdlClientGetLine(Imap->Cmd.CmdBuf) < 1) {
-		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\r\n");
+		syslog(LOG_ERR, "Client disconnected: ending session.\r\n");
 		CC->kill_me = 1;
 		return;
 	}
 
 	if (Imap->authstate == imap_as_expecting_password) {
-		CtdlLogPrintf(CTDL_INFO, "IMAP: <password>\n");
+		syslog(LOG_INFO, "IMAP: <password>\n");
 	}
 	else if (Imap->authstate == imap_as_expecting_plainauth) {
-		CtdlLogPrintf(CTDL_INFO, "IMAP: <plain_auth>\n");
+		syslog(LOG_INFO, "IMAP: <plain_auth>\n");
 	}
 	else if ((Imap->authstate == imap_as_expecting_multilineusername) || 
 		 cbmstrcasestr(ChrPtr(Imap->Cmd.CmdBuf), " LOGIN ")) {
-		CtdlLogPrintf(CTDL_INFO, "IMAP: LOGIN...\n");
+		syslog(LOG_INFO, "IMAP: LOGIN...\n");
 	}
 	else {
-		CtdlLogPrintf(CTDL_INFO, "IMAP: %s\n", ChrPtr(Imap->Cmd.CmdBuf));
+		syslog(LOG_INFO, "IMAP: %s\n", ChrPtr(Imap->Cmd.CmdBuf));
 	}
 
 	pchs = ChrPtr(Imap->Cmd.CmdBuf);
@@ -1564,17 +1564,17 @@ void imap_command_loop(void)
 /* debug output the parsed vector */
 	{
 		int i;
-		CtdlLogPrintf(CTDL_DEBUG, "----- %ld params \n",
+		syslog(LOG_DEBUG, "----- %ld params \n",
 			      Imap->Cmd.num_parms);
 
 	for (i=0; i < Imap->Cmd.num_parms; i++) {
 		if (Imap->Cmd.Params[i].len != strlen(Imap->Cmd.Params[i].Key))
-			CtdlLogPrintf(CTDL_DEBUG, "*********** %ld != %ld : %s\n",
+			syslog(LOG_DEBUG, "*********** %ld != %ld : %s\n",
 				      Imap->Cmd.Params[i].len, 
 				      strlen(Imap->Cmd.Params[i].Key),
 				      Imap->Cmd.Params[i].Key);
 		else
-			CtdlLogPrintf(CTDL_DEBUG, "%ld : %s\n",
+			syslog(LOG_DEBUG, "%ld : %s\n",
 				      Imap->Cmd.Params[i].len, 
 				      Imap->Cmd.Params[i].Key);
 	}}
@@ -1627,7 +1627,7 @@ BAIL:
 
 	gettimeofday(&tv2, NULL);
 	total_time = (tv2.tv_usec + (tv2.tv_sec * 1000000)) - (tv1.tv_usec + (tv1.tv_sec * 1000000));
-	CtdlLogPrintf(CTDL_DEBUG, "IMAP command completed in %ld.%ld seconds\n",
+	syslog(LOG_DEBUG, "IMAP command completed in %ld.%ld seconds\n",
 		(total_time / 1000000),
 		(total_time % 1000000)
 	);

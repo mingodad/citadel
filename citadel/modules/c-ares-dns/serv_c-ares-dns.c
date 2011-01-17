@@ -226,7 +226,7 @@ void QueryCb(void *arg,
 		     IO_postdns_callback);
 	IO->unwind_stack.data = IO;
 	ev_idle_start(event_base, &IO->unwind_stack);
-	CtdlLogPrintf(CTDL_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 }
 
 void QueryCbDone(AsyncIO *IO)
@@ -261,7 +261,7 @@ void QueueGetHostByNameDone(void *Ctx,
 		     IO_postdns_callback);
 	IO->unwind_stack.data = IO;
 	ev_idle_start(event_base, &IO->unwind_stack);
-	CtdlLogPrintf(CTDL_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+	syslog(LOG_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 }
 
 void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryParts, IO_CallBack PostDNS)

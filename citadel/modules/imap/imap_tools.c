@@ -225,7 +225,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* CtdlLogPrintf(CTDL_DEBUG, "toimap %s\r\n", src); */
+	/* syslog(LOG_DEBUG, "toimap %s\r\n", src); */
 
 	for (;;)
 	{
@@ -291,7 +291,7 @@ static char* toimap(char* destp, char* destend, char* src)
 
 	if (state == 1)
 		utf7_closeb64(&dest, v, i);
-	/* CtdlLogPrintf(CTDL_DEBUG, "    -> %s\r\n", destp); */
+	/* syslog(LOG_DEBUG, "    -> %s\r\n", destp); */
 	return string_end(&dest);
 }
 
@@ -309,7 +309,7 @@ static char* fromimap(char* destp, char* destend, const char* src)
 
 	*destp = 0;
 	string_init(&dest, destp, destend-destp);
-	/* CtdlLogPrintf(CTDL_DEBUG, "fromimap %s\r\n", src); */
+	/* syslog(LOG_DEBUG, "fromimap %s\r\n", src); */
 
 	do {
 		c = *p++;
@@ -367,7 +367,7 @@ static char* fromimap(char* destp, char* destend, const char* src)
 			}
 	} while (c != '\0');
 
-	/* CtdlLogPrintf(CTDL_DEBUG, "      -> %s\r\n", destp); */
+	/* syslog(LOG_DEBUG, "      -> %s\r\n", destp); */
 	return string_end(&dest);
 }
 
@@ -680,7 +680,7 @@ int imap_roomname(char *rbuf, int bufsize, const char *foldername)
 	ret = (0 | IR_MAILBOX);
 
 exit:
-	CtdlLogPrintf(CTDL_DEBUG, "(That translates to \"%s\")\n", rbuf);
+	syslog(LOG_DEBUG, "(That translates to \"%s\")\n", rbuf);
 	return(ret);
 }
 

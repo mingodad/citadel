@@ -126,7 +126,7 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	StrBuf *BounceMB;
 	long omsgid = (-1);
 
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
+	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
 	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
@@ -195,8 +195,8 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 		dsnlen = extract_token(dsn, buf, 3, '|', sizeof dsn);
 		bounce_this = 0;
 
-		CtdlLogPrintf(CTDL_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
-			key, addr, status, dsn);
+		syslog(LOG_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
+		       key, addr, status, dsn);
 
 		if (!strcasecmp(key, "bounceto")) {
 			strcpy(bounceto, addr);
@@ -254,13 +254,13 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 		free(bmsg->cm_fields['A']);
 	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
 	/* Deliver the bounce if there's anything worth mentioning */
-	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
+	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {
 
 		/* First try the user who sent the message */
-		CtdlLogPrintf(CTDL_DEBUG, "bounce to user? <%s>\n", bounceto);
+		syslog(LOG_DEBUG, "bounce to user? <%s>\n", bounceto);
 		if (IsEmptyStr(bounceto)) {
-			CtdlLogPrintf(CTDL_ERR, "No bounce address specified\n");
+			syslog(LOG_ERR, "No bounce address specified\n");
 			bounce_msgid = (-1L);
 		}
 
@@ -285,5 +285,5 @@ void smtp_do_bounce(char *instr, StrBuf *OMsgTxt)
 	}
 	FreeStrBuf(&boundary);
 	CtdlFreeMessage(bmsg);
-	CtdlLogPrintf(CTDL_DEBUG, "Done processing bounces\n");
+	syslog(LOG_DEBUG, "Done processing bounces\n");
 }

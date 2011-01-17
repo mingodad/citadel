@@ -217,7 +217,7 @@ void lmtp_unfiltered_greeting(void) {
  */
 void smtp_auth_greeting(void) {
 		cprintf("235 Hello, %s\r\n", CC->user.fullname);
-		CtdlLogPrintf(CTDL_NOTICE, "SMTP authenticated %s\n", CC->user.fullname);
+		syslog(LOG_NOTICE, "SMTP authenticated %s\n", CC->user.fullname);
 		CC->internal_pgm = 0;
 		CC->cs_flags &= ~CS_STEALTH;
 }
@@ -302,7 +302,7 @@ void smtp_get_user(char *argbuf) {
 	citsmtp *sSMTP = SMTP;
 
 	CtdlDecodeBase64(username, argbuf, SIZ);
-	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", username); */
+	/* syslog(LOG_DEBUG, "Trying <%s>\n", username); */
 	if (CtdlLoginExistingUser(NULL, username) == login_ok) {
 		CtdlEncodeBase64(buf, "Password:", 9, 0);
 		cprintf("334 %s\r\n", buf);
@@ -324,7 +324,7 @@ void smtp_get_pass(char *argbuf) {
 
 	memset(password, 0, sizeof(password));	
 	len = CtdlDecodeBase64(password, argbuf, SIZ);
-	/* CtdlLogPrintf(CTDL_DEBUG, "Trying <%s>\n", password); */
+	/* syslog(LOG_DEBUG, "Trying <%s>\n", password); */
 	if (CtdlTryPassword(password, len) == pass_ok) {
 		smtp_auth_greeting();
 	}
@@ -695,7 +695,7 @@ void smtp_data(void) {
 		return;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Converting message...\n");
+	syslog(LOG_DEBUG, "Converting message...\n");
 	msg = convert_internet_message_buf(&body);
 
 	/* If the user is locally authenticated, FORCE the From: header to
@@ -785,20 +785,18 @@ void smtp_data(void) {
 		cprintf("%s", result);
 	}
 
-	/* Write something to the syslog (which may or may not be where the
+	/* Write something to the syslog(which may or may not be where the
 	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).
 	 */
-	if (enable_syslog) {
-		syslog((LOG_MAIL | LOG_INFO),
-			"%ld: from=<%s>, nrcpts=%d, relay=%s [%s], stat=%s",
-			msgnum,
-			sSMTP->from,
-			sSMTP->number_of_recipients,
-			CC->cs_host,
-			CC->cs_addr,
-			result
-		);
-	}
+	syslog((LOG_MAIL | LOG_INFO),
+		"%ld: from=<%s>, nrcpts=%d, relay=%s [%s], stat=%s",
+		msgnum,
+		sSMTP->from,
+		sSMTP->number_of_recipients,
+		CC->cs_host,
+		CC->cs_addr,
+		result
+	);
 
 	/* Clean up */
 	CtdlFreeMessage(msg);
@@ -836,17 +834,17 @@ void smtp_command_loop(void) {
 	citsmtp *sSMTP = SMTP;
 
 	if (sSMTP == NULL) {
-		CtdlLogPrintf(CTDL_EMERG, "Session SMTP data is null.  WTF?  We will crash now.\n");
+		syslog(LOG_EMERG, "Session SMTP data is null.  WTF?  We will crash now.\n");
 	}
 
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		CtdlLogPrintf(CTDL_CRIT, "Client disconnected: ending session.\n");
+		syslog(LOG_CRIT, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	CtdlLogPrintf(CTDL_INFO, "SMTP server: %s\n", cmdbuf);
+	syslog(LOG_INFO, "SMTP server: %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 5) strcat(cmdbuf, " ");
 
 	if (sSMTP->command_state == smtp_user) {
@@ -937,7 +935,7 @@ void smtp_cleanup_function(void) {
 	/* Don't do this stuff if this is not an SMTP session! */
 	if (CC->h_command_function != smtp_command_loop) return;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Performing SMTP cleanup hook\n");
+	syslog(LOG_DEBUG, "Performing SMTP cleanup hook\n");
 	free(SMTP);
 }
 

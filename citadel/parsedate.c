@@ -255,13 +255,10 @@ typedef union YYSTYPE
 
     time_t		Number;
     enum _MERIDIAN	Meridian;
-
-
-
-/* Line 214 of yacc.c  */
-#line 263 "y.tab.c"
-} YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
+}
+/* Line 193 of yacc.c.  */
+#line 247 "y.tab.c"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif

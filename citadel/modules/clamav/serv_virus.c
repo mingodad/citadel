@@ -94,7 +94,7 @@ int clamd(struct CtdlMessage *msg) {
 	/* Try them one by one until we get a working one */
         for (clamhost=0; clamhost<num_clamhosts; ++clamhost) {
                 extract_token(buf, clamhosts, clamhost, '|', sizeof buf);
-                CtdlLogPrintf(CTDL_INFO, "Connecting to clamd at <%s>\n", buf);
+                syslog(LOG_INFO, "Connecting to clamd at <%s>\n", buf);
 
                 /* Assuming a host:port entry */ 
                 extract_token(hostbuf, buf, 0, ':', sizeof hostbuf);
@@ -105,7 +105,7 @@ int clamd(struct CtdlMessage *msg) {
                   /* Port specified lets try connecting to it! */
                   sock = sock_connect(hostbuf, portbuf);
 
-                if (sock >= 0) CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
+                if (sock >= 0) syslog(LOG_DEBUG, "Connected!\n");
         }
 
 	if (sock < 0) {
@@ -120,16 +120,16 @@ int clamd(struct CtdlMessage *msg) {
 	CCC->SBuf.ReadWritePointer = NULL;
 
 	/* Command */
-	CtdlLogPrintf(CTDL_DEBUG, "Transmitting STREAM command\n");
+	syslog(LOG_DEBUG, "Transmitting STREAM command\n");
 	sprintf(buf, "STREAM\r\n");
 	sock_write(&sock, buf, strlen(buf));
 
-	CtdlLogPrintf(CTDL_DEBUG, "Waiting for PORT number\n");
+	syslog(LOG_DEBUG, "Waiting for PORT number\n");
         if (sock_getln(&sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
 
-        CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+        syslog(LOG_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "PORT", 4)!=0) {
 	        goto bail;
 	}
@@ -149,7 +149,7 @@ int clamd(struct CtdlMessage *msg) {
 		return(0);
         }
 	else {
-	        CtdlLogPrintf(CTDL_DEBUG, "STREAM socket connected!\n");
+	        syslog(LOG_DEBUG, "STREAM socket connected!\n");
 	}
 
 
@@ -170,11 +170,11 @@ int clamd(struct CtdlMessage *msg) {
 		close(streamsock);
 	
 	/* Response */
-	CtdlLogPrintf(CTDL_DEBUG, "Awaiting response\n");
+	syslog(LOG_DEBUG, "Awaiting response\n");
         if (sock_getln(&sock, buf, sizeof buf) < 0) {
                 goto bail;
         }
-        CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+        syslog(LOG_DEBUG, "<%s\n", buf);
 	if (strncasecmp(buf, "stream: OK", 10)!=0) {
 		is_virus = 1;
 	}
