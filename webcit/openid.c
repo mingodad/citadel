@@ -64,7 +64,7 @@ void openid_attach(void) {
 
 	if (havebstr("attach_button")) {
 
-		syslog(CTDL_DEBUG, "Attempting to attach %s\n", bstr("openid_url"));
+		syslog(LOG_DEBUG, "Attempting to attach %s\n", bstr("openid_url"));
 
 		snprintf(buf, sizeof buf,
 			"OIDS %s|%s/finalize_openid_login|%s",
@@ -76,12 +76,12 @@ void openid_attach(void) {
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			syslog(CTDL_DEBUG, "OpenID server contacted; redirecting to %s\n", &buf[4]);
+			syslog(LOG_DEBUG, "OpenID server contacted; redirecting to %s\n", &buf[4]);
 			http_redirect(&buf[4]);
 			return;
 		}
 		else {
-			syslog(CTDL_DEBUG, "OpenID attach failed: %s\n", &buf[4]);
+			syslog(LOG_DEBUG, "OpenID attach failed: %s\n", &buf[4]);
 		}
 	}
 

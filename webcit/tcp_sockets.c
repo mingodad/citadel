@@ -738,7 +738,7 @@ long end_burst(void)
 		if (CompressBuffer(WCC->WBuf) > 0)
 			hprintf("Content-encoding: gzip\r\n");
 		else {
-			syslog(CTDL_ALERT, "Compression failed: %d [%s] sending uncompressed\n", errno, strerror(errno));
+			syslog(LOG_ALERT, "Compression failed: %d [%s] sending uncompressed\n", errno, strerror(errno));
 			wc_backtrace();
 		}
 	}

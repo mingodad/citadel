@@ -1,7 +1,7 @@
 /*
  * WebCit "system dependent" code.
  *
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -503,18 +503,18 @@ void drop_root(uid_t UID)
 #endif // HAVE_GETPWUID_R
 
 		if (pwp == NULL)
-			syslog(CTDL_CRIT, "WARNING: getpwuid(%ld): %s\n"
+			syslog(LOG_CRIT, "WARNING: getpwuid(%ld): %s\n"
 				"Group IDs will be incorrect.\n", UID,
 				strerror(errno));
 		else {
 			initgroups(pw.pw_name, pw.pw_gid);
 			if (setgid(pw.pw_gid))
-				syslog(CTDL_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
+				syslog(LOG_CRIT, "setgid(%ld): %s\n", (long)pw.pw_gid,
 					strerror(errno));
 		}
-		syslog(CTDL_INFO, "Changing uid to %ld\n", (long)UID);
+		syslog(LOG_INFO, "Changing uid to %ld\n", (long)UID);
 		if (setuid(UID) != 0) {
-			syslog(CTDL_CRIT, "setuid() failed: %s\n", strerror(errno));
+			syslog(LOG_CRIT, "setuid() failed: %s\n", strerror(errno));
 		}
 #if defined (HAVE_SYS_PRCTL_H) && defined (PR_SET_DUMPABLE)
 		prctl(PR_SET_DUMPABLE, 1);

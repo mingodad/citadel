@@ -128,21 +128,6 @@ int enable_syslog = 0;
 
 
 /*
- * syslog()  ...   Write logging information; 
- *                  simple here to have the same 
- *                  symbols in the client.
- */
-
-void syslog(enum LogLevel loglevel, const char *format, ...) {   
-	va_list arg_ptr;
-
-	va_start(arg_ptr, format);
-	vfprintf(stderr, format, arg_ptr);   
-	va_end(arg_ptr);   
-	fflush(stderr);
-}   
-
-/*
  * here is our 'clean up gracefully and exit' routine
  */
 void ctdl_logoff(char *file, int line, CtdlIPC *ipc, int code)
