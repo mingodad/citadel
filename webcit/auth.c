@@ -529,7 +529,7 @@ void do_welcome(void)
 	if (StrLength(Buf) == 0) {
 		StrBufAppendBufPlain(Buf, "dotgoto?room=_BASEROOM_", -1, 0);
 	}
-	lprintf(9, "Redirecting to user's start page: %s\n", ChrPtr(Buf));
+	syslog(9, "Redirecting to user's start page: %s\n", ChrPtr(Buf));
 	http_redirect(ChrPtr(Buf));
 }
 
@@ -758,7 +758,7 @@ void display_reg(int during_login)
 	Buf = NewStrBuf();
 	memset(&Room, 0, sizeof(folder));
 	if (goto_config_room(Buf, &Room) != 0) {
-		lprintf(9, "display_reg() exiting because goto_config_room() failed\n");
+		syslog(9, "display_reg() exiting because goto_config_room() failed\n");
 		if (during_login) {
 			do_welcome();
 		}
@@ -774,7 +774,7 @@ void display_reg(int during_login)
 	FreeStrBuf(&Buf);
 	vcard_msgnum = locate_user_vcard_in_this_room(&VCMsg, &VCAtt);
 	if (vcard_msgnum < 0L) {
-		lprintf(9, "display_reg() exiting because locate_user_vcard_in_this_room() failed\n");
+		syslog(9, "display_reg() exiting because locate_user_vcard_in_this_room() failed\n");
 		if (during_login) {
 			do_welcome();
 		}
@@ -957,7 +957,7 @@ void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
 			hdr->HR.got_auth = AUTH_BASIC;
 		}
 		else 
-			lprintf(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
+			syslog(1, "Authentication scheme not supported! [%s]\n", ChrPtr(Line));
 	}
 }
 
@@ -972,7 +972,7 @@ void CheckAuthBasic(ParsedHttpHdrs *hdr)
 	StrBufAppendBuf(hdr->HR.plainauth, hdr->HR.user_agent, 0);
 	hdr->HR.SessionKey = hashlittle(SKEY(hdr->HR.plainauth), 89479832);
 /*
-	lprintf(1, "CheckAuthBasic: calculated sessionkey %ld\n", 
+	syslog(1, "CheckAuthBasic: calculated sessionkey %ld\n", 
 		hdr->HR.SessionKey);
 */
 }

@@ -210,7 +210,7 @@ void cal_process_object(StrBuf *Target,
 	if (the_method == ICAL_METHOD_REQUEST) {
 
 		/* Check for conflicts */
-		lprintf(9, "Checking server calendar for conflicts...\n");
+		syslog(9, "Checking server calendar for conflicts...\n");
 		serv_printf("ICAL conflicts|%ld|%s|", msgnum, cal_partnum);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '1') {
@@ -238,7 +238,7 @@ void cal_process_object(StrBuf *Target,
 				StrBufAppendPrintf(Target, "</dd>\n");
 			}
 		}
-		lprintf(9, "...done.\n");
+		syslog(9, "...done.\n");
 
 		StrBufAppendPrintf(Target, "</dl>");
 
@@ -444,7 +444,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 	Cal->cal = icalcomponent_new_clone(cal);
 
 	/* Dezonify and decapsulate at the very last moment */
-	/* lprintf(9, "INITIAL: %s\n", icaltime_as_ical_string(icalproperty_get_dtstart(
+	/* syslog(9, "INITIAL: %s\n", icaltime_as_ical_string(icalproperty_get_dtstart(
 		icalcomponent_get_first_property(icalcomponent_get_first_component(
 		Cal->cal, ICAL_VEVENT_COMPONENT), ICAL_DTSTART_PROPERTY)))
 	); */
@@ -519,7 +519,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 		++num_recur;
 		if (num_recur > 1) {		/* Skip the first one.  We already did it at the root. */
 			icalcomponent *cptr;
-			/* lprintf(9, "REPEATS: %s\n", icaltime_as_ical_string(next)); */
+			/* syslog(9, "REPEATS: %s\n", icaltime_as_ical_string(next)); */
 
 			/* Note: anything we do here, we also have to do above for the root event. */
 			Cal = (disp_cal*) malloc(sizeof(disp_cal));
@@ -590,7 +590,7 @@ void display_individual_cal(icalcomponent *cal, long msgnum, char *from, int unr
 		}
 	}
 	icalrecur_iterator_free(ritr);
-	/* lprintf(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
+	/* syslog(9, "Performed %d recurrences; final one is %s", num_recur, ctime(&final_recurrence)); */
 
 }
 
@@ -849,7 +849,7 @@ void do_freebusy(void)
 		who[len-4] = 0;
 	}
 
-	lprintf(9, "freebusy requested for <%s>\n", who);
+	syslog(9, "freebusy requested for <%s>\n", who);
 	serv_printf("ICAL freebusy|%s", who);
 	serv_getln(buf, sizeof buf);
 

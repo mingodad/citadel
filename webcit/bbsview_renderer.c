@@ -181,7 +181,7 @@ int bbsview_RenderView_or_Tail(SharedMessageStatus *Stat,
 	int end_index = 0;
 
 	if (Stat->nummsgs > 0) {
-		lprintf(9, "sorting %d messages\n", BBS->num_msgs);
+		syslog(9, "sorting %d messages\n", BBS->num_msgs);
 		qsort(BBS->msgs, (size_t)(BBS->num_msgs), sizeof(long), bbsview_sortfunc);
 	}
 

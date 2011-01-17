@@ -21,7 +21,7 @@
 HashList *StaticFilemappings[4] = {NULL, NULL, NULL, NULL};
 /*
 		{
-			lprintf(9, "Suspicious request. Ignoring.");
+			syslog(9, "Suspicious request. Ignoring.");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
 			hprintf("Content-Type: text/plain\r\n\r\n");
 			wc_printf("You have sent a malformed or invalid request.\r\n");
@@ -43,7 +43,7 @@ void output_static(const char *what)
 
 	fd = open(what, O_RDONLY);
 	if (fd <= 0) {
-		lprintf(9, "output_static('%s') [%s]  -- NOT FOUND --\n", what, ChrPtr(WC->Hdr->this_page));
+		syslog(9, "output_static('%s') [%s]  -- NOT FOUND --\n", what, ChrPtr(WC->Hdr->this_page));
 		hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 		hprintf("Content-Type: text/plain\r\n");
 		begin_burst();
@@ -54,7 +54,7 @@ void output_static(const char *what)
 		content_type = GuessMimeByFilename(what, len);
 
 		if (fstat(fd, &statbuf) == -1) {
-			lprintf(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
+			syslog(9, "output_static('%s')  -- FSTAT FAILED --\n", what);
 			hprintf("HTTP/1.1 404 %s\r\n", strerror(errno));
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
@@ -70,7 +70,7 @@ void output_static(const char *what)
 		if (StrBufReadBLOB(WC->WBuf, &fd, 1, bytes, &Err) < 0)
 		{
 			if (fd > 0) close(fd);
-			lprintf(9, "output_static('%s')  -- FREAD FAILED (%s) --\n", what, strerror(errno));
+			syslog(9, "output_static('%s')  -- FREAD FAILED (%s) --\n", what, strerror(errno));
 				hprintf("HTTP/1.1 500 internal server error \r\n");
 				hprintf("Content-Type: text/plain\r\n");
 				end_burst();
@@ -198,7 +198,7 @@ int LoadStaticDir(const char *DirName, HashList *DirList, const char *RelDir)
 			StrBufAppendBufPlain(OneWebName, filedir_entry->d_name, d_namelen, 0);
 
 			Put(DirList, SKEY(OneWebName), FileName, HFreeStrBuf);
-			/* lprintf(9, "[%s | %s]\n", ChrPtr(OneWebName), ChrPtr(FileName)); */
+			/* syslog(9, "[%s | %s]\n", ChrPtr(OneWebName), ChrPtr(FileName)); */
 			break;
 		default:
 			break;
@@ -246,7 +246,7 @@ void output_static_safe(HashList *DirList)
 		output_static(ChrPtr(vFile));
 	}
 	else {
-		lprintf(1, "output_static_safe() file %s not found. \n", 
+		syslog(1, "output_static_safe() file %s not found. \n", 
 			ChrPtr(WCC->Hdr->HR.ReqLine));
 ///TODO: detect image & output blank image
 		do_404();

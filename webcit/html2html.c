@@ -301,10 +301,10 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			&& (strcasecmp(charset, "UTF-8"))
 			&& (strcasecmp(charset, ""))
 	   ) {
-		lprintf(9, "Converting %s to UTF-8\n", charset);
+		syslog(9, "Converting %s to UTF-8\n", charset);
 		ctdl_iconv_open("UTF-8", charset, &ic);
 		if (ic == (iconv_t)(-1) ) {
-			lprintf(5, "%s:%d iconv_open() failed: %s\n",
+			syslog(5, "%s:%d iconv_open() failed: %s\n",
 					__FILE__, __LINE__, strerror(errno));
 		}
 	}
@@ -412,9 +412,9 @@ void output_html(const char *supplied_charset, int treat_as_wiki, int msgnum, St
 			 * and then ended the message)
 			 */
 			if (!tag_end) {
-				lprintf(9, "tag_end is null and ptr is:\n");
-				lprintf(9, "%s\n", ptr);
-				lprintf(9, "Theoretical bytes remaining: %d\n", msgend - ptr);
+				syslog(9, "tag_end is null and ptr is:\n");
+				syslog(9, "%s\n", ptr);
+				syslog(9, "Theoretical bytes remaining: %d\n", msgend - ptr);
 			}
 
 			src=strstr(ptr, "src=\"cid:");
@@ -639,7 +639,7 @@ void url(char *buf, size_t bufsize)
 	start = NULL;
 	len = strlen(buf);
 	if (len > bufsize) {
-		lprintf(1, "URL: content longer than buffer!");
+		syslog(1, "URL: content longer than buffer!");
 		return;
 	}
 	end = buf + len;
@@ -675,7 +675,7 @@ void url(char *buf, size_t bufsize)
 	
 	UrlLen = end - start;
 	if (UrlLen > sizeof(urlbuf)){
-		lprintf(1, "URL: content longer than buffer!");
+		syslog(1, "URL: content longer than buffer!");
 		return;
 	}
 	memcpy(urlbuf, start, UrlLen);
@@ -688,7 +688,7 @@ void url(char *buf, size_t bufsize)
 			  "%ca href=%c%s%c TARGET=%c%s%c%c%s%c/A%c",
 			  LB, QU, urlbuf, QU, QU, TARGET, QU, RB, urlbuf, LB, RB);
 	if (outpos >= sizeof(outbuf) - Offset) {
-		lprintf(1, "URL: content longer than buffer!");
+		syslog(1, "URL: content longer than buffer!");
 		return;
 	}
 
@@ -696,7 +696,7 @@ void url(char *buf, size_t bufsize)
 	if (TrailerLen > 0)
 		memcpy(outbuf + Offset + outpos, end, TrailerLen);
 	if (Offset + outpos + TrailerLen > bufsize) {
-		lprintf(1, "URL: content longer than buffer!");
+		syslog(1, "URL: content longer than buffer!");
 		return;
 	}
 	memcpy (buf, outbuf, Offset + outpos + TrailerLen);

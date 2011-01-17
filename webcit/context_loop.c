@@ -96,7 +96,7 @@ void do_housekeeping(void)
 	 * Now free up and destroy the culled sessions.
 	 */
 	while (sessions_to_kill != NULL) {
-		lprintf(3, "Destroying session %d\n", sessions_to_kill->wc_session);
+		syslog(3, "Destroying session %d\n", sessions_to_kill->wc_session);
 		pthread_mutex_lock(&sessions_to_kill->SessionMutex);
 		pthread_mutex_unlock(&sessions_to_kill->SessionMutex);
 		sptr = sessions_to_kill->next;
@@ -118,7 +118,7 @@ void check_thread_pool_size(void)
 		(num_threads_executing >= num_threads_existing)
 		&& (num_threads_existing < MAX_WORKER_THREADS)
 	) {
-		lprintf(3, "%d of %d threads are executing.  Adding another worker thread.\n",
+		syslog(3, "%d of %d threads are executing.  Adding another worker thread.\n",
 			num_threads_executing,
 			num_threads_existing
 		);
@@ -179,7 +179,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 				TheSession = sptr;
 			}
 			if (TheSession == NULL)
-				lprintf(1, "found sessionkey [%ld], but credentials for [%s|%s] didn't match\n",
+				syslog(1, "found sessionkey [%ld], but credentials for [%s|%s] didn't match\n",
 					Hdr->HR.SessionKey,ChrPtr(Hdr->c_username), ChrPtr(sptr->wc_username));
 			break;
 		case AUTH_COOKIE:
@@ -195,7 +195,7 @@ wcsession *FindSession(wcsession **wclist, ParsedHttpHdrs *Hdr, pthread_mutex_t 
 	}
 	CtdlLogResult(pthread_mutex_unlock(ListMutex));
 	if (TheSession == NULL)
-		lprintf(1, "didn't find sessionkey [%ld] for user [%s]\n",
+		syslog(1, "didn't find sessionkey [%ld] for user [%s]\n",
 			Hdr->HR.SessionKey,ChrPtr(Hdr->c_username));
 	return TheSession;
 }
@@ -204,7 +204,7 @@ wcsession *CreateSession(int Lockable, int Static, wcsession **wclist, ParsedHtt
 {
 	wcsession *TheSession;
 	if (!Static)
-		lprintf(3, "Creating a new session\n");
+		syslog(3, "Creating a new session\n");
 	TheSession = (wcsession *) malloc(sizeof(wcsession));
 	memset(TheSession, 0, sizeof(wcsession));
 	TheSession->Hdr = Hdr;
@@ -391,7 +391,7 @@ int ReadHTTPRequest (ParsedHttpHdrs *Hdr)
 			memset(pHdr, 0, sizeof(OneHttpHeader));
 			pHdr->Val = Line;
 			Put(Hdr->HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
-			lprintf(9, "%s\n", ChrPtr(Line));
+			syslog(9, "%s\n", ChrPtr(Line));
 			isbogus = ReadHttpSubject(Hdr, Line, HeaderName);
 			if (isbogus) break;
 			continue;
@@ -501,7 +501,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 
 		do_404();
 
-		lprintf(9, "HTTP: 404 [%ld.%06ld] %s %s \n",
+		syslog(9, "HTTP: 404 [%ld.%06ld] %s %s \n",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -522,7 +522,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		/* How long did this transaction take? */
 		gettimeofday(&tx_finish, NULL);
 		
-		lprintf(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
+		syslog(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 			((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 			ReqStrs[Hdr->HR.eReqType],
@@ -558,7 +558,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 		}
 		
 		if (StrLength(Hdr->c_language) > 0) {
-			lprintf(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr->c_language));
+			syslog(9, "Session cookie requests language '%s'\n", ChrPtr(Hdr->c_language));
 			set_selected_language(ChrPtr(Hdr->c_language));
 			go_selected_language();
 		}
@@ -586,7 +586,7 @@ void context_loop(ParsedHttpHdrs *Hdr)
 	gettimeofday(&tx_finish, NULL);
 	
 
-	lprintf(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
+	syslog(9, "HTTP: 200 [%ld.%06ld] %s %s \n",
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) / 1000000,
 		((tx_finish.tv_sec*1000000 + tx_finish.tv_usec) - (tx_start.tv_sec*1000000 + tx_start.tv_usec)) % 1000000,
 		ReqStrs[Hdr->HR.eReqType],

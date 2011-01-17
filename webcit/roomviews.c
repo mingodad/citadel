@@ -93,7 +93,7 @@ int ConditionalRoomHasGroupdavContent(StrBuf *Target, WCTemplputParams *TP)
 {
 	folder *Folder = (folder *)CTX;
 
-	lprintf(0, "-> %s: %ld\n", ChrPtr(Folder->name), Folder->view);
+	syslog(0, "-> %s: %ld\n", ChrPtr(Folder->name), Folder->view);
 
 	return ((Folder->view == VIEW_CALENDAR) || 
 		(Folder->view == VIEW_TASKS) || 

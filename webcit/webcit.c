@@ -269,7 +269,7 @@ void http_redirect(const char *whichpage) {
 void http_transmit_thing(const char *content_type, int is_static)
 {
 
-	lprintf(9, "http_transmit_thing(%s)%s\n", content_type, ((is_static > 0) ? " (static)" : ""));
+	syslog(9, "http_transmit_thing(%s)%s\n", content_type, ((is_static > 0) ? " (static)" : ""));
 	output_headers(0, 0, 0, 0, 0, is_static);
 
 	hprintf("Content-type: %s\r\n"
@@ -501,7 +501,7 @@ void push_destination(void) {
 
 	FreeStrBuf(&WCC->PushedDestination);
 	WCC->PushedDestination = NewStrBufDup(SBSTR("url"));
-	lprintf(9, "Push: %s\n", ChrPtr(WCC->PushedDestination));
+	syslog(9, "Push: %s\n", ChrPtr(WCC->PushedDestination));
 	wc_printf("OK");
 }
 
@@ -516,7 +516,7 @@ void pop_destination(void) {
 		return;
 	}
 
-	lprintf(9, "Pop: %s\n", ChrPtr(WCC->PushedDestination));
+	syslog(9, "Pop: %s\n", ChrPtr(WCC->PushedDestination));
 	http_redirect(ChrPtr(WCC->PushedDestination));
 }
 
@@ -582,7 +582,7 @@ void ParseREST_URL(void)
 	HashList *Floors;
 	void *vFloor;
 
-	lprintf(1, "parsing rest URL: %s\n", ChrPtr(WCC->Hdr->HR.ReqLine));
+	syslog(1, "parsing rest URL: %s\n", ChrPtr(WCC->Hdr->HR.ReqLine));
 
 	WCC->Directory = NewHash(1, Flathash);
 	WCC->CurrentFloor = NULL;
@@ -681,10 +681,10 @@ void session_loop(void)
 
 	/* If the client sent a nonce that is incorrect, kill the request. */
 	if (havebstr("nonce")) {
-		lprintf(9, "Comparing supplied nonce %s to session nonce %ld\n", 
+		syslog(9, "Comparing supplied nonce %s to session nonce %ld\n", 
 			bstr("nonce"), WCC->nonce);
 		if (ibstr("nonce") != WCC->nonce) {
-			lprintf(9, "Ignoring request with mismatched nonce.\n");
+			syslog(9, "Ignoring request with mismatched nonce.\n");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
 			hprintf("Content-Type: text/plain\r\n");
 			begin_burst();
@@ -755,18 +755,18 @@ void session_loop(void)
 	 */
 	if (havebstr("go")) {
 		int ret;
-		lprintf(9, "Explicit room selection: %s\n", bstr("go"));
+		syslog(9, "Explicit room selection: %s\n", bstr("go"));
 		ret = gotoroom(sbstr("go"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			lprintf(1, "Unable to change to [%s]; Reason: %d\n", bstr("go"), ret);
+			syslog(1, "Unable to change to [%s]; Reason: %d\n", bstr("go"), ret);
 		}
 	}
 	else if (havebstr("gotofirst")) {
 		int ret;
-		lprintf(9, "Explicit room selection: %s\n", bstr("gotofirst"));
+		syslog(9, "Explicit room selection: %s\n", bstr("gotofirst"));
 		ret = gotoroom(sbstr("gotofirst"));	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			lprintf(1, "Unable to change to [%s]; Reason: %d\n", bstr("gotofirst"), ret);
+			syslog(1, "Unable to change to [%s]; Reason: %d\n", bstr("gotofirst"), ret);
 		}
 	}
 
@@ -777,13 +777,13 @@ void session_loop(void)
 	else if ( (StrLength(WCC->CurRoom.name) == 0) && ( (StrLength(WCC->Hdr->c_roomname) > 0) )) {
 		int ret;
 
-		lprintf(9, "We are in '%s' but cookie indicates '%s', going there...\n",
+		syslog(9, "We are in '%s' but cookie indicates '%s', going there...\n",
 			ChrPtr(WCC->CurRoom.name),
 			ChrPtr(WCC->Hdr->c_roomname)
 		);
 		ret = gotoroom(WCC->Hdr->c_roomname);	/* do quietly to avoid session output! */
 		if ((ret/100) != 2) {
-			lprintf(1, "COOKIEGOTO: Unable to change to [%s]; Reason: %d\n",
+			syslog(1, "COOKIEGOTO: Unable to change to [%s]; Reason: %d\n",
 				ChrPtr(WCC->Hdr->c_roomname), ret);
 		}
 	}
@@ -952,11 +952,11 @@ InitModule_WEBCIT
 	
 	snprintf(dir, SIZ, "%s/webcit.css", static_local_dir);
 	if (!access(dir, R_OK)) {
-		lprintf(9, "Using local Stylesheet [%s]\n", dir);
+		syslog(9, "Using local Stylesheet [%s]\n", dir);
 		csslocal = NewStrBufPlain(HKEY("<link href=\"static.local/webcit.css\" rel=\"stylesheet\" type=\"text/css\" />"));
 	}
 	else
-		lprintf(9, "No Site-local Stylesheet [%s] installed. \n", dir);
+		syslog(9, "No Site-local Stylesheet [%s] installed. \n", dir);
 
 }
 

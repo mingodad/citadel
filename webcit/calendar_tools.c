@@ -250,7 +250,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	int zone_already_attached;
 
 	if (subcomp == NULL) {
-		lprintf(3, "ERROR: ical_encapsulate_subcomponent() called with NULL argument\n");
+		syslog(3, "ERROR: ical_encapsulate_subcomponent() called with NULL argument\n");
 		return NULL;
 	}
 
@@ -258,7 +258,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	 * If we're already looking at a full VCALENDAR component, this is probably an error.
 	 */
 	if (icalcomponent_isa(subcomp) == ICAL_VCALENDAR_COMPONENT) {
-		lprintf(3, "ERROR: component sent to ical_encapsulate_subcomponent() already top level\n");
+		syslog(3, "ERROR: component sent to ical_encapsulate_subcomponent() already top level\n");
 		return subcomp;
 	}
 
@@ -288,11 +288,11 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 				for (i=0; i<5; ++i) {
 					if (z == attached_zones[i]) {
 						++zone_already_attached;
-						lprintf(9, "zone already attached!!\n");
+						syslog(9, "zone already attached!!\n");
 					}
 				}
 				if ((!zone_already_attached) && (num_zones_attached < 5)) {
-					lprintf(9, "attaching zone %d!\n", num_zones_attached);
+					syslog(9, "attaching zone %d!\n", num_zones_attached);
 					attached_zones[num_zones_attached++] = z;
 				}
 
@@ -306,7 +306,7 @@ icalcomponent *ical_encapsulate_subcomponent(icalcomponent *subcomp) {
 	/* Encapsulate the VEVENT component into a complete VCALENDAR */
 	encaps = icalcomponent_new(ICAL_VCALENDAR_COMPONENT);
 	if (encaps == NULL) {
-		lprintf(3, "ERROR: ical_encapsulate_subcomponent() could not allocate component\n");
+		syslog(3, "ERROR: ical_encapsulate_subcomponent() could not allocate component\n");
 		return NULL;
 	}
 

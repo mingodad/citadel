@@ -115,7 +115,6 @@ void InitialiseSemaphores(void)
  */
 void begin_critical_section(int which_one)
 {
-	/* lprintf(CTDL_DEBUG, "begin_critical_section(%d)\n", which_one); */
 	pthread_mutex_lock(&Critters[which_one]);
 }
 
@@ -185,17 +184,17 @@ void worker_entry(void)
 			if (shutdown == 1)
 			{/* we're the one to cleanup the mess. */
 				http_destroy_modules(&Hdr);
-				lprintf(2, "I'm master shutdown: tagging sessions to be killed.\n");
+				syslog(2, "I'm master shutdown: tagging sessions to be killed.\n");
 				shutdown_sessions();
-				lprintf(2, "master shutdown: waiting for others\n");
+				syslog(2, "master shutdown: waiting for others\n");
 				sleeeeeeeeeep(1); /* wait so some others might finish... */
-				lprintf(2, "master shutdown: cleaning up sessions\n");
+				syslog(2, "master shutdown: cleaning up sessions\n");
 				do_housekeeping();
-				lprintf(2, "master shutdown: cleaning up libical\n");
+				syslog(2, "master shutdown: cleaning up libical\n");
 
 				ShutDownWebcit();
 
-				lprintf(2, "master shutdown exiting.\n");				
+				syslog(2, "master shutdown exiting.\n");				
 				exit(0);
 			}
 			break;
@@ -207,7 +206,7 @@ void worker_entry(void)
 		/* Now do something. */
 		if (msock < 0) {
 			if (ssock > 0) close (ssock);
-			lprintf(2, "in between.");
+			syslog(2, "in between.");
 			pthread_exit(NULL);
 		} else {
 			/* Got it? do some real work! */
@@ -229,11 +228,11 @@ void worker_entry(void)
 				int fdflags; 
 				fdflags = fcntl(ssock, F_GETFL);
 				if (fdflags < 0)
-					lprintf(1, "unable to get server socket flags! %s \n",
+					syslog(1, "unable to get server socket flags! %s \n",
 						strerror(errno));
 				fdflags = fdflags | O_NONBLOCK;
 				if (fcntl(ssock, F_SETFL, fdflags) < 0)
-					lprintf(1, "unable to set server socket nonblocking flags! %s \n",
+					syslog(1, "unable to set server socket nonblocking flags! %s \n",
 						strerror(errno));
 			}
 
@@ -263,30 +262,10 @@ void worker_entry(void)
 	} while (!time_to_die);
 
 	http_destroy_modules(&Hdr);
-	lprintf (1, "Thread exiting.\n");
+	syslog(1, "Thread exiting.\n");
 	pthread_exit(NULL);
 }
 
-/*
- * print log messages 
- * logs to stderr if loglevel is lower than the verbosity set at startup
- *
- * loglevel	level of the message
- * format	the printf like format string
- * ...		the strings to put into format
- */
-int lprintf(int loglevel, const char *format, ...)
-{
-	va_list ap;
-
-	if (loglevel <= verbosity) {
-		va_start(ap, format);
-		vfprintf(stderr, format, ap);
-		va_end(ap);
-		fflush(stderr);
-	}
-	return 1;
-}
 
 /*
  * Shut us down the regular way.
@@ -294,7 +273,7 @@ int lprintf(int loglevel, const char *format, ...)
  */
 pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
-	lprintf (1, "Watcher thread exiting.\n");
+	syslog(1, "Watcher thread exiting.\n");
 	kill(current_child, signum);
 	if (signum != SIGHUP)
 		exit(0);
@@ -310,7 +289,7 @@ void graceful_shutdown(int signum) {
 	FILE *FD;
 	int fd;
 
-	lprintf (1, "WebCit is being shut down on signal %d.\n", signum);
+	syslog(1, "WebCit is being shut down on signal %d.\n", signum);
 	fd = msock;
 	msock = -1;
 	time_to_die = 1;
@@ -441,13 +420,13 @@ void spawn_another_worker_thread()
 	 * otherwise the MIME parser crashes on FreeBSD.
 	 */
 	if ((ret = pthread_attr_setstacksize(&attr, 1024 * 1024))) {
-		lprintf(1, "pthread_attr_setstacksize: %s\n", strerror(ret));
+		syslog(1, "pthread_attr_setstacksize: %s\n", strerror(ret));
 		pthread_attr_destroy(&attr);
 	}
 
 	/* now create the thread */
 	if (pthread_create(&SessThread, &attr, (void *(*)(void *)) worker_entry, NULL) != 0) {
-		lprintf(1, "Can't create thread: %s\n", strerror(errno));
+		syslog(1, "Can't create thread: %s\n", strerror(errno));
 	}
 
 	/* free up the attributes */
@@ -497,7 +476,7 @@ webcit_calc_dirs_n_files(int relh, const char *basedir, int home, char *webcitdi
 		 ctdl_key_dir);
 
 	/* we should go somewhere we can leave our coredump, if enabled... */
-	lprintf(9, "Changing directory to %s\n", socket_dir);
+	syslog(9, "Changing directory to %s\n", socket_dir);
 	if (chdir(webcitdir) != 0) {
 		perror("chdir");
 	}
@@ -559,9 +538,9 @@ void wc_backtrace(void)
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
 		if (strings != NULL)
-			lprintf(1, "%s\n", strings[i]);
+			syslog(1, "%s\n", strings[i]);
 		else
-			lprintf(1, "%p\n", stack_frames[i]);
+			syslog(1, "%p\n", stack_frames[i]);
 	}
 	free(strings);
 #endif

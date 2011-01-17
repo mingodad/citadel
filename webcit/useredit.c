@@ -480,7 +480,7 @@ TRYAGAIN:
 			serv_puts("000");
 		}
 		else 
-			lprintf(1, "Error while creating user vcard: %s\n", ChrPtr(Buf));
+			syslog(1, "Error while creating user vcard: %s\n", ChrPtr(Buf));
 		goto TRYAGAIN;
 	}
 	FreeStrBuf(&Buf);
