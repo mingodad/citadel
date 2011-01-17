@@ -66,7 +66,7 @@ void notes_extract_vnote(char *name, char *filename, char *partnum, char *disp,
 
 	if (!strcasecmp(cbtype, "text/vnote")) {
 
-		CtdlLogPrintf(CTDL_DEBUG, "Part %s contains a vNote!  Loading...\n", partnum);
+		syslog(LOG_DEBUG, "Part %s contains a vNote!  Loading...\n", partnum);
 		if (*v != NULL) {
 			vnote_free(*v);
 		}
@@ -118,7 +118,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 				}
 			}
 
-			CtdlLogPrintf(9, "UUID of note is: %s\n", uuid);
+			syslog(LOG_DEBUG, "UUID of note is: %s\n", uuid);
 			if (!IsEmptyStr(uuid)) {
 
 				if (msg->cm_fields['E'] != NULL) {
@@ -150,7 +150,7 @@ int serv_notes_beforesave(struct CtdlMessage *msg)
 	/* Set the message EUID to the vNote UID */
 
 	if (v->uid) if (!IsEmptyStr(v->uid)) {
-		CtdlLogPrintf(9, "UID of vNote is: %s\n", v->uid);
+		syslog(LOG_DEBUG, "UID of vNote is: %s\n", v->uid);
 		if (msg->cm_fields['E'] != NULL) {
 			free(msg->cm_fields['E']);
 		}

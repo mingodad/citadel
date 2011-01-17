@@ -1,9 +1,9 @@
 /* 
  * Main source module for the Citadel server
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -98,9 +98,9 @@ void cit_backtrace(void)
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
 		if (strings != NULL)
-			CtdlLogPrintf(1, "%s\n", strings[i]);
+			syslog(LOG_ALERT, "%s\n", strings[i]);
 		else
-			CtdlLogPrintf(1, "%p\n", stack_frames[i]);
+			syslog(LOG_ALERT, "%p\n", stack_frames[i]);
 	}
 	free(strings);
 #endif
@@ -121,9 +121,9 @@ void cit_panic_backtrace(int SigNum)
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
 		if (strings != NULL)
-			CtdlLogPrintf(1, "%s\n", strings[i]);
+			syslog(LOG_ALERT, "%s\n", strings[i]);
 		else
-			CtdlLogPrintf(1, "%p\n", stack_frames[i]);
+			syslog(LOG_ALERT, "%p\n", stack_frames[i]);
 	}
 	free(strings);
 #endif
@@ -140,10 +140,10 @@ void master_startup(void) {
 	struct ctdlroom qrbuf;
 	int rv;
 	
-	CtdlLogPrintf(CTDL_DEBUG, "master_startup() started\n");
+	syslog(LOG_DEBUG, "master_startup() started\n");
 	time(&server_startup_time);
 
-	CtdlLogPrintf(CTDL_INFO, "Opening databases\n");
+	syslog(LOG_INFO, "Opening databases\n");
 	open_databases();
 
 	ctdl_thread_internal_init_tsd();
@@ -152,7 +152,7 @@ void master_startup(void) {
 	
 	check_ref_counts();
 
-	CtdlLogPrintf(CTDL_INFO, "Creating base rooms (if necessary)\n");
+	syslog(LOG_INFO, "Creating base rooms (if necessary)\n");
 	CtdlCreateRoom(config.c_baseroom,	0, "", 0, 1, 0, VIEW_BBS);
 	CtdlCreateRoom(AIDEROOM,		3, "", 0, 1, 0, VIEW_BBS);
 	CtdlCreateRoom(SYSCONFIGROOM,		3, "", 0, 1, 0, VIEW_BBS);
@@ -170,7 +170,7 @@ void master_startup(void) {
                 CtdlPutRoomLock(&qrbuf);
         }
 
-	CtdlLogPrintf(CTDL_INFO, "Seeding the pseudo-random number generator...\n");
+	syslog(LOG_INFO, "Seeding the pseudo-random number generator...\n");
 	urandom = fopen("/dev/urandom", "r");
 	if (urandom != NULL) {
 		rv = fread(&seed, sizeof seed, 1, urandom);
@@ -183,12 +183,12 @@ void master_startup(void) {
 	srand(seed);
 	srandom(seed);
 
-	CtdlLogPrintf(CTDL_INFO, "Initializing ipgm secret\n");
+	syslog(LOG_INFO, "Initializing ipgm secret\n");
 	get_config();
 	config.c_ipgm_secret = rand();
 	put_config();
 
-	CtdlLogPrintf(CTDL_DEBUG, "master_startup() finished\n");
+	syslog(LOG_DEBUG, "master_startup() finished\n");
 }
 
 
@@ -214,7 +214,7 @@ void master_cleanup(int exitcode) {
 	sysdep_master_cleanup();
 	
 	/* Close databases */
-	CtdlLogPrintf(CTDL_INFO, "Closing databases\n");
+	syslog(LOG_INFO, "Closing databases\n");
 	close_databases();
 
 #ifdef DEBUG_MEMORY_LEAKS
@@ -223,7 +223,7 @@ void master_cleanup(int exitcode) {
 
 	/* If the operator requested a halt but not an exit, halt here. */
 	if (shutdown_and_halt) {
-		CtdlLogPrintf(CTDL_NOTICE, "citserver: Halting server without exiting.\n");
+		syslog(LOG_NOTICE, "citserver: Halting server without exiting.\n");
 		fflush(stdout); fflush(stderr);
 		while(1) {
 			sleep(32767);
@@ -233,7 +233,7 @@ void master_cleanup(int exitcode) {
 	release_control();
 
 	/* Now go away. */
-	CtdlLogPrintf(CTDL_NOTICE, "citserver: Exiting with status %d\n", exitcode);
+	syslog(LOG_NOTICE, "citserver: Exiting with status %d\n", exitcode);
 	fflush(stdout); fflush(stderr);
 	
 	if (restart_server != 0)
@@ -364,14 +364,14 @@ int is_public_client(void)
 	 */
 	if (stat(public_clients_file, &statbuf) != 0) {
 		/* No public_clients file exists, so bail out */
-		CtdlLogPrintf(CTDL_WARNING, "Warning: '%s' does not exist\n", 
+		syslog(LOG_WARNING, "Warning: '%s' does not exist\n", 
 				public_clients_file);
 		return(0);
 	}
 
 	if (statbuf.st_mtime > pc_timestamp) {
 		begin_critical_section(S_PUBLIC_CLIENTS);
-		CtdlLogPrintf(CTDL_INFO, "Loading %s\n", public_clients_file);
+		syslog(LOG_INFO, "Loading %s\n", public_clients_file);
 
 		public_clientspos = &public_clients[0];
 		public_clientsend = public_clientspos + SIZ;
@@ -417,18 +417,18 @@ int is_public_client(void)
 		end_critical_section(S_PUBLIC_CLIENTS);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Checking whether %s is a local or public client\n",
+	syslog(LOG_DEBUG, "Checking whether %s is a local or public client\n",
 		CC->cs_addr);
 	for (i=0; i<num_parms(public_clients); ++i) {
 		extract_token(addrbuf, public_clients, i, '|', sizeof addrbuf);
 		if (!strcasecmp(CC->cs_addr, addrbuf)) {
-			CtdlLogPrintf(CTDL_DEBUG, "... yes it is.\n");
+			syslog(LOG_DEBUG, "... yes it is.\n");
 			return(1);
 		}
 	}
 
 	/* No hits.  This is not a public client. */
-	CtdlLogPrintf(CTDL_DEBUG, "... no it isn't.\n");
+	syslog(LOG_DEBUG, "... no it isn't.\n");
 	return(0);
 }
 
@@ -471,7 +471,7 @@ void cmd_iden(char *argbuf)
 		CC->cs_addr[0] = 0;
 	}
 
-	CtdlLogPrintf(CTDL_NOTICE, "Client %d/%d/%01d.%02d (%s) from %s\n",
+	syslog(LOG_NOTICE, "Client %d/%d/%01d.%02d (%s) from %s\n",
 		dev_code,
 		cli_code,
 		(rev_level / 100),
@@ -763,7 +763,7 @@ void cmd_ipgm(char *argbuf)
 	else {
 		sleep(5);
 		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
-		CtdlLogPrintf(CTDL_ERR, "Warning: ipgm authentication failed.\n");
+		syslog(LOG_ERR, "Warning: ipgm authentication failed.\n");
 		CC->kill_me = 1;
 	}
 }
@@ -788,7 +788,7 @@ void cmd_down(char *argbuf) {
 		}
 		if ((restart_server > 0) && !running_as_daemon)
 		{
-			CtdlLogPrintf(CTDL_ERR, "The user requested restart, but not running as daemon! Geronimooooooo!\n");
+			syslog(LOG_ERR, "The user requested restart, but not running as daemon! Geronimooooooo!\n");
 			Reply = "%d Warning: citserver is not running in daemon mode and is therefore unlikely to restart automatically.\n";
 			state = ERROR;
 		}
@@ -833,7 +833,7 @@ void cmd_scdn(char *argbuf)
 		restart_server = 1;
 		if (!running_as_daemon)
 		{
-			CtdlLogPrintf(CTDL_ERR, "The user requested restart, but not running as deamon! Geronimooooooo!\n");
+			syslog(LOG_ERR, "The user requested restart, but not running as deamon! Geronimooooooo!\n");
 			Reply = "%d %d Warning, not running in deamon mode. maybe we will come up again, but don't lean on it.\n";
 			state = ERROR;
 		}
@@ -929,7 +929,7 @@ void begin_session(CitContext *con)
 			
 			/*fill in the user data structure */
 			if(getsockopt(con->client_socket, SOL_SOCKET, SO_PEERCRED, &credentials, &ucred_length)) {
-				CtdlLogPrintf(CTDL_NOTICE, "could obtain credentials from unix domain socket");
+				syslog(LOG_NOTICE, "could obtain credentials from unix domain socket");
 				
 			}
 			else {		
@@ -965,10 +965,10 @@ void begin_session(CitContext *con)
 	}
 
 	if (!CC->is_local_socket) {
-		CtdlLogPrintf(CTDL_NOTICE, "Session (%s) started from %s (%s).\n", con->ServiceName, con->cs_host, con->cs_addr);
+		syslog(LOG_NOTICE, "Session (%s) started from %s (%s).\n", con->ServiceName, con->cs_host, con->cs_addr);
 	}
 	else {
-		CtdlLogPrintf(CTDL_NOTICE, "Session (%s) started via local socket UID:%d.\n", con->ServiceName, con->cs_UDSclientUID);
+		syslog(LOG_NOTICE, "Session (%s) started via local socket UID:%d.\n", con->ServiceName, con->cs_UDSclientUID);
 	}
 
 	/* Run any session startup routines registered by loadable modules */
@@ -1030,7 +1030,7 @@ void do_command_loop(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		CtdlLogPrintf(CTDL_ERR, "Client disconnected: ending session.\n");
+		syslog(LOG_ERR, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 		CtdlThreadName(old_name);
 		return;
@@ -1038,10 +1038,10 @@ void do_command_loop(void) {
 
 	/* Log the server command, but don't show passwords... */
 	if ( (strncasecmp(cmdbuf, "PASS", 4)) && (strncasecmp(cmdbuf, "SETP", 4)) ) {
-		CtdlLogPrintf(CTDL_INFO, "CtdlCommand [%s] [%s] %s\n", CTDLUSERIP, CC->curr_user, cmdbuf);
+		syslog(LOG_INFO, "CtdlCommand [%s] [%s] %s\n", CTDLUSERIP, CC->curr_user, cmdbuf);
 	}
 	else {
-		CtdlLogPrintf(CTDL_INFO, "CtdlCommand [%s] [%s] <password command hidden from log>\n", CTDLUSERIP, CC->curr_user);
+		syslog(LOG_INFO, "CtdlCommand [%s] [%s] <password command hidden from log>\n", CTDLUSERIP, CC->curr_user);
 	}
 
 	buffer_output();

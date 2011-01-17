@@ -184,12 +184,12 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 		}
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
+	syslog(LOG_DEBUG, "%d sessions for <%s> are now visible to session %d\n",
 		visible_sessions, presence_jid, CC->cs_pid);
 
 	if ( (event_type == XMPP_EVT_LOGIN) && (visible_sessions == 1) ) {
 
-		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged in\n",
+		syslog(LOG_DEBUG, "Telling session %d that <%s> logged in\n",
 			CC->cs_pid, presence_jid);
 
 		/* Do an unsolicited roster update that adds a new contact. */
@@ -204,7 +204,7 @@ void xmpp_presence_notify(char *presence_jid, int event_type) {
 	}
 
 	if (visible_sessions == 0) {
-		CtdlLogPrintf(CTDL_DEBUG, "Telling session %d that <%s> logged out\n",
+		syslog(LOG_DEBUG, "Telling session %d that <%s> logged out\n",
 			CC->cs_pid, presence_jid);
 		xmpp_destroy_buddy(presence_jid);
 	}
@@ -261,7 +261,7 @@ void xmpp_fetch_mortuary_backend(long msgnum, void *userdata) {
 HashList *xmpp_fetch_mortuary(void) {
 	HashList *mortuary = NewHash(1, NULL);
 	if (!mortuary) {
-		CtdlLogPrintf(CTDL_ALERT, "NewHash() failed!\n");
+		syslog(LOG_ALERT, "NewHash() failed!\n");
 		return(NULL);
 	}
 

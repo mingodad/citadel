@@ -128,7 +128,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 	/* Parse out the host portion of the recipient address */
 	process_rfc822_addr(addr, user, node, name);
 
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Attempting delivery to <%s> @ <%s> (%s)\n",
+	syslog(LOG_DEBUG, "SMTP client: Attempting delivery to <%s> @ <%s> (%s)\n",
 		user, node, name);
 
 	/* Load the message out of the database */
@@ -189,7 +189,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Figure out what mail exchanger host we have to connect to */
 	num_mxhosts = getmx(mxhosts, node);
-	CtdlLogPrintf(CTDL_DEBUG, "Number of MX hosts for <%s> is %d [%s]\n", node, num_mxhosts, mxhosts);
+	syslog(LOG_DEBUG, "Number of MX hosts for <%s> is %d [%s]\n", node, num_mxhosts, mxhosts);
 	if (num_mxhosts < 1) {
 		*status = 5;
 		snprintf(dsn, SIZ, "No MX hosts found for <%s>", node);
@@ -223,21 +223,21 @@ void smtp_try(const char *key, const char *addr, int *status,
 		else {
 			strcpy(mx_port, "25");
 		}
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connecting to %s : %s ...\n", mx_host, mx_port);
+		syslog(LOG_DEBUG, "SMTP client: connecting to %s : %s ...\n", mx_host, mx_port);
 		sock = sock_connect(mx_host, mx_port);
 		snprintf(dsn, SIZ, "Could not connect: %s", strerror(errno));
 		if (sock >= 0) 
 		{
-			CtdlLogPrintf(CTDL_DEBUG, "SMTP client: connected!\n");
+			syslog(LOG_DEBUG, "SMTP client: connected!\n");
 				int fdflags; 
 				fdflags = fcntl(sock, F_GETFL);
 				if (fdflags < 0)
-					CtdlLogPrintf(CTDL_DEBUG,
+					syslog(LOG_DEBUG,
 						      "unable to get SMTP-Client socket flags! %s \n",
 						      strerror(errno));
 				fdflags = fdflags | O_NONBLOCK;
 				if (fcntl(sock, F_SETFL, fdflags) < 0)
-					CtdlLogPrintf(CTDL_DEBUG,
+					syslog(LOG_DEBUG,
 						      "unable to set SMTP-Client socket nonblocking flags! %s \n",
 						      strerror(errno));
 		}
@@ -266,7 +266,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP conversation");
 		goto bail;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -284,17 +284,17 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* Do a EHLO command.  If it fails, try the HELO command. */
 	snprintf(buf, sizeof buf, "EHLO %s\r\n", config.c_fqdn);
-	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
+	syslog(LOG_DEBUG, ">%s", buf);
 	sock_write(&sock, buf, strlen(buf));
 	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP HELO");
 		goto bail;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		snprintf(buf, sizeof buf, "HELO %s\r\n", config.c_fqdn);
-		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
+		syslog(LOG_DEBUG, ">%s", buf);
 		sock_write(&sock, buf, strlen(buf));
 		if (ml_sock_gets(&sock, buf, 30) < 0) {
 			*status = 4;
@@ -321,14 +321,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 		sprintf(buf, "%s%c%s%c%s", mx_user, '\0', mx_user, '\0', mx_pass);
 		CtdlEncodeBase64(encoded, buf, strlen(mx_user) + strlen(mx_user) + strlen(mx_pass) + 2, 0);
 		snprintf(buf, sizeof buf, "AUTH PLAIN %s\r\n", encoded);
-		CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
+		syslog(LOG_DEBUG, ">%s", buf);
 		sock_write(&sock, buf, strlen(buf));
 		if (ml_sock_gets(&sock, buf, 30) < 0) {
 			*status = 4;
 			strcpy(dsn, "Connection broken during SMTP AUTH");
 			goto bail;
 		}
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+		syslog(LOG_DEBUG, "<%s\n", buf);
 		if (buf[0] != '2') {
 			if (buf[0] == '4') {
 				*status = 4;
@@ -345,14 +345,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* previous command succeeded, now try the MAIL FROM: command */
 	snprintf(buf, sizeof buf, "MAIL FROM:<%s>\r\n", envelope_from);
-	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
+	syslog(LOG_DEBUG, ">%s", buf);
 	sock_write(&sock, buf, strlen(buf));
 	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP MAIL");
 		goto bail;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -368,14 +368,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 
 	/* MAIL succeeded, now try the RCPT To: command */
 	snprintf(buf, sizeof buf, "RCPT TO:<%s@%s>\r\n", user, node);
-	CtdlLogPrintf(CTDL_DEBUG, ">%s", buf);
+	syslog(LOG_DEBUG, ">%s", buf);
 	sock_write(&sock, buf, strlen(buf));
 	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP RCPT");
 		goto bail;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -390,14 +390,14 @@ void smtp_try(const char *key, const char *addr, int *status,
 	}
 
 	/* RCPT succeeded, now try the DATA command */
-	CtdlLogPrintf(CTDL_DEBUG, ">DATA\n");
+	syslog(LOG_DEBUG, ">DATA\n");
 	sock_write(&sock, "DATA\r\n", 6);
 	if (ml_sock_gets(&sock, buf, 30) < 0) {
 		*status = 4;
 		strcpy(dsn, "Connection broken during SMTP DATA");
 		goto bail;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (buf[0] != '3') {
 		if (buf[0] == '4') {
 			*status = 3;
@@ -417,7 +417,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 			   msg_size, 
 			   (msg_size / 128) + 50);
 	if (msgtext[msg_size-1] != 10) {
-		CtdlLogPrintf(CTDL_WARNING, "Possible problem: message did not "
+		syslog(LOG_WARNING, "Possible problem: message did not "
 			"correctly terminate. (expecting 0x10, got 0x%02x)\n",
 				buf[msg_size-1]);
 		sock_write(&sock, "\r\n", 2);
@@ -430,7 +430,7 @@ void smtp_try(const char *key, const char *addr, int *status,
 		strcpy(dsn, "Connection broken during SMTP message transmit");
 		goto bail;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "%s\n", buf);
+	syslog(LOG_DEBUG, "%s\n", buf);
 	if (buf[0] != '2') {
 		if (buf[0] == '4') {
 			*status = 4;
@@ -448,11 +448,11 @@ void smtp_try(const char *key, const char *addr, int *status,
 	safestrncpy(dsn, &buf[4], 1023);
 	*status = 2;
 
-	CtdlLogPrintf(CTDL_DEBUG, ">QUIT\n");
+	syslog(LOG_DEBUG, ">QUIT\n");
 	sock_write(&sock, "QUIT\r\n", 6);
 	ml_sock_gets(&sock, buf, 30);
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
-	CtdlLogPrintf(CTDL_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded\n",
+	syslog(LOG_DEBUG, "<%s\n", buf);
+	syslog(LOG_INFO, "SMTP client: delivery to <%s> @ <%s> (%s) succeeded\n",
 		user, node, name);
 
 bail:	free(msgtext);
@@ -461,18 +461,16 @@ bail:	free(msgtext);
 	if (sock != -1)
 		sock_close(sock);
 
-	/* Write something to the syslog (which may or may not be where the
+	/* Write something to the syslog(which may or may not be where the
 	 * rest of the Citadel logs are going; some sysadmins want LOG_MAIL).
 	 */
-	if (enable_syslog) {
-		syslog((LOG_MAIL | LOG_INFO),
-			"%ld: to=<%s>, relay=%s, stat=%s",
-			msgnum,
-			addr,
-			mx_host,
-			dsn
-		);
-	}
+	syslog((LOG_MAIL | LOG_INFO),
+		"%ld: to=<%s>, relay=%s, stat=%s",
+		msgnum,
+		addr,
+		mx_host,
+		dsn
+	);
 
 	return;
 }
@@ -506,7 +504,7 @@ void smtp_do_bounce(char *instr) {
 	StrBuf *BounceMB;
 	long omsgid = (-1);
 
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_do_bounce() called\n");
+	syslog(LOG_DEBUG, "smtp_do_bounce() called\n");
 	strcpy(bounceto, "");
 	boundary = NewStrBufPlain(HKEY("=_Citadel_Multipart_"));
 	StrBufAppendPrintf(boundary, "%s_%04x%04x", config.c_fqdn, getpid(), ++seq);
@@ -575,7 +573,7 @@ void smtp_do_bounce(char *instr) {
 		dsnlen = extract_token(dsn, buf, 3, '|', sizeof dsn);
 		bounce_this = 0;
 
-		CtdlLogPrintf(CTDL_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
+		syslog(LOG_DEBUG, "key=<%s> addr=<%s> status=%d dsn=<%s>\n",
 			key, addr, status, dsn);
 
 		if (!strcasecmp(key, "bounceto")) {
@@ -629,13 +627,13 @@ void smtp_do_bounce(char *instr) {
 		free(bmsg->cm_fields['A']);
 	bmsg->cm_fields['A'] = SmashStrBuf(&BounceMB);
 	/* Deliver the bounce if there's anything worth mentioning */
-	CtdlLogPrintf(CTDL_DEBUG, "num_bounces = %d\n", num_bounces);
+	syslog(LOG_DEBUG, "num_bounces = %d\n", num_bounces);
 	if (num_bounces > 0) {
 
 		/* First try the user who sent the message */
-		CtdlLogPrintf(CTDL_DEBUG, "bounce to user? <%s>\n", bounceto);
+		syslog(LOG_DEBUG, "bounce to user? <%s>\n", bounceto);
 		if (IsEmptyStr(bounceto)) {
-			CtdlLogPrintf(CTDL_ERR, "No bounce address specified\n");
+			syslog(LOG_ERR, "No bounce address specified\n");
 			bounce_msgid = (-1L);
 		}
 
@@ -660,7 +658,7 @@ void smtp_do_bounce(char *instr) {
 	}
 	FreeStrBuf(&boundary);
 	CtdlFreeMessage(bmsg);
-	CtdlLogPrintf(CTDL_DEBUG, "Done processing bounces\n");
+	syslog(LOG_DEBUG, "Done processing bounces\n");
 }
 
 
@@ -730,12 +728,12 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	time_t last_attempted = 0L;
 	time_t retry = SMTP_RETRY_INTERVAL;
 
-	CtdlLogPrintf(CTDL_DEBUG, "SMTP client: smtp_do_procmsg(%ld)\n", msgnum);
+	syslog(LOG_DEBUG, "SMTP client: smtp_do_procmsg(%ld)\n", msgnum);
 	strcpy(envelope_from, "");
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP client: tried %ld but no such message!\n", msgnum);
+		syslog(LOG_ERR, "SMTP client: tried %ld but no such message!\n", msgnum);
 		return;
 	}
 
@@ -783,7 +781,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Postpone delivery if we've already tried recently.
 	 */
 	if (((time(NULL) - last_attempted) < retry) && (run_queue_now == 0)) {
-		CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Retry time not yet reached.\n");
+		syslog(LOG_DEBUG, "SMTP client: Retry time not yet reached.\n");
 		free(instr);
 		return;
 	}
@@ -793,7 +791,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	 * Bail out if there's no actual message associated with this
 	 */
 	if (text_msgid < 0L) {
-		CtdlLogPrintf(CTDL_ERR, "SMTP client: no 'msgid' directive found!\n");
+		syslog(LOG_ERR, "SMTP client: no 'msgid' directive found!\n");
 		free(instr);
 		return;
 	}
@@ -823,7 +821,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 			--i;
 			--lines;
-			CtdlLogPrintf(CTDL_DEBUG, "SMTP client: Trying <%s>\n", addr);
+			syslog(LOG_DEBUG, "SMTP client: Trying <%s>\n", addr);
 			smtp_try(key, addr, &status, dsn, sizeof dsn, text_msgid, envelope_from);
 			if (status != 2) {
 				if (results == NULL) {
@@ -944,19 +942,19 @@ void *smtp_queue_thread(void *arg) {
 
 	CtdlFillSystemContext(&smtp_queue_CC, "SMTP Send");
 	citthread_setspecific(MyConKey, (void *)&smtp_queue_CC);
-	CtdlLogPrintf(CTDL_DEBUG, "smtp_queue_thread() initializing\n");
+	syslog(LOG_DEBUG, "smtp_queue_thread() initializing\n");
 
 	while (!CtdlThreadCheckStop()) {
 		
-		CtdlLogPrintf(CTDL_INFO, "SMTP client: processing outbound queue\n");
+		syslog(LOG_INFO, "SMTP client: processing outbound queue\n");
 
 		if (CtdlGetRoom(&CC->room, SMTP_SPOOLOUT_ROOM) != 0) {
-			CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
+			syslog(LOG_ERR, "Cannot find room <%s>\n", SMTP_SPOOLOUT_ROOM);
 		}
 		else {
 			num_processed = CtdlForEachMessage(MSGS_ALL, 0L, NULL, SPOOLMIME, NULL, smtp_do_procmsg, NULL);
 		}
-		CtdlLogPrintf(CTDL_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
+		syslog(LOG_INFO, "SMTP client: queue run completed; %d messages processed\n", num_processed);
 		CtdlThreadSleep(60);
 	}
 

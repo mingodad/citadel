@@ -158,7 +158,7 @@ fill_encoding_info (const char *charset, XML_Encoding * info)
 { 
   iconv_t cd = (iconv_t)(-1); 
   int flag; 
-	CtdlLogPrintf(0, "RSS: fill encoding info ...\n");
+	syslog(LOG_EMERG, "RSS: fill encoding info ...\n");
  
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN 
   cd = iconv_open ("UCS-2LE", charset); 
@@ -236,7 +236,7 @@ iconv_convertor (void *data, const char *s)
 { 
   XML_Encoding *info = data; 
   int res; 
-	CtdlLogPrintf(0, "RSS: Converting ...\n");
+	syslog(LOG_EMERG, "RSS: Converting ...\n");
 
   if (s == NULL) 
     return -1; 
@@ -269,7 +269,7 @@ handle_unknown_xml_encoding (void *encodingHandleData,
 			     XML_Encoding * info) 
 { 
   int result; 
-  CtdlLogPrintf(0, "RSS: unknown encoding ...\n");
+  syslog(LOG_EMERG, "RSS: unknown encoding ...\n");
   result = fill_encoding_info (name, info); 
   if (result >= 0) 
     { 
@@ -340,7 +340,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 
 	curl = curl_easy_init();
 	if (!curl) {
-		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return 0;
 	}
 	Answer = NewStrBufPlain(NULL, SIZ);
@@ -379,7 +379,7 @@ int LookupUrl(StrBuf *ShorterUrlStr)
 
 	rc = curl_easy_perform(curl);
 	if (rc) {
-		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", rc, errmsg);
+		syslog(LOG_ALERT, "libcurl error %d: %s\n", rc, errmsg);
 		rc = 0;
 	}
 	else 
@@ -585,7 +585,7 @@ void rss_save_item(rss_item *ri)
 #ifndef DEBUG_RSS
 	if (cdbut != NULL) {
 		/* Item has already been seen */
-		CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
+		syslog(LOG_DEBUG, "%s has already been seen\n", utmsgid);
 		cdb_free(cdbut);
 
 		/* rewrite the record anyway, to update the timestamp */
@@ -597,7 +597,7 @@ void rss_save_item(rss_item *ri)
 #endif
 {
 		/* Item has not been seen, so save it. */
-		CtdlLogPrintf(CTDL_DEBUG, "RSS: saving item...\n");
+		syslog(LOG_DEBUG, "RSS: saving item...\n");
 		if (ri->description == NULL) ri->description = NewStrBufPlain(HKEY(""));
 		StrBufSpaceToBlank(ri->description);
 		msg = malloc(sizeof(struct CtdlMessage));
@@ -773,7 +773,7 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 	char            *sep = NULL;
 
 	/* Axe the namespace, we don't care about it */
-///	CtdlLogPrintf(0, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
+///	syslog(LOG_EMERG, "RSS: supplied el %d: %s...\n", rssc->Cfg->ItemType, supplied_el);
 	pel = supplied_el;
 	while (sep = strchr(pel, ':'), sep) {
 		pel = sep + 1;
@@ -789,7 +789,7 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 			     &v))
 		{
 #ifdef DEBUG_RSS
-			CtdlLogPrintf(0, "RSS: START ignoring because of wrong namespace [%s] = [%s]\n", 
+			syslog(LOG_EMERG, "RSS: START ignoring because of wrong namespace [%s] = [%s]\n", 
 				      supplied_el);
 #endif
 			return;
@@ -819,12 +819,12 @@ void rss_xml_start(void *data, const char *supplied_el, const char **attr)
 		}
 #ifdef DEBUG_RSS
 		else 
-			CtdlLogPrintf(0, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
+			syslog(LOG_EMERG, "RSS: START unhandled: [%s] [%s]...\n", pel, supplied_el);
 #endif
 	}
 #ifdef DEBUG_RSS
 	else 
-		CtdlLogPrintf(0, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
+		syslog(LOG_EMERG, "RSS: START unhandled: [%s] [%s]...\n", pel,  supplied_el);
 #endif
 }
 
@@ -843,7 +843,7 @@ void rss_xml_end(void *data, const char *supplied_el)
 	while (sep = strchr(pel, ':'), sep) {
 		pel = sep + 1;
 	}
-//	CtdlLogPrintf(0, "RSS: END %s...\n", el);
+//	syslog(LOG_EMERG, "RSS: END %s...\n", el);
 	if (pel != supplied_el)
 	{
 		void *v;
@@ -854,7 +854,7 @@ void rss_xml_end(void *data, const char *supplied_el)
 			     &v))
 		{
 #ifdef DEBUG_RSS
-			CtdlLogPrintf(0, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
+			syslog(LOG_EMERG, "RSS: END ignoring because of wrong namespace [%s] = [%s]\n", 
 				      supplied_el, ChrPtr(rssc->CData));
 #endif
 			FlushStrBuf(rssc->CData);
@@ -885,12 +885,12 @@ void rss_xml_end(void *data, const char *supplied_el)
 		}
 #ifdef DEBUG_RSS
 		else 
-			CtdlLogPrintf(0, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
+			syslog(LOG_EMERG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
 #endif
 	}
 #ifdef DEBUG_RSS
 	else 
-		CtdlLogPrintf(0, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
+		syslog(LOG_EMERG, "RSS: END   unhandled: [%s]  [%s] = [%s]...\n", pel, supplied_el, ChrPtr(rssc->CData));
 #endif
 	FlushStrBuf(rssc->CData);
 	rssc->Current = NULL;
@@ -902,19 +902,19 @@ void rss_xml_end(void *data, const char *supplied_el)
 
 void RSS_item_rss_start (StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an RSS feed.\n");
+	syslog(LOG_DEBUG, "RSS: This is an RSS feed.\n");
 	Cfg->ItemType = RSS_RSS;
 }
 
 void RSS_item_rdf_start(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an RDF feed.\n");
+	syslog(LOG_DEBUG, "RSS: This is an RDF feed.\n");
 	Cfg->ItemType = RSS_RSS;
 }
 
 void ATOM_item_feed_start(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
 {
-	CtdlLogPrintf(CTDL_DEBUG, "RSS: This is an ATOM feed.\n");
+	syslog(LOG_DEBUG, "RSS: This is an ATOM feed.\n");
 	Cfg->ItemType = RSS_ATOM;
 }
 
@@ -1189,13 +1189,13 @@ void ATOM_item_entry_end(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char
 
 void RSS_item_rss_end(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
 {
-//		CtdlLogPrintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
+//		syslog(LOG_DEBUG, "End of feed detected.  Closing parser.\n");
 	ri->done_parsing = 1;
 	
 }
 void RSS_item_rdf_end(StrBuf *CData, rss_item *ri, rssnetcfg *Cfg, const char** Attr)
 {
-//		CtdlLogPrintf(CTDL_DEBUG, "End of feed detected.  Closing parser.\n");
+//		syslog(LOG_DEBUG, "End of feed detected.  Closing parser.\n");
 	ri->done_parsing = 1;
 }
 
@@ -1263,11 +1263,11 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 	rssc.Item = &ri;
 	rssc.Cfg = Cfg;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Fetching RSS feed <%s>\n", Cfg->url);
+	syslog(LOG_DEBUG, "Fetching RSS feed <%s>\n", Cfg->url);
 
 	curl = curl_easy_init();
 	if (!curl) {
-		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return;
 	}
 	Answer = NewStrBufPlain(NULL, SIZ);
@@ -1306,7 +1306,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 
 	res = curl_easy_perform(curl);
 	if (res) {
-		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", res, errmsg);
+		syslog(LOG_ALERT, "libcurl error %d: %s\n", res, errmsg);
 	}
 
 	if (CtdlThreadCheckStop())
@@ -1342,7 +1342,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 
 	xp = XML_ParserCreateNS(ptr, ':');
 	if (!xp) {
-		CtdlLogPrintf(CTDL_ALERT, "Cannot create XML parser!\n");
+		syslog(LOG_ALERT, "Cannot create XML parser!\n");
 		goto shutdown;
 	}
 	FlushStrBuf(rssc.Key);
@@ -1369,7 +1369,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 		XML_Parse(xp, "", 0, 1);
 
 
-	CtdlLogPrintf(CTDL_ALERT, "RSS: XML Status [%s] \n", 
+	syslog(LOG_ALERT, "RSS: XML Status [%s] \n", 
 		      XML_ErrorString(
 			      XML_GetErrorCode(xp)));
 
@@ -1484,7 +1484,7 @@ void rssclient_scan(void) {
 	if (doing_rssclient) return;
 	doing_rssclient = 1;
 
-	CtdlLogPrintf(CTDL_DEBUG, "rssclient started\n");
+	syslog(LOG_DEBUG, "rssclient started\n");
 	CtdlForEachRoom(rssclient_scan_room, NULL);
 
 	while (rnclist != NULL && !CtdlThreadCheckStop()) {
@@ -1495,7 +1495,7 @@ void rssclient_scan(void) {
 		free(rptr);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "rssclient ended\n");
+	syslog(LOG_DEBUG, "rssclient ended\n");
 	last_run = time(NULL);
 	doing_rssclient = 0;
 	return;
@@ -1551,7 +1551,7 @@ CTDL_MODULE_INIT(rssclient)
 {
 	if (threading)
 	{
-		CtdlLogPrintf(CTDL_INFO, "%s\n", curl_version());
+		syslog(LOG_INFO, "%s\n", curl_version());
 		CtdlRegisterSessionHook(rssclient_scan, EVT_TIMER);
 	}
 	else 

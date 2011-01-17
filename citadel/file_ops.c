@@ -97,7 +97,7 @@ int network_talking_to(char *nodename, int operation) {
 			break;
 	}
 
-	if (nttlist != NULL) CtdlLogPrintf(CTDL_DEBUG, "nttlist=<%s>\n", nttlist);
+	if (nttlist != NULL) syslog(LOG_DEBUG, "nttlist=<%s>\n", nttlist);
 	end_critical_section(S_NTTLIST);
 	return(retval);
 }
@@ -601,7 +601,7 @@ void cmd_ucls(char *cmd)
 				unlink(CC->upl_path);
 			}
 			else {
-				CtdlLogPrintf(CTDL_ALERT, "Cannot link %s to %s: %s\n",
+				syslog(LOG_ALERT, "Cannot link %s to %s: %s\n",
 					CC->upl_path, final_filename, strerror(errno)
 				);
 			}

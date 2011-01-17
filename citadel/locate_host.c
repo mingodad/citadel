@@ -1,5 +1,21 @@
 /*
  * Functions which handle hostname/address lookups and resolution
+ *
+ * Copyright (c) 1987-2011 by the citadel.org team
+ *
+ * This program is open source software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -16,6 +32,7 @@
 #include <netdb.h>
 #include <string.h>
 #include <errno.h>
+#include <syslog.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -296,7 +313,7 @@ int rbl_check(char *message_to_spammer)
 
 		if (rblcheck_backend(tbuf, txt_answer, sizeof txt_answer)) {
 			strcpy(message_to_spammer, txt_answer);
-			CtdlLogPrintf(CTDL_INFO, "RBL: %s\n", txt_answer);
+			syslog(LOG_INFO, "RBL: %s\n", txt_answer);
 			return(1);
 		}
 	}

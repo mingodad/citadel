@@ -73,7 +73,7 @@ int notify_http_server(char *remoteurl,
 
 	curl = curl_easy_init();
 	if (!curl) {
-		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return 1;
 	}
 
@@ -128,7 +128,7 @@ int notify_http_server(char *remoteurl,
 			snprintf(buf, SIZ, 
 				 "Cannot load template file %s [%s]won't send notification\r\n", 
 				 file_funambol_msg, strerror(errno));
-			CtdlLogPrintf(CTDL_ERR, buf);
+			syslog(LOG_ERR, buf);
 
 			CtdlAideMessage(buf, "External notifier unable to find message template!");
 			goto free;
@@ -153,7 +153,7 @@ int notify_http_server(char *remoteurl,
 			snprintf(buf, SIZ, 
 				 "Cannot load template file %s; won't send notification\r\n", 
 				 file_funambol_msg);
-			CtdlLogPrintf(CTDL_ERR, buf);
+			syslog(LOG_ERR, buf);
 
 			CtdlAideMessage(buf, "External notifier unable to load message template!");
 			goto free;
@@ -193,7 +193,7 @@ int notify_http_server(char *remoteurl,
 	if (res) {
 		StrBuf *ErrMsg;
 
-		CtdlLogPrintf(CTDL_ALERT, "libcurl error %d: %s\n", res, errmsg);
+		syslog(LOG_ALERT, "libcurl error %d: %s\n", res, errmsg);
 		ErrMsg = NewStrBufPlain(HKEY("Error sending your Notification\n"));
 		StrBufAppendPrintf(ErrMsg, "\nlibcurl error %d: %s\n", res, errmsg);
 		StrBufAppendBufPlain(ErrMsg, curl_errbuf, -1, 0);
@@ -213,7 +213,7 @@ int notify_http_server(char *remoteurl,
 		ExtNotify_PutErrorMessage(Ctx, ErrMsg);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Funambol notified\n");
+	syslog(LOG_DEBUG, "Funambol notified\n");
 free:
 	curl_slist_free_all (headers);
 	curl_easy_cleanup(curl);

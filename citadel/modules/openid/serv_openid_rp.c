@@ -74,7 +74,7 @@ void openid_cleanup_function(void) {
 	struct CitContext *CCC = CC;	/* CachedCitContext - performance boost */
 
 	if (CCC->openid_data != NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "Clearing OpenID session state\n");
+		syslog(LOG_DEBUG, "Clearing OpenID session state\n");
 		Free_ctdl_openid((ctdl_openid **) &CCC->openid_data);
 	}
 }
@@ -125,11 +125,11 @@ int attach_openid(struct ctdluser *who, StrBuf *claimed_id)
 		cdb_free(cdboi);
 
 		if (fetched_usernum == who->usernum) {
-			CtdlLogPrintf(CTDL_INFO, "%s already associated; no action is taken\n", ChrPtr(claimed_id));
+			syslog(LOG_INFO, "%s already associated; no action is taken\n", ChrPtr(claimed_id));
 			return(0);
 		}
 		else {
-			CtdlLogPrintf(CTDL_INFO, "%s already belongs to another user\n", ChrPtr(claimed_id));
+			syslog(LOG_INFO, "%s already belongs to another user\n", ChrPtr(claimed_id));
 			return(3);
 		}
 	}
@@ -148,7 +148,7 @@ int attach_openid(struct ctdluser *who, StrBuf *claimed_id)
 	snprintf(buf, sizeof buf, "User <%s> (#%ld) has claimed the OpenID URL %s\n",
 		 who->fullname, who->usernum, ChrPtr(claimed_id));
 	CtdlAideMessage(buf, "OpenID claim");
-	CtdlLogPrintf(CTDL_INFO, "%s", buf);
+	syslog(LOG_INFO, "%s", buf);
 	return(0);
 }
 
@@ -188,7 +188,7 @@ void openid_purge(struct ctdluser *usbuf) {
 	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n", (char*)Value);
+		syslog(LOG_DEBUG, "Deleting associated OpenID <%s>\n", (char*)Value);
 		cdb_delete(CDB_OPENID, Value, strlen(Value));
 		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 	}
@@ -421,11 +421,11 @@ int openid_create_user_via_sreg(StrBuf *claimed_id, HashList *sreg_keys)
 	if (CC->logged_in) return(3);
 	if (!GetHash(sreg_keys, "sreg.nickname", 13, (void *) &desired_name)) return(4);
 
-	CtdlLogPrintf(CTDL_DEBUG, "The desired account name is <%s>\n", desired_name);
+	syslog(LOG_DEBUG, "The desired account name is <%s>\n", desired_name);
 
 	len = cutuserkey(desired_name);
 	if (!CtdlGetUser(&CC->user, desired_name)) {
-		CtdlLogPrintf(CTDL_DEBUG, "<%s> is already taken by another user.\n", desired_name);
+		syslog(LOG_DEBUG, "<%s> is already taken by another user.\n", desired_name);
 		memset(&CC->user, 0, sizeof(struct ctdluser));
 		return(5);
 	}
@@ -569,7 +569,7 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 
 	curl = curl_easy_init();
 	if (!curl) {
-		CtdlLogPrintf(CTDL_ALERT, "Unable to initialize libcurl.\n");
+		syslog(LOG_ALERT, "Unable to initialize libcurl.\n");
 		return(-1);
 	}
 
@@ -598,7 +598,7 @@ int fetch_http(StrBuf *url, StrBuf **target_buf)
 	}
 	res = curl_easy_perform(curl);
 	if (res) {
-		CtdlLogPrintf(CTDL_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
+		syslog(LOG_DEBUG, "fetch_http() libcurl error %d: %s\n", res, errmsg);
 	}
 	curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &effective_url);
 	StrBufPlain(url, effective_url, -1);
@@ -646,7 +646,7 @@ void cmd_oids(char *argbuf) {
 	oiddata->verified = 0;
 
 	i = fetch_http(oiddata->claimed_id, &ReplyBuf);
-	CtdlLogPrintf(CTDL_DEBUG, "Normalized URL and Claimed ID is: %s\n", 
+	syslog(LOG_DEBUG, "Normalized URL and Claimed ID is: %s\n", 
 		      ChrPtr(oiddata->claimed_id));
 	if ((StrLength(ReplyBuf) > 0) && (i > 0)) {
 
@@ -744,13 +744,13 @@ void cmd_oidf(char *argbuf) {
 		if (len < 0)
 			len = sizeof(thiskey) - 1;
 		extract_token(thisdata, buf, 1, '|', sizeof thisdata);
-		CtdlLogPrintf(CTDL_DEBUG, "%s: [%d] %s\n", thiskey, strlen(thisdata), thisdata);
+		syslog(LOG_DEBUG, "%s: [%d] %s\n", thiskey, strlen(thisdata), thisdata);
 		Put(keys, thiskey, len, strdup(thisdata), NULL);
 	}
 
 
 	/* Now that we have all of the parameters, we have to validate the signature against the server */
-	CtdlLogPrintf(CTDL_DEBUG, "About to validate the signature...\n");
+	syslog(LOG_DEBUG, "About to validate the signature...\n");
 
 	CURL *curl;
 	CURLcode res;
@@ -771,14 +771,14 @@ void cmd_oidf(char *argbuf) {
 		CURLFORM_COPYNAME,	"openid.mode",
 		CURLFORM_COPYCONTENTS,	"check_authentication",
 		CURLFORM_END);
-	CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.mode", "check_authentication");
+	syslog(LOG_DEBUG, "%25s : %s\n", "openid.mode", "check_authentication");
 
 	if (GetHash(keys, "assoc_handle", 12, (void *) &o_assoc_handle)) {
 		curl_formadd(&formpost, &lastptr,
 			CURLFORM_COPYNAME,	"openid.assoc_handle",
 			CURLFORM_COPYCONTENTS,	o_assoc_handle,
 			CURLFORM_END);
-		CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.assoc_handle", o_assoc_handle);
+		syslog(LOG_DEBUG, "%25s : %s\n", "openid.assoc_handle", o_assoc_handle);
 	}
 
 	if (GetHash(keys, "sig", 3, (void *) &o_sig)) {
@@ -786,7 +786,7 @@ void cmd_oidf(char *argbuf) {
 			CURLFORM_COPYNAME,	"openid.sig",
 			CURLFORM_COPYCONTENTS,	o_sig,
 			CURLFORM_END);
-			CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.sig", o_sig);
+			syslog(LOG_DEBUG, "%25s : %s\n", "openid.sig", o_sig);
 	}
 
 	if (GetHash(keys, "signed", 6, (void *) &o_signed)) {
@@ -794,7 +794,7 @@ void cmd_oidf(char *argbuf) {
 			CURLFORM_COPYNAME,	"openid.signed",
 			CURLFORM_COPYCONTENTS,	o_signed,
 			CURLFORM_END);
-		CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", "openid.signed", o_signed);
+		syslog(LOG_DEBUG, "%25s : %s\n", "openid.signed", o_signed);
 
 		num_signed_values = num_tokens(o_signed, ',');
 		for (i=0; i<num_signed_values; ++i) {
@@ -806,10 +806,10 @@ void cmd_oidf(char *argbuf) {
 						CURLFORM_COPYNAME,	k_o_keyname,
 						CURLFORM_COPYCONTENTS,	k_value,
 						CURLFORM_END);
-					CtdlLogPrintf(CTDL_DEBUG, "%25s : %s\n", k_o_keyname, k_value);
+					syslog(LOG_DEBUG, "%25s : %s\n", k_o_keyname, k_value);
 				}
 				else {
-					CtdlLogPrintf(CTDL_INFO, "OpenID: signed field '%s' is missing\n",
+					syslog(LOG_INFO, "OpenID: signed field '%s' is missing\n",
 						k_keyname);
 				}
 			}
@@ -845,7 +845,7 @@ void cmd_oidf(char *argbuf) {
 
 	res = curl_easy_perform(curl);
 	if (res) {
-		CtdlLogPrintf(CTDL_DEBUG, "cmd_oidf() libcurl error %d: %s\n", res, errmsg);
+		syslog(LOG_DEBUG, "cmd_oidf() libcurl error %d: %s\n", res, errmsg);
 	}
 	curl_easy_cleanup(curl);
 	curl_formfree(formpost);
@@ -855,7 +855,7 @@ void cmd_oidf(char *argbuf) {
 	}
 	FreeStrBuf(&ReplyBuf);
 
-	CtdlLogPrintf(CTDL_DEBUG, "Authentication %s.\n", (oiddata->verified ? "succeeded" : "failed") );
+	syslog(LOG_DEBUG, "Authentication %s.\n", (oiddata->verified ? "succeeded" : "failed") );
 
 	/* Respond to the client */
 
@@ -865,11 +865,11 @@ void cmd_oidf(char *argbuf) {
 		if (CC->logged_in) {
 			if (attach_openid(&CC->user, oiddata->claimed_id) == 0) {
 				cprintf("attach\n");
-				CtdlLogPrintf(CTDL_DEBUG, "OpenID attach succeeded\n");
+				syslog(LOG_DEBUG, "OpenID attach succeeded\n");
 			}
 			else {
 				cprintf("fail\n");
-				CtdlLogPrintf(CTDL_DEBUG, "OpenID attach failed\n");
+				syslog(LOG_DEBUG, "OpenID attach failed\n");
 			}
 		}
 
@@ -886,7 +886,7 @@ void cmd_oidf(char *argbuf) {
 			if (login_via_openid(oiddata->claimed_id) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
-				CtdlLogPrintf(CTDL_DEBUG, "Logged in using previously claimed OpenID\n");
+				syslog(LOG_DEBUG, "Logged in using previously claimed OpenID\n");
 			}
 
 			/*
@@ -895,7 +895,7 @@ void cmd_oidf(char *argbuf) {
 			 */
 			else if (config.c_disable_newu) {
 				cprintf("fail\n");
-				CtdlLogPrintf(CTDL_DEBUG, "Creating user failed due to local policy\n");
+				syslog(LOG_DEBUG, "Creating user failed due to local policy\n");
 			}
 
 			/*
@@ -904,7 +904,7 @@ void cmd_oidf(char *argbuf) {
 			else if (openid_create_user_via_sreg(oiddata->claimed_id, keys) == 0) {
 				cprintf("authenticate\n%s\n%s\n", CC->user.fullname, CC->user.password);
 				logged_in_response();
-				CtdlLogPrintf(CTDL_DEBUG, "Successfully auto-created new user\n");
+				syslog(LOG_DEBUG, "Successfully auto-created new user\n");
 			}
 
 			/*
@@ -921,7 +921,7 @@ void cmd_oidf(char *argbuf) {
 				else {
 					cprintf("\n");
 				}
-				CtdlLogPrintf(CTDL_DEBUG, "The desired Simple Registration name is already taken.\n");
+				syslog(LOG_DEBUG, "The desired Simple Registration name is already taken.\n");
 			}
 		}
 	}

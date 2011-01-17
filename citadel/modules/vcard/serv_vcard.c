@@ -146,18 +146,18 @@ void vcard_directory_add_user(char *internet_addr, char *citadel_addr) {
 	 * probably just the networker or something.
 	 */
 	if (CC->logged_in) {
-		CtdlLogPrintf(CTDL_DEBUG, "Checking for <%s>...\n", internet_addr);
+		syslog(LOG_DEBUG, "Checking for <%s>...\n", internet_addr);
 		if (CtdlDirectoryLookup(buf, internet_addr, sizeof buf) == 0) {
 			if (strcasecmp(buf, citadel_addr)) {
 				/* This address belongs to someone else.
 				 * Bail out silently without saving.
 				 */
-				CtdlLogPrintf(CTDL_DEBUG, "DOOP!\n");
+				syslog(LOG_DEBUG, "DOOP!\n");
 				return;
 			}
 		}
 	}
-	CtdlLogPrintf(CTDL_INFO, "Adding %s (%s) to directory\n", citadel_addr, internet_addr);
+	syslog(LOG_INFO, "Adding %s (%s) to directory\n", citadel_addr, internet_addr);
 	CtdlDirectoryAddUser(internet_addr, citadel_addr);
 }
 
@@ -284,7 +284,7 @@ void vcard_extract_vcard(char *name, char *filename, char *partnum, char *disp,
 	if (  (!strcasecmp(cbtype, "text/x-vcard"))
 	   || (!strcasecmp(cbtype, "text/vcard")) ) {
 
-		CtdlLogPrintf(CTDL_DEBUG, "Part %s contains a vCard!  Loading...\n", partnum);
+		syslog(LOG_DEBUG, "Part %s contains a vCard!  Loading...\n", partnum);
 		if (*v != NULL) {
 			vcard_free(*v);
 		}
@@ -362,7 +362,7 @@ int vcard_upload_beforesave(struct CtdlMessage *msg) {
 	}
 
 	s = vcard_get_prop(v, "fn", 1, 0, 0);
-	if (s) CtdlLogPrintf(CTDL_DEBUG, "vCard beforesave hook running for <%s>\n", s);
+	if (s) syslog(LOG_DEBUG, "vCard beforesave hook running for <%s>\n", s);
 
 	if (yes_my_citadel_config) {
 		/* Bingo!  The user is uploading a new vCard, so
@@ -810,7 +810,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 	struct vCard *v;
 
 	vcard_fn_to_n(vname, usbuf->fullname, sizeof vname);
-	CtdlLogPrintf(CTDL_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
+	syslog(LOG_DEBUG, "Converted <%s> to <%s>\n", usbuf->fullname, vname);
 
 	/* Create and save the vCard */
 	v = vcard_new();
@@ -829,7 +829,7 @@ void vcard_newuser(struct ctdluser *usbuf) {
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer) != NULL) {
 #else // SOLARIS_GETPWUID
 		struct passwd *result = NULL;
-		CtdlLogPrintf(CTDL_DEBUG, "Searching for uid %d\n", usbuf->uid);
+		syslog(LOG_DEBUG, "Searching for uid %d\n", usbuf->uid);
 		if (getpwuid_r(usbuf->uid, &pwd, pwd_buffer, sizeof pwd_buffer, &result) == 0) {
 #endif // HAVE_GETPWUID_R
 			snprintf(buf, sizeof buf, "%s@%s", pwd.pw_name, config.c_fqdn);
@@ -1116,13 +1116,13 @@ void check_get(void) {
 	time(&CC->lastcmd);
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
-		CtdlLogPrintf(CTDL_CRIT, "Client disconnected: ending session.\n");
+		syslog(LOG_CRIT, "Client disconnected: ending session.\n");
 		CC->kill_me = 1;
 		return;
 	}
-	CtdlLogPrintf(CTDL_INFO, ": %s\n", cmdbuf);
+	syslog(LOG_INFO, ": %s\n", cmdbuf);
 	while (strlen(cmdbuf) < 3) strcat(cmdbuf, " ");
-	CtdlLogPrintf(CTDL_INFO, "[ %s]\n", cmdbuf);
+	syslog(LOG_INFO, "[ %s]\n", cmdbuf);
 	
 	if (strncasecmp(cmdbuf, "GET ", 4)==0)
 	{
@@ -1139,13 +1139,13 @@ void check_get(void) {
 		{
 
 			cprintf("200 OK %s\n", internet_addr);
-			CtdlLogPrintf(CTDL_INFO, "sending 200 OK for the room %s\n", rcpt->display_recp);
+			syslog(LOG_INFO, "sending 200 OK for the room %s\n", rcpt->display_recp);
 		}
 		else 
 		{
 			cprintf("500 REJECT noone here by that name.\n");
 			
-			CtdlLogPrintf(CTDL_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
+			syslog(LOG_INFO, "sending 500 REJECT noone here by that name: %s\n", internet_addr);
 		}
 		if (rcpt != NULL) 
 			free_recipients(rcpt);
@@ -1154,7 +1154,7 @@ void check_get(void) {
 	{
 		cprintf("500 REJECT invalid Query.\n");
 		
-		CtdlLogPrintf(CTDL_INFO, "sending 500 REJECT invalid Query: %s\n", internet_addr);
+		syslog(LOG_INFO, "sending 500 REJECT invalid Query: %s\n", internet_addr);
 	}
 }
 
@@ -1176,7 +1176,7 @@ void vcard_CtdlCreateRoom(void)
 
 	/* Set expiration policy to manual; otherwise objects will be lost! */
 	if (CtdlGetRoomLock(&qr, USERCONTACTSROOM)) {
-		CtdlLogPrintf(CTDL_ERR, "Couldn't get the user CONTACTS room!\n");
+		syslog(LOG_ERR, "Couldn't get the user CONTACTS room!\n");
 		return;
 	}
 	qr.QRep.expire_mode = EXPIRE_MANUAL;
@@ -1351,7 +1351,7 @@ void store_this_ha(struct addresses_to_be_filed *aptr) {
 			}
 			vcard_free(v);
 
-			CtdlLogPrintf(CTDL_DEBUG, "Adding contact: %s\n", recipient);
+			syslog(LOG_DEBUG, "Adding contact: %s\n", recipient);
 			vmsgnum = CtdlSubmitMsg(vmsg, NULL, aptr->roomname, QP_EADDR);
 			CtdlFreeMessage(vmsg);
 		}

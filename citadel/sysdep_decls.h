@@ -47,12 +47,6 @@ void cprintf (const char *format, ...) __attribute__((__format__(__printf__,1,2)
 void cprintf (const char *format, ...);
 #endif
 
-void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...) __attribute__((__format__(__printf__,2,3)));
-void vCtdlLogPrintf (enum LogLevel loglevel, const char *format, va_list arg_ptr);
-
-extern int enable_syslog;
-extern int print_to_logfile;
-
 void init_sysdep (void);
 int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errormessage);
 int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage);
@@ -87,10 +81,7 @@ extern int verbosity;
 extern int rescan[];
 
 
-
-
 extern int SyslogFacility(char *name);
-extern int syslog_facility;
 
 
 /*

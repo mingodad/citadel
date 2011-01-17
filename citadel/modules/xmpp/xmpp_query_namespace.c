@@ -88,7 +88,7 @@ void xmpp_iq_roster_query(void)
 	if (cptr) {
 		for (i=0; i<nContexts; i++) {
 			if (xmpp_is_visible(&cptr[i], CC)) {
-				CtdlLogPrintf(CTDL_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
+				syslog(LOG_DEBUG, "Rosterizing %s\n", cptr[i].user.fullname);
 				xmpp_roster_item(&cptr[i]);
 			}
 		}
@@ -124,7 +124,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 		supported_namespace = 1;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
+	syslog(LOG_DEBUG, "xmpp_query_namespace(%s, %s, %s, %s)\n", iq_id, iq_from, iq_to, query_xmlns);
 
 	/*
 	 * Beginning of query result.
@@ -162,7 +162,7 @@ void xmpp_query_namespace(char *iq_id, char *iq_from, char *iq_to, char *query_x
 	 */
 
 	else {
-		CtdlLogPrintf(CTDL_DEBUG,
+		syslog(LOG_DEBUG,
 			"Unknown query namespace '%s' - returning <service-unavailable/>\n",
 			query_xmlns
 		);

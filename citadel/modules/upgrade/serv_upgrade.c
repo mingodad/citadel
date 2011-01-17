@@ -131,14 +131,14 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
 	while (rplist != NULL) {
 
 		if (CtdlGetRoomLock(&qr, rplist->name) == 0) {
-			CtdlLogPrintf(CTDL_DEBUG, "Processing <%s>...\n", rplist->name);
+			syslog(LOG_DEBUG, "Processing <%s>...\n", rplist->name);
 			if ( (qr.QRflags & QR_MAILBOX) == 0) {
-				CtdlLogPrintf(CTDL_DEBUG, "  -- not a mailbox\n");
+				syslog(LOG_DEBUG, "  -- not a mailbox\n");
 			}
 			else {
 
 				qr.QRgen = time(NULL);
-				CtdlLogPrintf(CTDL_DEBUG, "  -- fixed!\n");
+				syslog(LOG_DEBUG, "  -- fixed!\n");
 			}
 			CtdlPutRoomLock(&qr);
 		}
@@ -153,7 +153,7 @@ void cmd_bmbx_backend(struct ctdlroom *qrbuf, void *data) {
  * quick fix to bump mailbox generation numbers
  */
 void bump_mailbox_generation_numbers(void) {
-	CtdlLogPrintf(CTDL_WARNING, "Applying security fix to mailbox rooms\n");
+	syslog(LOG_WARNING, "Applying security fix to mailbox rooms\n");
 	CtdlForEachRoom(cmd_bmbx_backend, NULL);
 	cmd_bmbx_backend(NULL, NULL);
 	return;
@@ -186,7 +186,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
 	while (uplist != NULL) {
 
 		if (CtdlGetUserLock(&us, uplist->user) == 0) {
-			CtdlLogPrintf(CTDL_DEBUG, "Processing <%s>...\n", uplist->user);
+			syslog(LOG_DEBUG, "Processing <%s>...\n", uplist->user);
 			if (us.uid == CTDLUID) {
 				us.uid = (-1);
 			}
@@ -203,7 +203,7 @@ void cbtm_backend(struct ctdluser *usbuf, void *data) {
  * quick fix to change all CTDLUID users to (-1)
  */
 void convert_ctdluid_to_minusone(void) {
-	CtdlLogPrintf(CTDL_WARNING, "Applying uid changes\n");
+	syslog(LOG_WARNING, "Applying uid changes\n");
 	ForEachUser(cbtm_backend, NULL);
 	cbtm_backend(NULL, NULL);
 	return;
@@ -223,7 +223,7 @@ void guess_time_zone(void) {
 		if (fgets(buf, sizeof buf, fp) && (strlen(buf) > 2)) {
 			buf[strlen(buf)-1] = 0;
 			safestrncpy(config.c_default_cal_zone, buf, sizeof config.c_default_cal_zone);
-			CtdlLogPrintf(CTDL_INFO, "Configuring timezone: %s\n", config.c_default_cal_zone);
+			syslog(LOG_INFO, "Configuring timezone: %s\n", config.c_default_cal_zone);
 		}
 		fclose(fp);
 	}
@@ -278,12 +278,12 @@ void update_config(void) {
 void check_server_upgrades(void) {
 
 	get_control();
-	CtdlLogPrintf(CTDL_INFO, "Server-hosted upgrade level is %d.%02d\n",
+	syslog(LOG_INFO, "Server-hosted upgrade level is %d.%02d\n",
 		(CitControl.version / 100),
 		(CitControl.version % 100) );
 
 	if (CitControl.version < REV_LEVEL) {
-		CtdlLogPrintf(CTDL_WARNING,
+		syslog(LOG_WARNING,
 			"Server hosted updates need to be processed at "
 			"this time.  Please wait...\n");
 	}
@@ -294,7 +294,7 @@ void check_server_upgrades(void) {
 	update_config();
 
 	if ((CitControl.version > 000) && (CitControl.version < 555)) {
-		CtdlLogPrintf(CTDL_EMERG,
+		syslog(LOG_EMERG,
 			"Your data files are from a version of Citadel\n"
 			"that is too old to be upgraded.  Sorry.\n");
 		exit(EXIT_FAILURE);

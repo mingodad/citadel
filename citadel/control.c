@@ -77,8 +77,8 @@ void lock_control(void)
 {
 #if defined(LOCK_EX) && defined(LOCK_NB)
 	if (flock(fileno(control_fp), (LOCK_EX | LOCK_NB))) {
-		CtdlLogPrintf(CTDL_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
-		CtdlLogPrintf(CTDL_EMERG, "Is another citserver already running?\n");
+		syslog(LOG_EMERG, "citserver: unable to lock %s.\n", file_citadel_control);
+		syslog(LOG_EMERG, "Is another citserver already running?\n");
 		exit(CTDLEXIT_CONTROL);
 	}
 #endif
@@ -127,9 +127,9 @@ void control_find_highest(struct ctdlroom *qrbuf, void *data)
 	}
 	cdb_free(cdbfr);
 	if (room_fixed)
-		CtdlLogPrintf(CTDL_INFO, "Control record checking....Fixed room counter\n");
+		syslog(LOG_INFO, "Control record checking....Fixed room counter\n");
 	if (message_fixed)
-		CtdlLogPrintf(CTDL_INFO, "Control record checking....Fixed message count\n");
+		syslog(LOG_INFO, "Control record checking....Fixed message count\n");
 	return;
 }
 
@@ -148,7 +148,7 @@ void control_find_user (struct ctdluser *EachUser, void *out_data)
 		user_fixed = 1;
 	}
 	if(user_fixed)
-		CtdlLogPrintf(CTDL_INFO, "Control record checking....Fixed user count\n");
+		syslog(LOG_INFO, "Control record checking....Fixed user count\n");
 }
 
 
@@ -191,7 +191,7 @@ void get_control(void)
 		}
 	}
 	if (control_fp == NULL) {
-		CtdlLogPrintf(CTDL_ALERT, "ERROR opening %s: %s\n", file_citadel_control, strerror(errno));
+		syslog(LOG_ALERT, "ERROR opening %s: %s\n", file_citadel_control, strerror(errno));
 		return;
 	}
 
@@ -222,7 +222,7 @@ void put_control(void)
  */
 void check_control(void)
 {
-	CtdlLogPrintf(CTDL_INFO, "Checking/re-building control record\n");
+	syslog(LOG_INFO, "Checking/re-building control record\n");
 	get_control();
 	// Find highest room number and message number.
 	CtdlForEachRoom(control_find_highest, NULL);
