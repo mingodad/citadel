@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 				if (gethostname
 				    (&server_cookie[strlen(server_cookie)],
 				     200) != 0) {
-					lprintf(2, "gethostname: %s\n",
+					syslog(2, "gethostname: %s\n",
 						strerror(errno));
 					free(server_cookie);
 				}
@@ -215,6 +215,12 @@ int main(int argc, char **argv)
 			return 1;
 		}
 
+	/* Start the logger */
+	openlog("webcit",
+		( running_as_daemon ? (LOG_PID) : (LOG_PID | LOG_PERROR) ),
+		LOG_NEWS
+	);
+
 	if (optind < argc) {
 		ctdlhost = argv[optind];
 		if (++optind < argc)
@@ -234,22 +240,22 @@ int main(int argc, char **argv)
 	LoadIconDir(static_icon_dir);
 
 	/* Tell 'em who's in da house */
-	lprintf(1, PACKAGE_STRING "\n");
-	lprintf(1, "Copyright (C) 1996-2011 by the citadel.org team\n");
-	lprintf(1, "\n");
-	lprintf(1, "This program is open source  software: you can redistribute it and/or\n");
-	lprintf(1, "modify it under the terms of the GNU General Public License as published\n");
-	lprintf(1, "by the Free Software Foundation, either version 3 of the License, or\n");
-	lprintf(1, "(at your option) any later version.\n");
-	lprintf(1, "\n");
-	lprintf(1, "This program is distributed in the hope that it will be useful,\n");
-	lprintf(1, "but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
-	lprintf(1, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
-	lprintf(1, "GNU General Public License for more details.\n");
-	lprintf(1, "\n");
-	lprintf(1, "You should have received a copy of the GNU General Public License\n");
-	lprintf(1, "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
-	lprintf(1, "\n");
+	syslog(1, PACKAGE_STRING "\n");
+	syslog(1, "Copyright (C) 1996-2011 by the citadel.org team\n");
+	syslog(1, "\n");
+	syslog(1, "This program is open source  software: you can redistribute it and/or\n");
+	syslog(1, "modify it under the terms of the GNU General Public License as published\n");
+	syslog(1, "by the Free Software Foundation, either version 3 of the License, or\n");
+	syslog(1, "(at your option) any later version.\n");
+	syslog(1, "\n");
+	syslog(1, "This program is distributed in the hope that it will be useful,\n");
+	syslog(1, "but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
+	syslog(1, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
+	syslog(1, "GNU General Public License for more details.\n");
+	syslog(1, "\n");
+	syslog(1, "You should have received a copy of the GNU General Public License\n");
+	syslog(1, "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
+	syslog(1, "\n");
 
 
 	/* initialize various subsystems */
@@ -260,16 +266,16 @@ int main(int argc, char **argv)
 		FILE *fd;
 		StrBufAppendBufPlain(I18nDump, HKEY("}\n"), 0);
 	        if (StrLength(I18nDump) < 50) {
-			lprintf(1, "********************************************************************************\n");
-			lprintf(1, "*        No strings found in templates!  Are you sure they're there?           *\n");
-			lprintf(1, "********************************************************************************\n");
+			syslog(1, "********************************************************************************\n");
+			syslog(1, "*        No strings found in templates!  Are you sure they're there?           *\n");
+			syslog(1, "********************************************************************************\n");
 			return -1;
 		}
 		fd = fopen(I18nDumpFile, "w");
 	        if (fd == NULL) {
-			lprintf(1, "********************************************************************************\n");
-			lprintf(1, "*                  unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
-			lprintf(1, "********************************************************************************\n");
+			syslog(1, "********************************************************************************\n");
+			syslog(1, "*                  unable to open I18N dumpfile [%s]         *\n", I18nDumpFile);
+			syslog(1, "********************************************************************************\n");
 			return -1;
 		}
 		rv = fwrite(ChrPtr(I18nDump), 1, StrLength(I18nDump), fd);
@@ -290,7 +296,7 @@ int main(int argc, char **argv)
 	 * wcsession struct to which the thread is currently bound.
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
-		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
+		syslog(1, "Can't create TSD key: %s\n", strerror(errno));
 	}
 	InitialiseSemaphores ();
 
@@ -302,7 +308,7 @@ int main(int argc, char **argv)
 	 */
 #ifdef HAVE_OPENSSL
 	if (pthread_key_create(&ThreadSSL, NULL) != 0) {
-		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
+		syslog(1, "Can't create TSD key: %s\n", strerror(errno));
 	}
 #endif
 
@@ -313,11 +319,11 @@ int main(int argc, char **argv)
 	 */
 
 	if (!IsEmptyStr(uds_listen_path)) {
-		lprintf(2, "Attempting to create listener socket at %s...\n", uds_listen_path);
+		syslog(2, "Attempting to create listener socket at %s...\n", uds_listen_path);
 		msock = webcit_uds_server(uds_listen_path, LISTEN_QUEUE_LENGTH);
 	}
 	else {
-		lprintf(2, "Attempting to bind to port %d...\n", http_port);
+		syslog(2, "Attempting to bind to port %d...\n", http_port);
 		msock = webcit_tcp_server(ip_addr, http_port, LISTEN_QUEUE_LENGTH);
 	}
 	if (msock < 0)
@@ -326,7 +332,7 @@ int main(int argc, char **argv)
 		return -msock;
 	}
 
-	lprintf(2, "Listening on socket %d\n", msock);
+	syslog(2, "Listening on socket %d\n", msock);
 	signal(SIGPIPE, SIG_IGN);
 
 	pthread_mutex_init(&SessionListMutex, NULL);

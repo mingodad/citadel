@@ -109,7 +109,7 @@ void LoadZoneFiles(void)
 	Put(ZoneHash, HKEY("UTC"), ZName, HFreeStrBuf);
 	zones = icaltimezone_get_builtin_timezones();
 	for (z = 0; z < zones->num_elements; ++z) {
-		/* lprintf(9, "Location: %-40s tzid: %s\n",
+		/* syslog(9, "Location: %-40s tzid: %s\n",
 			icaltimezone_get_location(icalarray_element_at(zones, z)),
 			icaltimezone_get_tzid(icalarray_element_at(zones, z))
 		); */

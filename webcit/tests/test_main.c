@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 				if (gethostname
 				    (&server_cookie[strlen(server_cookie)],
 				     200) != 0) {
-					lprintf(2, "gethostname: %s\n",
+					syslog(2, "gethostname: %s\n",
 						strerror(errno));
 					free(server_cookie);
 				}
@@ -191,8 +191,8 @@ int main(int argc, char **argv)
 	LoadIconDir(static_icon_dir);
 
 	/* Tell 'em who's in da house */
-	lprintf(1, PACKAGE_STRING "\n");
-	lprintf(1, "Copyright (C) 1996-2009 by the Citadel development team.\n"
+	syslog(1, PACKAGE_STRING "\n");
+	syslog(1, "Copyright (C) 1996-2009 by the Citadel development team.\n"
 		"This software is distributed under the terms of the "
 		"GNU General Public License.\n\n"
 	);
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
 	 * wcsession struct to which the thread is currently bound.
 	 */
 	if (pthread_key_create(&MyConKey, NULL) != 0) {
-		lprintf(1, "Can't create TSD key: %s\n", strerror(errno));
+		syslog(1, "Can't create TSD key: %s\n", strerror(errno));
 	}
 	InitialiseSemaphores ();
 

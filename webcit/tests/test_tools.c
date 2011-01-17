@@ -85,7 +85,7 @@ void SetUpRequest(const char *UrlPath)
 	memset(pHdr, 0, sizeof(OneHttpHeader));
 	pHdr->Val = Line;
 	Put(Hdr.HTTPHeaders, HKEY("GET /"), pHdr, DestroyHttpHeaderHandler);
-	lprintf(9, "%s\n", ChrPtr(Line));
+	syslog(9, "%s\n", ChrPtr(Line));
 
 	if (ReadHttpSubject(&Hdr, Line, HeaderName))
 		CU_FAIL("Failed to parse Request line / me is bogus!");

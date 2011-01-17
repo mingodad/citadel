@@ -70,7 +70,7 @@ void load_inetconf(void)
 			GetHash(WCC->InetCfg, ChrPtr(CfgToken), StrLength(CfgToken), &vHash);
 			Hash = (HashList*) vHash;
 			if (Hash == NULL) {
-				lprintf(1, "ERROR Loading inet config line: [%s]\n", 
+				syslog(1, "ERROR Loading inet config line: [%s]\n", 
 					ChrPtr(Buf));
 				FreeStrBuf(&Value);
 				continue;

@@ -155,7 +155,7 @@ HOOKNAME=`echo $HOOK |sed "s;ServerStartModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Starting $HOOKNAME\n");
+	syslog(CTDL_INFO, "Starting $HOOKNAME\n");
 #endif
 	$HOOK();
 EOF
@@ -187,7 +187,7 @@ for HOOK in $INIT_FUNCS; do
 # Add this entry point to the .c file
     cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Initializing $HOOKNAME\n");
+	syslog(CTDL_INFO, "Initializing $HOOKNAME\n");
 #endif
 	$HOOK();
 EOF
@@ -220,7 +220,7 @@ HOOKNAME=`echo $HOOK |sed "s;ServerShutdownModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Shutting down $HOOKNAME\n");
+	syslog(CTDL_INFO, "Shutting down $HOOKNAME\n");
 #endif
 	$HOOK();
 EOF
@@ -253,7 +253,7 @@ HOOKNAME=`echo $HOOK |sed "s;SessionNewModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Initializing $HOOKNAME\n");
+	syslog(CTDL_INFO, "Initializing $HOOKNAME\n");
 #endif
 	$HOOK(sess);
 EOF
@@ -285,7 +285,7 @@ HOOKNAME=`echo $HOOK |sed "s;SessionAttachModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Attaching Session; $HOOKNAME\n");
+	syslog(CTDL_INFO, "Attaching Session; $HOOKNAME\n");
 #endif
 	$HOOK(sess);
 EOF
@@ -317,7 +317,7 @@ HOOKNAME=`echo $HOOK |sed "s;SessionDetachModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Initializing $HOOKNAME\n");
+	syslog(CTDL_INFO, "Initializing $HOOKNAME\n");
 #endif
 	$HOOK(sess);
 EOF
@@ -350,7 +350,7 @@ HOOKNAME=`echo $HOOK |sed "s;SessionDestroyModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Initializing $HOOKNAME\n");
+	syslog(CTDL_INFO, "Initializing $HOOKNAME\n");
 #endif
 	$HOOK(*sess);
 EOF
@@ -387,7 +387,7 @@ HOOKNAME=`echo $HOOK |sed "s;HttpNewModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "NEW $HOOKNAME\n");
+	syslog(CTDL_INFO, "NEW $HOOKNAME\n");
 #endif
 	$HOOK(httpreq);
 EOF
@@ -415,7 +415,7 @@ HOOKNAME=`echo $HOOK |sed "s;HttpDetachModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Detaching $HOOKNAME\n");
+	syslog(CTDL_INFO, "Detaching $HOOKNAME\n");
 #endif
 	$HOOK(httpreq);
 EOF
@@ -444,7 +444,7 @@ HOOKNAME=`echo $HOOK |sed "s;HttpDestroyModule_;;"`
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
 #ifdef DBG_PRINNT_HOOKS_AT_START
-	lprintf (CTDL_INFO, "Destructing $HOOKNAME\n");
+	syslog(CTDL_INFO, "Destructing $HOOKNAME\n");
 #endif
 	$HOOK(httpreq);
 EOF
