@@ -333,7 +333,7 @@ void do_openid_login(void)
 		serv_puts(buf);
 		serv_getln(buf, sizeof buf);
 		if (buf[0] == '2') {
-			syslog(CTDL_DEBUG, "OpenID server contacted; redirecting to %s\n", &buf[4]);
+			syslog(LOG_DEBUG, "OpenID server contacted; redirecting to %s\n", &buf[4]);
 			http_redirect(&buf[4]);
 			return;
 		}
