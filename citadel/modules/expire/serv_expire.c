@@ -247,12 +247,12 @@ void DoPurgeMessages(FILE *purgelist) {
 void PurgeMessages(void) {
 	FILE *purgelist;
 
-	CtdlLogPrintf(CTDL_DEBUG, "PurgeMessages() called\n");
+	syslog(LOG_DEBUG, "PurgeMessages() called\n");
 	messages_purged = 0;
 
 	purgelist = tmpfile();
 	if (purgelist == NULL) {
-		CtdlLogPrintf(CTDL_CRIT, "Can't create purgelist temp file: %s\n",
+		syslog(LOG_CRIT, "Can't create purgelist temp file: %s\n",
 			strerror(errno));
 		return;
 	}
@@ -320,7 +320,7 @@ void DoPurgeRooms(struct ctdlroom *qrbuf, void *data) {
 		age = time(NULL) - (qrbuf->QRmtime);
 		purge_secs = (time_t)config.c_roompurge * (time_t)86400;
 		if (purge_secs <= (time_t)0) return;
-		CtdlLogPrintf(CTDL_DEBUG, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
+		syslog(LOG_DEBUG, "<%s> is <%ld> seconds old\n", qrbuf->QRname, (long)age);
 		if (age > purge_secs) do_purge = 1;
 	} /* !QR_MAILBOX */
 
@@ -342,7 +342,7 @@ int PurgeRooms(void) {
 	struct ValidUser *vuptr;
 	char *transcript = NULL;
 
-	CtdlLogPrintf(CTDL_DEBUG, "PurgeRooms() called\n");
+	syslog(LOG_DEBUG, "PurgeRooms() called\n");
 
 
 	/* Load up a table full of valid user numbers so we can delete
@@ -379,7 +379,7 @@ int PurgeRooms(void) {
 	if (num_rooms_purged > 0) CtdlAideMessage(transcript, "Room Autopurger Message");
 	free(transcript);
 
-	CtdlLogPrintf(CTDL_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
+	syslog(LOG_DEBUG, "Purged %d rooms.\n", num_rooms_purged);
 	return(num_rooms_purged);
 }
 
@@ -480,7 +480,7 @@ void do_user_purge(struct ctdluser *us, void *data) {
 		 * we will need to try and purge them from users data bases.Some will not have names but
 		 * those with names should be purged.
 		 */
-		CtdlLogPrintf(CTDL_DEBUG, "Auto purger found a user 0 with name \"%s\"\n", us->fullname);
+		syslog(LOG_DEBUG, "Auto purger found a user 0 with name \"%s\"\n", us->fullname);
 		// purge = 0;
 	}
 	
@@ -531,7 +531,7 @@ int PurgeUsers(void) {
 	int num_users_purged = 0;
 	char *transcript = NULL;
 
-	CtdlLogPrintf(CTDL_DEBUG, "PurgeUsers() called\n");
+	syslog(LOG_DEBUG, "PurgeUsers() called\n");
 	users_not_purged = 0;
 
 	switch(config.c_auth_mode) {
@@ -542,7 +542,7 @@ int PurgeUsers(void) {
 			ForEachUser(do_uid_user_purge, NULL);
 			break;
 		default:
-			CtdlLogPrintf(CTDL_DEBUG, "User purge for auth mode %d is not implemented.\n",
+			syslog(LOG_DEBUG, "User purge for auth mode %d is not implemented.\n",
 				config.c_auth_mode);
 			break;
 	}
@@ -593,7 +593,7 @@ int PurgeUsers(void) {
 		users_zero_msg = NULL;
 	}
 		
-	CtdlLogPrintf(CTDL_DEBUG, "Purged %d users.\n", num_users_purged);
+	syslog(LOG_DEBUG, "Purged %d users.\n", num_users_purged);
 	return(num_users_purged);
 }
 
@@ -708,7 +708,7 @@ int PurgeUseTable(void) {
 	struct UPurgeList *uptr; 
 
 	/* Phase 1: traverse through the table, discovering old records... */
-	CtdlLogPrintf(CTDL_DEBUG, "Purge use table: phase 1\n");
+	syslog(LOG_DEBUG, "Purge use table: phase 1\n");
 	cdb_rewind(CDB_USETABLE);
 	while(cdbut = cdb_next_item(CDB_USETABLE), cdbut != NULL) {
 
@@ -735,7 +735,7 @@ int PurgeUseTable(void) {
 	}
 
 	/* Phase 2: delete the records */
-	CtdlLogPrintf(CTDL_DEBUG, "Purge use table: phase 2\n");
+	syslog(LOG_DEBUG, "Purge use table: phase 2\n");
 	while (ul != NULL) {
 		cdb_delete(CDB_USETABLE, ul->up_key, strlen(ul->up_key));
 		uptr = ul->next;
@@ -743,7 +743,7 @@ int PurgeUseTable(void) {
 		ul = uptr;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Purge use table: finished (purged %d records)\n", purged);
+	syslog(LOG_DEBUG, "Purge use table: finished (purged %d records)\n", purged);
 	return(purged);
 }
 
@@ -762,7 +762,7 @@ int PurgeEuidIndexTable(void) {
 	struct CtdlMessage *msg = NULL;
 
 	/* Phase 1: traverse through the table, discovering old records... */
-	CtdlLogPrintf(CTDL_DEBUG, "Purge EUID index: phase 1\n");
+	syslog(LOG_DEBUG, "Purge EUID index: phase 1\n");
 	cdb_rewind(CDB_EUIDINDEX);
 	while(cdbei = cdb_next_item(CDB_EUIDINDEX), cdbei != NULL) {
 
@@ -789,7 +789,7 @@ int PurgeEuidIndexTable(void) {
 	}
 
 	/* Phase 2: delete the records */
-	CtdlLogPrintf(CTDL_DEBUG, "Purge euid index: phase 2\n");
+	syslog(LOG_DEBUG, "Purge euid index: phase 2\n");
 	while (el != NULL) {
 		cdb_delete(CDB_EUIDINDEX, el->ep_key, el->ep_keylen);
 		free(el->ep_key);
@@ -798,7 +798,7 @@ int PurgeEuidIndexTable(void) {
 		el = eptr;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Purge euid index: finished (purged %d records)\n", purged);
+	syslog(LOG_DEBUG, "Purge euid index: finished (purged %d records)\n", purged);
 	return(purged);
 }
 
@@ -840,7 +840,7 @@ int PurgeStaleOpenIDassociations(void) {
 	HashPos = GetNewHashPos(keys, 0);
 	while (GetNextHashPos(keys, HashPos, &len, &Key, &Value)!=0)
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Deleting associated OpenID <%s>\n",  (char*)Value);
+		syslog(LOG_DEBUG, "Deleting associated OpenID <%s>\n",  (char*)Value);
 		cdb_delete(CDB_OPENID, Value, strlen(Value));
 		/* note: don't free(Value) -- deleting the hash list will handle this for us */
 		++num_deleted;
@@ -864,7 +864,7 @@ void *purge_databases(void *args)
 
 	CtdlFillSystemContext(&purgerCC, "purger");
 	citthread_setspecific(MyConKey, (void *)&purgerCC );
-	CtdlLogPrintf(CTDL_DEBUG, "Auto-purger_thread() initializing\n");
+	syslog(LOG_DEBUG, "Auto-purger_thread() initializing\n");
 
         while (!CtdlThreadCheckStop()) {
                 /* Do the auto-purge if the current hour equals the purge hour,
@@ -882,64 +882,64 @@ void *purge_databases(void *args)
                 }
 
 
-                CtdlLogPrintf(CTDL_INFO, "Auto-purger: starting.\n");
+                syslog(LOG_INFO, "Auto-purger: starting.\n");
 
 		if (!CtdlThreadCheckStop())
 		{
 			retval = PurgeUsers();
-                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d users.\n", retval);
+                	syslog(LOG_NOTICE, "Purged %d users.\n", retval);
 		}
 		
 		if (!CtdlThreadCheckStop())
 		{
                 	PurgeMessages();
-                	CtdlLogPrintf(CTDL_NOTICE, "Expired %d messages.\n", messages_purged);
+                	syslog(LOG_NOTICE, "Expired %d messages.\n", messages_purged);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeRooms();
-                	CtdlLogPrintf(CTDL_NOTICE, "Expired %d rooms.\n", retval);
+                	syslog(LOG_NOTICE, "Expired %d rooms.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeVisits();
-                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d visits.\n", retval);
+                	syslog(LOG_NOTICE, "Purged %d visits.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
 			retval = PurgeUseTable();
-                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d entries from the use table.\n", retval);
+                	syslog(LOG_NOTICE, "Purged %d entries from the use table.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = PurgeEuidIndexTable();
-                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d entries from the EUID index.\n", retval);
+                	syslog(LOG_NOTICE, "Purged %d entries from the EUID index.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
 			retval = PurgeStaleOpenIDassociations();
-                	CtdlLogPrintf(CTDL_NOTICE, "Purged %d stale OpenID associations.\n", retval);
+                	syslog(LOG_NOTICE, "Purged %d stale OpenID associations.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
                 	retval = TDAP_ProcessAdjRefCountQueue();
-                	CtdlLogPrintf(CTDL_NOTICE, "Processed %d message reference count adjustments.\n", retval);
+                	syslog(LOG_NOTICE, "Processed %d message reference count adjustments.\n", retval);
 		}
 
 		if (!CtdlThreadCheckStop())
 		{
-                	CtdlLogPrintf(CTDL_INFO, "Auto-purger: finished.\n");
+                	syslog(LOG_INFO, "Auto-purger: finished.\n");
 	                last_purge = now;	/* So we don't do it again soon */
 			force_purge_now = 0;
 		}
 		else
-                	CtdlLogPrintf(CTDL_INFO, "Auto-purger: STOPPED.\n");
+                	syslog(LOG_INFO, "Auto-purger: STOPPED.\n");
 
         }
 	CtdlClearSystemContext();

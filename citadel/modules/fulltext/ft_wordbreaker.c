@@ -159,7 +159,7 @@ void noise_word_cleanup(void)
 	int i;
 	noise_word *cur, *next;
 	
-	CtdlLogPrintf(CTDL_INFO, "Cleaning up fulltext noise words.\n");
+	syslog(LOG_INFO, "Cleaning up fulltext noise words.\n");
 	
 	for (i = 0 ; i < 26 ; i++)
 	{
@@ -236,7 +236,7 @@ void wordbreaker(const char *text, int *num_tokens, int **tokens) {
 			/* extract the word */
 			word_len = word_end - word_start;
 			if (word_len >= sizeof word) {
-				CtdlLogPrintf(CTDL_DEBUG, "Invalid word length: %d\n", word_len);
+				syslog(LOG_DEBUG, "Invalid word length: %d\n", word_len);
 				safestrncpy(word, word_start, sizeof word);
 				word[(sizeof word) - 1] = 0;
 			}

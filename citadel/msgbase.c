@@ -198,7 +198,7 @@ int alias(char *name)
 	}
 
 	if (strcasecmp(original_name, name)) {
-		CtdlLogPrintf(CTDL_INFO, "%s is being forwarded to %s\n", original_name, name);
+		syslog(LOG_INFO, "%s is being forwarded to %s\n", original_name, name);
 	}
 
 	/* Change "user @ xxx" to "user" if xxx is an alias for this host */
@@ -206,7 +206,7 @@ int alias(char *name)
 		if (name[a] == '@') {
 			if (CtdlHostAlias(&name[a+1]) == hostalias_localhost) {
 				name[a] = 0;
-				CtdlLogPrintf(CTDL_INFO, "Changed to <%s>\n", name);
+				syslog(LOG_INFO, "Changed to <%s>\n", name);
 			}
 		}
 	}
@@ -404,7 +404,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		which_user = &CC->user;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlSetSeen(%d msgs starting with %ld, %s, %d) in <%s>\n",
+	syslog(LOG_DEBUG, "CtdlSetSeen(%d msgs starting with %ld, %s, %d) in <%s>\n",
 		num_target_msgnums, target_msgnums[0],
 		(target_setting ? "SET" : "CLEAR"),
 		which_set,
@@ -441,17 +441,17 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 
 
 #if 0	/* This is a special diagnostic section.  Do not allow it to run during normal operation. */
-	CtdlLogPrintf(CTDL_DEBUG, "There are %d messages in the room.\n", num_msgs);
+	syslog(LOG_DEBUG, "There are %d messages in the room.\n", num_msgs);
 	for (i=0; i<num_msgs; ++i) {
 		if ((i > 0) && (msglist[i] <= msglist[i-1])) abort();
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "We are twiddling %d of them.\n", num_target_msgnums);
+	syslog(LOG_DEBUG, "We are twiddling %d of them.\n", num_target_msgnums);
 	for (k=0; k<num_target_msgnums; ++k) {
 		if ((k > 0) && (target_msgnums[k] <= target_msgnums[k-1])) abort();
 	}
 #endif
 
-	CtdlLogPrintf(CTDL_DEBUG, "before update: %s\n", ChrPtr(vset));
+	syslog(LOG_DEBUG, "before update: %s\n", ChrPtr(vset));
 
 	/* Translate the existing sequence set into an array of booleans */
 	setstr = NewStrBuf();
@@ -574,7 +574,7 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 		vset = new_set;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, " after update: %s\n", ChrPtr(vset));
+	syslog(LOG_DEBUG, " after update: %s\n", ChrPtr(vset));
 
 	/* Decide which message set we're manipulating */
 	switch (which_set) {
@@ -1157,11 +1157,11 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	cit_uint8_t ch;
 	cit_uint8_t field_header;
 
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
+	syslog(LOG_DEBUG, "CtdlFetchMessage(%ld, %d)\n", msgnum, with_body);
 
 #ifdef MESSAGE_IN_ROOM
 	if (!CtdlMessageInRoom(msgnum)) {
-		CtdlLogPrintf(CTDL_DEBUG, "Message %ld not in current room\n", msgnum);
+		syslog(LOG_DEBUG, "Message %ld not in current room\n", msgnum);
 		return NULL;
 	}
 #endif
@@ -1180,7 +1180,7 @@ struct CtdlMessage *CtdlFetchMessage(long msgnum, int with_body)
 	 */
 	ch = *mptr++;
 	if (ch != 255) {
-		CtdlLogPrintf(CTDL_ERR, "Message %ld appears to be corrupted.\n", msgnum);
+		syslog(LOG_ERR, "Message %ld appears to be corrupted.\n", msgnum);
 		cdb_free(dmsgtext);
 		return NULL;
 	}
@@ -1244,7 +1244,7 @@ int is_valid_message(struct CtdlMessage *msg) {
 	if (msg == NULL)
 		return 0;
 	if ((msg->cm_magic) != CTDLMESSAGE_MAGIC) {
-		CtdlLogPrintf(CTDL_WARNING, "is_valid_message() -- self-check failed\n");
+		syslog(LOG_WARNING, "is_valid_message() -- self-check failed\n");
 		return 0;
 	}
 	return 1;
@@ -1291,7 +1291,7 @@ void fixed_output_pre(char *name, char *filename, char *partnum, char *disp,
 	struct ma_info *ma;
 	
 	ma = (struct ma_info *)cbuserdata;
-	CtdlLogPrintf(CTDL_DEBUG, "fixed_output_pre() type=<%s>\n", cbtype);	
+	syslog(LOG_DEBUG, "fixed_output_pre() type=<%s>\n", cbtype);	
 	if (!strcasecmp(cbtype, "multipart/alternative")) {
 		++ma->is_ma;
 		ma->did_print = 0;
@@ -1311,7 +1311,7 @@ void fixed_output_post(char *name, char *filename, char *partnum, char *disp,
 	struct ma_info *ma;
 	
 	ma = (struct ma_info *)cbuserdata;
-	CtdlLogPrintf(CTDL_DEBUG, "fixed_output_post() type=<%s>\n", cbtype);	
+	syslog(LOG_DEBUG, "fixed_output_post() type=<%s>\n", cbtype);	
 	if (!strcasecmp(cbtype, "multipart/alternative")) {
 		--ma->is_ma;
 		ma->did_print = 0;
@@ -1335,7 +1335,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 
 	ma = (struct ma_info *)cbuserdata;
 
-	CtdlLogPrintf(CTDL_DEBUG,
+	syslog(LOG_DEBUG,
 		"fixed_output() part %s: %s (%s) (%ld bytes)\n",
 		partnum, filename, cbtype, (long)length);
 
@@ -1344,7 +1344,7 @@ void fixed_output(char *name, char *filename, char *partnum, char *disp,
 	 * we've already printed another section, skip this one.
 	 */	
    	if ( (ma->is_ma) && (ma->did_print) ) {
-		CtdlLogPrintf(CTDL_DEBUG, "Skipping part %s (%s)\n", partnum, cbtype);
+		syslog(LOG_DEBUG, "Skipping part %s (%s)\n", partnum, cbtype);
 		return;
 	}
 	ma->did_print = 1;
@@ -1416,7 +1416,7 @@ void choose_preferred(char *name, char *filename, char *partnum, char *disp,
 		extract_token(buf, CC->preferred_formats, i, '|', sizeof buf);
 		if ( (!strcasecmp(buf, cbtype)) && (!ma->freeze) ) {
 			if (i < ma->chosen_pref) {
-				CtdlLogPrintf(CTDL_DEBUG, "Setting chosen part: <%s>\n", partnum);
+				syslog(LOG_DEBUG, "Setting chosen part: <%s>\n", partnum);
 				safestrncpy(ma->chosen_part, partnum, sizeof ma->chosen_part);
 				ma->chosen_pref = i;
 			}
@@ -1583,7 +1583,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	struct encapmsg encap;
 	int r;
 
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlOutputMsg(msgnum=%ld, mode=%d, section=%s)\n", 
+	syslog(LOG_DEBUG, "CtdlOutputMsg(msgnum=%ld, mode=%d, section=%s)\n", 
 		msg_num, mode,
 		(section ? section : "<>")
 	);
@@ -1603,7 +1603,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 #ifdef MESSAGE_IN_ROOM
 	if (!CtdlMessageInRoom(msg_num)) {
-		CtdlLogPrintf(CTDL_DEBUG, "Message %ld not in current room\n", msg_num);
+		syslog(LOG_DEBUG, "Message %ld not in current room\n", msg_num);
 		if (do_proto) cprintf("%d Can't locate msg %ld in room\n",
 			ERROR + MESSAGE_NOT_FOUND, msg_num);
 		return(om_no_such_msg);
@@ -1690,7 +1690,7 @@ char *qp_encode_email_addrs(char *source)
 	if (source == NULL) return source;
 	if (IsEmptyStr(source)) return source;
 	cit_backtrace();
-	CtdlLogPrintf(CTDL_DEBUG, "qp_encode_email_addrs: [%s]\n", source);
+	syslog(LOG_DEBUG, "qp_encode_email_addrs: [%s]\n", source);
 
 	AddrPtr = malloc (sizeof (long) * nAddrPtrMax);
 	AddrUtf8 = malloc (sizeof (long) * nAddrPtrMax);
@@ -2170,7 +2170,7 @@ int CtdlOutputPreLoadedMsg(
 	char snode[100];
 	char mid[100];
 
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlOutputPreLoadedMsg(TheMessage=%s, %d, %d, %d, %d\n",
+	syslog(LOG_DEBUG, "CtdlOutputPreLoadedMsg(TheMessage=%s, %d, %d, %d, %d\n",
 		((TheMessage == NULL) ? "NULL" : "not null"),
 		mode, headers_only, do_proto, crlf);
 
@@ -2178,7 +2178,7 @@ int CtdlOutputPreLoadedMsg(
 	nl = (crlf ? "\r\n" : "\n");
 
 	if (!is_valid_message(TheMessage)) {
-		CtdlLogPrintf(CTDL_ERR,
+		syslog(LOG_ERR,
 			"ERROR: invalid preloaded message for output\n");
 		cit_backtrace ();
 	 	return(om_no_such_msg);
@@ -2572,7 +2572,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	long *msgs_to_be_merged = NULL;
 	int num_msgs_to_be_merged = 0;
 
-	CtdlLogPrintf(CTDL_DEBUG,
+	syslog(LOG_DEBUG,
 		"CtdlSaveMsgPointersInRoom(room=%s, num_msgs=%d, repl=%d, suppress_rca=%d)\n",
 		roomname, num_newmsgs, do_repl_check, suppress_refcount_adj
 	);
@@ -2588,7 +2588,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	if (CtdlGetRoomLock(&CC->room,
 	   ((roomname != NULL) ? roomname : CC->room.QRname) )
 	   != 0) {
-		CtdlLogPrintf(CTDL_ERR, "No such room <%s>\n", roomname);
+		syslog(LOG_ERR, "No such room <%s>\n", roomname);
 		return(ERROR + ROOM_NOT_FOUND);
 	}
 
@@ -2625,14 +2625,14 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 		}
 	}
 
-	CtdlLogPrintf(9, "%d unique messages to be merged\n", num_msgs_to_be_merged);
+	syslog(LOG_DEBUG, "%d unique messages to be merged\n", num_msgs_to_be_merged);
 
 	/*
 	 * Now merge the new messages
 	 */
 	msglist = realloc(msglist, (sizeof(long) * (num_msgs + num_msgs_to_be_merged)) );
 	if (msglist == NULL) {
-		CtdlLogPrintf(CTDL_ALERT, "ERROR: can't realloc message list!\n");
+		syslog(LOG_ALERT, "ERROR: can't realloc message list!\n");
 	}
 	memcpy(&msglist[num_msgs], msgs_to_be_merged, (sizeof(long) * num_msgs_to_be_merged) );
 	num_msgs += num_msgs_to_be_merged;
@@ -2656,7 +2656,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 
 	/* Perform replication checks if necessary */
 	if ( (DoesThisRoomNeedEuidIndexing(&CC->room)) && (do_repl_check) ) {
-		CtdlLogPrintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom() doing repl checks\n");
+		syslog(LOG_DEBUG, "CtdlSaveMsgPointerInRoom() doing repl checks\n");
 
 		for (i=0; i<num_msgs_to_be_merged; ++i) {
 			msgid = msgs_to_be_merged[i];
@@ -2686,7 +2686,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 	}
 
 	else {
-		CtdlLogPrintf(CTDL_DEBUG, "CtdlSaveMsgPointerInRoom() skips repl checks\n");
+		syslog(LOG_DEBUG, "CtdlSaveMsgPointerInRoom() skips repl checks\n");
 	}
 
 	/* Submit this room for processing by hooks */
@@ -2775,7 +2775,7 @@ long send_message(struct CtdlMessage *msg) {
 	/* Write our little bundle of joy into the message base */
 	if (cdb_store(CDB_MSGMAIN, &newmsgid, (int)sizeof(long),
 		      smr.ser, smr.len) < 0) {
-		CtdlLogPrintf(CTDL_ERR, "Can't store message\n");
+		syslog(LOG_ERR, "Can't store message\n");
 		retval = 0L;
 	} else {
 		if (is_bigmsg) {
@@ -2818,7 +2818,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 	 * Check for valid message format
 	 */
 	if (is_valid_message(msg) == 0) {
-		CtdlLogPrintf(CTDL_ERR, "serialize_message() aborting due to invalid message\n");
+		syslog(LOG_ERR, "serialize_message() aborting due to invalid message\n");
 		ret->len = 0;
 		ret->ser = NULL;
 		return;
@@ -2831,7 +2831,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 
 	ret->ser = malloc(ret->len);
 	if (ret->ser == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "serialize_message() malloc(%ld) failed: %s\n",
+		syslog(LOG_ERR, "serialize_message() malloc(%ld) failed: %s\n",
 			(long)ret->len, strerror(errno));
 		ret->len = 0;
 		ret->ser = NULL;
@@ -2849,7 +2849,7 @@ void serialize_message(struct ser_ret *ret,		/* return values */
 		safestrncpy((char *)&ret->ser[wlen], msg->cm_fields[(int)forder[i]], fieldlen+1);
 		wlen = wlen + fieldlen + 1;
 	}
-	if (ret->len != wlen) CtdlLogPrintf(CTDL_ERR, "ERROR: len=%ld wlen=%ld\n",
+	if (ret->len != wlen) syslog(LOG_ERR, "ERROR: len=%ld wlen=%ld\n",
 		(long)ret->len, (long)wlen);
 
 	return;
@@ -2875,7 +2875,7 @@ void dump_message(struct CtdlMessage *msg,	/* unserialized msg */
 	 * Check for valid message format
 	 */
 	if (is_valid_message(msg) == 0) {
-		CtdlLogPrintf(CTDL_ERR, "dump_message() aborting due to invalid message\n");
+		syslog(LOG_ERR, "dump_message() aborting due to invalid message\n");
 		return;
 	}
 
@@ -2903,19 +2903,19 @@ void ReplicationChecks(struct CtdlMessage *msg) {
 
 	if (DoesThisRoomNeedEuidIndexing(&CC->room) == 0) return;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Performing replication checks in <%s>\n",
+	syslog(LOG_DEBUG, "Performing replication checks in <%s>\n",
 		CC->room.QRname);
 
 	/* No exclusive id?  Don't do anything. */
 	if (msg == NULL) return;
 	if (msg->cm_fields['E'] == NULL) return;
 	if (IsEmptyStr(msg->cm_fields['E'])) return;
-	/*CtdlLogPrintf(CTDL_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
+	/*syslog(LOG_DEBUG, "Exclusive ID: <%s> for room <%s>\n",
 		msg->cm_fields['E'], CC->room.QRname);*/
 
 	old_msgnum = CtdlLocateMessageByEuid(msg->cm_fields['E'], &CC->room);
 	if (old_msgnum > 0L) {
-		CtdlLogPrintf(CTDL_DEBUG, "ReplicationChecks() replacing message %ld\n", old_msgnum);
+		syslog(LOG_DEBUG, "ReplicationChecks() replacing message %ld\n", old_msgnum);
 		CtdlDeleteMessages(CC->room.QRname, &old_msgnum, 1, "");
 	}
 }
@@ -2958,7 +2958,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	size_t tmp = 0;
 	int rv = 0;
 
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlSubmitMsg() called\n");
+	syslog(LOG_DEBUG, "CtdlSubmitMsg() called\n");
 	if (is_valid_message(msg) == 0) return(-1);	/* self check */
 
 	/* If this message has no timestamp, we take the liberty of
@@ -2994,7 +2994,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 
 	/* Learn about what's inside, because it's what's inside that counts */
 	if (msg->cm_fields['M'] == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "ERROR: attempt to save message with NULL body\n");
+		syslog(LOG_ERR, "ERROR: attempt to save message with NULL body\n");
 		return(-2);
 	}
 
@@ -3026,7 +3026,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Goto the correct room */
-	CtdlLogPrintf(CTDL_DEBUG, "Selected room %s\n", (recps) ? CCC->room.QRname : SENTITEMS);
+	syslog(LOG_DEBUG, "Selected room %s\n", (recps) ? CCC->room.QRname : SENTITEMS);
 	strcpy(hold_rm, CCC->room.QRname);
 	strcpy(actual_rm, CCC->room.QRname);
 	if (recps != NULL) {
@@ -3038,7 +3038,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		if (CCC->user.axlevel == AxProbU) {
 			strcpy(hold_rm, actual_rm);
 			strcpy(actual_rm, config.c_twitroom);
-			CtdlLogPrintf(CTDL_DEBUG, "Diverting to twit room\n");
+			syslog(LOG_DEBUG, "Diverting to twit room\n");
 		}
 	}
 
@@ -3047,7 +3047,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 		strcpy(actual_rm, force_room);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Final selection: %s\n", actual_rm);
+	syslog(LOG_DEBUG, "Final selection: %s\n", actual_rm);
 	if (strcasecmp(actual_rm, CCC->room.QRname)) {
 		/* CtdlGetRoom(&CCC->room, actual_rm); */
 		CtdlUserGoto(actual_rm, 0, 1, NULL, NULL);
@@ -3061,7 +3061,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Perform "before save" hooks (aborting if any return nonzero) */
-	CtdlLogPrintf(CTDL_DEBUG, "Performing before-save hooks\n");
+	syslog(LOG_DEBUG, "Performing before-save hooks\n");
 	if (PerformMessageHooks(msg, EVT_BEFORESAVE) > 0) return(-3);
 
 	/*
@@ -3073,7 +3073,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Save it to disk */
-	CtdlLogPrintf(CTDL_DEBUG, "Saving to disk\n");
+	syslog(LOG_DEBUG, "Saving to disk\n");
 	newmsgid = send_message(msg);
 	if (newmsgid <= 0L) return(-5);
 
@@ -3081,7 +3081,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * be a critical section because nobody else knows about this message
 	 * yet.
 	 */
-	CtdlLogPrintf(CTDL_DEBUG, "Creating MetaData record\n");
+	syslog(LOG_DEBUG, "Creating MetaData record\n");
 	memset(&smi, 0, sizeof(struct MetaData));
 	smi.meta_msgnum = newmsgid;
 	smi.meta_refcount = 0;
@@ -3099,7 +3099,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 *    message to attach to the journalized copy.
 	 */
 	if (CCC->redirect_buffer != NULL) {
-		CtdlLogPrintf(CTDL_ALERT, "CCC->redirect_buffer is not NULL during message submission!\n");
+		syslog(LOG_ALERT, "CCC->redirect_buffer is not NULL during message submission!\n");
 		abort();
 	}
 	CCC->redirect_buffer = NewStrBufPlain(NULL, SIZ);
@@ -3111,7 +3111,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	PutMetaData(&smi);
 
 	/* Now figure out where to store the pointers */
-	CtdlLogPrintf(CTDL_DEBUG, "Storing pointers\n");
+	syslog(LOG_DEBUG, "Storing pointers\n");
 
 	/* If this is being done by the networker delivering a private
 	 * message, we want to BYPASS saving the sender's copy (because there
@@ -3119,7 +3119,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 */
 	if ((!CCC->internal_pgm) || (recps == NULL)) {
 		if (CtdlSaveMsgPointerInRoom(actual_rm, newmsgid, 1, msg) != 0) {
-			CtdlLogPrintf(CTDL_ERR, "ERROR saving message pointer!\n");
+			syslog(LOG_ERR, "ERROR saving message pointer!\n");
 			CtdlSaveMsgPointerInRoom(config.c_aideroom, newmsgid, 0, msg);
 		}
 	}
@@ -3134,12 +3134,12 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	  for (i=0; i<num_tokens(recps->recp_room, '|'); ++i) {
 		extract_token(recipient, recps->recp_room, i,
 					'|', sizeof recipient);
-		CtdlLogPrintf(CTDL_DEBUG, "Delivering to room <%s>\n", recipient);
+		syslog(LOG_DEBUG, "Delivering to room <%s>\n", recipient);
 		CtdlSaveMsgPointerInRoom(recipient, newmsgid, 0, msg);
 	}
 
 	/* Bump this user's messages posted counter. */
-	CtdlLogPrintf(CTDL_DEBUG, "Updating user\n");
+	syslog(LOG_DEBUG, "Updating user\n");
 	CtdlGetUserLock(&CCC->user, CCC->curr_user);
 	CCC->user.posted = CCC->user.posted + 1;
 	CtdlPutUserLock(&CCC->user);
@@ -3162,7 +3162,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	  for (i=0; i<num_tokens(recps->recp_local, '|'); ++i) {
 		extract_token(recipient, recps->recp_local, i,
 					'|', sizeof recipient);
-		CtdlLogPrintf(CTDL_DEBUG, "Delivering private local mail to <%s>\n",
+		syslog(LOG_DEBUG, "Delivering private local mail to <%s>\n",
 			recipient);
 		if (CtdlGetUser(&userbuf, recipient) == 0) {
 			// Add a flag so the Funambol module knows its mail
@@ -3197,14 +3197,14 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 			}
 		}
 		else {
-			CtdlLogPrintf(CTDL_DEBUG, "No user <%s>\n", recipient);
+			syslog(LOG_DEBUG, "No user <%s>\n", recipient);
 			CtdlSaveMsgPointerInRoom(config.c_aideroom,
 				newmsgid, 0, msg);
 		}
 	}
 
 	/* Perform "after save" hooks */
-	CtdlLogPrintf(CTDL_DEBUG, "Performing after-save hooks\n");
+	syslog(LOG_DEBUG, "Performing after-save hooks\n");
 	PerformMessageHooks(msg, EVT_AFTERSAVE);
 
 	/* For IGnet mail, we have to save a new copy into the spooler for
@@ -3248,7 +3248,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	}
 
 	/* Go back to the room we started from */
-	CtdlLogPrintf(CTDL_DEBUG, "Returning to original room %s\n", hold_rm);
+	syslog(LOG_DEBUG, "Returning to original room %s\n", hold_rm);
 	if (strcasecmp(hold_rm, CCC->room.QRname))
 		CtdlUserGoto(hold_rm, 0, 1, NULL, NULL);
 
@@ -3258,7 +3258,7 @@ long CtdlSubmitMsg(struct CtdlMessage *msg,	/* message to save */
 	 * contain a recipient.
 	 */
 	if ((recps != NULL) && (recps->num_internet > 0)) {
-		CtdlLogPrintf(CTDL_DEBUG, "Generating delivery instructions\n");
+		syslog(LOG_DEBUG, "Generating delivery instructions\n");
 		instr_alloc = 1024;
 		instr = malloc(instr_alloc);
 		snprintf(instr, instr_alloc,
@@ -3854,7 +3854,7 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 		striplt(this_recp);
 		if (IsEmptyStr(this_recp))
 			break;
-		CtdlLogPrintf(CTDL_DEBUG, "Evaluating recipient #%d: %s\n", num_recps, this_recp);
+		syslog(LOG_DEBUG, "Evaluating recipient #%d: %s\n", num_recps, this_recp);
 		++num_recps;
 		mailtype = alias(this_recp);
 		mailtype = alias(this_recp);
@@ -3998,12 +3998,12 @@ struct recptypes *validate_recipients(const char *supplied_recipients,
 		strcpy(ret->errormsg, "No recipients specified.");
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "validate_recipients()\n");
-	CtdlLogPrintf(CTDL_DEBUG, " local: %d <%s>\n", ret->num_local, ret->recp_local);
-	CtdlLogPrintf(CTDL_DEBUG, "  room: %d <%s>\n", ret->num_room, ret->recp_room);
-	CtdlLogPrintf(CTDL_DEBUG, "  inet: %d <%s>\n", ret->num_internet, ret->recp_internet);
-	CtdlLogPrintf(CTDL_DEBUG, " ignet: %d <%s>\n", ret->num_ignet, ret->recp_ignet);
-	CtdlLogPrintf(CTDL_DEBUG, " error: %d <%s>\n", ret->num_error, ret->errormsg);
+	syslog(LOG_DEBUG, "validate_recipients()\n");
+	syslog(LOG_DEBUG, " local: %d <%s>\n", ret->num_local, ret->recp_local);
+	syslog(LOG_DEBUG, "  room: %d <%s>\n", ret->num_room, ret->recp_room);
+	syslog(LOG_DEBUG, "  inet: %d <%s>\n", ret->num_internet, ret->recp_internet);
+	syslog(LOG_DEBUG, " ignet: %d <%s>\n", ret->num_ignet, ret->recp_ignet);
+	syslog(LOG_DEBUG, " error: %d <%s>\n", ret->num_error, ret->errormsg);
 
 	free(recipients);
 	return(ret);
@@ -4020,7 +4020,7 @@ void free_recipients(struct recptypes *valid) {
 	}
 
 	if (valid->recptypes_magic != RECPTYPES_MAGIC) {
-		CtdlLogPrintf(CTDL_EMERG, "Attempt to call free_recipients() on some other data type!\n");
+		syslog(LOG_EMERG, "Attempt to call free_recipients() on some other data type!\n");
 		abort();
 	}
 
@@ -4377,12 +4377,12 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 		regcomp(&re, content_type, 0);
 		need_to_free_re = 1;
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s)\n",
+	syslog(LOG_DEBUG, "CtdlDeleteMessages(%s, %d msgs, %s)\n",
 		room_name, num_dmsgnums, content_type);
 
 	/* get room record, obtaining a lock... */
 	if (CtdlGetRoomLock(&qrbuf, room_name) != 0) {
-		CtdlLogPrintf(CTDL_ERR, "CtdlDeleteMessages(): Room <%s> not found\n",
+		syslog(LOG_ERR, "CtdlDeleteMessages(): Room <%s> not found\n",
 			room_name);
 		if (need_to_free_re) regfree(&re);
 		return (0);	/* room not found */
@@ -4459,7 +4459,7 @@ int CtdlDeleteMessages(char *room_name,		/* which room */
 	/* Now free the memory we used, and go away. */
 	if (msglist != NULL) free(msglist);
 	if (dellist != NULL) free(dellist);
-	CtdlLogPrintf(CTDL_DEBUG, "%d message(s) deleted.\n", num_deleted);
+	syslog(LOG_DEBUG, "%d message(s) deleted.\n", num_deleted);
 	if (need_to_free_re) regfree(&re);
 	return (num_deleted);
 }
@@ -4693,7 +4693,7 @@ void AdjRefCount(long msgnum, int incr)
 	struct arcq new_arcq;
 	int rv = 0;
 
-	CtdlLogPrintf(CTDL_DEBUG, "AdjRefCount() msg %ld ref count delta %+d\n",
+	syslog(LOG_DEBUG, "AdjRefCount() msg %ld ref count delta %+d\n",
 		msgnum, incr
 	);
 
@@ -4705,7 +4705,7 @@ void AdjRefCount(long msgnum, int incr)
 
 	/* msgnum < 0 means that we're trying to close the file */
 	if (msgnum < 0) {
-		CtdlLogPrintf(CTDL_DEBUG, "Closing the AdjRefCount queue file\n");
+		syslog(LOG_DEBUG, "Closing the AdjRefCount queue file\n");
 		begin_critical_section(S_SUPPMSGMAIN);
 		if (arcfp != NULL) {
 			fclose(arcfp);
@@ -4757,7 +4757,7 @@ int TDAP_ProcessAdjRefCountQueue(void)
 
 	r = link(file_arcq, file_arcq_temp);
 	if (r != 0) {
-		CtdlLogPrintf(CTDL_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
+		syslog(LOG_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
 		end_critical_section(S_SUPPMSGMAIN);
 		return(num_records_processed);
 	}
@@ -4767,7 +4767,7 @@ int TDAP_ProcessAdjRefCountQueue(void)
 
 	fp = fopen(file_arcq_temp, "rb");
 	if (fp == NULL) {
-		CtdlLogPrintf(CTDL_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
+		syslog(LOG_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
 		return(num_records_processed);
 	}
 
@@ -4779,7 +4779,7 @@ int TDAP_ProcessAdjRefCountQueue(void)
 	fclose(fp);
 	r = unlink(file_arcq_temp);
 	if (r != 0) {
-		CtdlLogPrintf(CTDL_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
+		syslog(LOG_CRIT, "%s: %s\n", file_arcq_temp, strerror(errno));
 	}
 
 	return(num_records_processed);
@@ -4810,7 +4810,7 @@ void TDAP_AdjRefCount(long msgnum, int incr)
 	smi.meta_refcount += incr;
 	PutMetaData(&smi);
 	end_critical_section(S_SUPPMSGMAIN);
-	CtdlLogPrintf(CTDL_DEBUG, "TDAP_AdjRefCount() msg %ld ref count delta %+d, is now %d\n",
+	syslog(LOG_DEBUG, "TDAP_AdjRefCount() msg %ld ref count delta %+d, is now %d\n",
 		msgnum, incr, smi.meta_refcount
 	);
 
@@ -4818,7 +4818,7 @@ void TDAP_AdjRefCount(long msgnum, int incr)
 	 * (and its supplementary record as well).
 	 */
 	if (smi.meta_refcount == 0) {
-		CtdlLogPrintf(CTDL_DEBUG, "Deleting message <%ld>\n", msgnum);
+		syslog(LOG_DEBUG, "Deleting message <%ld>\n", msgnum);
 		
 		/* Call delete hooks with NULL room to show it has gone altogether */
 		PerformDeleteHooks(NULL, msgnum);
@@ -4864,7 +4864,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 		safestrncpy(roomname, req_room, sizeof(roomname));
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Raw length is %ld\n", (long)raw_length);
+	syslog(LOG_DEBUG, "Raw length is %ld\n", (long)raw_length);
 
 	if (is_binary) {
 		encoded_message = malloc((size_t) (((raw_length * 134) / 100) + 4096 ) );
@@ -4902,7 +4902,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 		);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "Allocating\n");
+	syslog(LOG_DEBUG, "Allocating\n");
 	msg = malloc(sizeof(struct CtdlMessage));
 	memset(msg, 0, sizeof(struct CtdlMessage));
 	msg->cm_magic = CTDLMESSAGE_MAGIC;
@@ -4926,7 +4926,7 @@ void CtdlWriteObject(char *req_room,			/* Room to stuff it in */
 	 * other objects of this type that are currently in the room.
 	 */
 	if (is_unique) {
-		CtdlLogPrintf(CTDL_DEBUG, "Deleted %d other msgs of this type\n",
+		syslog(LOG_DEBUG, "Deleted %d other msgs of this type\n",
 			CtdlDeleteMessages(roomname, NULL, 0, content_type)
 		);
 	}

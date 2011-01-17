@@ -128,12 +128,12 @@ int enable_syslog = 0;
 
 
 /*
- * CtdlLogPrintf()  ...   Write logging information; 
+ * syslog()  ...   Write logging information; 
  *                  simple here to have the same 
  *                  symbols in the client.
  */
 
-void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...) {   
+void syslog(enum LogLevel loglevel, const char *format, ...) {   
 	va_list arg_ptr;
 
 	va_start(arg_ptr, format);

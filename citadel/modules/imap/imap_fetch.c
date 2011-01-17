@@ -240,7 +240,7 @@ void imap_fetch_rfc822(long msgnum, const char *whichfmt) {
 		text_size = 0;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, 
+	syslog(LOG_DEBUG, 
 		"RFC822: headers=" SIZE_T_FMT 
 		", text=" SIZE_T_FMT
 		", total=" SIZE_T_FMT "\n",
@@ -288,7 +288,7 @@ void imap_load_part(char *name, char *filename, char *partnum, char *disp,
 	char *desired_section;
 
 	desired_section = (char *)cbuserdata;
-	CtdlLogPrintf(CTDL_DEBUG, "imap_load_part() looking for %s, found %s\n",
+	syslog(LOG_DEBUG, "imap_load_part() looking for %s, found %s\n",
 		desired_section,
 		partnum
 	);
@@ -671,7 +671,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 	if (strchr(ChrPtr(section), '[') != NULL) {
 		StrBufStripAllBut(section, '[', ']');
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "Section is: [%s]\n", 
+	syslog(LOG_DEBUG, "Section is: [%s]\n", 
 	      (StrLength(section) == 0) ? "(empty)" : ChrPtr(section)
 	);
 
@@ -705,7 +705,7 @@ void imap_fetch_body(long msgnum, ConstStr item, int is_peek) {
 		is_partial = 1;
 	}
 	if ( (is_partial == 1) && (StrLength(partial) > 0) ) {
-		CtdlLogPrintf(CTDL_DEBUG, "Partial is <%s>\n", ChrPtr(partial));
+		syslog(LOG_DEBUG, "Partial is <%s>\n", ChrPtr(partial));
 	}
 
 	if (Imap->cached_body == NULL) {
@@ -1133,17 +1133,17 @@ void imap_do_fetch(citimap_command *Cmd) {
 /* debug output the parsed vector */
 	{
 		int i;
-		CtdlLogPrintf(CTDL_DEBUG, "----- %ld params \n",
+		syslog(LOG_DEBUG, "----- %ld params \n",
 			      Cmd->num_parms);
 
 	for (i=0; i < Cmd->num_parms; i++) {
 		if (Cmd->Params[i].len != strlen(Cmd->Params[i].Key))
-			CtdlLogPrintf(CTDL_DEBUG, "*********** %ld != %ld : %s\n",
+			syslog(LOG_DEBUG, "*********** %ld != %ld : %s\n",
 				      Cmd->Params[i].len, 
 				      strlen(Cmd->Params[i].Key),
 				      Cmd->Params[i].Key);
 		else
-			CtdlLogPrintf(CTDL_DEBUG, "%ld : %s\n",
+			syslog(LOG_DEBUG, "%ld : %s\n",
 				      Cmd->Params[i].len, 
 				      Cmd->Params[i].Key);
 	}}
@@ -1468,7 +1468,7 @@ void imap_uidfetch(int num_parms, ConstStr *Params) {
 
 	MakeStringOf(Cmd.CmdBuf, 4);
 #if 0
-	CtdlLogPrintf(CTDL_DEBUG, "-------%s--------\n", ChrPtr(Cmd.CmdBuf));
+	syslog(LOG_DEBUG, "-------%s--------\n", ChrPtr(Cmd.CmdBuf));
 #endif
 	num_items = imap_extract_data_items(&Cmd);
 	if (num_items < 1) {

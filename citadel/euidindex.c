@@ -98,7 +98,7 @@ long CtdlLocateMessageByEuid(char *euid, struct ctdlroom *qrbuf) {
 	struct cdbdata *cdb_euid;
 	long msgnum = (-1L);
 
-	CtdlLogPrintf(CTDL_DEBUG, "Searching for EUID <%s> in <%s>\n", euid, qrbuf->QRname);
+	syslog(LOG_DEBUG, "Searching for EUID <%s> in <%s>\n", euid, qrbuf->QRname);
 
 	key_len = strlen(euid) + sizeof(long) + 1;
 	key = malloc(key_len);
@@ -118,7 +118,7 @@ long CtdlLocateMessageByEuid(char *euid, struct ctdlroom *qrbuf) {
 		memcpy(&msgnum, cdb_euid->ptr, sizeof(long));
 		cdb_free(cdb_euid);
 	}
-	CtdlLogPrintf(CTDL_DEBUG, "returning msgnum = %ld\n", msgnum);
+	syslog(LOG_DEBUG, "returning msgnum = %ld\n", msgnum);
 	return(msgnum);
 }
 
@@ -133,7 +133,7 @@ void index_message_by_euid(char *euid, struct ctdlroom *qrbuf, long msgnum) {
 	char *data;
 	int data_len;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Indexing message #%ld <%s> in <%s>\n", msgnum, euid, qrbuf->QRname);
+	syslog(LOG_DEBUG, "Indexing message #%ld <%s> in <%s>\n", msgnum, euid, qrbuf->QRname);
 
 	key_len = strlen(euid) + sizeof(long) + 1;
 	key = malloc(key_len);
@@ -191,7 +191,7 @@ void rebuild_euid_index_for_room(struct ctdlroom *qrbuf, void *data) {
 	while (rplist != NULL) {
 		if (CtdlGetRoom(&qr, rplist->name) == 0) {
 			if (DoesThisRoomNeedEuidIndexing(&qr)) {
-				CtdlLogPrintf(CTDL_DEBUG,
+				syslog(LOG_DEBUG,
 					"Rebuilding EUID index for <%s>\n",
 					rplist->name);
 				CtdlUserGoto(rplist->name, 0, 0, NULL, NULL);

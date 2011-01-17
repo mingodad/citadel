@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <pwd.h>
 #include <errno.h>
+#include <syslog.h>
 #include <sys/types.h>
 
 #if TIME_WITH_SYS_TIME
@@ -71,15 +72,7 @@
 
 #define CTDL_UPGRADE_CALL(module_name) ctdl_module_##module_name##_upgrade ()
 
-
-/*
- * Prototype for making log entries in Citadel.
- */
-
-void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...);
-
 #define CtdlAideMessage(TEXT, SUBJECT) quickie_message("Citadel",NULL,NULL,AIDEROOM,TEXT,FMT_CITADEL,SUBJECT) 
-
 /*
  * Hook functions available to modules.
  */

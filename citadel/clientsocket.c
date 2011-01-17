@@ -4,7 +4,7 @@
  * sockets for the Citadel client; for that you must look in ipc_c_tcp.c
  * (which, uncoincidentally, bears a striking similarity to this file).
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <syslog.h>
 #include <libcitadel.h>
 #include "citadel.h"
 #include "server.h"
@@ -85,7 +86,7 @@ int sock_connect(char *host, char *service)
 
 	rc = getaddrinfo(host, service, &hints, &res);
 	if (rc != 0) {
-		CtdlLogPrintf(CTDL_ERR, "%s: %s\n", host, gai_strerror(rc));
+		syslog(LOG_ERR, "%s: %s\n", host, gai_strerror(rc));
 		return(-1);
 	}
 
@@ -95,7 +96,7 @@ int sock_connect(char *host, char *service)
 	for (ai = res; ai != NULL; ai = ai->ai_next) {
 		sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (sock < 0) {
-			CtdlLogPrintf(CTDL_ERR, "socket() failed: %s\n", strerror(errno));
+			syslog(LOG_ERR, "socket() failed: %s\n", strerror(errno));
 			freeaddrinfo(res);
 			return(-1);
 		}
@@ -105,7 +106,7 @@ int sock_connect(char *host, char *service)
 			return(sock);
 		}
 		else {
-			CtdlLogPrintf(CTDL_ERR, "connect() failed: %s\n", strerror(errno));
+			syslog(LOG_ERR, "connect() failed: %s\n", strerror(errno));
 			close(sock);
 		}
 	}
@@ -140,7 +141,7 @@ int socket_read_blob(int *Socket, StrBuf * Target, int bytes, int timeout)
 					&CCC->sPos,
 					Socket, 1, bytes, O_TERM, &Error);
 	if (retval < 0) {
-		CtdlLogPrintf(CTDL_CRIT,
+		syslog(LOG_CRIT,
 			      "%s failed: %s\n", __FUNCTION__, Error);
 	}
 	return retval;
@@ -159,7 +160,7 @@ int CtdlSockGetLine(int *sock, StrBuf * Target, int nSec)
 					       &CCC->sPos,
 					       sock, nSec, 1, &Error);
 	if ((rc < 0) && (Error != NULL))
-		CtdlLogPrintf(CTDL_CRIT,
+		syslog(LOG_CRIT,
 			      "%s failed: %s\n", __FUNCTION__, Error);
 	return rc;
 }

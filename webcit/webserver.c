@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 	/* Start the logger */
 	openlog("webcit",
 		( running_as_daemon ? (LOG_PID) : (LOG_PID | LOG_PERROR) ),
-		LOG_NEWS
+		LOG_DAEMON
 	);
 
 	if (optind < argc) {

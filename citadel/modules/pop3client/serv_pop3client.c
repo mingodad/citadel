@@ -82,29 +82,29 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	struct UseTable ut;
 	CitContext *CCC=CC;
 
-	CtdlLogPrintf(CTDL_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
-	CtdlLogPrintf(CTDL_NOTICE, "Connecting to <%s>\n", pop3host);
+	syslog(LOG_DEBUG, "POP3: %s %s %s <password>\n", roomname, pop3host, pop3user);
+	syslog(LOG_NOTICE, "Connecting to <%s>\n", pop3host);
 	
 	if (CtdlThreadCheckStop())
 		return;
 		
 	sock = sock_connect(pop3host, "110");
 	if (sock < 0) {
-		CtdlLogPrintf(CTDL_ERR, "Could not connect: %s\n", strerror(errno));
+		syslog(LOG_ERR, "Could not connect: %s\n", strerror(errno));
 		return;
 	}
 	
 	if (CtdlThreadCheckStop())
 		goto bail;
 
-	CtdlLogPrintf(CTDL_DEBUG, "Connected!\n");
+	syslog(LOG_DEBUG, "Connected!\n");
 	CCC->sReadBuf = NewStrBuf();
 	CCC->sMigrateBuf = NewStrBuf();
 	CCC->sPos = NULL;
 
 	/* Read the server greeting */
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
 	if (CtdlThreadCheckStop())
@@ -116,10 +116,10 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	 * actually barfs on LF-terminated newlines.
 	 */
 	snprintf(buf, sizeof buf, "USER %s\r", pop3user);
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
 	if (CtdlThreadCheckStop())
@@ -127,10 +127,10 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 
 	/* Password */
 	snprintf(buf, sizeof buf, "PASS %s\r", pop3pass);
-	CtdlLogPrintf(CTDL_DEBUG, "<PASS <password>\n");
+	syslog(LOG_DEBUG, "<PASS <password>\n");
 	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
 	if (CtdlThreadCheckStop())
@@ -138,10 +138,10 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 
 	/* Get the list of messages */
 	snprintf(buf, sizeof buf, "LIST\r");
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+	syslog(LOG_DEBUG, ">%s\n", buf);
 	if (strncasecmp(buf, "+OK", 3)) goto bail;
 
 	if (CtdlThreadCheckStop())
@@ -152,7 +152,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			goto bail;
 
 		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+		syslog(LOG_DEBUG, ">%s\n", buf);
 		msg_to_fetch = atoi(buf);
 		if (msg_to_fetch > 0) {
 			if (alloc_msgs == 0) {
@@ -172,10 +172,10 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 
 		/* Find out the UIDL of the message, to determine whether we've already downloaded it */
 		snprintf(buf, sizeof buf, "UIDL %d\r", msglist[i]);
-		CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+		syslog(LOG_DEBUG, "<%s\n", buf);
 		if (sock_puts(&sock, buf) <0) goto bail;
 		if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-		CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+		syslog(LOG_DEBUG, ">%s\n", buf);
 		if (strncasecmp(buf, "+OK", 3)) goto bail;
 		extract_token(this_uidl, buf, 2, ' ', sizeof this_uidl);
 
@@ -187,7 +187,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		cdbut = cdb_fetch(CDB_USETABLE, utmsgid, strlen(utmsgid));
 		if (cdbut != NULL) {
 			/* message has already been seen */
-			CtdlLogPrintf(CTDL_DEBUG, "%s has already been seen\n", utmsgid);
+			syslog(LOG_DEBUG, "%s has already been seen\n", utmsgid);
 			cdb_free(cdbut);
 
 			/* rewrite the record anyway, to update the timestamp */
@@ -198,10 +198,10 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 		else {
 			/* Message has not been seen. Tell the server to fetch the message... */
 			snprintf(buf, sizeof buf, "RETR %d\r", msglist[i]);
-			CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+			syslog(LOG_DEBUG, "<%s\n", buf);
 			if (sock_puts(&sock, buf) <0) goto bail;
 			if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-			CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+			syslog(LOG_DEBUG, ">%s\n", buf);
 			if (strncasecmp(buf, "+OK", 3)) goto bail;
 	
 			if (CtdlThreadCheckStop())
@@ -211,7 +211,7 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 			body = CtdlReadMessageBody(HKEY("."), config.c_maxmsglen, NULL, 1, &sock);
 			if (body == NULL) goto bail;
 	
-			CtdlLogPrintf(CTDL_DEBUG, "Converting message...\n");
+			syslog(LOG_DEBUG, "Converting message...\n");
 			msg = convert_internet_message(body);
 			body = NULL;	/* yes, this should be dereferenced, NOT freed */
 	
@@ -222,10 +222,10 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 	
 				if (!keep) {
 					snprintf(buf, sizeof buf, "DELE %d\r", msglist[i]);
-					CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+					syslog(LOG_DEBUG, "<%s\n", buf);
 					if (sock_puts(&sock, buf) <0) goto bail;
 					if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-					CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf); /* errors here are non-fatal */
+					syslog(LOG_DEBUG, ">%s\n", buf); /* errors here are non-fatal */
 				}
 
 				/* write the uidl to the use table so we don't fetch this message again */
@@ -240,10 +240,10 @@ void pop3_do_fetching(char *roomname, char *pop3host, char *pop3user, char *pop3
 
 	/* Log out */
 	snprintf(buf, sizeof buf, "QUIT\r");
-	CtdlLogPrintf(CTDL_DEBUG, "<%s\n", buf);
+	syslog(LOG_DEBUG, "<%s\n", buf);
 	if (sock_puts(&sock, buf) <0) goto bail;
 	if (sock_getln(&sock, buf, sizeof buf) < 0) goto bail;
-	CtdlLogPrintf(CTDL_DEBUG, ">%s\n", buf);
+	syslog(LOG_DEBUG, ">%s\n", buf);
 bail:	
 	FreeStrBuf(&CCC->sReadBuf);
 	FreeStrBuf(&CCC->sMigrateBuf);
@@ -328,7 +328,7 @@ void pop3client_scan(void) {
 	if (doing_pop3client) return;
 	doing_pop3client = 1;
 
-	CtdlLogPrintf(CTDL_DEBUG, "pop3client started\n");
+	syslog(LOG_DEBUG, "pop3client started\n");
 	CtdlForEachRoom(pop3client_scan_room, NULL);
 
 	while (palist != NULL && !CtdlThreadCheckStop()) {
@@ -341,7 +341,7 @@ void pop3client_scan(void) {
 		free(pptr);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "pop3client ended\n");
+	syslog(LOG_DEBUG, "pop3client ended\n");
 	last_run = time(NULL);
 	doing_pop3client = 0;
 }

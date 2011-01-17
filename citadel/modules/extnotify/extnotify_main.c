@@ -123,7 +123,7 @@ StrBuf** GetNotifyHosts(void)
 		pchs = ChrPtr(Host);
 		pche = strchr(pchs, ':');
 		if (pche == NULL) {
-			CtdlLogPrintf(CTDL_ERR, 
+			syslog(LOG_ERR, 
 				      __FILE__": filename not found in %s.\n", 
 				      pchs);
 			continue;
@@ -178,12 +178,12 @@ void do_extnotify_queue(void)
 	/*
 	 * Go ahead and run the queue
 	 */
-	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: processing notify queue\n");
+	syslog(LOG_DEBUG, "serv_extnotify: processing notify queue\n");
     
 	memset(&Ctx, 0, sizeof(NotifyContext));
 	Ctx.NotifyHostList = GetNotifyHosts();
 	if (CtdlGetRoom(&CC->room, FNBL_QUEUE_ROOM) != 0) {
-		CtdlLogPrintf(CTDL_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
+		syslog(LOG_ERR, "Cannot find room <%s>\n", FNBL_QUEUE_ROOM);
 		CtdlClearSystemContext();
 		return;
 	}
@@ -213,7 +213,7 @@ void do_extnotify_queue(void)
 		DeleteHash(&Ctx.NotifyErrors);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "serv_extnotify: queue run completed\n");
+	syslog(LOG_DEBUG, "serv_extnotify: queue run completed\n");
 	doing_queue = 0;
 }
 
@@ -254,7 +254,7 @@ void process_notify(long NotifyMsgnum, void *usrdata)
 	    ((strncasecmp(configMsg, "none", 4) == 0) &&
 	     IsEmptyStr(config.c_pager_program) && 
 	     IsEmptyStr(config.c_funambol_host))) {
-		CtdlLogPrintf(CTDL_DEBUG, "No external notifiers configured on system/user");
+		syslog(LOG_DEBUG, "No external notifiers configured on system/user");
 		goto nuke;
 	}
 
@@ -344,7 +344,7 @@ void extNotify_getPrefs(long configMsgNum, char *configMsg)
 	// Do a simple string search to see if 'funambol' is selected as the
 	// type. This string would be at the very top of the message contents.
 	if (configMsgNum == -1) {
-		CtdlLogPrintf(CTDL_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id\n");
+		syslog(LOG_ERR, "extNotify_isAllowedByPrefs was passed a non-existant config message id\n");
 		return;
 	}
 	prefMsg = CtdlFetchMessage(configMsgNum, 1);
@@ -383,7 +383,7 @@ long extNotify_getConfigMessage(char *username) {
 		num_msgs = cdbfr->len / sizeof(long);
 		cdb_free(cdbfr);
 	} else {
-		CtdlLogPrintf(CTDL_DEBUG, "extNotify_getConfigMessage: No config messages found\n");
+		syslog(LOG_DEBUG, "extNotify_getConfigMessage: No config messages found\n");
 		return -1;	/* No messages at all?  No further action. */
 	}
 	for (a = 0; a < num_msgs; ++a) {

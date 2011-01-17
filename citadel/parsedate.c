@@ -94,7 +94,7 @@
 /* Copy the first part of user declarations.  */
 #line 1 "parsedate.y"
 
-/* $Revision: 4003 $
+/* $Revision$
 **
 **  Originally written by Steven M. Bellovin <smb@research.att.com> while
 **  at the University of North Carolina at Chapel Hill.  Later tweaked by
@@ -242,7 +242,7 @@ typedef union YYSTYPE
     time_t		Number;
     enum _MERIDIAN	Meridian;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 247 "y.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

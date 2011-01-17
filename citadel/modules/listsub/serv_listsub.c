@@ -515,7 +515,7 @@ void do_confirm(char *room, char *token) {
 	 */
 	if (success) {
 		cprintf("%d %d operation(s) confirmed.\n", CIT_OK, success);
-		CtdlLogPrintf(CTDL_NOTICE, 
+		syslog(LOG_NOTICE, 
 			"Mailing list: %s %ssubscribed to %s with token %s\n", 
 			email, 
 			(!IsEmptyStr(address_to_unsubscribe)) ? "un" : "", 

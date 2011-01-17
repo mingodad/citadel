@@ -93,7 +93,7 @@ void ft_flush_cache(void) {
 
 	for (i=0; i<65536; ++i) {
 		if ((time(NULL) - last_update) >= 10) {
-			CtdlLogPrintf(CTDL_INFO,
+			syslog(LOG_INFO,
 				"Flushing index cache to disk (%d%% complete)\n",
 				(i * 100 / 65536)
 			);
@@ -107,7 +107,7 @@ void ft_flush_cache(void) {
 			ftc_msgs[i] = NULL;
 		}
 	}
-	CtdlLogPrintf(CTDL_INFO, "Flushed index cache to disk (100%% complete)\n");
+	syslog(LOG_INFO, "Flushed index cache to disk (100%% complete)\n");
 }
 
 
@@ -126,17 +126,17 @@ void ft_index_message(long msgnum, int op) {
 
 	msg = CtdlFetchMessage(msgnum, 1);
 	if (msg == NULL) {
-		CtdlLogPrintf(CTDL_ERR, "ft_index_message() could not load msg %ld\n", msgnum);
+		syslog(LOG_ERR, "ft_index_message() could not load msg %ld\n", msgnum);
 		return;
 	}
 
 	if (msg->cm_fields['1'] != NULL) {
-		CtdlLogPrintf(CTDL_DEBUG, "ft_index_message() excluded msg %ld\n", msgnum);
+		syslog(LOG_DEBUG, "ft_index_message() excluded msg %ld\n", msgnum);
 		CtdlFreeMessage(msg);
 		return;
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "ft_index_message() %s msg %ld\n",
+	syslog(LOG_DEBUG, "ft_index_message() %s msg %ld\n",
 		(op ? "adding" : "removing") , msgnum
 	);
 
@@ -148,12 +148,12 @@ void ft_index_message(long msgnum, int op) {
 	CtdlFreeMessage(msg);
 	msgtext = CC->redirect_buffer;
 	CC->redirect_buffer = NULL;
-	CtdlLogPrintf(CTDL_DEBUG, "Wordbreaking message %ld...\n", msgnum);
+	syslog(LOG_DEBUG, "Wordbreaking message %ld...\n", msgnum);
 	txt = SmashStrBuf(&msgtext);
 	wordbreaker(txt, &num_tokens, &tokens);
 	free(txt);
 
-	CtdlLogPrintf(CTDL_DEBUG, "Indexing message %ld [%d tokens]\n", msgnum, num_tokens);
+	syslog(LOG_DEBUG, "Indexing message %ld [%d tokens]\n", msgnum, num_tokens);
 	if (num_tokens > 0) {
 		for (i=0; i<num_tokens; ++i) {
 
@@ -199,7 +199,7 @@ void ft_index_message(long msgnum, int op) {
 				}
 			}
 			else {
-				CtdlLogPrintf(CTDL_ALERT, "Invalid token %d !!\n", tok);
+				syslog(LOG_ALERT, "Invalid token %d !!\n", tok);
 			}
 		}
 
@@ -277,7 +277,7 @@ void do_fulltext_indexing(void) {
 	}
 	
 	run_time = time(NULL);
-	CtdlLogPrintf(CTDL_DEBUG, "do_fulltext_indexing() started (%ld)\n", run_time);
+	syslog(LOG_DEBUG, "do_fulltext_indexing() started (%ld)\n", run_time);
 	
 	/*
 	 * If we've switched wordbreaker modules, burn the index and start
@@ -285,9 +285,9 @@ void do_fulltext_indexing(void) {
 	 */
 	begin_critical_section(S_CONTROL);
 	if (CitControl.fulltext_wordbreaker != FT_WORDBREAKER_ID) {
-		CtdlLogPrintf(CTDL_DEBUG, "wb ver on disk = %d, code ver = %d\n",
+		syslog(LOG_DEBUG, "wb ver on disk = %d, code ver = %d\n",
 			CitControl.fulltext_wordbreaker, FT_WORDBREAKER_ID);
-		CtdlLogPrintf(CTDL_INFO, "(re)initializing full text index\n");
+		syslog(LOG_INFO, "(re)initializing full text index\n");
 		cdb_trunc(CDB_FULLTEXT);
 		CitControl.MMfulltext = 0L;
 		put_control();
@@ -314,7 +314,7 @@ void do_fulltext_indexing(void) {
 		/* Here it is ... do each message! */
 		for (i=0; i<ft_num_msgs; ++i) {
 			if (time(NULL) != last_progress) {
-				CtdlLogPrintf(CTDL_DEBUG,
+				syslog(LOG_DEBUG,
 					"Indexed %d of %d messages (%d%%)\n",
 						i, ft_num_msgs,
 						((i*100) / ft_num_msgs)
@@ -325,14 +325,14 @@ void do_fulltext_indexing(void) {
 
 			/* Check to see if we need to quit early */
 			if (CtdlThreadCheckStop()) {
-				CtdlLogPrintf(CTDL_DEBUG, "Indexer quitting early\n");
+				syslog(LOG_DEBUG, "Indexer quitting early\n");
 				ft_newhighest = ft_newmsgs[i];
 				break;
 			}
 
 			/* Check to see if we have to maybe flush to disk */
 			if (i >= FT_MAX_CACHE) {
-				CtdlLogPrintf(CTDL_DEBUG, "Time to flush.\n");
+				syslog(LOG_DEBUG, "Time to flush.\n");
 				ft_newhighest = ft_newmsgs[i];
 				break;
 			}
@@ -349,7 +349,7 @@ void do_fulltext_indexing(void) {
 	if (CtdlThreadCheckStop())
 		return;
 	
-	CtdlLogPrintf(CTDL_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
+	syslog(LOG_DEBUG, "do_fulltext_indexing() duration (%ld)\n", end_time - run_time);
 		
 	/* Save our place so we don't have to do this again */
 	ft_flush_cache();
@@ -360,7 +360,7 @@ void do_fulltext_indexing(void) {
 	end_critical_section(S_CONTROL);
 	last_index = time(NULL);
 
-	CtdlLogPrintf(CTDL_DEBUG, "do_fulltext_indexing() finished\n");
+	syslog(LOG_DEBUG, "do_fulltext_indexing() finished\n");
 	return;
 }
 
@@ -373,14 +373,14 @@ void *indexer_thread(void *arg) {
 
 	CtdlFillSystemContext(&indexerCC, "indexer");
 	citthread_setspecific(MyConKey, (void *)&indexerCC );
-	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() initializing\n");
+	syslog(LOG_DEBUG, "indexer_thread() initializing\n");
 
 	while (!CtdlThreadCheckStop()) {
 		do_fulltext_indexing();
 		CtdlThreadSleep(300);
 	}
 
-	CtdlLogPrintf(CTDL_DEBUG, "indexer_thread() exiting\n");
+	syslog(LOG_DEBUG, "indexer_thread() exiting\n");
 	CtdlClearSystemContext();
 	return NULL;
 }

@@ -181,9 +181,9 @@ void migr_export_rooms(void) {
 	 * exporting the message multiple times.)
 	 */
 	snprintf(cmd, sizeof cmd, "sort <%s >%s", migr_tempfilename1, migr_tempfilename2);
-	if (system(cmd) != 0) CtdlLogPrintf(CTDL_ALERT, "Error %d\n", errno);
+	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
 	snprintf(cmd, sizeof cmd, "uniq <%s >%s", migr_tempfilename2, migr_tempfilename1);
-	if (system(cmd) != 0) CtdlLogPrintf(CTDL_ALERT, "Error %d\n", errno);
+	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
 }
 
 
@@ -340,7 +340,7 @@ void migr_export_messages(void) {
 	Ctx = CC;
 	migr_global_message_list = fopen(migr_tempfilename1, "r");
 	if (migr_global_message_list != NULL) {
-		CtdlLogPrintf(CTDL_INFO, "Opened %s\n", migr_tempfilename1);
+		syslog(LOG_INFO, "Opened %s\n", migr_tempfilename1);
 		while ((Ctx->kill_me != 1) && 
 		       (fgets(buf, sizeof(buf), migr_global_message_list) != NULL)) {
 			msgnum = atol(buf);
@@ -352,9 +352,9 @@ void migr_export_messages(void) {
 		fclose(migr_global_message_list);
 	}
 	if (Ctx->kill_me != 1)
-		CtdlLogPrintf(CTDL_INFO, "Exported %d messages.\n", count);
+		syslog(LOG_INFO, "Exported %d messages.\n", count);
 	else
-		CtdlLogPrintf(CTDL_ERR, "Export aborted due to client disconnect! \n");
+		syslog(LOG_ERR, "Export aborted due to client disconnect! \n");
 
 	migr_export_message(-1L);	/* This frees the encoding buffer */
 }
@@ -547,7 +547,7 @@ void migr_xml_start(void *data, const char *el, const char **attr) {
 	}
 
 	if (citadel_migrate_data != 1) {
-		CtdlLogPrintf(CTDL_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
+		syslog(LOG_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
 		return;
 	}
 
@@ -592,7 +592,7 @@ void migr_xml_end(void *data, const char *el) {
 	}
 
 	if (citadel_migrate_data != 1) {
-		CtdlLogPrintf(CTDL_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
+		syslog(LOG_ALERT, "Out-of-sequence tag <%s> detected.  Warning: ODD-DATA!\n", el);
 		return;
 	}
 
@@ -601,14 +601,14 @@ void migr_xml_end(void *data, const char *el) {
 		migr_chardata_len = 0;
 	}
 
-	// CtdlLogPrintf(CTDL_DEBUG, "END TAG: <%s> DATA: <%s>\n", el, (migr_chardata_len ? migr_chardata : ""));
+	// syslog(LOG_DEBUG, "END TAG: <%s> DATA: <%s>\n", el, (migr_chardata_len ? migr_chardata : ""));
 
 	/*** CONFIG ***/
 
 	if (!strcasecmp(el, "config")) {
 		config.c_enable_fulltext = 0;	/* always disable */
 		put_config();
-		CtdlLogPrintf(CTDL_INFO, "Completed import of server configuration\n");
+		syslog(LOG_INFO, "Completed import of server configuration\n");
 	}
 
 	else if (!strcasecmp(el, "c_nodename"))			safestrncpy(config.c_nodename, migr_chardata, sizeof config.c_nodename);
@@ -697,7 +697,7 @@ void migr_xml_end(void *data, const char *el) {
 	else if (!strcasecmp(el, "control")) {
 		CitControl.MMfulltext = (-1L);	/* always flush */
 		put_control();
-		CtdlLogPrintf(CTDL_INFO, "Completed import of control record\n");
+		syslog(LOG_INFO, "Completed import of control record\n");
 	}
 
 	/*** USER ***/
@@ -716,7 +716,7 @@ void migr_xml_end(void *data, const char *el) {
 
 	else if (!strcasecmp(el, "user")) {
 		CtdlPutUser(&usbuf);
-		CtdlLogPrintf(CTDL_INFO, "Imported user: %s\n", usbuf.fullname);
+		syslog(LOG_INFO, "Imported user: %s\n", usbuf.fullname);
 	}
 
 	/*** OPENID ***/
@@ -733,7 +733,7 @@ void migr_xml_end(void *data, const char *el) {
 		memcpy(&oid_data[sizeof(long)], openid_url, strlen(openid_url) + 1);
 		cdb_store(CDB_OPENID, openid_url, strlen(openid_url), oid_data, oid_data_len);
 		free(oid_data);
-		CtdlLogPrintf(CTDL_INFO, "Imported OpenID: %s (%ld)\n", openid_url, openid_usernum);
+		syslog(LOG_INFO, "Imported OpenID: %s (%ld)\n", openid_url, openid_usernum);
 	}
 
 	/*** ROOM ***/
@@ -757,7 +757,7 @@ void migr_xml_end(void *data, const char *el) {
 
 	else if (!strcasecmp(el, "room")) {
 		CtdlPutRoom(&qrbuf);
-		CtdlLogPrintf(CTDL_INFO, "Imported room: %s\n", qrbuf.QRname);
+		syslog(LOG_INFO, "Imported room: %s\n", qrbuf.QRname);
 	}
 
 	/*** ROOM MESSAGE POINTERS ***/
@@ -770,7 +770,7 @@ void migr_xml_end(void *data, const char *el) {
 			msglist_alloc = 1000;
 			msglist = malloc(sizeof(long) * msglist_alloc);
 
-			CtdlLogPrintf(CTDL_DEBUG, "Message list for: %s\n", FRname);
+			syslog(LOG_DEBUG, "Message list for: %s\n", FRname);
 
 			ptr = migr_chardata;
 			while (*ptr != 0) {
@@ -798,7 +798,7 @@ void migr_xml_end(void *data, const char *el) {
 			free(msglist);
 			msglist = NULL;
 			msglist_alloc = 0;
-			CtdlLogPrintf(CTDL_DEBUG, "Imported %d messages.\n", msgcount);
+			syslog(LOG_DEBUG, "Imported %d messages.\n", msgcount);
 			if (CtdlThreadCheckStop()) {
 				return;
 		}
@@ -815,7 +815,7 @@ void migr_xml_end(void *data, const char *el) {
 
 	else if (!strcasecmp(el, "floor")) {
 		CtdlPutFloor(&flbuf, floornum);
-		CtdlLogPrintf(CTDL_INFO, "Imported floor #%d (%s)\n", floornum, flbuf.f_name);
+		syslog(LOG_INFO, "Imported floor #%d (%s)\n", floornum, flbuf.f_name);
 	}
 
 	/*** VISITS ***/
@@ -837,7 +837,7 @@ void migr_xml_end(void *data, const char *el) {
 
 	else if (!strcasecmp(el, "visit")) {
 		put_visit(&vbuf);
-		CtdlLogPrintf(CTDL_INFO, "Imported visit: %ld/%ld/%ld\n", vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
+		syslog(LOG_INFO, "Imported visit: %ld/%ld/%ld\n", vbuf.v_roomnum, vbuf.v_roomgen, vbuf.v_usernum);
 	}
 
 	/*** MESSAGES ***/
@@ -857,7 +857,7 @@ void migr_xml_end(void *data, const char *el) {
 		free(decoded_msg);
 		decoded_msg = NULL;
 		PutMetaData(&smi);
-		CtdlLogPrintf(CTDL_INFO, "Imported message #%ld, size=%ld, refcount=%d, content-type: %s\n",
+		syslog(LOG_INFO, "Imported message #%ld, size=%ld, refcount=%d, content-type: %s\n",
 			import_msgnum, msglen, smi.meta_refcount, smi.meta_content_type);
 	}
 

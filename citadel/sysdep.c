@@ -1,6 +1,5 @@
 /*
  * Citadel "system dependent" stuff.
- * See COPYING for copyright information.
  *
  * Here's where we (hopefully) have most parts of the Citadel server that
  * would need to be altered to run the server in a non-POSIX environment.
@@ -8,6 +7,21 @@
  * If we ever port to a different platform and either have multiple
  * variants of this file or simply load it up with #ifdefs.
  *
+ * Copyright (c) 1987-2011 by the citadel.org team
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include "sysdep.h"
@@ -87,89 +101,6 @@ struct igheap *igheap = NULL;
 #endif
 
 
-int verbosity = DEFAULT_VERBOSITY;		/* Logging level */
-
-int syslog_facility = LOG_DAEMON;
-int enable_syslog = 0;
-int print_to_logfile = 1;
-
-/*
- * CtdlLogPrintf()  ...   Write logging information
- */
-void CtdlLogPrintf(enum LogLevel loglevel, const char *format, ...) {   
-	va_list arg_ptr;
-	va_start(arg_ptr, format);
-	vCtdlLogPrintf(loglevel, format, arg_ptr);
-	va_end(arg_ptr);
-}
-
-void vCtdlLogPrintf(enum LogLevel loglevel, const char *format, va_list arg_ptr)
-{
-
-	if (enable_syslog) {
-		vsyslog((syslog_facility | loglevel), format, arg_ptr);
-	}
-
-	/* stderr output code */
-	if (enable_syslog || !print_to_logfile) return;
-
-	/* if we run in forground and syslog is disabled, log to terminal */
-	if (loglevel <= verbosity) { 
-		struct timeval tv;
-		struct tm tim;
-		time_t unixtime;
-		CitContext *CCC = CC;
-		ThreadTSD *cTSD = CTP;
-		CtdlThreadNode *node = NULL;
-		long lwpid = 0;
-		char formatbuf[SIZ];
-		char LWP[64];
-		char SESS[64];
-
-		if (cTSD != NULL) {
-			node = cTSD->self;
-		}
-
-		if ((node != NULL) && (node->reltid != 0)) {
-			lwpid = node->reltid;
-		}
-
-		gettimeofday(&tv, NULL);
-
-		/* Promote to time_t; types differ on some OSes (like darwin) */
-		unixtime = tv.tv_sec;
-		localtime_r(&unixtime, &tim);
-
-		*LWP = '\0';
-		if (lwpid != 0) {
-			snprintf(LWP, 64, "[LWP:%ld] ", lwpid);
-		}
-			
-		*SESS = '\0';
-		if (CCC != NULL) {
-			if (CCC->cs_pid != 0) {
-				snprintf(SESS, 64, " [%3d] ", CCC->cs_pid);
-			}
-			else if (CCC->user.usernum != 0) {
-				snprintf(SESS, 64, " [:%ld] ", CCC->user.usernum);
-			}
-		}
-
-		snprintf(formatbuf, SIZ, 
-			 "%04d/%02d/%02d %2d:%02d:%02d.%06ld %s%s%s",
-			 tim.tm_year + 1900, tim.tm_mon + 1,
-			 tim.tm_mday, tim.tm_hour, tim.tm_min,
-			 tim.tm_sec, (long)tv.tv_usec, 
-			 LWP, SESS, format
-		);
-
-		vfprintf(stderr, formatbuf, arg_ptr);   
-		fflush(stderr);
-	}
-}   
-
-
-
 /*
  * Signal handler to shut down the server.
  */
@@ -185,7 +116,7 @@ static RETSIGTYPE signal_cleanup(int signum) {
 		CT->signal = signum;
 	else
 	{
-		CtdlLogPrintf(CTDL_DEBUG, "Caught signal %d; shutting down.\n", signum);
+		syslog(LOG_DEBUG, "Caught signal %d; shutting down.\n", signum);
 		exit_signal = signum;
 	}
 }
@@ -225,7 +156,7 @@ void init_sysdep(void) {
 	 * session to which the calling thread is currently bound.
 	 */
 	if (citthread_key_create(&MyConKey, NULL) != 0) {
-		CtdlLogPrintf(CTDL_CRIT, "Can't create TSD key: %s\n",
+		syslog(LOG_CRIT, "Can't create TSD key: %s\n",
 			strerror(errno));
 	}
 
@@ -301,7 +232,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 			snprintf(errormessage, SIZ,
 				 "Error binding to [%s] : %s", ip_addr, strerror(errno)
 			);
-			CtdlLogPrintf(CTDL_ALERT, "%s\n", errormessage);
+			syslog(LOG_ALERT, "%s\n", errormessage);
 			return (-1);
 		}
 	}
@@ -312,7 +243,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 			snprintf(errormessage, SIZ,
 				 "Error binding to [%s] : %s", ip_addr, strerror(errno)
 			);
-			CtdlLogPrintf(CTDL_ALERT, "%s\n", errormessage);
+			syslog(LOG_ALERT, "%s\n", errormessage);
 			return (-1);
 		}
 	}
@@ -321,7 +252,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 		snprintf(errormessage, SIZ,
 			 "Can't start: no port number specified."
 		);
-		CtdlLogPrintf(CTDL_ALERT, "%s\n", errormessage);
+		syslog(LOG_ALERT, "%s\n", errormessage);
 		return (-1);
 	}
 	sin6.sin6_port = htons((u_short) port_number);
@@ -334,7 +265,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 		snprintf(errormessage, SIZ,
 			 "Can't create a listening socket: %s", strerror(errno)
 		);
-		CtdlLogPrintf(CTDL_ALERT, "%s\n", errormessage);
+		syslog(LOG_ALERT, "%s\n", errormessage);
 		return (-1);
 	}
 	/* Set some socket options that make sense. */
@@ -352,7 +283,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 		snprintf(errormessage, SIZ,
 			 "Can't bind: %s", strerror(errno)
 		);
-		CtdlLogPrintf(CTDL_ALERT, "%s\n", errormessage);
+		syslog(LOG_ALERT, "%s\n", errormessage);
 		return (-1);
 	}
 
@@ -362,7 +293,7 @@ int ctdl_tcp_server(char *ip_addr, int port_number, int queue_len, char *errorme
 		snprintf(errormessage, SIZ,
 			 "Can't listen: %s", strerror(errno)
 		);
-		CtdlLogPrintf(CTDL_ALERT, "%s\n", errormessage);
+		syslog(LOG_ALERT, "%s\n", errormessage);
 		return (-1);
 	}
 	return (s);
@@ -393,7 +324,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, "citserver: can't unlink %s: %s",
 			sockpath, strerror(errno)
 		);
-		CtdlLogPrintf(CTDL_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s\n", errormessage);
 		return(-1);
 	}
 
@@ -406,7 +337,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't create a socket: %s",
 			 strerror(errno));
-		CtdlLogPrintf(CTDL_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s\n", errormessage);
 		return(-1);
 	}
 
@@ -414,7 +345,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't bind: %s",
 			 strerror(errno));
-		CtdlLogPrintf(CTDL_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s\n", errormessage);
 		return(-1);
 	}
 
@@ -423,7 +354,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't set socket to non-blocking: %s",
 			 strerror(errno));
-		CtdlLogPrintf(CTDL_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s\n", errormessage);
 		close(s);
 		return(-1);
 	}
@@ -432,7 +363,7 @@ int ctdl_uds_server(char *sockpath, int queue_len, char *errormessage)
 		snprintf(errormessage, SIZ, 
 			 "citserver: Can't listen: %s",
 			 strerror(errno));
-		CtdlLogPrintf(CTDL_EMERG, "%s\n", errormessage);
+		syslog(LOG_EMERG, "%s\n", errormessage);
 		return(-1);
 	}
 
@@ -560,7 +491,7 @@ int client_write(const char *buf, int nbytes)
 			if (select(1, NULL, &wset, NULL, NULL) == -1) {
 				if (errno == EINTR)
 				{
-					CtdlLogPrintf(CTDL_DEBUG, "client_write(%d bytes) select() interrupted.\n", nbytes-bytes_written);
+					syslog(LOG_DEBUG, "client_write(%d bytes) select() interrupted.\n", nbytes-bytes_written);
 					if (CtdlThreadCheckStop()) {
 						CC->kill_me = 1;
 						return (-1);
@@ -569,7 +500,7 @@ int client_write(const char *buf, int nbytes)
 						continue;
 					}
 				} else {
-					CtdlLogPrintf(CTDL_ERR,
+					syslog(LOG_ERR,
 						"client_write(%d bytes) select failed: %s (%d)\n",
 						nbytes - bytes_written,
 						strerror(errno), errno);
@@ -583,12 +514,12 @@ int client_write(const char *buf, int nbytes)
 		retval = write(Ctx->client_socket, &buf[bytes_written],
 			nbytes - bytes_written);
 		if (retval < 1) {
-			CtdlLogPrintf(CTDL_ERR,
+			syslog(LOG_ERR,
 				"client_write(%d bytes) failed: %s (%d)\n",
 				nbytes - bytes_written,
 				strerror(errno), errno);
 			cit_backtrace();
-			// CtdlLogPrintf(CTDL_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
+			// syslog(LOG_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
 			Ctx->kill_me = 1;
 			return -1;
 		}
@@ -657,7 +588,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 #endif
 		retval = client_read_sslblob(Target, bytes, timeout);
 		if (retval < 0) {
-			CtdlLogPrintf(CTDL_CRIT, 
+			syslog(LOG_CRIT, 
 				      "%s failed\n",
 				      __FUNCTION__);
 		}
@@ -702,7 +633,7 @@ int client_read_blob(StrBuf *Target, int bytes, int timeout)
 						O_TERM,
 						&Error);
 		if (retval < 0) {
-			CtdlLogPrintf(CTDL_CRIT, 
+			syslog(LOG_CRIT, 
 				      "%s failed: %s\n",
 				      __FUNCTION__, 
 				      Error);
@@ -886,7 +817,7 @@ int CtdlClientGetLine(StrBuf *Target)
                 fclose(fd);
 
 		if (rc < 0)
-			CtdlLogPrintf(CTDL_CRIT, 
+			syslog(LOG_CRIT, 
 				      "%s failed\n",
 				      __FUNCTION__);
 #endif
@@ -944,7 +875,7 @@ int CtdlClientGetLine(StrBuf *Target)
                 fclose(fd);
 
 		if ((rc < 0) && (Error != NULL))
-			CtdlLogPrintf(CTDL_CRIT, 
+			syslog(LOG_CRIT, 
 				      "%s failed: %s\n",
 				      __FUNCTION__,
 				      Error);
@@ -1009,13 +940,13 @@ void close_masters (void)
 
 		if (serviceptr->tcp_port > 0)
 		{
-			CtdlLogPrintf(CTDL_INFO, "Closing listener on port %d\n",
+			syslog(LOG_INFO, "Closing listener on port %d\n",
 				serviceptr->tcp_port);
 			serviceptr->tcp_port = 0;
 		}
 		
 		if (serviceptr->sockpath != NULL)
-			CtdlLogPrintf(CTDL_INFO, "Closing listener on '%s'\n",
+			syslog(LOG_INFO, "Closing listener on '%s'\n",
 				serviceptr->sockpath);
 
 		close(serviceptr->msock);
@@ -1086,7 +1017,7 @@ void start_daemon(int unused) {
 	 * to be reused for other files.
 	 */
 	if (chdir(ctdl_run_dir) != 0)
-		CtdlLogPrintf(CTDL_EMERG, 
+		syslog(LOG_EMERG, 
 			      "unable to change into directory [%s]: %s", 
 			      ctdl_run_dir, strerror(errno));
 
@@ -1104,7 +1035,7 @@ void start_daemon(int unused) {
         if ((freopen("/dev/null", "r", stdin) != stdin) || 
 	    (freopen("/dev/null", "w", stdout) != stdout) || 
 	    (freopen("/dev/null", "w", stderr) != stderr))
-		CtdlLogPrintf(CTDL_EMERG, 
+		syslog(LOG_EMERG, 
 			      "unable to reopen stdin/out/err %s", 
 			      strerror(errno));
 		
@@ -1166,7 +1097,7 @@ void checkcrash(void)
 		StrBuf *CrashMail;
 
 		CrashMail = NewStrBuf();
-		CtdlLogPrintf(CTDL_ALERT, "Posting crash message\n");
+		syslog(LOG_ALERT, "Posting crash message\n");
 		StrBufPrintf(CrashMail, 
 			" \n"
 			" The Citadel server process (citserver) terminated unexpectedly."
@@ -1309,16 +1240,16 @@ do_select:	force_purge = 0;
 		 */
 		if (retval < 0) {
 			if (errno == EBADF) {
-				CtdlLogPrintf(CTDL_NOTICE, "select() failed: (%s)\n",
+				syslog(LOG_NOTICE, "select() failed: (%s)\n",
 					strerror(errno));
 				goto do_select;
 			}
 			if (errno != EINTR) {
-				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
+				syslog(LOG_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
 				continue;
 			} else {
-				CtdlLogPrintf(CTDL_DEBUG, "Interrupted CtdlThreadSelect.\n");
+				syslog(LOG_DEBUG, "Interrupted CtdlThreadSelect.\n");
 				if (CtdlThreadCheckStop()) return(NULL);
 				goto do_select;
 			}
@@ -1451,15 +1382,15 @@ void *select_on_master (void *arg)
 		 */
 		if (retval < 0) {
 			if (errno == EBADF) {
-				CtdlLogPrintf(CTDL_NOTICE, "select() failed: (%s)\n",
+				syslog(LOG_NOTICE, "select() failed: (%s)\n",
 					strerror(errno));
 				continue;
 			}
 			if (errno != EINTR) {
-				CtdlLogPrintf(CTDL_EMERG, "Exiting (%s)\n", strerror(errno));
+				syslog(LOG_EMERG, "Exiting (%s)\n", strerror(errno));
 				CtdlThreadStopAll();
 			} else {
-				CtdlLogPrintf(CTDL_DEBUG, "Interrupted CtdlThreadSelect.\n");
+				syslog(LOG_DEBUG, "Interrupted CtdlThreadSelect.\n");
 				if (CtdlThreadCheckStop()) return(NULL);
 				continue;
 			}
@@ -1477,7 +1408,7 @@ void *select_on_master (void *arg)
 			if (FD_ISSET(serviceptr->msock, &master_fds)) {
 				ssock = accept(serviceptr->msock, NULL, 0);
 				if (ssock >= 0) {
-					CtdlLogPrintf(CTDL_DEBUG,
+					syslog(LOG_DEBUG,
 						"New client socket %d\n",
 						ssock);
 
@@ -1486,7 +1417,7 @@ void *select_on_master (void *arg)
 					 * operations barf on FreeBSD.  Not a fatal error.
 					 */
 					if (fcntl(ssock, F_SETFL, 0) < 0) {
-						CtdlLogPrintf(CTDL_EMERG,
+						syslog(LOG_EMERG,
 							"citserver: Can't set socket to blocking: %s\n",
 							strerror(errno));
 					}
@@ -1568,7 +1499,6 @@ int SyslogFacility(char *name)
 		if(!strcasecmp(name, facTbl[i].name))
 			return facTbl[i].facility;
 	}
-	enable_syslog = 0;
 	return LOG_DAEMON;
 }
 
@@ -1674,7 +1604,7 @@ void dump_heap(void) {
 	struct igheap *thisheap;
 
 	for (thisheap = igheap; thisheap != NULL; thisheap = thisheap->next) {
-		CtdlLogPrintf(CTDL_CRIT, "UNFREED: %30s : %d\n",
+		syslog(LOG_CRIT, "UNFREED: %30s : %d\n",
 			thisheap->file, thisheap->line);
 	}
 }

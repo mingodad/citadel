@@ -81,7 +81,7 @@ cat <<EOF  >$U_FILE
 void upgrade_modules (void)
 {
 
-    CtdlLogPrintf (CTDL_INFO, "Upgrade modules.\n");
+    syslog(LOG_INFO, "Upgrade modules.\n");
 
 EOF
 
@@ -118,17 +118,17 @@ void initialise_modules (int threading)
     nSizErrmsg = 0;
 
     if (threading)
-        CtdlLogPrintf (CTDL_INFO, "Initialize modules, CtdlThreads enabled.\n");
+        syslog(LOG_INFO, "Initialize modules, CtdlThreads enabled.\n");
     else
-        CtdlLogPrintf (CTDL_INFO, "Initialize modules, CtdlThreads not yet enabled.\n");
+        syslog(LOG_INFO, "Initialize modules, CtdlThreads not yet enabled.\n");
 /* static server initialization: */
-        CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(citserver));
-        CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(control));
-        CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(euidindex));
-        CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(file_ops));
-        CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(msgbase));
-        CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(room_ops));
-        CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(user_ops));
+        syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(citserver));
+        syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(control));
+        syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(euidindex));
+        syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(file_ops));
+        syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(msgbase));
+        syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(room_ops));
+        syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL(user_ops));
 /* dynamic modules: */
 
 EOF
@@ -165,7 +165,7 @@ do
 		RES_OUT=`echo $RES | cut -b2-`
 		/usr/bin/printf "Found entry point in file $i\n"
 cat <<EOF  >> $C_FILE
-	CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL($RES_OUT));
+	syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL($RES_OUT));
 
 EOF
 cat <<EOF >>$H_FILE
@@ -177,7 +177,7 @@ EOF
 		RES_OUT=`echo $RES | cut -b2-`
 		/usr/bin/printf "Found upgrade point in file $i\n"
 cat <<EOF  >> $U_FILE
-	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
+	syslog(LOG_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
 
 EOF
 cat <<EOF >>$H_FILE
@@ -215,7 +215,7 @@ EOF
 						/usr/bin/printf "Found entry point in file modules/$j/$k\n"
 # Add this entry point to the .c file
 cat <<EOF >> $C_FILE
-	CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL($RES_OUT));
+	syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL($RES_OUT));
 EOF
 # Add this entry point to the .h file
 cat <<EOF >> $H_FILE
@@ -228,7 +228,7 @@ EOF
 						/usr/bin/printf "Found upgrade point in file modules/$j/$k\n"
 # Add this entry point to the .c file
 cat <<EOF >> $U_FILE
-	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
+	syslog(LOG_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
 EOF
 # Add this entry point to the .h file
 cat <<EOF >> $H_FILE
@@ -271,7 +271,7 @@ EOF
 						RES_OUT=`echo $RES | cut -b2-`
 						/usr/bin/printf "Found entry point in file user_modules/$j/$k\n"
 cat <<EOF >> $C_FILE
-	CtdlLogPrintf(CTDL_INFO, "Loaded module: %s\n", CTDL_INIT_CALL($RES_OUT));
+	syslog(LOG_INFO, "Loaded module: %s\n", CTDL_INIT_CALL($RES_OUT));
 EOF
 cat <<EOF >> $H_FILE
 CTDL_MODULE_INIT($RES_OUT);
@@ -282,7 +282,7 @@ EOF
 						RES_OUT=`echo $RES | cut -b2-`
 						/usr/bin/printf "Found upgrade point in file user_modules/$j/$k\n"
 cat <<EOF >> $U_FILE
-	CtdlLogPrintf (CTDL_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
+	syslog(LOG_INFO, "%s\n", CTDL_UPGRADE_CALL($RES_OUT));
 EOF
 cat <<EOF >> $H_FILE
 CTDL_MODULE_UPGRADE($RES_OUT);
