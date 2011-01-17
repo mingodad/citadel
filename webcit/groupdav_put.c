@@ -57,7 +57,7 @@ void groupdav_put_bigics(void)
 
 	/* Report success and not much else. */
 	hprintf("HTTP/1.1 204 No Content\r\n");
-	lprintf(9, "HTTP/1.1 204 No Content\r\n");
+	syslog(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
 	begin_burst();
 	end_burst();
@@ -124,12 +124,12 @@ void groupdav_put(void)
 	 * version, so we fail...
 	 */
 	if (StrLength(WCC->Hdr->HR.dav_ifmatch) > 0) {
-		lprintf(9, "dav_ifmatch: %s\n", WCC->Hdr->HR.dav_ifmatch);
+		syslog(9, "dav_ifmatch: %s\n", WCC->Hdr->HR.dav_ifmatch);
 		old_msgnum = locate_message_by_uid(ChrPtr(dav_uid));
-		lprintf(9, "old_msgnum:  %ld\n", old_msgnum);
+		syslog(9, "old_msgnum:  %ld\n", old_msgnum);
 		if (StrTol(WCC->Hdr->HR.dav_ifmatch) != old_msgnum) {
 			hprintf("HTTP/1.1 412 Precondition Failed\r\n");
-			lprintf(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
+			syslog(9, "HTTP/1.1 412 Precondition Failed (ifmatch=%ld, old_msgnum=%ld)\r\n",
 				StrTol(WCC->Hdr->HR.dav_ifmatch), old_msgnum);
 			groupdav_common_headers();
 			
@@ -180,7 +180,7 @@ void groupdav_put(void)
 			new_msgnum = atol(buf);
 			break;
 		case 1:	
-			lprintf(9, "new_msgnum=%ld (%s)\n", new_msgnum, buf);
+			syslog(9, "new_msgnum=%ld (%s)\n", new_msgnum, buf);
 			break;
 		case 2: 
 			StrBufAppendBufPlain(dav_uid, buf, -1, 0);
@@ -210,7 +210,7 @@ void groupdav_put(void)
 	if (old_msgnum < 0L) {
 	        char escaped_uid[1024];
 		hprintf("HTTP/1.1 201 Created\r\n");
-		lprintf(9, "HTTP/1.1 201 Created\r\n");
+		syslog(9, "HTTP/1.1 201 Created\r\n");
 		groupdav_common_headers();
 		hprintf("etag: \"%ld\"\r\n", new_msgnum);
 		hprintf("Location: ");
@@ -227,7 +227,7 @@ void groupdav_put(void)
 
 	/* We modified an existing item. */
 	hprintf("HTTP/1.1 204 No Content\r\n");
-	lprintf(9, "HTTP/1.1 204 No Content\r\n");
+	syslog(9, "HTTP/1.1 204 No Content\r\n");
 	groupdav_common_headers();
 	hprintf("Etag: \"%ld\"\r\n", new_msgnum);
 	/* The item we replaced has probably already been deleted by

@@ -191,7 +191,7 @@ void httplang_to_locale(StrBuf *LocaleString, wcsession *sess)
 		nBest=0;
 	}
 	sess->selected_language = nBest;
-	lprintf(9, "language found: %s\n", AvailLangLoaded[WC->selected_language]);
+	syslog(9, "language found: %s\n", AvailLangLoaded[WC->selected_language]);
 	FreeStrBuf(&Buf);
 	FreeStrBuf(&SBuf);
 }
@@ -295,7 +295,7 @@ void initialize_locales(void) {
 
 	language = getenv("WEBCIT_LANG");
 	if ((language) && (!IsEmptyStr(language)) && (strcmp(language, "UNLIMITED") != 0)) {
-		lprintf(9, "Nailing locale to %s\n", language);
+		syslog(9, "Nailing locale to %s\n", language);
  	}
 	else language = NULL;
 
@@ -327,13 +327,13 @@ void initialize_locales(void) {
 			(((i > 0) && (wc_locales[0] != NULL)) ? wc_locales[0] : Empty_Locale)
 		);
 		if (wc_locales[nLocalesLoaded] == NULL) {
-			lprintf(1, "locale for "LOCALEDIR"locale/%s: %s; disabled\n",
+			syslog(1, "locale for "LOCALEDIR"locale/%s: %s; disabled\n",
 				buf,
 				strerror(errno)
 			);
 		}
 		else {
-			lprintf(3, "Found locale: %s\n", buf);
+			syslog(3, "Found locale: %s\n", buf);
 			AvailLangLoaded[nLocalesLoaded] = AvailLang[i];
 			nLocalesLoaded++;
 		}
@@ -352,7 +352,7 @@ void initialize_locales(void) {
 #endif
 	}
 	if ((language != NULL) && (nLocalesLoaded == 0)) {
-		lprintf(1, "Your selected locale [%s] isn't available on your system. falling back to C\n", language);
+		syslog(1, "Your selected locale [%s] isn't available on your system. falling back to C\n", language);
 #ifdef HAVE_USELOCALE
 		wc_locales[0] = newlocale(
 			(LC_MESSAGES_MASK|LC_TIME_MASK),
@@ -369,9 +369,9 @@ void initialize_locales(void) {
 #ifdef ENABLE_NLS
 	locale = setlocale(LC_ALL, "");
 
-	lprintf(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
-	lprintf(9, "Text domain: %s\n", textdomain("webcit"));
-	lprintf(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
+	syslog(9, "Message catalog directory: %s\n", bindtextdomain("webcit", LOCALEDIR"/locale"));
+	syslog(9, "Text domain: %s\n", textdomain("webcit"));
+	syslog(9, "Text domain Charset: %s\n", bind_textdomain_codeset("webcit","UTF8"));
 
 #endif
 }

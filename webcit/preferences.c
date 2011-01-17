@@ -108,7 +108,7 @@ void GetPrefTypes(HashList *List)
 			Pref->Type = PrefType;
 			Pref->eFlatPrefType = Pref->Type->eType;
 
-			lprintf(1, "Loading [%s]with type [%ld] [\"%s\"]\n",
+			syslog(1, "Loading [%s]with type [%ld] [\"%s\"]\n",
 				ChrPtr(Pref->Key),
 				Pref->Type->eType,
 				ChrPtr(Pref->Val));
@@ -136,7 +136,7 @@ void GetPrefTypes(HashList *List)
 
 			if (PrefType->OnLoad != NULL){
 
-				lprintf(1, "Loading with: -> %s(\"%s\", %ld)\n",
+				syslog(1, "Loading with: -> %s(\"%s\", %ld)\n",
 					ChrPtr(PrefType->OnLoadName),
 					ChrPtr(Pref->Val),
 					Pref->lval);
@@ -182,7 +182,7 @@ void ParsePref(HashList **List, StrBuf *ReadBuf)
 			else 
 			{
 				StrBufTrim(ReadBuf);
-				lprintf(1, "ignoring spurious preference line: [%s]\n", 
+				syslog(1, "ignoring spurious preference line: [%s]\n", 
 					ChrPtr(ReadBuf));
 				DestroyPreference(Data);
 				LastData = NULL;
@@ -536,7 +536,7 @@ void set_preference_backend(const char *key, size_t keylen,
 		Pref->Type = PrefType;
 		Pref->eFlatPrefType = PrefType->eType;
 		if (Pref->Type->eType != lPrefType)
-			lprintf(1, "warning: saving preference with wrong type [%s] %ld != %ld \n",
+			syslog(1, "warning: saving preference with wrong type [%s] %ld != %ld \n",
 				key, Pref->Type->eType, lPrefType);
 		switch (Pref->Type->eType)
 		{

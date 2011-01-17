@@ -501,7 +501,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 				);
 		}
 		/** Give this task a UID if it doesn't have one. */
-		lprintf(9, "Give this task a UID if it doesn't have one.\n");
+		syslog(9, "Give this task a UID if it doesn't have one.\n");
 		if (icalcomponent_get_first_property(vtodo,
 						     ICAL_UID_PROPERTY) == NULL) {
 			generate_uuid(buf);
@@ -511,17 +511,17 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		}
 
 		/* Increment the sequence ID */
-		lprintf(9, "Increment the sequence ID\n");
+		syslog(9, "Increment the sequence ID\n");
 		while (prop = icalcomponent_get_first_property(vtodo,
 							       ICAL_SEQUENCE_PROPERTY), (prop != NULL) ) {
 			i = icalproperty_get_sequence(prop);
-			lprintf(9, "Sequence was %d\n", i);
+			syslog(9, "Sequence was %d\n", i);
 			if (i > sequence) sequence = i;
 			icalcomponent_remove_property(vtodo, prop);
 			icalproperty_free(prop);
 		}
 		++sequence;
-		lprintf(9, "New sequence is %d.  Adding...\n", sequence);
+		syslog(9, "New sequence is %d.  Adding...\n", sequence);
 		icalcomponent_add_property(vtodo,
 					   icalproperty_new_sequence(sequence)
 			);
@@ -533,7 +533,7 @@ void save_individual_task(icalcomponent *supplied_vtodo, long msgnum, char* from
 		 * can't encapsulate something that may already be encapsulated
 		 * somewhere else.
 		 */
-		lprintf(9, "Encapsulating into a full VCALENDAR component\n");
+		syslog(9, "Encapsulating into a full VCALENDAR component\n");
 		encaps = ical_encapsulate_subcomponent(icalcomponent_new_clone(vtodo));
 
 		/* Serialize it and save it to the message base */

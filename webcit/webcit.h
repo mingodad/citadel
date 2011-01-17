@@ -50,6 +50,7 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <signal.h>
+#include <syslog.h>
 #include <sys/utsname.h>
 #include <libcitadel.h>
 

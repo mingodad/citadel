@@ -547,7 +547,7 @@ message_summary *ReadOneMessageSummary(StrBuf *RawMessage, const char *DefaultSu
 			StrBufCutLeft(Buf, nBuf + 1);
 			Eval->f(Msg, Buf);
 		}
-		else lprintf(1, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
+		else syslog(1, "Don't know how to handle Message Headerline [%s]", ChrPtr(Buf));
 	}
 	return Msg;
 }
@@ -1050,7 +1050,7 @@ void post_message(void)
 			if (GetServerStatus(Buf, NULL) != 2) {
 				/* You probably don't even have a dumb Drafts folder */
 				StrBufCutLeft(Buf, 4);
-				lprintf(9, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
+				syslog(9, "%s:%d: server save to drafts error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
 				StrBufAppendBufPlain(WCC->ImportantMsg, _("Saved to Drafts failed: "), -1, 0);
 				StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
 				display_enter();
@@ -1123,7 +1123,7 @@ void post_message(void)
 		}
 		else 
 		{
-			lprintf(9, "%s\n", ChrPtr(CmdBuf));
+			syslog(9, "%s\n", ChrPtr(CmdBuf));
 			serv_puts(ChrPtr(CmdBuf));
 			FreeStrBuf(&CmdBuf);
 
@@ -1161,7 +1161,7 @@ void post_message(void)
 			} else {
 				StrBufCutLeft(Buf, 4);
 
-				lprintf(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
+				syslog(9, "%s:%d: server post error: %s\n", __FILE__, __LINE__, ChrPtr(Buf));
 				StrBufAppendBuf(WCC->ImportantMsg, Buf, 0);
 				if (save_to_drafts) gotoroom(WCC->CurRoom.name);
 				display_enter();
@@ -1214,16 +1214,16 @@ void upload_attachment(void) {
 	void *v;
 	wc_mime_attachment *att;
 
-	lprintf(9, "upload_attachment()\n");
+	syslog(9, "upload_attachment()\n");
 	wc_printf("upload_attachment()<br>\n");
 
 	if (WCC->upload_length <= 0) {
-		lprintf(9, "ERROR no attachment was uploaded\n");
+		syslog(9, "ERROR no attachment was uploaded\n");
 		wc_printf("ERROR no attachment was uploaded<br>\n");
 		return;
 	}
 
-	lprintf(9, "Client is uploading %d bytes\n", WCC->upload_length);
+	syslog(9, "Client is uploading %d bytes\n", WCC->upload_length);
 	wc_printf("Client is uploading %d bytes<br>\n", WCC->upload_length);
 	att = malloc(sizeof(wc_mime_attachment));
 	memset(att, 0, sizeof(wc_mime_attachment ));

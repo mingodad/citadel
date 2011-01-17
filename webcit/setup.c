@@ -18,8 +18,8 @@ char setup_directory[SIZ];
 int using_web_installer = 0;
 char suggested_url[SIZ];
 
-/* some copies... */
-int lprintf(int loglevel, const char *format, ...){return 0;}
+/* some copies... 
+int syslog(int loglevel, const char *format, ...){return 0;} */
 void wc_printf(const char *format,...){}
 
 void RegisterNS(const char *NSName, long len, 

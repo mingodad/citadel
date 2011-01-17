@@ -41,7 +41,7 @@ void ParseURLParams(StrBuf *url)
 		}
 		keylen = aptr - up - 1; /* -1 -> '=' */
 		if(keylen > sizeof(u->url_key)) {
-			lprintf(1, "URLkey to long! [%s]", up);
+			syslog(1, "URLkey to long! [%s]", up);
 			continue;
 		}
 
@@ -49,7 +49,7 @@ void ParseURLParams(StrBuf *url)
 		memcpy(u->url_key, up, keylen);
 		u->url_key[keylen] = '\0';
 		if (keylen < 0) {
-			lprintf(1, "URLkey to long! [%s]", up);
+			syslog(1, "URLkey to long! [%s]", up);
 			free(u);
 			continue;
 		}
@@ -61,7 +61,7 @@ void ParseURLParams(StrBuf *url)
 			u->url_data = NewStrBufPlain(aptr, len);
 			StrBufUnescape(u->url_data, 1);
 #ifdef DEBUG_URLSTRINGS
-			lprintf(9, "%s = [%ld]  %s\n", 
+			syslog(9, "%s = [%ld]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -71,7 +71,7 @@ void ParseURLParams(StrBuf *url)
 			len = bptr - aptr;
 			u->url_data = NewStrBufPlain(aptr, len);
 			StrBufUnescape(u->url_data, 1);
-			lprintf(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
+			syslog(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -308,7 +308,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 	long keylen;
 
 #ifdef DEBUG_URLSTRINGS
-	lprintf(9, "\033[31mupload_handler() name=%s, type=%s, len=%d\033[0m\n", name, cbtype, length);
+	syslog(9, "\033[31mupload_handler() name=%s, type=%s, len=%d\033[0m\n", name, cbtype, length);
 #endif
 	if (WCC->Hdr->urlstrings == NULL)
 		WCC->Hdr->urlstrings = NewHash(1, NULL);
@@ -325,7 +325,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			Put(WCC->Hdr->urlstrings, u->url_key, keylen, u, free_url);
 		}
 		else {
-			lprintf(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
+			syslog(1, "REJECTED because of __ is internal only: %s = [%ld]  %s\n", 
 				u->url_key, 
 				StrLength(u->url_data), 
 				ChrPtr(u->url_data)); 
@@ -333,7 +333,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 			free_url(u);
 		}
 #ifdef DEBUG_URLSTRINGS
-		lprintf(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
+		syslog(9, "Key: <%s> len: [%ld] Data: <%s>\n", 
 			u->url_key, 
 			StrLength(u->url_data), 
 			ChrPtr(u->url_data));
@@ -347,7 +347,7 @@ void upload_handler(char *name, char *filename, char *partnum, char *disp,
 		WCC->upload_filename = NewStrBufPlain(filename, -1);
 		safestrncpy(WCC->upload_content_type, cbtype, sizeof(WC->upload_content_type));
 #ifdef DEBUG_URLSTRINGS
-		lprintf(9, "File: <%s> len: [%ld]\n", filename, length);
+		syslog(9, "File: <%s> len: [%ld]\n", filename, length);
 #endif
 		
 	}
@@ -361,7 +361,7 @@ void PutBstr(const char *key, long keylen, StrBuf *Value)
 	urlcontent *u;
 
 	if(keylen > sizeof(u->url_key)) {
-		lprintf(1, "URLkey to long! [%s]", key);
+		syslog(1, "URLkey to long! [%s]", key);
 		FreeStrBuf(&Value);
 		return;
 	}
