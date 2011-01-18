@@ -39,10 +39,10 @@
 <h2><?_("Log in using a user name and password")></h2>
 <form id="ajax_username_password_form" method="POST" action="ajax_login_username_password">
 <?_("User name:")>
-<input type="text" name="name" id="uname">
+<input type="text" name="name" id="uname" onKeyPress="username_and_password_onkeypress(event);">
 <br><br>
 <?_("Password:")>
-<input type="password" name="pass" id="pname">
+<input type="password" name="pass" id="pname" onKeyPress="username_and_password_onkeypress(event);">
 <br><br>
 </form>
 <div class="buttons"><a href="javascript:ajax_try_username_and_password();"><?_("Log in")></a></div>
