@@ -67,6 +67,23 @@ function ajax_try_username_and_password() {
 }
 
 /*
+ * The user pressed a key while in the username or password box.
+ * Is it the enter/return key?  Submit the form.
+ */
+function username_and_password_onkeypress(e) {
+	if (window.event) {		/* IE */
+		keynum = e.keyCode
+	}
+	else if (e.which) {		/* real browsers */
+		keynum = e.which
+	}
+	if (keynum == 13) {		/* enter/return key */
+		ajax_try_username_and_password();
+	}
+}
+
+
+/*
  * tab handler for the login box
  */
 function authtoggle(show_which_div) {
