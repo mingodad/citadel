@@ -3,9 +3,9 @@
  *
  * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * This program is open source software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -774,15 +774,6 @@ void logged_in_response(void)
 
 
 
-/* 
- * misc things to be taken care of when a user is logged out
- */
-void logout(void)
-{
-	CtdlUserLogout();
-}
-
-
 void CtdlUserLogout(void)
 {
 	CitContext *CCC = MyContext();
@@ -828,6 +819,15 @@ void CtdlUserLogout(void)
 
 	/* Clear out the user record in memory so we don't behave like a ghost */
 	memset(&CCC->user, 0, sizeof(struct ctdluser));
+	CCC->curr_user[0] = 0;
+	CCC->is_master = 0;
+	CCC->cs_inet_email[0] = 0;
+	CCC->cs_inet_other_emails[0] = 0;
+	CCC->cs_inet_fn[0] = 0;
+	CCC->fake_username[0] = 0;
+	CCC->fake_hostname[0] = 0;
+	CCC->fake_roomname[0] = 0;
+	
 
 	/* Free any output buffers */
 	unbuffer_output();
