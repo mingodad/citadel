@@ -406,6 +406,7 @@ void ajax_servcmd(void)
 	char *junk;
 	size_t len;
 
+	syslog(LOG_DEBUG, "ajax_servcmd() gcmd=\"%s\"\n", bstr("g_cmd") );
 	begin_ajax_response();
 	Buf = NewStrBuf();
 	serv_puts(bstr("g_cmd"));
@@ -681,8 +682,9 @@ void session_loop(void)
 
 	/* If the client sent a nonce that is incorrect, kill the request. */
 	if (havebstr("nonce")) {
-		syslog(9, "Comparing supplied nonce %s to session nonce %ld\n", 
-			bstr("nonce"), WCC->nonce);
+		syslog(9, "Comparing supplied nonce %s to session nonce %d\n", 
+			bstr("nonce"), WCC->nonce
+		);
 		if (ibstr("nonce") != WCC->nonce) {
 			syslog(9, "Ignoring request with mismatched nonce.\n");
 			hprintf("HTTP/1.1 404 Security check failed\r\n");
