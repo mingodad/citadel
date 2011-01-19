@@ -279,10 +279,12 @@ function CtdlMessageListClick(evt) {
 		document.getElementById("preview_pane").innerHTML = "";
 		new Ajax.Updater('preview_pane', 'msg/'+msgId, {method: 'get'});
 		markRow(parent);
+		var p = encodeURI('g_cmd=SEEN ' + msgId + '|1');
 		new Ajax.Request('ajax_servcmd', {
 			method: 'post',
-					parameters: 'g_cmd=SEEN ' + msgId + '|1',
-					onComplete: CtdlMarkRowAsRead(parent)});
+			parameters: p,
+			onComplete: CtdlMarkRowAsRead(parent)
+		});
 		// If the shift key modifier is used, mark a range...
 	} else if (event.button != 2 && event.shiftKey) {
 		if (originalMarkedRow == null) {
@@ -408,16 +410,21 @@ function deleteAllMarkedRows() {
 }
 
 function deleteAllSelectedMessages() {
+	var pa = "";
 	for(msgId in currentlyMarkedRows) {
 		if (!room_is_trash) {
-			new Ajax.Request('ajax_servcmd', 
-					 {method: 'post',
-							 parameters: 'g_cmd=MOVE ' + msgId + '|_TRASH_|0'
-							 });
-		} else {
-			new Ajax.Request('ajax_servcmd', {method: 'post',
-						parameters: 'g_cmd=DELE '+msgId});
+			pa = encodeURI("g_cmd=MOVE " + msgId + "|_TRASH_|0");
 		}
+		else {
+			pa = encodeURI("g_cmd=DELE " + msgId);
+		}
+		new Ajax.Request("ajax_servcmd", {
+			parameters: pa,
+			method: 'post',
+			onSuccess: function(transport) {
+				WCLog(transport.responseText);
+			}
+		});
 	}
 	document.getElementById("preview_pane").innerHTML = "";
 	deleteAllMarkedRows();
