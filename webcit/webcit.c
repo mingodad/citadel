@@ -406,7 +406,7 @@ void ajax_servcmd(void)
 	char *junk;
 	size_t len;
 
-	syslog(LOG_DEBUG, "ajax_servcmd() gcmd=\"%s\"\n", bstr("g_cmd") );
+	syslog(LOG_DEBUG, "ajax_servcmd() g_cmd=\"%s\"\n", bstr("g_cmd") );
 	begin_ajax_response();
 	Buf = NewStrBuf();
 	serv_puts(bstr("g_cmd"));

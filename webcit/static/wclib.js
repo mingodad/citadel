@@ -317,7 +317,7 @@ function roomListDropHandler(target, dropped) {
     for(msgId in currentlyMarkedRows) { //defined in summaryview.js
       msgIds += ","+msgId;
     }
-    var mvCommand = "g_cmd=MOVE " + msgIds + "|"+room+"|0";
+    var mvCommand = encodeURI("g_cmd=MOVE " + msgIds + "|"+room+"|0");
     new Ajax.Request('ajax_servcmd', {
       method: 'post',
 	  parameters: mvCommand,
@@ -853,10 +853,11 @@ function RefreshSMTPqueueDisplay() {
 }
 
 function DeleteSMTPqueueMsg(msgnum1, msgnum2) {
+	var p = encodeURI('g_cmd=DELE ' + msgnum1 + ',' + msgnum2);
 	new Ajax.Request(
 		'ajax_servcmd', {
 			method: 'post',
-			parameters: 'g_cmd=DELE ' + msgnum1 + ',' + msgnum2,
+			parameters: p,
 			onComplete: RefreshSMTPqueueDisplay()
 		}
 	);
