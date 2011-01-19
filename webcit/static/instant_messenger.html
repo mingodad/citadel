@@ -171,7 +171,7 @@ function ShowNewMsg(gexp_xmlresponse) {
 
 // This is called periodically to check for new incoming messages
 function FetchNewMsgs() {
-	parms = 'g_cmd=GEXP&r=' + Math.random();
+	parms = encodeURI('g_cmd=GEXP&r=' + Math.random());
 	new Ajax.Request('../ajax_servcmd',
 		{
 			method: 'get',
@@ -182,7 +182,7 @@ function FetchNewMsgs() {
 }
 
 // Perform some initialization.
-parms = 'g_cmd=GREG _SELF_&r=' + Math.random();
+parms = encodeURI('g_cmd=GREG _SELF_&r=' + Math.random());
 new Ajax.Request('../ajax_servcmd',
 	{
 		method: 'get',
