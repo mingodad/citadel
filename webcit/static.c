@@ -283,7 +283,11 @@ void robots_txt(void) {
 	begin_burst();
 
 	wc_printf("User-agent: *\r\n"
-		"Disallow:\r\n"
+		"Disallow: /printmsg\r\n"
+		"Disallow: /msgheaders\r\n"
+		"Disallow: /groupdav\r\n"
+		"Disallow: /do_template\r\n"
+		"Disallow: /static\r\n"
 		"Sitemap: %s/sitemap.xml\r\n"
 		"\r\n"
 		,
