@@ -2,6 +2,21 @@
 /*               SMTP CLIENT (Queue Management) STUFF                        */
 /*****************************************************************************/
 
+typedef struct ParsedURL ParsedURL;
+struct ParsedURL {
+	StrBuf *URL;
+	unsigned Port;
+	const char *User;
+	const char *Pass;
+	const char *LocalPart;
+	int IsIP;
+	int af;
+	struct hostent *HEnt;
+	struct in6_addr Addr;
+	ParsedURL *Next;
+};
+
+
 #define MaxAttempts 15
 typedef struct _delivery_attempt {
 	time_t when;
@@ -38,6 +53,7 @@ typedef struct queueitem {
 	long ActiveDeliveries;
 	StrBuf *EnvelopeFrom;
 	StrBuf *BounceTo;
+	ParsedURL *URL;
 } OneQueItem;
 typedef void (*QItemHandler)(OneQueItem *Item, StrBuf *Line, const char **Pos);
 

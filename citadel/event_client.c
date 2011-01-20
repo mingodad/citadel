@@ -71,13 +71,13 @@ extern HashList *InboundEventQueue;
 extern struct ev_loop *event_base;
 
 	
-int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB)
+int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 {
 	IOAddHandler *h;
 	int i;
 
 	h = (IOAddHandler*)malloc(sizeof(IOAddHandler));
-	h->Ctx = Ctx;
+	h->IO = IO;
 	h->EvAttch = CB;
 
 	citthread_mutex_lock(&EventQueueMutex);
@@ -325,17 +325,15 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 
 int event_connect_socket(AsyncIO *IO, double conn_timeout, double first_rw_timeout)
 {
-	struct sockaddr_in  saddr;
 	int fdflags; 
 	int rc = -1;
 
 	IO->SendBuf.fd = IO->RecvBuf.fd = 
-		IO->sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-/*
-IO->curr_ai->ai_family, 
-			  IO->curr_ai->ai_socktype, 
-			  IO->curr_ai->ai_protocol);
-*/
+		IO->sock = socket(
+			(IO->IP6)?PF_INET6:PF_INET, 
+			SOCK_STREAM, 
+			IPPROTO_TCP);
+
 	if (IO->sock < 0) {
 		CtdlLogPrintf(CTDL_ERR, "EVENT: socket() failed: %s\n", strerror(errno));
 		StrBufPrintf(IO->ErrMsg, "Failed to create socket: %s", strerror(errno));
@@ -372,19 +370,10 @@ IO->curr_ai->ai_family,
 	ev_timer_init(&IO->rw_timeout, IO_Timout_callback, first_rw_timeout, 0);
 	IO->rw_timeout.data = IO;
 	
-	memset( (struct sockaddr_in *)&saddr, '\0', sizeof( saddr ) );
-
-	memcpy(&saddr.sin_addr, 
-	       IO->HEnt->h_addr_list[0],
-	       sizeof(struct in_addr));
-//	saddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(IO->dport);
 	rc = connect(IO->sock, 
-		     (struct sockaddr *) &saddr,
-/// TODO: ipv6??		     (IO->HEnt->h_addrtype == AF_INET6)?
-		     /*     sizeof(in6_addr):*/
+		     (struct sockaddr *) &IO->Addr,
+		     (IO->IP6)? ///HEnt->h_addrtype == AF_INET6)?
+		     sizeof(struct in6_addr):
 		     sizeof(struct sockaddr_in));
 	if (rc >= 0){
 ////		freeaddrinfo(res);
@@ -417,23 +406,11 @@ void SetNextTimeout(AsyncIO *IO, double timeout)
 
 void InitEventIO(AsyncIO *IO, 
 		 void *pData, 
-		 IO_CallBack ReadDone, 
-		 IO_CallBack SendDone, 
-		 IO_CallBack Terminate, 
-		 IO_CallBack Timeout, 
-		 IO_CallBack ConnFail, 
-		 IO_LineReaderCallback LineReader,
 		 double conn_timeout, 
 		 double first_rw_timeout,
 		 int ReadFirst)
 {
 	IO->Data = pData;
-	IO->SendDone = SendDone;
-	IO->ReadDone = ReadDone;
-	IO->Terminate = Terminate;
-	IO->LineReader = LineReader;
-	IO->ConnFail = ConnFail;
-	IO->Timeout = Timeout;
 	
 	if (ReadFirst) {
 		IO->NextState = eReadMessage;

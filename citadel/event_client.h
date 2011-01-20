@@ -15,7 +15,6 @@ typedef enum _eNextState {
 	eAbort
 }eNextState;
 
-typedef int (*EventContextAttach)(void *Data);
 typedef eNextState (*IO_CallBack)(AsyncIO *IO);
 typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
 typedef void (*ParseDNSAnswerCb)(AsyncIO*, unsigned char*, int);
@@ -32,6 +31,8 @@ struct AsyncIO {
 	/* connection related */
 	int IP6;
 	struct hostent *HEnt;
+	struct sockaddr_in6 Addr;
+
 	int sock;
 	unsigned short dport;
        	eNextState NextState;
@@ -77,23 +78,17 @@ struct AsyncIO {
 };
 
 typedef struct _IOAddHandler {
-	void *Ctx;
-	EventContextAttach EvAttch;
+	AsyncIO *IO;
+	IO_CallBack EvAttch;
 }IOAddHandler; 
 
 void FreeAsyncIOContents(AsyncIO *IO);
 
-int QueueEventContext(void *Ctx, AsyncIO *IO, EventContextAttach CB);
+int QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 int ShutDownEventQueue(void);
 
 void InitEventIO(AsyncIO *IO, 
 		 void *pData, 
-		 IO_CallBack ReadDone, 
-		 IO_CallBack SendDone, 
-		 IO_CallBack Terminate, 
-		 IO_CallBack Timeout, 
-		 IO_CallBack ConnFail, 
-		 IO_LineReaderCallback LineReader,
 		 double conn_timeout, double first_rw_timeout,
 		 int ReadFirst);
 

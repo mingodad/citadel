@@ -100,7 +100,8 @@ void smtp_try(OneQueItem *MyQItem,
 	      MailQEntry *MyQEntry, 
 	      StrBuf *MsgText, 
 	      int KeepMsgText, /* KeepMsgText allows us to use MsgText as ours. */
-	      int MsgCount);
+	      int MsgCount, 
+	      ParsedURL *RelayUrls);
 
 
 void smtp_evq_cleanup(void)
@@ -588,6 +589,80 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 	CtdlLogPrintf(CTDL_DEBUG, "Done processing bounces\n");
 }
 
+
+
+int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
+{
+	const char *pch, *pStartHost, *pEndHost, *pPort, *pCredEnd, *pUserEnd;
+	ParsedURL *url = (ParsedURL *)malloc(sizeof(ParsedURL));
+	memset(url, 0, sizeof(ParsedURL));
+
+	url->af = AF_INET;
+	url->Port =  DefaultPort;
+	/*
+	 * http://username:passvoid@[ipv6]:port/url 
+	 */
+	url->URL = NewStrBufDup(UrlStr);
+	pStartHost = pch = ChrPtr(url->URL);
+	url->LocalPart = strchr(pch, '/');
+	if (url->LocalPart != NULL) {
+		if ((*(url->LocalPart + 1) == '/') && 
+		    (*(url->LocalPart + 2) == ':')) { /* TODO: find default port for this protocol... */
+			pStartHost = url->LocalPart + 3;
+			url->LocalPart = strchr(pStartHost, '/');
+		}
+	}
+	if (url->LocalPart == NULL) {
+		url->LocalPart = pch + StrLength(UrlStr);
+	}
+
+	pCredEnd = strchr(pch, '@');
+	if (pCredEnd >= url->LocalPart)
+		pCredEnd = NULL;
+	if (pCredEnd != NULL)
+	{
+		url->User = pStartHost;
+		pStartHost = pCredEnd + 1;
+		pUserEnd = strchr(url->User, ':');
+		
+		if (pUserEnd > pCredEnd)
+			pUserEnd = pCredEnd;
+		else {
+			url->Pass = pUserEnd + 1;
+		}
+		StrBufPeek(UrlStr, pUserEnd, 0, '\0');
+		StrBufPeek(UrlStr, pCredEnd, 0, '\0');		
+	}
+	
+	pPort = NULL;
+	if (*pStartHost == '[') {
+		pStartHost ++;
+		pEndHost = strchr(pStartHost, ']');
+		if (pEndHost == NULL) {
+			free(url);
+			return 0; /* invalid syntax, no ipv6 */
+		}
+		if (*(pEndHost + 1) == ':')
+			pPort = pEndHost + 2;
+		url->af = AF_INET6;
+	}
+	else {
+		pPort = strchr(pStartHost, ':');
+		if (pPort != NULL)
+			pPort ++;
+	}
+	if (pPort != NULL)
+		url->Port = atol(pPort);
+	url->IsIP = inet_pton(url->af, pStartHost, &url->Addr);	
+	return 1;
+}
+/*
+{
+
+	if (threadding)
+		n_smarthosts =  get_hosts(char *mxbuf, char *rectype);
+}
+*/
 /*
  * smtp_do_procmsg()
  *
@@ -603,7 +678,11 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	void *vQE;
 	long len;
 	const char *Key;
-
+	int nRelays = 0;
+	ParsedURL *RelayUrls = NULL;
+	int HaveBuffers = 0;
+	StrBuf *Msg =NULL;
+	
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: smtp_do_procmsg(%ld)\n", msgnum);
 	///strcpy(envelope_from, "");
 
@@ -668,6 +747,27 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 		return;
 	}
 
+	{
+		char mxbuf[SIZ];
+		ParsedURL **Url = &RelayUrls; ///&MyQItem->Relay;
+		nRelays = get_hosts(mxbuf, "smarthost");
+		if (nRelays > 0) {
+			StrBuf *All;
+			StrBuf *One;
+			const char *Pos = NULL;
+			All = NewStrBufPlain(mxbuf, -1);
+			One = NewStrBufPlain(NULL, StrLength(All) + 1);
+			
+			while (Pos != StrBufNOTNULL) {
+				StrBufExtract_NextToken(One, All, &Pos, '|');
+				if (!ParseURL(Url, One, 25))
+					CtdlLogPrintf(CTDL_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
+				else 
+					Url = &(*Url)->Next;
+			}
+		}
+	}
+
 	It = GetNewHashPos(MyQItem->MailQEntries, 0);
 	while (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE))
 	{
@@ -681,16 +781,18 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	{
 		int n = MsgCount++;
 		int i = 1;
-		StrBuf *Msg = smtp_load_msg(MyQItem, n);
+		Msg = smtp_load_msg(MyQItem, n);
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
 		while ((i <= MyQItem->ActiveDeliveries) && 
 		       (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE)))
 		{
 			MailQEntry *ThisItem = vQE;
 			if (ThisItem->Active == 1) {
+				int KeepBuffers = (i == MyQItem->ActiveDeliveries);
 				if (i > 1) n = MsgCount++;
 				CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: Trying <%s>\n", ChrPtr(ThisItem->Recipient));
-				smtp_try(MyQItem, ThisItem, Msg, (i == MyQItem->ActiveDeliveries), n);
+				smtp_try(MyQItem, ThisItem, Msg, KeepBuffers, n, RelayUrls);
+				if (KeepBuffers) HaveBuffers = 1;
 				i++;
 			}
 		}
@@ -710,6 +812,10 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 // TODO: bounce & delete?
 
+	}
+	if (!HaveBuffers) {
+		FreeStrBuf (&Msg);
+// TODO : free RelayUrls
 	}
 }
 

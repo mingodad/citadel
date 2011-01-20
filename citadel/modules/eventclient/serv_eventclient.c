@@ -97,7 +97,7 @@ static void QueueEventAddCallback(struct ev_loop *loop, ev_io *watcher, int reve
 		while (GetNextHashPos(q, It, &len, &Key, &v))
 		{
 			IOAddHandler *h = v;
-			h->EvAttch(h->Ctx);
+			h->EvAttch(h->IO);
 		}
 		DeleteHashPos(&It);
 		DeleteHashContent(&q);
