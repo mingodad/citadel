@@ -108,7 +108,7 @@ typedef enum _eSMTP_C_States {
 	eMaxSMTPC
 } eSMTP_C_States;
 
-const double SMTP_C_ConnTimeout = 60.; /* wail 1 minute for connections... */
+const double SMTP_C_ConnTimeout = 300.; /* wail 1 minute for connections... */
 const double SMTP_C_ReadTimeouts[eMaxSMTPC] = {
 	300., /* Greeting... */
 	30., /* EHLO */
@@ -210,7 +210,7 @@ typedef eNextState (*SMTPSendHandler)(SmtpOutMsg *Msg);
 
 #define SMTP_IS_STATE(WHICH_STATE) (ChrPtr(SendMsg->IO.IOBuf)[0] == WHICH_STATE)
 
-#define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
+#define SMTP_DBG_SEND() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: > %s\n", SendMsg->n, ChrPtr(SendMsg->IO.SendBuf.Buf))
 #define SMTP_DBG_READ() CtdlLogPrintf(CTDL_DEBUG, "SMTP client[%ld]: < %s\n", SendMsg->n, ChrPtr(SendMsg->IO.IOBuf))
 
 
@@ -255,6 +255,67 @@ void FinalizeMessageSend(SmtpOutMsg *Msg)
 }
 
 
+void SetConnectStatus(AsyncIO *IO)
+{
+	
+	SmtpOutMsg *SendMsg = IO->Data;
+	char buf[256];
+	void *src;
+
+	buf[0] = '\0';
+
+	if (IO->IP6) {
+		src = &IO->Addr.sin6_addr;
+	}
+	else {
+		unsigned long psaddr;
+		struct sockaddr_in *addr = (struct sockaddr_in *)&IO->Addr;
+
+		src = &addr->sin_addr.s_addr;
+		memcpy(&psaddr, &addr->sin_addr.s_addr, sizeof(psaddr));
+///		psaddr = ntohl(psaddr); 
+/*
+		CtdlLogPrintf(CTDL_DEBUG, 
+			      "SMTP client[%ld]: connecting to %s [%ld.%ld.%ld.%ld:%d] ...\n", 
+			      SendMsg->n, 
+			      SendMsg->mx_host, 
+			      (psaddr >> 24) & 0xFF,
+			      (psaddr >> 16) & 0xFF,
+			      (psaddr >>  8) & 0xFF,
+			      (psaddr >>  0) & 0xFF,
+			      SendMsg->IO.dport);
+
+		SendMsg->MyQEntry->Status = 5; 
+		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+			     "Timeout while connecting %s [%ld.%ld.%ld.%ld:%d] ", 
+			     SendMsg->mx_host,
+			     (psaddr >> 24) & 0xFF,
+			     (psaddr >> 16) & 0xFF,
+			     (psaddr >>  8) & 0xFF,
+			     (psaddr >>  0) & 0xFF,
+			     SendMsg->IO.dport);
+
+*/
+	}
+
+	inet_ntop((IO->IP6)?AF_INET6:AF_INET,
+		  src,
+		  buf, sizeof(buf));
+
+	CtdlLogPrintf(CTDL_DEBUG, 
+		      "SMTP client[%ld]: connecting to %s [%s]:%d ...\n", 
+		      SendMsg->n, 
+		      SendMsg->mx_host, 
+		      buf,
+		      SendMsg->IO.dport);
+
+	SendMsg->MyQEntry->Status = 5; 
+	StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+		     "Timeout while connecting %s [%s]:%d ", 
+		     SendMsg->mx_host,
+		     buf,
+		     SendMsg->IO.dport);
+}
 
 eNextState mx_connect_relay_ip(AsyncIO *IO)
 {
@@ -280,7 +341,7 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 	else {
 		struct sockaddr_in *addr = (struct sockaddr_in*) &IO->Addr;
 		/* Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
-		memcpy(&addr->sin_addr, 
+		memcpy(&addr->sin_addr,///.s_addr, 
 		       &SendMsg->pCurrRelay->Addr,
 		       sizeof(struct in_addr));
 		
@@ -288,48 +349,11 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 		addr->sin_port = htons(IO->dport);
 	}
 
+	SetConnectStatus(IO);
 
-
-/*
-
-	SendMsg->pCurrRelay->
-	if ((SendMsg->pCurrRelay != NULL) && (SendMsg->pCurrRelay->IsIP)) {
-		connect = 1;
-
-	}
-		unsigned long psaddr;
-
-
-		memcpy(&psaddr, hostent->h_addr_list[0], sizeof(psaddr));
-		psaddr = ntohl(psaddr); 
-
-		CtdlLogPrintf(CTDL_DEBUG, 
-			      "SMTP client[%ld]: connecting to %s [%ld.%ld.%ld.%ld:%d] ...\n", 
-			      SendMsg->n, 
-			      SendMsg->mx_host, 
-			      (psaddr >> 24) & 0xFF,
-			      (psaddr >> 16) & 0xFF,
-			      (psaddr >>  8) & 0xFF,
-			      (psaddr >>  0) & 0xFF,
-			      SendMsg->IO.dport);
-
-		SendMsg->MyQEntry->Status = 5; 
-		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-			     "Timeout while connecting %s [%ld.%ld.%ld.%ld:%d] ", 
-			     SendMsg->mx_host,
-			     (psaddr >> 24) & 0xFF,
-			     (psaddr >> 16) & 0xFF,
-			     (psaddr >>  8) & 0xFF,
-			     (psaddr >>  0) & 0xFF,
-			     SendMsg->IO.dport);
-
-
-	}
-*/
-	/// TODO: else fail!
-	InitEventIO(IO, SendMsg, 
-		    SMTP_C_ConnTimeout, 
-		    SMTP_C_ReadTimeouts[0],
+	return InitEventIO(IO, SendMsg, 
+			   SMTP_C_ConnTimeout, 
+			   SMTP_C_ReadTimeouts[0],
 			    1);
 }
 
@@ -340,15 +364,17 @@ void get_one_mx_host_ip_done(void *Ctx,
 {
 	AsyncIO *IO = (AsyncIO *) Ctx;
 	SmtpOutMsg *SendMsg = IO->Data;
+	eNextState State = eAbort;
 
 	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
 		
-		IO->IP6 = hostent->h_addrtype == AF_INET6;
-		
+		IO->IP6  = hostent->h_addrtype == AF_INET6;
+		IO->HEnt = hostent;
+
 		memset(&IO->Addr, 0, sizeof(struct in6_addr));
 		if (IO->IP6) {
 			memcpy(&IO->Addr.sin6_addr.s6_addr, 
-			       IO->HEnt->h_addr_list[0],
+			       &hostent->h_addr_list[0],
 			       sizeof(struct in6_addr));
 			
 			IO->Addr.sin6_family = hostent->h_addrtype;
@@ -357,47 +383,56 @@ void get_one_mx_host_ip_done(void *Ctx,
 		else {
 			struct sockaddr_in *addr = (struct sockaddr_in*) &IO->Addr;
 			/* Bypass the ns lookup result like this: IO->Addr.sin_addr.s_addr = inet_addr("127.0.0.1"); */
-			memcpy(&addr->sin_addr, 
-			       IO->HEnt->h_addr_list[0],
-			       sizeof(struct in_addr));
+//			addr->sin_addr.s_addr = htonl((uint32_t)&hostent->h_addr_list[0]);
+			memcpy(&addr->sin_addr.s_addr, hostent->h_addr_list[0], sizeof(uint32_t));
 			
 			addr->sin_family = hostent->h_addrtype;
 			addr->sin_port = htons(IO->dport);
 			
 		}
 		SendMsg->IO.HEnt = hostent;
-		InitEventIO(IO, SendMsg, 
-			    SMTP_C_ConnTimeout, 
-			    SMTP_C_ReadTimeouts[0],
-			    1);
+		SetConnectStatus(IO);
+		State = InitEventIO(IO, SendMsg, 
+				   SMTP_C_ConnTimeout, 
+				   SMTP_C_ReadTimeouts[0],
+				   1);
 	}
+	if (State == eAbort)
+		SMTP_C_Terminate(IO);
 }
 
 const unsigned short DefaultMXPort = 25;
 eNextState get_one_mx_host_ip(AsyncIO *IO)
 {
 	SmtpOutMsg * SendMsg = IO->Data;
-
+	const char *Hostname;
 	//char *endpart;
 	//char buf[SIZ];
+	InitC_ares_dns(IO);
+
+	if (SendMsg->CurrMX) {
+		SendMsg->mx_host = SendMsg->CurrMX->host;
+		SendMsg->CurrMX = SendMsg->CurrMX->next;
+	}
+
+	if (SendMsg->pCurrRelay != NULL) Hostname = SendMsg->pCurrRelay->Host;
+       	else if (SendMsg->mx_host != NULL) Hostname = SendMsg->mx_host;
+	else Hostname = SendMsg->node;
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
-	SendMsg->IO.dport = DefaultMXPort;
-
-	SendMsg->mx_host = SendMsg->CurrMX->host;
-	SendMsg->CurrMX = SendMsg->CurrMX->next;
 
 	CtdlLogPrintf(CTDL_DEBUG, 
 		      "SMTP client[%ld]: looking up %s : %d ...\n", 
 		      SendMsg->n, 
-		      SendMsg->mx_host, 
+		      Hostname, 
 		      SendMsg->IO.dport);
 
 	ares_gethostbyname(SendMsg->IO.DNSChannel,
-			   SendMsg->mx_host,   
+			   Hostname,   
 			   AF_INET6, /* it falls back to ipv4 in doubt... */
 			   get_one_mx_host_ip_done,
 			   &SendMsg->IO);
+	return IO->NextState;
 }
 
 
@@ -415,7 +450,7 @@ eNextState smtp_resolve_mx_done(AsyncIO *IO)
 	SendMsg->CurrMX = SendMsg->AllMX = IO->VParsedDNSReply;
 	//// TODO: should we remove the current ares context???
 	get_one_mx_host_ip(IO);
-	return 0;
+	return IO->NextState;
 }
 
 
@@ -433,9 +468,9 @@ eNextState resolve_mx_records(AsyncIO *IO)
 		SendMsg->MyQEntry->Status = 5;
 		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
 			     "No MX hosts found for <%s>", SendMsg->node);
-		return 0; ///////TODO: abort!
+		return IO->NextState;
 	}
-	return 0;
+	return eAbort;
 }
 
 
@@ -533,12 +568,14 @@ void smtp_try(OneQueItem *MyQItem,
 
 	SendMsg = (SmtpOutMsg *) malloc(sizeof(SmtpOutMsg));
 	memset(SendMsg, 0, sizeof(SmtpOutMsg));
-	SendMsg->IO.sock    = (-1);
-	SendMsg->n          = MsgCount++;
-	SendMsg->MyQEntry   = MyQEntry;
-	SendMsg->MyQItem    = MyQItem;
-	SendMsg->pCurrRelay = MyQItem->URL;
+	SendMsg->IO.sock      = (-1);
+	SendMsg->IO.NextState = eReadMessage;
+	SendMsg->n            = MsgCount++;
+	SendMsg->MyQEntry     = MyQEntry;
+	SendMsg->MyQItem      = MyQItem;
+	SendMsg->pCurrRelay   = MyQItem->URL;
 
+	SendMsg->IO.dport       = DefaultMXPort;
 	SendMsg->IO.Data        = SendMsg;
 	SendMsg->IO.SendDone    = SMTP_C_DispatchWriteDone;
 	SendMsg->IO.ReadDone    = SMTP_C_DispatchReadDone;
@@ -620,7 +657,8 @@ eNextState SMTPC_read_EHLO_reply(SmtpOutMsg *SendMsg)
 	if (SMTP_IS_STATE('2')) {
 		SendMsg->State ++;
 
-		if (SendMsg->pCurrRelay->User == NULL)
+		if ((SendMsg->pCurrRelay == NULL) || 
+		    (SendMsg->pCurrRelay->User == NULL))
 			SendMsg->State ++; /* Skip auth... */
 	}
 	/* else we fall back to 'helo' */
@@ -646,7 +684,8 @@ eNextState SMTPC_read_HELO_reply(SmtpOutMsg *SendMsg)
 		else 
 			SMTP_VERROR(5);
 	}
-	if (SendMsg->pCurrRelay->User == NULL)
+		if ((SendMsg->pCurrRelay == NULL) || 
+		    (SendMsg->pCurrRelay->User == NULL))
 		SendMsg->State ++; /* Skip auth... */
 	return eSendReply;
 }
@@ -656,6 +695,10 @@ eNextState SMTPC_send_auth(SmtpOutMsg *SendMsg)
 	char buf[SIZ];
 	char encoded[1024];
 
+	if ((SendMsg->pCurrRelay == NULL) || 
+	    (SendMsg->pCurrRelay->User == NULL))
+		SendMsg->State ++; /* Skip auth, shouldn't even come here!... */
+	else {
 	/* Do an AUTH command if necessary */
 	sprintf(buf, "%s%c%s%c%s", 
 		SendMsg->pCurrRelay->User, '\0', 
@@ -666,7 +709,7 @@ eNextState SMTPC_send_auth(SmtpOutMsg *SendMsg)
 			 strlen(SendMsg->pCurrRelay->Pass) + 2, 0);
 	StrBufPrintf(SendMsg->IO.SendBuf.Buf,
 		     "AUTH PLAIN %s\r\n", encoded);
-
+	}
 	SMTP_DBG_SEND();
 	return eReadMessage;
 }
@@ -923,7 +966,7 @@ eNextState SMTP_C_Terminate(AsyncIO *IO)
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
 	FinalizeMessageSend(pMsg);
-	return 0;
+	return eAbort;
 }
 eNextState SMTP_C_Timeout(AsyncIO *IO)
 {
@@ -931,14 +974,14 @@ eNextState SMTP_C_Timeout(AsyncIO *IO)
 	SmtpOutMsg *pMsg = IO->Data;
 	StrBufPlain(IO->ErrMsg, CKEY(ReadErrors[pMsg->State]));
 	FinalizeMessageSend(pMsg);
-	return 0;
+	return eAbort;
 }
 eNextState SMTP_C_ConnFail(AsyncIO *IO)
 {
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
 	FinalizeMessageSend(pMsg);
-	return 0;
+	return eAbort;
 }
 
 

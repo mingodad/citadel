@@ -593,7 +593,7 @@ void smtpq_do_bounce(OneQueItem *MyQItem, StrBuf *OMsgTxt)
 
 int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 {
-	const char *pch, *pStartHost, *pEndHost, *pPort, *pCredEnd, *pUserEnd;
+	const char *pch, *pEndHost, *pPort, *pCredEnd, *pUserEnd;
 	ParsedURL *url = (ParsedURL *)malloc(sizeof(ParsedURL));
 	memset(url, 0, sizeof(ParsedURL));
 
@@ -603,13 +603,13 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 	 * http://username:passvoid@[ipv6]:port/url 
 	 */
 	url->URL = NewStrBufDup(UrlStr);
-	pStartHost = pch = ChrPtr(url->URL);
+	url->Host = pch = ChrPtr(url->URL);
 	url->LocalPart = strchr(pch, '/');
 	if (url->LocalPart != NULL) {
 		if ((*(url->LocalPart + 1) == '/') && 
 		    (*(url->LocalPart + 2) == ':')) { /* TODO: find default port for this protocol... */
-			pStartHost = url->LocalPart + 3;
-			url->LocalPart = strchr(pStartHost, '/');
+			url->Host = url->LocalPart + 3;
+			url->LocalPart = strchr(url->Host, '/');
 		}
 	}
 	if (url->LocalPart == NULL) {
@@ -621,8 +621,8 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 		pCredEnd = NULL;
 	if (pCredEnd != NULL)
 	{
-		url->User = pStartHost;
-		pStartHost = pCredEnd + 1;
+		url->User = url->Host;
+		url->Host = pCredEnd + 1;
 		pUserEnd = strchr(url->User, ':');
 		
 		if (pUserEnd > pCredEnd)
@@ -635,9 +635,9 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 	}
 	
 	pPort = NULL;
-	if (*pStartHost == '[') {
-		pStartHost ++;
-		pEndHost = strchr(pStartHost, ']');
+	if (*url->Host == '[') {
+		url->Host ++;
+		pEndHost = strchr(url->Host, ']');
 		if (pEndHost == NULL) {
 			free(url);
 			return 0; /* invalid syntax, no ipv6 */
@@ -647,13 +647,13 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 		url->af = AF_INET6;
 	}
 	else {
-		pPort = strchr(pStartHost, ':');
+		pPort = strchr(url->Host, ':');
 		if (pPort != NULL)
 			pPort ++;
 	}
 	if (pPort != NULL)
 		url->Port = atol(pPort);
-	url->IsIP = inet_pton(url->af, pStartHost, &url->Addr);	
+	url->IsIP = inet_pton(url->af, url->Host, &url->Addr);	
 	return 1;
 }
 /*

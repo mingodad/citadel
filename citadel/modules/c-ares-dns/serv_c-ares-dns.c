@@ -223,19 +223,23 @@ void QueryCb(void *arg,
 	IO->PostDNS(IO);
 }
 
-int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
-{
-	int length, family;
-	char address_b[sizeof(struct in6_addr)];
-	int optmask = 0;
 
+void InitC_ares_dns(AsyncIO *IO)
+{
+	int optmask = 0;
 	if (IO->DNSChannel == NULL) {
 		optmask |= ARES_OPT_SOCK_STATE_CB;
 		IO->DNSOptions.sock_state_cb = SockStateCb;
 		IO->DNSOptions.sock_state_cb_data = IO;
 		ares_init_options(&IO->DNSChannel, &IO->DNSOptions, optmask);
 	}
+}
+int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
+{
+	int length, family;
+	char address_b[sizeof(struct in6_addr)];
 
+	InitC_ares_dns(IO);
 	IO->PostDNS = PostDNS;
 	switch(Type) {
 	case ns_t_a:

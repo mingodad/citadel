@@ -87,13 +87,16 @@ void FreeAsyncIOContents(AsyncIO *IO);
 int QueueEventContext(AsyncIO *IO, IO_CallBack CB);
 int ShutDownEventQueue(void);
 
-void InitEventIO(AsyncIO *IO, 
-		 void *pData, 
-		 double conn_timeout, double first_rw_timeout,
-		 int ReadFirst);
+eNextState InitEventIO(AsyncIO *IO, 
+		       void *pData, 
+		       double conn_timeout, 
+		       double first_rw_timeout,
+		       int ReadFirst);
 
 int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);
 
 void StopClient(AsyncIO *IO);
 
 void SetNextTimeout(AsyncIO *IO, double timeout);
+
+void InitC_ares_dns(AsyncIO *IO);

@@ -6,6 +6,7 @@ typedef struct ParsedURL ParsedURL;
 struct ParsedURL {
 	StrBuf *URL;
 	unsigned Port;
+	const char *Host;
 	const char *User;
 	const char *Pass;
 	const char *LocalPart;
