@@ -119,7 +119,6 @@ void FreeAsyncIOContents(AsyncIO *IO)
 	FreeStrBuf(&IO->IOBuf);
 	FreeStrBuf(&IO->SendBuf.Buf);
 	FreeStrBuf(&IO->RecvBuf.Buf);
-	ares_destroy(IO->DNSChannel);
 }
 
 
@@ -136,6 +135,12 @@ void ShutDownCLient(AsyncIO *IO)
 		IO->sock = 0;
 		IO->SendBuf.fd = 0;
 		IO->RecvBuf.fd = 0;
+	}
+	if (IO->DNSChannel != NULL) {
+		ares_destroy(IO->DNSChannel);
+		ev_io_stop(event_base, &IO->dns_recv_event);
+		ev_io_stop(event_base, &IO->dns_send_event);
+		IO->DNSChannel = NULL;
 	}
 	assert(IO->Terminate);
 	IO->Terminate(IO);
@@ -430,7 +435,5 @@ eNextState InitEventIO(AsyncIO *IO,
 	else {
 		IO->NextState = eSendReply;
 	}
-	IO->IP6 = IO->HEnt->h_addrtype == AF_INET6;
-//	IO->res = HEnt->h_addr_list[0];
 	return event_connect_socket(IO, conn_timeout, first_rw_timeout);
 }

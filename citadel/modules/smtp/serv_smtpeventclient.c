@@ -268,39 +268,16 @@ void SetConnectStatus(AsyncIO *IO)
 		src = &IO->Addr.sin6_addr;
 	}
 	else {
-		unsigned long psaddr;
 		struct sockaddr_in *addr = (struct sockaddr_in *)&IO->Addr;
 
 		src = &addr->sin_addr.s_addr;
-		memcpy(&psaddr, &addr->sin_addr.s_addr, sizeof(psaddr));
-///		psaddr = ntohl(psaddr); 
-/*
-		CtdlLogPrintf(CTDL_DEBUG, 
-			      "SMTP client[%ld]: connecting to %s [%ld.%ld.%ld.%ld:%d] ...\n", 
-			      SendMsg->n, 
-			      SendMsg->mx_host, 
-			      (psaddr >> 24) & 0xFF,
-			      (psaddr >> 16) & 0xFF,
-			      (psaddr >>  8) & 0xFF,
-			      (psaddr >>  0) & 0xFF,
-			      SendMsg->IO.dport);
-
-		SendMsg->MyQEntry->Status = 5; 
-		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
-			     "Timeout while connecting %s [%ld.%ld.%ld.%ld:%d] ", 
-			     SendMsg->mx_host,
-			     (psaddr >> 24) & 0xFF,
-			     (psaddr >> 16) & 0xFF,
-			     (psaddr >>  8) & 0xFF,
-			     (psaddr >>  0) & 0xFF,
-			     SendMsg->IO.dport);
-
-*/
 	}
 
 	inet_ntop((IO->IP6)?AF_INET6:AF_INET,
 		  src,
 		  buf, sizeof(buf));
+	if (SendMsg->mx_host == NULL)
+		SendMsg->mx_host = "<no name>";
 
 	CtdlLogPrintf(CTDL_DEBUG, 
 		      "SMTP client[%ld]: connecting to %s [%s]:%d ...\n", 
@@ -397,7 +374,7 @@ void get_one_mx_host_ip_done(void *Ctx,
 				   SMTP_C_ReadTimeouts[0],
 				   1);
 	}
-	if (State == eAbort)
+	if ((State == eAbort) && (IO->sock != -1))
 		SMTP_C_Terminate(IO);
 }
 
@@ -415,7 +392,11 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 		SendMsg->CurrMX = SendMsg->CurrMX->next;
 	}
 
-	if (SendMsg->pCurrRelay != NULL) Hostname = SendMsg->pCurrRelay->Host;
+	if (SendMsg->pCurrRelay != NULL) {
+		SendMsg->mx_host = Hostname = SendMsg->pCurrRelay->Host;
+		if (SendMsg->pCurrRelay->Port != 0)
+			SendMsg->IO.dport = SendMsg->pCurrRelay->Port;
+	}
        	else if (SendMsg->mx_host != NULL) Hostname = SendMsg->mx_host;
 	else Hostname = SendMsg->node;
 
@@ -442,9 +423,6 @@ eNextState smtp_resolve_mx_done(AsyncIO *IO)
 
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
-	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.IOBuf = NewStrBuf();
 	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
 
 	SendMsg->CurrMX = SendMsg->AllMX = IO->VParsedDNSReply;
@@ -583,6 +561,9 @@ void smtp_try(OneQueItem *MyQItem,
 	SendMsg->IO.LineReader  = SMTP_C_ReadServerStatus;
 	SendMsg->IO.ConnFail    = SMTP_C_ConnFail;
 	SendMsg->IO.Timeout     = SMTP_C_Timeout;
+	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.IOBuf       = NewStrBuf();
 
 	if (KeepMsgText) {
 		SendMsg->msgtext    = MsgText;

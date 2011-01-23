@@ -138,7 +138,12 @@ void RemoveQItem(OneQueItem *MyQItem)
 	DeleteHashPos(&It);
 }
 
-
+void FreeURL(ParsedURL** Url)
+{
+	FreeStrBuf(&(*Url)->URL);
+	free(*Url);
+	*Url = NULL;
+}
 
 void FreeMailQEntry(void *qv)
 {
@@ -152,6 +157,7 @@ void FreeQueItem(OneQueItem **Item)
 	DeleteHash(&(*Item)->MailQEntries);
 	FreeStrBuf(&(*Item)->EnvelopeFrom);
 	FreeStrBuf(&(*Item)->BounceTo);
+	FreeURL(&(*Item)->URL);
 	free(*Item);
 	Item = NULL;
 }
@@ -613,7 +619,7 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 		}
 	}
 	if (url->LocalPart == NULL) {
-		url->LocalPart = pch + StrLength(UrlStr);
+		url->LocalPart = pch + StrLength(url->URL);
 	}
 
 	pCredEnd = strchr(pch, '@');
@@ -630,8 +636,8 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 		else {
 			url->Pass = pUserEnd + 1;
 		}
-		StrBufPeek(UrlStr, pUserEnd, 0, '\0');
-		StrBufPeek(UrlStr, pCredEnd, 0, '\0');		
+		StrBufPeek(url->URL, pUserEnd, 0, '\0');
+		StrBufPeek(url->URL, pCredEnd, 0, '\0');		
 	}
 	
 	pPort = NULL;
@@ -642,18 +648,23 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 			free(url);
 			return 0; /* invalid syntax, no ipv6 */
 		}
-		if (*(pEndHost + 1) == ':')
+		if (*(pEndHost + 1) == ':'){
+			StrBufPeek(url->URL, pEndHost + 1, 0, '\0');
 			pPort = pEndHost + 2;
+		}
 		url->af = AF_INET6;
 	}
 	else {
 		pPort = strchr(url->Host, ':');
-		if (pPort != NULL)
+		if (pPort != NULL) {
+			StrBufPeek(url->URL, pPort, 0, '\0');
 			pPort ++;
+		}
 	}
 	if (pPort != NULL)
 		url->Port = atol(pPort);
-	url->IsIP = inet_pton(url->af, url->Host, &url->Addr);	
+	url->IsIP = inet_pton(url->af, url->Host, &url->Addr);
+	*Url = url;
 	return 1;
 }
 /*
@@ -749,7 +760,7 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 
 	{
 		char mxbuf[SIZ];
-		ParsedURL **Url = &RelayUrls; ///&MyQItem->Relay;
+		ParsedURL **Url = &MyQItem->URL;
 		nRelays = get_hosts(mxbuf, "smarthost");
 		if (nRelays > 0) {
 			StrBuf *All;
@@ -758,13 +769,15 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 			All = NewStrBufPlain(mxbuf, -1);
 			One = NewStrBufPlain(NULL, StrLength(All) + 1);
 			
-			while (Pos != StrBufNOTNULL) {
+			while ((Pos != StrBufNOTNULL) && ((Pos == NULL) || !IsEmptyStr(Pos))) {
 				StrBufExtract_NextToken(One, All, &Pos, '|');
 				if (!ParseURL(Url, One, 25))
 					CtdlLogPrintf(CTDL_DEBUG, "Failed to parse: %s\n", ChrPtr(One));
 				else 
 					Url = &(*Url)->Next;
 			}
+			FreeStrBuf(&All);
+			FreeStrBuf(&One);
 		}
 	}
 
