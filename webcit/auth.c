@@ -400,7 +400,8 @@ void finalize_openid_login(void)
 		}
 	}
 
-	/* If we were already logged in, this was an attempt to associate an OpenID account */
+	/* If we were already logged in, this was an attempt to associate an OpenID account 
+	FIXME put this back in
 	if (already_logged_in) {
 		display_openids();
 		FreeStrBuf(&result);
@@ -410,6 +411,7 @@ void finalize_openid_login(void)
 		FreeStrBuf(&logged_in_response);
 		return;
 	}
+	*/
 
 	/* If this operation logged us in, either by connecting with an existing account or by
 	 * auto-creating one using Simple Registration Extension, we're already on our way.
@@ -422,6 +424,7 @@ void finalize_openid_login(void)
 	 * or conflicts with an existing user.  Either way the user will need to specify a new name.
 	 */
 
+/*
 	else if (!strcasecmp(ChrPtr(result), "verify_only")) {
 		putbstr("__claimed_id", claimed_id);
 		claimed_id = NULL;
@@ -433,16 +436,29 @@ void finalize_openid_login(void)
 		do_template("openid_manual_create", NULL);
 		end_burst();
 	}
+*/
+
+
 
 	/* Did we manage to log in?  If so, continue with the normal flow... */
-	else if (WC->logged_in) {
+	if (WC->logged_in) {
+
+		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		do_template("authpopup_finished", NULL);
+		end_burst();
+
+		/* FIXME make all this crap work again
 		if (WC->need_regi) {
 			display_reg(1);
 		} else {
 			do_welcome();
 		}
+		*/
+
 	} else {
-		display_login();
+		/* maybe do something prettier here? */
+		convenience_page("770000", _("Error"), _("Error") );
 	}
 
 	FreeStrBuf(&result);
