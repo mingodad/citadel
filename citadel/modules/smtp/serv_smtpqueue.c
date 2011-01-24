@@ -140,9 +140,13 @@ void RemoveQItem(OneQueItem *MyQItem)
 
 void FreeURL(ParsedURL** Url)
 {
-	FreeStrBuf(&(*Url)->URL);
-	free(*Url);
-	*Url = NULL;
+	if (*Url != NULL) {
+		FreeStrBuf(&(*Url)->URL);
+		if ((*Url)->Next != NULL)
+			FreeURL(&(*Url)->Next);
+		free(*Url);
+		*Url = NULL;
+	}
 }
 
 void FreeMailQEntry(void *qv)
