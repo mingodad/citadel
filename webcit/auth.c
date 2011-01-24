@@ -313,39 +313,24 @@ void do_openid_login(void)
 {
 	char buf[4096];
 
-	if (havebstr("language")) {
-		set_selected_language(bstr("language"));
-		go_selected_language();
-	}
+	snprintf(buf, sizeof buf,
+		"OIDS %s|%s/finalize_openid_login|%s",
+		bstr("openid_url"),
+		ChrPtr(site_prefix),
+		ChrPtr(site_prefix)
+	);
 
-	if (havebstr("exit_action")) {
-		do_logout();
+	serv_puts(buf);
+	serv_getln(buf, sizeof buf);
+	if (buf[0] == '2') {
+		syslog(LOG_DEBUG, "OpenID server contacted; redirecting to %s\n", &buf[4]);
+		http_redirect(&buf[4]);
 		return;
 	}
-	if (havebstr("login_action")) {
-		snprintf(buf, sizeof buf,
-			"OIDS %s|%s/finalize_openid_login|%s",
-			bstr("openid_url"),
-			ChrPtr(site_prefix),
-			ChrPtr(site_prefix)
-		);
 
-		serv_puts(buf);
-		serv_getln(buf, sizeof buf);
-		if (buf[0] == '2') {
-			syslog(LOG_DEBUG, "OpenID server contacted; redirecting to %s\n", &buf[4]);
-			http_redirect(&buf[4]);
-			return;
-		}
-		else {
-			display_login();
-			return;
-		}
-	}
-
-	/* If we get to this point then something failed. */
-	display_login();
+	convenience_page("770000", _("Error"), &buf[4]);
 }
+
 
 /* 
  * Complete the authentication using OpenID
