@@ -328,7 +328,12 @@ void do_openid_login(void)
 		return;
 	}
 
-	convenience_page("770000", _("Error"), &buf[4]);
+	begin_burst();
+	output_headers(1, 0, 0, 0, 1, 0);
+	wc_printf("<html><body>");
+	escputs(&buf[4]);
+	wc_printf("</body></html>");
+	end_burst();
 }
 
 
@@ -442,7 +447,6 @@ void finalize_openid_login(void)
 
 	/* Did we manage to log in?  If so, continue with the normal flow... */
 	if (WC->logged_in) {
-
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		do_template("authpopup_finished", NULL);
@@ -457,8 +461,13 @@ void finalize_openid_login(void)
 		*/
 
 	} else {
-		/* maybe do something prettier here? */
-		convenience_page("770000", _("Error"), _("Error") );
+		/* FIXME do something prettier here? */
+		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		wc_printf("<html><body>");
+		wc_printf("error");
+		wc_printf("</body></html>");
+		end_burst();
 	}
 
 	FreeStrBuf(&result);
