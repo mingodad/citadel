@@ -91,3 +91,23 @@ function authtoggle(show_which_div) {
 	$('authbox_openid').style.display = 'none';
 	$(show_which_div).style.display = 'block';
 }
+
+
+/*
+ * Pop out a window for external auth methods
+ * (most of them don't handle inline auth very well)
+ */
+function do_auth_popout(popout_url) {
+	window.open(popout_url, "authpopout", "status=1,toolbar=0,width=600,height=400");
+}
+
+
+/*
+ * Attempt login with OpenID, called from modal dialog
+ */
+function ajax_try_openid() {
+	$('login_errmsg').innerHTML = "";
+	openid_url = encodeURI($('ajax_openid_form').elements["openid_url"].value);
+	do_auth_popout("openid_login?openid_url=" + openid_url);
+}
+
