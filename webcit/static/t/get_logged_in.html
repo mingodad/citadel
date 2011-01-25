@@ -42,14 +42,14 @@
 <div class="authbox" id="authbox_userpass" style="display: block">
 <h2><?_("Log in using a user name and password")></h2>
 <form id="ajax_username_password_form" method="POST" action="ajax_login_username_password">
-<?_("User name:")>
+<label for="uname"><?_("User name:")></label>
 <input type="text" name="name" id="uname" onKeyPress="username_and_password_onkeypress(event);">
 <br><br>
-<?_("Password:")>
+<label for="pname"><?_("Password:")></label>
 <input type="password" name="pass" id="pname" onKeyPress="username_and_password_onkeypress(event);">
 <br><br>
 </form>
-<div class="buttons"><a href="javascript:ajax_try_username_and_password();"><?_("Log in")></a></div>
+<div class="logbuttons"><a href="javascript:ajax_try_username_and_password();"><?_("Log in")></a></div>
 </div>
 
 <div class="authbox" id="authbox_openid" style="display: none">
@@ -58,7 +58,7 @@
 <?_("OpenID URL:")>
 <input type="text" name="openid_url" id="openid_url" class="openid_urlarea">
 </form>
-<div class="buttons"><a href="javascript:ajax_try_openid();"><?_("Log in")></a></div>
+<div class="logbuttons"><a href="javascript:ajax_try_openid();"><?_("Log in")></a></div>
 </div>
 
 </div>
