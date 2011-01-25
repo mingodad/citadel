@@ -964,6 +964,7 @@ CTDL_MODULE_INIT(openid_rp)
 		}
 		CtdlRegisterSessionHook(openid_cleanup_function, EVT_LOGOUT);
 		CtdlRegisterUserHook(openid_purge, EVT_PURGEUSER);
+		openid_level_supported = 1;	/* This module supports OpenID 1.0 only */
 	}
 
 	/* return our Subversion id for the Log */

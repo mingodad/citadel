@@ -82,6 +82,7 @@ char *unique_session_numbers;
 int ScheduledShutdown = 0;
 time_t server_startup_time;
 int panic_fd;
+int openid_level_supported = 0;
 
 /*
  * print the actual stack frame.
@@ -316,7 +317,7 @@ void cmd_info(char *cmdbuf) {
 	cprintf("%s\n", svn_revision());
 
 	if (config.c_auth_mode == AUTHMODE_NATIVE) {
-		cprintf("1\n");	/* OpenID is enabled when using native auth */
+		cprintf("%d\n", openid_level_supported); /* OpenID is enabled when using native auth */
 	}
 	else {
 		cprintf("0\n");	/* OpenID is disabled when using non-native auth */
