@@ -709,6 +709,11 @@ void session_loop(void)
 				"connected to the Citadel server.  Please report "
 				"this problem to your system administrator.")
 			);
+			wc_printf("<br>");
+			wc_printf("<a href=\"http://www.citadel.org/doku.php/"
+				"faq:mastering_your_os:net#netstat\">%s</a>",
+				_("Read More...")
+			);
 			wc_printf("</body></html>\n");
 			end_burst();
 			goto SKIP_ALL_THIS_CRAP;
