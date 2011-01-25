@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-11 12:05-0500\n"
+"POT-Creation-Date: 2011-01-25 14:22-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -310,8 +310,8 @@ msgid "Save changes"
 msgstr ""
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:850 ../../event.c:768 ../../graphics.c:71
-#: ../../messages.c:1539 ../../paging.c:66
+#: ../../sysmsgs.c:50 ../../auth.c:861 ../../event.c:768 ../../graphics.c:71
+#: ../../messages.c:1533 ../../paging.c:66
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
 msgstr ""
@@ -393,7 +393,8 @@ msgid "Save"
 msgstr ""
 
 #: ../../tasks.c:355 ../../event.c:766 ../../static/t/view_message.html:35
-#: ../../static/t/msg_listview.html:30 ../../static/t/aide/inet/section.html:5
+#: ../../static/t/navbar.html:117 ../../static/t/msg_listview.html:30
+#: ../../static/t/aide/inet/section.html:5
 msgid "Delete"
 msgstr ""
 
@@ -695,7 +696,7 @@ msgstr ""
 msgid "Change host name"
 msgstr ""
 
-#: ../../who.c:187 ../../static/t/get_logged_in.html:41
+#: ../../who.c:187 ../../static/t/get_logged_in.html:45
 #: ../../static/t/aide/edituser/detailview.html:20
 #: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
@@ -845,87 +846,87 @@ msgstr ""
 msgid "Aide"
 msgstr ""
 
-#: ../../auth.c:197 ../../auth.c:888
+#: ../../auth.c:198 ../../auth.c:899
 msgid "Blank passwords are not allowed."
 msgstr ""
 
-#: ../../auth.c:225
+#: ../../auth.c:226
 msgid "Your password was not accepted."
 msgstr ""
 
-#: ../../auth.c:576 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:587 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr ""
 
-#: ../../auth.c:589 ../../webcit.c:706
+#: ../../auth.c:600 ../../webcit.c:708
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
 msgstr ""
 
-#: ../../auth.c:595
+#: ../../auth.c:606
 msgid "Read More..."
 msgstr ""
 
-#: ../../auth.c:600
+#: ../../auth.c:611
 msgid "Log in again"
 msgstr ""
 
-#: ../../auth.c:621 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:632 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr ""
 
-#: ../../auth.c:644
+#: ../../auth.c:655
 msgid "No users require validation at this time."
 msgstr ""
 
-#: ../../auth.c:691
+#: ../../auth.c:702
 msgid "very weak"
 msgstr ""
 
-#: ../../auth.c:694
+#: ../../auth.c:705
 msgid "weak"
 msgstr ""
 
-#: ../../auth.c:697
+#: ../../auth.c:708
 msgid "ok"
 msgstr ""
 
-#: ../../auth.c:701
+#: ../../auth.c:712
 msgid "strong"
 msgstr ""
 
-#: ../../auth.c:719
+#: ../../auth.c:730
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr ""
 
-#: ../../auth.c:727
+#: ../../auth.c:738
 msgid "Select access level for this user:"
 msgstr ""
 
-#: ../../auth.c:814 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:825 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr ""
 
-#: ../../auth.c:838
+#: ../../auth.c:849
 msgid "Enter new password:"
 msgstr ""
 
-#: ../../auth.c:842
+#: ../../auth.c:853
 msgid "Enter it again to confirm:"
 msgstr ""
 
-#: ../../auth.c:848
+#: ../../auth.c:859
 msgid "Change password"
 msgstr ""
 
-#: ../../auth.c:869
+#: ../../auth.c:880
 msgid "Cancelled.  Password was not changed."
 msgstr ""
 
-#: ../../auth.c:880
+#: ../../auth.c:891
 msgid "They don't match.  Password was not changed."
 msgstr ""
 
@@ -1414,89 +1415,89 @@ msgstr ""
 msgid "Empty message"
 msgstr ""
 
-#: ../../messages.c:1032
+#: ../../messages.c:1026
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr ""
 
-#: ../../messages.c:1035
+#: ../../messages.c:1029
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr ""
 
-#: ../../messages.c:1060
+#: ../../messages.c:1054
 msgid "Saved to Drafts failed: "
 msgstr ""
 
-#: ../../messages.c:1126
+#: ../../messages.c:1120
 msgid "Refusing to post empty message.\n"
 msgstr ""
 
-#: ../../messages.c:1152
+#: ../../messages.c:1146
 msgid "Message has been saved to Drafts.\n"
 msgstr ""
 
-#: ../../messages.c:1161
+#: ../../messages.c:1155
 msgid "Message has been sent.\n"
 msgstr ""
 
-#: ../../messages.c:1164
+#: ../../messages.c:1158
 msgid "Message has been posted.\n"
 msgstr ""
 
-#: ../../messages.c:1486
+#: ../../messages.c:1480
 #, c-format
 msgid "The message was not moved."
 msgstr ""
 
-#: ../../messages.c:1508
+#: ../../messages.c:1502
 msgid "Confirm move of message"
 msgstr ""
 
-#: ../../messages.c:1516
+#: ../../messages.c:1510
 msgid "Move this message to:"
 msgstr ""
 
-#: ../../messages.c:1537 ../../static/t/view_message.html:34
+#: ../../messages.c:1531 ../../static/t/view_message.html:34
 #: ../../static/t/msg_listview.html:28
 msgid "Move"
 msgstr ""
 
-#: ../../messages.c:1579
+#: ../../messages.c:1573
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr ""
 
-#: ../../messages.c:1639
+#: ../../messages.c:1633
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr ""
 
-#: ../../messages.c:1806
+#: ../../messages.c:1800
 msgid "Attach signature to email messages?"
 msgstr ""
 
-#: ../../messages.c:1809
+#: ../../messages.c:1803
 msgid "Use this signature:"
 msgstr ""
 
-#: ../../messages.c:1811
+#: ../../messages.c:1805
 msgid "Default character set for email headers:"
 msgstr ""
 
-#: ../../messages.c:1814
+#: ../../messages.c:1808
 msgid "Preferred email address"
 msgstr ""
 
-#: ../../messages.c:1816
+#: ../../messages.c:1810
 msgid "Preferred display name for email messages"
 msgstr ""
 
-#: ../../messages.c:1820
+#: ../../messages.c:1814
 msgid "Preferred display name for bulletin board posts"
 msgstr ""
 
-#: ../../messages.c:1823
+#: ../../messages.c:1817
 msgid "Mailbox view mode"
 msgstr ""
 
@@ -1927,7 +1928,6 @@ msgid "...in this room"
 msgstr ""
 
 #: ../../static/t/menu/basic_commands.html:11 ../../static/t/navbar.html:19
-#: ../../static/t/navbar.html:117
 msgid "Read all messages"
 msgstr ""
 
@@ -2269,20 +2269,29 @@ msgstr ""
 msgid "You must be logged in to access this page."
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:39
+#: ../../static/t/get_logged_in.html:43
 msgid "Log in using a user name and password"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:44
+#: ../../static/t/get_logged_in.html:48
 msgid "Password:"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:48 ../../static/t/iconbar.html:87
+#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:62
+#: ../../static/t/iconbar.html:87
 msgid "Log in"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:52
+#: ../../static/t/get_logged_in.html:53
+msgid "New user?  Register now"
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:57
 msgid "Log in using OpenID"
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:59
+msgid "OpenID URL:"
 msgstr ""
 
 #: ../../static/t/iconbar.html:18
