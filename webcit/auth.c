@@ -140,6 +140,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 }
 
 
+#ifdef __OLD__LOGIN__SCREEN__
 /* 
  * Perform authentication using a user name and password
  */
@@ -227,7 +228,7 @@ void do_login(void)
 	}
 	FreeStrBuf(&Buf);
 }
-
+#endif
 
 
 /* 
@@ -1066,7 +1067,9 @@ InitModule_AUTH
 
 	/* some of these will be removed soon */
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
+#ifdef __OLD__LOGIN__SCREEN__
 	WebcitAddUrlHandler(HKEY("login"), "", 0, do_login, ANONYMOUS|COOKIEUNNEEDED);
+#endif
 	WebcitAddUrlHandler(HKEY("openid_login"), "", 0, do_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_manual_create"), "", 0, openid_manual_create, ANONYMOUS);
