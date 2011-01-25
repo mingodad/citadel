@@ -1,5 +1,5 @@
 /*
- * Copyright 2010, the Citadel Team
+ * Copyright 2010-2011, the Citadel Team
  * Licensed under the GPL V3
  *
  * JavaScript functions which handle various authentication methods.
@@ -17,7 +17,6 @@ function IsLoggedIn() {
 		return 0;
 	}
 }
-
 
 
 /*
@@ -66,6 +65,7 @@ function ajax_try_username_and_password() {
 	});
 }
 
+
 /*
  * The user pressed a key while in the username or password box.
  * Is it the enter/return key?  Submit the form.
@@ -110,4 +110,3 @@ function ajax_try_openid() {
 	openid_url = encodeURI($('ajax_openid_form').elements["openid_url"].value);
 	do_auth_popout("openid_login?openid_url=" + openid_url);
 }
-
