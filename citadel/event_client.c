@@ -384,9 +384,9 @@ eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_r
 	IO->conn_fail.data = IO;
 	ev_timer_init(&IO->rw_timeout, IO_Timout_callback, first_rw_timeout, 0);
 	IO->rw_timeout.data = IO;
-	///struct sockaddr_in *addr = &IO->Addr;
+
 	if (IO->IP6)
-		rc = connect(IO->sock, &IO->Addr, sizeof(struct in6_addr));
+		rc = connect(IO->sock, &IO->Addr, sizeof(struct sockaddr_in6));
 	else
 		rc = connect(IO->sock, (struct sockaddr_in *)&IO->Addr, sizeof(struct sockaddr_in));
 

@@ -306,12 +306,12 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 	if (SendMsg->pCurrRelay->Port != 0)
 		IO->dport = SendMsg->pCurrRelay->Port;
 
-	memset(&IO->Addr, 0, sizeof(struct in6_addr));
+	memset(&IO->Addr, 0, sizeof(struct sockaddr_in6));
 	if (IO->IP6) {
 		memcpy(&IO->Addr.sin6_addr.s6_addr, 
 		       &SendMsg->pCurrRelay->Addr,
 		       sizeof(struct in6_addr));
-		
+
 		IO->Addr.sin6_family = AF_INET6;
 		IO->Addr.sin6_port = htons(IO->dport);
 	}
