@@ -940,13 +940,13 @@ int ConditionalHaveAccessCreateRoom(StrBuf *Target, WCTemplputParams *TP)
 int ConditionalAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
-	return (WCC != NULL)? (WC->is_aide == 0) : 0;
+	return (WCC != NULL) ? ((WCC->logged_in == 0)||(WC->is_aide == 0)) : 0;
 }
 
 int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) 
 {
 	wcsession *WCC = WC;
-	return (WCC != NULL)? (WCC->logged_in == 0) : 0;
+	return (WCC != NULL) ? (WCC->logged_in == 0) : 0;
 
 }
 
