@@ -19,11 +19,15 @@
         <?SERV:HUMANNODE>
     </span></a>
 </li>
-<li class="ib_button" style='background-image: url("/static/openid-32x32.gif");'>
+<?!("COND:SERV:OPENID",1)><li class="ib_button" style='background-image: url("/static/openid-32x32.gif");'>
     <a class="ib_button_link" href="javascript:authtoggle('authbox_openid');" title="OpenID"><span>
         OpenID
     </span></a>
+</li><??("X", 1)>
+<??("COND:SERV:OPENID",2)>
+<li class="ib_button">
 </li>
+</li><??("X", 2)>
 <li class="ib_button">
 </li>
 <li class="ib_button">
