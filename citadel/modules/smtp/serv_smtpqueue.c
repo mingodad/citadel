@@ -649,9 +649,11 @@ int ParseURL(ParsedURL **Url, StrBuf *UrlStr, short DefaultPort)
 		url->Host ++;
 		pEndHost = strchr(url->Host, ']');
 		if (pEndHost == NULL) {
+			FreeStrBuf(&url->URL);
 			free(url);
 			return 0; /* invalid syntax, no ipv6 */
 		}
+		StrBufPeek(url->URL, pEndHost, 0, '\0');
 		if (*(pEndHost + 1) == ':'){
 			StrBufPeek(url->URL, pEndHost + 1, 0, '\0');
 			pPort = pEndHost + 2;
