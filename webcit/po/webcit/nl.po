@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-11 12:05-0500\n"
+"POT-Creation-Date: 2011-01-25 14:22-0500\n"
 "PO-Revision-Date: 2010-11-13 00:18+0000\n"
 "Last-Translator: Wim Kuilman <Unknown>\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
@@ -313,8 +313,8 @@ msgid "Save changes"
 msgstr "Wijzigingen bewaren"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:850 ../../event.c:768 ../../graphics.c:71
-#: ../../messages.c:1539 ../../paging.c:66
+#: ../../sysmsgs.c:50 ../../auth.c:861 ../../event.c:768 ../../graphics.c:71
+#: ../../messages.c:1533 ../../paging.c:66
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
 msgstr "Annuleren"
@@ -396,7 +396,8 @@ msgid "Save"
 msgstr "Bewaren"
 
 #: ../../tasks.c:355 ../../event.c:766 ../../static/t/view_message.html:35
-#: ../../static/t/msg_listview.html:30 ../../static/t/aide/inet/section.html:5
+#: ../../static/t/navbar.html:117 ../../static/t/msg_listview.html:30
+#: ../../static/t/aide/inet/section.html:5
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -713,7 +714,7 @@ msgstr "Hostnaam:"
 msgid "Change host name"
 msgstr "Hostnaam wijzigen"
 
-#: ../../who.c:187 ../../static/t/get_logged_in.html:41
+#: ../../who.c:187 ../../static/t/get_logged_in.html:45
 #: ../../static/t/aide/edituser/detailview.html:20
 #: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
@@ -869,20 +870,20 @@ msgstr "Voorkeursgebruiker"
 msgid "Aide"
 msgstr "Beheerder"
 
-#: ../../auth.c:197 ../../auth.c:888
+#: ../../auth.c:198 ../../auth.c:899
 msgid "Blank passwords are not allowed."
 msgstr "Wachtwoorden mogen niet leeg zijn."
 
-#: ../../auth.c:225
+#: ../../auth.c:226
 msgid "Your password was not accepted."
 msgstr "Uw wachtwoord is niet geaccepteerd."
 
-#: ../../auth.c:576 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:587 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Uitloggen"
 
-#: ../../auth.c:589 ../../webcit.c:706
+#: ../../auth.c:600 ../../webcit.c:708
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -890,68 +891,68 @@ msgstr ""
 "Dit programma was niet in staat om contact te maken - of te houden met de "
 "Citadel server. Meld dit probleem alstublieft bij uw systeembeheerder."
 
-#: ../../auth.c:595
+#: ../../auth.c:606
 msgid "Read More..."
 msgstr "Lees verder..."
 
-#: ../../auth.c:600
+#: ../../auth.c:611
 msgid "Log in again"
 msgstr "Opnieuw inloggen"
 
-#: ../../auth.c:621 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:632 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Nieuwe gebruikers goedkeuren"
 
-#: ../../auth.c:644
+#: ../../auth.c:655
 msgid "No users require validation at this time."
 msgstr "Er zijn geen gebruikers die goedgekeurd moeten worden."
 
-#: ../../auth.c:691
+#: ../../auth.c:702
 msgid "very weak"
 msgstr "erg zwak"
 
-#: ../../auth.c:694
+#: ../../auth.c:705
 msgid "weak"
 msgstr "zwak"
 
-#: ../../auth.c:697
+#: ../../auth.c:708
 msgid "ok"
 msgstr "ok"
 
-#: ../../auth.c:701
+#: ../../auth.c:712
 msgid "strong"
 msgstr "sterk"
 
-#: ../../auth.c:719
+#: ../../auth.c:730
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Huidig toegangsniveau %d (%s)\n"
 
-#: ../../auth.c:727
+#: ../../auth.c:738
 msgid "Select access level for this user:"
 msgstr "Selecteer toegangsniveau voor deze gebruiker:"
 
-#: ../../auth.c:814 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:825 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Uw wachtwoord wijzigen"
 
-#: ../../auth.c:838
+#: ../../auth.c:849
 msgid "Enter new password:"
 msgstr "Uw nieuwe wachtwoord:"
 
-#: ../../auth.c:842
+#: ../../auth.c:853
 msgid "Enter it again to confirm:"
 msgstr "Nogmaals als bevestiging:"
 
-#: ../../auth.c:848
+#: ../../auth.c:859
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: ../../auth.c:869
+#: ../../auth.c:880
 msgid "Cancelled.  Password was not changed."
 msgstr "Geannuleerd: Wachtwoord niet gewijzigd."
 
-#: ../../auth.c:880
+#: ../../auth.c:891
 msgid "They don't match.  Password was not changed."
 msgstr "Ze komen niet overeen. Wachtwoord is niet gewijzigd."
 
@@ -1456,89 +1457,89 @@ msgstr "FOUT:"
 msgid "Empty message"
 msgstr "Leeg bericht"
 
-#: ../../messages.c:1032
+#: ../../messages.c:1026
 #, c-format
 msgid "Cancelled.  Message was not posted."
 msgstr "Afgebroken.  Bericht is niet geplaatst."
 
-#: ../../messages.c:1035
+#: ../../messages.c:1029
 #, c-format
 msgid "Automatically cancelled because you have already saved this message."
 msgstr "Automatisch afgebroken omdat u dit bericht al heeft bewaard."
 
-#: ../../messages.c:1060
+#: ../../messages.c:1054
 msgid "Saved to Drafts failed: "
 msgstr "Opslaan als concept mislukt: "
 
-#: ../../messages.c:1126
+#: ../../messages.c:1120
 msgid "Refusing to post empty message.\n"
 msgstr "Weigering leeg bericht te versturen.\n"
 
-#: ../../messages.c:1152
+#: ../../messages.c:1146
 msgid "Message has been saved to Drafts.\n"
 msgstr "Bericht opgelagen als concept.\n"
 
-#: ../../messages.c:1161
+#: ../../messages.c:1155
 msgid "Message has been sent.\n"
 msgstr "Bericht is verstuurd.\n"
 
-#: ../../messages.c:1164
+#: ../../messages.c:1158
 msgid "Message has been posted.\n"
 msgstr "Bericht is geplaatst.\n"
 
-#: ../../messages.c:1486
+#: ../../messages.c:1480
 #, c-format
 msgid "The message was not moved."
 msgstr "Het bericht is niet verplaatst."
 
-#: ../../messages.c:1508
+#: ../../messages.c:1502
 msgid "Confirm move of message"
 msgstr "Bevestig verplaatsen bericht"
 
-#: ../../messages.c:1516
+#: ../../messages.c:1510
 msgid "Move this message to:"
 msgstr "Dit bericht verplaatsen naar:"
 
-#: ../../messages.c:1537 ../../static/t/view_message.html:34
+#: ../../messages.c:1531 ../../static/t/view_message.html:34
 #: ../../static/t/msg_listview.html:28
 msgid "Move"
 msgstr "Verplaatsen"
 
-#: ../../messages.c:1579
+#: ../../messages.c:1573
 #, c-format
 msgid "An error occurred while retrieving this part: %s/%s\n"
 msgstr "Fout opgetreden bij ophalen dit deel: %s/%s\n"
 
-#: ../../messages.c:1639
+#: ../../messages.c:1633
 #, c-format
 msgid "An error occurred while retrieving this part: %s\n"
 msgstr "Fout opgetreden bij ophalen dit deel: %s\n"
 
-#: ../../messages.c:1806
+#: ../../messages.c:1800
 msgid "Attach signature to email messages?"
 msgstr "Ondertekening aan emailberichten toevoegen?"
 
-#: ../../messages.c:1809
+#: ../../messages.c:1803
 msgid "Use this signature:"
 msgstr "Gebruik deze ondertekening:"
 
-#: ../../messages.c:1811
+#: ../../messages.c:1805
 msgid "Default character set for email headers:"
 msgstr "Standaard tekenset voor emailheaders:"
 
-#: ../../messages.c:1814
+#: ../../messages.c:1808
 msgid "Preferred email address"
 msgstr "Voorkeur e-mailadres"
 
-#: ../../messages.c:1816
+#: ../../messages.c:1810
 msgid "Preferred display name for email messages"
 msgstr "Weergegeven naam voor emailberichten"
 
-#: ../../messages.c:1820
+#: ../../messages.c:1814
 msgid "Preferred display name for bulletin board posts"
 msgstr "Voorkeursnaam voor bulletinboard berichten"
 
-#: ../../messages.c:1823
+#: ../../messages.c:1817
 msgid "Mailbox view mode"
 msgstr "Mailboxweergave"
 
@@ -1987,7 +1988,6 @@ msgid "...in this room"
 msgstr "...in deze ruimte"
 
 #: ../../static/t/menu/basic_commands.html:11 ../../static/t/navbar.html:19
-#: ../../static/t/navbar.html:117
 msgid "Read all messages"
 msgstr "Lees alle berichten"
 
@@ -2343,21 +2343,30 @@ msgstr ""
 msgid "You must be logged in to access this page."
 msgstr "Je moet ingelogd zijn om deze pagina te openen."
 
-#: ../../static/t/get_logged_in.html:39
+#: ../../static/t/get_logged_in.html:43
 msgid "Log in using a user name and password"
 msgstr "Log in met gebruikersnaam en wachtwoord"
 
-#: ../../static/t/get_logged_in.html:44
+#: ../../static/t/get_logged_in.html:48
 msgid "Password:"
 msgstr "Wachtwoord:"
 
-#: ../../static/t/get_logged_in.html:48 ../../static/t/iconbar.html:87
+#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:62
+#: ../../static/t/iconbar.html:87
 msgid "Log in"
 msgstr "Laatste login"
 
-#: ../../static/t/get_logged_in.html:52
+#: ../../static/t/get_logged_in.html:53
+msgid "New user?  Register now"
+msgstr "Nieuwe gebruiker? Schrijf u nu in"
+
+#: ../../static/t/get_logged_in.html:57
 msgid "Log in using OpenID"
 msgstr "Login met OpenID"
+
+#: ../../static/t/get_logged_in.html:59
+msgid "OpenID URL:"
+msgstr "OpenID URL:"
 
 #: ../../static/t/iconbar.html:18
 msgid "Mail"
@@ -3833,9 +3842,6 @@ msgstr "Uitgebreide opdrachten ruimtes"
 #~ msgstr ""
 #~ "Als uw browser pop-up vensters blokkeert, zult u geen directe berichten "
 #~ "kunnen ontvangen."
-
-#~ msgid "OpenID URL:"
-#~ msgstr "OpenID URL:"
 
 #~ msgid "Enter your OpenID URL and click &quot;Log in&quot;."
 #~ msgstr "Vul uw OpenID URL in en klik op &quot;Inloggen.&quot;"
