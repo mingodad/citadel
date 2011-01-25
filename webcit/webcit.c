@@ -711,7 +711,7 @@ void session_loop(void)
 			);
 			wc_printf("<br>");
 			wc_printf("<a href=\"http://www.citadel.org/doku.php/"
-				"faq:mastering_your_os:net#netstat\">%s</a>",
+				"faq:generalquestions:webcit_unable_to_connect\">%s</a>",
 				_("Read More...")
 			);
 			wc_printf("</body></html>\n");
