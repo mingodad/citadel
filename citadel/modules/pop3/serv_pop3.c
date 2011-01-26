@@ -98,8 +98,7 @@ void pop3_greeting(void) {
 	CC->session_specific_data = malloc(sizeof(struct citpop3));
 	memset(POP3, 0, sizeof(struct citpop3));
 
-	cprintf("+OK Citadel POP3 server %s\r\n",
-		CC->cs_nonce);
+	cprintf("+OK Citadel POP3 server ready.\r\n");
 }
 
 
@@ -219,60 +218,6 @@ void pop3_login(void)
 		cprintf("-ERR Can't open your mailbox\r\n");
 	}
 	
-}
-
-void pop3_apop(char *argbuf)
-{
-   char username[SIZ];
-   char userdigest[MD5_HEXSTRING_SIZE];
-   char realdigest[MD5_HEXSTRING_SIZE];
-   char *sptr;
-   
-   if (CC->logged_in)
-   {
-   	cprintf("-ERR You are already logged in; not in the AUTHORIZATION phase.\r\n");
-   	return;
-   }
-   
-   if ((sptr = strchr(argbuf, ' ')) == NULL)
-   {
-   	cprintf("-ERR Invalid APOP line.\r\n");
-   	return;
-   }
-   
-   *sptr++ = '\0';
-   
-   while ((*sptr) && isspace(*sptr))
-      sptr++;
-   
-   strncpy(username, argbuf, sizeof(username)-1);
-   username[sizeof(username)-1] = '\0';
-   
-   memset(userdigest, 0, MD5_HEXSTRING_SIZE);
-   strncpy(userdigest, sptr, MD5_HEXSTRING_SIZE-1);
-   
-   if (CtdlLoginExistingUser(NULL, username) != login_ok)
-   {
-   	cprintf("-ERR No such user.\r\n");
-   	return;
-   }
-   
-   if (CtdlGetUser(&CC->user, CC->curr_user))
-   {
-   	cprintf("-ERR No such user.\r\n");
-   	return;
-   }
-   
-   make_apop_string(CC->user.password, CC->cs_nonce, realdigest, sizeof realdigest);
-   if (!strncasecmp(realdigest, userdigest, MD5_HEXSTRING_SIZE-1))
-   {
-	do_login();
-   	pop3_login();
-   }
-   else
-   {
-	cprintf("-ERR That is NOT the password.\r\n");
-   }
 }
 
 
@@ -657,11 +602,6 @@ void pop3_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "PASS", 4)) {
 		pop3_pass(&cmdbuf[5]);
-	}
-
-	else if (!strncasecmp(cmdbuf, "APOP", 4))
-	{
-		pop3_apop(&cmdbuf[5]);
 	}
 
 #ifdef HAVE_OPENSSL

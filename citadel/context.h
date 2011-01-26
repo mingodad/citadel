@@ -89,10 +89,6 @@ struct CitContext {
 	struct ctdluser user;	/* Database record buffers */
 	struct ctdlroom room;
 
-	/* Beginning of cryptography - session nonce */
-	char cs_nonce[NONCE_SIZE];	/* The nonce for this session's next auth transaction */
-
-
 	/* A linked list of all instant messages sent to us. */
 	struct ExpressMessage *FirstExpressMessage;
 	int disable_exp;	/* Set to 1 to disable incoming pages */

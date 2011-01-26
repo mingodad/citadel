@@ -263,7 +263,7 @@ void cmd_info(char *cmdbuf) {
 	cprintf("%s\n", config.c_moreprompt);
 	cprintf("1\n");	/* 1 = yes, this system supports floors */
 	cprintf("1\n"); /* 1 = we support the extended paging options */
-	cprintf("%s\n", CC->cs_nonce);
+	cprintf("\n");	/* nonce no longer supported */
 	cprintf("1\n"); /* 1 = yes, this system supports the QNOP command */
 
 #ifdef HAVE_LDAP
@@ -864,22 +864,6 @@ void cmd_asyn(char *argbuf)
 }
 
 
-/*
- * Generate a "nonce" for APOP-style authentication.
- *
- * RFC 1725 et al specify a PID to be placed in front of the nonce.
- * Quoth BTX: That would be stupid.
- */
-void generate_nonce(CitContext *con) {
-	struct timeval tv;
-
-	memset(con->cs_nonce, NONCE_SIZE, 0);
-	gettimeofday(&tv, NULL);
-	memset(con->cs_nonce, NONCE_SIZE, 0);
-	snprintf(con->cs_nonce, NONCE_SIZE, "<%d%ld@%s>",
-		rand(), (long)tv.tv_usec, config.c_fqdn);
-}
-
 
 /*
  * Back-end function for starting a session
@@ -907,7 +891,6 @@ void begin_session(CitContext *con)
 	*con->fake_hostname = '\0';
 	*con->fake_roomname = '\0';
 	*con->cs_clientinfo = '\0';
-	generate_nonce(con);
 	safestrncpy(con->cs_host, config.c_fqdn, sizeof con->cs_host);
 	safestrncpy(con->cs_addr, "", sizeof con->cs_addr);
 	con->cs_UDSclientUID = -1;
