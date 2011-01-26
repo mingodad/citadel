@@ -21,19 +21,18 @@ struct CitContext {
 	struct CitContext *next;	/* Link to next session in the list */
 
 	int cs_pid;		/* session ID */
-	int dont_term;          /* for special activities like artv so we don't get killed */
+	int dont_term;		/* for special activities like artv so we don't get killed */
 	time_t lastcmd;		/* time of last command executed */
 	time_t lastidle;	/* For computing idle time */
 	int state;		/* thread state (see CON_ values below) */
 	int kill_me;		/* Set to nonzero to flag for termination */
 
-	const char *Pos;        /* Our read position inside of the ReadBuf */
-	StrBuf *ReadBuf;        /* Our block buffered read buffer */
-	StrBuf *MigrateBuf;        /* Our block buffered read buffer */
-
-	const char *sPos;        /* Our read position inside of the ReadBuf */
-	StrBuf *sReadBuf;        /* Our block buffered read buffer */
-	StrBuf *sMigrateBuf;        /* Our block buffered read buffer */
+	const char *Pos;	/* Our read position inside of the ReadBuf */
+	StrBuf *ReadBuf;	/* Our block buffered read buffer */
+	StrBuf *MigrateBuf;	/* Our block buffered read buffer */
+	const char *sPos;	/* Our read position inside of the ReadBuf */
+	StrBuf *sReadBuf;	/* Our block buffered read buffer */
+	StrBuf *sMigrateBuf;	/* Our block buffered read buffer */
 	int client_socket;
 	int is_local_socket;	/* set to 1 if client is on unix domain sock */
 	/* Redirect this session's output to a memory buffer? */
@@ -111,10 +110,11 @@ struct CitContext {
 	void *openid_data;			/* Data stored by the OpenID module */
 	char *ldap_dn;				/* DN of user when using AUTHMODE_LDAP */
 
-
 	void (*h_command_function) (void) ;	/* service command function */
 	void (*h_async_function) (void) ;	/* do async msgs function */
 	void (*h_greeting_function) (void) ;	/* greeting function for session startup */
+
+	long *cached_msglist;			/* results of the previous CtdlForEachMessage() */
 };
 
 typedef struct CitContext CitContext;
