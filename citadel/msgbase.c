@@ -1,9 +1,9 @@
 /*
  * Implements the message store.
  *
- * Copyright (c) 1987-2010 by the citadel.org team
+ * Copyright (c) 1987-2011 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -633,14 +633,27 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 
 	/* Load the message list */
 	cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
-	if (cdbfr != NULL) {
-		msglist = (long *) cdbfr->ptr;
-		num_msgs = cdbfr->len / sizeof(long);
-	} else {
+	if (cdbfr == NULL) {
 		if (need_to_free_re) regfree(&re);
 		return 0;	/* No messages at all?  No further action. */
 	}
 
+	msglist = (long *) cdbfr->ptr;
+	num_msgs = cdbfr->len / sizeof(long);
+
+	cdbfr->ptr = NULL;	/* clear this so that cdb_free() doesn't free it */
+	cdb_free(cdbfr);	/* we own this memory now */
+
+	/*
+	 * We cache the most recent msglist in order to do security checks later
+	 */
+	if (CC->client_socket > 0) {
+		if (CC->cached_msglist != NULL) {
+			free(CC->cached_msglist);
+		}
+	
+		CC->cached_msglist = msglist;
+	}
 
 	/*
 	 * Now begin the traversal.
@@ -772,8 +785,8 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 				++num_processed;
 			}
 		}
-	cdb_free(cdbfr);	/* Clean up */
 	if (need_to_free_re) regfree(&re);
+	if (CC->client_socket <= 0) free(msglist);
 	return num_processed;
 }
 
