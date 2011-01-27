@@ -654,6 +654,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	
 		CC->cached_msglist = msglist;
 		CC->cached_num_msgs = num_msgs;
+		syslog(LOG_DEBUG, "\033[34m RELOAD \033[0m\n");
 	}
 
 	/*
