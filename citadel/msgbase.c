@@ -1528,10 +1528,22 @@ int check_cached_msglist(long msgnum) {
 	if (CC->cached_num_msgs == 0) return om_access_denied;		/* nothing to check */
 
 
-	/* FIXME FIXME SLOW SEARCH DO NOT LET THIS GO INTO PRODUCTION */
-	int i;
-	for (i=0; i < CC->cached_num_msgs ; ++i) {
-		if (CC->cached_msglist[i] == msgnum) return om_ok;
+	/* Do a binary search within the cached_msglist for the requested msgnum */
+	int min = 0;
+	int max = (CC->cached_num_msgs - 1);
+
+	while (max >= min) {
+		syslog(LOG_DEBUG, "\033[35m Checking from %d to %d \033[0m\n", min, max);
+		int middle = min + (max-min) / 2 ;
+		if (msgnum == CC->cached_msglist[middle]) {
+			return om_ok;
+		}
+		if (msgnum > CC->cached_msglist[middle]) {
+			min = middle + 1;
+		}
+		else {
+			max = middle - 1;
+		}
 	}
 
 	return om_access_denied;
