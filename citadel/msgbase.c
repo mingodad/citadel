@@ -654,7 +654,6 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	
 		CC->cached_msglist = msglist;
 		CC->cached_num_msgs = num_msgs;
-		syslog(LOG_DEBUG, "\033[34m RELOAD \033[0m\n");
 	}
 
 	/*
@@ -1533,7 +1532,6 @@ int check_cached_msglist(long msgnum) {
 	int max = (CC->cached_num_msgs - 1);
 
 	while (max >= min) {
-		syslog(LOG_DEBUG, "\033[35m Checking from %d to %d \033[0m\n", min, max);
 		int middle = min + (max-min) / 2 ;
 		if (msgnum == CC->cached_msglist[middle]) {
 			return om_ok;
@@ -1601,13 +1599,25 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	}
 
 	r = check_cached_msglist(msg_num);
-	if (r == om_ok) {
-		syslog(LOG_DEBUG, "\033[32m PASS \033[0m\n");
+	if (r != om_ok) {
+		syslog(LOG_DEBUG, "\033[31m SECURITY CHECK FAIL \033[0m\n");
+/*
+ * FIXME enable this section when the security check yields no false positives
+ *
+		if (do_proto) {
+			if (r == om_access_denied) {
+				cprintf("%d Message %ld was not found in this room.\n",
+					ERROR + MESSAGE_NOT_FOUND,
+					msg_num
+				);
+			}
+			else {
+				cprintf("%d An unknown error has occurred.\n", ERROR);
+			}
+		return(r);
+		}
+*/
 	}
-	else {
-		syslog(LOG_DEBUG, "\033[31m FAIL \033[0m\n");
-	}
-	/* FIXME after testing, this is where we deny access */
 
 	/*
 	 * Fetch the message from disk.  If we're in HEADERS_FAST mode,
