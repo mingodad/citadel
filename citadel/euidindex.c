@@ -217,16 +217,28 @@ void rebuild_euid_index(void) {
 
 
 
+struct euid_callback {
+	long msgnum;
+	int found_it;
+};
+
+/*
+ * callback for cmd_euid
+ */
+void euid_is_msg_in_room(long msgnum, void *userdata) {
+	struct euid_callback *ec = (struct euid_callback *) userdata;
+
+	if (msgnum == ec->msgnum) ec->found_it = 1;
+}
+
+
 /*
  * Server command to fetch a message number given an euid.
  */
 void cmd_euid(char *cmdbuf) {
 	char euid[256];
 	long msgnum;
-        struct cdbdata *cdbfr;
-        long *msglist = NULL;
-        int num_msgs = 0;
-	int i;
+	struct euid_callback ec;
 
 	if (CtdlAccessCheck(ac_logged_in_or_guest)) return;
 
@@ -237,27 +249,21 @@ void cmd_euid(char *cmdbuf) {
 		return;
 	}
 
-        cdbfr = cdb_fetch(CDB_MSGLISTS, &CC->room.QRnumber, sizeof(long));
-	if (cdbfr != NULL) {
-                num_msgs = cdbfr->len / sizeof(long);
-                msglist = (long *) cdbfr->ptr;
-                for (i = 0; i < num_msgs; ++i) {
-                        if (msglist[i] == msgnum) {
-				cdb_free(cdbfr);
-				cprintf("%d %ld\n", CIT_OK, msgnum);
-				return;
-			}
-		}
-                cdb_free(cdbfr);
-	}
+	ec.msgnum = msgnum;
+	ec.found_it = 0;
+	CtdlForEachMessage(MSGS_ALL, 0L, NULL, NULL, NULL, euid_is_msg_in_room, (void *)&ec);
 
+	if (ec.found_it) {
+		cprintf("%d %ld\n", CIT_OK, msgnum);
+		return;
+	}
 	cprintf("%d not found\n", ERROR + MESSAGE_NOT_FOUND);
 }
 
 CTDL_MODULE_INIT(euidindex)
 {
 	if (!threading) {
-		CtdlRegisterProtoHook(cmd_euid, "EUID", "Perform operations on Extended IDs for messages");
+		CtdlRegisterProtoHook(cmd_euid, "EUID", "Fetch the msgnum associated with an EUID");
 	}
 	/* return our Subversion id for the Log */
 	return "euidindex";
