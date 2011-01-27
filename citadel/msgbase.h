@@ -237,6 +237,11 @@ int CtdlIsMe(char *addr, int addr_buf_len);
 */
 void aide_message(char *text, char *subject) __attribute__ ((deprecated));
 
+void seenit_store(struct seenit **si, long msgnum);
+int seenit_isthere(struct seenit *si, long msgnum);
+void seenit_free(struct seenit **si);
+
+
 
 
 #endif /* MSGBASE_H */
