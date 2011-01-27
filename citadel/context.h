@@ -135,7 +135,7 @@ struct CitContext {
 	void (*h_async_function) (void) ;	/* do async msgs function */
 	void (*h_greeting_function) (void) ;	/* greeting function for session startup */
 
-	long *cached_msglist;			/* results of the previous CtdlForEachMessage() */
+	struct seenit *cached_msglist;		/* results of the previous CtdlForEachMessage() */
 	int cached_num_msgs;
 };
 
