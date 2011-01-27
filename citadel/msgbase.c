@@ -653,6 +653,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 		}
 	
 		CC->cached_msglist = msglist;
+		CC->cached_num_msgs = num_msgs;
 	}
 
 	/*
@@ -1545,6 +1546,29 @@ void extract_encapsulated_message(char *name, char *filename, char *partnum, cha
 }
 
 
+/*
+ * Determine whether the specified message exists in the cached_msglist
+ * (This is a security check)
+ */
+int check_cached_msglist(long msgnum) {
+
+	/* cases in which we skip the check */
+	if (!CC) return om_ok;						/* not a session */
+	if (CC->client_socket <= 0) return om_ok;			/* not a client session */
+	if (CC->cached_msglist == NULL) return om_access_denied;	/* no msglist fetched */
+	if (CC->cached_num_msgs == 0) return om_access_denied;		/* nothing to check */
+
+
+	/* FIXME FIXME SLOW SEARCH DO NOT LET THIS GO INTO PRODUCTION */
+	int i;
+	for (i=0; i < CC->cached_num_msgs ; ++i) {
+		if (CC->cached_msglist[i] == msgnum) return om_ok;
+	}
+
+	return om_access_denied;
+}
+
+
 /* 
  * Determine whether the currently logged in session has permission to read
  * messages in the current room.
@@ -1594,6 +1618,15 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		}
 		return(r);
 	}
+
+	r = check_cached_msglist(msg_num);
+	if (r == om_ok) {
+		syslog(LOG_DEBUG, "\033[32m PASS \033[0m\n");
+	}
+	else {
+		syslog(LOG_DEBUG, "\033[31m FAIL \033[0m\n");
+	}
+	/* FIXME after testing, this is where we deny access */
 
 	/*
 	 * Fetch the message from disk.  If we're in HEADERS_FAST mode,

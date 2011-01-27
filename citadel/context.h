@@ -136,6 +136,7 @@ struct CitContext {
 	void (*h_greeting_function) (void) ;	/* greeting function for session startup */
 
 	long *cached_msglist;			/* results of the previous CtdlForEachMessage() */
+	int cached_num_msgs;
 };
 
 typedef struct CitContext CitContext;

@@ -28,7 +28,8 @@ enum {
 	om_ok,
 	om_not_logged_in,
 	om_no_such_msg,
-	om_mime_error
+	om_mime_error,
+	om_access_denied
 };
 
 /*
