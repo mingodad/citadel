@@ -695,22 +695,6 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	cdb_free(cdbfr);	/* we own this memory now */
 
 	/*
-<<<<<<< HEAD
-=======
-	 * We cache the most recent msglist in order to do security checks later
-	 */
-	if (CC->client_socket > 0) {
-		if (CC->cached_msglist != NULL) {
-			free(CC->cached_msglist);
-		}
-	
-		CC->cached_msglist = msglist;
-		CC->cached_num_msgs = num_msgs;
-		syslog(LOG_DEBUG, "\033[34m RELOAD \033[0m\n");
-	}
-
-	/*
->>>>>>> parent of 4ec6a9d... Updating cmd_euid() to use the CtdlForEachMessage() API fixes the security check in blog view and saves some code
 	 * Now begin the traversal.
 	 */
 	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
@@ -1618,27 +1602,8 @@ int check_cached_msglist(long msgnum) {
 	if (CC->client_socket <= 0) return om_ok;			/* not a client session */
 	if (CC->cached_msglist == NULL) return om_access_denied;	/* no msglist fetched */
 
-<<<<<<< HEAD
 	if (seenit_isthere(CC->cached_msglist, msgnum)) {
 		return om_ok;
-=======
-	/* Do a binary search within the cached_msglist for the requested msgnum */
-	int min = 0;
-	int max = (CC->cached_num_msgs - 1);
-
-	while (max >= min) {
-		syslog(LOG_DEBUG, "\033[35m Checking from %d to %d \033[0m\n", min, max);
-		int middle = min + (max-min) / 2 ;
-		if (msgnum == CC->cached_msglist[middle]) {
-			return om_ok;
-		}
-		if (msgnum > CC->cached_msglist[middle]) {
-			min = middle + 1;
-		}
-		else {
-			max = middle - 1;
-		}
->>>>>>> parent of 4ec6a9d... Updating cmd_euid() to use the CtdlForEachMessage() API fixes the security check in blog view and saves some code
 	}
 
 	return om_access_denied;
@@ -1696,7 +1661,6 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 	}
 
 	r = check_cached_msglist(msg_num);
-<<<<<<< HEAD
 	if (r != om_ok) {
 		syslog(LOG_DEBUG, "Denying access to message %ld - not yet listed\n", msg_num);
 		if (do_proto) {
@@ -1711,15 +1675,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			}
 		return(r);
 		}
-=======
-	if (r == om_ok) {
-		syslog(LOG_DEBUG, "\033[32m PASS \033[0m\n");
 	}
-	else {
-		syslog(LOG_DEBUG, "\033[31m FAIL \033[0m\n");
->>>>>>> parent of 4ec6a9d... Updating cmd_euid() to use the CtdlForEachMessage() API fixes the security check in blog view and saves some code
-	}
-	/* FIXME after testing, this is where we deny access */
 
 	/*
 	 * Fetch the message from disk.  If we're in HEADERS_FAST mode,
