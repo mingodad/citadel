@@ -386,13 +386,6 @@ void finalize_openid_login(void)
 		output_headers(1, 0, 0, 0, 1, 0);
 		do_template("authpopup_finished", NULL);
 		end_burst();
-
-		/* FIXME make this work again.  Maybe put it in authpopup_finished?
-		if (WC->need_regi) {
-			display_reg(1);
-		}
-		*/
-
 	} else {
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
@@ -702,7 +695,7 @@ void display_reg(int during_login)
 	if (goto_config_room(Buf, &Room) != 0) {
 		syslog(9, "display_reg() exiting because goto_config_room() failed\n");
 		if (during_login) {
-			do_welcome();
+			pop_destination();
 		}
 		else {
 			display_main_menu();
@@ -718,7 +711,7 @@ void display_reg(int during_login)
 	if (vcard_msgnum < 0L) {
 		syslog(9, "display_reg() exiting because locate_user_vcard_in_this_room() failed\n");
 		if (during_login) {
-			do_welcome();
+			pop_destination();
 		}
 		else {
 			display_main_menu();
@@ -727,7 +720,7 @@ void display_reg(int during_login)
 	}
 
 	if (during_login) {
-		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "do_welcome", USERCONFIGROOM);
+		do_edit_vcard(vcard_msgnum, "1", VCMsg, VCAtt, "pop", USERCONFIGROOM);
 	}
 	else {
 		StrBuf *ReturnTo;
