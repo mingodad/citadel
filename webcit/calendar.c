@@ -806,9 +806,7 @@ void display_edit_event(void) {
 }
 
 /*
- * Save an edited event.  If there is an older version of this event in the store,
- * we first load it into memory and then apply the changes, so that any fields which
- * Citael does not know how to handle will be preserved as-is.
+ * save an edited event
  */
 void save_event(void) {
 	long msgnum = 0L;

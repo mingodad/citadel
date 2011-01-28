@@ -593,56 +593,6 @@ void CtdlSetSeen(long *target_msgnums, int num_target_msgnums,
 }
 
 
-
-/* store a value in the binary tree */
-void seenit_store(struct seenit **si, long msgnum) {
-	struct seenit *this_si;
-
-	if (*si == NULL) {			/* store now */
-		*si = malloc(sizeof(struct seenit));
-		this_si = *si;
-		this_si->l = NULL;
-		this_si->r = NULL;
-		this_si->msgnum = msgnum;
-		return;
-	}
-
-	this_si = *si;
-	if (msgnum < this_si->msgnum) {
-		seenit_store(&this_si->l, msgnum);
-	}
-	else if (msgnum > this_si->msgnum) {
-		seenit_store(&this_si->r, msgnum);
-	}
-	else {
-		return;
-	}
-}
-
-
-/* search for a value in the binary tree */
-int seenit_isthere(struct seenit *si, long msgnum) {
-	if (!si) return(0);	/* not there */
-	if (msgnum < si->msgnum) return(seenit_isthere(si->l, msgnum));
-	if (msgnum > si->msgnum) return(seenit_isthere(si->r, msgnum));
-	return(1);		/* found it */
-}
-
-
-/* free the binary tree */
-void seenit_free(struct seenit **si) {
-	struct seenit *this_si = *si;
-	if (!this_si) return;
-	seenit_free(&this_si->l);
-	seenit_free(&this_si->r);
-	free(this_si);
-	*si = NULL;
-}
-
-
-
-
-
 /*
  * API function to perform an operation for each qualifying message in the
  * current room.  (Returns the number of messages processed.)
@@ -695,16 +645,21 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 	cdb_free(cdbfr);	/* we own this memory now */
 
 	/*
+	 * We cache the most recent msglist in order to do security checks later
+	 */
+	if (CC->client_socket > 0) {
+		if (CC->cached_msglist != NULL) {
+			free(CC->cached_msglist);
+		}
+	
+		CC->cached_msglist = msglist;
+		CC->cached_num_msgs = num_msgs;
+	}
+
+	/*
 	 * Now begin the traversal.
 	 */
 	if (num_msgs > 0) for (a = 0; a < num_msgs; ++a) {
-
-		/*
-		 * cache the msgnums we've seen in order to perform security checks later
-		 */
-		if (CC->client_socket > 0) {
-			seenit_store(&CC->cached_msglist, msglist[a]);
-		}
 
 		/* If the caller is looking for a specific MIME type, filter
 		 * out all messages which are not of the type requested.
@@ -832,7 +787,7 @@ int CtdlForEachMessage(int mode, long ref, char *search_string,
 			}
 		}
 	if (need_to_free_re) regfree(&re);
-	free(msglist);
+	if (CC->client_socket <= 0) free(msglist);
 	return num_processed;
 }
 
@@ -1601,9 +1556,24 @@ int check_cached_msglist(long msgnum) {
 	if (!CC) return om_ok;						/* not a session */
 	if (CC->client_socket <= 0) return om_ok;			/* not a client session */
 	if (CC->cached_msglist == NULL) return om_access_denied;	/* no msglist fetched */
+	if (CC->cached_num_msgs == 0) return om_access_denied;		/* nothing to check */
 
-	if (seenit_isthere(CC->cached_msglist, msgnum)) {
-		return om_ok;
+
+	/* Do a binary search within the cached_msglist for the requested msgnum */
+	int min = 0;
+	int max = (CC->cached_num_msgs - 1);
+
+	while (max >= min) {
+		int middle = min + (max-min) / 2 ;
+		if (msgnum == CC->cached_msglist[middle]) {
+			return om_ok;
+		}
+		if (msgnum > CC->cached_msglist[middle]) {
+			min = middle + 1;
+		}
+		else {
+			max = middle - 1;
+		}
 	}
 
 	return om_access_denied;
@@ -1662,7 +1632,10 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 	r = check_cached_msglist(msg_num);
 	if (r != om_ok) {
-		syslog(LOG_DEBUG, "Denying access to message %ld - not yet listed\n", msg_num);
+		syslog(LOG_DEBUG, "\033[31m SECURITY CHECK FAIL \033[0m\n");
+/*
+ * FIXME enable this section when the security check yields no false positives
+ *
 		if (do_proto) {
 			if (r == om_access_denied) {
 				cprintf("%d Message %ld was not found in this room.\n",
@@ -1675,6 +1648,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 			}
 		return(r);
 		}
+*/
 	}
 
 	/*
