@@ -1352,12 +1352,12 @@ a.event_title:hover span.bttbottom, a.event_unread:hover span.bttbottom, a.event
 	background-color: #ddd;
 }
 
-#ajax_username_password_form {
+#ajax_username_password_form, #ajax_newuser_form {
 	margin: auto;
 	width: 20em;
 }
 
-#ajax_username_password_form label {
+#ajax_username_password_form label, #ajax_newuser_form label {
 	float: left;
 	width: 10em;
 }
