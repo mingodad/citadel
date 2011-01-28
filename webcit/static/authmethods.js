@@ -6,6 +6,10 @@
  */
 
 
+
+/****************** COMMON CODE ***********************/
+
+
 /*
  * Are we logged in right now?
  */
@@ -48,6 +52,30 @@ function GetLoggedInFirst(destination_url) {
 
 
 /*
+ * tab handler for the login box
+ */
+function authtoggle(show_which_div) {
+	$('authbox_userpass').style.display = 'none';
+	$('authbox_newuser').style.display = 'none';
+	$('authbox_openid').style.display = 'none';
+	$(show_which_div).style.display = 'block';
+}
+
+
+/*
+ * Pop out a window for external auth methods
+ * (most of them don't handle inline auth very well)
+ */
+function do_auth_popout(popout_url) {
+	window.open(popout_url, "authpopout", "status=1,toolbar=0,width=600,height=400");
+}
+
+
+
+
+/****************** USERNAME AND PASSWORD ***********************/
+
+/*
  * Attempt login with username/password, called from modal dialog
  */
 function ajax_try_username_and_password() {
@@ -83,24 +111,47 @@ function username_and_password_onkeypress(e) {
 }
 
 
+/****************** REGISTER NEW USER ***********************/
+
 /*
- * tab handler for the login box
+ * Attempt to create a new local username/password, called from modal dialog
  */
-function authtoggle(show_which_div) {
-	$('authbox_userpass').style.display = 'none';
-	$('authbox_openid').style.display = 'none';
-	$(show_which_div).style.display = 'block';
+function ajax_try_newuser() {
+
+	$('login_errmsg').innerHTML = "";
+        $('ajax_newuser_form').request({
+		onSuccess: function(ctdlresult) {
+			if (ctdlresult.responseText.substr(0,1) == '2') {
+				window.location = 'pop';
+			}
+			else {
+				$('login_errmsg').innerHTML = ctdlresult.responseText.substr(4) ;
+			}
+		}
+	});
 }
 
 
 /*
- * Pop out a window for external auth methods
- * (most of them don't handle inline auth very well)
+ * The user pressed a key while in the newuser or newpassword box.
+ * Is it the enter/return key?  Submit the form.
  */
-function do_auth_popout(popout_url) {
-	window.open(popout_url, "authpopout", "status=1,toolbar=0,width=600,height=400");
+function newuser_onkeypress(e) {
+	if (window.event) {		/* IE */
+		keynum = e.keyCode
+	}
+	else if (e.which) {		/* real browsers */
+		keynum = e.which
+	}
+	if (keynum == 13) {		/* enter/return key */
+		ajax_try_newuser();
+	}
 }
 
+
+
+
+/****************** OPENID ***********************/
 
 /*
  * Attempt login with OpenID, called from modal dialog
@@ -110,3 +161,6 @@ function ajax_try_openid() {
 	openid_url = encodeURI($('ajax_openid_form').elements["openid_url"].value);
 	do_auth_popout("openid_login?openid_url=" + openid_url);
 }
+
+
+

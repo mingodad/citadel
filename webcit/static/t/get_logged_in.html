@@ -50,7 +50,20 @@
 <br><br>
 </form>
 <div class="logbuttons"><a href="javascript:ajax_try_username_and_password();"><?_("Log in")></a></div>
-<div class="registernow"><a href="javascript:alert('FIXME');"><?_("New user?  Register now")></a></div>
+<div class="registernow"><a href="javascript:authtoggle('authbox_newuser');"><?_("New user?  Register now")></a></div>
+</div>
+
+<div class="authbox" id="authbox_newuser" style="display: none">
+<h2><?_("New user?  Register now")></h2>
+<form id="ajax_newuser_form" method="POST" action="ajax_login_newuser">
+<label for="uname"><?_("User name:")></label>
+<input type="text" name="name" id="uname" onKeyPress="newuser_onkeypress(event);">
+<br><br>
+<label for="pname"><?_("Password:")></label>
+<input type="password" name="pass" id="pname" onKeyPress="newuser_onkeypress(event);">
+<br><br>
+</form>
+<div class="logbuttons"><a href="javascript:ajax_try_newuser();"><?_("Log in")></a></div>
 </div>
 
 <div class="authbox" id="authbox_openid" style="display: none">

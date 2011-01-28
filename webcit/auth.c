@@ -140,97 +140,6 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 }
 
 
-#ifdef __OLD__LOGIN__SCREEN__
-/* 
- * Perform authentication using a user name and password
- */
-void do_login(void)
-{
-	wcsession *WCC = WC;
-	StrBuf *Buf;
-	long ret, rc;
-
-	if (havebstr("language")) {
-		set_selected_language(bstr("language"));
-		go_selected_language();
-	}
-
-	if (havebstr("exit_action")) {
-		do_logout();
-		return;
-	}
-	Buf = NewStrBuf();
-	if (havebstr("login_action")) {
-		serv_printf("USER %s", bstr("name"));
-		StrBuf_ServGetln(Buf);
-		rc = GetServerStatus(Buf, &ret);
-		StrBufCutLeft(Buf, 4);
-		switch (rc) {
-		case 3:
-			serv_printf("PASS %s", bstr("pass"));
-			StrBuf_ServGetln(Buf);
-			if (GetServerStatus(Buf, NULL) == 2) {
-				become_logged_in(sbstr("name"), sbstr("pass"), Buf);
-			} else {
-				StrBufCutLeft(Buf, 4);
-				AppendImportantMessage(SKEY(Buf));
-				display_login();
-				FreeStrBuf(&Buf);
-				return;
-			}
-			break;
-		case 5:
-			if (ret == 541)
-			{
-				AppendImportantMessage(SKEY(Buf));
-				display_main_menu();
-				return;
-			}
-		default:
-			AppendImportantMessage(SKEY(Buf));
-			display_login();
-			FreeStrBuf(&Buf);
-			return;
-		}
-	}
-	if (havebstr("newuser_action")) {
-		if (!havebstr("pass")) {
-			AppendImportantMessage(_("Blank passwords are not allowed."), -1);
-			display_login();
-			FreeStrBuf(&Buf);
-			return;
-		}
-		serv_printf("NEWU %s", bstr("name"));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
-			serv_printf("SETP %s", bstr("pass"));
-			StrBuf_ServGetln(Buf); /* Don't care? */
-		} else {
-			StrBufCutLeft(Buf, 4);
-			AppendImportantMessage(SKEY(Buf));
-			display_login();
-			FreeStrBuf(&Buf);
-			return;
-		}
-	}
-	if (WCC->logged_in) {
-		if (WCC->need_regi) {
-			display_reg(1);
-		} else if (WCC->need_vali) {
-			validate();
-		} else {
-			do_welcome();
-		}
-	} else {
-		AppendImportantMessage(_("Your password was not accepted."), -1);
-		display_login();
-	}
-	FreeStrBuf(&Buf);
-}
-#endif
-
-
 /* 
  * modal/ajax version of 'login' (username and password)
  */
@@ -241,6 +150,29 @@ void ajax_login_username_password(void) {
 	StrBuf_ServGetln(Buf);
 	if (GetServerStatus(Buf, NULL) == 3) {
 		serv_printf("PASS %s", bstr("pass"));
+		StrBuf_ServGetln(Buf);
+		if (GetServerStatus(Buf, NULL) == 2) {
+			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
+		}
+	}
+
+	/* The client is expecting to read back a citadel protocol response */
+	wc_printf("%s", ChrPtr(Buf));
+	FreeStrBuf(&Buf);
+}
+
+
+
+/* 
+ * modal/ajax version of 'new user' (username and password)
+ */
+void ajax_login_newuser(void) {
+	StrBuf *Buf = NewStrBuf();
+
+	serv_printf("NEWU %s", bstr("name"));
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		serv_printf("SETP %s", bstr("pass"));
 		StrBuf_ServGetln(Buf);
 		if (GetServerStatus(Buf, NULL) == 2) {
 			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
@@ -1067,9 +999,6 @@ InitModule_AUTH
 
 	/* some of these will be removed soon */
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
-#ifdef __OLD__LOGIN__SCREEN__
-	WebcitAddUrlHandler(HKEY("login"), "", 0, do_login, ANONYMOUS|COOKIEUNNEEDED);
-#endif
 	WebcitAddUrlHandler(HKEY("openid_login"), "", 0, do_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("openid_manual_create"), "", 0, openid_manual_create, ANONYMOUS);
@@ -1080,9 +1009,8 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("changepw"), "", 0, changepw, 0);
 	WebcitAddUrlHandler(HKEY("termquit"), "", 0, do_logout, 0);
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
-	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0,
-		ajax_login_username_password, AJAX|ANONYMOUS);
-
+	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("ajax_login_newuser"), "", 0, ajax_login_newuser, AJAX|ANONYMOUS);
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
 	RegisterConditional(HKEY("COND:MAY_CREATE_ROOM"), 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
