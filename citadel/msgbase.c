@@ -1640,7 +1640,9 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		r = check_cached_msglist(msg_num);
 	}
 	if (r != om_ok) {
-		syslog(LOG_DEBUG, "\033[31m SECURITY CHECK FAIL \033[0m\n");
+		syslog(LOG_DEBUG, "Security check fail: message %ld is not in %s\n",
+			msg_num, CC->room.QRname
+		);
 		if (do_proto) {
 			if (r == om_access_denied) {
 				cprintf("%d message %ld was not found in this room\n",
