@@ -661,6 +661,8 @@ int StrBuf_ServGetln(StrBuf *buf);
 int GetServerStatus(StrBuf *Line, long* FullState);
 void serv_puts(const char *string);
 void who(void);
+void push_destination(void);
+void pop_destination(void);
 
 void ajax_mini_calendar(void);
 void fmout(char *align);
