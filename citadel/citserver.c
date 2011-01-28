@@ -881,6 +881,7 @@ void begin_session(CitContext *con)
 	con->download_fp = NULL;
 	con->upload_fp = NULL;
 	con->cached_msglist = NULL;
+	con->cached_num_msgs = 0;
 	con->FirstExpressMessage = NULL;
 	time(&con->lastcmd);
 	time(&con->lastidle);

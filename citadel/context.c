@@ -363,7 +363,7 @@ void RemoveContext (CitContext *con)
 	FreeStrBuf(&con->MigrateBuf);
 	FreeStrBuf(&con->ReadBuf);
 	if (con->cached_msglist) {
-		seenit_free(&con->cached_msglist);
+		free(con->cached_msglist);
 	}
 
 	syslog(LOG_DEBUG, "Done with RemoveContext()\n");

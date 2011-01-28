@@ -268,14 +268,6 @@ struct UseTable {
 };
 
 
-/* "seenit" is a simple binary tree storing the message pointers we've seen */
-struct seenit {
-	struct seenit *l;
-	struct seenit *r;
-	long msgnum;
-};
-
-
 
 /* Preferred field order 							*/
 /*               **********			Important fields		*/
