@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-25 14:22-0500\n"
+"POT-Creation-Date: 2011-01-28 13:43-0500\n"
 "PO-Revision-Date: 2010-11-12 23:46+0000\n"
 "Last-Translator: Czakó Krisztián <slapic@prolin.hu>\n"
 "Language-Team:  <room_citadel_translators@uncensored.citadel.org>\n"
@@ -313,7 +313,7 @@ msgid "Save changes"
 msgstr "Változások mentése"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:861 ../../event.c:768 ../../graphics.c:71
+#: ../../sysmsgs.c:50 ../../auth.c:793 ../../event.c:768 ../../graphics.c:71
 #: ../../messages.c:1533 ../../paging.c:66
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
@@ -700,6 +700,7 @@ msgid "Change host name"
 msgstr "Gép nevének megváltoztatása"
 
 #: ../../who.c:187 ../../static/t/get_logged_in.html:45
+#: ../../static/t/get_logged_in.html:60
 #: ../../static/t/aide/edituser/detailview.html:20
 #: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
@@ -808,7 +809,8 @@ msgid "Deleted"
 msgstr "Törölt"
 
 #. a new user
-#: ../../auth.c:41 ../../static/t/aide/siteconfig/tab_access.html:41
+#: ../../auth.c:41 ../../static/t/get_logged_in.html:67
+#: ../../static/t/aide/siteconfig/tab_access.html:41
 #: ../../static/t/aide/siteconfig/tab_access.html:52
 #: ../../static/t/aide/edituser/detailview.html:44
 msgid "New User"
@@ -849,20 +851,12 @@ msgstr "Kedvelt felhasználó"
 msgid "Aide"
 msgstr ""
 
-#: ../../auth.c:198 ../../auth.c:899
-msgid "Blank passwords are not allowed."
-msgstr "Az üres jelszavak nem engedélyezettek."
-
-#: ../../auth.c:226
-msgid "Your password was not accepted."
-msgstr "A jelszavát nem fogadtuk el."
-
-#: ../../auth.c:587 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:519 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Kilépés"
 
-#: ../../auth.c:600 ../../webcit.c:708
+#: ../../auth.c:532 ../../webcit.c:708
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -870,70 +864,74 @@ msgstr ""
 "A program képtelen volt kapcsolódni vagy a kapcsolatot fenntartani a Citadel "
 "kiszolgálóval. Kérjük jelezze a problémát a rendszergazdának."
 
-#: ../../auth.c:606
+#: ../../auth.c:538 ../../webcit.c:715
 msgid "Read More..."
 msgstr "További információk"
 
-#: ../../auth.c:611
+#: ../../auth.c:543
 msgid "Log in again"
 msgstr "Lépjen be újra"
 
-#: ../../auth.c:632 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:564 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Új felhasználók érvényesítése"
 
-#: ../../auth.c:655
+#: ../../auth.c:587
 msgid "No users require validation at this time."
 msgstr "Nincs érvényesítésre váró felhasználó."
 
-#: ../../auth.c:702
+#: ../../auth.c:634
 msgid "very weak"
 msgstr "nagyon gyenge"
 
-#: ../../auth.c:705
+#: ../../auth.c:637
 msgid "weak"
 msgstr "gyenge"
 
-#: ../../auth.c:708
+#: ../../auth.c:640
 msgid "ok"
 msgstr "OK"
 
-#: ../../auth.c:712
+#: ../../auth.c:644
 msgid "strong"
 msgstr "erős"
 
-#: ../../auth.c:730
+#: ../../auth.c:662
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Jelenlegi elérési szint: %d (%s)\n"
 
-#: ../../auth.c:738
+#: ../../auth.c:670
 msgid "Select access level for this user:"
 msgstr "Válassza ki ezen felhasználó hozzáférési szintjét:"
 
-#: ../../auth.c:825 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:757 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Változtassa meg a jelszavát"
 
-#: ../../auth.c:849
+#: ../../auth.c:781
 msgid "Enter new password:"
 msgstr "Írja be az új jelszót:"
 
-#: ../../auth.c:853
+#: ../../auth.c:785
 msgid "Enter it again to confirm:"
 msgstr "Ellenőrzésként írja be ismét:"
 
-#: ../../auth.c:859
+#: ../../auth.c:791
 msgid "Change password"
 msgstr "Jelszó megváltoztatása"
 
-#: ../../auth.c:880
+#: ../../auth.c:812
 msgid "Cancelled.  Password was not changed."
 msgstr "Megszakítva. A jelszó nem változott."
 
-#: ../../auth.c:891
+#: ../../auth.c:823
 msgid "They don't match.  Password was not changed."
 msgstr "Nem egyeznek. A jelszó nem változott."
+
+#: ../../auth.c:831
+msgid "Blank passwords are not allowed."
+msgstr "Az üres jelszavak nem engedélyezettek."
 
 #: ../../addressbook_popup.c:192
 msgid "Add"
@@ -2309,24 +2307,29 @@ msgstr "Be kell jelentkezned, hogy ezt az oldalt."
 msgid "Log in using a user name and password"
 msgstr "belépés felhasználó név és jelszó segítségével"
 
-#: ../../static/t/get_logged_in.html:48
+#: ../../static/t/get_logged_in.html:48 ../../static/t/get_logged_in.html:63
 msgid "Password:"
 msgstr "Jelszó:"
 
-#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:62
+#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:76
 #: ../../static/t/iconbar.html:87
 msgid "Log in"
 msgstr "Utolsó bejelentkezés"
 
-#: ../../static/t/get_logged_in.html:53
+#: ../../static/t/get_logged_in.html:53 ../../static/t/get_logged_in.html:57
 msgid "New user?  Register now"
 msgstr "Új felhasználó? Regisztráljon most"
 
-#: ../../static/t/get_logged_in.html:57
+#: ../../static/t/get_logged_in.html:58
+msgid ""
+"enter the name and password you wish to use, and click &quot;New User.&quot; "
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:71
 msgid "Log in using OpenID"
 msgstr "Belépés OpenID használatával"
 
-#: ../../static/t/get_logged_in.html:59
+#: ../../static/t/get_logged_in.html:73
 msgid "OpenID URL:"
 msgstr "OpenID URL:"
 
@@ -3778,6 +3781,37 @@ msgstr "Az ön adatai"
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
 msgstr "Haladó szoba parancsok"
+
+#, fuzzy
+#~ msgid "uname"
+#~ msgstr "Fájlnév"
+
+#, fuzzy
+#~ msgid "text"
+#~ msgstr "csak szöveg"
+
+#, fuzzy
+#~ msgid "name"
+#~ msgstr "Fájlnév"
+
+#, fuzzy
+#~ msgid "pname"
+#~ msgstr "Fájlnév"
+
+#, fuzzy
+#~ msgid "password"
+#~ msgstr "Jelszó"
+
+#, fuzzy
+#~ msgid "pass"
+#~ msgstr "Feladatok"
+
+#, fuzzy
+#~ msgid "display: none"
+#~ msgstr "Megjelenített név:"
+
+#~ msgid "Your password was not accepted."
+#~ msgstr "A jelszavát nem fogadtuk el."
 
 #~ msgid "Language:"
 #~ msgstr "Nyelv:"
