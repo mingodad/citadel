@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-25 14:22-0500\n"
+"POT-Creation-Date: 2011-01-28 13:43-0500\n"
 "PO-Revision-Date: 2010-11-13 00:06+0000\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -312,7 +312,7 @@ msgid "Save changes"
 msgstr "Cambia i cambiamenti"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:861 ../../event.c:768 ../../graphics.c:71
+#: ../../sysmsgs.c:50 ../../auth.c:793 ../../event.c:768 ../../graphics.c:71
 #: ../../messages.c:1533 ../../paging.c:66
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
@@ -709,6 +709,7 @@ msgid "Change host name"
 msgstr "Cambia il nome dell'host"
 
 #: ../../who.c:187 ../../static/t/get_logged_in.html:45
+#: ../../static/t/get_logged_in.html:60
 #: ../../static/t/aide/edituser/detailview.html:20
 #: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
@@ -822,7 +823,8 @@ msgid "Deleted"
 msgstr "Cancellato"
 
 #. a new user
-#: ../../auth.c:41 ../../static/t/aide/siteconfig/tab_access.html:41
+#: ../../auth.c:41 ../../static/t/get_logged_in.html:67
+#: ../../static/t/aide/siteconfig/tab_access.html:41
 #: ../../static/t/aide/siteconfig/tab_access.html:52
 #: ../../static/t/aide/edituser/detailview.html:44
 msgid "New User"
@@ -863,20 +865,12 @@ msgstr "Utente Preferito"
 msgid "Aide"
 msgstr "Amministratore"
 
-#: ../../auth.c:198 ../../auth.c:899
-msgid "Blank passwords are not allowed."
-msgstr "Le password vuote non sono ammesse."
-
-#: ../../auth.c:226
-msgid "Your password was not accepted."
-msgstr "La tua password non &egrave; stata accettata."
-
-#: ../../auth.c:587 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:519 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Esci"
 
-#: ../../auth.c:600 ../../webcit.c:708
+#: ../../auth.c:532 ../../webcit.c:708
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -884,70 +878,74 @@ msgstr ""
 "Questo programma non riesce a collegarsi o a rimanere collegato al server "
 "Citadel. Per favore, segnala questo errore all'amministratore di sistema."
 
-#: ../../auth.c:606
+#: ../../auth.c:538 ../../webcit.c:715
 msgid "Read More..."
 msgstr "Leggi Altro..."
 
-#: ../../auth.c:611
+#: ../../auth.c:543
 msgid "Log in again"
 msgstr "Esegui nuovamente il Log in"
 
-#: ../../auth.c:632 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:564 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Valida il nuovo utente"
 
-#: ../../auth.c:655
+#: ../../auth.c:587
 msgid "No users require validation at this time."
 msgstr "Non si richiede l'autenticazione utente in questo momento"
 
-#: ../../auth.c:702
+#: ../../auth.c:634
 msgid "very weak"
 msgstr "molto debole"
 
-#: ../../auth.c:705
+#: ../../auth.c:637
 msgid "weak"
 msgstr "debole"
 
-#: ../../auth.c:708
+#: ../../auth.c:640
 msgid "ok"
 msgstr "ok"
 
-#: ../../auth.c:712
+#: ../../auth.c:644
 msgid "strong"
 msgstr "forte"
 
-#: ../../auth.c:730
+#: ../../auth.c:662
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Attuale livello di accesso: %d (%s)\n"
 
-#: ../../auth.c:738
+#: ../../auth.c:670
 msgid "Select access level for this user:"
 msgstr "Seleziona il livello di accesso per l'utente corrente:"
 
-#: ../../auth.c:825 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:757 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Cambia la tua password"
 
-#: ../../auth.c:849
+#: ../../auth.c:781
 msgid "Enter new password:"
 msgstr "Inserisci la nuova password:"
 
-#: ../../auth.c:853
+#: ../../auth.c:785
 msgid "Enter it again to confirm:"
 msgstr "Inseriscila nuovamente per conferma:"
 
-#: ../../auth.c:859
+#: ../../auth.c:791
 msgid "Change password"
 msgstr "Cambia la password"
 
-#: ../../auth.c:880
+#: ../../auth.c:812
 msgid "Cancelled.  Password was not changed."
 msgstr "Aziona cancellata. La password non &egrave; stata cambiata."
 
-#: ../../auth.c:891
+#: ../../auth.c:823
 msgid "They don't match.  Password was not changed."
 msgstr "Le password non coincidono. Cambiamento non effettuato."
+
+#: ../../auth.c:831
+msgid "Blank passwords are not allowed."
+msgstr "Le password vuote non sono ammesse."
 
 #: ../../addressbook_popup.c:192
 msgid "Add"
@@ -2342,24 +2340,29 @@ msgstr "Devi essere registrato per accedere a questa pagina."
 msgid "Log in using a user name and password"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:48
+#: ../../static/t/get_logged_in.html:48 ../../static/t/get_logged_in.html:63
 msgid "Password:"
 msgstr "Password:"
 
-#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:62
+#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:76
 #: ../../static/t/iconbar.html:87
 msgid "Log in"
 msgstr "Ultimo Login"
 
-#: ../../static/t/get_logged_in.html:53
+#: ../../static/t/get_logged_in.html:53 ../../static/t/get_logged_in.html:57
 msgid "New user?  Register now"
 msgstr "Nuovo utente? Registrati ora"
 
-#: ../../static/t/get_logged_in.html:57
+#: ../../static/t/get_logged_in.html:58
+msgid ""
+"enter the name and password you wish to use, and click &quot;New User.&quot; "
+msgstr ""
+
+#: ../../static/t/get_logged_in.html:71
 msgid "Log in using OpenID"
 msgstr ""
 
-#: ../../static/t/get_logged_in.html:59
+#: ../../static/t/get_logged_in.html:73
 msgid "OpenID URL:"
 msgstr "OpenID URL:"
 
@@ -3822,6 +3825,41 @@ msgstr "Le tue Informazioni"
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
 msgstr "Comandi di stanza avanzati"
+
+#, fuzzy
+#~ msgid "uname"
+#~ msgstr "Nome del documento"
+
+#, fuzzy
+#~ msgid "text"
+#~ msgstr "successivo"
+
+#, fuzzy
+#~ msgid "name"
+#~ msgstr "Nome del documento"
+
+#, fuzzy
+#~ msgid "pname"
+#~ msgstr "Nome del documento"
+
+#, fuzzy
+#~ msgid "password"
+#~ msgstr "Password"
+
+#, fuzzy
+#~ msgid "pass"
+#~ msgstr "Attività"
+
+#, fuzzy
+#~ msgid "authbox"
+#~ msgstr "Autore"
+
+#, fuzzy
+#~ msgid "display: none"
+#~ msgstr "Nome da mostrare:"
+
+#~ msgid "Your password was not accepted."
+#~ msgstr "La tua password non &egrave; stata accettata."
 
 #~ msgid "Language:"
 #~ msgstr "Lingua:"

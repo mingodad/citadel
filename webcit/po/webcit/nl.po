@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-25 14:22-0500\n"
+"POT-Creation-Date: 2011-01-28 13:43-0500\n"
 "PO-Revision-Date: 2010-11-13 00:18+0000\n"
 "Last-Translator: Wim Kuilman <Unknown>\n"
 "Language-Team: Dutch <kde-i18n-doc@lists.kde.org>\n"
@@ -313,7 +313,7 @@ msgid "Save changes"
 msgstr "Wijzigingen bewaren"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:861 ../../event.c:768 ../../graphics.c:71
+#: ../../sysmsgs.c:50 ../../auth.c:793 ../../event.c:768 ../../graphics.c:71
 #: ../../messages.c:1533 ../../paging.c:66
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
@@ -715,6 +715,7 @@ msgid "Change host name"
 msgstr "Hostnaam wijzigen"
 
 #: ../../who.c:187 ../../static/t/get_logged_in.html:45
+#: ../../static/t/get_logged_in.html:60
 #: ../../static/t/aide/edituser/detailview.html:20
 #: ../../static/t/openid_manual_create.html:15
 msgid "User name:"
@@ -829,7 +830,8 @@ msgid "Deleted"
 msgstr "Verwijderd"
 
 #. a new user
-#: ../../auth.c:41 ../../static/t/aide/siteconfig/tab_access.html:41
+#: ../../auth.c:41 ../../static/t/get_logged_in.html:67
+#: ../../static/t/aide/siteconfig/tab_access.html:41
 #: ../../static/t/aide/siteconfig/tab_access.html:52
 #: ../../static/t/aide/edituser/detailview.html:44
 msgid "New User"
@@ -870,20 +872,12 @@ msgstr "Voorkeursgebruiker"
 msgid "Aide"
 msgstr "Beheerder"
 
-#: ../../auth.c:198 ../../auth.c:899
-msgid "Blank passwords are not allowed."
-msgstr "Wachtwoorden mogen niet leeg zijn."
-
-#: ../../auth.c:226
-msgid "Your password was not accepted."
-msgstr "Uw wachtwoord is niet geaccepteerd."
-
-#: ../../auth.c:587 ../../static/t/menu/basic_commands.html:19
+#: ../../auth.c:519 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Uitloggen"
 
-#: ../../auth.c:600 ../../webcit.c:708
+#: ../../auth.c:532 ../../webcit.c:708
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -891,70 +885,74 @@ msgstr ""
 "Dit programma was niet in staat om contact te maken - of te houden met de "
 "Citadel server. Meld dit probleem alstublieft bij uw systeembeheerder."
 
-#: ../../auth.c:606
+#: ../../auth.c:538 ../../webcit.c:715
 msgid "Read More..."
 msgstr "Lees verder..."
 
-#: ../../auth.c:611
+#: ../../auth.c:543
 msgid "Log in again"
 msgstr "Opnieuw inloggen"
 
-#: ../../auth.c:632 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:564 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Nieuwe gebruikers goedkeuren"
 
-#: ../../auth.c:655
+#: ../../auth.c:587
 msgid "No users require validation at this time."
 msgstr "Er zijn geen gebruikers die goedgekeurd moeten worden."
 
-#: ../../auth.c:702
+#: ../../auth.c:634
 msgid "very weak"
 msgstr "erg zwak"
 
-#: ../../auth.c:705
+#: ../../auth.c:637
 msgid "weak"
 msgstr "zwak"
 
-#: ../../auth.c:708
+#: ../../auth.c:640
 msgid "ok"
 msgstr "ok"
 
-#: ../../auth.c:712
+#: ../../auth.c:644
 msgid "strong"
 msgstr "sterk"
 
-#: ../../auth.c:730
+#: ../../auth.c:662
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Huidig toegangsniveau %d (%s)\n"
 
-#: ../../auth.c:738
+#: ../../auth.c:670
 msgid "Select access level for this user:"
 msgstr "Selecteer toegangsniveau voor deze gebruiker:"
 
-#: ../../auth.c:825 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:757 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Uw wachtwoord wijzigen"
 
-#: ../../auth.c:849
+#: ../../auth.c:781
 msgid "Enter new password:"
 msgstr "Uw nieuwe wachtwoord:"
 
-#: ../../auth.c:853
+#: ../../auth.c:785
 msgid "Enter it again to confirm:"
 msgstr "Nogmaals als bevestiging:"
 
-#: ../../auth.c:859
+#: ../../auth.c:791
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: ../../auth.c:880
+#: ../../auth.c:812
 msgid "Cancelled.  Password was not changed."
 msgstr "Geannuleerd: Wachtwoord niet gewijzigd."
 
-#: ../../auth.c:891
+#: ../../auth.c:823
 msgid "They don't match.  Password was not changed."
 msgstr "Ze komen niet overeen. Wachtwoord is niet gewijzigd."
+
+#: ../../auth.c:831
+msgid "Blank passwords are not allowed."
+msgstr "Wachtwoorden mogen niet leeg zijn."
 
 #: ../../addressbook_popup.c:192
 msgid "Add"
@@ -2347,24 +2345,31 @@ msgstr "Je moet ingelogd zijn om deze pagina te openen."
 msgid "Log in using a user name and password"
 msgstr "Log in met gebruikersnaam en wachtwoord"
 
-#: ../../static/t/get_logged_in.html:48
+#: ../../static/t/get_logged_in.html:48 ../../static/t/get_logged_in.html:63
 msgid "Password:"
 msgstr "Wachtwoord:"
 
-#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:62
+#: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:76
 #: ../../static/t/iconbar.html:87
 msgid "Log in"
 msgstr "Laatste login"
 
-#: ../../static/t/get_logged_in.html:53
+#: ../../static/t/get_logged_in.html:53 ../../static/t/get_logged_in.html:57
 msgid "New user?  Register now"
 msgstr "Nieuwe gebruiker? Schrijf u nu in"
 
-#: ../../static/t/get_logged_in.html:57
+#: ../../static/t/get_logged_in.html:58
+msgid ""
+"enter the name and password you wish to use, and click &quot;New User.&quot; "
+msgstr ""
+"vul uw gebruikersnaam in en het wachtwoord dat u wilt gebruiken en klik op "
+"&quot;Nieuwe gebruiker. "
+
+#: ../../static/t/get_logged_in.html:71
 msgid "Log in using OpenID"
 msgstr "Login met OpenID"
 
-#: ../../static/t/get_logged_in.html:59
+#: ../../static/t/get_logged_in.html:73
 msgid "OpenID URL:"
 msgstr "OpenID URL:"
 
@@ -3803,6 +3808,41 @@ msgstr "Uw informatie"
 msgid "Advanced room commands"
 msgstr "Uitgebreide opdrachten ruimtes"
 
+#, fuzzy
+#~ msgid "uname"
+#~ msgstr "Bestandsnaam"
+
+#, fuzzy
+#~ msgid "text"
+#~ msgstr "volgende"
+
+#, fuzzy
+#~ msgid "name"
+#~ msgstr "Bestandsnaam"
+
+#, fuzzy
+#~ msgid "pname"
+#~ msgstr "Bestandsnaam"
+
+#, fuzzy
+#~ msgid "password"
+#~ msgstr "Wachtwoord"
+
+#, fuzzy
+#~ msgid "pass"
+#~ msgstr "Taken"
+
+#, fuzzy
+#~ msgid "authbox"
+#~ msgstr "Auteur"
+
+#, fuzzy
+#~ msgid "display: none"
+#~ msgstr "Naamweergave:"
+
+#~ msgid "Your password was not accepted."
+#~ msgstr "Uw wachtwoord is niet geaccepteerd."
+
 #~ msgid "Language:"
 #~ msgstr "Taal:"
 
@@ -3812,13 +3852,6 @@ msgstr "Uitgebreide opdrachten ruimtes"
 #~ msgid "enter your user name and password and click &quot;Log in.&quot;"
 #~ msgstr ""
 #~ "vul dan uw gebruikersnaam en wachtwoord in en klik op &quot;Log in.&quot;"
-
-#~ msgid ""
-#~ "<b>If you are a new user</b>, enter the name and password you wish to "
-#~ "use, and click &quot;New User.&quot; "
-#~ msgstr ""
-#~ "<b>Als u een nieuwe gebruiker bent</b>, vul uw gebruikersnaam in en het "
-#~ "wachtwoord dat u wilt gebruiken en klik op &quot;Nieuwe gebruiker. "
 
 #~ msgid "Please log off properly when finished. "
 #~ msgstr "Log correct uit als u klaar bent. "
