@@ -1665,6 +1665,7 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 
 	r = check_cached_msglist(msg_num);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (r != om_ok) {
 		syslog(LOG_DEBUG, "Denying access to message %ld - not yet listed\n", msg_num);
 		if (do_proto) {
@@ -1680,11 +1681,16 @@ int CtdlOutputMsg(long msg_num,		/* message number (local) to fetch */
 		return(r);
 		}
 =======
+=======
+>>>>>>> parent of 4ec6a9d... Updating cmd_euid() to use the CtdlForEachMessage() API fixes the security check in blog view and saves some code
 	if (r == om_ok) {
 		syslog(LOG_DEBUG, "\033[32m PASS \033[0m\n");
 	}
 	else {
 		syslog(LOG_DEBUG, "\033[31m FAIL \033[0m\n");
+<<<<<<< HEAD
+>>>>>>> parent of 4ec6a9d... Updating cmd_euid() to use the CtdlForEachMessage() API fixes the security check in blog view and saves some code
+=======
 >>>>>>> parent of 4ec6a9d... Updating cmd_euid() to use the CtdlForEachMessage() API fixes the security check in blog view and saves some code
 	}
 	/* FIXME after testing, this is where we deny access */
