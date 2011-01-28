@@ -363,6 +363,8 @@ void finalize_openid_login(void)
 	 */
 
 /*
+ * FIXME make this work again!!!!
+ *
 	else if (!strcasecmp(ChrPtr(result), "verify_only")) {
 		putbstr("__claimed_id", claimed_id);
 		claimed_id = NULL;
@@ -385,20 +387,17 @@ void finalize_openid_login(void)
 		do_template("authpopup_finished", NULL);
 		end_burst();
 
-		/* FIXME make all this crap work again
+		/* FIXME make this work again.  Maybe put it in authpopup_finished?
 		if (WC->need_regi) {
 			display_reg(1);
-		} else {
-			do_welcome();
 		}
 		*/
 
 	} else {
-		/* FIXME do something prettier here? */
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
-		wc_printf("error");
+		wc_printf(_("An error has occurred."));		/* FIXME do something prettier here */
 		wc_printf("</body></html>");
 		end_burst();
 	}
