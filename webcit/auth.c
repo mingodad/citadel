@@ -167,21 +167,21 @@ void ajax_login_username_password(void) {
  * modal/ajax version of 'new user' (username and password)
  */
 void ajax_login_newuser(void) {
-	StrBuf *Buf = NewStrBuf();
+	StrBuf *NBuf = NewStrBuf();
+	StrBuf *SBuf = NewStrBuf();
 
 	serv_printf("NEWU %s", bstr("name"));
-	StrBuf_ServGetln(Buf);
-	if (GetServerStatus(Buf, NULL) == 2) {
+	StrBuf_ServGetln(NBuf);
+	if (GetServerStatus(NBuf, NULL) == 2) {
+		become_logged_in(sbstr("name"), sbstr("pass"), NBuf);
 		serv_printf("SETP %s", bstr("pass"));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			become_logged_in(sbstr("name"), sbstr("pass"), Buf);
-		}
+		StrBuf_ServGetln(SBuf);
 	}
 
 	/* The client is expecting to read back a citadel protocol response */
-	wc_printf("%s", ChrPtr(Buf));
-	FreeStrBuf(&Buf);
+	wc_printf("%s", ChrPtr(NBuf));
+	FreeStrBuf(&NBuf);
+	FreeStrBuf(&SBuf);
 }
 
 
