@@ -1660,7 +1660,7 @@ int main(int argc, char **argv)
 	if (!IsEmptyStr(rc_password)) {
 		strcpy(password, rc_password);
 	} else {
-		newprompt("\rPlease enter your password: ", password, -19);
+		newprompt("\rPlease enter your password: ", password, -(SIZ-1));
 	}
 
 	if (*nonce) {
