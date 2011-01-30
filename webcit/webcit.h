@@ -646,6 +646,7 @@ void display_openids(void);
 void display_default_landing_page(void);
 void do_welcome(void);
 void do_logout(void);
+void display_reg(int during_login);
 void display_main_menu(void);
 void display_aide_menu(void);
 void slrp_highest(void);
