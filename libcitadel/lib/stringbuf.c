@@ -2828,7 +2828,8 @@ static inline const char *FindNextEnd (const StrBuf *Buf, const char *bptr)
 		return NULL;
 
 	if ((Buf->BufUsed - (end - Buf->buf) > 3) &&
-	    ((*(end + 1) == 'B') || (*(end + 1) == 'Q')) && 
+	    (((*(end + 1) == 'B') || (*(end + 1) == 'Q')) ||
+	     ((*(end + 1) == 'b') || (*(end + 1) == 'q'))) && 
 	    (*(end + 2) == '?')) {
 		/* skip on to the end of the cluster, the next ?= */
 		end = strstr(end + 3, "?=");
@@ -3081,7 +3082,7 @@ void StrBuf_RFC822_2_Utf8(StrBuf *Target,
 	start = strstr(DecodeMee->buf, "=?");
 	eptr = DecodeMee->buf + DecodeMee->BufUsed;
 	if (start != NULL) 
-		end = FindNextEnd (DecodeMee, start);
+		end = FindNextEnd (DecodeMee, start + 2);
 	else {
 		StrBufAppendBuf(Target, DecodeMee, 0);
 		FreeStrBuf(&DecodedInvalidBuf);
