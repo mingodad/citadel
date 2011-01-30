@@ -1378,6 +1378,7 @@ void rss_do_fetching(rssnetcfg *Cfg) {
 			      XML_GetErrorCode(xp)));
 
 shutdown:
+	FreeStrBuf(Answer);
 	curl_easy_cleanup(curl);
 	XML_ParserFree(xp);
 
