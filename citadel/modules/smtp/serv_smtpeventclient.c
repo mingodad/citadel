@@ -421,6 +421,8 @@ eNextState smtp_resolve_mx_done(AsyncIO *IO)
 {
 	SmtpOutMsg * SendMsg = IO->Data;
 
+	QueryCbDone(IO);
+
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 
 	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;

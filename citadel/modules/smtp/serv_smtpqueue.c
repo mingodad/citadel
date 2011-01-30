@@ -420,7 +420,7 @@ StrBuf *smtp_load_msg(OneQueItem *MyQItem, int n)
 	if ((StrLength(SendMsg) > 0) && 
 	    ChrPtr(SendMsg)[StrLength(SendMsg) - 1] != '\n') {
 		CtdlLogPrintf(CTDL_WARNING, 
-			      "SMTP client[%ld]: Possible problem: message did not "
+			      "SMTP client[%d]: Possible problem: message did not "
 			      "correctly terminate. (expecting 0x10, got 0x%02x)\n",
 			      MsgCount, //yes uncool, but best choice here... 
 			      ChrPtr(SendMsg)[StrLength(SendMsg) - 1] );

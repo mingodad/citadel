@@ -336,7 +336,12 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 	}
 }
 
-
+void
+IO_postdns_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
+{
+	AsyncIO *IO = watcher->data;
+	IO->PostDNS(IO);
+}
 
 eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_rw_timeout)
 {

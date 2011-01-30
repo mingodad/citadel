@@ -218,9 +218,19 @@ void QueryCb(void *arg,
 	IO->DNSStatus = status;
 	if (status == ARES_SUCCESS)
 		IO->DNS_CB(arg, abuf, alen);
+	else
+		IO->DNSStatus = status;
 ///	ev_io_stop(event_base, &IO->dns_io_event);
-		
-	IO->PostDNS(IO);
+	
+	ev_timer_init(&IO->unwind_stack_timeout,
+		      IO_postdns_callback, 0.0, 0);
+	IO->unwind_stack_timeout.data = IO;
+	ev_timer_start(event_base, &IO->unwind_stack_timeout);
+}
+
+void QueryCbDone(AsyncIO *IO)
+{
+	ev_timer_stop(event_base, &IO->unwind_stack_timeout);
 }
 
 

@@ -38,7 +38,8 @@ struct AsyncIO {
        	eNextState NextState;
 
 	ev_timer conn_fail, 
-		rw_timeout;
+		rw_timeout,
+		unwind_stack_timeout;
 	ev_io recv_event, 
 		send_event, 
 		conn_event;
@@ -92,8 +93,10 @@ eNextState InitEventIO(AsyncIO *IO,
 		       double conn_timeout, 
 		       double first_rw_timeout,
 		       int ReadFirst);
+void IO_postdns_callback(struct ev_loop *loop, ev_timer *watcher, int revents);
 
 int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);
+void QueryCbDone(AsyncIO *IO);
 
 void StopClient(AsyncIO *IO);
 
