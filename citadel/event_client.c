@@ -67,10 +67,11 @@
 
 #include "event_client.h"
 
-extern int event_add_pipe[2];
 extern citthread_mutex_t EventQueueMutex;
 extern HashList *InboundEventQueue;
 extern struct ev_loop *event_base;
+extern ev_async AddJob;   
+extern ev_async ExitEventLoop;
 
 	
 int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
@@ -83,17 +84,12 @@ int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	h->EvAttch = CB;
 
 	citthread_mutex_lock(&EventQueueMutex);
-	if (event_add_pipe[1] == -1) {
-		citthread_mutex_unlock(&EventQueueMutex);
-		free (h);
-		return -1;
-	}
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q\n");
 	i = GetCount(InboundEventQueue);
 	Put(InboundEventQueue, IKEY(i), h, NULL);
 	citthread_mutex_unlock(&EventQueueMutex);
 
-	write(event_add_pipe[1], "+_", 1);
+	ev_async_send (event_base, &AddJob);
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q Done.\n");
 	return 0;
 }
@@ -102,14 +98,7 @@ int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 int ShutDownEventQueue(void)
 {
 	citthread_mutex_lock(&EventQueueMutex);
-	if (event_add_pipe[1] == -1) {
-		citthread_mutex_unlock(&EventQueueMutex);
-
-		return -1;
-	}
-	write(event_add_pipe[1], "x_", 1);
-	close(event_add_pipe[1]);
-	event_add_pipe[1] = -1;
+	ev_async_send (EV_DEFAULT_ &ExitEventLoop);
 	citthread_mutex_unlock(&EventQueueMutex);
 	return 0;
 }
