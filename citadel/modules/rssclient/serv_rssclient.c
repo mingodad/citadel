@@ -756,10 +756,14 @@ void flush_rss_item(rss_item *ri)
 	FreeStrBuf(&ri->guid);
 	FreeStrBuf(&ri->title);
 	FreeStrBuf(&ri->link);
-	FreeStrBuf(&ri->author_or_creator);
-	FreeStrBuf(&ri->author_email);
-	FreeStrBuf(&ri->author_url);
+	FreeStrBuf(&ri->linkTitle);
+	FreeStrBuf(&ri->reLink);
+	FreeStrBuf(&ri->reLinkTitle);
 	FreeStrBuf(&ri->description);
+	FreeStrBuf(&ri->channel_title);
+	FreeStrBuf(&ri->author_or_creator);
+	FreeStrBuf(&ri->author_url);
+	FreeStrBuf(&ri->author_email);
 }
 
 void rss_xml_start(void *data, const char *supplied_el, const char **attr)
