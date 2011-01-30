@@ -340,6 +340,8 @@ void
 IO_postdns_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
+	CtdlLogPrintf(CTDL_DEBUG, "event: %s\n", __FUNCTION__);
+
 	IO->PostDNS(IO);
 }
 

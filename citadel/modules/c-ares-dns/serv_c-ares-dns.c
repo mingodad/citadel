@@ -226,6 +226,7 @@ void QueryCb(void *arg,
 		      IO_postdns_callback, 0.0, 0);
 	IO->unwind_stack_timeout.data = IO;
 	ev_timer_start(event_base, &IO->unwind_stack_timeout);
+	CtdlLogPrintf(CTDL_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 }
 
 void QueryCbDone(AsyncIO *IO)

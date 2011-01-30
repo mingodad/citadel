@@ -117,10 +117,8 @@ int DecreaseQReference(OneQueItem *MyQItem)
 {
 	int IDestructQueItem;
 
-	citthread_mutex_lock(&ActiveQItemsLock);
 	MyQItem->ActiveDeliveries--;
 	IDestructQueItem = MyQItem->ActiveDeliveries == 0;
-	citthread_mutex_unlock(&ActiveQItemsLock);
 	return IDestructQueItem;
 }
 
@@ -799,17 +797,18 @@ void smtp_do_procmsg(long msgnum, void *userdata) {
 	if (MyQItem->ActiveDeliveries > 0)
 	{
 		int n = MsgCount++;
+		int m = MyQItem->ActiveDeliveries;
 		int i = 1;
 		Msg = smtp_load_msg(MyQItem, n);
 		It = GetNewHashPos(MyQItem->MailQEntries, 0);
-		while ((i <= MyQItem->ActiveDeliveries) && 
+		while ((i <= m) && 
 		       (GetNextHashPos(MyQItem->MailQEntries, It, &len, &Key, &vQE)))
 		{
 			MailQEntry *ThisItem = vQE;
 			if (ThisItem->Active == 1) {
-				int KeepBuffers = (i == MyQItem->ActiveDeliveries);
+				int KeepBuffers = (i == m);
 				if (i > 1) n = MsgCount++;
-				CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: Trying <%s>\n", ChrPtr(ThisItem->Recipient));
+				CtdlLogPrintf(CTDL_DEBUG, "SMTP Queue: Trying <%s> %d / %d \n", ChrPtr(ThisItem->Recipient), i, m);
 				smtp_try(MyQItem, ThisItem, Msg, KeepBuffers, n, RelayUrls);
 				if (KeepBuffers) HaveBuffers = 1;
 				i++;
