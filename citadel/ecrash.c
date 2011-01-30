@@ -216,7 +216,7 @@ static void createGlobalBacktrace( void )
 		}
 	else 
 		for (NThread = 0; NThread < size; NThread++) 
-			CtdlLogPrintf(1, "RAW: %p\n", stack_frames[NThread]);
+			CtdlLogPrintf(CTDL_ALERT, "RAW: %p\n", stack_frames[NThread]);
 	strings = backtrace_symbols(stack_frames, size);
 	for (NThread = 0; NThread < size; NThread++) {
 		if (strings != NULL) {
@@ -226,7 +226,7 @@ static void createGlobalBacktrace( void )
 				syslog( LOG_CRIT|LOG_NDELAY|LOG_MAIL, StaticBuf);
 			}
 			else
-				CtdlLogPrintf(1, "%s\n", strings[NThread]);
+				CtdlLogPrintf(CTDL_ALERT, "%s\n", strings[NThread]);
 		}
 	}
 } /* createGlobalBacktrace */
@@ -242,7 +242,7 @@ static void outputRawtrace( void )
 		}
 	else 
 		for (NThread = 0; NThread < size; NThread++) 
-			CtdlLogPrintf(1, "RAW: %p\n", stack_frames[NThread]);
+			CtdlLogPrintf(CTDL_ALERT, "RAW: %p\n", stack_frames[NThread]);
 } /* createGlobalBacktrace */
 
 /*!

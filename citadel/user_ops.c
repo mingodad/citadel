@@ -517,7 +517,7 @@ int CtdlLoginExistingUser(char *authname, const char *trythisname)
 	int found_user;
 	long len;
 
-	CtdlLogPrintf(9, "CtdlLoginExistingUser(%s, %s)\n", authname, trythisname);
+	CtdlLogPrintf(CTDL_DEBUG, "CtdlLoginExistingUser(%s, %s)\n", authname, trythisname);
 
 	if ((CC->logged_in)) {
 		return login_already_logged_in;

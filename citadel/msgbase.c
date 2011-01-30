@@ -2625,7 +2625,7 @@ int CtdlSaveMsgPointersInRoom(char *roomname, long newmsgidlist[], int num_newms
 		}
 	}
 
-	CtdlLogPrintf(9, "%d unique messages to be merged\n", num_msgs_to_be_merged);
+	CtdlLogPrintf(CTDL_DEBUG, "%d unique messages to be merged\n", num_msgs_to_be_merged);
 
 	/*
 	 * Now merge the new messages

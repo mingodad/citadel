@@ -98,9 +98,9 @@ void cit_backtrace(void)
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
 		if (strings != NULL)
-			CtdlLogPrintf(1, "%s\n", strings[i]);
+			CtdlLogPrintf(CTDL_ALERT, "%s\n", strings[i]);
 		else
-			CtdlLogPrintf(1, "%p\n", stack_frames[i]);
+			CtdlLogPrintf(CTDL_ALERT, "%p\n", stack_frames[i]);
 	}
 	free(strings);
 #endif
@@ -121,9 +121,9 @@ void cit_panic_backtrace(int SigNum)
 	strings = backtrace_symbols(stack_frames, size);
 	for (i = 0; i < size; i++) {
 		if (strings != NULL)
-			CtdlLogPrintf(1, "%s\n", strings[i]);
+			CtdlLogPrintf(CTDL_ALERT, "%s\n", strings[i]);
 		else
-			CtdlLogPrintf(1, "%p\n", stack_frames[i]);
+			CtdlLogPrintf(CTDL_ALERT, "%p\n", stack_frames[i]);
 	}
 	free(strings);
 #endif
