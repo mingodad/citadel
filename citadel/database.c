@@ -427,10 +427,10 @@ void cdb_chmod_data(void) {
 			if (d->d_name[0] != '.') {
 				snprintf(filename, sizeof filename,
 					 "%s/%s", ctdl_data_dir, d->d_name);
-				CtdlLogPrintf(9, "chmod(%s, 0600) returned %d\n",
+				CtdlLogPrintf(CTDL_DEBUG, "chmod(%s, 0600) returned %d\n",
 					filename, chmod(filename, 0600)
 				);
-				CtdlLogPrintf(9, "chown(%s, CTDLUID, -1) returned %d\n",
+				CtdlLogPrintf(CTDL_DEBUG, "chown(%s, CTDLUID, -1) returned %d\n",
 					filename, chown(filename, CTDLUID, (-1))
 				);
 			}

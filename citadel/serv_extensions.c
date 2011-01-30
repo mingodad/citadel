@@ -109,8 +109,8 @@ void LogPrintMessages(long err)
 
 	snprintf(Message, n * SIZ, ErrGeneral, Short, Where, List, Hint, DetailList);
 
-	CtdlLogPrintf(0,Message);
-	CtdlLogPrintf(0,ErrSubject);
+	CtdlLogPrintf(CTDL_DEBUG,Message);
+	CtdlLogPrintf(CTDL_DEBUG,ErrSubject);
 	quickie_message("Citadel", NULL, NULL, AIDEROOM, Message, FMT_FIXED, ErrSubject);
 	if (errormessages!=NULL) free (errormessages);
 	errormessages = NULL;
