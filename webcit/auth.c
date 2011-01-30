@@ -24,8 +24,6 @@
 
 extern uint32_t hashlittle( const void *key, size_t length, uint32_t initval);
 
-void display_reg(int during_login);
-
 /*
  * Access level definitions.  This is initialized from a function rather than a
  * static array so that the strings may be localized.
