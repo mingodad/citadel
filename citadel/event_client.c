@@ -73,6 +73,14 @@ extern struct ev_loop *event_base;
 extern ev_async AddJob;   
 extern ev_async ExitEventLoop;
 
+static void
+IO_abort_shutdown_callback(struct ev_loop *loop, ev_cleanup *watcher, int revents)
+{
+	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q: %s\n", __FUNCTION__);
+
+	AsyncIO *IO = watcher->data;
+	IO->ShutdownAbort(IO);
+}
 	
 int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 {
@@ -82,6 +90,10 @@ int QueueEventContext(AsyncIO *IO, IO_CallBack CB)
 	h = (IOAddHandler*)malloc(sizeof(IOAddHandler));
 	h->IO = IO;
 	h->EvAttch = CB;
+	ev_cleanup_init(&IO->abort_by_shutdown, 
+			IO_abort_shutdown_callback);
+	IO->abort_by_shutdown.data = IO;
+	ev_cleanup_start(event_base, &IO->abort_by_shutdown);
 
 	citthread_mutex_lock(&EventQueueMutex);
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT Q\n");

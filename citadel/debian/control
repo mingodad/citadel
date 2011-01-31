@@ -5,7 +5,7 @@ Maintainer: Wilfried Goesgens <w.goesgens@outgesourced.org>
 Build-Depends: debhelper (>= 4), po-debconf, bison, autotools-dev,
  libdb-dev, libical-dev (>=0.43), libldap2-dev, gettext, locales,
  libpam0g-dev, libsieve2-dev, libssl-dev, libexpat1-dev, libcitadel-dev (>= 7.42),
- libcurl4-openssl-dev | libcurl3-openssl-dev, zlib1g-dev, libev-dev, libc-ares-dev (>= 1.7.2)
+ libcurl4-openssl-dev | libcurl3-openssl-dev, zlib1g-dev, libev-dev (>= 4.0), libc-ares-dev (>= 1.7.2)
 Standards-Version: 3.8.0
 
 Package: citadel-server

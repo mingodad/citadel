@@ -183,6 +183,7 @@ void DeleteSmtpOutMsg(void *v)
 	free(Msg);
 }
 
+eNextState SMTP_C_Shutdown(AsyncIO *IO);
 eNextState SMTP_C_Timeout(AsyncIO *IO);
 eNextState SMTP_C_ConnFail(AsyncIO *IO);
 eNextState SMTP_C_DispatchReadDone(AsyncIO *IO);
@@ -555,17 +556,19 @@ void smtp_try(OneQueItem *MyQItem,
 	SendMsg->MyQItem      = MyQItem;
 	SendMsg->pCurrRelay   = MyQItem->URL;
 
-	SendMsg->IO.dport       = DefaultMXPort;
-	SendMsg->IO.Data        = SendMsg;
-	SendMsg->IO.SendDone    = SMTP_C_DispatchWriteDone;
-	SendMsg->IO.ReadDone    = SMTP_C_DispatchReadDone;
-	SendMsg->IO.Terminate   = SMTP_C_Terminate;
-	SendMsg->IO.LineReader  = SMTP_C_ReadServerStatus;
-	SendMsg->IO.ConnFail    = SMTP_C_ConnFail;
-	SendMsg->IO.Timeout     = SMTP_C_Timeout;
-	SendMsg->IO.SendBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.RecvBuf.Buf = NewStrBufPlain(NULL, 1024);
-	SendMsg->IO.IOBuf       = NewStrBuf();
+	SendMsg->IO.dport         = DefaultMXPort;
+	SendMsg->IO.Data          = SendMsg;
+	SendMsg->IO.SendDone      = SMTP_C_DispatchWriteDone;
+	SendMsg->IO.ReadDone      = SMTP_C_DispatchReadDone;
+	SendMsg->IO.Terminate     = SMTP_C_Terminate;
+	SendMsg->IO.LineReader    = SMTP_C_ReadServerStatus;
+	SendMsg->IO.ConnFail      = SMTP_C_ConnFail;
+	SendMsg->IO.Timeout       = SMTP_C_Timeout;
+	SendMsg->IO.ShutdownAbort = SMTP_C_Shutdown;
+	SendMsg->IO.SendBuf.Buf   = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.RecvBuf.Buf   = NewStrBufPlain(NULL, 1024);
+	SendMsg->IO.IOBuf         = NewStrBuf();
+			
 
 	if (KeepMsgText) {
 		SendMsg->msgtext    = MsgText;
@@ -963,6 +966,16 @@ eNextState SMTP_C_ConnFail(AsyncIO *IO)
 {
 	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
 	SmtpOutMsg *pMsg = IO->Data;
+	FinalizeMessageSend(pMsg);
+	return eAbort;
+}
+eNextState SMTP_C_Shutdown(AsyncIO *IO)
+{
+	CtdlLogPrintf(CTDL_DEBUG, "SMTP: %s\n", __FUNCTION__);
+	SmtpOutMsg *pMsg = IO->Data;
+
+	pMsg->MyQEntry->Status = 3;
+	StrBufPlain(pMsg->MyQEntry->StatusMessage, HKEY("server shutdown during message submit."));
 	FinalizeMessageSend(pMsg);
 	return eAbort;
 }

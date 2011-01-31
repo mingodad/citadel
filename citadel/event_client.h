@@ -36,6 +36,8 @@ struct AsyncIO {
 	int sock;
 	unsigned short dport;
        	eNextState NextState;
+	
+	ev_cleanup abort_by_shutdown;
 
 	ev_timer conn_fail, 
 		rw_timeout,
@@ -55,7 +57,8 @@ struct AsyncIO {
 		SendDone,     /* we may send more data */
 		Terminate,    /* shutting down... */
 		Timeout,      /* Timeout handler; may also be connection timeout */
-		ConnFail;     /* What to do when one connection failed? */
+		ConnFail,     /* What to do when one connection failed? */
+		ShutdownAbort;/* we're going down. make your piece. */ 
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 
