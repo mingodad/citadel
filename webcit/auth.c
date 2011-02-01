@@ -276,7 +276,6 @@ void finalize_openid_login(void)
 {
 	StrBuf *Buf;
 	wcsession *WCC = WC;
-	int already_logged_in = (WCC->logged_in) ;
 	int linecount = 0;
 	StrBuf *result = NULL;
 	StrBuf *username = NULL;
@@ -336,9 +335,10 @@ void finalize_openid_login(void)
 		}
 	}
 
-	/* If we were already logged in, this was an attempt to associate an OpenID account 
-	FIXME put this back in
-	if (already_logged_in) {
+	/*
+	 * Is this an attempt to associate a new OpenID with an account that is already logged in?
+	 */
+	if ( (WCC->logged_in) && (havebstr("attach_existing")) ) {
 		display_openids();
 		FreeStrBuf(&result);
 		FreeStrBuf(&username);
@@ -347,7 +347,6 @@ void finalize_openid_login(void)
 		FreeStrBuf(&logged_in_response);
 		return;
 	}
-	*/
 
 	/* If this operation logged us in, either by connecting with an existing account or by
 	 * auto-creating one using Simple Registration Extension, we're already on our way.
@@ -356,7 +355,7 @@ void finalize_openid_login(void)
 		become_logged_in(username, password, logged_in_response);
 	}
 
-	/* The specified OpenID was verified but the desired user name was either not specified via SRI
+	/* The specified OpenID was verified but the desired user name was either not specified via SRE
 	 * or conflicts with an existing user.  Either way the user will need to specify a new name.
 	 */
 
@@ -388,7 +387,7 @@ void finalize_openid_login(void)
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
-		wc_printf(_("An error has occurred."));		/* FIXME do something prettier here */
+		wc_printf(_("An error has occurred."));
 		wc_printf("</body></html>");
 		end_burst();
 	}
@@ -728,7 +727,6 @@ void display_reg(int during_login)
 		FreeStrBuf(&ReturnTo);
 	}
 
-	/* FIXME - don't we have to free VCMsg and VCAtt ?? */
 }
 
 
