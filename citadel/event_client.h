@@ -20,6 +20,17 @@ typedef eReadState (*IO_LineReaderCallback)(AsyncIO *IO);
 typedef void (*ParseDNSAnswerCb)(AsyncIO*, unsigned char*, int);
 typedef void (*FreeDNSReply)(void *DNSData);
 
+typedef struct _DNSQueryParts {
+	ParseDNSAnswerCb DNS_CB;
+	IO_CallBack PostDNS;
+
+	int DNSStatus;
+	void *VParsedDNSReply;
+	FreeDNSReply DNSReplyFree;
+	void *Data;
+} DNSQueryParts;
+
+
 struct AsyncIO {
 	StrBuf *Host;
 	char service[32];
@@ -30,7 +41,6 @@ struct AsyncIO {
 
 	/* connection related */
 	int IP6;
-	struct hostent *HEnt;
 	struct sockaddr_in6 Addr;
 
 	int sock;
@@ -40,8 +50,8 @@ struct AsyncIO {
 	ev_cleanup abort_by_shutdown;
 
 	ev_timer conn_fail, 
-		rw_timeout,
-		unwind_stack_timeout;
+		rw_timeout;
+	ev_idle unwind_stack;
 	ev_io recv_event, 
 		send_event, 
 		conn_event;
@@ -62,19 +72,11 @@ struct AsyncIO {
 
 	IO_LineReaderCallback LineReader; /* if we have linereaders, maybe we want to read more lines before the real application logic is called? */
 
-
-	int active_dns_event;
 	ev_io dns_recv_event, 
 		dns_send_event;
 	struct ares_options DNSOptions;
 	ares_channel DNSChannel;
-
-	ParseDNSAnswerCb DNS_CB;
-	IO_CallBack PostDNS;
-
-	int DNSStatus;
-	void *VParsedDNSReply;
-	FreeDNSReply DNSReplyFree;
+	DNSQueryParts *DNSQuery;
 
 	/* Custom data; its expected to contain  AsyncIO so we can save malloc()s... */
 	DeleteHashDataFunc DeleteData; /* so if we have to destroy you, what to do... */
@@ -96,9 +98,11 @@ eNextState InitEventIO(AsyncIO *IO,
 		       double conn_timeout, 
 		       double first_rw_timeout,
 		       int ReadFirst);
-void IO_postdns_callback(struct ev_loop *loop, ev_timer *watcher, int revents);
+void IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents);
 
-int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS);
+int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *QueryParts, IO_CallBack PostDNS);
+void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryParts, IO_CallBack PostDNS);
+
 void QueryCbDone(AsyncIO *IO);
 
 void StopClient(AsyncIO *IO);

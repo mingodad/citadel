@@ -127,6 +127,8 @@ void ShutDownCLient(AsyncIO *IO)
 {
 	CtdlLogPrintf(CTDL_DEBUG, "EVENT x %d\n", IO->sock);
 
+	ev_cleanup_stop(event_base, &IO->abort_by_shutdown);
+
 	if (IO->sock != 0)
 	{
 		ev_io_stop(event_base, &IO->send_event);
@@ -338,12 +340,12 @@ IO_recv_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 }
 
 void
-IO_postdns_callback(struct ev_loop *loop, ev_timer *watcher, int revents)
+IO_postdns_callback(struct ev_loop *loop, ev_idle *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
 	CtdlLogPrintf(CTDL_DEBUG, "event: %s\n", __FUNCTION__);
 
-	IO->PostDNS(IO);
+	IO->DNSQuery->PostDNS(IO);
 }
 
 eNextState event_connect_socket(AsyncIO *IO, double conn_timeout, double first_rw_timeout)

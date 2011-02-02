@@ -69,12 +69,12 @@ static void HostByAddrCb(void *data,
                          struct hostent *hostent) 
 {
 	AsyncIO *IO = data;
-	IO->DNSStatus = status;
+	IO->DNSQuery->DNSStatus = status;
 	if  (status != ARES_SUCCESS) {
 //		ResolveError(*cb, status);
 		return;
 	}
-	IO->Data = hostent;
+	IO->DNSQuery->Data = hostent;
 /// TODO: howto free this??
 }
 
@@ -82,17 +82,17 @@ static void ParseAnswerA(AsyncIO *IO, unsigned char* abuf, int alen)
 {
 	struct hostent* host;
 
-	if (IO->VParsedDNSReply != NULL)
-		IO->DNSReplyFree(IO->VParsedDNSReply);
-	IO->VParsedDNSReply = NULL;
+	if (IO->DNSQuery->VParsedDNSReply != NULL)
+		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
+	IO->DNSQuery->VParsedDNSReply = NULL;
 
-	IO->DNSStatus = ares_parse_a_reply(abuf, alen, &host, NULL, NULL);
-	if (IO->DNSStatus != ARES_SUCCESS) {
+	IO->DNSQuery->DNSStatus = ares_parse_a_reply(abuf, alen, &host, NULL, NULL);
+	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
 //    ResolveError(arg->js_cb, status);
 		return;
 	}
-	IO->VParsedDNSReply = host;
-	IO->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
+	IO->DNSQuery->VParsedDNSReply = host;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
 }
 
 
@@ -100,17 +100,17 @@ static void ParseAnswerAAAA(AsyncIO *IO, unsigned char* abuf, int alen)
 {
 	struct hostent* host;
 
-	if (IO->VParsedDNSReply != NULL)
-		IO->DNSReplyFree(IO->VParsedDNSReply);
-	IO->VParsedDNSReply = NULL;
+	if (IO->DNSQuery->VParsedDNSReply != NULL)
+		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
+	IO->DNSQuery->VParsedDNSReply = NULL;
 
-	IO->DNSStatus = ares_parse_aaaa_reply(abuf, alen, &host, NULL, NULL);
-	if (IO->DNSStatus != ARES_SUCCESS) {
+	IO->DNSQuery->DNSStatus = ares_parse_aaaa_reply(abuf, alen, &host, NULL, NULL);
+	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
 //    ResolveError(arg->js_cb, status);
 		return;
 	}
-	IO->VParsedDNSReply = host;
-	IO->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
+	IO->DNSQuery->VParsedDNSReply = host;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
 }
 
 
@@ -118,19 +118,19 @@ static void ParseAnswerCNAME(AsyncIO *IO, unsigned char* abuf, int alen)
 {
 	struct hostent* host;
 
-	if (IO->VParsedDNSReply != NULL)
-		IO->DNSReplyFree(IO->VParsedDNSReply);
-	IO->VParsedDNSReply = NULL;
+	if (IO->DNSQuery->VParsedDNSReply != NULL)
+		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
+	IO->DNSQuery->VParsedDNSReply = NULL;
 
-	IO->DNSStatus = ares_parse_a_reply(abuf, alen, &host, NULL, NULL);
-	if (IO->DNSStatus != ARES_SUCCESS) {
+	IO->DNSQuery->DNSStatus = ares_parse_a_reply(abuf, alen, &host, NULL, NULL);
+	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
 //    ResolveError(arg->js_cb, status);
 		return;
 	}
 
 	// a CNAME lookup always returns a single record but
-	IO->VParsedDNSReply = host;
-	IO->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
+	IO->DNSQuery->VParsedDNSReply = host;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
 }
 
 
@@ -138,18 +138,18 @@ static void ParseAnswerMX(AsyncIO *IO, unsigned char* abuf, int alen)
 {
 	struct ares_mx_reply *mx_out;
 
-	if (IO->VParsedDNSReply != NULL)
-		IO->DNSReplyFree(IO->VParsedDNSReply);
-	IO->VParsedDNSReply = NULL;
+	if (IO->DNSQuery->VParsedDNSReply != NULL)
+		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
+	IO->DNSQuery->VParsedDNSReply = NULL;
 
-	IO->DNSStatus = ares_parse_mx_reply(abuf, alen, &mx_out);
-	if (IO->DNSStatus != ARES_SUCCESS) {
+	IO->DNSQuery->DNSStatus = ares_parse_mx_reply(abuf, alen, &mx_out);
+	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
 //    ResolveError(arg->js_cb, status);
 		return;
 	}
 
-	IO->VParsedDNSReply = mx_out;
-	IO->DNSReplyFree = (FreeDNSReply) ares_free_data;
+	IO->DNSQuery->VParsedDNSReply = mx_out;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_data;
 }
 
 
@@ -157,17 +157,17 @@ static void ParseAnswerNS(AsyncIO *IO, unsigned char* abuf, int alen)
 {
 	struct hostent* host;
 
-	if (IO->VParsedDNSReply != NULL)
-		IO->DNSReplyFree(IO->VParsedDNSReply);
-	IO->VParsedDNSReply = NULL;
+	if (IO->DNSQuery->VParsedDNSReply != NULL)
+		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
+	IO->DNSQuery->VParsedDNSReply = NULL;
 
-	IO->DNSStatus = ares_parse_ns_reply(abuf, alen, &host);
-	if (IO->DNSStatus != ARES_SUCCESS) {
+	IO->DNSQuery->DNSStatus = ares_parse_ns_reply(abuf, alen, &host);
+	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
 //    ResolveError(arg->js_cb, status);
 		return;
 	}
-	IO->VParsedDNSReply = host;
-	IO->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
+	IO->DNSQuery->VParsedDNSReply = host;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
 }
 
 
@@ -175,18 +175,18 @@ static void ParseAnswerSRV(AsyncIO *IO, unsigned char* abuf, int alen)
 {
 	struct ares_srv_reply *srv_out;
 
-	if (IO->VParsedDNSReply != NULL)
-		IO->DNSReplyFree(IO->VParsedDNSReply);
-	IO->VParsedDNSReply = NULL;
+	if (IO->DNSQuery->VParsedDNSReply != NULL)
+		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
+	IO->DNSQuery->VParsedDNSReply = NULL;
 
-	IO->DNSStatus = ares_parse_srv_reply(abuf, alen, &srv_out);
-	if (IO->DNSStatus != ARES_SUCCESS) {
+	IO->DNSQuery->DNSStatus = ares_parse_srv_reply(abuf, alen, &srv_out);
+	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
 //    ResolveError(arg->js_cb, status);
 		return;
 	}
 
-	IO->VParsedDNSReply = srv_out;
-	IO->DNSReplyFree = (FreeDNSReply) ares_free_data;
+	IO->DNSQuery->VParsedDNSReply = srv_out;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_data;
 }
 
 
@@ -194,17 +194,17 @@ static void ParseAnswerTXT(AsyncIO *IO, unsigned char* abuf, int alen)
 {
 	struct ares_txt_reply *txt_out;
 
-	if (IO->VParsedDNSReply != NULL)
-		IO->DNSReplyFree(IO->VParsedDNSReply);
-	IO->VParsedDNSReply = NULL;
+	if (IO->DNSQuery->VParsedDNSReply != NULL)
+		IO->DNSQuery->DNSReplyFree(IO->DNSQuery->VParsedDNSReply);
+	IO->DNSQuery->VParsedDNSReply = NULL;
 
-	IO->DNSStatus = ares_parse_txt_reply(abuf, alen, &txt_out);
-	if (IO->DNSStatus != ARES_SUCCESS) {
+	IO->DNSQuery->DNSStatus = ares_parse_txt_reply(abuf, alen, &txt_out);
+	if (IO->DNSQuery->DNSStatus != ARES_SUCCESS) {
 //    ResolveError(arg->js_cb, status);
 		return;
 	}
-	IO->VParsedDNSReply = txt_out;
-	IO->DNSReplyFree = (FreeDNSReply) ares_free_data;
+	IO->DNSQuery->VParsedDNSReply = txt_out;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_data;
 }
 
 void QueryCb(void *arg,
@@ -215,23 +215,23 @@ void QueryCb(void *arg,
 {
 	AsyncIO *IO = arg;
 
-	IO->DNSStatus = status;
+	IO->DNSQuery->DNSStatus = status;
 	if (status == ARES_SUCCESS)
-		IO->DNS_CB(arg, abuf, alen);
+		IO->DNSQuery->DNS_CB(arg, abuf, alen);
 	else
-		IO->DNSStatus = status;
-///	ev_io_stop(event_base, &IO->dns_io_event);
+		IO->DNSQuery->DNSStatus = status;
+///	ev_io_stop(event_base, &IO->DNSQuery->dns_io_event);
 	
-	ev_timer_init(&IO->unwind_stack_timeout,
-		      IO_postdns_callback, 0.0, 0);
-	IO->unwind_stack_timeout.data = IO;
-	ev_timer_start(event_base, &IO->unwind_stack_timeout);
+	ev_idle_init(&IO->unwind_stack,
+		     IO_postdns_callback);
+	IO->unwind_stack.data = IO;
+	ev_idle_start(event_base, &IO->unwind_stack);
 	CtdlLogPrintf(CTDL_DEBUG, "C-ARES: %s\n", __FUNCTION__);
 }
 
 void QueryCbDone(AsyncIO *IO)
 {
-	ev_timer_stop(event_base, &IO->unwind_stack_timeout);
+	ev_idle_stop(event_base, &IO->unwind_stack);
 }
 
 
@@ -245,40 +245,76 @@ void InitC_ares_dns(AsyncIO *IO)
 		ares_init_options(&IO->DNSChannel, &IO->DNSOptions, optmask);
 	}
 }
-int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
+
+void QueueGetHostByNameDone(void *Ctx, 
+			    int status,
+			    int timeouts,
+			    struct hostent *hostent)
+{
+	AsyncIO *IO = (AsyncIO *) Ctx;
+
+	IO->DNSQuery->DNSStatus = status;
+	IO->DNSQuery->VParsedDNSReply = hostent;
+	IO->DNSQuery->DNSReplyFree = (FreeDNSReply) ares_free_hostent;
+
+	ev_idle_init(&IO->unwind_stack,
+		     IO_postdns_callback);
+	IO->unwind_stack.data = IO;
+	ev_idle_start(event_base, &IO->unwind_stack);
+	CtdlLogPrintf(CTDL_DEBUG, "C-ARES: %s\n", __FUNCTION__);
+}
+
+void QueueGetHostByName(AsyncIO *IO, const char *Hostname, DNSQueryParts *QueryParts, IO_CallBack PostDNS)
+{
+	IO->DNSQuery = QueryParts;
+	IO->DNSQuery->PostDNS = PostDNS;
+
+	InitC_ares_dns(IO);
+
+	ares_gethostbyname(IO->DNSChannel,
+			   Hostname,   
+			   AF_INET6, /* it falls back to ipv4 in doubt... */
+			   QueueGetHostByNameDone,
+			   IO);
+//get_one_mx_host_ip_done);
+}
+int QueueQuery(ns_type Type, const char *name, AsyncIO *IO, DNSQueryParts *QueryParts, IO_CallBack PostDNS)
 {
 	int length, family;
 	char address_b[sizeof(struct in6_addr)];
 
+	IO->DNSQuery = QueryParts;
+	IO->DNSQuery->PostDNS = PostDNS;
+
 	InitC_ares_dns(IO);
-	IO->PostDNS = PostDNS;
+
 	switch(Type) {
 	case ns_t_a:
-		IO->DNS_CB = ParseAnswerA;
+		IO->DNSQuery->DNS_CB = ParseAnswerA;
 		break;
 
 	case ns_t_aaaa:
-		IO->DNS_CB = ParseAnswerAAAA;
+		IO->DNSQuery->DNS_CB = ParseAnswerAAAA;
 		break;
 
 	case ns_t_mx:
-		IO->DNS_CB = ParseAnswerMX;
+		IO->DNSQuery->DNS_CB = ParseAnswerMX;
 		break;
 
 	case ns_t_ns:
-		IO->DNS_CB = ParseAnswerNS;
+		IO->DNSQuery->DNS_CB = ParseAnswerNS;
 		break;
 
 	case ns_t_txt:
-		IO->DNS_CB = ParseAnswerTXT;
+		IO->DNSQuery->DNS_CB = ParseAnswerTXT;
 		break;
 
 	case ns_t_srv:
-		IO->DNS_CB = ParseAnswerSRV;
+		IO->DNSQuery->DNS_CB = ParseAnswerSRV;
 		break;
 
 	case ns_t_cname:
-		IO->DNS_CB = ParseAnswerCNAME;
+		IO->DNSQuery->DNS_CB = ParseAnswerCNAME;
 		break;
 
 	case ns_t_ptr:
@@ -305,6 +341,7 @@ int QueueQuery(ns_type Type, char *name, AsyncIO *IO, IO_CallBack PostDNS)
 	return 1;
 }
 
+
 static void DNS_send_callback(struct ev_loop *loop, ev_io *watcher, int revents)
 {
 	AsyncIO *IO = watcher->data;
@@ -330,27 +367,23 @@ void SockStateCb(void *data, int sock, int read, int write)
 
 	if (read) {
 		if ((IO->dns_recv_event.fd != sock) &&
-		    (IO->dns_recv_event.fd != 0) && 
-		    ((IO->active_dns_event & EV_READ) != 0)) {
+		    (IO->dns_recv_event.fd != 0)) {
 			ev_io_stop(event_base, &IO->dns_recv_event);
 		}
 		IO->dns_recv_event.fd = sock;
 		ev_io_init(&IO->dns_recv_event, DNS_recv_callback, IO->dns_recv_event.fd, EV_READ);
 		IO->dns_recv_event.data = IO;
 		ev_io_start(event_base, &IO->dns_recv_event);
-		IO->active_dns_event = IO->active_dns_event | EV_READ;
 	} 
 	if (write) {
 		if ((IO->dns_send_event.fd != sock) &&
-		    (IO->dns_send_event.fd != 0) && 
-		    ((IO->active_dns_event & EV_WRITE) != 0)) {
+		    (IO->dns_send_event.fd != 0)) {
 			ev_io_stop(event_base, &IO->dns_send_event);
 		}
 		IO->dns_send_event.fd = sock;
 		ev_io_init(&IO->dns_send_event, DNS_send_callback, IO->dns_send_event.fd, EV_WRITE);
 		IO->dns_send_event.data = IO;
 		ev_io_start(event_base, &IO->dns_send_event);
-		IO->active_dns_event = IO->active_dns_event | EV_WRITE;
 	}
 /*
 
@@ -363,11 +396,8 @@ void SockStateCb(void *data, int sock, int read, int write)
 	}
 */
 	if ((read == 0) && (write == 0)) {
-		if ((IO->active_dns_event & EV_READ) != 0)
-			ev_io_stop(event_base, &IO->dns_recv_event);
-		if ((IO->active_dns_event & EV_WRITE) != 0)
-			ev_io_stop(event_base, &IO->dns_send_event);
-		IO->active_dns_event = 0;
+		ev_io_stop(event_base, &IO->dns_recv_event);
+		ev_io_stop(event_base, &IO->dns_send_event);
 	}
 }
 

@@ -160,7 +160,10 @@ typedef struct _stmp_out_msg {
 	const char *mx_port;
 	const char *mx_host;
 
+	DNSQueryParts MxLookup;
+	DNSQueryParts HostLookup;
 	struct hostent *OneMX;
+///	struct hostent *HEnt;
 
 	ParsedURL *Relay;
 	ParsedURL *pCurrRelay;
@@ -177,7 +180,8 @@ void DeleteSmtpOutMsg(void *v)
 	SmtpOutMsg *Msg = v;
 
 	ares_free_data(Msg->AllMX);
-	
+	if (Msg->HostLookup.VParsedDNSReply != NULL)
+		Msg->HostLookup.DNSReplyFree(Msg->HostLookup.VParsedDNSReply);
 	FreeStrBuf(&Msg->msgtext);
 	FreeAsyncIOContents(&Msg->IO);
 	free(Msg);
@@ -335,19 +339,19 @@ eNextState mx_connect_relay_ip(AsyncIO *IO)
 			    1);
 }
 
-void get_one_mx_host_ip_done(void *Ctx, 
-			     int status,
-			     int timeouts,
-			     struct hostent *hostent)
+eNextState get_one_mx_host_ip_done(AsyncIO *IO)
 {
-	AsyncIO *IO = (AsyncIO *) Ctx;
 	SmtpOutMsg *SendMsg = IO->Data;
-	eNextState State = eAbort;
+	struct hostent *hostent;
 
-	if ((status == ARES_SUCCESS) && (hostent != NULL) ) {
+	QueryCbDone(IO);
+
+	hostent = SendMsg->HostLookup.VParsedDNSReply;
+	if ((SendMsg->HostLookup.DNSStatus == ARES_SUCCESS) && 
+	    (hostent != NULL) ) {
 		
 		IO->IP6  = hostent->h_addrtype == AF_INET6;
-		IO->HEnt = hostent;
+		////IO->HEnt = hostent;
 
 		memset(&IO->Addr, 0, sizeof(struct in6_addr));
 		if (IO->IP6) {
@@ -368,15 +372,15 @@ void get_one_mx_host_ip_done(void *Ctx,
 			addr->sin_port = htons(IO->dport);
 			
 		}
-		SendMsg->IO.HEnt = hostent;
+		////SendMsg->IO.HEnt = hostent;
 		SetConnectStatus(IO);
-		State = InitEventIO(IO, SendMsg, 
+		return InitEventIO(IO, SendMsg, 
 				   SMTP_C_ConnTimeout, 
 				   SMTP_C_ReadTimeouts[0],
 				   1);
 	}
-	if ((State == eAbort) && (IO->sock != -1))
-		SMTP_C_Terminate(IO);
+	else
+		return SMTP_C_Terminate(IO);
 }
 
 const unsigned short DefaultMXPort = 25;
@@ -409,11 +413,17 @@ eNextState get_one_mx_host_ip(AsyncIO *IO)
 		      Hostname, 
 		      SendMsg->IO.dport);
 
-	ares_gethostbyname(SendMsg->IO.DNSChannel,
-			   Hostname,   
-			   AF_INET6, /* it falls back to ipv4 in doubt... */
-			   get_one_mx_host_ip_done,
-			   &SendMsg->IO);
+	if (!QueueQuery(ns_t_a, 
+			Hostname, 
+			&SendMsg->IO, 
+			&SendMsg->HostLookup, 
+			get_one_mx_host_ip_done))
+	{
+		SendMsg->MyQEntry->Status = 5;
+		StrBufPrintf(SendMsg->MyQEntry->StatusMessage, 
+			     "No MX hosts found for <%s>", SendMsg->node);
+		return IO->NextState;
+	}
 	return IO->NextState;
 }
 
@@ -428,7 +438,7 @@ eNextState smtp_resolve_mx_done(AsyncIO *IO)
 
 	SendMsg->IO.ErrMsg = SendMsg->MyQEntry->StatusMessage;
 
-	SendMsg->CurrMX = SendMsg->AllMX = IO->VParsedDNSReply;
+	SendMsg->CurrMX = SendMsg->AllMX = IO->DNSQuery->VParsedDNSReply;
 	//// TODO: should we remove the current ares context???
 	get_one_mx_host_ip(IO);
 	return IO->NextState;
@@ -444,6 +454,7 @@ eNextState resolve_mx_records(AsyncIO *IO)
 	if (!QueueQuery(ns_t_mx, 
 			SendMsg->node, 
 			&SendMsg->IO, 
+			&SendMsg->MxLookup, 
 			smtp_resolve_mx_done))
 	{
 		SendMsg->MyQEntry->Status = 5;
