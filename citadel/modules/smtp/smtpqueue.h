@@ -55,6 +55,7 @@ typedef struct queueitem {
 	StrBuf *EnvelopeFrom;
 	StrBuf *BounceTo;
 	ParsedURL *URL;
+	ParsedURL *FallBackHost;
 } OneQueItem;
 typedef void (*QItemHandler)(OneQueItem *Item, StrBuf *Line, const char **Pos);
 
