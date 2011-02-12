@@ -323,6 +323,7 @@ void pop3client_scan(void) {
 	 * Run POP3 aggregation no more frequently than once every n seconds
 	 */
 	if ( (time(NULL) - last_run) < fastest_scan ) {
+		CtdlClearSystemContext();
 		return;
 	}
 
