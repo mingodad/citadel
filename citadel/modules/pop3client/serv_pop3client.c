@@ -333,7 +333,10 @@ void pop3client_scan(void) {
 	 * don't really require extremely fine granularity here, we'll do it
 	 * with a static variable instead.
 	 */
-	if (doing_pop3client) return;
+	if (doing_pop3client) {
+		CtdlClearSystemContext();
+		return;
+	}
 	doing_pop3client = 1;
 
 	CtdlLogPrintf(CTDL_DEBUG, "pop3client started\n");
