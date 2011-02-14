@@ -142,12 +142,15 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/* The features of this stream are... */
 	cprintf("<stream:features>");
 
-#ifdef HAVE_OPENSSL_XXXX_COMMENTED_OUT
-	/* TLS encryption (but only if it isn't already active) */
+	/*
+	 * TLS encryption (but only if it isn't already active)
+	 * 
+	 * NOTE: if TLS doesn't handshake properly for whatever reason,
+	 * comment out these three lines to disable it at the server.
+	 */
 	if (!CC->redirect_ssl) {
 		cprintf("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
 	}
-#endif
 
 	if (!CC->logged_in) {
 		/* If we're not logged in yet, offer SASL as our feature set */
