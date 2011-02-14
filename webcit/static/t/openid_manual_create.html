@@ -1,9 +1,3 @@
-<?=("head")>
-<div id="login_screen">
-<?=("beginbox_1")>
-<?SERV:HUMANNODE><?_(" - powered by <a href='http://www.citadel.org'>Citadel</a>")>
-<?=("beginbox_2")>
-<?HELLO>
 <div class="login_infos">
 	<img src="static/openid-small.gif"><?_("Your OpenID")> <tt><?BSTR("__claimed_id", "X")></tt> <?_("was successfully verified.")><br>
 <??("COND:BSTR", 1, "__username")><?_("However, the user name")>  '<?BSTR("__claimed_id", "X")>' <?_("conflicts with an existing user.")><??("X", 1)>
@@ -20,5 +14,3 @@
         <br>
         </div>
 </form>
-<?=("endbox")>
-<?=("trailing")>

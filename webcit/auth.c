@@ -186,6 +186,7 @@ void ajax_login_newuser(void) {
 
 /* 
  * Try to create an account manually after an OpenID was verified
+ * FIXME make this all sorts of wonderful extra window goodness
  */
 void openid_manual_create(void)
 {
@@ -340,19 +341,28 @@ void finalize_openid_login(void)
 	 */
 	if ( (WCC->logged_in) && (havebstr("attach_existing")) ) {
 		display_openids();
-		FreeStrBuf(&result);
-		FreeStrBuf(&username);
-		FreeStrBuf(&password);
-		FreeStrBuf(&claimed_id);
-		FreeStrBuf(&logged_in_response);
-		return;
 	}
 
 	/* If this operation logged us in, either by connecting with an existing account or by
 	 * auto-creating one using Simple Registration Extension, we're already on our way.
 	 */
-	if (!strcasecmp(ChrPtr(result), "authenticate")) {
+	else if (!strcasecmp(ChrPtr(result), "authenticate")) {
 		become_logged_in(username, password, logged_in_response);
+
+		/* Did we manage to log in?  If so, continue with the normal flow... */
+		if (WC->logged_in) {
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			do_template("authpopup_finished", NULL);
+			end_burst();
+		} else {
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			wc_printf("<html><body>");
+			wc_printf(_("An error has occurred."));
+			wc_printf("</body></html>");
+			end_burst();
+		}
 	}
 
 	/* The specified OpenID was verified but the desired user name was either not specified via SRE
@@ -368,19 +378,14 @@ void finalize_openid_login(void)
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
-		wc_printf("FIXME -- manual create goes here -- FIXME");
-		/* do_template("openid_manual_create", NULL); */
+		do_template("openid_manual_create", NULL);
 		wc_printf("</body></html>");
 		end_burst();
 	}
 
-	/* Did we manage to log in?  If so, continue with the normal flow... */
-	if (WC->logged_in) {
-		begin_burst();
-		output_headers(1, 0, 0, 0, 1, 0);
-		do_template("authpopup_finished", NULL);
-		end_burst();
-	} else {
+	/* Something went VERY wrong if we get to this point */
+	else {
+		syslog(1, "finalize_openid_login() failed to do anything.  This is a code problem.\n");
 		begin_burst();
 		output_headers(1, 0, 0, 0, 1, 0);
 		wc_printf("<html><body>");
