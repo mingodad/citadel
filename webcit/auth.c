@@ -186,51 +186,59 @@ void ajax_login_newuser(void) {
 
 /* 
  * Try to create an account manually after an OpenID was verified
- * FIXME make this all sorts of wonderful extra window goodness
  */
 void openid_manual_create(void)
 {
 	StrBuf *Buf;
 
+	/* Did the user change his mind?  Pack up and go home. */
 	if (havebstr("exit_action")) {
-		do_logout();
+		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		do_template("authpopup_finished", NULL);
+		end_burst();
 		return;
 	}
 
-	if (havebstr("newuser_action")) {
-		Buf = NewStrBuf();
-		serv_printf("OIDC %s", bstr("name"));
-		StrBuf_ServGetln(Buf);
-		if (GetServerStatus(Buf, NULL) == 2) {
-			StrBuf *gpass;
 
-			gpass = NewStrBuf();
-			serv_puts("SETP GENERATE_RANDOM_PASSWORD");
-			StrBuf_ServGetln(gpass);
-			StrBufCutLeft(gpass, 4);
-			become_logged_in(sbstr("name"), gpass, Buf);
-			FreeStrBuf(&gpass);
-		}
-		FreeStrBuf(&Buf);
+	/* Ok, let's give this a try.  Can we create the new user? */
+
+	Buf = NewStrBuf();
+	serv_printf("OIDC %s", bstr("name"));
+	StrBuf_ServGetln(Buf);
+	if (GetServerStatus(Buf, NULL) == 2) {
+		StrBuf *gpass;
+
+		gpass = NewStrBuf();
+		serv_puts("SETP GENERATE_RANDOM_PASSWORD");
+		StrBuf_ServGetln(gpass);
+		StrBufCutLeft(gpass, 4);
+		become_logged_in(sbstr("name"), gpass, Buf);
+		FreeStrBuf(&gpass);
 	}
+	FreeStrBuf(&Buf);
 
+	/* Did we manage to log in?  If so, continue with the normal flow... */
 	if (WC->logged_in) {
-		if (WC->need_regi) {
-			display_reg(1);
-		} else if (WC->need_vali) {
-			validate();
-		} else {
-			do_welcome();
+		if (WC->logged_in) {
+			begin_burst();
+			output_headers(1, 0, 0, 0, 1, 0);
+			do_template("authpopup_finished", NULL);
+			end_burst();
 		}
 	} else {
-		const StrBuf *Buf;
 
+		/* Still no good!  Go back to teh dialog to select a username */
+		const StrBuf *Buf;
 		putbstr("__claimed_id", NewStrBufDup(sbstr("openid_url")));
 		Buf = sbstr("name");
 		if (StrLength(Buf) > 0)
 			putbstr("__username", NewStrBufDup(Buf));
 		begin_burst();
+		output_headers(1, 0, 0, 0, 1, 0);
+		wc_printf("<html><body>");
 		do_template("openid_manual_create", NULL);
+		wc_printf("</body></html>");
 		end_burst();
 	}
 
