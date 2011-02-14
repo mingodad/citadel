@@ -358,10 +358,6 @@ void finalize_openid_login(void)
 	/* The specified OpenID was verified but the desired user name was either not specified via SRE
 	 * or conflicts with an existing user.  Either way the user will need to specify a new name.
 	 */
-
-/*
- * FIXME make this work again!!!!
- *
 	else if (!strcasecmp(ChrPtr(result), "verify_only")) {
 		putbstr("__claimed_id", claimed_id);
 		claimed_id = NULL;
@@ -370,12 +366,13 @@ void finalize_openid_login(void)
 			username = NULL;
 		}
 		begin_burst();
-		do_template("openid_manual_create", NULL);
+		output_headers(1, 0, 0, 0, 1, 0);
+		wc_printf("<html><body>");
+		wc_printf("FIXME -- manual create goes here -- FIXME");
+		/* do_template("openid_manual_create", NULL); */
+		wc_printf("</body></html>");
 		end_burst();
 	}
-*/
-
-
 
 	/* Did we manage to log in?  If so, continue with the normal flow... */
 	if (WC->logged_in) {
