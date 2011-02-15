@@ -112,7 +112,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 	}
 
 	WCC->axlevel = StrBufExtract_int(serv_response, 1, '|');
-	if (WCC->axlevel >= 6) { /* TODO: make this a define, else it might trick us later */
+	if (WCC->axlevel >= 6) {
 		WCC->is_aide = 1;
 	}
 
@@ -227,7 +227,6 @@ void openid_manual_create(void)
 			end_burst();
 		}
 	} else {
-
 		/* Still no good!  Go back to teh dialog to select a username */
 		const StrBuf *Buf;
 		putbstr("__claimed_id", NewStrBufDup(sbstr("openid_url")));
@@ -446,7 +445,7 @@ void do_welcome(void)
 				buf[strlen(buf)-1] = 0;
 				fclose(fp);
 				if (atoi(buf) == serv_info.serv_rev_level) {
-					setup_wizard = 1; /**< already run */
+					setup_wizard = 1;	/* already run */
 				}
 			}
 		}
@@ -486,8 +485,9 @@ void end_webcit_session(void) {
 	/* close() of citadel socket will be done by do_housekeeping() */
 }
 
+
 /* 
- * execute the logout
+ * Log out the session with the Citadel server
  */
 void do_logout(void)
 {
@@ -682,7 +682,6 @@ void validate(void)
 }
 
 
-
 /*
  * Display form for registration.
  *
@@ -738,8 +737,6 @@ void display_reg(int during_login)
 	}
 
 }
-
-
 
 
 /*
@@ -849,6 +846,7 @@ void changepw(void)
 	}
 }
 
+
 int ConditionalHaveAccessCreateRoom(StrBuf *Target, WCTemplputParams *TP)
 {
 	StrBuf *Buf;	
@@ -867,11 +865,13 @@ int ConditionalHaveAccessCreateRoom(StrBuf *Target, WCTemplputParams *TP)
 	return 1;
 }
 
+
 int ConditionalAide(StrBuf *Target, WCTemplputParams *TP)
 {
 	wcsession *WCC = WC;
 	return (WCC != NULL) ? ((WCC->logged_in == 0)||(WC->is_aide == 0)) : 0;
 }
+
 
 int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP) 
 {
@@ -879,7 +879,6 @@ int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP)
 	return (WCC != NULL) ? (WCC->logged_in == 0) : 0;
 
 }
-
 
 
 void _display_reg(void) {
@@ -902,6 +901,7 @@ void Header_HandleAuth(StrBuf *Line, ParsedHttpHdrs *hdr)
 	}
 }
 
+
 void CheckAuthBasic(ParsedHttpHdrs *hdr)
 {
 /*
@@ -918,6 +918,7 @@ void CheckAuthBasic(ParsedHttpHdrs *hdr)
 */
 }
 
+
 void GetAuthBasic(ParsedHttpHdrs *hdr)
 {
 	const char *Pos = NULL;
@@ -928,6 +929,7 @@ void GetAuthBasic(ParsedHttpHdrs *hdr)
 	StrBufExtract_NextToken(hdr->c_username, hdr->HR.plainauth, &Pos, ':');
 	StrBufExtract_NextToken(hdr->c_password, hdr->HR.plainauth, &Pos, ':');
 }
+
 
 void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
@@ -955,6 +957,7 @@ void Header_HandleCookie(StrBuf *Line, ParsedHttpHdrs *hdr)
 	hdr->HR.got_auth = AUTH_COOKIE;
 }
 
+
 void 
 HttpNewModule_AUTH
 (ParsedHttpHdrs *httpreq)
@@ -964,6 +967,8 @@ HttpNewModule_AUTH
 	httpreq->c_roomname = NewStrBuf();
 	httpreq->c_language = NewStrBuf();
 }
+
+
 void 
 HttpDetachModule_AUTH
 (ParsedHttpHdrs *httpreq)
@@ -974,6 +979,7 @@ HttpDetachModule_AUTH
 	FLUSHStrBuf(httpreq->c_language);
 }
 
+
 void 
 HttpDestroyModule_AUTH
 (ParsedHttpHdrs *httpreq)
@@ -983,6 +989,7 @@ HttpDestroyModule_AUTH
 	FreeStrBuf(&httpreq->c_roomname);
 	FreeStrBuf(&httpreq->c_language);
 }
+
 
 void 
 InitModule_AUTH
@@ -995,7 +1002,6 @@ InitModule_AUTH
 	/* no url pattern at all? Show login. */
 	WebcitAddUrlHandler(HKEY(""), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
 
-	/* some of these will be removed soon */
 	WebcitAddUrlHandler(HKEY("do_welcome"), "", 0, do_welcome, ANONYMOUS|COOKIEUNNEEDED);
 	WebcitAddUrlHandler(HKEY("openid_login"), "", 0, do_openid_login, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("finalize_openid_login"), "", 0, finalize_openid_login, ANONYMOUS);
