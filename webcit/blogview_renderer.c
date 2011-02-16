@@ -58,6 +58,7 @@ void blogpost_render_and_destroy(struct blogpost *bp) {
 			wc_printf("#comments\">");
 			wc_printf(_("%d comments"), bp->num_msgs - 1);
 			wc_printf("</a>");
+			wc_printf("<br><br><br>\n");
 		}
 		else if (bp->num_msgs < 2) {
 			wc_printf(_("%d comments"), 0);
@@ -243,14 +244,11 @@ int blogview_Cleanup(void **ViewSpecific)
  */
 void tmplput_blog_permalink(StrBuf *Target, WCTemplputParams *TP) {
 	char perma[SIZ];
-	char encoded_perma[SIZ];
 	
 	strcpy(perma, "/readfwd?go=");
 	urlesc(&perma[strlen(perma)], sizeof(perma)-strlen(perma), ChrPtr(WC->CurRoom.name));
 	snprintf(&perma[strlen(perma)], sizeof(perma)-strlen(perma), "?p=%d", WC->bptlid);
-
-	CtdlEncodeBase64(encoded_perma, perma, strlen(perma), 0);
-	StrBufAppendPrintf(Target, "/B64%s", encoded_perma);
+	StrBufAppendPrintf(Target, "%s", perma);
 }
 
 
