@@ -144,7 +144,7 @@ void xmpp_stream_start(void *data, const char *supplied_el, const char **attr)
 	/* The features of this stream are... */
 	cprintf("<stream:features>");
 
-#ifdef HAVE_OPENSSL_XXXX_COMMENTED_OUT
+#ifdef HAVE_OPENSSL
 	/* TLS encryption (but only if it isn't already active) */
 	if (!CC->redirect_ssl) {
 		cprintf("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'></starttls>");
