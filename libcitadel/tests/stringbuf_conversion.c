@@ -30,6 +30,7 @@
 
 int fromstdin = 0;
 int parse_email = 0;
+int parse_html = 0;
 static void TestRevalidateStrBuf(StrBuf *Buf)
 {
 	CU_ASSERT(strlen(ChrPtr(Buf)) == StrLength(Buf));
@@ -202,6 +203,29 @@ static void TestEncodeEmailSTDIN(void)
 }
 
 
+static void TestHTML2ASCII_line(void)
+{
+	int fdin = 0;// STDIN
+	const char *Err;
+	StrBuf *Source;
+	char *Target;
+
+	Source = NewStrBuf();
+
+	while (fdin == 0) {
+		
+		StrBufTCP_read_line(Source, &fdin, 0, &Err);
+		printf("the source:>%s<\n", ChrPtr(Source));
+		Target = html_to_ascii(ChrPtr(Source), StrLength(Source), 80, 0);
+		
+		printf("the target:>%s<\n", Target);
+		FlushStrBuf(Source);
+		free(Target);
+	}
+
+	FreeStrBuf(&Source);
+}
+
 
 static void AddStrBufSimlpeTests(void)
 {
@@ -209,7 +233,17 @@ static void AddStrBufSimlpeTests(void)
 	CU_pTest pTest = NULL;
 
 	pGroup = CU_add_suite("TestStringBufConversions", NULL, NULL);
-	if (!parse_email) {
+	if (parse_email) {
+		if (!fromstdin) {
+			pTest = CU_add_test(pGroup, "TestParseEmailSTDIN", TestEncodeEmail);
+		}
+		else
+			pTest = CU_add_test(pGroup, "TestParseEmailSTDIN", TestEncodeEmailSTDIN);
+	}
+	else if (parse_html) {
+			pTest = CU_add_test(pGroup, "TestParseHTMLSTDIN", TestHTML2ASCII_line);
+	}
+	else {
 		if (!fromstdin) {
 			pTest = CU_add_test(pGroup, "testRFC822Decode", TestRFC822Decode);
 			pTest = CU_add_test(pGroup, "testRFC822Decode1", TestRFC822Decode);
@@ -219,13 +253,6 @@ static void AddStrBufSimlpeTests(void)
 		else
 			pTest = CU_add_test(pGroup, "testRFC822DecodeSTDIN", TestRFC822DecodeStdin);
 	}
-	else {
-		if (!fromstdin) {
-			pTest = CU_add_test(pGroup, "TestParseEmailSTDIN", TestEncodeEmail);
-		}
-		else
-			pTest = CU_add_test(pGroup, "TestParseEmailSTDIN", TestEncodeEmailSTDIN);
-	}
 
 }
 
@@ -234,8 +261,11 @@ int main(int argc, char* argv[])
 {
 	int a;
 
-	while ((a = getopt(argc, argv, "@i")) != EOF)
+	while ((a = getopt(argc, argv, "@ih")) != EOF)
 		switch (a) {
+		case 'h':
+			parse_html = 1;
+			break;
 		case '@':
 			parse_email = 1;
 			break;
