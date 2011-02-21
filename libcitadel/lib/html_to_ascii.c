@@ -470,8 +470,12 @@ char *html_to_ascii(const char *inputmsg, int msglen, int screenwidth, int do_ci
 			}
 
 			/* two-digit decimal equivalents */
-			else if ((!strncmp(&outbuf[i], "&#", 2))
-			      && (outbuf[i+4] == ';') ) {
+			else if (outbuf[i] == '&'       &&
+				 outbuf[i + 1] == '#'   &&
+				 isdigit(outbuf[i + 2]) && 
+				 isdigit(outbuf[i + 3]) &&
+				 (outbuf[i+4] == ';') ) 
+			{
 				scanch = 0;
 				sscanf(&outbuf[i+2], "%02d", &scanch);
 				outbuf[i] = scanch;
@@ -479,10 +483,30 @@ char *html_to_ascii(const char *inputmsg, int msglen, int screenwidth, int do_ci
 			}
 
 			/* three-digit decimal equivalents */
-			else if ((!strncmp(&outbuf[i], "&#", 2))
-			      && (outbuf[i+5] == ';') ) {
+			else if (outbuf[i] == '&'       &&
+				 outbuf[i + 1] == '#'   &&
+				 isdigit(outbuf[i + 2]) && 
+				 isdigit(outbuf[i + 3]) && 
+				 isdigit(outbuf[i + 4]) &&
+				 (outbuf[i + 5] == ';') ) 
+			{
 				scanch = 0;
 				sscanf(&outbuf[i+2], "%03d", &scanch);
+				outbuf[i] = scanch;
+				strcpy(&outbuf[i+1], &outbuf[i+6]);
+			}
+
+			/* four-digit decimal equivalents */
+			else if (outbuf[i] == '&'       &&
+				 outbuf[i + 1] == '#'   &&
+				 isdigit(outbuf[i + 2]) && 
+				 isdigit(outbuf[i + 3]) && 
+				 isdigit(outbuf[i + 4]) &&
+				 isdigit(outbuf[i + 5]) &&
+				 (outbuf[i + 6] == ';') ) 
+			{
+				scanch = 0;
+				sscanf(&outbuf[i+2], "%04d", &scanch);
 				outbuf[i] = scanch;
 				strcpy(&outbuf[i+1], &outbuf[i+6]);
 			}
