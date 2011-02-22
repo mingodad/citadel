@@ -146,7 +146,11 @@ void migr_export_rooms_backend(struct ctdlroom *buf, void *data) {
 	cprintf("<QRhighest>%ld</QRhighest>\n", buf->QRhighest);
 	cprintf("<QRgen>%ld</QRgen>\n", (long)buf->QRgen);
 	cprintf("<QRflags>%u</QRflags>\n", buf->QRflags);
-	client_write("<QRdirname>", 11);	xml_strout(buf->QRdirname);	client_write("</QRdirname>\n", 13);
+	if (buf->QRflags & QR_DIRECTORY) {
+		client_write("<QRdirname>", 11);
+		xml_strout(buf->QRdirname);
+		client_write("</QRdirname>\n", 13);
+	}
 	cprintf("<QRinfo>%ld</QRinfo>\n", buf->QRinfo);
 	cprintf("<QRfloor>%d</QRfloor>\n", buf->QRfloor);
 	cprintf("<QRmtime>%ld</QRmtime>\n", (long)buf->QRmtime);
@@ -212,6 +216,23 @@ void migr_export_floors(void) {
 }
 
 
+/*
+ * Return nonzero if the supplied string contains only characters which are valid in a sequence set.
+ */
+int is_sequence_set(char *s) {
+	if (!s) return(0);
+
+	char *c = s;
+	char ch;
+	while (ch = *c++, ch) {
+		if (!strchr("0123456789*,:", ch)) {
+			return(0);
+		}
+	}
+	return(1);
+}
+
+
 
 /* 
  *  Traverse the visits file...
@@ -235,7 +256,7 @@ void migr_export_visits(void) {
 		cprintf("<v_usernum>%ld</v_usernum>\n", vbuf.v_usernum);
 
 		client_write("<v_seen>", 8);
-		if (!IsEmptyStr(vbuf.v_seen)) {
+		if ( (!IsEmptyStr(vbuf.v_seen)) && (is_sequence_set(vbuf.v_seen)) ) {
 			xml_strout(vbuf.v_seen);
 		}
 		else {
@@ -243,7 +264,12 @@ void migr_export_visits(void) {
 		}
 		client_write("</v_seen>", 9);
 
-		client_write("<v_answered>", 12); xml_strout(vbuf.v_answered); client_write("</v_answered>\n", 14);
+		if ( (!IsEmptyStr(vbuf.v_answered)) && (is_sequence_set(vbuf.v_answered)) ) {
+			client_write("<v_answered>", 12);
+			xml_strout(vbuf.v_answered);
+			client_write("</v_answered>\n", 14);
+		}
+
 		cprintf("<v_flags>%u</v_flags>\n", vbuf.v_flags);
 		cprintf("<v_view>%d</v_view>\n", vbuf.v_view);
 		client_write("</visit>\n", 9);
