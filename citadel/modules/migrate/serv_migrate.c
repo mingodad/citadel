@@ -180,7 +180,7 @@ void migr_export_rooms(void) {
 	 * this will be handled by exporting the reference count, not by
 	 * exporting the message multiple times.)
 	 */
-	snprintf(cmd, sizeof cmd, "sort <%s >%s", migr_tempfilename1, migr_tempfilename2);
+	snprintf(cmd, sizeof cmd, "sort -n <%s >%s", migr_tempfilename1, migr_tempfilename2);
 	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
 	snprintf(cmd, sizeof cmd, "uniq <%s >%s", migr_tempfilename2, migr_tempfilename1);
 	if (system(cmd) != 0) syslog(LOG_ALERT, "Error %d\n", errno);
