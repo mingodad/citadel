@@ -86,14 +86,20 @@ void xml_strout(char *str) {
 	char *c = str;
 
 	while (*c != 0) {
-		if (*c == '&') {
-			client_write("&amp;", 5);
+		if (*c == '\"') {
+			client_write("&quot;", 4);
+		}
+		else if (*c == '\'') {
+			client_write("&apos;", 4);
 		}
 		else if (*c == '<') {
 			client_write("&lt;", 4);
 		}
 		else if (*c == '>') {
 			client_write("&gt;", 4);
+		}
+		else if (*c == '&') {
+			client_write("&amp;", 5);
 		}
 		else {
 			client_write(c, 1);
