@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-28 13:43-0500\n"
+"POT-Creation-Date: 2011-02-23 23:06-0500\n"
 "PO-Revision-Date: 2010-11-13 00:06+0000\n"
 "Last-Translator: Gabriele Tassoni <gabriele.tassoni@email.it>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
@@ -312,7 +312,7 @@ msgid "Save changes"
 msgstr "Cambia i cambiamenti"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
-#: ../../sysmsgs.c:50 ../../auth.c:793 ../../event.c:768 ../../graphics.c:71
+#: ../../sysmsgs.c:50 ../../auth.c:788 ../../event.c:768 ../../graphics.c:71
 #: ../../messages.c:1533 ../../paging.c:66
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
@@ -326,7 +326,8 @@ msgstr ""
 msgid "Aborting."
 msgstr "Abortendo."
 
-#: ../../vcard_edit.c:1294 ../../vcard_edit.c:1340
+#: ../../vcard_edit.c:1294 ../../vcard_edit.c:1340 ../../auth.c:369
+#: ../../auth.c:399
 msgid "An error has occurred."
 msgstr "E' avvenuto un errore."
 
@@ -711,7 +712,7 @@ msgstr "Cambia il nome dell'host"
 #: ../../who.c:187 ../../static/t/get_logged_in.html:45
 #: ../../static/t/get_logged_in.html:60
 #: ../../static/t/aide/edituser/detailview.html:20
-#: ../../static/t/openid_manual_create.html:15
+#: ../../static/t/openid_manual_create.html:9
 msgid "User name:"
 msgstr "Nome utente:"
 
@@ -781,7 +782,7 @@ msgid "Messages"
 msgstr "Messaggi"
 
 #: ../../summary.c:208 ../../static/t/iconbar/edit.html:60
-#: ../../static/t/iconbar.html:38
+#: ../../static/t/iconbar.html:39
 msgid "Tasks"
 msgstr "Attività"
 
@@ -816,14 +817,14 @@ msgid "An error occurred while retrieving this file: %s\n"
 msgstr "E' avvenuto un errore durante il recupero di questa parte: %s\n"
 
 #. an erased user
-#: ../../auth.c:38 ../../static/t/aide/siteconfig/tab_access.html:40
+#: ../../auth.c:36 ../../static/t/aide/siteconfig/tab_access.html:40
 #: ../../static/t/aide/siteconfig/tab_access.html:51
 #: ../../static/t/aide/edituser/detailview.html:43
 msgid "Deleted"
 msgstr "Cancellato"
 
 #. a new user
-#: ../../auth.c:41 ../../static/t/get_logged_in.html:67
+#: ../../auth.c:39 ../../static/t/get_logged_in.html:67
 #: ../../static/t/aide/siteconfig/tab_access.html:41
 #: ../../static/t/aide/siteconfig/tab_access.html:52
 #: ../../static/t/aide/edituser/detailview.html:44
@@ -831,46 +832,46 @@ msgid "New User"
 msgstr "Nuovo Utente"
 
 #. a trouble maker
-#: ../../auth.c:44 ../../static/t/aide/siteconfig/tab_access.html:42
+#: ../../auth.c:42 ../../static/t/aide/siteconfig/tab_access.html:42
 #: ../../static/t/aide/siteconfig/tab_access.html:53
 #: ../../static/t/aide/edituser/detailview.html:45
 msgid "Problem User"
 msgstr "Utente con Problemi"
 
 #. user with normal privileges
-#: ../../auth.c:47 ../../static/t/aide/siteconfig/tab_access.html:43
+#: ../../auth.c:45 ../../static/t/aide/siteconfig/tab_access.html:43
 #: ../../static/t/aide/siteconfig/tab_access.html:54
 #: ../../static/t/aide/edituser/detailview.html:46
 msgid "Local User"
 msgstr "Utente Locale"
 
 #. a user that may access network resources
-#: ../../auth.c:50 ../../static/t/aide/siteconfig/tab_access.html:44
+#: ../../auth.c:48 ../../static/t/aide/siteconfig/tab_access.html:44
 #: ../../static/t/aide/siteconfig/tab_access.html:55
 #: ../../static/t/aide/edituser/detailview.html:47
 msgid "Network User"
 msgstr "Utente di Rete"
 
 #. a moderator
-#: ../../auth.c:53 ../../static/t/aide/siteconfig/tab_access.html:45
+#: ../../auth.c:51 ../../static/t/aide/siteconfig/tab_access.html:45
 #: ../../static/t/aide/siteconfig/tab_access.html:56
 #: ../../static/t/aide/edituser/detailview.html:48
 msgid "Preferred User"
 msgstr "Utente Preferito"
 
 #. chief
-#: ../../auth.c:56 ../../static/t/aide/siteconfig/tab_access.html:46
+#: ../../auth.c:54 ../../static/t/aide/siteconfig/tab_access.html:46
 #: ../../static/t/aide/siteconfig/tab_access.html:57
 #: ../../static/t/aide/edituser/detailview.html:49
 msgid "Aide"
 msgstr "Amministratore"
 
-#: ../../auth.c:519 ../../static/t/menu/basic_commands.html:19
-#: ../../static/t/iconbar.html:79 ../../static/t/confirmlogoff.html:4
+#: ../../auth.c:518 ../../static/t/menu/basic_commands.html:19
+#: ../../static/t/iconbar.html:80 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
 msgstr "Esci"
 
-#: ../../auth.c:532 ../../webcit.c:708
+#: ../../auth.c:531 ../../webcit.c:730
 msgid ""
 "This program was unable to connect or stay connected to the Citadel server.  "
 "Please report this problem to your system administrator."
@@ -878,72 +879,72 @@ msgstr ""
 "Questo programma non riesce a collegarsi o a rimanere collegato al server "
 "Citadel. Per favore, segnala questo errore all'amministratore di sistema."
 
-#: ../../auth.c:538 ../../webcit.c:715
+#: ../../auth.c:537 ../../webcit.c:737
 msgid "Read More..."
 msgstr "Leggi Altro..."
 
-#: ../../auth.c:543
+#: ../../auth.c:542
 msgid "Log in again"
 msgstr "Esegui nuovamente il Log in"
 
-#: ../../auth.c:564 ../../static/t/aide/usermanagement.html:3
+#: ../../auth.c:563 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
 msgstr "Valida il nuovo utente"
 
-#: ../../auth.c:587
+#: ../../auth.c:586
 msgid "No users require validation at this time."
 msgstr "Non si richiede l'autenticazione utente in questo momento"
 
-#: ../../auth.c:634
+#: ../../auth.c:633
 msgid "very weak"
 msgstr "molto debole"
 
-#: ../../auth.c:637
+#: ../../auth.c:636
 msgid "weak"
 msgstr "debole"
 
-#: ../../auth.c:640
+#: ../../auth.c:639
 msgid "ok"
 msgstr "ok"
 
-#: ../../auth.c:644
+#: ../../auth.c:643
 msgid "strong"
 msgstr "forte"
 
-#: ../../auth.c:662
+#: ../../auth.c:661
 #, c-format
 msgid "Current access level: %d (%s)\n"
 msgstr "Attuale livello di accesso: %d (%s)\n"
 
-#: ../../auth.c:670
+#: ../../auth.c:669
 msgid "Select access level for this user:"
 msgstr "Seleziona il livello di accesso per l'utente corrente:"
 
-#: ../../auth.c:757 ../../static/t/menu/your_info.html:4
+#: ../../auth.c:752 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
 msgstr "Cambia la tua password"
 
-#: ../../auth.c:781
+#: ../../auth.c:776
 msgid "Enter new password:"
 msgstr "Inserisci la nuova password:"
 
-#: ../../auth.c:785
+#: ../../auth.c:780
 msgid "Enter it again to confirm:"
 msgstr "Inseriscila nuovamente per conferma:"
 
-#: ../../auth.c:791
+#: ../../auth.c:786
 msgid "Change password"
 msgstr "Cambia la password"
 
-#: ../../auth.c:812
+#: ../../auth.c:807
 msgid "Cancelled.  Password was not changed."
 msgstr "Aziona cancellata. La password non &egrave; stata cambiata."
 
-#: ../../auth.c:823
+#: ../../auth.c:818
 msgid "They don't match.  Password was not changed."
 msgstr "Le password non coincidono. Cambiamento non effettuato."
 
-#: ../../auth.c:831
+#: ../../auth.c:826
 msgid "Blank passwords are not allowed."
 msgstr "Le password vuote non sono ammesse."
 
@@ -1020,7 +1021,7 @@ msgid "Add or edit an event"
 msgstr "Aggiungi o modifica un evento"
 
 #: ../../event.c:207 ../../static/t/iconbar/edit.html:30
-#: ../../static/t/iconbar.html:12
+#: ../../static/t/iconbar.html:13
 msgid "Summary"
 msgstr "Sommario"
 
@@ -1029,7 +1030,7 @@ msgid "Location"
 msgstr "Luogo"
 
 #: ../../event.c:328 ../../static/t/iconbar/edit.html:48
-#: ../../static/t/iconbar.html:33
+#: ../../static/t/iconbar.html:34
 msgid "Notes"
 msgstr "Note"
 
@@ -1058,7 +1059,7 @@ msgid "(One per line)"
 msgstr "(Uno per linea)"
 
 #: ../../event.c:451 ../../static/t/edit_message.html:143
-#: ../../static/t/iconbar/edit.html:42 ../../static/t/iconbar.html:28
+#: ../../static/t/iconbar/edit.html:42 ../../static/t/iconbar.html:29
 msgid "Contacts"
 msgstr "Contatti"
 
@@ -1250,7 +1251,7 @@ msgid "Address Book"
 msgstr "Contatti"
 
 #: ../../roomviews.c:53 ../../static/t/iconbar/edit.html:54
-#: ../../static/t/iconbar.html:23
+#: ../../static/t/iconbar.html:24
 msgid "Calendar"
 msgstr "Calendario"
 
@@ -1421,8 +1422,8 @@ msgstr "%s &egrave; stato cancellato."
 msgid "added."
 msgstr "aggiunto."
 
-#: ../../blogview_renderer.c:59 ../../blogview_renderer.c:63
-#: ../../blogview_renderer.c:67
+#: ../../blogview_renderer.c:59 ../../blogview_renderer.c:64
+#: ../../blogview_renderer.c:68
 #, fuzzy, c-format
 msgid "%d comments"
 msgstr "Invia il comando"
@@ -2094,7 +2095,7 @@ msgstr "dai più vecchi ai più recenti"
 msgid "newest to oldest"
 msgstr "dai più recenti ai più vecchi"
 
-#: ../../static/t/edit_message.html:9 ../../static/t/iconbar.html:53
+#: ../../static/t/edit_message.html:9 ../../static/t/iconbar.html:54
 msgid "Loading"
 msgstr "Caricamento"
 
@@ -2259,7 +2260,7 @@ msgstr "Un collegamento al tuo calendario personale"
 msgid "A shortcut to your personal task list"
 msgstr "Un collegamento alla tua lista di operazioni da effettuare"
 
-#: ../../static/t/iconbar/edit.html:66 ../../static/t/iconbar.html:44
+#: ../../static/t/iconbar/edit.html:66 ../../static/t/iconbar.html:45
 msgid "Rooms"
 msgstr "Stanze"
 
@@ -2286,7 +2287,7 @@ msgstr ""
 "Cliccando su questa icona, mostra tutti gli utenti collegati in questo "
 "momento."
 
-#: ../../static/t/iconbar/edit.html:79 ../../static/t/iconbar.html:59
+#: ../../static/t/iconbar/edit.html:79 ../../static/t/iconbar.html:60
 msgid "Chat"
 msgstr "Chat"
 
@@ -2345,7 +2346,7 @@ msgid "Password:"
 msgstr "Password:"
 
 #: ../../static/t/get_logged_in.html:52 ../../static/t/get_logged_in.html:76
-#: ../../static/t/iconbar.html:87
+#: ../../static/t/iconbar.html:88
 msgid "Log in"
 msgstr "Ultimo Login"
 
@@ -2366,36 +2367,40 @@ msgstr ""
 msgid "OpenID URL:"
 msgstr "OpenID URL:"
 
-#: ../../static/t/iconbar.html:18
+#: ../../static/t/iconbar.html:6
+msgid "Language:"
+msgstr "Lingua:"
+
+#: ../../static/t/iconbar.html:19
 msgid "Mail"
 msgstr "Posta"
 
-#: ../../static/t/iconbar.html:49
+#: ../../static/t/iconbar.html:50
 msgid "Online users"
 msgstr "Utenti in rete"
 
-#: ../../static/t/iconbar.html:65
+#: ../../static/t/iconbar.html:66
 msgid "Advanced"
 msgstr "Avanzato"
 
-#: ../../static/t/iconbar.html:72 ../../static/t/room/edit/editroom.html:4
+#: ../../static/t/iconbar.html:73 ../../static/t/room/edit/editroom.html:4
 #: ../../static/t/room/edit.html:5
 msgid "Administration"
 msgstr "Amministrazione"
 
-#: ../../static/t/iconbar.html:82
+#: ../../static/t/iconbar.html:83
 msgid "customize this menu"
 msgstr "modifica questo menu"
 
-#: ../../static/t/iconbar.html:91
+#: ../../static/t/iconbar.html:92
 msgid "switch to room list"
 msgstr "Visualizza le cartelle"
 
-#: ../../static/t/iconbar.html:92
+#: ../../static/t/iconbar.html:93
 msgid "switch to menu"
 msgstr "Visualizza il menu"
 
-#: ../../static/t/iconbar.html:93
+#: ../../static/t/iconbar.html:94
 msgid "My folders"
 msgstr "Le mie cartelle"
 
@@ -3756,27 +3761,23 @@ msgstr "potenziato da"
 msgid "Preferences and settings"
 msgstr "Preferenze e impostazioni"
 
-#: ../../static/t/openid_manual_create.html:4
-msgid " - powered by <a href='http://www.citadel.org'>Citadel</a>"
-msgstr ""
-
-#: ../../static/t/openid_manual_create.html:8
+#: ../../static/t/openid_manual_create.html:2
 msgid "Your OpenID"
 msgstr "Il tuo OpenID"
 
-#: ../../static/t/openid_manual_create.html:8
+#: ../../static/t/openid_manual_create.html:2
 msgid "was successfully verified."
 msgstr "é stato verificato con successo."
 
-#: ../../static/t/openid_manual_create.html:9
+#: ../../static/t/openid_manual_create.html:3
 msgid "However, the user name"
 msgstr ""
 
-#: ../../static/t/openid_manual_create.html:9
+#: ../../static/t/openid_manual_create.html:3
 msgid "conflicts with an existing user."
 msgstr "conflitto con un utente esistente"
 
-#: ../../static/t/openid_manual_create.html:11
+#: ../../static/t/openid_manual_create.html:5
 msgid "Please specify the user name you would like to use."
 msgstr ""
 
@@ -3860,9 +3861,6 @@ msgstr "Comandi di stanza avanzati"
 
 #~ msgid "Your password was not accepted."
 #~ msgstr "La tua password non &egrave; stata accettata."
-
-#~ msgid "Language:"
-#~ msgstr "Lingua:"
 
 #~ msgid "See the"
 #~ msgstr "Guarda il"
