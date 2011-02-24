@@ -217,7 +217,7 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 		return;
 	}
 
-	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\">\n");
+	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\" onChange=\"window.location.reload();\">\n");
 
 	for (i=0; i < nLocalesLoaded; ++i) {
 #ifndef HAVE_USELOCALE
