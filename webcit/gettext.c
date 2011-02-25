@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996-2010 by the citadel.org team
+ * Copyright (c) 1996-2011 by the citadel.org team
  *
  * This program is open source software.  You can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -217,7 +217,7 @@ void tmplput_offer_languages(StrBuf *Target, WCTemplputParams *TP)
 		return;
 	}
 
-	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\" onChange=\"window.location.reload();\">\n");
+	wc_printf("<select name=\"language\" id=\"lname\" size=\"1\" onChange=\"switch_to_lang($('lname').value);\">\n");
 
 	for (i=0; i < nLocalesLoaded; ++i) {
 #ifndef HAVE_USELOCALE
@@ -447,6 +447,7 @@ void Header_HandleAcceptLanguage(StrBuf *Line, ParsedHttpHdrs *hdr)
 {
 	hdr->HR.browser_language = Line;
 }
+
 
 void 
 InitModule_GETTEXT
