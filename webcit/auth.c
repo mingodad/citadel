@@ -881,6 +881,15 @@ int ConditionalIsLoggedIn(StrBuf *Target, WCTemplputParams *TP)
 }
 
 
+/* 
+ * toggle the session over to a different language
+ */
+void switch_language(void) {
+	set_selected_language(bstr("lang"));
+	pop_destination();
+}
+
+
 void _display_reg(void) {
 	display_reg(0);
 }
@@ -1015,6 +1024,7 @@ InitModule_AUTH
 	WebcitAddUrlHandler(HKEY("do_logout"), "", 0, do_logout, ANONYMOUS|COOKIEUNNEEDED|FORCE_SESSIONCLOSE);
 	WebcitAddUrlHandler(HKEY("ajax_login_username_password"), "", 0, ajax_login_username_password, AJAX|ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("ajax_login_newuser"), "", 0, ajax_login_newuser, AJAX|ANONYMOUS);
+	WebcitAddUrlHandler(HKEY("switch_language"), "", 0, switch_language, ANONYMOUS);
 	RegisterConditional(HKEY("COND:AIDE"), 2, ConditionalAide, CTX_NONE);
 	RegisterConditional(HKEY("COND:LOGGEDIN"), 2, ConditionalIsLoggedIn, CTX_NONE);
 	RegisterConditional(HKEY("COND:MAY_CREATE_ROOM"), 2,  ConditionalHaveAccessCreateRoom, CTX_NONE);
