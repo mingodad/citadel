@@ -876,3 +876,10 @@ function ConfirmLogoff() {
                 }
         );
 }
+
+
+function switch_to_lang(new_lang) {
+        p = 'push?url=' + encodeURI(window.location);
+        new Ajax.Request(p, { method: 'get' } );
+	window.location = 'switch_language?lang=' + new_lang ;
+}
