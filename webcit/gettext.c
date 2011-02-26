@@ -33,6 +33,7 @@ const char *AvailLang[] = {
 	"en_GB",
 	"es_ES",
 	"et_EE",
+	"fi_FI",
 	"fr_FR",
 	"hu_HU",
 	"it_IT",
