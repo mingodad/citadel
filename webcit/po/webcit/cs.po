@@ -8,35 +8,35 @@ msgstr ""
 "Project-Id-Version: citadel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-23 23:06-0500\n"
-"PO-Revision-Date: 2010-12-09 16:05+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-01-25 22:21+0000\n"
+"Last-Translator: Citadel <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-10 04:45+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-02-25 04:33+0000\n"
+"X-Generator: Launchpad (build 12351)\n"
 
 #: ../../roomlist.c:46 ../../roomlist.c:391 ../../siteconfig.c:39
 #: ../../siteconfig.c:58
 msgid "Higher access is required to access this function."
-msgstr ""
+msgstr "Pro přístup k této funkci jsou zapotřebí vyšší práva."
 
 #: ../../roomlist.c:101
 msgid "My Folders"
-msgstr ""
+msgstr "Mé složky"
 
 #: ../../calendar_tools.c:101
 msgid "Hour: "
-msgstr ""
+msgstr "Hodina: "
 
 #: ../../calendar_tools.c:121
 msgid "Minute: "
-msgstr ""
+msgstr "Minuta: "
 
 #: ../../calendar_tools.c:192
 msgid "(status unknown)"
-msgstr ""
+msgstr "(neznámý stav)"
 
 #: ../../calendar_tools.c:208
 msgid "(needs action)"
@@ -44,11 +44,11 @@ msgstr ""
 
 #: ../../calendar_tools.c:211
 msgid "(accepted)"
-msgstr ""
+msgstr "(přijato)"
 
 #: ../../calendar_tools.c:214
 msgid "(declined)"
-msgstr ""
+msgstr "(zamítnuto)"
 
 #: ../../calendar_tools.c:217
 msgid "(tenative)"
@@ -60,139 +60,139 @@ msgstr ""
 
 #: ../../calendar_tools.c:223
 msgid "(completed)"
-msgstr ""
+msgstr "(dokončeno)"
 
 #: ../../calendar_tools.c:226
 msgid "(in process)"
-msgstr ""
+msgstr "(zpracovává se)"
 
 #: ../../calendar_tools.c:229
 msgid "(none)"
-msgstr ""
+msgstr "(nic)"
 
 #: ../../html2html.c:136
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr ""
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:154
 msgid "availability unknown"
 msgstr ""
 
 #: ../../availability.c:175
 msgid "free"
-msgstr ""
+msgstr "volný"
 
 #: ../../availability.c:185
 msgid "BUSY"
-msgstr ""
+msgstr "ZAMĚSTNANÝ"
 
 #: ../../calendar_view.c:264 ../../calendar_view.c:464
 #: ../../calendar_view.c:933 ../../event.c:858
 msgid "Untitled Event"
-msgstr ""
+msgstr "Nepojmenovaná akce"
 
 #: ../../calendar_view.c:289 ../../calendar_view.c:954
 #: ../../calendar_view.c:998 ../../calendar_view.c:1079 ../../sieve.c:993
 msgid "From"
-msgstr ""
+msgstr "Z"
 
 #: ../../calendar_view.c:290 ../../calendar_view.c:955
 #: ../../calendar_view.c:999 ../../calendar_view.c:1080 ../../tasks.c:245
 #: ../../calendar.c:103
 msgid "Summary:"
-msgstr ""
+msgstr "Shrnutí:"
 
 #: ../../calendar_view.c:298 ../../calendar_view.c:960
 #: ../../calendar_view.c:1004 ../../calendar_view.c:1085 ../../calendar.c:112
 msgid "Location:"
-msgstr ""
+msgstr "Umístění:"
 
 #: ../../calendar_view.c:343 ../../calendar_view.c:966 ../../calendar.c:137
 msgid "Date:"
-msgstr ""
+msgstr "Datum:"
 
 #: ../../calendar_view.c:347 ../../calendar_view.c:970
 msgid "Starting date:"
-msgstr ""
+msgstr "Počáteční datum:"
 
 #: ../../calendar_view.c:353 ../../calendar_view.c:972
 msgid "Ending date:"
-msgstr ""
+msgstr "Konečné datum:"
 
 #: ../../calendar_view.c:361 ../../calendar_view.c:1091
 msgid "Date/time:"
-msgstr ""
+msgstr "Datum/čas:"
 
 #: ../../calendar_view.c:365 ../../calendar_view.c:1009
 #: ../../calendar_view.c:1095 ../../calendar.c:144
 msgid "Starting date/time:"
-msgstr ""
+msgstr "Počáteční datum/čas:"
 
 #: ../../calendar_view.c:368 ../../calendar_view.c:1011
 #: ../../calendar_view.c:1097 ../../calendar.c:155
 msgid "Ending date/time:"
-msgstr ""
+msgstr "Konečný datum/čas:"
 
 #: ../../calendar_view.c:378 ../../calendar_view.c:976
 #: ../../calendar_view.c:1014 ../../calendar_view.c:1101
 #: ../../static/t/room/edit/tab_share.html:32
 msgid "Notes:"
-msgstr ""
+msgstr "Poznámky:"
 
 #: ../../calendar_view.c:581 ../../calendar_view.c:717
 msgid "previous"
-msgstr ""
+msgstr "předchozí"
 
 #: ../../calendar_view.c:593 ../../calendar_view.c:729
 #: ../../calendar_view.c:1316
 msgid "next"
-msgstr ""
+msgstr "další"
 
 #: ../../calendar_view.c:752
 msgid "Week"
-msgstr ""
+msgstr "Týden"
 
 #: ../../calendar_view.c:754
 msgid "Hours"
-msgstr ""
+msgstr "Hodiny"
 
 #: ../../calendar_view.c:755 ../../sieve.c:995
 #: ../../static/t/summary_header.html:8 ../../static/t/msg_listview.html:10
 msgid "Subject"
-msgstr ""
+msgstr "Předmět"
 
 #: ../../calendar_view.c:756 ../../event.c:229
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #: ../../calendar_view.c:757 ../../event.c:278
 msgid "End"
-msgstr ""
+msgstr "Konec"
 
 #: ../../calendar_view.c:953 ../../calendar_view.c:982 ../../event.c:272
 msgid "All day event"
-msgstr ""
+msgstr "Celodenní událost"
 
 #: ../../calendar_view.c:997 ../../calendar_view.c:1020
 msgid "Ongoing event"
-msgstr ""
+msgstr "Probíhající akce"
 
 #: ../../calendar_view.c:1387 ../../tasks.c:426
 msgid "Untitled Task"
-msgstr ""
+msgstr "Nepojmenovaná úloha"
 
 #: ../../vcard_edit.c:158 ../../vcard_edit.c:161
 msgid "(no name)"
-msgstr ""
+msgstr "(beze jména)"
 
 #: ../../vcard_edit.c:426
 msgid " (work)"
-msgstr ""
+msgstr " (práce)"
 
 #: ../../vcard_edit.c:428
 msgid " (home)"
@@ -200,122 +200,122 @@ msgstr ""
 
 #: ../../vcard_edit.c:430
 msgid " (cell)"
-msgstr ""
+msgstr " (buňka)"
 
 #: ../../vcard_edit.c:441 ../../vcard_edit.c:1108
 msgid "Address:"
-msgstr ""
+msgstr "Adresa:"
 
 #: ../../vcard_edit.c:509
 msgid "Telephone:"
-msgstr ""
+msgstr "Telefon:"
 
 #: ../../vcard_edit.c:514
 msgid "E-mail:"
-msgstr ""
+msgstr "E-mail:"
 
 #: ../../vcard_edit.c:767
 msgid "This address book is empty."
-msgstr ""
+msgstr "Tato kniha adres je prázdná."
 
 #: ../../vcard_edit.c:781
 msgid "An internal error has occurred."
-msgstr ""
+msgstr "Objevila se vnitřní chyba."
 
 #: ../../vcard_edit.c:932
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
 
 #: ../../vcard_edit.c:1036
 msgid "Edit contact information"
-msgstr ""
+msgstr "Upravit kontaktní údaje"
 
 #: ../../vcard_edit.c:1056
 msgid "Prefix"
-msgstr ""
+msgstr "Titul před jménem"
 
 #: ../../vcard_edit.c:1056
 msgid "First Name"
-msgstr ""
+msgstr "Křestní jméno"
 
 #: ../../vcard_edit.c:1056
 msgid "Middle Name"
-msgstr ""
+msgstr "Druhé jméno"
 
 #: ../../vcard_edit.c:1056
 msgid "Last Name"
-msgstr ""
+msgstr "Příjmení"
 
 #: ../../vcard_edit.c:1056
 msgid "Suffix"
-msgstr ""
+msgstr "Titul za jménem"
 
 #: ../../vcard_edit.c:1077
 msgid "Display name:"
-msgstr ""
+msgstr "Zobrazované jméno:"
 
 #: ../../vcard_edit.c:1084
 msgid "Title:"
-msgstr ""
+msgstr "Titul:"
 
 #: ../../vcard_edit.c:1091
 msgid "Organization:"
-msgstr ""
+msgstr "Organizace:"
 
 #: ../../vcard_edit.c:1102
 msgid "PO box:"
-msgstr ""
+msgstr "Poštovní schránka:"
 
 #: ../../vcard_edit.c:1118
 msgid "City:"
-msgstr ""
+msgstr "Obec:"
 
 #: ../../vcard_edit.c:1124
 msgid "State:"
-msgstr ""
+msgstr "Stát:"
 
 #: ../../vcard_edit.c:1130
 msgid "ZIP code:"
-msgstr ""
+msgstr "PSČ:"
 
 #: ../../vcard_edit.c:1136
 msgid "Country:"
-msgstr ""
+msgstr "Země:"
 
 #: ../../vcard_edit.c:1146
 msgid "Home telephone:"
-msgstr ""
+msgstr "Telefon domů:"
 
 #: ../../vcard_edit.c:1152
 msgid "Work telephone:"
-msgstr ""
+msgstr "Telefon do práce:"
 
 #: ../../vcard_edit.c:1158
 msgid "Mobile telephone:"
-msgstr ""
+msgstr "Mobilní telefon:"
 
 #: ../../vcard_edit.c:1164
 msgid "Fax number:"
-msgstr ""
+msgstr "Fax:"
 
 #: ../../vcard_edit.c:1175
 msgid "Primary Internet e-mail address"
-msgstr ""
+msgstr "Primární e-mailová adresa"
 
 #: ../../vcard_edit.c:1182
 msgid "Internet e-mail aliases"
-msgstr ""
+msgstr "Ostatní e-mailové adresy"
 
 #: ../../vcard_edit.c:1203 ../../sieve.c:201 ../../sysmsgs.c:48
 msgid "Save changes"
-msgstr ""
+msgstr "Uložit změny"
 
 #: ../../vcard_edit.c:1204 ../../tasks.c:356 ../../sieve.c:203 ../../who.c:197
 #: ../../sysmsgs.c:50 ../../auth.c:788 ../../event.c:768 ../../graphics.c:71
 #: ../../messages.c:1533 ../../paging.c:66
 #: ../../static/t/edit_message.html:135 ../../static/t/confirmlogoff.html:5
 msgid "Cancel"
-msgstr ""
+msgstr "Zrušit"
 
 #: ../../vcard_edit.c:1249
 msgid "Unable to enter the room to save your message"
@@ -328,47 +328,47 @@ msgstr ""
 #: ../../vcard_edit.c:1294 ../../vcard_edit.c:1340 ../../auth.c:369
 #: ../../auth.c:399
 msgid "An error has occurred."
-msgstr ""
+msgstr "Došlo k chybě."
 
 #: ../../vcard_edit.c:1396
 msgid "Could Not decode vcard photo\n"
-msgstr ""
+msgstr "Nepodařilo se dekódovat VCard fotografii\n"
 
 #: ../../tasks.c:93
 msgid "Completed?"
-msgstr ""
+msgstr "Hotovo?"
 
 #: ../../tasks.c:95
 msgid "Name of task"
-msgstr ""
+msgstr "Název úlohy"
 
 #: ../../tasks.c:97
 msgid "Date due"
-msgstr ""
+msgstr "Povinná data"
 
 #: ../../tasks.c:99
 msgid "Category"
-msgstr ""
+msgstr "Kategorie"
 
 #: ../../tasks.c:101
 msgid "Show All"
-msgstr ""
+msgstr "Zobrazit vše"
 
 #: ../../tasks.c:226
 msgid "Edit task"
-msgstr ""
+msgstr "Upravit úlohu"
 
 #: ../../tasks.c:256
 msgid "Start date:"
-msgstr ""
+msgstr "Počáteční datum:"
 
 #: ../../tasks.c:264 ../../tasks.c:294
 msgid "No date"
-msgstr ""
+msgstr "Žádné datum"
 
 #: ../../tasks.c:268 ../../tasks.c:297
 msgid "or"
-msgstr ""
+msgstr "nebo"
 
 #: ../../tasks.c:282 ../../tasks.c:311
 msgid "Time associated"
@@ -380,29 +380,29 @@ msgstr ""
 
 #: ../../tasks.c:315
 msgid "Completed:"
-msgstr ""
+msgstr "Dokončeno:"
 
 #: ../../tasks.c:326
 msgid "Category:"
-msgstr ""
+msgstr "Kategorie:"
 
 #: ../../tasks.c:336 ../../calendar.c:164 ../../static/t/files.html:36
 msgid "Description:"
-msgstr ""
+msgstr "Popis:"
 
 #: ../../tasks.c:354 ../../event.c:765
 msgid "Save"
-msgstr ""
+msgstr "Uložit"
 
 #: ../../tasks.c:355 ../../event.c:766 ../../static/t/view_message.html:35
 #: ../../static/t/navbar.html:117 ../../static/t/msg_listview.html:30
 #: ../../static/t/aide/inet/section.html:5
 msgid "Delete"
-msgstr ""
+msgstr "Odstranit"
 
 #: ../../sieve.c:18 ../../sieve.c:102 ../../static/t/menu/your_info.html:7
 msgid "View/edit server-side mail filters"
-msgstr ""
+msgstr "Zobrazit/upravit e-mailové filtry na straně serveru"
 
 #: ../../sieve.c:27
 msgid ""
@@ -410,10 +410,13 @@ msgid ""
 "filtering.<br>Please contact your system administrator if you require this "
 "feature.<br>"
 msgstr ""
+"Tato instalace Citadely nepodporuje filtrování pošty na straně "
+"serveru.<br>Pokud tuto funkci potřebujete, kontaktujte administrátora Vašeho "
+"systému."
 
 #: ../../sieve.c:115
 msgid "When new mail arrives: "
-msgstr ""
+msgstr "Kdy e-mail přišel: "
 
 #: ../../sieve.c:119
 msgid "Leave it in my inbox without filtering"
@@ -429,126 +432,131 @@ msgstr ""
 
 #: ../../sieve.c:139
 msgid "Your incoming mail will not be filtered through any scripts."
-msgstr ""
+msgstr "Vaše příchozí pošta nebude filtrována žádnými skripty."
 
 #: ../../sieve.c:154
 msgid "The currently active script is: "
-msgstr ""
+msgstr "Právě je aktivní skript: "
 
 #: ../../sieve.c:169 ../../sieve.c:642
 msgid "Add or delete scripts"
-msgstr ""
+msgstr "Přidat nebo odstranit text"
 
 #: ../../sieve.c:569 ../../roomops.c:678 ../../roomops.c:971
 msgid "Cancelled.  Changes were not saved."
-msgstr ""
+msgstr "Zrušeno, změny se neuloží."
 
 #: ../../sieve.c:625 ../../roomops.c:806
 msgid "Your changes have been saved."
-msgstr ""
+msgstr "Vaše změny se uložily."
 
 #: ../../sieve.c:655
 msgid "Add a new script"
-msgstr ""
+msgstr "Přidat nový skript"
 
 #: ../../sieve.c:658
 msgid ""
 "To create a new script, enter the desired script name in the box below and "
 "click 'Create'."
 msgstr ""
+"Pro vytvoření skriptu napište požadované jméno a klikněte na ‚vytvořit‘."
 
 #: ../../sieve.c:664
 msgid "Script name: "
-msgstr ""
+msgstr "Jméno skriptu: "
 
 #: ../../sieve.c:667
 msgid "Create"
-msgstr ""
+msgstr "Vytvořit"
 
 #: ../../sieve.c:672
 msgid "Edit scripts"
-msgstr ""
+msgstr "Upravit skripty"
 
 #: ../../sieve.c:675
 msgid "Return to the script editing screen"
-msgstr ""
+msgstr "Jít zpět na editaci skriptů"
 
 #: ../../sieve.c:682
 msgid "Delete scripts"
-msgstr ""
+msgstr "Smazat skripty"
 
 #: ../../sieve.c:685
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
 msgstr ""
+"Pro smazání existujících skriptů, vyberte jejich jména ze seznamu a klikněte "
+"na ‚Smazat‘"
 
 #: ../../sieve.c:709
 msgid "Delete script"
-msgstr ""
+msgstr "Smazat skript"
 
 #: ../../sieve.c:709
 msgid "Delete this script?"
-msgstr ""
+msgstr "Skutečně chcete smazat tento skript?"
 
 #: ../../sieve.c:746
 msgid "A script by that name already exists."
-msgstr ""
+msgstr "Skript s tímto jménem již existuje."
 
 #: ../../sieve.c:755
 msgid ""
 "A new script has been created.  Return to the script editing screen to edit "
 "and activate it."
 msgstr ""
+"Nový skript byl úspěšně vytvořen. Vraťte se na editaci skriptů a aktivujte "
+"jej."
 
 #: ../../sieve.c:972
 msgid "Move rule up"
-msgstr ""
+msgstr "Posunout pravidlo výše"
 
 #: ../../sieve.c:977
 msgid "Move rule down"
-msgstr ""
+msgstr "Posunout pravidlo níže"
 
 #: ../../sieve.c:982
 msgid "Delete rule"
-msgstr ""
+msgstr "Smazat pravidlo"
 
 #: ../../sieve.c:990
 msgid "If"
-msgstr ""
+msgstr "Jestliže"
 
 #: ../../sieve.c:994
 msgid "To or Cc"
-msgstr ""
+msgstr "Příjemce"
 
 #: ../../sieve.c:996
 msgid "Reply-to"
-msgstr ""
+msgstr "Odpovědět na"
 
 #: ../../sieve.c:997 ../../smtpqueue.c:197
 #: ../../static/t/summary_header.html:9 ../../static/t/msg_listview.html:11
 msgid "Sender"
-msgstr ""
+msgstr "Odesílatel"
 
 #: ../../sieve.c:998
 msgid "Resent-From"
-msgstr ""
+msgstr "Ignorovat z"
 
 #: ../../sieve.c:999
 msgid "Resent-To"
-msgstr ""
+msgstr "Ignorovat zprávy k"
 
 #: ../../sieve.c:1000
 msgid "Envelope From"
-msgstr ""
+msgstr "Obálka z"
 
 #: ../../sieve.c:1001
 msgid "Envelope To"
-msgstr ""
+msgstr "Obálka k"
 
 #: ../../sieve.c:1002
 msgid "X-Mailer"
-msgstr ""
+msgstr "X-Mailer"
 
 #: ../../sieve.c:1003
 msgid "X-Spam-Flag"
@@ -560,71 +568,71 @@ msgstr ""
 
 #: ../../sieve.c:1005
 msgid "List-ID"
-msgstr ""
+msgstr "Seznam ID"
 
 #: ../../sieve.c:1006
 msgid "Message size"
-msgstr ""
+msgstr "Velikost zprávy"
 
 #: ../../sieve.c:1007 ../../static/t/select_messageindex_all.html:1
 msgid "All"
-msgstr ""
+msgstr "Vše"
 
 #: ../../sieve.c:1026
 msgid "contains"
-msgstr ""
+msgstr "obsahující"
 
 #: ../../sieve.c:1027
 msgid "does not contain"
-msgstr ""
+msgstr "neobsahující"
 
 #: ../../sieve.c:1028
 msgid "is"
-msgstr ""
+msgstr "je"
 
 #: ../../sieve.c:1029
 msgid "is not"
-msgstr ""
+msgstr "není"
 
 #: ../../sieve.c:1030
 msgid "matches"
-msgstr ""
+msgstr "odpovídá"
 
 #: ../../sieve.c:1031
 msgid "does not match"
-msgstr ""
+msgstr "neodpovídá"
 
 #: ../../sieve.c:1051
 msgid "(All messages)"
-msgstr ""
+msgstr "(Všechny zprávy)"
 
 #: ../../sieve.c:1055
 msgid "is larger than"
-msgstr ""
+msgstr "je větší než"
 
 #: ../../sieve.c:1056
 msgid "is smaller than"
-msgstr ""
+msgstr "je menší než"
 
 #: ../../sieve.c:1079
 msgid "Keep"
-msgstr ""
+msgstr "Nechat"
 
 #: ../../sieve.c:1080
 msgid "Discard silently"
-msgstr ""
+msgstr "Tiše zlikvidovat"
 
 #: ../../sieve.c:1081
 msgid "Reject"
-msgstr ""
+msgstr "Odmítnout"
 
 #: ../../sieve.c:1082
 msgid "Move message to"
-msgstr ""
+msgstr "Přesunout zprávu do"
 
 #: ../../sieve.c:1083
 msgid "Forward to"
-msgstr ""
+msgstr "Přeposlat"
 
 #: ../../sieve.c:1084
 msgid "Vacation"
@@ -632,35 +640,35 @@ msgstr ""
 
 #: ../../sieve.c:1121
 msgid "Message:"
-msgstr ""
+msgstr "Zpráva:"
 
 #: ../../sieve.c:1131
 msgid "continue processing"
-msgstr ""
+msgstr "pokračovat ve zpracovávání"
 
 #: ../../sieve.c:1132
 msgid "stop"
-msgstr ""
+msgstr "Zastavit"
 
 #: ../../sieve.c:1135
 msgid "and then"
-msgstr ""
+msgstr "a tak"
 
 #: ../../sieve.c:1156
 msgid "Add rule"
-msgstr ""
+msgstr "Přidat pravidlo"
 
 #: ../../preferences.c:846
 msgid "Cancelled.  No settings were changed."
-msgstr ""
+msgstr "Zrušeno. Žádné nastavení se nezměnilo."
 
 #: ../../preferences.c:1059
 msgid "Make this my start page"
-msgstr ""
+msgstr "Toto bude má startovní stránka"
 
 #: ../../preferences.c:1099
 msgid "This isn't allowed to become the start page."
-msgstr ""
+msgstr "Toto nemůže být startovní stránkou"
 
 #: ../../preferences.c:1103
 msgid "You no longer have a start page selected."
@@ -668,7 +676,7 @@ msgstr ""
 
 #: ../../preferences.c:1154
 msgid "Prefered startpage"
-msgstr ""
+msgstr "Upřednostňovaná strartovní stránka"
 
 #: ../../who.c:151
 msgid "Edit your session display"
@@ -684,11 +692,11 @@ msgstr ""
 
 #: ../../who.c:168
 msgid "Room name:"
-msgstr ""
+msgstr "Jméno místnosti:"
 
 #: ../../who.c:173
 msgid "Change room name"
-msgstr ""
+msgstr "Změnit jméno místnosti"
 
 #: ../../who.c:177
 msgid "Host name:"
@@ -703,23 +711,23 @@ msgstr ""
 #: ../../static/t/aide/edituser/detailview.html:20
 #: ../../static/t/openid_manual_create.html:9
 msgid "User name:"
-msgstr ""
+msgstr "Uživatelské jméno:"
 
 #: ../../who.c:192
 msgid "Change user name"
-msgstr ""
+msgstr "Změnit uživatelské jméno"
 
 #: ../../netconf.c:158 ../../netconf.c:185 ../../netconf.c:193
 #: ../../netconf.c:241 ../../netconf.c:249 ../../inetconf.c:107
 #: ../../inetconf.c:116 ../../inetconf.c:129 ../../inetconf.c:156
 #, c-format
 msgid "Invalid Parameter"
-msgstr ""
+msgstr "Neplatný parametr"
 
 #: ../../sysmsgs.c:33
 #, c-format
 msgid "Edit %s"
-msgstr ""
+msgstr "Upravit %s"
 
 #: ../../sysmsgs.c:36
 #, c-format
@@ -731,20 +739,20 @@ msgstr ""
 #: ../../sysmsgs.c:70
 #, c-format
 msgid "Cancelled.  %s was not saved."
-msgstr ""
+msgstr "Zrušeno, %s se neuloží."
 
 #: ../../sysmsgs.c:89
 #, c-format
 msgid "%s has been saved."
-msgstr ""
+msgstr "Ukládání %s proběhlo úspěšně."
 
 #: ../../sysmsgs.c:97 ../../sysmsgs.c:98
 msgid "Room info"
-msgstr ""
+msgstr "Informace o místnosti"
 
 #: ../../sysmsgs.c:103 ../../sysmsgs.c:105
 msgid "Your bio"
-msgstr ""
+msgstr "Vaše biografie"
 
 #: ../../summary.c:101
 msgid "(None)"
@@ -752,35 +760,35 @@ msgstr ""
 
 #: ../../summary.c:153
 msgid "(Nothing)"
-msgstr ""
+msgstr "(Nic)"
 
 #: ../../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 
 #: ../../summary.c:195
 msgid "Messages"
-msgstr ""
+msgstr "Zprávy"
 
 #: ../../summary.c:208 ../../static/t/iconbar/edit.html:60
 #: ../../static/t/iconbar.html:39
 msgid "Tasks"
-msgstr ""
+msgstr "Úlohy"
 
 #: ../../summary.c:221
 msgid "Today&nbsp;on&nbsp;your&nbsp;calendar"
-msgstr ""
+msgstr "Dnes&nbsp;ve&nbsp;vašem&nbsp;kalendáři"
 
 #: ../../summary.c:236
 msgid "Who's&nbsp;online&nbsp;now"
-msgstr ""
+msgstr "Kdo&nbsp;je&nbsp;právě&nbsp;online"
 
 #: ../../summary.c:249
 msgid "About&nbsp;this&nbsp;server"
-msgstr ""
+msgstr "O&nbsp;tomto&nbsp;serveru"
 
 #: ../../summary.c:275
 #, c-format
@@ -788,24 +796,25 @@ msgid "Summary page for %s"
 msgstr ""
 
 #: ../../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../../siteconfig.c:313
 msgid "Your system configuration has been updated."
-msgstr ""
+msgstr "Vaše systémová konfigurace byla změněna"
 
 #: ../../downloads.c:285
 #, c-format
 msgid "An error occurred while retrieving this file: %s\n"
-msgstr ""
+msgstr "Došlo k chybě během získávání souboru %s\n"
 
 #. an erased user
 #: ../../auth.c:36 ../../static/t/aide/siteconfig/tab_access.html:40
 #: ../../static/t/aide/siteconfig/tab_access.html:51
 #: ../../static/t/aide/edituser/detailview.html:43
 msgid "Deleted"
-msgstr ""
+msgstr "Smazáno"
 
 #. a new user
 #: ../../auth.c:39 ../../static/t/get_logged_in.html:67
@@ -813,21 +822,21 @@ msgstr ""
 #: ../../static/t/aide/siteconfig/tab_access.html:52
 #: ../../static/t/aide/edituser/detailview.html:44
 msgid "New User"
-msgstr ""
+msgstr "Nový uživatel"
 
 #. a trouble maker
 #: ../../auth.c:42 ../../static/t/aide/siteconfig/tab_access.html:42
 #: ../../static/t/aide/siteconfig/tab_access.html:53
 #: ../../static/t/aide/edituser/detailview.html:45
 msgid "Problem User"
-msgstr ""
+msgstr "Problémový uživatel"
 
 #. user with normal privileges
 #: ../../auth.c:45 ../../static/t/aide/siteconfig/tab_access.html:43
 #: ../../static/t/aide/siteconfig/tab_access.html:54
 #: ../../static/t/aide/edituser/detailview.html:46
 msgid "Local User"
-msgstr ""
+msgstr "Klasický uživatel"
 
 #. a user that may access network resources
 #: ../../auth.c:48 ../../static/t/aide/siteconfig/tab_access.html:44
@@ -853,7 +862,7 @@ msgstr ""
 #: ../../auth.c:518 ../../static/t/menu/basic_commands.html:19
 #: ../../static/t/iconbar.html:80 ../../static/t/confirmlogoff.html:4
 msgid "Log off"
-msgstr ""
+msgstr "Odhlásit"
 
 #: ../../auth.c:531 ../../webcit.c:730
 msgid ""
@@ -863,92 +872,92 @@ msgstr ""
 
 #: ../../auth.c:537 ../../webcit.c:737
 msgid "Read More..."
-msgstr ""
+msgstr "Přečtěte si více…"
 
 #: ../../auth.c:542
 msgid "Log in again"
-msgstr ""
+msgstr "Přihlaste se znovu"
 
 #: ../../auth.c:563 ../../static/t/aide/usermanagement.html:3
 msgid "Validate new users"
-msgstr ""
+msgstr "Potvrdit nové uživatele"
 
 #: ../../auth.c:586
 msgid "No users require validation at this time."
-msgstr ""
+msgstr "Právě nyvyžaduje potvrzení žádný uživatel."
 
 #: ../../auth.c:633
 msgid "very weak"
-msgstr ""
+msgstr "velmi slabé"
 
 #: ../../auth.c:636
 msgid "weak"
-msgstr ""
+msgstr "slabé"
 
 #: ../../auth.c:639
 msgid "ok"
-msgstr ""
+msgstr "dobré"
 
 #: ../../auth.c:643
 msgid "strong"
-msgstr ""
+msgstr "silné"
 
 #: ../../auth.c:661
 #, c-format
 msgid "Current access level: %d (%s)\n"
-msgstr ""
+msgstr "Aktuální úroveň přístupových práv: %d (%s)\n"
 
 #: ../../auth.c:669
 msgid "Select access level for this user:"
-msgstr ""
+msgstr "Úroveň přístupových práv tohoto uživatele:"
 
 #: ../../auth.c:752 ../../static/t/menu/your_info.html:4
 msgid "Change your password"
-msgstr ""
+msgstr "Změnit heslo"
 
 #: ../../auth.c:776
 msgid "Enter new password:"
-msgstr ""
+msgstr "Zadejte nové heslo:"
 
 #: ../../auth.c:780
 msgid "Enter it again to confirm:"
-msgstr ""
+msgstr "Pro ověření heslo zopakujte:"
 
 #: ../../auth.c:786
 msgid "Change password"
-msgstr ""
+msgstr "Změnit heslo"
 
 #: ../../auth.c:807
 msgid "Cancelled.  Password was not changed."
-msgstr ""
+msgstr "Zrušeno, heslo se neuloží"
 
 #: ../../auth.c:818
 msgid "They don't match.  Password was not changed."
-msgstr ""
+msgstr "Obě hesla nesouhlasí, zůstává původní."
 
 #: ../../auth.c:826
 msgid "Blank passwords are not allowed."
-msgstr ""
+msgstr "Heslo nemůže být prázdné."
 
 #: ../../addressbook_popup.c:192
 msgid "Add"
-msgstr ""
+msgstr "Přidat"
 
 #: ../../event.c:73
 msgid "seconds"
-msgstr ""
+msgstr "sekundy"
 
 #: ../../event.c:74
 msgid "minutes"
-msgstr ""
+msgstr "minuty"
 
 #: ../../event.c:75
 msgid "hours"
-msgstr ""
+msgstr "hodiny"
 
 #: ../../event.c:76
 msgid "days"
-msgstr ""
+msgstr "dny"
 
 #: ../../event.c:77
 msgid "weeks"
@@ -1568,7 +1577,8 @@ msgstr ""
 
 #: ../../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../../calendar.c:232
@@ -2829,7 +2839,8 @@ msgid "Access level required to create rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid "Automatically grant room-aide status to users who create private rooms"
+msgid ""
+"Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
@@ -3235,7 +3246,8 @@ msgid "(URLS for notifications when users receive new mails; )"
 msgstr ""
 
 #: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgid ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 msgstr ""
 
 #: ../../static/t/aide/inet/aliases.html:2
@@ -3664,3 +3676,6 @@ msgstr ""
 #: ../../static/t/display_main_menu.html:12
 msgid "Advanced room commands"
 msgstr ""
+
+#~ msgid "Your password was not accepted."
+#~ msgstr "Vaše heslo je nepřijatelné."

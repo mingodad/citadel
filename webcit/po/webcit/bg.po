@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: citadel\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-23 23:06-0500\n"
-"PO-Revision-Date: 2010-11-17 09:25+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-01-25 22:18+0000\n"
+"Last-Translator: Citadel <Unknown>\n"
 "Language-Team: Bulgarian <bg@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-18 04:43+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-02-25 04:33+0000\n"
+"X-Generator: Launchpad (build 12351)\n"
 
 #: ../../roomlist.c:46 ../../roomlist.c:391 ../../siteconfig.c:39
 #: ../../siteconfig.c:58
@@ -75,10 +75,10 @@ msgstr ""
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr ""
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -757,8 +757,8 @@ msgstr ""
 #: ../../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 
 #: ../../summary.c:195
@@ -788,7 +788,8 @@ msgid "Summary page for %s"
 msgstr ""
 
 #: ../../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../../siteconfig.c:313
@@ -1568,7 +1569,8 @@ msgstr ""
 
 #: ../../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr ""
 
 #: ../../calendar.c:232
@@ -2829,7 +2831,8 @@ msgid "Access level required to create rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid "Automatically grant room-aide status to users who create private rooms"
+msgid ""
+"Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63
@@ -3235,7 +3238,8 @@ msgid "(URLS for notifications when users receive new mails; )"
 msgstr ""
 
 #: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgid ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 msgstr ""
 
 #: ../../static/t/aide/inet/aliases.html:2
