@@ -18,8 +18,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-11-22 04:46+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-02-25 04:34+0000\n"
+"X-Generator: Launchpad (build 12351)\n"
 "Language: es\n"
 
 #: ../../roomlist.c:46 ../../roomlist.c:391 ../../siteconfig.c:39
@@ -29,7 +29,7 @@ msgstr ""
 
 #: ../../roomlist.c:101
 msgid "My Folders"
-msgstr ""
+msgstr "Mis carpetas"
 
 #: ../../calendar_tools.c:101
 msgid "Hour: "
@@ -723,7 +723,7 @@ msgstr "Cambiar nombre de usuario"
 #: ../../inetconf.c:116 ../../inetconf.c:129 ../../inetconf.c:156
 #, c-format
 msgid "Invalid Parameter"
-msgstr ""
+msgstr "Parámetro inválido"
 
 #: ../../sysmsgs.c:33
 #, c-format
@@ -1151,15 +1151,15 @@ msgstr ""
 
 #: ../../bbsview_renderer.c:287
 msgid "Go to page: "
-msgstr ""
+msgstr "Ir a la página: "
 
 #: ../../bbsview_renderer.c:321
 msgid "First"
-msgstr ""
+msgstr "Primera"
 
 #: ../../bbsview_renderer.c:327
 msgid "Last"
-msgstr ""
+msgstr "Última"
 
 #: ../../graphics.c:42
 msgid "Image upload"
@@ -1219,7 +1219,7 @@ msgstr ""
 
 #: ../../openid.c:36
 msgid "(delete)"
-msgstr ""
+msgstr "(eliminar)"
 
 #: ../../openid.c:44
 msgid "Add an OpenID: "
@@ -1227,7 +1227,7 @@ msgstr ""
 
 #: ../../openid.c:47
 msgid "Attach"
-msgstr ""
+msgstr "Adjuntar"
 
 #: ../../openid.c:51
 #, c-format
@@ -1269,7 +1269,7 @@ msgstr "Lista de Calendario"
 
 #: ../../roomviews.c:58
 msgid "Journal"
-msgstr ""
+msgstr "Diario"
 
 #: ../../roomviews.c:59
 #, fuzzy
@@ -1278,7 +1278,7 @@ msgstr "Fecha"
 
 #: ../../roomviews.c:60
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: ../../smtpqueue.c:133 ../../static/t/aide/ignetconf/section.html:5
 msgid "(Delete)"
@@ -1428,11 +1428,11 @@ msgstr "Enviar comando"
 
 #: ../../roomtokens.c:563
 msgid "file"
-msgstr ""
+msgstr "archivo"
 
 #: ../../roomtokens.c:565
 msgid "files"
-msgstr ""
+msgstr "archivos"
 
 #: ../../messages.c:70
 msgid "ERROR:"
@@ -1514,7 +1514,7 @@ msgstr "Juego de caracteres por defecto para cabeceras de correo:"
 
 #: ../../messages.c:1808
 msgid "Preferred email address"
-msgstr ""
+msgstr "Dirección de correo preferida"
 
 #: ../../messages.c:1810
 msgid "Preferred display name for email messages"
@@ -2305,7 +2305,7 @@ msgstr "Logotipo de Citadel"
 
 #: ../../static/t/iconbar/edit.html:91
 msgid "Displays the 'Powered by Citadel' icon"
-msgstr "Muestra el icono 'Powered by Citadel' "
+msgstr "Muestra el icono 'Powered by Citadel'"
 
 #: ../../static/t/files/section_onefile.html:20
 msgid "Slideshow"
@@ -2660,7 +2660,7 @@ msgid ""
 msgstr ""
 "Esta pantalla te permite introducir comandos del servidor Citadel que no "
 "están soportados por WebCit. Si no sabes que quiere decir eso, esta pantalla "
-"no te será de mucha utilidad. "
+"no te será de mucha utilidad."
 
 #: ../../static/t/aide/display_generic_cmd.html:15
 msgid "Enter command:"
@@ -2719,7 +2719,7 @@ msgstr "Expirar según la edad del mensaje"
 #: ../../static/t/room/edit/tab_expire.html:25
 #: ../../static/t/room/edit/tab_expire.html:53
 msgid "Number of messages or days: "
-msgstr "Número de mensajes o días"
+msgstr "Número de mensajes o días "
 
 #: ../../static/t/aide/siteconfig/tab_autopurger.html:81
 msgid "Default message expire policy for private mailboxes"
@@ -3293,7 +3293,7 @@ msgstr "Nuevo usuario: "
 
 #: ../../static/t/aide/edituser/detailview.html:4
 msgid "Edit user account: "
-msgstr "Editar cuenta de usuario:"
+msgstr "Editar cuenta de usuario: "
 
 #: ../../static/t/aide/edituser/detailview.html:24
 #: ../../static/t/room/edit/tab_feed.html:14
@@ -3345,7 +3345,8 @@ msgid "(URLS for notifications when users receive new mails; )"
 msgstr ""
 
 #: ../../static/t/aide/inet/notify.html:2
-msgid "Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
+msgid ""
+"Syntax: Notificationtemplatename:http[s]://user:password@hostname/path"
 msgstr ""
 
 #: ../../static/t/aide/inet/aliases.html:2
@@ -3518,7 +3519,7 @@ msgstr ""
 
 #: ../../static/t/room/edit/tab_listserv.html:65
 msgid "The URL for subscribe/unsubscribe is: "
-msgstr "La URL para suscribirse/cancelar suscripción es:"
+msgstr "La URL para suscribirse/cancelar suscripción es: "
 
 #: ../../static/t/room/edit/tab_admin.html:5
 msgid "Delete this room"
@@ -3561,7 +3562,7 @@ msgstr "Sala directorio de ficheros"
 
 #: ../../static/t/room/edit/tab_config.html:80
 msgid "Directory name: "
-msgstr "Nombre de directorio"
+msgstr "Nombre de directorio "
 
 #: ../../static/t/room/edit/tab_config.html:86
 msgid "Uploading allowed"
@@ -3605,7 +3606,7 @@ msgstr "Preguntar al usuario cuando esté introduciendo mensajes"
 
 #: ../../static/t/room/edit/tab_config.html:136
 msgid "Room aide: "
-msgstr "Administrador de la sala"
+msgstr "Administrador de la sala "
 
 #: ../../static/t/room/edit/editroom.html:5 ../../static/t/room/edit.html:6
 msgid "Configuration"

@@ -10,21 +10,21 @@ msgstr ""
 "Project-Id-Version: WebCit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-23 23:06-0500\n"
-"PO-Revision-Date: 2010-12-21 12:16+0000\n"
+"PO-Revision-Date: 2011-01-31 08:31+0000\n"
 "Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: <room_citadel_translators@uncensored.citadel.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-22 04:43+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-02-25 04:34+0000\n"
+"X-Generator: Launchpad (build 12351)\n"
 "Language: \n"
 "X-Language: ru_RU\n"
 
 #: ../../roomlist.c:46 ../../roomlist.c:391 ../../siteconfig.c:39
 #: ../../siteconfig.c:58
 msgid "Higher access is required to access this function."
-msgstr ""
+msgstr "Требуется больше прав для доступа к этой функции."
 
 #: ../../roomlist.c:101
 msgid "My Folders"
@@ -72,17 +72,17 @@ msgstr "(в процессе)"
 
 #: ../../calendar_tools.c:229
 msgid "(none)"
-msgstr ""
+msgstr "(не указан)"
 
 #: ../../html2html.c:136
 #, c-format
 msgid "realloc() error! couldn't get %d bytes: %s"
 msgstr ""
 
-#.
+#. 
 #. * Set to 'unknown' right from the beginning.  Unless we learn
 #. * something else, that's what we'll go with.
-#.
+#. 
 #: ../../availability.c:154
 msgid "availability unknown"
 msgstr ""
@@ -163,7 +163,7 @@ msgstr "Неделя"
 
 #: ../../calendar_view.c:754
 msgid "Hours"
-msgstr ""
+msgstr "Часа(ов)"
 
 #: ../../calendar_view.c:755 ../../sieve.c:995
 #: ../../static/t/summary_header.html:8 ../../static/t/msg_listview.html:10
@@ -260,7 +260,7 @@ msgstr "Отображаемое имя:"
 
 #: ../../vcard_edit.c:1084
 msgid "Title:"
-msgstr ""
+msgstr "Заголовок:"
 
 #: ../../vcard_edit.c:1091
 msgid "Organization:"
@@ -340,7 +340,7 @@ msgstr ""
 
 #: ../../tasks.c:93
 msgid "Completed?"
-msgstr ""
+msgstr "Завершено?"
 
 #: ../../tasks.c:95
 msgid "Name of task"
@@ -421,7 +421,7 @@ msgstr "При получении нового письма: "
 
 #: ../../sieve.c:119
 msgid "Leave it in my inbox without filtering"
-msgstr ""
+msgstr "Оставить во входящих без фильтрации"
 
 #: ../../sieve.c:123
 msgid "Filter it according to rules selected below"
@@ -437,7 +437,7 @@ msgstr ""
 
 #: ../../sieve.c:154
 msgid "The currently active script is: "
-msgstr ""
+msgstr "Текущий активный фильтр: "
 
 #: ../../sieve.c:169 ../../sieve.c:642
 msgid "Add or delete scripts"
@@ -485,7 +485,8 @@ msgstr "Удалить скрипты"
 msgid ""
 "To delete an existing script, select the script name from the list and click "
 "'Delete'."
-msgstr "Для удаления скрипта, выберите скрипт из списка и нажмите \"Удалить\"."
+msgstr ""
+"Для удаления скрипта, выберите скрипт из списка и нажмите \"Удалить\"."
 
 #: ../../sieve.c:709
 msgid "Delete script"
@@ -628,7 +629,7 @@ msgstr "Переместить сообщение в"
 
 #: ../../sieve.c:1083
 msgid "Forward to"
-msgstr ""
+msgstr "Переадресовать"
 
 #: ../../sieve.c:1084
 msgid "Vacation"
@@ -644,7 +645,7 @@ msgstr ""
 
 #: ../../sieve.c:1132
 msgid "stop"
-msgstr ""
+msgstr "стоп"
 
 #: ../../sieve.c:1135
 msgid "and then"
@@ -696,11 +697,11 @@ msgstr "Изменить название комнаты"
 
 #: ../../who.c:177
 msgid "Host name:"
-msgstr ""
+msgstr "Имя хоста:"
 
 #: ../../who.c:182
 msgid "Change host name"
-msgstr ""
+msgstr "Изменить имя хоста"
 
 #: ../../who.c:187 ../../static/t/get_logged_in.html:45
 #: ../../static/t/get_logged_in.html:60
@@ -711,7 +712,7 @@ msgstr "Имя:"
 
 #: ../../who.c:192
 msgid "Change user name"
-msgstr ""
+msgstr "Изменить имя пользователя"
 
 #: ../../netconf.c:158 ../../netconf.c:185 ../../netconf.c:193
 #: ../../netconf.c:241 ../../netconf.c:249 ../../inetconf.c:107
@@ -752,7 +753,7 @@ msgstr ""
 
 #: ../../summary.c:101
 msgid "(None)"
-msgstr ""
+msgstr "(не указано)"
 
 #: ../../summary.c:153
 msgid "(Nothing)"
@@ -761,8 +762,8 @@ msgstr "(Ничего)"
 #: ../../summary.c:167
 #, c-format
 msgid ""
-"You are connected to %s, running %s with %s, server build %s and located in %"
-"s.  Your system administrator is %s."
+"You are connected to %s, running %s with %s, server build %s and located in "
+"%s.  Your system administrator is %s."
 msgstr ""
 
 #: ../../summary.c:195
@@ -784,7 +785,7 @@ msgstr ""
 
 #: ../../summary.c:249
 msgid "About&nbsp;this&nbsp;server"
-msgstr ""
+msgstr "О сервере"
 
 #: ../../summary.c:275
 #, c-format
@@ -792,7 +793,8 @@ msgid "Summary page for %s"
 msgstr ""
 
 #: ../../siteconfig.c:254
-msgid "WARNING: Failed to parse Server Config; do you run a to new citserver?"
+msgid ""
+"WARNING: Failed to parse Server Config; do you run a to new citserver?"
 msgstr ""
 
 #: ../../siteconfig.c:313
@@ -1004,7 +1006,7 @@ msgstr ""
 
 #: ../../event.c:93 ../../calendar.c:173
 msgid "Recurrence"
-msgstr ""
+msgstr "Повторение"
 
 #: ../../event.c:168
 msgid "Add or edit an event"
@@ -1013,7 +1015,7 @@ msgstr "Добавить или редактировать событие"
 #: ../../event.c:207 ../../static/t/iconbar/edit.html:30
 #: ../../static/t/iconbar.html:13
 msgid "Summary"
-msgstr ""
+msgstr "Сводка"
 
 #: ../../event.c:218
 msgid "Location"
@@ -1055,7 +1057,7 @@ msgstr "Контакты"
 
 #: ../../event.c:506 ../../calendar.c:174
 msgid "This is a recurring event"
-msgstr ""
+msgstr "Повторяющееся событие"
 
 #: ../../event.c:514
 msgid "Recurrence rule"
@@ -1094,7 +1096,7 @@ msgstr ""
 #: ../../event.c:689 ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
 msgid "of"
-msgstr ""
+msgstr "из"
 
 #: ../../event.c:713
 msgid "Recurrence range"
@@ -1187,7 +1189,7 @@ msgstr "ваше фото"
 
 #: ../../graphics.c:152
 msgid "the icon for this room"
-msgstr ""
+msgstr "Значёк комнаты"
 
 #: ../../graphics.c:159
 msgid "the Greetingpicture for the login prompt"
@@ -1199,7 +1201,7 @@ msgstr ""
 
 #: ../../graphics.c:175
 msgid "the icon for this floor"
-msgstr ""
+msgstr "Значек для этажа"
 
 #: ../../openid.c:17
 msgid "Manage Account/OpenID Associations"
@@ -1261,7 +1263,7 @@ msgstr ""
 
 #: ../../roomviews.c:58
 msgid "Journal"
-msgstr ""
+msgstr "Журнал"
 
 #: ../../roomviews.c:59
 #, fuzzy
@@ -1274,7 +1276,7 @@ msgstr "Блог"
 
 #: ../../smtpqueue.c:133 ../../static/t/aide/ignetconf/section.html:5
 msgid "(Delete)"
-msgstr ""
+msgstr "(Удалить)"
 
 #: ../../smtpqueue.c:191
 msgid "Message ID"
@@ -1374,7 +1376,7 @@ msgstr "Дата"
 
 #: ../../wiki.c:182
 msgid "Author"
-msgstr ""
+msgstr "Автор"
 
 #: ../../wiki.c:209 ../../wiki.c:218
 msgid "(show)"
@@ -1395,7 +1397,7 @@ msgstr "Заголовок страницы"
 #: ../../inetconf.c:122
 #, c-format
 msgid "%s has been deleted."
-msgstr ""
+msgstr "%s было удалено."
 
 #. <domain> added status message
 #: ../../inetconf.c:140
@@ -1444,7 +1446,7 @@ msgstr ""
 
 #: ../../messages.c:1146
 msgid "Message has been saved to Drafts.\n"
-msgstr ""
+msgstr "Сообщение было сохранено в черновики.\n"
 
 #: ../../messages.c:1155
 msgid "Message has been sent.\n"
@@ -1496,7 +1498,7 @@ msgstr ""
 
 #: ../../messages.c:1808
 msgid "Preferred email address"
-msgstr ""
+msgstr "Предпочитаемый адрес эл.почты"
 
 #: ../../messages.c:1810
 msgid "Preferred display name for email messages"
@@ -1560,7 +1562,7 @@ msgstr ""
 
 #: ../../calendar.c:87
 msgid "Published event"
-msgstr ""
+msgstr "Опубликованное событие"
 
 #: ../../calendar.c:90
 msgid "This is an unknown type of calendar item."
@@ -1577,7 +1579,8 @@ msgstr ""
 
 #: ../../calendar.c:227
 #, c-format
-msgid "This event would conflict with '%s' which is already in your calendar."
+msgid ""
+"This event would conflict with '%s' which is already in your calendar."
 msgstr "Данное событие может конфликтовать с  '%s' в вашем календаре."
 
 #: ../../calendar.c:232
@@ -1624,7 +1627,8 @@ msgstr ""
 msgid ""
 "You have accepted this meeting invitation.  It has been entered into your "
 "calendar."
-msgstr "Вы приняли приглашение на встречу. Она была добавлена в ваш календарь."
+msgstr ""
+"Вы приняли приглашение на встречу. Она была добавлена в ваш календарь."
 
 #: ../../calendar.c:337
 msgid ""
@@ -1774,11 +1778,11 @@ msgstr ""
 #: ../../static/t/msg_listselector_bottom.html:7
 #: ../../static/t/msg_listselector_top.html:7
 msgid "messages"
-msgstr ""
+msgstr "сообщения"
 
 #: ../../static/t/roombanner.html:24
 msgid "Select page: "
-msgstr ""
+msgstr "выбор страницы: "
 
 #: ../../static/t/view_submessage.html:4
 #: ../../static/t/view_message/replyquote.html:4
@@ -1806,7 +1810,7 @@ msgstr "Кому"
 #: ../../static/t/view_message/print.html:15
 #: ../../static/t/view_message.html:13 ../../static/t/edit_message.html:57
 msgid "CC:"
-msgstr ""
+msgstr "Копия:"
 
 #: ../../static/t/view_message/list_attach.html:3
 msgid "View"
@@ -1831,11 +1835,11 @@ msgstr ""
 
 #: ../../static/t/view_message.html:25 ../../static/t/view_message.html:30
 msgid "Forward"
-msgstr ""
+msgstr "Вперёд"
 
 #: ../../static/t/view_message.html:37
 msgid "Headers"
-msgstr ""
+msgstr "Заголовки"
 
 #: ../../static/t/view_message.html:38 ../../static/t/msg_listview.html:31
 msgid "Print"
@@ -1912,7 +1916,7 @@ msgstr ""
 
 #: ../../static/t/menu/basic_commands.html:4 ../../static/t/navbar.html:160
 msgid "Goto next room"
-msgstr ""
+msgstr "Перейти к следующей комнате"
 
 #: ../../static/t/menu/basic_commands.html:4
 msgid "...with <em>unread</em> messages"
@@ -1937,7 +1941,7 @@ msgstr ""
 
 #: ../../static/t/menu/basic_commands.html:10 ../../static/t/navbar.html:13
 msgid "Read new messages"
-msgstr ""
+msgstr "Читать новые сообщения"
 
 #: ../../static/t/menu/basic_commands.html:10
 #, fuzzy
@@ -1946,7 +1950,7 @@ msgstr "Пропустить комнату"
 
 #: ../../static/t/menu/basic_commands.html:11 ../../static/t/navbar.html:19
 msgid "Read all messages"
-msgstr ""
+msgstr "Читать все сообщения"
 
 #: ../../static/t/menu/basic_commands.html:11
 msgid "...old <em>and</em> new"
@@ -2074,7 +2078,7 @@ msgstr "от"
 
 #: ../../static/t/edit_message.html:29 ../../static/t/edit_message.html:38
 msgid "Anonymous"
-msgstr ""
+msgstr "Анонимный"
 
 #: ../../static/t/edit_message.html:47
 msgid "in"
@@ -2086,7 +2090,7 @@ msgstr "Кому:"
 
 #: ../../static/t/edit_message.html:63
 msgid "BCC:"
-msgstr ""
+msgstr "Скрытая копия:"
 
 #: ../../static/t/edit_message.html:71
 msgid "Subject (optional):"
@@ -2326,7 +2330,7 @@ msgstr "Войдите используя OpenID"
 
 #: ../../static/t/get_logged_in.html:73
 msgid "OpenID URL:"
-msgstr ""
+msgstr "OpenID URL:"
 
 #: ../../static/t/iconbar.html:6
 msgid "Language:"
@@ -2338,11 +2342,11 @@ msgstr "Почта"
 
 #: ../../static/t/iconbar.html:50
 msgid "Online users"
-msgstr ""
+msgstr "Пользователи на сайте"
 
 #: ../../static/t/iconbar.html:66
 msgid "Advanced"
-msgstr ""
+msgstr "Дополнительно"
 
 #: ../../static/t/iconbar.html:73 ../../static/t/room/edit/editroom.html:4
 #: ../../static/t/room/edit.html:5
@@ -2375,7 +2379,7 @@ msgstr ""
 
 #: ../../static/t/navbar.html:40
 msgid "Add new contact"
-msgstr ""
+msgstr "Добавить новый контакт"
 
 #: ../../static/t/navbar.html:49
 msgid "Day view"
@@ -2399,11 +2403,11 @@ msgstr ""
 
 #: ../../static/t/navbar.html:85
 msgid "Add new task"
-msgstr ""
+msgstr "Добавить новое задание"
 
 #: ../../static/t/navbar.html:94
 msgid "View notes"
-msgstr ""
+msgstr "Просмотр заметок"
 
 #: ../../static/t/navbar.html:102
 msgid "Add new note"
@@ -2419,7 +2423,7 @@ msgstr "Написать письмо"
 
 #: ../../static/t/navbar.html:133
 msgid "Wiki home"
-msgstr ""
+msgstr "Домашняя Вики"
 
 #: ../../static/t/navbar.html:140
 msgid "Edit this page"
@@ -2524,7 +2528,7 @@ msgstr ""
 
 #: ../../static/t/files.html:3
 msgid "Files available for download in"
-msgstr ""
+msgstr "Файлы доступны для загрузки на"
 
 #: ../../static/t/files.html:16
 msgid "Filename"
@@ -2544,7 +2548,7 @@ msgstr "Описание"
 
 #: ../../static/t/files.html:33
 msgid "Upload a file:"
-msgstr ""
+msgstr "Загрузить файл:"
 
 #: ../../static/t/msg_listview.html:20
 msgid "Loading messages from server, please wait"
@@ -2875,7 +2879,8 @@ msgid "Access level required to create rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:60
-msgid "Automatically grant room-aide status to users who create private rooms"
+msgid ""
+"Automatically grant room-aide status to users who create private rooms"
 msgstr ""
 
 #: ../../static/t/aide/siteconfig/tab_access.html:63

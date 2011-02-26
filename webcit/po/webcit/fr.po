@@ -3528,7 +3528,7 @@ msgstr "Permettre l'inscription et la désinscription en libre service."
 
 #: ../../static/t/room/edit/tab_listserv.html:65
 msgid "The URL for subscribe/unsubscribe is: "
-msgstr "L'URL pour s'abonner ou se désabonner est :"
+msgstr "L'URL pour s'abonner ou se désabonner est : "
 
 #: ../../static/t/room/edit/tab_admin.html:5
 msgid "Delete this room"
@@ -3647,8 +3647,8 @@ msgid ""
 "Retrieve messages from these remote POP3 accounts and store them in this "
 "room:"
 msgstr ""
-"Récupérer les messages de comptes POP3 distants et les stocker dans ce "
-"salon :"
+"Récupérer les messages de comptes POP3 distants et les stocker dans ce salon "
+":"
 
 #: ../../static/t/room/edit/tab_feed.html:12
 msgid "Remote host"
@@ -3672,11 +3672,11 @@ msgstr "URL du flux"
 
 #: ../../static/t/room/edit/tab_share.html:5
 msgid "Shared with"
-msgstr "Partagé avec "
+msgstr "Partagé avec"
 
 #: ../../static/t/room/edit/tab_share.html:6
 msgid "Not shared with"
-msgstr "Pas de partage avec "
+msgstr "Pas de partage avec"
 
 #: ../../static/t/room/edit/tab_share.html:11
 #: ../../static/t/room/edit/tab_share.html:21
