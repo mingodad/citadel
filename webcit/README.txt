@@ -1,6 +1,6 @@
                         WEBCIT for the Citadel System
  
-   Copyright (C) 1996-2010 by the authors.  Portions written by:
+   Copyright (C) 1996-2011 by the authors.  Portions written by:
  
 	Art Cancro
 	Wilfried Goesgens
@@ -46,9 +46,9 @@
  
  Citadel is a sophisticated groupware platform which allows multiple
 users to simultaneously access the system using a variety of user interfaces.
-This package (WebCit) is a "middleware" package which presents an HTML/HTTP
-user interface to the Citadel system.
- 
+This package (WebCit) is a web based front end and user interface to the
+Citadel system.
+
  What this means in practice is that after you've installed WebCit, users can
 access all functions of your system using any web browser.  Since this may be
 the first Citadel experience for many new users, the screens have been designed
@@ -58,7 +58,7 @@ to be attractive and easy to navigate.
  INSTALLATION
  ------------
  
- Unline some web-based packages, WebCit contains its own standalone HTTP
+ Unlike some web-based packages, WebCit contains its own standalone HTTP
 engine.  As a result, you can get it running quickly without all that tedious
 mucking about with Apache configuration files and directories.  WebCit is not
 intended to be a general-purpose web server, however -- it *only* provides a
@@ -91,7 +91,7 @@ specified, such as:
  ...and log in.
  
  The included "setup" program is basically just an installation helper that
-asks a series of questions and then adds the appropriate line to inittab to
+asks a series of questions and then adds the appropriate init files to
 start WebCit.  For most installations, this will do just fine.  If you have
 special circumstances, or if you'd prefer to configure WebCit manually, you
 may skip the setup program.  Instead, open /etc/inittab and add an entry
@@ -297,8 +297,8 @@ Here is how to configure the "subdirectory" method:
 </VirtualHost>
 
   
- ADVANCED CONFIGURE OPTIONS
- --------------------------
+ ADVANCED CONFIGURATION OPTIONS
+ ------------------------------
  
 If you are building packages and prefer not to have WebCit reside entirely in
 a single directory, there are several compile-time options available.
