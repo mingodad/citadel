@@ -58,7 +58,6 @@ static int    gbl_backtraceDoneFlag = 0;
 static void *stack_frames[50];
 static size_t size, NThread;
 static char **strings;
-static char StaticBuf[SIZ];
 
 /* 
  * Private structures for our thread list
