@@ -1289,7 +1289,7 @@ InitModule_ROOMOPS
 	WebcitAddUrlHandler(HKEY("rename_floor"), "", 0, rename_floor, 0);
 	WebcitAddUrlHandler(HKEY("create_floor"), "", 0, create_floor, 0);
 
-	WebcitAddUrlHandler(HKEY("knrooms"), "", 0, knrooms, 0);
+	WebcitAddUrlHandler(HKEY("knrooms"), "", 0, knrooms, ANONYMOUS);
 	WebcitAddUrlHandler(HKEY("dotgoto"), "", 0, dotgoto, NEED_URL);
 	WebcitAddUrlHandler(HKEY("dotskip"), "", 0, dotskip, NEED_URL);
 
