@@ -135,6 +135,7 @@ void become_logged_in(const StrBuf *user, const StrBuf *pass, StrBuf *serv_respo
 	get_preference("floordiv_expanded", &FloorDiv);
 	WCC->floordiv_expanded = FloorDiv;
 	FreeStrBuf(&Buf);
+	FlushRoomlist();
 }
 
 
@@ -497,6 +498,7 @@ void do_logout(void)
 	FlushStrBuf(WCC->wc_username);
 	FlushStrBuf(WCC->wc_password);
 	FlushStrBuf(WCC->wc_fullname);
+	FlushRoomlist();
 
 	serv_puts("LOUT");
 	serv_getln(buf, sizeof buf);
