@@ -1,10 +1,25 @@
 /*
  * Lots of different room-related operations.
+ *
+ * Copyright (c) 1996-2011 by the citadel.org team
+ *
+ * This program is open source software.  You can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "webcit.h"
 #include "webserver.h"
-
 
 ConstStr QRFlagList[] = {
 	{HKEY(strof(QR_PERMANENT))},
@@ -1111,31 +1126,14 @@ void netedit(void) {
 	http_transmit_thing(ChrPtr(do_template("room_edit", NULL)), 0);
 }
 
-/**
- * \brief Do either a known rooms list or a folders list, depending on the
- * user's preference
+/*
+ * Known rooms list (box style)
  */
 void knrooms(void)
 {
-	StrBuf *ListView = NULL;
-
-	/** Determine whether the user is trying to change views */
-	if (havebstr("view")) {
-		ListView = NewStrBufDup(SBSTR("view"));
-		set_preference("roomlistview", ListView, 1);
-	}
-	/** Sanitize the input so its safe */
-	if ((get_preference("roomlistview", &ListView) == 0)||
-	    (
-		    (strcasecmp(ChrPtr(ListView), "folders") != 0) &&
-		    (strcasecmp(ChrPtr(ListView), "rooms") != 0)
-		    )
-		)
-	{
-		ListView = NewStrBufPlain(HKEY("rooms"));
-		set_preference("roomlistview", ListView, 0);
-	}
-	url_do_template();
+	output_headers(1, 1, 1, 0, 0, 0); 
+	do_template("knrooms", NULL);
+	wDumpContent(1);
 }
 
 
@@ -1400,5 +1398,3 @@ SessionDestroyModule_ROOMOPS
 	_FlushRoomList (sess);
 }
 
-
-/*@}*/
