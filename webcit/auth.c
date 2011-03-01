@@ -559,14 +559,11 @@ void validate(void)
 	char buf[SIZ];
 	int a;
 
-	output_headers(1, 1, 2, 0, 0, 0);
-	wc_printf("<div id=\"banner\">\n");
-	wc_printf("<h1>");
-	wc_printf(_("Validate new users"));
-	wc_printf("</h1>");
-	wc_printf("</div>\n");
+	output_headers(1, 1, 1, 0, 0, 0);
 
-	wc_printf("<div id=\"content\" class=\"service\">\n");
+        do_template("beginbox_1", NULL);
+        StrBufAppendBufPlain(WC->WBuf, _("Validate new users"), -1, 0);
+        do_template("beginbox_2", NULL);
 
 	/* If the user just submitted a validation, process it... */
 	safestrncpy(buf, bstr("user"), sizeof buf);
@@ -680,6 +677,7 @@ void validate(void)
 
 	wc_printf("</div>\n");
 	wc_printf("</td></tr></table>\n");
+	do_template("endbox", NULL);
 	wDumpContent(1);
 }
 
