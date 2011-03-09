@@ -660,6 +660,8 @@ void serv_puts(const char *string);
 void who(void);
 void push_destination(void);
 void pop_destination(void);
+void robots_txt(void);
+extern void do_404(void);
 
 void ajax_mini_calendar(void);
 void fmout(char *align);

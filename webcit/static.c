@@ -231,8 +231,6 @@ void output_flat_static(void)
 	}
 }
 
-extern void do_404(void);
-
 void output_static_safe(HashList *DirList)
 {
 	wcsession *WCC = WC;
