@@ -24,6 +24,8 @@ int is_https = 0;		/* Nonzero if I am an HTTPS service */
 int follow_xff = 0;		/* Follow X-Forwarded-For: header */
 int home_specified = 0;		/* did the user specify a homedir? */
 int DisableGzip = 0;
+struct redirector *redir = NULL;
+int num_redir = 0;
 extern pthread_mutex_t SessionListMutex;
 extern pthread_key_t MyConKey;
 
@@ -62,6 +64,77 @@ extern StrBuf *I18nDump;
 void InitTemplateCache(void);
 extern int LoadTemplates;
 
+
+
+
+
+/*
+ * Handle redirects to legacy web servers
+ */
+void handle_redir(void) {
+	if (num_redir > 0) {
+		int i;
+		const char *req = ChrPtr(WC->Hdr->this_page);
+		if (!req) {
+			do_404();
+			return;
+		}
+		if (req[0] == '/') ++req;
+		syslog(9, "handle_redir() called; redirect this: %s", req);
+		for (i=0; i<num_redir; ++i) {
+			if (!strncmp(redir[i].urlpart, req, strlen(redir[i].urlpart))) {
+				char go_here[1024];
+				snprintf(go_here, sizeof go_here, redir[i].redirect_to, req);
+				syslog(9, "redirecting to: %s", go_here);
+				http_redirect(go_here);
+				return;
+			}
+		}
+	}
+	do_404();
+}
+
+
+
+/*
+ * load redirect strings (for supporting transition of legacy web servers to citadel on the same host)
+ */
+void load_redirs(char *filename) {
+	char buf[1024];
+	int num_redir_alloc = num_redir;
+	FILE *fp = fopen(filename, "r");
+	if (!fp) {
+		syslog(1, "Cannot open %s: %s", filename, strerror(errno));
+		return;
+	}
+
+	while (fgets(buf, sizeof buf, fp) != NULL) {
+		buf[strlen(buf)-1] = 0;
+
+		char *ch = strchr(buf, '#');
+		if (ch) strcpy(ch, "");
+		striplt(buf);
+		if (!IsEmptyStr(buf)) {
+
+			if (num_redir >= num_redir_alloc) {
+				if (num_redir_alloc == 0) {
+					num_redir_alloc = 10;
+				}
+				else {
+					num_redir_alloc = num_redir_alloc * 2;
+				}
+				redir = realloc(redir, sizeof(struct redirector) * num_redir_alloc );
+			}
+	
+			extract_token(redir[num_redir].urlpart, buf, 0, '|', sizeof(redir[num_redir].urlpart));
+			extract_token(redir[num_redir].redirect_to, buf, 1, '|', sizeof(redir[num_redir].redirect_to));
+			WebcitAddUrlHandler(redir[num_redir].urlpart, strlen(redir[num_redir].urlpart), "", 0, handle_redir, ANONYMOUS|COOKIEUNNEEDED|ISSTATIC);
+			++num_redir;
+		}
+
+	}
+	fclose(fp);
+}
 
 
 
@@ -111,13 +184,16 @@ int main(int argc, char **argv)
 
 	/* Parse command line */
 #ifdef HAVE_OPENSSL
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfsS:Z")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:r:cfsS:Z")) != EOF)
 #else
-	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:cfZ")) != EOF)
+	while ((a = getopt(argc, argv, "u:h:i:p:t:T:B:x:dD:G:r:cfZ")) != EOF)
 #endif
 		switch (a) {
 		case 'u':
 			UID = atol(optarg);
+			break;
+		case 'r':
+			load_redirs(optarg);
 			break;
 		case 'h':
 			hdir = strdup(optarg);
@@ -182,8 +258,7 @@ int main(int argc, char **argv)
 				if (gethostname
 				    (&server_cookie[strlen(server_cookie)],
 				     200) != 0) {
-					syslog(2, "gethostname: %s\n",
-						strerror(errno));
+					syslog(2, "gethostname: %s", strerror(errno));
 					free(server_cookie);
 				}
 			}
@@ -240,22 +315,22 @@ int main(int argc, char **argv)
 	LoadIconDir(static_icon_dir);
 
 	/* Tell 'em who's in da house */
-	syslog(1, PACKAGE_STRING "\n");
-	syslog(1, "Copyright (C) 1996-2011 by the citadel.org team\n");
-	syslog(1, "\n");
-	syslog(1, "This program is open source  software: you can redistribute it and/or\n");
-	syslog(1, "modify it under the terms of the GNU General Public License as published\n");
-	syslog(1, "by the Free Software Foundation, either version 3 of the License, or\n");
-	syslog(1, "(at your option) any later version.\n");
-	syslog(1, "\n");
-	syslog(1, "This program is distributed in the hope that it will be useful,\n");
-	syslog(1, "but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
-	syslog(1, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
-	syslog(1, "GNU General Public License for more details.\n");
-	syslog(1, "\n");
-	syslog(1, "You should have received a copy of the GNU General Public License\n");
-	syslog(1, "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n");
-	syslog(1, "\n");
+	syslog(1, "%s", PACKAGE_STRING);
+	syslog(1, "Copyright (C) 1996-2011 by the citadel.org team");
+	syslog(1, " ");
+	syslog(1, "This program is open source software: you can redistribute it and/or");
+	syslog(1, "modify it under the terms of the GNU General Public License as published");
+	syslog(1, "by the Free Software Foundation, either version 3 of the License, or");
+	syslog(1, "(at your option) any later version.");
+	syslog(1, " ");
+	syslog(1, "This program is distributed in the hope that it will be useful,");
+	syslog(1, "but WITHOUT ANY WARRANTY; without even the implied warranty of");
+	syslog(1, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
+	syslog(1, "GNU General Public License for more details.");
+	syslog(1, " ");
+	syslog(1, "You should have received a copy of the GNU General Public License");
+	syslog(1, "along with this program.  If not, see <http://www.gnu.org/licenses/>.");
+	syslog(1, " ");
 
 
 	/* initialize various subsystems */
