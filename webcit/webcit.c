@@ -872,7 +872,9 @@ SKIP_ALL_THIS_CRAP:
  * Display the appropriate landing page for this site.
  */
 void display_default_landing_page(void) {
-	if (WC->serv_info->serv_supports_guest) {
+	wcsession *WCC = WC;
+
+	if (WCC && WCC->serv_info && WCC->serv_info->serv_supports_guest) {
 		/* default action.  probably revisit this. */
 		StrBuf *teh_lobby = NewStrBufPlain(HKEY("_BASEROOM_"));
 		smart_goto(teh_lobby);
