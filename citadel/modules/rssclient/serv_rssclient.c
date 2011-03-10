@@ -332,7 +332,10 @@ void rss_save_item(rss_item *ri, rss_aggregator *Cfg)
 		else
 		{
 			if (FromAt)
-				msg->cm_fields['P'] = SmashStrBuf(&ri->author_or_creator);
+			{
+				msg->cm_fields['A'] = SmashStrBuf(&ri->author_or_creator);
+				msg->cm_fields['P'] = strdup(msg->cm_fields['A']);
+			}
 			else 
 			{
 				StrBufRFC2047encode(&Encoded, ri->author_or_creator);
