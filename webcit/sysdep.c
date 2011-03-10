@@ -100,6 +100,8 @@ char  *static_dirs[]={				/* needs same sort order as the web mapping */
 	(char*)static_icon_dir                  /* our icons... */
 };
 
+int ExitPipe[2];
+
 void InitialiseSemaphores(void)
 {
 	int i;
@@ -107,6 +109,15 @@ void InitialiseSemaphores(void)
 	/* Set up a bunch of semaphores to be used for critical sections */
 	for (i=0; i<MAX_SEMAPHORES; ++i) {
 		pthread_mutex_init(&Critters[i], NULL);
+	}
+
+	if (pipe(ExitPipe))
+	{
+		syslog(2, "Failed to open exit pipe: %d [%s]\n", 
+		       errno, 
+		       strerror(errno));
+		
+		exit(-1);
 	}
 }
 
@@ -161,7 +172,16 @@ void worker_entry(void)
 		ssock = -1; 
 		errno = EAGAIN;
 		do {
+			fd_set wset;
 			--num_threads_executing;
+                        FD_ZERO(&wset);
+                        FD_SET(msock, &wset);
+                        FD_SET(ExitPipe[1], &wset);
+
+                        select(msock + 1, NULL, &wset, NULL, NULL);
+			if (time_to_die)
+				break;
+
 			ssock = accept(msock, NULL, 0);
 			++num_threads_executing;
 			if (ssock < 0) fail_this_transaction = 1;
@@ -274,6 +294,7 @@ void worker_entry(void)
 pid_t current_child;
 void graceful_shutdown_watcher(int signum) {
 	syslog(1, "Watcher thread exiting.\n");
+	write(ExitPipe[0], HKEY("                              "));
 	kill(current_child, signum);
 	if (signum != SIGHUP)
 		exit(0);
@@ -297,6 +318,7 @@ void graceful_shutdown(int signum) {
 	fflush (FD);
 	fclose (FD);
 	close(fd);
+	write(ExitPipe[0], HKEY("                              "));
 }
 
 
@@ -495,15 +517,15 @@ void drop_root(uid_t UID)
 #ifdef HAVE_GETPWUID_R
 #ifdef SOLARIS_GETPWUID
 		pwp = getpwuid_r(UID, &pw, pwbuf, sizeof(pwbuf));
-#else // SOLARIS_GETPWUID
+#else /* SOLARIS_GETPWUID */
 		getpwuid_r(UID, &pw, pwbuf, sizeof(pwbuf), &pwp);
-#endif // SOLARIS_GETPWUID
-#else // HAVE_GETPWUID_R
+#endif /* SOLARIS_GETPWUID */
+#else /* HAVE_GETPWUID_R */
 		pwp = NULL;
-#endif // HAVE_GETPWUID_R
+#endif /* HAVE_GETPWUID_R */
 
 		if (pwp == NULL)
-			syslog(LOG_CRIT, "WARNING: getpwuid(%ld): %s\n"
+			syslog(LOG_CRIT, "WARNING: getpwuid(%d): %s\n"
 				"Group IDs will be incorrect.\n", UID,
 				strerror(errno));
 		else {
