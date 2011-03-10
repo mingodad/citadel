@@ -686,9 +686,12 @@ void cmd_conf(char *argbuf)
 		extract_token(confname, argbuf, 1, '|', sizeof confname);
 		confptr = CtdlGetSysConfig(confname);
 		if (confptr != NULL) {
+			long len; 
+
+			len = strlen(confptr);
 			cprintf("%d %s\n", LISTING_FOLLOWS, confname);
-			client_write(confptr, strlen(confptr));
-			if (confptr[strlen(confptr) - 1] != 10)
+			client_write(confptr, len);
+			if ((len > 0) && (confptr[len - 1] != 10))
 				client_write("\n", 1);
 			cprintf("000\n");
 			free(confptr);
