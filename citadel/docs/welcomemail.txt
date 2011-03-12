@@ -35,7 +35,7 @@
    and encouraged to add a translation Working contributions in various forms
    are always welcome, in fact, so feel free to join us in improving the
    Citadel system!
-   Enjoying Citadel? Please let us know. Just reply to this email, or log
+   Enjoying Citadel? Please let us know. Just log
    into [9]Uncensored! and drop us a note!
 
    Your Citadel Development Team
@@ -47,11 +47,11 @@ References
    Visible links
    1. http://www.groupdav.org/
    2. http://www.citadel.org/clientmatrix
-   3. https://uncensored.citadel.org/
+   3. http://uncensored.citadel.org/
    4. http://citadel.org/index.php?option=com_content&task=section&id=3&Itemid=38
    5. http://easyinstall.citadel.org/citadel/docs/citadel.html
-   6. https://uncensored.citadel.org/
+   6. http://uncensored.citadel.org/
    7. irc://irc.citadel.org/#citadel
-   8. https://uncensored.citadel.org/
-   9. https://uncensored.citadel.org/
+   8. http://uncensored.citadel.org/
+   9. http://uncensored.citadel.org/
   10. http://en.wikipedia.org/wiki/Citadel/UX
