@@ -377,7 +377,7 @@ void imap_list(int num_parms, ConstStr *Params)
 					  &Params[i], 
 					  1);
 
-			syslog(LOG_DEBUG, "evaluating <%s>\n", Params[i].Key);
+			syslog(LOG_DEBUG, "evaluating <%s>", Params[i].Key);
 
 			if (!strcasecmp(Params[i].Key, "SUBSCRIBED")) {
 				ImapFilter.return_subscribed = 1;
