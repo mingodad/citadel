@@ -1131,6 +1131,7 @@ void netedit(void) {
  */
 void knrooms(void)
 {
+	DeleteHash(&WC->Rooms);
 	output_headers(1, 1, 1, 0, 0, 0); 
 	do_template("knrooms", NULL);
 	wDumpContent(1);
