@@ -198,8 +198,6 @@ eNextState RSSSaveMessage(AsyncIO *IO)
 	return eTerminateConnection;
 }
 
-// TODO: relink me:	ExpandShortUrls(ri->description);
-
 eNextState RSS_FetchNetworkUsetableEntry(AsyncIO *IO)
 {
 	struct cdbdata *cdbut;
