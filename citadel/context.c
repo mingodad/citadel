@@ -583,7 +583,7 @@ void context_cleanup(void)
 		rem = ptr->next;
 		--num_sessions;
 
-		syslog(LOG_DEBUG, "Purging session #%d %s\n", ptr->cs_pid, ptr->ServiceName);
+		syslog(LOG_DEBUG, "context_cleanup(): Purging session #%d %s\n", ptr->cs_pid, ptr->ServiceName);
 		RemoveContext(ptr);
 		free (ptr);
 		ptr = rem;
@@ -618,7 +618,7 @@ void kill_session(int session_to_kill) {
  */
 void dead_session_purge(int force) {
 	CitContext *ptr, *ptr2;		/* general-purpose utility pointer */
-	CitContext *rem = NULL;	/* list of sessions to be destroyed */
+	CitContext *rem = NULL;		/* list of sessions to be destroyed */
 	
 	if (force == 0) {
 		if ( (time(NULL) - last_purge) < 5 ) {
@@ -660,7 +660,7 @@ void dead_session_purge(int force) {
 	 * is allocated privately on this thread's stack.
 	 */
 	while (rem != NULL) {
-		syslog(LOG_DEBUG, "Purging session %d\n", rem->cs_pid);
+		syslog(LOG_DEBUG, "dead_session_purge(): purging session %d\n", rem->cs_pid);
 		RemoveContext(rem);
 		ptr = rem;
 		rem = rem->next;
