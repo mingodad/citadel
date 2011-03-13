@@ -439,10 +439,10 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 #ifdef HAVE_OPENSSL
 		cprintf("<proceed xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 		CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
-		if (!CC->redirect_ssl) CC->kill_me = 1;
+		if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
 #else
 		cprintf("<failure xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_NO_CRYPTO;
 #endif
 	}
 
@@ -454,7 +454,7 @@ void xmpp_xml_end(void *data, const char *supplied_el) {
 		syslog(LOG_DEBUG, "XMPP client shut down their stream\n");
 		xmpp_massacre_roster();
 		cprintf("</stream>\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 	}
 
 	else {
@@ -524,7 +524,7 @@ void xmpp_greeting(void) {
 	XMPP->xp = XML_ParserCreateNS("UTF-8", ':');
 	if (XMPP->xp == NULL) {
 		syslog(LOG_ALERT, "Cannot create XML parser!\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_XML_PARSER;
 		return;
 	}
 
@@ -550,7 +550,7 @@ void xmpp_command_loop(void) {
 	}
 	else {
 		syslog(LOG_ERR, "Client disconnected: ending session.\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 	}
 	FreeStrBuf(&stream_input);
 }

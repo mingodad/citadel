@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1987-2010 by the citadel.org team
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is open source software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include "sysdep.h"
@@ -167,7 +167,7 @@ int CtdlTerminateOtherSession (int session_num)
 			if ((ccptr->user.usernum == CC->user.usernum)
 			   || (CC->user.axlevel >= AxAideU)) {
 				ret |= TERM_ALLOWED;
-				ccptr->kill_me = 1;
+				ccptr->kill_me = KILLME_ADMIN_TERMINATE;
 			}
 		}
 	}
@@ -292,7 +292,7 @@ void terminate_idle_sessions(void)
 	   	&& (config.c_sleeping > 0)
 	   	&& (now - (ccptr->lastcmd) > config.c_sleeping) ) {
 			if (!ccptr->dont_term) {
-				ccptr->kill_me = 1;
+				ccptr->kill_me = KILLME_IDLE;
 				++killed;
 			}
 			else 
@@ -526,23 +526,6 @@ void context_cleanup(void)
 
 
 /*
- * Terminate another session.
- * (This could justifiably be moved out of sysdep.c because it
- * no longer does anything that is system-dependent.)
- */
-void kill_session(int session_to_kill) {
-	CitContext *ptr;
-
-	begin_critical_section(S_SESSION_TABLE);
-	for (ptr = ContextList; ptr != NULL; ptr = ptr->next) {
-		if (ptr->cs_pid == session_to_kill) {
-			ptr->kill_me = 1;
-		}
-	}
-	end_critical_section(S_SESSION_TABLE);
-}
-
-/*
  * Purge all sessions which have the 'kill_me' flag set.
  * This function has code to prevent it from running more than once every
  * few seconds, because running it after every single unbind would waste a lot
@@ -593,7 +576,7 @@ void dead_session_purge(int force) {
 	 * is allocated privately on this thread's stack.
 	 */
 	while (rem != NULL) {
-		syslog(LOG_DEBUG, "dead_session_purge(): purging session %d\n", rem->cs_pid);
+		syslog(LOG_DEBUG, "dead_session_purge(): purging session %d, reason=%d\n", rem->cs_pid, rem->kill_me);
 		RemoveContext(rem);
 		ptr = rem;
 		rem = rem->next;

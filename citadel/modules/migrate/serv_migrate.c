@@ -373,7 +373,7 @@ void migr_export_messages(void) {
 	migr_global_message_list = fopen(migr_tempfilename1, "r");
 	if (migr_global_message_list != NULL) {
 		syslog(LOG_INFO, "Opened %s\n", migr_tempfilename1);
-		while ((Ctx->kill_me != 1) && 
+		while ((Ctx->kill_me == 0) && 
 		       (fgets(buf, sizeof(buf), migr_global_message_list) != NULL)) {
 			msgnum = atol(buf);
 			if (msgnum > 0L) {
@@ -383,7 +383,7 @@ void migr_export_messages(void) {
 		}
 		fclose(migr_global_message_list);
 	}
-	if (Ctx->kill_me != 1)
+	if (Ctx->kill_me == 0)
 		syslog(LOG_INFO, "Exported %d messages.\n", count);
 	else
 		syslog(LOG_ERR, "Export aborted due to client disconnect! \n");
@@ -494,12 +494,12 @@ void migr_do_export(void) {
 	cprintf("<control_version>%d</control_version>\n", CitControl.version);
 	client_write("</control>\n", 11);
 
-	if (Ctx->kill_me != 1)	migr_export_users();
-	if (Ctx->kill_me != 1)	migr_export_openids();
-	if (Ctx->kill_me != 1)	migr_export_rooms();
-	if (Ctx->kill_me != 1)	migr_export_floors();
-	if (Ctx->kill_me != 1)	migr_export_visits();
-	if (Ctx->kill_me != 1)	migr_export_messages();
+	if (Ctx->kill_me == 0)	migr_export_users();
+	if (Ctx->kill_me == 0)	migr_export_openids();
+	if (Ctx->kill_me == 0)	migr_export_rooms();
+	if (Ctx->kill_me == 0)	migr_export_floors();
+	if (Ctx->kill_me == 0)	migr_export_visits();
+	if (Ctx->kill_me == 0)	migr_export_messages();
 	client_write("</citadel_migrate_data>\n", 24);
 	client_write("000\n", 4);
 	Ctx->dont_term = 0;

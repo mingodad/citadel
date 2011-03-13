@@ -493,7 +493,7 @@ int client_write(const char *buf, int nbytes)
 				{
 					syslog(LOG_DEBUG, "client_write(%d bytes) select() interrupted.\n", nbytes-bytes_written);
 					if (CtdlThreadCheckStop()) {
-						CC->kill_me = 1;
+						CC->kill_me = KILLME_SELECT_INTERRUPTED;
 						return (-1);
 					} else {
 						/* can't trust fd's and stuff so we need to re-create them */
@@ -505,7 +505,7 @@ int client_write(const char *buf, int nbytes)
 						nbytes - bytes_written,
 						strerror(errno), errno);
 					cit_backtrace();
-					Ctx->kill_me = 1;
+					Ctx->kill_me = KILLME_SELECT_FAILED;
 					return -1;
 				}
 			}
@@ -520,7 +520,7 @@ int client_write(const char *buf, int nbytes)
 				strerror(errno), errno);
 			cit_backtrace();
 			// syslog(LOG_DEBUG, "Tried to send: %s",  &buf[bytes_written]);
-			Ctx->kill_me = 1;
+			Ctx->kill_me = KILLME_WRITE_FAILED;
 			return -1;
 		}
 		bytes_written = bytes_written + retval;
@@ -740,7 +740,7 @@ int client_read_to(char *buf, int bytes, int timeout)
 
 int HaveMoreLinesWaiting(CitContext *CCC)
 {
-	if ((CCC->kill_me == 1) || (
+	if ((CCC->kill_me != 0) || (
 	    (CCC->Pos == NULL) && 
 	    (StrLength(CCC->ReadBuf) == 0) && 
 	    (CCC->client_socket != -1)) )
