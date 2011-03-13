@@ -182,7 +182,7 @@ int StrBuf_ServGetln(StrBuf *buf)
 					       &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "Server connection broken: %s\n",
+		syslog(1, "StrBuf_ServGetln(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
 		WCC->serv_sock = (-1);
@@ -217,7 +217,7 @@ int StrBuf_ServGetBLOBBuffered(StrBuf *buf, long BlobSize)
 				    &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "Server connection broken: %s\n",
+		syslog(1, "StrBuf_ServGetBLOBBuffered(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
 		WCC->serv_sock = (-1);
@@ -242,7 +242,7 @@ int StrBuf_ServGetBLOB(StrBuf *buf, long BlobSize)
 	rc = StrBufReadBLOB(buf, &WCC->serv_sock, 1, BlobSize, &ErrStr);
 	if (rc < 0)
 	{
-		syslog(1, "Server connection broken: %s\n",
+		syslog(1, "StrBuf_ServGetBLOB(): Server connection broken: %s\n",
 			(ErrStr)?ErrStr:"");
 		wc_backtrace();
 		WCC->serv_sock = (-1);
@@ -310,7 +310,7 @@ void serv_write(const char *buf, int nbytes)
 			       nbytes - bytes_written);
 		if (retval < 1) {
 			const char *ErrStr = strerror(errno);
-			syslog(1, "Server connection broken: %s\n",
+			syslog(1, "serv_write(): Server connection broken: %s\n",
 				(ErrStr)?ErrStr:"");
 			close(WCC->serv_sock);
 			WCC->serv_sock = (-1);

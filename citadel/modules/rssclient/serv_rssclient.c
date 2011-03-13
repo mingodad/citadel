@@ -458,7 +458,7 @@ void ExpandShortUrls(StrBuf *Message)
 	{
 		StrBuf *ShorterUrlStr;
 		HashPos *Pos;
-		const char *Key;
+		const char *RetrKey;
 		void *pv;
 		long len;
 
@@ -470,7 +470,7 @@ void ExpandShortUrls(StrBuf *Message)
 		pch = ChrPtr(Message);
 		pche = pch + StrLength(Message);
 		Pos = GetNewHashPos(pUrls, 1);
-		while (GetNextHashPos(pUrls, Pos, &len, &Key, &pv))
+		while (GetNextHashPos(pUrls, Pos, &len, &RetrKey, &pv))
 		{
 			pCUrl = (ConstStr*) pv;
 
