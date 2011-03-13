@@ -777,6 +777,9 @@ void logged_in_response(void)
 void CtdlUserLogout(void)
 {
 	CitContext *CCC = MyContext();
+
+	syslog(LOG_DEBUG, "CtdlUserLogout() logging out <%s>\n", CCC->curr_user);
+
 	/*
 	 * If there is a download in progress, abort it.
 	 */
