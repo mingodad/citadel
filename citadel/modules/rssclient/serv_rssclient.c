@@ -1483,6 +1483,11 @@ void rssclient_scan(void) {
 	static int doing_rssclient = 0;
 	rssnetcfg *rptr = NULL;
 
+	/* Run no more than once every 15 minutes. */
+	if ((time(NULL) - last_run) < 900) {
+		return;
+	}
+
 	/*
 	 * This is a simple concurrency check to make sure only one rssclient run
 	 * is done at a time.  We could do this with a mutex, but since we
