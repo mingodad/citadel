@@ -355,10 +355,10 @@ void imap_append(int num_parms, ConstStr *Params) {
 	client_getln(dummy, sizeof dummy);
 
 	/* Convert RFC822 newlines (CRLF) to Unix newlines (LF) */
-	syslog(LOG_DEBUG, "Converting CRLF to LF\n");
+	syslog(LOG_DEBUG, "Converting CRLF to LF");
 	StrBufToUnixLF(Imap->TransmittedMessage);
 
-	syslog(LOG_DEBUG, "Converting message format\n");
+	syslog(LOG_DEBUG, "Converting message format");
 	msg = convert_internet_message_buf(&Imap->TransmittedMessage);
 
 	ret = imap_grabroom(roomname, Params[2].Key, 1);
