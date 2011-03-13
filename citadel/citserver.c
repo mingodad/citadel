@@ -791,7 +791,7 @@ void cmd_ipgm(char *argbuf)
 		sleep(5);
 		cprintf("%d Authentication failed.\n", ERROR + PASSWORD_REQUIRED);
 		syslog(LOG_ERR, "Warning: ipgm authentication failed.\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_AUTHFAILED;
 	}
 }
 
@@ -825,7 +825,7 @@ void cmd_down(char *argbuf) {
 	{
 		cprintf(Reply, CIT_OK + SERVER_SHUTTING_DOWN); 
 	}
-	CC->kill_me = 1; /* Even the DOWN command has to follow correct proceedure when disconecting */
+	CC->kill_me = KILLME_SERVER_SHUTTING_DOWN;
 	CtdlThreadStopAll();
 }
 
@@ -994,7 +994,7 @@ void citproto_begin_session() {
 			ERROR + MAX_SESSIONS_EXCEEDED,
 			config.c_nodename, config.c_maxsessions
 		);
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_MAX_SESSIONS_EXCEEDED;
 	}
 	else {
 		cprintf("%d %s Citadel server ready.\n", CIT_OK, config.c_nodename);
@@ -1018,7 +1018,7 @@ void cmd_qnop(char *argbuf)
 void cmd_quit(char *argbuf)
 {
 	cprintf("%d Goodbye.\n", CIT_OK);
-	CC->kill_me = 1;
+	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 }
 
 
@@ -1043,7 +1043,7 @@ void do_command_loop(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		syslog(LOG_ERR, "Client disconnected: ending session.\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		CtdlThreadName(old_name);
 		return;
 	}

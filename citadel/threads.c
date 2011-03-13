@@ -1209,7 +1209,7 @@ void *simulation_worker (void*arg) {
 
 	this = CreateNewContext();
 	CtdlThreadSleep(1);
-	this->kill_me = 1;
+	this->kill_me = KILLME_SIMULATION_WORKER;
 	this->state = CON_IDLE;
 	dead_session_purge(1);
 	begin_critical_section(S_SESSION_TABLE);

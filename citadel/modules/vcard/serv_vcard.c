@@ -1117,7 +1117,7 @@ void check_get(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		syslog(LOG_CRIT, "Client disconnected: ending session.\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 	syslog(LOG_INFO, ": %s\n", cmdbuf);

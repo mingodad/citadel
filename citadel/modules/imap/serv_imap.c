@@ -589,7 +589,7 @@ void imap_greeting(void)
 	if (CCC->nologin)
 	{
 		IAPuts("* BYE; Server busy, try later\r\n");
-		CCC->kill_me = 1;
+		CCC->kill_me = KILLME_NOLOGIN;
 		IUnbuffer();
 		return;
 	}
@@ -607,7 +607,7 @@ void imap_greeting(void)
 void imaps_greeting(void) {
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 #ifdef HAVE_OPENSSL
-	if (!CC->redirect_ssl) CC->kill_me = 1;		/* kill session if no crypto */
+	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;		/* kill session if no crypto */
 #endif
 	imap_greeting();
 }
@@ -1493,7 +1493,7 @@ void imap_command_loop(void)
 
 	if (CtdlClientGetLine(Imap->Cmd.CmdBuf) < 1) {
 		syslog(LOG_ERR, "Client disconnected: ending session.\r\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 
@@ -1645,7 +1645,7 @@ void imap_logout(int num_parms, ConstStr *Params)
 	}
 	IAPrintf("* BYE %s logging out\r\n", config.c_fqdn);
 	IReply("OK Citadel IMAP session ended.");
-	CC->kill_me = 1;
+	CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 	return;
 }
 
