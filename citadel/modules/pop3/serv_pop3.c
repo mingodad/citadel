@@ -110,9 +110,9 @@ void pop3s_greeting(void) {
 
 /* kill session if no crypto */
 #ifdef HAVE_OPENSSL
-	if (!CC->redirect_ssl) CC->kill_me = 1;
+	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;
 #else
-	CC->kill_me = 1;
+	CC->kill_me = KILLME_NO_CRYPTO;
 #endif
 
 	pop3_greeting();
@@ -570,7 +570,7 @@ void pop3_command_loop(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		syslog(LOG_ERR, "Client disconnected: ending session.");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 	if (!strncasecmp(cmdbuf, "PASS", 4)) {
@@ -592,7 +592,7 @@ void pop3_command_loop(void) {
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
 		cprintf("+OK Goodbye...\r\n");
 		pop3_update();
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 		return;
 	}
 
@@ -616,7 +616,7 @@ void pop3_command_loop(void) {
 	
 	else if (CC->nologin) {
 		cprintf("-ERR System busy, try later.\r\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_NOLOGIN;
 	}
 
 	else if (!strncasecmp(cmdbuf, "LIST", 4)) {

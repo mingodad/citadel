@@ -135,7 +135,7 @@ void smtp_greeting(int is_msa)
 				cprintf("421 %s\r\n", message_to_spammer);
 			else
 				cprintf("550 %s\r\n", message_to_spammer);
-			CC->kill_me = 1;
+			CC->kill_me = KILLME_SPAMMER;
 			/* no need to free_recipients(valid), it's not allocated yet */
 			return;
 		}
@@ -147,7 +147,7 @@ void smtp_greeting(int is_msa)
 		cprintf("500 Too many users are already online (maximum is %d)\r\n",
 			config.c_maxsessions
 		);
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_MAX_SESSIONS_EXCEEDED;
 		/* no need to free_recipients(valid), it's not allocated yet */
 		return;
 	}
@@ -165,7 +165,7 @@ void smtp_greeting(int is_msa)
 void smtps_greeting(void) {
 	CtdlModuleStartCryptoMsgs(NULL, NULL, NULL);
 #ifdef HAVE_OPENSSL
-	if (!CC->redirect_ssl) CC->kill_me = 1;		/* kill session if no crypto */
+	if (!CC->redirect_ssl) CC->kill_me = KILLME_NO_CRYPTO;		/* kill session if no crypto */
 #endif
 	smtp_greeting(0);
 }
@@ -841,7 +841,7 @@ void smtp_command_loop(void) {
 	memset(cmdbuf, 0, sizeof cmdbuf); /* Clear it, just in case */
 	if (client_getln(cmdbuf, sizeof cmdbuf) < 1) {
 		syslog(LOG_CRIT, "Client disconnected: ending session.\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}
 	syslog(LOG_INFO, "SMTP server: %s\n", cmdbuf);
@@ -893,7 +893,7 @@ void smtp_command_loop(void) {
 
 	else if (!strncasecmp(cmdbuf, "QUIT", 4)) {
 		cprintf("221 Goodbye...\r\n");
-		CC->kill_me = 1;
+		CC->kill_me = KILLME_CLIENT_LOGGED_OUT;
 		return;
 	}
 
