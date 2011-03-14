@@ -585,7 +585,7 @@ void managesieve_command_loop(void) {
 		length = strlen(parms[0]);
 	}
 	if (length < 1) {
-		syslog(LOG_CRIT, "Client disconnected: ending session.\n");
+		syslog(LOG_CRIT, "managesieve: client disconnected: ending session.\n");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 		return;
 	}

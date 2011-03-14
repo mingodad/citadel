@@ -549,7 +549,7 @@ void xmpp_command_loop(void) {
 		XML_Parse(XMPP->xp, ChrPtr(stream_input), rc, 0);
 	}
 	else {
-		syslog(LOG_ERR, "Client disconnected: ending session.\n");
+		syslog(LOG_ERR, "XMPP: client disconnected: ending session.\n");
 		CC->kill_me = KILLME_CLIENT_DISCONNECTED;
 	}
 	FreeStrBuf(&stream_input);
